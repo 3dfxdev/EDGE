@@ -80,7 +80,7 @@ public:
 class rad_trigger_c
 {
 private:
-  rad_trigger_c();
+  rad_trigger_c(bool _rect);
 
 public:
   ~rad_trigger_c();

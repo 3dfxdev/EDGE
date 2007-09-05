@@ -24,6 +24,20 @@
 #include "g_script.h"
 
 
+const char *Indent_TmpStr(int spaces)
+{
+  static char buffer[100];
+
+  SYS_ASSERT(spaces >= 0);
+  SYS_ASSERT(spaces < (int)sizeof(buffer) - 4);
+
+  memset(buffer, ' ', spaces);
+
+  buffer[spaces] = 0;
+
+  return buffer;
+}
+
 const char *WhenAppear_TmpStr(int appear)
 {
   static char buffer[200];
@@ -135,24 +149,24 @@ thing_spawn_c::~thing_spawn_c()
 
 void thing_spawn_c::WriteThing(FILE *fp)
 {
-  fprintf(fp, "        SPAWN_THING%s ", ambush ? "_AMBUSH" : "");
+  fprintf(fp, "    spawn_thing%s", ambush ? "_ambush" : "");
 
-  fprintf(fp, "%s ", type.c_str());
+  fprintf(fp, " %s", type.c_str());
 
-  fprintf(fp, "%1.1f %1.1f ", x, y);
+  fprintf(fp, " %1.1f %1.1f", x, y);
 
-  if (angle >= 0)
-    fprintf(fp, "%1.0f ", angle);
+  if (angle != 0 || has_z)
+    fprintf(fp, " %1.0f", angle);
 
   if (has_z)
-    fprintf(fp, "%1.1f ", z);
+    fprintf(fp, " %1.1f", z);
 
-  if (tag > 0)
-    fprintf(fp, "TAG=%d ", tag);
+  if (tag != 0)
+    fprintf(fp, " TAG=%d", tag);
 
 #if 0  // only available in EDGE 1.31 
-  if (when_appear)
-    fprintf(fp, "WHEN=%s ", WhenAppear_TmpStr(when_appear));
+  if (when_appear != 0)
+    fprintf(fp, " WHEN=%s", WhenAppear_TmpStr(when_appear));
 #endif
 
   fprintf(fp, "\n");
@@ -168,13 +182,13 @@ thing_spawn_c * thing_spawn_c::ReadThing(std::string& line)
 //  RADIUS TRIGGER Stuff
 //------------------------------------------------------------------------
 
-rad_trigger_c::rad_trigger_c( ) :
-    is_rect(false), worldspawn(false),
+rad_trigger_c::rad_trigger_c(bool _rect) :
+    is_rect(_rect), worldspawn(false),
     mx(0),  my(0),  mz(0),
     rx(-1), ry(-1), rz(-1),
     name(), tag(0), when_appear(0),
     lines(), things()
-{ } 
+{ }
 
 rad_trigger_c::~rad_trigger_c()
 {
@@ -188,15 +202,15 @@ rad_trigger_c::~rad_trigger_c()
 
 void rad_trigger_c::WriteRadTrig(FILE *fp)
 {
-  // handle the start marker
+  // write the start marker
   if (is_rect)
   {
-    fprintf(fp, "    RECT_TRIGGER %1.1f %1.1f %1.1f %1.1f",
+    fprintf(fp, "RECT_TRIGGER %1.1f %1.1f %1.1f %1.1f",
             mx-rx, my-ry, mx+rx, my+ry);
   }
   else
   {
-    fprintf(fp, "    RADIUS_TRIGGER %1.1f %1.1f %1.1f", mx, my, rx);
+    fprintf(fp, "RADIUS_TRIGGER %1.1f %1.1f %1.1f", mx, my, rx);
   }
 
   if (rz > 0)
@@ -204,11 +218,20 @@ void rad_trigger_c::WriteRadTrig(FILE *fp)
 
   fprintf(fp, "\n");
 
-  // TODO: known properties
+  // write out each property we explicitly handle
+  if (when_appear != 0)
+    fprintf(fp, "    when_appear %s\n", WhenAppear_TmpStr(when_appear));
 
+  if (name.size() > 0)
+    fprintf(fp, "    name %s\n", name.c_str());
+
+  if (tag != 0)
+    fprintf(fp, "    tag %d\n", tag);
+
+  // write the 'body' of the script
   if (worldspawn)
   {
-    fprintf(fp, "        TAGGED_IMMEDIATE\b");
+    fprintf(fp, "    tagged_immediate\n");
 
     std::vector<std::string>::iterator LI;
 
@@ -224,7 +247,8 @@ void rad_trigger_c::WriteRadTrig(FILE *fp)
         (*TI)->WriteThing(fp);
   }
 
-  fprintf(fp, "    END_RADIUSTRIGGER\n");
+  // that's all folks!
+  fprintf(fp, "END_RADIUSTRIGGER\n");
 }
 
 bool rad_trigger_c::MatchRadTrig(std::string& line)
