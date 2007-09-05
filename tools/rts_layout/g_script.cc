@@ -24,6 +24,30 @@
 #include "g_script.h"
 
 
+const char *WhenAppear_TmpStr(int appear)
+{
+  static char buffer[200];
+  
+  buffer[0] = 0;
+
+  if (appear & WNAP_Easy)   strcat(buffer, ":1:2");
+  if (appear & WNAP_Medium) strcat(buffer, ":3");
+  if (appear & WNAP_Hard)   strcat(buffer, ":4:5");
+
+  if (appear & WNAP_SP)     strcat(buffer, ":sp");
+  if (appear & WNAP_Coop)   strcat(buffer, ":coop");
+  if (appear & WNAP_DM)     strcat(buffer, ":dm");
+
+  SYS_ASSERT(strlen(buffer) >= 2);
+
+  return buffer+1;
+}
+
+
+//------------------------------------------------------------------------
+//  THING SPAWN Stuff
+//------------------------------------------------------------------------
+
 thing_spawn_c::thing_spawn_c( ) :
     ambush(false), has_z(false), type(),
     x(0), y(0), z(0), angle(0),
@@ -41,10 +65,32 @@ thing_spawn_c::thing_spawn_c * Parse(const char *line)
 
 void thing_spawn_c::Write(FILE *fp)
 {
-  // TODO
+  fprintf(fp, "        SPAWN_THING%s ", ambush ? "_AMBUSH" : "");
+
+  fprintf(fp, "%s ", type.c_str());
+
+  fprintf(fp, "%1.1f %1.1f ", x, y);
+
+  if (angle >= 0)
+    fprintf(fp, "%1.0f ", angle);
+
+  if (has_z)
+    fprintf(fp, "%1.1f ", z);
+
+  if (tag > 0)
+    fprintf(fp, "TAG=%d ", tag);
+
+#if 0  // only available in EDGE 1.31 
+  if (when_appear)
+    fprintf(fp, "WHEN=%s ", WhenAppear_TmpStr(when_appear));
+#endif
+
+  fprintf(fp, "\n");
 }
 
 
+//------------------------------------------------------------------------
+//  RADIUS TRIGGER Stuff
 //------------------------------------------------------------------------
 
 
@@ -83,6 +129,8 @@ void rad_trigger_c::Write(FILE *fp)
 
 
 //------------------------------------------------------------------------
+//  SECTION and SCRIPT Stuff
+//------------------------------------------------------------------------
 
 
 section_c::section_c(int _kind) :
@@ -97,9 +145,6 @@ section_c::~section_c()
     if (*PI)
       delete (*PI);
 }
-
-
-//------------------------------------------------------------------------
 
 
 script_c::script_c() : bits()

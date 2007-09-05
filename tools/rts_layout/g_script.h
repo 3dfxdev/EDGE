@@ -29,6 +29,20 @@ typedef enum
 rts_result_e;
 
 
+typedef enum
+{
+  // this is simplified (EDGE supports all 5 skills separately)
+  WNAP_Easy   = (1 << 0),
+  WNAP_Medium = (1 << 1),
+  WNAP_Hard   = (1 << 2),
+
+  WNAP_SP     = (1 << 4),
+  WNAP_Coop   = (1 << 5),
+  WNAP_DM     = (1 << 6),
+}
+when_appear_e;
+
+
 class thing_spawn_c
 {
 private:
@@ -44,10 +58,10 @@ public:
 
   float x, y, z;
  
-  float angle;  // degrees 0-359
+  float angle;  // degrees (0 - 360)
   
-  int tag;
-  int when_appear;
+  int tag;         // 0 = none
+  int when_appear; // 0 = not specified
 
 public:
   static thing_spawn_c * Parse(const char *line);
@@ -73,7 +87,7 @@ public:
   bool worldspawn;
 
   float mx, my, mz;  // mid point
-  float rx, ry, rz;  // radii (rz < 0 means no heights)
+  float rx, ry, rz;  // radii (rz < 0 means no height range)
  
   std::string name;  // empty = none
 
