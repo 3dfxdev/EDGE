@@ -375,9 +375,9 @@ void UI_Grid::draw_map()
 
 void UI_Grid::draw_linedef(const linedef_c *ld)
 {
-  int bright = 220;
-  int middle = 180;
-  int dark   = 140;
+  int bright = 240;
+  int middle = 190;
+  int dark   = 130;
  
   if (! ld->left  || ! ld->left->sector ||
       ! ld->right || ! ld->right->sector)
@@ -403,7 +403,7 @@ void UI_Grid::draw_linedef(const linedef_c *ld)
     else if (c_min - f_max < 56)
     {
       // narrow vertical gap
-      fl_color(fl_rgb_color(bright));
+      fl_color(fl_rgb_color(middle));
     }
     else if (f_max - f_min > 24)
     {
