@@ -37,6 +37,9 @@
 
 UI_MainWin *main_win;
 
+bool application_quit = false;
+
+
 #define WINDOW_WIDTH   (600)
 #define WINDOW_HEIGHT  (440)
 
@@ -47,7 +50,7 @@ UI_MainWin *main_win;
 static void main_win_close_CB(Fl_Widget *w, void *data)
 {
   if (main_win)
-    main_win->action = UI_MainWin::QUIT;
+    application_quit = true;
 }
 
 
@@ -55,8 +58,7 @@ static void main_win_close_CB(Fl_Widget *w, void *data)
 // MainWin Constructor
 //
 UI_MainWin::UI_MainWin(const char *title) :
-    Fl_Double_Window(WINDOW_WIDTH, WINDOW_HEIGHT, title),
-    action(UI_MainWin::NONE)
+    Fl_Double_Window(WINDOW_WIDTH, WINDOW_HEIGHT, title)
 {
   end(); // cancel begin() in Fl_Group constructor
 

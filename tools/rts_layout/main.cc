@@ -235,7 +235,7 @@ int main(int argc, char **argv)
   wad_c *wad = wad_c::Load("PAR.wad");
   SYS_ASSERT(wad);
 
-  SYS_ASSERT(wad->FindLevel("E1M7"));
+  SYS_ASSERT(wad->FindLevel("E1M2"));
 
   level_c *lev = level_c::LoadLevel(wad);
   SYS_ASSERT(lev);
@@ -246,17 +246,9 @@ int main(int argc, char **argv)
   try
   {
     // run the GUI until the user quits
-    for (;;)
+    while (! application_quit)
     {
       Fl::wait(0.2f);
-
-      if (main_win->action == UI_MainWin::QUIT)
-        break;
-
-      if (main_win->action == UI_MainWin::BUILD)
-      {
-        main_win->action = UI_MainWin::NONE;
-      }
     }
   }
   catch (...)

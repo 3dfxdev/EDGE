@@ -44,21 +44,13 @@ public:
   UI_Grid  *grid;
   UI_Panel *panel;
 
-  enum  // actions
-  {
-    NONE = 0,
-    BUILD,
-    ABORT,
-    QUIT
-  };
- 
-  int action;
-
 public:
   void Locked(bool value);
 };
 
 extern UI_MainWin * main_win;
+
+extern bool application_quit;
 
 
 #endif // __UI_WINDOW_H__
