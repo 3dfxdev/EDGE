@@ -98,7 +98,7 @@ public:
   int when_appear;   // 0 = not specified
 
   // all script lines except stuff covered by the above fields.
-  // Includes the end marker but excludes the start marker.
+  // Does not include the start and end markers.
   std::vector<std::string> lines;
 
   // for 'worldspawn' scripts only: all of the entities
@@ -145,11 +145,20 @@ public:
  
   std::string map_name;
 
+  // pieces are everything except the START_MAP and END_MAP lines
   std::vector<section_c *> pieces;
 
   // --- RAD_TRIG ---
   
   rad_trigger_c *trig;
+
+public:
+  void Write(FILE *fp);
+  // write this section into the given file.
+
+private:
+  void WriteText(FILE *fp);
+  void WriteStartMap(FILE *fp);
 };
 
 
