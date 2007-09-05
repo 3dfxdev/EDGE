@@ -42,6 +42,9 @@ typedef enum
 }
 when_appear_e;
 
+#define WNAP_SkillBits  (WNAP_Easy | WNAP_Medium | WNAP_Hard)
+#define WNAP_ModeBits   (WNAP_SP   | WNAP_Coop   | WNAP_DM)
+
 
 class thing_spawn_c
 {

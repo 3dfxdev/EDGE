@@ -43,6 +43,63 @@ const char *WhenAppear_TmpStr(int appear)
   return buffer+1;
 }
 
+int WhenAppear_Parse(const char *info)
+{
+  int result = 0;
+
+  const char *range = strstr(info, "-");
+
+  if (range)
+  {
+    char low  = (range > info) ? range[-1] : 0;
+    char high = (range[+1])    ? range[+1] : 0;
+
+    if (low < '1' || low > '5' || high < '1' || high > '5' || low > high)
+    {
+      LogPrintf("Bad range in WHEN_APPEAR value: %s\n", info);
+    }
+    else
+    {
+      for (; low <= high; low++)
+      {
+        if (low <= '2') result |= WNAP_Easy;
+        if (low == '3') result |= WNAP_Medium;
+        if (low >= '4') result |= WNAP_Hard;
+      }
+    }
+  }
+  else /* no range */
+  {
+    if (strstr(info, "1")) result |= WNAP_Easy;
+    if (strstr(info, "2")) result |= WNAP_Easy;
+    if (strstr(info, "3")) result |= WNAP_Medium;
+    if (strstr(info, "4")) result |= WNAP_Hard;
+    if (strstr(info, "5")) result |= WNAP_Hard;
+  }
+
+  if (strstr(info, "SP") || strstr(info, "sp"))
+    result |= WNAP_SP;
+
+  if (strstr(info, "COOP") || strstr(info, "coop"))
+    result |= WNAP_Coop;
+
+  if (strstr(info, "DM") || strstr(info, "dm"))
+    result |= WNAP_DM;
+
+  // allow more human readable strings...
+
+  if (info[0] == '!')
+    result ^= WNAP_SkillBits | WNAP_ModeBits;
+
+  if ((result & WNAP_SkillBits) == 0)
+    result |= WNAP_SkillBits;
+
+  if ((result & WNAP_ModeBits) == 0)
+    result |= WNAP_ModeBits;
+
+  return result;
+}
+
 
 //------------------------------------------------------------------------
 //  THING SPAWN Stuff
