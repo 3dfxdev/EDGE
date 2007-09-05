@@ -16,6 +16,8 @@
 //
 //------------------------------------------------------------------------
 
+// TODO: keep track of line numbers (for errors)
+
 #include "headers.h"
 
 #include "lib_util.h"
@@ -301,17 +303,105 @@ void rad_trigger_c::WriteRadTrig(FILE *fp)
   }
 
   // that's all folks!
-  fprintf(fp, "END_RADIUSTRIGGER\n");
+  fprintf(fp, "END_RADIUS_TRIGGER\n");
 }
 
 bool rad_trigger_c::MatchRadTrig(std::string& line)
 {
-  return false; // TODO !!!
+  const char *pos = line.c_str();
+
+  pos = skip_space(pos);
+
+  return DDF_CompareWord(pos, "RADIUS_TRIGGER") ||
+         DDF_CompareWord(pos, "RECT_TRIGGER");
+}
+
+bool rad_trigger_c::MatchEndTrig(std::string& line)
+{
+  const char *pos = line.c_str();
+
+  pos = skip_space(pos);
+
+  return DDF_CompareWord(pos, "END_RADIUS_TRIGGER");
 }
 
 rad_trigger_c * rad_trigger_c::ReadRadTrig(FILE *fp, std::string& first)
 {
-  // TODO !!!
+  const char *pos = first.c_str();
+
+  pos = skip_space(pos);
+
+  bool is_rect = DDF_CompareWord(pos, "RECT_TRIGGER");
+
+  pos = skip_word(pos);
+
+  rad_trigger_c *trig = new rad_trigger_c(is_rect);
+
+  rts_result_e res = trig->ParseLocation(pos);
+
+  if (res == RTS_OK)
+  {
+    res = trig->ParseBody(fp);
+  }
+
+  if (res == RTS_ERROR)
+  {
+    delete trig; return NULL;
+  }
+
+  return trig;
+}
+
+rts_result_e rad_trigger_c::ParseLocation(const char *pos)
+{
+  pos = skip_space(pos);
+
+  if (! *pos)
+  {
+    // DIALOG "missing position after RADIUS_TRIGGER"
+    return RTS_ERROR;
+  }
+
+  // TODO
+}
+
+rts_result_e rad_trigger_c::ParseBody(FILE *fp)
+{
+  for (;;)
+  {
+    std::string line;
+    
+    rts_result_e res = ReadLine(fp, line);
+
+    if (res == RTS_ERROR)
+      return RTS_ERROR;
+
+    if (res == RTS_EOF)
+    {
+      // DIALOG "Missing rest of trigger (EOF found)"
+      return RTS_ERROR;
+    }
+
+    if (MatchEndTrig(line))
+      break;  // all done
+
+    res = ParseCommand(line);
+
+    if (res == RTS_ERROR)
+      return RTS_ERROR;
+  }
+
+  return RTS_OK;
+}
+
+rts_result_e rad_trigger_c::ParseCommand(std::string& line)
+{
+  // TODO : HEAPS !!
+
+  // ordinary command
+  lines.push_back(line);
+
+  return RTS_OK;
 }
 
 
@@ -385,39 +475,55 @@ bool section_c::MatchStartMap(std::string& line)
   return DDF_CompareWord(pos, "START_MAP");
 }
 
+bool section_c::MatchEndMap(std::string& line)
+{
+  const char *pos = line.c_str();
+
+  pos = skip_space(pos);
+
+  return DDF_CompareWord(pos, "END_MAP");
+}
+
 section_c * section_c::ReadStartMap(FILE *fp, std::string& first)
 {
   const char *pos = first.c_str();
 
   pos = skip_space(pos);
-
   pos = skip_word(pos);
+
+  section_c *st_map = new section_c(START_MAP);
+
+  rts_result_e res = st_map->ParseMapName(pos);
+
+  if (res == RTS_OK)
+  {
+    // invoke parsing code for all the contents
+    res = st_map->ParsePieces(fp);
+  }
+
+  if (res == RTS_ERROR)
+  {
+    delete st_map; return NULL;
+  }
+
+  return st_map;
+}
+
+rts_result_e section_c::ParseMapName(const char *pos)
+{
   pos = skip_space(pos);
 
   if (! *pos)
   {
     // DIALOG "missing map name after START_MAP"
-    return NULL;
+    return RTS_ERROR;
   }
+
+  int length = (int) (skip_word(pos) - pos);
 
   // TODO: verify map name is OK
 
-  const char *pos2 = skip_word(pos);
-
-  section_c *st_map = new section_c(START_MAP);
-
-  st_map->map_name = std::string(pos, (size_t)(pos2 - pos));
-
-  // invoke parsing code for all the contents
-  rts_result_e res = st_map->ParsePieces(fp);
-
-  if (res == RTS_ERROR)
-  {
-    delete st_map;
-    return NULL;
-  }
-
-  return st_map;
+  map_name = std::string(pos, length);
 }
 
 rts_result_e section_c::ParsePieces(FILE *fp)
@@ -434,7 +540,13 @@ rts_result_e section_c::ParsePieces(FILE *fp)
       return RTS_ERROR;
 
     if (res == RTS_FINISHED)
-      break;
+    {
+      // DIALOG "Missing rest of trigger (EOF found)"
+      return RTS_ERROR;
+    }
+
+    if (MatchEndMap(line))
+      break;  // all done
 
     if (rad_trigger_c::MatchRadTrig(line))
     {

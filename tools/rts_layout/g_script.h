@@ -24,9 +24,12 @@ typedef enum
 {
   RTS_OK = 0,
   RTS_ERROR = 1,
-  RTS_FINISHED = 2,
+//  RTS_EOF = 2,
+  RTS_FINISHED = 3,
 }
 rts_result_e;
+//!!!! FIXME
+#define RTS_EOF  RTS_FINISHED
 
 
 typedef enum
@@ -110,20 +113,26 @@ public:
   // (i.e. first keyword in RADIUS_TRIGGER or RECT_TRIGGER).
 
   static rad_trigger_c * ReadRadTrig(FILE *fp, std::string& first);
-  // read a new radius trigger from the file.
-  //
-  // The first keyword will already
-  // have matched a valid type (RADIUS_TRIGGER or RECT_TRIGGER).
-  // Returns NULL if an error occurs.
-
-///---  rts_result_e Parse(std::string& line);
-///---  // parse another line of the trigger.  Returns RTS_OK for
-///---  // normal lines, RTS_FINISHED for the end line (after which
-///---  // Parse() is never called again), or RTS_ERROR if a problem
-///---  // occurred.
+  // read a new radius trigger from the file and returns it.
+  // Returns NULL if an error occurs.  The parameter 'first'
+  // contains the first line, which must have previously matched
+  // using MatchRadTrig().
 
   void WriteRadTrig(FILE *fp);
   // write this script into the given file.
+
+private:
+  rts_result_e ParseLocation(const char *pos);
+
+  rts_result_e ParseBody(FILE *fp);
+  
+  rts_result_e ParseCommand(std::string& line);
+  // parse the given line of the trigger.  Returns RTS_OK for
+  // normal lines, RTS_FINISHED for the end marker (after which
+  // this function is never called again), or RTS_ERROR if a
+  // problem occurred.
+
+  static bool MatchEndTrig(std::string& line);
 };
 
 
@@ -177,7 +186,10 @@ private:
   void WriteText(FILE *fp);
   void WriteStartMap(FILE *fp);
 
+  rts_result_e ParseMapName(const char *pos);
   rts_result_e ParsePieces(FILE *fp);
+
+  static bool MatchEndMap(std::string& line);
 };
 
 
