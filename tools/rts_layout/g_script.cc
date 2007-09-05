@@ -126,11 +126,64 @@ static rts_result_e ReadLine(FILE *fp, std::string& line)
       return (line.size() == 0) ? RTS_FINISHED : RTS_OK;
 
     if (ferror(fp))
+    {
+      // DIALOG "file read error: " + strerror(errno)
       return RTS_ERROR;
+    }
 
     line += (char) ch;
   }
 }
+
+static inline const char *skip_space(const char *X)
+{
+  while (*X && isspace(*X))
+    X++;
+
+  return X;
+}
+
+static inline const char *skip_word(const char *X)
+{
+  while (*X && ! isspace(*X))
+    X++;
+
+  return X;
+}
+
+static bool DDF_CompareWord(const char *pos, const char *word)
+{
+  // check whether the given 'word' matches at the current
+  // string position 'pos'.  This is different that str(i)cmp
+  // because we allow whitespace to follow the word.  We also
+  // allow '_' in the word to be absent in the string.
+  //
+  // The comparison is NOT case-sensitive.
+
+  for (;;)
+  {
+    bool pos_end = (! *pos) || isspace(*pos);
+
+    if (! *word)
+      return pos_end;
+
+    if (pos_end)
+      return false;  // not long enough
+
+    if (toupper(*pos) == toupper(*word))
+    {
+      pos++; word++; continue;
+    }
+
+    if (*word == '_')
+    {
+      word++; continue;
+    }
+
+    return false;  // does not match
+  }
+}
+
 
 
 //------------------------------------------------------------------------
@@ -325,12 +378,91 @@ void section_c::AddLine(std::string& line)
 
 bool section_c::MatchStartMap(std::string& line)
 {
-  return false; // TODO !!!
+  const char *pos = line.c_str();
+
+  pos = skip_space(pos);
+
+  return DDF_CompareWord(pos, "START_MAP");
 }
 
 section_c * section_c::ReadStartMap(FILE *fp, std::string& first)
 {
-  // TODO !!!
+  const char *pos = first.c_str();
+
+  pos = skip_space(pos);
+
+  pos = skip_word(pos);
+  pos = skip_space(pos);
+
+  if (! *pos)
+  {
+    // DIALOG "missing map name after START_MAP"
+    return NULL;
+  }
+
+  // TODO: verify map name is OK
+
+  const char *pos2 = skip_word(pos);
+
+  section_c *st_map = new section_c(START_MAP);
+
+  st_map->map_name = std::string(pos, (size_t)(pos2 - pos));
+
+  // invoke parsing code for all the contents
+  rts_result_e res = st_map->ParsePieces(fp);
+
+  if (res == RTS_ERROR)
+  {
+    delete st_map;
+    return NULL;
+  }
+
+  return st_map;
+}
+
+rts_result_e section_c::ParsePieces(FILE *fp)
+{
+  section_c *cur_piece = NULL;
+ 
+  for (;;)
+  {
+    std::string line;
+    
+    rts_result_e res = ReadLine(fp, line);
+
+    if (res == RTS_ERROR)
+      return RTS_ERROR;
+
+    if (res == RTS_FINISHED)
+      break;
+
+    if (rad_trigger_c::MatchRadTrig(line))
+    {
+      rad_trigger_c * trig = rad_trigger_c::ReadRadTrig(fp, line);
+
+      if (! trig)
+        return RTS_ERROR;
+
+      cur_piece = new section_c(RAD_TRIG);
+      cur_piece->trig = trig;
+
+      pieces.push_back(cur_piece);
+
+      cur_piece = NULL;
+      continue;
+    }
+
+    if (! cur_piece)
+    {
+      cur_piece = new section_c(section_c::TEXT);
+
+      pieces.push_back(cur_piece);
+    }
+
+    cur_piece->AddLine(line);
+  }
+
+  return RTS_OK;
 }
 
 
@@ -353,9 +485,9 @@ script_c::~script_c()
 
 script_c *script_c::Load(FILE *fp)
 {
-  script_c *result = new script_c();
+  script_c *SCR = new script_c();
 
-  section_c *cur_section = NULL;
+  section_c *cur_bit = NULL;
  
   for (;;)
   {
@@ -365,39 +497,39 @@ script_c *script_c::Load(FILE *fp)
 
     if (res == RTS_ERROR)
     {
-      delete result;
+      delete SCR;
       return NULL;
     }
 
-    if (res != RTS_OK)
+    if (res == RTS_FINISHED)
       break;
 
     if (section_c::MatchStartMap(line))
     {
-      cur_section = section_c::ReadStartMap(fp, line);
-      if (! cur_section)
+      cur_bit = section_c::ReadStartMap(fp, line);
+      if (! cur_bit)
       {
-        delete result;
+        delete SCR;
         return NULL;
       }
 
-      result->bits.push_back(cur_section);
+      SCR->bits.push_back(cur_bit);
 
-      cur_section = NULL;
+      cur_bit = NULL;
       continue;
     }
 
-    if (! cur_section)
+    if (! cur_bit)
     {
-      cur_section = new section_c(section_c::TEXT);
+      cur_bit = new section_c(section_c::TEXT);
 
-      result->bits.push_back(cur_section);
+      SCR->bits.push_back(cur_bit);
     }
 
-    cur_section->AddLine(line);
+    cur_bit->AddLine(line);
   }
 
-  return result;
+  return SCR;
 }
 
 void script_c::Save(FILE *fp)

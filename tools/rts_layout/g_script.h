@@ -163,6 +163,10 @@ public:
   // returns true if this line begins with START_MAP.
 
   static section_c * ReadStartMap(FILE *fp, std::string& first);
+  // reads the whole map section (from START_MAP to END_MAP)
+  // and returns a new section_c object, or NULL if an error
+  // occurred.  The parameter 'first' contains the first line,
+  // which must have previously matched with MatchStartMap().
 
   void WriteSection(FILE *fp);
   // write this section into the given file.
@@ -173,6 +177,7 @@ private:
   void WriteText(FILE *fp);
   void WriteStartMap(FILE *fp);
 
+  rts_result_e ParsePieces(FILE *fp);
 };
 
 
