@@ -150,7 +150,6 @@ void thing_spawn_c::Write(FILE *fp)
 //  RADIUS TRIGGER Stuff
 //------------------------------------------------------------------------
 
-
 rad_trigger_c::rad_trigger_c( ) :
     is_rect(false), worldspawn(false),
     mx(0),  my(0),  mz(0),
@@ -181,14 +180,49 @@ rts_result_e rad_trigger_c::Parse(const char *line)
 
 void rad_trigger_c::Write(FILE *fp)
 {
-  // TODO
+  // handle the start marker
+  if (is_rect)
+  {
+    fprintf(fp, "    RECT_TRIGGER %1.1f %1.1f %1.1f %1.1f",
+            mx-rx, my-ry, mx+rx, my+ry);
+  }
+  else
+  {
+    fprintf(fp, "    RADIUS_TRIGGER %1.1f %1.1f %1.1f", mx, my, rx);
+  }
+
+  if (rz > 0)
+    fprintf(fp, "  %1.1f %1.1f", mz-rz, mz+rz);
+
+  fprintf(fp, "\n");
+
+  // TODO: known properties
+
+  if (worldspawn)
+  {
+    fprintf(fp, "        TAGGED_IMMEDIATE\b");
+
+    std::vector<std::string>::iterator LI;
+
+    for (LI = lines.begin(); LI != lines.end(); LI++)
+      fprintf(fp, "%s\n", (*LI).c_str());
+  }
+  else
+  {
+    std::vector<thing_spawn_c *>::iterator TI;
+
+    for (TI = things.begin(); TI != things.end(); TI++)
+      if (*TI)
+        (*TI)->Write(fp);
+  }
+
+  fprintf(fp, "    END_RADIUSTRIGGER\n");
 }
 
 
 //------------------------------------------------------------------------
-//  SECTION and SCRIPT Stuff
+//  SECTION gunk
 //------------------------------------------------------------------------
-
 
 section_c::section_c(int _kind) :
     kind(_kind), lines(), map_name(), pieces(), trig(NULL)
@@ -203,6 +237,49 @@ section_c::~section_c()
       delete (*PI);
 }
 
+void section_c::Write(FILE *fp)
+{
+  switch (kind)
+  {
+    case TEXT:
+      WriteText(fp);
+      break;
+
+    case START_MAP:
+      WriteStartMap(fp);
+      break;
+
+    case RAD_TRIG:
+      trig->Write(fp);
+      break;
+  };
+}
+
+void section_c::WriteText(FILE *fp)
+{
+  std::vector<std::string>::iterator LI;
+
+  for (LI = lines.begin(); LI != lines.end(); LI++)
+    fprintf(fp, "%s\n", (*LI).c_str());
+}
+
+void section_c::WriteStartMap(FILE *fp)
+{
+  fprintf(fp, "START_MAP %s\n", map_name.c_str());
+ 
+  std::vector<section_c *>::iterator PI;
+
+  for (PI = pieces.begin(); PI != pieces.end(); PI++)
+    if (*PI)
+      (*PI)->Write(fp);
+
+  fprintf(fp, "END_MAP\n"); 
+}
+
+
+//------------------------------------------------------------------------
+//  SCRIPT Stuff
+//------------------------------------------------------------------------
 
 script_c::script_c() : bits()
 { }
@@ -224,7 +301,11 @@ script_c *script_c::Load(FILE *fp)
 
 void script_c::Save(FILE *fp)
 {
-  // TODO
+  std::vector<section_c *>::iterator BI;
+
+  for (BI = bits.begin(); BI != bits.end(); BI++)
+    if (*BI)
+      (*BI)->Write(fp);
 }
 
 
