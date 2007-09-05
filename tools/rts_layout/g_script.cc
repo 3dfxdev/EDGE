@@ -133,6 +133,12 @@ static rts_result_e ReadLine(FILE *fp, std::string& line)
       return RTS_ERROR;
     }
 
+    if (ch == '\n')
+      return RTS_OK;
+
+    if (ch == '\r')  // ignore CR within CR-LF pairs
+      continue;
+
     line += (char) ch;
   }
 }
@@ -451,12 +457,30 @@ rts_result_e rad_trigger_c::ParseBody(FILE *fp)
 
 rts_result_e rad_trigger_c::ParseCommand(std::string& line)
 {
+  const char *pos = first.c_str();
+
+  pos = skip_space(pos);
+
+
   // TODO : HEAPS !!
 
 
-  // ordinary command
-  lines.push_back(line);
+  if (! worldspawn)
+  {
+    // ordinary command
+    lines.push_back(line);
+    return RTS_OK;
+  }
 
+  if (DDF_CompareWord(pos, "tagged_immediate"))
+    return RTS_OK;  // ignore it
+
+  if (thing_spawn_c::MatchThing(line))
+  {
+    // TODO
+  }
+
+  LogPrintf("Ignoring extra command in worldspawn: %s\n", pos);
   return RTS_OK;
 }
 
