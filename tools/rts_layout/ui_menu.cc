@@ -148,8 +148,8 @@ static void thing_do_delete(Fl_Widget *w, void * data)
 //------------------------------------------------------------------------
 
 static const char *about_Text =
-  "This program allows you to position your\n"
-  "EDGE RTS scripts on a map of the level.\n"
+  "RTS Layout Tool allows you to position your\n"
+  "EDGE RTS scripts over a map of your level.\n"
   "\n"
   "Copyright (C) 2007 Andrew Apted\n"
   "\n"
@@ -158,21 +158,21 @@ static const char *about_Text =
   "the GNU General Public License\n"
   "\n"
   "There is ABSOLUTELY NO WARRANTY\n"
-  "Use at your OWN RISK";
+  "Use at your OWN RISK!";
 
 static const char *about_Web =
-  "http://edge.sourceforge.net";
+  "edge.sourceforge.net";
 
-#define TITLE_COLOR  FL_BLUE
+#define TITLE_COLOR  FL_RED
 
-#define INFO_COLOR  fl_color_cube(4,2,0)
-  
+#define INFO_COLOR  fl_rgb_color(255, 255, 128)
+ 
 
 void help_do_about(Fl_Widget *w, void * data)
 {
   menu_want_to_quit = false;
 
-  Fl_Window *about = new Fl_Window(340, 364, "About RTS_Layout");
+  Fl_Window *about = new Fl_Window(326, 340, "About RTS_Layout");
   about->end();
 
   // non-resizable
@@ -182,14 +182,14 @@ void help_do_about(Fl_Widget *w, void * data)
   int cy = 0;
 
   // nice big logo text
-  Fl_Box *box = new Fl_Box(0, cy, about->w(), 50, RTS_LAYOUT_TITLE " " RTS_LAYOUT_VERSION);
+  Fl_Box *box = new Fl_Box(0, cy, about->w(), 54, RTS_LAYOUT_TITLE " " RTS_LAYOUT_VERSION);
   box->align(FL_ALIGN_INSIDE | FL_ALIGN_CENTER);
   box->labelcolor(TITLE_COLOR);
   box->labelsize(24);
   about->add(box);
 
 
-  cy += box->h() + 10;
+  cy += box->h();
   
   // the very informative text
   box = new Fl_Box(10, cy, about->w()-20, 192, about_Text);
@@ -198,11 +198,11 @@ void help_do_about(Fl_Widget *w, void * data)
   box->color(INFO_COLOR);
   about->add(box);
 
-  cy += box->h() + 10;
+  cy += box->h() + 6;
 
 
   // website address
-  box = new Fl_Box(10, cy, about->w()-20, 30, about_Web);
+  box = new Fl_Box(0, cy, about->w()-20, 28, about_Web);
   box->align(FL_ALIGN_INSIDE | FL_ALIGN_CENTER);
   box->labelsize(20);
   about->add(box);
