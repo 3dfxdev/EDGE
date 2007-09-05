@@ -100,6 +100,24 @@ int WhenAppear_Parse(const char *info)
   return result;
 }
 
+static rts_result_e ReadLine(FILE *fp, std::string& line)
+{
+  line = "";
+
+  for (;;)
+  {
+    int ch = fgetc(fp);
+
+    if (ch == EOF)
+      return (line.size() == 0) ? RTS_FINISHED : RTS_OK;
+
+    if (ferror(fp))
+      return RTS_ERROR;
+
+    line += (char) ch;
+  }
+}
+
 
 //------------------------------------------------------------------------
 //  THING SPAWN Stuff
@@ -115,12 +133,7 @@ thing_spawn_c::~thing_spawn_c()
 { }
 
 
-thing_spawn_c::thing_spawn_c * Parse(const char *line)
-{
-  // TODO
-}
-
-void thing_spawn_c::Write(FILE *fp)
+void thing_spawn_c::WriteThing(FILE *fp)
 {
   fprintf(fp, "        SPAWN_THING%s ", ambush ? "_AMBUSH" : "");
 
@@ -143,6 +156,11 @@ void thing_spawn_c::Write(FILE *fp)
 #endif
 
   fprintf(fp, "\n");
+}
+
+thing_spawn_c * thing_spawn_c::ReadThing(std::string& line)
+{
+  // TODO
 }
 
 
@@ -168,17 +186,7 @@ rad_trigger_c::~rad_trigger_c()
 } 
 
 
-rad_trigger_c * rad_trigger_c::Create(const char *line)
-{
-  // TODO
-}
-
-rts_result_e rad_trigger_c::Parse(const char *line)
-{
-  // TODO
-}
-
-void rad_trigger_c::Write(FILE *fp)
+void rad_trigger_c::WriteRadTrig(FILE *fp)
 {
   // handle the start marker
   if (is_rect)
@@ -213,10 +221,20 @@ void rad_trigger_c::Write(FILE *fp)
 
     for (TI = things.begin(); TI != things.end(); TI++)
       if (*TI)
-        (*TI)->Write(fp);
+        (*TI)->WriteThing(fp);
   }
 
   fprintf(fp, "    END_RADIUSTRIGGER\n");
+}
+
+bool rad_trigger_c::MatchRadTrig(std::string& line)
+{
+  return false; // TODO !!!
+}
+
+rad_trigger_c * rad_trigger_c::ReadRadTrig(FILE *fp, std::string& first)
+{
+  // TODO !!!
 }
 
 
@@ -237,7 +255,7 @@ section_c::~section_c()
       delete (*PI);
 }
 
-void section_c::Write(FILE *fp)
+void section_c::WriteSection(FILE *fp)
 {
   switch (kind)
   {
@@ -250,7 +268,7 @@ void section_c::Write(FILE *fp)
       break;
 
     case RAD_TRIG:
-      trig->Write(fp);
+      trig->WriteRadTrig(fp);
       break;
   };
 }
@@ -271,9 +289,24 @@ void section_c::WriteStartMap(FILE *fp)
 
   for (PI = pieces.begin(); PI != pieces.end(); PI++)
     if (*PI)
-      (*PI)->Write(fp);
+      (*PI)->WriteSection(fp);
 
   fprintf(fp, "END_MAP\n"); 
+}
+
+void section_c::AddLine(std::string& line)
+{
+  lines.push_back(line);
+}
+
+bool section_c::MatchStartMap(std::string& line)
+{
+  return false; // TODO !!!
+}
+
+section_c * section_c::ReadStartMap(FILE *fp, std::string& first)
+{
+  // TODO !!!
 }
 
 
@@ -296,7 +329,51 @@ script_c::~script_c()
 
 script_c *script_c::Load(FILE *fp)
 {
-  // TODO
+  script_c *result = new script_c();
+
+  section_c *cur_section = NULL;
+ 
+  for (;;)
+  {
+    std::string line;
+    
+    rts_result_e res = ReadLine(fp, line);
+
+    if (res == RTS_ERROR)
+    {
+      delete result;
+      return NULL;
+    }
+
+    if (res != RTS_OK)
+      break;
+
+    if (section_c::MatchStartMap(line))
+    {
+      cur_section = section_c::ReadStartMap(fp, line);
+      if (! cur_section)
+      {
+        delete result;
+        return NULL;
+      }
+
+      result->bits.push_back(cur_section);
+
+      cur_section = NULL;
+      continue;
+    }
+
+    if (! cur_section)
+    {
+      cur_section = new section_c(section_c::TEXT);
+
+      result->bits.push_back(cur_section);
+    }
+
+    cur_section->AddLine(line);
+  }
+
+  return result;
 }
 
 void script_c::Save(FILE *fp)
@@ -305,7 +382,7 @@ void script_c::Save(FILE *fp)
 
   for (BI = bits.begin(); BI != bits.end(); BI++)
     if (*BI)
-      (*BI)->Write(fp);
+      (*BI)->WriteSection(fp);
 }
 
 
