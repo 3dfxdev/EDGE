@@ -67,12 +67,12 @@ public:
   int when_appear; // 0 = not specified
 
 public:
-  static thing_spawn_c * Parse(const char *line);
+  static thing_spawn_c * ReadThing(std::string& line);
   // Create a new thing-spawn definition by parsing the line.
   // The first keyword will already have been checked
   // (SPAWN_THING etc).  Returns NULL if an error occurs.
 
-  void Write(FILE *fp);
+  void WriteThing(FILE *fp);
   // write this thing-spawn into the given file.
 };
 
@@ -105,18 +105,24 @@ public:
   std::vector<thing_spawn_c *> things;
 
 public:
-  static rad_trigger_c * Create(const char *line);
-  // create a new radius trigger.  The first keyword will already
+  static bool MatchRadTrig(std::string& line);
+  // returns true if this line begins a radius trigger
+  // (i.e. first keyword in RADIUS_TRIGGER or RECT_TRIGGER).
+
+  static rad_trigger_c * ReadRadTrig(FILE *fp, std::string& first);
+  // read a new radius trigger from the file.
+  //
+  // The first keyword will already
   // have matched a valid type (RADIUS_TRIGGER or RECT_TRIGGER).
   // Returns NULL if an error occurs.
 
-  rts_result_e Parse(const char *line);
-  // parse another line of the trigger.  Returns RTS_OK for
-  // normal lines, RTS_FINISHED for the end line (after which
-  // Parse() is never called again), or RTS_ERROR if a problem
-  // occurred.
+///---  rts_result_e Parse(std::string& line);
+///---  // parse another line of the trigger.  Returns RTS_OK for
+///---  // normal lines, RTS_FINISHED for the end line (after which
+///---  // Parse() is never called again), or RTS_ERROR if a problem
+///---  // occurred.
 
-  void Write(FILE *fp);
+  void WriteRadTrig(FILE *fp);
   // write this script into the given file.
 };
 
@@ -128,7 +134,7 @@ public:
   ~section_c();
 
 public:
-  enum part_kind_e
+  enum kind_e
   {
     TEXT      = 0,
     START_MAP = 1,
@@ -153,12 +159,20 @@ public:
   rad_trigger_c *trig;
 
 public:
-  void Write(FILE *fp);
+  static bool MatchStartMap(std::string& line);
+  // returns true if this line begins with START_MAP.
+
+  static section_c * ReadStartMap(FILE *fp, std::string& first);
+
+  void WriteSection(FILE *fp);
   // write this section into the given file.
+
+  void AddLine(std::string& line);
 
 private:
   void WriteText(FILE *fp);
   void WriteStartMap(FILE *fp);
+
 };
 
 
@@ -183,7 +197,6 @@ public:
   // save the whole script into the given file.
 
 private:
-  // ....
 };
 
 
