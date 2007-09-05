@@ -70,6 +70,9 @@ public:
   int when_appear; // 0 = not specified
 
 public:
+  static bool thing_spawn_c::MatchThing(std::string& line);
+  // returns true if this line matches a thing spawner.
+
   static thing_spawn_c * ReadThing(std::string& line);
   // Create a new thing-spawn definition by parsing the line.
   // The first keyword will already have been checked

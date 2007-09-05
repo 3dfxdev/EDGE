@@ -227,6 +227,16 @@ void thing_spawn_c::WriteThing(FILE *fp)
   fprintf(fp, "\n");
 }
 
+bool thing_spawn_c::MatchThing(std::string& line)
+{
+  const char *pos = line.c_str();
+
+  pos = skip_space(pos);
+
+  return DDF_CompareWord(pos, "spawn_thing") ||
+         DDF_CompareWord(pos, "spawn_thing_ambush");
+}
+
 thing_spawn_c * thing_spawn_c::ReadThing(std::string& line)
 {
   // TODO
@@ -356,13 +366,58 @@ rts_result_e rad_trigger_c::ParseLocation(const char *pos)
 {
   pos = skip_space(pos);
 
-  if (! *pos)
+  if (is_rect)
   {
-    // DIALOG "missing position after RADIUS_TRIGGER"
-    return RTS_ERROR;
+    float x1, y1, z1;
+    float x2, y2, z2;
+
+    int num = sscanf(pos, " %f %f %f %f %f %f ",
+                     &x1, &y1, &x2, &y2, &z1, &z2);
+
+    if (num < 4 || num == 5)
+    {
+      // DIALOG "bad position after RECT_TRIGGER"
+      return RTS_ERROR;
+    }
+
+    mx = (x1 + x2) / 2; rx = fabs(x2 - x1) / 2;
+    my = (y1 + y2) / 2; ry = fabs(y2 - y1) / 2;
+
+    if (num > 4)
+    {
+      mz = (z1 + z2) / 2; rz = fabs(z2 - z1) / 2;
+    }
+    else
+    {
+      mz = 0; rz = -1;
+    }
+  }
+  else /* radius */
+  {
+    float z1, z2;
+
+    int num = sscanf(pos, " %f %f %f %f %f ",
+                     &mx, &my, &rx, &z1, &z2);
+
+    if (num < 3 || num == 4)
+    {
+      // DIALOG "bad position after RADIUS_TRIGGER"
+      return RTS_ERROR;
+    }
+
+    ry = rx;
+
+    if (num > 3)
+    {
+      mz = (z1 + z2) / 2; rz = fabs(z2 - z1) / 2;
+    }
+    else
+    {
+      mz = 0; rz = -1;
+    }
   }
 
-  // TODO
+  return RTS_OK;
 }
 
 rts_result_e rad_trigger_c::ParseBody(FILE *fp)
@@ -397,6 +452,7 @@ rts_result_e rad_trigger_c::ParseBody(FILE *fp)
 rts_result_e rad_trigger_c::ParseCommand(std::string& line)
 {
   // TODO : HEAPS !!
+
 
   // ordinary command
   lines.push_back(line);
