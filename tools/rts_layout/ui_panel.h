@@ -19,7 +19,7 @@
 #ifndef __UI_PANEL_H__
 #define __UI_PANEL_H__
 
-class UI_ScriptInfo;
+class UI_RadiusInfo;
 class UI_ThingInfo;
 
 
@@ -36,7 +36,7 @@ private:
 
   /*-----------------------*/
 
-  UI_ScriptInfo *script_box;
+  UI_RadiusInfo *script_box;
   UI_ThingInfo  *thing_box;
   
   /*-----------------------*/
