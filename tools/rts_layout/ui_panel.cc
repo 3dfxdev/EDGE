@@ -22,6 +22,7 @@
 #include "lib_util.h"
 
 #include "ui_panel.h"
+#include "ui_radius.h"
 
 
 #define INFO_BG_COLOR  fl_rgb_color(96)
@@ -64,16 +65,10 @@ UI_Panel::UI_Panel(int X, int Y, int W, int H, const char *label) :
 
   add(mode);
 
-  Y += mode->h();
+  Y += mode->h() + 16;
 
+  int TY = Y;
   
-  // ---- middle section ----
- 
-  // FIXME: script_box
-
-  // FIXME: thing_box
-  
-
 #if 1
   // resize control:
   Fl_Box *resize_control = new Fl_Box(FL_NO_BOX, x(), Y, w(), 4, NULL);
@@ -81,6 +76,7 @@ UI_Panel::UI_Panel(int X, int Y, int W, int H, const char *label) :
   add(resize_control);
   resizable(resize_control);
 #endif 
+
   
   // ---- bottom section ----
 
@@ -108,6 +104,19 @@ UI_Panel::UI_Panel(int X, int Y, int W, int H, const char *label) :
   add(grid_size);
 
   Y -= grid_size->h() + 4;
+
+  int BY = Y;
+
+
+  // ---- middle section ----
+ 
+  script_box = new UI_RadiusInfo(X-2, TY, W+4, BY-TY);
+
+  add(script_box);
+    
+
+  // FIXME: thing_box
+  
 
 }
 
