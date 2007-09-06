@@ -43,6 +43,7 @@ OBJS=	main.o       \
 	ui_grid.o    \
 	ui_menu.o    \
 	ui_panel.o   \
+	ui_radius.o  \
 	ui_window.o
 
 
