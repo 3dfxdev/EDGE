@@ -192,14 +192,32 @@ static bool DDF_CompareWord(const char *pos, const char *word)
   }
 }
 
+static void SplitLine(const char *pos, std::vector<std::string> & words)
+{
+  words.resize(0);
+
+  for (;;)
+  {
+    pos = skip_space(pos);
+
+    if (! *pos)
+      break;
+
+    const char *pos2 = skip_word(pos);
+
+    words.push_back(std::string(pos, (int)(pos2 - pos)));
+
+    pos = pos2;
+  }
+}
 
 
 //------------------------------------------------------------------------
 //  THING SPAWN Stuff
 //------------------------------------------------------------------------
 
-thing_spawn_c::thing_spawn_c( ) :
-    ambush(false), has_z(false), type(),
+thing_spawn_c::thing_spawn_c(bool _ambush) :
+    ambush(_ambush), has_z(false), type(),
     x(0), y(0), z(0), angle(0),
     tag(0), when_appear(0)
 { }
@@ -245,7 +263,59 @@ bool thing_spawn_c::MatchThing(std::string& line)
 
 thing_spawn_c * thing_spawn_c::ReadThing(std::string& line)
 {
-  // TODO
+  const char *pos = line.c_str();
+
+  std::vector<std::string> words;
+
+  SplitLine(pos, words);
+
+  if (words.size() < 2)
+  {
+    // DIALOG "Malformed SPAWN_THING command"
+    return NULL;
+  }
+
+  bool is_ambush = DDF_CompareWord(words[0].c_str(), "spawn_thing_ambush");
+
+  thing_spawn_c *TH = new thing_spawn_c(is_ambush);
+
+  TH->type = words[1];
+
+  // handle keyword parameters
+
+  while (words.size() >= 3)
+  {
+    if (! strchr(words.back().c_str(), '='))
+      break;
+
+    TH->ParseKeyword(words.back());
+
+    words.pop_back();
+  }
+
+  if (words.size() >= 4)
+  {
+    TH->x = atof(words[2].c_str());
+    TH->y = atof(words[3].c_str());
+  }
+
+  if (words.size() >= 5)
+  {
+    TH->angle = atof(words[4].c_str());
+  }
+
+  if (words.size() >= 6)
+  {
+    TH->has_z = true;
+    TH->z = atof(words[5].c_str());
+  }
+
+  return RTS_OK;
+}
+
+rts_result_e thing_spawn_c::ParseKeyword(std::string& word)
+{
+  // TODO !!!!
 }
 
 
@@ -457,12 +527,21 @@ rts_result_e rad_trigger_c::ParseBody(FILE *fp)
 
 rts_result_e rad_trigger_c::ParseCommand(std::string& line)
 {
-  const char *pos = first.c_str();
+  const char *pos = line.c_str();
 
   pos = skip_space(pos);
 
+  const char *args = skip_space(skip_word(pos));
 
-  // TODO : HEAPS !!
+
+  if (DDF_CompareWord(pos, "name"))
+    return cmd_Name(args);
+
+  if (DDF_CompareWord(pos, "tag"))
+    return cmd_Tag(args);
+
+  if (DDF_CompareWord(pos, "when_appear"))
+    return cmd_WhenAppear(args);
 
 
   if (! worldspawn)
@@ -477,10 +556,61 @@ rts_result_e rad_trigger_c::ParseCommand(std::string& line)
 
   if (thing_spawn_c::MatchThing(line))
   {
-    // TODO
+    thing_spawn_c * th = thing_spawn_c::ReadThing(line);
+
+    if (! th)
+      return RTS_ERROR;
+
+    things.push_back(th);
+    return RTS_OK;
   }
 
   LogPrintf("Ignoring extra command in worldspawn: %s\n", pos);
+  return RTS_OK;
+}
+
+rts_result_e rad_trigger_c::cmd_Name(const char *args)
+{
+  const char *arg_end = skip_word(args);
+
+  if (arg_end == args)  // FIXME: validate name
+  {
+    // DIALOG "bad or missing NAME in radius trigger"
+    return RTS_ERROR;
+  }
+
+  name = std::string(args, (int)(arg_end - args));
+
+  return RTS_OK;
+}
+
+rts_result_e rad_trigger_c::cmd_Tag(const char *args)
+{
+  tag = atoi(args);
+
+  if (tag <= 0)
+  {
+    // DIALOG "bad or missing TAG in radius trigger"
+    return RTS_ERROR;
+  }
+
+  return RTS_OK;
+}
+
+rts_result_e rad_trigger_c::cmd_WhenAppear(const char *args)
+{
+  const char *arg_end = skip_word(args);
+
+  if (arg_end == args)
+  {
+    // DIALOG "Missing WHEN_APPEAR in radius trigger"
+    return RTS_ERROR;
+  }
+
+  std::string temp_val(args, (int)(arg_end - args));
+
+  when_appear = WhenAppear_Parse(temp_val.c_str());
+
   return RTS_OK;
 }
 
@@ -604,6 +734,8 @@ rts_result_e section_c::ParseMapName(const char *pos)
   // TODO: verify map name is OK
 
   map_name = std::string(pos, length);
+
+  return RTS_OK;
 }
 
 rts_result_e section_c::ParsePieces(FILE *fp)
