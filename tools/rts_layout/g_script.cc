@@ -243,10 +243,9 @@ void thing_spawn_c::WriteThing(FILE *fp)
   if (tag != 0)
     fprintf(fp, " TAG=%d", tag);
 
-#if 0  // only available in EDGE 1.31 
+  // NOTE: EDGE 1.31 functionality
   if (when_appear != 0)
     fprintf(fp, " WHEN=%s", WhenAppear_TmpStr(when_appear));
-#endif
 
   fprintf(fp, "\n");
 }
@@ -310,12 +309,53 @@ thing_spawn_c * thing_spawn_c::ReadThing(std::string& line)
     TH->z = atof(words[5].c_str());
   }
 
-  return RTS_OK;
+  return TH;
 }
 
 rts_result_e thing_spawn_c::ParseKeyword(std::string& word)
 {
-  // TODO !!!!
+  const char *pos = word.c_str();
+  const char *arg = strchr(pos, '=');
+
+  SYS_ASSERT(arg);
+
+  if (StrCaseCmpPartial(pos, "X="))
+  {
+    x = atof(arg+1);
+    return RTS_OK;
+  }
+  if (StrCaseCmpPartial(pos, "Y="))
+  {
+    y = atof(arg+1);
+    return RTS_OK;
+  }
+  if (StrCaseCmpPartial(pos, "Z="))
+  {
+    z = atof(arg+1);
+    return RTS_OK;
+  }
+
+  if (StrCaseCmpPartial(pos, "ANGLE="))
+  {
+    angle = atof(arg+1);
+    return RTS_OK;
+  }
+
+  if (StrCaseCmpPartial(pos, "TAG="))
+  {
+    tag = atoi(arg+1);
+    return RTS_OK;
+  }
+
+  // Note: EDGE 1.31 functionality
+  if (StrCaseCmpPartial(pos, "WHEN="))
+  {
+    when_appear = WhenAppear_Parse(arg+1);
+    return RTS_OK;
+  }
+
+  LogPrintf("Unknown SPAWN_THING keyword: %s\n", pos);
+  return RTS_ERROR;
 }
 
 
@@ -421,21 +461,21 @@ rad_trigger_c * rad_trigger_c::ReadRadTrig(FILE *fp, std::string& first)
 
   pos = skip_word(pos);
 
-  rad_trigger_c *trig = new rad_trigger_c(is_rect);
+  rad_trigger_c *TRIG = new rad_trigger_c(is_rect);
 
-  rts_result_e res = trig->ParseLocation(pos);
+  rts_result_e res = TRIG->ParseLocation(pos);
 
   if (res == RTS_OK)
   {
-    res = trig->ParseBody(fp);
+    res = TRIG->ParseBody(fp);
   }
 
   if (res == RTS_ERROR)
   {
-    delete trig; return NULL;
+    delete TRIG; return NULL;
   }
 
-  return trig;
+  return TRIG;
 }
 
 rts_result_e rad_trigger_c::ParseLocation(const char *pos)
@@ -701,22 +741,22 @@ section_c * section_c::ReadStartMap(FILE *fp, std::string& first)
   pos = skip_space(pos);
   pos = skip_word(pos);
 
-  section_c *st_map = new section_c(START_MAP);
+  section_c *MAP = new section_c(START_MAP);
 
-  rts_result_e res = st_map->ParseMapName(pos);
+  rts_result_e res = MAP->ParseMapName(pos);
 
   if (res == RTS_OK)
   {
     // invoke parsing code for all the contents
-    res = st_map->ParsePieces(fp);
+    res = MAP->ParsePieces(fp);
   }
 
   if (res == RTS_ERROR)
   {
-    delete st_map; return NULL;
+    delete MAP; return NULL;
   }
 
-  return st_map;
+  return MAP;
 }
 
 rts_result_e section_c::ParseMapName(const char *pos)
