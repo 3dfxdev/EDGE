@@ -24,6 +24,7 @@
 
 #include "main.h"
 #include "g_level.h"
+#include "g_script.h"
 #include "g_wad.h"
 
 #include "ui_chooser.h"
@@ -231,6 +232,25 @@ int main(int argc, char **argv)
   // load config after creating window (set widget values)
 //  Cookie_Load(CONFIG_FILENAME);
 
+
+#if 1  // TEST CODE for SCRIPT LOADING and SAVING
+  FILE *fp = fopen("RSCRIPT.lmm", "r");
+  SYS_ASSERT(fp);
+
+  script_c *SCR = script_c::Load(fp);
+  SYS_ASSERT(SCR);
+
+  fclose(fp);
+
+  fp = fopen("RSCRIPT.out", "w");
+  SYS_ASSERT(fp);
+
+  SCR->Save(fp);
+
+  fclose(fp);
+#endif
+
+  
 #if 1  // TEST CODE for MAP DRAWING
   wad_c *wad = wad_c::Load("PAR.wad");
   SYS_ASSERT(wad);
