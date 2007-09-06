@@ -658,11 +658,13 @@ rts_result_e rad_trigger_c::cmd_Name(const char *args)
 
   name = std::string(args, (int)(arg_end - args));
 
-  if (strncmp(name, "worldspawn", 10) == 0 && isdigit(name[10]))
+  const char *name_c = name.c_str();
+
+  if (strncmp(name_c, "worldspawn", 10) == 0 && isdigit(name_c[10]))
   {
     worldspawn = true;
 
-    int kind = atoi(name+10);
+    int kind = atoi(name_c+10);
 
     when_appear  = 0;
     when_appear |= (kind & 1) ? WNAP_Easy   : 0;
@@ -689,7 +691,7 @@ rts_result_e rad_trigger_c::cmd_Tag(const char *args)
 rts_result_e rad_trigger_c::cmd_WhenAppear(const char *args)
 {
   if (worldspawn) // when_appear already calculated from the name
-    return;
+    return RTS_OK;
   
   const char *arg_end = skip_word(args);
 
