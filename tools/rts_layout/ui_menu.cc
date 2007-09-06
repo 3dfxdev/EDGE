@@ -133,6 +133,11 @@ static void thing_do_delete(Fl_Widget *w, void * data)
   // TODO
 }
 
+static void thing_do_find_type(Fl_Widget *w, void * data)
+{
+  // TODO
+}
+
 
 //------------------------------------------------------------------------
 //  HELP MENU
@@ -271,6 +276,7 @@ static Fl_Menu_Item menu_items[] =
     { "&Load DDF Wad",  0, FCAL thing_do_load_ddf_wad, 0, FL_MENU_DIVIDER },
     { "&New Thing",     0, FCAL thing_do_new },
     { "&Delete Thing",  0, FCAL thing_do_delete },
+    { "&Find Type",     0, FCAL thing_do_find_type },
     { 0 },
 
   { "&Help", 0, 0, 0, FL_SUBMENU },
