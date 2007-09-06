@@ -26,6 +26,32 @@
 #include "g_script.h"
 
 
+const char *Float_TmpStr(float val, int precision = 2)
+{
+  // produces a 'Human Readable' float output, which removes
+  // trailing zeros for a nicer result.  For example: "123.00"
+  // becomes "123".
+
+  static char buffer[200];
+
+  sprintf(buffer, "%1.*f", precision, val);
+
+  if (! strchr(buffer, '.'))
+    return buffer;
+
+  char *pos = buffer + strlen(buffer) - 1;
+
+  while (*pos == '0')
+    *pos-- = 0;
+
+  if (*pos == '.')
+    *pos-- = 0;
+      
+  SYS_ASSERT(isdigit(*pos));
+
+  return buffer;
+}
+
 const char *Indent_TmpStr(int spaces)
 {
   static char buffer[100];
@@ -46,9 +72,9 @@ const char *WhenAppear_TmpStr(int appear)
   
   buffer[0] = 0;
 
-  if (appear & WNAP_Easy)   strcat(buffer, ":1:2");
-  if (appear & WNAP_Medium) strcat(buffer, ":3");
   if (appear & WNAP_Hard)   strcat(buffer, ":4:5");
+  if (appear & WNAP_Medium) strcat(buffer, ":3");
+  if (appear & WNAP_Easy)   strcat(buffer, ":1:2");
 
   if (appear & WNAP_SP)     strcat(buffer, ":sp");
   if (appear & WNAP_Coop)   strcat(buffer, ":coop");
@@ -232,13 +258,14 @@ void thing_spawn_c::WriteThing(FILE *fp)
 
   fprintf(fp, " %s", type.c_str());
 
-  fprintf(fp, " %1.1f %1.1f", x, y);
+  fprintf(fp, " %s", Float_TmpStr(x));
+  fprintf(fp, " %s", Float_TmpStr(y));
 
   if (angle != 0 || has_z)
-    fprintf(fp, " %1.0f", angle);
+    fprintf(fp, " %s", Float_TmpStr(angle));
 
   if (has_z)
-    fprintf(fp, " %1.1f", z);
+    fprintf(fp, " %s", Float_TmpStr(z));
 
   if (tag != 0)
     fprintf(fp, " TAG=%d", tag);
@@ -386,16 +413,27 @@ void rad_trigger_c::WriteRadTrig(FILE *fp)
   // write the start marker
   if (is_rect)
   {
-    fprintf(fp, "RECT_TRIGGER %1.1f %1.1f %1.1f %1.1f",
-            mx-rx, my-ry, mx+rx, my+ry);
+    fprintf(fp, "RECT_TRIGGER");
+
+    fprintf(fp, " %s", Float_TmpStr(mx-rx));
+    fprintf(fp, " %s", Float_TmpStr(my-ry));
+    fprintf(fp, " %s", Float_TmpStr(mx+rx));
+    fprintf(fp, " %s", Float_TmpStr(my+ry));
   }
   else
   {
-    fprintf(fp, "RADIUS_TRIGGER %1.1f %1.1f %1.1f", mx, my, rx);
+    fprintf(fp, "RADIUS_TRIGGER");
+        
+    fprintf(fp, " %s", Float_TmpStr(mx));
+    fprintf(fp, " %s", Float_TmpStr(my));
+    fprintf(fp, " %s", Float_TmpStr(rx));
   }
 
   if (rz > 0)
-    fprintf(fp, "  %1.1f %1.1f", mz-rz, mz+rz);
+  {
+    fprintf(fp, "  %s", Float_TmpStr(mz-rz));
+    fprintf(fp, "  %s", Float_TmpStr(mz+rz));
+  }
 
   fprintf(fp, "\n");
 
@@ -414,18 +452,18 @@ void rad_trigger_c::WriteRadTrig(FILE *fp)
   {
     fprintf(fp, "    tagged_immediate\n");
 
-    std::vector<std::string>::iterator LI;
-
-    for (LI = lines.begin(); LI != lines.end(); LI++)
-      fprintf(fp, "%s\n", (*LI).c_str());
-  }
-  else
-  {
     std::vector<thing_spawn_c *>::iterator TI;
 
     for (TI = things.begin(); TI != things.end(); TI++)
       if (*TI)
         (*TI)->WriteThing(fp);
+  }
+  else
+  {
+    std::vector<std::string>::iterator LI;
+
+    for (LI = lines.begin(); LI != lines.end(); LI++)
+      fprintf(fp, "%s\n", (*LI).c_str());
   }
 
   // that's all folks!
@@ -583,7 +621,7 @@ rts_result_e rad_trigger_c::ParseCommand(std::string& line)
   if (DDF_CompareWord(pos, "when_appear"))
     return cmd_WhenAppear(args);
 
-
+//worldspawn = true;//!!!!!!
   if (! worldspawn)
   {
     // ordinary command
