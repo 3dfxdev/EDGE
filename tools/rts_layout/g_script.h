@@ -52,7 +52,7 @@ when_appear_e;
 class thing_spawn_c
 {
 private:
-  thing_spawn_c();
+  thing_spawn_c(bool _ambush);
 
 public:
   ~thing_spawn_c();
@@ -80,6 +80,10 @@ public:
 
   void WriteThing(FILE *fp);
   // write this thing-spawn into the given file.
+
+private:
+  rts_result_e ParseKeyword(std::string& word);
+  // parse keyword parameters like 'TAG=1234'.
 };
 
 
@@ -125,6 +129,8 @@ public:
   // write this script into the given file.
 
 private:
+  static bool MatchEndTrig(std::string& line);
+
   rts_result_e ParseLocation(const char *pos);
 
   rts_result_e ParseBody(FILE *fp);
@@ -135,7 +141,9 @@ private:
   // this function is never called again), or RTS_ERROR if a
   // problem occurred.
 
-  static bool MatchEndTrig(std::string& line);
+  rts_result_e cmd_Name(const char *args);
+  rts_result_e cmd_Tag(const char *args);
+  rts_result_e cmd_WhenAppear(const char *args);
 };
 
 
