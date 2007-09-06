@@ -346,36 +346,36 @@ rts_result_e thing_spawn_c::ParseKeyword(std::string& word)
 
   SYS_ASSERT(arg);
 
-  if (StrCaseCmpPartial(pos, "X="))
+  if (StrCaseCmpPartial(pos, "X=") == 0)
   {
     x = atof(arg+1);
     return RTS_OK;
   }
-  if (StrCaseCmpPartial(pos, "Y="))
+  if (StrCaseCmpPartial(pos, "Y=") == 0)
   {
     y = atof(arg+1);
     return RTS_OK;
   }
-  if (StrCaseCmpPartial(pos, "Z="))
+  if (StrCaseCmpPartial(pos, "Z=") == 0)
   {
     z = atof(arg+1);
     return RTS_OK;
   }
 
-  if (StrCaseCmpPartial(pos, "ANGLE="))
+  if (StrCaseCmpPartial(pos, "ANGLE=") == 0)
   {
     angle = atof(arg+1);
     return RTS_OK;
   }
 
-  if (StrCaseCmpPartial(pos, "TAG="))
+  if (StrCaseCmpPartial(pos, "TAG=") == 0)
   {
     tag = atoi(arg+1);
     return RTS_OK;
   }
 
   // Note: EDGE 1.31 functionality
-  if (StrCaseCmpPartial(pos, "WHEN="))
+  if (StrCaseCmpPartial(pos, "WHEN=") == 0)
   {
     when_appear = WhenAppear_Parse(arg+1);
     return RTS_OK;
@@ -621,7 +621,6 @@ rts_result_e rad_trigger_c::ParseCommand(std::string& line)
   if (DDF_CompareWord(pos, "when_appear"))
     return cmd_WhenAppear(args);
 
-//worldspawn = true;//!!!!!!
   if (! worldspawn)
   {
     // ordinary command
@@ -659,6 +658,18 @@ rts_result_e rad_trigger_c::cmd_Name(const char *args)
 
   name = std::string(args, (int)(arg_end - args));
 
+  if (strncmp(name, "worldspawn", 10) == 0 && isdigit(name[10]))
+  {
+    worldspawn = true;
+
+    int kind = atoi(name+10);
+
+    when_appear  = 0;
+    when_appear |= (kind & 1) ? WNAP_Easy   : 0;
+    when_appear |= (kind & 2) ? WNAP_Medium : 0;
+    when_appear |= (kind & 4) ? WNAP_Hard   : 0;
+  }
+
   return RTS_OK;
 }
 
@@ -677,6 +688,9 @@ rts_result_e rad_trigger_c::cmd_Tag(const char *args)
 
 rts_result_e rad_trigger_c::cmd_WhenAppear(const char *args)
 {
+  if (worldspawn) // when_appear already calculated from the name
+    return;
+  
   const char *arg_end = skip_word(args);
 
   if (arg_end == args)
