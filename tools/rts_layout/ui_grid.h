@@ -23,6 +23,11 @@
 class linedef_c;
 class level_c;
 
+class rad_trigger_c;
+class thing_spawn_c;
+class section_c;
+class script_c;
+
 
 class UI_Grid : public Fl_Widget
 {
@@ -35,6 +40,11 @@ public:
   // parameter can be NULL to disable map view (which is the
   // default state).  Calling this will cause the grid to zoom
   // so that it fits the whole map (i.e. FitBBox is invoked).
+
+  void SetScript(section_c *new_scr);
+  // set or change the current script we are viewing.
+  // The 'new_scr' can be NULL to disable script display
+  // (triggers and spawn-things).
 
   void SetZoom(int new_zoom);
   // changes the current zoom factor.
@@ -69,7 +79,17 @@ private:
   void draw_map();
   void draw_linedef(const linedef_c *ld);
 
-//  void draw_script(const script_t *scr, int ity);
+  enum state_foo_e
+  {
+    STATE_Off = 0,
+    STATE_Normal,
+    STATE_Highlighted,
+    STATE_Selected
+  };
+ 
+  void draw_goodies();
+  void draw_trigger(rad_trigger_c *RAD);
+  void draw_thing(const thing_spawn_c *TH);
 
   void blast_line(double x1, double y1, double x2, double y2);
 
@@ -84,6 +104,8 @@ public:
 
 private:
   level_c *map;
+
+  section_c *script;
  
   int zoom;
   // zoom factor: (2 ^ (zoom/2)) pixels per 512 units on the map
@@ -99,9 +121,6 @@ private:
   double mid_y;
 
   int grid_MODE;
-  int partition_MODE;
-  int bbox_MODE;
-  int miniseg_MODE;
   int shade_MODE;
 
 
