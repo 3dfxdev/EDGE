@@ -53,6 +53,7 @@ UI_ThingInfo::UI_ThingInfo(int X, int Y, int W, int H, const char *label) :
 
   type = new Fl_Input(X+46, Y, W-50, 24, "Type: ");
   type->align(FL_ALIGN_LEFT);
+  type->textsize(12);
 
   add(type);
 
