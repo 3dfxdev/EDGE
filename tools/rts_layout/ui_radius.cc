@@ -43,7 +43,7 @@ UI_RadiusInfo::UI_RadiusInfo(int X, int Y, int W, int H, const char *label) :
   int MX = X + W/2;
 
 
-  which = new Fl_Box(FL_NO_BOX, X, Y, W, 22, "Trigger #1234 (of 7777)");
+  which = new Fl_Box(FL_NO_BOX, X, Y, W, 22, "Trigger #1234  of 7777");
   which->align(FL_ALIGN_INSIDE | FL_ALIGN_LEFT);
 
   add(which);
