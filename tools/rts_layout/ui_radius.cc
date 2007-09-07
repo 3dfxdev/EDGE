@@ -24,9 +24,6 @@
 #include "ui_radius.h"
 
 
-#define INFO_BG_COLOR  fl_rgb_color(96)
-
-
 //
 // UI_RadiusInfo Constructor
 //
