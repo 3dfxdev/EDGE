@@ -23,6 +23,7 @@
 
 #include "ui_panel.h"
 #include "ui_radius.h"
+#include "ui_thing.h"
 
 
 #define INFO_BG_COLOR  fl_rgb_color(96)
@@ -48,39 +49,28 @@ UI_Panel::UI_Panel(int X, int Y, int W, int H, const char *label) :
 
   // ---- top section ----
  
-  map_name = new Fl_Output(X+84, Y, W-84, 22, "Map Name:");
+  map_name = new Fl_Output(X+94, Y, 80, 22, "Current Map: ");
   map_name->align(FL_ALIGN_LEFT);
+  map_name->value("MAP01");
 
   add(map_name);
 
   Y += map_name->h() + 8;
 
 
-  mode = new Fl_Choice(X+52, Y, W-64, 22, "Mode:");
-  mode->align(FL_ALIGN_LEFT);
-  mode->add("Scripts|Things");
-  mode->value(0);
-  mode->color(FL_RED);
-  mode->callback(mode_callback, this);
+  grid_size = new Fl_Output(X+50, Y, 80, 22, "Scale:");
+  grid_size->align(FL_ALIGN_LEFT);
+  add(grid_size);
 
-  add(mode);
+  Y += grid_size->h() + 4;
 
-  Y += mode->h() + 16;
 
-  int TY = Y;
+  m_label = new Fl_Box(FL_NO_BOX, X, Y, W, 22, "Mouse Coords:");
+  m_label->align(FL_ALIGN_LEFT | FL_ALIGN_INSIDE);
+  add(m_label);
   
-#if 1
-  // resize control:
-  Fl_Box *resize_control = new Fl_Box(FL_NO_BOX, x(), Y, w(), 4, NULL);
+  Y += m_label->h() + 4;
 
-  add(resize_control);
-  resizable(resize_control);
-#endif 
-
-  
-  // ---- bottom section ----
-
-  Y = y() + H - 22;
 
   mouse_x = new Fl_Output(X+28,   Y, 72, 22, "x");
   mouse_y = new Fl_Output(X+W-72, Y, 72, 22, "y");
@@ -91,32 +81,46 @@ UI_Panel::UI_Panel(int X, int Y, int W, int H, const char *label) :
   add(mouse_x);
   add(mouse_y);
 
-  Y -= mouse_x->h() + 4;
-
-  m_label = new Fl_Box(FL_NO_BOX, X, Y, W, 22, "Mouse Coords:");
-  m_label->align(FL_ALIGN_LEFT | FL_ALIGN_INSIDE);
-  add(m_label);
-  
-  Y -= m_label->h() + 4;
-
-  grid_size = new Fl_Output(X+50, Y, 80, 22, "Scale:");
-  grid_size->align(FL_ALIGN_LEFT);
-  add(grid_size);
-
-  Y -= grid_size->h() + 4;
-
-  int BY = Y;
+  Y += mouse_x->h() + 20;
 
 
-  // ---- middle section ----
- 
-  script_box = new UI_RadiusInfo(X-2, TY, W+4, BY-TY);
+  // ---- bottom section ----
+
+  mode = new Fl_Choice(X+52, Y, W-64, 22, "Mode:");
+  mode->align(FL_ALIGN_LEFT);
+  mode->add("Scripts|Things");
+  mode->value(0);
+  mode->color(FL_RED);
+  mode->callback(mode_callback, this);
+
+  add(mode);
+
+  Y += mode->h() + 8;
+
+
+  script_box = new UI_RadiusInfo(X-2, Y, W+4, H-Y-12);
 
   add(script_box);
+
+  script_box->hide();
+
+
+  thing_box = new UI_ThingInfo(X-2, Y, W+4, H-Y-12);
+
+  add(thing_box);
     
 
   // FIXME: thing_box
   
+
+  // ---- resizable ----
+ 
+#if 1
+  Fl_Box *resize_control = new Fl_Box(FL_NO_BOX, x(), H-4, w(), 4, NULL);
+
+  add(resize_control);
+  resizable(resize_control);
+#endif 
 
 }
 
