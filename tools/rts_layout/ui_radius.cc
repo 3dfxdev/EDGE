@@ -64,8 +64,8 @@ UI_RadiusInfo::UI_RadiusInfo(int X, int Y, int W, int H, const char *label) :
   Y += shape->h() + 4;
 
 
-  pos_x = new Fl_Float_Input(X +20, Y, W/2-24, 22, "x:");
-  pos_y = new Fl_Float_Input(MX+20, Y, W/2-24, 22, "y:");
+  pos_x = new Fl_Float_Input(X +20, Y, W/2-24, 22, "x");
+  pos_y = new Fl_Float_Input(MX+20, Y, W/2-24, 22, "y");
 
   pos_x->align(FL_ALIGN_LEFT);
   pos_y->align(FL_ALIGN_LEFT);
@@ -76,8 +76,8 @@ UI_RadiusInfo::UI_RadiusInfo(int X, int Y, int W, int H, const char *label) :
   Y += pos_x->h() + 4;
 
 
-  pos_w = new Fl_Float_Input(X +20, Y, W/2-24, 22, "w:");
-  pos_h = new Fl_Float_Input(MX+20, Y, W/2-24, 22, "h:");
+  pos_w = new Fl_Float_Input(X +20, Y, W/2-24, 22, "w");
+  pos_h = new Fl_Float_Input(MX+20, Y, W/2-24, 22, "h");
 
   pos_w->align(FL_ALIGN_LEFT);
   pos_h->align(FL_ALIGN_LEFT);
@@ -88,8 +88,8 @@ UI_RadiusInfo::UI_RadiusInfo(int X, int Y, int W, int H, const char *label) :
   Y += pos_x->h() + 4;
 
 
-  pos_z1 = new Fl_Float_Input(X +20, Y, W/2-24, 22, "z1:");
-  pos_z2 = new Fl_Float_Input(MX+20, Y, W/2-24, 22, "z2:");
+  pos_z1 = new Fl_Float_Input(X +20, Y, W/2-24, 22, "z1");
+  pos_z2 = new Fl_Float_Input(MX+20, Y, W/2-24, 22, "z2");
 
   pos_z1->align(FL_ALIGN_LEFT);
   pos_z1->align(FL_ALIGN_LEFT);
@@ -117,15 +117,30 @@ UI_RadiusInfo::UI_RadiusInfo(int X, int Y, int W, int H, const char *label) :
 
 
   // when appear: two rows of three on/off buttons
-#if 0
-  appear_easy;
-  appear_medium;
-  appear_hard;
+  int AX = X+W/3;
+  int BX = X+2*W/3;
+  int CW = W/3 - 12;
 
-  appear_sp;
-  appear_coop;
-  appear_dm;
-#endif
+  appear_easy   = new Fl_Check_Button( X+8, Y, CW, 22, "easy");
+  appear_medium = new Fl_Check_Button(AX+8, Y, CW, 22, "medium");
+  appear_hard   = new Fl_Check_Button(BX+8, Y, CW, 22, "hard");
+
+  Y += appear_easy->h() + 2;
+
+  appear_sp     = new Fl_Check_Button( X+8, Y, CW, 22, "sp");
+  appear_coop   = new Fl_Check_Button(AX+8, Y, CW, 22, "coop");
+  appear_dm     = new Fl_Check_Button(BX+8, Y, CW, 22, "dm");
+
+  appear_easy->value(1);   appear_sp->value(1);
+  appear_medium->value(1); appear_coop->value(1);
+  appear_hard->value(1);   appear_dm->value(1);
+
+  appear_easy->labelsize(12);   appear_sp->labelsize(12);
+  appear_medium->labelsize(12); appear_coop->labelsize(12);
+  appear_hard->labelsize(12);   appear_dm->labelsize(12);
+  
+  add(appear_easy); add(appear_medium); add(appear_hard);
+  add(appear_sp);   add(appear_coop);   add(appear_dm);
 }
 
 //
