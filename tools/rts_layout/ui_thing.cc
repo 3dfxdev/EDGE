@@ -51,7 +51,7 @@ UI_ThingInfo::UI_ThingInfo(int X, int Y, int W, int H, const char *label) :
   Y += which->h() + 8;
 
 
-  type = new Fl_Input(X+54, Y, W-58, 24, "Type: ");
+  type = new Fl_Input(X+46, Y, W-50, 24, "Type: ");
   type->align(FL_ALIGN_LEFT);
 
   add(type);
@@ -71,15 +71,15 @@ UI_ThingInfo::UI_ThingInfo(int X, int Y, int W, int H, const char *label) :
   Y += pos_x->h() + 4;
 
 
-  pos_z = new Fl_Float_Input(MX+20, Y, W/2-24, 22, "z");
+  pos_z = new Fl_Float_Input(X +20, Y, W/2-24, 22, "z");
   pos_z->align(FL_ALIGN_LEFT);
 
   add(pos_z);
 
-  Y += pos_x->h() + 8;
+  Y += pos_x->h() + 4;
 
 
-  angle = new Fl_Float_Input(X+44, Y, W-48, 22, "Angle:");
+  angle = new Fl_Float_Input(X+54, Y, W/2-14, 22, "Angle:");
   angle->align(FL_ALIGN_LEFT);
 
   add(angle);
@@ -87,19 +87,27 @@ UI_ThingInfo::UI_ThingInfo(int X, int Y, int W, int H, const char *label) :
   Y += angle->h() + 4;
 
 
-  ambush = new Fl_Check_Button(X+4, Y, W-8, 22, "Ambush");
-
-  add(ambush);
-
-  Y += ambush->h() + 4;
-
-
-  tag = new Fl_Int_Input(X+44, Y, W-48, 22, "Tag:");
+  tag = new Fl_Int_Input(X+54, Y, W/2-14, 22, "Tag: ");
   tag->align(FL_ALIGN_LEFT);
 
   add(tag);
 
-  Y += tag->h() + 4;
+  Y += tag->h() + 8;
+
+
+  Fl_Box *opt_lab = new Fl_Box(X, Y, W, 22, "Options:");
+  opt_lab->align(FL_ALIGN_INSIDE | FL_ALIGN_LEFT);
+
+  add(opt_lab);
+
+  Y += opt_lab->h() + 4;
+
+    
+  ambush = new Fl_Check_Button(X+12, Y, W-8, 22, "Ambush");
+
+  add(ambush);
+
+  Y += ambush->h() + 4;
 
 
   // when appear: two rows of three on/off buttons
@@ -107,9 +115,9 @@ UI_ThingInfo::UI_ThingInfo(int X, int Y, int W, int H, const char *label) :
   int BX = X+2*W/3;
   int CW = W/3 - 12;
 
-  appear_easy   = new Fl_Check_Button( X+8, Y, CW, 22, "easy");
-  appear_medium = new Fl_Check_Button(AX+8, Y, CW, 22, "medium");
-  appear_hard   = new Fl_Check_Button(BX+8, Y, CW, 22, "hard");
+  appear_easy   = new Fl_Check_Button( X+12, Y, CW, 22, "easy");
+  appear_medium = new Fl_Check_Button(AX+8,  Y, CW, 22, "medium");
+  appear_hard   = new Fl_Check_Button(BX+10, Y, CW, 22, "hard");
 
   Y += appear_easy->h() + 2;
 
