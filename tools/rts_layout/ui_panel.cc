@@ -20,6 +20,7 @@
 #include "hdr_fltk.h"
 
 #include "lib_util.h"
+#include "main.h"
 
 #include "ui_panel.h"
 #include "ui_radius.h"
@@ -102,16 +103,13 @@ UI_Panel::UI_Panel(int X, int Y, int W, int H, const char *label) :
 
   add(script_box);
 
-  script_box->hide();
-
 
   thing_box = new UI_ThingInfo(X-2, Y, W+4, H-Y-12);
 
   add(thing_box);
     
+  thing_box->hide();
 
-  // FIXME: thing_box
-  
 
   // ---- resizable ----
  
@@ -143,6 +141,23 @@ void UI_Panel::mode_callback(Fl_Widget *w, void *data)
   SYS_ASSERT(me);
 
   me->mode->color(me->mode->value() ? FL_CYAN : FL_RED);
+
+  switch (me->mode->value())
+  {
+    case 0:
+      me->script_box->show();
+      me->thing_box->hide();
+      break;
+
+    case 1:
+      me->thing_box->show();
+      me->script_box->hide();
+      break;
+
+    default:
+      Main_FatalError("INTERNAL ERROR: mode_callback: bad value!\n");
+      break; /* NOT REACHED */
+  }
 }
 
 //------------------------------------------------------------------------
