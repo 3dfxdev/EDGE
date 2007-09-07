@@ -108,6 +108,11 @@ static void script_do_delete(Fl_Widget *w, void * data)
   // TODO
 }
 
+static void script_do_find_trig(Fl_Widget *w, void * data)
+{
+  // TODO
+}
+
 
 //------------------------------------------------------------------------
 //  THING MENU
@@ -133,7 +138,12 @@ static void thing_do_delete(Fl_Widget *w, void * data)
   // TODO
 }
 
-static void thing_do_find_type(Fl_Widget *w, void * data)
+static void thing_do_find_thing(Fl_Widget *w, void * data)
+{
+  // TODO
+}
+
+static void thing_do_choose_type(Fl_Widget *w, void * data)
 {
   // TODO
 }
@@ -259,9 +269,9 @@ static Fl_Menu_Item menu_items[] =
     { "&Undo",   FL_CTRL + 'z',  FCAL edit_do_undo, 0, FL_MENU_DIVIDER },
     { "Cu&t",    FL_CTRL + 'x',  FCAL edit_do_cut },
     { "&Copy",   FL_CTRL + 'c',  FCAL edit_do_copy },
-    { "&Paste",  FL_CTRL + 'v',  FCAL edit_do_paste, 0, FL_MENU_DIVIDER },
+    { "&Paste",  FL_CTRL + 'v',  FCAL edit_do_paste }, /* , 0, FL_MENU_DIVIDER },
 
-    { "Unselect &All", FL_CTRL + 'a', FCAL edit_do_unselect },
+    { "Unselect &All", FL_CTRL + 'a', FCAL edit_do_unselect }, */
     { 0 },
 
   { "&Script", 0, 0, 0, FL_SUBMENU },
@@ -269,14 +279,16 @@ static Fl_Menu_Item menu_items[] =
     { "&Change Map",     0, FCAL script_do_change_map, 0, FL_MENU_DIVIDER },
     { "&New Trigger",    0, FCAL script_do_new },
     { "&Delete Trigger", 0, FCAL script_do_delete },
+    { "&Find Trigger",   0, FCAL script_do_find_trig },
     { 0 },
 
   { "&Thing", 0, 0, 0, FL_SUBMENU },
     { "&Load DDF File", 0, FCAL thing_do_load_ddf_file },
-    { "&Load DDF Wad",  0, FCAL thing_do_load_ddf_wad, 0, FL_MENU_DIVIDER },
+    { "Load DDF &Wad",  0, FCAL thing_do_load_ddf_wad, 0, FL_MENU_DIVIDER },
     { "&New Thing",     0, FCAL thing_do_new },
     { "&Delete Thing",  0, FCAL thing_do_delete },
-    { "&Find Type",     0, FCAL thing_do_find_type },
+    { "&Find Thing",    0, FCAL thing_do_find_thing },
+    { "&Choose Type",   0, FCAL thing_do_choose_type },
     { 0 },
 
   { "&Help", 0, 0, 0, FL_SUBMENU },
