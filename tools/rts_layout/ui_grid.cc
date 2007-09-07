@@ -20,6 +20,7 @@
 #include "hdr_fltk.h"
 
 #include "g_level.h"
+#include "g_script.h"
 
 #include "ui_window.h"
 #include "ui_grid.h"
@@ -31,11 +32,10 @@
 //
 UI_Grid::UI_Grid(int X, int Y, int W, int H, const char *label) : 
     Fl_Widget(X, Y, W, H, label),
-    map(NULL),
+    map(NULL), script(NULL),
     zoom(DEF_GRID_ZOOM), zoom_mul(1.0),
     mid_x(0), mid_y(0),
-    grid_MODE(1), partition_MODE(1), bbox_MODE(1),
-    miniseg_MODE(2), shade_MODE(1)
+    grid_MODE(1), shade_MODE(1)
 { }
 
 //
@@ -57,6 +57,15 @@ void UI_Grid::SetMap(level_c *new_map)
 
     FitBBox(lx,ly, hx,hy);
   }
+
+  redraw();
+}
+
+void UI_Grid::SetScript(section_c *new_scr)
+{
+  script = new_scr;
+
+  // TODO: if (new_scr && !map) FitBBox(...)
 
   redraw();
 }
@@ -169,8 +178,9 @@ void UI_Grid::draw()
   if (map)
     draw_map();
 
-  // TODO:  draw_things
-  // TODO:  draw_scripts
+  if (script)
+    draw_goodies();
+
 
   fl_pop_clip();
 }
@@ -421,6 +431,67 @@ void UI_Grid::draw_linedef(const linedef_c *ld)
 }
 
 
+void UI_Grid::draw_goodies()
+{
+  std::vector<section_c *>::iterator PI;
+
+  for (PI = script->pieces.begin(); PI != script->pieces.end(); PI++)
+  {
+    if (*PI)
+    {
+      section_c *piece = *PI;
+
+      if (piece->kind == section_c::RAD_TRIG)
+        draw_trigger(piece->trig);
+    }
+  }
+}
+
+void UI_Grid::draw_trigger(rad_trigger_c *RAD)
+{
+  SYS_ASSERT(RAD);
+
+  if (RAD->worldspawn)
+  {
+    std::vector<thing_spawn_c *>::iterator TI;
+
+    for (TI = RAD->things.begin(); TI != RAD->things.end(); TI++)
+    {
+      if (*TI)
+        draw_thing(*TI);
+    }
+
+    return;
+  }
+
+  // skip triggers without a definite size
+  if (RAD->rx < 0 || RAD->ry < 0)
+    return;
+ 
+  if (RAD->is_rect)
+    fl_color(FL_RED);
+  else
+    fl_color(FL_GREEN);
+
+  float x1 = RAD->mx - RAD->rx;
+  float y1 = RAD->my - RAD->ry;
+  float x2 = RAD->mx + RAD->rx;
+  float y2 = RAD->my + RAD->ry;
+
+  blast_line(x1, y1, x1, y2);
+  blast_line(x2, y1, x2, y2);
+  blast_line(x1, y1, x2, y1);
+  blast_line(x1, y2, x2, y2);
+}
+
+void UI_Grid::draw_thing(const thing_spawn_c *TH)
+{
+  SYS_ASSERT(TH);
+
+  // TODO
+}
+
+
 void UI_Grid::blast_line(double x1, double y1, double x2, double y2)
 {
   double mlx = mid_x - w() * 0.5 / zoom_mul;
@@ -654,21 +725,6 @@ int UI_Grid::handle_key(int key)
 
     case 'g': case 'G':
       grid_MODE = (grid_MODE + 1) % 2;
-      redraw();
-      return 1;
-
-    case 'p': case 'P':
-      partition_MODE = (partition_MODE + 1) % 3;
-      redraw();
-      return 1;
-
-    case 'b': case 'B':
-      bbox_MODE = (bbox_MODE + 1) % 2;
-      redraw();
-      return 1;
-
-    case 'm': case 'M':
-      miniseg_MODE = (miniseg_MODE + 2) % 3;
       redraw();
       return 1;
 
