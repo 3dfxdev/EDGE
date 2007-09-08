@@ -22,6 +22,8 @@
 #include "lib_util.h"
 #include "main.h"
 
+#include "ui_window.h"
+#include "ui_grid.h"
 #include "ui_panel.h"
 #include "ui_radius.h"
 #include "ui_thing.h"
@@ -50,7 +52,7 @@ UI_Panel::UI_Panel(int X, int Y, int W, int H, const char *label) :
 
   // ---- top section ----
  
-  map_name = new Fl_Output(X+94, Y, 80, 22, "Current Map: ");
+  map_name = new Fl_Output(X+96, Y, 80, 22, "Current Map: ");
   map_name->align(FL_ALIGN_LEFT);
   map_name->value("MAP01");
 
@@ -59,14 +61,14 @@ UI_Panel::UI_Panel(int X, int Y, int W, int H, const char *label) :
   Y += map_name->h() + 8;
 
 
-  grid_size = new Fl_Output(X+50, Y, 80, 22, "Scale:");
+  grid_size = new Fl_Output(X+50, Y, 72, 22, "Scale:");
   grid_size->align(FL_ALIGN_LEFT);
   add(grid_size);
 
   Y += grid_size->h() + 4;
 
 
-  m_label = new Fl_Box(FL_NO_BOX, X, Y, W, 22, "Mouse Coords:");
+  m_label = new Fl_Box(FL_NO_BOX, X+4, Y, W, 22, "Mouse Coords:");
   m_label->align(FL_ALIGN_LEFT | FL_ALIGN_INSIDE);
   add(m_label);
   
@@ -87,7 +89,7 @@ UI_Panel::UI_Panel(int X, int Y, int W, int H, const char *label) :
 
   // ---- bottom section ----
 
-  mode = new Fl_Choice(X+52, Y, W-64, 22, "Mode:");
+  mode = new Fl_Choice(X+50, Y, W-64, 22, "Mode:");
   mode->align(FL_ALIGN_LEFT);
   mode->add("Scripts|Things");
   mode->value(0);
@@ -103,6 +105,8 @@ UI_Panel::UI_Panel(int X, int Y, int W, int H, const char *label) :
 
   add(script_box);
 
+script_box->deactivate();
+  
 
   thing_box = new UI_ThingInfo(X-2, Y, W+4, H-Y-12);
 
@@ -136,22 +140,26 @@ int UI_Panel::handle(int event)
 
 void UI_Panel::mode_callback(Fl_Widget *w, void *data)
 {
-  UI_Panel *me = (UI_Panel *)data;
+  UI_Panel *panel = (UI_Panel *)data;
 
-  SYS_ASSERT(me);
+  SYS_ASSERT(panel);
 
-  me->mode->color(me->mode->value() ? FL_CYAN : FL_RED);
+  panel->mode->color(panel->mode->value() ? FL_CYAN : FL_RED);
 
-  switch (me->mode->value())
+  switch (panel->mode->value())
   {
     case 0:
-      me->script_box->show();
-      me->thing_box->hide();
+      panel->script_box->show();
+      panel->thing_box->hide();
+
+      main_win->grid->SetEditMode(UI_Grid::EDIT_RadTrig);
       break;
 
     case 1:
-      me->thing_box->show();
-      me->script_box->hide();
+      panel->thing_box->show();
+      panel->script_box->hide();
+
+      main_win->grid->SetEditMode(UI_Grid::EDIT_Things);
       break;
 
     default:
