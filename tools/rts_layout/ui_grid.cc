@@ -35,7 +35,7 @@ UI_Grid::UI_Grid(int X, int Y, int W, int H, const char *label) :
     map(NULL), script(NULL),
     zoom(DEF_GRID_ZOOM), zoom_mul(1.0),
     mid_x(0), mid_y(0),
-    grid_MODE(1), shade_MODE(1)
+    edit_MODE(EDIT_RadTrig), grid_MODE(1)
 { }
 
 //
@@ -142,6 +142,14 @@ void UI_Grid::WinToMap(int X, int Y, double *mx, double *my) const
   (*mx) = mid_x + (X - hx) / zoom_mul;
   (*my) = mid_y - (Y - hy) / zoom_mul;
 }
+
+void UI_Grid::SetEditMode(int new_mode)
+{
+  edit_MODE = new_mode;
+
+  redraw();
+}
+
 
 //------------------------------------------------------------------------
 
@@ -464,6 +472,9 @@ void UI_Grid::draw_trigger(rad_trigger_c *RAD)
     return;
   }
 
+  if (edit_MODE != EDIT_RadTrig)
+    return;
+
   // skip triggers without a definite size
   if (RAD->rx < 0 || RAD->ry < 0)
     return;
@@ -488,7 +499,51 @@ void UI_Grid::draw_thing(const thing_spawn_c *TH)
 {
   SYS_ASSERT(TH);
 
-  // TODO
+  if (edit_MODE != EDIT_Things)
+    return;
+
+  float r = 20.0;
+
+  if (TH->ddf_info)
+  {
+    // FIXME: check if monster / pickup / scenery
+    fl_color(FL_RED);
+  }
+  else
+  {
+    fl_color(FL_CYAN);
+  }
+
+  float x1 = TH->x - r;
+  float y1 = TH->y - r;
+  float x2 = TH->x + r;
+  float y2 = TH->y + r;
+
+  blast_line(x1, y1, x1, y2);
+  blast_line(x2, y1, x2, y2);
+  blast_line(x1, y1, x2, y1);
+  blast_line(x1, y2, x2, y2);
+
+  // draw direction
+ 
+  float dx = cos(TH->angle * M_PI / 180.0);
+  float dy = sin(TH->angle * M_PI / 180.0);
+
+  // convert circle to square
+  if (fabs(dx) > fabs(dy))
+  {
+    dy /= fabs(dx);
+    dx /= fabs(dx);
+  }
+  else
+  {
+    dx /= fabs(dy);
+    dy /= fabs(dy);
+  }
+
+  dx *= r; dy *= r;
+
+  blast_line(TH->x, TH->y, TH->x + dx, TH->y + dy);
 }
 
 
@@ -725,11 +780,6 @@ int UI_Grid::handle_key(int key)
 
     case 'g': case 'G':
       grid_MODE = (grid_MODE + 1) % 2;
-      redraw();
-      return 1;
-
-    case 's': case 'S':
-      shade_MODE = (shade_MODE + 1) % 2;
       redraw();
       return 1;
 
