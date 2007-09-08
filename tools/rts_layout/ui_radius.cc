@@ -54,35 +54,47 @@ UI_RadiusInfo::UI_RadiusInfo(int X, int Y, int W, int H, const char *label) :
   shape = new Fl_Choice(X+54, Y, W-58, 24, "Shape: ");
   shape->align(FL_ALIGN_LEFT);
   shape->add("Radius|Rectangle");
-  shape->value(1);
+  shape->value(0);
+  shape->callback(shape_callback, this);
 
   add(shape);
   
   Y += shape->h() + 4;
 
 
-  pos_x = new Fl_Float_Input(X +20, Y, W/2-24, 22, "x");
-  pos_y = new Fl_Float_Input(MX+20, Y, W/2-24, 22, "y");
+  pos_x1 = new Fl_Float_Input(X +20, Y, W/2-24, 22, "x1");
+  pos_y1 = new Fl_Float_Input(MX+20, Y, W/2-24, 22, "y1");
 
-  pos_x->align(FL_ALIGN_LEFT);
-  pos_y->align(FL_ALIGN_LEFT);
+  pos_x1->align(FL_ALIGN_LEFT);
+  pos_y1->align(FL_ALIGN_LEFT);
 
-  add(pos_x);
-  add(pos_y);
+  add(pos_x1);
+  add(pos_y1);
 
-  Y += pos_x->h() + 4;
+  Y += pos_x1->h() + 4;
 
 
-  pos_w = new Fl_Float_Input(X +20, Y, W/2-24, 22, "w");
-  pos_h = new Fl_Float_Input(MX+20, Y, W/2-24, 22, "h");
+  radius = new Fl_Float_Input(MX+20, Y, W/2-24, 22, "radius");
+  radius->align(FL_ALIGN_LEFT);
 
-  pos_w->align(FL_ALIGN_LEFT);
-  pos_h->align(FL_ALIGN_LEFT);
+  add(radius);
 
-  add(pos_w);
-  add(pos_h);
+// radius->hide();
 
-  Y += pos_x->h() + 4;
+
+  pos_x2 = new Fl_Float_Input(X +20, Y, W/2-24, 22, "x2");
+  pos_y2 = new Fl_Float_Input(MX+20, Y, W/2-24, 22, "y2");
+
+  pos_x2->align(FL_ALIGN_LEFT);
+  pos_y2->align(FL_ALIGN_LEFT);
+
+  add(pos_x2);
+  add(pos_y2);
+
+pos_x2->hide();
+pos_y2->hide();
+
+  Y += pos_x2->h() + 4;
 
 
   pos_z1 = new Fl_Float_Input(X +20, Y, W/2-24, 22, "z1");
@@ -94,7 +106,7 @@ UI_RadiusInfo::UI_RadiusInfo(int X, int Y, int W, int H, const char *label) :
   add(pos_z1);
   add(pos_z2);
 
-  Y += pos_x->h() + 12;
+  Y += pos_z1->h() + 12;
 
 
   name = new Fl_Input(X+44, Y, W-48, 22, "Name:");
@@ -147,6 +159,38 @@ UI_RadiusInfo::~UI_RadiusInfo()
 {
 }
 
+
+void UI_RadiusInfo::shape_callback(Fl_Widget *w, void *data)
+{
+  UI_RadiusInfo *rad = (UI_RadiusInfo *)data;
+
+  SYS_ASSERT(rad);
+
+  if (rad->shape->value() == 0)
+    rad->ConvertToRadius();
+  else
+    rad->ConvertToRectangle();
+}
+
+void UI_RadiusInfo::ConvertToRadius()
+{
+  pos_x2->hide();
+  pos_y2->hide();
+
+  radius->show();
+
+  // FIXME: do conversion
+}
+
+void UI_RadiusInfo::ConvertToRectangle()
+{
+  radius->hide();
+
+  pos_x2->show();
+  pos_y2->show();
+
+  // FIXME: do conversion
+}
 
 //--- editor settings ---
 // vi:ts=2:sw=2:expandtab

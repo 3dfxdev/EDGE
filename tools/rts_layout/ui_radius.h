@@ -27,16 +27,19 @@ public:
   virtual ~UI_RadiusInfo();
 
 private:
-  Fl_Box    *which;  // e.g. 'Trig 1234/7777'
+  Fl_Box    *which;  // e.g. 'Trigger #1234'
 
   Fl_Choice *shape;
 
-  Fl_Float_Input *pos_x;
-  Fl_Float_Input *pos_y;
+  Fl_Float_Input *pos_x1;
+  Fl_Float_Input *pos_y1;
 
-  // for radius shape, pos_w is hidden and pos_h contains radius
-  Fl_Float_Input *pos_w;
-  Fl_Float_Input *pos_h;
+  // for rectangle shape, 'radius' widget is hidden
+  // for radius shape, 'x2/y2' widgets are hidden
+  Fl_Float_Input *radius;
+
+  Fl_Float_Input *pos_x2;
+  Fl_Float_Input *pos_y2;
 
   Fl_Float_Input *pos_z1;
   Fl_Float_Input *pos_z2;
@@ -57,6 +60,10 @@ public:
 
 
 private:
+  void ConvertToRadius();
+  void ConvertToRectangle();
+
+  static void shape_callback(Fl_Widget *, void *);
 
 };
 

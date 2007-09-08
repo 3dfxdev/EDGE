@@ -27,7 +27,7 @@ public:
   virtual ~UI_ThingInfo();
 
 private:
-  Fl_Box   *which;  // e.g. 'Thing #1234 of 7777'
+  Fl_Box   *which;  // e.g. 'Thing #1234'
 
   Fl_Input *type;
 
