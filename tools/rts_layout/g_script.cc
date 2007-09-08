@@ -245,7 +245,7 @@ static void SplitLine(const char *pos, std::vector<std::string> & words)
 thing_spawn_c::thing_spawn_c(bool _ambush) :
     ambush(_ambush), has_z(false), type(),
     x(0), y(0), z(0), angle(0),
-    tag(0), when_appear(0)
+    tag(0), when_appear(0), ddf_info(NULL)
 { }
 
 thing_spawn_c::~thing_spawn_c()

@@ -20,6 +20,9 @@
 #define __G_SCRIPT_H__
 
 
+class mobjtype_c;
+
+
 typedef enum
 {
   RTS_OK = 0,
@@ -68,6 +71,9 @@ public:
   
   int tag;         // 0 = none
   int when_appear; // 0 = not specified
+
+  // this is not part of script, but looked up later on
+  mobjtype_c *ddf_info;
 
 public:
   static bool thing_spawn_c::MatchThing(std::string& line);
