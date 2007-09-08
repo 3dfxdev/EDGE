@@ -469,9 +469,9 @@ void UI_Grid::draw_trigger(rad_trigger_c *RAD)
     return;
  
   if (RAD->is_rect)
-    fl_color(FL_RED);
-  else
     fl_color(FL_GREEN);
+  else
+    fl_color(FL_RED);
 
   float x1 = RAD->mx - RAD->rx;
   float y1 = RAD->my - RAD->ry;
