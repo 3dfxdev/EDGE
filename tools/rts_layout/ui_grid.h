@@ -63,6 +63,14 @@ public:
   // convert a map coordinate into a window coordinate, using
   // current grid position and zoom factor.
 
+  enum edit_mode_kind_e
+  {
+    EDIT_RadTrig = 0,
+    EDIT_Things  = 1,
+  };
+
+  void SetEditMode(int new_mode);
+ 
 public:
   int handle(int event);
   // FLTK virtual method for handling input events.
@@ -115,13 +123,13 @@ private:
 
   static const int MIN_GRID_ZOOM = 3;
   static const int DEF_GRID_ZOOM = 18;  // 1:1 ratio
-  static const int MAX_GRID_ZOOM = 30;
+  static const int MAX_GRID_ZOOM = 26;
 
   double mid_x;
   double mid_y;
 
+  int edit_MODE;
   int grid_MODE;
-  int shade_MODE;
 
 
   static inline int GRID_FIND(double x, double y)
