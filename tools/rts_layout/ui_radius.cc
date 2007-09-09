@@ -20,8 +20,10 @@
 #include "hdr_fltk.h"
 
 #include "lib_util.h"
-
 #include "g_edit.h"
+
+#include "ui_window.h"
+#include "ui_panel.h"
 #include "ui_radius.h"
 
 
@@ -80,8 +82,6 @@ UI_RadiusInfo::UI_RadiusInfo(int X, int Y, int W, int H, const char *label) :
 
   add(radius);
 
-// radius->hide();
-
 
   pos_x2 = new Fl_Float_Input(X +20, Y, W/2-24, 22, "x2");
   pos_y2 = new Fl_Float_Input(MX+20, Y, W/2-24, 22, "y2");
@@ -92,8 +92,8 @@ UI_RadiusInfo::UI_RadiusInfo(int X, int Y, int W, int H, const char *label) :
   add(pos_x2);
   add(pos_y2);
 
-pos_x2->hide();
-pos_y2->hide();
+  pos_x2->hide();
+  pos_y2->hide();
 
   Y += pos_x2->h() + 4;
 
@@ -175,65 +175,197 @@ void UI_RadiusInfo::shape_callback(Fl_Widget *w, void *data)
 
 void UI_RadiusInfo::ConvertToRadius()
 {
-  pos_x2->hide();
-  pos_y2->hide();
-
-  radius->show();
 
   // FIXME: do conversion
 }
 
 void UI_RadiusInfo::ConvertToRectangle()
 {
-  radius->hide();
-
-  pos_x2->show();
-  pos_y2->show();
 
   // FIXME: do conversion
 }
+
+
+//------------------------------------------------------------------------
 
 void UI_RadTrigListener(rad_trigger_c *rad, int F)
 {
   main_win->panel->script_box->UpdateField(rad, F);
 }
 
-void rad_trigger_c::UpdateField(rad_trigger_c *rad, int F)
+void UI_RadiusInfo::UpdateField(rad_trigger_c *rad, int F)
 {
   // FIXME!!!  if (rad != main_win->grid->active_radtrig) return;
 
-  if (F == F_IS_RECT || F == F_UPDATE_ALL)
+  switch (F)
   {
-    // force F_MX/Y/Z and F_RX/Y/Z to be updated
-    F = F_UPDATE_ALL;
-  }
+    case rad_trigger_c::F_IS_RECT:
+      update_Shape(rad);
+      break;
 
-  if (F == F_MX   || F == F_UPDATE_ALL)
+    case rad_trigger_c::F_MX: case rad_trigger_c::F_MY:
+    case rad_trigger_c::F_RX: case rad_trigger_c::F_RY:
+      update_XY(rad);
+      break;
 
-  if (F == F_MY   || F == F_UPDATE_ALL)
+    case rad_trigger_c::F_MZ: case rad_trigger_c::F_RZ:
+      update_Z(rad);
+      break;
 
-  if (F == F_MZ   || F == F_UPDATE_ALL)
+    case rad_trigger_c::F_NAME:
+      update_Name(rad);
+      break;
 
-  if (F == F_RX   || F == F_UPDATE_ALL)
+    case rad_trigger_c::F_TAG:
+      update_Tag(rad);
+      break;
 
-  if (F == F_RY   || F == F_UPDATE_ALL)
+    case rad_trigger_c::F_WHEN_APPEAR:
+      update_WhenAppear(rad);
+      break;
 
-  if (F == F_RZ   || F == F_UPDATE_ALL)
-
-  if (F == F_NAME || F == F_UPDATE_ALL)
-
-  if (F == F_TAG  || F == F_UPDATE_ALL)
-    tag->value(rad->tag);
-
-  if (F == F_WHEN_APPEAR || F == F_UPDATE_ALL)
-  {
-    tag->value(rad->tag);
+    default:
+      break;
   }
 }
 
-void rad_trigger_c::LoadData(rad_trigger_c *rad)
+void UI_RadiusInfo::LoadData(rad_trigger_c *rad)
 {
-  UpdateField(rad, F_UPDATE_ALL);
+  update_Shape(rad);
+  update_XY(rad);
+  update_Z(rad);
+  update_Name(rad);
+  update_Tag(rad);
+  update_WhenAppear(rad);
+}
+
+void UI_RadiusInfo::update_Shape(rad_trigger_c *rad)
+{
+  shape->value(rad->is_rect ? 1 : 0);
+
+  if (rad->is_rect)
+  {
+    radius->hide();
+
+    pos_x2->show();
+    pos_y2->show();
+  }
+  else /* radius */
+  {
+    pos_x2->hide();
+    pos_y2->hide();
+
+    radius->show();
+  }
+
+  update_XY(rad);
+}
+
+void UI_RadiusInfo::update_XY(rad_trigger_c *rad)
+{
+  char buffer[100];
+
+  if (shape->value() == 0) /* radius */
+  {
+    sprintf(buffer, "%1.1f", rad->mx);
+    pos_x1->value( (rad->mx == FLOAT_UNSPEC) ? "" : buffer);
+
+    sprintf(buffer, "%1.1f", rad->my);
+    pos_y1->value( (rad->my == FLOAT_UNSPEC) ? "" : buffer);
+
+    return;
+  }
+
+  /* rectangle */
+
+  if (rad->mx == FLOAT_UNSPEC)
+  {
+    pos_x1->value("");
+    pos_x2->value("");
+  }
+  else if (rad->rx == FLOAT_UNSPEC)
+  {
+    sprintf(buffer, "%1.1f", rad->mx);
+    pos_x1->value(buffer);
+    pos_x2->value("");
+  }
+  else
+  {
+    sprintf(buffer, "%1.1f", rad->mx - rad->rx);
+    pos_x1->value(buffer);
+
+    sprintf(buffer, "%1.1f", rad->mx + rad->rx);
+    pos_x2->value(buffer);
+  }
+
+  if (rad->my == FLOAT_UNSPEC)
+  {
+    pos_y1->value("");
+    pos_y2->value("");
+  }
+  else if (rad->ry == FLOAT_UNSPEC)
+  {
+    sprintf(buffer, "%1.1f", rad->my);
+    pos_y1->value(buffer);
+    pos_y2->value("");
+  }
+  else
+  {
+    sprintf(buffer, "%1.1f", rad->my - rad->ry);
+    pos_y1->value(buffer);
+
+    sprintf(buffer, "%1.1f", rad->my + rad->ry);
+    pos_y2->value(buffer);
+  }
+}
+
+void UI_RadiusInfo::update_Z(rad_trigger_c *rad)
+{
+  char buffer[100];
+
+  if (rad->mz == FLOAT_UNSPEC)
+  {
+    pos_z1->value("");
+    pos_z2->value("");
+  }
+  else if (rad->rz == FLOAT_UNSPEC)
+  {
+    sprintf(buffer, "%1.1f", rad->mz);
+    pos_z1->value(buffer);
+    pos_z2->value("");
+  }
+  else
+  {
+    sprintf(buffer, "%1.1f", rad->mz - rad->rz);
+    pos_z1->value(buffer);
+
+    sprintf(buffer, "%1.1f", rad->mz + rad->rz);
+    pos_z2->value(buffer);
+  }
+}
+
+void UI_RadiusInfo::update_Name(rad_trigger_c *rad)
+{
+  name->value(rad->name.c_str());
+}
+
+void UI_RadiusInfo::update_Tag(rad_trigger_c *rad)
+{
+  char buffer[100];
+
+  sprintf(buffer, "%d", rad->tag);
+  tag->value( (rad->tag == INT_UNSPEC) ? "" : buffer);
+}
+
+void UI_RadiusInfo::update_WhenAppear(rad_trigger_c *rad)
+{
+  appear_easy->value(   (rad->when_appear & WNAP_Easy)  ? 1 : 0);
+  appear_medium->value( (rad->when_appear & WNAP_Medium)? 1 : 0);
+  appear_hard->value(   (rad->when_appear & WNAP_Hard)  ? 1 : 0);
+
+  appear_sp->value(   (rad->when_appear & WNAP_SP)  ? 1 : 0);
+  appear_coop->value( (rad->when_appear & WNAP_Coop)? 1 : 0);
+  appear_dm->value(   (rad->when_appear & WNAP_DM)  ? 1 : 0);
 }
 
 

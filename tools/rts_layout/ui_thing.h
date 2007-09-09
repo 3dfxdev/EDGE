@@ -59,6 +59,12 @@ public:
 
 
 private:
+  void update_Ambush(thing_spawn_c *th);
+  void update_Type(thing_spawn_c *th);
+  void update_Loc(thing_spawn_c *th);
+  void update_Angle(thing_spawn_c *th);
+  void update_Tag(thing_spawn_c *th);
+  void update_WhenAppear(thing_spawn_c *th);
 
 };
 

@@ -20,7 +20,10 @@
 #include "hdr_fltk.h"
 
 #include "lib_util.h"
+#include "g_edit.h"
 
+#include "ui_window.h"
+#include "ui_panel.h"
 #include "ui_thing.h"
 
 
@@ -147,6 +150,8 @@ UI_ThingInfo::~UI_ThingInfo()
 }
 
 
+//------------------------------------------------------------------------
+
 void UI_ThingListener(thing_spawn_c *th, int F)
 {
   main_win->panel->thing_box->UpdateField(th, F);
@@ -156,27 +161,96 @@ void UI_ThingInfo::UpdateField(thing_spawn_c *th, int F)
 {
   // FIXME!!!  if (th != main_win->grid->active_thing) return;
 
-  if (F == F_AMBUSH || F == F_UPDATE_ALL)
+  switch (F)
+  {
+    case thing_spawn_c::F_AMBUSH:
+      update_Ambush(th);
+      break;
 
-  if (F == F_TYPE   || F == F_UPDATE_ALL)
+    case thing_spawn_c::F_TYPE:
+      update_Type(th);
+      break;
 
-  if (F == F_X      || F == F_UPDATE_ALL)
+    case thing_spawn_c::F_X:
+    case thing_spawn_c::F_Y:
+    case thing_spawn_c::F_Z:
+      update_Loc(th);
+      break;
 
-  if (F == F_Y      || F == F_UPDATE_ALL)
+    case thing_spawn_c::F_ANGLE:
+      update_Angle(th);
+      break;
 
-  if (F == F_Z      || F == F_UPDATE_ALL)
+    case thing_spawn_c::F_TAG:
+      update_Tag(th);
+      break;
 
-  if (F == F_ANGLE  || F == F_UPDATE_ALL)
+    case thing_spawn_c::F_WHEN_APPEAR:
+      update_WhenAppear(th);
+      break;
 
-  if (F == F_TAG    || F == F_UPDATE_ALL)
-
-  if (F == F_WHEN_APPEAR || F == F_UPDATE_ALL)
+    default:
+      break;
+  }
 }
 
 void UI_ThingInfo::LoadData(thing_spawn_c *th)
 {
-  UpdateField(th, F_UPDATE_ALL);
+  update_Ambush(th);
+  update_Type(th);
+  update_Loc(th);
+  update_Angle(th);
+  update_Tag(th);
+  update_WhenAppear(th);
 }
+
+void UI_ThingInfo::update_Ambush(thing_spawn_c *th)
+{
+  ambush->value(th->ambush);
+}
+
+void UI_ThingInfo::update_Type(thing_spawn_c *th)
+{
+  type->value(th->type.c_str());
+}
+
+void UI_ThingInfo::update_Loc(thing_spawn_c *th)
+{
+  char buffer[100];
+
+  sprintf(buffer, "%1.1f", th->x);
+  pos_x->value( (th->x == FLOAT_UNSPEC) ? "" : buffer);
+
+  sprintf(buffer, "%1.1f", th->y);
+  pos_y->value( (th->y == FLOAT_UNSPEC) ? "" : buffer);
+
+  sprintf(buffer, "%1.1f", th->z);
+  pos_z->value( (th->z == FLOAT_UNSPEC) ? "" : buffer);
+}
+
+void UI_ThingInfo::update_Angle(thing_spawn_c *th)
+{
+  char buffer[100];
+
+  sprintf(buffer, "%1.1f", th->angle);
+  angle->value( (th->angle == FLOAT_UNSPEC) ? "" : buffer);
+}
+
+void UI_ThingInfo::update_Tag(thing_spawn_c *th)
+{
+  char buffer[100];
+
+  sprintf(buffer, "%d", th->tag);
+  tag->value( (th->tag == INT_UNSPEC) ? "" : buffer);
+}
+
+void UI_ThingInfo::update_WhenAppear(thing_spawn_c *th)
+{
+  appear_easy->value(   (th->when_appear & WNAP_Easy)  ? 1 : 0);
+  appear_medium->value( (th->when_appear & WNAP_Medium)? 1 : 0);
+  appear_hard->value(   (th->when_appear & WNAP_Hard)  ? 1 : 0);
+}
+
 
 //--- editor settings ---
 // vi:ts=2:sw=2:expandtab

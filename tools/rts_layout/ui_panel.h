@@ -29,7 +29,7 @@ public:
   UI_Panel(int X, int Y, int W, int H, const char *label = NULL);
   virtual ~UI_Panel();
 
-private:
+public:
   Fl_Output *map_name;
 
   Fl_Choice *mode;
