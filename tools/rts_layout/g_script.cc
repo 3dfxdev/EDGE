@@ -243,9 +243,10 @@ static void SplitLine(const char *pos, std::vector<std::string> & words)
 //------------------------------------------------------------------------
 
 thing_spawn_c::thing_spawn_c(bool _ambush) :
-    ambush(_ambush ? 1 : 0), has_z(false), type(),
-    x(0), y(0), z(0), angle(0),
-    tag(0), when_appear(0), ddf_info(NULL)
+    ambush(_ambush ? 1 : 0), type(),
+    x(0), y(0), z(FLOAT_UNSPEC), angle(FLOAT_UNSPEC),
+    tag(INT_UNSPEC), when_appear(INT_UNSPEC),
+    ddf_info(NULL)
 { }
 
 thing_spawn_c::~thing_spawn_c()
@@ -261,17 +262,22 @@ void thing_spawn_c::WriteThing(FILE *fp)
   fprintf(fp, " %s", Float_TmpStr(x));
   fprintf(fp, " %s", Float_TmpStr(y));
 
-  if (angle != 0 || has_z)
+  if (angle != FLOAT_UNSPEC)
     fprintf(fp, " %s", Float_TmpStr(angle));
 
-  if (has_z)
-    fprintf(fp, " %s", Float_TmpStr(z));
+  if (z != FLOAT_UNSPEC)
+  {
+    if (angle == FLOAT_UNSPEC)
+      fprintf(fp, " 0");
 
-  if (tag != 0)
+    fprintf(fp, " %s", Float_TmpStr(z));
+  }
+
+  if (tag != INT_UNSPEC)
     fprintf(fp, " TAG=%d", tag);
 
   // NOTE: EDGE 1.31 functionality
-  if (when_appear != 0)
+  if (when_appear != INT_UNSPEC)
     fprintf(fp, " WHEN=%s", WhenAppear_TmpStr(when_appear));
 
   fprintf(fp, "\n");
@@ -332,7 +338,6 @@ thing_spawn_c * thing_spawn_c::ReadThing(std::string& line)
 
   if (words.size() >= 6)
   {
-    TH->has_z = true;
     TH->z = atof(words[5].c_str());
   }
 
@@ -394,7 +399,7 @@ rad_trigger_c::rad_trigger_c(bool _rect) :
     is_rect(_rect ? 1 : 0),
     mx(0),  my(0),  mz(0),
     rx(-1), ry(-1), rz(-1),
-    name(), tag(0), when_appear(0),
+    name(), tag(INT_UNSPEC), when_appear(INT_UNSPEC),
     lines(), worldspawn(false), things()
 { }
 
@@ -438,13 +443,13 @@ void rad_trigger_c::WriteRadTrig(FILE *fp)
   fprintf(fp, "\n");
 
   // write out each property we explicitly handle
-  if (when_appear != 0)
+  if (when_appear != INT_UNSPEC)
     fprintf(fp, "    when_appear %s\n", WhenAppear_TmpStr(when_appear));
 
   if (name.size() > 0)
     fprintf(fp, "    name %s\n", name.c_str());
 
-  if (tag != 0)
+  if (tag != INT_UNSPEC)
     fprintf(fp, "    tag %d\n", tag);
 
   // write the 'body' of the script
@@ -682,6 +687,7 @@ rts_result_e rad_trigger_c::cmd_Tag(const char *args)
   if (tag <= 0)
   {
     // DIALOG "bad or missing TAG in radius trigger"
+    tag = INT_UNSPEC;
     return RTS_ERROR;
   }
 

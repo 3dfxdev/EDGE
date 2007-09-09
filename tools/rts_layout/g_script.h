@@ -23,8 +23,8 @@
 class mobjtype_c;
 
 
-#define INT_Unspecified    -7777
-#define FLOAT_Unspecified  0.777
+#define INT_UNSPEC    -7755
+#define FLOAT_UNSPEC  0.75f
 
 
 typedef enum
@@ -65,7 +65,6 @@ public:
   ~thing_spawn_c();
 
   int ambush;
-  bool has_z;   // REMOVE!!
 
   std::string type;
 
@@ -73,8 +72,8 @@ public:
  
   float angle;  // degrees (0 - 360)
   
-  int tag;         // 0 = none
-  int when_appear; // 0 = not specified
+  int tag;
+  int when_appear;
 
   // this is not part of script, but looked up later on
   mobjtype_c *ddf_info;
@@ -113,8 +112,8 @@ public:
  
   std::string name;  // empty = none
 
-  int tag;           // 0 = none
-  int when_appear;   // 0 = not specified
+  int tag;
+  int when_appear;
 
   // all script lines except stuff covered by the above fields.
   // Does not include the start and end markers.
