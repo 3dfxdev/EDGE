@@ -397,8 +397,8 @@ rts_result_e thing_spawn_c::ParseKeyword(std::string& word)
 
 rad_trigger_c::rad_trigger_c(bool _rect) :
     is_rect(_rect ? 1 : 0),
-    mx(0),  my(0),  mz(0),
-    rx(-1), ry(-1), rz(-1),
+    mx(0),  my(0),  mz(FLOAT_UNSPEC),
+    rx(-1), ry(-1), rz(FLOAT_UNSPEC),
     name(), tag(INT_UNSPEC), when_appear(INT_UNSPEC),
     lines(), worldspawn(false), things()
 { }
@@ -434,7 +434,7 @@ void rad_trigger_c::WriteRadTrig(FILE *fp)
     fprintf(fp, " %s", Float_TmpStr(rx));
   }
 
-  if (rz > 0)
+  if (mz != FLOAT_UNSPEC && rz != FLOAT_UNSPEC && rz > 0)
   {
     fprintf(fp, "  %s", Float_TmpStr(mz-rz));
     fprintf(fp, "  %s", Float_TmpStr(mz+rz));
@@ -546,10 +546,6 @@ rts_result_e rad_trigger_c::ParseLocation(const char *pos)
     {
       mz = (z1 + z2) / 2; rz = fabs(z2 - z1) / 2;
     }
-    else
-    {
-      mz = 0; rz = -1;
-    }
   }
   else /* radius */
   {
@@ -569,10 +565,6 @@ rts_result_e rad_trigger_c::ParseLocation(const char *pos)
     if (num > 3)
     {
       mz = (z1 + z2) / 2; rz = fabs(z2 - z1) / 2;
-    }
-    else
-    {
-      mz = 0; rz = -1;
     }
   }
 
