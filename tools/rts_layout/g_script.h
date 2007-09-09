@@ -23,6 +23,10 @@
 class mobjtype_c;
 
 
+#define INT_Unspecified    -7777
+#define FLOAT_Unspecified  0.777
+
+
 typedef enum
 {
   RTS_OK = 0,
@@ -60,8 +64,8 @@ private:
 public:
   ~thing_spawn_c();
 
-  bool ambush;
-  bool has_z;
+  int ambush;
+  bool has_z;   // REMOVE!!
 
   std::string type;
 
@@ -102,8 +106,7 @@ public:
   ~rad_trigger_c();
 
 public:
-  bool is_rect;
-  bool worldspawn;
+  int is_rect;
 
   float mx, my, mz;  // mid point
   float rx, ry, rz;  // radii (rz < 0 means no height range)
@@ -116,6 +119,8 @@ public:
   // all script lines except stuff covered by the above fields.
   // Does not include the start and end markers.
   std::vector<std::string> lines;
+
+  bool worldspawn;
 
   // for 'worldspawn' scripts only: all of the entities
   std::vector<thing_spawn_c *> things;
