@@ -78,6 +78,17 @@ public:
   // this is not part of script, but looked up later on
   mobjtype_c *ddf_info;
 
+  // FIELD numbers for reference_t
+  enum field_ref_e
+  {
+    F_AMBUSH = 0,
+    F_TYPE,
+    F_X, F_Y, F_Z,
+    F_ANGLE,
+    F_TAG,
+    F_WHEN_APPEAR,
+  };
+
 public:
   static bool thing_spawn_c::MatchThing(std::string& line);
   // returns true if this line matches a thing spawner.
@@ -108,7 +119,7 @@ public:
   int is_rect;
 
   float mx, my, mz;  // mid point
-  float rx, ry, rz;  // radii (rz < 0 means no height range)
+  float rx, ry, rz;  // radii
  
   std::string name;  // empty = none
 
@@ -123,6 +134,17 @@ public:
 
   // for 'worldspawn' scripts only: all of the entities
   std::vector<thing_spawn_c *> things;
+
+  // FIELD numbers for reference_t
+  enum field_ref_e
+  {
+    F_IS_RECT = 0,
+    F_MX, F_MY, F_MZ,
+    F_RX, F_RY, F_RZ,
+    F_NAME,
+    F_TAG,
+    F_WHEN_APPEAR,
+  };
 
 public:
   static bool MatchRadTrig(std::string& line);
