@@ -87,6 +87,9 @@ public:
   edit_value_u old_val;
   edit_value_u new_val;
 
+  // we grab the old_val when the new value is first applied.
+  bool need_old;
+
   // short description for Undo menu
   std::string desc;
 
@@ -108,6 +111,9 @@ public:
 ///---  const char * Describe() const;
 ///---  // get a short description of this operation (for the UNDO menu).
 ///---  // The result must be freed using StringFree() in lib_util.h.
+
+private:
+  void Apply(const edit_value_u& what);
 };
 
 
