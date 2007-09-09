@@ -114,6 +114,7 @@ public:
 
 private:
   void Apply(const edit_value_u& what);
+
 };
 
 
