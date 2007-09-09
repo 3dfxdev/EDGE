@@ -26,6 +26,11 @@
 
 static script_c *active_script;
 
+static rad_trigger_c *radtrig_listener;
+static thing_spawn_c *thing_listener;
+
+extern void UI_RadTrigListener(rad_trigger_c *, int);
+extern void UI_ThingListener(thing_spawn_c *, int);
 
 
 void edit_op_c::Perform()
@@ -99,7 +104,7 @@ void edit_op_c::Apply(const edit_value_u& what)
       }
 
       r_piece->trig = new_val.e_rad;
-      return;
+      break;
     }
 
     case FIELD_ThingPtr:
@@ -113,7 +118,7 @@ void edit_op_c::Apply(const edit_value_u& what)
       }
 
       rad->things.at(ref.T) = new_val.e_thing;
-      return;
+      break;
     }
 
     case FIELD_Integer:
@@ -129,7 +134,7 @@ void edit_op_c::Apply(const edit_value_u& what)
       }
 
       var = new_val.e_int;
-      return;
+      break;
     }
 
     case FIELD_Float:
@@ -145,7 +150,7 @@ void edit_op_c::Apply(const edit_value_u& what)
       }
 
       var = new_val.e_float;
-      return;
+      break;
     }
 
     case FIELD_String:
@@ -161,12 +166,25 @@ void edit_op_c::Apply(const edit_value_u& what)
       }
 
       var = std::string(new_val.e_str);
-      return;
+
+      if (thing && ref.F == thing_spawn_c::F_TYPE)
+        thing->ddf_info = NULL; //!!!! LOOKUP NEW ONE
+      break;
     }
 
     default:
       Main_FatalError("INTERNAL ERROR: edit_op_c::Apply() unknown type!\n");
-      break; /* NOT REACHED */
+      return; /* NOT REACHED */
+  }
+
+  // notify the UI when a visible field changes
+  if (ref.F >= 0)
+  {
+    if (rad && rad == radtrig_listener)
+      UI_RadTrigListener(rad, ref.F);
+
+    if (thing && thing == thing_listener)
+      UI_ThingListener(thing, ref.F);
   }
 }
 
