@@ -77,7 +77,7 @@ UI_RadiusInfo::UI_RadiusInfo(int X, int Y, int W, int H, const char *label) :
   Y += pos_x1->h() + 4;
 
 
-  radius = new Fl_Float_Input(MX+20, Y, W/2-24, 22, "radius");
+  radius = new Fl_Float_Input(X+70, Y, W/2-24, 22, "radius");
   radius->align(FL_ALIGN_LEFT);
 
   add(radius);
