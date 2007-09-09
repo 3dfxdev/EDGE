@@ -390,6 +390,44 @@ rts_result_e thing_spawn_c::ParseKeyword(std::string& word)
   return RTS_ERROR;
 }
 
+int& thing_spawn_c::GetIntRef(int F)
+{
+  switch (F)
+  {
+    case F_AMBUSH: return ambush;
+    case F_TAG: return tag;
+    case F_WHEN_APPEAR: return when_appear;
+
+    default:
+      Main_FatalError("INTERNAL ERROR: thing_spawn_c: bad Int field %d!\n", F);
+      return tag; /* NOT REACHED */
+  }
+}
+
+float& thing_spawn_c::GetFloatRef(int F)
+{
+  switch (F)
+  {
+    case F_X: return x;
+    case F_Y: return y;
+    case F_Z: return z;
+
+    case F_ANGLE: return angle;
+
+    default:
+      Main_FatalError("INTERNAL ERROR: thing_spawn_c: bad Float field %d!\n", F);
+      return angle; /* NOT REACHED */
+  }
+}
+
+std::string& thing_spawn_c::GetStringRef(int F)
+{
+  if (F != F_TYPE)
+      Main_FatalError("INTERNAL ERROR: thing_spawn_c: bad String field %d!\n", F);
+
+  return type;
+}
+
 
 //------------------------------------------------------------------------
 //  RADIUS TRIGGER Stuff
@@ -704,6 +742,46 @@ rts_result_e rad_trigger_c::cmd_WhenAppear(const char *args)
   when_appear = WhenAppear_Parse(temp_val.c_str());
 
   return RTS_OK;
+}
+
+int& rad_trigger_c::GetIntRef(int F)
+{
+  switch (F)
+  {
+    case F_IS_RECT: return is_rect;
+    case F_TAG: return tag;
+    case F_WHEN_APPEAR: return when_appear;
+
+    default:
+      Main_FatalError("INTERNAL ERROR: rad_trigger_c: bad Int field %d!\n", F);
+      return tag; /* NOT REACHED */
+  }
+}
+
+float& rad_trigger_c::GetFloatRef(int F)
+{
+  switch (F)
+  {
+    case F_MX: return mx;
+    case F_MY: return my;
+    case F_MZ: return mz;
+
+    case F_RX: return rx;
+    case F_RY: return ry;
+    case F_RZ: return rz;
+
+    default:
+      Main_FatalError("INTERNAL ERROR: rad_trigger_c: bad Float field %d!\n", F);
+      return rz; /* NOT REACHED */
+  }
+}
+
+std::string& rad_trigger_c::GetStringRef(int F)
+{
+  if (F != F_NAME)
+      Main_FatalError("INTERNAL ERROR: rad_trigger_c: bad String field %d!\n", F);
+
+  return name;
 }
 
 
