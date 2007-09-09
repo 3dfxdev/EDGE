@@ -101,6 +101,10 @@ public:
   void WriteThing(FILE *fp);
   // write this thing-spawn into the given file.
 
+  int&         GetIntRef   (int F);
+  float&       GetFloatRef (int F);
+  std::string& GetStringRef(int F);
+
 private:
   rts_result_e ParseKeyword(std::string& word);
   // parse keyword parameters like 'TAG=1234'.
@@ -159,6 +163,10 @@ public:
 
   void WriteRadTrig(FILE *fp);
   // write this script into the given file.
+
+  int&         GetIntRef   (int F);
+  float&       GetFloatRef (int F);
+  std::string& GetStringRef(int F);
 
 private:
   static bool MatchEndTrig(std::string& line);
