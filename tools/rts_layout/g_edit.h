@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------
-//  Abstact OPERATIONS (Undoable)
+//  Editing Operations
 //------------------------------------------------------------------------
 //
 //  RTS Layout Tool (C) 2007 Andrew Apted
@@ -16,30 +16,90 @@
 //
 //------------------------------------------------------------------------
 
-#ifndef __G_OPS_H__
-#define __G_OPS_H__
+#ifndef __G_EDIT_H__
+#define __G_EDIT_H__
+
+#include "g_script.h"
 
 
-class abstract_op_c
+typedef struct
+{
+  /* this structure is used to reference a certain object or
+   * field within a whole script.
+   */
+
+  // Map = index into SCRIPT->bits[] vector.
+  int M;
+
+  // Rad-trig = index into STARTMAP->pieces[] vector.
+  int R; 
+
+  // Thing = index into RADTRIG->things[] vector.
+  // will be -1 for radius trigger objects or fields.
+  int T;
+ 
+  // Field = specific field of a radius trigger or spawn thing.
+  // will be -1 to reference the rad-trig or thing itself.
+  int F;
+}
+reference_t;
+
+
+typedef enum
+{
+  FIELD_Integer = 0,
+  FIELD_Float,
+  FIELD_String,
+
+  FIELD_RadTrigPtr,
+  FIELD_ThingPtr,
+}
+field_type_e;
+
+
+typedef union
+{
+  int e_int;
+  float e_float;
+  const char *e_str;
+
+  rad_trigger_c *e_rad;
+  thing_spawn_c *e_thing;
+}
+edit_value_u;
+
+
+class edit_op_c
 {
 public:
-  abstract_op_c() { }
-  virtual ~abstract_op_c() { }
+  reference_t ref;
+
+  field_type_e type;
+
+  edit_value_u old_val;
+  edit_value_u new_val;
+
+  // short description for Undo menu
+  std::string desc;
 
 public:
-  virtual void Perform() = 0;
-  // perform the operation.
+   edit_op_c();
+  ~edit_op_c();
 
-  virtual void Undo() = 0;
+public:
+  void Perform();
+  // perform (or Redo) the operation.
+
+  void Undo();
   // undo the previously performed operation.
 
-  virtual const char * Describe() const = 0;
-  // get a short description of this operation (for the UNDO menu).
-  // The result must be freed using StringFree() in lib_util.h.
+///---  const char * Describe() const;
+///---  // get a short description of this operation (for the UNDO menu).
+///---  // The result must be freed using StringFree() in lib_util.h.
 };
 
 
-#endif // __G_OPS_H__
+#endif // __G_EDIT_H__
 
 //--- editor settings ---
 // vi:ts=2:sw=2:expandtab
