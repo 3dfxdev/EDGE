@@ -25,7 +25,8 @@
 typedef struct
 {
   /* this structure is used to reference a certain object or
-   * field within a whole script.
+   * field within a whole script, which is the target of a
+   * certain editing operation.
    */
 
   // Map = index into SCRIPT->bits[] vector.
@@ -71,6 +72,13 @@ edit_value_u;
 
 class edit_op_c
 {
+  /* this structure embodies every kind of editing operation that
+   * can be performed on the script.  Additions/Deletions of
+   * radius triggers and thing-spawns are represented simply as
+   * a modification where the old ptr (for additions) or the new
+   * ptr (for deletions) are NULL.
+   */
+
 public:
   reference_t ref;
 
@@ -81,6 +89,10 @@ public:
 
   // short description for Undo menu
   std::string desc;
+
+  // a single operation may atomicly change multiple fields in
+  // the target.  These extra ops are stored here.
+  std::vector<edit_op_c *> sisters;
 
 public:
    edit_op_c();
