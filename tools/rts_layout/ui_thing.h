@@ -53,6 +53,9 @@ private:
 #endif
 
 public:
+  void LoadData(thing_spawn_c *th);
+
+  void UpdateField(thing_spawn_c *th, int F);
 
 
 private:

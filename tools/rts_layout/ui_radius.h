@@ -57,7 +57,9 @@ private:
   Fl_Check_Button *appear_dm;
 
 public:
+  void LoadData(rad_trigger_c *rad);
 
+  void UpdateField(rad_trigger_c *rad, int F);
 
 private:
   void ConvertToRadius();
