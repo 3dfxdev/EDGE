@@ -147,5 +147,36 @@ UI_ThingInfo::~UI_ThingInfo()
 }
 
 
+void UI_ThingListener(thing_spawn_c *th, int F)
+{
+  main_win->panel->thing_box->UpdateField(th, F);
+}
+
+void UI_ThingInfo::UpdateField(thing_spawn_c *th, int F)
+{
+  // FIXME!!!  if (th != main_win->grid->active_thing) return;
+
+  if (F == F_AMBUSH || F == F_UPDATE_ALL)
+
+  if (F == F_TYPE   || F == F_UPDATE_ALL)
+
+  if (F == F_X      || F == F_UPDATE_ALL)
+
+  if (F == F_Y      || F == F_UPDATE_ALL)
+
+  if (F == F_Z      || F == F_UPDATE_ALL)
+
+  if (F == F_ANGLE  || F == F_UPDATE_ALL)
+
+  if (F == F_TAG    || F == F_UPDATE_ALL)
+
+  if (F == F_WHEN_APPEAR || F == F_UPDATE_ALL)
+}
+
+void UI_ThingInfo::LoadData(thing_spawn_c *th)
+{
+  UpdateField(th, F_UPDATE_ALL);
+}
+
 //--- editor settings ---
 // vi:ts=2:sw=2:expandtab

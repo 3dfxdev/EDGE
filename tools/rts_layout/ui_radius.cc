@@ -21,6 +21,7 @@
 
 #include "lib_util.h"
 
+#include "g_edit.h"
 #include "ui_radius.h"
 
 
@@ -191,6 +192,50 @@ void UI_RadiusInfo::ConvertToRectangle()
 
   // FIXME: do conversion
 }
+
+void UI_RadTrigListener(rad_trigger_c *rad, int F)
+{
+  main_win->panel->script_box->UpdateField(rad, F);
+}
+
+void rad_trigger_c::UpdateField(rad_trigger_c *rad, int F)
+{
+  // FIXME!!!  if (rad != main_win->grid->active_radtrig) return;
+
+  if (F == F_IS_RECT || F == F_UPDATE_ALL)
+  {
+    // force F_MX/Y/Z and F_RX/Y/Z to be updated
+    F = F_UPDATE_ALL;
+  }
+
+  if (F == F_MX   || F == F_UPDATE_ALL)
+
+  if (F == F_MY   || F == F_UPDATE_ALL)
+
+  if (F == F_MZ   || F == F_UPDATE_ALL)
+
+  if (F == F_RX   || F == F_UPDATE_ALL)
+
+  if (F == F_RY   || F == F_UPDATE_ALL)
+
+  if (F == F_RZ   || F == F_UPDATE_ALL)
+
+  if (F == F_NAME || F == F_UPDATE_ALL)
+
+  if (F == F_TAG  || F == F_UPDATE_ALL)
+    tag->value(rad->tag);
+
+  if (F == F_WHEN_APPEAR || F == F_UPDATE_ALL)
+  {
+    tag->value(rad->tag);
+  }
+}
+
+void rad_trigger_c::LoadData(rad_trigger_c *rad)
+{
+  UpdateField(rad, F_UPDATE_ALL);
+}
+
 
 //--- editor settings ---
 // vi:ts=2:sw=2:expandtab
