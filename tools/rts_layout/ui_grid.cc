@@ -775,7 +775,7 @@ int UI_Grid::handle(int event)
       return 1;
 
     case FL_MOUSEWHEEL:
-      handle_wheel();
+      handle_wheel(- SGN(Fl::event_dy()));
       handle_mouse();
       return 1;
 
@@ -803,11 +803,11 @@ int UI_Grid::handle_key()
   switch (key)
   {
     case '+': case '=':
-      SetZoom(zoom + 1);
+      handle_wheel(+1);
       return 1;
 
     case '-': case '_':
-      SetZoom(zoom - 1);
+      handle_wheel(-1);
       return 1;
 
     case FL_Left:
@@ -832,7 +832,11 @@ int UI_Grid::handle_key()
       return 1;
 
     case 'c': case 'C':
-      centralise();
+      scroll_to_mouse();
+      return 1;
+
+    case 'f': case 'F':
+      scroll_to_selection();
       return 1;
 
     case '0': // zoom out
@@ -895,21 +899,29 @@ void UI_Grid::handle_push()
   }
 }
 
-void UI_Grid::handle_wheel()
+void UI_Grid::handle_wheel(int dy)
 {
-  if (Fl::event_dy == 0)
+  if (dy == 0)
     return;
 
   if (Fl::belowmouse() != this)
+  {
+#if 0
+    SetZoom(zoom + dy);
+#endif
     return;
- 
+  }
+
+  // following code for zooming 'around' the mouse pointer
+  // (i.e. map coordinate at pointer remains the same).
+
   int wx = Fl::event_x();
   int wy = Fl::event_y();
 
   double mx1, my1;
   WinToMap(wx, wy, &mx1, &my1);
 
-  if (! SetZoom(zoom + ((Fl::event_dy() > 0) ? -1 : 1)))
+  if (! SetZoom(zoom + dy))
     return;
 
   double mx2, my2;
@@ -919,7 +931,7 @@ void UI_Grid::handle_wheel()
   mid_y -= my2 - my1;
 }
 
-void UI_Grid::centralise()
+void UI_Grid::scroll_to_mouse()
 {
   if (Fl::belowmouse() != this)
     return;
@@ -931,8 +943,18 @@ void UI_Grid::centralise()
   WinToMap(wx, wy, &mx, &my);
 
   SetPos(mx, my);
+}
 
-  redraw();
+void UI_Grid::scroll_to_selection()
+{
+  if (select_rad)
+  {
+    SetPos(select_rad->mx, select_rad->my);
+  }
+  else if (select_thing)
+  {
+    SetPos(select_thing->x, select_thing->y);
+  }
 }
 
 void UI_Grid::highlight_nearest(float mx, float my)
