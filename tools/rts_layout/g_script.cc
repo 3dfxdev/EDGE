@@ -151,7 +151,7 @@ static rts_result_e ReadLine(FILE *fp, std::string& line)
     int ch = fgetc(fp);
 
     if (ch == EOF)
-      return (line.size() == 0) ? RTS_FINISHED : RTS_OK;
+      return (line.size() == 0) ? RTS_EOF : RTS_OK;
 
     if (ferror(fp))
     {
@@ -910,7 +910,7 @@ rts_result_e section_c::ParsePieces(FILE *fp)
     if (res == RTS_ERROR)
       return RTS_ERROR;
 
-    if (res == RTS_FINISHED)
+    if (res == RTS_EOF)
     {
       // DIALOG "Missing rest of trigger (EOF found)"
       return RTS_ERROR;
@@ -984,7 +984,7 @@ script_c *script_c::Load(FILE *fp)
       return NULL;
     }
 
-    if (res == RTS_FINISHED)
+    if (res == RTS_EOF)
       break;
 
     if (section_c::MatchStartMap(line))
