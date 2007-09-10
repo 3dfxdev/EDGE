@@ -47,8 +47,9 @@ public:
   // The 'new_scr' can be NULL to disable script display
   // (triggers and spawn-things).
 
-  void SetZoom(int new_zoom);
+  bool SetZoom(int new_zoom);
   // changes the current zoom factor.
+  // Returns true if actually changed, otherwise false.
 
   void SetPos(double new_x, double new_y);
   // changes the current position.
@@ -79,12 +80,12 @@ public:
   void resize(int X, int Y, int W, int H);
   // FLTK virtual method for resizing.
 
-public:
-  int handle_key(int key);
-
-  void handle_mouse(int wx, int wy);
-
 private:
+  int  handle_key();
+  void handle_mouse();
+  void handle_push();
+  void handle_wheel();
+
   void draw();
   // FLTK virtual method for drawing.
 
@@ -109,6 +110,7 @@ private:
                   int jx1=0, int jy1=0, int jx2=0, int jy2=0);
 
   void scroll(int dx, int dy);
+  void centralise();
 
   void highlight_nearest(float mx, float my);
 
