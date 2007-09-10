@@ -37,7 +37,9 @@ UI_Grid::UI_Grid(int X, int Y, int W, int H, const char *label) :
     mid_x(0), mid_y(0),
     edit_MODE(EDIT_RadTrig), grid_MODE(1),
     hilite_rad(NULL), hilite_thing(NULL),
-    select_rad(NULL), select_thing(NULL)
+    select_rad(NULL), select_thing(NULL),
+    dragging(false), drag_dx(0), drag_dy(0),
+    drag_cursor(FL_CURSOR_DEFAULT)
 { }
 
 //
@@ -774,8 +776,10 @@ int UI_Grid::handle(int event)
       return 1;
 
     case FL_DRAG:
+      // dragging = true;
+      return 1;
+
     case FL_RELEASE:
-      // these are currently ignored.
       return 1;
 
     default:
@@ -842,6 +846,9 @@ void UI_Grid::handle_mouse(int wx, int wy)
   if (script)
   {
     highlight_nearest(mx, my);
+
+    if (hilite_rad)
+      determine_drag(hilite_rad, mx, my);
   }
 }
 
@@ -930,10 +937,10 @@ void UI_Grid::highlight_nearest(float mx, float my)
 
 bool UI_Grid::inside_RAD(rad_trigger_c *RAD, float mx, float my)
 {
-  float x1 = RAD->mx - RAD->rx * 1.1;
-  float y1 = RAD->my - RAD->ry * 1.1;
-  float x2 = RAD->mx + RAD->rx * 1.1;
-  float y2 = RAD->my + RAD->ry * 1.1;
+  float x1 = RAD->mx - RAD->rx * 1.2;
+  float y1 = RAD->my - RAD->ry * 1.2;
+  float x2 = RAD->mx + RAD->rx * 1.2;
+  float y2 = RAD->my + RAD->ry * 1.2;
 
   return ! (mx < x1 || mx > x2 || my < y1 || my > y2);
 }
@@ -949,6 +956,66 @@ float UI_Grid::dist_to_THING(thing_spawn_c *TH,  float mx, float my)
   my -= TH->y;
 
   return sqrt(mx*mx + my*my);
+}
+
+void UI_Grid::determine_drag(rad_trigger_c *RAD, float mx, float my)
+{
+  SYS_ASSERT(! dragging);
+//SYS_ASSERT(inside_RAD(RAD, mx, my));
+
+  float dx = mx - RAD->mx;
+  float dy = my - RAD->my;
+
+  float fx = fabs(dx) / RAD->rx;
+  float fy = fabs(dy) / RAD->ry;
+
+  Fl_Cursor new_cursor;
+
+  if (fx < 0.66 && fy < 0.66)
+  {
+    drag_dx = drag_dy = 0;
+
+#ifdef UNIX
+    // the 'MOVE' cursor looks like shite on Linux
+    new_cursor = FL_CURSOR_CROSS;
+#else
+    new_cursor = FL_CURSOR_MOVE;
+#endif
+  }
+  else
+  {
+    float slope = MIN(fx,fy) / MAX(fx,fy);
+
+    if (slope > 0.8)
+    {
+      drag_dx = (dx > 0) ? +1 : -1;
+      drag_dy = (dy > 0) ? +1 : -1;
+
+      new_cursor = (drag_dx * drag_dy) > 0 ? FL_CURSOR_NESW : FL_CURSOR_NWSE;
+    }
+    else if (fx > fy)
+    {
+      drag_dx = (dx > 0) ? +1 : -1;
+      drag_dy = 0;
+
+      new_cursor = FL_CURSOR_WE;
+    }
+    else
+    {
+      drag_dx = 0;
+      drag_dy = (dy > 0) ? +1 : -1;
+
+      new_cursor = FL_CURSOR_NS;
+    }
+  }
+
+  /* update the real cursor if changed */
+  if (new_cursor != drag_cursor)
+  {
+    drag_cursor = new_cursor;
+
+    fl_cursor(drag_cursor);
+  }
 }
 
 
