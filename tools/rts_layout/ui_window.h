@@ -45,7 +45,14 @@ public:
   UI_Panel *panel;
 
 public:
-  void Locked(bool value);
+  void SetCursor(Fl_Cursor shape);
+  // this is a wrapper around the FLTK cursor() method which
+  // prevents the possibly expensive call when the shape hasn't
+  // changed.
+
+private:
+  Fl_Cursor cursor_shape;
+  
 };
 
 extern UI_MainWin * main_win;
