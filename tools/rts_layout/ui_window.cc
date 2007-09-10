@@ -58,7 +58,8 @@ static void main_win_close_CB(Fl_Widget *w, void *data)
 // MainWin Constructor
 //
 UI_MainWin::UI_MainWin(const char *title) :
-    Fl_Double_Window(WINDOW_WIDTH, WINDOW_HEIGHT, title)
+    Fl_Double_Window(WINDOW_WIDTH, WINDOW_HEIGHT, title),
+    cursor_shape(FL_CURSOR_DEFAULT)
 {
   end(); // cancel begin() in Fl_Group constructor
 
@@ -104,8 +105,14 @@ UI_MainWin::~UI_MainWin()
 { }
 
 
-void UI_MainWin::Locked(bool value)
+void UI_MainWin::SetCursor(Fl_Cursor shape)
 {
+  if (shape == cursor_shape)
+    return;
+
+  cursor_shape = shape;
+
+  cursor(shape);
 }
 
 //--- editor settings ---
