@@ -208,7 +208,7 @@ void UI_RadiusInfo::UpdateField(rad_trigger_c *rad, int F)
       update_XY(rad);
       break;
 
-    case rad_trigger_c::F_MZ: case rad_trigger_c::F_RZ:
+    case rad_trigger_c::F_Z1: case rad_trigger_c::F_Z2:
       update_Z(rad);
       break;
 
@@ -323,25 +323,11 @@ void UI_RadiusInfo::update_Z(rad_trigger_c *rad)
 {
   char buffer[100];
 
-  if (rad->mz == FLOAT_UNSPEC)
-  {
-    pos_z1->value("");
-    pos_z2->value("");
-  }
-  else if (rad->rz == FLOAT_UNSPEC)
-  {
-    sprintf(buffer, "%1.1f", rad->mz);
-    pos_z1->value(buffer);
-    pos_z2->value("");
-  }
-  else
-  {
-    sprintf(buffer, "%1.1f", rad->mz - rad->rz);
-    pos_z1->value(buffer);
+  sprintf(buffer, "%1.1f", rad->z1);
+  pos_z1->value( (rad->z1 == FLOAT_UNSPEC) ? "" : buffer);
 
-    sprintf(buffer, "%1.1f", rad->mz + rad->rz);
-    pos_z2->value(buffer);
-  }
+  sprintf(buffer, "%1.1f", rad->z2);
+  pos_z2->value( (rad->z2 == FLOAT_UNSPEC) ? "" : buffer);
 }
 
 void UI_RadiusInfo::update_Name(rad_trigger_c *rad)
