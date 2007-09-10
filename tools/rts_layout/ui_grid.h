@@ -100,7 +100,8 @@ private:
   void draw_trigger(rad_trigger_c *RAD);
   void draw_thing(const thing_spawn_c *TH);
 
-  void blast_line(double x1, double y1, double x2, double y2);
+  void blast_line(double x1, double y1, double x2, double y2,
+                  int jx1=0, int jy1=0, int jx2=0, int jy2=0);
 
   void scroll(int dx, int dy);
 
