@@ -117,7 +117,7 @@ private:
   float dist_to_RAD  (rad_trigger_c *RAD, float mx, float my);
   float dist_to_THING(thing_spawn_c *TH,  float mx, float my);
 
-  void determine_drag(rad_trigger_c *RAD, float mx, float my);
+  void determine_cursor(float mx = 0, float my = 0);
 
 private:
   level_c *map;
@@ -153,8 +153,6 @@ private:
   // When dx==0 and dy==0, we simply move the whole trigger.
   int drag_dx;
   int drag_dy;
-
-  Fl_Cursor drag_cursor;
 
 
   static inline int GRID_FIND(double x, double y)
