@@ -35,7 +35,9 @@ UI_Grid::UI_Grid(int X, int Y, int W, int H, const char *label) :
     map(NULL), script(NULL),
     zoom(DEF_GRID_ZOOM), zoom_mul(1.0),
     mid_x(0), mid_y(0),
-    edit_MODE(EDIT_RadTrig), grid_MODE(1)
+    edit_MODE(EDIT_RadTrig), grid_MODE(1),
+    active_rad(NULL), active_thing(NULL),
+    selected(false)
 { }
 
 //
@@ -121,8 +123,6 @@ void UI_Grid::FitBBox(double lx, double ly, double hx, double hy)
   main_win->panel->SetZoom(zoom_mul);
 
   SetPos(lx + dx / 2.0, ly + dy / 2.0);
-
-  new_node_or_sub();  // bit hackish (calling it here)
 }
 
 void UI_Grid::MapToWin(double mx, double my, int *X, int *Y) const
@@ -147,6 +147,10 @@ void UI_Grid::SetEditMode(int new_mode)
 {
   edit_MODE = new_mode;
 
+  active_rad   = NULL;
+  active_thing = NULL;
+  selected = false;
+  
   redraw();
 }
 
@@ -393,7 +397,7 @@ void UI_Grid::draw_map()
 
 void UI_Grid::draw_linedef(const linedef_c *ld)
 {
-  int bright = 240;
+  int bright = 230;
   int middle = 190;
   int dark   = 130;
  
@@ -479,10 +483,14 @@ void UI_Grid::draw_trigger(rad_trigger_c *RAD)
   if (RAD->rx < 0 || RAD->ry < 0)
     return;
  
-  if (RAD->is_rect)
-    fl_color(FL_GREEN);
+  int ity = (active_rad == RAD) ? 255 : 220;
+
+  if (active_rad == RAD && selected)
+    fl_color(FL_YELLOW);
+  else if (RAD->is_rect)
+    fl_rgb_color(0, ity, 0);
   else
-    fl_color(FL_RED);
+    fl_rgb_color(ity, 0, 0);
 
   float x1 = RAD->mx - RAD->rx;
   float y1 = RAD->my - RAD->ry;
@@ -503,16 +511,18 @@ void UI_Grid::draw_thing(const thing_spawn_c *TH)
     return;
 
   float r = 20.0;
+  // r = TH->ddf_info->radius;
 
-  if (TH->ddf_info)
-  {
-    // FIXME: check if monster / pickup / scenery
-    fl_color(FL_RED);
-  }
+  int ity = (active_thing == TH) ? 255 : 220;
+
+  if (active_thing == TH && selected)
+    fl_color(FL_YELLOW);
+//else if (TH->ddf_info && TH->ddf_info->is_monster)
+//  fl_rgb_color(ity, 0, 0);
+//else if (TH->ddf_info && TH->ddf_info->is_pickup)
+//  fl_rgb_color(0, ity, 0);
   else
-  {
-    fl_color(FL_CYAN);
-  }
+    fl_rgb_color(0, ity, ity);
 
   float x1 = TH->x - r;
   float y1 = TH->y - r;
@@ -722,8 +732,17 @@ int UI_Grid::handle(int event)
         return 1;
       }
 
-      // TODO
-      // redraw();
+      if (selected)
+      {
+        selected = false;
+        redraw();
+      }
+      else if (active_rad || active_thing)
+      {
+        selected = true;
+        redraw();
+      }
+
       return 1;
 
     case FL_MOUSEWHEEL:
@@ -800,11 +819,123 @@ void UI_Grid::handle_mouse(int wx, int wy)
   WinToMap(wx, wy, &mx, &my);
 
   main_win->panel->SetMouse(mx, my);
+
+  if (! selected && script)
+  {
+    highlight_nearest(mx, my);
+  }
 }
 
+void UI_Grid::highlight_nearest(float mx, float my)
+{
+  rad_trigger_c *new_rad   = NULL;
+  thing_spawn_c *new_thing = NULL;
+
+  float best_dist = 99999.9;
+
+  std::vector<section_c *>::iterator PI;
+
+  for (PI = script->pieces.begin(); PI != script->pieces.end(); PI++)
+  {
+    section_c *piece = *PI;
+
+    if (! piece)
+      continue;
+
+    if (piece->kind == section_c::RAD_TRIG)
+    {
+      rad_trigger_c *RAD = piece->trig;
+      SYS_ASSERT(RAD);
+
+      if (edit_MODE == EDIT_RadTrig && RAD->rx > 0 && inside_RAD(RAD, mx, my))
+      {
+        float dist = dist_to_RAD(RAD, mx, my);
+
+        if (! new_rad || dist < best_dist)
+        {
+          new_rad = RAD;
+          best_dist = dist;
+        }
+      }
+      else if (edit_MODE == EDIT_Things && RAD->worldspawn)
+      {
+        std::vector<thing_spawn_c *>::iterator TI;
+
+        for (TI = RAD->things.begin(); TI != RAD->things.end(); TI++)
+        {
+          thing_spawn_c *thing = *TI;
+
+          if (! thing)
+            continue;
+
+          float r = 20.0; // r = TH->ddf_info->radius;
+
+          float dist = dist_to_THING(thing, mx, my);
+
+          if (dist/1.6 > r)
+            continue;
+
+          if (! new_thing || dist < best_dist)
+          {
+            new_thing = thing;
+            best_dist = dist;
+          }
+        }
+      }
+    }
+  }
+
+  /* see if anything changed */
+
+  switch (edit_MODE)
+  {
+    case EDIT_RadTrig:
+      if (new_rad != active_rad)
+      {
+        active_rad = new_rad;
+        redraw();
+      }
+      break;
+
+    case EDIT_Things:
+      if (new_thing != active_thing)
+      {
+        active_thing = new_thing;
+        redraw();
+      }
+      break;
+
+    default: break;
+  }
+}
+
+bool UI_Grid::inside_RAD(rad_trigger_c *RAD, float mx, float my)
+{
+  float x1 = RAD->mx - RAD->rx * 1.1;
+  float y1 = RAD->my - RAD->ry * 1.1;
+  float x2 = RAD->mx + RAD->rx * 1.1;
+  float y2 = RAD->my + RAD->ry * 1.1;
+
+  return ! (mx < x1 || mx > x2 || my < y1 || my > y2);
+}
+
+float UI_Grid::dist_to_RAD(rad_trigger_c *RAD, float mx, float my)
+{
+  return MAX(fabs(mx - RAD->mx), fabs(my - RAD->my));
+}
+
+float UI_Grid::dist_to_THING(thing_spawn_c *TH,  float mx, float my)
+{
+  mx -= TH->x;
+  my -= TH->y;
+
+  return sqrt(mx*mx + my*my);
+}
+
+
+#if 0
 void UI_Grid::new_node_or_sub(void)
 {
-#if 0
   node_c *cur_nd;
   subsec_c *cur_sub;
   bbox_t *cur_bbox;
@@ -830,8 +961,8 @@ void UI_Grid::new_node_or_sub(void)
   }
 
   guix_win->info->SetCurBBox(cur_bbox); // NULL is OK
-#endif
 }
+#endif
 
 
 //--- editor settings ---
