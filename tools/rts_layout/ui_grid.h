@@ -84,7 +84,7 @@ private:
   int  handle_key();
   void handle_mouse();
   void handle_push();
-  void handle_wheel();
+  void handle_wheel(int dy);
 
   void draw();
   // FLTK virtual method for drawing.
@@ -110,7 +110,8 @@ private:
                   int jx1=0, int jy1=0, int jx2=0, int jy2=0);
 
   void scroll(int dx, int dy);
-  void centralise();
+  void scroll_to_mouse();
+  void scroll_to_selection();
 
   void highlight_nearest(float mx, float my);
 
