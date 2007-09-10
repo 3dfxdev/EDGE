@@ -19,6 +19,7 @@
 #ifndef __UI_GRID_H__
 #define __UI_GRID_H__
 
+#include "g_script.h"
 
 class linedef_c;
 class level_c;
@@ -103,7 +104,13 @@ private:
 
   void scroll(int dx, int dy);
 
-  void new_node_or_sub(void);
+  void highlight_nearest(float mx, float my);
+
+  bool inside_RAD(rad_trigger_c *RAD, float mx, float my);
+
+  float dist_to_RAD  (rad_trigger_c *RAD, float mx, float my);
+  float dist_to_THING(thing_spawn_c *TH,  float mx, float my);
+
 
 public:
   int handle_key(int key);
@@ -115,11 +122,11 @@ private:
 
   section_c *script;
  
-  int zoom;
   // zoom factor: (2 ^ (zoom/2)) pixels per 512 units on the map
+  int zoom;
 
-  double zoom_mul;
   // derived from 'zoom'.
+  double zoom_mul;
 
   static const int MIN_GRID_ZOOM = 3;
   static const int DEF_GRID_ZOOM = 18;  // 1:1 ratio
@@ -130,6 +137,14 @@ private:
 
   int edit_MODE;
   int grid_MODE;
+
+  rad_trigger_c *active_rad;
+  thing_spawn_c *active_thing;
+
+  // true when the 'active_xxx' has been selected (drawn in
+  // yellow and remains selected).  Otherwise the object is
+  // merely highlighted.
+  bool selected;
 
 
   static inline int GRID_FIND(double x, double y)
