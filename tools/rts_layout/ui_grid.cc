@@ -36,8 +36,8 @@ UI_Grid::UI_Grid(int X, int Y, int W, int H, const char *label) :
     zoom(DEF_GRID_ZOOM), zoom_mul(1.0),
     mid_x(0), mid_y(0),
     edit_MODE(EDIT_RadTrig), grid_MODE(1),
-    active_rad(NULL), active_thing(NULL),
-    selected(false)
+    hilite_rad(NULL), hilite_thing(NULL),
+    select_rad(NULL), select_thing(NULL)
 { }
 
 //
@@ -147,10 +147,9 @@ void UI_Grid::SetEditMode(int new_mode)
 {
   edit_MODE = new_mode;
 
-  active_rad   = NULL;
-  active_thing = NULL;
-  selected = false;
-  
+  hilite_rad   = select_rad   = NULL;
+  hilite_thing = select_thing = NULL;
+ 
   redraw();
 }
 
@@ -483,9 +482,9 @@ void UI_Grid::draw_trigger(rad_trigger_c *RAD)
   if (RAD->rx < 0 || RAD->ry < 0)
     return;
  
-  bool hilite = (active_rad == RAD); 
+  bool hilite = (hilite_rad == RAD); 
 
-  if (hilite && selected)
+  if (select_rad == RAD)
     fl_color(FL_YELLOW);
   else if (RAD->is_rect)
     fl_color(fl_rgb_color(hilite?160:0, 255, hilite?160:0));
@@ -521,9 +520,9 @@ void UI_Grid::draw_thing(const thing_spawn_c *TH)
   float r = 20.0;
   // r = TH->ddf_info->radius;
 
-  bool hilite = (active_thing == TH); 
+  bool hilite = (hilite_thing == TH); 
 
-  if (hilite && selected)
+  if (select_thing == TH)
     fl_color(FL_YELLOW);
 //else if (TH->ddf_info && TH->ddf_info->is_monster)
 //  fl_color(fl_rgb_color(255, hilite?160:0, 255));
@@ -737,7 +736,11 @@ int UI_Grid::handle(int event)
     }
 
     case FL_ENTER:
+      return 1;
+
     case FL_LEAVE:
+      hilite_rad = NULL;
+      hilite_thing = NULL;
       return 1;
 
     case FL_MOVE:
@@ -752,14 +755,10 @@ int UI_Grid::handle(int event)
         return 1;
       }
 
-      if (selected)
+      if (select_rad != hilite_rad || select_thing != hilite_thing)
       {
-        selected = false;
-        redraw();
-      }
-      else if (active_rad || active_thing)
-      {
-        selected = true;
+        select_rad   = hilite_rad;
+        select_thing = hilite_thing;
         redraw();
       }
 
@@ -840,7 +839,7 @@ void UI_Grid::handle_mouse(int wx, int wy)
 
   main_win->panel->SetMouse(mx, my);
 
-  if (! selected && script)
+  if (script)
   {
     highlight_nearest(mx, my);
   }
@@ -910,17 +909,17 @@ void UI_Grid::highlight_nearest(float mx, float my)
   switch (edit_MODE)
   {
     case EDIT_RadTrig:
-      if (new_rad != active_rad)
+      if (new_rad != hilite_rad)
       {
-        active_rad = new_rad;
+        hilite_rad = new_rad;
         redraw();
       }
       break;
 
     case EDIT_Things:
-      if (new_thing != active_thing)
+      if (new_thing != hilite_thing)
       {
-        active_thing = new_thing;
+        hilite_thing = new_thing;
         redraw();
       }
       break;

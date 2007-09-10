@@ -139,13 +139,11 @@ private:
   int edit_MODE;
   int grid_MODE;
 
-  rad_trigger_c *active_rad;
-  thing_spawn_c *active_thing;
+  rad_trigger_c *hilite_rad;
+  thing_spawn_c *hilite_thing;
 
-  // true when the 'active_xxx' has been selected (drawn in
-  // yellow and remains selected).  Otherwise the object is
-  // merely highlighted.
-  bool selected;
+  rad_trigger_c *select_rad;
+  thing_spawn_c *select_thing;
 
 
   static inline int GRID_FIND(double x, double y)
