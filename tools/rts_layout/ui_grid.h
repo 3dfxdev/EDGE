@@ -79,6 +79,11 @@ public:
   void resize(int X, int Y, int W, int H);
   // FLTK virtual method for resizing.
 
+public:
+  int handle_key(int key);
+
+  void handle_mouse(int wx, int wy);
+
 private:
   void draw();
   // FLTK virtual method for drawing.
@@ -112,11 +117,7 @@ private:
   float dist_to_RAD  (rad_trigger_c *RAD, float mx, float my);
   float dist_to_THING(thing_spawn_c *TH,  float mx, float my);
 
-
-public:
-  int handle_key(int key);
-
-  void handle_mouse(int wx, int wy);
+  void determine_drag(rad_trigger_c *RAD, float mx, float my);
 
 private:
   level_c *map;
@@ -144,6 +145,16 @@ private:
 
   rad_trigger_c *select_rad;
   thing_spawn_c *select_thing;
+
+  bool dragging;
+
+  // specify which part of the radius trigger we will drag:
+  // Edges have one of dx/dy as zero. Corners have both non-zero.
+  // When dx==0 and dy==0, we simply move the whole trigger.
+  int drag_dx;
+  int drag_dy;
+
+  Fl_Cursor drag_cursor;
 
 
   static inline int GRID_FIND(double x, double y)
