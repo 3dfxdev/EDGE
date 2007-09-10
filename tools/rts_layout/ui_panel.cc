@@ -105,13 +105,14 @@ UI_Panel::UI_Panel(int X, int Y, int W, int H, const char *label) :
 
   add(script_box);
 
-script_box->deactivate();
+  script_box->deactivate();
   
 
   thing_box = new UI_ThingInfo(X-2, Y, W+4, H-Y-12);
 
   add(thing_box);
     
+  thing_box->deactivate();
   thing_box->hide();
 
 
