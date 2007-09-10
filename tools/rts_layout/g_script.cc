@@ -435,8 +435,8 @@ std::string& thing_spawn_c::GetStringRef(int F)
 
 rad_trigger_c::rad_trigger_c(bool _rect) :
     is_rect(_rect ? 1 : 0),
-    mx(0),  my(0),  mz(FLOAT_UNSPEC),
-    rx(-1), ry(-1), rz(FLOAT_UNSPEC),
+    mx(0), my(0), rx(-1), ry(-1),
+    z1(FLOAT_UNSPEC), z2(FLOAT_UNSPEC),
     name(), tag(INT_UNSPEC), when_appear(INT_UNSPEC),
     lines(), worldspawn(false), things()
 { }
@@ -472,10 +472,10 @@ void rad_trigger_c::WriteRadTrig(FILE *fp)
     fprintf(fp, " %s", Float_TmpStr(rx));
   }
 
-  if (mz != FLOAT_UNSPEC && rz != FLOAT_UNSPEC && rz > 0)
+  if (z1 != FLOAT_UNSPEC && z2 != FLOAT_UNSPEC)
   {
-    fprintf(fp, "  %s", Float_TmpStr(mz-rz));
-    fprintf(fp, "  %s", Float_TmpStr(mz+rz));
+    fprintf(fp, "  %s", Float_TmpStr(z1));
+    fprintf(fp, "  %s", Float_TmpStr(z2));
   }
 
   fprintf(fp, "\n");
@@ -565,8 +565,8 @@ rts_result_e rad_trigger_c::ParseLocation(const char *pos)
 
   if (is_rect)
   {
-    float x1, y1, z1;
-    float x2, y2, z2;
+    float x1, y1;
+    float x2, y2;
 
     int num = sscanf(pos, " %f %f %f %f %f %f ",
                      &x1, &y1, &x2, &y2, &z1, &z2);
@@ -579,16 +579,9 @@ rts_result_e rad_trigger_c::ParseLocation(const char *pos)
 
     mx = (x1 + x2) / 2; rx = fabs(x2 - x1) / 2;
     my = (y1 + y2) / 2; ry = fabs(y2 - y1) / 2;
-
-    if (num > 4)
-    {
-      mz = (z1 + z2) / 2; rz = fabs(z2 - z1) / 2;
-    }
   }
   else /* radius */
   {
-    float z1, z2;
-
     int num = sscanf(pos, " %f %f %f %f %f ",
                      &mx, &my, &rx, &z1, &z2);
 
@@ -599,11 +592,6 @@ rts_result_e rad_trigger_c::ParseLocation(const char *pos)
     }
 
     ry = rx;
-
-    if (num > 3)
-    {
-      mz = (z1 + z2) / 2; rz = fabs(z2 - z1) / 2;
-    }
   }
 
   return RTS_OK;
@@ -764,15 +752,16 @@ float& rad_trigger_c::GetFloatRef(int F)
   {
     case F_MX: return mx;
     case F_MY: return my;
-    case F_MZ: return mz;
 
     case F_RX: return rx;
     case F_RY: return ry;
-    case F_RZ: return rz;
+
+    case F_Z1: return z1;
+    case F_Z2: return z2;
 
     default:
       Main_FatalError("INTERNAL ERROR: rad_trigger_c: bad Float field %d!\n", F);
-      return rz; /* NOT REACHED */
+      return z2; /* NOT REACHED */
   }
 }
 

@@ -122,8 +122,9 @@ public:
 public:
   int is_rect;
 
-  float mx, my, mz;  // mid point
-  float rx, ry, rz;  // radii
+  float mx, my;  // mid point
+  float rx, ry;  // radii
+  float z1, z2;
  
   std::string name;  // empty = none
 
@@ -143,8 +144,9 @@ public:
   enum field_ref_e
   {
     F_IS_RECT = 0,
-    F_MX, F_MY, F_MZ,
-    F_RX, F_RY, F_RZ,
+    F_MX, F_MY,
+    F_RX, F_RY,
+    F_Z1, F_Z2,
     F_NAME,
     F_TAG,
     F_WHEN_APPEAR,
