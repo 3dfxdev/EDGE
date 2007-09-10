@@ -27,6 +27,18 @@
 #include "ui_panel.h"
 
 
+// the normal 'MOVE' cursor looks like shite on Linux.
+// instead we use the X11 'PLUS' cursor.
+#ifdef UNIX
+#undef  FL_CURSOR_MOVE
+#define FL_CURSOR_MOVE  ((Fl_Cursor)46)  // XC_plus
+#endif
+
+#ifdef UNIX
+#define CURSOR_NO_FOCUS  ((Fl_Cursor)1)  // XC_X_cursor
+#endif
+
+
 //
 // UI_Grid Constructor
 //
@@ -38,8 +50,7 @@ UI_Grid::UI_Grid(int X, int Y, int W, int H, const char *label) :
     edit_MODE(EDIT_RadTrig), grid_MODE(1),
     hilite_rad(NULL), hilite_thing(NULL),
     select_rad(NULL), select_thing(NULL),
-    dragging(false), drag_dx(0), drag_dy(0),
-    drag_cursor(FL_CURSOR_DEFAULT)
+    dragging(false), drag_dx(0), drag_dy(0)
 { }
 
 //
@@ -151,6 +162,8 @@ void UI_Grid::SetEditMode(int new_mode)
 
   hilite_rad   = select_rad   = NULL;
   hilite_thing = select_thing = NULL;
+
+  determine_cursor();
  
   redraw();
 }
@@ -738,11 +751,16 @@ int UI_Grid::handle(int event)
     }
 
     case FL_ENTER:
+      // we greedily grab the focus
+      if (Fl::focus() != this)
+        take_focus(); 
+
       return 1;
 
     case FL_LEAVE:
       hilite_rad = NULL;
       hilite_thing = NULL;
+      determine_cursor();
       return 1;
 
     case FL_MOVE:
@@ -751,11 +769,12 @@ int UI_Grid::handle(int event)
 
     case FL_PUSH:
       if (Fl::focus() != this)
-      {
-        Fl::focus(this);
-        handle(FL_FOCUS);
-        return 1;
-      }
+        return take_focus();
+///---      {
+///---        Fl::focus(this);
+///---        handle(FL_FOCUS);
+///---        return 1;
+///---      }
 
       if (select_rad != hilite_rad || select_thing != hilite_thing)
       {
@@ -846,10 +865,9 @@ void UI_Grid::handle_mouse(int wx, int wy)
   if (script)
   {
     highlight_nearest(mx, my);
-
-    if (hilite_rad)
-      determine_drag(hilite_rad, mx, my);
   }
+
+  determine_cursor(mx, my);
 }
 
 void UI_Grid::highlight_nearest(float mx, float my)
@@ -919,6 +937,7 @@ void UI_Grid::highlight_nearest(float mx, float my)
       if (new_rad != hilite_rad)
       {
         hilite_rad = new_rad;
+        determine_cursor();
         redraw();
       }
       break;
@@ -927,6 +946,7 @@ void UI_Grid::highlight_nearest(float mx, float my)
       if (new_thing != hilite_thing)
       {
         hilite_thing = new_thing;
+        determine_cursor();
         redraw();
       }
       break;
@@ -958,10 +978,27 @@ float UI_Grid::dist_to_THING(thing_spawn_c *TH,  float mx, float my)
   return sqrt(mx*mx + my*my);
 }
 
-void UI_Grid::determine_drag(rad_trigger_c *RAD, float mx, float my)
+void UI_Grid::determine_cursor(float mx, float my)
 {
-  SYS_ASSERT(! dragging);
-//SYS_ASSERT(inside_RAD(RAD, mx, my));
+  // keep same cursor when dragging
+  if (dragging)
+    return;
+
+#if 0
+  if (hilite_thing)
+  {
+    main_win->SetCursor(FL_CURSOR_MOVE);
+    return;
+  }
+#endif
+
+  if (! hilite_rad)
+  {
+    main_win->SetCursor(FL_CURSOR_DEFAULT);
+    return;
+  }
+
+  rad_trigger_c *RAD = hilite_rad;
 
   float dx = mx - RAD->mx;
   float dy = my - RAD->my;
@@ -969,18 +1006,11 @@ void UI_Grid::determine_drag(rad_trigger_c *RAD, float mx, float my)
   float fx = fabs(dx) / RAD->rx;
   float fy = fabs(dy) / RAD->ry;
 
-  Fl_Cursor new_cursor;
-
   if (fx < 0.66 && fy < 0.66)
   {
     drag_dx = drag_dy = 0;
 
-#ifdef UNIX
-    // the 'MOVE' cursor looks like shite on Linux
-    new_cursor = FL_CURSOR_CROSS;
-#else
-    new_cursor = FL_CURSOR_MOVE;
-#endif
+    main_win->SetCursor(FL_CURSOR_MOVE);
   }
   else
   {
@@ -991,64 +1021,27 @@ void UI_Grid::determine_drag(rad_trigger_c *RAD, float mx, float my)
       drag_dx = (dx > 0) ? +1 : -1;
       drag_dy = (dy > 0) ? +1 : -1;
 
-      new_cursor = (drag_dx * drag_dy) > 0 ? FL_CURSOR_NESW : FL_CURSOR_NWSE;
+      if (drag_dx * drag_dy > 0)
+        main_win->SetCursor(FL_CURSOR_NESW);
+      else
+        main_win->SetCursor(FL_CURSOR_NWSE);
     }
     else if (fx > fy)
     {
       drag_dx = (dx > 0) ? +1 : -1;
       drag_dy = 0;
 
-      new_cursor = FL_CURSOR_WE;
+      main_win->SetCursor(FL_CURSOR_WE);
     }
     else
     {
       drag_dx = 0;
       drag_dy = (dy > 0) ? +1 : -1;
 
-      new_cursor = FL_CURSOR_NS;
+      main_win->SetCursor(FL_CURSOR_NS);
     }
   }
-
-  /* update the real cursor if changed */
-  if (new_cursor != drag_cursor)
-  {
-    drag_cursor = new_cursor;
-
-    fl_cursor(drag_cursor);
-  }
 }
-
-
-#if 0
-void UI_Grid::new_node_or_sub(void)
-{
-  node_c *cur_nd;
-  subsec_c *cur_sub;
-  bbox_t *cur_bbox;
-  
-  lowest_node(&cur_nd, &cur_sub, &cur_bbox);
-
-  if (cur_sub)
-  {
-    guix_win->info->BeginSegList();
-    
-    for (seg_c *seg = cur_sub->seg_list; seg; seg = seg->next)
-      guix_win->info->AddSeg(seg);
-    
-    guix_win->info->EndSegList();
-
-    guix_win->info->SetSubsectorIndex(cur_sub->index);
-    guix_win->info->SetPartition(NULL);
-  }
-  else
-  {
-    guix_win->info->SetNodeIndex(cur_nd->index);
-    guix_win->info->SetPartition(cur_nd);
-  }
-
-  guix_win->info->SetCurBBox(cur_bbox); // NULL is OK
-}
-#endif
 
 
 //--- editor settings ---
