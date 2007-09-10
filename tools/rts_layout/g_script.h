@@ -31,12 +31,9 @@ typedef enum
 {
   RTS_OK = 0,
   RTS_ERROR = 1,
-//  RTS_EOF = 2,
-  RTS_FINISHED = 3,
+  RTS_EOF = 2,
 }
 rts_result_e;
-//!!!! FIXME
-#define RTS_EOF  RTS_FINISHED
 
 
 typedef enum
@@ -178,10 +175,8 @@ private:
   rts_result_e ParseBody(FILE *fp);
   
   rts_result_e ParseCommand(std::string& line);
-  // parse the given line of the trigger.  Returns RTS_OK for
-  // normal lines, RTS_FINISHED for the end marker (after which
-  // this function is never called again), or RTS_ERROR if a
-  // problem occurred.
+  // parse the given line of the trigger.  Returns RTS_OK
+  // or RTS_ERROR if a problem occurred.
 
   rts_result_e cmd_Name(const char *args);
   rts_result_e cmd_Tag(const char *args);
