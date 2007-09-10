@@ -85,7 +85,7 @@ void UI_Grid::SetScript(section_c *new_scr)
   redraw();
 }
 
-void UI_Grid::SetZoom(int new_zoom)
+bool UI_Grid::SetZoom(int new_zoom)
 {
   if (new_zoom < MIN_GRID_ZOOM)
     new_zoom = MIN_GRID_ZOOM;
@@ -94,7 +94,7 @@ void UI_Grid::SetZoom(int new_zoom)
     new_zoom = MAX_GRID_ZOOM;
 
   if (zoom == new_zoom)
-    return;
+    return false;
 
   zoom = new_zoom;
 
@@ -105,6 +105,8 @@ void UI_Grid::SetZoom(int new_zoom)
   //  fprintf(stderr, "Zoom %d  Mul %1.5f\n", zoom, zoom_mul);
 
   redraw();
+
+  return true;
 }
 
 
@@ -745,8 +747,9 @@ int UI_Grid::handle(int event)
     case FL_KEYDOWN:
     case FL_SHORTCUT:
     {
-      int result = handle_key(Fl::event_key());
-      handle_mouse(Fl::event_x(), Fl::event_y());
+      int result = handle_key();
+      handle_mouse();
+
       return result;
     }
 
@@ -764,34 +767,16 @@ int UI_Grid::handle(int event)
       return 1;
 
     case FL_MOVE:
-      handle_mouse(Fl::event_x(), Fl::event_y());
+      handle_mouse();
       return 1;
 
     case FL_PUSH:
-      if (Fl::focus() != this)
-        return take_focus();
-///---      {
-///---        Fl::focus(this);
-///---        handle(FL_FOCUS);
-///---        return 1;
-///---      }
-
-      if (select_rad != hilite_rad || select_thing != hilite_thing)
-      {
-        select_rad   = hilite_rad;
-        select_thing = hilite_thing;
-        redraw();
-      }
-
+      handle_push();
       return 1;
 
     case FL_MOUSEWHEEL:
-      if (Fl::event_dy() < 0)
-        SetZoom(zoom + 1);
-      else if (Fl::event_dy() > 0)
-        SetZoom(zoom - 1);
-
-      handle_mouse(Fl::event_x(), Fl::event_y());
+      handle_wheel();
+      handle_mouse();
       return 1;
 
     case FL_DRAG:
@@ -808,8 +793,10 @@ int UI_Grid::handle(int event)
   return 0;  // unused
 }
 
-int UI_Grid::handle_key(int key)
+int UI_Grid::handle_key()
 {
+  int key = Fl::event_key();
+
   if (key == 0)
     return 0;
 
@@ -844,17 +831,38 @@ int UI_Grid::handle_key(int key)
       redraw();
       return 1;
 
+    case 'c': case 'C':
+      centralise();
+      return 1;
+
+    case '0': // zoom out
+    {
+      double lx,ly, hx,hy;
+      map->ComputeBounds(&lx,&ly, &hx,&hy);
+
+      FitBBox(lx,ly, hx,hy);
+      return 1;
+    }
+
     default:
       break;
   }
 
+#if 1
+  if (isalnum(key))
+    return 1;
+#endif
+
   return 0;  // unused
 }
 
-void UI_Grid::handle_mouse(int wx, int wy)
+void UI_Grid::handle_mouse()
 {
   if (! main_win)
     return;
+
+  int wx = Fl::event_x();
+  int wy = Fl::event_y();
 
   double mx, my;
 
@@ -868,6 +876,63 @@ void UI_Grid::handle_mouse(int wx, int wy)
   }
 
   determine_cursor(mx, my);
+}
+
+void UI_Grid::handle_push()
+{
+  if (Fl::focus() != this)
+  {
+    take_focus();
+    return;
+  }
+
+  if (select_rad != hilite_rad || select_thing != hilite_thing)
+  {
+    select_rad   = hilite_rad;
+    select_thing = hilite_thing;
+
+    redraw();
+  }
+}
+
+void UI_Grid::handle_wheel()
+{
+  if (Fl::event_dy == 0)
+    return;
+
+  if (Fl::belowmouse() != this)
+    return;
+ 
+  int wx = Fl::event_x();
+  int wy = Fl::event_y();
+
+  double mx1, my1;
+  WinToMap(wx, wy, &mx1, &my1);
+
+  if (! SetZoom(zoom + ((Fl::event_dy() > 0) ? -1 : 1)))
+    return;
+
+  double mx2, my2;
+  WinToMap(wx, wy, &mx2, &my2);
+
+  mid_x -= mx2 - mx1;
+  mid_y -= my2 - my1;
+}
+
+void UI_Grid::centralise()
+{
+  if (Fl::belowmouse() != this)
+    return;
+ 
+  int wx = Fl::event_x();
+  int wy = Fl::event_y();
+
+  double mx, my;
+  WinToMap(wx, wy, &mx, &my);
+
+  SetPos(mx, my);
+
+  redraw();
 }
 
 void UI_Grid::highlight_nearest(float mx, float my)
