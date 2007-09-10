@@ -483,14 +483,14 @@ void UI_Grid::draw_trigger(rad_trigger_c *RAD)
   if (RAD->rx < 0 || RAD->ry < 0)
     return;
  
-  int ity = (active_rad == RAD) ? 255 : 220;
+  bool hilite = (active_rad == RAD); 
 
-  if (active_rad == RAD && selected)
+  if (hilite && selected)
     fl_color(FL_YELLOW);
   else if (RAD->is_rect)
-    fl_rgb_color(0, ity, 0);
+    fl_color(fl_rgb_color(hilite?160:0, 255, hilite?160:0));
   else
-    fl_rgb_color(ity, 0, 0);
+    fl_color(fl_rgb_color(255, hilite?130:0, hilite?130:0));
 
   float x1 = RAD->mx - RAD->rx;
   float y1 = RAD->my - RAD->ry;
@@ -501,6 +501,14 @@ void UI_Grid::draw_trigger(rad_trigger_c *RAD)
   blast_line(x2, y1, x2, y2);
   blast_line(x1, y1, x2, y1);
   blast_line(x1, y2, x2, y2);
+
+  if (hilite)
+  {
+    blast_line(x1, y1, x1, y2, -1, +1, -1, -1);
+    blast_line(x2, y1, x2, y2, +1, +1, +1, -1);
+    blast_line(x1, y1, x2, y1, -1, +1, +1, +1);
+    blast_line(x1, y2, x2, y2, -1, -1, +1, -1);
+  }
 }
 
 void UI_Grid::draw_thing(const thing_spawn_c *TH)
@@ -513,16 +521,16 @@ void UI_Grid::draw_thing(const thing_spawn_c *TH)
   float r = 20.0;
   // r = TH->ddf_info->radius;
 
-  int ity = (active_thing == TH) ? 255 : 220;
+  bool hilite = (active_thing == TH); 
 
-  if (active_thing == TH && selected)
+  if (hilite && selected)
     fl_color(FL_YELLOW);
 //else if (TH->ddf_info && TH->ddf_info->is_monster)
-//  fl_rgb_color(ity, 0, 0);
+//  fl_color(fl_rgb_color(255, hilite?160:0, 255));
 //else if (TH->ddf_info && TH->ddf_info->is_pickup)
-//  fl_rgb_color(0, ity, 0);
+//  fl_color(fl_rgb_color(hilite?160:0, 255, hilite?160:0));
   else
-    fl_rgb_color(0, ity, ity);
+    fl_color(fl_rgb_color(hilite?160:0, hilite?230:255, 255));
 
   float x1 = TH->x - r;
   float y1 = TH->y - r;
@@ -533,6 +541,14 @@ void UI_Grid::draw_thing(const thing_spawn_c *TH)
   blast_line(x2, y1, x2, y2);
   blast_line(x1, y1, x2, y1);
   blast_line(x1, y2, x2, y2);
+
+  if (hilite)
+  {
+    blast_line(x1, y1, x1, y2, -1, +1, -1, -1);
+    blast_line(x2, y1, x2, y2, +1, +1, +1, -1);
+    blast_line(x1, y1, x2, y1, -1, +1, +1, +1);
+    blast_line(x1, y2, x2, y2, -1, -1, +1, -1);
+  }
 
   // draw direction
  
@@ -557,7 +573,8 @@ void UI_Grid::draw_thing(const thing_spawn_c *TH)
 }
 
 
-void UI_Grid::blast_line(double x1, double y1, double x2, double y2)
+void UI_Grid::blast_line(double x1, double y1, double x2, double y2,
+                  int jx1, int jy1, int jx2, int jy2)
 {
   double mlx = mid_x - w() * 0.5 / zoom_mul;
   double mly = mid_y - h() * 0.5 / zoom_mul;
@@ -645,6 +662,9 @@ void UI_Grid::blast_line(double x1, double y1, double x2, double y2)
   MapToWin(x1, y1, &sx, &sy);
   MapToWin(x2, y2, &ex, &ey);
 
+  sx += jx1; sy += jy1;
+  ex += jx2; ey += jy2;
+  
   fl_line(sx, sy, ex, ey);
 }
 
