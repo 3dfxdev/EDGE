@@ -55,6 +55,7 @@ char *StringPrintf(const char *str, ...); // GCCATTR((format (printf, 1, 2)));
 // math utilities
 u32_t IntHash(u32_t key);
 u32_t StringHash(const char *str);
+float Distance(float dx, float dy);
 
 // time utilities
 u32_t TimeGetMillies();
