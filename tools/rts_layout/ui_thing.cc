@@ -31,7 +31,8 @@
 // UI_ThingInfo Constructor
 //
 UI_ThingInfo::UI_ThingInfo(int X, int Y, int W, int H, const char *label) : 
-    Fl_Group(X, Y, W, H, label)
+    Fl_Group(X, Y, W, H, label),
+    view_TH(NULL)
 {
   end();  // cancel begin() in Fl_Group constructor
 
@@ -46,12 +47,12 @@ UI_ThingInfo::UI_ThingInfo(int X, int Y, int W, int H, const char *label) :
   int MX = X + W/2;
 
 
-  which = new Fl_Box(FL_NO_BOX, X, Y, W, 22, "Thing #1234  of 7777");
-  which->align(FL_ALIGN_INSIDE | FL_ALIGN_LEFT);
-
-  add(which);
-
-  Y += which->h() + 8;
+///---  which = new Fl_Box(FL_NO_BOX, X, Y, W, 22, "No Thing");
+///---  which->align(FL_ALIGN_INSIDE | FL_ALIGN_LEFT);
+///---
+///---  add(which);
+///---
+///---  Y += which->h() + 8;
 
 
   type = new Fl_Input(X+46, Y, W-50, 24, "Type: ");
@@ -147,6 +148,31 @@ UI_ThingInfo::UI_ThingInfo(int X, int Y, int W, int H, const char *label) :
 //
 UI_ThingInfo::~UI_ThingInfo()
 {
+}
+
+void UI_ThingInfo::SetViewThing(thing_spawn_c *th)
+{
+  if (view_TH == th)
+    return;
+
+  view_TH = th;
+
+  if (view_TH)
+  {
+    // FIXME: active_SCRIPT->th_Total
+    main_win->panel->SetWhich(th->th_Index, 777);
+
+    LoadData(view_TH);
+    activate();
+  }
+  else
+  {
+    main_win->panel->SetWhich(-1, -1);
+
+    deactivate();
+  }
+
+  redraw();
 }
 
 

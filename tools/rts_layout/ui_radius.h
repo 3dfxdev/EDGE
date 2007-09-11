@@ -27,7 +27,9 @@ public:
   virtual ~UI_RadiusInfo();
 
 private:
-  Fl_Box    *which;  // e.g. 'Trigger #1234'
+  rad_trigger_c *view_RAD;
+
+///---  Fl_Box *which;  // e.g. 'Trigger #1234'
 
   Fl_Choice *shape;
 
@@ -60,6 +62,8 @@ public:
   void LoadData(rad_trigger_c *rad);
 
   void UpdateField(rad_trigger_c *rad, int F);
+
+  void SetViewRad(rad_trigger_c *rad);
 
 private:
   void ConvertToRadius();
