@@ -126,6 +126,8 @@ private:
   void drag_new_rad_coords(rad_trigger_c *rad, float *x1, float *y1,
                            float *x2, float *y2);
 
+  void update_active_obj();
+
 private:
   level_c *map;
 

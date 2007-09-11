@@ -26,6 +26,8 @@
 #include "ui_window.h"
 #include "ui_grid.h"
 #include "ui_panel.h"
+#include "ui_radius.h"
+#include "ui_thing.h"
 
 
 // the normal 'MOVE' cursor looks like shite on Linux.
@@ -167,6 +169,7 @@ void UI_Grid::SetEditMode(int new_mode)
   hilite_thing = select_thing = NULL;
 
   determine_cursor();
+  update_active_obj();
  
   redraw();
 }
@@ -669,6 +672,7 @@ int UI_Grid::handle(int event)
       hilite_thing = NULL;
       dragging = false;
       determine_cursor();
+      update_active_obj();
       redraw();
       return 1;
 
@@ -760,6 +764,7 @@ int UI_Grid::handle_key()
         select_rad = NULL;
         select_thing = NULL;
         determine_cursor();
+        update_active_obj();
         redraw();
       }
       return 1;
@@ -832,6 +837,7 @@ void UI_Grid::handle_push()
     select_rad   = hilite_rad;
     select_thing = hilite_thing;
 
+    update_active_obj();
     redraw();
   }
 }
@@ -972,6 +978,7 @@ void UI_Grid::highlight_nearest(float mx, float my)
       {
         hilite_rad = new_rad;
         determine_cursor();
+        update_active_obj();
         redraw();
       }
       break;
@@ -981,6 +988,7 @@ void UI_Grid::highlight_nearest(float mx, float my)
       {
         hilite_thing = new_thing;
         determine_cursor();
+        update_active_obj();
         redraw();
       }
       break;
@@ -1118,6 +1126,18 @@ void UI_Grid::drag_new_rad_coords(rad_trigger_c *RAD,
   {
     float tmp = *y1; *y1 = *y2; *y2 = tmp;
   }
+}
+
+void UI_Grid::update_active_obj()
+{
+  if (! main_win)
+    return;
+
+  main_win->panel->script_box->SetViewRad(
+      select_rad ? select_rad : hilite_rad);
+
+  main_win->panel->thing_box->SetViewThing(
+      select_thing ? select_thing : hilite_thing);
 }
 
 //--- editor settings ---
