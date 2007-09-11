@@ -29,7 +29,7 @@
 #include "ui_thing.h"
 
 
-#define INFO_BG_COLOR  fl_rgb_color(96)
+#define INDEX_NONE_STR  "Index: None Selected"
 
 
 //
@@ -42,7 +42,6 @@ UI_Panel::UI_Panel(int X, int Y, int W, int H, const char *label) :
 
   box(FL_FLAT_BOX);
 
-//  color(INFO_BG_COLOR, INFO_BG_COLOR);
 
   X += 6;
   Y += 6;
@@ -99,6 +98,14 @@ UI_Panel::UI_Panel(int X, int Y, int W, int H, const char *label) :
   add(mode);
 
   Y += mode->h() + 8;
+
+
+  which = new Fl_Box(FL_NO_BOX, X+4, Y, W-4, 22, INDEX_NONE_STR);
+  which->align(FL_ALIGN_INSIDE | FL_ALIGN_LEFT);
+
+  add(which);
+
+  Y += which->h() + 4;
 
 
   script_box = new UI_RadiusInfo(X-2, Y, W+4, H-Y-12);
@@ -237,6 +244,23 @@ void UI_Panel::SetMouse(double mx, double my)
 
   mouse_x->value(x_buffer);
   mouse_y->value(y_buffer);
+}
+
+void UI_Panel::SetWhich(int index, int total)
+{
+  if (index < 0)
+  {
+    which->label(INDEX_NONE_STR);
+  }
+  else
+  {
+    char buffer[200];
+    sprintf(buffer, "Index: #%d of %d", index, total);
+ 
+    which->copy_label(buffer);
+  }
+
+  redraw();
 }
 
 
