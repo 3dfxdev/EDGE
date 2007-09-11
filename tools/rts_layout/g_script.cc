@@ -246,7 +246,7 @@ thing_spawn_c::thing_spawn_c(bool _ambush) :
     ambush(_ambush ? 1 : 0), type(),
     x(0), y(0), z(FLOAT_UNSPEC), angle(FLOAT_UNSPEC),
     tag(INT_UNSPEC), when_appear(INT_UNSPEC),
-    ddf_info(NULL)
+    th_Index(0), ddf_info(NULL)
 { }
 
 thing_spawn_c::~thing_spawn_c()
@@ -438,7 +438,8 @@ rad_trigger_c::rad_trigger_c(bool _rect) :
     mx(0), my(0), rx(-1), ry(-1),
     z1(FLOAT_UNSPEC), z2(FLOAT_UNSPEC),
     name(), tag(INT_UNSPEC), when_appear(INT_UNSPEC),
-    lines(), worldspawn(false), things()
+    lines(), worldspawn(false), things(),
+    rad_Index(0), th_Total(0)
 { }
 
 rad_trigger_c::~rad_trigger_c()
@@ -661,6 +662,9 @@ rts_result_e rad_trigger_c::ParseCommand(std::string& line)
     if (! th)
       return RTS_ERROR;
 
+    th->th_Index = th_Total;
+    th_Total++;
+    
     things.push_back(th);
     return RTS_OK;
   }
@@ -779,7 +783,9 @@ std::string& rad_trigger_c::GetStringRef(int F)
 //------------------------------------------------------------------------
 
 section_c::section_c(int _kind) :
-    kind(_kind), lines(), map_name(), pieces(), trig(NULL)
+    kind(_kind), lines(),
+    map_name(), rad_Total(0), pieces(),
+    trig(NULL)
 { }
 
 section_c::~section_c()
@@ -925,6 +931,9 @@ rts_result_e section_c::ParsePieces(FILE *fp)
 
       if (! trig)
         return RTS_ERROR;
+
+      trig->rad_Index = rad_Total;
+      rad_Total++;
 
       cur_piece = new section_c(RAD_TRIG);
       cur_piece->trig = trig;
