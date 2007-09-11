@@ -662,8 +662,8 @@ rts_result_e rad_trigger_c::ParseCommand(std::string& line)
     if (! th)
       return RTS_ERROR;
 
-    th->th_Index = th_Total;
     th_Total++;
+    th->th_Index = th_Total;
     
     things.push_back(th);
     return RTS_OK;
@@ -932,8 +932,8 @@ rts_result_e section_c::ParsePieces(FILE *fp)
       if (! trig)
         return RTS_ERROR;
 
-      trig->rad_Index = rad_Total;
       rad_Total++;
+      trig->rad_Index = rad_Total;
 
       cur_piece = new section_c(RAD_TRIG);
       cur_piece->trig = trig;
