@@ -31,7 +31,8 @@
 // UI_RadiusInfo Constructor
 //
 UI_RadiusInfo::UI_RadiusInfo(int X, int Y, int W, int H, const char *label) : 
-    Fl_Group(X, Y, W, H, label)
+    Fl_Group(X, Y, W, H, label),
+    view_RAD(NULL)
 {
   end();  // cancel begin() in Fl_Group constructor
 
@@ -46,23 +47,36 @@ UI_RadiusInfo::UI_RadiusInfo(int X, int Y, int W, int H, const char *label) :
   int MX = X + W/2;
 
 
-  which = new Fl_Box(FL_NO_BOX, X, Y, W, 22, "Trigger #1234  of 7777");
-  which->align(FL_ALIGN_INSIDE | FL_ALIGN_LEFT);
+///---  which = new Fl_Box(FL_NO_BOX, X, Y, W, 22, "No Trigger");
+///---  which->align(FL_ALIGN_INSIDE | FL_ALIGN_LEFT);
+///---
+///---  add(which);
+///---
+///---  Y += which->h() + 8;
 
-  add(which);
 
-  Y += which->h() + 8;
+  Fl_Round_Button *shape1 = new Fl_Round_Button(X, Y, W/2-24, 22, "Radius");
+//  shape1->align(FL_ALIGN_RIGHT);
+  shape1->value(1);
+  add(shape1);
+  
+  Fl_Round_Button *shape2 = new Fl_Round_Button(MX, Y, W/2-24, 22, "Rectangle");
+//  shape2->align(FL_ALIGN_RIGHT);
+  shape2->value(0);
+  add(shape2);
+  
+  Y += shape2->h() + 4;
 
-
+  
   shape = new Fl_Choice(X+54, Y, W-58, 24, "Shape: ");
   shape->align(FL_ALIGN_LEFT);
   shape->add("Radius|Rectangle");
   shape->value(0);
   shape->callback(shape_callback, this);
 
-  add(shape);
-  
-  Y += shape->h() + 4;
+///???  add(shape);
+///???  
+///???  Y += shape->h() + 4;
 
 
   pos_x1 = new Fl_Float_Input(X +20, Y, W/2-24, 22, "x1");
@@ -160,6 +174,31 @@ UI_RadiusInfo::~UI_RadiusInfo()
 {
 }
 
+
+void UI_RadiusInfo::SetViewRad(rad_trigger_c *rad)
+{
+  if (view_RAD == rad)
+    return;
+
+  view_RAD = rad;
+
+  if (view_RAD)
+  {
+    // FIXME: active_SCRIPT->rad_Total
+    main_win->panel->SetWhich(rad->rad_Index, 777);
+
+    LoadData(view_RAD);
+    activate();
+  }
+  else
+  {
+    main_win->panel->SetWhich(-1, -1);
+
+    deactivate();
+  }
+
+  redraw();
+}
 
 void UI_RadiusInfo::shape_callback(Fl_Widget *w, void *data)
 {

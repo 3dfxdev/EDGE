@@ -27,7 +27,9 @@ public:
   virtual ~UI_ThingInfo();
 
 private:
-  Fl_Box   *which;  // e.g. 'Thing #1234'
+  thing_spawn_c *view_TH;
+
+///---  Fl_Box *which;  // e.g. 'Thing #1234'
 
   Fl_Input *type;
 
@@ -57,6 +59,7 @@ public:
 
   void UpdateField(thing_spawn_c *th, int F);
 
+  void SetViewThing(thing_spawn_c *th);
 
 private:
   void update_Ambush(thing_spawn_c *th);
