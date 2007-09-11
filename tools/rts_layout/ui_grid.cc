@@ -703,12 +703,18 @@ int UI_Grid::handle(int event)
 
 int UI_Grid::handle_key()
 {
-  int key = Fl::event_key();
+  int key   = Fl::event_key();
+  int state = Fl::event_state();
 
-  if (key == 0)
-    return 0;
+  bool ascii = true;
 
-  switch (key)
+  if (state & (FL_CTRL | FL_ALT | FL_META))
+    ascii = false;
+
+  if (key < 32 || key > 127)
+    ascii = false;
+  
+  if (ascii) switch(tolower(key))
   {
     case '+': case '=':
       handle_wheel(+1);
@@ -718,6 +724,35 @@ int UI_Grid::handle_key()
       handle_wheel(-1);
       return 1;
 
+    case 'g':
+      grid_MODE = (grid_MODE + 1) % 2;
+      redraw();
+      return 1;
+
+    case 'c':
+      scroll_to_mouse();
+      return 1;
+
+    case 'f':
+      scroll_to_selection();
+      return 1;
+
+    case '0': // zoom out
+    {
+      double lx,ly, hx,hy;
+      map->ComputeBounds(&lx,&ly, &hx,&hy);
+
+      FitBBox(lx,ly, hx,hy);
+      return 1;
+    }
+
+    default:
+      // swallow all letters and digits
+      return 1;
+  }
+
+  switch (key)
+  {
     case FL_Left:
       scroll(-1, 0);
       return 1;
@@ -734,38 +769,10 @@ int UI_Grid::handle_key()
       scroll(0, -1);
       return 1;
 
-    case 'g': case 'G':
-      grid_MODE = (grid_MODE + 1) % 2;
-      redraw();
-      return 1;
-
-    case 'c': case 'C':
-      scroll_to_mouse();
-      return 1;
-
-    case 'f': case 'F':
-      scroll_to_selection();
-      return 1;
-
-    case '0': // zoom out
-    {
-      double lx,ly, hx,hy;
-      map->ComputeBounds(&lx,&ly, &hx,&hy);
-
-      FitBBox(lx,ly, hx,hy);
-      return 1;
-    }
-
-    default:
-      break;
+    default: break;
   }
 
-#if 1
-  if (isalnum(key))
-    return 1;
-#endif
-
-  return 0;  // unused
+  return 0;
 }
 
 void UI_Grid::handle_mouse()
