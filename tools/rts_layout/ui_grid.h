@@ -51,6 +51,10 @@ public:
   // changes the current zoom factor.
   // Returns true if actually changed, otherwise false.
 
+  bool ZoomAbout(int new_zoom, int wx, int wy);
+  // like SetZoom but performs the zoom about a given point
+  // (in window coordinates).
+
   void SetPos(double new_x, double new_y);
   // changes the current position.
 
@@ -85,7 +89,8 @@ private:
   void handle_mouse();
   void handle_push();
   void handle_release();
-  void handle_wheel(int dy);
+  void handle_wheel();
+  void zoom_by_key(int new_zoom);
 
   void draw();
   // FLTK virtual method for drawing.
