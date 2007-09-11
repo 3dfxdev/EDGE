@@ -21,7 +21,6 @@
 
 #include "ui_menu.h"
 
-#define MAIN_BG_COLOR  fl_gray_ramp(FL_NUM_GRAY * 7 / 24)
 
 class UI_Grid;
 class UI_Panel;
