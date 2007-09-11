@@ -263,21 +263,21 @@ void help_do_about(Fl_Widget *w, void * data)
 static Fl_Menu_Item menu_items[] = 
 {
   { "&File", 0, 0, 0, FL_SUBMENU },
-    { "&New Script",   0,             FCAL file_do_new },
-    { "&Open Script",  FL_CTRL + 'o', FCAL file_do_open },
-    { "&Save Script",  FL_CTRL + 's', FCAL file_do_save },
-    { "Save &As",      0,             FCAL file_do_save_as, 0, FL_MENU_DIVIDER },
-    { "&Quit",         FL_CTRL + 'q', FCAL file_do_quit },
+    { "&New Script",   FL_COMMAND + 'n', FCAL file_do_new },
+    { "&Open Script",  FL_COMMAND + 'o', FCAL file_do_open },
+    { "&Save Script",  FL_COMMAND + 's', FCAL file_do_save },
+    { "Save &As",      0,                FCAL file_do_save_as, 0, FL_MENU_DIVIDER },
+    { "&Quit",         FL_COMMAND + 'q', FCAL file_do_quit },
     { 0 },
 
   { "&Edit", 0, 0, 0, FL_SUBMENU },
-    { "&Undo",   FL_CTRL + 'z',  FCAL edit_do_undo },
-    { "&Redo",   FL_CTRL + 'r',  FCAL edit_do_redo, 0, FL_MENU_DIVIDER },
-    { "Cu&t",    FL_CTRL + 'x',  FCAL edit_do_cut },
-    { "&Copy",   FL_CTRL + 'c',  FCAL edit_do_copy },
-    { "&Paste",  FL_CTRL + 'v',  FCAL edit_do_paste }, /* , 0, FL_MENU_DIVIDER },
+    { "&Undo",   FL_COMMAND + 'z',  FCAL edit_do_undo },
+    { "&Redo",   FL_COMMAND + 'r',  FCAL edit_do_redo, 0, FL_MENU_DIVIDER },
+    { "Cu&t",    FL_COMMAND + 'x',  FCAL edit_do_cut },
+    { "&Copy",   FL_COMMAND + 'c',  FCAL edit_do_copy },
+    { "&Paste",  FL_COMMAND + 'v',  FCAL edit_do_paste }, /* , 0, FL_MENU_DIVIDER },
 
-    { "Unselect &All", FL_CTRL + 'a', FCAL edit_do_unselect }, */
+    { "Unselect &All", FL_COMMAND + 'a', FCAL edit_do_unselect }, */
     { 0 },
 
   { "&Script", 0, 0, 0, FL_SUBMENU },
