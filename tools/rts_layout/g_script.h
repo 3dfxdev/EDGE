@@ -72,9 +72,6 @@ public:
   int tag;
   int when_appear;
 
-  // this is not part of script, but looked up later on
-  mobjtype_c *ddf_info;
-
   // FIELD numbers for reference_t
   enum field_ref_e
   {
@@ -85,6 +82,13 @@ public:
     F_TAG,
     F_WHEN_APPEAR,
   };
+
+  // the Index value is only used for user information and
+  // is NOT required to match the final output index.
+  int th_Index;
+
+  // this is not part of script, but looked up later on
+  mobjtype_c *ddf_info;
 
 public:
   static bool thing_spawn_c::MatchThing(std::string& line);
@@ -149,6 +153,14 @@ public:
     F_WHEN_APPEAR,
   };
 
+  // the Index value is only used for user information and
+  // is NOT required to match the final output index.
+  int rad_Index;
+
+  // total number of things: is only used for user information
+  // and is NOT required to match the real number (in the vector).
+  int th_Total;
+
 public:
   static bool MatchRadTrig(std::string& line);
   // returns true if this line begins a radius trigger
@@ -207,6 +219,10 @@ public:
   // --- START_MAP ---
  
   std::string map_name;
+
+  // total number of rad-triggers: only used for user information
+  // and is NOT required to match the real number (in the vector).
+  int rad_Total;
 
   // pieces are everything except the START_MAP and END_MAP lines
   std::vector<section_c *> pieces;
