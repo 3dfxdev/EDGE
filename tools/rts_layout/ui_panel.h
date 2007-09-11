@@ -34,6 +34,8 @@ public:
 
   Fl_Choice *mode;
 
+  Fl_Box *which;
+
   /*-----------------------*/
 
   UI_RadiusInfo *script_box;
@@ -58,6 +60,9 @@ public:
   void SetNodeIndex(int index);
 
   void SetMouse(double mx, double my);
+
+  void SetWhich(int index, int total);
+  // a negative value will show 'None Selected'.
 
 private:
   static void mode_callback(Fl_Widget *, void *);
