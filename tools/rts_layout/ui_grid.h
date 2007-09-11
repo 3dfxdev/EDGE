@@ -84,6 +84,7 @@ private:
   int  handle_key();
   void handle_mouse();
   void handle_push();
+  void handle_release();
   void handle_wheel(int dy);
 
   void draw();
@@ -122,6 +123,9 @@ private:
 
   void determine_cursor(float mx = 0, float my = 0);
 
+  void drag_new_rad_coords(rad_trigger_c *rad, float *x1, float *y1,
+                           float *x2, float *y2);
+
 private:
   level_c *map;
 
@@ -156,6 +160,10 @@ private:
   // When dx==0 and dy==0, we simply move the whole trigger.
   int drag_dx;
   int drag_dy;
+
+  // point in world space for dragging
+  float drag_mx;
+  float drag_my;
 
 
   static inline int GRID_FIND(double x, double y)
