@@ -46,6 +46,8 @@ bool application_quit = false;
 #define MIN_WINDOW_W   (480)
 #define MIN_WINDOW_H   WINDOW_HEIGHT
 
+#define BACKG_COLOR  fl_rgb_color(64)
+
 
 static void main_win_close_CB(Fl_Widget *w, void *data)
 {
@@ -71,8 +73,10 @@ UI_MainWin::UI_MainWin(const char *title) :
 
   callback((Fl_Callback *) main_win_close_CB);
 
-  color(MAIN_BG_COLOR, MAIN_BG_COLOR);
+  color(BACKG_COLOR, BACKG_COLOR);
   image(NULL);
+
+//  box(FL_NO_BOX);
 
 
   int cy = 0;
