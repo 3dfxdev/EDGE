@@ -49,6 +49,10 @@ bool application_quit = false;
 
 static void main_win_close_CB(Fl_Widget *w, void *data)
 {
+  // prevent 'ESCAPE' key from quitting the application
+  if (Fl::event() == FL_SHORTCUT && Fl::event_key() == FL_Escape)
+    return;
+
   if (main_win)
     application_quit = true;
 }
