@@ -1081,7 +1081,7 @@ void UI_Grid::drag_new_rad_coords(rad_trigger_c *RAD,
   if (! RAD->is_rect)
   {
     // Radius trigger : all edges act the same
-    float dist = Distance(RAD->mx - drag_mx, RAD->my - drag_my);
+    float dist = MAX(fabs(RAD->mx - drag_mx), fabs(RAD->my - drag_my));
 
     *x1 = RAD->mx - dist;
     *y1 = RAD->my - dist;
