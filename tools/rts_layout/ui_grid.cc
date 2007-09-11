@@ -105,13 +105,32 @@ bool UI_Grid::SetZoom(int new_zoom)
 
   main_win->panel->SetZoom(zoom_mul);
 
-  //  fprintf(stderr, "Zoom %d  Mul %1.5f\n", zoom, zoom_mul);
+//  fprintf(stderr, "Zoom %d  Mul %1.5f\n", zoom, zoom_mul);
 
   redraw();
 
   return true;
 }
 
+bool UI_Grid::ZoomAbout(int new_zoom, int wx, int wy)
+{
+  // following code for zooming 'around' the mouse pointer
+  // (i.e. map coordinate at pointer remains the same).
+
+  double mx1, my1;
+  WinToMap(wx, wy, &mx1, &my1);
+
+  if (! SetZoom(new_zoom))
+    return false;
+
+  double mx2, my2;
+  WinToMap(wx, wy, &mx2, &my2);
+
+  mid_x -= mx2 - mx1;
+  mid_y -= my2 - my1;
+
+  return true;
+}
 
 void UI_Grid::SetPos(double new_x, double new_y)
 {
@@ -685,7 +704,7 @@ int UI_Grid::handle(int event)
       return 1;
 
     case FL_MOUSEWHEEL:
-      handle_wheel(- SGN(Fl::event_dy()));
+      handle_wheel();
       handle_mouse();
       return 1;
 
@@ -721,11 +740,11 @@ int UI_Grid::handle_key()
   if (ascii) switch(tolower(key))
   {
     case '+': case '=':
-      handle_wheel(+1);
+      zoom_by_key(zoom+1);
       return 1;
 
     case '-': case '_':
-      handle_wheel(-1);
+      zoom_by_key(zoom-1);
       return 1;
 
     case 'g':
@@ -749,6 +768,12 @@ int UI_Grid::handle_key()
       FitBBox(lx,ly, hx,hy);
       return 1;
     }
+
+    case '1': zoom_by_key(DEF_GRID_ZOOM); return 1;
+    case '2': zoom_by_key(DEF_GRID_ZOOM-2); return 1;
+    case '3': zoom_by_key(DEF_GRID_ZOOM-4); return 1;
+    case '4': zoom_by_key(DEF_GRID_ZOOM-6); return 1;
+//  case '5': zoom_by_key(DEF_GRID_ZOOM-7); return 1;
 
     default:
       // swallow all letters and digits
@@ -852,8 +877,10 @@ void UI_Grid::handle_release()
   }
 }
 
-void UI_Grid::handle_wheel(int dy)
+void UI_Grid::handle_wheel()
 {
+  int dy = -SGN(Fl::event_dy());
+
   if (dy == 0)
     return;
 
@@ -865,23 +892,26 @@ void UI_Grid::handle_wheel(int dy)
     return;
   }
 
-  // following code for zooming 'around' the mouse pointer
-  // (i.e. map coordinate at pointer remains the same).
+  int wx = Fl::event_x();
+  int wy = Fl::event_y();
+
+  ZoomAbout(zoom + dy, wx, wy);
+}
+
+void UI_Grid::zoom_by_key(int new_zoom)
+{
+  if (Fl::belowmouse() != this)
+  {
+#if 0
+    SetZoom(new_zoom);
+#endif
+    return;
+  }
 
   int wx = Fl::event_x();
   int wy = Fl::event_y();
 
-  double mx1, my1;
-  WinToMap(wx, wy, &mx1, &my1);
-
-  if (! SetZoom(zoom + dy))
-    return;
-
-  double mx2, my2;
-  WinToMap(wx, wy, &mx2, &my2);
-
-  mid_x -= mx2 - mx1;
-  mid_y -= my2 - my1;
+  ZoomAbout(new_zoom, wx, wy);
 }
 
 void UI_Grid::scroll_to_mouse()
