@@ -753,6 +753,17 @@ int UI_Grid::handle_key()
 
   switch (key)
   {
+    case FL_Escape:
+      if (dragging)
+      {
+        dragging = false;
+        select_rad = NULL;
+        select_thing = NULL;
+        determine_cursor();
+        redraw();
+      }
+      return 1;
+
     case FL_Left:
       scroll(-1, 0);
       return 1;
