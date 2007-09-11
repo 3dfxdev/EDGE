@@ -470,6 +470,11 @@ u32_t StringHash(const char *str)
   return hash;
 }
 
+float Distance(float dx, float dy)
+{
+  return sqrt(dx*dx + dy*dy);
+}
+
 
 //------------------------------------------------------------------------
 
