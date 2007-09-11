@@ -19,6 +19,7 @@
 #include "headers.h"
 #include "hdr_fltk.h"
 
+#include "lib_util.h"
 #include "g_level.h"
 #include "g_script.h"
 
@@ -287,117 +288,6 @@ void UI_Grid::draw_grid(double spacing, int ity)
 }
 
 
-#if 0
-void UI_Grid::draw_partition(const node_c *nd, int ity)
-{
-  double mlx = mid_x - w() * 0.5 / zoom_mul;
-  double mly = mid_y - h() * 0.5 / zoom_mul;
-  double mhx = mid_x + w() * 0.5 / zoom_mul;
-  double mhy = mid_y + h() * 0.5 / zoom_mul;
-
-  double tlx, tly;
-  double thx, thy;
-
-  // intersect the partition line (which extends to infinity) with
-  // the sides of the screen (in map coords).  Whether we use the
-  // left/right sides to top/bottom depends on the angle of the
-  // partition line.
-
-  if (ABS(nd->dx) > ABS(nd->dy))
-  {
-    tlx = mlx;
-    thx = mhx;
-    tly = nd->y + nd->dy * (mlx - nd->x) / double(nd->dx);
-    thy = nd->y + nd->dy * (mhx - nd->x) / double(nd->dx);
-
-    if (MAX(tly, thy) < mly || MIN(tly, thy) > mhy)
-      return;
-  }
-  else
-  {
-    tlx = nd->x + nd->dx * (mly - nd->y) / double(nd->dy);
-    thx = nd->x + nd->dx * (mhy - nd->y) / double(nd->dy);
-    tly = mly;
-    thy = mhy;
-
-    if (MAX(tlx, thx) < mlx || MIN(tlx, thx) > mhx)
-      return;
-  }
-
-  int sx, sy;
-  int ex, ey;
-
-  MapToWin(tlx, tly, &sx, &sy);
-  MapToWin(thx, thy, &ex, &ey);
-
-  if (partition_MODE < 2)
-  {
-    // move vertical or horizontal lines by one pixel
-    // (to prevent being clobbered by segs)
-    if (ABS(nd->dx) < ABS(nd->dy))
-        sx++, ex++;
-    else
-        sy++, ey++;
-  }
-
-  fl_color(fl_rgb_color(ity*80-70, 0, ity*80-70));
-  fl_line(sx, sy, ex, ey);
-
-  // draw arrow heads along it
-  float pd_len = sqrt(nd->dx*nd->dx + nd->dy*nd->dy);
-  float pdx =  nd->dx / pd_len;
-  float pdy = -nd->dy / pd_len;
-
-  for (float u=0.1; u <= 0.91; u += 0.16)
-  {
-    int ax = int(sx + (ex-sx) * u);
-    int ay = int(sy + (ey-sy) * u);
-
-    fl_line(ax, ay, ax + int((-pdy-pdx*1.0)*8), ay + int(( pdx-pdy*1.0)*8) );
-    fl_line(ax, ay, ax + int(( pdy-pdx*1.0)*8), ay + int((-pdx-pdy*1.0)*8) );
-  }
-}
-#endif
-
-
-#if 0 // TODO
-void UI_Grid::draw_script(const script_t *scr, int ity)
-{
-  double mlx = mid_x - w() * 0.5 / zoom_mul;
-  double mly = mid_y - h() * 0.5 / zoom_mul;
-  double mhx = mid_x + w() * 0.5 / zoom_mul;
-  double mhy = mid_y + h() * 0.5 / zoom_mul;
-
-  // check if bounding box is off screen
-
-  if (bbox->maxx < mlx || bbox->minx > mhx ||
-      bbox->maxy < mly || bbox->miny > mhy)
-  {
-      return;
-  }
-
-  int sx, sy;
-  int ex, ey;
-
-  MapToWin(bbox->minx, bbox->maxy, &sx, &sy);
-  MapToWin(bbox->maxx, bbox->miny, &ex, &ey);
-
-  if (partition_MODE < 2)
-  {
-    // make one pixel bigger (to prevent being clobbered by segs)
-    sx--; sy--; ex++; ey++;
-  }
-
-  fl_color(fl_rgb_color(ity*50, 0, 0));
-
-  fl_line(sx, sy, sx, ey);
-  fl_line(sx, sy, ex, sy);
-  fl_line(sx, ey, ex, ey);
-  fl_line(ex, sy, ex, ey);
-}
-#endif
-
-
 void UI_Grid::draw_map()
 {
   std::vector<linedef_c *>::iterator LI;
@@ -513,6 +403,11 @@ void UI_Grid::draw_trigger(rad_trigger_c *RAD)
   float x2 = RAD->mx + RAD->rx;
   float y2 = RAD->my + RAD->ry;
 
+  if (select_rad == RAD && dragging)
+  {
+    drag_new_rad_coords(RAD, &x1, &y1, &x2, &y2);
+  }
+
   blast_line(x1, y1, x1, y2);
   blast_line(x2, y1, x2, y2);
   blast_line(x1, y1, x2, y1);
@@ -548,10 +443,19 @@ void UI_Grid::draw_thing(const thing_spawn_c *TH)
   else
     fl_color(fl_rgb_color(hilite?160:0, hilite?230:255, 255));
 
-  float x1 = TH->x - r;
-  float y1 = TH->y - r;
-  float x2 = TH->x + r;
-  float y2 = TH->y + r;
+  float x = TH->x;
+  float y = TH->y;
+
+  if (select_thing == TH && dragging)
+  {
+    x = drag_mx;
+    y = drag_my;
+  }
+
+  float x1 = x - r;
+  float y1 = y - r;
+  float x2 = x + r;
+  float y2 = y + r;
 
   blast_line(x1, y1, x1, y2);
   blast_line(x2, y1, x2, y2);
@@ -763,7 +667,9 @@ int UI_Grid::handle(int event)
     case FL_LEAVE:
       hilite_rad = NULL;
       hilite_thing = NULL;
+      dragging = false;
       determine_cursor();
+      redraw();
       return 1;
 
     case FL_MOVE:
@@ -780,10 +686,12 @@ int UI_Grid::handle(int event)
       return 1;
 
     case FL_DRAG:
-      // dragging = true;
+      dragging = true;
+      handle_mouse();
       return 1;
 
     case FL_RELEASE:
+      handle_release();
       return 1;
 
     default:
@@ -874,6 +782,17 @@ void UI_Grid::handle_mouse()
 
   main_win->panel->SetMouse(mx, my);
 
+  if (dragging)
+  {
+    drag_mx = mx;
+    drag_my = my;
+
+    if (select_rad || select_thing)
+      redraw();
+
+    return;
+  }
+
   if (script)
   {
     highlight_nearest(mx, my);
@@ -895,6 +814,16 @@ void UI_Grid::handle_push()
     select_rad   = hilite_rad;
     select_thing = hilite_thing;
 
+    redraw();
+  }
+}
+
+void UI_Grid::handle_release()
+{
+  if (dragging)
+  {
+    /* DO STUFF */
+    dragging = false;
     redraw();
   }
 }
@@ -1130,6 +1059,48 @@ void UI_Grid::determine_cursor(float mx, float my)
   }
 }
 
+void UI_Grid::drag_new_rad_coords(rad_trigger_c *RAD,
+      float *x1, float *y1, float *x2, float *y2)
+{
+  if (drag_dx == 0 && drag_dy == 0)
+  {
+    *x1 = drag_mx - RAD->rx;
+    *y1 = drag_my - RAD->ry;
+    *x2 = drag_mx + RAD->rx;
+    *y2 = drag_my + RAD->ry;
+    return;
+  }
+
+  if (! RAD->is_rect)
+  {
+    // Radius trigger : all edges act the same
+    float dist = Distance(RAD->mx - drag_mx, RAD->my - drag_my);
+
+    *x1 = RAD->mx - dist;
+    *y1 = RAD->my - dist;
+    *x2 = RAD->mx + dist;
+    *y2 = RAD->my + dist;
+    return;
+  }
+
+  // Rectangle trigger
+  
+  if (drag_dx < 0) *x1 = drag_mx;
+  if (drag_dx > 0) *x2 = drag_mx;
+  
+  if (drag_dy < 0) *y1 = drag_my;
+  if (drag_dy > 0) *y2 = drag_my;
+
+  if (*x1 > *x2)
+  {
+    float tmp = *x1; *x1 = *x2; *x2 = tmp;
+  }
+
+  if (*y1 > *y2)
+  {
+    float tmp = *y1; *y1 = *y2; *y2 = tmp;
+  }
+}
 
 //--- editor settings ---
 // vi:ts=2:sw=2:expandtab
