@@ -1090,9 +1090,8 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 	GLuint tex_id = W_ImageCache(surf->image);
 
 
-	x_offset += xy_ofs;
-
-	tex_x1 = x_offset;
+	/* for the time being, tex_x1 and tex_x2 are in world coords */
+	tex_x1 = xy_ofs;
 	tex_x2 = tex_x1 + xy_len;
 
 	// horizontal sliding door hack
@@ -1205,8 +1204,9 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 	total_w *= surf->x_mat.x;
 	total_h *= surf->y_mat.y;
 
-	tex_x1 = tex_x1 / total_w;
-	tex_x2 = tex_x2 / total_w;
+	/* convert tex_x1 and tex_x2 from world coords to texture coords */
+	tex_x1 = (tex_x1 + x_offset) / total_w;
+	tex_x2 = (tex_x2 + x_offset) / total_w;
 
 //??	if (num_active_mirrors % 2)
 //??	{
