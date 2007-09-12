@@ -23,6 +23,7 @@
 #include "lib_util.h"
 
 #include "main.h"
+#include "g_edit.h"
 #include "g_level.h"
 #include "g_script.h"
 #include "g_wad.h"
@@ -234,28 +235,32 @@ int main(int argc, char **argv)
 
 
 #if 1  // TEST CODE for SCRIPT LOADING and SAVING
-  FILE *fp = fopen("RSCRIPT.lmm", "r");
+  FILE *fp = fopen("RSCRIPT.qdoom", "r");
   SYS_ASSERT(fp);
 
-  script_c *SCR = script_c::Load(fp);
-  SYS_ASSERT(SCR);
+  active_script = script_c::Load(fp);
+  SYS_ASSERT(active_script);
 
   fclose(fp);
 
   fp = fopen("RSCRIPT.out", "w");
   SYS_ASSERT(fp);
 
-  SCR->Save(fp);
+  active_script->Save(fp);
 
   fclose(fp);
+
+  active_startmap = active_script->bits[1];
+
+  main_win->grid->SetScript(active_startmap);
 #endif
 
   
 #if 1  // TEST CODE for MAP DRAWING
-  wad_c *wad = wad_c::Load("PAR.wad");
+  wad_c *wad = wad_c::Load("QD.wad");
   SYS_ASSERT(wad);
 
-  SYS_ASSERT(wad->FindLevel("E1M2"));
+  SYS_ASSERT(wad->FindLevel("QD01"));
 
   level_c *lev = level_c::LoadLevel(wad);
   SYS_ASSERT(lev);
