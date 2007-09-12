@@ -80,6 +80,9 @@ UI_RadiusInfo::UI_RadiusInfo(int X, int Y, int W, int H, const char *label) :
   pos_x1->align(FL_ALIGN_LEFT);
   pos_y1->align(FL_ALIGN_LEFT);
 
+  pos_x1->callback(pos_callback, this);
+  pos_y1->callback(pos_callback, this);
+
   add(pos_x1);
   add(pos_y1);
 
@@ -88,6 +91,7 @@ UI_RadiusInfo::UI_RadiusInfo(int X, int Y, int W, int H, const char *label) :
 
   radius = new Fl_Float_Input(X+70, Y, W/2-24, 22, "radius");
   radius->align(FL_ALIGN_LEFT);
+  radius->callback(pos_callback, this);
 
   add(radius);
 
@@ -97,6 +101,9 @@ UI_RadiusInfo::UI_RadiusInfo(int X, int Y, int W, int H, const char *label) :
 
   pos_x2->align(FL_ALIGN_LEFT);
   pos_y2->align(FL_ALIGN_LEFT);
+
+  pos_x2->callback(pos_callback, this);
+  pos_y2->callback(pos_callback, this);
 
   add(pos_x2);
   add(pos_y2);
@@ -111,7 +118,10 @@ UI_RadiusInfo::UI_RadiusInfo(int X, int Y, int W, int H, const char *label) :
   pos_z2 = new Fl_Float_Input(MX+20, Y, W/2-24, 22, "z2");
 
   pos_z1->align(FL_ALIGN_LEFT);
-  pos_z1->align(FL_ALIGN_LEFT);
+  pos_z2->align(FL_ALIGN_LEFT);
+
+  pos_z1->callback(height_callback, this);
+  pos_z2->callback(height_callback, this);
 
   add(pos_z1);
   add(pos_z2);
@@ -197,13 +207,11 @@ void UI_RadiusInfo::SetViewRad(rad_trigger_c *rad)
 void UI_RadiusInfo::shape_callback(Fl_Widget *w, void *data)
 {
   UI_RadiusInfo *radinfo = (UI_RadiusInfo *)data;
-
   SYS_ASSERT(radinfo);
 
-fprintf(stderr, "shape_callback: %p\n", w);
-  
   if (w == radinfo->is_radius)
     radinfo->ConvertToRadius();
+
   else if (w == radinfo->is_rect)
     radinfo->ConvertToRectangle();
 }
@@ -220,17 +228,83 @@ void UI_RadiusInfo::ConvertToRectangle()
   // FIXME: do conversion
 }
 
+void UI_RadiusInfo::pos_callback(Fl_Widget *w, void *data)
+{
+  UI_RadiusInfo *radinfo = (UI_RadiusInfo *)data;
+  SYS_ASSERT(radinfo);
+
+  rad_trigger_c *RAD = radinfo->view_RAD;
+  if (! RAD)
+    return;
+
+  if (w == radinfo->radius)
+  {
+    float r = Float_or_Unspec(radinfo->radius->value());
+
+    if (r == FLOAT_UNSPEC || r < 4)
+      r = 4;
+
+    Edit_ChangeFloat(RAD, rad_trigger_c::F_RX, r);
+    return;
+  }
+
+  if (! RAD->is_rect)
+  {
+    if (w == radinfo->pos_x1)
+    {
+      Edit_ChangeFloat(RAD, rad_trigger_c::F_MX,
+            atof(radinfo->pos_x1->value()));
+      return;
+    }
+    else if (w == radinfo->pos_y1)
+    {
+      Edit_ChangeFloat(RAD, rad_trigger_c::F_MY,
+            atof(radinfo->pos_y1->value()));
+      return;
+    }
+  }
+
+  float x1 = atof(radinfo->pos_x1->value());
+  float y1 = atof(radinfo->pos_y1->value());
+  float x2 = atof(radinfo->pos_x2->value());
+  float y2 = atof(radinfo->pos_y2->value());
+
+  Edit_ResizeRad(RAD, x1, y1, x2, y2);
+}
+
+void UI_RadiusInfo::height_callback(Fl_Widget *w, void *data)
+{
+  UI_RadiusInfo *radinfo = (UI_RadiusInfo *)data;
+  SYS_ASSERT(radinfo);
+
+  rad_trigger_c *RAD = radinfo->view_RAD;
+  if (! RAD)
+    return;
+
+  if (w == radinfo->pos_z1)
+  {
+    Edit_ChangeFloat(RAD, rad_trigger_c::F_Z1,
+          Float_or_Unspec(radinfo->pos_z1->value()));
+  }
+  else /* (w == radinfo->pos_z2) */
+  {
+    Edit_ChangeFloat(RAD, rad_trigger_c::F_Z2,
+          Float_or_Unspec(radinfo->pos_z2->value()));
+  }
+}
+
 
 //------------------------------------------------------------------------
 
-void UI_RadTrigListener(rad_trigger_c *rad, int F)
+void UI_ListenRadTrig(rad_trigger_c *rad, int F)
 {
-  main_win->panel->script_box->UpdateField(rad, F);
+  main_win->panel->script_box->ListenField(rad, F);
 }
 
-void UI_RadiusInfo::UpdateField(rad_trigger_c *rad, int F)
+void UI_RadiusInfo::ListenField(rad_trigger_c *rad, int F)
 {
-  // FIXME!!!  if (rad != main_win->grid->active_radtrig) return;
+  if (rad != view_RAD)
+    return;
 
   switch (F)
   {

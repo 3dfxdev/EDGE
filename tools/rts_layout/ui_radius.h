@@ -61,9 +61,9 @@ private:
 public:
   void LoadData(rad_trigger_c *rad);
 
-  void UpdateField(rad_trigger_c *rad, int F);
-
   void SetViewRad(rad_trigger_c *rad);
+
+  void ListenField(rad_trigger_c *rad, int F);
 
 private:
   void ConvertToRadius();
@@ -77,6 +77,8 @@ private:
   void update_WhenAppear(rad_trigger_c *rad);
 
   static void shape_callback(Fl_Widget *, void *);
+  static void pos_callback(Fl_Widget *, void *);
+  static void height_callback(Fl_Widget *, void *);
 };
 
 #endif // __UI_RADIUS_H__
