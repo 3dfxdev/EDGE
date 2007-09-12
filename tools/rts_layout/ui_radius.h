@@ -29,9 +29,9 @@ public:
 private:
   rad_trigger_c *view_RAD;
 
-///---  Fl_Box *which;  // e.g. 'Trigger #1234'
-
-  Fl_Choice *shape;
+  // current shape (radio buttons)
+  Fl_Round_Button *is_radius;
+  Fl_Round_Button *is_rect;
 
   Fl_Float_Input *pos_x1;
   Fl_Float_Input *pos_y1;
