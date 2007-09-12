@@ -49,17 +49,6 @@ bool application_quit = false;
 #define BACKG_COLOR  fl_rgb_color(64)
 
 
-static void main_win_close_CB(Fl_Widget *w, void *data)
-{
-  // prevent 'ESCAPE' key from quitting the application
-  if (Fl::event() == FL_SHORTCUT && Fl::event_key() == FL_Escape)
-    return;
-
-  if (main_win)
-    application_quit = true;
-}
-
-
 //
 // MainWin Constructor
 //
@@ -71,12 +60,11 @@ UI_MainWin::UI_MainWin(const char *title) :
 
   size_range(MIN_WINDOW_W, MIN_WINDOW_H);
 
-  callback((Fl_Callback *) main_win_close_CB);
+  callback(quit_callback);
 
   color(BACKG_COLOR, BACKG_COLOR);
-  image(NULL);
 
-//  box(FL_NO_BOX);
+  image(NULL);
 
 
   int cy = 0;
@@ -122,6 +110,17 @@ void UI_MainWin::SetCursor(Fl_Cursor shape)
 
   cursor(shape);
 }
+
+void UI_MainWin::quit_callback(Fl_Widget *w, void *data)
+{
+  // prevent 'ESCAPE' key from quitting the application
+  if (Fl::event() == FL_SHORTCUT && Fl::event_key() == FL_Escape)
+    return;
+
+  if (main_win)
+    application_quit = true;
+}
+
 
 //--- editor settings ---
 // vi:ts=2:sw=2:expandtab

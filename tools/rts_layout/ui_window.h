@@ -52,6 +52,7 @@ public:
 private:
   Fl_Cursor cursor_shape;
   
+  static void quit_callback(Fl_Widget *, void *);
 };
 
 extern UI_MainWin * main_win;
