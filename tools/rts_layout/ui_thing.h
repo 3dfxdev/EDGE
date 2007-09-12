@@ -33,6 +33,9 @@ private:
 
   Fl_Input *type;
 
+  Fl_Int_Input *tag;
+
+
   Fl_Float_Input *pos_x;
   Fl_Float_Input *pos_y;
   Fl_Float_Input *pos_z;
@@ -40,8 +43,6 @@ private:
   Fl_Float_Input *angle;
 
   Fl_Check_Button *ambush;
-
-  Fl_Int_Input *tag;
 
   // when appear: two rows of three on/off buttons
   Fl_Check_Button *appear_easy;
@@ -63,12 +64,19 @@ public:
 
 private:
   void update_Ambush(thing_spawn_c *th);
-  void update_Type(thing_spawn_c *th);
-  void update_Loc(thing_spawn_c *th);
-  void update_Angle(thing_spawn_c *th);
-  void update_Tag(thing_spawn_c *th);
+  void update_Type  (thing_spawn_c *th);
+  void update_Pos   (thing_spawn_c *th);
+  void update_Angle (thing_spawn_c *th);
+  void update_Tag   (thing_spawn_c *th);
   void update_WhenAppear(thing_spawn_c *th);
 
+  int CalcWhenAppear();
+
+  static void type_callback  (Fl_Widget *w, void *data);
+  static void tag_callback   (Fl_Widget *w, void *data);
+  static void pos_callback   (Fl_Widget *w, void *data);
+  static void angle_callback (Fl_Widget *w, void *data);
+  static void option_callback(Fl_Widget *w, void *data);
 };
 
 #endif // __UI_THING_H__
