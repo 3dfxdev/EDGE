@@ -23,6 +23,7 @@
 #include "g_edit.h"
 
 #include "ui_window.h"
+#include "ui_grid.h"
 #include "ui_panel.h"
 #include "ui_thing.h"
 
@@ -216,9 +217,10 @@ void UI_ThingInfo::ListenField(thing_spawn_c *th, int F)
       update_WhenAppear(th);
       break;
 
-    default:
-      break;
+    default: break;
   }
+
+  main_win->grid->redraw();
 }
 
 void UI_ThingInfo::LoadData(thing_spawn_c *th)
