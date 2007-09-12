@@ -23,6 +23,7 @@
 #include "g_edit.h"
 
 #include "ui_window.h"
+#include "ui_grid.h"
 #include "ui_panel.h"
 #include "ui_radius.h"
 
@@ -244,7 +245,7 @@ void UI_RadiusInfo::pos_callback(Fl_Widget *w, void *data)
     if (r == FLOAT_UNSPEC || r < 4)
       r = 4;
 
-    Edit_ChangeFloat(RAD, rad_trigger_c::F_RX, r);
+    Edit_ResizeRadiusOnly(RAD, r);
     return;
   }
 
@@ -333,9 +334,10 @@ void UI_RadiusInfo::ListenField(rad_trigger_c *rad, int F)
       update_WhenAppear(rad);
       break;
 
-    default:
-      break;
+    default: break;
   }
+
+  main_win->grid->redraw();
 }
 
 void UI_RadiusInfo::LoadData(rad_trigger_c *rad)
@@ -381,10 +383,10 @@ void UI_RadiusInfo::update_XY(rad_trigger_c *rad)
   if (is_radius->value())
   {
     sprintf(buffer, "%1.1f", rad->mx);
-    pos_x1->value( (rad->mx == FLOAT_UNSPEC) ? "" : buffer);
+    pos_x1->value(buffer);
 
     sprintf(buffer, "%1.1f", rad->my);
-    pos_y1->value( (rad->my == FLOAT_UNSPEC) ? "" : buffer);
+    pos_y1->value(buffer);
 
     sprintf(buffer, "%1.1f", rad->rx);
     radius->value(buffer);
@@ -394,18 +396,7 @@ void UI_RadiusInfo::update_XY(rad_trigger_c *rad)
 
   /* rectangle */
 
-  if (rad->mx == FLOAT_UNSPEC)
-  {
-    pos_x1->value("");
-    pos_x2->value("");
-  }
-  else if (rad->rx == FLOAT_UNSPEC)
-  {
-    sprintf(buffer, "%1.1f", rad->mx);
-    pos_x1->value(buffer);
-    pos_x2->value("");
-  }
-  else
+  // X
   {
     sprintf(buffer, "%1.1f", rad->mx - rad->rx);
     pos_x1->value(buffer);
@@ -414,18 +405,7 @@ void UI_RadiusInfo::update_XY(rad_trigger_c *rad)
     pos_x2->value(buffer);
   }
 
-  if (rad->my == FLOAT_UNSPEC)
-  {
-    pos_y1->value("");
-    pos_y2->value("");
-  }
-  else if (rad->ry == FLOAT_UNSPEC)
-  {
-    sprintf(buffer, "%1.1f", rad->my);
-    pos_y1->value(buffer);
-    pos_y2->value("");
-  }
-  else
+  // Y
   {
     sprintf(buffer, "%1.1f", rad->my - rad->ry);
     pos_y1->value(buffer);
