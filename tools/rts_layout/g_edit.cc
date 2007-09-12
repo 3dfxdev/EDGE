@@ -34,14 +34,89 @@ extern void UI_RadTrigListener(rad_trigger_c *, int);
 extern void UI_ThingListener(thing_spawn_c *, int);
 
 
+edit_op_c::edit_op_c()
+{ }
+
+edit_op_c::~edit_op_c()
+{ }
+
+edit_op_c::edit_op_c(thing_spawn_c *TH, int field) :
+    desc("THING"), sisters()
+{
+  ref.M = active_startmap->sec_Index;
+  ref.R = TH->parent->section->sec_Index;
+  ref.T = TH->th_Index;
+  ref.F = field;
+
+  switch (field)
+  {
+    case thing_spawn_c::F_AMBUSH:  type = FIELD_Integer; break;
+    case thing_spawn_c::F_TYPE:    type = FIELD_String; break;
+    case thing_spawn_c::F_X:       type = FIELD_Float; break;
+    case thing_spawn_c::F_Y:       type = FIELD_Float; break;
+    case thing_spawn_c::F_Z:       type = FIELD_Float; break;
+    case thing_spawn_c::F_ANGLE:   type = FIELD_Float; break;
+    case thing_spawn_c::F_TAG:     type = FIELD_Integer; break;
+    case thing_spawn_c::F_WHEN_APPEAR: type = FIELD_Integer; break;
+
+    default: Main_FatalError("INTERNAL ERROR\n"); return;
+  }
+
+  new_val.e_str = NULL;
+  old_val.e_str = NULL;
+
+  need_old = true;
+}
+
+edit_op_c::edit_op_c(rad_trigger_c *RAD, int field) :
+    desc("RAD-TRIG"), sisters()
+{
+  ref.M = active_startmap->sec_Index;
+  ref.R = RAD->section->sec_Index;
+  ref.T = -1;
+  ref.F = field;
+
+  switch (field)
+  {
+    case rad_trigger_c::F_IS_RECT: type = FIELD_Integer; break;
+    case rad_trigger_c::F_MX:   type = FIELD_Float; break;
+    case rad_trigger_c::F_MY:   type = FIELD_Float; break;
+    case rad_trigger_c::F_RX:   type = FIELD_Float; break;
+    case rad_trigger_c::F_RY:   type = FIELD_Float; break;
+    case rad_trigger_c::F_Z1:   type = FIELD_Float; break;
+    case rad_trigger_c::F_Z2:   type = FIELD_Float; break;
+    case rad_trigger_c::F_NAME: type = FIELD_String; break;
+    case rad_trigger_c::F_TAG:  type = FIELD_Integer; break;
+    case rad_trigger_c::F_WHEN_APPEAR: type = FIELD_Integer; break;
+
+    default: Main_FatalError("INTERNAL ERROR\n"); return;
+  }
+
+  new_val.e_str = NULL;
+  old_val.e_str = NULL;
+
+  need_old = true;
+}
+
+
+//------------------------------------------------------------------------
+
 void edit_op_c::Perform()
 {
   Apply(new_val);
+
+  for (std::vector<edit_op_c *>::iterator EI = sisters.begin();
+       EI != sisters.end(); EI++)
+    (*EI)->Perform();
 }
 
 void edit_op_c::Undo()
 {
   Apply(old_val);
+
+  for (std::vector<edit_op_c *>::iterator EI = sisters.begin();
+       EI != sisters.end(); EI++)
+    (*EI)->Undo();
 }
 
 static int& GetIntRef(rad_trigger_c *rad, thing_spawn_c *th, int F)
@@ -187,6 +262,44 @@ void edit_op_c::Apply(const edit_value_u& what)
     if (thing && thing == thing_listener)
       UI_ThingListener(thing, ref.F);
   }
+}
+
+
+//------------------------------------------------------------------------
+
+void Edit_MoveThing(thing_spawn_c *TH,  float new_x, float new_y)
+{
+  edit_op_c *OP_X = new edit_op_c(TH, thing_spawn_c::F_X);
+  edit_op_c *OP_Y = new edit_op_c(TH, thing_spawn_c::F_Y);
+
+  OP_X->new_val.e_float = new_x;
+  OP_Y->new_val.e_float = new_y;
+
+  OP_X->sisters.push_back(OP_Y);
+
+  // TODO !!!  push onto Undo stack
+ 
+  OP_X->Perform();
+}
+
+void Edit_MoveRad(rad_trigger_c *RAD, float new_mx, float new_my)
+{
+  edit_op_c *OP_MX = new edit_op_c(RAD, rad_trigger_c::F_MX);
+  edit_op_c *OP_MY = new edit_op_c(RAD, rad_trigger_c::F_MY);
+
+  OP_MX->new_val.e_float = new_mx;
+  OP_MY->new_val.e_float = new_my;
+
+  OP_MX->sisters.push_back(OP_MY);
+
+  // TODO !!!  push onto Undo stack
+ 
+  OP_MX->Perform();
+}
+
+void Edit_ResizeRad(rad_trigger_c *RAD, float x1, float y1, float x2, float y2)
+{
+  // FIXME
 }
 
 //--- editor settings ---
