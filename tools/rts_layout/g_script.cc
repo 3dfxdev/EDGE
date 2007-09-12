@@ -246,7 +246,7 @@ thing_spawn_c::thing_spawn_c(bool _ambush) :
     ambush(_ambush ? 1 : 0), type(),
     x(0), y(0), z(FLOAT_UNSPEC), angle(FLOAT_UNSPEC),
     tag(INT_UNSPEC), when_appear(INT_UNSPEC),
-    th_Index(0), ddf_info(NULL)
+    parent(NULL), th_Index(0), ddf_info(NULL)
 { }
 
 thing_spawn_c::~thing_spawn_c()
@@ -439,7 +439,7 @@ rad_trigger_c::rad_trigger_c(bool _rect) :
     z1(FLOAT_UNSPEC), z2(FLOAT_UNSPEC),
     name(), tag(INT_UNSPEC), when_appear(INT_UNSPEC),
     lines(), worldspawn(false), things(),
-    rad_Index(0), th_Total(0)
+    section(NULL), rad_Index(0), th_Total(0)
 { }
 
 rad_trigger_c::~rad_trigger_c()
@@ -662,8 +662,8 @@ rts_result_e rad_trigger_c::ParseCommand(std::string& line)
     if (! th)
       return RTS_ERROR;
 
-    th_Total++;
-    th->th_Index = th_Total;
+    th->parent = this;
+    th->th_Index = th_Total++;
     
     things.push_back(th);
     return RTS_OK;
@@ -783,7 +783,7 @@ std::string& rad_trigger_c::GetStringRef(int F)
 //------------------------------------------------------------------------
 
 section_c::section_c(int _kind) :
-    kind(_kind), lines(),
+    kind(_kind), sec_Index(-1), lines(),
     map_name(), rad_Total(0), pieces(),
     trig(NULL)
 { }
@@ -932,11 +932,13 @@ rts_result_e section_c::ParsePieces(FILE *fp)
       if (! trig)
         return RTS_ERROR;
 
-      rad_Total++;
-      trig->rad_Index = rad_Total;
+      cur_piece = new section_c(section_c::RAD_TRIG);
 
-      cur_piece = new section_c(RAD_TRIG);
+      cur_piece->sec_Index = pieces.size();
       cur_piece->trig = trig;
+
+      trig->rad_Index = rad_Total++;
+      trig->section = cur_piece;
 
       pieces.push_back(cur_piece);
 
@@ -947,6 +949,7 @@ rts_result_e section_c::ParsePieces(FILE *fp)
     if (! cur_piece)
     {
       cur_piece = new section_c(section_c::TEXT);
+      cur_piece->sec_Index = pieces.size();
 
       pieces.push_back(cur_piece);
     }
@@ -1005,6 +1008,8 @@ script_c *script_c::Load(FILE *fp)
         return NULL;
       }
 
+      cur_bit->sec_Index = SCR->bits.size();
+
       SCR->bits.push_back(cur_bit);
 
       cur_bit = NULL;
@@ -1014,6 +1019,7 @@ script_c *script_c::Load(FILE *fp)
     if (! cur_bit)
     {
       cur_bit = new section_c(section_c::TEXT);
+      cur_bit->sec_Index = SCR->bits.size();
 
       SCR->bits.push_back(cur_bit);
     }

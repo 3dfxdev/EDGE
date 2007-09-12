@@ -21,6 +21,8 @@
 
 
 class mobjtype_c;
+class rad_trigger_c;
+class section_c;
 
 
 #define INT_UNSPEC    -7755
@@ -83,8 +85,9 @@ public:
     F_WHEN_APPEAR,
   };
 
-  // the Index value is only used for user information and
-  // is NOT required to match the final output index.
+  rad_trigger_c *parent;
+
+  // the index into the parent's things vector.
   int th_Index;
 
   // this is not part of script, but looked up later on
@@ -153,8 +156,11 @@ public:
     F_WHEN_APPEAR,
   };
 
-  // the Index value is only used for user information and
-  // is NOT required to match the final output index.
+  // the corresponding section (where trig == us)
+  section_c *section;
+  
+  // this index is a pseudo one, counting only radius triggers
+  // within the start_map section (ignoring other 'pieces').
   int rad_Index;
 
   // total number of things: is only used for user information
@@ -211,6 +217,9 @@ public:
   };
 
   int kind;
+
+  // index of this section in the parent's vector.
+  int sec_Index;
 
   // --- TEXT ---
   
