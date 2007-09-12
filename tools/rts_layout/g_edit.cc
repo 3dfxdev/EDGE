@@ -387,6 +387,32 @@ void Edit_ChangeString(rad_trigger_c *RAD, int field, const char *buffer)
   Edit_Push(OP);
 }
 
+void Edit_ChangeShape(rad_trigger_c *RAD, int new_is_rect)
+{
+  if (RAD->is_rect == new_is_rect)
+    return;
+
+  edit_op_c *OP_IR = new edit_op_c(RAD, rad_trigger_c::F_IS_RECT);
+  edit_op_c *OP_RX = new edit_op_c(RAD, rad_trigger_c::F_RX);
+  edit_op_c *OP_RY = new edit_op_c(RAD, rad_trigger_c::F_RY);
+
+  float new_r = RAD->rx;
+
+  if (! new_is_rect)
+  {
+    new_r = (RAD->rx + RAD->ry) / 2.0;
+  }
+ 
+  OP_IR->new_val.e_int   = new_is_rect;
+  OP_RX->new_val.e_float = new_r;
+  OP_RY->new_val.e_float = new_r;
+
+  OP_IR->sisters.push_back(OP_RX);
+  OP_IR->sisters.push_back(OP_RY);
+
+  Edit_Push(OP_IR);
+}
+
 
 //------------------------------------------------------------------------
 //  UTILITY
