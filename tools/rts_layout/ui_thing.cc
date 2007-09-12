@@ -178,14 +178,15 @@ void UI_ThingInfo::SetViewThing(thing_spawn_c *th)
 
 //------------------------------------------------------------------------
 
-void UI_ThingListener(thing_spawn_c *th, int F)
+void UI_ListenThing(thing_spawn_c *th, int F)
 {
-  main_win->panel->thing_box->UpdateField(th, F);
+  main_win->panel->thing_box->ListenField(th, F);
 }
 
-void UI_ThingInfo::UpdateField(thing_spawn_c *th, int F)
+void UI_ThingInfo::ListenField(thing_spawn_c *th, int F)
 {
-  // FIXME!!!  if (th != main_win->grid->active_thing) return;
+  if (th != view_TH)
+    return;
 
   switch (F)
   {
