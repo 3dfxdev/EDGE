@@ -374,5 +374,32 @@ void Edit_ChangeString(rad_trigger_c *RAD, int field, const char *buffer)
 }
 
 
+//------------------------------------------------------------------------
+//  UTILITY
+//------------------------------------------------------------------------
+
+int Int_or_Unspec(const char *buf)
+{
+  while (isspace(*buf))
+    buf++;
+
+  if (! *buf)
+    return INT_UNSPEC;
+
+  return atoi(buf);
+}
+
+float Float_or_Unspec(const char *buf)
+{
+  while (isspace(*buf))
+    buf++;
+
+  if (! *buf)
+    return FLOAT_UNSPEC;
+
+  return atof(buf);
+}
+
+
 //--- editor settings ---
 // vi:ts=2:sw=2:expandtab

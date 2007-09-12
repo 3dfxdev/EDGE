@@ -129,6 +129,9 @@ extern section_c *active_startmap;
 
 /* FUNCTIONS */
 
+int     Int_or_Unspec(const char *buf);
+float Float_or_Unspec(const char *buf);
+
 void Edit_MoveThing(thing_spawn_c *TH,  float new_x, float new_y);
 void Edit_MoveRad  (rad_trigger_c *RAD, float new_mx, float new_my);
 void Edit_ResizeRad(rad_trigger_c *RAD, float x1, float y1, float x2, float y2);
