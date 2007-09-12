@@ -159,8 +159,8 @@ void UI_ThingInfo::SetViewThing(thing_spawn_c *th)
 
   if (view_TH)
   {
-    // FIXME: active_SCRIPT->th_Total
-    main_win->panel->SetWhich(th->th_Index, 777);
+    SYS_ASSERT(th->parent);
+    main_win->panel->SetWhich(th->th_Index + 1, th->parent->th_Total);
 
     LoadData(view_TH);
     activate();
