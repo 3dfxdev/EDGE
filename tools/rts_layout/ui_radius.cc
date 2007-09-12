@@ -213,23 +213,14 @@ void UI_RadiusInfo::shape_callback(Fl_Widget *w, void *data)
   UI_RadiusInfo *info = (UI_RadiusInfo *)data;
   SYS_ASSERT(info);
 
-  if (w == info->is_radius)
-    info->ConvertToRadius();
+  if (info->view_RAD)
+  {
+    if (w == info->is_radius)
+      Edit_ChangeShape(info->view_RAD, 0);
 
-  else if (w == info->is_rect)
-    info->ConvertToRectangle();
-}
-
-void UI_RadiusInfo::ConvertToRadius()
-{
-
-  // FIXME: do conversion
-}
-
-void UI_RadiusInfo::ConvertToRectangle()
-{
-
-  // FIXME: do conversion
+    if (w == info->is_rect)
+      Edit_ChangeShape(info->view_RAD, 1);
+  }
 }
 
 void UI_RadiusInfo::pos_callback(Fl_Widget *w, void *data)

@@ -66,17 +66,14 @@ public:
   void ListenField(rad_trigger_c *rad, int F);
 
 private:
-  void ConvertToRadius();
-  void ConvertToRectangle();
-
-  int CalcWhenAppear();
-
   void update_Shape(rad_trigger_c *rad);
   void update_XY   (rad_trigger_c *rad);
   void update_Z    (rad_trigger_c *rad);
   void update_Name (rad_trigger_c *rad);
   void update_Tag  (rad_trigger_c *rad);
   void update_WhenAppear(rad_trigger_c *rad);
+
+  int CalcWhenAppear();
 
   static void shape_callback (Fl_Widget *, void *);
   static void pos_callback   (Fl_Widget *, void *);
