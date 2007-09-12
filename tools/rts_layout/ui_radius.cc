@@ -55,28 +55,23 @@ UI_RadiusInfo::UI_RadiusInfo(int X, int Y, int W, int H, const char *label) :
 ///---  Y += which->h() + 8;
 
 
-  Fl_Round_Button *shape1 = new Fl_Round_Button(X, Y, W/2-24, 22, "Radius");
-//  shape1->align(FL_ALIGN_RIGHT);
-  shape1->value(1);
-  add(shape1);
-  
-  Fl_Round_Button *shape2 = new Fl_Round_Button(MX, Y, W/2-24, 22, "Rectangle");
-//  shape2->align(FL_ALIGN_RIGHT);
-  shape2->value(0);
-  add(shape2);
-  
-  Y += shape2->h() + 4;
+  Fl_Box *sh_lab = new Fl_Box(FL_NO_BOX, X, Y, W, 22, "Type:");
+  sh_lab->align(FL_ALIGN_INSIDE | FL_ALIGN_LEFT);
+  add(sh_lab);
 
+  is_radius = new Fl_Round_Button(X+50, Y, 68, 22, "Radius");
+  is_radius->type(FL_RADIO_BUTTON);
+  is_radius->value(1);
+  is_radius->callback(shape_callback, this);
+  add(is_radius);
   
-  shape = new Fl_Choice(X+54, Y, W-58, 24, "Shape: ");
-  shape->align(FL_ALIGN_LEFT);
-  shape->add("Radius|Rectangle");
-  shape->value(0);
-  shape->callback(shape_callback, this);
-
-///???  add(shape);
-///???  
-///???  Y += shape->h() + 4;
+  is_rect = new Fl_Round_Button(X+120, Y, 60, 22, "Rect");
+  is_rect->type(FL_RADIO_BUTTON);
+  is_rect->value(0);
+  is_rect->callback(shape_callback, this);
+  add(is_rect);
+  
+  Y += is_rect->h() + 4;
 
 
   pos_x1 = new Fl_Float_Input(X +20, Y, W/2-24, 22, "x1");
@@ -202,14 +197,16 @@ void UI_RadiusInfo::SetViewRad(rad_trigger_c *rad)
 
 void UI_RadiusInfo::shape_callback(Fl_Widget *w, void *data)
 {
-  UI_RadiusInfo *rad = (UI_RadiusInfo *)data;
+  UI_RadiusInfo *radinfo = (UI_RadiusInfo *)data;
 
-  SYS_ASSERT(rad);
+  SYS_ASSERT(radinfo);
 
-  if (rad->shape->value() == 0)
-    rad->ConvertToRadius();
-  else
-    rad->ConvertToRectangle();
+fprintf(stderr, "shape_callback: %p\n", w);
+  
+  if (w == radinfo->is_radius)
+    radinfo->ConvertToRadius();
+  else if (w == radinfo->is_rect)
+    radinfo->ConvertToRectangle();
 }
 
 void UI_RadiusInfo::ConvertToRadius()
@@ -280,10 +277,11 @@ void UI_RadiusInfo::LoadData(rad_trigger_c *rad)
 
 void UI_RadiusInfo::update_Shape(rad_trigger_c *rad)
 {
-  shape->value(rad->is_rect ? 1 : 0);
-
   if (rad->is_rect)
   {
+    is_rect  ->value(1);
+    is_radius->value(0);
+
     radius->hide();
 
     pos_x2->show();
@@ -291,6 +289,9 @@ void UI_RadiusInfo::update_Shape(rad_trigger_c *rad)
   }
   else /* radius */
   {
+    is_radius->value(1);
+    is_rect  ->value(0);
+
     pos_x2->hide();
     pos_y2->hide();
 
@@ -304,13 +305,16 @@ void UI_RadiusInfo::update_XY(rad_trigger_c *rad)
 {
   char buffer[100];
 
-  if (shape->value() == 0) /* radius */
+  if (is_radius->value())
   {
     sprintf(buffer, "%1.1f", rad->mx);
     pos_x1->value( (rad->mx == FLOAT_UNSPEC) ? "" : buffer);
 
     sprintf(buffer, "%1.1f", rad->my);
     pos_y1->value( (rad->my == FLOAT_UNSPEC) ? "" : buffer);
+
+    sprintf(buffer, "%1.1f", rad->rx);
+    radius->value(buffer);
 
     return;
   }
