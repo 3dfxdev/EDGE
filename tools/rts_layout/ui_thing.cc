@@ -48,21 +48,29 @@ UI_ThingInfo::UI_ThingInfo(int X, int Y, int W, int H, const char *label) :
   int MX = X + W/2;
 
 
-///---  which = new Fl_Box(FL_NO_BOX, X, Y, W, 22, "No Thing");
-///---  which->align(FL_ALIGN_INSIDE | FL_ALIGN_LEFT);
-///---
-///---  add(which);
-///---
-///---  Y += which->h() + 8;
-
-
-  type = new Fl_Input(X+46, Y, W-50, 24, "Type: ");
+  type = new Fl_Input(X+50, Y, W-54, 24, "Type: ");
   type->align(FL_ALIGN_LEFT);
   type->textsize(12);
 
   add(type);
 
   Y += type->h() + 4;
+
+
+  tag = new Fl_Int_Input(X+50, Y, W/2-14, 22, "Tag: ");
+  tag->align(FL_ALIGN_LEFT);
+
+  add(tag);
+
+  Y += tag->h() + 4;
+
+
+  angle = new Fl_Float_Input(X+50, Y, W/2-14, 22, "Angle:");
+  angle->align(FL_ALIGN_LEFT);
+
+  add(angle);
+
+  Y += angle->h() + 10;
 
 
   pos_x = new Fl_Float_Input(X +20, Y, W/2-24, 22, "x");
@@ -82,23 +90,7 @@ UI_ThingInfo::UI_ThingInfo(int X, int Y, int W, int H, const char *label) :
 
   add(pos_z);
 
-  Y += pos_x->h() + 4;
-
-
-  angle = new Fl_Float_Input(X+54, Y, W/2-14, 22, "Angle:");
-  angle->align(FL_ALIGN_LEFT);
-
-  add(angle);
-
-  Y += angle->h() + 4;
-
-
-  tag = new Fl_Int_Input(X+54, Y, W/2-14, 22, "Tag: ");
-  tag->align(FL_ALIGN_LEFT);
-
-  add(tag);
-
-  Y += tag->h() + 8;
+  Y += pos_x->h() + 8;
 
 
   Fl_Box *opt_lab = new Fl_Box(X, Y, W, 22, "Options:");
@@ -106,14 +98,14 @@ UI_ThingInfo::UI_ThingInfo(int X, int Y, int W, int H, const char *label) :
 
   add(opt_lab);
 
-  Y += opt_lab->h() + 4;
+  Y += opt_lab->h() + 2;
 
     
   ambush = new Fl_Check_Button(X+12, Y, W-8, 22, "Ambush");
 
   add(ambush);
 
-  Y += ambush->h() + 4;
+  Y += ambush->h() + 2;
 
 
   // when appear: two rows of three on/off buttons

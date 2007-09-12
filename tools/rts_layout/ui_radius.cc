@@ -48,15 +48,25 @@ UI_RadiusInfo::UI_RadiusInfo(int X, int Y, int W, int H, const char *label) :
   int MX = X + W/2;
 
 
-///---  which = new Fl_Box(FL_NO_BOX, X, Y, W, 22, "No Trigger");
-///---  which->align(FL_ALIGN_INSIDE | FL_ALIGN_LEFT);
-///---
-///---  add(which);
-///---
-///---  Y += which->h() + 8;
+  name = new Fl_Input(X+44, Y, W-48, 22, "Name:");
+  name->align(FL_ALIGN_LEFT);
+  name->callback(name_callback, this);
+
+  add(name);
+
+  Y += name->h() + 4;
 
 
-  Fl_Box *sh_lab = new Fl_Box(FL_NO_BOX, X, Y, W, 22, "Type:");
+  tag = new Fl_Int_Input(X+44, Y, W-48, 22, "Tag:");
+  tag->align(FL_ALIGN_LEFT);
+  tag->callback(tag_callback, this);
+
+  add(tag);
+
+  Y += tag->h() + 10;
+
+
+  Fl_Box *sh_lab = new Fl_Box(FL_NO_BOX, X, Y, W, 22, "Shape:");
   sh_lab->align(FL_ALIGN_INSIDE | FL_ALIGN_LEFT);
   add(sh_lab);
 
@@ -127,26 +137,11 @@ UI_RadiusInfo::UI_RadiusInfo(int X, int Y, int W, int H, const char *label) :
   add(pos_z1);
   add(pos_z2);
 
-  Y += pos_z1->h() + 12;
-
-
-  name = new Fl_Input(X+44, Y, W-48, 22, "Name:");
-  name->align(FL_ALIGN_LEFT);
-
-  add(name);
-
-  Y += name->h() + 4;
-
-
-  tag = new Fl_Int_Input(X+44, Y, W-48, 22, "Tag:");
-  tag->align(FL_ALIGN_LEFT);
-
-  add(tag);
-
-  Y += tag->h() + 4;
+  Y += pos_z1->h() + 6;
 
 
   // when appear: two rows of three on/off buttons
+
   int AX = X+W/3;
   int BX = X+2*W/3;
   int CW = W/3 - 12;
@@ -169,6 +164,14 @@ UI_RadiusInfo::UI_RadiusInfo(int X, int Y, int W, int H, const char *label) :
   appear_medium->labelsize(12); appear_coop->labelsize(12);
   appear_hard->labelsize(12);   appear_dm->labelsize(12);
   
+  appear_easy->callback(whenapp_callback, this);
+  appear_medium->callback(whenapp_callback, this);
+  appear_hard->callback(whenapp_callback, this);
+
+  appear_sp  ->callback(whenapp_callback, this);
+  appear_coop->callback(whenapp_callback, this);
+  appear_dm  ->callback(whenapp_callback, this);
+
   add(appear_easy); add(appear_medium); add(appear_hard);
   add(appear_sp);   add(appear_coop);   add(appear_dm);
 }
@@ -292,6 +295,61 @@ void UI_RadiusInfo::height_callback(Fl_Widget *w, void *data)
     Edit_ChangeFloat(RAD, rad_trigger_c::F_Z2,
           Float_or_Unspec(radinfo->pos_z2->value()));
   }
+}
+
+void UI_RadiusInfo::name_callback(Fl_Widget *w, void *data)
+{
+  UI_RadiusInfo *radinfo = (UI_RadiusInfo *)data;
+  SYS_ASSERT(radinfo);
+
+  rad_trigger_c *RAD = radinfo->view_RAD;
+  if (! RAD)
+    return;
+
+  Edit_ChangeString(RAD, rad_trigger_c::F_NAME,
+        radinfo->name->value());
+}
+
+void UI_RadiusInfo::tag_callback(Fl_Widget *w, void *data)
+{
+  UI_RadiusInfo *radinfo = (UI_RadiusInfo *)data;
+  SYS_ASSERT(radinfo);
+
+  rad_trigger_c *RAD = radinfo->view_RAD;
+  if (! RAD)
+    return;
+
+  Edit_ChangeInt(RAD, rad_trigger_c::F_TAG,
+        Int_or_Unspec(radinfo->tag->value()));
+}
+
+void UI_RadiusInfo::whenapp_callback(Fl_Widget *w, void *data)
+{
+  UI_RadiusInfo *radinfo = (UI_RadiusInfo *)data;
+  SYS_ASSERT(radinfo);
+
+  rad_trigger_c *RAD = radinfo->view_RAD;
+  if (! RAD)
+    return;
+
+  int when_appear = radinfo->CalcWhenAppear();
+
+  Edit_ChangeInt(RAD, rad_trigger_c::F_WHEN_APPEAR, when_appear);
+}
+
+int UI_RadiusInfo::CalcWhenAppear()
+{
+  int when_appear = 0;
+
+  if (appear_easy->value())   when_appear |= WNAP_Easy;
+  if (appear_medium->value()) when_appear |= WNAP_Medium;
+  if (appear_hard->value())   when_appear |= WNAP_Hard;
+
+  if (appear_sp->value())     when_appear |= WNAP_SP;
+  if (appear_coop->value())   when_appear |= WNAP_Coop;
+  if (appear_dm->value())     when_appear |= WNAP_DM;
+
+  return when_appear;
 }
 
 
