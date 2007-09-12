@@ -210,14 +210,14 @@ void UI_RadiusInfo::SetViewRad(rad_trigger_c *rad)
 
 void UI_RadiusInfo::shape_callback(Fl_Widget *w, void *data)
 {
-  UI_RadiusInfo *radinfo = (UI_RadiusInfo *)data;
-  SYS_ASSERT(radinfo);
+  UI_RadiusInfo *info = (UI_RadiusInfo *)data;
+  SYS_ASSERT(info);
 
-  if (w == radinfo->is_radius)
-    radinfo->ConvertToRadius();
+  if (w == info->is_radius)
+    info->ConvertToRadius();
 
-  else if (w == radinfo->is_rect)
-    radinfo->ConvertToRectangle();
+  else if (w == info->is_rect)
+    info->ConvertToRectangle();
 }
 
 void UI_RadiusInfo::ConvertToRadius()
@@ -234,16 +234,16 @@ void UI_RadiusInfo::ConvertToRectangle()
 
 void UI_RadiusInfo::pos_callback(Fl_Widget *w, void *data)
 {
-  UI_RadiusInfo *radinfo = (UI_RadiusInfo *)data;
-  SYS_ASSERT(radinfo);
+  UI_RadiusInfo *info = (UI_RadiusInfo *)data;
+  SYS_ASSERT(info);
 
-  rad_trigger_c *RAD = radinfo->view_RAD;
+  rad_trigger_c *RAD = info->view_RAD;
   if (! RAD)
     return;
 
-  if (w == radinfo->radius)
+  if (w == info->radius)
   {
-    float r = Float_or_Unspec(radinfo->radius->value());
+    float r = Float_or_Unspec(info->radius->value());
 
     if (r == FLOAT_UNSPEC || r < 4)
       r = 4;
@@ -254,85 +254,80 @@ void UI_RadiusInfo::pos_callback(Fl_Widget *w, void *data)
 
   if (! RAD->is_rect)
   {
-    if (w == radinfo->pos_x1)
+    if (w == info->pos_x1 || w == info->pos_y1)
     {
-      Edit_ChangeFloat(RAD, rad_trigger_c::F_MX,
-            atof(radinfo->pos_x1->value()));
-      return;
-    }
-    else if (w == radinfo->pos_y1)
-    {
-      Edit_ChangeFloat(RAD, rad_trigger_c::F_MY,
-            atof(radinfo->pos_y1->value()));
+      Edit_MoveRad(RAD,
+            atof(info->pos_x1->value()),
+            atof(info->pos_y1->value()));
       return;
     }
   }
 
-  float x1 = atof(radinfo->pos_x1->value());
-  float y1 = atof(radinfo->pos_y1->value());
-  float x2 = atof(radinfo->pos_x2->value());
-  float y2 = atof(radinfo->pos_y2->value());
+  float x1 = atof(info->pos_x1->value());
+  float y1 = atof(info->pos_y1->value());
+  float x2 = atof(info->pos_x2->value());
+  float y2 = atof(info->pos_y2->value());
 
   Edit_ResizeRad(RAD, x1, y1, x2, y2);
 }
 
 void UI_RadiusInfo::height_callback(Fl_Widget *w, void *data)
 {
-  UI_RadiusInfo *radinfo = (UI_RadiusInfo *)data;
-  SYS_ASSERT(radinfo);
+  UI_RadiusInfo *info = (UI_RadiusInfo *)data;
+  SYS_ASSERT(info);
 
-  rad_trigger_c *RAD = radinfo->view_RAD;
+  rad_trigger_c *RAD = info->view_RAD;
   if (! RAD)
     return;
 
-  if (w == radinfo->pos_z1)
+  if (w == info->pos_z1)
   {
     Edit_ChangeFloat(RAD, rad_trigger_c::F_Z1,
-          Float_or_Unspec(radinfo->pos_z1->value()));
+          Float_or_Unspec(info->pos_z1->value()));
   }
-  else /* (w == radinfo->pos_z2) */
+  else /* (w == info->pos_z2) */
   {
     Edit_ChangeFloat(RAD, rad_trigger_c::F_Z2,
-          Float_or_Unspec(radinfo->pos_z2->value()));
+          Float_or_Unspec(info->pos_z2->value()));
   }
 }
 
 void UI_RadiusInfo::name_callback(Fl_Widget *w, void *data)
 {
-  UI_RadiusInfo *radinfo = (UI_RadiusInfo *)data;
-  SYS_ASSERT(radinfo);
+  UI_RadiusInfo *info = (UI_RadiusInfo *)data;
+  SYS_ASSERT(info);
 
-  rad_trigger_c *RAD = radinfo->view_RAD;
+  rad_trigger_c *RAD = info->view_RAD;
   if (! RAD)
     return;
 
   Edit_ChangeString(RAD, rad_trigger_c::F_NAME,
-        radinfo->name->value());
+        info->name->value());
 }
 
 void UI_RadiusInfo::tag_callback(Fl_Widget *w, void *data)
 {
-  UI_RadiusInfo *radinfo = (UI_RadiusInfo *)data;
-  SYS_ASSERT(radinfo);
+  UI_RadiusInfo *info = (UI_RadiusInfo *)data;
+  SYS_ASSERT(info);
 
-  rad_trigger_c *RAD = radinfo->view_RAD;
+  rad_trigger_c *RAD = info->view_RAD;
   if (! RAD)
     return;
 
   Edit_ChangeInt(RAD, rad_trigger_c::F_TAG,
-        Int_or_Unspec(radinfo->tag->value()));
+        Int_or_Unspec(info->tag->value()));
 }
 
 void UI_RadiusInfo::whenapp_callback(Fl_Widget *w, void *data)
 {
-  UI_RadiusInfo *radinfo = (UI_RadiusInfo *)data;
-  SYS_ASSERT(radinfo);
+  UI_RadiusInfo *info = (UI_RadiusInfo *)data;
+  SYS_ASSERT(info);
 
-  rad_trigger_c *RAD = radinfo->view_RAD;
+  rad_trigger_c *RAD = info->view_RAD;
   if (! RAD)
     return;
 
-  int when_appear = radinfo->CalcWhenAppear();
+  int when_appear = info->CalcWhenAppear();
 
   Edit_ChangeInt(RAD, rad_trigger_c::F_WHEN_APPEAR, when_appear);
 }
