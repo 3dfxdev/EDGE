@@ -27,11 +27,8 @@
 script_c  *active_script;
 section_c *active_startmap;
 
-static rad_trigger_c *radtrig_listener;
-static thing_spawn_c *thing_listener;
-
-extern void UI_RadTrigListener(rad_trigger_c *, int);
-extern void UI_ThingListener(thing_spawn_c *, int);
+extern void UI_ListenRadTrig(rad_trigger_c *, int);
+extern void UI_ListenThing(thing_spawn_c *, int);
 
 
 edit_op_c::edit_op_c()
@@ -253,19 +250,24 @@ void edit_op_c::Apply(const edit_value_u& what)
       return; /* NOT REACHED */
   }
 
-  // notify the UI when a visible field changes
-  if (ref.F >= 0)
-  {
-    if (rad && rad == radtrig_listener)
-      UI_RadTrigListener(rad, ref.F);
+  // notify the UI (allow it to update the info box)
+  if (rad && ref.F >= 0)
+    UI_ListenRadTrig(rad, ref.F);
 
-    if (thing && thing == thing_listener)
-      UI_ThingListener(thing, ref.F);
-  }
+  if (thing && ref.F >= 0)
+    UI_ListenThing(thing, ref.F);
 }
 
 
 //------------------------------------------------------------------------
+
+static void Edit_Push(edit_op_c *OP)
+{
+  OP->Perform();
+
+  // TODO !!!  push onto Undo stack
+}
+
 
 void Edit_MoveThing(thing_spawn_c *TH,  float new_x, float new_y)
 {
@@ -277,9 +279,7 @@ void Edit_MoveThing(thing_spawn_c *TH,  float new_x, float new_y)
 
   OP_X->sisters.push_back(OP_Y);
 
-  // TODO !!!  push onto Undo stack
- 
-  OP_X->Perform();
+  Edit_Push(OP_X);
 }
 
 void Edit_MoveRad(rad_trigger_c *RAD, float new_mx, float new_my)
@@ -292,13 +292,14 @@ void Edit_MoveRad(rad_trigger_c *RAD, float new_mx, float new_my)
 
   OP_MX->sisters.push_back(OP_MY);
 
-  // TODO !!!  push onto Undo stack
- 
-  OP_MX->Perform();
+  Edit_Push(OP_MX);
 }
 
 void Edit_ResizeRad(rad_trigger_c *RAD, float x1, float y1, float x2, float y2)
 {
+  if (x1 > x2) { float tmp_x = x1; x1 = x2; x2 = tmp_x; }
+  if (y1 > y2) { float tmp_y = y1; y1 = y2; y2 = tmp_y; }
+
   edit_op_c *OP_MX = new edit_op_c(RAD, rad_trigger_c::F_MX);
   edit_op_c *OP_MY = new edit_op_c(RAD, rad_trigger_c::F_MY);
   edit_op_c *OP_RX = new edit_op_c(RAD, rad_trigger_c::F_RX);
@@ -313,10 +314,65 @@ void Edit_ResizeRad(rad_trigger_c *RAD, float x1, float y1, float x2, float y2)
   OP_MX->sisters.push_back(OP_RX);
   OP_MX->sisters.push_back(OP_RY);
 
-  // TODO !!!  push onto Undo stack
- 
-  OP_MX->Perform();
+  Edit_Push(OP_MX);
 }
+
+
+void Edit_ChangeFloat(thing_spawn_c *TH, int field, float new_val)
+{
+  edit_op_c *OP = new edit_op_c(TH, field);
+
+  OP->new_val.e_float = new_val;
+
+  Edit_Push(OP);
+}
+
+void Edit_ChangeInt(thing_spawn_c *TH, int field, int new_val)
+{
+  edit_op_c *OP = new edit_op_c(TH, field);
+
+  OP->new_val.e_int = new_val;
+
+  Edit_Push(OP);
+}
+
+void Edit_ChangeString(thing_spawn_c *TH, int field, const char *buffer)
+{
+  edit_op_c *OP = new edit_op_c(TH, field);
+
+  OP->new_val.e_str = StringDup(buffer);
+
+  Edit_Push(OP);
+}
+
+
+void Edit_ChangeFloat(rad_trigger_c *RAD, int field, float new_val)
+{
+  edit_op_c *OP = new edit_op_c(RAD, field);
+
+  OP->new_val.e_float = new_val;
+
+  Edit_Push(OP);
+}
+
+void Edit_ChangeInt(rad_trigger_c *RAD, int field, int new_val)
+{
+  edit_op_c *OP = new edit_op_c(RAD, field);
+
+  OP->new_val.e_int = new_val;
+
+  Edit_Push(OP);
+}
+
+void Edit_ChangeString(rad_trigger_c *RAD, int field, const char *buffer)
+{
+  edit_op_c *OP = new edit_op_c(RAD, field);
+
+  OP->new_val.e_str = StringDup(buffer);
+
+  Edit_Push(OP);
+}
+
 
 //--- editor settings ---
 // vi:ts=2:sw=2:expandtab

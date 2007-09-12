@@ -133,6 +133,15 @@ void Edit_MoveThing(thing_spawn_c *TH,  float new_x, float new_y);
 void Edit_MoveRad  (rad_trigger_c *RAD, float new_mx, float new_my);
 void Edit_ResizeRad(rad_trigger_c *RAD, float x1, float y1, float x2, float y2);
 
+void Edit_ChangeFloat(thing_spawn_c *TH,  int field, float new_val);
+void Edit_ChangeFloat(rad_trigger_c *RAD, int field, float new_val);
+
+void Edit_ChangeInt(thing_spawn_c *TH,  int field, int new_val);
+void Edit_ChangeInt(rad_trigger_c *RAD, int field, int new_val);
+
+void Edit_ChangeString(thing_spawn_c *TH,  int field, const char *buffer);
+void Edit_ChangeString(rad_trigger_c *RAD, int field, const char *buffer);
+
 #endif // __G_EDIT_H__
 
 //--- editor settings ---
