@@ -229,6 +229,10 @@ static void SplitLine(const char *pos, std::vector<std::string> & words)
     if (! *pos)
       break;
 
+    // ignore comments
+    if (pos[0] == '/' && pos[1] == '/')
+      break;
+
     const char *pos2 = skip_word(pos);
 
     words.push_back(std::string(pos, (int)(pos2 - pos)));
