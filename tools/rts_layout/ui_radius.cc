@@ -179,8 +179,7 @@ void UI_RadiusInfo::SetViewRad(rad_trigger_c *rad)
 
   if (view_RAD)
   {
-    // FIXME: active_SCRIPT->rad_Total
-    main_win->panel->SetWhich(rad->rad_Index, 777);
+    main_win->panel->SetWhich(rad->rad_Index + 1, active_startmap->rad_Total);
 
     LoadData(view_RAD);
     activate();
