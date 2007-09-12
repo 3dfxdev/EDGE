@@ -57,9 +57,9 @@ private:
 public:
   void LoadData(thing_spawn_c *th);
 
-  void UpdateField(thing_spawn_c *th, int F);
-
   void SetViewThing(thing_spawn_c *th);
+
+  void ListenField(thing_spawn_c *th, int F);
 
 private:
   void update_Ambush(thing_spawn_c *th);
