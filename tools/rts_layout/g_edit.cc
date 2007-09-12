@@ -299,7 +299,23 @@ void Edit_MoveRad(rad_trigger_c *RAD, float new_mx, float new_my)
 
 void Edit_ResizeRad(rad_trigger_c *RAD, float x1, float y1, float x2, float y2)
 {
-  // FIXME
+  edit_op_c *OP_MX = new edit_op_c(RAD, rad_trigger_c::F_MX);
+  edit_op_c *OP_MY = new edit_op_c(RAD, rad_trigger_c::F_MY);
+  edit_op_c *OP_RX = new edit_op_c(RAD, rad_trigger_c::F_RX);
+  edit_op_c *OP_RY = new edit_op_c(RAD, rad_trigger_c::F_RY);
+
+  OP_MX->new_val.e_float = (x1 + x2) / 2.0;
+  OP_MY->new_val.e_float = (y1 + y2) / 2.0;
+  OP_RX->new_val.e_float = (x2 - x1) / 2.0;
+  OP_RY->new_val.e_float = (y2 - y1) / 2.0;
+
+  OP_MX->sisters.push_back(OP_MY);
+  OP_MX->sisters.push_back(OP_RX);
+  OP_MX->sisters.push_back(OP_RY);
+
+  // TODO !!!  push onto Undo stack
+ 
+  OP_MX->Perform();
 }
 
 //--- editor settings ---
