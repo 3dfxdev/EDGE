@@ -317,6 +317,20 @@ void Edit_ResizeRad(rad_trigger_c *RAD, float x1, float y1, float x2, float y2)
   Edit_Push(OP_MX);
 }
 
+void Edit_ResizeRadiusOnly(rad_trigger_c *RAD, float new_r)
+{
+  edit_op_c *OP_RX = new edit_op_c(RAD, rad_trigger_c::F_RX);
+  edit_op_c *OP_RY = new edit_op_c(RAD, rad_trigger_c::F_RY);
+
+  OP_RX->new_val.e_float = new_r;
+  OP_RY->new_val.e_float = new_r;
+
+  OP_RX->sisters.push_back(OP_RY);
+
+  Edit_Push(OP_RX);
+}
+
+
 
 void Edit_ChangeFloat(thing_spawn_c *TH, int field, float new_val)
 {
