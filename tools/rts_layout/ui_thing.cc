@@ -51,6 +51,7 @@ UI_ThingInfo::UI_ThingInfo(int X, int Y, int W, int H, const char *label) :
   type = new Fl_Input(X+50, Y, W-54, 24, "Type: ");
   type->align(FL_ALIGN_LEFT);
   type->textsize(12);
+  type->callback(type_callback, this);
 
   add(type);
 
@@ -59,6 +60,7 @@ UI_ThingInfo::UI_ThingInfo(int X, int Y, int W, int H, const char *label) :
 
   tag = new Fl_Int_Input(X+50, Y, W/2-14, 22, "Tag: ");
   tag->align(FL_ALIGN_LEFT);
+  tag->callback(tag_callback, this);
 
   add(tag);
 
@@ -67,6 +69,7 @@ UI_ThingInfo::UI_ThingInfo(int X, int Y, int W, int H, const char *label) :
 
   angle = new Fl_Float_Input(X+50, Y, W/2-14, 22, "Angle:");
   angle->align(FL_ALIGN_LEFT);
+  angle->callback(angle_callback, this);
 
   add(angle);
 
@@ -76,18 +79,20 @@ UI_ThingInfo::UI_ThingInfo(int X, int Y, int W, int H, const char *label) :
   pos_x = new Fl_Float_Input(X +20, Y, W/2-24, 22, "x");
   pos_y = new Fl_Float_Input(MX+20, Y, W/2-24, 22, "y");
 
+  Y += pos_x->h() + 4;
+
+  pos_z = new Fl_Float_Input(X +20, Y, W/2-24, 22, "z");
+
   pos_x->align(FL_ALIGN_LEFT);
   pos_y->align(FL_ALIGN_LEFT);
+  pos_z->align(FL_ALIGN_LEFT);
+
+  pos_x->callback(pos_callback, this);
+  pos_y->callback(pos_callback, this);
+  pos_z->callback(pos_callback, this);
 
   add(pos_x);
   add(pos_y);
-
-  Y += pos_x->h() + 4;
-
-
-  pos_z = new Fl_Float_Input(X +20, Y, W/2-24, 22, "z");
-  pos_z->align(FL_ALIGN_LEFT);
-
   add(pos_z);
 
   Y += pos_x->h() + 8;
@@ -102,6 +107,7 @@ UI_ThingInfo::UI_ThingInfo(int X, int Y, int W, int H, const char *label) :
 
     
   ambush = new Fl_Check_Button(X+12, Y, W-8, 22, "Ambush");
+  ambush->callback(option_callback, this);
 
   add(ambush);
 
@@ -125,13 +131,17 @@ UI_ThingInfo::UI_ThingInfo(int X, int Y, int W, int H, const char *label) :
   appear_dm     = new Fl_Check_Button(BX+8, Y, CW, 22, "dm");
 #endif
 
-  appear_easy->value(1);   // appear_sp->value(1);
-  appear_medium->value(1); // appear_coop->value(1);
-  appear_hard->value(1);   // appear_dm->value(1);
+  appear_easy  ->value(1);
+  appear_medium->value(1);
+  appear_hard  ->value(1);
 
-  appear_easy->labelsize(12);   // appear_sp->labelsize(12);
-  appear_medium->labelsize(12); // appear_coop->labelsize(12);
-  appear_hard->labelsize(12);   // appear_dm->labelsize(12);
+  appear_easy  ->labelsize(12);
+  appear_medium->labelsize(12);
+  appear_hard  ->labelsize(12);
+  
+  appear_easy  ->callback(option_callback, this);
+  appear_medium->callback(option_callback, this);
+  appear_hard  ->callback(option_callback, this);
   
   add(appear_easy); add(appear_medium); add(appear_hard);
 }
@@ -168,6 +178,108 @@ void UI_ThingInfo::SetViewThing(thing_spawn_c *th)
   redraw();
 }
 
+void UI_ThingInfo::type_callback(Fl_Widget *w, void *data)
+{
+  UI_ThingInfo *info = (UI_ThingInfo *)data;
+  SYS_ASSERT(info);
+
+  thing_spawn_c *TH = info->view_TH;
+  if (! TH)
+    return;
+
+  const char *str = info->type->value();
+  while (isspace(*str))
+    str++;
+
+  // make sure type name is at least something valid
+  Edit_ChangeString(TH, thing_spawn_c::F_TYPE, (*str) ? str : "XXXX");
+}
+
+void UI_ThingInfo::tag_callback(Fl_Widget *w, void *data)
+{
+  UI_ThingInfo *info = (UI_ThingInfo *)data;
+  SYS_ASSERT(info);
+
+  thing_spawn_c *TH = info->view_TH;
+  if (! TH)
+    return;
+
+  Edit_ChangeInt(TH, thing_spawn_c::F_TAG,
+        Int_or_Unspec(info->tag->value()));
+}
+
+void UI_ThingInfo::angle_callback(Fl_Widget *w, void *data)
+{
+  UI_ThingInfo *info = (UI_ThingInfo *)data;
+  SYS_ASSERT(info);
+
+  thing_spawn_c *TH = info->view_TH;
+  if (! TH)
+    return;
+
+  Edit_ChangeFloat(TH, thing_spawn_c::F_ANGLE,
+        Float_or_Unspec(info->angle->value()));
+}
+
+void UI_ThingInfo::pos_callback(Fl_Widget *w, void *data)
+{
+  UI_ThingInfo *info = (UI_ThingInfo *)data;
+  SYS_ASSERT(info);
+
+  thing_spawn_c *TH = info->view_TH;
+  if (! TH)
+    return;
+
+  if (w == info->pos_z)
+  {
+    Edit_ChangeFloat(TH, thing_spawn_c::F_Z,
+          Float_or_Unspec(info->pos_z->value()));
+    return;
+  }
+
+  Edit_MoveThing(TH,
+      atof(info->pos_x->value()),
+      atof(info->pos_y->value()) );
+}
+
+void UI_ThingInfo::option_callback(Fl_Widget *w, void *data)
+{
+  UI_ThingInfo *info = (UI_ThingInfo *)data;
+  SYS_ASSERT(info);
+
+  thing_spawn_c *TH = info->view_TH;
+  if (! TH)
+    return;
+
+  if (w == info->ambush)
+  {
+    Edit_ChangeInt(TH, thing_spawn_c::F_AMBUSH,
+         info->ambush->value() ? 1 : 0);
+    return;
+  }
+ 
+  Edit_ChangeInt(TH, thing_spawn_c::F_WHEN_APPEAR,
+        info->CalcWhenAppear());
+}
+
+int UI_ThingInfo::CalcWhenAppear()
+{
+  int when_appear = 0;
+
+  if (appear_easy  ->value()) when_appear |= WNAP_Easy;
+  if (appear_medium->value()) when_appear |= WNAP_Medium;
+  if (appear_hard  ->value()) when_appear |= WNAP_Hard;
+
+#if 0
+  if (appear_sp->value())     when_appear |= WNAP_SP;
+  if (appear_coop->value())   when_appear |= WNAP_Coop;
+  if (appear_dm->value())     when_appear |= WNAP_DM;
+#endif
+
+  return when_appear;
+}
+
+
 
 //------------------------------------------------------------------------
 
@@ -194,7 +306,7 @@ void UI_ThingInfo::ListenField(thing_spawn_c *th, int F)
     case thing_spawn_c::F_X:
     case thing_spawn_c::F_Y:
     case thing_spawn_c::F_Z:
-      update_Loc(th);
+      update_Pos(th);
       break;
 
     case thing_spawn_c::F_ANGLE:
@@ -219,7 +331,7 @@ void UI_ThingInfo::LoadData(thing_spawn_c *th)
 {
   update_Ambush(th);
   update_Type(th);
-  update_Loc(th);
+  update_Pos(th);
   update_Angle(th);
   update_Tag(th);
   update_WhenAppear(th);
@@ -235,7 +347,7 @@ void UI_ThingInfo::update_Type(thing_spawn_c *th)
   type->value(th->type.c_str());
 }
 
-void UI_ThingInfo::update_Loc(thing_spawn_c *th)
+void UI_ThingInfo::update_Pos(thing_spawn_c *th)
 {
   char buffer[100];
 
