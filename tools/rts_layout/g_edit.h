@@ -101,6 +101,9 @@ public:
    edit_op_c();
   ~edit_op_c();
 
+  edit_op_c(thing_spawn_c *TH,  int field);
+  edit_op_c(rad_trigger_c *RAD, int field);
+
 public:
   void Perform();
   // perform (or Redo) the operation.
@@ -122,6 +125,13 @@ private:
 
 extern script_c  *active_script;
 extern section_c *active_startmap;
+
+
+/* FUNCTIONS */
+
+void Edit_MoveThing(thing_spawn_c *TH,  float new_x, float new_y);
+void Edit_MoveRad  (rad_trigger_c *RAD, float new_mx, float new_my);
+void Edit_ResizeRad(rad_trigger_c *RAD, float x1, float y1, float x2, float y2);
 
 #endif // __G_EDIT_H__
 

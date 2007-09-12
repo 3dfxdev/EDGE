@@ -21,6 +21,7 @@
 
 #include "lib_util.h"
 #include "g_level.h"
+#include "g_edit.h"
 #include "g_script.h"
 
 #include "ui_window.h"
@@ -511,7 +512,7 @@ void UI_Grid::draw_thing(const thing_spawn_c *TH)
 
   dx *= r; dy *= r;
 
-  blast_line(TH->x, TH->y, TH->x + dx, TH->y + dy);
+  blast_line(x, y, x + dx, y + dy);
 }
 
 
@@ -871,7 +872,29 @@ void UI_Grid::handle_release()
 {
   if (dragging)
   {
-    /* DO STUFF */
+    if (select_rad)
+    {
+      rad_trigger_c *RAD = select_rad;
+
+      if (drag_dx == 0 && drag_dy == 0)
+        Edit_MoveRad(RAD, drag_mx, drag_my);
+      else
+      {
+        float x1 = RAD->mx - RAD->rx;
+        float y1 = RAD->my - RAD->ry;
+        float x2 = RAD->mx + RAD->rx;
+        float y2 = RAD->my + RAD->ry;
+
+        drag_new_rad_coords(RAD, &x1, &y1, &x2, &y2);
+
+        Edit_ResizeRad(RAD, x1, y1, x2, y2);
+      }
+    }
+    else if (select_thing)
+    {
+      Edit_MoveThing(select_thing, drag_mx, drag_my);
+    }
+
     dragging = false;
     redraw();
   }
