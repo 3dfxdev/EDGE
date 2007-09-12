@@ -146,6 +146,8 @@ void Edit_ChangeInt(rad_trigger_c *RAD, int field, int new_val);
 void Edit_ChangeString(thing_spawn_c *TH,  int field, const char *buffer);
 void Edit_ChangeString(rad_trigger_c *RAD, int field, const char *buffer);
 
+void Edit_ChangeShape(rad_trigger_c *RAD, int new_is_rect);
+
 #endif // __G_EDIT_H__
 
 //--- editor settings ---
