@@ -24,7 +24,8 @@
 #include "g_edit.h"
 
 
-static script_c *active_script;
+script_c  *active_script;
+section_c *active_startmap;
 
 static rad_trigger_c *radtrig_listener;
 static thing_spawn_c *thing_listener;

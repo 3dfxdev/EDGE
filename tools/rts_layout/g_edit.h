@@ -118,6 +118,11 @@ private:
 };
 
 
+/* VARIABLES */
+
+extern script_c  *active_script;
+extern section_c *active_startmap;
+
 #endif // __G_EDIT_H__
 
 //--- editor settings ---
