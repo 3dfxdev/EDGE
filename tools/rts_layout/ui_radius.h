@@ -69,16 +69,21 @@ private:
   void ConvertToRadius();
   void ConvertToRectangle();
 
+  int CalcWhenAppear();
+
   void update_Shape(rad_trigger_c *rad);
-  void update_XY(rad_trigger_c *rad);
-  void update_Z(rad_trigger_c *rad);
-  void update_Name(rad_trigger_c *rad);
-  void update_Tag(rad_trigger_c *rad);
+  void update_XY   (rad_trigger_c *rad);
+  void update_Z    (rad_trigger_c *rad);
+  void update_Name (rad_trigger_c *rad);
+  void update_Tag  (rad_trigger_c *rad);
   void update_WhenAppear(rad_trigger_c *rad);
 
-  static void shape_callback(Fl_Widget *, void *);
-  static void pos_callback(Fl_Widget *, void *);
+  static void shape_callback (Fl_Widget *, void *);
+  static void pos_callback   (Fl_Widget *, void *);
   static void height_callback(Fl_Widget *, void *);
+  static void name_callback  (Fl_Widget *, void *);
+  static void tag_callback   (Fl_Widget *, void *);
+  static void whenapp_callback(Fl_Widget *, void *);
 };
 
 #endif // __UI_RADIUS_H__
