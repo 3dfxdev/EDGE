@@ -63,8 +63,8 @@ between 0 (zero) and 359.
 &lt;Z&gt; is the vertical coordinate, useful to spawn monsters
 or items on top of extrafloors, where the &lt;Z&gt; can equal
 the top of an extrafloor.
-Most things spawned above the floor will fall with gravity,
-just like a Quake entity).
+Most things spawned above the floor will fall with gravity
+(just like a Quake entity).
 
 <p>
 NOTE: you cannot spawn players anywhere (OUR_HERO or PLAYER2-8).
