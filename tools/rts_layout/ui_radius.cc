@@ -424,26 +424,26 @@ void UI_RadiusInfo::update_XY(rad_trigger_c *rad)
 {
   if (is_radius->value())
   {
-    pos_x1->value(Float_TmpStr(rad->mx));
-    pos_y1->value(Float_TmpStr(rad->my));
+    pos_x1->value(Float_TmpStr(rad->mx, 1));
+    pos_y1->value(Float_TmpStr(rad->my, 1));
 
-    radius->value(Float_TmpStr(rad->rx));
+    radius->value(Float_TmpStr(rad->rx, 1));
     return;
   }
 
   /* rectangle */
 
-  pos_x1->value(Float_TmpStr(rad->mx - rad->rx));
-  pos_x2->value(Float_TmpStr(rad->mx + rad->rx));
+  pos_x1->value(Float_TmpStr(rad->mx - rad->rx, 1));
+  pos_x2->value(Float_TmpStr(rad->mx + rad->rx, 1));
 
-  pos_y1->value(Float_TmpStr(rad->my - rad->ry));
-  pos_y2->value(Float_TmpStr(rad->my + rad->ry));
+  pos_y1->value(Float_TmpStr(rad->my - rad->ry, 1));
+  pos_y2->value(Float_TmpStr(rad->my + rad->ry, 1));
 }
 
 void UI_RadiusInfo::update_Z(rad_trigger_c *rad)
 {
-  pos_z1->value(Float_TmpStr(rad->z1));
-  pos_z2->value(Float_TmpStr(rad->z2));
+  pos_z1->value(Float_TmpStr(rad->z1, 1));
+  pos_z2->value(Float_TmpStr(rad->z2, 1));
 }
 
 void UI_RadiusInfo::update_Name(rad_trigger_c *rad)

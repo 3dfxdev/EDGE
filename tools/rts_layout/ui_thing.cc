@@ -349,14 +349,14 @@ void UI_ThingInfo::update_Type(thing_spawn_c *th)
 
 void UI_ThingInfo::update_Pos(thing_spawn_c *th)
 {
-  pos_x->value(Float_TmpStr(th->x));
-  pos_y->value(Float_TmpStr(th->y));
-  pos_z->value(Float_TmpStr(th->z));
+  pos_x->value(Float_TmpStr(th->x), 1);
+  pos_y->value(Float_TmpStr(th->y), 1);
+  pos_z->value(Float_TmpStr(th->z), 1);
 }
 
 void UI_ThingInfo::update_Angle(thing_spawn_c *th)
 {
-  angle->value(Float_TmpStr(th->angle));
+  angle->value(Float_TmpStr(th->angle), 1);
 }
 
 void UI_ThingInfo::update_Tag(thing_spawn_c *th)
