@@ -349,32 +349,19 @@ void UI_ThingInfo::update_Type(thing_spawn_c *th)
 
 void UI_ThingInfo::update_Pos(thing_spawn_c *th)
 {
-  char buffer[100];
-
-  sprintf(buffer, "%1.1f", th->x);
-  pos_x->value( (th->x == FLOAT_UNSPEC) ? "" : buffer);
-
-  sprintf(buffer, "%1.1f", th->y);
-  pos_y->value( (th->y == FLOAT_UNSPEC) ? "" : buffer);
-
-  sprintf(buffer, "%1.1f", th->z);
-  pos_z->value( (th->z == FLOAT_UNSPEC) ? "" : buffer);
+  pos_x->value(Float_TmpStr(th->x));
+  pos_y->value(Float_TmpStr(th->y));
+  pos_z->value(Float_TmpStr(th->z));
 }
 
 void UI_ThingInfo::update_Angle(thing_spawn_c *th)
 {
-  char buffer[100];
-
-  sprintf(buffer, "%1.1f", th->angle);
-  angle->value( (th->angle == FLOAT_UNSPEC) ? "" : buffer);
+  angle->value(Float_TmpStr(th->angle));
 }
 
 void UI_ThingInfo::update_Tag(thing_spawn_c *th)
 {
-  char buffer[100];
-
-  sprintf(buffer, "%d", th->tag);
-  tag->value( (th->tag == INT_UNSPEC) ? "" : buffer);
+  tag->value(Int_TmpStr(th->tag));
 }
 
 void UI_ThingInfo::update_WhenAppear(thing_spawn_c *th)
