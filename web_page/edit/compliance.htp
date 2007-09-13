@@ -6,7 +6,7 @@
 
 <h2 class="page_title">Compliance with Standards</h2>
 
-<h3 class="sub_title">Doom</h2>
+<h3 class="sub_title">Doom</h3>
 
 EDGE is based on the DOOM engine, and everything in the games
 DOOM, DOOM II, TNT Evilution and Plutonia is known to behave
@@ -38,7 +38,7 @@ Reference: <a href="doom_specs.htm">Unofficial Doom Specs</a>
 
 
 <p><br>
-<h3 class="sub_title">Boom</h2>
+<h3 class="sub_title">Boom</h3>
 
 Boom was a modification/improvement to the DOOM code
 made by TeamTNT.
@@ -61,7 +61,7 @@ Reference: <a href="boom_ref.htm">Boom Reference</a>
 
 
 <p><br>
-<h3 class="sub_title">DeHackEd &amp; BEX</h2>
+<h3 class="sub_title">DeHackEd &amp; BEX</h3>
 
 DeHackEd was a program written by Greg Lewis which
 modified the DOOM executable, allowing changes to the
@@ -115,7 +115,7 @@ Eternity Engine DeHackEd/BEX Reference</a>
 
 
 <p><br>
-<h3 class="sub_title">GL Nodes</h2>
+<h3 class="sub_title">GL Nodes</h3>
 
 GL Nodes provide more information which OpenGL ports need,
 in particular the exact boundaries of subsectors, which was
@@ -138,7 +138,7 @@ GL Node Specifications</a>
 
 
 <p><br>
-<h3 class="sub_title">Joint Texture Standard</h2>
+<h3 class="sub_title">Joint Texture Standard</h3>
 
 This specification resulted from a discussion of several port
 authors about a unified way to handle textures (etc) in new
@@ -160,7 +160,7 @@ Reference: <a href="JointTextureSpec.htm">Joint Texture Standard</a>
 
 
 <p><br>
-<h3 class="sub_title">File Formats</h2>
+<h3 class="sub_title">File Formats</h3>
 
 Here is a list of formats that EDGE supports (or are planned).
 Not included here are the standard DOOM formats
@@ -180,7 +180,7 @@ We plan to support WAV and Ogg/Vorbis in the next release.
 <p>
 <B>Music:</B> <br>
 EDGE 1.29 supports Ogg/Vorbis for music.  We plan
-to implement software-synthesized MUS and MIDI music
+to implement software synthesized MUS and MIDI music
 playback in a future release.
 
 <p>
