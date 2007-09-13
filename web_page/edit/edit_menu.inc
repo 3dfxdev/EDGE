@@ -10,6 +10,7 @@
 <li> <em>Editing Guide</em>
 <ul>
     <li> <a href="overview.htm">Overview</a>
+    <li> <a href="compliance.htm">Standards</a>
     <li> <a href="line_types.htm">Line types</a>
     <li> <a href="sec_types.htm">Sector types</a>
     <li> <span class="notdone" hhref="http://edge.sourceforge.net/ddf_online/index.htm">DDF Online</span>
@@ -24,7 +25,6 @@
     <li> <a href="uds_errata.htm">UDS Errata</a>
     <li> <a href="boom_ref.htm">Boom Editing</a>
     <li> <a href="JointTextureSpec.htm">Joint Texture</a>
-    <li> <a href="compliance.htm">EDGE Compliance</a>
 </ul>
 
 </ul>
