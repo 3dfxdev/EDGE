@@ -422,52 +422,28 @@ void UI_RadiusInfo::update_Shape(rad_trigger_c *rad)
 
 void UI_RadiusInfo::update_XY(rad_trigger_c *rad)
 {
-  char buffer[100];
-
   if (is_radius->value())
   {
-    sprintf(buffer, "%1.1f", rad->mx);
-    pos_x1->value(buffer);
+    pos_x1->value(Float_TmpStr(rad->mx));
+    pos_y1->value(Float_TmpStr(rad->my));
 
-    sprintf(buffer, "%1.1f", rad->my);
-    pos_y1->value(buffer);
-
-    sprintf(buffer, "%1.1f", rad->rx);
-    radius->value(buffer);
-
+    radius->value(Float_TmpStr(rad->rx));
     return;
   }
 
   /* rectangle */
 
-  // X
-  {
-    sprintf(buffer, "%1.1f", rad->mx - rad->rx);
-    pos_x1->value(buffer);
+  pos_x1->value(Float_TmpStr(rad->mx - rad->rx));
+  pos_x2->value(Float_TmpStr(rad->mx + rad->rx));
 
-    sprintf(buffer, "%1.1f", rad->mx + rad->rx);
-    pos_x2->value(buffer);
-  }
-
-  // Y
-  {
-    sprintf(buffer, "%1.1f", rad->my - rad->ry);
-    pos_y1->value(buffer);
-
-    sprintf(buffer, "%1.1f", rad->my + rad->ry);
-    pos_y2->value(buffer);
-  }
+  pos_y1->value(Float_TmpStr(rad->my - rad->ry));
+  pos_y2->value(Float_TmpStr(rad->my + rad->ry));
 }
 
 void UI_RadiusInfo::update_Z(rad_trigger_c *rad)
 {
-  char buffer[100];
-
-  sprintf(buffer, "%1.1f", rad->z1);
-  pos_z1->value( (rad->z1 == FLOAT_UNSPEC) ? "" : buffer);
-
-  sprintf(buffer, "%1.1f", rad->z2);
-  pos_z2->value( (rad->z2 == FLOAT_UNSPEC) ? "" : buffer);
+  pos_z1->value(Float_TmpStr(rad->z1));
+  pos_z2->value(Float_TmpStr(rad->z2));
 }
 
 void UI_RadiusInfo::update_Name(rad_trigger_c *rad)
@@ -477,10 +453,7 @@ void UI_RadiusInfo::update_Name(rad_trigger_c *rad)
 
 void UI_RadiusInfo::update_Tag(rad_trigger_c *rad)
 {
-  char buffer[100];
-
-  sprintf(buffer, "%d", rad->tag);
-  tag->value( (rad->tag == INT_UNSPEC) ? "" : buffer);
+  tag->value(Int_TmpStr(rad->tag));
 }
 
 void UI_RadiusInfo::update_WhenAppear(rad_trigger_c *rad)
