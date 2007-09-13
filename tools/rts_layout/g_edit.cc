@@ -27,8 +27,12 @@
 script_c  *active_script;
 section_c *active_startmap;
 
+static std::list<edit_op_c *> undo_list;
+static std::list<edit_op_c *> redo_list;
+
 extern void UI_ListenRadTrig(rad_trigger_c *, int);
 extern void UI_ListenThing(thing_spawn_c *, int);
+
 
 
 edit_op_c::edit_op_c()
@@ -261,11 +265,50 @@ void edit_op_c::Apply(const edit_value_u& what)
 
 //------------------------------------------------------------------------
 
+static void Edit_ClearRedoStack(void)
+{
+  while (! redo_list.empty())
+  {
+    edit_op_c *OP = redo_list.front();
+    redo_list.pop_front();
+
+    delete OP;
+  }
+}
+
 static void Edit_Push(edit_op_c *OP)
 {
   OP->Perform();
 
-  // TODO !!!  push onto Undo stack
+  undo_list.push_back(OP);
+
+  Edit_ClearRedoStack();
+}
+
+void Edit_Undo(void)
+{
+  if (undo_list.empty())
+    return;
+
+  edit_op_c *OP = undo_list.back();
+  undo_list.pop_back();
+
+  OP->Undo();
+
+  redo_list.push_front(OP);
+}
+
+void Edit_Redo(void)
+{
+  if (redo_list.empty())
+    return;
+
+  edit_op_c *OP = redo_list.front();
+  redo_list.pop_front();
+
+  OP->Perform();
+
+  undo_list.push_back(OP);
 }
 
 
@@ -438,6 +481,47 @@ float Float_or_Unspec(const char *buf)
     return FLOAT_UNSPEC;
 
   return atof(buf);
+}
+
+const char *Int_TmpStr(int val, bool unspec_ok)
+{
+  if (val == INT_UNSPEC && unspec_ok)
+    return "";
+  
+  static char buffer[200];
+
+  sprintf(buffer, "%d", val);
+
+  return buffer;
+}
+
+const char *Float_TmpStr(float val, int prec, bool unspec_ok)
+{
+  // produces a 'Human Readable' float output, which removes
+  // trailing zeros for a nicer result.  For example: "123.00"
+  // becomes "123".
+
+  if (val == FLOAT_UNSPEC && unspec_ok)
+    return "";
+  
+  static char buffer[200];
+
+  sprintf(buffer, "%1.*f", prec, val);
+
+  if (! strchr(buffer, '.'))
+    return buffer;
+
+  char *pos = buffer + strlen(buffer) - 1;
+
+  while (*pos == '0')
+    *pos-- = 0;
+
+  if (*pos == '.')
+    *pos-- = 0;
+      
+  SYS_ASSERT(isdigit(*pos));
+
+  return buffer;
 }
 
 
