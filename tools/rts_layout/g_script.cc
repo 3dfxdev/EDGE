@@ -24,33 +24,8 @@
 #include "main.h"
 
 #include "g_script.h"
+#include "g_edit.h"
 
-
-const char *Float_TmpStr(float val, int precision = 2)
-{
-  // produces a 'Human Readable' float output, which removes
-  // trailing zeros for a nicer result.  For example: "123.00"
-  // becomes "123".
-
-  static char buffer[200];
-
-  sprintf(buffer, "%1.*f", precision, val);
-
-  if (! strchr(buffer, '.'))
-    return buffer;
-
-  char *pos = buffer + strlen(buffer) - 1;
-
-  while (*pos == '0')
-    *pos-- = 0;
-
-  if (*pos == '.')
-    *pos-- = 0;
-      
-  SYS_ASSERT(isdigit(*pos));
-
-  return buffer;
-}
 
 const char *Indent_TmpStr(int spaces)
 {
