@@ -108,7 +108,9 @@ void edit_op_c::Perform()
 
   for (std::vector<edit_op_c *>::iterator EI = sisters.begin();
        EI != sisters.end(); EI++)
+  {
     (*EI)->Perform();
+  }
 }
 
 void edit_op_c::Undo()
@@ -117,7 +119,9 @@ void edit_op_c::Undo()
 
   for (std::vector<edit_op_c *>::iterator EI = sisters.begin();
        EI != sisters.end(); EI++)
+  {
     (*EI)->Undo();
+  }
 }
 
 static int& GetIntRef(rad_trigger_c *rad, thing_spawn_c *th, int F)
@@ -147,6 +151,8 @@ static std::string& GetStringRef(rad_trigger_c *rad, thing_spawn_c *th, int F)
 
 void edit_op_c::Apply(const edit_value_u& what)
 {
+// fprintf(stderr, "Applying %d:%d:%d:%d\n", ref.M, ref.R, ref.T, ref.F);
+
   section_c *map = active_script->bits.at(ref.M);
   SYS_ASSERT(map);
   SYS_ASSERT(map->kind == section_c::START_MAP);
@@ -180,7 +186,7 @@ void edit_op_c::Apply(const edit_value_u& what)
         need_old = false;
       }
 
-      r_piece->trig = new_val.e_rad;
+      r_piece->trig = what.e_rad;
       break;
     }
 
@@ -194,7 +200,7 @@ void edit_op_c::Apply(const edit_value_u& what)
         need_old = false;
       }
 
-      rad->things.at(ref.T) = new_val.e_thing;
+      rad->things.at(ref.T) = what.e_thing;
       break;
     }
 
@@ -210,7 +216,7 @@ void edit_op_c::Apply(const edit_value_u& what)
         need_old = false;
       }
 
-      var = new_val.e_int;
+      var = what.e_int;
       break;
     }
 
@@ -226,7 +232,7 @@ void edit_op_c::Apply(const edit_value_u& what)
         need_old = false;
       }
 
-      var = new_val.e_float;
+      var = what.e_float;
       break;
     }
 
@@ -242,7 +248,7 @@ void edit_op_c::Apply(const edit_value_u& what)
         need_old = false;
       }
 
-      var = std::string(new_val.e_str);
+      var = std::string(what.e_str);
 
       if (thing && ref.F == thing_spawn_c::F_TYPE)
         thing->ddf_info = NULL; //!!!! LOOKUP NEW ONE
