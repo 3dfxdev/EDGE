@@ -19,9 +19,11 @@
 #include "headers.h"
 #include "hdr_fltk.h"
 
+#include "main.h"
+#include "g_edit.h"
+
 #include "ui_menu.h"
 #include "ui_window.h"
-#include "main.h"
 
 
 //------------------------------------------------------------------------
@@ -60,12 +62,12 @@ static void file_do_save_as(Fl_Widget *w, void * data)
 
 static void edit_do_undo(Fl_Widget *w, void * data)
 {
-  // TODO
+  Edit_Undo();
 }
 
 static void edit_do_redo(Fl_Widget *w, void * data)
 {
-  // TODO
+  Edit_Redo();
 }
 
 static void edit_do_cut(Fl_Widget *w, void * data)
