@@ -645,16 +645,18 @@ scroll_part_e;
 #define SCPT_LEFT   ((scroll_part_e)(SCPT_LeftUpper | SCPT_LeftMiddle | SCPT_LeftLower))
 
 // -AJA- 1999/12/07: Linedef special flags
-// FIXME!!! Move inside linetype_c
 typedef enum
 {
 	LINSP_None = 0x0000,
 
 	// player must be able to vertically reach this linedef to press it
-	LINSP_MustReach = 0x0001,
+	LINSP_MustReach = (1 << 0),
 
 	// don't change the texture on other linedefs with the same tag
-	LINSP_SwitchSeparate = 0x0002
+	LINSP_SwitchSeparate = (1 << 1),
+
+	// -AJA- 2007/09/14: for SECTOR_EFFECT with no tag
+	LINSP_BackSector = (1 << 2),
 }
 line_special_e;
 
