@@ -8,14 +8,39 @@
 
 <h3 class="sub_title">Mapping</h3>
 
-DOOM engine
+EDGE is a DOOM engine, and hence you create new levels for it
+by using normal DOOM editing tools.
+There are quite a few of them actually (see below for some
+links), but they fall into two main categories:
+Level editors and Wad editors.
+The first one is pretty obvious, but you may be wondering
+what a Wad editor does.
+Briefly, a "WAD" file contains a set of files
+(similar to a ZIP file, but much more basic),
+so you need a program that lets you insert and delete stuff,
+as well as converting graphics and sounds
+to the custom DOOM formats.
 
 <p>
-sentence about Boom-Compatible
+EDGE is also a Boom-Compatible port, hence you can use
+Boom features in your maps as well.
+We are not quite 100% compatible though,
+see the 'Standards' page (in the navigation menu)
+for more information and list of differences.
 
 <p>
-Extrafloors
+Using EDGE specific features in a map requires that you
+use an EDGE Linedef or Sector type.  This editing guide
+contains pages which list the available types
+for EDGE 1.29 (in summary form).
+There are a few new Thing types too [not yet listed].
 
+<p>
+Extrafloors (also called '3D Floors') are one of EDGE's
+coolest features, removing the limitation of DOOM mapping
+which doesn't allow rooms over rooms.
+
+<!--- More information BLAH --->
 
 <p>
 <b>Links:</b>
@@ -35,7 +60,25 @@ Wad Editors:
 
 <h3 class="sub_title">New Weapons and Monsters</h3>
 
-DDF
+DDF stands for "Doom Definition Format", and is a core feature
+of EDGE.  It lets you define new monsters, weapons, scenery,
+as well as your own linedef and sector types, intermission
+screens, texture animations, and much much more!
+
+<p>
+foo
+
+<p>
+<!---
+Click on the "DDF Online" link in the navigation menu
+for more information.
+--->
+Note: Sorry but the DDF documentation is currently being
+reworked and is not available yet.
+Previous version can be found
+<a href="http://firstgen.no-ip.info/ddf_online/index.htm">
+HERE</a>.
+
 
 <p>
 sentence about DeHackEd
@@ -43,12 +86,27 @@ sentence about DeHackEd
 
 <h3 class="sub_title">Scripting</h3>
 
-RTS
+EDGE has a fairly basic scripting language called
+"Radius Trigger Scripting", or just "RTS" for short.
+It is based on the idea of executing some commands when
+the player enters a certain area (radius) on the map.
+Other types of triggers are also available, such as
+executing the commands when all the monsters of a given
+type are dead.
+
+<p>
+RTS lacks some useful things that more powerful scripting
+languages enjoy, such as variables and performing calculations.
+Nevertheless people have created some amazing things with it.
+
+<p>
+For more information on RTS, click on the "RTS Online" link
+in the navigation menu.
 
 
 <h3 class="sub_title">Other</h3>
 
-Todo...
+Nothing here yet....
 
 
 </block>
