@@ -794,8 +794,9 @@ void DDF_LineGetScrollPart(const char *info, void *storage)
 
 static specflags_t line_specials[] =
 {
-	{"MUST_REACH", LINSP_MustReach, 0},
+	{"MUST_REACH",      LINSP_MustReach, 0},
 	{"SWITCH_SEPARATE", LINSP_SwitchSeparate, 0},
+	{"BACK_SECTOR",     LINSP_BackSector, 0},
 	{NULL, 0, 0}
 };
 
