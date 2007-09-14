@@ -52,7 +52,7 @@ levels should be complete-able (otherwise you should report it
 as a bug). 
 
 <p>
-List of incompatibilities:
+List of known incompatibilities:
 <ul>
 
 <li>displacement and accelerative scrollers are not supported
