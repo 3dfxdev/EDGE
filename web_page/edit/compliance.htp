@@ -30,6 +30,14 @@ The type of networking that DOOM used back in 1994
 is obsolete today, and EDGE doesn't have a suitable
 replacement, so multiplayer games are not possible yet.
 We plan to add support for LAN-based games in the next release.
+
+<li>
+EDGE cannot play Demos ("LMP" files) recorded for DOOM,
+including the ones in the IWADs.
+This is because the LMP format does not store enough
+information, and can only be played back in DOOM or 
+extremely compatible ports (like Chocolate-Doom).
+
 </ul>
 
 <p>
