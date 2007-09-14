@@ -27,6 +27,7 @@ but only those using the same slot (see TIP_SLOT).
 [fade time] a time value indicating how long it takes for the
 TIP to reach the desired translucency (in either ticks or
 seconds). To make it fade instantly, leave the fade time blank.
+Note that the script itself is not delayed.
 
 <p>
 <B>Example:</B> <br>
