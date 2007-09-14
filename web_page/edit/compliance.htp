@@ -26,7 +26,7 @@ Some sprites are designed to look sunk into the floor, typically
 corpses, and can look like they are "floating" in EDGE.
 
 <li>
-The type of networking that DOOM used back in 1993/4
+The type of networking that DOOM used back in 1994
 is obsolete today, and EDGE doesn't have a suitable
 replacement, so multiplayer games are not possible yet.
 We plan to add support for LAN-based games in the next release.
@@ -46,9 +46,28 @@ As well as fixing many bugs and removing many limitations,
 Boom added many new editing features.
 
 <p>
-EDGE 1.29 greatly improved in Boom-compatibility.
+EDGE 1.29 greatly improved compatibility with Boom
+features. Nearly everything works fine, and all made-for-Boom
+levels should be complete-able (otherwise you should report it
+as a bug). 
 
-@@@@
+<p>
+List of incompatibilities:
+<ul>
+
+<li>displacement and accelerative scrollers are not supported
+<li>physics for ICE and MUD effects are similar but not identical
+<li>music lumps in MIDI format are not supported yet
+<li>some effects of linetype [242], especially invisible
+floors, do not work yet
+<li>colormaps and translation-maps are software rendering techniques
+and often the effect cannot be emulated (or only poorly emulated)
+in an OpenGL port.
+<li>manual doors with a tag cause a lighting effect in Boom,
+but this cannot be done in EDGE without possibly breaking
+existing projects.
+
+</ul>
 
 <p>
 Link:
@@ -100,8 +119,8 @@ List of things not supported by EDGE 1.29:
 
 <p>
 Some ports, notably ZDoom, have also added their own features
-into DeHackEd patches.  For example: obituary messages.
-EDGE does not support any of these additions.
+into DeHackEd patches, for example: obituary messages.
+EDGE doesn't support any of these additions.
 
 <p>
 Link:
@@ -122,8 +141,8 @@ in particular the exact boundaries of subsectors, which was
 missing in the original DOOM nodes.
 
 <p>
-EDGE 1.29 supports V1,V2,V3 and V5 format GL Nodes, both inside
-the same WAD as the levels or externally as GWA files.
+EDGE 1.29 supports V1,V2,V3 and V5 format GL Nodes, both internally
+(in the same WAD as the levels) or externally as GWA files.
 
 <p>
 EDGE 1.29 lacks one feature to make it fully compliant with
