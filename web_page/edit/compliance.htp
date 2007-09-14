@@ -37,7 +37,7 @@ Reference: <a href="doom_specs.htm">Unofficial Doom Specs</a>
 
 
 
-<p><br>
+<!--- p  br --->
 <h3 class="sub_title">Boom</h3>
 
 Boom was a modification/improvement to the DOOM code
@@ -79,7 +79,7 @@ Reference: <a href="boom_ref.htm">Boom Reference</a>
 
 
 
-<p><br>
+<!--- p  br --->
 <h3 class="sub_title">DeHackEd &amp; BEX</h3>
 
 DeHackEd was a program written by Greg Lewis which
@@ -133,7 +133,8 @@ Reference:
 Eternity Engine DeHackEd/BEX Reference</a>
 
 
-<p><br>
+
+<!--- p  br --->
 <h3 class="sub_title">GL Nodes</h3>
 
 GL Nodes provide more information which OpenGL ports need,
@@ -156,7 +157,7 @@ GL Node Specifications</a>
 
 
 
-<p><br>
+<!--- p  br --->
 <h3 class="sub_title">Joint Texture Standard</h3>
 
 This specification resulted from a discussion of several port
@@ -178,7 +179,7 @@ Reference: <a href="JointTextureSpec.htm">Joint Texture Standard</a>
 
 
 
-<p><br>
+<!--- p  br --->
 <h3 class="sub_title">File Formats</h3>
 
 Here is a list of formats that EDGE supports (or are planned).
