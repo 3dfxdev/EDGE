@@ -40,7 +40,7 @@ Extrafloors (also called '3D Floors') are one of EDGE's
 coolest features, removing the limitation of DOOM mapping
 which doesn't allow rooms over rooms.
 
-<!--- More information BLAH --->
+<br> [more info needed]
 
 <p>
 <b>Links:</b>
@@ -66,22 +66,25 @@ as well as your own linedef and sector types, intermission
 screens, texture animations, and much much more!
 
 <p>
-foo
+[more info needed]
 
 <p>
 <!---
 Click on the "DDF Online" link in the navigation menu
 for more information.
 --->
-Note: Sorry but the DDF documentation is currently being
+Sorry but the DDF documentation is currently being
 reworked and is not available yet.
-Previous version can be found
+The "unofficial" version can be found
 <a href="http://firstgen.no-ip.info/ddf_online/index.htm">
 HERE</a>.
 
 
 <p>
-sentence about DeHackEd
+DeHackEd patches are a old method for modifying the
+behaviour of weapons and monsters, and for changing text
+strings.  Many DOOM ports support them, including EDGE.
+See the 'Standards' page for more details.
 
 
 <h3 class="sub_title">Scripting</h3>
