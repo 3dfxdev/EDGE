@@ -580,6 +580,9 @@ static void P_LineEffect(line_t *target, line_t *source,
 static void P_SectorEffect(sector_t *target, line_t *source,
 		const linetype_c *special)
 {
+	if (! target)
+		return;
+
 	float length  = R_PointToDist( 0, 0, source->dx, source->dy);
 	angle_t angle = R_PointToAngle(0, 0, source->dx, source->dy);
 
@@ -649,14 +652,20 @@ static void P_SectorEffect(sector_t *target, line_t *source,
 		target->ceil.scroll.x = target->ceil.scroll.y = 0;
 	}
 
-	// experimental: set texture scale
+	// set texture scale
 	if (special->sector_effect & SECTFX_ScaleFloor)
-		target->floor.x_mat.x = target->floor.y_mat.y = length;
+	{
+		target->floor.x_mat.x *= 64.0 / length;
+	    target->floor.y_mat.y *= 64.0 / length;
+	}
 
 	if (special->sector_effect & SECTFX_ScaleCeiling)
-		target->ceil.x_mat.x = target->ceil.y_mat.y = length;
+	{
+		target->ceil.x_mat.x *= 64.0 / length;
+		target->ceil.y_mat.y *= 64.0 / length;
+	}
 
-	// experimental: set texture alignment
+	// set texture alignment
 	if (special->sector_effect & SECTFX_AlignFloor)
 	{
 		target->floor.offset.x = -source->v1->x;
@@ -1027,12 +1036,24 @@ static bool P_ActivateSpecialLine(line_t * line,
 	}
 
 	// Tagged sector effects
-	if (line && special->sector_effect && tag > 0)
+	if (line && special->sector_effect)
 	{
-		for (tsec = P_FindSectorFromTag(tag); tsec; tsec = tsec->tag_next)
+		if (!tag)
 		{
-			P_SectorEffect(tsec, line, special);
+			if (special->special_flags & LINSP_BackSector)
+				P_SectorEffect(line->backsector, line, special);
+			else
+				P_SectorEffect(line->frontsector, line, special);
+
 			texSwitch = true;
+		}
+		else
+		{
+			for (tsec = P_FindSectorFromTag(tag); tsec; tsec = tsec->tag_next)
+			{
+				P_SectorEffect(tsec, line, special);
+				texSwitch = true;
+			}
 		}
 	}
 
