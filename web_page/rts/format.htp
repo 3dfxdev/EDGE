@@ -22,7 +22,7 @@ Some general points about RTS scripting:
     but before the rest of your script
 
 <li>You must place all your radius triggers between START_MAP
-    (or EXTEND_MAP) and END_MAP.
+    and END_MAP.
 
 <li>All other commands can only exist between RADIUS_TRIGGER
     (or RECT_TRIGGER) and END_RADIUS_TRIGGER.

@@ -36,7 +36,6 @@ on_death.htp ../out/rts_online/on_death.htm
 on_height.htp ../out/rts_online/on_height.htm
 tagged_use.htp ../out/rts_online/tagged_use.htm
 start_map.htp ../out/rts_online/start_map.htm
-extend_map.htp ../out/rts_online/extend_map.htm
 end_map.htp ../out/rts_online/end_map.htm
 ;
 ; Properties
