@@ -11,7 +11,7 @@
 <h3 class="sub_title">Deep Water</h3>
 
 <p>
-Colour tint: BLUE &nbsp;&nbsp;&nbsp; Damage: NONE<br>
+Colour Tint: BLUE &nbsp;&nbsp;&nbsp; Damage: NONE<br>
 Swimmable: YES &nbsp;&nbsp;&nbsp; Breathable: NO
 
 <p>
@@ -32,7 +32,7 @@ Swimmable: YES &nbsp;&nbsp;&nbsp; Breathable: NO
 <h3 class="sub_title">Deep Slime</h3>
 
 <p>
-Colour tint: GREEN &nbsp;&nbsp;&nbsp; Damage: 10%<br>
+Colour Tint: GREEN &nbsp;&nbsp;&nbsp; Damage: 10%<br>
 Swimmable: NO &nbsp;&nbsp;&nbsp; Breathable: NO
 
 <p>
@@ -54,7 +54,7 @@ Swimmable: NO &nbsp;&nbsp;&nbsp; Breathable: NO
 <h3 class="sub_title">Deep Lava</h3>
 
 <p>
-Colour tint: RED &nbsp;&nbsp;&nbsp; Damage: 10%<br>
+Colour Tint: RED &nbsp;&nbsp;&nbsp; Damage: 10%<br>
 Swimmable: NO &nbsp;&nbsp;&nbsp; Breathable: NO
 
 <p>
