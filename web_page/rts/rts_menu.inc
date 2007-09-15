@@ -12,11 +12,9 @@
     <li> <a href="start.htm">What is RTS</a>
     <li> <a href="format.htm">Script Format</a>
     <li> <a href="loading.htm">Loading Scripts</a>
-    <li> <span class="notdone" hhref="tutorial.htm">Tutorial</span>
 </ul>
 
-<!--- [li] &nbsp; --->
-
+<li> &nbsp;
 
 <li> <A HREF="directives.htm"> Directives </A>
 <if RTSreference="directives">
