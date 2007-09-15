@@ -31,7 +31,6 @@
 <if RTSreference="triggers">
   <UL>
     <li><A HREF="start_map.htm">START_MAP</A>
-    <li><A HREF="extend_map.htm">EXTEND_MAP</A>
     <li><A HREF="end_map.htm">END_MAP</A>
     <li><A HREF="radius_trigger.htm">RADIUS_TRIGGER</A>
     <li><A HREF="rect_trigger.htm">RECT_TRIGGER</A>
