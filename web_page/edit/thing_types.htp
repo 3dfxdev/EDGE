@@ -1,0 +1,68 @@
+<file include="../common/common.inc">
+
+<set title="EDGE: Editing: Thing types">
+
+<block name="content">
+
+<h2 class="page_title">EDGE 1.29 Thing Types</h2>
+
+<h3 class="sub_title">Pickup Items</h3>
+
+<PRE>
+[7000] : NIGHTVISION_SPECS
+[7020] : JETPACK
+</PRE>
+
+
+<h3 class="sub_title">Scenery</h3>
+
+<PRE>
+[7010] : BURNT_SPIKE_STUMP
+[7104] : UNSTABLE_BARREL
+</PRE>
+
+
+<h3 class="sub_title">Monsters</h3>
+
+<PRE>
+[888]  : DOG (MBF)
+[7100] : REVENANT_MKII
+[7102] : ARACHNOTRON_MKII
+[7103] : MANCUBUS_MKII
+
+[4050] : STEALTH_ARACHNOTRON
+[4051] : STEALTH_ARCHVILE
+[4052] : STEALTH_BARON_OF_HELL
+[4053] : STEALTH_CACODEMON
+[4054] : STEALTH_HEAVY_WEAPON_DUDE
+[4055] : STEALTH_DEMON
+[4056] : STEALTH_HELL_KNIGHT
+[4057] : STEALTH_IMP
+[4058] : STEALTH_MANCUBUS
+[4059] : STEALTH_REVENANT
+[4060] : STEALTH_SHOTGUN_GUY
+[4061] : STEALTH_ZOMBIEMAN
+</PRE>
+
+
+<h3 class="sub_title">Player Starts</h3>
+
+<PRE>
+[4001] : PLAYER5
+[4002] : PLAYER6
+[4003] : PLAYER7
+[4004] : PLAYER8
+[4005] : PLAYER9
+[4006] : PLAYER10
+[4007] : PLAYER11
+[4008] : PLAYER12
+[4009] : PLAYER13
+[4010] : PLAYER14
+[4011] : PLAYER15
+[4012] : PLAYER16
+</PRE>
+
+</block>
+
+<!--- template --->
+<file include="edit_page.tpl">
