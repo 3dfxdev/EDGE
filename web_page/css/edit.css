@@ -15,3 +15,6 @@ table.edit {
     border: 1px solid black;
   }
 
+li.edit {
+    margin: 10px;
+  }
