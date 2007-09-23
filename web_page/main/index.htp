@@ -21,6 +21,25 @@
   <h2 class="page_title"> Latest News </h2>
 
 
+  <use BeginNews title="Editing Guide Begun" date="23-Sep-2007">
+
+  The
+  <a href="edit_guide/overview.htm">
+  EDGE Editing Guide</a> is going to collect lots of useful
+  information about modding for EDGE into one convenient
+  corner of our website.
+  It will encompass both DDF Online and RTS Online,
+  contain various Tutorials, and heaps of other useful stuff.
+ 
+  <p>
+  Although it's a little bare right now, it still contains quite
+  a bit of handy information, including lists of EDGE's
+  Line/Sector/Thing types, and a page describing the
+  compliance of EDGE with various standards.
+
+  <use EndNews>
+
+
   <use BeginNews title="Hi-res Texture Pack" date="13-Sep-2007">
 
   The DHTP (Doom Hires Texture Pack) is now available for EDGE.
