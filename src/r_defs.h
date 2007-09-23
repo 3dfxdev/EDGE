@@ -126,6 +126,13 @@ region_properties_t;
 // Stores the texturing information about a single "surface", which is
 // either a wall part or a ceiling/floor.  Doesn't include position
 // info -- that is elsewhere.
+//
+// Texture coordinates are computed from World coordinates via:
+//   wx += offset.x
+//   wy += offset.y
+//
+//   tx = wx * x_mat.x + wy * x_mat.y
+//   ty = wx * y_mat.x + wy * y_mat.y
 // 
 typedef struct surface_s
 {
@@ -133,11 +140,11 @@ typedef struct surface_s
 
 	float translucency;
 
-	// transformation matrix (usually identity)
+	// texturing matrix (usually identity)
 	vec2_t x_mat;
 	vec2_t y_mat;
 
-	// current offset and scrolling deltas
+	// current offset and scrolling deltas (world coords)
 	vec2_t offset;
 	vec2_t scroll;
 
