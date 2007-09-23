@@ -363,7 +363,7 @@ static void AdjustScrollParts(side_t *side, bool left,
 }
 
 static void AdjustScaleParts(side_t *side, bool left,
-		scroll_part_e parts, float scale)
+		scroll_part_e parts, float factor)
 {
 	if (! side)
 		return;
@@ -372,13 +372,20 @@ static void AdjustScaleParts(side_t *side, bool left,
 		parts = (scroll_part_e)(SCPT_LEFT | SCPT_RIGHT);
 
 	if (parts & (left ? SCPT_LeftUpper : SCPT_RightUpper))
-		side->top.x_mat.x = side->top.y_mat.y = scale;
-
+	{
+		side->top.x_mat.x *= factor;
+		side->top.y_mat.y *= factor;
+	}
 	if (parts & (left ? SCPT_LeftMiddle : SCPT_RightMiddle))
-		side->middle.x_mat.x = side->middle.y_mat.y = scale;
-
+	{
+		side->middle.x_mat.x *= factor;
+		side->middle.y_mat.y *= factor;
+	}
 	if (parts & (left ? SCPT_LeftLower : SCPT_RightLower))
-		side->bottom.x_mat.x = side->bottom.y_mat.y = scale;
+	{
+		side->bottom.x_mat.x *= factor;
+		side->bottom.y_mat.y *= factor;
+	}
 }
 
 static void AdjustSkewParts(side_t *side, bool left,
@@ -477,6 +484,7 @@ static void P_LineEffect(line_t *target, line_t *source,
 		const linetype_c *special)
 {
 	float length = R_PointToDist(0, 0, source->dx, source->dy);
+   	float factor = 64.0 / length;
 
 	if ((special->line_effect & LINEFX_Translucency) && (target->flags & MLF_TwoSided))
 	{
@@ -543,8 +551,8 @@ static void P_LineEffect(line_t *target, line_t *source,
 	// experimental: scale wall texture(s) by line length
 	if (special->line_effect & LINEFX_Scale)
 	{
-		AdjustScaleParts(target->side[0], 0, special->line_parts, length/128);
-		AdjustScaleParts(target->side[1], 1, special->line_parts, length/128);
+		AdjustScaleParts(target->side[0], 0, special->line_parts, factor);
+		AdjustScaleParts(target->side[1], 1, special->line_parts, factor);
 	}
 
 	// experimental: skew wall texture(s) by sidedef Y offset
@@ -584,6 +592,7 @@ static void P_SectorEffect(sector_t *target, line_t *source,
 		return;
 
 	float length  = R_PointToDist( 0, 0, source->dx, source->dy);
+	float factor  = 64.0 / length;
 	angle_t angle = R_PointToAngle(0, 0, source->dx, source->dy);
 
 	if (special->sector_effect & SECTFX_LightFloor)
@@ -652,19 +661,6 @@ static void P_SectorEffect(sector_t *target, line_t *source,
 		target->ceil.scroll.x = target->ceil.scroll.y = 0;
 	}
 
-	// set texture scale
-	if (special->sector_effect & SECTFX_ScaleFloor)
-	{
-		target->floor.x_mat.x *= 64.0 / length;
-	    target->floor.y_mat.y *= 64.0 / length;
-	}
-
-	if (special->sector_effect & SECTFX_ScaleCeiling)
-	{
-		target->ceil.x_mat.x *= 64.0 / length;
-		target->ceil.y_mat.y *= 64.0 / length;
-	}
-
 	// set texture alignment
 	if (special->sector_effect & SECTFX_AlignFloor)
 	{
@@ -679,6 +675,24 @@ static void P_SectorEffect(sector_t *target, line_t *source,
 		target->ceil.offset.y = -source->v1->y;
 
 		M_Angle2Matrix(angle, &target->ceil.x_mat, &target->ceil.y_mat);
+	}
+
+	// set texture scale
+	if (special->sector_effect & SECTFX_ScaleFloor)
+	{
+		target->floor.x_mat.x *= factor;
+	    target->floor.y_mat.y *= factor;
+
+		target->floor.offset.x *= factor;
+		target->floor.offset.y *= factor;
+	}
+	if (special->sector_effect & SECTFX_ScaleCeiling)
+	{
+		target->ceil.x_mat.x *= factor;
+		target->ceil.y_mat.y *= factor;
+
+		target->ceil.offset.x *= factor;
+		target->ceil.offset.y *= factor;
 	}
 }
 
