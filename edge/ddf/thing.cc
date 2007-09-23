@@ -2186,8 +2186,10 @@ const mobjtype_c* mobjtype_container_c::Lookup(int id)
 		return NULL;
 
 	// do a sprite check (like for weapons)
+#if 0
 	if (! DDF_CheckSprites(m->first_state, m->last_state))
 		return NULL;
+#endif
 
 	// update the cache
 	lookup_cache[slot] = m;
