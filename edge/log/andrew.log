@@ -1,5 +1,18 @@
 Andrew Apted's Log
 
+2007/09/23:
+
+Applied some patches by Darren Salt: (1) improve the build
+system to detect a globally installed LZO library (2) fix
+the const-ness of some strings (for GCC 4.2).
+
+Disabled sprite check for things on the map.
+
+2007/09/14:
+
+Implemented standard linedef types for flat alignment and
+scaling, in the range [800] to [825].
+
 2007/09/04:
 
 RTS: for SPAWN_THING command, allow a "WHEN=" keyword which
