@@ -47,10 +47,10 @@ extremely compatible ports (like Chocolate-Doom).
 Reference: <a href="doom_specs.htm">Unofficial Doom Specs</a>
 
 
+<a name="Boom"> </a>
 
 <!--- p  br --->
-<h3 class="sub_title"><a name="Boom">
-Boom</a></h3>
+<h3 class="sub_title">Boom</h3>
 
 Boom was a modification/improvement to the DOOM code
 made by TeamTNT.
@@ -90,10 +90,10 @@ BOOM homepage</a>
 Reference: <a href="boom_ref.htm">Boom Reference</a>
 
 
+<a name="DeHackEd"> </a>
 
 <!--- p  br --->
-<h3 class="sub_title"><a name="DeHackEd">
-DeHackEd &amp; BEX</a></h3>
+<h3 class="sub_title">DeHackEd &amp; BEX</h3>
 
 DeHackEd was a program written by Greg Lewis which
 modified the DOOM executable, allowing changes to the
