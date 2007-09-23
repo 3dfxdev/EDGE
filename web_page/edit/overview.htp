@@ -10,9 +10,11 @@
 
 EDGE is a DOOM engine, and hence you create new levels for it
 by using normal DOOM editing tools.
-There are quite a few of them actually (see below for some
-links), but they fall into two main categories:
+There are quite a few of them actually,
+but they fall into two main categories:
 Level editors and Wad editors.
+
+<!---
 The first one is pretty obvious, but you may be wondering
 what a Wad editor does.
 Briefly, a "WAD" file contains a set of files
@@ -20,27 +22,7 @@ Briefly, a "WAD" file contains a set of files
 so you need a program that lets you insert and delete stuff,
 as well as converting graphics and sounds
 to the custom DOOM formats.
-
-<p>
-EDGE is also a Boom-Compatible port, hence you can use
-Boom features in your maps as well.
-We are not quite 100% compatible though,
-see the 'Standards' page (in the navigation menu)
-for more information and list of differences.
-
-<p>
-Using EDGE specific features in a map requires that you
-use an EDGE Linedef or Sector type.  This editing guide
-contains pages which list the available types
-for EDGE 1.29 (in summary form).
-There are a few new Thing types too [not yet listed].
-
-<p>
-Extrafloors (also called '3D Floors') are one of EDGE's
-coolest features, removing the limitation of DOOM mapping
-which doesn't allow rooms over rooms.
-
-<br> [more info needed]
+--->
 
 <p>
 <b>Links:</b>
@@ -57,25 +39,56 @@ Wad Editors:
   <a href="http://slumped.mancubus.net/index.php">SlumpEd</a> &nbsp;
   <a href="http://www.teaser.fr/~amajorel/deutex">Deutex</a> &nbsp;
 
+<p>
+EDGE is also a Boom-Compatible port, hence you can use
+Boom features in your maps as well.
+We are not quite 100% compatible though,
+see the 
+<a href="compliance.htm#Boom">'Compliance'</a>
+page for more information and the list of differences.
+
+<p>
+Using EDGE-specific features in a map requires that you
+use an EDGE
+<a href="line_types.htm">Line type</a> or
+<a href="sec_types.htm">Sector type</a>,
+plus there are a couple new
+<a href="thing_types.htm">Thing types</a>
+as well.
+This editing guide contains a handy list
+of all the available types
+for EDGE 1.29 (in summary form).
+
+<p>
+Extrafloors (also called '3D Floors') are one of EDGE's
+coolest features, removing the limitation of DOOM mapping
+which doesn't allow rooms over rooms.
+EDGE can also make Liquids, with translucent surfaces and
+color-tinted areas, with various properties (like damaging
+or swimmable).
+
+<$CMT
+Click on the 'Extrafloors' link in the menu for
+more information.
+-->
+
 
 <h3 class="sub_title">New Weapons and Monsters</h3>
 
 DDF stands for "Doom Definition Format", and is a core feature
-of EDGE.  It lets you define new monsters, weapons, scenery,
-as well as your own linedef and sector types, intermission
+of EDGE.  Using easy to understand text files,
+DDF lets you define new monsters, weapons, scenery,
+as well as create your own linedef and sector types, intermission
 screens, texture animations, and much much more!
 
 <p>
-[more info needed]
-
-<p>
-<!---
+<$CMT
 Click on the "DDF Online" link in the navigation menu
 for more information.
---->
-Sorry but the DDF documentation is currently being
+-->
+Currently the DDF documentation is being
 reworked and is not available yet.
-The "unofficial" version can be found
+An "unofficial" version can be found
 <a href="http://firstgen.no-ip.info/ddf_online/index.htm">
 HERE</a>.
 
@@ -83,15 +96,20 @@ HERE</a>.
 <p>
 DeHackEd patches are a old method for modifying the
 behaviour of weapons and monsters, and for changing text
-strings.  Many DOOM ports support them, including EDGE.
-See the 'Standards' page for more details.
+strings.
+People sometimes still use it because it is supported
+by most DOOM ports.
+EDGE has excellent support for DeHackEd patches.
+See the
+<a href="compliance.htm#Deh">'Compliance'</a>
+page for more details.
 
 
 <h3 class="sub_title">Scripting</h3>
 
 EDGE has a fairly basic scripting language called
 "Radius Trigger Scripting", or just "RTS" for short.
-It is based on the idea of executing some commands when
+The basic idea is to execute some commands whenever
 the player enters a certain area (radius) on the map.
 Other types of triggers are also available, such as
 executing the commands when all the monsters of a given
@@ -99,18 +117,20 @@ type are dead.
 
 <p>
 RTS lacks some useful things that more powerful scripting
-languages enjoy, such as variables and performing calculations.
+languages enjoy, such as variables and calculations.
 Nevertheless people have created some amazing things with it.
 
 <p>
-For more information on RTS, click on the "RTS Online" link
-in the navigation menu.
+For more information on RTS, click on the
+<a href="http://edge.sourceforge.net/rts_online/start.htm">'RTS Online'</a>
+link in the navigation menu.
 
 
-<h3 class="sub_title">Other</h3>
+<!---
+{h3 class="sub_title"}Graphics{/h3}
 
-Nothing here yet....
-
+EDGE 1.29 ...  PNG and JPEG ...  Skyboxes ...
+--->
 
 </block>
 
