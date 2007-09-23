@@ -512,7 +512,7 @@ void M_DisplayAir(void)
 //
 void M_ScreenShot(bool show_msg)
 {
-	char *extension;
+	const char *extension;
 
     if (png_scrshots) 
 		extension = "png";

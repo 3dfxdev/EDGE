@@ -44,8 +44,8 @@ static const commandlist_t musplaylistcmds[] =
 //
 static void DDF_MusicParseInfo(const char *info, void *storage)
 {
-	char *musstrtype[] = { "UNKNOWN", "CD", "MIDI", "MUS", "OGG", "MP3", NULL };
-	char *musinftype[] = { "UNKNOWN", "TRACK", "LUMP", "FILE", NULL };
+	static const char *const musstrtype[] = { "UNKNOWN", "CD", "MIDI", "MUS", "OGG", "MP3", NULL };
+	static const char *const musinftype[] = { "UNKNOWN", "TRACK", "LUMP", "FILE", NULL };
 	char charbuff[256];
 	int pos,i;
 

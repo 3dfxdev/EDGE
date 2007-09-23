@@ -1106,7 +1106,7 @@ const image_c *W_ImageLookup(const char *name, image_namespace_e type, int flags
 static const char *UserSkyFaceName(const char *base, int face)
 {
 	static char buffer[64];
-	static char *letters = "NESWTB";
+	static const char letters[] = "NESWTB";
 
 	sprintf(buffer, "%s_%c", base, letters[face]);
 	return buffer;

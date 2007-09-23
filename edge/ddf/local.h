@@ -105,11 +105,11 @@ commandlist_t;
 //
 typedef struct readinfo_s
 {
-	char *message;		// message displayed
-	char *filename;		// filename (when memfile == NULL)
-	char *lumpname;		// lumpnume (when memfile != NULL)
+	const char *message;	// message displayed
+	const char *filename;	// filename (when memfile == NULL)
+	const char *lumpname;	// lumpnume (when memfile != NULL)
 
-	char *tag;		// the file has to start with <tag>
+	const char *tag;	// the file has to start with <tag>
 
 	char *memfile;
 	unsigned int memsize;
@@ -181,7 +181,7 @@ readinfo_t;
 typedef struct
 {
 	// name of special
-	char *name;
+	const char *name;
 
 	// flag(s) or value of special
 	int flags;
@@ -214,7 +214,7 @@ checkflag_result_e;
 //
 typedef struct
 {
-	char *actionname;
+	const char *actionname;
 	void (*action) (struct mobj_s * mo);
 
 	// -AJA- 1999/08/09: This function handles the argument when brackets

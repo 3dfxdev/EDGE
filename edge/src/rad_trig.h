@@ -70,7 +70,7 @@ void RAD_Warning  (const char *err, ...) GCCATTR((format (printf,1,2)));
 void RAD_WarnError(const char *err, ...) GCCATTR((format (printf,1,2)));
 
 extern int rad_cur_linenum;
-extern char *rad_cur_filename;
+extern const char *rad_cur_filename;
 
 #endif  /* __RAD_TRIG__ */
 

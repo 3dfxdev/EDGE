@@ -280,7 +280,7 @@ void M_NetHostBegun(void)
 {
 }
 
-#define MODE_LIST_STR  "CNO"  // "CNOLF"
+static const char * MODE_LIST_STR = "CNO"; // "CNOLF"
 
 static bool HostChangeOption(int opt, int dir)
 {

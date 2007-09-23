@@ -900,7 +900,7 @@ void RAD_LoadFile(const char *name)
 
 	L_WriteDebug("RTS: Loading File %s\n", name);
 
-	rad_cur_filename = (char *) name;
+	rad_cur_filename = name;
 
 	RAD_MainCacheFile(name);
 
