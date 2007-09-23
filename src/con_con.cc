@@ -195,7 +195,7 @@ static int MaxTextLen_text(const char *s)
 }
 
 // Adds a line of text to either cmdhistory or linebuffer
-static void AddLine(consoleline_t ** line, int *pos, int *size, char *s)
+static void AddLine(consoleline_t ** line, int *pos, int *size, const char *s)
 {
 	consoleline_t *l;
 
@@ -258,7 +258,7 @@ static void UpdateNumvislines(void)
 	numvislines = curlinesize + vislastline_n + viscmdline_n;
 }
 
-static void AddConsoleLine(char *s)
+static void AddConsoleLine(const char *s)
 {
 	if (no_con_history)
 		return;
@@ -537,7 +537,7 @@ void CON_Ticker(void)
 }
 
 // writes the text on coords (x,y) of the console
-static void WriteText(int x, int y, char *s, int len, int text_type)
+static void WriteText(int x, int y, const char *s, int len, int text_type)
 {
 	char buffer[1024];
 

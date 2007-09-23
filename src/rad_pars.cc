@@ -59,7 +59,7 @@ typedef struct rts_parser_s
 	int level;
 
 	// name
-	char *name;
+	const char *name;
 
 	// number of parameters
 	int min_pars, max_pars;
@@ -71,7 +71,7 @@ rts_parser_t;
 
 
 int rad_cur_linenum;
-char *rad_cur_filename;
+const char *rad_cur_filename;
 epi::strent_c rad_cur_linedata;
 
 static char tokenbuf[4096];
@@ -2189,7 +2189,7 @@ static void RAD_ParseJumpOn(int pnum, const char **pars)
 
 //  PARSER TABLE
 
-static rts_parser_t radtrig_parsers[] =
+static const rts_parser_t radtrig_parsers[] =
 {
 	// directives...
 	{-1, "#DEFINE",  3,3, RAD_ParseDefine},
@@ -2282,7 +2282,7 @@ void RAD_ParseLine(char *s)
 {
 	int pnum;
 	char *pars[16];
-	rts_parser_t *cur;
+	const rts_parser_t *cur;
 
 	rad_cur_linedata.Set(s);
 

@@ -897,7 +897,7 @@ static void LoadV5Nodes(const void *data, int length)
 //
 // LoadNodes
 //
-static void LoadNodes(int lump, char *name)
+static void LoadNodes(int lump, const char *name)
 {
 	int i, j;
 	const raw_node_t *mn;

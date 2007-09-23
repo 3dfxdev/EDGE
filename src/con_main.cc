@@ -35,7 +35,7 @@
 
 typedef struct
 {
-	char *name;
+	const char *name;
 	int flags;
 	int (*cmd) (const char *arg);
 }
@@ -59,7 +59,7 @@ int CMD_PlaySound(const char *args);
 //   'external' commands.  On a real operating system,
 //   these 'external' commands could be loaded in using
 //   dynamic linking, on DOS they must be linked statically.
-con_cmd_t consolecommands[] =
+static const con_cmd_t consolecommands[] =
 {
 	{"args", 0, CMD_ArgText},
 	{"crc", 0, CMD_Crc},
@@ -136,8 +136,7 @@ static void KillArgs(int argc, char *(argv[]))
 void CON_TryCommand(const char *cmd)
 {
 	int i, j, e;
-	char *s;
-	const char *c;
+	const char *s, *c;
 
 	while (isspace(*cmd))
 		cmd++;
