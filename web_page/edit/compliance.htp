@@ -115,8 +115,8 @@ onto the EXE.  The "DEHACKED" wad lump is also supported.
 
 <p>
 Some really old DeHackEd patches are not in a text format,
-instead they are a binary format.  EDGE 1.29 is possibly
-the only port which can load these old binary patches.
+instead they are a binary format.  EDGE 1.29 can actually
+load these old binary patches! (most other ports cannot).
 
 <p>
 List of things not supported by EDGE 1.29:
