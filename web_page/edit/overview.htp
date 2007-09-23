@@ -75,8 +75,9 @@ more information.
 
 <h3 class="sub_title">New Weapons and Monsters</h3>
 
-<b>DDF</b> stands for "Doom Definition Format", and is a core feature
-of EDGE.  Using easy to understand text files,
+<xxb>DDF</xxb> stands for "<b>Doom Definition Format</b>",
+and is a core feature of EDGE.
+Using easy to understand text files,
 DDF lets you define new monsters, weapons, scenery,
 as well as create your own linedef and sector types, intermission
 screens, texture animations, and much much more!
@@ -88,7 +89,7 @@ for more information.
 -->
 Currently the DDF documentation is being
 reworked and is not available yet.
-An "unofficial" version can be found
+The "unofficial" version can be found
 <a href="http://firstgen.no-ip.info/ddf_online/index.htm">
 HERE</a>.
 
@@ -123,7 +124,7 @@ Nevertheless people have created some amazing things with it.
 <p>
 For more information on RTS, click on the
 <a href="http://edge.sourceforge.net/rts_online/start.htm">'RTS Online'</a>
-link in the navigation menu.
+link in the menu.
 
 
 <!---
