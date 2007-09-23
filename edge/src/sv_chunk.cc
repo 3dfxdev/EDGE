@@ -428,7 +428,7 @@ bool SV_PushReadChunk(const char *id)
 		unsigned int i;
 
 		unsigned int orig_len;
-		unsigned int decomp_len;
+		lzo_uint decomp_len;
 
 		// read uncompressed size
 		orig_len = SV_GetInt();

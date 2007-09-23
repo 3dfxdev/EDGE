@@ -67,7 +67,7 @@ if 1:
         have_glbsp_h = 1
         env.Append(CCFLAGS = ['-DHAVE_GLBSP_H'])
 
-    if 0 and conf.CheckCXXHeader('lzo/lzo1x.h'):
+    if conf.CheckCXXHeader('lzo/lzo1x.h'):
         have_lzo_h = 2
         env.Append(CCFLAGS = ['-DHAVE_LZO_LZO1X_H'])
     elif conf.CheckCXXHeader('lzo1x.h'):
