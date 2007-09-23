@@ -1,6 +1,6 @@
 <file include="../common/common.inc">
 
-<set title="EDGE Home">
+<set title="EDGE: Home">
 
 <block name="content">
 
