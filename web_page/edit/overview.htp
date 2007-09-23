@@ -8,7 +8,7 @@
 
 <h3 class="sub_title">Mapping</h3>
 
-EDGE is a DOOM engine, and hence you create new levels for it
+EDGE is a <b>DOOM</b> engine, and hence you create new levels for it
 by using normal DOOM editing tools.
 There are quite a few of them actually,
 but they fall into two main categories:
@@ -25,7 +25,7 @@ to the custom DOOM formats.
 --->
 
 <p>
-<b>Links:</b>
+<xxb>Links:</xxb>
 
 <br>
 Level Editors:
@@ -40,7 +40,7 @@ Wad Editors:
   <a href="http://www.teaser.fr/~amajorel/deutex">Deutex</a> &nbsp;
 
 <p>
-EDGE is also a Boom-Compatible port, hence you can use
+EDGE is also a <b>Boom</b>-Compatible port, hence you can use
 Boom features in your maps as well.
 We are not quite 100% compatible though,
 see the 
@@ -60,7 +60,7 @@ of all the available types
 for EDGE 1.29 (in summary form).
 
 <p>
-Extrafloors (also called '3D Floors') are one of EDGE's
+<b>Extrafloors</b> (also called '3D Floors') are one of EDGE's
 coolest features, removing the limitation of DOOM mapping
 which doesn't allow rooms over rooms.
 EDGE can also make Liquids, with translucent surfaces and
@@ -75,7 +75,7 @@ more information.
 
 <h3 class="sub_title">New Weapons and Monsters</h3>
 
-DDF stands for "Doom Definition Format", and is a core feature
+<b>DDF</b> stands for "Doom Definition Format", and is a core feature
 of EDGE.  Using easy to understand text files,
 DDF lets you define new monsters, weapons, scenery,
 as well as create your own linedef and sector types, intermission
@@ -94,21 +94,21 @@ HERE</a>.
 
 
 <p>
-DeHackEd patches are a old method for modifying the
+<b>DeHackEd</b> patches are a old method for modifying the
 behaviour of weapons and monsters, and for changing text
 strings.
 People sometimes still use it because it is supported
 by most DOOM ports.
 EDGE has excellent support for DeHackEd patches.
 See the
-<a href="compliance.htm#Deh">'Compliance'</a>
+<a href="compliance.htm#DeHackEd">'Compliance'</a>
 page for more details.
 
 
 <h3 class="sub_title">Scripting</h3>
 
-EDGE has a fairly basic scripting language called
-"Radius Trigger Scripting", or just "RTS" for short.
+EDGE has a basic scripting language called
+"<b>Radius Trigger Scripting</b>", or just "RTS" for short.
 The basic idea is to execute some commands whenever
 the player enters a certain area (radius) on the map.
 Other types of triggers are also available, such as
