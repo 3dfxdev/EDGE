@@ -17,25 +17,28 @@ sector-types, intermission and finale screens.
 However some differences should be noted:
 <ul>
 
-<li>
-EDGE used OpenGL for rendering, and hence requires
+<li class="edit">
+EDGE uses OpenGL for rendering, and hence requires
 a hardware-accelerated 3D card.
-Also some things don't look exactly the same,
-for example:
+Plus some things don't look exactly the same as
+the original, for example:
 Some sprites are designed to look sunk into the floor, typically
-corpses, and can look like they are "floating" in EDGE.
+corpses, and can seem to "float" in EDGE.
+Plus some non-standard mapping hacks (like invisible floors)
+don't always work properly.
 
-<li>
+<li class="edit">
 The type of networking that DOOM used back in 1994
 is obsolete today, and EDGE doesn't have a suitable
-replacement, so multiplayer games are not possible yet.
-We plan to add support for LAN-based games in the next release.
+replacement, hence multiplayer games are not possible yet.
+We plan to support LAN-based multiplayer in the next release.
 
-<li>
+<li class="edit">
 EDGE cannot play Demos ("LMP" files) recorded for DOOM,
 including the ones in the IWADs.
 This is because the LMP format does not store enough
-information, and can only be played back in DOOM or 
+information, so they can only be played back in the
+original DOOM or 
 extremely compatible ports (like Chocolate-Doom).
 
 </ul>
@@ -46,7 +49,8 @@ Reference: <a href="doom_specs.htm">Unofficial Doom Specs</a>
 
 
 <!--- p  br --->
-<h3 class="sub_title">Boom</h3>
+<h3 class="sub_title"><a name="Boom">
+Boom</a></h3>
 
 Boom was a modification/improvement to the DOOM code
 made by TeamTNT.
@@ -56,14 +60,14 @@ Boom added many new editing features.
 <p>
 EDGE 1.29 greatly improved compatibility with Boom
 features. Nearly everything works fine, and all made-for-Boom
-levels should be complete-able (otherwise you should report it
-as a bug). 
+levels should be completable (otherwise you should report
+the bug to us).
 
 <p>
 List of known incompatibilities:
 <ul>
 
-<li>displacement and accelerative scrollers are not supported
+<li>displacement and accelerative scrollers don't work
 <li>physics for ICE and MUD effects are similar but not identical
 <li>music lumps in MIDI format are not supported yet
 <li>some effects of linetype [242], especially invisible
@@ -88,7 +92,8 @@ Reference: <a href="boom_ref.htm">Boom Reference</a>
 
 
 <!--- p  br --->
-<h3 class="sub_title">DeHackEd &amp; BEX</h3>
+<h3 class="sub_title"><a name="DeHackEd">
+DeHackEd &amp; BEX</a></h3>
 
 DeHackEd was a program written by Greg Lewis which
 modified the DOOM executable, allowing changes to the
