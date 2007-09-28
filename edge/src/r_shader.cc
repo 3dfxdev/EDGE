@@ -123,7 +123,6 @@ static light_image_c *GetLightImage(const mobjtype_c *info)
 		light_image_c *lim = new light_image_c(shape);
 
 		// FIXME !!!! we need the EPI::BASIC_IMAGE in order to compute the curve
-
 		lim->MakeStdCurve();
 
 		lim->image = W_ImageLookup(shape, INS_Graphic, ILF_Null);
@@ -256,6 +255,7 @@ extern abstract_shader_c *MakeColormapShader(void)
 }
 
 
+
 //----------------------------------------------------------------------------
 //  DYNAMIC LIGHTS
 //----------------------------------------------------------------------------
@@ -265,16 +265,12 @@ class dynlight_shader_c : public abstract_shader_c
 private:
 	mobj_t *mo;
 
-	GLuint DL_tex;
+	light_image_c *lim;
 
 public:
 	dynlight_shader_c(mobj_t *object) : mo(object)
 	{
-#if 0 // FIXME !!!!
-		SYS_ASSERT(mo->dlight.image);
-
-		DL_tex = W_ImageCache(mo->dlight.image);
-#endif
+		lim = GetLightImage(mo->info);
 	}
 
 	virtual ~dynlight_shader_c()
@@ -300,26 +296,24 @@ private:
 public:
 	virtual void Sample(multi_color_c *col, float x, float y, float z)
 	{
-		// FIXME: assumes standard DLIGHT image
-
 		float dx = x - mo->x;
 		float dy = y - mo->y;
 		float dz = z - mo->z;
 
-		float d_squared = dx*dx + dy*dy + dz*dz;
+		float dist = sqrt(dx*dx + dy*dy + dz*dz);
 
-		d_squared /= (mo->dlight.r * mo->dlight.r);
+		dist /= mo->dlight.r;
 
-		float L = exp(-5.44 * d_squared);
+		rgbcol_t new_col = lim->CurvePoint(dist, mo->dlight.color);
 
-		L = L * mo->state->bright / 255.0;
+		float L = mo->state->bright / 255.0;
 
-		if (L > 1/256.0)
+		if (new_col != RGB_MAKE(0,0,0) && L > 1/256.0)
 		{
 			if (mo->info->dlight0.type == DLITE_Add)
-				col->add_Give(mo->dlight.color, L); 
+				col->add_Give(new_col, L); 
 			else
-				col->mod_Give(mo->dlight.color, L); 
+				col->mod_Give(new_col, L); 
 		}
 	}
 
@@ -335,7 +329,7 @@ public:
 
 		local_gl_vert_t *glvert = RGL_BeginUnit(shape, num_vert,
 				    ENV_NONE,0, //!!!! GL_MODULATE, tex,
-					GL_MODULATE, DL_tex, pass, blending);
+					GL_MODULATE, lim->tex_id, pass, blending);
 
 		for (int v_idx=0; v_idx < num_vert; v_idx++)
 		{
@@ -364,6 +358,7 @@ abstract_shader_c *MakeDLightShader(mobj_t *mo)
 {
 	return new dynlight_shader_c(mo);
 }
+
 
 
 //----------------------------------------------------------------------------
@@ -486,7 +481,7 @@ public:
 		normal.z = e.z - s.z;
 
 		length = sqrt(normal.x * normal.x + normal.y * normal.y +
-				           normal.z * normal.z);
+				      normal.z * normal.z);
 
 		if (length < 0.1)
 			length = 0.1;
