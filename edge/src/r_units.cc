@@ -842,9 +842,9 @@ static inline void Pipeline_DLights(int& group,
 	
 		//!!!!! FIXME: if (dist_to_light > DL->info->radius) continue;
 
-		SYS_ASSERT(mo->dlight[0].shader);
+		SYS_ASSERT(mo->dlight.shader);
 
-		mo->dlight[0].shader->WorldMix(shape, num_vert, tex,
+		mo->dlight.shader->WorldMix(shape, num_vert, tex,
 				alpha, group, blending, func_data,
 				(shader_coord_func_t) func);
 		group++;
