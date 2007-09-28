@@ -787,40 +787,6 @@ void R_LightPipe_SetList(const struct drawthing_s *list)
 	dlight_list = list;
 }
 
-static inline void TexCoord_DLight(const mobj_t *mo,
-		const vec3_t *lit_pos, const vec3_t *normal,
-		GLfloat *rgb, vec2_t *texc)
-{
-	float dx = lit_pos->x - mo->x;
-	float dy = lit_pos->y - mo->y;
-	float dz = lit_pos->z - mo->z;
-
-	float d_len = sqrt(dx*dx + dy*dy + dz*dz);
-
-///---	dx /= d_len; dy /= d_len; dz /= d_len;
-
-	texc->x = 0.5 + dx / 400.0;
-	texc->y = 0.5 + dy / 400.0;
-
-#if 0
-	float nx = normal->x;
-	float ny = normal->y;
-	float nz = normal->z;
-
-	float n_len = sqrt(dx*dx + dy*dy + dz*dz);
-
-	nx /= n_len; ny /= n_len; nz /= n_len;
-
-	// cross product
-	float cx = dy * nz - ny * dz;
-	float cy = dz * nx - nz * dx;
-	float cz = dx * ny - nx * dy;
-
-	texc->x = 0.5 + cx / 2.0;
-	texc->y = 0.5 + cy / 2.0;
-#endif
-}
-
 static inline void Pipeline_DLights(int& group,
 	GLuint shape, int num_vert,
 	GLuint tex, float alpha, int blending, int flags,
