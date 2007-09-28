@@ -1045,8 +1045,8 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 
 	if (num_active_mirrors % 2)
 	{
-		float tx = x1; x1 = x2; x2 = tx;
-		float ty = y1; y1 = y2; y2 = ty;
+		float tmp_x = x1; x1 = x2; x2 = tmp_x;
+		float tmp_y = y1; y1 = y2; y2 = tmp_y;
 	}
 
 	float xy_ofs = cur_seg->offset;
@@ -1195,25 +1195,25 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 		}
 	}
 
+	tex_x1 += x_offset;
+	tex_x2 += x_offset;
+
 	float total_w = IM_TOTAL_WIDTH( surf->image);
 	float total_h = IM_TOTAL_HEIGHT(surf->image);
 
-	total_w *= surf->x_mat.x;
-	total_h *= surf->y_mat.y;
-
 	/* convert tex_x1 and tex_x2 from world coords to texture coords */
-	tex_x1 = (tex_x1 + x_offset) / total_w;
-	tex_x2 = (tex_x2 + x_offset) / total_w;
+	tex_x1 = (tex_x1 * surf->x_mat.x) / total_w;
+	tex_x2 = (tex_x2 * surf->x_mat.x) / total_w;
 
 //??	if (num_active_mirrors % 2)
 //??	{
-//??		float t = tex_x1; tex_x1 = tex_x2; tex_x2 = t;
+//??		float T = tex_x1; tex_x1 = tex_x2; tex_x2 = T;
 //??	}
 
 	float tx0    = tex_x1;
 	float tx_mul = tex_x2 - tex_x1;
 
-	float ty_mul = 1.0f / total_h;
+	float ty_mul = surf->y_mat.y / total_h;
 	float ty0    = IM_TOP(surf->image) - tex_top_h * ty_mul;
 
 #if (DEBUG >= 3) 
