@@ -111,14 +111,21 @@ public:
 	}
 };
 
-static light_image_c *GetLightImage(const mobjtype_c *info)
+static light_image_c *GetLightImage(const mobjtype_c *info, int DL)
 {
-	// Intentional Const Override
-	mobjtype_c *info_raw = (mobjtype_c *) info;
+	dlight_info_c *D_info;
+	
+	// Intentional Const Overrides
+	if (DL == 0)
+		D_info = (dlight_info_c *) &info->dlight0;
+	else
+		D_info = (dlight_info_c *) &info->dlight1;
 
-	if (! info_raw->dlight0.cache_data)
+	if (! D_info->cache_data)
 	{
-		const char *shape = info_raw->dlight0.shape.GetString();
+		// FIXME !!!! share light_image_c instances
+
+		const char *shape = D_info->shape.GetString();
 
 		light_image_c *lim = new light_image_c(shape);
 
@@ -129,10 +136,10 @@ static light_image_c *GetLightImage(const mobjtype_c *info)
 
 		lim->tex_id = W_ImageCache(lim->image);
 
-		info_raw->dlight0.cache_data = lim;
+		D_info->cache_data = lim;
 	}
 
-	return (light_image_c *) info_raw->dlight0.cache_data;
+	return (light_image_c *) D_info->cache_data;
 }
 
 
@@ -265,27 +272,27 @@ class dynlight_shader_c : public abstract_shader_c
 private:
 	mobj_t *mo;
 
-	light_image_c *lim;
+	light_image_c *lim[2];
 
 public:
 	dynlight_shader_c(mobj_t *object) : mo(object)
 	{
-		lim = GetLightImage(mo->info);
+		for (int DL=0; DL < 2; DL++)
+		lim[0] = GetLightImage(mo->info, 0);
+		lim[1] = GetLightImage(mo->info, 1);
 	}
 
 	virtual ~dynlight_shader_c()
 	{ /* nothing to do */ }
 
 private:
-	inline float TexCoord(const mobj_t *mo,
+	inline float TexCoord(const mobj_t *mo, float r,
 		const vec3_t *lit_pos, const vec3_t *normal,
 		GLfloat *rgb, vec2_t *texc)
 	{
 		float dx = lit_pos->x - mo->x;
 		float dy = lit_pos->y - mo->y;
 		float dz = lit_pos->z - mo->z;
-
-		// float d_len = sqrt(dx*dx + dy*dy + dz*dz);
 
 		float nx = normal->x;
 		float ny = normal->y;
@@ -294,35 +301,47 @@ private:
 		if (fabs(nz) > 50*(fabs(nx)+fabs(ny)))
 		{
 			/* horizontal plane */
-			texc->x = (1 + dx / mo->dlight.r) / 2.0;
-			texc->y = (1 + dy / mo->dlight.r) / 2.0;
+			texc->x = (1 + dx / r) / 2.0;
+			texc->y = (1 + dy / r) / 2.0;
 
-			dz /= mo->dlight.r;
-
-			return fabs(dz);
+			return fabs(dz) / r;
 		}
 		else
 		{
-#if 1
-		float n_len  = sqrt(nx*nx + ny*ny + nz*nz);
+			float n_len = sqrt(nx*nx + ny*ny + nz*nz);
 
-		nx /= n_len;
-		ny /= n_len;
-		nz /= n_len;
+			nx /= n_len;
+			ny /= n_len;
+			nz /= n_len;
 
-		float n_len2 = sqrt(nx*nx + ny*ny);
-#endif
-			texc->y = (1 + dz / mo->dlight.r / n_len2) / 2.0;
-#if 0
-			nx /= n_len2;
-			ny /= n_len2;
-#endif
-			texc->x = (1 + (nx*dy - ny*dx) / mo->dlight.r) / 2.0;
+			float dxy = nx * dy - ny * dx;
 
-			float dist = fabs(nx*dx + ny*dy) / mo->dlight.r;
+			r /= sqrt(nx*nx + ny*ny);  // correct ??
 
-			return dist;
+			texc->y = (1 + dz  / r) / 2.0;
+			texc->x = (1 + dxy / r) / 2.0;
+
+			return fabs(nx*dx + ny*dy + nz*dz) / r;
 		}
+	}
+
+	inline float WhatRadius(int DL)
+	{
+		if (DL == 0)
+			return mo->dlight.r;
+
+		return mo->info->dlight1.radius * mo->dlight.r /
+			   mo->info->dlight0.radius;
+	}
+
+	inline rgbcol_t WhatColor(int DL)
+	{
+		return (DL == 0) ? mo->dlight.color : mo->info->dlight1.colour;
+	}
+
+	inline dlight_type_e WhatType(int DL)
+	{
+		return (DL == 0) ? mo->info->dlight0.type : mo->info->dlight1.type;
 	}
 
 public:
@@ -334,18 +353,23 @@ public:
 
 		float dist = sqrt(dx*dx + dy*dy + dz*dz);
 
-		dist /= mo->dlight.r;
-
-		rgbcol_t new_col = lim->CurvePoint(dist, mo->dlight.color);
-
-		float L = mo->state->bright / 255.0;
-
-		if (new_col != RGB_MAKE(0,0,0) && L > 1/256.0)
+		for (int DL = 0; DL < 2; DL++)
 		{
-			if (mo->info->dlight0.type == DLITE_Add)
-				col->add_Give(new_col, L); 
-			else
-				col->mod_Give(new_col, L); 
+			if (WhatType(DL) == DLITE_None)
+				continue;
+
+			rgbcol_t new_col = lim[DL]->CurvePoint(dist / WhatRadius(DL),
+					WhatColor(DL));
+
+			float L = mo->state->bright / 255.0;
+
+			if (new_col != RGB_MAKE(0,0,0) && L > 1/256.0)
+			{
+				if (WhatType(DL) == DLITE_Add)
+					col->add_Give(new_col, L); 
+				else
+					col->mod_Give(new_col, L); 
+			}
 		}
 	}
 
@@ -355,38 +379,47 @@ public:
 	{
 		//!!!!! FIXME: if (dist_to_light > DL->info->radius) continue;
 
-		float R = RGB_RED(mo->dlight.color) / 255.0;
-		float G = RGB_GRN(mo->dlight.color) / 255.0;
-		float B = RGB_BLU(mo->dlight.color) / 255.0;
-
-		bool is_additive = true; //!!!! (mo->info->dlight0.type == DLITE_Add);
-
-		local_gl_vert_t *glvert = RGL_BeginUnit(shape, num_vert,
-					is_additive ? ENV_NONE : GL_MODULATE,
-					is_additive ? 0 : tex,
-					GL_MODULATE, lim->tex_id, pass, blending);
-
-		for (int v_idx=0; v_idx < num_vert; v_idx++)
+		for (int DL = 0; DL < 2; DL++)
 		{
-			local_gl_vert_t *dest = glvert + v_idx;
+			if (WhatType(DL) == DLITE_None)
+				continue;
 
-			vec3_t lit_pos;
+			bool is_additive = (WhatType(DL) == DLITE_Add);
 
-			(*func)(data, v_idx, &dest->pos, dest->rgba,
-					&dest->texc[0], &dest->normal, &lit_pos);
+			rgbcol_t col = WhatColor(DL);
 
-			float dist = TexCoord(mo, &lit_pos, &dest->normal,
-					 dest->rgba, &dest->texc[1]);
+			float R = RGB_RED(col) / 255.0;
+			float G = RGB_GRN(col) / 255.0;
+			float B = RGB_BLU(col) / 255.0;
 
-			float ity = exp(-5.44 * dist * dist);
+			local_gl_vert_t *glvert = RGL_BeginUnit(shape, num_vert,
+						is_additive ? ENV_NONE : GL_MODULATE,
+						is_additive ? 0 : tex,
+						GL_MODULATE, lim[DL]->tex_id, pass, blending);
 
-			dest->rgba[0] = R * ity;
-			dest->rgba[1] = G * ity;
-			dest->rgba[2] = B * ity;
-			dest->rgba[3] = alpha;
+			for (int v_idx=0; v_idx < num_vert; v_idx++)
+			{
+				local_gl_vert_t *dest = glvert + v_idx;
+
+				vec3_t lit_pos;
+
+				(*func)(data, v_idx, &dest->pos, dest->rgba,
+						&dest->texc[0], &dest->normal, &lit_pos);
+
+				float dist = TexCoord(mo, WhatRadius(DL),
+						 &lit_pos, &dest->normal,
+						 dest->rgba, &dest->texc[1]);
+
+				float ity = exp(-5.44 * dist * dist);
+
+				dest->rgba[0] = R * ity;
+				dest->rgba[1] = G * ity;
+				dest->rgba[2] = B * ity;
+				dest->rgba[3] = alpha;
+			}
+
+			RGL_EndUnit(num_vert);
 		}
-
-		RGL_EndUnit(num_vert);
 	}
 
 };
