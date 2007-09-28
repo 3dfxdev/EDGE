@@ -277,7 +277,7 @@ public:
 	{ /* nothing to do */ }
 
 private:
-	inline void TexCoord(const mobj_t *mo,
+	inline float TexCoord(const mobj_t *mo,
 		const vec3_t *lit_pos, const vec3_t *normal,
 		GLfloat *rgb, vec2_t *texc)
 	{
@@ -285,12 +285,44 @@ private:
 		float dy = lit_pos->y - mo->y;
 		float dz = lit_pos->z - mo->z;
 
-		float d_len = sqrt(dx*dx + dy*dy + dz*dz);
+		// float d_len = sqrt(dx*dx + dy*dy + dz*dz);
 
-		// !!!!! FIXME
+		float nx = normal->x;
+		float ny = normal->y;
+		float nz = normal->z;
 
-		texc->x = 0.5 + dx / 400.0;
-		texc->y = 0.5 + dy / 400.0;
+		if (fabs(nz) > 50*(fabs(nx)+fabs(ny)))
+		{
+			/* horizontal plane */
+			texc->x = (1 + dx / mo->dlight.r) / 2.0;
+			texc->y = (1 + dy / mo->dlight.r) / 2.0;
+
+			dz /= mo->dlight.r;
+
+			return fabs(dz);
+		}
+		else
+		{
+#if 1
+		float n_len  = sqrt(nx*nx + ny*ny + nz*nz);
+
+		nx /= n_len;
+		ny /= n_len;
+		nz /= n_len;
+
+		float n_len2 = sqrt(nx*nx + ny*ny);
+#endif
+			texc->y = (1 + dz / mo->dlight.r / n_len2) / 2.0;
+#if 0
+			nx /= n_len2;
+			ny /= n_len2;
+#endif
+			texc->x = (1 + (nx*dy - ny*dx) / mo->dlight.r) / 2.0;
+
+			float dist = fabs(nx*dx + ny*dy) / mo->dlight.r;
+
+			return dist;
+		}
 	}
 
 public:
@@ -327,8 +359,11 @@ public:
 		float G = RGB_GRN(mo->dlight.color) / 255.0;
 		float B = RGB_BLU(mo->dlight.color) / 255.0;
 
+		bool is_additive = true; //!!!! (mo->info->dlight0.type == DLITE_Add);
+
 		local_gl_vert_t *glvert = RGL_BeginUnit(shape, num_vert,
-				    ENV_NONE,0, //!!!! GL_MODULATE, tex,
+					is_additive ? ENV_NONE : GL_MODULATE,
+					is_additive ? 0 : tex,
 					GL_MODULATE, lim->tex_id, pass, blending);
 
 		for (int v_idx=0; v_idx < num_vert; v_idx++)
@@ -340,13 +375,15 @@ public:
 			(*func)(data, v_idx, &dest->pos, dest->rgba,
 					&dest->texc[0], &dest->normal, &lit_pos);
 
-			dest->rgba[0] = R;
-			dest->rgba[1] = G;
-			dest->rgba[2] = B;
-			dest->rgba[3] = alpha;
-
-			TexCoord(mo, &lit_pos, &dest->normal,
+			float dist = TexCoord(mo, &lit_pos, &dest->normal,
 					 dest->rgba, &dest->texc[1]);
+
+			float ity = exp(-5.44 * dist * dist);
+
+			dest->rgba[0] = R * ity;
+			dest->rgba[1] = G * ity;
+			dest->rgba[2] = B * ity;
+			dest->rgba[3] = alpha;
 		}
 
 		RGL_EndUnit(num_vert);
