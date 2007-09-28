@@ -2227,6 +2227,8 @@ void dlight_info_c::Copy(dlight_info_c &src)
 	radius = src.radius;
 	colour = src.colour;
 	height = src.height;
+
+	cache_data = NULL;
 }
 
 void dlight_info_c::Default()
@@ -2237,12 +2239,15 @@ void dlight_info_c::Default()
 	height = PERCENT_MAKE(50);
 
 	shape.Set("DLIGHTNORMAL");
+
+	cache_data = NULL;
 }
 
-dlight_info_c& dlight_info_c::operator=(dlight_info_c &rhs)
+dlight_info_c& dlight_info_c::operator= (dlight_info_c &rhs)
 {
-	if (&rhs != this)
-		Copy(rhs);
+	CHECK_SELF_ASSIGN(rhs);
+
+	Copy(rhs);
 
 	return *this;
 }
@@ -2286,8 +2291,9 @@ void weakness_info_c::Default()
 
 weakness_info_c& weakness_info_c::operator=(weakness_info_c &rhs)
 {
-	if (&rhs != this)
-		Copy(rhs);
+	CHECK_SELF_ASSIGN(rhs);
+
+	Copy(rhs);
 
 	return *this;
 }

@@ -686,6 +686,8 @@ public:
 	float radius;
 	rgbcol_t colour;
 	percent_t height;
+
+	void *cache_data;
 };
 
 class weakness_info_c
