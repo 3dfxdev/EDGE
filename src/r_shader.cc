@@ -31,6 +31,114 @@
 
 
 //----------------------------------------------------------------------------
+//  LIGHT IMAGES
+//----------------------------------------------------------------------------
+
+#define LIM_CURVE_SIZE  32
+
+class light_image_c
+{
+public:
+	std::string name;
+
+	const image_c *image;
+
+	GLuint tex_id;
+
+	rgbcol_t curve[LIM_CURVE_SIZE];
+
+public:
+	light_image_c(const char * _name) : name(_name), tex_id(0)
+	{ }
+
+	~light_image_c()
+	{ }
+
+	void MakeStdCurve() // TEMP CRUD
+	{
+		for (int i = 0; i < LIM_CURVE_SIZE-1; i++)
+		{
+			float d = i / (float)(LIM_CURVE_SIZE - 1);
+
+			float sq = exp(-5.44 * d * d);
+
+			int r1 = (int)(255 * sq);
+			int g1 = (int)(255 * sq);
+			int b1 = (int)(255 * sq);
+
+			curve[i] = RGB_MAKE(r1, g1, b1);
+		}
+
+		curve[LIM_CURVE_SIZE-1] = RGB_MAKE(0, 0, 0);
+	}
+
+	rgbcol_t CurvePoint(float d, rgbcol_t tint)
+	{
+		// d is distance away from centre, between 0.0 and 1.0
+
+		d *= (float)LIM_CURVE_SIZE;
+
+		if (d >= LIM_CURVE_SIZE-1)
+			return curve[LIM_CURVE_SIZE-1];
+
+		// linearly interpolate between curve points
+
+		int p1 = (int)floor(d);
+
+		SYS_ASSERT(p1+1 < LIM_CURVE_SIZE);
+
+		int dd = (int)(256 * (d - p1));
+
+		SYS_ASSERT(0 <= dd && dd <= 256);
+
+		int r1 = RGB_RED(curve[p1]);
+		int g1 = RGB_GRN(curve[p1]);
+		int b1 = RGB_BLU(curve[p1]);
+
+		int r2 = RGB_RED(curve[p1+1]);
+		int g2 = RGB_GRN(curve[p1+1]);
+		int b2 = RGB_BLU(curve[p1+1]);
+
+		r1 = (r1 * (256-dd) + r2 * dd) >> 8;
+		g1 = (g1 * (256-dd) + g2 * dd) >> 8;
+		b1 = (b1 * (256-dd) + b2 * dd) >> 8;
+
+		r1 = r1 * RGB_RED(tint) / 255;
+		g1 = g1 * RGB_GRN(tint) / 255;
+		b1 = b1 * RGB_BLU(tint) / 255;
+
+		return RGB_MAKE(r1, g1, b1);
+	}
+};
+
+static light_image_c *GetLightImage(const mobjtype_c *info)
+{
+	// Intentional Const Override
+	mobjtype_c *info_raw = (mobjtype_c *) info;
+
+	if (! info_raw->dlight0.cache_data)
+	{
+		const char *shape = info_raw->dlight0.shape.GetString();
+
+		light_image_c *lim = new light_image_c(shape);
+
+		// FIXME !!!! we need the EPI::BASIC_IMAGE in order to compute the curve
+
+		lim->MakeStdCurve();
+
+		lim->image = W_ImageLookup(shape, INS_Graphic, ILF_Null);
+
+		lim->tex_id = W_ImageCache(lim->image);
+
+		info_raw->dlight0.cache_data = lim;
+	}
+
+	return (light_image_c *) info_raw->dlight0.cache_data;
+}
+
+
+
+//----------------------------------------------------------------------------
 //  COLORMAP
 //----------------------------------------------------------------------------
 
@@ -162,9 +270,11 @@ private:
 public:
 	dynlight_shader_c(mobj_t *object) : mo(object)
 	{
+#if 0 // FIXME !!!!
 		SYS_ASSERT(mo->dlight.image);
 
 		DL_tex = W_ImageCache(mo->dlight.image);
+#endif
 	}
 
 	virtual ~dynlight_shader_c()
