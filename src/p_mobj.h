@@ -320,7 +320,7 @@ struct mobj_s : public position_c
 	// if we're on a ladder, this is the linedef #, otherwise -1.
 	int on_ladder;
 
-	dlight_state_t dlight[2];
+	dlight_state_t dlight;
 
 	// monster reload support: count the number of shots
 	int shot_count;

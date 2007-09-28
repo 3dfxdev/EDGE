@@ -428,7 +428,7 @@ static void DeleteMobj(mobj_t * mo)
 		return;
 	}
 
-	delete mo->dlight[0].shader;
+	delete mo->dlight.shader;
 
 	Z_Free(mo);
 }
@@ -1216,10 +1216,8 @@ static void P_MobjThinker(mobj_t * mobj)
 
 	mobj->ClearStaleRefs();
 
-	mobj->visibility = (15 * mobj->visibility + mobj->vis_target) / 16;
-
-	for (int DL=0; DL < 2; DL++)
-		mobj->dlight[DL].r = (15 * mobj->dlight[DL].r + mobj->dlight[DL].target) / 16;
+	mobj->visibility = (15 * mobj->visibility + mobj->vis_target)  / 16;
+	mobj->dlight.r   = (15 * mobj->dlight.r + mobj->dlight.target) / 16;
 
 	// handle SKULLFLY attacks
 	if ((mobj->flags & MF_SKULLFLY) && mobj->mom.x == 0 && mobj->mom.y == 0)
@@ -1812,15 +1810,14 @@ mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c *type)
 		mobj->flags |= MF_TOUCHY;
 
 	// handle dynamic lights
-	for (int DL=0; DL < 2; DL++)
 	{
-		const dlight_info_c *info = (DL == 0) ? &type->dlight0 : &type->dlight1;
+		const dlight_info_c *info = &type->dlight0;
 
 		if (info->type != DLITE_None)
 		{
-			mobj->dlight[DL].r = mobj->dlight[DL].target = info->radius;
-			mobj->dlight[DL].color = info->colour;
-			mobj->dlight[DL].image = W_ImageLookup(info->shape, INS_Graphic, ILF_Null);
+			mobj->dlight.r = mobj->dlight.target = info->radius;
+			mobj->dlight.color = info->colour;
+			mobj->dlight.image = W_ImageLookup(info->shape, INS_Graphic, ILF_Null);
 			
 			// leave 'shader' field as NULL : renderer will create it
 		}

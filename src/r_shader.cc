@@ -162,11 +162,11 @@ private:
 public:
 	dynlight_shader_c(mobj_t *object) : mo(object)
 	{
-		SYS_ASSERT(mo->dlight[0].image);
+		SYS_ASSERT(mo->dlight.image);
 
-		DL_tex = W_ImageCache(mo->dlight[0].image);
+		DL_tex = W_ImageCache(mo->dlight.image);
 	}
-	
+
 	virtual ~dynlight_shader_c()
 	{ /* nothing to do */ }
 
@@ -198,7 +198,7 @@ public:
 
 		float d_squared = dx*dx + dy*dy + dz*dz;
 
-		d_squared /= (mo->dlight[0].r * mo->dlight[0].r);
+		d_squared /= (mo->dlight.r * mo->dlight.r);
 
 		float L = exp(-5.44 * d_squared);
 
@@ -207,9 +207,9 @@ public:
 		if (L > 1/256.0)
 		{
 			if (mo->info->dlight0.type == DLITE_Add)
-				col->add_Give(mo->dlight[0].color, L); 
+				col->add_Give(mo->dlight.color, L); 
 			else
-				col->mod_Give(mo->dlight[0].color, L); 
+				col->mod_Give(mo->dlight.color, L); 
 		}
 	}
 
@@ -219,9 +219,9 @@ public:
 	{
 		//!!!!! FIXME: if (dist_to_light > DL->info->radius) continue;
 
-		float R = RGB_RED(mo->dlight[0].color) / 255.0;
-		float G = RGB_GRN(mo->dlight[0].color) / 255.0;
-		float B = RGB_BLU(mo->dlight[0].color) / 255.0;
+		float R = RGB_RED(mo->dlight.color) / 255.0;
+		float G = RGB_GRN(mo->dlight.color) / 255.0;
+		float B = RGB_BLU(mo->dlight.color) / 255.0;
 
 		local_gl_vert_t *glvert = RGL_BeginUnit(shape, num_vert,
 				    ENV_NONE,0, //!!!! GL_MODULATE, tex,
@@ -279,7 +279,7 @@ public:
 	{
 		// FIXME: assumes standard DLIGHT image
 
-		float dz = (z - h) / mo->dlight[0].r;
+		float dz = (z - h) / mo->dlight.r;
 
 		float L = exp(-5.44 * dz * dz);
 
@@ -288,9 +288,9 @@ public:
 		if (L > 1/256.0)
 		{
 			if (mo->info->dlight0.type == DLITE_Add)
-				col->add_Give(mo->dlight[0].color, L); 
+				col->add_Give(mo->dlight.color, L); 
 			else
-				col->mod_Give(mo->dlight[0].color, L); 
+				col->mod_Give(mo->dlight.color, L); 
 		}
 	}
 
@@ -335,9 +335,9 @@ public:
 		if (L > 1/256.0)
 		{
 			if (mo->info->dlight0.type == DLITE_Add)
-				col->add_Give(mo->dlight[0].color, L); 
+				col->add_Give(mo->dlight.color, L); 
 			else
-				col->mod_Give(mo->dlight[0].color, L); 
+				col->mod_Give(mo->dlight.color, L); 
 		}
 	}
 
