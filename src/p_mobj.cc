@@ -1811,7 +1811,7 @@ mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c *type)
 
 	// handle dynamic lights
 	{
-		const dlight_info_c *info = &type->dlight0;
+		const dlight_info_c *info = &type->dlight[0];
 
 		if (info->type != DLITE_None)
 		{

@@ -345,7 +345,7 @@ static void R2_FindDLights(subsector_t *sub, drawfloor_t *dfloor)
 			dl->Clear();
 
 			dl->mo = mo;
-			dl->tz = mo->z + mo->height * PERCENT_2_FLOAT(mo->info->dlight0.height);
+			dl->tz = mo->z + mo->height * PERCENT_2_FLOAT(mo->info->dlight[0].height);
 
 			dl->next = dfloor->dlights;
 			dl->prev = NULL;  // NOTE: not used (singly linked)

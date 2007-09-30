@@ -95,8 +95,8 @@ const commandlist_t weakness_commands[] =
 const commandlist_t thing_commands[] =
 {
 	// sub-commands
-	DDF_SUB_LIST("DLIGHT",  dlight0, dlight_commands, buffer_dlight),
-	DDF_SUB_LIST("DLIGHT2", dlight1, dlight_commands, buffer_dlight),
+	DDF_SUB_LIST("DLIGHT",  dlight[0], dlight_commands, buffer_dlight),
+	DDF_SUB_LIST("DLIGHT2", dlight[1], dlight_commands, buffer_dlight),
 	DDF_SUB_LIST("WEAKNESS", weak, weakness_commands, buffer_weakness),
 	DDF_SUB_LIST("EXPLODE_DAMAGE", explode_damage, damage_commands, buffer_damage),
 	DDF_SUB_LIST("CHOKE_DAMAGE", choke_damage, damage_commands, buffer_damage),
@@ -1863,8 +1863,8 @@ void mobjtype_c::CopyDetail(mobjtype_c &src)
 	spareattack = src.spareattack; 
 
 	// dynamic light info
-	dlight0 = src.dlight0;
-	dlight1 = src.dlight1;
+	dlight[0] = src.dlight[1];
+	dlight[0] = src.dlight[1];
 
 	dropitem = src.dropitem; 
 	dropitem_ref = src.dropitem_ref; 
@@ -1988,8 +1988,8 @@ void mobjtype_c::Default()
 	spareattack = NULL;
 
 	// dynamic light info
-	dlight0.Default();
-	dlight1.Default();
+	dlight[0].Default();
+	dlight[1].Default();
 
 	dropitem = NULL;
 	dropitem_ref.Clear();
