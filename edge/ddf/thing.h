@@ -858,8 +858,7 @@ public:
 	const atkdef_c *rangeattack;
 	const atkdef_c *spareattack;
 
-	dlight_info_c dlight0;
-	dlight_info_c dlight1;
+	dlight_info_c dlight[2];
 	int glow_type;
 
 	// -AJA- 2007/08/21: weakness support (head-shots etc)

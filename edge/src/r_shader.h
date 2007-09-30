@@ -93,10 +93,16 @@ public:
 	virtual ~abstract_shader_c() { }
 
 	virtual void Sample(multi_color_c *col, float x, float y, float z) = 0;
+	// used for arbitrary points in the world (sprites)
+
+	virtual void Corner(multi_color_c *col, float nx, float ny, float nz,
+			            struct mobj_s *mod_pos, bool pl_weap = false) = 0;
+	// used for normal-based lighting (MD2 models)
 
 	virtual void WorldMix(GLuint shape, int num_vert,
 		GLuint tex, float alpha, int pass, int blending,
 		void *data, shader_coord_func_t func) = 0;
+	// used to render overlay textures (world polygons)
 };
 
 

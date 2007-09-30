@@ -1490,9 +1490,7 @@ static void P_UnsetThingPosition(mobj_t * thing)
 	}
 
 	// unlink from dynamic light blockmap
-	if (thing->info &&
-		(thing->info->dlight0.type != DLITE_None ||
-	     thing->info->dlight1.type != DLITE_None))
+	if (thing->info && (thing->info->dlight[0].type != DLITE_None))
 	{
 		if (thing->dlnext)
 		{
@@ -1672,9 +1670,7 @@ void P_SetThingPosition(mobj_t * thing)
 	}
 
 	// link into dynamic light blockmap
-	if (thing->info &&
-		(thing->info->dlight0.type != DLITE_None ||
-	     thing->info->dlight1.type != DLITE_None))
+	if (thing->info && (thing->info->dlight[0].type != DLITE_None))
 	{
 		blockx = BLOCKMAP_GET_X(thing->x);
 		blocky = BLOCKMAP_GET_Y(thing->y);

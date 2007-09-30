@@ -113,14 +113,9 @@ public:
 
 static light_image_c *GetLightImage(const mobjtype_c *info, int DL)
 {
-	dlight_info_c *D_info;
-	
 	// Intentional Const Overrides
-	if (DL == 0)
-		D_info = (dlight_info_c *) &info->dlight0;
-	else
-		D_info = (dlight_info_c *) &info->dlight1;
-
+	dlight_info_c *D_info = (dlight_info_c *) &info->dlight[DL];
+	
 	if (! D_info->cache_data)
 	{
 		// FIXME !!!! share light_image_c instances
@@ -224,6 +219,14 @@ public:
 		// FIXME: for foggy maps, need to adjust add_R/G/B too
 	}
 
+	virtual void Corner(multi_color_c *col, float nx, float ny, float nz,
+			            struct mobj_s *mod_pos, bool pl_weap)
+	{
+		// TODO: improve this
+
+		Sample(col, mod_pos->x, mod_pos->y, mod_pos->z);
+	}
+
 	virtual void WorldMix(GLuint shape, int num_vert,
 		GLuint tex, float alpha, int pass, int blending,
 		void *data, shader_coord_func_t func)
@@ -277,7 +280,6 @@ private:
 public:
 	dynlight_shader_c(mobj_t *object) : mo(object)
 	{
-		for (int DL=0; DL < 2; DL++)
 		lim[0] = GetLightImage(mo->info, 0);
 		lim[1] = GetLightImage(mo->info, 1);
 	}
@@ -330,18 +332,18 @@ private:
 		if (DL == 0)
 			return mo->dlight.r;
 
-		return mo->info->dlight1.radius * mo->dlight.r /
-			   mo->info->dlight0.radius;
+		return mo->info->dlight[1].radius * mo->dlight.r /
+			   mo->info->dlight[0].radius;
 	}
 
 	inline rgbcol_t WhatColor(int DL)
 	{
-		return (DL == 0) ? mo->dlight.color : mo->info->dlight1.colour;
+		return (DL == 0) ? mo->dlight.color : mo->info->dlight[1].colour;
 	}
 
 	inline dlight_type_e WhatType(int DL)
 	{
-		return (DL == 0) ? mo->info->dlight0.type : mo->info->dlight1.type;
+		return mo->info->dlight[DL].type;
 	}
 
 public:
@@ -356,12 +358,49 @@ public:
 		for (int DL = 0; DL < 2; DL++)
 		{
 			if (WhatType(DL) == DLITE_None)
-				continue;
+				break;
 
 			rgbcol_t new_col = lim[DL]->CurvePoint(dist / WhatRadius(DL),
 					WhatColor(DL));
 
 			float L = mo->state->bright / 255.0;
+
+			if (new_col != RGB_MAKE(0,0,0) && L > 1/256.0)
+			{
+				if (WhatType(DL) == DLITE_Add)
+					col->add_Give(new_col, L); 
+				else
+					col->mod_Give(new_col, L); 
+			}
+		}
+	}
+
+	virtual void Corner(multi_color_c *col, float nx, float ny, float nz,
+			            struct mobj_s *mod_pos, bool pl_weap)
+	{
+		float dx = mod_pos->x - mo->x;
+		float dy = mod_pos->y - mo->y;
+		float dz = MO_MIDZ(mod_pos) - MO_MIDZ(mo->z);
+
+		float dist = sqrt(dx*dx + dy*dy + dz*dz);
+
+		dx /= dist;
+		dy /= dist;
+		dz /= dist;
+
+		dist = MAX(1.0, dist - mod_pos->radius);
+
+		for (int DL = 0; DL < 2; DL++)
+		{
+			if (WhatType(DL) == DLITE_None)
+				break;
+
+			rgbcol_t new_col = lim[DL]->CurvePoint(dist / WhatRadius(DL),
+					WhatColor(DL));
+
+			float L = 0.5 + 0.5 * (dx*nx + dy*ny + dz*nz);
+
+			L *= mo->state->bright / 255.0;
 
 			if (new_col != RGB_MAKE(0,0,0) && L > 1/256.0)
 			{
@@ -382,7 +421,7 @@ public:
 		for (int DL = 0; DL < 2; DL++)
 		{
 			if (WhatType(DL) == DLITE_None)
-				continue;
+				break;
 
 			bool is_additive = (WhatType(DL) == DLITE_Add);
 
@@ -462,7 +501,7 @@ public:
 
 		if (L > 1/256.0)
 		{
-			if (mo->info->dlight0.type == DLITE_Add)
+			if (mo->info->dlight[0].type == DLITE_Add)
 				col->add_Give(mo->dlight.color, L); 
 			else
 				col->mod_Give(mo->dlight.color, L); 
@@ -509,7 +548,7 @@ public:
 
 		if (L > 1/256.0)
 		{
-			if (mo->info->dlight0.type == DLITE_Add)
+			if (mo->info->dlight[0].type == DLITE_Add)
 				col->add_Give(mo->dlight.color, L); 
 			else
 				col->mod_Give(mo->dlight.color, L); 
@@ -541,6 +580,8 @@ private:
 	const mobjtype_c *info;
 	float bright;
 
+	light_image_c *lim[2];
+
 public:
 	laser_glow_c(const vec3_t& _v1, const vec3_t& _v2,
 				 const mobjtype_c *_info, float _intensity) :
@@ -559,57 +600,73 @@ public:
 		normal.x /= length;
 		normal.y /= length;
 		normal.z /= length;
+
+		lim[0] = GetLightImage(info, 0);
+		lim[1] = GetLightImage(info, 1);
 	}
 
 	virtual ~laser_glow_c()
 	{ /* nothing to do */ }
 
+private:
+	inline float WhatRadius(int DL)
+	{
+		return info->dlight[DL].radius;
+	}
+
+	inline rgbcol_t WhatColor(int DL)
+	{
+		return info->dlight[DL].colour;
+	}
+
+	inline dlight_type_e WhatType(int DL)
+	{
+		return info->dlight[DL].type;
+	}
+
+public:
 	virtual void Sample(multi_color_c *col, float x, float y, float z)
 	{
 		x -= s.x;
 		y -= s.y;
 		z -= s.z;
 
-		// step 1: length-wise checks
+		/* get perpendicular and along distances */
 		
-		float r = info->dlight0.radius;
-
 		// dot product
 		float along = x*normal.x + y*normal.y + z*normal.z;
-
-		if (along < -r || along > length+r)
-			return;
-
-		if (along < 0)
-			along = -along / r;
-		else if (along > length)
-			along = (along - length) / r;
-		else
-			along = 0;
-
-		// step 2: perpendicular distance
 
 		// cross product
 		float cx = y * normal.z - normal.y * z;
 		float cy = z * normal.x - normal.z * x;
 		float cz = x * normal.y - normal.x * y;
 
-		float dist = (cx*cx + cy*cy + cz*cz) / r;
+		float dist = (cx*cx + cy*cy + cz*cz);
 
-		dist += along;
-
-		// FIXME: assumes standard DLIGHT image
-
-		float L = exp(-5.44 * dist * dist);
-
-		L = L * bright / 255.0;
-
-		if (L > 1/256.0)
+		for (int DL=0; DL < 2; DL++)
 		{
-			if (info->dlight0.type == DLITE_Add)
-				col->add_Give(info->dlight0.colour, L); 
-			else
-				col->mod_Give(info->dlight0.colour, L); 
+			if (WhatType(DL) == DLITE_None)
+				break;
+
+			float d = dist;
+
+			if (along < 0)
+				d -= along;
+			else if (along > length)
+				d += (along - length);
+
+			rgbcol_t new_col = lim[DL]->CurvePoint(d / WhatRadius(DL),
+					WhatColor(DL));
+
+			float L = bright / 255.0;
+
+			if (new_col != RGB_MAKE(0,0,0) && L > 1/256.0)
+			{
+				if (WhatType(DL) == DLITE_Add)
+					col->add_Give(new_col, L); 
+				else
+					col->mod_Give(new_col, L); 
+			}
 		}
 	}
 
