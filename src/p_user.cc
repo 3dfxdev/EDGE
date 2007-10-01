@@ -161,7 +161,7 @@ static void MovePlayer(player_t * player)
 	// (we try to swim in view direction -- assumes no gravity).
 
 	base_xy_speed = player->mo->speed / 32.0f;
-	base_z_speed  = base_xy_speed;
+	base_z_speed  = player->mo->speed / 64.0f;
 
 	// Do not let the player control movement if not onground.
 	// -MH- 1998/06/18  unless he has the JetPack!
@@ -245,6 +245,9 @@ static void MovePlayer(player_t * player)
 		{
 			// enter the SWIM states (if present)
 			statenum_t swim_st = P_MobjFindLabel(player->mo, "SWIM");
+			if (swim_st == S_NULL)
+				swim_st = player->mo->info->chase_state;
+
 			if (swim_st != S_NULL)
 				P_SetMobjStateDeferred(player->mo, swim_st, 0);
 		}
@@ -259,6 +262,9 @@ static void MovePlayer(player_t * player)
 		{
 			// enter the CLIMB states (if present)
 			statenum_t climb_st = P_MobjFindLabel(player->mo, "CLIMB");
+			if (climb_st == S_NULL)
+				climb_st = player->mo->info->chase_state;
+
 			if (climb_st != S_NULL)
 				P_SetMobjStateDeferred(player->mo, climb_st, 0);
 		}
