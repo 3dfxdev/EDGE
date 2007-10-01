@@ -1283,7 +1283,7 @@ static void P_MobjThinker(mobj_t * mobj)
 	}
 
 	// momentum movement
-	if (mobj->mom.x != 0 || mobj->mom.y != 0) //  || mobj->ride_em)
+	if (mobj->mom.x != 0 || mobj->mom.y != 0 || mobj->player)
 	{
 		P_XYMovement(mobj, props);
 

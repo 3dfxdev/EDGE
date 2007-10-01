@@ -53,7 +53,7 @@
 // The maximum number of players, multiplayer/networking.
 #define MAXPLAYERS  16
 
-#define PLAYER_STOPSPEED  5.0
+#define PLAYER_STOPSPEED  1.0
 
 // Pointer to each player in the game.
 extern struct player_s *players[MAXPLAYERS];
