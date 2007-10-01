@@ -118,8 +118,10 @@ static void MovePlayer(player_t * player)
 
 	bool onground = player->mo->z <= player->mo->floorz;
 	bool onladder = player->mo->on_ladder >= 0;
-	bool hasjetpack = player->powers[PW_Jetpack] > 0;
-	bool canswim = player->swimming;
+
+	bool swimming = player->swimming;
+	bool flying   = (player->powers[PW_Jetpack] > 0) && ! swimming;
+	bool jumping  = (player->jumpwait > 0);
 
 	float dx, dy;
 	float eh, ev;
@@ -164,10 +166,10 @@ static void MovePlayer(player_t * player)
 	// Do not let the player control movement if not onground.
 	// -MH- 1998/06/18  unless he has the JetPack!
 
-	if (! (onground || onladder || canswim || hasjetpack))
+	if (! (onground || onladder || swimming || flying))
 		base_xy_speed /= 16.0f;
 
-	if (! (onladder || canswim || hasjetpack))
+	if (! (onladder || swimming || flying))
 		base_z_speed /= 16.0f;
 
 	// move slower when crouching
@@ -180,7 +182,7 @@ static void MovePlayer(player_t * player)
 	eh = 1;
 	ev = 0;
 
-	if (canswim)
+	if (swimming || flying)
 	{
 		float slope = M_Tan(player->mo->vertangle);
 
@@ -213,7 +215,7 @@ static void MovePlayer(player_t * player)
 	player->mo->mom.z += F_vec[2] * cmd->forwardmove + S_vec[2] *
 		cmd->sidemove + U_vec[2] * cmd->upwardmove;
 
-	if (hasjetpack)
+	if (flying && !swimming)
 	{
         int sfx_cat;
 
@@ -224,10 +226,10 @@ static void MovePlayer(player_t * player)
 
 		if (player->powers[PW_Jetpack] <= (5 * TICRATE))
 		{
-			if (!(leveltime & 10))
+			if ((leveltime & 10) == 0)
 				S_StartFX(sfx_jpflow, sfx_cat, player->mo);  // fuel low
 		}
-		else if (cmd->upwardmove > 0)
+		else if (cmd->upwardmove > 0 || (cmd->extbuttons & EBT_JUMP))
 			S_StartFX(sfx_jprise, sfx_cat, player->mo);
 		else if (cmd->upwardmove < 0)
 			S_StartFX(sfx_jpdown, sfx_cat, player->mo);
@@ -237,19 +239,45 @@ static void MovePlayer(player_t * player)
 			S_StartFX(sfx_jpidle, sfx_cat, player->mo);
 	}
 
-	if ((cmd->forwardmove || cmd->sidemove)
-		&& player->mo->state == &states[player->mo->info->idle_state])
+	if (!jumping && (cmd->forwardmove || cmd->sidemove || cmd->upwardmove) &&
+		player->mo->state == &states[player->mo->info->idle_state])
 	{
-		if (player->mo->info->chase_state)
-			P_SetMobjStateDeferred(player->mo, player->mo->info->chase_state, 0);
+		if (swimming)
+		{
+			// enter the SWIM states (if present)
+			statenum_t swim_st = P_MobjFindLabel(player->mo, "SWIM");
+			if (swim_st != S_NULL)
+				P_SetMobjStateDeferred(player->mo, swim_st, 0);
+		}
+		else if (flying)
+		{
+			// enter the FLY states (if present)
+			statenum_t fly_st = P_MobjFindLabel(player->mo, "FLY");
+			if (fly_st != S_NULL)
+				P_SetMobjStateDeferred(player->mo, fly_st, 0);
+		}
+		else if (onladder && cmd->upwardmove)
+		{
+			// enter the CLIMB states (if present)
+			statenum_t climb_st = P_MobjFindLabel(player->mo, "CLIMB");
+			if (climb_st != S_NULL)
+				P_SetMobjStateDeferred(player->mo, climb_st, 0);
+		}
+		else if (onground && (cmd->forwardmove || cmd->sidemove))
+		{
+			// enter the CHASE (i.e. walking) states
+			if (player->mo->info->chase_state)
+				P_SetMobjStateDeferred(player->mo, player->mo->info->chase_state, 0);
+		}
 	}
 
 	// EDGE Feature: Crouching
 
 	if (level_flags.crouch && mo->info->crouchheight > 0)
 	{
-		if (player->cmd.upwardmove < 0 && mo->z == mo->floorz &&
-			mo->height > mo->info->crouchheight)
+		if (player->cmd.upwardmove < 0 &&
+			mo->height > mo->info->crouchheight &&
+			!swimming && !jumping && (onground || onladder))
 		{
 			mo->height = MAX(mo->height - 2.0f, mo->info->crouchheight);
 
@@ -259,8 +287,7 @@ static void MovePlayer(player_t * player)
 			if (mo->player->deltaviewheight == 0)
 				mo->player->deltaviewheight = -1.0f;
 		}
-		else if (player->cmd.upwardmove >= 0 && 
-			mo->height < mo->info->height)
+		else if (mo->height < mo->info->height)
 		{
 			// prevent standing up inside a solid area
 			if ((mo->flags & MF_NOCLIP) || mo->z+mo->height+2 <= mo->ceilingz)
@@ -290,15 +317,20 @@ static void MovePlayer(player_t * player)
 
 	if (cmd->extbuttons & EBT_JUMP)
 	{
-		if (canswim)
+		if (swimming || flying)
 		{
 			player->mo->mom.z += base_z_speed * 10;
 		}
-		else if (level_flags.jump && player->jumpwait <= 0 && onground)
+		else if (level_flags.jump && !jumping && onground)
 		{
 			player->mo->mom.z += player->mo->info->jumpheight / 
 				(player->mo->extendedflags & EF_CROUCHING ? 1.8f : 1.4f);
 			player->jumpwait = player->mo->info->jump_delay;
+
+			// enter the JUMP states (if present)
+			statenum_t jump_st = P_MobjFindLabel(player->mo, "JUMP");
+			if (jump_st != S_NULL)
+				P_SetMobjStateDeferred(player->mo, jump_st, 0);
 
 			// -AJA- 1999/09/11: New JUMP_SOUND for ddf.
 			if (player->mo->info->jump_sound)
