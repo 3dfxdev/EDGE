@@ -749,7 +749,6 @@ public:
 	int meander_state;
 	int bounce_state;
 	int touch_state;
-	int jump_state;
 	int gib_state;
 	int reload_state;
 
