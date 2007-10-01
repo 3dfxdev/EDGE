@@ -209,7 +209,6 @@ static const state_starter_t thing_starters[] =
 	{"MEANDER",    "MEANDER",  &buffer_mobj.meander_state},
 	{"BOUNCE",     "IDLE",     &buffer_mobj.bounce_state},
 	{"TOUCH",      "IDLE",     &buffer_mobj.touch_state},
-	{"JUMP",       "IDLE",     &buffer_mobj.jump_state},
 	{"RELOAD",     "IDLE",     &buffer_mobj.reload_state},
 	{"GIB",        "REMOVE",   &buffer_mobj.gib_state},
 	{NULL, NULL, NULL}
@@ -1773,7 +1772,6 @@ void mobjtype_c::CopyDetail(mobjtype_c &src)
     meander_state = src.meander_state; 
     bounce_state = src.bounce_state; 
     touch_state = src.touch_state; 
-    jump_state = src.jump_state; 
     reload_state = src.reload_state; 
     gib_state = src.gib_state; 
 
@@ -1899,7 +1897,6 @@ void mobjtype_c::Default()
     meander_state = 0;
     bounce_state = 0;
     touch_state = 0;
-    jump_state = 0;
     reload_state = 0;
     gib_state = 0;
 
