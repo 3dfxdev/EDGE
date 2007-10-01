@@ -1863,8 +1863,8 @@ void mobjtype_c::CopyDetail(mobjtype_c &src)
 	spareattack = src.spareattack; 
 
 	// dynamic light info
-	dlight[0] = src.dlight[1];
-	dlight[0] = src.dlight[1];
+	dlight[0] = src.dlight[0];
+	dlight[1] = src.dlight[1];
 
 	dropitem = src.dropitem; 
 	dropitem_ref = src.dropitem_ref; 
