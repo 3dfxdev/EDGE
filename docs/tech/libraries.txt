@@ -1,6 +1,6 @@
 
-Edge Libraries
-==============
+EDGE Required Libraries
+=======================
 
 Internal (in SVN)
 -----------------
@@ -21,13 +21,13 @@ External
 --------
 
 LibSDL  : Simple DirectMedia Library (video and input)
+SDL_net : Networking library for SDL
 
 OpenGL  : 3D Graphics library
-OpenAL  : 3D Sound library
+GLEW    : OpenGL Extension Wrangler library
 
 OGG + Vorbis + VorbisFile : Compressed sound and music
 
-GLEW    : OpenGL Extension Wrangler library
 FLTK    : Fast Light ToolKit, for error dialogs  [Linux only]
 
 LibPNG  : PNG image handling (Portable Network Graphics)
@@ -43,15 +43,15 @@ http://glbsp.sourceforge.net/
 http://humidity.sourceforge.net/
 
 http://www.libsdl.org/
-http://www.microsoft.com/windows/directx/default.aspx
+http://www.libsdl.org/projects/SDL_net/
 
-http://www.opengl.org/
-http://www.openal.org/
 http://www.vorbis.com/
-
-http://glew.sourceforge.net/
 http://www.fltk.org/
 http://www.oberhumer.com/opensource/lzo
+
+http://www.opengl.org/
+http://glew.sourceforge.net/
+http://www.microsoft.com/windows/directx/default.aspx
 
 http://libpng.org/
 http://www.gzip.org/zlib

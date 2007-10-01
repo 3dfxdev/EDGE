@@ -21,9 +21,12 @@
 
 #ifdef LINUX
 #include <SDL/SDL.h>
+#include <SDL/SDL_net.h>
 #else
 #include <SDL.h>
+#include <SDL_net.h>
 #endif 
+
 
 // workaround for old SDL version (< 1.2.10)
 #if (SDL_PATCHLEVEL < 10)
