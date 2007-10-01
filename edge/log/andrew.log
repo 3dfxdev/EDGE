@@ -7,6 +7,10 @@ field in the player struct, which measures (damped) the distance
 actually travelled on the 2D map.  We use this value to make the
 CHECKMOVING action and 'WALKING' condition more accurate.
 
+Reworked player movement code, adding support for entering "JUMP",
+"FLY", "SWIM" and "CLIMB" states when jumping, flying (jetpack),
+swimming and when climbing up/down a ladder.
+
 2007/09/29:
 
 Worked on new dynamic lighting code, getting the normal dlights
