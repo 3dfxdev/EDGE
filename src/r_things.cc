@@ -472,14 +472,12 @@ static const image_c * R2_GetThingSprite2(mobj_t *mo, float mx, float my, bool *
 
 		ang = from_view - ang + ANG180;
 
-// TEMP CRUD : FIXME!!
+#if 0 // TESTING CRUD
 if (mo->player && mo->player->swimming)
 {
-if (ang > ANG90 && ang <= ANG270)
-	ang = ANG180;
-else
-	ang = 0;
+if (ang > ANG90 && ang <= ANG270) ang = ANG180; else ang = 0;
 }
+#endif
 
 		if (num_active_mirrors % 2)
 			ang = (angle_t)0 - ang;
@@ -1138,7 +1136,7 @@ return;
 	data.texc[2].Set(tex_x2, tex_y2);
 	data.texc[3].Set(tex_x2, tex_y1);
 
-// TEMP CRUD : FIXME!!
+#if 0 // TESTING CRUD : turn player sprite on its side
 if (dthing->mo->player && dthing->mo->player->swimming)
 {
 float r = dthing->mo->radius;
@@ -1163,21 +1161,22 @@ data.vert[3].Set(x+dx-kx, y+dy-ky, b);
 
 angle_t from_view = R_PointToAngle(viewx, viewy, x, y);
 angle_t ang = from_view - dthing->mo->angle;
-	if (ang < ANG15 || ang >= ANG180+ANG15)
-	{
-	data.texc[0].Set(0.0,   top);
-	data.texc[1].Set(right, top);
-	data.texc[2].Set(right, 0.0);
-	data.texc[3].Set(0.0,   0.0);
-	}
-	else
-	{
-	data.texc[0].Set(0.0,   0.0);
-	data.texc[1].Set(right, 0.0);
-	data.texc[2].Set(right, top);
-	data.texc[3].Set(0.0,   top);
-	}
+if (ang < ANG15 || ang >= ANG180+ANG15)
+{
+data.texc[0].Set(0.0,   top);
+data.texc[1].Set(right, top);
+data.texc[2].Set(right, 0.0);
+data.texc[3].Set(0.0,   0.0);
 }
+else
+{
+data.texc[0].Set(0.0,   0.0);
+data.texc[1].Set(right, 0.0);
+data.texc[2].Set(right, top);
+data.texc[3].Set(0.0,   top);
+}
+}
+#endif
 	
 	data.normal.Set(-viewcos, -viewsin, 0);
 
