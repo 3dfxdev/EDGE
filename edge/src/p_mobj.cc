@@ -710,6 +710,9 @@ static void P_XYMovement(mobj_t * mo, const region_properties_t *props)
 {
 	player_t *player;
 
+	float orig_x = mo->x;
+	float orig_y = mo->y;
+
 	float ptryx;
 	float ptryy;
 	float xmove;
@@ -945,6 +948,15 @@ static void P_XYMovement(mobj_t * mo, const region_properties_t *props)
 
 	if (mo->player)
 	{
+		float x_diff = fabs(orig_x - mo->x);
+		float y_diff = fabs(orig_y - mo->y);
+
+		float speed = APPROX_DIST2(x_diff, y_diff);
+
+		mo->player->actual_speed =
+			(mo->player->actual_speed * 0.8 + speed * 0.2);
+L_WriteDebug("Actual speed = %1.4f\n", mo->player->actual_speed);
+
 		if (fabs(mo->mom.x) < STOPSPEED && fabs(mo->mom.y) < STOPSPEED &&
 			mo->player->cmd.forwardmove == 0 && 
 			mo->player->cmd.sidemove == 0)
