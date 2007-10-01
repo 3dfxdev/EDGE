@@ -239,10 +239,9 @@ static void MovePlayer(player_t * player)
 			S_StartFX(sfx_jpidle, sfx_cat, player->mo);
 	}
 
-	if (!jumping && (cmd->forwardmove || cmd->sidemove || cmd->upwardmove) &&
-		player->mo->state == &states[player->mo->info->idle_state])
+	if (!jumping && player->mo->state == &states[player->mo->info->idle_state])
 	{
-		if (swimming)
+		if (swimming && (cmd->forwardmove || cmd->sidemove || cmd->upwardmove))
 		{
 			// enter the SWIM states (if present)
 			statenum_t swim_st = P_MobjFindLabel(player->mo, "SWIM");
