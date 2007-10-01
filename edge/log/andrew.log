@@ -1,5 +1,17 @@
 Andrew Apted's Log
 
+2007/10/01:
+
+Implemented better way to gauge player's speed, using 'actual_speed'
+field in the player struct, which measures (damped) the distance
+actually travelled on the 2D map.  We use this value to make the
+CHECKMOVING action and 'WALKING' condition more accurate.
+
+2007/09/29:
+
+Worked on new dynamic lighting code, getting the normal dlights
+operational again and fully supporting DLIGHT2.
+
 2007/09/23:
 
 Applied some patches by Darren Salt: (1) improve the build
