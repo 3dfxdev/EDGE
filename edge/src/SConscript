@@ -42,6 +42,7 @@ sources = [
     'r_occlude.cc', 'm_logo.cc', 'r_things.cc', 'r_units.cc', 
     'r_wipe.cc', 'r_misc.cc', 'r_sky.cc', 'w_sprite.cc', 
     'r_vbinit.cc', 'r_view.cc',
+    'sdl_netx.cc',
     's_blit.cc', 's_cache.cc', 's_sound.cc',
     's_music.cc', 's_ogg.cc', 'st_lib.cc', 'st_stuff.cc',
     'sv_chunk.cc', 'sv_dump.cc', 'sv_glob.cc', 'sv_level.cc', 
