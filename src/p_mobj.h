@@ -49,6 +49,9 @@ struct state_s;
 struct subsector_s;
 struct touch_node_s;
 
+#define STOPSPEED   		0.07f
+#define OOF_SPEED   		20.0f
+
 //
 // NOTES: mobj_t
 //

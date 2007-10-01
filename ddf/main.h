@@ -66,9 +66,6 @@ class weapondef_c;
 #define DRAG        		0.99f
 #define RIDE_FRICTION    	0.7f
 
-#define STOPSPEED   		0.07f
-#define OOF_SPEED   		20.0f
-
 
 // Info for the JUMP action
 typedef struct act_jump_info_s
