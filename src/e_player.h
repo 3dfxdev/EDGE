@@ -51,7 +51,9 @@
 #define EFFECT_MAX_TIME  (5 * TICRATE)
 
 // The maximum number of players, multiplayer/networking.
-#define MAXPLAYERS  30
+#define MAXPLAYERS  16
+
+#define PLAYER_STOPSPEED  5.0
 
 // Pointer to each player in the game.
 extern struct player_s *players[MAXPLAYERS];
@@ -150,6 +152,10 @@ typedef struct player_s
 
 	// player's name
 	char playername[MAX_PLAYNAME];
+
+	// a measure of how fast we are actually moving, based on how far
+	// the player thing moves on the 2D map.
+	float actual_speed;
 
 	// Determine POV, including viewpoint bobbing during movement.
 	// Focal origin above r.z

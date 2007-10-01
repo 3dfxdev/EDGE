@@ -702,7 +702,7 @@ bool G_CheckConditions(mobj_t *mo, condition_check_t *cond)
 				if (!p)
 					return false;
 
-				temp = (p->bob > 2) && (p->mo->z <= p->mo->floorz);
+				temp = (p->actual_speed > PLAYER_STOPSPEED) && (p->mo->z <= p->mo->floorz);
 
 				if ((!cond->negate && !temp) || (cond->negate && temp))
 					return false;

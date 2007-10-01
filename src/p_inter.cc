@@ -733,6 +733,7 @@ void P_KillMobj(mobj_t * source, mobj_t * target, const damage_c *damtype,
 		target->player->playerstate = PST_DEAD;
 		target->player->std_viewheight = MIN(DEATHVIEWHEIGHT,
 			target->height / 3);
+		target->player->actual_speed = 0;
 
 		P_DropWeapon(target->player);
 

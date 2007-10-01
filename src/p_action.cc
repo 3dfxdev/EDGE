@@ -3465,15 +3465,17 @@ void P_ActCheckMoving(mobj_t * mo)
 {
 	player_t *p = mo->player;
 
+	if (p)
+	{
+		if (p->actual_speed < PLAYER_STOPSPEED)
+			P_SetMobjStateDeferred(mo, mo->info->idle_state, 0);
+
+		return;
+	}
+	
 	if (fabs(mo->mom.x) < STOPSPEED && fabs(mo->mom.y) < STOPSPEED)
 	{
-		if (p)
-		{
-			if (p->cmd.forwardmove || p->cmd.sidemove)
-				return;
-		}
 		mo->mom.x = mo->mom.y = 0;
-
 		P_SetMobjStateDeferred(mo, mo->info->idle_state, 0);
 	}
 }

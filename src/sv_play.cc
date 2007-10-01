@@ -87,6 +87,7 @@ static savefield_t sv_fields_player[] =
 	SF(viewheight, "viewheight", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
 	SF(deltaviewheight, "deltaviewheight", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
 	SF(std_viewheight, "std_viewheight", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
+	SF(actual_speed, "actual_speed", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
 	SF(health, "health", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
 	SF(armours[0], "armours", NUMARMOUR, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
 	SF(armour_types[0], "armour_types", NUMARMOUR, SVT_STRING, SR_MobjGetType, SR_MobjPutType),
