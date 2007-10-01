@@ -448,11 +448,11 @@ void I_SystemStartup(void)
 	if (SDL_Init(flags) < 0)
 		I_Error("Couldn't init SDL!!\n%s\n", SDL_GetError());
 
-	I_StartupNetwork();
 	I_StartupGraphics();
 	I_StartupControl();
 	I_StartupSound();    // -ACB- 1999/09/20 Sets nosound directly
 	I_StartupMusic();
+	I_StartupNetwork();
 }
 
 //
@@ -465,11 +465,11 @@ void I_SystemShutdown(void)
 	// makre sure audio is unlocked (e.g. I_Error occurred)
 	I_UnlockAudio();
 
+	I_ShutdownNetwork();
 	I_ShutdownMusic();
 	I_ShutdownSound();
 	I_ShutdownControl();
 	I_ShutdownGraphics();
-	I_ShutdownNetwork();
 
 	if (logfile)
 	{

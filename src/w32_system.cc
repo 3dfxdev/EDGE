@@ -106,11 +106,11 @@ void I_SystemStartup(void)
 	if (SDL_Init(0) < 0)
 		I_Error("Couldn't init SDL!!\n%s\n", SDL_GetError());
 
-	I_StartupNetwork();
 	I_StartupGraphics(); // SDL requires this to be called first
 	I_StartupControl();
 	I_StartupSound();
 	I_StartupMusic(); // Startup Music System
+	I_StartupNetwork();
 
 #ifndef INTOLERANT_MATH
 	// -ACB- 2000/06/05 This switches off x87 signalling error
@@ -288,11 +288,11 @@ void I_SystemShutdown(void)
 	// make sure audio is unlocked (e.g. I_Error occurred)
 	I_UnlockAudio();
 
+	I_ShutdownNetwork();
 	I_ShutdownMusic();
 	I_ShutdownSound();
 	I_ShutdownControl();
 	I_ShutdownGraphics();
-	I_ShutdownNetwork();
 
 	if (logfile)
 	{

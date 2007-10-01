@@ -17,6 +17,7 @@
 //----------------------------------------------------------------------------
 
 #include "i_defs.h"
+#include "i_sdlinc.h"
 #include "unx_sysinc.h"
 
 #include <unistd.h>
@@ -52,6 +53,16 @@ bool nonet = true;
 //
 void I_StartupNetwork(void)
 {
+	if (SDLNet_Init() != 0)
+	{
+		I_Printf("I_StartupNetwork: SDL_net Initialisation FAILED.\n");
+		return;
+	}
+
+	I_Printf("I_StartupNetwork: SDL_net Initialised OK.\n");
+	nonet = false;
+
+
 #ifdef USE_HAWKNL
 	if (nlInit() != NL_TRUE)
 	{
@@ -79,6 +90,12 @@ void I_StartupNetwork(void)
 //
 void I_ShutdownNetwork(void)
 {
+	if (! nonet)
+	{
+		nonet = true;
+		SDLNet_Quit();
+	}
+
 #ifdef USE_HAWKNL
 	if (! nonet)
 	{
