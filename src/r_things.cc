@@ -472,6 +472,15 @@ static const image_c * R2_GetThingSprite2(mobj_t *mo, float mx, float my, bool *
 
 		ang = from_view - ang + ANG180;
 
+// TEMP CRUD : FIXME!!
+if (mo->player && mo->player->swimming)
+{
+if (ang > ANG90 && ang <= ANG270)
+	ang = ANG180;
+else
+	ang = 0;
+}
+
 		if (num_active_mirrors % 2)
 			ang = (angle_t)0 - ang;
 
@@ -1129,6 +1138,47 @@ return;
 	data.texc[2].Set(tex_x2, tex_y2);
 	data.texc[3].Set(tex_x2, tex_y1);
 
+// TEMP CRUD : FIXME!!
+if (dthing->mo->player && dthing->mo->player->swimming)
+{
+float r = dthing->mo->radius;
+float h = dthing->mo->height;
+	
+float b = MO_MIDZ(dthing->mo) - r;
+float t = MO_MIDZ(dthing->mo) + r;
+
+float kx = viewcos * sprite_skew * r;
+float ky = viewsin * sprite_skew * r;
+
+float x = dthing->mo->x;
+float y = dthing->mo->y;
+
+float dx = h / 2.0 *  viewsin;
+float dy = h / 2.0 * -viewcos;
+
+data.vert[0].Set(x-dx-kx, y-dy-ky, b);
+data.vert[1].Set(x-dx+kx, y-dy+ky, t);
+data.vert[2].Set(x+dx+kx, y+dy+ky, t);
+data.vert[3].Set(x+dx-kx, y+dy-ky, b);
+
+angle_t from_view = R_PointToAngle(viewx, viewy, x, y);
+angle_t ang = from_view - dthing->mo->angle;
+	if (ang < ANG15 || ang >= ANG180+ANG15)
+	{
+	data.texc[0].Set(0.0,   top);
+	data.texc[1].Set(right, top);
+	data.texc[2].Set(right, 0.0);
+	data.texc[3].Set(0.0,   0.0);
+	}
+	else
+	{
+	data.texc[0].Set(0.0,   0.0);
+	data.texc[1].Set(right, 0.0);
+	data.texc[2].Set(right, top);
+	data.texc[3].Set(0.0,   top);
+	}
+}
+	
 	data.normal.Set(-viewcos, -viewsin, 0);
 
 	R_ColmapPipe_AdjustLight(dthing->mo->state->bright);
