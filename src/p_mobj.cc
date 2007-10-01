@@ -931,10 +931,8 @@ static void P_XYMovement(mobj_t * mo, const region_properties_t *props)
 	//      it's not worth playing - a bit like having auto-aim
 	//      permanently off (as most real people are not crack-shots!)
 	//
-	if ((mo->z > mo->floorz) &&
-		!(level_flags.true3dgameplay && mo->player && 
-		mo->player->powers[PW_Jetpack]) &&
-		!(mo->on_ladder >= 0))
+	if ((mo->z > mo->floorz) && !(mo->on_ladder >= 0) &&
+		!(mo->player && mo->player->powers[PW_Jetpack] > 0))
 	{
 		// apply drag when airborne
 		mo->mom.x *= props->drag;
@@ -1021,7 +1019,7 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 		{
 			float hurt_momz = gravity * mo->info->maxfall;
 			bool fly_or_swim = mo->player && (mo->player->swimming ||
-				mo->player->powers[PW_Jetpack] || mo->on_ladder >= 0);
+				mo->player->powers[PW_Jetpack] > 0 || mo->on_ladder >= 0);
 
 			if (mo->player && gravity > 0 && -zmove > OOF_SPEED && ! fly_or_swim)
 			{
@@ -1093,8 +1091,7 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 		//                   (nearly forgot this one:-)
 
 		if (!(mo->flags & MF_NOGRAVITY) &&
-			!(level_flags.true3dgameplay && mo->player && 
-			mo->player->powers[PW_Jetpack]) &&
+			!(mo->player && mo->player->powers[PW_Jetpack] > 0) &&
 			!(mo->on_ladder >= 0))
 		{
 			mo->mom.z -= gravity;
@@ -1115,7 +1112,7 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 		{
 			float hurt_momz = gravity * mo->info->maxfall;
 			bool fly_or_swim = mo->player && (mo->player->swimming ||
-				mo->player->powers[PW_Jetpack] || mo->on_ladder >= 0);
+				mo->player->powers[PW_Jetpack] > 0 || mo->on_ladder >= 0);
 
 			if (mo->player && gravity < 0 && zmove > OOF_SPEED && ! fly_or_swim)
 			{
@@ -1179,8 +1176,7 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 		//                   (nearly forgot this one:-)
 
 		if (!(mo->flags & MF_NOGRAVITY) &&
-			!(level_flags.true3dgameplay && mo->player && 
-			mo->player->powers[PW_Jetpack]) &&
+			!(mo->player && mo->player->powers[PW_Jetpack] > 0) &&
 			!(mo->on_ladder >= 0))
 		{
 			mo->mom.z += -gravity;
@@ -1197,6 +1193,8 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 	// ladders have friction
 	if (mo->on_ladder >= 0)
 		mo->mom.z *= LADDER_FRICTION;
+	else if (mo->player && mo->player->powers[PW_Jetpack] > 0)
+		mo->mom.z *= props->friction;
 	else
 		mo->mom.z *= props->drag;
 
