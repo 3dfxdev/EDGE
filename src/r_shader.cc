@@ -380,7 +380,7 @@ public:
 	{
 		float dx = mod_pos->x - mo->x;
 		float dy = mod_pos->y - mo->y;
-		float dz = MO_MIDZ(mod_pos) - MO_MIDZ(mo->z);
+		float dz = MO_MIDZ(mod_pos) - MO_MIDZ(mo);
 
 		float dist = sqrt(dx*dx + dy*dy + dz*dz);
 
@@ -435,6 +435,7 @@ public:
 						is_additive ? ENV_NONE : GL_MODULATE,
 						is_additive ? 0 : tex,
 						GL_MODULATE, lim[DL]->tex_id, pass, blending);
+			pass++;
 
 			for (int v_idx=0; v_idx < num_vert; v_idx++)
 			{
