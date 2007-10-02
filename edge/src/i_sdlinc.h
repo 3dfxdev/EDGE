@@ -21,10 +21,8 @@
 
 #ifdef LINUX
 #include <SDL/SDL.h>
-#include <SDL/SDL_net.h>
 #else
 #include <SDL.h>
-#include <SDL_net.h>
 #endif 
 
 
