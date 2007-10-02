@@ -19,6 +19,8 @@
 #include "i_defs.h"
 #include "i_sdlinc.h"
 
+#include "sdl_netx.h"
+
 #include "n_basic.h"
 
 
@@ -51,27 +53,127 @@ void I_ShutdownNetwork(void)
 
 //----------------------------------------------------------------------------
 
-bool N_CreateReliableLink(int port);
+static TCPsocket host_conn_socket = 0;
 
-net_node_c * N_AcceptReliableConn(void);
+bool N_CreateReliableLink(int port)
+{
+	IPaddress addr;
 
-net_node_c * N_OpenReliableLink(void *address, int port);
+	addr.host = INADDR_ANY;
+	addr.port = port;
+	
+	host_conn_socket = SDLNet_TCP_Open(&addr);
 
-void N_CloseReliableLink(net_node_c *node);
+	if (! host_conn_socket)
+		return false;
 
-bool N_ReliableSend(net_node_c *node, const byte *data, int len);
+	return true;
+}
 
-int N_ReliableRecv(net_node_c *node, byte *buffer, int max_len);
+net_node_c * N_AcceptReliableConn(void)
+{
+	// TODO
+	
+	return NULL;
+}
+
+net_node_c * N_OpenReliableLink(void *address, int port)
+{
+	// TODO
+	
+	return NULL;
+}
+
+void N_CloseReliableLink(net_node_c *node)
+{
+	// TODO
+}
+
+bool N_ReliableSend(net_node_c *node, const byte *data, int len)
+{
+	// Intentional Const Override (dumb SDL fuckers)
+	int actual = SDLNet_TCP_Send(node->socket, (void*)data, len);
+
+	if (actual < len)  // FIXME: mark node as gone
+		return false;
+
+	return true;
+}
+
+int N_ReliableRecv(net_node_c *node, byte *buffer, int max_len)
+{
+	int actual = SDLNet_TCP_Recv(node->socket, buffer, max_len);
+
+	if (actual <= 0)
+		return -1;  // error
+
+	return actual;
+}
 
 //----------------------------------------------------------------------------
 
-bool N_OpenBroadcastLink(int port);
+static UDPsocket my_udp_socket = 0;
 
-void N_CloseBroadcastLink(void);
+static int host_broadcast_port = 0;
 
-bool N_BroadcastSend(const byte *data, int len);
+bool N_OpenBroadcastLink(int port)
+{
+	if (nonet)
+		return false;
+	
+	if (port > 0)
+		host_broadcast_port = port;
 
-int N_BroadcastRecv(byte *buffer, int max_len);
+	my_udp_socket = SDLNet_UDP_Open(port);
+
+	if (! my_udp_socket)
+	{
+		// clients should try again with port=0
+		I_Debugf("SDLNet_UDP_Open failed.\n");
+		return false;
+	}
+
+	if (SDLNetx_EnableBroadcast(my_udp_socket) <= 0)
+	{
+		I_Debugf("SDLNetx_EnableBroadcast failed.\n");
+		/* continue ??? */
+	}
+
+	return true;
+}
+
+void N_CloseBroadcastLink(void)
+{
+	if (my_udp_socket)
+	{
+		SDLNet_UDP_Close(my_udp_socket);
+		my_udp_socket = 0;
+	}
+}
+
+bool N_BroadcastSend(const byte *data, int len)
+{
+	UDPpacket *pk = SDLNet_AllocPacket(len);
+
+	memcpy(pk->data, data, len);
+
+	pk->channel = -1;
+	pk->address.port = host_broadcast_port;
+
+	if (SDLNetx_UDP_Broadcast(my_udp_socket, pk) <= 0)
+		return false;
+
+	// FIXME: free the 'pk' structure (can we do it now???)
+
+	return true;
+}
+
+int N_BroadcastRecv(byte *buffer, int max_len)
+{
+	// TODO
+
+	return -1;
+}
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
