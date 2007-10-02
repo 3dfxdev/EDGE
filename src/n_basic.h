@@ -23,10 +23,6 @@ extern bool nonet;
 
 class net_node_c;
 
-void I_StartupNetwork(void);
-void I_ShutdownNetwork(void);
-
-//----------------------------------------------------------------------------
 
 bool N_CreateReliableLink(int port);
 // (HOST ONLY)
