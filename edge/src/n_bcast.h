@@ -22,11 +22,11 @@
 extern bool nonet;
 
 
-bool N_OpenBroadcastLink(int port);
+bool N_StartupBroadcastLink(int port);
 // Setup the broadcast link for sending and receiving packets.
 // Returns true if successful, otherwise false.
 
-void N_CloseBroadcastLink(void);
+void N_ShutdownBroadcastLink(void);
 // Shut down the broadcast link.
 
 bool N_BroadcastSend(const byte *data, int len);
