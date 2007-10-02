@@ -81,7 +81,7 @@ void I_ShutdownNetwork(void)
 
 #if 0
 
-bool N_OpenBroadcastLink(int port)
+bool N_StartupBroadcastLink(int port)
 {
 	if (nonet)
 		return false;
@@ -107,7 +107,7 @@ bool N_OpenBroadcastLink(int port)
 	return true;
 }
 
-void N_CloseBroadcastLink(void)
+void N_ShutdownBroadcastLink(void)
 {
 	if (my_udp_socket)
 	{
