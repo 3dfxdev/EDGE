@@ -22,10 +22,17 @@
 class net_node_c;
 
 
-bool N_CreateReliableLink(int port);
+bool N_StartupReliableLink(int port);
 // (HOST ONLY)
 // Create the link (socket) which allows clients to connect to us.
 // Returns true if successful, otherwise false.
+
+void N_ShutdownReliableLink(void);
+// (HOST ONLY)
+// close the reliable link and release all resources associated
+// with it.  This will invalid any existing client connections
+// (they should all be closed before calling this), and any
+// buffered data will be discarded.
 
 net_node_c * N_AcceptReliableConn(void);
 // (HOST ONLY)
