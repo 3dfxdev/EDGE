@@ -24,6 +24,7 @@
 #include "i_netinc.h"
 
 #include "n_reliable.h"
+#include "n_bcast.h"
 
 
 class net_node_c
@@ -44,20 +45,17 @@ public:
 static SOCKET host_conn_sock = INVALID_SOCKET;
 
 
-// TODO: static xxx Make_SAddr(const byte *address) ...
+// FIXME: static xxx Make_SAddr(const byte *address) ...
 
 static void ChangeNonBlock(SOCKET sock, bool enable)
 {
 #ifdef WIN32
-	{
-		unsigned long mode = enable ? 1 : 0;
+	unsigned long mode = enable ? 1 : 0;
 
-		ioctlsocket(sock, FIONBIO, &mode);
-	}
+	ioctlsocket(sock, FIONBIO, &mode);
+
 #elif defined(O_NONBLOCK)
-	{
-		fcntl(sock, F_SETFL, enable ? O_NONBLOCK : 0);
-	}
+	fcntl(sock, F_SETFL, enable ? O_NONBLOCK : 0);
 #endif
 }
 
@@ -74,6 +72,9 @@ static void ChangeNoDelay(SOCKET sock)
 
 bool N_StartupReliableLink(int port)
 {
+	if (nonet)
+		return false;
+
 	host_conn_sock = socket(AF_INET, SOCK_STREAM, 0);
 
 	if (host_conn_sock == INVALID_SOCKET)
