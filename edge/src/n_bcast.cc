@@ -15,6 +15,12 @@
 //  GNU General Public License for more details.
 //
 //----------------------------------------------------------------------------
+//
+//  FIXME  acknowledge SDL_net code
+//
+//  FIXME  acknowledge SDLNetx code
+//
+//----------------------------------------------------------------------------
 
 #include "i_defs.h"
 #include "i_netinc.h"
@@ -24,18 +30,24 @@
 
 bool nonet = true;
 
-static UDPsocket my_udp_socket = 0;
+/// static UDPsocket my_udp_socket = 0;
 
 static int host_broadcast_port = 0;
  
 
 void I_StartupNetwork(void)
 {
-	if (SDLNet_Init() != 0)
+#ifdef WIN32
+	// start up the Windows networking
+	WORD version_wanted = MAKEWORD(1,1);
+	WSADATA wsaData;
+
+	if (WSAStartup(version_wanted, &wsaData) != 0)
 	{
-		I_Printf("I_StartupNetwork: SDL_net Initialisation FAILED.\n");
+		I_Printf("I_StartupNetwork: Couldn't initialize Winsock 1.1\n");
 		return;
 	}
+#endif
 
 	nonet = false;
 
@@ -48,13 +60,26 @@ void I_ShutdownNetwork(void)
 	if (! nonet)
 	{
 		nonet = true;
-		SDLNet_Quit();
+
+#ifdef WIN32
+		// clean up Windows networking
+		if (WSACleanup() == SOCKET_ERROR )
+		{
+			if (WSAGetLastError() == WSAEINPROGRESS)
+			{
+				WSACancelBlockingCall();
+				WSACleanup();
+			}
+		}
+#endif
 	}
 }
 
 
 //----------------------------------------------------------------------------
 
+
+#if 0
 
 bool N_OpenBroadcastLink(int port)
 {
@@ -108,12 +133,15 @@ bool N_BroadcastSend(const byte *data, int len)
 	return true;
 }
 
+#endif
+
 int N_BroadcastRecv(byte *buffer, int max_len)
 {
 	// TODO
 
 	return -1;
 }
+
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
