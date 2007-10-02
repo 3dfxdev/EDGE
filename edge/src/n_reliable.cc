@@ -32,7 +32,7 @@ public:
 	SOCKET sock;
 
 public:
-	net_node_c() : XXX
+	net_node_c() : sock(INVALID_SOCKET)
 	{ }
 
 	~net_node_c()
@@ -45,6 +45,31 @@ static SOCKET host_conn_sock = INVALID_SOCKET;
 
 
 // TODO: static xxx Make_SAddr(const byte *address) ...
+
+static void ChangeNonBlock(SOCKET sock, bool enable)
+{
+#ifdef WIN32
+	{
+		unsigned long mode = enable ? 1 : 0;
+
+		ioctlsocket(sock, FIONBIO, &mode);
+	}
+#elif defined(O_NONBLOCK)
+	{
+		fcntl(sock, F_SETFL, enable ? O_NONBLOCK : 0);
+	}
+#endif
+}
+
+static void ChangeNoDelay(SOCKET sock)
+{
+#ifdef TCP_NODELAY
+	int enabled = 1;
+
+	setsockopt(sock, IPPROTO_TCP, TCP_NODELAY,
+			(char*)&enabled, sizeof(enabled));
+#endif
+}
 
 
 bool N_StartupReliableLink(int port)
@@ -97,16 +122,7 @@ bool N_StartupReliableLink(int port)
 	}
 
 	// set the socket to non-blocking mode for accept()
-#ifdef WIN32
-	{
-		unsigned long mode = 1;
-		ioctlsocket(host_conn_sock, FIONBIO, &mode);
-	}
-#elif defined(O_NONBLOCK)
-	{
-		fcntl(host_conn_sock, F_SETFL, O_NONBLOCK);
-	}
-#endif
+	ChangeNonBlock(host_conn_sock);
 
 	return true; //OK
 }
@@ -122,9 +138,37 @@ void N_ShutdownReliableLink(void)
 
 net_node_c * N_AcceptReliableConn(void)
 {
-	// TODO
-	
-	return NULL;
+	net_node_c *node = new net_node_c();
+
+	// accept a new TCP connection on a server socket
+	struct sockaddr_in sock_addr;
+
+	int sock_alen = sizeof(sock_addr);
+
+	node->sock = accept(server->channel, (struct sockaddr *)&sock_addr,
+#ifdef USE_GUSI_SOCKETS
+			(unsigned int *)&sock_alen);
+#else
+			&sock_alen);
+#endif
+
+	if (node->sock == SOCKET_ERROR)
+	{
+		I_Printf("accept() failed");
+		goto error_return;
+	}
+
+	// TODO: remember remote address
+	// sock->remoteAddress.host = sock_addr.sin_addr.s_addr;
+	// sock->remoteAddress.port = sock_addr.sin_port;
+
+	// we want non-blocking read/writes
+	ChangeNonBlock(node->sock);
+
+	// set the nodelay TCP option for real-time games
+	ChangeNoDelay(node->sock);
+
+	return node;
 }
 
 net_node_c * N_OpenReliableLink(const byte *address, int port)
@@ -160,19 +204,15 @@ net_node_c * N_OpenReliableLink(const byte *address, int port)
 		return NULL;
 	}
 
-#ifdef TCP_NODELAY
-	// set the nodelay TCP option for real-time games
-	{
-		int enabled = 1;
-
-		setsockopt(node->sock, IPPROTO_TCP, TCP_NODELAY,
-				   (char*)&enabled, sizeof(enabled));
-	}
-#endif
-
 	// TODO: fill in the remote address
 	// sock->remoteAddress.host = sock_addr.sin_addr.s_addr;
 	// sock->remoteAddress.port = sock_addr.sin_port;
+
+	// we want non-blocking read/writes
+	ChangeNonBlock(node->sock);
+
+	// set the nodelay TCP option for real-time games
+	ChangeNoDelay(node->sock);
 
 	return NULL;
 }
