@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-//  EDGE Networking Primitives
+//  EDGE Networking : Reliable Links
 //----------------------------------------------------------------------------
 // 
 //  Copyright (c) 1999-2007  The EDGE Team.
@@ -16,10 +16,8 @@
 //
 //----------------------------------------------------------------------------
 
-#ifndef __N_BASIC_H__
-#define __N_BASIC_H__
-
-extern bool nonet;
+#ifndef __N_RELIABLE_H__
+#define __N_RELIABLE_H__
 
 class net_node_c;
 
@@ -58,31 +56,7 @@ int N_ReliableRecv(net_node_c *node, byte *buffer, int max_len);
 // Returns the number of bytes read, 0 for none, or -1 if
 // an error occurred.  This call is non-blocking.
 
-//----------------------------------------------------------------------------
-
-bool N_OpenBroadcastLink(int port);
-// Setup the broadcast link for sending and receiving packets.
-// Returns true if successful, otherwise false.
-
-void N_CloseBroadcastLink(void);
-// Shut down the broadcast link.
-
-bool N_BroadcastSend(const byte *data, int len);
-// Send a packet on the broadcast link.
-// The data must be an entire packet.
-// returns true if successful, otherwise false.
-// This call is non-blocking.
-
-int N_BroadcastRecv(byte *buffer, int max_len);
-// Check if any packets have been received on the broadcast link,
-// and return the oldest one.  This function should be called
-// regularly to prevent the packet queue from overflowing.
-//
-// Returns the number of bytes read, 0 for none, or -1 if
-// an error occurred.  This call is non-blocking.
-// The result will be an entire packet.
-
-#endif /* __N_BASIC_H__ */
+#endif /* __N_RELIABLE_H__ */
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-//  EDGE Networking Primitives
+//  EDGE Networking : Broadcast Links
 //----------------------------------------------------------------------------
 // 
 //  Copyright (c) 1999-2007  The EDGE Team.
@@ -16,49 +16,11 @@
 //
 //----------------------------------------------------------------------------
 
-#ifndef __N_BASIC_H__
-#define __N_BASIC_H__
+#ifndef __N_BROADCAST_H__
+#define __N_BROADCAST_H__
 
 extern bool nonet;
 
-class net_node_c;
-
-
-bool N_CreateReliableLink(int port);
-// (HOST ONLY)
-// Create the link (socket) which allows clients to connect to us.
-// Returns true if successful, otherwise false.
-
-net_node_c * N_AcceptReliableConn(void);
-// (HOST ONLY)
-// Check to see if any clients have (requested to) connect, and
-// allow them to connect.  This function should be called
-// regularly to prevent the accept queue from overflowing.
-//
-// When successful, returns a new node.
-// Returns NULL if not successful.
-
-net_node_c * N_OpenReliableLink(void *address, int port);
-// (CLIENT ONLY)
-// Open a link to the Host at the given address and port.
-//
-// When successful, returns a new node.
-// Returns NULL if an error occurred.
-
-void N_CloseReliableLink(net_node_c *node);
-// Close the link to a Client or Host.
-
-bool N_ReliableSend(net_node_c *node, const byte *data, int len);
-// Send the data to the specified node.
-// Returns true if successful, false on error.
-// This call is non-blocking.
-
-int N_ReliableRecv(net_node_c *node, byte *buffer, int max_len);
-// Receive upto 'max_len' of data from the specified node.
-// Returns the number of bytes read, 0 for none, or -1 if
-// an error occurred.  This call is non-blocking.
-
-//----------------------------------------------------------------------------
 
 bool N_OpenBroadcastLink(int port);
 // Setup the broadcast link for sending and receiving packets.
@@ -82,7 +44,7 @@ int N_BroadcastRecv(byte *buffer, int max_len);
 // an error occurred.  This call is non-blocking.
 // The result will be an entire packet.
 
-#endif /* __N_BASIC_H__ */
+#endif /* __N_BROADCAST_H__ */
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-//  EDGE Networking Primitives
+//  EDGE Networking : Broadcast Links
 //----------------------------------------------------------------------------
 // 
 //  Copyright (c) 1999-2007  The EDGE Team.
@@ -17,14 +17,16 @@
 //----------------------------------------------------------------------------
 
 #include "i_defs.h"
-#include "i_sdlinc.h"
+#include "i_netinc.h"
 
-#include "sdl_netx.h"
-
-#include "n_basic.h"
+#include "n_bcast.h"
 
 
 bool nonet = true;
+
+static UDPsocket my_udp_socket = 0;
+
+static int host_broadcast_port = 0;
  
 
 void I_StartupNetwork(void)
@@ -53,68 +55,6 @@ void I_ShutdownNetwork(void)
 
 //----------------------------------------------------------------------------
 
-static TCPsocket host_conn_socket = 0;
-
-bool N_CreateReliableLink(int port)
-{
-	IPaddress addr;
-
-	addr.host = INADDR_ANY;
-	addr.port = port;
-	
-	host_conn_socket = SDLNet_TCP_Open(&addr);
-
-	if (! host_conn_socket)
-		return false;
-
-	return true;
-}
-
-net_node_c * N_AcceptReliableConn(void)
-{
-	// TODO
-	
-	return NULL;
-}
-
-net_node_c * N_OpenReliableLink(void *address, int port)
-{
-	// TODO
-	
-	return NULL;
-}
-
-void N_CloseReliableLink(net_node_c *node)
-{
-	// TODO
-}
-
-bool N_ReliableSend(net_node_c *node, const byte *data, int len)
-{
-	// Intentional Const Override (dumb SDL fuckers)
-	int actual = SDLNet_TCP_Send(node->socket, (void*)data, len);
-
-	if (actual < len)  // FIXME: mark node as gone
-		return false;
-
-	return true;
-}
-
-int N_ReliableRecv(net_node_c *node, byte *buffer, int max_len)
-{
-	int actual = SDLNet_TCP_Recv(node->socket, buffer, max_len);
-
-	if (actual <= 0)
-		return -1;  // error
-
-	return actual;
-}
-
-//----------------------------------------------------------------------------
-
-static UDPsocket my_udp_socket = 0;
-
-static int host_broadcast_port = 0;
 
 bool N_OpenBroadcastLink(int port)
 {
