@@ -30,10 +30,6 @@
 
 bool nonet = true;
 
-/// static UDPsocket my_udp_socket = 0;
-
-static int host_broadcast_port = 0;
- 
 
 void I_StartupNetwork(void)
 {
@@ -79,19 +75,23 @@ void I_ShutdownNetwork(void)
 //----------------------------------------------------------------------------
 
 
-#if 0
+static SOCKET host_bcast_socket = INVALID_SOCKET;
+
+static int host_broadcast_port = 0;
+ 
 
 bool N_StartupBroadcastLink(int port)
 {
 	if (nonet)
 		return false;
 	
-	if (port > 0)
-		host_broadcast_port = port;
+	SYS_ASSERT(port > 0);
 
-	my_udp_socket = SDLNet_UDP_Open(port);
+	host_bcast_port = port;
 
-	if (! my_udp_socket)
+	host_bcast_socket = ...
+
+	if (host_bcast_socket == INVALID_SOCKET)
 	{
 		// clients should try again with port=0
 		I_Debugf("SDLNet_UDP_Open failed.\n");
@@ -118,26 +118,46 @@ void N_ShutdownBroadcastLink(void)
 
 bool N_BroadcastSend(const byte *data, int len)
 {
-	UDPpacket *pk = SDLNet_AllocPacket(len);
-
-	memcpy(pk->data, data, len);
-
-	pk->channel = -1;
 	pk->address.port = host_broadcast_port;
 
 	if (SDLNetx_UDP_Broadcast(my_udp_socket, pk) <= 0)
 		return false;
 
-	// FIXME: free the 'pk' structure (can we do it now???)
+
 
 	return true;
 }
 
-#endif
 
 int N_BroadcastRecv(byte *buffer, int max_len)
 {
-	// TODO
+	// if (SocketReady(host_bcast_socket)
+
+	int sock_len;
+	struct sockaddr_in sock_addr;
+
+	{
+		UDPpacket *packet;
+
+		packet = packets[numrecv];
+
+		int sock_len = sizeof(sock_addr);
+
+		int actual = recvfrom(host_bcast_socket,
+				buffer, max_len, 0 /* flags */,
+				(struct sockaddr *)&sock_addr,
+#ifdef USE_GUSI_SOCKETS
+				(unsigned int *)&sock_len);
+#else
+				&sock_len);
+#endif
+
+		if ( packet->status >= 0 )
+		{
+			packet->len = packet->status;
+			packet->address.host = sock_addr.sin_addr.s_addr;
+			packet->address.port = sock_addr.sin_port;
+		}
 
 	return -1;
 }
