@@ -26,7 +26,11 @@
 
 
 /* Include system network headers */
-#ifndef WIN32
+#ifdef WIN32
+#include <winsock.h>
+#endif
+
+#ifdef LINUX
 #include <sys/time.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -39,8 +43,8 @@
 
 
 /* System-dependent definitions */
-#ifndef WIN32
-#define closesocket	close
+#ifdef LINUX
+#define closesocket	 close
 #define SOCKET	int
 #define INVALID_SOCKET	-1
 #define SOCKET_ERROR	-1
