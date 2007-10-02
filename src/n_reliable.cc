@@ -43,6 +43,9 @@ public:
 static TCPsocket host_conn_socket = 0;
 
 
+// TODO: static xxx Make_SAddr(const byte *address) ...
+
+
 bool N_CreateReliableLink(int port)
 {
 	IPaddress addr;
@@ -67,14 +70,62 @@ net_node_c * N_AcceptReliableConn(void)
 
 net_node_c * N_OpenReliableLink(const byte *address, int port)
 {
-	// TODO
+	net_node_c *node = new net_node_c();
+
+	node->sock = socket(AF_INET, SOCK_STREAM, 0);
+
+	if (node->sock == INVALID_SOCKET)
+	{
+		L_WriteDebug("N_OpenReliableLink: couldn't create socket!\n");
+
+		delete node;
+		return NULL;
+	}
+
+	struct sockaddr_in sock_addr;
+
+	memset(&sock_addr, 0, sizeof(sock_addr));
+
+	sock_addr.sin_family = AF_INET;
+	sock_addr.sin_addr.s_addr = Make_SAddr(address);
+	sock_addr.sin_port = port;
+
+	// connect to the remote host
+	if (connect(sock->channel, (struct sockaddr *) &sock_addr,
+				sizeof(sock_addr)) == SOCKET_ERROR)
+	{
+		I_Printf("Couldn't connect to remote host!\n");
+		N_CloseReliableLink(node);
+
+		delete node;
+		return NULL;
+	}
+
+#ifdef TCP_NODELAY
+	// set the nodelay TCP option for real-time games
+	{
+		int enabled = 1;
+
+		setsockopt(node->sock, IPPROTO_TCP, TCP_NODELAY,
+				   (char *) &enabled, sizeof(enabled));
+	}
+#endif
+
+	// TODO: fill in the remote address
+	// sock->remoteAddress.host = sock_addr.sin_addr.s_addr;
+	// sock->remoteAddress.port = sock_addr.sin_port;
 
 	return NULL;
 }
 
 void N_CloseReliableLink(net_node_c *node)
 {
-	// TODO
+	if (node->sock != INVALID_SOCKET)
+	{
+		closesocket(node->sock);
+
+		node->sock = INVALID_SOCKET;
+	}
 }
 
 bool N_ReliableSend(net_node_c *node, const byte *data, int len)
