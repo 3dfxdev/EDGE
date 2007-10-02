@@ -29,6 +29,7 @@
 class net_node_c
 {
 public:
+	SOCKET sock;
 
 public:
 	net_node_c() : XXX
@@ -40,25 +41,83 @@ public:
 
 
 
-static TCPsocket host_conn_socket = 0;
+static SOCKET host_conn_sock = INVALID_SOCKET;
 
 
 // TODO: static xxx Make_SAddr(const byte *address) ...
 
 
-bool N_CreateReliableLink(int port)
+bool N_StartupReliableLink(int port)
 {
-	IPaddress addr;
+	host_conn_sock = socket(AF_INET, SOCK_STREAM, 0);
 
-	addr.host = INADDR_ANY;
-	addr.port = port;
-	
-	host_conn_socket = SDLNet_TCP_Open(&addr);
-
-	if (! host_conn_socket)
+	if (host_conn_sock == INVALID_SOCKET)
+	{
+		L_WriteDebug("N_StartupReliableLink: couldn't create socket!\n");
 		return false;
+	}
 
-	return true;
+	struct sockaddr_in sock_addr;
+
+	memset(&sock_addr, 0, sizeof(sock_addr));
+
+	sock_addr.sin_family = AF_INET;
+	sock_addr.sin_addr.s_addr = INADDR_ANY;
+	sock_addr.sin_port = port;
+
+/*
+ * Windows gets bad mojo with SO_REUSEADDR:
+ * http://www.devolution.com/pipermail/sdl/2005-September/070491.html
+ *   --ryan.
+ */
+#ifndef WIN32
+	// allow local address reuse
+	{
+		int enabled = 1;
+
+		setsockopt(host_conn_sock, SOL_SOCKET, SO_REUSEADDR,
+				   (char*)&enabled, sizeof(enabled));
+	}
+#endif
+
+	// bind the socket for listening
+	if (bind(host_conn_sock, (struct sockaddr *)&sock_addr,
+			 sizeof(sock_addr)) == SOCKET_ERROR )
+	{
+		I_Printf("ReliableLink: Couldn't bind to local port!\n");
+		N_ShutdownReliableLink();
+		return false;
+	}
+
+	if (listen(host_conn_sock, 5) == SOCKET_ERROR )
+	{
+		I_Printf("ReliableLink: Couldn't listen to local port!\n");
+		N_ShutdownReliableLink();
+		return false;
+	}
+
+	// set the socket to non-blocking mode for accept()
+#ifdef WIN32
+	{
+		unsigned long mode = 1;
+		ioctlsocket(host_conn_sock, FIONBIO, &mode);
+	}
+#elif defined(O_NONBLOCK)
+	{
+		fcntl(host_conn_sock, F_SETFL, O_NONBLOCK);
+	}
+#endif
+
+	return true; //OK
+}
+
+void N_ShutdownReliableLink(void)
+{
+	SYS_ASSERT(host_conn_sock != INVALID_SOCKET);
+
+	closesocket(host_conn_sock);
+
+	host_conn_sock = INVALID_SOCKET;
 }
 
 net_node_c * N_AcceptReliableConn(void)
@@ -107,7 +166,7 @@ net_node_c * N_OpenReliableLink(const byte *address, int port)
 		int enabled = 1;
 
 		setsockopt(node->sock, IPPROTO_TCP, TCP_NODELAY,
-				   (char *) &enabled, sizeof(enabled));
+				   (char*)&enabled, sizeof(enabled));
 	}
 #endif
 
