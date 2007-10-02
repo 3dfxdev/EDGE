@@ -77,7 +77,7 @@ void I_ShutdownNetwork(void)
 
 static SOCKET host_bcast_socket = INVALID_SOCKET;
 
-static int host_broadcast_port = 0;
+static int host_bcast_port = 0;
  
 
 bool N_StartupBroadcastLink(int port)
@@ -98,11 +98,14 @@ bool N_StartupBroadcastLink(int port)
 		return false;
 	}
 
-	if (SDLNetx_EnableBroadcast(my_udp_socket) <= 0)
-	{
-		I_Debugf("SDLNetx_EnableBroadcast failed.\n");
-		/* continue ??? */
-	}
+#ifdef LINUX
+	// TODO: read broadcast addresses
+#endif
+
+	int enable_BC = 1;
+
+    setsockopt(host_bcast_socket, SOL_SOCKET, SO_BROADCAST,
+               (char*)&enable_BC, sizeof(enable_BC));
 
 	return true;
 }
@@ -118,12 +121,34 @@ void N_ShutdownBroadcastLink(void)
 
 bool N_BroadcastSend(const byte *data, int len)
 {
-	pk->address.port = host_broadcast_port;
+	pk->address.port = host_bcast_port;
 
 	if (SDLNetx_UDP_Broadcast(my_udp_socket, pk) <= 0)
 		return false;
+/* Win32 (at least, Win 98) seems to accept 255.255.255.255
+ * as a valid broadcast address.
+ * I'll live with that for now.
+ */
+#ifdef WIN32
 
+	inPacket->address.host = 0xffffffff;
+	int theResult = SDLNet_UDP_Send(inSocket, -1, inPacket);
 
+	struct sockaddr_in sock_addr;
+
+	int sock_len = sizeof(sock_addr);
+
+	sock_addr.sin_addr.s_addr = //XXX
+	sock_addr.sin_port = //XXX
+	sock_addr.sin_family = AF_INET;
+
+	int actual = sendto(sock->channel,
+			packets[i]->data, packets[i]->len, 0,
+			(struct sockaddr *)&sock_addr,sock_len);
+
+	if (actual < 0) // error occurred
+		...
+#endif
 
 	return true;
 }
@@ -131,35 +156,36 @@ bool N_BroadcastSend(const byte *data, int len)
 
 int N_BroadcastRecv(byte *buffer, int max_len)
 {
-	// if (SocketReady(host_bcast_socket)
-
-	int sock_len;
 	struct sockaddr_in sock_addr;
 
-	{
-		UDPpacket *packet;
+	int sock_len = sizeof(sock_addr);
 
-		packet = packets[numrecv];
-
-		int sock_len = sizeof(sock_addr);
-
-		int actual = recvfrom(host_bcast_socket,
-				buffer, max_len, 0 /* flags */,
-				(struct sockaddr *)&sock_addr,
+	// clear global 'errno' var before the call
+	errno = 0;
+	
+	int actual = recvfrom(host_bcast_socket,
+			buffer, max_len, 0 /* flags */,
+			(struct sockaddr *)&sock_addr,
 #ifdef USE_GUSI_SOCKETS
-				(unsigned int *)&sock_len);
+			(unsigned int *)&sock_len);
 #else
-				&sock_len);
+			&sock_len);
 #endif
 
-		if ( packet->status >= 0 )
-		{
-			packet->len = packet->status;
-			packet->address.host = sock_addr.sin_addr.s_addr;
-			packet->address.port = sock_addr.sin_port;
-		}
+	if (actual < 0) // error occurred
+	{
+		if (errno == EAGAIN)
+			return 0;
 
-	return -1;
+		L_WriteDebug("N_BroadcastRecv: error %d\n", errno);
+		return -1;
+	}
+
+	// TODO: set remote addr/port (output parameters)
+	//	packet->address.host = sock_addr.sin_addr.s_addr;
+	//	packet->address.port = sock_addr.sin_port;
+
+	return actual; //OK
 }
 
 
