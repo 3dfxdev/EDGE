@@ -15,6 +15,10 @@
 //  GNU General Public License for more details.
 //
 //----------------------------------------------------------------------------
+//
+//  FIXME  acknowledge SDL_net code
+//
+//----------------------------------------------------------------------------
 
 #include "i_defs.h"
 #include "i_netinc.h"
@@ -22,8 +26,22 @@
 #include "n_reliable.h"
 
 
+class net_node_c
+{
+public:
+
+public:
+	net_node_c() : XXX
+	{ }
+
+	~net_node_c()
+	{ }
+};
+
+
 
 static TCPsocket host_conn_socket = 0;
+
 
 bool N_CreateReliableLink(int port)
 {
@@ -47,10 +65,10 @@ net_node_c * N_AcceptReliableConn(void)
 	return NULL;
 }
 
-net_node_c * N_OpenReliableLink(void *address, int port)
+net_node_c * N_OpenReliableLink(const byte *address, int port)
 {
 	// TODO
-	
+
 	return NULL;
 }
 
@@ -61,21 +79,60 @@ void N_CloseReliableLink(net_node_c *node)
 
 bool N_ReliableSend(net_node_c *node, const byte *data, int len)
 {
-	// Intentional Const Override (dumb SDL fuckers)
-	int actual = SDLNet_TCP_Send(node->socket, (void*)data, len);
+	SYS_ASSERT(len > 0);
 
-	if (actual < len)  // FIXME: mark node as gone
-		return false;
+	// keep sending data until it's sent or an error occurs
+	while (len > 0)
+	{
+		// clear global 'errno' variable before the call
+		errno = 0;
 
-	return true;
+// SHIT: may block !!! FIXME
+			
+		int actual = send(node->sock, data, len, 0);
+
+		if (actual <= 0) // error occurred
+		{
+			if (errno == EINTR)
+				continue;
+
+			if (errno != EAGAIN)
+				L_WriteDebug("N_ReliableSend: error %d\n", errno);
+
+			return false;
+		}
+
+		SYS_ASSERT(actual <= len);
+
+		len  -= actual;
+		data += actual;
+	}
+
+	return true; //OK
 }
 
 int N_ReliableRecv(net_node_c *node, byte *buffer, int max_len)
 {
-	int actual = SDLNet_TCP_Recv(node->socket, buffer, max_len);
+	int actual;
 
-	if (actual <= 0)
-		return -1;  // error
+	do
+	{
+		// clear global 'errno' variable before the call
+		errno = 0;
+
+		actual = recv(node->sock, buffer, max_len, 0);
+	}
+	while (errno == EINTR);
+
+	if (actual < 0) // error occurred
+	{
+		if (errno != EAGAIN)
+			L_WriteDebug("N_ReliableRecv: error %d\n", errno);
+
+		return 0;
+	}
+
+	SYS_ASSERT(actual <= max_len);
 
 	return actual;
 }
