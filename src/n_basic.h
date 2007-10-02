@@ -20,18 +20,20 @@
 #define __N_BASIC_H__
 
 extern bool nonet;
- 
+
+class net_node_c;
 
 void I_StartupNetwork(void);
 void I_ShutdownNetwork(void);
 
+//----------------------------------------------------------------------------
 
 bool N_CreateReliableLink(int port);
 // (HOST ONLY)
 // Create the link (socket) which allows clients to connect to us.
 // Returns true if successful, otherwise false.
 
-NODE * N_AcceptReliableConn(void);
+net_node_c * N_AcceptReliableConn(void);
 // (HOST ONLY)
 // Check to see if any clients have (requested to) connect, and
 // allow them to connect.  This function should be called
@@ -40,25 +42,27 @@ NODE * N_AcceptReliableConn(void);
 // When successful, returns a new node.
 // Returns NULL if not successful.
 
-NODE * N_OpenReliableLink(void *address, int port);
+net_node_c * N_OpenReliableLink(void *address, int port);
 // (CLIENT ONLY)
 // Open a link to the Host at the given address and port.
 //
 // When successful, returns a new node.
-// Returns NULL if not successful.
+// Returns NULL if an error occurred.
 
-void N_CloseReliableLink(NODE *node);
+void N_CloseReliableLink(net_node_c *node);
 // Close the link to a Client or Host.
 
-bool N_ReliableSend(NODE *node, const byte *data, int len);
+bool N_ReliableSend(net_node_c *node, const byte *data, int len);
 // Send the data to the specified node.
 // Returns true if successful, false on error.
+// This call is non-blocking.
 
-int N_ReliableRecv(NODE *node, byte *buffer, int max_len);
+int N_ReliableRecv(net_node_c *node, byte *buffer, int max_len);
 // Receive upto 'max_len' of data from the specified node.
 // Returns the number of bytes read, 0 for none, or -1 if
 // an error occurred.  This call is non-blocking.
 
+//----------------------------------------------------------------------------
 
 bool N_OpenBroadcastLink(int port);
 // Setup the broadcast link for sending and receiving packets.
@@ -71,6 +75,7 @@ bool N_BroadcastSend(const byte *data, int len);
 // Send a packet on the broadcast link.
 // The data must be an entire packet.
 // returns true if successful, otherwise false.
+// This call is non-blocking.
 
 int N_BroadcastRecv(byte *buffer, int max_len);
 // Check if any packets have been received on the broadcast link,
@@ -80,7 +85,7 @@ int N_BroadcastRecv(byte *buffer, int max_len);
 // Returns the number of bytes read, 0 for none, or -1 if
 // an error occurred.  This call is non-blocking.
 // The result will be an entire packet.
-	
+
 #endif /* __N_BASIC_H__ */
 
 //--- editor settings ---

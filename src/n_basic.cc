@@ -19,6 +19,8 @@
 #include "i_defs.h"
 #include "i_sdlinc.h"
 
+#include "n_basic.h"
+
 
 bool nonet = true;
  
@@ -49,26 +51,27 @@ void I_ShutdownNetwork(void)
 
 //----------------------------------------------------------------------------
 
+bool N_CreateReliableLink(int port);
 
-N_CreateReliableLink (host only)
-N_AcceptReliableConn (host only)
+net_node_c * N_AcceptReliableConn(void);
 
-N_OpenReliableLink   (client only)
-N_CloseReliableLink  (client only)
+net_node_c * N_OpenReliableLink(void *address, int port);
 
-N_ReliableSend
-N_ReliableRecv
+void N_CloseReliableLink(net_node_c *node);
 
+bool N_ReliableSend(net_node_c *node, const byte *data, int len);
+
+int N_ReliableRecv(net_node_c *node, byte *buffer, int max_len);
 
 //----------------------------------------------------------------------------
 
+bool N_OpenBroadcastLink(int port);
 
-N_OpenBroadcastLink
-N_CloseBroadcastLink
+void N_CloseBroadcastLink(void);
 
-N_BroadcastSend
-N_BroadcastRecv
+bool N_BroadcastSend(const byte *data, int len);
 
+int N_BroadcastRecv(byte *buffer, int max_len);
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
