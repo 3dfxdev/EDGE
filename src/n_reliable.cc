@@ -172,7 +172,7 @@ net_node_c * N_AcceptReliableConn(void)
 	return node;
 }
 
-net_node_c * N_OpenReliableLink(const byte *address, int port)
+net_node_c * N_OpenReliableLink(const net_address_c *remote)
 {
 	net_node_c *node = new net_node_c();
 
@@ -190,9 +190,7 @@ net_node_c * N_OpenReliableLink(const byte *address, int port)
 
 	memset(&sock_addr, 0, sizeof(sock_addr));
 
-	sock_addr.sin_family = AF_INET;
-	sock_addr.sin_addr.s_addr = Make_SAddr(address);
-	sock_addr.sin_port = port;
+	remote->ToSockAddr(&sock_addr);
 
 	// connect to the remote host
 	if (connect(sock->channel, (struct sockaddr *) &sock_addr,
