@@ -84,13 +84,14 @@ void I_ShutdownNetwork(void)
 
 void net_address_c::FromSockAddr(const struct sockaddr_in *inaddr)
 {
-I_Printf("(FromSockAddr 0x%08x\n", inaddr->sin_addr.s_addr);
-	port = EPI_BE_U16(inaddr->sin_port);
+	port = ntohs(inaddr->sin_port);
 
-	addr[3] = (inaddr->sin_addr.s_addr >> 24) & 0xFF;
-	addr[2] = (inaddr->sin_addr.s_addr >> 16) & 0xFF;
-	addr[1] = (inaddr->sin_addr.s_addr >>  8) & 0xFF;
-	addr[0] = (inaddr->sin_addr.s_addr      ) & 0xFF;
+	const byte *source = (const byte*) &inaddr->sin_addr.s_addr;
+
+	addr[0] = source[0];
+	addr[1] = source[1];
+	addr[2] = source[2];
+	addr[3] = source[3];
 }
 
 void net_address_c::ToSockAddr(struct sockaddr_in *inaddr) const
@@ -98,14 +99,14 @@ void net_address_c::ToSockAddr(struct sockaddr_in *inaddr) const
 	memset(inaddr, 0, sizeof(struct sockaddr_in));
 
 	inaddr->sin_family = AF_INET;
+	inaddr->sin_port   = htons(port);
 
-	inaddr->sin_port = EPI_BE_U16(port);
+	byte *dest = (byte *) &inaddr->sin_addr.s_addr;
 
-	inaddr->sin_addr.s_addr =
-		(addr[3] << 24) ||
-		(addr[2] << 16) ||
-		(addr[1] <<  8) ||
-		(addr[0]      );
+	dest[0] = addr[0];
+	dest[1] = addr[1];
+	dest[2] = addr[2];
+	dest[3] = addr[3];
 }
 
 const char * net_address_c::TempString() const
@@ -268,7 +269,7 @@ bool N_StartupBroadcastLink(int port)
 
 	sock_addr.sin_family = AF_INET;
 	sock_addr.sin_addr.s_addr = INADDR_ANY;
-	sock_addr.sin_port = EPI_BE_U16(host_broadcast_port);
+	sock_addr.sin_port = htons(host_broadcast_port);
 
 	// bind the socket for listening
 	if (bind(host_broadcast_sock, (struct sockaddr *)&sock_addr,

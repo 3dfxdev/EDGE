@@ -94,7 +94,7 @@ bool N_StartupReliableLink(int port)
 
 	sock_addr.sin_family = AF_INET;
 	sock_addr.sin_addr.s_addr = INADDR_ANY;
-	sock_addr.sin_port = port;
+	sock_addr.sin_port = htons(port);
 
 /*
  * Windows gets bad mojo with SO_REUSEADDR:
