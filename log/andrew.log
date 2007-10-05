@@ -1,8 +1,23 @@
 Andrew Apted's Log
 
-2007/10/01:
+2007/10/05:
 
-Yay, another dependency: the SDL_net library.
+Been working on low level net code.  As before, Broadcast is
+a massive bitch to figure out, mainly because UNIX allows for
+multiple ethernet connections, so there is no easy-to-use API
+to just get "THE" broadcast address.  And I don't think using
+_every_ broadcast capable interface is wise...
+
+2007/10/02:
+
+Decided to remove SDL_net as a dependency and simply integrate
+the required bits into my own code.  That's because I didn't
+like the paradigms that the SDL_net API forced you to use.
+It's weird how SDL's satellite libs are so shit (SDL_mixer
+is another one with a fucked up API) when LibSDL itself is
+pretty good.
+
+2007/10/01:
 
 Implemented better way to gauge player's speed, using 'actual_speed'
 field in the player struct, which measures (damped) the distance
@@ -12,6 +27,8 @@ CHECKMOVING action and 'WALKING' condition more accurate.
 Reworked player movement code, adding support for entering "JUMP",
 "FLY", "SWIM" and "CLIMB" states when jumping, flying (jetpack),
 swimming and when climbing up/down a ladder.
+
+Yay, another dependency: the SDL_net library.
 
 2007/09/29:
 
