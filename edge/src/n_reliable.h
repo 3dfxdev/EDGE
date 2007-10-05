@@ -19,6 +19,8 @@
 #ifndef __N_RELIABLE_H__
 #define __N_RELIABLE_H__
 
+#include "n_bcast.h"
+
 class net_node_c;
 
 
@@ -43,7 +45,7 @@ net_node_c * N_AcceptReliableConn(void);
 // When successful, returns a new node.
 // Returns NULL if not successful.
 
-net_node_c * N_OpenReliableLink(const byte *address, int port);
+net_node_c * N_OpenReliableLink(const net_address_c *remote)
 // (CLIENT ONLY)
 // Open a link to the Host at the given address and port.
 //
