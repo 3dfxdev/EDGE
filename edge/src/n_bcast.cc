@@ -25,6 +25,11 @@
 #include "i_defs.h"
 #include "i_netinc.h"
 
+#ifdef LINUX
+#include <linux/if.h>
+#include <linux/sockios.h>
+#endif
+
 #include "epi/endianess.h"
 
 #include "n_bcast.h"
@@ -119,10 +124,96 @@ static SOCKET host_broadcast_sock = INVALID_SOCKET;
 
 static int host_broadcast_port = -1;
 
+
 #define MAX_BCAST_ADDRS  4
 
-static net_address_c *bcast_addr_list[MAX_BCAST_ADDRS];
+static net_address_c *broadcast_addresses[MAX_BCAST_ADDRS];
  
+
+static void FindBroadcastAddresses(void)
+{
+	memset(broadcast_addresses, 0, sizeof(broadcast_addresses));
+
+/* Win32 (at least, Win 98) seems to accept 255.255.255.255
+ * as a valid broadcast address.
+ * I'll live with that for now.
+ */
+#ifdef WIN32
+	static const bc_win32[4] = { 255,255,255,255 };
+
+	broadcast_addresses[0] = new net_address_c(bc_win32, host_broadcast_port);
+
+#else // LINUX
+
+    struct ifconf config;
+    char *buffer;
+    int  offset = 0;
+
+	buffer = new char[8192];
+
+    config.ifc_len = sizeof(buffer);
+    config.ifc_buf = buffer;
+
+    if (ioctl(host_broadcast_sock, SIOCGIFCONF, &config) < 0)
+	{
+		I_Printf("WARNING: cannot find broadcast address (SIOCGIFCONF)\n");
+		delete buffer;
+		return;
+	}
+
+	int num_addr = 0;
+
+	// offset marches through the return buffer to help us find subsequent
+	// entries (entries can have various sizes, but always >=
+	// sizeof(struct ifreq)... IP entries have minimum size).
+
+    while (num_addr < MAX_BCAST_ADDRS &&
+		   offset + (int)sizeof(struct ifreq) <= (int)config.ifc_len)
+	{
+        struct ifreq req;
+
+		memcpy(&req, buffer+offset, sizeof(req));
+
+        // make sure it's an entry for IP (not AppleTalk, ARP, etc)
+        if (req.ifr_addr.sa_family == AF_INET)
+		{
+            // we don't care about the actual address, what we
+			// really want is the interface's broadcast address.
+
+            if (ioctl(host_broadcast_sock, SIOCGIFBRDADDR, &req) >= 0)
+			{
+				net_address_c *addr = new net_address_c();
+
+				addr->FromSockAddr((struct sockaddr_in*) &req.ifr_addr);
+
+				broadcast_addresses[num_addr++] = addr;
+
+I_Printf(">> found broadcast addr: %s\n", addr->TempString());
+			}
+        }
+
+        // Increment offset to point at the next entry.
+        // _SIZEOF_ADDR_IFREQ() is provided in Mac OS X and
+		// accounts for entries whose address families use
+        // long addresses.
+
+#ifdef _SIZEOF_ADDR_IFREQ
+        offset += _SIZEOF_ADDR_IFREQ(req);
+#else
+		offset += sizeof(struct ifreq);
+#endif
+	}
+
+	delete buffer;
+
+	if (num_addr == 0)
+	{
+		I_Printf("WARNING: cannot find any broadcast addresses!\n");
+	}
+
+#endif // WIN32 vs LINUX
+}
+
 
 void N_ChangeBroadcastFlag(SOCKET sock, bool enable)
 {
@@ -177,7 +268,6 @@ bool N_StartupBroadcastLink(int port)
 	my_addr.FromSockAddr(&sock_addr);
 I_Printf(">>> my_addr : %s\n", my_addr.TempString());
 
-
 	N_ChangeBroadcastFlag(host_broadcast_sock, 1);
 
 	return true;
@@ -194,23 +284,22 @@ void N_ShutdownBroadcastLink(void)
 	}
 }
 
-bool N_BroadcastSend(const net_address_c *remote, const byte *data, int len)
+
+
+bool N_BroadcastSend(const byte *data, int len)
 {
 	pk->address.port = host_broadcast_port;
 
 	if (SDLNetx_UDP_Broadcast(my_udp_socket, pk) <= 0)
 		return false;
 
-/* Win32 (at least, Win 98) seems to accept 255.255.255.255
- * as a valid broadcast address.
- * I'll live with that for now.
- */
-#ifdef WIN32
 	inPacket->address.host = 0xFFFFFFFF;
 
 	int theResult = SDLNet_UDP_Send(inSocket, -1, inPacket);
 
 	struct sockaddr_in sock_addr;
+
+	memset(&sock_addr, 0, sizeof(sock_addr));
 
 	remote->ToSockAddr(&sock_addr);
 
@@ -220,7 +309,6 @@ bool N_BroadcastSend(const net_address_c *remote, const byte *data, int len)
 
 	if (actual < 0) // error occurred
 		...
-#endif
 
 	return true;
 }
