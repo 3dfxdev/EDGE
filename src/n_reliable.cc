@@ -49,7 +49,7 @@ public:
 static SOCKET host_conn_sock = INVALID_SOCKET;
 
 
-static void ChangeNonBlock(SOCKET sock, bool enable)
+void N_ChangeNonBlock(SOCKET sock, bool enable)
 {
 #ifdef WIN32
 	unsigned long mode = enable ? 1 : 0;
@@ -61,7 +61,7 @@ static void ChangeNonBlock(SOCKET sock, bool enable)
 #endif
 }
 
-static void ChangeNoDelay(SOCKET sock)
+void N_ChangeNoDelay(SOCKET sock)
 {
 #ifdef TCP_NODELAY
 	int enabled = 1;
@@ -125,7 +125,7 @@ bool N_StartupReliableLink(int port)
 	}
 
 	// set the socket to non-blocking mode for accept()
-	ChangeNonBlock(host_conn_sock, true);
+	N_ChangeNonBlock(host_conn_sock, true);
 
 	return true; //OK
 }
@@ -166,10 +166,10 @@ net_node_c * N_AcceptReliableConn(void)
 	node->remote.FromSockAddr(&sock_addr);
 
 	// we want non-blocking read/writes
-	ChangeNonBlock(node->sock, true);
+	N_ChangeNonBlock(node->sock, true);
 
 	// set the nodelay TCP option for real-time games
-	ChangeNoDelay(node->sock);
+	N_ChangeNoDelay(node->sock);
 
 	return node;
 }
@@ -208,10 +208,10 @@ net_node_c * N_OpenReliableLink(const net_address_c *remote)
 	node->remote.FromSockAddr(&sock_addr);
 
 	// we want non-blocking read/writes
-	ChangeNonBlock(node->sock, true);
+	N_ChangeNonBlock(node->sock, true);
 
 	// set the nodelay TCP option for real-time games
-	ChangeNoDelay(node->sock);
+	N_ChangeNoDelay(node->sock);
 
 	return NULL;
 }
