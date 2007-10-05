@@ -57,7 +57,7 @@ void I_StartupNetwork(void)
 
 	nonet = false;
 
-	I_Printf("I_StartupNetwork: SDL_net Initialised OK.\n");
+	I_Printf("I_StartupNetwork: Initialised OK.\n");
 }
 
 
@@ -84,12 +84,13 @@ void I_ShutdownNetwork(void)
 
 void net_address_c::FromSockAddr(const struct sockaddr_in *inaddr)
 {
+I_Printf("(FromSockAddr 0x%08x\n", inaddr->sin_addr.s_addr);
 	port = EPI_BE_U16(inaddr->sin_port);
 
-	addr[0] = (inaddr->sin_addr.s_addr >> 24) & 0xFF;
-	addr[1] = (inaddr->sin_addr.s_addr >> 16) & 0xFF;
-	addr[2] = (inaddr->sin_addr.s_addr >>  8) & 0xFF;
-	addr[3] = (inaddr->sin_addr.s_addr      ) & 0xFF;
+	addr[3] = (inaddr->sin_addr.s_addr >> 24) & 0xFF;
+	addr[2] = (inaddr->sin_addr.s_addr >> 16) & 0xFF;
+	addr[1] = (inaddr->sin_addr.s_addr >>  8) & 0xFF;
+	addr[0] = (inaddr->sin_addr.s_addr      ) & 0xFF;
 }
 
 void net_address_c::ToSockAddr(struct sockaddr_in *inaddr) const
@@ -101,8 +102,10 @@ void net_address_c::ToSockAddr(struct sockaddr_in *inaddr) const
 	inaddr->sin_port = EPI_BE_U16(port);
 
 	inaddr->sin_addr.s_addr =
-		(addr[0] << 24) || (addr[1] << 16) ||
-		(addr[2] <<  8) || (addr[3]      );
+		(addr[3] << 24) ||
+		(addr[2] << 16) ||
+		(addr[1] <<  8) ||
+		(addr[0]      );
 }
 
 const char * net_address_c::TempString() const
@@ -146,12 +149,14 @@ static void FindBroadcastAddresses(void)
 #else // LINUX
 
     struct ifconf config;
+    int offset = 0;
+
+	int buf_len = 8192;
     char *buffer;
-    int  offset = 0;
 
-	buffer = new char[8192];
+	buffer = new char[buf_len];
 
-    config.ifc_len = sizeof(buffer);
+    config.ifc_len = buf_len;
     config.ifc_buf = buffer;
 
     if (ioctl(host_broadcast_sock, SIOCGIFCONF, &config) < 0)
@@ -167,6 +172,9 @@ static void FindBroadcastAddresses(void)
 	// entries (entries can have various sizes, but always >=
 	// sizeof(struct ifreq)... IP entries have minimum size).
 
+I_Printf("offset: %d  sizeof:%d  ifc_len:%d\n",
+offset, (int)sizeof(struct ifreq),  (int)config.ifc_len);
+
     while (num_addr < MAX_BCAST_ADDRS &&
 		   offset + (int)sizeof(struct ifreq) <= (int)config.ifc_len)
 	{
@@ -174,13 +182,23 @@ static void FindBroadcastAddresses(void)
 
 		memcpy(&req, buffer+offset, sizeof(req));
 
+I_Printf("> name = %6.6s\n", req.ifr_name);
+I_Printf("> family = %d\n", req.ifr_addr.sa_family);
+
         // make sure it's an entry for IP (not AppleTalk, ARP, etc)
         if (req.ifr_addr.sa_family == AF_INET)
 		{
             // we don't care about the actual address, what we
 			// really want is the interface's broadcast address.
+			// -AJA- need to ignore loopback (127.0.0.1).
 
-            if (ioctl(host_broadcast_sock, SIOCGIFBRDADDR, &req) >= 0)
+net_address_c cur_A;
+cur_A.FromSockAddr((struct sockaddr_in*)&req.ifr_addr);
+I_Printf(">> address = %s\n", cur_A.TempString());
+	
+            if (cur_A.addr[0] != 127 && cur_A.addr[0] != 0 &&
+				cur_A.addr[0] != 255 &&
+				ioctl(host_broadcast_sock, SIOCGIFBRDADDR, &req) >= 0)
 			{
 				net_address_c *addr = new net_address_c();
 
@@ -233,7 +251,7 @@ bool N_StartupBroadcastLink(int port)
 	SYS_ASSERT(port > 0);
 
 	host_broadcast_port = port;
-	host_broadcast_sock = socket(AF_INET, SOCK_DGRAM, 0);
+	host_broadcast_sock = socket(PF_INET, SOCK_DGRAM, 0);
 
 	if (host_broadcast_sock == INVALID_SOCKET)
 	{
