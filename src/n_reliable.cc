@@ -80,7 +80,7 @@ bool N_StartupReliableLink(int port)
 		return false;
 
 	host_conn_port = port;
-	host_conn_sock = socket(AF_INET, SOCK_STREAM, 0);
+	host_conn_sock = socket(PF_INET, SOCK_STREAM, 0);
 
 	if (host_conn_sock == INVALID_SOCKET)
 	{
@@ -187,7 +187,7 @@ net_node_c * N_OpenReliableLink(const net_address_c *remote)
 {
 	net_node_c *node = new net_node_c();
 
-	node->sock = socket(AF_INET, SOCK_STREAM, 0);
+	node->sock = socket(PF_INET, SOCK_STREAM, 0);
 
 	if (node->sock == INVALID_SOCKET)
 	{
