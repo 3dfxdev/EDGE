@@ -54,6 +54,11 @@ public:
 	void FromSockAddr(const struct sockaddr_in *inaddr);
 
 	void ToSockAddr(struct sockaddr_in *inaddr) const;
+
+	const char *TempString() const;
+	// returns a string representation of the address.
+	// the result is a static buffer, hence is only valid
+	// temporarily (until the next call).
 };
 
 

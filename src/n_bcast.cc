@@ -87,9 +87,10 @@ void net_address_c::FromSockAddr(const struct sockaddr_in *inaddr)
 	addr[3] = (inaddr->sin_addr.s_addr      ) & 0xFF;
 }
 
-
 void net_address_c::ToSockAddr(struct sockaddr_in *inaddr) const
 {
+	memset(inaddr, 0, sizeof(struct sockaddr_in));
+
 	inaddr->sin_family = AF_INET;
 
 	inaddr->sin_port = EPI_BE_U16(port);
@@ -99,13 +100,24 @@ void net_address_c::ToSockAddr(struct sockaddr_in *inaddr) const
 		(addr[2] <<  8) || (addr[3]      );
 }
 
+const char * net_address_c::TempString() const
+{
+	static char buffer[256];
+
+	sprintf(buffer, "%d.%d.%d.%d:%d",
+			(int)addr[0], (int)addr[1],
+			(int)addr[2], (int)addr[3], port);
+
+	return buffer;
+}
+
 
 //----------------------------------------------------------------------------
 
 
-static SOCKET host_bcast_socket = INVALID_SOCKET;
+static SOCKET host_broadcast_sock = INVALID_SOCKET;
 
-static int host_bcast_port = 0;
+static int host_broadcast_port = -1;
 
 #define MAX_BCAST_ADDRS  4
 
@@ -129,10 +141,10 @@ bool N_StartupBroadcastLink(int port)
 	
 	SYS_ASSERT(port > 0);
 
-	host_bcast_port = port;
-	host_bcast_socket = socket(AF_INET, SOCK_DGRAM, 0);
+	host_broadcast_port = port;
+	host_broadcast_sock = socket(AF_INET, SOCK_DGRAM, 0);
 
-	if (host_bcast_sock == INVALID_SOCKET)
+	if (host_broadcast_sock == INVALID_SOCKET)
 	{
 		L_WriteDebug("N_StartupBroadcastLink: couldn't create socket!\n");
 		return false;
@@ -143,14 +155,15 @@ bool N_StartupBroadcastLink(int port)
 #endif
 
 	struct sockaddr_in sock_addr;
+
 	memset(&sock_addr, 0, sizeof(sock_addr));
 
 	sock_addr.sin_family = AF_INET;
 	sock_addr.sin_addr.s_addr = INADDR_ANY;
-	sock_addr.sin_port = EPI_BE_U16(host_bcast_port);
+	sock_addr.sin_port = EPI_BE_U16(host_broadcast_port);
 
 	// bind the socket for listening
-	if (bind(host_bcast_sock, (struct sockaddr *)&sock_addr,
+	if (bind(host_broadcast_sock, (struct sockaddr *)&sock_addr,
 			 sizeof(sock_addr)) == SOCKET_ERROR)
 	{
 		I_Printf("N_StartupBroadcastLink: Couldn't bind to local port\n");
@@ -159,28 +172,31 @@ bool N_StartupBroadcastLink(int port)
 	}
 
 	// get the channel host address
-	// sock->address.host = sock_addr.sin_addr.s_addr;
-	// sock->address.port = sock_addr.sin_port;
+	net_address_c my_addr;
 
-	N_ChangeBroadcastFlag(host_bcast_socket, 1);
+	my_addr.FromSockAddr(&sock_addr);
+I_Printf(">>> my_addr : %s\n", my_addr.TempString());
+
+
+	N_ChangeBroadcastFlag(host_broadcast_sock, 1);
 
 	return true;
 }
 
 void N_ShutdownBroadcastLink(void)
 {
-	if (host_bcast_socket != INVALID_SOCKET)
+	if (host_broadcast_sock != INVALID_SOCKET)
 	{
-		closesocket(host_bcast_socket);
+		closesocket(host_broadcast_sock);
 
-		host_bcast_socket = INVALID_SOCKET;
-		host_bcast_port = -1;
+		host_broadcast_sock = INVALID_SOCKET;
+		host_broadcast_port = -1;
 	}
 }
 
 bool N_BroadcastSend(const net_address_c *remote, const byte *data, int len)
 {
-	pk->address.port = host_bcast_port;
+	pk->address.port = host_broadcast_port;
 
 	if (SDLNetx_UDP_Broadcast(my_udp_socket, pk) <= 0)
 		return false;
@@ -213,6 +229,7 @@ bool N_BroadcastSend(const net_address_c *remote, const byte *data, int len)
 int N_BroadcastRecv(net_address_c *remote, byte *buffer, int max_len)
 {
 	struct sockaddr_in sock_addr;
+
 	memset(&sock_addr, 0, sizeof(sock_addr));
 
 	int len_var = sizeof(sock_addr);
@@ -220,7 +237,7 @@ int N_BroadcastRecv(net_address_c *remote, byte *buffer, int max_len)
 	// clear global 'errno' var before the call
 	errno = 0;
 	
-	int actual = recvfrom(host_bcast_socket,
+	int actual = recvfrom(host_broadcast_sock,
 			buffer, max_len, 0 /* flags */,
 			(struct sockaddr *)&sock_addr,
 #ifdef USE_GUSI_SOCKETS
