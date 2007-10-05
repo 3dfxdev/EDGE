@@ -69,9 +69,9 @@ bool N_StartupBroadcastLink(int port);
 void N_ShutdownBroadcastLink(void);
 // Shut down the broadcast link.
 
-bool N_BroadcastSend(const net_address_c *remote, const byte *data, int len);
+bool N_BroadcastSend(const byte *data, int len);
 // Send a packet on the broadcast link.
-// The data must be an entire packet.
+// The data must be one entire packet.
 // returns true if successful, otherwise false.
 // This call is non-blocking.
 

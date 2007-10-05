@@ -31,14 +31,15 @@
 #endif
 
 #ifdef LINUX
-#include <sys/time.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <netinet/in.h>
 #include <arpa/inet.h>
+#include <netinet/in.h>
 #include <netinet/tcp.h>
+#include <netinet/udp.h>
 #include <netdb.h>
 #include <sys/socket.h>
+#include <sys/ioctl.h>
 #endif
 
 
