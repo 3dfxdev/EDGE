@@ -25,6 +25,8 @@
 #include "i_defs.h"
 #include "i_netinc.h"
 
+#include "epi/endianess.h"
+
 #include "n_bcast.h"
 
 
@@ -69,6 +71,29 @@ void I_ShutdownNetwork(void)
 		}
 #endif
 	}
+}
+
+
+void net_address_c::FromSockAddr(const struct sockaddr_in *inaddr)
+{
+	port = EPI_BE_U16(inaddr->sin_port);
+
+	addr[0] = (inaddr->sin_addr.s_addr >> 24) & 0xFF;
+	addr[1] = (inaddr->sin_addr.s_addr >> 16) & 0xFF;
+	addr[2] = (inaddr->sin_addr.s_addr >>  8) & 0xFF;
+	addr[3] = (inaddr->sin_addr.s_addr      ) & 0xFF;
+}
+
+
+void net_address_c::ToSockAddr(struct sockaddr_in *inaddr) const
+{
+	inaddr->sin_family = AF_INET;
+
+	inaddr->sin_port = EPI_BE_U16(port);
+
+	inaddr->sin_addr.s_addr =
+		(addr[0] << 24) || (addr[1] << 16) ||
+		(addr[2] <<  8) || (addr[3]      );
 }
 
 
@@ -119,7 +144,7 @@ void N_ShutdownBroadcastLink(void)
 	}
 }
 
-bool N_BroadcastSend(const byte *data, int len)
+bool N_BroadcastSend(const net_address_c *remote, const byte *data, int len)
 {
 	pk->address.port = host_bcast_port;
 
@@ -138,9 +163,7 @@ bool N_BroadcastSend(const byte *data, int len)
 
 	int sock_len = sizeof(sock_addr);
 
-	sock_addr.sin_addr.s_addr = //XXX
-	sock_addr.sin_port = //XXX
-	sock_addr.sin_family = AF_INET;
+	remote->ToSockAddr(&sock_addr);
 
 	int actual = sendto(sock->channel,
 			packets[i]->data, packets[i]->len, 0,
@@ -154,7 +177,7 @@ bool N_BroadcastSend(const byte *data, int len)
 }
 
 
-int N_BroadcastRecv(byte *buffer, int max_len)
+int N_BroadcastRecv(net_address_c *remote, byte *buffer, int max_len)
 {
 	struct sockaddr_in sock_addr;
 
@@ -181,9 +204,8 @@ int N_BroadcastRecv(byte *buffer, int max_len)
 		return -1;
 	}
 
-	// TODO: set remote addr/port (output parameters)
-	//	packet->address.host = sock_addr.sin_addr.s_addr;
-	//	packet->address.port = sock_addr.sin_port;
+	// set remote addr/port (output parameters)
+	remote->FromSockAddr(&sock_addr);
 
 	return actual; //OK
 }
