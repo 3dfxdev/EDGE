@@ -130,6 +130,8 @@ bool N_StartupReliableLink(int port)
 	// set the socket to non-blocking mode for accept()
 	N_ChangeNonBlock(host_conn_sock, true);
 
+	I_Printf("N_StartupReliableLink: OK\n");
+
 	return true; //OK
 }
 
