@@ -33,6 +33,9 @@
 bool nonet = true;
 
 
+extern void N_ChangeNonBlock(SOCKET sock, bool enable);
+
+
 void I_StartupNetwork(void)
 {
 #ifdef WIN32
@@ -103,7 +106,21 @@ void net_address_c::ToSockAddr(struct sockaddr_in *inaddr) const
 static SOCKET host_bcast_socket = INVALID_SOCKET;
 
 static int host_bcast_port = 0;
+
+#define MAX_BCAST_ADDRS  4
+
+static net_address_c *bcast_addr_list[MAX_BCAST_ADDRS];
  
+
+void N_ChangeBroadcastFlag(SOCKET sock, bool enable)
+{
+#ifdef SO_BROADCAST
+	int mode = enable ? 1 : 0;
+
+    setsockopt(sock, SOL_SOCKET, SO_BROADCAST,
+               (char*)&mode, sizeof(mode));
+#endif
+}
 
 bool N_StartupBroadcastLink(int port)
 {
@@ -113,13 +130,11 @@ bool N_StartupBroadcastLink(int port)
 	SYS_ASSERT(port > 0);
 
 	host_bcast_port = port;
+	host_bcast_socket = socket(AF_INET, SOCK_DGRAM, 0);
 
-	host_bcast_socket = ...
-
-	if (host_bcast_socket == INVALID_SOCKET)
+	if (host_bcast_sock == INVALID_SOCKET)
 	{
-		// clients should try again with port=0
-		I_Debugf("SDLNet_UDP_Open failed.\n");
+		L_WriteDebug("N_StartupBroadcastLink: couldn't create socket!\n");
 		return false;
 	}
 
@@ -127,20 +142,39 @@ bool N_StartupBroadcastLink(int port)
 	// TODO: read broadcast addresses
 #endif
 
-	int enable_BC = 1;
+	struct sockaddr_in sock_addr;
+	memset(&sock_addr, 0, sizeof(sock_addr));
 
-    setsockopt(host_bcast_socket, SOL_SOCKET, SO_BROADCAST,
-               (char*)&enable_BC, sizeof(enable_BC));
+	sock_addr.sin_family = AF_INET;
+	sock_addr.sin_addr.s_addr = INADDR_ANY;
+	sock_addr.sin_port = EPI_BE_U16(host_bcast_port);
+
+	// bind the socket for listening
+	if (bind(host_bcast_sock, (struct sockaddr *)&sock_addr,
+			 sizeof(sock_addr)) == SOCKET_ERROR)
+	{
+		I_Printf("N_StartupBroadcastLink: Couldn't bind to local port\n");
+		N_ShutdownBroadcastLink();
+		return false;
+	}
+
+	// get the channel host address
+	// sock->address.host = sock_addr.sin_addr.s_addr;
+	// sock->address.port = sock_addr.sin_port;
+
+	N_ChangeBroadcastFlag(host_bcast_socket, 1);
 
 	return true;
 }
 
 void N_ShutdownBroadcastLink(void)
 {
-	if (my_udp_socket)
+	if (host_bcast_socket != INVALID_SOCKET)
 	{
-		SDLNet_UDP_Close(my_udp_socket);
-		my_udp_socket = 0;
+		closesocket(host_bcast_socket);
+
+		host_bcast_socket = INVALID_SOCKET;
+		host_bcast_port = -1;
 	}
 }
 
@@ -150,24 +184,23 @@ bool N_BroadcastSend(const net_address_c *remote, const byte *data, int len)
 
 	if (SDLNetx_UDP_Broadcast(my_udp_socket, pk) <= 0)
 		return false;
+
 /* Win32 (at least, Win 98) seems to accept 255.255.255.255
  * as a valid broadcast address.
  * I'll live with that for now.
  */
 #ifdef WIN32
+	inPacket->address.host = 0xFFFFFFFF;
 
-	inPacket->address.host = 0xffffffff;
 	int theResult = SDLNet_UDP_Send(inSocket, -1, inPacket);
 
 	struct sockaddr_in sock_addr;
-
-	int sock_len = sizeof(sock_addr);
 
 	remote->ToSockAddr(&sock_addr);
 
 	int actual = sendto(sock->channel,
 			packets[i]->data, packets[i]->len, 0,
-			(struct sockaddr *)&sock_addr,sock_len);
+			(struct sockaddr *)&sock_addr, sizeof(sock_addr));
 
 	if (actual < 0) // error occurred
 		...
@@ -180,8 +213,9 @@ bool N_BroadcastSend(const net_address_c *remote, const byte *data, int len)
 int N_BroadcastRecv(net_address_c *remote, byte *buffer, int max_len)
 {
 	struct sockaddr_in sock_addr;
+	memset(&sock_addr, 0, sizeof(sock_addr));
 
-	int sock_len = sizeof(sock_addr);
+	int len_var = sizeof(sock_addr);
 
 	// clear global 'errno' var before the call
 	errno = 0;
@@ -190,9 +224,9 @@ int N_BroadcastRecv(net_address_c *remote, byte *buffer, int max_len)
 			buffer, max_len, 0 /* flags */,
 			(struct sockaddr *)&sock_addr,
 #ifdef USE_GUSI_SOCKETS
-			(unsigned int *)&sock_len);
+			(unsigned int *)&len_var);
 #else
-			&sock_len);
+			&len_var);
 #endif
 
 	if (actual < 0) // error occurred
