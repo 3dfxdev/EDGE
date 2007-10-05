@@ -8,6 +8,14 @@ multiple ethernet connections, so there is no easy-to-use API
 to just get "THE" broadcast address.  And I don't think using
 _every_ broadcast capable interface is wise...
 
+Here's the plan then:
+
+  WIN32 Send: addr = INADDR_BROADCAST
+  LINUX Send: addr = first found broadcast addr
+
+  WIN32 Recv: bind addr = INADDR_ANY
+  LINUX Recv: bind addr = first found broadcast addr
+
 2007/10/02:
 
 Decided to remove SDL_net as a dependency and simply integrate
