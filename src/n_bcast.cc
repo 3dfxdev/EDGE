@@ -229,7 +229,7 @@ bool N_StartupBroadcastLink(int port)
 {
 	if (nonet)
 		return false;
-	
+
 	SYS_ASSERT(port > 0);
 
 	host_broadcast_port = port;
@@ -241,9 +241,8 @@ bool N_StartupBroadcastLink(int port)
 		return false;
 	}
 
-#ifdef LINUX
-	// TODO: read broadcast addresses
-#endif
+	FindBroadcastAddresses();
+
 
 	struct sockaddr_in sock_addr;
 
@@ -270,6 +269,8 @@ I_Printf(">>> my_addr : %s\n", my_addr.TempString());
 
 	N_ChangeBroadcastFlag(host_broadcast_sock, 1);
 
+	I_Printf("N_StartupBroadcastLink: OK\n");
+
 	return true;
 }
 
@@ -285,6 +286,7 @@ void N_ShutdownBroadcastLink(void)
 }
 
 
+#if 0 //!!!!!
 
 bool N_BroadcastSend(const byte *data, int len)
 {
@@ -349,6 +351,7 @@ int N_BroadcastRecv(net_address_c *remote, byte *buffer, int max_len)
 	return actual; //OK
 }
 
+#endif
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

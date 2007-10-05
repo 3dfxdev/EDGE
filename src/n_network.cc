@@ -18,16 +18,14 @@
 
 #include "i_defs.h"
 
-#ifdef USE_HAWKNL
-#include "nl.h"
-#endif
-
 #include <limits.h>
 #include <stdlib.h>
 
 #include "epi/types.h"
 #include "epi/endianess.h"
 
+#include "n_bcast.h"
+#include "n_reliable.h"
 #include "n_packet.h"
 #include "n_network.h"
 #include "n_protocol.h"
@@ -621,23 +619,21 @@ void N_InitNetwork(void)
 
 	N_ResetTics();
 
-#ifdef USE_HAWKNL
 	if (nonet)
 		return;
 
-	I_Printf("NL_VERSION: %s\n", nlGetString(NL_VERSION));
-
-	L_WriteDebug("NL_NETWORK_TYPES: %s\n", nlGetString(NL_NETWORK_TYPES));
-	L_WriteDebug("NL_SOCKET_TYPES: %s\n", nlGetString(NL_CONNECTION_TYPES));
-
-	host_port = 26710;
+	int base_port = 26710;
 
 	const char *str = M_GetParm("-port");
 	if (str)
-		host_port = atoi(str);
+		base_port = atoi(str);
 	
-	I_Printf("Network: host port is %d\n", host_port);
+	I_Printf("Network: base port is %d\n", base_port);
 
+	N_StartupReliableLink (base_port+0);
+	N_StartupBroadcastLink(base_port+1);
+
+#if 0
 	if (N_DetermineLocalAddr())
 	{
 		I_Printf("Network: local address is %s\n", N_GetAddrName(&local_addr));
@@ -660,7 +656,7 @@ void N_InitNetwork(void)
 	if (sk_group == NL_INVALID)
 		I_Error("Network: Unable to create socket group (no memory)\n");
 
-#endif // USE_HAWKNL
+#endif
 }
 
 bool N_OpenBroadcastSocket(bool is_host)
