@@ -48,6 +48,8 @@ public:
 
 static SOCKET host_conn_sock = INVALID_SOCKET;
 
+static int host_conn_port = -1;
+
 
 void N_ChangeNonBlock(SOCKET sock, bool enable)
 {
@@ -77,6 +79,7 @@ bool N_StartupReliableLink(int port)
 	if (nonet)
 		return false;
 
+	host_conn_port = port;
 	host_conn_sock = socket(AF_INET, SOCK_STREAM, 0);
 
 	if (host_conn_sock == INVALID_SOCKET)
@@ -132,11 +135,13 @@ bool N_StartupReliableLink(int port)
 
 void N_ShutdownReliableLink(void)
 {
-	SYS_ASSERT(host_conn_sock != INVALID_SOCKET);
+	if (host_conn_sock != INVALID_SOCKET)
+	{
+		closesocket(host_conn_sock);
 
-	closesocket(host_conn_sock);
-
-	host_conn_sock = INVALID_SOCKET;
+		host_conn_sock = INVALID_SOCKET;
+		host_conn_port = -1;
+	}
 }
 
 net_node_c * N_AcceptReliableConn(void)
@@ -145,6 +150,8 @@ net_node_c * N_AcceptReliableConn(void)
 
 	// accept a new TCP connection on a server socket
 	struct sockaddr_in sock_addr;
+
+	memset(&sock_addr, 0, sizeof(sock_addr));
 
 	socklen_t len_var = sizeof(sock_addr);
 
