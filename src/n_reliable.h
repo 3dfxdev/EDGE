@@ -45,7 +45,7 @@ net_node_c * N_AcceptReliableConn(void);
 // When successful, returns a new node.
 // Returns NULL if not successful.
 
-net_node_c * N_OpenReliableLink(const net_address_c *remote)
+net_node_c * N_OpenReliableLink(const net_address_c *remote);
 // (CLIENT ONLY)
 // Open a link to the Host at the given address and port.
 //

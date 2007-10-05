@@ -20,6 +20,8 @@
 //
 //----------------------------------------------------------------------------
 
+// FIXME: EWOULDBLOCK may/may not be synonymous with EAGAIN
+
 #include "i_defs.h"
 #include "i_netinc.h"
 
@@ -32,8 +34,10 @@ class net_node_c
 public:
 	SOCKET sock;
 
+	net_address_c remote;
+
 public:
-	net_node_c() : sock(INVALID_SOCKET)
+	net_node_c() : sock(INVALID_SOCKET), remote()
 	{ }
 
 	~net_node_c()
@@ -44,8 +48,6 @@ public:
 
 static SOCKET host_conn_sock = INVALID_SOCKET;
 
-
-// FIXME: static xxx Make_SAddr(const byte *address) ...
 
 static void ChangeNonBlock(SOCKET sock, bool enable)
 {
@@ -123,7 +125,7 @@ bool N_StartupReliableLink(int port)
 	}
 
 	// set the socket to non-blocking mode for accept()
-	ChangeNonBlock(host_conn_sock);
+	ChangeNonBlock(host_conn_sock, true);
 
 	return true; //OK
 }
@@ -144,27 +146,27 @@ net_node_c * N_AcceptReliableConn(void)
 	// accept a new TCP connection on a server socket
 	struct sockaddr_in sock_addr;
 
-	int sock_alen = sizeof(sock_addr);
+	socklen_t len_var = sizeof(sock_addr);
 
-	node->sock = accept(server->channel, (struct sockaddr *)&sock_addr,
+	node->sock = accept(host_conn_sock, (struct sockaddr *)&sock_addr,
 #ifdef USE_GUSI_SOCKETS
-			(unsigned int *)&sock_alen);
+			(unsigned int *)&len_var);
 #else
-			&sock_alen);
+			&len_var);
 #endif
 
 	if (node->sock == SOCKET_ERROR)
 	{
-		I_Printf("accept() failed");
-		goto error_return;
+		I_Printf("N_AcceptReliableConn: failed");
+
+		delete node;
+		return NULL;
 	}
 
-	// TODO: remember remote address
-	// sock->remoteAddress.host = sock_addr.sin_addr.s_addr;
-	// sock->remoteAddress.port = sock_addr.sin_port;
+	node->remote.FromSockAddr(&sock_addr);
 
 	// we want non-blocking read/writes
-	ChangeNonBlock(node->sock);
+	ChangeNonBlock(node->sock, true);
 
 	// set the nodelay TCP option for real-time games
 	ChangeNoDelay(node->sock);
@@ -193,7 +195,7 @@ net_node_c * N_OpenReliableLink(const net_address_c *remote)
 	remote->ToSockAddr(&sock_addr);
 
 	// connect to the remote host
-	if (connect(sock->channel, (struct sockaddr *) &sock_addr,
+	if (connect(node->sock, (struct sockaddr *)&sock_addr,
 				sizeof(sock_addr)) == SOCKET_ERROR)
 	{
 		I_Printf("Couldn't connect to remote host!\n");
@@ -203,12 +205,10 @@ net_node_c * N_OpenReliableLink(const net_address_c *remote)
 		return NULL;
 	}
 
-	// TODO: fill in the remote address
-	// sock->remoteAddress.host = sock_addr.sin_addr.s_addr;
-	// sock->remoteAddress.port = sock_addr.sin_port;
+	node->remote.FromSockAddr(&sock_addr);
 
 	// we want non-blocking read/writes
-	ChangeNonBlock(node->sock);
+	ChangeNonBlock(node->sock, true);
 
 	// set the nodelay TCP option for real-time games
 	ChangeNoDelay(node->sock);
