@@ -118,16 +118,21 @@ before game starts (possibly multiple times) :-
      GAME_FLAGS 0x000104c7
      RANDOM_SEED 0x12345678
 
-	 PLAYER_NUM  4
-     PLAYER_INFO 1 "Matt" "LOCAL"  "HUMAN"
-     PLAYER_INFO 2 "Mark" "LOCAL"  "BOT"
-     PLAYER_INFO 3 "Luke" "REMOTE" "HUMAN"
-     PLAYER_INFO 4 "John" "REMOTE" "BOT"
+     ADD_PLAYER <pnum> <name> LOCAL/REMOTE HUMAN/BOT
+     DEL_PLAYER <pnum>
 
 To begin the game, Host sends to everyone:
 
+     LOAD!
+
+The clients respond with:
+
+     READY
+
+Finally the host sends to everyone:
+
      BEGIN!
-	        
+
 All clients + the host will exchange Ticcmd packets:
     
      @TIC
@@ -144,9 +149,9 @@ All clients + the host will exchange Ticcmd packets:
 
 Other packets:
 
-     BYE!    (can be sent both ways)
+     BYE! [message]    (can be sent both ways)
 
-     RETRANSMIT? <tic num> <player>
+     RETRANSMIT? <tic> <player>
 
 
 Networking API
@@ -185,14 +190,12 @@ Host replies with WELCOME command.
 
 Host sends to all other clients (and itself) :
 
-    PAUSE! <tic num>  (NOTE: all maketics after this are forefeit)
+    PAUSE! <tic>  (NOTE: all maketics after this are forefeit)
 
-    PLAYER_NUM 6
-    PLAYER_INFO 5 "Jimmy" REMOTE HUMAN
-    PLAYER_INFO 6 "Bot99" REMOTE BOT
+    ADD_PLAYER ...
 
 Host send game parameters and players as normal.
-Instead of begin command, host sends:
+Instead of load/begin command, host sends:
 
     JOIN! <tic num>
 
@@ -208,7 +211,7 @@ send progress messages to waiting clients:
 
 when client has loaded the savegame, it notifies the host:
     
-	READY!
+    READY
 
 at this stage, the new client should be in exactly the same
 state as the existing clients.  Another join could happen now...
