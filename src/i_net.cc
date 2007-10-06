@@ -47,11 +47,59 @@ net_address_c n_broadcast_listen;
 
 static bool GetLocalAddress(void)
 {
+	struct hostent *local;
+
+	char buffer[1024];
+
+	if (gethostname(buffer, sizeof(buffer)) == SOCKET_ERROR)
+		return false;
+
+	// ensure name is NUL-terminated
+	buffer[sizeof(buffer)-1] = 0;
+	
+	local = gethostbyname(buffer);
+
+	if (!local)
+		return false;
+
+	if (local->h_addrtype != AF_INET)
+		return false;
+
+	int best = -1;
+
+	for (int i=0; local->h_addr_list[i] != NULL; i++)
+	{
+		const byte *raw_addr = (byte *) local->h_addr_list[i];
+
+		I_Printf(">> LocalAddress: %u.%u.%u.%u\n",
+				 raw_addr[0], raw_addr[1], raw_addr[2], raw_addr[3]);
+
+		if (best < 0 &&
+			raw_addr[0] != 127 && raw_addr[0] != 0 &&
+			raw_addr[0] != 255)
+		{
+			best = i;
+		}
+	}
+
+	if (best > 0)
+	{
+		n_local_addr = net_address_c((byte *) local->h_addr_list[best], 0);
+		return true;
+	}
+
+	return false;
 }
 
 #ifdef LINUX
 static bool Scan_IFCONFIG(bool want_local)
 {
+return false; //!!!!!!
+}
+#endif
+#if 0
+		I_Printf("WARNING: cannot find any broadcast addresses!\n");
+
 	/* scan the IFCONFIG data to find the first broadcast-capable
 	 * IP address (excluding the loop-back device 127.0.0.1).
 	 */
@@ -144,7 +192,6 @@ static bool SetupAddresses(void)
 	if (p)
 	{
 		n_local_addr.FromString(p);
-
 		got_local = true;
 	}
 
@@ -174,7 +221,6 @@ static bool SetupAddresses(void)
 			n_broadcast_listen.GuessBroadcast();
 		}
 	}
-
 #endif
 
 	if (! got_local)
@@ -237,7 +283,7 @@ void I_ShutdownNetwork(void)
 //----------------------------------------------------------------------------
 
 
-net_address_c::net_address_c(const byte *_ip, int _pt = 0) : port(_pt)
+net_address_c::net_address_c(const byte *_ip, int _pt) : port(_pt)
 {
 	addr[0] = _ip[0];
 	addr[1] = _ip[1];
@@ -301,7 +347,7 @@ bool net_address_c::FromString(const char *str)
 	int tmp_addr[4];
 
 	if (4 != sscanf(str, " %d.%d.%d.%d  ",
-			   temp_addr+0, temp_addr+1, temp_addr+2, temp_addr+3))
+			   tmp_addr+0, tmp_addr+1, tmp_addr+2, tmp_addr+3))
 		return false;
 
 	addr[0] = tmp_addr[0];
@@ -326,41 +372,6 @@ void net_address_c::GuessBroadcast(void)
 
 
 //----------------------------------------------------------------------------
-
-
-static SOCKET host_broadcast_sock = INVALID_SOCKET;
-
-static int host_broadcast_port = -1;
-
-
-#define MAX_BCAST_ADDRS  4
-
-static net_address_c *broadcast_addresses[MAX_BCAST_ADDRS];
- 
-
-static void FindBroadcastAddresses(void)
-{
-	memset(broadcast_addresses, 0, sizeof(broadcast_addresses));
-
-/* Win32 (at least, Win 98) seems to accept 255.255.255.255
- * as a valid broadcast address.
- * I'll live with that for now.
- */
-#ifdef WIN32
-	static const bc_win32[4] = { 255,255,255,255 };
-
-	broadcast_addresses[0] = new net_address_c(bc_win32, host_broadcast_port);
-
-#else // LINUX
-
-
-	if (num_addr == 0)
-	{
-		I_Printf("WARNING: cannot find any broadcast addresses!\n");
-	}
-
-#endif // WIN32 vs LINUX
-}
 
 
 void I_SetNonBlock(SOCKET sock, bool enable)
