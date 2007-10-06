@@ -45,11 +45,11 @@ public:
 };
 
 
+//----------------------------------------------------------------------------
 
 static SOCKET host_conn_sock = INVALID_SOCKET;
 
 static int host_conn_port = -1;
-
 
 
 bool N_StartupReliableLink(int port)
