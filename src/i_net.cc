@@ -39,8 +39,8 @@ bool nonet = true;
 
 net_address_c n_local_addr;
 
-net_address_c n_broadcast_listen;
 net_address_c n_broadcast_send;
+net_address_c n_broadcast_listen;
 
 
 static bool GetLocalAddress(void)
@@ -290,6 +290,18 @@ bool net_address_c::FromString(const char *str)
 	addr[3] = tmp_addr[3];
 
 	return true;
+}
+
+void net_address_c::GuessBroadcast(void)
+{
+	// class A subnet mask = 255.0.0.0
+	// class B subnet mask = 255.255.0.0
+	// class C subnet mask = 255.255.255.0
+
+	if (addr[0] < 128) addr[1] = 255;
+	if (addr[0] < 192) addr[2] = 255;
+
+	addr[3] = 255;
 }
 
 
