@@ -179,13 +179,7 @@ bool DDF_ReadSFX(void *data, int size)
 
 void DDF_SFXInit(void)
 {
-	sfxdefs.Clear();		// Clear the array
-	
-	// create the null sfx
-	sfxdef_c* s = new sfxdef_c;
-	s->Default();
-	s->ddf.name.Set("NULL");
-	sfxdefs.Insert(s);
+	sfxdefs.Clear();
 }
 
 void DDF_SFXCleanUp(void)
@@ -350,7 +344,7 @@ sfx_t* sfxdef_container_c::GetEffect(const char *name, bool error)
 	sfx_t *r;
 
 	// NULL Sound
-	if (!name || !name[0])
+	if (!name || !name[0] || DDF_CompareName(name, "NULL")==0)
 		return NULL;
 
 	// count them
