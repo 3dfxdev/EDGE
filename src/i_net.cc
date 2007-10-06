@@ -47,6 +47,9 @@ net_address_c n_broadcast_listen;
 
 static bool GetLocalAddress(void)
 {
+	if (M_CheckParm("-nohostname"))
+		return false;
+
 	struct hostent *local;
 
 	char buffer[1024];
@@ -96,6 +99,9 @@ static bool GetLocalAddress(void)
 #ifdef LINUX
 static bool Scan_IFCONFIG(bool got_local)
 {
+	if (M_CheckParm("-noifconfig"))
+		return false;
+
 	/* scan the IFCONFIG data to find the first broadcast-capable
 	 * IP address (excluding the loop-back device 127.0.0.1).
 	 */
