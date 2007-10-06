@@ -316,31 +316,6 @@ void I_UnlockAudio(void);
 
 
 //--------------------------------------------------------
-//  NETWORKING functions.
-//--------------------------------------------------------
-//
-// -ACB- 1999/09/20 Moved from I_Net.H
-
-extern bool nonet;
-
-void I_StartupNetwork(void);
-void I_ShutdownNetwork(void);
-
-const char *I_NetworkReturnError(void);
-// Returns an error message string that describes the error from the
-// last network (HawkNL) function that failed.  It will return an empty
-// string if no errors have yet occurred, but never NULL.  It will
-// clear the error status.
-
-#ifdef LINUX
-const char * I_LocalIPAddrString(const char *eth_name);
-// LINUX ONLY: determine IP address from an ethernet adaptor.
-// The given string is "eth0" or "eth1".  Returns NULL if something
-// went wrong.
-#endif
-
-
-//--------------------------------------------------------
 //  VIDEO functions.
 //--------------------------------------------------------
 //
