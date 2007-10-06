@@ -1,5 +1,11 @@
 Andrew Apted's Log
 
+2007/10/06:
+
+The network setup stuff in i_net.cc, responsible for finding
+out the local machine address and the broadcast addresses, is
+now in place and seems to be working OK for LINUX.  Phew :-)
+
 2007/10/05:
 
 Been working on low level net code.  As before, Broadcast is
