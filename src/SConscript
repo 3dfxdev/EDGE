@@ -19,9 +19,8 @@ if 1: # not build_info['release']:
 #------- OBJECTS -----------------------------------
 
 sources = [
-    'i_main.cc',
-    'i_ctrl.cc', 'i_video.cc',
-    'i_sound.cc',
+    'i_main.cc',  'i_ctrl.cc', 'i_video.cc',
+    'i_sound.cc', 'i_net.cc',
     'con_con.cc', 'con_cvar.cc', 'con_main.cc',
     'dem_chunk.cc', 'dem_glob.cc', 
     'e_demo.cc', 'e_input.cc', 'e_main.cc', 
