@@ -84,6 +84,10 @@ public:
 	// parse the dotted notation (##.##.##.##) with an optional
 	// port number after a colon (':').  Returns false if the
 	// string was not a valid address.
+
+	void GuessBroadcast(void);
+	// modify this address to produce (a guess of) the
+	// broadcast address.
 };
 
 
@@ -92,8 +96,8 @@ public:
 extern bool nonet;
 
 extern net_address_c n_local_addr;  // IP address of this machine
-extern net_address_c n_broadcast_listen;
 extern net_address_c n_broadcast_send;
+extern net_address_c n_broadcast_listen;
 
 
 /* Functions */
