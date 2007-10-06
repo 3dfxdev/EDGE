@@ -42,7 +42,7 @@ static int host_broadcast_port = -1;
 
 bool N_StartupBroadcastLink(int port)
 {
-	if (nonet || nobroadcast)
+	if (nonet) ///!!!! || nobroadcast)
 		return false;
 
 	SYS_ASSERT(port > 0);
@@ -52,20 +52,17 @@ bool N_StartupBroadcastLink(int port)
 
 	if (host_broadcast_sock == INVALID_SOCKET)
 	{
-		L_WriteDebug("N_StartupBroadcastLink: couldn't create socket!\n");
+		I_Debugf("N_StartupBroadcastLink: couldn't create socket!\n");
 		return false;
 	}
 
-	FindBroadcastAddresses();
+	n_broadcast_send.port   = port;
+	n_broadcast_listen.port = port;
 
 
 	struct sockaddr_in sock_addr;
 
-	memset(&sock_addr, 0, sizeof(sock_addr));
-
-	sock_addr.sin_family = AF_INET;
-	sock_addr.sin_addr.s_addr = INADDR_ANY;
-	sock_addr.sin_port = htons(host_broadcast_port);
+	n_broadcast_listen.ToSockAddr(&sock_addr);
 
 	// bind the socket for listening
 	if (bind(host_broadcast_sock, (struct sockaddr *)&sock_addr,
@@ -101,31 +98,19 @@ void N_ShutdownBroadcastLink(void)
 }
 
 
-#if 0 //!!!!!
 
 bool N_BroadcastSend(const byte *data, int len)
 {
-	pk->address.port = host_broadcast_port;
-
-	if (SDLNetx_UDP_Broadcast(my_udp_socket, pk) <= 0)
-		return false;
-
-	inPacket->address.host = 0xFFFFFFFF;
-
-	int theResult = SDLNet_UDP_Send(inSocket, -1, inPacket);
-
 	struct sockaddr_in sock_addr;
 
-	memset(&sock_addr, 0, sizeof(sock_addr));
+	n_broadcast_send.ToSockAddr(&sock_addr);
 
-	remote->ToSockAddr(&sock_addr);
-
-	int actual = sendto(sock->channel,
-			packets[i]->data, packets[i]->len, 0,
+	int actual = sendto(host_broadcast_sock,
+			data, len, 0,
 			(struct sockaddr *)&sock_addr, sizeof(sock_addr));
 
 	if (actual < 0) // error occurred
-		...
+		return false;
 
 	return true;
 }
@@ -137,7 +122,7 @@ int N_BroadcastRecv(net_address_c *remote, byte *buffer, int max_len)
 
 	memset(&sock_addr, 0, sizeof(sock_addr));
 
-	int len_var = sizeof(sock_addr);
+	socklen_t len_var = sizeof(sock_addr);
 
 	// clear global 'errno' var before the call
 	errno = 0;
@@ -166,7 +151,6 @@ int N_BroadcastRecv(net_address_c *remote, byte *buffer, int max_len)
 	return actual; //OK
 }
 
-#endif
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
