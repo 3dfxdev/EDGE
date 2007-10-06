@@ -19,49 +19,6 @@
 #ifndef __N_BROADCAST_H__
 #define __N_BROADCAST_H__
 
-extern bool nonet;
-
-
-class net_address_c
-{
-public:
-	byte addr[4];
-
-	int port;
-
-public:
-	net_address_c() : port(0)
-	{
-		addr[0] = addr[1] = addr[2] = addr[3] = 0;
-	}
-
-	net_address_c(const byte *_ip, int _pt = 0) : port(_pt)
-	{
-		addr[0] = _ip[0]; addr[1] = _ip[1];
-		addr[2] = _ip[2]; addr[3] = _ip[3];
-	}
-
-	net_address_c(const net_address_c& rhs) : port(rhs.port)
-	{
-		addr[0] = rhs.addr[0]; addr[1] = rhs.addr[1];
-		addr[2] = rhs.addr[2]; addr[3] = rhs.addr[3];
-	}
-
-	~net_address_c()
-	{ }
-
-public:
-	void FromSockAddr(const struct sockaddr_in *inaddr);
-
-	void ToSockAddr(struct sockaddr_in *inaddr) const;
-
-	const char *TempString() const;
-	// returns a string representation of the address.
-	// the result is a static buffer, hence is only valid
-	// temporarily (until the next call).
-};
-
-
 bool N_StartupBroadcastLink(int port);
 // Setup the broadcast link for sending and receiving packets.
 // Returns true if successful, otherwise false.

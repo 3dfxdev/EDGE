@@ -23,7 +23,7 @@
 // FIXME: EWOULDBLOCK may/may not be synonymous with EAGAIN
 
 #include "i_defs.h"
-#include "i_netinc.h"
+#include "i_net.h"
 
 #include "n_reliable.h"
 #include "n_bcast.h"
@@ -50,28 +50,6 @@ static SOCKET host_conn_sock = INVALID_SOCKET;
 
 static int host_conn_port = -1;
 
-
-void N_ChangeNonBlock(SOCKET sock, bool enable)
-{
-#ifdef WIN32
-	unsigned long mode = enable ? 1 : 0;
-
-	ioctlsocket(sock, FIONBIO, &mode);
-
-#elif defined(O_NONBLOCK)
-	fcntl(sock, F_SETFL, enable ? O_NONBLOCK : 0);
-#endif
-}
-
-void N_ChangeNoDelay(SOCKET sock)
-{
-#ifdef TCP_NODELAY
-	int enabled = 1;
-
-	setsockopt(sock, IPPROTO_TCP, TCP_NODELAY,
-			(char*)&enabled, sizeof(enabled));
-#endif
-}
 
 
 bool N_StartupReliableLink(int port)
@@ -128,7 +106,7 @@ bool N_StartupReliableLink(int port)
 	}
 
 	// set the socket to non-blocking mode for accept()
-	N_ChangeNonBlock(host_conn_sock, true);
+	I_SetNonBlock(host_conn_sock, true);
 
 	I_Printf("N_StartupReliableLink: OK\n");
 
@@ -175,10 +153,10 @@ net_node_c * N_AcceptReliableConn(void)
 	node->remote.FromSockAddr(&sock_addr);
 
 	// we want non-blocking read/writes
-	N_ChangeNonBlock(node->sock, true);
+	I_SetNonBlock(node->sock, true);
 
 	// set the nodelay TCP option for real-time games
-	N_ChangeNoDelay(node->sock);
+	I_SetNoDelay(node->sock, true);
 
 	return node;
 }
@@ -215,10 +193,10 @@ net_node_c * N_OpenReliableLink(const net_address_c *remote)
 	node->remote.FromSockAddr(&sock_addr);
 
 	// we want non-blocking read/writes
-	N_ChangeNonBlock(node->sock, true);
+	I_SetNonBlock(node->sock, true);
 
 	// set the nodelay TCP option for real-time games
-	N_ChangeNoDelay(node->sock);
+	I_SetNoDelay(node->sock, true);
 
 	return NULL;
 }
