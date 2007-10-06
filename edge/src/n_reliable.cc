@@ -199,8 +199,6 @@ net_node_c * N_OpenReliableLink(const net_address_c *remote)
 
 	struct sockaddr_in sock_addr;
 
-	memset(&sock_addr, 0, sizeof(sock_addr));
-
 	remote->ToSockAddr(&sock_addr);
 
 	// connect to the remote host
