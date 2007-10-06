@@ -17,6 +17,7 @@
 //----------------------------------------------------------------------------
 
 #include "i_defs.h"
+#include "i_net.h"
 
 #include <limits.h>
 #include <stdlib.h>
