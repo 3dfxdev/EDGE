@@ -21,7 +21,7 @@
 */
 
 
-/* Include normal system headers */
+/* Include normal headers */
 #include <errno.h>
 
 
