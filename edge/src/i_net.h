@@ -79,12 +79,21 @@ public:
 	// returns a string representation of the address.
 	// the result is a static buffer, hence is only valid
 	// temporarily (until the next call).
+
+	bool FromString(const char *str);
+	// parse the dotted notation (##.##.##.##) with an optional
+	// port number after a colon (':').  Returns false if the
+	// string was not a valid address.
 };
 
 
 /* Variables */
  
 extern bool nonet;
+
+extern net_address_c n_local_addr;  // IP address of this machine
+extern net_address_c n_broadcast_listen;
+extern net_address_c n_broadcast_send;
 
 
 /* Functions */
@@ -99,8 +108,8 @@ const char * I_LocalIPAddrString(const char *eth_name);
 // went wrong.
 #endif
 
-void I_SetNonBlock(SOCKET sock, bool enable);
-void I_SetNoDelay(SOCKET sock, bool enable);
+void I_SetNonBlock (SOCKET sock, bool enable);
+void I_SetNoDelay  (SOCKET sock, bool enable);
 void I_SetBroadcast(SOCKET sock, bool enable);
 
 

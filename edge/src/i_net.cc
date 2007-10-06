@@ -32,8 +32,142 @@
 
 #include "epi/endianess.h"
 
+#include "m_argv.h"
+
 
 bool nonet = true;
+
+net_address_c n_local_addr;
+
+net_address_c n_broadcast_listen;
+net_address_c n_broadcast_send;
+
+
+static bool GetLocalAddress(void)
+{
+}
+
+#ifdef LINUX
+static bool Scan_IFCONFIG(bool want_local)
+{
+	/* scan the IFCONFIG data to find the first broadcast-capable
+	 * IP address (excluding the loop-back device 127.0.0.1).
+	 */
+    struct ifconf config;
+    int offset = 0;
+
+	int buf_len = 8192;
+    char *buffer;
+
+	buffer = new char[buf_len];
+
+    config.ifc_len = buf_len;
+    config.ifc_buf = buffer;
+
+    if (ioctl(host_broadcast_sock, SIOCGIFCONF, &config) < 0)
+	{
+		I_Printf("WARNING: cannot find broadcast address (SIOCGIFCONF)\n");
+		delete buffer;
+		return;
+	}
+
+	int num_addr = 0;
+
+	// offset marches through the return buffer to help us find subsequent
+	// entries (entries can have various sizes, but always >=
+	// sizeof(struct ifreq)... IP entries have minimum size).
+
+I_Printf("offset: %d  sizeof:%d  ifc_len:%d\n",
+offset, (int)sizeof(struct ifreq),  (int)config.ifc_len);
+
+    while (num_addr < MAX_BCAST_ADDRS &&
+		   offset + (int)sizeof(struct ifreq) <= (int)config.ifc_len)
+	{
+        struct ifreq req;
+
+		memcpy(&req, buffer+offset, sizeof(req));
+
+I_Printf("> name = %6.6s\n", req.ifr_name);
+I_Printf("> family = %d\n", req.ifr_addr.sa_family);
+
+        // make sure it's an entry for IP (not AppleTalk, ARP, etc)
+        if (req.ifr_addr.sa_family == AF_INET)
+		{
+            // we don't care about the actual address, what we
+			// really want is the interface's broadcast address.
+			// -AJA- need to ignore loopback (127.0.0.1).
+
+net_address_c cur_A;
+cur_A.FromSockAddr((struct sockaddr_in*)&req.ifr_addr);
+I_Printf(">> address = %s\n", cur_A.TempString());
+	
+            if (cur_A.addr[0] != 127 && cur_A.addr[0] != 0 &&
+				cur_A.addr[0] != 255 &&
+				ioctl(host_broadcast_sock, SIOCGIFBRDADDR, &req) >= 0)
+			{
+				net_address_c *addr = new net_address_c();
+
+				addr->FromSockAddr((struct sockaddr_in*) &req.ifr_addr);
+
+				broadcast_addresses[num_addr++] = addr;
+
+I_Printf(">> found broadcast addr: %s\n", addr->TempString());
+			}
+        }
+
+        // Increment offset to point at the next entry.
+        // _SIZEOF_ADDR_IFREQ() is provided in Mac OS X and
+		// accounts for entries whose address families use
+        // long addresses.
+
+#ifdef _SIZEOF_ADDR_IFREQ
+        offset += _SIZEOF_ADDR_IFREQ(req);
+#else
+		offset += sizeof(struct ifreq);
+#endif
+	}
+
+	delete buffer;
+}
+
+#endif
+
+
+static bool SetupAddresses(void)
+{
+	bool got_local = false;
+
+	// explicitly given via command-line option?
+	const char *p = M_GetParm("-local");
+	if (p)
+	{
+		n_local_addr.FromString(p);
+
+		got_local = true;
+	}
+
+	if (! got_local)
+		got_local = GetLocalAddress();
+
+#ifdef WIN32
+	n_broadcast_listen.FromString("0.0.0.0");  // INADDR_ANY
+
+	n_broadcast_send.FromString("255.255.255.255");  // INADDR_BROADCAST
+
+#else // LINUX
+
+	Scan_IFCONFIG(!got_local);
+
+#endif
+
+	if (! got_local)
+	{
+		I_Printf("I_StartupNetwork: unable to determine local address!\n");
+		return false;
+	}
+
+	return true; // OK
+}
 
 
 void I_StartupNetwork(void)
@@ -49,6 +183,9 @@ void I_StartupNetwork(void)
 		return;
 	}
 #endif
+
+	if (! SetupAddresses())
+		return;
 
 	nonet = false;
 
@@ -136,6 +273,25 @@ const char * net_address_c::TempString() const
 	return buffer;
 }
 
+bool net_address_c::FromString(const char *str)
+{
+	if (strchr(str, ':') != NULL)
+		port = atoi(strchr(str, ':') + 1);
+
+	int tmp_addr[4];
+
+	if (4 != sscanf(str, " %d.%d.%d.%d  ",
+			   temp_addr+0, temp_addr+1, temp_addr+2, temp_addr+3))
+		return false;
+
+	addr[0] = tmp_addr[0];
+	addr[1] = tmp_addr[1];
+	addr[2] = tmp_addr[2];
+	addr[3] = tmp_addr[3];
+
+	return true;
+}
+
 
 //----------------------------------------------------------------------------
 
@@ -165,81 +321,6 @@ static void FindBroadcastAddresses(void)
 
 #else // LINUX
 
-    struct ifconf config;
-    int offset = 0;
-
-	int buf_len = 8192;
-    char *buffer;
-
-	buffer = new char[buf_len];
-
-    config.ifc_len = buf_len;
-    config.ifc_buf = buffer;
-
-    if (ioctl(host_broadcast_sock, SIOCGIFCONF, &config) < 0)
-	{
-		I_Printf("WARNING: cannot find broadcast address (SIOCGIFCONF)\n");
-		delete buffer;
-		return;
-	}
-
-	int num_addr = 0;
-
-	// offset marches through the return buffer to help us find subsequent
-	// entries (entries can have various sizes, but always >=
-	// sizeof(struct ifreq)... IP entries have minimum size).
-
-I_Printf("offset: %d  sizeof:%d  ifc_len:%d\n",
-offset, (int)sizeof(struct ifreq),  (int)config.ifc_len);
-
-    while (num_addr < MAX_BCAST_ADDRS &&
-		   offset + (int)sizeof(struct ifreq) <= (int)config.ifc_len)
-	{
-        struct ifreq req;
-
-		memcpy(&req, buffer+offset, sizeof(req));
-
-I_Printf("> name = %6.6s\n", req.ifr_name);
-I_Printf("> family = %d\n", req.ifr_addr.sa_family);
-
-        // make sure it's an entry for IP (not AppleTalk, ARP, etc)
-        if (req.ifr_addr.sa_family == AF_INET)
-		{
-            // we don't care about the actual address, what we
-			// really want is the interface's broadcast address.
-			// -AJA- need to ignore loopback (127.0.0.1).
-
-net_address_c cur_A;
-cur_A.FromSockAddr((struct sockaddr_in*)&req.ifr_addr);
-I_Printf(">> address = %s\n", cur_A.TempString());
-	
-            if (cur_A.addr[0] != 127 && cur_A.addr[0] != 0 &&
-				cur_A.addr[0] != 255 &&
-				ioctl(host_broadcast_sock, SIOCGIFBRDADDR, &req) >= 0)
-			{
-				net_address_c *addr = new net_address_c();
-
-				addr->FromSockAddr((struct sockaddr_in*) &req.ifr_addr);
-
-				broadcast_addresses[num_addr++] = addr;
-
-I_Printf(">> found broadcast addr: %s\n", addr->TempString());
-			}
-        }
-
-        // Increment offset to point at the next entry.
-        // _SIZEOF_ADDR_IFREQ() is provided in Mac OS X and
-		// accounts for entries whose address families use
-        // long addresses.
-
-#ifdef _SIZEOF_ADDR_IFREQ
-        offset += _SIZEOF_ADDR_IFREQ(req);
-#else
-		offset += sizeof(struct ifreq);
-#endif
-	}
-
-	delete buffer;
 
 	if (num_addr == 0)
 	{
