@@ -57,6 +57,8 @@ static bool GetLocalAddress(void)
 	// ensure name is NUL-terminated
 	buffer[sizeof(buffer)-1] = 0;
 	
+	I_Printf(">> LocalHostName: %s\n", buffer);
+
 	local = gethostbyname(buffer);
 
 	if (!local)
@@ -92,17 +94,22 @@ static bool GetLocalAddress(void)
 }
 
 #ifdef LINUX
-static bool Scan_IFCONFIG(bool want_local)
+static bool Scan_IFCONFIG(bool got_local)
 {
-return false; //!!!!!!
-}
-#endif
-#if 0
-		I_Printf("WARNING: cannot find any broadcast addresses!\n");
-
 	/* scan the IFCONFIG data to find the first broadcast-capable
 	 * IP address (excluding the loop-back device 127.0.0.1).
 	 */
+	SOCKET tmp_sock = socket(PF_INET, SOCK_DGRAM, 0);
+
+	if (tmp_sock == INVALID_SOCKET)
+		tmp_sock = socket(PF_INET, SOCK_STREAM, 0);
+
+	if (tmp_sock == INVALID_SOCKET)
+	{
+		I_Debugf("Scan_IFCONFIG: couldn't create socket!\n");
+		return false;
+	}
+
     struct ifconf config;
     int offset = 0;
 
@@ -114,14 +121,14 @@ return false; //!!!!!!
     config.ifc_len = buf_len;
     config.ifc_buf = buffer;
 
-    if (ioctl(host_broadcast_sock, SIOCGIFCONF, &config) < 0)
+    if (ioctl(tmp_sock, SIOCGIFCONF, &config) < 0)
 	{
 		I_Printf("WARNING: cannot find broadcast address (SIOCGIFCONF)\n");
 		delete buffer;
-		return;
+		return false;
 	}
 
-	int num_addr = 0;
+	bool found_one = false;
 
 	// offset marches through the return buffer to help us find subsequent
 	// entries (entries can have various sizes, but always >=
@@ -130,8 +137,7 @@ return false; //!!!!!!
 I_Printf("offset: %d  sizeof:%d  ifc_len:%d\n",
 offset, (int)sizeof(struct ifreq),  (int)config.ifc_len);
 
-    while (num_addr < MAX_BCAST_ADDRS &&
-		   offset + (int)sizeof(struct ifreq) <= (int)config.ifc_len)
+    while (offset + (int)sizeof(struct ifreq) <= (int)config.ifc_len)
 	{
         struct ifreq req;
 
@@ -150,18 +156,27 @@ I_Printf("> family = %d\n", req.ifr_addr.sa_family);
 net_address_c cur_A;
 cur_A.FromSockAddr((struct sockaddr_in*)&req.ifr_addr);
 I_Printf(">> address = %s\n", cur_A.TempString());
-	
+
             if (cur_A.addr[0] != 127 && cur_A.addr[0] != 0 &&
 				cur_A.addr[0] != 255 &&
-				ioctl(host_broadcast_sock, SIOCGIFBRDADDR, &req) >= 0)
+				ioctl(tmp_sock, SIOCGIFBRDADDR, &req) >= 0)
 			{
-				net_address_c *addr = new net_address_c();
+				net_address_c cur_B;
 
-				addr->FromSockAddr((struct sockaddr_in*) &req.ifr_addr);
+				cur_B.FromSockAddr((struct sockaddr_in*) &req.ifr_addr);
 
-				broadcast_addresses[num_addr++] = addr;
+I_Printf(">> found broadcast addr: %s\n", cur_B.TempString());
 
-I_Printf(">> found broadcast addr: %s\n", addr->TempString());
+				if (! found_one)
+				{
+					found_one = true;
+
+					if (! got_local)
+						n_local_addr = cur_A;
+
+					n_broadcast_send   = cur_B;
+					n_broadcast_listen = cur_B;
+				}
 			}
         }
 
@@ -178,9 +193,13 @@ I_Printf(">> found broadcast addr: %s\n", addr->TempString());
 	}
 
 	delete buffer;
+
+	closesocket(tmp_sock);
+
+	return true;
 }
 
-#endif
+#endif // LINUX
 
 
 static bool SetupAddresses(void)
@@ -205,7 +224,7 @@ static bool SetupAddresses(void)
 
 #else // LINUX
 
-	if (Scan_IFCONFIG(!got_local))
+	if (Scan_IFCONFIG(got_local))
 		got_local = true;
 	else
 	{
@@ -220,6 +239,7 @@ static bool SetupAddresses(void)
 			n_broadcast_listen = n_local_addr;
 			n_broadcast_listen.GuessBroadcast();
 		}
+///---	I_Printf("WARNING: cannot find any broadcast addresses!\n");
 	}
 #endif
 
