@@ -20,6 +20,8 @@
 //
 //  FIXME  acknowledge SDLNetx code
 //
+//  FIXME  acknowledge HawkNL code
+//
 //----------------------------------------------------------------------------
 
 #include "i_defs.h"
@@ -150,13 +152,28 @@ static bool SetupAddresses(void)
 		got_local = GetLocalAddress();
 
 #ifdef WIN32
-	n_broadcast_listen.FromString("0.0.0.0");  // INADDR_ANY
-
 	n_broadcast_send.FromString("255.255.255.255");  // INADDR_BROADCAST
+
+	n_broadcast_listen.FromString("0.0.0.0");  // INADDR_ANY
 
 #else // LINUX
 
-	Scan_IFCONFIG(!got_local);
+	if (Scan_IFCONFIG(!got_local))
+		got_local = true;
+	else
+	{
+		if (got_local)
+		{
+			// we will guess the correct addresses,
+			// using INADDR_BROADCAST for the transmit addr
+			// and a modified local address for the listen addr.
+
+			n_broadcast_send.FromString("255.255.255.255");	
+
+			n_broadcast_listen = n_local_addr;
+			n_broadcast_listen.GuessBroadcast();
+		}
+	}
 
 #endif
 
@@ -172,6 +189,9 @@ static bool SetupAddresses(void)
 
 void I_StartupNetwork(void)
 {
+	if (M_CheckParm("-nonet"))
+		return;
+
 #ifdef WIN32
 	// start up the Windows networking
 	WORD version_wanted = MAKEWORD(1,1);
