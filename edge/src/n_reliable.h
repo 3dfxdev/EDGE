@@ -19,8 +19,6 @@
 #ifndef __N_RELIABLE_H__
 #define __N_RELIABLE_H__
 
-#include "n_bcast.h"
-
 class net_node_c;
 
 
