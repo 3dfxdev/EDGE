@@ -250,6 +250,28 @@ I_Printf(">> found broadcast addr: %s\n", addr->TempString());
 }
 
 
+void I_SetNonBlock(SOCKET sock, bool enable)
+{
+#ifdef WIN32
+	unsigned long mode = enable ? 1 : 0;
+
+	ioctlsocket(sock, FIONBIO, &mode);
+
+#elif defined(O_NONBLOCK)
+	fcntl(sock, F_SETFL, enable ? O_NONBLOCK : 0);
+#endif
+}
+
+void I_SetNoDelay(SOCKET sock, bool enable)
+{
+#ifdef TCP_NODELAY
+	int mode = enable ? 1 : 0;
+
+	setsockopt(sock, IPPROTO_TCP, TCP_NODELAY,
+			(char*)&mode, sizeof(mode));
+#endif
+}
+
 void I_SetBroadcast(SOCKET sock, bool enable)
 {
 #ifdef SO_BROADCAST

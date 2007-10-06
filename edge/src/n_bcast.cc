@@ -23,7 +23,7 @@
 //----------------------------------------------------------------------------
 
 #include "i_defs.h"
-#include "i_netinc.h"
+#include "i_net.h"
 
 #ifdef LINUX
 #include <linux/if.h>
@@ -33,95 +33,6 @@
 #include "epi/endianess.h"
 
 #include "n_bcast.h"
-
-
-bool nonet = true;
-
-
-extern void N_ChangeNonBlock(SOCKET sock, bool enable);
-
-
-void I_StartupNetwork(void)
-{
-#ifdef WIN32
-	// start up the Windows networking
-	WORD version_wanted = MAKEWORD(1,1);
-	WSADATA wsaData;
-
-	if (WSAStartup(version_wanted, &wsaData) != 0)
-	{
-		I_Printf("I_StartupNetwork: Couldn't initialize Winsock 1.1\n");
-		return;
-	}
-#endif
-
-	nonet = false;
-
-	I_Printf("I_StartupNetwork: Initialised OK.\n");
-}
-
-
-void I_ShutdownNetwork(void)
-{
-	if (! nonet)
-	{
-		nonet = true;
-
-#ifdef WIN32
-		// clean up Windows networking
-		if (WSACleanup() == SOCKET_ERROR )
-		{
-			if (WSAGetLastError() == WSAEINPROGRESS)
-			{
-				WSACancelBlockingCall();
-				WSACleanup();
-			}
-		}
-#endif
-	}
-}
-
-
-void net_address_c::FromSockAddr(const struct sockaddr_in *inaddr)
-{
-	port = ntohs(inaddr->sin_port);
-
-	const byte *source = (const byte*) &inaddr->sin_addr.s_addr;
-
-	addr[0] = source[0];
-	addr[1] = source[1];
-	addr[2] = source[2];
-	addr[3] = source[3];
-}
-
-void net_address_c::ToSockAddr(struct sockaddr_in *inaddr) const
-{
-	memset(inaddr, 0, sizeof(struct sockaddr_in));
-
-	inaddr->sin_family = AF_INET;
-	inaddr->sin_port   = htons(port);
-
-	byte *dest = (byte *) &inaddr->sin_addr.s_addr;
-
-	dest[0] = addr[0];
-	dest[1] = addr[1];
-	dest[2] = addr[2];
-	dest[3] = addr[3];
-}
-
-const char * net_address_c::TempString() const
-{
-	static char buffer[256];
-
-	sprintf(buffer, "%d.%d.%d.%d:%d",
-			(int)addr[0], (int)addr[1],
-			(int)addr[2], (int)addr[3], port);
-
-	return buffer;
-}
-
-
-//----------------------------------------------------------------------------
 
 
 static SOCKET host_broadcast_sock = INVALID_SOCKET;
@@ -234,16 +145,6 @@ I_Printf(">> found broadcast addr: %s\n", addr->TempString());
 }
 
 
-void N_ChangeBroadcastFlag(SOCKET sock, bool enable)
-{
-#ifdef SO_BROADCAST
-	int mode = enable ? 1 : 0;
-
-    setsockopt(sock, SOL_SOCKET, SO_BROADCAST,
-               (char*)&mode, sizeof(mode));
-#endif
-}
-
 bool N_StartupBroadcastLink(int port)
 {
 	if (nonet)
@@ -286,7 +187,7 @@ bool N_StartupBroadcastLink(int port)
 	my_addr.FromSockAddr(&sock_addr);
 I_Printf(">>> my_addr : %s\n", my_addr.TempString());
 
-	N_ChangeBroadcastFlag(host_broadcast_sock, 1);
+	I_SetBroadcast(host_broadcast_sock, 1);
 
 	I_Printf("N_StartupBroadcastLink: OK\n");
 
