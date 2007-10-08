@@ -591,9 +591,10 @@ static void P_SectorEffect(sector_t *target, line_t *source,
 	if (! target)
 		return;
 
-	float length  = R_PointToDist( 0, 0, source->dx, source->dy);
+	float length  = R_PointToDist( 0, 0,  source->dx,  source->dy);
+	angle_t angle = R_PointToAngle(0, 0, -source->dx, -source->dy);
+
 	float factor  = 64.0 / length;
-	angle_t angle = R_PointToAngle(0, 0, source->dx, source->dy);
 
 	if (special->sector_effect & SECTFX_LightFloor)
 		target->floor.override_p = &source->frontsector->props;
@@ -681,6 +682,8 @@ static void P_SectorEffect(sector_t *target, line_t *source,
 	if (special->sector_effect & SECTFX_ScaleFloor)
 	{
 		target->floor.x_mat.x *= factor;
+	    target->floor.x_mat.y *= factor;
+		target->floor.y_mat.x *= factor;
 	    target->floor.y_mat.y *= factor;
 
 		target->floor.offset.x *= factor;
@@ -689,6 +692,8 @@ static void P_SectorEffect(sector_t *target, line_t *source,
 	if (special->sector_effect & SECTFX_ScaleCeiling)
 	{
 		target->ceil.x_mat.x *= factor;
+		target->ceil.x_mat.y *= factor;
+		target->ceil.y_mat.x *= factor;
 		target->ceil.y_mat.y *= factor;
 
 		target->ceil.offset.x *= factor;
