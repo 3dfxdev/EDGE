@@ -6,6 +6,11 @@ The network setup stuff in i_net.cc, responsible for finding
 out the local machine address and the broadcast addresses, is
 now in place and seems to be working OK for LINUX.  Phew :-)
 
+Changed SOUNDS.DDF code to make "NULL" hard-coded as a nothing
+sound name, and remove the buggy code which added it to the
+start of the sound list (it would fail when #CLEARALL was used).
+Fixes the bug that Chronoteeth reported.
+
 2007/10/05:
 
 Been working on low level net code.  As before, Broadcast is
