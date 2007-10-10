@@ -522,7 +522,7 @@ void DDF_StateGetAttack(const char *arg, state_t * cur_state)
 
 	cur_state->action_par = (void *)atkdefs.Lookup(arg);
 	if (cur_state->action_par == NULL)
-		DDF_WarnError2(0x128, "Unknown Attack (States): %s\n", arg);
+		DDF_WarnError2(0x127, "Unknown Attack (States): %s\n", arg);
 }
 
 //
