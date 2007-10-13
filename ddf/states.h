@@ -19,6 +19,8 @@
 #ifndef __DDF_STAT_H__
 #define __DDF_STAT_H__
 
+#include <vector>
+
 
 //-------------------------------------------------------------------------
 //-----------------------  THING STATE STUFF   ----------------------------
@@ -31,7 +33,8 @@ typedef int statenum_t;
 
 typedef enum
 {
-	SFF_Model = (1 << 0),
+	SFF_Weapon = (1 << 0),
+	SFF_Model  = (1 << 1),
 }
 state_frame_flag_e;
 
@@ -61,10 +64,10 @@ typedef struct state_s
 	// parameter for routine, or NULL
 	void *action_par;
 
-	// next state ref.  S_NULL means "remove me".
+	// next state ref.  S_NULL means "remove me"
 	int nextstate;
 
-	// jump state ref.  S_NULL means remove.
+	// jump state ref.  S_NULL not valid
 	int jumpstate;
 }
 state_t;
@@ -74,6 +77,10 @@ state_t;
 
 extern state_t *states;
 extern int num_states;
+
+extern std::vector<std::string> ddf_sprite_names;
+extern std::vector<std::string> ddf_model_names;
+
 
 #endif // __DDF_STAT_H__
 
