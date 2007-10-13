@@ -1467,6 +1467,11 @@ static void AddCommandLineFiles(void)
 	}
 }
 
+static void InitDDF(void)
+{
+	DDF_Init(EDGEVER);
+}
+
 
 //
 // E_EngineShutdown
@@ -1500,7 +1505,7 @@ startuporder_t;
 startuporder_t startcode[] =
 {
 	{  1, CheckExternal        },
-	{  1, DDF_Init             },
+	{  1, InitDDF              },
 	{  1, IdentifyVersion      },
 	{  1, AddCommandLineFiles  },
 	{  1, CheckTurbo           },
