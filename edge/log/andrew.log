@@ -1,5 +1,17 @@
 Andrew Apted's Log
 
+2007/10/13:
+
+Removed the "src/version.h" back-dependency in the DDF code,
+and use decimal instead of hexadecimal for version numbers.
+
+Began reworking the R_AddSpriteName() back-dependency in the
+DDF code.  Instead of that, the DDF code will export a vector
+of all the sprite (and model) names to the main engine code.
+
+OK, rewrote the W_InitSprites() function to utilise the name
+list stored in the DDF code, and it seems to be working fine.
+
 2007/10/06:
 
 The network setup stuff in i_net.cc, responsible for finding
