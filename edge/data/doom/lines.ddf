@@ -3199,18 +3199,20 @@ SPECIAL=BACK_SECTOR;
 SECTOR_EFFECT=SCALE_FLOOR,SCALE_CEILING;
 
 // [840] Enable Dynamic Lights
-// [841] Enable Jumping
-// [842] Enable Crouching
-// [843] Enable FreeLook
-// [844] Enable Autoaim
-// [845] Enable Fast Monsters
-// [846] Enable Infighting
+// [841] Enable Skybox
+// [842] Enable Jumping
+// [843] Enable Crouching
+// [844] Enable FreeLook
+// [845] Enable Autoaim
+// [846] Enable Fast Monsters
+// [847] Enable Infighting
 
 // [860] Disable Dynamic Lights
-// [861] Disable Jumping
-// [862] Disable Crouching
-// [863] Disable FreeLook
-// [864] Disable Autoaim
-// [865] Disable Fast Monsters
-// [866] Disable Infighting
+// [861] Disable Skybox
+// [862] Disable Jumping
+// [863] Disable Crouching
+// [864] Disable FreeLook
+// [865] Disable Autoaim
+// [866] Disable Fast Monsters
+// [867] Disable Infighting
 
