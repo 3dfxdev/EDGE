@@ -93,6 +93,9 @@ bool W_VerifyLumpName(int lump, const char *name);
 const char *W_GetLumpName(int lump);
 int W_CacheInfo(int level);
 
+epi::file_c *W_OpenLump(int lump);
+epi::file_c *W_OpenLump(const char *name);
+
 const char *W_GetFileName(int lump);
 int W_GetPaletteForLump(int lump);
 int W_FindFlatSequence(const char *start, const char *end, 
