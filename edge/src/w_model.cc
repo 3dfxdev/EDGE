@@ -64,11 +64,12 @@ modeldef_c *LoadModelFromLump(int model_num)
 	epi::file_c *f = W_OpenLump(lumpname);
 	if (! f)
 		I_Error("Missing model lump: %s\n", lumpname);
-	
+
 	def->model = MD2_LoadModel(f);
 	SYS_ASSERT(def->model);
 
-	W_CloseLump(f);
+	// close the lump
+	delete f;
 
 	for (int i=0; i < 10; i++)
 	{
