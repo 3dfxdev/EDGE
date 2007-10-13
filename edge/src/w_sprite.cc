@@ -34,15 +34,41 @@
 #include "e_search.h"
 #include "r_image.h"
 #include "r_things.h"
+#include "w_sprite.h"
 #include "w_wad.h"
-#include "z_zone.h"
 
 #include "p_local.h"  // mobjlisthead
 
 
-// The minimum distance between player and a visible sprite.
-// FIXME: Decrease value, lower values are valid when float is used.
-#define MINZ        (4.0f)
+//
+// A sprite definition: a number of animation frames.
+//
+class spritedef_c
+{
+public:
+	// four letter sprite name (e.g. "TROO").
+	char name[6];
+  
+    // total number of frames.  Zero for missing sprites.
+	int numframes;
+
+	// sprite frames.
+	spriteframe_c *frames;
+
+public:
+	spritedef_c(const char *_name) : numframes(0), frames(NULL)
+	{
+		strcpy(name, _name);
+	}
+
+	~spritedef_c()
+	{
+		// TODO: free the frames
+	}
+};
+
+
+//----------------------------------------------------------------------------
 
 //
 // Sprite rotation 0 is facing the viewer,
@@ -59,14 +85,6 @@ static int numsprites = 0;
 // Sorted map of sprite defs.  Only used during initialisation.
 static spritedef_c ** sprite_map = NULL;
 static int sprite_map_len;
-
-//
-// spritedef_c constructor
-//
-spritedef_c::spritedef_c(const char* _name)  : numframes(0), frames(NULL)
-{
-    strcpy(name, _name);
-}
 
 
 //

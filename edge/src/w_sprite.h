@@ -29,7 +29,6 @@
 #include "e_player.h"
 #include "r_defs.h"
 
-
 //      
 // Sprites are patches with a special naming convention so they can be
 // recognized by R_InitSprites.  The base name is NNNNFx or NNNNFxFx,
@@ -72,24 +71,6 @@ public:
 			images[j] = NULL;
 		}
 	}
-};
-
-//
-// A sprite definition: a number of animation frames.
-//
-class spritedef_c
-{
-public:
-	spritedef_c(const char *_name);
-
-	// four letter sprite name (e.g. "TROO").
-	char name[6];
-  
-    // total number of frames.  Zero for missing sprites.
-	int numframes;
-
-	// sprite frames.
-	spriteframe_c *frames;
 };
 
 
