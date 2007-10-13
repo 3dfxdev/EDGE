@@ -17,10 +17,11 @@
 //----------------------------------------------------------------------------
 
 #include "i_defs.h"
+#include "i_defs_gl.h"
 
 #include "e_main.h"
-#include "e_search.h"
 #include "r_image.h"
+#include "r_md2.h"
 #include "r_things.h"
 #include "w_model.h"
 #include "w_wad.h"
@@ -29,7 +30,7 @@
 
 
 // Model storage
-static md2_model_c **models;
+static modeldef_c **models;
 static int nummodels = 0;
 
 
@@ -41,16 +42,46 @@ modeldef_c::modeldef_c(const char *_prefix) : model(NULL)
 		skins[i] = NULL;
 }
 
-modeldef_c::~modeldef_c();
-
-
-md2_model_c *LoadModelFromLump(int model_num)
+modeldef_c::~modeldef_c()
 {
+	// FIXME: delete model;
+
+	// TODO: free the skins
+}
+
+
+modeldef_c *LoadModelFromLump(int model_num)
+{
+	const char *basename = ddf_model_names[model_num].c_str();
+
+	modeldef_c *def = new modeldef_c(basename);
+
 	char lumpname[16];
+	char skinname[16];
 
-	sprintf(lumpname, "%sMD2", ddf_model_names[model_num].c_str());
+	sprintf(lumpname, "%sMD2", basename);
 
+	epi::file_c *f = W_OpenLump(lumpname);
+	if (! f)
+		I_Error("Missing model lump: %s\n", lumpname);
+	
+	def->model = MD2_LoadModel(f);
+	SYS_ASSERT(def->model);
 
+	W_CloseLump(f);
+
+	for (int i=0; i < 10; i++)
+	{
+		sprintf(skinname, "%sSKN%d", basename, i);
+
+		def->skins[i] = W_ImageLookup(skinname, INS_Sprite, ILF_Null);
+	}
+
+	// need at least one skin
+	if (! def->skins[1])
+		I_Error("Missing model skin: %sSKN1\n", basename);
+
+	return def;
 }
 
 
@@ -62,14 +93,14 @@ void W_InitModels(void)
 
 	I_Printf("W_InitModels: Setting up\n");
 
-	models = new md2_model_c * [nummodels];
+	models = new modeldef_c * [nummodels];
 
 	for (int i=0; i < nummodels; i++)
 		models[i] = NULL;
 }
 
 
-md2_model_c *W_GetModel(int model_num)
+modeldef_c *W_GetModel(int model_num)
 {
 	// model_num comes from the 'sprite' field of state_t, and
 	// is also an index into ddf_model_names vector.
