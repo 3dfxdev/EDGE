@@ -25,6 +25,8 @@
 
 #include "i_defs.h"
 
+#include "epi/utility.h"
+
 #include "z_zone.h"
 
 
