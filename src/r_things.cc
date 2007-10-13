@@ -427,29 +427,15 @@ static const image_c * R2_GetThingSprite2(mobj_t *mo, float mx, float my, bool *
 	if (mo->state->sprite == SPR_NULL)
 		return NULL;
 
-#ifdef DEVELOPERS
-	// this shouldn't happen
-	if ((unsigned int)mo->state->sprite >= (unsigned int)numsprites)
-		I_Error("R2_GetThingSprite: invalid sprite number %i.\n", mo->state->sprite);
-#endif
+	spriteframe_c *frame = W_GetSpriteFrame(mo->state->sprite,
+			mo->state->frame);
 
-	spritedef_c *def = sprites[mo->state->sprite];
-
-	if (mo->state->frame >= def->numframes ||
-		!def->frames[mo->state->frame].finished)
+	if (! frame)
 	{
-#if 1
 		// -AJA- 2001/08/04: allow the patch to be missing
 		(*flip) = false;
 		return W_ImageForDummySprite();
-#else
-		// -ACB- 1998/06/29 More Informative Error Message
-		I_Error("R2_GetThingSprite: Invalid sprite frame %s:%c",
-			def->name, 'A' + mo->state->frame);
-#endif
 	}
-
-	spriteframe_c *frame = def->frames + mo->state->frame;
 
 	int rot = 0;
 
@@ -471,13 +457,6 @@ static const image_c * R2_GetThingSprite2(mobj_t *mo, float mx, float my, bool *
 		angle_t from_view = R_PointToAngle(viewx, viewy, mx, my);
 
 		ang = from_view - ang + ANG180;
-
-#if 0 // TESTING CRUD
-if (mo->player && mo->player->swimming)
-{
-if (ang > ANG90 && ang <= ANG270) ang = ANG180; else ang = 0;
-}
-#endif
 
 		if (num_active_mirrors % 2)
 			ang = (angle_t)0 - ang;
@@ -508,27 +487,10 @@ const image_c * R2_GetOtherSprite(int spritenum, int framenum, bool *flip)
 	if (spritenum == SPR_NULL)
 		return NULL;
 
-#ifdef DEVELOPERS
-	// this shouldn't happen
-	if ((unsigned int)spritenum >= (unsigned int)numsprites)
-		I_Error("R2_GetOtherSprite: invalid sprite number %i.\n", spritenum);
-#endif
+	spriteframe_c *frame = W_GetSpriteFrame(spritenum, framenum);
 
-	spritedef_c *def = sprites[spritenum];
-
-	if (framenum >= def->numframes ||
-		!def->frames[framenum].finished)
-	{
-#if 1
+	if (! frame)
 		return NULL;
-#else
-		// -ACB- 1998/06/29 More Informative Error Message
-		I_Error("R2_GetOtherSprite: Invalid sprite frame %s:%c",
-			def->name, 'A' + framenum);
-#endif
-	}
-
-	spriteframe_c *frame = def->frames + framenum;
 
 	*flip = frame->flip[0] ? true : false;
 
