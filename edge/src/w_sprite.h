@@ -29,7 +29,6 @@
 #include "e_player.h"
 #include "r_defs.h"
 
-#include "epi/arrays.h"
 
 //      
 // Sprites are patches with a special naming convention so they can be
@@ -56,14 +55,16 @@ public:
 	// 16 = EDGE extended rotations using [9ABCDEFG].
 	int rots;
   
-	// Flip bits (1 = flip) to use for view angles 0-15.
+	// Flip bits (1 = flip) to use for each view angle
 	byte flip[16];
   
-	// Images for each view angle 0-15.
+	// Images for each view angle
 	const image_c *images[16];
 
+	bool is_weapon;
+
 public:
-	spriteframe_c() : finished(false), rots(0)
+	spriteframe_c() : finished(false), rots(0), is_weapon(false)
 	{
 		for (int j = 0; j < 16; j++)
 		{
@@ -90,46 +91,47 @@ public:
 	// sprite frames.
 	spriteframe_c *frames;
 
-	// HACK: bitmask for which frames are weapons (limit is 32)
-	unsigned int weapon_frames;
-
-public:
-	void MarkWeapon(int frame)
-	{
-		if (frame < 32)
-			weapon_frames |= (1 << frame);
-	}
-
-	bool IsWeapon(int frame) const
-	{
-		if (frame >= 32)
-			return false;
-
-		return (weapon_frames & (1 << frame)) ? true : false;
-	}
+///---	// HACK: bitmask for which frames are weapons (limit is 32)
+///---	unsigned int weapon_frames;
+///---
+///---public:
+///---	void MarkWeapon(int frame)
+///---	{
+///---		if (frame < 32)
+///---			weapon_frames |= (1 << frame);
+///---	}
+///---
+///---	bool IsWeapon(int frame) const
+///---	{
+///---		if (frame >= 32)
+///---			return false;
+///---
+///---		return (weapon_frames & (1 << frame)) ? true : false;
+///---	}
 };
 
-class spritedef_array_c : public epi::array_c
-{
-public:
-	spritedef_array_c() : epi::array_c(sizeof(spritedef_c*)) { }
-	~spritedef_array_c() { Clear(); }
+///---class spritedef_array_c : public epi::array_c
+///---{
+///---public:
+///---	spritedef_array_c() : epi::array_c(sizeof(spritedef_c*)) { }
+///---	~spritedef_array_c() { Clear(); }
+///---
+///---private:
+///---	void CleanupObject(void *obj) { delete *(spritedef_c**)obj; }
+///---
+///---public:
+///---    // List Management
+///---	int GetSize() const { return array_entries; }
+///---	int Insert(spritedef_c *c) { return InsertObject((void*)&c); }
+///---	spritedef_c* operator[](int idx) { return *(spritedef_c**)FetchObject(idx); }
+///---};
 
-private:
-	void CleanupObject(void *obj) { delete *(spritedef_c**)obj; }
+/* Functions */
 
-public:
-    // List Management
-	int GetSize() const { return array_entries; }
-	int Insert(spritedef_c *c) { return InsertObject((void*)&c); }
-	spritedef_c* operator[](int idx) { return *(spritedef_c**)FetchObject(idx); }
-};
-
-
-void R_InitSprites(void);
+void W_InitSprites(void);
 
 bool W_CheckSpritesExist(int st_low, int st_high);
-void R_PrecacheSprites(void);
+void W_PrecacheSprites(void);
 
 spriteframe_c *W_GetSpriteFrame(int spr_num, int framenum);
 
