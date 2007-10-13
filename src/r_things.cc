@@ -44,6 +44,8 @@
 #include "r_modes.h"
 #include "r_units.h"
 #include "st_stuff.h"
+#include "w_model.h"
+#include "w_sprite.h"
 
 #include "r_md2.h"
 #include "m_misc.h"  // !!!! model test
@@ -937,7 +939,19 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 
 if (dthing->mo->extendedflags & EF_MONSTER)
 {
-#if 0 //!!!!!!
+#if 1
+	static modeldef_c *md = NULL;
+
+	if (! md)
+		md = W_GetModel(1);
+
+	GLuint skin_tex = W_ImageCache(md->skins[1], false, dthing->mo->info->palremap);
+
+	MD2_RenderModel(md->model, skin_tex, false, dthing->mo, dfloor->props);
+	return;
+#endif
+
+#if 0 //!!!!!!  WEAPON
 	static md2_model_c *md = NULL;
 	static GLuint skin_tex = 0;
 
