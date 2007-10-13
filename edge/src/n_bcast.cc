@@ -110,7 +110,9 @@ bool N_BroadcastSend(const byte *data, int len)
 			(struct sockaddr *)&sock_addr, sizeof(sock_addr));
 
 	if (actual < 0) // error occurred
+	{
 		return false;
+	}
 
 	return true;
 }

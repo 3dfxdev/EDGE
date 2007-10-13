@@ -384,7 +384,7 @@ md2_model_c *MD2_LoadModel(epi::file_c *f)
 		(header.version != 8))
 	{
 		I_Error("MD2_LoadModel: bad header or version!");
-		return NULL;
+		return NULL; /* NOT REACHED */
 	}
 
 	int num_frames = EPI_LE_S32(header.num_frames);
