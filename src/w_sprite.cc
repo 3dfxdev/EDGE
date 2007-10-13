@@ -53,7 +53,7 @@
 //
 
 // Sprite definitions
-static spritedef_array_c sprites;
+static spritedef_c **sprites;
 static int numsprites = 0;
 
 // Sorted map of sprite defs.  Only used during initialisation.
@@ -63,7 +63,7 @@ static int sprite_map_len;
 //
 // spritedef_c constructor
 //
-spritedef_c::spritedef_c(const char* _name)  : numframes(0), frames(NULL), weapon_frames(0)
+spritedef_c::spritedef_c(const char* _name)  : numframes(0), frames(NULL)
 {
     strcpy(name, _name);
 }
@@ -72,85 +72,85 @@ spritedef_c::spritedef_c(const char* _name)  : numframes(0), frames(NULL), weapo
 // INITIALISATION FUNCTIONS
 //
 
-typedef struct add_spr_cache_s
-{
-	char name[6];
-	int index;
-}
-add_spr_cache_t;
+///---typedef struct add_spr_cache_s
+///---{
+///---	char name[6];
+///---	int index;
+///---}
+///---add_spr_cache_t;
+///---
+///---static int add_spr_cache_num = 0;
+///---static add_spr_cache_t add_spr_cache[2] = 
+///---{{ "", 0 }, { "", 0 }};
 
-static int add_spr_cache_num = 0;
-static add_spr_cache_t add_spr_cache[2] = 
-{{ "", 0 }, { "", 0 }};
-
-//
-// R_AddSpriteName
-// 
-// Looks up the sprite name, returning the index if found.  When not
-// found, a new sprite is created, and that index is returned.  The
-// given sprite name should be upper case.
-// 
-int R_AddSpriteName(const char *name, int frame, bool is_weapon)
-{
-	if (strcmp(name, "NULL") == 0)
-	{
-		if (numsprites == 0)  // fill out dummy entry, #0
-		{
-			spritedef_c *def = new spritedef_c(name);
-
-			sprites.Insert(def);
-			numsprites = sprites.GetSize();
-		}
-
-		return SPR_NULL;
-	}
-
-	int index;
-
-	SYS_ASSERT(strlen(name) == 4);
-
-	// look in cache
-	if (strcmp(name, add_spr_cache[0].name) == 0)
-		index = add_spr_cache[0].index;
-	else if (strcmp(name, add_spr_cache[1].name) == 0)
-		index = add_spr_cache[1].index;
-	else
-	{
-		// look backwards, assuming a recent sprite is more likely
-		for (index=numsprites-1; index >= 1; index--)
-		{
-			if (strcmp(sprites[index]->name, name) == 0)
-				break;
-		}
-
-		if (index == 0)
-		{
-			index = numsprites;
-
-			spritedef_c *def = new spritedef_c(name);
-
-			sprites.Insert(def);
-			numsprites = sprites.GetSize();
-		}
-
-		// update cache
-		strcpy(add_spr_cache[add_spr_cache_num].name, name);
-		add_spr_cache[add_spr_cache_num].index = index;
-
-		add_spr_cache_num ^= 1;
-	}
-
-	// update maximal frame count
-	// NOTE: frames are allocated during R_InitSprites
-
-	if (frame+1 > sprites[index]->numframes)
-		sprites[index]->numframes = frame+1;
-	
-	if (is_weapon)
-		sprites[index]->MarkWeapon(frame);
-
-	return index;
-}
+///---//
+///---// R_AddSpriteName
+///---// 
+///---// Looks up the sprite name, returning the index if found.  When not
+///---// found, a new sprite is created, and that index is returned.  The
+///---// given sprite name should be upper case.
+///---// 
+///---int R_AddSpriteName(const char *name, int frame, bool is_weapon)
+///---{
+///---	if (strcmp(name, "NULL") == 0)
+///---	{
+///---		if (numsprites == 0)  // fill out dummy entry, #0
+///---		{
+///---			spritedef_c *def = new spritedef_c(name);
+///---
+///---			sprites.Insert(def);
+///---			numsprites = sprites.GetSize();
+///---		}
+///---
+///---		return SPR_NULL;
+///---	}
+///---
+///---	int index;
+///---
+///---	SYS_ASSERT(strlen(name) == 4);
+///---
+///---	// look in cache
+///---	if (strcmp(name, add_spr_cache[0].name) == 0)
+///---		index = add_spr_cache[0].index;
+///---	else if (strcmp(name, add_spr_cache[1].name) == 0)
+///---		index = add_spr_cache[1].index;
+///---	else
+///---	{
+///---		// look backwards, assuming a recent sprite is more likely
+///---		for (index=numsprites-1; index >= 1; index--)
+///---		{
+///---			if (strcmp(sprites[index]->name, name) == 0)
+///---				break;
+///---		}
+///---
+///---		if (index == 0)
+///---		{
+///---			index = numsprites;
+///---
+///---			spritedef_c *def = new spritedef_c(name);
+///---
+///---			sprites.Insert(def);
+///---			numsprites = sprites.GetSize();
+///---		}
+///---
+///---		// update cache
+///---		strcpy(add_spr_cache[add_spr_cache_num].name, name);
+///---		add_spr_cache[add_spr_cache_num].index = index;
+///---
+///---		add_spr_cache_num ^= 1;
+///---	}
+///---
+///---	// update maximal frame count
+///---	// NOTE: frames are allocated during R_InitSprites
+///---
+///---	if (frame+1 > sprites[index]->numframes)
+///---		sprites[index]->numframes = frame+1;
+///---	
+///---	if (is_weapon)
+///---		sprites[index]->MarkWeapon(frame);
+///---
+///---	return index;
+///---}
 
 //
 // SPRITE LOADING FUNCTIONS
@@ -277,7 +277,8 @@ static void InstallSpriteLump(spritedef_c *def, int lump,
 	}
 
 	frame->images[rot] = W_ImageCreateSprite(lumpname, lump,
-		def->IsWeapon(frame - def->frames));
+		frame->is_weapon);
+///---	def->IsWeapon(frame - def->frames));
 
 	frame->flip[rot] = flip;
 }
@@ -485,7 +486,7 @@ static void CheckSpriteFrames(spritedef_c *def)
 }
 
 //
-// R_InitSprites
+// W_InitSprites
 //
 // Use the sprite lists in the WAD (S_START..S_END) to flesh out the
 // known sprite definitions (global `sprites' array, created while
@@ -495,38 +496,85 @@ static void CheckSpriteFrames(spritedef_c *def)
 // 
 // -AJA- 2001/02/01: rewrote this stuff.
 // 
-void R_InitSprites(void)
+void W_InitSprites(void)
 {
+	numsprites = (int)ddf_sprite_names.size();
+
 	if (numsprites <= 1)
 		I_Error("Missing sprite definitions !!\n");
 
-	I_Printf("R_InitSprites: Finding sprite patches\n");
+	I_Printf("W_InitSprites: Finding sprite patches\n");
 
-	// allocate frames (ignore NULL sprite, #0)
-	int i;
-	for (i=1; i < numsprites; i++)
+	// 1. Allocate sprite definitions (ignore NULL sprite, #0)
+	
+	sprites = new spritedef_c* [numsprites];
+	sprites[SPR_NULL] = NULL;
+
+	for (int i=1; i < numsprites; i++)
 	{
-		spritedef_c *def = sprites[i];
+		const char *name = ddf_sprite_names[i].c_str();
 
-		SYS_ASSERT(strlen(def->name) == 4);
+		SYS_ASSERT(strlen(name) == 4);
+
+		sprites[i] = new spritedef_c(name);
+	}
+
+	// 2. Scan the state table, count frames 
+
+	for (int stnum = 1; stnum < num_states; stnum++)
+	{
+		state_t *st = &states[stnum];
+
+		if (st->flags & SFF_Model)
+			continue;
+
+		if (st->sprite == SPR_NULL)
+			continue;
+
+		spritedef_c *def = sprites[st->sprite];
+
+		if (def->numframes < st->frame+1)
+			def->numframes = st->frame+1;
+	}
+
+	// 3. Allocate frames
+
+	for (int k=1; k < numsprites; k++)
+	{
+		spritedef_c *def = sprites[k];
+
 		SYS_ASSERT(def->numframes > 0);
 
 		def->frames = new spriteframe_c[def->numframes];
-
-		// names in the sprite list should be unique
-		if (i > 0)
-		{
-			SYS_ASSERT(strncmp(sprites[i-1]->name, def->name, 4) != 0);
-		}
 	}
 
+	// 4. Mark weapon frames
+
+	for (int st_kk = 1; st_kk < num_states; st_kk++)
+	{
+		state_t *st = &states[st_kk];
+
+		if (st->flags & SFF_Model)
+			continue;
+
+		if (st->sprite == SPR_NULL)
+			continue;
+
+		spritedef_c *def = sprites[st->sprite];
+
+		if (st->flags & SFF_Weapon)
+			def->frames[st->frame].is_weapon = true;
+	}
+
+	// 5. Fill in frames using wad lumps + images.ddf
+	
 	// create a sorted list (ignore NULL entry, #0)
 	sprite_map_len = numsprites - 1;
 
 	sprite_map = new spritedef_c* [sprite_map_len];
 
-	for (i=0; i < sprite_map_len; i++)
-		sprite_map[i] = sprites[i + 1];
+	for (int n=0; n < sprite_map_len; n++)
+		sprite_map[n] = sprites[n + 1];
 
 #define CMP(a, b)  (strcmp(a->name, b->name) < 0)
 	QSORT(spritedef_c *, sprite_map, sprite_map_len, CUTOFF);
@@ -548,9 +596,10 @@ void R_InitSprites(void)
 		MarkCompletedFrames();
 	}
 
-	// perform checks and free stuff
-	for (i=1; i < numsprites; i++)
-		CheckSpriteFrames(sprites[i]);
+	// 6. Perform checks and free stuff
+
+	for (int j=1; j < numsprites; j++)
+		CheckSpriteFrames(sprites[j]);
 
 	delete[] sprite_map;
 	sprite_map = NULL;
@@ -598,7 +647,7 @@ spriteframe_c *W_GetSpriteFrame(int spr_num, int framenum)
 }
 
 
-void R_PrecacheSprites(void)
+void W_PrecacheSprites(void)
 {
 	int i;
 	mobj_t *mo;
