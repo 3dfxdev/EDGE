@@ -30,7 +30,6 @@
 #include "thing.h"
 
 #include "src/p_action.h"
-#include "src/z_zone.h"
 
 
 #undef  DF
