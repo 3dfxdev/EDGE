@@ -72,31 +72,6 @@ void Z_Free(void *ptr);
 #define Z_Resize(ptr,type,n)  \
 	(void)((ptr) = (type *) Z_ReMalloc((void *)(ptr), (n) * sizeof(type)))
 
-//
-// Z_Clear
-//
-// Clears memory to zero.
-//
-#define Z_Clear(ptr, type, num)  \
-	memset((void *)(ptr), ((ptr) - ((type *)(ptr))), (num) * sizeof(type))
-
-//
-// Z_MoveData
-//
-// moves data from src to dest.
-//
-#define Z_MoveData(dest, src, type, num)  \
-	memmove((void *)(dest), (void *)(src), (num) * sizeof(type) + ((src) - (type *)(src)) + ((dest) - (type *)(dest)))
-
-//
-// StrNCpy
-//
-// Copies up to max characters of src into dest, and then applies a
-// terminating zero (so dest must hold at least max+1 characters).
-// The terminating zero is always applied (there is no reason not to)
-//
-#define Z_StrNCpy(dest, src, max) \
-	(void)(strncpy((dest), (src), (max)), (dest)[(max)] = 0)
 
 #endif  /* __Z_ZONE__ */
 
