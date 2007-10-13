@@ -265,6 +265,12 @@ static void FillSpriteFrames(int file, int prog_base, int prog_total)
 		const char *sprname  = sprite_map[S]->name;
 		const char *lumpname = W_GetLumpName(lumps[L]);
 
+		// ignore model skins
+		if (lumpname[4] == 'S' && lumpname[5] == 'K' && lumpname[6] == 'N')
+		{
+			L++; continue;
+		}
+
 		if (strlen(lumpname) != 6 && strlen(lumpname) != 8)
 		{
 			I_Warning("Sprite name %s has illegal length.\n", lumpname);
@@ -316,6 +322,12 @@ static void FillSpriteFramesUser(int prog_base, int prog_total)
 	{
 		const char *sprname  = sprite_map[S]->name;
 		const char *img_name = W_ImageGetName(images[L]);
+
+		// ignore model skins
+		if (img_name[4] == 'S' && img_name[5] == 'K' && img_name[6] == 'N')
+		{
+			L++; continue;
+		}
 
 		if (strlen(img_name) != 6 && strlen(img_name) != 8)
 		{
