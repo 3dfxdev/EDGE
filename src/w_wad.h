@@ -28,6 +28,7 @@
 
 #include "dm_defs.h"
 
+#include "epi/file.h"
 #include "epi/utility.h"
 
 typedef enum
