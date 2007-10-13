@@ -18,6 +18,8 @@
 
 #include "i_defs.h"
 
+#include "epi/utility.h"
+
 #include "con_cvar.h"
 #include "con_defs.h"
 #include "z_zone.h"
