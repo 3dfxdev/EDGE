@@ -91,14 +91,14 @@ bool N_StartupReliableLink(int port)
 
 	// bind the socket for listening
 	if (bind(host_conn_sock, (struct sockaddr *)&sock_addr,
-			 sizeof(sock_addr)) == SOCKET_ERROR )
+			 sizeof(sock_addr)) == SOCKET_ERROR)
 	{
 		I_Printf("ReliableLink: Couldn't bind to local port!\n");
 		N_ShutdownReliableLink();
 		return false;
 	}
 
-	if (listen(host_conn_sock, 5) == SOCKET_ERROR )
+	if (listen(host_conn_sock, 5) == SOCKET_ERROR)
 	{
 		I_Printf("ReliableLink: Couldn't listen to local port!\n");
 		N_ShutdownReliableLink();
