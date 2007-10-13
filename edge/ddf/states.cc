@@ -21,8 +21,8 @@
 #include "states.h"
 
 #include "src/p_action.h"
-#include "src/w_sprite.h"
 #include "src/z_zone.h"
+
 
 // FIXME: unwanted link to engine code (switch to epi::angle_c)
 extern float M_Tan(angle_t ang)  GCCATTR((const));
@@ -47,6 +47,10 @@ static const state_t template_state =
 state_t *states = NULL;
 int num_states;
 
+std::vector<std::string> ddf_sprite_names;
+std::vector<std::string> ddf_model_names;
+
+
 // Until the DDF_StateFinishState() routine is called, the `nextstate'
 // field of each state contains a special value.  0 for normal (no
 // redirector).  -1 for the #REMOVE redirector.  Otherwise the top 16
@@ -64,6 +68,55 @@ epi::strlist_c redirs;
 static char *stateinfo[NUMSPLIT + 1];
 
 
+// a little caching makes a big difference here
+// (because DDF entries are usually limited to a single sprite)
+static int last_sprite = -1;
+static int last_model  = -1;
+
+
+static int AddSpriteName(const char *name)
+{
+	if (stricmp(name, "NULL") == 0)
+		return SPR_NULL;
+	
+	if (last_sprite >= 0 &&
+		stricmp(ddf_sprite_names[last_sprite].c_str(), name) == 0)
+		return last_sprite;
+
+	for (int i = 1; i < (int)ddf_sprite_names.size(); i++)
+		if (stricmp(ddf_sprite_names[i].c_str(), name) == 0)
+			return ((last_sprite = i));
+
+	last_sprite = (int)ddf_sprite_names.size();
+
+	// not found, so insert it
+	ddf_sprite_names.push_back(std::string(name));
+
+	return last_sprite;
+}
+
+static int AddModelName(const char *name)
+{
+	if (stricmp(name, "NULL") == 0)
+		return SPR_NULL;
+
+	if (last_model >= 0 &&
+		stricmp(ddf_model_names[last_model].c_str(), name) == 0)
+		return last_model;
+
+	for (int i = 1; i < (int)ddf_model_names.size(); i++)
+		if (stricmp(ddf_model_names[i].c_str(), name) == 0)
+			return ((last_model = i));
+
+	last_model = (int)ddf_model_names.size();
+
+	// not found, so insert it
+	ddf_model_names.push_back(std::string(name));
+
+	return last_model;
+}
+
+
 void DDF_StateInit(void)
 {
 	// setup the 'S_NULL' state
@@ -72,13 +125,19 @@ void DDF_StateInit(void)
 	num_states = 1;
 
 	// setup the 'SPR_NULL' sprite
-	R_AddSpriteName("NULL", 1, false);
+	// (Not strictly needed, but means we can access the arrays
+	//  without subtracting 1)
+#if 1
+	AddSpriteName("!NULL!");
+	AddModelName ("!NULL!");
+#endif
 }
 
 void DDF_StateCleanUp(void)
 {
 	/* nothing to do */
 }
+
 
 //
 // DDF_MainSplitIntoState
@@ -385,7 +444,13 @@ void DDF_StateReadState(const char *info, const char *label,
 	else
 		DDF_Error("DDF_MainLoadStates: Illegal sprite frame: %s\n", stateinfo[1]);
 
-	cur->sprite = R_AddSpriteName(stateinfo[0], cur->frame, is_weapon);
+	if (is_weapon)
+		cur->flags |= SFF_Weapon;
+
+	if (cur->flags & SFF_Model)
+		cur->sprite = AddModelName(stateinfo[0]);
+	else
+		cur->sprite = AddSpriteName(stateinfo[0]);
 
 	//--------------------------------------------------
 	//------------STATE TIC COUNT HANDLING--------------
