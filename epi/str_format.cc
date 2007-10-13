@@ -74,7 +74,12 @@ std::string STR_Format(const char *fmt, ...)
 		// old versions of vsnprintf() simply return -1 when
 		// the output doesn't fit.
 		if (out_len >= 0 && out_len < buf_size)
-			return std::string(buf);
+		{
+			std::string result(buf);
+			delete[] buf;
+
+			return result;
+		}
 
 		delete[] buf;
 
