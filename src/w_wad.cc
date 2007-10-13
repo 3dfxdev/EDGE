@@ -39,6 +39,7 @@
 
 #include "epi/endianess.h"
 #include "epi/file.h"
+#include "epi/file_sub.h"
 #include "epi/filesystem.h"
 #include "epi/math_md5.h"
 #include "epi/path.h"
@@ -1362,6 +1363,24 @@ void W_ReadDDF(void)
 	}
 }
 
+epi::file_c *W_OpenLump(int lump)
+{
+	SYS_ASSERT(0 <= lump && lump < numlumps);
+
+	lumpinfo_t *l = lumpinfo + lump;
+
+	data_file_c *df = data_files[l->file];
+
+	SYS_ASSERT(df->file);
+
+	return new epi::sub_file_c(df->file, l->position, l->size);
+}
+
+epi::file_c *W_OpenLump(const char *name)
+{
+	return W_OpenLump(W_GetNumForName(name));
+}
+
 //
 // W_GetFileName
 //
@@ -1370,13 +1389,11 @@ void W_ReadDDF(void)
 //
 const char *W_GetFileName(int lump)
 {
-	lumpinfo_t *l;
-	data_file_c *df;
-
 	SYS_ASSERT(0 <= lump && lump < numlumps);
 
-	l = lumpinfo + lump;
-	df = data_files[l->file];
+	lumpinfo_t *l = lumpinfo + lump;
+
+	data_file_c *df = data_files[l->file];
 
 	if (df->kind >= FLKIND_Lump)
 		return NULL;
