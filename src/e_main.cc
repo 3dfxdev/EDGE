@@ -79,6 +79,8 @@
 #include "r_draw.h"
 #include "r_modes.h"
 #include "r_image.h"
+#include "w_model.h"
+#include "w_sprite.h"
 #include "w_texture.h"
 #include "w_wad.h"
 #include "version.h"
@@ -1526,6 +1528,7 @@ startuporder_t startcode[] =
 	{  1, SV_MainInit          },
 	{ 15, W_ImageCreateUser    },
 	{ 20, W_InitSprites        },
+	{  1, W_InitModels         },
 	{  1, M_Init               },
 	{  3, R_Init               },
 	{  1, P_Init               },
