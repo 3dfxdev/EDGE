@@ -37,9 +37,9 @@
 #include "ddf/main.h"
 #include "ddf/anim.h"
 
-void R_InitFlats(void);
-void R_InitPicAnims(void);
-void R_PrecacheLevel(void);
+void W_InitFlats(void);
+void W_InitPicAnims(void);
+void W_PrecacheLevel(void);
 
 #endif /* __R_DATA__ */
 

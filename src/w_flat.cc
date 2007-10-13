@@ -229,9 +229,9 @@ void R_AddGraphicAnim(animdef_c *anim)
 }
 
 //
-// R_InitFlats
+// W_InitFlats
 // 
-void R_InitFlats(void)
+void W_InitFlats(void)
 {
 	int max_file = W_GetNumFiles();
 	int j, file;
@@ -239,7 +239,7 @@ void R_InitFlats(void)
 	int *F_lumps = NULL;
 	int numflats = 0;
 
-	I_Printf("R_InitFlats...\n");
+	I_Printf("W_InitFlats...\n");
 
 	// iterate over each file, creating our big array of flats
 
@@ -296,9 +296,9 @@ void R_InitFlats(void)
 }
 
 //
-// R_InitPicAnims
+// W_InitPicAnims
 //
-void R_InitPicAnims(void)
+void W_InitPicAnims(void)
 {
 	epi::array_iterator_c it;
 	animdef_c *A;
@@ -331,13 +331,13 @@ void R_InitPicAnims(void)
 
 
 //
-// R_PrecacheLevel
+// W_PrecacheLevel
 //
 // Preloads all relevant graphics for the level.
 //
 // -AJA- 2001/06/18: Reworked for image system.
 //                   
-void R_PrecacheLevel(void)
+void W_PrecacheLevel(void)
 {
 	int max_image;
 	int count = 0;
@@ -351,7 +351,7 @@ void R_PrecacheLevel(void)
 
 	if (M_CheckParm("-fastsprite") || M_CheckParm("-fastsprites"))
 	{
-		R_PrecacheSprites();
+		W_PrecacheSprites();
 	}
 
 	// maximum possible images
