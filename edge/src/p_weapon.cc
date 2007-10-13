@@ -38,6 +38,7 @@
 #include "p_local.h"
 #include "rad_trig.h"
 #include "s_sound.h"
+#include "w_sprite.h"
 #include "w_wad.h"
 
 static sound_category_e WeapSfxCat(player_t *p)
@@ -113,7 +114,7 @@ bool P_CheckWeaponSprite(weapondef_c *info)
 	if (info->up_state == S_NULL)
 		return false;
 
-	return DDF_CheckSprites(info->first_state, info->last_state);
+	return W_CheckSpritesExist(info->first_state, info->last_state);
 }
 
 static bool ButtonDown(player_t *p, int ATK)

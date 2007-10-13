@@ -104,7 +104,6 @@ void DDF_GetLumpNameForFile(const char *filename, char *lumpname);
 
 int DDF_CompareName(const char *A, const char *B);
 
-bool DDF_CheckSprites(int st_low, int st_high);
 bool DDF_WeaponIsUpgrade(weapondef_c *weap, weapondef_c *old);
 
 bool DDF_IsBoomLineType(int num);

@@ -24,6 +24,10 @@
 #include "src/w_sprite.h"
 #include "src/z_zone.h"
 
+// FIXME: unwanted link to engine code (switch to epi::angle_c)
+extern float M_Tan(angle_t ang)  GCCATTR((const));
+
+
 static const state_t template_state =
 {
 	0,          // sprite ref
@@ -755,25 +759,6 @@ void DDF_StateGetRGB(const char *arg, state_t * cur_state)
 	cur_state->action_par = new rgbcol_t;
 
 	DDF_MainGetRGB(arg, cur_state->action_par);
-}
-
-bool DDF_CheckSprites(int st_low, int st_high)
-{
-	if (st_low == S_NULL)
-		return true;
-	
-	SYS_ASSERT(st_low <= st_high);
-
-	while (st_low <= st_high &&	states[st_low].sprite == SPR_NULL)
-		st_low++;
-
-	if (st_low > st_high)
-		return true;
-
-	if (sprites[states[st_low].sprite]->frames > 0)
-		return true;	
-
-	return false;
 }
 
 
