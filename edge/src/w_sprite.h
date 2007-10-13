@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-//  EDGE Rendering things (objects as sprites) Code
+//  EDGE Sprite Management
 //----------------------------------------------------------------------------
 // 
 //  Copyright (c) 1999-2007  The EDGE Team.
@@ -23,8 +23,8 @@
 //
 //----------------------------------------------------------------------------
 
-#ifndef __R_THINGS__
-#define __R_THINGS__
+#ifndef __W_SPRITES_H__
+#define __W_SPRITES_H__
 
 #include "e_player.h"
 #include "r_defs.h"
@@ -102,7 +102,7 @@ void W_PrecacheSprites(void);
 
 spriteframe_c *W_GetSpriteFrame(int spr_num, int framenum);
 
-#endif // __R_THINGS__
+#endif // __W_SPRITES_H__
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
