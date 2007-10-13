@@ -26,12 +26,10 @@
 #include "colormap.h"
 
 #include "src/p_action.h"
-#include "src/z_zone.h"
 
 
 // FIXME: unwanted link to engine code (switch to epi::angle_c)
-///--- #include "m_math.h"
-extern float M_Tan(angle_t ang)    GCCATTR((const));
+extern float M_Tan(angle_t ang)  GCCATTR((const));
 
 // FIXME: another unwanted link : create API to set this
 extern epi::strent_c ddf_dir;
