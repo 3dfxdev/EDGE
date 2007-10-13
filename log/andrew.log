@@ -12,6 +12,10 @@ of all the sprite (and model) names to the main engine code.
 OK, rewrote the W_InitSprites() function to utilise the name
 list stored in the DDF code, and it seems to be working fine.
 
+Created w_model.cc/h file for management of models and skins,
+and wrote preliminary code to load models and skins from WAD
+files.  Got the basic test case working.  Cool.
+
 2007/10/06:
 
 The network setup stuff in i_net.cc, responsible for finding
