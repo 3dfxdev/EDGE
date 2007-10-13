@@ -68,89 +68,6 @@ spritedef_c::spritedef_c(const char* _name)  : numframes(0), frames(NULL)
     strcpy(name, _name);
 }
 
-//
-// INITIALISATION FUNCTIONS
-//
-
-///---typedef struct add_spr_cache_s
-///---{
-///---	char name[6];
-///---	int index;
-///---}
-///---add_spr_cache_t;
-///---
-///---static int add_spr_cache_num = 0;
-///---static add_spr_cache_t add_spr_cache[2] = 
-///---{{ "", 0 }, { "", 0 }};
-
-///---//
-///---// R_AddSpriteName
-///---// 
-///---// Looks up the sprite name, returning the index if found.  When not
-///---// found, a new sprite is created, and that index is returned.  The
-///---// given sprite name should be upper case.
-///---// 
-///---int R_AddSpriteName(const char *name, int frame, bool is_weapon)
-///---{
-///---	if (strcmp(name, "NULL") == 0)
-///---	{
-///---		if (numsprites == 0)  // fill out dummy entry, #0
-///---		{
-///---			spritedef_c *def = new spritedef_c(name);
-///---
-///---			sprites.Insert(def);
-///---			numsprites = sprites.GetSize();
-///---		}
-///---
-///---		return SPR_NULL;
-///---	}
-///---
-///---	int index;
-///---
-///---	SYS_ASSERT(strlen(name) == 4);
-///---
-///---	// look in cache
-///---	if (strcmp(name, add_spr_cache[0].name) == 0)
-///---		index = add_spr_cache[0].index;
-///---	else if (strcmp(name, add_spr_cache[1].name) == 0)
-///---		index = add_spr_cache[1].index;
-///---	else
-///---	{
-///---		// look backwards, assuming a recent sprite is more likely
-///---		for (index=numsprites-1; index >= 1; index--)
-///---		{
-///---			if (strcmp(sprites[index]->name, name) == 0)
-///---				break;
-///---		}
-///---
-///---		if (index == 0)
-///---		{
-///---			index = numsprites;
-///---
-///---			spritedef_c *def = new spritedef_c(name);
-///---
-///---			sprites.Insert(def);
-///---			numsprites = sprites.GetSize();
-///---		}
-///---
-///---		// update cache
-///---		strcpy(add_spr_cache[add_spr_cache_num].name, name);
-///---		add_spr_cache[add_spr_cache_num].index = index;
-///---
-///---		add_spr_cache_num ^= 1;
-///---	}
-///---
-///---	// update maximal frame count
-///---	// NOTE: frames are allocated during R_InitSprites
-///---
-///---	if (frame+1 > sprites[index]->numframes)
-///---		sprites[index]->numframes = frame+1;
-///---	
-///---	if (is_weapon)
-///---		sprites[index]->MarkWeapon(frame);
-///---
-///---	return index;
-///---}
 
 //
 // SPRITE LOADING FUNCTIONS
@@ -278,7 +195,6 @@ static void InstallSpriteLump(spritedef_c *def, int lump,
 
 	frame->images[rot] = W_ImageCreateSprite(lumpname, lump,
 		frame->is_weapon);
-///---	def->IsWeapon(frame - def->frames));
 
 	frame->flip[rot] = flip;
 }

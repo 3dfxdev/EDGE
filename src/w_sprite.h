@@ -90,41 +90,8 @@ public:
 
 	// sprite frames.
 	spriteframe_c *frames;
-
-///---	// HACK: bitmask for which frames are weapons (limit is 32)
-///---	unsigned int weapon_frames;
-///---
-///---public:
-///---	void MarkWeapon(int frame)
-///---	{
-///---		if (frame < 32)
-///---			weapon_frames |= (1 << frame);
-///---	}
-///---
-///---	bool IsWeapon(int frame) const
-///---	{
-///---		if (frame >= 32)
-///---			return false;
-///---
-///---		return (weapon_frames & (1 << frame)) ? true : false;
-///---	}
 };
 
-///---class spritedef_array_c : public epi::array_c
-///---{
-///---public:
-///---	spritedef_array_c() : epi::array_c(sizeof(spritedef_c*)) { }
-///---	~spritedef_array_c() { Clear(); }
-///---
-///---private:
-///---	void CleanupObject(void *obj) { delete *(spritedef_c**)obj; }
-///---
-///---public:
-///---    // List Management
-///---	int GetSize() const { return array_entries; }
-///---	int Insert(spritedef_c *c) { return InsertObject((void*)&c); }
-///---	spritedef_c* operator[](int idx) { return *(spritedef_c**)FetchObject(idx); }
-///---};
 
 /* Functions */
 
