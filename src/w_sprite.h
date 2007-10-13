@@ -125,14 +125,13 @@ public:
 	spritedef_c* operator[](int idx) { return *(spritedef_c**)FetchObject(idx); }
 };
 
-extern spritedef_array_c sprites;
-extern int numsprites;  // same as sprites.GetSize()
 
-int R_AddSpriteName(const char *name, int frame, bool is_weapon);
 void R_InitSprites(void);
 
 bool W_CheckSpritesExist(int st_low, int st_high);
 void R_PrecacheSprites(void);
+
+spriteframe_c *W_GetSpriteFrame(int spr_num, int framenum);
 
 #endif // __R_THINGS__
 
