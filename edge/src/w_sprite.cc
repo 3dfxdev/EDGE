@@ -53,8 +53,8 @@
 //
 
 // Sprite definitions
-spritedef_array_c sprites;
-int numsprites = 0;
+static spritedef_array_c sprites;
+static int numsprites = 0;
 
 // Sorted map of sprite defs.  Only used during initialisation.
 static spritedef_c ** sprite_map = NULL;
@@ -450,25 +450,6 @@ static void MarkCompletedFrames(void)
 			if (rot_count < frame->rots)
 				I_Warning("Sprite %s:%c is missing rotations (%d of %d).\n",
 					def->name, frame_ch, frame->rots - rot_count, frame->rots);
-
-///##		if (frame->rots == 0)
-///##		{
-///##			if (rot_count != 1)
-///##				I_Warning("Sprite %s:%c has extra rotations.\n", def->name, frame_ch);
-///##
-///##			SYS_ASSERT(frame->images[0] != NULL);
-///##			continue;
-///##		}
-
-///##		// Note: two passes are needed
-///##		for (int j=0; j < (16 * 2); j++)
-///##		{
-///##			if (frame->images[j % 16] && !frame->images[(j+1) % 16])
-///##			{
-///##				frame->images[(j+1) % 16] = frame->images[j % 16];
-///##				frame->flip  [(j+1) % 16] = frame->flip  [j % 16];
-///##			}
-///##		}
 		}
 
 		// remove complete sprites from sprite_map
@@ -593,6 +574,29 @@ bool W_CheckSpritesExist(int st_low, int st_high)
 
 	return false;
 }
+
+spriteframe_c *W_GetSpriteFrame(int spr_num, int framenum)
+{
+	// spr_num comes from the 'sprite' field of state_t, and
+	// is also an index into ddf_sprite_names vector.
+	
+	SYS_ASSERT(spr_num > 0);
+	SYS_ASSERT(spr_num < numsprites);
+	SYS_ASSERT(framenum >= 0);
+
+	spritedef_c *def = sprites[spr_num];
+
+	if (framenum >= def->numframes)
+		return NULL;
+
+	spriteframe_c *frame = &def->frames[framenum];
+
+	if (!frame || !frame->finished)
+		return NULL;
+
+	return frame;
+}
+
 
 void R_PrecacheSprites(void)
 {
