@@ -240,7 +240,7 @@ state_starter_t;
 // DDF_MAIN Code (Reading all files, main init & generic functions).
 bool DDF_MainReadFile (readinfo_t * readinfo);
 
-extern int ddf_version;  // hexadecimal e.g. 0x128
+extern int ddf_version;  // decimal e.g. 128
 
 extern int cur_ddf_line_num;
 extern epi::string_c cur_ddf_filename;

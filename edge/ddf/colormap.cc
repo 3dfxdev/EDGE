@@ -105,20 +105,20 @@ static void ColmapParseField(const char *field, const char *contents,
 	if (DDF_MainParseField(colmap_commands, field, contents))
 		return;
 
-	DDF_WarnError2(0x128, "Unknown colmap.ddf command: %s\n", field);
+	DDF_WarnError2(128, "Unknown colmap.ddf command: %s\n", field);
 }
 
 static void ColmapFinishEntry(void)
 {
 	if (buffer_colmap.start < 0)
 	{
-		DDF_WarnError2(0x128, "Bad START value for colmap: %d\n", buffer_colmap.start);
+		DDF_WarnError2(128, "Bad START value for colmap: %d\n", buffer_colmap.start);
 		buffer_colmap.start = 0;
 	}
 
 	if (buffer_colmap.length <= 0)
 	{
-		DDF_WarnError2(0x128, "Bad LENGTH value for colmap: %d\n", buffer_colmap.length);
+		DDF_WarnError2(128, "Bad LENGTH value for colmap: %d\n", buffer_colmap.length);
 		buffer_colmap.length = 1;
 	}
 
@@ -213,7 +213,7 @@ void DDF_ColmapGetSpecial(const char *info, void *storage)
 
 		case CHKF_User:
 		case CHKF_Unknown:
-			DDF_WarnError2(0x128, "DDF_ColmapGetSpecial: Unknown Special: %s", info);
+			DDF_WarnError2(128, "DDF_ColmapGetSpecial: Unknown Special: %s", info);
 			break;
 	}
 }

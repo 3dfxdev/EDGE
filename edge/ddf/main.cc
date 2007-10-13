@@ -19,7 +19,6 @@
 #include "local.h"
 
 #include <limits.h>
-
 #include <vector>
 
 #include "epi/path.h"
@@ -27,7 +26,6 @@
 #include "colormap.h"
 
 #include "src/p_action.h"
-#include "src/version.h"
 #include "src/z_zone.h"
 
 
@@ -42,6 +40,8 @@ extern epi::strent_c ddf_dir;
 #define DEBUG_DDFREAD  0
 
 int ddf_version;  // global
+
+static int engine_version;
 
 bool strict_errors = false;
 bool lax_errors = false;
@@ -184,14 +184,16 @@ static void GCCATTR((format (printf,1,2)))
 	vsprintf(buffer, err, argptr);
 	va_end(argptr);
 
-	if (strict_errors || (ddf_version >= 0x128 && ! lax_errors))
+	if (strict_errors || (ddf_version >= 128 && ! lax_errors))
 		DDF_Error("%s", buffer);
 	else if (no_obsoletes)
 		DDF_Warning("%s", buffer);
 }
 
-void DDF_Init(void)
+void DDF_Init(int _engine_ver)
 {
+	engine_version = _engine_ver;
+
 	DDF_StateInit();
 	DDF_LanguageInit();
 	DDF_SFXInit();
@@ -450,13 +452,14 @@ static void DDF_ParseVersion(const char *str, int len)
 		DDF_Error("Badly formed #VERSION directive.\n");
 	}
 
-	ddf_version = ((str[0] - '0') << 8) |
-	              ((str[2] - '0') << 4) | (str[3] - '0');
+	ddf_version = ((str[0] - '0') * 100) |
+	              ((str[2] - '0') *  10) |
+				   (str[3] - '0');
 
-	if (ddf_version < 0x123)
+	if (ddf_version < 123)
 		DDF_Error("Illegal #VERSION number.\n");
 
-	if (ddf_version > EDGEVERHEX)
+	if (ddf_version > engine_version)
 		DDF_Error("This version of EDGE cannot handle this DDF.\n");
 }
 
@@ -578,7 +581,7 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 	char charcount = 0;
 #endif
 
-	ddf_version = 0x127;
+	ddf_version = 127;
 
 	status = waiting_tag;
 	formerstatus = readstatus_invalid;
@@ -825,8 +828,8 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 					DDF_Error("Unexpected comma `,'.\n");
 
 				if (firstgo)
-					DDF_WarnError2(0x128, "Command %s used outside of any entry\n",
-									current_cmd.GetString());
+					DDF_WarnError2(128, "Command %s used outside of any entry\n",
+								   current_cmd.GetString());
 				else
 				{ 
 					(* readinfo->parse_field)(current_cmd.GetString(), 
@@ -863,7 +866,7 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 				break;
 
 			case property_read:
-				DDF_WarnError2(0x128, "Badly formed command: Unexpected semicolon `;'\n");
+				DDF_WarnError2(128, "Badly formed command: Unexpected semicolon `;'\n");
 				break;
 
 			case nothing:
@@ -903,7 +906,7 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 		DDF_Error("Unclosed [] brackets detected.\n");
 	
 	if (status == reading_data || status == reading_string)
-		DDF_WarnError2(0x128, "Unfinished DDF command on last line.\n");
+		DDF_WarnError2(128, "Unfinished DDF command on last line.\n");
 
 	// if firstgo is true, nothing was defined
 	if (!firstgo)
@@ -1097,7 +1100,7 @@ readchar_t DDF_MainProcessChar(char character, epi::string_c& buffer, int status
 			else if (character == '\n')
 			{
 				cur_ddf_line_num--;
-				DDF_WarnError2(0x128, "Unclosed string detected.\n");
+				DDF_WarnError2(128, "Unclosed string detected.\n");
 
 				cur_ddf_line_num++;
 				return nothing;
@@ -1132,7 +1135,7 @@ void DDF_MainGetNumeric(const char *info, void *storage)
 
 	if (isalpha(info[0]))
 	{
-		DDF_WarnError2(0x128, "Bad numeric value: %s\n", info);
+		DDF_WarnError2(128, "Bad numeric value: %s\n", info);
 		return;
 	}
 
@@ -1362,7 +1365,7 @@ void DDF_MainRefAttack(const char *info, void *storage)
 
 	*dest = (atkdef_c*)atkdefs.Lookup(info);
 	if (*dest == NULL)
-		DDF_WarnError2(0x128, "Unknown Attack: %s\n", info);
+		DDF_WarnError2(128, "Unknown Attack: %s\n", info);
 }
 
 //
@@ -1418,7 +1421,7 @@ void DDF_MainGetAngle(const char *info, void *storage)
 	if ((int) val == 360)
 		val = 359.5;
 	else if (val > 360.0f)
-		DDF_WarnError2(0x129, "Angle '%s' too large (must be less than 360)\n", info);
+		DDF_WarnError2(129, "Angle '%s' too large (must be less than 360)\n", info);
 
 	*dest = FLOAT_2_ANG(val);
 }
@@ -1461,7 +1464,7 @@ void DDF_MainGetPercent(const char *info, void *storage)
 	// the number must be followed by %
 	if (*p != '%')
 	{
-		DDF_WarnError2(0x128, "Bad percent value '%s': Should be a number followed by %%\n", info);
+		DDF_WarnError2(128, "Bad percent value '%s': Should be a number followed by %%\n", info);
 		// -AJA- 2001/01/27: backwards compatibility
 		DDF_MainGetFloat(s, &f);
 		*dest = MAX(0, MIN(1, f));
@@ -1498,7 +1501,7 @@ void DDF_MainGetPercentAny(const char *info, void *storage)
 	// the number must be followed by %
 	if (*p != '%')
 	{
-		DDF_WarnError2(0x128, "Bad percent value '%s': Should be a number followed by %%\n", info);
+		DDF_WarnError2(128, "Bad percent value '%s': Should be a number followed by %%\n", info);
 		// -AJA- 2001/01/27: backwards compatibility
 		DDF_MainGetFloat(s, dest);
 		return;

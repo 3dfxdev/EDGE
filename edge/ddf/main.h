@@ -92,8 +92,9 @@ extern bool no_warnings;
 // if true, disable obsolete warning messages
 extern bool no_obsoletes;
 
-void DDF_Init(void);
+void DDF_Init(int _engine_ver);
 void DDF_CleanUp(void);
+
 bool DDF_MainParseCondition(const char *str, condition_check_t *cond);
 void DDF_MainGetWhenAppear(const char *info, void *storage);
 void DDF_MainGetRGB(const char *info, void *storage);

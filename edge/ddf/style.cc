@@ -154,7 +154,7 @@ static void StyleParseField(const char *field, const char *contents,
 #endif
 
 	if (! DDF_MainParseField(style_commands, field, contents))
-		DDF_WarnError2(0x128, "Unknown styles.ddf command: %s\n", field);
+		DDF_WarnError2(128, "Unknown styles.ddf command: %s\n", field);
 }
 
 static void StyleFinishEntry(void)
