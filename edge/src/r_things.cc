@@ -433,10 +433,10 @@ static const image_c * R2_GetThingSprite2(mobj_t *mo, float mx, float my, bool *
 		I_Error("R2_GetThingSprite: invalid sprite number %i.\n", mo->state->sprite);
 #endif
 
-	spritedef_c *sprite = sprites[mo->state->sprite];
+	spritedef_c *def = sprites[mo->state->sprite];
 
-	if (mo->state->frame >= sprite->numframes ||
-		!sprite->frames[mo->state->frame].finished)
+	if (mo->state->frame >= def->numframes ||
+		!def->frames[mo->state->frame].finished)
 	{
 #if 1
 		// -AJA- 2001/08/04: allow the patch to be missing
@@ -445,11 +445,11 @@ static const image_c * R2_GetThingSprite2(mobj_t *mo, float mx, float my, bool *
 #else
 		// -ACB- 1998/06/29 More Informative Error Message
 		I_Error("R2_GetThingSprite: Invalid sprite frame %s:%c",
-			sprite->name, 'A' + mo->state->frame);
+			def->name, 'A' + mo->state->frame);
 #endif
 	}
 
-	spriteframe_c *frame = sprite->frames + mo->state->frame;
+	spriteframe_c *frame = def->frames + mo->state->frame;
 
 	int rot = 0;
 
@@ -505,9 +505,6 @@ if (ang > ANG90 && ang <= ANG270) ang = ANG180; else ang = 0;
 //
 const image_c * R2_GetOtherSprite(int spritenum, int framenum, bool *flip)
 {
-	spritedef_c *sprite;
-	spriteframe_c *frame;
-
 	if (spritenum == SPR_NULL)
 		return NULL;
 
@@ -517,21 +514,21 @@ const image_c * R2_GetOtherSprite(int spritenum, int framenum, bool *flip)
 		I_Error("R2_GetOtherSprite: invalid sprite number %i.\n", spritenum);
 #endif
 
-	sprite = sprites[spritenum];
+	spritedef_c *def = sprites[spritenum];
 
-	if (framenum >= sprite->numframes ||
-		!sprite->frames[framenum].finished)
+	if (framenum >= def->numframes ||
+		!def->frames[framenum].finished)
 	{
 #if 1
 		return NULL;
 #else
 		// -ACB- 1998/06/29 More Informative Error Message
 		I_Error("R2_GetOtherSprite: Invalid sprite frame %s:%c",
-			sprite->name, 'A' + framenum);
+			def->name, 'A' + framenum);
 #endif
 	}
 
-	frame = sprite->frames + framenum;
+	spriteframe_c *frame = def->frames + framenum;
 
 	*flip = frame->flip[0] ? true : false;
 
