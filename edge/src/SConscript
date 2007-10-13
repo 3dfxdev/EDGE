@@ -38,9 +38,9 @@ sources = [
     'p_forces.cc', 'p_telept.cc', 'p_weapon.cc',
     'rad_act.cc', 'rad_pars.cc', 'rad_trig.cc', 
     'r_automap.cc', 'r_draw.cc', 'r_shader.cc',
-    'r_render.cc', 'w_flat.cc', 'r_effects.cc', 'r_main.cc',
+    'r_render.cc', 'r_effects.cc', 'r_main.cc',
     'r_occlude.cc', 'm_logo.cc', 'r_things.cc', 'r_units.cc', 
-    'r_wipe.cc', 'r_misc.cc', 'r_sky.cc', 'w_sprite.cc', 
+    'r_wipe.cc', 'r_misc.cc', 'r_sky.cc',
     'r_vbinit.cc', 'r_view.cc',
     's_blit.cc', 's_cache.cc', 's_sound.cc',
     's_music.cc', 's_ogg.cc', 'st_lib.cc', 'st_stuff.cc',
@@ -48,6 +48,7 @@ sources = [
     'sv_load.cc', 'sv_main.cc', 'sv_misc.cc', 'sv_mobj.cc', 'sv_play.cc', 
     'sv_save.cc', 'r_colors.cc', 'r_modes.cc', 'r_md2.cc',
     'r_image.cc', 'r_doomtex.cc', 'r_texgl.cc', 'f_stats.cc', 
+    'w_flat.cc', 'w_model.cc', 'w_sprite.cc',
     'w_texture.cc', 'w_wad.cc', 'z_zone.cc', 
     ]
 
