@@ -403,7 +403,7 @@ void DDF_StateReadState(const char *info, const char *label,
 		cur->bright = atol(stateinfo[3]+1);
 	}
 	else
-		DDF_WarnError2(0x128, "DDF_MainLoadStates: Lighting is not BRIGHT or NORMAL\n");
+		DDF_WarnError2(128, "DDF_MainLoadStates: Lighting is not BRIGHT or NORMAL\n");
 
 	//--------------------------------------------------
 	//------------STATE ACTION CODE HANDLING------------
@@ -522,7 +522,7 @@ void DDF_StateGetAttack(const char *arg, state_t * cur_state)
 
 	cur_state->action_par = (void *)atkdefs.Lookup(arg);
 	if (cur_state->action_par == NULL)
-		DDF_WarnError2(0x127, "Unknown Attack (States): %s\n", arg);
+		DDF_WarnError2(127, "Unknown Attack (States): %s\n", arg);
 }
 
 //
