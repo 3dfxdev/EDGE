@@ -131,6 +131,7 @@ extern int numsprites;  // same as sprites.GetSize()
 int R_AddSpriteName(const char *name, int frame, bool is_weapon);
 void R_InitSprites(void);
 
+bool W_CheckSpritesExist(int st_low, int st_high);
 void R_PrecacheSprites(void);
 
 #endif // __R_THINGS__

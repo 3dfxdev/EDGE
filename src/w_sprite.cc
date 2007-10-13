@@ -575,6 +575,25 @@ void R_InitSprites(void)
 	sprite_map = NULL;
 }
 
+bool W_CheckSpritesExist(int st_low, int st_high)
+{
+	if (st_low == S_NULL)
+		return true;
+	
+	SYS_ASSERT(st_low <= st_high);
+
+	while (st_low <= st_high &&	states[st_low].sprite == SPR_NULL)
+		st_low++;
+
+	if (st_low > st_high)
+		return true;
+
+	if (sprites[states[st_low].sprite]->frames > 0)
+		return true;	
+
+	return false;
+}
+
 void R_PrecacheSprites(void)
 {
 	int i;
