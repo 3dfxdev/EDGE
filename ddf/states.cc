@@ -83,7 +83,8 @@ static int AddSpriteName(const char *name)
 		stricmp(ddf_sprite_names[last_sprite].c_str(), name) == 0)
 		return last_sprite;
 
-	for (int i = 1; i < (int)ddf_sprite_names.size(); i++)
+	// look backwards, assuming a recent sprite is more likely
+	for (int i = (int)ddf_sprite_names.size() - 1; i > SPR_NULL; i--)
 		if (stricmp(ddf_sprite_names[i].c_str(), name) == 0)
 			return ((last_sprite = i));
 
@@ -104,7 +105,8 @@ static int AddModelName(const char *name)
 		stricmp(ddf_model_names[last_model].c_str(), name) == 0)
 		return last_model;
 
-	for (int i = 1; i < (int)ddf_model_names.size(); i++)
+	// look backwards, assuming a recent model is more likely
+	for (int i = (int)ddf_model_names.size() - 1; i > SPR_NULL; i--)
 		if (stricmp(ddf_model_names[i].c_str(), name) == 0)
 			return ((last_model = i));
 
