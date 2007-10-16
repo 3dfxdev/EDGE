@@ -36,8 +36,9 @@ static void DDF_FontGetPatch(const char *info, void *storage);
 
 static const commandlist_t font_commands[] =
 {
-	DF("TYPE",     type,     DDF_FontGetType),
-	DF("PATCHES",  patches,  DDF_FontGetPatch),
+	DF("TYPE",     type,       DDF_FontGetType),
+	DF("PATCHES",  patches,    DDF_FontGetPatch),
+	DF("IMAGE",    image_name, DDF_MainGetString),
 	DF("MISSING_PATCH", missing_patch, DDF_MainGetString),
 
 	DDF_CMD_END
@@ -102,10 +103,15 @@ static void FontParseField(const char *field, const char *contents, int index, b
 
 static void FontFinishEntry(void)
 {
-	if (! buffer_font.patches)
+	if (buffer_font.type == FNTYP_UNSET)
+		DDF_Error("No type specified for font.\n");
+
+	if (buffer_font.type == FNTYP_Patch && ! buffer_font.patches)
 	{
 		DDF_Error("Missing font patch list.\n");
 	}
+
+	// FIXME: check FNTYP_Image
 
 	// transfer static entry to dynamic entry
 	dynamic_font->CopyDetail(buffer_font);
@@ -182,6 +188,8 @@ static void DDF_FontGetType(const char *info, void *storage)
 
 	if (DDF_CompareName(info, "PATCH") == 0)
 		(*type) = FNTYP_Patch;
+	else if (DDF_CompareName(info, "IMAGE") == 0)
+		(*type) = FNTYP_Image;
 	else
 		DDF_Error("Unknown font type: %s\n", info);
 }
@@ -264,8 +272,7 @@ static void DDF_FontGetPatch(const char *info, void *storage)
 
 fontpatch_c::fontpatch_c(int _ch1, int _ch2, const char *_pat1) :
 	next(NULL), char1(_ch1), char2(_ch2), patch1(_pat1)
-{
-}
+{ }
 
 // ---> fontdef_c class
 
@@ -303,6 +310,7 @@ void fontdef_c::CopyDetail(const fontdef_c &src)
 {
 	type = src.type;
 	patches = src.patches;  // FIXME: copy list
+	image_name = src.image_name;
 	missing_patch = src.missing_patch;
 }
 
@@ -315,6 +323,7 @@ void fontdef_c::Default()
 
 	type = FNTYP_Patch;
 	patches = NULL;
+	image_name.Clear();
 	missing_patch.Clear();
 }
 
