@@ -340,6 +340,10 @@ static void WeaponFinishEntry(void)
 		}
 	}
 
+	if (buffer_weapon.model_skin < 0 || buffer_weapon.model_skin > 9)
+		DDF_Error("Bad MODEL_SKIN value %d in DDF (must be 0-9).\n",
+			buffer_weapon.model_skin);
+
 	// backwards compatibility
 	if (buffer_weapon.priority < 0)
 	{
