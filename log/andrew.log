@@ -1,5 +1,11 @@
 Andrew Apted's Log
 
+2007/10/16:
+
+Implemented MD2 model stuff for THINGS.DDF and WEAPONS.DDF:
+   MODEL_SKIN  command (default is 1)
+   SET_SKIN(#) action to dynamically change skins
+
 2007/10/13:
 
 Removed the "src/version.h" back-dependency in the DDF code,
