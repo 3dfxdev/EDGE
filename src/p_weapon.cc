@@ -1604,6 +1604,7 @@ void A_WeaponTransFade(mobj_t * mo)
 {
 	player_t *p = mo->player;
 	pspdef_t *psp = &p->psprites[p->action_psp];
+
 	float value = INVISIBLE;
 
 	if (psp->state && psp->state->action_par)
@@ -1642,6 +1643,30 @@ void A_WeaponDisableRadTrig(mobj_t *mo)
 		RAD_EnableByTag(mo, tag, true);
 	}
 }
+
+
+void A_WeaponSetSkin(mobj_t * mo)
+{
+	player_t *p = mo->player;
+	pspdef_t *psp = &p->psprites[p->action_psp];
+
+	SYS_ASSERT(p->ready_wp >= 0);
+	weapondef_c *info = p->weapons[p->ready_wp].info;
+
+	const state_t *st = psp->state;
+
+	if (st && st->action_par)
+	{
+		int skin = ((int *)st->action_par)[0];
+
+		if (skin < 0 || skin > 9)
+			I_Error("Weapon [%s]: Bad skin number %d in SET_SKIN action.\n",
+					info->ddf.name.GetString(), skin);
+
+		p->weapons[p->ready_wp].model_skin = skin;
+	}
+}
+
 
 
 //--- editor settings ---

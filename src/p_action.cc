@@ -655,6 +655,23 @@ void P_ActDLightColour(struct mobj_s *mo)
 	}
 }
 
+void P_ActSetSkin(mobj_t * mo)
+{
+	const state_t *st = mo->state;
+
+	if (st && st->action_par)
+	{
+		int skin = ((int *)st->action_par)[0];
+
+		if (skin < 0 || skin > 9)
+			I_Error("Thing [%s]: Bad skin number %d in SET_SKIN action.\n",
+					mo->info->ddf.name.GetString(), skin);
+
+		mo->model_skin = skin;
+	}
+}
+
+
 
 //-------------------------------------------------------------------
 //------------------- MOVEMENT ROUTINES -----------------------------
