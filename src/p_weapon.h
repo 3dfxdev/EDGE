@@ -90,6 +90,8 @@ typedef struct
 
 	// current clip sizes
 	int clip_size[2];
+
+	int model_skin;
 }
 playerweapon_t;
 
