@@ -29,7 +29,10 @@
 //
 typedef enum
 {
-	FNTYP_Patch = 0   // font is made up of individual patches
+	FNTYP_UNSET = 0,
+
+	FNTYP_Patch = 1,  // font is made up of individual patches
+	FNTYP_Image = 2,  // font consists of one big image (16x16 chars)
 }
 fonttype_e;
 
@@ -68,6 +71,8 @@ public:
 
 	fontpatch_c *patches;
 	epi::strent_c missing_patch;
+
+	epi::strent_c image_name;
 };
 
 // Our fontdefs container
