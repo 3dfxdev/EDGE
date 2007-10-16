@@ -602,8 +602,13 @@ static void ThingFinishEntry(void)
 			buffer_mobj.choke_damage.nominal);
 	}
 
+	if (buffer_mobj.model_skin < 0 || buffer_mobj.model_skin > 9)
+		DDF_Error("Bad MODEL_SKIN value %d in DDF (must be 0-9).\n",
+			buffer_mobj.model_skin);
+
 	// FIXME: check more stuff
 
+	// backwards compatibility:
 	if (!buffer_mobj.idle_state && buffer_mobj.spawn_state)
 		buffer_mobj.idle_state = buffer_mobj.spawn_state;
 
