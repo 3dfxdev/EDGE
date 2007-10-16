@@ -44,12 +44,17 @@ font_c::font_c(fontdef_c *_def) : def(_def)
 
 	p_cache.images = NULL;
 	p_cache.missing = NULL;
+
+	im_div.sub_w = 0;
+	im_div.sub_h = 0;
 }
 
 font_c::~font_c()
 {
 	if (p_cache.images)
 		delete[] p_cache.images;
+
+	// FIXME: im_div.images
 }
 
 void font_c::BumpPatchName(char *name)
@@ -147,15 +152,31 @@ void font_c::LoadPatches()
 	p_cache.height = I_ROUND(IM_HEIGHT(Nom));
 }
 
+void font_c::LoadImageDiv()
+{
+	// FIXME !!!!!
+	
+}
+
 //
 // font_c::Load
 //
 void font_c::Load()
 {
-	if (def->type == FNTYP_Patch)
-		LoadPatches();
-	else
-		I_Error("Coding error, unknown font type %d\n", def->type);
+	switch (def->type)
+	{
+		case FNTYP_Patch:
+			LoadPatches();
+			break;
+
+		case FNTYP_Image:
+			LoadImageDiv();
+			break;
+
+		default:
+			I_Error("Coding error, unknown font type %d\n", def->type);
+			break; /* NOT REACHED */
+	}
 }
 
 //
@@ -163,12 +184,26 @@ void font_c::Load()
 //
 int font_c::NominalWidth() const
 {
-	return p_cache.width; // FIXME: assumes FNTYP_Patch
+	if (def->type == FNTYP_Image)
+		return im_div.total_w / 16;
+
+	if (def->type == FNTYP_Patch)
+		return p_cache.width;
+
+	I_Error("font_c::NominalHeight : unknown FONT type %d\n", def->type);
+	return 1; /* NOT REACHED */
 }
 
 int font_c::NominalHeight() const
 {
-	return p_cache.height; // FIXME: assumes FNTYP_Patch
+	if (def->type == FNTYP_Image)
+		return im_div.total_w / 16;
+
+	if (def->type == FNTYP_Patch)
+		return p_cache.height;
+
+	I_Error("font_c::NominalHeight : unknown FONT type %d\n", def->type);
+	return 1; /* NOT REACHED */
 }
 
 //
@@ -217,6 +252,9 @@ const image_c *font_c::CharImage(char ch) const
 //
 int font_c::CharWidth(char ch) const  // XXX: return float ???
 {
+	if (def->type == FNTYP_Image)
+		return im_div.total_w / 16;
+			
 	SYS_ASSERT(def->type == FNTYP_Patch);
 
 	if (ch == ' ')
@@ -302,6 +340,12 @@ int font_c::StringLines(const char *str) const
 void font_c::DrawChar(float x, float y, char ch, float scale, float aspect,
     const colourmap_c *colmap, float alpha) const
 {
+	if (def->type == FNTYP_Image)
+	{
+		// FIXME !!!!
+		return;
+	}
+	
 	const image_c *image = CharImage(ch);
 
 	if (! image)
