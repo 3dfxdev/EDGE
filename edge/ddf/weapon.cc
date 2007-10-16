@@ -76,6 +76,7 @@ static const commandlist_t weapon_commands[] =
 	DF("SWAYING", swaying, DDF_MainGetPercent),
 	DF("IDLE_WAIT", idle_wait, DDF_MainGetTime),
 	DF("IDLE_CHANCE", idle_chance, DDF_MainGetPercent),
+	DF("MODEL_SKIN", model_skin, DDF_MainGetNumeric),
 
 	// -AJA- backwards compatibility cruft...
 	DF("!SOUND1", sound1, DDF_MainLookupSound),
@@ -622,6 +623,7 @@ void weapondef_c::CopyDetail(weapondef_c &src)
 	swaying = src.swaying;
 	idle_wait = src.idle_wait;
 	idle_chance = src.idle_chance;
+	model_skin = src.model_skin;
 }
 
 //
@@ -690,6 +692,7 @@ void weapondef_c::Default(void)
 	swaying = PERCENT_MAKE(100);
 	idle_wait = 15 * TICRATE;
 	idle_chance = PERCENT_MAKE(12);
+	model_skin = 1;
 }
 
 //
