@@ -833,7 +833,8 @@ public:
 
 	bitset_t side;
 	int playernum;
-	int yalign;  // -AJA- 2007/08/08: sprite Y alignment in bbox
+	int yalign;     // -AJA- 2007/08/08: sprite Y alignment in bbox
+	int model_skin; // -AJA- 2007/10/16: MD2 model support
 
 	// breathing support: lung_capacity is how many tics we can last
 	// underwater.  gasp_start is how long underwater before we gasp

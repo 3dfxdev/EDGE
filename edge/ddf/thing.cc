@@ -161,7 +161,8 @@ const commandlist_t thing_commands[] =
 	DF("STEP_SIZE", step_size, DDF_MainGetFloat),
 	DF("SPRITE_SCALE", yscale, DDF_MainGetFloat),
 	DF("SPRITE_ASPECT", xscale, DDF_MainGetFloat),
-	DF("SPRITE_YALIGN", yalign, DDF_MobjGetYAlign),  // -AJA- 2007/08/08
+	DF("SPRITE_YALIGN", yalign, DDF_MobjGetYAlign),   // -AJA- 2007/08/08
+	DF("MODEL_SKIN", model_skin, DDF_MainGetNumeric), // -AJA- 2007/10/16
 	DF("BOUNCE_SPEED", bounce_speed, DDF_MainGetFloat),
 	DF("BOUNCE_UP", bounce_up, DDF_MainGetFloat),
 	DF("SIGHT_SLOPE", sight_slope, DDF_MainGetSlope),
@@ -281,6 +282,7 @@ static const actioncode_t thing_actions[] =
 	{"DLIGHT_FADE",       P_ActDLightFade, DDF_StateGetInteger},
 	{"DLIGHT_RANDOM",     P_ActDLightRandom, DDF_StateGetIntPair},
 	{"DLIGHT_COLOUR",     P_ActDLightColour, DDF_StateGetRGB},
+	{"SET_SKIN",          P_ActSetSkin,   DDF_StateGetInteger},
 
     {"FACE",              P_ActFaceDir, DDF_StateGetAngle},
     {"TURN",              P_ActTurnDir, DDF_StateGetAngle},
@@ -1814,6 +1816,7 @@ void mobjtype_c::CopyDetail(mobjtype_c &src)
 	xscale = src.xscale; 
 	yscale = src.yscale; 
 	yalign = src.yalign;
+	model_skin = src.model_skin;
 	bounce_speed = src.bounce_speed; 
 	bounce_up = src.bounce_up; 
 	sight_slope = src.sight_slope; 
@@ -1939,6 +1942,7 @@ void mobjtype_c::Default()
 	xscale = 1.0f;
 	yscale = 1.0f;
 	yalign = SPYA_BottomUp;
+	model_skin = 1;
 	bounce_speed = 0.5f;
 	bounce_up = 0.5f;
 	sight_slope = 16.0f;

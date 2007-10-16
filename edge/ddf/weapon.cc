@@ -125,6 +125,7 @@ static const actioncode_t weapon_actions[] =
 	{"CHECKRELOAD",       A_CheckReload, NULL},
 	{"PLAYSOUND",         A_WeaponPlaySound, DDF_StateGetSound},
 	{"KILLSOUND",         A_WeaponKillSound, NULL},
+	{"SET_SKIN",          A_WeaponSetSkin,   DDF_StateGetInteger},
 	{"JUMP",              A_WeaponJump, DDF_StateGetJump},
 	{"RTS_ENABLE_TAGGED", A_WeaponEnableRadTrig,  DDF_StateGetInteger},
 	{"RTS_DISABLE_TAGGED",A_WeaponDisableRadTrig, DDF_StateGetInteger},
