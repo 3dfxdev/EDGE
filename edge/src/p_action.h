@@ -59,6 +59,7 @@ void A_TargetJump(struct mobj_s *mo);
 void A_FriendJump(struct mobj_s *mo);
 void A_GunFlash(struct mobj_s *mo);
 void A_WeaponKick(struct mobj_s *mo);
+void A_WeaponSetSkin(struct mobj_s *mo);
 
 void A_WeaponShootSA(struct mobj_s *mo);
 void A_ReFireSA(struct mobj_s *mo);
@@ -92,6 +93,7 @@ void P_ActMakeOverKillSound(struct mobj_s *mo);
 void P_ActMakePainSound(struct mobj_s *mo);
 void P_ActMakeRangeAttemptSound(struct mobj_s *mo);
 void P_ActMakeActiveSound(struct mobj_s *mo);
+void P_ActPlayerScream(struct mobj_s *mo);
 
 // Explosion Damage Actions
 void P_ActDamageExplosion(struct mobj_s *mo);
@@ -139,8 +141,11 @@ void P_ActDLightSet2(struct mobj_s *mo);
 void P_ActDLightFade(struct mobj_s *mo);
 void P_ActDLightRandom(struct mobj_s *mo);
 void P_ActDLightColour(struct mobj_s *mo);
+void P_ActSetSkin(struct mobj_s *mo);
 void P_ActDie(struct mobj_s *mo);
 void P_ActKeenDie(struct mobj_s *mo);
+void P_ActCheckBlood(struct mobj_s *mo);
+void P_ActJump(struct mobj_s *mo);
 
 // Movement actions
 void P_ActFaceDir(struct mobj_s *mo);
@@ -152,6 +157,7 @@ void P_ActMoveFwd(struct mobj_s *mo);
 void P_ActMoveRight(struct mobj_s *mo);
 void P_ActMoveUp(struct mobj_s *mo);
 void P_ActStopMoving(struct mobj_s *mo);
+void P_ActCheckMoving(struct mobj_s *mo);
 
 // Projectiles
 void P_ActHomingProjectile(struct mobj_s *mo);
@@ -166,13 +172,6 @@ void P_ActEffectTracker(struct mobj_s *mo);
 void P_ActTrackerActive(struct mobj_s *mo);
 void P_ActTrackerFollow(struct mobj_s *mo);
 void P_ActTrackerStart(struct mobj_s *mo);
-
-// Blood and bullet puffs
-void P_ActCheckBlood(struct mobj_s *mo);
-void P_ActCheckMoving(struct mobj_s *mo);
-
-void P_ActJump(struct mobj_s *mo);
-void P_ActPlayerScream(struct mobj_s *mo);
 
 #endif /* __P_ACTION_H__ */
 
