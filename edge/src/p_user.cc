@@ -883,7 +883,7 @@ bool P_AddWeapon(player_t *player, weapondef_c *info, int *index)
 	player->weapons[slot].flags = 0;
 	player->weapons[slot].clip_size[0] = 0;
 	player->weapons[slot].clip_size[1] = 0;
-	player->weapons[slot].model_skin = 1;
+	player->weapons[slot].model_skin = info->model_skin;
 
 	P_UpdateAvailWeapons(player);
 

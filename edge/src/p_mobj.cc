@@ -1751,7 +1751,7 @@ void P_MobjRemoveMissile(mobj_t * missile)
 //
 // -ACB- 1998/08/02 Procedure written.
 //
-mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c *type)
+mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c *info)
 {
 	mobj_t *mobj;
 	state_t *st;
@@ -1763,33 +1763,33 @@ mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c *type)
 
 #if (DEBUG_MOBJ > 0)
 	L_WriteDebug("tics=%05d  CREATE %p [%s]  AT %1.0f,%1.0f,%1.0f\n", 
-		leveltime, mobj, type->ddf.name.GetString(), x, y, z);
+		leveltime, mobj, info->ddf.name.GetString(), x, y, z);
 #endif
 
-	mobj->info = type;
+	mobj->info = info;
 	mobj->x = x;
 	mobj->y = y;
-	mobj->radius = type->radius;
-	mobj->height = type->height;
-	mobj->flags = type->flags;
-	mobj->health = type->spawnhealth;
-	mobj->speed = type->speed;
-	mobj->fuse = type->fuse;
-	mobj->side = type->side;
+	mobj->radius = info->radius;
+	mobj->height = info->height;
+	mobj->flags = info->flags;
+	mobj->health = info->spawnhealth;
+	mobj->speed = info->speed;
+	mobj->fuse = info->fuse;
+	mobj->side = info->side;
 	mobj->on_ladder = -1;
-	mobj->model_skin = 1;
+	mobj->model_skin = info->model_skin;
 
 	if (level_flags.fastparm)
-		mobj->speed *= type->fast;
+		mobj->speed *= info->fast;
 
 	// -ACB- 1998/06/25 new mobj Stuff (1998/07/11 - invisibility added)
-	mobj->extendedflags = type->extendedflags;
-	mobj->hyperflags = type->hyperflags;
-	mobj->vis_target = mobj->visibility = PERCENT_2_FLOAT(type->translucency);
+	mobj->extendedflags = info->extendedflags;
+	mobj->hyperflags = info->hyperflags;
+	mobj->vis_target = mobj->visibility = PERCENT_2_FLOAT(info->translucency);
 	mobj->currentattack = NULL;
 
 	if (gameskill != sk_nightmare)
-		mobj->reactiontime = type->reactiontime;
+		mobj->reactiontime = info->reactiontime;
 
 	mobj->lastlook = P_Random() % MAXPLAYERS;
 
@@ -1803,12 +1803,12 @@ mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c *type)
 	// -AJA- So that the first action gets executed, the `next_state'
 	//       is set to the first state and `tics' set to 0.
 	//
-	if (type->spawn_state)
-		st = &states[type->spawn_state];
-	else if (type->meander_state)
-		st = &states[type->meander_state];
+	if (info->spawn_state)
+		st = &states[info->spawn_state];
+	else if (info->meander_state)
+		st = &states[info->meander_state];
 	else
-		st = &states[type->idle_state];
+		st = &states[info->idle_state];
 
 	mobj->state  = st;
 	mobj->tics   = 0;
@@ -1822,13 +1822,13 @@ mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c *type)
 
 	// handle dynamic lights
 	{
-		const dlight_info_c *info = &type->dlight[0];
+		const dlight_info_c *dinfo = &info->dlight[0];
 
-		if (info->type != DLITE_None)
+		if (dinfo->type != DLITE_None)
 		{
-			mobj->dlight.r = mobj->dlight.target = info->radius;
-			mobj->dlight.color = info->colour;
-///---		mobj->dlight.lim = W_ImageLookup(info->shape, INS_Graphic, ILF_Null);
+			mobj->dlight.r = mobj->dlight.target = dinfo->radius;
+			mobj->dlight.color = dinfo->colour;
+///---		mobj->dlight.lim = W_ImageLookup(dinfo->shape, INS_Graphic, ILF_Null);
 			
 			// leave 'shader' field as NULL : renderer will create it
 		}
