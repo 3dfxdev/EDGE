@@ -169,7 +169,8 @@ static savefield_t sv_fields_playerweapon[] =
 	SF(flags, "flags", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(clip_size[0], "clip_size",    1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(clip_size[1], "sa_clip_size", 1, SVT_INT, SR_GetInt, SR_PutInt),
-  
+	SF(model_skin, "model_skin", 1, SVT_INT, SR_GetInt, SR_PutInt),
+
 	SVFIELD_END
 };
 
@@ -339,6 +340,9 @@ void SV_PlayerCreateElems(int num_elems)
 
 		for (int k=0; k < WEAPON_KEYS; k++)
 			p->key_choices[k] = WPSEL_None;
+
+		for (int w=0; w < MAXWEAPONS; w++)
+			p->weapons[w].model_skin = 1;
 	}
 }
 

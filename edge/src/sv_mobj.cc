@@ -98,6 +98,7 @@ static savefield_t sv_fields_mobj[] =
 	SF(movecount, "movecount", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(reactiontime, "reactiontime", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(threshold, "threshold", 1, SVT_INT, SR_GetInt, SR_PutInt),
+	SF(model_skin, "model_skin", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(tag, "tag", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(side, "side", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(player, "player", 1, SVT_INDEX("players"), 
@@ -335,6 +336,8 @@ void SV_MobjCreateElems(int num_elems)
 		// initialise defaults
 		cur->info = mobjtypes[0];
 		cur->state = cur->next_state = states+1;
+
+		cur->model_skin = 1;
 	}
 }
 

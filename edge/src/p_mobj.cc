@@ -1777,6 +1777,7 @@ mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c *type)
 	mobj->fuse = type->fuse;
 	mobj->side = type->side;
 	mobj->on_ladder = -1;
+	mobj->model_skin = 1;
 
 	if (level_flags.fastparm)
 		mobj->speed *= type->fast;

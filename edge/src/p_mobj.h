@@ -244,6 +244,8 @@ struct mobj_s : public position_c
 	int extendedflags;
 	int hyperflags;
 
+	int model_skin;
+
 	// tag ID (for special operations)
 	int tag;
 
