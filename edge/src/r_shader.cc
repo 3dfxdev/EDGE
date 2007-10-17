@@ -261,7 +261,7 @@ extern abstract_shader_c *MakeColormapShader(void)
 {
 	GLuint tex = MakeColormapTexture(0);
 
-	return new colormap_shader_c(144, tex);
+	return new colormap_shader_c(245, tex);
 }
 
 
