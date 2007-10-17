@@ -388,7 +388,33 @@ void RGL_DrawWeaponSprites(player_t * p)
 
 void RGL_DrawWeaponModel(player_t * p)
 {
-	// !!!!! FIXME
+
+#if 0 //!!!!!!  WEAPON
+	static md2_model_c *md = NULL;
+	static GLuint skin_tex = 0;
+
+	if (! md)
+	{
+		epi::file_c *f = M_OpenComposedEPIFile(game_dir.GetString(), "md2/rocket/tris.md2");
+		if (! f) I_Error("Cannot open MD2 file.");
+
+		md = MD2_LoadModel(f);
+		if (! f) I_Error("Error loading MD2 file.");
+
+		epi::file_c *skf = M_OpenComposedEPIFile(game_dir.GetString(), "md2/rocket/skin.jpg");
+		if (! f) I_Error("Cannot open skin.");
+
+		epi::image_data_c *img = epi::JPEG_Load(skf, epi::IRF_Round_POW2);
+		if (! img) I_Error("Cannot load skin.");
+
+		skin_tex = R_UploadTexture(img, NULL, UPL_Clamp | UPL_Smooth | UPL_MipMap);
+	}
+
+player_t *pl = players[displayplayer];
+	
+MD2_RenderModel(md, skin_tex, true, pl->mo, dfloor->props);
+return;
+#endif
 }
 
 void RGL_DrawCrosshair(player_t * p)
@@ -937,48 +963,25 @@ static void ThingCoordFunc(void *d, int v_idx,
 void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 {
 
-if (dthing->mo->extendedflags & EF_MONSTER)
+if (dthing->mo->state->flags & SFF_Model)
 {
-#if 1
-	static modeldef_c *md = NULL;
+	modeldef_c *md = W_GetModel(dthing->mo->state->sprite);
 
-	if (! md)
-		md = W_GetModel(1);
+	const image_c *skin_img = md->skins[dthing->mo->model_skin];
 
-	GLuint skin_tex = W_ImageCache(md->skins[1], false, dthing->mo->info->palremap);
-
-	MD2_RenderModel(md->model, skin_tex, false, dthing->mo, dfloor->props);
-	return;
-#endif
-
-#if 0 //!!!!!!  WEAPON
-	static md2_model_c *md = NULL;
-	static GLuint skin_tex = 0;
-
-	if (! md)
+	if (! skin_img)  // FIXME: use a dummy image
 	{
-		epi::file_c *f = M_OpenComposedEPIFile(game_dir.GetString(), "md2/rocket/tris.md2");
-		if (! f) I_Error("Cannot open MD2 file.");
-
-		md = MD2_LoadModel(f);
-		if (! f) I_Error("Error loading MD2 file.");
-
-		epi::file_c *skf = M_OpenComposedEPIFile(game_dir.GetString(), "md2/rocket/skin.jpg");
-		if (! f) I_Error("Cannot open skin.");
-
-		epi::image_data_c *img = epi::JPEG_Load(skf, epi::IRF_Round_POW2);
-		if (! img) I_Error("Cannot load skin.");
-
-		skin_tex = R_UploadTexture(img, NULL, UPL_Clamp | UPL_Smooth | UPL_MipMap);
+I_Debugf("Render model: no skin %d\n", dthing->mo->model_skin);
+		return;
 	}
 
-player_t *pl = players[displayplayer];
-	
-MD2_RenderModel(md, skin_tex, true, pl->mo, dfloor->props);
-return;
-#endif
+	GLuint skin_tex = W_ImageCache(skin_img, false, dthing->mo->info->palremap);
+
+	MD2_RenderModel(md->model, skin_tex, dthing->mo->state->frame,
+			        false, dthing->mo, dfloor->props);
+	return;
 }
-	
+
 	int fuzzy = (dthing->mo->flags & MF_FUZZY);
 
 	float trans = fuzzy ? FUZZY_TRANS : dthing->mo->visibility;
