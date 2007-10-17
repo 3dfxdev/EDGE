@@ -77,6 +77,10 @@ int viewwindowheight;
 angle_t viewangle = 0;
 angle_t viewvertangle = 0;
 
+vec3_t viewforward;
+vec3_t viewup;
+vec3_t viewright;
+
 angle_t normalfov, zoomedfov;
 bool viewiszoomed = false;
 
