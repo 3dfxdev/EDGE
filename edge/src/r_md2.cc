@@ -648,14 +648,16 @@ static void ModelCoordFunc(void *d, int v_idx,
 }
 
 
-void MD2_RenderModel(md2_model_c *md, GLuint skin_tex, bool is_weapon,
-		             mobj_t *mo, region_properties_t *props)
+void MD2_RenderModel(md2_model_c *md, GLuint skin_tex, int frame,
+		             bool is_weapon, mobj_t *mo,
+					 region_properties_t *props)
 {
-	int n = (leveltime / 8) % md->num_frames;
-
-	/* check if n is in a valid range */
-	if (n < 0 || n >= md->num_frames)
+	// check if frame is valid
+	if (frame < 0 || frame >= md->num_frames)
+	{
+I_Debugf("Render model: bad frame %d\n", frame);
 		return;
+	}
 
 	int fuzzy = (mo->flags & MF_FUZZY);
 
@@ -668,7 +670,7 @@ void MD2_RenderModel(md2_model_c *md, GLuint skin_tex, bool is_weapon,
 
 	data.mo = mo;
 	data.model = md;
-	data.frame = n;
+	data.frame = frame;
 
 	data.R = fuzzy ? 0 : 1;
 	data.G = fuzzy ? 0 : 1;

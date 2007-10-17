@@ -31,8 +31,9 @@ class md2_model_c;
 
 md2_model_c *MD2_LoadModel(epi::file_c *f); 
 
-void MD2_RenderModel(md2_model_c *md, GLuint skin_tex, bool is_weapon,
-		             mobj_t *mo, region_properties_t *props);
+void MD2_RenderModel(md2_model_c *md, GLuint skin_tex, int frame,
+		             bool is_weapon, mobj_t *mo,
+					 region_properties_t *props);
 
 
 #endif /* __R_MD2_H__ */
