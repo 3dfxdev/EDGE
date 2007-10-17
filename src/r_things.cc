@@ -123,7 +123,8 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 							player_t * player, region_properties_t *props,
 							const state_t *state)
 {
-if (false) return; //!!!!!!
+	if (state->flags & SFF_Model)
+		return;
 
 	// determine sprite patch
 	bool flip;
@@ -132,7 +133,7 @@ if (false) return; //!!!!!!
 	if (!image)
 		return;
 
-	GLuint tex_id = W_ImageCache(image);
+	GLuint tex_id = W_ImageCache(image, false);
 
 	float w = IM_WIDTH(image);
 	float h = IM_HEIGHT(image);
@@ -388,33 +389,36 @@ void RGL_DrawWeaponSprites(player_t * p)
 
 void RGL_DrawWeaponModel(player_t * p)
 {
+	if (viewiszoomed)
+		return;
 
-#if 0 //!!!!!!  WEAPON
-	static md2_model_c *md = NULL;
-	static GLuint skin_tex = 0;
+	pspdef_t *psp = &p->psprites[ps_weapon];
 
-	if (! md)
+	if (p->ready_wp < 0)
+		return;
+
+	if (psp->state == S_NULL)
+		return;
+
+	if (! (psp->state->flags & SFF_Model))
+		return;
+
+	modeldef_c *md = W_GetModel(psp->state->sprite);
+
+	int skin_num = p->weapons[p->ready_wp].model_skin;
+
+	const image_c *skin_img = md->skins[skin_num];
+
+	if (! skin_img)  // FIXME: use a dummy image
 	{
-		epi::file_c *f = M_OpenComposedEPIFile(game_dir.GetString(), "md2/rocket/tris.md2");
-		if (! f) I_Error("Cannot open MD2 file.");
-
-		md = MD2_LoadModel(f);
-		if (! f) I_Error("Error loading MD2 file.");
-
-		epi::file_c *skf = M_OpenComposedEPIFile(game_dir.GetString(), "md2/rocket/skin.jpg");
-		if (! f) I_Error("Cannot open skin.");
-
-		epi::image_data_c *img = epi::JPEG_Load(skf, epi::IRF_Round_POW2);
-		if (! img) I_Error("Cannot load skin.");
-
-		skin_tex = R_UploadTexture(img, NULL, UPL_Clamp | UPL_Smooth | UPL_MipMap);
+I_Debugf("Render model: no skin %d\n", skin_num);
+		return;
 	}
 
-player_t *pl = players[displayplayer];
-	
-MD2_RenderModel(md, skin_tex, true, pl->mo, dfloor->props);
-return;
-#endif
+	GLuint skin_tex = W_ImageCache(skin_img, false);
+
+	MD2_RenderModel(md->model, skin_tex, psp->state->frame,
+			        true, p->mo, view_props);
 }
 
 void RGL_DrawCrosshair(player_t * p)
