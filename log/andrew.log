@@ -1,5 +1,11 @@
 Andrew Apted's Log
 
+2007/10/17:
+
+The MD2 models for things and weapons is really coming along.
+Added support for bobbing/swaying of weapons, which looks very
+cool.  Need to fix weapons getting clipped by walls now.
+
 2007/10/16:
 
 Implemented MD2 model stuff for THINGS.DDF and WEAPONS.DDF:
