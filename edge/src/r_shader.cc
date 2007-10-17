@@ -178,17 +178,9 @@ public:
 private:
 	inline float DistFromViewplane(float x, float y, float z)
 	{
-		float lk_cos = M_Cos(viewvertangle);
-		float lk_sin = M_Sin(viewvertangle);
-
-		// view vector
-		float vx = lk_cos * viewcos;
-		float vy = lk_cos * viewsin;
-		float vz = lk_sin;
-
-		float dx = (x - viewx) * vx;
-		float dy = (y - viewy) * vy;
-		float dz = (z - viewz) * vz;
+		float dx = (x - viewx) * viewforward.x;
+		float dy = (y - viewy) * viewforward.y;
+		float dz = (z - viewz) * viewforward.z;
 
 		return dx + dy + dz;
 	}
