@@ -49,6 +49,7 @@ typedef struct
 }
 camera_start_stdobj_t;
 
+
 static void CameraFrameInit_StdObject(void *data)
 {
 	camera_start_stdobj_t *o = (camera_start_stdobj_t*) data;

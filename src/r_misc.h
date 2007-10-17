@@ -49,6 +49,10 @@ extern int viewwindowy;
 extern int viewwindowwidth;
 extern int viewwindowheight;
 
+extern vec3_t viewforward;
+extern vec3_t viewup;
+extern vec3_t viewright;
+
 extern int validcount;
 
 extern int linecount;

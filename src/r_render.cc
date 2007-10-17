@@ -2918,6 +2918,23 @@ void R_Render(void)
 	viewsin = M_Sin(viewangle);
 	viewcos = M_Cos(viewangle);
 
+	float lk_sin = M_Sin(viewvertangle);
+	float lk_cos = M_Cos(viewvertangle);
+
+	viewforward.x = lk_cos * viewcos;
+	viewforward.y = lk_cos * viewsin;
+	viewforward.z = lk_sin;
+
+	viewup.x = -lk_sin * viewcos;
+	viewup.y = -lk_sin * viewsin;
+	viewup.z =  lk_cos;
+
+	// cross product
+	viewright.x = viewforward.y * viewup.z - viewup.y * viewforward.z;
+	viewright.y = viewforward.z * viewup.x - viewup.z * viewforward.x;
+	viewright.z = viewforward.x * viewup.y - viewup.x * viewforward.y;
+
+
 	// Profiling
 	framecount++;
 	validcount++;
