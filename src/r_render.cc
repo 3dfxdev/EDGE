@@ -2731,8 +2731,15 @@ static void RGL_DrawSubsector(drawsub_c *dsub)
 			R_ColmapPipe_SetProps(dfloor->props);
 
 			RGL_DrawSortThings(dfloor);
-
   		}
+
+		if (solid_mode && sub == viewsubsector &&
+			num_active_mirrors == 0)
+		{
+			R_ColmapPipe_SetProps(dfloor->props);
+
+			RGL_DrawWeaponModel(players[displayplayer]);
+		}
 
 		R_LightPipe_SetList(NULL);
 	}
@@ -2882,8 +2889,6 @@ void RGL_RenderTrueBSP(void)
 
 	RGL_DrawSubList(drawsubs);
 
-	RGL_DrawWeaponModel(v_player);
-	
 	glDisable(GL_DEPTH_TEST);
 
 	// now draw 2D stuff like psprites, and add effects

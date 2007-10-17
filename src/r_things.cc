@@ -417,8 +417,14 @@ I_Debugf("Render model: no skin %d\n", skin_num);
 
 	GLuint skin_tex = W_ImageCache(skin_img, false);
 
+// I_Debugf("Rendering weapon model!\n");
+	
+	float x = viewx - viewsin * (psp->sx - 1.0) / 8.0;
+	float y = viewy + viewcos * (psp->sx - 1.0) / 8.0;
+	float z = viewz + (WEAPONTOP - psp->sy) / 10.0;
+
 	MD2_RenderModel(md->model, skin_tex, psp->state->frame,
-			        true, p->mo, view_props);
+			        true, x, y, z, p->mo, view_props);
 }
 
 void RGL_DrawCrosshair(player_t * p)
@@ -981,8 +987,11 @@ I_Debugf("Render model: no skin %d\n", dthing->mo->model_skin);
 
 	GLuint skin_tex = W_ImageCache(skin_img, false, dthing->mo->info->palremap);
 
-	MD2_RenderModel(md->model, skin_tex, dthing->mo->state->frame,
-			        false, dthing->mo, dfloor->props);
+	float dz = 24.0;
+
+	MD2_RenderModel(md->model, skin_tex, dthing->mo->state->frame, false,
+					dthing->mo->x, dthing->mo->y, dthing->mo->z + dz,
+					dthing->mo, dfloor->props);
 	return;
 }
 

@@ -39,6 +39,7 @@
 #include "dm_state.h"  //!!!! game_dir
 
 #include "m_misc.h"  //!!!! M_OpenComposedEPIFile
+#include "m_random.h"
 
 extern int leveltime; //!!!!
 
@@ -649,8 +650,8 @@ static void ModelCoordFunc(void *d, int v_idx,
 
 
 void MD2_RenderModel(md2_model_c *md, GLuint skin_tex, int frame,
-		             bool is_weapon, mobj_t *mo,
-					 region_properties_t *props)
+		             bool is_weapon, float x, float y, float z,
+					 mobj_t *mo, region_properties_t *props)
 {
 	// check if frame is valid
 	if (frame < 0 || frame >= md->num_frames)
@@ -676,16 +677,9 @@ I_Debugf("Render model: bad frame %d\n", frame);
 	data.G = fuzzy ? 0 : 1;
 	data.B = fuzzy ? 0 : 1;
 
-	data.x = mo->x;
-	data.y = mo->y;
-	data.z = mo->z + 24;
-
-	if (is_weapon)
-	{
-		data.x = viewx + viewcos * 1;
-		data.y = viewy + viewsin * 1;
-		data.z = viewz + 1;
-	}
+	data.x = x;
+	data.y = y;
+	data.z = z;
 
 	data.is_weapon = is_weapon;
 
