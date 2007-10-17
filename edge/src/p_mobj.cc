@@ -953,7 +953,8 @@ static void P_XYMovement(mobj_t * mo, const region_properties_t *props)
 
 		mo->player->actual_speed =
 			(mo->player->actual_speed * 0.8 + speed * 0.2);
-L_WriteDebug("Actual speed = %1.4f\n", mo->player->actual_speed);
+
+// I_Debugf("Actual speed = %1.4f\n", mo->player->actual_speed);
 
 		if (fabs(mo->mom.x) < STOPSPEED && fabs(mo->mom.y) < STOPSPEED &&
 			mo->player->cmd.forwardmove == 0 && 
