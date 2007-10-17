@@ -334,8 +334,8 @@ void SV_PlayerCreateElems(int num_elems)
 
 		for (int j=0; j < NUMPSPRITES; j++)
 		{
-			p->psprites[j].sx = 1.0f;
-			p->psprites[j].sy = WEAPONTOP;
+			p->psprites[j].sx = 0;
+			p->psprites[j].sy = 0;
 		}
 
 		for (int k=0; k < WEAPON_KEYS; k++)
