@@ -510,18 +510,9 @@ static inline void TexCoord_Fader(local_gl_vert_t *v, int t,
 {
 	// distance from viewplane: (point - camera) . viewvec
 
-	float lk_sin = M_Sin(viewvertangle);
-	float lk_cos = M_Cos(viewvertangle);
-
-	vec3_t viewvec;
-
-	viewvec.x = lk_cos * viewcos;
-	viewvec.y = lk_cos * viewsin;
-	viewvec.z = lk_sin;
-
-	float dx = (lit_pos->x - viewx) * viewvec.x;
-	float dy = (lit_pos->y - viewy) * viewvec.y;
-	float dz = (lit_pos->z - viewz) * viewvec.z;
+	float dx = (lit_pos->x - viewx) * viewforward.x;
+	float dy = (lit_pos->y - viewy) * viewforward.y;
+	float dz = (lit_pos->z - viewz) * viewforward.z;
 
 	v->texc[t].x = (dx + dy + dz) / 1600.0;
 

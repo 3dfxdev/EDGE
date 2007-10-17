@@ -177,10 +177,10 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 		tex_x2 = right - tex_x2;
 	}
 
-	float tx1 = (160.0f - IM_WIDTH(image) / 2.0) + psp->sx - IM_OFFSETX(image);
+	float tx1 = (161.0f - IM_WIDTH(image) / 2.0) + psp->sx - IM_OFFSETX(image);
 	float tx2 = tx1 + w;
 
-	float ty1 = WEAPONTOP - psp->sy + IM_OFFSETY(image);
+	float ty1 = - psp->sy + IM_OFFSETY(image);
 	float ty2 = ty1 + h;
 
 
@@ -419,9 +419,13 @@ I_Debugf("Render model: no skin %d\n", skin_num);
 
 // I_Debugf("Rendering weapon model!\n");
 	
-	float x = viewx - viewsin * (psp->sx - 1.0) / 8.0;
-	float y = viewy + viewcos * (psp->sx - 1.0) / 8.0;
-	float z = viewz + (WEAPONTOP - psp->sy) / 10.0;
+	float x = viewx + viewright.x * psp->sx / 8.0;
+	float y = viewy + viewright.y * psp->sx / 8.0;
+	float z = viewz + viewright.z * psp->sx / 8.0;
+
+	x -= viewup.x * psp->sy / 10.0;
+	y -= viewup.y * psp->sy / 10.0;
+	z -= viewup.z * psp->sy / 10.0;
 
 	MD2_RenderModel(md->model, skin_tex, psp->state->frame,
 			        true, x, y, z, p->mo, view_props);

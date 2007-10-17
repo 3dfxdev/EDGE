@@ -59,9 +59,8 @@ typedef struct
 	// time (in tics) remaining for current state
 	int tics;
 
-	// screen position values
-	float sx;
-	float sy;
+	// screen position values (0 is normal)
+	float sx, sy;
 
 	// translucency values
 	float visibility;

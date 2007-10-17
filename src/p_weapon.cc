@@ -353,7 +353,7 @@ static void P_BringUpWeapon(player_t * p)
 	p->ready_wp = sel;
 
 	p->pending_wp = WPSEL_NoChange;
-	p->psprites[ps_weapon].sy = WEAPONBOTTOM;
+	p->psprites[ps_weapon].sy = WEAPONBOTTOM - WEAPONTOP;
 
 	p->remember_atk[0] = -1;
 	p->remember_atk[1] = -1;
@@ -380,7 +380,7 @@ static void P_BringUpWeapon(player_t * p)
 		p->key_choices[info->bind_key] = sel;
 
 	if (info->specials[0] & WPSP_Animated)
-		p->psprites[ps_weapon].sy = WEAPONTOP;
+		p->psprites[ps_weapon].sy = 0;
 
 	// we don't need to check level_flags.limit_zoom, as viewiszoomed
 	// should always be false when we get here.
@@ -872,17 +872,17 @@ static void BobWeapon(player_t *p, weapondef_c *info)
 	bool hasjetpack = p->powers[PW_Jetpack] > 0;
 	pspdef_t *psp = &p->psprites[p->action_psp];
 
-	float new_sx = 1.0f;
-	float new_sy = WEAPONTOP;
+	float new_sx = 0;
+	float new_sy = 0;
 	
 	// bob the weapon based on movement speed
 	if (! hasjetpack)
 	{
 		angle_t angle = (128 * leveltime) << 19;
-		new_sx = 1.0f + p->bob * PERCENT_2_FLOAT(info->swaying) * M_Cos(angle);
+		new_sx = p->bob * PERCENT_2_FLOAT(info->swaying) * M_Cos(angle);
 
 		angle &= (ANG180 - 1);
-		new_sy = WEAPONTOP + p->bob * PERCENT_2_FLOAT(info->bobbing) * M_Sin(angle);
+		new_sy = p->bob * PERCENT_2_FLOAT(info->bobbing) * M_Sin(angle);
 	}
 
 	psp->sx = new_sx;
@@ -1226,10 +1226,10 @@ void A_Lower(mobj_t * mo)
 
 	// Is already down.
 	if (! (info->specials[0] & WPSP_Animated))
-		if (psp->sy < WEAPONBOTTOM)
+		if (psp->sy < WEAPONBOTTOM-WEAPONTOP)
 			return;
 
-	psp->sy = WEAPONBOTTOM;
+	psp->sy = WEAPONBOTTOM - WEAPONTOP;
 
 	// Player is dead, don't bring weapon back up.
 	if (p->playerstate == PST_DEAD || p->health <= 0)
@@ -1272,10 +1272,10 @@ void A_Raise(mobj_t * mo)
 
 	psp->sy -= RAISESPEED;
 
-	if (psp->sy > WEAPONTOP)
+	if (psp->sy > 0)
 		return;
 
-	psp->sy = WEAPONTOP;
+	psp->sy = 0;
 
 	// The weapon has been raised all the way,
 	//  so change to the ready state.
