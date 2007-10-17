@@ -149,7 +149,6 @@ if build_info['platform'] == 'win32':
     env.Append(LIBS = ['-lSDLmain', '-lSDL.dll'])
 else: # linux
     env.ParseConfig('sdl-config --cflags --libs')
-    env.Append(LIBS = ['-lSDL_net'])
 
 # OpenGL
 if build_info['platform'] == 'win32':
