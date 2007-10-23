@@ -3,11 +3,15 @@ Andrew Apted's Log
 2007/10/23:
 
 Implemented the BECOME action for THINGS.DDF, which takes the
-typename as first parameter and an optional state-frame name
+type name as first parameter and an optional state-frame name
 as the second parameter (defaulting to IDLE).  Examples:
     
     BECOME(HEAVY_WEAPON_DUDE)
     BECOME(IMP,CHASE:3)
+
+Tested and it works OK.  Of course a small monster changing
+into a big monster is liable to get stuck in walls or other
+monsters.
 
 2007/10/17:
 
