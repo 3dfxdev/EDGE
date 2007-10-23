@@ -209,7 +209,7 @@ string_c Join(const char *lhs, const char *rhs)
 
         s.Set(lhs);
 
-        if (s.GetLength() && s.GetLastChar() != '/')
+        if (s.size() > 0 && s.GetLastChar() != '/')
             s.AddChar('/');
 
         s.AddString(rhs);

@@ -89,13 +89,13 @@ namespace epi
 		strent_c() : data(NULL) { }
 		strent_c(const char *s) : data(NULL) { Set(s); }
 		strent_c(const strent_c &rhs) : data(NULL) { Set(rhs.data); }
-		~strent_c() { Clear(); };
+		~strent_c() { clear(); };
 
 	private:
 		char *data;
 
 	public:
-		void Clear() 
+		void clear() 
 		{ 
 			if (data) 
 				delete [] data;
@@ -103,9 +103,9 @@ namespace epi
 			data = NULL; 
 		}
 	
-		const char* GetString(void) const { return data; }
+		const char *c_str(void) const { return data; }
 	
-		bool IsEmpty() { return data?(data[0] == '\0'?true:false):true; }
+		bool empty() { return data?(data[0] == '\0'?true:false):true; }
 	
 		void Set(const char *s);
 		void Set(const char *s, int max);

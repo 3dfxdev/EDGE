@@ -189,7 +189,7 @@ bool FS_ReadDir(filesystem_dir_c *fsd, const char *dir, const char *mask)
 
 	FindClose(handle);
 
-	FS_SetCurrDir(curr_dir.GetString());
+	FS_SetCurrDir(curr_dir.c_str());
 	return true;
 }
 

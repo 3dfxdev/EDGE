@@ -522,7 +522,7 @@ const string_c& string_c::operator=(const char* s)
  *			is not released.
  *********************************************************************/
 
-void string_c::Empty()
+void string_c::clear()
 {
 	// Already Empty, and with Buffer zero?
 	if (data == &string_c::m_null)
@@ -685,10 +685,10 @@ void string_c::AddStringAtLeft(const char* s)
 		return;
 
 	// Make Buffer big enough
-	Buffer (GetLength() + slen);
+	Buffer (size() + slen);
 
 	// Move existing data -- do NOT use memcpy!!
-	memmove (data->text+slen, data->text, GetLength()+1);
+	memmove (data->text+slen, data->text, size()+1);
 
 	// And copy bytes to be prepended
 	memcpy (data->text, s, slen);
@@ -701,7 +701,7 @@ void string_c::AddStringAtLeft(const char* s)
  *********************************************************************/
 string_c operator+(const char* lpsz, const string_c& s)
 {
-	string_c temp (s.GetLength() + strlen(lpsz));
+	string_c temp (s.size() + strlen(lpsz));
 	temp = lpsz;
 	temp += s;
 	return temp;
@@ -712,7 +712,7 @@ string_c operator+(const char* lpsz, const string_c& s)
  *********************************************************************/
 string_c operator+(const char ch, const string_c& s)
 {
-	string_c temp (s.GetLength() + 1);
+	string_c temp (s.size() + 1);
 	temp  = ch;
 	temp += s;
 	return temp;
@@ -723,7 +723,7 @@ string_c operator+(const char ch, const string_c& s)
  *********************************************************************/
 char string_c::GetLastChar() const
 {
-	unsigned int l = GetLength();
+	unsigned int l = size();
 
 	if (l < 1)
 		ThrowBadIndex();
@@ -738,10 +738,10 @@ void string_c::GetMiddle(unsigned int start,
                                 unsigned int chars,
                                 string_c& result)
 {
-	result.Empty();
+	result.clear();
 
 	// Nothing to return?
-	unsigned int l = GetLength();
+	unsigned int l = size();
 
 	if (l == 0 || (start+chars) == 0)
 		return;
@@ -754,7 +754,7 @@ void string_c::GetMiddle(unsigned int start,
 		chars = l - start;
 
 	// Copy bytes
-	result.CoreAddChars(GetString()+start, chars);
+	result.CoreAddChars(c_str()+start, chars);
 }
 /*********************************************************************
  * Proc:		string_c::GetLeft
@@ -769,13 +769,13 @@ void string_c::GetLeft(unsigned int chars, string_c& result)
  *********************************************************************/
 void string_c::GetRight(unsigned int chars, string_c& result)
 {
-	if (chars >= GetLength())
+	if (chars >= size())
 	{
 		result = *this;
 		return;
 	}
 
-	GetMiddle(GetLength()-chars, chars, result);
+	GetMiddle(size()-chars, chars, result);
 }
 
 /*********************************************************************
@@ -785,7 +785,7 @@ void string_c::GetRight(unsigned int chars, string_c& result)
  *********************************************************************/
 void string_c::TruncateAt(unsigned int idx)
 {
-	if (idx >= GetLength())
+	if (idx >= size())
 		return;
 
 	// Spawn a copy if necessary
@@ -809,7 +809,7 @@ int string_c::Find (char ch, unsigned int startat /*= 0*/) const
 	// Start from middle of string?
 	if (startat > 0)
 	{
-		if (startat >= GetLength())
+		if (startat >= size())
 			ThrowBadIndex();
 	}
 
@@ -834,7 +834,7 @@ int string_c::ReverseFind(char ch, unsigned int startat /*= 0*/) const
 	else
 	{
 		// Make sure the index is OK
-		if (startat >= GetLength())
+		if (startat >= size())
 			ThrowBadIndex();
 
 		for (int Findex = (int) startat-1; Findex >= 0; Findex--)
@@ -882,9 +882,9 @@ int string_c::CompareNoCase(const char* match) const
  *			specified, reallocates the Buffer.  This function cannot
  *			reallocate to a Buffer smaller than the existing one.
  *********************************************************************/
-void string_c::GrowTo(unsigned int size)
+void string_c::GrowTo(unsigned int nsize)
 {
-	Buffer (size);
+	Buffer (nsize);
 }
 
 
@@ -894,22 +894,22 @@ void string_c::GrowTo(unsigned int size)
 
 bool operator ==(const string_c& s1, const string_c& s2)
 {
-	unsigned int slen = s2.GetLength();
+	unsigned int slen = s2.size();
 
-	if (s1.GetLength() != slen)
+	if (s1.size() != slen)
 		return false;
 
-	return memcmp(s1.GetString(), s2, slen) == 0;
+	return memcmp(s1.c_str(), s2, slen) == 0;
 }
 
 bool operator ==(const string_c& s1, char* s2)
 {
 	unsigned int slen = (unsigned int)strlen(s2);
 
-	if (s1.GetLength() != slen)
+	if (s1.size() != slen)
 		return false;
 
-	return memcmp(s1.GetString(), s2, slen) == 0;
+	return memcmp(s1.c_str(), s2, slen) == 0;
 }
 
 
@@ -918,9 +918,9 @@ bool operator ==(const string_c& s1, char* s2)
  *********************************************************************/
 void string_c::RemoveLeft(unsigned int count)
 {
-	if (GetLength() <= count)
+	if (size() <= count)
 	{
-		Empty();
+		clear();
 		return;
 	}
 
@@ -928,38 +928,38 @@ void string_c::RemoveLeft(unsigned int count)
 		return;
 
 	Buffer (data->alloc);		// Preserve Buffer size
-	memmove (data->text, data->text+count, GetLength()-count+1);
+	memmove (data->text, data->text+count, size()-count+1);
 	data->length = data->length - count;
 }
 
 void string_c::RemoveMiddle(unsigned int start, unsigned int count)
 {
-	if (GetLength() <= start)
+	if (size() <= start)
 	{
-		Empty();
+		clear();
 		return;
 	}
 
 	Buffer (data->alloc);		// Preserve Buffer size
 
 	char* pstart = data->text + start;
-	if (GetLength() <= (start+count))
+	if (size() <= (start+count))
 	{
 		pstart[0] = 0;
 		data->length = start;
 		return;
 	}
 
-	memmove (pstart, pstart+count, GetLength()-(start+count)+1);
+	memmove (pstart, pstart+count, size()-(start+count)+1);
 	data->length = data->length - count;
 }
 
 void string_c::RemoveRight(unsigned int count)
 {
-	if (GetLength() <= count)
-		Empty();
+	if (size() <= count)
+		clear();
 	else
-		TruncateAt (GetLength() - count);
+		TruncateAt (size() - count);
 }
 
 /*********************************************************************
@@ -1157,7 +1157,7 @@ void string_c::FormatCore (const char* x, va_list& marker)
 
 void string_c::Format(const char* fmt, ...)
 {
-	Empty();
+	clear();
 
 	// Walk the string
 	va_list marker;
@@ -1171,7 +1171,7 @@ void string_c::Format(const char* fmt, ...)
  *********************************************************************/
 string_c operator+(const string_c& s1, const string_c& s2)
 {
-	string_c out (s1.GetLength() + s2.GetLength());
+	string_c out (s1.size() + s2.size());
 	out  = s1;
 	out += s2;
 	return out;
@@ -1180,16 +1180,16 @@ string_c operator+(const string_c& s1, const string_c& s2)
 string_c operator+(const string_c& s, const char* lpsz)
 {
 	unsigned int slen = (unsigned int)strlen(lpsz);
-	string_c out (s.GetLength() + slen);
-	out.CoreAddChars(s.data->text, s.GetLength());
+	string_c out (s.size() + slen);
+	out.CoreAddChars(s.data->text, s.size());
 	out += lpsz;
 	return out;
 }
 
 string_c operator+(const string_c& s, const char ch)
 {
-	string_c out (s.GetLength() + 1);
-	out.CoreAddChars(s.data->text, s.GetLength());
+	string_c out (s.size() + 1);
+	out.CoreAddChars(s.data->text, s.size());
 	out += ch;
 	return out;
 }

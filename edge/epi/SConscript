@@ -19,9 +19,10 @@ epi_sources = [
     'image_jpeg.cc', 'image_png.cc', 'image_tga.cc',
     'math_angle.cc', 'math_bbox.cc', 'math_color.cc',
     'math_crc.cc', 'math_md5.cc', 'math_oddity.cc',
-    'math_matrix.cc', 'math_vector.cc', 'math_random.cc',
-    'mersenne_twist.cc',
-    'sound_data.cc', 'strings.cc', 'str_format.cc',
+    'math_matrix.cc', 'math_vector.cc',
+    'math_random.cc', 'mersenne_twist.cc',
+    'sound_data.cc',  ## 'sound_wav.cc',
+    'strings.cc', 'str_format.cc',
     'timestamp.cc', 'utility.cc']
 
 # operating system specifics
