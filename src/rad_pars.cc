@@ -151,7 +151,7 @@ void RAD_Error(const char *err, ...)
 
 	if (!rad_cur_linedata.empty())
 	{
-		sprintf(pos, "Line contents: %s\n", rad_cur_linedata.GetString());
+		sprintf(pos, "Line contents: %s\n", rad_cur_linedata.c_str());
 		pos += strlen(pos);
 	}
 
@@ -182,7 +182,7 @@ void RAD_Warning(const char *err, ...)
 		rad_cur_filename);
 
 	if (!rad_cur_linedata.empty())
-		I_Warning("with line contents: %s\n", rad_cur_linedata.GetString());
+		I_Warning("with line contents: %s\n", rad_cur_linedata.c_str());
 
 	I_Warning("%s", buffer);
 }

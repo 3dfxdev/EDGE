@@ -876,7 +876,7 @@ bool P_AddWeapon(player_t *player, weapondef_c *info, int *index)
 	if (index)
 		(*index) = slot;
 
-	L_WriteDebug("P_AddWeapon: [%s] @ %d\n", info->ddf.name.GetString(), slot);
+	L_WriteDebug("P_AddWeapon: [%s] @ %d\n", info->ddf.name.c_str(), slot);
 
 	player->weapons[slot].owned = true;
 	player->weapons[slot].info  = info;
@@ -948,7 +948,7 @@ bool P_RemoveWeapon(player_t *player, weapondef_c *info)
 	if (i >= MAXWEAPONS)
 		return false;
 
-	L_WriteDebug("P_RemoveWeapon: [%s] @ %d\n", info->ddf.name.GetString(), i);
+	L_WriteDebug("P_RemoveWeapon: [%s] @ %d\n", info->ddf.name.c_str(), i);
 
 	player->weapons[i].owned = false;
 

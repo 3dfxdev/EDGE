@@ -94,13 +94,13 @@ void S_ChangeMusic(int entrynum, bool looping)
 		if (play->type != MUS_OGG)
 		{
 			// -AJA- 2005/01/15: filenames in DDF relative to GAMEDIR
-			M_ComposeFileName(fn, game_dir.GetString(), play->info.GetString());
+			M_ComposeFileName(fn, game_dir.c_str(), play->info.c_str());
 
-			data = M_GetFileData(fn.GetString(), &datlength);
+			data = M_GetFileData(fn.c_str(), &datlength);
 
 			if (!data)
 			{
-				I_Warning("S_ChangeMusic: Can't Load File '%s'\n", fn.GetString());
+				I_Warning("S_ChangeMusic: Can't Load File '%s'\n", fn.c_str());
 				return;
 			}
 
@@ -111,16 +111,16 @@ void S_ChangeMusic(int entrynum, bool looping)
 		else
 		{
 			// -AJA- 2005/01/15: filenames in DDF relative to GAMEDIR
-			M_ComposeFileName(fn, game_dir.GetString(), play->info.GetString());
+			M_ComposeFileName(fn, game_dir.c_str(), play->info.c_str());
 
-			if (!epi::FS_Access(fn.GetString(), epi::file_c::ACCESS_READ))
+			if (!epi::FS_Access(fn.c_str(), epi::file_c::ACCESS_READ))
 			{
-				I_Warning("S_ChangeMusic: Can't Load OGG '%s'\n", fn.GetString());
+				I_Warning("S_ChangeMusic: Can't Load OGG '%s'\n", fn.c_str());
 				return;
 			}
 
 			musdat.format = IMUSSF_FILE;
-			musdat.info.file.name = fn.GetString();
+			musdat.info.file.name = fn.c_str();
 		}
 
 		musichandle = I_MusicPlayback(&musdat, play->type, looping, volume);
@@ -146,7 +146,7 @@ void S_ChangeMusic(int entrynum, bool looping)
 		}
 		else
 		{
-			I_Warning("S_ChangeMusic: LUMP '%s' not found.\n", play->info.GetString()); 
+			I_Warning("S_ChangeMusic: LUMP '%s' not found.\n", play->info.c_str()); 
 			return;
 		}
 	}

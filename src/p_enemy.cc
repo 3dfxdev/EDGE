@@ -513,7 +513,7 @@ void P_LookForShootSpots(const mobjtype_c *spot_type)
 	if (brain_spots.number == 0)
 	{
 		I_Warning("No [%s] objects found for BossBrain shooter.\n",
-			spot_type->ddf.name.GetString());
+			spot_type->ddf.name.c_str());
 		return;
 	}
 

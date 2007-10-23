@@ -49,9 +49,9 @@ style_c::~style_c()
 //
 void style_c::Load()
 {
-	if (def->bg.image_name.GetString())
+	if (def->bg.image_name.c_str())
 	{
-		const char *name = def->bg.image_name.GetString();
+		const char *name = def->bg.image_name.c_str();
 
 		bg_image = W_ImageLookup(name, INS_Flat, ILF_Null);
 

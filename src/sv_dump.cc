@@ -248,9 +248,9 @@ void SV_DumpSaveGame(int slot)
 
 	G_FileNameFromSlot(fn, slot);
 
-	L_WriteDebug("DUMPING SAVE GAME: %d  FILE: %s\n", slot, fn.GetString());
+	L_WriteDebug("DUMPING SAVE GAME: %d  FILE: %s\n", slot, fn.c_str());
 
-	if (! SV_OpenReadFile(fn.GetString()))
+	if (! SV_OpenReadFile(fn.c_str()))
 	{
 		L_WriteDebug("*  Unable to open file !\n");
 		return;

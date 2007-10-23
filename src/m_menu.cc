@@ -551,7 +551,7 @@ void M_ReadSaveStrings(void)
     
 		G_FileNameFromSlot(fn, save_page * SAVE_SLOTS + i);
 
-		if (! SV_OpenReadFile(fn.GetString()))
+		if (! SV_OpenReadFile(fn.c_str()))
 		{
 			ex_slots[i].empty = true;
 			ex_slots[i].corrupt = false;
@@ -926,7 +926,7 @@ void M_QuickSave(void)
 	
 	epi::string_c s;
 	s.Format(language["QuickSaveOver"],	ex_slots[quickSaveSlot].desc);
-	M_StartMessage(s.GetString(), QuickSaveResponse, true);
+	M_StartMessage(s.c_str(), QuickSaveResponse, true);
 }
 
 //
@@ -962,7 +962,7 @@ void M_QuickLoad(void)
 
 	epi::string_c s;
 	s.Format(language["QuickLoad"], ex_slots[quickSaveSlot].desc);
-	M_StartMessage(s.GetString(), QuickLoadResponse, true);
+	M_StartMessage(s.c_str(), QuickLoadResponse, true);
 }
 
 //
@@ -1101,7 +1101,7 @@ static void CreateEpisodeMenu(void)
 		gamedef_c *g = ITERATOR_TO_TYPE(it, gamedef_c*);
 		if (! g) continue;
 
-		if (W_CheckNumForName(g->firstmap.GetString()) == -1)
+		if (W_CheckNumForName(g->firstmap.c_str()) == -1)
 			continue;
 
 		EpisodeMenu[e].status = 1;
@@ -1109,7 +1109,7 @@ static void CreateEpisodeMenu(void)
 		EpisodeMenu[e].image = NULL;
 		EpisodeMenu[e].alpha_key = '1' + e;
 
-		Z_StrNCpy(EpisodeMenu[e].patch_name, g->namegraphic.GetString(), 8);
+		Z_StrNCpy(EpisodeMenu[e].patch_name, g->namegraphic.c_str(), 8);
 		EpisodeMenu[e].patch_name[8] = 0;
 
 		e++;
@@ -1143,7 +1143,7 @@ static void ReallyDoStartLevel(skill_t skill, gamedef_c *g)
 	params.SinglePlayer(startbots);
 
 	params.game = g;
-	params.map = G_LookupMap(g->firstmap.GetString());
+	params.map = G_LookupMap(g->firstmap.c_str());
 
 	if (! params.map || ! G_DeferredInitNew(params))
 	{
@@ -1169,7 +1169,7 @@ static void DoStartLevel(skill_t skill)
 	{ 
 		g = ITERATOR_TO_TYPE(it, gamedef_c*);
 
-		if (!strcmp(g->namegraphic.GetString(), EpisodeMenu[chosen_epi].patch_name))
+		if (!strcmp(g->namegraphic.c_str(), EpisodeMenu[chosen_epi].patch_name))
 		{
 			break;
 		}
@@ -1184,11 +1184,11 @@ static void DoStartLevel(skill_t skill)
 		return;
 	}
 
-	const mapdef_c * map = G_LookupMap(g->firstmap.GetString());
+	const mapdef_c * map = G_LookupMap(g->firstmap.c_str());
 	if (! map)
 	{
 		I_Warning("Cannot find map for '%s' (episode %s)\n",
-			g->firstmap.GetString(),
+			g->firstmap.c_str(),
 			EpisodeMenu[chosen_epi].patch_name);
 		M_ClearMenus();
 		return;
@@ -1385,7 +1385,7 @@ void M_QuitEDGE(int choice)
 	{
 		ref.Format("QUITMSG%d", num_quitmessages);
 		
-		if (!language.IsValidRef(ref.GetString()))
+		if (!language.IsValidRef(ref.c_str()))
 			break;
 			
 		num_quitmessages++;	// Starts at one not zero
@@ -1410,7 +1410,7 @@ void M_QuitEDGE(int choice)
 	}
 	
 	// Trigger the message
-	M_StartMessage(msg.GetString(), QuitResponse, true);
+	M_StartMessage(msg.c_str(), QuitResponse, true);
 }
 
 // 98-7-10 KM Use new defines
@@ -1576,7 +1576,7 @@ bool M_Responder(event_t * ev)
 			msg_mode = 0;
 
 			if (message_input_routine)
-				(* message_input_routine)(input_string.GetString());
+				(* message_input_routine)(input_string.c_str());
 
 			input_string.clear();
 			
@@ -1604,11 +1604,11 @@ bool M_Responder(event_t * ev)
 		
 		if (ch == KEYD_BACKSPACE && !input_string.empty())
 		{
-			epi::string_c s = input_string.GetString();
+			epi::string_c s = input_string.c_str();
 			if (s.size() > 0)
 			{
 				s.RemoveRight(1);
-				input_string.Set(s.GetString());
+				input_string.Set(s.c_str());
 			}
 				
 			return true;
@@ -1629,8 +1629,8 @@ bool M_Responder(event_t * ev)
 			
 			// Set the input_string only if fits
 			SYS_ASSERT(dialog_style);
-			if (dialog_style->fonts[1]->StringWidth(s.GetString()) < 300)
-				input_string.Set(s.GetString());
+			if (dialog_style->fonts[1]->StringWidth(s.c_str()) < 300)
+				input_string.Set(s.c_str());
 		}
 		
 		return true;
@@ -1951,10 +1951,10 @@ void M_Drawer(void)
 		int oldpos, pos;
 
 		if (!msg_string.empty())
-			msg = msg_string.GetString();
+			msg = msg_string.c_str();
 		
 		if (!input_string.empty())
-			input = input_string.GetString();
+			input = input_string.c_str();
 		
 		if (msg_mode == 2)
 			input += "_";
@@ -1962,7 +1962,7 @@ void M_Drawer(void)
 		// Calc required height
 		SYS_ASSERT(dialog_style);
 		s = msg + input;
-		y = 100 - (dialog_style->fonts[0]->StringLines(s.GetString()) *
+		y = 100 - (dialog_style->fonts[0]->StringLines(s.c_str()) *
 			dialog_style->fonts[0]->NominalHeight()/ 2);
 		
 		if (!msg.empty())
@@ -1980,8 +1980,8 @@ void M_Drawer(void)
 			
 				if (s.size() > 0)
 				{
-					x = 160 - (dialog_style->fonts[0]->StringWidth(s.GetString()) / 2);
-					HL_WriteText(dialog_style,0, x, y, s.GetString());
+					x = 160 - (dialog_style->fonts[0]->StringWidth(s.c_str()) / 2);
+					HL_WriteText(dialog_style,0, x, y, s.c_str());
 				}
 				
 				y += dialog_style->fonts[0]->NominalHeight();
@@ -2005,8 +2005,8 @@ void M_Drawer(void)
 			
 				if (s.size() > 0)
 				{
-					x = 160 - (dialog_style->fonts[1]->StringWidth(s.GetString()) / 2);
-					HL_WriteText(dialog_style,1, x, y, s.GetString());
+					x = 160 - (dialog_style->fonts[1]->StringWidth(s.c_str()) / 2);
+					HL_WriteText(dialog_style,1, x, y, s.c_str());
 				}
 				
 				y += dialog_style->fonts[1]->NominalHeight();

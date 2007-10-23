@@ -95,7 +95,7 @@ void ChangeToExeDir(const char *full_path)
 	epi::string_c str;
 	str.AddChars(full_path, 0, length);
 
-	chdir(str.GetString());
+	chdir(str.c_str());
 }
 
 

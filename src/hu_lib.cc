@@ -66,7 +66,7 @@ void HL_WriteTextTrans(style_c *style, int text_type, int x, int y,
 	scale *= style->def->text[text_type].scale;
 
 	if (! font)
-		I_Error("Style [%s] is missing a font !\n", style->def->ddf.name.GetString());
+		I_Error("Style [%s] is missing a font !\n", style->def->ddf.name.c_str());
 
 	for (; *str; str++)
 	{
@@ -162,7 +162,7 @@ void HL_DrawTextLineAlpha(hu_textline_t * L, bool drawcursor, const colourmap_c 
 	font_c *font = L->style->fonts[L->text_type];
 
 	if (! font)
-		I_Error("Style [%s] is missing a font !\n", L->style->def->ddf.name.GetString());
+		I_Error("Style [%s] is missing a font !\n", L->style->def->ddf.name.c_str());
 
 	if (! colmap)
 		colmap =L->style->def->text[L->text_type].colmap;
@@ -222,7 +222,7 @@ void HL_InitSText(hu_stext_t * s, int x, int y, int h, style_c *style, int text_
 	font_c *font = style->fonts[text_type];
 
 	if (! font)
-		I_Error("Style [%s] is missing a font !\n", style->def->ddf.name.GetString());
+		I_Error("Style [%s] is missing a font !\n", style->def->ddf.name.c_str());
 
 	for (i = 0; i < h; i++)
 	{

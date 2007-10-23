@@ -225,13 +225,13 @@ void RGL_CheckExtensions(void)
 	epi::string_c s;
 	
 	glstr_version.Set((const char*)glGetString(GL_VERSION));
-	I_Printf("OpenGL: Version: %s\n", glstr_version.GetString());
+	I_Printf("OpenGL: Version: %s\n", glstr_version.c_str());
 
 	glstr_vendor.Set((const char*)glGetString(GL_VENDOR));
-	I_Printf("OpenGL: Vendor: %s\n", glstr_vendor.GetString());
+	I_Printf("OpenGL: Vendor: %s\n", glstr_vendor.c_str());
 
 	glstr_renderer.Set((const char*)glGetString(GL_RENDERER));
-	I_Printf("OpenGL: Renderer: %s\n", glstr_renderer.GetString());
+	I_Printf("OpenGL: Renderer: %s\n", glstr_renderer.c_str());
 
 	I_Printf("OpenGL: GLEW version: %s\n", glewGetString(GLEW_VERSION));
 
@@ -240,10 +240,10 @@ void RGL_CheckExtensions(void)
 #endif
 
 	// Check for a windows software renderer
-	s = glstr_vendor.GetString();
+	s = glstr_vendor.c_str();
 	if (s.CompareNoCase("Microsoft Corporation") == 0)
 	{
-		s = glstr_renderer.GetString();
+		s = glstr_renderer.c_str();
 		if (s.CompareNoCase("GDI Generic") == 0)
 		{
 			I_Error("OpenGL: SOFTWARE Renderer!\n");

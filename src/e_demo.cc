@@ -210,16 +210,16 @@ void G_RecordDemo(const char *filename)
 {
 	epi::string_c demoname;
 
-	M_ComposeFileName(demoname, game_dir.GetString(), filename);
+	M_ComposeFileName(demoname, game_dir.c_str(), filename);
 
-    epi::string_c ext = epi::path::GetExtension(demoname.GetString());
+    epi::string_c ext = epi::path::GetExtension(demoname.c_str());
 	if (ext.Compare("edm")) 
 		demoname += ".edm"; // No Match - Add Extension
 
 	// Write directly to file. Possibly a bit slower without disk cache, but
 	// uses less memory, and the demo can record EDGE crashes.
-	if (! DEM_OpenWriteFile(demoname.GetString(), (EDGEVERHEX << 8) | EDGEPATCH))
-		I_Error("Unable to create demo file: %s\n", demoname.GetString());
+	if (! DEM_OpenWriteFile(demoname.c_str(), (EDGEVERHEX << 8) | EDGEPATCH))
+		I_Error("Unable to create demo file: %s\n", demoname.c_str());
 
 	demorecording = true;
 	demo_notbegun = true;
@@ -244,7 +244,7 @@ void G_BeginRecording(void)
 
 	saveglobals_t *globs = DEM_NewGLOB();
 
-	L_WriteDebug("G_BeginRecording: %s\n", currmap->ddf.name.GetString());
+	L_WriteDebug("G_BeginRecording: %s\n", currmap->ddf.name.c_str());
 
 	// --- fill in global structure ---
 
@@ -289,13 +289,13 @@ void G_DeferredPlayDemo(const char *filename)
 {
 	epi::string_c demoname;
 
-	M_ComposeFileName(demoname, game_dir.GetString(), filename);
+	M_ComposeFileName(demoname, game_dir.c_str(), filename);
 
-    epi::string_c ext = epi::path::GetExtension(demoname.GetString());
+    epi::string_c ext = epi::path::GetExtension(demoname.c_str());
 	if (ext.Compare("edm")) 
 		demoname += ".edm"; // No Match - Add Extension
 
-	defdemoname.Set(demoname.GetString());
+	defdemoname.Set(demoname.c_str());
 
 	gameaction = ga_playdemo;
 }
@@ -326,12 +326,12 @@ void G_DeferredTimeDemo(const char *filename)
 //
 void G_DoPlayDemo(void)
 {
-	epi::file_c *fp = epi::FS_Open(defdemoname.GetString(),
+	epi::file_c *fp = epi::FS_Open(defdemoname.c_str(),
         epi::file_c::ACCESS_READ | epi::file_c::ACCESS_BINARY);
 
 	if (! fp || ! DEM_OpenReadFile(fp))
 	{
-		I_Printf("LOAD-DEMO: cannot find file: %s\n", defdemoname.GetString());
+		I_Printf("LOAD-DEMO: cannot find file: %s\n", defdemoname.c_str());
 		return;
 	}
 

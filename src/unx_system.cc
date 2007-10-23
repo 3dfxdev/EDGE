@@ -178,7 +178,7 @@ void I_ChangeToExeDir(const char *argv0)
 
 	str.AddChars(argv0, 0, length);
 
-	chdir(str.GetString());
+	chdir(str.c_str());
 }
 
 void I_WaitVBL (int count)
