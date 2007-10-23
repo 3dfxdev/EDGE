@@ -13,6 +13,10 @@ Tested and it works OK.  Of course a small monster changing
 into a big monster is liable to get stuck in walls or other
 monsters.
 
+Replaced a few epi::string_c and epi::strent_c instances with
+std::string, and renamed some of methods to make the transition
+easier in future (e.g. GetString --> c_str).
+
 2007/10/17:
 
 The MD2 models for things and weapons is really coming along.
