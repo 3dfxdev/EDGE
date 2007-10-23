@@ -91,15 +91,12 @@ static bool ImageStartEntry(const char *name)
 
 		if (pos)
 		{
-			epi::string_c s;
+			std::string nspace(name, pos - name);
 
-			s.Empty();
-			s.AddChars(name, 0, pos - name);
-				
-			if (s.IsEmpty())
+			if (nspace.empty())
 				DDF_Error("Missing image prefix.\n");
 
-			belong = GetImageNamespace(s.GetString());
+			belong = GetImageNamespace(nspace.c_str());
 
 			name = pos + 1;
 

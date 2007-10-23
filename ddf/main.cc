@@ -22,6 +22,7 @@
 #include <vector>
 
 #include "epi/path.h"
+#include "epi/str_format.h"
 
 #include "colormap.h"
 
@@ -2029,9 +2030,9 @@ void ddf_base_c::Default()
 //
 void ddf_base_c::SetUniqueName(const char *prefix, int num)
 {
-	epi::string_c s;
-	s.Format("_%s_%d\n", prefix, num);
-	name.Set(s.GetString());
+	std::string result = epi::STR_Format("_%s_%d\n", prefix, num);
+
+	name.Set(result.c_str());
 }
 
 //
