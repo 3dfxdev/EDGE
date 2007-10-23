@@ -35,6 +35,7 @@
 #include <stdlib.h>
 
 #include "epi/strings.h"
+#include "epi/str_format.h"
 
 #include "ddf/colormap.h"
 
@@ -960,7 +961,7 @@ void SR_LevelPutColmap(void *storage, int index, void *extra)
 	const colourmap_c *src = ((const colourmap_c **)storage)[index];
 
 	if (src)
-		SV_PutString(src->ddf.name.GetString());
+		SV_PutString(src->ddf.name.c_str());
 	else
 		SV_PutString(NULL);
 }
@@ -1009,9 +1010,9 @@ void SR_LinePutSpecial(void *storage, int index, void *extra)
 		return;
 	}
 
-	epi::string_c s;
-	s.Format(":%d", src->ddf.number);
-	SV_PutString(s.GetString());
+	std::string s = epi::STR_Format(":%d", src->ddf.number);
+
+	SV_PutString(s.c_str());
 }
 
 
@@ -1058,9 +1059,9 @@ void SR_SectorPutSpecial(void *storage, int index, void *extra)
 		return;
 	}
 
-	epi::string_c s;
-	s.Format(":%d", src->ddf.number);
-	SV_PutString(s.GetString());
+	std::string s = epi::STR_Format(":%d", src->ddf.number);
+
+	SV_PutString(s.c_str());
 }
 
 

@@ -37,6 +37,7 @@
 #include "i_defs.h"
 
 #include "epi/strings.h"
+#include "epi/str_format.h"
 
 #include "rad_trig.h"
 #include "sv_chunk.h"
@@ -851,9 +852,8 @@ void SR_LightPutType(void *storage, int index, void *extra)
 		ln = ITERATOR_TO_TYPE(it, linetype_c*);
 		if (src == &ln->l)
 		{
-			epi::string_c s;
-			s.Format("L:%d", ln->ddf.number);
-			SV_PutString(s.GetString());
+			std::string s = epi::STR_Format("L:%d", ln->ddf.number);
+			SV_PutString(s.c_str());
 			return;
 		}
 	}
@@ -864,9 +864,8 @@ void SR_LightPutType(void *storage, int index, void *extra)
 		sec = ITERATOR_TO_TYPE(it, sectortype_c*);
 		if (src == &sec->l)
 		{
-			epi::string_c s;
-			s.Format("S:%d", sec->ddf.number);
-			SV_PutString(s.GetString());
+			std::string s = epi::STR_Format("S:%d", sec->ddf.number);
+			SV_PutString(s.c_str());
 			return;
 		}
 	}
@@ -1197,16 +1196,14 @@ void SR_PlaneMovePutType(void *storage, int index, void *extra)
 		{
 			if (src == &donut[i].f)
 			{
-				epi::string_c s;
-				s.Format("D:F:%d", i);
-				SV_PutString(s.GetString());
+				std::string s = epi::STR_Format("D:F:%d", i);
+				SV_PutString(s.c_str());
 				return;
 			}
 			else if (src == &donut[i].c)
 			{
-				epi::string_c s;
-				s.Format("D:C:%d", i);
-				SV_PutString(s.GetString());
+				std::string s = epi::STR_Format("D:C:%d", i);
+				SV_PutString(s.c_str());
 				return;
 			}
 		}
@@ -1219,17 +1216,15 @@ void SR_PlaneMovePutType(void *storage, int index, void *extra)
 		
 		if (src == &ln->f)
 		{
-			epi::string_c s;
-			s.Format("L:F:%d", ln->ddf.number);
-			SV_PutString(s.GetString());
+			std::string s = epi::STR_Format("L:F:%d", ln->ddf.number);
+			SV_PutString(s.c_str());
 			return;
 		}
 		
 		if (src == &ln->c)
 		{
-			epi::string_c s;
-			s.Format("L:C:%d", ln->ddf.number);
-			SV_PutString(s.GetString());
+			std::string s = epi::STR_Format("L:C:%d", ln->ddf.number);
+			SV_PutString(s.c_str());
 			return;
 		}
 	}
@@ -1241,17 +1236,15 @@ void SR_PlaneMovePutType(void *storage, int index, void *extra)
 
 		if (src == &sec->f)
 		{
-			epi::string_c s;
-			s.Format("S:F:%d", sec->ddf.number);
-			SV_PutString(s.GetString());
+			std::string s = epi::STR_Format("S:F:%d", sec->ddf.number);
+			SV_PutString(s.c_str());
 			return;
 		}
 		
 		if (src == &sec->c)
 		{
-			epi::string_c s;
-			s.Format("S:C:%d", sec->ddf.number);
-			SV_PutString(s.GetString());
+			std::string s = epi::STR_Format("S:C:%d", sec->ddf.number);
+			SV_PutString(s.c_str());
 			return;
 		}
 	}
