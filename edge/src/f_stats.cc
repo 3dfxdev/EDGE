@@ -339,8 +339,8 @@ static void DrawOnLnode(wi_mappos_c* mappos, const image_c * images[2])
 		if (images[i] == NULL)
 			continue;
 
-		float left = mappos->info->pos.x - IM_OFFSETX(images[i]);
-		float top  = mappos->info->pos.y - IM_OFFSETY(images[i]);
+		float left = mappos->info->x - IM_OFFSETX(images[i]);
+		float top  = mappos->info->y - IM_OFFSETY(images[i]);
 
 		float right  = left + IM_WIDTH(images[i]);
 		float bottom = top + IM_HEIGHT(images[i]);
@@ -354,7 +354,7 @@ static void DrawOnLnode(wi_mappos_c* mappos, const image_c * images[2])
 
 	if (i < 2)
 	{
-		RGL_ImageEasy320(mappos->info->pos.x, mappos->info->pos.y, images[i]);
+		RGL_ImageEasy320(mappos->info->x, mappos->info->y, images[i]);
 	}
 	else
 	{
@@ -1305,7 +1305,7 @@ void WI_Drawer(void)
 				f = &a->frames[a->frameon];
 
 			if (f)
-				RGL_ImageEasy320(f->info->pos.x, f->info->pos.y, f->image);
+				RGL_ImageEasy320(f->info->x, f->info->y, f->image);
 		}
 	}
 
