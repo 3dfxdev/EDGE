@@ -262,6 +262,7 @@ static const actioncode_t thing_actions[] =
 	{"CHECKBLOOD",        P_ActCheckBlood, NULL},
 	{"CHECKMOVING",       P_ActCheckMoving, NULL},
 	{"JUMP",              P_ActJump, DDF_StateGetJump},
+	{"BECOME",            P_ActBecome, DDF_StateGetBecome},
 	{"EXPLODE",           P_ActExplode, NULL},
 	{"ACTIVATE_LINETYPE", P_ActActivateLineType, DDF_StateGetIntPair},
 	{"RTS_ENABLE_TAGGED", P_ActEnableRadTrig,  DDF_StateGetInteger},

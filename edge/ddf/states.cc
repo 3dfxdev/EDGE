@@ -596,9 +596,7 @@ void DDF_StateGetAttack(const char *arg, state_t * cur_state)
 		DDF_WarnError2(127, "Unknown Attack (States): %s\n", arg);
 }
 
-//
-// DDF_StateGetMobj
-//
+
 void DDF_StateGetMobj(const char *arg, state_t * cur_state)
 {
 	if (!arg || !arg[0])
@@ -607,9 +605,7 @@ void DDF_StateGetMobj(const char *arg, state_t * cur_state)
 	cur_state->action_par = new mobj_strref_c(arg);
 }
 
-//
-// DDF_StateGetSound
-//
+
 void DDF_StateGetSound(const char *arg, state_t * cur_state)
 {
 	if (!arg || !arg[0])
@@ -618,9 +614,7 @@ void DDF_StateGetSound(const char *arg, state_t * cur_state)
 	cur_state->action_par = (void *)sfxdefs.GetEffect(arg);
 }
 
-//
-// DDF_StateGetInteger
-//
+
 void DDF_StateGetInteger(const char *arg, state_t * cur_state)
 {
 	if (!arg || !arg[0])
@@ -634,13 +628,11 @@ void DDF_StateGetInteger(const char *arg, state_t * cur_state)
 	cur_state->action_par = val_ptr;
 }
 
-//
-// DDF_StateGetIntPair
-//
-// Parses two integers separated by commas.
-//
+
 void DDF_StateGetIntPair(const char *arg, state_t * cur_state)
 {
+	// Parses two integers separated by commas.
+	//
 	int *values;
 
 	if (!arg || !arg[0])
@@ -654,9 +646,7 @@ void DDF_StateGetIntPair(const char *arg, state_t * cur_state)
 	cur_state->action_par = values;
 }
 
-//
-// DDF_StateGetFloat
-//
+
 void DDF_StateGetFloat(const char *arg, state_t * cur_state)
 {
 	if (!arg || !arg[0])
@@ -670,9 +660,7 @@ void DDF_StateGetFloat(const char *arg, state_t * cur_state)
 	cur_state->action_par = val_ptr;
 }
 
-//
-// DDF_StateGetPercent
-//
+
 void DDF_StateGetPercent(const char *arg, state_t * cur_state)
 {
 	if (!arg || !arg[0])
@@ -688,28 +676,28 @@ void DDF_StateGetPercent(const char *arg, state_t * cur_state)
 	cur_state->action_par = val_ptr;
 }
 
-//
-// DDF_StateGetJump
-//
+
+act_jump_info_s::act_jump_info_s() :
+	chance(PERCENT_MAKE(100)) // -ACB- 2001/02/04 tis a precent_t
+{ }
+
+act_jump_info_s::~act_jump_info_s()
+{ }
+
 void DDF_StateGetJump(const char *arg, state_t * cur_state)
 {
 	// JUMP(label)
 	// JUMP(label,chance)
   
-	const char *s;
-	act_jump_info_t *jump;
-
-	char buffer[80];
-	int len;
-	int offset = 0;
-
 	if (!arg || !arg[0])
 		return;
 
-	jump = new act_jump_info_t;
-	jump->chance = 1.0f;                  // -ACB- 2001/02/04 tis a precent_t
+	act_jump_info_t *jump = new act_jump_info_t;
 
-	s = strchr(arg, ',');
+	int len;
+	int offset = 0;
+
+	const char *s = strchr(arg, ',');
 
 	if (! s)
 	{
@@ -724,12 +712,14 @@ void DDF_StateGetJump(const char *arg, state_t * cur_state)
 	}
 
 	if (len == 0)
-		DDF_Error("DDF_StateGetJump: missing label !\n");
+		DDF_Error("DDF_StateGetJump: missing label!\n");
 
 	if (len > 75)
-		DDF_Error("DDF_StateGetJump: label name too long !\n");
+		DDF_Error("DDF_StateGetJump: label name too long!\n");
 
 	// copy label name
+	char buffer[80];
+
 	for (len=0; *arg && (*arg != ':') && (*arg != ','); len++, arg++)
 		buffer[len] = *arg;
 
@@ -743,23 +733,22 @@ void DDF_StateGetJump(const char *arg, state_t * cur_state)
 	cur_state->action_par = jump;
 }
 
-//
-// DDF_StateGetFrame
-//
-// Sets the jump_state, like DDF_StateGetJump above.
-//
+
 void DDF_StateGetFrame(const char *arg, state_t * cur_state)
 {
+	// Sets the jump_state, like DDF_StateGetJump above.
+	//
 	// ACTION(label)
   
-	char buffer[80];
-	int len;
-	int offset = 0;
-
 	if (!arg || !arg[0])
 		return;
 
+	int len;
+	int offset = 0;
+
 	// copy label name
+	char buffer[80];
+
 	for (len = 0; *arg && (*arg != ':'); len++, arg++)
 		buffer[len] = *arg;
 
@@ -772,9 +761,76 @@ void DDF_StateGetFrame(const char *arg, state_t * cur_state)
 	cur_state->jumpstate = ((StateGetRedirector(buffer) + 1) << 16) + offset;
 }
 
-//
-// DDF_StateGetAngle
-//
+
+act_become_info_s::act_become_info_s() :
+	info(NULL), info_ref(), start()
+{ }
+
+act_become_info_s::~act_become_info_s()
+{ }
+
+void DDF_StateGetBecome(const char *arg, state_t * cur_state)
+{
+	// BECOME(typename)
+	// BECOME(typename,label)
+  
+	if (!arg || !arg[0])
+		return;
+
+	act_become_info_t *become = new act_become_info_t;
+
+	become->start.label.Set("IDLE");
+
+	const char *s = strchr(arg, ',');
+
+	// get type name
+	char buffer[80];
+
+	int len = s ? (s - arg) : strlen(arg);
+
+	if (len == 0)
+		DDF_Error("DDF_StateGetBecome: missing type name!\n");
+
+	if (len > 75)
+		DDF_Error("DDF_StateGetBecome: type name too long!\n");
+
+	for (len=0; *arg && (*arg != ':') && (*arg != ','); len++, arg++)
+		buffer[len] = *arg;
+
+	buffer[len] = 0;
+
+	become->info_ref.Set(buffer);
+
+	
+	// get start label (if present)
+	if (s)
+	{
+		s++;
+
+		len = strlen(s);
+
+		if (len == 0)
+			DDF_Error("DDF_StateGetBecome: missing label!\n");
+
+		if (len > 75)
+			DDF_Error("DDF_StateGetBecome: label too long!\n");
+
+		for (len=0; *s && (*s != ':') && (*s != ','); len++, s++)
+			buffer[len] = *s;
+
+		buffer[len] = 0;
+
+		become->start.label.Set(buffer);
+
+		if (*s == ':')
+			become->start.offset = MAX(0, atoi(s+1) - 1);
+
+	}
+
+	cur_state->action_par = become;
+}
+
+
 void DDF_StateGetAngle(const char *arg, state_t * cur_state)
 {
 	angle_t *value;
@@ -793,9 +849,7 @@ void DDF_StateGetAngle(const char *arg, state_t * cur_state)
 	cur_state->action_par = value;
 }
 
-//
-// DDF_StateGetSlope
-//
+
 void DDF_StateGetSlope(const char *arg, state_t * cur_state)
 {
 	float *value, tmp;
@@ -817,6 +871,7 @@ void DDF_StateGetSlope(const char *arg, state_t * cur_state)
 
 	cur_state->action_par = value;
 }
+
 
 void DDF_StateGetRGB(const char *arg, state_t * cur_state)
 {
