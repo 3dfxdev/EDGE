@@ -3438,19 +3438,14 @@ void P_ActWalkSoundChase(mobj_t * object)
 	P_ActStandardChase(object);
 }
 
-//
-// P_ActDie
-//
-// Boom/MBF compatibility.
-//
+
 void P_ActDie(mobj_t * mo)
 {
+	// Boom/MBF compatibility.
+
 	P_DamageMobj(mo, NULL, NULL, mo->health, NULL);
 }
 
-//
-// P_ActKeenDie
-//
 void P_ActKeenDie(mobj_t * mo)
 {
 	P_ActMakeIntoCorpse(mo);
@@ -3473,13 +3468,11 @@ void P_ActKeenDie(mobj_t * mo)
 	P_RemoteActivation(NULL, 2 /* door type */, 666 /* tag */, 0, line_Any);
 }
 
-//
-// P_ActCheckMoving
-//
-// -KM- 1999/01/31 Returns a player to spawnstate when not moving.
-//
+
 void P_ActCheckMoving(mobj_t * mo)
 {
+	// -KM- 1999/01/31 Returns a player to spawnstate when not moving.
+
 	player_t *p = mo->player;
 
 	if (p)
@@ -3497,14 +3490,12 @@ void P_ActCheckMoving(mobj_t * mo)
 	}
 }
 
-//
-// P_ActCheckBlood
-//
-// -KM- 1999/01/31 Part of the extra blood option, makes blood stick around...
-// -AJA- 1999/10/02: ...but not indefinitely.
-//
+
 void P_ActCheckBlood(mobj_t * mo)
 {
+	// -KM- 1999/01/31 Part of the extra blood option, makes blood stick around...
+	// -AJA- 1999/10/02: ...but not indefinitely.
+
 	if (level_flags.more_blood && mo->tics >= 0)
 	{
 		int val = P_Random();
@@ -3514,33 +3505,71 @@ void P_ActCheckBlood(mobj_t * mo)
 	}
 }
 
-//
-// P_ActJump
-//
-// Jumps to the given label, possibly randomly.  Note: nothing to do
-// with monsters physically jumping.
-//
-void P_ActJump(mobj_t * object)
+
+void P_ActJump(mobj_t * mo)
 {
+	// Jumps to the given label, possibly randomly.
+	//
+	// Note: nothing to do with monsters physically jumping.
+
 	act_jump_info_t *jump;
   
-	if (!object->state || !object->state->action_par)
+	if (!mo->state || !mo->state->action_par)
 	{
 		M_WarnError("JUMP action used in [%s] without a label !\n",
-					object->info->ddf.name.GetString());
+					mo->info->ddf.name.GetString());
 		return;
 	}
 
-	jump = (act_jump_info_t *) object->state->action_par;
+	jump = (act_jump_info_t *) mo->state->action_par;
 
 	SYS_ASSERT(jump->chance >= 0);
 	SYS_ASSERT(jump->chance <= 1);
 
 	if (P_RandomTest(jump->chance))
 	{
-		object->next_state = (object->state->jumpstate == S_NULL) ?
-			NULL : (states + object->state->jumpstate);
+		mo->next_state = (mo->state->jumpstate == S_NULL) ?
+			NULL : (states + mo->state->jumpstate);
 	}
+}
+
+void P_ActBecome(struct mobj_s *mo)
+{
+	act_become_info_t *become;
+
+	if (!mo->state || !mo->state->action_par)
+	{
+		I_Error("BECOME action used in [%s] without arguments!\n",
+				mo->info->ddf.name.GetString());
+		return; /* NOT REACHED */
+	}
+
+///---	mobjtype_c *old_info = mo->info;
+
+	P_UnsetThingPosition(mo);
+	{
+		mo->info = become->info;
+
+		mo->radius = mo->info->radius;
+		mo->height = mo->info->height;
+		mo->speed  = mo->info->speed;
+
+		mo->flags         = mo->info->flags;
+		mo->extendedflags = mo->info->extendedflags;
+		mo->hyperflags    = mo->info->hyperflags;
+
+		// TODO !!!! dlight stuff
+	}
+	P_SetThingPosition(mo);
+
+	statenum_t state = P_MobjFindLabel(mo, become->label);
+	if (state == S_NULL)
+		I_Error("BECOME action: frame '%s' in [%s] not found!\n",
+				become->label, mo->info->ddf.name.GetString()
+
+	state += become->offset;
+
+	P_SetMobjStateDeferred(mo, state, 0);
 }
 
 //
