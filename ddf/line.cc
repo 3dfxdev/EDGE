@@ -475,7 +475,7 @@ void DDF_LinedefCleanUp(void)
 	{
 		l = ITERATOR_TO_TYPE(it, linetype_c*);
 
-		cur_ddf_entryname.Format("[%d]  (lines.ddf)", l->ddf.number);
+		cur_ddf_entryname = epi::STR_Format("[%d]  (lines.ddf)", l->ddf.number);
 
 		l->t.inspawnobj = l->t.inspawnobj_ref ?
 			mobjtypes.Lookup(l->t.inspawnobj_ref) : NULL;
@@ -483,7 +483,7 @@ void DDF_LinedefCleanUp(void)
 		l->t.outspawnobj = l->t.outspawnobj_ref ?
 			mobjtypes.Lookup(l->t.outspawnobj_ref) : NULL;
 
-		cur_ddf_entryname.Empty();
+		cur_ddf_entryname.clear();
 	}
 
 	linetypes.Trim();

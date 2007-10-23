@@ -273,7 +273,7 @@ void DDF_AttackCleanUp(void)
 	{
 		a = ITERATOR_TO_TYPE(it, atkdef_c*);
 
-		cur_ddf_entryname.Format("[%s]  (attacks.ddf)", a->ddf.name.GetString());
+		cur_ddf_entryname = epi::STR_Format("[%s]  (attacks.ddf)", a->ddf.name.GetString());
 
 		// lookup thing references
 
@@ -291,7 +291,7 @@ void DDF_AttackCleanUp(void)
 				a->objinitstate = DDF_MainLookupDirector(a->spawnedobj, a->objinitstate_ref);
 		}
 
-		cur_ddf_entryname.Empty();
+		cur_ddf_entryname.clear();
 	}
 
 	atkdefs.Trim();

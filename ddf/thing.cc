@@ -664,7 +664,7 @@ void DDF_MobjCleanUp(void)
 	{
 		m = ITERATOR_TO_TYPE(it, mobjtype_c*);
 
-		cur_ddf_entryname.Format("[%s]  (things.ddf)", m->ddf.name.GetString());
+		cur_ddf_entryname = epi::STR_Format("[%s]  (things.ddf)", m->ddf.name.GetString());
 
 		m->dropitem = m->dropitem_ref ? mobjtypes.Lookup(m->dropitem_ref) : NULL;
 		m->blood = m->blood_ref ? mobjtypes.Lookup(m->blood_ref) : mobjtypes.Lookup("BLOOD");
@@ -681,7 +681,7 @@ void DDF_MobjCleanUp(void)
 		//       Now clean it up.
 		m->xscale *= m->yscale;
 
-		cur_ddf_entryname.Empty();
+		cur_ddf_entryname.clear();
 	}
 
 	mobjtypes.Trim();
