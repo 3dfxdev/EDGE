@@ -3512,8 +3512,6 @@ void P_ActJump(mobj_t * mo)
 	//
 	// Note: nothing to do with monsters physically jumping.
 
-	act_jump_info_t *jump;
-  
 	if (!mo->state || !mo->state->action_par)
 	{
 		M_WarnError("JUMP action used in [%s] without a label !\n",
@@ -3521,7 +3519,7 @@ void P_ActJump(mobj_t * mo)
 		return;
 	}
 
-	jump = (act_jump_info_t *) mo->state->action_par;
+	act_jump_info_t *jump = (act_jump_info_t *) mo->state->action_par;
 
 	SYS_ASSERT(jump->chance >= 0);
 	SYS_ASSERT(jump->chance <= 1);
@@ -3533,10 +3531,9 @@ void P_ActJump(mobj_t * mo)
 	}
 }
 
+
 void P_ActBecome(struct mobj_s *mo)
 {
-	act_become_info_t *become;
-
 	if (!mo->state || !mo->state->action_par)
 	{
 		I_Error("BECOME action used in [%s] without arguments!\n",
@@ -3544,7 +3541,15 @@ void P_ActBecome(struct mobj_s *mo)
 		return; /* NOT REACHED */
 	}
 
-///---	mobjtype_c *old_info = mo->info;
+	act_become_info_t *become = (act_become_info_t *) mo->state->action_par;
+
+	if (! become->info)
+	{
+		become->info = mobjtypes.Lookup(become->info_ref.GetString());
+		SYS_ASSERT(become->info);  // lookup should be OK (fatal error if not found)
+	}
+
+	// DO THE DEED !!
 
 	P_UnsetThingPosition(mo);
 	{
@@ -3552,22 +3557,44 @@ void P_ActBecome(struct mobj_s *mo)
 
 		mo->radius = mo->info->radius;
 		mo->height = mo->info->height;
-		mo->speed  = mo->info->speed;
+		mo->speed  = mo->info->speed * (level_flags.fastparm ? mo->info->fast : 1);
+
+		// Note: health is not changed
 
 		mo->flags         = mo->info->flags;
 		mo->extendedflags = mo->info->extendedflags;
 		mo->hyperflags    = mo->info->hyperflags;
 
-		// TODO !!!! dlight stuff
+		mo->model_skin    = mo->info->model_skin;
+		mo->vis_target    = PERCENT_2_FLOAT(mo->info->translucency);
+		mo->currentattack = NULL;
+
+		// handle dynamic lights
+		{
+			const dlight_info_c *dinfo = &mo->info->dlight[0];
+
+			if (dinfo->type != DLITE_None)
+			{
+				mo->dlight.target = dinfo->radius;
+				mo->dlight.color  = dinfo->colour;
+				
+				// make renderer re-create shader info
+				if (mo->dlight.shader)
+				{
+					// FIXME: delete mo->dlight.shader;
+					mo->dlight.shader = NULL;
+				}
+			}
+		}
 	}
 	P_SetThingPosition(mo);
 
-	statenum_t state = P_MobjFindLabel(mo, become->label);
+	statenum_t state = P_MobjFindLabel(mo, become->start.label.GetString());
 	if (state == S_NULL)
 		I_Error("BECOME action: frame '%s' in [%s] not found!\n",
-				become->label, mo->info->ddf.name.GetString()
+				become->start.label.GetString(), mo->info->ddf.name.GetString());
 
-	state += become->offset;
+	state += become->start.offset;
 
 	P_SetMobjStateDeferred(mo, state, 0);
 }
