@@ -21,6 +21,7 @@
 
 #include "epi/epi.h"
 #include "epi/strings.h"
+#include "epi/str_format.h"
 
 #include "types.h"
 #include "main.h"
@@ -243,9 +244,9 @@ bool DDF_MainReadFile (readinfo_t * readinfo);
 extern int ddf_version;  // decimal e.g. 128
 
 extern int cur_ddf_line_num;
-extern epi::string_c cur_ddf_filename;
-extern epi::string_c cur_ddf_entryname;
-extern epi::string_c cur_ddf_linedata;
+extern std::string cur_ddf_filename;
+extern std::string cur_ddf_entryname;
+extern std::string cur_ddf_linedata;
 
 void DDF_Error    (const char *err, ...) GCCATTR((format (printf,1,2)));
 void DDF_Warning  (const char *err, ...) GCCATTR((format (printf,1,2)));

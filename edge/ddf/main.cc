@@ -55,9 +55,9 @@ static readchar_t DDF_MainProcessChar(char character, epi::string_c& buffer, int
 // -AJA- 1999/10/27: written.
 //
 int cur_ddf_line_num;
-epi::string_c cur_ddf_filename;
-epi::string_c cur_ddf_entryname;
-epi::string_c cur_ddf_linedata;
+std::string cur_ddf_filename;
+std::string cur_ddf_entryname;
+std::string cur_ddf_linedata;
 
 void DDF_Error(const char *err, ...)
 {
@@ -74,26 +74,26 @@ void DDF_Error(const char *err, ...)
  
 	pos = buffer + strlen(buffer);
 
-	if (!cur_ddf_filename.IsEmpty())
+	if (!cur_ddf_filename.empty())
 	{
 		sprintf(pos, "Error occurred near line %d of %s\n", 
-				cur_ddf_line_num, cur_ddf_filename.GetString());
+				cur_ddf_line_num, cur_ddf_filename.c_str());
 				
 		pos += strlen(pos);
 	}
 
-	if (!cur_ddf_entryname.IsEmpty())
+	if (!cur_ddf_entryname.empty())
 	{
 		sprintf(pos, "Error occurred in entry: %s\n", 
-				cur_ddf_entryname.GetString());
+				cur_ddf_entryname.c_str());
 				
 		pos += strlen(pos);
 	}
 
-	if (!cur_ddf_linedata.IsEmpty())
+	if (!cur_ddf_linedata.empty())
 	{
 		sprintf(pos, "Line contents: %s\n", 
-				cur_ddf_linedata.GetString());
+				cur_ddf_linedata.c_str());
 				
 		pos += strlen(pos);
 	}
@@ -122,22 +122,22 @@ void DDF_Warning(const char *err, ...)
 
 	I_Warning("\n");
 
-	if (!cur_ddf_filename.IsEmpty())
+	if (!cur_ddf_filename.empty())
 	{
 		I_Warning("Found problem near line %d of %s\n", 
-				  cur_ddf_line_num, cur_ddf_filename.GetString());
+				  cur_ddf_line_num, cur_ddf_filename.c_str());
 	}
 
-	if (!cur_ddf_entryname.IsEmpty())
+	if (!cur_ddf_entryname.empty())
 	{
 		I_Warning("occurred in entry: %s\n", 
-				  cur_ddf_entryname.GetString());
+				  cur_ddf_entryname.c_str());
 	}
 	
-	if (!cur_ddf_linedata.IsEmpty())
+	if (!cur_ddf_linedata.empty())
 	{
 		I_Warning("with line contents: %s\n", 
-				  cur_ddf_linedata.GetString());
+				  cur_ddf_linedata.c_str());
 	}
 	
 	I_Warning("%s", buffer);
@@ -601,11 +601,11 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 		if (!readinfo->memfile)
 			return false;
       
-		cur_ddf_filename = readinfo->filename;
+		cur_ddf_filename = std::string(readinfo->filename);
 	}
 	else
 	{
-		cur_ddf_filename = readinfo->lumpname;
+		cur_ddf_filename = std::string(readinfo->lumpname);
 	}
 
 	memfileptr = memfile = readinfo->memfile;
@@ -686,9 +686,8 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 			{ }
 
 
-			cur_ddf_linedata.Empty();
-			cur_ddf_linedata.AddChars(memfileptr, 0, l_len);
-			
+			cur_ddf_linedata = std::string(memfileptr, l_len);
+
 			// -AJA- 2001/05/21: handle directives (lines beginning with #).
 			// This code is more hackitude -- to be fixed when the whole
 			// parsing code gets the overhaul it needs.
@@ -777,7 +776,7 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 				}
 				else
 				{
-					cur_ddf_linedata.Empty();
+					cur_ddf_linedata.clear();
 
 					// finish off previous entry
 					(* readinfo->finish_entry)();
@@ -786,14 +785,14 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 					
 					status = reading_newdef;
 
-					cur_ddf_entryname.Empty();
+					cur_ddf_entryname.clear();
 				}
 				break;
 
 			case def_stop:
 				buffer.ToUpper();	 // <-- Do we need to do this anymore?
 
-				cur_ddf_entryname.Format("[%s]", buffer.GetString());
+				cur_ddf_entryname = epi::STR_Format("[%s]", buffer.GetString());
 
 				(* readinfo->start_entry)(buffer.GetString());
          
@@ -889,7 +888,7 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 	}
 
 	current_cmd.Clear();
-	cur_ddf_linedata.Empty();
+	cur_ddf_linedata.clear();
 
 	// -AJA- 1999/10/21: check for unclosed comments
 	if (comment_level > 0)
@@ -911,8 +910,8 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 	if (!firstgo)
 		(* readinfo->finish_entry)();
 
-	cur_ddf_entryname.Empty();
-	cur_ddf_filename.Empty();
+	cur_ddf_entryname.clear();
+	cur_ddf_filename.clear();
 
 	defines.clear();
 
@@ -1372,23 +1371,17 @@ void DDF_MainRefAttack(const char *info, void *storage)
 //
 int DDF_MainLookupDirector(const mobjtype_c *info, const char *ref)
 {
-	int i, state, offset;
-	epi::string_c director;
-	const char *div;
+	const char *p = strchr(ref, ':');
 
-	div = strchr(ref, ':');
+	int len = p ? (p - ref) : strlen(ref);
 
-	i = div ? (div - ref) : strlen(ref);
-
-	if (i <= 0)
+	if (len <= 0)
 		DDF_Error("Bad Director `%s' : Nothing after divide\n", ref);
 
-	director.Empty();
-	director.AddChars(ref, 0, i);
+	std::string director(ref, len);
 
-	state = DDF_StateFindLabel(info->first_state, info->last_state, director);
-
-	offset = div ? MAX(0, atoi(div + 1) - 1) : 0;
+	int state  = DDF_StateFindLabel(info->first_state, info->last_state, director.c_str());
+	int offset = p ? MAX(0, atoi(p + 1) - 1) : 0;
 
 	// FIXME: check for overflow
 	return state + offset;
