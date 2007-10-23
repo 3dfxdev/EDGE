@@ -1777,7 +1777,6 @@ mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c *info)
 	mobj->speed = info->speed;
 	mobj->fuse = info->fuse;
 	mobj->side = info->side;
-	mobj->on_ladder = -1;
 	mobj->model_skin = info->model_skin;
 
 	if (level_flags.fastparm)
@@ -1787,7 +1786,9 @@ mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c *info)
 	mobj->extendedflags = info->extendedflags;
 	mobj->hyperflags = info->hyperflags;
 	mobj->vis_target = mobj->visibility = PERCENT_2_FLOAT(info->translucency);
+
 	mobj->currentattack = NULL;
+	mobj->on_ladder = -1;
 
 	if (gameskill != sk_nightmare)
 		mobj->reactiontime = info->reactiontime;
