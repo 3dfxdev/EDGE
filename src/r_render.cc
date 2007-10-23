@@ -2733,16 +2733,30 @@ static void RGL_DrawSubsector(drawsub_c *dsub)
 			RGL_DrawSortThings(dfloor);
   		}
 
-		if (solid_mode && sub == viewsubsector &&
-			num_active_mirrors == 0)
-		{
-			R_ColmapPipe_SetProps(dfloor->props);
-
-			RGL_DrawWeaponModel(players[displayplayer]);
-		}
-
 		R_LightPipe_SetList(NULL);
 	}
+}
+
+static void DoWeaponModel(void)
+{
+	player_t *pl = players[displayplayer];
+	SYS_ASSERT(pl);
+
+	// clear the depth buffer, so that the weapon is never clipped
+	// by the world geometry.  NOTE: a tad expensive, but I don't
+	// know how any better way to prevent clipping -- the model
+	// needs the depth buffer for overlapping parts of itself.
+
+	glClear(GL_DEPTH_BUFFER_BIT);
+
+	solid_mode = false;
+	RGL_StartUnits(solid_mode);
+
+	R_ColmapPipe_SetProps(pl->mo->props);
+
+	RGL_DrawWeaponModel(pl);
+
+	RGL_FinishUnits();
 }
 
 //
@@ -2888,6 +2902,8 @@ void RGL_RenderTrueBSP(void)
 	RGL_FinishSky();
 
 	RGL_DrawSubList(drawsubs);
+
+	DoWeaponModel();
 
 	glDisable(GL_DEPTH_TEST);
 
