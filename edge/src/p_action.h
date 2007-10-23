@@ -146,6 +146,7 @@ void P_ActDie(struct mobj_s *mo);
 void P_ActKeenDie(struct mobj_s *mo);
 void P_ActCheckBlood(struct mobj_s *mo);
 void P_ActJump(struct mobj_s *mo);
+void P_ActBecome(struct mobj_s *mo);
 
 // Movement actions
 void P_ActFaceDir(struct mobj_s *mo);
