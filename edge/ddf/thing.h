@@ -914,11 +914,11 @@ public:
 	// Search Functions
 	int FindFirst(const char *name, int startpos = -1);
 	int FindLast(const char *name, int startpos = -1);
-	const mobjtype_c* Lookup(const char* refname);
-	const mobjtype_c* Lookup(int id);
+	const mobjtype_c *Lookup(const char *refname);
+	const mobjtype_c *Lookup(int id);
 
 	// FIXME!!! Move to a more app location
-	const mobjtype_c* LookupCastMember(int castpos);
+	const mobjtype_c *LookupCastMember(int castpos);
 	const mobjtype_c *LookupPlayer(int playernum);
 };
 
