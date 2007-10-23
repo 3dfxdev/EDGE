@@ -1396,7 +1396,7 @@ static void SetPositionBSP(setposbsp_t *info, int nodenum)
 // -ES- 1999/12/04 Better error checking: Clear prev/next fields.
 // This catches errors which can occur if the position is unset twice.
 //
-static void P_UnsetThingPosition(mobj_t * thing)
+void P_UnsetThingPosition(mobj_t * thing)
 {
 	int blockx;
 	int blocky;
