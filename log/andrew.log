@@ -1,5 +1,14 @@
 Andrew Apted's Log
 
+2007/10/23:
+
+Implemented the BECOME action for THINGS.DDF, which takes the
+typename as first parameter and an optional state-frame name
+as the second parameter (defaulting to IDLE).  Examples:
+    
+    BECOME(HEAVY_WEAPON_DUDE)
+    BECOME(IMP,CHASE:3)
+
 2007/10/17:
 
 The MD2 models for things and weapons is really coming along.
