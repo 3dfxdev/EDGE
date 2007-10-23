@@ -430,11 +430,7 @@ int DDF_CompareName(const char *A, const char *B)
 static bool ThingTryParseState(const char *field, 
 									const char *contents, int index, bool is_last)
 {
-	int i;
-	const state_starter_t *starter;
 	const char *pos;
-
-	epi::string_c labname;
 
 	if (strnicmp(field, "STATES(", 7) != 0)
 		return false;
@@ -447,20 +443,19 @@ static bool ThingTryParseState(const char *field,
 	if (pos == NULL || pos == field || pos > (field+64))
 		return false;
 
-	labname.Empty();
-	labname.AddChars(field, 0, pos - field);
+	std::string labname(field, pos - field);
 
 	// check for the "standard" states
-	starter = NULL;
-
+	int i;
 	for (i=0; thing_starters[i].label; i++)
-		if (DDF_CompareName(thing_starters[i].label, labname.GetString()) == 0)
+		if (DDF_CompareName(thing_starters[i].label, labname.c_str()) == 0)
 			break;
 
+	const state_starter_t *starter = NULL;
 	if (thing_starters[i].label)
 		starter = &thing_starters[i];
 
-	DDF_StateReadState(contents, labname,
+	DDF_StateReadState(contents, labname.c_str(),
 		&buffer_mobj.first_state, &buffer_mobj.last_state,
 		starter ? starter->state_num : NULL, index, 
 		is_last ? starter ? starter->last_redir : "IDLE" : NULL, 
@@ -476,30 +471,26 @@ static bool ThingTryParseState(const char *field,
 
 static bool ThingStartEntry(const char *buffer)
 {
-	int idx;
+	SYS_ASSERT(buffer);
 
-	epi::string_c s;
+	std::string name(buffer);
 	int number = 0;
+
 	char *pos = strchr(buffer, ':');
 
-	s.Empty();
 	if (pos)
 	{
-		s.AddChars(buffer, 0, pos - buffer);
-		
+		name = std::string(buffer, pos - buffer);
+
 		number = MAX(0, atoi(pos+1));
 	}
-	else
-	{
-		if (buffer && buffer[0])
-			s = buffer;
-	}
 
-	idx = -1;
+	int idx = -1;
 
-	if (!s.IsEmpty())
+	if (! name.empty())
 	{
-		idx = mobjtypes.FindFirst(s.GetString(), mobjtypes.GetDisabledCount());
+		idx = mobjtypes.FindFirst(name.c_str(), mobjtypes.GetDisabledCount());
+
 		if (idx>=0)
 		{
 			mobjtypes.MoveToEnd(idx);
@@ -511,10 +502,10 @@ static bool ThingStartEntry(const char *buffer)
 	{
 		dynamic_mobj = new mobjtype_c;
 
-		if (s.IsEmpty())
+		if (name.empty())
 			dynamic_mobj->ddf.SetUniqueName("UNNAMED_THING", mobjtypes.GetSize());
 		else
-			dynamic_mobj->ddf.name.Set(s.GetString());
+			dynamic_mobj->ddf.name.Set(name.c_str());
 
 		mobjtypes.Insert(dynamic_mobj);
 	}
@@ -1525,15 +1516,14 @@ static void DDF_MobjGetAngleRange(const char *info, void *storage)
 //
 mobjtype_c *DDF_MobjMakeAttackObj(mobjtype_c *info, const char *atk_name)
 {
-	epi::string_c s;
-	mobjtype_c *result;
+	std::string name("__ATKMOBJ_");
 
-	s = "__ATKMOBJ_";
-	s += atk_name;
+	name += atk_name;
 
-	result = new mobjtype_c;
+	mobjtype_c *result = new mobjtype_c;
+
 	result->CopyDetail(info[0]);
-	result->ddf.name.Set(s);
+	result->ddf.name.Set(name.c_str());
 
 	// Add to the list
 	mobjtypes.Insert(result);
