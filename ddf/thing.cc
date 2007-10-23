@@ -664,7 +664,7 @@ void DDF_MobjCleanUp(void)
 	{
 		m = ITERATOR_TO_TYPE(it, mobjtype_c*);
 
-		cur_ddf_entryname = epi::STR_Format("[%s]  (things.ddf)", m->ddf.name.GetString());
+		cur_ddf_entryname = epi::STR_Format("[%s]  (things.ddf)", m->ddf.name.c_str());
 
 		m->dropitem = m->dropitem_ref ? mobjtypes.Lookup(m->dropitem_ref) : NULL;
 		m->blood = m->blood_ref ? mobjtypes.Lookup(m->blood_ref) : mobjtypes.Lookup("BLOOD");
@@ -1922,7 +1922,7 @@ void mobjtype_c::Default()
 	initial_benefits = NULL;
 
     castorder = 0;
-	cast_title.Clear();
+	cast_title.clear();
 	respawntime = 30 * TICRATE;
 	translucency = PERCENT_MAKE(100);
 	minatkchance = PERCENT_MAKE(0);
@@ -1988,13 +1988,13 @@ void mobjtype_c::Default()
 	dlight[1].Default();
 
 	dropitem = NULL;
-	dropitem_ref.Clear();
+	dropitem_ref.clear();
 	blood = NULL;
-	blood_ref.Clear();
+	blood_ref.clear();
 	respawneffect = NULL;
-	respawneffect_ref.Clear();
+	respawneffect_ref.clear();
 	spitspot = NULL;
-	spitspot_ref.Clear();
+	spitspot_ref.clear();
 }
 
 //
@@ -2056,7 +2056,7 @@ int mobjtype_container_c::FindFirst(const char *name, int startpos)
 	while (it.IsValid())
 	{
 		m = ITERATOR_TO_TYPE(it, mobjtype_c*);
-		if (DDF_CompareName(m->ddf.name.GetString(), name) == 0)
+		if (DDF_CompareName(m->ddf.name.c_str(), name) == 0)
 		{
 			return it.GetPos();
 		}
@@ -2083,7 +2083,7 @@ int mobjtype_container_c::FindLast(const char *name, int startpos)
 	while (it.IsValid())
 	{
 		m = ITERATOR_TO_TYPE(it, mobjtype_c*);
-		if (DDF_CompareName(m->ddf.name.GetString(), name) == 0)
+		if (DDF_CompareName(m->ddf.name.c_str(), name) == 0)
 		{
 			return it.GetPos();
 		}

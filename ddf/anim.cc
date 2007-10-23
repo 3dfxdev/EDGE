@@ -74,7 +74,7 @@ static bool AnimStartEntry(const char *name)
 		for (it = animdefs.GetBaseIterator(); it.IsValid(); it++)
 		{
 			a = ITERATOR_TO_TYPE(it, animdef_c*);
-			if (DDF_CompareName(a->ddf.name.GetString(), name) == 0)
+			if (DDF_CompareName(a->ddf.name.c_str(), name) == 0)
 			{
 				dynamic_anim = a;
 				replaces = true;
@@ -316,8 +316,9 @@ void animdef_c::Default()
 	type = A_Texture;
 
 	pics.Clear();
-	startname.Clear();
-	endname.Clear();
+
+	startname.clear();
+	endname.clear();
 
 	speed = 8;
 }

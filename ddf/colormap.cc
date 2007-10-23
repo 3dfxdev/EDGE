@@ -87,7 +87,7 @@ static bool ColmapStartEntry(const char *name)
 	buffer_colmap.Default();
 
 	// make sure fonts get whitened properly (as the default)
-	if (strnicmp(dynamic_colmap->ddf.name.GetString(), "TEXT", 4) == 0)
+	if (strnicmp(dynamic_colmap->ddf.name.c_str(), "TEXT", 4) == 0)
 	{
 		buffer_colmap.special = COLSP_Whiten;
 	}
@@ -122,7 +122,7 @@ static void ColmapFinishEntry(void)
 		buffer_colmap.length = 1;
 	}
 
-	if (buffer_colmap.lump_name.IsEmpty() && buffer_colmap.gl_colour == RGB_NO_VALUE)
+	if (buffer_colmap.lump_name.empty() && buffer_colmap.gl_colour == RGB_NO_VALUE)
 		DDF_Error("Colourmap entry missing LUMP or GL_COLOUR.\n");
 
 	// transfer static entry to dynamic entry
@@ -315,7 +315,7 @@ void colourmap_c::Default()
 {
 	ddf.Default();
 	
-	lump_name.Clear();
+	lump_name.clear();
 
 	start   = 0;
 	length  = 0;
@@ -384,7 +384,7 @@ colourmap_c* colourmap_container_c::Lookup(const char *refname)
 	for (it = GetIterator(num_disabled); it.IsValid(); it++)
 	{
 		c = ITERATOR_TO_TYPE(it, colourmap_c*);
-		if (DDF_CompareName(c->ddf.name.GetString(), refname) == 0)
+		if (DDF_CompareName(c->ddf.name.c_str(), refname) == 0)
 			return c;
 	}
 

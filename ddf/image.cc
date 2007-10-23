@@ -114,7 +114,7 @@ static bool ImageStartEntry(const char *name)
 		for (it = imagedefs.GetBaseIterator(); it.IsValid(); it++)
 		{
 			a = ITERATOR_TO_TYPE(it, imagedef_c*);
-			if (DDF_CompareName(a->ddf.name.GetString(), name) == 0)
+			if (DDF_CompareName(a->ddf.name.c_str(), name) == 0)
 			{
 				dynamic_image = a;
 				replaces = true;
@@ -159,7 +159,7 @@ static void ImageFinishEntry(void)
 {
 	if (buffer_image.type == IMGDT_File)  //  || buffer_image.type == IMGDT_Package)
 	{
-        const char *filename = buffer_image.name.GetString();
+        const char *filename = buffer_image.name.c_str();
 
 		// determine format
         epi::string_c ext = epi::path::GetExtension(filename);
@@ -432,7 +432,7 @@ void imagedef_c::Default()
 	builtin = BLTIM_Quadratic;
 	format  = LIF_PNG;
 
-	name.Clear();
+	name.clear();
 
 	special  = IMGSP_None;
 	x_offset = y_offset = 0;

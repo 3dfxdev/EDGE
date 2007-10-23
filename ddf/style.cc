@@ -288,7 +288,7 @@ void backgroundstyle_c::Default()
 	colour = RGB_NO_VALUE;
 	translucency = PERCENT_MAKE(100);
 
-	image_name.Clear();	
+	image_name.clear();	
 
 	scale  = 1.0f;
 	aspect = 1.0f;
@@ -532,7 +532,7 @@ styledef_c* styledef_container_c::Lookup(const char *refname)
 	for (it = GetTailIterator(); it.IsValid(); it--)
 	{
 		m = ITERATOR_TO_TYPE(it, styledef_c*);
-		if (DDF_CompareName(m->ddf.name.GetString(), refname) == 0)
+		if (DDF_CompareName(m->ddf.name.c_str(), refname) == 0)
 			return m;
 	}
 

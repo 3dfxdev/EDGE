@@ -283,7 +283,7 @@ public:
 			{
 				ddf_base_c ddf;
 				ddf.SetUniqueName("UNNAMED_LANGUAGE", langnames.GetSize());
-				langnames.Insert(ddf.name.GetString());
+				langnames.Insert(ddf.name.c_str());
 			}
 			
 			currlang = langnames.GetSize() - 1;

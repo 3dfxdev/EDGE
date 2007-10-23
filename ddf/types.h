@@ -86,7 +86,7 @@ typedef u32_t angle_t;
 class lumpname_c
 {
 public:
-	lumpname_c() { Clear(); }
+	lumpname_c() { clear(); }
 	lumpname_c(lumpname_c &rhs) { Set(rhs.data); }
 	~lumpname_c() {};
 
@@ -94,11 +94,11 @@ private:
 	char data[LUMPNAME_SIZE];
 
 public:
-	void Clear() { data[0] = '\0'; }
+	void clear() { data[0] = '\0'; }
 
-	const char* GetString() const { return data; }
+	const char *c_str() const { return data; }
 
-	inline bool IsEmpty() const { return data[0] == '\0'; }
+	inline bool empty() const { return data[0] == '\0'; }
 
 	void Set(const char *s) 
 	{
@@ -137,7 +137,7 @@ private:
 	const mobjtype_c *def;
 
 public:
-	const char *GetName() const { return name.GetString(); }
+	const char *GetName() const { return name.c_str(); }
 
 	const mobjtype_c *GetRef();
 	// Note: this returns NULL if not found, in which case you should

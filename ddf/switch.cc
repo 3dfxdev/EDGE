@@ -273,8 +273,8 @@ void switchdef_c::Default()
 {
 	ddf.Default();
 
-	name1.Clear();
-	name2.Clear();
+	name1.clear();
+	name2.clear();
 
 	on_sfx = sfx_None;
 	off_sfx = sfx_None;
@@ -319,7 +319,7 @@ switchdef_c* switchdef_container_c::Find(const char *name)
 	for (it = GetBaseIterator(); it.IsValid(); it++)
 	{
 		sw = ITERATOR_TO_TYPE(it, switchdef_c*);
-		if (DDF_CompareName(sw->ddf.name.GetString(), name) == 0)
+		if (DDF_CompareName(sw->ddf.name.c_str(), name) == 0)
 			return sw;
 	}
 

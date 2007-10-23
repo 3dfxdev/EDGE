@@ -392,9 +392,9 @@ void map_finaledef_c::Copy(map_finaledef_c &src)
 //
 void map_finaledef_c::Default()
 {
-	text.Clear();	
-	text_back.Clear();
-	text_flat.Clear();
+	text.clear();	
+	text_back.clear();
+	text_flat.clear();
 	text_speed = 3.0f;
 	text_wait = 150;
 	text_colmap = NULL;
@@ -494,21 +494,21 @@ void mapdef_c::Default()
 
 	next = NULL;
 	
-	description.Clear();	
-  	namegraphic.Clear();
-  	lump.Clear();
-   	sky.Clear();
-   	surround.Clear();
+	description.clear();	
+  	namegraphic.clear();
+  	lump.clear();
+   	sky.clear();
+   	surround.clear();
    	
    	music = 0;
 	partime = 0;
 
-	episode_name.Clear();	
+	episode_name.clear();	
 	force_on = MPF_None;
 	force_off = MPF_None;
 
-	nextmapname.Clear();
-	secretmapname.Clear();
+	nextmapname.clear();
+	secretmapname.clear();
 
 	autotag = 0;
 
@@ -561,7 +561,7 @@ mapdef_c* mapdef_container_c::Lookup(const char *refname)
 	for (it = GetTailIterator(); it.IsValid(); it--)
 	{
 		m = ITERATOR_TO_TYPE(it, mapdef_c*);
-		if (DDF_CompareName(m->ddf.name.GetString(), refname) == 0) // Create ddf compare function
+		if (DDF_CompareName(m->ddf.name.c_str(), refname) == 0) // Create ddf compare function
 			return m;
 	}
 
