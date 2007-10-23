@@ -201,8 +201,6 @@ static bool WeaponTryParseState(const char *field,
 	const state_starter_t *starter;
 	const char *pos;
 
-	epi::string_c labname;
-
 	if (strnicmp(field, "STATES(", 7) != 0)
 		return false;
 
@@ -214,20 +212,19 @@ static bool WeaponTryParseState(const char *field,
 	if (pos == NULL || pos == field || pos > (field+64))
 		return false;
 
-	labname.Empty();
-	labname.AddChars(field, 0, pos - field);
+	std::string labname(field, pos - field);
 
 	// check for the "standard" states
 	starter = NULL;
 
 	for (i=0; weapon_starters[i].label; i++)
-		if (DDF_CompareName(weapon_starters[i].label, labname.GetString()) == 0)
+		if (DDF_CompareName(weapon_starters[i].label, labname.c_str()) == 0)
 			break;
 
 	if (weapon_starters[i].label)
 		starter = &weapon_starters[i];
 
-	DDF_StateReadState(contents, labname,
+	DDF_StateReadState(contents, labname.c_str(),
 			&buffer_weapon.first_state, &buffer_weapon.last_state,
 			starter ? starter->state_num : NULL, index, 
 			is_last ? starter ? starter->last_redir : "READY" : NULL, 
