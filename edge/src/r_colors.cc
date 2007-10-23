@@ -542,7 +542,7 @@ void TransformColourmap(colourmap_c *colmap)
 {
 	const byte *table = colmap->cache.data;
 
-	if (table == NULL && ! colmap->lump_name.IsEmpty())
+	if (table == NULL && ! colmap->lump_name.empty())
 	{
 		LoadColourmap(colmap);
 

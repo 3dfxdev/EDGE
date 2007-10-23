@@ -149,7 +149,7 @@ void RAD_Error(const char *err, ...)
 		rad_cur_filename);
 	pos += strlen(pos);
 
-	if (!rad_cur_linedata.IsEmpty())
+	if (!rad_cur_linedata.empty())
 	{
 		sprintf(pos, "Line contents: %s\n", rad_cur_linedata.GetString());
 		pos += strlen(pos);
@@ -181,7 +181,7 @@ void RAD_Warning(const char *err, ...)
 	I_Warning("Found problem near line %d of %s\n", rad_cur_linenum, 
 		rad_cur_filename);
 
-	if (!rad_cur_linedata.IsEmpty())
+	if (!rad_cur_linedata.empty())
 		I_Warning("with line contents: %s\n", rad_cur_linedata.GetString());
 
 	I_Warning("%s", buffer);
@@ -2285,7 +2285,7 @@ void RAD_ParseLine(char *s)
 
 	if (pnum == 0)
 	{
-		rad_cur_linedata.Clear();
+		rad_cur_linedata.clear();
 		return;
 	}
 
@@ -2321,7 +2321,7 @@ void RAD_ParseLine(char *s)
 					rad_level_names[cur->level]);
 
 				RAD_FreeParameters(pnum, pars);
-				rad_cur_linedata.Clear();
+				rad_cur_linedata.clear();
 
 				return;
 			}
@@ -2340,7 +2340,7 @@ void RAD_ParseLine(char *s)
 		(* cur->parser)(pnum, (const char **) pars);
 
 		RAD_FreeParameters(pnum, pars);
-		rad_cur_linedata.Clear();
+		rad_cur_linedata.clear();
 
 		return;
 	}
@@ -2348,7 +2348,7 @@ void RAD_ParseLine(char *s)
 	RAD_WarnError2(128, "Unknown primitive: %s\n", pars[0]);
 
 	RAD_FreeParameters(pnum, pars);
-	rad_cur_linedata.Clear();
+	rad_cur_linedata.clear();
 }
 
 void RAD_ParserBegin(void)
