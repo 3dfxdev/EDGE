@@ -62,12 +62,12 @@ public:
 	const string_c& operator=(const char* s);
 
     // Get attributes, get data, Compare
-	bool IsEmpty() const;
-	unsigned int GetLength() const;
+	bool empty() const;
+	unsigned int size() const;
 
 	// FIXME: -AJA- not sure about this auto-conversion
 	operator const char* () const;
-	const char* GetString() const;														// Same as above
+	const char* c_str() const;														// Same as above
 	char GetFirstChar() const;
 	char GetLastChar() const;
 	char operator[](unsigned int idx) const;
@@ -83,9 +83,9 @@ public:
 	// Operators == and != are also predefined
 
     // Global modifications
-	void Empty();																		// Sets length to 0, but keeps Buffer around
+	void clear();																		// Sets length to 0, but keeps Buffer around
 	void Reset();																		// This also releases the Buffer
-	void GrowTo(unsigned int size);
+	void GrowTo(unsigned int nsize);
 	void Compact(unsigned int only_above = 0);
 	static void CompactFree();
 	void Format(const char* fmt, ...);
@@ -182,7 +182,7 @@ inline void string_c::Set(const char* s)
     if (s)
         *this = s;
     else
-        Empty();
+        clear();
 }
 
 inline void string_c::Set(const string_c& obj)
@@ -202,12 +202,12 @@ inline char string_c::GetFirstChar() const
 /*********************************************************************
 * Proc:		string_c::IsEmpty and GetLength
 *********************************************************************/
-inline bool string_c::IsEmpty() const
+inline bool string_c::empty() const
 {
 	return data->length == 0;
 }
 
-inline unsigned int string_c::GetLength() const
+inline unsigned int string_c::size() const
 {
 	return data->length;
 }
@@ -220,7 +220,7 @@ inline unsigned int string_c::GetLength() const
 inline char string_c::operator[](unsigned int idx) const
 {
 #ifdef DEBUG
-	if (idx >= GetLength())
+	if (idx >= size())
 		ThrowBadIndex();
 #endif
 	return data->text[idx];
@@ -242,7 +242,7 @@ inline string_c::operator const char* () const
 	return data->text;
 }
 
-inline const char* string_c::GetString() const
+inline const char* string_c::c_str() const
 {
 	return data->text;
 }
@@ -279,7 +279,7 @@ inline bool operator !=(char* s1, const string_c& s2)
 
 inline void string_c::FormatWithArgList(const char *fmt, va_list& marker)
 {
-    Empty();
+    clear();
     FormatCore(fmt, marker);
 }
 
@@ -299,7 +299,7 @@ inline void string_c::AddString(const char* s)
 
 inline void string_c::AddStringAtLeft(const string_c& obj)
 {
-	AddStringAtLeft(obj.GetString());
+	AddStringAtLeft(obj.c_str());
 }
 
 inline void string_c::operator += (const char ch)

@@ -225,7 +225,7 @@ string_c Join(const char *lhs, const char *rhs)
 
         s.Set(lhs);
 
-        if (s.GetLength())
+        if (s.size() > 0)
         {
             const char c = s.GetLastChar();
             if (c != '\\' && c != '/')

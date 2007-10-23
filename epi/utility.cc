@@ -173,7 +173,7 @@ namespace epi
 	//
 	void strent_c::Set(const char *s)
 	{
-		Clear();
+		clear();
 		if (s)
 		{
 			data = new char[strlen(s)+1];
@@ -186,7 +186,7 @@ namespace epi
 	//
 	void strent_c::Set(const char *s, int max)
 	{
-		Clear();
+		clear();
 		if (s)
 		{
 			const char *s2;
