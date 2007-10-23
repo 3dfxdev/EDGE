@@ -402,12 +402,12 @@ static void *DDF_MainCacheFile(readinfo_t * readinfo)
 	if (!readinfo->filename)
 		I_Error("DDF_MainReadFile: No file to read");
 
-    filename = epi::path::Join(ddf_dir.GetString(), readinfo->filename);
+    filename = epi::path::Join(ddf_dir.c_str(), readinfo->filename);
 
-	file = fopen(filename.GetString(), "rb");
+	file = fopen(filename.c_str(), "rb");
 	if (file == NULL)
 	{
-		I_Warning("DDF_MainReadFile: Unable to open: '%s'\n", filename.GetString());
+		I_Warning("DDF_MainReadFile: Unable to open: '%s'\n", filename.c_str());
 		return NULL;
 	}
 
@@ -653,7 +653,7 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 
 			DDF_MainAddDefine(name, value);
 
-			buffer.Empty();
+			buffer.clear();
 			continue;
 		}
 
@@ -739,14 +739,14 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 			case command_read:
 				buffer.ToUpper();
 
-				if (!buffer.IsEmpty())
-					current_cmd.Set(buffer.GetString());
+				if (!buffer.empty())
+					current_cmd.Set(buffer.c_str());
 				else
-					current_cmd.Clear();
+					current_cmd.clear();
 					
 				SYS_ASSERT(current_index == 0);
 
-				buffer.Empty();
+				buffer.clear();
 				status = reading_data;
 				break;
 
@@ -757,10 +757,10 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 			case tag_stop:
 				if (buffer.CompareNoCase(readinfo->tag))
 					DDF_Error("Start tag <%s> expected, found <%s>!\n", 
-							  readinfo->tag, buffer.GetString());
+							  readinfo->tag, buffer.c_str());
 				
 				status = waiting_newdef;
-				buffer.Empty();
+				buffer.clear();
 				break;
 
 			case def_start:
@@ -781,7 +781,7 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 					// finish off previous entry
 					(* readinfo->finish_entry)();
 
-					buffer.Empty();
+					buffer.clear();
 					
 					status = reading_newdef;
 
@@ -792,11 +792,11 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 			case def_stop:
 				buffer.ToUpper();	 // <-- Do we need to do this anymore?
 
-				cur_ddf_entryname = epi::STR_Format("[%s]", buffer.GetString());
+				cur_ddf_entryname = epi::STR_Format("[%s]", buffer.c_str());
 
-				(* readinfo->start_entry)(buffer.GetString());
+				(* readinfo->start_entry)(buffer.c_str());
          
-				buffer.Empty();
+				buffer.clear();
 				status = reading_command;
 				break;
 
@@ -822,20 +822,20 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 					break;
 				}
 
-				if (current_cmd.IsEmpty())
+				if (current_cmd.empty())
 					DDF_Error("Unexpected comma `,'.\n");
 
 				if (firstgo)
 					DDF_WarnError2(128, "Command %s used outside of any entry\n",
-								   current_cmd.GetString());
+								   current_cmd.c_str());
 				else
 				{ 
-					(* readinfo->parse_field)(current_cmd.GetString(), 
+					(* readinfo->parse_field)(current_cmd.c_str(), 
 											  DDF_MainGetDefine(buffer), current_index, false);
 					current_index++;
 				}
 
-				buffer.Empty();
+				buffer.clear();
 				break;
 
 				// -ACB- 1998/08/10 String Handling
@@ -849,17 +849,17 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 				break;
 
 			case terminator:
-				if (current_cmd.IsEmpty())
+				if (current_cmd.empty())
 					DDF_Error("Unexpected semicolon `;'.\n");
 
 				if (bracket_level > 0)
 					DDF_Error("Missing ')' bracket in ddf command.\n");
 
-				(* readinfo->parse_field)(current_cmd.GetString(), 
-										  DDF_MainGetDefine(buffer.GetString()), current_index, true);
+				(* readinfo->parse_field)(current_cmd.c_str(), 
+										  DDF_MainGetDefine(buffer.c_str()), current_index, true);
 				current_index = 0;
 
-				buffer.Empty();
+				buffer.clear();
 				status = reading_command;
 				break;
 
@@ -887,7 +887,7 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 		}
 	}
 
-	current_cmd.Clear();
+	current_cmd.clear();
 	cur_ddf_linedata.clear();
 
 	// -AJA- 1999/10/21: check for unclosed comments
@@ -2013,7 +2013,7 @@ void ddf_base_c::Copy(const ddf_base_c &src)
 //
 void ddf_base_c::Default()
 {
-	name.Clear();
+	name.clear();
 	number = 0;
 	crc.Reset();
 }
@@ -2046,7 +2046,7 @@ const mobjtype_c *mobj_strref_c::GetRef()
 	if (def)
 		return def;
 
-	def = mobjtypes.Lookup(name.GetString());
+	def = mobjtypes.Lookup(name.c_str());
 
 	return def;
 }
@@ -2187,7 +2187,7 @@ void label_offset_c::Copy(label_offset_c &src)
 //
 void label_offset_c::Default()
 {
-	label.Clear();
+	label.clear();
 	offset = 0;
 }
 

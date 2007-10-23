@@ -290,7 +290,7 @@ static void WeaponFinishEntry(void)
 {
 	if (! buffer_weapon.first_state)
 		DDF_Error("Weapon `%s' has missing states.\n",
-			dynamic_weapon->ddf.name.GetString());
+			dynamic_weapon->ddf.name.c_str());
 
 	DDF_StateFinishStates(buffer_weapon.first_state, buffer_weapon.last_state);
 
@@ -755,7 +755,7 @@ int weapondef_container_c::FindFirst(const char *name, int startpos)
 	while (it.IsValid())
 	{
 		w = ITERATOR_TO_TYPE(it, weapondef_c*);
-		if (DDF_CompareName(w->ddf.name.GetString(), name) == 0)
+		if (DDF_CompareName(w->ddf.name.c_str(), name) == 0)
 		{
 			return it.GetPos();
 		}

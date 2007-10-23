@@ -270,7 +270,7 @@ void sfxdef_c::Default()
 {
 	ddf.Default();
 	
-	lump_name.Clear();
+	lump_name.clear();
 	
 	normal.sounds[0] = 0;
 	normal.num = 0;
@@ -354,7 +354,7 @@ sfx_t* sfxdef_container_c::GetEffect(const char *name, bool error)
 	{
 		si = ITERATOR_TO_TYPE(it, sfxdef_c*);
 		
-		if (strncasecmpwild(name, si->ddf.name.GetString(), 8) == 0)
+		if (strncasecmpwild(name, si->ddf.name.c_str(), 8) == 0)
 		{
 			count++;
 			last = it;
@@ -393,7 +393,7 @@ sfx_t* sfxdef_container_c::GetEffect(const char *name, bool error)
 	{
 		si = ITERATOR_TO_TYPE(it, sfxdef_c*);
 		
-		if (strncasecmpwild(name, si->ddf.name.GetString(), 8) == 0)
+		if (strncasecmpwild(name, si->ddf.name.c_str(), 8) == 0)
 			r->sounds[r->num++] = it.GetPos();
 	}
 
@@ -413,7 +413,7 @@ sfxdef_c* sfxdef_container_c::Lookup(const char *name)
 	for (it=GetIterator(num_disabled); it.IsValid(); it++)
 	{
 		s = ITERATOR_TO_TYPE(it, sfxdef_c*);
-		if (DDF_CompareName(s->ddf.name.GetString(), name) == 0)
+		if (DDF_CompareName(s->ddf.name.c_str(), name) == 0)
 		{
 			return s;
 		}

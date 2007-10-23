@@ -183,7 +183,7 @@ static void AttackFinishEntry(void)
 								  buffer_mobj.last_state);
 
 		buffer_atk.atk_mobj = DDF_MobjMakeAttackObj(&buffer_mobj,
-											dynamic_atk->ddf.name.GetString());
+											dynamic_atk->ddf.name.c_str());
 
 	}
 	else
@@ -208,7 +208,7 @@ static void AttackFinishEntry(void)
 	}
 
 	// -AJA- 2005/08/06: Berserk backwards compatibility
-	if (DDF_CompareName(dynamic_atk->ddf.name.GetString(), "PLAYER_PUNCH") == 0
+	if (DDF_CompareName(dynamic_atk->ddf.name.c_str(), "PLAYER_PUNCH") == 0
 		&& buffer_atk.berserk_mul == 1.0f)
 	{
 		buffer_atk.berserk_mul = 10.0f;
@@ -273,19 +273,19 @@ void DDF_AttackCleanUp(void)
 	{
 		a = ITERATOR_TO_TYPE(it, atkdef_c*);
 
-		cur_ddf_entryname = epi::STR_Format("[%s]  (attacks.ddf)", a->ddf.name.GetString());
+		cur_ddf_entryname = epi::STR_Format("[%s]  (attacks.ddf)", a->ddf.name.c_str());
 
 		// lookup thing references
 
-		a->puff = a->puff_ref.IsEmpty() ? 
+		a->puff = a->puff_ref.empty() ? 
 				NULL : mobjtypes.Lookup(a->puff_ref);
 
-		a->spawnedobj = a->spawnedobj_ref.IsEmpty() ? 
+		a->spawnedobj = a->spawnedobj_ref.empty() ? 
 						NULL : mobjtypes.Lookup(a->spawnedobj_ref);
       
 		if (a->spawnedobj)
 		{
-			if (a->objinitstate_ref.IsEmpty())
+			if (a->objinitstate_ref.empty())
 				a->objinitstate = a->spawnedobj->spawn_state;
 			else
 				a->objinitstate = DDF_MainLookupDirector(a->spawnedobj, a->objinitstate_ref);
@@ -497,15 +497,15 @@ void atkdef_c::Default()
 
 	attack_class = BITSET_EMPTY; 
 	objinitstate = 0;
-	objinitstate_ref.Clear();
+	objinitstate_ref.clear();
 	notracechance = PERCENT_MAKE(0); 
 	keepfirechance = PERCENT_MAKE(0);
 	atk_mobj = NULL;
 	spawnedobj = NULL;
-	spawnedobj_ref.Clear();
+	spawnedobj_ref.clear();
 	spawn_limit = 0;  // unlimited
 	puff = NULL;
-	puff_ref.Clear();
+	puff_ref.clear();
 }
 
 //
@@ -566,7 +566,7 @@ atkdef_c* atkdef_container_c::Lookup(const char *refname)
 	for (it = GetIterator(num_disabled); it.IsValid(); it++)
 	{
 		a = ITERATOR_TO_TYPE(it, atkdef_c*);
-		if (DDF_CompareName(a->ddf.name.GetString(), refname) == 0)
+		if (DDF_CompareName(a->ddf.name.c_str(), refname) == 0)
 			return a;
 	}
 

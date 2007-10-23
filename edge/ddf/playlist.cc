@@ -278,7 +278,7 @@ void pl_entry_c::Default()
 
 	type = MUS_UNKNOWN;     
 	infotype = MUSINF_UNKNOWN;
-	info.Clear();             
+	info.clear();             
 }
 
 //

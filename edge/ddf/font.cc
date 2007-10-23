@@ -62,7 +62,7 @@ static bool FontStartEntry(const char *name)
 		for (it = fontdefs.GetBaseIterator(); it.IsValid(); it++)
 		{
 			a = ITERATOR_TO_TYPE(it, fontdef_c*);
-			if (DDF_CompareName(a->ddf.name.GetString(), name) == 0)
+			if (DDF_CompareName(a->ddf.name.c_str(), name) == 0)
 			{
 				dynamic_font = a;
 				replaces = true;
@@ -323,8 +323,8 @@ void fontdef_c::Default()
 
 	type = FNTYP_Patch;
 	patches = NULL;
-	image_name.Clear();
-	missing_patch.Clear();
+	image_name.clear();
+	missing_patch.clear();
 }
 
 //
@@ -361,7 +361,7 @@ fontdef_c* fontdef_container_c::Lookup(const char *refname)
 	for (epi::array_iterator_c it = GetIterator(0); it.IsValid(); it++)
 	{
 		fontdef_c *f = ITERATOR_TO_TYPE(it, fontdef_c*);
-		if (DDF_CompareName(f->ddf.name.GetString(), refname) == 0)
+		if (DDF_CompareName(f->ddf.name.c_str(), refname) == 0)
 			return f;
 	}
 

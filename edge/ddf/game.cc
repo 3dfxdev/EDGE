@@ -444,7 +444,7 @@ void wi_framedef_c::Copy(wi_framedef_c &src)
 //
 void wi_framedef_c::Default()
 {
-	pic.Clear(); 
+	pic.clear(); 
 	tics = 0;
 	x = y = 0;
 }
@@ -579,7 +579,8 @@ void wi_animdef_c::Copy(wi_animdef_c &src)
 void wi_animdef_c::Default()
 {
 	type = WI_NORMAL;
-	level.Clear();
+	level.clear();
+
 	frames.Clear();
 }
 
@@ -753,11 +754,11 @@ void gamedef_c::Default()
 	anims.Clear();
 	mappos.Clear();
 
-	background.Clear();
-	splatpic.Clear();
+	background.clear();
+	splatpic.clear();
 
-	yah[0].Clear();
-	yah[1].Clear();
+	yah[0].clear();
+	yah[1].clear();
 
 	bg_camera[0] = '\0';
 	music = 0;
@@ -769,8 +770,8 @@ void gamedef_c::Default()
 	accel_snd = sfx_None;
 	frag_snd = sfx_None;
 
-	firstmap.Clear();
-	namegraphic.Clear();
+	firstmap.clear();
+	namegraphic.clear();
 
 	titlepics.Clear();
 
@@ -837,7 +838,7 @@ gamedef_c* gamedef_container_c::Lookup(const char *refname)
 	for (it = GetBaseIterator(); it.IsValid(); it++)
 	{
 		g = ITERATOR_TO_TYPE(it, gamedef_c*);
-		if (DDF_CompareName(g->ddf.name.GetString(), refname) == 0)
+		if (DDF_CompareName(g->ddf.name.c_str(), refname) == 0)
 			return g;
 	}
 

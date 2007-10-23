@@ -1323,7 +1323,7 @@ void movplanedef_c::Default(movplanedef_c::default_e def)
 	// FIXME!!! Why are we using INT_MAX with a fp number?
 	other = (def != DEFAULT_DonutFloor) ? 0.0f : (float)INT_MAX;
 	
-	tex.Clear();
+	tex.clear();
 	
 	wait = 0;
 	prewait = 0;
@@ -1466,10 +1466,10 @@ void teleportdef_c::Default()
 	teleport = false;
 	
 	inspawnobj = NULL;	
-	inspawnobj_ref.Clear();
+	inspawnobj_ref.clear();
 	
 	outspawnobj = NULL;      	
-	outspawnobj_ref.Clear(); 
+	outspawnobj_ref.clear(); 
 
 	delay = 0;
 	special = TELSP_None;
@@ -1597,8 +1597,8 @@ void linetype_c::Default(void)
 	s_yspeed = 0.0f;
 	scroll_parts = SCPT_None;
 	
-	failedmessage.Clear();
-	
+	failedmessage.clear();
+
 	use_colourmap = NULL;
 	gravity = FLO_UNUSED;
 	friction = FLO_UNUSED;
