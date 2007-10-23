@@ -26,29 +26,26 @@
 // -----------------------GAME DEFINITIONS---------------------------
 // ------------------------------------------------------------------
 
-// FIXME!!! Replace with epi::ivec_c (epi/math_vector.h)
-struct point_s
-{
-	int x;
-	int y;
-};
-
 class wi_mapposdef_c
 {
+public:
+	lumpname_c name;
+
+	int x, y;
+
 public:
 	wi_mapposdef_c();
 	wi_mapposdef_c(wi_mapposdef_c &rhs);
 	~wi_mapposdef_c();
 
-private:
-	void Copy(wi_mapposdef_c &src);
-
 public:
 	wi_mapposdef_c& operator=(wi_mapposdef_c &rhs);
 
-	point_s pos;
-	lumpname_c name;
+private:
+	void Copy(wi_mapposdef_c &src);
+
 };
+
 
 class wi_mapposdef_container_c : public epi::array_c
 {
@@ -71,20 +68,21 @@ public:
 class wi_framedef_c
 {
 public:
+	lumpname_c pic;		// Name of pic to display.
+	int tics;			// Tics on this frame
+	int x, y;			// Position on screen where this goes
+
+public:
 	wi_framedef_c();	
 	wi_framedef_c(wi_framedef_c &rhs); 
 	~wi_framedef_c();
-	
-private:
-	void Copy(wi_framedef_c &src);
 	
 public:
 	void Default(void);
 	wi_framedef_c& operator=(wi_framedef_c &rhs);
 
-	int tics;						// Tics on this frame
-	point_s pos;					// Position on screen where this goes
-	lumpname_c pic;					// Name of pic to display.
+private:
+	void Copy(wi_framedef_c &src);
 };
 
 class wi_framedef_container_c : public epi::array_c
@@ -105,26 +103,29 @@ public:
 	wi_framedef_c* operator[](int idx) { return *(wi_framedef_c**)FetchObject(idx); } 
 };
 
+
 class wi_animdef_c
 {
+public:
+ 	enum animtype_e { WI_NORMAL, WI_LEVEL };
+
+	animtype_e type;
+
+	lumpname_c level;
+
+	wi_framedef_container_c frames;
+
 public:
 	wi_animdef_c();
 	wi_animdef_c(wi_animdef_c &rhs);
 	~wi_animdef_c();
 
- 	enum animtype_e { WI_NORMAL, WI_LEVEL };
- 	
-private:
-	void Copy(wi_animdef_c &rhs);
-	
 public:
-	animtype_e type;
-	lumpname_c level;
-
-	wi_framedef_container_c frames;
-
 	wi_animdef_c& operator=(wi_animdef_c &rhs);
 	void Default(void);
+
+private:
+	void Copy(wi_animdef_c &rhs);
 };
 
 class wi_animdef_container_c : public epi::array_c

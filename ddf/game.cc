@@ -27,14 +27,14 @@
 
 gamedef_container_c gamedefs;
 
-static gamedef_c buffer_gamedef;
-static wi_animdef_c buffer_animdef;
+static gamedef_c  buffer_gamedef;
+static gamedef_c *dynamic_gamedef;
+
+static wi_animdef_c  buffer_animdef;
 static wi_framedef_c buffer_framedef;
 
-static gamedef_c* dynamic_gamedef;
-
 static void DDF_GameGetPic (const char *info, void *storage);
-static void DDF_GameGetFrames (const char *info, void *storage);
+static void DDF_GameGetAnim(const char *info, void *storage);
 static void DDF_GameGetMap (const char *info, void *storage);
 
 #define DDF_CMD_BASE  buffer_gamedef
@@ -63,7 +63,7 @@ static const commandlist_t gamedef_commands[] =
 	DF("TITLE_GRAPHIC", ddf, DDF_GameGetPic),
 	DF("MAP", ddf, DDF_GameGetMap),
 
-	{"ANIM", DDF_GameGetFrames, &buffer_framedef, NULL},
+	{"ANIM", DDF_GameGetAnim, &buffer_framedef, NULL},
 
 	DDF_CMD_END
 };
@@ -175,14 +175,14 @@ void DDF_GameCleanUp(void)
 {
 	if (gamedefs.GetSize() == 0)
 		I_Error("There are no games defined in DDF !\n");
-		
+
 	gamedefs.Trim();
 }
 
 static void DDF_GameAddFrame(void)
 {
 	wi_framedef_c *f = new wi_framedef_c(buffer_framedef);
-	
+
 	buffer_animdef.frames.Insert(f);
 	buffer_framedef.Default();
 }
@@ -190,152 +190,89 @@ static void DDF_GameAddFrame(void)
 static void DDF_GameAddAnim(void)
 {
 	wi_animdef_c *a = new wi_animdef_c(buffer_animdef);
-	
+
 	if (a->level[0])
 		a->type = wi_animdef_c::WI_LEVEL;
 	else
-		a->type = wi_animdef_c::WI_NORMAL;	
-		
+		a->type = wi_animdef_c::WI_NORMAL;
+
 	buffer_gamedef.anims.Insert(a);
 	buffer_animdef.Default();
 }
 
-static void DDF_GameGetFrames(const char *info, void *storage)
+static void ParseFrame(const char *info, wi_framedef_c *f)
 {
-	epi::string_c s, s2;
-	wi_framedef_c *f;
-	int i, pos;
-	
-	struct { int type; void *dest; } f_dest[4];
-	
-	f = (wi_framedef_c *) storage;
-	s = info;
-	
-	f_dest[0].type = 1;
-	f_dest[0].dest = &f->pic;
-	f_dest[1].type = 0;
-	f_dest[1].dest = &f->tics;
-	f_dest[2].type = 0;
-	f_dest[2].dest = &f->pos.x;
-	f_dest[3].type = 2;
-	f_dest[3].dest = &f->pos.y;
+	const char *p = strchr(info, ':');
+	if (! p || p == info)
+		DDF_Error("Bad frame def: '%s' (missing pic name)\n", info);
 
-	if (s.GetLength() && s.GetAt(0) == '#')
+	std::string temp(info, p - info);
+	
+	f->pic.Set(temp.c_str());
+
+	p++;
+
+	if (sscanf(p, " %d : %d : %d ", &f->tics, &f->x, &f->y) != 3)
+		DDF_Error("Bad frame definition: '%s'\n", info);
+}
+
+static void DDF_GameGetAnim(const char *info, void *storage)
+{
+	wi_framedef_c *f = (wi_framedef_c *) storage;
+
+	if (DDF_CompareName(info, "#END") == 0)
 	{
-		pos = s2.Find(':');
-
-		s2 = s;
-		s2.TruncateAt(pos);
-		
-		if (buffer_animdef.frames.GetSize() == 0)
-		{
-			// Remove the hash
-			s2.RemoveLeft(1);
-
-			// Copy 
-			buffer_animdef.level.Set(s2.GetString());
-			 
-			// Strip out the map from the working buffer
-			s.RemoveLeft(pos+1);
-		}
-		else if (!s2.CompareNoCase("#END"))
-		{
-			DDF_GameAddAnim();
-			return;
-		}
-		else
-			DDF_Error ("Invalid # command '%s'\n", s2.GetString());
-	}
-	
-	for (i = 0; i < 4; i++)
-	{
-		pos = s.Find(':');
-
-		s2 = s;
-
-		if (pos >= 0)
-		{
-			s2.TruncateAt(pos);
-			s.RemoveLeft(pos+1);
-		}
-
-		if (f_dest[i].type & 1)
-		{	
-			lumpname_c *ln = (lumpname_c*)f_dest[i].dest;
-			ln->Set(s2.GetString());
-		}
-		else
-		{
-			*(int *) f_dest[i].dest = atoi (s2);
-		}
-		
-		if (f_dest[i].type & 2)
-		{
-			DDF_GameAddFrame();
-			return;
-		}
-
-		if (pos<0)
-			break;
+		DDF_GameAddAnim();
+		return;
 	}
 
-	DDF_Error ("Bad Frame command '%s'\n", info);
+	const char *p = info;
+
+	if (info[0] == '#')
+	{
+		if (buffer_animdef.frames.GetSize() > 0)
+			DDF_Error("Invalid # command: '%s'\n", info);
+
+		p = strchr(info, ':');
+		if (! p || p <= info+1)
+			DDF_Error("Invalid # command: '%s'\n", info);
+
+		std::string temp(info+1, p - (info+1));
+
+		buffer_animdef.level.Set(temp.c_str());
+
+		p++;
+	}
+
+	ParseFrame(p, f);
+
+	// this assumes 'f' points to buffer_framedef
+	DDF_GameAddFrame();
+}
+
+static void ParseMap(const char *info, wi_mapposdef_c *mp)
+{
+	const char *p = strchr(info, ':');
+	if (! p || p == info)
+		DDF_Error("Bad map def: '%s' (missing level name)\n", info);
+
+	std::string temp(info, p - info);
+
+	mp->name.Set(temp.c_str());
+
+	p++;
+
+	if (sscanf(p, " %d : %d ", &mp->x, &mp->y) != 2)
+		DDF_Error("Bad map definition: '%s'\n", info);
 }
 
 static void DDF_GameGetMap(const char *info, void *storage)
 {
-	epi::string_c s, s2;
-	int i, pos;
-	wi_mapposdef_c *mp;
-	
-	struct { int type; void *dest; } dest[3];
+	wi_mapposdef_c *mp = new wi_mapposdef_c();
 
-	s = info;
-	mp = new wi_mapposdef_c();
-	
-	dest[0].type = 1;
-	dest[0].dest = &mp->name;
-	dest[1].type = 0;
-	dest[1].dest = &mp->pos.x;
-	dest[2].type = 2;
-	dest[2].dest = &mp->pos.y;
+	ParseMap(info, mp);
 
-	for (i = 0; i < 3; i++)
-	{
-		pos = s.Find(':');
-
-		s2 = s;
-
-		if (pos >= 0)
-		{
-			s2.TruncateAt(pos);
-			s.RemoveLeft(pos+1);
-		}
-
-		if (dest[i].type & 1)
-		{
-			lumpname_c *ln = (lumpname_c*)dest[i].dest;
-			ln->Set(s2);
-		}
-		else
-		{
-			*(int *) dest[i].dest = atoi (s2);
-		}
-			
-		if (dest[i].type & 2)
-		{
-			buffer_gamedef.mappos.Insert(mp);
-			return;
-		}
-		
-		if (pos < 0)
-			break;
-	}
-	
-	if (mp)
-		delete mp;
-	
-	DDF_Error ("Bad Map command '%s'\n", info);
+	buffer_gamedef.mappos.Insert(mp);
 }
 
 static void DDF_GameGetPic (const char *info, void *storage)
@@ -373,7 +310,8 @@ wi_mapposdef_c::~wi_mapposdef_c()
 void wi_mapposdef_c::Copy(wi_mapposdef_c &src)
 {
 	name = src.name;
-	pos = src.pos;
+	x    = src.x;
+	y    = src.y;
 }
 
 //
@@ -435,7 +373,7 @@ void wi_mapposdef_container_c::Copy(wi_mapposdef_container_c &src)
 	epi::array_iterator_c it;
 	wi_mapposdef_c *wi;
 	wi_mapposdef_c *wi2;
-	
+
 	Size(src.GetSize());
 
 	for (it = src.GetBaseIterator(); it.IsValid(); it++)
@@ -495,9 +433,10 @@ wi_framedef_c::~wi_framedef_c()
 //
 void wi_framedef_c::Copy(wi_framedef_c &src)
 {
+	pic  = src.pic;
 	tics = src.tics;
-	pos = src.pos;	
-	pic = src.pic;
+	x    = src.x;
+	y    = src.y;
 }
 
 //
@@ -505,10 +444,9 @@ void wi_framedef_c::Copy(wi_framedef_c &src)
 //
 void wi_framedef_c::Default()
 {
-	tics = 0;
-	pos.x = 0;	
-	pos.y = 0;	
 	pic.Clear(); 
+	tics = 0;
+	x = y = 0;
 }
 
 //
@@ -570,7 +508,7 @@ void wi_framedef_container_c::Copy(wi_framedef_container_c &src)
 	epi::array_iterator_c it;
 	wi_framedef_c *f;
 	wi_framedef_c *f2;
-	
+
 	Size(src.GetSize());
 
 	for (it = src.GetBaseIterator(); it.IsValid(); it++)
@@ -704,7 +642,7 @@ void wi_animdef_container_c::Copy(wi_animdef_container_c &src)
 	epi::array_iterator_c it;
 	wi_animdef_c *a;
 	wi_animdef_c *a2;
-	
+
 	Size(src.GetSize());
 
 	for (it = src.GetBaseIterator(); it.IsValid(); it++)
@@ -767,7 +705,7 @@ gamedef_c::~gamedef_c()
 void gamedef_c::Copy(gamedef_c &src)
 {
 	ddf = src.ddf;
-	CopyDetail(src);	
+	CopyDetail(src);
 }
 
 //
@@ -777,13 +715,13 @@ void gamedef_c::CopyDetail(gamedef_c &src)
 {
 	anims = src.anims;
 	mappos = src.mappos;
-		
+
 	background = src.background;
 	splatpic = src.splatpic;
 
 	yah[0] = src.yah[0];
 	yah[1] = src.yah[1];
-	
+
 	strcpy(bg_camera, src.bg_camera);
 	music = src.music;
 
@@ -796,12 +734,12 @@ void gamedef_c::CopyDetail(gamedef_c &src)
 
 	firstmap = src.firstmap;
 	namegraphic = src.namegraphic;
-	
+
 	titlepics = src.titlepics;
-	
+
 	titlemusic = src.titlemusic;
 	titletics = src.titletics;
-	
+
 	special_music = src.special_music;
 }
 
@@ -814,13 +752,13 @@ void gamedef_c::Default()
 
 	anims.Clear();
 	mappos.Clear();
-		
+
 	background.Clear();
 	splatpic.Clear();
 
 	yah[0].Clear();
 	yah[1].Clear();
-	
+
 	bg_camera[0] = '\0';
 	music = 0;
 
@@ -833,12 +771,12 @@ void gamedef_c::Default()
 
 	firstmap.Clear();
 	namegraphic.Clear();
-	
+
 	titlepics.Clear();
-	
+
 	titlemusic = 0;
 	titletics = TICRATE * 4;
-	
+
 	special_music = 0;
 }
 
@@ -849,7 +787,7 @@ gamedef_c& gamedef_c::operator=(gamedef_c &rhs)
 {
 	if (&rhs != this)
 		Copy(rhs);
-		
+
 	return *this;
 }
 
