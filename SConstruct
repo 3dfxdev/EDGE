@@ -86,13 +86,13 @@ env.Append(LINKFLAGS = ['-Wl,--warn-common'])
 env.Append(LIBPATH = ['#src'])
 env.Append(LIBS = ['edge1'])
 
-# epi
-env.Append(LIBPATH = ['#epi'])
-env.Append(LIBS = ['epi'])
-
 # DDF parser
 env.Append(LIBPATH = ['#ddf'])
 env.Append(LIBS = ['ddf'])
+
+# epi
+env.Append(LIBPATH = ['#epi'])
+env.Append(LIBS = ['epi'])
 
 # GLBSP
 if not have_glbsp_h:
