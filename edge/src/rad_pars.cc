@@ -76,7 +76,7 @@ epi::strent_c rad_cur_linedata;
 
 static char tokenbuf[4096];
 
-// -AJA- 1999/09/12: Made all these static.  The variable `defines'
+// -AJA- 1999/09/12: Made all these static.  The variable 'defines'
 //       was clashing with the one in ddf_main.c.  ARGH !
 
 // Define List
@@ -327,10 +327,7 @@ static void RAD_CheckForPercentAny(const char *info, void *storage)
 // and move them to a new module for RTS+DDF common code.
 static void RAD_CheckForTime(const char *info, void *storage)
 {
-	float val;
 	int *dest = (int *)storage;
-	int i;
-	char *s;
 
 	SYS_ASSERT(info && storage);
 
@@ -341,29 +338,27 @@ static void RAD_CheckForTime(const char *info, void *storage)
 		return;
 	}
 
-	s = strchr(info, 'T');
+	char *p = strchr(info, 'T');
 
-	if (!s)
-		s = strchr(info, 't');
+	if (!p)
+		p = strchr(info, 't');
 
-	if (s)
+	if (p)
 	{
-		i = s-info;
+        std::string temp(info, p - info);
 
-        epi::string_c tmp_str;
-        tmp_str.AddChars(info, 0, i);
-		RAD_CheckForInt(tmp_str.GetString(), (int*)storage);
-
+		RAD_CheckForInt(temp.c_str(), (int*)storage);
 		return;
 	}
 
+	float val;
 	if (sscanf(info, "%f", &val) != 1)
 	{
-		I_Warning("Bad time value `%s'.\n", info);
+		I_Warning("Bad time value '%s'.\n", info);
 		return;
 	}
 
-	*dest = (int)(val * (float)TICRATE);
+	*dest = I_ROUND(val * (float)TICRATE);
 }
 
 static armour_type_e RAD_CheckForArmourType(const char *info)
@@ -404,7 +399,7 @@ static changetex_type_e RAD_CheckForChangetexType(const char *info)
 	else if (DDF_CompareName(info, "SKY") == 0)
 		return CHTEX_Sky;
 
-	RAD_Error("Unknown ChangeTex type `%s'\n", info);
+	RAD_Error("Unknown ChangeTex type '%s'\n", info);
 	return CHTEX_RightUpper; // (0 - No such thing as CHTEX_None)
 }
 
@@ -484,7 +479,7 @@ static void DoParsePlayerSet(const char *info, u32_t *set)
 			break;
 
 		if (p[0] != ':')
-			RAD_Error("Missing `:' in set of players: %s\n", info);
+			RAD_Error("Missing ':' in set of players: %s\n", info);
 
 		p++;
 	}
@@ -668,7 +663,7 @@ static void RAD_ComputeScriptCRC(rad_script_t *scr)
 // RAD_CollectParameters
 //
 // Collect the parameters from the line into an array of strings
-// `pars', which can hold at most `max' string pointers.
+// 'pars', which can hold at most 'max' string pointers.
 // 
 // -AJA- 2000/01/02: Moved #define handling to here.
 //
@@ -1016,7 +1011,7 @@ static void RAD_ParseName(int pnum, const char **pars)
 	// Name <name>
 
 	if (this_rad->script_name)
-		RAD_Error("Script already has a name: `%s'\n", this_rad->script_name);
+		RAD_Error("Script already has a name: '%s'\n", this_rad->script_name);
 
 	this_rad->script_name = Z_StrDup(pars[1]);
 }
@@ -1026,7 +1021,7 @@ static void RAD_ParseTag(int pnum, const char **pars)
 	// Tag <number>
 
 	if (this_rad->tag != 0)
-		RAD_Error("Script already has a tag: `%d'\n", this_rad->tag);
+		RAD_Error("Script already has a tag: '%d'\n", this_rad->tag);
 
 	RAD_CheckForInt(pars[1], &this_rad->tag);
 }
@@ -1089,7 +1084,7 @@ static void RAD_ParseNetMode(int pnum, const char **pars)
 		return;
 	}
 
-	RAD_Error("%s: unknown mode `%s'\n", pars[0], pars[1]);
+	RAD_Error("%s: unknown mode '%s'\n", pars[0], pars[1]);
 }
 
 static void RAD_ParseTaggedRepeatable(int pnum, const char **pars)
@@ -1182,7 +1177,7 @@ static void RAD_ParsePathEvent(int pnum, const char **pars)
 	i = div ? (div - pars[1]) : strlen(pars[1]);
 
 	if (i <= 0)
-		RAD_Error("%s: Bad label `%s'.\n", pars[0], pars[2]);
+		RAD_Error("%s: Bad label '%s'.\n", pars[0], pars[2]);
 
 	this_rad->path_event_label = Z_New(const char, i + 1);
 	Z_StrNCpy((char *)this_rad->path_event_label, pars[1], i);
@@ -1270,7 +1265,7 @@ static void RAD_ParseLabel(int pnum, const char **pars)
 	// Label <label>
 
 	if (pending_label)
-		RAD_Error("State already has a label: `%s'\n", pending_label);
+		RAD_Error("State already has a label: '%s'\n", pending_label);
 
 	// handle any pending WAIT value
 	if (pending_wait_tics > 0)
@@ -1394,7 +1389,7 @@ static void RAD_ParseTipSlot(int pnum, const char ** pars)
 	RAD_CheckForInt(pars[1], &tp->slot_num);
 
 	if (tp->slot_num < 1 || tp->slot_num > MAXTIPSLOT)
-		RAD_Error("Bad tip slot `%d' -- must be between 1-%d\n",
+		RAD_Error("Bad tip slot '%d' -- must be between 1-%d\n",
 		tp->slot_num, MAXTIPSLOT);
 
 	tp->slot_num--;
@@ -1477,7 +1472,7 @@ static void RAD_ParseTipAlign(int pnum, const char ** pars)
 	}
 	else
 	{
-		RAD_WarnError2(128, "TIP_POS: unknown justify method `%s'\n", pars[1]);
+		RAD_WarnError2(128, "TIP_POS: unknown justify method '%s'\n", pars[1]);
 	}
 
 	AddStateToScript(this_rad, 0, RAD_ActTipProps, tp);
@@ -1830,7 +1825,7 @@ static void RAD_ParseThingEvent(int pnum, const char **pars)
 	i = div ? (div - pars[2]) : strlen(pars[2]);
 
 	if (i <= 0)
-		RAD_Error("%s: Bad label `%s'.\n", pars[0], pars[2]);
+		RAD_Error("%s: Bad label '%s'.\n", pars[0], pars[2]);
 
 	tev->label = Z_New(const char, i + 1);
 	Z_StrNCpy((char *)tev->label, pars[2], i);
@@ -1889,7 +1884,7 @@ static void RAD_ParseGotoMap(int pnum, const char **pars)
 			go->skip_all = true;
 		}
 		else
-			RAD_WarnError2(128, "%s: expected `SKIP_ALL' but got `%s'.\n",
+			RAD_WarnError2(128, "%s: expected 'SKIP_ALL' but got '%s'.\n",
 				pars[0], pars[2]);
 	}
 
@@ -1937,7 +1932,7 @@ static void RAD_ParseMoveSector(int pnum, const char **pars)
 			if (DDF_CompareName(pars[4], "ABSOLUTE") == 0)
 				secv->relative = false;
 			else
-				RAD_WarnError2(128, "%s: expected `ABSOLUTE' but got `%s'.\n",
+				RAD_WarnError2(128, "%s: expected 'ABSOLUTE' but got '%s'.\n",
 				pars[0], pars[4]);
 		}
 	}
@@ -1979,7 +1974,7 @@ static void RAD_ParseLightSector(int pnum, const char **pars)
 			if (DDF_CompareName(pars[3], "ABSOLUTE") == 0)
 				secl->relative = false;
 			else
-				RAD_WarnError2(128, "%s: expected `ABSOLUTE' but got `%s'.\n",
+				RAD_WarnError2(128, "%s: expected 'ABSOLUTE' but got '%s'.\n",
 				pars[0], pars[3]);
 		}
 	}
@@ -2320,7 +2315,7 @@ void RAD_ParseLine(char *s)
 		{
 			if (cur->level != rad_cur_level)
 			{
-				RAD_Error("RTS command `%s' used in wrong place "
+				RAD_Error("RTS command '%s' used in wrong place "
 					"(found in %s, should be in %s).\n", pars[0],
 					rad_level_names[rad_cur_level],
 					rad_level_names[cur->level]);
