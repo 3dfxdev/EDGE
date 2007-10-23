@@ -94,8 +94,8 @@ static int angleturn[3]   = {640, 1280, 320};  // + slow turn
 
 static byte gamekeydown[NUMKEYS];
 
-int turnheld;   // for accelerative turning 
-int mlookheld;  // for accelerative mlooking 
+static int turnheld;   // for accelerative turning 
+static int mlookheld;  // for accelerative mlooking 
 
 //-------------------------------------------
 // -KM-  1998/09/01 Analogue binding
@@ -112,10 +112,8 @@ static int analogue[6] = {0, 0, 0, 0, 0, 0};
 bool stageturn;  // Stage Turn Control
 
 int forwardmovespeed;  // Speed controls
-
 int angleturnspeed;
 int sidemovespeed;
-
 int mlookspeed = 1000 / 64;
 
 // -ACB- 1999/09/30 Has to be true or false - bool-ified
@@ -486,6 +484,9 @@ void E_ClearInput(void)
 {
 	Z_Clear(gamekeydown, byte, NUMKEYS);
 	Z_Clear(analogue, int, 5);
+
+	turnheld  = 0;
+	mlookheld = 0;
 }
 
 //
@@ -508,7 +509,7 @@ void E_UpdateKeyState(void)
 //
 // E_ReleaseAllKeys
 //
-// Generate events which should release all current 
+// Generate events which should release all current keys.
 //
 void E_ReleaseAllKeys(void)
 {
