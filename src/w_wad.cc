@@ -1067,7 +1067,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
         else
         {
             epi::string_c s = epi::path::GetBasename(filename);
-            if (s.GetLength() > 8)
+            if (s.size() > 8)
                 I_Error("Filename base of %s >8 chars", filename);
 
             s.ToUpper();    // Required to be uppercase

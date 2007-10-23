@@ -152,7 +152,7 @@ void RGL_PaletteEffect(player_t *player)
 
 	if (s > 0 && player->powers[PW_Invulnerable] > 0 && player->effect_colourmap)
 	{
-		if (! player->effect_colourmap->lump_name.IsEmpty())  // TEMP HACK
+		if (! player->effect_colourmap->lump_name.empty())  // TEMP HACK
 		{
 			// -AJA- this looks good in standard Doom, but messes up HacX:
 			glColor4f(1.0f, 0.5f, 0.0f, 0.22f * s);

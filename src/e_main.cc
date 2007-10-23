@@ -939,7 +939,7 @@ void InitDirectories(void)
         home_dir.Set(s);
 
 	// Get the Home Directory from environment if set
-    if (home_dir.IsEmpty())
+    if (home_dir.empty())
     {
         s = getenv("HOME");
         if (s)
@@ -961,7 +961,7 @@ void InitDirectories(void)
         }
     }
 
-    if (home_dir.IsEmpty())
+    if (home_dir.empty())
         home_dir.Set("."); // Default to current directory
 
 	// Get the Game Directory from parameter.
@@ -1000,7 +1000,7 @@ void InitDirectories(void)
 	s = M_GetParm("-config");
 	if (s)
 	{
-	    path.Empty();
+	    path.clear();
 		M_ComposeFileName(path, home_dir.GetString(), s);
 		cfgfile.Set(path.GetString());
 	}
@@ -1074,18 +1074,18 @@ static void IdentifyVersion(void)
 
     iwad_par.Set(M_GetParm("-iwad"));
 
-    if (!iwad_par.IsEmpty())
+    if (!iwad_par.empty())
     {
         if (epi::FS_IsDir(iwad_par.GetString()))
         {
             iwad_dir.Set(iwad_par.GetString());
-            iwad_par.Empty(); // Discard 
+            iwad_par.clear(); // Discard 
         }
     }   
 
     // If we haven't yet set the IWAD directory, then we check
     // the DOOMWADDIR environment variable
-    if (iwad_dir.IsEmpty())
+    if (iwad_dir.empty())
     {
         const char *s = getenv("DOOMWADDIR");
 
@@ -1095,13 +1095,13 @@ static void IdentifyVersion(void)
 
     // Should the IWAD directory not be set by now, then we
     // use our standby option of the current directory.
-    if (iwad_dir.IsEmpty())
+    if (iwad_dir.empty())
         iwad_dir.Set(".");
 
     // Should the IWAD Parameter not be empty then it means
     // that one was given which is not a directory. Therefore
     // we assume it to be a name
-    if (!iwad_par.IsEmpty())
+    if (!iwad_par.empty())
     {
         epi::string_c fn;
 
@@ -1117,7 +1117,7 @@ static void IdentifyVersion(void)
 
         // If no directory given use the IWAD directory
         epi::string_c dir = epi::path::GetDir(fn.GetString());
-        if (!dir.GetLength())
+        if (dir.empty())
             iwad_file = epi::path::Join(iwad_dir.GetString(), fn.GetString()); 
         else
             iwad_file = fn;
@@ -1168,7 +1168,7 @@ static void IdentifyVersion(void)
 		}
     }
 
-	if (iwad_file.IsEmpty())
+	if (iwad_file.empty())
 		I_Error("IdentifyVersion: No IWADS found!\n");
 
     W_AddRawFilename(iwad_file.GetString(), FLKIND_IWad);

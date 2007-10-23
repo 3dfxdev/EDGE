@@ -1578,7 +1578,7 @@ bool M_Responder(event_t * ev)
 			if (message_input_routine)
 				(* message_input_routine)(input_string.GetString());
 
-			input_string.Clear();
+			input_string.clear();
 			
 			menuactive = false;
 			S_StartFX(sfx_swtchx);
@@ -1596,16 +1596,16 @@ bool M_Responder(event_t * ev)
 			menuactive = false;
 			save_screenshot_valid = false;
 
-			input_string.Clear();
+			input_string.clear();
 			
 			S_StartFX(sfx_swtchx);
 			return true;
 		}
 		
-		if (ch == KEYD_BACKSPACE && !input_string.IsEmpty())
+		if (ch == KEYD_BACKSPACE && !input_string.empty())
 		{
 			epi::string_c s = input_string.GetString();
-			if (s.GetLength() > 0)
+			if (s.size() > 0)
 			{
 				s.RemoveRight(1);
 				input_string.Set(s.GetString());
@@ -1622,7 +1622,7 @@ bool M_Responder(event_t * ev)
 		{
 			epi::string_c s;
 
-			if (!input_string.IsEmpty())
+			if (!input_string.empty())
 				s = input_string;
 
 			s += ch;
@@ -1950,10 +1950,10 @@ void M_Drawer(void)
 		epi::string_c s;
 		int oldpos, pos;
 
-		if (!msg_string.IsEmpty())
+		if (!msg_string.empty())
 			msg = msg_string.GetString();
 		
-		if (!input_string.IsEmpty())
+		if (!input_string.empty())
 			input = input_string.GetString();
 		
 		if (msg_mode == 2)
@@ -1965,20 +1965,20 @@ void M_Drawer(void)
 		y = 100 - (dialog_style->fonts[0]->StringLines(s.GetString()) *
 			dialog_style->fonts[0]->NominalHeight()/ 2);
 		
-		if (!msg.IsEmpty())
+		if (!msg.empty())
 		{
 			oldpos = 0;
 			do
 			{
 				pos = msg.Find('\n', oldpos);
 				
-				s.Empty();
+				s.clear();
 				if (pos >= 0)
 					msg.GetMiddle(oldpos, pos-oldpos, s);
 				else
-					msg.GetMiddle(oldpos, msg.GetLength(), s);
+					msg.GetMiddle(oldpos, msg.size(), s);
 			
-				if (s.GetLength())
+				if (s.size() > 0)
 				{
 					x = 160 - (dialog_style->fonts[0]->StringWidth(s.GetString()) / 2);
 					HL_WriteText(dialog_style,0, x, y, s.GetString());
@@ -1987,23 +1987,23 @@ void M_Drawer(void)
 				y += dialog_style->fonts[0]->NominalHeight();
 				oldpos = pos + 1;
 			}
-			while (pos >= 0 && oldpos < (int)msg.GetLength());
+			while (pos >= 0 && oldpos < (int)msg.size());
 		}
 
-		if (!input.IsEmpty())
+		if (!input.empty())
 		{
 			oldpos = 0;
 			do
 			{
 				pos = input.Find('\n', oldpos);
 				
-				s.Empty();
+				s.clear();
 				if (pos >= 0)
 					input.GetMiddle(oldpos, pos-oldpos, s);
 				else
-					input.GetMiddle(oldpos, input.GetLength(), s);
+					input.GetMiddle(oldpos, input.size(), s);
 			
-				if (s.GetLength())
+				if (s.size() > 0)
 				{
 					x = 160 - (dialog_style->fonts[1]->StringWidth(s.GetString()) / 2);
 					HL_WriteText(dialog_style,1, x, y, s.GetString());
@@ -2012,7 +2012,7 @@ void M_Drawer(void)
 				y += dialog_style->fonts[1]->NominalHeight();
 				oldpos = pos + 1;
 			}
-			while (pos >= 0 && oldpos < (int)input.GetLength());
+			while (pos >= 0 && oldpos < (int)input.size());
 		}
 		
 		return;
@@ -2126,7 +2126,7 @@ void M_Init(void)
 	whichSkull = 0;
 	skullAnimCounter = 10;
 	msg_mode = 0;
-	msg_string.Clear();
+	msg_string.clear();
 	msg_lastmenu = menuactive;
 	quickSaveSlot = -1;
 
