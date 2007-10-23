@@ -1704,15 +1704,15 @@ void P_SetThingPosition(mobj_t * thing)
 // when moving a thing, rather than fiddling with the coordinates
 // directly (or even P_UnsetThingPos/P_SetThingPos pairs).
 // 
-void P_ChangeThingPosition(mobj_t * thing, float x, float y, float z)
+void P_ChangeThingPosition(mobj_t * mo, float x, float y, float z)
 {
-	P_UnsetThingPosition(thing);
-
-	thing->x = x;
-	thing->y = y;
-	thing->z = z;
-
-	P_SetThingPosition(thing);
+	P_UnsetThingPosition(mo);
+	{
+		mo->x = x;
+		mo->y = y;
+		mo->z = z;
+	}
+	P_SetThingPosition(mo);
 }
 
 //
