@@ -239,9 +239,10 @@ void P_ComputeWallTiles(line_t *ld, int sidenum);
 void P_RecomputeGapsAroundSector(sector_t *sec);
 void P_RecomputeTilesInSector(sector_t *sec);
 void P_FloodExtraFloors(sector_t *sector);
-void P_UnsetThingFinally(mobj_t * thing);
-void P_SetThingPosition(mobj_t * thing);
-void P_ChangeThingPosition(mobj_t * thing, float x, float y, float z);
+void P_SetThingPosition(mobj_t * mo);
+void P_UnsetThingPosition(mobj_t * mo);
+void P_UnsetThingFinally(mobj_t * mo);
+void P_ChangeThingPosition(mobj_t * mo, float x, float y, float z);
 void P_FreeSectorTouchNodes(sector_t *sec);
 
 bool P_BlockLinesIterator(int x, int y, bool(*func) (line_t *));
