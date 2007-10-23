@@ -553,7 +553,7 @@ void SR_MobjPutType(void *storage, int index, void *extra)
 {
 	mobjtype_c *info = ((mobjtype_c **)storage)[index];
 
-	SV_PutString((info == NULL) ? NULL : info->ddf.name.GetString());
+	SV_PutString((info == NULL) ? NULL : info->ddf.name.c_str());
 }
 
 bool SR_MobjGetSpawnPoint(void *storage, int index, void *extra)
@@ -590,7 +590,7 @@ void SR_MobjPutAttack(void *storage, int index, void *extra)
 {
 	atkdef_c *info = ((atkdef_c **)storage)[index];
 
-	SV_PutString((info == NULL) ? NULL : info->ddf.name.GetString());
+	SV_PutString((info == NULL) ? NULL : info->ddf.name.c_str());
 }
 
 
@@ -716,7 +716,7 @@ void SR_MobjPutState(void *storage, int index, void *extra)
 {
 	state_t *S = ((state_t **)storage)[index];
 
-	char swizzle[64];
+	char swizzle[256];
 
 	int s_num, base;
 
@@ -736,7 +736,7 @@ void SR_MobjPutState(void *storage, int index, void *extra)
 	if (mo->info->last_state <= 0 || 
 		mo->info->last_state < mo->info->first_state)
 	{
-		I_Warning("SAVEGAME: object [%s] has no states !!\n", mo->info->ddf.name.GetString());
+		I_Warning("SAVEGAME: object [%s] has no states !!\n", mo->info->ddf.name.c_str());
 		SV_PutString(NULL);
 		return;
 	}
@@ -747,7 +747,7 @@ void SR_MobjPutState(void *storage, int index, void *extra)
 	if (s_num < 0 || s_num >= num_states)
 	{
 		I_Warning("SAVEGAME: object [%s] is in invalid state %d\n", 
-			mo->info->ddf.name.GetString(), s_num);
+			mo->info->ddf.name.c_str(), s_num);
 
 		if (mo->info->idle_state)
 			s_num = mo->info->idle_state;
@@ -768,7 +768,7 @@ void SR_MobjPutState(void *storage, int index, void *extra)
 	if (s_num < mo->info->first_state || s_num > mo->info->last_state)
 	{
 		I_Warning("SAVEGAME: object [%s] is in AWOL state %d\n",
-			mo->info->ddf.name.GetString(), s_num);
+			mo->info->ddf.name.c_str(), s_num);
 
 		epi::array_iterator_c it;
 
@@ -808,7 +808,7 @@ void SR_MobjPutState(void *storage, int index, void *extra)
 	{ /* nothing */ }
 
 	sprintf(swizzle, "%s:%s:%d", 
-		actual == mo->info ? "*" : actual->ddf.name.GetString(), 
+		actual == mo->info ? "*" : actual->ddf.name.c_str(), 
 		states[base].label ? states[base].label : "*", 1 + s_num - base);
 
 #if 0

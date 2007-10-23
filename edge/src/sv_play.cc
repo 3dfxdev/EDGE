@@ -542,7 +542,7 @@ void SR_WeaponPutInfo(void *storage, int index, void *extra)
 {
 	weapondef_c *info = ((weapondef_c **)storage)[index];
 
-	SV_PutString(info ? info->ddf.name.GetString() : NULL);
+	SV_PutString(info ? info->ddf.name.c_str() : NULL);
 }
 
 
@@ -725,15 +725,15 @@ void SR_PlayerPutState(void *storage, int index, void *extra)
 		base--)
 	{ /* nothing */ }
 
-	buf.Format("%s:%s:%d", actual->ddf.name.GetString(),
+	buf.Format("%s:%s:%d", actual->ddf.name.c_str(),
 		states[base].label ? states[base].label : "*",
 		1 + s_num - base);
 
 #if 0
-	L_WriteDebug("Swizzled state of weapon %d -> `%s'\n", s_num, buf.GetString());
+	L_WriteDebug("Swizzled state of weapon %d -> `%s'\n", s_num, buf.c_str());
 #endif
 
-	SV_PutString(buf.GetString());
+	SV_PutString(buf.c_str());
 }
 
 

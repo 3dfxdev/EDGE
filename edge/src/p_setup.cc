@@ -215,7 +215,7 @@ static void LoadVertexes(int lump)
 
 	if (! W_VerifyLumpName(lump, "VERTEXES"))
 		I_Error("Bad WAD: level %s missing VERTEXES.\n", 
-				currmap->lump.GetString());
+				currmap->lump.c_str());
 
 	// Determine number of lumps:
 	//  total lump length / vertex record length.
@@ -223,7 +223,7 @@ static void LoadVertexes(int lump)
 
 	if (numvertexes == 0)
 		I_Error("Bad WAD: level %s contains 0 vertexes.\n", 
-				currmap->lump.GetString());
+				currmap->lump.c_str());
 
 	vertexes = new vec2_t[numvertexes];
 
@@ -280,7 +280,7 @@ static void LoadGLVertexes(int lump)
 	vec2_t *vert;
 
 	if (!W_VerifyLumpName(lump, "GL_VERT"))
-		I_Error("Bad WAD: level %s missing GL_VERT.\n", currmap->lump.GetString());
+		I_Error("Bad WAD: level %s missing GL_VERT.\n", currmap->lump.c_str());
 
 	// Load data into cache.
 	data = (byte *) W_CacheLumpNum(lump);
@@ -376,7 +376,7 @@ static void LoadV3Segs(const byte *data, int length)
 
 	if (numsegs == 0)
 		I_Error("Bad WAD: level %s contains 0 gl-segs (v3).\n",
-			currmap->lump.GetString());
+			currmap->lump.c_str());
 
 	segs = new seg_t[numsegs];
 
@@ -442,7 +442,7 @@ static void LoadGLSegs(int lump)
 	SYS_ASSERT(lump < 0x10000);  // sanity check
 
 	if (! W_VerifyLumpName(lump, "GL_SEGS"))
-		I_Error("Bad WAD: level %s missing GL_SEGS.\n", currmap->lump.GetString());
+		I_Error("Bad WAD: level %s missing GL_SEGS.\n", currmap->lump.c_str());
 
 	const byte *data = (byte *) W_CacheLumpNum(lump);
 
@@ -468,7 +468,7 @@ static void LoadGLSegs(int lump)
 	numsegs = length / sizeof(raw_gl_seg_t);
 
 	if (numsegs == 0)
-		I_Error("Bad WAD: level %s contains 0 gl-segs.\n", currmap->lump.GetString());
+		I_Error("Bad WAD: level %s contains 0 gl-segs.\n", currmap->lump.c_str());
 
 	segs = new seg_t[numsegs];
 
@@ -551,7 +551,7 @@ static void LoadV3Subsectors(const byte *data, int length)
 
 	if (numsubsectors == 0)
 		I_Error("Bad WAD: level %s contains 0 ssectors (v3).\n",
-			currmap->lump.GetString());
+			currmap->lump.c_str());
 
 	subsectors = new subsector_t[numsubsectors];
 
@@ -571,7 +571,7 @@ static void LoadV3Subsectors(const byte *data, int length)
 
 		if (countsegs == 0 || firstseg == -1 || firstseg+countsegs > numsegs)
 			I_Error("Bad WAD: level %s has invalid SSECTORS (V3).\n",
-				currmap->lump.GetString());
+				currmap->lump.c_str());
 
 		ss->sector = NULL;
 		ss->thinglist = NULL;
@@ -595,7 +595,7 @@ static void LoadV3Subsectors(const byte *data, int length)
 
 		if (ss->sector == NULL)
 			I_Error("Bad WAD: level %s has crazy SSECTORS (V3).\n",
-				currmap->lump.GetString());
+				currmap->lump.c_str());
 
 		*prevptr = NULL;
 
@@ -619,7 +619,7 @@ static void LoadSubsectors(int lump, const char *name)
 	subsector_t *ss;
 
 	if (! W_VerifyLumpName(lump, name))
-		I_Error("Bad WAD: level %s missing %s.\n", currmap->lump.GetString(), name);
+		I_Error("Bad WAD: level %s missing %s.\n", currmap->lump.c_str(), name);
 
 	// Load data into cache.
 	data = (byte *) W_CacheLumpNum(lump);
@@ -646,7 +646,7 @@ static void LoadSubsectors(int lump, const char *name)
 	numsubsectors = length / sizeof(raw_subsec_t);
 
 	if (numsubsectors == 0)
-		I_Error("Bad WAD: level %s contains 0 ssectors.\n", currmap->lump.GetString());
+		I_Error("Bad WAD: level %s contains 0 ssectors.\n", currmap->lump.c_str());
 
 	subsectors = new subsector_t[numsubsectors];
 
@@ -665,7 +665,7 @@ static void LoadSubsectors(int lump, const char *name)
 		seg_t **prevptr = &ss->segs;
 
 		if (countsegs == 0 || firstseg == 0xFFFF || firstseg+countsegs > numsegs)
-			I_Error("Bad WAD: level %s has invalid SSECTORS.\n", currmap->lump.GetString());
+			I_Error("Bad WAD: level %s has invalid SSECTORS.\n", currmap->lump.c_str());
 
 		ss->sector = NULL;
 		ss->thinglist = NULL;
@@ -689,7 +689,7 @@ static void LoadSubsectors(int lump, const char *name)
 
 		if (ss->sector == NULL)
 			I_Error("Bad WAD: level %s has crazy SSECTORS.\n",
-				currmap->lump.GetString());
+				currmap->lump.c_str());
 
 		*prevptr = NULL;
 
@@ -743,13 +743,13 @@ static void LoadSectors(int lump)
 
 	if (! W_VerifyLumpName(lump, "SECTORS"))
 		I_Error("Bad WAD: level %s missing SECTORS.\n", 
-				currmap->lump.GetString());
+				currmap->lump.c_str());
 
 	numsectors = W_LumpLength(lump) / sizeof(raw_sector_t);
 
 	if (numsectors == 0)
 		I_Error("Bad WAD: level %s contains 0 sectors.\n", 
-				currmap->lump.GetString());
+				currmap->lump.c_str());
 
 	sectors = new sector_t[numsectors];
 		
@@ -905,7 +905,7 @@ static void LoadNodes(int lump, const char *name)
 
 	if (! W_VerifyLumpName(lump, name))
 		I_Error("Bad WAD: level %s missing %s.\n", 
-				currmap->lump.GetString(), name);
+				currmap->lump.c_str(), name);
 
 	// Note: zero numnodes is valid.
 	int length = W_LumpLength(lump);
@@ -1079,13 +1079,13 @@ static void LoadThings(int lump)
 
 	if (!W_VerifyLumpName(lump, "THINGS"))
 		I_Error("Bad WAD: level %s missing THINGS.\n", 
-				currmap->lump.GetString());
+				currmap->lump.c_str());
 
 	numthings = W_LumpLength(lump) / sizeof(raw_thing_t);
 
 	if (numthings == 0)
 		I_Error("Bad WAD: level %s contains 0 things.\n", 
-				currmap->lump.GetString());
+				currmap->lump.c_str());
 
 	data = W_CacheLumpNum(lump);
 	mapthing_CRC.AddBlock((const byte*)data, W_LumpLength(lump));
@@ -1168,13 +1168,13 @@ static void LoadHexenThings(int lump)
 
 	if (!W_VerifyLumpName(lump, "THINGS"))
 		I_Error("Bad WAD: level %s missing THINGS.\n", 
-				currmap->lump.GetString());
+				currmap->lump.c_str());
 
 	numthings = W_LumpLength(lump) / sizeof(raw_hexen_thing_t);
 
 	if (numthings == 0)
 		I_Error("Bad WAD: level %s contains 0 things.\n", 
-				currmap->lump.GetString());
+				currmap->lump.c_str());
 
 	data = W_CacheLumpNum(lump);
 	mapthing_CRC.AddBlock((const byte*)data, W_LumpLength(lump));
@@ -1261,7 +1261,7 @@ static inline void ComputeLinedefData(line_t *ld, int side0, int side1)
 	if (side0 == -1)
 	{
 		I_Warning("Bad WAD: level %s linedef #%d is missing RIGHT side\n",
-			currmap->lump.GetString(), (int)(ld - lines));
+			currmap->lump.c_str(), (int)(ld - lines));
 		side0 = 0;
 	}
 
@@ -1269,7 +1269,7 @@ static inline void ComputeLinedefData(line_t *ld, int side0, int side1)
 	{
 		I_Warning("Bad WAD: level %s has linedef #%d marked TWOSIDED, "
 			"but it has only one side.\n", 
-			currmap->lump.GetString(), (int)(ld - lines));
+			currmap->lump.c_str(), (int)(ld - lines));
 
 		ld->flags &= ~MLF_TwoSided;
 	}
@@ -1299,13 +1299,13 @@ static void LoadLineDefs(int lump)
 
 	if (! W_VerifyLumpName(lump, "LINEDEFS"))
 		I_Error("Bad WAD: level %s missing LINEDEFS.\n", 
-				currmap->lump.GetString());
+				currmap->lump.c_str());
 
 	numlines = W_LumpLength(lump) / sizeof(raw_linedef_t);
 
 	if (numlines == 0)
 		I_Error("Bad WAD: level %s contains 0 linedefs.\n", 
-				currmap->lump.GetString());
+				currmap->lump.c_str());
 
 	lines = new line_t[numlines];
 		
@@ -1367,13 +1367,13 @@ static void LoadHexenLineDefs(int lump)
 
 	if (! W_VerifyLumpName(lump, "LINEDEFS"))
 		I_Error("Bad WAD: level %s missing LINEDEFS.\n", 
-				currmap->lump.GetString());
+				currmap->lump.c_str());
 
 	numlines = W_LumpLength(lump) / sizeof(raw_hexen_linedef_t);
 
 	if (numlines == 0)
 		I_Error("Bad WAD: level %s contains 0 linedefs.\n", 
-				currmap->lump.GetString());
+				currmap->lump.c_str());
 
 	lines = new line_t[numlines];
 		
@@ -1425,7 +1425,7 @@ static void TransferMapSideDef(const raw_sidedef_t *msd, side_t *sd,
 	if (sec_num < 0)
 	{
 		I_Warning("Level %s has sidedef with bad sector ref (%d)\n",
-			currmap->lump.GetString(), sec_num);
+			currmap->lump.c_str(), sec_num);
 		sec_num = 0;
 	}
 	sd->sector = &sectors[sec_num];
@@ -1493,13 +1493,13 @@ static void LoadSideDefs(int lump)
 
 	if (! W_VerifyLumpName(lump, "SIDEDEFS"))
 		I_Error("Bad WAD: level %s missing SIDEDEFS.\n", 
-				currmap->lump.GetString());
+				currmap->lump.c_str());
 
 	nummapsides = W_LumpLength(lump) / sizeof(raw_sidedef_t);
 
 	if (nummapsides == 0)
 		I_Error("Bad WAD: level %s contains 0 sidedefs.\n", 
-				currmap->lump.GetString());
+				currmap->lump.c_str());
 
 	sides = new side_t[numsides];
 
@@ -1524,14 +1524,14 @@ static void LoadSideDefs(int lump)
 		if (side0 >= nummapsides)
 		{
 			I_Warning("Bad WAD: level %s linedef #%d has bad RIGHT side.\n",
-				currmap->lump.GetString(), i);
+				currmap->lump.c_str(), i);
 			side0 = nummapsides-1;
 		}
 
 		if (side1 != -1 && side1 >= nummapsides)
 		{
 			I_Warning("Bad WAD: level %s linedef #%d has bad LEFT side.\n",
-				currmap->lump.GetString(), i);
+				currmap->lump.c_str(), i);
 			side1 = nummapsides-1;
 		}
 
@@ -1852,7 +1852,7 @@ static void LoadBlockMap(int lump)
 
 	if (num_lines <= 4)
 		I_Error("Bad WAD: level %s missing BLOCKMAP.  Build the nodes !\n", 
-			currmap->lump.GetString());
+			currmap->lump.c_str());
 
 	bmaporgx = (float)EPI_LE_S16(data[0]);
 	bmaporgy = (float)EPI_LE_S16(data[1]);
@@ -2116,7 +2116,7 @@ static void DoBlockMap(int lump)
 
 	if (! W_VerifyLumpName(lump, "BLOCKMAP"))
 		I_Error("Bad WAD: level %s missing BLOCKMAP.  Build the nodes !\n", 
-		currmap->lump.GetString());
+		currmap->lump.c_str());
 
 	if (M_CheckParm("-blockmap") > 0 ||
 		W_LumpLength(lump) == 0 ||
@@ -2385,18 +2385,18 @@ static void LoadReject(int lump)
 
 	if (! W_VerifyLumpName(lump, "REJECT"))
 		I_Error("Bad WAD: level %s missing REJECT.  Build the nodes !\n", 
-		currmap->lump.GetString());
+		currmap->lump.c_str());
 
 ///	if (W_LumpLength(lump) == 0)
 ///		I_Error("Bad WAD: level %s missing REJECT.  Build the nodes !\n", 
-///		currmap->lump.GetString());
+///		currmap->lump.c_str());
 
 	req_length = (numsectors * numsectors + 7) / 8;
 
 	if (W_LumpLength(lump) < req_length)
 	{
 		M_WarnError("Level %s has invalid REJECT info !\n", 
-					currmap->lump.GetString());
+					currmap->lump.c_str());
 					
 		rejectmatrix = NULL;
 		return;
@@ -2522,7 +2522,7 @@ void P_SetupLevel(skill_t skill, int autotag)
 	lumpnum = W_GetNumForName(currmap->lump);
 
 	// -AJA- 1999/12/20: Support for "GL-Friendly Nodes".
-	sprintf(gl_lumpname, "GL_%s", currmap->lump.GetString());
+	sprintf(gl_lumpname, "GL_%s", currmap->lump.c_str());
 	gl_lumpnum = W_CheckNumForName(gl_lumpname);
 
 	// ignore GL info if the level marker occurs _before_ the normal

@@ -256,7 +256,7 @@ void M_SaveDefaults(void)
 	FILE *f = fopen(cfgfile, "w");
 	if (!f)
 	{
-		I_Warning("Couldn't open config file %s for writing.", cfgfile.GetString());
+		I_Warning("Couldn't open config file %s for writing.", cfgfile.c_str());
 		return;  // can't write the file, but don't complain
 	}
 
@@ -316,14 +316,14 @@ void M_LoadDefaults(void)
 	for (i = 0; i < numdefaults; i++)
 		SetToBaseValue(defaults + i);
 
-	I_Printf("M_LoadDefaults from %s\n", cfgfile.GetString());
+	I_Printf("M_LoadDefaults from %s\n", cfgfile.c_str());
 
 	// read the file in, overriding any set defaults
 	FILE *f = fopen(cfgfile, "r");
 
 	if (! f)
 	{
-		I_Warning("Couldn't open config file %s for reading.\n", cfgfile.GetString());
+		I_Warning("Couldn't open config file %s for reading.\n", cfgfile.c_str());
 		I_Warning("Resetting config to RECOMMENDED values...\n");
 
 		M_ResetToDefaults(0);
@@ -363,7 +363,7 @@ void M_LoadDefaults(void)
 			if (!isstring)
 				continue;  // FIXME: show warning
 			
-			config_language.Set(newstr.GetString());
+			config_language.Set(newstr.c_str());
 			continue;
 		}
 
@@ -527,19 +527,19 @@ void M_ScreenShot(bool show_msg)
 	{
 		base.Format("shot%02d.%s", i, extension);
 
-		fn = epi::path::Join(shot_dir.GetString(), base.GetString());
+		fn = epi::path::Join(shot_dir.c_str(), base.c_str());
   
-		if (!epi::FS_Access(fn.GetString(), epi::file_c::ACCESS_READ))
+		if (!epi::FS_Access(fn.c_str(), epi::file_c::ACCESS_READ))
         {
 			break; // file doesn't exist
         }
 	}
 
-	FILE *fp = fopen(fn.GetString(), "wb");
+	FILE *fp = fopen(fn.c_str(), "wb");
 	if (fp == NULL)
 	{
 		if (show_msg)
-			I_Printf("Unable to create file: %s\n", fn.GetString());
+			I_Printf("Unable to create file: %s\n", fn.c_str());
 
 		return;
 	}
@@ -557,9 +557,9 @@ void M_ScreenShot(bool show_msg)
 	if (show_msg)
 	{
 		if (result)
-			I_Printf("Captured to file: %s\n", fn.GetString());
+			I_Printf("Captured to file: %s\n", fn.c_str());
 		else
-			I_Printf("Error saving file: %s\n", fn.GetString());
+			I_Printf("Error saving file: %s\n", fn.c_str());
 	}
 
 	delete img;
@@ -674,7 +674,7 @@ epi::file_c *M_OpenComposedEPIFile(const char *dir, const char *file)
 
 	M_ComposeFileName(fullname, dir, file);
 
-	return epi::FS_Open(fullname.GetString(),
+	return epi::FS_Open(fullname.c_str(),
 		epi::file_c::ACCESS_READ | epi::file_c::ACCESS_BINARY);
 }
 
@@ -767,7 +767,7 @@ void I_Debugf(const char *message,...)
 	output.FormatWithArgList(message, argptr);
 	va_end(argptr);
 
-	fprintf(debugfile, "%s", output.GetString());
+	fprintf(debugfile, "%s", output.c_str());
 	fflush(debugfile);
 }
 

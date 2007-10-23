@@ -104,13 +104,13 @@ void font_c::LoadPatches()
 		// patch name
 		char pname[40];
 
-		SYS_ASSERT(strlen(pat->patch1.GetString()) < 36);
-		strcpy(pname, pat->patch1.GetString());
+		SYS_ASSERT(strlen(pat->patch1.c_str()) < 36);
+		strcpy(pname, pat->patch1.c_str());
 
 		for (int ch = pat->char1; ch <= pat->char2; ch++, BumpPatchName(pname))
 		{
 #if 0  // DEBUG
-			L_WriteDebug("- LoadFont [%s] : char %d = %s\n", def->ddf.name.GetString(), ch, pname);
+			L_WriteDebug("- LoadFont [%s] : char %d = %s\n", def->ddf.name.c_str(), ch, pname);
 #endif
 			int idx = ch - p_cache.first;
 			SYS_ASSERT(0 <= idx && idx < total);
@@ -143,7 +143,7 @@ void font_c::LoadPatches()
 
 	if (! Nom)
 	{
-		I_Warning("Font [%s] has no loaded patches !\n", def->ddf.name.GetString());
+		I_Warning("Font [%s] has no loaded patches !\n", def->ddf.name.c_str());
 		p_cache.width = p_cache.height = 7;
 		return;
 	}

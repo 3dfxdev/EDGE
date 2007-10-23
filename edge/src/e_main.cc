@@ -419,7 +419,7 @@ void SetLanguage(void)
 	const char *want_lang = M_GetParm("-lang");
 
 	if (! want_lang)
-		want_lang = config_language.GetString();  // m_misc
+		want_lang = config_language.c_str();  // m_misc
 
 	if (want_lang)
 	{
@@ -946,7 +946,7 @@ void InitDirectories(void)
         {
             path = epi::path::Join(s, EDGEHOMESUBDIR); 
 
-            const char *test_dir = path.GetString();
+            const char *test_dir = path.c_str();
 			if (!epi::FS_IsDir(test_dir))
 			{
                 epi::FS_MakeDir(test_dir);
@@ -976,12 +976,12 @@ void InitDirectories(void)
 	}
 
 	// add parameter file "gamedir/parms" if it exists.
-    path = epi::path::Join(game_dir.GetString(), "parms");
+    path = epi::path::Join(game_dir.c_str(), "parms");
 
-	if (epi::FS_Access(path.GetString(), epi::file_c::ACCESS_READ))
+	if (epi::FS_Access(path.c_str(), epi::file_c::ACCESS_READ))
 	{
 		// Insert it right after the game parameter
-		M_ApplyResponseFile(path.GetString(), M_CheckParm("-game") + 2);
+		M_ApplyResponseFile(path.c_str(), M_CheckParm("-game") + 2);
 	}
 
 	s = M_GetParm("-ddf");
@@ -993,7 +993,7 @@ void InitDirectories(void)
 	} 
 	else
 	{
-		ddf_dir.Set(game_dir.GetString());
+		ddf_dir.Set(game_dir.c_str());
 	}
 
 	// config file
@@ -1001,38 +1001,38 @@ void InitDirectories(void)
 	if (s)
 	{
 	    path.clear();
-		M_ComposeFileName(path, home_dir.GetString(), s);
-		cfgfile.Set(path.GetString());
+		M_ComposeFileName(path, home_dir.c_str(), s);
+		cfgfile.Set(path.c_str());
 	}
 	else
     {
-        path = epi::path::Join(home_dir.GetString(), EDGECONFIGFILE);
-		cfgfile.Set(path.GetString());
+        path = epi::path::Join(home_dir.c_str(), EDGECONFIGFILE);
+		cfgfile.Set(path.c_str());
 	}
 	
 	// cache directory
-    path = epi::path::Join(home_dir.GetString(), CACHEDIR);
+    path = epi::path::Join(home_dir.c_str(), CACHEDIR);
 
-    if (!epi::FS_IsDir(path.GetString()))
-        epi::FS_MakeDir(path.GetString());
+    if (!epi::FS_IsDir(path.c_str()))
+        epi::FS_MakeDir(path.c_str());
 
-    cache_dir.Set(path.GetString());
+    cache_dir.Set(path.c_str());
 
 	// savegame directory
-    path = epi::path::Join(home_dir.GetString(), SAVEGAMEDIR);
+    path = epi::path::Join(home_dir.c_str(), SAVEGAMEDIR);
 	
-    if (!epi::FS_IsDir(path.GetString()))
-        epi::FS_MakeDir(path.GetString());
+    if (!epi::FS_IsDir(path.c_str()))
+        epi::FS_MakeDir(path.c_str());
 
-    save_dir.Set(path.GetString());
+    save_dir.Set(path.c_str());
 
 	// screenshot directory
-    path = epi::path::Join(home_dir.GetString(), SCRNSHOTDIR);
+    path = epi::path::Join(home_dir.c_str(), SCRNSHOTDIR);
 
-    if (!epi::FS_IsDir(path.GetString()))
-        epi::FS_MakeDir(path.GetString());
+    if (!epi::FS_IsDir(path.c_str()))
+        epi::FS_MakeDir(path.c_str());
 
-    shot_dir.Set(path.GetString());
+    shot_dir.Set(path.c_str());
 }
 
 //
@@ -1052,9 +1052,9 @@ void CheckExternal(void)
   
 	// too simplistic ?
 
-	test_filename = epi::path::Join(game_dir.GetString(), EXTERN_FILE);
+	test_filename = epi::path::Join(game_dir.c_str(), EXTERN_FILE);
 
-	if (epi::FS_Access(test_filename.GetString(), epi::file_c::ACCESS_READ))
+	if (epi::FS_Access(test_filename.c_str(), epi::file_c::ACCESS_READ))
 		external_ddf = true;
 }
 
@@ -1076,9 +1076,9 @@ static void IdentifyVersion(void)
 
     if (!iwad_par.empty())
     {
-        if (epi::FS_IsDir(iwad_par.GetString()))
+        if (epi::FS_IsDir(iwad_par.c_str()))
         {
-            iwad_dir.Set(iwad_par.GetString());
+            iwad_dir.Set(iwad_par.c_str());
             iwad_par.clear(); // Discard 
         }
     }   
@@ -1108,7 +1108,7 @@ static void IdentifyVersion(void)
         fn = iwad_par;
         
         // Is it missing the extension?
-        epi::string_c ext = epi::path::GetExtension(iwad_par.GetString());
+        epi::string_c ext = epi::path::GetExtension(iwad_par.c_str());
         if (ext.CompareNoCase(EDGEWADEXT))
         {
             // Add one
@@ -1116,15 +1116,15 @@ static void IdentifyVersion(void)
         }
 
         // If no directory given use the IWAD directory
-        epi::string_c dir = epi::path::GetDir(fn.GetString());
+        epi::string_c dir = epi::path::GetDir(fn.c_str());
         if (dir.empty())
-            iwad_file = epi::path::Join(iwad_dir.GetString(), fn.GetString()); 
+            iwad_file = epi::path::Join(iwad_dir.c_str(), fn.c_str()); 
         else
             iwad_file = fn;
 
-        if (!epi::FS_Access(iwad_file.GetString(), epi::file_c::ACCESS_READ))
+        if (!epi::FS_Access(iwad_file.c_str(), epi::file_c::ACCESS_READ))
         {
-			I_Error("IdentifyVersion: Unable to add specified '%s'", fn.GetString());
+			I_Error("IdentifyVersion: Unable to add specified '%s'", fn.c_str());
         }
     }
     else
@@ -1133,7 +1133,7 @@ static void IdentifyVersion(void)
         epi::string_c fn;
         int max = 1;
 
-        if (iwad_dir.Compare(game_dir.GetString())) 
+        if (iwad_dir.Compare(game_dir.c_str())) 
         {
             // IWAD directory & game directory differ 
             // therefore do a second loop which will
@@ -1144,7 +1144,7 @@ static void IdentifyVersion(void)
 		bool done = false;
 		for (int i = 0; i < max && !done; i++)
 		{
-			location = (i == 0 ? iwad_dir.GetString() : game_dir.GetString());
+			location = (i == 0 ? iwad_dir.c_str() : game_dir.c_str());
 
 			//
 			// go through the available wad names constructing an access
@@ -1158,7 +1158,7 @@ static void IdentifyVersion(void)
 				fn = epi::path::Join(location, wadname[w_idx]);
                 fn.AddString("." EDGEWADEXT);
 
-				if (epi::FS_Access(fn.GetString(), epi::file_c::ACCESS_READ))
+				if (epi::FS_Access(fn.c_str(), epi::file_c::ACCESS_READ))
 				{
                     iwad_file = fn;
 					done = true;
@@ -1171,32 +1171,32 @@ static void IdentifyVersion(void)
 	if (iwad_file.empty())
 		I_Error("IdentifyVersion: No IWADS found!\n");
 
-    W_AddRawFilename(iwad_file.GetString(), FLKIND_IWad);
+    W_AddRawFilename(iwad_file.c_str(), FLKIND_IWad);
 
     iwad_file.ToUpper(); // Make uppercase
     
-    iwad_par = epi::path::GetBasename(iwad_file.GetString());
-    iwad_base.Set(iwad_par.GetString());
+    iwad_par = epi::path::GetBasename(iwad_file.c_str());
+    iwad_base.Set(iwad_par.c_str());
 
-	L_WriteDebug("IWAD BASE = [%s]\n", iwad_base.GetString());
+	L_WriteDebug("IWAD BASE = [%s]\n", iwad_base.c_str());
 
     // Emulate this behaviour?
 
     // Look for the required wad in the IWADs dir and then the gamedir
     epi::string_c reqwad_filename;
 
-    reqwad_filename = epi::path::Join(iwad_dir.GetString(), REQUIREDWAD "." EDGEWADEXT);
-    if (!epi::FS_Access(reqwad_filename.GetString(), epi::file_c::ACCESS_READ))
+    reqwad_filename = epi::path::Join(iwad_dir.c_str(), REQUIREDWAD "." EDGEWADEXT);
+    if (!epi::FS_Access(reqwad_filename.c_str(), epi::file_c::ACCESS_READ))
     {
-        reqwad_filename = epi::path::Join(game_dir.GetString(), REQUIREDWAD "." EDGEWADEXT);
-        if (!epi::FS_Access(reqwad_filename.GetString(), epi::file_c::ACCESS_READ))
+        reqwad_filename = epi::path::Join(game_dir.c_str(), REQUIREDWAD "." EDGEWADEXT);
+        if (!epi::FS_Access(reqwad_filename.c_str(), epi::file_c::ACCESS_READ))
         {
             I_Error("IdentifyVersion: Could not find required %s.%s!\n", 
                     REQUIREDWAD, EDGEWADEXT);
         }
     }
 
-    W_AddRawFilename(reqwad_filename.GetString(), FLKIND_EWad);
+    W_AddRawFilename(reqwad_filename.c_str(), FLKIND_EWad);
 }
 
 static void CheckTurbo(void)
@@ -1302,9 +1302,9 @@ static void SetupLogAndDebugFiles(void)
 	//                  I_Warnings and I_Errors.
 	if (! M_CheckParm("-nolog"))
 	{
-        epi::string_c logfn = epi::path::Join(home_dir.GetString(), EDGELOGFILE);
+        epi::string_c logfn = epi::path::Join(home_dir.c_str(), EDGELOGFILE);
 
-		logfile = fopen(logfn.GetString(), "w");
+		logfile = fopen(logfn.c_str(), "w");
 
 		if (!logfile)
 			I_Error("[E_Startup] Unable to create log file");
@@ -1326,9 +1326,9 @@ static void SetupLogAndDebugFiles(void)
 	int p = M_CheckParm("-debug");
 	if (p)
 	{
-        epi::string_c debugfn = epi::path::Join(home_dir.GetString(), "debug.txt");
+        epi::string_c debugfn = epi::path::Join(home_dir.c_str(), "debug.txt");
 
-		debugfile = fopen(debugfn.GetString(), "w");
+		debugfile = fopen(debugfn.c_str(), "w");
 
 		if (!debugfile)
 			I_Error("[E_Startup] Unable to create debugfile");
@@ -1368,8 +1368,8 @@ static void AddSingleCmdLineFile(const char *name)
 
 	epi::string_c fn;
 
-	M_ComposeFileName(fn, game_dir.GetString(), name);
-	W_AddRawFilename(fn.GetString(), kind);
+	M_ComposeFileName(fn, game_dir.c_str(), name);
+	W_AddRawFilename(fn.c_str(), kind);
 }
 
 static void AddCommandLineFiles(void)
@@ -1429,8 +1429,8 @@ static void AddCommandLineFiles(void)
 				I_Error("Illegal filename for -script: %s\n", ps);
 			}
 
-			M_ComposeFileName(fn, game_dir.GetString(), ps);
-			W_AddRawFilename(fn.GetString(), FLKIND_Script);
+			M_ComposeFileName(fn, game_dir.c_str(), ps);
+			W_AddRawFilename(fn.c_str(), FLKIND_Script);
 		}
 
 		p = M_CheckNextParm("-script", p-1);
@@ -1461,8 +1461,8 @@ static void AddCommandLineFiles(void)
 				I_Error("Illegal filename for -deh: %s\n", ps);
 			}
 
-			M_ComposeFileName(fn, game_dir.GetString(), ps);
-			W_AddRawFilename(fn.GetString(), FLKIND_Deh);
+			M_ComposeFileName(fn, game_dir.c_str(), ps);
+			W_AddRawFilename(fn.c_str(), FLKIND_Deh);
 		}
 
 		p = M_CheckNextParm("-deh", p-1);

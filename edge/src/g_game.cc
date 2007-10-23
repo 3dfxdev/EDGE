@@ -231,7 +231,7 @@ void G_DoLoadLevel(void)
 		G_BeginRecording();
 	}
 
-	RAD_SpawnTriggers(currmap->ddf.name.GetString());
+	RAD_SpawnTriggers(currmap->ddf.name.c_str());
 
 	starttime = I_GetTime();
 	exittime = INT_MAX;
@@ -242,7 +242,7 @@ void G_DoLoadLevel(void)
 	gamestate = GS_LEVEL;
 
 	CON_SetVisible( /* !!! showMessages?vs_minimal: */ vs_notvisible);
-	CON_Printf("%s\n", currmap->ddf.name.GetString());
+	CON_Printf("%s\n", currmap->ddf.name.c_str());
 
 	// clear cmd building stuff
 	E_ClearInput();
@@ -632,7 +632,7 @@ static void G_DoCompleted(void)
 		return;
 	}
 
-	wminfo.level = currmap->ddf.name.GetString();
+	wminfo.level = currmap->ddf.name.c_str();
 	wminfo.last = currmap;
 	wminfo.next = nextmap;
 	wminfo.maxkills = totalkills;
@@ -660,7 +660,7 @@ void G_FileNameFromSlot(epi::string_c& fn, int slot)
 
     s.Format("%s%04d.%s", SAVEGAMEBASE, slot + 1, SAVEGAMEEXT);
 
-	fn = epi::path::Join(save_dir.GetString(), s.GetString());
+	fn = epi::path::Join(save_dir.c_str(), s.c_str());
 	return;
 }
 
@@ -691,9 +691,9 @@ static void G_DoLoadGame(void)
 	// Try to open		
 	G_FileNameFromSlot(fn, loadgame_slot);
 	
-	if (! SV_OpenReadFile(fn.GetString()))
+	if (! SV_OpenReadFile(fn.c_str()))
 	{
-		I_Printf("LOAD-GAME: cannot open %s\n", fn.GetString());
+		I_Printf("LOAD-GAME: cannot open %s\n", fn.c_str());
 		return;
 	}
 	
@@ -723,7 +723,7 @@ static void G_DoLoadGame(void)
 	params.game = gamedefs.Lookup(params.map->episode_name);
 	if (!params.game)
 		I_Error("LOAD-GAME: No such episode/mod %s !  Check WADS\n", 
-				params.map->episode_name.GetString());
+				params.map->episode_name.c_str());
 
 	params.skill      = (skill_t) globs->skill;
 	params.deathmatch = (globs->netgame >= 2) ? (globs->netgame - 1) : 0;
@@ -813,9 +813,9 @@ static void G_DoSaveGame(void)
 
  	G_FileNameFromSlot(fn, savegame_slot);
 	
-	if (! SV_OpenWriteFile(fn.GetString(), (EDGEVERHEX << 8) | EDGEPATCH))
+	if (! SV_OpenWriteFile(fn.c_str(), (EDGEVERHEX << 8) | EDGEPATCH))
 	{
-		I_Error("Unable to create savegame file: %s\n", fn.GetString());
+		I_Error("Unable to create savegame file: %s\n", fn.c_str());
 		return; /* NOT REACHED */
 	}
 

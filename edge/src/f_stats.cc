@@ -359,7 +359,7 @@ static void DrawOnLnode(wi_mappos_c* mappos, const image_c * images[2])
 	else
 	{
 		L_WriteDebug("Could not place patch on level '%s'\n", 
-		  mappos->info->name.GetString());
+		  mappos->info->name.c_str());
 	}
 }
 
@@ -1405,7 +1405,7 @@ static void LoadData(void)
 		{
 			// FIXME!!! Shorten :)
 			L_WriteDebug("WI_LoadData: '%s'\n", 
-				worldint.anims[i].frames[j].info->pic.GetString());
+				worldint.anims[i].frames[j].info->pic.c_str());
 
 			worldint.anims[i].frames[j].image = 
 				W_ImageLookup(worldint.anims[i].frames[j].info->pic);
@@ -1430,11 +1430,11 @@ static void InitVariables(wbstartstruct_t * wbstartstruct)
 	if (!wbs->maxsecret)
 		wbs->maxsecret = 1;
 
-	gamedef_c *def = gamedefs.Lookup(wbs->last->episode_name.GetString());
+	gamedef_c *def = gamedefs.Lookup(wbs->last->episode_name.c_str());
 
 	if (! def)
 		I_Error("Intermission: unknown game '%s'\n",
-			wbs->last->episode_name.GetString());
+			wbs->last->episode_name.c_str());
 
 	worldint.Init(def);
 

@@ -228,7 +228,7 @@ static int FindChannelToKill(int kill_cat, int real_cat, int new_score)
 		
 		int score = ChannelScore(chan->def, chan->category,
 								 chan->pos, chan->boss);
-//I_Printf("> [%d] '%s' = %d\n", j, chan->def->lump_name.GetString(), score);
+//I_Printf("> [%d] '%s' = %d\n", j, chan->def->lump_name.c_str(), score);
 		// find one with LOWEST score
 		if (score < kill_score)
 		{
@@ -439,7 +439,7 @@ void S_StartFX(sfx_t *sfx, int category, position_c *pos, int flags)
 		flags |= (def->precious ? FX_Precious : 0);
 	}
 
-//I_Printf("StartFX: '%s' cat:%d flags:0x%04x\n", def->lump_name.GetString(), category, flags);
+//I_Printf("StartFX: '%s' cat:%d flags:0x%04x\n", def->lump_name.c_str(), category, flags);
 
 	while (cat_limits[category] == 0)
 		category++;

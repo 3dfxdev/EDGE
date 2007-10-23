@@ -120,7 +120,7 @@ static light_image_c *GetLightImage(const mobjtype_c *info, int DL)
 	{
 		// FIXME !!!! share light_image_c instances
 
-		const char *shape = D_info->shape.GetString();
+		const char *shape = D_info->shape.c_str();
 
 		light_image_c *lim = new light_image_c(shape);
 

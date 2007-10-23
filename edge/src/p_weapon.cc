@@ -1389,7 +1389,7 @@ static void DoWeaponShoot(mobj_t * mo, int ATK)
 		attack = (atkdef_c *) psp->state->action_par;
 
 	if (! attack)
-		I_Error("Weapon [%s] missing %sattack.\n", info->ddf.name.GetString(),
+		I_Error("Weapon [%s] missing %sattack.\n", info->ddf.name.c_str(),
 			ATK ? "second " : "");
 
 	ammotype_e ammo = info->ammo[ATK];
@@ -1563,7 +1563,7 @@ void A_WeaponJump(mobj_t * mo)
 	if (!psp->state || !psp->state->action_par)
 	{
 		M_WarnError("JUMP used in weapon [%s] without a label !\n",
-				info->ddf.name.GetString());
+				info->ddf.name.c_str());
 		return;
 	}
 
@@ -1661,7 +1661,7 @@ void A_WeaponSetSkin(mobj_t * mo)
 
 		if (skin < 0 || skin > 9)
 			I_Error("Weapon [%s]: Bad skin number %d in SET_SKIN action.\n",
-					info->ddf.name.GetString(), skin);
+					info->ddf.name.c_str(), skin);
 
 		p->weapons[p->ready_wp].model_skin = skin;
 	}

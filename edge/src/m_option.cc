@@ -1782,7 +1782,7 @@ static void M_OptionSetResolution(int keypressed)
 				new_scrmode.width, new_scrmode.height,
 				(new_scrmode.depth < 20) ? 16 : 32);
 
-		M_StartMessage(s.GetString(), NULL, false);
+		M_StartMessage(s.c_str(), NULL, false);
 
 ///--  		testticker = -1;
 		

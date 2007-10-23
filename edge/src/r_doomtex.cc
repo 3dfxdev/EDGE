@@ -955,11 +955,11 @@ epi::file_c *OpenUserFileOrLump(imagedef_c *def)
 	if (def->type == IMGDT_File)
 	{
 		// -AJA- 2005/01/15: filenames in DDF relative to GAMEDIR
-		return M_OpenComposedEPIFile(game_dir.GetString(), def->name.GetString());
+		return M_OpenComposedEPIFile(game_dir.c_str(), def->name.c_str());
 	}
 	else  /* LUMP */
 	{
-		int lump = W_CheckNumForName(def->name.GetString());
+		int lump = W_CheckNumForName(def->name.c_str());
 
 		if (lump < 0)
 			return NULL;
@@ -993,7 +993,7 @@ static epi::image_data_c *CreateUserFileImage(image_c *rim, imagedef_c *def)
 	epi::file_c *f = OpenUserFileOrLump(def);
 
 	if (! f)
-		I_Error("Missing image file: %s\n", def->name.GetString());
+		I_Error("Missing image file: %s\n", def->name.c_str());
 
 	epi::image_data_c *img;
 
@@ -1008,7 +1008,7 @@ static epi::image_data_c *CreateUserFileImage(image_c *rim, imagedef_c *def)
 
 	if (! img)
 		I_Error("Error occurred loading image file: %s\n",
-			def->name.GetString());
+			def->name.c_str());
 
 #if 1  // DEBUGGING
 	L_WriteDebug("CREATE IMAGE [%s] %dx%d < %dx%d %s --> %p %dx%d bpp %d\n",

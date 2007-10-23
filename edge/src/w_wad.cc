@@ -913,7 +913,7 @@ static bool FindCacheFilename (epi::string_c& out_name,
 	local_name.AddString(".");
 	local_name.AddString(extension);
 
-	local_name = epi::path::Join(wad_dir.GetString(), local_name.GetString());
+	local_name = epi::path::Join(wad_dir.c_str(), local_name.c_str());
 
 	// Determine the full path filename for the cached version
 	cache_name = epi::path::GetBasename(filename);
@@ -921,25 +921,25 @@ static bool FindCacheFilename (epi::string_c& out_name,
 	cache_name.AddString(".");
 	cache_name.AddString(extension);
 
-	cache_name = epi::path::Join(cache_dir.GetString(), cache_name.GetString());
+	cache_name = epi::path::Join(cache_dir.c_str(), cache_name.c_str());
 
-	L_WriteDebug("FindCacheFilename: local_name = '%s'\n", local_name.GetString());
-	L_WriteDebug("FindCacheFilename: cache_name = '%s'\n", cache_name.GetString());
+	L_WriteDebug("FindCacheFilename: local_name = '%s'\n", local_name.c_str());
+	L_WriteDebug("FindCacheFilename: cache_name = '%s'\n", cache_name.c_str());
 	
 	// Check for the existance of the local and cached dir files
-	bool has_local = epi::FS_Access(local_name.GetString(), epi::file_c::ACCESS_READ);
-	bool has_cache = epi::FS_Access(cache_name.GetString(), epi::file_c::ACCESS_READ);
+	bool has_local = epi::FS_Access(local_name.c_str(), epi::file_c::ACCESS_READ);
+	bool has_cache = epi::FS_Access(cache_name.c_str(), epi::file_c::ACCESS_READ);
 
 	// If both exist, use the local one.
 	// If neither exist, create one in the cache directory.
 
 	// Check whether the waddir gwa is out of date
 	if (has_local) 
-		has_local = (L_CompareFileTimes(filename, local_name.GetString()) <= 0);
+		has_local = (L_CompareFileTimes(filename, local_name.c_str()) <= 0);
 
 	// Check whether the cached gwa is out of date
 	if (has_cache) 
-		has_cache = (L_CompareFileTimes(filename, cache_name.GetString()) <= 0);
+		has_cache = (L_CompareFileTimes(filename, cache_name.c_str()) <= 0);
 
 	L_WriteDebug("FindCacheFilename: has_local=%s  has_cache=%s\n",
 		has_local ? "YES" : "NO", has_cache ? "YES" : "NO");
@@ -1132,19 +1132,19 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 
 			bool exists = FindCacheFilename(gwa_filename, filename, df, EDGEGWAEXT);
 
-			L_WriteDebug("Actual_GWA_filename: %s\n", gwa_filename.GetString());
+			L_WriteDebug("Actual_GWA_filename: %s\n", gwa_filename.c_str());
 
 			if (! exists)
 			{
 				I_Printf("Building GL Nodes for: %s\n", filename);
 
-				if (! GB_BuildNodes(filename, gwa_filename.GetString()))
+				if (! GB_BuildNodes(filename, gwa_filename.c_str()))
 					I_Error("Failed to build GL nodes for: %s\n", filename);
             }
 
 			// Load it.  This recursion bit is rather sneaky,
 			// hopefully it doesn't break anything...
-			AddFile(gwa_filename.GetString(), FLKIND_GWad, datafile);
+			AddFile(gwa_filename.c_str(), FLKIND_GWad, datafile);
 
 			df->companion_gwa = datafile + 1;
 		}
@@ -1157,7 +1157,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 
 		bool exists = FindCacheFilename(hwa_filename, filename, df, EDGEHWAEXT);
 
-		L_WriteDebug("Actual_HWA_filename: %s\n", hwa_filename.GetString());
+		L_WriteDebug("Actual_HWA_filename: %s\n", hwa_filename.c_str());
 
 		if (! exists)
 		{
@@ -1165,7 +1165,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 			{
                 I_Printf("Converting DEH file: %s\n", filename);
 
-				if (! DH_ConvertFile(filename, hwa_filename.GetString()))
+				if (! DH_ConvertFile(filename, hwa_filename.c_str()))
 					I_Error("Failed to convert DeHackEd patch: %s\n", filename);
 			}
 			else
@@ -1177,7 +1177,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 				const byte *data = (const byte *)W_CacheLumpNum(df->deh_lump);
 				int length = W_LumpLength(df->deh_lump);
 
-				if (! DH_ConvertLump(data, length, lump_name, hwa_filename.GetString()))
+				if (! DH_ConvertLump(data, length, lump_name, hwa_filename.c_str()))
 					I_Error("Failed to convert DeHackEd LUMP in: %s\n", filename);
 
 				W_DoneWithLump(data);
@@ -1185,7 +1185,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
         }
 
 		// Load it (using good ol' recursion again).
-		AddFile(hwa_filename.GetString(), FLKIND_HWad, -1);
+		AddFile(hwa_filename.c_str(), FLKIND_HWad, -1);
 	}
 }
 
@@ -1227,7 +1227,7 @@ void W_InitMultipleFiles(void)
 	for (epi::array_iterator_c it = wadfiles.GetBaseIterator(); it.IsValid(); it++)
     {
         raw_filename_t *r = ITERATOR_TO_TYPE(it, raw_filename_t*);
-		AddFile(r->file_name.GetString(), r->kind, -1);
+		AddFile(r->file_name.c_str(), r->kind, -1);
     }
 
 	if (!numlumps)
@@ -1253,10 +1253,10 @@ static bool TryLoadExtraLanguage(const char *name)
 // MUNDO HACK, but if only fixable by a new wad structure...
 static void LoadTntPlutStrings(void)
 {
-	if (strcmp(iwad_base.GetString(), "TNT") == 0)
+	if (strcmp(iwad_base.c_str(), "TNT") == 0)
 		TryLoadExtraLanguage("TNTLANG");
 
-	if (strcmp(iwad_base.GetString(), "PLUTONIA") == 0)
+	if (strcmp(iwad_base.c_str(), "PLUTONIA") == 0)
 		TryLoadExtraLanguage("PLUTLANG");
 }
 
@@ -1357,7 +1357,7 @@ void W_ReadDDF(void)
 		msg_buf.Format("Loaded %s %s\n", (d == NUM_DDF_READERS-1) ? "RTS" : "DDF",
 			DDF_Readers[d].print_name);
 
-		E_ProgressMessage(msg_buf.GetString());
+		E_ProgressMessage(msg_buf.c_str());
 
 		E_LocalProgress(d, NUM_DDF_READERS);
 	}

@@ -113,7 +113,7 @@ bool humdinger_c::StreamIntoBuffer(int buffer)
 		s += hum_dev->GetError();
 
 		// FIXME: this is too harsh
-		I_Error("%s", s.GetString());
+		I_Error("%s", s.c_str());
 		/* NOT REACHED */
     }
 
