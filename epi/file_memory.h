@@ -26,16 +26,15 @@ namespace epi
 
 class mem_file_c : public file_c
 {
-public: //!!!! TEMP HACK
+private:
 	byte *data;
 
-private:
 	int length;
 	int pos;
 	bool copied;
 
 public:
-    mem_file_c(const byte *_block, int _len, bool copy_it = true);
+     mem_file_c(const byte *_block, int _len, bool copy_it = true);
     ~mem_file_c();
 
     int GetLength()   { return length; }
