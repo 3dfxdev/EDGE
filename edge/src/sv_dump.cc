@@ -242,11 +242,10 @@ static bool SV_DumpDATA(void)
 //
 void SV_DumpSaveGame(int slot)
 {
-	epi::string_c fn;
 	char marker[6];
 	int version;
 
-	G_FileNameFromSlot(fn, slot);
+	std::string fn(G_FileNameFromSlot(slot));
 
 	L_WriteDebug("DUMPING SAVE GAME: %d  FILE: %s\n", slot, fn.c_str());
 

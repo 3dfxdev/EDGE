@@ -532,7 +532,6 @@ void M_ReadSaveStrings(void)
 {
 	int i, version;
   
-	epi::string_c fn;
 	saveglobals_t *globs;
 
 	for (i=0; i < SAVE_SLOTS; i++)
@@ -549,7 +548,7 @@ void M_ReadSaveStrings(void)
 		ex_slots[i].mapname[0] = 0;
 		ex_slots[i].gamename[0] = 0;
     
-		G_FileNameFromSlot(fn, save_page * SAVE_SLOTS + i);
+		std::string fn(G_FileNameFromSlot(save_page * SAVE_SLOTS + i));
 
 		if (! SV_OpenReadFile(fn.c_str()))
 		{

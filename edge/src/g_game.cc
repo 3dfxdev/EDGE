@@ -30,6 +30,7 @@
 
 #include "epi/endianess.h"
 #include "epi/path.h"
+#include "epi/str_format.h"
 
 #include "con_main.h"
 #include "dstrings.h"
@@ -649,37 +650,29 @@ static void G_DoCompleted(void)
 }
 
 
-//
-// G_FileNameFromSlot
-//
-// Creates a savegame file name.
-//
-void G_FileNameFromSlot(epi::string_c& fn, int slot)
+std::string G_FileNameFromSlot(int slot)
 {
-    epi::string_c s;
+	// Creates a savegame file name.
 
-    s.Format("%s%04d.%s", SAVEGAMEBASE, slot + 1, SAVEGAMEEXT);
+    std::string temp(epi::STR_Format("%s%04d.%s", SAVEGAMEBASE, slot + 1, SAVEGAMEEXT));
 
-	fn = epi::path::Join(save_dir.c_str(), s.c_str());
-	return;
+	return epi::PATH_Join(save_dir.c_str(), temp.c_str());
 }
 
-//
-// G_DeferredLoadGame
-//
-// Can be called by the startup code or the menu task. 
-//
+
 void G_DeferredLoadGame(int slot)
 {
+	// Can be called by the startup code or the menu task. 
+
 	loadgame_slot = slot;
 	gameaction = ga_loadgame;
 }
+
 
 static void G_DoLoadGame(void)
 {
 	E_ForceWipe();
 
-	epi::string_c fn;
 	saveglobals_t *globs;
 	int version;
 
@@ -689,8 +682,8 @@ static void G_DoLoadGame(void)
 #endif
 
 	// Try to open		
-	G_FileNameFromSlot(fn, loadgame_slot);
-	
+	std::string fn(G_FileNameFromSlot(loadgame_slot));
+
 	if (! SV_OpenReadFile(fn.c_str()))
 	{
 		I_Printf("LOAD-GAME: cannot open %s\n", fn.c_str());
@@ -807,11 +800,10 @@ void G_DeferredSaveGame(int slot, const char *description)
 
 static void G_DoSaveGame(void)
 {
-	epi::string_c fn;
 	time_t cur_time;
 	char timebuf[100];
 
- 	G_FileNameFromSlot(fn, savegame_slot);
+	std::string fn(G_FileNameFromSlot(savegame_slot));
 	
 	if (! SV_OpenWriteFile(fn.c_str(), (EDGEVERHEX << 8) | EDGEPATCH))
 	{
