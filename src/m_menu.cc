@@ -1937,11 +1937,15 @@ static int FindChar(std::string& str, char ch, int pos)
 	return (int)(scan - str.c_str());
 }
 
-static std::string GetMiddle(std::string& str, int p1, int p2)
+static std::string GetMiddle(std::string& str, int pos, int len)
 {
-	SYS_ASSERT(0 <= p1 && p1 <= p2 && p2 <= (int)str.size());
+	SYS_ASSERT(pos >= 0 && len >= 0);
+	SYS_ASSERT(pos + len <= (int)str.size());
 
-	return std::string(str.c_str() + p1, p2 - p1);
+	if (len == 0)
+		return std::string();
+
+	return std::string(str.c_str() + pos, len);
 }
 
 static void DrawMessage(void)
@@ -1984,9 +1988,9 @@ static void DrawMessage(void)
 			pos = FindChar(msg, '\n', oldpos);
 
 			if (pos < 0)
-				s = msg;
+				s = std::string(msg, oldpos);
 			else
-				s = GetMiddle(msg, oldpos, pos);
+				s = GetMiddle(msg, oldpos, pos-oldpos);
 		
 			if (s.size() > 0)
 			{
@@ -2011,9 +2015,9 @@ static void DrawMessage(void)
 			pos = FindChar(input, '\n', oldpos);
 
 			if (pos < 0)
-				s = input;
+				s = std::string(input, oldpos);
 			else
-				s = GetMiddle(input, oldpos, pos);
+				s = GetMiddle(input, oldpos, pos-oldpos);
 		
 			if (s.size() > 0)
 			{
