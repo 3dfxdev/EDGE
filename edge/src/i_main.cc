@@ -19,7 +19,6 @@
 #include "i_defs.h"
 #include "i_sdlinc.h"  // needed for proper SDL main linkage
 
-#include "epi/strings.h"
 #include "epi/exe_path.h"
 
 #include "dm_defs.h"

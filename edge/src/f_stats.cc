@@ -31,8 +31,6 @@
 
 #include "i_defs.h"
 
-#include "epi/strings.h"
-
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "e_main.h"

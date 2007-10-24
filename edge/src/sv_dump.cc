@@ -26,8 +26,6 @@
 
 #include "i_defs.h"
 
-#include "epi/strings.h"
-
 #include "g_game.h"
 #include "sv_chunk.h"
 #include "sv_main.h"

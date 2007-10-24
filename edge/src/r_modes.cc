@@ -31,8 +31,6 @@
 #include <vector>
 #include <algorithm>
 
-#include "epi/strings.h"
-
 #include "r_modes.h"
 #include "r_gldefs.h"
 #include "r_colors.h"

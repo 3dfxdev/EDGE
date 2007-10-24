@@ -25,7 +25,6 @@
 
 #include <vorbis/vorbisfile.h>
 
-#include "epi/strings.h"
 #include "epi/sound_data.h"
 
 

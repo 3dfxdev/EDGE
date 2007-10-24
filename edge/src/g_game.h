@@ -31,7 +31,6 @@
 #include "e_event.h"
 #include "e_player.h"
 
-#include "epi/strings.h"
 
 extern int random_seed;  // for demo code
 extern int starttime;    //

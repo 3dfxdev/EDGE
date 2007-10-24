@@ -24,7 +24,6 @@
 #include <sys/stat.h>
 #include <time.h>
 
-#include "epi/strings.h"
 #include "epi/timestamp.h"
 
 #include "con_main.h"

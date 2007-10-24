@@ -32,7 +32,7 @@
 #include "mus_2_midi.h"
 
 #include "epi/endianess.h"
-#include "epi/strings.h"
+
 #include "humidity/hum_buffer.h"
 
 static bool humding_inited = false;
