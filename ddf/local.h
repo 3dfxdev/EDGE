@@ -20,7 +20,6 @@
 #define __DDF_LOCAL_H__
 
 #include "epi/epi.h"
-#include "epi/strings.h"
 #include "epi/str_format.h"
 
 #include "types.h"
