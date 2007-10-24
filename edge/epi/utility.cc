@@ -332,58 +332,6 @@ namespace epi
 		return *this;
 	}
 	
-	// ---> String Table
-	
-	//
-	// strtable_c Copy constructor
-	//
-	strtable_c::strtable_c(strtable_c &rhs)
-	{
-		Copy(rhs);
-	}
-
-	//
-	// strtable_c::Clear()
-	//
-	// Not use on destruction, just here if you want a blank table
-	//
-	void strtable_c::Clear()
-	{
-		refs.Clear();
-		values.Clear();
-	}
-	
-	//
-	// strtable_c::Copy()
-	//
-	void strtable_c::Copy(strtable_c &src)
-	{
-		refs = src.refs;
-		values = src.values;
-	}
-	
-	//
-	// strtable_c::Set()
-	//
-   	void strtable_c::Set(strbox_c &_refs, strbox_c &_values)
-   	{
-   		if (_refs.GetSize() != _values.GetSize())
-   			return;	// FIXME!! Throw an error
-   			
-   		refs = _refs;
-   		values = _values;
-   	}
-   	
-	//
-	// strtable_c assignment operator
-	//
-   	strtable_c& strtable_c::operator=(strtable_c &rhs)
-   	{
-   		if (&rhs != this)
-   			Copy(rhs);
-   			
-   		return *this;
-   	}	
 };
 
 //--- editor settings ---
