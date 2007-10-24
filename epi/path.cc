@@ -149,76 +149,26 @@ std::string GetExtension(const char *path)
 {
 	SYS_ASSERT(path);
 
-    epi::string_c s;
+	const char *p = path + strlen(path) - 1;
+	
+	// back up until a dot
+	for (; p >= path; p--)
+	{
+		if (*p == '.')
+		{
+            // handle filenames that being with a dot
+            // (un*x style hidden files)
+            if (p == path || IsDirSeperator(p[-1]))
+				break;
 
+			return std::string(p + 1);
+		}
 
-#ifdef WIN32
-    const int len = strlen(path);
-    if (len)
-    {
-        const char *start = path + (len-1);
-        const char *end = start;
+		if (IsDirSeperator(*p))
+			break;
+	}
 
-        // back up until a slash or the start
-        while (start != path && !IsDirSeperator(*start))
-        {
-            start--;
-        }
-
-        // Now step through to find the first period
-        while (start < end && *start != '.')
-            start++;
-
-        if (start != path && start < end)
-        {
-            // Handle filenames that being with a 
-            // fullstop (un*x style hidden files)
-            if (!IsDirSeperator(*(start-1)))
-            {
-                start++; // Step over period
-
-                // Double check we're not at the end 
-                if (start != end)
-                    s.AddString(start);
-            }
-        }
-    }
-
-#else // LINUX
-
-    const int len = strlen(path);
-    if (len)
-    {
-        const char *start = path + (len-1);
-        const char *end = start;
-
-        // back up until a slash or the start
-        while (start != path && !IsDirSeperator(*start))
-        {
-            start--;
-        }
-
-        // Now step through to find the first period
-        while (start < end && *start != '.')
-            start++;
-
-        if (start != path && start < end)
-        {
-            // Handle filenames that being with a 
-            // fullstop (un*x style hidden files)
-            if (!IsDirSeperator(*(start-1)))
-            {
-                start++; // Step over period
-
-                // Double check we're not at the end 
-                if (start != end)
-                    s.AddString(start);
-            }
-        }
-    }
-#endif
-
-    return s;
+	return std::string();
 }
 
 
@@ -226,43 +176,14 @@ std::string GetFilename(const char *path)
 {
 	SYS_ASSERT(path);
 
-    epi::string_c s;
+	const char *p = path + strlen(path) - 1;
 
-#ifdef WIN32
-    const int len = strlen(path);
-    if (len)
-    {
-        const char *start = path + (len - 1);
+	// back up until a slash or the start
+	for (; p >= path; p--)
+		if (IsDirSeperator(*p)
+			return std::string(p + 1);
 
-        // back up until a slash or the start
-        while (start != path && !IsDirSeperator(*start))
-            start--;
-
-        if (start != path || IsDirSeperator(*start))
-            start++; // Step over directory seperator
-        
-        s.AddString(start);
-    }
-
-#else // LINUX
-
-    const int len = strlen(path);
-    if (len)
-    {
-        const char *start = path + (len - 1);
-
-        // back up until a slash or the start
-        while (start != path && !IsDirSeperator(*start))
-            start--;
-
-        if (start != path || IsDirSeperator(*start))
-            start++; // Step over directory seperator
-        
-        s.AddString(start);
-    }
-#endif
-
-    return s;
+    return std::string(path);
 }
 
 
@@ -285,7 +206,7 @@ bool IsAbsolute(const char *path)
 
 #else // LINUX
 
-	if (path && IsDirSeperator(path[0]))
+	if (IsDirSeperator(path[0]))
 		return true;
 #endif
 
