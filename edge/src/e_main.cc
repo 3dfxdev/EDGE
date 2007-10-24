@@ -172,7 +172,6 @@ bool external_ddf = false;
 bool hom_detect = false;
 bool autoquickload = false;
 
-// FIXME!! Strbox this lot...
 epi::strent_c iwad_base;
 
 epi::strent_c cache_dir;
@@ -932,7 +931,7 @@ void E_StartTitle(void)
 //
 void InitDirectories(void)
 {
-    epi::string_c path;
+    std::string path;
 
 	const char *s = M_GetParm("-home");
     if (s)
@@ -944,7 +943,7 @@ void InitDirectories(void)
         s = getenv("HOME");
         if (s)
         {
-            path = epi::path::Join(s, EDGEHOMESUBDIR); 
+            path = epi::PATH_Join(s, EDGEHOMESUBDIR); 
 
             const char *test_dir = path.c_str();
 			if (!epi::FS_IsDir(test_dir))
@@ -976,7 +975,7 @@ void InitDirectories(void)
 	}
 
 	// add parameter file "gamedir/parms" if it exists.
-    path = epi::path::Join(game_dir.c_str(), "parms");
+    path = epi::PATH_Join(game_dir.c_str(), "parms");
 
 	if (epi::FS_Access(path.c_str(), epi::file_c::ACCESS_READ))
 	{
@@ -1000,34 +999,35 @@ void InitDirectories(void)
 	s = M_GetParm("-config");
 	if (s)
 	{
-	    path.clear();
-		M_ComposeFileName(path, home_dir.c_str(), s);
+		path = M_ComposeFileName(home_dir.c_str(), s);
+
 		cfgfile.Set(path.c_str());
 	}
 	else
     {
-        path = epi::path::Join(home_dir.c_str(), EDGECONFIGFILE);
+        path = epi::PATH_Join(home_dir.c_str(), EDGECONFIGFILE);
+
 		cfgfile.Set(path.c_str());
 	}
-	
-	// cache directory
-    path = epi::path::Join(home_dir.c_str(), CACHEDIR);
 
-    if (!epi::FS_IsDir(path.c_str()))
+	// cache directory
+    path = epi::PATH_Join(home_dir.c_str(), CACHEDIR);
+
+    if (! epi::FS_IsDir(path.c_str()))
         epi::FS_MakeDir(path.c_str());
 
     cache_dir.Set(path.c_str());
 
 	// savegame directory
-    path = epi::path::Join(home_dir.c_str(), SAVEGAMEDIR);
+    path = epi::PATH_Join(home_dir.c_str(), SAVEGAMEDIR);
 	
-    if (!epi::FS_IsDir(path.c_str()))
+    if (! epi::FS_IsDir(path.c_str()))
         epi::FS_MakeDir(path.c_str());
 
     save_dir.Set(path.c_str());
 
 	// screenshot directory
-    path = epi::path::Join(home_dir.c_str(), SCRNSHOTDIR);
+    path = epi::PATH_Join(home_dir.c_str(), SCRNSHOTDIR);
 
     if (!epi::FS_IsDir(path.c_str()))
         epi::FS_MakeDir(path.c_str());
@@ -1048,11 +1048,9 @@ void InitDirectories(void)
 
 void CheckExternal(void)
 {
-    epi::string_c test_filename;
-  
 	// too simplistic ?
 
-	test_filename = epi::path::Join(game_dir.c_str(), EXTERN_FILE);
+    std::string test_filename(epi::PATH_Join(game_dir.c_str(), EXTERN_FILE));
 
 	if (epi::FS_Access(test_filename.c_str(), epi::file_c::ACCESS_READ))
 		external_ddf = true;
@@ -1068,17 +1066,17 @@ const char *wadname[] = { "doom2", "doom", "plutonia", "tnt", "freedoom", NULL }
 static void IdentifyVersion(void)
 {
 	// Check -iwad parameter, find out if it is the IWADs directory
-    epi::string_c iwad_par;
-    epi::string_c iwad_file;
-    epi::string_c iwad_dir;
+    std::string iwad_par;
+    std::string iwad_file;
+    std::string iwad_dir;
 
-    iwad_par.Set(M_GetParm("-iwad"));
+    iwad_par = std::string(M_GetParm("-iwad"));
 
-    if (!iwad_par.empty())
+    if (! iwad_par.empty())
     {
         if (epi::FS_IsDir(iwad_par.c_str()))
         {
-            iwad_dir.Set(iwad_par.c_str());
+            iwad_dir = iwad_par;
             iwad_par.clear(); // Discard 
         }
     }   
@@ -1090,35 +1088,32 @@ static void IdentifyVersion(void)
         const char *s = getenv("DOOMWADDIR");
 
         if (s && epi::FS_IsDir(s))
-            iwad_dir.Set(s);
+            iwad_dir = std::string(s);
     }
 
     // Should the IWAD directory not be set by now, then we
     // use our standby option of the current directory.
     if (iwad_dir.empty())
-        iwad_dir.Set(".");
+        iwad_dir = ".";
 
     // Should the IWAD Parameter not be empty then it means
     // that one was given which is not a directory. Therefore
     // we assume it to be a name
     if (!iwad_par.empty())
     {
-        epi::string_c fn;
-
-        fn = iwad_par;
+        std::string fn = iwad_par;
         
         // Is it missing the extension?
-        epi::string_c ext = epi::path::GetExtension(iwad_par.c_str());
-        if (ext.CompareNoCase(EDGEWADEXT))
+        std::string ext = epi::PATH_GetExtension(iwad_par.c_str());
+        if (ext.empty())  // FIXME???? stricmp(ext.c_str(), EDGEWADEXT) != 0)
         {
-            // Add one
-            fn.AddString("." EDGEWADEXT);
+            fn += ("." EDGEWADEXT);
         }
 
         // If no directory given use the IWAD directory
-        epi::string_c dir = epi::path::GetDir(fn.c_str());
+        std::string dir = epi::PATH_GetDir(fn.c_str());
         if (dir.empty())
-            iwad_file = epi::path::Join(iwad_dir.c_str(), fn.c_str()); 
+            iwad_file = epi::PATH_Join(iwad_dir.c_str(), fn.c_str()); 
         else
             iwad_file = fn;
 
@@ -1130,10 +1125,10 @@ static void IdentifyVersion(void)
     else
     {
         const char *location;
-        epi::string_c fn;
+		
         int max = 1;
 
-        if (iwad_dir.Compare(game_dir.c_str())) 
+        if (stricmp(iwad_dir.c_str(), game_dir.c_str()) != 0) 
         {
             // IWAD directory & game directory differ 
             // therefore do a second loop which will
@@ -1155,8 +1150,9 @@ static void IdentifyVersion(void)
 			//
 			for (int w_idx=0; wadname[w_idx]; w_idx++)
 			{
-				fn = epi::path::Join(location, wadname[w_idx]);
-                fn.AddString("." EDGEWADEXT);
+				std::string fn(epi::PATH_Join(location, wadname[w_idx]));
+
+                fn += ("." EDGEWADEXT);
 
 				if (epi::FS_Access(fn.c_str(), epi::file_c::ACCESS_READ))
 				{
@@ -1173,30 +1169,28 @@ static void IdentifyVersion(void)
 
     W_AddRawFilename(iwad_file.c_str(), FLKIND_IWad);
 
-    iwad_file.ToUpper(); // Make uppercase
-    
-    iwad_par = epi::path::GetBasename(iwad_file.c_str());
-    iwad_base.Set(iwad_par.c_str());
+    iwad_par = epi::PATH_GetBasename(iwad_file.c_str());
+	iwad_base.Set(iwad_par.c_str());
 
 	L_WriteDebug("IWAD BASE = [%s]\n", iwad_base.c_str());
 
     // Emulate this behaviour?
 
     // Look for the required wad in the IWADs dir and then the gamedir
-    epi::string_c reqwad_filename;
+    std::string reqwad(epi::PATH_Join(iwad_dir.c_str(), REQUIREDWAD "." EDGEWADEXT));
 
-    reqwad_filename = epi::path::Join(iwad_dir.c_str(), REQUIREDWAD "." EDGEWADEXT);
-    if (!epi::FS_Access(reqwad_filename.c_str(), epi::file_c::ACCESS_READ))
+    if (! epi::FS_Access(reqwad.c_str(), epi::file_c::ACCESS_READ))
     {
-        reqwad_filename = epi::path::Join(game_dir.c_str(), REQUIREDWAD "." EDGEWADEXT);
-        if (!epi::FS_Access(reqwad_filename.c_str(), epi::file_c::ACCESS_READ))
+        reqwad = epi::PATH_Join(game_dir.c_str(), REQUIREDWAD "." EDGEWADEXT);
+
+        if (! epi::FS_Access(reqwad.c_str(), epi::file_c::ACCESS_READ))
         {
             I_Error("IdentifyVersion: Could not find required %s.%s!\n", 
                     REQUIREDWAD, EDGEWADEXT);
         }
     }
 
-    W_AddRawFilename(reqwad_filename.c_str(), FLKIND_EWad);
+    W_AddRawFilename(reqwad.c_str(), FLKIND_EWad);
 }
 
 static void CheckTurbo(void)
@@ -1300,18 +1294,20 @@ static void SetupLogAndDebugFiles(void)
 {
 	// -AJA- 2003/11/08 The log file gets all CON_Printfs, I_Printfs,
 	//                  I_Warnings and I_Errors.
+
+	std::string log_fn  (epi::PATH_Join(home_dir.c_str(), EDGELOGFILE));
+	std::string debug_fn(epi::PATH_Join(home_dir.c_str(), "debug.txt"));
+
+	logfile = NULL;
+	debugfile = NULL;
+
 	if (! M_CheckParm("-nolog"))
 	{
-        epi::string_c logfn = epi::path::Join(home_dir.c_str(), EDGELOGFILE);
 
-		logfile = fopen(logfn.c_str(), "w");
+		logfile = fopen(log_fn.c_str(), "w");
 
 		if (!logfile)
-			I_Error("[E_Startup] Unable to create log file");
-	}
-	else
-	{
-		logfile = NULL;
+			I_Error("[E_Startup] Unable to create log file\n");
 	}
 
 	//
@@ -1326,27 +1322,19 @@ static void SetupLogAndDebugFiles(void)
 	int p = M_CheckParm("-debug");
 	if (p)
 	{
-        epi::string_c debugfn = epi::path::Join(home_dir.c_str(), "debug.txt");
-
-		debugfile = fopen(debugfn.c_str(), "w");
+		debugfile = fopen(debug_fn.c_str(), "w");
 
 		if (!debugfile)
 			I_Error("[E_Startup] Unable to create debugfile");
-	}
-	else
-	{
-		debugfile = NULL;
 	}
 }
 
 static void AddSingleCmdLineFile(const char *name)
 {
-    epi::string_c ext = epi::path::GetExtension(name);
+    std::string ext = epi::PATH_GetExtension(name);
 	int kind = FLKIND_Lump;
 
-    ext.ToLower(); // Presume it is in lowercase
-
-	if (!ext.Compare("edm"))
+	if (stricmp(ext.c_str(), "edm") == 0)
 	{
 		singledemo = true;
 		G_DeferredPlayDemo(name);
@@ -1355,28 +1343,26 @@ static void AddSingleCmdLineFile(const char *name)
 
 	// no need to check for GWA (shouldn't be added manually)
 
-	if (!ext.Compare("wad"))
+	if (stricmp(ext.c_str(), "wad") == 0)
 		kind = FLKIND_PWad;
-	else if (!ext.Compare("hwa"))
+	else if (stricmp(ext.c_str(), "hwa") == 0)
 		kind = FLKIND_HWad;
-	else if (!ext.Compare("scr"))
+	else if (stricmp(ext.c_str(), "scr") == 0)
 		kind = FLKIND_Script;
-	else if (!ext.Compare("ddf") || !ext.Compare("ldf"))
+	else if (stricmp(ext.c_str(), "ddf") == 0 ||
+			 stricmp(ext.c_str(), "ldf") == 0)
 		kind = FLKIND_DDF;
-	else if (!ext.Compare("deh") || !ext.Compare("bex"))
+	else if (stricmp(ext.c_str(), "deh") == 0 ||
+			 stricmp(ext.c_str(), "bex") == 0)
 		kind = FLKIND_Deh;
 
-	epi::string_c fn;
+	std::string fn = M_ComposeFileName(game_dir.c_str(), name);
 
-	M_ComposeFileName(fn, game_dir.c_str(), name);
 	W_AddRawFilename(fn.c_str(), kind);
 }
 
 static void AddCommandLineFiles(void)
 {
-    epi::string_c ext;
-	epi::string_c fn;
-
 	// first handle "loose" files (arguments before the first option)
 
 	int p;
@@ -1415,21 +1401,21 @@ static void AddCommandLineFiles(void)
 
 		for (p++; p < M_GetArgCount() && '-' != (ps = M_GetArgument(p))[0]; p++)
 		{
-            ext = epi::path::GetExtension(ps);
-            ext.ToLower();
+			std::string ext = epi::PATH_GetExtension(ps);
 
 			// sanity check...
-			if (!ext.Compare("wad") || 
-                !ext.Compare("gwa") ||
-			    !ext.Compare("hwa") ||
-                !ext.Compare("ddf") ||
-			    !ext.Compare("deh") ||
-			    !ext.Compare("bex"))
+			if (stricmp(ext.c_str(), "wad") == 0 || 
+                stricmp(ext.c_str(), "gwa") == 0 ||
+			    stricmp(ext.c_str(), "hwa") == 0 ||
+                stricmp(ext.c_str(), "ddf") == 0 ||
+			    stricmp(ext.c_str(), "deh") == 0 ||
+			    stricmp(ext.c_str(), "bex") == 0)
 			{
 				I_Error("Illegal filename for -script: %s\n", ps);
 			}
 
-			M_ComposeFileName(fn, game_dir.c_str(), ps);
+			std::string fn = M_ComposeFileName(game_dir.c_str(), ps);
+
 			W_AddRawFilename(fn.c_str(), FLKIND_Script);
 		}
 
@@ -1448,20 +1434,20 @@ static void AddCommandLineFiles(void)
 
 		for (p++; p < M_GetArgCount() && '-' != (ps = M_GetArgument(p))[0]; p++)
 		{
-            ext = epi::path::GetExtension(ps);
-            ext.ToLower();
+			std::string ext(epi::PATH_GetExtension(ps));
 
 			// sanity check...
-			if (!ext.Compare("wad") || 
-                !ext.Compare("gwa") ||
-			    !ext.Compare("hwa") ||
-                !ext.Compare("ddf") ||
-			    !ext.Compare("scr"))
+			if (stricmp(ext.c_str(), "wad") == 0 || 
+                stricmp(ext.c_str(), "gwa") == 0 ||
+			    stricmp(ext.c_str(), "hwa") == 0 ||
+                stricmp(ext.c_str(), "ddf") == 0 ||
+			    stricmp(ext.c_str(), "scr") == 0)
 			{
 				I_Error("Illegal filename for -deh: %s\n", ps);
 			}
 
-			M_ComposeFileName(fn, game_dir.c_str(), ps);
+			std::string fn = M_ComposeFileName(game_dir.c_str(), ps);
+
 			W_AddRawFilename(fn.c_str(), FLKIND_Deh);
 		}
 
