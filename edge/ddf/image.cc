@@ -157,20 +157,19 @@ static void ImageParseField(const char *field, const char *contents, int index, 
 
 static void ImageFinishEntry(void)
 {
-	if (buffer_image.type == IMGDT_File)  //  || buffer_image.type == IMGDT_Package)
+	if (buffer_image.type == IMGDT_File)
 	{
         const char *filename = buffer_image.name.c_str();
 
 		// determine format
-        epi::string_c ext = epi::path::GetExtension(filename);
+        std::string ext(epi::PATH_GetExtension(filename));
 
-        ext.ToLower();
-
-		if (!ext.Compare("png"))
+		if (DDF_CompareName(ext.c_str(), "png") == 0)
 			buffer_image.format = LIF_PNG;
-		else if (!ext.Compare("jpg") || !ext.Compare("jpeg"))
+		else if (DDF_CompareName(ext.c_str(), "jpg")  == 0 ||
+				 DDF_CompareName(ext.c_str(), "jpeg") == 0)
 			buffer_image.format = LIF_JPEG;
-		else if (!ext.Compare("tga"))
+		else if (DDF_CompareName(ext.c_str(), "tga") == 0)
 			buffer_image.format = LIF_TGA;
 		else
 			DDF_Error("Unknown image extension for '%s'\n", filename);

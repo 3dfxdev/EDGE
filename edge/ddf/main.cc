@@ -396,13 +396,12 @@ static void *DDF_MainCacheFile(readinfo_t * readinfo)
 {
 	FILE *file;
 	char *memfile;
-	epi::string_c filename;
 	size_t size;
 
 	if (!readinfo->filename)
-		I_Error("DDF_MainReadFile: No file to read");
+		I_Error("DDF_MainReadFile: No file to read\n");
 
-    filename = epi::path::Join(ddf_dir.c_str(), readinfo->filename);
+	std::string filename(epi::PATH_Join(ddf_dir.c_str(), readinfo->filename));
 
 	file = fopen(filename.c_str(), "rb");
 	if (file == NULL)
