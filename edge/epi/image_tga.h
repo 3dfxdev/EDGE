@@ -30,7 +30,6 @@ image_data_c *TGA_Load(file_c *f, int read_flags);
 // The image will be RGB or RGBA (never paletted).  The size of
 // image (width and height) will be rounded to the next highest
 // power-of-two when 'read_flags' contains IRF_Round_POW2.
-// FIXME: throw exception on failure
 
 bool TGA_GetInfo(file_c *f, int *width, int *height, bool *solid);
 // reads the principle information from the TGA header.
@@ -38,7 +37,6 @@ bool TGA_GetInfo(file_c *f, int *width, int *height, bool *solid);
 // Returns false if something went wrong.
 // Note: size returned here is the real size, and may be different
 // from the image returned by Load() which rounds to power-of-two.
-// FIXME: throw exception on failure
 
 } // namespace epi
 
