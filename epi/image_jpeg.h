@@ -32,7 +32,6 @@ image_data_c *JPEG_Load(file_c *f, int read_flags = IRF_NONE);
 // The image will be RGB or RGBA (never paletted).  The size of
 // image (width and height) will be rounded to the next highest
 // power-of-two if read_flags contains IRF_Round_POW2.
-// FIXME: throw exception on failure
 
 bool JPEG_GetInfo(file_c *f, int *width, int *height, bool *solid);
 // reads the principle information from the PNG header.
@@ -40,7 +39,6 @@ bool JPEG_GetInfo(file_c *f, int *width, int *height, bool *solid);
 // Returns false if something went wrong.
 // Note: size returned here is the real size, and may be different
 // from the image returned by Load() which rounds to power-of-two.
-// FIXME: throw exception on failure
 
 bool JPEG_Save(FILE *fp, const image_data_c *img, int quality = JPEG_DEF_QUALITY);
 // saves the image (in JPEG format) to the given file.  Returns false if
