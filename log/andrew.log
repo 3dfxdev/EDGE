@@ -10,9 +10,12 @@ Improved the way thing models were integrated into the code.
 
 More work replacing epi::string_c with std::string.  Reworked
 the epi/path code, using 'PATH_' prefix instead of the path::
-namespace, and merging the OS-specific bits into a single
-file.  Fixed the PATH_GetExtension() function so that files
-with multiple '.' in them (like "foo.bar.wad") work properly.
+namespace, and merging the OS-specific bits into a single file.
+Fixed the PATH_GetExtension() function so that files with
+multiple dots in them (like "foo.bar.wad") work properly.
+
+Cleaned up the old hack in the image code using mem_file_c,
+instead using the new W_OpenLump() api.
 
 2007/10/23:
 
