@@ -60,7 +60,7 @@ private:
 
 	s16_t *mono_buffer;
 
-	epi::string_c GetError(int code);
+	const char *GetError(int code);
 
 	void PostOpenInit(void);
 
