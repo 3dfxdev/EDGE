@@ -113,7 +113,7 @@ void G_Ticker(bool fresh_game_tic);
 bool G_Responder(event_t * ev);
 
 bool G_CheckWhenAppear(when_appear_e appear);
-void G_FileNameFromSlot(epi::string_c& fn, int slot);
+std::string G_FileNameFromSlot(int slot);
 
 extern const gamedef_c* currgamedef;
 extern const mapdef_c* currmap;

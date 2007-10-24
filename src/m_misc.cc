@@ -35,6 +35,7 @@
 #include "epi/file.h"
 #include "epi/filesystem.h"
 #include "epi/path.h"
+#include "epi/str_format.h"
 
 #include "epi/image_data.h"
 #include "epi/image_jpeg.h"
@@ -337,7 +338,7 @@ void M_LoadDefaults(void)
 
 		int parm;
 
-		epi::string_c newstr;
+		std::string newstr;
 		bool isstring = false;
 
 		if (fscanf(f, "%79s %[^\n]\n", def, strparm) != 2)
@@ -350,7 +351,7 @@ void M_LoadDefaults(void)
 			// overwrite the last "
 			strparm[strlen(strparm) - 1] = 0;
 			// skip the first "
-			newstr.Set(strparm + 1);
+			newstr = std::string(strparm + 1);
 		}
 		else if (strparm[0] == '0' && strparm[1] == 'x')
 			sscanf(strparm + 2, "%x", &parm);
@@ -519,17 +520,16 @@ void M_ScreenShot(bool show_msg)
 	else
 		extension = "jpg";
 
-	epi::string_c fn;
-	epi::string_c base;
+	std::string fn;
 
 	// find a file name to save it to
 	for (int i = 1; i <= 9999; i++)
 	{
-		base.Format("shot%02d.%s", i, extension);
+		std::string base(epi::STR_Format("shot%02d.%s", i, extension));
 
-		fn = epi::path::Join(shot_dir.c_str(), base.c_str());
+		fn = epi::PATH_Join(shot_dir.c_str(), base.c_str());
   
-		if (!epi::FS_Access(fn.c_str(), epi::file_c::ACCESS_READ))
+		if (! epi::FS_Access(fn.c_str(), epi::file_c::ACCESS_READ))
         {
 			break; // file doesn't exist
         }
@@ -657,22 +657,18 @@ void M_MakeSaveScreenShot(void)
 // just "file" in the given string if it 
 // was an absolute address.
 //
-void M_ComposeFileName(epi::string_c& fn, const char *dir, const char *file)
+std::string M_ComposeFileName(const char *dir, const char *file)
 {
-	if (!epi::path::IsAbsolute(file))
-		fn = epi::path::Join(dir, file);
-    else
-		fn = file;
+	if (epi::PATH_IsAbsolute(file))
+		return std::string(file);
+
+	return epi::PATH_Join(dir, file);
 }
 
-//
-// M_OpenComposedEPIFile
-//
+
 epi::file_c *M_OpenComposedEPIFile(const char *dir, const char *file)
 {
-	epi::string_c fullname;
-
-	M_ComposeFileName(fullname, dir, file);
+	std::string fullname = M_ComposeFileName(dir, file);
 
 	return epi::FS_Open(fullname.c_str(),
 		epi::file_c::ACCESS_READ | epi::file_c::ACCESS_BINARY);
@@ -718,18 +714,16 @@ byte* M_GetFileData(const char *filename, int *length)
 	return data;
 }
 
-//
-// M_WarnError
-//
-// Either displays a warning or produces a fatal error, depending on
-// whether the "-strict" option is used.
-//
 void M_WarnError(const char *error,...)
 {
-	va_list argptr;
+	// Either displays a warning or produces a fatal error, depending
+	// on whether the "-strict" option is used.
+
 	char message_buf[4096];
 
 	message_buf[4095] = 0;
+
+	va_list argptr;
 
 	va_start(argptr, error);
 	vsprintf(message_buf, error, argptr);
@@ -744,52 +738,52 @@ void M_WarnError(const char *error,...)
 		I_Warning("%s", message_buf);
 }
 
-extern FILE* debugfile; // FIXME
 
-//
-// L_WriteDebug
-//
-// Write into the debug file.
-//
-// -ACB- 1999/09/22: From #define to Procedure
-// -AJA- 2001/02/07: Moved here from platform codes.
-//
+extern FILE *debugfile; // FIXME
+
 void I_Debugf(const char *message,...)
 {
+	// Write into the debug file.
+	//
+	// -ACB- 1999/09/22: From #define to Procedure
+	// -AJA- 2001/02/07: Moved here from platform codes.
+	//
 	if (!debugfile)
 		return;
 
-    epi::string_c output;
-	va_list argptr;
+	char message_buf[4096];
+
+	message_buf[4095] = 0;
 
 	// Print the message into a text string
+	va_list argptr;
+
 	va_start(argptr, message);
-	output.FormatWithArgList(message, argptr);
+	vsprintf(message_buf, message, argptr);
 	va_end(argptr);
 
-	fprintf(debugfile, "%s", output.c_str());
+	// I hope nobody is printing strings longer than 4096 chars...
+	SYS_ASSERT(message_buf[4095] == 0);
+
+	fprintf(debugfile, "%s", message_buf);
 	fflush(debugfile);
 }
 
 
-extern FILE* logfile; // FIXME: make file_c and unify with debugfile
+extern FILE *logfile; // FIXME: make file_c and unify with debugfile
 
-//
-// L_WriteLog
-//
-// Write into the log file.
-//
-void L_WriteLog(const char *message,...)
+void I_Logf(const char *message,...)
 {
-	va_list argptr;
-	char message_buf[4096];
-
 	if (!logfile)
 		return;
 
-	memset(message_buf, 0, sizeof(message_buf));
+	char message_buf[4096];
+
+	message_buf[4095] = 0;
 
 	// Print the message into a text string
+	va_list argptr;
+
 	va_start(argptr, message);
 	vsprintf(message_buf, message, argptr);
 	va_end(argptr);
