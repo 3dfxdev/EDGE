@@ -39,7 +39,6 @@
 #include "epi/endianess.h"
 #include "epi/file.h"
 #include "epi/filesystem.h"
-#include "epi/file_memory.h"
 
 #include "epi/image_data.h"
 #include "epi/image_hq2x.h"
@@ -964,28 +963,31 @@ epi::file_c *OpenUserFileOrLump(imagedef_c *def)
 		if (lump < 0)
 			return NULL;
 
-		const byte *lump_data = (byte *)W_CacheLumpNum(lump);
-		int length = W_LumpLength(lump);
-
-		return new epi::mem_file_c(lump_data, length, false /* no copying */);
+		return W_OpenLump(lump);
+///---		const byte *lump_data = (byte *)W_CacheLumpNum(lump);
+///---		int length = W_LumpLength(lump);
+///---
+///---		return new epi::mem_file_c(lump_data, length, false /* no copying */);
 	}
 }
 
 void CloseUserFileOrLump(imagedef_c *def, epi::file_c *f)
 {
-	if (def->type == IMGDT_File)
-	{
-		delete f;
-	}
-	else  /* LUMP */
-	{
-		// FIXME: create sub-class of mem_file_c in WAD code
-		epi::mem_file_c *mf = (epi::mem_file_c *) f;
+	delete f;
 
-		W_DoneWithLump(mf->data);
-
-		delete f;
-	}
+///---	if (def->type == IMGDT_File)
+///---	{
+///---		delete f;
+///---	}
+///---	else  /* LUMP */
+///---	{
+///---		// FIXME: create sub-class of mem_file_c in WAD code
+///---		epi::mem_file_c *mf = (epi::mem_file_c *) f;
+///---
+///---		W_DoneWithLump(mf->data);
+///---
+///---		delete f;
+///---	}
 }
 
 static epi::image_data_c *CreateUserFileImage(image_c *rim, imagedef_c *def)
