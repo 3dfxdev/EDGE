@@ -23,10 +23,9 @@ namespace epi
 {
 
 // Path Manipulation Functions
-namespace path
-{
 
-std::string GetDir(const char *path)
+
+std::string PATH_GetDir(const char *path)
 {
 	SYS_ASSERT(path);
 
@@ -34,14 +33,14 @@ std::string GetDir(const char *path)
 
 	// back up until a slash or the start
 	for (; p >= path; p--)
-		if (IsDirSeperator(*p))
+		if (PATH_IsDirSep(*p))
 			return std::string(path, (p - path) + 1);
 
     return std::string();  // nothing
 }
 
 
-std::string GetFilename(const char *path)
+std::string PATH_GetFilename(const char *path)
 {
 	SYS_ASSERT(path);
 
@@ -49,14 +48,14 @@ std::string GetFilename(const char *path)
 
 	// back up until a slash or the start
 	for (; p >= path; p--)
-		if (IsDirSeperator(*p))
+		if (PATH_IsDirSep(*p))
 			return std::string(p + 1);
 
     return std::string(path);
 }
 
 
-std::string GetExtension(const char *path)
+std::string PATH_GetExtension(const char *path)
 {
 	SYS_ASSERT(path);
 
@@ -65,14 +64,14 @@ std::string GetExtension(const char *path)
 	// back up until a dot
 	for (; p >= path; p--)
 	{
-		if (IsDirSeperator(*p))
+		if (PATH_IsDirSep(*p))
 			break;
 
 		if (*p == '.')
 		{
             // handle filenames that being with a dot
             // (un*x style hidden files)
-            if (p == path || IsDirSeperator(p[-1]))
+            if (p == path || PATH_IsDirSep(p[-1]))
 				break;
 
 			return std::string(p + 1);
@@ -83,7 +82,7 @@ std::string GetExtension(const char *path)
 }
 
 
-std::string GetBasename(const char *path) 
+std::string PATH_GetBasename(const char *path) 
 {
 	SYS_ASSERT(path);
 
@@ -93,7 +92,7 @@ std::string GetBasename(const char *path)
 	// back up until a slash or the start
 	for (; p > path; p--)
 	{
-		if (IsDirSeperator(*p))
+		if (PATH_IsDirSep(*p))
 		{
 			p++; break;
 		}
@@ -108,7 +107,7 @@ std::string GetBasename(const char *path)
 		{
             // handle filenames that being with a dot
             // (un*x style hidden files)
-            if (r == p || IsDirSeperator(r[-1]))
+            if (r == p || PATH_IsDirSep(r[-1]))
 				break;
 
 			return std::string(p, r - p);
@@ -120,7 +119,7 @@ std::string GetBasename(const char *path)
 
 
 
-bool IsAbsolute(const char *path)
+bool PATH_IsAbsolute(const char *path)
 {
 	SYS_ASSERT(path);
 
@@ -139,7 +138,7 @@ bool IsAbsolute(const char *path)
 
 #else // LINUX
 
-	if (IsDirSeperator(path[0]))
+	if (PATH_IsDirSep(path[0]))
 		return true;
 #endif
 
@@ -147,7 +146,7 @@ bool IsAbsolute(const char *path)
 }
 
 
-bool IsDirSeperator(const char c)
+bool PATH_IsDirSep(const char c)
 {
 #ifdef WIN32
     return (c == '\\' || c == '/' || c == ':'); // Kester added ':'
@@ -157,11 +156,11 @@ bool IsDirSeperator(const char c)
 }
 
 
-std::string Join(const char *lhs, const char *rhs)
+std::string PATH_Join(const char *lhs, const char *rhs)
 {
 	SYS_ASSERT(lhs && rhs);
 
-	if (IsAbsolute(rhs))
+	if (PATH_IsAbsolute(rhs))
 		return std::string(rhs);
 
     std::string result(lhs);
@@ -184,7 +183,6 @@ std::string Join(const char *lhs, const char *rhs)
     return result;
 }
 
-}; // namespace path
 
 } // namespace epi
 
