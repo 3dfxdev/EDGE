@@ -159,7 +159,7 @@ bool IsDirSeperator(const char c)
 
 std::string Join(const char *lhs, const char *rhs)
 {
-	SYS_ASESRT(lhs && rhs);
+	SYS_ASSERT(lhs && rhs);
 
 	if (IsAbsolute(rhs))
 		return std::string(rhs);
