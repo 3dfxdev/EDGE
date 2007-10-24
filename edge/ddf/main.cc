@@ -47,7 +47,7 @@ bool lax_errors = false;
 bool no_warnings = false;
 bool no_obsoletes = false;
 
-static readchar_t DDF_MainProcessChar(char character, epi::string_c& buffer, int status);
+static readchar_t DDF_MainProcessChar(char character, std::string& token, int status);
 
 //
 // DDF_Error
@@ -557,9 +557,10 @@ static void DDF_ParseVersion(const char *str, int len)
 //
 bool DDF_MainReadFile(readinfo_t * readinfo)
 {
+	std::string token;
+
 	char *name;
 	char *value = NULL;
-	epi::string_c buffer;
 	char character;
 	char *memfile;
 	char *memfileptr;
@@ -652,7 +653,7 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 
 			DDF_MainAddDefine(name, value);
 
-			buffer.clear();
+			token.clear();
 			continue;
 		}
 
@@ -714,7 +715,7 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 			}
 		}
 
-		response = DDF_MainProcessChar(character, buffer, status);
+		response = DDF_MainProcessChar(character, token, status);
 
 		switch (response)
 		{
@@ -736,16 +737,14 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 				break;
 
 			case command_read:
-				buffer.ToUpper();
-
-				if (!buffer.empty())
-					current_cmd.Set(buffer.c_str());
+				if (! token.empty())
+					current_cmd.Set(token.c_str());
 				else
 					current_cmd.clear();
 					
 				SYS_ASSERT(current_index == 0);
 
-				buffer.clear();
+				token.clear();
 				status = reading_data;
 				break;
 
@@ -754,12 +753,12 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 				break;
 
 			case tag_stop:
-				if (buffer.CompareNoCase(readinfo->tag))
+				if (stricmp(token.c_str(), readinfo->tag) != 0)
 					DDF_Error("Start tag <%s> expected, found <%s>!\n", 
-							  readinfo->tag, buffer.c_str());
-				
+							  readinfo->tag, token.c_str());
+
 				status = waiting_newdef;
-				buffer.clear();
+				token.clear();
 				break;
 
 			case def_start:
@@ -780,7 +779,7 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 					// finish off previous entry
 					(* readinfo->finish_entry)();
 
-					buffer.clear();
+					token.clear();
 					
 					status = reading_newdef;
 
@@ -789,13 +788,11 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 				break;
 
 			case def_stop:
-				buffer.ToUpper();	 // <-- Do we need to do this anymore?
+				cur_ddf_entryname = epi::STR_Format("[%s]", token.c_str());
 
-				cur_ddf_entryname = epi::STR_Format("[%s]", buffer.c_str());
-
-				(* readinfo->start_entry)(buffer.c_str());
+				(* readinfo->start_entry)(token.c_str());
          
-				buffer.clear();
+				token.clear();
 				status = reading_command;
 				break;
 
@@ -817,7 +814,7 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 			case separator:
 				if (bracket_level > 0)
 				{
-					buffer.AddChar(',');
+					token += (',');
 					break;
 				}
 
@@ -830,11 +827,11 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 				else
 				{ 
 					(* readinfo->parse_field)(current_cmd.c_str(), 
-											  DDF_MainGetDefine(buffer), current_index, false);
+						  DDF_MainGetDefine(token.c_str()), current_index, false);
 					current_index++;
 				}
 
-				buffer.clear();
+				token.clear();
 				break;
 
 				// -ACB- 1998/08/10 String Handling
@@ -855,10 +852,10 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 					DDF_Error("Missing ')' bracket in ddf command.\n");
 
 				(* readinfo->parse_field)(current_cmd.c_str(), 
-										  DDF_MainGetDefine(buffer.c_str()), current_index, true);
+					  DDF_MainGetDefine(token.c_str()), current_index, true);
 				current_index = 0;
 
-				buffer.clear();
+				token.clear();
 				status = reading_command;
 				break;
 
@@ -925,7 +922,7 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 //
 // 1998/08/10 Added String reading code.
 //
-readchar_t DDF_MainProcessChar(char character, epi::string_c& buffer, int status)
+readchar_t DDF_MainProcessChar(char character, std::string& token, int status)
 {
 	//int len;
 
@@ -975,7 +972,7 @@ readchar_t DDF_MainProcessChar(char character, epi::string_c& buffer, int status
 				return tag_stop;
 			else
 			{
-				buffer.AddChar(character);
+				token += (character);
 				return ok_char;
 			}
 
@@ -993,7 +990,7 @@ readchar_t DDF_MainProcessChar(char character, epi::string_c& buffer, int status
 			else if ((isalnum(character)) || (character == '_') ||
 					 (character == ':'))
 			{
-				buffer.AddChar(character);
+				token += toupper(character);
 				return ok_char;
 			}
 			return nothing;
@@ -1015,7 +1012,7 @@ readchar_t DDF_MainProcessChar(char character, epi::string_c& buffer, int status
 					 character == '(' || character == ')' ||
 					 character == '.')
 			{
-				buffer.AddChar(character);
+				token += toupper(character);
 				return ok_char;
 			}
 			return nothing;
@@ -1033,13 +1030,13 @@ readchar_t DDF_MainProcessChar(char character, epi::string_c& buffer, int status
       
 			if (character == '(')
 			{
-				buffer.AddChar(character);
+				token += (character);
 				return group_start;
 			}
       
 			if (character == ')')
 			{
-				buffer.AddChar(character);
+				token += (character);
 				return group_stop;
 			}
       
@@ -1050,7 +1047,7 @@ readchar_t DDF_MainProcessChar(char character, epi::string_c& buffer, int status
 				character == '#' || character == '%'  || character == '+' ||
 				character == '@' || character == '?')
 			{
-				buffer.AddChar(toupper(character));
+				token += toupper(character);
 				return ok_char;
 			}
 			else if (isprint(character))
@@ -1066,25 +1063,25 @@ readchar_t DDF_MainProcessChar(char character, epi::string_c& buffer, int status
 				// -ACB- 1998/08/11 Formatting check: Carriage-return.
 				if (character == 'n')
 				{
-					buffer.AddChar('\n');
+					token += ('\n');
 					formatchar = false;
 					return ok_char;
 				}
 				else if (character == '\"')    // -KM- 1998/10/29 Also recognise quote
 				{
-					buffer.AddChar('\"');
+					token += ('\"');
 					formatchar = false;
 					return ok_char;
 				}
 				else if (character == '\\') // -ACB- 1999/11/24 Double backslash means directory
 				{
-					buffer.AddChar(DIRSEPARATOR);
+					token += ('\\');
 					formatchar = false;
 					return ok_char;
 				}
 				else // -ACB- 1999/11/24 Any other characters are treated in the norm
 				{
-					buffer.AddChar(character);
+					token += (character);
 					formatchar = false;
 					return ok_char;
 				}
@@ -1106,7 +1103,7 @@ readchar_t DDF_MainProcessChar(char character, epi::string_c& buffer, int status
 			// -ES- HEY! Swedish is not foreign!
 			else
 			{
-				buffer.AddChar(character);
+				token += (character);
 				return ok_char;
 			}
 

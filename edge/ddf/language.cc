@@ -101,23 +101,20 @@ public:
 	void AddLangNode(const char *_ref, const char *value)
 	{
 		langentry_s *currnode, *node, *newnode;
-		epi::string_c ref;
+
 		int cmp;
 		enum { CREATE_HEAD, TO_LEFT, TO_RIGHT, ADD, REPLACE } act;
-		
-		// Convert to upper case
-		ref = _ref;
-		ref.ToUpper();
-		
+
 		act = CREATE_HEAD;
 		currnode = NULL;
 		node = treehead;
+
 		while (node && act != REPLACE)
 		{
 			currnode = node;
 			
 			if (act != ADD)
-				cmp = ref.Compare(node->ref);
+				cmp = stricmp(_ref, node->ref);
 			else
 				cmp = 0;	// Has to be a match if the last act was ADD
 					
@@ -157,8 +154,9 @@ public:
 		}
 	
 		newnode = new langentry_s;
-		
-		if (act != ADD) { newnode->ref.Set(ref); }
+
+		if (act != ADD) { newnode->ref.Set(_ref); }
+
 		newnode->value.Set(value);
 		newnode->lang = currlang;
 		
@@ -255,14 +253,12 @@ public:
 		if (name && name[0])
 		{
 			epi::array_iterator_c it;
-			epi::string_c s;
-			
-			for (it = langnames.GetBaseIterator();
-				it.IsValid(); it++)
+
+			for (it = langnames.GetBaseIterator(); it.IsValid(); it++)
 			{
-				s = ITERATOR_TO_TYPE(it, char*);
-				s.ToUpper();
-				if (s.Compare(name) == 0)
+				char *it2 = ITERATOR_TO_TYPE(it, char*);
+
+				if (stricmp(it2, name) == 0)
 				{
 					langsel = it.GetPos();
 					break;
@@ -273,8 +269,6 @@ public:
 		// Setup the current language index, adding the new entry if needs be
 		if (langsel < 0)
 		{
-			epi::string_c s;
-			
 			if (name && name[0])
 			{
 				langnames.Insert(name);
@@ -529,23 +523,18 @@ void language_c::Clear()
 //
 // int language_c::Find(const char* ref)
 //
-int language_c::Find(const char *ref)
+int language_c::Find(const char *name)
 {
-	if (!values || !ref)
+	if (!values || !name)
 		return -1;
-		
-	epi::string_c s = ref;
-	s.ToUpper();			// Refs are all uppercase
-	
-	// FIXME!! Optimise search - this list is sorted in order
-	int i, max;
-	for (i=0, max=refs.GetSize(); i<max; i++)
-	{
-		if (s.Compare(refs[i]) == 0)
+
+	// TODO Optimise search - this list is sorted in order
+
+	for (int i = refs.GetSize()-1; i >= 0; i--)
+		if (stricmp(refs[i], name) == 0)
 			return i;
-	}
-	
-	return -1;	
+
+	return -1; // not found
 }
 
 //
