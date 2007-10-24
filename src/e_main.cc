@@ -1065,12 +1065,16 @@ const char *wadname[] = { "doom2", "doom", "plutonia", "tnt", "freedoom", NULL }
 
 static void IdentifyVersion(void)
 {
+	I_Debugf("- Identify Version\n");
+
 	// Check -iwad parameter, find out if it is the IWADs directory
     std::string iwad_par;
     std::string iwad_file;
     std::string iwad_dir;
 
-    iwad_par = std::string(M_GetParm("-iwad"));
+	const char *s = M_GetParm("-iwad");
+
+    iwad_par = std::string(s ? s : "");
 
     if (! iwad_par.empty())
     {
@@ -1085,7 +1089,7 @@ static void IdentifyVersion(void)
     // the DOOMWADDIR environment variable
     if (iwad_dir.empty())
     {
-        const char *s = getenv("DOOMWADDIR");
+        s = getenv("DOOMWADDIR");
 
         if (s && epi::FS_IsDir(s))
             iwad_dir = std::string(s);
@@ -1457,6 +1461,8 @@ static void AddCommandLineFiles(void)
 
 static void InitDDF(void)
 {
+	I_Debugf("- Initialising DDF\n");
+
 	DDF_Init(EDGEVER);
 }
 
