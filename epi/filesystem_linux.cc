@@ -17,7 +17,6 @@
 //----------------------------------------------------------------------------
 //
 #include "epi.h"
-#include "strings.h"
 
 #include "file.h"
 #include "filesystem.h"

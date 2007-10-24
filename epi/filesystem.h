@@ -20,7 +20,6 @@
 #define __EPI_FILESYSTEM_H__
 
 #include "arrays.h"
-#include "strings.h"
 #include "timestamp.h"
 
 namespace epi
