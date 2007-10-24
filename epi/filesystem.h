@@ -30,19 +30,21 @@ namespace epi
 class file_c;
 
 // A Filesystem directory entry
-struct filesystem_direntry_s
+class filesys_direntry_c
 {
-	filesystem_direntry_s()
-	{
-		name = NULL;
-		size = 0;
-		dir = false;
-	}
-
-	string_c *name;
+public:
+	std::string name;
 	unsigned int size;
-	bool dir;
+	bool is_dir;
+
+public:
+	filesys_direntry_c() : name(), size(0), is_dir(false)
+	{ }
+
+	~filesys_direntry_c()
+	{ }
 };
+
 
 // A Filesystem directory
 class filesystem_dir_c : public array_c
@@ -55,11 +57,11 @@ private:
 	void CleanupObject(void *obj);
 		
 public:
-	bool AddEntry(filesystem_direntry_s* fs_entry);
+	bool AddEntry(filesys_direntry_c* fs_entry);
 
 	int GetSize(void) { return array_entries; }
 
-	filesystem_direntry_s* operator[](int idx); 	
+	filesys_direntry_c *operator[](int idx); 	
 };
 
 // ---- The Filesystem ----

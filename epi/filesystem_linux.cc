@@ -111,16 +111,15 @@ bool FS_ReadDir(filesystem_dir_c *fsd, const char *dir, const char *mask)
 		if (stat(fdata->d_name, &finfo) != 0)
 			continue;
 		
-		filesystem_direntry_s tmp_entry;
+		filesys_direntry_c tmp_entry;
 
-		tmp_entry.name = new string_c(fdata->d_name);
+		tmp_entry.name = std::string(fdata->d_name);
 		tmp_entry.size = finfo.st_size;
-		tmp_entry.dir = S_ISDIR(finfo.st_mode) ?true:false;
+		tmp_entry.is_dir = S_ISDIR(finfo.st_mode) ?true:false;
 
-		if (!fsd->AddEntry(&tmp_entry))
+		if (! fsd->AddEntry(&tmp_entry))
 		{
 			closedir(handle);
-			delete tmp_entry.name;
 			FS_SetCurrDir(olddir);
 			return false;
 		}

@@ -170,18 +170,16 @@ bool FS_ReadDir(filesystem_dir_c *fsd, const char *dir, const char *mask)
 
 	do
 	{
-		filesystem_direntry_s tmp_entry;
+		filesys_direntry_c tmp_entry;
 
-		tmp_entry.name = new string_c(fdata.cFileName);
-		if (!tmp_entry.name)
-			return false;
-
+		tmp_entry.name = std::string(fdata.cFileName);
 		tmp_entry.size = fdata.nFileSizeLow;
-		tmp_entry.dir = (fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)?true:false; 
+		tmp_entry.is_dir = (fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)?true:false; 
 
-		if (!fsd->AddEntry(&tmp_entry))
+		if (! fsd->AddEntry(&tmp_entry))
 		{
-			delete tmp_entry.name;
+			FindClose(handle);
+			FS_SetCurrDir(curr_dir.c_str());
 			return false;
 		}
 	}
@@ -297,7 +295,10 @@ bool FS_GetModifiedTime(const char *filename, timestamp_c& t)
 
 	// Convert to a time we can actually use...
 	if (! FileTimeToSystemTime(&fdata.ftLastWriteTime, &timeinf))
+	{
+		FindClose(handle);
 		return false;
+	}
 
 	FindClose(handle);
 
