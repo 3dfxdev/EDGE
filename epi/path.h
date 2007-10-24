@@ -24,30 +24,30 @@
 namespace epi
 {
 
-// Path Manipulation Functions
-namespace path
-{
-    // Returns the basename (filename minus extension) if it exists
-	std::string GetBasename(const char *path);
+// *** Path Manipulation Functions ***
 
-    // Returns the directory from the path if it exists
-	std::string GetDir(const char *path);
 
-    // Returns a filename extension from the path if it exists
-	std::string GetExtension(const char *path);
+// Returns the basename (filename minus extension) if it exists
+std::string PATH_GetBasename(const char *path);
 
-    // Returns a filename from the path if it exists
-	std::string GetFilename(const char *path);
+// Returns the directory from the path if it exists
+std::string PATH_GetDir(const char *path);
 
-    // Returns true if the given is an absolute path
-    bool IsAbsolute(const char *path);
+// Returns a filename extension from the path if it exists
+std::string PATH_GetExtension(const char *path);
 
-    // Returns true if the character could act as a seperator
-    bool IsDirSeperator(const char c);
+// Returns a filename from the path if it exists
+std::string PATH_GetFilename(const char *path);
 
-    // Join two paths together
-	std::string Join(const char *lhs, const char *rhs);
-}; 
+// Returns true if the given is an absolute path
+bool PATH_IsAbsolute(const char *path);
+
+// Returns true if the character could act as a seperator
+bool PATH_IsDirSep(const char c);
+
+// Join two paths together
+std::string PATH_Join(const char *lhs, const char *rhs);
+
 
 } // namespace epi
 
