@@ -29,48 +29,30 @@ namespace epi
 
 // A Filesystem Directory
 
-//
-// filesystem_dir_c Constructor
-//
-filesystem_dir_c::filesystem_dir_c() : array_c(sizeof(filesystem_direntry_s)) 
-{
-}
+filesystem_dir_c::filesystem_dir_c() : array_c(sizeof(filesys_direntry_c)) 
+{ }
 
-// 
-// filesystem_dir_c Deconstructor
-//
 filesystem_dir_c::~filesystem_dir_c()
-{
-}
+{ }
 
-//
-// bool filesystem_dir_c::AddEntry()
-//
-bool filesystem_dir_c::AddEntry(filesystem_direntry_s *fs_entry)
+bool filesystem_dir_c::AddEntry(filesys_direntry_c *fs_entry)
 {
-	if (InsertObject(fs_entry)<0)
+	if (InsertObject(fs_entry) < 0)
         return false;
 
 	return true;
 }
 
-//
-// filesystem_dir_c::CleanupObject
-//
 void filesystem_dir_c::CleanupObject(void *obj)
+{ }
+
+filesys_direntry_c *filesystem_dir_c::operator[](int idx)
 {
-	filesystem_direntry_s *d = (filesystem_direntry_s*)obj;
-	if (d->name)  { delete d->name; }
+	return (filesys_direntry_c*)FetchObject(idx);
 }
 
-//
-// filesystem_dir_c::operator[]
-//
-filesystem_direntry_s* filesystem_dir_c::operator[](int idx)
-{
-	return (filesystem_direntry_s*)FetchObject(idx);
-}
 
+//----------------------------------------------------------------------------
 
 // common functions
 
@@ -106,7 +88,6 @@ file_c* FS_Open(const char *name, unsigned int flags)
 
 	return new ansi_file_c(fp);
 }
-
 
 } // namespace epi
 
