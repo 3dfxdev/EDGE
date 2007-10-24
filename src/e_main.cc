@@ -41,7 +41,6 @@
 #include "epi/file.h"
 #include "epi/filesystem.h"
 #include "epi/path.h"
-#include "epi/strings.h"
 #include "epi/utility.h"
 
 #include "r_automap.h"

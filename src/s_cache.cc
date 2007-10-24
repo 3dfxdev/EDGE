@@ -28,7 +28,6 @@
 #include <vector>
 
 #include "epi/sound_data.h"
-#include "epi/strings.h"
 
 #include "ddf/main.h"
 #include "ddf/sfx.h"

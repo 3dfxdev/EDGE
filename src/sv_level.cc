@@ -34,7 +34,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "epi/strings.h"
 #include "epi/str_format.h"
 
 #include "ddf/colormap.h"

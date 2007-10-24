@@ -28,7 +28,6 @@
 
 #include "i_defs.h"
 
-#include "epi/strings.h"
 #include "epi/str_format.h"
 
 #include "ddf/main.h"

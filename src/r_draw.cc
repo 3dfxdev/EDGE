@@ -19,8 +19,6 @@
 #include "i_defs.h"
 #include "i_defs_gl.h"
 
-#include "epi/strings.h"
-
 #include "g_game.h"
 #include "r_misc.h"
 #include "r_gldefs.h"
