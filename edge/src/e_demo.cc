@@ -240,8 +240,6 @@ void G_BeginRecording(void)
 {
 	demo_notbegun = false;
 
-///---	epi::string_c fn;
-
 	saveglobals_t *globs = DEM_NewGLOB();
 
 	L_WriteDebug("G_BeginRecording: %s\n", currmap->ddf.name.c_str());

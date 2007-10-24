@@ -217,15 +217,13 @@ bool oggplayer_c::StreamIntoBuffer(epi::sound_data_c *buf)
 		if (got_size < 0)  /* ERROR */
 		{
 			// Construct an error message
-			epi::string_c s;
-				
-			s = "[oggplayer_c::StreamIntoBuffer] Failed: ";
-			s += GetError(got_size);
-			
-			// FIXME: using I_Error is too harsh
-			I_Error("%s", s.c_str());
+			std::string err_msg("[oggplayer_c::StreamIntoBuffer] Failed: ");
 
-			/* NOT REACHED */
+			err_msg += GetError(got_size);
+
+			// FIXME: using I_Error is too harsh
+			I_Error("%s", err_msg.c_str());
+			return false; /* NOT REACHED */
 		}
 
 		if (is_stereo and !dev_stereo)
@@ -284,12 +282,12 @@ void oggplayer_c::Open(const void *data, size_t size)
         oggplayer_dlclose((void*)&ogg_lump);
   
 		// Construct an error message
-		epi::string_c s;
+		std::string err_msg("[oggplayer_c::Open](DataLump) Failed: ");
 
-		s = "[oggplayer_c::Open](DataLump) Failed: ";
-		s += GetError(result);
+		err_msg += GetError(result);
 
-		I_Error("%s", s.c_str());
+		I_Error("%s\n", err_msg.c_str());
+		return; /* NOT REACHED */
     }
 
 	PostOpenInit();
@@ -308,8 +306,7 @@ void oggplayer_c::Open(const char *filename)
 	ogg_file = fopen(filename, "rb");
     if (!ogg_file)
     {
-		I_Error("%s",
-			"[oggplayer_c::Open](File) Could not open file.");
+		I_Error("[oggplayer_c::OpenFile] Could not open file.\n");
     }
 
 	ov_callbacks CB;
@@ -325,12 +322,11 @@ void oggplayer_c::Open(const char *filename)
     {
         oggplayer_fclose(ogg_file);	
   
-		epi::string_c s;
+		std::string err_msg("[oggplayer_c::OpenFile] Failed: ");
 
-		s = "[oggplayer_c::Open](File) Failed: ";
-		s += GetError(result);
+		err_msg += GetError(result);
 		
-		I_Error("%s", s.c_str());
+		I_Error("%s\n", err_msg.c_str());
     }
 
 	PostOpenInit();

@@ -76,6 +76,7 @@
 #include "i_defs.h"
 
 #include "epi/strings.h"
+#include "epi/str_format.h"
 
 #include "ddf/main.h"
 
@@ -1020,11 +1021,9 @@ static void M_ResOptDrawer(style_c *style, int topy, int bottomy, int dy, int ce
 
 static void M_LanguageDrawer(int x, int y, int deltay)
 {
-	epi::string_c buf;
+///---	buf.Format("%s", language.GetName());
 
-	buf.Format("%s", language.GetName());
-
-	HL_WriteText(opt_def_style,1, x+15, y + deltay * LANGUAGE_POS, buf);
+	HL_WriteText(opt_def_style,1, x+15, y + deltay * LANGUAGE_POS, language.GetName());
 }
 
 //
@@ -1776,13 +1775,11 @@ static void M_OptionSetResolution(int keypressed)
 	}
 	else
 	{
-		epi::string_c s;
-		
-		s.Format(language["ModeSelErr"],
+		std::string msg(epi::STR_Format(language["ModeSelErr"],
 				new_scrmode.width, new_scrmode.height,
-				(new_scrmode.depth < 20) ? 16 : 32);
+				(new_scrmode.depth < 20) ? 16 : 32));
 
-		M_StartMessage(s.c_str(), NULL, false);
+		M_StartMessage(msg.c_str(), NULL, false);
 
 ///--  		testticker = -1;
 		

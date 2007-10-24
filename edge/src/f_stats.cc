@@ -1333,7 +1333,6 @@ void WI_Drawer(void)
 static void LoadData(void)
 {
 	int i, j;
-	epi::string_c name;
 
 	// find styles
 	if (! wi_sp_style)
@@ -1395,7 +1394,8 @@ static void LoadData(void)
 	for (i = 0; i < 10; i++)
 	{
 		// numbers 0-9
-		name.Format("WINUM%d", i);
+		char name[64];
+		sprintf(name, "WINUM%d", i);
 		digits[i] = W_ImageLookup(name);
 	}
 
