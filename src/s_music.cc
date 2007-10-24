@@ -84,7 +84,6 @@ void S_ChangeMusic(int entrynum, bool looping)
 	if (play->infotype == MUSINF_FILE)
 	{
 		data = NULL;
-        epi::string_c fn;
 
 		//
 		// -ACB- 2004/08/18 Something of a hack until we revamp this to be
@@ -94,7 +93,7 @@ void S_ChangeMusic(int entrynum, bool looping)
 		if (play->type != MUS_OGG)
 		{
 			// -AJA- 2005/01/15: filenames in DDF relative to GAMEDIR
-			M_ComposeFileName(fn, game_dir.c_str(), play->info.c_str());
+			std::string fn = M_ComposeFileName(game_dir.c_str(), play->info.c_str());
 
 			data = M_GetFileData(fn.c_str(), &datlength);
 
@@ -111,9 +110,9 @@ void S_ChangeMusic(int entrynum, bool looping)
 		else
 		{
 			// -AJA- 2005/01/15: filenames in DDF relative to GAMEDIR
-			M_ComposeFileName(fn, game_dir.c_str(), play->info.c_str());
+			std::string fn = M_ComposeFileName(game_dir.c_str(), play->info.c_str());
 
-			if (!epi::FS_Access(fn.c_str(), epi::file_c::ACCESS_READ))
+			if (! epi::FS_Access(fn.c_str(), epi::file_c::ACCESS_READ))
 			{
 				I_Warning("S_ChangeMusic: Can't Load OGG '%s'\n", fn.c_str());
 				return;
