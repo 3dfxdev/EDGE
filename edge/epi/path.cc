@@ -26,122 +26,33 @@ namespace epi
 namespace path
 {
 
-std::string GetBasename(const char *path) 
-{
-	SYS_ASSERT(path);
-
-    epi::string_c s;
-	
-#ifdef WIN32
-    const int len = strlen(path);
-    if (len)
-    {
-        const char *start = path + (len - 1);
-
-        // back up until a slash or the start
-        while (start != path && !IsDirSeperator(*(start-1)))  
-            start--;
-
-        const char *end = start;
-        if (*end != '.') // Not a un*x style hidden file
-        {
-            // move forward until extension or end
-            while (*end && *end != '.')
-                end++;
-
-            // Generate the result
-            if (start != end)
-                s.AddChars(start, 0, end - start);
-        }
-        else 
-        {
-            s.AddString(start);
-        }
-    }
-
-#else // LINUX
-
-    const int len = strlen(path);
-    if (len)
-    {
-        const char *start = path + (len - 1);
-
-        // back up until a slash or the start
-        while (start != path && !IsDirSeperator(*(start-1)))  
-            start--;
-
-        const char *end = start;
-        if (*end != '.') // Not a un*x style hidden file
-        {
-            // move forward until extension or end
-            while (*end && *end != '.')
-                end++;
-
-            // Generate the result
-            if (start != end)
-                s.AddChars(start, 0, end - start);
-        }
-        else 
-        {
-            s.AddString(start);
-        }
-    }
-
-#endif
-
-    return s;
-}
-
-
 std::string GetDir(const char *path)
 {
 	SYS_ASSERT(path);
 
-    epi::string_c s;
+	const char *p = path + strlen(path) - 1;
 
-#ifdef WIN32
-    const int len = strlen(path);
-    if (len)
-    {
-        const char *end = path + len; // point at the '\0' initially
+	// back up until a slash or the start
+	for (; p >= path; p--)
+		if (IsDirSeperator(*p))
+			return std::string(path, (p - path) + 1);
 
-        // back up until a slash or the start
-        while (end != path) 
-        {
-            end--;
+    return std::string();  // nothing
+}
 
-            if (IsDirSeperator(*end))
-            {
-                end++;
-                s.AddChars(path, 0, end - path); 
-                break;
-            }
-        }
-    }
 
-#else // LINUX
-	
-    const int len = strlen(path);
-    if (len)
-    {
-        const char *end = path + len; // point at the '\0' initially
+std::string GetFilename(const char *path)
+{
+	SYS_ASSERT(path);
 
-        // back up until a slash or the start
-        while (end != path) 
-        {
-            end--;
+	const char *p = path + strlen(path) - 1;
 
-            if (IsDirSeperator(*end))
-            {
-                end++;
-                s.AddChars(path, 0, end - path); 
-                break;
-            }
-        }
-    }
-#endif
+	// back up until a slash or the start
+	for (; p >= path; p--)
+		if (IsDirSeperator(*p))
+			return std::string(p + 1);
 
-    return s;
+    return std::string(path);
 }
 
 
@@ -154,6 +65,9 @@ std::string GetExtension(const char *path)
 	// back up until a dot
 	for (; p >= path; p--)
 	{
+		if (IsDirSeperator(*p))
+			break;
+
 		if (*p == '.')
 		{
             // handle filenames that being with a dot
@@ -163,28 +77,47 @@ std::string GetExtension(const char *path)
 
 			return std::string(p + 1);
 		}
-
-		if (IsDirSeperator(*p))
-			break;
 	}
 
-	return std::string();
+    return std::string();  // nothing
 }
 
 
-std::string GetFilename(const char *path)
+std::string GetBasename(const char *path) 
 {
 	SYS_ASSERT(path);
 
 	const char *p = path + strlen(path) - 1;
+	const char *r = p;
 
 	// back up until a slash or the start
-	for (; p >= path; p--)
-		if (IsDirSeperator(*p)
-			return std::string(p + 1);
+	for (; p > path; p--)
+	{
+		if (IsDirSeperator(*p))
+		{
+			p++; break;
+		}
+	}
 
-    return std::string(path);
+	SYS_ASSERT(p >= path);
+	
+	// back up until a dot
+	for (; r >= p; r--)
+	{
+		if (*r == '.')
+		{
+            // handle filenames that being with a dot
+            // (un*x style hidden files)
+            if (r == p || IsDirSeperator(r[-1]))
+				break;
+
+			return std::string(p, r - p);
+		}
+	}
+
+    return std::string(p);
 }
+
 
 
 bool IsAbsolute(const char *path)
@@ -231,7 +164,7 @@ std::string Join(const char *lhs, const char *rhs)
 	if (IsAbsolute(rhs))
 		return std::string(rhs);
 
-    epi::string_c result(lhs);
+    std::string result(lhs);
 
 	if (result.size() > 0)
 	{
