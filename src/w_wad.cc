@@ -44,6 +44,7 @@
 #include "epi/math_md5.h"
 #include "epi/path.h"
 #include "epi/strings.h"
+#include "epi/str_format.h"
 #include "epi/utility.h"
 
 #include "ddf/main.h"
@@ -890,38 +891,38 @@ static void ComputeFileMD5hash(epi::md5hash_c& hash, epi::file_c *file)
 	delete[] buffer;
 }
 
-static bool FindCacheFilename (epi::string_c& out_name,
+static bool FindCacheFilename (std::string& out_name,
 		const char *filename, data_file_c *df,
 		const char *extension)
 {
-	epi::string_c wad_dir;
-	epi::string_c hash_string;
-	epi::string_c local_name;
-	epi::string_c cache_name;
+	std::string wad_dir;
+	std::string hash_string;
+	std::string local_name;
+	std::string cache_name;
 
 	// Get the directory which the wad is currently stored
-	wad_dir = epi::path::GetDir(filename);
+	wad_dir = epi::PATH_GetDir(filename);
 
 	// Hash string used for files in the cache directory
-	hash_string.Format("-%02X%02X%02X-%02X%02X%02X",
+	hash_string = epi::STR_Format("-%02X%02X%02X-%02X%02X%02X",
 		df->dir_hash.hash[0], df->dir_hash.hash[1],
 		df->dir_hash.hash[2], df->dir_hash.hash[3],
 		df->dir_hash.hash[4], df->dir_hash.hash[5]);
 
 	// Determine the full path filename for "local" (same-directory) version
-	local_name = epi::path::GetBasename(filename);
-	local_name.AddString(".");
-	local_name.AddString(extension);
+	local_name = epi::PATH_GetBasename(filename);
+	local_name += (".");
+	local_name += (extension);
 
-	local_name = epi::path::Join(wad_dir.c_str(), local_name.c_str());
+	local_name = epi::PATH_Join(wad_dir.c_str(), local_name.c_str());
 
 	// Determine the full path filename for the cached version
-	cache_name = epi::path::GetBasename(filename);
-	cache_name.AddString(hash_string);
-	cache_name.AddString(".");
-	cache_name.AddString(extension);
+	cache_name = epi::PATH_GetBasename(filename);
+	cache_name += (hash_string);
+	cache_name += (".");
+	cache_name += (extension);
 
-	cache_name = epi::path::Join(cache_dir.c_str(), cache_name.c_str());
+	cache_name = epi::PATH_Join(cache_dir.c_str(), cache_name.c_str());
 
 	L_WriteDebug("FindCacheFilename: local_name = '%s'\n", local_name.c_str());
 	L_WriteDebug("FindCacheFilename: cache_name = '%s'\n", cache_name.c_str());
@@ -1066,13 +1067,12 @@ static void AddFile(const char *filename, int kind, int dyn_index)
         }
         else
         {
-            epi::string_c s = epi::path::GetBasename(filename);
-            if (s.size() > 8)
+            std::string base = epi::PATH_GetBasename(filename);
+            if (base.size() > 8)
                 I_Error("Filename base of %s >8 chars", filename);
 
-            s.ToUpper();    // Required to be uppercase
-
-            strcpy(lump_name, s);
+            strcpy(lump_name, base.c_str());
+			strupr(lump_name);    // Required to be uppercase
         }
 
 		// calculate MD5 hash over whole file
@@ -1128,7 +1128,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 		{
 			SYS_ASSERT(dyn_index < 0);
 
-			epi::string_c gwa_filename;
+			std::string gwa_filename;
 
 			bool exists = FindCacheFilename(gwa_filename, filename, df, EDGEGWAEXT);
 
@@ -1153,7 +1153,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 	// handle DeHackEd patch files
 	if (kind == FLKIND_Deh || df->deh_lump >= 0)
 	{
-		epi::string_c hwa_filename;
+		std::string hwa_filename;
 
 		bool exists = FindCacheFilename(hwa_filename, filename, df, EDGEHWAEXT);
 
@@ -1352,10 +1352,9 @@ void W_ReadDDF(void)
 			}
 		}
 
-		epi::string_c msg_buf;
-
-		msg_buf.Format("Loaded %s %s\n", (d == NUM_DDF_READERS-1) ? "RTS" : "DDF",
-			DDF_Readers[d].print_name);
+		std::string msg_buf(epi::STR_Format(
+			"Loaded %s %s\n", (d == NUM_DDF_READERS-1) ? "RTS" : "DDF",
+				DDF_Readers[d].print_name));
 
 		E_ProgressMessage(msg_buf.c_str());
 

@@ -60,7 +60,7 @@ bool demo_notbegun;
 bool demoplayback;
 bool netdemo;
 
-static epi::strent_c defdemoname;
+static std::string defdemoname;
 
 static epi::file_c *demo_in = NULL;
 
@@ -208,13 +208,13 @@ void E_DemoWriteTick(void)
 //
 void G_RecordDemo(const char *filename)
 {
-	epi::string_c demoname;
+	std::string demoname = M_ComposeFileName(game_dir.c_str(), filename);
 
-	M_ComposeFileName(demoname, game_dir.c_str(), filename);
+    std::string ext = epi::PATH_GetExtension(filename);
 
-    epi::string_c ext = epi::path::GetExtension(demoname.c_str());
-	if (ext.Compare("edm")) 
-		demoname += ".edm"; // No Match - Add Extension
+	// add the EDM extension if missing
+	if (ext.empty())
+		demoname += ".edm";
 
 	// Write directly to file. Possibly a bit slower without disk cache, but
 	// uses less memory, and the demo can record EDGE crashes.
@@ -240,7 +240,7 @@ void G_BeginRecording(void)
 {
 	demo_notbegun = false;
 
-	epi::string_c fn;
+///---	epi::string_c fn;
 
 	saveglobals_t *globs = DEM_NewGLOB();
 
@@ -287,15 +287,15 @@ void G_BeginRecording(void)
 //
 void G_DeferredPlayDemo(const char *filename)
 {
-	epi::string_c demoname;
+	std::string demoname = M_ComposeFileName(game_dir.c_str(), filename);
 
-	M_ComposeFileName(demoname, game_dir.c_str(), filename);
+    std::string ext = epi::PATH_GetExtension(filename);
 
-    epi::string_c ext = epi::path::GetExtension(demoname.c_str());
-	if (ext.Compare("edm")) 
-		demoname += ".edm"; // No Match - Add Extension
+	// add the EDM extension if missing
+	if (ext.empty())
+		demoname += ".edm";
 
-	defdemoname.Set(demoname.c_str());
+	defdemoname = demoname;
 
 	gameaction = ga_playdemo;
 }
