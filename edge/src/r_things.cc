@@ -86,6 +86,15 @@ void RGL_UpdateTheFuzz(void)
 	fuzz_ang_br += FLOAT_2_ANG(90.0f / 21.0f);
 }
 
+static float GetHoverDZ(mobj_t *mo)
+{
+	// compute a different phase for different objects
+	angle_t phase = (angle_t)(long)mo;
+	phase ^= (angle_t)(phase << 19);
+	phase += (angle_t)(leveltime << (ANGLEBITS-6));
+
+	return M_Sin(phase) * 4.0f;
+}
 
 typedef struct
 {
@@ -754,6 +763,8 @@ static void R2_ClipSpriteVertically(drawsub_c *dsub, drawthing_t *dthing)
 //
 void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 {
+	SYS_ASSERT(mo->state);
+
 	// ignore the player him/herself
 	if (mo == players[displayplayer]->mo && num_active_mirrors == 0)
 		return;
@@ -785,70 +796,77 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 	if (tz >= MINZ && fabs(tx) / 32 > tz)
 		return;
 
-	bool spr_flip;
-	const image_c *image = R2_GetThingSprite2(mo, mx, my, &spr_flip);
+	bool is_model = (mo->state->flags & SFF_Model) ? true:false;
 
-	if (!image)
-		return;
-
-	// calculate edges of the shape
-	float sprite_width  = IM_WIDTH(image);
-	float sprite_height = IM_HEIGHT(image);
-	float side_offset   = IM_OFFSETX(image);
-	float top_offset    = IM_OFFSETY(image);
-
-	if (spr_flip)
-		side_offset *= -1.0f;
-
-	float pos1 = (sprite_width/-2.0f - side_offset) * mo->info->xscale;
-	float pos2 = (sprite_width/+2.0f - side_offset) * mo->info->xscale;
-
-	float tx1 = tx + pos1;
-	float tx2 = tx + pos2;
-
-	float gzt;
-	float gzb;
-
-	switch (mo->info->yalign)
-	{
-		case SPYA_TopDown:
-			gzt = mo->z + mo->height + top_offset * mo->info->yscale;
-			gzb = gzt - sprite_height * mo->info->yscale;
-			break;
-
-		case SPYA_Middle:
-		{
-			float mz = mo->z + mo->height * 0.5 + top_offset * mo->info->yscale;
-			float dz = sprite_height * 0.5 * mo->info->yscale;
-
-			gzt = mz + dz;
-			gzb = mz - dz;
-			break;
-		}
-
-		case SPYA_BottomUp: default:
-			gzb = mo->z +  top_offset * mo->info->yscale;
-			gzt = gzb + sprite_height * mo->info->yscale;
-			break;
-	}
+	float hover_dz = 0;
 
 	if (mo->hyperflags & HF_HOVER)
+		hover_dz = GetHoverDZ(mo);
+
+	bool spr_flip = false;
+	const image_c *image = NULL;
+
+	float gzt  = 0, gzb  = 0;
+	float pos1 = 0, pos2 = 0;
+	float tx1  = 0, tx2  = 0;
+
+	if (! is_model)
 	{
-		// compute a different phase for different objects
-		angle_t phase = (angle_t)(long)mo;
-		phase ^= (angle_t)(phase << 19);
-		phase += (angle_t)(leveltime << (ANGLEBITS-6));
+		image = R2_GetThingSprite2(mo, mx, my, &spr_flip);
 
-		float hover_dz = M_Sin(phase) * 4.0f;
+		if (!image)
+			return;
 
-		gzt += hover_dz;
-		gzb += hover_dz;
-	}
+		// calculate edges of the shape
+		float sprite_width  = IM_WIDTH(image);
+		float sprite_height = IM_HEIGHT(image);
+		float side_offset   = IM_OFFSETX(image);
+		float top_offset    = IM_OFFSETY(image);
+
+		if (spr_flip)
+			side_offset *= -1.0f;
+
+		pos1 = (sprite_width/-2.0f - side_offset) * mo->info->xscale;
+		pos2 = (sprite_width/+2.0f - side_offset) * mo->info->xscale;
+
+		tx1 = tx + pos1;
+		tx2 = tx + pos2;
+
+		switch (mo->info->yalign)
+		{
+			case SPYA_TopDown:
+				gzt = mo->z + mo->height + top_offset * mo->info->yscale;
+				gzb = gzt - sprite_height * mo->info->yscale;
+				break;
+
+			case SPYA_Middle:
+			{
+				float mz = mo->z + mo->height * 0.5 + top_offset * mo->info->yscale;
+				float dz = sprite_height * 0.5 * mo->info->yscale;
+
+				gzt = mz + dz;
+				gzb = mz - dz;
+				break;
+			}
+
+			case SPYA_BottomUp: default:
+				gzb = mo->z +  top_offset * mo->info->yscale;
+				gzt = gzb + sprite_height * mo->info->yscale;
+				break;
+		}
+
+		if (mo->hyperflags & HF_HOVER)
+		{
+			gzt += hover_dz;
+			gzb += hover_dz;
+		}
+	} // if (! is_model)
+
 
 	// fix for sprites that sit wrongly into the floor/ceiling
 	int y_clipping = YCLIP_Soft;
 
-	if ((mo->flags & MF_FUZZY) || (mo->hyperflags & HF_HOVER))
+	if (is_model || (mo->flags & MF_FUZZY) || (mo->hyperflags & HF_HOVER))
 	{
 		y_clipping = YCLIP_Never;
 	}
@@ -879,7 +897,7 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 		}
 	}
 
-	if (gzb >= gzt)
+	if (!is_model && gzb >= gzt)
 		return;
 
 	// create new draw thing
@@ -892,9 +910,10 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 	dthing->my = my;
 	dthing->props = dsub->floors[0]->props;
 	dthing->y_clipping = y_clipping;
+	dthing->is_model = is_model;
 
-	dthing->image  = image;
-	dthing->flip   = spr_flip;
+	dthing->image = image;
+	dthing->flip  = spr_flip;
 
 	dthing->tx = tx;
 	dthing->tz = tz;
@@ -941,6 +960,30 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 }
 
 
+static void RGL_DrawModel(mobj_t *mo)
+{
+	modeldef_c *md = W_GetModel(mo->state->sprite);
+
+	const image_c *skin_img = md->skins[mo->model_skin];
+
+	if (! skin_img)  // FIXME: use a dummy image
+	{
+I_Debugf("Render model: no skin %d\n", mo->model_skin);
+		return;
+	}
+
+	GLuint skin_tex = W_ImageCache(skin_img, false, mo->info->palremap);
+
+	float dz = 24.0;
+
+	if (mo->hyperflags & HF_HOVER)
+		dz += GetHoverDZ(mo);
+
+	MD2_RenderModel(md->model, skin_tex, mo->state->frame, false,
+					mo->x, mo->y, mo->z + dz, mo, mo->props);
+}
+
+
 typedef struct
 {
 	float R, G, B;
@@ -971,33 +1014,13 @@ static void ThingCoordFunc(void *d, int v_idx,
 
 
 
-//
-// RGL_DrawThing
-//
 void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 {
-
-if (dthing->mo->state->flags & SFF_Model)
-{
-	modeldef_c *md = W_GetModel(dthing->mo->state->sprite);
-
-	const image_c *skin_img = md->skins[dthing->mo->model_skin];
-
-	if (! skin_img)  // FIXME: use a dummy image
+	if (dthing->is_model)
 	{
-I_Debugf("Render model: no skin %d\n", dthing->mo->model_skin);
+		RGL_DrawModel(dthing->mo);
 		return;
 	}
-
-	GLuint skin_tex = W_ImageCache(skin_img, false, dthing->mo->info->palremap);
-
-	float dz = 24.0;
-
-	MD2_RenderModel(md->model, skin_tex, dthing->mo->state->frame, false,
-					dthing->mo->x, dthing->mo->y, dthing->mo->z + dz,
-					dthing->mo, dfloor->props);
-	return;
-}
 
 	int fuzzy = (dthing->mo->flags & MF_FUZZY);
 
