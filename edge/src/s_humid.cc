@@ -219,7 +219,7 @@ int humdinger_c::Open(byte *data, int length)
     alGenBuffers(NUM_BUFFERS, buffers);
     int result = alGetError();
 	if (result != AL_NO_ERROR)
-		throw epi::error_c(ERR_MUSIC, "[humdinger_c::Open] alGenBuffers() Failed");
+		I_Error("[humdinger_c::Open] alGenBuffers() Failed\n");
 
 	// Loaded, but not playing
 	status = STOPPED;
@@ -302,7 +302,7 @@ void humdinger_c::Play(bool loop, float gain)
 	for (buffer=0; buffer < NUM_BUFFERS; buffer++)
 	{
 		if (!StreamIntoBuffer(buffers[buffer]))
-			throw epi::error_c(ERR_MUSIC, "[humdinger_c::Play] Failed to load into buffers");
+			I_Error("[humdinger_c::Play] Failed to load into buffers\n");
 	}
 
 	SetVolume(gain);
@@ -368,8 +368,7 @@ void humdinger_c::Ticker()
 		result = alGetError();
 
 		if (result != AL_NO_ERROR)
-			throw epi::error_c(ERR_MUSIC,
-				"[humdinger_c::Ticker] alSourceUnqueueBuffers() Failed");
+			I_Error("[humdinger_c::Ticker] alSourceUnqueueBuffers() Failed\n");
 
 		active = StreamIntoBuffer(buffer);
 
@@ -377,8 +376,7 @@ void humdinger_c::Ticker()
 		result = alGetError();
 
 		if (result != AL_NO_ERROR)
-			throw epi::error_c(ERR_MUSIC,
-				"[humdinger_c::Ticker] alSourceQueueBuffers() Failed");
+			I_Error("[humdinger_c::Ticker] alSourceQueueBuffers() Failed\n");
 	}
 
 	// Check for underrun

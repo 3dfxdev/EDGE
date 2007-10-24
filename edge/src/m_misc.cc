@@ -827,8 +827,6 @@ int L_CompareFileTimes(const char *A, const char *B)
 	epi::timestamp_c A_time;
 	epi::timestamp_c B_time;
 
-	// FIXME: probably better to throw exceptions rather than I_Error
-
 	if (! FS_GetModifiedTime(A, A_time))
 		I_Error("AddFile: I_GetModifiedTime failed on %s\n", A);
 
