@@ -30,6 +30,8 @@
 
 #include "i_defs.h"
 
+#include "epi/str_format.h"
+
 #include "ddf/main.h"
 
 #include "con_main.h"
@@ -72,11 +74,11 @@ int showMessages;
 
 int screen_hud;  // has default
 
-static epi::strent_c msg_string;
+static std::string msg_string;
 static int msg_lastmenu;
 static int msg_mode;
 
-static epi::strent_c input_string;		
+static std::string input_string;		
 
 bool menuactive;
 
@@ -923,8 +925,9 @@ void M_QuickSave(void)
 		return;
 	}
 	
-	epi::string_c s;
-	s.Format(language["QuickSaveOver"],	ex_slots[quickSaveSlot].desc);
+	std::string s(epi::STR_Format(language["QuickSaveOver"],
+				  ex_slots[quickSaveSlot].desc));
+
 	M_StartMessage(s.c_str(), QuickSaveResponse, true);
 }
 
@@ -959,8 +962,9 @@ void M_QuickLoad(void)
 		return;
 	}
 
-	epi::string_c s;
-	s.Format(language["QuickLoad"], ex_slots[quickSaveSlot].desc);
+	std::string s(epi::STR_Format(language["QuickLoad"],
+					ex_slots[quickSaveSlot].desc));
+
 	M_StartMessage(s.c_str(), QuickLoadResponse, true);
 }
 
@@ -1374,40 +1378,38 @@ static void QuitResponse(int ch)
 //
 void M_QuitEDGE(int choice)
 {
-	epi::string_c ref;
-	epi::string_c msg;
-	
-	int num_quitmessages = 1;
+	char ref[64];
+
+	std::string msg;
+
+	int num_quitmessages = 0;
 
 	// Count the quit messages
 	do
 	{
-		ref.Format("QUITMSG%d", num_quitmessages);
-		
-		if (!language.IsValidRef(ref.c_str()))
-			break;
-			
-		num_quitmessages++;	// Starts at one not zero
+		num_quitmessages++;
+
+		sprintf(ref, "QUITMSG%d", num_quitmessages);
 	}
-	while (true);
-	
-	// We started from one, hence we take go back one
+	while (language.IsValidRef(ref));
+
+	// we stopped at one higher than the last
 	num_quitmessages--;
-	
+
 	// -ACB- 2004/08/14 Allow fallback to just the "PressToQuit" message
 	if (num_quitmessages > 0)
 	{
 		// Pick one at random
-		ref.Format("QUITMSG%d", (M_Random() % num_quitmessages) + 1);
-		
+		sprintf(ref, "QUITMSG%d", 1 + (M_Random() % num_quitmessages));
+
 		// Construct the quit message in full
-		msg.Format("%s\n\n%s", language[ref], language["PressToQuit"]);
+		msg = epi::STR_Format("%s\n\n%s", language[ref], language["PressToQuit"]);
 	}
 	else
 	{
-		msg = language["PressToQuit"];
+		msg = std::string(language["PressToQuit"]);
 	}
-	
+
 	// Trigger the message
 	M_StartMessage(msg.c_str(), QuitResponse, true);
 }
@@ -1473,7 +1475,7 @@ void M_StartMessage(const char *string, void (* routine)(int response),
 {
 	msg_lastmenu = menuactive;
 	msg_mode = 1;
-	msg_string.Set(string);
+	msg_string = std::string(string);
 	message_key_routine = routine;
 	message_input_routine = NULL;
 	msg_needsinput = input;
@@ -1499,7 +1501,7 @@ void M_StartMessageInput(const char *string,
 {
 	msg_lastmenu = menuactive;
 	msg_mode = 2;
-	msg_string.Set(string);
+	msg_string = std::string(string);
 	message_input_routine = routine;
 	message_key_routine = NULL;
 	msg_needsinput = true;
@@ -1603,13 +1605,13 @@ bool M_Responder(event_t * ev)
 		
 		if (ch == KEYD_BACKSPACE && !input_string.empty())
 		{
-			epi::string_c s = input_string.c_str();
-			if (s.size() > 0)
+			std::string s = input_string.c_str();
+
+			if (input_string.size() > 0)
 			{
-				s.RemoveRight(1);
-				input_string.Set(s.c_str());
+				input_string.resize(input_string.size() - 1);
 			}
-				
+
 			return true;
 		}
 		
@@ -1617,21 +1619,23 @@ bool M_Responder(event_t * ev)
 		if (ch == '-')
 			ch = '_';
 			
-		if (ch >= 32 && ch <= 127)  // FIXME: international characters ??
+		if (ch >= 32 && ch <= 126)  // FIXME: international characters ??
 		{
-			epi::string_c s;
-
-			if (!input_string.empty())
-				s = input_string;
-
-			s += ch;
-			
 			// Set the input_string only if fits
-			SYS_ASSERT(dialog_style);
-			if (dialog_style->fonts[1]->StringWidth(s.c_str()) < 300)
-				input_string.Set(s.c_str());
+			if (input_string.size() < 64)
+			{
+				input_string += ch;
+			}
+
+///---		epi::string_c s;
+///---		s = input_string;
+///---		s += ch;
+///---		
+///---		SYS_ASSERT(dialog_style);
+///---		if (dialog_style->fonts[1]->StringWidth(s.c_str()) < 300)
+///---			input_string.Set(s.c_str());
 		}
-		
+
 		return true;
 	}
 
@@ -1921,6 +1925,110 @@ void M_StartControlPanel(void)
 	M_OptCheckNetgame();
 }
 
+static int FindChar(std::string& str, char ch, int pos)
+{
+	SYS_ASSERT(pos <= (int)str.size());
+
+	const char *scan = strchr(str.c_str() + pos, ch);
+
+	if (! scan)
+		return -1;
+
+	return (int)(scan - str.c_str());
+}
+
+static std::string GetMiddle(std::string& str, int p1, int p2)
+{
+	SYS_ASSERT(0 <= p1 && p1 <= p2 && p2 <= (int)str.size());
+
+	return std::string(str.c_str() + p1, p2 - p1);
+}
+
+static void DrawMessage(void)
+{
+	short x, y;
+
+	dialog_style->DrawBackground();
+
+	// FIXME: HU code should support center justification: this
+	// would remove the code duplication below...
+
+	std::string msg(msg_string);
+
+	std::string input(input_string);
+
+///---		if (!msg_string.empty())
+///---			msg = msg_string.c_str();
+///---		
+///---		if (!input_string.empty())
+///---			input = input_string.c_str();
+	
+	if (msg_mode == 2)
+		input += "_";
+	
+	// Calc required height
+	SYS_ASSERT(dialog_style);
+
+	std::string s = msg + input;
+
+	y = 100 - (dialog_style->fonts[0]->StringLines(s.c_str()) *
+		dialog_style->fonts[0]->NominalHeight()/ 2);
+
+	if (!msg.empty())
+	{
+		int oldpos = 0;
+		int pos;
+
+		do
+		{
+			pos = FindChar(msg, '\n', oldpos);
+
+			if (pos < 0)
+				s = msg;
+			else
+				s = GetMiddle(msg, oldpos, pos);
+		
+			if (s.size() > 0)
+			{
+				x = 160 - (dialog_style->fonts[0]->StringWidth(s.c_str()) / 2);
+				HL_WriteText(dialog_style,0, x, y, s.c_str());
+			}
+			
+			y += dialog_style->fonts[0]->NominalHeight();
+
+			oldpos = pos + 1;
+		}
+		while (pos >= 0 && oldpos < (int)msg.size());
+	}
+
+	if (! input.empty())
+	{
+		int oldpos = 0;
+		int pos;
+
+		do
+		{
+			pos = FindChar(input, '\n', oldpos);
+
+			if (pos < 0)
+				s = input;
+			else
+				s = GetMiddle(input, oldpos, pos);
+		
+			if (s.size() > 0)
+			{
+				x = 160 - (dialog_style->fonts[1]->StringWidth(s.c_str()) / 2);
+				HL_WriteText(dialog_style,1, x, y, s.c_str());
+			}
+			
+			y += dialog_style->fonts[1]->NominalHeight();
+
+			oldpos = pos + 1;
+		}
+		while (pos >= 0 && oldpos < (int)input.size());
+	}
+}
+
 //
 // M_Drawer
 //
@@ -1929,8 +2037,8 @@ void M_StartControlPanel(void)
 //
 void M_Drawer(void)
 {
-	short x;
-	short y;
+	short x, y;
+
 	unsigned int i;
 	unsigned int max;
 
@@ -1940,80 +2048,7 @@ void M_Drawer(void)
 	// Horiz. & Vertically center string and print it.
 	if (msg_mode)
 	{
-		dialog_style->DrawBackground();
-
-		// FIXME: HU code should support center justification: this
-		// would remove the code duplication below...
-		epi::string_c msg;
-		epi::string_c input;
-		epi::string_c s;
-		int oldpos, pos;
-
-		if (!msg_string.empty())
-			msg = msg_string.c_str();
-		
-		if (!input_string.empty())
-			input = input_string.c_str();
-		
-		if (msg_mode == 2)
-			input += "_";
-		
-		// Calc required height
-		SYS_ASSERT(dialog_style);
-		s = msg + input;
-		y = 100 - (dialog_style->fonts[0]->StringLines(s.c_str()) *
-			dialog_style->fonts[0]->NominalHeight()/ 2);
-		
-		if (!msg.empty())
-		{
-			oldpos = 0;
-			do
-			{
-				pos = msg.Find('\n', oldpos);
-				
-				s.clear();
-				if (pos >= 0)
-					msg.GetMiddle(oldpos, pos-oldpos, s);
-				else
-					msg.GetMiddle(oldpos, msg.size(), s);
-			
-				if (s.size() > 0)
-				{
-					x = 160 - (dialog_style->fonts[0]->StringWidth(s.c_str()) / 2);
-					HL_WriteText(dialog_style,0, x, y, s.c_str());
-				}
-				
-				y += dialog_style->fonts[0]->NominalHeight();
-				oldpos = pos + 1;
-			}
-			while (pos >= 0 && oldpos < (int)msg.size());
-		}
-
-		if (!input.empty())
-		{
-			oldpos = 0;
-			do
-			{
-				pos = input.Find('\n', oldpos);
-				
-				s.clear();
-				if (pos >= 0)
-					input.GetMiddle(oldpos, pos-oldpos, s);
-				else
-					input.GetMiddle(oldpos, input.size(), s);
-			
-				if (s.size() > 0)
-				{
-					x = 160 - (dialog_style->fonts[1]->StringWidth(s.c_str()) / 2);
-					HL_WriteText(dialog_style,1, x, y, s.c_str());
-				}
-				
-				y += dialog_style->fonts[1]->NominalHeight();
-				oldpos = pos + 1;
-			}
-			while (pos >= 0 && oldpos < (int)input.size());
-		}
-		
+		DrawMessage();
 		return;
 	}
 

@@ -29,6 +29,7 @@
 #include "i_defs.h"
 
 #include "epi/strings.h"
+#include "epi/str_format.h"
 
 #include "ddf/main.h"
 
@@ -659,12 +660,6 @@ void SR_PlayerPutState(void *storage, int index, void *extra)
 {
 	state_t *S = ((state_t **)storage)[index];
 
-	epi::array_iterator_c it;
-	epi::string_c buf;
-	int s_num, base;
-
-	const weapondef_c *actual;
-
 	if (S == NULL)
 	{
 		SV_PutString(NULL);
@@ -672,7 +667,7 @@ void SR_PlayerPutState(void *storage, int index, void *extra)
 	}
 
 	// get state number, check if valid
-	s_num = S - states;
+	int s_num = S - states;
 
 	if (s_num < 0 || s_num >= num_states)
 	{
@@ -682,7 +677,7 @@ void SR_PlayerPutState(void *storage, int index, void *extra)
 
 	// find the weapon that this state belongs to.
 	// Traverses backwards in case #CLEARALL was used.
-	actual = NULL;
+	const weapondef_c *actual = NULL;
 
 /*
 	for (i=numweapons-1; i >= 0; i--)
@@ -697,7 +692,8 @@ void SR_PlayerPutState(void *storage, int index, void *extra)
 			break;
 	}
 */
-	
+	epi::array_iterator_c it;
+
 	for (it=weapondefs.GetIterator(weapondefs.GetDisabledCount());
 			it.IsValid(); it++)
 	{
@@ -719,15 +715,17 @@ void SR_PlayerPutState(void *storage, int index, void *extra)
 	}
 
 	// find the nearest base state
+	int base;
 
 	for (base = s_num; 
 		base > actual->first_state && states[base].label == NULL;
 		base--)
 	{ /* nothing */ }
 
-	buf.Format("%s:%s:%d", actual->ddf.name.c_str(),
-		states[base].label ? states[base].label : "*",
-		1 + s_num - base);
+	std::string buf(epi::STR_Format("%s:%s:%d",
+			actual->ddf.name.c_str(),
+			states[base].label ? states[base].label : "*",
+			1 + s_num - base));
 
 #if 0
 	L_WriteDebug("Swizzled state of weapon %d -> `%s'\n", s_num, buf.c_str());

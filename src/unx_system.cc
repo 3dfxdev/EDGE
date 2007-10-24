@@ -144,42 +144,42 @@ void I_CheckAlreadyRunning(void)
   /* nothing needed */
 }
 
-void I_ChangeToExeDir(const char *argv0)
-{
-	const char *r = strrchr(argv0, '/');
-
-	if (r == NULL || r == argv0)
-		return;
-
-#ifdef MACOSX
-        // -AJA- It seems argv[0] points directly to the "gledge" binary
-        //       inside of the Edge.app folder (when run from the Finder).
-        //       Hence we need to strip the extra bits off.
-        const char *app = r - 4;
-
-        for (; app > argv0; app--)
-        {
-            if (app[0] == '.' && app[1] == 'a' && app[2] == 'p' &&
-                app[3] == 'p' && app[4] == '/')
-              break;
-        }
-        if (app > argv0)
-        {
-          for (; app > argv0; app--)
-            if (app[0] == '/')
-              break;
-        }
-        if (app > argv0)
-          r = app;
-#endif
-	int length = (r - argv0) + 1;
-
-	epi::string_c str;
-
-	str.AddChars(argv0, 0, length);
-
-	chdir(str.c_str());
-}
+///---void I_ChangeToExeDir(const char *argv0)
+///---{
+///---	const char *r = strrchr(argv0, '/');
+///---
+///---	if (r == NULL || r == argv0)
+///---		return;
+///---
+///---#ifdef MACOSX
+///---        // -AJA- It seems argv[0] points directly to the "gledge" binary
+///---        //       inside of the Edge.app folder (when run from the Finder).
+///---        //       Hence we need to strip the extra bits off.
+///---        const char *app = r - 4;
+///---
+///---        for (; app > argv0; app--)
+///---        {
+///---            if (app[0] == '.' && app[1] == 'a' && app[2] == 'p' &&
+///---                app[3] == 'p' && app[4] == '/')
+///---              break;
+///---        }
+///---        if (app > argv0)
+///---        {
+///---          for (; app > argv0; app--)
+///---            if (app[0] == '/')
+///---              break;
+///---        }
+///---        if (app > argv0)
+///---          r = app;
+///---#endif
+///---	int length = (r - argv0) + 1;
+///---
+///---	epi::string_c str;
+///---
+///---	str.AddChars(argv0, 0, length);
+///---
+///---	chdir(str.c_str());
+///---}
 
 void I_WaitVBL (int count)
 {

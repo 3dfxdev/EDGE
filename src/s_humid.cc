@@ -107,22 +107,20 @@ bool humdinger_c::StreamIntoBuffer(int buffer)
 	if (p_res == Humidity::PLAY_ERR)
 	{
 		// Construct an error message
-		epi::string_c s;
-			
-		s = "[humdinger_c::StreamIntoBuffer] Failed: ";
-		s += hum_dev->GetError();
+		std::string err_msg("[humdinger_c::StreamIntoBuffer] Failed: ");
+
+		err_msg += hum_dev->GetError();
 
 		// FIXME: this is too harsh
-		I_Error("%s", s.c_str());
-		/* NOT REACHED */
+		I_Error("%s\n", err_msg.c_str());
+		return false; /* NOT REACHED */
     }
 
     alBufferData(buffer, format, pcm_buf, BUFFER_SIZE, 22050);
     int al_err = alGetError();
 
 	if (al_err != AL_NO_ERROR)
-		throw epi::error_c(ERR_MUSIC,
-			"[humdinger_c::StreamIntoBuffer] alBufferData() Failed");
+		I_Error("[humdinger_c::StreamIntoBuffer] alBufferData() Failed\n");
 
 	return ! eof;
 }
