@@ -137,30 +137,30 @@ oggplayer_c::~oggplayer_c()
 	mono_buffer = NULL;
 }
 
-epi::string_c oggplayer_c::GetError(int code)
+const char * oggplayer_c::GetError(int code)
 {
-    switch(code)
+    switch (code)
     {
         case OV_EREAD:
-            return epi::string_c("Read from media error.");
+            return ("Read from media error.");
 
 		case OV_ENOTVORBIS:
-            return epi::string_c("Not Vorbis data.");
+            return ("Not Vorbis data.");
 
 		case OV_EVERSION:
-            return epi::string_c("Vorbis version mismatch.");
+            return ("Vorbis version mismatch.");
 
 		case OV_EBADHEADER:
-            return epi::string_c("Invalid Vorbis header.");
+            return ("Invalid Vorbis header.");
 
 		case OV_EFAULT:
-            return epi::string_c("Internal error.");
+            return ("Internal error.");
 
 		default:
 			break;
     }
 
-	return epi::string_c("Unknown Ogg error.");
+	return ("Unknown Ogg error.");
 }
 
 
