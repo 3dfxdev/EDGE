@@ -19,8 +19,6 @@
 #ifndef __EPI_PATH_MODULE__
 #define __EPI_PATH_MODULE__
 
-#include "strings.h"
-
 namespace epi
 {
 
