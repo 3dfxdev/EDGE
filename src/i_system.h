@@ -358,9 +358,10 @@ void I_GrabCursor(bool enable);
 void I_SetGamma(float gamma);
 
 
-void L_WriteLog(const char *message,...) GCCATTR((format(printf, 1, 2)));
+void I_Logf(const char *message,...) GCCATTR((format(printf, 1, 2)));
 
 #define L_WriteDebug  I_Debugf
+#define L_WriteLog    I_Logf
 
 
 // TEMP: another temporary "common lib" thing.
