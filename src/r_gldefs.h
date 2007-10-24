@@ -135,6 +135,8 @@ public:
 	// actual map object
 	mobj_t *mo;
 
+	bool is_model;
+
 	float mx, my;
 
 	// vertical extent of sprite (world coords)
