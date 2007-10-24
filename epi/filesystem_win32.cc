@@ -143,7 +143,7 @@ bool FS_ReadDir(filesystem_dir_c *fsd, const char *dir, const char *mask)
 	if (!dir || !fsd || !mask)
 		return false;
 
-	string_c curr_dir;
+	std::string prev_dir;
 
 	// Bit of scope for the dir buffer to be held on stack 
 	// for the minimum amount of time
@@ -153,7 +153,7 @@ bool FS_ReadDir(filesystem_dir_c *fsd, const char *dir, const char *mask)
 		if (! FS_GetCurrDir(tmp, MAX_PATH))
 			return false;
 
-		curr_dir = tmp;
+		prev_dir = std::string(tmp);
 	}
 
 	if (! FS_SetCurrDir(dir))
@@ -179,7 +179,7 @@ bool FS_ReadDir(filesystem_dir_c *fsd, const char *dir, const char *mask)
 		if (! fsd->AddEntry(&tmp_entry))
 		{
 			FindClose(handle);
-			FS_SetCurrDir(curr_dir.c_str());
+			FS_SetCurrDir(prev_dir.c_str());
 			return false;
 		}
 	}
@@ -187,7 +187,7 @@ bool FS_ReadDir(filesystem_dir_c *fsd, const char *dir, const char *mask)
 
 	FindClose(handle);
 
-	FS_SetCurrDir(curr_dir.c_str());
+	FS_SetCurrDir(prev_dir.c_str());
 	return true;
 }
 
