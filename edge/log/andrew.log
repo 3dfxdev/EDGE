@@ -1,5 +1,19 @@
 Andrew Apted's Log
 
+2007/10/24:
+
+Fixed the weapon model clipping problem by drawing it last
+and clearing the depth buffer beforehand (perhaps a tad
+expensive, but I can't think of any better way).
+
+Improved the way thing models were integrated into the code.
+
+More work replacing epi::string_c with std::string.  Reworked
+the epi/path code, using 'PATH_' prefix instead of the path::
+namespace, and merging the OS-specific bits into a single
+file.  Fixed the PATH_GetExtension() function so that files
+with multiple '.' in them (like "foo.bar.wad") work properly.
+
 2007/10/23:
 
 Implemented the BECOME action for THINGS.DDF, which takes the
