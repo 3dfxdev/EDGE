@@ -1698,7 +1698,6 @@ void E_Main(int argc, const char **argv)
 
 	try
 	{
-		// Startup function will throw an error if something goes wrong
 		E_Startup();
 
 		L_WriteDebug("- Entering game loop...\n");
