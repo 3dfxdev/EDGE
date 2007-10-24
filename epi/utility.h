@@ -147,25 +147,6 @@ namespace epi
 	    char* operator[](int idx) const { return *(char**)FetchObject(idx); } 
     };
     
-    // String table
-    class strtable_c
-    {
-    public:
-    	strtable_c() {};
-    	strtable_c(strtable_c &rhs);
-    	~strtable_c() {};
-    	
-    private:
-    	strbox_c refs;
-    	strbox_c values;
-    	
-    	void Copy(strtable_c &src);
-    	
-    public:
-    	void Clear();
-    	void Set(strbox_c &_refs, strbox_c &_values);
-    	strtable_c& operator=(strtable_c &rhs);
-    };
 };
 
 
