@@ -42,7 +42,7 @@ static void DDF_GameGetMap (const char *info, void *storage);
 static const commandlist_t gamedef_commands[] = 
 {
 	DF("INTERMISSION_GRAPHIC", background, DDF_MainGetInlineStr10),
-	DF("INTERMISSION_CAMERA", bg_camera, DDF_MainGetInlineStr32),
+	DF("INTERMISSION_CAMERA", bg_camera, DDF_MainGetString),
 	DF("INTERMISSION_MUSIC", music, DDF_MainGetNumeric),
 	DF("SPLAT_GRAPHIC", splatpic, DDF_MainGetInlineStr10),
 	DF("YAH1_GRAPHIC", yah[0], DDF_MainGetInlineStr10),
@@ -723,7 +723,7 @@ void gamedef_c::CopyDetail(gamedef_c &src)
 	yah[0] = src.yah[0];
 	yah[1] = src.yah[1];
 
-	strcpy(bg_camera, src.bg_camera);
+	bg_camera = src.bg_camera;
 	music = src.music;
 
 	percent = src.percent;
@@ -760,7 +760,7 @@ void gamedef_c::Default()
 	yah[0].clear();
 	yah[1].clear();
 
-	bg_camera[0] = '\0';
+	bg_camera.clear();
 	music = 0;
 
 	percent = sfx_None;
