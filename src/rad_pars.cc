@@ -72,7 +72,7 @@ rts_parser_t;
 
 int rad_cur_linenum;
 const char *rad_cur_filename;
-epi::strent_c rad_cur_linedata;
+std::string rad_cur_linedata;
 
 static char tokenbuf[4096];
 
@@ -2275,11 +2275,10 @@ static const rts_parser_t radtrig_parsers[] =
 //
 void RAD_ParseLine(char *s)
 {
+	rad_cur_linedata = s;
+
 	int pnum;
 	char *pars[16];
-	const rts_parser_t *cur;
-
-	rad_cur_linedata.Set(s);
 
 	RAD_CollectParameters(s, &pnum, pars, 16);
 
@@ -2289,7 +2288,7 @@ void RAD_ParseLine(char *s)
 		return;
 	}
 
-	for (cur = radtrig_parsers; cur->name != NULL; cur++)
+	for (const rts_parser_t *cur = radtrig_parsers; cur->name != NULL; cur++)
 	{
 		const char *cur_name = cur->name;
 		bool obsolete = false;

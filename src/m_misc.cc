@@ -89,7 +89,7 @@ bool force_waveout = false;
 unsigned short save_screenshot[160][100];
 bool save_screenshot_valid = false;
 
-epi::strent_c config_language;
+std::string config_language;
 
 int var_sample_rate = 0;
 int var_sound_bits = 0;
@@ -232,7 +232,6 @@ static default_t defaults[] =
     {CFGT_Key,      "key_reload",        &key_reload,     0},  // -AJA- 2004/11/11.
 };
 
-epi::strent_c cfgfile;
 
 // ===================== END OF INTERNALS =====================
 
@@ -252,9 +251,9 @@ void M_SaveDefaults(void)
 	int numdefaults = sizeof(defaults) / sizeof(defaults[0]);
 
 	// -ACB- 1999/09/24 idiot proof checking as required by MSVC
-	SYS_ASSERT(cfgfile);
+	SYS_ASSERT(! cfgfile.empty());
 
-	FILE *f = fopen(cfgfile, "w");
+	FILE *f = fopen(cfgfile.c_str(), "w");
 	if (!f)
 	{
 		I_Warning("Couldn't open config file %s for writing.", cfgfile.c_str());
@@ -320,7 +319,7 @@ void M_LoadDefaults(void)
 	I_Printf("M_LoadDefaults from %s\n", cfgfile.c_str());
 
 	// read the file in, overriding any set defaults
-	FILE *f = fopen(cfgfile, "r");
+	FILE *f = fopen(cfgfile.c_str(), "r");
 
 	if (! f)
 	{
@@ -364,7 +363,7 @@ void M_LoadDefaults(void)
 			if (!isstring)
 				continue;  // FIXME: show warning
 			
-			config_language.Set(newstr.c_str());
+			config_language = newstr;
 			continue;
 		}
 
