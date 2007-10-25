@@ -89,7 +89,7 @@ extern int var_quiet_factor;
 
 extern int cfgnormalfov, cfgzoomedfov;
 
-extern epi::strent_c config_language;
+extern std::string config_language;
 
 #endif  /* __M_MISC__ */
 

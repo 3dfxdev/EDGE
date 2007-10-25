@@ -201,6 +201,10 @@ void RGL_SetupMatrices3D(void)
 		SetupLightMap(currmap->lighting);
 }
 
+static inline const char *SafeStr(const void *s)
+{
+	return s ? (const char *)s : "";
+}
 
 //
 // RGL_CheckExtensions
@@ -216,19 +220,13 @@ void RGL_CheckExtensions(void)
 			glewGetErrorString(err));
 
 	// -ACB- 2004/08/11 Made local: these are not yet used elsewhere
-	epi::strent_c glstr_vendor;
-	epi::strent_c glstr_renderer;
-	epi::strent_c glstr_version;
+	std::string glstr_vendor  (SafeStr(glGetString(GL_VERSION)));
+	std::string glstr_renderer(SafeStr(glGetString(GL_VENDOR)));
+	std::string glstr_version (SafeStr(glGetString(GL_RENDERER)));
 
-	glstr_version.Set((const char*)glGetString(GL_VERSION));
 	I_Printf("OpenGL: Version: %s\n", glstr_version.c_str());
-
-	glstr_vendor.Set((const char*)glGetString(GL_VENDOR));
 	I_Printf("OpenGL: Vendor: %s\n", glstr_vendor.c_str());
-
-	glstr_renderer.Set((const char*)glGetString(GL_RENDERER));
 	I_Printf("OpenGL: Renderer: %s\n", glstr_renderer.c_str());
-
 	I_Printf("OpenGL: GLEW version: %s\n", glewGetString(GLEW_VERSION));
 
 #if 0  // FIXME: this crashes (buffer overflow?)
@@ -292,13 +290,13 @@ void RGL_CheckExtensions(void)
 	{
 		const driver_bug_t *bug = &driver_bugs[j];
 
-		if (bug->renderer && strstr(glstr_renderer, bug->renderer) == NULL)
+		if (bug->renderer && strstr(glstr_renderer.c_str(), bug->renderer) == NULL)
 			continue;
 
-		if (bug->vendor && strstr(glstr_vendor, bug->vendor) == NULL)
+		if (bug->vendor && strstr(glstr_vendor.c_str(), bug->vendor) == NULL)
 			continue;
 
-		if (bug->version && strstr(glstr_version, bug->version) == NULL)
+		if (bug->version && strstr(glstr_version.c_str(), bug->version) == NULL)
 			continue;
 
 		I_Printf("OpenGL: Enabling workarounds for %s.\n",
