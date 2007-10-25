@@ -172,7 +172,7 @@ public:
 	lumpname_c yah[2];
 
 	// -AJA- 1999/10/22: background cameras.
-	char bg_camera[32];
+	epi::strent_c bg_camera;
 
 	int music;
 	struct sfx_s *percent;
