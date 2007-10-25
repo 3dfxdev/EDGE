@@ -46,7 +46,7 @@ sfx_t;
 typedef struct
 {
 	sfx_t *s;
-	char name[8];
+	const char *name;
 }
 bastard_sfx_t;
 
