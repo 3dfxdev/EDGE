@@ -37,6 +37,8 @@
 
 #include <limits.h>
 
+#include <list>
+
 #include "epi/endianess.h"
 #include "epi/file.h"
 #include "epi/file_sub.h"
@@ -178,44 +180,24 @@ public:
 	data_file_c* operator[](int idx) { return *(data_file_c**)FetchObject(idx); }
 };
 
+
 // Raw filenames
-typedef struct raw_filename_s
+class raw_filename_c
 {
-	epi::strent_c file_name;
+public:
+	std::string filename;
 	int kind;
-}
-raw_filename_t;
-
-class raw_filename_container_c : public epi::array_c
-{
-public:
-	raw_filename_container_c() : epi::array_c(sizeof(raw_filename_t*)) { }
-	~raw_filename_container_c() { Clear(); }
-
-private:
-	void CleanupObject(void *obj)  { delete *(raw_filename_t**)obj; }
 
 public:
-    // List Management
-	int GetSize() { return array_entries; }
+	raw_filename_c(const char *_name, int _kind) :
+			 filename(_name), kind(_kind)
+	{ }
 
-	int Insert(const char *file_name, int kind) 
-    { 
-        if (file_name == NULL)
-            return -1;
-
-        raw_filename_t *rf = new raw_filename_t;
-        rf->file_name.Set(file_name);
-        rf->kind = kind;
-
-        return InsertObject((void*)&rf); 
-    }
-
-	raw_filename_t* operator[](int idx) 
-    { 
-        return (raw_filename_t*)FetchObject(idx); 
-    }
+	~raw_filename_c()
+	{ }
 };
+
+static std::list<raw_filename_c *> wadfiles;
 
 
 typedef enum
@@ -297,8 +279,6 @@ bool within_sprite_list;
 bool within_flat_list;
 bool within_patch_list;
 bool within_colmap_list;
-
-raw_filename_container_c wadfiles;
 
 static byte *W_ReadLumpAlloc(int lump, int *length);
 
@@ -535,7 +515,7 @@ static void SortSpriteLumps(data_file_c *df)
 		{
 			lump = f->sprite_lumps[i];
 
-			L_WriteDebug("Sorted sprite %d = lump %d [%s]\n", i, lump,
+			I_Debugf("Sorted sprite %d = lump %d [%s]\n", i, lump,
 						 lumpinfo[lump].name);
 		}
 	}
@@ -868,7 +848,7 @@ static bool HasInternalGLNodes(data_file_c *df, int datafile)
 		}
 	}
 
-	L_WriteDebug("Levels %d, Internal GL nodes %d\n", levels, glnodes);
+	I_Debugf("Levels %d, Internal GL nodes %d\n", levels, glnodes);
 
 	return levels == glnodes;
 }
@@ -923,8 +903,8 @@ static bool FindCacheFilename (std::string& out_name,
 
 	cache_name = epi::PATH_Join(cache_dir.c_str(), cache_name.c_str());
 
-	L_WriteDebug("FindCacheFilename: local_name = '%s'\n", local_name.c_str());
-	L_WriteDebug("FindCacheFilename: cache_name = '%s'\n", cache_name.c_str());
+	I_Debugf("FindCacheFilename: local_name = '%s'\n", local_name.c_str());
+	I_Debugf("FindCacheFilename: cache_name = '%s'\n", cache_name.c_str());
 	
 	// Check for the existance of the local and cached dir files
 	bool has_local = epi::FS_Access(local_name.c_str(), epi::file_c::ACCESS_READ);
@@ -941,7 +921,7 @@ static bool FindCacheFilename (std::string& out_name,
 	if (has_cache) 
 		has_cache = (L_CompareFileTimes(filename, cache_name.c_str()) <= 0);
 
-	L_WriteDebug("FindCacheFilename: has_local=%s  has_cache=%s\n",
+	I_Debugf("FindCacheFilename: has_local=%s  has_cache=%s\n",
 		has_local ? "YES" : "NO", has_cache ? "YES" : "NO");
 
 
@@ -1086,7 +1066,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 				lump_name, true);
 	}
 
-	L_WriteDebug("   md5hash = %02x%02x%02x%02x...%02x%02x%02x%02x\n",
+	I_Debugf("   md5hash = %02x%02x%02x%02x...%02x%02x%02x%02x\n",
 			df->dir_hash.hash[0], df->dir_hash.hash[1],
 			df->dir_hash.hash[2], df->dir_hash.hash[3],
 			df->dir_hash.hash[12], df->dir_hash.hash[13],
@@ -1131,7 +1111,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 
 			bool exists = FindCacheFilename(gwa_filename, filename, df, EDGEGWAEXT);
 
-			L_WriteDebug("Actual_GWA_filename: %s\n", gwa_filename.c_str());
+			I_Debugf("Actual_GWA_filename: %s\n", gwa_filename.c_str());
 
 			if (! exists)
 			{
@@ -1156,7 +1136,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 
 		bool exists = FindCacheFilename(hwa_filename, filename, df, EDGEHWAEXT);
 
-		L_WriteDebug("Actual_HWA_filename: %s\n", hwa_filename.c_str());
+		I_Debugf("Actual_HWA_filename: %s\n", hwa_filename.c_str());
 
 		if (! exists)
 		{
@@ -1198,9 +1178,9 @@ static void InitCaches(void)
 //
 void W_AddRawFilename(const char *file, int kind)
 {
-	L_WriteDebug("Added filename: %s\n", file);
+	I_Debugf("Added filename: %s\n", file);
 
-    wadfiles.Insert(file, kind);
+    wadfiles.push_back(new raw_filename_c(file, kind));
 }
 
 //
@@ -1223,10 +1203,12 @@ void W_InitMultipleFiles(void)
 	// will be realloced as lumps are added
 	lumpinfo = NULL;
 
-	for (epi::array_iterator_c it = wadfiles.GetBaseIterator(); it.IsValid(); it++)
+	std::list<raw_filename_c *>::iterator it;
+
+	for (it = wadfiles.begin(); it != wadfiles.end(); it++)
     {
-        raw_filename_t *r = ITERATOR_TO_TYPE(it, raw_filename_t*);
-		AddFile(r->file_name.c_str(), r->kind, -1);
+        raw_filename_c *rf = *it;
+		AddFile(rf->filename.c_str(), rf->kind, -1);
     }
 
 	if (!numlumps)
@@ -1274,7 +1256,7 @@ void W_ReadDDF(void)
 
 		if (external_ddf)
 		{
-			L_WriteDebug("- Loading external %s\n", DDF_Readers[d].name);
+			I_Debugf("- Loading external %s\n", DDF_Readers[d].name);
 
 			// call read function
 			ext_loaded = (* DDF_Readers[d].func)(NULL, 0);
@@ -1287,7 +1269,7 @@ void W_ReadDDF(void)
 			// all script files get parsed here
 			if (d == RTS_READER && df->kind == FLKIND_Script)
 			{
-				L_WriteDebug("- Loading RTS script: %s\n", df->file_name);
+				I_Debugf("- Loading RTS script: %s\n", df->file_name);
 
 				RAD_LoadFile(df->file_name);
 				continue;
@@ -1303,7 +1285,7 @@ void W_ReadDDF(void)
 
 			if (lump >= 0)
 			{
-				L_WriteDebug("- Loading %s from: %s\n", DDF_Readers[d].name, df->file_name);
+				I_Debugf("- Loading %s from: %s\n", DDF_Readers[d].name, df->file_name);
 
 				int length;
 				char *data = (char *) W_ReadLumpAlloc(lump, &length);
@@ -1320,7 +1302,7 @@ void W_ReadDDF(void)
 			// handle Boom's ANIMATED and SWITCHES lumps
 			if (d == ANIM_READER && df->animated >= 0)
 			{
-				L_WriteDebug("- Loading ANIMATED from: %s\n", df->file_name);
+				I_Debugf("- Loading ANIMATED from: %s\n", df->file_name);
 
 				int length;
 				byte *data = W_ReadLumpAlloc(df->animated, &length);
@@ -1330,7 +1312,7 @@ void W_ReadDDF(void)
 			}
 			if (d == SWTH_READER && df->switches >= 0)
 			{
-				L_WriteDebug("- Loading SWITCHES from: %s\n", df->file_name);
+				I_Debugf("- Loading SWITCHES from: %s\n", df->file_name);
 
 				int length;
 				byte *data = W_ReadLumpAlloc(df->switches, &length);
