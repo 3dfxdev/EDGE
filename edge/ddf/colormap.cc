@@ -37,7 +37,7 @@ void DDF_ColmapGetSpecial(const char *info, void *storage);
 
 static const commandlist_t colmap_commands[] =
 {
-	DF("LUMP",    lump_name, DDF_MainGetInlineStr10),
+	DF("LUMP",    lump_name, DDF_MainGetLumpName),
 	DF("START",   start,     DDF_MainGetNumeric),
 	DF("LENGTH",  length,    DDF_MainGetNumeric),
 	DF("SPECIAL", special,   DDF_ColmapGetSpecial),

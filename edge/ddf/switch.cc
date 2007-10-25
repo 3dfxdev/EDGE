@@ -36,8 +36,8 @@ switchdef_container_c switchdefs;
 
 static const commandlist_t switch_commands[] =
 {
-	DF("ON_TEXTURE",  name1, DDF_MainGetInlineStr10),
-	DF("OFF_TEXTURE", name2, DDF_MainGetInlineStr10),
+	DF("ON_TEXTURE",  name1, DDF_MainGetLumpName),
+	DF("OFF_TEXTURE", name2, DDF_MainGetLumpName),
 	DF("ON_SOUND",  on_sfx,  DDF_MainLookupSound),
 	DF("OFF_SOUND", off_sfx, DDF_MainLookupSound),
 	DF("TIME", time, DDF_MainGetTime),

@@ -43,8 +43,8 @@ static const commandlist_t anim_commands[] =
 	DF("TYPE",     type,      DDF_AnimGetType),
 	DF("SEQUENCE", pics,      DDF_AnimGetPic),
 	DF("SPEED",    speed,     DDF_MainGetTime),
-	DF("FIRST",    startname, DDF_MainGetInlineStr10),
-	DF("LAST",     endname,   DDF_MainGetInlineStr10),
+	DF("FIRST",    startname, DDF_MainGetLumpName),
+	DF("LAST",     endname,   DDF_MainGetLumpName),
 
 	DDF_CMD_END
 };
