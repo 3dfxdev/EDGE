@@ -19,6 +19,7 @@
 #ifndef __DDF_MAIN_H__
 #define __DDF_MAIN_H__
 
+#include "epi/file.h"
 #include "epi/math_crc.h"
 #include "epi/utility.h"
 
@@ -113,6 +114,9 @@ extern bool no_obsoletes;
 
 void DDF_Init(int _engine_ver);
 void DDF_CleanUp(void);
+void DDF_SetWhere(const std::string& dir);
+
+void DDF_Load(epi::file_c *f);
 
 bool DDF_MainParseCondition(const char *str, condition_check_t *cond);
 void DDF_MainGetWhenAppear(const char *info, void *storage);

@@ -32,22 +32,19 @@
 // FIXME: unwanted link to engine code (switch to epi::angle_c)
 extern float M_Tan(angle_t ang)  GCCATTR((const));
 
-// FIXME: another unwanted link : create API to set this
-extern epi::strent_c ddf_dir;
-
 
 #define DEBUG_DDFREAD  0
 
 int ddf_version;  // global
 
 static int engine_version;
+static std::string ddf_where;
 
 bool strict_errors = false;
 bool lax_errors = false;
 bool no_warnings = false;
 bool no_obsoletes = false;
 
-static readchar_t DDF_MainProcessChar(char character, std::string& token, int status);
 
 //
 // DDF_Error
@@ -210,6 +207,11 @@ void DDF_Init(int _engine_ver)
 	DDF_GameInit();
 	DDF_LevelInit();
 	DDF_MusicPlaylistInit();
+}
+
+void DDF_SetWhere(const std::string& dir)
+{
+	ddf_where = dir;
 }
 
 
@@ -401,7 +403,7 @@ static void *DDF_MainCacheFile(readinfo_t * readinfo)
 	if (!readinfo->filename)
 		I_Error("DDF_MainReadFile: No file to read\n");
 
-	std::string filename(epi::PATH_Join(ddf_dir.c_str(), readinfo->filename));
+	std::string filename(epi::PATH_Join(ddf_where.c_str(), readinfo->filename));
 
 	file = fopen(filename.c_str(), "rb");
 	if (file == NULL)
@@ -548,381 +550,11 @@ static void DDF_ParseVersion(const char *str, int len)
 //
 
 //
-// DDF_MainReadFile
-//
-// -ACB- 1998/08/10 Added the string reading code
-// -ACB- 1998/09/28 DDF_ReadFunction Localised here
-// -AJA- 1999/10/02 Recursive { } comments.
-// -ES- 2000/02/29 Added
-//
-bool DDF_MainReadFile(readinfo_t * readinfo)
-{
-	std::string token;
-
-	char *name;
-	char *value = NULL;
-	char character;
-	char *memfile;
-	char *memfileptr;
-	int status, formerstatus;
-	int response;
-	int size;
-	int comment_level;
-	int bracket_level;
-	bool firstgo;
-	
-	epi::strent_c current_cmd;
-	
-	int current_index = 0;
-	int entry_count = 0;
-  
-#if (DEBUG_DDFREAD)
-	char charcount = 0;
-#endif
-
-	ddf_version = 127;
-
-	status = waiting_tag;
-	formerstatus = readstatus_invalid;
-	comment_level = 0;
-	bracket_level = 0;
-	firstgo = true;
-
-	cur_ddf_line_num = 1;
-
-	if (!readinfo->memfile && !readinfo->filename)
-		I_Error("DDF_MainReadFile: No file to read\n");
-
-	if (!readinfo->memfile)
-	{
-		readinfo->memfile = (char*)DDF_MainCacheFile(readinfo);
-
-		// no file ?  No worries, we'll get it from edge.wad...
-		if (!readinfo->memfile)
-			return false;
-      
-		cur_ddf_filename = std::string(readinfo->filename);
-	}
-	else
-	{
-		cur_ddf_filename = std::string(readinfo->lumpname);
-	}
-
-	memfileptr = memfile = readinfo->memfile;
-	size = readinfo->memsize;
-
-	// -ACB- 1998/09/12 Copy file to memory: Read until end. Speed optimisation.
-	while (memfileptr < &memfile[size])
-	{
-		// -KM- 1998/12/16 Added #define command to ddf files.
-		if (!strnicmp(memfileptr, "#DEFINE", 7))
-		{
-			bool line = false;
-
-			memfileptr += 8;
-			name = memfileptr;
-
-			while (*memfileptr != ' ' && memfileptr < &memfile[size])
-				memfileptr++;
-
-			if (memfileptr < &memfile[size])
-			{
-				*memfileptr++ = 0;
-				value = memfileptr;
-			}
-			else
-			{
-				DDF_Error("#DEFINE '%s' as what?!\n", name);
-			}
-
-			while (memfileptr < &memfile[size])
-			{
-				if (*memfileptr == '\r')
-					*memfileptr = ' ';
-				if (*memfileptr == '\\')
-					line = true;
-				if (*memfileptr == '\n' && !line)
-					break;
-				memfileptr++;
-			}
-
-			if (*memfileptr == '\n')
-				cur_ddf_line_num++;
-
-			*memfileptr++ = 0;
-
-			DDF_MainAddDefine(name, value);
-
-			token.clear();
-			continue;
-		}
-
-		// -AJA- 1999/10/27: Not the greatest place for it, but detect //
-		//       comments here and ignore them.  Ow the pain of long
-		//       identifier names...  Ow the pain of &memfile[size] :-)
-    
-		if (comment_level == 0 && status != reading_string &&
-			memfileptr+1 < &memfile[size] &&
-			memfileptr[0] == '/' && memfileptr[1] == '/')
-		{
-			while (memfileptr < &memfile[size] && *memfileptr != '\n')
-				memfileptr++;
-
-			if (memfileptr >= &memfile[size])
-				break;
-		}
-    
-		character = *memfileptr++;
-
-		if (character == '\n')
-		{
-			int l_len;
-
-			cur_ddf_line_num++;
-
-			// -AJA- 2000/03/21: determine linedata.  Ouch.
-			for (l_len=0; &memfileptr[l_len] < &memfile[size] &&
-					 memfileptr[l_len] != '\n' && memfileptr[l_len] != '\r'; l_len++)
-			{ }
-
-
-			cur_ddf_linedata = std::string(memfileptr, l_len);
-
-			// -AJA- 2001/05/21: handle directives (lines beginning with #).
-			// This code is more hackitude -- to be fixed when the whole
-			// parsing code gets the overhaul it needs.
-      
-			if (strnicmp(memfileptr, "#CLEARALL", 9) == 0)
-			{
-				if (! firstgo)
-					DDF_Error("#CLEARALL cannot be used inside an entry !\n");
-
-				(* readinfo->clear_all)();
-
-				memfileptr += l_len;
-				continue;
-			}
-
-			if (strnicmp(memfileptr, "#VERSION", 8) == 0)
-			{
-				if (! firstgo)
-					DDF_Error("#VERSION cannot be used inside an entry !\n");
-
-				DDF_ParseVersion(memfileptr + 8, l_len - 8);
-
-				memfileptr += l_len;
-				continue;
-			}
-		}
-
-		response = DDF_MainProcessChar(character, token, status);
-
-		switch (response)
-		{
-			case remark_start:
-				if (comment_level == 0)
-				{
-					formerstatus = status;
-					status = reading_remark;
-				}
-				comment_level++;
-				break;
-
-			case remark_stop:
-				comment_level--;
-				if (comment_level == 0)
-				{
-					status = formerstatus;
-				}
-				break;
-
-			case command_read:
-				if (! token.empty())
-					current_cmd.Set(token.c_str());
-				else
-					current_cmd.clear();
-					
-				SYS_ASSERT(current_index == 0);
-
-				token.clear();
-				status = reading_data;
-				break;
-
-			case tag_start:
-				status = reading_tag;
-				break;
-
-			case tag_stop:
-				if (stricmp(token.c_str(), readinfo->tag) != 0)
-					DDF_Error("Start tag <%s> expected, found <%s>!\n", 
-							  readinfo->tag, token.c_str());
-
-				status = waiting_newdef;
-				token.clear();
-				break;
-
-			case def_start:
-				if (bracket_level > 0)
-					DDF_Error("Unclosed () brackets detected.\n");
-         
-				entry_count++;
-
-				if (firstgo)
-				{
-					firstgo = false;
-					status = reading_newdef;
-				}
-				else
-				{
-					cur_ddf_linedata.clear();
-
-					// finish off previous entry
-					(* readinfo->finish_entry)();
-
-					token.clear();
-					
-					status = reading_newdef;
-
-					cur_ddf_entryname.clear();
-				}
-				break;
-
-			case def_stop:
-				cur_ddf_entryname = epi::STR_Format("[%s]", token.c_str());
-
-				(* readinfo->start_entry)(token.c_str());
-         
-				token.clear();
-				status = reading_command;
-				break;
-
-				// -AJA- 2000/10/02: support for () brackets
-			case group_start:
-				if (status == reading_data || status == reading_command)
-					bracket_level++;
-				break;
-
-			case group_stop:
-				if (status == reading_data || status == reading_command)
-				{
-					bracket_level--;
-					if (bracket_level < 0)
-						DDF_Error("Unexpected `)' bracket.\n");
-				}
-				break;
-
-			case separator:
-				if (bracket_level > 0)
-				{
-					token += (',');
-					break;
-				}
-
-				if (current_cmd.empty())
-					DDF_Error("Unexpected comma `,'.\n");
-
-				if (firstgo)
-					DDF_WarnError2(128, "Command %s used outside of any entry\n",
-								   current_cmd.c_str());
-				else
-				{ 
-					(* readinfo->parse_field)(current_cmd.c_str(), 
-						  DDF_MainGetDefine(token.c_str()), current_index, false);
-					current_index++;
-				}
-
-				token.clear();
-				break;
-
-				// -ACB- 1998/08/10 String Handling
-			case string_start:
-				status = reading_string;
-				break;
-
-				// -ACB- 1998/08/10 String Handling
-			case string_stop:
-				status = reading_data;
-				break;
-
-			case terminator:
-				if (current_cmd.empty())
-					DDF_Error("Unexpected semicolon `;'.\n");
-
-				if (bracket_level > 0)
-					DDF_Error("Missing ')' bracket in ddf command.\n");
-
-				(* readinfo->parse_field)(current_cmd.c_str(), 
-					  DDF_MainGetDefine(token.c_str()), current_index, true);
-				current_index = 0;
-
-				token.clear();
-				status = reading_command;
-				break;
-
-			case property_read:
-				DDF_WarnError2(128, "Badly formed command: Unexpected semicolon `;'\n");
-				break;
-
-			case nothing:
-				break;
-
-			case ok_char:
-#if (DEBUG_DDFREAD)
-				charcount++;
-				I_Debugf("%c", character);
-				if (charcount == 75)
-				{
-					charcount = 0;
-					I_Debugf("\n");
-				}
-#endif
-				break;
-
-			default:
-				break;
-		}
-	}
-
-	current_cmd.clear();
-	cur_ddf_linedata.clear();
-
-	// -AJA- 1999/10/21: check for unclosed comments
-	if (comment_level > 0)
-		DDF_Error("Unclosed comments detected.\n");
-
-	if (bracket_level > 0)
-		DDF_Error("Unclosed () brackets detected.\n");
-
-	if (status == reading_tag)
-		DDF_Error("Unclosed <> brackets detected.\n");
-
-	if (status == reading_newdef)
-		DDF_Error("Unclosed [] brackets detected.\n");
-	
-	if (status == reading_data || status == reading_string)
-		DDF_WarnError2(128, "Unfinished DDF command on last line.\n");
-
-	// if firstgo is true, nothing was defined
-	if (!firstgo)
-		(* readinfo->finish_entry)();
-
-	cur_ddf_entryname.clear();
-	cur_ddf_filename.clear();
-
-	defines.clear();
-
-	if (readinfo->filename)
-		delete[] memfile;
-
-	return true;
-}
-
-//
 // DDF_MainProcessChar
 //
 // 1998/08/10 Added String reading code.
 //
-readchar_t DDF_MainProcessChar(char character, std::string& token, int status)
+static readchar_t DDF_MainProcessChar(char character, std::string& token, int status)
 {
 	//int len;
 
@@ -1115,6 +747,406 @@ readchar_t DDF_MainProcessChar(char character, std::string& token, int status)
 
 	return nothing;
 }
+
+//
+// DDF_MainReadFile
+//
+// -ACB- 1998/08/10 Added the string reading code
+// -ACB- 1998/09/28 DDF_ReadFunction Localised here
+// -AJA- 1999/10/02 Recursive { } comments.
+// -ES- 2000/02/29 Added
+//
+bool DDF_MainReadFile(readinfo_t * readinfo)
+{
+	std::string token;
+	std::string current_cmd;
+
+	char *name;
+	char *value = NULL;
+	char character;
+	char *memfile;
+	char *memfileptr;
+	int status, formerstatus;
+	int response;
+	int size;
+	int comment_level;
+	int bracket_level;
+	bool firstgo;
+	
+	int current_index = 0;
+	int entry_count = 0;
+  
+#if (DEBUG_DDFREAD)
+	char charcount = 0;
+#endif
+
+	ddf_version = 127;
+
+	status = waiting_tag;
+	formerstatus = readstatus_invalid;
+	comment_level = 0;
+	bracket_level = 0;
+	firstgo = true;
+
+	cur_ddf_line_num = 1;
+
+	if (!readinfo->memfile && !readinfo->filename)
+		I_Error("DDF_MainReadFile: No file to read\n");
+
+	if (!readinfo->memfile)
+	{
+		readinfo->memfile = (char*)DDF_MainCacheFile(readinfo);
+
+		// no file ?  No worries, we'll get it from edge.wad...
+		if (!readinfo->memfile)
+			return false;
+      
+		cur_ddf_filename = std::string(readinfo->filename);
+	}
+	else
+	{
+		cur_ddf_filename = std::string(readinfo->lumpname);
+	}
+
+	memfileptr = memfile = readinfo->memfile;
+	size = readinfo->memsize;
+
+	// -ACB- 1998/09/12 Copy file to memory: Read until end. Speed optimisation.
+	while (memfileptr < &memfile[size])
+	{
+		// -KM- 1998/12/16 Added #define command to ddf files.
+		if (!strnicmp(memfileptr, "#DEFINE", 7))
+		{
+			bool line = false;
+
+			memfileptr += 8;
+			name = memfileptr;
+
+			while (*memfileptr != ' ' && memfileptr < &memfile[size])
+				memfileptr++;
+
+			if (memfileptr < &memfile[size])
+			{
+				*memfileptr++ = 0;
+				value = memfileptr;
+			}
+			else
+			{
+				DDF_Error("#DEFINE '%s' as what?!\n", name);
+			}
+
+			while (memfileptr < &memfile[size])
+			{
+				if (*memfileptr == '\r')
+					*memfileptr = ' ';
+				if (*memfileptr == '\\')
+					line = true;
+				if (*memfileptr == '\n' && !line)
+					break;
+				memfileptr++;
+			}
+
+			if (*memfileptr == '\n')
+				cur_ddf_line_num++;
+
+			*memfileptr++ = 0;
+
+			DDF_MainAddDefine(name, value);
+
+			token.clear();
+			continue;
+		}
+
+		// -AJA- 1999/10/27: Not the greatest place for it, but detect //
+		//       comments here and ignore them.  Ow the pain of long
+		//       identifier names...  Ow the pain of &memfile[size] :-)
+    
+		if (comment_level == 0 && status != reading_string &&
+			memfileptr+1 < &memfile[size] &&
+			memfileptr[0] == '/' && memfileptr[1] == '/')
+		{
+			while (memfileptr < &memfile[size] && *memfileptr != '\n')
+				memfileptr++;
+
+			if (memfileptr >= &memfile[size])
+				break;
+		}
+    
+		character = *memfileptr++;
+
+		if (character == '\n')
+		{
+			int l_len;
+
+			cur_ddf_line_num++;
+
+			// -AJA- 2000/03/21: determine linedata.  Ouch.
+			for (l_len=0; &memfileptr[l_len] < &memfile[size] &&
+					 memfileptr[l_len] != '\n' && memfileptr[l_len] != '\r'; l_len++)
+			{ }
+
+
+			cur_ddf_linedata = std::string(memfileptr, l_len);
+
+			// -AJA- 2001/05/21: handle directives (lines beginning with #).
+			// This code is more hackitude -- to be fixed when the whole
+			// parsing code gets the overhaul it needs.
+      
+			if (strnicmp(memfileptr, "#CLEARALL", 9) == 0)
+			{
+				if (! firstgo)
+					DDF_Error("#CLEARALL cannot be used inside an entry !\n");
+
+				(* readinfo->clear_all)();
+
+				memfileptr += l_len;
+				continue;
+			}
+
+			if (strnicmp(memfileptr, "#VERSION", 8) == 0)
+			{
+				if (! firstgo)
+					DDF_Error("#VERSION cannot be used inside an entry !\n");
+
+				DDF_ParseVersion(memfileptr + 8, l_len - 8);
+
+				memfileptr += l_len;
+				continue;
+			}
+		}
+
+		response = DDF_MainProcessChar(character, token, status);
+
+		switch (response)
+		{
+			case remark_start:
+				if (comment_level == 0)
+				{
+					formerstatus = status;
+					status = reading_remark;
+				}
+				comment_level++;
+				break;
+
+			case remark_stop:
+				comment_level--;
+				if (comment_level == 0)
+				{
+					status = formerstatus;
+				}
+				break;
+
+			case command_read:
+				if (! token.empty())
+					current_cmd = token.c_str();
+				else
+					current_cmd.clear();
+
+				SYS_ASSERT(current_index == 0);
+
+				token.clear();
+				status = reading_data;
+				break;
+
+			case tag_start:
+				status = reading_tag;
+				break;
+
+			case tag_stop:
+				if (stricmp(token.c_str(), readinfo->tag) != 0)
+					DDF_Error("Start tag <%s> expected, found <%s>!\n", 
+							  readinfo->tag, token.c_str());
+
+				status = waiting_newdef;
+				token.clear();
+				break;
+
+			case def_start:
+				if (bracket_level > 0)
+					DDF_Error("Unclosed () brackets detected.\n");
+         
+				entry_count++;
+
+				if (firstgo)
+				{
+					firstgo = false;
+					status = reading_newdef;
+				}
+				else
+				{
+					cur_ddf_linedata.clear();
+
+					// finish off previous entry
+					(* readinfo->finish_entry)();
+
+					token.clear();
+					
+					status = reading_newdef;
+
+					cur_ddf_entryname.clear();
+				}
+				break;
+
+			case def_stop:
+				cur_ddf_entryname = epi::STR_Format("[%s]", token.c_str());
+
+				(* readinfo->start_entry)(token.c_str());
+         
+				token.clear();
+				status = reading_command;
+				break;
+
+				// -AJA- 2000/10/02: support for () brackets
+			case group_start:
+				if (status == reading_data || status == reading_command)
+					bracket_level++;
+				break;
+
+			case group_stop:
+				if (status == reading_data || status == reading_command)
+				{
+					bracket_level--;
+					if (bracket_level < 0)
+						DDF_Error("Unexpected `)' bracket.\n");
+				}
+				break;
+
+			case separator:
+				if (bracket_level > 0)
+				{
+					token += (',');
+					break;
+				}
+
+				if (current_cmd.empty())
+					DDF_Error("Unexpected comma `,'.\n");
+
+				if (firstgo)
+					DDF_WarnError2(128, "Command %s used outside of any entry\n",
+								   current_cmd.c_str());
+				else
+				{ 
+					(* readinfo->parse_field)(current_cmd.c_str(), 
+						  DDF_MainGetDefine(token.c_str()), current_index, false);
+					current_index++;
+				}
+
+				token.clear();
+				break;
+
+				// -ACB- 1998/08/10 String Handling
+			case string_start:
+				status = reading_string;
+				break;
+
+				// -ACB- 1998/08/10 String Handling
+			case string_stop:
+				status = reading_data;
+				break;
+
+			case terminator:
+				if (current_cmd.empty())
+					DDF_Error("Unexpected semicolon `;'.\n");
+
+				if (bracket_level > 0)
+					DDF_Error("Missing ')' bracket in ddf command.\n");
+
+				(* readinfo->parse_field)(current_cmd.c_str(), 
+					  DDF_MainGetDefine(token.c_str()), current_index, true);
+				current_index = 0;
+
+				token.clear();
+				status = reading_command;
+				break;
+
+			case property_read:
+				DDF_WarnError2(128, "Badly formed command: Unexpected semicolon `;'\n");
+				break;
+
+			case nothing:
+				break;
+
+			case ok_char:
+#if (DEBUG_DDFREAD)
+				charcount++;
+				I_Debugf("%c", character);
+				if (charcount == 75)
+				{
+					charcount = 0;
+					I_Debugf("\n");
+				}
+#endif
+				break;
+
+			default:
+				break;
+		}
+	}
+
+	current_cmd.clear();
+	cur_ddf_linedata.clear();
+
+	// -AJA- 1999/10/21: check for unclosed comments
+	if (comment_level > 0)
+		DDF_Error("Unclosed comments detected.\n");
+
+	if (bracket_level > 0)
+		DDF_Error("Unclosed () brackets detected.\n");
+
+	if (status == reading_tag)
+		DDF_Error("Unclosed <> brackets detected.\n");
+
+	if (status == reading_newdef)
+		DDF_Error("Unclosed [] brackets detected.\n");
+	
+	if (status == reading_data || status == reading_string)
+		DDF_WarnError2(128, "Unfinished DDF command on last line.\n");
+
+	// if firstgo is true, nothing was defined
+	if (!firstgo)
+		(* readinfo->finish_entry)();
+
+	cur_ddf_entryname.clear();
+	cur_ddf_filename.clear();
+
+	defines.clear();
+
+	if (readinfo->filename)
+		delete[] memfile;
+
+	return true;
+}
+
+#if 0
+static XXX *parse_type;
+
+bool DDF_Load(epi::file_c *f)
+{
+	byte *data = f->LoadIntoMemory();
+	if (! data)
+		return false;
+
+	for (;;)
+	{
+		get token;
+
+		if (token == EOF) break;
+
+		if (token == WHITESPACE | COMMENTS) continue;
+
+		if (token == DIRECTIVE && entries == 0) handle directive;
+
+		if (token == TAG) set type
+
+		if (token == ENTRY) begin entry
+
+		else parse command to current entry
+	}
+
+	return true;
+}
+#endif
+
 
 //
 // DDF_MainGetNumeric
