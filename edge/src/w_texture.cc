@@ -98,7 +98,6 @@ static void InstallTextureLumps(int file, const wadtex_resource_c *WT)
 	epi::s32array_c patchlookup;
 	const int *directory;
 
-	lumpname_c name;
 	const char *names;
 	const char *name_p;
 
@@ -115,9 +114,11 @@ static void InstallTextureLumps(int file, const wadtex_resource_c *WT)
 
 	for (i = 0; i < nummappatches; i++)
 	{
-		name.Set((const char*)(name_p + i * 8));
-		j = W_CheckNumForTexPatch(name);
-		patchlookup.Insert(j);
+		char name[16];
+
+		Z_StrNCpy(name, (const char*)(name_p + i * 8), 8);
+
+		patchlookup.Insert(W_CheckNumForTexPatch(name));
 	}
 
 	W_DoneWithLump(names);
