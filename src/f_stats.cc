@@ -1453,13 +1453,13 @@ void WI_Start(wbstartstruct_t * wbstartstruct)
 	// -AJA- 1999/10/22: background cameras.
 	background_camera_mo = NULL;
 
-	if (worldint.GetGameDef()->bg_camera[0])
+	if (! worldint.GetGameDef()->bg_camera.empty())
 	{
 		mobj_t *mo;
 
 		for (mo = mobjlisthead; mo != NULL; mo = mo->next)
 		{
-			if (DDF_CompareName(mo->info->ddf.name, worldint.GetGameDef()->bg_camera) != 0)
+			if (DDF_CompareName(mo->info->ddf.name, worldint.GetGameDef()->bg_camera.c_str()) != 0)
 				continue;
 
 			background_camera_mo = mo;
