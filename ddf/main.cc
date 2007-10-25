@@ -1366,22 +1366,6 @@ void DDF_MainGetInlineStr10(const char *info, void *storage)
 	strcpy(str, info);
 }
 
-//
-// DDF_MainGetInlineStr32
-//
-// Gets the string and checks the length to see if is not more than 31.
-
-void DDF_MainGetInlineStr32(const char *info, void *storage)
-{
-	char *str = (char *)storage;
-
-	SYS_ASSERT(info && storage);
-
-	if (strlen(info) > 31)
-		DDF_Error("Name %s too long (must be 31 characters or less)\n", info);
-
-	strcpy(str, info);
-}
 
 void DDF_MainRefAttack(const char *info, void *storage)
 {

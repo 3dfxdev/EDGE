@@ -259,7 +259,6 @@ void DDF_MainGetFloat (const char *info, void *storage);
 void DDF_MainGetAngle (const char *info, void *storage);
 void DDF_MainGetSlope (const char *info, void *storage);
 void DDF_MainGetInlineStr10 (const char *info, void *storage);
-void DDF_MainGetInlineStr32 (const char *info, void *storage);
 void DDF_MainGetNumeric (const char *info, void *storage);
 void DDF_MainGetString (const char *info, void *storage);
 void DDF_MainGetTime (const char *info, void *storage);
