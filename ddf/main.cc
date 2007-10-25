@@ -1349,21 +1349,21 @@ bool DDF_MainParseField(const commandlist_t *commands,
 	return true;
 }
 
-//
-// DDF_MainGetInlineStr10
-//
-// Gets the string and checks the length to see if is not more than 9.
 
-void DDF_MainGetInlineStr10(const char *info, void *storage)
+void DDF_MainGetLumpName(const char *info, void *storage)
 {
-	char *str = (char *)storage;
+	// Gets the string and checks the length is valid for a lump.
 
 	SYS_ASSERT(info && storage);
 
-	if (strlen(info) > 9)
-		DDF_Error("Name %s too long (must be 9 characters or less)\n", info);
+	lumpname_c *LN = (lumpname_c *)storage;
 
-	strcpy(str, info);
+	if (strlen(info) == 9)
+		DDF_WarnError2(131, "Name %s too long (should be 8 characters or less)\n", info);
+	else if (strlen(info) > 9)
+		DDF_Error("Name %s too long (must be 8 characters or less)\n", info);
+
+	LN->Set(info);
 }
 
 
@@ -1378,9 +1378,7 @@ void DDF_MainRefAttack(const char *info, void *storage)
 		DDF_WarnError2(128, "Unknown Attack: %s\n", info);
 }
 
-//
-// DDF_MainLookupDirector
-//
+
 int DDF_MainLookupDirector(const mobjtype_c *info, const char *ref)
 {
 	const char *p = strchr(ref, ':');
@@ -1398,6 +1396,7 @@ int DDF_MainLookupDirector(const mobjtype_c *info, const char *ref)
 	// FIXME: check for overflow
 	return state + offset;
 }
+
 
 void DDF_MainGetFloat(const char *info, void *storage)
 {
