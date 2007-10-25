@@ -171,14 +171,16 @@ bool external_ddf = false;
 bool hom_detect = false;
 bool autoquickload = false;
 
-epi::strent_c iwad_base;
+std::string cfgfile;
+std::string ewadfile;
+std::string iwad_base;
 
-epi::strent_c cache_dir;
-epi::strent_c ddf_dir;
-epi::strent_c game_dir;
-epi::strent_c home_dir;
-epi::strent_c save_dir;
-epi::strent_c shot_dir;
+std::string cache_dir;
+std::string ddf_dir;
+std::string game_dir;
+std::string home_dir;
+std::string save_dir;
+std::string shot_dir;
 
 int crosshair = 0;
 
@@ -934,7 +936,7 @@ void InitDirectories(void)
 
 	const char *s = M_GetParm("-home");
     if (s)
-        home_dir.Set(s);
+        home_dir = s;
 
 	// Get the Home Directory from environment if set
     if (home_dir.empty())
@@ -942,96 +944,88 @@ void InitDirectories(void)
         s = getenv("HOME");
         if (s)
         {
-            path = epi::PATH_Join(s, EDGEHOMESUBDIR); 
+            home_dir = epi::PATH_Join(s, EDGEHOMESUBDIR); 
 
-            const char *test_dir = path.c_str();
-			if (!epi::FS_IsDir(test_dir))
+			if (! epi::FS_IsDir(home_dir.c_str()))
 			{
-                epi::FS_MakeDir(test_dir);
+                epi::FS_MakeDir(home_dir.c_str());
 
                 // Check whether the directory was created
-                if (!epi::FS_IsDir(test_dir))
-                    test_dir = NULL; // Make invalid since it clearly isn't
+                if (! epi::FS_IsDir(home_dir.c_str()))
+                    home_dir.clear();
 			}
-
-            if (test_dir)
-                home_dir.Set(test_dir);
         }
     }
 
     if (home_dir.empty())
-        home_dir.Set("."); // Default to current directory
+        home_dir = "."; // Default to current directory
 
 	// Get the Game Directory from parameter.
+	game_dir = ".";
+
 	s = M_GetParm("-game");
 	if (s)
-    {
-        game_dir.Set(s);
-	}
-	else
-	{
-        game_dir.Set(".");
-	}
+		game_dir = s;
 
 	// add parameter file "gamedir/parms" if it exists.
-    path = epi::PATH_Join(game_dir.c_str(), "parms");
+	std::string parms = epi::PATH_Join(game_dir.c_str(), "parms");
 
-	if (epi::FS_Access(path.c_str(), epi::file_c::ACCESS_READ))
+	if (epi::FS_Access(parms.c_str(), epi::file_c::ACCESS_READ))
 	{
 		// Insert it right after the game parameter
-		M_ApplyResponseFile(path.c_str(), M_CheckParm("-game") + 2);
+		M_ApplyResponseFile(parms.c_str(), M_CheckParm("-game") + 2);
 	}
+
+	ddf_dir = game_dir;
 
 	s = M_GetParm("-ddf");
 	if (s)
 	{
+		ddf_dir = std::string(s);
 		external_ddf = true;
-
-		ddf_dir.Set(s);
 	} 
-	else
-	{
-		ddf_dir.Set(game_dir.c_str());
-	}
+
+	DDF_SetWhere(ddf_dir);
 
 	// config file
 	s = M_GetParm("-config");
 	if (s)
 	{
-		path = M_ComposeFileName(home_dir.c_str(), s);
-
-		cfgfile.Set(path.c_str());
+		cfgfile = M_ComposeFileName(home_dir.c_str(), s);
 	}
 	else
     {
-        path = epi::PATH_Join(home_dir.c_str(), EDGECONFIGFILE);
+        cfgfile = epi::PATH_Join(home_dir.c_str(), EDGECONFIGFILE);
+	}
 
-		cfgfile.Set(path.c_str());
+	// edge.wad file
+	s = M_GetParm("-ewad");
+	if (s)
+	{
+		ewadfile = M_ComposeFileName(home_dir.c_str(), s);
+	}
+	else
+    {
+        ewadfile = epi::PATH_Join(home_dir.c_str(), "edge.wad");
 	}
 
 	// cache directory
-    path = epi::PATH_Join(home_dir.c_str(), CACHEDIR);
+    cache_dir = epi::PATH_Join(home_dir.c_str(), CACHEDIR);
 
-    if (! epi::FS_IsDir(path.c_str()))
-        epi::FS_MakeDir(path.c_str());
-
-    cache_dir.Set(path.c_str());
+    if (! epi::FS_IsDir(cache_dir.c_str()))
+        epi::FS_MakeDir(cache_dir.c_str());
 
 	// savegame directory
-    path = epi::PATH_Join(home_dir.c_str(), SAVEGAMEDIR);
+    save_dir = epi::PATH_Join(home_dir.c_str(), SAVEGAMEDIR);
 	
-    if (! epi::FS_IsDir(path.c_str()))
-        epi::FS_MakeDir(path.c_str());
-
-    save_dir.Set(path.c_str());
+    if (! epi::FS_IsDir(save_dir.c_str()))
+        epi::FS_MakeDir(save_dir.c_str());
 
 	// screenshot directory
-    path = epi::PATH_Join(home_dir.c_str(), SCRNSHOTDIR);
+    shot_dir = epi::PATH_Join(home_dir.c_str(), SCRNSHOTDIR);
 
-    if (!epi::FS_IsDir(path.c_str()))
-        epi::FS_MakeDir(path.c_str());
-
-    shot_dir.Set(path.c_str());
+    if (!epi::FS_IsDir(shot_dir.c_str()))
+        epi::FS_MakeDir(shot_dir.c_str());
 }
 
 //
@@ -1172,8 +1166,7 @@ static void IdentifyVersion(void)
 
     W_AddRawFilename(iwad_file.c_str(), FLKIND_IWad);
 
-    iwad_par = epi::PATH_GetBasename(iwad_file.c_str());
-	iwad_base.Set(iwad_par.c_str());
+    iwad_base = epi::PATH_GetBasename(iwad_file.c_str());
 
 	L_WriteDebug("IWAD BASE = [%s]\n", iwad_base.c_str());
 

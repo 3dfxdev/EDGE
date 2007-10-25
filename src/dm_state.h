@@ -138,15 +138,15 @@ extern int gametic;
 //
 
 // File handling stuff.
-extern epi::strent_c cfgfile;
+extern std::string cfgfile;
 
-extern epi::strent_c iwad_base;
+extern std::string iwad_base;
 
-extern epi::strent_c cache_dir;
-extern epi::strent_c ddf_dir;
-extern epi::strent_c game_dir;
-extern epi::strent_c save_dir;
-extern epi::strent_c shot_dir;
+extern std::string cache_dir;
+extern std::string ddf_dir;
+extern std::string game_dir;
+extern std::string save_dir;
+extern std::string shot_dir;
 
 // if true, load DDF/RTS as external files (instead of from EDGE.WAD)
 extern bool external_ddf;
