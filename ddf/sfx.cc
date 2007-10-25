@@ -39,7 +39,7 @@ sfxdef_container_c sfxdefs;
 
 static const commandlist_t sfx_commands[] =
 {
-	DF("LUMP_NAME", lump_name, DDF_MainGetInlineStr10),
+	DF("LUMP_NAME", lump_name, DDF_MainGetLumpName),
 	DF("SINGULAR", singularity, DDF_MainGetNumeric),
 	DF("PRIORITY", priority, DDF_MainGetNumeric),
 	DF("VOLUME", volume, DDF_MainGetPercent),

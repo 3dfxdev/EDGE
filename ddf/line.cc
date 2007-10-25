@@ -90,7 +90,7 @@ const commandlist_t floor_commands[] =
 	DF("DEST_OFFSET", dest, DDF_MainGetFloat),
 	DF("OTHER_REF",   otherref,  DDF_SectGetDestRef),
 	DF("OTHER_OFFSET", other, DDF_MainGetFloat),
-	DF("TEXTURE", tex, DDF_MainGetInlineStr10),
+	DF("TEXTURE", tex, DDF_MainGetLumpName),
 	DF("PAUSE_TIME", wait,  DDF_MainGetTime),
 	DF("WAIT_TIME", prewait,  DDF_MainGetTime),
 	DF("SFX_START", sfxstart, DDF_MainLookupSound),
