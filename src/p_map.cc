@@ -1910,10 +1910,8 @@ void P_RadiusAttack(mobj_t * spot, mobj_t * source, float radius,
 //  SECTOR HEIGHT CHANGING
 //
 
-static bool crushchange;
 static bool nofit;
-static int crush_time;
-static float crush_damage;
+static int crush_damage;
 
 
 static bool PIT_ChangeSector(mobj_t * thing, bool widening)
@@ -1970,7 +1968,7 @@ static bool PIT_ChangeSector(mobj_t * thing, bool widening)
 	if (! widening)
 		nofit = true;
 
-	if (crushchange && !(leveltime % crush_time))
+	if (crush_damage > 0 && (leveltime % 4) == 0)
 	{
 		P_DamageMobj(thing, NULL, NULL, crush_damage, NULL);
 
@@ -1995,7 +1993,7 @@ static bool PIT_ChangeSector(mobj_t * thing, bool widening)
 // give the amount the floor/ceiling is moving.
 //
 // Things will be moved vertically if they need to.  When
-// "crushchange" is true, things that no longer fit will be crushed
+// "crush_damage" is non-zero, things that no longer fit will be crushed
 // (and will also set the "nofit" variable).
 // 
 // NOTE: the heights (f_h, c_h) currently broken.
@@ -2005,9 +2003,6 @@ static void ChangeSectorHeights(sector_t *sec, float f_h,
 {
 	touch_node_t *tn, *next;
 	mobj_t *mo;
-
-	crush_time   = 4;
-	crush_damage = 10.0f;
 
 	bool widening = (f_dh <= 0) && (c_dh >= 0);
 
@@ -2148,20 +2143,20 @@ bool P_CheckSolidSectorMove(sector_t *sec, bool is_ceiling,
 // P_CheckSolidSectorMove() first to check if move is possible.
 // 
 // Things are checked here, and will be moved if they overlap the
-// move.  If they no longer fit and the "crush" parameter is true,
+// move.  If they no longer fit and the "crush" parameter is non-zero,
 // they will take damage.  Returns true if at least one thing no
 // longers fits, otherwise false.
 //
 bool P_SolidSectorMove(sector_t *sec, bool is_ceiling,
-							float dh, bool crush, bool nocarething)
+							float dh, int crush, bool nocarething)
 {
 	extrafloor_t *ef;
 
 	if (dh == 0)
 		return false;
 
-	crushchange = crush;
 	nofit = false;
+	crush_damage = crush;
 
 	//
 	// first update real sector
