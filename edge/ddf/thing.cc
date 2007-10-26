@@ -1961,9 +1961,9 @@ void mobjtype_c::Default()
 
     fuse = 0;
 	reload_shots = 5;
-	armour_protect = PERCENT_MAKE(50);
+	armour_protect = -1.0;  // disabled!
 	armour_deplete = PERCENT_MAKE(100);
-	armour_class = BITSET_EMPTY;
+	armour_class = BITSET_FULL;
 
 	side = BITSET_EMPTY;
     playernum = 0;
