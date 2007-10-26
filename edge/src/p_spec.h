@@ -140,7 +140,7 @@ typedef struct plane_move_s
 	float destheight;
 	float elev_height;
 	float speed;
-	bool crush;
+	int crush;  // damage, or 0 for no crushing
 
 	// 1 = up, 0 = waiting at top, -1 = down
 	int direction;

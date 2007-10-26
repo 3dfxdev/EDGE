@@ -259,12 +259,12 @@ void P_RemoveAllActiveParts(void)
 //    means some objects got in the way (whether crushed or not).
 //
 //    RES_Crushed - some objects got in the way.  When `crush'
-//    parameter is true, those object will have been crushed (take
+//    parameter is non-zero, those object will have been crushed (take
 //    damage) and the plane height will be the new height, otherwise
 //    the plane height will remain at its current height.
 //
 static move_result_e AttemptMovePlane(sector_t * sector, 
-                                      float speed, float dest, bool crush, 
+                                      float speed, float dest, int crush, 
                                       bool is_ceiling, int direction)
 {
     bool past = false;
@@ -308,7 +308,7 @@ static move_result_e AttemptMovePlane(sector_t * sector,
 
     // bugger, something got in our way !
  
-    if (! crush)
+    if (crush == 0)
     {
         // undo the change
         P_SolidSectorMove(sector, is_ceiling, -speed, false, false);
@@ -318,7 +318,7 @@ static move_result_e AttemptMovePlane(sector_t * sector,
 }
 
 static move_result_e AttemptMoveSector(sector_t * sector,
-		plane_move_t *pmov, float dest, bool crush)
+		plane_move_t *pmov, float dest, int crush)
 {
 	move_result_e res;
 
@@ -722,7 +722,7 @@ static plane_move_t *P_SetupSectorAction(sector_t * sector,
 
     plane->whatiam = MDT_PLANE;
     plane->sector = sector;
-    plane->crush = def->crush;
+    plane->crush = def->crush_damage;
     plane->sfxstarted = false;
 
     start = HEIGHT(sector, def->is_ceiling);

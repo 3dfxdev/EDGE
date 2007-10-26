@@ -874,7 +874,7 @@ static void MoveOneSector(sector_t *sec, s_movesector_t *t)
 	if (! P_CheckSolidSectorMove(sec, t->is_ceiling, dh))
 		return;
 
-	P_SolidSectorMove(sec, t->is_ceiling, dh, true, false);
+	P_SolidSectorMove(sec, t->is_ceiling, dh);
 }
 
 void RAD_ActMoveSector(rad_trigger_t *R, mobj_t *actor, void *param)
