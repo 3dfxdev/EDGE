@@ -1,5 +1,12 @@
 Andrew Apted's Log
 
+2007/10/26:
+
+Added commands FLOOR.CRUSH_DAMAGE and CEILING.CRUSH_DAMAGE
+to DDF which is used to specify that the floor/ceiling will
+be a crusher and how much damage to do every 4 tics.  The
+old method of "CRUSH=TRUE" still works but is deprecated.
+
 2007/10/24:
 
 Fixed the weapon model clipping problem by drawing it last
