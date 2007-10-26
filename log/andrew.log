@@ -7,6 +7,9 @@ to DDF which is used to specify that the floor/ceiling will
 be a crusher and how much damage to do every 4 tics.  The
 old method of "CRUSH=TRUE" still works but is deprecated.
 
+Small rework to new armour stuff: ARMOUR_PROTECTION command
+is now the compulsory one (instead of ARMOUR_CLASS).
+
 2007/10/24:
 
 Fixed the weapon model clipping problem by drawing it last
