@@ -376,7 +376,7 @@ static void MovePlane(plane_move_t *plane)
         case DIRECTION_DOWN:
             res = AttemptMoveSector(plane->sector, plane,
                                    MIN(plane->startheight, plane->destheight),
-                                   plane->crush && plane->is_ceiling);
+                                   plane->is_ceiling ? plane->crush : 0);
 
 			MakeMovingSound(&plane->sfxstarted, plane->type->sfxdown,
                             &plane->sector->sfx_origin);
@@ -485,7 +485,7 @@ static void MovePlane(plane_move_t *plane)
         case DIRECTION_UP:
             res = AttemptMoveSector(plane->sector, plane,
                                    MAX(plane->startheight, plane->destheight),
-                                   plane->crush && !plane->is_ceiling);
+                                   plane->is_ceiling ? 0 : plane->crush);
 
 			MakeMovingSound(&plane->sfxstarted, plane->type->sfxup,
                             &plane->sector->sfx_origin);
