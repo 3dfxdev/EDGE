@@ -277,7 +277,6 @@ public:
 
     // True for a ceiling, false for a floor
 	bool is_ceiling;
-	bool crush;
 
     // How fast the plane moves.
 	float speed_up;
@@ -295,6 +294,9 @@ public:
 
     // Floor texture to change to.
 	lumpname_c tex;
+
+	// How much crush damage to do (0 for none).
+	int crush_damage;
 
 	// PLAT/DOOR Specific: Time to wait before returning.
 	int wait;
@@ -694,8 +696,8 @@ public:
 	// Number of times this line can be triggered. -1 = Any amount
 	int count;
 
-	// Crush.  If true, players will be crushed.  If false, obj will stop(/return)
-	bool crush;
+///---	// Crush.  If true, players will be crushed.  If false, obj will stop(/return)
+///---	bool crush;
 
 	// Floor - FIXME!!! Pointer/reference to table?
 	movplanedef_c f;
@@ -883,10 +885,6 @@ public:
 
 	// -AJA- 1999/10/24: Appearance control.
 	when_appear_e appear;
-
-	// -AJA- 2000/01/02: DDF-itisation of crushers.
-	int crush_time;
-	float crush_damage;
 
     // -AJA- 2000/04/16: Pushing (fixed direction).
 	float push_speed;

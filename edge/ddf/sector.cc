@@ -35,6 +35,7 @@ static sectortype_c *dynamic_sector;
 sectortype_container_c sectortypes; 	// <-- User-defined
 
 void DDF_SectGetSpecialFlags(const char *info, void *storage);
+static void DDF_SectMakeCrush(const char *info, void *storage);
 
 #undef  DDF_CMD_BASE
 #define DDF_CMD_BASE  buffer_sector
@@ -47,7 +48,6 @@ static const commandlist_t sect_commands[] =
 
 	DF("SECRET", secret, DDF_MainGetBoolean),
 	DF("SPECIAL", special_flags, DDF_SectGetSpecialFlags),
-	DF("CRUSH", crush, DDF_MainGetBoolean),
 
 	DF("LIGHT_TYPE", l.type, DDF_SectGetLighttype),
 	DF("LIGHT_LEVEL", l.level, DDF_MainGetNumeric),
@@ -69,13 +69,14 @@ static const commandlist_t sect_commands[] =
 	DF("PUSH_ZSPEED", push_zspeed, DDF_MainGetFloat),
 
 	// -AJA- backwards compatibility cruft...
+	DF("CRUSH", ddf, DDF_SectMakeCrush),
+	DF("CRUSH_DAMAGE", ddf, DDF_SectMakeCrush),
+	DF("CRUSH_TIME", ddf, DDF_DummyFunction),
+
 	DF("!DAMAGE", damage.nominal, DDF_MainGetFloat),
 	DF("!DAMAGETIME", damage.delay, DDF_MainGetTime),
 	DF("!SOUND", ddf, DDF_DummyFunction),
 	DF("!LIGHT_PROBABILITY", ddf, DDF_DummyFunction),
-
-	DF("CRUSH_TIME", crush_time, DDF_MainGetTime),
-	DF("CRUSH_DAMAGE", crush_damage, DDF_MainGetFloat),
 
 	DDF_CMD_END
 };
@@ -431,6 +432,16 @@ void DDF_SectGetDestRef(const char *info, void *storage)
 	}
 }
 
+static void DDF_SectMakeCrush(const char *info, void *storage)
+{
+	buffer_sector.f.crush_damage = 10;
+	buffer_sector.c.crush_damage = 10;
+}
+
+
+//----------------------------------------------------------------------------
+
+
 // --> Sector type definition class
 
 //
@@ -470,8 +481,6 @@ void sectortype_c::Copy(sectortype_c &src)
 void sectortype_c::CopyDetail(sectortype_c &src)
 {
 	secret = src.secret;
-	crush = src.crush;
-
 	gravity = src.gravity;
 	friction = src.friction;
 	viscosity = src.viscosity;
@@ -492,9 +501,6 @@ void sectortype_c::CopyDetail(sectortype_c &src)
 
 	appear = src.appear;
 
-	crush_time = src.crush_time;
-	crush_damage = src.crush_damage;
-
 	push_speed = src.push_speed;
 	push_zspeed = src.push_zspeed;
 	push_angle = src.push_angle;
@@ -508,8 +514,6 @@ void sectortype_c::Default()
 	ddf.Default();
 	
 	secret = false;
-	crush = false;
-
 	gravity = GRAVITY;
 	friction = FRICTION;
 	viscosity = VISCOSITY;
@@ -528,8 +532,6 @@ void sectortype_c::Default()
 	ambient_sfx = NULL;
 
 	appear = DEFAULT_APPEAR;
-	crush_time = 4;
-	crush_damage = 10.0f;
 
 	push_speed = 0.0f;
 	push_zspeed = 0.0f;

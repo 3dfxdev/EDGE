@@ -78,6 +78,8 @@ static void DDF_LineGetSlideType(const char *info, void *storage);
 static void DDF_LineGetLineEffect(const char *info, void *storage);
 static void DDF_LineGetSectorEffect(const char *info, void *storage);
 
+static void DDF_LineMakeCrush(const char *info, void *storage);
+
 #undef  DDF_CMD_BASE
 #define DDF_CMD_BASE  buffer_floor
 
@@ -90,6 +92,7 @@ const commandlist_t floor_commands[] =
 	DF("DEST_OFFSET", dest, DDF_MainGetFloat),
 	DF("OTHER_REF",   otherref,  DDF_SectGetDestRef),
 	DF("OTHER_OFFSET", other, DDF_MainGetFloat),
+	DF("CRUSH_DAMAGE", crush_damage, DDF_MainGetNumeric),
 	DF("TEXTURE", tex, DDF_MainGetLumpName),
 	DF("PAUSE_TIME", wait,  DDF_MainGetTime),
 	DF("WAIT_TIME", prewait,  DDF_MainGetTime),
@@ -148,7 +151,6 @@ static const commandlist_t linedef_commands[] =
 	DF("KEYS", keys, DDF_LineGetSecurity),
 	DF("FAILED_MESSAGE", failedmessage, DDF_MainGetString),
 	DF("COUNT", count, DDF_MainGetNumeric),
-	DF("CRUSH", crush, DDF_MainGetBoolean),
 
 	DF("DONUT", d.dodonut, DDF_MainGetBoolean),
 	DF("DONUT_IN_SFX", d.d_sfxin, DDF_MainLookupSound),
@@ -199,6 +201,8 @@ static const commandlist_t linedef_commands[] =
 	DF("COLOUR", fx_color, DDF_MainGetRGB),
 
 	// -AJA- backwards compatibility cruft...
+	DF("CRUSH", ddf, DDF_LineMakeCrush),
+
 	DF("SECSPECIAL", ddf, DDF_DummyFunction),
 
 	DF("!EXTRAFLOOR_TRANSLUCENCY", translucency, DDF_MainGetPercent),
@@ -341,8 +345,6 @@ static void LinedefParseField(const char *field, const char *contents,
 //
 static void LinedefFinishEntry(void)
 {
-	buffer_line.c.crush = buffer_line.f.crush = buffer_line.crush;
-
 	// -KM- 1999/01/29 Convert old style scroller to new.
 	if (s_dir & dir_vert)
 	{
@@ -974,6 +976,16 @@ static void DDF_LineGetSectorEffect(const char *info, void *storage)
 	}
 }
 
+static void DDF_LineMakeCrush(const char *info, void *storage)
+{
+	buffer_line.f.crush_damage = 10;
+	buffer_line.c.crush_damage = 10;
+}
+
+
+//----------------------------------------------------------------------------
+
+
 // --> Donut definition class
 
 //
@@ -1236,13 +1248,13 @@ void movplanedef_c::Copy(movplanedef_c &src)
 {
 	type = src.type;
 	is_ceiling = src.is_ceiling;
-	crush = src.crush;
 	speed_up = src.speed_up;
 	speed_down = src.speed_down;
 	destref = src.destref;
 	dest = src.dest;
 	otherref = src.otherref;
 	other = src.other;
+	crush_damage = src.crush_damage;
 	tex = src.tex;
 	wait = src.wait;
     prewait = src.prewait;
@@ -1266,8 +1278,6 @@ void movplanedef_c::Default(movplanedef_c::default_e def)
 		is_ceiling = true;
 	else
 		is_ceiling = false;
-
-	crush = false;
 
 	switch (def)
 	{
@@ -1322,7 +1332,9 @@ void movplanedef_c::Default(movplanedef_c::default_e def)
 	
 	// FIXME!!! Why are we using INT_MAX with a fp number?
 	other = (def != DEFAULT_DonutFloor) ? 0.0f : (float)INT_MAX;
-	
+
+	crush_damage = 0;
+
 	tex.clear();
 	
 	wait = 0;
@@ -1530,14 +1542,15 @@ void linetype_c::CopyDetail(linetype_c &src)
 	obj = src.obj;
 	keys = src.keys;
 	count = src.count;
-	crush = src.crush;
+
 	f = src.f;
 	c = src.c;
 	d = src.d;
 	s = src.s;
-	ladder = src.ladder;
 	t = src.t;
 	l = src.l;
+
+	ladder = src.ladder;
 	e_exit = src.e_exit;
 	s_xspeed = src.s_xspeed;
 	s_yspeed = src.s_yspeed;
@@ -1579,7 +1592,6 @@ void linetype_c::Default(void)
 	obj = trig_none;
 	keys = KF_NONE;
 	count = -1;
-	crush = false;
 
 	f.Default(movplanedef_c::DEFAULT_FloorLine);		
 	c.Default(movplanedef_c::DEFAULT_CeilingLine);		
@@ -1587,10 +1599,10 @@ void linetype_c::Default(void)
 	d.Default();		// Donut
 	s.Default();		// Sliding Door
 	
-	ladder.Default();	// Ladder
-	
 	t.Default();		// Teleport
 	l.Default();		// Light definition
+	
+	ladder.Default();	// Ladder
 	
 	e_exit = EXIT_None;
 	s_xspeed = 0.0f;

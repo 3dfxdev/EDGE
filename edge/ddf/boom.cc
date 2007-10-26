@@ -215,7 +215,7 @@ static void MakeBoomFloor(linetype_c *line, int number)
 	line->f.dest = 0;
 
 	if (crush)
-		line->f.crush = true;
+		line->f.crush_damage = 10;
 
 	switch (target)
 	{
@@ -294,7 +294,7 @@ static void MakeBoomCeiling(linetype_c *line, int number)
 	line->c.dest = 0;
 
 	if (crush)
-		line->c.crush = true;
+		line->c.crush_damage = 10;
 
 	switch (target)
 	{
@@ -554,7 +554,6 @@ static void MakeBoomCrusher(linetype_c *line, int number)
 	int silent  = (number >> 6) & 0x1;
 
 	line->obj = (trigacttype_e)(trig_player | (monster ? trig_monster : 0));
-	line->crush = true;
 
 	line->c.type = mov_Continuous;
 	line->c.destref = REF_Current;  // FLOOR
@@ -562,6 +561,7 @@ static void MakeBoomCrusher(linetype_c *line, int number)
 
 	line->c.speed_up = 1 << speed;
 	line->c.speed_down = line->c.speed_up;
+	line->c.crush_damage = 10;
 
 	if (! silent)
 	{
@@ -624,7 +624,7 @@ linetype_c *DDF_BoomGetGenLine(int number)
 	{
 		line = new linetype_c;
 		line->Default();
-		
+
 		DDF_BoomMakeGenLine(line, number);
 
 		genlinetypes.Insert(line);
