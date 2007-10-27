@@ -125,9 +125,7 @@ static void PSpriteCoordFunc(void *d, int v_idx,
 }
 
 
-//
-// RGL_DrawPSprite
-//
+
 static void RGL_DrawPSprite(pspdef_t * psp, int which,
 							player_t * player, region_properties_t *props,
 							const state_t *state)
@@ -986,7 +984,7 @@ I_Debugf("Render model: no skin %d\n", mo->model_skin);
 
 typedef struct
 {
-	float R, G, B;
+///---	float R, G, B;
 
 	vec3_t vert[4];
 	vec2_t texc[4];
@@ -1005,9 +1003,9 @@ static void ThingCoordFunc(void *d, int v_idx,
 	*texc   = data->texc[v_idx];
 	*normal = data->normal;
 
-	rgb[0] = data->R;
-	rgb[1] = data->G;
-	rgb[2] = data->B;
+///---	rgb[0] = data->R;
+///---	rgb[1] = data->G;
+///---	rgb[2] = data->B;
 
 	*lit_pos = *pos;
 }
@@ -1138,9 +1136,9 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 	
 	thing_coord_data_t data;
 
-	data.R = fuzzy ? 0 : 1;
-	data.G = fuzzy ? 0 : 1;
-	data.B = fuzzy ? 0 : 1;
+///---	data.R = fuzzy ? 0 : 1;
+///---	data.G = fuzzy ? 0 : 1;
+///---	data.B = fuzzy ? 0 : 1;
 
 	data.vert[0].Set(x1b+dx, y1b+dy, z1b);
 	data.vert[1].Set(x1t+dx, y1t+dy, z1t);
@@ -1193,16 +1191,44 @@ data.texc[3].Set(0.0,   top);
 }
 }
 #endif
-	
+
 	data.normal.Set(-viewcos, -viewsin, 0);
 
-	R_ColmapPipe_AdjustLight(dthing->mo->state->bright);
+	abstract_shader_c *shader = R_GetColormapShader(dthing->props, dthing->mo->state->bright);
 
-	R_RunPipeline(GL_POLYGON, 4, tex_id,
-			      trans, blending, PIPEF_NONE,
-				  &data, (pipeline_coord_func_t) ThingCoordFunc);
 
-	R_ColmapPipe_AdjustLight(0);
+	int group = 0;
+
+	local_gl_vert_t * glvert = RGL_BeginUnit(GL_POLYGON, 4,
+			 GL_MODULATE, tex_id, ENV_NONE, 0,
+			 group, blending);
+
+	for (int v_idx=0; v_idx < 4; v_idx++)
+	{
+		local_gl_vert_t *dest = glvert + v_idx;
+
+		vec3_t lit_pos;
+
+		ThingCoordFunc(&data, v_idx, &dest->pos, dest->rgba,
+				&dest->texc[0], &dest->normal, &lit_pos);
+
+		multi_color_c col; col.Clear();
+
+		if (! fuzzy)
+		{
+			shader->Sample(&col, lit_pos.x, lit_pos.y, lit_pos.z);
+
+			// FIXME !!!! other shaders (dlights etc)
+		}
+
+		dest->rgba[0] = col.mod_R / 255.0;
+		dest->rgba[1] = col.mod_G / 255.0;
+		dest->rgba[2] = col.mod_B / 255.0;
+		dest->rgba[3] = trans;
+	}
+
+	RGL_EndUnit(4);
+
 }
 
 //

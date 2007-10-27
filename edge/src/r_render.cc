@@ -2731,7 +2731,7 @@ static void RGL_DrawSubsector(drawsub_c *dsub)
 
 		if (! solid_mode)
 		{
-			R_ColmapPipe_SetProps(dfloor->props);
+///---		R_ColmapPipe_SetProps(dfloor->props);
 
 			RGL_DrawSortThings(dfloor);
   		}
