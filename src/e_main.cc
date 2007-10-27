@@ -421,7 +421,7 @@ void SetLanguage(void)
 	if (! want_lang)
 		want_lang = config_language.c_str();  // m_misc
 
-	if (want_lang)
+	if (want_lang && want_lang[0])
 	{
 		if (language.Select(want_lang))
 			return;
