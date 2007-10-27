@@ -1304,7 +1304,7 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 	data.normal.Set( (y2-y1), (x1-x2), 0 );
 
 
-	cmap_shader = R_GetColormapShader(props /* , lit_adjust */);
+	cmap_shader = R_GetColormapShader(props, lit_adjust);
 
 	int group = 0;
 
