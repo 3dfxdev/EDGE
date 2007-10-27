@@ -832,7 +832,7 @@ real_cached_image_t *LoadImageOGL(image_c *rim, const colourmap_c *trans)
 		epi::Hq2x::Setup(what_palette, TRANS_PIXEL);
 
 		epi::image_data_c *scaled_img =
-			epi::Hq2x::Convert(tmp_img, rim->img_solid, true /* invert */);
+			epi::Hq2x::Convert(tmp_img, rim->img_solid, false /* invert */);
 
 		delete tmp_img;
 		tmp_img = scaled_img;
