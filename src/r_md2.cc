@@ -777,19 +777,37 @@ I_Debugf("Render model: bad frame %d\n", frame);
 	if (! fuzzy)
 		ShadeNormals(shader, &data, md->frames[frame].used_normals);
 
+	// TODO: other shaders (dlights etc)
+
 
 	/* draw the model */
+	
+	int group = 0;
+
 	for (int i = 0; i < md->num_strips; i++)
 	{
 		data.strip = i;
 
-skin_tex=0;
-///		shader->
+		local_gl_vert_t * glvert = RGL_BeginUnit(md->strips[i].mode,
+				 md->strips[i].count, GL_MODULATE, skin_tex,
+				 ENV_NONE, 0, group, blending);
 
-  		R_RunPipeline(md->strips[i].mode, md->strips[i].count,
-  				      skin_tex, trans, blending, PIPEF_NONE, //!!!!!
-  					  &data, (pipeline_coord_func_t) ModelCoordFunc);
+		for (int v_idx=0; v_idx < md->strips[i].count; v_idx++)
+		{
+			local_gl_vert_t *dest = glvert + v_idx;
+
+			dest->rgba[3] = trans;
+
+			vec3_t lit_pos;
+
+			ModelCoordFunc(&data, v_idx, &dest->pos, dest->rgba,
+					&dest->texc[0], &dest->normal, &lit_pos);
+		}
+
+		RGL_EndUnit(md->strips[i].count);
 	}
+
+	group++;
 
 }
 
