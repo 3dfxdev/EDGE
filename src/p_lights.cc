@@ -176,31 +176,26 @@ static void DoLight(light_t * light)
 	}
 }
 
-//
-// TURN LINE'S TAG LIGHTS ON
-//
+
 void EV_LightTurnOn(int tag, int bright)
 {
-	int i;
-	int j;
-	sector_t *sector;
-	sector_t *temp;
-	line_t *templine;
+	/* TURN LINE'S TAG LIGHTS ON */
 
-	sector = sectors;
-
-	for (i = 0; i < numsectors; i++, sector++)
+	for (int i = 0; i < numsectors; i++)
 	{
+		sector_t *sector = sectors + i;
+
 		if (sector->tag == tag)
 		{
 			// bright == 0 means to search for highest light level
 			// surrounding sector
 			if (!bright)
 			{
-				for (j = 0; j < sector->linecount; j++)
+				for (int j = 0; j < sector->linecount; j++)
 				{
-					templine = sector->lines[j];
-					temp = P_GetNextSector(templine, sector);
+					line_t *templine = sector->lines[j];
+
+					sector_t *temp = P_GetNextSector(templine, sector);
 
 					if (!temp)
 						continue;
@@ -214,9 +209,7 @@ void EV_LightTurnOn(int tag, int bright)
 	}
 }
 
-//
-// P_DestroyAllLights
-//
+
 void P_DestroyAllLights(void)
 {
 	std::vector<light_t *>::iterator LI;
@@ -229,13 +222,12 @@ void P_DestroyAllLights(void)
 	lights.clear();
 }
 
-//
-// P_NewLight
-//
-// Allocate and link in light.
-//
+
+
 light_t *P_NewLight(void)
 {
+	// Allocate and link in light.
+	//
 	light_t *light = new light_t;
 
 	lights.push_back(light);
@@ -243,9 +235,7 @@ light_t *P_NewLight(void)
 	return light;
 }
 
-//
-// EV_Lights
-//
+
 bool EV_Lights(sector_t * sec, const lightdef_c * type)
 {
 	// check if a light effect already is running on this sector.
@@ -347,6 +337,7 @@ void P_AddAmbientSFX(sector_t *sec, sfx_t *sfx)
 	ambient_sounds.push_back(new ambientsfx_c(sec, sfx));
 }
 
+
 void P_DestroyAllAmbientSFX(void)
 {
 	while (! ambient_sounds.empty())
@@ -360,6 +351,7 @@ void P_DestroyAllAmbientSFX(void)
 		delete amb;
 	}
 }
+
 
 void P_RunAmbientSFX(void)
 {
