@@ -2052,46 +2052,18 @@ static bool TraverseIntercepts(traverser_t func, float maxfrac)
 bool P_PathTraverse(float x1, float y1, float x2, float y2, 
 						 int flags, traverser_t trav)
 {
-	int xt1;
-	int yt1;
-	int xt2;
-	int yt2;
-
-	float xstep;
-	float ystep;
-
-	float partial;
-
-	float xintercept;
-	float yintercept;
-
-	double tmp;
-
-	int mapx;
-	int mapy;
-
-	int mapxstep;
-	int mapystep;
-
-	int count;
-
 	earlyout = (flags & PT_EARLYOUT)?true:false;
 
 	validcount++;
 
 	intercepts.clear();
 
+	// don't side exactly on a line
 	if (fmod(x1 - bmaporgx, MAPBLOCKUNITS) == 0)
-	{
-		// don't side exactly on a line
-		x1 += 1.0f;
-	}
+		x1 += 0.1f;
 
 	if (fmod(y1 - bmaporgy, MAPBLOCKUNITS) == 0)
-	{
-		// don't side exactly on a line
-		y1 += 1.0f;
-	}
+		y1 += 0.1f;
 
 	trace.x = x1;
 	trace.y = y1;
@@ -2103,100 +2075,100 @@ bool P_PathTraverse(float x1, float y1, float x2, float y2,
 	x2 -= bmaporgx;
 	y2 -= bmaporgy;
 
-	xt1 = (int)(x1 / MAPBLOCKUNITS);
-	yt1 = (int)(y1 / MAPBLOCKUNITS);
-	xt2 = (int)(x2 / MAPBLOCKUNITS);
-	yt2 = (int)(y2 / MAPBLOCKUNITS);
+	int bx1 = (int)(x1 / MAPBLOCKUNITS);
+	int by1 = (int)(y1 / MAPBLOCKUNITS);
+	int bx2 = (int)(x2 / MAPBLOCKUNITS);
+	int by2 = (int)(y2 / MAPBLOCKUNITS);
 
-	if (xt2 > xt1)
+	int bx_step;
+	int by_step;
+
+	float xstep;
+	float ystep;
+
+	float partial;
+
+	double tmp;
+
+
+	if (bx2 > bx1 && (x2 - x1) > 0.001)
 	{
-		mapxstep = 1;
+		bx_step = 1;
 		partial = 1.0f - modf(x1 / MAPBLOCKUNITS, &tmp);
-
-		// -ACB- 2000/03/11 Div-by-zero check...
-		SYS_ASSERT(0 != x2-x1);
 
 		ystep = (y2 - y1) / fabs(x2 - x1);
 	}
-	else if (xt2 < xt1)
+	else if (bx2 < bx1 && (x2 - x1) < -0.001)
 	{
-		mapxstep = -1;
+		bx_step = -1;
 		partial = modf(x1 / MAPBLOCKUNITS, &tmp);
-
-		// -ACB- 2000/03/11 Div-by-zero check...
-		SYS_ASSERT(0 != x2-x1);
 
 		ystep = (y2 - y1) / fabs(x2 - x1);
 	}
 	else
 	{
-		mapxstep = 0;
+		bx_step = 0;
 		partial = 1.0f;
 		ystep = 256.0f;
 	}
 
-	yintercept = y1 / MAPBLOCKUNITS + partial * ystep;
+	float yintercept = y1 / MAPBLOCKUNITS + partial * ystep;
 
-	if (yt2 > yt1)
+	if (by2 > by1 && (y2 - y1) > 0.001)
 	{
-		mapystep = 1;
+		by_step = 1;
 		partial = 1.0f - modf(y1 / MAPBLOCKUNITS, &tmp);
-
-		// -ACB- 2000/03/11 Div-by-zero check...
-		SYS_ASSERT(0 != y2-y1);
 
 		xstep = (x2 - x1) / fabs(y2 - y1);
 	}
-	else if (yt2 < yt1)
+	else if (by2 < by1 && (y2 - y1) < -0.001)
 	{
-		mapystep = -1;
+		by_step = -1;
 		partial = modf(y1 / MAPBLOCKUNITS, &tmp);
-
-		// -ACB- 2000/03/11 Div-by-zero check...
-		SYS_ASSERT(0 != y2-y1);
 
 		xstep = (x2 - x1) / fabs(y2 - y1);
 	}
 	else
 	{
-		mapystep = 0;
+		by_step = 0;
 		partial = 1.0f;
 		xstep = 256.0f;
 	}
-	xintercept = x1 / MAPBLOCKUNITS + partial * xstep;
+
+	float xintercept = x1 / MAPBLOCKUNITS + partial * xstep;
 
 	// Step through map blocks.
 	// Count is present to prevent a round off error
 	// from skipping the break.
-	mapx = xt1;
-	mapy = yt1;
+	int bx = bx1;
+	int by = by1;
 
-	for (count = 0; count < 64; count++)
+	for (int count = 0; count < 64; count++)
 	{
 		if (flags & PT_ADDLINES)
 		{
-			if (!P_BlockLinesIterator(mapx, mapy, PIT_AddLineIntercepts))
+			if (!P_BlockLinesIterator(bx, by, PIT_AddLineIntercepts))
 				return false;
 		}
 
 		if (flags & PT_ADDTHINGS)
 		{
-			if (!P_BlockThingsIterator(mapx, mapy, PIT_AddThingIntercepts))
+			if (!P_BlockThingsIterator(bx, by, PIT_AddThingIntercepts))
 				return false;
 		}
 
-		if (mapx == xt2 && mapy == yt2)
+		if (bx == bx2 && by == by2)
 			break;
 
-		if (mapy == (int)yintercept)
+		if (by == (int)yintercept)
 		{
 			yintercept += ystep;
-			mapx += mapxstep;
+			bx += bx_step;
 		}
-		else if (mapx == (int)xintercept)
+		else if (bx == (int)xintercept)
 		{
 			xintercept += xstep;
-			mapy += mapystep;
+			by += by_step;
 		}
 	}
 
@@ -2207,9 +2179,9 @@ bool P_PathTraverse(float x1, float y1, float x2, float y2,
 static inline bool PST_CheckBBox(float *bspcoord, float *test)
 {
 	return (test[BOXRIGHT]  < bspcoord[BOXLEFT] ||
-		test[BOXLEFT]   > bspcoord[BOXRIGHT] ||
-		test[BOXTOP]    < bspcoord[BOXBOTTOM] ||
-		test[BOXBOTTOM] > bspcoord[BOXTOP]) ? false : true;
+			test[BOXLEFT]   > bspcoord[BOXRIGHT] ||
+			test[BOXTOP]    < bspcoord[BOXBOTTOM] ||
+			test[BOXBOTTOM] > bspcoord[BOXTOP]) ? false : true;
 }
 
 static bool TraverseSubsec(unsigned int bspnum, float *bbox,
