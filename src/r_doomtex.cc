@@ -422,7 +422,7 @@ static void CalcSphereCoord(int px, int py, int pw, int ph, int face,
 	float ax = ((float)px + 0.5f) / (float)pw * 2.0f - 1.0f;
 	float ay = ((float)py + 0.5f) / (float)ph * 2.0f - 1.0f;
 
-	ay = -ay;
+///????	ay = -ay;
 
 	switch (face)
 	{
@@ -534,8 +534,8 @@ static epi::image_data_c *ReadSkyMergeAsEpiBlock(image_c *rim)
 
 		TX = sky_img->width*16-1-TX;
 
-		// FIXME: handle images everywhere with bottom-up coords
-		if (sky_img->bpp >= 3) TY = sky_img->height*16-1-TY;
+///---	// FIXME: handle images everywhere with bottom-up coords
+///---	if (sky_img->bpp >= 3) TY = sky_img->height*16-1-TY;
 
 		int FX = TX % 16;
 		int FY = TY % 16;
@@ -646,9 +646,9 @@ static epi::image_data_c *ReadSkyMergeAsEpiBlock(image_c *rim)
 
 		int yy = ds_h - 1 - y;
 
-		dest[(yy * ds_w + x) * 3 + 0] = r;
-		dest[(yy * ds_w + x) * 3 + 1] = g;
-		dest[(yy * ds_w + x) * 3 + 2] = b;
+		dest[(y * ds_w + x) * 3 + 0] = r;
+		dest[(y * ds_w + x) * 3 + 1] = g;
+		dest[(y * ds_w + x) * 3 + 2] = b;
 	}
 
 	if (what_pal_cached)

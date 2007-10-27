@@ -272,7 +272,7 @@ void RGL_FinishSky(void)
 {
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
-return; //!!!!!!
+// return; //!!!!!!
 	if (! need_to_draw_sky)
 		return;
 
@@ -544,7 +544,7 @@ void RGL_CalcSkyCoord(float sx, float sy, float sz, bool narrow, float *tx, floa
 	angle_t V = R_PointToAngle(0, 0, sz, R_PointToDist(0, 0, sx, sy));
 
 	H = 0 - H;
-	V = V;
+	V = ANG90 - V; //!!!!
 
 	if (narrow)
 		*tx = (float)(H >> 7) / (float)(1 << 24);
