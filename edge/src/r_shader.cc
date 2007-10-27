@@ -169,8 +169,7 @@ private:
 public:
 	colormap_shader_c(int _light, GLuint _tex) :
 		light_lev(_light), fade_tex(_tex), simple_cmap(true)
-	{
-	}
+	{ }
 
 	virtual ~colormap_shader_c()
 	{ /* nothing to do */ }
@@ -245,17 +244,36 @@ public:
 		RGL_EndUnit(num_vert);
 	}
 
+	void SetLight(int _level)
+	{
+		light_lev = _level;
+	}
 };
 
 extern GLuint MakeColormapTexture( int mode );
 
-extern abstract_shader_c *MakeColormapShader(void)
+static colormap_shader_c *std_cmap_shader;
+
+
+abstract_shader_c *R_GetColormapShader(const struct region_properties_s *props,
+		int light_add)
 {
-	GLuint tex = MakeColormapTexture(0);
+	int lit_Nom = props->lightlevel + light_add + ren_extralight;
 
-	return new colormap_shader_c(245, tex);
+	lit_Nom = CLAMP(lit_Nom, 0, 255);
+	
+	// FIXME !!!! foggy / watery sectors
+	if (! std_cmap_shader)
+	{
+		GLuint tex = MakeColormapTexture(0);
+
+		std_cmap_shader = new colormap_shader_c(255, tex);
+	}
+
+	std_cmap_shader->SetLight(lit_Nom);
+
+	return std_cmap_shader;
 }
-
 
 
 //----------------------------------------------------------------------------

@@ -78,6 +78,8 @@ unsigned int root_node;
 
 extern camera_t *camera;
 
+static abstract_shader_c *cmap_shader;
+
 
 // -ES- 1999/03/20 Different right & left side clip angles, for asymmetric FOVs.
 angle_t clip_left, clip_right;
@@ -1062,8 +1064,6 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 	region_properties_t *props = masked_props ? masked_props :
 		surf->override_p ? surf->override_p : dfloor->props;
 
-	R_ColmapPipe_SetProps(props);
-
 
 	// ignore non-solid walls in solid mode (& vice versa)
 	blended = (surf->translucency <= 0.99f) ? true : false;
@@ -1303,13 +1303,13 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 	// TODO: make a unit vector
 	data.normal.Set( (y2-y1), (x1-x2), 0 );
 
-	R_ColmapPipe_AdjustLight(lit_adjust);
 
-	R_RunPipeline(GL_POLYGON, v_count, tex_id,
-			      trans, blending, PIPEF_NONE,
-				  &data, (pipeline_coord_func_t) WallCoordFunc);
+	cmap_shader = R_GetColormapShader(props /* , lit_adjust */);
 
-	R_ColmapPipe_AdjustLight(0);
+	int group = 0;
+
+	cmap_shader->WorldMix(GL_POLYGON, v_count, tex_id,
+			trans, group, blending, &data, WallCoordFunc);
 
 #if 0
 	int pass = 0;
@@ -1517,7 +1517,8 @@ static void EmulateFloodPlane(const drawfloor_t *dfloor,
 	const region_properties_t *props = surf->override_p ?
 		surf->override_p : &flood_ref->props;
 
-	R_ColmapPipe_SetProps(props);
+
+	cmap_shader = R_GetColormapShader(props);
 
 
 	SYS_ASSERT(surf->image);
@@ -1579,6 +1580,7 @@ static void EmulateFloodPlane(const drawfloor_t *dfloor,
 	float dy = cur_seg->v2->y - sy;
 	float dh = h2 - h1;
 
+
 	for (int row=0; row < piece_row; row++)
 	{
 		float z = h1 + dh * row / (float)piece_row;
@@ -1597,9 +1599,8 @@ static void EmulateFloodPlane(const drawfloor_t *dfloor,
 		data.B = (64 + 90 * (row & 2))  / 255.0;
 #endif
 
-		R_RunPipeline(GL_QUAD_STRIP, (piece_col+1) * 2,
-				      tex_id, 1.0, BL_NONE, PIPEF_NONE,
-					  &data, (pipeline_coord_func_t) FloodCoordFunc);
+		cmap_shader->WorldMix(GL_QUAD_STRIP, (piece_col+1) * 2,
+				tex_id, 1.0, 0, BL_NONE, &data, FloodCoordFunc);
 	}
 }
 
@@ -2103,7 +2104,7 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	if (surf->override_p)
 		props = surf->override_p;
 
-	R_ColmapPipe_SetProps(props);
+	cmap_shader = R_GetColormapShader(props);
 
 
 	float trans = surf->translucency;
@@ -2195,9 +2196,11 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 
 	data.normal.Set(0, 0, (viewz > h) ? +1 : -1);
 
-	R_RunPipeline(GL_POLYGON, v_count, tex_id,
-			      trans, blending, PIPEF_NONE,
-				  &data, (pipeline_coord_func_t) PlaneCoordFunc);
+
+	int group = 0;
+
+	cmap_shader->WorldMix(GL_POLYGON, v_count, tex_id,
+			trans, group, blending, &data, PlaneCoordFunc);
 
 #if 0  // OLD WAY
 	int pass = 0;
