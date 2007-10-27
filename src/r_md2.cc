@@ -314,6 +314,9 @@ struct md2_frame_c
 ///---	float translate[3];
 
 	md2_vertex_c *vertices;
+
+	// list of normals which are used.  Terminated by -1.
+	short *used_normals;
 };
 
 struct md2_point_c
@@ -370,6 +373,29 @@ public:
 
 
 /*============== LOADING CODE ====================*/
+
+static short *CreateNormalList(byte *which_normals)
+{
+	int count = 0;
+	int i;
+	
+	for (i=0; i < MD2_NUM_NORMALS; i++)
+		if (which_normals[i])
+			count++;
+
+	short *n_list = new short[count+1];
+
+	count = 0;
+
+	for (i=0; i < MD2_NUM_NORMALS; i++)
+		if (which_normals[i])
+			n_list[count++] = i;
+
+	n_list[count] = -1;
+	
+	return n_list;
+}
+
 
 md2_model_c *MD2_LoadModel(epi::file_c *f)
 {
@@ -469,6 +495,8 @@ md2_model_c *MD2_LoadModel(epi::file_c *f)
 
 	/* PARSE FRAMES */
 
+	byte which_normals[MD2_NUM_NORMALS];
+
 	raw_md2_vertex_t *raw_verts = new raw_md2_vertex_t[md->verts_per_frame];
 
 	f->Seek(EPI_LE_S32(header.ofs_frames), epi::file_c::SEEKPOINT_START);
@@ -508,6 +536,8 @@ md2_model_c *MD2_LoadModel(epi::file_c *f)
 
 		md->frames[i].vertices = new md2_vertex_c[md->verts_per_frame];
 
+		memset(which_normals, 0, sizeof(which_normals));
+
 		for (int v = 0; v < md->verts_per_frame; v++)
 		{
 			raw_md2_vertex_t *raw_V  = raw_verts + v;
@@ -524,10 +554,14 @@ md2_model_c *MD2_LoadModel(epi::file_c *f)
 			L_WriteDebug("      good: %1.2f, %1.2f, %1.2f\n", good_V->x, good_V->y, good_V->z);
 #endif
 			good_V->normal_idx = raw_V->light_normal;
-			
+
 			SYS_ASSERT(good_V->normal_idx >= 0);
 			SYS_ASSERT(good_V->normal_idx < MD2_NUM_NORMALS);
+
+			which_normals[good_V->normal_idx] = 1;
 		}
+
+		md->frames[i].used_normals = CreateNormalList(which_normals);
 	}
 
 	delete[] raw_verts;
@@ -546,7 +580,7 @@ typedef struct
 	int frame;
 	int strip;
 
-	float R, G, B;
+///---	float R, G, B;
 	float x, y, z;
 
 	bool is_weapon;
@@ -564,8 +598,46 @@ typedef struct
 	vec2_t ry_mat;
 
 	mobj_t *mo;
+
+	multi_color_c nm_colors[MD2_NUM_NORMALS];
 }
 model_coord_data_t;
+
+
+static void InitNormalColors(model_coord_data_t *data, short *n_list)
+{
+	for (int i=0; n_list[i] >= 0; i++)
+	{
+		data->nm_colors[n_list[i]].Clear();
+	}
+}
+
+static void ShadeNormals(abstract_shader_c *shader,
+		 model_coord_data_t *data, short *n_list)
+{
+	for (int i=0; n_list[i] >= 0; i++)
+	{
+		short n = n_list[i];
+
+		// FIXME !!!! pre-rotate normals too
+		float nx, ny, nz;
+		{
+			float nx1 = md2_normals[n].x;
+			float ny1 = md2_normals[n].y;
+			float nz1 = md2_normals[n].z;
+
+			float nx2 = nx1 * data->kx_mat.x + nz1 * data->kx_mat.y;
+			float nz2 = nx1 * data->kz_mat.x + nz1 * data->kz_mat.y;
+			float ny2 = ny1;
+
+			nx = nx2 * data->rx_mat.x + ny2 * data->rx_mat.y;
+			ny = nx2 * data->ry_mat.x + ny2 * data->ry_mat.y;
+			nz = nz2;
+		}
+
+		shader->Corner(data->nm_colors + n, nx, ny, nz, data->mo, data->is_weapon);
+	}
+}
 
 
 static void ModelCoordFunc(void *d, int v_idx,
@@ -597,15 +669,21 @@ static void ModelCoordFunc(void *d, int v_idx,
 	pos->y = data->y + x2 * data->ry_mat.x + y2 * data->ry_mat.y;
 	pos->z = data->z + z2;
 
-	rgb[0] = data->R;
-	rgb[1] = data->G;
-	rgb[2] = data->B;
+///---	rgb[0] = data->R;
+///---	rgb[1] = data->G;
+///---	rgb[2] = data->B;
 
 	texc->Set(point->skin_s, point->skin_t);
 
-	float nx = md2_normals[vert->normal_idx].x;
-	float ny = md2_normals[vert->normal_idx].y;
-	float nz = md2_normals[vert->normal_idx].z;
+	short n = vert->normal_idx;
+
+	rgb[0] = data->nm_colors[n].mod_R;
+	rgb[1] = data->nm_colors[n].mod_G;
+	rgb[2] = data->nm_colors[n].mod_B;
+
+	float nx = md2_normals[n].x;
+	float ny = md2_normals[n].y;
+	float nz = md2_normals[n].z;
 
 	float nx2 = nx * data->kx_mat.x + nz * data->kx_mat.y;
 	float nz2 = nx * data->kz_mat.x + nz * data->kz_mat.y;
@@ -628,8 +706,8 @@ static void ModelCoordFunc(void *d, int v_idx,
 //		vz /= v_dist;
 
 		float vx = 0;
-		float vy = 1;
-		float vz = 0;
+		float vy = 0;
+		float vz = -1;
 
 		vx *= normal->x;
 		vy *= normal->y;
@@ -637,7 +715,7 @@ static void ModelCoordFunc(void *d, int v_idx,
 
 		float n_dist = vx + vy + vz;
 
-		n_dist = 0.5 - n_dist * 0.5;
+		n_dist = 0.5 - n_dist * 0.6;
 		n_dist = CLAMP(n_dist, 0, 1);
 
 		rgb[0] = n_dist;
@@ -673,9 +751,9 @@ I_Debugf("Render model: bad frame %d\n", frame);
 	data.model = md;
 	data.frame = frame;
 
-	data.R = fuzzy ? 0 : 1;
-	data.G = fuzzy ? 0 : 1;
-	data.B = fuzzy ? 0 : 1;
+///---	data.R = fuzzy ? 0 : 1;
+///---	data.G = fuzzy ? 0 : 1;
+///---	data.B = fuzzy ? 0 : 1;
 
 	data.x = x;
 	data.y = y;
@@ -690,19 +768,29 @@ I_Debugf("Render model: bad frame %d\n", frame);
 
 	M_Angle2Matrix(~ mo->angle, &data.rx_mat, &data.ry_mat);
 
-	R_ColmapPipe_AdjustLight(mo->state->bright);
+
+	InitNormalColors(&data, md->frames[frame].used_normals);
+
+
+	abstract_shader_c *shader = R_GetColormapShader(props, mo->state->bright);
+
+	if (! fuzzy)
+		ShadeNormals(shader, &data, md->frames[frame].used_normals);
+
 
 	/* draw the model */
 	for (int i = 0; i < md->num_strips; i++)
 	{
 		data.strip = i;
 
+skin_tex=0;
+///		shader->
+
   		R_RunPipeline(md->strips[i].mode, md->strips[i].count,
   				      skin_tex, trans, blending, PIPEF_NONE, //!!!!!
   					  &data, (pipeline_coord_func_t) ModelCoordFunc);
 	}
 
-	R_ColmapPipe_AdjustLight(0);
 }
 
 //--- editor settings ---

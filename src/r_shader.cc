@@ -215,7 +215,7 @@ public:
 	{
 		// TODO: improve this
 
-		Sample(col, mod_pos->x, mod_pos->y, mod_pos->z);
+		Sample(col, mod_pos->x, mod_pos->y, mod_pos->z + mod_pos->height/2);
 	}
 
 	virtual void WorldMix(GLuint shape, int num_vert,
