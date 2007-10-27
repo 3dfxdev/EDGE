@@ -1,5 +1,12 @@
 Andrew Apted's Log
 
+2007/10/27:
+
+Fixed problem of HQ2X scaling causing up-side-down graphics.
+
+Reworked P_PathTraverse() to fix the assertion problem when
+very small traversals occur.
+
 2007/10/26:
 
 Added commands FLOOR.CRUSH_DAMAGE and CEILING.CRUSH_DAMAGE
