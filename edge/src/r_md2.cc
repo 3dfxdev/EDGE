@@ -677,9 +677,9 @@ static void ModelCoordFunc(void *d, int v_idx,
 
 	short n = vert->normal_idx;
 
-	rgb[0] = data->nm_colors[n].mod_R;
-	rgb[1] = data->nm_colors[n].mod_G;
-	rgb[2] = data->nm_colors[n].mod_B;
+	rgb[0] = data->nm_colors[n].mod_R / 255.0;
+	rgb[1] = data->nm_colors[n].mod_G / 255.0;
+	rgb[2] = data->nm_colors[n].mod_B / 255.0;
 
 	float nx = md2_normals[n].x;
 	float ny = md2_normals[n].y;
@@ -789,7 +789,7 @@ I_Debugf("Render model: bad frame %d\n", frame);
 		data.strip = i;
 
 		local_gl_vert_t * glvert = RGL_BeginUnit(md->strips[i].mode,
-				 md->strips[i].count, GL_MODULATE, skin_tex,
+				 md->strips[i].count, GL_MODULATE, skin_tex*0,
 				 ENV_NONE, 0, group, blending);
 
 		for (int v_idx=0; v_idx < md->strips[i].count; v_idx++)
