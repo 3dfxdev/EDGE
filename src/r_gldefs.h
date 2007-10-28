@@ -52,8 +52,6 @@ extern int glmax_clip_planes;
 extern int glmax_tex_size;
 extern int glmax_tex_units;
 
-extern int rgl_light_map[256];
-
 void RGL_Init(void);
 void RGL_SoftInit(void);
 void RGL_DrawProgress(int perc, int glbsp_perc);
@@ -81,8 +79,6 @@ const byte *RGL_BetaImage(int *w, int *h);
 
 #define M_ROOT2  1.414213562f  // FIXME: move into m_math.h ?
 
-
-int RGL_Light(int nominal);
 
 void RGL_LoadLights(void);
 void RGL_RenderTrueBSP(void);
