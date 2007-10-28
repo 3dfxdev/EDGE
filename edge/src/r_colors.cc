@@ -609,6 +609,30 @@ rgbcol_t V_LookupColour(int col)
 }
 
 
+#if 0 // OLD BUT POTENTIALLY USEFUL
+static void SetupLightMap(lighting_model_e model)
+{
+	for (i=0; i < 256; i++)
+	{
+		// Approximation of standard Doom lighting: 
+		// (based on side-by-side comparison)
+		//    [0,72] --> [0,16]
+		//    [72,112] --> [16,56]
+		//    [112,255] --> [56,255]
+
+		if (i <= 72)
+			rgl_light_map[i] = i * 16 / 72;
+		else if (i <= 112)
+			rgl_light_map[i] = 16 + (i - 72) * 40 / 40;
+		else if (i < 255)
+			rgl_light_map[i] = 56 + (i - 112) * 200 / 144;
+		else
+			rgl_light_map[i] = 255;
+	}
+}
+#endif
+
+
 //----------------------------------------------------------------------------
 //  COLORMAP
 //----------------------------------------------------------------------------
