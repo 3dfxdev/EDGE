@@ -1961,21 +1961,21 @@ static void BlockAddLine(int line_num)
 		temp = y0; y0 = y1; y1 = temp;
 	}
 
-	SYS_ASSERT(0 <= x0 && (x0 / MAPBLOCKUNITS) < bmapwidth);
-	SYS_ASSERT(0 <= y0 && (y0 / MAPBLOCKUNITS) < bmapheight);
-	SYS_ASSERT(0 <= x1 && (x1 / MAPBLOCKUNITS) < bmapwidth);
-	SYS_ASSERT(0 <= y1 && (y1 / MAPBLOCKUNITS) < bmapheight);
+	SYS_ASSERT(0 <= x0 && (x0 / BLOCKMAP_UNIT) < bmapwidth);
+	SYS_ASSERT(0 <= y0 && (y0 / BLOCKMAP_UNIT) < bmapheight);
+	SYS_ASSERT(0 <= x1 && (x1 / BLOCKMAP_UNIT) < bmapwidth);
+	SYS_ASSERT(0 <= y1 && (y1 / BLOCKMAP_UNIT) < bmapheight);
 
 	// check if this line spans multiple blocks.
 
-	x_dist = ABS((x1 / MAPBLOCKUNITS) - (x0 / MAPBLOCKUNITS));
-	y_dist = ABS((y1 / MAPBLOCKUNITS) - (y0 / MAPBLOCKUNITS));
+	x_dist = ABS((x1 / BLOCKMAP_UNIT) - (x0 / BLOCKMAP_UNIT));
+	y_dist = ABS((y1 / BLOCKMAP_UNIT) - (y0 / BLOCKMAP_UNIT));
 
 	y_sign = (y1 >= y0) ? 1 : -1;
 
 	// handle the simple cases: same column or same row
 
-	blocknum = (y0 / MAPBLOCKUNITS) * bmapwidth + (x0 / MAPBLOCKUNITS);
+	blocknum = (y0 / BLOCKMAP_UNIT) * bmapwidth + (x0 / BLOCKMAP_UNIT);
 
 	if (y_dist == 0)
 	{
@@ -2122,7 +2122,9 @@ static void DoBlockMap(int lump)
 		W_LumpLength(lump) == 0 ||
 		W_LumpLength(lump) > (128 * 1024) ||
 		map_width >= 16000 || map_height >= 16000)
+	{
 		GenerateBlockMap(min_x, min_y, max_x, max_y);
+	}
 	else
 		LoadBlockMap(lump);
 
