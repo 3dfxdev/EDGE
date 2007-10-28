@@ -39,6 +39,36 @@
 #include "r_state.h"
 #include "z_zone.h"
 
+// BLOCKMAP
+//
+// Created from axis aligned bounding box
+// of the map, a rectangular array of
+// blocks of size ...
+// Used to speed up collision detection
+// by spatial subdivision in 2D.
+//
+// Blockmap size.
+// 23-6-98 KM Promotion of short * to int *
+int bmapwidth;
+int bmapheight;  // size in mapblocks
+
+unsigned short *  bmap_lines = NULL; 
+unsigned short ** bmap_pointers = NULL;
+
+// offsets in blockmap are from here
+int *blockmaplump = NULL;
+
+// origin of block map
+float bmaporgx;
+float bmaporgy;
+
+// for thing chains
+mobj_t **blocklinks = NULL;
+
+// for dynamic lights
+mobj_t **blocklights = NULL;
+
+
 //--------------------------------------------------------------------------
 //
 //  THING POSITION SETTING
@@ -1027,4 +1057,215 @@ bool P_PathTraverse(float x1, float y1, float x2, float y2,
 
 	// go through the sorted list
 	return TraverseIntercepts(trav, 1.0f);
+}
+
+
+//--------------------------------------------------------------------------
+//
+//  BLOCKMAP GENERATION
+//
+
+//  Variables for GenerateBlockMap
+
+// fixed array of dynamic array
+static unsigned short ** blk_cur_lines = NULL;
+static int blk_total_lines;
+
+#define BCUR_SIZE   0
+#define BCUR_MAX    1
+#define BCUR_FIRST  2
+
+static void BlockAdd(int bnum, unsigned short line_num)
+{
+	unsigned short *cur = blk_cur_lines[bnum];
+
+	SYS_ASSERT(bnum >= 0);
+	SYS_ASSERT(bnum < (bmapwidth * bmapheight));
+
+	if (! cur)
+	{
+		// create initial block
+
+		blk_cur_lines[bnum] = cur = Z_New(unsigned short, BCUR_FIRST + 16);
+		cur[BCUR_SIZE] = 0;
+		cur[BCUR_MAX]  = 16;
+	}
+
+	if (cur[BCUR_SIZE] == cur[BCUR_MAX])
+	{
+		// need to grow this block
+
+		cur = blk_cur_lines[bnum];
+		cur[BCUR_MAX] += 16;
+		Z_Resize(blk_cur_lines[bnum], unsigned short,
+			BCUR_FIRST + cur[BCUR_MAX]);
+		cur = blk_cur_lines[bnum];
+	}
+
+	SYS_ASSERT(cur);
+	SYS_ASSERT(cur[BCUR_SIZE] < cur[BCUR_MAX]);
+
+	cur[BCUR_FIRST + cur[BCUR_SIZE]] = line_num;
+	cur[BCUR_SIZE] += 1;
+
+	blk_total_lines++;
+}
+
+static void BlockAddLine(int line_num)
+{
+	int i, j;
+	int x0, y0;
+	int x1, y1;
+
+	line_t *ld = lines + line_num;
+
+	int blocknum;
+
+	int y_sign;
+	int x_dist, y_dist;
+
+	float slope;
+
+	x0 = (int)(ld->v1->x - bmaporgx);
+	y0 = (int)(ld->v1->y - bmaporgy);
+	x1 = (int)(ld->v2->x - bmaporgx);
+	y1 = (int)(ld->v2->y - bmaporgy);
+
+	// swap endpoints if horizontally backward
+	if (x1 < x0)
+	{
+		int temp;
+
+		temp = x0; x0 = x1; x1 = temp;
+		temp = y0; y0 = y1; y1 = temp;
+	}
+
+	SYS_ASSERT(0 <= x0 && (x0 / BLOCKMAP_UNIT) < bmapwidth);
+	SYS_ASSERT(0 <= y0 && (y0 / BLOCKMAP_UNIT) < bmapheight);
+	SYS_ASSERT(0 <= x1 && (x1 / BLOCKMAP_UNIT) < bmapwidth);
+	SYS_ASSERT(0 <= y1 && (y1 / BLOCKMAP_UNIT) < bmapheight);
+
+	// check if this line spans multiple blocks.
+
+	x_dist = ABS((x1 / BLOCKMAP_UNIT) - (x0 / BLOCKMAP_UNIT));
+	y_dist = ABS((y1 / BLOCKMAP_UNIT) - (y0 / BLOCKMAP_UNIT));
+
+	y_sign = (y1 >= y0) ? 1 : -1;
+
+	// handle the simple cases: same column or same row
+
+	blocknum = (y0 / BLOCKMAP_UNIT) * bmapwidth + (x0 / BLOCKMAP_UNIT);
+
+	if (y_dist == 0)
+	{
+		for (i=0; i <= x_dist; i++, blocknum++)
+			BlockAdd(blocknum, line_num);
+
+		return;
+	}
+
+	if (x_dist == 0)
+	{
+		for (i=0; i <= y_dist; i++, blocknum += y_sign * bmapwidth)
+			BlockAdd(blocknum, line_num);
+
+		return;
+	}
+
+	// -AJA- 2000/12/09: rewrote the general case
+
+	SYS_ASSERT(x1 > x0);
+
+	slope = (float)(y1 - y0) / (float)(x1 - x0);
+
+	// handle each column of blocks in turn
+	for (i=0; i <= x_dist; i++)
+	{
+		// compute intersection of column with line
+		int sx = (i==0)      ? x0 : (128 * (x0 / 128 + i));
+		int ex = (i==x_dist) ? x1 : (128 * (x0 / 128 + i) + 127);
+
+		int sy = y0 + (int)(slope * (sx - x0));
+		int ey = y0 + (int)(slope * (ex - x0));
+
+		SYS_ASSERT(sx <= ex);
+
+		y_dist = ABS((ey / 128) - (sy / 128));
+
+		for (j=0; j <= y_dist; j++)
+		{
+			blocknum = (sy / 128 + j * y_sign) * bmapwidth + (sx / 128);
+
+			BlockAdd(blocknum, line_num);
+		}
+	}
+}
+
+
+void P_GenerateBlockMap(int min_x, int min_y, int max_x, int max_y)
+{
+	int i;
+	int bnum, btotal;
+	unsigned short *b_pos;
+
+	bmaporgx = min_x - 8;
+	bmaporgy = min_y - 8;
+	bmapwidth  = BLOCKMAP_GET_X(max_x) + 1;
+	bmapheight = BLOCKMAP_GET_Y(max_y) + 1;
+
+	btotal = bmapwidth * bmapheight;
+
+	L_WriteDebug("GenerateBlockmap: MAP (%d,%d) -> (%d,%d)\n",
+		min_x, min_y, max_x, max_y);
+	L_WriteDebug("GenerateBlockmap: BLOCKS %d x %d  TOTAL %d\n",
+		bmapwidth, bmapheight, btotal);
+
+	// setup blk_cur_lines array.  Initially all pointers are NULL, when
+	// any lines get added then the dynamic array is created.
+
+	blk_cur_lines = Z_New(unsigned short *, btotal);
+
+	Z_Clear(blk_cur_lines, unsigned short *, btotal);
+
+	// initial # of line values ("0, -1" for each block)
+	blk_total_lines = 2 * btotal;
+
+	// process each linedef of the map
+	for (i=0; i < numlines; i++)
+		BlockAddLine(i);
+
+	L_WriteDebug("GenerateBlockmap: TOTAL DATA=%d\n", blk_total_lines);
+
+	// convert dynamic arrays to single array and free memory
+
+	bmap_pointers = new unsigned short * [btotal];
+	bmap_lines    = new unsigned short   [blk_total_lines];
+
+	b_pos = bmap_lines;
+
+	for (bnum=0; bnum < btotal; bnum++)
+	{
+		SYS_ASSERT(b_pos - bmap_lines < blk_total_lines);
+
+		bmap_pointers[bnum] = b_pos;
+
+		*b_pos++ = 0;
+
+		if (blk_cur_lines[bnum])
+		{
+			// transfer the line values
+			for (i=blk_cur_lines[bnum][BCUR_SIZE] - 1; i >= 0; i--)
+				*b_pos++ = blk_cur_lines[bnum][BCUR_FIRST + i];
+
+			Z_Free(blk_cur_lines[bnum]);
+		}
+
+		*b_pos++ = BMAP_END;
+	}
+
+	if (b_pos - bmap_lines != blk_total_lines)
+		I_Error("GenerateBlockMap: miscounted !\n");
+
+	Z_Free(blk_cur_lines);
+	blk_cur_lines = NULL;
 }

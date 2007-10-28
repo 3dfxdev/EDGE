@@ -30,7 +30,8 @@
 
 // mapblocks are used to check movement
 // against lines and things
-#define BLOCKMAP_UNIT 128
+#define BLOCKMAP_UNIT  128
+#define LIGHTMAP_UNIT  768
 
 // MAXRADIUS is for precalculated sector block boxes
 // the spider demon is larger, but we do not have any moving sectors nearby
@@ -53,6 +54,9 @@ extern mobj_t **blocklights;  // for dynamic lights
 
 #define BLOCKMAP_GET_X(x)  ((int) ((x) - bmaporgx) / BLOCKMAP_UNIT)
 #define BLOCKMAP_GET_Y(y)  ((int) ((y) - bmaporgy) / BLOCKMAP_UNIT)
+
+#define LIGHTMAP_GET_X(x)  ((int) ((x) - bmaporgx) / LIGHTMAP_UNIT)
+#define LIGHTMAP_GET_Y(y)  ((int) ((y) - bmaporgy) / LIGHTMAP_UNIT)
 
 
 #define PT_ADDLINES  1
@@ -81,6 +85,7 @@ void P_UnsetThingFinally(mobj_t * mo);
 void P_ChangeThingPosition(mobj_t * mo, float x, float y, float z);
 void P_FreeSectorTouchNodes(sector_t *sec);
 
+void P_GenerateBlockMap(int min_x, int min_y, int max_x, int max_y);
 bool P_BlockLinesIterator(int x, int y, bool(*func) (line_t *));
 bool P_BlockThingsIterator(int x, int y, bool(*func) (mobj_t *));
 bool P_RadiusThingsIterator(float x, float y, float r, bool (*func)(mobj_t *));
