@@ -220,13 +220,13 @@ void RGL_CheckExtensions(void)
 			glewGetErrorString(err));
 
 	// -ACB- 2004/08/11 Made local: these are not yet used elsewhere
-	std::string glstr_vendor  (SafeStr(glGetString(GL_VERSION)));
-	std::string glstr_renderer(SafeStr(glGetString(GL_VENDOR)));
-	std::string glstr_version (SafeStr(glGetString(GL_RENDERER)));
+	std::string glstr_version (SafeStr(glGetString(GL_VERSION)));
+	std::string glstr_renderer(SafeStr(glGetString(GL_RENDERER)));
+	std::string glstr_vendor  (SafeStr(glGetString(GL_VENDOR)));
 
 	I_Printf("OpenGL: Version: %s\n", glstr_version.c_str());
-	I_Printf("OpenGL: Vendor: %s\n", glstr_vendor.c_str());
 	I_Printf("OpenGL: Renderer: %s\n", glstr_renderer.c_str());
+	I_Printf("OpenGL: Vendor: %s\n", glstr_vendor.c_str());
 	I_Printf("OpenGL: GLEW version: %s\n", glewGetString(GLEW_VERSION));
 
 #if 0  // FIXME: this crashes (buffer overflow?)
@@ -290,13 +290,13 @@ void RGL_CheckExtensions(void)
 	{
 		const driver_bug_t *bug = &driver_bugs[j];
 
-		if (bug->renderer && strstr(glstr_renderer.c_str(), bug->renderer) == NULL)
+		if (bug->renderer && !strstr(glstr_renderer.c_str(), bug->renderer))
 			continue;
 
-		if (bug->vendor && strstr(glstr_vendor.c_str(), bug->vendor) == NULL)
+		if (bug->vendor && !strstr(glstr_vendor.c_str(), bug->vendor))
 			continue;
 
-		if (bug->version && strstr(glstr_version.c_str(), bug->version) == NULL)
+		if (bug->version && !strstr(glstr_version.c_str(), bug->version))
 			continue;
 
 		I_Printf("OpenGL: Enabling workarounds for %s.\n",
