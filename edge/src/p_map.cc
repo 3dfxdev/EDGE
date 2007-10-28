@@ -396,13 +396,9 @@ bool P_CheckAbsPosition(mobj_t * thing, float x, float y, float z)
 
 	validcount++;
 
-	// Check things first.
-	// The bounding box is extended by MAXRADIUS
-	// because mobj_ts are grouped into mapblocks
-	// based on their origin point, and can overlap
-	// into adjacent blocks by up to MAXRADIUS units.
+	// check things first.
 
-	if (!P_RadiusThingsIterator(x, y, thing->radius, PIT_CheckAbsThing))
+	if (!P_RadiusThingsIterator(x, y, tm_I.mover->radius, PIT_CheckAbsThing))
 		return false;
 
 	// check lines
@@ -793,10 +789,6 @@ static bool P_CheckRelPosition(mobj_t * thing, float x, float y)
 	if (!(tm_I.flags & (MF_NOCLIP | MF_CORPSE)))
 	{
 		// Check things first, possibly picking things up.
-		// The bounding box is extended by MAXRADIUS
-		// because mobj_ts are grouped into mapblocks
-		// based on their origin point, and can overlap
-		// into adjacent blocks by up to MAXRADIUS units.
 
 		if (!P_RadiusThingsIterator(x, y, thing->radius, PIT_CheckRelThing))
 			return false;

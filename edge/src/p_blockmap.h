@@ -33,11 +33,6 @@
 #define BLOCKMAP_UNIT  128
 #define LIGHTMAP_UNIT  768
 
-// MAXRADIUS is for precalculated sector block boxes
-// the spider demon is larger, but we do not have any moving sectors nearby
-#define MAXRADIUS    (32.0f)
-
-
 #define BMAP_END  ((unsigned short) 0xFFFF)
 
 extern unsigned short *bmap_lines;
