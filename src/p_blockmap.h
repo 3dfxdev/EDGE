@@ -28,6 +28,65 @@
 
 // #include "epi/arrays.h"
 
+// mapblocks are used to check movement
+// against lines and things
+#define BLOCKMAP_UNIT 128
+
+// MAXRADIUS is for precalculated sector block boxes
+// the spider demon is larger, but we do not have any moving sectors nearby
+#define MAXRADIUS    (32.0f)
+
+
+#define BMAP_END  ((unsigned short) 0xFFFF)
+
+extern unsigned short *bmap_lines;
+extern unsigned short ** bmap_pointers;
+
+extern int bmapwidth;
+extern int bmapheight;  // in mapblocks
+
+extern float bmaporgx;
+extern float bmaporgy;  // origin of block map
+
+extern mobj_t **blocklinks;   // for thing chains
+extern mobj_t **blocklights;  // for dynamic lights
+
+#define BLOCKMAP_GET_X(x)  ((int) ((x) - bmaporgx) / BLOCKMAP_UNIT)
+#define BLOCKMAP_GET_Y(y)  ((int) ((y) - bmaporgy) / BLOCKMAP_UNIT)
+
+
+#define PT_ADDLINES  1
+#define PT_ADDTHINGS 2
+#define PT_EARLYOUT  4
+
+typedef struct intercept_s
+{
+	float frac;  // along trace line
+
+	// one of these will be NULL
+	mobj_t *thing;
+	line_t *line;
+}
+intercept_t;
+
+typedef bool(*traverser_t) (intercept_t * in);
+
+extern divline_t trace;
+
+
+float P_InterceptVector(divline_t * v2, divline_t * v1);
+void P_SetThingPosition(mobj_t * mo);
+void P_UnsetThingPosition(mobj_t * mo);
+void P_UnsetThingFinally(mobj_t * mo);
+void P_ChangeThingPosition(mobj_t * mo, float x, float y, float z);
+void P_FreeSectorTouchNodes(sector_t *sec);
+
+bool P_BlockLinesIterator(int x, int y, bool(*func) (line_t *));
+bool P_BlockThingsIterator(int x, int y, bool(*func) (mobj_t *));
+bool P_RadiusThingsIterator(float x, float y, float r, bool (*func)(mobj_t *));
+
+bool P_PathTraverse(float x1, float y1, float x2, float y2, int flags, traverser_t trav);
+
 
 #endif // __P_BLOCKMAP_H__
 
