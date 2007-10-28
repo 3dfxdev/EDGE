@@ -852,13 +852,13 @@ static void DrawGrid(int colour)
 	mline_t ml;
 
 	// Figure out start of vertical gridlines
-	start = m_x + (float)fmod((float)MAPBLOCKUNITS - (m_x - bmaporgx), (float)MAPBLOCKUNITS);
+	start = m_x + (float)fmod((float)BLOCKMAP_UNIT - (m_x - bmaporgx), (float)BLOCKMAP_UNIT);
 	end = m_x + m_w;
 
 	// draw vertical gridlines
 	ml.a.y = m_y;
 	ml.b.y = m_y + m_h;
-	for (x = start; x < end; x += MAPBLOCKUNITS)
+	for (x = start; x < end; x += BLOCKMAP_UNIT)
 	{
 		ml.a.x = x;
 		ml.b.x = x;
@@ -866,13 +866,13 @@ static void DrawGrid(int colour)
 	}
 
 	// Figure out start of horizontal gridlines
-	start = m_y + (float)fmod((float)MAPBLOCKUNITS - (m_y - bmaporgy), (float)MAPBLOCKUNITS);
+	start = m_y + (float)fmod((float)BLOCKMAP_UNIT - (m_y - bmaporgy), (float)BLOCKMAP_UNIT);
 	end = m_y + m_h;
 
 	// draw horizontal gridlines
 	ml.a.x = m_x;
 	ml.b.x = m_x + m_w;
-	for (y = start; y < end; y += MAPBLOCKUNITS)
+	for (y = start; y < end; y += BLOCKMAP_UNIT)
 	{
 		ml.a.y = y;
 		ml.b.y = y;
