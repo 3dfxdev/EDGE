@@ -33,6 +33,7 @@
 #include "ddf/colormap.h"
 
 #include "r_defs.h"
+#include "r_shader.h"
 
 void V_InitPalette(void);
 void V_InitColour(void);
@@ -79,6 +80,9 @@ const byte *V_GetTranslationTable(const colourmap_c * colmap);
 // support for GL
 void V_GetColmapRGB(const colourmap_c *colmap,
     float *r, float *g, float *b, bool font);
+
+abstract_shader_c *R_GetColormapShader(
+		const struct region_properties_s *props, int light_add = 0);
 
 // text translation tables
 extern const byte *font_whitener;

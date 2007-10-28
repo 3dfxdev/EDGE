@@ -38,6 +38,7 @@
 #include "st_stuff.h"
 #include "r_modes.h"
 #include "r_image.h"
+#include "r_shader.h"
 #include "r_texgl.h"
 #include "w_wad.h"
 #include "z_zone.h"
@@ -487,57 +488,6 @@ static int AnalyseColourmap(const byte *table, int alpha,
 }
 
 
-GLuint MakeColormapTexture( int mode )
-{
-	epi::image_data_c *img = new epi::image_data_c(256, 64, 4);
-
-	for (int L = 0; L < 64; L++)
-	{
-		byte *dest = img->PixelAt(0, L);
-
-		for (int x = 0; x < 256; x++, dest += 4)
-		{
-			float dist = 1600.0f * x / 255.0;
-
-			// DOOM lighting formula
-
-			int index = (59 - L) - int(1280 / MAX(1, dist));
-			int min_L = MAX(0, 36 - L);
-
-			index = CLAMP(index, min_L, 31);
-
-			// FIXME: lookup value in COLORMAP[]
-			if (false) //!!!! (mode == 1)
-			{
-				// GL_DECAL mode
-				dest[0] = 0;
-				dest[1] = 0;
-				dest[2] = 0;
-				dest[3] = 0 + index * 8;
-			}
-			else if (mode == 0)
-			{
-				// GL_MODULATE mode
-				dest[0] = 255 - index * 8;
-				dest[1] = dest[0];
-				dest[2] = dest[0];
-				dest[3] = 255;
-			}
-			else if (mode == 2)
-			{
-				// additive pass (OLD CARDS)
-				dest[0] = index * 8 * 128/256;
-				dest[1] = dest[0];
-				dest[2] = dest[0];
-				dest[3] = 255;
-			}
-		}
-	}
-
-	return R_UploadTexture(img, NULL, UPL_Smooth|UPL_Clamp);
-}
-
-
 void TransformColourmap(colourmap_c *colmap)
 {
 	const byte *table = colmap->cache.data;
@@ -656,6 +606,195 @@ rgbcol_t V_LookupColour(int col)
 
 	return RGB_MAKE(r,g,b);
 }
+
+//----------------------------------------------------------------------------
+//  COLORMAP
+//----------------------------------------------------------------------------
+
+int R_DoomLightingEquation(int L, float dist)
+{
+	/* L in the range 0 to 63 */
+
+	int index = (59 - L) - int(1280 / MAX(1, dist));
+	int min_L = MAX(0, 36 - L);
+
+	/* result is colormap index (0 bright .. 31 dark) */
+
+	return CLAMP(index, min_L, 31);
+}
+
+GLuint MakeColormapTexture( int mode )
+{
+	epi::image_data_c *img = new epi::image_data_c(256, 64, 4);
+
+	for (int L = 0; L < 64; L++)
+	{
+		byte *dest = img->PixelAt(0, L);
+
+		for (int x = 0; x < 256; x++, dest += 4)
+		{
+			float dist = 1600.0f * x / 255.0;
+
+			// DOOM lighting formula
+
+			int index = R_DoomLightingEquation(L, dist);
+
+			// FIXME: lookup value in COLORMAP[]
+			if (false) //!!!! (mode == 1)
+			{
+				// GL_DECAL mode
+				dest[0] = 0;
+				dest[1] = 0;
+				dest[2] = 0;
+				dest[3] = 0 + index * 8;
+			}
+			else if (mode == 0)
+			{
+				// GL_MODULATE mode
+				dest[0] = 255 - index * 8;
+				dest[1] = dest[0];
+				dest[2] = dest[0];
+				dest[3] = 255;
+			}
+			else if (mode == 2)
+			{
+				// additive pass (OLD CARDS)
+				dest[0] = index * 8 * 128/256;
+				dest[1] = dest[0];
+				dest[2] = dest[0];
+				dest[3] = 255;
+			}
+		}
+	}
+
+	return R_UploadTexture(img, NULL, UPL_Smooth|UPL_Clamp);
+}
+
+
+
+class colormap_shader_c : public abstract_shader_c
+{
+private:
+	// FIXME colormap_c 
+
+	int light_lev;
+
+	GLuint fade_tex;
+
+	bool simple_cmap;
+
+public:
+	colormap_shader_c(int _light, GLuint _tex) :
+		light_lev(_light), fade_tex(_tex), simple_cmap(true)
+	{ }
+
+	virtual ~colormap_shader_c()
+	{ /* nothing to do */ }
+
+private:
+	inline float DistFromViewplane(float x, float y, float z)
+	{
+		float dx = (x - viewx) * viewforward.x;
+		float dy = (y - viewy) * viewforward.y;
+		float dz = (z - viewz) * viewforward.z;
+
+		return dx + dy + dz;
+	}
+
+	inline void TexCoord(local_gl_vert_t *v, int t, const vec3_t *lit_pos)
+	{
+		float dist = DistFromViewplane(lit_pos->x, lit_pos->y, lit_pos->z);
+				
+		float tx = dist / 1600.0;
+		float ty = ((light_lev / 4) + 0.5) / 64.0;
+
+		v->texc[t].x = CLAMP(0.5/256.0, tx, 255.5/256.0);
+		v->texc[t].y = CLAMP(0.5/64.0,  ty, 63.5/64.0);
+	}
+
+public:
+	virtual void Sample(multi_color_c *col, float x, float y, float z)
+	{
+		// FIXME: assumes standard COLORMAP
+
+		float dist = DistFromViewplane(x, y, z);
+
+		int cmap_idx = R_DoomLightingEquation(light_lev/4, dist);
+
+		int X = 255 - cmap_idx * 8 - cmap_idx / 5;
+
+		col->mod_R += X;
+		col->mod_G += X;
+		col->mod_B += X;
+
+		// FIXME: for foggy maps, need to adjust add_R/G/B too
+	}
+
+	virtual void Corner(multi_color_c *col, float nx, float ny, float nz,
+			            struct mobj_s *mod_pos, bool pl_weap)
+	{
+		// TODO: improve this
+
+		Sample(col, mod_pos->x, mod_pos->y, mod_pos->z + mod_pos->height/2);
+	}
+
+	virtual void WorldMix(GLuint shape, int num_vert,
+		GLuint tex, float alpha, int pass, int blending,
+		void *data, shader_coord_func_t func)
+	{
+		local_gl_vert_t * glvert = RGL_BeginUnit(shape, num_vert,
+				GL_MODULATE, tex,
+				(simple_cmap || dumb_multi) ? GL_MODULATE : GL_DECAL,
+				fade_tex, pass, blending);
+
+		for (int v_idx=0; v_idx < num_vert; v_idx++)
+		{
+			local_gl_vert_t *dest = glvert + v_idx;
+
+			dest->rgba[3] = alpha;
+
+			vec3_t lit_pos;
+
+			(*func)(data, v_idx, &dest->pos, dest->rgba,
+					&dest->texc[0], &dest->normal, &lit_pos);
+
+			TexCoord(dest, 1, &lit_pos);
+		}
+
+		RGL_EndUnit(num_vert);
+	}
+
+	void SetLight(int _level)
+	{
+		light_lev = _level;
+	}
+};
+
+
+static colormap_shader_c *std_cmap_shader;
+
+
+abstract_shader_c *R_GetColormapShader(const struct region_properties_s *props,
+		int light_add)
+{
+	int lit_Nom = props->lightlevel + light_add + ren_extralight;
+
+	lit_Nom = CLAMP(lit_Nom, 0, 255);
+	
+	// FIXME !!!! foggy / watery sectors
+	if (! std_cmap_shader)
+	{
+		GLuint tex = MakeColormapTexture(0);
+
+		std_cmap_shader = new colormap_shader_c(255, tex);
+	}
+
+	std_cmap_shader->SetLight(lit_Nom);
+
+	return std_cmap_shader;
+}
+
+
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

@@ -100,9 +100,6 @@ typedef void (* pipeline_coord_func_t)(...);
 
 void R_InitPipeline(void);
 
-void R_ColmapPipe_SetProps(const struct region_properties_s *props);
-void R_ColmapPipe_AdjustLight(int adjust);
-
 // FIXME Glow setup stuff
 
 void R_GlowPipe_SetFloor  (const struct mobj_s *glow, float h);
