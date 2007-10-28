@@ -77,7 +77,6 @@ const byte *RGL_BetaImage(int *w, int *h);
 //  RGL_BSP
 //
 
-#define M_ROOT2  1.414213562f  // FIXME: move into m_math.h ?
 
 
 void RGL_LoadLights(void);
