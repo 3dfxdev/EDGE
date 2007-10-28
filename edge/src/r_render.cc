@@ -444,30 +444,6 @@ static void FloodResetClipPlanes(void)
 }
 
 
-//
-// LIGHTING RULES:
-//
-//   1. N/S/E/W changes and infrared are applied before darkening.
-//   2. extralight and dlights are applied after darkening.
-//   3. for gamma, we rely on the gamma function g() having the
-//      property: g(X * Y) = g(X) * g(Y).
-//
-
-int RGL_Light(int nominal)
-{
-	SYS_ASSERT(currmap);
-
-	if (currmap->lighting <= LMODEL_Doomish)
-	{
-		nominal = rgl_light_map[MIN(255, nominal)];
-	}
-
-	nominal += ren_extralight;
-
-	return GAMMA_CONV(MIN(255, nominal));
-}
-
-
 #if 0
 static void DrawLaser(player_t *p)
 {
