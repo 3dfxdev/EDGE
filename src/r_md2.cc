@@ -31,8 +31,10 @@
 
 #include "r_md2.h"
 #include "r_gldefs.h"
+#include "r_colors.h"
 #include "r_misc.h"
 #include "r_state.h"
+#include "r_shader.h"
 #include "r_units.h"
 #include "m_math.h"
 

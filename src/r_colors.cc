@@ -40,6 +40,7 @@
 #include "r_image.h"
 #include "r_shader.h"
 #include "r_texgl.h"
+#include "r_units.h"
 #include "w_wad.h"
 #include "z_zone.h"
 

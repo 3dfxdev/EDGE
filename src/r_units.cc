@@ -539,22 +539,8 @@ void R_ColmapPipe_AdjustLight(int adjust)
 }
 
 
-static inline void Pipeline_Colormap(int& group,
-	GLuint shape, int num_vert,
-	GLuint tex, float alpha, int blending, int flags,
-	void *func_data, pipeline_coord_func_t func)
-{
-	abstract_shader_c *shader = R_GetColormapShader(cmap_props);
-
-	shader->WorldMix(shape, num_vert, tex,
-			alpha, group, blending, func_data,
-			(shader_coord_func_t) func);
-	group++;
-
-	return;
-
 #if 0
-
+{
 	/* FIRST PASS : draw the colormapped primitive */
 
 	local_gl_vert_t *glvert;
@@ -627,8 +613,8 @@ static inline void Pipeline_Colormap(int& group,
 
 		RGL_EndUnit(num_vert);
 	}
-#endif
 }
+#endif
 
 
 //------------------------------------------------------------------------
@@ -838,8 +824,8 @@ void R_RunPipeline(GLuint shape, int num_vert,
 
 	/* TODO: flat-shaded lighting : Pipeline_FlatShade */
 
-	Pipeline_Colormap(group, shape, num_vert,
-		tex, alpha, blending, flags, func_data, func);
+//---	Pipeline_Colormap(group, shape, num_vert,
+//---		tex, alpha, blending, flags, func_data, func);
 
 //	Pipeline_Glows(group, shape, num_vert,
 //		tex, alpha, blending, flags, func_data, func);

@@ -33,7 +33,8 @@
 #include "ddf/colormap.h"
 
 #include "r_defs.h"
-#include "r_shader.h"
+
+class abstract_shader_c;
 
 void V_InitPalette(void);
 void V_InitColour(void);
