@@ -98,7 +98,7 @@ static float GetHoverDZ(mobj_t *mo)
 
 typedef struct
 {
-	float R, G, B;
+///---	float R, G, B;
 
 	vec3_t vert[4];
 	vec2_t texc[4];
@@ -117,9 +117,9 @@ static void PSpriteCoordFunc(void *d, int v_idx,
 	*texc    = data->texc[v_idx];
 	*lit_pos = data->lit_pos;
 
-	rgb[0] = data->R;
-	rgb[1] = data->G;
-	rgb[2] = data->B;
+///---	rgb[0] = data->R;
+///---	rgb[1] = data->G;
+///---	rgb[2] = data->B;
 
 	normal->Set(0, 0, 1);
 }
@@ -242,9 +242,9 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 
 	psprite_coord_data_t data;
 
-	data.R = fuzzy ? 0.2 : 1;
-	data.G = fuzzy ? 0.2 : 1;
-	data.B = fuzzy ? 0.2 : 1;
+///---	data.R = fuzzy ? 0.2 : 1;
+///---	data.G = fuzzy ? 0.2 : 1;
+///---	data.B = fuzzy ? 0.2 : 1;
 
 	data.vert[0].Set(x1b, y1b, 0);
 	data.vert[1].Set(x1t, y1t, 0);
@@ -266,14 +266,48 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 
 	RGL_StartUnits(false);
 
-	R_ColmapPipe_SetProps(props);
-	R_ColmapPipe_AdjustLight(state->bright);
+///---	R_RunPipeline(GL_POLYGON, 4, tex_id,
+///---			      trans, blending, PIPEF_NONE,
+///---				  &data, (pipeline_coord_func_t) PSpriteCoordFunc);
 
-	R_RunPipeline(GL_POLYGON, 4, tex_id,
-			      trans, blending, PIPEF_NONE,
-				  &data, (pipeline_coord_func_t) PSpriteCoordFunc);
+	abstract_shader_c *shader = R_GetColormapShader(props, state->bright);
 
-	R_ColmapPipe_AdjustLight(0);
+
+	int group = 0;
+	int v_idx;
+
+	local_gl_vert_t * glvert = RGL_BeginUnit(GL_POLYGON, 4,
+			 GL_MODULATE, tex_id, ENV_NONE, 0,
+			 group, blending);
+
+	// FIXME: 3x3 points
+	multi_color_c col;
+
+	if (! fuzzy)
+	{
+		col.Clear();
+
+		shader->Sample(&col, data.lit_pos.x, data.lit_pos.y, data.lit_pos.z);
+
+		// TODO: other shaders
+	}
+
+	for (v_idx=0; v_idx < 4; v_idx++)
+	{
+		local_gl_vert_t *dest = glvert + v_idx;
+
+		vec3_t lit_pos;
+
+		PSpriteCoordFunc(&data, v_idx, &dest->pos, dest->rgba,
+				&dest->texc[0], &dest->normal, &lit_pos);
+
+		dest->rgba[0] = col.mod_R / 255.0;
+		dest->rgba[1] = col.mod_G / 255.0;
+		dest->rgba[2] = col.mod_B / 255.0;
+		dest->rgba[3] = trans;
+	}
+
+	RGL_EndUnit(4);
 
 	RGL_FinishUnits();
 
@@ -1198,12 +1232,25 @@ data.texc[3].Set(0.0,   top);
 
 
 	int group = 0;
+	int v_idx;
 
 	local_gl_vert_t * glvert = RGL_BeginUnit(GL_POLYGON, 4,
 			 GL_MODULATE, tex_id, ENV_NONE, 0,
 			 group, blending);
 
-	for (int v_idx=0; v_idx < 4; v_idx++)
+	multi_color_c cols[4];
+
+	if (! fuzzy)
+	for (v_idx=0; v_idx < 4; v_idx++)
+	{
+		cols[v_idx].Clear();
+
+		shader->Sample(cols + v_idx, data.vert[v_idx].x, data.vert[v_idx].y, data.vert[v_idx].z);
+
+		// TODO: other shaders
+	}
+
+	for (v_idx=0; v_idx < 4; v_idx++)
 	{
 		local_gl_vert_t *dest = glvert + v_idx;
 
@@ -1212,18 +1259,9 @@ data.texc[3].Set(0.0,   top);
 		ThingCoordFunc(&data, v_idx, &dest->pos, dest->rgba,
 				&dest->texc[0], &dest->normal, &lit_pos);
 
-		multi_color_c col; col.Clear();
-
-		if (! fuzzy)
-		{
-			shader->Sample(&col, lit_pos.x, lit_pos.y, lit_pos.z);
-
-			// FIXME !!!! other shaders (dlights etc)
-		}
-
-		dest->rgba[0] = col.mod_R / 255.0;
-		dest->rgba[1] = col.mod_G / 255.0;
-		dest->rgba[2] = col.mod_B / 255.0;
+		dest->rgba[0] = cols[v_idx].mod_R / 255.0;
+		dest->rgba[1] = cols[v_idx].mod_G / 255.0;
+		dest->rgba[2] = cols[v_idx].mod_B / 255.0;
 		dest->rgba[3] = trans;
 	}
 
