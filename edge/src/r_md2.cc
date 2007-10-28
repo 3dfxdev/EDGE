@@ -718,7 +718,7 @@ static void ModelCoordFunc(void *d, int v_idx,
 		float n_dist = vx + vy + vz;
 
 		n_dist = 0.5 - n_dist * 0.6;
-		n_dist = CLAMP(n_dist, 0, 1);
+		n_dist = CLAMP(0, n_dist, 1);
 
 		rgb[0] = n_dist;
 		rgb[1] = n_dist;

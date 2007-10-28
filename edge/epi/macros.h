@@ -49,7 +49,7 @@
 #endif
 
 #ifndef CLAMP
-#define CLAMP(x,low,high)  ((x) < (low) ? (low) : (x) > (high) ? (high) : (x))
+#define CLAMP(low,x,high)  ((x) < (low) ? (low) : (x) > (high) ? (high) : (x))
 #endif
 
 #define CHECK_SELF_ASSIGN(param)  \

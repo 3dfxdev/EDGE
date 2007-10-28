@@ -1344,7 +1344,7 @@ static inline bool Weakness_CheckHit(mobj_t *target,
 	// which hits the target on the head (coming sharply down) will
 	// still register as a head-shot.
 	z = (z - target->z) / target->height;
-	z = CLAMP(z, 0, 1);
+	z = CLAMP(0, z, 1);
 
 	if (z < weak->height[0] || z > weak->height[1])
 		return false;
