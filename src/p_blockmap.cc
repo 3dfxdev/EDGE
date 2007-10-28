@@ -39,6 +39,8 @@
 #include "r_state.h"
 #include "z_zone.h"
 
+#define MAXRADIUS  128.0
+
 // BLOCKMAP
 //
 // Created from axis aligned bounding box
@@ -686,6 +688,11 @@ bool P_RadiusThingsIterator(float x, float y, float r, bool(*func) (mobj_t *))
 	int bx, by;
 	int xl, xh, yl, yh;
 
+	// The bounding box is extended by MAXRADIUS
+	// because mobj_ts are grouped into mapblocks
+	// based on their origin point, and can overlap
+	// into adjacent blocks by up to MAXRADIUS units.
+	//
 	// -AJA- 2006/11/15: restored this (was broken for a long time!).
 	r += MAXRADIUS;
 
