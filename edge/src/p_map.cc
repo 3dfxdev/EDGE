@@ -49,6 +49,8 @@
 #include "s_sound.h"
 #include "z_zone.h"
 
+#define RAISE_RADIUS  32
+
 static float tmbbox[4];
 
 typedef struct try_move_info_s
@@ -2369,7 +2371,7 @@ mobj_t *P_MapFindCorpse(mobj_t * thing)
 		raisertryx = thing->x + thing->speed * xspeed[thing->movedir];
 		raisertryy = thing->y + thing->speed * yspeed[thing->movedir];
 
-		if (!P_RadiusThingsIterator(raisertryx, raisertryy, MAXRADIUS, PIT_CorpseCheck))
+		if (!P_RadiusThingsIterator(raisertryx, raisertryy, RAISE_RADIUS, PIT_CorpseCheck))
 			return corpsehit;  // got one - return it
 	}
 
