@@ -522,23 +522,6 @@ static inline void TexCoord_Fader(local_gl_vert_t *v, int t,
 }
 
 
-void R_ColmapPipe_SetProps(const struct region_properties_s *props)
-{
-	cmap_props = props;
-
-	cmap_lit_Nom = cmap_props->lightlevel + ren_extralight;
-	cmap_lit_Nom = CLAMP(cmap_lit_Nom, 0, 255);
-
-	// FIXME !!!!! fade_tex from props->colourmap
-}
-
-void R_ColmapPipe_AdjustLight(int adjust)
-{
-	cmap_lit_Nom = cmap_props->lightlevel + adjust + ren_extralight;
-	cmap_lit_Nom = CLAMP(cmap_lit_Nom, 0, 255);
-}
-
-
 #if 0
 {
 	/* FIRST PASS : draw the colormapped primitive */
