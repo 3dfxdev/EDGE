@@ -33,6 +33,8 @@
 #include "r_local.h"
 #endif
 
+#include "p_blockmap.h"  // HACK!
+
 #include "epi/arrays.h"
 
 #define DEATHVIEWHEIGHT  6.0f
@@ -40,14 +42,6 @@
 
 #define LOOKUPLIMIT    FLOAT_2_ANG(88.0f)
 #define LOOKDOWNLIMIT  FLOAT_2_ANG(-88.0f)
-
-// mapblocks are used to check movement
-// against lines and things
-#define MAPBLOCKUNITS 128
-
-// MAXRADIUS is for precalculated sector block boxes
-// the spider demon is larger, but we do not have any moving sectors nearby
-#define MAXRADIUS    (32.0f)
 
 #define MAXMOVE      (100.0f)
 #define STEPMOVE     (16.0f)
@@ -201,24 +195,6 @@ void P_FreeShootSpots(void);
 //
 // P_MAPUTL
 //
-#define PT_ADDLINES  1
-#define PT_ADDTHINGS 2
-#define PT_EARLYOUT  4
-
-typedef struct intercept_s
-{
-	float frac;  // along trace line
-
-	// one of these will be NULL
-	mobj_t *thing;
-	line_t *line;
-}
-intercept_t;
-
-typedef bool(*traverser_t) (intercept_t * in);
-
-extern divline_t trace;
-
 float P_ApproxDistance(float dx, float dy);
 float P_ApproxDistance(float dx, float dy, float dz);
 float P_ApproxSlope(float dx, float dy, float dz);
@@ -228,9 +204,9 @@ int P_PointOnDivlineThick(float x, float y, divline_t *div,
 void P_ComputeIntersection(divline_t *div,
 		float x1, float y1, float x2, float y2,
 		float *ix, float *iy);
-float P_InterceptVector(divline_t * v2, divline_t * v1);
 int P_BoxOnLineSide(const float * tmbox, line_t * ld);
 int P_BoxOnDivLineSide(const float * tmbox, divline_t *div);
+
 int P_FindThingGap(vgap_t * gaps, int gap_num, float z1, float z2);
 void P_ComputeGaps(line_t * ld);
 float P_ComputeThingGap(mobj_t * thing, sector_t * sec, float z, float * f, float * c);
@@ -239,15 +215,7 @@ void P_ComputeWallTiles(line_t *ld, int sidenum);
 void P_RecomputeGapsAroundSector(sector_t *sec);
 void P_RecomputeTilesInSector(sector_t *sec);
 void P_FloodExtraFloors(sector_t *sector);
-void P_SetThingPosition(mobj_t * mo);
-void P_UnsetThingPosition(mobj_t * mo);
-void P_UnsetThingFinally(mobj_t * mo);
-void P_ChangeThingPosition(mobj_t * mo, float x, float y, float z);
-void P_FreeSectorTouchNodes(sector_t *sec);
 
-bool P_BlockLinesIterator(int x, int y, bool(*func) (line_t *));
-bool P_BlockThingsIterator(int x, int y, bool(*func) (mobj_t *));
-bool P_RadiusThingsIterator(float x, float y, float r, bool(*func) (mobj_t *));
 bool P_ThingsInArea(float *bbox);
 bool P_ThingsOnLine(line_t *ld);
 
@@ -262,7 +230,6 @@ exfloor_fit_e;
 
 exfloor_fit_e P_ExtraFloorFits(sector_t *sec, float z1, float z2);
 
-bool P_PathTraverse(float x1, float y1, float x2, float y2, int flags, traverser_t trav);
 
 //
 // P_MAP
@@ -340,22 +307,6 @@ void P_LineAttack(mobj_t * t1, angle_t angle, float distance, float slope, float
 // for fast sight rejection.  Can be NULL
 extern const byte *rejectmatrix;
 
-#define BMAP_END  ((unsigned short) 0xFFFF)
-
-extern unsigned short *bmap_lines;
-extern unsigned short ** bmap_pointers;
-
-extern int bmapwidth;
-extern int bmapheight;  // in mapblocks
-
-extern float bmaporgx;
-extern float bmaporgy;  // origin of block map
-
-extern mobj_t **blocklinks;   // for thing chains
-extern mobj_t **blocklights;  // for dynamic lights
-
-#define BLOCKMAP_GET_X(x)  ((int) ((x) - bmaporgx) / MAPBLOCKUNITS)
-#define BLOCKMAP_GET_Y(y)  ((int) ((y) - bmaporgy) / MAPBLOCKUNITS)
 
 //
 // P_INTER
