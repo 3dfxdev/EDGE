@@ -2755,7 +2755,7 @@ static void DoWeaponModel(void)
 	solid_mode = false;
 	RGL_StartUnits(solid_mode);
 
-	R_ColmapPipe_SetProps(pl->mo->props);
+///---	R_ColmapPipe_SetProps(pl->mo->props);
 
 	RGL_DrawWeaponModel(pl);
 

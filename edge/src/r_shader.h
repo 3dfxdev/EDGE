@@ -108,9 +108,6 @@ public:
 
 /* FUNCTIONS */
 
-abstract_shader_c *R_GetColormapShader(
-		const struct region_properties_s *props, int light_add = 0);
-
 
 #endif /* __R_SHADER_H__ */
 
