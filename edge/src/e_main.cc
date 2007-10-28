@@ -838,20 +838,19 @@ static void TitleNextPicture(void)
 		}
 
 		// ignore non-existing images
-		if (W_CheckNumForName(g->titlepics[page_pic]) < 0)
+		page_image = W_ImageLookup(g->titlepics[page_pic], INS_Graphic, ILF_Null);
+
+		if (! page_image)
 		{
 			page_pic += 1;
 			continue;
 		}
 
 		// found one !!
-
 		if (page_pic == 0 && g->titlemusic > 0)
 			S_ChangeMusic(g->titlemusic, false);
 
-		page_image = W_ImageLookup(g->titlepics[page_pic]);
 		page_pic += 1;
-    
 		return;
 	}
 }
