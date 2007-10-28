@@ -3199,7 +3199,6 @@ SPECIAL=BACK_SECTOR;
 SECTOR_EFFECT=SCALE_FLOOR,SCALE_CEILING;
 
 // [840] Enable Dynamic Lights
-// [841] Enable Skybox
 // [842] Enable Jumping
 // [843] Enable Crouching
 // [844] Enable FreeLook
@@ -3208,7 +3207,6 @@ SECTOR_EFFECT=SCALE_FLOOR,SCALE_CEILING;
 // [847] Enable Infighting
 
 // [860] Disable Dynamic Lights
-// [861] Disable Skybox
 // [862] Disable Jumping
 // [863] Disable Crouching
 // [864] Disable FreeLook
