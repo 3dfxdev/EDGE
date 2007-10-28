@@ -1,5 +1,16 @@
 Andrew Apted's Log
 
+2007/10/28:
+
+Reworked rendering code, removing the RunPipeline stuff and
+using the new abstract_shader_c stuff.  So far, only the
+colormap shader is being used, but the different usages:
+WorldMix() for walls and floors, Sample() for sprites and
+Corner() for MD2 models have all been implemented.
+
+Fixed (untested) a bug with titlepics in GAMES.DDF which
+required the lump to exist, even when using IMAGES.DDF.
+
 2007/10/27:
 
 Fixed problem of HQ2X scaling causing up-side-down graphics.
