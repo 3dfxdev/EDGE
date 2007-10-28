@@ -273,9 +273,6 @@ typedef struct sector_s
 	// player# that made a sound (starting at 0), or -1
 	int sound_player;
 
-	// mapblock bounding box for height changes
-	int blockbox[4];
-
 	// origin for any sounds played by the sector
 	position_c sfx_origin;
 

@@ -2209,22 +2209,6 @@ void GroupLines(void)
 		sector->sfx_origin.x = (bbox[BOXRIGHT] + bbox[BOXLEFT]) / 2;
 		sector->sfx_origin.y = (bbox[BOXTOP] + bbox[BOXBOTTOM]) / 2;
 		sector->sfx_origin.z = (sector->f_h + sector->c_h) / 2;
-
-		// adjust bounding box to map blocks
-		int xl = BLOCKMAP_GET_X(bbox[BOXLEFT]   - MAXRADIUS);
-		int xh = BLOCKMAP_GET_X(bbox[BOXRIGHT]  + MAXRADIUS);
-		int yl = BLOCKMAP_GET_Y(bbox[BOXBOTTOM] - MAXRADIUS);
-		int yh = BLOCKMAP_GET_Y(bbox[BOXTOP]    + MAXRADIUS);
-
-		xl = (xl < 0) ? 0 : xl;
-		xh = (xh >= bmapwidth) ? bmapwidth - 1 : xh;
-		yl = (yl < 0) ? 0 : yl;
-		yh = (yh >= bmapheight) ? bmapheight - 1 : yh;
-
-		sector->blockbox[BOXTOP] = yh;
-		sector->blockbox[BOXBOTTOM] = yl;
-		sector->blockbox[BOXRIGHT] = xh;
-		sector->blockbox[BOXLEFT] = xl;
 	}
 }
 
