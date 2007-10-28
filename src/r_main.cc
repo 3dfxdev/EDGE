@@ -37,8 +37,6 @@ int glmax_clip_planes;
 int glmax_tex_size;
 int glmax_tex_units;
 
-int rgl_light_map[256];
-static lighting_model_e rgl_light_model = LMODEL_Invalid;
 
 int var_nearclip = 4;
 int var_farclip  = 64000;
@@ -90,36 +88,7 @@ static const driver_bug_t driver_bugs[] =
 #define NUM_DRIVER_BUGS  (sizeof(driver_bugs) / sizeof(driver_bug_t))
 
 
-static void SetupLightMap(lighting_model_e model)
-{
-	int i;
-  
-	rgl_light_model = (lighting_model_e)model;
 
-	for (i=0; i < 256; i++)
-	{
-		if (model >= LMODEL_Flat)
-		{
-			rgl_light_map[i] = i;
-			continue;
-		}
-
-		// Approximation of standard Doom lighting: 
-		// (based on side-by-side comparison)
-		//    [0,72] --> [0,16]
-		//    [72,112] --> [16,56]
-		//    [112,255] --> [56,255]
-
-		if (i <= 72)
-			rgl_light_map[i] = i * 16 / 72;
-		else if (i <= 112)
-			rgl_light_map[i] = 16 + (i - 72) * 40 / 40;
-		else if (i < 255)
-			rgl_light_map[i] = 56 + (i - 112) * 200 / 144;
-		else
-			rgl_light_map[i] = 255;
-	}
-}
 
 //
 // RGL_SetupMatrices2D
@@ -195,10 +164,6 @@ void RGL_SetupMatrices3D(void)
 		glDisable(GL_COLOR_MATERIAL);
 
 	/* glBlendFunc(GL_SRC_ALPHA, GL_ONE);  // Additive lighting */
-
-	SYS_ASSERT(currmap);
-	if (currmap->lighting != rgl_light_model)
-		SetupLightMap(currmap->lighting);
 }
 
 static inline const char *SafeStr(const void *s)
