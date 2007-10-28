@@ -48,10 +48,10 @@ std::vector<light_t *> lights;
 //
 static void DoLight(light_t * light)
 {
+	const lightdef_c *type = light->type;
+
 	if (light->count == 0)
 		return;
-
-	const lightdef_c *type = light->type;
 
 	if (type->type == LITE_None || --light->count)
 		return;
@@ -223,11 +223,10 @@ void P_DestroyAllLights(void)
 }
 
 
-
 light_t *P_NewLight(void)
 {
 	// Allocate and link in light.
-	//
+
 	light_t *light = new light_t;
 
 	lights.push_back(light);
@@ -245,10 +244,11 @@ bool EV_Lights(sector_t * sec, const lightdef_c * type)
 
 	for (LI = lights.begin(); LI != lights.end(); LI++)
 	{
-		light = *LI;
-
-		if (light->count == 0 || light->sector == sec)
+		if ((*LI)->count == 0 || (*LI)->sector == sec)
+		{
+			light = *LI;
 			break;
+		}
 	}
 
 	if (!light)
