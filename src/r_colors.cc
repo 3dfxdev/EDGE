@@ -608,6 +608,7 @@ rgbcol_t V_LookupColour(int col)
 	return RGB_MAKE(r,g,b);
 }
 
+
 //----------------------------------------------------------------------------
 //  COLORMAP
 //----------------------------------------------------------------------------
@@ -616,12 +617,12 @@ int R_DoomLightingEquation(int L, float dist)
 {
 	/* L in the range 0 to 63 */
 
+	int min_L = CLAMP(0, 36 - L, 31);
+
 	int index = (59 - L) - int(1280 / MAX(1, dist));
-	int min_L = MAX(0, 36 - L);
 
 	/* result is colormap index (0 bright .. 31 dark) */
-
-	return CLAMP(index, min_L, 31);
+	return CLAMP(min_L, index, 31);
 }
 
 GLuint MakeColormapTexture( int mode )
@@ -672,7 +673,6 @@ GLuint MakeColormapTexture( int mode )
 }
 
 
-
 class colormap_shader_c : public abstract_shader_c
 {
 private:
@@ -705,12 +705,11 @@ private:
 	inline void TexCoord(local_gl_vert_t *v, int t, const vec3_t *lit_pos)
 	{
 		float dist = DistFromViewplane(lit_pos->x, lit_pos->y, lit_pos->z);
-				
-		float tx = dist / 1600.0;
-		float ty = ((light_lev / 4) + 0.5) / 64.0;
 
-		v->texc[t].x = CLAMP(0.5/256.0, tx, 255.5/256.0);
-		v->texc[t].y = CLAMP(0.5/64.0,  ty, 63.5/64.0);
+		float ty = CLAMP(0.5, (light_lev / 4.0), 64 - 0.5);
+
+		v->texc[t].x = dist / 1600.0;
+		v->texc[t].y = ty / 64.0;
 	}
 
 public:
@@ -780,8 +779,8 @@ abstract_shader_c *R_GetColormapShader(const struct region_properties_s *props,
 {
 	int lit_Nom = props->lightlevel + light_add + ren_extralight;
 
-	lit_Nom = CLAMP(lit_Nom, 0, 255);
-	
+	lit_Nom = CLAMP(0, lit_Nom, 255);
+
 	// FIXME !!!! foggy / watery sectors
 	if (! std_cmap_shader)
 	{
