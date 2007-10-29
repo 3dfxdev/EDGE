@@ -10,6 +10,10 @@ Fixed bug #1821889 (from Jim Bentler) where fist/chainsaw
 attacks were too large.  The rewritten P_PathTraverse code
 was failing to ignore objects out of range (i.e. frac > 1).
 
+Worked on TGA image loader.  Both RGB and RLE_RGB formats
+are implemented and working, including the BGR(A) to RGB(A)
+conversion.  Alpha channel images are working too :-)
+
 2007/10/28:
 
 Reworked rendering code, removing the RunPipeline stuff and
