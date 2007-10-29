@@ -464,14 +464,14 @@ void DDF_StateReadState(const char *info, const char *label,
 	//------------STATE BRIGHTNESS LEVEL----------------
 	//--------------------------------------------------
 
-	if (strcmp("NORMAL", stateinfo[3]) == 0)
+	if (strcmp(stateinfo[3], "NORMAL") == 0)
 		cur->bright = 0;
-	else if (strcmp("BRIGHT", stateinfo[3]) == 0)
+	else if (strcmp(stateinfo[3], "BRIGHT") == 0)
 		cur->bright = 255;
-	else if (strncmp("LIT(", stateinfo[3],4) == 0 &&
-			 stateinfo[3][strlen(stateinfo[3])-1] == ')')
+	else if (strncmp(stateinfo[3], "LIT", 3) == 0)
 	{
-		cur->bright = atol(stateinfo[3]+1);
+		cur->bright = strtol(stateinfo[3]+3, NULL, 10);
+		cur->bright = CLAMP(0, cur->bright * 255 / 99, 255);
 	}
 	else
 		DDF_WarnError2(128, "DDF_MainLoadStates: Lighting is not BRIGHT or NORMAL\n");
