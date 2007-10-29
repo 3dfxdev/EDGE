@@ -29,6 +29,7 @@
 #include "con_main.h"
 #include "dm_defs.h"
 #include "dm_state.h"
+#include "e_input.h"
 #include "dstrings.h"
 #include "m_random.h"
 #include "p_local.h"
@@ -740,6 +741,10 @@ void P_KillMobj(mobj_t * source, mobj_t * target, const damage_c *damtype,
 		// don't die in auto map, switch view prior to dying
 		if (target->player == players[consoleplayer] && automapactive)
 			AM_Stop();
+
+		// don't immediately restart when USE key was pressed
+		if (target->player == players[consoleplayer])
+			E_ClearInput();
 	}
 
 	statenum_t state = S_NULL;
