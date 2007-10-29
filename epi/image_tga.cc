@@ -69,9 +69,10 @@ tga_type_e;
 
 static inline void SwapPixels(u8_t *pix, short bpp, int num)
 {
-	// TODO !!!!
-
-	//	byte temp = dest[0]; dest[0] = dest[2]; dest[2] = temp;
+	for (; num > 0; num--, pix += bpp)
+	{
+	  	u8_t temp = pix[0]; pix[0] = pix[2]; pix[2] = temp;
+	}
 }
 
 static bool ReadPixels(image_data_c *img, file_c *f, int& x, int& y, int total)
@@ -90,7 +91,7 @@ static bool ReadPixels(image_data_c *img, file_c *f, int& x, int& y, int total)
 			w = total;
 		
 		SYS_ASSERT(w > 0);
-		SYS_ASSERT(x + w <= img->width);
+		SYS_ASSERT(x + w <= img->used_w);
 
 		u8_t *dest = img->PixelAt(x, y);
 
@@ -132,11 +133,12 @@ static bool DuplicatePixels(image_data_c *img, int& x, int& y, int total,
 			w = total;
 		
 		SYS_ASSERT(w > 0);
-		SYS_ASSERT(x + w <= img->width);
+		SYS_ASSERT(x + w <= img->used_w);
 
-		u8_t *dest = img->PixelAt(x, y);
+		u8_t *dest  = img->PixelAt(x, y);
+		u8_t *d_end = dest + img->bpp * w;
 
-		for (; w > 0; w--, dest += img->bpp)
+		for (; dest < d_end; dest += img->bpp)
 		{
 			memcpy(dest, src, img->bpp);
 		}
@@ -164,28 +166,24 @@ static bool DecodeRLE_RGB(image_data_c *img, file_c *f, tga_header_t& header)
 	{
 		/* read the next "packet" */
 
-		byte count;
+		u8_t count;
 
 		if (1 != f->Read(&count, 1))
 			return false;
 
 		if ((count & 0x80) == 0) // raw packet
 		{
-			count = (count & 0x7F) + 1;
-
-			if (! ReadPixels(img, f, x, y, count))
+			if (! ReadPixels(img, f, x, y, count + 1))
 				return false;
 		}
 		else // run-length packet
 		{
-			count = (count & 0x7F) + 1;
-
 			const u8_t *src = img->PixelAt(x, y);
 
 			if (! ReadPixels(img, f, x, y, 1))
 				return false;
 
-			if (! DuplicatePixels(img, x, y, count, src))
+			if (! DuplicatePixels(img, x, y, count & 0x7F, src))
 				return false;
 		}
 	}
