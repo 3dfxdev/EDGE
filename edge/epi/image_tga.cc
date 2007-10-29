@@ -67,41 +67,91 @@ typedef enum
 tga_type_e;
 
 
-static inline bool ReadPixelRow(image_data_c *img, file_c *f, int x, int y, int w)
+static inline void SwapPixels(u8_t *pix, short bpp, int num)
 {
-	SYS_ASSERT(x + w <= img->width);
+	// TODO !!!!
 
-	u8_t *dest = img->PixelAt(x, y);
+	//	byte temp = dest[0]; dest[0] = dest[2]; dest[2] = temp;
+}
 
-	for (; w > 0; w--, x++, dest += img->bpp)
+static bool ReadPixels(image_data_c *img, file_c *f, int& x, int& y, int total)
+{
+	while (total > 0)
 	{
-		if (img->bpp != (int)f->Read(&dest, img->bpp))
+		if (y >= img->used_h)
+		{
+			I_Debugf("TGA_Load: uncompressed too much!\n");
+			return false;
+		}
+
+		int w = img->used_w - x;
+
+		if (w > total)
+			w = total;
+		
+		SYS_ASSERT(w > 0);
+		SYS_ASSERT(x + w <= img->width);
+
+		u8_t *dest = img->PixelAt(x, y);
+
+		int size = w * img->bpp;
+
+		if (size != (int)f->Read(dest, size))
 			return false;
 
-		// handle BGRA format (swap R and B)
-		byte temp = dest[0]; dest[0] = dest[2]; dest[2] = temp;
+		// handle BGRA format (swap R and B!)
+		SwapPixels(dest, img->bpp, w);
+
+		x     += w;
+		total -= w;
+
+		if (x >= img->used_w)
+		{
+			x  = 0;
+			y += 1;
+		}
 	}
 
 	return true;
 }
 
-static inline void CopyPixelRow(image_data_c *img, int x, int y, int w,
-				const byte *pixel)
+static bool DuplicatePixels(image_data_c *img, int& x, int& y, int total,
+			const u8_t *src)
 {
-	u8_t *dest = img->PixelAt(x, y);
-
-	memcpy(dest, pixel, img->bpp);
-
-	// handle BGRA format (swap R and B)
-	dest[0] = pixel[2];
-	dest[2] = pixel[0];
-
-	w--, x++;
-
-	for (; w > 0; w--, x++, dest += img->bpp)
+	while (total > 0)
 	{
-		memcpy(dest + img->bpp, dest, img->bpp);
+		if (y >= img->used_h)
+		{
+			I_Debugf("TGA_Load: uncompressed too much!\n");
+			return false;
+		}
+
+		int w = img->used_w - x;
+
+		if (w > total)
+			w = total;
+		
+		SYS_ASSERT(w > 0);
+		SYS_ASSERT(x + w <= img->width);
+
+		u8_t *dest = img->PixelAt(x, y);
+
+		for (; w > 0; w--, dest += img->bpp)
+		{
+			memcpy(dest, src, img->bpp);
+		}
+
+		x     += w;
+		total -= w;
+
+		if (x >= img->used_w)
+		{
+			x  = 0;
+			y += 1;
+		}
 	}
+
+	return true;
 }
 
 
@@ -119,22 +169,24 @@ static bool DecodeRLE_RGB(image_data_c *img, file_c *f, tga_header_t& header)
 		if (1 != f->Read(&count, 1))
 			return false;
 
-		if (count & 0x80)  // run-length packet
+		if ((count & 0x80) == 0) // raw packet
 		{
 			count = (count & 0x7F) + 1;
 
-			ReadPixelRow(img, f, x, y, count);
+			if (! ReadPixels(img, f, x, y, count))
+				return false;
 		}
-		else  // raw packet
+		else // run-length packet
 		{
 			count = (count & 0x7F) + 1;
 
-			byte pixel[4];
+			const u8_t *src = img->PixelAt(x, y);
 
-			if (img->bpp != (int)f->Read(pixel, img->bpp))
+			if (! ReadPixels(img, f, x, y, 1))
 				return false;
 
-			CopyPixelRow(img, x, y, count, pixel);
+			if (! DuplicatePixels(img, x, y, count, src))
+				return false;
 		}
 	}
 
@@ -143,13 +195,10 @@ static bool DecodeRLE_RGB(image_data_c *img, file_c *f, tga_header_t& header)
 
 static bool DecodeRGB(image_data_c *img, file_c *f, tga_header_t& header)
 {
-	for (int y = 0; y < img->used_h; y++)
-	{
-		if (! ReadPixels(img, f, 0, y, img->used_w))
-			return false;
-	}
+	int x = 0;
+	int y = 0;
 
-	return true;
+	return ReadPixels(img, f, x, y, img->used_w * img->used_h);
 }
 
 
@@ -232,7 +281,7 @@ image_data_c *TGA_Load(file_c *f, int read_flags)
 			break;
 
 		default:
-			I_Error("TGA_Load: INTERNAL ERROR (type??)\n");
+			I_Error("TGA_Load: INTERNAL ERROR (type?)\n");
 			return NULL; /* NOT REACHED */
 	}
 
