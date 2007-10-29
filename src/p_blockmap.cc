@@ -717,7 +717,6 @@ bool P_RadiusThingsIterator(float x, float y, float r, bool(*func) (mobj_t *))
 // INTERCEPT ROUTINES
 //
 
-
 static std::vector<intercept_t> intercepts;
 
 divline_t trace;
@@ -763,19 +762,16 @@ float P_InterceptVector(divline_t * v2, divline_t * v1)
 }
 
 
-//
-// PIT_AddLineIntercepts.
-//
-// Looks for lines in the given block
-// that intercept the given trace
-// to add to the intercepts list.
-//
-// A line is crossed if its endpoints
-// are on opposite sides of the trace.
-// Returns true if earlyout and a solid line hit.
-//
 static bool PIT_AddLineIntercepts(line_t * ld)
 {
+	// Looks for lines in the given block
+	// that intercept the given trace
+	// to add to the intercepts list.
+	//
+	// A line is crossed if its endpoints
+	// are on opposite sides of the trace.
+	// Returns true if earlyout and a solid line hit.
+
 	int s1;
 	int s2;
 	float frac;
@@ -805,8 +801,9 @@ static bool PIT_AddLineIntercepts(line_t * ld)
 
 	frac = P_InterceptVector(&trace, &div);
 
-	if (frac < 0)
-		return true;  // behind source
+	// out of range?
+	if (frac < 0 || frac > 1)
+		return true;
 
 	// try to early out the check
 	if (earlyout && frac < 1.0f && !ld->backsector)
@@ -825,9 +822,7 @@ static bool PIT_AddLineIntercepts(line_t * ld)
 
 }
 
-//
-// PIT_AddThingIntercepts
-//
+
 static bool PIT_AddThingIntercepts(mobj_t * thing)
 {
 	float x1;
@@ -878,8 +873,8 @@ static bool PIT_AddThingIntercepts(mobj_t * thing)
 
 	frac = P_InterceptVector(&trace, &div);
 
-	// behind source ?
-	if (frac < 0)
+	// out of range?
+	if (frac < 0 || frac > 1)
 		return true;
 
 	// Intercept is a simple struct that can be memcpy()'d: Load
@@ -894,6 +889,7 @@ static bool PIT_AddThingIntercepts(mobj_t * thing)
 	return true;
 }
 
+
 struct Compare_Intercept_pred
 {
 	inline bool operator() (const intercept_t& A, const intercept_t& B) const
@@ -901,35 +897,6 @@ struct Compare_Intercept_pred
 		return A.frac < B.frac;
 	}
 };
-
-//
-// TraverseIntercepts
-//
-// Returns true if the traverser function returns true
-// for all lines.
-//
-static bool TraverseIntercepts(traverser_t func, float maxfrac)
-{
-	if (intercepts.size() == 0)
-		return true;
-
-	std::sort(intercepts.begin(), intercepts.end(),
-			  Compare_Intercept_pred());
-
-	std::vector<intercept_t>::iterator I;
-
-	for (I = intercepts.begin(); I != intercepts.end(); I++)
-	{
-		if (! func(& *I))
-		{
-			// don't bother going farther
-			return false;
-		}
-	}
-
-	// everything was traversed
-	return true;
-}
 
 //
 // P_PathTraverse
@@ -1063,7 +1030,26 @@ bool P_PathTraverse(float x1, float y1, float x2, float y2,
 	}
 
 	// go through the sorted list
-	return TraverseIntercepts(trav, 1.0f);
+
+	if (intercepts.size() == 0)
+		return true;
+
+	std::sort(intercepts.begin(), intercepts.end(),
+			  Compare_Intercept_pred());
+
+	std::vector<intercept_t>::iterator I;
+
+	for (I = intercepts.begin(); I != intercepts.end(); I++)
+	{
+		if (! trav(& *I))
+		{
+			// don't bother going farther
+			return false;
+		}
+	}
+
+	// everything was traversed
+	return true;
 }
 
 
