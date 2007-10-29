@@ -2934,8 +2934,6 @@ void R_Render(void)
 	framecount++;
 	validcount++;
 	
-	N_NetUpdate();	// check for new console commands.
-
 	RGL_RenderTrueBSP();
 }
 
