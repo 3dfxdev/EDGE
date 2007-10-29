@@ -67,6 +67,92 @@ typedef enum
 tga_type_e;
 
 
+static inline bool ReadPixelRow(image_data_c *img, file_c *f, int x, int y, int w)
+{
+	SYS_ASSERT(x + w <= img->width);
+
+	u8_t *dest = img->PixelAt(x, y);
+
+	for (; w > 0; w--, x++, dest += img->bpp)
+	{
+		if (img->bpp != (int)f->Read(&dest, img->bpp))
+			return false;
+
+		// handle BGRA format (swap R and B)
+		byte temp = dest[0]; dest[0] = dest[2]; dest[2] = temp;
+	}
+
+	return true;
+}
+
+static inline void CopyPixelRow(image_data_c *img, int x, int y, int w,
+				const byte *pixel)
+{
+	u8_t *dest = img->PixelAt(x, y);
+
+	memcpy(dest, pixel, img->bpp);
+
+	// handle BGRA format (swap R and B)
+	dest[0] = pixel[2];
+	dest[2] = pixel[0];
+
+	w--, x++;
+
+	for (; w > 0; w--, x++, dest += img->bpp)
+	{
+		memcpy(dest + img->bpp, dest, img->bpp);
+	}
+}
+
+
+static bool DecodeRLE_RGB(image_data_c *img, file_c *f, tga_header_t& header)
+{
+	int x = 0;
+	int y = 0;
+
+	while (y < img->used_h)
+	{
+		/* read the next "packet" */
+
+		byte count;
+
+		if (1 != f->Read(&count, 1))
+			return false;
+
+		if (count & 0x80)  // run-length packet
+		{
+			count = (count & 0x7F) + 1;
+
+			ReadPixelRow(img, f, x, y, count);
+		}
+		else  // raw packet
+		{
+			count = (count & 0x7F) + 1;
+
+			byte pixel[4];
+
+			if (img->bpp != (int)f->Read(pixel, img->bpp))
+				return false;
+
+			CopyPixelRow(img, x, y, count, pixel);
+		}
+	}
+
+	return true;
+}
+
+static bool DecodeRGB(image_data_c *img, file_c *f, tga_header_t& header)
+{
+	for (int y = 0; y < img->used_h; y++)
+	{
+		if (! ReadPixelRow(img, f, 0, y, img->used_w))
+			return false;
+	}
+
+	return true;
+}
+
+
 image_data_c *TGA_Load(file_c *f, int read_flags)
 {
 	tga_header_t header;
@@ -81,6 +167,17 @@ image_data_c *TGA_Load(file_c *f, int read_flags)
 	    header.type != TGA_TYPE_RLE_INDEXED &&
 		header.type != TGA_TYPE_RLE_RGB)
 		return NULL;
+
+	if (header.type == TGA_TYPE_INDEXED ||
+		header.type == TGA_TYPE_RLE_INDEXED)
+	{
+		// FIXME: awww, this is heavy handed!
+		I_Error("TGA_Load: color-mapped formats not supported.\n");
+	}
+	if (header.pixel_bits < 24)
+	{
+		I_Error("TGA_Load: 16 bpp formats not yet supported.\n");
+	}
 
 	int width  = GET_U16_FIELD(header, width);
 	int height = GET_U16_FIELD(header, height);
@@ -122,15 +219,21 @@ image_data_c *TGA_Load(file_c *f, int read_flags)
 	
 	/* read image pixels */
 
-	//!!!!!! FIXME: assumes TGA_TYPE_RGB
-	
-	for (int y = 0; y < img->used_h; y++)
-	for (int x = 0; x < img->used_w; x++)
-	{
-		u8_t *dest = img->PixelAt(x, y);
+	bool result;
 
-		f->Read(dest, new_bpp);
+	if (header.type == TGA_TYPE_RLE_RGB)
+	{
+		result = DecodeRLE_RGB(img, f, header);
 	}
+	else
+	{
+		SYS_ASSERT(header.type == TGA_TYPE_RGB);
+
+		result = DecodeRGB(img, f, header);
+	}
+
+	if (! result)
+		I_Printf("TGA_Load: WARNING: failure decoding image!\n");
 
 	return img;
 }
