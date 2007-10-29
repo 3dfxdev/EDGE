@@ -2937,8 +2937,6 @@ void R_Render(void)
 	N_NetUpdate();	// check for new console commands.
 
 	RGL_RenderTrueBSP();
-
-	N_NetUpdate();	// Check for new console commands.
 }
 
 
