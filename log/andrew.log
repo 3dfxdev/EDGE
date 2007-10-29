@@ -1,5 +1,15 @@
 Andrew Apted's Log
 
+2007/10/29:
+
+Prevent the game from immediately restarting when you die
+while holding the USE button down.  (Clear the keyboard
+buffer at death).
+
+Fixed bug #1821889 (from Jim Bentler) where fist/chainsaw
+attacks were too large.  The rewritten P_PathTraverse code
+was failing to ignore objects out of range (i.e. frac > 1).
+
 2007/10/28:
 
 Reworked rendering code, removing the RunPipeline stuff and
