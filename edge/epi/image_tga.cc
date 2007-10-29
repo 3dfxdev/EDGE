@@ -145,7 +145,7 @@ static bool DecodeRGB(image_data_c *img, file_c *f, tga_header_t& header)
 {
 	for (int y = 0; y < img->used_h; y++)
 	{
-		if (! ReadPixelRow(img, f, 0, y, img->used_w))
+		if (! ReadPixels(img, f, 0, y, img->used_w))
 			return false;
 	}
 
@@ -221,15 +221,19 @@ image_data_c *TGA_Load(file_c *f, int read_flags)
 
 	bool result;
 
-	if (header.type == TGA_TYPE_RLE_RGB)
+	switch (header.type)
 	{
-		result = DecodeRLE_RGB(img, f, header);
-	}
-	else
-	{
-		SYS_ASSERT(header.type == TGA_TYPE_RGB);
+		case TGA_TYPE_RLE_RGB:
+			result = DecodeRLE_RGB(img, f, header);
+			break;
 
-		result = DecodeRGB(img, f, header);
+		case TGA_TYPE_RGB:
+			result = DecodeRGB(img, f, header);
+			break;
+
+		default:
+			I_Error("TGA_Load: INTERNAL ERROR (type??)\n");
+			return NULL; /* NOT REACHED */
 	}
 
 	if (! result)
