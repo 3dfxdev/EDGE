@@ -34,6 +34,7 @@
 #include "r_colors.h"
 #include "r_modes.h"
 #include "r_image.h"
+#include "r_texgl.h"
 #include "w_wad.h"
 #include "z_zone.h"
 
@@ -356,7 +357,7 @@ void RGL_DrawSkyBox(void)
 	}
 
 	// top
-	glBindTexture(GL_TEXTURE_2D, box_info.top_tex);
+	glBindTexture(GL_TEXTURE_2D, box_info.tex[WSKY_Top]);
         glNormal3i(0, 0, -1);
 
 	glBegin(GL_QUADS);
@@ -367,7 +368,7 @@ void RGL_DrawSkyBox(void)
 	glEnd();
 
 	// bottom
-	glBindTexture(GL_TEXTURE_2D, box_info.bottom_tex);
+	glBindTexture(GL_TEXTURE_2D, box_info.tex[WSKY_Bottom]);
         glNormal3i(0, 0, +1);
 
 	glBegin(GL_QUADS);
@@ -378,7 +379,7 @@ void RGL_DrawSkyBox(void)
 	glEnd();
 
 	// north
-	glBindTexture(GL_TEXTURE_2D, box_info.north_tex);
+	glBindTexture(GL_TEXTURE_2D, box_info.tex[WSKY_North]);
         glNormal3i(0, -1, 0);
 
 	glBegin(GL_QUADS);
@@ -389,7 +390,7 @@ void RGL_DrawSkyBox(void)
 	glEnd();
 
 	// east
-	glBindTexture(GL_TEXTURE_2D, box_info.east_tex);
+	glBindTexture(GL_TEXTURE_2D, box_info.tex[WSKY_East]);
         glNormal3i(-1, 0, 0);
 
 	glBegin(GL_QUADS);
@@ -400,7 +401,7 @@ void RGL_DrawSkyBox(void)
 	glEnd();
 
 	// south
-	glBindTexture(GL_TEXTURE_2D, box_info.south_tex);
+	glBindTexture(GL_TEXTURE_2D, box_info.tex[WSKY_South]);
         glNormal3i(0, +1, 0);
 
 	glBegin(GL_QUADS);
@@ -411,7 +412,7 @@ void RGL_DrawSkyBox(void)
 	glEnd();
 
 	// west
-	glBindTexture(GL_TEXTURE_2D, box_info.west_tex);
+	glBindTexture(GL_TEXTURE_2D, box_info.tex[WSKY_West]);
         glNormal3i(+1, 0, 0);
 
 	glBegin(GL_QUADS);
@@ -597,12 +598,13 @@ static void CalcSkyCoord(int px, int py, int pw, int ph, int face,
 
 		default:
 			I_Error("CalcSkyCoord: INTERNAL ERROR (lost face)\n");
-			return; /* NOT REACHED */
+			sx = sy = sz = 0;
+			break; /* NOT REACHED */
 	}
 
-	// normalise the vector
-//	float len  = sqrt((sx) * (sx) + (sy) * (sy) + (sz) * (sz));
-	float len2 = sqrt((sx) * (sx) + (sy) * (sy))
+///---	// normalise the vector
+///---	float len  = sqrt((sx) * (sx) + (sy) * (sy) + (sz) * (sz));
+	float len2 = sqrt((sx) * (sx) + (sy) * (sy));
 
 ///---	sx /= len;
 ///---	sy /= len;
@@ -627,16 +629,16 @@ static void CalcSkyCoord(int px, int py, int pw, int ph, int face,
 }
 
 
-static GLuint BuildFace(const epi::image_c *sky, int face,
+static GLuint BuildFace(const epi::image_data_c *sky, int face,
 				  	    const byte *what_palette)
 			
 {
 	int img_size = box_info.face_size;
 
-	epi::image_c img(img_size, img_size, 3);
+	epi::image_data_c img(img_size, img_size, 3);
 
 
-	bool narrow = SkyIsNarrow(sky);
+	bool narrow = SkyIsNarrow(box_info.base_sky);
 
 	const byte *src = sky->pixels;
 
@@ -645,7 +647,7 @@ static GLuint BuildFace(const epi::image_c *sky, int face,
 
 	for (int y=0; y < img_size; y++)
 	{
-		u8_t *dest = img->PixelAt(0, y);
+		u8_t *dest = img.PixelAt(0, y);
 
 		for (int x=0; x < img_size; x++, dest += 3)
 		{
@@ -794,9 +796,9 @@ void RGL_UpdateSkyBoxTextures(void)
 
 
 	// check for custom sky images
-	char *custom_name = UserSkyFaceName(sky_image->name, WSKY_North);
-	
-	box_info.face[WSKY_North] = W_ImageLookup(custom_name, INS_Texture, ILF_Null);
+	box_info.face[WSKY_North] = W_ImageLookup(
+			UserSkyFaceName(sky_image->name, WSKY_North), INS_Texture,
+			ILF_Null);
 
 	if (box_info.face[WSKY_North])
 	{
@@ -824,6 +826,11 @@ void RGL_UpdateSkyBoxTextures(void)
 
 	custom_sky_box = false;
 
+	
+	// Intentional Const Override
+	const epi::image_data_c *block = ReadAsEpiBlock((image_c*)sky_image);
+	SYS_ASSERT(block);
+
 	// get correct palette
 	const byte *what_pal = (const byte *) &playpal_data[0];
 	bool what_pal_cached = false;
@@ -834,21 +841,23 @@ void RGL_UpdateSkyBoxTextures(void)
 		what_pal_cached = true;
 	}
 
-	box_info.north_tex  = BuildFace(sky_image, WSKY_North,  what_pal);
-	box_info.east_tex   = BuildFace(sky_image, WSKY_East,   what_pal);
-	box_info.top_tex    = BuildFace(sky_image, WSKY_Top,    what_pal);
-	box_info.bottom_tex = BuildFace(sky_image, WSKY_Bottom, what_pal);
+	box_info.tex[WSKY_North]  = BuildFace(block, WSKY_North,  what_pal);
+	box_info.tex[WSKY_East]   = BuildFace(block, WSKY_East,   what_pal);
+	box_info.tex[WSKY_Top]    = BuildFace(block, WSKY_Top,    what_pal);
+	box_info.tex[WSKY_Bottom] = BuildFace(block, WSKY_Bottom, what_pal);
 
 	// optimisation: can share side textures when narrow
 
-	box_info.south_tex = SkyIsNarrow(sky_image) ? box_info.north_tex :
-						 BuildFace(sky_image, WSKY_South, what_pal );
+	box_info.tex[WSKY_South] = SkyIsNarrow(sky_image) ? box_info.tex[WSKY_North] :
+						 BuildFace(block, WSKY_South, what_pal );
 
-	box_info.west_tex  = SkyIsNarrow(sky_image) ? box_info.east_tex :
-						 BuildFace(sky_image, WSKY_West, what_pal );
+	box_info.tex[WSKY_West]  = SkyIsNarrow(sky_image) ? box_info.tex[WSKY_East] :
+						 BuildFace(block, WSKY_West, what_pal );
+
+	delete block;
 
 	if (what_pal_cached)
-		W_DoneWithLump(what_palette);
+		W_DoneWithLump(what_pal);
 }
 
 
