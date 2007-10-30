@@ -44,6 +44,9 @@ const image_c *sky_image;
 
 bool custom_sky_box;
 
+// needed for SKY
+extern epi::image_data_c *ReadAsEpiBlock(image_c *rim);
+
 
 typedef struct sec_sky_ring_s
 {
@@ -539,20 +542,20 @@ void RGL_DrawSkyWall(seg_t *seg, float h1, float h2)
 #define PIXEL_GRN(pix)  (what_palette[pix*3 + 1])
 #define PIXEL_BLU(pix)  (what_palette[pix*3 + 2])
 
-// -AJA- Another hack, this variable holds the current sky when
-// compute sky merging.  We hold onto the image, because there are
-// six sides to compute, and we don't want to load the original
-// image six times.  Removing this hack requires caching it in the
-// cache system (which is not possible right now).
-static epi::image_data_c *merging_sky_image;
-
-void W_ImageClearMergingSky(void)
-{
-	if (merging_sky_image)
-		delete merging_sky_image;
-
-	merging_sky_image = NULL;
-}
+///---// -AJA- Another hack, this variable holds the current sky when
+///---// compute sky merging.  We hold onto the image, because there are
+///---// six sides to compute, and we don't want to load the original
+///---// image six times.  Removing this hack requires caching it in the
+///---// cache system (which is not possible right now).
+///---static epi::image_data_c *merging_sky_image;
+///---
+///---void W_ImageClearMergingSky(void)
+///---{
+///---	if (merging_sky_image)
+///---		delete merging_sky_image;
+///---
+///---	merging_sky_image = NULL;
+///---}
 
 
 static void CalcSkyCoord(int px, int py, int pw, int ph, int face,
@@ -598,7 +601,7 @@ static void CalcSkyCoord(int px, int py, int pw, int ph, int face,
 ///---	sz /= len;
 
 
-	angle_t H = ANG0  - R_PointToAngle(0, 0, sx, sy);
+	angle_t H = ANG0  + R_PointToAngle(0, 0, sx, sy);
 	angle_t V = ANG90 + R_PointToAngle(0, 0, len2, sz);
 
 	if (narrow)
@@ -616,15 +619,152 @@ static void CalcSkyCoord(int px, int py, int pw, int ph, int face,
 }
 
 
+static void BuildFace(epi::image_c *img, int face, const epi::image_c *sky, XXX )
+{
+	bool narrow = SkyIsNarrow(sky);
 
-static inline bool SkyIsNarrow(const image_c *sky)
+	const byte *src = sky->pixels;
+
+	int sky_w = sky->width;
+	int sky_h = sky->height;
+
+	int img_size = img->width;
+
+	SYS_ASSERT(img->width == img->height);
+
+	for (int y=0; y < img->height; y++)
+	{
+		u8_t *dest = img->PixelAt(0, y);
+
+		for (int x=0; x < img->width; x++, dest += 3)
+		{
+			float tx, ty;
+
+			CalcSkyCoord(x, y, img->width, img->height,
+					face, narrow, &tx, &ty);
+
+			// Bilinear Filtering
+
+			int TX = (int)(tx * sky_w * 16);
+			int TY = (int)(ty * sky_h * 16);
+
+			// negative values shouldn't occur, but just in case...
+			TX = (TX + sky_w * 64) % (sky_w * 16);
+			TY = (TY + sky_h * 64) % (sky_h * 16);
+
+			SYS_ASSERT(TX >= 0 && TY >= 0);
+
+			///--- TX = sky->width*16 - 1 - TX;
+
+			int FX = TX % 16; TX >>= 4;
+			int FY = TY % 16; TY >>= 4;
+
+			SYS_ASSERT(TX < sky_w && TY < sky_h);
+
+
+			int TX2 = (TX + 1) % sky_w;
+			int TY2 = (TY < sky_h-1) ? (TY+1) : TY;
+
+			byte rA, rB, rC, rD;
+			byte gA, gB, gC, gD;
+			byte bA, bB, bC, bD;
+
+			switch (sky->bpp)
+			{
+				case 1:
+				{
+					byte src_A = src[TY  * sky_w + TX];
+					byte src_B = src[TY  * sky_w + TX2];
+					byte src_C = src[TY2 * sky_w + TX];
+					byte src_D = src[TY2 * sky_w + TX2];
+
+					rA = PIXEL_RED(src_A); rB = PIXEL_RED(src_B);
+					rC = PIXEL_RED(src_C); rD = PIXEL_RED(src_D);
+
+					gA = PIXEL_GRN(src_A); gB = PIXEL_GRN(src_B);
+					gC = PIXEL_GRN(src_C); gD = PIXEL_GRN(src_D);
+
+					bA = PIXEL_BLU(src_A); bB = PIXEL_BLU(src_B);
+					bC = PIXEL_BLU(src_C); bD = PIXEL_BLU(src_D);
+				}
+				break;
+
+				case 3:
+				{
+					rA = src[(TY * sky_w + TX) * 3 + 0];
+					gA = src[(TY * sky_w + TX) * 3 + 1];
+					bA = src[(TY * sky_w + TX) * 3 + 2];
+
+					rB = src[(TY * sky_w + TX2) * 3 + 0];
+					gB = src[(TY * sky_w + TX2) * 3 + 1];
+					bB = src[(TY * sky_w + TX2) * 3 + 2];
+
+					rC = src[(TY2 * sky_w + TX) * 3 + 0];
+					gC = src[(TY2 * sky_w + TX) * 3 + 1];
+					bC = src[(TY2 * sky_w + TX) * 3 + 2];
+
+					rD = src[(TY2 * sky_w + TX2) * 3 + 0];
+					gD = src[(TY2 * sky_w + TX2) * 3 + 1];
+					bD = src[(TY2 * sky_w + TX2) * 3 + 2];
+				}
+				break;
+
+				case 4:
+				{
+					rA = src[(TY * sky_w + TX) * 4 + 0];
+					gA = src[(TY * sky_w + TX) * 4 + 1];
+					bA = src[(TY * sky_w + TX) * 4 + 2];
+
+					rB = src[(TY * sky_w + TX2) * 4 + 0];
+					gB = src[(TY * sky_w + TX2) * 4 + 1];
+					bB = src[(TY * sky_w + TX2) * 4 + 2];
+
+					rC = src[(TY2 * sky_w + TX) * 4 + 0];
+					gC = src[(TY2 * sky_w + TX) * 4 + 1];
+					bC = src[(TY2 * sky_w + TX) * 4 + 2];
+
+					rD = src[(TY2 * sky_w + TX2) * 4 + 0];
+					gD = src[(TY2 * sky_w + TX2) * 4 + 1];
+					bD = src[(TY2 * sky_w + TX2) * 4 + 2];
+				}
+				break;
+
+				default:  // remove compiler warning
+					rA = rB = rC = rD = 0;
+					gA = gB = gC = gD = 0;
+					bA = bB = bC = bD = 0;
+					break;
+			}
+
+			int r = (int)rA * (FX^15) * (FY^15) +
+					(int)rB * (FX   ) * (FY^15) +
+					(int)rC * (FX^15) * (FY   ) +
+					(int)rD * (FX   ) * (FY   );
+
+			int g = (int)gA * (FX^15) * (FY^15) +
+					(int)gB * (FX   ) * (FY^15) +
+					(int)gC * (FX^15) * (FY   ) +
+					(int)gD * (FX   ) * (FY   );
+
+			int b = (int)bA * (FX^15) * (FY^15) +
+					(int)bB * (FX   ) * (FY^15) +
+					(int)bC * (FX^15) * (FY   ) +
+					(int)bD * (FX   ) * (FY   );
+
+			dest[0] = r / 225;
+			dest[1] = g / 225;
+			dest[2] = b / 225;
+		}
+	}
+}
+
+
+
+static bool SkyIsNarrow(const image_c *sky)
 {
 	// check the aspect of the image
 	return (IM_WIDTH(sky) / IM_HEIGHT(sky)) < 2.28f;
 }
-
-// needed for SKY
-extern epi::image_data_c *ReadAsEpiBlock(image_c *rim);
 
 //
 // ReadSkyMergeAsBlock
@@ -652,161 +792,15 @@ epi::image_data_c *ReadSkyMergeAsEpiBlock(image_c *rim)
 		what_pal_cached = true;
 	}
 
-	// big hack (see note near top of file)
-	if (! merging_sky_image)
-		merging_sky_image = ReadAsEpiBlock(sky_rim);
-
-	epi::image_data_c *sky_img = merging_sky_image;
+	epi::image_data_c * merging_sky = ReadAsEpiBlock(sky_rim);
 
 	epi::image_data_c *img = new epi::image_data_c(tw, th, 3);
 
 #if 0 // DEBUG
 	I_Printf("SkyMerge: Image %p face %d\n", rim, rim->source.merge.face);
 #endif
-	bool narrow = SkyIsNarrow(sky);
+	BuildFace
 
-	byte *src = sky_img->pixels;
-	byte *dest = img->pixels;
-
-	int sk_w = sky_img->width;
-	int ds_w = img->width;
-	int ds_h = img->height;
-
-	for (int y=0; y < rim->total_h; y++)
-	for (int x=0; x < rim->total_w; x++)
-	{
-		float tx, ty;
-
-		CalcSkyCoord(x, y, rim->total_w, rim->total_h,
-				rim->source.merge.face, narrow, &tx, &ty);
-
-		int TX = (int)(tx * sky_img->width  * 16);
-		int TY = (int)(ty * sky_img->height * 16);
-
-		TX = (TX + sky_img->width  * 64) % (sky_img->width  * 16);
-		TY = (TY + sky_img->height * 64) % (sky_img->height * 16);
-
-		if (TX < 0) TX = 0;
-		if (TY < 0) TY = 0;
-
-		TX = sky_img->width*16-1-TX;
-
-///---	// FIXME: handle images everywhere with bottom-up coords
-///---	if (sky_img->bpp >= 3) TY = sky_img->height*16-1-TY;
-
-		int FX = TX % 16;
-		int FY = TY % 16;
-
-		TX = TX / 16;
-		TY = TY / 16;
-		
-#if 0 // DEBUG
-		if ((x==0 || x==rim->total_w-1) && (y==0 || y==rim->total_h-1))
-		{
-			I_Printf("At (%d,%d) : sphere (%1.2f,%1.2f,%1.2f)  tex (%1.4f,%1.4f)\n",
-			x, y, sx, sy, sz, tx, ty);
-		}
-#endif
-
-		// bilinear filtering
-
-		int TY2 = (TY >= sky_img->height-1) ? TY : (TY+1);
-		int TX2 = (TX + 1) % sky_img->width;
-
-		byte rA, rB, rC, rD;
-		byte gA, gB, gC, gD;
-		byte bA, bB, bC, bD;
-
-		switch (sky_img->bpp)
-		{
-			case 1:
-			{
-				byte src_A = src[TY  * sk_w + TX];
-				byte src_B = src[TY  * sk_w + TX2];
-				byte src_C = src[TY2 * sk_w + TX];
-				byte src_D = src[TY2 * sk_w + TX2];
-
-				rA = PIXEL_RED(src_A); rB = PIXEL_RED(src_B);
-				rC = PIXEL_RED(src_C); rD = PIXEL_RED(src_D);
-
-				gA = PIXEL_GRN(src_A); gB = PIXEL_GRN(src_B);
-				gC = PIXEL_GRN(src_C); gD = PIXEL_GRN(src_D);
-
-				bA = PIXEL_BLU(src_A); bB = PIXEL_BLU(src_B);
-				bC = PIXEL_BLU(src_C); bD = PIXEL_BLU(src_D);
-			}
-			break;
-
-			case 3:
-			{
-				rA = src[(TY * sk_w + TX) * 3 + 0];
-				gA = src[(TY * sk_w + TX) * 3 + 1];
-				bA = src[(TY * sk_w + TX) * 3 + 2];
-
-				rB = src[(TY * sk_w + TX2) * 3 + 0];
-				gB = src[(TY * sk_w + TX2) * 3 + 1];
-				bB = src[(TY * sk_w + TX2) * 3 + 2];
-
-				rC = src[(TY2 * sk_w + TX) * 3 + 0];
-				gC = src[(TY2 * sk_w + TX) * 3 + 1];
-				bC = src[(TY2 * sk_w + TX) * 3 + 2];
-
-				rD = src[(TY2 * sk_w + TX2) * 3 + 0];
-				gD = src[(TY2 * sk_w + TX2) * 3 + 1];
-				bD = src[(TY2 * sk_w + TX2) * 3 + 2];
-			}
-			break;
-
-			case 4:
-			{
-				rA = src[(TY * sk_w + TX) * 4 + 0];
-				gA = src[(TY * sk_w + TX) * 4 + 1];
-				bA = src[(TY * sk_w + TX) * 4 + 2];
-
-				rB = src[(TY * sk_w + TX2) * 4 + 0];
-				gB = src[(TY * sk_w + TX2) * 4 + 1];
-				bB = src[(TY * sk_w + TX2) * 4 + 2];
-
-				rC = src[(TY2 * sk_w + TX) * 4 + 0];
-				gC = src[(TY2 * sk_w + TX) * 4 + 1];
-				bC = src[(TY2 * sk_w + TX) * 4 + 2];
-
-				rD = src[(TY2 * sk_w + TX2) * 4 + 0];
-				gD = src[(TY2 * sk_w + TX2) * 4 + 1];
-				bD = src[(TY2 * sk_w + TX2) * 4 + 2];
-			}
-			break;
-
-			default:  // remove compiler warning
-				rA = rB = rC = rD = 0;
-				gA = gB = gC = gD = 0;
-				bA = bB = bC = bD = 0;
-				break;
-		}
-
-		int r = (int)rA * (15-FX) * (15-FY) +
-				(int)rB * (   FX) * (15-FY) +
-				(int)rC * (15-FX) * (   FY) +
-				(int)rD * (   FX) * (   FY);
-
-		int g = (int)gA * (15-FX) * (15-FY) +
-				(int)gB * (   FX) * (15-FY) +
-				(int)gC * (15-FX) * (   FY) +
-				(int)gD * (   FX) * (   FY);
-
-		int b = (int)bA * (15-FX) * (15-FY) +
-				(int)bB * (   FX) * (15-FY) +
-				(int)bC * (15-FX) * (   FY) +
-				(int)bD * (   FX) * (   FY);
-
-		r /= 225; g /= 225; b /= 225;
-
-		int yy = ds_h - 1 - y;
-
-		dest[(y * ds_w + x) * 3 + 0] = r;
-		dest[(y * ds_w + x) * 3 + 1] = g;
-		dest[(y * ds_w + x) * 3 + 2] = b;
-	}
 
 	if (what_pal_cached)
 		W_DoneWithLump(what_palette);
