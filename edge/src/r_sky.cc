@@ -297,16 +297,16 @@ void RGL_FinishSky(void)
 
 	glDepthMask(GL_FALSE);
 
-	if (! level_flags.mlook) /// sky_stretch == STRETCH_ORIGINAL)
-	{
-		RGL_DrawSkyOriginal();
-	}
-	else
+	if (level_flags.mlook || custom_sky_box)
 	{
 		if (! dumb_sky)
 			glDepthFunc(GL_GREATER);
 
 		RGL_DrawSkyBox();
+	}
+	else
+	{
+		RGL_DrawSkyOriginal();
 	}
 
 	glDepthFunc(GL_LEQUAL);
