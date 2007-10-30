@@ -35,11 +35,21 @@ extern const image_c *sky_image;
 // true when a custom sky box is present
 extern bool custom_sky_box;
 
-// Used by GL renderer
+typedef enum
+{
+	WSKY_North = 0,
+	WSKY_East,
+	WSKY_South,
+	WSKY_West,
+	WSKY_Top,
+	WSKY_Bottom
+}
+sky_box_face_e;
+
 void R_ComputeSkyHeights(void);
 
-#define STRETCH_MIRROR    3
-#define STRETCH_ORIGINAL  4
+///--- #define STRETCH_MIRROR    3
+///--- #define STRETCH_ORIGINAL  4
 
 void RGL_SetupSkyMatrices(void);
 void RGL_RevertSkyMatrices(void);
@@ -53,9 +63,10 @@ void RGL_DrawSkyWall(seg_t *seg, float h1, float h2);
 
 void RGL_UpdateSkyBoxTextures(void);
 void RGL_PreCacheSky(void);
-void RGL_CalcSkyCoord(float sx, float sy, float sz, bool narrow, float *tx, float *ty);
 
-#endif // __R_SKY__
+///--- void RGL_CalcSkyCoord(float sx, float sy, float sz, bool narrow, float *tx, float *ty);
+
+#endif /* __R_SKY__ */
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
