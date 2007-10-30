@@ -9,6 +9,9 @@ want the pseudo sky-boxes to look better (get one OK looking
 one and scrap the other stretch modes).  Finally use the
 'ORIGINAL' mode automatically whenever MLOOK is disabled.
 
+Added check for custom sky-boxes, when present they will
+always be used (even when mlook is disabled).
+
 2007/10/29:
 
 Prevent the game from immediately restarting when you die
