@@ -200,7 +200,6 @@ hud_type_e;
 
 extern int crosshair;
 extern int screen_hud;
-extern int sky_stretch;
 extern int menunormalfov, menuzoomedfov;
 
 // -ES- 1999/08/15 Added teleport effects
