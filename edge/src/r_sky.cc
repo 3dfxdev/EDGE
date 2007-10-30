@@ -190,22 +190,25 @@ int sky_stretch = 0;  // ranges from 0 to 4
 
 typedef struct
 {
-	int last_stretch;
-
 	const image_c *base_sky;
-	const image_c *north, *east, *south, *west;
-	const image_c *top, *bottom;
+
+	int face_size;
+
+	GLuint tex[6];
+
+	// face images are only present for custom skyboxes.
+	// pseudo skyboxes are generated outside of the image system.
+	const image_c *face[6];
+
 }
 skybox_info_t;
 
 static skybox_info_t box_info =
 {
-	-1,
-	NULL,
-	NULL, NULL, NULL, NULL,
-	NULL, NULL
+	NULL, 1,
+	{ 0,0,0,0,0,0 },
+	{ NULL, NULL, NULL, NULL, NULL, NULL }
 };
-
 
 
 static void RGL_SetupSkyMatrices(float dist)
@@ -281,7 +284,6 @@ void RGL_FinishSky(void)
 {
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
-// return; //!!!!!!
 	if (! need_to_draw_sky)
 		return;
 
@@ -327,21 +329,11 @@ void RGL_DrawSkyBox(void)
 
 	if (dumb_clamp)
 	{
-		float size = IM_WIDTH(box_info.north);
+		float size = box_info.face_size;
 
 		v0 = 0.5f / size;
 		v1 = 1.0f - v0;
 	}
-
-	GLuint tex_N, tex_E, tex_S, tex_W;
-	GLuint tex_T, tex_B;
-
-	tex_N = W_ImageCache(box_info.north);
-	tex_E = W_ImageCache(box_info.east);
-	tex_S = W_ImageCache(box_info.south);
-	tex_W = W_ImageCache(box_info.west);
-	tex_T = W_ImageCache(box_info.top);
-	tex_B = W_ImageCache(box_info.bottom);
 
 	glEnable(GL_TEXTURE_2D);
 
@@ -361,7 +353,7 @@ void RGL_DrawSkyBox(void)
 	}
 
 	// top
-	glBindTexture(GL_TEXTURE_2D, tex_T);
+	glBindTexture(GL_TEXTURE_2D, box_info.top_tex);
         glNormal3i(0, 0, -1);
 
 	glBegin(GL_QUADS);
@@ -372,7 +364,7 @@ void RGL_DrawSkyBox(void)
 	glEnd();
 
 	// bottom
-	glBindTexture(GL_TEXTURE_2D, tex_B);
+	glBindTexture(GL_TEXTURE_2D, box_info.bottom_tex);
         glNormal3i(0, 0, +1);
 
 	glBegin(GL_QUADS);
@@ -383,7 +375,7 @@ void RGL_DrawSkyBox(void)
 	glEnd();
 
 	// north
-	glBindTexture(GL_TEXTURE_2D, tex_N);
+	glBindTexture(GL_TEXTURE_2D, box_info.north_tex);
         glNormal3i(0, -1, 0);
 
 	glBegin(GL_QUADS);
@@ -394,7 +386,7 @@ void RGL_DrawSkyBox(void)
 	glEnd();
 
 	// east
-	glBindTexture(GL_TEXTURE_2D, tex_E);
+	glBindTexture(GL_TEXTURE_2D, box_info.east_tex);
         glNormal3i(-1, 0, 0);
 
 	glBegin(GL_QUADS);
@@ -405,7 +397,7 @@ void RGL_DrawSkyBox(void)
 	glEnd();
 
 	// south
-	glBindTexture(GL_TEXTURE_2D, tex_S);
+	glBindTexture(GL_TEXTURE_2D, box_info.south_tex);
         glNormal3i(0, +1, 0);
 
 	glBegin(GL_QUADS);
@@ -416,7 +408,7 @@ void RGL_DrawSkyBox(void)
 	glEnd();
 
 	// west
-	glBindTexture(GL_TEXTURE_2D, tex_W);
+	glBindTexture(GL_TEXTURE_2D, box_info.west_tex);
         glNormal3i(+1, 0, 0);
 
 	glBegin(GL_QUADS);
@@ -562,46 +554,67 @@ void W_ImageClearMergingSky(void)
 	merging_sky_image = NULL;
 }
 
-static void CalcSphereCoord(int px, int py, int pw, int ph, int face,
-	float *sx, float *sy, float *sz)
+
+static void CalcSkyCoord(int px, int py, int pw, int ph, int face,
+		bool narrow, float *tx, float *ty)
 {
+	// the 0.5 here ensures we never hit exactly zero
 	float ax = ((float)px + 0.5f) / (float)pw * 2.0f - 1.0f;
 	float ay = ((float)py + 0.5f) / (float)ph * 2.0f - 1.0f;
 
-///????	ay = -ay;
+	float sx, sy, sz;
 
 	switch (face)
 	{
 		case WSKY_North:
-			*sx = ax; *sy = 1.0f; *sz = ay; break;
+			sx = ax; sy = 1.0f; sz = ay; break;
 
 		case WSKY_South:
-			*sx = -ax; *sy = -1.0f; *sz = ay; break;
+			sx = -ax; sy = -1.0f; sz = ay; break;
 
 		case WSKY_East:
-			*sx = 1.0f; *sy = -ax; *sz = ay; break;
+			sx = 1.0f; sy = -ax; sz = ay; break;
 
 		case WSKY_West:
-			*sx = -1.0f; *sy = ax; *sz = ay; break;
+			sx = -1.0f; sy = ax; sz = ay; break;
 
 		case WSKY_Top:
-			*sx = ax; *sy = -ay; *sz = 1.0f; break;
+			sx = ax; sy = -ay; sz = 1.0f; break;
 
 		case WSKY_Bottom:
-			*sx = ax; *sy = ay; *sz = -1.0f; break;
+			sx = ax; sy = ay; sz = -1.0f; break;
 
 		default:
-			*sx = *sy = *sz = 0; break;
+			I_Error("CalcSkyCoord: INTERNAL ERROR (lost face)\n");
+			return; /* NOT REACHED */
 	}
 
-	// normalise the vector (FIXME: optimise the sqrt)
-	float len = sqrt((*sx) * (*sx) + (*sy) * (*sy) + (*sz) * (*sz));
+	// normalise the vector
+//	float len  = sqrt((sx) * (sx) + (sy) * (sy) + (sz) * (sz));
+	float len2 = sqrt((sx) * (sx) + (sy) * (sy))
 
-	if (len > 0)
-	{
-		*sx /= len; *sy /= len; *sz /= len;
-	}
+///---	sx /= len;
+///---	sy /= len;
+///---	sz /= len;
+
+
+	angle_t H = ANG0  - R_PointToAngle(0, 0, sx, sy);
+	angle_t V = ANG90 + R_PointToAngle(0, 0, len2, sz);
+
+	if (narrow)
+		*tx = (float)(H >> 1) / (float)(1 << 30);
+	else
+		*tx = (float)(H >> 2) / (float)(1 << 30);
+
+	// want yy to range from 0.0 (bottom) to 2.0 (top)
+	float yy = (float)(V) / (float)(1 << 30);
+
+	// mirror it (vertically)
+	if (yy > 1.0f) yy = 2.0f - yy;
+
+	*ty = 1.0f - (yy * yy);
 }
+
 
 
 static inline bool SkyIsNarrow(const image_c *sky)
@@ -662,13 +675,10 @@ epi::image_data_c *ReadSkyMergeAsEpiBlock(image_c *rim)
 	for (int y=0; y < rim->total_h; y++)
 	for (int x=0; x < rim->total_w; x++)
 	{
-		float sx, sy, sz;
 		float tx, ty;
 
-		CalcSphereCoord(x, y, rim->total_w, rim->total_h,
-			rim->source.merge.face, &sx, &sy, &sz);
-
-		RGL_CalcSkyCoord(sx, sy, sz, narrow, &tx, &ty);
+		CalcSkyCoord(x, y, rim->total_w, rim->total_h,
+				rim->source.merge.face, narrow, &tx, &ty);
 
 		int TX = (int)(tx * sky_img->width  * 16);
 		int TY = (int)(ty * sky_img->height * 16);
@@ -801,66 +811,13 @@ epi::image_data_c *ReadSkyMergeAsEpiBlock(image_c *rim)
 	if (what_pal_cached)
 		W_DoneWithLump(what_palette);
 
-	return img;
+	GLuint tex_id = R_UploadTexture(img, NULL, UPL_Smooth|UPL_Clamp);
+
+	delete img;
+
+	return tex_id;
 }
 
-static const float stretches[5] =
-{ 0.55f, 0.78f, 1.0f, 1.0f /* MIRROR */, 1.0f /* ORIGINAL */};
-
-void RGL_CalcSkyCoord(float sx, float sy, float sz, bool narrow, float *tx, float *ty)
-{
-	angle_t H = R_PointToAngle(0, 0, sx, sy);
-	angle_t V = R_PointToAngle(0, 0, sz, R_PointToDist(0, 0, sx, sy));
-
-	H = 0 - H;
-	V = ANG90 - V; //!!!!
-
-	if (narrow)
-		*tx = (float)(H >> 7) / (float)(1 << 24);
-	else
-		*tx = (float)(H >> 8) / (float)(1 << 24);
-
-	float k = (float)(V >> 7) / (float)(1 << 24);
-
-	if (true) /// sky_stretch >= STRETCH_MIRROR)
-	{
-		k *= 2.0f;
-		k = (k > 1.0f) ? 2.0f - k : k;
-
-		k = 1.0 - k;
-
-// *ty = (k < 0.25)  ? (0.00 + (k - 0)    / (0.25 - 0)    * 0.05) :
-// 	  (k < 0.5)   ? (0.05 + (k - 0.25) / (0.6 - 0.25)  * 0.25)
-// 		          : (0.30 + (k - 0.6)  / (1.0 - 0.6)   * 0.70);
-*ty = k * k;
-*ty = 1.0 - *ty;
-
-	}
-	else
-	{
-		// FIXME: optimise
-		k = k * 2.0f - 1.0f;
-
-		if (k < 0)
-			k = -pow(-k, stretches[sky_stretch]);
-		else
-			k = pow(k, stretches[sky_stretch]);
-
-		// if (k < -0.99) k = -0.99;
-		// if (k > +0.99) k = +0,99;
-
-		*ty = (k + 1.0f) / 2.0f;
-	}
-}
-
-static const char *UserSkyFaceName(const char *base, int face)
-{
-	static char buffer[64];
-	static const char letters[] = "NESWTB";
-
-	sprintf(buffer, "%s_%c", base, letters[face]);
-	return buffer;
-}
 
 static const image_c *W_ImageFromSkyMerge(const image_c *sky, int face)
 {
@@ -924,10 +881,18 @@ static const image_c *W_ImageFromSkyMerge(const image_c *sky, int face)
 	return rim;
 }
 
+static const char *UserSkyFaceName(const char *base, int face)
+{
+	static char buffer[64];
+	static const char letters[] = "NESWTB";
+
+	sprintf(buffer, "%s_%c", base, letters[face]);
+	return buffer;
+}
+
 void RGL_UpdateSkyBoxTextures(void)
 {
-	if (box_info.base_sky == sky_image &&
-		box_info.last_stretch == sky_stretch)
+	if (box_info.base_sky == sky_image)
 	{
 		return;
 	}
@@ -935,21 +900,43 @@ void RGL_UpdateSkyBoxTextures(void)
 	W_ImageClearMergingSky(); // hack (see r_image.cc)
 
 	box_info.base_sky = sky_image;
-	box_info.last_stretch = sky_stretch;
 
-	if (sky_stretch != STRETCH_ORIGINAL)
+	box_info.face_size = 256; // FIXME
+
+
+	//!!!! FIXME   check for custom sky images
+	
+	char *custom_name = UserSkyFaceName( XXX, WSKY_North);
+	
+	box_info.face[WSKY_North] = W_ImageLookup(custom_name, INS_Texture, ILF_Null);
+
+	if (box_info.face[WSKY_North])
 	{
-		box_info.north  = W_ImageFromSkyMerge(sky_image, WSKY_North);
-		box_info.east   = W_ImageFromSkyMerge(sky_image, WSKY_East);
-		box_info.top    = W_ImageFromSkyMerge(sky_image, WSKY_Top);
-		box_info.bottom = W_ImageFromSkyMerge(sky_image, WSKY_Bottom);
-		box_info.south  = W_ImageFromSkyMerge(sky_image, WSKY_South);
-		box_info.west   = W_ImageFromSkyMerge(sky_image, WSKY_West);
+		custom_sky_box = true;
+
+		box_info.face_size = box_info.face[WSKY_North]->total_w;
+
+		for (int i = WSKY_East; i < 6; i++)
+			box_info.face[i] = W_ImageLookup(UserSkyFaceName( XXX, i), INS_Texture);
+
+		for (int k = 0; k < 6; k++)
+			box_info.tex[k] = W_ImageCache(box_info.face[k], false);
+
+		return;
 	}
+
+
+	box_info.north_tex  = W_ImageFromSkyMerge(sky_image, WSKY_North);
+	box_info.east_tex   = W_ImageFromSkyMerge(sky_image, WSKY_East);
+	box_info.top_tex    = W_ImageFromSkyMerge(sky_image, WSKY_Top);
+	box_info.bottom_tex = W_ImageFromSkyMerge(sky_image, WSKY_Bottom);
+	box_info.south_tex  = W_ImageFromSkyMerge(sky_image, WSKY_South);
+	box_info.west_tex   = W_ImageFromSkyMerge(sky_image, WSKY_West);
 }
 
 void RGL_PreCacheSky(void)
 {
+#if 0   // ????
 	if (sky_stretch == STRETCH_ORIGINAL)
 		return;
 
@@ -965,6 +952,7 @@ void RGL_PreCacheSky(void)
 
 	if (box_info.bottom != box_info.top)
 		W_ImagePreCache(box_info.bottom);
+#endif
 }
 
 //--- editor settings ---
