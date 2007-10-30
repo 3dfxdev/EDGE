@@ -693,7 +693,11 @@ GLuint MakeColormapTexture( int mode )
 		}
 	}
 
-	return R_UploadTexture(img, NULL, UPL_Smooth|UPL_Clamp);
+	GLuint tex_id = R_UploadTexture(img, NULL, UPL_Smooth|UPL_Clamp);
+
+	delete img;
+
+	return tex_id;
 }
 
 
