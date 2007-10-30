@@ -2,7 +2,7 @@
 //  EDGE MUS to Midi conversion
 //----------------------------------------------------------------------------
 //
-//  Copyright (c) 2002-2005  The EDGE Team.
+//  Copyright (c) 2002-2007  The EDGE Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -31,11 +31,11 @@
 //
 //----------------------------------------------------------------------------
 
-#include "mus_2_midi.h"
+#include "epi.h"
+#include "bytearray.h"
+#include "endianess.h"
 
-#include "epi/epi.h"
-#include "epi/bytearray.h"
-#include "epi/endianess.h"
+#include "mus_2_midi.h"
 
 
 namespace Mus2Midi
