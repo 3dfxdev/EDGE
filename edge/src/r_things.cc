@@ -35,7 +35,7 @@
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "p_local.h"
-#include "r_colors.h"
+#include "r_colormap.h"
 #include "r_defs.h"
 #include "r_draw.h"
 #include "r_gldefs.h"

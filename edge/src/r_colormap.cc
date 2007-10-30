@@ -28,7 +28,7 @@
 
 #include <stdlib.h>  // atoi()
 
-#include "r_colors.h"
+#include "r_colormap.h"
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "e_main.h"

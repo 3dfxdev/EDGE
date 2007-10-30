@@ -48,7 +48,7 @@
 #include "r_gldefs.h"
 #include "s_sound.h"
 #include "s_music.h"
-#include "r_colors.h"
+#include "r_colormap.h"
 #include "r_draw.h"
 #include "r_modes.h"
 #include "w_wad.h"

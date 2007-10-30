@@ -51,7 +51,7 @@
 #include "r_units.h"
 #include "r_image.h"
 #include "r_view.h"
-#include "r_colors.h"
+#include "r_colormap.h"
 
 #include "n_network.h"  // N_NetUpdate
 

@@ -36,7 +36,7 @@
 #include "m_random.h"
 #include "r_misc.h"
 #include "st_lib.h"
-#include "r_colors.h"
+#include "r_colormap.h"
 #include "r_draw.h"
 #include "r_modes.h"
 #include "w_wad.h"

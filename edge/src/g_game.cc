@@ -56,7 +56,7 @@
 #include "st_stuff.h"
 #include "sv_chunk.h"
 #include "sv_main.h"
-#include "r_colors.h"
+#include "r_colormap.h"
 #include "version.h"
 #include "w_wad.h"
 #include "f_stats.h"
