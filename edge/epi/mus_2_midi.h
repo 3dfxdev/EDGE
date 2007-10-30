@@ -2,7 +2,7 @@
 //  EDGE MUS to Midi conversion
 //----------------------------------------------------------------------------
 //
-//  Copyright (c) 2002-2005  The EDGE Team.
+//  Copyright (c) 2002-2007  The EDGE Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -21,10 +21,10 @@
 //
 //----------------------------------------------------------------------------
 
-#ifndef __EPI_MUS2MIDI_H
-#define __EPI_MUS2MIDI_H
+#ifndef __EPI_MUS2MIDI_H__
+#define __EPI_MUS2MIDI_H__
 
-#include "epi/types.h"
+#include "types.h"
 
 namespace Mus2Midi
 {
@@ -39,7 +39,7 @@ namespace Mus2Midi
 	extern const char *ReturnError(void);
 }
 
-#endif  // __EPI_MUS2MIDI_H
+#endif /* __EPI_MUS2MIDI_H */
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
