@@ -162,17 +162,6 @@ public:
 // TEMPORARY !!!
 #define IM_BOTTOM  IM_TOP
 
-typedef enum
-{
-	WSKY_North = 0,
-	WSKY_East,
-	WSKY_South,
-	WSKY_West,
-	WSKY_Top,
-	WSKY_Bottom
-}
-sky_box_face_e;
-
 //
 //  IMAGE LOOKUP
 //

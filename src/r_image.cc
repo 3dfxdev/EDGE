@@ -765,7 +765,7 @@ real_cached_image_t *LoadImageOGL(image_c *rim, const colourmap_c *trans)
    	// the "SKY" check here is a hack...
    	if (strnicmp(rim->name, "SKY", 3) == 0)
 	{
-		if (sky_stretch != STRETCH_ORIGINAL)
+///---		if (sky_stretch != STRETCH_ORIGINAL)
 			smooth = true;
 
 		max_pix *= 4;  // kludgy
