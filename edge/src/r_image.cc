@@ -426,6 +426,7 @@ static image_c *AddImageFlat(const char *name, int lump)
 	return rim;
 }
 
+#if 0
 static image_c *AddImageSkyMerge(const image_c *sky, int face, int size)
 {
 	static const char *face_names[6] = 
@@ -450,6 +451,7 @@ static image_c *AddImageSkyMerge(const image_c *sky, int face, int size)
 
 	return rim;
 }
+#endif
 
 static image_c *AddImageUser(imagedef_c *def)
 {
@@ -743,7 +745,7 @@ real_cached_image_t *LoadImageOGL(image_c *rim, const colourmap_c *trans)
 	bool what_pal_cached = false;
 
 	if (rim->source_type == IMSRC_Graphic || rim->source_type == IMSRC_Raw320x200 ||
-		rim->source_type == IMSRC_Sprite  || rim->source_type == IMSRC_SkyMerge)
+		rim->source_type == IMSRC_Sprite) ///---  || rim->source_type == IMSRC_SkyMerge)
 	{
 		clamp = true;
 	}
@@ -1036,13 +1038,13 @@ static const image_c *BackupGraphic(const char *gfx_name, int flags)
 	return rim;
 }
 
-//
-// W_ImageLookup
-//
-// Note: search must be case insensitive.
-//
+
 const image_c *W_ImageLookup(const char *name, image_namespace_e type, int flags)
 {
+	//
+	// Note: search must be case insensitive.
+	//
+
 	// "NoTexture" marker.
 	if (!name || !name[0] || name[0] == '-')
 		return NULL;
@@ -1103,91 +1105,7 @@ const image_c *W_ImageLookup(const char *name, image_namespace_e type, int flags
 	return rim;
 }
 
-static const char *UserSkyFaceName(const char *base, int face)
-{
-	static char buffer[64];
-	static const char letters[] = "NESWTB";
 
-	sprintf(buffer, "%s_%c", base, letters[face]);
-	return buffer;
-}
-
-// FIXME: duplicated in r_doomtex
-static inline bool SkyIsNarrow(const image_c *sky)
-{
-	// check the aspect of the image
-	return (IM_WIDTH(sky) / IM_HEIGHT(sky)) < 2.28f;
-}
-
-
-//
-// W_ImageFromSkyMerge
-// 
-const image_c *W_ImageFromSkyMerge(const image_c *sky, int face)
-{
-	// check IMAGES.DDF for the face image
-	// (they need to be Textures)
-
-	const image_c *rim = (const image_c *)sky;
-	const char *user_face_name = UserSkyFaceName(rim->name, face);
-
-	rim = real_textures.Lookup(user_face_name);
-	if (rim)
-		return rim;
-
-	// nope, look for existing sky-merge image
-
-	epi::array_iterator_c it;
-
-	for (it=sky_merges.GetBaseIterator(); it.IsValid(); it++)
-	{
-		rim = ITERATOR_TO_TYPE(it, image_c*);
-    
-		SYS_ASSERT(rim->source_type == IMSRC_SkyMerge);
-
-		if (sky != rim->source.merge.sky)
-			continue;
-
-		if (face == rim->source.merge.face)
-			return rim;
-
-		// Optimisations:
-		//    1. in MIRROR mode, bottom is same as top.
-		//    2. when sky is narrow, south == north, west == east.
-		// NOTE: we rely on lookup order of RGL_UpdateSkyBoxTextures.
-
-		if (sky_stretch >= STRETCH_MIRROR &&
-			face == WSKY_Bottom && rim->source.merge.face == WSKY_Top)
-		{
-#if 0  // DISABLED
-			L_WriteDebug("W_ImageFromSkyMerge: using TOP for BOTTOM.\n");
-			return rim;
-#endif
-		}
-		else if (SkyIsNarrow(sky) &&
-			(face == WSKY_South && rim->source.merge.face == WSKY_North))
-		{
-			L_WriteDebug("W_ImageFromSkyMerge: using NORTH for SOUTH.\n");
-			return rim;
-		}
-		else if (SkyIsNarrow(sky) &&
-			 (face == WSKY_West && rim->source.merge.face == WSKY_East))
-		{
-			L_WriteDebug("W_ImageFromSkyMerge: using EAST for WEST.\n");
-			return rim;
-		}
-	}
-
-	// use low-res box sides for low-res sky images
-	int size = (sky->actual_h < 228) ? 128 : 256;
-
-	rim = AddImageSkyMerge(sky, face, size);
-	return rim;
-}
-
-//
-// W_ImageForDummySprite
-// 
 const image_c *W_ImageForDummySprite(void)
 {
 	const image_c *rim = dummies.Lookup("DUMMY_SPRITE");
@@ -1196,13 +1114,11 @@ const image_c *W_ImageForDummySprite(void)
 	return rim;
 }
 
-//
-// W_ImageParseSaveString
-//
-// Used by the savegame code.
-// 
+
 const image_c *W_ImageParseSaveString(char type, const char *name)
 {
+	// Used by the savegame code.
+
 	// this name represents the sky (historical reasons)
 	if (type == 'd' && stricmp(name, "DUMMY__2") == 0)
 	{
@@ -1252,14 +1168,12 @@ const image_c *W_ImageParseSaveString(char type, const char *name)
 	return rim;
 }
 
-//
-// W_ImageMakeSaveString
-//
-// Used by the savegame code.
-// 
+
 void W_ImageMakeSaveString(const image_c *image, char *type, char *namebuf)
 {
-	if (image == skyflatimage)
+	// Used by the savegame code
+
+    if (image == skyflatimage)
 	{
 		// this name represents the sky (historical reasons)
 		*type = 'd';
@@ -1297,16 +1211,13 @@ void W_ImageMakeSaveString(const image_c *image, char *type, char *namebuf)
 
 		case IMSRC_Dummy:   (*type) = 'd'; return;
 
-		case IMSRC_SkyMerge:
 		default:
 			I_Error("W_ImageMakeSaveString: bad type %d\n", rim->source_type);
 			break;
 	}
 }
 
-//
-// W_ImageGetName
-//
+
 const char *W_ImageGetName(const image_c *image)
 {
 	const image_c *rim;
@@ -1318,7 +1229,6 @@ const char *W_ImageGetName(const image_c *image)
 
 
 //----------------------------------------------------------------------------
-
 //
 //  IMAGE USAGE
 //

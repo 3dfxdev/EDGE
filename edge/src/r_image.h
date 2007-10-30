@@ -92,8 +92,8 @@ public:
 		// case IMSRC_Texture:
 		struct { struct texturedef_s *tdef; } texture;
 
-		// case IMSRC_SkyMerge:
-		struct { const image_c *sky; int face; } merge;
+///---		// case IMSRC_SkyMerge:
+///---		struct { const image_c *sky; int face; } merge;
 
 		// case IMSRC_Dummy:
 		struct { rgbcol_t fg; rgbcol_t bg; } dummy;
@@ -187,7 +187,7 @@ image_lookup_flags_e;
 
 const image_c *W_ImageLookup(const char *name, image_namespace_e = INS_Graphic,
 	int flags = 0);
-const image_c *W_ImageFromSkyMerge(const image_c *sky, int face);
+///---const image_c *W_ImageFromSkyMerge(const image_c *sky, int face);
 const image_c *W_ImageForDummySprite(void);
 
 // savegame code (Only)
@@ -253,8 +253,8 @@ typedef enum
 	// INTERNAL ONLY: Source is from IMAGE.DDF
 	IMSRC_User,
 
-	// INTERNAL ONLY: Source was a sky texture, merged for a pseudo sky box
-	IMSRC_SkyMerge,
+///---	// INTERNAL ONLY: Source was a sky texture, merged for a pseudo sky box
+///---	IMSRC_SkyMerge,
 
 	// INTERNAL ONLY: Source is dummy image
 	IMSRC_Dummy,
