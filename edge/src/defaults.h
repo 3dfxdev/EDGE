@@ -92,7 +92,6 @@
 #define CFGDEF_DETAIL_LEVEL     (1)
 #define CFGDEF_USE_MIPMAPPING   (0)
 #define CFGDEF_SCREEN_HUD       (HUD_Full)
-#define CFGDEF_SKY_STRETCH      (1)
 #define CFGDEF_SHADOWS          (0)
 #define CFGDEF_CROSSHAIR        (0)
 #define CFGDEF_MAP_OVERLAY      (0)

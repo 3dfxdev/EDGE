@@ -189,8 +189,6 @@ extern angle_t FIELDOFVIEW;
 
 static bool need_to_draw_sky = false;
 
-int sky_stretch = 0;  // ranges from 0 to 4
-
 
 typedef struct
 {

@@ -424,7 +424,6 @@ static optmenuitem_t vidoptions[] =
 	{OPT_Plain,   "",              NULL, 0,   0,                      NULL, NULL, NULL},
 
 	{OPT_Switch,  "HUD",           Huds,  3,  CFGDEF_SCREEN_HUD,     &screen_hud, M_ChangeScreenHud, NULL},
-	{OPT_Switch,  "Sky stretch",   SkySq, 5,  CFGDEF_SKY_STRETCH,    &sky_stretch, M_ChangeMipMap, NULL},
 	{OPT_Boolean, "Shadows",       YesNo, 2,  CFGDEF_SHADOWS,  &global_flags.shadows, M_ChangeShadows, NULL},
 	{OPT_Switch,  "Crosshair",     CrosO, 4,  CFGDEF_CROSSHAIR,      &crosshair, NULL, NULL},
 	{OPT_Boolean, "Map Overlay",   YesNo, 2,  CFGDEF_MAP_OVERLAY,    &map_overlay, NULL, NULL},
