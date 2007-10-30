@@ -33,7 +33,7 @@
 extern const image_c *sky_image;
 
 // true when a custom sky box is present
-extern bool sky_box_present;
+extern bool custom_sky_box;
 
 // Used by GL renderer
 void R_ComputeSkyHeights(void);

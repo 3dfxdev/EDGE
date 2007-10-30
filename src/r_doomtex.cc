@@ -62,7 +62,7 @@
 #include "z_zone.h"
 
 
-extern epi::image_data_c *ReadSkyMergeAsEpiBlock(image_c *rim);
+///--- extern epi::image_data_c *ReadSkyMergeAsEpiBlock(image_c *rim);
 
 
 // posts are runs of non masked source pixels
@@ -874,8 +874,8 @@ epi::image_data_c *ReadAsEpiBlock(image_c *rim)
 		case IMSRC_Sprite:
 			return ReadPatchAsEpiBlock(rim);
 
-		case IMSRC_SkyMerge:
-			return ReadSkyMergeAsEpiBlock(rim);
+///---		case IMSRC_SkyMerge:
+///---			return ReadSkyMergeAsEpiBlock(rim);
 
 		case IMSRC_Dummy:
 			return ReadDummyAsEpiBlock(rim);

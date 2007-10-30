@@ -42,7 +42,7 @@
 
 const image_c *sky_image;
 
-bool sky_box_present;
+bool custom_sky_box;
 
 
 typedef struct sec_sky_ring_s
@@ -207,10 +207,8 @@ static skybox_info_t box_info =
 };
 
 
-//
-// RGL_SetupSkyMatrices
-//
-void RGL_SetupSkyMatrices(void)
+
+static void RGL_SetupSkyMatrices(float dist)
 {
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
@@ -227,10 +225,15 @@ void RGL_SetupSkyMatrices(void)
 	
 	glRotatef(270.0f - ANG_2_FLOAT(viewvertangle), 1.0f, 0.0f, 0.0f);
 	glRotatef(90.0f  - ANG_2_FLOAT(viewangle), 0.0f, 0.0f, 1.0f);
-//	glTranslatef(0.0f, 0.0f, 0.0f);
+
+	// lower the centre of the skybox (pseudo only!) to match
+	// the DOOM sky (which is 128 pixels high on a 200 pixel
+	// screen, so it dipped 28 pixels below the horizon).
+	if (! custom_sky_box)
+		glTranslatef(0.0f, 0.0f, -dist / 5.0);
 }
 
-void RGL_SetupSkyMatrices2D(void)
+static void RGL_SetupSkyMatrices2D(void)
 {
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
@@ -314,10 +317,10 @@ void RGL_FinishSky(void)
 
 void RGL_DrawSkyBox(void)
 {
-	RGL_UpdateSkyBoxTextures();
-	RGL_SetupSkyMatrices();
-
 	float dist = var_farclip / 2.0f;
+
+	RGL_UpdateSkyBoxTextures();
+	RGL_SetupSkyMatrices(dist);
 
 	float v0 = 0.0f;
 	float v1 = 1.0f;
@@ -848,6 +851,77 @@ void RGL_CalcSkyCoord(float sx, float sy, float sz, bool narrow, float *tx, floa
 
 		*ty = (k + 1.0f) / 2.0f;
 	}
+}
+
+static const char *UserSkyFaceName(const char *base, int face)
+{
+	static char buffer[64];
+	static const char letters[] = "NESWTB";
+
+	sprintf(buffer, "%s_%c", base, letters[face]);
+	return buffer;
+}
+
+static const image_c *W_ImageFromSkyMerge(const image_c *sky, int face)
+{
+	// check IMAGES.DDF for the face image
+	// (they need to be Textures)
+
+	const image_c *rim = (const image_c *)sky;
+	const char *user_face_name = UserSkyFaceName(rim->name, face);
+
+	rim = real_textures.Lookup(user_face_name);
+	if (rim)
+		return rim;
+
+	// nope, look for existing sky-merge image
+
+	epi::array_iterator_c it;
+
+	for (it=sky_merges.GetBaseIterator(); it.IsValid(); it++)
+	{
+		rim = ITERATOR_TO_TYPE(it, image_c*);
+    
+		SYS_ASSERT(rim->source_type == IMSRC_SkyMerge);
+
+		if (sky != rim->source.merge.sky)
+			continue;
+
+		if (face == rim->source.merge.face)
+			return rim;
+
+		// Optimisations:
+		//    1. in MIRROR mode, bottom is same as top.
+		//    2. when sky is narrow, south == north, west == east.
+		// NOTE: we rely on lookup order of RGL_UpdateSkyBoxTextures.
+
+		if (sky_stretch >= STRETCH_MIRROR &&
+			face == WSKY_Bottom && rim->source.merge.face == WSKY_Top)
+		{
+#if 0  // DISABLED
+			L_WriteDebug("W_ImageFromSkyMerge: using TOP for BOTTOM.\n");
+			return rim;
+#endif
+		}
+		else if (SkyIsNarrow(sky) &&
+			(face == WSKY_South && rim->source.merge.face == WSKY_North))
+		{
+			L_WriteDebug("W_ImageFromSkyMerge: using NORTH for SOUTH.\n");
+			return rim;
+		}
+		else if (SkyIsNarrow(sky) &&
+			 (face == WSKY_West && rim->source.merge.face == WSKY_East))
+		{
+			L_WriteDebug("W_ImageFromSkyMerge: using EAST for WEST.\n");
+			return rim;
+		}
+	}
+
+	// use low-res box sides for low-res sky images
+	int size = (sky->actual_h < 228) ? 128 : 256;
+
+	rim = AddImageSkyMerge(sky, face, size);
+	return rim;
 }
 
 void RGL_UpdateSkyBoxTextures(void)
