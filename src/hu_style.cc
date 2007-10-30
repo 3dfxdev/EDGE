@@ -22,7 +22,7 @@
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "r_local.h"
-#include "r_colors.h"
+#include "r_colormap.h"
 #include "r_draw.h"
 #include "r_modes.h"
 #include "r_image.h"

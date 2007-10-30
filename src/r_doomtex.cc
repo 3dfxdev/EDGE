@@ -56,7 +56,7 @@
 #include "r_image.h"
 #include "r_gldefs.h"
 #include "r_sky.h"
-#include "r_colors.h"
+#include "r_colormap.h"
 #include "w_texture.h"
 #include "w_wad.h"
 #include "z_zone.h"

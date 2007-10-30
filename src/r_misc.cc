@@ -38,7 +38,7 @@
 #include "n_network.h"
 #include "p_local.h"
 #include "p_mobj.h"
-#include "r_colors.h"
+#include "r_colormap.h"
 #include "r_defs.h"
 #include "r_draw.h"
 #include "r_gldefs.h"

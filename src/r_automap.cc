@@ -40,7 +40,7 @@
 #include "p_local.h"
 #include "st_stuff.h"
 #include "r_draw.h"
-#include "r_colors.h"
+#include "r_colormap.h"
 #include "r_modes.h"
 
 #include <stdio.h>

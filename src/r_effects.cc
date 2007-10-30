@@ -22,7 +22,7 @@
 #include "e_player.h"
 #include "m_misc.h"
 #include "r_misc.h"
-#include "r_colors.h"
+#include "r_colormap.h"
 #include "r_modes.h"
 
 #define DEBUG  0

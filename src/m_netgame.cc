@@ -51,7 +51,7 @@
 #include "sv_main.h"
 #include "r_draw.h"
 #include "r_modes.h"
-#include "r_colors.h"
+#include "r_colormap.h"
 #include "w_wad.h"
 #include "f_stats.h"
 #include "z_zone.h"

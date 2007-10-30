@@ -53,7 +53,7 @@
 #include "rad_act.h"
 #include "r_defs.h"
 #include "s_sound.h"
-#include "r_colors.h"
+#include "r_colormap.h"
 #include "r_draw.h"
 #include "r_modes.h"
 #include "w_wad.h"

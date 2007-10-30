@@ -37,7 +37,7 @@
 #include "r_misc.h"
 #include "r_state.h"
 #include "r_view.h"
-#include "r_colors.h"
+#include "r_colormap.h"
 #include "r_modes.h"
 #include "z_zone.h"
 
