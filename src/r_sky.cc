@@ -538,6 +538,7 @@ void RGL_DrawSkyWall(seg_t *seg, float h1, float h2)
 
 //----------------------------------------------------------------------------
 
+
 #define PIXEL_RED(pix)  (what_palette[pix*3 + 0])
 #define PIXEL_GRN(pix)  (what_palette[pix*3 + 1])
 #define PIXEL_BLU(pix)  (what_palette[pix*3 + 2])
@@ -556,6 +557,13 @@ void RGL_DrawSkyWall(seg_t *seg, float h1, float h2)
 ///---
 ///---	merging_sky_image = NULL;
 ///---}
+
+
+static bool SkyIsNarrow(const image_c *sky)
+{
+	// check the aspect of the image
+	return (IM_WIDTH(sky) / IM_HEIGHT(sky)) < 2.28f;
+}
 
 
 static void CalcSkyCoord(int px, int py, int pw, int ph, int face,
@@ -619,8 +627,15 @@ static void CalcSkyCoord(int px, int py, int pw, int ph, int face,
 }
 
 
-static void BuildFace(epi::image_c *img, int face, const epi::image_c *sky, XXX )
+static GLuint BuildFace(const epi::image_c *sky, int face,
+				  	    const byte *what_palette)
+			
 {
+	int img_size = box_info.face_size;
+
+	epi::image_c img(img_size, img_size, 3);
+
+
 	bool narrow = SkyIsNarrow(sky);
 
 	const byte *src = sky->pixels;
@@ -628,20 +643,15 @@ static void BuildFace(epi::image_c *img, int face, const epi::image_c *sky, XXX 
 	int sky_w = sky->width;
 	int sky_h = sky->height;
 
-	int img_size = img->width;
-
-	SYS_ASSERT(img->width == img->height);
-
-	for (int y=0; y < img->height; y++)
+	for (int y=0; y < img_size; y++)
 	{
 		u8_t *dest = img->PixelAt(0, y);
 
-		for (int x=0; x < img->width; x++, dest += 3)
+		for (int x=0; x < img_size; x++, dest += 3)
 		{
 			float tx, ty;
 
-			CalcSkyCoord(x, y, img->width, img->height,
-					face, narrow, &tx, &ty);
+			CalcSkyCoord(x, y, img_size, img_size, face, narrow, &tx, &ty);
 
 			// Bilinear Filtering
 
@@ -756,124 +766,10 @@ static void BuildFace(epi::image_c *img, int face, const epi::image_c *sky, XXX 
 			dest[2] = b / 225;
 		}
 	}
+
+	return R_UploadTexture(&img, NULL, UPL_Smooth|UPL_Clamp);
 }
 
-
-
-static bool SkyIsNarrow(const image_c *sky)
-{
-	// check the aspect of the image
-	return (IM_WIDTH(sky) / IM_HEIGHT(sky)) < 2.28f;
-}
-
-//
-// ReadSkyMergeAsBlock
-//
-epi::image_data_c *ReadSkyMergeAsEpiBlock(image_c *rim)
-{
-	SYS_ASSERT(rim->source_type == IMSRC_SkyMerge);
-	SYS_ASSERT(rim->actual_w == rim->total_w);
-	SYS_ASSERT(rim->actual_h == rim->total_h);
-
-	int tw = rim->total_w;
-	int th = rim->total_h;
-
-	// Yuck! Recursive call into image system. Hope nothing breaks...
-	const image_c *sky = rim->source.merge.sky;
-	image_c *sky_rim = (image_c *) sky; // Intentional Const Override
-
-	// get correct palette
-	const byte *what_palette = (const byte *) &playpal_data[0];
-	bool what_pal_cached = false;
-
-	if (sky_rim->source_palette >= 0)
-	{
-		what_palette = (const byte *) W_CacheLumpNum(sky_rim->source_palette);
-		what_pal_cached = true;
-	}
-
-	epi::image_data_c * merging_sky = ReadAsEpiBlock(sky_rim);
-
-	epi::image_data_c *img = new epi::image_data_c(tw, th, 3);
-
-#if 0 // DEBUG
-	I_Printf("SkyMerge: Image %p face %d\n", rim, rim->source.merge.face);
-#endif
-	BuildFace
-
-
-	if (what_pal_cached)
-		W_DoneWithLump(what_palette);
-
-	GLuint tex_id = R_UploadTexture(img, NULL, UPL_Smooth|UPL_Clamp);
-
-	delete img;
-
-	return tex_id;
-}
-
-
-static const image_c *W_ImageFromSkyMerge(const image_c *sky, int face)
-{
-	// check IMAGES.DDF for the face image
-	// (they need to be Textures)
-
-	const image_c *rim = (const image_c *)sky;
-	const char *user_face_name = UserSkyFaceName(rim->name, face);
-
-	rim = real_textures.Lookup(user_face_name);
-	if (rim)
-		return rim;
-
-	// nope, look for existing sky-merge image
-
-	epi::array_iterator_c it;
-
-	for (it=sky_merges.GetBaseIterator(); it.IsValid(); it++)
-	{
-		rim = ITERATOR_TO_TYPE(it, image_c*);
-    
-		SYS_ASSERT(rim->source_type == IMSRC_SkyMerge);
-
-		if (sky != rim->source.merge.sky)
-			continue;
-
-		if (face == rim->source.merge.face)
-			return rim;
-
-		// Optimisations:
-		//    1. in MIRROR mode, bottom is same as top.
-		//    2. when sky is narrow, south == north, west == east.
-		// NOTE: we rely on lookup order of RGL_UpdateSkyBoxTextures.
-
-		if (sky_stretch >= STRETCH_MIRROR &&
-			face == WSKY_Bottom && rim->source.merge.face == WSKY_Top)
-		{
-#if 0  // DISABLED
-			L_WriteDebug("W_ImageFromSkyMerge: using TOP for BOTTOM.\n");
-			return rim;
-#endif
-		}
-		else if (SkyIsNarrow(sky) &&
-			(face == WSKY_South && rim->source.merge.face == WSKY_North))
-		{
-			L_WriteDebug("W_ImageFromSkyMerge: using NORTH for SOUTH.\n");
-			return rim;
-		}
-		else if (SkyIsNarrow(sky) &&
-			 (face == WSKY_West && rim->source.merge.face == WSKY_East))
-		{
-			L_WriteDebug("W_ImageFromSkyMerge: using EAST for WEST.\n");
-			return rim;
-		}
-	}
-
-	// use low-res box sides for low-res sky images
-	int size = (sky->actual_h < 228) ? 128 : 256;
-
-	rim = AddImageSkyMerge(sky, face, size);
-	return rim;
-}
 
 static const char *UserSkyFaceName(const char *base, int face)
 {
@@ -884,6 +780,7 @@ static const char *UserSkyFaceName(const char *base, int face)
 	return buffer;
 }
 
+
 void RGL_UpdateSkyBoxTextures(void)
 {
 	if (box_info.base_sky == sky_image)
@@ -891,16 +788,13 @@ void RGL_UpdateSkyBoxTextures(void)
 		return;
 	}
 
-	W_ImageClearMergingSky(); // hack (see r_image.cc)
+///---	W_ImageClearMergingSky(); // hack (see r_image.cc)
 
 	box_info.base_sky = sky_image;
 
-	box_info.face_size = 256; // FIXME
 
-
-	//!!!! FIXME   check for custom sky images
-	
-	char *custom_name = UserSkyFaceName( XXX, WSKY_North);
+	// check for custom sky images
+	char *custom_name = UserSkyFaceName(sky_image->name, WSKY_North);
 	
 	box_info.face[WSKY_North] = W_ImageLookup(custom_name, INS_Texture, ILF_Null);
 
@@ -911,7 +805,8 @@ void RGL_UpdateSkyBoxTextures(void)
 		box_info.face_size = box_info.face[WSKY_North]->total_w;
 
 		for (int i = WSKY_East; i < 6; i++)
-			box_info.face[i] = W_ImageLookup(UserSkyFaceName( XXX, i), INS_Texture);
+			box_info.face[i] = W_ImageLookup(
+					UserSkyFaceName(sky_image->name, i), INS_Texture);
 
 		for (int k = 0; k < 6; k++)
 			box_info.tex[k] = W_ImageCache(box_info.face[k], false);
@@ -920,13 +815,42 @@ void RGL_UpdateSkyBoxTextures(void)
 	}
 
 
-	box_info.north_tex  = W_ImageFromSkyMerge(sky_image, WSKY_North);
-	box_info.east_tex   = W_ImageFromSkyMerge(sky_image, WSKY_East);
-	box_info.top_tex    = W_ImageFromSkyMerge(sky_image, WSKY_Top);
-	box_info.bottom_tex = W_ImageFromSkyMerge(sky_image, WSKY_Bottom);
-	box_info.south_tex  = W_ImageFromSkyMerge(sky_image, WSKY_South);
-	box_info.west_tex   = W_ImageFromSkyMerge(sky_image, WSKY_West);
+	// Create pseudo sky box
+
+//???	// use low-res box sides for low-res sky images
+//???	int size = (sky->actual_h < 228) ? 128 : 256;
+
+	box_info.face_size = 256;
+
+	custom_sky_box = false;
+
+	// get correct palette
+	const byte *what_pal = (const byte *) &playpal_data[0];
+	bool what_pal_cached = false;
+
+	if (sky_image->source_palette >= 0)
+	{
+		what_pal = (const byte *) W_CacheLumpNum(sky_image->source_palette);
+		what_pal_cached = true;
+	}
+
+	box_info.north_tex  = BuildFace(sky_image, WSKY_North,  what_pal);
+	box_info.east_tex   = BuildFace(sky_image, WSKY_East,   what_pal);
+	box_info.top_tex    = BuildFace(sky_image, WSKY_Top,    what_pal);
+	box_info.bottom_tex = BuildFace(sky_image, WSKY_Bottom, what_pal);
+
+	// optimisation: can share side textures when narrow
+
+	box_info.south_tex = SkyIsNarrow(sky_image) ? box_info.north_tex :
+						 BuildFace(sky_image, WSKY_South, what_pal );
+
+	box_info.west_tex  = SkyIsNarrow(sky_image) ? box_info.east_tex :
+						 BuildFace(sky_image, WSKY_West, what_pal );
+
+	if (what_pal_cached)
+		W_DoneWithLump(what_palette);
 }
+
 
 void RGL_PreCacheSky(void)
 {
