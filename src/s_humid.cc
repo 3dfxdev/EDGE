@@ -28,12 +28,12 @@
 #include "i_defs.h"
 #include "i_defs_al.h"
 
-#include "humdinger.h"
-#include "mus_2_midi.h"
-
 #include "epi/endianess.h"
+#include "epi/mus_2_midi.h"
 
 #include "humidity/hum_buffer.h"
+
+#include "s_humid.h"
 
 static bool humding_inited = false;
 ALuint humdinger_c::music_source = NO_SOURCE;
