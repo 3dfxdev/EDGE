@@ -237,7 +237,7 @@ static void RGL_SetupSkyMatrices(float dist)
 	// the DOOM sky (which is 128 pixels high on a 200 pixel
 	// screen, so it dipped 28 pixels below the horizon).
 	if (! custom_sky_box)
-		glTranslatef(0.0f, 0.0f, -dist / 5.0);
+		glTranslatef(0.0f, 0.0f, -dist / 4.0);
 }
 
 static void RGL_SetupSkyMatrices2D(void)
@@ -602,14 +602,7 @@ static void CalcSkyCoord(int px, int py, int pw, int ph, int face,
 			break; /* NOT REACHED */
 	}
 
-///---	// normalise the vector
-///---	float len  = sqrt((sx) * (sx) + (sy) * (sy) + (sz) * (sz));
 	float len2 = sqrt((sx) * (sx) + (sy) * (sy));
-
-///---	sx /= len;
-///---	sy /= len;
-///---	sz /= len;
-
 
 	angle_t H = ANG0  + R_PointToAngle(0, 0, sx, sy);
 	angle_t V = ANG90 + R_PointToAngle(0, 0, len2, sz);
