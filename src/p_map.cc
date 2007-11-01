@@ -1658,15 +1658,9 @@ mobj_t *DoMapTargetAutoAim(mobj_t * source, angle_t angle, float distance, bool 
 		float slope = P_ApproxSlope(source->x - aim_I.target->x,
 				source->y - aim_I.target->y, aim_I.target->z - source->z);
 
-		source->vertangle = M_ATan(slope);
+		slope = CLAMP(-1.0f, slope, 1.0f);
 
-		if (source->vertangle > LOOKUPLIMIT && source->vertangle < LOOKDOWNLIMIT)
-		{
-			if (source->vertangle <= ANG180)
-				source->vertangle = LOOKUPLIMIT;
-			else
-				source->vertangle = LOOKDOWNLIMIT;
-		}
+		source->vertangle = M_ATan(slope);
 	}
 
 	return aim_I.target;

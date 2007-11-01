@@ -371,13 +371,11 @@ void P_ActFaceTarget(mobj_t * object)
 	}
 
 	// don't look up/down too far...
-	if (object->vertangle > LOOKUPLIMIT && object->vertangle < LOOKDOWNLIMIT)
-	{
-		if (object->vertangle <= ANG180)
-			object->vertangle = LOOKUPLIMIT;
-		else
-			object->vertangle = LOOKDOWNLIMIT;
-	}
+	if (object->vertangle < ANG180 && object->vertangle > ANG45)
+		object->vertangle = ANG45;
+		
+	if (object->vertangle >= ANG180 && object->vertangle < ANG315)
+		object->vertangle = ANG315;
 }
 
 //
