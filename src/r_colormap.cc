@@ -734,10 +734,10 @@ private:
 	{
 		float dist = DistFromViewplane(lit_pos->x, lit_pos->y, lit_pos->z);
 
-		float ty = CLAMP(0.5, (light_lev / 4.0), 64 - 0.5);
-
+		int L = light_lev / 4;  // need integer range 0-63
+		
 		v->texc[t].x = dist / 1600.0;
-		v->texc[t].y = ty / 64.0;
+		v->texc[t].y = (L + 0.5) / 64.0;
 	}
 
 public:
