@@ -40,8 +40,7 @@
 #define DEATHVIEWHEIGHT  6.0f
 #define CROUCH_SLOWDOWN  0.6f
 
-#define LOOKUPLIMIT    FLOAT_2_ANG(88.0f)
-#define LOOKDOWNLIMIT  FLOAT_2_ANG(-88.0f)
+#define MLOOK_LIMIT    FLOAT_2_ANG(75.0f)
 
 #define MAXMOVE      (100.0f)
 #define STEPMOVE     (16.0f)

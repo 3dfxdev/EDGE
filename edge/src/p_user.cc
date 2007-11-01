@@ -42,6 +42,7 @@ static void P_UpdatePowerups(player_t *player);
 // 16 pixels of bob
 #define MAXBOB        16.0f
 
+
 //
 // CalcHeight
 //
@@ -142,15 +143,14 @@ static void MovePlayer(player_t * player)
 	//
 	if (level_flags.mlook)
 	{
-		player->mo->vertangle += (angle_t)(cmd->mlookturn << 16);
+		angle_t V = player->mo->vertangle + (angle_t)(cmd->mlookturn << 16);
 
-		if (player->mo->vertangle > LOOKUPLIMIT && player->mo->vertangle < LOOKDOWNLIMIT)
-		{
-			if (player->mo->vertangle <= ANG180)
-				player->mo->vertangle = LOOKUPLIMIT;
-			else
-				player->mo->vertangle = LOOKDOWNLIMIT;
-		}
+		if (V < ANG180 && V > MLOOK_LIMIT)
+			V = MLOOK_LIMIT;
+		else if (V >= ANG180 && V < (ANG_MAX - MLOOK_LIMIT))
+			V = (ANG_MAX - MLOOK_LIMIT);
+
+		player->mo->vertangle = V;
 	}
 	else
 	{
