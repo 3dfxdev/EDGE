@@ -610,12 +610,12 @@ static void CalcSkyCoord(int px, int py, int pw, int ph, int face,
 	// this lowers the effective centre of the pseudo skybox to
 	// match the DOOM sky, which is 128 pixels on a 200 pixel high
 	// screen (so it dips 28 pixels below the horizon).
-	yy = yy / 1.2f;
+	yy = yy / 1.15f;
 
 	// mirror it (vertically)
 	if (yy > 1.0f) yy = 2.0f - yy;
 
-	*ty = 1.0f - pow(yy, 1.77);
+	*ty = 1.0f - pow(yy, 2.2);
 }
 
 
