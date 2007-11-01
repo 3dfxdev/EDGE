@@ -230,12 +230,6 @@ static void RGL_SetupSkyMatrices(float dist)
 	
 	glRotatef(270.0f - ANG_2_FLOAT(viewvertangle), 1.0f, 0.0f, 0.0f);
 	glRotatef(90.0f  - ANG_2_FLOAT(viewangle), 0.0f, 0.0f, 1.0f);
-
-	// lower the centre of the skybox (pseudo only!) to match
-	// the DOOM sky (which is 128 pixels high on a 200 pixel
-	// screen, so it dipped 28 pixels below the horizon).
-	if (! custom_sky_box)
-		glTranslatef(0.0f, 0.0f, -dist / 4.0);
 }
 
 static void RGL_SetupSkyMatrices2D(void)
@@ -603,20 +597,25 @@ static void CalcSkyCoord(int px, int py, int pw, int ph, int face,
 	float len2 = sqrt((sx) * (sx) + (sy) * (sy));
 
 	angle_t H = ANG0  + R_PointToAngle(0, 0, sx, sy);
-	angle_t V = ANG90 + R_PointToAngle(0, 0, len2, sz);
+	angle_t V = ANG90 - R_PointToAngle(0, 0, len2, sz);
 
 	if (narrow)
 		*tx = (float)(H >> 1) / (float)(1 << 30);
 	else
 		*tx = (float)(H >> 2) / (float)(1 << 30);
 
-	// want yy to range from 0.0 (bottom) to 2.0 (top)
-	float yy = (float)(V) / (float)(1 << 30);
+	// want yy to range from 0.0 (top) to 2.0 (bottom)
+	float yy = (float)(V) / (float)ANG90;
+
+	// this lowers the effective centre of the pseudo skybox to
+	// match the DOOM sky, which is 128 pixels on a 200 pixel high
+	// screen (so it dips 28 pixels below the horizon).
+	yy = yy / 1.2f;
 
 	// mirror it (vertically)
 	if (yy > 1.0f) yy = 2.0f - yy;
 
-	*ty = 1.0f - (yy * yy);
+	*ty = 1.0f - pow(yy, 1.77);
 }
 
 
