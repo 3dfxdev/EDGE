@@ -363,9 +363,13 @@ sfx_t* sfxdef_container_c::GetEffect(const char *name, bool error)
 
 	if (count == 0)
 	{
-		if (!lax_errors && !error)
-			DDF_Error("Unknown SFX: '%.8s'\n", name);
-
+		if (error)
+		{
+			if (ddf_version >= 131 && !lax_errors)
+				DDF_Error("Unknown SFX: '%.8s'\n", name);
+			else
+				DDF_Warning("Unknown SFX: '%.8s'\n", name);
+		}
 		return NULL;
 	}
 
