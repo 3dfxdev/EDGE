@@ -1,5 +1,10 @@
 Andrew Apted's Log
 
+2007/11/02:
+
+Fixed PLAYSOUND console command to not fatal error on an
+unknown sound.
+
 2007/10/30:
 
 Started reworking the sky code (especially pseudo sky-boxes).
