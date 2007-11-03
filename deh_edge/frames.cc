@@ -186,7 +186,7 @@ const actioninfo_t action_info[NUMACTIONS_BEX] =
 	{ "EXPLOSIONDAMAGE", AF_DETONATE, NULL, NULL, "A_Detonate" },
 	{ "NOTHING", AF_UNIMPL, NULL, NULL,    "A_Mushroom" },
 
-	{ "NOTHING", AF_UNIMPL,  NULL, NULL,    "A_Spawn" },
+	{ "NOTHING", AF_SPECIAL, NULL, NULL,    "A_Spawn" },
 	{ "NOTHING", AF_SPECIAL, NULL, NULL,    "A_Turn" },
 	{ "NOTHING", AF_SPECIAL, NULL, NULL,    "A_Face" },
 	{ "NOTHING", AF_UNIMPL,  NULL, NULL,    "A_Scratch" },
@@ -834,7 +834,7 @@ void Frames::SpecialAction(char *act_name, state_t *st, bool use_spawn)
 				strcpy(act_name, "DIE");
 			else
 			{
-				PrintWarn("Action A_DIE only supported in v1.29 and higher.\n");
+				PrintWarn("Action A_DIE only supported in EDGE 1.29 and higher.\n");
 				strcpy(act_name, "EXPLODE");
 			}
 			break;
@@ -859,7 +859,7 @@ void Frames::SpecialAction(char *act_name, state_t *st, bool use_spawn)
 			}
 			break;
 
-		  case A_Turn:
+		case A_Turn:
 		  	sprintf(act_name, "TURN(%d)", MISC_TO_ANGLE(st->misc1));
 			break;
 
@@ -877,7 +877,7 @@ void Frames::SpecialAction(char *act_name, state_t *st, bool use_spawn)
 			}
 			break;
 
-		  case A_LineEffect:
+		case A_LineEffect:
 		  	if (st->misc1 <= 0)
 				strcpy(act_name, "NOTHING");
 			else
@@ -885,6 +885,31 @@ void Frames::SpecialAction(char *act_name, state_t *st, bool use_spawn)
 				sprintf(act_name, "ACTIVATE_LINETYPE(%d,%d)",
 					st->misc1, st->misc2);
 			}
+			break;
+
+		case A_Spawn:
+			if (target_version < 131)
+				PrintWarn("Action A_SPAWN only supported in EDGE 1.31 and higher.\n");
+			
+			else if (st->misc1 < 1 || st->misc1 > NUMMOBJTYPES_BEX)
+				PrintWarn("Action A_SPAWN: illegal type (%d)\n", st->misc1);
+
+			else
+			{
+				const mobjinfo_t *type = &mobjinfo[st->misc1 - 1];
+
+				if (! type->name || type->doomednum <= 0)
+					PrintWarn("Action A_SPAWN unusable type (%d = %s)\n",
+							  st->misc1, type->name ? type->name : "\"\"");
+				else
+				{
+					sprintf(act_name, "SPAWN(%s)", type->name);
+					return; // success !
+				}
+			}
+
+			// fall-back
+			strcpy(act_name, "NOTHING");
 			break;
 
 		default:
