@@ -135,6 +135,7 @@ void P_ActBounceRearm(struct mobj_s *mo);
 void P_ActBounceDisarm(struct mobj_s *mo);
 void P_ActPathCheck(struct mobj_s *mo);
 void P_ActPathFollow(struct mobj_s *mo);
+
 void P_ActDropItem(struct mobj_s *mo);
 void P_ActDLightSet(struct mobj_s *mo);
 void P_ActDLightSet2(struct mobj_s *mo);
@@ -147,6 +148,8 @@ void P_ActKeenDie(struct mobj_s *mo);
 void P_ActCheckBlood(struct mobj_s *mo);
 void P_ActJump(struct mobj_s *mo);
 void P_ActBecome(struct mobj_s *mo);
+void P_ActSetInvuln(struct mobj_s *mo);
+void P_ActClearInvuln(struct mobj_s *mo);
 
 // Movement actions
 void P_ActFaceDir(struct mobj_s *mo);

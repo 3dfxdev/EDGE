@@ -3530,6 +3530,17 @@ void P_ActJump(mobj_t * mo)
 }
 
 
+void P_ActSetInvuln(struct mobj_s *mo)
+{
+	mo->hyperflags |= HF_INVULNERABLE;
+}
+
+void P_ActClearInvuln(struct mobj_s *mo)
+{
+	mo->hyperflags &= ~HF_INVULNERABLE;
+}
+
+
 void P_ActBecome(struct mobj_s *mo)
 {
 	if (!mo->state || !mo->state->action_par)
