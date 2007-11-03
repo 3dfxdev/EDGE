@@ -2394,16 +2394,14 @@ void P_SlammedIntoObject(mobj_t * object, mobj_t * objecthit)
 	P_SetMobjStateDeferred(object, object->info->idle_state, 0);
 }
 
-//
-// P_UseThing
-//
-// Called when this thing is attempted to be used (i.e. by pressing
-// the spacebar near it) by the player.  Returns true if successfully
-// used, or false if other things should be checked.
-//
+
 bool P_UseThing(mobj_t * user, mobj_t * thing, float open_bottom,
 				float open_top)
 {
+	// Called when this thing is attempted to be used (i.e. by pressing
+	// the spacebar near it) by the player.  Returns true if successfully
+	// used, or false if other things should be checked.
+
 	// item is disarmed ?
 	if (!(thing->flags & MF_TOUCHY))
 		return false;
@@ -2425,16 +2423,14 @@ bool P_UseThing(mobj_t * user, mobj_t * thing, float open_bottom,
 	return true;
 }
 
-//
-// P_TouchyContact
-//
-// Used whenever a thing comes into contact with a TOUCHY object.
-//
-// -AJA- 1999/09/12: Now uses P_SetMobjStateDeferred, since this
-//       routine can be called by TryMove/PIT_CheckRelThing.
-//
+
 void P_TouchyContact(mobj_t *touchy, mobj_t *victim)
 {
+	// Used whenever a thing comes into contact with a TOUCHY object.
+	//
+	// -AJA- 1999/09/12: Now uses P_SetMobjStateDeferred, since this
+	//       routine can be called by TryMove/PIT_CheckRelThing.
+
 	// dead thing touching. Can happen with a sliding player corpse.
 	if (victim->health <= 0)
 		return;
@@ -2452,10 +2448,7 @@ void P_TouchyContact(mobj_t *touchy, mobj_t *victim)
 		P_MobjExplodeMissile(touchy);
 }
 
-//
-// P_ActTouchyRearm    
-// P_ActTouchyDisarm
-//
+
 void P_ActTouchyRearm(mobj_t * touchy)
 {
 	touchy->flags |= MF_TOUCHY;
@@ -2466,10 +2459,7 @@ void P_ActTouchyDisarm(mobj_t * touchy)
 	touchy->flags &= ~MF_TOUCHY;
 }
 
-//
-// P_ActBounceRearm
-// P_ActBounceDisarm
-//
+
 void P_ActBounceRearm(mobj_t * mo)
 {
 	mo->extendedflags &= ~EF_JUSTBOUNCED;
@@ -2480,17 +2470,10 @@ void P_ActBounceDisarm(mobj_t * mo)
 	mo->extendedflags |= EF_JUSTBOUNCED;
 }
 
-//
-// P_ActDropItem
-//
-// -AJA- 2000/10/20: added.
-//
+
 void P_ActDropItem(mobj_t * mo)
 {
 	const mobjtype_c *info = mo->info->dropitem;
-	mobj_t *item;
-
-	float dx, dy;
 
 	if (mo->state && mo->state->action_par)
 	{
@@ -2508,40 +2491,52 @@ void P_ActDropItem(mobj_t * mo)
 
 	// unlike normal drops, these ones are displaced randomly
 
-	dx = P_RandomNegPos() * mo->info->radius / 255.0f;
-	dy = P_RandomNegPos() * mo->info->radius / 255.0f;
+	float dx = P_RandomNegPos() * mo->info->radius / 255.0f;
+	float dy = P_RandomNegPos() * mo->info->radius / 255.0f;
 
-	item = P_MobjCreateObject(mo->x + dx, mo->y + dy, mo->floorz, info);
+	mobj_t *item = P_MobjCreateObject(mo->x + dx, mo->y + dy, mo->floorz, info);
+	SYS_ASSERT(item);
 
-	// -ES- 1998/07/18 NULL check to prevent crashing
-	if (item)
-	{
-		item->flags |= MF_DROPPED;
-		item->flags &= ~MF_SOLID;
+	item->flags |= MF_DROPPED;
+	item->flags &= ~MF_SOLID;
 
-		item->angle = mo->angle;
+	item->angle = mo->angle;
 
-		// allow respawning
-		item->spawnpoint.x = item->x;
-		item->spawnpoint.y = item->y;
-		item->spawnpoint.z = item->z;
-		item->spawnpoint.angle = item->angle;
-		item->spawnpoint.vertangle = item->vertangle;
-		item->spawnpoint.info  = info;
-		item->spawnpoint.flags = 0;
-	}
+	// allow respawning
+	item->spawnpoint.x = item->x;
+	item->spawnpoint.y = item->y;
+	item->spawnpoint.z = item->z;
+	item->spawnpoint.angle = item->angle;
+	item->spawnpoint.vertangle = item->vertangle;
+	item->spawnpoint.info  = info;
+	item->spawnpoint.flags = 0;
 }
 
-//
-// P_ActPathCheck
-//
-// Checks if the creature is a path follower, and if so enters the
-// meander states.
-//
-// -AJA- 2000/02/17: wrote this & PathFollow.
-//
+void P_ActSpawn(mobj_t * mo)
+{
+	if (!mo->state || !mo->state->action_par)
+		I_Error("SPAWN() action used without a object name!\n");
+
+	mobj_strref_c *ref = (mobj_strref_c *) mo->state->action_par;
+
+	const mobjtype_c *info = ref->GetRef();
+	SYS_ASSERT(info);
+
+	mobj_t *item = P_MobjCreateObject(mo->x, mo->y, mo->z, info);
+	SYS_ASSERT(item);
+
+	item->angle = mo->angle;
+	item->side  = mo->side;
+
+	item->SetSource(mo);
+}
+
+
 void P_ActPathCheck(mobj_t * mo)
 {
+	// Checks if the creature is a path follower, and if so enters the
+	// meander states.
+
 	if (! mo->path_trigger || ! mo->info->meander_state)
 		return;
  
@@ -2551,16 +2546,11 @@ void P_ActPathCheck(mobj_t * mo)
 	mo->movecount = 0;
 }
 
-//
-// P_ActPathFollow
-//
-// For path-following creatures (spawned via RTS), makes the creature
-// follow the path by trying to get to the next node.
-//
+
 void P_ActPathFollow(mobj_t * mo)
 {
-	float dx, dy;
-	angle_t diff;
+	// For path-following creatures (spawned via RTS), makes the creature
+	// follow the path by trying to get to the next node.
 
 	if (!mo->path_trigger)
 		return;
@@ -2578,10 +2568,10 @@ void P_ActPathFollow(mobj_t * mo)
 		return;
 	}
 
-	dx = mo->path_trigger->x - mo->x;
-	dy = mo->path_trigger->y - mo->y;
+	float dx = mo->path_trigger->x - mo->x;
+	float dy = mo->path_trigger->y - mo->y;
 
-	diff = mo->angle - R_PointToAngle(0, 0, dx, dy);
+	angle_t diff = mo->angle - R_PointToAngle(0, 0, dx, dy);
 
 	// movedir value: 
 	//   0 for slow turning.
