@@ -1,9 +1,16 @@
 Andrew Apted's Log
 
+2007/11/03:
+
+Implemented new 'INVULNERABLE' special for THINGS.DDF and
+SET_INVULNERABLE / CLEAR_INVULNERABLE actions.  These can
+be used to make enemies with shields (like the Centaurs in
+Hexen).
+
 2007/11/02:
 
-Fixed PLAYSOUND console command to not fatal error on an
-unknown sound.
+Fixed PLAYSOUND console command to not fatal error when the
+sound is not found.
 
 2007/10/30:
 
