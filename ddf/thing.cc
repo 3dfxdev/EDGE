@@ -278,6 +278,7 @@ static const actioncode_t thing_actions[] =
 	{"CLEAR_INVULNERABLE",P_ActClearInvuln, NULL},
 
 	{"DROPITEM",          P_ActDropItem, DDF_StateGetMobj},
+	{"SPAWN",             P_ActSpawn,    DDF_StateGetMobj},
 	{"TRANS_SET",         P_ActTransSet, DDF_StateGetPercent},
 	{"TRANS_FADE",        P_ActTransFade, DDF_StateGetPercent},
 	{"TRANS_MORE",        P_ActTransMore, DDF_StateGetPercent},
@@ -1719,43 +1720,31 @@ bool DDF_MainParseCondition(const char *info, condition_check_t *cond)
 	return false;
 }
 
+
 // ---> mobjdef class
 
-// 
-// mobjtype_c Constructor
-//
 mobjtype_c::mobjtype_c()
 {
 	Default();
 }
 
-//
-// mobjtype_c Copy Constructor
-//
 mobjtype_c::mobjtype_c(mobjtype_c &rhs)
 {
 	Copy(rhs);
 }
 
-//
-// mobjtype_c Destructor
-//
 mobjtype_c::~mobjtype_c()
 {
 }
 
-//
-// mobjtype_c::Copy()
-//
+
 void mobjtype_c::Copy(mobjtype_c &src)
 {
 	ddf = src.ddf;
 	CopyDetail(src);	
 }
 
-//
-// mobjtype_c::CopyDetail()
-//
+
 void mobjtype_c::CopyDetail(mobjtype_c &src)
 {
 	first_state = src.first_state; 
@@ -1877,9 +1866,7 @@ void mobjtype_c::CopyDetail(mobjtype_c &src)
 	spitspot_ref = src.spitspot_ref; 
 }
 
-//
-// mobjtype_c::Default()
-//
+
 void mobjtype_c::Default()
 {
 	ddf.Default();
@@ -2002,9 +1989,7 @@ void mobjtype_c::Default()
 	spitspot_ref.clear();
 }
 
-//
-// mobjtype_c assignment operator
-//
+
 mobjtype_c& mobjtype_c::operator=(mobjtype_c &rhs)
 {
 	if (&rhs != this)
@@ -2013,28 +1998,22 @@ mobjtype_c& mobjtype_c::operator=(mobjtype_c &rhs)
 	return *this;
 }
 
+
 // --> mobjtype_container_c class
 
-//
-// mobjtype_container_c::mobjtype_container_c()
-//
 mobjtype_container_c::mobjtype_container_c() : epi::array_c(sizeof(mobjtype_c*))
 {
 	memset(lookup_cache, 0, sizeof(mobjtype_c*) * LOOKUP_CACHESIZE);
 	num_disabled = 0;	
 }
 
-//
-// ~mobjtype_container_c::mobjtype_container_c()
-//
+
 mobjtype_container_c::~mobjtype_container_c()
 {
 	Clear();					// <-- Destroy self before exiting
 }
 
-//
-// mobjtype_containter_c::CleanupObject
-//
+
 void mobjtype_container_c::CleanupObject(void *obj)
 {
 	mobjtype_c *m = *(mobjtype_c**)obj;
@@ -2045,9 +2024,7 @@ void mobjtype_container_c::CleanupObject(void *obj)
 	return;
 }
 
-//
-// mobjtype_container_c::FindFirst
-//
+
 int mobjtype_container_c::FindFirst(const char *name, int startpos)
 {
 	epi::array_iterator_c it;
@@ -2072,9 +2049,7 @@ int mobjtype_container_c::FindFirst(const char *name, int startpos)
 	return -1;
 }
 
-//
-// mobjtype_container_c::FindLast
-//
+
 int mobjtype_container_c::FindLast(const char *name, int startpos)
 {
 	epi::array_iterator_c it;
@@ -2099,13 +2074,11 @@ int mobjtype_container_c::FindLast(const char *name, int startpos)
 	return -1;
 }
 
-//
-// mobjtype_container_c::MoveToEnd
-//
-// Moves an entry from its current position to end of the list
-//
+
 bool mobjtype_container_c::MoveToEnd(int idx)
 {
+	// Moves an entry from its current position to end of the list.
+
 	mobjtype_c* m;
 
 	if (idx < 0 || idx >= array_entries)
@@ -2125,20 +2098,17 @@ bool mobjtype_container_c::MoveToEnd(int idx)
 	return true;
 }
 
-//
-// const mobjtype_c* mobjtype_container_c::Lookup()
-//
-// Looks an mobjdef by name, returns a fatal error if it does not exist.
-//
-const mobjtype_c* mobjtype_container_c::Lookup(const char *refname)
+
+const mobjtype_c *mobjtype_container_c::Lookup(const char *refname)
 {
-	int idx;
+	// Looks an mobjdef by name.
+	// Fatal error if it does not exist.
 
-	idx = FindLast(refname);
+	int idx = FindLast(refname);
 
-	// special rule for internal names (beginning with `_'), to allow
-	// savegame files to find attack MOBJs that may have been masked by
-	// a #CLEARALL.
+	// special rule for internal names (beginning with '_'), to allow
+	// savegame files to find attack MOBJs that may have been masked
+	// by #CLEARALL.
 	if (idx >= 0 && refname[0] != '_' && idx < num_disabled)
 		idx = -1;
 
@@ -2152,13 +2122,12 @@ const mobjtype_c* mobjtype_container_c::Lookup(const char *refname)
 	return NULL; /* NOT REACHED */
 }
 
-//
-// const mobjtype_c* mobjtype_container_c::Lookup()
-//
-// Looks an mobjdef by number, returns a fatal error if it does not exist.
-//
-const mobjtype_c* mobjtype_container_c::Lookup(int id)
+
+const mobjtype_c *mobjtype_container_c::Lookup(int id)
 {
+	// Looks an mobjdef by number.
+	// Fatal error if it does not exist.
+
 	int slot = DDF_MobjHashFunc(id);
 
 	// check the cache
@@ -2197,13 +2166,12 @@ const mobjtype_c* mobjtype_container_c::Lookup(int id)
 	return m;
 }
 
-//
-// mobjtype_container_c::LookupCastMember()
-//
-// Lookup the cast member of the one with the nearest match to the position given.
-//
-const mobjtype_c* mobjtype_container_c::LookupCastMember(int castpos)
+
+const mobjtype_c *mobjtype_container_c::LookupCastMember(int castpos)
 {
+	// Lookup the cast member of the one with the nearest match
+	// to the position given.
+
 	epi::array_iterator_c it;
 	mobjtype_c* best;
 	mobjtype_c* m;
@@ -2264,13 +2232,11 @@ const mobjtype_c* mobjtype_container_c::LookupCastMember(int castpos)
 	return best;
 }
 
-//
-// mobjtype_container_c::LookupCastMember()
-//
-// Find a player thing (needed by deathmatch code).
-//
+
 const mobjtype_c* mobjtype_container_c::LookupPlayer(int playernum)
 {
+	// Find a player thing (needed by deathmatch code).
+
 	epi::array_iterator_c it;
 
 	for (it = GetTailIterator(); it.IsValid() && (int)it.GetPos() >= num_disabled; it--)
