@@ -238,6 +238,7 @@ static const actioncode_t thing_actions[] =
 	{"CLOSE_ATTACK",      P_ActMeleeAttack, DDF_StateGetAttack},
 	{"RANGE_ATTACK",      P_ActRangeAttack, DDF_StateGetAttack},
 	{"SPARE_ATTACK",      P_ActSpareAttack, DDF_StateGetAttack},
+
 	{"RANGEATTEMPTSND",   P_ActMakeRangeAttemptSound, NULL},
 	{"REFIRE_CHECK",      P_ActRefireCheck, NULL},
 	{"RELOAD_CHECK",      P_ActReloadCheck, NULL},
@@ -273,6 +274,9 @@ static const actioncode_t thing_actions[] =
 	{"BOUNCE_DISARM",     P_ActBounceDisarm, NULL},
 	{"PATH_CHECK",        P_ActPathCheck, NULL},
 	{"PATH_FOLLOW",       P_ActPathFollow, NULL},
+	{"SET_INVULNERABLE",  P_ActSetInvuln,   NULL},
+	{"CLEAR_INVULNERABLE",P_ActClearInvuln, NULL},
+
 	{"DROPITEM",          P_ActDropItem, DDF_StateGetMobj},
 	{"TRANS_SET",         P_ActTransSet, DDF_StateGetPercent},
 	{"TRANS_FADE",        P_ActTransFade, DDF_StateGetPercent},
