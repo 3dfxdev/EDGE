@@ -261,6 +261,9 @@ typedef enum
 
 	// -AJA- 2006/10/19: scenery items don't block missiles
 	HF_PASSMISSILE = (1 << 8),
+
+	// -AJA- 2007/11/03: invulnerable flag
+	HF_INVULNERABLE = (1 << 9),
 }
 mobjhyperflag_t;
 
