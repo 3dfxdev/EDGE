@@ -1754,11 +1754,7 @@ void P_MobjRemoveMissile(mobj_t * missile)
 //
 mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c *info)
 {
-	mobj_t *mobj;
-	state_t *st;
-	sector_t *sec;
-
-	mobj = Z_New(mobj_t, 1);
+	mobj_t *mobj = Z_New(mobj_t, 1);
 
 	Z_Clear(mobj, mobj_t, 1);
 
@@ -1805,6 +1801,8 @@ mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c *info)
 	// -AJA- So that the first action gets executed, the `next_state'
 	//       is set to the first state and `tics' set to 0.
 	//
+	state_t *st;
+
 	if (info->spawn_state)
 		st = &states[info->spawn_state];
 	else if (info->meander_state)
@@ -1831,7 +1829,7 @@ mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c *info)
 			mobj->dlight.r = mobj->dlight.target = dinfo->radius;
 			mobj->dlight.color = dinfo->colour;
 ///---		mobj->dlight.lim = W_ImageLookup(dinfo->shape, INS_Graphic, ILF_Null);
-			
+
 			// leave 'shader' field as NULL : renderer will create it
 		}
 	}
@@ -1841,7 +1839,7 @@ mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c *info)
 
 	// -AJA- 1999/07/30: Updated for extra floors.
 
-	sec = mobj->subsector->sector;
+	sector_t *sec = mobj->subsector->sector;
 
 	mobj->z = P_ComputeThingGap(mobj, sec, z, &mobj->floorz, &mobj->ceilingz);
 
