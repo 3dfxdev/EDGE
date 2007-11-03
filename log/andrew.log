@@ -7,6 +7,11 @@ SET_INVULNERABLE / CLEAR_INVULNERABLE actions.  These can
 be used to make enemies with shields (like the Centaurs in
 Hexen).
 
+Implemented new 'SPAWN' action for THINGS.DDF which is
+similar to DROPITEM but does not clear the SOLID special,
+does not let the item respawn, and keeps the same angle
+and side as the spawner object.
+
 2007/11/02:
 
 Fixed PLAYSOUND console command to not fatal error when the
