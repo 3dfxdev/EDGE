@@ -619,6 +619,66 @@ static void CalcSkyCoord(int px, int py, int pw, int ph, int face,
 }
 
 
+static void BlurCentre(epi::image_data_c& img)
+{
+	// Blurs the center of the image (the top face of the
+	// pseudo sky box).  The amount of blur is different at
+	// different places: from none at all at the edges upto
+	// maximum blur in the middle.
+
+	SYS_ASSERT(img.bpp == 3);
+
+	// create a copy to work from (as we cannot blur in-place)
+	epi::image_data_c orig(img.width, img.height, 3);
+
+	memcpy(orig.pixels, img.pixels, orig.width*orig.height*3);
+
+	for (int y = 1+img.height/4; y < img.height*3/4; y++)
+	for (int x = 1+img.width /4; x < img.width *3/4; x++)
+	{
+		int x_pos = 31 - ABS(x - img.width /2) * 127 / img.width;
+		int y_pos = 31 - ABS(y - img.height/2) * 127 / img.height;
+
+		// SYS_ASSERT(0 <= x_pos && x_pos <= 31);
+		// SYS_ASSERT(0 <= y_pos && y_pos <= 31);
+
+		int min_pos = MIN(x_pos, y_pos);
+
+		int size = 16 + min_pos*2;  // range: 1.00 to 4.99 (times 16)
+
+		int d_size = (size | 15) / 16;
+
+		// compute average over the box
+		int r = 0;
+		int g = 0;
+		int b = 0;
+		int total = 0;
+
+		for (int dy = -d_size; dy <= +d_size; dy++)
+		for (int dx = -d_size; dx <= +d_size; dx++)
+		{
+			u8_t *src = orig.PixelAt(x+dx, y+dy);
+
+			int qty = ( (ABS(dx) < d_size) ? 16 : (size & 15) ) *
+			          ( (ABS(dy) < d_size) ? 16 : (size & 15) );
+
+			total += qty;
+
+			r += src[0] * qty;
+			g += src[1] * qty;
+			b += src[2] * qty;
+		}
+
+		SYS_ASSERT(total > 0);
+
+		u8_t *dest = img.PixelAt(x, y);
+
+		dest[0] = r / total;
+		dest[1] = g / total;
+		dest[2] = b / total;
+	}
+}
+
 static GLuint BuildFace(const epi::image_data_c *sky, int face,
 				  	    const byte *what_palette)
 			
@@ -654,14 +714,12 @@ static GLuint BuildFace(const epi::image_data_c *sky, int face,
 			TX = (TX + sky_w * 64) % (sky_w * 16);
 			TY = (TY + sky_h * 64) % (sky_h * 16);
 
-			SYS_ASSERT(TX >= 0 && TY >= 0);
-
-			///--- TX = sky->width*16 - 1 - TX;
+			// SYS_ASSERT(TX >= 0 && TY >= 0);
 
 			int FX = TX % 16; TX >>= 4;
 			int FY = TY % 16; TY >>= 4;
 
-			SYS_ASSERT(TX < sky_w && TY < sky_h);
+			// SYS_ASSERT(TX < sky_w && TY < sky_h);
 
 
 			int TX2 = (TX + 1) % sky_w;
@@ -757,6 +815,12 @@ static GLuint BuildFace(const epi::image_data_c *sky, int face,
 			dest[1] = g / 225;
 			dest[2] = b / 225;
 		}
+	}
+
+	// make the top surface look less bad
+	if (face == WSKY_Top)
+	{
+		BlurCentre(img);
 	}
 
 	return R_UploadTexture(&img, NULL, UPL_Smooth|UPL_Clamp);
