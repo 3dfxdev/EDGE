@@ -2,6 +2,10 @@ Andrew Apted's Log
 
 2007/11/03:
 
+Added code to blur the center of the top face of the
+generated sky box (which looked pretty ugly, especially
+with SKY2 of DOOM II).
+
 Implemented new 'INVULNERABLE' special for THINGS.DDF and
 SET_INVULNERABLE / CLEAR_INVULNERABLE actions.  These can
 be used to make enemies with shields (like the Centaurs in
@@ -14,6 +18,12 @@ and side as the spawner object.
 
 Implemented the MBF "A_Spawn" code pointer in DEH_EDGE.
 Trouble is, I cannot find any mods to test with!
+
+While fiddling to make a test case, discovered that PrBoom
+and MBF _ignore_ the main value in ^Pointer lines of a DEH
+file and instead parse the frame value which is in brackets.
+That's why the 'mushroom.deh' file messes up with DEH_EDGE,
+because Lee Killough just put a zero for the pointer! o_O
 
 2007/11/02:
 
