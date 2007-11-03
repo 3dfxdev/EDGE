@@ -137,6 +137,7 @@ void P_ActPathCheck(struct mobj_s *mo);
 void P_ActPathFollow(struct mobj_s *mo);
 
 void P_ActDropItem(struct mobj_s *mo);
+void P_ActSpawn(struct mobj_s *mo);
 void P_ActDLightSet(struct mobj_s *mo);
 void P_ActDLightSet2(struct mobj_s *mo);
 void P_ActDLightFade(struct mobj_s *mo);
