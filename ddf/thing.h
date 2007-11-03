@@ -44,91 +44,91 @@ typedef enum
 	MF_NOBLOCKMAP = (1 << 4),
 
 	// Not to be activated by sound, deaf monster.
-	MF_AMBUSH = 32,
+	MF_AMBUSH = (1 << 5),
 
 	// Will try to attack right back.
-	MF_JUSTHIT = 64,
+	MF_JUSTHIT = (1 << 6),
 
 	// Will take at least one step before attacking.
-	MF_JUSTATTACKED = 128,
+	MF_JUSTATTACKED = (1 << 7),
 
 	// On level spawning (initial position),
 	// hang from ceiling instead of stand on floor.
-	MF_SPAWNCEILING = 256,
+	MF_SPAWNCEILING = (1 << 8),
 
 	// Don't apply gravity (every tic), that is, object will float,
 	// keeping current height or changing it actively.
-	MF_NOGRAVITY = 512,
+	MF_NOGRAVITY = (1 << 9),
 
 	// Movement flags. This allows jumps from high places.
-	MF_DROPOFF = 0x400,
+	MF_DROPOFF = (1 << 10),
 
 	// For players, will pick up items.
-	MF_PICKUP = 0x800,
+	MF_PICKUP = (1 << 11),
 
 	// Object is not checked when moving, no clipping is used.
-	MF_NOCLIP = 0x1000,
+	MF_NOCLIP = (1 << 12),
 
 	// Player: keep info about sliding along walls.
-	MF_SLIDE = 0x2000,
+	MF_SLIDE = (1 << 13),
 
 	// Allow moves to any height, no gravity.
 	// For active floaters, e.g. cacodemons, pain elementals.
-	MF_FLOAT = 0x4000,
+	MF_FLOAT = (1 << 14),
 
 	// Instantly cross lines, whatever the height differences may be
 	// (e.g. go from the bottom of a cliff to the top).
 	// Note: nothing to do with teleporters.
-	MF_TELEPORT = 0x8000,
+	MF_TELEPORT = (1 << 15),
 
 	// Don't hit same species, explode on block.
 	// Player missiles as well as fireballs of various kinds.
-	MF_MISSILE = 0x10000,
+	MF_MISSILE = (1 << 16),
 
 	// Dropped by a demon, not level spawned.
 	// E.g. ammo clips dropped by dying former humans.
-	MF_DROPPED = 0x20000,
+	MF_DROPPED = (1 << 17),
 
 	// Use fuzzy draw (shadow demons or spectres),
 	// temporary player invisibility powerup.
-	MF_FUZZY = 0x40000,
+	MF_FUZZY = (1 << 18),
 
 	// Flag: don't bleed when shot (use puff),
 	// barrels and shootable furniture shall not bleed.
-	MF_NOBLOOD = 0x80000,
+	MF_NOBLOOD = (1 << 19),
 
 	// Don't stop moving halfway off a step,
 	// that is, have dead bodies slide down all the way.
-	MF_CORPSE = 0x100000,
+	MF_CORPSE = (1 << 20),
 
 	// Floating to a height for a move, ???
 	// don't auto float to target's height.
-	MF_INFLOAT = 0x200000,
+	MF_INFLOAT = (1 << 21),
 
 	// On kill, count this enemy object
 	// towards intermission kill total.
 	// Happy gathering.
-	MF_COUNTKILL = 0x400000,
+	MF_COUNTKILL = (1 << 22),
 
 	// On picking up, count this item object
 	// towards intermission item total.
-	MF_COUNTITEM = 0x800000,
+	MF_COUNTITEM = (1 << 23),
 
 	// Special handling: skull in flight.
 	// Neither a cacodemon nor a missile.
-	MF_SKULLFLY = 0x1000000,
+	MF_SKULLFLY = (1 << 24),
 
 	// Don't spawn this object
 	// in death match mode (e.g. key cards).
-	MF_NOTDMATCH = 0x2000000,
+	MF_NOTDMATCH = (1 << 25),
 
 	// Monster grows (in)visible at certain times.
-	MF_STEALTH = 0x4000000,
+	MF_STEALTH = (1 << 26),
 
-	MF_UNUSED_8000000 = 0x8000000, // was: JUSTPICKEDUP
+	// NO LONGER USED (1 << 27), // was: JUSTPICKEDUP
 
 	// Object reacts to being touched (often violently :->)
-	MF_TOUCHY = 0x10000000,
+	MF_TOUCHY = (1 << 28),
 }
 mobjflag_t;
 
@@ -151,83 +151,83 @@ typedef enum
 	EF_DISLOYALTYPE = (1 << 4),
 
 	// This thing can be hurt by another thing with same attack
-	EF_OWNATTACKHURTS = 32,
+	EF_OWNATTACKHURTS = (1 << 5),
 
 	// Used for tracing (homing) projectiles, its the first time
 	// this projectile has been checked for tracing if set.
-	EF_FIRSTCHECK = 64,
+	EF_FIRSTCHECK = (1 << 6),
 
-	EF_UNUSED_128 = 128,   // was: NOTRACE
+	// NO LONGER USED (1 << 7),  // was: NOTRACE
 
 	// double the chance of object using range attack
-	EF_TRIGGERHAPPY = 256,
+	EF_TRIGGERHAPPY = (1 << 8),
 
 	// not targeted by other monsters for damaging them
-	EF_NEVERTARGET = 512,
+	EF_NEVERTARGET = (1 << 9),
 
 	// Normally most monsters will follow a target which caused them
 	// damage for a length of time, even if another object inflicted
 	// pain upon them; with this enabled, they will not hold the grudge
 	// and switch targets to the other object that has caused them the
 	// more recent pain.
-	EF_NOGRUDGE = 1024,
+	EF_NOGRUDGE = (1 << 10),
 
-	EF_UNUSED_2048 = 2048,   // was: DUMMYMOBJ
+	// NO LONGER USED (1 << 11),  // was: DUMMYMOBJ
 
 	// Archvile cannot resurrect this monster
-	EF_NORESURRECT = 4096,
+	EF_NORESURRECT = (1 << 12),
 
 	// Object bounces
-	EF_BOUNCE = 8192,
+	EF_BOUNCE = (1 << 13),
 
 	// Thing walks along the edge near large dropoffs. 
-	EF_EDGEWALKER = 0x4000,
+	EF_EDGEWALKER = (1 << 14),
 
 	// Monster falls with gravity when walks over cliff. 
-	EF_GRAVFALL = 0x8000,
+	EF_GRAVFALL =  (1 << 15),
 
 	// Thing can be climbed on-top-of or over. 
-	EF_CLIMBABLE = 0x10000,
+	EF_CLIMBABLE = (1 << 16),
 
 	// Thing won't penetrate WATER extra floors. 
-	EF_WATERWALKER = 0x20000,
+	EF_WATERWALKER = (1 << 17),
 
 	// Thing is a monster. 
-	EF_MONSTER = 0x40000,
+	EF_MONSTER = (1 << 18),
 
 	// Thing can cross blocking lines.
-	EF_CROSSLINES = 0x80000,
+	EF_CROSSLINES = (1 << 19),
 
 	// Thing is never affected by friction
-	EF_NOFRICTION = 0x100000,
+	EF_NOFRICTION = (1 << 20),
 
 	// Thing is optional, won't exist when -noextra is used.
-	EF_EXTRA = 0x200000,
+	EF_EXTRA = (1 << 21),
 
 	// Just bounced, won't enter bounce states until BOUNCE_REARM.
-	EF_JUSTBOUNCED = 0x400000,
+	EF_JUSTBOUNCED = (1 << 22),
 
 	// Thing can be "used" (like linedefs) with the spacebar.  Thing
 	// will then enter its TOUCH_STATES (when they exist).
-	EF_USABLE = 0x800000,
+	EF_USABLE = (1 << 23),
 
 	// Thing will block bullets and missiles.  -AJA- 2000/09/29
-	EF_BLOCKSHOTS = 0x1000000,
+	EF_BLOCKSHOTS = (1 << 24),
 
 	// Player is currently crouching.  -AJA- 2000/10/19
-	EF_CROUCHING = 0x2000000,
+	EF_CROUCHING = (1 << 25),
 
 	// Missile can tunnel through enemies.  -AJA- 2000/10/23
-	EF_TUNNEL = 0x4000000,
+	EF_TUNNEL = (1 << 26),
 
-	EF_UNUSED_8000000 = 0x8000000,   // was: DLIGHT
+	// NO LONGER USED (1 << 27),  // was: DLIGHT
 
 	// Thing has been gibbed.
-	EF_GIBBED = 0x10000000,
+	EF_GIBBED = (1 << 28),
 
 	// -AJA- 2004/07/22: play the monster sounds at full volume
 	// (separated out from the BOSSMAN flag).
-	EF_ALWAYSLOUD = 0x20000000
+	EF_ALWAYSLOUD = (1 << 29),
 }
 mobjextendedflag_t;
 
@@ -251,16 +251,16 @@ typedef enum
 	HF_NOZBUFFER = (1 << 4),
 
 	// -AJA- 2005/05/15: the sprite hovers up and down
-	HF_HOVER = 32,
+	HF_HOVER = (1 << 5),
 
 	// -AJA- 2006/08/17: object can be pushed (wind/current/point)
-	HF_PUSHABLE = 64,
+	HF_PUSHABLE = (1 << 6),
 
 	// -AJA- 2006/08/17: used by MT_PUSH and MT_PULL objects
-	HF_POINT_FORCE = 128,
+	HF_POINT_FORCE = (1 << 7),
 
 	// -AJA- 2006/10/19: scenery items don't block missiles
-	HF_PASSMISSILE = 256,
+	HF_PASSMISSILE = (1 << 8),
 }
 mobjhyperflag_t;
 
