@@ -12,6 +12,9 @@ similar to DROPITEM but does not clear the SOLID special,
 does not let the item respawn, and keeps the same angle
 and side as the spawner object.
 
+Implemented the MBF "A_Spawn" code pointer in DEH_EDGE.
+Trouble is, I cannot find any mods to test with!
+
 2007/11/02:
 
 Fixed PLAYSOUND console command to not fatal error when the
