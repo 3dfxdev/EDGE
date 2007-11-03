@@ -809,6 +809,9 @@ void P_KillMobj(mobj_t * source, mobj_t * target, const damage_c *damtype,
 void P_ThrustMobj(mobj_t * target, mobj_t * inflictor, float thrust)
 {
 	// check for immunity against the attack
+	if (target->hyperflags & HF_INVULNERABLE)
+		return;
+
 	if (inflictor && inflictor->currentattack && BITSET_EMPTY ==
 		(inflictor->currentattack->attack_class & ~target->info->immunity))
 	{
@@ -878,6 +881,9 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor, mobj_t * source,
 		return;
 
 	// check for immunity against the attack
+	if (target->hyperflags & HF_INVULNERABLE)
+		return;
+
 	if (inflictor && inflictor->currentattack && BITSET_EMPTY ==
 		(inflictor->currentattack->attack_class & ~target->info->immunity))
 	{

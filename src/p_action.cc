@@ -1414,6 +1414,9 @@ int P_MissileContact(mobj_t * object, mobj_t * objecthit)
 	}
 
 	// check for immunity against the attack
+	if (object->hyperflags & HF_INVULNERABLE)
+		return 0;
+
 	if (object->currentattack && BITSET_EMPTY ==
 		(object->currentattack->attack_class & ~objecthit->info->immunity))
 	{
@@ -1521,6 +1524,9 @@ int P_BulletContact(mobj_t * source, mobj_t * objecthit,
 	}
 
 	// check for immunity against the attack
+	if (objecthit->hyperflags & HF_INVULNERABLE)
+		return 0;
+
 	if (source->currentattack && BITSET_EMPTY ==
 		(source->currentattack->attack_class & ~objecthit->info->immunity))
 	{
@@ -1904,10 +1910,11 @@ static void SprayAttack(mobj_t * mo)
 		ball->SetTarget(mo->target);
 
 		// check for immunity against the attack
+		if (target->hyperflags & HF_INVULNERABLE)
+			continue;
+
 		if (BITSET_EMPTY == (attack->attack_class & ~target->info->immunity))
-		{
-			return;
-		}
+			continue;
 
 		float damage;
 		DAMAGE_COMPUTE(damage, &attack->damage);
