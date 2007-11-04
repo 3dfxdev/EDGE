@@ -44,8 +44,8 @@ extern int bmap_height;
 extern float bmap_orgx;  // origin of block map
 extern float bmap_orgy;
 
-extern mobj_t **blocklinks;   // for thing chains
-extern mobj_t **blocklights;  // for dynamic lights
+///--- extern mobj_t **blocklinks;   // for thing chains
+///--- extern mobj_t **blocklights;  // for dynamic lights
 
 #define BLOCKMAP_GET_X(x)  ((int) ((x) - bmap_orgx) / BLOCKMAP_UNIT)
 #define BLOCKMAP_GET_Y(y)  ((int) ((y) - bmap_orgy) / BLOCKMAP_UNIT)

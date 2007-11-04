@@ -306,11 +306,10 @@ int use_dlights = 0;
 int doom_fading = 1;
 
 
-//
-// R2_FindDLights
-//
 static void R2_FindDLights(subsector_t *sub, drawfloor_t *dfloor)
 {
+#if 0  // TEMPORARY DISABLED
+
 	//!!!!!
 	float max_dlight_radius = 4*200.0f; // (use_dlights == 1) ? 300.0f : 200.0f;
 
@@ -358,6 +357,8 @@ static void R2_FindDLights(subsector_t *sub, drawfloor_t *dfloor)
 				  mo->dlight.shader = MakeDLightShader(mo);
 		}
 	}
+#endif
+
 }
 
 // ============================================================================

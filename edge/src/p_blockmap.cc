@@ -65,32 +65,40 @@ float bmap_orgx;
 float bmap_orgy;
 
 // for thing chains
-mobj_t **blocklinks = NULL;
+mobj_t **bmap_things = NULL;
 
 // for dynamic lights
 int lmap_width;
 int lmap_height;
-mobj_t **blocklights = NULL;
+
+mobj_t **lmap_dlights = NULL;
 
 
 void P_CreateThingBlockMap(void)
 {
-	blocklinks  = new mobj_t* [bmap_width * bmap_height];
+	bmap_things  = new mobj_t* [bmap_width * bmap_height];
 
-	Z_Clear(blocklinks,  mobj_t*, bmap_width * bmap_height);
+	Z_Clear(bmap_things,  mobj_t*, bmap_width * bmap_height);
 
-	blocklights = new mobj_t* [bmap_width * bmap_height];
+	// compute size of dynamic light blockmap
+	lmap_width  = (bmap_width  * BLOCKMAP_UNIT + LIGHTMAP_UNIT-1) / LIGHTMAP_UNIT;
+	lmap_height = (bmap_height * BLOCKMAP_UNIT + LIGHTMAP_UNIT-1) / LIGHTMAP_UNIT;
 
-	Z_Clear(blocklights, mobj_t*, bmap_width * bmap_height);
+	I_Debugf("Blockmap size: %dx%d --> Lightmap size: %dx%x\n",
+			 bmap_width, bmap_height, lmap_width, lmap_height);
+
+	lmap_dlights = new mobj_t* [lmap_width * lmap_height];
+
+	Z_Clear(lmap_dlights, mobj_t*, lmap_width * lmap_height);
 }
 
 void P_DestroyBlockMap(void)
 {
 	delete[] bmap_lines;    bmap_lines  = NULL;
 	delete[] bmap_pointers; bmap_pointers = NULL;
+	delete[] bmap_things;   bmap_things = NULL;
 
-	delete[] blocklinks;    blocklinks  = NULL;
-	delete[] blocklights;   blocklights = NULL;
+	delete[] lmap_dlights;  lmap_dlights = NULL;
 }
 
 
@@ -389,10 +397,10 @@ void P_UnsetThingPosition(mobj_t * thing)
 			{
 				bnum = blocky * bmap_width + blockx;
 #ifdef DEVELOPERS
-				if (blocklinks[bnum] != thing)
+				if (bmap_things[bnum] != thing)
 					I_Error("INTERNAL ERROR: Bad block link (HEAD) in thing.\n");
 #endif
-				blocklinks[bnum] = thing->bnext;
+				bmap_things[bnum] = thing->bnext;
 			}
 		}
 
@@ -416,16 +424,16 @@ void P_UnsetThingPosition(mobj_t * thing)
 		}
 		else
 		{
-			blockx = BLOCKMAP_GET_X(thing->x);
-			blocky = BLOCKMAP_GET_Y(thing->y);
+			blockx = LIGHTMAP_GET_X(thing->x);
+			blocky = LIGHTMAP_GET_Y(thing->y);
 
-			if (blockx >= 0 && blockx < bmap_width &&
-				blocky >= 0 && blocky < bmap_height)
+			if (blockx >= 0 && blockx < lmap_width &&
+				blocky >= 0 && blocky < lmap_height)
 			{
-				bnum = blocky * bmap_width + blockx;
+				bnum = blocky * lmap_width + blockx;
 
-				SYS_ASSERT(blocklights[bnum] == thing);
-				blocklights[bnum] = thing->dlnext;
+				SYS_ASSERT(lmap_dlights[bnum] == thing);
+				lmap_dlights[bnum] = thing->dlnext;
 			}
 		}
 
@@ -566,12 +574,12 @@ void P_SetThingPosition(mobj_t * thing)
 			bnum = blocky * bmap_width + blockx;
 
 			thing->bprev = NULL;
-			thing->bnext = blocklinks[bnum];
+			thing->bnext = bmap_things[bnum];
 
-			if (blocklinks[bnum])
-				(blocklinks[bnum])->bprev = thing;
+			if (bmap_things[bnum])
+				(bmap_things[bnum])->bprev = thing;
 
-			blocklinks[bnum] = thing;
+			bmap_things[bnum] = thing;
 		}
 		else
 		{
@@ -583,21 +591,21 @@ void P_SetThingPosition(mobj_t * thing)
 	// link into dynamic light blockmap
 	if (thing->info && (thing->info->dlight[0].type != DLITE_None))
 	{
-		blockx = BLOCKMAP_GET_X(thing->x);
-		blocky = BLOCKMAP_GET_Y(thing->y);
+		blockx = LIGHTMAP_GET_X(thing->x);
+		blocky = LIGHTMAP_GET_Y(thing->y);
 
-		if (blockx >= 0 && blockx < bmap_width &&
-			blocky >= 0 && blocky < bmap_height)
+		if (blockx >= 0 && blockx < lmap_width &&
+			blocky >= 0 && blocky < lmap_height)
 		{
-			bnum = blocky * bmap_width + blockx;
+			bnum = blocky * lmap_width + blockx;
 
 			thing->dlprev = NULL;
-			thing->dlnext = blocklights[bnum];
+			thing->dlnext = lmap_dlights[bnum];
 
-			if (blocklights[bnum])
-				(blocklights[bnum])->dlprev = thing;
+			if (lmap_dlights[bnum])
+				(lmap_dlights[bnum])->dlprev = thing;
 
-			blocklights[bnum] = thing;
+			lmap_dlights[bnum] = thing;
 		}
 		else
 		{
@@ -697,7 +705,7 @@ bool P_BlockThingsIterator(int x, int y, bool(*func) (mobj_t *))
 	if (x < 0 || y < 0 || x >= bmap_width || y >= bmap_height)
 		return true;
 
-	for (mobj = blocklinks[y * bmap_width + x]; mobj; mobj = mobj->bnext)
+	for (mobj = bmap_things[y * bmap_width + x]; mobj; mobj = mobj->bnext)
 	{
 		if (!func(mobj))
 			return false;
