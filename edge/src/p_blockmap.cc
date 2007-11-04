@@ -51,8 +51,8 @@
 //
 // Blockmap size.
 // 23-6-98 KM Promotion of short * to int *
-int bmapwidth;
-int bmapheight;  // size in mapblocks
+int bmap_width;
+int bmap_height;  // size in mapblocks
 
 unsigned short *  bmap_lines = NULL; 
 unsigned short ** bmap_pointers = NULL;
@@ -61,25 +61,27 @@ unsigned short ** bmap_pointers = NULL;
 int *blockmaplump = NULL;
 
 // origin of block map
-float bmaporgx;
-float bmaporgy;
+float bmap_orgx;
+float bmap_orgy;
 
 // for thing chains
 mobj_t **blocklinks = NULL;
 
 // for dynamic lights
+int lmap_width;
+int lmap_height;
 mobj_t **blocklights = NULL;
 
 
 void P_CreateThingBlockMap(void)
 {
-	blocklinks  = new mobj_t* [bmapwidth * bmapheight];
+	blocklinks  = new mobj_t* [bmap_width * bmap_height];
 
-	Z_Clear(blocklinks,  mobj_t*, bmapwidth * bmapheight);
+	Z_Clear(blocklinks,  mobj_t*, bmap_width * bmap_height);
 
-	blocklights = new mobj_t* [bmapwidth * bmapheight];
+	blocklights = new mobj_t* [bmap_width * bmap_height];
 
-	Z_Clear(blocklights, mobj_t*, bmapwidth * bmapheight);
+	Z_Clear(blocklights, mobj_t*, bmap_width * bmap_height);
 }
 
 void P_DestroyBlockMap(void)
@@ -382,10 +384,10 @@ void P_UnsetThingPosition(mobj_t * thing)
 			blockx = BLOCKMAP_GET_X(thing->x);
 			blocky = BLOCKMAP_GET_Y(thing->y);
 
-			if (blockx >= 0 && blockx < bmapwidth &&
-				blocky >= 0 && blocky < bmapheight)
+			if (blockx >= 0 && blockx < bmap_width &&
+				blocky >= 0 && blocky < bmap_height)
 			{
-				bnum = blocky * bmapwidth + blockx;
+				bnum = blocky * bmap_width + blockx;
 #ifdef DEVELOPERS
 				if (blocklinks[bnum] != thing)
 					I_Error("INTERNAL ERROR: Bad block link (HEAD) in thing.\n");
@@ -417,10 +419,10 @@ void P_UnsetThingPosition(mobj_t * thing)
 			blockx = BLOCKMAP_GET_X(thing->x);
 			blocky = BLOCKMAP_GET_Y(thing->y);
 
-			if (blockx >= 0 && blockx < bmapwidth &&
-				blocky >= 0 && blocky < bmapheight)
+			if (blockx >= 0 && blockx < bmap_width &&
+				blocky >= 0 && blocky < bmap_height)
 			{
-				bnum = blocky * bmapwidth + blockx;
+				bnum = blocky * bmap_width + blockx;
 
 				SYS_ASSERT(blocklights[bnum] == thing);
 				blocklights[bnum] = thing->dlnext;
@@ -558,10 +560,10 @@ void P_SetThingPosition(mobj_t * thing)
 		blockx = BLOCKMAP_GET_X(thing->x);
 		blocky = BLOCKMAP_GET_Y(thing->y);
 
-		if (blockx >= 0 && blockx < bmapwidth &&
-			blocky >= 0 && blocky < bmapheight)
+		if (blockx >= 0 && blockx < bmap_width &&
+			blocky >= 0 && blocky < bmap_height)
 		{
-			bnum = blocky * bmapwidth + blockx;
+			bnum = blocky * bmap_width + blockx;
 
 			thing->bprev = NULL;
 			thing->bnext = blocklinks[bnum];
@@ -584,10 +586,10 @@ void P_SetThingPosition(mobj_t * thing)
 		blockx = BLOCKMAP_GET_X(thing->x);
 		blocky = BLOCKMAP_GET_Y(thing->y);
 
-		if (blockx >= 0 && blockx < bmapwidth &&
-			blocky >= 0 && blocky < bmapheight)
+		if (blockx >= 0 && blockx < bmap_width &&
+			blocky >= 0 && blocky < bmap_height)
 		{
-			bnum = blocky * bmapwidth + blockx;
+			bnum = blocky * bmap_width + blockx;
 
 			thing->dlprev = NULL;
 			thing->dlnext = blocklights[bnum];
@@ -664,10 +666,10 @@ bool P_BlockLinesIterator (int x, int y, bool(*func) (line_t *))
 	unsigned short *list;
 	line_t *ld;
 
-	if (x < 0 || y < 0 || x >= bmapwidth || y >= bmapheight)
+	if (x < 0 || y < 0 || x >= bmap_width || y >= bmap_height)
 		return true;
 
-	list = bmap_pointers[y * bmapwidth + x];
+	list = bmap_pointers[y * bmap_width + x];
 
 	for (; *list != BMAP_END; list++)
 	{
@@ -692,10 +694,10 @@ bool P_BlockThingsIterator(int x, int y, bool(*func) (mobj_t *))
 {
 	mobj_t *mobj;
 
-	if (x < 0 || y < 0 || x >= bmapwidth || y >= bmapheight)
+	if (x < 0 || y < 0 || x >= bmap_width || y >= bmap_height)
 		return true;
 
-	for (mobj = blocklinks[y * bmapwidth + x]; mobj; mobj = mobj->bnext)
+	for (mobj = blocklinks[y * bmap_width + x]; mobj; mobj = mobj->bnext)
 	{
 		if (!func(mobj))
 			return false;
@@ -937,10 +939,10 @@ bool P_PathTraverse(float x1, float y1, float x2, float y2,
 	intercepts.clear();
 
 	// don't side exactly on a line
-	if (fmod(x1 - bmaporgx, BLOCKMAP_UNIT) == 0)
+	if (fmod(x1 - bmap_orgx, BLOCKMAP_UNIT) == 0)
 		x1 += 0.1f;
 
-	if (fmod(y1 - bmaporgy, BLOCKMAP_UNIT) == 0)
+	if (fmod(y1 - bmap_orgy, BLOCKMAP_UNIT) == 0)
 		y1 += 0.1f;
 
 	trace.x = x1;
@@ -948,10 +950,10 @@ bool P_PathTraverse(float x1, float y1, float x2, float y2,
 	trace.dx = x2 - x1;
 	trace.dy = y2 - y1;
 
-	x1 -= bmaporgx;
-	y1 -= bmaporgy;
-	x2 -= bmaporgx;
-	y2 -= bmaporgy;
+	x1 -= bmap_orgx;
+	y1 -= bmap_orgy;
+	x2 -= bmap_orgx;
+	y2 -= bmap_orgy;
 
 	int bx1 = (int)(x1 / BLOCKMAP_UNIT);
 	int by1 = (int)(y1 / BLOCKMAP_UNIT);
@@ -1094,7 +1096,7 @@ static void BlockAdd(int bnum, unsigned short line_num)
 	unsigned short *cur = blk_cur_lines[bnum];
 
 	SYS_ASSERT(bnum >= 0);
-	SYS_ASSERT(bnum < (bmapwidth * bmapheight));
+	SYS_ASSERT(bnum < (bmap_width * bmap_height));
 
 	if (! cur)
 	{
@@ -1140,10 +1142,10 @@ static void BlockAddLine(int line_num)
 
 	float slope;
 
-	x0 = (int)(ld->v1->x - bmaporgx);
-	y0 = (int)(ld->v1->y - bmaporgy);
-	x1 = (int)(ld->v2->x - bmaporgx);
-	y1 = (int)(ld->v2->y - bmaporgy);
+	x0 = (int)(ld->v1->x - bmap_orgx);
+	y0 = (int)(ld->v1->y - bmap_orgy);
+	x1 = (int)(ld->v2->x - bmap_orgx);
+	y1 = (int)(ld->v2->y - bmap_orgy);
 
 	// swap endpoints if horizontally backward
 	if (x1 < x0)
@@ -1154,10 +1156,10 @@ static void BlockAddLine(int line_num)
 		temp = y0; y0 = y1; y1 = temp;
 	}
 
-	SYS_ASSERT(0 <= x0 && (x0 / BLOCKMAP_UNIT) < bmapwidth);
-	SYS_ASSERT(0 <= y0 && (y0 / BLOCKMAP_UNIT) < bmapheight);
-	SYS_ASSERT(0 <= x1 && (x1 / BLOCKMAP_UNIT) < bmapwidth);
-	SYS_ASSERT(0 <= y1 && (y1 / BLOCKMAP_UNIT) < bmapheight);
+	SYS_ASSERT(0 <= x0 && (x0 / BLOCKMAP_UNIT) < bmap_width);
+	SYS_ASSERT(0 <= y0 && (y0 / BLOCKMAP_UNIT) < bmap_height);
+	SYS_ASSERT(0 <= x1 && (x1 / BLOCKMAP_UNIT) < bmap_width);
+	SYS_ASSERT(0 <= y1 && (y1 / BLOCKMAP_UNIT) < bmap_height);
 
 	// check if this line spans multiple blocks.
 
@@ -1168,7 +1170,7 @@ static void BlockAddLine(int line_num)
 
 	// handle the simple cases: same column or same row
 
-	blocknum = (y0 / BLOCKMAP_UNIT) * bmapwidth + (x0 / BLOCKMAP_UNIT);
+	blocknum = (y0 / BLOCKMAP_UNIT) * bmap_width + (x0 / BLOCKMAP_UNIT);
 
 	if (y_dist == 0)
 	{
@@ -1180,7 +1182,7 @@ static void BlockAddLine(int line_num)
 
 	if (x_dist == 0)
 	{
-		for (i=0; i <= y_dist; i++, blocknum += y_sign * bmapwidth)
+		for (i=0; i <= y_dist; i++, blocknum += y_sign * bmap_width)
 			BlockAdd(blocknum, line_num);
 
 		return;
@@ -1208,7 +1210,7 @@ static void BlockAddLine(int line_num)
 
 		for (j=0; j <= y_dist; j++)
 		{
-			blocknum = (sy / 128 + j * y_sign) * bmapwidth + (sx / 128);
+			blocknum = (sy / 128 + j * y_sign) * bmap_width + (sx / 128);
 
 			BlockAdd(blocknum, line_num);
 		}
@@ -1222,17 +1224,17 @@ void P_GenerateBlockMap(int min_x, int min_y, int max_x, int max_y)
 	int bnum, btotal;
 	unsigned short *b_pos;
 
-	bmaporgx = min_x - 8;
-	bmaporgy = min_y - 8;
-	bmapwidth  = BLOCKMAP_GET_X(max_x) + 1;
-	bmapheight = BLOCKMAP_GET_Y(max_y) + 1;
+	bmap_orgx = min_x - 8;
+	bmap_orgy = min_y - 8;
+	bmap_width  = BLOCKMAP_GET_X(max_x) + 1;
+	bmap_height = BLOCKMAP_GET_Y(max_y) + 1;
 
-	btotal = bmapwidth * bmapheight;
+	btotal = bmap_width * bmap_height;
 
 	L_WriteDebug("GenerateBlockmap: MAP (%d,%d) -> (%d,%d)\n",
 		min_x, min_y, max_x, max_y);
 	L_WriteDebug("GenerateBlockmap: BLOCKS %d x %d  TOTAL %d\n",
-		bmapwidth, bmapheight, btotal);
+		bmap_width, bmap_height, btotal);
 
 	// setup blk_cur_lines array.  Initially all pointers are NULL, when
 	// any lines get added then the dynamic array is created.
