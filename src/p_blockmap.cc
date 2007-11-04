@@ -39,6 +39,12 @@
 #include "r_state.h"
 #include "z_zone.h"
 
+
+class abstract_shader_c;
+
+extern abstract_shader_c *MakeDLightShader(mobj_t *mo);
+
+
 #define MAXRADIUS  128.0
 
 // BLOCKMAP
@@ -769,6 +775,10 @@ void P_DynamicLightIterator(float x1, float y1, float x2, float y2, void (*func)
 			    mo->y + r < y1 || mo->y - r > y2)
 				continue;
 			
+			// create shader if necessary
+			if (! mo->dlight.shader)
+				  mo->dlight.shader = MakeDLightShader(mo);
+
 			func(mo);
 		}
 	}
