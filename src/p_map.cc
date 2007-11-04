@@ -62,6 +62,8 @@ typedef struct try_move_info_s
 	// attempted destination
 	float x, y, z;
 
+	float bbox[4];
+
 	// --- output ---
 
 	subsector_t *sub;
@@ -236,7 +238,7 @@ bool P_TeleportMove(mobj_t * thing, float x, float y, float z)
 
 static bool PIT_CheckAbsLine(line_t * ld, void *data)
 {
-	if (P_ThingOnLineSide(tm_I.mover, ld) != -1)
+	if (P_BoxOnLineSide(tm_I.bbox, ld) != -1)
 		return true;
 
 	// The spawning thing's position touches the given line.
@@ -378,9 +380,14 @@ bool P_CheckAbsPosition(mobj_t * thing, float x, float y, float z)
 
 	tm_I.sub = R_PointInSubsector(x, y);
 
-	// check things first.
-
 	float r = tm_I.mover->radius;
+
+	tm_I.bbox[BOXLEFT]   = x - r;
+	tm_I.bbox[BOXBOTTOM] = y - r;
+	tm_I.bbox[BOXRIGHT]  = x + r;
+	tm_I.bbox[BOXTOP]    = y + r;
+
+	// check things first.
 
 	if (! P_BlockThingsIterator(x-r, y-r, x+r, y+r, PIT_CheckAbsThing))
 		return false;
@@ -402,7 +409,7 @@ static bool PIT_CheckRelLine(line_t * ld, void *data)
 {
 	// Adjusts tm_I.floorz & tm_I.ceilnz as lines are contacted
 
-	if (P_ThingOnLineSide(tm_I.mover, ld) != -1)
+	if (P_BoxOnLineSide(tm_I.bbox, ld) != -1)
 		return true;
 
 	// A line has been hit
@@ -722,6 +729,13 @@ static bool P_CheckRelPosition(mobj_t * thing, float x, float y)
 
 	tm_I.sub = R_PointInSubsector(x, y);
 
+	float r = tm_I.mover->radius;
+
+	tm_I.bbox[BOXLEFT]   = x - r;
+	tm_I.bbox[BOXBOTTOM] = y - r;
+	tm_I.bbox[BOXRIGHT]  = x + r;
+	tm_I.bbox[BOXTOP]    = y + r;
+
 	// The base floor / ceiling is from the sector that contains the
 	// point.  Any contacted lines the step closer together will adjust them.
 	// -AJA- 1999/07/19: Extra floor support.
@@ -737,8 +751,6 @@ static bool P_CheckRelPosition(mobj_t * thing, float x, float y)
 		return true;
 
 	spechit.ZeroiseCount();
-
-	float r = tm_I.mover->radius;
 
 	// -KM- 1998/11/25 Corpses aren't supposed to hang in the air...
 	if (! (tm_I.flags & (MF_NOCLIP | MF_CORPSE)))
@@ -993,7 +1005,7 @@ static bool PTR_SlideTraverse(intercept_t * in, void *dataptr)
 	if (! (ld->flags & MLF_TwoSided))
 	{
 		// hit the back side ?
-		if (PointOnLineSide(slidemo->x, slidemo->y, ld))
+		if (PointOnLineSide(slidemo->x, slidemo->y, ld) != 0)
 			return true;
 	}
 
