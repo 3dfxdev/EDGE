@@ -1,5 +1,12 @@
 Andrew Apted's Log
 
+2007/11/04:
+
+Reworked blockmap code for dynamic lights, using a block-size
+roughly equal to the largest allowed dlight (768 units).
+That paves the way to using the map directly when rendering
+dynamic lights (instead of creating lists of them).
+
 2007/11/03:
 
 Added code to blur the center of the top face of the
