@@ -68,10 +68,10 @@ float bmap_orgy;
 mobj_t **bmap_things = NULL;
 
 // for dynamic lights
-int lmap_width;
-int lmap_height;
+int dlmap_width;
+int dlmap_height;
 
-mobj_t **lmap_dlights = NULL;
+mobj_t **dlmap_things = NULL;
 
 
 void P_CreateThingBlockMap(void)
@@ -81,15 +81,15 @@ void P_CreateThingBlockMap(void)
 	Z_Clear(bmap_things,  mobj_t*, bmap_width * bmap_height);
 
 	// compute size of dynamic light blockmap
-	lmap_width  = (bmap_width  * BLOCKMAP_UNIT + LIGHTMAP_UNIT-1) / LIGHTMAP_UNIT;
-	lmap_height = (bmap_height * BLOCKMAP_UNIT + LIGHTMAP_UNIT-1) / LIGHTMAP_UNIT;
+	dlmap_width  = (bmap_width  * BLOCKMAP_UNIT + LIGHTMAP_UNIT-1) / LIGHTMAP_UNIT;
+	dlmap_height = (bmap_height * BLOCKMAP_UNIT + LIGHTMAP_UNIT-1) / LIGHTMAP_UNIT;
 
 	I_Debugf("Blockmap size: %dx%d --> Lightmap size: %dx%x\n",
-			 bmap_width, bmap_height, lmap_width, lmap_height);
+			 bmap_width, bmap_height, dlmap_width, dlmap_height);
 
-	lmap_dlights = new mobj_t* [lmap_width * lmap_height];
+	dlmap_things = new mobj_t* [dlmap_width * dlmap_height];
 
-	Z_Clear(lmap_dlights, mobj_t*, lmap_width * lmap_height);
+	Z_Clear(dlmap_things, mobj_t*, dlmap_width * dlmap_height);
 }
 
 void P_DestroyBlockMap(void)
@@ -98,7 +98,7 @@ void P_DestroyBlockMap(void)
 	delete[] bmap_pointers; bmap_pointers = NULL;
 	delete[] bmap_things;   bmap_things = NULL;
 
-	delete[] lmap_dlights;  lmap_dlights = NULL;
+	delete[] dlmap_things;  dlmap_things = NULL;
 }
 
 
@@ -427,13 +427,13 @@ void P_UnsetThingPosition(mobj_t * thing)
 			blockx = LIGHTMAP_GET_X(thing->x);
 			blocky = LIGHTMAP_GET_Y(thing->y);
 
-			if (blockx >= 0 && blockx < lmap_width &&
-				blocky >= 0 && blocky < lmap_height)
+			if (blockx >= 0 && blockx < dlmap_width &&
+				blocky >= 0 && blocky < dlmap_height)
 			{
-				bnum = blocky * lmap_width + blockx;
+				bnum = blocky * dlmap_width + blockx;
 
-				SYS_ASSERT(lmap_dlights[bnum] == thing);
-				lmap_dlights[bnum] = thing->dlnext;
+				SYS_ASSERT(dlmap_things[bnum] == thing);
+				dlmap_things[bnum] = thing->dlnext;
 			}
 		}
 
@@ -594,18 +594,18 @@ void P_SetThingPosition(mobj_t * thing)
 		blockx = LIGHTMAP_GET_X(thing->x);
 		blocky = LIGHTMAP_GET_Y(thing->y);
 
-		if (blockx >= 0 && blockx < lmap_width &&
-			blocky >= 0 && blocky < lmap_height)
+		if (blockx >= 0 && blockx < dlmap_width &&
+			blocky >= 0 && blocky < dlmap_height)
 		{
-			bnum = blocky * lmap_width + blockx;
+			bnum = blocky * dlmap_width + blockx;
 
 			thing->dlprev = NULL;
-			thing->dlnext = lmap_dlights[bnum];
+			thing->dlnext = dlmap_things[bnum];
 
-			if (lmap_dlights[bnum])
-				(lmap_dlights[bnum])->dlprev = thing;
+			if (dlmap_things[bnum])
+				(dlmap_things[bnum])->dlprev = thing;
 
-			lmap_dlights[bnum] = thing;
+			dlmap_things[bnum] = thing;
 		}
 		else
 		{
@@ -666,22 +666,16 @@ void P_FreeSectorTouchNodes(sector_t *sec)
 // to P_BlockLinesIterator, then make one or more calls
 // to it.
 //
-// 23-6-98 KM Changed to reflect blockmap is now int* not short*
-// -AJA- 2000/07/31: line data changed back to shorts.
-//
 bool P_BlockLinesIterator (int x, int y, bool(*func) (line_t *))
 {
-	unsigned short *list;
-	line_t *ld;
-
 	if (x < 0 || y < 0 || x >= bmap_width || y >= bmap_height)
 		return true;
 
-	list = bmap_pointers[y * bmap_width + x];
+	unsigned short *list = bmap_pointers[y * bmap_width + x];
 
 	for (; *list != BMAP_END; list++)
 	{
-		ld = &lines[*list];
+		line_t *ld = &lines[*list];
 
 		// has line already been checked ?
 		if (ld->validcount == validcount)
@@ -700,25 +694,21 @@ bool P_BlockLinesIterator (int x, int y, bool(*func) (line_t *))
 
 bool P_BlockThingsIterator(int x, int y, bool(*func) (mobj_t *))
 {
-	mobj_t *mobj;
-
 	if (x < 0 || y < 0 || x >= bmap_width || y >= bmap_height)
 		return true;
 
-	for (mobj = bmap_things[y * bmap_width + x]; mobj; mobj = mobj->bnext)
+	for (mobj_t *mo = bmap_things[y * bmap_width + x]; mo; mo = mo->bnext)
 	{
-		if (!func(mobj))
+		if (!func(mo))
 			return false;
 	}
 
 	return true;
 }
 
-bool P_RadiusThingsIterator(float x, float y, float r, bool(*func) (mobj_t *))
-{
-	int bx, by;
-	int xl, xh, yl, yh;
 
+bool P_RadiusThingsIterator(float x, float y, float r, bool (*func)(mobj_t *))
+{
 	// The bounding box is extended by MAXRADIUS
 	// because mobj_ts are grouped into mapblocks
 	// based on their origin point, and can overlap
@@ -727,19 +717,48 @@ bool P_RadiusThingsIterator(float x, float y, float r, bool(*func) (mobj_t *))
 	// -AJA- 2006/11/15: restored this (was broken for a long time!).
 	r += MAXRADIUS;
 
-	xl = BLOCKMAP_GET_X(x - r);
-	xh = BLOCKMAP_GET_X(x + r);
-	yl = BLOCKMAP_GET_Y(y - r);
-	yh = BLOCKMAP_GET_Y(y + r);
+	int lx = BLOCKMAP_GET_X(x - r);
+	int ly = BLOCKMAP_GET_Y(y - r);
 
-	for (by = yl; by <= yh; by++)
-	for (bx = xl; bx <= xh; bx++)
+	int hx = BLOCKMAP_GET_X(x + r);
+	int hy = BLOCKMAP_GET_Y(y + r);
+
+	lx = MAX(0, lx);  hx = MIN(bmap_width-1,  hx);
+	ly = MAX(0, ly);  hy = MIN(bmap_height-1, hy);
+
+	for (int by = ly; by <= hy; by++)
+	for (int bx = lx; bx <= hx; bx++)
 	{
-		if (! P_BlockThingsIterator(bx, by, func))
-			return false;
+		for (mobj_t *mo = bmap_things[by * bmap_width + bx]; mo; mo = mo->bnext)
+		{
+			if (! func(mo))
+				return false;
+		}
 	}
 
 	return true;
+}
+
+
+void P_DynamicLightIterator(float x1, float y1, float x2, float y2, void (*func)(mobj_t *))
+{
+	int lx = LIGHTMAP_GET_X(x1) - 1;
+	int ly = LIGHTMAP_GET_Y(y1) - 1;
+
+	int hx = LIGHTMAP_GET_X(x2) + 1;
+	int hy = LIGHTMAP_GET_Y(y2) + 1;
+
+	lx = MAX(0, lx);  hx = MIN(dlmap_width-1,  hx);
+	ly = MAX(0, ly);  hy = MIN(dlmap_height-1, hy);
+
+	for (int by = ly; by <= hy; by++)
+	for (int bx = lx; bx <= hx; bx++)
+	{
+		for (mobj_t *mo = dlmap_things[by * dlmap_width + bx]; mo; mo = mo->dlnext)
+		{
+			func(mo);
+		}
+	}
 }
 
 
