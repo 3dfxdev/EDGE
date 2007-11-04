@@ -672,25 +672,37 @@ void P_FreeSectorTouchNodes(sector_t *sec)
 // to P_BlockLinesIterator, then make one or more calls
 // to it.
 //
-bool P_BlockLinesIterator (int x, int y, bool(*func) (line_t *))
+bool P_BlockLinesIterator(float x1, float y1, float x2, float y2,
+		                  bool(* func)(line_t *, void *), void *data)
 {
-	if (x < 0 || y < 0 || x >= bmap_width || y >= bmap_height)
-		return true;
+	validcount++;
 
-	unsigned short *list = bmap_pointers[y * bmap_width + x];
+	int lx = BLOCKMAP_GET_X(x1);
+	int ly = BLOCKMAP_GET_Y(y1);
+	int hx = BLOCKMAP_GET_X(x2);
+	int hy = BLOCKMAP_GET_Y(y2);
 
-	for (; *list != BMAP_END; list++)
+	lx = MAX(0, lx);  hx = MIN(bmap_width-1,  hx);
+	ly = MAX(0, ly);  hy = MIN(bmap_height-1, hy);
+
+	for (int by = ly; by <= hy; by++)
+	for (int bx = lx; bx <= hx; bx++)
 	{
-		line_t *ld = &lines[*list];
+		unsigned short *list = bmap_pointers[by * bmap_width + bx];
 
-		// has line already been checked ?
-		if (ld->validcount == validcount)
-			continue;
+		for (; *list != BMAP_END; list++)
+		{
+			line_t *ld = &lines[*list];
 
-		ld->validcount = validcount;
+			// has line already been checked ?
+			if (ld->validcount == validcount)
+				continue;
 
-		if (!func(ld))
-			return false;
+			ld->validcount = validcount;
+
+			if (! func(ld, data))
+				return false;
+		}
 	}
 
 	// everything was checked
@@ -698,36 +710,40 @@ bool P_BlockLinesIterator (int x, int y, bool(*func) (line_t *))
 }
 
 
-bool P_BlockThingsIterator(int x, int y, bool(*func) (mobj_t *))
+///---bool P_BlockThingsIterator(int x, int y, bool(*func) (mobj_t *))
+///---{
+///---	if (x < 0 || y < 0 || x >= bmap_width || y >= bmap_height)
+///---		return true;
+///---
+///---	for (mobj_t *mo = bmap_things[y * bmap_width + x]; mo; mo = mo->bnext)
+///---	{
+///---		if (!func(mo))
+///---			return false;
+///---	}
+///---
+///---	return true;
+///---}
+
+
+bool P_BlockThingsIterator(float x1, float y1, float x2, float y2,
+		                   bool (*func)(mobj_t *, void*), void *data)
 {
-	if (x < 0 || y < 0 || x >= bmap_width || y >= bmap_height)
-		return true;
+///---	// The bounding box is extended by MAXRADIUS
+///---	// because mobj_ts are grouped into mapblocks
+///---	// based on their origin point, and can overlap
+///---	// into adjacent blocks by up to MAXRADIUS units.
+///---	//
+///---	// -AJA- 2006/11/15: restored this (was broken for a long time!).
+///---	r += MAXRADIUS;
 
-	for (mobj_t *mo = bmap_things[y * bmap_width + x]; mo; mo = mo->bnext)
-	{
-		if (!func(mo))
-			return false;
-	}
+	// need to expand the source by one block because large
+	// things (radius limited to BLOCKMAP_UNIT) can overlap
+	// into adjacent blocks.
 
-	return true;
-}
-
-
-bool P_RadiusThingsIterator(float x, float y, float r, bool (*func)(mobj_t *))
-{
-	// The bounding box is extended by MAXRADIUS
-	// because mobj_ts are grouped into mapblocks
-	// based on their origin point, and can overlap
-	// into adjacent blocks by up to MAXRADIUS units.
-	//
-	// -AJA- 2006/11/15: restored this (was broken for a long time!).
-	r += MAXRADIUS;
-
-	int lx = BLOCKMAP_GET_X(x - r);
-	int ly = BLOCKMAP_GET_Y(y - r);
-
-	int hx = BLOCKMAP_GET_X(x + r);
-	int hy = BLOCKMAP_GET_Y(y + r);
+	int lx = BLOCKMAP_GET_X(x1) - 1;
+	int ly = BLOCKMAP_GET_Y(y1) - 1;
+	int hx = BLOCKMAP_GET_X(x2) + 1;
+	int hy = BLOCKMAP_GET_Y(y2) + 1;
 
 	lx = MAX(0, lx);  hx = MIN(bmap_width-1,  hx);
 	ly = MAX(0, ly);  hy = MIN(bmap_height-1, hy);
@@ -737,7 +753,7 @@ bool P_RadiusThingsIterator(float x, float y, float r, bool (*func)(mobj_t *))
 	{
 		for (mobj_t *mo = bmap_things[by * bmap_width + bx]; mo; mo = mo->bnext)
 		{
-			if (! func(mo))
+			if (! func(mo, data))
 				return false;
 		}
 	}
@@ -746,11 +762,11 @@ bool P_RadiusThingsIterator(float x, float y, float r, bool (*func)(mobj_t *))
 }
 
 
-void P_DynamicLightIterator(float x1, float y1, float x2, float y2, void (*func)(mobj_t *))
+void P_DynamicLightIterator(float x1, float y1, float x2, float y2,
+		                    void (*func)(mobj_t *, void *), void *data)
 {
 	int lx = LIGHTMAP_GET_X(x1) - 1;
 	int ly = LIGHTMAP_GET_Y(y1) - 1;
-
 	int hx = LIGHTMAP_GET_X(x2) + 1;
 	int hy = LIGHTMAP_GET_Y(y2) + 1;
 
@@ -779,7 +795,7 @@ void P_DynamicLightIterator(float x1, float y1, float x2, float y2, void (*func)
 			if (! mo->dlight.shader)
 				  mo->dlight.shader = MakeDLightShader(mo);
 
-			func(mo);
+			func(mo, data);
 		}
 	}
 }
@@ -793,49 +809,25 @@ void P_DynamicLightIterator(float x1, float y1, float x2, float y2, void (*func)
 static std::vector<intercept_t> intercepts;
 
 divline_t trace;
-bool earlyout;
-int ptflags;
 
 
 float P_InterceptVector(divline_t * v2, divline_t * v1)
 {
 	// Returns the fractional intercept point along the first divline.
 	// This is only called by the addthings and addlines traversers.
-	//
-	float frac;
-	float num;
-	float den;
-	float v1x;
-	float v1y;
-	float v1dx;
-	float v1dy;
-	float v2x;
-	float v2y;
-	float v2dx;
-	float v2dy;
 
-	v1x = v1->x;
-	v1y = v1->y;
-	v1dx = v1->dx;
-	v1dy = v1->dy;
-	v2x = v2->x;
-	v2y = v2->y;
-	v2dx = v2->dx;
-	v2dy = v2->dy;
-
-	den = v1dy * v2dx - v1dx * v2dy;
+	float den = (v1->dy * v2->dx) - (v1->dx * v2->dy);
 
 	if (den == 0)
 		return 0;  // parallel
 
-	num = (v1x - v2x) * v1dy + (v2y - v1y) * v1dx;
-	frac = num / den;
+	float num = (v1->x - v2->x) * v1->dy + (v2->y - v1->y) * v1->dx;
 
-	return frac;
+	return num / den;
 }
 
 
-static bool PIT_AddLineIntercepts(line_t * ld)
+static inline void PIT_AddLineIntercept(line_t * ld)
 {
 	// Looks for lines in the given block
 	// that intercept the given trace
@@ -844,6 +836,12 @@ static bool PIT_AddLineIntercepts(line_t * ld)
 	// A line is crossed if its endpoints
 	// are on opposite sides of the trace.
 	// Returns true if earlyout and a solid line hit.
+
+	// has line already been checked ?
+	if (ld->validcount == validcount)
+		return;
+
+	ld->validcount = validcount;
 
 	int s1;
 	int s2;
@@ -867,8 +865,9 @@ static bool PIT_AddLineIntercepts(line_t * ld)
 		s2 = P_PointOnDivlineSide(trace.x + trace.dx, trace.y + trace.dy, &div);
 	}
 
+	// line isn't crossed ?
 	if (s1 == s2)
-		return true;  // line isn't crossed
+		return;
 
 	// hit the line
 
@@ -876,11 +875,11 @@ static bool PIT_AddLineIntercepts(line_t * ld)
 
 	// out of range?
 	if (frac < 0 || frac > 1)
-		return true;
+		return;
 
-	// try to early out the check
-	if (earlyout && frac < 1.0f && !ld->backsector)
-		return false;  // stop checking
+///---	// try to early out the check
+///---	if (earlyout && frac < 1.0f && !ld->backsector)
+///---		return false;  // stop checking
 
 	// Intercept is a simple struct that can be memcpy()'d: Load
 	// up a structure and get into the array
@@ -891,12 +890,9 @@ static bool PIT_AddLineIntercepts(line_t * ld)
 	in.line  = ld;
 
 	intercepts.push_back(in);
-	return true;  // continue
-
 }
 
-
-static bool PIT_AddThingIntercepts(mobj_t * thing)
+static inline void PIT_AddThingIntercept(mobj_t * thing)
 {
 	float x1;
 	float y1;
@@ -937,7 +933,7 @@ static bool PIT_AddThingIntercepts(mobj_t * thing)
 
 	// line isn't crossed ?
 	if (s1 == s2)
-		return true;
+		return;
 
 	div.x = x1;
 	div.y = y1;
@@ -948,18 +944,17 @@ static bool PIT_AddThingIntercepts(mobj_t * thing)
 
 	// out of range?
 	if (frac < 0 || frac > 1)
-		return true;
+		return;
 
 	// Intercept is a simple struct that can be memcpy()'d: Load
 	// up a structure and get into the array
 	intercept_t in;
-	
+
 	in.frac  = frac;
 	in.thing = thing;
 	in.line  = NULL;
 
 	intercepts.push_back(in);
-	return true;
 }
 
 
@@ -979,10 +974,10 @@ struct Compare_Intercept_pred
 // Returns true if the traverser function returns true
 // for all lines.
 //
-bool P_PathTraverse(float x1, float y1, float x2, float y2, 
-						 int flags, traverser_t trav)
+bool P_PathTraverse(float x1, float y1, float x2, float y2, int flags,
+		            bool (* func)(intercept_t *, void *), void *data)
 {
-	earlyout = (flags & PT_EARLYOUT)?true:false;
+///---	earlyout = (flags & PT_EARLYOUT)?true:false;
 
 	validcount++;
 
@@ -1075,16 +1070,26 @@ bool P_PathTraverse(float x1, float y1, float x2, float y2,
 
 	for (int count = 0; count < 64; count++)
 	{
-		if (flags & PT_ADDLINES)
+		if (0 <= bx && bx < bmap_width &&
+			0 <= by && by < bmap_height)
 		{
-			if (!P_BlockLinesIterator(bx, by, PIT_AddLineIntercepts))
-				return false;
-		}
+			if (flags & PT_ADDLINES)
+			{
+				unsigned short *list = bmap_pointers[by * bmap_width + bx];
 
-		if (flags & PT_ADDTHINGS)
-		{
-			if (!P_BlockThingsIterator(bx, by, PIT_AddThingIntercepts))
-				return false;
+				for (; *list != BMAP_END; list++)
+				{
+					PIT_AddLineIntercept(&lines[*list]);
+				}
+			}
+
+			if (flags & PT_ADDTHINGS)
+			{
+				for (mobj_t *mo = bmap_things[by * bmap_width + bx]; mo; mo = mo->bnext)
+				{
+					PIT_AddThingIntercept(mo);
+				}
+			}
 		}
 
 		if (bx == bx2 && by == by2)
@@ -1114,9 +1119,9 @@ bool P_PathTraverse(float x1, float y1, float x2, float y2,
 
 	for (I = intercepts.begin(); I != intercepts.end(); I++)
 	{
-		if (! trav(& *I))
+		if (! func(& *I, data))
 		{
-			// don't bother going farther
+			// don't bother going further
 			return false;
 		}
 	}

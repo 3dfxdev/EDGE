@@ -56,7 +56,6 @@ extern float bmap_orgy;
 
 #define PT_ADDLINES  1
 #define PT_ADDTHINGS 2
-#define PT_EARLYOUT  4
 
 typedef struct intercept_s
 {
@@ -68,7 +67,9 @@ typedef struct intercept_s
 }
 intercept_t;
 
-typedef bool (* traverser_t)(intercept_t * in);
+///--- typedef bool (* traverse_func_t)(intercept_t * in, void *data);
+
+///--- typedef bool (* iterate_func_t)(mobj_t *mo, void *data);
 
 extern divline_t trace;
 
@@ -86,13 +87,27 @@ void P_FreeSectorTouchNodes(sector_t *sec);
 
 void P_GenerateBlockMap(int min_x, int min_y, int max_x, int max_y);
 
-bool P_BlockLinesIterator(int x, int y, bool (*func)(line_t *));
-bool P_BlockThingsIterator(int x, int y, bool (*func)(mobj_t *));
-bool P_RadiusThingsIterator(float x, float y, float r, bool (*func)(mobj_t *));
-void P_DynamicLightIterator(float x1, float y1, float x2, float y2, void (*func)(mobj_t *));
+bool P_BlockLinesIterator(float x1, float y1, float x2, float y2,
+		                  bool (* func)(line_t *, void *),
+						  void *data = NULL);
+
+bool P_BlockThingsIterator(float x1, float y1, float x2, float y2,
+		                   bool (* func)(mobj_t *, void *),
+						   void *data = NULL);
+
+///---bool P_RadiusThingsIterator(float x, float y, float r,
+///---		                    bool (* func)(mobj_t *mo, void *data),
+///---						    void *data = NULL);
+
+void P_DynamicLightIterator(float x1, float y1, float x2, float y2,
+		                    void (* func)(mobj_t *, void *),
+						    void *data = NULL);
 
 float P_InterceptVector(divline_t * v2, divline_t * v1);
-bool P_PathTraverse(float x1, float y1, float x2, float y2, int flags, traverser_t trav);
+
+bool P_PathTraverse(float x1, float y1, float x2, float y2, int flags,
+		            bool (* func)(intercept_t *, void *),
+					void *data = NULL);
 
 
 #endif // __P_BLOCKMAP_H__
