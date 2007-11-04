@@ -2233,6 +2233,7 @@ void dlight_info_c::Copy(dlight_info_c &src)
 	radius = src.radius;
 	colour = src.colour;
 	height = src.height;
+	leaky  = src.leaky;
 
 	cache_data = NULL;
 }
@@ -2243,6 +2244,7 @@ void dlight_info_c::Default()
 	radius = 32;
 	colour = RGB_MAKE(255, 255, 255);
 	height = PERCENT_MAKE(50);
+	leaky  = false;
 
 	shape.Set("DLIGHTNORMAL");
 
