@@ -701,8 +701,8 @@ bool P_BlockLinesIterator(float x1, float y1, float x2, float y2,
 			ld->validcount = validcount;
 
 			// check whether line touches the given bbox
-			if (ld->bbox[BOXRIGHT] < x1 || ld->bbox[BOXLEFT]   > x2 ||
-				ld->bbox[BOXTOP]   < y1 || ld->bbox[BOXBOTTOM] > y2)
+			if (ld->bbox[BOXRIGHT] <= x1 || ld->bbox[BOXLEFT]   >= x2 ||
+				ld->bbox[BOXTOP]   <= y1 || ld->bbox[BOXBOTTOM] >= y2)
 			{
 				continue;
 			}
@@ -763,8 +763,8 @@ bool P_BlockThingsIterator(float x1, float y1, float x2, float y2,
 			// check whether thing touches the given bbox
 			float r = mo->radius;
 
-			if (mo->x + r < x1 || mo->x - r > x2 ||
-			    mo->y + r < y1 || mo->y - r > y2)
+			if (mo->x + r <= x1 || mo->x - r >= x2 ||
+			    mo->y + r <= y1 || mo->y - r >= y2)
 				continue;
 
 			if (! func(mo, data))
@@ -801,8 +801,8 @@ void P_DynamicLightIterator(float x1, float y1, float x2, float y2,
 			// check whether radius touches the given bbox
 			float r = mo->dlight.r;
 
-			if (mo->x + r < x1 || mo->x - r > x2 ||
-			    mo->y + r < y1 || mo->y - r > y2)
+			if (mo->x + r <= x1 || mo->x - r >= x2 ||
+			    mo->y + r <= y1 || mo->y - r >= y2)
 				continue;
 			
 			// create shader if necessary
