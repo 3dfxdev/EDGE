@@ -561,7 +561,6 @@ typedef struct wall_plane_data_s
 
 	int cmx;
 
-	drawthing_t *dlights;
 	const image_c *image;
 
 	float tx, tdx;
@@ -962,7 +961,7 @@ static void DLIT_Wall(mobj_t *mo)
 				 (mo->y - xxx_data->div.y) * xxx_data->div.dx;
 
 	// light behind the plane ?    
-	if (true)
+	if (! mo->dlight.info->leaky)
 	{
 		if (dist < 0)
 			return;
@@ -987,7 +986,7 @@ static plane_coord_data_t *ppp_data;
 static void DLIT_Plane(mobj_t *mo)
 {
 	// light behind the plane ?    
-	if (true)
+	if (! mo->dlight.info->leaky)
 	{
 		if ((MO_MIDZ(mo) > ppp_data->vert[0].z) != (ppp_data->normal.z > 0))
 			return;
@@ -2231,8 +2230,8 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 			v_low.x = MIN(x, v_low.x);
 			v_low.y = MIN(y, v_low.y);
 
-			v_high.x = MAX(x, v_low.x);
-			v_high.y = MAX(y, v_low.y);
+			v_high.x = MAX(x, v_high.x);
+			v_high.y = MAX(y, v_high.y);
 		}
 	}
 
@@ -2788,8 +2787,6 @@ static void RGL_DrawSubsector(drawsub_c *dsub)
 	{
 		drawfloor_t *dfloor = *DFI;
 
-		R_LightPipe_SetList(dfloor->dlights);
-
 		std::list<drawseg_c *>::iterator SEGI;
 
 		for (SEGI = dsub->segs.begin(); SEGI != dsub->segs.end(); SEGI++)
@@ -2806,8 +2803,6 @@ static void RGL_DrawSubsector(drawsub_c *dsub)
 
 			RGL_DrawSortThings(dfloor);
   		}
-
-		R_LightPipe_SetList(NULL);
 	}
 }
 
