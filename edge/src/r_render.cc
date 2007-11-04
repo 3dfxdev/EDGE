@@ -906,6 +906,7 @@ void DLightPlaneCoordFunc(vec3_t *src, local_gl_vert_t *vert, void *d)
 }
 #endif
 
+#if 0
 static void ComputeDLParameters(float dist, mobj_t *mo,
 	float *radius, float *intensity)
 {
@@ -923,7 +924,6 @@ static void ComputeDLParameters(float dist, mobj_t *mo,
 
 	*intensity = exp(-5.44*dist);
 
-#if 0
 	if (mo->info->dlight0.type == DLITE_Linear)
 	{
 		*radius = DL_OUTER * dist;
@@ -946,10 +946,36 @@ static void ComputeDLParameters(float dist, mobj_t *mo,
   			*intensity = 1.0f;
   		}
 	}
-#endif
 }
+#endif
 
 #endif // DLIGHT_PROTOTYPE
+
+static int xxx_vcount;
+static GLuint xxx_texid;
+static wall_coord_data_t *xxx_data;
+static int *xxx_group;
+
+static void DLITR_Wall(mobj_t *mo)
+{
+	float dist = (mo->x - xxx_data->div.x) * xxx_data->div.dy -
+				 (mo->y - xxx_data->div.y) * xxx_data->div.dx;
+
+	// light behind the plane ?    
+	if (dist < 0)
+		return;
+
+///---	dist /= cur_seg->length;
+
+	SYS_ASSERT(mo->dlight.shader);
+
+	mo->dlight.shader->WorldMix(GL_POLYGON, xxx_vcount, xxx_texid,
+			1.0 /*!!! alpha */, *xxx_group,
+			BL_NONE /*!!! blending */,
+			xxx_data, WallCoordFunc);
+
+	(*xxx_group) += 1;
+}
 
 
 #define MAX_EDGE_VERT  20
@@ -1287,7 +1313,20 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 
 	cmap_shader->WorldMix(GL_POLYGON, v_count, tex_id,
 			trans, group, blending, &data, WallCoordFunc);
+	group++;
 
+	if (use_dlights == 1 && solid_mode)
+	{
+		xxx_vcount = v_count;
+		xxx_texid  = tex_id;
+		xxx_data   = &data;
+		xxx_group  = &group;
+
+		P_DynamicLightIterator(MIN(x1,x2), MIN(y1,y2),
+				MAX(x1,x2), MAX(y1,y2), DLITR_Wall);
+	}
+
+	
 #if 0
 	int pass = 0;
 
