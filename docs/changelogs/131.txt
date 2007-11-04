@@ -1,9 +1,74 @@
 
-CHANGELOG FOR 1.31 (since 1.29)
-================================
+CHANGELOG FOR 1.31-ALPHA (since 1.29)
+=====================================
 
 Bugs fixed
 ----------
 
-+ crash using Scuba Steve's flamethrow DEH patch.
++ glitches/small gaps between polygons was fixed.
++ crash with Scuba Steve's flamethrow DEH patch.
+
+- ID(K)FA cheats now give clip weapons full ammo.
+- fixed problem saving the 'mipmapping' setting.
+- fix for filenames containing two dots (like "foo.bar.wad").
+- proper test for existing titlepics in GAMES.DDF.
+- fixed PLAYSOUND console cmd when sound is not found.
+- custom sky-boxes should always be used if present.
+
+
+Features removed or changed:
+----------------------------
+
+
+General improvements
+--------------------
+
+- improved the sky (mlook option)
+
+- better gamma handling (rely on video driver).
+
+- console key is configurable.
+
+- new method of emulating the flat flooding trick.
+
+
+New features:
+-------------
+
++ new dynamic lighting,
+  DLIGHT2
+
++ MD2 models
+
++ Mirrors
+
+- TGA images
+
+- flat align/scale linetypes
+
+
+DDF / RTS Goodies:
+------------------
+
++ WEAKNESS
+
++ BECOME action
+
++ armour association, yada yada
+
+- PURPLE armour
+
+- SPAWN action
+
+- INVULNERABLE special
+
+- DLIGHT_COLOUR action
+
+- RESISTANCE_MULTIPLY + RESISTANCE_PAINCHANCE
+
+- new player states: JUMP, FLY, SWIM, CLIMB.
+
+- CRUSH_DAMAGE for crushers in lines.ddf
+
+- RTS: 'WHEN=xxx' tag for SPAWNTHING
 
