@@ -85,9 +85,11 @@ void P_ChangeThingPosition(mobj_t * mo, float x, float y, float z);
 void P_FreeSectorTouchNodes(sector_t *sec);
 
 void P_GenerateBlockMap(int min_x, int min_y, int max_x, int max_y);
-bool P_BlockLinesIterator(int x, int y, bool(*func) (line_t *));
-bool P_BlockThingsIterator(int x, int y, bool(*func) (mobj_t *));
+
+bool P_BlockLinesIterator(int x, int y, bool (*func)(line_t *));
+bool P_BlockThingsIterator(int x, int y, bool (*func)(mobj_t *));
 bool P_RadiusThingsIterator(float x, float y, float r, bool (*func)(mobj_t *));
+void P_DynamicLightIterator(float x1, float y1, float x2, float y2, void (*func)(mobj_t *));
 
 float P_InterceptVector(divline_t * v2, divline_t * v1);
 bool P_PathTraverse(float x1, float y1, float x2, float y2, int flags, traverser_t trav);
