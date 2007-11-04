@@ -68,12 +68,16 @@ typedef struct intercept_s
 }
 intercept_t;
 
-typedef bool(*traverser_t) (intercept_t * in);
+typedef bool (* traverser_t)(intercept_t * in);
 
 extern divline_t trace;
 
 
-float P_InterceptVector(divline_t * v2, divline_t * v1);
+/* FUNCTIONS */
+
+void P_CreateThingBlockMap(void);
+void P_DestroyBlockMap(void);
+
 void P_SetThingPosition(mobj_t * mo);
 void P_UnsetThingPosition(mobj_t * mo);
 void P_UnsetThingFinally(mobj_t * mo);
@@ -85,6 +89,7 @@ bool P_BlockLinesIterator(int x, int y, bool(*func) (line_t *));
 bool P_BlockThingsIterator(int x, int y, bool(*func) (mobj_t *));
 bool P_RadiusThingsIterator(float x, float y, float r, bool (*func)(mobj_t *));
 
+float P_InterceptVector(divline_t * v2, divline_t * v1);
 bool P_PathTraverse(float x1, float y1, float x2, float y2, int flags, traverser_t trav);
 
 
