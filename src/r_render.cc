@@ -956,23 +956,59 @@ static GLuint xxx_texid;
 static wall_coord_data_t *xxx_data;
 static int *xxx_group;
 
-static void DLITR_Wall(mobj_t *mo)
+static void DLIT_Wall(mobj_t *mo)
 {
 	float dist = (mo->x - xxx_data->div.x) * xxx_data->div.dy -
 				 (mo->y - xxx_data->div.y) * xxx_data->div.dx;
 
 	// light behind the plane ?    
-	if (dist < 0)
-		return;
-
-///---	dist /= cur_seg->length;
+	if (true)
+	{
+		if (dist < 0)
+			return;
+	}
 
 	SYS_ASSERT(mo->dlight.shader);
 
+	int blending = BL_NONE; //!!!!
+	
+	blending &= ~BL_Alpha;
+	blending |=  BL_Add;
+
 	mo->dlight.shader->WorldMix(GL_POLYGON, xxx_vcount, xxx_texid,
-			1.0 /*!!! alpha */, *xxx_group,
-			BL_NONE /*!!! blending */,
+			1.0 /*!!! alpha */, *xxx_group, blending,
 			xxx_data, WallCoordFunc);
+
+	(*xxx_group) += 1;
+}
+
+static plane_coord_data_t *ppp_data;
+
+static void DLIT_Plane(mobj_t *mo)
+{
+	// light behind the plane ?    
+	if (true)
+	{
+		if ((MO_MIDZ(mo) > ppp_data->vert[0].z) != (ppp_data->normal.z > 0))
+			return;
+	}
+
+	float dist = fabs(MO_MIDZ(mo) - ppp_data->vert[0].z);
+
+	// light too far away ?
+	if (dist > mo->dlight.r)
+		return;
+
+	SYS_ASSERT(mo->dlight.shader);
+
+	int blending = BL_NONE; //!!!!
+	
+	blending &= ~BL_Alpha;
+	blending |=  BL_Add;
+
+	mo->dlight.shader->WorldMix(GL_POLYGON, xxx_vcount, xxx_texid,
+			1.0 /*!!! alpha */, *xxx_group, blending,
+			ppp_data, PlaneCoordFunc);
 
 	(*xxx_group) += 1;
 }
@@ -1323,7 +1359,7 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 		xxx_group  = &group;
 
 		P_DynamicLightIterator(MIN(x1,x2), MIN(y1,y2),
-				MAX(x1,x2), MAX(y1,y2), DLITR_Wall);
+				MAX(x1,x2), MAX(y1,y2), DLIT_Wall);
 	}
 
 	
@@ -2093,9 +2129,7 @@ bool RGL_CheckBBox(float *bspcoord)
 	return ! RGL_1DOcclusionTest(angle_R, angle_L);
 }
 
-//
-// RGL_DrawPlane
-//
+
 static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 						  surface_t *surf, int face_dir)
 {
@@ -2173,6 +2207,9 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 
 	vec3_t vertices[MAX_PLVERT];
 
+	vec3_t v_low;  v_low.Set(9e9, 9e9, h);
+	vec3_t v_high; v_high.Set(-9e9, -9e9, h);
+
 	int v_count = 0;
 
 	for (seg=cur_sub->segs, i=0; seg && (i < MAX_PLVERT); 
@@ -2190,6 +2227,12 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 			vertices[v_count].z = h;
 
 			v_count++;
+
+			v_low.x = MIN(x, v_low.x);
+			v_low.y = MIN(y, v_low.y);
+
+			v_high.x = MAX(x, v_low.x);
+			v_high.y = MAX(y, v_low.y);
 		}
 	}
 
@@ -2217,6 +2260,18 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 
 	cmap_shader->WorldMix(GL_POLYGON, v_count, tex_id,
 			trans, group, blending, &data, PlaneCoordFunc);
+	group++;
+
+	if (use_dlights == 1 && solid_mode)
+	{
+		xxx_vcount = v_count;
+		xxx_texid  = tex_id;
+		ppp_data   = &data;
+		xxx_group  = &group;
+
+		P_DynamicLightIterator(v_low.x, v_low.y, v_high.x, v_high.y,
+				DLIT_Plane);
+	}
 
 #if 0  // OLD WAY
 	int pass = 0;
