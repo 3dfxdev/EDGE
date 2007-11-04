@@ -1787,15 +1787,15 @@ static void LoadBlockMap(int lump)
 		I_Error("Bad WAD: level %s missing BLOCKMAP.  Build the nodes !\n", 
 			currmap->lump.c_str());
 
-	bmaporgx = (float)EPI_LE_S16(data[0]);
-	bmaporgy = (float)EPI_LE_S16(data[1]);
-	bmapwidth  = EPI_LE_S16(data[2]);
-	bmapheight = EPI_LE_S16(data[3]);
+	bmap_orgx = (float)EPI_LE_S16(data[0]);
+	bmap_orgy = (float)EPI_LE_S16(data[1]);
+	bmap_width  = EPI_LE_S16(data[2]);
+	bmap_height = EPI_LE_S16(data[3]);
 
 	// skip header
 	dat_pos = data + 4;
 
-	num_ofs = bmapwidth * bmapheight;
+	num_ofs = bmap_width * bmap_height;
 	num_lines -= (num_ofs + 4);
 
 	bmap_pointers = new unsigned short* [num_ofs];

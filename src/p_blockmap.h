@@ -38,20 +38,20 @@
 extern unsigned short *bmap_lines;
 extern unsigned short ** bmap_pointers;
 
-extern int bmapwidth;
-extern int bmapheight;  // in mapblocks
+extern int bmap_width;   // in mapblocks
+extern int bmap_height;
 
-extern float bmaporgx;
-extern float bmaporgy;  // origin of block map
+extern float bmap_orgx;  // origin of block map
+extern float bmap_orgy;
 
 extern mobj_t **blocklinks;   // for thing chains
 extern mobj_t **blocklights;  // for dynamic lights
 
-#define BLOCKMAP_GET_X(x)  ((int) ((x) - bmaporgx) / BLOCKMAP_UNIT)
-#define BLOCKMAP_GET_Y(y)  ((int) ((y) - bmaporgy) / BLOCKMAP_UNIT)
+#define BLOCKMAP_GET_X(x)  ((int) ((x) - bmap_orgx) / BLOCKMAP_UNIT)
+#define BLOCKMAP_GET_Y(y)  ((int) ((y) - bmap_orgy) / BLOCKMAP_UNIT)
 
-#define LIGHTMAP_GET_X(x)  ((int) ((x) - bmaporgx) / LIGHTMAP_UNIT)
-#define LIGHTMAP_GET_Y(y)  ((int) ((y) - bmaporgy) / LIGHTMAP_UNIT)
+#define LIGHTMAP_GET_X(x)  ((int) ((x) - bmap_orgx) / LIGHTMAP_UNIT)
+#define LIGHTMAP_GET_Y(y)  ((int) ((y) - bmap_orgy) / LIGHTMAP_UNIT)
 
 
 #define PT_ADDLINES  1
