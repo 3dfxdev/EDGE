@@ -1019,8 +1019,6 @@ static void M_ResOptDrawer(style_c *style, int topy, int bottomy, int dy, int ce
 
 static void M_LanguageDrawer(int x, int y, int deltay)
 {
-///---	buf.Format("%s", language.GetName());
-
 	HL_WriteText(opt_def_style,1, x+15, y + deltay * LANGUAGE_POS, language.GetName());
 }
 
@@ -1332,20 +1330,6 @@ static void M_ResolutionOptions(int keypressed)
 	new_scrmode.height = SCREENHEIGHT;
 	new_scrmode.depth  = SCREENBITS;
 	new_scrmode.full   = FULLSCREEN;
-
-///---	// Get a depth mask for resolution selection
-///---	SYS_ASSERT(SCREENBITS == 16 || SCREENBITS == 32);
-///---
-///---	int i = scrmodelist.Find(SCREENWIDTH, 
-///---							 SCREENHEIGHT,
-///---							 SCREENBITS,
-///---							 FULLSCREEN);
-///---							 
-///---	if (i < 0)
-///---		I_Error("M_ResolutionOptions: Graphics mode not listed!");
-///---	
-///---	selectedscrmode = i;
-///---	prevscrmode = i;
 
 	curr_menu = &resoptionsinfo;
 	curr_item = curr_menu->items + curr_menu->pos;

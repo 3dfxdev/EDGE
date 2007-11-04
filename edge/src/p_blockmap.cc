@@ -717,32 +717,9 @@ bool P_BlockLinesIterator(float x1, float y1, float x2, float y2,
 }
 
 
-///---bool P_BlockThingsIterator(int x, int y, bool(*func) (mobj_t *))
-///---{
-///---	if (x < 0 || y < 0 || x >= bmap_width || y >= bmap_height)
-///---		return true;
-///---
-///---	for (mobj_t *mo = bmap_things[y * bmap_width + x]; mo; mo = mo->bnext)
-///---	{
-///---		if (!func(mo))
-///---			return false;
-///---	}
-///---
-///---	return true;
-///---}
-
-
 bool P_BlockThingsIterator(float x1, float y1, float x2, float y2,
 		                   bool (*func)(mobj_t *, void*), void *data)
 {
-///---	// The bounding box is extended by MAXRADIUS
-///---	// because mobj_ts are grouped into mapblocks
-///---	// based on their origin point, and can overlap
-///---	// into adjacent blocks by up to MAXRADIUS units.
-///---	//
-///---	// -AJA- 2006/11/15: restored this (was broken for a long time!).
-///---	r += MAXRADIUS;
-
 	// need to expand the source by one block because large
 	// things (radius limited to BLOCKMAP_UNIT) can overlap
 	// into adjacent blocks.
@@ -891,10 +868,6 @@ static inline void PIT_AddLineIntercept(line_t * ld)
 	if (frac < 0 || frac > 1)
 		return;
 
-///---	// try to early out the check
-///---	if (earlyout && frac < 1.0f && !ld->backsector)
-///---		return false;  // stop checking
-
 	// Intercept is a simple struct that can be memcpy()'d: Load
 	// up a structure and get into the array
 	intercept_t in;
@@ -991,8 +964,6 @@ struct Compare_Intercept_pred
 bool P_PathTraverse(float x1, float y1, float x2, float y2, int flags,
 		            bool (* func)(intercept_t *, void *), void *data)
 {
-///---	earlyout = (flags & PT_EARLYOUT)?true:false;
-
 	validcount++;
 
 	intercepts.clear();

@@ -584,27 +584,8 @@ void P_ActDLightSet(mobj_t * mo)
 	{
 		mo->dlight.r = MAX(0.0f, ((int *)st->action_par)[0]);
 		mo->dlight.target = mo->dlight.r;
-
-///---	// maintain relative sizes
-///---	mo->dlight[1].r = mo->dlight[0].r * mo->info->dlight1.radius / MAX(1, mo->info->dlight0.radius);
-///---	mo->dlight[1].target = mo->dlight[1].r;
 	}
 }
-
-
-///---void P_ActDLightSet2(mobj_t * mo)
-///---{
-///---	const state_t *st = mo->state;
-///---
-///---	if (st && st->action_par)
-///---	{
-///---		mo->dlight[0].r = MAX(0.0f, ((int *)st->action_par)[0]);
-///---		mo->dlight[0].target = mo->dlight.r;
-///---
-///---		mo->dlight[1].r = MAX(0.0f, ((int *)st->action_par)[1]);
-///---		mo->dlight[1].target = mo->dlight[1].r;
-///---	}
-///---}
 
 
 void P_ActDLightFade(mobj_t * mo)
@@ -633,10 +614,6 @@ void P_ActDLightRandom(mobj_t * mo)
     
 		mo->dlight.r = MAX(0.0f, qty);
 		mo->dlight.target = mo->dlight.r;
-
-///---	// maintain relative sizes
-///---	mo->dlight[1].r = mo->dlight[0].r * mo->info->dlight1.radius / MAX(1, mo->info->dlight0.radius);
-///---	mo->dlight[1].target = mo->dlight[1].r;
 	}
 }
 
@@ -647,9 +624,6 @@ void P_ActDLightColour(struct mobj_s *mo)
 	if (st && st->action_par)
 	{
 		mo->dlight.color = ((rgbcol_t*) st->action_par)[0];
-
-///---	if (mo->info->dlight0.colour == mo->info->dlight1.colour)
-///---		mo->dlight[1].color = mo->dlight[0].color;
 	}
 }
 
