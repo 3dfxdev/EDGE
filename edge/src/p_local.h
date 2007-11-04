@@ -205,6 +205,7 @@ void P_ComputeIntersection(divline_t *div,
 		float *ix, float *iy);
 int P_BoxOnLineSide(const float * tmbox, line_t * ld);
 int P_BoxOnDivLineSide(const float * tmbox, divline_t *div);
+int P_ThingOnLineSide(const mobj_t *mo, line_t * ld);
 
 int P_FindThingGap(vgap_t * gaps, int gap_num, float z1, float z2);
 void P_ComputeGaps(line_t * ld);

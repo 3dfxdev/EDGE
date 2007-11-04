@@ -248,7 +248,7 @@ static int BOT_EvaluateItem(bot_t *bot, mobj_t *mo)
 	return score;
 }
 
-static bool PTR_BotLook(intercept_t * in)
+static bool PTR_BotLook(intercept_t * in, void *dataptr)
 {
 	if (in->line)
 	{
