@@ -689,6 +689,7 @@ public:
 	float radius;
 	rgbcol_t colour;
 	percent_t height;
+	bool leaky;
 
 	void *cache_data;
 };

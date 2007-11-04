@@ -60,11 +60,12 @@ static dlight_info_c buffer_dlight;
 
 const commandlist_t dlight_commands[] =
 {
-	DF("TYPE", type, DDF_MobjGetDLight),
-	DF("GRAPHIC", shape, DDF_MainGetString),
+	DF("TYPE",   type,   DDF_MobjGetDLight),
+	DF("GRAPHIC",shape,  DDF_MainGetString),
 	DF("RADIUS", radius, DDF_MainGetFloat),
 	DF("COLOUR", colour, DDF_MainGetRGB),
 	DF("HEIGHT", height, DDF_MainGetPercent),
+	DF("LEAKY",  leaky,  DDF_MainGetBoolean),
 
 	// backwards compatibility
 	DF("INTENSITY", radius, DDF_MainGetFloat),
