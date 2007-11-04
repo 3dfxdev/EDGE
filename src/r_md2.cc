@@ -312,9 +312,6 @@ struct md2_vertex_c
 
 struct md2_frame_c
 {
-///---	float scale[3];
-///---	float translate[3];
-
 	md2_vertex_c *vertices;
 
 	// list of normals which are used.  Terminated by -1.
@@ -582,7 +579,6 @@ typedef struct
 	int frame;
 	int strip;
 
-///---	float R, G, B;
 	float x, y, z;
 
 	bool is_weapon;

@@ -47,12 +47,6 @@ bool dumb_combine = false;
 bool dumb_clamp   = false;
 
 
-///---// -AJA- FIXME
-///---#ifndef GL_CLAMP_TO_EDGE
-///---#define GL_CLAMP_TO_EDGE  0x812F
-///---#endif
-
-
 #define MAX_L_VERT  4096
 #define MAX_L_UNIT  (MAX_L_VERT / 4)
 
@@ -768,33 +762,6 @@ static inline void Pipeline_DLights(int& group,
 				alpha, group, blending, func_data,
 				(shader_coord_func_t) func);
 		group++;
-		
-///---		GLuint DL_tex = W_ImageCache(mo->dlight[0].image);
-///---
-///---		glvert = RGL_BeginUnit(shape, num_vert, 0,0, //!!! GL_MODULATE, tex,
-///---					GL_MODULATE, DL_tex, group, blending);
-///---		group++;
-///---
-///---		for (int v_idx=0; v_idx < num_vert; v_idx++)
-///---		{
-///---			local_gl_vert_t *dest = glvert + v_idx;
-///---
-///---			dest->rgba[3] = alpha;
-///---
-///---			vec3_t lit_pos;
-///---
-///---			(*func)(func_data, v_idx, &dest->pos, dest->rgba,
-///---					&dest->texc[0], &dest->normal, &lit_pos);
-///---
-///---			dest->rgba[2] = 1.00;
-///---			dest->rgba[0] = 0.66;
-///---			dest->rgba[1] = 0.33;
-///---
-///---			TexCoord_DLight(mo, &lit_pos, &dest->normal,
-///---					        dest->rgba, &dest->texc[1]);
-///---		}
-///---
-///---		RGL_EndUnit(num_vert);
 	}
 }
 

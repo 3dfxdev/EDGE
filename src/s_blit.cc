@@ -653,10 +653,6 @@ void S_UpdateSounds(position_c *listener, angle_t angle)
 		queue_chan->ComputeMusicVolume();
 }
 
-///---int S_GetSoundVolume(void)
-///---{
-///---	return sfxvolume;
-///---}
 
 void S_ChangeSoundVolume(void)
 {
