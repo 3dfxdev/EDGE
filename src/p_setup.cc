@@ -174,9 +174,7 @@ static void CheckEvilutionBug(byte *data, int length)
 	data[8] &= ~MTF_NOT_SINGLE;
 }
 
-//
-// LoadVertexes
-//
+
 static void LoadVertexes(int lump)
 {
 	const void *data;
@@ -216,9 +214,6 @@ static void LoadVertexes(int lump)
 	W_DoneWithLump(data);
 }
 
-//
-// LoadV2Vertexes
-//
 static void LoadV2Vertexes(const byte *data, int length)
 {
 	int i;
@@ -240,9 +235,7 @@ static void LoadV2Vertexes(const byte *data, int length)
 	}
 }
 
-//
-// LoadGLVertexes
-//
+
 static void LoadGLVertexes(int lump)
 {
 	const byte *data;
@@ -300,6 +293,7 @@ static void LoadGLVertexes(int lump)
 	W_DoneWithLump(data);
 }
 
+
 static void SegCommonStuff(seg_t *seg, int linedef  )
 {
 	seg->frontsector = seg->backsector = NULL;
@@ -338,9 +332,6 @@ static void SegCommonStuff(seg_t *seg, int linedef  )
 	}
 }
 
-//
-// LoadV3Segs
-//
 static void LoadV3Segs(const byte *data, int length)
 {
 	numsegs = length / sizeof(raw_v3_seg_t);
@@ -405,9 +396,6 @@ static void LoadV3Segs(const byte *data, int length)
 	}
 }
 
-//
-// LoadGLSegs
-//
 static void LoadGLSegs(int lump)
 {
 	SYS_ASSERT(lump < 0x10000);  // sanity check
@@ -509,9 +497,7 @@ static void LoadGLSegs(int lump)
 	W_DoneWithLump(data);
 }
 
-//
-// LoadV3Subsectors
-//
+
 static void LoadV3Subsectors(const byte *data, int length)
 {
 	int i, j;
@@ -578,9 +564,6 @@ static void LoadV3Subsectors(const byte *data, int length)
 	}
 }
 
-//
-// LoadSubsectors
-//
 static void LoadSubsectors(int lump, const char *name)
 {
 	int i, j;
@@ -702,9 +685,7 @@ static void GroupSectorTags(sector_t * dest, sector_t * seclist, int numsecs)
 	}
 }
 
-//
-// LoadSectors
-//
+
 static void LoadSectors(int lump)
 {
 	const void *data;
@@ -817,9 +798,7 @@ static void SetupRootNode(void)
 	}
 }
 
-//
-// LoadV5Nodes
-//
+
 static void LoadV5Nodes(const void *data, int length)
 {
 	int i, j;
@@ -865,9 +844,7 @@ static void LoadV5Nodes(const void *data, int length)
 	SetupRootNode();
 }
 
-//
-// LoadNodes
-//
+
 static void LoadNodes(int lump, const char *name)
 {
 	int i, j;
@@ -932,9 +909,7 @@ static void LoadNodes(int lump, const char *name)
 	SetupRootNode();
 }
 
-//
-// SpawnMapThing
-//
+
 static void SpawnMapThing(const mobjtype_c *info,
 						  float x, float y, float z,
 						  angle_t angle, int options, int tag)
@@ -1033,9 +1008,6 @@ static void SpawnMapThing(const mobjtype_c *info,
 		mobj->side = ~0;
 }
 
-//
-// LoadThings
-//
 static void LoadThings(int lump)
 {
 	float x, y, z;
@@ -1119,13 +1091,10 @@ static void LoadThings(int lump)
 	W_DoneWithLump(data);
 }
 
-//
-// LoadHexenThings
-//
-// -AJA- 2001/08/04: wrote this, based on the Hexen specs.
-//
 static void LoadHexenThings(int lump)
 {
+	// -AJA- 2001/08/04: wrote this, based on the Hexen specs.
+
 	float x, y, z;
 	angle_t angle;
 	int options, typenum;
@@ -1183,6 +1152,7 @@ static void LoadHexenThings(int lump)
 
 	W_DoneWithLump(data);
 }
+
 
 static inline void ComputeLinedefData(line_t *ld, int side0, int side1)
 {
@@ -1251,17 +1221,14 @@ static inline void ComputeLinedefData(line_t *ld, int side0, int side1)
 	numsides += (side1 == -1) ? 1 : 2;
 }
 
-//
-// LoadLineDefs
-//
-// -AJA- New handling for sidedefs.  Since sidedefs can be "packed" in
-//       a wad (i.e. shared by several linedefs) we need to unpack
-//       them.  This is to prevent potential problems with scrollers,
-//       the CHANGE_TEX command in RTS, etc, and also to implement
-//       "wall tiles" properly.
-//
 static void LoadLineDefs(int lump)
 {
+	// -AJA- New handling for sidedefs.  Since sidedefs can be "packed" in
+	//       a wad (i.e. shared by several linedefs) we need to unpack
+	//       them.  This is to prevent potential problems with scrollers,
+	//       the CHANGE_TEX command in RTS, etc, and also to implement
+	//       "wall tiles" properly.
+
 	const void *data;
 	const raw_linedef_t *mld;
 	line_t *ld;
@@ -1323,13 +1290,10 @@ static void LoadLineDefs(int lump)
 	W_DoneWithLump(data);
 }
 
-//
-// LoadHexenLineDefs
-//
-// -AJA- 2001/08/04: wrote this, based on the Hexen specs.
-//
 static void LoadHexenLineDefs(int lump)
 {
+	// -AJA- 2001/08/04: wrote this, based on the Hexen specs.
+
 	const void *data;
 	const raw_hexen_linedef_t *mld;
 	line_t *ld;
@@ -1376,6 +1340,7 @@ static void LoadHexenLineDefs(int lump)
 
 	W_DoneWithLump(data);
 }
+
 
 static void TransferMapSideDef(const raw_sidedef_t *msd, side_t *sd,
 							   bool two_sided)
@@ -1450,9 +1415,6 @@ static void TransferMapSideDef(const raw_sidedef_t *msd, side_t *sd,
 #endif
 }
 
-//
-// LoadSideDefs
-//
 static void LoadSideDefs(int lump)
 {
 	int i;
@@ -1884,7 +1846,7 @@ static void DoBlockMap(int lump)
 
 	if (! W_VerifyLumpName(lump, "BLOCKMAP"))
 		I_Error("Bad WAD: level %s missing BLOCKMAP.  Build the nodes !\n", 
-		currmap->lump.c_str());
+			currmap->lump.c_str());
 
 	if (M_CheckParm("-blockmap") > 0 ||
 		W_LumpLength(lump) == 0 ||
@@ -1896,12 +1858,7 @@ static void DoBlockMap(int lump)
 	else
 		LoadBlockMap(lump);
 
-	// clear out mobj chains
-	blocklinks  = new mobj_t* [bmapwidth * bmapheight];
-	blocklights = new mobj_t* [bmapwidth * bmapheight];
-
-	Z_Clear(blocklinks,  mobj_t*, bmapwidth * bmapheight);
-	Z_Clear(blocklights, mobj_t*, bmapwidth * bmapheight);
+	P_CreateThingBlockMap();
 }
 
 
@@ -2130,9 +2087,6 @@ static void CreateVertexSeclists(void)
 }
 
 
-//
-// LoadReject
-//
 static void LoadReject(int lump)
 {
 	int req_length;
@@ -2173,9 +2127,7 @@ static void P_RemoveSectorStuff(void)
 	}
 }
 
-//
-// P_StopLevel
-//
+
 void P_StopLevel(void)
 {
 }
@@ -2222,10 +2174,7 @@ void ShutdownLevel(void)
 	delete[] linebuffer;   linebuffer = NULL;
 	delete[] v_seclists;   v_seclists = NULL;
 
-	delete[] blocklinks;    blocklinks = NULL;
-	delete[] blocklights;   blocklights = NULL;
-	delete[] bmap_lines;    bmap_lines = NULL;
-	delete[] bmap_pointers; bmap_pointers = NULL;
+	P_DestroyBlockMap();
 
 	if (rejectmatrix)
 		W_DoneWithLump(rejectmatrix);

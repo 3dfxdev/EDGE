@@ -71,6 +71,27 @@ mobj_t **blocklinks = NULL;
 mobj_t **blocklights = NULL;
 
 
+void P_CreateThingBlockMap(void)
+{
+	blocklinks  = new mobj_t* [bmapwidth * bmapheight];
+
+	Z_Clear(blocklinks,  mobj_t*, bmapwidth * bmapheight);
+
+	blocklights = new mobj_t* [bmapwidth * bmapheight];
+
+	Z_Clear(blocklights, mobj_t*, bmapwidth * bmapheight);
+}
+
+void P_DestroyBlockMap(void)
+{
+	delete[] bmap_lines;    bmap_lines  = NULL;
+	delete[] bmap_pointers; bmap_pointers = NULL;
+
+	delete[] blocklinks;    blocklinks  = NULL;
+	delete[] blocklights;   blocklights = NULL;
+}
+
+
 //--------------------------------------------------------------------------
 //
 //  THING POSITION SETTING
