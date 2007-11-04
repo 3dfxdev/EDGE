@@ -201,9 +201,6 @@ public:
 	// (not sorted until R2_DrawFloor is called).
 	drawthing_t *things;
 
-	// list of dynamic lights
-	drawthing_t *dlights;
-
 public:
 	void Clear()
 	{
@@ -212,7 +209,7 @@ public:
 		floor = ceil = NULL;
 		ef = NULL;
 		props = NULL;
-		things = dlights = NULL;
+		things = NULL;
 	}
 }
 drawfloor_t;
