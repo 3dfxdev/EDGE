@@ -51,8 +51,6 @@
 
 #define RAISE_RADIUS  32
 
-static float tmbbox[4];
-
 typedef struct try_move_info_s
 {
 	// --- input --
@@ -147,7 +145,7 @@ static inline int PointOnLineSide(float x, float y, line_t *ld)
 //
 // PIT_StompThing
 //
-static bool PIT_StompThing(mobj_t * thing)
+static bool PIT_StompThing(mobj_t * thing, void *data)
 {
 	if (!(thing->flags & MF_SHOOTABLE))
 		return true;
@@ -212,12 +210,12 @@ bool P_TeleportMove(mobj_t * thing, float x, float y, float z)
 	tm_I.above = NULL;
 	tm_I.below = NULL;
 
-	validcount++;
-	
 	// -ACB- 2004/08/01 Don't think this is needed
 	//	spechit.ZeroiseCount();
 
-	if (!P_RadiusThingsIterator(x, y, thing->radius, PIT_StompThing))
+	float r = thing->radius;
+	
+	if (! P_BlockThingsIterator(x-r, y-r, x+r, y+r, PIT_StompThing))
 		return false;
 
 	// everything on the spot has been stomped,
@@ -231,25 +229,14 @@ bool P_TeleportMove(mobj_t * thing, float x, float y, float z)
 	return true;
 }
 
+
 //
 // ABSOLUTE POSITION CLIPPING
 //
 
-//
-// PIT_CheckAbsLine
-//
-static bool PIT_CheckAbsLine(line_t * ld)
+static bool PIT_CheckAbsLine(line_t * ld, void *data)
 {
-	if (tmbbox[BOXRIGHT] <= ld->bbox[BOXLEFT] ||
-		tmbbox[BOXLEFT] >= ld->bbox[BOXRIGHT] ||
-		tmbbox[BOXTOP] <= ld->bbox[BOXBOTTOM] ||
-		tmbbox[BOXBOTTOM] >= ld->bbox[BOXTOP])
-	{
-		// no intersection with line
-		return true;
-	}
-
-	if (P_BoxOnLineSide(tmbbox, ld) != -1)
+	if (P_ThingOnLineSide(tm_I.mover, ld) != -1)
 		return true;
 
 	// The spawning thing's position touches the given line.
@@ -297,10 +284,7 @@ static bool PIT_CheckAbsLine(line_t * ld)
 	return false;
 }
 
-//
-// PIT_CheckAbsThing
-//
-static bool PIT_CheckAbsThing(mobj_t * thing)
+static bool PIT_CheckAbsThing(mobj_t * thing, void *data)
 {
 	float blockdist;
 	bool solid;
@@ -394,58 +378,31 @@ bool P_CheckAbsPosition(mobj_t * thing, float x, float y, float z)
 
 	tm_I.sub = R_PointInSubsector(x, y);
 
-	validcount++;
-
 	// check things first.
 
-	if (!P_RadiusThingsIterator(x, y, tm_I.mover->radius, PIT_CheckAbsThing))
+	float r = tm_I.mover->radius;
+
+	if (! P_BlockThingsIterator(x-r, y-r, x+r, y+r, PIT_CheckAbsThing))
 		return false;
 
 	// check lines
 
-	tmbbox[BOXLEFT]   = x - tm_I.mover->radius;
-	tmbbox[BOXRIGHT]  = x + tm_I.mover->radius;
-	tmbbox[BOXBOTTOM] = y - tm_I.mover->radius;
-	tmbbox[BOXTOP]    = y + tm_I.mover->radius;
-
-	int xl = BLOCKMAP_GET_X(tmbbox[BOXLEFT]);
-	int xh = BLOCKMAP_GET_X(tmbbox[BOXRIGHT]);
-	int yl = BLOCKMAP_GET_Y(tmbbox[BOXBOTTOM]);
-	int yh = BLOCKMAP_GET_Y(tmbbox[BOXTOP]);
-
-	for (int bx = xl; bx <= xh; bx++)
-	for (int by = yl; by <= yh; by++)
-	{
-		if (!P_BlockLinesIterator(bx, by, PIT_CheckAbsLine))
-			return false;
-	}
+	if (! P_BlockLinesIterator(x-r, y-r, x+r, y+r, PIT_CheckAbsLine))
+		return false;
 
 	return true;
 }
+
 
 //
 // RELATIVE MOVEMENT CLIPPING
 //
 
-//
-// PIT_CheckRelLine
-//
-// Adjusts tm_I.floorz & tm_I.ceilnz as lines are contacted
-//
-static bool PIT_CheckRelLine(line_t * ld)
+static bool PIT_CheckRelLine(line_t * ld, void *data)
 {
-	int i;
+	// Adjusts tm_I.floorz & tm_I.ceilnz as lines are contacted
 
-	if (tmbbox[BOXRIGHT] <= ld->bbox[BOXLEFT] ||
-		tmbbox[BOXLEFT] >= ld->bbox[BOXRIGHT] ||
-		tmbbox[BOXTOP] <= ld->bbox[BOXBOTTOM] ||
-		tmbbox[BOXBOTTOM] >= ld->bbox[BOXTOP])
-	{
-		// no intersection with line
-		return true;
-	}
-
-	if (P_BoxOnLineSide(tmbbox, ld) != -1)
+	if (P_ThingOnLineSide(tm_I.mover, ld) != -1)
 		return true;
 
 	// A line has been hit
@@ -562,8 +519,8 @@ static bool PIT_CheckRelLine(line_t * ld)
 	// be multiple gaps and we must choose one here, based on the thing's
 	// current position (esp. Z).
 
-	i = P_FindThingGap(ld->gaps, ld->gap_num, tm_I.z, tm_I.z +
-		tm_I.mover->height);
+	int i = P_FindThingGap(ld->gaps, ld->gap_num, tm_I.z, tm_I.z +
+				tm_I.mover->height);
 
 	// gap has been chosen. apply it.
 
@@ -600,10 +557,7 @@ static bool PIT_CheckRelLine(line_t * ld)
 	return true;
 }
 
-//
-// PIT_CheckRelThing
-//
-static bool PIT_CheckRelThing(mobj_t * thing)
+static bool PIT_CheckRelThing(mobj_t * thing, void *data)
 {
 	float blockdist;
 	bool solid;
@@ -782,38 +736,25 @@ static bool P_CheckRelPosition(mobj_t * thing, float x, float y)
 	if (tm_I.flags & MF_NOCLIP)
 		return true;
 
-	validcount++;
 	spechit.ZeroiseCount();
 
-	// -KM- 1998/11/25 Corpses aren't supposed to hang in the air...
-	if (!(tm_I.flags & (MF_NOCLIP | MF_CORPSE)))
-	{
-		// Check things first, possibly picking things up.
+	float r = tm_I.mover->radius;
 
-		if (!P_RadiusThingsIterator(x, y, thing->radius, PIT_CheckRelThing))
+	// -KM- 1998/11/25 Corpses aren't supposed to hang in the air...
+	if (! (tm_I.flags & (MF_NOCLIP | MF_CORPSE)))
+	{
+		// check things first, possibly picking things up
+
+		if (! P_BlockThingsIterator(x-r, y-r, x+r, y+r, PIT_CheckRelThing))
 			return false;
 	}
 
 	// check lines
 
-	tmbbox[BOXLEFT]   = x - tm_I.mover->radius;
-	tmbbox[BOXRIGHT]  = x + tm_I.mover->radius;
-	tmbbox[BOXBOTTOM] = y - tm_I.mover->radius;
-	tmbbox[BOXTOP]    = y + tm_I.mover->radius;
-
-	int xl = BLOCKMAP_GET_X(tmbbox[BOXLEFT]);
-	int xh = BLOCKMAP_GET_X(tmbbox[BOXRIGHT]);
-	int yl = BLOCKMAP_GET_Y(tmbbox[BOXBOTTOM]);
-	int yh = BLOCKMAP_GET_Y(tmbbox[BOXTOP]);;
-
 	thing->on_ladder = -1;
 
-	for (int bx = xl; bx <= xh; bx++)
-	for (int by = yl; by <= yh; by++)
-	{
-		if (!P_BlockLinesIterator(bx, by, PIT_CheckRelLine))
-			return false;
-	}
+	if (! P_BlockLinesIterator(x-r, y-r, x+r, y+r, PIT_CheckRelLine))
+		return false;
 
 	return true;
 }
@@ -1042,10 +983,8 @@ static void HitSlideLine(line_t * ld)
 	tmymove = newlen * M_Sin(lineangle);
 }
 
-//
-// PTR_SlideTraverse
-//
-static bool PTR_SlideTraverse(intercept_t * in)
+
+static bool PTR_SlideTraverse(intercept_t * in, void *dataptr)
 {
 	line_t *ld = in->line;
 
@@ -1192,7 +1131,7 @@ void P_SlideMove(mobj_t * mo, float x, float y)
 //
 // Sets aim_I.target and slope when a target is aimed at.
 //
-static bool PTR_AimTraverse(intercept_t * in)
+static bool PTR_AimTraverse(intercept_t * in, void *dataptr)
 {
 	float dist = aim_I.range * in->frac;
 
@@ -1325,7 +1264,7 @@ static inline bool ShootCheckGap(float z,
 //
 // -ACB- 1998/07/28 Cleaned up.
 //
-static bool PTR_ShootTraverse(intercept_t * in)
+static bool PTR_ShootTraverse(intercept_t * in, void *dataptr)
 {
 	float dist = shoot_I.range * in->frac;
 
@@ -1696,7 +1635,7 @@ mobj_t *P_MapTargetAutoAim(mobj_t * source, angle_t angle, float distance, bool 
 static mobj_t *usething;
 static float use_lower, use_upper;
 
-static bool PTR_UseTraverse(intercept_t * in)
+static bool PTR_UseTraverse(intercept_t * in, void *dataptr)
 {
 	// intercept is a thing ?
 	if (in->thing)
@@ -1781,6 +1720,7 @@ void P_UseLines(player_t * player)
 	P_PathTraverse(x1, y1, x2, y2, PT_ADDLINES | PT_ADDTHINGS, PTR_UseTraverse);
 }
 
+
 //
 // RADIUS ATTACK
 //
@@ -1810,7 +1750,7 @@ static rds_atk_info_t bomb_I;
 //
 // -KM-  1998/11/25 Fixed.  Added z movement for rocket jumping.
 //
-static bool PIT_RadiusAttack(mobj_t * thing)
+static bool PIT_RadiusAttack(mobj_t * thing, void *data)
 {
 	float dx, dy, dz;
 	float dist;
@@ -1890,7 +1830,10 @@ void P_RadiusAttack(mobj_t * spot, mobj_t * source, float radius,
 	//                  a radius regards of height, however true 3D uses
 	//                  a sphere attack, which checks height.
 	//
-	P_RadiusThingsIterator(spot->x, spot->y, radius, PIT_RadiusAttack);
+	float r = spot->radius;
+
+	P_BlockThingsIterator(spot->x - r, spot->y - r,
+			spot->x + r, spot->y + r, PIT_RadiusAttack);
 }
 
 
@@ -2275,7 +2218,7 @@ static mobj_t *raiserobj;
 static float raisertryx;
 static float raisertryy;
 
-static bool PIT_CorpseCheck(mobj_t * thing)
+static bool PIT_CorpseCheck(mobj_t * thing, void *data)
 {
 	float maxdist;
 	float oldradius;
@@ -2357,8 +2300,13 @@ mobj_t *P_MapFindCorpse(mobj_t * thing)
 		raisertryx = thing->x + thing->speed * xspeed[thing->movedir];
 		raisertryy = thing->y + thing->speed * yspeed[thing->movedir];
 
-		if (!P_RadiusThingsIterator(raisertryx, raisertryy, RAISE_RADIUS, PIT_CorpseCheck))
+		if (! P_BlockThingsIterator(
+				raisertryx - RAISE_RADIUS, raisertryy - RAISE_RADIUS,
+				raisertryx + RAISE_RADIUS, raisertryy + RAISE_RADIUS,
+				PIT_CorpseCheck))
+		{
 			return corpsehit;  // got one - return it
+		}
 	}
 
 	return NULL;
@@ -2393,19 +2341,8 @@ static float mb2;
 // spawn object top
 static float mt2;
 
-static bool PIT_CheckBlockingLine(line_t * line)
+static bool PIT_CheckBlockingLine(line_t * line, void *data)
 {
-	// -KM- 1999/01/31 Changed &&s to ||s.  This condition actually does something
-	//  now.
-	if (tmbbox[BOXRIGHT] <= line->bbox[BOXLEFT] ||
-		tmbbox[BOXLEFT] >= line->bbox[BOXRIGHT] ||
-		tmbbox[BOXTOP] <= line->bbox[BOXBOTTOM] ||
-		tmbbox[BOXBOTTOM] >= line->bbox[BOXTOP])
-	{
-		// no possible contact made between the respective bounding boxes.
-		return true;
-	}
-
 	// if the result is the same, we haven't crossed the line.
 	if (PointOnLineSide(mx1, my1, line) == PointOnLineSide(mx2, my2, line))
 		return true;
@@ -2456,27 +2393,15 @@ bool P_MapCheckBlockingLine(mobj_t * thing, mobj_t * spawnthing)
 
 	crosser = (spawnthing->extendedflags & EF_CROSSLINES)?true:false;
 
-	tmbbox[BOXLEFT] = mx1 < mx2 ? mx1 : mx2;
-	tmbbox[BOXRIGHT] = mx1 > mx2 ? mx1 : mx2;
-	tmbbox[BOXBOTTOM] = my1 < my2 ? my1 : my2;
-	tmbbox[BOXTOP] = my1 > my2 ? my1 : my2;
-
-	int xl = BLOCKMAP_GET_X(tmbbox[BOXLEFT]);
-	int xh = BLOCKMAP_GET_X(tmbbox[BOXRIGHT]);
-	int yl = BLOCKMAP_GET_Y(tmbbox[BOXBOTTOM]);
-	int yh = BLOCKMAP_GET_Y(tmbbox[BOXTOP]);
-
-	validcount++;
-
-	mobj_hit_sky = false;
 	blockline = NULL;
+	mobj_hit_sky = false;
 
-	int x, y;
-
-	for (x = xl; x <= xh; x++)
-		for (y = yl; y <= yh; y++)
-			if (!P_BlockLinesIterator(x, y, PIT_CheckBlockingLine))
-				return true;
+	if (! P_BlockLinesIterator(MIN(mx1,mx2), MIN(my1,my2),
+				MAX(mx1,mx2), MAX(my1,my2),
+				PIT_CheckBlockingLine))
+	{
+		return true;
+	}
 
 	return false;
 }

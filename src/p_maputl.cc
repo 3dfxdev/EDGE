@@ -304,6 +304,18 @@ int P_BoxOnDivLineSide(const float * tmbox, divline_t *div)
 	return -1;
 }
 
+int P_ThingOnLineSide(const mobj_t *mo, line_t * ld)
+{
+	float bbox[4];
+
+	bbox[BOXLEFT]   = mo->x - mo->radius;
+	bbox[BOXRIGHT]  = mo->x + mo->radius;
+	bbox[BOXBOTTOM] = mo->y - mo->radius;
+	bbox[BOXTOP]    = mo->y + mo->radius;
+
+	return P_BoxOnLineSide(bbox, ld);
+}
+
 
 //------------------------------------------------------------------------
 //

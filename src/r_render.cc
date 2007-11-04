@@ -955,13 +955,15 @@ static GLuint xxx_texid;
 static wall_coord_data_t *xxx_data;
 static int *xxx_group;
 
-static void DLIT_Wall(mobj_t *mo)
+static void DLIT_Wall(mobj_t *mo, void *dataptr)
 {
+	wall_coord_data_t *data = (wall_coord_data_t *)dataptr;
+
 	float dist = (mo->x - xxx_data->div.x) * xxx_data->div.dy -
 				 (mo->y - xxx_data->div.y) * xxx_data->div.dx;
 
 	// light behind the plane ?    
-	if (! mo->dlight.info->leaky)
+	if (! mo->info->dlight[0].leaky)
 	{
 		if (dist < 0)
 			return;
@@ -983,10 +985,12 @@ static void DLIT_Wall(mobj_t *mo)
 
 static plane_coord_data_t *ppp_data;
 
-static void DLIT_Plane(mobj_t *mo)
+static void DLIT_Plane(mobj_t *mo, void *dataptr)
 {
+	plane_coord_data_t *data = (plane_coord_data_t *)dataptr;
+
 	// light behind the plane ?    
-	if (! mo->dlight.info->leaky)
+	if (! mo->info->dlight[0].leaky)
 	{
 		if ((MO_MIDZ(mo) > ppp_data->vert[0].z) != (ppp_data->normal.z > 0))
 			return;
@@ -1358,7 +1362,7 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 		xxx_group  = &group;
 
 		P_DynamicLightIterator(MIN(x1,x2), MIN(y1,y2),
-				MAX(x1,x2), MAX(y1,y2), DLIT_Wall);
+				MAX(x1,x2), MAX(y1,y2), DLIT_Wall, &data);
 	}
 
 	
@@ -2269,7 +2273,7 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 		xxx_group  = &group;
 
 		P_DynamicLightIterator(v_low.x, v_low.y, v_high.x, v_high.y,
-				DLIT_Plane);
+				DLIT_Plane, &data);
 	}
 
 #if 0  // OLD WAY

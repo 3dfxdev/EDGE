@@ -86,7 +86,7 @@ static void WindCurrentForce(force_t *f, mobj_t *mo)
 	mo->mom.y += qty * f->mag.y;
 }
 
-static bool PIT_PushThing(mobj_t *mo)
+static bool PIT_PushThing(mobj_t *mo, void *dataptr)
 {
 	if (! (mo->hyperflags & HF_PUSHABLE))
 		return true;
@@ -137,7 +137,11 @@ static void DoForce(force_t * f)
 		{
 			tm_force = f;
 
-			P_RadiusThingsIterator(f->point.x, f->point.y, f->radius, PIT_PushThing);
+			float x = f->point.x;
+			float y = f->point.y;
+			float r = f->radius;
+
+			P_BlockThingsIterator(x-r, y-r, x+r, y+r, PIT_PushThing);
 		}
 		else // wind/current
 		{
