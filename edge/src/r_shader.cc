@@ -298,9 +298,12 @@ public:
 
 			rgbcol_t col = WhatColor(DL);
 
-			float R = RGB_RED(col) / 255.0;
-			float G = RGB_GRN(col) / 255.0;
-			float B = RGB_BLU(col) / 255.0;
+			float L = mo->state->bright / 255.0;
+
+			float R = L * RGB_RED(col) / 255.0;
+			float G = L * RGB_GRN(col) / 255.0;
+			float B = L * RGB_BLU(col) / 255.0;
+
 
 			local_gl_vert_t *glvert = RGL_BeginUnit(shape, num_vert,
 						is_additive ? ENV_NONE : GL_MODULATE,
