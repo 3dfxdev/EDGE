@@ -601,6 +601,8 @@ typedef struct
 	multi_color_c nm_colors[MD2_NUM_NORMALS];
 
 	short * used_normals;
+
+	bool is_additive;
 }
 model_coord_data_t;
 
@@ -609,9 +611,9 @@ static void InitNormalColors(model_coord_data_t *data)
 {
 	short *n_list = data->used_normals;
 
-	for (int i=0; n_list[i] >= 0; i++)
+	for (; *n_list; n_list++)
 	{
-		data->nm_colors[n_list[i]].Clear();
+		data->nm_colors[*n_list].Clear();
 	}
 }
 
@@ -653,12 +655,29 @@ static void DLIT_Model(mobj_t *mo, void *dataptr)
 	ShadeNormals(mo->dlight.shader, data);
 }
 
-
-static void ModelCoordFunc(void *d, int v_idx,
-		vec3_t *pos, float *rgb, vec2_t *texc,
-		vec3_t *normal, vec3_t *lit_pos)
+static int MD2_MulticolMaxRGB(model_coord_data_t *data, bool additive)
 {
-	const model_coord_data_t *data = (model_coord_data_t *)d;
+	int result = 0;
+
+	short *n_list = data->used_normals;
+
+	for (; *n_list >= 0; n_list++)
+	{
+		multi_color_c *col = &data->nm_colors[*n_list];
+
+		int mx = additive ? col->add_MAX() : col->mod_MAX();
+
+		result = MAX(result, mx);
+	}
+
+	return result;
+}
+
+
+static void ModelCoordFunc(void *d, int v_idx, vec3_t *pos,
+				float *rgb, vec2_t *texc, vec3_t *normal)
+{
+	model_coord_data_t *data = (model_coord_data_t *)d;
 
 	const md2_model_c *md = data->model;
 
@@ -683,17 +702,10 @@ static void ModelCoordFunc(void *d, int v_idx,
 	pos->y = data->y + x2 * data->ry_mat.x + y2 * data->ry_mat.y;
 	pos->z = data->z + z2;
 
-///---	rgb[0] = data->R;
-///---	rgb[1] = data->G;
-///---	rgb[2] = data->B;
-
 	texc->Set(point->skin_s, point->skin_t);
 
-	short n = vert->normal_idx;
 
-	rgb[0] = data->nm_colors[n].mod_R / 255.0;
-	rgb[1] = data->nm_colors[n].mod_G / 255.0;
-	rgb[2] = data->nm_colors[n].mod_B / 255.0;
+	short n = vert->normal_idx;
 
 	float nx = md2_normals[n].x;
 	float ny = md2_normals[n].y;
@@ -707,37 +719,25 @@ static void ModelCoordFunc(void *d, int v_idx,
 	normal->y = nx2 * data->ry_mat.x + ny2 * data->ry_mat.y;
 	normal->z = nz2;
 
-	if (false) /// NORMAL LIGHTING
+
+	multi_color_c *col = &data->nm_colors[n];
+
+	if (! data->is_additive)
 	{
-//		float vx = data->mo->x - viewx;
-//		float vy = data->mo->y - viewy;
-//		float vz = data->mo->z - viewz;
-//
-//		float v_dist = sqrt(vx*vx + vy*vy + vz*vz);
-//
-//		vx /= v_dist;
-//		vy /= v_dist;
-//		vz /= v_dist;
+		rgb[0] = col->mod_R / 255.0;
+		rgb[1] = col->mod_G / 255.0;
+		rgb[2] = col->mod_B / 255.0;
 
-		float vx = 0;
-		float vy = 0;
-		float vz = -1;
-
-		vx *= normal->x;
-		vy *= normal->y;
-		vz *= normal->z;
-
-		float n_dist = vx + vy + vz;
-
-		n_dist = 0.5 - n_dist * 0.6;
-		n_dist = CLAMP(0, n_dist, 1);
-
-		rgb[0] = n_dist;
-		rgb[1] = n_dist;
-		rgb[2] = n_dist;
+		col->mod_R -= 256;
+		col->mod_G -= 256;
+		col->mod_B -= 256;
 	}
-
-	*lit_pos = *pos;
+	else
+	{
+		rgb[0] = col->add_R / 255.0;
+		rgb[1] = col->add_G / 255.0;
+		rgb[2] = col->add_B / 255.0;
+	}
 }
 
 
@@ -765,10 +765,6 @@ I_Debugf("Render model: bad frame %d\n", frame);
 	data.model = md;
 	data.frame = frame;
 
-///---	data.R = fuzzy ? 0 : 1;
-///---	data.G = fuzzy ? 0 : 1;
-///---	data.B = fuzzy ? 0 : 1;
-
 	data.x = x;
 	data.y = y;
 	data.z = z;
@@ -788,11 +784,11 @@ I_Debugf("Render model: bad frame %d\n", frame);
 	InitNormalColors(&data);
 
 
-	abstract_shader_c *shader = R_GetColormapShader(props, mo->state->bright);
-
 	if (! fuzzy)
 	{
-		ShadeNormals(shader, &data);
+		abstract_shader_c *shader = R_GetColormapShader(props, mo->state->bright);
+
+//!!!!!!		ShadeNormals(shader, &data);
 
 		if (use_dlights)
 		{
@@ -808,33 +804,44 @@ I_Debugf("Render model: bad frame %d\n", frame);
 
 	/* draw the model */
 	
-	int group = 0;
-
-	for (int i = 0; i < md->num_strips; i++)
+	for (int pass = 0; pass < 3; pass++)
 	{
-		data.strip = i;
+		if (pass > 0 && pass < 2 && MD2_MulticolMaxRGB(&data, false) <= 2)
+			continue;
 
-		local_gl_vert_t * glvert = RGL_BeginUnit(md->strips[i].mode,
-				 md->strips[i].count, GL_MODULATE, skin_tex*0,
-				 ENV_NONE, 0, group, blending);
+		if (pass == 2 && MD2_MulticolMaxRGB(&data, true) <= 2)
+			continue;
 
-		for (int v_idx=0; v_idx < md->strips[i].count; v_idx++)
+		if (pass >= 1)
 		{
-			local_gl_vert_t *dest = glvert + v_idx;
-
-			dest->rgba[3] = trans;
-
-			vec3_t lit_pos;
-
-			ModelCoordFunc(&data, v_idx, &dest->pos, dest->rgba,
-					&dest->texc[0], &dest->normal, &lit_pos);
+			blending &= ~BL_Alpha;
+			blending |=  BL_Add;
 		}
 
-		RGL_EndUnit(md->strips[i].count);
+		data.is_additive = (pass == 2);
+
+		for (int i = 0; i < md->num_strips; i++)
+		{
+			data.strip = i;
+
+			local_gl_vert_t * glvert = RGL_BeginUnit(md->strips[i].mode,
+					 md->strips[i].count,
+					 GL_MODULATE, data.is_additive ? 0 : skin_tex*0,  //!!!!
+					 ENV_NONE, 0, pass, blending);
+
+			for (int v_idx=0; v_idx < md->strips[i].count; v_idx++)
+			{
+				local_gl_vert_t *dest = glvert + v_idx;
+
+				ModelCoordFunc(&data, v_idx, &dest->pos, dest->rgba,
+						&dest->texc[0], &dest->normal);
+
+				dest->rgba[3] = trans;
+			}
+
+			RGL_EndUnit(md->strips[i].count);
+		}
 	}
-
-	group++;
-
 }
 
 //--- editor settings ---
