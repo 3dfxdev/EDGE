@@ -52,12 +52,12 @@ public:
 
 	int mod_MAX() const
 	{
-		return MAX(mod_B, MAX(mod_G, mod_B));
+		return MAX(mod_R, MAX(mod_G, mod_B));
 	}
 
 	int add_MAX() const
 	{
-		return MAX(add_B, MAX(add_G, add_B));
+		return MAX(add_R, MAX(add_G, add_B));
 	}
 
 	void mod_Give(rgbcol_t rgb, float qty)
