@@ -163,6 +163,7 @@ void P_ActMoveRight(struct mobj_s *mo);
 void P_ActMoveUp(struct mobj_s *mo);
 void P_ActStopMoving(struct mobj_s *mo);
 void P_ActCheckMoving(struct mobj_s *mo);
+void P_ActCheckActivity(struct mobj_s *mo);
 
 // Projectiles
 void P_ActHomingProjectile(struct mobj_s *mo);

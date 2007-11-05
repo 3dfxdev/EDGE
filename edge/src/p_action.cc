@@ -3504,6 +3504,8 @@ void P_ActCheckActivity(mobj_t *mo)
 
 		if (climb_st != S_NULL)
 			P_SetMobjStateDeferred(pl->mo, climb_st, 0);
+
+		return;
 	}
 
 	/* Otherwise: do nothing */
