@@ -51,34 +51,6 @@ static float cur_wipe_top;
 static int melt_yoffs[MELT_DIVS+1];
 
 
-///---static GLuint SendWipeTexture(byte *rgb_src, int total_w, int total_h,
-///---	bool use_alpha)
-///---{
-///---	GLuint id;
-///---
-///---	SYS_ASSERT(0 < total_w && total_w <= glmax_tex_size);
-///---	SYS_ASSERT(0 < total_h && total_h <= glmax_tex_size);
-///---
-///---	glEnable(GL_TEXTURE_2D);
-///---
-///---	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-///---
-///---	glGenTextures(1, &id);
-///---	glBindTexture(GL_TEXTURE_2D, id);
-///---
-///---	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-///---	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-///---	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-///---	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-///---
-///---	glTexImage2D(GL_TEXTURE_2D, 0, use_alpha ? 4 : 3, total_w, total_h,
-///---		0, use_alpha ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, rgb_src);
-///---
-///---	glDisable(GL_TEXTURE_2D);
-///---
-///---	return id;
-///---}
-
 static inline byte SpookyAlpha(int x, int y)
 {
 	y += (x & 32) / 2;
@@ -194,7 +166,7 @@ void RGL_StopWipe(void)
 
 	if (cur_wipe_tex != 0)
 	{
-//!!!!		glDeleteTextures(1, &cur_wipe_tex);
+		glDeleteTextures(1, &cur_wipe_tex);
 		cur_wipe_tex = 0;
 	}
 }
