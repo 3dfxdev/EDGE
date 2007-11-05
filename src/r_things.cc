@@ -1084,6 +1084,20 @@ static void DLIT_Thing(mobj_t *mo, void *dataptr)
 	}
 }
 
+static int GetMulticolMaxRGB(multi_color_c *cols, int num, bool additive)
+{
+	int result = 0;
+
+	for (; num > 0; num--, cols++)
+	{
+		int mx = additive ? cols->add_MAX() : cols->mod_MAX();
+
+		result = MAX(result, mx);
+	}
+	
+	return result;
+}
+
 
 void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 {
@@ -1220,7 +1234,6 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 	data.normal.Set(-viewcos, -viewsin, 0);
 
 
-	int group = 0;
 	int v_idx;
 
 	for (int jj=0; jj < 4; jj++)
@@ -1248,27 +1261,57 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 		}
 	}
 
-	local_gl_vert_t * glvert = RGL_BeginUnit(GL_POLYGON, 4,
-			 GL_MODULATE, tex_id, ENV_NONE, 0,
-			 group, blending);
-
-	for (v_idx=0; v_idx < 4; v_idx++)
+	// FIXME DESCRIBE THIS WEIRD SHIT!!!
+	
+	for (int pass = 0; pass < 3; pass++)
 	{
-		local_gl_vert_t *dest = glvert + v_idx;
+I_Debugf("Pass %d\n", pass);
+		if (pass == 1 && GetMulticolMaxRGB(data.col, 4, false) <= 2)
+			continue;
 
-		vec3_t lit_pos;
+		if (pass == 2 && GetMulticolMaxRGB(data.col, 4, true) <= 2)
+			continue;
 
-		ThingCoordFunc(&data, v_idx, &dest->pos, dest->rgba,
-				&dest->texc[0], &dest->normal, &lit_pos);
+		bool is_additive = (pass == 2);
 
-		dest->rgba[0] = data.col[v_idx].mod_R / 255.0;
-		dest->rgba[1] = data.col[v_idx].mod_G / 255.0;
-		dest->rgba[2] = data.col[v_idx].mod_B / 255.0;
-		dest->rgba[3] = trans;
+		local_gl_vert_t * glvert = RGL_BeginUnit(GL_POLYGON, 4,
+				 GL_MODULATE, tex_id,
+				 is_additive ? ENV_NONE : ENV_SKIP_RGB, 0,
+				 pass, blending);
+
+		for (v_idx=0; v_idx < 4; v_idx++)
+		{
+			local_gl_vert_t *dest = glvert + v_idx;
+
+			vec3_t lit_pos;
+
+			ThingCoordFunc(&data, v_idx, &dest->pos, dest->rgba,
+					&dest->texc[0], &dest->normal, &lit_pos);
+
+			if (! is_additive)
+			{
+				dest->rgba[0] = MAX(0, data.col[v_idx].mod_R / 255.0);
+				dest->rgba[1] = MAX(0, data.col[v_idx].mod_G / 255.0);
+				dest->rgba[2] = MAX(0, data.col[v_idx].mod_B / 255.0);
+
+				data.col[v_idx].mod_R -= 256;
+				data.col[v_idx].mod_G -= 256;
+				data.col[v_idx].mod_B -= 256;
+			}
+			else
+			{
+				dest->rgba[0] = data.col[v_idx].add_R / 255.0;
+				dest->rgba[1] = data.col[v_idx].add_G / 255.0;
+				dest->rgba[2] = data.col[v_idx].add_B / 255.0;
+			}
+			dest->rgba[3] = trans;
+		}
+
+		RGL_EndUnit(4);
+
+		blending &= ~BL_Alpha;
+		blending |=  BL_Add;
 	}
-
-	RGL_EndUnit(4);
-
 }
 
 //
