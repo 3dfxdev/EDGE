@@ -26,14 +26,14 @@
 #include "i_defs.h"
 #include "i_defs_gl.h"
 
+#include "epi/image_data.h"
+
 #include "m_random.h"
 #include "r_gldefs.h"
 #include "r_wipe.h"
 #include "r_image.h"
 #include "r_modes.h"
-#include "z_zone.h"
-
-#include <math.h>
+#include "r_texgl.h"
 
 // we're limited to one wipe at a time...
 static int cur_wipe_reverse = 0;
@@ -43,39 +43,41 @@ static int cur_wipe_progress;
 static int cur_wipe_lasttime;
 
 static GLuint cur_wipe_tex = 0;
+static float cur_wipe_right;
+static float cur_wipe_top;
 
 
 #define MELT_DIVS  128
 static int melt_yoffs[MELT_DIVS+1];
 
 
-static GLuint SendWipeTexture(byte *rgb_src, int total_w, int total_h,
-	bool use_alpha)
-{
-	GLuint id;
-
-	SYS_ASSERT(0 < total_w && total_w <= glmax_tex_size);
-	SYS_ASSERT(0 < total_h && total_h <= glmax_tex_size);
-
-	glEnable(GL_TEXTURE_2D);
-
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-	glGenTextures(1, &id);
-	glBindTexture(GL_TEXTURE_2D, id);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, use_alpha ? 4 : 3, total_w, total_h,
-		0, use_alpha ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, rgb_src);
-
-	glDisable(GL_TEXTURE_2D);
-
-	return id;
-}
+///---static GLuint SendWipeTexture(byte *rgb_src, int total_w, int total_h,
+///---	bool use_alpha)
+///---{
+///---	GLuint id;
+///---
+///---	SYS_ASSERT(0 < total_w && total_w <= glmax_tex_size);
+///---	SYS_ASSERT(0 < total_h && total_h <= glmax_tex_size);
+///---
+///---	glEnable(GL_TEXTURE_2D);
+///---
+///---	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+///---
+///---	glGenTextures(1, &id);
+///---	glBindTexture(GL_TEXTURE_2D, id);
+///---
+///---	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+///---	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+///---	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+///---	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+///---
+///---	glTexImage2D(GL_TEXTURE_2D, 0, use_alpha ? 4 : 3, total_w, total_h,
+///---		0, use_alpha ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, rgb_src);
+///---
+///---	glDisable(GL_TEXTURE_2D);
+///---
+///---	return id;
+///---}
 
 static inline byte SpookyAlpha(int x, int y)
 {
@@ -87,72 +89,46 @@ static inline byte SpookyAlpha(int x, int y)
 	return (x*x + y * y) / 2;
 }
 
-static GLuint CaptureScreenAsTexture(bool use_alpha, bool spooky)
+static void CaptureScreenAsTexture(bool speckly, bool spooky)
 {
-	use_alpha = use_alpha || spooky;
+	int total_w = W_MakeValidSize(SCREENWIDTH);
+	int total_h = W_MakeValidSize(SCREENHEIGHT);
 
-	int total_w, total_h;
-	int x, y, id;
+	epi::image_data_c img(total_w, total_h, 4);
 
+	img.Clear();
 
-	total_w = W_MakeValidSize(SCREENWIDTH);
-	total_h = W_MakeValidSize(SCREENHEIGHT);
+	cur_wipe_right = SCREENWIDTH  / (float)total_w;
+	cur_wipe_top   = SCREENHEIGHT / (float)total_h;
 
-	while (total_w > glmax_tex_size)
-		total_w /= 2;
-
-	while (total_h > glmax_tex_size)
-		total_h /= 2;
-
-	byte *pixels   = new byte[total_w * total_h * 4];
-	byte *line_buf = new byte[SCREENWIDTH * 4];
-
-	// read pixels from screen, scaling down to target size which must
-	// be both power-of-two and within the GL's tex_size limitation.
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-	for (y=0; y < total_h; y++)
+	for (int y=0; y < SCREENHEIGHT; y++)
 	{
-		int px;
-		int py = y * SCREENHEIGHT / total_h;
+		u8_t *dest = img.PixelAt(0, y);
 
-		glReadPixels(0, py, SCREENWIDTH, 1, GL_RGB, GL_UNSIGNED_BYTE, line_buf);
-
-		int bp = use_alpha ? 4 : 3;
+		glReadPixels(0, y, SCREENWIDTH, 1, GL_RGBA, GL_UNSIGNED_BYTE, dest);
 
 		int rnd_val = y;
-	
-		for (x=0; x < total_w; x++)
+
+		if (spooky)
 		{
-			byte *dest_p = pixels + ((y * total_w + x) * bp);
-
-			px = x * SCREENWIDTH / total_w;
-
-			dest_p[0] = line_buf[px*3 + 0];
-			dest_p[1] = line_buf[px*3 + 1];
-			dest_p[2] = line_buf[px*3 + 2];
-
-			if (use_alpha)
+			for (int x=0; x < total_w; x++)
+				dest[4*x+3] = SpookyAlpha(x, y);
+		}
+		else if (speckly)
+		{
+			for (int x=0; x < total_w; x++)
 			{
-				if (spooky)
-					dest_p[3] = SpookyAlpha(x, y);
-				else
-				{
-					rnd_val = rnd_val * 1103515245 + 12345;
+				rnd_val = rnd_val * 1103515245 + 12345;
 
-					dest_p[3] = (rnd_val >> 16);
-				}
+				dest[4*x+3] = (rnd_val >> 16);
 			}
 		}
 	}
 
-	id = SendWipeTexture(pixels, total_w, total_h, use_alpha);
-
-	delete[] line_buf;
-	delete[] pixels;
-
-	return id;
+	cur_wipe_tex = R_UploadTexture(&img, NULL, UPL_NONE);
 }
 
 static void RGL_Init_Melt(void)
@@ -192,9 +168,7 @@ static void RGL_Update_Melt(int tics)
 	}
 }
 
-//
-// RGL_InitWipe
-// 
+
 void RGL_InitWipe(int reverse, wipetype_e effect)
 {
 	cur_wipe_reverse  = reverse;
@@ -206,23 +180,21 @@ void RGL_InitWipe(int reverse, wipetype_e effect)
 	if (cur_wipe_effect == WIPE_None)
 		return;
 
-	cur_wipe_tex = CaptureScreenAsTexture(effect == WIPE_Pixelfade,
+	CaptureScreenAsTexture(effect == WIPE_Pixelfade,
 		effect == WIPE_Spooky);
 
 	if (cur_wipe_effect == WIPE_Melt)
 		RGL_Init_Melt();
 }
 
-//
-// RGL_StopWipe
-// 
+
 void RGL_StopWipe(void)
 {
 	cur_wipe_effect = WIPE_None;
 
 	if (cur_wipe_tex != 0)
 	{
-		glDeleteTextures(1, &cur_wipe_tex);
+//!!!!		glDeleteTextures(1, &cur_wipe_tex);
 		cur_wipe_tex = 0;
 	}
 }
@@ -404,13 +376,12 @@ static void RGL_Wipe_Doors(float how_far)
 	glDisable(GL_TEXTURE_2D);
 }
 
-//
-// RGL_DoWipe
-//
-// NOTE: we assume 2D project matrix is already setup.
-//
 bool RGL_DoWipe(void)
 {
+	//
+	// NOTE: we assume 2D project matrix is already setup.
+	//
+
 	if (cur_wipe_effect == WIPE_None || cur_wipe_tex == 0)
 		return true;
 
