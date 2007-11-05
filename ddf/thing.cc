@@ -604,6 +604,10 @@ static void ThingFinishEntry(void)
 		DDF_Error("Bad MODEL_SKIN value %d in DDF (must be 0-9).\n",
 			buffer_mobj.model_skin);
 
+	if (buffer_mobj.dlight[0].radius > 512)
+		DDF_Warning("DLIGHT RADIUS value %1.1f too large (over 512).\n",
+			buffer_mobj.dlight[0].radius);
+
 	// FIXME: check more stuff
 
 	// backwards compatibility:
