@@ -1,9 +1,13 @@
 Andrew Apted's Log
 
+2007/11/05:
+
+Applied new dlight code to flat-flooding emulation.
+
 2007/11/04:
 
 Reworked blockmap code for dynamic lights, using a block-size
-roughly equal to the largest allowed dlight (768 units).
+roughly equal to the largest allowed dlight (512 units).
 That paves the way to using the map directly when rendering
 dynamic lights (instead of creating lists of them).
 
