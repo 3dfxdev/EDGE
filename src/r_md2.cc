@@ -611,7 +611,7 @@ static void InitNormalColors(model_coord_data_t *data)
 {
 	short *n_list = data->used_normals;
 
-	for (; *n_list; n_list++)
+	for (; *n_list >= 0; n_list++)
 	{
 		data->nm_colors[*n_list].Clear();
 	}
@@ -622,9 +622,9 @@ static void ShadeNormals(abstract_shader_c *shader,
 {
 	short *n_list = data->used_normals;
 
-	for (int i=0; n_list[i] >= 0; i++)
+	for (; *n_list >= 0; n_list++)
 	{
-		short n = n_list[i];
+		short n = *n_list;
 
 		// FIXME !!!! pre-rotate normals too
 		float nx, ny, nz;
@@ -671,6 +671,20 @@ static int MD2_MulticolMaxRGB(model_coord_data_t *data, bool additive)
 	}
 
 	return result;
+}
+
+static void UpdateMulticols(model_coord_data_t *data)
+{
+	short *n_list = data->used_normals;
+
+	for (; *n_list >= 0; n_list++)
+	{
+		multi_color_c *col = &data->nm_colors[*n_list];
+
+		col->mod_R -= 256;
+		col->mod_G -= 256;
+		col->mod_B -= 256;
+	}
 }
 
 
@@ -727,10 +741,6 @@ static void ModelCoordFunc(void *d, int v_idx, vec3_t *pos,
 		rgb[0] = col->mod_R / 255.0;
 		rgb[1] = col->mod_G / 255.0;
 		rgb[2] = col->mod_B / 255.0;
-
-		col->mod_R -= 256;
-		col->mod_G -= 256;
-		col->mod_B -= 256;
 	}
 	else
 	{
@@ -788,7 +798,7 @@ I_Debugf("Render model: bad frame %d\n", frame);
 	{
 		abstract_shader_c *shader = R_GetColormapShader(props, mo->state->bright);
 
-//!!!!!!		ShadeNormals(shader, &data);
+		ShadeNormals(shader, &data);
 
 		if (use_dlights)
 		{
@@ -806,10 +816,14 @@ I_Debugf("Render model: bad frame %d\n", frame);
 	
 	for (int pass = 0; pass < 3; pass++)
 	{
-		if (pass > 0 && pass < 2 && MD2_MulticolMaxRGB(&data, false) <= 2)
-			continue;
+		if (pass > 0 && pass < 2)
+		{
+			UpdateMulticols(&data);
+			if (MD2_MulticolMaxRGB(&data, false) <= 0)
+				continue;
+		}
 
-		if (pass == 2 && MD2_MulticolMaxRGB(&data, true) <= 2)
+		if (pass == 2 && MD2_MulticolMaxRGB(&data, true) <= 0)
 			continue;
 
 		if (pass >= 1)
@@ -826,7 +840,7 @@ I_Debugf("Render model: bad frame %d\n", frame);
 
 			local_gl_vert_t * glvert = RGL_BeginUnit(md->strips[i].mode,
 					 md->strips[i].count,
-					 GL_MODULATE, data.is_additive ? 0 : skin_tex*0,  //!!!!
+					 GL_MODULATE, data.is_additive ? 0 : skin_tex,
 					 ENV_NONE, 0, pass, blending);
 
 			for (int v_idx=0; v_idx < md->strips[i].count; v_idx++)
