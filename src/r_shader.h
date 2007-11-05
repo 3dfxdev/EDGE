@@ -100,7 +100,7 @@ public:
 	// used for normal-based lighting (MD2 models)
 
 	virtual void WorldMix(GLuint shape, int num_vert,
-		GLuint tex, float alpha, int pass, int blending,
+		GLuint tex, float alpha, int *pass_var, int blending,
 		void *data, shader_coord_func_t func) = 0;
 	// used to render overlay textures (world polygons)
 };

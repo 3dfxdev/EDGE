@@ -286,11 +286,9 @@ public:
 	}
 
 	virtual void WorldMix(GLuint shape, int num_vert,
-		GLuint tex, float alpha, int pass, int blending,
+		GLuint tex, float alpha, int *pass_var, int blending,
 		void *data, shader_coord_func_t func)
 	{
-		//!!!!! FIXME: if (dist_to_light > DL->info->radius) continue;
-
 		for (int DL = 0; DL < 2; DL++)
 		{
 			if (WhatType(DL) == DLITE_None)
@@ -307,9 +305,9 @@ public:
 			local_gl_vert_t *glvert = RGL_BeginUnit(shape, num_vert,
 						is_additive ? ENV_NONE : GL_MODULATE,
 						is_additive ? 0 : tex,
-						GL_MODULATE, lim[DL]->tex_id, pass, blending);
-			pass++;
-
+						GL_MODULATE, lim[DL]->tex_id,
+						*pass_var, blending);
+			
 			for (int v_idx=0; v_idx < num_vert; v_idx++)
 			{
 				local_gl_vert_t *dest = glvert + v_idx;
@@ -332,6 +330,8 @@ public:
 			}
 
 			RGL_EndUnit(num_vert);
+
+			(*pass_var) += 1;
 		}
 	}
 
@@ -383,7 +383,7 @@ public:
 	}
 
 	virtual void WorldMix(GLuint shape, int num_vert,
-		GLuint tex, float alpha, int pass, int blending,
+		GLuint tex, float alpha, int *pass_var, int blending,
 		void *data, shader_coord_func_t func)
 	{
 		/* TODO */
@@ -430,7 +430,7 @@ public:
 	}
 
 	virtual void WorldMix(GLuint shape, int num_vert,
-		GLuint tex, float alpha, int pass, int blending,
+		GLuint tex, float alpha, int *pass_var, int blending,
 		void *data, shader_coord_func_t func)
 	{
 		/* TODO */
@@ -545,7 +545,7 @@ public:
 	}
 
 	virtual void WorldMix(GLuint shape, int num_vert,
-		GLuint tex, float alpha, int pass, int blending,
+		GLuint tex, float alpha, int *pass_var, int blending,
 		void *data, shader_coord_func_t func)
 	{
 		/* TODO */

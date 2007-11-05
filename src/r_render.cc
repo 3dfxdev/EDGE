@@ -902,10 +902,8 @@ static void DLIT_Wall(mobj_t *mo, void *dataptr)
 	blending |=  BL_Add;
 
 	mo->dlight.shader->WorldMix(GL_POLYGON, data->v_count, data->tex_id,
-			1.0 /*!!! alpha */, data->pass, blending,
+			1.0 /*!!! alpha */, &data->pass, blending,
 			data, WallCoordFunc);
-
-	data->pass += 1;
 }
 
 
@@ -934,10 +932,8 @@ static void DLIT_Plane(mobj_t *mo, void *dataptr)
 	blending |=  BL_Add;
 
 	mo->dlight.shader->WorldMix(GL_POLYGON, data->v_count, data->tex_id,
-			1.0 /*!!! alpha */, data->pass, blending,
+			1.0 /*!!! alpha */, &data->pass, blending,
 			data, PlaneCoordFunc);
-
-	data->pass += 1;
 }
 
 
@@ -1276,8 +1272,7 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 	cmap_shader = R_GetColormapShader(props, lit_adjust);
 
 	cmap_shader->WorldMix(GL_POLYGON, v_count, tex_id,
-			trans, data.pass, blending, &data, WallCoordFunc);
-	data.pass += 1;
+			trans, &data.pass, blending, &data, WallCoordFunc);
 
 	if (use_dlights == 1 && solid_mode)
 	{
@@ -1519,11 +1514,9 @@ static void DLIT_Flood(mobj_t *mo, void *dataptr)
 		}
 
 		mo->dlight.shader->WorldMix(GL_QUAD_STRIP, data->v_count,
-				data->tex_id, 1.0, data->pass, blending,
+				data->tex_id, 1.0, &data->pass, blending,
 				data, FloodCoordFunc);
 	}
-
-	data->pass += 1;
 }
 
 
@@ -1644,11 +1637,9 @@ static void EmulateFloodPlane(const drawfloor_t *dfloor,
 #endif
 
 		cmap_shader->WorldMix(GL_QUAD_STRIP, data.v_count,
-				data.tex_id, 1.0, data.pass, BL_NONE,
+				data.tex_id, 1.0, &data.pass, BL_NONE,
 				&data, FloodCoordFunc);
 	}
-
-	data.pass++;
 
 	if (use_dlights == 1 && solid_mode)
 	{
@@ -2286,8 +2277,7 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 
 
 	cmap_shader->WorldMix(GL_POLYGON, data.v_count, data.tex_id,
-			trans, data.pass, blending, &data, PlaneCoordFunc);
-	data.pass += 1;
+			trans, &data.pass, blending, &data, PlaneCoordFunc);
 
 	if (use_dlights == 1 && solid_mode)
 	{
