@@ -104,7 +104,7 @@ typedef struct
 	vec2_t texc[4];
 	vec3_t lit_pos;
 
-	multi_color_c col;
+	multi_color_c col[4];
 }
 psprite_coord_data_t;
 
@@ -132,8 +132,22 @@ static void DLIT_PSprite(mobj_t *mo, void *dataptr)
 
 	SYS_ASSERT(mo->dlight.shader);
 
-	mo->dlight.shader->Sample(&data->col,
+	mo->dlight.shader->Sample(data->col + 0,
 			data->lit_pos.x, data->lit_pos.y, data->lit_pos.z);
+}
+
+static int GetMulticolMaxRGB(multi_color_c *cols, int num, bool additive)
+{
+	int result = 0;
+
+	for (; num > 0; num--, cols++)
+	{
+		int mx = additive ? cols->add_MAX() : cols->mod_MAX();
+
+		result = MAX(result, mx);
+	}
+	
+	return result;
 }
 
 
@@ -281,17 +295,16 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 ///---			      trans, blending, PIPEF_NONE,
 ///---				  &data, (pipeline_coord_func_t) PSpriteCoordFunc);
 
-	abstract_shader_c *shader = R_GetColormapShader(props, state->bright);
 
-
-	int group = 0;
 	int v_idx;
 
-	data.col.Clear();
+	data.col[0].Clear();
 
 	if (! fuzzy)
 	{
-		shader->Sample(&data.col, data.lit_pos.x, data.lit_pos.y, data.lit_pos.z);
+		abstract_shader_c *shader = R_GetColormapShader(props, state->bright);
+
+		shader->Sample(data.col + 0, data.lit_pos.x, data.lit_pos.y, data.lit_pos.z);
 
 		if (use_dlights)
 		{
@@ -306,26 +319,61 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 		}
 	}
 
-	local_gl_vert_t * glvert = RGL_BeginUnit(GL_POLYGON, 4,
-			 GL_MODULATE, tex_id, ENV_NONE, 0,
-			 group, blending);
+	// FIXME: sample at least TWO points (left and right edges)
+	data.col[1] = data.col[0];
+	data.col[2] = data.col[0];
+	data.col[3] = data.col[0];
 
-	for (v_idx=0; v_idx < 4; v_idx++)
+	for (int pass = 0; pass < 4; pass++)
 	{
-		local_gl_vert_t *dest = glvert + v_idx;
+		if (pass > 0 && pass < 3 && GetMulticolMaxRGB(data.col, 4, false) <= 2)
+			continue;
 
-		vec3_t lit_pos;
+		if (pass == 3 && GetMulticolMaxRGB(data.col, 4, true) <= 2)
+			continue;
 
-		PSpriteCoordFunc(&data, v_idx, &dest->pos, dest->rgba,
-				&dest->texc[0], &dest->normal, &lit_pos);
+		if (pass >= 1)
+		{
+			blending &= ~BL_Alpha;
+			blending |=  BL_Add;
+		}
 
-		dest->rgba[0] = data.col.mod_R / 255.0;
-		dest->rgba[1] = data.col.mod_G / 255.0;
-		dest->rgba[2] = data.col.mod_B / 255.0;
-		dest->rgba[3] = trans;
+		bool is_additive = (pass == 3);
+
+		local_gl_vert_t * glvert = RGL_BeginUnit(GL_POLYGON, 4,
+				 is_additive ? ENV_SKIP_RGB : GL_MODULATE, tex_id,
+				 ENV_NONE, 0, pass, blending);
+
+		for (v_idx=0; v_idx < 4; v_idx++)
+		{
+			local_gl_vert_t *dest = glvert + v_idx;
+
+			vec3_t lit_pos;
+
+			PSpriteCoordFunc(&data, v_idx, &dest->pos, dest->rgba,
+					&dest->texc[0], &dest->normal, &lit_pos);
+
+			if (! is_additive)
+			{
+				dest->rgba[0] = data.col[v_idx].mod_R / 255.0;
+				dest->rgba[1] = data.col[v_idx].mod_G / 255.0;
+				dest->rgba[2] = data.col[v_idx].mod_B / 255.0;
+
+				data.col[v_idx].mod_R -= 256;
+				data.col[v_idx].mod_G -= 256;
+				data.col[v_idx].mod_B -= 256;
+			}
+			else
+			{
+				dest->rgba[0] = data.col[v_idx].add_R / 255.0;
+				dest->rgba[1] = data.col[v_idx].add_G / 255.0;
+				dest->rgba[2] = data.col[v_idx].add_B / 255.0;
+			}
+			dest->rgba[3] = trans;
+		}
+
+		RGL_EndUnit(4);
 	}
-
-	RGL_EndUnit(4);
 
 	RGL_FinishUnits();
 
@@ -1083,20 +1131,6 @@ static void DLIT_Thing(mobj_t *mo, void *dataptr)
 	}
 }
 
-static int GetMulticolMaxRGB(multi_color_c *cols, int num, bool additive)
-{
-	int result = 0;
-
-	for (; num > 0; num--, cols++)
-	{
-		int mx = additive ? cols->add_MAX() : cols->mod_MAX();
-
-		result = MAX(result, mx);
-	}
-	
-	return result;
-}
-
 
 void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 {
@@ -1270,7 +1304,7 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 		if (pass == 3 && GetMulticolMaxRGB(data.col, 4, true) <= 2)
 			continue;
 
-		if (pass == 1)
+		if (pass >= 1)
 		{
 			blending &= ~BL_Alpha;
 			blending |=  BL_Add;
@@ -1280,8 +1314,7 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 
 		local_gl_vert_t * glvert = RGL_BeginUnit(GL_POLYGON, 4,
 				 is_additive ? ENV_SKIP_RGB : GL_MODULATE, tex_id,
-				 ENV_NONE, 0,
-				 pass, blending);
+				 ENV_NONE, 0, pass, blending);
 
 		for (v_idx=0; v_idx < 4; v_idx++)
 		{
@@ -1294,9 +1327,9 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 
 			if (! is_additive)
 			{
-				dest->rgba[0] = MAX(0, data.col[v_idx].mod_R / 255.0);
-				dest->rgba[1] = MAX(0, data.col[v_idx].mod_G / 255.0);
-				dest->rgba[2] = MAX(0, data.col[v_idx].mod_B / 255.0);
+				dest->rgba[0] = data.col[v_idx].mod_R / 255.0;
+				dest->rgba[1] = data.col[v_idx].mod_G / 255.0;
+				dest->rgba[2] = data.col[v_idx].mod_B / 255.0;
 
 				data.col[v_idx].mod_R -= 256;
 				data.col[v_idx].mod_G -= 256;
@@ -1313,7 +1346,6 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 		}
 
 		RGL_EndUnit(4);
-
 	}
 }
 
