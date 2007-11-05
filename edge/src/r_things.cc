@@ -310,7 +310,6 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 			 GL_MODULATE, tex_id, ENV_NONE, 0,
 			 group, blending);
 
-	// FIXME: 3x3 points
 	for (v_idx=0; v_idx < 4; v_idx++)
 	{
 		local_gl_vert_t *dest = glvert + v_idx;
@@ -1263,20 +1262,25 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 
 	// FIXME DESCRIBE THIS WEIRD SHIT!!!
 	
-	for (int pass = 0; pass < 3; pass++)
+	for (int pass = 0; pass < 4; pass++)
 	{
-I_Debugf("Pass %d\n", pass);
-		if (pass == 1 && GetMulticolMaxRGB(data.col, 4, false) <= 2)
+		if (pass > 0 && pass < 3 && GetMulticolMaxRGB(data.col, 4, false) <= 2)
 			continue;
 
-		if (pass == 2 && GetMulticolMaxRGB(data.col, 4, true) <= 2)
+		if (pass == 3 && GetMulticolMaxRGB(data.col, 4, true) <= 2)
 			continue;
 
-		bool is_additive = (pass == 2);
+		if (pass == 1)
+		{
+			blending &= ~BL_Alpha;
+			blending |=  BL_Add;
+		}
+
+		bool is_additive = (pass == 3);
 
 		local_gl_vert_t * glvert = RGL_BeginUnit(GL_POLYGON, 4,
-				 GL_MODULATE, tex_id,
-				 is_additive ? ENV_NONE : ENV_SKIP_RGB, 0,
+				 is_additive ? ENV_SKIP_RGB : GL_MODULATE, tex_id,
+				 ENV_NONE, 0,
 				 pass, blending);
 
 		for (v_idx=0; v_idx < 4; v_idx++)
@@ -1305,12 +1309,11 @@ I_Debugf("Pass %d\n", pass);
 				dest->rgba[2] = data.col[v_idx].add_B / 255.0;
 			}
 			dest->rgba[3] = trans;
+
 		}
 
 		RGL_EndUnit(4);
 
-		blending &= ~BL_Alpha;
-		blending |=  BL_Add;
 	}
 }
 
