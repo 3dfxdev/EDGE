@@ -263,6 +263,7 @@ static const actioncode_t thing_actions[] =
 	{"EFFECTTRACKER",     P_ActEffectTracker, NULL},
 	{"CHECKBLOOD",        P_ActCheckBlood, NULL},
 	{"CHECKMOVING",       P_ActCheckMoving, NULL},
+	{"CHECK_ACTIVITY",    P_ActCheckActivity, NULL},
 	{"JUMP",              P_ActJump, DDF_StateGetJump},
 	{"BECOME",            P_ActBecome, DDF_StateGetBecome},
 	{"EXPLODE",           P_ActExplode, NULL},
