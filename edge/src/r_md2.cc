@@ -36,6 +36,7 @@
 #include "r_state.h"
 #include "r_shader.h"
 #include "r_units.h"
+#include "p_blockmap.h"
 #include "m_math.h"
 
 #include "dm_state.h"  //!!!! game_dir
@@ -598,12 +599,16 @@ typedef struct
 	mobj_t *mo;
 
 	multi_color_c nm_colors[MD2_NUM_NORMALS];
+
+	short * used_normals;
 }
 model_coord_data_t;
 
 
-static void InitNormalColors(model_coord_data_t *data, short *n_list)
+static void InitNormalColors(model_coord_data_t *data)
 {
+	short *n_list = data->used_normals;
+
 	for (int i=0; n_list[i] >= 0; i++)
 	{
 		data->nm_colors[n_list[i]].Clear();
@@ -611,8 +616,10 @@ static void InitNormalColors(model_coord_data_t *data, short *n_list)
 }
 
 static void ShadeNormals(abstract_shader_c *shader,
-		 model_coord_data_t *data, short *n_list)
+		 model_coord_data_t *data)
 {
+	short *n_list = data->used_normals;
+
 	for (int i=0; n_list[i] >= 0; i++)
 	{
 		short n = n_list[i];
@@ -635,6 +642,15 @@ static void ShadeNormals(abstract_shader_c *shader,
 
 		shader->Corner(data->nm_colors + n, nx, ny, nz, data->mo, data->is_weapon);
 	}
+}
+
+static void DLIT_Model(mobj_t *mo, void *dataptr)
+{
+	model_coord_data_t *data = (model_coord_data_t *)dataptr;
+
+	SYS_ASSERT(mo->dlight.shader);
+
+	ShadeNormals(mo->dlight.shader, data);
 }
 
 
@@ -767,15 +783,27 @@ I_Debugf("Render model: bad frame %d\n", frame);
 	M_Angle2Matrix(~ mo->angle, &data.rx_mat, &data.ry_mat);
 
 
-	InitNormalColors(&data, md->frames[frame].used_normals);
+	data.used_normals = md->frames[frame].used_normals;
+
+	InitNormalColors(&data);
 
 
 	abstract_shader_c *shader = R_GetColormapShader(props, mo->state->bright);
 
 	if (! fuzzy)
-		ShadeNormals(shader, &data, md->frames[frame].used_normals);
+	{
+		ShadeNormals(shader, &data);
 
-	// TODO: other shaders (dlights etc)
+		if (use_dlights)
+		{
+			float r = mo->radius;
+			
+			P_DynamicLightIterator(mo->x - r, mo->y - r, mo->x + r, mo->y + r,
+				DLIT_Model, &data);
+
+			// TODO: other shaders
+		}
+	}
 
 
 	/* draw the model */
