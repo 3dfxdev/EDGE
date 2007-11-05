@@ -271,7 +271,7 @@ public:
 			rgbcol_t new_col = lim[DL]->CurvePoint(dist / WhatRadius(DL),
 					WhatColor(DL));
 
-			float L = 0.5 + 0.5 * (dx*nx + dy*ny + dz*nz);
+			float L = 0.5 - 0.6 * (dx*nx + dy*ny + dz*nz);
 
 			L *= mo->state->bright / 255.0;
 
