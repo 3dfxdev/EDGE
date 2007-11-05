@@ -215,13 +215,13 @@ static void RGL_Wipe_Fading(float how_far)
 	glTexCoord2f(0.0f, 0.0f);
 	glVertex2i(0, 0);
 
-	glTexCoord2f(0.0f, 1.0f);
+	glTexCoord2f(0.0f, cur_wipe_top);
 	glVertex2i(0, SCREENHEIGHT);
 
-	glTexCoord2f(1.0f, 1.0f);
+	glTexCoord2f(cur_wipe_right, cur_wipe_top);
 	glVertex2i(SCREENWIDTH, SCREENHEIGHT);
 
-	glTexCoord2f(1.0f, 0.0f);
+	glTexCoord2f(cur_wipe_right, 0.0f);
 	glVertex2i(SCREENWIDTH, 0);
 
 	glEnd();
@@ -246,13 +246,13 @@ static void RGL_Wipe_Pixelfade(float how_far)
 	glTexCoord2f(0.0f, 0.0f);
 	glVertex2i(0, 0);
 
-	glTexCoord2f(0.0f, 1.0f);
+	glTexCoord2f(0.0f, cur_wipe_top);
 	glVertex2i(0, SCREENHEIGHT);
 
-	glTexCoord2f(1.0f, 1.0f);
+	glTexCoord2f(cur_wipe_right, cur_wipe_top);
 	glVertex2i(SCREENWIDTH, SCREENHEIGHT);
 
-	glTexCoord2f(1.0f, 0.0f);
+	glTexCoord2f(cur_wipe_right, 0.0f);
 	glVertex2i(SCREENWIDTH, 0);
 
 	glEnd();
@@ -313,13 +313,13 @@ static void RGL_Wipe_Slide(float how_far, float dx, float dy)
 	glTexCoord2f(0.0f, 0.0f);
 	glVertex2f(dx, dy);
 
-	glTexCoord2f(0.0f, 1.0f);
+	glTexCoord2f(0.0f, cur_wipe_top);
 	glVertex2f(dx, dy + SCREENHEIGHT);
 
-	glTexCoord2f(1.0f, 1.0f);
+	glTexCoord2f(cur_wipe_right, cur_wipe_top);
 	glVertex2f(dx + SCREENWIDTH, dy + SCREENHEIGHT);
 
-	glTexCoord2f(1.0f, 0.0f);
+	glTexCoord2f(cur_wipe_right, 0.0f);
 	glVertex2f(dx + SCREENWIDTH, dy);
 
 	glEnd();
