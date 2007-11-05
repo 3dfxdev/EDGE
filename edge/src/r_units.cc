@@ -745,24 +745,6 @@ static inline void Pipeline_DLights(int& group,
 	if (flags & PIPEF_NoLight)
 		return;
 
-	local_gl_vert_t *glvert;
-
-	blending &= ~BL_Alpha;
-	blending |=  BL_Add;
-
-	for (const drawthing_t *DT = dlight_list; DT; DT = DT->next)
-	{
-		const mobj_t *mo = DT->mo;
-	
-		//!!!!! FIXME: if (dist_to_light > DL->info->radius) continue;
-
-		SYS_ASSERT(mo->dlight.shader);
-
-		mo->dlight.shader->WorldMix(shape, num_vert, tex,
-				alpha, group, blending, func_data,
-				(shader_coord_func_t) func);
-		group++;
-	}
 }
 
 
