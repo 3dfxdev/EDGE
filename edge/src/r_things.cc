@@ -1039,6 +1039,8 @@ typedef struct
 {
 ///---	float R, G, B;
 
+	mobj_t *mo;
+
 	vec3_t vert[4];
 	vec2_t texc[4];
 	vec3_t normal;
@@ -1069,6 +1071,10 @@ static void DLIT_Thing(mobj_t *mo, void *dataptr)
 {
 	thing_coord_data_t *data = (thing_coord_data_t *)dataptr;
 
+	// dynamic lights do not light themselves up!
+	if (mo == data->mo)
+		return;
+	
 	SYS_ASSERT(mo->dlight.shader);
 
 	for (int v = 0; v < 4; v++)
@@ -1194,6 +1200,8 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 
 	
 	thing_coord_data_t data;
+
+	data.mo = dthing->mo;
 
 ///---	data.R = fuzzy ? 0 : 1;
 ///---	data.G = fuzzy ? 0 : 1;
