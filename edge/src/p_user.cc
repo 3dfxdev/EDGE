@@ -241,34 +241,34 @@ static void MovePlayer(player_t * player)
 
 	if (!jumping && player->mo->state == &states[player->mo->info->idle_state])
 	{
-		if (swimming && (cmd->forwardmove || cmd->sidemove || cmd->upwardmove))
-		{
-			// enter the SWIM states (if present)
-			statenum_t swim_st = P_MobjFindLabel(player->mo, "SWIM");
-			if (swim_st == S_NULL)
-				swim_st = player->mo->info->chase_state;
-
-			if (swim_st != S_NULL)
-				P_SetMobjStateDeferred(player->mo, swim_st, 0);
-		}
-		else if (flying)
-		{
-			// enter the FLY states (if present)
-			statenum_t fly_st = P_MobjFindLabel(player->mo, "FLY");
-			if (fly_st != S_NULL)
-				P_SetMobjStateDeferred(player->mo, fly_st, 0);
-		}
-		else if (onladder && cmd->upwardmove)
-		{
-			// enter the CLIMB states (if present)
-			statenum_t climb_st = P_MobjFindLabel(player->mo, "CLIMB");
-			if (climb_st == S_NULL)
-				climb_st = player->mo->info->chase_state;
-
-			if (climb_st != S_NULL)
-				P_SetMobjStateDeferred(player->mo, climb_st, 0);
-		}
-		else if (onground && (cmd->forwardmove || cmd->sidemove))
+///---		if (swimming && (cmd->forwardmove || cmd->sidemove || cmd->upwardmove))
+///---		{
+///---			// enter the SWIM states (if present)
+///---			statenum_t swim_st = P_MobjFindLabel(player->mo, "SWIM");
+///---			if (swim_st == S_NULL)
+///---				swim_st = player->mo->info->chase_state;
+///---
+///---			if (swim_st != S_NULL)
+///---				P_SetMobjStateDeferred(player->mo, swim_st, 0);
+///---		}
+///---		else if (flying)
+///---		{
+///---			// enter the FLY states (if present)
+///---			statenum_t fly_st = P_MobjFindLabel(player->mo, "FLY");
+///---			if (fly_st != S_NULL)
+///---				P_SetMobjStateDeferred(player->mo, fly_st, 0);
+///---		}
+///---		else if (onladder && cmd->upwardmove)
+///---		{
+///---			// enter the CLIMB states (if present)
+///---			statenum_t climb_st = P_MobjFindLabel(player->mo, "CLIMB");
+///---			if (climb_st == S_NULL)
+///---				climb_st = player->mo->info->chase_state;
+///---
+///---			if (climb_st != S_NULL)
+///---				P_SetMobjStateDeferred(player->mo, climb_st, 0);
+///---		}
+		if (onground && (cmd->forwardmove || cmd->sidemove))
 		{
 			// enter the CHASE (i.e. walking) states
 			if (player->mo->info->chase_state)
