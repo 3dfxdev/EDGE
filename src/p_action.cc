@@ -3442,13 +3442,19 @@ void P_ActCheckMoving(mobj_t * mo)
 {
 	// -KM- 1999/01/31 Returns a player to spawnstate when not moving.
 
-	player_t *p = mo->player;
+	player_t *pl = mo->player;
 
-	if (p)
+	if (pl)
 	{
-		if (p->actual_speed < PLAYER_STOPSPEED)
+		if (pl->actual_speed < PLAYER_STOPSPEED)
+		{
 			P_SetMobjStateDeferred(mo, mo->info->idle_state, 0);
 
+			// we delay a little bit, in order to prevent a loop where
+			// CHECK_ACTIVITY jumps to SWIM states (for example) and
+			// then CHECK_MOVING jumps right back to IDLE states.
+			mo->tics = 2;
+		}
 		return;
 	}
 	
@@ -3457,6 +3463,50 @@ void P_ActCheckMoving(mobj_t * mo)
 		mo->mom.x = mo->mom.y = 0;
 		P_SetMobjStateDeferred(mo, mo->info->idle_state, 0);
 	}
+}
+
+void P_ActCheckActivity(mobj_t *mo)
+{
+	player_t *pl = mo->player;
+
+	if (! pl)
+		return;
+	
+	if (pl->swimming)
+	{
+		// enter the SWIM states (if present)
+		statenum_t swim_st = P_MobjFindLabel(pl->mo, "SWIM");
+
+		if (swim_st == S_NULL)
+			swim_st = pl->mo->info->chase_state;
+
+		if (swim_st != S_NULL)
+			P_SetMobjStateDeferred(pl->mo, swim_st, 0);
+
+		return;
+	}
+
+	if (pl->powers[PW_Jetpack] > 0)
+	{
+		// enter the FLY states (if present)
+		statenum_t fly_st = P_MobjFindLabel(pl->mo, "FLY");
+
+		if (fly_st != S_NULL)
+			P_SetMobjStateDeferred(pl->mo, fly_st, 0);
+
+		return;
+	}
+
+	if (mo->on_ladder >= 0)
+	{
+		// enter the CLIMB states (if present)
+		statenum_t climb_st = P_MobjFindLabel(pl->mo, "CLIMB");
+
+		if (climb_st != S_NULL)
+			P_SetMobjStateDeferred(pl->mo, climb_st, 0);
+	}
+
+	/* Otherwise: do nothing */
 }
 
 
