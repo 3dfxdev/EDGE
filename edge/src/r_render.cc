@@ -1648,18 +1648,36 @@ static void EmulateFloodPlane(const drawfloor_t *dfloor,
 				&data, FloodCoordFunc);
 	}
 
-	float ex = cur_seg->v1->x;
-	float ey = cur_seg->v1->y;
-
-	// Note: dynamic lights could have been handled in the row-by-row
-	//       loop above (after the cmap_shader).  However it is more
-	//       efficient to handle them here, and reproduce the striping
-	//       code in the DLIT_Flood function.
+	data.pass++;
 
 	if (use_dlights == 1 && solid_mode)
 	{
-		P_DynamicLightIterator(MIN(sx,ex), MIN(sy,ey),
-				MAX(sx,ex), MAX(sy,ey), DLIT_Flood, &data);
+		// Note: dynamic lights could have been handled in the row-by-row
+		//       loop above (after the cmap_shader).  However it is more
+		//       efficient to handle them here, and duplicate the striping
+		//       code in the DLIT_Flood function.
+
+		float ex = cur_seg->v2->x;
+		float ey = cur_seg->v2->y;
+
+		// compute bbox for finding dlights (use 'lit_pos' coords).
+		float other_h = (face_dir > 0) ? h1 : h2;
+
+		float along = (viewz - data.plane_h) / (viewz - other_h);
+
+		float sx2 = viewx + along * (sx - viewx);
+		float sy2 = viewy + along * (sy - viewy);
+		float ex2 = viewx + along * (ex - viewx);
+		float ey2 = viewy + along * (ey - viewy);
+
+		float lx1 = MIN( MIN(sx,sx2), MIN(ex,ex2) );
+		float ly1 = MIN( MIN(sy,sy2), MIN(ey,ey2) );
+		float lx2 = MAX( MAX(sx,sx2), MAX(ex,ex2) );
+		float ly2 = MAX( MAX(sy,sy2), MAX(ey,ey2) );
+
+//		I_Debugf("Flood BBox size: %1.0f x %1.0f\n", lx2-lx1, ly2-ly1);
+
+		P_DynamicLightIterator(lx1,ly1, lx2,ly2, DLIT_Flood, &data);
 	}
 }
 
