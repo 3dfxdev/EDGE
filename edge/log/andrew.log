@@ -4,6 +4,14 @@ Andrew Apted's Log
 
 Applied new dlight code to flat-flooding emulation.
 
+Applied new dlight code to sprites (including the player's
+weapon) and also MD2 models.
+
+Weapons.ddf: allow 'SEC_ATTACK' to mean 'SECOND_ATTACK' for
+consistency with the other SEC_XXX commands.
+
+Tidied up wipe code (use R_UploadTexture api).
+
 2007/11/04:
 
 Reworked blockmap code for dynamic lights, using a block-size
