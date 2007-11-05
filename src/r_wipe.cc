@@ -266,8 +266,6 @@ static void RGL_Wipe_Pixelfade(float how_far)
 
 static void RGL_Wipe_Melt(void)
 {
-	int x;
-
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
 
@@ -276,15 +274,16 @@ static void RGL_Wipe_Melt(void)
 
 	glBegin(GL_QUAD_STRIP);
 
-	for (x=0; x <= MELT_DIVS; x++)
+	for (int x=0; x <= MELT_DIVS; x++)
 	{
 		int yoffs = MAX(0, melt_yoffs[x]);
 
-		float tx = (float) x / MELT_DIVS;
 		float sx = (float) x * SCREENWIDTH / MELT_DIVS;
 		float sy = (float) (200 - yoffs) * SCREENHEIGHT / 200.0f;
 
-		glTexCoord2f(tx, 1.0f);
+		float tx = cur_wipe_right * (float) x / MELT_DIVS;
+
+		glTexCoord2f(tx, cur_wipe_top);
 		glVertex2f(sx, sy);
 
 		glTexCoord2f(tx, 0.0f);
@@ -359,13 +358,16 @@ static void RGL_Wipe_Doors(float how_far)
 
 			for (int row = 0; row <= 5; row++)
 			{
-				float t_y = row / 5.0f;
+				float t_y = cur_wipe_top * row / 5.0f;
 
 				float j1 = (SCREENHEIGHT - v_y1 * 2.0f) / 5.0f;
 				float j2 = (SCREENHEIGHT - v_y2 * 2.0f) / 5.0f;
 
-				glTexCoord2f(t_x2, t_y); glVertex2f(v_x2, v_y2 + j2 * row);
-				glTexCoord2f(t_x1, t_y); glVertex2f(v_x1, v_y1 + j1 * row);
+				glTexCoord2f(t_x2 * cur_wipe_right, t_y);
+				glVertex2f(v_x2, v_y2 + j2 * row);
+
+				glTexCoord2f(t_x1 * cur_wipe_right, t_y);
+				glVertex2f(v_x1, v_y1 + j1 * row);
 			}
 
 			glEnd();
