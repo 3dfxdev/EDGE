@@ -366,84 +366,6 @@ static void R2_FindDLights(subsector_t *sub, drawfloor_t *dfloor)
 // ============================================================================
 
 
-#if 0  // DISABLED FOR TIME BEING
-static void ClipPlaneHorizontalEye(GLdouble *p, const vec2_t *v, bool flip)
-{
-	vec2_t s, e;
-
-	s.x = viewx;
-	s.y = viewy;
-
-	e.x = v->x;
-	e.y = v->y;
-
-	ClipPlaneHorizontalLine(p, s, e, flip);
-}
-
-static void ClipPlaneVerticalEye(GLdouble *p, const seg_t *seg,
-	float h, bool flip)
-{
-	float x1 = seg->v1->x - viewx;
-	float y1 = seg->v1->y - viewy;
-	float z1 = (h - viewz);
-
-	float x2 = seg->v2->x - viewx;
-	float y2 = seg->v2->y - viewy;
-	float z2 = z1;
-
-	// compute plane normal by using the Cross Product
-
-	p[0] = y2*z1 - y1*z2;
-	p[1] = z2*x1 - z1*x2;
-	p[2] = x2*y1 - x1*y2;
-	p[3] = -(viewx * p[0] + viewy * p[1] + viewz * p[2]);
-
-	if (flip)
-	{
-		p[0] = 0.0f - p[0];
-		p[1] = 0.0f - p[1];
-		p[2] = 0.0f - p[2];
-		p[3] = 0.0f - p[3];
-	}
-}
-#endif
-
-static void FloodSetClipPlanes(const seg_t *seg, float h1, float h2)
-{
-#if 0
-	GLdouble left_p[4];
-	GLdouble right_p[4];
-	GLdouble bottom_p[4];
-	GLdouble top_p[4];
-
-	glEnable(GL_CLIP_PLANE0);  // Left
-	glEnable(GL_CLIP_PLANE1);  // Right
-	glEnable(GL_CLIP_PLANE2);  // Bottom
-	glEnable(GL_CLIP_PLANE3);  // Top
-
-	ClipPlaneHorizontalEye(left_p,  seg->v1, false);
-	ClipPlaneHorizontalEye(right_p, seg->v2, true);
-
-	ClipPlaneVerticalEye(bottom_p, seg, h1, false);
-	ClipPlaneVerticalEye(top_p, seg, h2, true);
-
-	glClipPlane(GL_CLIP_PLANE0, left_p);
-	glClipPlane(GL_CLIP_PLANE1, right_p);
-	glClipPlane(GL_CLIP_PLANE2, bottom_p);
-	glClipPlane(GL_CLIP_PLANE3, top_p);
-#endif
-}
-
-static void FloodResetClipPlanes(void)
-{
-#if 0
-	glDisable(GL_CLIP_PLANE0);
-	glDisable(GL_CLIP_PLANE1);
-	glDisable(GL_CLIP_PLANE2);
-	glDisable(GL_CLIP_PLANE3);
-#endif
-}
-
 
 #if 0
 static void DrawLaser(player_t *p)
@@ -708,8 +630,12 @@ static inline void TexCoord_PlaneLight(local_gl_vert_t *v, int t)
 
 typedef struct
 {
+	int v_count;
 	const vec3_t *vert;
 
+	GLuint tex_id;
+	int pass;
+	
 	float R, G, B;
 
 	divline_t div;
@@ -755,8 +681,12 @@ static void WallCoordFunc(void *d, int v_idx,
 
 typedef struct
 {
+	int v_count;
 	const vec3_t *vert;
 
+	GLuint tex_id;
+	int pass;
+	
 	float R, G, B;
 
 	float tx0, ty0;
@@ -950,17 +880,12 @@ static void ComputeDLParameters(float dist, mobj_t *mo,
 
 #endif // DLIGHT_PROTOTYPE
 
-static int xxx_vcount;
-static GLuint xxx_texid;
-static wall_coord_data_t *xxx_data;
-static int *xxx_group;
-
 static void DLIT_Wall(mobj_t *mo, void *dataptr)
 {
 	wall_coord_data_t *data = (wall_coord_data_t *)dataptr;
 
-	float dist = (mo->x - xxx_data->div.x) * xxx_data->div.dy -
-				 (mo->y - xxx_data->div.y) * xxx_data->div.dx;
+	float dist = (mo->x - data->div.x) * data->div.dy -
+				 (mo->y - data->div.y) * data->div.dx;
 
 	// light behind the plane ?    
 	if (! mo->info->dlight[0].leaky)
@@ -976,14 +901,13 @@ static void DLIT_Wall(mobj_t *mo, void *dataptr)
 	blending &= ~BL_Alpha;
 	blending |=  BL_Add;
 
-	mo->dlight.shader->WorldMix(GL_POLYGON, xxx_vcount, xxx_texid,
-			1.0 /*!!! alpha */, *xxx_group, blending,
-			xxx_data, WallCoordFunc);
+	mo->dlight.shader->WorldMix(GL_POLYGON, data->v_count, data->tex_id,
+			1.0 /*!!! alpha */, data->pass, blending,
+			data, WallCoordFunc);
 
-	(*xxx_group) += 1;
+	data->pass += 1;
 }
 
-static plane_coord_data_t *ppp_data;
 
 static void DLIT_Plane(mobj_t *mo, void *dataptr)
 {
@@ -992,11 +916,11 @@ static void DLIT_Plane(mobj_t *mo, void *dataptr)
 	// light behind the plane ?    
 	if (! mo->info->dlight[0].leaky)
 	{
-		if ((MO_MIDZ(mo) > ppp_data->vert[0].z) != (ppp_data->normal.z > 0))
+		if ((MO_MIDZ(mo) > data->vert[0].z) != (data->normal.z > 0))
 			return;
 	}
 
-	float dist = fabs(MO_MIDZ(mo) - ppp_data->vert[0].z);
+	float dist = fabs(MO_MIDZ(mo) - data->vert[0].z);
 
 	// light too far away ?
 	if (dist > mo->dlight.r)
@@ -1009,11 +933,11 @@ static void DLIT_Plane(mobj_t *mo, void *dataptr)
 	blending &= ~BL_Alpha;
 	blending |=  BL_Add;
 
-	mo->dlight.shader->WorldMix(GL_POLYGON, xxx_vcount, xxx_texid,
-			1.0 /*!!! alpha */, *xxx_group, blending,
-			ppp_data, PlaneCoordFunc);
+	mo->dlight.shader->WorldMix(GL_POLYGON, data->v_count, data->tex_id,
+			1.0 /*!!! alpha */, data->pass, blending,
+			data, PlaneCoordFunc);
 
-	(*xxx_group) += 1;
+	data->pass += 1;
 }
 
 
@@ -1328,6 +1252,7 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 
 	wall_coord_data_t data;
 
+	data.v_count = v_count;
 	data.vert = vertices;
 
 	data.R = data.G = data.B = 1.0f;
@@ -1345,22 +1270,17 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 	// TODO: make a unit vector
 	data.normal.Set( (y2-y1), (x1-x2), 0 );
 
+	data.tex_id = tex_id;
+	data.pass   = 0;
 
 	cmap_shader = R_GetColormapShader(props, lit_adjust);
 
-	int group = 0;
-
 	cmap_shader->WorldMix(GL_POLYGON, v_count, tex_id,
-			trans, group, blending, &data, WallCoordFunc);
-	group++;
+			trans, data.pass, blending, &data, WallCoordFunc);
+	data.pass += 1;
 
 	if (use_dlights == 1 && solid_mode)
 	{
-		xxx_vcount = v_count;
-		xxx_texid  = tex_id;
-		xxx_data   = &data;
-		xxx_group  = &group;
-
 		P_DynamicLightIterator(MIN(x1,x2), MIN(y1,y2),
 				MAX(x1,x2), MAX(y1,y2), DLIT_Wall, &data);
 	}
@@ -1503,8 +1423,12 @@ RGL_DrawUnits();
 
 typedef struct
 {
+	int v_count;
 	vec3_t vert[2 * (MAX_FLOOD_VERT + 1)];
 
+	GLuint tex_id;
+	int pass;
+		
 	float R, G, B;
 
 	float plane_h;
@@ -1516,6 +1440,11 @@ typedef struct
 	vec2_t y_mat;
 
 	vec3_t normal;
+
+	int piece_row;
+	int piece_col;
+
+	float h1, dh;
 }
 flood_emu_data_t;
 
@@ -1546,6 +1475,57 @@ static void FloodCoordFunc(void *d, int v_idx,
 	texc->y = rx * data->y_mat.x + ry * data->y_mat.y;
 }
 
+static void DLIT_Flood(mobj_t *mo, void *dataptr)
+{
+	flood_emu_data_t *data = (flood_emu_data_t *)dataptr;
+
+	// light behind the plane ?    
+	if (! mo->info->dlight[0].leaky)
+	{
+		if ((MO_MIDZ(mo) > data->plane_h) != (data->normal.z > 0))
+			return;
+	}
+
+	float dist = fabs(MO_MIDZ(mo) - data->plane_h);
+
+	// light too far away ?
+	if (dist > mo->dlight.r)
+		return;
+
+	SYS_ASSERT(mo->dlight.shader);
+
+	float sx = cur_seg->v1->x;
+	float sy = cur_seg->v1->y;
+
+	float dx = cur_seg->v2->x - sx;
+	float dy = cur_seg->v2->y - sy;
+
+	int blending = BL_NONE; //!!!!
+
+	blending &= ~BL_Alpha;
+	blending |=  BL_Add;
+
+	for (int row=0; row < data->piece_row; row++)
+	{
+		float z = data->h1 + data->dh * row / (float)data->piece_row;
+
+		for (int col=0; col <= data->piece_col; col++)
+		{
+			float x = sx + dx * col / (float)data->piece_col;
+			float y = sy + dy * col / (float)data->piece_col;
+
+			data->vert[col*2 + 0].Set(x, y, z);
+			data->vert[col*2 + 1].Set(x, y, z + data->dh / data->piece_row);
+		}
+
+		mo->dlight.shader->WorldMix(GL_QUAD_STRIP, data->v_count,
+				data->tex_id, 1.0, data->pass, blending,
+				data, FloodCoordFunc);
+	}
+
+	data->pass += 1;
+}
+
 
 static void EmulateFloodPlane(const drawfloor_t *dfloor,
 	const sector_t *flood_ref, int face_dir, float h1, float h2)
@@ -1573,15 +1553,14 @@ static void EmulateFloodPlane(const drawfloor_t *dfloor,
 		surf->override_p : &flood_ref->props;
 
 
-	cmap_shader = R_GetColormapShader(props);
+
+	flood_emu_data_t data;
 
 
 	SYS_ASSERT(surf->image);
 
-	GLuint tex_id = W_ImageCache(surf->image);
-
-
-	flood_emu_data_t data;
+	data.tex_id = W_ImageCache(surf->image);
+	data.pass   = 0;
 
 	data.R = data.G = data.B = 1.0f;
 
@@ -1636,6 +1615,16 @@ static void EmulateFloodPlane(const drawfloor_t *dfloor,
 	float dh = h2 - h1;
 
 
+	data.piece_row = piece_row;
+	data.piece_col = piece_col;
+	data.h1 = h1;
+	data.dh = dh;
+
+
+	cmap_shader = R_GetColormapShader(props);
+
+	data.v_count = (piece_col+1) * 2;
+
 	for (int row=0; row < piece_row; row++)
 	{
 		float z = h1 + dh * row / (float)piece_row;
@@ -1654,8 +1643,23 @@ static void EmulateFloodPlane(const drawfloor_t *dfloor,
 		data.B = (64 + 90 * (row & 2))  / 255.0;
 #endif
 
-		cmap_shader->WorldMix(GL_QUAD_STRIP, (piece_col+1) * 2,
-				tex_id, 1.0, 0, BL_NONE, &data, FloodCoordFunc);
+		cmap_shader->WorldMix(GL_QUAD_STRIP, data.v_count,
+				data.tex_id, 1.0, data.pass, BL_NONE,
+				&data, FloodCoordFunc);
+	}
+
+	float ex = cur_seg->v1->x;
+	float ey = cur_seg->v1->y;
+
+	// Note: dynamic lights could have been handled in the row-by-row
+	//       loop above (after the cmap_shader).  However it is more
+	//       efficient to handle them here, and reproduce the striping
+	//       code in the DLIT_Flood function.
+
+	if (use_dlights == 1 && solid_mode)
+	{
+		P_DynamicLightIterator(MIN(sx,ex), MIN(sy,ey),
+				MAX(sx,ex), MAX(sy,ey), DLIT_Flood, &data);
 	}
 }
 
@@ -2244,6 +2248,7 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 
 	plane_coord_data_t data;
 
+	data.v_count = v_count;
 	data.vert = vertices;
 
 	data.R = data.G = data.B = 1.0f;
@@ -2258,20 +2263,16 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 
 	data.normal.Set(0, 0, (viewz > h) ? +1 : -1);
 
+	data.tex_id = tex_id;
+	data.pass   = 0;
 
-	int group = 0;
 
-	cmap_shader->WorldMix(GL_POLYGON, v_count, tex_id,
-			trans, group, blending, &data, PlaneCoordFunc);
-	group++;
+	cmap_shader->WorldMix(GL_POLYGON, data.v_count, data.tex_id,
+			trans, data.pass, blending, &data, PlaneCoordFunc);
+	data.pass += 1;
 
 	if (use_dlights == 1 && solid_mode)
 	{
-		xxx_vcount = v_count;
-		xxx_texid  = tex_id;
-		ppp_data   = &data;
-		xxx_group  = &group;
-
 		P_DynamicLightIterator(v_low.x, v_low.y, v_high.x, v_high.y,
 				DLIT_Plane, &data);
 	}
