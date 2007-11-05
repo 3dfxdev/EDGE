@@ -326,10 +326,10 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 
 	for (int pass = 0; pass < 4; pass++)
 	{
-		if (pass > 0 && pass < 3 && GetMulticolMaxRGB(data.col, 4, false) <= 2)
+		if (pass > 0 && pass < 3 && GetMulticolMaxRGB(data.col, 4, false) <= 0)
 			continue;
 
-		if (pass == 3 && GetMulticolMaxRGB(data.col, 4, true) <= 2)
+		if (pass == 3 && GetMulticolMaxRGB(data.col, 4, true) <= 0)
 			continue;
 
 		if (pass >= 1)
@@ -1298,10 +1298,10 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 	
 	for (int pass = 0; pass < 4; pass++)
 	{
-		if (pass > 0 && pass < 3 && GetMulticolMaxRGB(data.col, 4, false) <= 2)
+		if (pass > 0 && pass < 3 && GetMulticolMaxRGB(data.col, 4, false) <= 0)
 			continue;
 
-		if (pass == 3 && GetMulticolMaxRGB(data.col, 4, true) <= 2)
+		if (pass == 3 && GetMulticolMaxRGB(data.col, 4, true) <= 0)
 			continue;
 
 		if (pass >= 1)
