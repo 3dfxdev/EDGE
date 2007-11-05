@@ -12,6 +12,14 @@ consistency with the other SEC_XXX commands.
 
 Tidied up wipe code (use R_UploadTexture api).
 
+Implemented multi-pass rendering for Thing sprites.  Each
+sprite may have upto 2 extra modulation passes and upto 1
+addition pass.
+
+Implemented multi-pass rendering for Weapon sprites (hud)
+and also for MD2 models.  Models are limited to 1 extra
+modulation pass and 1 extra addition pass.
+
 2007/11/04:
 
 Reworked blockmap code for dynamic lights, using a block-size

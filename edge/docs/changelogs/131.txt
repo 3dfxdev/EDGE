@@ -37,6 +37,8 @@ New features:
 
 + new dynamic lighting,
   DLIGHT2
+  LEAKY
+  RADIUS not INTENSITY
 
 + MD2 models
 
@@ -69,6 +71,9 @@ DDF / RTS Goodies:
 - new player states: JUMP, FLY, SWIM, CLIMB.
 
 - CRUSH_DAMAGE for crushers in lines.ddf
+
+- Weapons.ddf: allow 'SEC_ATTACK' to mean 'SECOND_ATTACK' for
+  consistency with all the other SEC_XXX commands.
 
 - RTS: 'WHEN=xxx' tag for SPAWNTHING
 
