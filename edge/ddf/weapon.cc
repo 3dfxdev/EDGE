@@ -48,12 +48,16 @@ static const commandlist_t weapon_commands[] =
 	DF("AMMOPERSHOT", ammopershot[0], DDF_MainGetNumeric),
 	DF("CLIPSIZE", clip_size[0], DDF_MainGetNumeric),
 	DF("AUTOMATIC", autofire[0], DDF_MainGetBoolean),
+	DF("ATTACK", attack[0], DDF_MainRefAttack),
+	DF("SPECIAL", specials[0], DDF_WGetSpecialFlags),
+
 	DF("SEC_AMMOTYPE", ammo[1], DDF_WGetAmmo),
 	DF("SEC_AMMOPERSHOT", ammopershot[1], DDF_MainGetNumeric),
 	DF("SEC_CLIPSIZE", clip_size[1], DDF_MainGetNumeric),
 	DF("SEC_AUTOMATIC", autofire[1], DDF_MainGetBoolean),
-	DF("ATTACK", attack[0], DDF_MainRefAttack),
-	DF("SECOND_ATTACK", attack[1], DDF_MainRefAttack),
+	DF("SEC_ATTACK", attack[1], DDF_MainRefAttack),
+	DF("SEC_SPECIAL", specials[1], DDF_WGetSpecialFlags),
+
 	DF("EJECT_ATTACK", eject_attack, DDF_MainRefAttack),
 	DF("FREE", autogive, DDF_MainGetBoolean),
 	DF("BINDKEY", bind_key, DDF_MainGetNumeric),
@@ -67,8 +71,6 @@ static const commandlist_t weapon_commands[] =
 	DF("NOTHRUST", nothrust, DDF_MainGetBoolean),
 	DF("FEEDBACK", feedback, DDF_MainGetBoolean),
 	DF("KICK", kick, DDF_MainGetFloat),
-	DF("SPECIAL", specials[0], DDF_WGetSpecialFlags),
-	DF("SEC_SPECIAL", specials[1], DDF_WGetSpecialFlags),
 	DF("ZOOM_FOV", zoom_fov, DDF_MainGetAngle),
 	DF("REFIRE_INACCURATE", refire_inacc, DDF_MainGetBoolean),
 	DF("SHOW_CLIP", show_clip, DDF_MainGetBoolean),
@@ -79,6 +81,8 @@ static const commandlist_t weapon_commands[] =
 	DF("MODEL_SKIN", model_skin, DDF_MainGetNumeric),
 
 	// -AJA- backwards compatibility cruft...
+	DF("SECOND_ATTACK", attack[1], DDF_MainRefAttack),
+
 	DF("!SOUND1", sound1, DDF_MainLookupSound),
 	DF("!SOUND2", sound2, DDF_MainLookupSound),
 	DF("!SOUND3", sound3, DDF_MainLookupSound),
