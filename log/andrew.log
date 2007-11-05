@@ -7,6 +7,13 @@ roughly equal to the largest allowed dlight (768 units).
 That paves the way to using the map directly when rendering
 dynamic lights (instead of creating lists of them).
 
+Worked on new method for applying dynamic lights to walls and
+floors.  So far so good.  Added 'DLIGHT.LEAKY' command to DDF
+which causes the light to affect all nearby surfaces when TRUE
+(the default, FALSE, skips surfaces facing away from the light).
+
+Tidied up the blockmap API some more.
+
 2007/11/03:
 
 Added code to blur the center of the top face of the
