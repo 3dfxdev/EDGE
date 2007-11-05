@@ -103,6 +103,8 @@ typedef struct
 	vec3_t vert[4];
 	vec2_t texc[4];
 	vec3_t lit_pos;
+
+	multi_color_c col;
 }
 psprite_coord_data_t;
 
@@ -124,6 +126,15 @@ static void PSpriteCoordFunc(void *d, int v_idx,
 	normal->Set(0, 0, 1);
 }
 
+static void DLIT_PSprite(mobj_t *mo, void *dataptr)
+{
+	psprite_coord_data_t *data = (psprite_coord_data_t *)dataptr;
+
+	SYS_ASSERT(mo->dlight.shader);
+
+	mo->dlight.shader->Sample(&data->col,
+			data->lit_pos.x, data->lit_pos.y, data->lit_pos.z);
+}
 
 
 static void RGL_DrawPSprite(pspdef_t * psp, int which,
@@ -276,22 +287,30 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	int group = 0;
 	int v_idx;
 
+	data.col.Clear();
+
+	if (! fuzzy)
+	{
+		shader->Sample(&data.col, data.lit_pos.x, data.lit_pos.y, data.lit_pos.z);
+
+		if (use_dlights)
+		{
+			float r = 96;
+
+			P_DynamicLightIterator(
+				data.lit_pos.x - r, data.lit_pos.y - r,
+				data.lit_pos.x + r, data.lit_pos.y + r,
+				DLIT_PSprite, &data);
+
+			// TODO: other shaders
+		}
+	}
+
 	local_gl_vert_t * glvert = RGL_BeginUnit(GL_POLYGON, 4,
 			 GL_MODULATE, tex_id, ENV_NONE, 0,
 			 group, blending);
 
 	// FIXME: 3x3 points
-	multi_color_c col;
-
-	if (! fuzzy)
-	{
-		col.Clear();
-
-		shader->Sample(&col, data.lit_pos.x, data.lit_pos.y, data.lit_pos.z);
-
-		// TODO: other shaders
-	}
-
 	for (v_idx=0; v_idx < 4; v_idx++)
 	{
 		local_gl_vert_t *dest = glvert + v_idx;
@@ -301,9 +320,9 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 		PSpriteCoordFunc(&data, v_idx, &dest->pos, dest->rgba,
 				&dest->texc[0], &dest->normal, &lit_pos);
 
-		dest->rgba[0] = col.mod_R / 255.0;
-		dest->rgba[1] = col.mod_G / 255.0;
-		dest->rgba[2] = col.mod_B / 255.0;
+		dest->rgba[0] = data.col.mod_R / 255.0;
+		dest->rgba[1] = data.col.mod_G / 255.0;
+		dest->rgba[2] = data.col.mod_B / 255.0;
 		dest->rgba[3] = trans;
 	}
 
@@ -1023,6 +1042,8 @@ typedef struct
 	vec3_t vert[4];
 	vec2_t texc[4];
 	vec3_t normal;
+
+	multi_color_c col[4];
 }
 thing_coord_data_t;
 
@@ -1044,6 +1065,18 @@ static void ThingCoordFunc(void *d, int v_idx,
 	*lit_pos = *pos;
 }
 
+static void DLIT_Thing(mobj_t *mo, void *dataptr)
+{
+	thing_coord_data_t *data = (thing_coord_data_t *)dataptr;
+
+	SYS_ASSERT(mo->dlight.shader);
+
+	for (int v = 0; v < 4; v++)
+	{
+		mo->dlight.shader->Sample(data->col + v,
+				data->vert[v].x, data->vert[v].y, data->vert[v].z);
+	}
+}
 
 
 void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
@@ -1121,14 +1154,6 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 		tex_x2 = right - temp;
 	}
 
-	//
-	//  Dynamic Lighting Stuff
-	//
-
-	if (use_dlights && !fuzzy)
-	{
-		// FIXME
-	}
 
 	//
 	// Special FUZZY effect
@@ -1184,71 +1209,40 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 	data.texc[2].Set(tex_x2, tex_y2);
 	data.texc[3].Set(tex_x2, tex_y1);
 
-#if 0 // TESTING CRUD : turn player sprite on its side
-if (dthing->mo->player && dthing->mo->player->swimming)
-{
-float r = dthing->mo->radius;
-float h = dthing->mo->height;
-	
-float b = MO_MIDZ(dthing->mo) - r;
-float t = MO_MIDZ(dthing->mo) + r;
-
-float kx = viewcos * sprite_skew * r;
-float ky = viewsin * sprite_skew * r;
-
-float x = dthing->mo->x;
-float y = dthing->mo->y;
-
-float dx = h / 2.0 *  viewsin;
-float dy = h / 2.0 * -viewcos;
-
-data.vert[0].Set(x-dx-kx, y-dy-ky, b);
-data.vert[1].Set(x-dx+kx, y-dy+ky, t);
-data.vert[2].Set(x+dx+kx, y+dy+ky, t);
-data.vert[3].Set(x+dx-kx, y+dy-ky, b);
-
-angle_t from_view = R_PointToAngle(viewx, viewy, x, y);
-angle_t ang = from_view - dthing->mo->angle;
-if (ang < ANG15 || ang >= ANG180+ANG15)
-{
-data.texc[0].Set(0.0,   top);
-data.texc[1].Set(right, top);
-data.texc[2].Set(right, 0.0);
-data.texc[3].Set(0.0,   0.0);
-}
-else
-{
-data.texc[0].Set(0.0,   0.0);
-data.texc[1].Set(right, 0.0);
-data.texc[2].Set(right, top);
-data.texc[3].Set(0.0,   top);
-}
-}
-#endif
-
 	data.normal.Set(-viewcos, -viewsin, 0);
-
-	abstract_shader_c *shader = R_GetColormapShader(dthing->props, dthing->mo->state->bright);
 
 
 	int group = 0;
 	int v_idx;
 
+	for (int jj=0; jj < 4; jj++)
+		data.col[jj].Clear();
+
+	if (! fuzzy)
+	{
+		abstract_shader_c *shader = R_GetColormapShader(dthing->props, dthing->mo->state->bright);
+
+		for (int v=0; v < 4; v++)
+		{
+			shader->Sample(data.col + v, data.vert[v].x, data.vert[v].y, data.vert[v].z);
+		}
+
+		if (use_dlights)
+		{
+			float r = dthing->mo->radius + 32;
+
+			P_DynamicLightIterator(
+					dthing->mo->x - r, dthing->mo->y - r, 
+					dthing->mo->x + r, dthing->mo->y + r, 
+					DLIT_Thing, &data);
+
+			// TODO: other shaders
+		}
+	}
+
 	local_gl_vert_t * glvert = RGL_BeginUnit(GL_POLYGON, 4,
 			 GL_MODULATE, tex_id, ENV_NONE, 0,
 			 group, blending);
-
-	multi_color_c cols[4];
-
-	if (! fuzzy)
-	for (v_idx=0; v_idx < 4; v_idx++)
-	{
-		cols[v_idx].Clear();
-
-		shader->Sample(cols + v_idx, data.vert[v_idx].x, data.vert[v_idx].y, data.vert[v_idx].z);
-
-		// TODO: other shaders
-	}
 
 	for (v_idx=0; v_idx < 4; v_idx++)
 	{
@@ -1259,9 +1253,9 @@ data.texc[3].Set(0.0,   top);
 		ThingCoordFunc(&data, v_idx, &dest->pos, dest->rgba,
 				&dest->texc[0], &dest->normal, &lit_pos);
 
-		dest->rgba[0] = cols[v_idx].mod_R / 255.0;
-		dest->rgba[1] = cols[v_idx].mod_G / 255.0;
-		dest->rgba[2] = cols[v_idx].mod_B / 255.0;
+		dest->rgba[0] = data.col[v_idx].mod_R / 255.0;
+		dest->rgba[1] = data.col[v_idx].mod_G / 255.0;
+		dest->rgba[2] = data.col[v_idx].mod_B / 255.0;
 		dest->rgba[3] = trans;
 	}
 

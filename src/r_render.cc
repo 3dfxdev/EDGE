@@ -1274,7 +1274,7 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 	cmap_shader->WorldMix(GL_POLYGON, v_count, tex_id,
 			trans, &data.pass, blending, &data, WallCoordFunc);
 
-	if (use_dlights == 1 && solid_mode)
+	if (use_dlights && solid_mode)
 	{
 		P_DynamicLightIterator(MIN(x1,x2), MIN(y1,y2),
 				MAX(x1,x2), MAX(y1,y2), DLIT_Wall, &data);
@@ -1641,7 +1641,7 @@ static void EmulateFloodPlane(const drawfloor_t *dfloor,
 				&data, FloodCoordFunc);
 	}
 
-	if (use_dlights == 1 && solid_mode)
+	if (use_dlights && solid_mode)
 	{
 		// Note: dynamic lights could have been handled in the row-by-row
 		//       loop above (after the cmap_shader).  However it is more
@@ -2279,7 +2279,7 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	cmap_shader->WorldMix(GL_POLYGON, data.v_count, data.tex_id,
 			trans, &data.pass, blending, &data, PlaneCoordFunc);
 
-	if (use_dlights == 1 && solid_mode)
+	if (use_dlights && solid_mode)
 	{
 		P_DynamicLightIterator(v_low.x, v_low.y, v_high.x, v_high.y,
 				DLIT_Plane, &data);
@@ -2532,16 +2532,6 @@ static inline void AddNewDrawFloor(drawsub_c *dsub, extrafloor_t *ef,
 #endif
 
 	dsub->floors.push_back(dfloor);
-
-	if (use_dlights)
-	{
-		R2_FindDLights(cur_sub, dfloor);
-
-#if 0  // FIXME:
-		if (cur_sub == viewsubsector && f_h <= viewz && viewz <= c_h)
-		    RememberDlightsForPSprites()
-#endif
-	}
 }
 
 
