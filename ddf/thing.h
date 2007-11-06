@@ -264,6 +264,9 @@ typedef enum
 
 	// -AJA- 2007/11/03: invulnerable flag
 	HF_INVULNERABLE = (1 << 9),
+
+	// -AJA- 2007/11/06: gain health when causing damage
+	HF_VAMPIRE = (1 << 10),
 }
 mobjhyperflag_t;
 
