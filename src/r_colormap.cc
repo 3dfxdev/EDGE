@@ -759,11 +759,21 @@ public:
 	}
 
 	virtual void Corner(multi_color_c *col, float nx, float ny, float nz,
-			            struct mobj_s *mod_pos, bool pl_weap)
+			            struct mobj_s *mod_pos, bool is_weapon)
 	{
-		// TODO: improve this
+		// TODO: improve this (normal-ise a little bit)
 
-		Sample(col, mod_pos->x, mod_pos->y, mod_pos->z + mod_pos->height/2);
+		float mx = mod_pos->x;
+		float my = mod_pos->y;
+		float mz = mod_pos->z + mod_pos->height/2;
+
+		if (is_weapon)
+		{
+			mx += viewcos * 100;
+			my += viewsin * 100;
+		}
+
+		Sample(col, mx, my, mz);
 	}
 
 	virtual void WorldMix(GLuint shape, int num_vert,

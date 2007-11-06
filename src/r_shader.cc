@@ -249,10 +249,19 @@ public:
 	}
 
 	virtual void Corner(multi_color_c *col, float nx, float ny, float nz,
-			            struct mobj_s *mod_pos, bool pl_weap)
+			            struct mobj_s *mod_pos, bool is_weapon)
 	{
-		float dx = mod_pos->x - mo->x;
-		float dy = mod_pos->y - mo->y;
+		float mx = mo->x;
+		float my = mo->y;
+		
+		if (is_weapon)
+		{
+			mx += viewcos * 24;
+			my += viewsin * 24;
+		}
+
+		float dx = mod_pos->x - mx;
+		float dy = mod_pos->y - my;
 		float dz = MO_MIDZ(mod_pos) - MO_MIDZ(mo);
 
 		float dist = sqrt(dx*dx + dy*dy + dz*dz);
@@ -271,7 +280,7 @@ public:
 			rgbcol_t new_col = lim[DL]->CurvePoint(dist / WhatRadius(DL),
 					WhatColor(DL));
 
-			float L = 0.5 - 0.6 * (dx*nx + dy*ny + dz*nz);
+			float L = 0.6 - 0.5 * (dx*nx + dy*ny + dz*nz);
 
 			L *= mo->state->bright / 255.0;
 
