@@ -96,7 +96,7 @@ public:
 	// used for arbitrary points in the world (sprites)
 
 	virtual void Corner(multi_color_c *col, float nx, float ny, float nz,
-			            struct mobj_s *mod_pos, bool pl_weap = false) = 0;
+			            struct mobj_s *mod_pos, bool is_weapon = false) = 0;
 	// used for normal-based lighting (MD2 models)
 
 	virtual void WorldMix(GLuint shape, int num_vert,
