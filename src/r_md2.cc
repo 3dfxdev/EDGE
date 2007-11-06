@@ -650,6 +650,10 @@ static void DLIT_Model(mobj_t *mo, void *dataptr)
 {
 	model_coord_data_t *data = (model_coord_data_t *)dataptr;
 
+	// dynamic lights do not light themselves up!
+	if (mo == data->mo)
+		return;
+
 	SYS_ASSERT(mo->dlight.shader);
 
 	ShadeNormals(mo->dlight.shader, data);
@@ -721,13 +725,13 @@ static void ModelCoordFunc(void *d, int v_idx, vec3_t *pos,
 
 	short n = vert->normal_idx;
 
-	float nx = md2_normals[n].x;
-	float ny = md2_normals[n].y;
-	float nz = md2_normals[n].z;
+	float nx1 = md2_normals[n].x;
+	float ny1 = md2_normals[n].y;
+	float nz1 = md2_normals[n].z;
 
-	float nx2 = nx * data->kx_mat.x + nz * data->kx_mat.y;
-	float nz2 = nx * data->kz_mat.x + nz * data->kz_mat.y;
-	float ny2 = ny;
+	float nx2 = nx1 * data->kx_mat.x + nz1 * data->kx_mat.y;
+	float nz2 = nx1 * data->kz_mat.x + nz1 * data->kz_mat.y;
+	float ny2 = ny1;
 
 	normal->x = nx2 * data->rx_mat.x + ny2 * data->rx_mat.y;
 	normal->y = nx2 * data->ry_mat.x + ny2 * data->ry_mat.y;
@@ -813,7 +817,13 @@ I_Debugf("Render model: bad frame %d\n", frame);
 
 
 	/* draw the model */
-	
+
+if (is_weapon)
+	I_Debugf("Max MOD: %d  Max ADD: %d  Mo @ (%1.0f,%1.0f)+/-%1.0f\n",
+			MD2_MulticolMaxRGB(&data, false),
+			MD2_MulticolMaxRGB(&data, true),
+			mo->x, mo->y, mo->radius);
+
 	for (int pass = 0; pass < 3; pass++)
 	{
 		if (pass > 0 && pass < 2)
