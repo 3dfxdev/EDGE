@@ -870,10 +870,6 @@ void P_ThrustMobj(mobj_t * target, mobj_t * inflictor, float thrust)
 void P_DamageMobj(mobj_t * target, mobj_t * inflictor, mobj_t * source,
 				  float damage, const damage_c * damtype, bool weak_spot)
 {
-	player_t *player;
-	statenum_t state;
-	int i;
-
 	if (!(target->flags & MF_SHOOTABLE))
 		return;
 
@@ -908,7 +904,7 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor, mobj_t * source,
 		target->flags &= ~MF_SKULLFLY;
 	}
 
-	player = target->player;
+	player_t *player = target->player;
 
 	// take half damage in trainer mode
 	if (player && gameskill == sk_baby)
@@ -935,12 +931,14 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor, mobj_t * source,
 	// player specific
 	if (player)
 	{
+		int i;
+
 		// ignore damage in GOD mode, or with INVUL powerup
 		if ((player->cheats & CF_GODMODE) || player->powers[PW_Invulnerable])
 			return;
 
 		// preliminary check: immunity and resistance
-		for (i=NUMARMOUR-1; i >= ARMOUR_Green; i--)
+		for (i = NUMARMOUR-1; i >= ARMOUR_Green; i--)
 		{
 			if (damtype && damtype->no_armour)
 				continue;
@@ -1045,6 +1043,15 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor, mobj_t * source,
 		player->health = MAX(0, target->health);
 	}
 
+	// -AJA- 2007/11/06: vampire mode!
+	if (source && source != target &&
+		((source->hyperflags & HF_VAMPIRE) ||
+		 (inflictor && inflictor->currentattack &&
+		  (inflictor->currentattack->flags & AF_Vampire))))
+	{
+		source->health = MIN(source->health + damage, source->info->spawnhealth);
+	}
+
 	if (target->health <= 0)
 	{
 		P_KillMobj(source, target, damtype);
@@ -1070,7 +1077,7 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor, mobj_t * source,
 		// setup to hit back
 		target->flags |= MF_JUSTHIT;
 
-		state = S_NULL;
+		statenum_t state = S_NULL;
 
 		if (weak_spot)
 			state = P_MobjFindLabel(target, "WEAKPAIN");

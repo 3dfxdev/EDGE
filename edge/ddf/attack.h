@@ -52,19 +52,22 @@ attackstyle_e;
 typedef enum
 {
 	AF_None            = 0,
-	AF_TraceSmoke      = 1,
-	AF_KillFailedSpawn = 2,
-	AF_PrestepSpawn    = 4,
-	AF_SpawnTelefrags  = 8,
-	AF_NeedSight       = 16,
-	AF_FaceTarget      = 32,
-	AF_Player          = 64,
-	AF_ForceAim        = 128,
 
-	AF_AngledSpawn     = 0x0100,
-	AF_NoTriggerLines  = 0x0200,
-	AF_SilentToMon     = 0x0400,
-	AF_NoTarget        = 0x0800
+	AF_TraceSmoke      = (1 << 0),
+	AF_KillFailedSpawn = (1 << 1),
+	AF_PrestepSpawn    = (1 << 2),
+	AF_SpawnTelefrags  = (1 << 3),
+
+	AF_NeedSight       = (1 << 4),
+	AF_FaceTarget      = (1 << 5),
+	AF_Player          = (1 << 6),
+	AF_ForceAim        = (1 << 7),
+
+	AF_AngledSpawn     = (1 << 8),
+	AF_NoTriggerLines  = (1 << 9),
+	AF_SilentToMon     = (1 << 10),
+	AF_NoTarget        = (1 << 11),
+	AF_Vampire         = (1 << 12),
 }
 attackflags_e;
 

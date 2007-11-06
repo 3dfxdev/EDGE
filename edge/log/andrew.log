@@ -1,5 +1,12 @@
 Andrew Apted's Log
 
+2007/11/06:
+
+Added VAMPIRE special for monsters/players in things.ddf and
+also an attack special of the same name.  This causes the
+inflictor of damage to gain the same amount of health as
+the damage caused on the target.
+
 2007/11/05:
 
 Applied new dlight code to flat-flooding emulation.
