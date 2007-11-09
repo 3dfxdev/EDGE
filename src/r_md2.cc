@@ -812,7 +812,10 @@ I_Debugf("Render model: bad frame %d\n", frame);
 					               mo->x + r, mo->y + r, mo->z + mo->height,
 								   DLIT_Model, &data);
 
-			// TODO: other shaders
+			P_SectorGlowIterator(mo->subsector->sector,
+					             mo->x - r, mo->y - r, mo->z,
+					             mo->x + r, mo->y + r, mo->z + mo->height,
+								 DLIT_Model, &data);
 		}
 	}
 

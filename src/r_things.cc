@@ -318,7 +318,10 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 				data.lit_pos.x + r, data.lit_pos.y + r, player->mo->z + player->mo->height,
 				DLIT_PSprite, &data);
 
-			// TODO: other shaders
+			P_SectorGlowIterator(player->mo->subsector->sector,
+				data.lit_pos.x - r, data.lit_pos.y - r, player->mo->z,
+				data.lit_pos.x + r, data.lit_pos.y + r, player->mo->z + player->mo->height,
+				DLIT_PSprite, &data);
 		}
 	}
 
@@ -1295,7 +1298,10 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 					mo->x + r, mo->y + r, mo->z + mo->height,
 					DLIT_Thing, &data);
 
-			// TODO: other shaders
+			P_SectorGlowIterator(mo->subsector->sector,
+					mo->x - r, mo->y - r, mo->z,
+					mo->x + r, mo->y + r, mo->z + mo->height,
+					DLIT_Thing, &data);
 		}
 	}
 
