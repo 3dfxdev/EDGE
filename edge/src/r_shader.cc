@@ -161,9 +161,8 @@ public:
 	{ /* nothing to do */ }
 
 private:
-	inline float TexCoord(const mobj_t *mo, float r,
-		const vec3_t *lit_pos, const vec3_t *normal,
-		GLfloat *rgb, vec2_t *texc)
+	inline float TexCoord(vec2_t *texc, float r,
+		const vec3_t *lit_pos, const vec3_t *normal)
 	{
 		float dx = lit_pos->x - mo->x;
 		float dy = lit_pos->y - mo->y;
@@ -272,6 +271,11 @@ public:
 
 		dist = MAX(1.0, dist - mod_pos->radius);
 
+
+		float L = 0.6 - 0.5 * (dx*nx + dy*ny + dz*nz);
+
+		L *= mo->state->bright / 255.0;
+
 		for (int DL = 0; DL < 2; DL++)
 		{
 			if (WhatType(DL) == DLITE_None)
@@ -279,10 +283,6 @@ public:
 
 			rgbcol_t new_col = lim[DL]->CurvePoint(dist / WhatRadius(DL),
 					WhatColor(DL));
-
-			float L = 0.6 - 0.5 * (dx*nx + dy*ny + dz*nz);
-
-			L *= mo->state->bright / 255.0;
 
 			if (new_col != RGB_MAKE(0,0,0) && L > 1/256.0)
 			{
@@ -329,9 +329,8 @@ public:
 				(*func)(data, v_idx, &dest->pos, dest->rgba,
 						&dest->texc[0], &dest->normal, &lit_pos);
 
-				float dist = TexCoord(mo, WhatRadius(DL),
-						 &lit_pos, &dest->normal,
-						 dest->rgba, &dest->texc[1]);
+				float dist = TexCoord(&dest->texc[1], WhatRadius(DL),
+						 &lit_pos, &dest->normal);
 
 				float ity = exp(-5.44 * dist * dist);
 
@@ -363,34 +362,117 @@ abstract_shader_c *MakeDLightShader(mobj_t *mo)
 class plane_glow_c : public abstract_shader_c
 {
 private:
-	float h;
-
 	mobj_t *mo;
 
+	light_image_c *lim[2];
+
 public:
-	plane_glow_c(float _height, mobj_t *_glower) :
-		h(_height), mo(_glower)
-	{ }
+	plane_glow_c(mobj_t *_glower) : mo(_glower)
+	{
+		lim[0] = GetLightImage(mo->info, 0);
+		lim[1] = GetLightImage(mo->info, 1);
+	}
 	
 	virtual ~plane_glow_c()
 	{ /* nothing to do */ }
 
+private:
+	inline float Dist(const sector_t *sec, float z)
+	{
+		if (mo->info->glow_type == GLOW_Floor)
+			return fabs(sec->f_h - z);
+		else
+			return fabs(sec->c_h - z);  // GLOW_Ceiling
+	}
+
+	inline void TexCoord(vec2_t *texc, float r,
+		const sector_t *sec, const vec3_t *lit_pos, const vec3_t *normal)
+	{
+		texc->x = 0.5;
+		texc->y = Dist(sec, lit_pos->z) / r;
+	}
+
+	inline float WhatRadius(int DL)
+	{
+		if (DL == 0)
+			return mo->dlight.r;
+
+		return mo->info->dlight[1].radius * mo->dlight.r /
+			   mo->info->dlight[0].radius;
+	}
+
+	inline rgbcol_t WhatColor(int DL)
+	{
+		return (DL == 0) ? mo->dlight.color : mo->info->dlight[1].colour;
+	}
+
+	inline dlight_type_e WhatType(int DL)
+	{
+		return mo->info->dlight[DL].type;
+	}
+
+public:
 	virtual void Sample(multi_color_c *col, float x, float y, float z)
 	{
-		// FIXME: assumes standard DLIGHT image
+		const sector_t *sec = mo->subsector->sector;
 
-		float dz = (z - h) / mo->dlight.r;
+		float dist = Dist(sec, z);
 
-		float L = exp(-5.44 * dz * dz);
-
-		L = L * mo->state->bright / 255.0;
-
-		if (L > 1/256.0)
+		for (int DL = 0; DL < 2; DL++)
 		{
-			if (mo->info->dlight[0].type == DLITE_Add)
-				col->add_Give(mo->dlight.color, L); 
-			else
-				col->mod_Give(mo->dlight.color, L); 
+			if (WhatType(DL) == DLITE_None)
+				break;
+
+			rgbcol_t new_col = lim[DL]->CurvePoint(dist / WhatRadius(DL),
+					WhatColor(DL));
+
+			float L = mo->state->bright / 255.0;
+
+			if (new_col != RGB_MAKE(0,0,0) && L > 1/256.0)
+			{
+				if (WhatType(DL) == DLITE_Add)
+					col->add_Give(new_col, L); 
+				else
+					col->mod_Give(new_col, L); 
+			}
+		}
+	}
+
+	virtual void Corner(multi_color_c *col, float nx, float ny, float nz,
+			            struct mobj_s *mod_pos, bool is_weapon)
+	{
+		const sector_t *sec = mo->subsector->sector;
+
+		float dz;
+		float dist;
+
+		if (mo->info->glow_type == GLOW_Floor)
+			dz = +1, dist = mo->z - sec->f_h;
+		else
+			dz = -1, dist = sec->c_h - (mo->z + mo->height);
+
+		dist = MAX(1.0, fabs(dist));
+
+
+		float L = 0.6 - 0.5 * (dz*nz);
+
+		L *= mo->state->bright / 255.0;
+
+		for (int DL = 0; DL < 2; DL++)
+		{
+			if (WhatType(DL) == DLITE_None)
+				break;
+
+			rgbcol_t new_col = lim[DL]->CurvePoint(dist / WhatRadius(DL),
+					WhatColor(DL));
+
+			if (new_col != RGB_MAKE(0,0,0) && L > 1/256.0)
+			{
+				if (WhatType(DL) == DLITE_Add)
+					col->add_Give(new_col, L); 
+				else
+					col->mod_Give(new_col, L); 
+			}
 		}
 	}
 
@@ -398,7 +480,52 @@ public:
 		GLuint tex, float alpha, int *pass_var, int blending,
 		void *data, shader_coord_func_t func)
 	{
-		/* TODO */
+		const sector_t *sec = mo->subsector->sector;
+
+		for (int DL = 0; DL < 2; DL++)
+		{
+			if (WhatType(DL) == DLITE_None)
+				break;
+
+			bool is_additive = (WhatType(DL) == DLITE_Add);
+
+			rgbcol_t col = WhatColor(DL);
+
+			float L = mo->state->bright / 255.0;
+
+			float R = L * RGB_RED(col) / 255.0;
+			float G = L * RGB_GRN(col) / 255.0;
+			float B = L * RGB_BLU(col) / 255.0;
+
+
+			local_gl_vert_t *glvert = RGL_BeginUnit(shape, num_vert,
+						is_additive ? ENV_NONE : GL_MODULATE,
+						is_additive ? 0 : tex,
+						GL_MODULATE, lim[DL]->tex_id,
+						*pass_var, blending);
+			
+			for (int v_idx=0; v_idx < num_vert; v_idx++)
+			{
+				local_gl_vert_t *dest = glvert + v_idx;
+
+				vec3_t lit_pos;
+
+				(*func)(data, v_idx, &dest->pos, dest->rgba,
+						&dest->texc[0], &dest->normal, &lit_pos);
+
+				TexCoord(&dest->texc[1], WhatRadius(DL), sec,
+						 &lit_pos, &dest->normal);
+
+				dest->rgba[0] = R;
+				dest->rgba[1] = G;
+				dest->rgba[2] = B;
+				dest->rgba[3] = alpha;
+			}
+
+			RGL_EndUnit(num_vert);
+
+			(*pass_var) += 1;
+		}
 	}
 };
 
