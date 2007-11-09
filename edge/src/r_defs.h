@@ -282,6 +282,9 @@ typedef struct sector_s
 	// touch list: objects in or touching this sector
 	touch_node_t *touch_things;
     
+	// list of sector glow things (linked via dlnext/dlprev)
+	mobj_t *glow_things;
+	
 	// sky height for GL renderer
 	float sky_h;
  
