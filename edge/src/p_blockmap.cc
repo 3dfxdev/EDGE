@@ -787,7 +787,8 @@ bool P_BlockThingsIterator(float x1, float y1, float x2, float y2,
 }
 
 
-void P_DynamicLightIterator(float x1, float y1, float x2, float y2,
+void P_DynamicLightIterator(float x1, float y1, float z1,
+		                    float x2, float y2, float z2,
 		                    void (*func)(mobj_t *, void *), void *data)
 {
 	int lx = LIGHTMAP_GET_X(x1) - 1;
@@ -813,7 +814,8 @@ void P_DynamicLightIterator(float x1, float y1, float x2, float y2,
 			float r = mo->dlight.r;
 
 			if (mo->x + r <= x1 || mo->x - r >= x2 ||
-			    mo->y + r <= y1 || mo->y - r >= y2)
+			    mo->y + r <= y1 || mo->y - r >= y2 ||
+				mo->z + r <= z1 || mo->z - r >= z2)
 				continue;
 			
 			// create shader if necessary

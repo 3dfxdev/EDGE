@@ -78,8 +78,6 @@ unsigned int root_node;
 
 extern camera_t *camera;
 
-static abstract_shader_c *cmap_shader;
-
 
 // -ES- 1999/03/20 Different right & left side clip angles, for asymmetric FOVs.
 angle_t clip_left, clip_right;
@@ -906,6 +904,8 @@ static void DLIT_Wall(mobj_t *mo, void *dataptr)
 			data, WallCoordFunc);
 }
 
+// static void GLOWLIT_Wall(mobj_t *mo, void *dataptr)
+
 
 static void DLIT_Plane(mobj_t *mo, void *dataptr)
 {
@@ -918,11 +918,7 @@ static void DLIT_Plane(mobj_t *mo, void *dataptr)
 			return;
 	}
 
-	float dist = fabs(MO_MIDZ(mo) - data->vert[0].z);
-
-	// light too far away ?
-	if (dist > mo->dlight.r)
-		return;
+	// NOTE: distance already checked in P_DynamicLightIterator
 
 	SYS_ASSERT(mo->dlight.shader);
 
@@ -1269,15 +1265,18 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 	data.tex_id = tex_id;
 	data.pass   = 0;
 
-	cmap_shader = R_GetColormapShader(props, lit_adjust);
+
+	abstract_shader_c *cmap_shader = R_GetColormapShader(props, lit_adjust);
 
 	cmap_shader->WorldMix(GL_POLYGON, v_count, tex_id,
 			trans, &data.pass, blending, &data, WallCoordFunc);
 
 	if (use_dlights && solid_mode)
 	{
-		P_DynamicLightIterator(MIN(x1,x2), MIN(y1,y2),
-				MAX(x1,x2), MAX(y1,y2), DLIT_Wall, &data);
+		P_DynamicLightIterator(MIN(x1,x2), MIN(y1,y2), bottom,
+							   MAX(x1,x2), MAX(y1,y2), top,
+							   DLIT_Wall, &data);
+
 	}
 
 	
@@ -1481,11 +1480,7 @@ static void DLIT_Flood(mobj_t *mo, void *dataptr)
 			return;
 	}
 
-	float dist = fabs(MO_MIDZ(mo) - data->plane_h);
-
-	// light too far away ?
-	if (dist > mo->dlight.r)
-		return;
+	// NOTE: distance already checked in P_DynamicLightIterator
 
 	SYS_ASSERT(mo->dlight.shader);
 
@@ -1614,7 +1609,7 @@ static void EmulateFloodPlane(const drawfloor_t *dfloor,
 	data.dh = dh;
 
 
-	cmap_shader = R_GetColormapShader(props);
+	abstract_shader_c *cmap_shader = R_GetColormapShader(props);
 
 	data.v_count = (piece_col+1) * 2;
 
@@ -1668,7 +1663,8 @@ static void EmulateFloodPlane(const drawfloor_t *dfloor,
 
 //		I_Debugf("Flood BBox size: %1.0f x %1.0f\n", lx2-lx1, ly2-ly1);
 
-		P_DynamicLightIterator(lx1,ly1, lx2,ly2, DLIT_Flood, &data);
+		P_DynamicLightIterator(lx1,ly1,data.plane_h, lx2,ly2,data.plane_h,
+				               DLIT_Flood, &data);
 	}
 }
 
@@ -2170,8 +2166,6 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	if (surf->override_p)
 		props = surf->override_p;
 
-	cmap_shader = R_GetColormapShader(props);
-
 
 	float trans = surf->translucency;
 
@@ -2207,7 +2201,7 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	}
 
 	// -AJA- make sure polygon has enough vertices.  Sometimes a subsector
-	// ends up with only 1 or 2 segs due to level problems (e.g.  MAP22).
+	// ends up with only 1 or 2 segs due to level problems (e.g. MAP22).
 	if (num_vert < 3)
 		return;
 
@@ -2215,6 +2209,7 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 		num_vert = MAX_PLVERT;
 
 
+	abstract_shader_c *cmap_shader = R_GetColormapShader(props);
 
 	SYS_ASSERT(surf->image);
 
@@ -2281,8 +2276,9 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 
 	if (use_dlights && solid_mode)
 	{
-		P_DynamicLightIterator(v_low.x, v_low.y, v_high.x, v_high.y,
-				DLIT_Plane, &data);
+		P_DynamicLightIterator(v_low.x,  v_low.y,  h,
+				               v_high.x, v_high.y, h,
+							   DLIT_Plane, &data);
 	}
 
 #if 0  // OLD WAY

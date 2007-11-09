@@ -281,7 +281,7 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	data.texc[2].Set(tex_x2, tex_top_h);
 	data.texc[3].Set(tex_x2, tex_bot_h);
 
-	float away = 120.0;  // TODO: calibrate (linear eq from light level)
+	float away = 120.0;
 
 	data.lit_pos.x = player->mo->x + viewcos * away;
 	data.lit_pos.y = player->mo->y + viewsin * away;
@@ -308,11 +308,14 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 
 		if (use_dlights)
 		{
+			data.lit_pos.x = player->mo->x + viewcos * 24;
+			data.lit_pos.y = player->mo->y + viewsin * 24;
+
 			float r = 96;
 
 			P_DynamicLightIterator(
-				data.lit_pos.x - r, data.lit_pos.y - r,
-				data.lit_pos.x + r, data.lit_pos.y + r,
+				data.lit_pos.x - r, data.lit_pos.y - r, player->mo->z,
+				data.lit_pos.x + r, data.lit_pos.y + r, player->mo->z + player->mo->height,
 				DLIT_PSprite, &data);
 
 			// TODO: other shaders
@@ -1140,9 +1143,11 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 		return;
 	}
 
-	int fuzzy = (dthing->mo->flags & MF_FUZZY);
+	mobj_t *mo = dthing->mo;
 
-	float trans = fuzzy ? FUZZY_TRANS : dthing->mo->visibility;
+	int fuzzy = (mo->flags & MF_FUZZY);
+
+	float trans = fuzzy ? FUZZY_TRANS : mo->visibility;
 
 	float dx = 0, dy = 0;
 
@@ -1172,8 +1177,8 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 		float h = dthing->orig_top - dthing->orig_bottom;
 		float skew2 = h;
 
-		if (dthing->mo->radius >= 1.0f && h > dthing->mo->radius)
-			skew2 = dthing->mo->radius;
+		if (mo->radius >= 1.0f && h > mo->radius)
+			skew2 = mo->radius;
 
 		float dx = viewcos * sprite_skew * skew2;
 		float dy = viewsin * sprite_skew * skew2;
@@ -1194,7 +1199,7 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 	float tex_y1 = dthing->bottom - dthing->orig_bottom;
 	float tex_y2 = tex_y1 + (z1t - z1b);
 
-	float yscale = dthing->mo->info->yscale;
+	float yscale = mo->info->yscale;
 
 	SYS_ASSERT(h > 0);
 	tex_y1 = top * tex_y1 / (h * yscale);
@@ -1217,7 +1222,7 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 		float range_y = fabs(dthing->right_dy - dthing->left_dy) / 12.0f;
 		float range_z = fabs(z1t - z1b) / 24.0f / 2;
 
-		angle_t adjust = (angle_t)(long)dthing->mo << (ANGLEBITS - 14);
+		angle_t adjust = (angle_t)(long)mo << (ANGLEBITS - 14);
 
 		float tl = M_Sin(fuzz_ang_tl + adjust);
 		float tr = M_Sin(fuzz_ang_tr + adjust);
@@ -1242,13 +1247,13 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 	if (trans <= 0.99 || use_smoothing)
 		blending |= BL_Alpha;
 
-	if (dthing->mo->hyperflags & HF_NOZBUFFER)
+	if (mo->hyperflags & HF_NOZBUFFER)
 		blending |= BL_NoZBuf;
 
 	
 	thing_coord_data_t data;
 
-	data.mo = dthing->mo;
+	data.mo = mo;
 
 ///---	data.R = fuzzy ? 0 : 1;
 ///---	data.G = fuzzy ? 0 : 1;
@@ -1274,7 +1279,7 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 
 	if (! fuzzy)
 	{
-		abstract_shader_c *shader = R_GetColormapShader(dthing->props, dthing->mo->state->bright);
+		abstract_shader_c *shader = R_GetColormapShader(dthing->props, mo->state->bright);
 
 		for (int v=0; v < 4; v++)
 		{
@@ -1283,11 +1288,11 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 
 		if (use_dlights)
 		{
-			float r = dthing->mo->radius + 32;
+			float r = mo->radius + 32;
 
 			P_DynamicLightIterator(
-					dthing->mo->x - r, dthing->mo->y - r, 
-					dthing->mo->x + r, dthing->mo->y + r, 
+					mo->x - r, mo->y - r, mo->z,
+					mo->x + r, mo->y + r, mo->z + mo->height,
 					DLIT_Thing, &data);
 
 			// TODO: other shaders
