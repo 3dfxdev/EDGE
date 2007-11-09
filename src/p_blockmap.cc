@@ -321,7 +321,7 @@ static void SetPositionBSP(setposbsp_t *info, int nodenum)
 // -ES- 1999/12/04 Better error checking: Clear prev/next fields.
 // This catches errors which can occur if the position is unset twice.
 //
-void P_UnsetThingPosition(mobj_t * thing)
+void P_UnsetThingPosition(mobj_t * mo)
 {
 	int blockx;
 	int blocky;
@@ -330,120 +330,143 @@ void P_UnsetThingPosition(mobj_t * thing)
 	touch_node_t *tn;
 
 	// unlink from subsector
-	if (!(thing->flags & MF_NOSECTOR))
+	if (!(mo->flags & MF_NOSECTOR))
 	{
 		// (inert things don't need to be in subsector list)
 
-		if (thing->snext)
+		if (mo->snext)
 		{
-#ifdef DEVELOPERS
-			if (thing->snext->sprev != thing)
-				I_Error("INTERNAL ERROR: Bad subsector NEXT link in thing.\n");
-#endif
-			thing->snext->sprev = thing->sprev;
+			SYS_ASSERT(mo->snext->sprev == mo);
+
+			mo->snext->sprev = mo->sprev;
 		}
 
-		if (thing->sprev)
+		if (mo->sprev)
 		{
-#ifdef DEVELOPERS
-			if (thing->sprev->snext != thing)
-				I_Error("INTERNAL ERROR: Bad subsector PREV link in thing.\n");
-#endif
-			thing->sprev->snext = thing->snext;
+			SYS_ASSERT(mo->sprev->snext == mo);
+
+			mo->sprev->snext = mo->snext;
 		}
 		else
 		{
-#ifdef DEVELOPERS
-			if (thing->subsector->thinglist != thing)
-				I_Error("INTERNAL ERROR: Bad subsector link (HEAD) in thing, possibly double P_UnsetThingPosition call.\n");
-#endif
-			thing->subsector->thinglist = thing->snext;
+			SYS_ASSERT(mo->subsector->thinglist == mo);
+
+			mo->subsector->thinglist = mo->snext;
 		}
 
-		thing->snext = NULL;
-		thing->sprev = NULL;
+		mo->snext = NULL;
+		mo->sprev = NULL;
 	}
 
 	// unlink from touching list.
 	// NOTE: lazy unlinking -- see notes in r_defs.h
 	//
-	for (tn = thing->touch_sectors; tn; tn = tn->mo_next)
+	for (tn = mo->touch_sectors; tn; tn = tn->mo_next)
 	{
 		tn->mo = NULL;
 	}
 
 	// unlink from blockmap
-	if (!(thing->flags & MF_NOBLOCKMAP))
+	if (!(mo->flags & MF_NOBLOCKMAP))
 	{
 		// inert things don't need to be in blockmap
-		if (thing->bnext)
+		if (mo->bnext)
 		{
-#ifdef DEVELOPERS
-			if (thing->bnext->bprev != thing)
-				I_Error("INTERNAL ERROR: Bad block NEXT link in thing.\n");
-#endif
-			thing->bnext->bprev = thing->bprev;
+			SYS_ASSERT(mo->bnext->bprev == mo);
+
+			mo->bnext->bprev = mo->bprev;
 		}
 
-		if (thing->bprev)
+		if (mo->bprev)
 		{
-#ifdef DEVELOPERS
-			if (thing->bprev->bnext != thing)
-				I_Error("INTERNAL ERROR: Bad block PREV link in thing.\n");
-#endif
-			thing->bprev->bnext = thing->bnext;
+			SYS_ASSERT(mo->bprev->bnext == mo);
+
+			mo->bprev->bnext = mo->bnext;
 		}
 		else
 		{
-			blockx = BLOCKMAP_GET_X(thing->x);
-			blocky = BLOCKMAP_GET_Y(thing->y);
+			blockx = BLOCKMAP_GET_X(mo->x);
+			blocky = BLOCKMAP_GET_Y(mo->y);
 
 			if (blockx >= 0 && blockx < bmap_width &&
 				blocky >= 0 && blocky < bmap_height)
 			{
 				bnum = blocky * bmap_width + blockx;
-#ifdef DEVELOPERS
-				if (bmap_things[bnum] != thing)
-					I_Error("INTERNAL ERROR: Bad block link (HEAD) in thing.\n");
-#endif
-				bmap_things[bnum] = thing->bnext;
+
+				SYS_ASSERT(bmap_things[bnum] == mo);
+
+				bmap_things[bnum] = mo->bnext;
 			}
 		}
 
-		thing->bprev = NULL;
-		thing->bnext = NULL;
+		mo->bprev = NULL;
+		mo->bnext = NULL;
 	}
 
 	// unlink from dynamic light blockmap
-	if (thing->info && (thing->info->dlight[0].type != DLITE_None))
+	if (mo->info && (mo->info->dlight[0].type != DLITE_None) &&
+		(mo->info->glow_type == GLOW_None))
 	{
-		if (thing->dlnext)
+		if (mo->dlnext)
 		{
-			SYS_ASSERT(thing->dlnext->dlprev == thing);
-			thing->dlnext->dlprev = thing->dlprev;
+			SYS_ASSERT(mo->dlnext->dlprev == mo);
+
+			mo->dlnext->dlprev = mo->dlprev;
 		}
 
-		if (thing->dlprev)
+		if (mo->dlprev)
 		{
-			SYS_ASSERT(thing->dlprev->dlnext == thing);
-			thing->dlprev->dlnext = thing->dlnext;
+			SYS_ASSERT(mo->dlprev->dlnext == mo);
+
+			mo->dlprev->dlnext = mo->dlnext;
 		}
 		else
 		{
-			blockx = LIGHTMAP_GET_X(thing->x);
-			blocky = LIGHTMAP_GET_Y(thing->y);
+			blockx = LIGHTMAP_GET_X(mo->x);
+			blocky = LIGHTMAP_GET_Y(mo->y);
 
 			if (blockx >= 0 && blockx < dlmap_width &&
 				blocky >= 0 && blocky < dlmap_height)
 			{
 				bnum = blocky * dlmap_width + blockx;
 
-				SYS_ASSERT(dlmap_things[bnum] == thing);
-				dlmap_things[bnum] = thing->dlnext;
+				SYS_ASSERT(dlmap_things[bnum] == mo);
+				dlmap_things[bnum] = mo->dlnext;
 			}
 		}
 
-		thing->dlprev = thing->dlnext = NULL;
+		mo->dlprev = NULL;
+		mo->dlnext = NULL;
+	}
+
+	// unlink from sector glow list
+	if (mo->info && (mo->info->dlight[0].type != DLITE_None) &&
+		(mo->info->glow_type != GLOW_None))
+	{
+		sector_t *sec = mo->subsector->sector;
+
+		if (mo->dlnext)
+		{
+			SYS_ASSERT(mo->dlnext->dlprev == mo);
+
+			mo->dlnext->dlprev = mo->dlprev;
+		}
+
+		if (mo->dlprev)
+		{
+			SYS_ASSERT(mo->dlprev->dlnext == mo);
+
+			mo->dlprev->dlnext = mo->dlnext;
+		}
+		else
+		{
+			SYS_ASSERT(sec->glow_things == mo);
+
+			sec->glow_things = mo->dlnext;
+		}
+
+		mo->dlprev = NULL;
+		mo->dlnext = NULL;
 	}
 }
 
@@ -452,18 +475,18 @@ void P_UnsetThingPosition(mobj_t * thing)
 // 
 // Call when the thing is about to be removed for good.
 // 
-void P_UnsetThingFinally(mobj_t * thing)
+void P_UnsetThingFinally(mobj_t * mo)
 {
 	touch_node_t *tn;
 
-	P_UnsetThingPosition(thing);
+	P_UnsetThingPosition(mo);
 
 	// clear out touch nodes
 
-	while (thing->touch_sectors)
+	while (mo->touch_sectors)
 	{
-		tn = thing->touch_sectors;
-		thing->touch_sectors = tn->mo_next;
+		tn = mo->touch_sectors;
+		mo->touch_sectors = tn->mo_next;
 
 		TouchNodeUnlinkFromSector(tn);
 		TouchNodeFree(tn);
@@ -476,7 +499,7 @@ void P_UnsetThingFinally(mobj_t * thing)
 // Links a thing into both a block and a subsector
 // based on it's x y.
 //
-void P_SetThingPosition(mobj_t * thing)
+void P_SetThingPosition(mobj_t * mo)
 {
 	subsector_t *ss;
 	int blockx;
@@ -487,29 +510,27 @@ void P_SetThingPosition(mobj_t * thing)
 	touch_node_t *tn;
 
 	// -ES- 1999/12/04 The position must be unset before it's set again.
-#ifdef DEVELOPERS
-	if (thing->snext || thing->sprev || thing->bnext || thing->bprev)
+	if (mo->snext || mo->sprev || mo->bnext || mo->bprev)
 		I_Error("INTERNAL ERROR: Double P_SetThingPosition call.");
 
-	SYS_ASSERT(! (thing->dlnext || thing->dlprev));
-#endif  // DEVELOPERS
+	SYS_ASSERT(! (mo->dlnext || mo->dlprev));
 
 	// link into subsector
-	ss = R_PointInSubsector(thing->x, thing->y);
-	thing->subsector = ss;
+	ss = R_PointInSubsector(mo->x, mo->y);
+	mo->subsector = ss;
 
 	// determine properties
-	thing->props = R_PointGetProps(ss, thing->z + thing->height/2);
+	mo->props = R_PointGetProps(ss, mo->z + mo->height/2);
 
-	if (! (thing->flags & MF_NOSECTOR))
+	if (! (mo->flags & MF_NOSECTOR))
 	{
-		thing->snext = ss->thinglist;
-		thing->sprev = NULL;
+		mo->snext = ss->thinglist;
+		mo->sprev = NULL;
 
 		if (ss->thinglist)
-			ss->thinglist->sprev = thing;
+			ss->thinglist->sprev = mo;
 
-		ss->thinglist = thing;
+		ss->thinglist = mo;
 	}
 
 	// link into touching list
@@ -518,17 +539,17 @@ void P_SetThingPosition(mobj_t * thing)
 	touchstat_moves++;
 #endif
 
-	pos.thing = thing;
-	pos.bbox[BOXLEFT]   = thing->x - thing->radius;
-	pos.bbox[BOXRIGHT]  = thing->x + thing->radius;
-	pos.bbox[BOXBOTTOM] = thing->y - thing->radius;
-	pos.bbox[BOXTOP]    = thing->y + thing->radius;
+	pos.thing = mo;
+	pos.bbox[BOXLEFT]   = mo->x - mo->radius;
+	pos.bbox[BOXRIGHT]  = mo->x + mo->radius;
+	pos.bbox[BOXBOTTOM] = mo->y - mo->radius;
+	pos.bbox[BOXTOP]    = mo->y + mo->radius;
 
 	SetPositionBSP(&pos, root_node);
 
 	// handle any left-over unused touch nodes
 
-	for (tn = thing->touch_sectors; tn && tn->mo; tn = tn->mo_next)
+	for (tn = mo->touch_sectors; tn && tn->mo; tn = tn->mo_next)
 	{ /* nothing here */ }
 
 	if (tn)
@@ -536,7 +557,7 @@ void P_SetThingPosition(mobj_t * thing)
 		if (tn->mo_prev)
 			tn->mo_prev->mo_next = NULL;
 		else
-			thing->touch_sectors = NULL;
+			mo->touch_sectors = NULL;
 
 		while (tn)
 		{
@@ -569,55 +590,68 @@ void P_SetThingPosition(mobj_t * thing)
 #endif
 
 	// link into blockmap
-	if (!(thing->flags & MF_NOBLOCKMAP))
+	if (!(mo->flags & MF_NOBLOCKMAP))
 	{
-		blockx = BLOCKMAP_GET_X(thing->x);
-		blocky = BLOCKMAP_GET_Y(thing->y);
+		blockx = BLOCKMAP_GET_X(mo->x);
+		blocky = BLOCKMAP_GET_Y(mo->y);
 
 		if (blockx >= 0 && blockx < bmap_width &&
 			blocky >= 0 && blocky < bmap_height)
 		{
 			bnum = blocky * bmap_width + blockx;
 
-			thing->bprev = NULL;
-			thing->bnext = bmap_things[bnum];
+			mo->bprev = NULL;
+			mo->bnext = bmap_things[bnum];
 
 			if (bmap_things[bnum])
-				(bmap_things[bnum])->bprev = thing;
+				(bmap_things[bnum])->bprev = mo;
 
-			bmap_things[bnum] = thing;
+			bmap_things[bnum] = mo;
 		}
 		else
 		{
 			// thing is off the map
-			thing->bnext = thing->bprev = NULL;
+			mo->bnext = mo->bprev = NULL;
 		}
 	}
 
 	// link into dynamic light blockmap
-	if (thing->info && (thing->info->dlight[0].type != DLITE_None))
+	if (mo->info && (mo->info->dlight[0].type != DLITE_None) &&
+		(mo->info->glow_type == GLOW_None))
 	{
-		blockx = LIGHTMAP_GET_X(thing->x);
-		blocky = LIGHTMAP_GET_Y(thing->y);
+		blockx = LIGHTMAP_GET_X(mo->x);
+		blocky = LIGHTMAP_GET_Y(mo->y);
 
 		if (blockx >= 0 && blockx < dlmap_width &&
 			blocky >= 0 && blocky < dlmap_height)
 		{
 			bnum = blocky * dlmap_width + blockx;
 
-			thing->dlprev = NULL;
-			thing->dlnext = dlmap_things[bnum];
+			mo->dlprev = NULL;
+			mo->dlnext = dlmap_things[bnum];
 
 			if (dlmap_things[bnum])
-				(dlmap_things[bnum])->dlprev = thing;
+				(dlmap_things[bnum])->dlprev = mo;
 
-			dlmap_things[bnum] = thing;
+			dlmap_things[bnum] = mo;
 		}
 		else
 		{
 			// thing is off the map
-			thing->dlnext = thing->dlprev = NULL;
+			mo->dlnext = mo->dlprev = NULL;
 		}
+	}
+
+	// link into sector glow list
+	if (mo->info && (mo->info->dlight[0].type != DLITE_None) &&
+		(mo->info->glow_type != GLOW_None))
+	{
+		sector_t *sec = mo->subsector->sector;
+
+		mo->dlprev = NULL;
+		mo->dlnext = sec->glow_things;
+
+		sec->glow_things = mo;
 	}
 }
 

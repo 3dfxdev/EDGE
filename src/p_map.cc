@@ -2194,15 +2194,14 @@ bool P_SolidSectorMove(sector_t *sec, bool is_ceiling,
 	return nofit;
 }
 
-//
-// P_ChangeThingSize
-//
-// Readjust things in the sector when something changes size.  The
-// object must be currently linked into the map.
-//
+
 void P_ChangeThingSize(mobj_t *mo)
 {
+	// Re-adjust things in the sector when something changes size.  The
+	// object must be currently linked into the map.
+
 	touch_node_t *tn, *next;
+
 	sector_t *sec = mo->subsector->sector;
 
 	for (tn=sec->touch_things; tn; tn=next)
