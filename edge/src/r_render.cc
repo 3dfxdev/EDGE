@@ -632,7 +632,9 @@ typedef struct
 	const vec3_t *vert;
 
 	GLuint tex_id;
+
 	int pass;
+	int blending;
 	
 	float R, G, B;
 
@@ -683,7 +685,9 @@ typedef struct
 	const vec3_t *vert;
 
 	GLuint tex_id;
+
 	int pass;
+	int blending;
 	
 	float R, G, B;
 
@@ -894,17 +898,25 @@ static void DLIT_Wall(mobj_t *mo, void *dataptr)
 
 	SYS_ASSERT(mo->dlight.shader);
 
-	int blending = BL_NONE; //!!!!
+	int blending = (data->blending & ~BL_Alpha) | BL_Add;
 	
-	blending &= ~BL_Alpha;
-	blending |=  BL_Add;
-
 	mo->dlight.shader->WorldMix(GL_POLYGON, data->v_count, data->tex_id,
 			1.0 /*!!! alpha */, &data->pass, blending,
 			data, WallCoordFunc);
 }
 
-// static void GLOWLIT_Wall(mobj_t *mo, void *dataptr)
+static void GLOWLIT_Wall(mobj_t *mo, void *dataptr)
+{
+	wall_coord_data_t *data = (wall_coord_data_t *)dataptr;
+
+	SYS_ASSERT(mo->dlight.shader);
+
+	int blending = (data->blending & ~BL_Alpha) | BL_Add;
+
+	mo->dlight.shader->WorldMix(GL_POLYGON, data->v_count, data->tex_id,
+			1.0 /* alpha */, &data->pass, blending,
+			data, WallCoordFunc);
+}
 
 
 static void DLIT_Plane(mobj_t *mo, void *dataptr)
@@ -922,10 +934,20 @@ static void DLIT_Plane(mobj_t *mo, void *dataptr)
 
 	SYS_ASSERT(mo->dlight.shader);
 
-	int blending = BL_NONE; //!!!!
-	
-	blending &= ~BL_Alpha;
-	blending |=  BL_Add;
+	int blending = (data->blending & ~BL_Alpha) | BL_Add;
+
+	mo->dlight.shader->WorldMix(GL_POLYGON, data->v_count, data->tex_id,
+			1.0 /*!!! alpha */, &data->pass, blending,
+			data, PlaneCoordFunc);
+}
+
+static void GLOWLIT_Plane(mobj_t *mo, void *dataptr)
+{
+	plane_coord_data_t *data = (plane_coord_data_t *)dataptr;
+
+	SYS_ASSERT(mo->dlight.shader);
+
+	int blending = (data->blending & ~BL_Alpha) | BL_Add;
 
 	mo->dlight.shader->WorldMix(GL_POLYGON, data->v_count, data->tex_id,
 			1.0 /*!!! alpha */, &data->pass, blending,
@@ -1264,12 +1286,13 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 
 	data.tex_id = tex_id;
 	data.pass   = 0;
+	data.blending = blending;
 
 
 	abstract_shader_c *cmap_shader = R_GetColormapShader(props, lit_adjust);
 
-	cmap_shader->WorldMix(GL_POLYGON, v_count, tex_id,
-			trans, &data.pass, blending, &data, WallCoordFunc);
+	cmap_shader->WorldMix(GL_POLYGON, data.v_count, data.tex_id,
+			trans, &data.pass, data.blending, &data, WallCoordFunc);
 
 	if (use_dlights && solid_mode)
 	{
@@ -1277,6 +1300,10 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 							   MAX(x1,x2), MAX(y1,y2), top,
 							   DLIT_Wall, &data);
 
+		P_SectorGlowIterator(cur_seg->frontsector,
+				             MIN(x1,x2), MIN(y1,y2), bottom,
+							 MAX(x1,x2), MAX(y1,y2), top,
+							 GLOWLIT_Wall, &data);
 	}
 
 	
@@ -1490,10 +1517,7 @@ static void DLIT_Flood(mobj_t *mo, void *dataptr)
 	float dx = cur_seg->v2->x - sx;
 	float dy = cur_seg->v2->y - sy;
 
-	int blending = BL_NONE; //!!!!
-
-	blending &= ~BL_Alpha;
-	blending |=  BL_Add;
+	int blending = BL_Add;
 
 	for (int row=0; row < data->piece_row; row++)
 	{
@@ -1548,7 +1572,8 @@ static void EmulateFloodPlane(const drawfloor_t *dfloor,
 	SYS_ASSERT(surf->image);
 
 	data.tex_id = W_ImageCache(surf->image);
-	data.pass   = 0;
+
+	data.pass = 0;
 
 	data.R = data.G = data.B = 1.0f;
 
@@ -2269,16 +2294,22 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 
 	data.tex_id = tex_id;
 	data.pass   = 0;
+	data.blending = blending;
 
 
 	cmap_shader->WorldMix(GL_POLYGON, data.v_count, data.tex_id,
-			trans, &data.pass, blending, &data, PlaneCoordFunc);
+			trans, &data.pass, data.blending, &data, PlaneCoordFunc);
 
 	if (use_dlights && solid_mode)
 	{
 		P_DynamicLightIterator(v_low.x,  v_low.y,  h,
 				               v_high.x, v_high.y, h,
 							   DLIT_Plane, &data);
+
+		P_SectorGlowIterator(cur_sub->sector,
+				             v_low.x,  v_low.y,  h,
+				             v_high.x, v_high.y, h,
+							 GLOWLIT_Plane, &data);
 	}
 
 #if 0  // OLD WAY
