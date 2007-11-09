@@ -529,6 +529,12 @@ public:
 	}
 };
 
+abstract_shader_c *MakePlaneGlow(mobj_t *mo)
+{
+	return new plane_glow_c(mo);
+}
+
+
 
 class wall_glow_c : public abstract_shader_c
 {

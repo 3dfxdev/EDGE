@@ -42,7 +42,9 @@
 
 class abstract_shader_c;
 
+// FIXME: have a proper API
 extern abstract_shader_c *MakeDLightShader(mobj_t *mo);
+extern abstract_shader_c *MakePlaneGlow(mobj_t *mo);
 
 
 #define MAXRADIUS  128.0
@@ -824,6 +826,37 @@ void P_DynamicLightIterator(float x1, float y1, float z1,
 
 			func(mo, data);
 		}
+	}
+}
+
+
+void P_SectorGlowIterator(sector_t *sec,
+	                   	  float x1, float y1, float z1,
+	                   	  float x2, float y2, float z2,
+		                  void (*func)(mobj_t *, void *), void *data)
+{
+	for (mobj_t *mo = sec->glow_things; mo; mo = mo->dlnext)
+	{
+		SYS_ASSERT(mo->state);
+
+		// skip "off" lights
+		if (mo->state->bright <= 0 || mo->dlight.r <= 0)
+			continue;
+
+		// check whether radius touches the given bbox
+		float r = mo->dlight.r;
+
+		if (mo->info->glow_type == GLOW_Floor && sec->f_h + r <= z1)
+			continue;
+		
+		if (mo->info->glow_type == GLOW_Ceiling && sec->c_h - r >= z1)
+			continue;
+		
+		// create shader if necessary
+		if (! mo->dlight.shader)
+			  mo->dlight.shader = MakePlaneGlow(mo);
+
+		func(mo, data);
 	}
 }
 
