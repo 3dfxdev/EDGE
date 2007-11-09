@@ -99,7 +99,8 @@ bool P_BlockThingsIterator(float x1, float y1, float x2, float y2,
 ///---		                    bool (* func)(mobj_t *mo, void *data),
 ///---						    void *data = NULL);
 
-void P_DynamicLightIterator(float x1, float y1, float x2, float y2,
+void P_DynamicLightIterator(float x1, float y1, float z1,
+		                    float x2, float y2, float z2,
 		                    void (* func)(mobj_t *, void *),
 						    void *data = NULL);
 

@@ -808,8 +808,9 @@ I_Debugf("Render model: bad frame %d\n", frame);
 		{
 			float r = mo->radius;
 			
-			P_DynamicLightIterator(mo->x - r, mo->y - r, mo->x + r, mo->y + r,
-				DLIT_Model, &data);
+			P_DynamicLightIterator(mo->x - r, mo->y - r, mo->z,
+					               mo->x + r, mo->y + r, mo->z + mo->height,
+								   DLIT_Model, &data);
 
 			// TODO: other shaders
 		}

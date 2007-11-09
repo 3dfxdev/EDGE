@@ -769,8 +769,8 @@ public:
 
 		if (is_weapon)
 		{
-			mx += viewcos * 100;
-			my += viewsin * 100;
+			mx += viewcos * 110;
+			my += viewsin * 110;
 		}
 
 		Sample(col, mx, my, mz);
