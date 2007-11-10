@@ -842,7 +842,7 @@ I_Debugf("Render model: bad frame %d\n", frame);
 
 		data.is_additive = (pass == 3);
 
-		if (pass == 2 && detail_level < 2)
+		if (pass == 2 && detail_level < 2 && !is_weapon)
 			continue;
 
 		for (int i = 0; i < md->num_strips; i++)
