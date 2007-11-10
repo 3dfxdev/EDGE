@@ -822,22 +822,16 @@ I_Debugf("Render model: bad frame %d\n", frame);
 
 	/* draw the model */
 
-if (is_weapon)
-	I_Debugf("Max MOD: %d  Max ADD: %d  Mo @ (%1.0f,%1.0f)+/-%1.0f\n",
-			MD2_MulticolMaxRGB(&data, false),
-			MD2_MulticolMaxRGB(&data, true),
-			mo->x, mo->y, mo->radius);
-
-	for (int pass = 0; pass < 3; pass++)
+	for (int pass = 0; pass < 4; pass++)
 	{
-		if (pass > 0 && pass < 2)
+		if (pass > 0 && pass < 3)
 		{
 			UpdateMulticols(&data);
 			if (MD2_MulticolMaxRGB(&data, false) <= 0)
 				continue;
 		}
 
-		if (pass == 2 && MD2_MulticolMaxRGB(&data, true) <= 0)
+		if (pass == 3 && MD2_MulticolMaxRGB(&data, true) <= 0)
 			continue;
 
 		if (pass >= 1)
@@ -846,7 +840,10 @@ if (is_weapon)
 			blending |=  BL_Add;
 		}
 
-		data.is_additive = (pass == 2);
+		data.is_additive = (pass == 3);
+
+		if (pass == 2 && detail_level < 2)
+			continue;
 
 		for (int i = 0; i < md->num_strips; i++)
 		{
