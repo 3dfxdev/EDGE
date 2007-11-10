@@ -1045,11 +1045,14 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor, mobj_t * source,
 
 	// -AJA- 2007/11/06: vampire mode!
 	if (source && source != target &&
+		source->health < source->info->spawnhealth &&
 		((source->hyperflags & HF_VAMPIRE) ||
 		 (inflictor && inflictor->currentattack &&
 		  (inflictor->currentattack->flags & AF_Vampire))))
 	{
-		source->health = MIN(source->health + damage * 0.50, source->info->spawnhealth);
+		float qty = (target->player ? 0.5 : 0.25) * damage;
+
+		source->health = MIN(source->health + qty, source->info->spawnhealth);
 
 		if (source->player)
 			source->player->health = source->health;
