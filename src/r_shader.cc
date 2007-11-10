@@ -389,7 +389,7 @@ private:
 		const sector_t *sec, const vec3_t *lit_pos, const vec3_t *normal)
 	{
 		texc->x = 0.5;
-		texc->y = Dist(sec, lit_pos->z) / r;
+		texc->y = 0.5 + Dist(sec, lit_pos->z) / r / 2.0;
 	}
 
 	inline float WhatRadius(int DL)
@@ -443,14 +443,24 @@ public:
 	{
 		const sector_t *sec = mo->subsector->sector;
 
-		float dz;
+		float dz = (mo->info->glow_type == GLOW_Floor) ? +1 : -1;
 		float dist;
 
-		if (mo->info->glow_type == GLOW_Floor)
-			dz = +1, dist = mo->z - sec->f_h;
-		else
-			dz = -1, dist = sec->c_h - (mo->z + mo->height);
+		if (is_weapon)
+		{
+			float weapon_z = mod_pos->z + mod_pos->height *
+				PERCENT_2_FLOAT(mod_pos->info->shotheight);
 
+			if (mo->info->glow_type == GLOW_Floor)
+				dist = weapon_z - sec->f_h;
+			else
+				dist = sec->c_h - weapon_z;
+		}
+		else if (mo->info->glow_type == GLOW_Floor)
+			dist = mod_pos->z - sec->f_h;
+		else
+			dist = sec->c_h - (mod_pos->z + mod_pos->height);
+		
 		dist = MAX(1.0, fabs(dist));
 
 
