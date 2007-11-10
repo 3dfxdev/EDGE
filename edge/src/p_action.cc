@@ -1351,7 +1351,7 @@ static inline bool Weakness_CheckHit(mobj_t *target,
 //           0 if hit but no damage was done.
 //          +1 if hit and damage was done.
 //
-int P_MissileContact(mobj_t * object, mobj_t * objecthit)
+int P_MissileContact(mobj_t * object, mobj_t * target)
 {
 	mobj_t *source = object->source;
 
@@ -1359,30 +1359,30 @@ int P_MissileContact(mobj_t * object, mobj_t * objecthit)
 	{
 		// check for ghosts (attack passes through)
 		if (object->currentattack && BITSET_EMPTY ==
-			(object->currentattack->attack_class & ~objecthit->info->ghost))
+			(object->currentattack->attack_class & ~target->info->ghost))
 			return -1;
 
-		if ((objecthit->side & source->side) != 0)
+		if ((target->side & source->side) != 0)
 		{
-			if (objecthit->hyperflags & HF_SIDEGHOST)
+			if (target->hyperflags & HF_SIDEGHOST)
 				return -1;
 
-			if (objecthit->hyperflags & HF_SIDEIMMUNE)
+			if (target->hyperflags & HF_SIDEIMMUNE)
 				return 0;
 		}
 
-		if (source->info == objecthit->info)
+		if (source->info == target->info)
 		{
-			if (!(objecthit->extendedflags & EF_DISLOYALTYPE))
+			if (!(target->extendedflags & EF_DISLOYALTYPE))
 				return 0;
 		}
 
 		if (object->currentattack != NULL &&
-			! (objecthit->extendedflags & EF_OWNATTACKHURTS))
+			! (target->extendedflags & EF_OWNATTACKHURTS))
 		{
-			if (object->currentattack == objecthit->info->rangeattack)
+			if (object->currentattack == target->info->rangeattack)
 				return 0;
-			if (object->currentattack == objecthit->info->closecombat)
+			if (object->currentattack == target->info->closecombat)
 				return 0;
 		}
 	}
@@ -1401,10 +1401,10 @@ int P_MissileContact(mobj_t * object, mobj_t * objecthit)
 	bool weak_spot = false;
 
 	// check for Weakness against the attack
-	if (Weakness_CheckHit(objecthit, object->currentattack,
+	if (Weakness_CheckHit(target, object->currentattack,
 				object->x, object->y, MO_MIDZ(object)))
 	{
-		damage *= objecthit->info->weak.multiply;
+		damage *= target->info->weak.multiply;
 		weak_spot = true;
 	}
 
@@ -1413,7 +1413,7 @@ int P_MissileContact(mobj_t * object, mobj_t * objecthit)
 		return 0;
 
 	if (!weak_spot && object->currentattack && BITSET_EMPTY ==
-		(object->currentattack->attack_class & ~objecthit->info->immunity))
+		(object->currentattack->attack_class & ~target->info->immunity))
 	{
 		return 0;
 	}
@@ -1423,7 +1423,7 @@ int P_MissileContact(mobj_t * object, mobj_t * objecthit)
 	if (object->extendedflags & EF_TUNNEL)
 	{
 		// this hash is very basic, but should work OK
-		u32_t hash = (u32_t)(long)objecthit;
+		u32_t hash = (u32_t)(long)target;
 
 		if (object->tunnel_hash[0] == hash || object->tunnel_hash[1] == hash)
 			return -1;
@@ -1448,7 +1448,7 @@ int P_MissileContact(mobj_t * object, mobj_t * objecthit)
 		return 0;
 	}
 
-	P_DamageMobj(objecthit, object, object->source, damage, damtype, weak_spot);
+	P_DamageMobj(target, object, object->source, damage, damtype, weak_spot);
 	return 1;
 }
 
@@ -1464,54 +1464,54 @@ int P_MissileContact(mobj_t * object, mobj_t * objecthit)
 //           0 if hit but no damage was done.
 //          +1 if hit and damage was done.
 //
-int P_BulletContact(mobj_t * source, mobj_t * objecthit, 
+int P_BulletContact(mobj_t * source, mobj_t * target, 
 					float damage, const damage_c *damtype,
 					float x, float y, float z)
 {
 	// check for ghosts (attack passes through)
 	if (source->currentattack && BITSET_EMPTY ==
-		(source->currentattack->attack_class & ~objecthit->info->ghost))
+		(source->currentattack->attack_class & ~target->info->ghost))
 		return -1;
 
-	if ((objecthit->side & source->side) != 0)
+	if ((target->side & source->side) != 0)
 	{
-		if (objecthit->hyperflags & HF_SIDEGHOST)
+		if (target->hyperflags & HF_SIDEGHOST)
 			return -1;
 
-		if (objecthit->hyperflags & HF_SIDEIMMUNE)
+		if (target->hyperflags & HF_SIDEIMMUNE)
 			return 0;
 	}
 
-	if (source->info == objecthit->info)
+	if (source->info == target->info)
 	{
-		if (! (objecthit->extendedflags & EF_DISLOYALTYPE))
+		if (! (target->extendedflags & EF_DISLOYALTYPE))
 			return 0;
 	}
 
 	if (source->currentattack != NULL &&
-		!(objecthit->extendedflags & EF_OWNATTACKHURTS))
+		!(target->extendedflags & EF_OWNATTACKHURTS))
 	{
-		if (source->currentattack == objecthit->info->rangeattack)
+		if (source->currentattack == target->info->rangeattack)
 			return 0;
-		if (source->currentattack == objecthit->info->closecombat)
+		if (source->currentattack == target->info->closecombat)
 			return 0;
 	}
 
 	bool weak_spot = false;
 
 	// check for Weakness against the attack
-	if (Weakness_CheckHit(objecthit, source->currentattack, x, y, z))
+	if (Weakness_CheckHit(target, source->currentattack, x, y, z))
 	{
-		damage *= objecthit->info->weak.multiply;
+		damage *= target->info->weak.multiply;
 		weak_spot = true;
 	}
 
 	// check for immunity against the attack
-	if (objecthit->hyperflags & HF_INVULNERABLE)
+	if (target->hyperflags & HF_INVULNERABLE)
 		return 0;
 
 	if (!weak_spot && source->currentattack && BITSET_EMPTY ==
-		(source->currentattack->attack_class & ~objecthit->info->immunity))
+		(source->currentattack->attack_class & ~target->info->immunity))
 	{
 		return 0;
 	}
@@ -1525,7 +1525,7 @@ int P_BulletContact(mobj_t * source, mobj_t * objecthit,
 		return 0;
 	}
 
-	P_DamageMobj(objecthit, source, source, damage, damtype, weak_spot);
+	P_DamageMobj(target, source, source, damage, damtype, weak_spot);
 	return 1;
 }
 
@@ -2338,26 +2338,25 @@ static void SkullFlyAssault(mobj_t * object)
 // -AJA- 1999/09/12: Now uses P_SetMobjStateDeferred, since this
 //                   routine can be called by TryMove/PIT_CheckRelThing.
 //
-void P_SlammedIntoObject(mobj_t * object, mobj_t * objecthit)
+void P_SlammedIntoObject(mobj_t * object, mobj_t * target)
 {
-	sfx_t *sound;
-	float damage;
-
 	if (object->currentattack)
 	{
-		if (objecthit != NULL)
+		if (target != NULL)
 		{
 			// -KM- 1999/01/31 Only hurt shootable objects...
-			if (objecthit->flags & MF_SHOOTABLE)
+			if (target->flags & MF_SHOOTABLE)
 			{
+				float damage;
+
 				DAMAGE_COMPUTE(damage, &object->currentattack->damage);
 
-				P_DamageMobj(objecthit, object, object, damage,
+				P_DamageMobj(target, object, object, damage,
 							 &object->currentattack->damage);
 			}
 		}
 
-		sound = object->currentattack->sound;
+		sfx_t *sound = object->currentattack->sound;
 		if (sound)
 			S_StartFX(sound, P_MobjGetSfxCategory(object), object);
 	}
