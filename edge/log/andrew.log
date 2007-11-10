@@ -12,6 +12,9 @@ Updated WEAKNESS feature so that it overrides IMMUNITY_CLASS
 and RESISTANCE_CLASS settings in a thing, which is more
 sensible than the previous way.
 
+Updated VAMPIRE feature to give 25% of damage to monsters
+and 50% of damage to players, and fixed a couple bugs.
+
 2007/11/09:
 
 Worked on rendering sector glows.
