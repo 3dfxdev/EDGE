@@ -1443,10 +1443,9 @@ void DDF_MobjGetPlayer(const char *info, void *storage)
 
 static const specflags_t glow_type_names[] =
 {
-	{"FLOOR",   GLOW_Floor,   1},
-	{"CEILING", GLOW_Ceiling, 2},
-	{"WALL",    GLOW_Wall,    3},
-///---	{"SECTOR",  GLOW_Sector,  3},
+	{"FLOOR",   GLOW_Floor,   0},
+	{"CEILING", GLOW_Ceiling, 0},
+	{"WALL",    GLOW_Wall,    0},
 
 	{NULL, 0, 0}
 };
