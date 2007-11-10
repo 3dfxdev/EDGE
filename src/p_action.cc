@@ -1316,7 +1316,7 @@ static inline bool Weakness_CheckHit(mobj_t *target,
 	// which hits the target on the head (coming sharply down) will
 	// still register as a head-shot.
 	z = (z - target->z) / target->height;
-	z = CLAMP(0, z, 1);
+	z = CLAMP(0.01f, z, 0.99f);
 
 	if (z < weak->height[0] || z > weak->height[1])
 		return false;
@@ -1387,30 +1387,6 @@ int P_MissileContact(mobj_t * object, mobj_t * objecthit)
 		}
 	}
 
-	// check for immunity against the attack
-	if (object->hyperflags & HF_INVULNERABLE)
-		return 0;
-
-	if (object->currentattack && BITSET_EMPTY ==
-		(object->currentattack->attack_class & ~objecthit->info->immunity))
-	{
-		return 0;
-	}
-
-	// support for "tunnelling" missiles, which should only do damage at
-	// the first impact.
-	if (object->extendedflags & EF_TUNNEL)
-	{
-		// this hash is very basic, but should work OK
-		u32_t hash = (u32_t)(long)objecthit;
-
-		if (object->tunnel_hash[0] == hash || object->tunnel_hash[1] == hash)
-			return -1;
-
-		object->tunnel_hash[0] = object->tunnel_hash[1];
-		object->tunnel_hash[1] = hash;
-	}
-
 	const damage_c *damtype;
 
 	// transitional hack
@@ -1430,6 +1406,30 @@ int P_MissileContact(mobj_t * object, mobj_t * objecthit)
 	{
 		damage *= objecthit->info->weak.multiply;
 		weak_spot = true;
+	}
+
+	// check for immunity against the attack
+	if (object->hyperflags & HF_INVULNERABLE)
+		return 0;
+
+	if (!weak_spot && object->currentattack && BITSET_EMPTY ==
+		(object->currentattack->attack_class & ~objecthit->info->immunity))
+	{
+		return 0;
+	}
+
+	// support for "tunnelling" missiles, which should only do damage at
+	// the first impact.
+	if (object->extendedflags & EF_TUNNEL)
+	{
+		// this hash is very basic, but should work OK
+		u32_t hash = (u32_t)(long)objecthit;
+
+		if (object->tunnel_hash[0] == hash || object->tunnel_hash[1] == hash)
+			return -1;
+
+		object->tunnel_hash[0] = object->tunnel_hash[1];
+		object->tunnel_hash[1] = hash;
 	}
 
 	// Berserk handling
@@ -1497,16 +1497,6 @@ int P_BulletContact(mobj_t * source, mobj_t * objecthit,
 			return 0;
 	}
 
-	// check for immunity against the attack
-	if (objecthit->hyperflags & HF_INVULNERABLE)
-		return 0;
-
-	if (source->currentattack && BITSET_EMPTY ==
-		(source->currentattack->attack_class & ~objecthit->info->immunity))
-	{
-		return 0;
-	}
-
 	bool weak_spot = false;
 
 	// check for Weakness against the attack
@@ -1514,6 +1504,16 @@ int P_BulletContact(mobj_t * source, mobj_t * objecthit,
 	{
 		damage *= objecthit->info->weak.multiply;
 		weak_spot = true;
+	}
+
+	// check for immunity against the attack
+	if (objecthit->hyperflags & HF_INVULNERABLE)
+		return 0;
+
+	if (!weak_spot && source->currentattack && BITSET_EMPTY ==
+		(source->currentattack->attack_class & ~objecthit->info->immunity))
+	{
+		return 0;
 	}
 
 	if (!damage)
