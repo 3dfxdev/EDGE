@@ -44,14 +44,15 @@
 #include "r_defs.h"
 #include "r_misc.h"
 #include "r_gldefs.h"
-#include "r_occlude.h"
+#include "r_colormap.h"
 #include "r_effects.h"
+#include "r_image.h"
+#include "r_occlude.h"
+#include "r_shader.h"
 #include "r_sky.h"
 #include "r_things.h"
 #include "r_units.h"
-#include "r_image.h"
 #include "r_view.h"
-#include "r_colormap.h"
 
 #include "n_network.h"  // N_NetUpdate
 
@@ -749,10 +750,6 @@ static void PlaneCoordFunc(void *d, int v_idx,
 ///---}
 
 #ifdef DLIGHT_PROTOTYPE
-
-//!!!! FIXME big hack crap
-static int dl_R, dl_G, dl_B;
-static wall_plane_data_t *dl_WP;
 
 #if 0
 void DLightWallCoordFunc(vec3_t *src, local_gl_vert_t *vert, void *d)
