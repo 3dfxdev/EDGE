@@ -1,5 +1,13 @@
 Andrew Apted's Log
 
+2007/11/10:
+
+Fixed some problems in the new sector glow code.
+
+Increased modulated passes on weapon MD2s upto 3 (base + 2
+extra), and same for thing MD2s when 'Detail Level' option
+is set to HIGH.
+
 2007/11/09:
 
 Worked on rendering sector glows.
