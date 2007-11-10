@@ -82,40 +82,6 @@ local_gl_vert_t *RGL_BeginUnit(GLuint shape, int max_vert,
 void RGL_EndUnit(int actual_vert);
 
 
-//----------------------------------------------------------------------------
-
-#include "r_shader.h"  // UGH
-
-typedef enum
-{
-	PIPEF_NONE = 0,
-
-	PIPEF_NoLight = (1 << 0),
-	PIPEF_Shadows = (1 << 1),
-}
-pipeline_flags_e;
-
-// TEMP CRUD:
-typedef void (* pipeline_coord_func_t)(...);
-
-void R_InitPipeline(void);
-
-// FIXME Glow setup stuff
-
-void R_GlowPipe_SetFloor  (const struct mobj_s *glow, float h);
-void R_GlowPipe_SetCeiling(const struct mobj_s *glow, float h);
-void R_GlowPipe_SetWall   (const struct mobj_s *glow);
-
-// FIXME Shadow setup stuff
-
-// FIXME Dlight setup stuff
-
-void R_LightPipe_SetList(const struct drawthing_s *list);
-
-void R_RunPipeline(GLuint shape, int num_vert,
-		           GLuint tex, float alpha, int blending, int flags,
-				   void *func_data, pipeline_coord_func_t func);
-
 #endif /* __R_UNITS_H__ */
 
 //--- editor settings ---

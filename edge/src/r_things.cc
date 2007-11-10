@@ -42,6 +42,7 @@
 #include "r_image.h"
 #include "r_misc.h"
 #include "r_modes.h"
+#include "r_shader.h"
 #include "r_units.h"
 #include "st_stuff.h"
 #include "w_model.h"
