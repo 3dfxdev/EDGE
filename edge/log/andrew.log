@@ -8,6 +8,10 @@ Increased modulated passes on weapon MD2s upto 3 (base + 2
 extra), and same for thing MD2s when 'Detail Level' option
 is set to HIGH.
 
+Updated WEAKNESS feature so that it overrides IMMUNITY_CLASS
+and RESISTANCE_CLASS settings in a thing, which is more
+sensible than the previous way.
+
 2007/11/09:
 
 Worked on rendering sector glows.

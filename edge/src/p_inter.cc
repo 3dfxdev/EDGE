@@ -880,14 +880,14 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor, mobj_t * source,
 	if (target->hyperflags & HF_INVULNERABLE)
 		return;
 
-	if (inflictor && inflictor->currentattack && BITSET_EMPTY ==
+	if (!weak_spot && inflictor && inflictor->currentattack && BITSET_EMPTY ==
 		(inflictor->currentattack->attack_class & ~target->info->immunity))
 	{
 		return;
 	}
 
 	// check for partial resistance against the attack
-	if (damage >= 0.1f && inflictor && inflictor->currentattack &&
+	if (!weak_spot && damage >= 0.1f && inflictor && inflictor->currentattack &&
 		BITSET_EMPTY == (inflictor->currentattack->attack_class & ~target->info->resistance))
 	{
 		damage = MIN(0.1f, damage * target->info->resist_multiply);
