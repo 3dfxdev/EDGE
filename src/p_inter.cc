@@ -1049,7 +1049,10 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor, mobj_t * source,
 		 (inflictor && inflictor->currentattack &&
 		  (inflictor->currentattack->flags & AF_Vampire))))
 	{
-		source->health = MIN(source->health + damage, source->info->spawnhealth);
+		source->health = MIN(source->health + damage * 0.50, source->info->spawnhealth);
+
+		if (source->player)
+			source->player->health = source->health;
 	}
 
 	if (target->health <= 0)
