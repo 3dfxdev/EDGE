@@ -1,5 +1,11 @@
 Andrew Apted's Log
 
+2007/11/11:
+
+Updated player entries in THINGS.DDF to use CHECK_ACTIVITY.
+
+Fixed bugs with new WEAKNESS feature.
+
 2007/11/10:
 
 Fixed some problems in the new sector glow code.
