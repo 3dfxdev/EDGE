@@ -124,6 +124,7 @@ public:
 	epi::u32array_c flat_lumps;
 	epi::u32array_c patch_lumps;
 	epi::u32array_c colmap_lumps;
+	epi::u32array_c tx_lumps;
 
 	// level markers and skin markers
 	epi::u32array_c level_markers;
@@ -154,7 +155,8 @@ public:
 	data_file_c(const char *_fname, int _kind, epi::file_c* _file) :
 		file_name(_fname), kind(_kind), file(_file),
 		sprite_lumps(), flat_lumps(), patch_lumps(),
-		colmap_lumps(), level_markers(), skin_markers(),
+		colmap_lumps(), tx_lumps(),
+		level_markers(), skin_markers(),
 		wadtex(), deh_lump(-1), animated(-1), switches(-1),
 		companion_gwa(-1), dir_hash()
 	{
@@ -206,6 +208,7 @@ typedef enum
 	LMKIND_Marker = 3,  // X_START, X_END, S_SKIN, level name
 	LMKIND_WadTex = 6,  // palette, pnames, texture1/2
 	LMKIND_DDFRTS = 10, // DDF, RTS, DEHACKED lump
+	LMKIND_TX     = 14,
 	LMKIND_Colmap = 15,
 	LMKIND_Flat   = 16,
 	LMKIND_Sprite = 17,
@@ -279,6 +282,7 @@ bool within_sprite_list;
 bool within_flat_list;
 bool within_patch_list;
 bool within_colmap_list;
+bool within_tex_list;
 
 static byte *W_ReadLumpAlloc(int lump, int *length);
 
@@ -390,6 +394,19 @@ static bool IsC_START(char *name)
 static bool IsC_END(char *name)
 {
 	return (strncmp(name, "C_END", 8) == 0);
+}
+
+//
+// Is the name a texture list start/end flag?
+//
+static bool IsTX_START(char *name)
+{
+	return (strncmp(name, "TX_START", 8) == 0);
+}
+
+static bool IsTX_END(char *name)
+{
+	return (strncmp(name, "TX_END", 8) == 0);
 }
 
 //
@@ -730,6 +747,21 @@ static void AddLump(data_file_c *df, int lump, int pos, int size, int file,
 		within_colmap_list = false;
 		return;
 	}
+	else if (IsTX_START(lump_p->name))
+	{
+		lump_p->kind = LMKIND_Marker;
+		within_tex_list = true;
+		return;
+	}
+	else if (IsTX_END(lump_p->name))
+	{
+		if (!within_tex_list)
+			I_Warning("Unexpected TX_END marker in wad.\n");
+
+		lump_p->kind = LMKIND_Marker;
+		within_tex_list = false;
+		return;
+	}
 
 	// ignore zero size lumps or dummy markers
 	if (lump_p->size > 0 && !IsDummySF(lump_p->name))
@@ -756,6 +788,12 @@ static void AddLump(data_file_c *df, int lump, int pos, int size, int file,
 		{
 			lump_p->kind = LMKIND_Colmap;
 			df->colmap_lumps.Insert(lump);
+		}
+
+		if (within_tex_list)
+		{
+			lump_p->kind = LMKIND_TX;
+			df->tx_lumps.Insert(lump);
 		}
 	}
 }
@@ -964,6 +1002,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 	// reset the sprite/flat/patch list stuff
 	within_sprite_list = within_flat_list   = false;
 	within_patch_list  = within_colmap_list = false;
+	within_tex_list    = false;
 
 	// open the file and add to directory
     epi::file_c *file = epi::FS_Open(filename, epi::file_c::ACCESS_READ | epi::file_c::ACCESS_BINARY);
