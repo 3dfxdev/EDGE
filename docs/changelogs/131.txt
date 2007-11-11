@@ -5,7 +5,7 @@ CHANGELOG FOR 1.31-ALPHA (since 1.29)
 Bugs fixed
 ----------
 
-+ glitches/small gaps between polygons was fixed.
++ glitches/small gaps between polygons are gone.
 + crash with Scuba Steve's flamethrow DEH patch.
 
 - ID(K)FA cheats now give clip weapons full ammo.
@@ -13,7 +13,7 @@ Bugs fixed
 - fix for filenames containing two dots (like "foo.bar.wad").
 - proper test for existing titlepics in GAMES.DDF.
 - fixed PLAYSOUND console cmd when sound is not found.
-- custom sky-boxes should always be used if present.
+- custom sky-boxes should always be used when present.
 
 
 Features removed or changed:
@@ -54,6 +54,12 @@ DDF / RTS Goodies:
 
 + WEAKNESS
 
+    WEAKNESS.CLASS=B;
+	WEAKNESS.HEIGHTS=75%:100%;
+	WEAKNESS.ANGLES=135:225;
+	WEAKNESS.MULTIPLY=3.0;
+	WEAKNESS.PAINCHANCE=100%;
+
 + BECOME action
 
 + armour association, yada yada
@@ -68,7 +74,12 @@ DDF / RTS Goodies:
 
 - RESISTANCE_MULTIPLY + RESISTANCE_PAINCHANCE
 
+- VAMPIRE attack special and thing special (for monsters and
+  players) which causes the inflictor of damage to gain the
+  same amount of health as the damage done to the target.
+
 - new player states: JUMP, FLY, SWIM, CLIMB.
+  CHECK_ACTIVITY
 
 - CRUSH_DAMAGE for crushers in lines.ddf
 
