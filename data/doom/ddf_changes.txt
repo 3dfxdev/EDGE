@@ -8,7 +8,8 @@ EDGE DDF 5.4: (????-??-??)
 
 3) LINES.DDF: added LADDER linetypes (470 to 479).
 
-4) THINGS.DDF: improved state frames for Player things.
+4) THINGS.DDF: improved state frames for Player things,
+               using new CHECK_ACTIVITY action.
 
 5) LINES.DDF: added flat alignment/scaling types (800 to 825).
 
