@@ -1060,7 +1060,7 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor, mobj_t * source,
 
 	if (target->health <= 0)
 	{
-		P_KillMobj(source, target, damtype);
+		P_KillMobj(source, target, damtype, weak_spot);
 		return;
 	}
 
