@@ -80,9 +80,9 @@ static weakness_info_c buffer_weakness;
 
 const commandlist_t weakness_commands[] =
 {
+	DF("CLASS",   classes, DDF_MainGetBitSet),
 	DF("HEIGHTS", height,  DDF_MobjGetPercentRange),
 	DF("ANGLES",  angle,   DDF_MobjGetAngleRange),
-	DF("CLASS",   classes, DDF_MainGetBitSet),
 	DF("MULTIPLY", multiply, DDF_MainGetFloat),
 	DF("PAINCHANCE", painchance, DDF_MainGetPercent),
 
@@ -1862,6 +1862,8 @@ void mobjtype_c::CopyDetail(mobjtype_c &src)
 	dlight[0] = src.dlight[0];
 	dlight[1] = src.dlight[1];
 
+	weak = src.weak;
+
 	dropitem = src.dropitem; 
 	dropitem_ref = src.dropitem_ref; 
 	blood = src.blood; 
@@ -1984,6 +1986,8 @@ void mobjtype_c::Default()
 	// dynamic light info
 	dlight[0].Default();
 	dlight[1].Default();
+
+	weak.Default();
 
 	dropitem = NULL;
 	dropitem_ref.clear();

@@ -1429,7 +1429,8 @@ static bool PTR_ShootTraverse(intercept_t * in, void *dataptr)
 
 		if (what < 0) // bullets pass through
 			return true;
-		else if (what == 0)
+
+		if (what == 0)
 			use_puff = true;
 	}
 
@@ -1442,9 +1443,7 @@ static bool PTR_ShootTraverse(intercept_t * in, void *dataptr)
 	return false;
 }
 
-//
-// P_AimLineAttack
-//
+
 mobj_t * P_AimLineAttack(mobj_t * t1, angle_t angle, float distance, float *slope)
 {
 	float x2 = t1->x + distance * M_Cos(angle);
@@ -1484,15 +1483,13 @@ mobj_t * P_AimLineAttack(mobj_t * t1, angle_t angle, float distance, float *slop
 	return aim_I.target;
 }
 
-//
-// P_LineAttack
-//
-// Note: Damtype can be NULL.
-//
+
 void P_LineAttack(mobj_t * t1, angle_t angle, float distance, 
 				  float slope, float damage, const damage_c * damtype,
 				  const mobjtype_c *puff)
 {
+	// Note: Damtype can be NULL.
+
 	float x2 = t1->x + distance * M_Cos(angle);
 	float y2 = t1->y + distance * M_Sin(angle);
 
