@@ -500,6 +500,7 @@ void P_DesireWeaponChange(player_t * p, int key)
 		p->pending_wp = (weapon_selection_e) wrap_idx;
 }
 
+
 //
 // P_NextPrevWeapon
 //
@@ -572,6 +573,7 @@ void P_NextPrevWeapon(player_t * p, int dir)
 		p->pending_wp = (weapon_selection_e) wrap_idx;
 }
 
+
 //
 // P_SelectNewWeapon
 //
@@ -627,9 +629,7 @@ void P_SelectNewWeapon(player_t * p, int priority, ammotype_e ammo)
 	}
 }
 
-//
-// P_TrySwitchNewWeapon
-//
+
 void P_TrySwitchNewWeapon(player_t *p, int new_weap, ammotype_e new_ammo)
 {
 	// be cheeky... :-)
@@ -675,14 +675,12 @@ void P_TrySwitchNewWeapon(player_t *p, int new_weap, ammotype_e new_ammo)
 	P_SelectNewWeapon(p, priority, new_ammo);
 }
 
-//
-// P_TryFillNewWeapon
-//
-// When ammo is AM_DontCare, uses any ammo the player has (qty parameter
-// ignored).  Returns true if uses any of the ammo.
-//
+
 bool P_TryFillNewWeapon(player_t *p, int idx, ammotype_e ammo, int *qty)
 {
+	// When ammo is AM_DontCare, uses any ammo the player has (qty parameter
+	// ignored).  Returns true if uses any of the ammo.
+
 	bool result = false;
 
 	weapondef_c *info = p->weapons[idx].info;
@@ -716,6 +714,7 @@ bool P_TryFillNewWeapon(player_t *p, int idx, ammotype_e ammo, int *qty)
 	return result;
 }
 
+
 void P_FillWeapon(player_t *p, int slot)
 {
 	weapondef_c *info = p->weapons[slot].info;
@@ -737,13 +736,11 @@ void P_FillWeapon(player_t *p, int slot)
 	}
 }
 	
-//
-// P_DropWeapon
-//
-// Player died, so put the weapon away.
-//
+
 void P_DropWeapon(player_t * p)
 {
+	// Player died, so put the weapon away.
+
 	p->remember_atk[0] = -1;
 	p->remember_atk[1] = -1;
 
@@ -751,13 +748,11 @@ void P_DropWeapon(player_t * p)
 		GotoDownState(p);
 }
 
-//
-// P_SetupPsprites
-//
-// Called at start of level for each player.
-//
+
 void P_SetupPsprites(player_t * p)
 {
+	// --- Called at start of level for each player ---
+
 	// remove all psprites
 	for (int i = 0; i < NUMPSPRITES; i++)
 	{
@@ -778,15 +773,13 @@ void P_SetupPsprites(player_t * p)
 	P_BringUpWeapon(p);
 }
 
-//
-// P_MovePsprites
-//
-// Called every tic by player thinking routine.
-//
+
 #define MAX_PSP_LOOP  10
 
 void P_MovePsprites(player_t * p)
 {
+	// --- Called every tic by player thinking routine ---
+
 	// check if player has NO weapon but wants to change
 	if (p->ready_wp == WPSEL_None && p->pending_wp != WPSEL_NoChange)
 	{
@@ -830,9 +823,7 @@ void P_MovePsprites(player_t * p)
 	p->idlewait++;
 }
 
-//
-// P_Zoom
-//
+
 void P_Zoom(player_t *p)
 {
 	if (viewiszoomed)
@@ -901,6 +892,7 @@ static void BobWeapon(player_t *p, weapondef_c *info)
 		psp->sy += (new_sy > psp->sy) ? MAX_BOB_DY : -MAX_BOB_DY;
 #endif
 }
+
 
 //
 // A_WeaponReady
@@ -1037,9 +1029,7 @@ void A_WeaponReady(mobj_t * mo)
 	BobWeapon(p, info);
 }
 
-//
-// A_WeaponEmpty
-//
+
 void A_WeaponEmpty(mobj_t * mo)
 {
 	A_WeaponReady(mo);
@@ -1148,11 +1138,7 @@ void A_NoFireSA(mobj_t * mo)       { DoNoFire(mo, 1, false); }
 void A_NoFireReturn  (mobj_t * mo) { DoNoFire(mo, 0, true);  }
 void A_NoFireReturnSA(mobj_t * mo) { DoNoFire(mo, 1, true);  }
 
-//
-// A_WeaponKick
-//
-// -AJA- 2000/02/08: written.
-//
+
 void A_WeaponKick(mobj_t * mo)
 {
 	player_t *p = mo->player;
@@ -1203,13 +1189,11 @@ static void DoCheckReload(mobj_t * mo, int ATK)
 void A_CheckReload  (mobj_t * mo) { DoCheckReload(mo, 0); }
 void A_CheckReloadSA(mobj_t * mo) { DoCheckReload(mo, 1); }
 
-//
-// A_Lower
-//
-// Lowers current weapon, and changes weapon at bottom.
-//
+
 void A_Lower(mobj_t * mo)
 {
+	// Lowers current weapon, and changes weapon at bottom
+
 	player_t *p = mo->player;
 	pspdef_t *psp = &p->psprites[p->action_psp];
 
@@ -1260,9 +1244,7 @@ void A_Lower(mobj_t * mo)
 	P_BringUpWeapon(p);
 }
 
-//
-// A_Raise
-//
+
 void A_Raise(mobj_t * mo)
 {
 	player_t *p = mo->player;
@@ -1285,9 +1267,7 @@ void A_Raise(mobj_t * mo)
 		GotoReadyState(p);
 }
 
-//
-// A_SetCrosshair
-//
+
 void A_SetCrosshair(mobj_t * mo)
 {
 	player_t *p = mo->player;
@@ -1344,9 +1324,7 @@ void A_FriendJump(mobj_t * mo)
 	P_SetPspriteDeferred(p, ps_crosshair, psp->state->jumpstate);
 }
 
-//
-// A_GunFlash
-//
+
 static void DoGunFlash(mobj_t * mo, int ATK)
 {
 	player_t *p = mo->player;
@@ -1371,9 +1349,7 @@ static void DoGunFlash(mobj_t * mo, int ATK)
 void A_GunFlash  (mobj_t * mo) { DoGunFlash(mo, 0); }
 void A_GunFlashSA(mobj_t * mo) { DoGunFlash(mo, 1); }
 
-//
-// WEAPON ATTACKS
-//
+
 static void DoWeaponShoot(mobj_t * mo, int ATK)
 {
 	player_t *p = mo->player;
@@ -1465,6 +1441,7 @@ static void DoWeaponShoot(mobj_t * mo, int ATK)
 void A_WeaponShoot  (mobj_t * mo) { DoWeaponShoot(mo, 0); }
 void A_WeaponShootSA(mobj_t * mo) { DoWeaponShoot(mo, 1); }
 
+
 //
 // A_WeaponEject
 //
@@ -1486,13 +1463,11 @@ void A_WeaponEject(mobj_t * mo)
 	P_PlayerAttack(mo, attack);
 }
 
-//
-// A_WeaponPlaySound
-//
-// Generate an arbitrary sound from this weapon.
-//
+
 void A_WeaponPlaySound(mobj_t * mo)
 {
+	// Generate an arbitrary sound from this weapon.
+
 	player_t *p = mo->player;
 	pspdef_t *psp = &p->psprites[p->action_psp];
 
@@ -1510,19 +1485,15 @@ void A_WeaponPlaySound(mobj_t * mo)
 	S_StartFX(sound, WeapSfxCat(p), mo);
 }
 
-//
-// A_WeaponKillSound
-//
-// Kill any current sound from this weapon.
-//
+
 void A_WeaponKillSound(mobj_t * mo)
 {
+	// kill any current sound from this weapon
+
 	S_StopFX(mo);
 }
 
-//
-// A_SFXWeapon1/2/3
-//
+
 void A_SFXWeapon1(mobj_t * mo)
 {
 	player_t *p = mo->player;
@@ -1548,9 +1519,7 @@ void A_Light0(mobj_t * mo) { mo->player->extralight = 0; }
 void A_Light1(mobj_t * mo) { mo->player->extralight = 1; }
 void A_Light2(mobj_t * mo) { mo->player->extralight = 2; }
 
-//
-// A_WeaponJump
-//
+
 void A_WeaponJump(mobj_t * mo)
 {
 	player_t *p = mo->player;
@@ -1579,9 +1548,7 @@ void A_WeaponJump(mobj_t * mo)
 	}
 }
 
-//
-// A_WeaponTransSet
-//
+
 void A_WeaponTransSet(mobj_t * mo)
 {
 	player_t *p = mo->player;
@@ -1597,9 +1564,7 @@ void A_WeaponTransSet(mobj_t * mo)
 	psp->visibility = psp->vis_target = value;
 }
 
-//
-// A_WeaponTransFade
-//
+
 void A_WeaponTransFade(mobj_t * mo)
 {
 	player_t *p = mo->player;
@@ -1616,10 +1581,7 @@ void A_WeaponTransFade(mobj_t * mo)
 	psp->vis_target = value;
 }
 
-//
-// A_WeaponEnableRadTrig
-// A_WeaponDisableRadTrig
-//
+
 void A_WeaponEnableRadTrig(mobj_t *mo)
 {
 	player_t *p = mo->player;
