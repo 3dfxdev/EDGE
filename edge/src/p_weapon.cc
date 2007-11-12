@@ -49,9 +49,7 @@ static sound_category_e WeapSfxCat(player_t *p)
 	return SNCAT_Opponent;
 }
 
-//
-// P_SetPsprite
-//
+
 void P_SetPsprite(player_t * p, int position, int stnum)
 {
 	pspdef_t *psp = &p->psprites[position];
@@ -79,6 +77,7 @@ void P_SetPsprite(player_t * p, int position, int stnum)
 		(* st->action)(p->mo);
 }
 
+
 //
 // P_SetPspriteDeferred
 //
@@ -98,6 +97,7 @@ void P_SetPspriteDeferred(player_t * p, int position, int stnum)
 	psp->tics = 0;
 	psp->next_state = (states + stnum);
 }
+
 
 //
 // P_CheckWeaponSprite
@@ -125,34 +125,12 @@ static bool ButtonDown(player_t *p, int ATK)
 		return (p->cmd.extbuttons & EBT_SECONDATK);
 }
 
-static void ReloadWeapon(player_t *p, int idx, int ATK)
-{
-	weapondef_c *info = p->weapons[idx].info;
-
-	if (info->clip_size[ATK] == 0)
-		return;
-
-	// for NoAmmo+Clip weapons, can always refill it
-	if (info->ammo[ATK] == AM_NoAmmo)
-	{
-		p->weapons[idx].clip_size[ATK] = info->clip_size[ATK];
-		return;
-	}
-
-	int qty = info->clip_size[ATK] - p->weapons[idx].clip_size[ATK];
-
-	if (qty > p->ammo[info->ammo[ATK]].num)
-		qty = p->ammo[info->ammo[ATK]].num;
-
-	SYS_ASSERT(qty > 0);
-
-	p->weapons[idx].clip_size[ATK] += qty;
-	p->ammo[info->ammo[ATK]].num   -= qty;
-}
-
 static bool WeaponCanFire(player_t *p, int idx, int ATK)
 {
 	weapondef_c *info = p->weapons[idx].info;
+
+	if (info->shared_clip)
+		ATK = 0;
 
 	// the order here is important, to allow NoAmmo+Clip weapons.
 	if (info->clip_size[ATK] > 0)
@@ -168,12 +146,15 @@ static bool WeaponCanReload(player_t *p, int idx, int ATK, bool allow_top_up)
 {
 	weapondef_c *info = p->weapons[idx].info;
 
+	bool can_fire = WeaponCanFire(p, idx, ATK);
+
+	if (info->shared_clip)
+		ATK = 0;
+
 	if (! (info->specials[ATK] & WPSP_Partial))
 	{
 		allow_top_up = false;
 	}
-
-	bool can_fire = WeaponCanFire(p, idx, ATK);
 
 	// for non-clip weapon, can reload whenever enough ammo is avail.
 	if (info->clip_size[ATK] == 0)
@@ -202,6 +183,7 @@ static bool WeaponCanReload(player_t *p, int idx, int ATK, bool allow_top_up)
 	return (info->clip_size[ATK] - p->weapons[idx].clip_size[ATK] <= total);
 }
 
+
 #if 0  // OLD FUNCTION
 static bool WeaponCanPartialReload(player_t *p, int idx, int ATK)
 {
@@ -218,14 +200,19 @@ static bool WeaponCanPartialReload(player_t *p, int idx, int ATK)
 }
 #endif
 
-// returns true when weapon will either fire or reload
-// (assuming the button is held down).
+
 static bool WeaponCouldAutoFire(player_t *p, int idx, int ATK)
 {
+	// Returns true when weapon will either fire or reload
+	// (assuming the button is held down).
+
 	weapondef_c *info = p->weapons[idx].info;
 
 	if (! info->attack_state[ATK])
 		return false;
+
+	if (info->shared_clip)
+		ATK = 0;
 
 	if (info->ammo[ATK] == AM_NoAmmo)
 		return true;
@@ -247,6 +234,7 @@ static bool WeaponCouldAutoFire(player_t *p, int idx, int ATK)
 
 	return false;
 }
+
 
 static void GotoDownState(player_t *p)
 {
@@ -295,9 +283,37 @@ static void GotoAttackState(player_t * p, int ATK, bool can_warmup)
 	}
 }
 
+static void ReloadWeapon(player_t *p, int idx, int ATK)
+{
+	weapondef_c *info = p->weapons[idx].info;
+
+	if (info->clip_size[ATK] == 0)
+		return;
+
+	// for NoAmmo+Clip weapons, can always refill it
+	if (info->ammo[ATK] == AM_NoAmmo)
+	{
+		p->weapons[idx].clip_size[ATK] = info->clip_size[ATK];
+		return;
+	}
+
+	int qty = info->clip_size[ATK] - p->weapons[idx].clip_size[ATK];
+
+	if (qty > p->ammo[info->ammo[ATK]].num)
+		qty = p->ammo[info->ammo[ATK]].num;
+
+	SYS_ASSERT(qty > 0);
+
+	p->weapons[idx].clip_size[ATK] += qty;
+	p->ammo[info->ammo[ATK]].num   -= qty;
+}
+
 static void GotoReloadState(player_t *p, int ATK)
 {
 	weapondef_c *info = p->weapons[p->ready_wp].info;
+
+	if (info->shared_clip)
+		ATK = 0;
 
 	ReloadWeapon(p, p->ready_wp, ATK);
 
@@ -943,10 +959,10 @@ void A_WeaponReady(mobj_t * mo)
 	{
 		for (int ATK = 0; ATK < 2; ATK++)
 		{
-			if (! info->attack_state[ATK])
+			if (! ButtonDown(p, ATK))
 				continue;
 
-			if (! ButtonDown(p, ATK))
+			if (! info->attack_state[ATK])
 				continue;
 
 			// check for fire: the missile launcher and bfg do not auto fire
@@ -1180,6 +1196,10 @@ static void DoCheckReload(mobj_t * mo, int ATK)
 		return;
 	}
 
+//	SYS_ASSERT(p->ready_wp >= 0);
+//
+//	weapondef_c *info = p->weapons[p->ready_wp].info;
+
 	if (WeaponCanReload(p, p->ready_wp, ATK, false))
 		GotoReloadState(p, ATK);
 	else if (! WeaponCanFire(p, p->ready_wp, ATK))
@@ -1368,15 +1388,19 @@ static void DoWeaponShoot(mobj_t * mo, int ATK)
 		I_Error("Weapon [%s] missing %sattack.\n", info->ddf.name.c_str(),
 			ATK ? "second " : "");
 
-	ammotype_e ammo = info->ammo[ATK];
-
-	// Minimal amount for one shot varies.
-	int count = info->ammopershot[ATK];
-
 	// Some do not need ammunition anyway.
 	// Return if current ammunition sufficient.
 	if (! WeaponCanFire(p, p->ready_wp, ATK))
 		return;
+
+	int ATK_orig = ATK;
+	if (info->shared_clip)
+		ATK = 0;
+
+	ammotype_e ammo = info->ammo[ATK];
+
+	// Minimal amount for one shot varies.
+	int count = info->ammopershot[ATK];
 
 	if (info->clip_size[ATK] > 0)
 	{
@@ -1421,6 +1445,8 @@ static void DoWeaponShoot(mobj_t * mo, int ATK)
 	{
 		P_SetMobjStateDeferred(mo, mo->info->missile_state, 0);
 	}
+
+	ATK = ATK_orig;
 
 	if (info->flash_state[ATK] && !p->flash)
 	{
@@ -1628,7 +1654,6 @@ void A_WeaponSetSkin(mobj_t * mo)
 		p->weapons[p->ready_wp].model_skin = skin;
 	}
 }
-
 
 
 //--- editor settings ---
