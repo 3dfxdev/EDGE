@@ -80,6 +80,12 @@ unsigned int root_node;
 extern camera_t *camera;
 
 
+int detail_level = 1;
+int use_dlights = 0;
+
+int doom_fading = 1;
+
+
 // -ES- 1999/03/20 Different right & left side clip angles, for asymmetric FOVs.
 angle_t clip_left, clip_right;
 angle_t clip_scope;
@@ -293,76 +299,6 @@ static void MIR_Pop()
 
 	MIR_SetClippers();
 }
-
-
-// ============================================================================
-// R2_BSP START
-// ============================================================================
-
-int detail_level = 1;
-int use_dlights = 0;
-
-int doom_fading = 1;
-
-
-static void R2_FindDLights(subsector_t *sub, drawfloor_t *dfloor)
-{
-#if 0  // TEMPORARY DISABLED
-
-	//!!!!!
-	float max_dlight_radius = 4*200.0f; // (use_dlights == 1) ? 300.0f : 200.0f;
-
-	int xl, xh, yl, yh;
-	int bx, by;
-
-	xl = BLOCKMAP_GET_X(sub->bbox[BOXLEFT]   - max_dlight_radius);
-	xh = BLOCKMAP_GET_X(sub->bbox[BOXRIGHT]  + max_dlight_radius);
-	yl = BLOCKMAP_GET_Y(sub->bbox[BOXBOTTOM] - max_dlight_radius);
-	yh = BLOCKMAP_GET_Y(sub->bbox[BOXTOP]    + max_dlight_radius);
-
-	for (bx = xl; bx <= xh; bx++)
-	for (by = yl; by <= yh; by++)
-	{
-		mobj_t *mo;
-		drawthing_t *dl;
-
-		if (bx < 0 || by < 0 || bx >= bmapwidth || by >= bmapheight)
-			continue;
-
-		for (mo=blocklights[by * bmapwidth + bx]; mo; mo = mo->dlnext)
-		{
-			SYS_ASSERT(mo->state);
-
-			if (mo->state->bright <= 0 || mo->dlight.r <= 0)
-				continue;
-
-			if (mo->ceilingz <= dfloor->f_h || mo->floorz >= dfloor->top_h)
-			{
-				continue;
-			}
-
-			dl = R_GetDrawThing();
-			dl->Clear();
-
-			dl->mo = mo;
-			dl->tz = mo->z + mo->height * PERCENT_2_FLOAT(mo->info->dlight[0].height);
-
-			dl->next = dfloor->dlights;
-			dl->prev = NULL;  // NOTE: not used (singly linked)
-
-			dfloor->dlights = dl;
-
-			if (! mo->dlight.shader)
-				  mo->dlight.shader = MakeDLightShader(mo);
-		}
-	}
-#endif
-
-}
-
-// ============================================================================
-// R2_BSP END
-// ============================================================================
 
 
 
