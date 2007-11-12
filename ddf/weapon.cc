@@ -342,6 +342,22 @@ static void WeaponFinishEntry(void)
 		}
 	}
 
+	if (buffer_weapon.shared_clip)
+	{
+		if (buffer_weapon.clip_size[0] == 0)
+			DDF_Error("SHARED_CLIP requires a clip weapon (missing CLIPSIZE)\n");
+
+		if (buffer_weapon.attack_state[1] == 0)
+			DDF_Error("SHARED_CLIP used without secondary attack states.\n");
+
+		if (buffer_weapon.ammo[1] != AM_NoAmmo ||
+			buffer_weapon.ammopershot[1] != 0 ||
+			buffer_weapon.clip_size[1] != 0)
+		{
+			DDF_Error("SHARED_CLIP cannot be used with SEC_AMMO or SEC_CLIPSIZE commands.\n");
+		}
+	}
+
 	if (buffer_weapon.model_skin < 0 || buffer_weapon.model_skin > 9)
 		DDF_Error("Bad MODEL_SKIN value %d in DDF (must be 0-9).\n",
 			buffer_weapon.model_skin);
