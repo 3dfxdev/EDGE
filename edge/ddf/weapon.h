@@ -148,6 +148,9 @@ public:
 	// -AJA- 2000/10/20: show current clip in status bar (not total)
 	bool show_clip;
 
+	// -AJA- 2007/11/12: clip is shared between 1st/2nd attacks.
+	bool shared_clip;
+
 	// controls for weapon bob (up & down) and sway (left & right).
 	// Given as percentages in DDF.
 	percent_t bobbing;

@@ -74,6 +74,7 @@ static const commandlist_t weapon_commands[] =
 	DF("ZOOM_FOV", zoom_fov, DDF_MainGetAngle),
 	DF("REFIRE_INACCURATE", refire_inacc, DDF_MainGetBoolean),
 	DF("SHOW_CLIP", show_clip, DDF_MainGetBoolean),
+	DF("SHARED_CLIP", shared_clip, DDF_MainGetBoolean),
 	DF("BOBBING", bobbing, DDF_MainGetPercent),
 	DF("SWAYING", swaying, DDF_MainGetPercent),
 	DF("IDLE_WAIT", idle_wait, DDF_MainGetTime),
@@ -624,6 +625,8 @@ void weapondef_c::CopyDetail(weapondef_c &src)
 	zoom_fov = src.zoom_fov;
 	refire_inacc = src.refire_inacc;
 	show_clip = src.show_clip;
+	shared_clip = src.shared_clip;
+
 	bobbing = src.bobbing;
 	swaying = src.swaying;
 	idle_wait = src.idle_wait;
@@ -693,6 +696,8 @@ void weapondef_c::Default(void)
 	zoom_fov = 0;
 	refire_inacc = false;
 	show_clip = false;
+	shared_clip = false;
+
 	bobbing = PERCENT_MAKE(100);
 	swaying = PERCENT_MAKE(100);
 	idle_wait = 15 * TICRATE;
