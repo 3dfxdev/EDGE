@@ -1,5 +1,11 @@
 Andrew Apted's Log
 
+2007/11/12:
+
+Weapons.ddf : implemented a 'SHARED_CLIP' command to allow
+the secondary attack to use the same clip as the primary
+attack (rather than being separate).  Untested!
+
 2007/11/11:
 
 Updated player entries in THINGS.DDF to use CHECK_ACTIVITY.
