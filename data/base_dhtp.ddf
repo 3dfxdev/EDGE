@@ -9,6 +9,10 @@
 //
 // Last updated: 2007/11/13
 //
+// Note: may contain entries that have not been done yet.
+// In that case, EDGE should fall-back to the texture or
+// flat in the IWAD (with a warning message).
+//
 
 <IMAGES>
 
@@ -135,8 +139,8 @@ SCALE=0.25; // new 256x256
 IMAGE_DATA=FILE:"flats/doom/dem1_6.png";
 SCALE=0.25; // new 256x256
 
-[flat:flat10]
-IMAGE_DATA=FILE:"flats/doom/flat10.png";
+[flat:flat1]
+IMAGE_DATA=FILE:"flats/doom/flat1.png";
 SCALE=0.25; // new 256x256
 
 [flat:flat1_1]
@@ -150,6 +154,10 @@ SCALE=0.5; // new 128x128
 [flat:flat1_3]
 IMAGE_DATA=FILE:"flats/doom/flat1_3.png";
 SCALE=0.5; // new 128x128
+
+[flat:flat10]
+IMAGE_DATA=FILE:"flats/doom/flat10.png";
+SCALE=0.25; // new 256x256
 
 [flat:flat14]
 IMAGE_DATA=FILE:"flats/doom/flat14.png";
@@ -165,10 +173,6 @@ SCALE=0.25; // new 256x256
 
 [flat:flat19]
 IMAGE_DATA=FILE:"flats/doom/flat19.png";
-SCALE=0.25; // new 256x256
-
-[flat:flat1]
-IMAGE_DATA=FILE:"flats/doom/flat1.png";
 SCALE=0.25; // new 256x256
 
 [flat:flat20]
