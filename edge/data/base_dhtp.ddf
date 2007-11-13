@@ -914,6 +914,18 @@ SCALE=0.25; // old 64x128 : new 256x512
 IMAGE_DATA=FILE:"textures/doom/pipewal2.png";
 SCALE=0.25; // old 64x128 : new 256x512
 
+[tex:rock1]
+IMAGE_DATA=FILE:"textures/doom/rock1.png";
+SCALE=0.25; // old 64x128 : new 256x512
+
+[tex:rock2]
+IMAGE_DATA=FILE:"textures/doom/rock2.png";
+SCALE=0.25; // old 64x128 : new 256x512
+
+[tex:rock3]
+IMAGE_DATA=FILE:"textures/doom/rock3.png";
+SCALE=0.25; // old 64x128 : new 256x512
+
 [tex:shawn2]
 IMAGE_DATA=FILE:"textures/doom/shawn2.png";
 SCALE=0.25; // old 64x128 : new 256x512
@@ -1266,6 +1278,22 @@ SCALE=0.25; // old 64x128 : new 256x512
 IMAGE_DATA=FILE:"textures/doom/tanrock7.png";
 SCALE=0.25; // old 64x128 : new 256x512
 
+[tex:tanrock2]
+IMAGE_DATA=FILE:"textures/doom/tanrock2.png";
+SCALE=0.25; // old 64x128 : new 256x512
+
+[tex:tanrock4]
+IMAGE_DATA=FILE:"textures/doom/tanrock4.png";
+SCALE=0.25; // old 64x128 : new 256x512
+
+[tex:tanrock5]
+IMAGE_DATA=FILE:"textures/doom/tanrock5.png";
+SCALE=0.25; // old 64x128 : new 256x512
+
+[tex:tanrock8]
+IMAGE_DATA=FILE:"textures/doom/tanrock8.png";
+SCALE=0.25; // old 64x128 : new 256x512
+
 [tex:tekbron2]
 IMAGE_DATA=FILE:"textures/doom/tekbron2.png";
 SCALE=0.25; // old 64x128 : new 256x512
@@ -1557,6 +1585,26 @@ SCALE=0.25; // old 128x128 : new 512x512
 IMAGE_DATA=FILE:"textures/doom/redwall.png";
 SCALE=0.25; // old 128x128 : new 512x512
 
+[tex:rock4]
+IMAGE_DATA=FILE:"textures/doom/rock4.png";
+SCALE=0.25; // old 128x128 : new 512x512
+
+[tex:rock5]
+IMAGE_DATA=FILE:"textures/doom/rock5.png";
+SCALE=0.25; // old 128x128 : new 512x512
+
+[tex:rockred1]
+IMAGE_DATA=FILE:"textures/doom/rockred1.png";
+SCALE=0.25; // old 128x128 : new 512x512
+
+[tex:rockred2]
+IMAGE_DATA=FILE:"textures/doom/rockred2.png";
+SCALE=0.25; // old 128x128 : new 512x512
+
+[tex:rockred3]
+IMAGE_DATA=FILE:"textures/doom/rockred3.png";
+SCALE=0.25; // old 128x128 : new 512x512
+
 [tex:skin2]
 IMAGE_DATA=FILE:"textures/doom/skin2.png";
 SCALE=0.25; // old 128x128 : new 512x512
@@ -1631,6 +1679,10 @@ SCALE=0.25; // old 128x128 : new 512x512
 
 [tex:tekwall1]
 IMAGE_DATA=FILE:"textures/doom/tekwall1.png";
+SCALE=0.25; // old 128x128 : new 512x512
+
+[tex:tekwall4]
+IMAGE_DATA=FILE:"textures/doom/tekwall4.png";
 SCALE=0.25; // old 128x128 : new 512x512
 
 [tex:zdoorb1]
