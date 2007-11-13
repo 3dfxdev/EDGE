@@ -23,6 +23,8 @@ Features removed
 General improvements
 --------------------
 
++ new method to emulate DOOM's lighting model.
+
 + new dynamic lighting,
   DLIGHT2
   LEAKY
@@ -44,7 +46,9 @@ New features:
 
 + MD2 models
 
-+ Mirrors
++ mirrors
+
+- sector glows
 
 - TGA images
 
@@ -70,9 +74,17 @@ DDF / RTS Goodies:
 
 - SPAWN action
 
-- INVULNERABLE special
+- INVULNERABLE special makes the thing completely immune to
+  all attacks.  There are also two new actions to dynamically
+  change it: SET_INVULNERABLE and CLEAR_INVULNERABLE, which
+  can be used to make monsters with blocking states (like the
+  Centaurs in Hexen).
 
-- DLIGHT_COLOUR action
+- DLIGHT_COLOUR(#FF00FF) action will change the color of the
+  dynamic light.  Note: the secondary dlight, if used, is not
+  affected.
+
+- LIT##
 
 - RESISTANCE_MULTIPLY + RESISTANCE_PAINCHANCE
 
