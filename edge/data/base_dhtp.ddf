@@ -950,6 +950,10 @@ SCALE=0.25; // old 64x128 : new 256x512
 IMAGE_DATA=FILE:"textures/doom/panel5.png";
 SCALE=0.25; // old 64x128 : new 256x512
 
+[tex:pipes]
+IMAGE_DATA=FILE:"textures/doom/pipes.png";
+SCALE=0.25; // old 64x128 : new 256x512
+
 [tex:pipewal1]
 IMAGE_DATA=FILE:"textures/doom/pipewal1.png";
 SCALE=0.25; // old 64x128 : new 256x512
@@ -1040,6 +1044,18 @@ SCALE=0.25; // old 64x128 : new 256x512
 
 [tex:sloppy2]
 IMAGE_DATA=FILE:"textures/doom/sloppy2.png";
+SCALE=0.25; // old 64x128 : new 256x512
+
+[tex:spacew2]
+IMAGE_DATA=FILE:"textures/doom/spacew2.png";
+SCALE=0.25; // old 64x128 : new 256x512
+
+[tex:spacew3]
+IMAGE_DATA=FILE:"textures/doom/spacew3.png";
+SCALE=0.25; // old 64x128 : new 256x512
+
+[tex:spacew4]
+IMAGE_DATA=FILE:"textures/doom/spacew4.png";
 SCALE=0.25; // old 64x128 : new 256x512
 
 [tex:spcdoor1]
@@ -1194,6 +1210,18 @@ SCALE=0.25; // old 64x128 : new 256x512
 IMAGE_DATA=FILE:"textures/doom/sw1tek.png";
 SCALE=0.25; // old 64x128 : new 256x512
 
+[tex:sw1rock]
+IMAGE_DATA=FILE:"textures/doom/sw1rock.png";
+SCALE=0.25; // old 64x128 : new 256x512
+
+[tex:sw1skin]
+IMAGE_DATA=FILE:"textures/doom/sw1skin.png";
+SCALE=0.25; // old 64x128 : new 256x512
+
+[tex:sw1vine]
+IMAGE_DATA=FILE:"textures/doom/sw1vine.png";
+SCALE=0.25; // old 64x128 : new 256x512
+
 [tex:sw1wdmet]
 IMAGE_DATA=FILE:"textures/doom/sw1wdmet.png";
 SCALE=0.25; // old 64x128 : new 256x512
@@ -1330,6 +1358,18 @@ SCALE=0.25; // old 64x128 : new 256x512
 IMAGE_DATA=FILE:"textures/doom/sw2zim.png";
 SCALE=0.25; // old 64x128 : new 256x512
 
+[tex:sw2rock]
+IMAGE_DATA=FILE:"textures/doom/sw2rock.png";
+SCALE=0.25; // old 64x128 : new 256x512
+
+[tex:sw2skin]
+IMAGE_DATA=FILE:"textures/doom/sw2skin.png";
+SCALE=0.25; // old 64x128 : new 256x512
+
+[tex:sw2vine]
+IMAGE_DATA=FILE:"textures/doom/sw2vine.png";
+SCALE=0.25; // old 64x128 : new 256x512
+
 [tex:sw2wdmet]
 IMAGE_DATA=FILE:"textures/doom/sw2wdmet.png";
 SCALE=0.25; // old 64x128 : new 256x512
@@ -1408,6 +1448,10 @@ SCALE=0.25; // old 64x128 : new 256x512
 
 [tex:wood9]
 IMAGE_DATA=FILE:"textures/doom/wood9.png";
+SCALE=0.25; // old 64x128 : new 256x512
+
+[tex:wood12]
+IMAGE_DATA=FILE:"textures/doom/wood12.png";
 SCALE=0.25; // old 64x128 : new 256x512
 
 [tex:woodgarg]
@@ -1757,6 +1801,10 @@ SCALE=0.25; // old 128x128 : new 512x512
 IMAGE_DATA=FILE:"textures/doom/tekwall4.png";
 SCALE=0.25; // old 128x128 : new 512x512
 
+[tex:wood10]
+IMAGE_DATA=FILE:"textures/doom/wood10.png";
+SCALE=0.25; // old 128x128 : new 512x512
+
 [tex:zdoorb1]
 IMAGE_DATA=FILE:"textures/doom/zdoorb1.png";
 SCALE=0.25; // old 128x128 : new 512x512
@@ -2055,6 +2103,18 @@ SCALE=0.25; // old 16x128 : new 64x512
 
 [tex:step4]
 IMAGE_DATA=FILE:"textures/doom/step4.png";
+SCALE=0.25; // old 32x16 : new 128x64
+
+[tex:step2]
+IMAGE_DATA=FILE:"textures/doom/step2.png";
+SCALE=0.25; // old 32x16 : new 128x64
+
+[tex:step5]
+IMAGE_DATA=FILE:"textures/doom/step5.png";
+SCALE=0.25; // old 32x16 : new 128x64
+
+[tex:step6]
+IMAGE_DATA=FILE:"textures/doom/step6.png";
 SCALE=0.25; // old 32x16 : new 128x64
 
 [tex:steplad1]
