@@ -1732,6 +1732,8 @@ SCALE=0.25; // old 256x128 : new 1024x512
 IMAGE_DATA=FILE:"textures/doom/wood5.png";
 SCALE=0.25; // old 256x128 : new 1024x512
 
+// TODO: ZZZFACE1 .. ZZZFACE9 !!
+
 
 // Textures, misc sizes
 
@@ -1923,7 +1925,7 @@ SCALE=0.25; // old 128x128 : new 512x512
 IMAGE_DATA=FILE:"textures/doom/doom1/sw2starg.png";
 SCALE=0.25; // old 128x128 : new 512x512
 
-//---->
+// new ones --->
 
 [tex:ashwall]
 IMAGE_DATA=FILE:"textures/doom/doom1/ashwall.png";
@@ -1960,6 +1962,10 @@ SCALE=0.25; // old 32x128 : new 128x512
 [tex:brnbigr]
 IMAGE_DATA=FILE:"textures/doom/doom1/brnbigr.png";
 SCALE=0.25; // old 32x128 : new 128x512
+
+[tex:brovine]
+IMAGE_DATA=FILE:"textures/doom/doom1/brovine.png";
+SCALE=0.25; // old 256x128 : new 1024x512
 
 [tex:brownwel]
 IMAGE_DATA=FILE:"textures/doom/doom1/brownwel.png";
@@ -2053,6 +2059,26 @@ SCALE=0.25; // old 256x128 : new 1024x512
 IMAGE_DATA=FILE:"textures/doom/doom1/redwall1.png";
 SCALE=0.25; // old 128x128 : new 512x512
 
+[tex:skinbord]
+IMAGE_DATA=FILE:"textures/doom/doom1/skinbord.png";
+SCALE=0.25; // old 64x128 : new 256x512
+
+[tex:skintek1]
+IMAGE_DATA=FILE:"textures/doom/doom1/skintek1.png";
+SCALE=0.25; // old 256x128 : new 1024x512
+
+[tex:skintek2]
+IMAGE_DATA=FILE:"textures/doom/doom1/skintek2.png";
+SCALE=0.25; // old 256x128 : new 1024x512
+
+[tex:skulwal3]
+IMAGE_DATA=FILE:"textures/doom/doom1/skulwal3.png";
+SCALE=0.25; // old 128x128 : new 512x512
+
+[tex:skulwall]
+IMAGE_DATA=FILE:"textures/doom/doom1/skulwall.png";
+SCALE=0.25; // old 128x128 : new 512x512
+
 [tex:sladrip1]
 IMAGE_DATA=FILE:"textures/doom/doom1/sladrip1.png";
 SCALE=0.25; // old 64x128 : new 256x512
@@ -2063,6 +2089,14 @@ SCALE=0.25; // old 64x128 : new 256x512
 
 [tex:sladrip3]
 IMAGE_DATA=FILE:"textures/doom/doom1/sladrip3.png";
+SCALE=0.25; // old 64x128 : new 256x512
+
+[tex:sp_dude3]
+IMAGE_DATA=FILE:"textures/doom/doom1/sp_dude3.png";
+SCALE=0.25; // old 64x128 : new 256x512
+
+[tex:sp_dude6]
+IMAGE_DATA=FILE:"textures/doom/doom1/sp_dude6.png";
 SCALE=0.25; // old 64x128 : new 256x512
 
 [tex:sp_rock2]
@@ -2081,6 +2115,18 @@ SCALE=0.25; // old 128x128 : new 512x512
 IMAGE_DATA=FILE:"textures/doom/doom1/stonpois.png";
 SCALE=0.25; // old 64x128 : new 256x512
 
+[tex:tekwall2]
+IMAGE_DATA=FILE:"textures/doom/doom1/tekwall2.png";
+SCALE=0.25; // old 128x128 : new 512x512
+
+[tex:tekwall3]
+IMAGE_DATA=FILE:"textures/doom/doom1/tekwall3.png";
+SCALE=0.25; // old 128x112 : new 512x448
+
+[tex:tekwall5]
+IMAGE_DATA=FILE:"textures/doom/doom1/tekwall5.png";
+SCALE=0.25; // old 128x128 : new 512x512
+
 [tex:woodskul]
 IMAGE_DATA=FILE:"textures/doom/doom1/woodskul.png";
 SCALE=0.25; // old 64x128 : new 256x512
@@ -2088,6 +2134,8 @@ SCALE=0.25; // old 64x128 : new 256x512
 
 
 //------------ DOOM 2 Specific Textures ------------//
+
+// TODO: SKY2 and SKY3 !!
 
 [tex:brnpois]
 IMAGE_DATA=FILE:"textures/doom/doom2/brnpois.png";
