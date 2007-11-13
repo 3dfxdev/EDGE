@@ -10,8 +10,8 @@
 // Last updated: 2007/11/13
 //
 // Note: may contain entries that have not been done yet.
-// In that case, EDGE should fall-back to the texture or
-// flat in the IWAD (with a warning message).
+// In that case, EDGE should fall-back to using the texture
+// or flat from the IWAD (with a warning message).
 //
 
 <IMAGES>
@@ -475,6 +475,34 @@ SCALE=0.25; // new 256x256
 IMAGE_DATA=FILE:"flats/doom/rrock17.png";
 SCALE=0.25; // new 256x256
 
+[flat:rrock09]
+IMAGE_DATA=FILE:"flats/doom/rrock09.png";
+SCALE=0.25; // new 256x256
+
+[flat:rrock12]
+IMAGE_DATA=FILE:"flats/doom/rrock12.png";
+SCALE=0.25; // new 256x256
+
+[flat:rrock14]
+IMAGE_DATA=FILE:"flats/doom/rrock14.png";
+SCALE=0.25; // new 256x256
+
+[flat:rrock16]
+IMAGE_DATA=FILE:"flats/doom/rrock16.png";
+SCALE=0.25; // new 256x256
+
+[flat:rrock18]
+IMAGE_DATA=FILE:"flats/doom/rrock18.png";
+SCALE=0.25; // new 256x256
+
+[flat:rrock19]
+IMAGE_DATA=FILE:"flats/doom/rrock19.png";
+SCALE=0.25; // new 256x256
+
+[flat:rrock20]
+IMAGE_DATA=FILE:"flats/doom/rrock20.png";
+SCALE=0.25; // new 256x256
+
 [flat:sflr6_1]
 IMAGE_DATA=FILE:"flats/doom/sflr6_1.png";
 SCALE=0.25; // new 256x256
@@ -489,6 +517,14 @@ SCALE=0.25; // new 256x256
 
 [flat:sflr7_4]
 IMAGE_DATA=FILE:"flats/doom/sflr7_4.png";
+SCALE=0.25; // new 256x256
+
+[flat:step1]
+IMAGE_DATA=FILE:"flats/doom/step1.png";
+SCALE=0.25; // new 256x256
+
+[flat:step2]
+IMAGE_DATA=FILE:"flats/doom/step2.png";
 SCALE=0.25; // new 256x256
 
 [flat:slime01]
