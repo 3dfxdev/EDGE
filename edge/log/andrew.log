@@ -1,5 +1,17 @@
 Andrew Apted's Log
 
+2007/11/14:
+
+Worked on cleaning up and repairing the rendering code for
+Thin Sliding Doors.
+
+Tweaked SUPERSHOTGUN states to fix alignment problem with FLASH
+states (the 'SHOOT' frame was only 7 tics, but the flash frames
+were a total of 9 tics).  The overall timing has been preserved.
+
+Fixed serious (stack corrupting) crash in EmulateFloodPlane()
+code, which was recently reworked.
+
 2007/11/12:
 
 Weapons.ddf : implemented a 'SHARED_CLIP' command to allow
