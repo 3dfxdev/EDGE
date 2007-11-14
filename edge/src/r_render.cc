@@ -64,7 +64,6 @@
 #define FLOOD_DIST    1024.0f
 #define FLOOD_EXPAND  128.0f
 
-#define DLIGHT_PROTOTYPE  1
 
 // #define DEBUG_GREET_NEIGHBOUR
 
@@ -130,13 +129,6 @@ static std::list<drawsub_c *> drawsubs;
 #ifdef SHADOW_PROTOTYPE
 static const image_c *shadow_image = NULL;
 #endif
-
-
-static GLuint glow_tex = 0;
-
-
-extern abstract_shader_c *MakeDLightShader(mobj_t *mo);
-
 
 
 // ========= MIRROR STUFF ===========
@@ -685,135 +677,6 @@ static void PlaneCoordFunc(void *d, int v_idx,
 ///---	SET_VERTEX(x, y, z);
 ///---}
 
-#ifdef DLIGHT_PROTOTYPE
-
-#if 0
-void DLightWallCoordFunc(vec3_t *src, local_gl_vert_t *vert, void *d)
-{
-	wall_plane_data_t *data = (wall_plane_data_t *)d;
-
-	float x = src->x;
-	float y = src->y;
-	float z = src->z;
-
-	float along;
-
-	// compute texture coord
-	if (fabs(data->div.dx) > fabs(data->div.dy))
-	{
-		SYS_ASSERT(0 != data->div.dx);
-		along = (x - data->div.x) / data->div.dx;
-	}
-	else
-	{
-		SYS_ASSERT(0 != data->div.dy);
-		along = (y - data->div.y) / data->div.dy;
-	}
-
-	float tx = data->tx + along * data->tdx;
-	float ty = data->ty + z * data->ty_mul + along * data->ty_skew;
-
-	// compute texture coord
-	if (fabs(dl_WP->div.dx) > fabs(dl_WP->div.dy))
-	{
-		SYS_ASSERT(0 != dl_WP->div.dx);
-		along = (x - dl_WP->div.x) / dl_WP->div.dx;
-	}
-	else
-	{
-		SYS_ASSERT(0 != dl_WP->div.dy);
-		along = (y - dl_WP->div.y) / dl_WP->div.dy;
-	}
-	float tx0 = dl_WP->tx + along * dl_WP->tdx;
-	float ty0 = dl_WP->ty + z * dl_WP->ty_mul + along * dl_WP->ty_skew;
-
-	int R = int(dl_R * data->trans);
-	int G = int(dl_G * data->trans);
-	int B = int(dl_B * data->trans);
-
-	SET_COLOR(LT_RED(R), LT_GRN(G), LT_BLU(B), 1.0f);
-	SET_TEXCOORD(tx0, ty0);
-	SET_TEX2COORD(tx, ty);
-	SET_NORMAL(data->normal.x, data->normal.y, data->normal.z);
-	SET_EDGE_FLAG(GL_TRUE);
-	SET_VERTEX(x, y, z);
-}
-
-void DLightPlaneCoordFunc(vec3_t *src, local_gl_vert_t *vert, void *d)
-{
-	wall_plane_data_t *data = (wall_plane_data_t *)d;
-
-	float x = src->x;
-	float y = src->y;
-	float z = src->z;
-
-	float rx = (x + data->tx);
-	float ry = (y + data->ty);
-	float tx = rx * data->x_mat.x + ry * data->x_mat.y;
-	float ty = rx * data->y_mat.x + ry * data->y_mat.y;
-
-	float rx0 = (x + dl_WP->tx) / IM_WIDTH(dl_WP->image);
-	float ry0 = (y + dl_WP->ty) / IM_HEIGHT(dl_WP->image);
-	float tx0 = rx0 * dl_WP->x_mat.x + ry0 * dl_WP->x_mat.y;
-	float ty0 = rx0 * dl_WP->y_mat.x + ry0 * dl_WP->y_mat.y;
-
-	int R = int(dl_R * data->trans);
-	int G = int(dl_G * data->trans);
-	int B = int(dl_B * data->trans);
-
-	SET_COLOR(LT_RED(R), LT_GRN(G), LT_BLU(B), 1.0f);
-	SET_TEXCOORD(tx0, ty0);
-	SET_TEX2COORD(tx, ty);
-	SET_NORMAL(data->normal.x, data->normal.y, data->normal.z);
-	SET_EDGE_FLAG(GL_TRUE);
-	SET_VERTEX(x, y, z);
-}
-#endif
-
-#if 0
-static void ComputeDLParameters(float dist, mobj_t *mo,
-	float *radius, float *intensity)
-{
-	*radius = mo->dlight.r;
-
-	*intensity = 0;
-
-	SYS_ASSERT(mo->dlight.r > 0);
-
-	if (dist > mo->dlight.r)
-		return;
-
-	dist /= mo->dlight.r;
-	dist = fabs(dist);  // needed???
-
-	*intensity = exp(-5.44*dist);
-
-	if (mo->info->dlight0.type == DLITE_Linear)
-	{
-		*radius = DL_OUTER * dist;
-		*intensity = mo->dlight[0].r / 8.0f / dist;
-
-		if (*intensity > 1.0f)
-		{
-			*radius *= (*intensity);
-			*intensity = 1.0f;
-		}
-	}
-	else  /* DLITE_Quadratic */
-	{
-  		*radius = DL_OUTER_SQRT * dist;
-  		*intensity = mo->dlight[0].r * 2.0f / dist / dist;
-  
-  		if (*intensity > 1.0f)
-  		{
-  			*radius *= sqrt(*intensity);
-  			*intensity = 1.0f;
-  		}
-	}
-}
-#endif
-
-#endif // DLIGHT_PROTOTYPE
 
 static void DLIT_Wall(mobj_t *mo, void *dataptr)
 {
@@ -940,17 +803,20 @@ static inline void GreetNeighbourSector(float *hts, int& num,
 
 
 //
-// RGL_DrawWall
-//
 // Note: mid_masked is 2 & 3 for horiz. sliding door.
 //
-static void RGL_DrawWall(drawfloor_t *dfloor, float top,
+static void DrawWallPart(drawfloor_t *dfloor, float top,
 						 float bottom, float tex_top_h, wall_tile_t *wt,
-						 int mid_masked, bool opaque, float x_offset,
-						 region_properties_t *masked_props)
+						 int mid_masked, bool opaque,
+						 float x_offset,
+///						 float tex_x1, float tex_x2,
+						 region_properties_t *props = NULL)
 
 {
 	surface_t *surf = wt->surface;
+
+	if (! props)
+		props = surf->override_p ? surf->override_p : dfloor->props;
 
 	float x1 = cur_seg->v1->x;
 	float y1 = cur_seg->v1->y;
@@ -971,11 +837,6 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 
 	float trans = surf->translucency;
 	bool blended;
-
-
-
-	region_properties_t *props = masked_props ? masked_props :
-		surf->override_p ? surf->override_p : dfloor->props;
 
 
 	// ignore non-solid walls in solid mode (& vice versa)
@@ -1238,138 +1099,6 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 							 MAX(x1,x2), MAX(y1,y2), top,
 							 GLOWLIT_Wall, &data);
 	}
-
-	
-#if 0
-	int pass = 0;
-
-	local_gl_vert_t *glvert;
-	
-	glvert = RGL_BeginUnit(GL_POLYGON, v_count,
-			GL_MODULATE, tex_id, GL_MODULATE, tex2_id,
-			pass, blending);
-	pass++;
-
-	for (int kk=0; kk < v_count; kk++)
-	{
-		Color_Rainbow(glvert+kk, 255, 255, 255, trans);
-		Vertex_Std   (glvert+kk, vertices+kk, GL_TRUE);
-		Normal_Std   (glvert+kk, nx, ny, nz);
-
-		TexCoord_Wall (glvert+kk, 0, &div, tx0, ty0, tx_mul, ty_mul);
-		TexCoord_Fader(glvert+kk, 1, lit_Nom, false);
-	}
-
-	RGL_EndUnit(v_count);
-#endif
-
-#if 0  // COLORMAP ADD SHIT
-
-	data.cmx = 1;
-
-	RGL_RenderPolyQuad(poly, &data, WallCoordFunc, 0,tex2_id,
-		/* pass */ 1, blending | BL_Add);
-
-	RGL_FreePolyQuad(poly);
-#endif
-
-#if 0  // GLOW TEST !!!!
-	if (! glow_tex)
-		MakeGlowTexture();
-
-	glvert = RGL_BeginUnit(GL_POLYGON, v_count,
-			GL_MODULATE, tex_id, GL_MODULATE, glow_tex,
-			pass, BL_Add);
-	pass++;
-
-	for (int kk=0; kk < v_count; kk++)
-	{
-		Color_Rainbow(glvert+kk, 127, 255, 63, 0.9*trans);
-		Vertex_Std   (glvert+kk, vertices+kk, GL_TRUE);
-		Normal_Std   (glvert+kk, nx, ny, nz);
-
-		TexCoord_Wall (glvert+kk, 0, &div, tx0, ty0, tx_mul, ty_mul);
-		TexCoord_FloorGlow(glvert+kk, 1, cur_seg->frontsector->f_h);
-	}
-
-	RGL_EndUnit(v_count);
-#endif
-
-#if 0 ///!!!! def DLIGHT_PROTOTYPE
-	if (use_dlights == 1 && solid_mode)
-	{
-RGL_DrawUnits(); //!!!!
-
-		wall_plane_data_t dat2;
-		memcpy(&dat2, &data, sizeof(dat2));
-
-		dat2.dlights = NULL;
-		dat2.trans = 0.5f;
-
-		for (drawthing_t *dl=dfloor->dlights; dl; dl=dl->next)
-		{
-			mobj_t *mo = dl->mo;
-
-			float dist = (mo->x - dat2.div.x) * dat2.div.dy -
-			             (mo->y - dat2.div.y) * dat2.div.dx;
-
-			// light behind the plane ?    
-			if (dist < 0)
-				continue;
-
-			dist /= cur_seg->length;
-
-			for (int DL=0; DL < 2; DL++)
-			{
-				const dlight_info_c *info = (DL == 0) ? &mo->info->dlight0 : &mo->info->dlight1;
-
-				if (info->type == DLITE_None ||
-					mo->dlight[DL].r <= 0 || ! mo->dlight[DL].image)
-					continue;
-
-				dl_R = (info->colour >> 16) & 0xFF;
-				dl_G = (info->colour >>  8) & 0xFF;
-				dl_B = (info->colour      ) & 0xFF;
-				dl_WP = &data;
-
-				GLuint tex2_id = W_ImageCache(mo->dlight[DL].image);
-
-				float fx_radius;
-				ComputeDLParameters(dist, mo, &fx_radius, &dat2.trans);
-
-				dat2.ty = (mo->z + mo->height * PERCENT_2_FLOAT(info->height));
-
-				dat2.ty = (dat2.ty / fx_radius) + 0.5f;
-				dat2.ty_mul = -1.0f / fx_radius;
-				dat2.ty_skew = 0;
-
-				dat2.tx = (mo->x - dat2.div.x) * dat2.div.dx +
-						  (mo->y - dat2.div.y) * dat2.div.dy;
-				dat2.tx /= cur_seg->length;
-
-				dat2.tx = (dat2.tx / -fx_radius) + 0.5f;
-
-				dat2.tdx = cur_seg->length * 1.0f / fx_radius;
-
-				poly = RGL_NewPolyQuad(4);
-
-				PQ_ADD_VERT(poly, x1, y1, bottom);
-				PQ_ADD_VERT(poly, x1, y1, top);
-				PQ_ADD_VERT(poly, x2, y2, top);
-				PQ_ADD_VERT(poly, x2, y2, bottom);
-
-				RGL_BoundPolyQuad(poly);
-
-				RGL_RenderPolyQuad(poly, &dat2, DLightWallCoordFunc,
-(info->type == DLITE_Add ? 0 : tex_id),tex2_id,
-					/* pass */ 2+DL, BL_Add);
-
-				RGL_FreePolyQuad(poly);
-RGL_DrawUnits();
-			}
-		}
-	}
-#endif // DLIGHT_PROTOTYPE
 }
 
 
@@ -1626,14 +1355,13 @@ static void EmulateFloodPlane(const drawfloor_t *dfloor,
 	}
 }
 
-//
-// RGL_BuildWalls
-//
-// Analyses floor/ceiling heights, and add corresponding walls/floors
-// to the drawfloor.  Returns true if the whole region was "solid".
-//
-static bool RGL_BuildWalls(drawfloor_t *dfloor, seg_t *seg)
+
+static bool RGL_DrawSeg(drawfloor_t *dfloor, seg_t *seg)
 {
+	//
+	// Analyses floor/ceiling heights, and add corresponding walls/floors
+	// to the drawfloor.  Returns true if the whole region was "solid".
+	//
 	cur_seg = seg;
 
 	SYS_ASSERT(!seg->miniseg && seg->linedef);
@@ -1703,18 +1431,18 @@ static bool RGL_BuildWalls(drawfloor_t *dfloor, seg_t *seg)
 			cur_seg->linedef->special->s.type != SLIDE_None &&
 			cur_seg->linedef->slider_move)
 		{
-			RGL_DrawWall(dfloor, c, f, tex_top_h,
-				wt, 2, opaque, x_offset, NULL);
+			DrawWallPart(dfloor, c, f, tex_top_h,
+				wt, 2, opaque, x_offset);
 
 			if (cur_seg->linedef->special->s.type == SLIDE_Center)
 			{
-				RGL_DrawWall(dfloor, c, f, tex_top_h,
-					wt, 3, opaque, x_offset, NULL);
+				DrawWallPart(dfloor, c, f, tex_top_h,
+					wt, 3, opaque, x_offset);
 			}
 			continue;
 		}
 
-		RGL_DrawWall(dfloor, c, f, tex_top_h, wt,
+		DrawWallPart(dfloor, c, f, tex_top_h, wt,
 			(wt->flags & WTILF_MidMask) ? 1 : 0, 
 			opaque, x_offset, (wt->flags & WTILF_MidMask) ?
 			  &cur_seg->sidedef->sector->props : NULL);
@@ -2245,88 +1973,6 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 							 GLOWLIT_Plane, &data);
 	}
 
-#if 0  // OLD WAY
-	int pass = 0;
-
-	local_gl_vert_t *glvert = RGL_BeginUnit(GL_POLYGON, v_count,
-			GL_MODULATE, tex_id, GL_MODULATE, tex2_id,
-			pass, blending);
-	pass++;
-
-	for (int kk=0; kk < v_count; kk++)
-	{
-		Color_Rainbow(glvert+kk, 255, 255, 255, trans);
-		Vertex_Std   (glvert+kk, vertices+kk, GL_TRUE);
-
-		Normal_Std   (glvert+kk, nx, ny, nz);
-
-		TexCoord_Plane(glvert+kk, 0, tx0, ty0, image_w, image_h,
-				&surf->x_mat, &surf->y_mat);
-		TexCoord_Fader(glvert+kk, 1, lit_Nom, false);
-	}
-
-	RGL_EndUnit(v_count);
-#endif
-
-#if 0  // COLORMAP ADD SHIT
-
-	data.cmx = 1;
-
-	RGL_RenderPolyQuad(poly, &data, WallCoordFunc, 0,tex2_id,
-		/* pass */ 1, blending | BL_Add);
-
-	RGL_FreePolyQuad(poly);
-#endif
-
-#if 0  // FLOOR GLOW TEST !!!!
-	if (! glow_tex)
-		MakeGlowTexture();
-
-if (nz > 0)
-{
-	glvert = RGL_BeginUnit(GL_POLYGON, v_count,
-			GL_MODULATE, tex_id, GL_MODULATE, glow_tex,
-			pass, BL_Add);
-	pass++;
-
-	for (int kk=0; kk < v_count; kk++)
-	{
-		Color_Rainbow(glvert+kk, 127, 255, 63, 0.9*trans);
-		Vertex_Std   (glvert+kk, vertices+kk, GL_TRUE);
-		Normal_Std   (glvert+kk, nx, ny, nz);
-
-		TexCoord_Plane(glvert+kk, 0, tx0, ty0, image_w, image_h,
-				&surf->x_mat, &surf->y_mat);
-		TexCoord_FloorGlow(glvert+kk, 1, h);
-	}
-
-	RGL_EndUnit(v_count);
-}
-#endif
-
-#if 0  // WALL GLOW TEST !!!!
-	if (! glow_tex)
-		MakeGlowTexture();
-
-	glvert = RGL_BeginUnit(GL_POLYGON, v_count,
-			GL_MODULATE, tex_id, GL_MODULATE, glow_tex,
-			pass, BL_Add);
-	pass++;
-
-	for (int kk=0; kk < v_count; kk++)
-	{
-		Color_Rainbow(glvert+kk, 255, 255, 255, 0.9*trans);
-		Vertex_Std   (glvert+kk, vertices+kk, GL_TRUE);
-		Normal_Std   (glvert+kk, nx, ny, nz);
-
-		TexCoord_Plane(glvert+kk, 0, tx0, ty0, image_w, image_h,
-				&surf->x_mat, &surf->y_mat);
-		TexCoord_WallGlow(glvert+kk, 1, 2560,2880, 0,1);
-	}
-
-	RGL_EndUnit(v_count);
-#endif
-
 #ifdef SHADOW_PROTOTYPE
 	if (level_flags.shadows && solid_mode && face_dir > 0)
 	{
@@ -2371,77 +2017,6 @@ if (nz > 0)
 	}
 #endif
 
-#if 0 //!!!! def DLIGHT_PROTOTYPE
-	if (use_dlights == 1 && solid_mode)
-	{
-RGL_DrawUnits();
-
-		wall_plane_data_t dat2;
-		memcpy(&dat2, &data, sizeof(dat2));
-
-		dat2.dlights = NULL;
-		dat2.trans = 0.5f;
-
-		for (drawthing_t *dl=dfloor->dlights; dl; dl=dl->next)
-		{
-			mobj_t *mo = dl->mo;
-
-			// light behind the plane ?    
-			if ((dl->tz > h) != (dat2.normal.z > 0))
-				continue;
-
-			for (int DL=0; DL < 2; DL++)
-			{
-				const dlight_info_c *info = (DL == 0) ? &mo->info->dlight0 : &mo->info->dlight1;
-
-				if (info->type == DLITE_None ||
-					mo->dlight[DL].r <= 0 || ! mo->dlight[DL].image)
-					continue;
-
-				dl_R = (info->colour >> 16) & 0xFF;
-				dl_G = (info->colour >>  8) & 0xFF;
-				dl_B = (info->colour      ) & 0xFF;
-				dl_WP = &data;
-
-				float dist = ABS(dl->tz - h);
-
-				GLuint tex2_id = W_ImageCache(mo->dlight[DL].image);
-
-				float fx_radius;
-				ComputeDLParameters(dist, mo, &fx_radius, &dat2.trans);
-
-				fx_radius /= 2.0f;
-
-				dat2.tx = -(mo->x - fx_radius);
-				dat2.ty = -(mo->y - fx_radius);
-
-				dat2.x_mat.x = 0.5f / fx_radius;
-				dat2.x_mat.y = 0;
-
-				dat2.y_mat.y = 0.5f / fx_radius;
-				dat2.y_mat.x = 0;
-
-				poly = RGL_NewPolyQuad(num_vert);
-
-				for (seg=cur_sub->segs, i=0; seg && (i < MAX_PLVERT); 
-					seg=seg->sub_next, i++)
-				{
-					PQ_ADD_VERT(poly, seg->v1->x, seg->v1->y, h);
-				}
-
-				RGL_BoundPolyQuad(poly);
-
-				RGL_RenderPolyQuad(poly, &dat2, DLightPlaneCoordFunc,
-(info->type == DLITE_Add ? 0 : tex_id),tex2_id,
-					/* pass */ 2+DL, BL_Add);
-
-				RGL_FreePolyQuad(poly);
-RGL_DrawUnits();
-
-			}
-		}
-	}
-#endif // DLIGHT_PROTOTYPE
 }
 
 static inline void AddNewDrawFloor(drawsub_c *dsub, extrafloor_t *ef,
@@ -2754,7 +2329,7 @@ static void RGL_DrawSubsector(drawsub_c *dsub)
 
 		for (SEGI = dsub->segs.begin(); SEGI != dsub->segs.end(); SEGI++)
 		{
-			RGL_BuildWalls(dfloor, (*SEGI)->seg);
+			RGL_DrawSeg(dfloor, (*SEGI)->seg);
 		}
 
 		RGL_DrawPlane(dfloor, dfloor->c_h, dfloor->ceil,  -1);
