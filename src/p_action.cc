@@ -57,7 +57,7 @@
 #include "z_zone.h"
 
 
-static int P_AttackGetSfxCategory(const mobj_t *mo)
+static int AttackSfxCat(const mobj_t *mo)
 {
 	int category = P_MobjGetSfxCategory(mo);
 
@@ -89,14 +89,14 @@ static int SfxFlags(const mobjtype_c *info)
 // parameters needed: linetype number & tag number, which are stored
 // in the state's `action_par' field as a pointer to two integers.
 // 
-void P_ActActivateLineType(mobj_t * object)
+void P_ActActivateLineType(mobj_t * mo)
 {
 	int *values;
   
-	if (!object->state || !object->state->action_par)
+	if (!mo->state || !mo->state->action_par)
 		return;
 
-	values = (int *) object->state->action_par;
+	values = (int *) mo->state->action_par;
   
 	// Note the `NULL' here: this prevents the activation from failing
 	// because the object isn't a PLAYER, for example.
@@ -110,26 +110,24 @@ void P_ActActivateLineType(mobj_t * object)
 // Allows things to enable or disable radius triggers (by tag number),
 // like linetypes can do already.
 //
-void P_ActEnableRadTrig(mobj_t * object)
+void P_ActEnableRadTrig(mobj_t * mo)
 {
-	int *value;
-  
-	if (!object->state || !object->state->action_par)
+	if (!mo->state || !mo->state->action_par)
 		return;
 
-	value = (int *) object->state->action_par;
-	RAD_EnableByTag(object, value[0], false);
+	int *value = (int *) mo->state->action_par;
+
+	RAD_EnableByTag(mo, value[0], false);
 }
 
-void P_ActDisableRadTrig(mobj_t * object)
+void P_ActDisableRadTrig(mobj_t * mo)
 {
-	int *value;
-  
-	if (!object->state || !object->state->action_par)
+	if (!mo->state || !mo->state->action_par)
 		return;
 
-	value = (int *) object->state->action_par;
-	RAD_EnableByTag(object, value[0], true);
+	int *value = (int *) mo->state->action_par;
+	
+	RAD_EnableByTag(mo, value[0], true);
 }
 
 //
@@ -378,30 +376,26 @@ void P_ActFaceTarget(mobj_t * object)
 		object->vertangle = ANG315;
 }
 
-//
-// P_ActMakeIntoCorpse
-//
-// Gives the effect of the object being a corpse....
-//
+
 void P_ActMakeIntoCorpse(mobj_t * mo)
 {
+	// Gives the effect of the object being a corpse....
+
 	if (mo->flags & MF_STEALTH)
 		mo->vis_target = VISIBLE;  // dead and very visible
 
 	// object is on ground, it can be walked over
 	mo->flags &= ~MF_SOLID;
 
-  mo->tag = 0;
+	mo->tag = 0;
 }
 
-//
-// P_BringCorpseToLife
-//
-// Bring a corpse back to life (the opposite of the above routine).
-// Handles players too !
-//
+
 void P_BringCorpseToLife(mobj_t * corpse)
 {
+	// Bring a corpse back to life (the opposite of the above routine).
+	// Handles players too !
+
 	const mobjtype_c *info = corpse->info;
 
 	corpse->flags = info->flags;
@@ -434,31 +428,25 @@ void P_BringCorpseToLife(mobj_t * corpse)
 		I_Error("Object %s has no RESURRECT states.\n", info->ddf.name.c_str());
 }
 
-//
-// P_ActResetSpreadCount
-//
-// Resets the spreader count for fixed-order spreaders, normally used at the
-// beginning of a set of missile states to ensure that an object fires in
-// the same object each time.
-//
-void P_ActResetSpreadCount(mobj_t * object)
+
+void P_ActResetSpreadCount(mobj_t * mo)
 {
-	object->spreadcount = 0;
+	// Resets the spreader count for fixed-order spreaders, normally used
+	// at the beginning of a set of missile states to ensure that an object
+	// fires in the same object each time.
+
+	mo->spreadcount = 0;
 }
 
 //-------------------------------------------------------------------
 //-------------------VISIBILITY HANDLING ROUTINES--------------------
 //-------------------------------------------------------------------
 
-//
-// P_ActTransSet
-//
-void P_ActTransSet(mobj_t * object)
+void P_ActTransSet(mobj_t * mo)
 {
-	const state_t *st;
 	float value = VISIBLE;
 
-	st = object->state;
+	const state_t *st = mo->state;
 
 	if (st && st->action_par)
 	{
@@ -466,18 +454,14 @@ void P_ActTransSet(mobj_t * object)
 		value = MAX(0.0f, MIN(1.0f, value));
 	}
 
-	object->visibility = object->vis_target = value;
+	mo->visibility = mo->vis_target = value;
 }
 
-//
-// P_ActTransFade
-//
-void P_ActTransFade(mobj_t * object)
+void P_ActTransFade(mobj_t * mo)
 {
-	const state_t *st;
 	float value = INVISIBLE;
 
-	st = object->state;
+	const state_t *st = mo->state;
 
 	if (st && st->action_par)
 	{
@@ -485,18 +469,14 @@ void P_ActTransFade(mobj_t * object)
 		value = MAX(0.0f, MIN(1.0f, value));
 	}
 
-	object->vis_target = value;
+	mo->vis_target = value;
 }
 
-//
-// P_ActTransLess
-//
-void P_ActTransLess(mobj_t * object)
+void P_ActTransLess(mobj_t * mo)
 {
-	const state_t *st;
 	float value = 0.05f;
 
-	st = object->state;
+	const state_t *st = mo->state;
 
 	if (st && st->action_par)
 	{
@@ -504,21 +484,17 @@ void P_ActTransLess(mobj_t * object)
 		value = MAX(0.0f, MIN(1.0f, value));
 	}
 
-	object->vis_target -= value;
+	mo->vis_target -= value;
 
-	if (object->vis_target < INVISIBLE)
-		object->vis_target = INVISIBLE;
+	if (mo->vis_target < INVISIBLE)
+		mo->vis_target = INVISIBLE;
 }
 
-//
-// P_ActTransMore
-//
-void P_ActTransMore(mobj_t * object)
+void P_ActTransMore(mobj_t * mo)
 {
-	const state_t *st;
 	float value = 0.05f;
 
-	st = object->state;
+	const state_t *st = mo->state;
 
 	if (st && st->action_par)
 	{
@@ -526,10 +502,10 @@ void P_ActTransMore(mobj_t * object)
 		value = MAX(0.0f, MIN(1.0f, value));
 	}
 
-	object->vis_target += value;
+	mo->vis_target += value;
 
-	if (object->vis_target > VISIBLE)
-		object->vis_target = VISIBLE;
+	if (mo->vis_target > VISIBLE)
+		mo->vis_target = VISIBLE;
 }
 
 //
@@ -1148,7 +1124,7 @@ static mobj_t *DoLaunchProjectile(mobj_t * source, float tx, float ty, float tz,
 	// launch sound
 	if (projectile->info && projectile->info->seesound)
 	{
-		int category = P_AttackGetSfxCategory(source);
+		int category = AttackSfxCat(source);
 		int flags = SfxFlags(projectile->info);
 
 		mobj_t *sfx_source = projectile;
@@ -1723,7 +1699,7 @@ void P_ActHomeToSpot(mobj_t * projectile)
 //
 // -ACB- 1998/08/15
 //
-static void LaunchOrderedSpread(mobj_t * object)
+static void LaunchOrderedSpread(mobj_t * mo)
 {
 	// left side = angle modifier
 	// right side = object or projectile (true for object).
@@ -1737,26 +1713,27 @@ static void LaunchOrderedSpread(mobj_t * object)
 		(ANG90 / 16), false
 	};
 
-	const atkdef_c *attack = object->currentattack;
+	const atkdef_c *attack = mo->currentattack;
 
 	if (attack == NULL)
 		return;
 
-	int count = object->spreadcount;
+	int count = mo->spreadcount;
 
 	if (count < 0 || count > 12)
-		count = object->spreadcount = 0;
+		count = mo->spreadcount = 0;
 
-  // object or projectile? - if true is the object, else it is the projectile
+	// object or projectile?
+	// true --> the object, false --> the projectile.
 	if (spreadorder[count + 1])
 	{
-		object->angle += spreadorder[count];
+		mo->angle += spreadorder[count];
 
-		LaunchProjectile(object, object->target, attack->atk_mobj);
+		LaunchProjectile(mo, mo->target, attack->atk_mobj);
 	}
 	else
 	{
-		mobj_t *projectile = LaunchProjectile(object, object->target,
+		mobj_t *projectile = LaunchProjectile(mo, mo->target,
 											  attack->atk_mobj);
 		if (projectile == NULL)
 			return;
@@ -1767,7 +1744,7 @@ static void LaunchOrderedSpread(mobj_t * object)
 		projectile->mom.y = projectile->speed * M_Sin(projectile->angle);
 	}
 
-	object->spreadcount += 2;
+	mo->spreadcount += 2;
 }
 
 //
@@ -1782,13 +1759,13 @@ static void LaunchOrderedSpread(mobj_t * object)
 //
 // -ACB- 1998/08/15
 //
-static void LaunchRandomSpread(mobj_t * object)
+static void LaunchRandomSpread(mobj_t * mo)
 {
-	if (object->currentattack == NULL)
+	if (mo->currentattack == NULL)
 		return;
 
-	mobj_t *projectile = LaunchProjectile(object, object->target,
-								  object->currentattack->atk_mobj);
+	mobj_t *projectile = LaunchProjectile(mo, mo->target,
+								  mo->currentattack->atk_mobj);
 	if (projectile == NULL)
 		return;
 
@@ -1813,9 +1790,9 @@ static void LaunchRandomSpread(mobj_t * object)
 //-------------------------------------------------------------------
 
 // -KM- 1998/11/25 Added uncertainty to the z component of the line.
-static void ShotAttack(mobj_t * object)
+static void ShotAttack(mobj_t * mo)
 {
-	const atkdef_c *attack = object->currentattack;
+	const atkdef_c *attack = mo->currentattack;
 
 	if (! attack)
 		return;
@@ -1823,16 +1800,16 @@ static void ShotAttack(mobj_t * object)
 	float range = (attack->range > 0) ? attack->range : MISSILERANGE;
 
 	// -ACB- 1998/09/05 Remember to use the object angle, fool!
-	angle_t objangle = object->angle;
+	angle_t objangle = mo->angle;
 	float objslope;
 
-	if ((object->player && !object->target) || (attack->flags & AF_NoTarget))
-		objslope = M_Tan(object->vertangle);
+	if ((mo->player && !mo->target) || (attack->flags & AF_NoTarget))
+		objslope = M_Tan(mo->vertangle);
 	else
-		P_AimLineAttack(object, objangle, range, &objslope);
+		P_AimLineAttack(mo, objangle, range, &objslope);
 
 	if (attack->sound)
-		S_StartFX(attack->sound, P_AttackGetSfxCategory(object), object);
+		S_StartFX(attack->sound, AttackSfxCat(mo), mo);
 
 	// -AJA- 1999/09/10: apply the attack's angle offsets.
 	objangle -= attack->angle_offset;
@@ -1844,7 +1821,7 @@ static void ShotAttack(mobj_t * object)
 		float slope = objslope;
 
 		// is the attack not accurate?
-		if (!object->player || object->player->refire > 0)
+		if (!mo->player || mo->player->refire > 0)
 		{
 			if (attack->accuracy_angle > 0)
 				angle += (attack->accuracy_angle >> 8) * P_RandomNegPos();
@@ -1856,10 +1833,10 @@ static void ShotAttack(mobj_t * object)
 		float damage;
 		DAMAGE_COMPUTE(damage, &attack->damage);
 
-		if (object->player && object->player->powers[PW_Berserk] != 0.0f)
+		if (mo->player && mo->player->powers[PW_Berserk] != 0.0f)
 			damage *= attack->berserk_mul;
 
-		P_LineAttack(object, angle, range, slope, damage,
+		P_LineAttack(mo, angle, range, slope, damage,
 					 &attack->damage, attack->puff);
 	}
 }
@@ -1934,7 +1911,7 @@ static void DoMeleeAttack(mobj_t * mo)
 	}
 
 	if (attack->sound)
-		S_StartFX(attack->sound, P_AttackGetSfxCategory(mo), mo);
+		S_StartFX(attack->sound, AttackSfxCat(mo), mo);
 
 	float slope;
 
@@ -2238,7 +2215,7 @@ static void ObjectSpawning(mobj_t * parent, angle_t angle)
 	}
 
 	if (attack->sound)
-		S_StartFX(attack->sound, P_AttackGetSfxCategory(parent), parent);
+		S_StartFX(attack->sound, AttackSfxCat(parent), parent);
 
 	// If the object cannot move from its position, remove it or kill it.
 	if (!P_TryMove(child, child->x, child->y))
