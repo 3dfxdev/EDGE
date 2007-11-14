@@ -1385,8 +1385,8 @@ static void DoWeaponShoot(mobj_t * mo, int ATK)
 		attack = (atkdef_c *) psp->state->action_par;
 
 	if (! attack)
-		I_Error("Weapon [%s] missing %sattack.\n", info->ddf.name.c_str(),
-			ATK ? "second " : "");
+		I_Error("Weapon [%s] missing attack for %s action.\n",
+			info->ddf.name.c_str(), ATK ? "SECSHOOT" : "SHOOT");
 
 	// Some do not need ammunition anyway.
 	// Return if current ammunition sufficient.
