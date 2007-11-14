@@ -625,30 +625,31 @@ void P_ActSetSkin(mobj_t * mo)
 //------------------- MOVEMENT ROUTINES -----------------------------
 //-------------------------------------------------------------------
 
-void P_ActFaceDir(mobj_t * object)
+void P_ActFaceDir(mobj_t * mo)
 {
-	const state_t *st = object->state;
+	const state_t *st = mo->state;
 
 	if (st && st->action_par)
-		object->angle = *(angle_t *)st->action_par;
+		mo->angle = *(angle_t *)st->action_par;
 	else
-		object->angle = 0;
+		mo->angle = 0;
 }
 
-void P_ActTurnDir(mobj_t * object)
+void P_ActTurnDir(mobj_t * mo)
 {
-	const state_t *st = object->state;
+	const state_t *st = mo->state;
+
 	angle_t turn = ANG180;
 
 	if (st && st->action_par)
-    turn = *(angle_t *)st->action_par;
+		turn = *(angle_t *)st->action_par;
 
-	object->angle += turn;
+	mo->angle += turn;
 }
 
-void P_ActTurnRandom(mobj_t * object)
+void P_ActTurnRandom(mobj_t * mo)
 {
-	const state_t *st = object->state;
+	const state_t *st = mo->state;
 	int turn = 359;
 
 	if (st && st->action_par)
@@ -659,72 +660,72 @@ void P_ActTurnRandom(mobj_t * object)
 	turn = turn * P_Random() / 90;  // 10 bits of angle
    
 	if (turn < 0)
-		object->angle -= (angle_t)((-turn) << (ANGLEBITS - 10));
+		mo->angle -= (angle_t)((-turn) << (ANGLEBITS - 10));
 	else
-		object->angle += (angle_t)(turn << (ANGLEBITS - 10));
+		mo->angle += (angle_t)(turn << (ANGLEBITS - 10));
 }
 
-void P_ActMlookFace(mobj_t * object)
+void P_ActMlookFace(mobj_t * mo)
 {
-	const state_t *st = object->state;
+	const state_t *st = mo->state;
 
 	if (st && st->action_par)
-		object->vertangle = M_ATan(*(float *)st->action_par);
+		mo->vertangle = M_ATan(*(float *)st->action_par);
 	else
-		object->vertangle = 0;
+		mo->vertangle = 0;
 }
 
-void P_ActMlookTurn(mobj_t * object)
+void P_ActMlookTurn(mobj_t * mo)
 {
-	const state_t *st = object->state;
+	const state_t *st = mo->state;
 
 	if (st && st->action_par)
-		object->vertangle = M_ATan(*(float *)st->action_par);
+		mo->vertangle = M_ATan(*(float *)st->action_par);
 }
 
-void P_ActMoveFwd(mobj_t * object)
+void P_ActMoveFwd(mobj_t * mo)
 {
-	const state_t *st = object->state;
+	const state_t *st = mo->state;
 
 	if (st && st->action_par)
 	{
 		float amount = *(float *)st->action_par;
     
-		float dx = M_Cos(object->angle);
-		float dy = M_Sin(object->angle);
+		float dx = M_Cos(mo->angle);
+		float dy = M_Sin(mo->angle);
 
-		object->mom.x += dx * amount;
-		object->mom.y += dy * amount;
+		mo->mom.x += dx * amount;
+		mo->mom.y += dy * amount;
 	}
 }
 
-void P_ActMoveRight(mobj_t * object)
+void P_ActMoveRight(mobj_t * mo)
 {
-	const state_t *st = object->state;
+	const state_t *st = mo->state;
 
 	if (st && st->action_par)
 	{
 		float amount = *(float *)st->action_par;
     
-		float dx = M_Cos(object->angle - ANG90);
-		float dy = M_Sin(object->angle - ANG90);
+		float dx = M_Cos(mo->angle - ANG90);
+		float dy = M_Sin(mo->angle - ANG90);
 
-		object->mom.x += dx * amount;
-		object->mom.y += dy * amount;
+		mo->mom.x += dx * amount;
+		mo->mom.y += dy * amount;
 	}
 }
 
-void P_ActMoveUp(mobj_t * object)
+void P_ActMoveUp(mobj_t * mo)
 {
-	const state_t *st = object->state;
+	const state_t *st = mo->state;
 
 	if (st && st->action_par)
-		object->mom.z += *(float *)st->action_par;
+		mo->mom.z += *(float *)st->action_par;
 }
 
-void P_ActStopMoving(mobj_t * object)
+void P_ActStopMoving(mobj_t * mo)
 {
-	object->mom.x = object->mom.y = object->mom.z = 0;
+	mo->mom.x = mo->mom.y = mo->mom.z = 0;
 }
 
 
@@ -732,13 +733,10 @@ void P_ActStopMoving(mobj_t * object)
 //-------------------SOUND CAUSING ROUTINES--------------------------
 //-------------------------------------------------------------------
 
-//
-// P_ActPlaySound
-//
-// Generate an arbitrary sound.
-//
 void P_ActPlaySound(mobj_t * mo)
 {
+	// Generate an arbitrary sound.
+
 	sfx_t *sound = NULL;
 
 	if (mo->state && mo->state->action_par)
@@ -754,186 +752,129 @@ void P_ActPlaySound(mobj_t * mo)
 	S_StartFX(sound, P_MobjGetSfxCategory(mo), mo);
 }
 
-//
-// P_ActKillSound
-//
-// Kill any current sounds from this thing.
-//
+
 void P_ActKillSound(mobj_t * mo)
 {
+	// Kill any current sounds from this thing.
+
 	S_StopFX(mo);
 }
 
-//
-// P_ActMakeAmbientSound
-//
-// Just a sound generating procedure that cause the sound ref
-// in seesound to be generated.
-//
-void P_ActMakeAmbientSound(mobj_t * object)
-{
-	if (object->info->seesound)
-		S_StartFX(object->info->seesound, P_MobjGetSfxCategory(object), object);
 
-#ifdef DEVELOPERS
+void P_ActMakeAmbientSound(mobj_t * mo)
+{
+	// Just a sound generating procedure that cause the sound ref
+	// in seesound to be generated.
+
+	if (mo->info->seesound)
+		S_StartFX(mo->info->seesound, P_MobjGetSfxCategory(mo), mo);
 	else
-		L_WriteDebug("%s has no ambient sound\n", object->info->ddf.name.c_str());
-#endif
+		I_Debugf("%s has no ambient sound\n", mo->info->ddf.name.c_str());
 }
 
-//
-// P_ActMakeAmbientSoundRandom
-//
-// Give a small "random" chance that this object will make its
-// ambient sound. Currently this is a set value of 50, however
-// the code that drives this, should allow for the user to set
-// the value, note for further DDF Development.
-//
-void P_ActMakeAmbientSoundRandom(mobj_t * object)
+
+void P_ActMakeAmbientSoundRandom(mobj_t * mo)
 {
-	if (object->info->seesound)
+	// Give a small "random" chance that this object will make its
+	// ambient sound. Currently this is a set value of 50, however
+	// the code that drives this, should allow for the user to set
+	// the value, note for further DDF Development.
+
+	if (mo->info->seesound)
 	{
 		if (M_Random() < 50)
-			S_StartFX(object->info->seesound, P_MobjGetSfxCategory(object), object);
+			S_StartFX(mo->info->seesound, P_MobjGetSfxCategory(mo), mo);
 	}
-#ifdef DEVELOPERS
 	else
-	{
-		L_WriteDebug("%s has no ambient sound\n", object->info->ddf.name.c_str());
-		return;
-	}
-#endif
-
+		I_Debugf("%s has no ambient sound\n", mo->info->ddf.name.c_str());
 }
 
-//
-// P_ActMakeActiveSound
-//
-// Just a sound generating procedure that cause the sound ref
-// in activesound to be generated.
-//
-// -KM- 1999/01/31
-//
-void P_ActMakeActiveSound(mobj_t * object)
-{
-	if (object->info->activesound)
-		S_StartFX(object->info->activesound, P_MobjGetSfxCategory(object), object);
 
-#ifdef DEVELOPERS
+void P_ActMakeActiveSound(mobj_t * mo)
+{
+	// Just a sound generating procedure that cause the sound ref
+	// in activesound to be generated.
+	//
+	// -KM- 1999/01/31
+
+	if (mo->info->activesound)
+		S_StartFX(mo->info->activesound, P_MobjGetSfxCategory(mo), mo);
 	else
-		L_WriteDebug("%s has no ambient sound\n", object->info->ddf.name.c_str());
-#endif
+		I_Debugf("%s has no ambient sound\n", mo->info->ddf.name.c_str());
 }
 
-//
-// P_ActMakeDyingSound
-//
-// This procedure is like everyother sound generating
-// procedure with the exception that if the object is
-// a boss (EF_ALWAYSLOUD extended flag) then the sound is
-// generated at full volume (source = NULL).
-//
-void P_ActMakeDyingSound(mobj_t * object)
-{
-	sfx_t *sound;
 
-	sound = object->info->deathsound;
+void P_ActMakeDyingSound(mobj_t * mo)
+{
+	// This procedure is like everyother sound generating
+	// procedure with the exception that if the object is
+	// a boss (EF_ALWAYSLOUD extended flag) then the sound is
+	// generated at full volume (source = NULL).
+
+	sfx_t *sound = mo->info->deathsound;
 
 	if (sound)
-	{
-		S_StartFX(sound, P_MobjGetSfxCategory(object),
-				       object, SfxFlags(object->info));
-		return;
-	}
-
-#ifdef DEVELOPERS
-	L_WriteDebug("%s has no death sound\n", object->info->ddf.name.c_str());
-#endif
-}
-
-//
-// P_ActMakePainSound (Ow!! it hurts!)
-//
-void P_ActMakePainSound(mobj_t * object)
-{
-	if (object->info->painsound)
-	{
-		S_StartFX(object->info->painsound, P_MobjGetSfxCategory(object),
-				       object, SfxFlags(object->info));
-	}
-#ifdef DEVELOPERS
+		S_StartFX(sound, P_MobjGetSfxCategory(mo), mo, SfxFlags(mo->info));
 	else
-	{
-		L_WriteDebug("%s has no pain sound\n", object->info->ddf.name.c_str());
-	}
-#endif
+		I_Debugf("%s has no death sound\n", mo->info->ddf.name.c_str());
 }
 
-//
-// P_ActMakeOverKillSound
-//
-// -AJA- 1999/12/01: made user definable.
-//
-void P_ActMakeOverKillSound(mobj_t * object)
+
+void P_ActMakePainSound(mobj_t * mo)
 {
-	if (object->info->overkill_sound)
-	{
-		S_StartFX(object->info->overkill_sound, P_MobjGetSfxCategory(object),
-					   object, SfxFlags(object->info));
-	}
-#ifdef DEVELOPERS
+	// Ow!! it hurts!
+
+	if (mo->info->painsound)
+		S_StartFX(mo->info->painsound, P_MobjGetSfxCategory(mo),
+				       mo, SfxFlags(mo->info));
 	else
-		L_WriteDebug("%s has no overkill sound\n", object->info->ddf.name.c_str());
-#endif
+		I_Debugf("%s has no pain sound\n", mo->info->ddf.name.c_str());
 }
 
-//
-// P_ActMakeCloseAttemptSound
-//
-// Attempting close combat sound
-//
-void P_ActMakeCloseAttemptSound(mobj_t * object)
-{
-	sfx_t *sound;
 
-	if (! object->info->closecombat)
+void P_ActMakeOverKillSound(mobj_t * mo)
+{
+	if (mo->info->overkill_sound)
+		S_StartFX(mo->info->overkill_sound, P_MobjGetSfxCategory(mo),
+					   mo, SfxFlags(mo->info));
+	else
+		I_Debugf("%s has no overkill sound\n", mo->info->ddf.name.c_str());
+}
+
+
+void P_ActMakeCloseAttemptSound(mobj_t * mo)
+{
+	// Attempting close combat sound
+
+	if (! mo->info->closecombat)
 		I_Error("Object [%s] used CLOSEATTEMPTSND action, "
-				"but has no CLOSE_ATTACK\n", object->info->ddf.name.c_str());
+				"but has no CLOSE_ATTACK\n", mo->info->ddf.name.c_str());
    
-	sound = object->info->closecombat->initsound;
+	sfx_t *sound = mo->info->closecombat->initsound;
 
 	if (sound)
-	{
-		S_StartFX(sound, P_MobjGetSfxCategory(object), object);
-	}
-#ifdef DEVELOPERS
+		S_StartFX(sound, P_MobjGetSfxCategory(mo), mo);
 	else
-		L_WriteDebug("%s has no close combat attempt sound\n", object->info->ddf.name.c_str());
-#endif
+		I_Debugf("%s has no close combat attempt sound\n", mo->info->ddf.name.c_str());
 }
 
-//
-// P_ActMakeRangeAttemptSound
-//
-// Attempting attack at range sound
-//
-void P_ActMakeRangeAttemptSound(mobj_t * object)
+
+void P_ActMakeRangeAttemptSound(mobj_t * mo)
 {
-	sfx_t *sound;
+	// Attempting range attack sound
 
-	if (! object->info->rangeattack)
+	if (! mo->info->rangeattack)
 		I_Error("Object [%s] used RANGEATTEMPTSND action, "
-				"but has no RANGE_ATTACK\n", object->info->ddf.name.c_str());     
+				"but has no RANGE_ATTACK\n", mo->info->ddf.name.c_str());     
 
-	sound = object->info->rangeattack->initsound;
+	sfx_t *sound = mo->info->rangeattack->initsound;
 
 	if (sound)
-		S_StartFX(sound, P_MobjGetSfxCategory(object), object);
-#ifdef DEVELOPERS
+		S_StartFX(sound, P_MobjGetSfxCategory(mo), mo);
 	else
-		L_WriteDebug("%s has no range attack attempt sound\n", object->info->ddf.name.c_str());
-#endif
+		I_Debugf("%s has no range attack attempt sound\n", mo->info->ddf.name.c_str());
 }
+
 
 //-------------------------------------------------------------------
 //-------------------EXPLOSION DAMAGE ROUTINES-----------------------
