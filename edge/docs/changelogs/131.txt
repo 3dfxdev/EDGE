@@ -10,10 +10,11 @@ Bugs fixed
 
 - ID(K)FA cheats now give clip weapons full ammo.
 - fixed problem saving the 'mipmapping' setting.
-- fix for filenames containing two dots (like "foo.bar.wad").
-- proper test for existing titlepics in GAMES.DDF.
-- fixed PLAYSOUND console cmd when sound is not found.
 - custom sky-boxes should always be used when present.
+- fix for filenames (like "foo.bar.wad") containing two dots.
+- proper test for existing titlepics in GAMES.DDF.
+- fixed console PLAYSOUND cmd when sound is not found.
+- fixed badly synchronised flash state of super-shotgun.
 
 
 Features removed
@@ -32,8 +33,8 @@ General improvements
   MODULATE and ADD (instead of QUADRATIC and LINEAR)
 
 + improved sky emulation, replacing all the 'SKY STRETCH' options
-  with a single mode based on the old MIRROR mode, but tweaked to
-  be more compatible with existing DOOM skies.  The old ORIGINAL
+  with a single mode based on the old MIRROR mode, but tweaked for
+  better compatibility with existing DOOM skies.  The old ORIGINAL
   mode now kicks in automatically when MLOOK is disabled.
 
 - better gamma handling (now done by the video driver).
@@ -66,13 +67,26 @@ DDF / RTS Goodies:
 	WEAKNESS.MULTIPLY=3.0;
 	WEAKNESS.PAINCHANCE=100%;
 
-+ BECOME action
++ BECOME action for THINGS.DDF allows a thing to turn into another
+  type of thing.  Can be used on players too.  Health and Side
+  values remain the same.  The new state frame can also be given
+  (the default is IDLE:1).  Note that becoming something larger
+  (bigger RADIUS) can cause the thing to get stuck in walls or
+  other objects.  Examples:
+
+    BECOME(THE_CYBERDEMON)
+    BECOME(IMP,PAIN:2)
 
 + armour association, yada yada
 
-- PURPLE armour
+- PURPLE armour was added, bringing the number of armours to 5.
+  The default protection is 66%, and the layering order (from
+  innermost to outermost) is: BLUE, GREEN, PURPLE, YELLOW, RED.
 
-- SPAWN action
+- SPAWN action is similar to DROPITEM action, but it doesn't
+  force the object to be non-SOLID like DROPITEM does, plus the
+  spawned object will have the same Angle and Side as the parent
+  object.  The name must be given in brackets, e.g. SPAWN(IMP).
 
 - INVULNERABLE special makes the thing completely immune to
   all attacks.  There are also two new actions to dynamically
