@@ -1212,14 +1212,12 @@ static void EmulateFloodPlane(const drawfloor_t *dfloor,
 		surf->override_p : &flood_ref->props;
 
 
+	SYS_ASSERT(props);
+	SYS_ASSERT(surf->image);
 
 	flood_emu_data_t data;
 
-
-	SYS_ASSERT(surf->image);
-
 	data.tex_id = W_ImageCache(surf->image);
-
 	data.pass = 0;
 
 	data.R = data.G = data.B = 1.0f;
@@ -1255,17 +1253,19 @@ static void EmulateFloodPlane(const drawfloor_t *dfloor,
 		if (piece_col >= MAX_FLOOD_VERT && piece_row >= MAX_FLOOD_VERT)
 			break;
 
-		if (piece_h >= piece_w && piece_row < MAX_FLOOD_VERT)
-		{
-			piece_h /= 2.0;
-			piece_row *= 2;
-		}
-		else
+		if (piece_w >= piece_h && piece_col < MAX_FLOOD_VERT)
 		{
 			piece_w /= 2.0;
 			piece_col *= 2;
 		}
+		else
+		{
+			piece_h /= 2.0;
+			piece_row *= 2;
+		}
 	}
+
+	SYS_ASSERT(piece_col <= MAX_FLOOD_VERT);
 
 	float sx = cur_seg->v1->x;
 	float sy = cur_seg->v1->y;
@@ -1273,7 +1273,6 @@ static void EmulateFloodPlane(const drawfloor_t *dfloor,
 	float dx = cur_seg->v2->x - sx;
 	float dy = cur_seg->v2->y - sy;
 	float dh = h2 - h1;
-
 
 	data.piece_row = piece_row;
 	data.piece_col = piece_col;
@@ -2327,8 +2326,6 @@ static void RGL_DrawSubsector(drawsub_c *dsub)
 
 		if (! solid_mode)
 		{
-///---		R_ColmapPipe_SetProps(dfloor->props);
-
 			RGL_DrawSortThings(dfloor);
   		}
 	}
