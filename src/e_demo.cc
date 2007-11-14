@@ -342,8 +342,8 @@ void G_DoPlayDemo(void)
 		return;
 	}
 
-	if (version >= (0x130 << 8))
-		I_Warning("Demo is for future version: EDGE %x.%02x !\n",
+	if ((version >> 8) != EDGEVERHEX)
+		I_Warning("Demo is from a different version: EDGE %x.%02x !\n",
 			(version >> 16), (version >> 8) & 0xFF);
 
 	saveglobals_t *globs = DEM_LoadGLOB();
