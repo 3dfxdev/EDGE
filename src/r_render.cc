@@ -808,9 +808,9 @@ static void DrawWallPart(drawfloor_t *dfloor,
 						 bool mid_masked, bool opaque,
    						 float tex_x1, float tex_x2,
 						 region_properties_t *props = NULL)
-
 {
-	// Note: tex_x1 and tex_x2 must be in world coordinates
+	// Note: tex_x1 and tex_x2 are in world coordinates.
+	//       top, bottom and tex_top_h as well.
 
 	surface_t *surf = wt->surface;
 
@@ -824,6 +824,8 @@ static void DrawWallPart(drawfloor_t *dfloor,
 	{
 		float tmp_x = x1; x1 = x2; x2 = tmp_x;
 		float tmp_y = y1; y1 = y2; y2 = tmp_y;
+
+		tmp_x = tex_x1; tex_x1 = 0-tex_x2; tex_x2 = 0-tmp_x;
 	}
 
 	float trans = surf->translucency;
@@ -861,10 +863,6 @@ static void DrawWallPart(drawfloor_t *dfloor,
 	tex_x1 = (tex_x1 * surf->x_mat.x) / total_w;
 	tex_x2 = (tex_x2 * surf->x_mat.x) / total_w;
 
-	if (num_active_mirrors % 2)
-	{
-		float T = tex_x1; tex_x1 = 0 - tex_x2; tex_x2 = 0 - T;
-	}
 
 	float tx0    = tex_x1;
 	float tx_mul = tex_x2 - tex_x1;
@@ -982,142 +980,223 @@ static void DrawWallPart(drawfloor_t *dfloor,
 }
 
 static void DrawSlidingDoor(drawfloor_t *dfloor, float c, float f,
-						 float tex_top_h, wall_tile_t *wt,
-						 bool opaque, float x_offset)
+						    float tex_top_h, wall_tile_t *wt,
+						    bool opaque, float x_offset)
 {
-	float x1 = cur_seg->v1->x;
-	float y1 = cur_seg->v1->y;
-	float x2 = cur_seg->v2->x;
-	float y2 = cur_seg->v2->y;
-
-	float xy_ofs = cur_seg->offset;
-	float xy_len = cur_seg->length;
-
-	float tex_x1 = cur_seg->offset;
-	float tex_x2 = tex_x1 + cur_seg->length;
-
-	tex_x1 += x_offset;
-	tex_x2 += x_offset;
-
 	slider_move_t *smov = cur_seg->linedef->slider_move;
 
-	int mid_masked = 1;
+	line_t *ld = cur_seg->linedef;
 
-	if (cur_seg->linedef->slider_move)
-		mid_masked = 2;
+///---	float x1 = cur_seg->v1->x;
+///---	float y1 = cur_seg->v1->y;
+///---	float x2 = cur_seg->v2->x;
+///---	float y2 = cur_seg->v2->y;
+///---
+///---	float xy_ofs = cur_seg->offset;
+///---	float xy_len = cur_seg->length;
+///---
+///---	float tex_x1 = cur_seg->offset;
+///---	float tex_x2 = tex_x1 + cur_seg->length;
+///---
+///---	tex_x1 += x_offset;
+///---	tex_x2 += x_offset;
+///---
+///---	float dx = (x2 - x1) / xy_len;
+///---	float dy = (y2 - y1) / xy_len;
+///---
+///---	float im_width = IM_WIDTH(wt->surface->image);
 
-	float start, end;
-	float seg_start, seg_end;
-
-	// horizontal sliding door hack
-	if (mid_masked >= 2)
-	{
-		line_t *L;
-
-		if (cur_seg->side == 0)
-		{
-			seg_start = xy_ofs;
-			seg_end   = seg_start + xy_len;
-		}
-		else
-		{
-			seg_end   = smov->line_len - xy_ofs;
-			seg_start = seg_end - xy_len;
-		}
-
-		SYS_ASSERT(smov);
-
-		switch (smov->info->type * 2 + (mid_masked & 1))
-		{
-			case (SLIDE_Left * 2 + 0):
-				start = 0;
-				end = smov->line_len - smov->opening;
-				break;
-
-			case (SLIDE_Right * 2 + 0):
-				start = smov->opening;
-				end = smov->line_len;
-				break;
-
-			case (SLIDE_Center * 2 + 0):
-				start = 0;
-				end = (smov->line_len - smov->opening) / 2;
-				break;
-
-			case (SLIDE_Center * 2 + 1):
-				start = (smov->line_len + smov->opening) / 2;
-				end = smov->line_len;
-				break;
-
-			default:
-				return;
-		}
-
-		start = MAX(start, seg_start);
-		end = MIN(end, seg_end);
-
-		// no overlap ?
-		if (end <= start + 1)
-			return;
-
-		L = cur_seg->linedef;
-		SYS_ASSERT(smov->line_len > 0);
-
-		x1 = L->v1->x + L->dx * start / smov->line_len;
-		y1 = L->v1->y + L->dy * start / smov->line_len;
-
-		x2 = L->v1->x + L->dx * end / smov->line_len;
-		y2 = L->v1->y + L->dy * end / smov->line_len;
-
-		switch (smov->info->type * 2 + (mid_masked & 1))
-		{
-		case (SLIDE_Left * 2 + 0):
-			tex_x1 = seg_start + smov->opening;
-			tex_x2 = seg_end   + smov->opening;
-			break;
-
-		case (SLIDE_Right * 2 + 0):
-			tex_x1 = seg_start - smov->opening;
-			tex_x2 = seg_end   - smov->opening;
-			break;
-
-		case (SLIDE_Center * 2 + 0):
-			tex_x1 = seg_start + smov->opening/2;
-			tex_x2 = seg_end   + smov->opening/2;
-			break;
-
-		case (SLIDE_Center * 2 + 1):
-			tex_x1 = seg_start - smov->opening/2;
-			tex_x2 = seg_end   - smov->opening/2;
-			break;
-		}
-
-		if (cur_seg->side == 1)
-		{
-			float tex_tmp = tex_x1;
-			tex_x1 = tex_x2;
-			tex_x2 = tex_tmp;
-		}
-	}
-	else if (mid_masked == 1 && cur_seg->linedef->special &&
-		cur_seg->linedef->special->s.type != SLIDE_None)
-	{
-		if (cur_seg->side == 1)
-		{
-			tex_x1 = IM_WIDTH(wt->surface->image) - tex_x1;
-			tex_x2 = IM_WIDTH(wt->surface->image) - tex_x2;
-		}
-	}
-
-	DrawWallPart(dfloor, x1,y1, x2,y2, c, f, tex_top_h, wt, true, opaque, tex_x1, tex_x2);
-
+	int num_parts = 1;
 	if (cur_seg->linedef->special->s.type == SLIDE_Center)
-	{
-		start = (smov->line_len + smov->opening) / 2;
-		end = smov->line_len;
+		num_parts = 2;
 
-		DrawWallPart(dfloor, x1,y1, x2,y2, c, f, tex_top_h, wt, true, opaque, tex_x1, tex_x2);
+	// extend of current seg along the linedef
+	float s_seg, e_seg;
+
+	if (cur_seg->side == 0)
+	{
+		s_seg = cur_seg->offset;
+		e_seg = s_seg + cur_seg->length;
 	}
+	else
+	{
+		e_seg = smov->line_len - cur_seg->offset;
+		s_seg = e_seg - cur_seg->length;
+	}
+
+	for (int part = 0; part < num_parts; part++)
+	{
+		float s_along, s_tex;
+		float e_along, e_tex;
+
+		switch (cur_seg->linedef->special->s.type)
+		{
+			case SLIDE_Left:
+				s_along = 0;
+				e_along = smov->line_len - smov->opening;
+
+				s_tex   = -e_along;
+				e_tex   = 0;
+				break;
+
+			case SLIDE_Right:
+				s_along = smov->opening;
+				e_along = smov->line_len;
+
+				s_tex   = 0;
+				e_tex   = e_along - s_along;
+				break;
+
+			case SLIDE_Center:
+				if (part == 0)
+				{
+					s_along = 0;
+					e_along = (smov->line_len - smov->opening) / 2;
+
+					s_tex   = -e_along;
+					e_tex   = 0;
+				}
+				else
+				{
+					s_along = (smov->line_len + smov->opening) / 2;
+					e_along = smov->line_len;
+
+					s_tex   = 0;
+					e_tex   = e_along - s_along;
+				}
+				break;
+				
+			default:
+				I_Error("INTERNAL ERROR: unknown slidemove type!\n");
+				return; /* NOT REACHED */
+		}
+		
+///---		// horizontal sliding door hack
+///---		if (mid_masked >= 2)
+///---		{
+///---			line_t *L;
+///---
+///---			if (cur_seg->side == 0)
+///---			{
+///---				seg_start = xy_ofs;
+///---				seg_end   = seg_start + xy_len;
+///---			}
+///---			else
+///---			{
+///---				seg_end   = smov->line_len - xy_ofs;
+///---				seg_start = seg_end - xy_len;
+///---			}
+///---
+///---			SYS_ASSERT(smov);
+///---
+///---			switch (smov->info->type * 2 + (mid_masked & 1))
+///---			{
+///---				case (SLIDE_Left * 2 + 0):
+///---					start = 0;
+///---					end = smov->line_len - smov->opening;
+///---					break;
+///---
+///---				case (SLIDE_Right * 2 + 0):
+///---					start = smov->opening;
+///---					end = smov->line_len;
+///---					break;
+///---
+///---				case (SLIDE_Center * 2 + 0):
+///---					start = 0;
+///---					end = (smov->line_len - smov->opening) / 2;
+///---					break;
+///---
+///---				case (SLIDE_Center * 2 + 1):
+///---					start = (smov->line_len + smov->opening) / 2;
+///---					end = smov->line_len;
+///---					break;
+///---
+///---				default:
+///---					return;
+///---			}
+///---
+///---			start = MAX(start, seg_start);
+///---			end = MIN(end, seg_end);
+///---
+///---			// no overlap ?
+///---			if (end <= start + 1)
+///---				return;
+///---
+///---			L = cur_seg->linedef;
+///---			SYS_ASSERT(smov->line_len > 0);
+///---
+///---			x1 = L->v1->x + L->dx * start / smov->line_len;
+///---			y1 = L->v1->y + L->dy * start / smov->line_len;
+///---
+///---			x2 = L->v1->x + L->dx * end / smov->line_len;
+///---			y2 = L->v1->y + L->dy * end / smov->line_len;
+///---
+///---			switch (smov->info->type * 2 + (mid_masked & 1))
+///---			{
+///---			case (SLIDE_Left * 2 + 0):
+///---				tex_x1 = seg_start + smov->opening;
+///---				tex_x2 = seg_end   + smov->opening;
+///---				break;
+///---
+///---			case (SLIDE_Right * 2 + 0):
+///---				tex_x1 = seg_start - smov->opening;
+///---				tex_x2 = seg_end   - smov->opening;
+///---				break;
+///---
+///---			case (SLIDE_Center * 2 + 0):
+///---				tex_x1 = seg_start + smov->opening/2;
+///---				tex_x2 = seg_end   + smov->opening/2;
+///---				break;
+///---
+///---			case (SLIDE_Center * 2 + 1):
+///---				tex_x1 = seg_start - smov->opening/2;
+///---				tex_x2 = seg_end   - smov->opening/2;
+///---				break;
+///---			}
+///---
+///---			if (cur_seg->side == 1)
+///---			{
+///---				float tex_tmp = tex_x1;
+///---				tex_x1 = tex_x2;
+///---				tex_x2 = tex_tmp;
+///---			}
+///---		}
+///---		else if (mid_masked == 1 && cur_seg->linedef->special &&
+///---			cur_seg->linedef->special->s.type != SLIDE_None)
+///---		{
+///---			if (cur_seg->side == 1)
+///---			{
+///---				tex_x1 = IM_WIDTH(wt->surface->image) - tex_x1;
+///---				tex_x2 = IM_WIDTH(wt->surface->image) - tex_x2;
+///---			}
+///---		}
+
+		// limit sliding door coordinates to current seg
+		s_along = MAX(s_along, s_seg);
+		e_along = MIN(e_along, e_seg);
+
+		if (s_along >= e_along)
+			continue;
+
+		float x1 = ld->v1->x + ld->dx * s_along / smov->line_len;
+		float y1 = ld->v1->y + ld->dy * s_along / smov->line_len;
+
+		float x2 = ld->v1->x + ld->dx * e_along / smov->line_len;
+		float y2 = ld->v1->y + ld->dy * e_along / smov->line_len;
+
+		s_tex += x_offset;
+		e_tex += x_offset;
+
+		DrawWallPart(dfloor, x1,y1, x2,y2, c, f, tex_top_h, wt, true, opaque, s_tex, e_tex);
+	}
+
+///---	if (cur_seg->linedef->special->s.type == SLIDE_Center)
+///---	{
+///---		start = (smov->line_len + smov->opening) / 2;
+///---		end = smov->line_len;
+///---
+///---		DrawWallPart(dfloor, x1,y1, x2,y2, c, f, tex_top_h, wt, true, opaque, tex_x1, tex_x2);
+///---	}
 }
 
 
