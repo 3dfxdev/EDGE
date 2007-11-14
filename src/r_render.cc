@@ -802,26 +802,20 @@ static inline void GreetNeighbourSector(float *hts, int& num,
 }
 
 
-//
-// Note: mid_masked is 2 & 3 for horiz. sliding door.
-//
-static void DrawWallPart(drawfloor_t *dfloor, float top,
-						 float bottom, float tex_top_h, wall_tile_t *wt,
-						 int mid_masked, bool opaque,
-						 float x_offset,
-///						 float tex_x1, float tex_x2,
+static void DrawWallPart(drawfloor_t *dfloor,
+		                 float x1, float y1, float x2, float y2,
+		                 float top, float bottom, float tex_top_h, wall_tile_t *wt,
+						 bool mid_masked, bool opaque,
+   						 float tex_x1, float tex_x2,
 						 region_properties_t *props = NULL)
 
 {
+	// Note: tex_x1 and tex_x2 must be in world coordinates
+
 	surface_t *surf = wt->surface;
 
 	if (! props)
 		props = surf->override_p ? surf->override_p : dfloor->props;
-
-	float x1 = cur_seg->v1->x;
-	float y1 = cur_seg->v1->y;
-	float x2 = cur_seg->v2->x;
-	float y2 = cur_seg->v2->y;
 
 	MIR_Coordinate(x1, y1);
 	MIR_Coordinate(x2, y2);
@@ -831,9 +825,6 @@ static void DrawWallPart(drawfloor_t *dfloor, float top,
 		float tmp_x = x1; x1 = x2; x2 = tmp_x;
 		float tmp_y = y1; y1 = y2; y2 = tmp_y;
 	}
-
-	float xy_ofs = cur_seg->offset;
-	float xy_len = cur_seg->length;
 
 	float trans = surf->translucency;
 	bool blended;
@@ -863,18 +854,165 @@ static void DrawWallPart(drawfloor_t *dfloor, float top,
 	GLuint tex_id = W_ImageCache(surf->image);
 
 
-	/* for the time being, tex_x1 and tex_x2 are in world coords */
-	float tex_x1 = xy_ofs;
-	float tex_x2 = tex_x1 + xy_len;
+	float total_w = IM_TOTAL_WIDTH( surf->image);
+	float total_h = IM_TOTAL_HEIGHT(surf->image);
+
+	/* convert tex_x1 and tex_x2 from world coords to texture coords */
+	tex_x1 = (tex_x1 * surf->x_mat.x) / total_w;
+	tex_x2 = (tex_x2 * surf->x_mat.x) / total_w;
+
+	if (num_active_mirrors % 2)
+	{
+		float T = tex_x1; tex_x1 = 0 - tex_x2; tex_x2 = 0 - T;
+	}
+
+	float tx0    = tex_x1;
+	float tx_mul = tex_x2 - tex_x1;
+
+	float ty_mul = surf->y_mat.y / total_h;
+	float ty0    = IM_TOP(surf->image) - tex_top_h * ty_mul;
+
+#if (DEBUG >= 3) 
+	L_WriteDebug( "WALL (%d,%d,%d) -> (%d,%d,%d)\n", 
+		(int) x1, (int) y1, (int) top, (int) x2, (int) y2, (int) bottom);
+#endif
+
+
+	// -AJA- 2007/08/07: ugly code here ensures polygon edges
+	//       match up with adjacent linedefs (otherwise small
+	//       gaps can appear which look bad).
+
+	float  left_h[MAX_EDGE_VERT]; int  left_num=2;
+	float right_h[MAX_EDGE_VERT]; int right_num=2;
+
+	left_h[0]  = bottom; left_h[1]  = top;
+	right_h[0] = bottom; right_h[1] = top;
+
+	if (solid_mode) /// && ! (wt->flags & WTILF_IsExtra)
+	{
+		GreetNeighbourSector(left_h,  left_num,  cur_seg->nb_sec[0]);
+		GreetNeighbourSector(right_h, right_num, cur_seg->nb_sec[1]);
+
+#if DEBUG_GREET_NEIGHBOUR
+		SYS_ASSERT(left_num  <= MAX_EDGE_VERT);
+		SYS_ASSERT(right_num <= MAX_EDGE_VERT);
+
+		for (int k = 0; k < MAX_EDGE_VERT; k++)
+		{
+			if (k+1 < left_num)
+			{
+				SYS_ASSERT(left_h[k]  <= left_h[k+1]);
+			}
+			if (k+1 < right_num)
+			{
+				SYS_ASSERT(right_h[k] <= right_h[k+1]);
+			}
+		}
+#endif
+	}
+
+	vec3_t vertices[MAX_EDGE_VERT * 2];
+
+	int v_count = 0;
+
+	for (int LI = 0; LI < left_num; LI++)
+	{
+		vertices[v_count].x = x1;
+		vertices[v_count].y = y1;
+		vertices[v_count].z = left_h[LI];
+		v_count++;
+	}
+
+	for (int RI = right_num-1; RI >= 0; RI--)
+	{
+		vertices[v_count].x = x2;
+		vertices[v_count].y = y2;
+		vertices[v_count].z = right_h[RI];
+		v_count++;
+	}
+
+	int blending = (blended ? BL_Alpha : 0) | (mid_masked ? BL_Masked : 0);
+
+	// -AJA- 2006-06-22: fix for midmask wrapping bug
+	if (mid_masked)
+		blending |= BL_ClampY;
+
+
+	wall_coord_data_t data;
+
+	data.v_count = v_count;
+	data.vert = vertices;
+
+	data.R = data.G = data.B = 1.0f;
+
+	data.div.x  = x1;
+	data.div.y  = y1;
+	data.div.dx = x2 - x1;
+	data.div.dy = y2 - y1;
+
+	data.tx0 = tx0;
+	data.ty0 = ty0;
+	data.tx_mul = tx_mul;
+	data.ty_mul = ty_mul;
+
+	// TODO: make a unit vector
+	data.normal.Set( (y2-y1), (x1-x2), 0 );
+
+	data.tex_id = tex_id;
+	data.pass   = 0;
+	data.blending = blending;
+
+
+	abstract_shader_c *cmap_shader = R_GetColormapShader(props, lit_adjust);
+
+	cmap_shader->WorldMix(GL_POLYGON, data.v_count, data.tex_id,
+			trans, &data.pass, data.blending, &data, WallCoordFunc);
+
+	if (use_dlights && solid_mode)
+	{
+		P_DynamicLightIterator(MIN(x1,x2), MIN(y1,y2), bottom,
+							   MAX(x1,x2), MAX(y1,y2), top,
+							   DLIT_Wall, &data);
+
+		P_SectorGlowIterator(cur_seg->frontsector,
+				             MIN(x1,x2), MIN(y1,y2), bottom,
+							 MAX(x1,x2), MAX(y1,y2), top,
+							 GLOWLIT_Wall, &data);
+	}
+}
+
+static void DrawSlidingDoor(drawfloor_t *dfloor, float c, float f,
+						 float tex_top_h, wall_tile_t *wt,
+						 bool opaque, float x_offset)
+{
+	float x1 = cur_seg->v1->x;
+	float y1 = cur_seg->v1->y;
+	float x2 = cur_seg->v2->x;
+	float y2 = cur_seg->v2->y;
+
+	float xy_ofs = cur_seg->offset;
+	float xy_len = cur_seg->length;
+
+	float tex_x1 = cur_seg->offset;
+	float tex_x2 = tex_x1 + cur_seg->length;
+
+	tex_x1 += x_offset;
+	tex_x2 += x_offset;
+
+	slider_move_t *smov = cur_seg->linedef->slider_move;
+
+	int mid_masked = 1;
+
+	if (cur_seg->linedef->slider_move)
+		mid_masked = 2;
+
+	float start, end;
+	float seg_start, seg_end;
 
 	// horizontal sliding door hack
 	if (mid_masked >= 2)
 	{
-		slider_move_t *smov = cur_seg->linedef->slider_move;
 		line_t *L;
-
-		float start, end;
-		float seg_start, seg_end;
 
 		if (cur_seg->side == 0)
 		{
@@ -966,138 +1104,19 @@ static void DrawWallPart(drawfloor_t *dfloor, float top,
 	{
 		if (cur_seg->side == 1)
 		{
-			tex_x1 = IM_WIDTH(surf->image) - tex_x1;
-			tex_x2 = IM_WIDTH(surf->image) - tex_x2;
+			tex_x1 = IM_WIDTH(wt->surface->image) - tex_x1;
+			tex_x2 = IM_WIDTH(wt->surface->image) - tex_x2;
 		}
 	}
 
-	tex_x1 += x_offset;
-	tex_x2 += x_offset;
+	DrawWallPart(dfloor, x1,y1, x2,y2, c, f, tex_top_h, wt, true, opaque, tex_x1, tex_x2);
 
-	float total_w = IM_TOTAL_WIDTH( surf->image);
-	float total_h = IM_TOTAL_HEIGHT(surf->image);
-
-	/* convert tex_x1 and tex_x2 from world coords to texture coords */
-	tex_x1 = (tex_x1 * surf->x_mat.x) / total_w;
-	tex_x2 = (tex_x2 * surf->x_mat.x) / total_w;
-
-//??	if (num_active_mirrors % 2)
-//??	{
-//??		float T = tex_x1; tex_x1 = tex_x2; tex_x2 = T;
-//??	}
-
-	float tx0    = tex_x1;
-	float tx_mul = tex_x2 - tex_x1;
-
-	float ty_mul = surf->y_mat.y / total_h;
-	float ty0    = IM_TOP(surf->image) - tex_top_h * ty_mul;
-
-#if (DEBUG >= 3) 
-	L_WriteDebug( "WALL (%d,%d,%d) -> (%d,%d,%d)\n", 
-		(int) x1, (int) y1, (int) top, (int) x2, (int) y2, (int) bottom);
-#endif
-
-
-	// -AJA- 2007/08/07: ugly code here ensures polygon edges
-	//       match up with adjacent linedefs (otherwise small
-	//       gaps can appear which look bad).
-
-	float  left_h[MAX_EDGE_VERT]; int  left_num=2;
-	float right_h[MAX_EDGE_VERT]; int right_num=2;
-
-	left_h[0]  = bottom; left_h[1]  = top;
-	right_h[0] = bottom; right_h[1] = top;
-
-	if (solid_mode) /// && ! (wt->flags & WTILF_IsExtra)
+	if (cur_seg->linedef->special->s.type == SLIDE_Center)
 	{
-		GreetNeighbourSector(left_h,  left_num,  cur_seg->nb_sec[0]);
-		GreetNeighbourSector(right_h, right_num, cur_seg->nb_sec[1]);
+		start = (smov->line_len + smov->opening) / 2;
+		end = smov->line_len;
 
-#if DEBUG_GREET_NEIGHBOUR
-		SYS_ASSERT(left_num  <= MAX_EDGE_VERT);
-		SYS_ASSERT(right_num <= MAX_EDGE_VERT);
-
-		for (int k = 0; k < MAX_EDGE_VERT; k++)
-		{
-			if (k+1 < left_num)
-			{
-				SYS_ASSERT(left_h[k]  <= left_h[k+1]);
-			}
-			if (k+1 < right_num)
-			{
-				SYS_ASSERT(right_h[k] <= right_h[k+1]);
-			}
-		}
-#endif
-	}
-
-	vec3_t vertices[MAX_EDGE_VERT * 2];
-
-	int v_count = 0;
-
-	for (int LI = 0; LI < left_num; LI++)
-	{
-		vertices[v_count].x = x1;
-		vertices[v_count].y = y1;
-		vertices[v_count].z = left_h[LI];
-		v_count++;
-	}
-
-	for (int RI = right_num-1; RI >= 0; RI--)
-	{
-		vertices[v_count].x = x2;
-		vertices[v_count].y = y2;
-		vertices[v_count].z = right_h[RI];
-		v_count++;
-	}
-
-	int blending = (blended ? BL_Alpha : 0) | (mid_masked ? BL_Masked : 0);
-
-	// -AJA- 2006-06-22: fix for midmask wrapping bug
-	if (mid_masked == 1)
-		blending |= BL_ClampY;
-
-
-	wall_coord_data_t data;
-
-	data.v_count = v_count;
-	data.vert = vertices;
-
-	data.R = data.G = data.B = 1.0f;
-
-	data.div.x  = x1;
-	data.div.y  = y1;
-	data.div.dx = x2 - x1;
-	data.div.dy = y2 - y1;
-
-	data.tx0 = tx0;
-	data.ty0 = ty0;
-	data.tx_mul = tx_mul;
-	data.ty_mul = ty_mul;
-
-	// TODO: make a unit vector
-	data.normal.Set( (y2-y1), (x1-x2), 0 );
-
-	data.tex_id = tex_id;
-	data.pass   = 0;
-	data.blending = blending;
-
-
-	abstract_shader_c *cmap_shader = R_GetColormapShader(props, lit_adjust);
-
-	cmap_shader->WorldMix(GL_POLYGON, data.v_count, data.tex_id,
-			trans, &data.pass, data.blending, &data, WallCoordFunc);
-
-	if (use_dlights && solid_mode)
-	{
-		P_DynamicLightIterator(MIN(x1,x2), MIN(y1,y2), bottom,
-							   MAX(x1,x2), MAX(y1,y2), top,
-							   DLIT_Wall, &data);
-
-		P_SectorGlowIterator(cur_seg->frontsector,
-				             MIN(x1,x2), MIN(y1,y2), bottom,
-							 MAX(x1,x2), MAX(y1,y2), top,
-							 GLOWLIT_Wall, &data);
+		DrawWallPart(dfloor, x1,y1, x2,y2, c, f, tex_top_h, wt, true, opaque, tex_x1, tex_x2);
 	}
 }
 
@@ -1424,27 +1443,32 @@ static bool RGL_DrawSeg(drawfloor_t *dfloor, seg_t *seg)
 		}
 
 		opaque = (! cur_seg->backsector) ||
-			(wt->surface->translucency > 0.99f && wt->surface->image->img_solid);
+			(wt->surface->translucency > 0.99f &&
+			 wt->surface->image->img_solid);
 
 		// check for horizontal sliders
-		if ((wt->flags & WTILF_MidMask) && cur_seg->linedef->special && 
-			cur_seg->linedef->special->s.type != SLIDE_None &&
-			cur_seg->linedef->slider_move)
+		if ((wt->flags & WTILF_MidMask) &&
+			cur_seg->linedef->special && 
+			cur_seg->linedef->special->s.type != SLIDE_None)
 		{
-			DrawWallPart(dfloor, c, f, tex_top_h,
-				wt, 2, opaque, x_offset);
-
-			if (cur_seg->linedef->special->s.type == SLIDE_Center)
-			{
-				DrawWallPart(dfloor, c, f, tex_top_h,
-					wt, 3, opaque, x_offset);
-			}
+			DrawSlidingDoor(dfloor, c, f, tex_top_h, wt, opaque, x_offset);
 			continue;
 		}
 
-		DrawWallPart(dfloor, c, f, tex_top_h, wt,
-			(wt->flags & WTILF_MidMask) ? 1 : 0, 
-			opaque, x_offset, (wt->flags & WTILF_MidMask) ?
+		float x1 = cur_seg->v1->x;
+		float y1 = cur_seg->v1->y;
+		float x2 = cur_seg->v2->x;
+		float y2 = cur_seg->v2->y;
+
+		float tex_x1 = cur_seg->offset;
+		float tex_x2 = tex_x1 + cur_seg->length;
+
+		tex_x1 += x_offset;
+		tex_x2 += x_offset;
+
+		DrawWallPart(dfloor, x1,y1, x2,y2, c, f, tex_top_h, wt,
+			(wt->flags & WTILF_MidMask) ? true : false, 
+			opaque, tex_x1, tex_x2, (wt->flags & WTILF_MidMask) ?
 			  &cur_seg->sidedef->sector->props : NULL);
 	}
 
