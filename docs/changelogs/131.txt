@@ -45,15 +45,27 @@ General improvements
 New features:
 -------------
 
-+ MD2 models
++ MD2 models  @@@@
 
-+ mirrors
++ mirrors   @@@
 
-- sector glows
+- sector glow effects.  Using one of these commands:
 
-- TGA images
+    GLOW_TYPE=FLOOR;
+	GLOW_TYPE=CEILING;
 
-- flat align/scale linetypes
+  in conjunction with the DLIGHT commands means that the
+  dynamic light is transformed into a floor or ceiling glow.
+  The brightness and range of the lighting can be adjusted as
+  per normal dynamic lights.  The glow is limited to a single
+  sector.
+
+- TGA images are now supported by IMAGES.DDF.
+
+  NOTE: so far only RGB mode (uncompressed and RLE) TGA images
+        are supported.  Colormapped images are planned.
+
+- flat align/scale linetypes  @@@
 
 
 DDF / RTS Goodies:
@@ -98,7 +110,8 @@ DDF / RTS Goodies:
   The default protection is 66%, and the layering order (from
   innermost to outermost) is: BLUE, GREEN, PURPLE, YELLOW, RED.
 
-- SIMPLE_ARMOUR special.
+- SIMPLE_ARMOUR special for armour pickups.  It prevents the
+  wacky Doom-emulation from kicking in.
 
 - SPAWN action is similar to DROPITEM action, but it doesn't
   force the object to be non-SOLID like DROPITEM does, plus the
@@ -115,9 +128,9 @@ DDF / RTS Goodies:
   dynamic light.  Note: the secondary dlight, if used, is not
   affected.
 
-- for object brightness, LIT00 .. LIT99 can be used in state
-  frames instead of the keywords 'NORMAL' and 'BRIGHT'.  This
-  allows fine-grained control for dynamic lights.
+- for object brightness, LIT00 - LIT99 can be used in state
+  frames instead of the keywords 'NORMAL' and 'BRIGHT'.
+  This allows fine-grained control for dynamic lights.
 
 - the existing RESISTANCE_CLASS feature has been supplemented by
   a new RESISTANCE_MULTIPLY command which lets you control how
