@@ -59,11 +59,23 @@ New features:
 DDF / RTS Goodies:
 ------------------
 
-+ WEAKNESS
++ the new WEAKNESS feature allows a monster to receive more damage
+  from certain attacks than others.  You can also specify a zone
+  where the monster must be hit (when hit in other places, the
+  weakness does not apply).  The weakness zone can be a height
+  range (in percentages) and/or an angle range (in degrees).
 
-    WEAKNESS.CLASS=B;
+  The weakness feature requires 'WEAKNESS.CLASS' to be present,
+  specifying what attack classes the monster is weak against.
+  Note that it will also _override_ any IMMUNITY or RESISTANCE
+  that the monster has.
+
+  The following example shows all the commands.  Everything
+  except 'WEAKNESS.CLASS' is optional.
+
+    WEAKNESS.CLASS=ABC;
 	WEAKNESS.HEIGHTS=75%:100%;
-	WEAKNESS.ANGLES=135:225;
+	WEAKNESS.ANGLES=150:210;
 	WEAKNESS.MULTIPLY=3.0;
 	WEAKNESS.PAINCHANCE=100%;
 
@@ -101,10 +113,10 @@ DDF / RTS Goodies:
 - LIT##
 
 - the existing RESISTANCE_CLASS feature has been supplemented by
-  a new RESISTANCE_MULTIPLY command that lets you control how
-  much to multiply the damage caused.  The default of 0.4 matches
-  the previously hard-coded value.  Values over 1.0 can be used
-  (makes it a weakness instead of resistance).
+  a new RESISTANCE_MULTIPLY command which lets you control how
+  much to multiply the damage caused.  The default is 0.4 which
+  matches the previously hard-coded value.  Values over 1.0 can
+  be used (makes it a weakness instead of resistance).
 
   Also RESISTANCE_PAINCHANCE can give a different (typically
   lower) chance of entering the pain states from a resistance
