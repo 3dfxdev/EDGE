@@ -74,8 +74,8 @@ DDF / RTS Goodies:
   (bigger RADIUS) can cause the thing to get stuck in walls or
   other objects.  Examples:
 
-    BECOME(THE_CYBERDEMON)
-    BECOME(IMP,PAIN:2)
+    BECOME(CACODEMON)
+    BECOME(CACODEMON,CHASE:2)
 
 + armour association, yada yada
 
@@ -100,8 +100,16 @@ DDF / RTS Goodies:
 
 - LIT##
 
-- RESISTANCE_MULTIPLY + RESISTANCE_PAINCHANCE
+- the existing RESISTANCE_CLASS feature has been supplemented by
+  a new RESISTANCE_MULTIPLY command that lets you control how
+  much to multiply the damage caused.  The default of 0.4 matches
+  the previously hard-coded value.  Values over 1.0 can be used
+  (makes it a weakness instead of resistance).
 
+  Also RESISTANCE_PAINCHANCE can give a different (typically
+  lower) chance of entering the pain states from a resistance
+  attack.
+ 
 - VAMPIRE attack special and thing special (for monsters and
   players) which causes the inflictor of damage to gain the
   same amount of health as the damage done to the target.
