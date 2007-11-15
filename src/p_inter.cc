@@ -890,7 +890,7 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor, mobj_t * source,
 	if (!weak_spot && damage >= 0.1f && inflictor && inflictor->currentattack &&
 		BITSET_EMPTY == (inflictor->currentattack->attack_class & ~target->info->resistance))
 	{
-		damage = MIN(0.1f, damage * target->info->resist_multiply);
+		damage = MAX(0.1f, damage * target->info->resist_multiply);
 	}
 
 	// -ACB- 1998/07/12 Use Visibility Enum
@@ -960,7 +960,7 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor, mobj_t * source,
 
 			if (damage > 0.1f && BITSET_EMPTY == (inflictor->currentattack->attack_class & ~arm_info->resistance))
 			{
-				damage = MIN(0.1f, damage * arm_info->resist_multiply);
+				damage = MAX(0.1f, damage * arm_info->resist_multiply);
 			}
 		}
 
