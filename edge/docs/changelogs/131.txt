@@ -101,10 +101,20 @@ DDF / RTS Goodies:
     BECOME(CACODEMON)
     BECOME(CACODEMON,CHASE:2)
 
-+ armour association, yada yada  @@@
-  ARMOUR_PROTECTION=50%
-  ARMOUR_DEPLETION=10%
-  ARMOUR_CLASS=ABC;
++ armour association feature.  When you pick up some armour, and
+  the thing DDF uses the ARMOUR_PROTECTION command, then various
+  properties are remembered for that color of armour.  This new
+  ARMOUR_PROTECTION command is the percentage of damage which is
+  saved by the armour (100% for all) which overrides the default
+  protection rates (e.g. BLUE is normally 50%).
+  
+  Summary of armour-assocation commands:
+
+    ARMOUR_PROTECTION=99%; // high protection
+    ARMOUR_DEPLETION=10%;  // low depletion rate
+    ARMOUR_CLASS=B;        // only protects against Bullets
+    IMMUNITY_CLASS=C;      // total protection from Close-Combat
+    RESISTANCE_CLASS=M;    // extra resistance against Missiles
 
 - PURPLE armour was added, bringing the number of armours to 5.
   The default protection is 66%, and the layering order (from
