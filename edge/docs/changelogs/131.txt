@@ -51,8 +51,8 @@ New features:
 
 - sector glow effects.  Using one of these commands:
 
-    GLOW_TYPE=FLOOR;
-	GLOW_TYPE=CEILING;
+  GLOW_TYPE=FLOOR;
+  GLOW_TYPE=CEILING;
 
   in conjunction with the DLIGHT commands means that the
   dynamic light is transformed into a floor or ceiling glow.
@@ -60,10 +60,9 @@ New features:
   per normal dynamic lights.  The glow is limited to a single
   sector.
 
-- TGA images are now supported by IMAGES.DDF.
-
-  NOTE: so far only RGB mode (uncompressed and RLE) TGA images
-        are supported.  Colormapped images are planned.
+- TGA images are now supported by IMAGES.DDF.  So far only RGB
+  mode (uncompressed and RLE) TGA images are supported.
+  Colormapped images are planned for the full release.
 
 - flat align/scale linetypes  @@@
 
@@ -127,6 +126,13 @@ DDF / RTS Goodies:
 - SIMPLE_ARMOUR special for armour pickups.  It prevents the
   wacky Doom-emulation from kicking in.
 
+- three new armour things were added to EDGE.WAD for people to
+  use in their maps:
+
+    [7031] : PURPLE_ARMOUR
+    [7032] : YELLOW_ARMOUR
+    [7033] : RED_ARMOUR
+
 - SPAWN action is similar to DROPITEM action, but it doesn't
   force the object to be non-SOLID like DROPITEM does, plus the
   spawned object will have the same Angle and Side as the parent
@@ -158,17 +164,28 @@ DDF / RTS Goodies:
  
 - VAMPIRE attack special and thing special (for monsters and
   players) which causes the inflictor of damage to gain the
-  same amount of health as the damage done to the target.
+  health from the damage done to the victim.  The health/damage
+  ratio is hard-coded as 25% for monsters and 50% for players.
 
-- new player states: JUMP, FLY, SWIM, CLIMB.
+- new player states: JUMP, FLY, SWIM, CLIMB.   @@@@
   CHECK_ACTIVITY
 
-- @@@ . CRUSH_DAMAGE for crushers in lines.ddf
+- SHARED_CLIP=TRUE for WEAPONS.DDF means that the primary and
+  secondary attacks are using a single (shared) clip.  Hence
+  you cannot use SEC_AMMOTYPE, SEC_AMMOPERSHOT or SEC_CLIPSIZE
+  commands when using SHARED_CLIP.  There can only be a single
+  reload animation (SECRELOAD states will be ignored).
 
-- Weapons.ddf: SHARED_CLIP=TRUE  @@@
+  You should use SEC_SHOOT, SEC_REFIRE and SEC_NOFIRE actions
+  in your SECATTACK states, and you may have SECFLASH states.
+
+- FLOOR.CRUSH_DAMAGE and CEILING.CRUSH_DAMAGE is the new and
+  preferred way for making crushers in LINES.DDF.  It gives the
+  amount of damage when crushing (the rate of damage is still
+  hard-coded to be every 4 tics).
 
 - Weapons.ddf: allow 'SEC_ATTACK' to mean 'SECOND_ATTACK' for
   consistency with all the other SEC_XXX commands.
 
-- RTS: 'WHEN=xxx' tag for SPAWNTHING commands.
+- RTS 'WHEN=xxx' tag for SPAWNTHING commands.
 
