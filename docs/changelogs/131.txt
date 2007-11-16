@@ -14,6 +14,7 @@ Bugs fixed
 - fix for filenames (like "foo.bar.wad") containing two dots.
 - proper test for existing titlepics in GAMES.DDF.
 - fixed console PLAYSOUND cmd when sound is not found.
+- no sprite check for spawned map-things (easier debugging).
 - fixed badly synchronised flash state of super-shotgun.
 
 
@@ -26,7 +27,7 @@ General improvements
 
 + new method to emulate DOOM's lighting model.
 
-+ new dynamic lighting,
++ new dynamic lighting,   @@@
   DLIGHT2
   LEAKY
   RADIUS not INTENSITY
@@ -39,6 +40,7 @@ General improvements
 
 - better gamma handling (now done by the video driver).
 - more robust emulation of the flat-flooding trick.
+- better way to gauge the player's actual speed.
 - console key is configurable.
 
 
@@ -46,6 +48,10 @@ New features:
 -------------
 
 + MD2 models  @@@@
+    '@123' syntax for frames
+    MODEL_SKIN command
+    SET_SKIN() action
+
 
 + mirrors   @@@
 
@@ -90,15 +96,24 @@ DDF / RTS Goodies:
     WEAKNESS.MULTIPLY=3.0;
     WEAKNESS.PAINCHANCE=100%;
 
+  When a thing is hurt via the weakness feature, it will try to
+  enter 'WEAKPAIN' states, but if it doesn't have them then the
+  normal PAIN states are used.
+
+  When a thing is killed, it will try to enter 'WEAKDEATH' states,
+  but if they don't exist then it will try OVERKILL states, and
+  finally it falls back to the normal DEATH states.
+
 + BECOME action for THINGS.DDF allows a thing to turn into another
   type of thing.  Can be used on players too.  Health and Side
   values remain the same.  The new state frame can also be given
-  (the default is IDLE:1).  Note that becoming something larger
-  (bigger RADIUS) can cause the thing to get stuck in walls or
-  other objects.  Examples:
+  (the default is IDLE:1).  Examples:
 
     BECOME(CACODEMON)
     BECOME(CACODEMON,CHASE:2)
+
+  Note that becoming something larger (i.e. bigger RADIUS) can
+  cause the thing to get stuck in walls or other objects.
 
 + armour association feature.  When you pick up some armour, and
   the thing DDF uses the ARMOUR_PROTECTION command, then various
@@ -183,6 +198,19 @@ DDF / RTS Goodies:
   preferred way for making crushers in LINES.DDF.  It gives the
   amount of damage when crushing (the rate of damage is still
   hard-coded to be every 4 tics).
+
+- some LADDER linetypes were added to EDGE.WAD:
+
+    [470] // EDGE Ladder,  48 units high
+    [471] // EDGE Ladder,  80 units high
+    [472] // EDGE Ladder, 120 units high
+    [473] // EDGE Ladder, 160 units high
+    [474] // EDGE Ladder, 192 units high
+    [475] // EDGE Ladder, 256 units high
+    [476] // EDGE Ladder, 384 units high
+    [477] // EDGE Ladder, 512 units high
+    [478] // EDGE Ladder, 768 units high
+    [479] // EDGE Ladder, no limit
 
 - Weapons.ddf: allow 'SEC_ATTACK' to mean 'SECOND_ATTACK' for
   consistency with all the other SEC_XXX commands.
