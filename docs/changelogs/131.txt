@@ -114,7 +114,11 @@ DDF / RTS Goodies:
     ARMOUR_DEPLETION=10%;  // low depletion rate
     ARMOUR_CLASS=B;        // only protects against Bullets
     IMMUNITY_CLASS=C;      // total protection from Close-Combat
-    RESISTANCE_CLASS=M;    // extra resistance against Missiles
+    RESISTANCE_CLASS=M;    // resistance against Missiles
+
+  Note: ARMOUR_CLASS overrides the immunity/resistance classes,
+  so the above example would fail to provide any immunity or
+  resistance because 'C' and 'M' are not in ARMOUR_CLASS. 
 
 - PURPLE armour was added, bringing the number of armours to 5.
   The default protection is 66%, and the layering order (from
