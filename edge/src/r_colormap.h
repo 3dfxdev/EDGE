@@ -95,6 +95,7 @@ extern const colourmap_c *text_grey_map;
 extern const colourmap_c *text_green_map;
 extern const colourmap_c *text_brown_map;
 extern const colourmap_c *text_blue_map;
+extern const colourmap_c *text_purple_map;
 extern const colourmap_c *text_yellow_map;
 
 // automap translation tables

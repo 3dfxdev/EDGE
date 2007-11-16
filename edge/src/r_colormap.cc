@@ -77,6 +77,7 @@ const colourmap_c *text_grey_map   = NULL;
 const colourmap_c *text_green_map  = NULL;
 const colourmap_c *text_brown_map  = NULL;
 const colourmap_c *text_blue_map   = NULL;
+const colourmap_c *text_purple_map = NULL;
 const colourmap_c *text_yellow_map = NULL;
 
 // automap translation tables
@@ -217,6 +218,7 @@ static void InitTranslationTables(void)
 	text_green_map  = colourmaps.Lookup("TEXT_GREEN");
 	text_brown_map  = colourmaps.Lookup("TEXT_BROWN");
 	text_blue_map   = colourmaps.Lookup("TEXT_BLUE");
+	text_purple_map = colourmaps.Lookup("TEXT_PURPLE");
 	text_yellow_map = colourmaps.Lookup("TEXT_YELLOW");
 }
 
