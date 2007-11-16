@@ -569,6 +569,7 @@ static void UpdateWidgets(void)
 			w_armour.f.num.colmap =
 				(i == ARMOUR_Green)  ? text_green_map :
 				(i == ARMOUR_Blue)   ? text_blue_map :
+				(i == ARMOUR_Purple) ? text_purple_map :
 				(i == ARMOUR_Yellow) ? text_yellow_map : text_red_map;
 			break;
 		}
