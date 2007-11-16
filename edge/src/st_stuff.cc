@@ -570,7 +570,8 @@ static void UpdateWidgets(void)
 				(i == ARMOUR_Green)  ? text_green_map :
 				(i == ARMOUR_Blue)   ? text_blue_map :
 				(i == ARMOUR_Purple) ? text_purple_map :
-				(i == ARMOUR_Yellow) ? text_yellow_map : text_red_map;
+				(i == ARMOUR_Yellow) ? text_yellow_map :
+				                       text_orange_map;
 			break;
 		}
 	}
