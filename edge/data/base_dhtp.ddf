@@ -3139,6 +3139,14 @@ SCALE=0.25; // old 128x128 : new 512x512
 IMAGE_DATA=FILE:"textures/doom/plut/dbrain4.png";
 SCALE=0.25; // old 128x128 : new 512x512
 
+[tex:fireblu1]
+IMAGE_DATA=FILE:"textures/doom/plut/fireblu1.png";
+SCALE=0.25; // old 128x128 : new 512x512
+
+[tex:fireblu2]
+IMAGE_DATA=FILE:"textures/doom/plut/fireblu2.png";
+SCALE=0.25; // old 128x128 : new 512x512
+
 [tex:sw1skull]
 IMAGE_DATA=FILE:"textures/doom/plut/sw1skull.png";
 SCALE=0.25; // old 64x64 : new 256x256
