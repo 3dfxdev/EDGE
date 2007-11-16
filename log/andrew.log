@@ -5,6 +5,11 @@ Andrew Apted's Log
 Fixed status bar to use purple text for new PURPLE armour,
 and orange text for the existing RED armour.
 
+Added three new things to our THINGS.DDF:
+   [7031] : PURPLE_ARMOUR
+   [7032] : YELLOW_ARMOUR
+   [7033] : RED_ARMOUR
+
 2007/11/14:
 
 Worked on cleaning up and repairing the rendering code for
