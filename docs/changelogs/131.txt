@@ -67,9 +67,14 @@ New features:
     MODEL_SKIN command
     SET_SKIN() action
 
-+ mirrors   @@@
++ Mirrors are one-sided linedefs with a special linetype.
+  They have a 'glassy' look, and can be tinted with a color,
+  and they can reflect other mirrors (but not infinitely).
 
-  List of mirror linetypes:
+  The sky is never flipped in mirrors, this is a limitation
+  of the way EDGE handles skies and cannot be fixed.
+
+  List of mirror linetypes in EDGE.WAD:
 
     [462] : EDGE Mirror, Plain
     [463] : EDGE Mirror, White
@@ -120,7 +125,6 @@ New features:
 
 - TGA images are now supported by IMAGES.DDF.  So far only RGB
   mode (uncompressed and RLE) TGA images are supported.
-  Colormapped images are planned for the full release.
 
 
 DDF / RTS Goodies
