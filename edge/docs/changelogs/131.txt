@@ -276,8 +276,8 @@ DDF / RTS Goodies
   affected.
 
 - for object brightness, LIT00 - LIT99 can be used in state
-  frames instead of the keywords 'NORMAL' and 'BRIGHT'.
-  This allows fine-grained control for dynamic lights.
+  frames where the keywords 'NORMAL' and 'BRIGHT' are used.
+  This allows fine-grained control of dynamic lights.
 
 - the existing RESISTANCE_CLASS feature has been supplemented by
   a new RESISTANCE_MULTIPLY command which lets you control how
