@@ -1,11 +1,21 @@
 Andrew Apted's Log
 
+2007/11/17:
+
+Added three glow-effect things to our EDGE.WAD:
+   [7041] : NUKAGE_GLOW
+   [7042] : LAVA_GLOW
+   [7043] : WATER_GLOW
+
+Found and fixed the silly (but damn hard to find) bug that
+broke the Mirrors.  Hope there's no seven years bad luck!
+
 2007/11/16:
 
 Fixed status bar to use purple text for new PURPLE armour,
 and orange text for the existing RED armour.
 
-Added three new things to our THINGS.DDF:
+Added three new things to our EDGE.WAD:
    [7031] : PURPLE_ARMOUR
    [7032] : YELLOW_ARMOUR
    [7033] : RED_ARMOUR
