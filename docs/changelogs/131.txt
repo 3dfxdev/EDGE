@@ -64,7 +64,8 @@ General improvements
   'DLIGHT2' prefix (e.g. DLIGHT2.RADIUS, DLIGHT2.COLOUR etc...)
   This of course will be twice as slow, so use sparingly!
 
-  Example:
+  Example of the new syntax:
+
     DLIGHT.TYPE=ADD;
     DLIGHT.RADIUS=400;
     DLIGHT.COLOUR=#FF5500;
@@ -97,17 +98,17 @@ New features:
 
   The skin of the model is the sprite base ("TROO") plus "SKN1"
   on the end --> "TROOSKN1".  There should be a definition for it
-  in IMAGES.DDF using the sprite namespace --> [spr:TROOSKN1]
+  in IMAGES.DDF using the sprite namespace --> [spr:TROOSKN1].
 
   Other skins can be used.  The command "MODEL_SKIN=3" in a thing
   or weapon definition will use the third skin (e.g. "TROOSKN3").
   Upto nine skins can currently be used (1 to 9).  The skin can
-  also be changed dynamically by using the SET_SKIN(5) action
-  in the state frames.
+  also be changed dynamically by using the SET_SKIN(5) action in
+  the state frames.
 
 + mirrors are one-sided linedefs with a special linetype.
   They have a 'glassy' look, and can be tinted with a color,
-  and they can reflect other mirrors (upto a small limit).
+  plus they can reflect other mirrors (within reason).
 
   The sky is never flipped in mirrors, this is a limitation
   of the way EDGE handles skies and cannot be fixed.
@@ -235,11 +236,11 @@ DDF / RTS Goodies
 
 + armour association feature.  When you pick up some armour, and
   the thing DDF uses the ARMOUR_PROTECTION command, then various
-  properties are remembered for that color of armour.  This new
+  properties are remembered for that color of armour.  The new
   ARMOUR_PROTECTION command is the percentage of damage which is
   saved by the armour (100% for all) which overrides the default
-  protection rates (e.g. BLUE is normally 50%).
-  
+  protection rates (e.g. BLUE_ARMOUR is normally 50%).
+
   Summary of armour-assocation commands:
 
     ARMOUR_PROTECTION=99%; // high protection
