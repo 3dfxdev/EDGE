@@ -8,7 +8,7 @@ KNOWN PROBLEMS
 
 - models don't interpolate vertexes (transitions are not smooth).
 - in mirrors, dynamic lights don't work properly.
-- new DOOM-lighting-emulation is not as smooth as before.
+- new DOOM lighting emulation is not as smooth as before.
 - colormapped sectors (e.g. blue water) don't work yet.
 - console background is a bit messed up.
 - partial invisibility powerup is broken.
@@ -29,7 +29,7 @@ Bugs fixed
 - custom sky-boxes should always be used when present.
 - fix for filenames (like "foo.bar.wad") containing two dots.
 - proper test for existing titlepics in GAMES.DDF.
-- fixed console PLAYSOUND cmd when sound is not found.
+- fixed console PLAYSOUND command when sound is not found.
 - no sprite check for spawned map-things (easier debugging).
 - fixed badly synchronised flash state of super-shotgun.
 
@@ -65,7 +65,6 @@ General improvements
   This of course will be twice as slow, so use sparingly!
 
   Example:
-
     DLIGHT.TYPE=ADD;
     DLIGHT.RADIUS=400;
     DLIGHT.COLOUR=#FF5500;
@@ -85,10 +84,26 @@ General improvements
 New features:
 -------------
 
-+ MD2 models  @@@@
-    '@123' syntax for frames
-    MODEL_SKIN command
-    SET_SKIN() action
++ MD2 models (from Quake 2) are now supported for map things and
+  player weapons.  Any state frame can specify a model by using
+  the special '@123' syntax for the frame (instead of a letter).
+  The number is the absolute frame number in the MD2 model, which
+  begins at 1.  For example:
+
+    STATES(IDLE)=TROO:@5:7:NORMAL:NOTHING;  // the 5th frame
+
+  The model itself must be stored in a wad, and the lump name is
+  the sprite base ("TROO") plus "MD2" on the end --> "TROOMD2".
+
+  The skin of the model is the sprite base ("TROO") plus "SKN1"
+  on the end --> "TROOSKN1".  There should be a definition for it
+  in IMAGES.DDF using the sprite namespace --> [spr:TROOSKN1]
+
+  Other skins can be used.  The command "MODEL_SKIN=3" in a thing
+  or weapon definition will use the third skin (e.g. "TROOSKN3").
+  Upto nine skins can currently be used (1 to 9).  The skin can
+  also be changed dynamically by using the SET_SKIN(5) action
+  in the state frames.
 
 + mirrors are one-sided linedefs with a special linetype.
   They have a 'glassy' look, and can be tinted with a color,
@@ -105,7 +120,7 @@ New features:
     [465] : EDGE Mirror, Red
     [466] : EDGE Mirror, Green
 
-- sector glow effects.  Using one of these commands:
++ sector glow effects.  Using one of these commands:
 
     GLOW_TYPE=FLOOR;
     GLOW_TYPE=CEILING;
@@ -122,7 +137,7 @@ New features:
     [7042] : EDGE Lava Glow
     [7043] : EDGE Water Glow
 
-- flat alignment/scaling linetypes have been added to EDGE.WAD.
++ flat alignment/scaling linetypes have been added to EDGE.WAD.
   There are 3 basic types: Align + Rotate, Align + Rotate + Scale,
   and just Scaling.  They can be applied to three areas: FLOOR,
   CEILING and FLOOR + CEILING.  Finally you can use them either
@@ -151,6 +166,26 @@ New features:
     [823] : Scale back  sector's CEILING
     [824] : Scale front sector's FLOOR+CEILING
     [825] : Scale back  sector's FLOOR+CEILING
+
+- three new armour things were added to EDGE.WAD for people to
+  use in their maps:
+
+    [7031] : PURPLE_ARMOUR
+    [7032] : YELLOW_ARMOUR
+    [7033] : RED_ARMOUR
+
+- some LADDER linetypes were added to EDGE.WAD:
+
+    [470] : EDGE Ladder,  48 units high
+    [471] : EDGE Ladder,  80 units high
+    [472] : EDGE Ladder, 120 units high
+    [473] : EDGE Ladder, 160 units high
+    [474] : EDGE Ladder, 192 units high
+    [475] : EDGE Ladder, 256 units high
+    [476] : EDGE Ladder, 384 units high
+    [477] : EDGE Ladder, 512 units high
+    [478] : EDGE Ladder, 768 units high
+    [479] : EDGE Ladder, no limit
 
 - TGA images are now supported by IMAGES.DDF.  So far only RGB
   mode (uncompressed and RLE) TGA images are supported.
@@ -224,13 +259,6 @@ DDF / RTS Goodies
 - SIMPLE_ARMOUR special for armour pickups.  It prevents the
   wacky Doom-emulation from kicking in.
 
-- three new armour things were added to EDGE.WAD for people to
-  use in their maps:
-
-    [7031] : PURPLE_ARMOUR
-    [7032] : YELLOW_ARMOUR
-    [7033] : RED_ARMOUR
-
 - SPAWN action is similar to DROPITEM action, but it doesn't
   force the object to be non-SOLID like DROPITEM does, plus the
   spawned object will have the same Angle and Side as the parent
@@ -284,19 +312,6 @@ DDF / RTS Goodies
   preferred way for making crushers in LINES.DDF.  It gives the
   amount of damage when crushing (the rate of damage is still
   hard-coded to be every 4 tics).
-
-- some LADDER linetypes were added to EDGE.WAD:
-
-    [470] : EDGE Ladder,  48 units high
-    [471] : EDGE Ladder,  80 units high
-    [472] : EDGE Ladder, 120 units high
-    [473] : EDGE Ladder, 160 units high
-    [474] : EDGE Ladder, 192 units high
-    [475] : EDGE Ladder, 256 units high
-    [476] : EDGE Ladder, 384 units high
-    [477] : EDGE Ladder, 512 units high
-    [478] : EDGE Ladder, 768 units high
-    [479] : EDGE Ladder, no limit
 
 - Weapons.ddf: allow 'SEC_ATTACK' to mean 'SECOND_ATTACK' for
   consistency with all the other SEC_XXX commands.
