@@ -286,7 +286,7 @@ DDF / RTS Goodies
   be used (makes it a weakness instead of resistance).
 
   Also RESISTANCE_PAINCHANCE can give a different (typically
-  lower) chance of entering the pain states from a resistance
+  lower) chance of entering the pain states from a resisted
   attack.
  
 - VAMPIRE attack special and thing special (for monsters and
