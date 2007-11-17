@@ -11,8 +11,8 @@ KNOWN PROBLEMS
 - new DOOM-lighting-emulation is not as smooth as before.
 - colormapped sectors (e.g. blue water) don't work yet.
 - console background is a bit messed up.
-- TGA image laoder does not support Colormapped formats.
 - partial invisibility powerup is broken.
+- TGA image laoder does not support Colormapped formats.
 - things that use BECOME can get stuck if new RADIUS is bigger.
 - new dynamic lighting has not been adjusted for backwards
   compatibility with old mods.
@@ -43,11 +43,33 @@ General improvements
 
 + new method to emulate DOOM's lighting model.
 
-+ new dynamic lighting,   @@@
-  DLIGHT2
-  LEAKY
-  RADIUS not INTENSITY
-  MODULATE and ADD (instead of QUADRATIC and LINEAR)
++ new dynamic lighting code.  The old way would split polygons
+  into small pieces which caused a lot of glitches.  The new way
+  uses the method of rendering a light texture into the level.
+  
+  The 'DLIGHT.INTENSITY' has been replaced with 'DLIGHT.RADIUS'
+  which is the furthest distance that a light can reach (every
+  wall and thing beyond that distance is unaffected by it).
+
+  The "QUADRATIC" and "LINEAR" types have been replaced with
+  'MODULATE' (similar to the old way, the light is multiplied
+  with the wall texture) and 'ADD' which simply adds the light
+  to the texture.
+
+  There is a new command: DLIGHT.LEAKY=TRUE which causes the light
+  to affect all surfaces.  Normally a light will not affect a
+  surface that the light is behind.
+
+  Lastly there is support for a secondary dynamic light using the
+  'DLIGHT2' prefix (e.g. DLIGHT2.RADIUS, DLIGHT2.COLOUR etc...)
+  This of course will be twice as slow, so use sparingly!
+
+  Example:
+
+    DLIGHT.TYPE=ADD;
+	DLIGHT.RADIUS=400;
+	DLIGHT.COLOUR=#FF5500;
+	DLIGHT.LEAKY=TRUE;
 
 + improved sky emulation, replacing all the 'SKY STRETCH' options
   with a single mode based on the old MIRROR mode, but tweaked for
@@ -68,14 +90,14 @@ New features:
     MODEL_SKIN command
     SET_SKIN() action
 
-+ Mirrors are one-sided linedefs with a special linetype.
++ mirrors are one-sided linedefs with a special linetype.
   They have a 'glassy' look, and can be tinted with a color,
-  and they can reflect other mirrors (but not infinitely).
+  and they can reflect other mirrors (upto a small limit).
 
   The sky is never flipped in mirrors, this is a limitation
   of the way EDGE handles skies and cannot be fixed.
 
-  List of mirror linetypes in EDGE.WAD:
+  List of mirror linetypes now in EDGE.WAD:
 
     [462] : EDGE Mirror, Plain
     [463] : EDGE Mirror, White
@@ -168,7 +190,7 @@ DDF / RTS Goodies
 + BECOME action for THINGS.DDF allows a thing to turn into another
   type of thing.  Can be used on players too.  Health and Side
   values remain the same.  The new state frame can also be given
-  (the default is IDLE:1).  Examples:
+  (the default is IDLE:1).  For example:
 
     BECOME(CACODEMON)
     BECOME(CACODEMON,CHASE:2)
