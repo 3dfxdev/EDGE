@@ -265,13 +265,12 @@ static void MIR_SetClippers()
 	}
 }
 
-static bool MIR_Push(drawmirror_c *mir)
+static void MIR_Push(drawmirror_c *mir)
 {
 	SYS_ASSERT(mir);
 	SYS_ASSERT(mir->seg);
 
-	if (num_active_mirrors == MAX_MIRRORS)
-		return false;
+	SYS_ASSERT(num_active_mirrors < MAX_MIRRORS);
 
 	active_mirrors[num_active_mirrors].def = mir;
 	active_mirrors[num_active_mirrors].ComputeMirror();
@@ -279,8 +278,6 @@ static bool MIR_Push(drawmirror_c *mir)
 	num_active_mirrors++;
 
 	MIR_SetClippers();
-
-	return true;
 }
 
 static void MIR_Pop()
@@ -2222,12 +2219,6 @@ static void DrawMirrorPolygon(drawmirror_c *mir)
 
 	if (ld->special)
 	{
-#if 0 
-		float trans = PERCENT_2_FLOAT(ld->special->translucency);
-
-		// ignore the default value, which is 100%
-		if (trans < 0.95) alpha = MAX(alpha, trans);
-#endif
 		float R = RGB_RED(ld->special->fx_color) / 255.0;
 		float G = RGB_GRN(ld->special->fx_color) / 255.0;
 		float B = RGB_BLU(ld->special->fx_color) / 255.0;
@@ -2267,18 +2258,18 @@ static void DrawMirrorPolygon(drawmirror_c *mir)
 
 static void RGL_DrawMirror(drawmirror_c *mir)
 {
-	MIR_Push(mir);
-
 	RGL_FinishUnits();
 
-	RGL_DrawSubList(mir->drawsubs);
-
+	MIR_Push(mir);
+	{
+		RGL_DrawSubList(mir->drawsubs);
+	}
 	MIR_Pop();
+
+	DrawMirrorPolygon(mir);
 
 	solid_mode = true;
 	RGL_StartUnits(solid_mode);
-
-	DrawMirrorPolygon(mir);
 }
 
 
@@ -2548,7 +2539,7 @@ void R_Render(void)
 	// Profiling
 	framecount++;
 	validcount++;
-	
+
 	RGL_RenderTrueBSP();
 }
 
