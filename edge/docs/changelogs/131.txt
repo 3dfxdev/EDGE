@@ -67,13 +67,20 @@ New features:
     MODEL_SKIN command
     SET_SKIN() action
 
-
 + mirrors   @@@
+
+  List of mirror linetypes:
+
+    [462] : EDGE Mirror, Plain
+    [463] : EDGE Mirror, White
+    [464] : EDGE Mirror, Blue
+    [465] : EDGE Mirror, Red
+    [466] : EDGE Mirror, Green
 
 - sector glow effects.  Using one of these commands:
 
-  GLOW_TYPE=FLOOR;
-  GLOW_TYPE=CEILING;
+    GLOW_TYPE=FLOOR;
+    GLOW_TYPE=CEILING;
 
   in conjunction with the DLIGHT commands means that the
   dynamic light is transformed into a floor or ceiling glow.
@@ -81,11 +88,39 @@ New features:
   per normal dynamic lights.  The glow is limited to a single
   sector.
 
+- flat alignment/scaling linetypes have been added to EDGE.WAD.
+  There are 3 basic types: Align + Rotate, Align + Rotate + Scale,
+  and just Scaling.  They can be applied to three areas: FLOOR,
+  CEILING and FLOOR + CEILING.  Finally you can use them either
+  with a tag (all tagged sectors are changed) or without a tag
+  (then the front or back sector is changed).
+
+  List of new types:
+
+    [800] : Align and rotate front sector's FLOOR
+    [801] : Align and rotate back  sector's FLOOR
+    [802] : Align and rotate front sector's CEILING
+    [803] : Align and rotate back  sector's CEILING
+    [804] : Align and rotate front sector's FLOOR+CEILING
+    [805] : Align and rotate back  sector's FLOOR+CEILING
+
+    [810] : Align, scale and rotate front sector's FLOOR
+    [811] : Align, scale and rotate back  sector's FLOOR
+    [812] : Align, scale and rotate front sector's CEILING
+    [813] : Align, scale and rotate back  sector's CEILING
+    [814] : Align, scale and rotate front sector's FLOOR+CEILING
+    [815] : Align, scale and rotate back  sector's FLOOR+CEILING
+
+    [820] : Scale front sector's FLOOR
+    [821] : Scale back  sector's FLOOR
+    [822] : Scale front sector's CEILING
+    [823] : Scale back  sector's CEILING
+    [824] : Scale front sector's FLOOR+CEILING
+    [825] : Scale back  sector's FLOOR+CEILING
+
 - TGA images are now supported by IMAGES.DDF.  So far only RGB
   mode (uncompressed and RLE) TGA images are supported.
   Colormapped images are planned for the full release.
-
-- flat align/scale linetypes  @@@
 
 
 DDF / RTS Goodies
@@ -219,16 +254,16 @@ DDF / RTS Goodies
 
 - some LADDER linetypes were added to EDGE.WAD:
 
-    [470] // EDGE Ladder,  48 units high
-    [471] // EDGE Ladder,  80 units high
-    [472] // EDGE Ladder, 120 units high
-    [473] // EDGE Ladder, 160 units high
-    [474] // EDGE Ladder, 192 units high
-    [475] // EDGE Ladder, 256 units high
-    [476] // EDGE Ladder, 384 units high
-    [477] // EDGE Ladder, 512 units high
-    [478] // EDGE Ladder, 768 units high
-    [479] // EDGE Ladder, no limit
+    [470] : EDGE Ladder,  48 units high
+    [471] : EDGE Ladder,  80 units high
+    [472] : EDGE Ladder, 120 units high
+    [473] : EDGE Ladder, 160 units high
+    [474] : EDGE Ladder, 192 units high
+    [475] : EDGE Ladder, 256 units high
+    [476] : EDGE Ladder, 384 units high
+    [477] : EDGE Ladder, 512 units high
+    [478] : EDGE Ladder, 768 units high
+    [479] : EDGE Ladder, no limit
 
 - Weapons.ddf: allow 'SEC_ATTACK' to mean 'SECOND_ATTACK' for
   consistency with all the other SEC_XXX commands.
