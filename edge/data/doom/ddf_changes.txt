@@ -1,5 +1,5 @@
 
-EDGE DDF 5.4: (????-??-??)
+EDGE DDF 5.4: (2007-11-18)
 ==========================
 
 1) LINES.DDF: added MIRROR linetypes (462 to 465).
@@ -23,10 +23,12 @@ EDGE DDF 5.4: (????-??-??)
 8) WEAPONS.DDF: fixed SUPERSHOTGUN badly synchronised FLASH states,
                 while preserving overall weapon timing.
 
-9) THINGS.DDF: added three new sector glow things:
-               [7041] : NUKAGE_GLOW
-               [7042] : LAVA_GLOW
-               [7043] : WATER_GLOW
+9) THINGS.DDF: disabled dynamic light on bullet puff.
+
+10) THINGS.DDF: added three new sector glow things:
+                [7041] : NUKAGE_GLOW
+                [7042] : LAVA_GLOW
+                [7043] : WATER_GLOW
 
 
 EDGE DDF 5.3: (2007-07-14)
