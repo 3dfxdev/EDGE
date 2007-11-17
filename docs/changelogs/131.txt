@@ -9,6 +9,7 @@ KNOWN PROBLEMS
 - models don't interpolate vertexes (transitions are not smooth).
 - in mirrors, dynamic lights don't work properly.
 - new DOOM-lighting-emulation is not as smooth as before.
+- colormapped sectors (e.g. blue water) don't work yet.
 - console background is a bit messed up.
 - TGA images do not support Colormapped modes.
 - things that use BECOME can get stuck if new RADIUS is bigger.
@@ -196,8 +197,11 @@ DDF / RTS Goodies
   health from the damage done to the victim.  The health/damage
   ratio is hard-coded as 25% for monsters and 50% for players.
 
-- new player states: JUMP, FLY, SWIM, CLIMB.   @@@@
-  CHECK_ACTIVITY
+- CHECK_ACTIVITY action for players will cause the player to
+  enter SWIM, FLY, or CLIMB states if the player is currently
+  swimming, flying (jetpack) or climbing a ladder.  Also JUMP
+  states are entered when the player jumps.  These new states
+  are all optional.
 
 - SHARED_CLIP=TRUE for WEAPONS.DDF means that the primary and
   secondary attacks are using a single (shared) clip.  Hence
