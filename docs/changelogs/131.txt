@@ -143,7 +143,7 @@ New features:
   and just Scaling.  They can be applied to three areas: FLOOR,
   CEILING and FLOOR + CEILING.  Finally you can use them either
   with a tag (all tagged sectors are changed) or without a tag
-  (then the front or back sector is changed).
+  (then the front or back sector of the linedef is changed).
 
   List of new types:
 
