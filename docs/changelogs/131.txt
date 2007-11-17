@@ -255,7 +255,7 @@ DDF / RTS Goodies
 
 - PURPLE armour was added, bringing the number of armours to 5.
   The default protection is 66%, and the layering order (from
-  innermost to outermost) is: BLUE, GREEN, PURPLE, YELLOW, RED.
+  innermost to outermost) is: GREEN, BLUE, PURPLE, YELLOW, RED.
 
 - SIMPLE_ARMOUR special for armour pickups.  It prevents the
   wacky Doom-emulation from kicking in.
