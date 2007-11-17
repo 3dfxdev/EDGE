@@ -12,7 +12,7 @@ KNOWN PROBLEMS
 - colormapped sectors (e.g. blue water) don't work yet.
 - console background is a bit messed up.
 - partial invisibility powerup is broken.
-- TGA image laoder does not support Colormapped formats.
+- TGA image loader does not support Colormapped formats.
 - things that use BECOME can get stuck if new RADIUS is bigger.
 - new dynamic lighting has not been adjusted for backwards
   compatibility with old mods.
