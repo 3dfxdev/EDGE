@@ -67,9 +67,9 @@ General improvements
   Example:
 
     DLIGHT.TYPE=ADD;
-	DLIGHT.RADIUS=400;
-	DLIGHT.COLOUR=#FF5500;
-	DLIGHT.LEAKY=TRUE;
+    DLIGHT.RADIUS=400;
+    DLIGHT.COLOUR=#FF5500;
+    DLIGHT.LEAKY=TRUE;
 
 + improved sky emulation, replacing all the 'SKY STRETCH' options
   with a single mode based on the old MIRROR mode, but tweaked for
