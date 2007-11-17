@@ -2,6 +2,20 @@
 CHANGELOG FOR 1.31-ALPHA (since 1.29)
 =====================================
 
+
+KNOWN PROBLEMS
+--------------
+
+- models don't interpolate vertexes (transitions are not smooth).
+- in mirrors, dynamic lights don't work properly.
+- new DOOM-lighting-emulation is not as smooth as before.
+- console background is a bit messed up.
+- TGA images do not support Colormapped modes.
+- things that use BECOME can get stuck if new RADIUS is bigger.
+- new dynamic lighting has not been adjusted for backwards
+  compatibility with old mods.
+
+
 Bugs fixed
 ----------
 
@@ -73,8 +87,8 @@ New features:
 - flat align/scale linetypes  @@@
 
 
-DDF / RTS Goodies:
-------------------
+DDF / RTS Goodies
+-----------------
 
 + new WEAKNESS feature allows a monster to receive more damage
   from certain attacks than others.  You can also specify a zone
