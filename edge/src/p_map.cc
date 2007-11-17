@@ -1839,7 +1839,7 @@ void P_RadiusAttack(mobj_t * spot, mobj_t * source, float radius,
 	//                  a radius regards of height, however true 3D uses
 	//                  a sphere attack, which checks height.
 	//
-	float r = spot->radius;
+	float r = bomb_I.range;
 
 	P_BlockThingsIterator(spot->x - r, spot->y - r,
 			spot->x + r, spot->y + r, PIT_RadiusAttack);
