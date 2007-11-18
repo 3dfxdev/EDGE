@@ -6,7 +6,8 @@ CHANGELOG FOR 1.31-ALPHA (since 1.29)
 KNOWN PROBLEMS
 --------------
 
-- models don't interpolate vertexes (transitions are not smooth).
++ models don't interpolate vertexes (transitions are not smooth).
+- models don't appear in mirrors.
 - in mirrors, dynamic lights don't work properly.
 - new DOOM lighting emulation is not as smooth as before.
 - colormapped sectors (e.g. blue water) don't work yet.
