@@ -60,7 +60,12 @@ unsigned int ansi_file_c::Read(void *dest, unsigned int size)
 	SYS_ASSERT(fp);
 	SYS_ASSERT(dest);
 
-    return fread(dest, 1, size, fp);
+    int result = fread(dest, 1, size, fp);
+
+//I_Debugf("Reading %d bytes  --->  %d  %s %s\n", size, result,
+//		 feof(fp) ? "EOF" : "-", ferror(fp) ? "ERROR" : "-");
+
+	return result;
 }
 
 unsigned int ansi_file_c::Write(const void *src, unsigned int size)
@@ -86,7 +91,11 @@ bool ansi_file_c::Seek(int offset, int seekpoint)
             return false; /* NOT REACHED */
     }
 
-    return (fseek(fp, offset, whence) == 0);
+    int result = fseek(fp, offset, whence);
+
+// I_Debugf("Seek to: 0x%08x whence:%d  --->  %d\n", offset, whence, result);
+		
+	return (result == 0);
 }
 
 byte *file_c::LoadIntoMemory(int max_size)
@@ -135,18 +144,18 @@ bool FS_FlagsToAnsiMode(int flags, char *mode)
     if (flags & file_c::ACCESS_READ)
     {
         if (flags & file_c::ACCESS_WRITE) 
-            strcpy(mode, "w+");                        // Read/Write
+            strcpy(mode, "wb+");                        // Read/Write
         else if (flags & file_c::ACCESS_APPEND)
-            strcpy(mode, "a+");                        // Read/Append
+            strcpy(mode, "ab+");                        // Read/Append
         else
-            strcpy(mode, "r");                         // Read
+            strcpy(mode, "rb");                         // Read
     }
     else
     {
         if (flags & file_c::ACCESS_WRITE)       
-            strcpy(mode, "w");                         // Write
+            strcpy(mode, "wb");                         // Write
         else if (flags & file_c::ACCESS_APPEND) 
-            strcpy(mode, "a");                         // Append
+            strcpy(mode, "ab");                         // Append
         else                                         
             return false;                              // Invalid
     }
