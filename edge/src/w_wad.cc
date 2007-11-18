@@ -1133,6 +1133,9 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 	if (within_colmap_list)
 		I_Warning("Missing C_END marker in %s.\n", filename);
    
+	if (within_tex_list)
+		I_Warning("Missing TX_END marker in %s.\n", filename);
+   
 	// -AJA- 1999/12/25: What did Santa bring EDGE ?  Just some support
 	//       for "GWA" files (part of the "GL-Friendly Nodes" specs).
   
@@ -1250,8 +1253,8 @@ void W_InitMultipleFiles(void)
 		AddFile(rf->filename.c_str(), rf->kind, -1);
     }
 
-	if (!numlumps)
-		I_Error("W_InitMultipleFiles: no files found");
+	if (numlumps == 0)
+		I_Error("W_InitMultipleFiles: no files found!\n");
 }
 
 static bool TryLoadExtraLanguage(const char *name)
