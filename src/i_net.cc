@@ -87,7 +87,7 @@ static bool GetLocalAddress(void)
 		}
 	}
 
-	if (best > 0)
+	if (best >= 0)
 	{
 		n_local_addr = net_address_c((byte *) local->h_addr_list[best], 0);
 		return true;
