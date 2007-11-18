@@ -150,12 +150,6 @@ if build_info['platform'] == 'win32':
 else: # linux
     env.ParseConfig('sdl-config --cflags --libs')
 
-# OpenGL
-if build_info['platform'] == 'win32':
-    env.Append(LIBS = ['opengl32'])
-else:
-    env.Append(LIBS = ['GL'])
-
 # GLEW (GL Extension Wrangler) library
 if build_info['platform'] == 'win32':
     env.Append(CPPPATH = ['#win32_lib/glew-1.4/include'])
@@ -165,6 +159,12 @@ else:
     env.Append(CPPPATH = ['#linux_lib/glew-1.4/include'])
     env.Append(LIBPATH = ['#linux_lib/glew-1.4/lib'])
     env.Append(LIBS = ['GLEW'])
+
+# OpenGL
+if build_info['platform'] == 'win32':
+    env.Append(LIBS = ['opengl32'])
+else:
+    env.Append(LIBS = ['GL'])
 
 # Ogg/Vorbis
 env.Append(CCFLAGS = ['-DUSE_OGG'])
