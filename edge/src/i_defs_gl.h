@@ -33,6 +33,7 @@
 #endif
 
 #ifdef WIN32
+#define GLEW_STATIC  1
 #include <GL/glew.h>
 #include <GL/gl.h>
 #include <GL/glext.h>
