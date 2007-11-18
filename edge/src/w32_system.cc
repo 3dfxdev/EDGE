@@ -18,6 +18,7 @@
 
 #include "i_defs.h"
 #include "i_sdlinc.h"
+#include "i_net.h"
 
 #include <fcntl.h>
 #include <sys/types.h>
