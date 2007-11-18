@@ -1,5 +1,11 @@
 Andrew Apted's Log
 
+2007/11/18:
+
+Fixed some WIN32 compilation problems (e.g. new netcode).
+
+Fixed bloody GLEW library which needs GLEW_STATIC under WIN32.
+
 2007/11/17:
 
 Added three glow-effect things to our EDGE.WAD:
