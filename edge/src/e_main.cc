@@ -383,9 +383,9 @@ static void SetGlobalVars(void)
 	M_CheckBooleanParm("weaponswitch", &global_flags.weapon_switch, false);
 	M_CheckBooleanParm("autoload", &autoquickload, false);
 
-	if (M_CheckParm("dlights"))
+	if (M_CheckParm("-dlights"))
 		use_dlights = 1;
-	else if (M_CheckParm("nodlights"))
+	else if (M_CheckParm("-nodlights"))
 		use_dlights = 0;
 
 	if (M_CheckParm("-ecompat"))
@@ -1315,7 +1315,7 @@ static void SetupLogAndDebugFiles(void)
 	// -ACB- 1999/10/02 Don't print to console, since we don't have a console yet.
 	//
 	int p = M_CheckParm("-debug");
-	if (p)
+	if (true) //!!!!!!!!1
 	{
 		debugfile = fopen(debug_fn.c_str(), "w");
 
