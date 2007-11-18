@@ -46,7 +46,6 @@
 
 // -AJA- 1999/06/30: added this
 byte playpal_data[14][256][3];
-static byte playpal_greys[256];
 
 // -AJA- 1999/09/18: fixes problem with black text etc.
 static bool loaded_playpal = false;
@@ -110,9 +109,6 @@ public:
 };
 
 
-//
-// V_InitPalette
-//
 void V_InitPalette(void)
 {
 	int t, i, r, g, b, max_file, pal_lump;
@@ -156,9 +152,6 @@ void V_InitPalette(void)
 		r = playpal_data[0][i][0];
 		g = playpal_data[0][i][1];
 		b = playpal_data[0][i][2];
-
-		// NB: this test is rather lax
-		playpal_greys[i] = (r == g) || (g == b);
 	}
 
 	W_DoneWithLump(pal);
