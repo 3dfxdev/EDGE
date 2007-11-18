@@ -51,6 +51,10 @@
 #define SOCKET_ERROR	-1
 #endif
 
+#ifdef WIN32
+typedef int socklen_t;
+#endif
+
 
 class net_address_c
 {

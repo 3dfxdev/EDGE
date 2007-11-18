@@ -142,7 +142,7 @@ net_node_c * N_AcceptReliableConn(void)
 			&len_var);
 #endif
 
-	if (node->sock == SOCKET_ERROR)
+	if (node->sock == INVALID_SOCKET)
 	{
 		I_Printf("N_AcceptReliableConn: failed");
 
@@ -223,7 +223,7 @@ bool N_ReliableSend(net_node_c *node, const byte *data, int len)
 
 // SHIT: may block !!! FIXME
 			
-		int actual = send(node->sock, data, len, 0);
+		int actual = send(node->sock, (const char*)data, len, 0);
 
 		if (actual <= 0) // error occurred
 		{
@@ -254,7 +254,7 @@ int N_ReliableRecv(net_node_c *node, byte *buffer, int max_len)
 		// clear global 'errno' variable before the call
 		errno = 0;
 
-		actual = recv(node->sock, buffer, max_len, 0);
+		actual = recv(node->sock, (char*)buffer, max_len, 0);
 	}
 	while (errno == EINTR);
 

@@ -106,7 +106,7 @@ bool N_BroadcastSend(const byte *data, int len)
 	n_broadcast_send.ToSockAddr(&sock_addr);
 
 	int actual = sendto(host_broadcast_sock,
-			data, len, 0,
+			(const char *)data, len, 0,
 			(struct sockaddr *)&sock_addr, sizeof(sock_addr));
 
 	if (actual < 0) // error occurred
@@ -130,7 +130,7 @@ int N_BroadcastRecv(net_address_c *remote, byte *buffer, int max_len)
 	errno = 0;
 	
 	int actual = recvfrom(host_broadcast_sock,
-			buffer, max_len, 0 /* flags */,
+			(char *)buffer, max_len, 0 /* flags */,
 			(struct sockaddr *)&sock_addr,
 #ifdef USE_GUSI_SOCKETS
 			(unsigned int *)&len_var);
