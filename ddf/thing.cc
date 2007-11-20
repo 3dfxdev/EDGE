@@ -160,10 +160,13 @@ const commandlist_t thing_commands[] =
 
 	DF("FLOAT_SPEED", float_speed, DDF_MainGetFloat),
 	DF("STEP_SIZE", step_size, DDF_MainGetFloat),
-	DF("SPRITE_SCALE", yscale, DDF_MainGetFloat),
-	DF("SPRITE_ASPECT", xscale, DDF_MainGetFloat),
+	DF("SPRITE_SCALE", scale, DDF_MainGetFloat),
+	DF("SPRITE_ASPECT", aspect, DDF_MainGetFloat),
 	DF("SPRITE_YALIGN", yalign, DDF_MobjGetYAlign),   // -AJA- 2007/08/08
 	DF("MODEL_SKIN", model_skin, DDF_MainGetNumeric), // -AJA- 2007/10/16
+	DF("MODEL_SCALE", model_scale, DDF_MainGetFloat),
+	DF("MODEL_ASPECT", model_aspect, DDF_MainGetFloat),
+	DF("MODEL_BIAS", model_bias, DDF_MainGetFloat),
 	DF("BOUNCE_SPEED", bounce_speed, DDF_MainGetFloat),
 	DF("BOUNCE_UP", bounce_up, DDF_MainGetFloat),
 	DF("SIGHT_SLOPE", sight_slope, DDF_MainGetSlope),
@@ -615,6 +618,8 @@ static void ThingFinishEntry(void)
 	if (!buffer_mobj.idle_state && buffer_mobj.spawn_state)
 		buffer_mobj.idle_state = buffer_mobj.spawn_state;
 
+	buffer_mobj.DLightCompatibility();
+
 	// transfer static entry to dynamic entry
 	dynamic_mobj->CopyDetail(buffer_mobj);
 
@@ -686,11 +691,6 @@ void DDF_MobjCleanUp(void)
 				                    : mobjtypes.Lookup("RESPAWN_FLASH");
 
 		m->spitspot = m->spitspot_ref ? mobjtypes.Lookup(m->spitspot_ref) : NULL;
-
-		// -AJA- 1999/08/07: New SCALE & ASPECT fields.
-		//       The parser placed ASPECT in xscale and SCALE in yscale.
-		//       Now clean it up.
-		m->xscale *= m->yscale;
 
 		cur_ddf_entryname.clear();
 	}
@@ -1377,9 +1377,9 @@ static specflags_t dlight_type_names[] =
 	{"ADD",       DLITE_Add, 0},
 
 	// backwards compatibility
-	{"LINEAR",    DLITE_Modulate, 0},
-	{"QUADRATIC", DLITE_Modulate, 0},
-	{"CONSTANT",  DLITE_Add, 0},
+	{"LINEAR",    DLITE_Compat_LIN, 0},
+	{"QUADRATIC", DLITE_Compat_QUAD, 0},
+	{"CONSTANT",  DLITE_Compat_LIN, 0},
 
 	{NULL, 0, 0}
 };
@@ -1536,6 +1536,9 @@ mobjtype_c *DDF_MobjMakeAttackObj(mobjtype_c *info, const char *atk_name)
 
 	result->CopyDetail(info[0]);
 	result->ddf.name.Set(name.c_str());
+
+	// backwards compat
+	result->DLightCompatibility();
 
 	// Add to the list
 	mobjtypes.Insert(result);
@@ -1809,10 +1812,16 @@ void mobjtype_c::CopyDetail(mobjtype_c &src)
 	shotheight = src.shotheight; 
     maxfall = src.maxfall; 
 	fast = src.fast; 
-	xscale = src.xscale; 
-	yscale = src.yscale; 
+	
+	scale = src.scale; 
+	aspect = src.aspect; 
 	yalign = src.yalign;
+
 	model_skin = src.model_skin;
+	model_scale = src.model_scale;
+	model_aspect = src.model_aspect;
+	model_bias = src.model_bias;
+
 	bounce_speed = src.bounce_speed; 
 	bounce_up = src.bounce_up; 
 	sight_slope = src.sight_slope; 
@@ -1935,10 +1944,15 @@ void mobjtype_c::Default()
 	shotheight = PERCENT_MAKE(64);
     maxfall = 0;
 	fast = 1.0f;
-	xscale = 1.0f;
-	yscale = 1.0f;
+	scale = 1.0f;
+	aspect = 1.0f;
 	yalign = SPYA_BottomUp;
+
 	model_skin = 1;
+	model_scale = 1.0f;
+	model_aspect = 1.0f;
+	model_bias = 0.0f;
+
 	bounce_speed = 0.5f;
 	bounce_up = 0.5f;
 	sight_slope = 16.0f;
@@ -1997,6 +2011,28 @@ void mobjtype_c::Default()
 	respawneffect_ref.clear();
 	spitspot = NULL;
 	spitspot_ref.clear();
+}
+
+void mobjtype_c::DLightCompatibility(void)
+{
+	for (int DL = 0; DL < 2; DL++)
+	{
+		switch (dlight[DL].type)
+		{
+			case DLITE_Compat_LIN:
+				dlight[DL].type = DLITE_Modulate;
+				dlight[DL].radius *= 0.9;
+				break;
+
+			case DLITE_Compat_QUAD:
+				dlight[DL].type = DLITE_Modulate;
+				dlight[DL].radius *= 0.5;
+				break;
+
+			default: // nothing to do
+				break;
+		}
+	}
 }
 
 
