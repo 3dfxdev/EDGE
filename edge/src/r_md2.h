@@ -36,6 +36,9 @@ void MD2_RenderModel(md2_model_c *md, GLuint skin_tex, int frame,
 					 mobj_t *mo, region_properties_t *props,
 					 float scale, float aspect, float bias);
 
+void MD2_RenderModel_2D(md2_model_c *md, GLuint skin_tex, int frame,
+		                float x, float y, float z, float scale,
+		                mobjtype_c *info);
 
 #endif /* __R_MD2_H__ */
 
