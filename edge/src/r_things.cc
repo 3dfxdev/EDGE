@@ -464,13 +464,12 @@ void RGL_DrawWeaponSprites(player_t * p)
 	// special handling for zoom: show viewfinder
 	if (viewiszoomed)
 	{
-		weapondef_c *w;
 		pspdef_t *psp = &p->psprites[ps_weapon];
 
 		if ((p->ready_wp < 0) || (psp->state == S_NULL))
 			return;
 
-		w = p->weapons[p->ready_wp].info;
+		weapondef_c *w = p->weapons[p->ready_wp].info;
 
 		if (w->zoom_state <= 0)
 			return;
@@ -517,6 +516,8 @@ void RGL_DrawWeaponModel(player_t * p)
 	if (! (psp->state->flags & SFF_Model))
 		return;
 
+	weapondef_c *w = p->weapons[p->ready_wp].info;
+
 	modeldef_c *md = W_GetModel(psp->state->sprite);
 
 	int skin_num = p->weapons[p->ready_wp].model_skin;
@@ -541,8 +542,18 @@ I_Debugf("Render model: no skin %d\n", skin_num);
 	y -= viewup.y * psp->sy / 10.0;
 	z -= viewup.z * psp->sy / 10.0;
 
+	x += viewforward.x * w->model_forward;
+	y += viewforward.y * w->model_forward;
+	z += viewforward.z * w->model_forward;
+
+	x += viewright.x * w->model_side;
+	y += viewright.y * w->model_side;
+	z += viewright.z * w->model_side;
+
 	MD2_RenderModel(md->model, skin_tex, psp->state->frame,
-			        true, x, y, z, p->mo, view_props);
+			        true, x, y, z, p->mo, view_props,
+					w->model_scale, w->model_aspect, w->model_bias);
+
 }
 
 void RGL_DrawCrosshair(player_t * p)
@@ -1081,13 +1092,15 @@ I_Debugf("Render model: no skin %d\n", mo->model_skin);
 
 	GLuint skin_tex = W_ImageCache(skin_img, false, mo->info->palremap);
 
-	float dz = 24.0;
+	float z = mo->z;
 
 	if (mo->hyperflags & HF_HOVER)
-		dz += GetHoverDZ(mo);
+		z += GetHoverDZ(mo);
 
 	MD2_RenderModel(md->model, skin_tex, mo->state->frame, false,
-					mo->x, mo->y, mo->z + dz, mo, mo->props);
+					mo->x, mo->y, z, mo, mo->props,
+					mo->info->model_scale, mo->info->model_aspect,
+					mo->info->model_bias);
 }
 
 

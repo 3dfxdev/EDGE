@@ -587,6 +587,7 @@ typedef struct
 	// scaling
 	float xy_scale;
 	float  z_scale;
+	float bias;
 
 	// mlook vectors
 	vec2_t kx_mat;
@@ -710,7 +711,7 @@ static void ModelCoordFunc(void *d, int v_idx, vec3_t *pos,
 
 	float x1 = vert->x * data->xy_scale;
 	float y1 = vert->y * data->xy_scale;
-	float z1 = vert->z * data-> z_scale;
+	float z1 = (vert->z + data->bias) * data-> z_scale;
 
 	float x2 = x1 * data->kx_mat.x + z1 * data->kx_mat.y;
 	float z2 = x1 * data->kz_mat.x + z1 * data->kz_mat.y;
@@ -757,7 +758,8 @@ static void ModelCoordFunc(void *d, int v_idx, vec3_t *pos,
 
 void MD2_RenderModel(md2_model_c *md, GLuint skin_tex, int frame,
 		             bool is_weapon, float x, float y, float z,
-					 mobj_t *mo, region_properties_t *props)
+					 mobj_t *mo, region_properties_t *props,
+					 float scale, float aspect, float bias)
 {
 	// check if frame is valid
 	if (frame < 0 || frame >= md->num_frames)
@@ -785,8 +787,9 @@ I_Debugf("Render model: bad frame %d\n", frame);
 
 	data.is_weapon = is_weapon;
 
-	data.xy_scale = 1.0;
-	data. z_scale = 1.0;
+	data.xy_scale = scale * aspect;
+	data. z_scale = scale;
+	data.bias = bias;
 
 	M_Angle2Matrix(is_weapon ? ~mo->vertangle : 0, &data.kx_mat, &data.kz_mat);
 
