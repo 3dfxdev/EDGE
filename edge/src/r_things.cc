@@ -931,8 +931,10 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 		if (spr_flip)
 			side_offset *= -1.0f;
 
-		pos1 = (sprite_width/-2.0f - side_offset) * mo->info->xscale;
-		pos2 = (sprite_width/+2.0f - side_offset) * mo->info->xscale;
+		float xscale = mo->info->scale * mo->info->aspect;
+
+		pos1 = (sprite_width/-2.0f - side_offset) * xscale;
+		pos2 = (sprite_width/+2.0f - side_offset) * xscale;
 
 		tx1 = tx + pos1;
 		tx2 = tx + pos2;
@@ -940,14 +942,14 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 		switch (mo->info->yalign)
 		{
 			case SPYA_TopDown:
-				gzt = mo->z + mo->height + top_offset * mo->info->yscale;
-				gzb = gzt - sprite_height * mo->info->yscale;
+				gzt = mo->z + mo->height + top_offset * mo->info->scale;
+				gzb = gzt - sprite_height * mo->info->scale;
 				break;
 
 			case SPYA_Middle:
 			{
-				float mz = mo->z + mo->height * 0.5 + top_offset * mo->info->yscale;
-				float dz = sprite_height * 0.5 * mo->info->yscale;
+				float mz = mo->z + mo->height * 0.5 + top_offset * mo->info->scale;
+				float dz = sprite_height * 0.5 * mo->info->scale;
 
 				gzt = mz + dz;
 				gzb = mz - dz;
@@ -955,8 +957,8 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 			}
 
 			case SPYA_BottomUp: default:
-				gzb = mo->z +  top_offset * mo->info->yscale;
-				gzt = gzb + sprite_height * mo->info->yscale;
+				gzb = mo->z +  top_offset * mo->info->scale;
+				gzt = gzb + sprite_height * mo->info->scale;
 				break;
 		}
 
@@ -1203,7 +1205,7 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 	float tex_y1 = dthing->bottom - dthing->orig_bottom;
 	float tex_y2 = tex_y1 + (z1t - z1b);
 
-	float yscale = mo->info->yscale;
+	float yscale = mo->info->scale;
 
 	SYS_ASSERT(h > 0);
 	tex_y1 = top * tex_y1 / (h * yscale);
