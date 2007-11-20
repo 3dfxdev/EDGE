@@ -1,10 +1,22 @@
 Andrew Apted's Log
 
+2007/11/20:
+
+Added MODEL_SCALE, MODEL_ASPECT and MODEL_BIAS commands for
+things.ddf and weapons.ddf, and MODEL_FORWARD and MODEL_SIDE
+commands for weapons.ddf only (to offset the weapon model).
+
+Preliminary work for rendering MD2 models in 2D (on the UI),
+needed for the end-of-game cast screen.
+
 2007/11/18:
 
 Fixed some WIN32 compilation problems (e.g. new netcode).
 
 Fixed bloody GLEW library which needs GLEW_STATIC under WIN32.
+
+Put the libopengl32.a library _after_ libGLEW.a to satisfy
+the stupid fucking GNU linker.
 
 2007/11/17:
 
