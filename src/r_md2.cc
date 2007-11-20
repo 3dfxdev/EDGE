@@ -872,5 +872,65 @@ I_Debugf("Render model: bad frame %d\n", frame);
 	}
 }
 
+
+void MD2_RenderModel_2D(md2_model_c *md, GLuint skin_tex, int frame,
+		                float x, float y, float z, float scale,
+		                mobjtype_c *info)
+{
+	// check if frame is valid
+	if (frame < 0 || frame >= md->num_frames)
+		return;
+
+	float xy_scale = scale * info->model_scale * info->model_aspect;
+	float  z_scale = scale * info->model_scale;
+
+	// FIXME: enable stuff!  BLEND, TEXTURE2D  yada yada
+	
+	// FIXME: clear depth buffer [f_finale!]
+	
+	if (info->flags & MF_FUZZY)
+		glColor4f(0, 0, 0, FUZZY_TRANS);
+	else
+		glColor4f(1, 1, 1, MAX(0.25, info->translucency));
+
+
+	for (int i = 0; i < md->num_strips; i++)
+	{
+		glBegin(md->strips[i].mode);
+
+		for (int v_idx=0; v_idx < md->strips[i].count; v_idx++)
+		{
+			const md2_frame_c *frame_ptr = & md->frames[frame];
+			const md2_strip_c *strip     = & md->strips[i];
+
+			SYS_ASSERT(strip->first + v_idx >= 0);
+			SYS_ASSERT(strip->first + v_idx < md->num_points);
+
+			const md2_point_c *point = &md->points[strip->first + v_idx];
+			const md2_vertex_c *vert = &frame_ptr->vertices[point->vert_idx];
+
+			glTexCoord2f(point->skin_s, point->skin_t);
+
+
+			short n = vert->normal_idx;
+
+			float norm_x = md2_normals[n].x;
+			float norm_y = md2_normals[n].y;
+			float norm_z = md2_normals[n].z;
+
+			glNormal3f(norm_y, norm_z, norm_x);
+
+
+			float pos_x = x + vert->x * xy_scale;
+			float pos_y = y + vert->y * xy_scale;
+			float pos_z = z + (vert->z + info->model_bias) * z_scale;
+
+			glVertex3f(pos_y, pos_z, pos_x);
+		}
+
+		glEnd();
+	}
+}
+
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
