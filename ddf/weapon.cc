@@ -80,6 +80,11 @@ static const commandlist_t weapon_commands[] =
 	DF("IDLE_WAIT", idle_wait, DDF_MainGetTime),
 	DF("IDLE_CHANCE", idle_chance, DDF_MainGetPercent),
 	DF("MODEL_SKIN", model_skin, DDF_MainGetNumeric),
+	DF("MODEL_SCALE", model_scale, DDF_MainGetFloat),
+	DF("MODEL_ASPECT", model_aspect, DDF_MainGetFloat),
+	DF("MODEL_BIAS", model_bias, DDF_MainGetFloat),
+	DF("MODEL_FORWARD", model_forward, DDF_MainGetFloat),
+	DF("MODEL_SIDE", model_side, DDF_MainGetFloat),
 
 	// -AJA- backwards compatibility cruft...
 	DF("SECOND_ATTACK", attack[1], DDF_MainRefAttack),
@@ -647,7 +652,13 @@ void weapondef_c::CopyDetail(weapondef_c &src)
 	swaying = src.swaying;
 	idle_wait = src.idle_wait;
 	idle_chance = src.idle_chance;
+
 	model_skin = src.model_skin;
+	model_scale = src.model_scale;
+	model_aspect = src.model_aspect;
+	model_bias = src.model_bias;
+	model_forward = src.model_forward;
+	model_side = src.model_side;
 }
 
 //
@@ -718,7 +729,13 @@ void weapondef_c::Default(void)
 	swaying = PERCENT_MAKE(100);
 	idle_wait = 15 * TICRATE;
 	idle_chance = PERCENT_MAKE(12);
+
 	model_skin = 1;
+	model_scale = 1.0f;
+	model_aspect = 1.0f;
+	model_bias = 0.0f;
+	model_forward = 0.0f;
+	model_side = 0.0f;
 }
 
 //

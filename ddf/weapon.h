@@ -161,6 +161,11 @@ public:
 	percent_t idle_chance;
 
 	int model_skin;  // -AJA- 2007/10/16: MD2 model support
+	float model_scale;
+	float model_aspect;
+	float model_bias;
+	float model_forward;
+	float model_side;
 
 public:
 	inline int KeyPri(int idx) const  // next/prev order value
