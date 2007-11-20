@@ -300,6 +300,9 @@ public:
 	{
 		for (int DL = 0; DL < 2; DL++)
 		{
+			if (detail_level == 0 && DL > 0)
+				continue;
+
 			if (WhatType(DL) == DLITE_None)
 				break;
 
@@ -494,6 +497,9 @@ public:
 
 		for (int DL = 0; DL < 2; DL++)
 		{
+			if (detail_level == 0 && DL > 0)
+				continue;
+
 			if (WhatType(DL) == DLITE_None)
 				break;
 
