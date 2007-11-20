@@ -670,6 +670,10 @@ typedef enum
 
 	// light texture is simply added to wall
 	DLITE_Add,
+
+	// backwards compatibility cruft
+	DLITE_Compat_LIN,
+	DLITE_Compat_QUAD,
 }
 dlight_type_e;
 
@@ -723,19 +727,6 @@ public:
 class mobjtype_c
 {
 public:
-	mobjtype_c();
-	mobjtype_c(mobjtype_c &rhs);
-	~mobjtype_c();
-
-private:
-	void Copy(mobjtype_c &src);
-
-public:
-	void CopyDetail(mobjtype_c &src);
-	void Default();
-	
-	mobjtype_c& operator=(mobjtype_c &rhs);
-
 	// DDF Id
 	ddf_base_c ddf;
 
@@ -805,8 +796,8 @@ public:
 	percent_t shotheight;
 	float maxfall;
 	float fast;
-	float xscale;
-	float yscale;
+	float scale;
+	float aspect;
 	float bounce_speed;
 	float bounce_up;
 	float sight_slope;
@@ -841,7 +832,11 @@ public:
 	bitset_t side;
 	int playernum;
 	int yalign;     // -AJA- 2007/08/08: sprite Y alignment in bbox
+
 	int model_skin; // -AJA- 2007/10/16: MD2 model support
+	float model_scale;
+	float model_aspect;
+	float model_bias;
 
 	// breathing support: lung_capacity is how many tics we can last
 	// underwater.  gasp_start is how long underwater before we gasp
@@ -890,6 +885,22 @@ public:
 	// pointer is only valid after DDF_MobjCleanUp() has been called.
 	const mobjtype_c *spitspot;
 	epi::strent_c spitspot_ref;
+
+public:
+	mobjtype_c();
+	mobjtype_c(mobjtype_c &rhs);
+	~mobjtype_c();
+
+private:
+	void Copy(mobjtype_c &src);
+
+public:
+	void CopyDetail(mobjtype_c &src);
+	void Default();
+	
+	mobjtype_c& operator=(mobjtype_c &rhs);
+
+	void DLightCompatibility(void);
 };
 
 // Our mobjdef container
