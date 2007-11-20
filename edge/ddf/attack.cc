@@ -182,13 +182,34 @@ static void AttackFinishEntry(void)
 			DDF_StateFinishStates(buffer_mobj.first_state, 
 								  buffer_mobj.last_state);
 
+		// check MOBJ stuff
+
+		if (buffer_mobj.explode_damage.nominal < 0)
+		{
+			DDF_WarnError2(131, "Bad EXPLODE_DAMAGE.VAL value %f in DDF.\n",
+				buffer_mobj.explode_damage.nominal);
+		}
+
+		if (buffer_mobj.explode_radius < 0)
+		{
+			DDF_WarnError2(131, "Bad EXPLODE_RADIUS value %f in DDF.\n",
+				buffer_mobj.explode_radius);
+		}
+
+		if (buffer_mobj.model_skin < 0 || buffer_mobj.model_skin > 9)
+			DDF_Error("Bad MODEL_SKIN value %d in DDF (must be 0-9).\n",
+				buffer_mobj.model_skin);
+
+		if (buffer_mobj.dlight[0].radius > 512)
+			DDF_Warning("DLIGHT RADIUS value %1.1f too large (over 512).\n",
+				buffer_mobj.dlight[0].radius);
+
 		buffer_atk.atk_mobj = DDF_MobjMakeAttackObj(&buffer_mobj,
 											dynamic_atk->ddf.name.c_str());
-
 	}
 	else
 		buffer_atk.atk_mobj = NULL;
-  
+
 	// compute an attack class, if none specified
 	if (buffer_atk.attack_class == BITSET_EMPTY)
 	{
