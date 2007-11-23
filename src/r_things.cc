@@ -1065,8 +1065,10 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 }
 
 
-static void RGL_DrawModel(mobj_t *mo)
+static void RGL_DrawModel(drawthing_t *dthing)
 {
+	mobj_t *mo = dthing->mo;
+
 	modeldef_c *md = W_GetModel(mo->state->sprite);
 
 	const image_c *skin_img = md->skins[mo->model_skin];
@@ -1085,7 +1087,7 @@ I_Debugf("Render model: no skin %d\n", mo->model_skin);
 		z += GetHoverDZ(mo);
 
 	MD2_RenderModel(md->model, skin_tex, mo->state->frame, false,
-					mo->x, mo->y, z, mo, mo->props,
+					dthing->mx, dthing->my, z, mo, mo->props,
 					mo->info->model_scale, mo->info->model_aspect,
 					mo->info->model_bias);
 }
@@ -1145,7 +1147,7 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 {
 	if (dthing->is_model)
 	{
-		RGL_DrawModel(dthing->mo);
+		RGL_DrawModel(dthing);
 		return;
 	}
 
