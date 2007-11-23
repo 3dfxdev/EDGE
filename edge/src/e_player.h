@@ -287,6 +287,9 @@ typedef struct player_s
 	// the button.  Holds -1 if not fired or after changing weapons.
 	int remember_atk[2];
 
+	// last frame for weapon models
+	int weapon_last_frame;
+
 	short consistency[BACKUPTICS];
 
 	ticcmd_t in_cmds [BACKUPTICS];

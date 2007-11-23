@@ -338,6 +338,7 @@ void SV_MobjCreateElems(int num_elems)
 		cur->state = cur->next_state = states+1;
 
 		cur->model_skin = 1;
+		cur->model_last_frame = -1;
 	}
 }
 

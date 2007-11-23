@@ -374,6 +374,7 @@ static void P_BringUpWeapon(player_t * p)
 	p->remember_atk[0] = -1;
 	p->remember_atk[1] = -1;
 	p->idlewait = 0;
+	p->weapon_last_frame = -1;
 
 	if (sel == WPSEL_None)
 	{

@@ -330,7 +330,9 @@ void SV_PlayerCreateElems(int num_elems)
 		p->pnum = -1;  // checked during finalisation.
 		sprintf(p->playername, "Player%d", 1 + p->pnum);
 
-		p->remember_atk[0] = p->remember_atk[1] = -1;
+		p->remember_atk[0] = -1;
+		p->remember_atk[1] = -1;
+		p->weapon_last_frame = -1;
 
 		for (int j=0; j < NUMPSPRITES; j++)
 		{
