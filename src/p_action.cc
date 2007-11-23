@@ -3523,9 +3523,10 @@ void P_ActBecome(struct mobj_s *mo)
 		mo->extendedflags = mo->info->extendedflags;
 		mo->hyperflags    = mo->info->hyperflags;
 
-		mo->model_skin    = mo->info->model_skin;
 		mo->vis_target    = PERCENT_2_FLOAT(mo->info->translucency);
 		mo->currentattack = NULL;
+		mo->model_skin    = mo->info->model_skin;
+		mo->model_last_frame = -1;
 
 		// handle dynamic lights
 		{

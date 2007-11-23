@@ -161,7 +161,9 @@ void player_s::Reborn()
 	face_index = 0;
 	face_count = 0;
 
-	remember_atk[0] = remember_atk[1] = -1;
+	remember_atk[0] = -1;
+	remember_atk[1] = -1;
+	weapon_last_frame = -1;
 }
 
 //
