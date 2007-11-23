@@ -21,6 +21,8 @@
 
 #include "ddf/main.h"
 
+#include "epi/image_data.h"
+
 #include "p_mobj.h"
 #include "r_defs.h"
 #include "r_gldefs.h"
@@ -28,12 +30,58 @@
 #include "r_misc.h"
 #include "r_shader.h"
 #include "r_state.h"
+#include "r_texgl.h"
 #include "r_units.h"
 
 
 //----------------------------------------------------------------------------
 //  LIGHT IMAGES
 //----------------------------------------------------------------------------
+
+static GLuint MakeStandardDLight(void)
+{
+	int size = 256;
+	int hw   = size / 2;
+
+	epi::image_data_c img(size, size, 3);
+
+	for (int y = 0; y < hw; y++)
+	for (int x = y; x < hw; x++)
+	{
+		byte *dest = img.PixelAt(x, y);
+
+		float dx = (hw-1 - x) / float(hw);
+		float dy = (hw-1 - y) / float(hw);
+
+		float away_squared = dx * dx + dy * dy;
+
+#if 0  // OLD CRUD
+		float sq = 0.3f / (1.0f + DL_OUTER * hor_p2) +
+		           0.7f * MIN(1.0f, 2.0f / (1.0f + DL_OUTER * 2.0f * hor_p2));
+
+		// ramp intensity down to zero at the outer edge
+		float horiz = sqrt(hor_p2);
+		if (horiz > 0.80f)
+			sq = sq * (0.98f - horiz) / (0.98f - 0.80f);
+#endif
+
+		float v1 = exp(-5.44 * away_squared);
+
+		int v2 = (int)(v1 * 255.4f);
+
+		if (v2 < 0 || x == 0 || x == size-1 || y == 0 || y == size-1)
+		{
+			v2 = 0;
+		}
+
+		dest[0] = dest[1] = dest[2] = v2;
+	}
+
+	img.EightWaySymmetry();
+
+	return R_UploadTexture(&img, NULL, UPL_Smooth|UPL_Clamp);
+}
+
 
 #define LIM_CURVE_SIZE  32
 
@@ -42,7 +90,7 @@ class light_image_c
 public:
 	std::string name;
 
-	const image_c *image;
+///	const image_c *image;
 
 	GLuint tex_id;
 
@@ -63,11 +111,11 @@ public:
 
 			float sq = exp(-5.44 * d * d);
 
-			int r1 = (int)(255 * sq);
-			int g1 = (int)(255 * sq);
-			int b1 = (int)(255 * sq);
+			int r = (int)(255 * sq);
+			int g = (int)(255 * sq);
+			int b = (int)(255 * sq);
 
-			curve[i] = RGB_MAKE(r1, g1, b1);
+			curve[i] = RGB_MAKE(r, g, b);
 		}
 
 		curve[LIM_CURVE_SIZE-1] = RGB_MAKE(0, 0, 0);
@@ -123,14 +171,23 @@ static light_image_c *GetLightImage(const mobjtype_c *info, int DL)
 
 		const char *shape = D_info->shape.c_str();
 
-		light_image_c *lim = new light_image_c(shape);
+		light_image_c *lim = new light_image_c(shape ? shape : "DLIGHT_STANDARD");
 
-		// FIXME !!!! we need the EPI::BASIC_IMAGE in order to compute the curve
-		lim->MakeStdCurve();
+		if (strlen(shape) > 0)
+		{
+			const image_c *image = W_ImageLookup(shape, INS_Graphic, ILF_Null);
 
-		lim->image = W_ImageLookup(shape, INS_Graphic, ILF_Null);
+			lim->tex_id = W_ImageCache(image);
 
-		lim->tex_id = W_ImageCache(lim->image);
+			// FIXME !!!! we need the EPI::BASIC_IMAGE in order to compute the curve
+			I_Error("Custom DLIGHT shapes not yet supported.\n");
+		}
+		else
+		{
+			lim->tex_id = MakeStandardDLight();
+
+			lim->MakeStdCurve();
+		}
 
 		D_info->cache_data = lim;
 	}
