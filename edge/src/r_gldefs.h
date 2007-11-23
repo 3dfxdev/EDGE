@@ -146,7 +146,6 @@ public:
 
 	// translated coords
 	float tx, tz;
-	float tx1, tx2;
 
 	// colourmap/lighting
 	region_properties_t *props;
