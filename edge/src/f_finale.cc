@@ -29,6 +29,7 @@
 //
 
 #include "i_defs.h"
+#include "i_defs_gl.h"
 
 #include "ddf/main.h"
 
@@ -50,8 +51,10 @@
 #include "s_music.h"
 #include "r_colormap.h"
 #include "r_draw.h"
+#include "r_md2.h"
 #include "r_modes.h"
 #include "w_wad.h"
+#include "w_model.h"
 
 
 typedef enum
@@ -665,6 +668,25 @@ static void CastDrawer(void)
 	cast_style->DrawBackground();
 
 	CastPrint(casttitle);
+
+	if (caststate->flags & SFF_Model)
+	{
+		modeldef_c *md = W_GetModel(caststate->sprite);
+
+		const image_c *skin_img = md->skins[castorder->model_skin];
+
+		if (! skin_img)  // FIXME: use a dummy image
+		{
+			return;
+		}
+
+		GLuint skin_tex = W_ImageCache(skin_img, false, castorder->palremap);
+
+		MD2_RenderModel_2D(md->model, skin_tex, caststate->frame,
+						   SCREENWIDTH/2.0, FROM_200(30), 0,
+						   1.0f, castorder);
+		return;
+	}
 
 	// draw the current frame in the middle of the screen
 	image = R2_GetOtherSprite(caststate->sprite, caststate->frame, &flip);
