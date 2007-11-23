@@ -17,14 +17,20 @@ Tested new model scaling (etc) commands.
 Noticed something quite weird : using MODEL_SCALE with weapons
 did not seem to work, no matter how large or small the value!
 But there is an explanation: since weapon models are centered
-on the viewpoint, scaling the vertices will not change their
-on-screen position (the line from EYE to VERT will intersect
-the viewplane the same place).
+on the viewpoint, scaling the vertices will not alter the
+on-screen intersection point (where the line from EYE to VERT
+hits the viewplane).
 
 To simplify things (and prevent bug reports), I will remove
 MODEL_SCALE command for weapons.  Actually making the weapon
 bigger or smaller can be achieved by using a combination of
 MODEL_FORWARD, MODEL_SIDE and/or MODEL_BIAS commands.
+
+Fixed monster positioning on end-of-game CAST screen.
+
+Implemented models for end-of-game CAST screen, which is a tad
+ridiculous if you ask me, but people would have reported it as
+a bug, and the model-on-UI could be useful for other stuff.
 
 2007/11/20:
 
