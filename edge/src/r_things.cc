@@ -546,8 +546,22 @@ I_Debugf("Render model: no skin %d\n", skin_num);
 	y += viewright.y * w->model_side;
 	z += viewright.z * w->model_side;
 
+	int last_frame = psp->state->frame;
+	float lerp = 0.0;
+
+	if (p->weapon_last_frame >= 0)
+	{
+		SYS_ASSERT(psp->state);
+		SYS_ASSERT(psp->state->tics > 1);
+
+		last_frame = p->weapon_last_frame;
+
+		lerp = (psp->state->tics - psp->tics + 1) / (float)(psp->state->tics);
+		lerp = CLAMP(0, lerp, 1);
+	}
+
 	MD2_RenderModel(md->model, skin_tex, true,
-			        psp->state->frame, psp->state->frame, 0.0,
+			        last_frame, psp->state->frame, lerp,
 			        x, y, z, p->mo, view_props,
 					1.0f /* scale */, w->model_aspect, w->model_bias);
 }
@@ -1086,8 +1100,21 @@ I_Debugf("Render model: no skin %d\n", mo->model_skin);
 	if (mo->hyperflags & HF_HOVER)
 		z += GetHoverDZ(mo);
 
+	int last_frame = mo->state->frame;
+	float lerp = 0.0;
+
+	if (mo->model_last_frame >= 0)
+	{
+		last_frame = mo->model_last_frame;
+
+		SYS_ASSERT(mo->state->tics > 1);
+
+		lerp = (mo->state->tics - mo->tics + 1) / (float)(mo->state->tics);
+		lerp = CLAMP(0, lerp, 1);
+	}
+
 	MD2_RenderModel(md->model, skin_tex, false,
-			        mo->state->frame, mo->state->frame, 0.0,
+			        last_frame, mo->state->frame, lerp,
 					dthing->mx, dthing->my, z, mo, mo->props,
 					mo->info->model_scale, mo->info->model_aspect,
 					mo->info->model_bias);
