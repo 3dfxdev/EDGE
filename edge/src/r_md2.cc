@@ -776,10 +776,10 @@ static void ModelCoordFunc(void *d, int v_idx, vec3_t *pos,
 }
 
 
-void MD2_RenderModel(md2_model_c *md, GLuint skin_tex,
+void MD2_RenderModel(md2_model_c *md, GLuint skin_tex, bool is_weapon,
 		             int frame1, int frame2, float lerp,
-		             bool is_weapon, float x, float y, float z,
-					 mobj_t *mo, region_properties_t *props,
+		             float x, float y, float z, mobj_t *mo,
+					 region_properties_t *props,
 					 float scale, float aspect, float bias)
 {
 	// check if frames are valid
