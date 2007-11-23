@@ -73,10 +73,6 @@ int rgl_weapon_b;
 #define MINZ        (4.0f)
 
 
-extern void MIR_Coordinate(float& x, float& y);
-extern int num_active_mirrors;
-
-	
 void RGL_UpdateTheFuzz(void)
 {
 	// fuzzy warping effect
@@ -610,16 +606,7 @@ static const image_c * R2_GetThingSprite2(mobj_t *mo, float mx, float my, bool *
 	{
 		angle_t ang = mo->angle;
 
-		if (num_active_mirrors > 0)
-		{
-			// FIXME: optimise this (MIR_Angle).
-			float nx = mo->x + M_Cos(ang);
-			float ny = mo->y + M_Sin(ang);
-
-			MIR_Coordinate(nx, ny);
-
-			ang = R_PointToAngle(mx, my, nx, ny);
-		}
+		MIR_Angle(ang);
 
 		angle_t from_view = R_PointToAngle(viewx, viewy, mx, my);
 

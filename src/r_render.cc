@@ -163,6 +163,8 @@ typedef struct
 	float xc, xx, xy;  // x' = xc + x*xx + y*xy
 	float yc, yx, yy;  // y' = yc + x*yx + y*yy
 
+	angle_t tc;
+
 public:
 	void ComputeMirror()
 	{
@@ -181,6 +183,11 @@ public:
 
 		xc = seg->v1->x * (1.0-A) - seg->v1->y * B;
 		yc = seg->v1->y * (1.0+A) - seg->v1->x * B;
+
+		// Turn(a) = mir_angle + (0 - (a - mir_angle))
+		//         = 2 * mir_angle - a
+
+		tc = seg->angle << 1;
 	}
 
 	void Flip(float& x, float& y)
@@ -189,6 +196,11 @@ public:
 
 		x = xc + tx*xx + ty*xy;
 		y = yc + tx*yx + ty*yy;
+	}
+
+	void Turn(angle_t& ang)
+	{
+		ang = tc - ang;
 	}
 }
 mirror_info_t;
@@ -203,6 +215,24 @@ void MIR_Coordinate(float& x, float& y)
 	for (int i=num_active_mirrors-1; i >= 0; i--)
 		active_mirrors[i].Flip(x, y);
 }
+
+void MIR_Angle(angle_t &ang)
+{
+	for (int i=num_active_mirrors-1; i >= 0; i--)
+		active_mirrors[i].Turn(ang);
+#if 0
+		if (num_active_mirrors > 0)
+		{
+			float nx = mo->x + M_Cos(ang);
+			float ny = mo->y + M_Sin(ang);
+
+			MIR_Coordinate(nx, ny);
+
+			ang = R_PointToAngle(mx, my, nx, ny);
+		}
+#endif
+}
+
 
 static void MIR_SetClippers()
 {
