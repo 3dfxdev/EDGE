@@ -6,6 +6,22 @@ Removed the need for [DLIGHTNORMAL] entry in images.ddf,
 instead a non-specified SHAPE will create the built-in
 dynamic light image.
 
+Worked on fixing models in mirrors.
+
+Tested new model scaling (etc) commands.
+
+Noticed something quite weird : using MODEL_SCALE with weapons
+did not seem to work, no matter how large or small the value!
+But there is an explanation: since weapon models are centered
+on the viewpoint, scaling the vertices will not change their
+on-screen position (the line from EYE to VERT will intersect
+the viewplane the same place).
+
+To simplify things (and prevent bug reports), I will remove
+MODEL_SCALE command for weapons.  Actually making the weapon
+bigger or smaller can be achieved by using a combination of
+MODEL_FORWARD, MODEL_SIDE and/or MODEL_BIAS commands.
+
 2007/11/20:
 
 Added MODEL_SCALE, MODEL_ASPECT and MODEL_BIAS commands for
