@@ -672,13 +672,31 @@ static void CastDrawer(void)
 	if (! image)
 		return;
 
-	RGL_DrawImage(FROM_320(160 - IM_OFFSETX(image) - IM_WIDTH(image)/2.0f),
-			FROM_200(170 - (IM_HEIGHT(image)+IM_OFFSETY(image))),
-			FROM_320(IM_WIDTH(image)), 
-			FROM_200(IM_HEIGHT(image)), image,
-			flip ? IM_RIGHT(image) : 0, 0,
-			flip ? 0 : IM_RIGHT(image), IM_BOTTOM(image),
-			NULL, 1.0f);
+	float xscale = castorder->scale * castorder->aspect;
+	float yscale = castorder->scale;
+
+	float width    = IM_WIDTH(image);
+	float height   = IM_HEIGHT(image);
+
+	float offset_x = IM_OFFSETX(image);
+	float offset_y = IM_OFFSETY(image);
+
+	if (flip)
+		offset_x = -offset_x;
+
+	float tx1 = 160 - (width/2.0f + offset_x) * xscale;
+
+	float gzb = 170 - offset_y * yscale;
+
+	width  *= xscale;
+	height *= yscale;
+
+	RGL_DrawImage(FROM_320(tx1), SCREENHEIGHT - FROM_200(gzb),
+			      FROM_320(width), FROM_200(height),
+				  image, 
+				  flip ? IM_RIGHT(image) : 0, 0,
+				  flip ? 0 : IM_RIGHT(image), IM_TOP(image),
+				  NULL, 1.0f);
 }
 
 //
