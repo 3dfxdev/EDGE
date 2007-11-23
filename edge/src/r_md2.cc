@@ -39,13 +39,6 @@
 #include "p_blockmap.h"
 #include "m_math.h"
 
-#include "dm_state.h"  //!!!! game_dir
-
-#include "m_misc.h"  //!!!! M_OpenComposedEPIFile
-#include "m_random.h"
-
-extern int leveltime; //!!!!
-
 
 // #define DEBUG_MD2_LOAD  1
 
@@ -793,7 +786,12 @@ I_Debugf("Render model: bad frame %d\n", frame);
 
 	M_Angle2Matrix(is_weapon ? ~mo->vertangle : 0, &data.kx_mat, &data.kz_mat);
 
-	M_Angle2Matrix(~ mo->angle, &data.rx_mat, &data.ry_mat);
+	
+	angle_t ang = mo->angle;
+
+	MIR_Angle(ang);
+
+	M_Angle2Matrix(~ ang, &data.rx_mat, &data.ry_mat);
 
 
 	data.used_normals = md->frames[frame].used_normals;
