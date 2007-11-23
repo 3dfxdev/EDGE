@@ -925,7 +925,6 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 
 	float gzt  = 0, gzb  = 0;
 	float pos1 = 0, pos2 = 0;
-	float tx1  = 0, tx2  = 0;
 
 	if (! is_model)
 	{
@@ -941,15 +940,12 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 		float top_offset    = IM_OFFSETY(image);
 
 		if (spr_flip)
-			side_offset *= -1.0f;
+			side_offset = -side_offset;
 
 		float xscale = mo->info->scale * mo->info->aspect;
 
 		pos1 = (sprite_width/-2.0f - side_offset) * xscale;
 		pos2 = (sprite_width/+2.0f - side_offset) * xscale;
-
-		tx1 = tx + pos1;
-		tx2 = tx + pos2;
 
 		switch (mo->info->yalign)
 		{
@@ -1036,9 +1032,6 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 
 	dthing->tx = tx;
 	dthing->tz = tz;
-
-	dthing->tx1 = tx1;
-	dthing->tx2 = tx2;
 
 	dthing->top    = dthing->orig_top    = gzt;
 	dthing->bottom = dthing->orig_bottom = gzb;
