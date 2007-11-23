@@ -8,6 +8,10 @@ dynamic light image.
 
 Worked on fixing models in mirrors.
 
+Implemented Vertex Interpolation for models, which makes them
+much more yummy.  Only downside is the "teleporting" way that
+monsters move is very noticeable now.
+
 Tested new model scaling (etc) commands.
 
 Noticed something quite weird : using MODEL_SCALE with weapons
