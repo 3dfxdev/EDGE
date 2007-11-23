@@ -497,177 +497,6 @@ static void CreateUserColourImage(epi::image_data_c *img, imagedef_c *def)
 	}
 }
 
-static void FourWaySymmetry(epi::image_data_c *img)
-{
-	// the already-drawn corner has the lowest x and y values.  When
-	// width or height is odd, the middle column/row must already be
-	// drawn.
-
-	int w2 = (img->width  + 1) / 2;
-	int h2 = (img->height + 1) / 2;
-
-	for (int y = 0; y < h2; y++)
-	for (int x = 0; x < w2; x++)
-	{
-		int ix = img->width  - 1 - x;
-		int iy = img->height - 1 - y;
-
-		img->CopyPixel(x, y, ix,  y);
-		img->CopyPixel(x, y,  x, iy);
-		img->CopyPixel(x, y, ix, iy);
-	}
-}
-
-static void EightWaySymmetry(epi::image_data_c *img)
-{
-	// Note: the corner already drawn has lowest x and y values, and
-	// the triangle piece is where x >= y.  The diagonal (x == y) must
-	// already be drawn.
-
-	SYS_ASSERT(img->width == img->height);
-
-	int hw = (img->width + 1) / 2;
-
-	for (int y = 0;   y < hw; y++)
-	for (int x = y+1; x < hw; x++)
-	{
-		img->CopyPixel(x, y, y, x);
-	}
-
-	FourWaySymmetry(img);
-}
-
-static void CreateUserBuiltinLinear(epi::image_data_c *img, imagedef_c *def)
-{
-	SYS_ASSERT(img->bpp == 4);
-	SYS_ASSERT(img->width == img->height);
-
-	int hw = (img->width + 1) / 2;
-
-	for (int y = 0; y < hw; y++)
-	for (int x = y; x < hw; x++)
-	{
-		byte *dest = img->pixels + (y * img->width + x) * 4;
-
-		float dx = (hw-1 - x) / float(hw);
-		float dy = (hw-1 - y) / float(hw);
-
-		float hor_p2 = dx * dx + dy * dy;
-		float sq = 1.0f / sqrt(1.0f + DL_OUTER * DL_OUTER * hor_p2);
-
-		// ramp intensity down to zero at the outer edge
-		float horiz = sqrt(hor_p2);
-		if (horiz > 0.80f)
-			sq = sq * (0.98f - horiz) / (0.98f - 0.80f);
-
-		int v = int(sq * 255.4f);
-
-		if (v < 0 || 
-			x == 0 || x == img->width-1 ||
-			y == 0 || y == img->height-1)
-		{
-			v = 0;
-		}
-
-		dest[0] = dest[1] = dest[2] = v;
-		dest[3] = 255;
-	}
-
-	EightWaySymmetry(img);
-}
-
-static void CreateUserBuiltinQuadratic(epi::image_data_c *img, imagedef_c *def)
-{
-	SYS_ASSERT(img->bpp == 4);
-	SYS_ASSERT(img->width == img->height);
-
-	int hw = (img->width + 1) / 2;
-
-	for (int y = 0; y < hw; y++)
-	for (int x = y; x < hw; x++)
-	{
-		byte *dest = img->pixels + (y * img->width + x) * 4;
-
-		float dx = (hw-1 - x) / float(hw);
-		float dy = (hw-1 - y) / float(hw);
-
-		float hor_p2 = dx * dx + dy * dy;
-
-		float sq = 0.3f / (1.0f + DL_OUTER * hor_p2) +
-		           0.7f * MIN(1.0f, 2.0f / (1.0f + DL_OUTER * 2.0f * hor_p2));
-
-		// ramp intensity down to zero at the outer edge
-		float horiz = sqrt(hor_p2);
-		if (horiz > 0.80f)
-			sq = sq * (0.98f - horiz) / (0.98f - 0.80f);
-
-// hor_p2 = cos(hor_p2*6.2)/2+0.5; //!!!! RING SHAPE ??
-sq = exp(-5.44 * hor_p2);
-		
- 	int v = int(sq * 255.4f);  ////  * sin(hor_p2*7.7));
-
-		if (v < 0 ||
-			x == 0 || x == img->width-1 ||
-			y == 0 || y == img->height-1)
-		{
-			v = 0;
-		}
-
-		dest[0] = dest[1] = dest[2] = v;
-		dest[3] = 255;
-	}
-
-	EightWaySymmetry(img);
-}
-
-static void CreateUserBuiltin_RING(epi::image_data_c *img, imagedef_c *def)
-{
-	SYS_ASSERT(img->bpp == 4);
-	SYS_ASSERT(img->width == img->height);
-
-	int hw = (img->width + 1) / 2;
-
-	for (int y = 0; y < hw; y++)
-	for (int x = y; x < hw; x++)
-	{
-		byte *dest = img->pixels + (y * img->width + x) * 4;
-
-		float dx = (hw-1 - x) / float(hw);
-		float dy = (hw-1 - y) / float(hw);
-
-		float hor_p2 = dx * dx + dy * dy;
-
-		float sq = 0.3f / (1.0f + DL_OUTER * hor_p2) +
-		           0.7f * MIN(1.0f, 2.0f / (1.0f + DL_OUTER * 2.0f * hor_p2));
-
-		// ramp intensity down to zero at the outer edge
-		float horiz = sqrt(hor_p2);
-		if (horiz > 0.80f)
-			sq = sq * (0.98f - horiz) / (0.98f - 0.80f);
-
-//hor_p2 = hor_p2*2; if (hor_p2 > 1) hor_p2 = 2.0 - hor_p2;
-//hor_p2 = 1 - hor_p2;
-
-sq = exp(-5.44 * hor_p2);
-
-		int v = int(sq * 255.4f);
-
-		if (v < 0 ||
-			x == 0 || x == img->width-1 ||
-			y == 0 || y == img->height-1)
-		{
-			v = 0;
-		}
-
-		dest[0] = v;
-		dest[1] = v*v/255;
-		dest[2] = sqrt(v*255);
-		dest[3] = 255;
-	}
-
-	EightWaySymmetry(img);
-}
-
 static void CreateUserBuiltinShadow(epi::image_data_c *img, imagedef_c *def)
 {
 	SYS_ASSERT(img->bpp == 4);
@@ -701,7 +530,7 @@ static void CreateUserBuiltinShadow(epi::image_data_c *img, imagedef_c *def)
 		*dest   = v;
 	}
 
-	EightWaySymmetry(img);
+	img->EightWaySymmetry();
 }
 
 epi::file_c *OpenUserFileOrLump(imagedef_c *def)
@@ -719,10 +548,6 @@ epi::file_c *OpenUserFileOrLump(imagedef_c *def)
 			return NULL;
 
 		return W_OpenLump(lump);
-///---		const byte *lump_data = (byte *)W_CacheLumpNum(lump);
-///---		int length = W_LumpLength(lump);
-///---
-///---		return new epi::mem_file_c(lump_data, length, false /* no copying */);
 	}
 }
 
@@ -730,19 +555,6 @@ void CloseUserFileOrLump(imagedef_c *def, epi::file_c *f)
 {
 	delete f;
 
-///---	if (def->type == IMGDT_File)
-///---	{
-///---		delete f;
-///---	}
-///---	else  /* LUMP */
-///---	{
-///---		// FIXME: create sub-class of mem_file_c in WAD code
-///---		epi::mem_file_c *mf = (epi::mem_file_c *) f;
-///---
-///---		W_DoneWithLump(mf->data);
-///---
-///---		delete f;
-///---	}
 }
 
 static epi::image_data_c *CreateUserFileImage(image_c *rim, imagedef_c *def)
@@ -820,13 +632,7 @@ static epi::image_data_c *ReadUserAsEpiBlock(image_c *rim)
 			switch (def->builtin)
 			{
 				case BLTIM_Linear:
-					CreateUserBuiltin_RING(img, def); //!!!!!
-					break;
-
 				case BLTIM_Quadratic:
-					CreateUserBuiltinQuadratic(img, def);
-					break;
-
 				case BLTIM_Shadow:
 					CreateUserBuiltinShadow(img, def);
 					break;
@@ -888,8 +694,6 @@ epi::image_data_c *ReadAsEpiBlock(image_c *rim)
 			return NULL;
 	}
 }
-
-
 
 
 //--- editor settings ---
