@@ -682,9 +682,15 @@ static void CastDrawer(void)
 
 		GLuint skin_tex = W_ImageCache(skin_img, false, castorder->palremap);
 
+		glClear(GL_DEPTH_BUFFER_BIT);
+		glEnable(GL_DEPTH_TEST);
+
 		MD2_RenderModel_2D(md->model, skin_tex, caststate->frame,
-						   SCREENWIDTH/2.0, FROM_200(30), 0,
-						   1.0f, castorder);
+						   SCREENWIDTH/2.0, FROM_200(30),
+						   SCREENWIDTH / 320.0, SCREENHEIGHT / 200.0,
+						   castorder);
+
+		glDisable(GL_DEPTH_TEST);
 		return;
 	}
 
