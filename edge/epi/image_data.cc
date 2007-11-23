@@ -70,71 +70,71 @@ void image_data_c::Shrink(int new_w, int new_h)
 
 	int step_x = width  / new_w;
 	int step_y = height / new_h;
-  int total  = step_x * step_y;
+	int total  = step_x * step_y;
 
 	// TODO: OPTIMISE this
 
-  if (bpp == 3)
-  {
-    for (int dy=0; dy < new_h; dy++)
-    for (int dx=0; dx < new_w; dx++)
-    {
-      u8_t *dest_pix = pixels + (dy * new_w + dx) * 3;
+	if (bpp == 3)
+	{
+		for (int dy=0; dy < new_h; dy++)
+		for (int dx=0; dx < new_w; dx++)
+		{
+			u8_t *dest_pix = pixels + (dy * new_w + dx) * 3;
 
-      int sx = dx * step_x;
-      int sy = dy * step_y;
+			int sx = dx * step_x;
+			int sy = dy * step_y;
 
-      int r=0, g=0, b=0;
+			int r=0, g=0, b=0;
 
-      // compute average colour of block
-      for (int x=0; x < step_x; x++)
-      for (int y=0; y < step_y; y++)
-      {
-        u8_t *src_pix = PixelAt(sx+x, sy+y);
+			// compute average colour of block
+			for (int x=0; x < step_x; x++)
+				for (int y=0; y < step_y; y++)
+				{
+					u8_t *src_pix = PixelAt(sx+x, sy+y);
 
-        r += src_pix[0];
-        g += src_pix[1];
-        b += src_pix[2];
-      }
+					r += src_pix[0];
+					g += src_pix[1];
+					b += src_pix[2];
+				}
 
-      dest_pix[0] = r / total;
-      dest_pix[1] = g / total;
-      dest_pix[2] = b / total;
-    }
-  }
-  else  /* bpp == 4 */
-  {
-    for (int dy=0; dy < new_h; dy++)
-    for (int dx=0; dx < new_w; dx++)
-    {
-      u8_t *dest_pix = pixels + (dy * new_w + dx) * 4;
+			dest_pix[0] = r / total;
+			dest_pix[1] = g / total;
+			dest_pix[2] = b / total;
+		}
+	}
+	else  /* bpp == 4 */
+	{
+		for (int dy=0; dy < new_h; dy++)
+		for (int dx=0; dx < new_w; dx++)
+		{
+			u8_t *dest_pix = pixels + (dy * new_w + dx) * 4;
 
-      int sx = dx * step_x;
-      int sy = dy * step_y;
+			int sx = dx * step_x;
+			int sy = dy * step_y;
 
-      int r=0, g=0, b=0, a=0;
+			int r=0, g=0, b=0, a=0;
 
-      // compute average colour of block
-      for (int x=0; x < step_x; x++)
-      for (int y=0; y < step_y; y++)
-      {
-        u8_t *src_pix = PixelAt(sx+x, sy+y);
+			// compute average colour of block
+			for (int x=0; x < step_x; x++)
+				for (int y=0; y < step_y; y++)
+				{
+					u8_t *src_pix = PixelAt(sx+x, sy+y);
 
-        r += src_pix[0];
-        g += src_pix[1];
-        b += src_pix[2];
-        a += src_pix[3];
-      }
+					r += src_pix[0];
+					g += src_pix[1];
+					b += src_pix[2];
+					a += src_pix[3];
+				}
 
-      dest_pix[0] = r / total;
-      dest_pix[1] = g / total;
-      dest_pix[2] = b / total;
-      dest_pix[3] = a / total;
-    }
-  }
+			dest_pix[0] = r / total;
+			dest_pix[1] = g / total;
+			dest_pix[2] = b / total;
+			dest_pix[3] = a / total;
+		}
+	}
 
-  width  = new_w;
-  height = new_h;
+	width  = new_w;
+	height = new_h;
 }
 
 void image_data_c::Grow(int new_w, int new_h)
@@ -166,22 +166,22 @@ void image_data_c::Grow(int new_w, int new_h)
 
 void image_data_c::RemoveAlpha()
 {
-  SYS_ASSERT(bpp == 4);
+	SYS_ASSERT(bpp == 4);
 
-  u8_t *src   = pixels;
+	u8_t *src   = pixels;
 	u8_t *s_end = src + (width * height * bpp);
-  u8_t *dest  = pixels;
+	u8_t *dest  = pixels;
 
-  for (; src < s_end; src += 4)
-  {
-    // blend alpha with BLACK
+	for (; src < s_end; src += 4)
+	{
+		// blend alpha with BLACK
 
-    *dest++ = (int)src[0] * (int)src[3] / 255;
-    *dest++ = (int)src[1] * (int)src[3] / 255;
-    *dest++ = (int)src[2] * (int)src[3] / 255;
-  }
+		*dest++ = (int)src[0] * (int)src[3] / 255;
+		*dest++ = (int)src[1] * (int)src[3] / 255;
+		*dest++ = (int)src[2] * (int)src[3] / 255;
+	}
 
-  bpp = 3;
+	bpp = 3;
 }
 
 } // namespace epi
