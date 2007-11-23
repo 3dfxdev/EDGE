@@ -184,6 +184,38 @@ void image_data_c::RemoveAlpha()
 	bpp = 3;
 }
 
+void image_data_c::FourWaySymmetry()
+{
+	int w2 = (width  + 1) / 2;
+	int h2 = (height + 1) / 2;
+
+	for (int y = 0; y < h2; y++)
+	for (int x = 0; x < w2; x++)
+	{
+		int ix = width  - 1 - x;
+		int iy = height - 1 - y;
+
+		CopyPixel(x, y, ix,  y);
+		CopyPixel(x, y,  x, iy);
+		CopyPixel(x, y, ix, iy);
+	}
+}
+
+void image_data_c::EightWaySymmetry()
+{
+	SYS_ASSERT(width == height);
+
+	int hw = (width + 1) / 2;
+
+	for (int y = 0;   y < hw; y++)
+	for (int x = y+1; x < hw; x++)
+	{
+		CopyPixel(x, y, y, x);
+	}
+
+	FourWaySymmetry();
+}
+
 } // namespace epi
 
 
