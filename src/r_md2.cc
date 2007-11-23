@@ -887,8 +887,8 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 		{
 			data.strip = & md->strips[i];
 
-			local_gl_vert_t * glvert = RGL_BeginUnit(md->strips[i].mode,
-					 md->strips[i].count,
+			local_gl_vert_t * glvert = RGL_BeginUnit(
+					 data.strip->mode, data.strip->count,
 					 GL_MODULATE, data.is_additive ? 0 : skin_tex,
 					 ENV_NONE, 0, pass, blending);
 
@@ -909,34 +909,37 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 
 
 void MD2_RenderModel_2D(md2_model_c *md, GLuint skin_tex, int frame,
-		                float x, float y, float z, float scale,
-		                mobjtype_c *info)
+		                float x, float y, float xscale, float yscale,
+		                const mobjtype_c *info)
 {
 	// check if frame is valid
 	if (frame < 0 || frame >= md->num_frames)
 		return;
 
-	float xy_scale = scale * info->model_scale * info->model_aspect;
-	float  z_scale = scale * info->model_scale;
+	xscale = yscale * info->model_scale * info->model_aspect;
+	yscale = yscale * info->model_scale;
 
-	// FIXME: enable stuff!  BLEND, TEXTURE2D  yada yada
-	
-	// FIXME: clear depth buffer [f_finale!]
-	
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, skin_tex);
+ 
+	glEnable(GL_BLEND);
+	glEnable(GL_CULL_FACE);
+
 	if (info->flags & MF_FUZZY)
-		glColor4f(0, 0, 0, FUZZY_TRANS);
+		glColor4f(0, 0, 0, 0.6f);
 	else
-		glColor4f(1, 1, 1, MAX(0.25, info->translucency));
+		glColor4f(1, 1, 1, 1.0f);
 
 
 	for (int i = 0; i < md->num_strips; i++)
 	{
-		glBegin(md->strips[i].mode);
+		const md2_strip_c *strip = & md->strips[i];
+
+		glBegin(strip->mode);
 
 		for (int v_idx=0; v_idx < md->strips[i].count; v_idx++)
 		{
 			const md2_frame_c *frame_ptr = & md->frames[frame];
-			const md2_strip_c *strip     = & md->strips[i];
 
 			SYS_ASSERT(strip->first + v_idx >= 0);
 			SYS_ASSERT(strip->first + v_idx < md->num_points);
@@ -956,15 +959,19 @@ void MD2_RenderModel_2D(md2_model_c *md, GLuint skin_tex, int frame,
 			glNormal3f(norm_y, norm_z, norm_x);
 
 
-			float pos_x = x + vert->x * xy_scale;
-			float pos_y = y + vert->y * xy_scale;
-			float pos_z = z + (vert->z + info->model_bias) * z_scale;
+			float dx = vert->x * xscale;
+			float dy = vert->y * xscale;
+			float dz = (vert->z + info->model_bias) * yscale;
 
-			glVertex3f(pos_y, pos_z, pos_x);
+			glVertex3f(x + dy, y + dz, dx / 256.0f);
 		}
 
 		glEnd();
 	}
+
+	glDisable(GL_BLEND);
+	glDisable(GL_TEXTURE_2D);
+	glDisable(GL_CULL_FACE);
 }
 
 //--- editor settings ---
