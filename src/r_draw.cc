@@ -32,9 +32,6 @@
 static int glbsp_last_prog_time = 0;
 
 
-//
-// RGL_NewcreenSize
-//
 void RGL_NewScreenSize(int width, int height, int bits)
 {
 	//!!! quick hack
@@ -45,9 +42,7 @@ void RGL_NewScreenSize(int width, int height, int bits)
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
-//
-// RGL_DrawImage
-//
+
 void RGL_DrawImage(float x, float y, float w, float h, const image_c *image, 
 				   float tx1, float ty1, float tx2, float ty2,
 				   const colourmap_c *colmap, float alpha)
@@ -124,9 +119,7 @@ void RGL_ImageEasy320(float x, float y, const image_c *image)
     RGL_Image320(x, y, IM_WIDTH(image), IM_HEIGHT(image), image);
 }
 
-//
-// RGL_SolidBox
-//
+
 void RGL_SolidBox(int x, int y, int w, int h, rgbcol_t col, float alpha)
 {
 	if (alpha < 0.99f)
@@ -145,9 +138,6 @@ void RGL_SolidBox(int x, int y, int w, int h, rgbcol_t col, float alpha)
 	glDisable(GL_BLEND);
 }
 
-//
-// RGL_SolidLine
-//
 void RGL_SolidLine(int x1, int y1, int x2, int y2, rgbcol_t col, float alpha)
 {
 	glColor4f(RGB_RED(col)/255.0, RGB_GRN(col)/255.0, RGB_BLU(col)/255.0, alpha);
@@ -160,11 +150,7 @@ void RGL_SolidLine(int x1, int y1, int x2, int y2, rgbcol_t col, float alpha)
 	glEnd();
 }
 
-//
-// RGL_ReadScreen
-//
-// -ACB- 29/04/2002: Implementation
-//
+
 void RGL_ReadScreen(int x, int y, int w, int h, byte *rgb_buffer)
 {
 	glFlush();
@@ -229,13 +215,11 @@ static void ProgressSection(const byte *logo_lum, int lw, int lh,
 	(*y) = py;
 }
 
-//
-// RGL_DrawProgress
-//
-// Show EDGE logo and a progress indicator.
-//
+
 void RGL_DrawProgress(int perc, int glbsp_perc)
 {
+	/* show EDGE logo and a progress indicator */
+
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 	glEnable(GL_BLEND);
