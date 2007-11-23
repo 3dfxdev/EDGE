@@ -80,7 +80,6 @@ static const commandlist_t weapon_commands[] =
 	DF("IDLE_WAIT", idle_wait, DDF_MainGetTime),
 	DF("IDLE_CHANCE", idle_chance, DDF_MainGetPercent),
 	DF("MODEL_SKIN", model_skin, DDF_MainGetNumeric),
-	DF("MODEL_SCALE", model_scale, DDF_MainGetFloat),
 	DF("MODEL_ASPECT", model_aspect, DDF_MainGetFloat),
 	DF("MODEL_BIAS", model_bias, DDF_MainGetFloat),
 	DF("MODEL_FORWARD", model_forward, DDF_MainGetFloat),
@@ -654,7 +653,6 @@ void weapondef_c::CopyDetail(weapondef_c &src)
 	idle_chance = src.idle_chance;
 
 	model_skin = src.model_skin;
-	model_scale = src.model_scale;
 	model_aspect = src.model_aspect;
 	model_bias = src.model_bias;
 	model_forward = src.model_forward;
@@ -731,7 +729,6 @@ void weapondef_c::Default(void)
 	idle_chance = PERCENT_MAKE(12);
 
 	model_skin = 1;
-	model_scale = 1.0f;
 	model_aspect = 1.0f;
 	model_bias = 0.0f;
 	model_forward = 0.0f;
