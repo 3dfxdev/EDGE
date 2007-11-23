@@ -1,5 +1,11 @@
 Andrew Apted's Log
 
+2007/11/23:
+
+Removed the need for [DLIGHTNORMAL] entry in images.ddf,
+instead a non-specified SHAPE will create the built-in
+dynamic light image.
+
 2007/11/20:
 
 Added MODEL_SCALE, MODEL_ASPECT and MODEL_BIAS commands for
@@ -8,6 +14,10 @@ commands for weapons.ddf only (to offset the weapon model).
 
 Preliminary work for rendering MD2 models in 2D (on the UI),
 needed for the end-of-game cast screen.
+
+2007/11/19:
+
+Put out the 1.31-Alpha#1 test package.
 
 2007/11/18:
 
