@@ -63,13 +63,22 @@ void P_SetPsprite(player_t * p, int position, int stnum)
 
 	state_t *st = &states[stnum];
 
-	psp->tics = st->tics;
+	// model interpolation stuff
+	if (psp->state &&
+		(st->flags & SFF_Model) && (psp->state->flags & SFF_Model) &&
+		(st->sprite == psp->state->sprite) && st->tics > 1)
+	{
+		p->weapon_last_frame = psp->state->frame;
+	}
+	else
+		p->weapon_last_frame = -1;
+
 	psp->state = st;
+	psp->tics  = st->tics;
 	psp->next_state = (st->nextstate == S_NULL) ? NULL : 
 		(states + st->nextstate);
 
-	// Call action routine.
-	// Modified handling.
+	// call action routine
 
 	p->action_psp = position;
 

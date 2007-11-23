@@ -491,6 +491,15 @@ bool P_SetMobjState(mobj_t * mobj, statenum_t state)
 
 	st = &states[state];
 
+	// model interpolation stuff
+	if ((st->flags & SFF_Model) && (mobj->state->flags & SFF_Model) &&
+		(st->sprite == mobj->state->sprite) && st->tics > 1)
+	{
+		mobj->model_last_frame = mobj->state->frame;
+	}
+	else
+		mobj->model_last_frame = -1;
+
 	mobj->state  = st;
 	mobj->tics   = st->tics;
 	mobj->next_state = (st->nextstate == S_NULL) ? NULL :
