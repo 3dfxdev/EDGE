@@ -24,9 +24,9 @@ namespace epi
 
 typedef enum
 {
-  IDF_NONE = 0,
+	IDF_NONE = 0,
 
-  IDF_ExtPalette = (1 << 0),  // palette is external (do not free)
+	IDF_ExtPalette = (1 << 0),  // palette is external (do not free)
 }
 image_data_flags_e;
 
@@ -92,6 +92,18 @@ public:
 	void RemoveAlpha();
 	// convert an RGBA image to RGB.  Partially transparent colors
 	// (alpha < 255) are blended with black.
+	
+	void FourWaySymmetry();
+	// mirror the already-drawn corner (lowest x/y values) into the
+	// other three corners.  When width or height is odd, the middle
+	// column/row must already be drawn.
+
+	void EightWaySymmetry();
+	// mirror the already-drawn half corner (1/8th of the image)
+	// into the rest of the image.  The source corner has lowest x/y
+	// values, and the triangle piece is where y <= x, including the
+	// pixels along the diagonal where (x == y).
+	// NOTE: the image must be SQUARE (width == height).
 };
 
 
@@ -99,9 +111,9 @@ public:
 
 typedef enum
 {
-  IRF_NONE = 0,
+	IRF_NONE = 0,
 
-  IRF_Round_POW2 = (1 << 0),  // convert width / height to powers of two
+	IRF_Round_POW2 = (1 << 0),  // convert width / height to powers of two
 // IRF_Invert_Y   = (1 << 1),  // invert the image vertically
 }
 image_read_flags_e;
