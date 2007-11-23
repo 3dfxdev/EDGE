@@ -546,8 +546,9 @@ I_Debugf("Render model: no skin %d\n", skin_num);
 	y += viewright.y * w->model_side;
 	z += viewright.z * w->model_side;
 
-	MD2_RenderModel(md->model, skin_tex, psp->state->frame,
-			        true, x, y, z, p->mo, view_props,
+	MD2_RenderModel(md->model, skin_tex, true,
+			        psp->state->frame, psp->state->frame, 0.0,
+			        x, y, z, p->mo, view_props,
 					w->model_scale, w->model_aspect, w->model_bias);
 
 }
@@ -1086,7 +1087,8 @@ I_Debugf("Render model: no skin %d\n", mo->model_skin);
 	if (mo->hyperflags & HF_HOVER)
 		z += GetHoverDZ(mo);
 
-	MD2_RenderModel(md->model, skin_tex, mo->state->frame, false,
+	MD2_RenderModel(md->model, skin_tex, false,
+			        mo->state->frame, mo->state->frame, 0.0,
 					dthing->mx, dthing->my, z, mo, mo->props,
 					mo->info->model_scale, mo->info->model_aspect,
 					mo->info->model_bias);

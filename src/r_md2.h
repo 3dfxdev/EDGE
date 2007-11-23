@@ -31,10 +31,10 @@ class md2_model_c;
 
 md2_model_c *MD2_LoadModel(epi::file_c *f); 
 
-void MD2_RenderModel(md2_model_c *md, GLuint skin_tex,
+void MD2_RenderModel(md2_model_c *md, GLuint skin_tex, bool is_weapon,
 		             int frame1, int frame2, float lerp,
-		             bool is_weapon, float x, float y, float z,
-					 mobj_t *mo, region_properties_t *props,
+		             float x, float y, float z, mobj_t *mo,
+					 region_properties_t *props,
 					 float scale, float aspect, float bias);
 
 void MD2_RenderModel_2D(md2_model_c *md, GLuint skin_tex, int frame,
