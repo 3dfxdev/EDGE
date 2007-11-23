@@ -549,8 +549,7 @@ I_Debugf("Render model: no skin %d\n", skin_num);
 	MD2_RenderModel(md->model, skin_tex, true,
 			        psp->state->frame, psp->state->frame, 0.0,
 			        x, y, z, p->mo, view_props,
-					w->model_scale, w->model_aspect, w->model_bias);
-
+					1.0f /* scale */, w->model_aspect, w->model_bias);
 }
 
 void RGL_DrawCrosshair(player_t * p)
