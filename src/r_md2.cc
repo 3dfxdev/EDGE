@@ -570,9 +570,11 @@ typedef struct
 {
 	md2_model_c *model;
 
-	int frame;
-	int strip;
+	const md2_frame_c *frame1;
+	const md2_frame_c *frame2;
+	const md2_strip_c *strip;
 
+	float lerp;
 	float x, y, z;
 
 	bool is_weapon;
@@ -597,6 +599,39 @@ typedef struct
 	short * used_normals;
 
 	bool is_additive;
+
+public:
+	void CalcPos(vec3_t *pos, const md2_vertex_c *vert) const
+	{
+		float x1 = vert->x * xy_scale;
+		float y1 = vert->y * xy_scale;
+		float z1 = (vert->z + bias) * z_scale;
+
+		float x2 = x1 * kx_mat.x + z1 * kx_mat.y;
+		float z2 = x1 * kz_mat.x + z1 * kz_mat.y;
+		float y2 = y1;
+
+		pos->x = x + x2 * rx_mat.x + y2 * rx_mat.y;
+		pos->y = y + x2 * ry_mat.x + y2 * ry_mat.y;
+		pos->z = z + z2;
+	}
+
+	void CalcNormal(vec3_t *normal, const md2_vertex_c *vert) const
+	{
+		short n = vert->normal_idx;
+
+		float nx1 = md2_normals[n].x;
+		float ny1 = md2_normals[n].y;
+		float nz1 = md2_normals[n].z;
+
+		float nx2 = nx1 * kx_mat.x + nz1 * kx_mat.y;
+		float nz2 = nx1 * kz_mat.x + nz1 * kz_mat.y;
+		float ny2 = ny1;
+
+		normal->x = nx2 * rx_mat.x + ny2 * rx_mat.y;
+		normal->y = nx2 * ry_mat.x + ny2 * ry_mat.y;
+		normal->z = nz2;
+	}
 }
 model_coord_data_t;
 
@@ -693,46 +728,38 @@ static void ModelCoordFunc(void *d, int v_idx, vec3_t *pos,
 
 	const md2_model_c *md = data->model;
 
-	const md2_frame_c *frame = & md->frames[data->frame];
-	const md2_strip_c *strip = & md->strips[data->strip];
+	const md2_frame_c *frame1 = data->frame1;
+	const md2_frame_c *frame2 = data->frame2;
+	const md2_strip_c *strip  = data->strip;
 
 	SYS_ASSERT(strip->first + v_idx >= 0);
 	SYS_ASSERT(strip->first + v_idx < md->num_points);
 
 	const md2_point_c *point = &md->points[strip->first + v_idx];
-	const md2_vertex_c *vert = &frame->vertices[point->vert_idx];
 
-	float x1 = vert->x * data->xy_scale;
-	float y1 = vert->y * data->xy_scale;
-	float z1 = (vert->z + data->bias) * data-> z_scale;
+	const md2_vertex_c *vert1 = &frame1->vertices[point->vert_idx];
+	const md2_vertex_c *vert2 = &frame2->vertices[point->vert_idx];
 
-	float x2 = x1 * data->kx_mat.x + z1 * data->kx_mat.y;
-	float z2 = x1 * data->kz_mat.x + z1 * data->kz_mat.y;
-    float y2 = y1;
+	
+	vec3_t pos1, pos2;
 
-	pos->x = data->x + x2 * data->rx_mat.x + y2 * data->rx_mat.y;
-	pos->y = data->y + x2 * data->ry_mat.x + y2 * data->ry_mat.y;
-	pos->z = data->z + z2;
+	data->CalcPos(&pos1, vert1);
+	data->CalcPos(&pos2, vert2);
 
+	pos->x = pos1.x * (1.0f - data->lerp) + pos2.x * data->lerp;
+	pos->y = pos1.y * (1.0f - data->lerp) + pos2.y * data->lerp;
+	pos->z = pos1.z * (1.0f - data->lerp) + pos2.z * data->lerp;
+
+	
 	texc->Set(point->skin_s, point->skin_t);
 
 
-	short n = vert->normal_idx;
+	const md2_vertex_c *n_vert = (data->lerp < 0.5) ? vert1 : vert2;
 
-	float nx1 = md2_normals[n].x;
-	float ny1 = md2_normals[n].y;
-	float nz1 = md2_normals[n].z;
-
-	float nx2 = nx1 * data->kx_mat.x + nz1 * data->kx_mat.y;
-	float nz2 = nx1 * data->kz_mat.x + nz1 * data->kz_mat.y;
-	float ny2 = ny1;
-
-	normal->x = nx2 * data->rx_mat.x + ny2 * data->rx_mat.y;
-	normal->y = nx2 * data->ry_mat.x + ny2 * data->ry_mat.y;
-	normal->z = nz2;
+	data->CalcNormal(normal, n_vert);
 
 
-	multi_color_c *col = &data->nm_colors[n];
+	multi_color_c *col = &data->nm_colors[n_vert->normal_idx];
 
 	if (! data->is_additive)
 	{
@@ -749,15 +776,21 @@ static void ModelCoordFunc(void *d, int v_idx, vec3_t *pos,
 }
 
 
-void MD2_RenderModel(md2_model_c *md, GLuint skin_tex, int frame,
+void MD2_RenderModel(md2_model_c *md, GLuint skin_tex,
+		             int frame1, int frame2, float lerp,
 		             bool is_weapon, float x, float y, float z,
 					 mobj_t *mo, region_properties_t *props,
 					 float scale, float aspect, float bias)
 {
-	// check if frame is valid
-	if (frame < 0 || frame >= md->num_frames)
+	// check if frames are valid
+	if (frame1 < 0 || frame1 >= md->num_frames)
 	{
-I_Debugf("Render model: bad frame %d\n", frame);
+I_Debugf("Render model: bad frame %d\n", frame1);
+		return;
+	}
+	if (frame2 < 0 || frame2 >= md->num_frames)
+	{
+I_Debugf("Render model: bad frame %d\n", frame1);
 		return;
 	}
 
@@ -772,7 +805,11 @@ I_Debugf("Render model: bad frame %d\n", frame);
 
 	data.mo = mo;
 	data.model = md;
-	data.frame = frame;
+
+	data.frame1 = & md->frames[frame1];
+	data.frame2 = & md->frames[frame2];
+
+	data.lerp = lerp;
 
 	data.x = x;
 	data.y = y;
@@ -794,7 +831,7 @@ I_Debugf("Render model: bad frame %d\n", frame);
 	M_Angle2Matrix(~ ang, &data.rx_mat, &data.ry_mat);
 
 
-	data.used_normals = md->frames[frame].used_normals;
+	data.used_normals = (lerp < 0.5) ? data.frame1->used_normals : data.frame2->used_normals;
 
 	InitNormalColors(&data);
 
@@ -848,7 +885,7 @@ I_Debugf("Render model: bad frame %d\n", frame);
 
 		for (int i = 0; i < md->num_strips; i++)
 		{
-			data.strip = i;
+			data.strip = & md->strips[i];
 
 			local_gl_vert_t * glvert = RGL_BeginUnit(md->strips[i].mode,
 					 md->strips[i].count,
