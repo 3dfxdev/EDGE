@@ -1,4 +1,11 @@
 
+EDGE DDF 5.5: (????-??-??)
+==========================
+
+1) IMAGES.DDF: removed unused entries (DLIGHTXXX etc).
+
+
+
 EDGE DDF 5.4: (2007-11-18)
 ==========================
 
