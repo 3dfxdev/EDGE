@@ -76,16 +76,6 @@ int rgl_weapon_b;
 #define MINZ        (4.0f)
 
 
-void RGL_UpdateTheFuzz(void)
-{
-	// fuzzy warping effect
-
-	fuzz_ang_tl += FLOAT_2_ANG(90.0f / 17.0f);
-	fuzz_ang_tr += FLOAT_2_ANG(90.0f / 11.0f);
-	fuzz_ang_bl += FLOAT_2_ANG(90.0f /  8.0f);
-	fuzz_ang_br += FLOAT_2_ANG(90.0f / 21.0f);
-}
-
 static GLuint MakeFuzzTexture(void)
 {
 	// FIXME !!!!!  verify lump size
@@ -108,6 +98,19 @@ static GLuint MakeFuzzTexture(void)
 	W_DoneWithLump(fuzz);
 	
 	return R_UploadTexture(&img, NULL, UPL_NONE);
+}
+
+void RGL_UpdateTheFuzz(void)
+{
+	// fuzzy warping effect
+
+	fuzz_ang_tl += FLOAT_2_ANG(90.0f / 17.0f);
+	fuzz_ang_tr += FLOAT_2_ANG(90.0f / 11.0f);
+	fuzz_ang_bl += FLOAT_2_ANG(90.0f /  8.0f);
+	fuzz_ang_br += FLOAT_2_ANG(90.0f / 21.0f);
+
+	if (! fuzz_tex)
+		fuzz_tex = MakeFuzzTexture();
 }
 
 static float GetHoverDZ(mobj_t *mo)
@@ -248,7 +251,7 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	y1b = y2b = viewwindowheight * ty1 / 200.0f;
 	y1t = y2t = viewwindowheight * ty2 / 200.0f;
 
-	if (fuzzy)
+	if (false) //!!!! fuzzy)
 	{
 		float range_x = (float)fabs(x2b - x1b) / 12.0f;
 		float range_y = (float)fabs(y1t - y1b) / 12.0f;
@@ -374,12 +377,9 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 
 		//!!!! FUZZ TEST
 		blending |= BL_Alpha;
-		if (! fuzz_tex)
-			fuzz_tex = MakeFuzzTexture();
 
 		local_gl_vert_t * glvert = RGL_BeginUnit(GL_POLYGON, 4,
-				 GL_MODULATE, tex_id,  /// ENV_SKIP_RGB, tex_id,
-				 GL_MODULATE, fuzz_tex,  ///---  ENV_NONE,0,
+				 GL_MODULATE, tex_id, GL_MODULATE, fuzz_tex,
 				 pass, blending);
 
 		for (v_idx=0; v_idx < 4; v_idx++)
@@ -401,9 +401,9 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 				data.col[v_idx].mod_G -= 256;
 				data.col[v_idx].mod_B -= 256;
 // FUZZ TEST
-dest->texc[1].x = dest->pos.x / 256.0;
-dest->texc[1].y = (dest->pos.y + leveltime * 3) / 256.0;
-trans=0.35;
+dest->texc[1].x = dest->pos.x / 256.0 / SCREENWIDTH * 320.0;
+dest->texc[1].y = (dest->pos.y + leveltime * 3) / 256.0 / SCREENHEIGHT * 200.0;
+trans=0.33;
 			}
 			else
 			{
@@ -599,6 +599,8 @@ I_Debugf("Render model: no skin %d\n", skin_num);
 		lerp = CLAMP(0, lerp, 1);
 	}
 
+//!!!! FUZZ TEST
+skin_tex = fuzz_tex;
 	MD2_RenderModel(md->model, skin_tex, true,
 			        last_frame, psp->state->frame, lerp,
 			        x, y, z, p->mo, view_props,
@@ -1145,6 +1147,9 @@ I_Debugf("Render model: no skin %d\n", mo->model_skin);
 		lerp = CLAMP(0, lerp, 1);
 	}
 
+//!!!! FUZZ TEST
+skin_tex = fuzz_tex;
+
 	MD2_RenderModel(md->model, skin_tex, false,
 			        last_frame, mo->state->frame, lerp,
 					dthing->mx, dthing->my, z, mo, mo->props,
@@ -1284,7 +1289,7 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 	//
 	// Special FUZZY effect
 	//
-	if (fuzzy)
+	if (false) //!!!! fuzzy)
 	{
 		float range_x = fabs(dthing->right_dx - dthing->left_dx) / 12.0f;
 		float range_y = fabs(dthing->right_dy - dthing->left_dy) / 12.0f;
@@ -1372,7 +1377,7 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 
 	// FIXME DESCRIBE THIS WEIRD SHIT!!!
 	
-	for (int pass = 0; pass < 4; pass++)
+	for (int pass = 0; pass < 1; pass++)   //!!!!! pass < 4
 	{
 		if (pass > 0 && pass < 3 && GetMulticolMaxRGB(data.col, 4, false) <= 0)
 			continue;
@@ -1388,9 +1393,17 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 
 		bool is_additive = (pass == 3);
 
+#if 0
 		local_gl_vert_t * glvert = RGL_BeginUnit(GL_POLYGON, 4,
 				 is_additive ? ENV_SKIP_RGB : GL_MODULATE, tex_id,
 				 ENV_NONE, 0, pass, blending);
+#endif
+		//!!!! FUZZ TEST
+		blending |= BL_Alpha;
+
+		local_gl_vert_t * glvert = RGL_BeginUnit(GL_POLYGON, 4,
+				 GL_MODULATE, tex_id, GL_MODULATE, fuzz_tex,
+				 pass, blending);
 
 		for (v_idx=0; v_idx < 4; v_idx++)
 		{
@@ -1410,6 +1423,12 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 				data.col[v_idx].mod_R -= 256;
 				data.col[v_idx].mod_G -= 256;
 				data.col[v_idx].mod_B -= 256;
+// FUZZ TEST
+float ftx = (v_idx >= 2) ? 1 : 0;
+float fty = (v_idx == 1 || v_idx == 2) ? 1 : 0;
+dest->texc[1].x = ftx;
+dest->texc[1].y = fty + (leveltime * 5 / 256.0);
+trans=0.33;
 			}
 			else
 			{
