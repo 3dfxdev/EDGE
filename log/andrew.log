@@ -1,5 +1,10 @@
 Andrew Apted's Log
 
+2007/11/24:
+
+Worked on new method to emulate the original 'FUZZY' effect
+(used on partially invisible objects and the player powerup).
+
 2007/11/23:
 
 Removed the need for [DLIGHTNORMAL] entry in images.ddf,
