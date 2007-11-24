@@ -40,6 +40,9 @@
 #include "m_math.h"
 
 
+extern int leveltime; //!!!!
+
+
 // #define DEBUG_MD2_LOAD  1
 
 
@@ -753,6 +756,8 @@ static void ModelCoordFunc(void *d, int v_idx, vec3_t *pos,
 	
 	texc->Set(point->skin_s, point->skin_t);
 
+// FUZZ TEST !!!
+texc->y = texc->y + ((leveltime * 3) % 256) / 256.0;
 
 	const md2_vertex_c *n_vert = (data->lerp < 0.5) ? vert1 : vert2;
 
@@ -857,10 +862,13 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 		}
 	}
 
+blending |= BL_Alpha;
+trans=0.30; //!!!!! FUZZ TEST
+
 
 	/* draw the model */
 
-	for (int pass = 0; pass < 4; pass++)
+	for (int pass = 0; pass < 1; pass++) //!!!!!! pass < 4
 	{
 		if (pass > 0 && pass < 3)
 		{
@@ -926,7 +934,7 @@ void MD2_RenderModel_2D(md2_model_c *md, GLuint skin_tex, int frame,
 	glEnable(GL_CULL_FACE);
 
 	if (info->flags & MF_FUZZY)
-		glColor4f(0, 0, 0, 0.6f);
+		glColor4f(0, 0, 0, 0.5f);
 	else
 		glColor4f(1, 1, 1, 1.0f);
 
