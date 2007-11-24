@@ -40,17 +40,18 @@
 #include "r_draw.h"
 #include "r_gldefs.h"
 #include "r_image.h"
+#include "r_md2.h"
 #include "r_misc.h"
 #include "r_modes.h"
 #include "r_shader.h"
+#include "r_texgl.h"
 #include "r_units.h"
 #include "st_stuff.h"
 #include "w_model.h"
 #include "w_sprite.h"
 
-#include "r_md2.h"
+#include "w_wad.h"  // fuzz test
 #include "m_misc.h"  // !!!! model test
-#include "r_texgl.h"
 
 
 #define DEBUG  0
@@ -62,6 +63,8 @@ angle_t fuzz_ang_tl;
 angle_t fuzz_ang_tr;
 angle_t fuzz_ang_bl;
 angle_t fuzz_ang_br;
+
+GLuint fuzz_tex;
 
 // colour of the player's weapon
 int rgl_weapon_r;
@@ -81,6 +84,30 @@ void RGL_UpdateTheFuzz(void)
 	fuzz_ang_tr += FLOAT_2_ANG(90.0f / 11.0f);
 	fuzz_ang_bl += FLOAT_2_ANG(90.0f /  8.0f);
 	fuzz_ang_br += FLOAT_2_ANG(90.0f / 21.0f);
+}
+
+static GLuint MakeFuzzTexture(void)
+{
+	// FIXME !!!!!  verify lump size
+	const byte *fuzz = (const byte*)W_CacheLumpName("FUZZMAP");
+
+	epi::image_data_c img(256, 256, 4);
+
+	img.Clear();
+
+	for (int y = 0; y < 256; y++)
+	for (int x = 0; x < 256; x++)
+	{
+		byte src = fuzz[y*256 + x];
+
+		byte *dest = img.PixelAt(x, y);
+
+		dest[3] = (src - 40) * 8 / 5;
+	}
+
+	W_DoneWithLump(fuzz);
+	
+	return R_UploadTexture(&img, NULL, UPL_NONE);
 }
 
 static float GetHoverDZ(mobj_t *mo)
@@ -288,10 +315,6 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 
 	RGL_StartUnits(false);
 
-///---	R_RunPipeline(GL_POLYGON, 4, tex_id,
-///---			      trans, blending, PIPEF_NONE,
-///---				  &data, (pipeline_coord_func_t) PSpriteCoordFunc);
-
 
 	int v_idx;
 
@@ -327,7 +350,7 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	data.col[2] = data.col[0];
 	data.col[3] = data.col[0];
 
-	for (int pass = 0; pass < 4; pass++)
+	for (int pass = 0; pass < 1; pass++) //!!!!!! pass < 4
 	{
 		if (pass > 0 && pass < 3 && GetMulticolMaxRGB(data.col, 4, false) <= 0)
 			continue;
@@ -343,9 +366,21 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 
 		bool is_additive = (pass == 3);
 
+#if 0
 		local_gl_vert_t * glvert = RGL_BeginUnit(GL_POLYGON, 4,
 				 is_additive ? ENV_SKIP_RGB : GL_MODULATE, tex_id,
 				 ENV_NONE, 0, pass, blending);
+#endif
+
+		//!!!! FUZZ TEST
+		blending |= BL_Alpha;
+		if (! fuzz_tex)
+			fuzz_tex = MakeFuzzTexture();
+
+		local_gl_vert_t * glvert = RGL_BeginUnit(GL_POLYGON, 4,
+				 GL_MODULATE, tex_id,  /// ENV_SKIP_RGB, tex_id,
+				 GL_MODULATE, fuzz_tex,  ///---  ENV_NONE,0,
+				 pass, blending);
 
 		for (v_idx=0; v_idx < 4; v_idx++)
 		{
@@ -365,6 +400,10 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 				data.col[v_idx].mod_R -= 256;
 				data.col[v_idx].mod_G -= 256;
 				data.col[v_idx].mod_B -= 256;
+// FUZZ TEST
+dest->texc[1].x = dest->pos.x / 256.0;
+dest->texc[1].y = (dest->pos.y + leveltime * 3) / 256.0;
+trans=0.35;
 			}
 			else
 			{
