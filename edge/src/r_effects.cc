@@ -19,11 +19,15 @@
 #include "i_defs.h"
 #include "i_defs_gl.h"
 
+#include "epi/image_data.h"
+
 #include "e_player.h"
 #include "m_misc.h"
 #include "r_misc.h"
 #include "r_colormap.h"
 #include "r_modes.h"
+#include "r_texgl.h"
+#include "w_wad.h"
 
 #define DEBUG  0
 
@@ -33,6 +37,9 @@ int ren_extralight;
 float ren_red_mul;
 float ren_grn_mul;
 float ren_blu_mul;
+
+bool var_fullbright = false;
+
 
 static inline float EffectStrength(player_t *player)
 {
@@ -54,7 +61,7 @@ static inline float EffectStrength(player_t *player)
 //
 void RGL_RainbowEffect(player_t *player)
 {
-	ren_extralight = player->extralight * 16;
+	ren_extralight = var_fullbright ? 255 : player->extralight * 16;
 
 	ren_red_mul = ren_grn_mul = ren_blu_mul = 1.0f;
 
@@ -70,7 +77,8 @@ void RGL_RainbowEffect(player_t *player)
 		return;
 	}
 
-	if (s > 0 && player->powers[PW_NightVision] > 0 && player->effect_colourmap)
+	if (s > 0 && player->powers[PW_NightVision] > 0 &&
+		player->effect_colourmap && !var_fullbright)
 	{
 		float r, g, b;
 
@@ -84,7 +92,7 @@ void RGL_RainbowEffect(player_t *player)
 		return;
 	}
 
-	if (s > 0 && player->powers[PW_Infrared] > 0)
+	if (s > 0 && player->powers[PW_Infrared] > 0 && !var_fullbright)
 	{
 		ren_extralight = int(s * 255);
 		return;
@@ -195,6 +203,51 @@ void RGL_PaletteEffect(player_t *player)
 	glDisable(GL_BLEND);
 }
 
+
+//----------------------------------------------------------------------------
+//  FUZZY Emulation
+//----------------------------------------------------------------------------
+
+GLuint fuzz_tex;
+
+float fuzz_yoffset;
+
+
+static void FUZZ_MakeTexture(void)
+{
+	// FIXME !!!!!  verify lump size
+	const byte *fuzz = (const byte*)W_CacheLumpName("FUZZMAP7");
+
+	epi::image_data_c img(256, 256, 4);
+
+	img.Clear();
+
+	for (int y = 0; y < 256; y++)
+	for (int x = 0; x < 256; x++)
+	{
+		byte *dest = img.PixelAt(x, y);
+
+		dest[3] = fuzz[y*256 + x];
+	}
+
+	W_DoneWithLump(fuzz);
+	
+	fuzz_tex = R_UploadTexture(&img, NULL, UPL_NONE);
+}
+
+void FUZZ_Update(void)
+{
+	if (! fuzz_tex)
+		FUZZ_MakeTexture();
+
+	fuzz_yoffset = ((framecount * 3) & 1023) / 256.0;
+}
+
+void FUZZ_Adjust(vec2_t *tc, mobj_t *mo)
+{
+	tc->x += fmod(mo->x / 520.0, 1.0);
+	tc->y += fmod(mo->y / 520.0, 1.0) + fuzz_yoffset;
+}
 
 
 //--- editor settings ---

@@ -2485,9 +2485,10 @@ void RGL_RenderTrueBSP(void)
 	// clear extra light on player's weapon
 	rgl_weapon_r = rgl_weapon_g = rgl_weapon_b = 0;
 
+	FUZZ_Update();
+
 	R2_ClearBSP();
 	RGL_1DOcclusionClear();
-	RGL_UpdateTheFuzz();
 
 	drawsubs.clear();
 
