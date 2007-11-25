@@ -32,13 +32,12 @@
 
 void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo);
 void RGL_DrawSortThings(drawfloor_t *dfloor);
-void RGL_UpdateTheFuzz(void);
 
 void RGL_DrawWeaponSprites(player_t * p);
 void RGL_DrawWeaponModel(player_t * p);
 void RGL_DrawCrosshair(player_t * p);
 
-#endif  // __RGL_THING__
+#endif  /* __RGL_THING__ */
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

@@ -40,12 +40,12 @@ extern bool dumb_multi;
 extern bool dumb_combine;
 extern bool dumb_clamp;
 
+extern bool var_fullbright;
+
 
 //
 //  RGL_MAIN
 //
-
-#define FUZZY_TRANS  0.30f
 
 extern int glmax_lights;
 extern int glmax_clip_planes;

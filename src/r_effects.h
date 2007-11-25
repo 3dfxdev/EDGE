@@ -26,6 +26,8 @@
 #ifndef __RGL_FX_H__
 #define __RGL_FX_H__
 
+#include "e_player.h"
+
 
 class screen_effect_def_c;
 
@@ -51,6 +53,16 @@ public:
 void RGL_RainbowEffect(player_t *player);
 void RGL_ColourmapEffect(player_t *player);
 void RGL_PaletteEffect(player_t *player);
+
+
+//
+//  FUZZY Emulation
+//
+
+extern GLuint fuzz_tex;
+
+void FUZZ_Update(void);
+void FUZZ_Adjust(vec2_t *tc, mobj_t *mo);
 
 
 #endif /* __RGL_FX_H__ */

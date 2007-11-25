@@ -38,6 +38,7 @@
 #include "r_colormap.h"
 #include "r_defs.h"
 #include "r_draw.h"
+#include "r_effects.h"
 #include "r_gldefs.h"
 #include "r_image.h"
 #include "r_md2.h"
@@ -50,7 +51,6 @@
 #include "w_model.h"
 #include "w_sprite.h"
 
-#include "w_wad.h"  // fuzz test
 #include "m_misc.h"  // !!!! model test
 
 
@@ -59,14 +59,7 @@
 
 float sprite_skew;
 
-angle_t fuzz_ang_tl;
-angle_t fuzz_ang_tr;
-angle_t fuzz_ang_bl;
-angle_t fuzz_ang_br;
 
-float fuzz_yoffset;
-
-GLuint fuzz_tex;
 
 // colour of the player's weapon
 int rgl_weapon_r;
@@ -77,43 +70,6 @@ int rgl_weapon_b;
 // The minimum distance between player and a visible sprite.
 #define MINZ        (4.0f)
 
-
-static GLuint MakeFuzzTexture(void)
-{
-	// FIXME !!!!!  verify lump size
-	const byte *fuzz = (const byte*)W_CacheLumpName("FUZZMAP7");
-
-	epi::image_data_c img(256, 256, 4);
-
-	img.Clear();
-
-	for (int y = 0; y < 256; y++)
-	for (int x = 0; x < 256; x++)
-	{
-		byte *dest = img.PixelAt(x, y);
-
-		dest[3] = fuzz[y*256 + x];
-	}
-
-	W_DoneWithLump(fuzz);
-	
-	return R_UploadTexture(&img, NULL, UPL_NONE);
-}
-
-void RGL_UpdateTheFuzz(void)
-{
-	// fuzzy warping effect
-
-	fuzz_ang_tl += FLOAT_2_ANG(90.0f / 17.0f);
-	fuzz_ang_tr += FLOAT_2_ANG(90.0f / 11.0f);
-	fuzz_ang_bl += FLOAT_2_ANG(90.0f /  8.0f);
-	fuzz_ang_br += FLOAT_2_ANG(90.0f / 21.0f);
-
-	fuzz_yoffset = ((framecount * 5) & 1023) / 256.0;
-
-	if (! fuzz_tex)
-		fuzz_tex = MakeFuzzTexture();
-}
 
 static float GetHoverDZ(mobj_t *mo)
 {
@@ -203,7 +159,7 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 
 	int fuzzy = (player->mo->flags & MF_FUZZY);
 
-	float trans = fuzzy ? FUZZY_TRANS : player->mo->visibility;
+	float trans = fuzzy ? 1.0f : player->mo->visibility;
 
 	if (which == ps_crosshair)
 	{
@@ -253,27 +209,6 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	y1b = y2b = viewwindowheight * ty1 / 200.0f;
 	y1t = y2t = viewwindowheight * ty2 / 200.0f;
 
-	if (false) //!!!! fuzzy)
-	{
-		float range_x = (float)fabs(x2b - x1b) / 12.0f;
-		float range_y = (float)fabs(y1t - y1b) / 12.0f;
-
-		float tl_x = M_Sin(fuzz_ang_tl);
-		float tr_x = M_Sin(fuzz_ang_tr);
-		float bl_x = M_Sin(fuzz_ang_bl);
-		float br_x = M_Sin(fuzz_ang_br);
-
-		float tl_y = M_Cos(fuzz_ang_tl);
-		float tr_y = M_Cos(fuzz_ang_tr);
-    
-		// don't adjust the bottom Y positions
-    
-		x1b += bl_x * range_x;
-		x1t += tl_x * range_x; y1t += tl_y * range_y;
-		x2t += tr_x * range_x; y2t += tr_y * range_y;
-		x2b += br_x * range_x;
-
-	}
 
 	// clip psprite to view window
 	glEnable(GL_SCISSOR_TEST);
@@ -405,8 +340,7 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 // FUZZ TEST
 dest->texc[1].x = dest->pos.x / (float)SCREENWIDTH;
 dest->texc[1].y = dest->pos.y / (float)SCREENHEIGHT;
-dest->texc[1].x += fmod(data.lit_pos.x / 500.0, 1.0);
-dest->texc[1].y += fmod(data.lit_pos.y / 500.0, 1.0) + fuzz_yoffset;
+FUZZ_Adjust(& dest->texc[1], player->mo);
 trans=1.00;
 			}
 			else
@@ -1224,7 +1158,7 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 
 	int fuzzy = (mo->flags & MF_FUZZY);
 
-	float trans = fuzzy ? FUZZY_TRANS : mo->visibility;
+	float trans = fuzzy ? 1.0f : mo->visibility;
 
 	float dx = 0, dy = 0;
 
@@ -1289,33 +1223,6 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 		tex_x2 = right - temp;
 	}
 
-
-	//
-	// Special FUZZY effect
-	//
-	if (false) //!!!! fuzzy)
-	{
-		float range_x = fabs(dthing->right_dx - dthing->left_dx) / 12.0f;
-		float range_y = fabs(dthing->right_dy - dthing->left_dy) / 12.0f;
-		float range_z = fabs(z1t - z1b) / 24.0f / 2;
-
-		angle_t adjust = (angle_t)(long)mo << (ANGLEBITS - 14);
-
-		float tl = M_Sin(fuzz_ang_tl + adjust);
-		float tr = M_Sin(fuzz_ang_tr + adjust);
-		float bl = M_Sin(fuzz_ang_bl + adjust);
-		float br = M_Sin(fuzz_ang_br + adjust);
-
-		float ztl = 1.0f + M_Cos(fuzz_ang_tl + adjust);
-		float ztr = 1.0f + M_Cos(fuzz_ang_tr + adjust);
-		float zbl = 1.0f + M_Cos(fuzz_ang_bl + adjust);
-		float zbr = 1.0f + M_Cos(fuzz_ang_br + adjust);
-
-		x1b += bl * range_x; y1b += bl * range_y; z1b += zbl * range_z;
-		x1t += tl * range_x; y1t += tl * range_y; z1t += ztl * range_z;
-		x2t += tr * range_x; y2t += tr * range_y; z2t += ztr * range_z;
-		x2b += br * range_x; y2b += br * range_y; z2b += zbr * range_z;
-	}
 
 	GLuint tex_id = W_ImageCache(image, false, dthing->mo->info->palremap);
 
@@ -1438,8 +1345,7 @@ float fty = (v_idx == 1 || v_idx == 2) ? (mo->height) : 0;
 }
 dest->texc[1].x = ftx;
 dest->texc[1].y = fty;
-dest->texc[1].x += fmod(mo->x / 900.0, 1.0);
-dest->texc[1].y += fmod(mo->y / 900.0, 1.0) + fuzz_yoffset;
+FUZZ_Adjust(& dest->texc[1], mo);
 trans=1.00;
 			}
 			else

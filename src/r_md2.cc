@@ -32,6 +32,7 @@
 #include "r_md2.h"
 #include "r_gldefs.h"
 #include "r_colormap.h"
+#include "r_effects.h"
 #include "r_misc.h"
 #include "r_modes.h"
 #include "r_state.h"
@@ -40,8 +41,6 @@
 #include "p_blockmap.h"
 #include "m_math.h"
 
-
-extern float fuzz_yoffset; //!!!!
 
 
 extern float P_ApproxDistance(float dx, float dy, float dz);
@@ -777,8 +776,7 @@ if (true)
 		texc->y *= factor;
 	}
 
-	texc->x += fmod(data->mo->x / 500.0, 1.0);
-	texc->y += fmod(data->mo->y / 500.0, 1.0) + fuzz_yoffset;
+	FUZZ_Adjust(texc, data->mo);
 }
 
 	const md2_vertex_c *n_vert = (data->lerp < 0.5) ? vert1 : vert2;
@@ -823,7 +821,7 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 
 	int fuzzy = (mo->flags & MF_FUZZY);
 
-	float trans = fuzzy ? FUZZY_TRANS : mo->visibility;
+	float trans = fuzzy ? 1.0f : mo->visibility;
 
 	int blending = BL_CullBack | (trans < 0.99 ? BL_Alpha : 0);
 
