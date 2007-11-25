@@ -64,6 +64,8 @@ angle_t fuzz_ang_tr;
 angle_t fuzz_ang_bl;
 angle_t fuzz_ang_br;
 
+float fuzz_yoffset;
+
 GLuint fuzz_tex;
 
 // colour of the player's weapon
@@ -79,7 +81,7 @@ int rgl_weapon_b;
 static GLuint MakeFuzzTexture(void)
 {
 	// FIXME !!!!!  verify lump size
-	const byte *fuzz = (const byte*)W_CacheLumpName("FUZZMAP");
+	const byte *fuzz = (const byte*)W_CacheLumpName("FUZZMAP7");
 
 	epi::image_data_c img(256, 256, 4);
 
@@ -88,11 +90,9 @@ static GLuint MakeFuzzTexture(void)
 	for (int y = 0; y < 256; y++)
 	for (int x = 0; x < 256; x++)
 	{
-		byte src = fuzz[y*256 + x];
-
 		byte *dest = img.PixelAt(x, y);
 
-		dest[3] = (src - 40) * 8 / 5;
+		dest[3] = fuzz[y*256 + x];
 	}
 
 	W_DoneWithLump(fuzz);
@@ -108,6 +108,8 @@ void RGL_UpdateTheFuzz(void)
 	fuzz_ang_tr += FLOAT_2_ANG(90.0f / 11.0f);
 	fuzz_ang_bl += FLOAT_2_ANG(90.0f /  8.0f);
 	fuzz_ang_br += FLOAT_2_ANG(90.0f / 21.0f);
+
+	fuzz_yoffset = ((framecount * 3) & 255) / 256.0;
 
 	if (! fuzz_tex)
 		fuzz_tex = MakeFuzzTexture();
@@ -401,9 +403,11 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 				data.col[v_idx].mod_G -= 256;
 				data.col[v_idx].mod_B -= 256;
 // FUZZ TEST
-dest->texc[1].x = dest->pos.x / 256.0 / SCREENWIDTH * 320.0;
-dest->texc[1].y = (dest->pos.y + leveltime * 3) / 256.0 / SCREENHEIGHT * 200.0;
-trans=0.33;
+dest->texc[1].x = (dest->pos.x / 256.0) / SCREENWIDTH  * 320.0;
+dest->texc[1].y = (dest->pos.y / 256.0) / SCREENHEIGHT * 200.0;
+dest->texc[1].x += fmod(data.lit_pos.x / 900.0, 1.0);
+dest->texc[1].y += fmod(data.lit_pos.y / 900.0, 1.0) + fuzz_yoffset;
+trans=1.00;
 			}
 			else
 			{
@@ -1424,11 +1428,19 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 				data.col[v_idx].mod_G -= 256;
 				data.col[v_idx].mod_B -= 256;
 // FUZZ TEST
-float ftx = (v_idx >= 2) ? 1 : 0;
-float fty = (v_idx == 1 || v_idx == 2) ? 1 : 0;
+float ftx = (v_idx >= 2) ? (mo->radius) : 0;
+float fty = (v_idx == 1 || v_idx == 2) ? (mo->height) : 0;
+{
+	float dist = P_ApproxDistance(mo->x - viewx, mo->y - viewy, mo->z - viewz);
+	float factor = 2.0 / CLAMP(35, dist, 700);
+	ftx *= factor;
+	fty *= factor;
+}
 dest->texc[1].x = ftx;
-dest->texc[1].y = fty + (leveltime * 5 / 256.0);
-trans=0.33;
+dest->texc[1].y = fty;
+dest->texc[1].x += fmod(mo->x / 900.0, 1.0);
+dest->texc[1].y += fmod(mo->y / 900.0, 1.0) + fuzz_yoffset;
+trans=1.00;
 			}
 			else
 			{
