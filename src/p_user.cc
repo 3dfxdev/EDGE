@@ -39,7 +39,6 @@
 
 static void P_UpdatePowerups(player_t *player);
 
-// 16 pixels == an inch of bob
 #define MAXBOB  16.0f
 
 
@@ -95,15 +94,23 @@ static void CalcHeight(player_t * player)
 		}
 	}
 
-	player->viewz = player->mo->z + player->viewheight + bob;
+	// don't apply bobbing when jumping, but have a smooth
+	// transition at the end of the jump.
+	if (player->jumpwait > 0)
+	{
+		if (player->jumpwait >= 6)
+			bob = 0;
+		else
+			bob *= (6 - player->jumpwait) / 6.0;
+	}
 
-	// No heads above the ceiling
-	if (player->viewz > player->mo->ceilingz - 2)
-		player->viewz = player->mo->ceilingz - 2;
+	player->viewz = player->viewheight + bob;
 
-	// No heads below the floor, please
-	if (player->viewz < player->mo->floorz + 2)
-		player->viewz = player->mo->floorz + 2;
+#if 0  // DEBUG
+I_Debugf("Jumpwait:%d  z:%1.3f viewheight:%1.3f delta:%1.3f --> viewz:%1.3f\n",
+		 player->jumpwait, player->mo->z, player->viewheight,
+		 player->deltaviewheight, player->viewz);
+#endif
 }
 
 
@@ -257,10 +264,10 @@ static void MovePlayer(player_t * player)
 			// update any things near the player
 			P_ChangeThingSize(mo);
 
-			if (mo->player->deltaviewheight == 0)
-				mo->player->deltaviewheight = -1.0f;
+			mo->player->deltaviewheight = -1.0f;
 		}
-		else if (mo->height < mo->info->height)
+		else if (player->cmd.upwardmove >= 0 &&
+				 mo->height < mo->info->height)
 		{
 			// prevent standing up inside a solid area
 			if ((mo->flags & MF_NOCLIP) || mo->z+mo->height+2 <= mo->ceilingz)
@@ -270,8 +277,7 @@ static void MovePlayer(player_t * player)
 				// update any things near the player
 				P_ChangeThingSize(mo);
 
-				if (mo->player->deltaviewheight == 0)
-					mo->player->deltaviewheight = 1.0f;
+				mo->player->deltaviewheight = 1.0f;
 			}
 		}
 

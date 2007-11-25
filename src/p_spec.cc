@@ -1232,9 +1232,11 @@ static inline void PlayerInProperties(player_t *player,
 	// breathing support
 	// (Mouth is where the eye is !)
 	//
+	float mouth_z = player->mo->z + player->viewz;
+
 	if ((special->special_flags & SECSP_AirLess) &&
-			player->viewz >= f_h && player->viewz <= c_h &&
-			player->powers[PW_Scuba] <= 0)
+		mouth_z >= f_h && mouth_z <= c_h &&
+		player->powers[PW_Scuba] <= 0)
 	{
 		player->air_in_lungs--;
 		player->underwater = true;
@@ -1251,7 +1253,7 @@ static inline void PlayerInProperties(player_t *player,
 	}
 
 	if ((special->special_flags & SECSP_Swimming) &&
-			player->viewz >= f_h && player->viewz <= c_h)
+		mouth_z >= f_h && mouth_z <= c_h)
 	{
 		player->swimming = true;
 	}

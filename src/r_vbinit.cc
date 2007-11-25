@@ -63,20 +63,11 @@ static void CameraFrameInit_StdObject(void *data)
 
 	viewx = mo->x;
 	viewy = mo->y;
+	viewz = mo->z + mo->height * 9 / 10;
+
 	viewangle = mo->angle;
 	viewvertangle = mo->vertangle;
 	viewsubsector = mo->subsector;
-
-	if (mo->player)
-	{
-		// -AJA- NOTE: CameraFrameInit_StdPlayer is used instead !!
-
-		viewz = mo->player->viewz;
-	}
-	else
-	{
-		viewz = mo->z + mo->height * 9 / 10;
-	}
 
 	view_props = R_PointGetProps(viewsubsector, viewz);
 }
@@ -100,8 +91,8 @@ static void CameraFrameInit_StdPlayer(void *data)
 
 	viewx = player->mo->x;
 	viewy = player->mo->y;
+	viewz = player->mo->z + player->viewz;
 	viewangle = player->mo->angle;
-	viewz = player->viewz;
 
 	viewsubsector = player->mo->subsector;
 	viewvertangle = player->mo->vertangle + M_ATan(player->kick_offset);
@@ -109,6 +100,14 @@ static void CameraFrameInit_StdPlayer(void *data)
 
 	if (! level_flags.mlook)
 		viewvertangle = 0;
+
+	// No heads above the ceiling
+	if (viewz > player->mo->ceilingz - 2)
+		viewz = player->mo->ceilingz - 2;
+
+	// No heads below the floor, please
+	if (viewz < player->mo->floorz + 2)
+		viewz = player->mo->floorz + 2;
 }
 
 
