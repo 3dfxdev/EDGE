@@ -33,6 +33,7 @@
 #include "r_gldefs.h"
 #include "r_colormap.h"
 #include "r_misc.h"
+#include "r_modes.h"
 #include "r_state.h"
 #include "r_shader.h"
 #include "r_units.h"
@@ -40,7 +41,10 @@
 #include "m_math.h"
 
 
-extern int leveltime; //!!!!
+extern float fuzz_yoffset; //!!!!
+
+
+extern float P_ApproxDistance(float dx, float dy, float dz);
 
 
 // #define DEBUG_MD2_LOAD  1
@@ -757,7 +761,25 @@ static void ModelCoordFunc(void *d, int v_idx, vec3_t *pos,
 	texc->Set(point->skin_s, point->skin_t);
 
 // FUZZ TEST !!!
-texc->y = texc->y + ((leveltime * 3) % 256) / 256.0;
+if (true)
+{
+	if (data->is_weapon)
+	{
+		texc->x *= 0.8;
+		texc->y *= 0.8;
+	}
+	else if (! viewiszoomed)
+	{
+		float dist = P_ApproxDistance(data->mo->x - viewx, data->mo->y - viewy, data->mo->z - viewz);
+		float factor = 70.0 / CLAMP(35, dist, 700);
+
+		texc->x *= factor;
+		texc->y *= factor;
+	}
+
+	texc->x += fmod(data->mo->x / 500.0, 1.0);
+	texc->y += fmod(data->mo->y / 500.0, 1.0) + fuzz_yoffset;
+}
 
 	const md2_vertex_c *n_vert = (data->lerp < 0.5) ? vert1 : vert2;
 
@@ -863,7 +885,7 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 	}
 
 blending |= BL_Alpha;
-trans=0.30; //!!!!! FUZZ TEST
+trans=1.00; //!!!!! FUZZ TEST
 
 
 	/* draw the model */
