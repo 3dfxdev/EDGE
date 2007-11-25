@@ -1,9 +1,23 @@
 Andrew Apted's Log
 
-2007/11/24:
+2007/11/25:
 
 Worked on new method to emulate the original 'FUZZY' effect
 (used on partially invisible objects and the player powerup).
+It uses texture with a fuzz pattern in it (stored in a lump
+called "FUZZMAP7" in EDGE.wad) which is alpha blended into
+the framebuffer.  I tried this technique once before and it
+didn't turn out very well, but this time the results are
+very good, and I've removed the old (wobbly jelly) effect.
+
+Implemented a -fullbright option for debugging.
+
+Fixed recently introduced problem of crouching giving you
+the shakes at the lowest position.
+
+Tried to improve the viewheight calcs when jumping, though it
+can be a bit jerky at the start of the jump, plus the weapon
+bobbing (a key visual indicator) does not change.
 
 2007/11/23:
 
