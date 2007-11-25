@@ -109,7 +109,7 @@ void RGL_UpdateTheFuzz(void)
 	fuzz_ang_bl += FLOAT_2_ANG(90.0f /  8.0f);
 	fuzz_ang_br += FLOAT_2_ANG(90.0f / 21.0f);
 
-	fuzz_yoffset = ((framecount * 3) & 255) / 256.0;
+	fuzz_yoffset = ((framecount * 5) & 1023) / 256.0;
 
 	if (! fuzz_tex)
 		fuzz_tex = MakeFuzzTexture();
@@ -403,10 +403,10 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 				data.col[v_idx].mod_G -= 256;
 				data.col[v_idx].mod_B -= 256;
 // FUZZ TEST
-dest->texc[1].x = (dest->pos.x / 256.0) / SCREENWIDTH  * 320.0;
-dest->texc[1].y = (dest->pos.y / 256.0) / SCREENHEIGHT * 200.0;
-dest->texc[1].x += fmod(data.lit_pos.x / 900.0, 1.0);
-dest->texc[1].y += fmod(data.lit_pos.y / 900.0, 1.0) + fuzz_yoffset;
+dest->texc[1].x = dest->pos.x / (float)SCREENWIDTH;
+dest->texc[1].y = dest->pos.y / (float)SCREENHEIGHT;
+dest->texc[1].x += fmod(data.lit_pos.x / 500.0, 1.0);
+dest->texc[1].y += fmod(data.lit_pos.y / 500.0, 1.0) + fuzz_yoffset;
 trans=1.00;
 			}
 			else
@@ -1428,11 +1428,11 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 				data.col[v_idx].mod_G -= 256;
 				data.col[v_idx].mod_B -= 256;
 // FUZZ TEST
-float ftx = (v_idx >= 2) ? (mo->radius) : 0;
+float ftx = (v_idx >= 2) ? (mo->radius*2.0) : 0;
 float fty = (v_idx == 1 || v_idx == 2) ? (mo->height) : 0;
 {
 	float dist = P_ApproxDistance(mo->x - viewx, mo->y - viewy, mo->z - viewz);
-	float factor = 2.0 / CLAMP(35, dist, 700);
+	float factor = 0.8 / CLAMP(20, dist, 700);
 	ftx *= factor;
 	fty *= factor;
 }
