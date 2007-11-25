@@ -2,12 +2,34 @@
 CHANGELOG FOR 1.31-ALPHA (since 1.29)
 =====================================
 
+(Date: NOVEMBER 2007)
+
+
+SUMMARY
+-------
+
++ MD2 models for things and weapons
++ Mirrors with multiple reflections
++ Nicer dynamic lighting
++ Sector glow effects
++ Good emulation of partial-invis effect
+
+- Rendering glitches fixed
+- Improved way of emulating DOOM light fading
+- More compatible sky rendering in 3D
+- More robust emulation of flat-flooding trick
+- TGA (targa) image format supported
+
+* Weak spots for monsters
+* New BECOME() action for changing type
+* Armor properties can be modified
+* Weapons can use a shared clip for both attacks
+* Flat alignment and scaling line-types
+
 
 KNOWN PROBLEMS
 --------------
 
-+ models don't interpolate vertexes (transitions are not smooth).
-- models don't appear in mirrors.
 - in mirrors, dynamic lights don't work properly.
 - new DOOM lighting emulation is not as smooth as before.
 - colormapped sectors (e.g. blue water) don't work yet.
@@ -33,10 +55,6 @@ Bugs fixed
 - fixed console PLAYSOUND command when sound is not found.
 - no sprite check for spawned map-things (easier debugging).
 - fixed badly synchronised flash state of super-shotgun.
-
-
-Features removed
-----------------
 
 
 General improvements
