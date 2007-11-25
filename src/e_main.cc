@@ -85,6 +85,7 @@
 #include "version.h"
 #include "z_zone.h"
 
+
 #define DEFAULT_LANGUAGE  "ENGLISH"
 
 #define E_TITLE  "EDGE v" EDGEVERSTR
@@ -387,6 +388,9 @@ static void SetGlobalVars(void)
 		use_dlights = 1;
 	else if (M_CheckParm("-nodlights"))
 		use_dlights = 0;
+
+	if (M_CheckParm("-fullbright"))
+		var_fullbright = true;
 
 	if (M_CheckParm("-ecompat"))
 		global_flags.edge_compat = true;
