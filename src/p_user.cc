@@ -39,17 +39,14 @@
 
 static void P_UpdatePowerups(player_t *player);
 
-// 16 pixels of bob
-#define MAXBOB        16.0f
+// 16 pixels == an inch of bob
+#define MAXBOB  16.0f
 
 
-//
-// CalcHeight
-//
-// Calculate the walking / running height adjustment.
-//
 static void CalcHeight(player_t * player)
 {
+	// calculate the walking / running height adjustment.
+
 	float bob = 0;
 	bool onground = player->mo->z <= player->mo->floorz;
 
@@ -109,9 +106,7 @@ static void CalcHeight(player_t * player)
 		player->viewz = player->mo->floorz + 2;
 }
 
-//
-// MovePlayer
-//
+
 static void MovePlayer(player_t * player)
 {
 	ticcmd_t *cmd;
@@ -241,33 +236,6 @@ static void MovePlayer(player_t * player)
 
 	if (!jumping && player->mo->state == &states[player->mo->info->idle_state])
 	{
-///---		if (swimming && (cmd->forwardmove || cmd->sidemove || cmd->upwardmove))
-///---		{
-///---			// enter the SWIM states (if present)
-///---			statenum_t swim_st = P_MobjFindLabel(player->mo, "SWIM");
-///---			if (swim_st == S_NULL)
-///---				swim_st = player->mo->info->chase_state;
-///---
-///---			if (swim_st != S_NULL)
-///---				P_SetMobjStateDeferred(player->mo, swim_st, 0);
-///---		}
-///---		else if (flying)
-///---		{
-///---			// enter the FLY states (if present)
-///---			statenum_t fly_st = P_MobjFindLabel(player->mo, "FLY");
-///---			if (fly_st != S_NULL)
-///---				P_SetMobjStateDeferred(player->mo, fly_st, 0);
-///---		}
-///---		else if (onladder && cmd->upwardmove)
-///---		{
-///---			// enter the CLIMB states (if present)
-///---			statenum_t climb_st = P_MobjFindLabel(player->mo, "CLIMB");
-///---			if (climb_st == S_NULL)
-///---				climb_st = player->mo->info->chase_state;
-///---
-///---			if (climb_st != S_NULL)
-///---				P_SetMobjStateDeferred(player->mo, climb_st, 0);
-///---		}
 		if (onground && (cmd->forwardmove || cmd->sidemove))
 		{
 			// enter the CHASE (i.e. walking) states
@@ -367,14 +335,11 @@ static void MovePlayer(player_t * player)
 		player->mo->vertangle = 0;
 }
 
-//
-// P_DeathThink
-//
-// Fall on your face when dying.
-// Decrease POV height to floor height.
-//
+
 static void DeathThink(player_t * player)
 {
+	// fall on your face when dying.
+
 	float dx, dy, dz;
 
 	angle_t angle;
@@ -536,9 +501,7 @@ static void P_UpdatePowerups(player_t *player)
 	}
 }
 
-//
-// P_ConsolePlayerBuilder
-//
+
 // Does the thinking of the console player, i.e. read from input
 void P_ConsolePlayerBuilder(const player_t *p, void *data, ticcmd_t *dest)
 {
@@ -576,9 +539,7 @@ bool P_PlayerSwitchWeapon(player_t *player, weapondef_c *choice)
 	return true;
 }
 
-//
-// P_PlayerThink
-//
+
 void P_PlayerThink(player_t * player)
 {
 	ticcmd_t *cmd;
@@ -712,9 +673,7 @@ void P_PlayerThink(player_t * player)
 
 }
 
-//
-// P_CreatePlayer
-//
+
 void P_CreatePlayer(int pnum, bool is_bot)
 {
 	SYS_ASSERT(0 <= pnum && pnum < MAXPLAYERS);
@@ -752,9 +711,7 @@ void P_CreatePlayer(int pnum, bool is_bot)
 	memset(p->consistency, -1, sizeof(p->consistency));
 }
 
-//
-// P_DestroyAllPlayers
-//
+
 void P_DestroyAllPlayers(void)
 {
 	for (int pnum=0; pnum < MAXPLAYERS; pnum++)
@@ -773,14 +730,12 @@ void P_DestroyAllPlayers(void)
 	displayplayer = -1;
 }
 
-//
-// P_UpdateAvailWeapons
-//
-// Must be called as soon as the player has received or lost a weapon.
-// Updates the status bar icons.
-//
+
 void P_UpdateAvailWeapons(player_t *p)
 {
+	// Must be called as soon as the player has received or lost
+	// a weapon.  Updates the status bar icons.
+
 	int key;
 
 	for (key = 0; key < WEAPON_KEYS; key++)
@@ -801,9 +756,7 @@ void P_UpdateAvailWeapons(player_t *p)
 	}
 }
 
-//
-// P_UpdateTotalArmour
-//
+
 void P_UpdateTotalArmour(player_t *p)
 {
 	int i;
@@ -823,14 +776,13 @@ void P_UpdateTotalArmour(player_t *p)
 		p->totalarmour = 999.0f;
 }
 
-//
-// P_AddWeapon
-//
-// Returns true if player didn't already have the weapon.  If
-// successful and `index' is non-NULL, it is set to the new index.
-//
+
 bool P_AddWeapon(player_t *player, weapondef_c *info, int *index)
 {
+	// Returns true if player did not already have the weapon.
+	// If successful and 'index' is non-NULL, the new index is
+	// stored there.
+
 	int slot = -1;
 	int upgrade_slot = -1;
 
@@ -925,13 +877,11 @@ bool P_AddWeapon(player_t *player, weapondef_c *info, int *index)
 	return true;
 }
 
-//
-// P_RemoveWeapon
-//
-// Returns true if player had the weapon.
-//
+
 bool P_RemoveWeapon(player_t *player, weapondef_c *info)
 {
+	// returns true if player had the weapon.
+
 	int i;
 
 	for (i=0; i < MAXWEAPONS; i++)
@@ -973,17 +923,13 @@ bool P_RemoveWeapon(player_t *player, weapondef_c *info)
 	return true;
 }
 
-//
-// P_GiveInitialBenefits
-//
-// Give the player the initial benefits when they start a game (or
-// restart after dying).  Sets up: ammo, ammo-limits, health, armour,
-// keys and weapons.
-//
-// -AJA- 2000/03/02: written.
-//
+
 void P_GiveInitialBenefits(player_t *p, const mobjtype_c *info)
 {
+	// Give the player the initial benefits when they start a game
+	// (or restart after dying).  Sets up: ammo, ammo-limits, health,
+	// armour, keys and weapons.
+
 	epi::array_iterator_c it;
 	weapondef_c *w;
 	
