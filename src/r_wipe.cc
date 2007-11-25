@@ -233,7 +233,7 @@ static void RGL_Wipe_Pixelfade(float how_far)
 	glDisable(GL_BLEND);
 	glDisable(GL_TEXTURE_2D);
 
-	glAlphaFunc(GL_GREATER, 1.0f / 32.0f);
+	glAlphaFunc(GL_GREATER, 0);
 }
 
 static void RGL_Wipe_Melt(void)
