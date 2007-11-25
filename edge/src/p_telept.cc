@@ -249,9 +249,12 @@ bool EV_Teleport(line_t* line, int tag, mobj_t* thing,
     if (!P_TeleportMove(thing, new_x, new_y, new_z))
         return false;
     
-    // FIXME: deltaviewheight may need adjustment
     if (player)
-        player->viewz = thing->z + player->viewheight;
+	{
+		player->viewheight = player->std_viewheight;
+		player->deltaviewheight = 0;
+        player->viewz = player->viewheight;
+	}
 
     /* --- Momentum handling --- */
 
