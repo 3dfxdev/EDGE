@@ -2115,14 +2115,12 @@ static void RGL_WalkSubsector(int num)
 
 	// --- handle sky (using the depth buffer) ---
 
-	if (IS_SKY(cur_sub->sector->floor) && 
-		viewz > cur_sub->sector->f_h)
+	if (IS_SKY(cur_sub->sector->floor) && viewz > cur_sub->sector->f_h)
 	{
 		RGL_DrawSkyPlane(cur_sub, cur_sub->sector->f_h);
 	}
 
-	if (IS_SKY(cur_sub->sector->ceil) && 
-		viewz < cur_sub->sector->sky_h)
+	if (IS_SKY(cur_sub->sector->ceil) && viewz < cur_sub->sector->sky_h)
 	{
 		RGL_DrawSkyPlane(cur_sub, cur_sub->sector->sky_h);
 	}
