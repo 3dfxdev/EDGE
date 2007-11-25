@@ -307,7 +307,7 @@ void RGL_SoftInit(void)
 
 	glShadeModel(GL_SMOOTH);
 	glDepthFunc(GL_LEQUAL);
-	glAlphaFunc(GL_GREATER, 1.0f / 32.0f);
+	glAlphaFunc(GL_GREATER, 0);
 
 	glFrontFace(GL_CW);
 	glCullFace(GL_BACK);
