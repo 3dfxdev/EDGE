@@ -906,10 +906,6 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor, mobj_t * source,
 
 	player_t *player = target->player;
 
-	// take half damage in trainer mode
-	if (player && gameskill == sk_baby)
-		damage /= 2.0f;
-
 	// Some close combat weapons should not
 	// inflict thrust and push the victim out of reach,
 	// thus kick away unless using the chainsaw.
@@ -934,8 +930,12 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor, mobj_t * source,
 		int i;
 
 		// ignore damage in GOD mode, or with INVUL powerup
-		if ((player->cheats & CF_GODMODE) || player->powers[PW_Invulnerable])
+		if ((player->cheats & CF_GODMODE) || player->powers[PW_Invulnerable] > 0)
 			return;
+
+		// take half damage in trainer mode
+		if (gameskill == sk_baby)
+			damage /= 2.0f;
 
 		// preliminary check: immunity and resistance
 		for (i = NUMARMOUR-1; i >= ARMOUR_Green; i--)
