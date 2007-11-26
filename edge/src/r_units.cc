@@ -201,6 +201,8 @@ local_gl_vert_t *RGL_BeginUnit(GLuint shape, int max_vert,
 	SYS_ASSERT(max_vert > 0);
 	SYS_ASSERT(pass >= 0);
 
+	SYS_ASSERT((blending & BL_CULL_BOTH) != BL_CULL_BOTH);
+
 	// check we have enough space left
 	if (cur_vert + max_vert > MAX_L_VERT || cur_unit >= MAX_L_UNIT)
 	{
@@ -386,10 +388,13 @@ void RGL_DrawUnits(void)
 				glDisable(GL_BLEND);
 		}
 
-		if ((active_blending ^ unit->blending) & BL_CullBack)
+		if ((active_blending ^ unit->blending) & BL_CULL_BOTH)
 		{
-			if (unit->blending & BL_CullBack)
+			if (unit->blending & BL_CULL_BOTH)
+			{
 				glEnable(GL_CULL_FACE);
+				glCullFace((unit->blending & BL_CullFront) ? GL_FRONT : GL_BACK);
+			}
 			else
 				glDisable(GL_CULL_FACE);
 		}
@@ -482,6 +487,7 @@ void RGL_DrawUnits(void)
 
 	glDepthMask(GL_TRUE);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glCullFace(GL_BACK);
 
 	glDisable(GL_ALPHA_TEST);
 	glDisable(GL_BLEND);
