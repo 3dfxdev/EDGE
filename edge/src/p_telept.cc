@@ -252,8 +252,8 @@ bool EV_Teleport(line_t* line, int tag, mobj_t* thing,
     if (player)
 	{
 		player->viewheight = player->std_viewheight;
+        player->viewz      = player->std_viewheight;
 		player->deltaviewheight = 0;
-        player->viewz = player->viewheight;
 	}
 
     /* --- Momentum handling --- */

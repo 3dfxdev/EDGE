@@ -991,7 +991,8 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 	// check for smooth step up
 	if (mo->player && mo->player->mo == mo && mo->z < mo->floorz)
 	{
-		mo->player->viewheight -= mo->floorz - mo->z;
+		mo->player->viewheight -= (mo->floorz - mo->z);
+		mo->player->viewz      -= (mo->floorz - mo->z);
 		mo->player->deltaviewheight = (mo->player->std_viewheight - 
 			mo->player->viewheight) / 8.0f;
 	}
