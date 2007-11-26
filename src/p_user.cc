@@ -46,8 +46,9 @@ static void CalcHeight(player_t * player)
 {
 	// calculate the walking / running height adjustment.
 
-	float bob = 0;
 	bool onground = player->mo->z <= player->mo->floorz;
+
+	float bob_z = 0;
 
 	// Regular movement bobbing 
 	// (needs to be calculated for gun swing even if not on ground).  
@@ -65,7 +66,7 @@ static void CalcHeight(player_t * player)
 	{
 		angle_t angle = ANG90 / 5 * leveltime;
 
-		bob = player->bob / 2 * player->mo->info->bobbing * M_Sin(angle);
+		bob_z = player->bob / 2 * player->mo->info->bobbing * M_Sin(angle);
 	}
 
 	// ----CALCULATE VIEWHEIGHT----
@@ -99,17 +100,18 @@ static void CalcHeight(player_t * player)
 	if (player->jumpwait > 0)
 	{
 		if (player->jumpwait >= 6)
-			bob = 0;
+			bob_z = 0;
 		else
-			bob *= (6 - player->jumpwait) / 6.0;
+			bob_z *= (6 - player->jumpwait) / 6.0;
 	}
 
-	player->viewz = player->viewheight + bob;
+	player->viewz = player->viewheight + bob_z;
 
 #if 0  // DEBUG
-I_Debugf("Jumpwait:%d  z:%1.3f viewheight:%1.3f delta:%1.3f --> viewz:%1.3f\n",
-		 player->jumpwait, player->mo->z, player->viewheight,
-		 player->deltaviewheight, player->viewz);
+I_Debugf("Jump:%d bob_z:%1.2f  z:%1.2f  height:%1.2f delta:%1.2f --> viewz:%1.3f\n",
+		 player->jumpwait, bob_z, player->mo->z,
+		 player->viewheight, player->deltaviewheight,
+		 player->mo->z + player->viewz);
 #endif
 }
 
