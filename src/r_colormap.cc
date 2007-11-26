@@ -648,11 +648,11 @@ int R_DoomLightingEquation(int L, float dist)
 
 GLuint MakeColormapTexture( int mode )
 {
-	epi::image_data_c *img = new epi::image_data_c(256, 64, 4);
+	epi::image_data_c img(256, 64, 4);
 
 	for (int L = 0; L < 64; L++)
 	{
-		byte *dest = img->PixelAt(0, L);
+		byte *dest = img.PixelAt(0, L);
 
 		for (int x = 0; x < 256; x++, dest += 4)
 		{
@@ -690,11 +690,7 @@ GLuint MakeColormapTexture( int mode )
 		}
 	}
 
-	GLuint tex_id = R_UploadTexture(img, NULL, UPL_Smooth|UPL_Clamp);
-
-	delete img;
-
-	return tex_id;
+	return R_UploadTexture(&img, NULL, UPL_Smooth|UPL_Clamp);
 }
 
 
