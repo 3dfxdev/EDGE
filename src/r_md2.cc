@@ -574,6 +574,8 @@ md2_model_c *MD2_LoadModel(epi::file_c *f)
 
 typedef struct
 {
+	mobj_t *mo;
+
 	md2_model_c *model;
 
 	const md2_frame_c *frame1;
@@ -584,11 +586,16 @@ typedef struct
 	float x, y, z;
 
 	bool is_weapon;
+	bool is_fuzzy;
 
 	// scaling
 	float xy_scale;
 	float  z_scale;
 	float bias;
+
+	// fuzzy info
+	float  fuzz_mul;
+	vec2_t fuzz_add;
 
 	// mlook vectors
 	vec2_t kx_mat;
@@ -597,8 +604,6 @@ typedef struct
 	// rotation vectors
 	vec2_t rx_mat;
 	vec2_t ry_mat;
-
-	mobj_t *mo;
 
 	multi_color_c nm_colors[MD2_NUM_NORMALS];
 
@@ -757,31 +762,21 @@ static void ModelCoordFunc(void *d, int v_idx, vec3_t *pos,
 	pos->z = pos1.z * (1.0f - data->lerp) + pos2.z * data->lerp;
 
 	
-	texc->Set(point->skin_s, point->skin_t);
-
-// FUZZ TEST !!!
-if (true)
-{
-	if (data->is_weapon)
-	{
-		texc->x *= 0.8;
-		texc->y *= 0.8;
-	}
-	else if (! viewiszoomed)
-	{
-		float dist = P_ApproxDistance(data->mo->x - viewx, data->mo->y - viewy, data->mo->z - viewz);
-		float factor = 70.0 / CLAMP(35, dist, 700);
-
-		texc->x *= factor;
-		texc->y *= factor;
-	}
-
-	FUZZ_Adjust(texc, data->mo);
-}
-
 	const md2_vertex_c *n_vert = (data->lerp < 0.5) ? vert1 : vert2;
 
 	data->CalcNormal(normal, n_vert);
+
+
+	if (data->is_fuzzy)
+	{
+		texc->x = point->skin_s * data->fuzz_mul + data->fuzz_add.x;
+		texc->y = point->skin_t * data->fuzz_mul + data->fuzz_add.y;
+
+		rgb[0] = rgb[1] = rgb[2] = 0;
+		return;
+	}
+
+	texc->Set(point->skin_s, point->skin_t);
 
 
 	multi_color_c *col = &data->nm_colors[n_vert->normal_idx];
@@ -819,14 +814,17 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 		return;
 	}
 
-	int fuzzy = (mo->flags & MF_FUZZY);
+	model_coord_data_t data;
 
-	float trans = fuzzy ? 1.0f : mo->visibility;
+
+	data.is_fuzzy = (mo->flags & MF_FUZZY) ? true : false;
+
+	float trans = mo->visibility;
+
+	// FIXME !!!! need to know if image contains alpha
 
 	int blending = BL_CullBack | (trans < 0.99 ? BL_Alpha : 0);
 
-
-	model_coord_data_t data;
 
 	data.mo = mo;
 	data.model = md;
@@ -861,7 +859,25 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 	InitNormalColors(&data);
 
 
-	if (! fuzzy)
+	if (data.is_fuzzy)
+	{
+		data.fuzz_mul = 0.8;
+		data.fuzz_add.Set(0, 0);
+
+		if (! data.is_weapon && ! viewiszoomed)
+		{
+			float dist = P_ApproxDistance(mo->x - viewx, mo->y - viewy, mo->z - viewz);
+
+			data.fuzz_mul = 70.0 / CLAMP(35, dist, 700);
+		}
+
+		FUZZ_Adjust(&data.fuzz_add, mo);
+
+		trans = 1;
+		blending |= BL_Alpha | BL_Masked;
+	}
+
+	if (! data.is_fuzzy)
 	{
 		abstract_shader_c *shader = R_GetColormapShader(props, mo->state->bright);
 
@@ -881,9 +897,6 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 								 DLIT_Model, &data);
 		}
 	}
-
-blending |= BL_Alpha;
-trans=1.00; //!!!!! FUZZ TEST
 
 
 	/* draw the model */
@@ -957,7 +970,6 @@ void MD2_RenderModel_2D(md2_model_c *md, GLuint skin_tex, int frame,
 		glColor4f(0, 0, 0, 0.5f);
 	else
 		glColor4f(1, 1, 1, 1.0f);
-
 
 	for (int i = 0; i < md->num_strips; i++)
 	{
