@@ -843,7 +843,7 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 	if (mo->hyperflags & HF_NOZBUFFER)
 		blending |= BL_NoZBuf;
 
-	if (false) //!!!! num_active_mirrors % 2)
+	if (num_active_mirrors % 2)
 	{
 		blending &= ~BL_CullBack;
 		blending |=  BL_CullFront;
