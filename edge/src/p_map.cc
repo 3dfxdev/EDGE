@@ -1226,14 +1226,12 @@ static bool PTR_AimTraverse(intercept_t * in, void *dataptr)
 	return false;  // don't go any farther
 }
 
-//
-// ShootCheckGap
-//
-// Returns true if successfully passed gap.
-//
+
 static inline bool ShootCheckGap(float z,
 	float f_h, surface_t *floor, float c_h, surface_t *ceil)
 {
+	/* Returns true if successfully passed gap */
+
 	// perfectly horizontal shots cannot hit planes
 	if (shoot_I.slope == 0)
 		return true;
@@ -1271,11 +1269,7 @@ static inline bool ShootCheckGap(float z,
 	return false;
 }
 
-//
-// PTR_ShootTraverse
-//
-// -ACB- 1998/07/28 Cleaned up.
-//
+
 static bool PTR_ShootTraverse(intercept_t * in, void *dataptr)
 {
 	float dist = shoot_I.range * in->frac;
@@ -1434,10 +1428,10 @@ static bool PTR_ShootTraverse(intercept_t * in, void *dataptr)
 			use_puff = true;
 	}
 
-	if (use_puff && shoot_I.puff)
-		P_SpawnPuff(x, y, z, shoot_I.puff);
-	else
+	if (!use_puff)
 		P_SpawnBlood(x, y, z, shoot_I.damage, shoot_I.angle, mo->info->blood);
+	else if (shoot_I.puff)
+		P_SpawnPuff(x, y, z, shoot_I.puff);
 
 	// don't go any farther
 	return false;

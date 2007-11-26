@@ -483,7 +483,7 @@ static void P_UpdatePowerups(player_t *player)
 	player->effect_colourmap = NULL;
 	player->effect_left = 0;
 
-	if (player->powers[PW_Invulnerable] > 0.0f)
+	if (player->powers[PW_Invulnerable] > 0)
 	{
 		float s = player->powers[PW_Invulnerable];
 
@@ -491,13 +491,13 @@ static void P_UpdatePowerups(player_t *player)
 		player->effect_colourmap = colourmaps.Lookup("ALLWHITE");
 		player->effect_left = (s <= 0) ? 0 : MIN(int(s), EFFECT_MAX_TIME);
 	}
-	else if (player->powers[PW_Infrared] > 0.0f)
+	else if (player->powers[PW_Infrared] > 0)
 	{
 		float s = player->powers[PW_Infrared];
 
 		player->effect_left = (s <= 0) ? 0 : MIN(int(s), EFFECT_MAX_TIME);
 	}
-	else if (player->powers[PW_NightVision] > 0.0f)		// -ACB- 1998/07/15 NightVision Code
+	else if (player->powers[PW_NightVision] > 0)	// -ACB- 1998/07/15 NightVision Code
 	{
 		float s = player->powers[PW_NightVision];
 
