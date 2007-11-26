@@ -822,7 +822,10 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 
 	// FIXME !!!! need to know if image contains alpha
 
-	int blending = BL_CullBack | (trans < 0.99 ? BL_Alpha : 0);
+	int blending = BL_CullBack | (trans <= 0.99 ? BL_Alpha : 0);
+
+	if (mo->hyperflags & HF_NOZBUFFER)
+		blending |= BL_NoZBuf;
 
 
 	data.mo = mo;
@@ -860,6 +863,8 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 
 	if (data.is_fuzzy)
 	{
+		skin_tex = fuzz_tex;
+
 		data.fuzz_mul = 0.8;
 		data.fuzz_add.Set(0, 0);
 
@@ -872,8 +877,8 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 
 		FUZZ_Adjust(&data.fuzz_add, mo);
 
-		trans = 1;
-		blending |= BL_Alpha | BL_Masked;
+		trans = 1.0f;
+		blending |= BL_Alpha;
 	}
 
 	if (! data.is_fuzzy)
