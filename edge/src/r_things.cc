@@ -81,10 +81,9 @@ static float GetHoverDZ(mobj_t *mo)
 	return M_Sin(phase) * 4.0f;
 }
 
+
 typedef struct
 {
-///---	float R, G, B;
-
 	vec3_t vert[4];
 	vec2_t texc[4];
 	vec3_t lit_pos;
@@ -92,24 +91,6 @@ typedef struct
 	multi_color_c col[4];
 }
 psprite_coord_data_t;
-
-
-static void PSpriteCoordFunc(void *d, int v_idx,
-		vec3_t *pos, float *rgb, vec2_t *texc,
-		vec3_t *normal, vec3_t *lit_pos)
-{
-	const psprite_coord_data_t *data = (psprite_coord_data_t *)d;
-
-	*pos     = data->vert[v_idx];
-	*texc    = data->texc[v_idx];
-	*lit_pos = data->lit_pos;
-
-///---	rgb[0] = data->R;
-///---	rgb[1] = data->G;
-///---	rgb[2] = data->B;
-
-	normal->Set(0, 0, 1);
-}
 
 static void DLIT_PSprite(mobj_t *mo, void *dataptr)
 {
@@ -172,15 +153,6 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	if (trans < 0.04f)
 		return;
 
-	// psprites are never totally solid and opaque
-#if 0
-	glEnable(GL_ALPHA_TEST);
-	if (trans <= 0.99 || use_smoothing)
-		glEnable(GL_BLEND);
-
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, tex_id);
-#endif
 
 	float tex_top_h = top;  ///## 1.00f; // 0.98;
 	float tex_bot_h = 0.0f; ///## 1.00f - top;  // 1.02 - bottom;
@@ -226,14 +198,10 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	y2t = (float)(SCREENHEIGHT - viewwindowy - viewwindowheight) + y2t - 1;
 	y2b = (float)(SCREENHEIGHT - viewwindowy - viewwindowheight) + y2b - 1;
 
-	int blending = BL_Masked; //!!!!!
+	int blending = BL_Alpha | BL_Masked;
 
 
 	psprite_coord_data_t data;
-
-///---	data.R = fuzzy ? 0.2 : 1;
-///---	data.G = fuzzy ? 0.2 : 1;
-///---	data.B = fuzzy ? 0.2 : 1;
 
 	data.vert[0].Set(x1b, y1b, 0);
 	data.vert[1].Set(x1t, y1t, 0);
@@ -251,9 +219,6 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	data.lit_pos.y = player->mo->y + viewsin * away;
 	data.lit_pos.z = player->mo->z + player->mo->height *
 		PERCENT_2_FLOAT(player->mo->info->shotheight);
-
-
-	RGL_StartUnits(false);
 
 
 	data.col[0].Clear();
@@ -297,9 +262,11 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 
 	/* draw the weapon */
 
-	int num_pass = is_fuzzy ? 1 : (4 + detail_level * 3);
-	
-	for (int pass = 0; pass < 1; pass++) //!!!!!! pass < 4
+	RGL_StartUnits(false);
+
+	int num_pass = is_fuzzy ? 1 : (4 + detail_level * 2);
+
+	for (int pass = 0; pass < num_pass; pass++)
 	{
 		if (pass == 1)
 		{
@@ -329,12 +296,21 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 		{
 			local_gl_vert_t *dest = glvert + v_idx;
 
-			vec3_t lit_pos;
+			dest->pos     = data.vert[v_idx];
+			dest->texc[0] = data.texc[v_idx];
 
-			PSpriteCoordFunc(&data, v_idx, &dest->pos, dest->rgba,
-					&dest->texc[0], &dest->normal, &lit_pos);
+			dest->normal.Set(0, 0, 1);
 
-			if (! is_additive)
+			if (is_fuzzy)
+			{
+				dest->texc[1].x = dest->pos.x / (float)SCREENWIDTH;
+				dest->texc[1].y = dest->pos.y / (float)SCREENHEIGHT;
+
+				FUZZ_Adjust(& dest->texc[1], player->mo);
+
+				dest->rgba[0] = dest->rgba[1] = dest->rgba[2] = 0;
+			}
+			else if (! is_additive)
 			{
 				dest->rgba[0] = data.col[v_idx].mod_R / 255.0;
 				dest->rgba[1] = data.col[v_idx].mod_G / 255.0;
@@ -343,11 +319,6 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 				data.col[v_idx].mod_R -= 256;
 				data.col[v_idx].mod_G -= 256;
 				data.col[v_idx].mod_B -= 256;
-// FUZZ TEST
-dest->texc[1].x = dest->pos.x / (float)SCREENWIDTH;
-dest->texc[1].y = dest->pos.y / (float)SCREENHEIGHT;
-FUZZ_Adjust(& dest->texc[1], player->mo);
-trans=1.00;
 			}
 			else
 			{
@@ -355,6 +326,7 @@ trans=1.00;
 				dest->rgba[1] = data.col[v_idx].add_G / 255.0;
 				dest->rgba[2] = data.col[v_idx].add_B / 255.0;
 			}
+
 			dest->rgba[3] = trans;
 		}
 
@@ -478,6 +450,7 @@ void RGL_DrawWeaponSprites(player_t * p)
 	if (!got_cross && !automapactive && p->health > 0)
 		DrawStdCrossHair((screen_hud != HUD_Full) ? 0 : FROM_200(ST_HEIGHT));
 }
+
 
 void RGL_DrawWeaponModel(player_t * p)
 {
@@ -1112,23 +1085,6 @@ typedef struct
 thing_coord_data_t;
 
 
-static void ThingCoordFunc(void *d, int v_idx,
-		vec3_t *pos, float *rgb, vec2_t *texc,
-		vec3_t *normal, vec3_t *lit_pos)
-{
-	const thing_coord_data_t *data = (thing_coord_data_t *)d;
-
-	*pos    = data->vert[v_idx];
-	*texc   = data->texc[v_idx];
-	*normal = data->normal;
-
-///---	rgb[0] = data->R;
-///---	rgb[1] = data->G;
-///---	rgb[2] = data->B;
-
-	*lit_pos = *pos;
-}
-
 static void DLIT_Thing(mobj_t *mo, void *dataptr)
 {
 	thing_coord_data_t *data = (thing_coord_data_t *)dataptr;
@@ -1240,10 +1196,6 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 
 	data.mo = mo;
 
-///---	data.R = fuzzy ? 0 : 1;
-///---	data.G = fuzzy ? 0 : 1;
-///---	data.B = fuzzy ? 0 : 1;
-
 	data.vert[0].Set(x1b+dx, y1b+dy, z1b);
 	data.vert[1].Set(x1t+dx, y1t+dy, z1t);
 	data.vert[2].Set(x2t+dx, y2t+dy, z2t);
@@ -1263,10 +1215,21 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 	data.col[3].Clear();
 
 
+	float  fuzz_mul = 0;
+	vec2_t fuzz_add;
+
+	fuzz_add.Set(0, 0);
+
 	if (is_fuzzy)
 	{
 		blending |= BL_Alpha | BL_Masked;
 		trans = 1.0f;
+
+		float dist = P_ApproxDistance(mo->x - viewx, mo->y - viewy, mo->z - viewz);
+
+		fuzz_mul = 0.8 / CLAMP(20, dist, 700);
+
+		FUZZ_Adjust(&fuzz_add, mo);
 	}
 
 	if (! is_fuzzy)
@@ -1329,12 +1292,21 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 		{
 			local_gl_vert_t *dest = glvert + v_idx;
 
-			vec3_t lit_pos;
+			dest->pos     = data.vert[v_idx];
+			dest->texc[0] = data.texc[v_idx];
+			dest->normal  = data.normal;
 
-			ThingCoordFunc(&data, v_idx, &dest->pos, dest->rgba,
-					&dest->texc[0], &dest->normal, &lit_pos);
+			if (is_fuzzy)
+			{
+				float ftx = (v_idx >= 2) ? (mo->radius * 2) : 0;
+				float fty = (v_idx == 1 || v_idx == 2) ? (mo->height) : 0;
 
-			if (! is_additive)
+				dest->texc[1].x = ftx * fuzz_mul + fuzz_add.x;
+				dest->texc[1].y = fty * fuzz_mul + fuzz_add.y;;
+
+				dest->rgba[0] = dest->rgba[1] = dest->rgba[2] = 0;
+			}
+			else if (! is_additive)
 			{
 				dest->rgba[0] = data.col[v_idx].mod_R / 255.0;
 				dest->rgba[1] = data.col[v_idx].mod_G / 255.0;
@@ -1343,18 +1315,6 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 				data.col[v_idx].mod_R -= 256;
 				data.col[v_idx].mod_G -= 256;
 				data.col[v_idx].mod_B -= 256;
-// FUZZ TEST
-float ftx = (v_idx >= 2) ? (mo->radius*2.0) : 0;
-float fty = (v_idx == 1 || v_idx == 2) ? (mo->height) : 0;
-{
-	float dist = P_ApproxDistance(mo->x - viewx, mo->y - viewy, mo->z - viewz);
-	float factor = 0.8 / CLAMP(20, dist, 700);
-	ftx *= factor;
-	fty *= factor;
-}
-dest->texc[1].x = ftx;
-dest->texc[1].y = fty;
-FUZZ_Adjust(& dest->texc[1], mo);
 			}
 			else
 			{
