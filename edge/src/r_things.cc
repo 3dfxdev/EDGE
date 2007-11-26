@@ -157,13 +157,13 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	float right = IM_RIGHT(image);
 	float top = IM_TOP(image);
 
-	int fuzzy = (player->mo->flags & MF_FUZZY);
+	bool is_fuzzy = (player->mo->flags & MF_FUZZY) ? true : false;
 
-	float trans = fuzzy ? 1.0f : player->mo->visibility;
+	float trans = player->mo->visibility;
 
 	if (which == ps_crosshair)
 	{
-		fuzzy = false;
+		is_fuzzy = false;
 		trans = 1.0f;
 	}
 
@@ -256,11 +256,15 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	RGL_StartUnits(false);
 
 
-	int v_idx;
-
 	data.col[0].Clear();
 
-	if (! fuzzy)
+	if (is_fuzzy)
+	{
+		blending |= BL_Alpha;
+		trans = 1.0f;
+	}
+
+	if (! is_fuzzy)
 	{
 		abstract_shader_c *shader = R_GetColormapShader(props, state->bright);
 
@@ -290,36 +294,38 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	data.col[2] = data.col[0];
 	data.col[3] = data.col[0];
 
+
+	/* draw the weapon */
+
+	int num_pass = is_fuzzy ? 1 : (4 + detail_level * 3);
+	
 	for (int pass = 0; pass < 1; pass++) //!!!!!! pass < 4
 	{
-		if (pass > 0 && pass < 3 && GetMulticolMaxRGB(data.col, 4, false) <= 0)
-			continue;
-
-		if (pass == 3 && GetMulticolMaxRGB(data.col, 4, true) <= 0)
-			continue;
-
-		if (pass >= 1)
+		if (pass == 1)
 		{
 			blending &= ~BL_Alpha;
 			blending |=  BL_Add;
 		}
 
-		bool is_additive = (pass == 3);
+		bool is_additive = (pass > 0 && pass == num_pass-1);
 
-#if 0
+		if (pass > 0 && pass < num_pass-1)
+		{
+			if (GetMulticolMaxRGB(data.col, 4, false) <= 0)
+				continue;
+		}
+		else if (is_additive)
+		{
+			if (GetMulticolMaxRGB(data.col, 4, true) <= 0)
+				continue;
+		}
+
 		local_gl_vert_t * glvert = RGL_BeginUnit(GL_POLYGON, 4,
 				 is_additive ? ENV_SKIP_RGB : GL_MODULATE, tex_id,
-				 ENV_NONE, 0, pass, blending);
-#endif
-
-		//!!!! FUZZ TEST
-		blending |= BL_Alpha;
-
-		local_gl_vert_t * glvert = RGL_BeginUnit(GL_POLYGON, 4,
-				 GL_MODULATE, tex_id, GL_MODULATE, fuzz_tex,
+				 is_fuzzy ? GL_MODULATE : ENV_NONE, is_fuzzy ? fuzz_tex : 0,
 				 pass, blending);
 
-		for (v_idx=0; v_idx < 4; v_idx++)
+		for (int v_idx=0; v_idx < 4; v_idx++)
 		{
 			local_gl_vert_t *dest = glvert + v_idx;
 
@@ -537,8 +543,6 @@ I_Debugf("Render model: no skin %d\n", skin_num);
 		lerp = CLAMP(0, lerp, 1);
 	}
 
-//!!!! FUZZ TEST
-skin_tex = fuzz_tex;
 	MD2_RenderModel(md->model, skin_tex, true,
 			        last_frame, psp->state->frame, lerp,
 			        x, y, z, p->mo, view_props,
@@ -1085,9 +1089,6 @@ I_Debugf("Render model: no skin %d\n", mo->model_skin);
 		lerp = CLAMP(0, lerp, 1);
 	}
 
-//!!!! FUZZ TEST
-skin_tex = fuzz_tex;
-
 	MD2_RenderModel(md->model, skin_tex, false,
 			        last_frame, mo->state->frame, lerp,
 					dthing->mx, dthing->my, z, mo, mo->props,
@@ -1156,9 +1157,9 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 
 	mobj_t *mo = dthing->mo;
 
-	int fuzzy = (mo->flags & MF_FUZZY);
+	bool is_fuzzy = (mo->flags & MF_FUZZY) ? true : false;
 
-	float trans = fuzzy ? 1.0f : mo->visibility;
+	float trans = mo->visibility;
 
 	float dx = 0, dy = 0;
 
@@ -1256,12 +1257,19 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 	data.normal.Set(-viewcos, -viewsin, 0);
 
 
-	int v_idx;
+	data.col[0].Clear();
+	data.col[1].Clear();
+	data.col[2].Clear();
+	data.col[3].Clear();
 
-	for (int jj=0; jj < 4; jj++)
-		data.col[jj].Clear();
 
-	if (! fuzzy)
+	if (is_fuzzy)
+	{
+		blending |= BL_Alpha | BL_Masked;
+		trans = 1.0f;
+	}
+
+	if (! is_fuzzy)
 	{
 		abstract_shader_c *shader = R_GetColormapShader(dthing->props, mo->state->bright);
 
@@ -1286,37 +1294,38 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 		}
 	}
 
-	// FIXME DESCRIBE THIS WEIRD SHIT!!!
-	
-	for (int pass = 0; pass < 1; pass++)   //!!!!! pass < 4
+
+	/* draw the sprite */
+
+	int num_pass = is_fuzzy ? 1 : (3 + detail_level * 2);
+
+	for (int pass = 0; pass < num_pass; pass++)
 	{
-		if (pass > 0 && pass < 3 && GetMulticolMaxRGB(data.col, 4, false) <= 0)
-			continue;
-
-		if (pass == 3 && GetMulticolMaxRGB(data.col, 4, true) <= 0)
-			continue;
-
-		if (pass >= 1)
+		if (pass == 1)
 		{
 			blending &= ~BL_Alpha;
 			blending |=  BL_Add;
 		}
 
-		bool is_additive = (pass == 3);
+		bool is_additive = (pass > 0 && pass == num_pass-1);
 
-#if 0
+		if (pass > 0 && pass < num_pass-1) 
+		{
+			if (GetMulticolMaxRGB(data.col, 4, false) <= 0)
+				continue;
+		}
+		else if (is_additive)
+		{
+			if (GetMulticolMaxRGB(data.col, 4, true) <= 0)
+				continue;
+		}
+
 		local_gl_vert_t * glvert = RGL_BeginUnit(GL_POLYGON, 4,
 				 is_additive ? ENV_SKIP_RGB : GL_MODULATE, tex_id,
-				 ENV_NONE, 0, pass, blending);
-#endif
-		//!!!! FUZZ TEST
-		blending |= BL_Alpha;
-
-		local_gl_vert_t * glvert = RGL_BeginUnit(GL_POLYGON, 4,
-				 GL_MODULATE, tex_id, GL_MODULATE, fuzz_tex,
+				 is_fuzzy ? GL_MODULATE : ENV_NONE, is_fuzzy ? fuzz_tex : 0,
 				 pass, blending);
 
-		for (v_idx=0; v_idx < 4; v_idx++)
+		for (int v_idx=0; v_idx < 4; v_idx++)
 		{
 			local_gl_vert_t *dest = glvert + v_idx;
 
@@ -1346,7 +1355,6 @@ float fty = (v_idx == 1 || v_idx == 2) ? (mo->height) : 0;
 dest->texc[1].x = ftx;
 dest->texc[1].y = fty;
 FUZZ_Adjust(& dest->texc[1], mo);
-trans=1.00;
 			}
 			else
 			{
@@ -1354,17 +1362,15 @@ trans=1.00;
 				dest->rgba[1] = data.col[v_idx].add_G / 255.0;
 				dest->rgba[2] = data.col[v_idx].add_B / 255.0;
 			}
-			dest->rgba[3] = trans;
 
+			dest->rgba[3] = trans;
 		}
 
 		RGL_EndUnit(4);
 	}
 }
 
-//
-// RGL_DrawSortThings
-//
+
 void RGL_DrawSortThings(drawfloor_t *dfloor)
 {
 	//
