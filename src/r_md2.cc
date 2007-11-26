@@ -732,11 +732,10 @@ static void UpdateMulticols(model_coord_data_t *data)
 }
 
 
-static void ModelCoordFunc(void *d, int v_idx, vec3_t *pos,
-				float *rgb, vec2_t *texc, vec3_t *normal)
+static inline void ModelCoordFunc(model_coord_data_t *data,
+					 int v_idx, vec3_t *pos,
+					 float *rgb, vec2_t *texc, vec3_t *normal)
 {
-	model_coord_data_t *data = (model_coord_data_t *)d;
-
 	const md2_model_c *md = data->model;
 
 	const md2_frame_c *frame1 = data->frame1;
@@ -901,28 +900,31 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 
 	/* draw the model */
 
-	for (int pass = 0; pass < 1; pass++) //!!!!!! pass < 4
+	int num_pass = data.is_fuzzy  ? 1 :
+		           data.is_weapon ? (3 + detail_level) :
+					                (2 + detail_level*2);
+
+	for (int pass = 0; pass < num_pass; pass++)
 	{
-		if (pass > 0 && pass < 3)
-		{
-			UpdateMulticols(&data);
-			if (MD2_MulticolMaxRGB(&data, false) <= 0)
-				continue;
-		}
-
-		if (pass == 3 && MD2_MulticolMaxRGB(&data, true) <= 0)
-			continue;
-
-		if (pass >= 1)
+		if (pass == 1)
 		{
 			blending &= ~BL_Alpha;
 			blending |=  BL_Add;
 		}
 
-		data.is_additive = (pass == 3);
+		data.is_additive = (pass > 0 && pass == num_pass-1);
 
-		if (pass == 2 && detail_level < 2 && !is_weapon)
-			continue;
+		if (pass > 0 && pass < num_pass-1)
+		{
+			UpdateMulticols(&data);
+			if (MD2_MulticolMaxRGB(&data, false) <= 0)
+				continue;
+		}
+		else if (data.is_additive)
+		{
+			if (MD2_MulticolMaxRGB(&data, true) <= 0)
+				continue;
+		}
 
 		for (int i = 0; i < md->num_strips; i++)
 		{
