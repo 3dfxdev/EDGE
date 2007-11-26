@@ -1383,8 +1383,9 @@ int P_MissileContact(mobj_t * object, mobj_t * target)
 //
 // Called by PTR_ShootTraverse when a bullet comes into contact with
 // another object.  Needed so that the "DISLOYAL" special will behave
-// in the same manner for bullets as for missiles.  Note: also used
-// for close combat attacks.
+// in the same manner for bullets as for missiles.
+//
+// Note: also used for Close-Combat attacks.
 //
 // Returns: -1 if bullet should pass through.
 //           0 if hit but no damage was done.
@@ -1421,6 +1422,20 @@ int P_BulletContact(mobj_t * source, mobj_t * target,
 			return 0;
 		if (source->currentattack == target->info->closecombat)
 			return 0;
+	}
+
+	// ignore damage in GOD mode, or with INVUL powerup
+	if (target->player)
+	{
+		if ((target->player->cheats & CF_GODMODE) ||
+			target->player->powers[PW_Invulnerable] > 0)
+		{
+			// emulate the thrust that P_DamageMobj() would have done
+			if (source && damage > 0 && !(target->flags & MF_NOCLIP))
+				P_ThrustMobj(target, source, damage);
+
+			return 0;
+		}
 	}
 
 	bool weak_spot = false;
