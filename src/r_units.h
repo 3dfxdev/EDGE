@@ -54,10 +54,13 @@ typedef enum
 	BL_Alpha    = (1<<1),  // alpha-blend with the framebuffer
 	BL_Add      = (1<<2),  // additive-blend with the framebuffer
 	BL_CullBack = (1<<3),  // enable back-face culling
-	BL_NoZBuf   = (1<<4),  // don't update the Z buffer
-	BL_ClampY   = (1<<5),  // force texture to be Y clamped
+	BL_CullFront= (1<<4),  // enable front-face culling
+	BL_NoZBuf   = (1<<5),  // don't update the Z buffer
+	BL_ClampY   = (1<<6),  // force texture to be Y clamped
 }
 blending_mode_e;
+
+#define BL_CULL_BOTH  (BL_CullBack | BL_CullFront)
 
 #define CUSTOM_ENV_BEGIN  0xED9E0000
 #define CUSTOM_ENV_END    0xED9E00FF
