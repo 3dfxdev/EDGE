@@ -619,7 +619,7 @@ static void AddLump(data_file_c *df, int lump, int pos, int size, int file,
  
 	// -- handle special names --
 
-	if (!strncmp(name, "PLAYPAL", 8))
+	if (strncmp(name, "PLAYPAL", 8) == 0)
 	{
 		lump_p->kind = LMKIND_WadTex;
 		df->wadtex.palette = lump;
@@ -627,37 +627,37 @@ static void AddLump(data_file_c *df, int lump, int pos, int size, int file,
 			palette_datafile = file;
 		return;
 	}
-	else if (!strncmp(name, "PNAMES", 8))
+	else if (strncmp(name, "PNAMES", 8) == 0)
 	{
 		lump_p->kind = LMKIND_WadTex;
 		df->wadtex.pnames = lump;
 		return;
 	}
-	else if (!strncmp(name, "TEXTURE1", 8))
+	else if (strncmp(name, "TEXTURE1", 8) == 0)
 	{
 		lump_p->kind = LMKIND_WadTex;
 		df->wadtex.texture1 = lump;
 		return;
 	}
-	else if (!strncmp(name, "TEXTURE2", 8))
+	else if (strncmp(name, "TEXTURE2", 8) == 0)
 	{
 		lump_p->kind = LMKIND_WadTex;
 		df->wadtex.texture2 = lump;
 		return;
 	}
-	else if (!strncmp(name, "DEHACKED", 8))
+	else if (strncmp(name, "DEHACKED", 8) == 0)
 	{
 		lump_p->kind = LMKIND_DDFRTS;
 		df->deh_lump = lump;
 		return;
 	}
-	else if (!strncmp(name, "ANIMATED", 8))
+	else if (strncmp(name, "ANIMATED", 8) == 0)
 	{
 		lump_p->kind = LMKIND_DDFRTS;
 		df->animated = lump;
 		return;
 	}
-	else if (!strncmp(name, "SWITCHES", 8))
+	else if (strncmp(name, "SWITCHES", 8) == 0)
 	{
 		lump_p->kind = LMKIND_DDFRTS;
 		df->switches = lump;
@@ -1031,10 +1031,10 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 		// TODO: handle Read failure
         file->Read(&header, sizeof(raw_wad_header_t));
 
-		if (strncmp(header.identification, "IWAD", 4))
+		if (strncmp(header.identification, "IWAD", 4) != 0)
 		{
 			// Homebrew levels?
-			if (strncmp(header.identification, "PWAD", 4))
+			if (strncmp(header.identification, "PWAD", 4) != 0)
 			{
 				I_Error("Wad file %s doesn't have IWAD or PWAD id\n", filename);
 			}
@@ -1486,7 +1486,7 @@ int W_CheckNumForName2(const char *name)
 #undef CMP
 
 	if (i >= 0 && i < numlumps &&
-		!strncmp(lumpinfo[lumpmap[i]].name, buf, 8))
+		strncmp(lumpinfo[lumpmap[i]].name, buf, 8) == 0)
 	{
 		return lumpmap[i];
 	}
