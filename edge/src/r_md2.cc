@@ -57,6 +57,7 @@ extern float P_ApproxDistance(float dx, float dy, float dz);
 typedef u32_t f32_t;
 
 #define MD2_IDENTIFIER  "IDP2"
+#define MD2_VERSION     8
 
 typedef struct
 {
@@ -405,11 +406,21 @@ md2_model_c *MD2_LoadModel(epi::file_c *f)
 	/* read header */
 	f->Read(&header, sizeof (raw_md2_header_t));
 
-	//!!!! FIXME:
-	if ( /* (header.ident != 844121161) || */
-		(header.version != 8))
+	int version = EPI_LE_S32(header.version);
+
+	I_Debugf("MODEL IDENT: [%c%c%c%c] VERSION: %d",
+			 header.ident[0], header.ident[1],
+			 header.ident[2], header.ident[3], version);
+
+	if (strncmp(header.ident, MD2_IDENTIFIER, 4) != 0)
 	{
-		I_Error("MD2_LoadModel: bad header or version!");
+		I_Error("MD2_LoadModel: lump is not an MD2 model!");
+		return NULL; /* NOT REACHED */
+	}
+			
+	if (version != MD2_VERSION)
+	{
+		I_Error("MD2_LoadModel: strange version!");
 		return NULL; /* NOT REACHED */
 	}
 
@@ -443,15 +454,14 @@ md2_model_c *MD2_LoadModel(epi::file_c *f)
 		i += count*3;
 	}
 
-	L_WriteDebug("MODEL INFO:\n");
-	L_WriteDebug("  frames:%d  points:%d  strips: %d\n",
+	I_Debugf("  frames:%d  points:%d  strips: %d\n",
 			num_frames, num_points, num_strips);
 
 	md2_model_c *md = new md2_model_c(num_frames, num_points, num_strips);
 
 	md->verts_per_frame = EPI_LE_S32(header.num_vertices);
 
-	L_WriteDebug("  verts_per_frame:%d  glcmds:%d\n", md->verts_per_frame, num_glcmds);
+	I_Debugf("  verts_per_frame:%d  glcmds:%d\n", md->verts_per_frame, num_glcmds);
 
 	// convert glcmds into strips and points
 	md2_strip_c *strip = md->strips;
@@ -492,6 +502,7 @@ md2_model_c *MD2_LoadModel(epi::file_c *f)
 
 	delete[] glcmds;
 
+
 	/* PARSE FRAMES */
 
 	byte which_normals[MD2_NUM_NORMALS];
@@ -526,9 +537,9 @@ md2_model_c *MD2_LoadModel(epi::file_c *f)
 		translate[2] = f_ptr[5];
 
 #ifdef DEBUG_MD2_LOAD
-		L_WriteDebug("  __FRAME_%d__\n", i);
-		L_WriteDebug("    scale: %1.2f, %1.2f, %1.2f\n", scale[0], scale[1], scale[2]);
-		L_WriteDebug("    translate: %1.2f, %1.2f, %1.2f\n", translate[0], translate[1], translate[2]);
+		I_Debugf("  __FRAME_%d__\n", i);
+		I_Debugf("    scale: %1.2f, %1.2f, %1.2f\n", scale[0], scale[1], scale[2]);
+		I_Debugf("    translate: %1.2f, %1.2f, %1.2f\n", translate[0], translate[1], translate[2]);
 #endif
 
 		f->Read(raw_verts, md->verts_per_frame * sizeof(raw_md2_vertex_t));
@@ -547,10 +558,10 @@ md2_model_c *MD2_LoadModel(epi::file_c *f)
 			good_V->z = (int)raw_V->z * scale[2] + translate[2];
 
 #ifdef DEBUG_MD2_LOAD
-			L_WriteDebug("    __VERT_%d__\n", v);
-			L_WriteDebug("      raw: %d,%d,%d\n", raw_V->x, raw_V->y, raw_V->z);
-			L_WriteDebug("      normal: %d\n", raw_V->light_normal);
-			L_WriteDebug("      good: %1.2f, %1.2f, %1.2f\n", good_V->x, good_V->y, good_V->z);
+			I_Debugf("    __VERT_%d__\n", v);
+			I_Debugf("      raw: %d,%d,%d\n", raw_V->x, raw_V->y, raw_V->z);
+			I_Debugf("      normal: %d\n", raw_V->light_normal);
+			I_Debugf("      good: %1.2f, %1.2f, %1.2f\n", good_V->x, good_V->y, good_V->z);
 #endif
 			good_V->normal_idx = raw_V->light_normal;
 
@@ -612,11 +623,11 @@ typedef struct
 	bool is_additive;
 
 public:
-	void CalcPos(vec3_t *pos, const md2_vertex_c *vert) const
+	void CalcPos(vec3_t *pos, float x1, float y1, float z1) const
 	{
-		float x1 = vert->x * xy_scale;
-		float y1 = vert->y * xy_scale;
-		float z1 = (vert->z + bias) * z_scale;
+		x1 *= xy_scale;
+		y1 *= xy_scale;
+		z1 *=  z_scale;
 
 		float x2 = x1 * kx_mat.x + z1 * kx_mat.y;
 		float z2 = x1 * kz_mat.x + z1 * kz_mat.y;
@@ -731,6 +742,11 @@ static void UpdateMulticols(model_coord_data_t *data)
 	}
 }
 
+static inline float LerpIt(float v1, float v2, float lerp)
+{
+	return v1 * (1.0f - lerp) + v2 * lerp;
+}
+
 
 static inline void ModelCoordFunc(model_coord_data_t *data,
 					 int v_idx, vec3_t *pos,
@@ -751,16 +767,16 @@ static inline void ModelCoordFunc(model_coord_data_t *data,
 	const md2_vertex_c *vert2 = &frame2->vertices[point->vert_idx];
 
 	
-	vec3_t pos1, pos2;
+	float x1 = LerpIt(vert1->x, vert2->x, data->lerp);
+	float y1 = LerpIt(vert1->y, vert2->y, data->lerp);
+	float z1 = LerpIt(vert1->z, vert2->z, data->lerp) + data->bias;
 
-	data->CalcPos(&pos1, vert1);
-	data->CalcPos(&pos2, vert2);
+	if (num_active_mirrors % 2)
+		y1 = -y1;
 
-	pos->x = pos1.x * (1.0f - data->lerp) + pos2.x * data->lerp;
-	pos->y = pos1.y * (1.0f - data->lerp) + pos2.y * data->lerp;
-	pos->z = pos1.z * (1.0f - data->lerp) + pos2.z * data->lerp;
+	data->CalcPos(pos, x1, y1, z1);
 
-	
+
 	const md2_vertex_c *n_vert = (data->lerp < 0.5) ? vert1 : vert2;
 
 	data->CalcNormal(normal, n_vert);
@@ -826,6 +842,12 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 
 	if (mo->hyperflags & HF_NOZBUFFER)
 		blending |= BL_NoZBuf;
+
+	if (false) //!!!! num_active_mirrors % 2)
+	{
+		blending &= ~BL_CullBack;
+		blending |=  BL_CullFront;
+	}
 
 
 	data.mo = mo;
