@@ -61,6 +61,8 @@ modeldef_c *LoadModelFromLump(int model_num)
 
 	sprintf(lumpname, "%sMD2", basename);
 
+	I_Debugf("Loading model from lump : %s\n", lumpname);
+
 	epi::file_c *f = W_OpenLump(lumpname);
 	if (! f)
 		I_Error("Missing model lump: %s\n", lumpname);
