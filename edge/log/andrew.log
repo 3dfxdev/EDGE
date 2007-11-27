@@ -1,5 +1,15 @@
 Andrew Apted's Log
 
+2007/11/26:
+
+Prevent blood splats when Demon attacks a GOD-mode player.
+
+Finished fixing MD2 models in mirrors, I had forgotten that
+they should be flipped, and that required a new BL_CullFront
+flag for the units code.
+
+Also finished the new FUZZY emulation.
+
 2007/11/25:
 
 Worked on new method to emulate the original 'FUZZY' effect
