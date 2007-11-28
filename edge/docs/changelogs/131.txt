@@ -10,20 +10,20 @@ SUMMARY
 
 + MD2 models for things and weapons
 + Mirrors with multiple reflections
++ Good emulation of partial-invis effect
 + Nicer dynamic lighting
 + Sector glow effects
-+ Good emulation of partial-invis effect
 
 - Rendering glitches fixed
-- Improved way of emulating DOOM light fading
 - More compatible sky rendering in 3D
+- Improved way of emulating DOOM light fading
 - More robust emulation of flat-flooding trick
 - TGA (targa) image format supported
 
 * Weak spots for monsters
 * New BECOME() action for changing type
 * Armor properties can be modified
-* Weapons can use a shared clip for both attacks
+* Weapons can share a clip for both attacks
 * Flat alignment and scaling line-types
 
 
@@ -34,7 +34,6 @@ KNOWN PROBLEMS
 - new DOOM lighting emulation is not as smooth as before.
 - colormapped sectors (e.g. blue water) don't work yet.
 - console background is a bit messed up.
-- partial invisibility powerup is broken.
 - TGA image loader does not support Colormapped formats.
 - things that use BECOME can get stuck if new RADIUS is bigger.
 - new dynamic lighting has not been adjusted for backwards
@@ -55,10 +54,13 @@ Bugs fixed
 - fixed console PLAYSOUND command when sound is not found.
 - no sprite check for spawned map-things (easier debugging).
 - fixed badly synchronised flash state of super-shotgun.
+- prevent blood splats when Demon attacks a GOD-mode player.
 
 
 General improvements
 --------------------
+
++ good emulation of DOOM's Partial-Invisibility effect.
 
 + new method to emulate DOOM's lighting model.
 
@@ -98,6 +100,7 @@ General improvements
 - better gamma handling (now done by the video driver).
 - more robust emulation of the flat-flooding trick.
 - better way to gauge the player's actual speed.
+- new -fullbright option for debugging.
 - console key is configurable.
 
 
@@ -120,13 +123,13 @@ New features:
   in IMAGES.DDF using the sprite namespace --> [spr:TROOSKN1].
 
   Other skins can be used.  The command "MODEL_SKIN=3" in a thing
-  or weapon definition will use the third skin (e.g. "TROOSKN3").
+  or weapon definition will use the third skin --> "TROOSKN3".
   Upto nine skins can currently be used (1 to 9).  The skin can
-  also be changed dynamically by using the SET_SKIN(5) action in
-  the state frames.
+  also be changed dynamically by using the SET_SKIN(##) action
+  in the state frames.
 
 + mirrors are one-sided linedefs with a special linetype.
-  They have a 'glassy' look, and can be tinted with a color,
+  They have a glassy look, and can be tinted with a color,
   plus they can reflect other mirrors (within reason).
 
   The sky is never flipped in mirrors, this is a limitation
