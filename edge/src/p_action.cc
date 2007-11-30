@@ -2486,7 +2486,7 @@ void P_ActPathFollow(mobj_t * mo)
 	float dx = mo->path_trigger->x - mo->x;
 	float dy = mo->path_trigger->y - mo->y;
 
-	angle_t diff = mo->angle - R_PointToAngle(0, 0, dx, dy);
+	angle_t diff = R_PointToAngle(0, 0, dx, dy) - mo->angle;
 
 	// movedir value: 
 	//   0 for slow turning.
@@ -2498,29 +2498,31 @@ void P_ActPathFollow(mobj_t * mo)
 
 	if (mo->movedir == DI_SLOWTURN || mo->movedir == DI_FASTTURN)
 	{
-		angle_t step = ANG1 * 24;
+		if (diff > ANG1*15 && diff < (ANG_MAX-ANG1*15))
+		{
+			angle_t step = ANG1*30;
     
-		// if not facing the path node, turn towards it
-		if (diff > ANG1*15 && diff < ANG180)
-		{
-			mo->angle -= P_Random() * (step >> 8);
-			return;
-		}
-		else if (diff >= ANG180 && diff < (ANG_MAX-ANG1*15))
-		{
-			mo->angle += P_Random() * (step >> 8);
+			if (diff < ANG180)
+				mo->angle += P_Random() * (step >> 8);
+			else
+				mo->angle -= P_Random() * (step >> 8);
+
 			return;
 		}
 
+		// we are now facing the next node
+		mo->angle += diff;
 		mo->movedir = DI_WALKING;
+
+		diff = 0;
 	}
 
 	if (mo->movedir == DI_WALKING)
 	{
 		if (diff < ANG1*30)
-			mo->angle -= ANG1 * 2;
-		else if (diff > (ANG_MAX-ANG1*30))
 			mo->angle += ANG1 * 2;
+		else if (diff > (ANG_MAX-ANG1*30))
+			mo->angle -= ANG1 * 2;
 		else
 			mo->movedir = DI_SLOWTURN;
 
@@ -2536,7 +2538,7 @@ void P_ActPathFollow(mobj_t * mo)
 	// make evasive maneouvres
 	mo->movecount--;
 
-	if (mo->movecount <= DI_SLOWTURN)
+	if (mo->movecount <= 0)
 	{
 		mo->movedir = DI_FASTTURN;
 		return;
