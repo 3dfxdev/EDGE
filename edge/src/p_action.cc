@@ -2498,7 +2498,7 @@ void P_ActPathFollow(mobj_t * mo)
 
 	if (mo->movedir == DI_SLOWTURN || mo->movedir == DI_FASTTURN)
 	{
-		angle_t step = (mo->movedir == DI_FASTTURN) ? ANG1*30 : ANG1*7;
+		angle_t step = ANG1 * 24;
     
 		// if not facing the path node, turn towards it
 		if (diff > ANG1*15 && diff < ANG180)
@@ -2506,7 +2506,7 @@ void P_ActPathFollow(mobj_t * mo)
 			mo->angle -= P_Random() * (step >> 8);
 			return;
 		}
-		else if (diff >= ANG180 && diff < ANG1*345U)
+		else if (diff >= ANG180 && diff < (ANG_MAX-ANG1*15))
 		{
 			mo->angle += P_Random() * (step >> 8);
 			return;
@@ -2518,9 +2518,9 @@ void P_ActPathFollow(mobj_t * mo)
 	if (mo->movedir == DI_WALKING)
 	{
 		if (diff < ANG1*30)
-			mo->angle -= ANG1;
-		else if (diff >= ANG1*330U)
-			mo->angle += ANG1;
+			mo->angle -= ANG1 * 2;
+		else if (diff > (ANG_MAX-ANG1*30))
+			mo->angle += ANG1 * 2;
 		else
 			mo->movedir = DI_SLOWTURN;
 
