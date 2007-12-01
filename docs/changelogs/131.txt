@@ -40,6 +40,9 @@ KNOWN PROBLEMS
   compatibility with old mods.
 
 
+------------------------------------------------------------------------
+
+
 Bugs fixed
 ----------
 
@@ -96,6 +99,9 @@ General improvements
   with a single mode based on the old MIRROR mode, but tweaked for
   better compatibility with existing DOOM skies.  The old ORIGINAL
   mode now kicks in automatically when MLOOK is disabled.
+
+- new (experimental) way of emulating the grayscale effect of the
+  Invulnerable powerup (card/driver must support color-matrix).
 
 - better gamma handling (now done by the video driver).
 - more robust emulation of the flat-flooding trick.
