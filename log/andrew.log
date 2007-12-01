@@ -5,6 +5,14 @@ Andrew Apted's Log
 Fixed models disappearing when mlooking down at certain
 angles (the sprite check was not appropriate for models).
 
+Experimented with making the Invulnerability powerup have
+the same grayscale effect as the original DOOM (using the
+color matrix of the OpenGL imaging subset)...
+
+The result... failed!  The color matrix does not apply to
+rendered pixels (from polygons), but only works on functions
+like glDrawPixels.  Bummer.
+
 2007/11/30:
 
 Sped up turning of path-follower monsters.
