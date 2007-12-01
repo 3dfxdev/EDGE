@@ -27,13 +27,15 @@ following conditions:
 CHANGELOG
 ---------
 
-EDGE WAD 5.5: (????-??-??)
+EDGE WAD 5.5: (2007-12-01)
 ==========================
 
 1) added new lump "FUZZMAP7" needed for new code which emulates
    the partial invisibility effect.
 
 2) IMAGES.DDF: removed unused entries (DLIGHTXXX etc).
+
+3) ATTACKS.DDF: reorganised, put all player attacks first.
 
 
 EDGE WAD 5.4: (2007-11-18)
