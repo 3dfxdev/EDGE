@@ -69,11 +69,14 @@ void RGL_RainbowEffect(player_t *player)
 
 	if (s > 0 && player->powers[PW_Invulnerable] > 0)
 	{
+#if 0
 		ren_red_mul = 0.80f;
 		ren_red_mul += (1.0f - ren_red_mul) * (1.0f - s);
 
 		ren_grn_mul = ren_red_mul;
 		ren_blu_mul = ren_red_mul;
+#endif
+		ren_extralight = 255;
 		return;
 	}
 
@@ -160,11 +163,33 @@ void RGL_PaletteEffect(player_t *player)
 
 	if (s > 0 && player->powers[PW_Invulnerable] > 0 && player->effect_colourmap)
 	{
-		if (! player->effect_colourmap->lump_name.empty())  // TEMP HACK
+		if (GLEW_ARB_imaging || GLEW_SGI_color_matrix)
 		{
-			// -AJA- this looks good in standard Doom, but messes up HacX:
-			glColor4f(1.0f, 0.5f, 0.0f, 0.22f * s);
+			glFlush();
+
+			glMatrixMode(GL_COLOR);
+			
+			GLfloat gray_mat[16] =
+			{
+				0.33, 0.33, 0.33, 0,
+				0.33, 0.33, 0.33, 0,
+				0.33, 0.33, 0.33, 0,
+				0,    0,    0,    1
+			};
+
+			glLoadMatrixf(gray_mat);
+
+			int x = viewwindowx;
+			int y = SCREENHEIGHT-viewwindowheight-viewwindowy;
+
+			glPixelZoom(1, 1);
+			glRasterPos2i(x, y);
+
+			glCopyPixels(x, y, viewwindowwidth, viewwindowheight, GL_COLOR);
+
+			glLoadIdentity();
 		}
+		return;
 	}
 	else if (s > 0 && player->powers[PW_NightVision] > 0 && player->effect_colourmap)
 	{
