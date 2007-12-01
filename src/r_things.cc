@@ -846,6 +846,8 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 	if (mo->visibility == INVISIBLE)
 		return;
 
+	bool is_model = (mo->state->flags & SFF_Model) ? true:false;
+
 	// transform the origin point
 	float mx = mo->x, my = mo->y;
 
@@ -857,7 +859,7 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 	float tz = tr_x * viewcos + tr_y * viewsin;
 
 	// thing is behind view plane?
-	if (clip_scope != ANG180 && tz <= 0)
+	if (clip_scope != ANG180 && tz <= 0 && !is_model)
 		return;
 
 	float tx = tr_x * viewsin - tr_y * viewcos;
@@ -868,8 +870,6 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 	// sprites would result in overflow in future calculations
 	if (tz >= MINZ && fabs(tx) / 32 > tz)
 		return;
-
-	bool is_model = (mo->state->flags & SFF_Model) ? true:false;
 
 	float hover_dz = 0;
 
