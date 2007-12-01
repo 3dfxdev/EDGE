@@ -228,7 +228,7 @@ private:
 
 		float dx = lit_pos->x - mx;
 		float dy = lit_pos->y - my;
-		float dz = lit_pos->z - mo->z;
+		float dz = lit_pos->z - MO_MIDZ(mo);
 
 		float nx = normal->x;
 		float ny = normal->y;
@@ -290,7 +290,7 @@ public:
 
 		float dx = x - mx;
 		float dy = y - my;
-		float dz = z - mo->z;
+		float dz = z - MO_MIDZ(mo);
 
 		float dist = sqrt(dx*dx + dy*dy + dz*dz);
 
