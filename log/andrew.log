@@ -1,5 +1,14 @@
 Andrew Apted's Log
 
+2007/12/01:
+
+Fixed models disappearing when mlooking down at certain
+angles (the sprite check was not appropriate for models).
+
+2007/11/30:
+
+Sped up turning of path-follower monsters.
+
 2007/11/26:
 
 Prevent blood splats when Demon attacks a GOD-mode player.
