@@ -5,6 +5,12 @@ Andrew Apted's Log
 Fixed models disappearing when mlooking down at certain
 angles (the sprite check was not appropriate for models).
 
+Worked on fixing dynamic lights in mirrors.
+
+Calibrated old dynamic lighting types (QUADRATIC and LINEAR)
+so that they are emulated reasonably by the new dynamic
+lights.
+
 Experimented with making the Invulnerability powerup have
 the same grayscale effect as the original DOOM (using the
 color matrix of the OpenGL imaging subset)...

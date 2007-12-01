@@ -2021,12 +2021,14 @@ void mobjtype_c::DLightCompatibility(void)
 		{
 			case DLITE_Compat_LIN:
 				dlight[DL].type = DLITE_Modulate;
-				dlight[DL].radius *= 0.9;
+				dlight[DL].radius *= 2.5;
+				if (dlight[DL].radius > 500)
+					dlight[DL].radius = 500;
 				break;
 
 			case DLITE_Compat_QUAD:
 				dlight[DL].type = DLITE_Modulate;
-				dlight[DL].radius *= 0.5;
+				dlight[DL].radius *= 0.65;
 				break;
 
 			default: // nothing to do
