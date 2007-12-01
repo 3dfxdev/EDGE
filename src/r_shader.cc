@@ -221,8 +221,13 @@ private:
 	inline float TexCoord(vec2_t *texc, float r,
 		const vec3_t *lit_pos, const vec3_t *normal)
 	{
-		float dx = lit_pos->x - mo->x;
-		float dy = lit_pos->y - mo->y;
+		float mx = mo->x;
+		float my = mo->y;
+
+		MIR_Coordinate(mx, my);
+
+		float dx = lit_pos->x - mx;
+		float dy = lit_pos->y - my;
 		float dz = lit_pos->z - mo->z;
 
 		float nx = normal->x;
@@ -278,8 +283,13 @@ private:
 public:
 	virtual void Sample(multi_color_c *col, float x, float y, float z)
 	{
-		float dx = x - mo->x;
-		float dy = y - mo->y;
+		float mx = mo->x;
+		float my = mo->y;
+
+		MIR_Coordinate(mx, my);
+
+		float dx = x - mx;
+		float dy = y - my;
 		float dz = z - mo->z;
 
 		float dist = sqrt(dx*dx + dy*dy + dz*dz);
@@ -315,6 +325,8 @@ public:
 			mx += viewcos * 24;
 			my += viewsin * 24;
 		}
+
+		MIR_Coordinate(mx, my);
 
 		float dx = mod_pos->x - mx;
 		float dy = mod_pos->y - my;
