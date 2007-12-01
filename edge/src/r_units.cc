@@ -114,27 +114,6 @@ void RGL_SoftInitUnits()
 {
 }
 
-#if 0  // NOT CURRENTLY USED
-static void ComputeMiddle(vec3_t *mid, vec3_t *verts, int count)
-{
-	mid->x = verts[0].x;
-	mid->y = verts[0].y;
-	mid->z = verts[0].z;
-
-	for (int i=1; i < count; i++)
-	{
-		mid->x += verts[i].x;
-		mid->y += verts[i].y;
-		mid->z += verts[i].z;
-	}
-
-	mid->x /= float(count);
-	mid->y /= float(count);
-	mid->z /= float(count);
-}
-#endif
-
-
 
 //
 // RGL_StartUnits
@@ -493,6 +472,7 @@ void RGL_DrawUnits(void)
 	glDisable(GL_BLEND);
 	glDisable(GL_CULL_FACE);
 }
+
 
 
 //============================================================================
