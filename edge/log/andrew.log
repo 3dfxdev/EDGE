@@ -11,7 +11,11 @@ color matrix of the OpenGL imaging subset)...
 
 The result... failed!  The color matrix does not apply to
 rendered pixels (from polygons), but only works on functions
-like glDrawPixels.  Bummer.
+like glDrawPixels.
+
+Nevertheless, the same technique works using a glCopyPixels
+over the whole screen, so I have enabled it for the Beta#1,
+but I'm concerned it may be an excessive hit to frame-rate.
 
 2007/11/30:
 
