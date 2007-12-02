@@ -1270,6 +1270,7 @@ static void MoveSlider(slider_move_t *smov)
                     line_t *ld = smov->line;
 
                     // clear line special
+					ld->slide_door = NULL;
                     ld->special = NULL;
 
                     P_RemoveActivePart((gen_move_t*)smov);
@@ -1320,6 +1321,8 @@ static void MoveSlider(slider_move_t *smov)
 bool EV_DoSlider(line_t * door, line_t *act_line, mobj_t * thing,
 		         const sliding_door_c * s)
 {
+	SYS_ASSERT(door);
+
     sector_t *sec = door->frontsector;
 
     if (! sec || ! door->side[0] || ! door->side[1])
@@ -1347,15 +1350,16 @@ bool EV_DoSlider(line_t * door, line_t *act_line, mobj_t * thing,
 
     smov->whatiam = MDT_SLIDER;
     smov->info = s;
-    smov->line = line;
+    smov->line = door;
     smov->opening = 0.0f;
     smov->line_len = R_PointToDist(0, 0, door->dx, door->dy);
     smov->target = smov->line_len * PERCENT_2_FLOAT(smov->info->distance);
 
     smov->direction = DIRECTION_UP;
     smov->sfxstarted = ! (thing && thing->player);
-    smov->final_open = (act_line->count == 1);
+    smov->final_open = (act_line && act_line->count == 1);
 
+	door->slide_door  = s;
     door->slider_move = smov;
 
     P_AddActivePart((gen_move_t*)smov);

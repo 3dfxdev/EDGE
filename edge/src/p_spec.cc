@@ -972,10 +972,10 @@ static bool P_ActivateSpecialLine(line_t * line,
 		{
 			for (i = 0; i < numlines; i++)
 			{
-				line_t *ld = lines + i;
+				line_t *other = lines + i;
 
-				if (ld->tag == tag)
-					if (EV_DoSlider(ld, line, thing, &special->s))
+				if (other->tag == tag && other != line)
+					if (EV_DoSlider(other, line, thing, &special->s))
 						texSwitch = true;
 			}
 		}

@@ -199,8 +199,8 @@ static bool CrossSubsector(subsector_t *sub)
 			return false;
 
 		// -AJA- 2001/11/11: closed Sliding door ?
-		if (ld->special && ld->special->s.type != SLIDE_None &&
-			! ld->special->s.see_through && ! ld->slider_move)
+		if (ld->slide_door && ! ld->slide_door->see_through &&
+			! ld->slider_move)
 		{
 			return false;
 		}

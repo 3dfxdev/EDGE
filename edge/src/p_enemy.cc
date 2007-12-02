@@ -113,8 +113,8 @@ static void RecursiveSound(sector_t * sec, int soundblocks, int player)
 			continue;  // closed door
 
 		// -AJA- 2001/11/11: handle closed Sliding doors
-		if (check->special && check->special->s.type != SLIDE_None &&
-			! check->special->s.see_through && ! check->slider_move)
+		if (check->slide_door && ! check->slide_door->see_through &&
+			! check->slider_move)
 		{
 			continue;
 		}
