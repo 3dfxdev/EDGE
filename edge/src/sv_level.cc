@@ -194,6 +194,7 @@ static savefield_t sv_fields_line[] =
 	SF(tag,   "tag",   1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(count, "count", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(special, "special", 1, SVT_STRING, SR_LineGetSpecial, SR_LinePutSpecial),
+	SF(slide_door, "slide_door", 1, SVT_STRING, SR_LineGetSpecial, SR_LinePutSpecial),
 
 	// NOT HERE:
 	//   (many): values are kept from level load.
@@ -503,7 +504,7 @@ void SV_LineCreateElems(int num_elems)
 
 	if (num_elems != numlines)
 		I_Error("LOADGAME: LINE MISMATCH !  (%d != %d)\n",
-		num_elems, numlines);
+			num_elems, numlines);
 
 	// clear animate list
 	line_speciallist = NULL;

@@ -1319,7 +1319,7 @@ static void MoveSlider(slider_move_t *smov)
 // Handle thin horizontal sliding doors.
 //
 bool EV_DoSlider(line_t * door, line_t *act_line, mobj_t * thing,
-		         const sliding_door_c * s)
+		         const linetype_c * special)
 {
 	SYS_ASSERT(door);
 
@@ -1349,7 +1349,7 @@ bool EV_DoSlider(line_t * door, line_t *act_line, mobj_t * thing,
     smov = Z_New(slider_move_t, 1);
 
     smov->whatiam = MDT_SLIDER;
-    smov->info = s;
+    smov->info = &special->s;
     smov->line = door;
     smov->opening = 0.0f;
     smov->line_len = R_PointToDist(0, 0, door->dx, door->dy);
@@ -1359,7 +1359,7 @@ bool EV_DoSlider(line_t * door, line_t *act_line, mobj_t * thing,
     smov->sfxstarted = ! (thing && thing->player);
     smov->final_open = (act_line && act_line->count == 1);
 
-	door->slide_door  = s;
+	door->slide_door  = special;
     door->slider_move = smov;
 
 	// work-around for RTS-triggered doors, which cannot setup
@@ -1369,7 +1369,7 @@ bool EV_DoSlider(line_t * door, line_t *act_line, mobj_t * thing,
 
     P_AddActivePart((gen_move_t*)smov);
 
-    S_StartFX(s->sfx_start, SNCAT_Level, &sec->sfx_origin);
+    S_StartFX(special->s.sfx_start, SNCAT_Level, &sec->sfx_origin);
 
 	return true;
 }
