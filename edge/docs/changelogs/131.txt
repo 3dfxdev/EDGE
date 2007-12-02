@@ -31,13 +31,11 @@ KNOWN PROBLEMS
 --------------
 
 - colormapped sectors (e.g. blue water) don't work yet.
-- in mirrors, dynamic lights don't work properly.
-- new DOOM lighting emulation is not as smooth as before.
 - console background is a bit messed up.
+- new DOOM lighting emulation is not as smooth as before.
 - TGA image loader does not support Colormapped formats.
+- additive lights (rockets) on mid-masked textures is wrong.
 - things that use BECOME can get stuck if new RADIUS is bigger.
-- new dynamic lighting has not been adjusted for backwards
-  compatibility with old mods.
 
 
 ------------------------------------------------------------------------
@@ -106,6 +104,7 @@ General improvements
 - better gamma handling (now done by the video driver).
 - more robust emulation of the flat-flooding trick.
 - better way to gauge the player's actual speed.
+- sliding doors can be activated remotely.
 - sped up turning for path-following monsters.
 - new -fullbright option for debugging.
 - console key is configurable.
