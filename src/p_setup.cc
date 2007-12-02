@@ -1515,6 +1515,34 @@ static void SetupExtrafloors(void)
 	SYS_ASSERT(ef_index == numextrafloors);
 }
 
+
+static void SetupSlidingDoors(void)
+{
+	for (int i=0; i < numlines; i++)
+	{
+		line_t *ld = lines + i;
+
+		if (! ld->special || ld->special->s.type == SLIDE_None)
+			continue;
+
+		if (ld->tag == 0 || ld->special->type == line_manual)
+			ld->slide_door = &ld->special->s;
+		else
+		{
+			for (int k=0; k < numlines; k++)
+			{
+				line_t *other = lines + k;
+
+				if (other->tag != ld->tag || other == ld)
+					continue;
+
+				other->slide_door = &ld->special->s;
+			}
+		}
+	}
+}
+
+
 //
 // SetupWallTiles
 //
@@ -2294,6 +2322,7 @@ void P_SetupLevel(skill_t skill, int autotag)
 	LoadSideDefs(lumpnum + ML_SIDEDEFS);
 
 	SetupExtrafloors();
+	SetupSlidingDoors();
 	SetupWallTiles();
 	SetupVertGaps();
 

@@ -646,7 +646,7 @@ void P_ComputeGaps(line_t * ld)
 	ld->blocked = false;
 
 	// handle horizontal sliders
-	if (ld->special && ld->special->s.type != SLIDE_None)
+	if (ld->slide_door)
 	{
 		slider_move_t *smov = ld->slider_move;
 

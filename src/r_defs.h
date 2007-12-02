@@ -445,6 +445,8 @@ typedef struct line_s
 
 	vgap_t *gaps;
 
+	const sliding_door_c *slide_door;
+
 	// slider thinker, normally NULL
 	struct slider_move_s *slider_move;
 
