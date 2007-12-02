@@ -26,6 +26,14 @@
 #include "image_tga.h"
 
 
+// -AJA- according to the documentation I see, colormaps in TGA
+//       files are BGR(A) format (consistent with non-cmap files).
+//
+//       However it doesn't work with my test case (saved from
+//       the GIMP).  Needs more testing with other programs.
+#define SWAP_FOR_INDEXED  0
+
+
 namespace epi
 {
 
@@ -277,7 +285,9 @@ static u8_t * ReadPalette(file_c *f, tga_header_t &header)
 		}
 	}
 
+#if (SWAP_FOR_INDEXED)
 	SwapPixels(palette, bpp, num_colors);
+#endif
 
 	return palette;
 }
@@ -297,13 +307,40 @@ static bool DecodeIndexed(image_data_c *img, file_c *f, tga_header_t& header)
 
 static bool DecodeRLE_Indexed(image_data_c *img, file_c *f, tga_header_t& header)
 {
-#if 0
 	u8_t *palette = ReadPalette(f, header);
 	if (! palette)
 		return false;
-#endif
-	I_Error("TGA_Load: RLE Indexed format not yet supported!\n");
-	return false;
+
+	int x = 0;
+	int y = 0;
+
+	while (y < img->used_h)
+	{
+		/* read the next "packet" */
+
+		u8_t count;
+
+		if (1 != f->Read(&count, 1))
+			return false;
+
+		if ((count & 0x80) == 0) // raw packet
+		{
+			if (! ReadPixels_ColMap(img, f, x, y, count + 1, palette))
+				return false;
+		}
+		else // run-length packet
+		{
+			const u8_t *src = img->PixelAt(x, y);
+
+			if (! ReadPixels_ColMap(img, f, x, y, 1, palette))
+				return false;
+
+			if (! DuplicatePixels(img, x, y, count & 0x7F, src))
+				return false;
+		}
+	}
+
+	return true;
 }
 
 
