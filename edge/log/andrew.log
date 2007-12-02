@@ -4,6 +4,10 @@ Andrew Apted's Log
 
 Created EDGE.WAD v5.5 for the upcoming Beta #1 release.
 
+Improved TGA image loading code to handle Colormapped
+files, though it is unclear whether the palette is in
+BGR(A) format (as per spec) or RGB(A) format.
+
 Worked on remote activation of Thin Sliding Doors...
 
 OK it's done and works, but one issue is RTS activated
