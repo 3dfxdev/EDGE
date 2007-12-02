@@ -1,12 +1,12 @@
 // 
 //    EDGE FONTS.DDF -redefine or add new fonts.
 //    For documentation, see http://edge.sourceforge.net/
-//    DDF Version 5.4
+//    DDF Version 5.5
 //
 
 <FONTS>
 
-#VERSION 1.29
+#VERSION 1.31
 
 [DOOM]
 TYPE=PATCH;

@@ -1,12 +1,12 @@
 // 
 //    EDGE IMAGES.DDF -redefine or add new images.
 //    For documentation, see http://edge.sourceforge.net/
-//    DDF Version 5.4
+//    DDF Version 5.5
 //
 
 <IMAGES>
 
-#VERSION 1.29
+#VERSION 1.31
 
 [gfx:EDGETTL]
 IMAGE_DATA=LUMP:PNG:"EDGTTL_P";
