@@ -1229,12 +1229,6 @@ static void LoadLineDefs(int lump)
 	//       the CHANGE_TEX command in RTS, etc, and also to implement
 	//       "wall tiles" properly.
 
-	const void *data;
-	const raw_linedef_t *mld;
-	line_t *ld;
-	int side0, side1;
-	int i;
-
 	if (! W_VerifyLumpName(lump, "LINEDEFS"))
 		I_Error("Bad WAD: level %s missing LINEDEFS.\n", 
 				currmap->lump.c_str());
@@ -1251,12 +1245,13 @@ static void LoadLineDefs(int lump)
 
 	temp_line_sides = new int[numlines * 2];
 
-	data = W_CacheLumpNum(lump);
+	const void *data = W_CacheLumpNum(lump);
 	mapline_CRC.AddBlock((const byte*)data, W_LumpLength(lump));
 
-	mld = (const raw_linedef_t *) data;
-	ld = lines;
-	for (i = 0; i < numlines; i++, mld++, ld++)
+	line_t *ld = lines;
+	const raw_linedef_t *mld = (const raw_linedef_t *) data;
+
+	for (int i = 0; i < numlines; i++, mld++, ld++)
 	{
 		ld->flags = EPI_LE_U16(mld->flags);
 		ld->tag = MAX(0, EPI_LE_S16(mld->tag));
@@ -1265,8 +1260,8 @@ static void LoadLineDefs(int lump)
 
 		ld->special = P_LookupLineType(MAX(0, EPI_LE_S16(mld->special)));
 
-		side0 = EPI_LE_U16(mld->side_R);
-		side1 = EPI_LE_U16(mld->side_L);
+		int side0 = EPI_LE_U16(mld->side_R);
+		int side1 = EPI_LE_U16(mld->side_L);
 
 		ComputeLinedefData(ld, side0, side1);
 
@@ -1275,8 +1270,7 @@ static void LoadLineDefs(int lump)
 
 		if (ld->tag && ld->special && ld->special->ef.type)
 		{
-			int j;
-			for (j=0; j < numsectors; j++)
+			for (int j=0; j < numsectors; j++)
 			{
 				if (sectors[j].tag != ld->tag)
 					continue;
@@ -1294,12 +1288,6 @@ static void LoadHexenLineDefs(int lump)
 {
 	// -AJA- 2001/08/04: wrote this, based on the Hexen specs.
 
-	const void *data;
-	const raw_hexen_linedef_t *mld;
-	line_t *ld;
-	int side0, side1;
-	int i;
-
 	if (! W_VerifyLumpName(lump, "LINEDEFS"))
 		I_Error("Bad WAD: level %s missing LINEDEFS.\n", 
 				currmap->lump.c_str());
@@ -1316,12 +1304,13 @@ static void LoadHexenLineDefs(int lump)
 
 	temp_line_sides = new int[numlines * 2];
 
-	data = W_CacheLumpNum(lump);
+	const void *data = W_CacheLumpNum(lump);
 	mapline_CRC.AddBlock((const byte*)data, W_LumpLength(lump));
 
-	mld = (const raw_hexen_linedef_t *) data;
-	ld = lines;
-	for (i = 0; i < numlines; i++, mld++, ld++)
+	line_t *ld = lines;
+	const raw_hexen_linedef_t *mld = (const raw_hexen_linedef_t *) data;
+
+	for (int i = 0; i < numlines; i++, mld++, ld++)
 	{
 		ld->flags = EPI_LE_U16(mld->flags) & 0x00FF;
 		ld->tag = 0;
@@ -1332,8 +1321,8 @@ static void LoadHexenLineDefs(int lump)
 		ld->special = (mld->args[0] == 0) ? NULL :
 			linetypes.Lookup(1000 + mld->args[0]);
 
-		side0 = EPI_LE_U16(mld->side_R);
-		side1 = EPI_LE_U16(mld->side_L);
+		int side0 = EPI_LE_U16(mld->side_R);
+		int side1 = EPI_LE_U16(mld->side_L);
 
 		ComputeLinedefData(ld, side0, side1);
 	}
