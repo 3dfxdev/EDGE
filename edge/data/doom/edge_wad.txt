@@ -37,6 +37,8 @@ EDGE WAD 5.5: (2007-12-01)
 
 3) ATTACKS.DDF: reorganised, put all player attacks first.
 
+4) LINES.DDF: use 'MANUAL' type for Thin Sliding Doors.
+
 
 EDGE WAD 5.4: (2007-11-18)
 ==========================
