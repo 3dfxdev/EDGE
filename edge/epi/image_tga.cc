@@ -60,11 +60,18 @@ typedef enum
 	TGA_TYPE_INDEXED = 1,
     TGA_TYPE_RGB = 2,
     TGA_TYPE_BW = 3,
+
     TGA_TYPE_RLE_INDEXED = 9,
     TGA_TYPE_RLE_RGB = 10,
     TGA_TYPE_RLE_BW = 11
 }
 tga_type_e;
+
+typedef enum
+{
+	TGA_FLAG_TOP_DOWN = 0x20,
+}
+tga_flag_e;
 
 
 static inline void SwapPixels(u8_t *pix, short bpp, int num)
@@ -116,6 +123,51 @@ static bool ReadPixels(image_data_c *img, file_c *f, int& x, int& y, int total)
 	return true;
 }
 
+static bool ReadPixels_ColMap(image_data_c *img, file_c *f, int& x, int& y,
+						      int total, const u8_t *palette)
+{
+	u8_t buffer[256];
+		
+	while (total > 0)
+	{
+		if (y >= img->used_h)
+		{
+			I_Debugf("TGA_Load: uncompressed too much!\n");
+			return false;
+		}
+
+		int w = img->used_w - x;
+
+		if (w > total) w = total;
+		if (w > 256)   w = 256;
+
+		SYS_ASSERT(w > 0);
+		SYS_ASSERT(x + w <= img->used_w);
+
+		u8_t *dest = img->PixelAt(x, y);
+
+		if (w != (int)f->Read(buffer, w))
+			return false;
+
+		// FIXME: make sure color indices are in range!
+
+		for (int p=0; p < w; p++, dest += img->bpp)
+			memcpy(dest, palette + (buffer[p] * 4), img->bpp);
+
+		x     += w;
+		total -= w;
+
+		if (x >= img->used_w)
+		{
+			x  = 0;
+			y += 1;
+		}
+	}
+
+	return true;
+}
+
+
 static bool DuplicatePixels(image_data_c *img, int& x, int& y, int total,
 			const u8_t *src)
 {
@@ -157,6 +209,14 @@ static bool DuplicatePixels(image_data_c *img, int& x, int& y, int total,
 }
 
 
+static bool DecodeRGB(image_data_c *img, file_c *f, tga_header_t& header)
+{
+	int x = 0;
+	int y = 0;
+
+	return ReadPixels(img, f, x, y, img->used_w * img->used_h);
+}
+
 static bool DecodeRLE_RGB(image_data_c *img, file_c *f, tga_header_t& header)
 {
 	int x = 0;
@@ -191,12 +251,59 @@ static bool DecodeRLE_RGB(image_data_c *img, file_c *f, tga_header_t& header)
 	return true;
 }
 
-static bool DecodeRGB(image_data_c *img, file_c *f, tga_header_t& header)
+
+static u8_t * ReadPalette(file_c *f, tga_header_t &header)
 {
+	int num_colors = header.cmap_len[1] * 256 + header.cmap_len[0];
+
+	if (num_colors <= 0 || num_colors > 256)
+		I_Error("TGA_Load: illegal number of colors in image: %d\n", num_colors);
+
+	if (header.pixel_bits != 8)
+		I_Error("TGA_Load: %d bit color-mapped pixels not supported.\n", (int)header.pixel_bits);
+
+	u8_t *palette = new u8_t[num_colors * 4];
+
+	memset(palette, 0xFF, num_colors * 4);
+
+	int bpp = (header.cmap_bits == 32) ? 4 : 3;
+
+	for (int i=0; i < num_colors; i++)
+	{
+		if (bpp != (int)f->Read(&palette[i*4], bpp))
+		{
+			I_Debugf("TGA_Load: error reading palette.\n");
+			return NULL;
+		}
+	}
+
+	SwapPixels(palette, bpp, num_colors);
+
+	return palette;
+}
+
+
+static bool DecodeIndexed(image_data_c *img, file_c *f, tga_header_t& header)
+{
+	u8_t *palette = ReadPalette(f, header);
+	if (! palette)
+		return false;
+
 	int x = 0;
 	int y = 0;
 
-	return ReadPixels(img, f, x, y, img->used_w * img->used_h);
+	return ReadPixels_ColMap(img, f, x, y, img->used_w * img->used_h, palette);
+}
+
+static bool DecodeRLE_Indexed(image_data_c *img, file_c *f, tga_header_t& header)
+{
+#if 0
+	u8_t *palette = ReadPalette(f, header);
+	if (! palette)
+		return false;
+#endif
+	I_Error("TGA_Load: RLE Indexed format not yet supported!\n");
+	return false;
 }
 
 
@@ -215,15 +322,17 @@ image_data_c *TGA_Load(file_c *f, int read_flags)
 		header.type != TGA_TYPE_RLE_RGB)
 		return NULL;
 
+	// FIXME: awww, this is heavy handed!
 	if (header.type == TGA_TYPE_INDEXED ||
 		header.type == TGA_TYPE_RLE_INDEXED)
 	{
-		// FIXME: awww, this is heavy handed!
-		I_Error("TGA_Load: color-mapped formats not supported.\n");
+		if (header.cmap_bits < 24)
+			I_Error("TGA_Load: 16 bpp color-mapped formats not yet supported.\n");
 	}
-	if (header.pixel_bits < 24)
+	else
 	{
-		I_Error("TGA_Load: 16 bpp formats not yet supported.\n");
+		if (header.pixel_bits < 24)
+			I_Error("TGA_Load: 16 bpp RGB formats not yet supported.\n");
 	}
 
 	int width  = GET_U16_FIELD(header, width);
@@ -250,10 +359,13 @@ image_data_c *TGA_Load(file_c *f, int read_flags)
 			return NULL;
 	}
 
-	int new_bpp = 3;
-	if (header.pixel_bits == 32) new_bpp = 4;
+	int new_bpp;
+	if (header.type == TGA_TYPE_INDEXED || header.type == TGA_TYPE_RLE_INDEXED)
+		new_bpp = (header.cmap_bits == 32) ? 4 : 3;
+	else
+		new_bpp = (header.pixel_bits == 32) ? 4 : 3;
 
-#if 0 // DEBUG
+#if 1 // DEBUG
 	fprintf(stderr, "WIDTH  = %d (%d)\n", width, tot_W);
 	fprintf(stderr, "HEIGHT = %d (%d)\n", height, tot_H);
 	fprintf(stderr, "BPP = %d\n", new_bpp);
@@ -276,6 +388,14 @@ image_data_c *TGA_Load(file_c *f, int read_flags)
 
 		case TGA_TYPE_RGB:
 			result = DecodeRGB(img, f, header);
+			break;
+
+		case TGA_TYPE_INDEXED:
+			result = DecodeIndexed(img, f, header);
+			break;
+
+		case TGA_TYPE_RLE_INDEXED:
+			result = DecodeRLE_Indexed(img, f, header);
 			break;
 
 		default:
