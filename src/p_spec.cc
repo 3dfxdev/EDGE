@@ -957,7 +957,7 @@ static bool P_ActivateSpecialLine(line_t * line,
 	{
 		if (line && (!tag || special->type == line_manual))
 		{
-			EV_DoSlider(line, line, thing, &special->s);
+			EV_DoSlider(line, line, thing, special);
 			texSwitch = false;
 
 			// Must handle line count here, since the normal code in p_spec.c
@@ -975,7 +975,7 @@ static bool P_ActivateSpecialLine(line_t * line,
 				line_t *other = lines + i;
 
 				if (other->tag == tag && other != line)
-					if (EV_DoSlider(other, line, thing, &special->s))
+					if (EV_DoSlider(other, line, thing, special))
 						texSwitch = true;
 			}
 		}

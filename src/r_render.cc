@@ -1035,7 +1035,7 @@ static void DrawSlidingDoor(drawfloor_t *dfloor, float c, float f,
 /// float im_width = IM_WIDTH(wt->surface->image);
 
 	int num_parts = 1;
-	if (cur_seg->linedef->slide_door->type == SLIDE_Center)
+	if (cur_seg->linedef->slide_door->s.type == SLIDE_Center)
 		num_parts = 2;
 
 	// extent of current seg along the linedef
@@ -1058,7 +1058,7 @@ static void DrawSlidingDoor(drawfloor_t *dfloor, float c, float f,
 		float s_along, s_tex;
 		float e_along, e_tex;
 
-		switch (cur_seg->linedef->slide_door->type)
+		switch (cur_seg->linedef->slide_door->s.type)
 		{
 			case SLIDE_Left:
 				s_along = 0;
@@ -1454,8 +1454,7 @@ static bool RGL_DrawSeg(drawfloor_t *dfloor, seg_t *seg)
 			 wt->surface->image->img_solid);
 
 		// check for horizontal sliders
-		if ((wt->flags & WTILF_MidMask) &&
-			cur_seg->linedef->slide_door)
+		if ((wt->flags & WTILF_MidMask) && cur_seg->linedef->slide_door)
 		{
 			DrawSlidingDoor(dfloor, c, f, tex_top_h, wt, opaque, x_offset);
 			continue;
@@ -1512,7 +1511,7 @@ static bool RGL_DrawSeg(drawfloor_t *dfloor, seg_t *seg)
 
 	// handle sliders that are totally solid and closed
 	if (cur_seg->linedef->slide_door &&
-		! cur_seg->linedef->slide_door->see_through &&
+		! cur_seg->linedef->slide_door->s.see_through &&
 		! cur_seg->linedef->slider_move)
 	{
 		return true;

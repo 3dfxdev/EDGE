@@ -1526,7 +1526,7 @@ static void SetupSlidingDoors(void)
 			continue;
 
 		if (ld->tag == 0 || ld->special->type == line_manual)
-			ld->slide_door = &ld->special->s;
+			ld->slide_door = ld->special;
 		else
 		{
 			for (int k=0; k < numlines; k++)
@@ -1536,7 +1536,7 @@ static void SetupSlidingDoors(void)
 				if (other->tag != ld->tag || other == ld)
 					continue;
 
-				other->slide_door = &ld->special->s;
+				other->slide_door = ld->special;
 			}
 		}
 	}
