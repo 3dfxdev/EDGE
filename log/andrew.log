@@ -4,7 +4,17 @@ Andrew Apted's Log
 
 Created EDGE.WAD v5.5 for the upcoming Beta #1 release.
 
-Worked on remote activation of Thin Sliding Doors.
+Worked on remote activation of Thin Sliding Doors...
+
+OK it's done and works, but one issue is RTS activated
+doors, the code cannot know that the door linedef is a
+Sliding door, hence does not make it blocking.  So I've
+added a workaround: the user can use the IMPASSIBLE flag
+on the line, and that flag is cleared on first opening.
+
+Another (better) workaround is to have a hidden switch
+somewhere that tags the door, with the same sliding door
+type that the script uses.
 
 2007/12/01:
 
