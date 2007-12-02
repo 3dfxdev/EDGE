@@ -737,8 +737,8 @@ static bool P_ActivateSpecialLine(line_t * line,
 		trigger_e trig, int can_reach, int no_care_who)
 {
 	bool texSwitch = false;
-	bool failedsecurity;  // -ACB- 1998/09/11 Security pass/fail check
 	bool playedSound = false;
+
 	sfx_t *sfx[4];
 	sector_t *tsec;
 
@@ -837,7 +837,8 @@ static bool P_ActivateSpecialLine(line_t * line,
 			// -AJA- Reworked this for the 10 new keys.
 			//
 			cards = thing->player->cards;
-			failedsecurity = false;
+
+			bool failedsecurity = false;
 
 			if (special->keys & KF_BOOM_SKCK)
 			{
@@ -946,6 +947,37 @@ static bool P_ActivateSpecialLine(line_t * line,
 		{
 			texSwitch = P_DoSectorsFromTag(tag, &special->c,
 					line ? line->frontsector : NULL, DoPlane_wrapper);
+		}
+	}
+
+	//
+	// - Thin Sliding Doors -
+	//
+	if (special->s.type != SLIDE_None)
+	{
+		if (line && (!tag || special->type == line_manual))
+		{
+			EV_DoSlider(line, line, thing, &special->s);
+			texSwitch = false;
+
+			// Must handle line count here, since the normal code in p_spec.c
+			// will clear the line->special pointer, confusing various bits of
+			// code that deal with sliding doors (--> crash).
+			if (line->count > 0)
+				line->count--;
+
+			return true;
+		}
+		else if (tag)
+		{
+			for (i = 0; i < numlines; i++)
+			{
+				line_t *ld = lines + i;
+
+				if (ld->tag == tag)
+					if (EV_DoSlider(ld, line, thing, &special->s))
+						texSwitch = true;
+			}
 		}
 	}
 
@@ -1113,14 +1145,6 @@ static bool P_ActivateSpecialLine(line_t * line,
         }
 
 		playedSound = true;
-	}
-
-	if (special->s.type != SLIDE_None && line)
-	{
-		EV_DoSlider(line, thing, &special->s);
-
-		// Note: sliders need special treatment
-		return true;
 	}
 
 	// reduce count & clear special if necessary

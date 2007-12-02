@@ -268,9 +268,9 @@ bool EV_Teleport(line_t * line, int tag, mobj_t *thing, const teleportdef_c *def
 bool EV_ManualPlane(line_t * line, mobj_t * thing, const movplanedef_c * type);
 // bool EV_ManualElevator(line_t * line, mobj_t * thing, const elevatordef_c * type);
 
-void EV_DoSlider(line_t * line, mobj_t * thing, const sliding_door_c * s);
 bool EV_DoPlane(sector_t * sec, const movplanedef_c * type, sector_t * model);
-// bool EV_DoElevator(sector_t * sec, const elevatordef_c * type, sector_t * model);
+bool EV_DoSlider(line_t * door, line_t *act_line, mobj_t * thing,
+		         const sliding_door_c * s);
 bool P_SectorIsLowering(sector_t *sec);
 
 void P_RunForces(void);

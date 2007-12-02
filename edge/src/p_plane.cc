@@ -1317,53 +1317,52 @@ static void MoveSlider(slider_move_t *smov)
 //
 // Handle thin horizontal sliding doors.
 //
-void EV_DoSlider(line_t * line, mobj_t * thing, const sliding_door_c * s)
+bool EV_DoSlider(line_t * door, line_t *act_line, mobj_t * thing,
+		         const sliding_door_c * s)
 {
-    sector_t *sec = line->frontsector;
+    sector_t *sec = door->frontsector;
+
+    if (! sec || ! door->side[0] || ! door->side[1])
+        return false;
+
     slider_move_t *smov;
 
-    if (! thing || ! sec || ! line->side[0] || ! line->side[1])
-        return;
-
     // if the line has an active thinker, use it
-    if (line->slider_move)
+    if (door->slider_move)
     {
-        smov = line->slider_move;
+        smov = door->slider_move;
 
         // only players close doors
-        if (smov->direction == DIRECTION_WAIT && thing->player)
+        if (smov->direction == DIRECTION_WAIT && thing && thing->player)
         {
             smov->waited = 0;
+			return true;
         }
-        return;
+
+        return false;  // nothing happened
     }
 
     // new sliding door thinker
     smov = Z_New(slider_move_t, 1);
 
     smov->whatiam = MDT_SLIDER;
-    smov->info = &line->special->s;
+    smov->info = s;
     smov->line = line;
     smov->opening = 0.0f;
-    smov->line_len = R_PointToDist(0, 0, line->dx, line->dy);
+    smov->line_len = R_PointToDist(0, 0, door->dx, door->dy);
     smov->target = smov->line_len * PERCENT_2_FLOAT(smov->info->distance);
 
     smov->direction = DIRECTION_UP;
-    smov->sfxstarted = ! thing->player;
-    smov->final_open = (line->count == 1);
+    smov->sfxstarted = ! (thing && thing->player);
+    smov->final_open = (act_line->count == 1);
 
-    line->slider_move = smov;
+    door->slider_move = smov;
 
     P_AddActivePart((gen_move_t*)smov);
 
     S_StartFX(s->sfx_start, SNCAT_Level, &sec->sfx_origin);
 
-    // Must handle line count here, since the normal code in p_spec.c
-    // will clear the line->special pointer, confusing various bits of
-    // code that deal with sliding doors (--> crash).
-    // 
-    if (line->count > 0)
-        line->count--;
+	return true;
 }
 
 
