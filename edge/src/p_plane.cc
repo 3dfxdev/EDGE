@@ -1362,6 +1362,11 @@ bool EV_DoSlider(line_t * door, line_t *act_line, mobj_t * thing,
 	door->slide_door  = s;
     door->slider_move = smov;
 
+	// work-around for RTS-triggered doors, which cannot setup
+	// the 'slide_door' field at level load and hence the code
+	// which normally blocks the door does not kick in.
+	door->flags &= ~MLF_Blocking;
+
     P_AddActivePart((gen_move_t*)smov);
 
     S_StartFX(s->sfx_start, SNCAT_Level, &sec->sfx_origin);
