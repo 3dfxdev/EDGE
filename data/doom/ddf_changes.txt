@@ -6,6 +6,8 @@ EDGE DDF 5.5: (2007-12-01)
 
 2) ATTACKS.DDF: reorganised, put all player attacks first.
 
+3) LINES.DDF: use 'MANUAL' type for Thin Sliding Doors.
+
 
 EDGE DDF 5.4: (2007-11-18)
 ==========================
