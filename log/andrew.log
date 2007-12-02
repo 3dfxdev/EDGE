@@ -1,5 +1,11 @@
 Andrew Apted's Log
 
+2007/12/02:
+
+Created EDGE.WAD v5.5 for the upcoming Beta #1 release.
+
+Worked on remote activation of Thin Sliding Doors.
+
 2007/12/01:
 
 Fixed models disappearing when mlooking down at certain
@@ -15,13 +21,13 @@ Experimented with making the Invulnerability powerup have
 the same grayscale effect as the original DOOM (using the
 color matrix of the OpenGL imaging subset)...
 
-The result... failed!  The color matrix does not apply to
+The result... failure!  The color matrix does not apply to
 rendered pixels (from polygons), but only works on functions
 like glDrawPixels.
 
 Nevertheless, the same technique works using a glCopyPixels
-over the whole screen, so I have enabled it for the Beta#1,
-but I'm concerned it may be an excessive hit to frame-rate.
+over the whole screen, so I have enabled it for Beta#1, but
+I'm concerned it may perform poorly.
 
 2007/11/30:
 
