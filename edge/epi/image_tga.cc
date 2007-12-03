@@ -443,6 +443,9 @@ image_data_c *TGA_Load(file_c *f, int read_flags)
 	if (! result)
 		I_Printf("TGA_Load: WARNING: failure decoding image!\n");
 
+	if (header.flags & TGA_FLAG_TOP_DOWN)
+		img->Invert();
+
 	return img;
 }
 
