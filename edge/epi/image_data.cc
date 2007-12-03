@@ -63,6 +63,24 @@ void image_data_c::Whiten()
 	}
 }
 
+void image_data_c::Invert()
+{
+	int line_size = used_w * bpp;
+
+	u8_t *line_data = new u8_t[line_size + 1];
+
+	for (int y=0; y < used_h/2; y++)
+	{
+		int y2 = used_h - 1 - y;
+
+		memcpy(line_data,      PixelAt(0, y),  line_size);
+		memcpy(PixelAt(0, y),  PixelAt(0, y2), line_size);
+		memcpy(PixelAt(0, y2), line_data,      line_size);
+	}
+
+	delete[] line_data;
+}
+
 void image_data_c::Shrink(int new_w, int new_h)
 {
 	SYS_ASSERT(bpp >= 3);
