@@ -78,6 +78,9 @@ public:
 	void Whiten();
 	// convert all RGB(A) pixels to a greyscale equivalent.
 	
+	void Invert();
+	// turn the image up-side-down.
+
 	void Shrink(int new_w, int new_h);
 	// shrink an image to a smaller image.
 	// The old size and the new size must be powers of two.
