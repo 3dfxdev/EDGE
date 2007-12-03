@@ -6,6 +6,8 @@ TGA images: support TOP_DOWN mode (bit 5 in header.flags).
 
 Fixed wrong positioning with TIP_GRAPHIC in RTS.
 
+Support sprite scaling and palette-remap on Cast-screen.
+
 2007/12/02:
 
 Created EDGE.WAD v5.5 for the upcoming Beta #1 release.

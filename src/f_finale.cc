@@ -719,12 +719,14 @@ static void CastDrawer(void)
 	width  *= xscale;
 	height *= yscale;
 
+	// TODO: support FUZZY effect (glColor4f 0/0/0/0.5).
+
 	RGL_DrawImage(FROM_320(tx1), SCREENHEIGHT - FROM_200(gzb),
 			      FROM_320(width), FROM_200(height),
 				  image, 
 				  flip ? IM_RIGHT(image) : 0, 0,
 				  flip ? 0 : IM_RIGHT(image), IM_TOP(image),
-				  NULL, 1.0f);
+				  NULL, 1.0f, castorder->palremap);
 }
 
 //

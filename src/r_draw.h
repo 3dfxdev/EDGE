@@ -32,7 +32,8 @@
 // Move to somewhere appropriate later -ACB- 2004/08/19
 void RGL_DrawImage(float x, float y, float w, float h, const image_c *image,
 				   float tx1, float ty1, float tx2, float ty2,
-				   const colourmap_c *colmap, float alpha);
+				   const colourmap_c *textmap = NULL, float alpha = 1.0f,
+				   const colourmap_c *palremap = NULL);
  
 void RGL_ReadScreen(int x, int y, int w, int h, byte *rgb_buffer);
 
