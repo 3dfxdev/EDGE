@@ -240,8 +240,13 @@ float fuzz_yoffset;
 
 static void FUZZ_MakeTexture(void)
 {
-	// FIXME !!!!!  verify lump size
-	const byte *fuzz = (const byte*)W_CacheLumpName("FUZZMAP7");
+	int lump = W_GetNumForName("FUZZMAP7");
+
+	// make sure lump is right size
+	if (W_LumpLength(lump) < 256*256)
+		I_Error("Lump 'FUZZMAP7' is too small!\n");
+
+	const byte *fuzz = (const byte*)W_CacheLumpNum(lump);
 
 	epi::image_data_c img(256, 256, 4);
 
