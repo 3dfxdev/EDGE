@@ -45,7 +45,8 @@ void RGL_NewScreenSize(int width, int height, int bits)
 
 void RGL_DrawImage(float x, float y, float w, float h, const image_c *image, 
 				   float tx1, float ty1, float tx2, float ty2,
-				   const colourmap_c *colmap, float alpha)
+				   const colourmap_c *textmap, float alpha,
+				   const colourmap_c *palremap)
 {
 	int x1 = I_ROUND(x);
 	int y1 = I_ROUND(y);
@@ -58,7 +59,7 @@ void RGL_DrawImage(float x, float y, float w, float h, const image_c *image,
 	float r = 1.0f, g = 1.0f, b = 1.0f;
 
 	GLuint tex_id = W_ImageCache(image, false,
-		(colmap && (colmap->special & COLSP_Whiten)) ? font_whiten_map : NULL);
+		(textmap && (textmap->special & COLSP_Whiten)) ? font_whiten_map : palremap);
 
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, tex_id);
@@ -69,8 +70,8 @@ void RGL_DrawImage(float x, float y, float w, float h, const image_c *image,
 ///  else if (!image->img_solid)
 ///    glEnable(GL_ALPHA_TEST);
  
-	if (colmap)
-		V_GetColmapRGB(colmap, &r, &g, &b, true);
+	if (textmap)
+		V_GetColmapRGB(textmap, &r, &g, &b, true);
 
 	glColor4f(r, g, b, alpha);
 
