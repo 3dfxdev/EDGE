@@ -319,8 +319,9 @@ void RAD_DisplayTips(void)
 			if (! current->p.left_just)
 				x -= w / 2;
 
-			RGL_DrawImage(x, y, w, h, image,
-				0, 0, IM_RIGHT(image), IM_BOTTOM(image), NULL, alpha);
+			RGL_DrawImage(x, SCREENHEIGHT-1 - y-h, w, h, image,
+						  0, 0, IM_RIGHT(image), IM_BOTTOM(image),
+						  NULL, alpha);
 
 			continue;
 		}
