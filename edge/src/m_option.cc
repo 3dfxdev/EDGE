@@ -166,7 +166,6 @@ static char YesNo[]     = "Off/On";  // basic on/off
 static char CrosO[]     = "None/Cross/Dot/Angle";  // crosshair options
 static char Respw[]     = "Teleport/Resurrect";  // monster respawning
 static char Axis[]      = "Turn/Forward/Strafe/MLook/Fly/Disable";
-static char SkySq[]     = "Small/Medium/Large/Mirror/Original";
 static char DLMode[]    = "Off/On";
 static char JpgPng[]    = "JPEG/PNG";  // basic on/off
 static char AAim[]      = "Off/On/Mlook";
