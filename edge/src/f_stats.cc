@@ -1281,7 +1281,7 @@ void WI_Drawer(void)
 	} 
 	else
 	{
-		RGL_Image(0, 0, SCREENWIDTH, SCREENHEIGHT, bg_image);
+		RGL_Image320(0, 0, 320, 200, bg_image);
 
 		for (int i = 0; i < worldint.numanims; i++)
 		{
