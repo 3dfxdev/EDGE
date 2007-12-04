@@ -187,8 +187,7 @@ image_data_c *JPEG_Load(file_c *f, int read_flags)
 	{
 		int y = cinfo.output_scanline;
 
-    row_pointer[0] = (JSAMPROW)
-      (img->pixels + (img->height - 1 - y) * img->width * 3);
+		row_pointer[0] = (JSAMPROW) img->PixelAt(0, img->used_h-1 - y);
 
 		(void) jpeg_read_scanlines(&cinfo, row_pointer, (JDIMENSION) 1);
 	}
