@@ -1,5 +1,10 @@
 Andrew Apted's Log
 
+2007/12/04:
+
+Fixed JPEG loading, which was leaving a blank area at the
+bottom of the image.
+
 2007/12/03:
 
 TGA images: support TOP_DOWN mode (bit 5 in header.flags).
