@@ -974,7 +974,7 @@ void M_QuickLoad(void)
 //
 void M_DrawReadThis1(void)
 {
-	RGL_Image(0, 0, SCREENWIDTH, SCREENHEIGHT, menu_readthis[0]);
+	RGL_Image320(0, 0, 320, 200, menu_readthis[0]);
 }
 
 //
@@ -982,7 +982,7 @@ void M_DrawReadThis1(void)
 //
 void M_DrawReadThis2(void)
 {
-	RGL_Image(0, 0, SCREENWIDTH, SCREENHEIGHT, menu_readthis[1]);
+	RGL_Image320(0, 0, 320, 200, menu_readthis[1]);
 }
 
 
