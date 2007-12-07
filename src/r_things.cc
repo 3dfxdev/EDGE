@@ -546,13 +546,11 @@ static inline void LinkDrawthingIntoDrawfloor(
 	dfloor->things = dthing;
 }
 
-//
-// R2_GetThingSprite
-//
-// Can return NULL, for no image.
-//
+
 static const image_c * R2_GetThingSprite2(mobj_t *mo, float mx, float my, bool *flip)
 {
+	// Note: can return NULL for no image.
+
 	// decide which patch to use for sprite relative to player
 	SYS_ASSERT(mo->state);
 
@@ -564,7 +562,7 @@ static const image_c * R2_GetThingSprite2(mobj_t *mo, float mx, float my, bool *
 
 	if (! frame)
 	{
-		// -AJA- 2001/08/04: allow the patch to be missing
+		// show dummy sprite for missing frame
 		(*flip) = false;
 		return W_ImageForDummySprite();
 	}
@@ -597,23 +595,31 @@ static const image_c * R2_GetThingSprite2(mobj_t *mo, float mx, float my, bool *
 	if (num_active_mirrors % 2)
 		(*flip) = !(*flip);
 
+	if (! frame->images[rot])
+	{
+		// show dummy sprite for missing rotation
+		(*flip) = false;
+		return W_ImageForDummySprite();
+	}
+
 	return frame->images[rot];
 }
 
-//
-// R2_GetOtherSprite
-//
-// Used for non-object stuff, like weapons and finale.
-//
+
 const image_c * R2_GetOtherSprite(int spritenum, int framenum, bool *flip)
 {
+	/* Used for non-object stuff, like weapons and finale */
+
 	if (spritenum == SPR_NULL)
 		return NULL;
 
 	spriteframe_c *frame = W_GetSpriteFrame(spritenum, framenum);
 
-	if (! frame)
-		return NULL;
+	if (! frame || ! frame->images[0])
+	{
+		(*flip) = false;
+		return W_ImageForDummySprite();
+	}
 
 	*flip = frame->flip[0] ? true : false;
 
@@ -828,13 +834,11 @@ static void R2_ClipSpriteVertically(drawsub_c *dsub, drawthing_t *dthing)
 	}
 }
 
-//
-// RGL_WalkThing
-//
-// Visit a single thing that exists in the current subsector.
-//
+
 void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 {
+	/* Visit a single thing that exists in the current subsector */
+
 	SYS_ASSERT(mo->state);
 
 	// ignore the player him/herself
