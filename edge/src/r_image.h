@@ -46,6 +46,17 @@ struct texturedef_s;
 #define DL_OUTER_SQRT   8.0f
 
 
+typedef enum
+{
+	OPAC_Unknown = 0,
+
+	OPAC_Solid   = 1,  // utterly solid (alpha = 255 everywhere)
+	OPAC_Masked  = 2,  // only uses alpha 255 and 0
+	OPAC_Complex = 3,  // uses full range of alpha values
+}
+image_opacity_e;
+
+
 class image_c
 {
 public:
@@ -68,9 +79,9 @@ public:
 	float scale_x;
 	float scale_y;
 
-    // when true, the image is guaranteed to be solid (i.e. contain no
-    // transparent parts).
-	bool img_solid;
+    // one of the OPAC_XXX values
+	int opacity;
+
 
 //!!!!!! private:
 
@@ -91,9 +102,6 @@ public:
 
 		// case IMSRC_Texture:
 		struct { struct texturedef_s *tdef; } texture;
-
-///---		// case IMSRC_SkyMerge:
-///---		struct { const image_c *sky; int face; } merge;
 
 		// case IMSRC_Dummy:
 		struct { rgbcol_t fg; rgbcol_t bg; } dummy;
@@ -139,13 +147,16 @@ public:
 		unsigned short speed;
 	}
 	anim;
+
+public:
+	/* TODO: add methods here... */
 };
 
 
 // macro for converting image_c sizes to cached_image_t sizes
 #define MIP_SIZE(size,mip)  MAX(1, (size) >> (mip))
 
-// utility macros
+// utility macros (FIXME: replace with class methods)
 #define IM_RIGHT(image)  (float((image)->actual_w) / (image)->total_w)
 #define IM_TOP(image)    (float((image)->actual_h) / (image)->total_h)
 
@@ -159,8 +170,6 @@ public:
 #define IM_TOTAL_WIDTH(image)  ((image)->total_w * (image)->scale_x)
 #define IM_TOTAL_HEIGHT(image) ((image)->total_h * (image)->scale_y)
 
-// TEMPORARY !!!
-#define IM_BOTTOM  IM_TOP
 
 //
 //  IMAGE LOOKUP
