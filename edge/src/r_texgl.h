@@ -37,6 +37,10 @@ GLuint R_UploadTexture(epi::image_data_c *img, const byte *palette,
 void R_PaletteRemapRGBA(epi::image_data_c *img,
 		const byte *new_pal, const byte *old_pal);
 
+int R_DetermineOpacity(epi::image_data_c *img);
+
+void R_DumpImage(epi::image_data_c *img);
+
 #endif /* __RGL_TEXGL_H__ */
 
 //--- editor settings ---

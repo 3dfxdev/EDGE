@@ -38,12 +38,6 @@
 #include "w_wad.h"
 
 
-///--- // -AJA- FIXME !!! temporary hack, awaiting good GL extension handling
-///--- #ifndef GL_CLAMP_TO_EDGE
-///--- #define GL_CLAMP_TO_EDGE  0x812F
-///--- #endif
-
-
 #define PIXEL_RED(pix)  (what_palette[pix*3 + 0])
 #define PIXEL_GRN(pix)  (what_palette[pix*3 + 1])
 #define PIXEL_BLU(pix)  (what_palette[pix*3 + 2])
@@ -647,9 +641,49 @@ void R_PaletteRemapRGBA(epi::image_data_c *img,
 	}
 }
 
-static void DumpImage(epi::image_data_c *img)
+int R_DetermineOpacity(epi::image_data_c *img)
 {
-	L_WriteDebug("DUMP IMAGE: size=%dx%d bpp=%d\n",
+	if (img->bpp == 3)
+		return OPAC_Solid;
+
+	if (img->bpp == 1)
+	{
+		for (int y=0; y < img->used_h; y++)
+		for (int x=0; x < img->used_w; x++)
+		{
+			u8_t pix = img->PixelAt(x, y)[0];
+
+			if (pix == TRANS_PIXEL)
+				return OPAC_Masked;
+		}
+
+		return OPAC_Solid;
+	}
+	else
+	{
+		SYS_ASSERT(img->bpp == 4);
+
+		bool is_masked = false;
+
+		for (int y=0; y < img->used_h; y++)
+		for (int x=0; x < img->used_w; x++)
+		{
+			u8_t alpha = img->PixelAt(x, y)[3];
+
+			if (alpha == 0)
+				is_masked = true;
+			else if (alpha != 255)
+				return OPAC_Complex;
+		}
+
+		return is_masked ? OPAC_Masked : OPAC_Solid;
+	}
+}
+
+void R_DumpImage(epi::image_data_c *img)
+{
+	L_WriteDebug("DUMP IMAGE: size=%dx%d [%dx%d] bpp=%d\n",
+			img->used_w, img->used_h,
 			img->width, img->height, img->bpp);
 
 	for (int y=img->height-1; y >= 0; y--)
@@ -658,8 +692,8 @@ static void DumpImage(epi::image_data_c *img)
 		{
 			u8_t pixel = img->PixelAt(x,y)[0];
 
-			L_WriteDebug("%02x", pixel);
-			//L_WriteDebug("%c", 'A' + (pixel % 26));
+			// L_WriteDebug("%02x", pixel);
+			L_WriteDebug("%c", 'A' + (pixel % 26));
 		}
 
 		L_WriteDebug("\n");
