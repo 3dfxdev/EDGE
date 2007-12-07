@@ -1424,6 +1424,15 @@ static void W_CreateDummyImages(void)
 	dummy_skin   = AddDummyImage("DUMMY_SKIN",   0xFF77FF, 0x993399);
 
 	skyflatimage = AddDummyImage("DUMMY_SKY",    0x0000AA, 0x55AADD);
+
+	// make the dummy sprite easier to see
+	{
+		// Intentional Const Override
+		image_c *dsp = (image_c *) dummy_sprite;
+
+		dsp->scale_x = 3.0f;
+		dsp->scale_y = 3.0f;
+	}
 }
 
 //
