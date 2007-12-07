@@ -176,8 +176,9 @@ image_lookup_flags_e;
 
 const image_c *W_ImageLookup(const char *name, image_namespace_e = INS_Graphic,
 	int flags = 0);
-///---const image_c *W_ImageFromSkyMerge(const image_c *sky, int face);
+
 const image_c *W_ImageForDummySprite(void);
+const image_c *W_ImageForDummySkin(void);
 
 // savegame code (Only)
 const image_c *W_ImageParseSaveString(char type, const char *name);

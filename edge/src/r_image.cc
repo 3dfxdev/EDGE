@@ -225,7 +225,11 @@ static real_image_container_c real_sprites;
 static real_image_container_c sky_merges;
 static real_image_container_c dummies;
 
+
 const image_c *skyflatimage;
+
+static const image_c *dummy_sprite;
+static const image_c *dummy_skin;
 
 
 // image cache (actually a ring structure)
@@ -426,32 +430,6 @@ static image_c *AddImageFlat(const char *name, int lump)
 	return rim;
 }
 
-#if 0
-static image_c *AddImageSkyMerge(const image_c *sky, int face, int size)
-{
-	static const char *face_names[6] = 
-	{
-		"SKYBOX_NORTH", "SKYBOX_EAST",
-		"SKYBOX_SOUTH", "SKYBOX_WEST",
-		"SKYBOX_TOP",   "SKYBOX_BOTTOM"
-	};
-
-	image_c *rim;
- 
-	rim = NewImage(size, size, true /* solid */);
- 
-	strcpy(rim->name, face_names[face]);
-
-	rim->source_type = IMSRC_SkyMerge;
-	rim->source.merge.sky = sky;
-	rim->source.merge.face = face;
-	rim->source_palette = -1;
-
-	sky_merges.Insert(rim);
-
-	return rim;
-}
-#endif
 
 static image_c *AddImageUser(imagedef_c *def)
 {
@@ -1107,10 +1085,19 @@ const image_c *W_ImageLookup(const char *name, image_namespace_e type, int flags
 
 const image_c *W_ImageForDummySprite(void)
 {
+	return dummy_sprite;
+#if 0
 	const image_c *rim = dummies.Lookup("DUMMY_SPRITE");
 	SYS_ASSERT(rim);
 
 	return rim;
+#endif
+}
+
+
+const image_c *W_ImageForDummySkin(void)
+{
+	return dummy_skin;
 }
 
 
@@ -1431,10 +1418,12 @@ static void W_CreateDummyImages(void)
 	AddDummyImage("DUMMY_FLAT",    0x11AA11, 0x115511);
 
 	AddDummyImage("DUMMY_GRAPHIC", 0xFF0000, TRANS_PIXEL);
-	AddDummyImage("DUMMY_SPRITE",  0xFFFF00, TRANS_PIXEL);
 	AddDummyImage("DUMMY_FONT",    0xFFFFFF, TRANS_PIXEL);
 
-	skyflatimage = AddDummyImage("DUMMY_SKY", 0x0000AA, 0x55AADD);
+	dummy_sprite = AddDummyImage("DUMMY_SPRITE", 0xFFFF00, TRANS_PIXEL);
+	dummy_skin   = AddDummyImage("DUMMY_SKIN",   0xFF77FF, 0x993399);
+
+	skyflatimage = AddDummyImage("DUMMY_SKY",    0x0000AA, 0x55AADD);
 }
 
 //
