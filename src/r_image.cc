@@ -216,13 +216,13 @@ int use_mipmapping = 1;
 bool use_smoothing = true;
 bool use_dithering = false;
 
+
 // total set of images
 static real_image_container_c real_graphics;
 static real_image_container_c real_textures;
 static real_image_container_c real_flats;
 static real_image_container_c real_sprites;
 
-static real_image_container_c sky_merges;
 static real_image_container_c dummies;
 
 
@@ -263,7 +263,7 @@ static inline void Unlink(real_cached_image_t *rc)
 //  IMAGE CREATION
 //
 
-static image_c *NewImage(int width, int height, bool solid)
+static image_c *NewImage(int width, int height, int opacity = OPAC_Unknown)
 {
 	image_c *rim = new image_c;
 
@@ -276,7 +276,7 @@ static image_c *NewImage(int width, int height, bool solid)
 	rim->total_h  = W_MakeValidSize(height);
 	rim->offset_x = rim->offset_y = 0;
 	rim->scale_x  = rim->scale_y = 1.0f;
-	rim->img_solid = solid;
+	rim->opacity  = opacity;
 
 	// set initial animation info
 	rim->anim.cur = rim;
@@ -290,7 +290,7 @@ static image_c *AddDummyImage(const char *name, rgbcol_t fg, rgbcol_t bg)
 {
 	image_c *rim;
   
-	rim = NewImage(DUMMY_X, DUMMY_Y, (bg == TRANS_PIXEL));
+	rim = NewImage(DUMMY_X, DUMMY_Y, (bg == TRANS_PIXEL) ? OPAC_Masked : OPAC_Solid);
  
  	strcpy(rim->name, name);
 
@@ -334,7 +334,7 @@ static image_c *AddImageGraphic(const char *name,
 
 		if (length == 320*200 && type == IMSRC_Graphic)
 		{
-			rim = NewImage(320, 200, true);
+			rim = NewImage(320, 200, OPAC_Solid);
 			strcpy(rim->name, name);
 
 			rim->source_type = IMSRC_Raw320x200;
@@ -352,7 +352,7 @@ static image_c *AddImageGraphic(const char *name,
 	}
  
 	// create new image
-	rim = NewImage(width, height, false);
+	rim = NewImage(width, height, OPAC_Unknown);
  
 	rim->offset_x = offset_x;
 	rim->offset_y = offset_y;
@@ -371,13 +371,11 @@ static image_c *AddImageGraphic(const char *name,
 	return rim;
 }
 
-static image_c *AddImageTexture(const char *name, 
-									 texturedef_t *tdef)
+static image_c *AddImageTexture(const char *name, texturedef_t *tdef)
 {
 	image_c *rim;
  
-	// assume it is non-solid, we'll update it when we know for sure
-	rim = NewImage(tdef->width, tdef->height, false);
+	rim = NewImage(tdef->width, tdef->height);
  
 	strcpy(rim->name, name);
 
@@ -417,7 +415,7 @@ static image_c *AddImageFlat(const char *name, int lump)
 			return NULL;
 	}
    
-	rim = NewImage(size, size, true);
+	rim = NewImage(size, size, OPAC_Solid);
  
 	strcpy(rim->name, name);
 
@@ -488,7 +486,7 @@ static image_c *AddImageUser(imagedef_c *def)
 			return NULL; /* NOT REACHED */
 	}
  
-	image_c *rim = NewImage(w, h, solid);
+	image_c *rim = NewImage(w, h, solid ? OPAC_Solid : OPAC_Complex);
  
 	rim->offset_x = def->x_offset;
 	rim->offset_y = def->y_offset;
@@ -714,7 +712,7 @@ real_cached_image_t *LoadImageOGL(image_c *rim, const colourmap_c *trans)
 	static byte trans_pal[256 * 3];
 
 	bool clamp  = false;
-	bool nomip  = false;
+	bool mip    = true;
 	bool smooth = use_smoothing;
  
  	int max_pix = 65536 * (1 << (2 * detail_level));
@@ -722,8 +720,9 @@ real_cached_image_t *LoadImageOGL(image_c *rim, const colourmap_c *trans)
 	const byte *what_palette;
 	bool what_pal_cached = false;
 
-	if (rim->source_type == IMSRC_Graphic || rim->source_type == IMSRC_Raw320x200 ||
-		rim->source_type == IMSRC_Sprite) ///---  || rim->source_type == IMSRC_SkyMerge)
+	if (rim->source_type == IMSRC_Graphic ||
+		rim->source_type == IMSRC_Raw320x200 ||
+		rim->source_type == IMSRC_Sprite)
 	{
 		clamp = true;
 	}
@@ -734,7 +733,7 @@ real_cached_image_t *LoadImageOGL(image_c *rim, const colourmap_c *trans)
 			clamp = true;
 
 		if (rim->source.user.def->special & IMGSP_NoMip)
-			nomip = true;
+			mip = false;
 
 		if (rim->source.user.def->special & IMGSP_Smooth)
 			smooth = true;
@@ -744,6 +743,7 @@ real_cached_image_t *LoadImageOGL(image_c *rim, const colourmap_c *trans)
    	if (strnicmp(rim->name, "SKY", 3) == 0)
 	{
 		smooth = true;
+		mip    = false;
 
 		max_pix *= 4;  // kludgy
 	}
@@ -775,15 +775,16 @@ real_cached_image_t *LoadImageOGL(image_c *rim, const colourmap_c *trans)
 			trans_pal[j*3 + 2] = playpal_data[0][k][2];
 		}
 	}
-	else if (rim->source_palette < 0)
-	{
-		what_palette = (const byte *) &playpal_data[0];
-	}
-	else
+	else if (rim->source_palette >= 0)
 	{
 		what_palette = (const byte *) W_CacheLumpNum(rim->source_palette);
 		what_pal_cached = true;
 	}
+	else
+	{
+		what_palette = (const byte *) &playpal_data[0];
+	}
+
 
 	real_cached_image_t *rc = new real_cached_image_t;
 
@@ -794,10 +795,11 @@ real_cached_image_t *LoadImageOGL(image_c *rim, const colourmap_c *trans)
 	rc->trans_map = trans;
 	rc->hue = RGB_NO_VALUE;
 
+
 	epi::image_data_c *tmp_img = ReadAsEpiBlock(rim);
 
-/// if (strcmp(rim->name, "EDGETTL")==0)
-/// DumpImage(tmp_img);
+	if (rim->opacity == OPAC_Unknown)
+		rim->opacity = R_DetermineOpacity(tmp_img);
 
 	if (var_hq_scale && (tmp_img->bpp == 1) &&
 		(rim->source_type == IMSRC_Raw320x200 ||
@@ -807,11 +809,12 @@ real_cached_image_t *LoadImageOGL(image_c *rim, const colourmap_c *trans)
 		   rim->source_type == IMSRC_Flat ||
 		   rim->source_type == IMSRC_Texture))))
 	{
-//		epi::Hq2x::Setup(&playpal_data[0][0][0], TRANS_PIXEL);
-		epi::Hq2x::Setup(what_palette, TRANS_PIXEL);
+		bool solid = (rim->opacity == OPAC_Solid);
+
+		epi::Hq2x::Setup(what_palette, solid ? -1 : TRANS_PIXEL);
 
 		epi::image_data_c *scaled_img =
-			epi::Hq2x::Convert(tmp_img, rim->img_solid, false /* invert */);
+			epi::Hq2x::Convert(tmp_img, solid, false /* invert */);
 
 		delete tmp_img;
 		tmp_img = scaled_img;
@@ -825,9 +828,10 @@ real_cached_image_t *LoadImageOGL(image_c *rim, const colourmap_c *trans)
 			R_PaletteRemapRGBA(tmp_img, what_palette, (const byte *) &playpal_data[0]);
 	}
 
+
 	rc->tex_id = R_UploadTexture(tmp_img, what_palette,
-		(clamp  ? UPL_Clamp : 0)  |
-		(nomip  ? 0 : UPL_MipMap) |
+		(clamp  ? UPL_Clamp  : 0) |
+		(mip    ? UPL_MipMap : 0) |
 		(smooth ? UPL_Smooth : 0), max_pix);
 
 	delete tmp_img;
@@ -1450,7 +1454,6 @@ bool W_InitImages(void)
 	real_flats.Clear();
 	real_sprites.Clear();
 
-	sky_merges.Clear();
 	dummies.Clear();
 
     // check options
