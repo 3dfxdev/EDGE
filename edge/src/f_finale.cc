@@ -675,17 +675,13 @@ static void CastDrawer(void)
 
 		const image_c *skin_img = md->skins[castorder->model_skin];
 
-		if (! skin_img)  // FIXME: use a dummy image
-		{
-			return;
-		}
-
-		GLuint skin_tex = W_ImageCache(skin_img, false, castorder->palremap);
+		if (! skin_img)
+			skin_img = W_ImageForDummySkin();
 
 		glClear(GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
 
-		MD2_RenderModel_2D(md->model, skin_tex, caststate->frame,
+		MD2_RenderModel_2D(md->model, skin_img, caststate->frame,
 						   SCREENWIDTH/2.0, FROM_200(30),
 						   SCREENWIDTH / 320.0, SCREENHEIGHT / 200.0,
 						   castorder);
