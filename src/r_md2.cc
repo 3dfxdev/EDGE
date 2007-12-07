@@ -605,6 +605,10 @@ typedef struct
 	float  z_scale;
 	float bias;
 
+	// image size
+	float im_right;
+	float im_top;
+
 	// fuzzy info
 	float  fuzz_mul;
 	vec2_t fuzz_add;
@@ -792,7 +796,7 @@ static inline void ModelCoordFunc(model_coord_data_t *data,
 		return;
 	}
 
-	texc->Set(point->skin_s, point->skin_t);
+	texc->Set(point->skin_s * data->im_right, point->skin_t * data->im_top);
 
 
 	multi_color_c *col = &data->nm_colors[n_vert->normal_idx];
@@ -894,6 +898,9 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 		data.fuzz_mul = 0.8;
 		data.fuzz_add.Set(0, 0);
 
+		data.im_right = 1.0;
+		data.im_top   = 1.0;
+
 		if (! data.is_weapon && ! viewiszoomed)
 		{
 			float dist = P_ApproxDistance(mo->x - viewx, mo->y - viewy, mo->z - viewz);
@@ -910,6 +917,10 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 	{
 		skin_tex = W_ImageCache(skin_img, false,
 			is_weapon ? NULL : mo->info->palremap);
+
+		data.im_right = IM_RIGHT(skin_img);
+		data.im_top   = IM_TOP(skin_img);
+
 
 		abstract_shader_c *shader = R_GetColormapShader(props, mo->state->bright);
 
@@ -994,6 +1005,9 @@ void MD2_RenderModel_2D(md2_model_c *md, const image_c *skin_img, int frame,
 	if (frame < 0 || frame >= md->num_frames)
 		return;
 
+	float im_right = IM_RIGHT(skin_img);
+	float im_top   = IM_TOP(skin_img);
+
 	xscale = yscale * info->model_scale * info->model_aspect;
 	yscale = yscale * info->model_scale;
 
@@ -1024,7 +1038,7 @@ void MD2_RenderModel_2D(md2_model_c *md, const image_c *skin_img, int frame,
 			const md2_point_c *point = &md->points[strip->first + v_idx];
 			const md2_vertex_c *vert = &frame_ptr->vertices[point->vert_idx];
 
-			glTexCoord2f(point->skin_s, point->skin_t);
+			glTexCoord2f(point->skin_s * im_right, point->skin_t * im_top);
 
 
 			short n = vert->normal_idx;
