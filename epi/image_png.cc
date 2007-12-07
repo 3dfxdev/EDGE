@@ -123,8 +123,8 @@ image_data_c *PNG_Load(file_c *f, int read_flags)
 
 	img = new image_data_c(tot_W, tot_H, solid ? 3 : 4);
 
-  img->used_w = width;
-  img->used_h = height;
+	img->used_w = width;
+	img->used_h = height;
 
 	/* tell libpng to strip 16 bits/color down to 8 bits/color */
 	png_set_strip_16(png_ptr);
