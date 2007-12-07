@@ -479,10 +479,9 @@ void RGL_DrawWeaponModel(player_t * p)
 	if (! skin_img)  // FIXME: use a dummy image
 	{
 I_Debugf("Render model: no skin %d\n", skin_num);
-		return;
+		skin_img = W_ImageForDummySkin();
 	}
 
-	GLuint skin_tex = W_ImageCache(skin_img, false);
 
 // I_Debugf("Rendering weapon model!\n");
 	
@@ -516,7 +515,7 @@ I_Debugf("Render model: no skin %d\n", skin_num);
 		lerp = CLAMP(0, lerp, 1);
 	}
 
-	MD2_RenderModel(md->model, skin_tex, true,
+	MD2_RenderModel(md->model, skin_img, true,
 			        last_frame, psp->state->frame, lerp,
 			        x, y, z, p->mo, view_props,
 					1.0f /* scale */, w->model_aspect, w->model_bias);
@@ -1036,13 +1035,12 @@ static void RGL_DrawModel(drawthing_t *dthing)
 
 	const image_c *skin_img = md->skins[mo->model_skin];
 
-	if (! skin_img)  // FIXME: use a dummy image
+	if (! skin_img)
 	{
 I_Debugf("Render model: no skin %d\n", mo->model_skin);
-		return;
+		skin_img = W_ImageForDummySkin();
 	}
 
-	GLuint skin_tex = W_ImageCache(skin_img, false, mo->info->palremap);
 
 	float z = mo->z;
 
@@ -1062,7 +1060,7 @@ I_Debugf("Render model: no skin %d\n", mo->model_skin);
 		lerp = CLAMP(0, lerp, 1);
 	}
 
-	MD2_RenderModel(md->model, skin_tex, false,
+	MD2_RenderModel(md->model, skin_img, false,
 			        last_frame, mo->state->frame, lerp,
 					dthing->mx, dthing->my, z, mo, mo->props,
 					mo->info->model_scale, mo->info->model_aspect,

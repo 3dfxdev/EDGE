@@ -33,6 +33,7 @@
 #include "r_gldefs.h"
 #include "r_colormap.h"
 #include "r_effects.h"
+#include "r_image.h"
 #include "r_misc.h"
 #include "r_modes.h"
 #include "r_state.h"
@@ -811,7 +812,7 @@ static inline void ModelCoordFunc(model_coord_data_t *data,
 }
 
 
-void MD2_RenderModel(md2_model_c *md, GLuint skin_tex, bool is_weapon,
+void MD2_RenderModel(md2_model_c *md, const image_c *skin_img, bool is_weapon,
 		             int frame1, int frame2, float lerp,
 		             float x, float y, float z, mobj_t *mo,
 					 region_properties_t *props,
@@ -828,6 +829,7 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 I_Debugf("Render model: bad frame %d\n", frame1);
 		return;
 	}
+
 
 	model_coord_data_t data;
 
@@ -883,6 +885,8 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 	InitNormalColors(&data);
 
 
+	GLuint skin_tex = 0;
+
 	if (data.is_fuzzy)
 	{
 		skin_tex = fuzz_tex;
@@ -902,9 +906,11 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 		trans = 1.0f;
 		blending |= BL_Alpha;
 	}
-
-	if (! data.is_fuzzy)
+	else /* (! data.is_fuzzy) */
 	{
+		skin_tex = W_ImageCache(skin_img, false,
+			is_weapon ? NULL : mo->info->palremap);
+
 		abstract_shader_c *shader = R_GetColormapShader(props, mo->state->bright);
 
 		ShadeNormals(shader, &data);
@@ -978,10 +984,12 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 }
 
 
-void MD2_RenderModel_2D(md2_model_c *md, GLuint skin_tex, int frame,
+void MD2_RenderModel_2D(md2_model_c *md, const image_c *skin_img, int frame,
 		                float x, float y, float xscale, float yscale,
 		                const mobjtype_c *info)
 {
+	GLuint skin_tex = W_ImageCache(skin_img, false, info->palremap);
+
 	// check if frame is valid
 	if (frame < 0 || frame >= md->num_frames)
 		return;
