@@ -81,7 +81,7 @@ static void DrawDigit(float x, float y, const image_c *image,
 	RGL_DrawImage(FROM_320((X)-IM_OFFSETX(Image)), \
 	SCREENHEIGHT-FROM_200((Y)-IM_OFFSETY(Image)-FROM_200(IM_HEIGHT(Image)), \
 	FROM_320(IM_WIDTH(Image)), FROM_200(IM_HEIGHT(Image)),  \
-	(Image),0,0,IM_RIGHT(Image),IM_BOTTOM(Image),(Map),1.0f)
+	(Image),0,0,IM_RIGHT(Image),IM_TOP(Image),(Map),1.0f)
 */
 
 static void DrawNum(st_number_t * n)

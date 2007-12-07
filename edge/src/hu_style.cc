@@ -91,8 +91,8 @@ void style_c::DrawBackground(int x, int y, int w, int h, int align)
 		return;
 	}
 
-	float right  = IM_RIGHT(bg_image);
-	float bottom = IM_BOTTOM(bg_image);
+	float right = IM_RIGHT(bg_image);
+	float top   = IM_TOP(bg_image);
 
 	if (def->special & SYLSP_Tiled)
 	{
@@ -103,23 +103,23 @@ void style_c::DrawBackground(int x, int y, int w, int h, int align)
 		y_scale *= (float)SCREENHEIGHT / 200.0f;
 
 		RGL_DrawImage(x, y, w, h, bg_image,
-				0.0f, align ? (1.0f - bottom * h / IM_HEIGHT(bg_image) / y_scale) : 0.0f,
+				0.0f, align ? (1.0f - top * h / IM_HEIGHT(bg_image) / y_scale) : 0.0f,
 				right  * w / IM_WIDTH(bg_image)  / x_scale,
-				align ? 1.0f : (bottom * h / IM_HEIGHT(bg_image) / y_scale),
+				align ? 1.0f : (top * h / IM_HEIGHT(bg_image) / y_scale),
 				NULL, alpha);
 	}
 	else if (def->special & SYLSP_TiledNoScale)
 	{
 		RGL_DrawImage(x, y, w, h, bg_image,
-				0.0f, align ? (1.0f - bottom * h / IM_HEIGHT(bg_image)) : 0.0f,
+				0.0f, align ? (1.0f - top * h / IM_HEIGHT(bg_image)) : 0.0f,
 				right  * w / IM_WIDTH(bg_image),
-				align ? 1.0f : (bottom * h / IM_HEIGHT(bg_image)),
+				align ? 1.0f : (top * h / IM_HEIGHT(bg_image)),
 				NULL, alpha);
 	}
 	else
 	{
 		RGL_DrawImage(x, y, w, h, bg_image, 0.0f, 0.0f,
-					  right, bottom, NULL, alpha);
+					  right, top, NULL, alpha);
 	}
 }
 
