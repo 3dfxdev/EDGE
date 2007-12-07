@@ -231,9 +231,7 @@ static void LookupFinaleStuff(void)
 	}
 }
 
-//
-// F_StartFinale
-//
+
 void F_StartFinale(const map_finaledef_c *F, gameaction_e newaction)
 {
 	SYS_ASSERT(F);
@@ -264,6 +262,7 @@ void F_StartFinale(const map_finaledef_c *F, gameaction_e newaction)
 	DoStartFinale();
 }
 
+
 bool F_Responder(event_t * event)
 {
 	SYS_ASSERT(gamestate == GS_FINALE);
@@ -281,9 +280,7 @@ bool F_Responder(event_t * event)
 	return false;
 }
 
-//
-// F_Ticker
-//
+
 void F_Ticker(void)
 {
 	SYS_ASSERT(gamestate == GS_FINALE);
@@ -360,60 +357,57 @@ void F_Ticker(void)
 	}
 }
 
-//
-// TextWrite
-//
+
 static void TextWrite(void)
 {
-	int count;
-	const char *ch;
-	int c, cx, cy;
-	hu_textline_t L;
-
 	// 98-7-10 KM erase the entire screen to a tiled background
 	if (finale_textback)
 	{
 		RGL_DrawImage(0, 0, SCREENWIDTH, SCREENHEIGHT, finale_textback,
 				0.0f, 0.0f, IM_RIGHT(finale_textback) * finale_textbackscale,
-				IM_BOTTOM(finale_textback) * finale_textbackscale, NULL, 1.0f);
+				IM_TOP(finale_textback) * finale_textbackscale, NULL, 1.0f);
 	}
 	
 	// draw some of the text onto the screen
-	cx = 10;
-	cy = 10;
-	ch = finaletext;
+	int cx = 10;
+	int cy = 10;
 
-	count = (int) ((finalecount - 10) / finale->text_speed);
+	const char *ch = finaletext;
+
+	int count = (int) ((finalecount - 10) / finale->text_speed);
 	if (count < 0)
 		count = 0;
 
+	hu_textline_t L;
+
 	SYS_ASSERT(finale_hack_style);
-	HL_InitTextLine(&L, 10, cy, finale_hack_style, 0);
+
+	HL_InitTextLine(&L, cx, cy, finale_hack_style, 0);
 
 	for (;;)
 	{
 		SYS_ASSERT(finale);
 
-		if (count == 0 || !(*ch))
+		if (count == 0 || *ch == 0)
 		{
 			HL_DrawTextLineAlpha(&L, false, finale->text_colmap, 1.0f);
 			break;
 		}
 
-		c = *ch++;
-		count--;
+		int c = *ch++; count--;
 
 		if (c == '\n')
 		{
 			cy += 11;
 			HL_DrawTextLineAlpha(&L, false, finale->text_colmap, 1.0f);
-			HL_InitTextLine(&L, 10, cy, finale_hack_style, 0);
+			HL_InitTextLine(&L, cx, cy, finale_hack_style, 0);
 			continue;
 		}
 
 		HL_AddCharToTextLine(&L, c);
 	}
 }
+
 
 //
 // Final DOOM 2 animation
@@ -783,9 +777,7 @@ static void BunnyScroll(void)
 	RGL_ImageEasy320((320 - 13 * 8) / 2, (200 - 8 * 8) / 2, p1);
 }
 
-//
-// F_Drawer
-//
+
 void F_Drawer(void)
 {
 	SYS_ASSERT(gamestate == GS_FINALE);
