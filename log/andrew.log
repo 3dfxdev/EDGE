@@ -1,5 +1,18 @@
 Andrew Apted's Log
 
+2007/12/07:
+
+Fixed (UNTESTED) models with non-power-of-two skins.
+
+For sprites with a missing rotation, show the '?' dummy
+sprite instead of nothing at all.
+
+Worked on image system, having an 'opacity' field for each
+image which holds more information than the previous 'solid'
+boolean.  It distiguishes OPAC_Solid (alpha = 255 all over),
+OPAC_Masked (alpha = 0 or 255) and OPAC_Complex, plus the
+special value OPAC_Unknown used to trigger an opacity test.
+
 2007/12/04:
 
 Fixed JPEG loading, which was leaving a blank area at the
