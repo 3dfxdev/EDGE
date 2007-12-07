@@ -777,39 +777,29 @@ static int page_pic;
 static int pagetic;
 static const image_c *page_image = NULL;
 
-//
-// E_PageTicker
-//
-// Handles timing for warped projection
-//
+
 void E_PageTicker(void)
 {
 	if (pagetic > 0)
 	{
 		pagetic--;
+
 		if (pagetic == 0)
 			E_AdvanceTitle();
 	}
 }
 
-#define NOPAGE_COLOUR  0x303030
+#define NOPAGE_COLOUR  0x202020
 
-//
-// E_PageDrawer
-//
 void E_PageDrawer(void)
 {
 	if (page_image)
-		RGL_Image(0, 0, SCREENWIDTH, SCREENHEIGHT, page_image);
+		RGL_Image320(0, 0, 320, 200, page_image);
 	else
 		RGL_SolidBox(0, 0, SCREENWIDTH, SCREENHEIGHT, NOPAGE_COLOUR, 1);
 }
 
-//
-// E_AdvanceTitle
-//
-// Called after each demo or intro demosequence finishes
-//
+// called after each demo or intro demosequence finishes
 void E_AdvanceTitle(void)
 {
 	advance_title = true;
@@ -817,13 +807,16 @@ void E_AdvanceTitle(void)
 
 static void TitleNextPicture(void)
 {
+I_Debugf("TitleNextPicture: begun\n");
 	int count;
 	gamedef_c *g;
   
 	// prevent an infinite loop
 	for (count=0; count < 200; count++)
 	{
+I_Debugf("  page_map=%d  page_pic=%d\n", page_map, page_pic);
 		g = gamedefs[page_map];
+		SYS_ASSERT(g);
 
 		if (page_pic >= g->titlepics.GetSize())
 		{
@@ -857,6 +850,7 @@ static void TitleNextPicture(void)
 		page_pic += 1;
 		return;
 	}
+I_Debugf("TitleNextPicture: done\n");
 }
 
 //
@@ -865,11 +859,14 @@ static void TitleNextPicture(void)
 //
 static void E_DoAdvanceTitle(void)
 {
+I_Debugf("E_DoAdvanceTitle: begin\n");
 	advance_title = false;
 
 	if (gameaction != ga_nothing)
+{
+I_Debugf("E_DoAdvanceTitle: done (ga != nil)\n");
 		return;
-
+}
 	paused = false;
 
 #if 0  // DISABLED FOR NOW -- ONLY SHOW PICS
@@ -908,6 +905,7 @@ static void E_DoAdvanceTitle(void)
 			break;
 		}
 	}
+I_Debugf("E_DoAdvanceTitle: done\n");
 }
 
 //

@@ -96,14 +96,6 @@ void RGL_DrawImage(float x, float y, float w, float h, const image_c *image,
 	glDisable(GL_BLEND);
 }
 
-void RGL_Image(float x, float y, float w, float h, const image_c *image)
-{
-    RGL_DrawImage(
-			x - IM_OFFSETX(image),
-            SCREENHEIGHT - ((y)-IM_OFFSETY(image)) - (h),
-            w, h, image, 0, 0, IM_RIGHT(image),IM_TOP(image),
-			NULL, 1.0f);
-}
 
 void RGL_Image320(float x, float y, float w, float h, const image_c *image)
 {
