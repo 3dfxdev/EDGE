@@ -2,10 +2,14 @@ Andrew Apted's Log
 
 2007/12/08:
 
-More image system work, replacing all the ShrinkBlockRGB(A)
+More image system work: replacing all the ShrinkBlockRGB(A)
 functions in r_texgl.cc with the image_data_c::ShrinkMasked()
 method, plus a new function to convert from palettised mode
 to RGB(A) mode.
+
+Updated rendering for things, weapons, models, walls and
+planes (the UI also) to use the new Opacity field in image_c,
+setting up the AlphaFunc and Blending modes appropriately.
 
 2007/12/07:
 
