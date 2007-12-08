@@ -903,7 +903,8 @@ real_cached_image_t *LoadImageOGL(image_c *rim, const colourmap_c *trans)
 	rc->tex_id = R_UploadTexture(tmp_img,
 		(clamp  ? UPL_Clamp  : 0) |
 		(mip    ? UPL_MipMap : 0) |
-		(smooth ? UPL_Smooth : 0), max_pix);
+		(smooth ? UPL_Smooth : 0) |
+		((rim->opacity == OPAC_Masked) ? UPL_Thresh : 0), max_pix);
 
 	delete tmp_img;
 
