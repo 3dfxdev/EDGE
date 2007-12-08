@@ -298,7 +298,7 @@ void RGL_SoftInit(void)
 	glDisable(GL_LINE_SMOOTH);
 	glDisable(GL_POLYGON_SMOOTH);
 
-	if (use_dithering)
+	if (var_dithering)
 		glEnable(GL_DITHER);
 	else
 		glDisable(GL_DITHER);
