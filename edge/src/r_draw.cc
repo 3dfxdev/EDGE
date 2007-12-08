@@ -64,12 +64,19 @@ void RGL_DrawImage(float x, float y, float w, float h, const image_c *image,
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, tex_id);
  
-	if (alpha < 0.99f || image->opacity >= OPAC_Masked)
+	if (alpha >= 0.99f && image->opacity == OPAC_Solid)
+		glDisable(GL_ALPHA_TEST);
+	else
+	{
+		glEnable(GL_ALPHA_TEST);
+
+		if (! (alpha >= 0.11f || image->opacity == OPAC_Complex))
+			glAlphaFunc(GL_LESS, alpha - 0.033f);
+	}
+
+	if (image->opacity == OPAC_Complex || alpha < 0.99f)
 		glEnable(GL_BLEND);
 
-///  else if (!image->img_solid)
-///    glEnable(GL_ALPHA_TEST);
- 
 	if (textmap)
 		V_GetColmapRGB(textmap, &r, &g, &b, true);
 
@@ -94,6 +101,8 @@ void RGL_DrawImage(float x, float y, float w, float h, const image_c *image,
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_ALPHA_TEST);
 	glDisable(GL_BLEND);
+
+	glAlphaFunc(GL_GREATER, 0);
 }
 
 

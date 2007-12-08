@@ -150,7 +150,7 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 
 	trans *= psp->visibility;
 
-	if (trans < 0.04f)
+	if (trans <= 0)
 		return;
 
 
@@ -198,8 +198,6 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	y2t = (float)(SCREENHEIGHT - viewwindowy - viewwindowheight) + y2t - 1;
 	y2b = (float)(SCREENHEIGHT - viewwindowy - viewwindowheight) + y2b - 1;
 
-	int blending = BL_Alpha | BL_Masked;
-
 
 	psprite_coord_data_t data;
 
@@ -220,12 +218,21 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	data.lit_pos.z = player->mo->z + player->mo->height *
 		PERCENT_2_FLOAT(player->mo->info->shotheight);
 
-
 	data.col[0].Clear();
+
+
+	int blending = BL_Masked;
+
+	if (trans >= 0.11f && image->opacity != OPAC_Complex)
+		blending = BL_Less;
+
+	if (trans < 0.99 || image->opacity == OPAC_Complex)
+		blending |= BL_Alpha;
+
 
 	if (is_fuzzy)
 	{
-		blending |= BL_Alpha;
+		blending = BL_Masked | BL_Alpha;
 		trans = 1.0f;
 	}
 
@@ -1121,7 +1128,7 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 
 	float dx = 0, dy = 0;
 
-	if (trans < 0.04f)
+	if (trans <= 0)
 		return;
 
 
@@ -1186,15 +1193,6 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 	}
 
 
-	// Blended sprites, even if opaque (trans > 0.99), have nicer edges
-	int blending = BL_Masked;
-	if (trans <= 0.99) ////  || use_smoothing) //!!! FIXME FUCKED
-		blending |= BL_Alpha;
-
-	if (mo->hyperflags & HF_NOZBUFFER)
-		blending |= BL_NoZBuf;
-
-	
 	thing_coord_data_t data;
 
 	data.mo = mo;
@@ -1218,6 +1216,18 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 	data.col[3].Clear();
 
 
+	int blending = BL_Masked;
+
+	if (trans >= 0.11f && image->opacity != OPAC_Complex)
+		blending = BL_Less;
+
+	if (trans < 0.99 || image->opacity == OPAC_Complex)
+		blending |= BL_Alpha;
+
+	if (mo->hyperflags & HF_NOZBUFFER)
+		blending |= BL_NoZBuf;
+
+	
 	float  fuzz_mul = 0;
 	vec2_t fuzz_add;
 
@@ -1225,7 +1235,7 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 
 	if (is_fuzzy)
 	{
-		blending |= BL_Alpha | BL_Masked;
+		blending = BL_Masked | BL_Alpha;
 		trans = 1.0f;
 
 		float dist = P_ApproxDistance(mo->x - viewx, mo->y - viewy, mo->z - viewz);
