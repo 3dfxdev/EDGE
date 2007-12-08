@@ -211,10 +211,10 @@ public:
 
 // mipmapping enabled ?
 // 0 off, 1 bilinear, 2 trilinear
-int use_mipmapping = 1;
+int var_mipmapping = 1;
 
-bool use_smoothing = true;
-bool use_dithering = false;
+int var_smoothing = 1;
+bool var_dithering = false;
 
 
 // total set of images
@@ -701,59 +701,127 @@ const image_c ** W_ImageGetUserSprites(int *count)
 
 
 //----------------------------------------------------------------------------
-
 //
 //  IMAGE LOADING / UNLOADING
 //
 
+// TODO: make methods of image_c class
+static bool IM_ShouldClamp(const image_c *rim)
+{
+	switch (rim->source_type)
+	{
+		case IMSRC_Graphic:
+		case IMSRC_Raw320x200:
+		case IMSRC_Sprite:
+			return true;
+
+		case IMSRC_User:
+			switch (rim->source.user.def->belong)
+			{
+				case INS_Graphic:
+				case INS_Sprite:
+					return true;
+
+				default:
+					return false;
+			}
+
+		default:
+			return false;
+	}
+}
+
+static bool IM_ShouldMipmap(image_c *rim)
+{
+   	// the "SKY" check here is a hack...
+   	if (strnicmp(rim->name, "SKY", 3) == 0)
+		return false;
+
+	switch (rim->source_type)
+	{
+		case IMSRC_Texture:
+		case IMSRC_Flat:
+			return true;
+		
+		case IMSRC_User:
+			switch (rim->source.user.def->belong)
+			{
+				case INS_Texture:
+				case INS_Flat:
+					return true;
+
+				default:
+					return false;
+			}
+
+		default:
+			return false;
+	}
+}
+
+static bool IM_ShouldSmooth(image_c *rim)
+{
+   	// the "SKY" check here is a hack...
+   	if (strnicmp(rim->name, "SKY", 3) == 0)
+		return true;
+
+	// FIXME: different smooth levels
+	
+	return var_smoothing ? true : false;
+}
+
+static bool IM_ShouldHQ2X(image_c *rim)
+{
+	return false;  // FIXME !!!!!
+#if 0
+	(rim->source_type == IMSRC_Raw320x200 ||
+	 rim->source_type == IMSRC_Graphic ||
+	 (var_hq_all &&
+	  (rim->source_type == IMSRC_Sprite ||
+	   rim->source_type == IMSRC_Flat ||
+	   rim->source_type == IMSRC_Texture))))
+#endif
+}
+
+static int IM_PixelLimit(image_c *rim)
+{
+	if (IM_ShouldMipmap(rim))
+		return 65536 * (1 << (2 * detail_level));
+
+	return (1 << 24);
+}
+
+
 static
 real_cached_image_t *LoadImageOGL(image_c *rim, const colourmap_c *trans)
 {
-	static byte trans_pal[256 * 3];
-
-	bool clamp  = false;
-	bool mip    = true;
-	bool smooth = use_smoothing;
+	bool clamp  = IM_ShouldClamp(rim);
+	bool mip    = IM_ShouldMipmap(rim);
+	bool smooth = IM_ShouldSmooth(rim);
  
- 	int max_pix = 65536 * (1 << (2 * detail_level));
-
-	const byte *what_palette;
-	bool what_pal_cached = false;
-
-	if (rim->source_type == IMSRC_Graphic ||
-		rim->source_type == IMSRC_Raw320x200 ||
-		rim->source_type == IMSRC_Sprite)
-	{
-		clamp = true;
-	}
+ 	int max_pix = IM_PixelLimit(rim);
 
 	if (rim->source_type == IMSRC_User)
 	{
 		if (rim->source.user.def->special & IMGSP_Clamp)
 			clamp = true;
 
-		if (rim->source.user.def->special & IMGSP_NoMip)
+		if (rim->source.user.def->special & IMGSP_Mip)
+			mip = true;
+		else if (rim->source.user.def->special & IMGSP_NoMip)
 			mip = false;
 
 		if (rim->source.user.def->special & IMGSP_Smooth)
 			smooth = true;
+		else if (rim->source.user.def->special & IMGSP_NoSmooth)
+			smooth = false;
 	}
 
-   	// the "SKY" check here is a hack...
-   	if (strnicmp(rim->name, "SKY", 3) == 0)
-	{
-		smooth = true;
-		mip    = false;
 
-		max_pix *= 4;  // kludgy
-	}
-	else if (rim->source_type == IMSRC_Graphic ||
-		     rim->source_type == IMSRC_Raw320x200 ||
-			 (rim->source_type == IMSRC_User &&
-		      rim->source.user.def->belong == INS_Graphic))
-	{
-		max_pix *= 4;  // fix for title screens
-	}
+	const byte *what_palette;
+	bool what_pal_cached = false;
+
+	static byte trans_pal[256 * 3];
 
 	if (trans != NULL)
 	{
@@ -801,13 +869,7 @@ real_cached_image_t *LoadImageOGL(image_c *rim, const colourmap_c *trans)
 	if (rim->opacity == OPAC_Unknown)
 		rim->opacity = R_DetermineOpacity(tmp_img);
 
-	if (var_hq_scale && (tmp_img->bpp == 1) &&
-		(rim->source_type == IMSRC_Raw320x200 ||
-		 rim->source_type == IMSRC_Graphic ||
-		 (var_hq_all &&
-		  (rim->source_type == IMSRC_Sprite ||
-		   rim->source_type == IMSRC_Flat ||
-		   rim->source_type == IMSRC_Texture))))
+	if (var_hq_scale && (tmp_img->bpp == 1) && IM_ShouldHQ2X(rim))
 	{
 		bool solid = (rim->opacity == OPAC_Solid);
 
@@ -1457,15 +1519,19 @@ bool W_InitImages(void)
 	dummies.Clear();
 
     // check options
-	M_CheckBooleanParm("smoothing", &use_smoothing, false);
-	M_CheckBooleanParm("dither", &use_dithering, false);
+	if (M_CheckParm("-nosmoothing"))
+		var_smoothing = 0;
+	else if (M_CheckParm("-smoothing"))
+		var_smoothing = 1;
 
 	if (M_CheckParm("-nomipmap"))
-		use_mipmapping = 0;
+		var_mipmapping = 0;
 	else if (M_CheckParm("-mipmap"))
-		use_mipmapping = 1;
+		var_mipmapping = 1;
 	else if (M_CheckParm("-trilinear"))
-		use_mipmapping = 2;
+		var_mipmapping = 2;
+
+	M_CheckBooleanParm("dither", &var_dithering, false);
 
 	W_CreateDummyImages();
 
