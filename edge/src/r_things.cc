@@ -1188,7 +1188,7 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 
 	// Blended sprites, even if opaque (trans > 0.99), have nicer edges
 	int blending = BL_Masked;
-	if (trans <= 0.99 || use_smoothing)
+	if (trans <= 0.99) ////  || use_smoothing) //!!! FIXME FUCKED
 		blending |= BL_Alpha;
 
 	if (mo->hyperflags & HF_NOZBUFFER)

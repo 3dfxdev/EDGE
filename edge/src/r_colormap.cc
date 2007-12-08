@@ -690,7 +690,7 @@ GLuint MakeColormapTexture( int mode )
 		}
 	}
 
-	return R_UploadTexture(&img, NULL, UPL_Smooth|UPL_Clamp);
+	return R_UploadTexture(&img, UPL_Smooth|UPL_Clamp);
 }
 
 
