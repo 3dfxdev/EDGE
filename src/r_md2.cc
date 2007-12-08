@@ -837,23 +837,33 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 
 	model_coord_data_t data;
 
-
 	data.is_fuzzy = (mo->flags & MF_FUZZY) ? true : false;
 
 	float trans = mo->visibility;
 
-	// FIXME !!!! need to know if image contains alpha
+	if (trans <= 0)
+		return;
 
-	int blending = BL_CullBack | (trans <= 0.99 ? BL_Alpha : 0);
+
+	int blending;
+
+	if (trans >= 0.99f && skin_img->opacity == OPAC_Solid)
+		blending = BL_NONE;
+	else if (trans < 0.11f || skin_img->opacity == OPAC_Complex)
+		blending = BL_Masked;
+	else
+		blending = BL_Less;
+
+	if (trans < 0.99f || skin_img->opacity == OPAC_Complex)
+		blending |= BL_Alpha;
 
 	if (mo->hyperflags & HF_NOZBUFFER)
 		blending |= BL_NoZBuf;
 
 	if (num_active_mirrors % 2)
-	{
-		blending &= ~BL_CullBack;
-		blending |=  BL_CullFront;
-	}
+		blending |= BL_CullFront;
+	else
+		blending |= BL_CullBack;
 
 
 	data.mo = mo;
@@ -911,7 +921,9 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 		FUZZ_Adjust(&data.fuzz_add, mo);
 
 		trans = 1.0f;
-		blending |= BL_Alpha;
+
+		blending |=  BL_Alpha | BL_Masked;
+		blending &= ~BL_Less;
 	}
 	else /* (! data.is_fuzzy) */
 	{
