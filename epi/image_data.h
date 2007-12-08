@@ -85,8 +85,14 @@ public:
 	// shrink an image to a smaller image.
 	// The old size and the new size must be powers of two.
 	// For RGB(A) images the pixel values are averaged.
-	//
-	// NOTE: Palettised images are not supported.
+	// Palettised images are not averaged, instead the bottom
+	// left pixel in each group becomes the final pixel.
+
+	void ShrinkMasked(int new_w, int new_h);
+	// like Shrink(), but for RGBA images the source alpha is
+	// used as a weighting factor for the shrunken color, hence
+	// purely transparent pixels never affect the final color
+	// of a pixel group.
 
 	void Grow(int new_w, int new_h);
 	// scale the image up to a larger size.
@@ -96,6 +102,10 @@ public:
 	// convert an RGBA image to RGB.  Partially transparent colors
 	// (alpha < 255) are blended with black.
 	
+	void ThresholdAlpha(u8_t alpha = 128);
+	// test each alpha value in the RGBA image against the threshold:
+	// lesser values become 0, and greater-or-equal values become 255.
+
 	void FourWaySymmetry();
 	// mirror the already-drawn corner (lowest x/y values) into the
 	// other three corners.  When width or height is odd, the middle
