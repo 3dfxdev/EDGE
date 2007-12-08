@@ -38,13 +38,7 @@
 #include "w_wad.h"
 
 
-#define PIXEL_RED(pix)  (what_palette[pix*3 + 0])
-#define PIXEL_GRN(pix)  (what_palette[pix*3 + 1])
-#define PIXEL_BLU(pix)  (what_palette[pix*3 + 2])
-
-#define GAMMA_RED(pix)  GAMMA_CONV(PIXEL_RED(pix))
-#define GAMMA_GRN(pix)  GAMMA_CONV(PIXEL_GRN(pix))
-#define GAMMA_BLU(pix)  GAMMA_CONV(PIXEL_BLU(pix))
+int alpha_mip_thresh = 1;
 
 
 int W_MakeValidSize(int value)
@@ -70,7 +64,7 @@ int W_MakeValidSize(int value)
 }
 
 
-epi::image_data_c *R_PalettisedToRGB(const epi::image_data_c *src,
+epi::image_data_c *R_PalettisedToRGB(epi::image_data_c *src,
 									 const byte *palette, int opacity)
 {
 	int bpp = (opacity == OPAC_Solid) ? 3 : 4;
@@ -80,8 +74,8 @@ epi::image_data_c *R_PalettisedToRGB(const epi::image_data_c *src,
 	dest->used_w = src->used_w;
 	dest->used_h = src->used_h;
 
-	for (y=0; y < src->height; y++)
-	for (x=0; x < src->width;  x++)
+	for (int y=0; y < src->height; y++)
+	for (int x=0; x < src->width;  x++)
 	{
 		byte src_pix = src->PixelAt(x, y)[0];
 
@@ -96,9 +90,9 @@ epi::image_data_c *R_PalettisedToRGB(const epi::image_data_c *src,
 		}
 		else
 		{
-			dest_pix[0] = PIXEL_RED(src_pix);
-			dest_pix[1] = PIXEL_GRN(src_pix);
-			dest_pix[2] = PIXEL_BLU(src_pix);
+			dest_pix[0] = palette[src_pix*3 + 0];
+			dest_pix[1] = palette[src_pix*3 + 1];
+			dest_pix[2] = palette[src_pix*3 + 2];
 
 			if (bpp == 4)
 				dest_pix[3] = 255;
@@ -109,278 +103,268 @@ epi::image_data_c *R_PalettisedToRGB(const epi::image_data_c *src,
 }
 
 
-// use a common buffer for image shrink operations, saving the
-// overhead of allocating a new buffer for every image.
-static byte *img_shrink_buffer;
-static int img_shrink_buf_size;
+///---// use a common buffer for image shrink operations, saving the
+///---// overhead of allocating a new buffer for every image.
+///---static byte *img_shrink_buffer;
+///---static int img_shrink_buf_size;
+///---
+///---
+///---static byte *ShrinkGetBuffer(int required)
+///---{
+///---	if (img_shrink_buffer && img_shrink_buf_size >= required)
+///---		return img_shrink_buffer;
+///---	
+///---	if (img_shrink_buffer)
+///---		delete[] img_shrink_buffer;
+///---	
+///---	img_shrink_buffer   = new byte[required];
+///---	img_shrink_buf_size = required;
+///---
+///---	return img_shrink_buffer;
+///---}
+///---
+///---//
+///---// ShrinkBlockRGBA
+///---//
+///---// Just like ShrinkBlock() above, but the returned format is RGBA.
+///---// Source format is column-major (i.e. normal block), whereas result
+///---// is row-major (ano note that GL textures are _bottom up_ rather than
+///---// the usual top-down ordering).  The new size should be scaled down
+///---// to fit into glmax_tex_size.
+///---//
+///---static byte *ShrinkBlockRGBA(byte *src, int total_w, int total_h,
+///---							 int new_w, int new_h, const byte *what_palette)
+///---{
+///---	byte *dest;
+///--- 
+///---	int x, y, dx, dy;
+///---	int step_x, step_y;
+///---
+///---	SYS_ASSERT(new_w > 0);
+///---	SYS_ASSERT(new_h > 0);
+///---	SYS_ASSERT(new_w <= glmax_tex_size);
+///---	SYS_ASSERT(new_h <= glmax_tex_size);
+///---	SYS_ASSERT((total_w % new_w) == 0);
+///---	SYS_ASSERT((total_h % new_h) == 0);
+///---
+///---	dest = ShrinkGetBuffer(new_w * new_h * 4);
+///---
+///---	step_x = total_w / new_w;
+///---	step_y = total_h / new_h;
+///---
+///---	// faster method for the usual case (no shrinkage)
+///---
+///---	if (step_x == 1 && step_y == 1)
+///---	{
+///---		for (y=0; y < total_h; y++)
+///---		for (x=0; x < total_w; x++)
+///---		{
+///---			byte src_pix = src[y * total_w + x];
+///---			byte *dest_pix = dest + (((y) * total_w + x) * 4);
+///---
+///---			if (src_pix == TRANS_PIXEL)
+///---			{
+///---				dest_pix[0] = dest_pix[1] = dest_pix[2] = dest_pix[3] = 0;
+///---			}
+///---			else
+///---			{
+///---				dest_pix[0] = GAMMA_RED(src_pix);
+///---				dest_pix[1] = GAMMA_GRN(src_pix);
+///---				dest_pix[2] = GAMMA_BLU(src_pix);
+///---				dest_pix[3] = 255;
+///---			}
+///---		}
+///---		return dest;
+///---	}
+///---
+///---	// slower method, as we must shrink the bugger...
+///---
+///---	for (y=0; y < new_h; y++)
+///---	for (x=0; x < new_w; x++)
+///---	{
+///---		byte *dest_pix = dest + (((y) * new_w + x) * 4);
+///---
+///---		int px = x * step_x;
+///---		int py = y * step_y;
+///---
+///---		int tot_r=0, tot_g=0, tot_b=0, a_count=0, alpha;
+///---		int total = step_x * step_y;
+///---
+///---		// compute average colour of block
+///---		for (dx=0; dx < step_x; dx++)
+///---		for (dy=0; dy < step_y; dy++)
+///---		{
+///---			byte src_pix = src[(py+dy) * total_w + (px+dx)];
+///---
+///---			if (src_pix == TRANS_PIXEL)
+///---				a_count++;
+///---			else
+///---			{
+///---				tot_r += GAMMA_RED(src_pix);
+///---				tot_g += GAMMA_GRN(src_pix);
+///---				tot_b += GAMMA_BLU(src_pix);
+///---			}
+///---		}
+///---
+///---		if (a_count >= total)
+///---		{
+///---			// all pixels were translucent.  Keep r/g/b as zero.
+///---			alpha = 0;
+///---		}
+///---		else
+///---		{
+///---			alpha = (total - a_count) * 255 / total;
+///---
+///---			total -= a_count;
+///---
+///---			tot_r /= total;
+///---			tot_g /= total;
+///---			tot_b /= total;
+///---		}
+///---
+///---		dest_pix[0] = tot_r;
+///---		dest_pix[1] = tot_g;
+///---		dest_pix[2] = tot_b;
+///---		dest_pix[3] = alpha;
+///---	}
+///---
+///---	return dest;
+///---}
+///---
+///---static byte *ShrinkNormalRGB(byte *rgb, int total_w, int total_h,
+///---							  int new_w, int new_h)
+///---{
+///---	byte *dest;
+///--- 
+///---	int i, x, y, dx, dy;
+///---	int step_x, step_y;
+///---
+///---	SYS_ASSERT(new_w > 0);
+///---	SYS_ASSERT(new_h > 0);
+///---	SYS_ASSERT(new_w <= glmax_tex_size);
+///---	SYS_ASSERT(new_h <= glmax_tex_size);
+///---	SYS_ASSERT((total_w % new_w) == 0);
+///---	SYS_ASSERT((total_h % new_h) == 0);
+///---
+///---	dest = ShrinkGetBuffer(new_w * new_h * 3);
+///---
+///---	step_x = total_w / new_w;
+///---	step_y = total_h / new_h;
+///---
+///---	// faster method for the usual case (no shrinkage)
+///---
+///---	if (step_x == 1 && step_y == 1)
+///---	{
+///---		for (y=0; y < total_h; y++)
+///---		for (x=0; x < total_w; x++)
+///---		{
+///---			for (i=0; i < 3; i++)
+///---				dest[(y * total_w + x) * 3 + i] = GAMMA_CONV(
+///---					rgb[(y * total_w + x) * 3 + i]);
+///---		}
+///---		return dest;
+///---	}
+///---
+///---	// slower method, as we must shrink the bugger...
+///---
+///---	for (y=0; y < new_h; y++)
+///---	for (x=0; x < new_w; x++)
+///---	{
+///---		byte *dest_pix = dest + ((y * new_w + x) * 3);
+///---
+///---		int px = x * step_x;
+///---		int py = y * step_y;
+///---
+///---		int tot_r=0, tot_g=0, tot_b=0;
+///---		int total = step_x * step_y;
+///---
+///---		// compute average colour of block
+///---		for (dx=0; dx < step_x; dx++)
+///---		for (dy=0; dy < step_y; dy++)
+///---		{
+///---			byte *src_pix = rgb + (((py+dy) * total_w + (px+dx)) * 3);
+///---
+///---			tot_r += GAMMA_CONV(src_pix[0]);
+///---			tot_g += GAMMA_CONV(src_pix[1]);
+///---			tot_b += GAMMA_CONV(src_pix[2]);
+///---		}
+///---
+///---		dest_pix[0] = tot_r / total;
+///---		dest_pix[1] = tot_g / total;
+///---		dest_pix[2] = tot_b / total;
+///---	}
+///---
+///---	return dest;
+///---}
+///---
+///---static byte *ShrinkNormalRGBA(byte *rgba, int total_w, int total_h,
+///---							  int new_w, int new_h)
+///---{
+///---	byte *dest;
+///--- 
+///---	int i, x, y, dx, dy;
+///---	int step_x, step_y;
+///---
+///---	SYS_ASSERT(new_w > 0);
+///---	SYS_ASSERT(new_h > 0);
+///---	SYS_ASSERT(new_w <= glmax_tex_size);
+///---	SYS_ASSERT(new_h <= glmax_tex_size);
+///---	SYS_ASSERT((total_w % new_w) == 0);
+///---	SYS_ASSERT((total_h % new_h) == 0);
+///---
+///---	dest = ShrinkGetBuffer(new_w * new_h * 4);
+///---
+///---	step_x = total_w / new_w;
+///---	step_y = total_h / new_h;
+///---
+///---	// faster method for the usual case (no shrinkage)
+///---
+///---	if (step_x == 1 && step_y == 1)
+///---	{
+///---		for (y=0; y < total_h; y++)
+///---		for (x=0; x < total_w; x++)
+///---		{
+///---			for (i=0; i < 4; i++)
+///---				dest[(y * total_w + x) * 4 + i] = GAMMA_CONV(
+///---					rgba[(y * total_w + x) * 4 + i]);
+///---		}
+///---		return dest;
+///---	}
+///---
+///---	// slower method, as we must shrink the bugger...
+///---
+///---	for (y=0; y < new_h; y++)
+///---	for (x=0; x < new_w; x++)
+///---	{
+///---		byte *dest_pix = dest + ((y * new_w + x) * 4);
+///---
+///---		int px = x * step_x;
+///---		int py = y * step_y;
+///---
+///---		int tot_r=0, tot_g=0, tot_b=0, tot_a=0;
+///---		int total = step_x * step_y;
+///---
+///---		// compute average colour of block
+///---		for (dx=0; dx < step_x; dx++)
+///---		for (dy=0; dy < step_y; dy++)
+///---		{
+///---			byte *src_pix = rgba + (((py+dy) * total_w + (px+dx)) * 4);
+///---
+///---			tot_r += GAMMA_CONV(src_pix[0]);
+///---			tot_g += GAMMA_CONV(src_pix[1]);
+///---			tot_b += GAMMA_CONV(src_pix[2]);
+///---			tot_a += GAMMA_CONV(src_pix[3]);
+///---		}
+///---
+///---		dest_pix[0] = tot_r / total;
+///---		dest_pix[1] = tot_g / total;
+///---		dest_pix[2] = tot_b / total;
+///---		dest_pix[3] = tot_a / total;
+///---	}
+///---
+///---	return dest;
+///---}
 
-
-static byte *ShrinkGetBuffer(int required)
-{
-	if (img_shrink_buffer && img_shrink_buf_size >= required)
-		return img_shrink_buffer;
-	
-	if (img_shrink_buffer)
-		delete[] img_shrink_buffer;
-	
-	img_shrink_buffer   = new byte[required];
-	img_shrink_buf_size = required;
-
-	return img_shrink_buffer;
-}
-
-//
-// ShrinkBlockRGBA
-//
-// Just like ShrinkBlock() above, but the returned format is RGBA.
-// Source format is column-major (i.e. normal block), whereas result
-// is row-major (ano note that GL textures are _bottom up_ rather than
-// the usual top-down ordering).  The new size should be scaled down
-// to fit into glmax_tex_size.
-//
-static byte *ShrinkBlockRGBA(byte *src, int total_w, int total_h,
-							 int new_w, int new_h, const byte *what_palette)
-{
-	byte *dest;
- 
-	int x, y, dx, dy;
-	int step_x, step_y;
-
-	SYS_ASSERT(new_w > 0);
-	SYS_ASSERT(new_h > 0);
-	SYS_ASSERT(new_w <= glmax_tex_size);
-	SYS_ASSERT(new_h <= glmax_tex_size);
-	SYS_ASSERT((total_w % new_w) == 0);
-	SYS_ASSERT((total_h % new_h) == 0);
-
-	dest = ShrinkGetBuffer(new_w * new_h * 4);
-
-	step_x = total_w / new_w;
-	step_y = total_h / new_h;
-
-	// faster method for the usual case (no shrinkage)
-
-	if (step_x == 1 && step_y == 1)
-	{
-		for (y=0; y < total_h; y++)
-		for (x=0; x < total_w; x++)
-		{
-			byte src_pix = src[y * total_w + x];
-			byte *dest_pix = dest + (((y) * total_w + x) * 4);
-
-			if (src_pix == TRANS_PIXEL)
-			{
-				dest_pix[0] = dest_pix[1] = dest_pix[2] = dest_pix[3] = 0;
-			}
-			else
-			{
-				dest_pix[0] = GAMMA_RED(src_pix);
-				dest_pix[1] = GAMMA_GRN(src_pix);
-				dest_pix[2] = GAMMA_BLU(src_pix);
-				dest_pix[3] = 255;
-			}
-		}
-		return dest;
-	}
-
-	// slower method, as we must shrink the bugger...
-
-	for (y=0; y < new_h; y++)
-	for (x=0; x < new_w; x++)
-	{
-		byte *dest_pix = dest + (((y) * new_w + x) * 4);
-
-		int px = x * step_x;
-		int py = y * step_y;
-
-		int tot_r=0, tot_g=0, tot_b=0, a_count=0, alpha;
-		int total = step_x * step_y;
-
-		// compute average colour of block
-		for (dx=0; dx < step_x; dx++)
-		for (dy=0; dy < step_y; dy++)
-		{
-			byte src_pix = src[(py+dy) * total_w + (px+dx)];
-
-			if (src_pix == TRANS_PIXEL)
-				a_count++;
-			else
-			{
-				tot_r += GAMMA_RED(src_pix);
-				tot_g += GAMMA_GRN(src_pix);
-				tot_b += GAMMA_BLU(src_pix);
-			}
-		}
-
-		if (a_count >= total)
-		{
-			// all pixels were translucent.  Keep r/g/b as zero.
-			alpha = 0;
-		}
-		else
-		{
-			alpha = (total - a_count) * 255 / total;
-
-			total -= a_count;
-
-			tot_r /= total;
-			tot_g /= total;
-			tot_b /= total;
-		}
-
-		dest_pix[0] = tot_r;
-		dest_pix[1] = tot_g;
-		dest_pix[2] = tot_b;
-		dest_pix[3] = alpha;
-	}
-
-	return dest;
-}
-
-static byte *ShrinkNormalRGB(byte *rgb, int total_w, int total_h,
-							  int new_w, int new_h)
-{
-	byte *dest;
- 
-	int i, x, y, dx, dy;
-	int step_x, step_y;
-
-	SYS_ASSERT(new_w > 0);
-	SYS_ASSERT(new_h > 0);
-	SYS_ASSERT(new_w <= glmax_tex_size);
-	SYS_ASSERT(new_h <= glmax_tex_size);
-	SYS_ASSERT((total_w % new_w) == 0);
-	SYS_ASSERT((total_h % new_h) == 0);
-
-	dest = ShrinkGetBuffer(new_w * new_h * 3);
-
-	step_x = total_w / new_w;
-	step_y = total_h / new_h;
-
-	// faster method for the usual case (no shrinkage)
-
-	if (step_x == 1 && step_y == 1)
-	{
-		for (y=0; y < total_h; y++)
-		for (x=0; x < total_w; x++)
-		{
-			for (i=0; i < 3; i++)
-				dest[(y * total_w + x) * 3 + i] = GAMMA_CONV(
-					rgb[(y * total_w + x) * 3 + i]);
-		}
-		return dest;
-	}
-
-	// slower method, as we must shrink the bugger...
-
-	for (y=0; y < new_h; y++)
-	for (x=0; x < new_w; x++)
-	{
-		byte *dest_pix = dest + ((y * new_w + x) * 3);
-
-		int px = x * step_x;
-		int py = y * step_y;
-
-		int tot_r=0, tot_g=0, tot_b=0;
-		int total = step_x * step_y;
-
-		// compute average colour of block
-		for (dx=0; dx < step_x; dx++)
-		for (dy=0; dy < step_y; dy++)
-		{
-			byte *src_pix = rgb + (((py+dy) * total_w + (px+dx)) * 3);
-
-			tot_r += GAMMA_CONV(src_pix[0]);
-			tot_g += GAMMA_CONV(src_pix[1]);
-			tot_b += GAMMA_CONV(src_pix[2]);
-		}
-
-		dest_pix[0] = tot_r / total;
-		dest_pix[1] = tot_g / total;
-		dest_pix[2] = tot_b / total;
-	}
-
-	return dest;
-}
-
-static byte *ShrinkNormalRGBA(byte *rgba, int total_w, int total_h,
-							  int new_w, int new_h)
-{
-	byte *dest;
- 
-	int i, x, y, dx, dy;
-	int step_x, step_y;
-
-	SYS_ASSERT(new_w > 0);
-	SYS_ASSERT(new_h > 0);
-	SYS_ASSERT(new_w <= glmax_tex_size);
-	SYS_ASSERT(new_h <= glmax_tex_size);
-	SYS_ASSERT((total_w % new_w) == 0);
-	SYS_ASSERT((total_h % new_h) == 0);
-
-	dest = ShrinkGetBuffer(new_w * new_h * 4);
-
-	step_x = total_w / new_w;
-	step_y = total_h / new_h;
-
-	// faster method for the usual case (no shrinkage)
-
-	if (step_x == 1 && step_y == 1)
-	{
-		for (y=0; y < total_h; y++)
-		for (x=0; x < total_w; x++)
-		{
-			for (i=0; i < 4; i++)
-				dest[(y * total_w + x) * 4 + i] = GAMMA_CONV(
-					rgba[(y * total_w + x) * 4 + i]);
-		}
-		return dest;
-	}
-
-	// slower method, as we must shrink the bugger...
-
-	for (y=0; y < new_h; y++)
-	for (x=0; x < new_w; x++)
-	{
-		byte *dest_pix = dest + ((y * new_w + x) * 4);
-
-		int px = x * step_x;
-		int py = y * step_y;
-
-		int tot_r=0, tot_g=0, tot_b=0, tot_a=0;
-		int total = step_x * step_y;
-
-		// compute average colour of block
-		for (dx=0; dx < step_x; dx++)
-		for (dy=0; dy < step_y; dy++)
-		{
-			byte *src_pix = rgba + (((py+dy) * total_w + (px+dx)) * 4);
-
-			tot_r += GAMMA_CONV(src_pix[0]);
-			tot_g += GAMMA_CONV(src_pix[1]);
-			tot_b += GAMMA_CONV(src_pix[2]);
-			tot_a += GAMMA_CONV(src_pix[3]);
-		}
-
-		dest_pix[0] = tot_r / total;
-		dest_pix[1] = tot_g / total;
-		dest_pix[2] = tot_b / total;
-		dest_pix[3] = tot_a / total;
-	}
-
-	return dest;
-}
-
-static GLuint minif_modes[2*3] =
-{
-	GL_NEAREST,
-	GL_NEAREST_MIPMAP_NEAREST,
-	GL_NEAREST_MIPMAP_LINEAR,
-  
-	GL_LINEAR,
-	GL_LINEAR_MIPMAP_NEAREST,
-	GL_LINEAR_MIPMAP_LINEAR
-};
 
 
 
@@ -436,41 +420,60 @@ GLuint R_UploadTexture(epi::image_data_c *img, int flags, int max_pix)
 					smooth ? GL_LINEAR : GL_NEAREST);
 
 	// minification mode
-	use_mipmapping = MIN(2, MAX(0, use_mipmapping));
+	var_mipmapping = MIN(2, MAX(0, var_mipmapping));
+
+	static GLuint minif_modes[2*3] =
+	{
+		GL_NEAREST,
+		GL_NEAREST_MIPMAP_NEAREST,
+		GL_NEAREST_MIPMAP_LINEAR,
+	  
+		GL_LINEAR,
+		GL_LINEAR_MIPMAP_NEAREST,
+		GL_LINEAR_MIPMAP_LINEAR
+	};
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, 
 					minif_modes[(smooth ? 3 : 0) +
-							   (nomip ? 0 : use_mipmapping)]);
+							   (nomip ? 0 : var_mipmapping)]);
 
 	for (int mip=0; ; mip++)
 	{
-		byte *rgba_src = 0;
-
-		switch (img->bpp)
+		if (img->width != new_w || img->height != new_h)
 		{
-			case 1:
-				rgba_src = ShrinkBlockRGBA(img->pixels, total_w, total_h,
-					new_w, new_h, palette);
-				break;
+			img->ShrinkMasked(new_w, new_h);
 
-			case 3:
-				rgba_src = ShrinkNormalRGB(img->pixels, total_w, total_h, new_w, new_h);
-				break;
-    
-			case 4:
-				rgba_src = ShrinkNormalRGBA(img->pixels, total_w, total_h, new_w, new_h);
-				break;
+			if (flags & UPL_Thresh)
+				img->ThresholdAlpha(alpha_mip_thresh);
 		}
 
-		SYS_ASSERT(rgba_src);
+///---		byte *rgba_src = 0;
+///---
+///---		switch (img->bpp)
+///---		{
+///---			case 1:
+///---				rgba_src = ShrinkBlockRGBA(img->pixels, total_w, total_h,
+///---					new_w, new_h, palette);
+///---				break;
+///---
+///---			case 3:
+///---				rgba_src = ShrinkNormalRGB(img->pixels, total_w, total_h, new_w, new_h);
+///---				break;
+///---    
+///---			case 4:
+///---				rgba_src = ShrinkNormalRGBA(img->pixels, total_w, total_h, new_w, new_h);
+///---				break;
+///---		}
+///---
+///---		SYS_ASSERT(rgba_src);
     
 		glTexImage2D(GL_TEXTURE_2D, mip, (img->bpp == 3) ? GL_RGB : GL_RGBA,
 					 new_w, new_h, 0 /* border */,
 					 (img->bpp == 3) ? GL_RGB : GL_RGBA,
-					 GL_UNSIGNED_BYTE, rgba_src);
+					 GL_UNSIGNED_BYTE, img->PixelAt(0,0));
 
 		// stop if mipmapping disabled or we have reached the end
-		if (nomip || !use_mipmapping || (new_w == 1 && new_h == 1))
+		if (nomip || !var_mipmapping || (new_w == 1 && new_h == 1))
 			break;
 
 		new_w = MAX(1, new_w / 2);
