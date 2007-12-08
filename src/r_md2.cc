@@ -999,11 +999,11 @@ void MD2_RenderModel_2D(md2_model_c *md, const image_c *skin_img, int frame,
 		                float x, float y, float xscale, float yscale,
 		                const mobjtype_c *info)
 {
-	GLuint skin_tex = W_ImageCache(skin_img, false, info->palremap);
-
 	// check if frame is valid
 	if (frame < 0 || frame >= md->num_frames)
 		return;
+
+	GLuint skin_tex = W_ImageCache(skin_img, false, info->palremap);
 
 	float im_right = IM_RIGHT(skin_img);
 	float im_top   = IM_TOP(skin_img);

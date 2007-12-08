@@ -64,7 +64,7 @@ void RGL_DrawImage(float x, float y, float w, float h, const image_c *image,
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, tex_id);
  
-	if (alpha < 0.99f || !image->img_solid)
+	if (alpha < 0.99f || image->opacity >= OPAC_Masked)
 		glEnable(GL_BLEND);
 
 ///  else if (!image->img_solid)
