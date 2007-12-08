@@ -19,21 +19,23 @@ SUMMARY
 - Improved way of emulating DOOM light fading
 - More robust emulation of flat-flooding trick
 - TGA (targa) image format supported
+- Flat alignment and scaling line-types
 
 * Weak spots for monsters
 * New BECOME() action for changing type
 * Armor properties can be modified
 * Weapons can share a clip for both attacks
-* Flat alignment and scaling line-types
 
 
 KNOWN PROBLEMS
 --------------
 
+- sound still does not work under Vista.
 - colormapped sectors (e.g. blue water) don't work yet.
+- monsters with models seem to move very jerkily.
 - console background is a bit messed up.
+- additive dyn-lights on mid-masked textures look weird.
 - new DOOM lighting emulation is not as smooth as before.
-- additive dyn-lights on mid-masked textures is not right.
 - things that use BECOME can get stuck if new RADIUS is bigger.
 
 
@@ -102,8 +104,8 @@ General improvements
 
 - better gamma handling (now done by the video driver).
 - more robust emulation of the flat-flooding trick.
+- thin sliding doors can be activated remotely.
 - better way to gauge the player's actual speed.
-- sliding doors can be activated remotely.
 - sped up turning for path-following monsters.
 - new -fullbright option for debugging.
 - console key is configurable.
