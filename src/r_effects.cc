@@ -262,7 +262,7 @@ static void FUZZ_MakeTexture(void)
 
 	W_DoneWithLump(fuzz);
 	
-	fuzz_tex = R_UploadTexture(&img, NULL, UPL_NONE);
+	fuzz_tex = R_UploadTexture(&img);
 }
 
 void FUZZ_Update(void)

@@ -100,7 +100,7 @@ static void CaptureScreenAsTexture(bool speckly, bool spooky)
 		}
 	}
 
-	cur_wipe_tex = R_UploadTexture(&img, NULL, UPL_NONE);
+	cur_wipe_tex = R_UploadTexture(&img);
 }
 
 static void RGL_Init_Melt(void)
