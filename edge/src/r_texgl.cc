@@ -124,76 +124,76 @@ static byte *ShrinkBlockRGBA(byte *src, int total_w, int total_h,
 	if (step_x == 1 && step_y == 1)
 	{
 		for (y=0; y < total_h; y++)
-			for (x=0; x < total_w; x++)
-			{
-				byte src_pix = src[y * total_w + x];
-				byte *dest_pix = dest + (((y) * total_w + x) * 4);
+		for (x=0; x < total_w; x++)
+		{
+			byte src_pix = src[y * total_w + x];
+			byte *dest_pix = dest + (((y) * total_w + x) * 4);
 
-				if (src_pix == TRANS_PIXEL)
-				{
-					dest_pix[0] = dest_pix[1] = dest_pix[2] = dest_pix[3] = 0;
-				}
-				else
-				{
-					dest_pix[0] = GAMMA_RED(src_pix);
-					dest_pix[1] = GAMMA_GRN(src_pix);
-					dest_pix[2] = GAMMA_BLU(src_pix);
-					dest_pix[3] = 255;
-				}
+			if (src_pix == TRANS_PIXEL)
+			{
+				dest_pix[0] = dest_pix[1] = dest_pix[2] = dest_pix[3] = 0;
 			}
+			else
+			{
+				dest_pix[0] = GAMMA_RED(src_pix);
+				dest_pix[1] = GAMMA_GRN(src_pix);
+				dest_pix[2] = GAMMA_BLU(src_pix);
+				dest_pix[3] = 255;
+			}
+		}
 		return dest;
 	}
 
 	// slower method, as we must shrink the bugger...
 
 	for (y=0; y < new_h; y++)
-		for (x=0; x < new_w; x++)
+	for (x=0; x < new_w; x++)
+	{
+		byte *dest_pix = dest + (((y) * new_w + x) * 4);
+
+		int px = x * step_x;
+		int py = y * step_y;
+
+		int tot_r=0, tot_g=0, tot_b=0, a_count=0, alpha;
+		int total = step_x * step_y;
+
+		// compute average colour of block
+		for (dx=0; dx < step_x; dx++)
+		for (dy=0; dy < step_y; dy++)
 		{
-			byte *dest_pix = dest + (((y) * new_w + x) * 4);
+			byte src_pix = src[(py+dy) * total_w + (px+dx)];
 
-			int px = x * step_x;
-			int py = y * step_y;
-
-			int tot_r=0, tot_g=0, tot_b=0, a_count=0, alpha;
-			int total = step_x * step_y;
-
-			// compute average colour of block
-			for (dx=0; dx < step_x; dx++)
-				for (dy=0; dy < step_y; dy++)
-				{
-					byte src_pix = src[(py+dy) * total_w + (px+dx)];
-
-					if (src_pix == TRANS_PIXEL)
-						a_count++;
-					else
-					{
-						tot_r += GAMMA_RED(src_pix);
-						tot_g += GAMMA_GRN(src_pix);
-						tot_b += GAMMA_BLU(src_pix);
-					}
-				}
-
-			if (a_count >= total)
-			{
-				// all pixels were translucent.  Keep r/g/b as zero.
-				alpha = 0;
-			}
+			if (src_pix == TRANS_PIXEL)
+				a_count++;
 			else
 			{
-				alpha = (total - a_count) * 255 / total;
-
-				total -= a_count;
-
-				tot_r /= total;
-				tot_g /= total;
-				tot_b /= total;
+				tot_r += GAMMA_RED(src_pix);
+				tot_g += GAMMA_GRN(src_pix);
+				tot_b += GAMMA_BLU(src_pix);
 			}
-
-			dest_pix[0] = tot_r;
-			dest_pix[1] = tot_g;
-			dest_pix[2] = tot_b;
-			dest_pix[3] = alpha;
 		}
+
+		if (a_count >= total)
+		{
+			// all pixels were translucent.  Keep r/g/b as zero.
+			alpha = 0;
+		}
+		else
+		{
+			alpha = (total - a_count) * 255 / total;
+
+			total -= a_count;
+
+			tot_r /= total;
+			tot_g /= total;
+			tot_b /= total;
+		}
+
+		dest_pix[0] = tot_r;
+		dest_pix[1] = tot_g;
+		dest_pix[2] = tot_b;
+		dest_pix[3] = alpha;
+	}
 
 	return dest;
 }
@@ -223,41 +223,43 @@ static byte *ShrinkNormalRGB(byte *rgb, int total_w, int total_h,
 	if (step_x == 1 && step_y == 1)
 	{
 		for (y=0; y < total_h; y++)
-			for (x=0; x < total_w; x++)
-				for (i=0; i < 3; i++)
-					dest[(y * total_w + x) * 3 + i] = GAMMA_CONV(
-						rgb[(y * total_w + x) * 3 + i]);
+		for (x=0; x < total_w; x++)
+		{
+			for (i=0; i < 3; i++)
+				dest[(y * total_w + x) * 3 + i] = GAMMA_CONV(
+					rgb[(y * total_w + x) * 3 + i]);
+		}
 		return dest;
 	}
 
 	// slower method, as we must shrink the bugger...
 
 	for (y=0; y < new_h; y++)
-		for (x=0; x < new_w; x++)
+	for (x=0; x < new_w; x++)
+	{
+		byte *dest_pix = dest + ((y * new_w + x) * 3);
+
+		int px = x * step_x;
+		int py = y * step_y;
+
+		int tot_r=0, tot_g=0, tot_b=0;
+		int total = step_x * step_y;
+
+		// compute average colour of block
+		for (dx=0; dx < step_x; dx++)
+		for (dy=0; dy < step_y; dy++)
 		{
-			byte *dest_pix = dest + ((y * new_w + x) * 3);
+			byte *src_pix = rgb + (((py+dy) * total_w + (px+dx)) * 3);
 
-			int px = x * step_x;
-			int py = y * step_y;
-
-			int tot_r=0, tot_g=0, tot_b=0;
-			int total = step_x * step_y;
-
-			// compute average colour of block
-			for (dx=0; dx < step_x; dx++)
-				for (dy=0; dy < step_y; dy++)
-				{
-					byte *src_pix = rgb + (((py+dy) * total_w + (px+dx)) * 3);
-
-					tot_r += GAMMA_CONV(src_pix[0]);
-					tot_g += GAMMA_CONV(src_pix[1]);
-					tot_b += GAMMA_CONV(src_pix[2]);
-				}
-
-			dest_pix[0] = tot_r / total;
-			dest_pix[1] = tot_g / total;
-			dest_pix[2] = tot_b / total;
+			tot_r += GAMMA_CONV(src_pix[0]);
+			tot_g += GAMMA_CONV(src_pix[1]);
+			tot_b += GAMMA_CONV(src_pix[2]);
 		}
+
+		dest_pix[0] = tot_r / total;
+		dest_pix[1] = tot_g / total;
+		dest_pix[2] = tot_b / total;
+	}
 
 	return dest;
 }
@@ -287,43 +289,45 @@ static byte *ShrinkNormalRGBA(byte *rgba, int total_w, int total_h,
 	if (step_x == 1 && step_y == 1)
 	{
 		for (y=0; y < total_h; y++)
-			for (x=0; x < total_w; x++)
-				for (i=0; i < 4; i++)
-					dest[(y * total_w + x) * 4 + i] = GAMMA_CONV(
-						rgba[(y * total_w + x) * 4 + i]);
+		for (x=0; x < total_w; x++)
+		{
+			for (i=0; i < 4; i++)
+				dest[(y * total_w + x) * 4 + i] = GAMMA_CONV(
+					rgba[(y * total_w + x) * 4 + i]);
+		}
 		return dest;
 	}
 
 	// slower method, as we must shrink the bugger...
 
 	for (y=0; y < new_h; y++)
-		for (x=0; x < new_w; x++)
+	for (x=0; x < new_w; x++)
+	{
+		byte *dest_pix = dest + ((y * new_w + x) * 4);
+
+		int px = x * step_x;
+		int py = y * step_y;
+
+		int tot_r=0, tot_g=0, tot_b=0, tot_a=0;
+		int total = step_x * step_y;
+
+		// compute average colour of block
+		for (dx=0; dx < step_x; dx++)
+		for (dy=0; dy < step_y; dy++)
 		{
-			byte *dest_pix = dest + ((y * new_w + x) * 4);
+			byte *src_pix = rgba + (((py+dy) * total_w + (px+dx)) * 4);
 
-			int px = x * step_x;
-			int py = y * step_y;
-
-			int tot_r=0, tot_g=0, tot_b=0, tot_a=0;
-			int total = step_x * step_y;
-
-			// compute average colour of block
-			for (dx=0; dx < step_x; dx++)
-				for (dy=0; dy < step_y; dy++)
-				{
-					byte *src_pix = rgba + (((py+dy) * total_w + (px+dx)) * 4);
-
-					tot_r += GAMMA_CONV(src_pix[0]);
-					tot_g += GAMMA_CONV(src_pix[1]);
-					tot_b += GAMMA_CONV(src_pix[2]);
-					tot_a += GAMMA_CONV(src_pix[3]);
-				}
-
-			dest_pix[0] = tot_r / total;
-			dest_pix[1] = tot_g / total;
-			dest_pix[2] = tot_b / total;
-			dest_pix[3] = tot_a / total;
+			tot_r += GAMMA_CONV(src_pix[0]);
+			tot_g += GAMMA_CONV(src_pix[1]);
+			tot_b += GAMMA_CONV(src_pix[2]);
+			tot_a += GAMMA_CONV(src_pix[3]);
 		}
+
+		dest_pix[0] = tot_r / total;
+		dest_pix[1] = tot_g / total;
+		dest_pix[2] = tot_b / total;
+		dest_pix[3] = tot_a / total;
+	}
 
 	return dest;
 }
