@@ -117,6 +117,11 @@ public:
 	// values, and the triangle piece is where y <= x, including the
 	// pixels along the diagonal where (x == y).
 	// NOTE: the image must be SQUARE (width == height).
+
+	void AverageHue(u8_t *hue, u8_t *ity = NULL);
+	// compute the average Hue of the RGB(A) image, storing the
+	// result in the 'hue' array (r, g, b).  The average intensity
+	// will be stored in 'ity' when given.
 };
 
 
