@@ -24,7 +24,7 @@
 //----------------------------------------------------------------------------
 //
 // TODO HERE:
-//   * use IM_WIDTH(),IM_BOTTOM(),etc where needed.
+//   * use IM_WIDTH(),IM_RIGHT(),etc where needed.
 //   + optimise first subsector: ignore floors out of view.
 //   + split up: rgl_seg.c and rgl_mobj.c.
 //   + handle scaling better.
@@ -852,10 +852,9 @@ static void DrawWallPart(drawfloor_t *dfloor,
 		props = surf->override_p ? surf->override_p : dfloor->props;
 
 	float trans = surf->translucency;
-	bool blended;
 
 	// ignore non-solid walls in solid mode (& vice versa)
-	blended = (trans <= 0.99f) ? true : false;
+	bool blended = (trans <= 0.99f) ? true : false;
 	if ((blended || mid_masked) == solid_mode)
 		return;
 
@@ -1451,7 +1450,7 @@ static bool RGL_DrawSeg(drawfloor_t *dfloor, seg_t *seg)
 
 		opaque = (! cur_seg->backsector) ||
 			(wt->surface->translucency > 0.99f &&
-			 wt->surface->image->img_solid);
+			 wt->surface->image->opacity == OPAC_Solid);
 
 		// check for horizontal sliders
 		if ((wt->flags & WTILF_MidMask) && cur_seg->linedef->slide_door)
@@ -1859,10 +1858,6 @@ bool RGL_CheckBBox(float *bspcoord)
 static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 						  surface_t *surf, int face_dir)
 {
-	seg_t *seg;
-
-	bool mid_masked = ! surf->image->img_solid;
-	bool blended;
 
 	int num_vert, i;
 
@@ -1896,8 +1891,10 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 		return;
 
 	// ignore non-solid planes in solid_mode (& vice versa)
-	blended = (trans <= 0.99f) ? true : false;
-	if (blended == solid_mode)
+	bool mid_masked = surf->image->opacity >= OPAC_Masked;
+
+	bool blended = (trans <= 0.99f) ? true : false;
+	if ((blended || mid_masked) == solid_mode)
 		return;
 
 	// ignore dud regions (floor >= ceiling)
@@ -1909,6 +1906,7 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 		return;
 
 	// count number of actual vertices
+	seg_t *seg;
 	for (seg=cur_sub->segs, num_vert=0; seg; seg=seg->sub_next, num_vert++)
 	{
 		/* nothing here */

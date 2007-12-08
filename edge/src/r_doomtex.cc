@@ -62,9 +62,6 @@
 #include "z_zone.h"
 
 
-///--- extern epi::image_data_c *ReadSkyMergeAsEpiBlock(image_c *rim);
-
-
 // posts are runs of non masked source pixels
 typedef struct
 {
@@ -170,6 +167,7 @@ static void DrawColumnIntoEpiBlock(image_c *rim, epi::image_data_c *img,
 	}
 }
 
+
 //
 // CheckBlockSolid
 //
@@ -179,6 +177,9 @@ static void DrawColumnIntoEpiBlock(image_c *rim, epi::image_data_c *img,
 
 static void CheckEpiBlockSolid(image_c *rim, epi::image_data_c *img)
 {
+	
+#if 0  // DISABLED FOR NOW : Really Necessary???
+
 	SYS_ASSERT(img->bpp == 1);
 
 	int w1 = rim->actual_w;
@@ -187,7 +188,7 @@ static void CheckEpiBlockSolid(image_c *rim, epi::image_data_c *img)
 	int h2 = rim->total_h;
 
 	int total_num = w1 * h1;
-	int stray_count=0;
+	int alpha_count=0;
 
 	int x, y;
 
@@ -199,15 +200,15 @@ static void CheckEpiBlockSolid(image_c *rim, epi::image_data_c *img)
 		if (src_pix != TRANS_PIXEL)
 			continue;
 
-		stray_count++;
+		alpha_count++;
 
 		// only ignore stray pixels on large images
-		if (total_num < 256 || stray_count > MAX_STRAY_PIXELS)
+		if (total_num >= 512 && alpha_count > MAX_STRAY_PIXELS)
 			return;
 	}
 
 	// image is totally solid.  Blacken any transparent parts.
-	rim->img_solid = true;
+	rim->opacity = OPAC_Solid;
 
 	for (x=0; x < w2; x++)
 	for (y=0; y < h2; y++)
@@ -218,7 +219,9 @@ static void CheckEpiBlockSolid(image_c *rim, epi::image_data_c *img)
 			img->pixels[y * img->width + x] = pal_black;
 		}
 	}
+#endif
 }
+
 
 //------------------------------------------------------------------------
 
@@ -283,8 +286,9 @@ static epi::image_data_c *ReadFlatAsEpiBlock(image_c *rim)
 //
 // Loads a texture from the wad and returns the image block for it.
 // Doesn't do any mipmapping (this is too "raw" if you follow).
-// This routine will also update the `solid' flag if texture turns
-// out to be solid.
+//
+//---- This routine will also update the `solid' flag
+//---- if texture turns out to be solid.
 //
 static epi::image_data_c *ReadTextureAsEpiBlock(image_c *rim)
 {
@@ -304,11 +308,13 @@ static epi::image_data_c *ReadTextureAsEpiBlock(image_c *rim)
 #endif
 
 	// Clear initial pixels to either totally transparent, or totally
-	// black (if we know the image should be solid).  If the image turns
-	// out to be solid instead of transparent, the transparent pixels
-	// will be blackened.
+	// black (if we know the image should be solid).
+	//
+	//---- If the image turns
+	//---- out to be solid instead of transparent, the transparent pixels
+	//---- will be blackened.
   
-	if (rim->img_solid)
+	if (rim->opacity == OPAC_Solid)
 		img->Clear(pal_black);
 	else
 		img->Clear(TRANS_PIXEL);
@@ -347,9 +353,9 @@ static epi::image_data_c *ReadTextureAsEpiBlock(image_c *rim)
 		W_DoneWithLump(realpatch);
 	}
 
-	// update solid flag, if needed
-	if (! rim->img_solid)
-		CheckEpiBlockSolid(rim, img);
+//???	// update solid flag, if needed
+//???	if (! rim->img_solid)
+//???		CheckEpiBlockSolid(rim, img);
 
 	return img;
 }
@@ -359,8 +365,10 @@ static epi::image_data_c *ReadTextureAsEpiBlock(image_c *rim)
 //
 // Loads a patch from the wad and returns the image block for it.
 // Very similiar to ReadTextureAsBlock() above.  Doesn't do any
-// mipmapping (this is too "raw" if you follow).  This routine will
-// also update the `solid' flag if it turns out to be 100% solid.
+// mipmapping (this is too "raw" if you follow).
+//
+//---- This routine will also update the `solid' flag
+//---- if it turns out to be 100% solid.
 //
 static epi::image_data_c *ReadPatchAsEpiBlock(image_c *rim)
 {
@@ -373,11 +381,13 @@ static epi::image_data_c *ReadPatchAsEpiBlock(image_c *rim)
 	epi::image_data_c *img = new epi::image_data_c(tw, th, 1);
 
 	// Clear initial pixels to either totally transparent, or totally
-	// black (if we know the image should be solid).  If the image turns
-	// out to be solid instead of transparent, the transparent pixels
-	// will be blackened.
+	// black (if we know the image should be solid).
+	//
+	//---- If the image turns
+	//---- out to be solid instead of transparent, the transparent pixels
+	//---- will be blackened.
   
-	if (rim->img_solid)
+	if (rim->opacity == OPAC_Solid)
 		img->Clear(pal_black);
 	else
 		img->Clear(TRANS_PIXEL);
@@ -405,9 +415,9 @@ static epi::image_data_c *ReadPatchAsEpiBlock(image_c *rim)
 
 	W_DoneWithLump(realpatch);
 
-	// update solid flag, if needed
-	if (! rim->img_solid)
-		CheckEpiBlockSolid(rim, img);
+///???	// update solid flag, if needed
+///???	if (! rim->img_solid)
+///???		CheckEpiBlockSolid(rim, img);
 
 	return img;
 }
@@ -460,29 +470,13 @@ static epi::image_data_c *ReadDummyAsEpiBlock(image_c *rim)
 	return img;
 }
 
-static void NormalizeClearAreas(epi::image_data_c *img)
+static epi::image_data_c * CreateUserColourImage(image_c *rim, imagedef_c *def)
 {
-	// makes sure that any totally transparent pixel (alpha == 0)
-	// has a colour of black.  This shows up when smoothing is on.
+	int tw = MAX(rim->total_w, 1);
+	int th = MAX(rim->total_h, 1);
 
-	SYS_ASSERT(img->bpp == 4);
+	epi::image_data_c *img = new epi::image_data_c(tw, th, 3);
 
-	byte *dest = img->pixels;
-
-	for (int y = 0; y < img->height; y++)
-	for (int x = 0; x < img->width;  x++)
-	{
-		if (dest[3] == 0)
-		{
-			dest[0] = dest[1] = dest[2] = 0;
-		}
-
-		dest += 4;
-	}
-}
-
-static void CreateUserColourImage(epi::image_data_c *img, imagedef_c *def)
-{
 	byte *dest = img->pixels;
 
 	for (int y = 0; y < img->height; y++)
@@ -491,10 +485,9 @@ static void CreateUserColourImage(epi::image_data_c *img, imagedef_c *def)
 		*dest++ = (def->colour & 0xFF0000) >> 16;  // R
 		*dest++ = (def->colour & 0x00FF00) >>  8;  // G
 		*dest++ = (def->colour & 0x0000FF);        // B
-
-		if (img->bpp == 4)
-			*dest++ = 0xFF;
 	}
+
+	return img;
 }
 
 static void CreateUserBuiltinShadow(epi::image_data_c *img, imagedef_c *def)
@@ -580,16 +573,16 @@ static epi::image_data_c *CreateUserFileImage(image_c *rim, imagedef_c *def)
 			def->name.c_str());
 
 #if 1  // DEBUGGING
-	L_WriteDebug("CREATE IMAGE [%s] %dx%d < %dx%d %s --> %p %dx%d bpp %d\n",
+	L_WriteDebug("CREATE IMAGE [%s] %dx%d < %dx%d opac=%d --> %p %dx%d bpp %d\n",
 	rim->name,
 	rim->actual_w, rim->actual_h,
 	rim->total_w, rim->total_h,
-	rim->img_solid ? "SOLID" : "MASKED",
+	rim->opacity,
 	img, img->width, img->height, img->bpp);
 #endif
 
-	if (img->bpp == 4)
-		NormalizeClearAreas(img);
+//!!!!!!	if (img->bpp == 4)
+//!!!!!!		NormalizeClearAreas(img);
 
 	SYS_ASSERT(rim->total_w == img->width);
 	SYS_ASSERT(rim->total_h == img->height);
@@ -597,8 +590,9 @@ static epi::image_data_c *CreateUserFileImage(image_c *rim, imagedef_c *def)
 	return img;
 }
 
+
 //
-// ReadUserAsBlock
+// ReadUserAsEpiBlock
 //
 // Loads or Creates the user defined image.
 // Doesn't do any mipmapping (this is too "raw" if you follow).
@@ -607,10 +601,10 @@ static epi::image_data_c *ReadUserAsEpiBlock(image_c *rim)
 {
 	SYS_ASSERT(rim->source_type == IMSRC_User);
 
-	int tw = MAX(rim->total_w, 1);
-	int th = MAX(rim->total_h, 1);
-
-	int bpp = rim->img_solid ? 3 : 4;
+///---	int tw = MAX(rim->total_w, 1);
+///---	int th = MAX(rim->total_h, 1);
+///---
+///---	int bpp = rim->img_solid ? 3 : 4;
 
 	// clear initial image to black / transparent
 	/// ALREADY DONE: memset(dest, pal_black, tw * th * bpp);
@@ -619,30 +613,27 @@ static epi::image_data_c *ReadUserAsEpiBlock(image_c *rim)
 
 	switch (def->type)
 	{
+		case IMGDT_Builtin:  // DEAD!
+
 		case IMGDT_Colour:
-		{
-			epi::image_data_c *img = new epi::image_data_c(tw, th, bpp);
-			CreateUserColourImage(img, def);
-			return img;
-		}
+			return CreateUserColourImage(rim, def);
 
-		case IMGDT_Builtin:
-		{
-			epi::image_data_c *img = new epi::image_data_c(tw, th, bpp);
-			switch (def->builtin)
-			{
-				case BLTIM_Linear:
-				case BLTIM_Quadratic:
-				case BLTIM_Shadow:
-					CreateUserBuiltinShadow(img, def);
-					break;
-
-				default:
-					I_Error("ReadUserAsEpiBlock: Unknown builtin %d\n", def->builtin);
-					break;
-			}
-			return img;
-		}
+///---		{
+///---			epi::image_data_c *img = new epi::image_data_c(tw, th, bpp);
+///---			switch (def->builtin)
+///---			{
+///---				case BLTIM_Linear:
+///---				case BLTIM_Quadratic:
+///---				case BLTIM_Shadow:
+///---					CreateUserBuiltinShadow(img, def);
+///---					break;
+///---
+///---				default:
+///---					I_Error("ReadUserAsEpiBlock: Unknown builtin %d\n", def->builtin);
+///---					break;
+///---			}
+///---			return img;
+///---		}
 
 		case IMGDT_File:
 		case IMGDT_Lump:

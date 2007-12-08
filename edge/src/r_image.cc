@@ -486,7 +486,7 @@ static image_c *AddImageUser(imagedef_c *def)
 			return NULL; /* NOT REACHED */
 	}
  
-	image_c *rim = NewImage(w, h, solid ? OPAC_Solid : OPAC_Complex);
+	image_c *rim = NewImage(w, h, solid ? OPAC_Solid : OPAC_Unknown);
  
 	rim->offset_x = def->x_offset;
 	rim->offset_y = def->y_offset;

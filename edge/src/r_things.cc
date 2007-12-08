@@ -1124,7 +1124,10 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 	if (trans < 0.04f)
 		return;
 
+
 	const image_c *image = dthing->image;
+
+	GLuint tex_id = W_ImageCache(image, false, dthing->mo->info->palremap);
 
 //	float w = IM_WIDTH(image);
 	float h = IM_HEIGHT(image);
@@ -1142,7 +1145,7 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 	z1b = z2b = dthing->bottom;
 	z1t = z2t = dthing->top;
 
-	// Mlook in GL: tilt sprites so they look better
+	// MLook: tilt sprites so they look better
 	{
 		float h = dthing->orig_top - dthing->orig_bottom;
 		float skew2 = h;
@@ -1163,8 +1166,8 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 		x2b -= bottom_q * dx; y2b -= bottom_q * dy;
 	}
 
-	float tex_x1 = 0.01f;
-	float tex_x2 = right - 0.01f;
+	float tex_x1 = 0.001f;
+	float tex_x2 = right - 0.001f;
 
 	float tex_y1 = dthing->bottom - dthing->orig_bottom;
 	float tex_y2 = tex_y1 + (z1t - z1b);
@@ -1182,8 +1185,6 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 		tex_x2 = right - temp;
 	}
 
-
-	GLuint tex_id = W_ImageCache(image, false, dthing->mo->info->palremap);
 
 	// Blended sprites, even if opaque (trans > 0.99), have nicer edges
 	int blending = BL_Masked;
