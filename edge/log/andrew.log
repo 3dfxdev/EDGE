@@ -1,5 +1,12 @@
 Andrew Apted's Log
 
+2007/12/08:
+
+More image system work, replacing all the ShrinkBlockRGB(A)
+functions in r_texgl.cc with the image_data_c::ShrinkMasked()
+method, plus a new function to convert from palettised mode
+to RGB(A) mode.
+
 2007/12/07:
 
 Fixed (UNTESTED) models with non-power-of-two skins.
