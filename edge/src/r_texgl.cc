@@ -70,6 +70,45 @@ int W_MakeValidSize(int value)
 }
 
 
+epi::image_data_c *R_PalettisedToRGB(const epi::image_data_c *src,
+									 const byte *palette, int opacity)
+{
+	int bpp = (opacity == OPAC_Solid) ? 3 : 4;
+
+	epi::image_data_c *dest = new epi::image_data_c(src->width, src->height, bpp);	
+
+	dest->used_w = src->used_w;
+	dest->used_h = src->used_h;
+
+	for (y=0; y < src->height; y++)
+	for (x=0; x < src->width;  x++)
+	{
+		byte src_pix = src->PixelAt(x, y)[0];
+
+		byte *dest_pix = dest->PixelAt(x, y);
+
+		if (src_pix == TRANS_PIXEL)
+		{
+			dest_pix[0] = dest_pix[1] = dest_pix[2] = 0;
+			
+			if (bpp == 4)
+				dest_pix[3] = 0;
+		}
+		else
+		{
+			dest_pix[0] = PIXEL_RED(src_pix);
+			dest_pix[1] = PIXEL_GRN(src_pix);
+			dest_pix[2] = PIXEL_BLU(src_pix);
+
+			if (bpp == 4)
+				dest_pix[3] = 255;
+		}
+	}
+
+	return dest;
+}
+
+
 // use a common buffer for image shrink operations, saving the
 // overhead of allocating a new buffer for every image.
 static byte *img_shrink_buffer;
@@ -345,16 +384,14 @@ static GLuint minif_modes[2*3] =
 
 
 
-//
-// R_UploadTexture
-//
-// Send the texture data to the GL, and returns the texture ID
-// assigned to it.  The format of the data must be a normal block if
-// palette-indexed pixels.
-//
-GLuint R_UploadTexture(epi::image_data_c *img, const byte *palette,
-		               int flags, int max_pix)
+GLuint R_UploadTexture(epi::image_data_c *img, int flags, int max_pix)
 {
+	/* Send the texture data to the GL, and returns the texture ID
+	 * assigned to it.
+	 */
+
+	SYS_ASSERT(img->bpp == 3 || img->bpp == 4);
+
 	bool clamp  = (flags & UPL_Clamp)  ? true : false;
 	bool nomip  = (flags & UPL_MipMap) ? false : true;
 	bool smooth = (flags & UPL_Smooth) ? true : false;
@@ -431,11 +468,6 @@ GLuint R_UploadTexture(epi::image_data_c *img, const byte *palette,
 					 new_w, new_h, 0 /* border */,
 					 (img->bpp == 3) ? GL_RGB : GL_RGBA,
 					 GL_UNSIGNED_BYTE, rgba_src);
-#if 0
-		if (mip == 0)
-			(*hue) = ExtractImageHue(rgba_src, new_w, new_h, (img->bpp == 3) ? 3 : 4);
-#endif
-		// (cannot free rgba_src, since it == img_shrink_buffer)
 
 		// stop if mipmapping disabled or we have reached the end
 		if (nomip || !use_mipmapping || (new_w == 1 && new_h == 1))
@@ -457,7 +489,6 @@ GLuint R_UploadTexture(epi::image_data_c *img, const byte *palette,
 
 
 //----------------------------------------------------------------------------
-
 
 
 void R_PaletteRemapRGBA(epi::image_data_c *img,

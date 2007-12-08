@@ -212,8 +212,8 @@ public:
 // mipmapping enabled ?
 // 0 off, 1 bilinear, 2 trilinear
 int var_mipmapping = 1;
+int var_smoothing  = 1;
 
-int var_smoothing = 1;
 bool var_dithering = false;
 
 
@@ -890,8 +890,17 @@ real_cached_image_t *LoadImageOGL(image_c *rim, const colourmap_c *trans)
 			R_PaletteRemapRGBA(tmp_img, what_palette, (const byte *) &playpal_data[0]);
 	}
 
+	if (tmp_img->bpp == 1)
+	{
+		epi::image_data_c *rgb_img =
+				R_PalettisedToRGB(tmp_img, what_palette, rim->opacity);
 
-	rc->tex_id = R_UploadTexture(tmp_img, what_palette,
+		delete tmp_img;
+		tmp_img = rgb_img;
+	}
+
+
+	rc->tex_id = R_UploadTexture(tmp_img,
 		(clamp  ? UPL_Clamp  : 0) |
 		(mip    ? UPL_MipMap : 0) |
 		(smooth ? UPL_Smooth : 0), max_pix);

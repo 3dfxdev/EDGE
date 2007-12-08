@@ -28,11 +28,12 @@ typedef enum
 	UPL_Smooth   = (1 << 0),
 	UPL_Clamp    = (1 << 1),
 	UPL_MipMap   = (1 << 2),
+	UPL_Masked   = (1 << 3), // limit alpha to 0 and 255
 }
 upload_texture_flag_e;
 
-GLuint R_UploadTexture(epi::image_data_c *img, const byte *palette,
-		 int flags, int max_pix = (1<<30));
+GLuint R_UploadTexture(epi::image_data_c *img,
+		 int flags = UPL_NONE, int max_pix = (1<<30));
 
 void R_PaletteRemapRGBA(epi::image_data_c *img,
 		const byte *new_pal, const byte *old_pal);
