@@ -689,20 +689,27 @@ void R_BlackenClearAreas(epi::image_data_c *img)
 	// makes sure that any totally transparent pixel (alpha == 0)
 	// has a colour of black.
 
-	if (img->bpp != 4)  // TODO: bpp == 1
-		return;
-
 	byte *dest = img->pixels;
 
-	for (int y = 0; y < img->height; y++)
-	for (int x = 0; x < img->width;  x++)
-	{
-		if (dest[3] == 0)
-		{
-			dest[0] = dest[1] = dest[2] = 0;
-		}
+	int count = img->width * img->height;
 
-		dest += 4;
+	if (img->bpp == 1)
+	{
+		for (; count > 0; count--, dest++)
+		{
+			if (*dest == TRANS_PIXEL)
+				*dest = pal_black;
+		}
+	}
+	else if (img->bpp == 4)
+	{
+		for (; count > 0; count--, dest += 4)
+		{
+			if (dest[3] == 0)
+			{
+				dest[0] = dest[1] = dest[2] = 0;
+			}
+		}
 	}
 }
 
