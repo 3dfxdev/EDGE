@@ -333,6 +333,85 @@ void image_data_c::EightWaySymmetry()
 	FourWaySymmetry();
 }
 
+void image_data_c::AverageHue(u8_t *hue, u8_t *ity)
+{
+	// make sure we don't overflow
+	SYS_ASSERT(used_w * used_h <= 2048 * 2048);
+
+	int r_sum = 0;
+	int g_sum = 0;
+	int b_sum = 0;
+	int i_sum = 0;
+
+	int weight = 0;
+
+	for (int y = 0; y < used_h; y++)
+	{
+		const u8_t *src = PixelAt(0, y);
+
+		for (int x = 0; x < used_w; x++, src += bpp)
+		{
+			int r = src[0];
+			int g = src[1];
+			int b = src[2];
+			int a = (bpp == 4) ? src[3] : 255;
+
+			int v = MAX(r, MAX(g, b));
+
+			i_sum += (v * (1 + a)) >> 9;
+
+			// brighten color
+			if (v > 0)
+			{
+				r = r * 255 / v;
+				g = g * 255 / v;
+				b = b * 255 / v;
+
+				v = 255;
+			}
+
+			// compute weighting (based on saturation)
+			if (v > 0)
+			{
+				int m = MIN(r, MIN(g, b));
+
+				v = 4 + 12 * (v - m) / v;
+			}
+
+			// take alpha into account
+			v = (v * (1 + a)) >> 8;
+
+			r_sum += (r * v) >> 3;
+			g_sum += (g * v) >> 3;
+			b_sum += (b * v) >> 3;
+
+			weight += v;
+		}
+	}
+
+	weight = (weight + 7) >> 3;
+
+	if (weight > 0)
+	{
+		hue[0] = r_sum / weight;
+		hue[1] = g_sum / weight;
+		hue[2] = b_sum / weight;
+	}
+	else
+	{
+		hue[0] = 0;
+		hue[1] = 0;
+		hue[2] = 0;
+	}
+
+	if (ity)
+	{
+		weight = (used_w * used_h + 1) / 2;
+
+		*ity = i_sum / weight;
+	}
+}
+
 } // namespace epi
 
 
