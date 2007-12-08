@@ -154,9 +154,9 @@ static default_t defaults[] =
     {CFGT_Boolean,  "mlook",             &global_flags.mlook, CFGDEF_MLOOK},
     {CFGT_Boolean,  "jumping",           &global_flags.jump, CFGDEF_JUMP},
     {CFGT_Boolean,  "crouching",         &global_flags.crouch, CFGDEF_CROUCH},
-    {CFGT_Int,      "mipmapping",        &use_mipmapping, CFGDEF_USE_MIPMAPPING},
-    {CFGT_Boolean,  "smoothing",         &use_smoothing,  CFGDEF_USE_SMOOTHING},
-    {CFGT_Boolean,  "dither",            &use_dithering, 0},
+    {CFGT_Int,      "mipmapping",        &var_mipmapping, CFGDEF_USE_MIPMAPPING},
+    {CFGT_Int,      "smoothing",         &var_smoothing,  CFGDEF_USE_SMOOTHING},
+    {CFGT_Boolean,  "dither",            &var_dithering, 0},
     {CFGT_Int,      "dlights",           &use_dlights,    CFGDEF_USE_DLIGHTS},
     {CFGT_Int,      "detail_level",      &detail_level,   CFGDEF_DETAIL_LEVEL},
 
