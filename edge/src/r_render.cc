@@ -853,9 +853,13 @@ static void DrawWallPart(drawfloor_t *dfloor,
 
 	float trans = surf->translucency;
 
+	SYS_ASSERT(surf->image);
+
+	// (need to load the image to know the opacity)
+	GLuint tex_id = W_ImageCache(surf->image);
+
 	// ignore non-solid walls in solid mode (& vice versa)
-	bool blended = (trans <= 0.99f) ? true : false;
-	if ((blended || mid_masked) == solid_mode)
+	if ((trans < 0.99f || surf->image->opacity >= OPAC_Masked) == solid_mode)
 		return;
 
 
@@ -890,10 +894,6 @@ static void DrawWallPart(drawfloor_t *dfloor,
 			lit_adjust += 16;
 	}
 
-
-	SYS_ASSERT(surf->image);
-
-	GLuint tex_id = W_ImageCache(surf->image);
 
 
 	float total_w = IM_TOTAL_WIDTH( surf->image);
@@ -958,6 +958,7 @@ static void DrawWallPart(drawfloor_t *dfloor,
 		vertices[v_count].x = x1;
 		vertices[v_count].y = y1;
 		vertices[v_count].z = left_h[LI];
+
 		v_count++;
 	}
 
@@ -966,10 +967,22 @@ static void DrawWallPart(drawfloor_t *dfloor,
 		vertices[v_count].x = x2;
 		vertices[v_count].y = y2;
 		vertices[v_count].z = right_h[RI];
+
 		v_count++;
 	}
 
-	int blending = (blended ? BL_Alpha : 0) | (mid_masked ? BL_Masked : 0);
+
+	int blending;
+
+	if (trans >= 0.99f && surf->image->opacity == OPAC_Solid)
+		blending = BL_NONE;
+	else if (trans < 0.11f || surf->image->opacity == OPAC_Complex)
+		blending = BL_Masked;
+	else
+		blending = BL_Less;
+
+	if (trans < 0.99f || surf->image->opacity == OPAC_Complex)
+		blending |= BL_Alpha;
 
 	// -AJA- 2006-06-22: fix for midmask wrapping bug
 	if (mid_masked)
@@ -1237,7 +1250,7 @@ static void EmulateFloodPlane(const drawfloor_t *dfloor,
 		&flood_ref->ceil;
 
 	// ignore sky and invisible planes
-	if (IS_SKY(*surf) || surf->translucency < 0.04f)
+	if (IS_SKY(*surf) || surf->translucency < 0.01f)
 		return;
 
 	// ignore transparent doors (TNT MAP02)
@@ -1417,7 +1430,7 @@ static bool RGL_DrawSeg(drawfloor_t *dfloor, seg_t *seg)
 	// handle TRANSLUCENT + THICK floors (a bit of a hack)
 	if (dfloor->ef && dfloor->higher &&
 		(dfloor->ef->ef_info->type & EXFL_Thick) &&
-		(dfloor->ef->top->translucency <= 0.99f))
+		(dfloor->ef->top->translucency < 0.99f))
 	{
 		c1 = dfloor->ef->top_h;
 	}
@@ -1449,7 +1462,7 @@ static bool RGL_DrawSeg(drawfloor_t *dfloor, seg_t *seg)
 		}
 
 		opaque = (! cur_seg->backsector) ||
-			(wt->surface->translucency > 0.99f &&
+			(wt->surface->translucency >= 0.99f &&
 			 wt->surface->image->opacity == OPAC_Solid);
 
 		// check for horizontal sliders
@@ -1883,18 +1896,11 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 		return;
 
 	// ignore invisible planes
-	if (trans < 0.04f)
+	if (trans < 0.01f)
 		return;
 
 	// ignore non-facing planes
 	if ((viewz > h) != (face_dir > 0))
-		return;
-
-	// ignore non-solid planes in solid_mode (& vice versa)
-	bool mid_masked = surf->image->opacity >= OPAC_Masked;
-
-	bool blended = (trans <= 0.99f) ? true : false;
-	if ((blended || mid_masked) == solid_mode)
 		return;
 
 	// ignore dud regions (floor >= ceiling)
@@ -1905,11 +1911,21 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	if (cur_sub->segs == NULL)
 		return;
 
+	SYS_ASSERT(surf->image);
+
+	// (need to load the image to know the opacity)
+	GLuint tex_id = W_ImageCache(surf->image);
+
+	// ignore non-solid planes in solid_mode (& vice versa)
+	if ((trans < 0.99f || surf->image->opacity >= OPAC_Masked) == solid_mode)
+		return;
+
+	
 	// count number of actual vertices
 	seg_t *seg;
 	for (seg=cur_sub->segs, num_vert=0; seg; seg=seg->sub_next, num_vert++)
 	{
-		/* nothing here */
+		/* no other code needed */
 	}
 
 	// -AJA- make sure polygon has enough vertices.  Sometimes a subsector
@@ -1919,14 +1935,6 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 
 	if (num_vert > MAX_PLVERT)
 		num_vert = MAX_PLVERT;
-
-
-	abstract_shader_c *cmap_shader = R_GetColormapShader(props);
-
-	SYS_ASSERT(surf->image);
-
-	GLuint tex_id = W_ImageCache(surf->image);
-
 
 	vec3_t vertices[MAX_PLVERT];
 
@@ -1957,7 +1965,18 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 		}
 	}
 
-	int blending = (blended ? BL_Alpha : 0) | (mid_masked ? BL_Masked : 0);
+
+	int blending;
+
+	if (trans >= 0.99f && surf->image->opacity == OPAC_Solid)
+		blending = BL_NONE;
+	else if (trans < 0.11f || surf->image->opacity == OPAC_Complex)
+		blending = BL_Masked;
+	else
+		blending = BL_Less;
+
+	if (trans < 0.99f || surf->image->opacity == OPAC_Complex)
+		blending |= BL_Alpha;
 
 
 	plane_coord_data_t data;
@@ -1982,6 +2001,8 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	data.blending = blending;
 	data.trans = trans;
 
+
+	abstract_shader_c *cmap_shader = R_GetColormapShader(props);
 
 	cmap_shader->WorldMix(GL_POLYGON, data.v_count, data.tex_id,
 			trans, &data.pass, data.blending, &data, PlaneCoordFunc);

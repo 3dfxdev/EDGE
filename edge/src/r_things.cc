@@ -679,7 +679,7 @@ static void R2_ClipSpriteVertically(drawsub_c *dsub, drawthing_t *dthing)
 	// handle TRANSLUCENT + THICK floors (a bit of a hack)
 	if (dfloor->ef && dfloor->ef->ef_info && dfloor->higher &&
 		(dfloor->ef->ef_info->type & EXFL_Thick) &&
-		(dfloor->ef->top->translucency <= 0.99f))
+		(dfloor->ef->top->translucency < 0.99f))
 	{
 		c1 = dfloor->top_h;
 	}
@@ -748,7 +748,7 @@ static void R2_ClipSpriteVertically(drawsub_c *dsub, drawthing_t *dthing)
 		// handle TRANSLUCENT + THICK floors (a bit of a hack)
 		if (dfloor->ef && dfloor->ef->ef_info && dfloor->higher &&
 			(dfloor->ef->ef_info->type & EXFL_Thick) &&
-			(dfloor->ef->top->translucency <= 0.99f))
+			(dfloor->ef->top->translucency < 0.99f))
 		{
 			c1 = dfloor->top_h;
 		}
@@ -819,7 +819,7 @@ static void R2_ClipSpriteVertically(drawsub_c *dsub, drawthing_t *dthing)
 		// handle TRANSLUCENT + THICK floors (a bit of a hack)
 		if (dfloor->ef && dfloor->ef->ef_info && dfloor->higher &&
 			(dfloor->ef->ef_info->type & EXFL_Thick) &&
-			(dfloor->ef->top->translucency <= 0.99f))
+			(dfloor->ef->top->translucency < 0.99f))
 		{
 			c1 = dfloor->top_h;
 		}
