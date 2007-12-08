@@ -410,7 +410,7 @@ static optmenuitem_t vidoptions[] =
 
 	{OPT_Plain,   "",              NULL,  0,  0, NULL, NULL, NULL},
 
-	{OPT_Boolean, "Smoothing",     YesNo, 2,  CFGDEF_USE_SMOOTHING,  &use_smoothing, M_ChangeMipMap, NULL},
+	{OPT_Switch,  "Smoothing",     YesNo, 2,  CFGDEF_USE_SMOOTHING,  &var_smoothing, M_ChangeMipMap, NULL},
 
 	{OPT_Switch,  "Dynamic Lighting", DLMode, 2, CFGDEF_USE_DLIGHTS,    &use_dlights, M_ChangeDLights, NULL},
 
@@ -418,7 +418,7 @@ static optmenuitem_t vidoptions[] =
 
 	{OPT_Switch,  "Detail Level",  Details, 3, CFGDEF_DETAIL_LEVEL,   &detail_level, M_ChangeMipMap, NULL},
 
-	{OPT_Switch,  "Mipmapping", MipMaps, 3,   CFGDEF_USE_MIPMAPPING, &use_mipmapping, M_ChangeMipMap, NULL},
+	{OPT_Switch,  "Mipmapping", MipMaps, 3,   CFGDEF_USE_MIPMAPPING, &var_mipmapping, M_ChangeMipMap, NULL},
 
 	{OPT_Plain,   "",              NULL, 0,   0,                      NULL, NULL, NULL},
 

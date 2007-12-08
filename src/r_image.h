@@ -198,9 +198,9 @@ void W_ImageMakeSaveString(const image_c *image, char *type, char *namebuf);
 //  IMAGE USAGE
 //
 
-extern int use_mipmapping;
-extern bool use_smoothing;
-extern bool use_dithering;
+extern int  var_mipmapping;
+extern int  var_smoothing;
+extern bool var_dithering;
 
 bool W_InitImages(void);
 void W_UpdateImageAnims(void);
