@@ -83,7 +83,6 @@ void image_data_c::Invert()
 
 void image_data_c::Shrink(int new_w, int new_h)
 {
-	SYS_ASSERT(bpp >= 3);
 	SYS_ASSERT(new_w <= width && new_h <= height);
 
 	int step_x = width  / new_w;
@@ -92,7 +91,22 @@ void image_data_c::Shrink(int new_w, int new_h)
 
 	// TODO: OPTIMISE this
 
-	if (bpp == 3)
+	if (bpp == 1)
+	{
+		for (int dy=0; dy < new_h; dy++)
+		for (int dx=0; dx < new_w; dx++)
+		{
+			u8_t *dest_pix = pixels + (dy * new_w + dx) * 3;
+
+			int sx = dx * step_x;
+			int sy = dy * step_y;
+
+			const u8_t *src_pix = PixelAt(sx, sy);
+
+			*dest_pix = *src_pix;
+		}
+	}
+	else if (bpp == 3)
 	{
 		for (int dy=0; dy < new_h; dy++)
 		for (int dx=0; dx < new_w; dx++)
@@ -106,14 +120,14 @@ void image_data_c::Shrink(int new_w, int new_h)
 
 			// compute average colour of block
 			for (int x=0; x < step_x; x++)
-				for (int y=0; y < step_y; y++)
-				{
-					u8_t *src_pix = PixelAt(sx+x, sy+y);
+			for (int y=0; y < step_y; y++)
+			{
+				const u8_t *src_pix = PixelAt(sx+x, sy+y);
 
-					r += src_pix[0];
-					g += src_pix[1];
-					b += src_pix[2];
-				}
+				r += src_pix[0];
+				g += src_pix[1];
+				b += src_pix[2];
+			}
 
 			dest_pix[0] = r / total;
 			dest_pix[1] = g / total;
@@ -134,15 +148,15 @@ void image_data_c::Shrink(int new_w, int new_h)
 
 			// compute average colour of block
 			for (int x=0; x < step_x; x++)
-				for (int y=0; y < step_y; y++)
-				{
-					u8_t *src_pix = PixelAt(sx+x, sy+y);
+			for (int y=0; y < step_y; y++)
+			{
+				const u8_t *src_pix = PixelAt(sx+x, sy+y);
 
-					r += src_pix[0];
-					g += src_pix[1];
-					b += src_pix[2];
-					a += src_pix[3];
-				}
+				r += src_pix[0];
+				g += src_pix[1];
+				b += src_pix[2];
+				a += src_pix[3];
+			}
 
 			dest_pix[0] = r / total;
 			dest_pix[1] = g / total;
@@ -150,6 +164,73 @@ void image_data_c::Shrink(int new_w, int new_h)
 			dest_pix[3] = a / total;
 		}
 	}
+
+	used_w  = MAX(1, used_w * new_w / width);
+	used_h  = MAX(1, used_h * new_h / height);
+
+	width  = new_w;
+	height = new_h;
+}
+
+void image_data_c::ShrinkMasked(int new_w, int new_h)
+{
+	if (bpp != 4)
+	{
+		Shrink(new_w, new_h);
+		return;
+	}
+
+	SYS_ASSERT(new_w <= width && new_h <= height);
+
+	int step_x = width  / new_w;
+	int step_y = height / new_h;
+	int total  = step_x * step_y;
+
+	// TODO: OPTIMISE this
+
+	for (int dy=0; dy < new_h; dy++)
+	for (int dx=0; dx < new_w; dx++)
+	{
+		u8_t *dest_pix = pixels + (dy * new_w + dx) * 4;
+
+		int sx = dx * step_x;
+		int sy = dy * step_y;
+
+		int r=0, g=0, b=0, a=0;
+
+		// compute average colour of block
+		for (int x=0; x < step_x; x++)
+		for (int y=0; y < step_y; y++)
+		{
+			const u8_t *src_pix = PixelAt(sx+x, sy+y);
+
+			int weight = src_pix[3];
+
+			r += src_pix[0] * weight;
+			g += src_pix[1] * weight;
+			b += src_pix[2] * weight;
+
+			a += weight;
+		}
+
+		if (a == 0)
+		{
+			dest_pix[0] = 0;
+			dest_pix[1] = 0;
+			dest_pix[2] = 0;
+			dest_pix[3] = 0;
+		}
+		else
+		{
+			dest_pix[0] = r / a;
+			dest_pix[1] = g / a;
+			dest_pix[2] = b / a;
+			dest_pix[3] = a / total;
+		}
+	}
+
+	used_w  = MAX(1, used_w * new_w / width);
+	used_h  = MAX(1, used_h * new_h / height);
 
 	width  = new_w;
 	height = new_h;
@@ -177,6 +258,9 @@ void image_data_c::Grow(int new_w, int new_h)
 
 	delete[] pixels;
 
+	used_w  = used_w * new_w / width;
+	used_h  = used_h * new_h / height;
+
 	pixels  = new_pixels;
 	width   = new_w;
 	height  = new_h;
@@ -184,7 +268,8 @@ void image_data_c::Grow(int new_w, int new_h)
 
 void image_data_c::RemoveAlpha()
 {
-	SYS_ASSERT(bpp == 4);
+	if (bpp != 4)
+		return;
 
 	u8_t *src   = pixels;
 	u8_t *s_end = src + (width * height * bpp);
@@ -200,6 +285,20 @@ void image_data_c::RemoveAlpha()
 	}
 
 	bpp = 3;
+}
+
+void image_data_c::ThresholdAlpha(u8_t alpha)
+{
+	if (bpp != 4)
+		return;
+
+	u8_t *src   = pixels;
+	u8_t *s_end = src + (width * height * bpp);
+
+	for (; src < s_end; src += 4)
+	{
+		src[3] = (src[3] < alpha) ? 0 : 255;
+	}
 }
 
 void image_data_c::FourWaySymmetry()
