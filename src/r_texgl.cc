@@ -38,9 +38,6 @@
 #include "w_wad.h"
 
 
-int alpha_mip_thresh = 1;
-
-
 int W_MakeValidSize(int value)
 {
 	SYS_ASSERT(value > 0);
@@ -451,7 +448,7 @@ GLuint R_UploadTexture(epi::image_data_c *img, int flags, int max_pix)
 			img->ShrinkMasked(new_w, new_h);
 
 			if (flags & UPL_Thresh)
-				img->ThresholdAlpha(alpha_mip_thresh);
+				img->ThresholdAlpha((mip&1) ? 96 : 144);
 		}
 
 ///---		byte *rgba_src = 0;
