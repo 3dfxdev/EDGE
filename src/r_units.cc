@@ -38,6 +38,7 @@
 #include "r_texgl.h" //!!!
 #include "r_shader.h" //!!!
 
+
 bool use_lighting = true;
 bool use_color_material = true;
 
@@ -343,10 +344,21 @@ void RGL_DrawUnits(void)
 			glPolygonOffset(0, -active_pass);
 		}
 
-		if ((active_blending ^ unit->blending) & BL_Masked)
+		if ((active_blending ^ unit->blending) & (BL_Masked | BL_Less))
 		{
-			if (unit->blending & BL_Masked)
+			if (unit->blending & BL_Less)
+			{
+				// NOTE: assumes alpha is constant over whole polygon
+				float a = local_verts[unit->first].rgba[3];
+			
 				glEnable(GL_ALPHA_TEST);
+				glAlphaFunc(GL_LESS, a - 0.033f);
+			}
+			else if (unit->blending & BL_Masked)
+			{
+				glEnable(GL_ALPHA_TEST);
+				glAlphaFunc(GL_GREATER, 0);
+			}
 			else
 				glDisable(GL_ALPHA_TEST);
 		}
@@ -465,8 +477,10 @@ void RGL_DrawUnits(void)
 	}
 
 	glDepthMask(GL_TRUE);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glCullFace(GL_BACK);
+
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glAlphaFunc(GL_GREATER, 0);
 
 	glDisable(GL_ALPHA_TEST);
 	glDisable(GL_BLEND);

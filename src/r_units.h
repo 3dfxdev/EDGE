@@ -51,12 +51,14 @@ typedef enum
 	BL_NONE = 0,
 
 	BL_Masked   = (1<<0),  // drop fragments when alpha == 0
-	BL_Alpha    = (1<<1),  // alpha-blend with the framebuffer
-	BL_Add      = (1<<2),  // additive-blend with the framebuffer
-	BL_CullBack = (1<<3),  // enable back-face culling
-	BL_CullFront= (1<<4),  // enable front-face culling
-	BL_NoZBuf   = (1<<5),  // don't update the Z buffer
-	BL_ClampY   = (1<<6),  // force texture to be Y clamped
+	BL_Less     = (1<<1),  // drop fragments when alpha < color.a
+	BL_Alpha    = (1<<2),  // alpha-blend with the framebuffer
+	BL_Add      = (1<<3),  // additive-blend with the framebuffer
+
+	BL_CullBack = (1<<4),  // enable back-face culling
+	BL_CullFront= (1<<5),  // enable front-face culling
+	BL_NoZBuf   = (1<<6),  // don't update the Z buffer
+	BL_ClampY   = (1<<7),  // force texture to be Y clamped
 }
 blending_mode_e;
 
