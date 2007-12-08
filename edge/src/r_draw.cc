@@ -70,8 +70,8 @@ void RGL_DrawImage(float x, float y, float w, float h, const image_c *image,
 	{
 		glEnable(GL_ALPHA_TEST);
 
-		if (! (alpha >= 0.11f || image->opacity == OPAC_Complex))
-			glAlphaFunc(GL_LESS, alpha - 0.033f);
+		if (! (alpha < 0.11f || image->opacity == OPAC_Complex))
+			glAlphaFunc(GL_GREATER, alpha * 0.66f);
 	}
 
 	if (image->opacity == OPAC_Complex || alpha < 0.99f)
@@ -97,6 +97,7 @@ void RGL_DrawImage(float x, float y, float w, float h, const image_c *image,
 	glVertex2i(x1, y2);
   
 	glEnd();
+
 
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_ALPHA_TEST);

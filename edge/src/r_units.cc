@@ -326,6 +326,8 @@ void RGL_DrawUnits(void)
 	glDisable(GL_ALPHA_TEST);
 	glDisable(GL_BLEND);
 
+	glAlphaFunc(GL_GREATER, 0);
+
 	glPolygonOffset(0, 0);
 
 
@@ -352,7 +354,7 @@ void RGL_DrawUnits(void)
 				float a = local_verts[unit->first].rgba[3];
 			
 				glEnable(GL_ALPHA_TEST);
-				glAlphaFunc(GL_LESS, a - 0.033f);
+				glAlphaFunc(GL_GREATER, a * 0.66f);
 			}
 			else if (unit->blending & BL_Masked)
 			{
