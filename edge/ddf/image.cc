@@ -334,11 +334,13 @@ static void DDF_ImageGetType(const char *info, void *storage)
 
 static specflags_t image_specials[] =
 {
-    {"CROSSHAIR",    IMGSP_Crosshair, 0},
-    {"ALPHA",        IMGSP_NoAlpha,   1},
-    {"FORCE_NOMIP",  IMGSP_NoMip,     0},
-    {"FORCE_CLAMP",  IMGSP_Clamp,     0},
-    {"FORCE_SMOOTH", IMGSP_Smooth,    0},
+    {"NOALPHA",       IMGSP_NoAlpha,   0},
+    {"FORCE_MIP",     IMGSP_Mip,       0},
+    {"FORCE_NOMIP",   IMGSP_NoMip,     0},
+    {"FORCE_CLAMP",   IMGSP_Clamp,     0},
+    {"FORCE_SMOOTH",  IMGSP_Smooth,    0},
+    {"FORCE_NOSMOOTH",IMGSP_NoSmooth,  0},
+    {"CROSSHAIR",     IMGSP_Crosshair, 0},
     {NULL, 0, 0}
 };
 
@@ -352,7 +354,7 @@ static void DDF_ImageGetSpecial(const char *info, void *storage)
 	int flag_value;
 
 	switch (DDF_MainCheckSpecialFlag(info, image_specials,
-			&flag_value, true, false))
+			&flag_value, false /* allow_prefixes */, false))
 	{
 		case CHKF_Positive:
 			*dest = (image_special_e)(*dest | flag_value);

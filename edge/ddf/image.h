@@ -68,10 +68,12 @@ typedef enum
 	IMGSP_None = 0,
 
 	IMGSP_NoAlpha   = 0x0001,   // image does not require an alpha channel
-	IMGSP_NoMip     = 0x0002,   // disable mip-mapping on image
-	IMGSP_Clamp     = 0x0004,   // clamp image
-	IMGSP_Smooth    = 0x0008,   // force smoothing
-	IMGSP_Crosshair = 0x0010,   // weapon crosshair (center vertically)
+	IMGSP_Mip       = 0x0002,   // force   mip-mapping
+	IMGSP_NoMip     = 0x0004,   // disable mip-mapping
+	IMGSP_Clamp     = 0x0008,   // clamp image
+	IMGSP_Smooth    = 0x0010,   // force smoothing
+	IMGSP_NoSmooth  = 0x0020,   // disable smoothing
+	IMGSP_Crosshair = 0x0040,   // weapon crosshair (center vertically)
 }
 image_special_e;
 
