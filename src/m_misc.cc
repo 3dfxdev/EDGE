@@ -80,8 +80,6 @@ static const image_c *air_images[21] = { NULL };
 
 bool var_fadepower = true;
 bool var_smoothmap = true;
-bool var_hq_scale  = true;
-bool var_hq_all    = false;
 
 bool force_directx = false;
 bool force_waveout = false;
@@ -159,6 +157,7 @@ static default_t defaults[] =
     {CFGT_Boolean,  "dither",            &var_dithering, 0},
     {CFGT_Int,      "dlights",           &use_dlights,    CFGDEF_USE_DLIGHTS},
     {CFGT_Int,      "detail_level",      &detail_level,   CFGDEF_DETAIL_LEVEL},
+	{CFGT_Int,      "hq2x_scaling",      &hq2x_scaling,   CFGDEF_HQ2X_SCALING},
 
     // -KM- 1998/09/01 Useless mouse/joy stuff removed,
     //                 analogue binding added
@@ -189,7 +188,6 @@ static default_t defaults[] =
 	{CFGT_Boolean,  "var_hogcpu",        &var_hogcpu,     1},
 	{CFGT_Boolean,  "var_fadepower",     &var_fadepower,  1},
 	{CFGT_Boolean,  "var_smoothmap",     &var_smoothmap,  1},
-	{CFGT_Boolean,  "var_hq_scale",      &var_hq_scale,   1},
 
 	{CFGT_Int,      "var_nearclip",      &var_nearclip,   4},
 	{CFGT_Int,      "var_farclip",       &var_farclip,    64000},
@@ -234,9 +232,7 @@ static default_t defaults[] =
 
 // ===================== END OF INTERNALS =====================
 
-//
-// M_SaveDefaults
-//
+
 void M_SaveDefaults(void)
 {
 	edge_version = EDGEVER;
@@ -302,9 +298,7 @@ static void SetToBaseValue(default_t *def)
 	}
 }
 
-//
-// M_LoadDefaults
-//
+
 void M_LoadDefaults(void)
 {
 	int i;
@@ -396,11 +390,7 @@ void M_LoadDefaults(void)
 	return;
 }
 
-//
-// M_InitMiscConVars
-//
-// -AJA- 2005/01/05: added.
-//
+
 void M_InitMiscConVars(void)
 {
 	M_CheckBooleanParm("diskicon", &var_diskicon, false);
@@ -415,15 +405,8 @@ void M_InitMiscConVars(void)
 	M_CheckBooleanParm("smoothmap", &var_smoothmap, false);
 	CON_CreateCVarBool("smoothmap", cf_normal, &var_smoothmap);
 
-	M_CheckBooleanParm("hqscale", &var_hq_scale, false);
-	CON_CreateCVarBool("hqscale", cf_normal, &var_hq_scale);
 
-	M_CheckBooleanParm("hqall", &var_hq_all, false);
-	CON_CreateCVarBool("hqall", cf_normal, &var_hq_all);
-
-	const char *s;
-
-	s = M_GetParm("-nearclip");
+	const char *s = M_GetParm("-nearclip");
 	if (s)
 		var_nearclip = atoi(s);
 
@@ -433,15 +416,19 @@ void M_InitMiscConVars(void)
 
 	CON_CreateCVarInt("nearclip", cf_normal, &var_nearclip);
 	CON_CreateCVarInt("farclip",  cf_normal, &var_farclip);
+
+
+	if (M_CheckParm("-hqscale") || M_CheckParm("-hqall"))
+		hq2x_scaling = 3;
+	else if (M_CheckParm("-nohqscale"))
+		hq2x_scaling = 0;
 }
 
-//
-// M_DisplayDisk
-//
-// Displays disk during loading...
-//
+
 void M_DisplayDisk(void)
 {
+	/* displays disk icon during loading... */
+
 	if (!var_diskicon || !display_disk)
 		return;
    
@@ -457,13 +444,11 @@ void M_DisplayDisk(void)
 	RGL_Image320(314 - w, 164 - h, w, h, disk_image);
 }
 
-//
-// M_DisplayAir
-//
-// Displays air indicator when underwater
-//
+
 void M_DisplayAir(void)
 {
+	/* displays air indicator when underwater */
+
 	int i;
   
 	if (numplayers == 0)
@@ -506,9 +491,7 @@ void M_DisplayAir(void)
 #define PIXEL_GRN(pix)  (playpal_data[0][pix][1])
 #define PIXEL_BLU(pix)  (playpal_data[0][pix][2])
 
-//
-// M_ScreenShot
-//
+
 void M_ScreenShot(bool show_msg)
 {
 	const char *extension;
@@ -565,9 +548,7 @@ void M_ScreenShot(bool show_msg)
 	fclose(fp);
 }
 
-//
-// M_MakeSaveScreenShot
-//
+
 void M_MakeSaveScreenShot(void)
 {
 #if 0 /// FIXME:
@@ -711,6 +692,7 @@ byte* M_GetFileData(const char *filename, int *length)
 
 	return data;
 }
+
 
 void M_WarnError(const char *error,...)
 {
