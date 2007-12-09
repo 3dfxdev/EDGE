@@ -536,21 +536,6 @@ void RGL_DrawSkyWall(seg_t *seg, float h1, float h2)
 #define PIXEL_GRN(pix)  (what_palette[pix*3 + 1])
 #define PIXEL_BLU(pix)  (what_palette[pix*3 + 2])
 
-///---// -AJA- Another hack, this variable holds the current sky when
-///---// compute sky merging.  We hold onto the image, because there are
-///---// six sides to compute, and we don't want to load the original
-///---// image six times.  Removing this hack requires caching it in the
-///---// cache system (which is not possible right now).
-///---static epi::image_data_c *merging_sky_image;
-///---
-///---void W_ImageClearMergingSky(void)
-///---{
-///---	if (merging_sky_image)
-///---		delete merging_sky_image;
-///---
-///---	merging_sky_image = NULL;
-///---}
-
 
 static bool SkyIsNarrow(const image_c *sky)
 {
@@ -843,8 +828,6 @@ void RGL_UpdateSkyBoxTextures(void)
 	{
 		return;
 	}
-
-///---	W_ImageClearMergingSky(); // hack (see r_image.cc)
 
 	box_info.base_sky = sky_image;
 
