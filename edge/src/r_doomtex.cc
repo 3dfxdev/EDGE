@@ -601,11 +601,6 @@ static epi::image_data_c *ReadUserAsEpiBlock(image_c *rim)
 {
 	SYS_ASSERT(rim->source_type == IMSRC_User);
 
-///---	int tw = MAX(rim->total_w, 1);
-///---	int th = MAX(rim->total_h, 1);
-///---
-///---	int bpp = rim->img_solid ? 3 : 4;
-
 	// clear initial image to black / transparent
 	/// ALREADY DONE: memset(dest, pal_black, tw * th * bpp);
 
@@ -617,23 +612,6 @@ static epi::image_data_c *ReadUserAsEpiBlock(image_c *rim)
 
 		case IMGDT_Colour:
 			return CreateUserColourImage(rim, def);
-
-///---		{
-///---			epi::image_data_c *img = new epi::image_data_c(tw, th, bpp);
-///---			switch (def->builtin)
-///---			{
-///---				case BLTIM_Linear:
-///---				case BLTIM_Quadratic:
-///---				case BLTIM_Shadow:
-///---					CreateUserBuiltinShadow(img, def);
-///---					break;
-///---
-///---				default:
-///---					I_Error("ReadUserAsEpiBlock: Unknown builtin %d\n", def->builtin);
-///---					break;
-///---			}
-///---			return img;
-///---		}
 
 		case IMGDT_File:
 		case IMGDT_Lump:
@@ -670,9 +648,6 @@ epi::image_data_c *ReadAsEpiBlock(image_c *rim)
 		case IMSRC_Graphic:
 		case IMSRC_Sprite:
 			return ReadPatchAsEpiBlock(rim);
-
-///---		case IMSRC_SkyMerge:
-///---			return ReadSkyMergeAsEpiBlock(rim);
 
 		case IMSRC_Dummy:
 			return ReadDummyAsEpiBlock(rim);

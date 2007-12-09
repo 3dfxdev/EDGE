@@ -683,30 +683,6 @@ static void PlaneCoordFunc(void *d, int v_idx,
 }
 
 
-///---void ShadowCoordFunc(vec3_t *src, local_gl_vert_t *vert, void *d)
-///---{
-///---	wall_plane_data_t *data = (wall_plane_data_t *)d;
-///---
-///---	float x = src->x;
-///---	float y = src->y;
-///---	float z = src->z;
-///---
-///---
-///---	float tx = rx * data->x_mat.x + ry * data->x_mat.y;
-///---	float ty = rx * data->y_mat.x + ry * data->y_mat.y;
-///---
-///---	int R = 0;
-///---	int G = 0;
-///---	int B = 0;
-///---
-///---	SET_COLOR(LT_RED(R), LT_GRN(G), LT_BLU(B), data->trans);
-///---	SET_TEXCOORD(tx, ty);
-///---	SET_NORMAL(data->normal.x, data->normal.y, data->normal.z);
-///---	SET_EDGE_FLAG(GL_TRUE);
-///---	SET_VERTEX(x, y, z);
-///---}
-
-
 static void DLIT_Wall(mobj_t *mo, void *dataptr)
 {
 	wall_coord_data_t *data = (wall_coord_data_t *)dataptr;
@@ -2394,8 +2370,6 @@ static void DoWeaponModel(void)
 
 	solid_mode = false;
 	RGL_StartUnits(solid_mode);
-
-///---	R_ColmapPipe_SetProps(pl->mo->props);
 
 	RGL_DrawWeaponModel(pl);
 

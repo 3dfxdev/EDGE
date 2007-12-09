@@ -42,12 +42,6 @@ int var_nearclip = 4;
 int var_farclip  = 64000;
 
 
-///--- // -AJA- FIXME: temp hack
-///--- #ifndef GL_MAX_TEXTURE_UNITS
-///--- #define GL_MAX_TEXTURE_UNITS  0x84E2
-///--- #endif
-
-
 typedef enum
 {
 	PFT_LIGHTING   = (1 << 0),
@@ -234,20 +228,6 @@ void RGL_CheckExtensions(void)
 		dumb_clamp = true;
 	}
 
-
-///---	// -AJA- FIXME: temp hack, improve extension handling after 1.29
-///---	if (glstr_version[0] >= '2' ||
-///---	    glstr_version[0] == '1' && glstr_version[1] == '.' &&
-///---		glstr_version[2] >= '2')
-///---	{
-///---		glcap_edgeclamp = true;
-///---	}
-///---	else if (strstr(glstr_extensions, "GL_EXT_texture_edge_clamp") != NULL ||
-///---	         strstr(glstr_extensions, "GL_SGIS_texture_edge_clamp") != NULL)
-///---	{
-///---		I_Printf("OpenGL: EdgeClamp extension found.\n");
-///---		glcap_edgeclamp = true;
-///---	}
 
 	// --- Detect buggy drivers, enable workarounds ---
 	
