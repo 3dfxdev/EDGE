@@ -154,8 +154,8 @@ void font_c::LoadPatches()
 
 void font_c::LoadImageDiv()
 {
-	// FIXME !!!!!
-	
+	// TODO
+	I_Error("LoadImageDiv called??\n");
 }
 
 //

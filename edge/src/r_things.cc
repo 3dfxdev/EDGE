@@ -530,7 +530,7 @@ I_Debugf("Render model: no skin %d\n", skin_num);
 
 void RGL_DrawCrosshair(player_t * p)
 {
-	// !!!!! FIXME
+	// !!!!! FIXME : RGL_DrawCrosshair
 }
 
 
