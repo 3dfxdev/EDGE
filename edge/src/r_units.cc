@@ -350,11 +350,10 @@ void RGL_DrawUnits(void)
 		{
 			if (unit->blending & BL_Less)
 			{
-				// NOTE: assumes alpha is constant over whole polygon
-				float a = local_verts[unit->first].rgba[3];
-			
+				// glAlphaFunc is updated below, because the alpha
+				// value can change from unit to unit while the
+				// BL_Less flag remains set.
 				glEnable(GL_ALPHA_TEST);
-				glAlphaFunc(GL_GREATER, a * 0.66f);
 			}
 			else if (unit->blending & BL_Masked)
 			{
@@ -367,15 +366,15 @@ void RGL_DrawUnits(void)
 
 		if ((active_blending ^ unit->blending) & (BL_Alpha | BL_Add))
 		{
-			if (unit->blending & BL_Alpha)
-			{
-				glEnable(GL_BLEND);
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			}
-			else if (unit->blending & BL_Add)
+			if (unit->blending & BL_Add)
 			{
 				glEnable(GL_BLEND);
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+			}
+			else if (unit->blending & BL_Alpha)
+			{
+				glEnable(GL_BLEND);
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			}
 			else
 				glDisable(GL_BLEND);
@@ -398,6 +397,14 @@ void RGL_DrawUnits(void)
 		}
 
 		active_blending = unit->blending;
+
+		if (active_blending & BL_Less)
+		{
+			// NOTE: assumes alpha is constant over whole polygon
+			float a = local_verts[unit->first].rgba[3];
+
+			glAlphaFunc(GL_GREATER, a * 0.66f);
+		}
 
 		for (int t=1; t >= 0; t--)
 		{
