@@ -212,9 +212,12 @@ public:
 // mipmapping enabled ?
 // 0 off, 1 bilinear, 2 trilinear
 int var_mipmapping = 1;
+
 int var_smoothing  = 1;
 
 bool var_dithering = false;
+
+int hq2x_scaling = 1;
 
 
 // total set of images
@@ -765,22 +768,46 @@ static bool IM_ShouldSmooth(image_c *rim)
    	if (strnicmp(rim->name, "SKY", 3) == 0)
 		return true;
 
-	// FIXME: different smooth levels
-	
+	// TODO: more smooth options
+
 	return var_smoothing ? true : false;
 }
 
 static bool IM_ShouldHQ2X(image_c *rim)
 {
-	return false;  // FIXME !!!!!
+	// Note: no need to check IMSRC_User, since those images are
+	//       always PNG or JPEG (etc) and never palettised, hence
+	//       the Hq2x scaling would never apply.
+	
+	if (hq2x_scaling == 0)
+		return false;
+
+	if (hq2x_scaling >= 3)
+		return true;
+
+	switch (rim->source_type)
+	{
+		case IMSRC_Graphic:
+		case IMSRC_Raw320x200:
+			// UI elements
+			return true;
 #if 0
-	(rim->source_type == IMSRC_Raw320x200 ||
-	 rim->source_type == IMSRC_Graphic ||
-	 (var_hq_all &&
-	  (rim->source_type == IMSRC_Sprite ||
-	   rim->source_type == IMSRC_Flat ||
-	   rim->source_type == IMSRC_Texture))))
+		case IMSRC_Texture:
+			// the "SKY" check here is a hack...
+			if (strnicmp(rim->name, "SKY", 3) == 0)
+				return true;
+			break;
 #endif
+		case IMSRC_Sprite:
+			if (hq2x_scaling >= 2)
+				return true;
+			break;
+
+		default:
+			break;
+	}
+
+	return false;
 }
 
 static int IM_PixelLimit(image_c *rim)
@@ -869,7 +896,7 @@ real_cached_image_t *LoadImageOGL(image_c *rim, const colourmap_c *trans)
 	if (rim->opacity == OPAC_Unknown)
 		rim->opacity = R_DetermineOpacity(tmp_img);
 
-	if (var_hq_scale && (tmp_img->bpp == 1) && IM_ShouldHQ2X(rim))
+	if ((tmp_img->bpp == 1) && IM_ShouldHQ2X(rim))
 	{
 		bool solid = (rim->opacity == OPAC_Solid);
 
