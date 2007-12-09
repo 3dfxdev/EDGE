@@ -1,5 +1,14 @@
 Andrew Apted's Log
 
+2007/12/09:
+
+Fixed knobbly problem with new BL_Less blending flag, which
+was only setting the AlphaFunc on flag changes, causing
+weird issues like health potions disappearing.
+
+Added new "H.Q.2x Scaling" option to the Video Option menu,
+with four settings.
+
 2007/12/08:
 
 More image system work: replacing all the ShrinkBlockRGB(A)
