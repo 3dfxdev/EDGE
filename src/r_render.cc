@@ -2329,7 +2329,7 @@ static void RGL_DrawSubsector(drawsub_c *dsub)
 
 	cur_sub = sub;
 
-	//!!!!! FIXME
+	//!!!!! FIXME : sort dfloors into correct order
 	// if (! dsub->sorted) std::sort(dsub->floors.begin(), dsub->floors.end(), SORTER)
 
 	std::vector<drawfloor_t *>::iterator DFI;
