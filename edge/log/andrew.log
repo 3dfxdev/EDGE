@@ -5,6 +5,14 @@ Andrew Apted's Log
 Fixed problem with BL_ClampY code (dumb_clamp check was
 reversed).
 
+Noticed that the Smoothing/Mipmapping/HQ2X video options
+did not take effect immediately when changed, you had to
+restart EDGE.  The cause: ages ago I got rid of W_ImageDone()
+and hence the 'users' count of an image never came back to
+zero.  Added a quick and dirty hack for the Beta release.
+
++ Put out EDGE 1.31-Beta#1 +
+
 2007/12/09:
 
 Fixed knobbly problem with new BL_Less blending flag, which
@@ -172,7 +180,7 @@ needed for the end-of-game cast screen.
 
 2007/11/19:
 
-Put out the 1.31-Alpha#1 test package.
++ Put out EDGE 1.31-Alpha#1 +
 
 2007/11/18:
 
@@ -7823,7 +7831,7 @@ reliably and still be fast.
 
 Fixed -strict and -nowarn so they work when in external DDF mode.
 Problem was the checks were done in SetGlobalVars(), which gets called
-*after* external DDF files are read.  Ick.
+_after_ external DDF files are read.  Ick.
 
 Fixed a bug in TrueBSP that clipped sprites (esp. explosions)
 horizontally against a closed door.
