@@ -30,8 +30,8 @@ SUMMARY
 KNOWN PROBLEMS
 --------------
 
-- sound still does not work under Vista.
-- colormapped sectors (e.g. blue water) don't work yet.
++ sound still does not work under Vista.
++ colormapped sectors (e.g. blue water) don't work yet.
 - monsters with models seem to move very jerkily.
 - console background is a bit messed up.
 - additive dyn-lights on mid-masked textures look weird.
@@ -99,11 +99,14 @@ General improvements
   better compatibility with existing DOOM skies.  The old ORIGINAL
   mode now kicks in automatically when MLOOK is disabled.
 
+- new "H.Q.2x Scaling" option in the Video Options menu.
+
 - new (experimental) way of emulating the grayscale effect of the
   Invulnerable powerup (card/driver must support color-matrix).
 
 - better gamma handling (now done by the video driver).
 - more robust emulation of the flat-flooding trick.
+- improved, more consistent handling of alpha channels.
 - thin sliding doors can be activated remotely.
 - better way to gauge the player's actual speed.
 - sped up turning for path-following monsters.
