@@ -1602,10 +1602,9 @@ void W_ResetImages(void)
 	{
 		next = rc->next;
     
-		if (rc->users == 0)
-			UnloadImage(rc);
-		else
-			rc->invalidated = true;
+		rc->users = 0; //!!!!!! FIXME: quick and dirty HACK!
+
+		rc->invalidated = true;
 	}
 }
 
