@@ -51,6 +51,8 @@ bool dumb_clamp   = false;
 #define MAX_L_VERT  4096
 #define MAX_L_UNIT  (MAX_L_VERT / 4)
 
+#define DUMMY_CLAMP  789
+
 
 // a single unit (polygon, quad, etc) to pass to the GL
 typedef struct local_gl_unit_s
@@ -443,14 +445,14 @@ void RGL_DrawUnits(void)
 			}
 		}
 
-		GLint old_clamp;
+		GLint old_clamp = DUMMY_CLAMP;
 
-		if (active_blending & BL_ClampY)
+		if ((active_blending & BL_ClampY) && active_tex[0] != 0)
 		{
 			glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, &old_clamp);
 
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
-				dumb_clamp ? GL_CLAMP_TO_EDGE : GL_CLAMP);
+				dumb_clamp ? GL_CLAMP : GL_CLAMP_TO_EDGE);
 		}
 
 		glBegin(unit->shape);
@@ -463,7 +465,7 @@ void RGL_DrawUnits(void)
 		glEnd();
 
 		// restore the clamping mode
-		if (active_blending & BL_ClampY)
+		if (old_clamp != DUMMY_CLAMP)
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, old_clamp);
 	}
 
