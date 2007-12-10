@@ -1,5 +1,10 @@
 Andrew Apted's Log
 
+2007/12/10:
+
+Fixed problem with BL_ClampY code (dumb_clamp check was
+reversed).
+
 2007/12/09:
 
 Fixed knobbly problem with new BL_Less blending flag, which
