@@ -21,6 +21,58 @@
   <h2 class="page_title"> Latest News </h2>
 
 
+  <use BeginNews title="1.31 Beta#1 Available" date="12-Dec-2007">
+
+  We're happy to announce that EDGE 1.31-Beta#1 has been released.
+  This is a Work-In-Progress package provided for testing,
+  and there is still a lot left to do.
+  Three demo wads are included: one for MD2 models, one for Mirrors,
+  and one showing the flat alignment/scaling feature.
+
+  <p>
+  <font color="#6666CC"><u>MAJOR CHANGES</u></font>
+  <ul>
+    <li> MD2 models for things and weapons
+    <li> Mirrors with multiple reflections
+    <li> Good emulation of partial-invisibility effect
+    <li> Nicer dynamic lighting, sector glow effects
+    <li> Improved way of emulating DOOM light fading
+    <li> Rendering glitches fixed
+
+  </ul><ul>
+    <li> Flat alignment and scaling line-types
+    <li> TGA (targa) image format supported
+    <li> Monster weak spots, defined by DDF
+    <li> New DDF BECOME() action for changing type
+    <li> Armor properties can be modified
+  </ul>
+
+  <p>
+  <font color="#FF6666"><u>KNOWN PROBLEMS</u></font>
+  <ul>
+    <li> changing resolution messes up the screen (must restart)
+    <li> sound still does not work under Vista
+    <li> colormapped sectors (e.g. blue water) don't work yet
+    <li> monsters with models seem to move very jerkily
+    <li> console background is a bit messed up
+    <li> additive dyn-lights on mid-masked textures look weird
+  </ul>
+  
+  <p>
+  Download it here:
+  <a href="http://downloads.sourceforge.net/edge/Edge-1.31-Beta1.zip">
+  Edge-1.31-Beta1.zip
+  </a> (2.6 MB)
+
+  <p>
+  Full list of changes is here:
+  <a href="https://sourceforge.net/project/shownotes.php?release_id=560547&group_id=2232">
+  Change List
+  </a>
+
+  <use EndNews>
+
+
   <use BeginNews title="Editing Guide Begun" date="23-Sep-2007">
 
   The
