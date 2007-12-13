@@ -18,17 +18,17 @@ features from being implemented.
 
 <h3 class="sub_title">RELEASE 1.31</h3>
   <ul>
-    <li type="disc">LAN-based multiplayer
     <li type="disc">MD2 models (things &amp; weapons)
     <li type="disc">Mirrors (with multiple reflections)
     <li type="disc">New dynamic lighting
+    <li type="disc">Custom HUDs using LUA scripting
     <li type="disc">RTS Layout Tool
   </ul>
 
   <ul>
     <li type="circle">Sector glow effects
     <li type="circle">Flat alignment &amp; scaling linetypes
-    <li type="circle">OGG/Vorbis and WAV for sounds
+    <li type="circle">OGG/Vorbis for sounds
     <li type="circle">TGA image format
   </ul>
 
@@ -36,7 +36,7 @@ features from being implemented.
 
 <h3 class="sub_title">RELEASE 1.32</h3>
   <ul>
-    <li type="disc">Custom HUDs using LUA scripting
+    <li type="disc">LAN-based multiplayer
     <li type="disc">Better documentation (DDF Online)
     <li type="disc">MUS/MIDI playback for Linux
   </ul>
@@ -45,6 +45,7 @@ features from being implemented.
     <li type="circle">Better console
     <li type="circle">Inheritance for DDF
     <li type="circle">Hexen-like hub system
+    <li type="circle">WAV sound format
     <li type="circle">Vehicles
   </ul>
 
