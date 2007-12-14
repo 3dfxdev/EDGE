@@ -412,7 +412,10 @@ image_data_c *TGA_Load(file_c *f, int read_flags)
 
 	img->used_w = width;
 	img->used_h = height;
-	
+
+	if (width != tot_W || height != tot_H)
+		img->Clear();
+
 	/* read image pixels */
 
 	bool result;

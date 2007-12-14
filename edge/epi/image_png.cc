@@ -126,6 +126,9 @@ image_data_c *PNG_Load(file_c *f, int read_flags)
 	img->used_w = width;
 	img->used_h = height;
 
+	if (img->used_w != tot_W || img->used_h != tot_H)
+		img->Clear();
+
 	/* tell libpng to strip 16 bits/color down to 8 bits/color */
 	png_set_strip_16(png_ptr);
 
