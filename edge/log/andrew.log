@@ -1,5 +1,10 @@
 Andrew Apted's Log
 
+2007/12/14:
+
+Fixed the PNG,JPEG,TGA image loaders to Clear() the image
+when it has padding (used_w/h != total_w/h).
+
 2007/12/10:
 
 Fixed problem with BL_ClampY code (dumb_clamp check was
