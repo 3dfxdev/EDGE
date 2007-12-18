@@ -58,7 +58,7 @@ void RGL_DrawImage(float x, float y, float w, float h, const image_c *image,
 
 	float r = 1.0f, g = 1.0f, b = 1.0f;
 
-	GLuint tex_id = W_ImageCache(image, false,
+	GLuint tex_id = W_ImageCache(image, true,
 		(textmap && (textmap->special & COLSP_Whiten)) ? font_whiten_map : palremap);
 
 	glEnable(GL_TEXTURE_2D);
