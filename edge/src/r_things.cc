@@ -157,8 +157,8 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	float tex_top_h = top;  ///## 1.00f; // 0.98;
 	float tex_bot_h = 0.0f; ///## 1.00f - top;  // 1.02 - bottom;
 
-	float tex_x1 = 0.01f;
-	float tex_x2 = right - 0.01f;
+	float tex_x1 = 0.002f;
+	float tex_x2 = right - 0.002f;
 
 	if (flip)
 	{
