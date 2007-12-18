@@ -1,12 +1,115 @@
 <file include="../common/common.inc">
 
-<set title="EDGE: Old News">
+<set title="EDGE: Older News">
 
 <block name="content">
 
-  <h2 class="page_title"> Old News </h2>
+  <h2 class="page_title"> Older News </h2>
 
-  <!--- move old news items here --->
+
+  <use BeginNews title="1.29 RC#5 Available" date="21-Apr-2007">
+
+  We're very happy to announce that Release Candidate #5 for
+  EDGE 1.29 is now available for testing.  The two most
+  significant changes are: (1) replacing the OpenAL sound system
+  with new SDL-based sound code, and (2) much improved BOOM
+  compatibility.  Plus of course lots of bug fixing.
+  <br>
+
+  <p>
+  Download it here:
+  <a href="http://downloads.sourceforge.net/edge/edge-1.29RC5-win32.zip">
+  edge-1.29RC5-win32.zip
+  </a> (2.3 MB)
+
+  <p>
+  Full list of changes since RC#4 is here:
+  <a href="https://sourceforge.net/project/shownotes.php?release_id=502749&group_id=2232">
+  Change List
+  </a>
+
+  <use EndNews>
+
+
+  <use BeginNews title="Back from China" date="18-Jan-2007">
+
+  I'm back from China and keen to get stuck into some EDGE
+  stuff. For starters, I have converted the ChangeLog files
+  into HTML and uploaded them to the new EDGE website.
+  
+  <use EndNews>
+
+
+  <use BeginNews title="Screenshots" date="25-Nov-2006">
+
+  Some screenshots of EDGE have been added to the website.
+  Suggestions for more screenshots (or better ones) are
+  welcome, just drop me a note on the forum or via email.
+
+  <use EndNews>
+
+
+  <use BeginNews title="Busy for a while" date="07-Nov-2006">
+
+  A quick note to say that I'm pretty busy right now,
+  with an exam next week and a six-week trip to China
+  shortly after that.
+  Hence there won't be much progress with EDGE until I get back,
+  although I'm hoping to at least get the RC5 binary out before I go.
+
+  <p>
+  -- Ajapted
+
+  <use EndNews>
+
+
+  <use BeginNews title="RTS back Online!" date="22-Sep-2006">
+
+  I'm very pleased to announce that the RTS documentation
+  is back online.
+  It has been rewritten as normal documentation,
+  replacing the "build your own script" functionality that
+  Fanatic's original version had.
+  Plus everything has been updated for the latest version
+  of EDGE.
+
+  <p>
+  A big thanks to Lobo for doing most of the grunt-work of
+  converting this documentation from the old format.
+
+  <use EndNews>
+
+
+  <use BeginNews title="New site" date="5-Sep-2006">
+
+  The brand spanking new EDGE website is now up!
+  Many sections are still being developed (all the
+  grayed-out links in the navigation menu), and
+  will be added as soon as they are completed.
+
+  <use EndNews>
+
+
+  <use BeginNews title="DarkKnight departs" date="15-Jul-2006">
+
+  Andrew "DarkKnight" Baker has decided that it's time to move on.
+  He was the project leader of EDGE since the beginning,
+  and before that was an active member of DosDOOM
+  (the forerunner to EDGE).
+
+  <p>
+  Everyone here wishes DarkKnight all the best in his
+  future endeavours, and we thank him for his immense
+  contribution.
+
+  <p>
+  Picking up the baton is Andrew Apted, and with
+  the help of Luke "Lobo" Brennan,
+  everything is rolling to get the 1.29 release
+  over the finish line.
+
+  <use EndNews>
+
 
 </block>
 
