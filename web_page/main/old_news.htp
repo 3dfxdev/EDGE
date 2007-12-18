@@ -7,6 +7,16 @@
   <h2 class="page_title"> Older News </h2>
 
 
+  <use BeginNews title="New Forums" date="13-May-2007">
+
+  EDGE now has its own forums!
+  This one is much better than the old SourceForge forums.
+  Just click on the "Forums" link near the top of the navigation menu.
+  Hope to see you there!
+
+  <use EndNews>
+
+
   <use BeginNews title="1.29 RC#5 Available" date="21-Apr-2007">
 
   We're very happy to announce that Release Candidate #5 for
