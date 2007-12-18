@@ -128,7 +128,9 @@ void R_AddFlatAnim(animdef_c *anim)
 	const image_c **flats = new const image_c* [total];
 
 	for (int i = 0; i < total; i++)
+	{
 		flats[i] = W_ImageLookup(anim->pics[i], INS_Flat, ILF_Null|ILF_Exact);
+	}
 
 	W_AnimateImageSet(flats, total, anim->speed);
 	delete[] flats;
@@ -201,7 +203,9 @@ void R_AddTextureAnim(animdef_c *anim)
 	const image_c **texs = new const image_c* [total];
 
 	for (int i = 0; i < total; i++)
+	{
 		texs[i] = W_ImageLookup(anim->pics[i], INS_Texture, ILF_Null|ILF_Exact);
+	}
 
 	W_AnimateImageSet(texs, total, anim->speed);
 	delete[] texs;
@@ -222,7 +226,9 @@ void R_AddGraphicAnim(animdef_c *anim)
 	const image_c **users = new const image_c* [total];
 
 	for (int i = 0; i < total; i++)
+	{
 		users[i] = W_ImageLookup(anim->pics[i], INS_Graphic, ILF_Null|ILF_Exact);
+	}
 
 	W_AnimateImageSet(users, total, anim->speed);
 	delete[] users;
