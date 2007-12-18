@@ -1,6 +1,7 @@
 index.htp ../out/index.html
 about.htp ../out/about.htm
 faq.htp ../out/faq.htm
+old_news.htp ../out/old_news.htm
 contact.htp ../out/contact.htm
 credits.htp ../out/credits.htm
 projects.htp ../out/projects.htm
