@@ -475,6 +475,9 @@ void G_Ticker(bool fresh_game_tic)
 	if (! fresh_game_tic)
 		return;
 
+	// ANIMATE FLATS AND TEXTURES GLOBALLY
+	W_UpdateImageAnims();
+
 	// do main actions
 	switch (gamestate)
 	{

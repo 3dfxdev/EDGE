@@ -1451,10 +1451,6 @@ void P_UpdateSpecials(void)
 			G_ExitLevel(1);
 	}
 
-	// ANIMATE FLATS AND TEXTURES GLOBALLY
-
-	W_UpdateImageAnims();
-
 	// ANIMATE LINE SPECIALS
 	// -KM- 1998/09/01 Lines.ddf
 	for (line = line_speciallist; line; line = line->animate_next)
