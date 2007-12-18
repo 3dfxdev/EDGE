@@ -1,5 +1,20 @@
 Andrew Apted's Log
 
+2007/12/18:
+
+The EDGE code has long supported GRAPHIC animations defined
+in ANIMS.DDF, however it was never enabled, so today I made
+two small changes to the code and they now work fine!
+
+One caveat: hud graphics must use the same size and offsets
+otherwise some animation frames will be stretched/squashed.
+
+Some ideas: the flashing-eye skull used for the menus could
+be done using this technique, allowing modders to create
+fancier animations (and simplifying the code).  Also this
+could really simplify the animation stuff for the DOOM 1
+intermission screens (that parsing code is _nasty_).
+
 2007/12/14:
 
 Fixed the PNG,JPEG,TGA image loaders to Clear() the image
