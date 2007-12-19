@@ -44,6 +44,7 @@
 #include "m_random.h"
 #include "n_network.h"
 #include "p_bot.h"
+#include "p_hubs.h"
 #include "p_setup.h"
 #include "p_tick.h"
 #include "rad_trig.h"
@@ -129,9 +130,7 @@ static newgame_params_c *d_params = NULL;
 
 #define TURBOTHRESHOLD  0x32
 
-//
-// G_DoLoadLevel 
-//
+
 void G_DoLoadLevel(void)
 {
 	if (currmap == NULL)
@@ -517,9 +516,7 @@ void G_Ticker(bool fresh_game_tic)
 	}
 }
 
-//
-// G_DoReborn
-// 
+
 static void G_DoReborn(player_t *p)
 {
 	// first disassociate the corpse (if any)
@@ -586,9 +583,7 @@ void G_ExitToLevel(char *name, int time, bool skip_all)
 	exit_skipall = skip_all;
 }
 
-//
-// G_DoCompleted 
-//
+
 static void G_DoCompleted(void)
 {
 	E_ForceWipe();
@@ -698,7 +693,7 @@ static void G_DoLoadGame(void)
 		return;
 	}
 
-	SV_BeginLoad();
+	SV_BeginLoad(false);
 
 	globs = SV_LoadGLOB();
 
@@ -782,6 +777,10 @@ static void G_DoLoadGame(void)
 	SV_FinishLoad();
 	SV_CloseReadFile();
 
+	std::string fn_base = epi::PATH_GetBasename(fn.c_str());
+
+	HUB_CopyHubsForLoadgame(fn_base.c_str());
+
 	ST_Start();
 	HU_Start();
 }
@@ -863,6 +862,10 @@ static void G_DoSaveGame(void)
 
 	SV_FinishSave();
 	SV_CloseWriteFile();
+
+	std::string fn_base = epi::PATH_GetBasename(fn.c_str());
+
+	HUB_CopyHubsForSavegame(fn_base.c_str());
 
 	savedescription[0] = 0;
 
@@ -1083,9 +1086,7 @@ static void G_DoEndGame(void)
 	E_StartTitle();
 }
 
-//
-// G_CheckWhenAppear
-//
+
 bool G_CheckWhenAppear(when_appear_e appear)
 {
 	if (! (appear & (1 << gameskill)))
@@ -1103,9 +1104,7 @@ bool G_CheckWhenAppear(when_appear_e appear)
 	return true;
 }
 
-//
-// G_LookupMap()
-//
+
 mapdef_c* G_LookupMap(const char *refname)
 {
 	mapdef_c* m;
