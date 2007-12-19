@@ -138,5 +138,15 @@ bool HUB_AlreadyVisited(const char *map)
 	return HUB_FindMap(map) ? true : false;
 }
 
+void HUB_AddMap(const char *map)
+{
+	if (HUB_FindMap(map))
+		I_Error("INTERNAL ERROR: HUB_AddMap with already visited hub.\n");
+
+	dormant_hub_c *H = new dormant_hub_c(dormant_hubs.size(), map);
+
+	dormant_hubs.push_back(H);
+}
+
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

@@ -48,6 +48,9 @@ dormant_hub_c * HUB_FindMap(const char *map);
 bool HUB_AlreadyVisited(const char *map);
 // check if the map has already been visited.
 
+void HUB_AddMap(const char *map);
+// the map must not already be present.
+
 #endif /* __P_HUBS__ */
 
 //--- editor settings ---
