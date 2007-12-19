@@ -220,7 +220,9 @@ static bool G_CheckSpot(player_t *player, const spawnpoint_t *point)
 				fabs(p->mo->y - y) < 8.0f)
 				return false;
 		}
-		return true;
+
+		P_SpawnPlayer(player, point);
+		return true; // OK
 	}
 
 	if (!P_CheckAbsPosition(player->mo, x, y, z))
@@ -235,7 +237,6 @@ static bool G_CheckSpot(player_t *player, const spawnpoint_t *point)
 	P_MobjCreateObject(x, y, z, mobjtypes.Lookup("TELEPORT_FLASH"));
 
 	P_SpawnPlayer(player, point);
-
 	return true; // OK
 }
 
