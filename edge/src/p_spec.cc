@@ -904,6 +904,11 @@ static bool P_ActivateSpecialLine(line_t * line,
 		G_SecretExitLevel(5);
 		texSwitch = true;
 	}
+	else if (special->e_exit == EXIT_Hub)
+	{
+		G_ExitToHub(special->hub_exit, line ? line->tag : tag);
+		texSwitch = true;
+	}
 
 	if (special->d.dodonut)
 	{

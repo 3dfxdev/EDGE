@@ -2409,6 +2409,7 @@ void P_Init(void)
 	voodoo_doll_starts.Clear();
 
 	HUB_Init();
+	HUB_DeleteHubSaves();
 }
 
 

@@ -107,6 +107,8 @@ void G_DeferredEndGame(void);
 void G_ExitLevel(int time);
 void G_SecretExitLevel(int time);
 void G_ExitToLevel(char *name, int time, bool skip_all);
+void G_ExitToHub(const char *map_name, int tag);
+void G_ExitToHub(int map_number, int tag);
 
 void G_Ticker(bool fresh_game_tic);
 bool G_Responder(event_t * ev);
