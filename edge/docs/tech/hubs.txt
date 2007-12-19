@@ -9,9 +9,9 @@ level, is stored in a savegame with a special name:
 
 To perform a full savegame, the current level is saved normally,
 for example to file SAVE0123.esg, and the hub savegames are
-simply renamed, e.g. HUB02.esg --> SAVE0123_02.esg.
+simply copied, e.g. HUB02.esg --> SAVE0123_02.esg.
 
-Performing a full loadgame means renaming the hub savegames
+Performing a full loadgame means copying the hub savegames
 and then doing a normal load for the current level.
 
 Whenever a new level is started normally (not part of the
@@ -33,4 +33,9 @@ HUB API
 HUB_Init();
 
 HUB_DeleteHubSaves()
+
+HUB_CopyHubsForSaving(basename)
+
+HUB_CopyHubsForLoading(basename)
+
 
