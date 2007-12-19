@@ -58,9 +58,6 @@ static void AddLoadedArray(savearray_t *A)
 	loaded_array_list = A;
 }
 
-//
-// SV_LookupLoadedStruct
-//
 savestruct_t *SV_LookupLoadedStruct(const char *name)
 {
 	savestruct_t *cur;
@@ -73,9 +70,6 @@ savestruct_t *SV_LookupLoadedStruct(const char *name)
 	return NULL;
 }
 
-//
-// SV_LookupLoadedArray
-//
 savearray_t *SV_LookupLoadedArray(const char *name)
 {
 	savearray_t *cur;
@@ -94,13 +88,10 @@ savearray_t *SV_LookupLoadedArray(const char *name)
 //  LOADING STUFF
 //
 
-//
-// SV_BeginLoad
-//
-// Prepare main code for loading, e.g. initialise some lists.
-//
 void SV_BeginLoad(void)
 {
+	/* Prepare main code for loading, e.g. initialise some lists */
+
 	savestruct_t *S;
 	savearray_t *A;
 
@@ -134,14 +125,11 @@ static void LoadFreeArray(savearray_t *cur)
 	delete cur;
 }
 
-//
-// SV_FinishLoad
-//
-// Finalise all the arrays, and free some stuff after loading has
-// finished.
-//
 void SV_FinishLoad(void)
 {
+	// Finalise all the arrays, and free some stuff after loading
+	// has finished.
+
 	L_WriteDebug("SV_FinishLoad...\n");
 
 	while (loaded_struct_list)
@@ -207,13 +195,10 @@ static void StructSkipField(savefield_t *field)
 	}
 }
 
-//
-// SV_LoadStruct
-//
-// The savestruct_t here is the "loaded" one.
-//
 bool SV_LoadStruct(void *base, savestruct_t *info)
 {
+	// the savestruct_t here is the "loaded" one.
+
 	char marker[6];
 	savefield_t *cur, *actual;
 	char *storage;
@@ -413,9 +398,6 @@ static bool SV_LoadDATA(void)
 	return true;
 }
 
-//
-// SV_LoadEverything
-//
 bool SV_LoadEverything(void)
 {
 	char marker[6];
