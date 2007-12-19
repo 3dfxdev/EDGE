@@ -172,6 +172,7 @@ static const commandlist_t linedef_commands[] =
 	DF("LIGHT_SYNC", l.sync, DDF_MainGetTime),
 	DF("LIGHT_STEP", l.step, DDF_MainGetNumeric),
 	DF("EXIT", e_exit, DDF_SectGetExit),
+	DF("HUB_EXIT", hub_exit, DDF_MainGetNumeric),
 
 	{"SCROLL", DDF_LineGetScroller, &s_dir, NULL},
 	{"SCROLLING_SPEED", DDF_MainGetFloat, &s_speed, NULL},
@@ -365,6 +366,9 @@ static void LinedefFinishEntry(void)
 	// backwards compat: COUNT=0 means no limit on triggering
 	if (buffer_line.count == 0)
 		buffer_line.count = -1;
+
+	if (buffer_line.hub_exit > 0)
+		buffer_line.e_exit = EXIT_Hub;
 
 	// check stuff...
 
@@ -1552,6 +1556,7 @@ void linetype_c::CopyDetail(linetype_c &src)
 
 	ladder = src.ladder;
 	e_exit = src.e_exit;
+	hub_exit = src.hub_exit;
 	s_xspeed = src.s_xspeed;
 	s_yspeed = src.s_yspeed;
 	scroll_parts = src.scroll_parts;
@@ -1605,6 +1610,7 @@ void linetype_c::Default(void)
 	ladder.Default();	// Ladder
 	
 	e_exit = EXIT_None;
+	hub_exit = 0;
 	s_xspeed = 0.0f;
 	s_yspeed = 0.0f;
 	scroll_parts = SCPT_None;
