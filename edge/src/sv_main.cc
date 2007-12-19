@@ -48,6 +48,7 @@ void *sv_current_elem;
 extern savestruct_t sv_struct_mobj;
 extern savestruct_t sv_struct_spawnpoint;
 extern savestruct_t sv_struct_iteminque;
+
 extern savearray_t sv_array_mobj;
 extern savearray_t sv_array_iteminque;
 
@@ -56,6 +57,7 @@ extern savestruct_t sv_struct_player;
 extern savestruct_t sv_struct_playerweapon;
 extern savestruct_t sv_struct_playerammo;
 extern savestruct_t sv_struct_psprite;
+
 extern savearray_t sv_array_player;
 
 // sv_level.c
@@ -65,10 +67,13 @@ extern savestruct_t sv_struct_line;
 extern savestruct_t sv_struct_regprops;
 extern savestruct_t sv_struct_exfloor;
 extern savestruct_t sv_struct_sector;
+extern savestruct_t sv_struct_hub;
+
 extern savearray_t sv_array_side;
 extern savearray_t sv_array_line;
 extern savearray_t sv_array_exfloor;
 extern savearray_t sv_array_sector;
+extern savearray_t sv_array_hub;
 
 // sv_misc.c
 extern savestruct_t sv_struct_button;
@@ -76,6 +81,7 @@ extern savestruct_t sv_struct_light;
 extern savestruct_t sv_struct_trigger;
 extern savestruct_t sv_struct_drawtip;
 extern savestruct_t sv_struct_plane_move;
+
 extern savearray_t sv_array_button;
 extern savearray_t sv_array_light;
 extern savearray_t sv_array_trigger;
@@ -88,63 +94,42 @@ extern savearray_t sv_array_plane_move;
 //  GET ROUTINES
 //
 
-//
-// SR_GetByte
-//
 bool SR_GetByte(void *storage, int index, void *extra)
 {
 	((unsigned char *)storage)[index] = SV_GetByte();
 	return true;
 }
 
-//
-// SR_GetShort
-//
 bool SR_GetShort(void *storage, int index, void *extra)
 {
 	((unsigned short *)storage)[index] = SV_GetShort();
 	return true;
 }
 
-//
-// SR_GetInt
-//
 bool SR_GetInt(void *storage, int index, void *extra)
 {
 	((unsigned int *)storage)[index] = SV_GetInt();
 	return true;
 }
 
-//
-// SR_GetAngle
-//
 bool SR_GetAngle(void *storage, int index, void *extra)
 {
 	((angle_t *)storage)[index] = SV_GetAngle();
 	return true;
 }
 
-//
-// SR_GetFloat
-//
 bool SR_GetFloat(void *storage, int index, void *extra)
 {
 	((float *)storage)[index] = SV_GetFloat();
 	return true;
 }
 
-//
-// SR_GetBoolean
-//
 bool SR_GetBoolean(void *storage, int index, void *extra)
 {
 	((bool *)storage)[index] = SV_GetInt() ? true : false;
 	return true;
 }
 
-//
-// SR_GetVec2
-//
 bool SR_GetVec2(void *storage, int index, void *extra)
 {
 	((vec2_t *)storage)[index].x = SV_GetFloat();
@@ -152,9 +137,6 @@ bool SR_GetVec2(void *storage, int index, void *extra)
 	return true;
 }
 
-//
-// SR_GetVec3
-//
 bool SR_GetVec3(void *storage, int index, void *extra)
 {
 	((vec3_t *)storage)[index].x = SV_GetFloat();
@@ -163,9 +145,6 @@ bool SR_GetVec3(void *storage, int index, void *extra)
 	return true;
 }
 
-//
-// SR_GetFloatFromInt
-//
 bool SR_GetFloatFromInt(void *storage, int index, void *extra)
 {
 	((float *)storage)[index] = (float)SV_GetInt();
@@ -173,11 +152,9 @@ bool SR_GetFloatFromInt(void *storage, int index, void *extra)
 }
 
 //
-// SR_GetAngleFromSlope
-//
 // For backwards compatibility with old savegames, keep the mlook angle
-// stored in the savegame file as a slope.  Possible because we forbid
-// looking directly up and down.
+// stored in the savegame file as a slope.  Because we forbid looking
+// directly up and down, there is no problem with infinity.
 //
 bool SR_GetAngleFromSlope(void *storage, int index, void *extra)
 {
@@ -191,66 +168,42 @@ bool SR_GetAngleFromSlope(void *storage, int index, void *extra)
 //  COMMON PUT ROUTINES
 //
 
-//
-// SR_PutByte
-//
 void SR_PutByte(void *storage, int index, void *extra)
 {
 	SV_PutByte(((unsigned char *)storage)[index]);
 }
 
-//
-// SR_PutShort
-//
 void SR_PutShort(void *storage, int index, void *extra)
 {
 	SV_PutShort(((unsigned short *)storage)[index]);
 }
 
-//
-// SR_PutInt
-//
 void SR_PutInt(void *storage, int index, void *extra)
 {
 	SV_PutInt(((unsigned int *)storage)[index]);
 }
 
-//
-// SR_PutAngle
-//
 void SR_PutAngle(void *storage, int index, void *extra)
 {
 	SV_PutAngle(((angle_t *)storage)[index]);
 }
 
-//
-// SR_PutFloat
-//
 void SR_PutFloat(void *storage, int index, void *extra)
 {
 	SV_PutFloat(((float *)storage)[index]);
 }
 
-//
-// SR_PutBoolean
-//
 void SR_PutBoolean(void *storage, int index, void *extra)
 {
 	SV_PutInt(((bool *)storage)[index] ? 1 : 0);
 }
 
-//
-// SR_PutVec2
-//
 void SR_PutVec2(void *storage, int index, void *extra)
 {
 	SV_PutFloat(((vec2_t *)storage)[index].x);
 	SV_PutFloat(((vec2_t *)storage)[index].y);
 }
 
-//
-// SR_PutVec3
-//
 void SR_PutVec3(void *storage, int index, void *extra)
 {
 	SV_PutFloat(((vec3_t *)storage)[index].x);
@@ -258,9 +211,6 @@ void SR_PutVec3(void *storage, int index, void *extra)
 	SV_PutFloat(((vec3_t *)storage)[index].z);
 }
 
-//
-// SR_PutAngleToSlope
-//
 void SR_PutAngleToSlope(void *storage, int index, void *extra)
 {
 	angle_t val = ((angle_t *)storage)[index];
@@ -289,14 +239,11 @@ static void AddKnownArray(savearray_t *A)
 }
 
 
-//
-// SV_MainInit
-//
-// One-time initialisation.  Sets up lists of known structures and
-// arrays.
-//
 void SV_MainInit(void)
 {
+	// One-time initialisation.  Sets up lists of known structures
+	// and arrays.
+
 	SV_ChunkInit();
 
 	// sv_mobj.c
@@ -322,11 +269,13 @@ void SV_MainInit(void)
 	AddKnownStruct(&sv_struct_regprops);
 	AddKnownStruct(&sv_struct_exfloor);
 	AddKnownStruct(&sv_struct_sector);
+	AddKnownStruct(&sv_struct_hub);
 
 	AddKnownArray(&sv_array_side);
 	AddKnownArray(&sv_array_line);
 	AddKnownArray(&sv_array_exfloor);
 	AddKnownArray(&sv_array_sector);
+	AddKnownArray(&sv_array_hub);
 
 	// sv_misc.c
 	AddKnownStruct(&sv_struct_button);
@@ -342,9 +291,6 @@ void SV_MainInit(void)
 	AddKnownArray(&sv_array_plane_move);
 }
 
-//
-// SV_MainLookupStruct
-//
 savestruct_t *SV_MainLookupStruct(const char *name)
 {
 	savestruct_t *cur;
@@ -357,9 +303,6 @@ savestruct_t *SV_MainLookupStruct(const char *name)
 	return NULL;
 }
 
-//
-// SV_MainLookupArray
-//
 savearray_t *SV_MainLookupArray(const char *name)
 {
 	savearray_t *cur;
