@@ -335,6 +335,7 @@ wbstartstruct_t;
 void P_ConsolePlayerBuilder(const player_t *p, void *data, ticcmd_t *dest);
 void P_BotPlayerBuilder(const player_t *p, void *data, ticcmd_t *dest);
 
+void G_ClearBodyQueue(void);
 void G_DeathMatchSpawnPlayer(player_t *p);
 void G_CoopSpawnPlayer(player_t *p);
 void G_SpawnVoodooDolls(player_t *p);

@@ -65,15 +65,43 @@ int displayplayer = -1; // view being displayed
 // for intermission
 int totalkills, totalitems, totalsecret;
 
-#define BODYQUESIZE     32
+#define MAX_BODIES   50
 
-mobj_t *bodyque[BODYQUESIZE];
-int bodyqueslot;
+static mobj_t *bodyqueue[MAX_BODIES];
+static int bodyqueue_size = 0;
 
 // Maintain single and multi player starting spots.
 spawnpointarray_c dm_starts;
 spawnpointarray_c coop_starts;
 spawnpointarray_c voodoo_doll_starts;
+
+static void P_SpawnPlayer(player_t *p, const spawnpoint_t *point);
+
+
+void G_ClearBodyQueue(void)
+{
+	memset(bodyqueue, 0, sizeof(bodyqueue));
+
+	bodyqueue_size = 0;
+}
+
+void G_AddBodyToQueue(mobj_t *mo)
+{
+	// flush an old corpse if needed 
+	if (bodyqueue_size >= MAX_BODIES)
+	{
+		mobj_t *rotten = bodyqueue[bodyqueue_size % MAX_BODIES];
+		rotten->refcount--;
+		
+		P_RemoveMobj(rotten);
+	}
+
+	mo->refcount++;  // prevent accidental re-use
+
+	bodyqueue[bodyqueue_size % MAX_BODIES] = mo;
+	bodyqueue_size++;
+}
+
 
 //
 // G_PlayerFinishLevel
@@ -174,7 +202,9 @@ void player_s::Reborn()
 //
 static bool G_CheckSpot(player_t *player, const spawnpoint_t *point)
 {
-	float x, y, z;
+	float x = point->x;
+	float y = point->y;
+	float z = point->z;
 
 	if (!player->mo)
 	{
@@ -186,25 +216,17 @@ static bool G_CheckSpot(player_t *player, const spawnpoint_t *point)
 			if (!p || !p->mo || p == player)
 				continue;
 
-			if (fabs(p->mo->x - point->x) < 8.0f &&
-				fabs(p->mo->y - point->y) < 8.0f)
+			if (fabs(p->mo->x - x) < 8.0f &&
+				fabs(p->mo->y - y) < 8.0f)
 				return false;
 		}
 		return true;
 	}
 
-	x = point->x;
-	y = point->y;
-	z = point->z;
-
 	if (!P_CheckAbsPosition(player->mo, x, y, z))
 		return false;
 
-	// flush an old corpse if needed 
-	if (bodyqueslot >= BODYQUESIZE)
-		P_RemoveMobj(bodyque[bodyqueslot % BODYQUESIZE]);
-	bodyque[bodyqueslot % BODYQUESIZE] = player->mo;
-	bodyqueslot++;
+	G_AddBodyToQueue(player->mo);
 
 	// spawn a teleport fog 
 	// (temp fix for teleport effect)
@@ -212,7 +234,9 @@ static bool G_CheckSpot(player_t *player, const spawnpoint_t *point)
 	y += 20 * M_Sin(point->angle);
 	P_MobjCreateObject(x, y, z, mobjtypes.Lookup("TELEPORT_FLASH"));
 
-	return true;
+	P_SpawnPlayer(player, point);
+
+	return true; // OK
 }
 
 static void SetPlayerConVars(player_t *p)
@@ -460,10 +484,7 @@ void G_DeathMatchSpawnPlayer(player_t *p)
 			int i = (begin + j) % dm_starts.GetSize();
 
 			if (G_CheckSpot(p, dm_starts[i]))
-			{
-				P_SpawnPlayer(p, dm_starts[i]);
 				return;
-			}
 		}
 	}
 
@@ -477,10 +498,7 @@ void G_DeathMatchSpawnPlayer(player_t *p)
 			int i = (begin + j) % coop_starts.GetSize();
 
 			if (G_CheckSpot(p, coop_starts[i]))
-			{
-				P_SpawnPlayer(p, coop_starts[i]);
 				return;
-			}
 		}
 	}
 
@@ -500,28 +518,26 @@ void G_CoopSpawnPlayer(player_t *p)
 	if (sp == NULL)
 		I_Error("Missing player %d start !\n", p->pnum+1);
 
-	if (! G_CheckSpot(p, sp))
+	if (G_CheckSpot(p, sp))
+		return;
+
+	I_Warning("Player %d start is invalid.\n", p->pnum+1);
+
+	int begin = p->pnum;
+
+	// try to spawn at one of the other players spots
+	for (int j = 0; j < coop_starts.GetSize(); j++)
 	{
-		I_Warning("Player %d start is invalid.\n", p->pnum+1);
+		int i = (begin + j) % coop_starts.GetSize();
 
-		int begin = p->pnum;
+		spawnpoint_t *new_sp = coop_starts[i];
 
-		// try to spawn at one of the other players spots
-		for (int j = 0; j < coop_starts.GetSize(); j++)
+		if (G_CheckSpot(p, new_sp))
 		{
-			int i = (begin + j) % coop_starts.GetSize();
-
-			spawnpoint_t *new_sp = coop_starts[i];
-
-			if (G_CheckSpot(p, new_sp))
-			{
-				sp = new_sp;
-				break;
-			}
+			sp = new_sp;
+			break;
 		}
 	}
-
-	P_SpawnPlayer(p, sp);
 }
 
 //
