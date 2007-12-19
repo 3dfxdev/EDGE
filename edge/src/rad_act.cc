@@ -703,14 +703,20 @@ void RAD_ActGotoMap(rad_trigger_t *R, mobj_t *actor, void *param)
 	s_gotomap_t *go = (s_gotomap_t *) param;
 
 	// Warp to level n
-	G_ExitToLevel(go->map_name, 5, go->skip_all);
+	if (go->is_hub)
+		G_ExitToHub(go->map_name, go->tag);
+	else
+		G_ExitToLevel(go->map_name, 5, go->skip_all);
 }
 
 void RAD_ActExitLevel(rad_trigger_t *R, mobj_t *actor, void *param)
 {
 	s_exit_t *exit = (s_exit_t *) param;
 
-	G_ExitLevel(exit->exittime);
+	if (exit->is_secret)
+		G_SecretExitLevel(exit->exittime);
+	else
+		G_ExitLevel(exit->exittime);
 }
 
 void RAD_ActPlaySound(rad_trigger_t *R, mobj_t *actor, void *param)

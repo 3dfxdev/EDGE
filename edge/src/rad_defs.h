@@ -190,6 +190,9 @@ typedef struct
 	char *map_name;
 
 	bool skip_all;
+	bool is_hub;
+
+	int tag;
 }
 s_gotomap_t;
 
@@ -318,6 +321,8 @@ typedef struct s_exit_s
 {
 	// exit time, in tics
 	int exittime;
+
+	bool is_secret;
 }
 s_exit_t;
 
