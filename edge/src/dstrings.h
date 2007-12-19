@@ -43,6 +43,9 @@
 #define SAVEGAMEDIR    "savegame"
 #define SCRNSHOTDIR    "screenshot"
 
+#define HUBDIR         "hubs"
+#define HUBBASE        "hub"
+
 #ifdef WIN32
 #define EDGEHOMESUBDIR  "Application Data\\Edge"
 #else // Linux
