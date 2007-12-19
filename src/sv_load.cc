@@ -370,17 +370,24 @@ static bool SV_LoadDATA(void)
 
 	SV_FreeString(array_name);
 
-	// nothing to load if not known
-	if (! A->counterpart)
-		return true;
-
 	for (int i=0; i < A->loaded_size; i++)
 	{
 		//??? check error too ???
 		if (SV_RemainingChunkSize() == 0)
 			return false;
 
-		if (sv_loading_hub && !A->counterpart->allow_hub)
+		if (A->counterpart &&
+			(!sv_loading_hub || A->counterpart->allow_hub))
+		{
+			sv_current_elem = (* A->counterpart->get_elem)(i);
+
+			if (! sv_current_elem)
+				I_Error("SV_LoadDATA: FIXME: skip elems\n");
+
+			if (! SV_LoadStruct(sv_current_elem, A->sdef))
+				return false;
+		}
+		else
 		{
 			// SKIP THE WHOLE STRUCT
 			char marker[6];
@@ -388,17 +395,7 @@ static bool SV_LoadDATA(void)
 
 			if (! SV_SkipReadChunk(marker))
 				return false;
-
-			continue;
 		}
-
-		sv_current_elem = (* A->counterpart->get_elem)(i);
-
-		if (! sv_current_elem)
-			I_Error("SV_LoadDATA: FIXME: skip elems\n");
-
-		if (! SV_LoadStruct(sv_current_elem, A->sdef))
-			return false;
 	}
 
 	///  if (SV_RemainingChunkSize() != 0)   //???
