@@ -139,7 +139,8 @@ typedef enum
 {
 	EXIT_None = 0,
 	EXIT_Normal,
-	EXIT_Secret
+	EXIT_Secret,
+	EXIT_Hub
 }
 exittype_e;
 
@@ -723,6 +724,7 @@ public:
 
     // EXIT SPECIFIC
 	exittype_e e_exit;
+	int hub_exit;
 
 	// SCROLLER SPECIFIC
 	float s_xspeed;
