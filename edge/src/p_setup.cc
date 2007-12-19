@@ -46,6 +46,7 @@
 #include "m_random.h"
 #include "p_local.h"
 #include "p_bot.h"
+#include "p_hubs.h"
 #include "p_setup.h"
 #include "r_gldefs.h"
 #include "r_sky.h"
@@ -2406,6 +2407,8 @@ void P_Init(void)
 	dm_starts.Clear();
 	coop_starts.Clear();
 	voodoo_doll_starts.Clear();
+
+	HUB_Init();
 }
 
 
