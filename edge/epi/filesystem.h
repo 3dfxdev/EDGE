@@ -81,7 +81,7 @@ file_c *FS_Open(const char *name, unsigned int flags);
 
 // NOTE: there's no FS_Close() function, just delete the object.
 
-bool FS_Copy(const char *dest, const char *src);
+bool FS_Copy(const char *src, const char *dest);
 bool FS_Delete(const char *name);
 bool FS_Rename(const char *oldname, const char *newname);
 

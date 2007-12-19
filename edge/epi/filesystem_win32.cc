@@ -212,10 +212,9 @@ bool FS_Access(const char *name, unsigned int flags)
 #endif
 
 
-bool FS_Copy(const char *dest, const char *src)
+bool FS_Copy(const char *src, const char *dest)
 {
-	SYS_ASSERT(src);
-	SYS_ASSERT(dest);
+	SYS_ASSERT(src && dest);
 
 	// Copy src to dest overwriting dest if it exists
 	return (::CopyFile(src, dest, FALSE) != FALSE);
