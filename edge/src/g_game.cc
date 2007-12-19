@@ -62,8 +62,6 @@
 #include "f_stats.h"
 #include "z_zone.h"
 
-#define SAVEGAMESIZE    0x50000
-#define SAVESTRINGSIZE  24
 
 static void G_DoReborn(player_t *p);
 
