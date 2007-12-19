@@ -131,10 +131,9 @@ bool FS_ReadDir(filesystem_dir_c *fsd, const char *dir, const char *mask)
 }
 
 
-bool FS_Copy(const char *dest, const char *src)
+bool FS_Copy(const char *src, const char *dest)
 {
-	SYS_ASSERT(dest);
-	SYS_ASSERT(src);
+	SYS_ASSERT(src && dest);
 
 	bool ok = false;
 
