@@ -1312,12 +1312,16 @@ static void RAD_ParseExitLevel(int pnum, const char **pars)
 {
 	// ExitLevel
 	// ExitLevel <wait time>
+	//
+	// SecretExit
+	// SecretExit <wait time>
 
 	s_exit_t *exit = Z_New(s_exit_t, 1);
 
 	Z_Clear(exit, s_exit_t, 1);
 	
 	exit->exittime = 10;
+	exit->is_secret = DDF_CompareName("SECRETEXIT", pars[0]) == 0;
 
 	if (pnum >= 2)
 	{
@@ -1866,12 +1870,11 @@ static void RAD_ParseSkill(int pnum, const char **pars)
 
 static void RAD_ParseGotoMap(int pnum, const char **pars)
 {
-	// GotoMap <map name>
-	// GotoMap <map name> SKIP_ALL
+	// GotoMap <map>
+	// GotoMap <map> SKIP_ALL
+	// GotoMap <map> HUB
 
-	s_gotomap_t *go;
-
-	go = Z_New(s_gotomap_t, 1);
+	s_gotomap_t *go = Z_New(s_gotomap_t, 1);
 
 	Z_Clear(go, s_gotomap_t, 1);
 
@@ -1884,8 +1887,28 @@ static void RAD_ParseGotoMap(int pnum, const char **pars)
 			go->skip_all = true;
 		}
 		else
-			RAD_WarnError2(128, "%s: expected 'SKIP_ALL' but got '%s'.\n",
+			RAD_WarnError2(128, "%s: unknown flag '%s'.\n",
 				pars[0], pars[2]);
+	}
+
+	AddStateToScript(this_rad, 0, RAD_ActGotoMap, go);
+}
+
+static void RAD_ParseHubExit(int pnum, const char **pars)
+{
+	// HubExit <map>
+	// HubExit <map> <tag>
+
+	s_gotomap_t *go = Z_New(s_gotomap_t, 1);
+
+	Z_Clear(go, s_gotomap_t, 1);
+
+	go->is_hub = true;
+	go->map_name = Z_StrDup(pars[1]);
+
+	if (pnum >= 3)
+	{
+		RAD_CheckForInt(pars[2], &go->tag);
 	}
 
 	AddStateToScript(this_rad, 0, RAD_ActGotoMap, go);
@@ -2225,7 +2248,8 @@ static const rts_parser_t radtrig_parsers[] =
 	{2, "TIP_SET_COLOUR", 2,3, RAD_ParseTipColour},
 	{2, "TIP_SET_TRANS",  2,3, RAD_ParseTipTrans},
 	{2, "TIP_SET_ALIGN",  2,2, RAD_ParseTipAlign},
-	{2, "EXITLEVEL", 1,2, RAD_ParseExitLevel},
+	{2, "EXITLEVEL",  1,2, RAD_ParseExitLevel},
+	{2, "SECRETEXIT", 1,2, RAD_ParseExitLevel},
 	{2, "SPAWNTHING", 2,22, RAD_ParseSpawnThing},
 	{2, "SPAWNTHING_AMBUSH", 2,22, RAD_ParseSpawnThing},
 	{2, "SPAWNTHING_FLASH",  2,22, RAD_ParseSpawnThing},
@@ -2241,6 +2265,7 @@ static const rts_parser_t radtrig_parsers[] =
 	{2, "THING_EVENT", 3,4, RAD_ParseThingEvent},
 	{2, "SKILL",   4,4, RAD_ParseSkill},
 	{2, "GOTOMAP", 2,3, RAD_ParseGotoMap},
+	{2, "HUB_EXIT", 2,3, RAD_ParseHubExit},
 	{2, "MOVE_SECTOR", 4,5, RAD_ParseMoveSector},
 	{2, "LIGHT_SECTOR", 3,4, RAD_ParseLightSector},
 	{2, "ENABLE_SCRIPT",  2,2, RAD_ParseEnableScript},
