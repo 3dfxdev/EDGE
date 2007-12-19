@@ -27,6 +27,7 @@ public:
 	const char * map_name;  // e.g. "MAP03"
 
 public:
+	 dormant_hub_c() : index(-1), map_name(NULL) { }
 	 dormant_hub_c(int _idx, const char * _map);
 	~dormant_hub_c();
 };
@@ -40,6 +41,12 @@ void HUB_DeleteHubSaves(void);
 void HUB_CopyHubsForSavegame(const char *basename);
 void HUB_CopyHubsForLoadgame(const char *basename);
 
+void HUB_DestroyAll(void);
+
+dormant_hub_c * HUB_FindMap(const char *map);
+
+bool HUB_AlreadyVisited(const char *map);
+// check if the map has already been visited.
 
 #endif /* __P_HUBS__ */
 

@@ -43,9 +43,12 @@ dormant_hub_c::dormant_hub_c(int _idx, const char * _map) : index(_idx)
 
 dormant_hub_c::~dormant_hub_c()
 {
+	// map_name might be NULL, that is OK
 	SV_FreeString(map_name);
 }
 
+
+//----------------------------------------------------------------------------
 
 void HUB_Init(void)
 {
@@ -104,6 +107,35 @@ void HUB_CopyHubsForLoadgame(const char *basename)
 			I_Error("HUB Error: unable to copy file!\nsrc: %s\ndest: %s\n",
 					old_name.c_str(), new_name.c_str());
 	}
+}
+
+
+void HUB_DestroyAll(void)
+{
+	for (unsigned int j = 0; j < dormant_hubs.size(); j++)
+	{
+		delete dormant_hubs[j];
+	}
+
+	dormant_hubs.clear();
+}
+
+dormant_hub_c * HUB_FindMap(const char *map)
+{
+	for (unsigned int j = 0; j < dormant_hubs.size(); j++)
+	{
+		dormant_hub_c *H = dormant_hubs[j];
+
+		if (stricmp(H->map_name, map) == 0)
+			return H;
+	}
+
+	return NULL; // not found
+}
+
+bool HUB_AlreadyVisited(const char *map)
+{
+	return HUB_FindMap(map) ? true : false;
 }
 
 //--- editor settings ---
