@@ -1,0 +1,36 @@
+
+Hub System
+----------
+
+Basic idea is that every visited hub level, except the current
+level, is stored in a savegame with a special name:
+
+    HUB##.esg
+
+To perform a full savegame, the current level is saved normally,
+for example to file SAVE0123.esg, and the hub savegames are
+simply renamed, e.g. HUB02.esg --> SAVE0123_02.esg.
+
+Performing a full loadgame means renaming the hub savegames
+and then doing a normal load for the current level.
+
+Whenever a new level is started normally (not part of the
+current hubs), then all the HUB## savegames must be deleted.
+They should also be deleted when the engine shuts down.
+
+The engine must keep a current list of "dormant" hubs, so
+it knows when to do a "hub load" instead of a normal level
+load.  This dormant hub list must also be saved into full
+savegames, but not hub savegames.
+
+When loading from a hub savegame, we must not clobber the
+current player information, or the dormant hub information.
+
+
+HUB API
+-------
+
+HUB_Init();
+
+HUB_DeleteHubSaves()
+
