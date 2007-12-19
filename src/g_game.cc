@@ -113,11 +113,11 @@ bool precache = true;
 wbstartstruct_t wminfo;
 
 // -ACB- 2004/05/25 We need to store our current gamedef
-const gamedef_c* currgamedef = NULL;
+const gamedef_c *currgamedef = NULL;
 
 // -ACB- 2004/05/25 We need to store our current/next mapdefs
-const mapdef_c* currmap = NULL;
-const mapdef_c* nextmap = NULL;
+const mapdef_c *currmap = NULL;
+const mapdef_c *nextmap = NULL;
 
 //--------------------------------------------
 
@@ -131,6 +131,18 @@ static newgame_params_c *d_params = NULL;
 #define TURBOTHRESHOLD  0x32
 
 
+//
+// REQUIRED STATE:
+//   (a) currmap
+//   (b) players[], numplayers (etc)
+//   (c) gameskill
+//   (d) level_flags
+//   (e) demorecording, demo_notbegun
+//
+//   ??  random_seed
+//   ??  deathmatch
+//   ??  exittime
+//
 void G_DoLoadLevel(void)
 {
 	if (currmap == NULL)
@@ -222,7 +234,26 @@ void G_DoLoadLevel(void)
 	RAD_ClearTriggers();
 	RAD_FinishMenu(0);
 
-	P_SetupLevel(gameskill, currmap->autotag);
+	totalkills = totalitems = totalsecret = 0;
+
+	wminfo.maxfrags = 0;
+	wminfo.partime = currmap->partime;
+
+	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
+	{
+		player_t *p = players[pnum];
+		if (! p) continue;
+
+		p->killcount = p->secretcount = p->itemcount = 0;
+		p->mo = NULL;
+	}
+
+	// Initial height of PointOfView will be set by player think.
+	players[consoleplayer]->viewz = FLO_UNUSED;
+
+	leveltime = 0;
+
+	P_SetupLevel();
 
 	if (demorecording && demo_notbegun)
 	{
@@ -584,6 +615,14 @@ void G_ExitToLevel(char *name, int time, bool skip_all)
 }
 
 
+// 
+// REQUIRED STATE:
+//   (a) currmap, nextmap
+//   (b) players[]
+//   (c) leveltime
+//   (d) exit_skipall
+//   (e) totalkills (etc)
+// 
 static void G_DoCompleted(void)
 {
 	E_ForceWipe();
@@ -608,8 +647,6 @@ static void G_DoCompleted(void)
 		RAD_FinishMenu(0);
 
 	BOT_EndLevel();
-
-    P_StopLevel(); // -ACB- 2005/09/08 Any required cleanup without level shutdown
 
 	// handle "no stat" levels
 	if (currmap->wistyle == WISTYLE_None || exit_skipall)
@@ -650,6 +687,15 @@ std::string G_FileNameFromSlot(int slot)
 {
 	// Creates a savegame file name.
 
+	if (slot < 0) // HUB Hack
+	{
+		int hub_index = -1 - slot;
+
+		std::string temp(epi::STR_Format("%s%02d.%s", HUBBASE, hub_index, SAVEGAMEEXT));
+
+		return epi::PATH_Join(hub_dir.c_str(), temp.c_str());
+	}
+
     std::string temp(epi::STR_Format("%s%04d.%s", SAVEGAMEBASE, slot + 1, SAVEGAMEEXT));
 
 	return epi::PATH_Join(save_dir.c_str(), temp.c_str());
@@ -664,13 +710,24 @@ void G_DeferredLoadGame(int slot)
 	gameaction = ga_loadgame;
 }
 
+void G_DeferredLoadHub(int hub_index)
+{
+	// Can be called by the startup code or the menu task. 
 
+	loadgame_slot = -1 - hub_index;
+	gameaction = ga_loadgame;
+}
+
+
+//
+// REQUIRED STATE:
+//   (a) loadgame_slot
+//
+//   ?? nothing else ??
+//
 static void G_DoLoadGame(void)
 {
 	E_ForceWipe();
-
-	saveglobals_t *globs;
-	int version;
 
 #if 0  // DEBUGGING CODE
 	SV_DumpSaveGame(loadgame_slot);
@@ -686,6 +743,8 @@ static void G_DoLoadGame(void)
 		return;
 	}
 	
+	int version;
+
 	if (! SV_VerifyHeader(&version) || ! SV_VerifyContents())
 	{
 		I_Printf("LOAD-GAME: Savegame is corrupt !\n");
@@ -693,9 +752,11 @@ static void G_DoLoadGame(void)
 		return;
 	}
 
-	SV_BeginLoad(false);
+	bool is_hub = (loadgame_slot < 0);
 
-	globs = SV_LoadGLOB();
+	SV_BeginLoad(is_hub);
+
+	saveglobals_t *globs = SV_LoadGLOB();
 
 	if (!globs)
 		I_Error("LOAD-GAME: Bad savegame file (no GLOB)\n");
@@ -747,11 +808,14 @@ static void G_DoLoadGame(void)
 
 	//!!! FIXME: Check DDF/RTS consistency (crc), warning only
 
-	leveltime   = globs->level_time;
-	exittime    = globs->exit_time;
-	totalkills  = globs->total_kills;
-	totalitems  = globs->total_items;
-	totalsecret = globs->total_secrets;
+	if (! is_hub)
+	{
+		leveltime   = globs->level_time;
+		exittime    = globs->exit_time;
+		totalkills  = globs->total_kills;
+		totalitems  = globs->total_items;
+		totalsecret = globs->total_secrets;
+	}
 
 	if (globs->sky_image)  // backwards compat (sky_image added 2003/12/19)
 		sky_image = globs->sky_image;
@@ -777,9 +841,12 @@ static void G_DoLoadGame(void)
 	SV_FinishLoad();
 	SV_CloseReadFile();
 
-	std::string fn_base = epi::PATH_GetBasename(fn.c_str());
+	if (! is_hub)
+	{
+		std::string fn_base = epi::PATH_GetBasename(fn.c_str());
 
-	HUB_CopyHubsForLoadgame(fn_base.c_str());
+		HUB_CopyHubsForLoadgame(fn_base.c_str());
+	}
 
 	ST_Start();
 	HU_Start();
@@ -959,6 +1026,10 @@ bool G_DeferredInitNew(newgame_params_c& params, bool compat_check)
 	return true;
 }
 
+//
+// REQUIRED STATE:
+//   (a) d_params
+//
 static void G_DoNewGame(void)
 {
 	E_ForceWipe();
@@ -988,11 +1059,15 @@ static void G_DoNewGame(void)
 // -KM- 1998/12/21 Added mapdef param so no need for defered init new
 //   which was conflicting with net games.
 //
+// REQUIRED STATE:
+//   ?? nothing ??
+//
 void G_InitNew(newgame_params_c& params)
 {
 	// --- create players ---
 
 	P_DestroyAllPlayers();
+	HUB_DestroyAll();
 
 	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
 	{
@@ -1066,11 +1141,16 @@ void G_DeferredEndGame(void)
 	}
 }
 
+// 
+// REQUIRED STATE:
+//    ?? nothing ??
+// 
 static void G_DoEndGame(void)
 {
 	E_ForceWipe();
 
 	P_DestroyAllPlayers();
+	HUB_DestroyAll();
 
 	if (gamestate == GS_LEVEL)
 	{

@@ -103,9 +103,7 @@ static void DemoReadPCMD(void)
 	DEM_PopReadChunk();
 }
 
-//
-// E_DemoReadTick
-//
+
 void E_DemoReadTick(void)
 {
 	char marker[6];
@@ -161,9 +159,7 @@ void E_DemoReadTick(void)
 	DEM_PopReadChunk();
 }
 
-//
-// E_DemoWriteTick
-//
+
 void E_DemoWriteTick(void)
 {
 	DEM_PushWriteChunk("Tick");
@@ -201,13 +197,10 @@ void E_DemoWriteTick(void)
 	DEM_PopWriteChunk();  // Tick
 }
 
-//
-// G_RecordDemo 
-// 
-// 98-7-10 KM Demolimit removed
-//
 void G_RecordDemo(const char *filename)
 {
+	// 98-7-10 KM Demolimit removed
+
 	std::string demoname = M_ComposeFileName(game_dir.c_str(), filename);
 
     std::string ext = epi::PATH_GetExtension(filename);
@@ -225,8 +218,6 @@ void G_RecordDemo(const char *filename)
 	demo_notbegun = true;
 }
 
-//
-// G_BeginRecording
 //
 // -ACB- 1998/07/02 Changed the code to record as version 0.65 (065),
 //                  All of the additional EDGE features are stored in
@@ -280,9 +271,7 @@ void G_BeginRecording(void)
 	DEM_FreeGLOB(globs);
 }
 
-//
-// G_DeferredPlayDemo
-//
+
 void G_DeferredPlayDemo(const char *filename)
 {
 	std::string demoname = M_ComposeFileName(game_dir.c_str(), filename);
@@ -298,9 +287,7 @@ void G_DeferredPlayDemo(const char *filename)
 	gameaction = ga_playdemo;
 }
 
-//
-// G_DeferredTimeDemo
-//
+
 void G_DeferredTimeDemo(const char *filename)
 {
 	nodrawers = M_CheckParm("-nodraw")?true:false;
@@ -321,6 +308,9 @@ void G_DeferredTimeDemo(const char *filename)
 // -KM-  1998/07/10 Displayed error message on screen and make demos limitless
 // -ACB- 1998/07/12 Removed Lost Soul/Spectre Ability Check
 // -ACB- 1998/07/12 Removed error message (became bloody annoying...)
+//
+// REQUIRED STATE:
+//   (a) defdemoname
 //
 void G_DoPlayDemo(void)
 {
@@ -407,8 +397,6 @@ void G_DoPlayDemo(void)
 	demoplayback = true;
 }
 
-// 
-// G_FinishDemo 
 //
 // Called after a death or level completion to allow demos to be cleaned up, 
 // Returns true if a new demo loop action will take place 

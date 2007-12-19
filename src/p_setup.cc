@@ -2146,17 +2146,10 @@ static void P_RemoveSectorStuff(void)
 }
 
 
-void P_StopLevel(void)
-{
-}
-
-//
-// P_ShutdownLevel
-//
-// Destroys everything on the level.
-//
 void ShutdownLevel(void)
 {
+	// Destroys everything on the level.
+
 #ifdef DEVELOPERS
 	if (!level_active)
 		I_Error("ShutdownLevel: no level to shut down!");
@@ -2198,17 +2191,14 @@ void ShutdownLevel(void)
 		W_DoneWithLump(rejectmatrix);
 }
 
-//
-// P_SetupLevel
-//
-// Sets up the current level using the skill passed and the
-// information in currmap.
-//
-// -ACB- 1998/08/09 Use currmap to ref lump and par time
-// -KM- 1998/11/25 Added autotag.
-//
-void P_SetupLevel(skill_t skill, int autotag)
+
+void P_SetupLevel(void)
 {
+	// Sets up the current level using the skill passed and the
+	// information in currmap.
+	//
+	// -ACB- 1998/08/09 Use currmap to ref lump and par time
+
 	int j;
 	int lumpnum;
 	int gl_lumpnum;
@@ -2220,25 +2210,6 @@ void P_SetupLevel(skill_t skill, int autotag)
 	// -ACB- 1998/08/27 NULL the head pointers for the linked lists....
 	itemquehead = NULL;
 	mobjlisthead = NULL;
-
-	totalkills = totalitems = totalsecret = wminfo.maxfrags = 0;
-
-	wminfo.partime = currmap->partime;
-
-	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
-	{
-		player_t *p = players[pnum];
-		if (! p) continue;
-
-		p->killcount = p->secretcount = p->itemcount = 0;
-		p->mo = NULL;
-	}
-
-	// Initial height of PointOfView
-	// will be set by player think.
-	players[consoleplayer]->viewz = FLO_UNUSED;
-
-	leveltime = 0;
 
 	lumpnum = W_GetNumForName(currmap->lump);
 
@@ -2316,10 +2287,12 @@ void P_SetupLevel(skill_t skill, int autotag)
 
 	LoadVertexes(lumpnum + ML_VERTEXES);
 	LoadSectors(lumpnum + ML_SECTORS);
+	
 	if (hexen_level)
 		LoadHexenLineDefs(lumpnum + ML_LINEDEFS);
 	else
 		LoadLineDefs(lumpnum + ML_LINEDEFS);
+
 	LoadSideDefs(lumpnum + ML_SIDEDEFS);
 
 	SetupExtrafloors();
@@ -2355,7 +2328,7 @@ void P_SetupLevel(skill_t skill, int autotag)
 	for (j=0; j < numsectors; j++)
 		P_RecomputeGapsAroundSector(sectors + j);
 
-	bodyqueslot = 0;
+	G_ClearBodyQueue();
 
 	// -AJA- 1999/10/21: Clear out player starts (ready to load).
 	dm_starts.Clear();
@@ -2374,7 +2347,7 @@ void P_SetupLevel(skill_t skill, int autotag)
 #endif
 
 	// set up world state
-	P_SpawnSpecials(autotag);
+	P_SpawnSpecials(currmap->autotag);
 
 	CreateVertexSeclists();
 

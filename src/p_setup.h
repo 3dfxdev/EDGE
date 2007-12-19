@@ -39,15 +39,9 @@ extern int mapthing_NUM;
 // Called by startup code.
 void P_Init(void);
 
-// -KM- 1998/11/25 Added autotag.  Linedefs with this tag are automatically
-//   triggered.
-void P_SetupLevel(skill_t skill, int autotag);
+void P_SetupLevel(void);
 
-// Stop a level playing (but not killing it). At the 
-// moment it just stops sector effects looping. -ACB- 2005/09/08
-void P_StopLevel(void);
-
-#endif // __P_SETUP__
+#endif /* __P_SETUP__ */
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
