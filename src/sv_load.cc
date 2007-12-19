@@ -40,6 +40,8 @@
 static savestruct_t *loaded_struct_list;
 static savearray_t  *loaded_array_list;
 
+bool sv_loading_hub;
+
 
 //----------------------------------------------------------------------------
 //
@@ -60,11 +62,11 @@ static void AddLoadedArray(savearray_t *A)
 
 savestruct_t *SV_LookupLoadedStruct(const char *name)
 {
-	savestruct_t *cur;
+	savestruct_t *S;
 
-	for (cur=loaded_struct_list; cur; cur=cur->next)
-		if (strcmp(cur->struct_name, name) == 0)
-			return cur;
+	for (S = loaded_struct_list; S; S = S->next)
+		if (strcmp(S->struct_name, name) == 0)
+			return S;
 
 	// not found
 	return NULL;
@@ -72,11 +74,11 @@ savestruct_t *SV_LookupLoadedStruct(const char *name)
 
 savearray_t *SV_LookupLoadedArray(const char *name)
 {
-	savearray_t *cur;
+	savearray_t *A;
 
-	for (cur=loaded_array_list; cur; cur=cur->next)
-		if (strcmp(cur->array_name, name) == 0)
-			return cur;
+	for (A = loaded_array_list; A; A = A->next)
+		if (strcmp(A->array_name, name) == 0)
+			return A;
 
 	// not found
 	return NULL;
@@ -88,8 +90,10 @@ savearray_t *SV_LookupLoadedArray(const char *name)
 //  LOADING STUFF
 //
 
-void SV_BeginLoad(void)
+void SV_BeginLoad(bool is_hub)
 {
+	sv_loading_hub = is_hub;
+
 	/* Prepare main code for loading, e.g. initialise some lists */
 
 	savestruct_t *S;
@@ -108,21 +112,21 @@ void SV_BeginLoad(void)
 		A->counterpart = NULL;
 }
 
-static void LoadFreeStruct(savestruct_t *cur)
+static void LoadFreeStruct(savestruct_t *S)
 {
-	SV_FreeString(cur->struct_name);
-	SV_FreeString(cur->marker);
+	SV_FreeString(S->struct_name);
+	SV_FreeString(S->marker);
 
-	delete[] cur->fields;
+	delete[] S->fields;
 
-	delete cur;
+	delete S;
 }
 
-static void LoadFreeArray(savearray_t *cur)
+static void LoadFreeArray(savearray_t *A)
 {
-	SV_FreeString(cur->array_name);
+	SV_FreeString(A->array_name);
 
-	delete cur;
+	delete A;
 }
 
 void SV_FinishLoad(void)
@@ -134,34 +138,35 @@ void SV_FinishLoad(void)
 
 	while (loaded_struct_list)
 	{
-		savestruct_t *cur = loaded_struct_list;
-		loaded_struct_list = cur->next;
+		savestruct_t *S = loaded_struct_list;
+		loaded_struct_list = S->next;
 
-		LoadFreeStruct(cur);
+		LoadFreeStruct(S);
 	}
 
 	while (loaded_array_list)
 	{
-		savearray_t *cur = loaded_array_list;
-		loaded_array_list = cur->next;
+		savearray_t *A = loaded_array_list;
+		loaded_array_list = A->next;
 
-		if (cur->counterpart)
+		if (A->counterpart &&
+			(!sv_loading_hub || A->counterpart->allow_hub))
 		{
-			(* cur->counterpart->finalise_elems)();
+			(* A->counterpart->finalise_elems)();
 		}
 
-		LoadFreeArray(cur);
+		LoadFreeArray(A);
 	}
 }
 
 static savefield_t *StructFindField(savestruct_t *info, const char *name)
 {
-	savefield_t *cur;
+	savefield_t *F;
 
-	for (cur=info->fields; cur->type.kind != SFKIND_Invalid; cur++)
+	for (F = info->fields; F->type.kind != SFKIND_Invalid; F++)
 	{
-		if (strcmp(name, cur->field_name) == 0)
-			return cur;
+		if (strcmp(name, F->field_name) == 0)
+			return F;
 	}
 
 	return NULL;
@@ -200,41 +205,37 @@ bool SV_LoadStruct(void *base, savestruct_t *info)
 	// the savestruct_t here is the "loaded" one.
 
 	char marker[6];
-	savefield_t *cur, *actual;
-	char *storage;
-	int offset;
-	int i;
 
 	SV_GetMarker(marker);
 
 	if (strcmp(marker, info->marker) != 0 || ! SV_PushReadChunk(marker))
 		return false;
 
-	for (cur=info->fields; cur->type.kind != SFKIND_Invalid; cur++)
+	for (savefield_t *F = info->fields; F->type.kind != SFKIND_Invalid; F++)
 	{
-		actual = cur->known_field;
+		savefield_t *actual = F->known_field;
 
 		// if this field no longer exists, ignore it
 		if (! actual)
 		{
-			for (i=0; i < cur->count; i++)
-				StructSkipField(cur);
+			for (int i=0; i < F->count; i++)
+				StructSkipField(F);
 			continue;
 		}
 
 		SYS_ASSERT(actual->field_get);
 		SYS_ASSERT(info->counterpart);
 
-		offset = actual->offset_p - info->counterpart->dummy_base;
+		int offset = actual->offset_p - info->counterpart->dummy_base;
 
-		storage = ((char *) base) + offset;
+		char *storage = ((char *) base) + offset;
 
-		for (i=0; i < cur->count; i++)
+		for (int i=0; i < F->count; i++)
 		{
 			// if there are extra elements in the savegame, ignore them
 			if (i >= actual->count)
 			{
-				StructSkipField(cur);
+				StructSkipField(F);
 				continue;
 			}
 			switch (actual->type.kind)
@@ -347,7 +348,8 @@ static bool SV_LoadARRY(void)
 	SV_FreeString(struct_name);
 
 	// create array
-	if (A->counterpart)
+	if (A->counterpart &&
+		(!sv_loading_hub || A->counterpart->allow_hub))
 	{
 		(* A->counterpart->create_elems)(A->loaded_size);
 	}
@@ -359,14 +361,9 @@ static bool SV_LoadARRY(void)
 
 static bool SV_LoadDATA(void)
 {
-	const char *array_name;
-	savearray_t *A;
+	const char *array_name = SV_GetString();
 
-	int i;
-
-	array_name = SV_GetString();
-
-	A = SV_LookupLoadedArray(array_name);
+	savearray_t *A = SV_LookupLoadedArray(array_name);
 
 	if (! A)
 		I_Error("LOADGAME: Coding Error ! (no ARRY `%s' for DATA)\n", array_name);
@@ -377,11 +374,23 @@ static bool SV_LoadDATA(void)
 	if (! A->counterpart)
 		return true;
 
-	for (i=0; i < A->loaded_size; i++)
+	for (int i=0; i < A->loaded_size; i++)
 	{
 		//??? check error too ???
 		if (SV_RemainingChunkSize() == 0)
 			return false;
+
+		if (sv_loading_hub && !A->counterpart->allow_hub)
+		{
+			// SKIP THE WHOLE STRUCT
+			char marker[6];
+			SV_GetMarker(marker);
+
+			if (! SV_SkipReadChunk(marker))
+				return false;
+
+			continue;
+		}
 
 		sv_current_elem = (* A->counterpart->get_elem)(i);
 
@@ -400,13 +409,14 @@ static bool SV_LoadDATA(void)
 
 bool SV_LoadEverything(void)
 {
-	char marker[6];
 	bool result;
 
 	for (;;)
 	{
 		if (SV_GetError() != 0)
 			break;  /// FIXME: set error !!
+
+		char marker[6];
 
 		SV_GetMarker(marker);
 

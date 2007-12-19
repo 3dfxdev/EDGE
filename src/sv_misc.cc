@@ -136,6 +136,7 @@ savearray_t sv_array_button =
 	"buttonlist",       // array name
 	&sv_struct_button,  // array type
 	true,               // define_me
+	true,               // allow_hub
 
 	SV_ButtonCountElems,     // count routine
 	SV_ButtonGetElem,        // index routine
@@ -191,6 +192,7 @@ savearray_t sv_array_light =
 	"lights",          // array name
 	&sv_struct_light,  // array type
 	true,              // define_me
+	true,              // allow_hub
 
 	SV_LightCountElems,     // count routine
 	SV_LightGetElem,        // index routine
@@ -255,6 +257,7 @@ savearray_t sv_array_trigger =
 	"r_triggers",       // array name
 	&sv_struct_trigger, // array type
 	true,               // define_me
+	true,               // allow_hub
 
 	SV_TriggerCountElems,     // count routine
 	SV_TriggerGetElem,        // index routine
@@ -324,6 +327,7 @@ savearray_t sv_array_drawtip =
 	"tip_slots",        // array name
 	&sv_struct_drawtip, // array type
 	true,               // define_me
+	true,               // allow_hub
 
 	SV_TipCountElems,     // count routine
 	SV_TipGetElem,        // index routine
@@ -393,6 +397,7 @@ savearray_t sv_array_plane_move =
 	"plane_movers",         // array name (virtual list)
 	&sv_struct_plane_move,  // array type
 	true,                   // define_me
+	true,                   // allow_hub
 
 	SV_PlaneMoveCountElems,     // count routine
 	SV_PlaneMoveGetElem,        // index routine
