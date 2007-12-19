@@ -24,10 +24,10 @@ class dormant_hub_c
 public:
 	int index;  // starts at 0
 
-	std::string map_name;  // e.g. "MAP03"
+	const char * map_name;  // e.g. "MAP03"
 
 public:
-	 dormant_hub_c(int _idx, std::string& _map);
+	 dormant_hub_c(int _idx, const char * _map);
 	~dormant_hub_c();
 };
 

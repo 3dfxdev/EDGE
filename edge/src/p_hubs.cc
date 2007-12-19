@@ -29,10 +29,23 @@
 #include "n_network.h"
 #include "p_local.h"
 #include "p_spec.h"
+#include "sv_chunk.h"
 
 #define MAX_HUBS  32
 
 std::vector<dormant_hub_c *> dormant_hubs;
+
+
+dormant_hub_c::dormant_hub_c(int _idx, const char * _map) : index(_idx)
+{
+	map_name = SV_DupString(_map);
+}
+
+dormant_hub_c::~dormant_hub_c()
+{
+	SV_FreeString(map_name);
+}
+
 
 void HUB_Init(void)
 {
