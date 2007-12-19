@@ -156,6 +156,7 @@ savearray_t sv_array_mobj =
 	"mobjs",          // array name
 	&sv_struct_mobj,  // array type
 	true,             // define_me
+	true,             // allow_hub
 
 	SV_MobjCountElems,     // count routine
 	SV_MobjGetElem,        // index routine
@@ -241,6 +242,7 @@ savearray_t sv_array_iteminque =
 	"itemquehead",         // array name
 	&sv_struct_iteminque,  // array type
 	true,                  // define_me
+	true,             // allow_hub
 
 	SV_ItemqCountElems,     // count routine
 	SV_ItemqGetElem,        // index routine

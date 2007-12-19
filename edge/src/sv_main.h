@@ -176,6 +176,11 @@ typedef struct savearray_s
 	// Allows compatibility arrays that are read-only.
 	bool define_me;
 
+	// load this array even when loading in HUB mode.  There are
+	// some things we _don't_ want to load when going back to a
+	// visited level: players and dormant_hubs in particular.
+	bool allow_hub;
+
 	// array routines.  Not used for loaded info.
 	int (* count_elems)(void);
 	void * (* get_elem)(int index);
@@ -321,7 +326,7 @@ void SV_MainInit(void);
 savestruct_t *SV_MainLookupStruct(const char *name);
 savearray_t  *SV_MainLookupArray(const char *name);
 
-void SV_BeginLoad(void);
+void SV_BeginLoad(bool is_hub);
 void SV_FinishLoad(void);
 
 bool SV_LoadStruct(void *base, savestruct_t *info);

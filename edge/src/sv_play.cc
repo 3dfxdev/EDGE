@@ -143,6 +143,7 @@ savearray_t sv_array_player =
 	"players",          // array name
 	&sv_struct_player,  // array type
 	true,               // define_me
+	false,              // allow_hub
 
 	SV_PlayerCountElems,     // count routine
 	SV_PlayerGetElem,        // index routine

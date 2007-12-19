@@ -179,6 +179,7 @@ savearray_t sv_array_side =
 	"sides",            // array name
 	&sv_struct_side,    // array type
 	true,               // define_me
+	true,               // allow_hub
 
 	SV_SideCountElems,     // count routine
 	SV_SideGetElem,        // index routine
@@ -235,6 +236,7 @@ savearray_t sv_array_line =
 	"lines",            // array name
 	&sv_struct_line,    // array type
 	true,               // define_me
+	true,               // allow_hub
 
 	SV_LineCountElems,     // count routine
 	SV_LineGetElem,        // index routine
@@ -334,6 +336,7 @@ savearray_t sv_array_exfloor =
 	"extrafloors",      // array name
 	&sv_struct_exfloor, // array type
 	true,               // define_me
+	true,               // allow_hub
 
 	SV_ExfloorCountElems,     // count routine
 	SV_ExfloorGetElem,        // index routine
@@ -401,6 +404,7 @@ savearray_t sv_array_sector =
 	"sectors",          // array name
 	&sv_struct_sector,  // array type
 	true,               // define_me
+	true,               // allow_hub
 
 	SV_SectorCountElems,     // count routine
 	SV_SectorGetElem,        // index routine
@@ -448,6 +452,7 @@ savearray_t sv_array_hub =
 	"dormant_hubs",     // array name
 	&sv_struct_hub,     // array type
 	true,               // define_me
+	false,              // allow_hub
 
 	SV_HubCountElems,     // count routine
 	SV_HubGetElem,        // index routine
