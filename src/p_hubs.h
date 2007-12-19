@@ -22,7 +22,7 @@
 class dormant_hub_c
 {
 public:
-	int index;  // starts at 1
+	int index;  // starts at 0
 
 	std::string map_name;  // e.g. "MAP03"
 

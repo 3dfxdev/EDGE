@@ -19,10 +19,18 @@
 #include "i_defs.h"
 #include "p_hubs.h"
 
+#include "epi/file.h"
+#include "epi/filesystem.h"
+#include "epi/str_format.h"
+#include "epi/path.h"
+
 #include "dm_state.h"
+#include "dstrings.h"
 #include "n_network.h"
 #include "p_local.h"
 #include "p_spec.h"
+
+#define MAX_HUBS  32
 
 std::vector<dormant_hub_c *> dormant_hubs;
 
@@ -33,17 +41,56 @@ void HUB_Init(void)
 
 void HUB_DeleteHubSaves(void)
 {
-	// TODO
+	for (int index = 0; index < MAX_HUBS; index++)
+	{
+		std::string hub_name(epi::STR_Format("%s%d.%s", HUBBASE, index, SAVEGAMEEXT));
+
+		hub_name = epi::PATH_Join(save_dir.c_str(), hub_name.c_str());
+  
+		if (epi::FS_Access(hub_name.c_str(), epi::file_c::ACCESS_READ))
+        {
+			epi::FS_Delete(hub_name.c_str());
+        }
+	}
 }
 
 void HUB_CopyHubsForSavegame(const char *basename)
 {
-	// TODO
+	for (unsigned int j = 0; j < dormant_hubs.size(); j++)
+	{
+		dormant_hub_c *H = dormant_hubs[j];
+
+		std::string old_name(epi::STR_Format("%s%d.%s", HUBBASE, H->index, SAVEGAMEEXT));
+		std::string new_name(epi::STR_Format("%s_H%02d.%s", basename, H->index, SAVEGAMEEXT));
+
+		old_name = epi::PATH_Join(save_dir.c_str(), old_name.c_str());
+
+		if (! epi::FS_Copy(old_name.c_str(), new_name.c_str()) )
+			I_Error("HUB Error: unable to copy file!\nsrc: %s\ndest: %s\n",
+					old_name.c_str(), new_name.c_str());
+	}
 }
 
 void HUB_CopyHubsForLoadgame(const char *basename)
 {
-	// TODO
+	// Note: must be called _after_ savegame has been loaded,
+	// since we assume 'dormant_hubs' is valid for new game.
+	
+	HUB_DeleteHubSaves();
+
+	for (unsigned int j = 0; j < dormant_hubs.size(); j++)
+	{
+		dormant_hub_c *H = dormant_hubs[j];
+
+		std::string old_name(epi::STR_Format("%s_H%02d.%s", basename, H->index, SAVEGAMEEXT));
+		std::string new_name(epi::STR_Format("%s%d.%s", HUBBASE, H->index, SAVEGAMEEXT));
+
+		new_name = epi::PATH_Join(save_dir.c_str(), new_name.c_str());
+
+		if (! epi::FS_Copy(old_name.c_str(), new_name.c_str()) )
+			I_Error("HUB Error: unable to copy file!\nsrc: %s\ndest: %s\n",
+					old_name.c_str(), new_name.c_str());
+	}
 }
 
 //--- editor settings ---
