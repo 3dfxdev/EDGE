@@ -37,25 +37,16 @@
 #include "w_wad.h"
 #include "f_stats.h"
 
-//
-// SV_BeginSave
-//
 void SV_BeginSave(void)
 {
 	L_WriteDebug("SV_BeginSave...\n");
 }
 
-//
-// SV_FinishSave
-//
 void SV_FinishSave(void)
 {
 	L_WriteDebug("SV_FinishSave...\n");
 }
 
-//
-// SV_SaveStruct
-//
 void SV_SaveStruct(void *base, savestruct_t *info)
 {
 	savefield_t *cur;
@@ -152,9 +143,6 @@ static void SV_SaveDATA(savearray_t *A)
 	}
 }
 
-//
-// SV_SaveEverything
-//
 void SV_SaveEverything(void)
 {
 	savestruct_t *stru;
