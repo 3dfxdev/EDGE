@@ -38,6 +38,7 @@
 
 #include "ddf/colormap.h"
 
+#include "p_hubs.h"
 #include "r_image.h"
 #include "sv_chunk.h"
 #include "sv_main.h"
@@ -72,6 +73,12 @@ void * SV_SectorGetElem(int index);
 void SV_SectorCreateElems(int num_elems);
 void SV_SectorFinaliseElems(void);
 
+int SV_HubCountElems(void);
+int SV_HubFindElem(sector_t *elem);
+void * SV_HubGetElem(int index);
+void SV_HubCreateElems(int num_elems);
+void SV_HubFinaliseElems(void);
+
 bool SR_LevelGetImage(void *storage, int index, void *extra);
 bool SR_LevelGetColmap(void *storage, int index, void *extra);
 bool SR_LevelGetSurface(void *storage, int index, void *extra);
@@ -91,6 +98,9 @@ void SR_SectorPutSpecial(void *storage, int index, void *extra);
 void SR_SectorPutProps(void *storage, int index, void *extra);
 void SR_SectorPutPropRef(void *storage, int index, void *extra);
 void SR_SectorPutGenMove(void *storage, int index, void *extra);
+
+bool SR_HubGetMap(void *storage, int index, void *extra);
+void SR_HubPutMap(void *storage, int index, void *extra);
 
 
 //----------------------------------------------------------------------------
@@ -403,18 +413,59 @@ savearray_t sv_array_sector =
 
 
 //----------------------------------------------------------------------------
+//
+//  HUB STRUCTURE
+//
+static dormant_hub_c sv_dummy_hub;
 
-//
-// SV_SideCountElems
-//
+#define SV_F_BASE  sv_dummy_hub
+
+static savefield_t sv_fields_hub[] =
+{
+	SF(index, "index", 1, SVT_INT, SR_GetInt, SR_PutInt),
+
+	SF(map_name, "map_name", 1, SVT_STRING, SR_HubGetMap, SR_HubPutMap),
+
+	SVFIELD_END
+};
+
+savestruct_t sv_struct_hub =
+{
+	NULL,              // link in list
+	"dormant_hub_c",   // structure name
+	"dhub",            // start marker
+	sv_fields_hub,     // field descriptions
+	SVDUMMY,           // dummy base
+	true,              // define_me
+	NULL               // pointer to known struct
+};
+
+#undef SV_F_BASE
+
+savearray_t sv_array_hub =
+{
+	NULL,               // link in list
+	"dormant_hubs",     // array name
+	&sv_struct_hub,     // array type
+	true,               // define_me
+
+	SV_HubCountElems,     // count routine
+	SV_HubGetElem,        // index routine
+	SV_HubCreateElems,    // creation routine
+	SV_HubFinaliseElems,  // finalisation routine
+
+	NULL,     // pointer to known array
+	0         // loaded size
+};
+
+
+//----------------------------------------------------------------------------
+
 int SV_SideCountElems(void)
 {
 	return numsides;
 }
 
-//
-// SV_SideGetElem
-//
 void *SV_SideGetElem(int index)
 {
 	if (index < 0 || index >= numsides)
@@ -426,9 +477,6 @@ void *SV_SideGetElem(int index)
 	return sides + index;
 }
 
-//
-// SV_SideFindElem
-//
 int SV_SideFindElem(side_t *elem)
 {
 	SYS_ASSERT(sides <= elem && elem < (sides + numsides));
@@ -436,9 +484,6 @@ int SV_SideFindElem(side_t *elem)
 	return elem - sides;
 }
 
-//
-// SV_SideCreateElems
-//
 void SV_SideCreateElems(int num_elems)
 {
 	/* nothing much to do -- sides created from level load, and defaults
@@ -450,9 +495,6 @@ void SV_SideCreateElems(int num_elems)
 		num_elems, numsides);
 }
 
-//
-// SV_SideFinaliseElems
-//
 void SV_SideFinaliseElems(void)
 {
 	/* nothing to do */
@@ -461,17 +503,11 @@ void SV_SideFinaliseElems(void)
 
 //----------------------------------------------------------------------------
 
-//
-// SV_LineCountElems
-//
 int SV_LineCountElems(void)
 {
 	return numlines;
 }
 
-//
-// SV_LineGetElem
-//
 void *SV_LineGetElem(int index)
 {
 	if (index < 0 || index >= numlines)
@@ -483,9 +519,6 @@ void *SV_LineGetElem(int index)
 	return lines + index;
 }
 
-//
-// SV_LineFindElem
-//
 int SV_LineFindElem(line_t *elem)
 {
 	SYS_ASSERT(lines <= elem && elem < (lines + numlines));
@@ -493,9 +526,6 @@ int SV_LineFindElem(line_t *elem)
 	return elem - lines;
 }
 
-//
-// SV_LineCreateElems
-//
 void SV_LineCreateElems(int num_elems)
 {
 	/* nothing much to do -- lines are created from level load, and
@@ -510,8 +540,6 @@ void SV_LineCreateElems(int num_elems)
 	line_speciallist = NULL;
 }
 
-//
-// SV_LineFinaliseElems
 //
 // NOTE: line gaps done in Sector finaliser.
 //
@@ -565,17 +593,11 @@ void SV_LineFinaliseElems(void)
 
 //----------------------------------------------------------------------------
 
-//
-// SV_ExfloorCountElems
-//
 int SV_ExfloorCountElems(void)
 {
 	return numextrafloors;
 }
 
-//
-// SV_ExfloorGetElem
-//
 void *SV_ExfloorGetElem(int index)
 {
 	if (index < 0 || index >= numextrafloors)
@@ -587,9 +609,6 @@ void *SV_ExfloorGetElem(int index)
 	return extrafloors + index;
 }
 
-//
-// SV_ExfloorFindElem
-//
 int SV_ExfloorFindElem(extrafloor_t *elem)
 {
 	SYS_ASSERT(extrafloors <= elem && elem < (extrafloors + numextrafloors));
@@ -597,9 +616,6 @@ int SV_ExfloorFindElem(extrafloor_t *elem)
 	return elem - extrafloors;
 }
 
-//
-// SV_ExfloorCreateElems
-//
 void SV_ExfloorCreateElems(int num_elems)
 {
 	/* nothing much to do -- extrafloors are created from level load, and
@@ -611,9 +627,6 @@ void SV_ExfloorCreateElems(int num_elems)
 		num_elems, numextrafloors);
 }
 
-//
-// SV_ExfloorFinaliseElems
-//
 void SV_ExfloorFinaliseElems(void)
 {
 	int i;
@@ -642,17 +655,11 @@ void SV_ExfloorFinaliseElems(void)
 
 //----------------------------------------------------------------------------
 
-//
-// SV_SectorCountElems
-//
 int SV_SectorCountElems(void)
 {
 	return numsectors;
 }
 
-//
-// SV_SectorGetElem
-//
 void *SV_SectorGetElem(int index)
 {
 	if (index < 0 || index >= numsectors)
@@ -664,9 +671,6 @@ void *SV_SectorGetElem(int index)
 	return sectors + index;
 }
 
-//
-// SV_SectorFindElem
-//
 int SV_SectorFindElem(sector_t *elem)
 {
 	SYS_ASSERT(sectors <= elem && elem < (sectors + numsectors));
@@ -674,9 +678,6 @@ int SV_SectorFindElem(sector_t *elem)
 	return elem - sectors;
 }
 
-//
-// SV_SectorCreateElems
-//
 void SV_SectorCreateElems(int num_elems)
 {
 	// nothing much to do -- sectors are created from level load,
@@ -687,9 +688,6 @@ void SV_SectorCreateElems(int num_elems)
 		num_elems, numsectors);
 }
 
-//
-// SV_SectorFinaliseElems
-//
 void SV_SectorFinaliseElems(void)
 {
 	int i;
@@ -747,9 +745,69 @@ void SV_SectorFinaliseElems(void)
 
 //----------------------------------------------------------------------------
 
-//
-// SR_LevelGetSurface
-//
+extern std::vector<dormant_hub_c *> dormant_hubs;
+
+int SV_HubCountElems(void)
+{
+	return (int)dormant_hubs.size();
+}
+
+void *SV_HubGetElem(int index)
+{
+	if (index < 0 || index >= SV_HubCountElems())
+	{
+		I_Warning("LOADGAME: Invalid Hub: %d\n", index);
+		index = 0;
+	}
+
+	return dormant_hubs[index];
+}
+
+int SV_HubFindElem(dormant_hub_c *elem)
+{
+	int index = 0;
+
+	std::vector<dormant_hub_c *>::iterator HI;
+
+	for (HI  = dormant_hubs.begin();
+         HI != dormant_hubs.end() && (*HI) != elem;
+         HI++)
+	{
+		index++;
+	}
+
+	if (HI == dormant_hubs.end())
+		I_Error("LOADGAME: No such HubPtr: %p\n", elem);
+
+	return index;
+}
+
+void SV_HubCreateElems(int num_elems)
+{
+	HUB_DestroyAll();
+
+	for (; num_elems > 0; num_elems--)
+	{
+		dormant_hubs.push_back(
+			new dormant_hub_c(-1, "DUMMY"));
+	}
+}
+
+void SV_HubFinaliseElems(void)
+{
+	// just a verification pass
+	for (unsigned int j = 0; j < dormant_hubs.size(); j++)
+	{
+		dormant_hub_c *H = dormant_hubs[j];
+
+		if (!H || H->index < 0)
+			I_Error("Failure loading HUB information!");
+	}
+}
+
+
+//----------------------------------------------------------------------------
+
 bool SR_LevelGetSurface(void *storage, int index, void *extra)
 {
 	surface_t *dest = (surface_t *)storage + index;
@@ -760,9 +818,6 @@ bool SR_LevelGetSurface(void *storage, int index, void *extra)
 	return SV_LoadStruct(dest, sv_struct_surface.counterpart);
 }
 
-//
-// SR_LevelPutSurface
-//
 void SR_LevelPutSurface(void *storage, int index, void *extra)
 {
 	surface_t *src = (surface_t *)storage + index;
@@ -771,9 +826,6 @@ void SR_LevelPutSurface(void *storage, int index, void *extra)
 }
 
 
-//
-// SR_LevelGetSurfPtr
-//
 bool SR_LevelGetSurfPtr(void *storage, int index, void *extra)
 {
 	surface_t ** dest = (surface_t **)storage + index;
@@ -856,9 +908,6 @@ void SR_LevelPutSurfPtr(void *storage, int index, void *extra)
 }
 
 
-//
-// SR_LevelGetImage
-//
 bool SR_LevelGetImage(void *storage, int index, void *extra)
 {
 	const image_c ** dest = (const image_c **)storage + index;
@@ -881,8 +930,6 @@ bool SR_LevelGetImage(void *storage, int index, void *extra)
 	return true;
 }
 
-//
-// SR_LevelPutImage
 //
 // Format of the string is:
 //
@@ -947,9 +994,6 @@ void SR_LevelPutColmap(void *storage, int index, void *extra)
 }
 
 
-//
-// SR_LineGetSpecial
-//
 bool SR_LineGetSpecial(void *storage, int index, void *extra)
 {
 	const linetype_c ** dest = (const linetype_c **)storage + index;
@@ -1047,9 +1091,6 @@ void SR_SectorPutSpecial(void *storage, int index, void *extra)
 
 //----------------------------------------------------------------------------
 
-//
-// SR_SectorGetProps
-//
 bool SR_SectorGetProps(void *storage, int index, void *extra)
 {
 	region_properties_t *dest = (region_properties_t *)storage + index;
@@ -1060,9 +1101,6 @@ bool SR_SectorGetProps(void *storage, int index, void *extra)
 	return SV_LoadStruct(dest, sv_struct_regprops.counterpart);
 }
 
-//
-// SR_SectorPutProps
-//
 void SR_SectorPutProps(void *storage, int index, void *extra)
 {
 	region_properties_t *src = (region_properties_t *)storage + index;
@@ -1071,9 +1109,6 @@ void SR_SectorPutProps(void *storage, int index, void *extra)
 }
 
 
-//
-// SR_SectorGetPropRef
-//
 bool SR_SectorGetPropRef(void *storage, int index, void *extra)
 {
 	region_properties_t ** dest = (region_properties_t **)storage + index;
@@ -1103,8 +1138,6 @@ bool SR_SectorGetPropRef(void *storage, int index, void *extra)
 	return true;
 }
 
-//
-// SR_SectorPutPropRef
 //
 // Format of the string is just the sector number containing the
 // properties.
@@ -1140,9 +1173,6 @@ void SR_SectorPutPropRef(void *storage, int index, void *extra)
 }
 
 
-//
-// SR_LineGetLine
-//
 bool SR_LineGetLine(void *storage, int index, void *extra)
 {
 	line_t ** dest = (line_t **)storage + index;
@@ -1153,9 +1183,6 @@ bool SR_LineGetLine(void *storage, int index, void *extra)
 	return true;
 }
 
-//
-// SR_LinePutLine
-//
 void SR_LinePutLine(void *storage, int index, void *extra)
 {
 	line_t *elem = ((line_t **)storage)[index];
@@ -1166,9 +1193,6 @@ void SR_LinePutLine(void *storage, int index, void *extra)
 }
 
 
-//
-// SR_SectorGetSector
-//
 bool SR_SectorGetSector(void *storage, int index, void *extra)
 {
 	sector_t ** dest = (sector_t **)storage + index;
@@ -1179,9 +1203,6 @@ bool SR_SectorGetSector(void *storage, int index, void *extra)
 	return true;
 }
 
-//
-// SR_SectorPutSector
-//
 void SR_SectorPutSector(void *storage, int index, void *extra)
 {
 	sector_t *elem = ((sector_t **)storage)[index];
@@ -1191,9 +1212,6 @@ void SR_SectorPutSector(void *storage, int index, void *extra)
 	SV_PutInt(swizzle);
 }
 
-//
-// SR_SectorGetEF
-//
 bool SR_SectorGetEF(void *storage, int index, void *extra)
 {
 	extrafloor_t ** dest = (extrafloor_t **)storage + index;
@@ -1204,9 +1222,6 @@ bool SR_SectorGetEF(void *storage, int index, void *extra)
 	return true;
 }
 
-//
-// SR_SectorPutEF
-//
 void SR_SectorPutEF(void *storage, int index, void *extra)
 {
 	extrafloor_t *elem = ((extrafloor_t **)storage)[index];
@@ -1214,6 +1229,32 @@ void SR_SectorPutEF(void *storage, int index, void *extra)
 	int swizzle = (elem == NULL) ? 0 : SV_ExfloorFindElem(elem) + 1;
 
 	SV_PutInt(swizzle);
+}
+
+
+//----------------------------------------------------------------------------
+
+bool SR_HubGetMap(void *storage, int index, void *extra)
+{
+	const char ** dest = (const char **)storage + index;
+
+	// the HUB code uses SV_DupString/SV_FreeString for the
+	// map_name field, hence is 100% compatible with savegame
+	// usage of strings.
+
+	if (*dest)
+		SV_FreeString(*dest);
+
+	(*dest) = SV_GetString();
+
+	return true;
+}
+
+void SR_HubPutMap(void *storage, int index, void *extra)
+{
+	const char *src = ((const char **)storage)[index];
+
+	SV_PutString(src);
 }
 
 
