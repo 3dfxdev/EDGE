@@ -507,6 +507,7 @@ void SV_SideFinaliseElems(void)
 //----------------------------------------------------------------------------
 
 extern std::list<line_t *> active_line_anims;
+extern std::list<slider_move_t *> active_sliders;
 
 int SV_LineCountElems(void)
 {
@@ -549,12 +550,7 @@ void SV_LineCreateElems(int num_elems)
 //
 void SV_LineFinaliseElems(void)
 {
-	int i;
-
-	gen_move_t *gen;
-	slider_move_t *smov;
-
-	for (i=0; i < numlines; i++)
+	for (int i = 0; i < numlines; i++)
 	{
 		line_t *ld = lines + i;
 		side_t *s1, *s2;
@@ -579,15 +575,15 @@ void SV_LineFinaliseElems(void)
 	}
 
 	// scan active parts, regenerate slider_move field
-	for (gen = active_movparts; gen; gen = gen->next)
+	std::vector<slider_move_t *>::iterator SMI;
+
+	for (SMI  = active_sliders.begin();
+		 SMI != active_sliders.end();
+		 SMI++)
 	{
-		if (gen->whatiam != MDT_SLIDER)
-			continue;
+		SYS_ASSERT((*SMI)->line);
 
-		smov = (slider_move_t *)gen;
-		SYS_ASSERT(smov->line);
-
-		smov->line->slider_move = smov;
+		(*SMI)->line->slider_move = (*SMI);
 	}
 }
 
@@ -657,6 +653,7 @@ void SV_ExfloorFinaliseElems(void)
 //----------------------------------------------------------------------------
 
 extern std::list<sector_t *> active_sector_anims;
+extern std::list<plane_move_t *>  active_planes;
 
 int SV_SectorCountElems(void)
 {
@@ -696,12 +693,7 @@ void SV_SectorCreateElems(int num_elems)
 
 void SV_SectorFinaliseElems(void)
 {
-	int i;
-
-	gen_move_t *gen;
-	plane_move_t *pmov;
-
-	for (i=0; i < numsectors; i++)
+	for (int i = 0; i < numsectors; i++)
 	{
 		sector_t *sec = sectors + i;
 
@@ -725,23 +717,20 @@ void SV_SectorFinaliseElems(void)
 	}
 
 	// scan active parts, regenerate floor_move and ceil_move
-	for (gen = active_movparts; gen; gen = gen->next)
+	std::list<plane_move_t *>::iterator PMI;
+
+	for (PMI  = active_planes.begin();
+		 PMI != active_planes.end();
+		 PMI++)
 	{
-		switch (gen->whatiam)
-		{
-		case MDT_PLANE:
-			pmov = (plane_move_t *)gen;
-			SYS_ASSERT(pmov->sector);
+		plane_move_t * pmov = *PMI;
 
-			if (pmov->is_ceiling)
-				pmov->sector->ceil_move = gen;
-			else
-				pmov->sector->floor_move = gen;
-			break;
+		SYS_ASSERT(pmov->sector);
 
-		default:
-			break;
-		}
+		if (pmov->is_ceiling)
+			pmov->sector->ceil_move = pmov;
+		else
+			pmov->sector->floor_move = pmov;
 	}
 }
 

@@ -264,8 +264,8 @@ typedef struct sector_s
 	extrafloor_t *control_floors;
  
 	// movement thinkers, for quick look-up
-	struct gen_move_s *floor_move;
-	struct gen_move_s *ceil_move;
+	struct plane_move_s *floor_move;
+	struct plane_move_s *ceil_move;
 
     // 0 = untraversed, 1,2 = sndlines-1
 	int soundtraversed;
