@@ -53,8 +53,8 @@ int levelTimeCount;
 //
 // Animating line and sector specials
 //
-line_t * line_speciallist;
-sector_t * sect_speciallist;
+std::list<line_t *>   active_line_anims;
+std::list<sector_t *> active_sector_anims;
 
 
 static bool P_DoSectorsFromTag(int tag, const void *p1, void *p2,
@@ -294,43 +294,39 @@ int P_FindMinSurroundingLight(sector_t * sector, int max)
 	return min;
 }
 
-//
-// P_AddSpecialLine
-//
-// UTILITY FUNCS FOR SPECIAL LIST 
-//
+
 void P_AddSpecialLine(line_t *ld)
 {
-	line_t *check;
-
 	// check if already linked
-	for (check=line_speciallist; check; check=check->animate_next)
+	std::list<line_t *>::iterator LI;
+
+	for (LI  = active_line_anims.begin();
+		 LI != active_line_anims.end();
+		 LI++)
 	{
-		if (check == ld)
+		if (*LI == ld)
 			return;
 	}
 
-	ld->animate_next = line_speciallist;
-	line_speciallist = ld;
+	active_line_anims.push_back(ld);
 }
 
-//
-// P_AddSpecialSector
-//
 void P_AddSpecialSector(sector_t *sec)
 {
-	sector_t *check;
-
 	// check if already linked
-	for (check=sect_speciallist; check; check=check->animate_next)
+	std::list<sector_t *>::iterator SI;
+
+	for (SI  = active_sector_anims.begin();
+		 SI != active_sector_anims.end();
+		 SI++)
 	{
-		if (check == sec)
+		if (*SI == sec)
 			return;
 	}
 
-	sec->animate_next = sect_speciallist;
-	sect_speciallist = sec;
+	active_sector_anims.push_back(sec);
 }
+
 
 static void AdjustScrollParts(side_t *side, bool left,
 		scroll_part_e parts, float x_speed, float y_speed)
@@ -1444,10 +1440,6 @@ static inline void ApplyScroll(vec2_t& offset, const vec2_t& delta)
 //
 void P_UpdateSpecials(void)
 {
-	line_t *line;
-	sector_t *sec;
-	const linetype_c *special;
-
 	// LEVEL TIMER
 	if (levelTimer == true)
 	{
@@ -1459,30 +1451,40 @@ void P_UpdateSpecials(void)
 
 	// ANIMATE LINE SPECIALS
 	// -KM- 1998/09/01 Lines.ddf
-	for (line = line_speciallist; line; line = line->animate_next)
+	std::list<line_t *>::iterator LI;
+
+	for (LI  = active_line_anims.begin();
+		 LI != active_line_anims.end();
+		 LI++)
 	{
-		special = line->special;
+		line_t *ld = *LI;
 
 		// -KM- 1999/01/31 Use new method.
 		// -AJA- 1999/07/01: Handle both sidedefs.
-		if (line->side[0])
+		if (ld->side[0])
 		{
-			ApplyScroll(line->side[0]->top.offset,    line->side[0]->top.scroll);
-			ApplyScroll(line->side[0]->middle.offset, line->side[0]->middle.scroll);
-			ApplyScroll(line->side[0]->bottom.offset, line->side[0]->bottom.scroll);
+			ApplyScroll(ld->side[0]->top.offset,    ld->side[0]->top.scroll);
+			ApplyScroll(ld->side[0]->middle.offset, ld->side[0]->middle.scroll);
+			ApplyScroll(ld->side[0]->bottom.offset, ld->side[0]->bottom.scroll);
 		}
 
-		if (line->side[1])
+		if (ld->side[1])
 		{
-			ApplyScroll(line->side[1]->top.offset,    line->side[1]->top.scroll);
-			ApplyScroll(line->side[1]->middle.offset, line->side[1]->middle.scroll);
-			ApplyScroll(line->side[1]->bottom.offset, line->side[1]->bottom.scroll);
+			ApplyScroll(ld->side[1]->top.offset,    ld->side[1]->top.scroll);
+			ApplyScroll(ld->side[1]->middle.offset, ld->side[1]->middle.scroll);
+			ApplyScroll(ld->side[1]->bottom.offset, ld->side[1]->bottom.scroll);
 		}
 	}
 
 	// ANIMATE SECTOR SPECIALS
-	for (sec = sect_speciallist; sec; sec = sec->animate_next)
+	std::list<sector_t *>::iterator SI;
+
+	for (SI  = active_sector_anims.begin();
+		 SI != active_sector_anims.end();
+		 SI++)
 	{
+		sector_t *sec = *SI;
+
 		ApplyScroll(sec->floor.offset, sec->floor.scroll);
 		ApplyScroll(sec->ceil.offset,  sec->ceil.scroll);
 	}
@@ -1540,7 +1542,7 @@ void P_SpawnSpecials(int autotag)
 	//
 	// Init special SECTORs.
 	//
-	sect_speciallist = NULL;
+	active_sector_anims.clear();
 
 	sector = sectors;
 	for (i = 0; i < numsectors; i++, sector++)
@@ -1624,7 +1626,7 @@ void P_SpawnSpecials(int autotag)
 	// -KM-  Removed Limit
 	// -KM- 1998/09/01 Added lines.ddf support
 	//
-	line_speciallist = NULL;
+	active_line_anims.clear();
 
 	for (i = 0; i < numlines; i++)
 	{
