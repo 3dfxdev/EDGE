@@ -194,46 +194,35 @@ static const image_c *lnames[2];
 class wi_mappos_c
 {
 public:
-	wi_mappos_c() { info = NULL; done = false; }
+	wi_mapposdef_c *info;
+	bool done;
+
+public:
+	 wi_mappos_c() { info = NULL; done = false; }
 	~wi_mappos_c() {}
 
 private:
 	/* ... */
-
-public:
-	wi_mapposdef_c *info;
-	bool done;
 };
 
 class wi_frame_c
 {
 public:
-	wi_frame_c() { info = NULL; image = NULL; }
-	~wi_frame_c() {}
-
-private:
-	/* ... */
-
-public:
 	wi_framedef_c *info;
 
 	const image_c *image; 	// cached image
+
+public:
+	 wi_frame_c() { info = NULL; image = NULL; }
+	~wi_frame_c() { }
+
+private:
+	/* ... */
 };
 
 class wi_anim_c
 {
 public:
-	wi_anim_c();
-	~wi_anim_c();
-
-private:
-	/* ... */
-
-public:
-	void Clear(void);
-	void Load(wi_animdef_c *def);
-	void Reset(void);
-
 	wi_animdef_c *info;
 	
 	// This array doesn't need to built up, so we stick to primitive form
@@ -242,28 +231,63 @@ public:
 
 	int count;
 	int frameon;
+
+public:
+	wi_anim_c()
+	{
+		frames = NULL;
+		numframes = 0;
+	}
+
+	~wi_anim_c()
+	{
+		Clear();
+	}
+
+private:
+	/* ... */
+
+public:
+	void Clear(void)
+	{
+		if (frames)
+		{
+			delete [] frames;
+			frames = NULL;
+
+			numframes = 0;
+		}
+	}
+
+	void Load(wi_animdef_c *def)
+	{
+		int size;
+
+		// Frames...
+		size = def->frames.GetSize();
+		if (size>0)
+		{
+			int i;
+
+			frames = new wi_frame_c[size];
+			for (i=0; i<size; i++)
+				frames[i].info = def->frames[i];
+		}
+
+		info = def;
+		numframes = size;
+	}
+
+	void Reset(void)
+	{
+		count = 0;
+		frameon = -1;
+	}
 };
 
 class wi_c
 {
 public:
-	wi_c();
-	~wi_c();
-	
-private:
-	gamedef_c *gamedef;
-
-	void Clear(void);
-	void Load(gamedef_c* _gamedef);
-	void Reset(void);
-
-public:
-	// Inliners...
-	gamedef_c* GetGameDef(void) { return gamedef; }
-
-	// 
-	void Init(gamedef_c* _gamedef);
-
 	// This array doesn't need to built up, so we stick to primitive form
 	wi_anim_c *anims;
 	int numanims;
@@ -271,19 +295,107 @@ public:
 	// This array doesn't need to built up, so we stick to primitive form
 	wi_mappos_c *mappos;
 	int nummappos;
+
+public:
+	wi_c()
+	{
+		gamedef = NULL;
+
+		anims = NULL;
+		numanims = 0;
+
+		mappos = NULL;
+		nummappos = 0;
+	}
+
+	~wi_c()
+	{
+		Clear();
+	}
+
+private:
+	gamedef_c *gamedef;
+
+	void Clear(void)
+	{
+		if (anims)
+		{
+			delete [] anims;
+			anims = NULL;
+
+			numanims = 0;
+		}
+
+		if (mappos)
+		{
+			delete [] mappos;
+			mappos = NULL;
+
+			nummappos = 0;
+		}
+	}
+
+	void Load(gamedef_c *_gamedef)
+	{
+		// Animations
+		int size = _gamedef->anims.GetSize();
+
+		if (size > 0)
+		{
+			anims = new wi_anim_c[size];
+
+			for (int i = 0; i < size; i++)
+				anims[i].Load(_gamedef->anims[i]);
+
+			numanims = size;
+		}
+
+		// Map positions
+		size = _gamedef->mappos.GetSize();
+		if (size > 0)
+		{
+			mappos = new wi_mappos_c[size];
+
+			for (int i = 0; i < size; i++)
+				mappos[i].info = _gamedef->mappos[i];
+
+			nummappos = size;
+		}
+	}
+
+	void Reset(void)
+	{
+		for (int i = 0; i < numanims; i++)
+			anims[i].Reset();
+	}
+
+public:
+	void Init(gamedef_c *_gamedef)
+	{
+		if (_gamedef != gamedef)
+		{
+			// Clear
+			Clear();
+
+			if (_gamedef)
+				Load(_gamedef);
+		}
+
+		if (_gamedef)
+			Reset();
+
+		gamedef = _gamedef;
+		return;
+	}
 };
 
 static wi_c worldint;
+
 
 //
 // CODE
 //
 
-//
-// WI_Clear
-//
-// Clear Intermission Data
-//
 void WI_Clear(void)
 {
 	worldint.Init(NULL);
@@ -470,6 +582,7 @@ static void WI_End(void)
 	E_ForceWipe();
 
 	background_camera_mo = NULL;
+
 	R_ExecuteSetViewSize();
 
 	F_StartFinale(&currmap->f_end, nextmap ? ga_briefing : ga_nothing);
@@ -501,7 +614,7 @@ static void InitShowNextLoc(void)
 
 	for (i = 0; i < worldint.nummappos; i++)
 	{
-		if (!strcmp(worldint.mappos[i].info->name, wi_stats.last->ddf.name))
+		if (!strcmp(worldint.mappos[i].info->name, wi_stats.cur->ddf.name))
 			worldint.mappos[i].done = true;
 	}
 
@@ -612,7 +725,7 @@ static void UpdateDeathmatchStats(void)
 {
 	bool stillticking;
 
-	gamedef_c *gd = worldint.GetGameDef();
+	const gamedef_c *gd = wi_stats.cur->episode;
 
 	if (acceleratestage && dm_state != 4)
 	{
@@ -791,7 +904,7 @@ static void UpdateCoopStats(void)
 {
 	bool stillticking;
 
-	gamedef_c *gd = worldint.GetGameDef();
+	const gamedef_c *gd = wi_stats.cur->episode;
 
 	if (acceleratestage && ng_state != 10)
 	{
@@ -1050,7 +1163,7 @@ static void UpdateSinglePlayerStats(void)
 
 	player_t *con_plyr = players[consoleplayer];
 
-	gamedef_c *gd = worldint.GetGameDef();
+	const gamedef_c *gd = wi_stats.cur->episode;
 
 	if (acceleratestage && sp_state != sp_end)
 	{
@@ -1220,9 +1333,12 @@ bool WI_CheckForAccelerate(void)
 	return do_accel;
 }
 
-// Updates stuff each tick
 void WI_Ticker(void)
 {
+	// Updates stuff each tick
+
+	SYS_ASSERT(gamestate == GS_INTERMISSION);
+
 	int i;
 
 	// counter for general background animation
@@ -1231,7 +1347,7 @@ void WI_Ticker(void)
 	if (bcnt == 1)
 	{
 		// intermission music
-		S_ChangeMusic(worldint.GetGameDef()->music, true);
+		S_ChangeMusic(wi_stats.cur->music, true);
 	}
 
 	if (WI_CheckForAccelerate())
@@ -1275,6 +1391,8 @@ void WI_Ticker(void)
 
 void WI_Drawer(void)
 {
+	SYS_ASSERT(gamestate == GS_INTERMISSION);
+
 	if (background_camera_mo)
 	{
 		R_Render();
@@ -1347,12 +1465,12 @@ static void LoadData(void)
 		wi_net_style = hu_styles.Lookup(def);
 	}
 
-	gamedef_c *gd = worldint.GetGameDef();
+	const gamedef_c *gd = wi_stats.cur->episode;
 
 	// background
 	bg_image = W_ImageLookup(gd->background);
 
-	lnames[0] = W_ImageLookup(wi_stats.last->namegraphic);
+	lnames[0] = W_ImageLookup(wi_stats.cur->namegraphic);
 
 	if (wi_stats.next)
 		lnames[1] = W_ImageLookup(wi_stats.next->namegraphic);
@@ -1413,8 +1531,8 @@ static void LoadData(void)
 
 static void InitVariables(void)
 {
-	wi_stats.level   = wi_stats.last->ddf.name.c_str();
-	wi_stats.partime = wi_stats.last->partime;
+	wi_stats.level   = wi_stats.cur->ddf.name.c_str();
+	wi_stats.partime = wi_stats.cur->partime;
 
 	acceleratestage = false;
 	cnt = bcnt = 0;
@@ -1429,7 +1547,7 @@ static void InitVariables(void)
 	if (wi_stats.secret <= 0)
 		wi_stats.secret = 1;
 
-	gamedef_c *def = wi_stats.last->episode;
+	gamedef_c *def = wi_stats.cur->episode;
 
 	SYS_ASSERT(def);
 
@@ -1442,6 +1560,9 @@ void WI_Start(void)
 {
 	InitVariables();
 
+	const gamedef_c *gd = wi_stats.cur->episode;
+	SYS_ASSERT(gd);
+
 	if (SP_MATCH())
 		InitSinglePlayerStats();
 	else if (DEATHMATCH())
@@ -1452,13 +1573,11 @@ void WI_Start(void)
 	// -AJA- 1999/10/22: background cameras.
 	background_camera_mo = NULL;
 
-	if (! worldint.GetGameDef()->bg_camera.empty())
+	if (gd->bg_camera.c_str()[0])
 	{
-		mobj_t *mo;
-
-		for (mo = mobjlisthead; mo != NULL; mo = mo->next)
+		for (mobj_t *mo = mobjlisthead; mo != NULL; mo = mo->next)
 		{
-			if (DDF_CompareName(mo->info->ddf.name, worldint.GetGameDef()->bg_camera.c_str()) != 0)
+			if (DDF_CompareName(mo->info->ddf.name, gd->bg_camera.c_str()) != 0)
 				continue;
 
 			background_camera_mo = mo;
@@ -1479,184 +1598,6 @@ void WI_Start(void)
 	}
 }
 
-// --> world intermission class
-
-//
-// wi_c Constructor
-//
-wi_c::wi_c()
-{
-	gamedef = NULL;
-
-	anims = NULL;
-	numanims = 0;
-
-	mappos = NULL;
-	nummappos = 0;
-}
-
-//
-// wi_c Destructor
-//
-wi_c::~wi_c()
-{
-	Clear();
-}
-
-//
-// wi_c::Clear()
-//
-void wi_c::Clear()
-{
-	if (anims)
-	{
-		delete [] anims;
-		anims = NULL;
-
-		numanims = 0;
-	}
-
-	if (mappos)
-	{
-		delete [] mappos;
-		mappos = NULL;
-
-		nummappos = 0;
-	}
-}
-
-// 
-// wi_c::Load()
-//
-void wi_c::Load(gamedef_c* _gamedef)
-{
-	// mappos load
-	int size;
-
-	// Animations
-	size = _gamedef->anims.GetSize();
-	if (size > 0)
-	{
-		int i;
-
-		anims = new wi_anim_c[size];
-
-		for (i=0; i<size; i++)
-			anims[i].Load(_gamedef->anims[i]);
-
-		numanims = size;
-	}
-
-	// Map positions
-	size = _gamedef->mappos.GetSize();
-	if (size > 0)
-	{
-		int i;
-
-		mappos = new wi_mappos_c[size];
-
-		for (i=0; i<size; i++)
-			mappos[i].info = _gamedef->mappos[i];
-
-		nummappos = size;
-	}
-}
-
-//
-// wi_c::Reset()
-//
-void wi_c::Reset()
-{
-	int i;
-
-	for (i=0; i<numanims; i++)
-		anims[i].Reset();
-}
-
-//
-// wi_c::Init()
-//
-void wi_c::Init(gamedef_c* _gamedef)
-{
-	if (_gamedef != gamedef)
-	{
-		// Clear
-		Clear();
-
-		if (_gamedef)
-			Load(_gamedef);
-	}
-
-	if (_gamedef)
-		Reset();
-
-	gamedef = _gamedef;
-	return;
-}
-
-// --> world intermission animation class
-
-//
-// wi_anim_c Constructor
-//
-wi_anim_c::wi_anim_c()
-{
-	frames = NULL;
-	numframes = 0;
-}
-
-//
-// wi_anim_c Destructor
-//
-wi_anim_c::~wi_anim_c()
-{
-	Clear();
-}
-
-//
-// wi_anim_c::Clear()
-//
-void wi_anim_c::Clear()
-{
-	if (frames)
-	{
-		delete [] frames;
-		frames = NULL;
-
-		numframes = 0;
-	}
-}
-
-//
-// wi_anim_c::Load()
-//
-void wi_anim_c::Load(wi_animdef_c *def)
-{
-	int size;
-
-	// Frames...
-	size = def->frames.GetSize();
-	if (size>0)
-	{
-		int i;
-
-		frames = new wi_frame_c[size];
-		for (i=0; i<size; i++)
-			frames[i].info = def->frames[i];
-	}
-
-	info = def;
-	numframes = size;
-}
-
-//
-// wi_anim_c::Reset()
-//
-void wi_anim_c::Reset()
-{
-	count = 0;
-	frameon = -1;
-}
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
