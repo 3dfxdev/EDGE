@@ -1772,7 +1772,7 @@ bool M_Responder(event_t * ev)
 			case KEYD_F11:  // gamma toggle
 
 				var_gamma++;
-				if (var_gamma > 4)
+				if (var_gamma > 5)
 					var_gamma = 0;
 
 				const char *msg = NULL;

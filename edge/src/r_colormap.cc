@@ -219,22 +219,18 @@ static void InitTranslationTables(void)
 
 static int cur_palette = -1;
 
-//
-// V_InitColour
-//
+
 void V_InitColour(void)
 {
 	const char *s = M_GetParm("-gamma");
 	if (s)
 	{
-		var_gamma = MAX(0, MIN(4, atoi(s)));
+		var_gamma = MAX(0, MIN(5, atoi(s)));
 	}
 
 	InitTranslationTables();
 }
 
-//
-// V_FindColour
 // 
 // Find the closest matching colour in the palette.
 // 
@@ -565,8 +561,6 @@ void V_GetColmapRGB(const colourmap_c *colmap,
 }
 
 //
-// V_ColourNewFrame
-//
 // Call this at the start of each frame (before any rendering or
 // render-related work has been done).  Will update the palette and/or
 // gamma settings if they have changed since the last call.
@@ -576,7 +570,7 @@ void V_ColourNewFrame(void)
 	if (var_gamma != old_gamma)
 	{
 		float gamma = 1.0 / (1.0 - var_gamma/8.0);
-			
+
 		I_SetGamma(gamma);
 
 		old_gamma = var_gamma;
@@ -584,11 +578,9 @@ void V_ColourNewFrame(void)
 }
 
 //
-// V_IndexColourToRGB
-//
 // Returns an RGB value from an index value - used the current
 // palette.  The byte pointer is assumed to point a 3-byte array.
-
+//
 void V_IndexColourToRGB(int indexcol, byte *returncol)
 {
 	returncol[0] = playpal_data[cur_palette][indexcol][0];
