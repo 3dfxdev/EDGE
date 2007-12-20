@@ -418,7 +418,7 @@ savearray_t sv_array_sector =
 //
 //  HUB STRUCTURE
 //
-static dormant_hub_c sv_dummy_hub;
+static hub_info_c sv_dummy_hub;
 
 #define SV_F_BASE  sv_dummy_hub
 
@@ -434,7 +434,7 @@ static savefield_t sv_fields_hub[] =
 savestruct_t sv_struct_hub =
 {
 	NULL,              // link in list
-	"dormant_hub_c",   // structure name
+	"hub_info_c",      // structure name
 	"dhub",            // start marker
 	sv_fields_hub,     // field descriptions
 	SVDUMMY,           // dummy base
@@ -447,7 +447,7 @@ savestruct_t sv_struct_hub =
 savearray_t sv_array_hub =
 {
 	NULL,               // link in list
-	"dormant_hubs",     // array name
+	"active_hubs",      // array name
 	&sv_struct_hub,     // array type
 	true,               // define_me
 	false,              // allow_hub
@@ -737,11 +737,11 @@ void SV_SectorFinaliseElems(void)
 
 //----------------------------------------------------------------------------
 
-extern std::vector<dormant_hub_c *> dormant_hubs;
+extern std::vector<hub_info_c *> active_hubs;
 
 int SV_HubCountElems(void)
 {
-	return (int)dormant_hubs.size();
+	return (int)active_hubs.size();
 }
 
 void *SV_HubGetElem(int index)
@@ -752,23 +752,23 @@ void *SV_HubGetElem(int index)
 		index = 0;
 	}
 
-	return dormant_hubs[index];
+	return active_hubs[index];
 }
 
-int SV_HubFindElem(dormant_hub_c *elem)
+int SV_HubFindElem(hub_info_c *elem)
 {
 	int index = 0;
 
-	std::vector<dormant_hub_c *>::iterator HI;
+	std::vector<hub_info_c *>::iterator HI;
 
-	for (HI  = dormant_hubs.begin();
-         HI != dormant_hubs.end() && (*HI) != elem;
+	for (HI  = active_hubs.begin();
+         HI != active_hubs.end() && (*HI) != elem;
          HI++)
 	{
 		index++;
 	}
 
-	if (HI == dormant_hubs.end())
+	if (HI == active_hubs.end())
 		I_Error("LOADGAME: No such HubPtr: %p\n", elem);
 
 	return index;
@@ -780,17 +780,16 @@ void SV_HubCreateElems(int num_elems)
 
 	for (; num_elems > 0; num_elems--)
 	{
-		dormant_hubs.push_back(
-			new dormant_hub_c(-1, "DUMMY"));
+		active_hubs.push_back(new hub_info_c(-1, "DUMMY"));
 	}
 }
 
 void SV_HubFinaliseElems(void)
 {
 	// just a verification pass
-	for (unsigned int j = 0; j < dormant_hubs.size(); j++)
+	for (unsigned int j = 0; j < active_hubs.size(); j++)
 	{
-		dormant_hub_c *H = dormant_hubs[j];
+		hub_info_c *H = active_hubs[j];
 
 		if (!H || H->index < 0)
 			I_Error("Failure loading HUB information!");

@@ -33,15 +33,15 @@
 
 #define MAX_HUBS  32
 
-std::vector<dormant_hub_c *> dormant_hubs;
+std::vector<hub_info_c *> active_hubs;
 
 
-dormant_hub_c::dormant_hub_c(int _idx, const char * _map) : index(_idx)
+hub_info_c::hub_info_c(int _idx, const char * _map) : index(_idx)
 {
 	map_name = SV_DupString(_map);
 }
 
-dormant_hub_c::~dormant_hub_c()
+hub_info_c::~hub_info_c()
 {
 	// map_name might be NULL, that is OK
 	SV_FreeString(map_name);
@@ -72,9 +72,9 @@ void HUB_DeleteHubSaves(void)
 
 void HUB_CopyHubsForSavegame(const char *basename)
 {
-	for (unsigned int j = 0; j < dormant_hubs.size(); j++)
+	for (unsigned int j = 0; j < active_hubs.size(); j++)
 	{
-		dormant_hub_c *H = dormant_hubs[j];
+		hub_info_c *H = active_hubs[j];
 
 		std::string old_name(epi::STR_Format("%s%d.%s", HUBBASE, H->index, SAVEGAMEEXT));
 		std::string new_name(epi::STR_Format("%s_H%02d.%s", basename, H->index, SAVEGAMEEXT));
@@ -90,13 +90,13 @@ void HUB_CopyHubsForSavegame(const char *basename)
 void HUB_CopyHubsForLoadgame(const char *basename)
 {
 	// Note: must be called _after_ savegame has been loaded,
-	// since we assume 'dormant_hubs' is valid for new game.
+	// since we assume 'active_hubs' is valid for new game.
 	
 	HUB_DeleteHubSaves();
 
-	for (unsigned int j = 0; j < dormant_hubs.size(); j++)
+	for (unsigned int j = 0; j < active_hubs.size(); j++)
 	{
-		dormant_hub_c *H = dormant_hubs[j];
+		hub_info_c *H = active_hubs[j];
 
 		std::string old_name(epi::STR_Format("%s_H%02d.%s", basename, H->index, SAVEGAMEEXT));
 		std::string new_name(epi::STR_Format("%s%d.%s", HUBBASE, H->index, SAVEGAMEEXT));
@@ -112,19 +112,19 @@ void HUB_CopyHubsForLoadgame(const char *basename)
 
 void HUB_DestroyAll(void)
 {
-	for (unsigned int j = 0; j < dormant_hubs.size(); j++)
+	for (unsigned int j = 0; j < active_hubs.size(); j++)
 	{
-		delete dormant_hubs[j];
+		delete active_hubs[j];
 	}
 
-	dormant_hubs.clear();
+	active_hubs.clear();
 }
 
-dormant_hub_c * HUB_FindMap(const char *map)
+hub_info_c * HUB_FindMap(const char *map)
 {
-	for (unsigned int j = 0; j < dormant_hubs.size(); j++)
+	for (unsigned int j = 0; j < active_hubs.size(); j++)
 	{
-		dormant_hub_c *H = dormant_hubs[j];
+		hub_info_c *H = active_hubs[j];
 
 		if (stricmp(H->map_name, map) == 0)
 			return H;
@@ -143,9 +143,9 @@ void HUB_AddMap(const char *map)
 	if (HUB_FindMap(map))
 		I_Error("INTERNAL ERROR: HUB_AddMap with already visited hub.\n");
 
-	dormant_hub_c *H = new dormant_hub_c(dormant_hubs.size(), map);
+	hub_info_c *H = new hub_info_c(active_hubs.size(), map);
 
-	dormant_hubs.push_back(H);
+	active_hubs.push_back(H);
 }
 
 //--- editor settings ---

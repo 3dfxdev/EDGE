@@ -178,7 +178,7 @@ typedef struct savearray_s
 
 	// load this array even when loading in HUB mode.  There are
 	// some things we _don't_ want to load when going back to a
-	// visited level: players and dormant_hubs in particular.
+	// visited level: players and active_hubs in particular.
 	bool allow_hub;
 
 	// array routines.  Not used for loaded info.
