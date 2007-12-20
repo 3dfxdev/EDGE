@@ -48,7 +48,7 @@
 #define PUSH_FACTOR  64.0f  // should be 128 ??
 
 
-std::vector<force_t *> forces;
+std::vector<force_t *> active_forces;
 
 static force_t *tm_force;  // for PIT_PushThing
 
@@ -159,10 +159,10 @@ void P_DestroyAllForces(void)
 {
 	std::vector<force_t *>::iterator FI;
 
-	for (FI = forces.begin(); FI != forces.end(); FI++)
+	for (FI = active_forces.begin(); FI != active_forces.end(); FI++)
 		delete (*FI);
 
-	forces.clear();
+	active_forces.clear();
 }
 
 //
@@ -174,7 +174,7 @@ static force_t *P_NewForce(void)
 
 	Z_Clear(f, force_t, 1);
 
-	forces.push_back(f);
+	active_forces.push_back(f);
 	return f;
 }
 
@@ -218,7 +218,7 @@ void P_RunForces(void)
 {
 	std::vector<force_t *>::iterator FI;
 
-	for (FI = forces.begin(); FI != forces.end(); FI++)
+	for (FI = active_forces.begin(); FI != active_forces.end(); FI++)
 	{
 		DoForce(*FI);
 	}
