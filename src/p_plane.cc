@@ -44,8 +44,8 @@ typedef enum
 move_result_e;
 
 
-std::list<plane_move_t *>  active_planes;
-std::list<slider_move_t *> active_sliders;
+std::vector<plane_move_t *>  active_planes;
+std::vector<slider_move_t *> active_sliders;
 
 
 linetype_c donut[2];
@@ -169,8 +169,7 @@ void P_AddActiveSlider(slider_move_t *smov)
 //
 void P_RemoveAllActiveParts(void)
 {
-	std::list<plane_move_t *> ::iterator PMI;
-	std::list<slider_move_t *>::iterator SMI;
+	std::vector<plane_move_t *> ::iterator PMI;
 
 	for (PMI  = active_planes.begin();
 		 PMI != active_planes.end();
@@ -178,6 +177,8 @@ void P_RemoveAllActiveParts(void)
 	{
 		delete (*PMI);
 	}
+
+	std::vector<slider_move_t *>::iterator SMI;
 
 	for (SMI  = active_sliders.begin();
 		 SMI != active_sliders.end();
@@ -607,7 +608,7 @@ static plane_move_t *P_SetupSectorAction(sector_t * sector,
                                          sector_t * model)
 {
     // new door thinker
-    plane_move_t *plane = Z_New(plane_move_t, 1);
+    plane_move_t *plane = new plane_move_t;
 
     if (def->is_ceiling)
         sector->ceil_move = plane;
@@ -662,12 +663,13 @@ static plane_move_t *P_SetupSectorAction(sector_t * sector,
     }
     else
     {
+        delete plane;
+
         if (def->is_ceiling)
             sector->ceil_move = NULL;
         else
             sector->floor_move = NULL;
 
-        Z_Free(plane);
         return NULL;
     }
 
@@ -895,50 +897,38 @@ bool EV_DoPlane(sector_t * sec, const movplanedef_c * def, sector_t * model)
     return P_SetupSectorAction(sec, def, model) ? true : false;
 }
 
+
 bool EV_ManualPlane(line_t * line, mobj_t * thing, const movplanedef_c * def)
 {
-    sector_t *sec;
-    plane_move_t *msec;
-    int side;
-    int dir = DIRECTION_UP;
-    int olddir = DIRECTION_UP;
-
-    side = 0;  // only front sides can be used
+    int side = 0;  // only front sides can be used
 
     // if the sector has an active thinker, use it
-    sec = side ? line->frontsector : line->backsector;
+    sector_t *sec = side ? line->frontsector : line->backsector;
     if (!sec)
         return false;
 
-    if (def->is_ceiling)
-        msec = (plane_move_t *)sec->ceil_move;
-    else
-        msec = (plane_move_t *)sec->floor_move;
+	plane_move_t *pmov = def->is_ceiling ? sec->ceil_move : sec->floor_move;
 
-    if (msec && thing)
+    if (pmov && thing)
     {
-        switch (def->type)
+        if (def->type == mov_MoveWaitReturn)
         {
-            case mov_MoveWaitReturn:
-                olddir = msec->direction;
+			int newdir;
+			int olddir = pmov->direction;
 
-                // Only players close doors
-                if ((msec->direction != DIRECTION_DOWN) && thing->player)
-                    dir = msec->direction = DIRECTION_DOWN;
-                else
-                    dir = msec->direction = DIRECTION_UP;
-                break;
-        
-            default:
-                break;
-        }
+			// only players close doors
+			if ((pmov->direction != DIRECTION_DOWN) && thing->player)
+				newdir = pmov->direction = DIRECTION_DOWN;
+			else
+				newdir = pmov->direction = DIRECTION_UP;
 
-        if (dir != olddir)
-        {
-            S_StartFX(def->sfxstart, SNCAT_Level, &sec->sfx_origin);
+			if (newdir != olddir)
+			{
+				S_StartFX(def->sfxstart, SNCAT_Level, &sec->sfx_origin);
 
-            msec->sfxstarted = ! thing->player;
-            return true;
+				pmov->sfxstarted = ! thing->player;
+				return true;
+			}
         }
 
         return false;
@@ -950,6 +940,8 @@ bool EV_ManualPlane(line_t * line, mobj_t * thing, const movplanedef_c * def)
 static bool P_ActivateInStasis(int tag)
 {
     bool result = false;
+
+	std::vector<plane_move_t *>::iterator PMI;
 
 	for (PMI  = active_planes.begin();
 		 PMI != active_planes.end();
@@ -971,13 +963,15 @@ static bool P_StasifySector(int tag)
 {
     bool result = false;
 
+	std::vector<plane_move_t *>::iterator PMI;
+
 	for (PMI  = active_planes.begin();
 		 PMI != active_planes.end();
 		 PMI++)
 	{
 		plane_move_t *pmov = *PMI;
 
-		if(pmov->direction != DIRECTION_STASIS && plane->tag == tag)
+		if(pmov->direction != DIRECTION_STASIS && pmov->tag == tag)
 		{
 			pmov->olddirection = pmov->direction;
 			pmov->direction = DIRECTION_STASIS;
@@ -1202,9 +1196,8 @@ bool EV_DoSlider(line_t * door, line_t *act_line, mobj_t * thing,
     }
 
     // new sliding door thinker
-    smov = Z_New(slider_move_t, 1);
+    smov = new slider_move_t;
 
-    smov->whatiam = MDT_SLIDER;
     smov->info = &special->s;
     smov->line = door;
     smov->opening = 0.0f;
@@ -1236,7 +1229,7 @@ bool EV_DoSlider(line_t * door, line_t *act_line, mobj_t * thing,
 //
 void P_RunActivePlanes(void)
 {
-	std::list<plane_move_t *> ::iterator PMI;
+	std::vector<plane_move_t *> ::iterator PMI;
 
 	bool removed_plane = false;
 
@@ -1262,12 +1255,19 @@ void P_RunActivePlanes(void)
 	}
 
 	if (removed_plane)
-		active_planes.remove((plane_move_t *) NULL);
+	{
+		std::vector<plane_move_t *>::iterator ENDP;
+
+		ENDP = std::remove(active_planes.begin(), active_planes.end(),
+						   (plane_move_t *) NULL);
+
+		active_planes.erase(ENDP, active_planes.end());
+	}
 }
 
 void P_RunActiveSliders(void)
 {
-	std::list<slider_move_t *>::iterator SMI;
+	std::vector<slider_move_t *>::iterator SMI;
 
 	bool removed_slider = false;
 
@@ -1289,7 +1289,14 @@ void P_RunActiveSliders(void)
 	}
 
 	if (removed_slider)
-		active_sliders.remove((slider_move_t *) NULL);
+	{
+		std::vector<slider_move_t *>::iterator ENDP;
+
+		ENDP = std::remove(active_sliders.begin(), active_sliders.end(),
+						   (slider_move_t *) NULL);
+
+		active_sliders.erase(ENDP, active_sliders.end());
+	}
 }
 
 
