@@ -43,15 +43,18 @@ typedef enum
 }
 move_result_e;
 
-// Linked list of moving parts.
-gen_move_t *active_movparts = NULL;
 
-static bool P_StasifySector(sector_t * sec);
+std::list<plane_move_t *>  active_planes;
+std::list<slider_move_t *> active_sliders;
+
+
+linetype_c donut[2];
+static int donut_setup = 0;
+
+
 static bool P_ActivateInStasis(int tag);
+static bool P_StasifySector(int tag);
 
-/// static void MoveElevator(elev_move_t *elev);
-static void MovePlane(plane_move_t *plane);
-static void MoveSlider(slider_move_t *smov);
 
 // -AJA- Perhaps using a pointer to `plane_info_t' would be better
 //       than f**king about with the floorOrCeiling stuff all the
@@ -144,75 +147,14 @@ static void MakeMovingSound(bool *started_var, sfx_t *sfx, position_c *pos)
 	}
 }
 
-//
-// P_AddActivePart
-//
-// Adds to the tail of the list.
-//
-void P_AddActivePart(gen_move_t *movpart)
+void P_AddActivePlane(plane_move_t *pmov)
 {
-    gen_move_t *tmp;
-
-    movpart->next = NULL;
-  
-    if (!active_movparts)
-    {
-        movpart->prev = NULL;
-        active_movparts = movpart;
-        return;
-    }
-  
-    for(tmp = active_movparts; tmp->next; tmp = tmp->next)
-    { /* Do Nothing */ };
-
-    movpart->prev = tmp;
-    tmp->next = movpart;
+	active_planes.push_back(pmov);
 }
 
-//
-// P_RemoveActivePart
-//
-static void P_RemoveActivePart(gen_move_t *movpart)
+void P_AddActiveSlider(slider_move_t *smov)
 {
-///---    elev_move_t *elev;
-    plane_move_t *plane;
-    slider_move_t *slider;
-
-    switch(movpart->whatiam)
-    {
-///---        case MDT_ELEVATOR:
-///---            elev = (elev_move_t*)movpart;
-///---            elev->sector->ceil_move = NULL;
-///---            elev->sector->floor_move = NULL;
-///---            break;
-
-        case MDT_PLANE:
-            plane = (plane_move_t*)movpart;
-            if (plane->is_ceiling || plane->is_elevator)
-                plane->sector->ceil_move = NULL;
-            
-            if (!plane->is_ceiling)
-                plane->sector->floor_move = NULL;
-            break;
-
-        case MDT_SLIDER:
-            slider = (slider_move_t*)movpart;
-            slider->line->slider_move = NULL;
-            break;
-
-        default:
-            break;
-    }
-
-    if (movpart->prev)
-        movpart->prev->next = movpart->next;
-    else
-        active_movparts = movpart->next;
-
-    if (movpart->next)
-        movpart->next->prev = movpart->prev;
-    
-    Z_Free(movpart);
+	active_sliders.push_back(smov);
 }
 
 
@@ -227,15 +169,25 @@ static void P_RemoveActivePart(gen_move_t *movpart)
 //
 void P_RemoveAllActiveParts(void)
 {
-    gen_move_t *movpart, *next;
+	std::list<plane_move_t *> ::iterator PMI;
+	std::list<slider_move_t *>::iterator SMI;
 
-    for (movpart = active_movparts; movpart; movpart = next)
-    {
-        next = movpart->next;
-        Z_Free(movpart);            
-    }
-  
-    active_movparts = NULL;
+	for (PMI  = active_planes.begin();
+		 PMI != active_planes.end();
+		 PMI++)
+	{
+		delete (*PMI);
+	}
+
+	for (SMI  = active_sliders.begin();
+		 SMI != active_sliders.end();
+		 SMI++)
+	{
+		delete (*SMI);
+	}
+
+	active_planes.clear();
+	active_sliders.clear();
 }
 
 //
@@ -351,26 +303,18 @@ static move_result_e AttemptMoveSector(sector_t * sector,
 	return res;
 }
 
-//
-// MovePlane
-//
-// Move a floor to it's destination (up or down).
-//
-static void MovePlane(plane_move_t *plane)
+static bool MovePlane(plane_move_t *plane)
 {
+	// Move a floor to it's destination (up or down).
+	//
+	// RETURNS true if plane_move_t should be removed.
+	
     move_result_e res;
 
     switch (plane->direction)
     {
         case DIRECTION_STASIS:
-            if (plane->sfxstarted) 
-            {
-                // We've in stasis, therefore stop making any sound
-                // -ACB- 2005/09/17 (Unashamed 11th hour hacking)
-// UNNEEDED     sound::StopLoopingFX(&plane->sector->sfx_origin);
-                plane->sfxstarted = false;
-            }
-
+			plane->sfxstarted = false;
             break;
 
         case DIRECTION_DOWN:
@@ -408,7 +352,7 @@ static void MovePlane(plane_move_t *plane)
                     case mov_MoveWaitReturn:
                         if (HEIGHT(plane->sector, plane->is_ceiling) == plane->startheight)
                         {
-                            P_RemoveActivePart((gen_move_t*)plane);
+                            return true; // REMOVE ME
                         }
                         else  // assume we reached the destination
                         {
@@ -424,8 +368,7 @@ static void MovePlane(plane_move_t *plane)
                         break;
 
                     default:
-                        P_RemoveActivePart((gen_move_t*)plane);
-                        break;
+                        return true; // REMOVE ME
                 }
             }
             else if (res == RES_Crushed || res == RES_Impossible)
@@ -515,7 +458,7 @@ static void MovePlane(plane_move_t *plane)
                     case mov_MoveWaitReturn:
                         if (HEIGHT(plane->sector, plane->is_ceiling) == plane->startheight)
                         {
-                            P_RemoveActivePart((gen_move_t*)plane);
+                            return true; // REMOVE ME
                         }
                         else  // assume we reached the destination
                         {
@@ -531,8 +474,7 @@ static void MovePlane(plane_move_t *plane)
                         break;
 
                     default:
-                        P_RemoveActivePart((gen_move_t*)plane);
-                        break;
+						return true; // REMOVE ME
                 }
 
             }
@@ -558,47 +500,10 @@ static void MovePlane(plane_move_t *plane)
         default:
             I_Error("MovePlane: Unknown direction %d", plane->direction);
     }
+
+	return false;
 }
 
-//
-// P_RunActiveSectors
-//
-// Executes one tic's plane_move_t thinking.
-// Active sectors can destroy themselves, but not each other.
-// We do not have to bother about a removal queue, but we can not rely on
-// sec still being in memory after MovePlane.
-//
-// -AJA- 2000/08/06 Now handles horizontal sliding doors too.
-// -ACB- 2001/01/14 Now handles elevators too.
-// -ACB- 2001/02/08 Now generic routine with gen_move_t;
-//
-void P_RunActiveSectors(void)
-{
-    gen_move_t *part, *part_next;
-
-    for (part = active_movparts; part; part = part_next)
-    {
-        part_next = part->next;
-
-        switch (part->whatiam)
-        {
-            case MDT_PLANE:
-                MovePlane((plane_move_t*)part);
-                break;
-
-            case MDT_SLIDER:
-                MoveSlider((slider_move_t*)part);
-                break;
-
-            default:
-                break;
-        }
-    }
-}
-
-//
-// P_GSS
-//
 static sector_t *P_GSS(sector_t * sec, float dest, bool forc)
 {
     int i;
@@ -658,9 +563,6 @@ static sector_t *P_GSS(sector_t * sec, float dest, bool forc)
     return NULL;
 }
 
-//
-// P_GetSectorSurrounding
-//
 static sector_t *P_GetSectorSurrounding(sector_t * sec, float dest, bool forc)
 {
     validcount++;
@@ -668,9 +570,6 @@ static sector_t *P_GetSectorSurrounding(sector_t * sec, float dest, bool forc)
     return P_GSS(sec, dest, forc);
 }
 
-//
-// P_SetupPlaneDirection
-//
 void P_SetupPlaneDirection(plane_move_t *plane, const movplanedef_c *def, 
                            float start, float dest)
 {
@@ -700,8 +599,6 @@ void P_SetupPlaneDirection(plane_move_t *plane, const movplanedef_c *def,
 }
 
 //
-// P_SetupSectorAction
-//
 // Setup the Floor Action, depending on the linedeftype trigger and the
 // sector info.
 //
@@ -709,25 +606,21 @@ static plane_move_t *P_SetupSectorAction(sector_t * sector,
                                          const movplanedef_c * def, 
                                          sector_t * model)
 {
-    plane_move_t *plane;
-    float start, dest;
-
     // new door thinker
-    plane = Z_New(plane_move_t, 1);
+    plane_move_t *plane = Z_New(plane_move_t, 1);
 
     if (def->is_ceiling)
-        sector->ceil_move = (gen_move_t*)plane;
+        sector->ceil_move = plane;
     else
-        sector->floor_move = (gen_move_t*)plane;
+        sector->floor_move = plane;
 
-    plane->whatiam = MDT_PLANE;
     plane->sector = sector;
     plane->crush = def->crush_damage;
     plane->sfxstarted = false;
 
-    start = HEIGHT(sector, def->is_ceiling);
+    float start = HEIGHT(sector, def->is_ceiling);
 
-    dest = GetSecHeightReference(def->destref, sector, model);
+    float dest = GetSecHeightReference(def->destref, sector, model);
     dest += def->dest;
 
     if (def->type == mov_Plat || def->type == mov_Continuous ||
@@ -851,13 +744,12 @@ static plane_move_t *P_SetupSectorAction(sector_t * sector,
         plane->new_image = W_ImageLookup(def->tex, INS_Flat);
     }
 
-    P_AddActivePart((gen_move_t*)plane);
+    P_AddActivePlane(plane);
+
     return plane;
 }
 
 
-//
-// EV_BuildOneStair
 //
 // BUILD A STAIRCASE!
 //
@@ -940,9 +832,6 @@ static bool EV_BuildOneStair(sector_t * sec, const movplanedef_c * def)
     return true;
 }
 
-//
-// EV_BuildStairs
-//
 static bool EV_BuildStairs(sector_t * sec, const movplanedef_c * def)
 {
     bool rtn = false;
@@ -966,8 +855,6 @@ static bool EV_BuildStairs(sector_t * sec, const movplanedef_c * def)
 }
 
 //
-// EV_DoPlane
-//
 // Do Platforms/Floors/Stairs/Ceilings/Doors/Elevators
 //
 bool EV_DoPlane(sector_t * sec, const movplanedef_c * def, sector_t * model)
@@ -986,7 +873,7 @@ bool EV_DoPlane(sector_t * sec, const movplanedef_c * def, sector_t * model)
             return EV_BuildStairs(sec, def);
 
         case mov_Stop:
-            return P_StasifySector(sec);
+            return P_StasifySector(sec->tag);
 
         default:
             break;
@@ -1008,9 +895,6 @@ bool EV_DoPlane(sector_t * sec, const movplanedef_c * def, sector_t * model)
     return P_SetupSectorAction(sec, def, model) ? true : false;
 }
 
-//
-// EV_ManualPlane
-//
 bool EV_ManualPlane(line_t * line, mobj_t * thing, const movplanedef_c * def)
 {
     sector_t *sec;
@@ -1063,57 +947,46 @@ bool EV_ManualPlane(line_t * line, mobj_t * thing, const movplanedef_c * def)
     return EV_DoPlane(sec, def, sec);
 }
 
-//
-// P_ActivateInStasis
-//
 static bool P_ActivateInStasis(int tag)
 {
-    bool rtn;
-    gen_move_t *movpart;
-    plane_move_t *plane;
+    bool result = false;
 
-    rtn = false;
-    for (movpart = active_movparts; movpart; movpart = movpart->next)
-    {
-        if (movpart->whatiam == MDT_PLANE)
-        {
-            plane = (plane_move_t*)movpart;
-            if(plane->direction == DIRECTION_STASIS && plane->tag == tag)
-            {
-                plane->direction = plane->olddirection;
-                rtn = true;
-            }
-        }
+	for (PMI  = active_planes.begin();
+		 PMI != active_planes.end();
+		 PMI++)
+	{
+		plane_move_t *pmov = *PMI;
+
+		if(pmov->direction == DIRECTION_STASIS && pmov->tag == tag)
+		{
+			pmov->direction = pmov->olddirection;
+			result = true;
+		}
     }
 
-    return rtn;
+    return result;
 }
 
-//
-// P_StasifySector
-//
-static bool P_StasifySector(sector_t * sec)
+static bool P_StasifySector(int tag)
 {
-    bool rtn;
-    gen_move_t *movpart;
-    plane_move_t *plane;
+    bool result = false;
 
-    rtn = false;
-    for (movpart = active_movparts; movpart; movpart = movpart->next)
-    {
-        if (movpart->whatiam == MDT_PLANE)
-        {
-            plane = (plane_move_t*)movpart;
-            if(plane->direction != DIRECTION_STASIS && plane->tag == sec->tag)
-            {
-                plane->olddirection = plane->direction;
-                plane->direction = DIRECTION_STASIS;
-                rtn = true;
-            }
-        }
+	for (PMI  = active_planes.begin();
+		 PMI != active_planes.end();
+		 PMI++)
+	{
+		plane_move_t *pmov = *PMI;
+
+		if(pmov->direction != DIRECTION_STASIS && plane->tag == tag)
+		{
+			pmov->olddirection = pmov->direction;
+			pmov->direction = DIRECTION_STASIS;
+
+			result = true;
+		}
     }
 
-    return rtn;
+    return result;
 }
 
 bool P_SectorIsLowering(sector_t *sec)
@@ -1121,21 +994,11 @@ bool P_SectorIsLowering(sector_t *sec)
 	if (! sec->floor_move)
 		return false;
 
-	if (sec->floor_move->whatiam != MDT_PLANE)
-		return false;
-
-    plane_move_t *plane = (plane_move_t*) sec->floor_move;
-
-	return plane->direction < 0;
+	return sec->floor_move->direction < 0;
 }
 
 // -AJA- 1999/12/07: cleaned up this donut stuff
 
-linetype_c donut[2];
-static int donut_setup = 0;
-
-//
-// EV_DoDonut
 //
 // Special Stuff that can not be categorized
 // Mmmmmmm....  Donuts....
@@ -1207,19 +1070,15 @@ bool EV_DoDonut(sector_t * s1, sfx_t *sfx[4])
     return result;
 }
 
-//
-// SliderCanClose
-//
 static inline bool SliderCanClose(line_t *line)
 {
     return ! P_ThingsOnLine(line);
 }
 
-//
-// MoveSlider
-//
-static void MoveSlider(slider_move_t *smov)
+static bool MoveSlider(slider_move_t *smov)
 {
+	// RETURNS true if slider_move_t should be removed.
+
     sector_t *sec = smov->line->frontsector;
 
     switch (smov->direction)
@@ -1273,8 +1132,6 @@ static void MoveSlider(slider_move_t *smov)
 					ld->slide_door = NULL;
                     ld->special = NULL;
 
-                    P_RemoveActivePart((gen_move_t*)smov);
-
                     // clear the side textures
                     ld->side[0]->middle.image = NULL;
                     ld->side[1]->middle.image = NULL;
@@ -1282,7 +1139,7 @@ static void MoveSlider(slider_move_t *smov)
                     P_ComputeWallTiles(ld, 0);
                     P_ComputeWallTiles(ld, 1);
 
-                    return;
+                    return true; // REMOVE ME
                 }
             }
             break;
@@ -1303,18 +1160,17 @@ static void MoveSlider(slider_move_t *smov)
                                SNCAT_Level,
                                &sec->sfx_origin);
 
-                P_RemoveActivePart((gen_move_t*)smov);
-                return;
+                return true; // REMOVE ME
             }
             break;
 
         default:
             I_Error("MoveSlider: Unknown direction %d", smov->direction);
     }
+
+	return false;
 }
 
-//
-// EV_DoSlider
 //
 // Handle thin horizontal sliding doors.
 //
@@ -1367,208 +1223,75 @@ bool EV_DoSlider(line_t * door, line_t *act_line, mobj_t * thing,
 	// which normally blocks the door does not kick in.
 	door->flags &= ~MLF_Blocking;
 
-    P_AddActivePart((gen_move_t*)smov);
+    P_AddActiveSlider(smov);
 
     S_StartFX(special->s.sfx_start, SNCAT_Level, &sec->sfx_origin);
 
 	return true;
 }
 
-
-#if 0  // ELEVATOR CRUD
-
-
 //
-// AttemptMoveElevator
+// Executes one tic's plane_move_t thinking.
+// Active sectors can destroy themselves, but not each other.
 //
-static move_result_e AttemptMoveElevator(sector_t *sec, float speed, 
-                                         float dest, int direction)
+void P_RunActivePlanes(void)
 {
-#if 0  // -AJA- FIXME: exfloorlist[] removed
-    move_result_e res;
-    bool didnotfit;
-    float currdest;
-    float lastfh;
-    float lastch;
-    float diff;
-    sector_t *parentsec;
-    int i;
+	std::list<plane_move_t *> ::iterator PMI;
 
-    res = RES_Ok;
+	bool removed_plane = false;
 
-    currdest = 0.0f;
+	for (PMI  = active_planes.begin();
+		 PMI != active_planes.end();
+		 PMI++)
+	{
+		plane_move_t *pmov = *PMI;
 
-    if (direction == DIRECTION_UP)
-        currdest = sec->c_h + speed;
-    else if (direction == DIRECTION_DOWN)
-        currdest = sec->f_h - speed;
+		if (MovePlane(pmov))
+		{
+            if (pmov->is_ceiling || pmov->is_elevator)
+                pmov->sector->ceil_move = NULL;
+            
+            if (!pmov->is_ceiling)
+                pmov->sector->floor_move = NULL;
 
-    for (i=0; i<sec->exfloornum; i++)
-    {
-        parentsec = sec->exfloorlist[i];
+			*PMI = NULL;
+			delete pmov;
 
-        if (direction == DIRECTION_UP)
-        {
-            if (currdest > dest)
-            {
-                lastch = sec->c_h;
-                lastfh = sec->f_h;
+		    removed_plane = true;
+		}
+	}
 
-                diff = lastch - dest;
-
-                sec->c_h = dest;
-                sec->f_h -= diff;
-                didnotfit = P_ChangeSector(sec, false);
-                if (didnotfit)
-                {
-                    sec->c_h = lastch;
-                    sec->f_h = lastfh;
-                    P_ChangeSector(sec, false);
-                }
-                res = RES_PastDest;
-            } 
-            else
-            {
-                lastch = sec->c_h;
-                lastfh = sec->f_h;
-
-                diff = lastch - currdest;
-
-                sec->c_h = currdest;
-                sec->f_h -= diff;
-                didnotfit = P_ChangeSector(sec, false);
-                if (didnotfit)
-                {
-                    sec->c_h = lastch;
-                    sec->f_h = lastfh;
-                    P_ChangeSector(sec, false);
-                    res = RES_PastDest;
-                }
-            }
-        }
-        else if (direction == DIRECTION_DOWN)
-        {
-            if (currdest < dest)
-            {
-                lastch = sec->c_h;
-                lastfh = sec->f_h;
-
-                diff = lastfh - dest;
-
-                sec->c_h -= diff;
-                sec->f_h = dest;
-                didnotfit = P_ChangeSector(sec, false);
-                if (didnotfit)
-                {
-                    sec->c_h = lastch;
-                    sec->f_h = lastfh;
-                    P_ChangeSector(sec, false);
-                }
-                res = RES_PastDest;
-            } 
-            else
-            {
-                lastch = sec->c_h;
-                lastfh = sec->f_h;
-
-                diff = lastfh - currdest;
-
-                sec->c_h -= diff;
-                sec->f_h = currdest;
-                didnotfit = P_ChangeSector(sec, false);
-                if (didnotfit)
-                {
-                    sec->c_h = lastch;
-                    sec->f_h = lastfh;
-                    P_ChangeSector(sec, false);
-                    res = RES_PastDest;
-                }
-            }
-        }
-    }
-    return res;
-#endif
-
-    return RES_Ok;
+	if (removed_plane)
+		active_planes.remove((plane_move_t *) NULL);
 }
 
-//
-// MoveElevator
-//
-static void MoveElevator(elev_move_t *elev)
+void P_RunActiveSliders(void)
 {
-    move_result_e res;
-    float num;
+	std::list<slider_move_t *>::iterator SMI;
 
-    switch (elev->direction)
-    {
-        case DIRECTION_DOWN:
-            res = AttemptMoveElevator(elev->sector,
-                                      elev->speed,
-                                      elev->destheight,
-                                      elev->direction);
+	bool removed_slider = false;
 
-			MakeMovingSound(&elev->sfxstarted, elev->type->sfxdown,
-                            &elev->sector->sfx_origin);
+	for (SMI  = active_sliders.begin();
+		 SMI != active_sliders.end();
+		 SMI++)
+	{
+		slider_move_t *smov = *SMI;
 
-            if (res == RES_PastDest || res == RES_Impossible)
-            {
-                S_StartFX(elev->type->sfxstop, 
-                               SNCAT_Level, 
-                               &elev->sector->sfx_origin);
+		if (MoveSlider(smov))
+		{
+            smov->line->slider_move = NULL;
 
-                elev->speed = elev->type->speed_up;
+			*SMI = NULL;
+			delete smov;
 
-// ---> ACB 2001/03/25 Quick hack to get continous movement
-//              P_RemoveActivePart((gen_move_t*)elev);
-                elev->direction = DIRECTION_UP;
+		    removed_slider = true;
+		}
+	}
 
-                num = elev->destheight;
-                elev->destheight = elev->startheight;
-                elev->startheight = num;
-// ---> ACB 2001/03/25 Quick hack to get continous movement
-            }
-            break;
-      
-        case DIRECTION_WAIT:
-            break;
-      
-        case DIRECTION_UP:
-            res = AttemptMoveElevator(elev->sector,
-                                      elev->speed,
-                                      elev->destheight,
-                                      elev->direction);
-
-			MakeMovingSound(&elev->sfxstarted, elev->type->sfxup,
-                            &elev->sector->sfx_origin);
-
-            if (res == RES_PastDest || res == RES_Impossible)
-            {
-                S_StartFX(elev->type->sfxstop, 
-                               SNCAT_Level, 
-                               &elev->sector->sfx_origin);
-
-                elev->speed = elev->type->speed_down;
-
-// ---> ACB 2001/03/25 Quick hack to get continous movement
-//              P_RemoveActivePart((gen_move_t*)elev);
-                elev->direction = DIRECTION_DOWN; 
-                num = elev->destheight;
-                elev->destheight = elev->startheight;
-                elev->startheight = num;
-// ---> ACB 2001/03/25 Quick hack to get continous movement
-
-            }
-            break;
-      
-        default:
-            break;
-    }
-
-    return;
+	if (removed_slider)
+		active_sliders.remove((slider_move_t *) NULL);
 }
 
-#endif  // ELEVATOR CRUD
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

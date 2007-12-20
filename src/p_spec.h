@@ -37,15 +37,15 @@
 
 #define MENU_GRAV_NORMAL  8
 
-typedef enum
-{
-	MDT_INVALID  = 0,
-	/* removed: MDT_ELEVATOR = 1 */
-	MDT_PLANE    = 2,
-	MDT_SLIDER   = 3,
-	ENDOFMDTTYPES
-}
-movedat_e;
+///---typedef enum
+///---{
+///---	MDT_INVALID  = 0,
+///---	/* removed: MDT_ELEVATOR = 1 */
+///---	MDT_PLANE    = 2,
+///---	MDT_SLIDER   = 3,
+///---	ENDOFMDTTYPES
+///---}
+///---movedat_e;
 
 typedef struct light_s
 {
@@ -88,12 +88,12 @@ typedef struct button_s
 }
 button_t;
 
-typedef struct gen_move_s
-{
-	movedat_e whatiam;
-	struct gen_move_s *next, *prev;
-}
-gen_move_t;
+///---typedef struct gen_move_s
+///---{
+///---	movedat_e whatiam;
+///---	struct gen_move_s *next, *prev;
+///---}
+///---gen_move_t;
 
 typedef enum
 {
@@ -107,8 +107,8 @@ plane_dir_e;
 
 typedef struct plane_move_s
 {
-	movedat_e whatiam;
-	struct plane_move_s *next, *prev;
+///---	movedat_e whatiam;
+///---	struct plane_move_s *next, *prev;
 
 	const movplanedef_c *type;
 	sector_t *sector;
@@ -140,8 +140,8 @@ plane_move_t;
 
 typedef struct slider_move_s
 {
-	movedat_e whatiam;
-	struct slider_move_s *next, *prev;
+///---	movedat_e whatiam;
+///---	struct slider_move_s *next, *prev;
 
 	const sliding_door_c *info;
 	line_t *line;
@@ -186,8 +186,6 @@ force_t;
 extern bool levelTimer;
 extern int levelTimeCount;
 
-extern gen_move_t *active_movparts;
-
 extern linetype_c donut[2];
 
 // at map load
@@ -223,10 +221,12 @@ int P_FindMinSurroundingLight(sector_t * sector, int max);
 // start an action...
 bool EV_Lights(sector_t * sec, const lightdef_c * type);
 
-void P_RunActiveSectors(void);
+void P_RunActivePlanes(void);
+void P_RunActiveSliders(void);
 
 void P_RemoveAllActiveParts(void);
-void P_AddActivePart(gen_move_t *movpart);
+void P_AddActivePlane(plane_move_t *pmov);
+void P_AddActiveSlider(slider_move_t *smov);
 
 void P_AddSpecialLine(line_t *ld);
 void P_AddSpecialSector(sector_t *sec);
