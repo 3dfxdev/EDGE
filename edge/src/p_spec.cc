@@ -869,7 +869,7 @@ static bool P_ActivateSpecialLine(line_t * line,
 	}
 
 	// Check if button already pressed
-	if (line && buttonlist.IsPressed(line))
+	if (line && P_ButtonIsPressed(line))
 		return false;
 
 	// Do lights
@@ -1488,47 +1488,7 @@ void P_UpdateSpecials(void)
 	}
 
 	// DO BUTTONS
-	epi::array_iterator_c it;
-	button_t *b;
-	
-	for (it=buttonlist.GetBaseIterator(); it.IsValid(); it++)
-	{
-		b = ITERATOR_TO_PTR(it, button_t);
-
-		if (b->btimer == 0)
-			continue;
-
-		b->btimer--;
-
-		if (b->btimer != 0)
-			continue;
-
-		switch (b->where)
-		{
-			case BWH_Top:
-				b->line->side[0]->top.image = b->bimage;
-				break;
-
-			case BWH_Middle:
-				b->line->side[0]->middle.image = b->bimage;
-				break;
-
-			case BWH_Bottom:
-				b->line->side[0]->bottom.image = b->bimage;
-				break;
-
-			case BWH_None:
-				I_Error("INTERNAL ERROR: bwhere is BWH_None !\n");
-		}
-
-		if (b->off_sound)
-        {
-            S_StartFX(b->off_sound, SNCAT_Level,
-                           &b->line->frontsector->sfx_origin);
-        }
-
-		Z_Clear(b, button_t, 1);
-	}
+	P_UpdateButtons();
 }
 
 //
@@ -1575,7 +1535,7 @@ void P_SpawnSpecials(int autotag)
 		levelTimeCount = time;
 	}
 
-	buttonlist.Clear();
+	P_ClearButtons();
 
 	//
 	// Init special SECTORs.
