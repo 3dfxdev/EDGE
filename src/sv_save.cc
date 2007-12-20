@@ -35,7 +35,7 @@
 #include "sv_chunk.h"
 #include "sv_main.h"
 #include "w_wad.h"
-#include "f_stats.h"
+#include "f_interm.h"
 
 void SV_BeginSave(void)
 {

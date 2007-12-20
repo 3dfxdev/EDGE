@@ -53,7 +53,7 @@
 #include "e_demo.h"
 #include "e_input.h"
 #include "f_finale.h"
-#include "f_stats.h"
+#include "f_interm.h"
 #include "g_game.h"
 #include "hu_stuff.h"
 #include "l_glbsp.h"

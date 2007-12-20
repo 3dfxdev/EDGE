@@ -53,7 +53,7 @@
 #include "r_modes.h"
 #include "r_colormap.h"
 #include "w_wad.h"
-#include "f_stats.h"
+#include "f_interm.h"
 #include "z_zone.h"
 
 
