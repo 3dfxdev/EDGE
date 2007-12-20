@@ -77,8 +77,6 @@ static s_tip_prop_t fixed_props[FIXEDSLOTS] =
 static style_c *rts_hack_style;
 
 //
-// RAD_InitTips
-//
 // Once-only initialisation.
 //
 void RAD_InitTips(void)
@@ -100,8 +98,6 @@ void RAD_InitTips(void)
 }
 
 //
-// RAD_ResetTips
-//
 // Used when changing levels to clear any tips.
 //
 void RAD_ResetTips(void)
@@ -117,9 +113,6 @@ void RAD_ResetTips(void)
 	RAD_InitTips();
 }
 
-//
-// SetupTip
-//
 static void SetupTip(drawtip_t *cur)
 {
 	if (! rts_hack_style)
@@ -195,9 +188,6 @@ static void SetupTip(drawtip_t *cur)
 	}
 }
 
-//
-// FinishTip
-//
 static void FinishTip(drawtip_t *current)
 {
 	int i;
@@ -211,9 +201,6 @@ static void FinishTip(drawtip_t *current)
 	}
 }
 
-//
-// SendTip
-//
 static void SendTip(rad_trigger_t *R, s_tip_t * tip, int slot)
 {
 	drawtip_t *current;
@@ -254,8 +241,6 @@ static void SendTip(rad_trigger_t *R, s_tip_t * tip, int slot)
 	current->dirty = true;
 }
 
-//
-// RAD_DisplayTips
 //
 // -AJA- 1999/09/07: Reworked to handle tips with multiple lines.
 //
@@ -336,8 +321,6 @@ void RAD_DisplayTips(void)
 	}
 }
 
-//
-// RAD_Ticker
 //
 // Does any tic-related RTS stuff.  For now, just update the tips.
 //
