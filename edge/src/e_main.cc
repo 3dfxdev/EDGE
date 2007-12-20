@@ -136,13 +136,6 @@ gameflags_t default_gameflags =
 	true      // weapon_switch
 };
 
-// -KM- 1998/12/16 These flags hold everything needed about a level
-// -KM- 1999/01/29 Added autoaim flag.
-// -AJA- 2000/02/02: Removed initialisation (it *should* be setup at
-//       level start).
-
-gameflags_t level_flags;
-
 // -KM- 1998/12/16 These flags are the users prefs and are copied to
 //   gameflags when a new level is started.
 // -AJA- 2000/02/02: Removed initialisation (done in code using
