@@ -46,6 +46,7 @@
 #include "g_game.h"
 #include "m_argv.h"
 #include "m_misc.h"
+#include "m_random.h"
 #include "n_network.h"
 #include "p_setup.h"
 #include "version.h"
@@ -244,7 +245,7 @@ void G_BeginRecording(void)
 
 	globs->skill = gameskill;
 	globs->netgame = netgame ? (1+deathmatch) : 0;
-	globs->p_random = random_seed;
+	globs->p_random = P_ReadRandomState();
 	globs->console_player = consoleplayer;
 
 	time_t cur_time;
