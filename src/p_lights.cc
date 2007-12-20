@@ -329,22 +329,22 @@ public:
 	{ }
 };
 
-std::list<ambientsfx_c *> ambient_sounds;
+std::list<ambientsfx_c *> active_ambients;
 
 
 void P_AddAmbientSFX(sector_t *sec, sfx_t *sfx)
 {
-	ambient_sounds.push_back(new ambientsfx_c(sec, sfx));
+	active_ambients.push_back(new ambientsfx_c(sec, sfx));
 }
 
 
 void P_DestroyAllAmbientSFX(void)
 {
-	while (! ambient_sounds.empty())
+	while (! active_ambients.empty())
 	{
-		ambientsfx_c *amb = * ambient_sounds.begin();
+		ambientsfx_c *amb = * active_ambients.begin();
 
-		ambient_sounds.pop_front();
+		active_ambients.pop_front();
 
 		S_StopFX(&amb->sector->sfx_origin);
 
@@ -357,7 +357,7 @@ void P_RunAmbientSFX(void)
 {
 	std::list<ambientsfx_c *>::iterator S;
 
-	for (S = ambient_sounds.begin(); S != ambient_sounds.end(); S++)
+	for (S = active_ambients.begin(); S != active_ambients.end(); S++)
 	{
 		ambientsfx_c *amb = *S;
 		
