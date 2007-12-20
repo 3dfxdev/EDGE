@@ -81,12 +81,14 @@ extern savestruct_t sv_struct_light;
 extern savestruct_t sv_struct_trigger;
 extern savestruct_t sv_struct_drawtip;
 extern savestruct_t sv_struct_plane_move;
+extern savestruct_t sv_struct_slider_move;
 
 extern savearray_t sv_array_button;
 extern savearray_t sv_array_light;
 extern savearray_t sv_array_trigger;
 extern savearray_t sv_array_drawtip;
 extern savearray_t sv_array_plane_move;
+extern savearray_t sv_array_slider_move;
 
 
 //----------------------------------------------------------------------------
@@ -283,12 +285,14 @@ void SV_MainInit(void)
 	AddKnownStruct(&sv_struct_trigger);
 	AddKnownStruct(&sv_struct_drawtip);
 	AddKnownStruct(&sv_struct_plane_move);
+	AddKnownStruct(&sv_struct_slider_move);
 
 	AddKnownArray(&sv_array_button);
 	AddKnownArray(&sv_array_light);
 	AddKnownArray(&sv_array_trigger);
 	AddKnownArray(&sv_array_drawtip);
 	AddKnownArray(&sv_array_plane_move);
+	AddKnownArray(&sv_array_slider_move);
 }
 
 savestruct_t *SV_MainLookupStruct(const char *name)

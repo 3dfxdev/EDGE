@@ -30,7 +30,6 @@
 //
 // TODO HERE:
 //   +  Fix donuts.
-//   +  Implement slider_move array.
 //   -  Button off_sound field.
 //
 
@@ -78,6 +77,12 @@ int SV_PlaneMoveFindElem(plane_move_t *elem);
 void * SV_PlaneMoveGetElem(int index);
 void SV_PlaneMoveCreateElems(int num_elems);
 void SV_PlaneMoveFinaliseElems(void);
+
+int SV_SliderMoveCountElems(void);
+int SV_SliderMoveFindElem(plane_move_t *elem);
+void * SV_SliderMoveGetElem(int index);
+void SV_SliderMoveCreateElems(int num_elems);
+void SV_SliderMoveFinaliseElems(void);
 
 
 bool SR_LightGetType(void *storage, int index, void *extra);
@@ -351,7 +356,7 @@ static savefield_t sv_fields_plane_move[] =
 {
 	SF(type, "type", 1, SVT_STRING, SR_PlaneMoveGetType, SR_PlaneMovePutType),
 	SF(sector, "sector", 1, SVT_INDEX("sectors"), 
-	SR_SectorGetSector, SR_SectorPutSector),
+		SR_SectorGetSector, SR_SectorPutSector),
 
 	SF(is_ceiling, "is_ceiling", 1, SVT_BOOLEAN, SR_GetBoolean, SR_PutBoolean),
 	SF(is_elevator, "is_elevator", 1, SVT_BOOLEAN, SR_GetBoolean, SR_PutBoolean),
@@ -368,12 +373,7 @@ static savefield_t sv_fields_plane_move[] =
 	SF(sfxstarted, "sfxstarted", 1, SVT_BOOLEAN, SR_GetBoolean, SR_PutBoolean),
 
 	SF(newspecial, "newspecial", 1, SVT_INT, SR_GetInt, SR_PutInt),
-	SF(new_image, "new_image", 1, SVT_STRING, 
-	SR_LevelGetImage, SR_LevelPutImage),
-
-	// NOT HERE:
-	//   - whatiam: will always be MDT_PLANE
-	//   - next, prev: regenerated automatically.
+	SF(new_image, "new_image", 1, SVT_STRING, SR_LevelGetImage, SR_LevelPutImage),
 
 	SVFIELD_END
 };
@@ -384,7 +384,7 @@ savestruct_t sv_struct_plane_move =
 	"plane_move_t",        // structure name
 	"pmov",                // start marker
 	sv_fields_plane_move,  // field descriptions
-  SVDUMMY,               // dummy base
+	SVDUMMY,               // dummy base
 	true,                  // define_me
 	NULL                   // pointer to known struct
 };
@@ -403,6 +403,65 @@ savearray_t sv_array_plane_move =
 	SV_PlaneMoveGetElem,        // index routine
 	SV_PlaneMoveCreateElems,    // creation routine
 	SV_PlaneMoveFinaliseElems,  // finalisation routine
+
+	NULL,     // pointer to known array
+	0         // loaded size
+};
+
+
+//----------------------------------------------------------------------------
+//
+//  SLIDERMOVE STRUCTURE
+//
+static slider_move_t sv_dummy_slider_move;
+
+#define SV_F_BASE  sv_dummy_slider_move
+
+static savefield_t sv_fields_slider_move[] =
+{
+	SF(info, "info", 1, SVT_STRING, SR_SliderGetInfo, SR_SliderPutInfo),
+	SF(line, "line", 1, SVT_INDEX("lines"), SR_LineGetLine, SR_LinePutLine),
+
+	SF(opening, "opening", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
+	SF(target, "target", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
+
+	SF(direction, "direction", 1, SVT_INT, SR_GetInt, SR_PutInt),
+	SF(waited, "waited", 1, SVT_INT, SR_GetInt, SR_PutInt),
+
+	SF(sfxstarted, "sfxstarted", 1, SVT_BOOLEAN, SR_GetBoolean, SR_PutBoolean),
+	SF(final_open, "final_open", 1, SVT_BOOLEAN, SR_GetBoolean, SR_PutBoolean),
+
+	// NOT HERE:
+	//   - line_len (can recreate)
+
+	SVFIELD_END
+};
+
+savestruct_t sv_struct_slider_move =
+{
+	NULL,                  // link in list
+	"slider_move_t",       // structure name
+	"pmov",                // start marker
+	sv_fields_slider_move, // field descriptions
+	SVDUMMY,               // dummy base
+	true,                  // define_me
+	NULL                   // pointer to known struct
+};
+
+#undef SV_F_BASE
+
+savearray_t sv_array_slider_move =
+{
+	NULL,                   // link in list
+	"active_sliders",       // array name (virtual list)
+	&sv_struct_slider_move, // array type
+	true,                   // define_me
+	true,                   // allow_hub
+
+	SV_SliderMoveCountElems,     // count routine
+	SV_SliderMoveGetElem,        // index routine
+	SV_SliderMoveCreateElems,    // creation routine
+	SV_SliderMoveFinaliseElems,  // finalisation routine
 
 	NULL,     // pointer to known array
 	0         // loaded size
@@ -665,8 +724,12 @@ int SV_PlaneMoveFindElem(plane_move_t *elem)
 
 	std::vector<plane_move_t *>::iterator PMI;
 
-	for (PMI = active_planes.begin(); PMI != active_planes.end() && (*PMI) != elem; PMI++)
+	for (PMI = active_planes.begin();
+		 PMI != active_planes.end() && (*PMI) != elem;
+		 PMI++)
+	{
 		index++;
+	}
 
 	if (PMI == active_planes.end())
 		I_Error("LOADGAME: No such PlaneMove: %p\n", elem);
@@ -676,10 +739,7 @@ int SV_PlaneMoveFindElem(plane_move_t *elem)
 
 void SV_PlaneMoveCreateElems(int num_elems)
 {
-	// NOTE: this removes all the other movers too.  Hence plane movers
-	//       should be loaded before the other ones.
-
-	P_RemoveAllActiveParts();
+	P_DestroyAllPlanes();
 
 	for (; num_elems > 0; num_elems--)
 	{
@@ -695,6 +755,77 @@ void SV_PlaneMoveCreateElems(int num_elems)
 void SV_PlaneMoveFinaliseElems(void)
 {
 	// nothing to do
+}
+
+
+//----------------------------------------------------------------------------
+
+extern std::vector<slider_move_t *> active_sliders;
+
+int SV_SliderMoveCountElems(void)
+{
+	return (int)active_sliders.size();
+}
+
+void *SV_SliderMoveGetElem(int index)
+{
+	// Note: the index value starts at 0.
+
+	if (index < 0 || index >= (int)active_sliders.size())
+		I_Error("LOADGAME: Invalid SliderMove: %d\n", index);
+
+	return active_sliders[index];
+}
+
+int SV_SliderMoveFindElem(slider_move_t *elem)
+{
+	// returns the index value (starts at 0).
+
+	int index = 0;
+
+	std::vector<slider_move_t *>::iterator SMI;
+
+	for (SMI = active_sliders.begin();
+		 SMI != active_sliders.end() && (*SMI) != elem;
+		 SMI++)
+	{
+		index++;
+	}
+
+	if (SMI == active_sliders.end())
+		I_Error("LOADGAME: No such SliderMove: %p\n", elem);
+
+	return index;
+}
+
+void SV_SliderMoveCreateElems(int num_elems)
+{
+	P_DestroyAllSliders();
+
+	for (; num_elems > 0; num_elems--)
+	{
+		slider_move_t *smov = new slider_move_t;
+
+		Z_Clear(smov, slider_move_t, 1);
+
+		// link it in
+		P_AddActiveSlider(smov);
+	}
+}
+
+void SV_SliderMoveFinaliseElems(void)
+{
+	std::vector<slider_move_t *>::iterator SMI;
+
+	for (SMI = active_sliders.begin();
+		 SMI != active_sliders.end();
+		 SMI++)
+	{
+		slider_move_t *smov = *SMI;
+
+		if (smov->line)
+			smov->line_len = R_PointToDist(0, 0, smov->line->dx, smov->line->dy);
+	}
 }
 
 
