@@ -104,8 +104,6 @@ int deathmatch;
 
 int gametic;
 
-int random_seed;
-
 // if true, load all graphics at start 
 bool precache = true;
 
@@ -139,7 +137,6 @@ static newgame_params_c *d_params = NULL;
 //   (d) level_flags
 //   (e) demorecording, demo_notbegun
 //
-//   ??  random_seed
 //   ??  deathmatch
 //   ??  exittime
 //
@@ -1105,9 +1102,7 @@ void G_InitNew(newgame_params_c& params)
 	if (params.skill > sk_nightmare)
 		params.skill = sk_nightmare;
 
-	random_seed = params.random_seed;
-
-	P_WriteRandomState(random_seed);
+	P_WriteRandomState(params.random_seed);
 
 	demoplayback = false;
 	automapactive = false;
