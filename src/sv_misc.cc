@@ -462,14 +462,14 @@ void SV_ButtonFinaliseElems(void)
 
 //----------------------------------------------------------------------------
 
-extern std::vector<light_t *> lights;
+extern std::vector<light_t *> active_lights;
 
 //
 // SV_LightCountElems
 //
 int SV_LightCountElems(void)
 {
-	return (int)lights.size();
+	return (int)active_lights.size();
 }
 
 //
@@ -477,10 +477,10 @@ int SV_LightCountElems(void)
 //
 void *SV_LightGetElem(int index)
 {
-	if (index < 0 || index >= (int)lights.size())
+	if (index < 0 || index >= (int)active_lights.size())
 		I_Error("LOADGAME: Invalid Light: %d\n", index);
 
-	return lights[index];
+	return active_lights[index];
 }
 
 //
@@ -492,10 +492,10 @@ int SV_LightFindElem(light_t *elem)
 
 	std::vector<light_t *>::iterator LI;
 
-	for (LI=lights.begin(); LI != lights.end() && (*LI) != elem; LI++)
+	for (LI=active_lights.begin(); LI != active_lights.end() && (*LI) != elem; LI++)
 		index++;
 
-	if (LI == lights.end())
+	if (LI == active_lights.end())
 		I_Error("LOADGAME: No such LightPtr: %p\n", elem);
 
 	return index;

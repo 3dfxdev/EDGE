@@ -39,7 +39,7 @@
 #include "s_sound.h"
 #include "z_zone.h"
 
-std::vector<light_t *> lights;
+std::vector<light_t *> active_lights;
 
 //
 // GENERALISED LIGHT
@@ -214,12 +214,12 @@ void P_DestroyAllLights(void)
 {
 	std::vector<light_t *>::iterator LI;
 
-	for (LI = lights.begin(); LI != lights.end(); LI++)
+	for (LI = active_lights.begin(); LI != active_lights.end(); LI++)
 	{
 		delete (*LI);
 	}
 
-	lights.clear();
+	active_lights.clear();
 }
 
 
@@ -229,7 +229,7 @@ light_t *P_NewLight(void)
 
 	light_t *light = new light_t;
 
-	lights.push_back(light);
+	active_lights.push_back(light);
 
 	return light;
 }
@@ -242,7 +242,7 @@ bool EV_Lights(sector_t * sec, const lightdef_c * type)
 
 	std::vector<light_t *>::iterator LI;
 
-	for (LI = lights.begin(); LI != lights.end(); LI++)
+	for (LI = active_lights.begin(); LI != active_lights.end(); LI++)
 	{
 		if ((*LI)->count == 0 || (*LI)->sector == sec)
 		{
@@ -297,7 +297,7 @@ void P_RunLights(void)
 {
 	std::vector<light_t *>::iterator LI;
 
-	for (LI = lights.begin(); LI != lights.end(); LI++)
+	for (LI = active_lights.begin(); LI != active_lights.end(); LI++)
 	{
 		DoLight(*LI);
 	}
