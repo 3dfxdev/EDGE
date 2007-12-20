@@ -60,7 +60,7 @@
 #include "r_colormap.h"
 #include "version.h"
 #include "w_wad.h"
-#include "f_stats.h"
+#include "f_interm.h"
 #include "z_zone.h"
 
 

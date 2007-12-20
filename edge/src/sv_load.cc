@@ -25,7 +25,7 @@
 #include "dm_state.h"
 #include "e_main.h"
 #include "g_game.h"
-#include "f_stats.h"
+#include "f_interm.h"
 #include "m_math.h"
 #include "m_random.h"
 #include "p_local.h"

@@ -35,7 +35,7 @@
 #include "dm_state.h"
 #include "e_main.h"
 #include "f_finale.h"
-#include "f_stats.h"
+#include "f_interm.h"
 #include "g_game.h"
 #include "hu_lib.h"
 #include "p_local.h"
