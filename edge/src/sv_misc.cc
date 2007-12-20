@@ -411,32 +411,52 @@ savearray_t sv_array_plane_move =
 
 //----------------------------------------------------------------------------
 
+extern std::vector<button_t *> active_buttons;
+
 int SV_ButtonCountElems(void)
 {
-	return buttonlist.GetSize();
+	// Note: also saves the unused button_ts (btimer == 0)
+	return (int)active_buttons.size();
 }
 
 void *SV_ButtonGetElem(int index)
 {
-	if (index < 0 || index >= buttonlist.GetSize())
+	if (index < 0 || index >= (int)active_buttons.size())
 	{
 		I_Warning("LOADGAME: Invalid Button: %d\n", index);
 		index = 0;
 	}	
 
-	return buttonlist[index];
+	return active_buttons[index];
 }
 
 int SV_ButtonFindElem(button_t *elem)
 {
-	int idx = buttonlist.Find(elem);
-	SYS_ASSERT(idx >= 0);
-	return idx;
+	int index = 0;
+
+	std::vector<button_t *>::iterator LI;
+
+	for (LI=active_buttons.begin(); LI != active_buttons.end() && (*LI) != elem; LI++)
+		index++;
+
+	if (LI == active_buttons.end())
+		I_Error("LOADGAME: No such LightPtr: %p\n", elem);
+
+	return index;
 }
 
 void SV_ButtonCreateElems(int num_elems)
 {
-	buttonlist.SetSize(num_elems);
+	P_ClearButtons();
+	
+	for (; num_elems > 0; num_elems--)
+	{
+		button_t *b = new button_t;
+
+		Z_Clear(b, button_t, 1);
+
+		active_buttons.push_back(b);
+	}
 }
 
 void SV_ButtonFinaliseElems(void)
