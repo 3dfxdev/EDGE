@@ -19,7 +19,7 @@
 #ifndef __P_HUBS__
 #define __P_HUBS__
 
-class dormant_hub_c
+class hub_info_c
 {
 public:
 	int index;  // starts at 0
@@ -27,9 +27,9 @@ public:
 	const char * map_name;  // e.g. "MAP03"
 
 public:
-	 dormant_hub_c() : index(-1), map_name(NULL) { }
-	 dormant_hub_c(int _idx, const char * _map);
-	~dormant_hub_c();
+	 hub_info_c() : index(-1), map_name(NULL) { }
+	 hub_info_c(int _idx, const char * _map);
+	~hub_info_c();
 };
 
 /* FUNCTIONS */
@@ -43,7 +43,7 @@ void HUB_CopyHubsForLoadgame(const char *basename);
 
 void HUB_DestroyAll(void);
 
-dormant_hub_c * HUB_FindMap(const char *map);
+hub_info_c * HUB_FindMap(const char *map);
 
 bool HUB_AlreadyVisited(const char *map);
 // check if the map has already been visited.
