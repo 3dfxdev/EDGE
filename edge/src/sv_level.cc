@@ -855,8 +855,6 @@ bool SR_LevelGetSurfPtr(void *storage, int index, void *extra)
 }
 
 //
-// SR_LevelPutSurfPtr
-//
 // Format of the string:
 //
 //    <floor/ceil>  `:'  <sector num>
@@ -949,9 +947,6 @@ void SR_LevelPutImage(void *storage, int index, void *extra)
 }
 
 
-//
-// SR_LevelGetColmap
-//
 bool SR_LevelGetColmap(void *storage, int index, void *extra)
 {
 	const colourmap_c ** dest = (const colourmap_c **)storage + index;
@@ -968,8 +963,6 @@ bool SR_LevelGetColmap(void *storage, int index, void *extra)
 	return true;
 }
 
-//
-// SR_LevelPutColmap
 //
 // The string is the name of the colourmap.  NULL strings are not
 // allowed or used.
@@ -1008,8 +1001,6 @@ bool SR_LineGetSpecial(void *storage, int index, void *extra)
 }
 
 //
-// SR_LinePutSpecial
-//
 // Format of the string will usually be a colon followed by the
 // linedef number (e.g. ":123").  Alternatively it can be the ddf
 // name, but this shouldn't be needed currently (reserved for future
@@ -1031,9 +1022,6 @@ void SR_LinePutSpecial(void *storage, int index, void *extra)
 }
 
 
-//
-// SR_SectorGetSpecial
-//
 bool SR_SectorGetSpecial(void *storage, int index, void *extra)
 {
 	const sectortype_c ** dest = (const sectortype_c **)storage + index;
@@ -1056,8 +1044,6 @@ bool SR_SectorGetSpecial(void *storage, int index, void *extra)
 	return true;
 }
 
-//
-// SR_SectorPutSpecial
 //
 // Format of the string will usually be a colon followed by the
 // sector number (e.g. ":123").  Alternatively it can be the ddf
