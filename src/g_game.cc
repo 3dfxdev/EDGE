@@ -91,6 +91,8 @@ int starttime;
 int exittime = INT_MAX;
 bool exit_skipall = false;  // -AJA- temporary (maybe become "exit_mode")
 
+int gametic;
+
 // GAMEPLAY MODES:
 //
 //   numplayers  deathmatch   mode
@@ -102,14 +104,16 @@ bool exit_skipall = false;  // -AJA- temporary (maybe become "exit_mode")
 
 int deathmatch;
 
-int gametic;
-
 // if true, load all graphics at start 
 bool precache = true;
 
 // -ACB- 2004/05/25 We need to store our current/next mapdefs
 const mapdef_c *currmap = NULL;
 const mapdef_c *nextmap = NULL;
+
+// -KM- 1998/12/16 These flags hold everything needed about a level
+gameflags_t level_flags;
+
 
 //--------------------------------------------
 
