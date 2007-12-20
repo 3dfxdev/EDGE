@@ -1429,11 +1429,9 @@ static void InitVariables(void)
 	if (wi_stats.secret <= 0)
 		wi_stats.secret = 1;
 
-	gamedef_c *def = gamedefs.Lookup(wi_stats.last->episode_name.c_str());
+	gamedef_c *def = wi_stats.last->episode;
 
-	if (! def)
-		I_Error("Intermission: unknown game '%s'\n",
-			wi_stats.last->episode_name.c_str());
+	SYS_ASSERT(def);
 
 	worldint.Init(def);
 

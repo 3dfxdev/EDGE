@@ -304,9 +304,6 @@ typedef struct sector_s
 	struct sector_s *tag_next;
 	struct sector_s *tag_prev;
 
-///---    // Keep animating sectors in a linked list.
-///---	struct sector_s *animate_next;
- 
 	// -AJA- 2000/03/30: Keep a list of child subsectors.
 	struct subsector_s *subsectors;
 }
@@ -449,11 +446,6 @@ typedef struct line_s
 
 	// slider thinker, normally NULL
 	struct slider_move_s *slider_move;
-
-///---	// Keep animating lines in a linked list.
-///---	struct line_s *animate_next;
-
-///---	vertex_seclist_t *nb_sec[2];
 }
 line_t;
 

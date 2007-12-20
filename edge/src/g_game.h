@@ -65,7 +65,7 @@ public:
 	int deathmatch;
 
 	const mapdef_c *map;
-	const gamedef_c *game;
+	// gamedef_c is implied (== map->episode)
 
 	int random_seed;
 	int total_players;
@@ -94,7 +94,7 @@ void G_InitNew(newgame_params_c& params);
 //
 // -ACB- 1998/08/10 New DDF Structure, Use map reference name.
 //
-bool G_DeferredInitNew(newgame_params_c& params, bool compat_check = false);
+bool G_DeferredInitNew(newgame_params_c& params);
 
 // Can be called by the startup code or M_Responder,
 // calls P_SetupLevel or W_EnterWorld.
@@ -116,7 +116,6 @@ bool G_Responder(event_t * ev);
 bool G_CheckWhenAppear(when_appear_e appear);
 std::string G_FileNameFromSlot(int slot);
 
-extern const gamedef_c* currgamedef;
 extern const mapdef_c* currmap;
 extern const mapdef_c* nextmap;
 

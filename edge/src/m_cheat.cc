@@ -162,18 +162,20 @@ static void M_ChangeLevelCheat(const char *string)
 		return;
 	}
 
-	params.game = gamedefs.Lookup(params.map->episode_name);
-	if (! params.game)
-	{
-		CON_MessageLDF("ImpossibleChange");
-		return;
-	}
+	SYS_ASSERT(params.map->episode);
+
+///---	params.game = gamedefs.Lookup(params.map->episode_name);
+///---	if (! params.game)
+///---	{
+///---		CON_MessageLDF("ImpossibleChange");
+///---		return;
+///---	}
 
 	params.random_seed = I_PureRandom();
 
 	params.SinglePlayer(startbots);
 
-	if (! G_DeferredInitNew(params, true /* compat_check */))
+	if (! G_DeferredInitNew(params))
 	{
 		CON_MessageLDF("ImpossibleChange");
 		return;

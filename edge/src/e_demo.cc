@@ -61,7 +61,7 @@ bool demo_notbegun;
 bool demoplayback;
 bool netdemo;
 
-static std::string defdemoname;
+static std::string defer_demoname;
 
 static epi::file_c *demo_in = NULL;
 
@@ -283,7 +283,7 @@ void G_DeferredPlayDemo(const char *filename)
 	if (ext.empty())
 		demoname += ".edm";
 
-	defdemoname = demoname;
+	defer_demoname = demoname;
 
 	gameaction = ga_playdemo;
 }
@@ -311,16 +311,16 @@ void G_DeferredTimeDemo(const char *filename)
 // -ACB- 1998/07/12 Removed error message (became bloody annoying...)
 //
 // REQUIRED STATE:
-//   (a) defdemoname
+//   (a) defer_demoname
 //
 void G_DoPlayDemo(void)
 {
-	epi::file_c *fp = epi::FS_Open(defdemoname.c_str(),
+	epi::file_c *fp = epi::FS_Open(defer_demoname.c_str(),
         epi::file_c::ACCESS_READ | epi::file_c::ACCESS_BINARY);
 
 	if (! fp || ! DEM_OpenReadFile(fp))
 	{
-		I_Printf("LOAD-DEMO: cannot find file: %s\n", defdemoname.c_str());
+		I_Printf("LOAD-DEMO: cannot find file: %s\n", defer_demoname.c_str());
 		return;
 	}
 
@@ -350,9 +350,10 @@ void G_DoPlayDemo(void)
 	if (! params.map)
 		I_Error("LOAD-DEMO: No such map %s !  Check WADS\n", globs->level);
 
-	params.game = gamedefs.Lookup(globs->game);
-	if (!params.game)
-		I_Error("LOAD-DEMO: No such episode/mod %s !  Check WADS\n", globs->game);
+	SYS_ASSERT(params.map->episode);
+///---	params.game = gamedefs.Lookup(globs->game);
+///---	if (!params.game)
+///---		I_Error("LOAD-DEMO: No such episode/mod %s !  Check WADS\n", globs->game);
 
 	params.skill       = (skill_t) globs->skill;
 	params.deathmatch  = (globs->netgame >= 2) ? (globs->netgame - 1) : 0;

@@ -2372,7 +2372,7 @@ void P_Init(void)
 	// There should not yet exist a player
 	SYS_ASSERT(numplayers == 0);
 
-	currmap = mapdefs[0];
+	currmap = NULL; //!!! mapdefs[0];
 
 	dm_starts.Clear();
 	coop_starts.Clear();
