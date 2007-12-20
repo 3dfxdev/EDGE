@@ -70,9 +70,6 @@
 int cfgnormalfov;
 int cfgzoomedfov;
 
-// toggled by autorun button.
-bool autorunning = false;
-
 bool var_diskicon = true;
 bool display_disk = false;
 static const image_c *disk_image = NULL;
