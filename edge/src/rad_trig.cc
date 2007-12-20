@@ -67,7 +67,7 @@
 rad_script_t *r_scripts = NULL;
 
 // Dynamic Triggers.  These only exist for the current level.
-rad_trigger_t *r_triggers = NULL;
+rad_trigger_t *active_triggers = NULL;
 
 
 class rts_menu_c
@@ -254,7 +254,7 @@ rad_trigger_t * RAD_FindTriggerByName(const char *name)
 {
 	rad_trigger_t *trig;
 
-	for (trig=r_triggers; trig; trig=trig->next)
+	for (trig=active_triggers; trig; trig=trig->next)
 	{
 		if (trig->info->script_name == NULL)
 			continue;
@@ -274,7 +274,7 @@ rad_trigger_t * RAD_FindTriggerByScript(const rad_script_t *scr)
 {
 	rad_trigger_t *trig;
 
-	for (trig=r_triggers; trig; trig=trig->next)
+	for (trig=active_triggers; trig; trig=trig->next)
 	{
 		if (trig->info == scr)
 			return trig;
@@ -317,7 +317,7 @@ void RAD_EnableByTag(mobj_t *actor, int tag, bool disable)
 	if (tag <= 0)
 		I_Error("INTERNAL ERROR: RAD_EnableByTag: bad tag %d\n", tag);
 
-	for (trig=r_triggers; trig; trig=trig->next)
+	for (trig=active_triggers; trig; trig=trig->next)
 	{
 		if (trig->info->tag == tag)
 			break;
@@ -493,7 +493,7 @@ static void DoRemoveTrigger(rad_trigger_t *trig)
 	if (trig->prev)
 		trig->prev->next = trig->next;
 	else
-		r_triggers = trig->next;
+		active_triggers = trig->next;
 
     S_StopFX(&trig->sfx_origin);
 
@@ -509,7 +509,7 @@ void RAD_DoRadiTrigger(player_t * p)
 	rad_trigger_t *trig, *next;
 
 	// Start looking through the trigger list.
-	for (trig=r_triggers; trig; trig=next)
+	for (trig=active_triggers; trig; trig=next)
 	{
 		next = trig->next;
 
@@ -651,7 +651,7 @@ void RAD_GroupTriggerTags(rad_trigger_t *trig)
 	trig->tag_next = trig->tag_prev = NULL;
 
 	// find first trigger with the same tag #
-	for (cur=r_triggers; cur; cur=cur->next)
+	for (cur=active_triggers; cur; cur=cur->next)
 	{
 		if (cur == trig)
 			continue;
@@ -683,7 +683,7 @@ void RAD_SpawnTriggers(const char *map_name)
 	rad_trigger_t *trig;
 
 #ifdef DEVELOPERS
-	if (r_triggers)
+	if (active_triggers)
 		I_Error("RAD_SpawnTriggers without RAD_ClearTriggers\n");
 #endif
 
@@ -724,13 +724,13 @@ void RAD_SpawnTriggers(const char *map_name)
 		trig->wait_tics = scr->first_state->tics;
 
 		// link it in
-		trig->next = r_triggers;
+		trig->next = active_triggers;
 		trig->prev = NULL;
 
-		if (r_triggers)
-			r_triggers->prev = trig;
+		if (active_triggers)
+			active_triggers->prev = trig;
 
-		r_triggers = trig;
+		active_triggers = trig;
 	}
 }
 
@@ -765,10 +765,10 @@ static void RAD_ClearCachedInfo(void)
 void RAD_ClearTriggers(void)
 {
 	// remove all dynamic triggers
-	while (r_triggers)
+	while (active_triggers)
 	{
-		rad_trigger_t *trig = r_triggers;
-		r_triggers = trig->next;
+		rad_trigger_t *trig = active_triggers;
+		active_triggers = trig->next;
 
 		Z_Free(trig);
 	}
