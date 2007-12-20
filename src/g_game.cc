@@ -778,10 +778,9 @@ static void G_DoLoadGame(void)
 	// this player is a dummy one, replaced during actual load
 	params.SinglePlayer(0);
 
+	params.flags = globs->flags;
+	
 	G_InitNew(params);
-
-	level_flags = globs->flags;
-	level_flags.menu_grav = globs->gravity;
 
 	G_DoLoadLevel();
 
@@ -882,7 +881,6 @@ static void G_DoSaveGame(void)
 	globs->game  = SV_DupString(currmap->episode_name);
 	globs->level = SV_DupString(currmap->ddf.name);
 	globs->flags = level_flags;
-	globs->gravity = level_flags.menu_grav;
 
 	globs->skill = gameskill;
 	globs->netgame = netgame ? (1+deathmatch) : 0;

@@ -241,7 +241,6 @@ void G_BeginRecording(void)
 	globs->game = Z_StrDup(currmap->episode_name);
 	globs->level = Z_StrDup(currmap->ddf.name);
 	globs->flags = level_flags;
-	globs->gravity = level_flags.menu_grav;
 
 	globs->skill = gameskill;
 	globs->netgame = netgame ? (1+deathmatch) : 0;
@@ -361,15 +360,12 @@ void G_DoPlayDemo(void)
 	params.total_players = 1;
 	params.players[0] = PFL_Demo;
 
-	//!!!! FIXME: compatability FLAG !!!
-
-	// don't spend a lot of time in loadlevel
-	precache = false;
+	params.flags = globs->flags;
 
 	G_InitNew(params);
 
-	level_flags = globs->flags;
-	level_flags.menu_grav = globs->gravity;
+	// don't spend a lot of time in loadlevel
+	precache = false;
 
 	G_DoLoadLevel();
 	G_SpawnInitialPlayers();

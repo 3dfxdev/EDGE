@@ -73,7 +73,7 @@ static const global_command_t global_commands[] =
 	{ "GAME",  GV_GetString, GV_PutString, GLOB_OFF(game) },
 	{ "LEVEL", GV_GetString, GV_PutString, GLOB_OFF(level) },
 	{ "FLAGS", GV_GetLevelFlags, GV_PutLevelFlags, GLOB_OFF(flags) },
-	{ "GRAVITY", GV_GetInt, GV_PutInt, GLOB_OFF(gravity) },
+	{ "GRAVITY", GV_GetInt, GV_PutInt, GLOB_OFF(flags.menu_grav) },
 	{ "LEVEL_TIME", GV_GetInt, GV_PutInt, GLOB_OFF(level_time) },
 	{ "EXIT_TIME", GV_GetInt, GV_PutInt, GLOB_OFF(exit_time) },
 	{ "P_RANDOM", GV_GetInt, GV_PutInt, GLOB_OFF(p_random) },
@@ -420,9 +420,6 @@ static bool GlobReadVIEW(saveglobals_t *glob)
 }
 
 
-//
-// SV_LoadGLOB
-//
 saveglobals_t *SV_LoadGLOB(void)
 {
 	char marker[6];
@@ -549,9 +546,6 @@ static void GlobWriteVIEW(saveglobals_t *globs)
 }
 
 
-//
-// SV_SaveGLOB
-//
 void SV_SaveGLOB(saveglobals_t *globs)
 {
 	cur_globs = globs;
