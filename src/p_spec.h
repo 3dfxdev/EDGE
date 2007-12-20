@@ -228,8 +228,6 @@ void P_RunActiveSectors(void);
 void P_RemoveAllActiveParts(void);
 void P_AddActivePart(gen_move_t *movpart);
 
-extern line_t * line_speciallist;
-extern sector_t * sect_speciallist;
 void P_AddSpecialLine(line_t *ld);
 void P_AddSpecialSector(sector_t *sec);
 void P_SectorChangeSpecial(sector_t *sec, int new_type);
