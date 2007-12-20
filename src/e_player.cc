@@ -62,9 +62,6 @@ int numplayers;
 int consoleplayer = -1; // player taking events
 int displayplayer = -1; // view being displayed 
 
-// for intermission
-int totalkills, totalitems, totalsecret;
-
 #define MAX_BODIES   50
 
 static mobj_t *bodyqueue[MAX_BODIES];

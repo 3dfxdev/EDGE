@@ -144,10 +144,6 @@ extern spawnpointarray_c dm_starts;
 extern spawnpointarray_c coop_starts;
 extern spawnpointarray_c voodoo_doll_starts;
 
-// Intermission stats.
-// Parameters for world map / intermission.
-extern wbstartstruct_t wminfo;
-
 
 static void CheckEvilutionBug(byte *data, int length)
 {

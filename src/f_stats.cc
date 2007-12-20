@@ -68,6 +68,9 @@
 // GENERAL DATA
 //
 
+// contains information passed into intermission
+wistats_t wi_stats;
+
 //
 // Locally used stuff.
 //
@@ -91,9 +94,6 @@ static bool acceleratestage;
 
  // specifies current state
 static stateenum_t state;
-
-// contains information passed into intermission
-static wbstartstruct_t *wbs;
 
 // used for general timing
 static int cnt;
@@ -501,7 +501,7 @@ static void InitShowNextLoc(void)
 
 	for (i = 0; i < worldint.nummappos; i++)
 	{
-		if (!strcmp(worldint.mappos[i].info->name, wbs->last->ddf.name))
+		if (!strcmp(worldint.mappos[i].info->name, wi_stats.last->ddf.name))
 			worldint.mappos[i].done = true;
 	}
 
@@ -525,12 +525,12 @@ static void DrawShowNextLoc(void)
 		if (worldint.mappos[i].done)
 			DrawOnLnode(&worldint.mappos[i], splat);
 
-		if (wbs->next)
-			if (snl_pointeron && !strcmp(wbs->next->ddf.name, worldint.mappos[i].info->name))
+		if (wi_stats.next)
+			if (snl_pointeron && !strcmp(wi_stats.next->ddf.name, worldint.mappos[i].info->name))
 				DrawOnLnode(&worldint.mappos[i], yah);
 	}
 
-	if (wbs->next)
+	if (wi_stats.next)
 		DrawEnteringLevel();
 }
 
@@ -672,7 +672,7 @@ static void UpdateDeathmatchStats(void)
 				S_StartFX(gd->accel_snd);
 
 				// Skip next loc on no map -ACB- 2004/06/27
-				if (!worldint.nummappos || !wbs->next)	
+				if (!worldint.nummappos || !wi_stats.next)	
 					InitNoState();
 				else
 					InitShowNextLoc();
@@ -738,9 +738,9 @@ static int CoopScore(int pl)
 {
 	if (pl >= 0)
 	{
-		int kills = players[pl]->killcount * 400 / wbs->maxkills;
-		int items = players[pl]->itemcount * 100 / wbs->maxitems;
-		int secret = players[pl]->secretcount * 200 / wbs->maxsecret;
+		int kills = players[pl]->killcount * 400 / wi_stats.kills;
+		int items = players[pl]->itemcount * 100 / wi_stats.items;
+		int secret = players[pl]->secretcount * 200 / wi_stats.secret;
 		int frags = (players[pl]->frags + players[pl]->totalfrags) * 25;
 
 		return kills + items + secret - frags;
@@ -804,9 +804,9 @@ static void UpdateCoopStats(void)
 			if (p < 0)
 				break;
 
-			cnt_kills[i] = (players[p]->killcount * 100) / wbs->maxkills;
-			cnt_items[i] = (players[p]->itemcount * 100) / wbs->maxitems;
-			cnt_secrets[i] = (players[p]->secretcount * 100) / wbs->maxsecret;
+			cnt_kills[i] = (players[p]->killcount * 100) / wi_stats.kills;
+			cnt_items[i] = (players[p]->itemcount * 100) / wi_stats.items;
+			cnt_secrets[i] = (players[p]->secretcount * 100) / wi_stats.secret;
 
 			if (dofrags)
 			{
@@ -836,8 +836,8 @@ static void UpdateCoopStats(void)
 
 				cnt_kills[i] += 2;
 
-				if (cnt_kills[i] >= (players[p]->killcount * 100) / wbs->maxkills)
-					cnt_kills[i] = (players[p]->killcount * 100) / wbs->maxkills;
+				if (cnt_kills[i] >= (players[p]->killcount * 100) / wi_stats.kills)
+					cnt_kills[i] = (players[p]->killcount * 100) / wi_stats.kills;
 				else
 					stillticking = true;
 			}
@@ -863,8 +863,8 @@ static void UpdateCoopStats(void)
 					break;
 
 				cnt_items[i] += 2;
-				if (cnt_items[i] >= (players[p]->itemcount * 100) / wbs->maxitems)
-					cnt_items[i] = (players[p]->itemcount * 100) / wbs->maxitems;
+				if (cnt_items[i] >= (players[p]->itemcount * 100) / wi_stats.items)
+					cnt_items[i] = (players[p]->itemcount * 100) / wi_stats.items;
 				else
 					stillticking = true;
 			}
@@ -891,8 +891,8 @@ static void UpdateCoopStats(void)
 
 				cnt_secrets[i] += 2;
 
-				if (cnt_secrets[i] >= (players[p]->secretcount * 100) / wbs->maxsecret)
-					cnt_secrets[i] = (players[p]->secretcount * 100) / wbs->maxsecret;
+				if (cnt_secrets[i] >= (players[p]->secretcount * 100) / wi_stats.secret)
+					cnt_secrets[i] = (players[p]->secretcount * 100) / wi_stats.secret;
 				else
 					stillticking = true;
 			}
@@ -941,7 +941,7 @@ static void UpdateCoopStats(void)
 				S_StartFX(gd->nextmap);
 
 				// Skip next loc on no map -ACB- 2004/06/27
-				if (!worldint.nummappos || !wbs->next)
+				if (!worldint.nummappos || !wi_stats.next)
 					InitNoState();
 				else
 					InitShowNextLoc();
@@ -1055,11 +1055,11 @@ static void UpdateSinglePlayerStats(void)
 	if (acceleratestage && sp_state != sp_end)
 	{
 		acceleratestage = false;
-		cnt_kills[0] = (con_plyr->killcount * 100) / wbs->maxkills;
-		cnt_items[0] = (con_plyr->itemcount * 100) / wbs->maxitems;
-		cnt_secrets[0] = (con_plyr->secretcount * 100) / wbs->maxsecret;
+		cnt_kills[0] = (con_plyr->killcount * 100) / wi_stats.kills;
+		cnt_items[0] = (con_plyr->itemcount * 100) / wi_stats.items;
+		cnt_secrets[0] = (con_plyr->secretcount * 100) / wi_stats.secret;
 		cnt_time = con_plyr->leveltime / TICRATE;
-		cnt_par = wbs->partime / TICRATE;
+		cnt_par = wi_stats.partime / TICRATE;
 		S_StartFX(gd->done);
 		sp_state = sp_end;
 	}
@@ -1071,9 +1071,9 @@ static void UpdateSinglePlayerStats(void)
 		if (!(bcnt & 3))
 			S_StartFX(gd->percent);
 
-		if (cnt_kills[0] >= (con_plyr->killcount * 100) / wbs->maxkills)
+		if (cnt_kills[0] >= (con_plyr->killcount * 100) / wi_stats.kills)
 		{
-			cnt_kills[0] = (con_plyr->killcount * 100) / wbs->maxkills;
+			cnt_kills[0] = (con_plyr->killcount * 100) / wi_stats.kills;
 			S_StartFX(gd->done);
 			sp_state++;
 		}
@@ -1085,9 +1085,9 @@ static void UpdateSinglePlayerStats(void)
 		if (!(bcnt & 3))
 			S_StartFX(gd->percent);
 
-		if (cnt_items[0] >= (con_plyr->itemcount * 100) / wbs->maxitems)
+		if (cnt_items[0] >= (con_plyr->itemcount * 100) / wi_stats.items)
 		{
-			cnt_items[0] = (con_plyr->itemcount * 100) / wbs->maxitems;
+			cnt_items[0] = (con_plyr->itemcount * 100) / wi_stats.items;
 			S_StartFX(gd->done);
 			sp_state++;
 		}
@@ -1099,9 +1099,9 @@ static void UpdateSinglePlayerStats(void)
 		if (!(bcnt & 3))
 			S_StartFX(gd->percent);
 
-		if (cnt_secrets[0] >= (con_plyr->secretcount * 100) / wbs->maxsecret)
+		if (cnt_secrets[0] >= (con_plyr->secretcount * 100) / wi_stats.secret)
 		{
-			cnt_secrets[0] = (con_plyr->secretcount * 100) / wbs->maxsecret;
+			cnt_secrets[0] = (con_plyr->secretcount * 100) / wi_stats.secret;
 			S_StartFX(gd->done);
 			sp_state++;
 		}
@@ -1119,9 +1119,9 @@ static void UpdateSinglePlayerStats(void)
 
 		cnt_par += 3;
 
-		if (cnt_par >= wbs->partime / TICRATE)
+		if (cnt_par >= wi_stats.partime / TICRATE)
 		{
-			cnt_par = wbs->partime / TICRATE;
+			cnt_par = wi_stats.partime / TICRATE;
 
 			if (cnt_time >= con_plyr->leveltime / TICRATE)
 			{
@@ -1137,7 +1137,7 @@ static void UpdateSinglePlayerStats(void)
 			S_StartFX(gd->nextmap);
 
 			// Skip next loc on no map -ACB- 2004/06/27
-			if (!worldint.nummappos || !wbs->next)
+			if (!worldint.nummappos || !wi_stats.next)
 				InitNoState();
 			else
 				InitShowNextLoc();
@@ -1177,7 +1177,7 @@ static void DrawSinglePlayerStats(void)
 	DrawTime(160 - SP_TIMEX, SP_TIMEY, cnt_time);
 
 	// -KM- 1998/11/25 Removed episode check. Replaced with partime check
-	if (wbs->partime)
+	if (wi_stats.partime)
 	{
 		RGL_ImageEasy320(160 + SP_TIMEX, SP_TIMEY, par);
 		DrawTime(320 - SP_TIMEX, SP_TIMEY, cnt_par);
@@ -1294,9 +1294,9 @@ void WI_Drawer(void)
 
 			if (a->info->type == wi_animdef_c::WI_LEVEL)
 			{
-				if (!wbs->next)
+				if (!wi_stats.next)
 					f = NULL;
-				else if (!strcmp(wbs->next->ddf.name, a->info->level))
+				else if (!strcmp(wi_stats.next->ddf.name, a->info->level))
 					f = &a->frames[a->frameon];
 			}
 			else
@@ -1352,10 +1352,10 @@ static void LoadData(void)
 	// background
 	bg_image = W_ImageLookup(gd->background);
 
-	lnames[0] = W_ImageLookup(wbs->last->namegraphic);
+	lnames[0] = W_ImageLookup(wi_stats.last->namegraphic);
 
-	if (wbs->next)
-		lnames[1] = W_ImageLookup(wbs->next->namegraphic);
+	if (wi_stats.next)
+		lnames[1] = W_ImageLookup(wi_stats.next->namegraphic);
 
 	if (gd->yah[0][0])
 		yah[0] = W_ImageLookup(gd->yah[0]);
@@ -1411,37 +1411,38 @@ static void LoadData(void)
 	}
 }
 
-static void InitVariables(wbstartstruct_t * wbstartstruct)
+static void InitVariables(void)
 {
-	wbs = wbstartstruct;
+	wi_stats.level   = wi_stats.last->ddf.name.c_str();
+	wi_stats.partime = wi_stats.last->partime;
 
 	acceleratestage = false;
 	cnt = bcnt = 0;
 	firstrefresh = 1;
 
-	if (!wbs->maxkills)
-		wbs->maxkills = 1;
+	if (wi_stats.kills <= 0)
+		wi_stats.kills = 1;
 
-	if (!wbs->maxitems)
-		wbs->maxitems = 1;
+	if (wi_stats.items <= 0)
+		wi_stats.items = 1;
 
-	if (!wbs->maxsecret)
-		wbs->maxsecret = 1;
+	if (wi_stats.secret <= 0)
+		wi_stats.secret = 1;
 
-	gamedef_c *def = gamedefs.Lookup(wbs->last->episode_name.c_str());
+	gamedef_c *def = gamedefs.Lookup(wi_stats.last->episode_name.c_str());
 
 	if (! def)
 		I_Error("Intermission: unknown game '%s'\n",
-			wbs->last->episode_name.c_str());
+			wi_stats.last->episode_name.c_str());
 
 	worldint.Init(def);
 
 	LoadData();
 }
 
-void WI_Start(wbstartstruct_t * wbstartstruct)
+void WI_Start(void)
 {
-	InitVariables(wbstartstruct);
+	InitVariables();
 
 	if (SP_MATCH())
 		InitSinglePlayerStats();

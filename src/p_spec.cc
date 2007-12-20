@@ -1599,7 +1599,7 @@ void P_SpawnSpecials(int autotag)
 			EV_Lights(sector, &secSpecial->l);
 
 		if (secSpecial->secret)
-			totalsecret++;
+			wi_stats.secret++;
 
 		if (secSpecial->use_colourmap)
 			sector->props.colourmap = secSpecial->use_colourmap;

@@ -107,9 +107,6 @@ int gametic;
 // if true, load all graphics at start 
 bool precache = true;
 
-// parms for world map / intermission 
-wbstartstruct_t wminfo;
-
 // -ACB- 2004/05/25 We need to store our current gamedef
 const gamedef_c *currgamedef = NULL;
 
@@ -231,10 +228,7 @@ void G_DoLoadLevel(void)
 	RAD_ClearTriggers();
 	RAD_FinishMenu(0);
 
-	totalkills = totalitems = totalsecret = 0;
-
-	wminfo.maxfrags = 0;
-	wminfo.partime = currmap->partime;
+	wi_stats.kills = wi_stats.items = wi_stats.secret = 0;
 
 	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
 	{
@@ -618,10 +612,12 @@ void G_ExitToLevel(char *name, int time, bool skip_all)
 //   (b) players[]
 //   (c) leveltime
 //   (d) exit_skipall
-//   (e) totalkills (etc)
+//   (e) wi_stats.kills (etc)
 // 
 static void G_DoCompleted(void)
 {
+	SYS_ASSERT(currmap);
+
 	E_ForceWipe();
 
 	exittime = INT_MAX;
@@ -663,20 +659,14 @@ static void G_DoCompleted(void)
 		return;
 	}
 
-	wminfo.level = currmap->ddf.name.c_str();
-	wminfo.last = currmap;
-	wminfo.next = nextmap;
-	wminfo.maxkills = totalkills;
-	wminfo.maxitems = totalitems;
-	wminfo.maxsecret = totalsecret;
-	wminfo.maxfrags = 0;
-	wminfo.partime = currmap->partime;
-
 	gamestate = GS_INTERMISSION;
 
 	automapactive = false;
 
-	WI_Start(&wminfo);
+	wi_stats.last = currmap;
+	wi_stats.next = nextmap;
+
+	WI_Start();
 }
 
 
@@ -809,9 +799,10 @@ static void G_DoLoadGame(void)
 	{
 		leveltime   = globs->level_time;
 		exittime    = globs->exit_time;
-		totalkills  = globs->total_kills;
-		totalitems  = globs->total_items;
-		totalsecret = globs->total_secrets;
+
+		wi_stats.kills  = globs->total_kills;
+		wi_stats.items  = globs->total_items;
+		wi_stats.secret = globs->total_secrets;
 	}
 
 	if (globs->sky_image)  // backwards compat (sky_image added 2003/12/19)
@@ -893,9 +884,9 @@ static void G_DoSaveGame(void)
 	globs->level_time = leveltime;
 	globs->exit_time  = exittime;
 
-	globs->total_kills   = totalkills;
-	globs->total_items   = totalitems;
-	globs->total_secrets = totalsecret;
+	globs->total_kills   = wi_stats.kills;
+	globs->total_items   = wi_stats.items;
+	globs->total_secrets = wi_stats.secret;
 
 	globs->sky_image = sky_image;
 

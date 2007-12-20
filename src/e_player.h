@@ -308,29 +308,6 @@ public:
 }
 player_t;
 
-//
-// INTERMISSION
-// Structure passed e.g. to WI_Start(wb)
-//
-
-typedef struct wbstartstruct_s
-{
-	const char *level;  // episode # (0-2)
-
-	// previous and next levels, origin 0
-	const mapdef_c *last;
-	const mapdef_c *next;
-
-	int maxkills;
-	int maxitems;
-	int maxsecret;
-	int maxfrags;
-
-	// the par time
-	int partime;
-}
-wbstartstruct_t;
-
 // Player ticcmd builders
 void P_ConsolePlayerBuilder(const player_t *p, void *data, ticcmd_t *dest);
 void P_BotPlayerBuilder(const player_t *p, void *data, ticcmd_t *dest);
