@@ -237,10 +237,23 @@ void DDF_LevelCleanUp(void)
 		I_Error("There are no levels defined in DDF !\n");
 
 	mapdefs.Trim();
+
+	// lookup episodes
+
+	epi::array_iterator_c it;
+
+	for (it = mapdefs.GetTailIterator(); it.IsValid(); it--)
+	{
+		mapdef_c *m = ITERATOR_TO_TYPE(it, mapdef_c*);
+		
+		m->episode = gamedefs.Lookup(m->episode_name.c_str());
+
+		if (! m->episode_name)
+			I_Printf("WARNING: Cannot find episode '%s' for map entry [%s]\n",
+					 m->episode_name.c_str(), m->ddf.name.c_str());
+	}
 }
 
-//
-// DDF_LevelGetPic
 //
 // Adds finale pictures to the level's list.
 //
@@ -341,34 +354,24 @@ void DDF_LevelGetWistyle(const char *info, void *storage)
 	((intermission_style_e *)storage)[0] = (intermission_style_e)flag_value;
 }
 
+//------------------------------------------------------------------
+
 // --> map finale definition class
 
-//
-// map_finaledef_c Constructor
-//
 map_finaledef_c::map_finaledef_c()
 {
 	Default();
 }
 
-//
-// map_finaledef_c Copy constructor
-//
 map_finaledef_c::map_finaledef_c(map_finaledef_c &rhs)
 {
 	Copy(rhs);
 }
 
-//
-// map_finaledef_c Destructor
-//
 map_finaledef_c::~map_finaledef_c()
 {
 }
 
-//
-// map_finaledef_c::Copy()
-//
 void map_finaledef_c::Copy(map_finaledef_c &src)
 {
 	text = src.text;
@@ -387,9 +390,6 @@ void map_finaledef_c::Copy(map_finaledef_c &src)
 	music = src.music;
 }
 
-//
-// map_finaledef_c::Default()
-//
 void map_finaledef_c::Default()
 {
 	text.clear();	
@@ -407,9 +407,6 @@ void map_finaledef_c::Default()
 	music = 0;
 }
 
-//
-// map_finaledef_c assignment operator
-//
 map_finaledef_c& map_finaledef_c::operator=(map_finaledef_c &rhs)
 {
 	if (&rhs != this)
@@ -420,45 +417,30 @@ map_finaledef_c& map_finaledef_c::operator=(map_finaledef_c &rhs)
 
 // --> map definition class
 
-//
-// mapdef_c Constructor
-//
 mapdef_c::mapdef_c()
 {
 	Default();
 }
 
-//
-// mapdef_c Copy constructor
-//
 mapdef_c::mapdef_c(mapdef_c &rhs)
 {
 	Copy(rhs);
 }
 
-//
-// mapdef_c Destructor
-//
 mapdef_c::~mapdef_c()
 {
 }
 
-//
-// mapdef_c::Copy()
-//
 void mapdef_c::Copy(mapdef_c &src)
 {
 	ddf = src.ddf;
 	CopyDetail(src);	
 }
 
-//
-// mapdef_c::CopyDetail()
-//
 void mapdef_c::CopyDetail(mapdef_c &src)
 {
-	next = src.next;				// FIXME!! Gamestate data
-	
+///---	next = src.next;				// FIXME!! Gamestate data
+
 	description = src.description;	
   	namegraphic = src.namegraphic;
   	lump = src.lump;
@@ -485,15 +467,10 @@ void mapdef_c::CopyDetail(mapdef_c &src)
 	f_end = src.f_end;
 }
 
-//
-// mapdef_c::Default()
-//
 void mapdef_c::Default()
 {
 	ddf.Default();
 
-	next = NULL;
-	
 	description.clear();	
   	namegraphic.clear();
   	lump.clear();
@@ -503,7 +480,9 @@ void mapdef_c::Default()
    	music = 0;
 	partime = 0;
 
+	episode = NULL;
 	episode_name.clear();	
+
 	force_on = MPF_None;
 	force_off = MPF_None;
 
@@ -519,9 +498,6 @@ void mapdef_c::Default()
 	f_end.Default();
 }
 
-//
-// mapdef_c assignment operator
-//
 mapdef_c& mapdef_c::operator=(mapdef_c &rhs)
 {
 	if (&rhs != this)
@@ -532,9 +508,6 @@ mapdef_c& mapdef_c::operator=(mapdef_c &rhs)
 
 // --> map definition container class
 
-//
-// mapdef_container_c::CleanupObject()
-//
 void mapdef_container_c::CleanupObject(void *obj)
 {
 	mapdef_c *m = *(mapdef_c**)obj;
@@ -552,16 +525,20 @@ void mapdef_container_c::CleanupObject(void *obj)
 //
 mapdef_c* mapdef_container_c::Lookup(const char *refname)
 {
-	epi::array_iterator_c it;
-	mapdef_c *m;
-
 	if (!refname || !refname[0])
 		return NULL;
 
+	epi::array_iterator_c it;
+
 	for (it = GetTailIterator(); it.IsValid(); it--)
 	{
-		m = ITERATOR_TO_TYPE(it, mapdef_c*);
-		if (DDF_CompareName(m->ddf.name.c_str(), refname) == 0) // Create ddf compare function
+		mapdef_c *m = ITERATOR_TO_TYPE(it, mapdef_c*);
+
+		// ignore maps with unknown episode_name
+		if (! m->episode)
+			continue;
+
+		if (DDF_CompareName(m->ddf.name.c_str(), refname) == 0)
 			return m;
 	}
 

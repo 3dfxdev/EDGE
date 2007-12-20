@@ -23,6 +23,8 @@
 #include "types.h"
 
 
+class gamedef_c;
+
 // ------------------------------------------------------------------
 // ---------------MAP STRUCTURES AND CONFIGURATION-------------------
 // ------------------------------------------------------------------
@@ -54,7 +56,6 @@ public:
 	epi::strlist_c pics;
 	unsigned int picwait;
 
-	// FIXME!!! Booleans should be bit-sets/flags here...
 	// Cast
 	bool docast;
 	
@@ -65,7 +66,6 @@ public:
 	int music;
 };
 
-// FIXME!!! Move into mapdef_c?
 typedef enum
 {
 	MPF_None          = 0x0,
@@ -96,7 +96,6 @@ typedef enum
 }
 mapsettings_e;
 
-// FIXME!!! Move into mapdef_c?
 typedef enum
 {
 	// standard Doom shading
@@ -116,7 +115,6 @@ typedef enum
 }
 lighting_model_e;
 
-// FIXME!!! Move into mapdef_c?
 typedef enum
 {
 	// standard Doom intermission stats
@@ -144,8 +142,8 @@ public:
 
 	ddf_base_c ddf;
 
-	// next in the list
-	mapdef_c *next;				// FIXME!! Gamestate information
+///---	// next in the list
+///---	mapdef_c *next;				// FIXME!! Gamestate information
 
 	// level description, a reference to languages.ldf
 	epi::strent_c description;
@@ -158,6 +156,8 @@ public:
    	int music;
  
 	int partime;
+
+	gamedef_c *episode;  // set during DDF_CleanUp
 	epi::strent_c episode_name;			
 
 	// flags come in two flavours: "force on" and "force off".  When not
@@ -181,7 +181,6 @@ public:
 	intermission_style_e wistyle;
 
 	// -KM- 1998/11/25 Generalised finales.
-	// FIXME!!! Suboptimal - should be pointers/references
 	map_finaledef_c f_pre;
 	map_finaledef_c f_end;
 };
