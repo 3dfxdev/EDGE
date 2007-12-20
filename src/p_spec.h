@@ -88,26 +88,6 @@ typedef struct button_s
 }
 button_t;
 
-// --> Button list class
-class buttonlist_c : public epi::array_c
-{
-public:
-	buttonlist_c() : epi::array_c(sizeof(button_t)) {}
-	~buttonlist_c() { Clear(); }
-
-private:
-	void CleanupObject(void *obj) { /* ... */ }
-
-public:
-	int Find(button_t *b);
-	button_t* GetNew();
-	int GetSize() {	return array_entries; } 
-	bool IsPressed(line_t* line);
-	void SetSize(int count);
-	
-	button_t* operator[](int idx) { return (button_t*)FetchObject(idx); } 
-};
-
 typedef struct gen_move_s
 {
 	movedat_e whatiam;
@@ -206,8 +186,6 @@ force_t;
 extern bool levelTimer;
 extern int levelTimeCount;
 
-extern buttonlist_c buttonlist;
-
 extern gen_move_t *active_movparts;
 
 extern linetype_c donut[2];
@@ -287,6 +265,9 @@ void P_DestroyAllAmbientSFX(void);
 //
 void P_InitSwitchList(void);
 void P_ChangeSwitchTexture(line_t * line, bool useAgain, line_special_e specials, bool noSound);
+void P_ClearButtons(void);
+void P_UpdateButtons(void);
+bool P_ButtonIsPressed(line_t *ld);
 
 #endif // __P_SPEC__
 

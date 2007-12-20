@@ -36,6 +36,26 @@
 #include "s_sound.h"
 #include "w_texture.h"
 
+// --> Button list class
+class buttonlist_c : public epi::array_c
+{
+public:
+	buttonlist_c() : epi::array_c(sizeof(button_t)) {}
+	~buttonlist_c() { Clear(); }
+
+private:
+	void CleanupObject(void *obj) { /* ... */ }
+
+public:
+	int Find(button_t *b);
+	button_t* GetNew();
+	int GetSize() {	return array_entries; } 
+	bool IsPressed(line_t* line);
+	void SetSize(int count);
+	
+	button_t* operator[](int idx) { return (button_t*)FetchObject(idx); } 
+};
+
 buttonlist_c buttonlist;
 
 //
@@ -243,6 +263,61 @@ void buttonlist_c::SetSize(int count)
 	SetCount(count);
 	
 	memset(array, 0, array_entries*array_objsize);
+}
+
+void P_ClearButtons(void)
+{
+	buttonlist.Clear();
+}
+
+bool P_ButtonIsPressed(line_t *ld)
+{
+	return buttonlist.IsPressed(ld);
+}
+
+void P_UpdateButtons(void)
+{
+	epi::array_iterator_c it;
+	button_t *b;
+	
+	for (it = buttonlist.GetBaseIterator(); it.IsValid(); it++)
+	{
+		b = ITERATOR_TO_PTR(it, button_t);
+
+		if (b->btimer == 0)
+			continue;
+
+		b->btimer--;
+
+		if (b->btimer != 0)
+			continue;
+
+		switch (b->where)
+		{
+			case BWH_Top:
+				b->line->side[0]->top.image = b->bimage;
+				break;
+
+			case BWH_Middle:
+				b->line->side[0]->middle.image = b->bimage;
+				break;
+
+			case BWH_Bottom:
+				b->line->side[0]->bottom.image = b->bimage;
+				break;
+
+			case BWH_None:
+				I_Error("INTERNAL ERROR: bwhere is BWH_None !\n");
+		}
+
+		if (b->off_sound)
+        {
+            S_StartFX(b->off_sound, SNCAT_Level,
+                           &b->line->frontsector->sfx_origin);
+        }
+
+		Z_Clear(b, button_t, 1);
+	}
 }
 
 //--- editor settings ---
