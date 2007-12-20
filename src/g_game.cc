@@ -605,6 +605,27 @@ void G_ExitToLevel(char *name, int time, bool skip_all)
 	exit_skipall = skip_all;
 }
 
+void G_ExitToHub(const char *map_name, int tag)
+{
+	// FIXME !!! G_ExitToHub
+}
+
+void G_ExitToHub(int map_number, int tag)
+{
+	SYS_ASSERT(currmap);
+
+	char name_buf[32];
+
+	// bit hackish: decided whether to use MAP## or E#M#
+	if (currmap->ddf.name[0] == 'E')
+	{
+		sprintf(name_buf, "E%dM%d", 1+(map_number/10), map_number%10);
+	}
+	else
+		sprintf(name_buf, "MAP%02d", map_number);
+
+	G_ExitToHub(name_buf, tag);
+}
 
 // 
 // REQUIRED STATE:
