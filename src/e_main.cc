@@ -151,12 +151,14 @@ gameflags_t level_flags;
 gameflags_t global_flags;
 
 skill_t startskill;
-char *startmap;  // FIXME: make static
+
+static std::string start_map;
 
 int startplayers = 1;
 int startbots = 0;
 
-bool autostart;
+static bool autostart;
+
 static bool advance_title;
 
 int newnmrespawn = 0;
@@ -1223,25 +1225,20 @@ static void CheckSkillEtc(void)
 {
 	// get skill / episode / map from parms
 	startskill = sk_medium;
-	autostart = false;
+
+	const char *ps = M_GetParm("-warp");
+	if (ps)
+	{
+		start_map = std::string(ps);
+		autostart = true;
+	}
 
 	// -KM- 1999/01/29 Use correct skill: 1 is easiest, not 0
-	const char *ps = M_GetParm("-skill");
+	ps = M_GetParm("-skill");
 	if (ps)
 	{
 		startskill = (skill_t)(atoi(ps) - 1);
 		autostart = true;
-	}
-
-	ps = M_GetParm("-warp");
-	if (ps)
-	{
-		startmap = Z_StrDup(ps);
-		autostart = true;
-	}
-	else
-	{
-		startmap = Z_StrDup("MAP01"); // MUNDO HACK!!!!
 	}
 
 	ps = M_GetParm("-screenshot");
@@ -1539,9 +1536,6 @@ extern void WLF_InitMaps(void); //!!!
 static void E_Startup();
 static void E_Shutdown(void);
 
-//
-// AutoStart
-//
 void AutoStart()
 {
 	newgame_params_c params;
@@ -1549,21 +1543,25 @@ void AutoStart()
 	params.skill = startskill;	
 	params.deathmatch = deathmatch;	
 
-	params.map = G_LookupMap(startmap);
+	if (start_map.length() == 0)
+		start_map = std::string("MAP01");
+
+	params.map = G_LookupMap(start_map.c_str());
 
 	if (! params.map)
-		I_Error("-warp: no such level '%s'\n", startmap);
+		I_Error("-warp: no such level '%s'\n", start_map.c_str());
 
-	params.game = gamedefs.Lookup(params.map->episode_name);
-	if (! params.game)
-		I_Error("-warp: no gamedef for level '%s'\n", startmap);
+	SYS_ASSERT(params.map->episode);
+///---	params.game = gamedefs.Lookup(params.map->episode_name);
+///---	if (! params.game)
+///---		I_Error("-warp: no gamedef for level '%s'\n", startmap);
 
 	params.random_seed = I_PureRandom();
 
 	params.SinglePlayer(startbots);
 
-	if (! G_DeferredInitNew(params, true /* compat_check */))
-		I_Error("-warp: cannot init level '%s'\n", startmap);
+	if (! G_DeferredInitNew(params))
+		I_Error("-warp: cannot init level '%s'\n", params.map->ddf.name.c_str());
 }
 
 
@@ -1654,15 +1652,11 @@ static void E_Startup()
 
 	if (gameaction != ga_loadgame && gameaction != ga_playdemo)
 	{
-		if (false) //FIXME !!!! netgame
-			N_InitiateNetGame();
-		else if (autostart)
+		if (autostart)
 			AutoStart();
 		else
 			E_StartTitle();  // start up intro loop
 	}
-
-	Z_Free(startmap);
 }
 
 

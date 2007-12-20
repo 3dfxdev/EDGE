@@ -107,21 +107,18 @@ int gametic;
 // if true, load all graphics at start 
 bool precache = true;
 
-// -ACB- 2004/05/25 We need to store our current gamedef
-const gamedef_c *currgamedef = NULL;
-
 // -ACB- 2004/05/25 We need to store our current/next mapdefs
 const mapdef_c *currmap = NULL;
 const mapdef_c *nextmap = NULL;
 
 //--------------------------------------------
 
-static int loadgame_slot;
-static int savegame_slot;
-static char savedescription[32];
+static int defer_load_slot;
+static int defer_save_slot;
+static char defer_save_desc[32];
 
 // deferred stuff...
-static newgame_params_c *d_params = NULL;
+static newgame_params_c *defer_params = NULL;
 
 #define TURBOTHRESHOLD  0x32
 
@@ -714,22 +711,20 @@ void G_DeferredLoadGame(int slot)
 {
 	// Can be called by the startup code or the menu task. 
 
-	loadgame_slot = slot;
+	defer_load_slot = slot;
 	gameaction = ga_loadgame;
 }
 
 void G_DeferredLoadHub(int hub_index)
 {
-	// Can be called by the startup code or the menu task. 
-
-	loadgame_slot = -1 - hub_index;
+	defer_load_slot = -1 - hub_index;
 	gameaction = ga_loadgame;
 }
 
 
 //
 // REQUIRED STATE:
-//   (a) loadgame_slot
+//   (a) defer_load_slot
 //
 //   ?? nothing else ??
 //
@@ -738,12 +733,12 @@ static void G_DoLoadGame(void)
 	E_ForceWipe();
 
 #if 0  // DEBUGGING CODE
-	SV_DumpSaveGame(loadgame_slot);
+	SV_DumpSaveGame(defer_load_slot);
 	return;
 #endif
 
 	// Try to open		
-	std::string fn(G_FileNameFromSlot(loadgame_slot));
+	std::string fn(G_FileNameFromSlot(defer_load_slot));
 
 	if (! SV_OpenReadFile(fn.c_str()))
 	{
@@ -760,7 +755,7 @@ static void G_DoLoadGame(void)
 		return;
 	}
 
-	bool is_hub = (loadgame_slot < 0);
+	bool is_hub = (defer_load_slot < 0);
 
 	SV_BeginLoad(is_hub);
 
@@ -777,11 +772,12 @@ static void G_DoLoadGame(void)
 	if (! params.map)
 		I_Error("LOAD-GAME: No such map %s !  Check WADS\n", globs->level);
 
-	// FIXME: store episode name into game
-	params.game = gamedefs.Lookup(params.map->episode_name);
-	if (!params.game)
-		I_Error("LOAD-GAME: No such episode/mod %s !  Check WADS\n", 
-				params.map->episode_name.c_str());
+	SYS_ASSERT(params.map->episode);
+
+///---	params.game = gamedefs.Lookup(params.map->episode_name);
+///---	if (!params.game)
+///---		I_Error("LOAD-GAME: No such episode/mod %s !  Check WADS\n", 
+///---				params.map->episode_name.c_str());
 
 	params.skill      = (skill_t) globs->skill;
 	params.deathmatch = (globs->netgame >= 2) ? (globs->netgame - 1) : 0;
@@ -869,8 +865,9 @@ static void G_DoLoadGame(void)
 //
 void G_DeferredSaveGame(int slot, const char *description)
 {
-	savegame_slot = slot;
-	strcpy(savedescription, description);
+	defer_save_slot = slot;
+	strcpy(defer_save_desc, description);
+
 	gameaction = ga_savegame;
 }
 
@@ -879,7 +876,7 @@ static void G_DoSaveGame(void)
 	time_t cur_time;
 	char timebuf[100];
 
-	std::string fn(G_FileNameFromSlot(savegame_slot));
+	std::string fn(G_FileNameFromSlot(defer_save_slot));
 	
 	if (! SV_OpenWriteFile(fn.c_str(), (EDGEVERHEX << 8) | EDGEPATCH))
 	{
@@ -917,7 +914,7 @@ static void G_DoSaveGame(void)
 	if (timebuf[0] == '0' && isdigit(timebuf[1]))
 		timebuf[0] = ' ';
 
-	globs->description = SV_DupString(savedescription);
+	globs->description = SV_DupString(defer_save_desc);
 	globs->desc_date   = SV_DupString(timebuf);
 
 	globs->mapsector.count = numsectors;
@@ -943,13 +940,13 @@ static void G_DoSaveGame(void)
 
 	HUB_CopyHubsForSavegame(fn_base.c_str());
 
-	savedescription[0] = 0;
+	defer_save_desc[0] = 0;
 
 	CON_Printf("%s", language["GameSaved"]);
 }
 
 //
-// G_InitNew
+// G_InitNew Stuff
 //
 // Can be called by the startup code or the menu task.
 // consoleplayer, displayplayer, players[] are setup.
@@ -959,7 +956,7 @@ static void G_DoSaveGame(void)
 
 newgame_params_c::newgame_params_c() :
 	skill(sk_medium), deathmatch(0),
-	map(NULL), game(NULL), random_seed(0),
+	map(NULL), random_seed(0),
 	total_players(0), flags(NULL)
 {
 	for (int i = 0; i < MAXPLAYERS; i++)
@@ -972,7 +969,6 @@ newgame_params_c::newgame_params_c(const newgame_params_c& src)
 	deathmatch = src.deathmatch;
 
 	map  = src.map;
-	game = src.game;
 
 	random_seed   = src.random_seed;
 	total_players = src.total_players;
@@ -1012,8 +1008,6 @@ void newgame_params_c::CopyFlags(const gameflags_t *F)
 }
 
 //
-// G_DeferredInitNew
-//
 // This is the procedure that changes the currmap
 // at the start of the game and outside the normal
 // progression of the game. All thats needed is the
@@ -1021,15 +1015,14 @@ void newgame_params_c::CopyFlags(const gameflags_t *F)
 //
 // Returns true if OK, or false if no such map exists.
 //
-bool G_DeferredInitNew(newgame_params_c& params, bool compat_check)
+bool G_DeferredInitNew(newgame_params_c& params)
 {
 	SYS_ASSERT(params.map);
-	SYS_ASSERT(params.game);
 
 	if (W_CheckNumForName(params.map->lump) == -1)
 		return false;
 
-	d_params = new newgame_params_c(params);
+	defer_params = new newgame_params_c(params);
 
 	gameaction = ga_newgame;
 	return true;
@@ -1037,21 +1030,21 @@ bool G_DeferredInitNew(newgame_params_c& params, bool compat_check)
 
 //
 // REQUIRED STATE:
-//   (a) d_params
+//   (a) defer_params
 //
 static void G_DoNewGame(void)
 {
 	E_ForceWipe();
 
-	SYS_ASSERT(d_params);
+	SYS_ASSERT(defer_params);
 
 	demoplayback = false;
 	quickSaveSlot = -1;
 
-	G_InitNew(*d_params);
+	G_InitNew(*defer_params);
 
-	delete d_params;
-	d_params = NULL;
+	delete defer_params;
+	defer_params = NULL;
 
 	// -AJA- 2003/10/09: support for pre-level briefing screen on first map.
 	//       FIXME: kludgy. All this game logic desperately needs rethinking.
@@ -1108,7 +1101,6 @@ void G_InitNew(newgame_params_c& params)
 		S_ResumeSound();  
 	}
 
-	currgamedef = params.game;
 	currmap = params.map;
 
 	if (params.skill > sk_nightmare)
@@ -1192,11 +1184,10 @@ bool G_CheckWhenAppear(when_appear_e appear)
 }
 
 
-mapdef_c* G_LookupMap(const char *refname)
+mapdef_c *G_LookupMap(const char *refname)
 {
-	mapdef_c* m;
-	
-	m = mapdefs.Lookup(refname);
+	mapdef_c *m = mapdefs.Lookup(refname);
+
 	if (m && W_CheckNumForName(m->lump) != -1)
 		return m;
 

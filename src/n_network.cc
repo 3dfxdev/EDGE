@@ -596,7 +596,7 @@ void N_InitiateNetGame(void)
 
 	N_Vote(&gminfo, &params);
 
-	if (! G_DeferredInitNew(params, true /* compat_check */))
+	if (! G_DeferredInitNew(params))
 		I_Error("N_InitiateNetGame: init_new failed\n");
 }
 

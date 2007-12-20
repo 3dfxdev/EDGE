@@ -37,15 +37,6 @@
 
 #define MENU_GRAV_NORMAL  8
 
-///---typedef enum
-///---{
-///---	MDT_INVALID  = 0,
-///---	/* removed: MDT_ELEVATOR = 1 */
-///---	MDT_PLANE    = 2,
-///---	MDT_SLIDER   = 3,
-///---	ENDOFMDTTYPES
-///---}
-///---movedat_e;
 
 typedef struct light_s
 {
@@ -88,12 +79,6 @@ typedef struct button_s
 }
 button_t;
 
-///---typedef struct gen_move_s
-///---{
-///---	movedat_e whatiam;
-///---	struct gen_move_s *next, *prev;
-///---}
-///---gen_move_t;
 
 typedef enum
 {
@@ -107,9 +92,6 @@ plane_dir_e;
 
 typedef struct plane_move_s
 {
-///---	movedat_e whatiam;
-///---	struct plane_move_s *next, *prev;
-
 	const movplanedef_c *type;
 	sector_t *sector;
 
@@ -140,9 +122,6 @@ plane_move_t;
 
 typedef struct slider_move_s
 {
-///---	movedat_e whatiam;
-///---	struct slider_move_s *next, *prev;
-
 	const sliding_door_c *info;
 	line_t *line;
 

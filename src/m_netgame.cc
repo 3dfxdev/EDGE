@@ -142,9 +142,9 @@ void CreateHostPlayerList(newgame_params_c *par, int humans, int bots)
 
 static bool ParseWelcomePacket(newgame_params_c *par, welcome_proto_t *we)
 {
-	par->game = gamedefs.Lookup(we->game_name);
+	gamedef_c *game = gamedefs.Lookup(we->game_name);
 
-	if (! par->game)
+	if (! game)
 	{
 		I_Printf("Unknown game in welcome packet: %s\n", we->game_name);
 		return false;

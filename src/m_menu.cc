@@ -1119,7 +1119,6 @@ static void ReallyDoStartLevel(skill_t skill, gamedef_c *g)
 
 	params.SinglePlayer(startbots);
 
-	params.game = g;
 	params.map = G_LookupMap(g->firstmap.c_str());
 
 	if (! params.map || ! G_DeferredInitNew(params))
@@ -1220,7 +1219,7 @@ void M_ChangeMessages(int choice)
 		CON_Printf("%s\n", language["MessagesOff"]);
 }
 
-
+static void EndGameResponse(int ch)
 {
 	if (ch != 'y')
 		return;
