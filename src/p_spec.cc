@@ -36,6 +36,7 @@
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "g_game.h"
+#include "f_interm.h"
 #include "m_argv.h"
 #include "m_random.h"
 #include "p_local.h"
