@@ -100,6 +100,9 @@ void SR_TipPutString(void *storage, int index, void *extra);
 bool SR_PlaneMoveGetType(void *storage, int index, void *extra);
 void SR_PlaneMovePutType(void *storage, int index, void *extra);
 
+bool SR_SliderGetInfo(void *storage, int index, void *extra);
+void SR_SliderPutInfo(void *storage, int index, void *extra);
+
 
 //----------------------------------------------------------------------------
 //
@@ -918,7 +921,7 @@ void SR_LightPutType(void *storage, int index, void *extra)
 
 	// not found !
 
-	I_Warning("LOADGAME: could not find lightdef_c %p !\n", src);
+	I_Warning("SAVEGAME: could not find lightdef_c %p !\n", src);
 	SV_PutString("S:1");
 }
 
@@ -1191,8 +1194,6 @@ bool SR_PlaneMoveGetType(void *storage, int index, void *extra)
 }
 
 //
-// SR_PlaneMovePutType
-//
 // Format of the string:
 //
 //   <line/sec>  `:'  <floor/ceil>  `:'  <ddf num>
@@ -1279,8 +1280,68 @@ void SR_PlaneMovePutType(void *storage, int index, void *extra)
 
 	// not found !
 
-	I_Warning("LOADGAME: could not find moving_plane %p !\n", src);
+	I_Warning("SAVEGAME: could not find moving_plane %p !\n", src);
 	SV_PutString("L:C:1");
+}
+
+
+bool SR_SliderGetInfo(void *storage, int index, void *extra)
+{
+	const sliding_door_c ** dest = (const sliding_door_c **)storage + index;
+	const char *str;
+
+	str = SV_GetString();
+
+	if (! str)
+	{
+		(*dest) = NULL;
+		return true;
+	}
+
+	if (str[0] != ':')
+		I_Error("SR_SliderGetInfo: invalid special `%s'\n", str);
+
+	const linetype_c *ld_type = P_LookupLineType(strtol(str+1, NULL, 0));
+
+	(*dest) = &ld_type->s;
+
+	SV_FreeString(str);
+	return true;
+}
+
+//
+// Format of the string will usually be a colon followed by the
+// linedef number (e.g. ":123").
+//
+void SR_SliderPutInfo(void *storage, int index, void *extra)
+{
+	const sliding_door_c *src = ((const sliding_door_c **)storage)[index];
+
+	if (! src)
+	{
+		SV_PutString(NULL);
+		return;
+	}
+
+	// check all the line types
+	epi::array_iterator_c it;
+
+	for (it = linetypes.GetBaseIterator(); it.IsValid(); it++)
+	{
+		linetype_c *ld_type = ITERATOR_TO_TYPE(it, linetype_c*);
+		
+		if (src == &ld_type->s)
+		{
+			std::string s = epi::STR_Format(":%d", ld_type->ddf.number);
+			SV_PutString(s.c_str());
+			return;
+		}
+	}
+
+	// not found !
+
+	I_Warning("SAVEGAME: could not find sliding door %p !\n", src);
+	SV_PutString(":1");
 }
 
 
