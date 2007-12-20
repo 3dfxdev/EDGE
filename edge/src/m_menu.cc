@@ -524,8 +524,6 @@ void M_LoadSavePage(int choice)
 }
 
 //
-// M_ReadSaveStrings
-//
 // Read the strings from the savegame files
 //
 // 98-7-10 KM Savegame slots increased
@@ -709,8 +707,6 @@ static void M_DrawSaveLoadCommon(int row, int row2, style_c *style)
 }
 
 //
-// M_LoadGame
-//
 // 1998/07/10 KM Savegame slots increased
 //
 void M_DrawLoad(void)
@@ -786,8 +782,6 @@ void M_LoadGame(int choice)
 	M_ReadSaveStrings();
 }
 
-//
-//  M_SaveGame
 //
 // 98-7-10 KM Savegame slots increased
 //
@@ -931,9 +925,6 @@ void M_QuickSave(void)
 	M_StartMessage(s.c_str(), QuickSaveResponse, true);
 }
 
-//
-// M_QuickLoad
-//
 static void QuickLoadResponse(int ch)
 {
 	if (ch == 'y')
@@ -995,20 +986,13 @@ void M_DrawSound(void)
 }
 
 #if 0
-//
-// M_Sound
-//
 void M_Sound(int choice)
 {
 	M_SetupNextMenu(&SoundDef);
 }
 #endif
 
-//
-// M_SfxVol
-//
 // -ACB- 1999/10/10 Sound API Volume re-added
-//
 void M_SfxVol(int choice)
 {
 	switch (choice)
@@ -1029,11 +1013,7 @@ void M_SfxVol(int choice)
 	S_ChangeSoundVolume();
 }
 
-//
-// M_MusicVol
-//
 // -ACB- 1999/10/07 Removed sound references: New Sound API
-//
 void M_MusicVol(int choice)
 {
 	switch (choice)
@@ -1054,17 +1034,11 @@ void M_MusicVol(int choice)
 	S_ChangeMusicVolume();
 }
 
-//
-// M_DrawMainMenu
-//
 void M_DrawMainMenu(void)
 {
 	RGL_ImageEasy320(94, 2, menu_doom);
 }
 
-//
-// M_NewGame
-//
 void M_DrawNewGame(void)
 {
 	RGL_ImageEasy320(96, 14, menu_newgame);
@@ -1225,9 +1199,6 @@ void M_Episode(int choice)
 	M_SetupNextMenu(&SkillDef);
 }
 
-//
-// M_Options
-//
 void M_Options(int choice)
 {
 	option_menuon = 1;
@@ -1249,10 +1220,7 @@ void M_ChangeMessages(int choice)
 		CON_Printf("%s\n", language["MessagesOff"]);
 }
 
-//
-// M_EndGame
-//
-static void EndGameResponse(int ch)
+
 {
 	if (ch != 'y')
 		return;
@@ -1283,9 +1251,6 @@ void M_EndGame(int choice)
 	M_StartMessage(language["EndGameCheck"], EndGameResponse, true);
 }
 
-//
-// M_ReadThis
-//
 void M_ReadThis(int choice)
 {
 	M_SetupNextMenu(&ReadDef1);
@@ -1301,8 +1266,6 @@ void M_FinishReadThis(int choice)
 	M_SetupNextMenu(&MainDef);
 }
 
-//
-// M_QuitDOOM
 //
 // -KM- 1998/12/16 Handle sfx that don't exist in this version.
 // -KM- 1999/01/31 Generate quitsounds from default.ldf
@@ -1442,9 +1405,6 @@ void M_SizeDisplay(int choice)
 //   MENU FUNCTIONS
 //----------------------------------------------------------------------------
 
-//
-// M_DrawThermo
-//
 void M_DrawThermo(int x, int y, int thermWidth, int thermDot, int div)
 {
 	int i, basex = x;
@@ -1467,9 +1427,6 @@ void M_DrawThermo(int x, int y, int thermWidth, int thermDot, int div)
 	RGL_Image320(x, y, step+1, IM_HEIGHT(therm_o)/div, therm_o);
 }
 
-//
-// M_StartMessage
-//
 void M_StartMessage(const char *string, void (* routine)(int response), 
 					bool input)
 {
@@ -1484,8 +1441,6 @@ void M_StartMessage(const char *string, void (* routine)(int response),
 	return;
 }
 
-//
-// M_StartMessageInput
 //
 // -KM- 1998/07/21 Call M_StartMesageInput to start a message that needs a
 //                 string input. (You can convert it to a number if you want to.)
@@ -1511,9 +1466,6 @@ void M_StartMessageInput(const char *string,
 }
 
 #if 0
-//
-// M_StopMessage
-//
 void M_StopMessage(void)
 {
 	menuactive = msg_lastmenu?true:false;
@@ -1529,8 +1481,6 @@ void M_StopMessage(void)
 // CONTROL PANEL
 //
 
-//
-// M_Responder
 //
 // -KM- 1998/09/01 Analogue binding, and hat support
 //
@@ -1907,9 +1857,6 @@ bool M_Responder(event_t * ev)
 	return false;
 }
 
-//
-// M_StartControlPanel
-//
 void M_StartControlPanel(void)
 {
 	// intro might call this repeatedly
@@ -2034,8 +1981,6 @@ static void DrawMessage(void)
 }
 
 //
-// M_Drawer
-//
 // Called after the view has been rendered,
 // but before it has been blitted.
 //
@@ -2109,27 +2054,18 @@ void M_Drawer(void)
 	}
 }
 
-//
-// M_ClearMenus
-//
 void M_ClearMenus(void)
 {
 	menuactive = 0;
 	save_screenshot_valid = false;
 }
 
-//
-// M_SetupNextMenu
-//
 void M_SetupNextMenu(menu_t * menudef)
 {
 	currentMenu = menudef;
 	itemOn = currentMenu->lastOn;
 }
 
-//
-// M_Ticker
-//
 void M_Ticker(void)
 {
 	if (option_menuon)
@@ -2151,9 +2087,6 @@ void M_Ticker(void)
 	}
 }
 
-//
-// M_Init
-//
 void M_Init(void)
 {
 	E_ProgressMessage(language["MiscInfo"]);
