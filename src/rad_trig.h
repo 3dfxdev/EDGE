@@ -25,7 +25,7 @@
 #define DEBUG_RTS  0
 
 extern rad_script_t *r_scripts;
-extern rad_trigger_t *r_triggers;
+extern rad_trigger_t *active_triggers;
 
 // Tip Prototypes
 void RAD_InitTips(void);

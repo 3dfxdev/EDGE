@@ -524,7 +524,7 @@ int SV_TriggerCountElems(void)
 	rad_trigger_t *cur;
 	int count;
 
-	for (cur=r_triggers, count=0; cur; cur=cur->next, count++)
+	for (cur=active_triggers, count=0; cur; cur=cur->next, count++)
 	{ /* nothing here */ }
 
 	return count;
@@ -534,7 +534,7 @@ void *SV_TriggerGetElem(int index)
 {
 	rad_trigger_t *cur;
 
-	for (cur=r_triggers; cur && index > 0; cur=cur->next)
+	for (cur=active_triggers; cur && index > 0; cur=cur->next)
 		index--;
 
 	if (! cur)
@@ -549,7 +549,7 @@ int SV_TriggerFindElem(rad_trigger_t *elem)
 	rad_trigger_t *cur;
 	int index;
 
-	for (cur=r_triggers, index=0; cur && cur != elem; cur=cur->next)
+	for (cur=active_triggers, index=0; cur && cur != elem; cur=cur->next)
 		index++;
 
 	if (! cur)
@@ -569,13 +569,13 @@ void SV_TriggerCreateElems(int num_elems)
 		Z_Clear(cur, rad_trigger_t, 1);
 
 		// link it in
-		cur->next = r_triggers;
+		cur->next = active_triggers;
 		cur->prev = NULL;
 
-		if (r_triggers)
-			r_triggers->prev = cur;
+		if (active_triggers)
+			active_triggers->prev = cur;
 
-		r_triggers = cur;
+		active_triggers = cur;
 
 		// initialise defaults
 		cur->info = r_scripts;
@@ -588,7 +588,7 @@ void SV_TriggerFinaliseElems(void)
 {
 	rad_trigger_t *cur;
 
-	for (cur=r_triggers; cur; cur=cur->next)
+	for (cur=active_triggers; cur; cur=cur->next)
 	{
 		RAD_GroupTriggerTags(cur);
 	}
