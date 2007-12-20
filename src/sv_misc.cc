@@ -640,64 +640,36 @@ void SV_TipFinaliseElems(void)
 
 //----------------------------------------------------------------------------
 
+extern std::vector<plane_move_t *> active_planes;
+
 int SV_PlaneMoveCountElems(void)
 {
-	gen_move_t *cur;
-	int count;
-
-	for (cur=active_movparts, count=0; cur; cur=cur->next)
-	{
-		if (cur->whatiam == MDT_PLANE)
-			count++;
-	}
-
-	return count;
+	return (int)active_planes.size();
 }
 
 void *SV_PlaneMoveGetElem(int index)
 {
 	// Note: the index value starts at 0.
 
-	gen_move_t *cur;
-
-	for (cur=active_movparts; cur; cur=cur->next)
-	{
-		if (cur->whatiam != MDT_PLANE)
-			continue;
-
-		if (index == 0)
-			break;
-
-		index--;
-	}
-
-	if (! cur)
+	if (index < 0 || index >= (int)active_planes.size())
 		I_Error("LOADGAME: Invalid PlaneMove: %d\n", index);
 
-	SYS_ASSERT(index == 0);
-	return cur;
+	return active_planes[index];
 }
 
 int SV_PlaneMoveFindElem(plane_move_t *elem)
 {
 	// returns the index value (starts at 0).
 
-	gen_move_t *cur;
-	int index;
+	int index = 0;
 
-	for (cur=active_movparts, index=0; cur; cur=cur->next)
-	{
-		if (cur->whatiam != MDT_PLANE)
-			continue;
+	std::vector<plane_move_t *>::iterator PMI;
 
-		if ((plane_move_t *)cur == elem)
-			break;
-
+	for (PMI = active_planes.begin(); PMI != active_planes.end() && (*PMI) != elem; PMI++)
 		index++;
-	}
 
-	if (! cur)
-		I_Error("LOADGAME: No such PlaneMovePtr: %p\n", elem);
+	if (PMI == active_planes.end())
+		I_Error("LOADGAME: No such PlaneMove: %p\n", elem);
 
 	return index;
 }
@@ -711,15 +683,12 @@ void SV_PlaneMoveCreateElems(int num_elems)
 
 	for (; num_elems > 0; num_elems--)
 	{
-		plane_move_t *cur = Z_New(plane_move_t, 1);
+		plane_move_t *pmov = new plane_move_t;
 
-		Z_Clear(cur, plane_move_t, 1);
-
-		// initialise defaults
-		cur->whatiam = MDT_PLANE;
+		Z_Clear(pmov, plane_move_t, 1);
 
 		// link it in
-		P_AddActivePart((gen_move_t *)cur);
+		P_AddActivePlane(pmov);
 	}
 }
 
