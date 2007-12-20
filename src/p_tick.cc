@@ -62,7 +62,8 @@ void P_Ticker(void)
 	P_RunForces();
 	P_RunMobjThinkers();
 	P_RunLights();
-	P_RunActiveSectors();
+	P_RunActivePlanes();
+	P_RunActiveSliders();
 	P_RunAmbientSFX();
 
 	P_UpdateSpecials();
