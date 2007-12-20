@@ -72,15 +72,18 @@ static void G_DoCompleted(void);
 static void G_DoSaveGame(void);
 static void G_DoEndGame(void);
 
-gameaction_e gameaction = ga_nothing;
 gamestate_e gamestate = GS_NOTHING;
-skill_t gameskill = sk_invalid;
+
+gameaction_e gameaction = ga_nothing;
 
 bool paused = false;
 
 // for comparative timing purposes 
 bool nodrawers;
 bool noblit;
+
+// if true, load all graphics at start 
+bool precache = true;
 
 int starttime;
 
@@ -104,8 +107,7 @@ int gametic;
 
 int deathmatch;
 
-// if true, load all graphics at start 
-bool precache = true;
+skill_t gameskill = sk_invalid;
 
 // -ACB- 2004/05/25 We need to store our current/next mapdefs
 const mapdef_c *currmap = NULL;
@@ -677,12 +679,12 @@ static void G_DoCompleted(void)
 		return;
 	}
 
-	gamestate = GS_INTERMISSION;
-
 	automapactive = false;
 
-	wi_stats.last = currmap;
+	wi_stats.cur  = currmap;
 	wi_stats.next = nextmap;
+
+	gamestate = GS_INTERMISSION;
 
 	WI_Start();
 }
