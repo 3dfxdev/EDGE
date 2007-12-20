@@ -127,11 +127,10 @@ static newgame_params_c *defer_params = NULL;
 // REQUIRED STATE:
 //   (a) currmap
 //   (b) players[], numplayers (etc)
-//   (c) gameskill
+//   (c) gameskill + deathmatch
 //   (d) level_flags
 //   (e) demorecording, demo_notbegun
 //
-//   ??  deathmatch
 //   ??  exittime
 //
 void G_DoLoadLevel(void)
@@ -153,6 +152,7 @@ void G_DoLoadLevel(void)
 
 	// -AJA- FIXME: this background camera stuff is a mess
 	background_camera_mo = NULL;
+
 	R_ExecuteSetViewSize();
 
 	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
@@ -217,7 +217,7 @@ void G_DoLoadLevel(void)
 	// Note: It should be noted that only the gameskill is
 	// passed as the level is already defined in currmap,
 	// The method for changing currmap, is using by
-	// G_DeferredInitNew.
+	// G_DeferredNewGame.
 	//
 	// -ACB- 1998/08/09 New P_SetupLevel
 	// -KM- 1998/11/25 P_SetupLevel accepts the autotag
@@ -430,11 +430,7 @@ static bool CheckPlayersReborn(void)
 	return false;
 }
 
-//
-// G_Ticker
-//
-// -ACB- 1998/08/10 Use language object for language specifics.
-//
+
 void G_Ticker(bool fresh_game_tic)
 {
 	if (leveltime >= exittime && gameaction == ga_nothing)
@@ -774,11 +770,6 @@ static void G_DoLoadGame(void)
 
 	SYS_ASSERT(params.map->episode);
 
-///---	params.game = gamedefs.Lookup(params.map->episode_name);
-///---	if (!params.game)
-///---		I_Error("LOAD-GAME: No such episode/mod %s !  Check WADS\n", 
-///---				params.map->episode_name.c_str());
-
 	params.skill      = (skill_t) globs->skill;
 	params.deathmatch = (globs->netgame >= 2) ? (globs->netgame - 1) : 0;
 
@@ -1015,7 +1006,7 @@ void newgame_params_c::CopyFlags(const gameflags_t *F)
 //
 // Returns true if OK, or false if no such map exists.
 //
-bool G_DeferredInitNew(newgame_params_c& params)
+bool G_DeferredNewGame(newgame_params_c& params)
 {
 	SYS_ASSERT(params.map);
 
@@ -1069,7 +1060,8 @@ void G_InitNew(newgame_params_c& params)
 	// --- create players ---
 
 	P_DestroyAllPlayers();
-	HUB_DestroyAll();
+
+//????	HUB_DestroyAll();
 
 	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
 	{

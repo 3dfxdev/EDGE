@@ -175,7 +175,7 @@ static void M_ChangeLevelCheat(const char *string)
 
 	params.SinglePlayer(startbots);
 
-	if (! G_DeferredInitNew(params))
+	if (! G_DeferredNewGame(params))
 	{
 		CON_MessageLDF("ImpossibleChange");
 		return;

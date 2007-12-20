@@ -351,9 +351,6 @@ void G_DoPlayDemo(void)
 		I_Error("LOAD-DEMO: No such map %s !  Check WADS\n", globs->level);
 
 	SYS_ASSERT(params.map->episode);
-///---	params.game = gamedefs.Lookup(globs->game);
-///---	if (!params.game)
-///---		I_Error("LOAD-DEMO: No such episode/mod %s !  Check WADS\n", globs->game);
 
 	params.skill       = (skill_t) globs->skill;
 	params.deathmatch  = (globs->netgame >= 2) ? (globs->netgame - 1) : 0;

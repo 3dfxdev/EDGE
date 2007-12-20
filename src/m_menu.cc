@@ -1121,7 +1121,7 @@ static void ReallyDoStartLevel(skill_t skill, gamedef_c *g)
 
 	params.map = G_LookupMap(g->firstmap.c_str());
 
-	if (! params.map || ! G_DeferredInitNew(params))
+	if (! params.map || ! G_DeferredNewGame(params))
 	{
 		// 23-6-98 KM Fixed this.
 		M_SetupNextMenu(&EpiDef);

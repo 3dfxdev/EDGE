@@ -487,7 +487,7 @@ static void NetGameStartLevel(void)
 	// create parameters
 
 	if (! ParseWelcomePacket(ng_params, (netgame_we_host ? &host_welcome : &join_welcome)) ||
-		! G_DeferredInitNew(*ng_params))
+		! G_DeferredNewGame(*ng_params))
 	{
 		M_StartMessage(language["EpisodeNonExist"], NULL, false);
 		return;
