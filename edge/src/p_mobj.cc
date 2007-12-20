@@ -1864,10 +1864,10 @@ mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c *info)
 	// spawnthings should not be counted just doesn't work).
 
 	if (mobj->flags & MF_COUNTKILL)
-		totalkills++;
+		wi_stats.kills++;
 
 	if (mobj->flags & MF_COUNTITEM)
-		totalitems++;
+		wi_stats.items++;
 
 	//
 	// -ACB- 1998/08/27 Mobj Linked-List Addition

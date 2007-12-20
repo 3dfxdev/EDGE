@@ -297,9 +297,9 @@ void HU_Drawer(void)
 				HL_AddCharToTextLine(&textlinepos, *(s++));
 
 			sprintf(textbuf, "Kills:%d/%d   Items:%d/%d   Secrets:%d/%d",
-				p->killcount, totalkills,
-				p->itemcount, totalitems,
-				p->secretcount, totalsecret);
+				p->killcount, wi_stats.kills,
+				p->itemcount, wi_stats.items,
+				p->secretcount, wi_stats.secret);
 			s = textbuf;
 			while (*s)
 				HL_AddCharToTextLine(&textlinestats, *(s++));

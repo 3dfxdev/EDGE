@@ -38,6 +38,29 @@ typedef enum
 }
 stateenum_t;
 
+//
+// INTERMISSION STATS
+//
+typedef struct wistats_s
+{
+	const char *level;  // episode # (0-2)
+
+	// previous and next levels
+	const mapdef_c *last;
+	const mapdef_c *next;
+
+	int kills;
+	int items;
+	int secret;
+
+	// the par time
+	int partime;
+}
+wistats_t;
+
+extern wistats_t wi_stats;
+
+
 // Called by main loop, animate the intermission.
 void WI_Ticker(void);
 
@@ -46,7 +69,7 @@ void WI_Ticker(void);
 void WI_Drawer(void);
 
 // Setup for an intermission screen.
-void WI_Start(struct wbstartstruct_s * wbstartstruct);
+void WI_Start(void);
 
 // Clear Intermission Data
 void WI_Clear(void);

@@ -87,13 +87,6 @@ extern bool noblit;
 // ANG90 = left side, ANG270 = right
 extern angle_t viewanglebaseoffset;
 
-// -------------------------------------
-// Scores, rating.
-// Statistics on a given map, for intermission.
-//
-extern int totalkills;
-extern int totalitems;
-extern int totalsecret;
 
 // Timer, for scores.
 extern int leveltime;  // tics in game play for par
