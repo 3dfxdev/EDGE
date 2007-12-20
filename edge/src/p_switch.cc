@@ -36,41 +36,19 @@
 #include "s_sound.h"
 #include "w_texture.h"
 
-// --> Button list class
-class buttonlist_c : public epi::array_c
-{
-public:
-	buttonlist_c() : epi::array_c(sizeof(button_t)) {}
-	~buttonlist_c() { Clear(); }
 
-private:
-	void CleanupObject(void *obj) { /* ... */ }
+std::vector<button_t *> active_buttons;
 
-public:
-	int Find(button_t *b);
-	button_t* GetNew();
-	int GetSize() {	return array_entries; } 
-	bool IsPressed(line_t* line);
-	void SetSize(int count);
-	
-	button_t* operator[](int idx) { return (button_t*)FetchObject(idx); } 
-};
 
-buttonlist_c buttonlist;
-
-//
-// P_InitSwitchList
-//
-// Only called at game initialization.
-//
 void P_InitSwitchList(void)
 {
+	// only called at game initialization.
+
 	epi::array_iterator_c it;
-	switchdef_c *sw;
 	
 	for (it = switchdefs.GetBaseIterator(); it.IsValid(); it++)
 	{
-		sw = ITERATOR_TO_TYPE(it, switchdef_c*);
+		switchdef_c *sw = ITERATOR_TO_TYPE(it, switchdef_c*);
 
 		sw->cache.image[0] = W_ImageLookup(sw->name1, INS_Texture, ILF_Null);
 		sw->cache.image[1] = W_ImageLookup(sw->name2, INS_Texture, ILF_Null);
@@ -84,12 +62,27 @@ static void StartButton(switchdef_c *sw, line_t *line, bwhere_e w,
 		const image_c *image)
 {
 	// See if button is already pressed
-	if (buttonlist.IsPressed(line))
+	if (P_ButtonIsPressed(line))
 		return;
 
-	button_t *b;
-	
-	b = buttonlist.GetNew();
+	button_t * b = NULL;
+
+	std::vector<button_t *>::iterator BI;
+
+	for (BI = active_buttons.begin(); BI != active_buttons.end(); BI++)
+	{
+		if ((*BI)->btimer == 0)
+		{
+			b = *BI; break;
+		}
+	}
+
+	if (! b)
+	{
+		b = new button_t;
+
+		active_buttons.push_back(b);
+	}
 
 	b->line = line;
 	b->where = w;
@@ -114,32 +107,27 @@ static void StartButton(switchdef_c *sw, line_t *line, bwhere_e w,
 void P_ChangeSwitchTexture(line_t * line, bool useAgain,
 		line_special_e specials, bool noSound)
 {
-	int j, k;
-	int tag = line->tag;
-	epi::array_iterator_c it;
-	const linetype_c *type = line->special;
-	position_c *sfx_origin;
-	side_t *side;
-	bwhere_e pos;
-
-	for (j=0; j < numlines; j++)
+	for (int j = 0; j < numlines; j++)
 	{
 		if (line != &lines[j])
 		{
-			if (tag == 0 || (lines[j].tag != tag) || 
+			if (line->tag == 0 ||
+				line->tag != lines[j].tag ||
                 (specials & LINSP_SwitchSeparate) ||
-                (type != lines[j].special && type && 
-                 lines[j].special && useAgain))
+                (useAgain && line->special && line->special != lines[j].special))
 			{
 				continue;
 			}
 		}
 
-		side = lines[j].side[0];
-		sfx_origin = &lines[j].frontsector->sfx_origin;
+		side_t *side = lines[j].side[0];
 
-		pos = BWH_None;
+		position_c *sfx_origin = &lines[j].frontsector->sfx_origin;
 
+		bwhere_e pos = BWH_None;
+
+		epi::array_iterator_c it;
+	
 		// Note: reverse order, give priority to newer switches.
 		for (it = switchdefs.GetTailIterator(); 
              it.IsValid() && (pos == BWH_None); 
@@ -150,8 +138,10 @@ void P_ChangeSwitchTexture(line_t * line, bool useAgain,
 			if (!sw->cache.image[0] && !sw->cache.image[1])
 				continue;
 
+			int k;
+
 			// some like it both ways...
-			for (k=0; k < 2; k++)
+			for (k = 0; k < 2; k++)
 			{
 				if (CHECK_SW(top))
 				{
@@ -196,127 +186,73 @@ void P_ChangeSwitchTexture(line_t * line, bool useAgain,
 #undef SET_SW
 #undef OLD_SW
 
-//
-// int buttonlist_c::Find()
-//
-// FIXME! Optimise!
-//
-int buttonlist_c::Find(button_t *b)
-{
-	epi::array_iterator_c it;
-	
-	for (it=GetBaseIterator(); it.IsValid(); it++)
-	{
-		button_t *b2 = ITERATOR_TO_PTR(it, button_t);
-
-		if (b == b2)
-			return it.GetPos();
-	}
-	
-	return -1;
-}
-
-//
-// button_t* buttonlist_c::GetNew()
-//
-button_t* buttonlist_c::GetNew()
-{
-	epi::array_iterator_c it;
-	button_t *b;
-	
-	for (it=GetBaseIterator(); it.IsValid(); it++)
-	{
-		b = ITERATOR_TO_PTR(it, button_t);
-		
-		if (!b->btimer)
-			return b;
-	}
-	
-	b = (button_t*)ExpandAtTail();
-	return b;
-}
-
-//
-// bool buttonlist_c::IsPressed()
-//
-bool buttonlist_c::IsPressed(line_t* line)
-{
-	epi::array_iterator_c it;
-	
-	for (it=GetBaseIterator(); it.IsValid(); it++)
-	{
-		button_t *b = ITERATOR_TO_PTR(it, button_t);
-
-		if (b->line == line && b->btimer)
-			return true;
-	}
-	
-	return false;
-}
-
-//
-// buttonlist_c::SetSize()
-//
-void buttonlist_c::SetSize(int count)
-{
-	Size(count);
-	SetCount(count);
-	
-	memset(array, 0, array_entries*array_objsize);
-}
 
 void P_ClearButtons(void)
 {
-	buttonlist.Clear();
+	std::vector<button_t *>::iterator BI;
+
+	for (BI = active_buttons.begin(); BI != active_buttons.end(); BI++)
+	{
+		delete (*BI);
+	}
+	active_buttons.clear();
 }
 
 bool P_ButtonIsPressed(line_t *ld)
 {
-	return buttonlist.IsPressed(ld);
+	std::vector<button_t *>::iterator BI;
+
+	for (BI = active_buttons.begin(); BI != active_buttons.end(); BI++)
+	{
+		if ((*BI)->btimer > 0 && (*BI)->line == ld)
+			return true;
+	}
+
+	return false;
 }
 
 void P_UpdateButtons(void)
 {
-	epi::array_iterator_c it;
-	button_t *b;
-	
-	for (it = buttonlist.GetBaseIterator(); it.IsValid(); it++)
+	std::vector<button_t *>::iterator BI;
+
+	for (BI = active_buttons.begin(); BI != active_buttons.end(); BI++)
 	{
-		b = ITERATOR_TO_PTR(it, button_t);
+		button_t *b = *BI;
+		SYS_ASSERT(b);
 
 		if (b->btimer == 0)
 			continue;
 
 		b->btimer--;
 
-		if (b->btimer != 0)
-			continue;
-
-		switch (b->where)
+		if (b->btimer == 0)
 		{
-			case BWH_Top:
-				b->line->side[0]->top.image = b->bimage;
-				break;
+			switch (b->where)
+			{
+				case BWH_Top:
+					b->line->side[0]->top.image = b->bimage;
+					break;
 
-			case BWH_Middle:
-				b->line->side[0]->middle.image = b->bimage;
-				break;
+				case BWH_Middle:
+					b->line->side[0]->middle.image = b->bimage;
+					break;
 
-			case BWH_Bottom:
-				b->line->side[0]->bottom.image = b->bimage;
-				break;
+				case BWH_Bottom:
+					b->line->side[0]->bottom.image = b->bimage;
+					break;
 
-			case BWH_None:
-				I_Error("INTERNAL ERROR: bwhere is BWH_None !\n");
+				case BWH_None:
+					I_Error("INTERNAL ERROR: bwhere is BWH_None!\n");
+			}
+
+			if (b->off_sound)
+			{
+				S_StartFX(b->off_sound, SNCAT_Level,
+						  &b->line->frontsector->sfx_origin);
+			}
+
+			Z_Clear(b, button_t, 1);
 		}
-
-		if (b->off_sound)
-        {
-            S_StartFX(b->off_sound, SNCAT_Level,
-                           &b->line->frontsector->sfx_origin);
-        }
-
-		Z_Clear(b, button_t, 1);
 	}
 }
 
