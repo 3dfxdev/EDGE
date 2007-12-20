@@ -1560,7 +1560,7 @@ void AutoStart()
 
 	params.SinglePlayer(startbots);
 
-	if (! G_DeferredInitNew(params))
+	if (! G_DeferredNewGame(params))
 		I_Error("-warp: cannot init level '%s'\n", params.map->ddf.name.c_str());
 }
 
