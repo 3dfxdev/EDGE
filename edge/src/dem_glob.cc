@@ -69,7 +69,7 @@ static const demo_global_t demo_globals[] =
 	{ "GAME",  DG_GetString, DG_PutString, GLOB_OFF(game) },
 	{ "LEVEL", DG_GetString, DG_PutString, GLOB_OFF(level) },
 	{ "FLAGS", DG_GetLevelFlags, DG_PutLevelFlags, GLOB_OFF(flags) },
-	{ "GRAVITY", DG_GetInt, DG_PutInt, GLOB_OFF(gravity) },
+	{ "GRAVITY", DG_GetInt, DG_PutInt, GLOB_OFF(flags.menu_grav) },
 
 	{ "SKILL", DG_GetInt, DG_PutInt, GLOB_OFF(skill) },
 	{ "NETGAME", DG_GetInt, DG_PutInt, GLOB_OFF(netgame) },
@@ -378,9 +378,6 @@ static bool GlobReadWADS(saveglobals_t *glob)
 }
 
 
-//
-// DEM_LoadGLOB
-//
 saveglobals_t *DEM_LoadGLOB(void)
 {
 	char marker[6];
@@ -497,9 +494,6 @@ static void GlobWriteWADS(saveglobals_t *globs)
 }
 
 
-//
-// DEM_SaveGLOB
-//
 void DEM_SaveGLOB(saveglobals_t *globs)
 {
 	cur_globs = globs;
