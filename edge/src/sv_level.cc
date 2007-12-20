@@ -507,7 +507,7 @@ void SV_SideFinaliseElems(void)
 //----------------------------------------------------------------------------
 
 extern std::list<line_t *> active_line_anims;
-extern std::list<slider_move_t *> active_sliders;
+extern std::vector<slider_move_t *> active_sliders;
 
 int SV_LineCountElems(void)
 {
@@ -653,7 +653,7 @@ void SV_ExfloorFinaliseElems(void)
 //----------------------------------------------------------------------------
 
 extern std::list<sector_t *> active_sector_anims;
-extern std::list<plane_move_t *>  active_planes;
+extern std::vector<plane_move_t *>  active_planes;
 
 int SV_SectorCountElems(void)
 {
@@ -717,7 +717,7 @@ void SV_SectorFinaliseElems(void)
 	}
 
 	// scan active parts, regenerate floor_move and ceil_move
-	std::list<plane_move_t *>::iterator PMI;
+	std::vector<plane_move_t *>::iterator PMI;
 
 	for (PMI  = active_planes.begin();
 		 PMI != active_planes.end();
