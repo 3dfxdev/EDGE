@@ -159,15 +159,13 @@ void P_AddActiveSlider(slider_move_t *smov)
 
 
 //
-// P_RemoveAllActiveParts
-//
 // -ACB- This is a clear-the-decks function: we don't care
 // with tyding up the loose ends inbetween removing active
 // parts - that is pointless since we are nuking the entire
 // thing. Hence the lack of call to P_RemoveActivePart() for
 // each individual part.
 //
-void P_RemoveAllActiveParts(void)
+void P_DestroyAllPlanes(void)
 {
 	std::vector<plane_move_t *> ::iterator PMI;
 
@@ -178,6 +176,11 @@ void P_RemoveAllActiveParts(void)
 		delete (*PMI);
 	}
 
+	active_planes.clear();
+}
+
+void P_DestroyAllSliders(void)
+{
 	std::vector<slider_move_t *>::iterator SMI;
 
 	for (SMI  = active_sliders.begin();
@@ -187,7 +190,6 @@ void P_RemoveAllActiveParts(void)
 		delete (*SMI);
 	}
 
-	active_planes.clear();
 	active_sliders.clear();
 }
 

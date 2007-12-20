@@ -224,9 +224,10 @@ bool EV_Lights(sector_t * sec, const lightdef_c * type);
 void P_RunActivePlanes(void);
 void P_RunActiveSliders(void);
 
-void P_RemoveAllActiveParts(void);
 void P_AddActivePlane(plane_move_t *pmov);
 void P_AddActiveSlider(slider_move_t *smov);
+void P_DestroyAllPlanes(void);
+void P_DestroyAllSliders(void);
 
 void P_AddSpecialLine(line_t *ld);
 void P_AddSpecialSector(sector_t *sec);

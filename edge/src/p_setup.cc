@@ -2161,7 +2161,8 @@ void ShutdownLevel(void)
 
 	P_DestroyAllForces();
 	P_DestroyAllLights();
-	P_RemoveAllActiveParts();
+	P_DestroyAllPlanes();
+	P_DestroyAllSliders();
 	P_FreeShootSpots();
 	P_DestroyAllAmbientSFX();
 
