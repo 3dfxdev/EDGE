@@ -38,6 +38,8 @@ void E_UpdateKeyState(void);
 
 bool INP_Responder(event_t * ev);
 
+extern bool autorunning;
+
 /* keyboard stuff */
 
 extern int key_right;

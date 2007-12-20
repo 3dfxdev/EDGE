@@ -97,6 +97,9 @@ static byte gamekeydown[NUMKEYS];
 static int turnheld;   // for accelerative turning 
 static int mlookheld;  // for accelerative mlooking 
 
+// toggled by autorun button.
+bool autorunning = false;
+
 //-------------------------------------------
 // -KM-  1998/09/01 Analogue binding
 // -ACB- 1998/09/06 Two-stage turning switch
