@@ -411,17 +411,11 @@ savearray_t sv_array_plane_move =
 
 //----------------------------------------------------------------------------
 
-//
-// SV_ButtonCountElems
-//
 int SV_ButtonCountElems(void)
 {
 	return buttonlist.GetSize();
 }
 
-//
-// SV_ButtonGetElem
-//
 void *SV_ButtonGetElem(int index)
 {
 	if (index < 0 || index >= buttonlist.GetSize())
@@ -433,9 +427,6 @@ void *SV_ButtonGetElem(int index)
 	return buttonlist[index];
 }
 
-//
-// SV_ButtonFindElem
-//
 int SV_ButtonFindElem(button_t *elem)
 {
 	int idx = buttonlist.Find(elem);
@@ -443,17 +434,11 @@ int SV_ButtonFindElem(button_t *elem)
 	return idx;
 }
 
-//
-// SV_ButtonCreateElems
-//
 void SV_ButtonCreateElems(int num_elems)
 {
 	buttonlist.SetSize(num_elems);
 }
 
-//
-// SV_ButtonFinaliseElems
-//
 void SV_ButtonFinaliseElems(void)
 {
 	// nothing to do
@@ -464,17 +449,11 @@ void SV_ButtonFinaliseElems(void)
 
 extern std::vector<light_t *> active_lights;
 
-//
-// SV_LightCountElems
-//
 int SV_LightCountElems(void)
 {
 	return (int)active_lights.size();
 }
 
-//
-// SV_LightGetElem
-//
 void *SV_LightGetElem(int index)
 {
 	if (index < 0 || index >= (int)active_lights.size())
@@ -483,9 +462,6 @@ void *SV_LightGetElem(int index)
 	return active_lights[index];
 }
 
-//
-// SV_LightFindElem
-//
 int SV_LightFindElem(light_t *elem)
 {
 	int index = 0;
@@ -501,9 +477,6 @@ int SV_LightFindElem(light_t *elem)
 	return index;
 }
 
-//
-// SV_LightCreateElems
-//
 void SV_LightCreateElems(int num_elems)
 {
 	P_DestroyAllLights();
@@ -518,9 +491,6 @@ void SV_LightCreateElems(int num_elems)
 	}
 }
 
-//
-// SV_LightFinaliseElems
-//
 void SV_LightFinaliseElems(void)
 {
 	// nothing to do
@@ -529,9 +499,6 @@ void SV_LightFinaliseElems(void)
 
 //----------------------------------------------------------------------------
 
-//
-// SV_TriggerCountElems
-//
 int SV_TriggerCountElems(void)
 {
 	rad_trigger_t *cur;
@@ -543,9 +510,6 @@ int SV_TriggerCountElems(void)
 	return count;
 }
 
-//
-// SV_TriggerGetElem
-//
 void *SV_TriggerGetElem(int index)
 {
 	rad_trigger_t *cur;
@@ -560,9 +524,6 @@ void *SV_TriggerGetElem(int index)
 	return cur;
 }
 
-//
-// SV_TriggerFindElem
-//
 int SV_TriggerFindElem(rad_trigger_t *elem)
 {
 	rad_trigger_t *cur;
@@ -577,9 +538,6 @@ int SV_TriggerFindElem(rad_trigger_t *elem)
 	return index;
 }
 
-//
-// SV_TriggerCreateElems
-//
 void SV_TriggerCreateElems(int num_elems)
 {
 	RAD_ClearTriggers();
@@ -606,9 +564,6 @@ void SV_TriggerCreateElems(int num_elems)
 	}
 }
 
-//
-// SV_TriggerFinaliseElems
-//
 void SV_TriggerFinaliseElems(void)
 {
 	rad_trigger_t *cur;
@@ -622,17 +577,11 @@ void SV_TriggerFinaliseElems(void)
 
 //----------------------------------------------------------------------------
 
-//
-// SV_TipCountElems
-//
 int SV_TipCountElems(void)
 {
 	return MAXTIPSLOT;
 }
 
-//
-// SV_TipGetElem
-//
 void *SV_TipGetElem(int index)
 {
 	if (index < 0 || index >= MAXTIPSLOT)
@@ -644,9 +593,6 @@ void *SV_TipGetElem(int index)
 	return tip_slots + index;
 }
 
-//
-// SV_TipFindElem
-//
 int SV_TipFindElem(drawtip_t *elem)
 {
 	SYS_ASSERT(tip_slots <= elem && elem < (tip_slots + MAXTIPSLOT));
@@ -654,17 +600,11 @@ int SV_TipFindElem(drawtip_t *elem)
 	return elem - tip_slots;
 }
 
-//
-// SV_TipCreateElems
-//
 void SV_TipCreateElems(int num_elems)
 {
 	RAD_ResetTips();
 }
 
-//
-// SV_TipFinaliseElems
-//
 void SV_TipFinaliseElems(void)
 {
 	int i;
@@ -680,9 +620,6 @@ void SV_TipFinaliseElems(void)
 
 //----------------------------------------------------------------------------
 
-//
-// SV_PlaneMoveCountElems
-//
 int SV_PlaneMoveCountElems(void)
 {
 	gen_move_t *cur;
@@ -697,13 +634,10 @@ int SV_PlaneMoveCountElems(void)
 	return count;
 }
 
-//
-// SV_PlaneMoveGetElem
-//
-// The index value starts at 0.
-//
 void *SV_PlaneMoveGetElem(int index)
 {
+	// Note: the index value starts at 0.
+
 	gen_move_t *cur;
 
 	for (cur=active_movparts; cur; cur=cur->next)
@@ -724,13 +658,10 @@ void *SV_PlaneMoveGetElem(int index)
 	return cur;
 }
 
-//
-// SV_PlaneMoveFindElem
-//
-// Returns the index value (starts at 0).
-//
 int SV_PlaneMoveFindElem(plane_move_t *elem)
 {
+	// returns the index value (starts at 0).
+
 	gen_move_t *cur;
 	int index;
 
@@ -751,14 +682,11 @@ int SV_PlaneMoveFindElem(plane_move_t *elem)
 	return index;
 }
 
-//
-// SV_PlaneMoveCreateElems
-//
 void SV_PlaneMoveCreateElems(int num_elems)
 {
 	// NOTE: this removes all the other movers too.  Hence plane movers
 	//       should be loaded before the other ones.
-	//
+
 	P_RemoveAllActiveParts();
 
 	for (; num_elems > 0; num_elems--)
@@ -775,9 +703,6 @@ void SV_PlaneMoveCreateElems(int num_elems)
 	}
 }
 
-//
-// SV_PlaneMoveFinaliseElems
-//
 void SV_PlaneMoveFinaliseElems(void)
 {
 	// nothing to do
@@ -786,9 +711,6 @@ void SV_PlaneMoveFinaliseElems(void)
 
 //----------------------------------------------------------------------------
 
-//
-// SR_LightGetType
-//
 bool SR_LightGetType(void *storage, int index, void *extra)
 {
 	const lightdef_c ** dest = (const lightdef_c **)storage + index;
@@ -881,9 +803,6 @@ void SR_LightPutType(void *storage, int index, void *extra)
 }
 
 
-//
-// SR_TriggerGetState
-//
 bool SR_TriggerGetState(void *storage, int index, void *extra)
 {
 	const rts_state_t ** dest = (const rts_state_t **)storage + index;
@@ -917,9 +836,6 @@ bool SR_TriggerGetState(void *storage, int index, void *extra)
 	return true;
 }
 
-//
-// SR_TriggerPutState
-//
 void SR_TriggerPutState(void *storage, int index, void *extra)
 {
 	const rts_state_t *src = ((const rts_state_t **)storage)[index];
@@ -949,9 +865,6 @@ void SR_TriggerPutState(void *storage, int index, void *extra)
 }
 
 
-//
-// SR_TriggerGetScript
-//
 bool SR_TriggerGetScript(void *storage, int index, void *extra)
 {
 	const rad_script_t ** dest = (const rad_script_t **)storage + index;
@@ -1087,9 +1000,6 @@ void SR_TriggerPutScript(void *storage, int index, void *extra)
 
 //----------------------------------------------------------------------------
 
-//
-// SR_TipGetString
-//
 bool SR_TipGetString(void *storage, int index, void *extra)
 {
 	const char ** dest = (const char **)storage + index;
@@ -1100,9 +1010,6 @@ bool SR_TipGetString(void *storage, int index, void *extra)
 	return true;
 }
 
-//
-// SR_TipPutString
-//
 void SR_TipPutString(void *storage, int index, void *extra)
 {
 	const char *src = ((const char **)storage)[index];
@@ -1111,9 +1018,6 @@ void SR_TipPutString(void *storage, int index, void *extra)
 }
 
 
-//
-// SR_PlaneMoveGetType
-//
 bool SR_PlaneMoveGetType(void *storage, int index, void *extra)
 {
 	const movplanedef_c ** dest = (const movplanedef_c **)storage + index;
