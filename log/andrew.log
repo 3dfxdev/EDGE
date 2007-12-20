@@ -1,10 +1,35 @@
 Andrew Apted's Log
 
+2007/12/20:
+
+Code cleanups: removed redundant 'random_seed' global.
+Simplified the Intermission stat handling (no need to pass
+a structure to WI_Start, just use a global variable).
+Reworked the buttonlist code.  Reworked the active_movparts
+code, splitting it into two separate lists: active_planes
+and active_sliders.  Made the mapdef_c have an 'episode'
+pointer, removing the need to currgamedef global, and also
+the 'game' field of newgame_params_c.
+
+Wrote the code to save Sliding Doors into savegames.
+
+2007/12/19:
+
+Implemented a SECRET_EXIT command for RTS.
+
+Worked a bit on HUB support.  On the mapping side, it'll be
+quite basic: linetypes [501] to [539] are walkable hub exits
+that jump to MAP01 to MAP39 respectively (or E1M1 to E4M9 for
+Doom 1).  The exit line tag number will need to match the tag
+of the sector containing the players in the new map.
+
+Added a HUB_EXIT command for both DDF and RTS.
+
 2007/12/18:
 
-The EDGE code has long supported GRAPHIC animations defined
-in ANIMS.DDF, however it was never enabled, so today I made
-two small changes to the code and they now work fine!
+The EDGE code has long been able to parse GRAPHIC animations
+defined in ANIMS.DDF, however it was never enabled, so today
+I made two small changes to the code and now they work!
 
 One caveat: hud graphics must use the same size and offsets
 otherwise some animation frames will be stretched/squashed.
