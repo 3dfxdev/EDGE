@@ -79,6 +79,13 @@ image_special_e;
 
 typedef enum
 {
+	FIXTRN_None = 0,     // no modification (the default)
+	FIXTRN_Blacken = 1,  // make 100% transparent pixels Black
+}
+image_fix_trans_e;
+
+typedef enum
+{
 	LIF_PNG = 0,
 	LIF_JPEG,
 	LIF_TGA
@@ -115,6 +122,8 @@ public:
 	image_special_e special;
 
 	int x_offset, y_offset;
+
+	int fix_trans;   // FIXTRN_XXX value
 
 	// COMPOSE specifics:
 	//   rgbcol_t base_col;

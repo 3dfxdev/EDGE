@@ -33,6 +33,7 @@ static imagedef_c *dynamic_image;
 
 static void DDF_ImageGetType(const char *info, void *storage);
 static void DDF_ImageGetSpecial(const char *info, void *storage);
+static void DDF_ImageGetFixTrans(const char *info, void *storage);
 
 // -ACB- 1998/08/10 Use DDF_MainGetLumpName for getting the..lump name.
 // -KM- 1998/09/27 Use DDF_MainGetTime for getting tics
@@ -47,6 +48,7 @@ static const commandlist_t image_commands[] =
 	DF("Y_OFFSET",   y_offset, DDF_MainGetNumeric),
 	DF("SCALE",      scale,    DDF_MainGetFloat),
 	DF("ASPECT",     aspect,   DDF_MainGetFloat),
+	DF("FIX_TRANS",  fix_trans, DDF_ImageGetFixTrans),
 
 	DDF_CMD_END
 };
@@ -74,6 +76,7 @@ static image_namespace_e GetImageNamespace(const char *prefix)
 //
 //  DDF PARSE ROUTINES
 //
+
 static bool ImageStartEntry(const char *name)
 {
 	I_Debugf("ImageStartEntry [%s]\n", name);
@@ -222,17 +225,12 @@ bool DDF_ReadImages(void *data, int size)
 	return DDF_MainReadFile(&images);
 }
 
-//
-// DDF_ImageInit
-//
+
 void DDF_ImageInit(void)
 {
 	imagedefs.Clear();
 }
 
-//
-// DDF_ImageCleanUp
-//
 void DDF_ImageCleanUp(void)
 {
 	imagedefs.Trim();		// <-- Reduce to allocated size
@@ -293,9 +291,7 @@ static void ImageParseLump(const char *spec)
 		DDF_Error("Unknown image format: %s (use PNG or JPEG)\n", keyword);
 }
 
-//
-// DDF_ImageGetType
-//
+
 static void DDF_ImageGetType(const char *info, void *storage)
 {
 	const char *colon = DDF_MainDecodeList(info, ':', true);
@@ -344,9 +340,7 @@ static specflags_t image_specials[] =
     {NULL, 0, 0}
 };
 
-//
-// DDF_ImageGetSpecial
-//
+
 static void DDF_ImageGetSpecial(const char *info, void *storage)
 {
 	image_special_e *dest = (image_special_e *)storage;
@@ -371,36 +365,39 @@ static void DDF_ImageGetSpecial(const char *info, void *storage)
 	}
 }
 
+static void DDF_ImageGetFixTrans(const char *info, void *storage)
+{
+	if (DDF_CompareName(info, "NONE") == 0)
+	{
+		buffer_image.fix_trans = FIXTRN_None;
+	}
+	else if (DDF_CompareName(info, "BLACKEN") == 0)
+	{
+		buffer_image.fix_trans = FIXTRN_Blacken;
+	}
+	else
+		DDF_Error("Unknown FIX_TRANS type: %s\n", info);
+}
+
 
 // ---> imagedef_c class
 
-//
-// imagedef_c constructor
-//
 imagedef_c::imagedef_c() : name()
 {
 	Default();
 }
 
-//
-// imagedef_c Copy constructor
-//
 imagedef_c::imagedef_c(const imagedef_c &rhs)
 {
 	Copy(rhs);
 }
 
-//
-// imagedef_c::Copy()
-//
 void imagedef_c::Copy(const imagedef_c &src)
 {
 	ddf = src.ddf;
 	CopyDetail(src);
 }
 
-//
-// imagedef_c::CopyDetail()
 //
 // Copies all the detail with the exception of ddf info
 //
@@ -418,11 +415,9 @@ void imagedef_c::CopyDetail(const imagedef_c &src)
 	y_offset = src.y_offset;
 	scale    = src.scale;
 	aspect   = src.aspect;
+	fix_trans = src.fix_trans;
 }
 
-//
-// imagedef_c::Default()
-//
 void imagedef_c::Default()
 {
 	ddf.Default();
@@ -440,6 +435,7 @@ void imagedef_c::Default()
 
 	scale  = 1.0f;
 	aspect = 1.0f;
+	fix_trans = FIXTRN_None;
 }
 
 //
