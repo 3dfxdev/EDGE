@@ -43,6 +43,8 @@ void R_PaletteRemapRGBA(epi::image_data_c *img,
 
 int R_DetermineOpacity(epi::image_data_c *img);
 
+void R_BlackenClearAreas(epi::image_data_c *img);
+
 void R_DumpImage(epi::image_data_c *img);
 
 #endif /* __RGL_TEXGL_H__ */
