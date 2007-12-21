@@ -57,6 +57,7 @@
 #include "r_gldefs.h"
 #include "r_sky.h"
 #include "r_colormap.h"
+#include "r_texgl.h"
 #include "w_texture.h"
 #include "w_wad.h"
 #include "z_zone.h"
@@ -581,8 +582,8 @@ static epi::image_data_c *CreateUserFileImage(image_c *rim, imagedef_c *def)
 	img, img->width, img->height, img->bpp);
 #endif
 
-//!!!!!!	if (img->bpp == 4)
-//!!!!!!		NormalizeClearAreas(img);
+	if (def->fix_trans == FIXTRN_Blacken)
+		R_BlackenClearAreas(img);
 
 	SYS_ASSERT(rim->total_w == img->width);
 	SYS_ASSERT(rim->total_h == img->height);
