@@ -360,7 +360,7 @@ void G_DoPlayDemo(void)
 	params.total_players = 1;
 	params.players[0] = PFL_Demo;
 
-	params.flags = globs->flags;
+	params.flags = &globs->flags;
 
 	G_InitNew(params);
 
