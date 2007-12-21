@@ -1,5 +1,10 @@
 Andrew Apted's Log
 
+2007/12/21:
+
+Implemented the FIX_TRANS=BLACKEN; command for images.ddf,
+which forces the color of 100% transparent pixels to black.
+
 2007/12/20:
 
 Code cleanups: removed redundant 'random_seed' global.
