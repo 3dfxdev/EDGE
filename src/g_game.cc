@@ -784,7 +784,7 @@ static void G_DoLoadGame(void)
 	// this player is a dummy one, replaced during actual load
 	params.SinglePlayer(0);
 
-	params.flags = &globs->flags;
+	params.CopyFlags(&globs->flags);
 	
 	G_InitNew(params);
 
