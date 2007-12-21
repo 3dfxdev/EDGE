@@ -9,7 +9,9 @@ Reworked the buttonlist code.  Reworked the active_movparts
 code, splitting it into two separate lists: active_planes
 and active_sliders.  Made the mapdef_c have an 'episode'
 pointer, removing the need to currgamedef global, and also
-the 'game' field of newgame_params_c.
+the 'game' field of newgame_params_c.  Removed redundant
+saveglobals_t::gravity field (use menu_grav instead).
+Tidied up some stuff in the intermission code (f_interm).
 
 Wrote the code to save Sliding Doors into savegames.
 
