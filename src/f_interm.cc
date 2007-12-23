@@ -585,7 +585,7 @@ static void WI_End(void)
 
 	R_ExecuteSetViewSize();
 
-	F_StartFinale(&currmap->f_end, nextmap ? ga_briefing : ga_nothing);
+	F_StartFinale(&currmap->f_end, nextmap ? ga_finale : ga_nothing);
 }
 
 static void InitNoState(void)
