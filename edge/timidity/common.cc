@@ -218,11 +218,25 @@ void *safe_malloc(size_t count)
   return(NULL);
 }
 
+char *safe_strdup(const char *orig)
+{
+  if (! orig) orig = "";
+
+  int len = strlen(orig);
+
+  char *result = (char *)safe_malloc(len+1);
+
+  strcpy(result, orig);;
+
+  return result;
+}
+
 /* This adds a directory to the path list */
 void add_to_pathlist(char *s)
 {
-  PathList *plp=safe_malloc(sizeof(PathList));
-  strcpy((plp->path=safe_malloc(strlen(s)+1)),s);
+  PathList *plp = (PathList*) safe_malloc(sizeof(PathList));
+  plp->path = safe_strcpy(s);
+///  strcpy((plp->path=safe_malloc(strlen(s)+1)),s);
   plp->next=pathlist;
   pathlist=plp;
 }
