@@ -30,9 +30,10 @@ extern int num_ochannels;
 #define MULTICHANNEL_OUT
 #define MAX_OUT_CHANNELS 6
 
-typedef struct {
+typedef struct PathList_s
+{
   char *path;
-  void *next;
+  struct PathList_s *next;
 } PathList;
 
 /* Noise modes for open_file */
@@ -46,3 +47,5 @@ extern void free_pathlist(void);
 extern void close_file(FILE *fp);
 extern void skip(FILE *fp, size_t len);
 extern void *safe_malloc(size_t count);
+extern char *safe_strdup(const char *orig);
+
