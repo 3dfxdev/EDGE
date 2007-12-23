@@ -27,17 +27,6 @@
 #include "tables.h"
 
 
-extern PlayMode sdl_play_mode;
-
-PlayMode *play_mode_list[] =
-{
-  sdl_play_mode,
-  0
-};
-
-PlayMode *play_mode = sdl_play_mode;
-
-
 /*****************************************************************/
 /* Some functions to convert signed 32-bit data to other formats */
 
