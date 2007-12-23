@@ -21,10 +21,12 @@
    
    */
 
-typedef struct {
+typedef struct MidiEventList_s
+{
   MidiEvent event;
-  void *next;
-} MidiEventList;
+  MidiEventList_s *next;
+}
+MidiEventList;
 
 extern int32 quietchannels;
 

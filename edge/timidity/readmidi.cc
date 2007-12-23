@@ -271,7 +271,8 @@ static int sysex(uint32 len, uint8 *syschan, uint8 *sysa, uint8 *sysb, FILE *rw)
    or unprintable characters will be converted to periods. */
 static int dumpstring(int32 len, char *label)
 {
-  signed char *s=safe_malloc(len+1);
+  signed char *s = (signed char *)safe_malloc(len+1);
+
   if (len != (int32)do_read(rw, s, 1, len))
     {
       free(s);
@@ -289,7 +290,7 @@ static int dumpstring(int32 len, char *label)
 }
 
 #define MIDIEVENT(at,t,ch,pa,pb) \
-  noob=safe_malloc(sizeof(MidiEventList)); \
+  noob=(MidiEventList*)safe_malloc(sizeof(MidiEventList)); \
   noob->event.time=at; noob->event.type=t; noob->event.channel=ch; \
   noob->event.a=pa; noob->event.b=pb; noob->next=0;\
   return noob;
@@ -678,7 +679,7 @@ static MidiEvent *groom_list(int32 divisions,int32 *eventsp,int32 *samplesp)
   compute_sample_increment(tempo, divisions);
 
   /* This may allocate a bit more than we need */
-  groomed_list=lp=safe_malloc(sizeof(MidiEvent) * (event_count+1));
+  groomed_list = lp = (MidiEvent*)safe_malloc(sizeof(MidiEvent) * (event_count+1));
   meep=evlist;
 
   our_event_count=0;
@@ -1052,7 +1053,7 @@ past_riff:
        "Format: %d  Tracks: %d  Divisions: %d", format, tracks, divisions);
 
   /* Put a do-nothing event first in the list for easier processing */
-  evlist=safe_malloc(sizeof(MidiEventList));
+  evlist = (MidiEventList*)safe_malloc(sizeof(MidiEventList));
   evlist->event.time=0;
   evlist->event.type=ME_NONE;
   evlist->next=0;

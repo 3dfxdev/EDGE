@@ -194,7 +194,7 @@ void antialiasing(Sample *sp, int32 output_rate )
 	fir_symetric[ORDER-1 - i] = fir_symetric[i] = fir_coef[ORDER2-1 - i];
     
     /* We apply the filter we have designed on a copy of the patch */
-    temp = safe_malloc(sp->data_length);
+    temp = (sample_t*) safe_malloc(sp->data_length);
     memcpy(temp,sp->data,sp->data_length);
     
     filter(sp->data,temp,sp->data_length/sizeof(sample_t),fir_symetric);

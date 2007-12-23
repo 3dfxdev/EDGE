@@ -235,7 +235,7 @@ char *safe_strdup(const char *orig)
 void add_to_pathlist(char *s)
 {
   PathList *plp = (PathList*) safe_malloc(sizeof(PathList));
-  plp->path = safe_strcpy(s);
+  plp->path = safe_strdup(s);
 ///  strcpy((plp->path=safe_malloc(strlen(s)+1)),s);
   plp->next=pathlist;
   pathlist=plp;

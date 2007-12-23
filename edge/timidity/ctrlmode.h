@@ -57,7 +57,8 @@
 #define VERB_DEBUG	3
 #define VERB_DEBUG_SILLY	4
 
-typedef struct {
+typedef struct ControlMode_s
+{
   char *id_name, id_character;
   int verbosity, trace_playing, opened;
 
@@ -81,7 +82,7 @@ typedef struct {
   void (*panning)(int channel, int val);
   void (*sustain)(int channel, int val);
   void (*pitch_bend)(int channel, int val);
-  
+ 
 } ControlMode;
 
 extern ControlMode *ctl_list[], *ctl; 
