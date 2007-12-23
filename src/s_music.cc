@@ -45,9 +45,6 @@ bool nocdmusic = false;
 
 // ================ END OF INTERNALS =================
 
-//
-// S_ChangeMusic
-//
 void S_ChangeMusic(int entrynum, bool looping)
 {
 	const pl_entry_c *play;
@@ -162,9 +159,7 @@ void S_ChangeMusic(int entrynum, bool looping)
 		I_Printf("%s\n", I_MusicReturnError());
 }
 
-//
-// S_ResumeMusic
-//
+
 void S_ResumeMusic(void)
 {
 	if (nomusic || musichandle == -1)
@@ -174,9 +169,7 @@ void S_ResumeMusic(void)
 	return;
 }
 
-//
-// S_PauseMusic
-//
+
 void S_PauseMusic(void)
 {
 	if (nomusic || musichandle == -1)
@@ -186,9 +179,7 @@ void S_PauseMusic(void)
 	return;
 }
 
-//
-// S_StopMusic
-//
+
 void S_StopMusic(void)
 {
 	if (nomusic || musichandle == -1)
@@ -198,29 +189,16 @@ void S_StopMusic(void)
 	return;
 }
 
-//
-// S_MusicTicker
-//
+
 void S_MusicTicker(void)
 {
 	I_MusicTicker(&musichandle);
 	return;
 }
 
-///---//
-///---// S_GetMusicVolume
-///---//
-///---int S_GetMusicVolume(void)
-///---{
-///---	return musicvolume;
-///---}
 
 void S_ChangeMusicVolume(void)
 {
-///---	SYS_ASSERT(volume >= 0 && volume < SND_SLIDER_NUM);
-///---
-///---	musicvolume = volume;
-
 	if (nomusic || musichandle == -1)
 		return;
 
