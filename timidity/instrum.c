@@ -447,10 +447,10 @@ static InstrumentLayer *load_instrument(char *name, int font_type, int percussio
       thing = tmpchar;
 #define READ_SHORT(thing) \
       if (1 != fread(&tmpshort, 2, 1, fp)) goto fail; \
-      thing = LE_SHORT(tmpshort);
+      thing = EPI_LE_U16(tmpshort);
 #define READ_LONG(thing) \
       if (1 != fread(&tmplong, 4, 1, fp)) goto fail; \
-      thing = LE_LONG(tmplong);
+      thing = EPI_LE_U32(tmplong);
 
 /*
  *  7	sample name
@@ -715,7 +715,7 @@ static InstrumentLayer *load_instrument(char *name, int font_type, int percussio
 	  int16 *tmp=(int16 *)sp->data,s;
 	  while (i--)
 	    { 
-	      s=LE_SHORT(*tmp);
+	      s=EPI_LE_U16(*tmp);
 	      *tmp++=s;
 	    }
 	}

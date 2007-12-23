@@ -27,21 +27,16 @@
 #include "tables.h"
 
 
-#ifdef SDL
 extern PlayMode sdl_play_mode;
-#define DEFAULT_PLAY_MODE &sdl_play_mode
-#endif
 
-PlayMode *play_mode_list[] = {
-#ifdef DEFAULT_PLAY_MODE
-  DEFAULT_PLAY_MODE,
-#endif
+PlayMode *play_mode_list[] =
+{
+  sdl_play_mode,
   0
 };
 
-#ifdef DEFAULT_PLAY_MODE
-  PlayMode *play_mode=DEFAULT_PLAY_MODE;
-#endif
+PlayMode *play_mode = sdl_play_mode;
+
 
 /*****************************************************************/
 /* Some functions to convert signed 32-bit data to other formats */
@@ -107,7 +102,7 @@ void s32tos16x(void *dp, int32 *lp, int32 c)
       l=(*lp++)>>(32-16-GUARD_BITS);
       if (l > 32767) l=32767;
       else if (l<-32768) l=-32768;
-      *sp++ = XCHG_SHORT((int16)(l));
+      *sp++ = EPI_Swap16((int16)(l));
     }
 }
 
@@ -120,7 +115,7 @@ void s32tou16x(void *dp, int32 *lp, int32 c)
       l=(*lp++)>>(32-16-GUARD_BITS);
       if (l > 32767) l=32767;
       else if (l<-32768) l=-32768;
-      *sp++ = XCHG_SHORT(0x8000 ^ (uint16)(l));
+      *sp++ = EPI_Swap16(0x8000 ^ (uint16)(l));
     }
 }
 

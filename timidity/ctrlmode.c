@@ -24,18 +24,13 @@
 #include "config.h"
 #include "ctrlmode.h"
 
-#ifdef SDL
-  extern ControlMode sdl_control_mode;
-# ifndef DEFAULT_CONTROL_MODE
-#  define DEFAULT_CONTROL_MODE &sdl_control_mode
-# endif
-#endif
+extern ControlMode sdl_control_mode;
 
-ControlMode *ctl_list[]={
-#ifdef SDL
+ControlMode *ctl_list[] = 
+{
   &sdl_control_mode,
-#endif
   0
 };
 
-ControlMode *ctl=DEFAULT_CONTROL_MODE;
+ControlMode *ctl = sdl_control_mode;
+

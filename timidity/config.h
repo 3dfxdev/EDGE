@@ -17,10 +17,10 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-/* This is for use with the SDL library */
-#define SDL
-#include "SDL_config.h"
-#include "SDL_endian.h"
+/* This is for use with the EDGE Platform Interface */
+
+#include "epi/epi.h"
+#include "epi/endianness.h"
 
 /* When a patch file can't be opened, one of these extensions is
    appended to the filename and the open is tried again.
@@ -147,23 +147,23 @@ typedef char int8;
 /* Instrument files are little-endian, MIDI files big-endian, so we
    need to do some conversions. */
 
-#define XCHG_SHORT(x) ((((x)&0xFF)<<8) | (((x)>>8)&0xFF))
-# define XCHG_LONG(x) ((((x)&0xFF)<<24) | \
-		      (((x)&0xFF00)<<8) | \
-		      (((x)&0xFF0000)>>8) | \
-		      (((x)>>24)&0xFF))
+///---#define XCHG_SHORT(x) ((((x)&0xFF)<<8) | (((x)>>8)&0xFF))
+///---# define XCHG_LONG(x) ((((x)&0xFF)<<24) | \
+///---		      (((x)&0xFF00)<<8) | \
+///---		      (((x)&0xFF0000)>>8) | \
+///---		      (((x)>>24)&0xFF))
 
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-#define LE_SHORT(x) x
-#define LE_LONG(x) x
-#define BE_SHORT(x) XCHG_SHORT(x)
-#define BE_LONG(x) XCHG_LONG(x)
-#else
-#define BE_SHORT(x) x
-#define BE_LONG(x) x
-#define LE_SHORT(x) XCHG_SHORT(x)
-#define LE_LONG(x) XCHG_LONG(x)
-#endif
+///---#if EPI_BYTEORDER == EPI_LIL_ENDIAN
+///---#define LE_SHORT(x) x
+///---#define LE_LONG(x) x
+///---#define BE_SHORT(x) XCHG_SHORT(x)
+///---#define BE_LONG(x) XCHG_LONG(x)
+///---#else
+///---#define BE_SHORT(x) x
+///---#define BE_LONG(x) x
+///---#define LE_SHORT(x) XCHG_SHORT(x)
+///---#define LE_LONG(x) XCHG_LONG(x)
+///---#endif
 
 #define MAX_AMPLIFICATION 800
 
