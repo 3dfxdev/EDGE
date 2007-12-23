@@ -32,10 +32,13 @@
 #include "n_protocol.h"
 
 #include "dm_state.h"
+#include "e_demo.h"
 #include "e_input.h"
 #include "e_main.h"
+#include "g_game.h"
 #include "e_player.h"
 #include "m_argv.h"
+#include "m_random.h"
 
 // #define DEBUG_TICS 1
 
@@ -48,6 +51,7 @@ bool var_hogcpu = true;
 extern gameflags_t default_gameflags;
 
 
+int gametic;
 int maketic;
 
 static int last_update_tic;
@@ -1056,6 +1060,70 @@ void N_QuitNetGame(void)
 {
 	// !!!! FIXME: N_QuitNetGame
 }
+
+#define TURBOTHRESHOLD  0x32
+
+void N_TiccmdTicker(void)
+{
+	// gametic <= maketic is a system-wide invariant.  However,
+	// new levels are loaded during G_Ticker(), resetting them
+	// both to zero, hence if we increment gametic here, we
+	// break the invariant.  The following is a workaround.
+	// TODO: this smells like a hack -- fix it properly!
+	if (gametic >= maketic)
+	{ 
+		if (! (gametic == 0 && maketic == 0) && !netgame)
+			I_Printf("WARNING: G_TiccmdTicker: gametic >= maketic (%d >= %d)\n", gametic, maketic);
+		return;
+	}
+
+	if (demoplayback)
+		E_DemoReadTick();
+
+	int buf = gametic % BACKUPTICS;
+
+	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
+	{
+		player_t *p = players[pnum];
+		if (! p) continue;
+
+		if (! demoplayback)
+			memcpy(&p->cmd, p->in_cmds + buf, sizeof(ticcmd_t));
+
+		// check for turbo cheats
+		if (p->cmd.forwardmove > TURBOTHRESHOLD
+			&& !(gametic & 31) && (((gametic >> 5) + p->pnum) & 0x1f) == 0)
+		{
+			// FIXME: something better for turbo cheat
+			I_Printf(language["IsTurbo"], p->playername);
+		}
+
+		if (netgame && !netdemo)
+		{
+			if (gametic > BACKUPTICS && p->consistency[buf] != p->cmd.consistency)
+			{
+// !!!! DEBUG //	I_Warning("Consistency failure on player %d (%i should be %i)",
+//					p->pnum + 1, p->cmd.consistency, p->consistency[buf]);
+			}
+			if (p->mo)
+				p->consistency[buf] = (int)p->mo->x;
+			else
+				p->consistency[buf] = P_ReadRandomState() & 0xff;
+		}
+	}
+
+	if (demorecording)
+	{
+		E_DemoWriteTick();
+
+		// press q to end demo recording
+		if (E_InputCheckKey((int)('q')))
+			G_FinishDemo();
+	}
+
+	gametic++;
+}
+
 
 
 //--- editor settings ---

@@ -94,7 +94,6 @@ int starttime;
 int exittime = INT_MAX;
 bool exit_skipall = false;  // -AJA- temporary (maybe become "exit_mode")
 
-int gametic;
 
 // GAMEPLAY MODES:
 //
@@ -125,8 +124,6 @@ static char defer_save_desc[32];
 
 // deferred stuff...
 static newgame_params_c *defer_params = NULL;
-
-#define TURBOTHRESHOLD  0x32
 
 
 //
@@ -355,67 +352,6 @@ bool G_Responder(event_t * ev)
 }
 
 
-static void G_TiccmdTicker(void)
-{
-	// gametic <= maketic is a system-wide invariant.  However,
-	// new levels are loaded during G_Ticker(), resetting them
-	// both to zero, hence if we increment gametic here, we
-	// break the invariant.  The following is a workaround.
-	// TODO: this smells like a hack -- fix it properly!
-	if (gametic >= maketic)
-	{ 
-		if (! (gametic == 0 && maketic == 0) && !netgame)
-			I_Printf("WARNING: G_TiccmdTicker: gametic >= maketic (%d >= %d)\n", gametic, maketic);
-		return;
-	}
-
-	if (demoplayback)
-		E_DemoReadTick();
-
-	int buf = gametic % BACKUPTICS;
-
-	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
-	{
-		player_t *p = players[pnum];
-		if (! p) continue;
-
-		if (! demoplayback)
-			memcpy(&p->cmd, p->in_cmds + buf, sizeof(ticcmd_t));
-
-		// check for turbo cheats
-		if (p->cmd.forwardmove > TURBOTHRESHOLD
-			&& !(gametic & 31) && (((gametic >> 5) + p->pnum) & 0x1f) == 0)
-		{
-			CON_Printf(language["IsTurbo"], p->playername);
-		}
-
-		if (netgame && !netdemo)
-		{
-			if (gametic > BACKUPTICS && p->consistency[buf] != p->cmd.consistency)
-			{
-// !!!! DEBUG //	I_Warning("Consistency failure on player %d (%i should be %i)",
-//					p->pnum + 1, p->cmd.consistency, p->consistency[buf]);
-			}
-			if (p->mo)
-				p->consistency[buf] = (int)p->mo->x;
-			else
-				p->consistency[buf] = P_ReadRandomState() & 0xff;
-		}
-	}
-
-	if (demorecording)
-	{
-		E_DemoWriteTick();
-
-		// press q to end demo recording
-		if (E_InputCheckKey((int)('q')))
-			G_FinishDemo();
-	}
-
-	/* Increment the GAMETIC counter */
-	gametic++;
-}
-
 static bool CheckPlayersReborn(void)
 {
 	// returns TRUE if should reload the level
@@ -437,10 +373,12 @@ static bool CheckPlayersReborn(void)
 }
 
 
-void G_Ticker(bool fresh_game_tic)
+void G_BigStuff(void)
 {
 	if (leveltime >= exittime && gameaction == ga_nothing)
-		gameaction = ga_completed;
+	{
+		G_DoCompleted();
+	}
 
 	// do things to change the game state
 	while (gameaction != ga_nothing)
@@ -471,11 +409,12 @@ void G_Ticker(bool fresh_game_tic)
 				G_DoPlayDemo();
 				break;
 
-			case ga_completed:
-				G_DoCompleted();
-				break;
+///---		case ga_intermission:
+///---			G_DoCompleted();
+///---			break;
 
-			case ga_briefing:
+			case ga_finale:
+				SYS_ASSERT(nextmap);
 				currmap = nextmap;
 				F_StartFinale(&currmap->f_pre, ga_loadlevel);
 				break;
@@ -485,14 +424,14 @@ void G_Ticker(bool fresh_game_tic)
 				break;
 
 			default:
-				I_Error("G_Ticker: Unknown gameaction %d", gameaction);
+				I_Error("G_BigStuff: Unknown gameaction %d", gameaction);
 				break;
 		}
 	}
+}
 
-	if (! fresh_game_tic)
-		return;
-
+void G_Ticker(void)
+{
 	// ANIMATE FLATS AND TEXTURES GLOBALLY
 	W_UpdateImageAnims();
 
@@ -506,7 +445,7 @@ void G_Ticker(bool fresh_game_tic)
 		case GS_LEVEL:
 			// get commands, check consistency,
 			// and build new consistency check.
-			G_TiccmdTicker();
+			N_TiccmdTicker();
 
 			P_Ticker();
 			ST_Ticker();
@@ -523,12 +462,12 @@ void G_Ticker(bool fresh_game_tic)
 			break;
 
 		case GS_INTERMISSION:
-			G_TiccmdTicker();
+			N_TiccmdTicker();
 			WI_Ticker();
 			break;
 
 		case GS_FINALE:
-			G_TiccmdTicker();
+			N_TiccmdTicker();
 			F_Ticker();
 			break;
 
@@ -673,7 +612,7 @@ static void G_DoCompleted(void)
 		}
 		else
 		{
-			F_StartFinale(&currmap->f_end, nextmap ? ga_briefing : ga_nothing);
+			F_StartFinale(&currmap->f_end, nextmap ? ga_finale : ga_nothing);
 		}
 
 		return;

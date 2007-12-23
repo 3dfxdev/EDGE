@@ -587,8 +587,6 @@ if (ev->type == ev_keydown || ev->type == ev_keyup)
 }
 
 //
-// E_ProcessEvents
-//
 // Send all the events of the given timestamp down the responder chain
 //
 void E_ProcessEvents(void)
@@ -598,6 +596,7 @@ void E_ProcessEvents(void)
 	for (; eventtail != eventhead; eventtail = (eventtail + 1) % MAXEVENTS)
 	{
 		ev = &events[eventtail];
+
 		if (chat_on && HU_Responder(ev))
 			continue;  // let chat eat the event first of all
 
@@ -1712,8 +1711,6 @@ void E_Main(int argc, const char **argv)
 }
 
 //
-// Idle
-//
 // Called when this application has lost focus (i.e. an ALT+TAB event)
 //
 void E_Idle(void)
@@ -1721,8 +1718,6 @@ void E_Idle(void)
 	E_ReleaseAllKeys();
 }
 
-//
-// Tick
 //
 // This Function is called for a single loop in the system.
 //
@@ -1736,8 +1731,14 @@ void E_Tick(void)
 	//Z_CheckHeap();
 #endif
 
+	G_BigStuff();
+
+	// Update display, next frame, with current state.
+	E_Display();
+
 	bool fresh_game_tic;
 
+	// this also runs the responder chain via E_ProcessEvents
 	int counts = N_TryRunTics(&fresh_game_tic);
 
 	SYS_ASSERT(counts > 0);
@@ -1750,16 +1751,14 @@ void E_Tick(void)
 		CON_Ticker();
 		M_Ticker();
 
-		G_Ticker(fresh_game_tic);
+		if (fresh_game_tic)
+			G_Ticker();
 
 		S_SoundTicker(); 
 		S_MusicTicker(); // -ACB- 1999/11/13 Improved music update routines
 
 		N_NetUpdate();  // check for new console commands
 	}
-
-	// Update display, next frame, with current state.
-	E_Display();
 }
 
 //--- editor settings ---
