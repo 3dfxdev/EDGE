@@ -42,99 +42,9 @@ bool use_warp_mouse = true;
 bool use_warp_mouse = false;
 #endif
 
-void HandleFocusGain();
-void HandleFocusLost();
-void HandleKeyEvent(SDL_Event* ev);
-void HandleMouseButtonEvent(SDL_Event* ev);
-void HandleMouseMotionEvent(SDL_Event* ev);
 int TranslateSDLKey(int key);
 
-//
-// ActiveEventProcess
-//
-// Event handling while the application is active
-//
-void ActiveEventProcess(SDL_Event *sdl_ev)
-{
-	switch(sdl_ev->type)
-	{
-		case SDL_ACTIVEEVENT:
-		{
-			if ((sdl_ev->active.state & SDL_APPINPUTFOCUS) &&
-				(sdl_ev->active.gain == 0))
-			{
-				HandleFocusLost();
-			}
-			
-			break;
-		}
-		
-		case SDL_KEYDOWN:
-		case SDL_KEYUP:
-			HandleKeyEvent(sdl_ev);
-			break;
-				
-		case SDL_MOUSEBUTTONDOWN:
-		case SDL_MOUSEBUTTONUP:
-			HandleMouseButtonEvent(sdl_ev);
-			break;
-			
-		case SDL_MOUSEMOTION:
-			if (eat_mouse_motion) 
-			{
-				eat_mouse_motion = false; // One motion needs to be discarded
-				break;
-			}
 
-			HandleMouseMotionEvent(sdl_ev);
-			break;
-		
-		case SDL_QUIT:
-			// Note we deliberate clear all other flags here. Its our method of 
-			// ensuring nothing more is done with events.
-			app_state = APP_STATE_PENDING_QUIT;
-			break;
-				
-		default:
-			break; // Don't care
-	}
-}
-
-//
-// InactiveEventProcess
-//
-// Event handling while the application is not active
-//
-void InactiveEventProcess(SDL_Event *sdl_ev)
-{
-	switch(sdl_ev->type)
-	{
-		case SDL_ACTIVEEVENT:
-			if (app_state & APP_STATE_PENDING_QUIT)
-				break; // Don't care: we're going to exit
-			
-			if (!sdl_ev->active.gain)
-				break;
-				
-			if (sdl_ev->active.state & SDL_APPACTIVE ||
-                sdl_ev->active.state & SDL_APPINPUTFOCUS)
-				HandleFocusGain();
-			break;
-
-		case SDL_QUIT:
-			// Note we deliberate clear all other flags here. Its our method of 
-			// ensuring nothing more is done with events.
-			app_state = APP_STATE_PENDING_QUIT;
-			break;
-					
-		default:
-			break; // Don't care
-	}
-}
-
-//
-// HandleFocusGain
-//
 void HandleFocusGain(void)
 {
 	// Hide cursor and grab input
@@ -147,9 +57,7 @@ void HandleFocusGain(void)
 	app_state |= APP_STATE_ACTIVE;
 }
 
-//
-// HandleFocusLost
-//
+
 void HandleFocusLost(void)
 {
 	I_GrabCursor(false);
@@ -160,9 +68,7 @@ void HandleFocusLost(void)
 	app_state &= ~APP_STATE_ACTIVE;							
 }
 
-//
-// HandleKeyEvent
-//
+
 void HandleKeyEvent(SDL_Event* ev)
 {
 	if (ev->type != SDL_KEYDOWN && ev->type != SDL_KEYUP) 
@@ -221,9 +127,7 @@ void HandleKeyEvent(SDL_Event* ev)
 	E_PostEvent(&event);
 }
 
-//
-// HandleMouseButtonEvent
-//
+
 void HandleMouseButtonEvent(SDL_Event * ev)
 {
 	event_t event;
@@ -260,9 +164,7 @@ void HandleMouseButtonEvent(SDL_Event * ev)
 	E_PostEvent(&event);
 }
 
-//
-// HandleMouseMotionEvent
-//
+
 void HandleMouseMotionEvent(SDL_Event * ev)
 {
 	int dx, dy;
@@ -310,6 +212,87 @@ void HandleMouseMotionEvent(SDL_Event * ev)
 		E_PostEvent(&event);
 	}
 }
+
+
+//
+// Event handling while the application is active
+//
+void ActiveEventProcess(SDL_Event *sdl_ev)
+{
+	switch(sdl_ev->type)
+	{
+		case SDL_ACTIVEEVENT:
+		{
+			if ((sdl_ev->active.state & SDL_APPINPUTFOCUS) &&
+				(sdl_ev->active.gain == 0))
+			{
+				HandleFocusLost();
+			}
+			
+			break;
+		}
+		
+		case SDL_KEYDOWN:
+		case SDL_KEYUP:
+			HandleKeyEvent(sdl_ev);
+			break;
+				
+		case SDL_MOUSEBUTTONDOWN:
+		case SDL_MOUSEBUTTONUP:
+			HandleMouseButtonEvent(sdl_ev);
+			break;
+			
+		case SDL_MOUSEMOTION:
+			if (eat_mouse_motion) 
+			{
+				eat_mouse_motion = false; // One motion needs to be discarded
+				break;
+			}
+
+			HandleMouseMotionEvent(sdl_ev);
+			break;
+		
+		case SDL_QUIT:
+			// Note we deliberate clear all other flags here. Its our method of 
+			// ensuring nothing more is done with events.
+			app_state = APP_STATE_PENDING_QUIT;
+			break;
+				
+		default:
+			break; // Don't care
+	}
+}
+
+//
+// Event handling while the application is not active
+//
+void InactiveEventProcess(SDL_Event *sdl_ev)
+{
+	switch(sdl_ev->type)
+	{
+		case SDL_ACTIVEEVENT:
+			if (app_state & APP_STATE_PENDING_QUIT)
+				break; // Don't care: we're going to exit
+			
+			if (!sdl_ev->active.gain)
+				break;
+				
+			if (sdl_ev->active.state & SDL_APPACTIVE ||
+                sdl_ev->active.state & SDL_APPINPUTFOCUS)
+				HandleFocusGain();
+			break;
+
+		case SDL_QUIT:
+			// Note we deliberate clear all other flags here. Its our method of 
+			// ensuring nothing more is done with events.
+			app_state = APP_STATE_PENDING_QUIT;
+			break;
+					
+		default:
+			break; // Don't care
+	}
+}
+
 
 //
 // Translates a key from SDL -> EDGE
@@ -396,6 +379,7 @@ void I_CentreMouse(void)
 {
 	SDL_WarpMouse(SCREENWIDTH/2, SCREENHEIGHT/2);
 }
+
 
 /****** Input Event Generation ******/
 
