@@ -1573,7 +1573,7 @@ void WI_Start(void)
 	// -AJA- 1999/10/22: background cameras.
 	background_camera_mo = NULL;
 
-	if (gd->bg_camera.c_str()[0])
+	if (gd->bg_camera.c_str() && gd->bg_camera.c_str()[0])
 	{
 		for (mobj_t *mo = mobjlisthead; mo != NULL; mo = mo->next)
 		{
