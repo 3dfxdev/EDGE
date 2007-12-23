@@ -25,8 +25,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <SDL_rwops.h>
-
 #include "config.h"
 #include "common.h"
 #include "instrum.h"
@@ -1701,11 +1699,11 @@ void Timidity_SetVolume(int volume)
   ctl->master_volume(amplification);
 }
 
-MidiSong *Timidity_LoadSong(char *midifile)
+MidiSong *Timidity_LoadSong(const char *midifile)
 {
   MidiSong *song;
   int32 events;
-  SDL_RWops *rw;
+  FILE *rw;
 
   /* Allocate memory for the song */
   song = (MidiSong *)safe_malloc(sizeof(*song));
@@ -1714,10 +1712,10 @@ MidiSong *Timidity_LoadSong(char *midifile)
   /* Open the file */
   strcpy(midi_name, midifile);
 
-  rw = SDL_RWFromFile(midifile, "rb");
-  if ( rw != NULL ) {
-    song->events=read_midi_file(rw, &events, &song->samples);
-    SDL_RWclose(rw);
+  rw = fopen(midifile, "rb");
+  if (rw != NULL) {
+    song->events = read_midi_file(rw, &events, &song->samples);
+    fclose(rw);
   }
 
   /* Make sure everything is okay */
@@ -1728,26 +1726,6 @@ MidiSong *Timidity_LoadSong(char *midifile)
   return(song);
 }
 
-MidiSong *Timidity_LoadSong_RW(SDL_RWops *rw)
-{
-  MidiSong *song;
-  int32 events;
-
-  /* Allocate memory for the song */
-  song = (MidiSong *)safe_malloc(sizeof(*song));
-  memset(song, 0, sizeof(*song));
-
-  strcpy(midi_name, "SDLrwops source");
-
-  song->events=read_midi_file(rw, &events, &song->samples);
-
-  /* Make sure everything is okay */
-  if (!song->events) {
-    free(song);
-    song = NULL;
-  }
-  return(song);
-}
 
 void Timidity_Start(MidiSong *song)
 {

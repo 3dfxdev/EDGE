@@ -61,16 +61,3 @@ extern void s32tou16x(void *dp, int32 *lp, int32 c);
 /* uLaw (8 bits) */
 extern void s32toulaw(void *dp, int32 *lp, int32 c);
 
-/* little-endian and big-endian specific */
-#if EPI_BYTEORDER == EPI_LIL_ENDIAN
-#define s32tou16l s32tou16
-#define s32tou16b s32tou16x
-#define s32tos16l s32tos16
-#define s32tos16b s32tos16x
-#else
-#define s32tou16l s32tou16x
-#define s32tou16b s32tou16
-#define s32tos16l s32tos16x
-#define s32tos16b s32tos16
-#endif
-
