@@ -136,9 +136,6 @@ static void RecursiveSound(sector_t * sec, int soundblocks, int player)
 	}
 }
 
-//
-// P_NoiseAlert
-//
 void P_NoiseAlert(player_t *p)
 {
 	validcount++;
@@ -146,8 +143,6 @@ void P_NoiseAlert(player_t *p)
 	RecursiveSound(p->mo->subsector->sector, 0, p->pnum);
 }
 
-//
-// P_Move
 //
 // Move in the current direction,
 // returns false if the move is blocked.
@@ -240,8 +235,6 @@ bool P_Move(mobj_t * actor, bool path)
 	return true;
 }
 
-//
-// TryWalk
 //
 // Attempts to move actor on
 // in its current (ob->moveangle) direction.
@@ -413,8 +406,6 @@ void P_NewChaseDir(mobj_t * object)
 }
 
 //
-// P_LookForPlayers
-//
 // Range is angle range on either side of eyes, 90 degrees for normal
 // view, 180 degrees for total sight in all dirs.
 //
@@ -484,10 +475,6 @@ bool P_LookForPlayers(mobj_t * actor, angle_t range)
 //   BOSS-BRAIN HANDLING
 //
 
-shoot_spot_info_t brain_spots = { -1, NULL };
-
-//
-// P_LookForShootSpots
 //
 // -AJA- Savegames: we assume that the spit-spot objects never
 //       disappear, or new ones appear.  After all, they have to be
@@ -495,7 +482,9 @@ shoot_spot_info_t brain_spots = { -1, NULL };
 //       need to save anything: the set of shoot-spots will be
 //       regenerated after the loadgame when the BrainShooter next
 //       tries to shoot a cube.
-// 
+
+shoot_spot_info_t brain_spots = { -1, NULL };
+
 void P_LookForShootSpots(const mobjtype_c *spot_type)
 {
 	int i;
@@ -529,9 +518,6 @@ void P_LookForShootSpots(const mobjtype_c *spot_type)
 	SYS_ASSERT(i == brain_spots.number);
 }
 
-//
-// P_FreeShootSpots
-//
 void P_FreeShootSpots(void)
 {
 	if (brain_spots.number < 0)
@@ -548,11 +534,6 @@ void P_FreeShootSpots(void)
 	brain_spots.targets = NULL;
 }
 
-//
-// SpawnDeathMissile
-//
-// -AJA- 1999/09/14: written.
-//
 static void SpawnDeathMissile(mobj_t *source, float x, float y, float z)
 {
 	const mobjtype_c *info;
@@ -576,11 +557,10 @@ static void SpawnDeathMissile(mobj_t *source, float x, float y, float z)
 		th->tics = 1;
 }
 
-//
-// P_ActBrainScream: The brain and his pain...
-//
 void P_ActBrainScream(mobj_t * bossbrain)
 {
+	// The brain and his pain...
+
 	float x, y, z;
 	float min_x, max_x;
 
