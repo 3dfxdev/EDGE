@@ -38,18 +38,9 @@
 #include "tables.h"
 
 
-static int dont_cspline=0;
-static int opt_dry = 1;
 static int opt_expression_curve = 2;
 static int opt_volume_curve = 2;
 static int opt_stereo_surround = 0;
-static int dont_filter_melodic=1;
-static int dont_filter_drums=1;
-static int dont_chorus=0;
-static int dont_reverb=0;
-static int current_interpolation=1;
-static int dont_keep_looping=0;
-static int voice_reserve=0;
 
 
 Channel channel[MAXCHAN];
