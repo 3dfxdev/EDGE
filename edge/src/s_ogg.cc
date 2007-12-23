@@ -177,6 +177,7 @@ void oggplayer_c::PostOpenInit()
 	status = STOPPED;
 }
 
+
 bool oggplayer_c::StreamIntoBuffer(epi::sound_data_c *buf)
 {
 	int ogg_endian = (EPI_BYTEORDER == EPI_LIL_ENDIAN) ? 0 : 1;
@@ -235,6 +236,7 @@ bool oggplayer_c::StreamIntoBuffer(epi::sound_data_c *buf)
     return (samples > 0);
 }
 
+
 void oggplayer_c::ConvertToMono(s16_t *dest, const s16_t *src, int len)
 {
 	const s16_t *s_end = src + len*2;
@@ -246,17 +248,15 @@ void oggplayer_c::ConvertToMono(s16_t *dest, const s16_t *src, int len)
 	}
 }
 
+
 void oggplayer_c::SetVolume(float gain) // FIXME: remove
 { }
 
 
-//
-// oggplayer_c::Open()
-//
-// DataLump version
-//
 void oggplayer_c::Open(const void *data, size_t size)
 {
+	// DataLump version
+	//
 	if (status != NOT_LOADED)
 		Close();
 
@@ -293,13 +293,10 @@ void oggplayer_c::Open(const void *data, size_t size)
 	PostOpenInit();
 }
 
-//
-// oggplayer_c::Open()
-//
-// File Version
-//
 void oggplayer_c::Open(const char *filename)
 {
+	// File Version
+
 	if (status != NOT_LOADED)
 		Close();
 
@@ -332,9 +329,7 @@ void oggplayer_c::Open(const char *filename)
 	PostOpenInit();
 }
 
-//
-// oggplayer_c::Close()
-//
+
 void oggplayer_c::Close()
 {
 	if (status == NOT_LOADED)
@@ -348,9 +343,7 @@ void oggplayer_c::Close()
 	status = NOT_LOADED;
 }
 
-//
-// oggplayer_c::Pause()
-//
+
 void oggplayer_c::Pause()
 {
 	if (status != PLAYING)
@@ -359,9 +352,7 @@ void oggplayer_c::Pause()
 	status = PAUSED;
 }
 
-//
-// oggplayer_c::Resume()
-//
+
 void oggplayer_c::Resume()
 {
 	if (status != PAUSED)
@@ -370,9 +361,7 @@ void oggplayer_c::Resume()
 	status = PLAYING;
 }
 
-//
-// oggplayer_c::Play()
-//
+
 void oggplayer_c::Play(bool loop, float gain)
 {
     if (status != NOT_LOADED && status != STOPPED)
