@@ -27,10 +27,21 @@
 
 #include "config.h"
 #include "common.h"
+#include "ctrlmode.h"
 #include "output.h"
 #include "ctrlmode.h"
 #include "instrum.h"
 #include "playmidi.h"
+
+extern ControlMode sdl_control_mode;
+
+ControlMode *ctl_list[] = 
+{
+  &sdl_control_mode,
+  0
+};
+
+ControlMode *ctl = &sdl_control_mode;
 
 /* export the playback mode */
 
