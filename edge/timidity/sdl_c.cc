@@ -32,6 +32,15 @@
 #include "instrum.h"
 #include "playmidi.h"
 
+/* export the playback mode */
+
+#define dpm sdl_play_mode
+
+PlayMode dpm = {
+  DEFAULT_RATE, PE_16BIT|PE_SIGNED,
+  "SDL audio"
+};
+
 static void ctl_refresh(void);
 static void ctl_total_time(int tt);
 static void ctl_master_volume(int mv);
