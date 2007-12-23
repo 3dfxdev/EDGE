@@ -46,8 +46,8 @@ typedef enum
 	ga_loadgame,
 	ga_savegame,
 	ga_playdemo,
-	ga_completed,
-	ga_briefing,
+///	ga_intermission,
+	ga_finale,
 	ga_endgame
 }
 gameaction_e;
@@ -110,7 +110,8 @@ void G_ExitToLevel(char *name, int time, bool skip_all);
 void G_ExitToHub(const char *map_name, int tag);
 void G_ExitToHub(int map_number, int tag);
 
-void G_Ticker(bool fresh_game_tic);
+void G_BigStuff(void);
+void G_Ticker(void);
 bool G_Responder(event_t * ev);
 
 bool G_CheckWhenAppear(when_appear_e appear);
