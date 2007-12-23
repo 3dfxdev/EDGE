@@ -564,7 +564,7 @@ static int read_track(int append)
 	   "%s: Can't read track header.", current_filename);
       return -1;
     }
-  len=BE_LONG(len);
+  len=EPI_BE_U32(len);
 
   if (memcmp(tmp, "MTrk", 4))
     {
@@ -991,7 +991,7 @@ past_riff:
 	     "%s: Not a MIDI file!", current_filename);
       return 0;
     }
-  len=BE_LONG(len);
+  len=EPI_BE_U32(len);
 
   if (!memcmp(tmp, "RIFF", 4))
     {
@@ -1008,12 +1008,12 @@ past_riff:
   SDL_RWread(rw,&format, 2, 1);
   SDL_RWread(rw,&tracks, 2, 1);
   SDL_RWread(rw,&divisions_tmp, 2, 1);
-  format=BE_SHORT(format);
-  tracks=BE_SHORT(tracks);
+  format=EPI_BE_U16(format);
+  tracks=EPI_BE_U16(tracks);
   track_info = tracks;
   curr_track = 0;
   curr_title_track = -1;
-  divisions_tmp=BE_SHORT(divisions_tmp);
+  divisions_tmp=EPI_BE_U16(divisions_tmp);
 
   if (divisions_tmp<0)
     {
