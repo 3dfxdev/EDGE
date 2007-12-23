@@ -8,13 +8,13 @@ Internal (in SVN)
 EPI      : Edge Platform Interface (utility code)
 Deh_Edge : DeHackEd/BEX patch to DDF converter
 LZO      : Compression library
+Timidity : MIDI playback library
 
 
 Affiliated (in snapshots, not in SVN)
 -------------------------------------
 
 glBSP    : GL-Nodes builder
-Humidity : MIDI playback library  [NOTE: not used in 1.29]
 
 
 External
