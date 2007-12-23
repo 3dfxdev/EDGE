@@ -14,10 +14,10 @@ env.Append(CCFLAGS = ['-ffast-math'])
 env.Append(CPPPATH = ['#.'])
 
 timid_sources = [
-    'common.c', 'ctrlmode.c', 'filter.c', 'instrum.c',
-    'mix.c', 'output.c', 'playmidi.c', 'readmidi.c',
-    'resample.c', 'sdl_a.c', 'sdl_c.c',
-    'tables.c', 'timidity.c']
+    'common.cc', 'ctrlmode.cc', 'filter.cc', 'instrum.cc',
+    'mix.cc', 'output.cc', 'playmidi.cc', 'readmidi.cc',
+    'resample.cc', 'sdl_a.cc', 'sdl_c.cc',
+    'tables.cc', 'timidity.cc']
 
 env.StaticLibrary('timidity', timid_sources)
 
