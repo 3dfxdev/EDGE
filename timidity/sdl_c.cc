@@ -27,7 +27,6 @@
 
 #include "config.h"
 #include "common.h"
-#include "ctrlmode.h"
 #include "output.h"
 #include "ctrlmode.h"
 #include "instrum.h"
@@ -49,8 +48,19 @@ ControlMode *ctl = &sdl_control_mode;
 
 PlayMode dpm = {
   DEFAULT_RATE, PE_16BIT|PE_SIGNED,
-  "SDL audio"
+  "EPI Audio"
 };
+
+extern PlayMode sdl_play_mode;
+
+PlayMode *play_mode_list[] =
+{
+  &sdl_play_mode,
+  0
+};
+
+PlayMode *play_mode = &sdl_play_mode;
+
 
 static void ctl_refresh(void);
 static void ctl_total_time(int tt);
