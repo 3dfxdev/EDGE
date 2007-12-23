@@ -22,7 +22,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "SDL.h"
 #include "config.h"
 #include "common.h"
 #include "instrum.h"
@@ -292,7 +291,7 @@ static int read_config_file(char *name)
   return 0;
 }
 
-int Timidity_Init(int rate, int format, int channels, int samples)
+int Timidity_Init(int rate, int channels, int samples)
 {
   if (read_config_file(CONFIG_FILE)<0) {
     if (read_config_file(CONFIG_FILE_ETC)<0) {
@@ -309,15 +308,16 @@ int Timidity_Init(int rate, int format, int channels, int samples)
   /* Set play mode parameters */
   play_mode->rate = rate;
   play_mode->encoding = 0;
-  if ( (format&0xFF) == 16 ) {
-    play_mode->encoding |= PE_16BIT;
-  }
-  if ( (format&0x8000) ) {
-    play_mode->encoding |= PE_SIGNED;
-  }
+  play_mode->encoding |= PE_16BIT;
+  play_mode->encoding |= PE_SIGNED;
+
   if ( channels == 1 ) {
     play_mode->encoding |= PE_MONO;
   } 
+
+  s32tobuf = s32tos16;
+
+#if 0
   switch (format) {
     case AUDIO_S8:
       s32tobuf = s32tos8;
@@ -326,7 +326,6 @@ int Timidity_Init(int rate, int format, int channels, int samples)
       s32tobuf = s32tou8;
       break;
     case AUDIO_S16LSB:
-      s32tobuf = s32tos16l;
       break;
     case AUDIO_S16MSB:
       s32tobuf = s32tos16b;
@@ -341,6 +340,8 @@ int Timidity_Init(int rate, int format, int channels, int samples)
       ctl->cmsg(CMSG_ERROR, VERB_NORMAL, "Unsupported audio format");
       return(-1);
   }
+#endif
+  
   AUDIO_BUFFER_SIZE = samples;
 
   /* Allocate memory for mixing (WARNING:  Memory leak!) */
