@@ -1535,7 +1535,7 @@ bool M_Responder(event_t * ev)
 
 			input_string.clear();
 			
-			menuactive = false;
+			M_ClearMenus();
 			S_StartFX(sfx_swtchx);
 			return true;
 		}
@@ -1548,15 +1548,13 @@ bool M_Responder(event_t * ev)
 			if (message_input_routine)
 				(* message_input_routine)(NULL);
 
-			menuactive = false;
-			save_screenshot_valid = false;
-
 			input_string.clear();
 			
+			M_ClearMenus();
 			S_StartFX(sfx_swtchx);
 			return true;
 		}
-		
+
 		if (ch == KEYD_BACKSPACE && !input_string.empty())
 		{
 			std::string s = input_string.c_str();
@@ -1867,7 +1865,7 @@ void M_StartControlPanel(void)
 	if (menuactive)
 		return;
 
-	menuactive = 1;
+	menuactive = true;
 	CON_SetVisible(vs_notvisible);
 
 	currentMenu = &MainDef;  // JDC
@@ -2060,7 +2058,13 @@ void M_Drawer(void)
 
 void M_ClearMenus(void)
 {
-	menuactive = 0;
+	// -AJA- 2007/12/24: save user changes ASAP (in case of crash)
+	if (menuactive)
+	{
+		M_SaveDefaults();
+	}
+
+	menuactive = false;
 	save_screenshot_valid = false;
 }
 
@@ -2096,7 +2100,7 @@ void M_Init(void)
 	E_ProgressMessage(language["MiscInfo"]);
 
 	currentMenu = &MainDef;
-	menuactive = 0;
+	menuactive = false;
 	itemOn = currentMenu->lastOn;
 	whichSkull = 0;
 	skullAnimCounter = 10;
