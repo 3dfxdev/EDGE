@@ -707,7 +707,7 @@ void E_PageTicker(void)
 	}
 }
 
-#define NOPAGE_COLOUR  0x202020
+#define NOPAGE_COLOUR  RGB_MAKE(0,0,0)
 
 void E_PageDrawer(void)
 {
@@ -1451,8 +1451,6 @@ static void E_Startup(void)
 	}
 
 	E_GlobalProgress(100, 0, 100);
-
-	CON_SetVisible(vs_notvisible);
 }
 
 
