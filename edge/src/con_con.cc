@@ -550,8 +550,6 @@ static void WriteText(int x, int y, const char *s, int len, int text_type)
 }
 
 //
-// CON_Drawer
-//
 // Draws the console in graphics mode.
 //
 void CON_Drawer(void)
@@ -812,6 +810,7 @@ bool CON_HandleKey(int key)
 			TabbedLast = false;
 		}
 		break;
+
 	case KEYD_ENTER:
 	
 		// Execute command line (ENTER)
@@ -953,7 +952,7 @@ void CON_Start(void)
 	CON_CreateCVarInt("conwipeduration", cf_normal, &conwipeduration);
 	CON_CreateCVarBool("conwipereverse", cf_normal, &conwipereverse);
 
-	CON_SetVisible(vs_maximal);
+	con_info.visible = vs_notvisible;
 }
 
 //--- editor settings ---
