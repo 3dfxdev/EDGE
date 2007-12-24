@@ -58,6 +58,7 @@
 //
 player_t *players[MAXPLAYERS];
 int numplayers;
+int numbots;
 
 int consoleplayer = -1; // player taking events
 int displayplayer = -1; // view being displayed 

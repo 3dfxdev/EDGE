@@ -314,6 +314,7 @@ void SV_PlayerCreateElems(int num_elems)
 		I_Error("LOADGAME: too many players (%d)\n", num_elems);
 
 	numplayers = num_elems;
+	numbots = 0;
 
 	for (int pnum = 0; pnum < num_elems; pnum++)
 	{
@@ -394,7 +395,10 @@ void SV_PlayerFinaliseElems(void)
 			displayplayer = p->pnum;
 
 		if (p->playerflags & PFL_Bot)
+		{
+			numbots++;
 			P_BotCreate(p, true);
+		}
 		else
 			p->builder = P_ConsolePlayerBuilder;
 
