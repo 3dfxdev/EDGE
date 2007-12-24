@@ -1563,22 +1563,25 @@ static void E_InitialState(void)
 	params.skill = warp_skill;	
 	params.deathmatch = warp_deathmatch;	
 
-	if (warp_map.length() == 0)
-		warp_map = std::string("MAP01");  // FIXME: MUNDO HACK, find first playable map
-
-	params.map = G_LookupMap(warp_map.c_str());
+	if (warp_map.length() > 0)
+		params.map = G_LookupMap(warp_map.c_str());
+	else
+		params.map = G_LookupMap("1");
 
 	if (! params.map)
 		I_Error("-warp: no such level '%s'\n", warp_map.c_str());
 
+	SYS_ASSERT(G_MapExists(params.map));
 	SYS_ASSERT(params.map->episode);
 
 	params.random_seed = I_PureRandom();
 
 	params.SinglePlayer(bots);
 
-	if (! G_DeferredNewGame(params))
-		I_Error("-warp: cannot init level '%s'\n", params.map->ddf.name.c_str());
+	G_DeferredNewGame(params);
+
+	if (M_GetParm("-record"))
+		gameaction = ga_recorddemo;
 }
 
 

@@ -46,7 +46,7 @@ typedef enum
 	ga_loadgame,
 	ga_savegame,
 	ga_playdemo,
-//	ga_recorddemo,
+	ga_recorddemo,
 	ga_intermission,
 	ga_finale,
 	ga_endgame
@@ -107,7 +107,7 @@ void G_InitNew(newgame_params_c& params);
 //
 // -ACB- 1998/08/10 New DDF Structure, Use map reference name.
 //
-bool G_DeferredNewGame(newgame_params_c& params);
+void G_DeferredNewGame(newgame_params_c& params);
 
 // Can be called by the startup code or M_Responder,
 // calls P_SetupLevel or W_EnterWorld.
@@ -115,6 +115,8 @@ void G_DeferredLoadGame(int slot);
 void G_DeferredSaveGame(int slot, const char *description);
 void G_DeferredScreenShot(void);
 void G_DeferredEndGame(void);
+
+bool G_MapExists(const mapdef_c *map);
 
 // -KM- 1998/11/25 Added Time param
 void G_ExitLevel(int time);

@@ -942,20 +942,20 @@ void newgame_params_c::CopyFlags(const gameflags_t *F)
 // progression of the game. All thats needed is the
 // skill and the name (The name in the DDF File itself).
 //
-// Returns true if OK, or false if no such map exists.
-//
-bool G_DeferredNewGame(newgame_params_c& params)
+void G_DeferredNewGame(newgame_params_c& params)
 {
 	SYS_ASSERT(params.map);
-
-	if (W_CheckNumForName(params.map->lump) == -1)
-		return false;
 
 	defer_params = new newgame_params_c(params);
 
 	gameaction = ga_newgame;
-	return true;
 }
+
+bool G_CheckMapExists(const mapdef_c *map)
+{
+	return (W_CheckNumForName(map->lump) >= 0);
+}
+
 
 //
 // REQUIRED STATE:
@@ -1118,12 +1118,11 @@ mapdef_c *G_LookupMap(const char *refname)
 {
 	mapdef_c *m = mapdefs.Lookup(refname);
 
-	if (m && W_CheckNumForName(m->lump) != -1)
+	if (m && G_MapExists(m))
 		return m;
 
 	// -AJA- handle numbers (like original DOOM)
-	if (strlen(refname) <= 2 &&
-		isdigit(refname[0]) &&
+	if (strlen(refname) <= 2 && isdigit(refname[0]) &&
 		(!refname[1] || isdigit(refname[1])))
 	{
 		int num = atoi(refname);
@@ -1133,7 +1132,7 @@ mapdef_c *G_LookupMap(const char *refname)
 		sprintf(new_ref, "MAP%02d", num);
 
 		m = mapdefs.Lookup(new_ref);
-		if (m && W_CheckNumForName(m->lump) != -1)
+		if (m && G_MapExists(m))
 			return m;
 
 		// otherwise try E#M#
@@ -1141,7 +1140,7 @@ mapdef_c *G_LookupMap(const char *refname)
 		sprintf(new_ref, "E%dM%d", num/10, num%10);
 
 		m = mapdefs.Lookup(new_ref);
-		if (m && W_CheckNumForName(m->lump) != -1)
+		if (m && G_MapExists(m))
 			return m;
 	}
 

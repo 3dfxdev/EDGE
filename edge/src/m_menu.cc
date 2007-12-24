@@ -1117,17 +1117,22 @@ static void ReallyDoStartLevel(skill_t skill, gamedef_c *g)
 
 	params.random_seed = I_PureRandom();
 
-	params.SinglePlayer(startbots);
+	params.SinglePlayer(0);
 
 	params.map = G_LookupMap(g->firstmap.c_str());
 
-	if (! params.map || ! G_DeferredNewGame(params))
+	if (! params.map)
 	{
 		// 23-6-98 KM Fixed this.
 		M_SetupNextMenu(&EpiDef);
 		M_StartMessage(language["EpisodeNonExist"], NULL, false);
 		return;
 	}
+
+	SYS_ASSERT(G_MapExists(params.map));
+	SYS_ASSERT(params.map->episode);
+
+	G_DeferredNewGame(params);
 
 	M_ClearMenus();
 }
