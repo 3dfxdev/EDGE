@@ -375,11 +375,6 @@ static bool CheckPlayersReborn(void)
 
 void G_BigStuff(void)
 {
-	if (leveltime >= exittime && gameaction == ga_nothing)
-	{
-		G_DoCompleted();
-	}
-
 	// do things to change the game state
 	while (gameaction != ga_nothing)
 	{
@@ -409,9 +404,9 @@ void G_BigStuff(void)
 				G_DoPlayDemo();
 				break;
 
-///---		case ga_intermission:
-///---			G_DoCompleted();
-///---			break;
+			case ga_intermission:
+				G_DoCompleted();
+				break;
 
 			case ga_finale:
 				SYS_ASSERT(nextmap);
