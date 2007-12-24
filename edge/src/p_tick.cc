@@ -33,6 +33,7 @@
 #include "p_tick.h"
 
 #include "dm_state.h"
+#include "g_game.h"
 #include "n_network.h"
 #include "p_local.h"
 #include "p_spec.h"
@@ -71,6 +72,12 @@ void P_Ticker(void)
 
 	// for par times
 	leveltime++;
+
+	if (leveltime >= exittime && gameaction == ga_nothing)
+	{
+		gameaction = ga_intermission;
+	}
+
 }
 
 //--- editor settings ---

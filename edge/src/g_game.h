@@ -46,7 +46,7 @@ typedef enum
 	ga_loadgame,
 	ga_savegame,
 	ga_playdemo,
-///	ga_intermission,
+	ga_intermission,
 	ga_finale,
 	ga_endgame
 }
