@@ -43,7 +43,6 @@ int mus_volume;
 bool nomusic = false;
 bool nocdmusic = false;
 
-// ================ END OF INTERNALS =================
 
 void S_ChangeMusic(int entrynum, bool looping)
 {

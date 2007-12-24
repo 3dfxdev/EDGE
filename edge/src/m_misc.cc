@@ -227,9 +227,6 @@ static default_t defaults[] =
 };
 
 
-// ===================== END OF INTERNALS =====================
-
-
 void M_SaveDefaults(void)
 {
 	edge_version = EDGEVER;

@@ -175,8 +175,6 @@ int crosshair = 0;
 static std::string dragged_demo;
 
 
-// ===================Internal====================
-
 class startup_progress_c
 {
 private:
@@ -529,8 +527,6 @@ static void DoSystemStartup(void)
 
 	I_Debugf("- System startup done.\n");
 }
-
-// ===============End of Internals================
 
 
 static void M_DisplayPause(void)
