@@ -132,7 +132,6 @@ static newgame_params_c *defer_params = NULL;
 //   (b) players[], numplayers (etc)
 //   (c) gameskill + deathmatch
 //   (d) level_flags
-//   (e) demorecording, demo_notbegun
 //
 //   ??  exittime
 //
@@ -246,10 +245,10 @@ void G_DoLoadLevel(void)
 
 	P_SetupLevel();
 
-	if (demorecording && demo_notbegun)
-	{
-		G_BeginRecording();
-	}
+///---	if (demorecording && demo_notbegun)
+///---	{
+///---		G_BeginRecording();
+///---	}
 
 	RAD_SpawnTriggers(currmap->ddf.name.c_str());
 
@@ -402,6 +401,10 @@ void G_BigStuff(void)
 
 			case ga_playdemo:
 				G_DoPlayDemo();
+				break;
+
+			case ga_recorddemo:
+				G_DoRecordDemo();
 				break;
 
 			case ga_intermission:
@@ -977,7 +980,6 @@ static void G_DoNewGame(void)
 
 	// -AJA- 2003/10/09: support for pre-level briefing screen on first map.
 	//       FIXME: kludgy. All this game logic desperately needs rethinking.
-
 	F_StartFinale(&currmap->f_pre, ga_loadlevel);
 }
 

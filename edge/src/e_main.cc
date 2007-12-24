@@ -1543,14 +1543,10 @@ static void E_InitialState(void)
 	}
 
 
-	// start the appropriate game based on parms
-	ps = M_GetParm("-record");
-	if (ps)
-	{
+	if (M_GetParm("-record"))
 		warp = true;
-		G_RecordDemo(ps);
-	}
 
+	// start the appropriate game based on parms
 	if (! warp)
 	{
 		I_Debugf("- Startup: showing title screen.\n");
@@ -1578,10 +1574,13 @@ static void E_InitialState(void)
 
 	params.SinglePlayer(bots);
 
-	G_DeferredNewGame(params);
+	ps = M_GetParm("-record");
+	if (ps)
+		G_DeferredRecordDemo(params, ps);
+	else
+		G_DeferredNewGame(params);
 
-	if (M_GetParm("-record"))
-		gameaction = ga_recorddemo;
+///		gameaction = ga_recorddemo;
 }
 
 
