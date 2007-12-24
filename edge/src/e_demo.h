@@ -26,6 +26,8 @@
 #ifndef __E_DEMO_H__
 #define __E_DEMO_H__
 
+#include "g_game.h"
+
 extern bool netdemo;
 
 void G_DeferredPlayDemo(const char *filename);

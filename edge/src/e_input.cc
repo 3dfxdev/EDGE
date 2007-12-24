@@ -40,6 +40,11 @@
 #include "r_misc.h"
 #include "z_zone.h"
 
+
+extern bool CON_Responder(event_t *ev);
+extern bool   M_Responder(event_t *ev);
+extern bool   G_Responder(event_t *ev);
+
 //
 // EVENT HANDLING
 //

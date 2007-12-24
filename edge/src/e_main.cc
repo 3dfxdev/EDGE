@@ -1529,15 +1529,15 @@ static void E_InitialState(void)
 	}
 
 	// deathmatch check...
-	ps = M_CheckParm("-deathmatch");
-	if (ps)
+	int pp = M_CheckParm("-deathmatch");
+	if (pp)
 	{
 		warp_deathmatch = 1;
 
-		if (ps + 1 < M_GetArgCount())
-			warp_deathmatch = MAX(1, atoi(M_GetArgument(ps + 1)));
+		if (pp + 1 < M_GetArgCount())
+			warp_deathmatch = MAX(1, atoi(M_GetArgument(pp + 1)));
 	}
-	else if (M_CheckParm("-altdeath"))
+	else if (M_CheckParm("-altdeath") > 0)
 	{
 		warp_deathmatch = 2;
 	}

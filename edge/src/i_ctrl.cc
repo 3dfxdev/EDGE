@@ -21,8 +21,9 @@
 
 #include "dm_defs.h"
 #include "dm_state.h"
-#include "e_main.h"
 #include "e_event.h"
+#include "e_input.h"
+#include "e_main.h"
 #include "m_argv.h"
 #include "r_modes.h"
 
