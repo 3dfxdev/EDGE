@@ -52,8 +52,6 @@ static struct { int w, h; } possible_modes[] =
 };
 
 
-// ====================== INTERNALS ======================
-
 void I_GrabCursor(bool enable)
 {
 	if (my_vis && use_grab && ! graphics_shutdown)
@@ -70,9 +68,6 @@ void I_GrabCursor(bool enable)
 		}
 	}
 }
-
-
-// =================== END OF INTERNALS ===================
 
 
 void I_StartupGraphics(void)

@@ -110,7 +110,6 @@ static std::list<mobj_t *> remove_queue;
 
 iteminque_t *itemquehead;
 
-// =========================== INTERNALS =========================== 
 
 // convenience function
 // -AJA- FIXME: duplicate code from p_map.c
@@ -434,7 +433,6 @@ static void DeleteMobj(mobj_t * mo)
 	Z_Free(mo);
 }
 
-// ======================== END OF INTERNALS ======================== 
 
 // Use these methods to set mobj entries.
 // NEVER EVER modify the entries directly.
