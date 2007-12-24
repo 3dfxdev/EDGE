@@ -58,7 +58,6 @@ static bool timingdemo;
 bool demorecording;
 
 bool demoplayback;
-bool netdemo;
 
 static std::string defer_demoname;
 
@@ -452,7 +451,6 @@ bool G_FinishDemo(void)
 			I_CloseProgram(0);
 		}
 
-		netdemo = false;
 		netgame = false;
 		deathmatch = 0;
 

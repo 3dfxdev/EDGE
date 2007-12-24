@@ -1104,7 +1104,7 @@ void N_TiccmdTicker(void)
 			I_Printf(language["IsTurbo"], p->playername);
 		}
 
-		if (netgame && !netdemo)
+		if (netgame)
 		{
 			if (gametic > BACKUPTICS && p->consistency[buf] != p->cmd.consistency)
 			{
