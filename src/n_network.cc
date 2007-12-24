@@ -638,6 +638,12 @@ void N_InitNetwork(void)
 	N_StartupReliableLink (base_port+0);
 	N_StartupBroadcastLink(base_port+1);
 
+///---	// force a net game
+///---	if (M_CheckParm("-netgame"))
+///---	{
+///---		netgame = true;
+///---	}
+
 #if 0
 	if (N_DetermineLocalAddr())
 	{

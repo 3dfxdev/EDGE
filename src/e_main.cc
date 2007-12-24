@@ -295,20 +295,6 @@ static void SetGlobalVars(void)
 	M_CheckBooleanParm("windowed",   &FULLSCREEN, true);
 	M_CheckBooleanParm("fullscreen", &FULLSCREEN, false);
 
-	// deathmatch check...
-	p = M_CheckParm("-deathmatch");
-	if (p)
-	{
-		deathmatch = 1;
-
-		if (p + 1 < M_GetArgCount())
-			deathmatch = MAX(1, atoi(M_GetArgument(p + 1)));
-	}
-	else if (M_CheckParm("-altdeath"))
-	{
-		deathmatch = 2;
-	}
-
 	// sprite kludge (TrueBSP)
 	p = M_CheckParm("-spritekludge");
 	if (p)
@@ -1476,80 +1462,14 @@ static void E_Shutdown(void)
 }
 
 
-static void AutoStart(void)
-{
-	newgame_params_c params;
-
-	params.skill = startskill;	
-	params.deathmatch = deathmatch;	
-
-	if (start_map.length() == 0)
-		start_map = std::string("MAP01");
-
-	params.map = G_LookupMap(start_map.c_str());
-
-	if (! params.map)
-		I_Error("-warp: no such level '%s'\n", start_map.c_str());
-
-	SYS_ASSERT(params.map->episode);
-
-	params.random_seed = I_PureRandom();
-
-	params.SinglePlayer(startbots);
-
-	if (! G_DeferredNewGame(params))
-		I_Error("-warp: cannot init level '%s'\n", params.map->ddf.name.c_str());
-}
-
 static void E_InitialState(void)
 {
 	I_Debugf("- Setting up Initial State...\n");
 
 	const char *ps;
 
-	// get skill / episode / map from parms
-	skill_t startskill = sk_medium;
-
-	std::string startmap;
-
-	int startbots = 0;
-
-	ps = M_GetParm("-bots");
-	if (ps)
-	{
-		startbots = atoi(ps);
-		startplayers = startbots + 1;
-	}
-
-	// force a net game
-	if (M_CheckParm("-netgame"))
-	{
-		netgame = true;
-	}
-
-	const char *ps = M_GetParm("-warp");
-	if (ps)
-	{
-		start_map = std::string(ps);
-		autostart = true;
-	}
-
-	// -KM- 1999/01/29 Use correct skill: 1 is easiest, not 0
-	ps = M_GetParm("-skill");
-	if (ps)
-	{
-		startskill = (skill_t)(atoi(ps) - 1);
-		autostart = true;
-	}
-
-	// start the appropriate game based on parms
-	ps = M_GetParm("-record");
-	if (ps)
-	{
-		G_DeferredRecordDemo(ps);
-		autostart = true;
-		return
-	}
+	// do demos and loadgames first, as they contain all of the
+	// necessary state already (in the demo file / savegame).
 
 	ps = M_GetParm("-playdemo");
 	if (ps)
@@ -1557,13 +1477,13 @@ static void E_InitialState(void)
 		// quit after one demo
 		singledemo = true;
 		G_DeferredPlayDemo(ps);
-		return
+		return;
 	}
 	else if (dragged_demo.length() > 0)
 	{
 		singledemo = true;
 		G_DeferredPlayDemo(dragged_demo.c_str());
-		return
+		return;
 	}
 
 	ps = M_GetParm("-timedemo");
@@ -1580,16 +1500,85 @@ static void E_InitialState(void)
 		return;
 	}
 
-	I_Debugf("- Startup: showing title screen.\n");
+	bool warp = false;
 
-	if (gameaction != ga_loadgame && gameaction != ga_playdemo)
+	// get skill / episode / map from parms
+	std::string warp_map;
+	skill_t     warp_skill = sk_medium;
+	int         warp_deathmatch = 0;
+
+	int bots = 0;
+
+	ps = M_GetParm("-bots");
+	if (ps)
+		bots = atoi(ps);
+
+	ps = M_GetParm("-warp");
+	if (ps)
 	{
-		if (autostart)
-			AutoStart();
-		else
+		warp = true;
+		warp_map = std::string(ps);
 	}
 
-	E_StartTitle();  // start up intro loop
+	// -KM- 1999/01/29 Use correct skill: 1 is easiest, not 0
+	ps = M_GetParm("-skill");
+	if (ps)
+	{
+		warp = true;
+		warp_skill = (skill_t)(atoi(ps) - 1);
+	}
+
+	// deathmatch check...
+	ps = M_CheckParm("-deathmatch");
+	if (ps)
+	{
+		warp_deathmatch = 1;
+
+		if (ps + 1 < M_GetArgCount())
+			warp_deathmatch = MAX(1, atoi(M_GetArgument(ps + 1)));
+	}
+	else if (M_CheckParm("-altdeath"))
+	{
+		warp_deathmatch = 2;
+	}
+
+
+	// start the appropriate game based on parms
+	ps = M_GetParm("-record");
+	if (ps)
+	{
+		warp = true;
+		G_RecordDemo(ps);
+	}
+
+	if (! warp)
+	{
+		I_Debugf("- Startup: showing title screen.\n");
+		E_StartTitle();
+		return;
+	}
+
+	newgame_params_c params;
+
+	params.skill = warp_skill;	
+	params.deathmatch = warp_deathmatch;	
+
+	if (warp_map.length() == 0)
+		warp_map = std::string("MAP01");  // FIXME: MUNDO HACK, find first playable map
+
+	params.map = G_LookupMap(warp_map.c_str());
+
+	if (! params.map)
+		I_Error("-warp: no such level '%s'\n", warp_map.c_str());
+
+	SYS_ASSERT(params.map->episode);
+
+	params.random_seed = I_PureRandom();
+
+	params.SinglePlayer(bots);
+
+	if (! G_DeferredNewGame(params))
+		I_Error("-warp: cannot init level '%s'\n", params.map->ddf.name.c_str());
 }
 
 
