@@ -90,6 +90,10 @@ env.Append(LIBS = ['edge1'])
 env.Append(LIBPATH = ['#ddf'])
 env.Append(LIBS = ['ddf'])
 
+# Timidity
+env.Append(LIBPATH = ['#timidity'])
+env.Append(LIBS = ['timidity'])
+
 # epi
 env.Append(LIBPATH = ['#epi'])
 env.Append(LIBS = ['epi'])
@@ -211,7 +215,7 @@ if not have_lzo_h:
 if not have_glbsp_h:
     SConscript('glbsp/SConscript.edge')
 
-# SConscript('humidity/SConscript.edge')
+SConscript('timidity/SConscript')
 
 env.Program('gledge32', ['main.cc'])
 
