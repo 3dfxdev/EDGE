@@ -9,6 +9,14 @@ includes -warp, demo recording and playback.  Demo recording
 has been redone like new games: G_DeferredRecordDemo() and
 the 'ga_recorddemo' game action.
 
+Began work updating the music code.  There is quite a bit of
+duplication in the Win32 and Linux code, and that needs to
+be fixed.  There will be an abstract_music_c class which
+represents a loaded playable piece of music, and all the
+functions like Pause/Resume/Stop/Volume (etc) are pure
+virtual methods.  Each music subsystem will sub-class this
+base class.
+
 2007/12/23:
 
 Reorganised the G_Ticker() function, separating out the
