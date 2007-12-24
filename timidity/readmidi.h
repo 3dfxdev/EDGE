@@ -24,7 +24,7 @@
 typedef struct MidiEventList_s
 {
   MidiEvent event;
-  MidiEventList_s *next;
+  struct MidiEventList_s *next;
 }
 MidiEventList;
 
