@@ -624,8 +624,6 @@ void M_MakeSaveScreenShot(void)
 }
 
 //
-// M_ComposeFileName
-//
 // Creates the file name "dir/file", or
 // just "file" in the given string if it 
 // was an absolute address.
@@ -647,8 +645,6 @@ epi::file_c *M_OpenComposedEPIFile(const char *dir, const char *file)
 		epi::file_c::ACCESS_READ | epi::file_c::ACCESS_BINARY);
 }
 
-//
-// M_GetFileData
 //
 // Loads file into memory. This sets a pointer to the data and
 // the length.
@@ -769,30 +765,7 @@ void I_Logf(const char *message,...)
 	fflush(logfile);
 }
 
-//
-// L_ConvertToDB
-// 
-// Converts the linear input volume to a DB output volume in the range
-// `min..max'.  Input ranges from 0-255.  This call is expensive,
-// should be used to build a lookup table.
-// 
-int L_ConvertToDB(int volume, int min, int max)
-{
-	float tmp;
-	int result;
 
-	SYS_ASSERT(0 <= volume && volume <= 255);
-
-	tmp = 1.0f - (float)log(256.0f / (volume + 1.0f)) / (float)log(256.0f);
-
-	result = min + (int) ((max - min) * tmp);
-
-	// clamp result, in case of underflow/overflow
-	return MAX(min, MIN(max, result));
-}
-
-//
-// L_CompareFileTimes
 //
 // Just like L_CompareTimeStamps above, but give the filenames.
 //
