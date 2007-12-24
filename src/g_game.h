@@ -60,7 +60,7 @@ extern gameaction_e gameaction;
 //    ga_loadgame    : defer_load_slot
 //    ga_savegame    : defer_save_slot, defer_save_desc
 //    ga_playdemo    : defer_demoname, timingdemo, singledemo
-//    ga_recorddemo  : defer_demoname, defer_params
+//    ga_recorddemo  : defer_demoname, defer_demo_parm
 // 
 //    ga_loadlevel   : currmap, players, gameskill+dm+level_flags ETC
 //    ga_intermission: currmap, nextmap, players, wi_stats ETC

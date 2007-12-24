@@ -954,7 +954,7 @@ void G_DeferredNewGame(newgame_params_c& params)
 	gameaction = ga_newgame;
 }
 
-bool G_CheckMapExists(const mapdef_c *map)
+bool G_MapExists(const mapdef_c *map)
 {
 	return (W_CheckNumForName(map->lump) >= 0);
 }

@@ -43,6 +43,7 @@
 #include "dem_glob.h"
 #include "e_demo.h"
 #include "e_main.h"
+#include "f_finale.h"
 #include "g_game.h"
 #include "m_argv.h"
 #include "m_misc.h"
@@ -60,6 +61,8 @@ bool demorecording;
 bool demoplayback;
 
 static std::string defer_demoname;
+
+static newgame_params_c *defer_demo_parm = NULL;
 
 static epi::file_c *demo_in = NULL;
 
@@ -211,7 +214,7 @@ void G_DeferredRecordDemo(newgame_params_c& params, const char *filename)
 
 	defer_demoname = demoname;
 
-	defer_params = new newgame_params_c(params);
+	defer_demo_parm = new newgame_params_c(params);
 
 	// Write directly to file. Possibly a bit slower without disk cache, but
 	// uses less memory, and the demo can record EDGE crashes.
@@ -280,17 +283,17 @@ void G_DoRecordDemo(void)
 
 	E_ForceWipe();
 
-	SYS_ASSERT(defer_params);
+	SYS_ASSERT(defer_demo_parm);
 
 	demoplayback = false;
 	quickSaveSlot = -1;
 
-	G_InitNew(*defer_params);
+	G_InitNew(*defer_demo_parm);
 
 	G_BeginRecording();
 
-	delete defer_params;
-	defer_params = NULL;
+	delete defer_demo_parm;
+	defer_demo_parm = NULL;
 
 	// -AJA- 2003/10/09: support for pre-level briefing screen on first map.
 	//       FIXME: kludgy. All this game logic desperately needs rethinking.
@@ -391,16 +394,19 @@ void G_DoPlayDemo(void)
 
 	G_InitNew(params);
 
+	DEM_FreeGLOB(globs);
+
 	// don't spend a lot of time in loadlevel
 	precache = false;
 
-	G_DoLoadLevel();
-	G_SpawnInitialPlayers();
+///!!!	G_DoLoadLevel();
+///!!!	G_SpawnInitialPlayers();
 
 	// -- Check LEVEL consistency (crc) --
 	//
 	// FIXME: ideally we shouldn't bomb out, just display an error box
 
+#if 0
 	if (globs->mapsector.count != numsectors ||
 		globs->mapsector.crc != mapsector_CRC.crc ||
 		globs->mapline.count != numlines ||
@@ -410,13 +416,13 @@ void G_DoPlayDemo(void)
 	{
 		I_Error("LOAD-DEMO: Level data does not match !  Check WADs\n");
 	}
+#endif
 
-	DEM_FreeGLOB(globs);
-
-	//!!! FIXME: Check DDF/RTS consistency (crc), warning only
-
-	precache = true;
 	demoplayback = true;
+
+	// -AJA- 2003/10/09: support for pre-level briefing screen on first map.
+	//       FIXME: kludgy. All this game logic desperately needs rethinking.
+	F_StartFinale(&currmap->f_pre, ga_loadlevel);
 }
 
 //
@@ -451,6 +457,7 @@ bool G_FinishDemo(void)
 			I_CloseProgram(0);
 		}
 
+		precache = true;
 		netgame = false;
 		deathmatch = 0;
 
