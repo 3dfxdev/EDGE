@@ -61,14 +61,9 @@ typedef struct
 }
 event_t;
 
-//
-// GLOBAL VARIABLES
-//
-#define MAXEVENTS 128
-
-extern event_t events[MAXEVENTS];
-extern int eventhead;
-extern int eventtail;
+///---extern event_t events[MAXEVENTS];
+///---extern int eventhead;
+///---extern int eventtail;
 
 #endif // __E_EVENT_H__
 

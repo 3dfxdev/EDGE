@@ -32,8 +32,6 @@ void E_Main(int argc, const char **argv);
 void E_Idle(void);
 void E_Tick(void);
 
-void E_ProcessEvents(void);
-void E_PostEvent(event_t * ev);
 void E_PageTicker(void);
 void E_PageDrawer(void);
 void E_AdvanceTitle(void);
