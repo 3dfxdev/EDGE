@@ -486,12 +486,13 @@ static void NetGameStartLevel(void)
 
 	// create parameters
 
-	if (! ParseWelcomePacket(ng_params, (netgame_we_host ? &host_welcome : &join_welcome)) ||
-		! G_DeferredNewGame(*ng_params))
+	if (! ParseWelcomePacket(ng_params, netgame_we_host ? &host_welcome : &join_welcome))
 	{
 		M_StartMessage(language["EpisodeNonExist"], NULL, false);
 		return;
 	}
+
+	G_DeferredNewGame(*ng_params);
 }
 
 void M_DrawPlayerList(void)
