@@ -1,5 +1,24 @@
 Andrew Apted's Log
 
+2007/12/24:
+
+More reworking of the game state stuff: new E_InitialState()
+function which is (solely) responsible for setting up the
+initial game state, especially the first gameaction.  That
+includes -warp, demo recording and playback.  Demo recording
+has been redone like new games: G_DeferredRecordDemo() and
+the 'ga_recorddemo' game action.
+
+2007/12/23:
+
+Reorganised the G_Ticker() function, separating out the
+gameaction stuff into new function G_BigStuff().
+
+Did some work on Timidity MIDI music playback, using the
+timidity code straight from SDL_mixer 1.2.8 sources.  My
+own Humidity project has much cleaner timidity code but
+is kinda dead now.
+
 2007/12/21:
 
 Implemented the FIX_TRANS=BLACKEN; command for images.ddf,
