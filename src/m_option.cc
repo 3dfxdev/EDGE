@@ -182,11 +182,10 @@ static char SoundBits[]   = "8 bit/16 bit";
 static char StereoNess[]  = "Off/On/Swapped";
 static char MixChans[]    = "8/16/32/64/96";
 static char QuietNess[]   = "Loud (distorted)/Normal/Soft";
+static char MusicDevs[]   = "System/Timidity";
 
 // Screen resolution changes
 static scrmode_c new_scrmode;
-
-///--  static int testticker = -1;
 
 
 // -ES- 1998/11/28 Wipe and Faded teleportation options
@@ -518,6 +517,9 @@ static optmenuitem_t soundoptions[] =
 {
 	{OPT_Slider,   "Sound Volume",  NULL, SND_SLIDER_NUM, CFGDEF_SOUND_VOLUME, &sfx_volume, M_ChangeSfxVol, NULL},
 	{OPT_Slider,   "Music Volume",  NULL, SND_SLIDER_NUM, CFGDEF_MUSIC_VOLUME, &mus_volume, M_ChangeMusVol, NULL},
+
+	{OPT_Plain,    "", NULL, 0,  0, NULL, NULL, NULL},
+	{OPT_Switch,   "Music Device",  MusicDevs,  2,  CFGDEF_MUSIC_DEVICE, &var_music_dev, NULL, NULL},
 
 	{OPT_Plain,    "", NULL, 0,  0, NULL, NULL, NULL},
 	{OPT_Switch,   "Sample Rate",   SampleRates, 5, CFGDEF_SAMPLE_RATE,  &var_sample_rate,  NULL, "NeedRestart"},

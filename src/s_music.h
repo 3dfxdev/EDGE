@@ -45,8 +45,13 @@ public:
 	virtual void Volume(float gain) = 0;
 };
 
-// Vars
+/* VARIABLES */
+
 extern int mus_volume;  // 0 .. SND_SLIDER_NUM-1
+
+extern int var_music_dev;
+
+/* FUNCTIONS */
 
 void S_ChangeMusic(int entrynum, bool looping);
 void S_ResumeMusic(void);
