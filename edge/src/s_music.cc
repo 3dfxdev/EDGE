@@ -41,11 +41,16 @@ static abstract_music_c *music_player;
 // music slider value
 int mus_volume;
 
+int var_music_dev;
+
 bool nomusic = false;
 bool nocdmusic = false;
 
-// FIXME
-extern abstract_music_c * I_PlayMIDIMusic(const pl_entry_c *play,
+// FIXME: Temp
+extern abstract_music_c * I_PlayHWMusic(byte *data, int length,
+			float volume, bool looping);
+
+extern abstract_music_c * S_PlayTimidity(byte *data, int length,
 			float volume, bool looping);
 
 
@@ -70,34 +75,88 @@ void S_ChangeMusic(int entrynum, bool looping)
 
 	float volume = slider_to_gain[mus_volume];
 
-	switch (play->type)
+	if (play->type == MUS_MP3)
 	{
-		case MUS_MP3:
-			I_Warning("S_ChangeMusic: MP3 music no longer supported.\n");
-			return;
-
-		case MUS_CD:
-		{
-			int track = atoi(play->info);
-			music_player = I_PlayCDMusic(track, volume, looping);
-			return;
-		}
-
-		case MUS_OGG:
-			music_player = S_PlayOGGMusic(play, volume, looping);
-			return;
-
-		case MUS_MUS:
-		case MUS_MIDI:
-			music_player = I_PlayMIDIMusic(play, volume, looping);
-			return;
-
-		default:
-			I_Error("INTERNAL ERROR: unknown music type: %d\n", play->type);
-			return; /* NOT REACHED */
+		I_Warning("S_ChangeMusic: MP3 music no longer supported.\n");
+		return;
 	}
 
-#if (0 == 1)
+	if (play->type == MUS_CD)
+	{
+		int track = atoi(play->info);
+		music_player = I_PlayCDMusic(track, volume, looping);
+		return;
+	}
+
+	if (play->type == MUS_OGG)
+	{
+		music_player = S_PlayOGGMusic(play, volume, looping);
+		return;
+	}
+
+	// open the file or lump, and read it into memory
+	epi::file_c *F;
+
+	switch (play->infotype)
+	{
+		case MUSINF_FILE:
+		{
+			std::string fn = M_ComposeFileName(game_dir.c_str(), play->info.c_str());
+
+			F = epi::FS_Open(fn.c_str(), epi::file_c::ACCESS_READ | epi::file_c::ACCESS_BINARY);
+
+			if (! F)
+			{
+				I_Warning("S_ChangeMusic: Can't Find File '%s'\n", fn.c_str());
+				return;
+			}
+
+			break;
+		}
+
+		case MUSINF_LUMP:
+		{
+			int lump = W_CheckNumForName(play->info);
+			if (lump < 0)
+			{
+				I_Warning("S_ChangeMusic: LUMP '%s' not found.\n", play->info.c_str()); 
+				return;
+			}
+
+			F = W_OpenLump(lump);
+			break;
+		}
+
+		default:
+			I_Printf("S_ChangeMusic: invalid method %d for MUS/MIDI\n", play->infotype);
+			return;
+	}
+
+	int length = F->GetLength();
+
+	byte *data = F->LoadIntoMemory();
+
+	if (! data)
+	{
+		delete F;
+		I_Warning("S_ChangeMusic: Error loading data.\n");
+		return;
+	}
+	if (length < 4)
+	{
+		delete F;
+		I_Printf("S_ChangeMusic: ignored short data (%d bytes)\n", length);
+		return;
+	}
+	
+	bool is_mus = (data[0] == 'M' && data[1] == 'U' && data[2] == 'S');
+
+	if (var_music_dev == 0 && is_mus)
+		music_player = I_PlayHWMusic(data, length, volume, looping);
+	else
+		music_player = S_PlayTimidity(data, length, volume, looping);
+
+#if 0
 	byte *data;
 	int datlength;
 	int datnum;
@@ -109,7 +168,6 @@ void S_ChangeMusic(int entrynum, bool looping)
 		data = NULL;
 
 		// -AJA- 2005/01/15: filenames in DDF relative to GAMEDIR
-		std::string fn = M_ComposeFileName(game_dir.c_str(), play->info.c_str());
 
 		//
 		// -ACB- 2004/08/18 Something of a hack until we revamp this to be
@@ -165,8 +223,6 @@ void S_ChangeMusic(int entrynum, bool looping)
 		}
 		else
 		{
-			I_Warning("S_ChangeMusic: LUMP '%s' not found.\n", play->info.c_str()); 
-			return;
 		}
 	}
 
