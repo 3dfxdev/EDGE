@@ -25,6 +25,7 @@
 #define TIMV_NUM_SAMPLES  8192
 
 extern bool dev_stereo;  // FIXME: encapsulation
+extern int  dev_freq;    //
 
 
 tim_player_c::tim_player_c() : status(NOT_LOADED), looping(false), song(NULL)
@@ -54,13 +55,16 @@ void tim_player_c::Open(const void *data, size_t size)
 		return;
 	}
 
+#if (1 == 0)
 	// check for MUS, convert to MIDI 
+	//
 	if (data[0] == 'M' && data[1] == 'U' && data[2] == 'S')
 	{
 		CONVERT  -->  cache_dir / music.mid
 	}
 
 	OpenMidiFile(cached_name);
+#endif
 }
 
 void tim_player_c::Open(const char *filename)
@@ -163,7 +167,7 @@ void tim_player_c::Ticker()
 	while (status == PLAYING)
 	{
 		epi::sound_data_c *buf = S_QueueGetFreeBuffer(TIMV_NUM_SAMPLES, 
-				(is_stereo && dev_stereo) ? epi::SBUF_Interleaved : epi::SBUF_Mono);
+				dev_stereo ? epi::SBUF_Interleaved : epi::SBUF_Mono);
 
 		if (! buf)
 			break;
@@ -195,7 +199,7 @@ bool tim_player_c::StreamIntoBuffer(epi::sound_data_c *buf)
 		{
 			if (looping)
 			{
-				Timidity_Stop(song);
+				Timidity_Stop();
 				Timidity_Start(song);
 
 				continue; // try again
