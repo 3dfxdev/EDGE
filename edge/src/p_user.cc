@@ -696,7 +696,10 @@ void P_CreatePlayer(int pnum, bool is_bot)
 	p->playerstate = PST_DEAD;
 
 	players[pnum] = p;
+
 	numplayers++;
+	if (is_bot)
+		numbots++;
 
 	// determine name
 	char namebuf[32];
@@ -733,6 +736,7 @@ void P_DestroyAllPlayers(void)
 	}
 
 	numplayers = 0;
+	numbots = 0;
 
 	consoleplayer = -1;
 	displayplayer = -1;

@@ -58,6 +58,7 @@
 // Pointer to each player in the game.
 extern struct player_s *players[MAXPLAYERS];
 extern int numplayers;
+extern int numbots;
 
 // Player taking events, and displaying.
 extern int consoleplayer;
