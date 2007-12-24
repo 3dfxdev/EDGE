@@ -44,18 +44,11 @@ class image_c;
 
 extern bool devparm;  // DEBUG: launched with -devparm
 
-extern gameflags_t level_flags;
 extern gameflags_t global_flags;
 
-// -------------------------------------------
-// Selected skill type, map etc.
-//
+extern gameflags_t level_flags;
 
-// Defaults for menu, methinks.
-extern skill_t startskill;
 
-extern int startplayers;
-extern int startbots;
 
 // Selected by user. 
 extern skill_t gameskill;
