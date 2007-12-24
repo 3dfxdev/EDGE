@@ -46,6 +46,7 @@ typedef enum
 	ga_loadgame,
 	ga_savegame,
 	ga_playdemo,
+	ga_recorddemo,
 	ga_intermission,
 	ga_finale,
 	ga_endgame
@@ -53,6 +54,18 @@ typedef enum
 gameaction_e;
 
 extern gameaction_e gameaction;
+
+//  Game action variables:
+//    ga_newgame     : defer_params
+//    ga_loadgame    : defer_load_slot
+//    ga_savegame    : defer_save_slot, defer_save_desc
+//    ga_playdemo    : defer_demoname, timingdemo, singledemo
+//    ga_recorddemo  : NOT DONE YET
+// 
+//    ga_loadlevel   : currmap, players, gameskill+dm+level_flags ETC
+//    ga_intermission: currmap, nextmap, players, wi_stats ETC
+//    ga_finale      : nextmap, players
+
 
 class newgame_params_c
 {
