@@ -50,8 +50,11 @@ bool nocdmusic = false;
 extern abstract_music_c * I_PlayHWMusic(byte *data, int length,
 			float volume, bool looping);
 
-extern abstract_music_c * S_PlayTimidity(byte *data, int length,
-			float volume, bool looping);
+abstract_music_c * S_PlayTimidity(byte *data, int length, bool is_mus,
+			float volume, bool looping)
+{
+	return NULL;
+}
 
 
 void S_ChangeMusic(int entrynum, bool looping)
@@ -154,7 +157,7 @@ void S_ChangeMusic(int entrynum, bool looping)
 	if (var_music_dev == 0 && is_mus)
 		music_player = I_PlayHWMusic(data, length, volume, looping);
 	else
-		music_player = S_PlayTimidity(data, length, volume, looping);
+		music_player = S_PlayTimidity(data, length, is_mus, volume, looping);
 
 #if 0
 	byte *data;
