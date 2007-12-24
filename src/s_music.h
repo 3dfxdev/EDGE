@@ -23,8 +23,27 @@
 //
 //----------------------------------------------------------------------------
 
-#ifndef __S_MUSIC__
-#define __S_MUSIC__
+#ifndef __S_MUSIC_H__
+#define __S_MUSIC_H__
+
+/* abstract base class */
+class abstract_music_c
+{
+public:
+	abstract_music_c() { }
+	virtual ~abstract_music_c() { }
+
+	virtual void Close(void) = 0;
+
+	virtual void Play(bool loop, float gain) = 0;
+	virtual void Stop(void) = 0;
+
+	virtual void Pause(void)  = 0;
+	virtual void Resume(void) = 0;
+
+	virtual void Ticker(void) = 0;
+	virtual void Volume(float gain) = 0;
+};
 
 // Vars
 extern int mus_volume;  // 0 .. SND_SLIDER_NUM-1
@@ -37,7 +56,7 @@ void S_MusicTicker(void);
 
 void S_ChangeMusicVolume(void);
 
-#endif // __S_MUSIC__
+#endif /* __S_MUSIC_H__ */
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
