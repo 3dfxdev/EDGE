@@ -27,6 +27,9 @@
 
 #include "epi/sound_data.h"
 
+class pl_entry_c;
+class abstract_music_c;
+
 
 class oggplayer_c
 {
@@ -82,6 +85,11 @@ public:
 
 	void Ticker(void);
 };
+
+
+/* FUNCTIONS */
+
+abstract_music_c * S_PlayOGGMusic(const pl_entry_c *play, float volume, bool looping);
 
 #endif  // __OGGPLAYER__
 
