@@ -56,7 +56,6 @@
 static bool timingdemo;
 
 bool demorecording;
-bool demo_notbegun;
 
 bool demoplayback;
 bool netdemo;
@@ -198,7 +197,8 @@ void E_DemoWriteTick(void)
 	DEM_PopWriteChunk();  // Tick
 }
 
-void G_RecordDemo(const char *filename)
+
+void G_DeferredRecordDemo(newgame_params_c& params, const char *filename)
 {
 	// 98-7-10 KM Demolimit removed
 
@@ -210,13 +210,18 @@ void G_RecordDemo(const char *filename)
 	if (ext.empty())
 		demoname += ".edm";
 
+	defer_demoname = demoname;
+
+	defer_params = new newgame_params_c(params);
+
 	// Write directly to file. Possibly a bit slower without disk cache, but
 	// uses less memory, and the demo can record EDGE crashes.
 	if (! DEM_OpenWriteFile(demoname.c_str(), (EDGEVERHEX << 8) | EDGEPATCH))
 		I_Error("Unable to create demo file: %s\n", demoname.c_str());
 
 	demorecording = true;
-	demo_notbegun = true;
+
+	gameaction = ga_recorddemo;
 }
 
 //
@@ -230,8 +235,6 @@ void G_RecordDemo(const char *filename)
 //
 void G_BeginRecording(void)
 {
-	demo_notbegun = false;
-
 	saveglobals_t *globs = DEM_NewGLOB();
 
 	L_WriteDebug("G_BeginRecording: %s\n", currmap->ddf.name.c_str());
@@ -272,6 +275,30 @@ void G_BeginRecording(void)
 }
 
 
+void G_DoRecordDemo(void)
+{
+	// NOTE: mostly the same code as G_DoNewGame()
+
+	E_ForceWipe();
+
+	SYS_ASSERT(defer_params);
+
+	demoplayback = false;
+	quickSaveSlot = -1;
+
+	G_InitNew(*defer_params);
+
+	G_BeginRecording();
+
+	delete defer_params;
+	defer_params = NULL;
+
+	// -AJA- 2003/10/09: support for pre-level briefing screen on first map.
+	//       FIXME: kludgy. All this game logic desperately needs rethinking.
+	F_StartFinale(&currmap->f_pre, ga_loadlevel);
+}
+
+
 void G_DeferredPlayDemo(const char *filename)
 {
 	std::string demoname = M_ComposeFileName(game_dir.c_str(), filename);
@@ -284,9 +311,10 @@ void G_DeferredPlayDemo(const char *filename)
 
 	defer_demoname = demoname;
 
+	timingdemo = false;
+
 	gameaction = ga_playdemo;
 }
-
 
 void G_DeferredTimeDemo(const char *filename)
 {

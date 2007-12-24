@@ -31,13 +31,11 @@ extern bool netdemo;
 
 void G_DeferredPlayDemo(const char *filename);
 void G_DeferredTimeDemo(const char *filename);
+void G_DeferredRecordDemo(newgame_params_c& params, const char *filename);
 
 void G_DoPlayDemo(void);
+void G_DoRecordDemo(void);
 
-// Only called by startup code.
-void G_RecordDemo(const char *filename);
-
-void G_BeginRecording(void);
 bool G_FinishDemo(void);
 
 void E_DemoReadTick(void);
