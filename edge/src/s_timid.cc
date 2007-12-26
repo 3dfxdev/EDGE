@@ -45,10 +45,10 @@ private:
 	int status;
 	bool looping;
 
-	MidiSong *song;
+	struct MidiSong *song;
 
 public:
-	tim_player_c(MidiSong *_song) : status(NOT_LOADED), song(_song)
+	tim_player_c(struct MidiSong *_song) : status(NOT_LOADED), song(_song)
 	{ }
 
 	~tim_player_c()
@@ -266,7 +266,7 @@ abstract_music_c * S_PlayTimidity(byte *data, int length, bool is_mus,
 		I_Debugf("Conversion done: new length is %d\n", length);
 	}
 
-	MidiSong *song = Timidity_LoadSong(data, length);
+	struct MidiSong *song = Timidity_LoadSong(data, length);
 
 	delete[] data;
 
