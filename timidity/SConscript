@@ -15,7 +15,7 @@ env.Append(CPPPATH = ['#.'])
 
 timid_sources = [
     'common.cc', 'filter.cc', 'instrum.cc',
-    'mix.cc', 'output.cc', 'playmidi.cc', 'readmidi.cc',
+    'mix.cc', 'output.cc', 'playmidi.cc', 'loadmidi.cc',
     'resample.cc', 'dummy.cc', 'tables.cc', 'timidity.cc']
 
 env.StaticLibrary('timidity', timid_sources)
