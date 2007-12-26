@@ -24,7 +24,7 @@
 #include "common.h"
 #include "instrum.h"
 #include "playmidi.h"
-#include "readmidi.h"
+#include "loadmidi.h"
 #include "output.h"
 #include "mix.h"
 #include "ctrlmode.h"
@@ -1686,38 +1686,6 @@ void Timidity_SetVolume(int volume)
   ctl->master_volume(amplification);
 }
 
-MidiSong *Timidity_LoadSong(const char *midifile)
-{
-  MidiSong *song;
-  int32 events;
-  FILE *rw;
-
-  /* Allocate memory for the song */
-  song = (MidiSong *)safe_malloc(sizeof(*song));
-  memset(song, 0, sizeof(*song));
-
-  /* Open the file */
-  strcpy(midi_name, midifile);
-
-  rw = fopen(midifile, "rb");
-  if (rw != NULL) {
-    song->events = read_midi_file(rw, &events, &song->samples);
-    fclose(rw);
-  }
-
-  /* Make sure everything is okay */
-  if (!song->events) {
-    free(song);
-    song = NULL;
-  }
-  return(song);
-}
-
-MidiSong *Timidity_LoadSong(const byte *data, int length)
-{
-  //!!!!!! TODO : Timidity_LoadSong
-  return NULL;
-}
 
 void Timidity_Start(MidiSong *song)
 {
