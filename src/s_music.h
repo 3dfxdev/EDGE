@@ -35,7 +35,7 @@ public:
 
 	virtual void Close(void) = 0;
 
-	virtual void Play(bool loop, float gain) = 0;
+	virtual void Play(bool loop) = 0;
 	virtual void Stop(void) = 0;
 
 	virtual void Pause(void)  = 0;
