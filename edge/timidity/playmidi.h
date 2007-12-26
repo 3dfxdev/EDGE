@@ -22,7 +22,7 @@
 #ifndef __TIMIDITY_PLAYMIDI_H__
 #define __TIMIDITY_PLAYMIDI_H__
 
-typedef struct
+typedef struct MidiEvent_s
 {
   int32 time;
   uint8 channel, type, a, b;
