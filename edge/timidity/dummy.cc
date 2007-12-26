@@ -17,7 +17,7 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-    sdl_c.c
+    dummy.c
     Minimal control mode -- no interaction, just stores messages.
 */
 
@@ -29,34 +29,34 @@
 #include "instrum.h"
 #include "playmidi.h"
 
-extern ControlMode sdl_control_mode;
+extern ControlMode dummy_control_mode;
 
 ControlMode *ctl_list[] = 
 {
-  &sdl_control_mode,
+  &dummy_control_mode,
   0
 };
 
-ControlMode *ctl = &sdl_control_mode;
+ControlMode *ctl = &dummy_control_mode;
 
 /* export the playback mode */
 
-#define dpm sdl_play_mode
+#define dpm dummy_play_mode
 
 PlayMode dpm = {
   DEFAULT_RATE, PE_16BIT|PE_SIGNED,
   "EPI Audio"
 };
 
-extern PlayMode sdl_play_mode;
+extern PlayMode dummy_play_mode;
 
 PlayMode *play_mode_list[] =
 {
-  &sdl_play_mode,
+  &dummy_play_mode,
   0
 };
 
-PlayMode *play_mode = &sdl_play_mode;
+PlayMode *play_mode = &dummy_play_mode;
 
 
 static void ctl_refresh(void) { }
@@ -81,11 +81,11 @@ static int cmsg(int type, int verbosity_level, char *fmt, ...);
 /**********************************/
 /* export the interface functions */
 
-#define ctl sdl_control_mode
+#define ctl dummy_control_mode
 
 ControlMode ctl = 
 {
-  "SDL interface", 's',
+  "dummy interface", 's',
   1,0,0,
   ctl_open,NULL, ctl_close, ctl_read, cmsg,
   ctl_refresh, ctl_reset, ctl_file_name, ctl_total_time, ctl_current_time, 
