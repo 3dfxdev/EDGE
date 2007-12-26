@@ -21,47 +21,8 @@
 
 #include "i_defs.h"
 
-#include "timidity/timidity.h"
-
-
-class tim_player_c
-{
-private:
-	enum status_e
-	{
-		NOT_LOADED, PLAYING, PAUSED, STOPPED
-	};
-	
-	int status;
-	bool looping;
-
-	MidiSong *song;
-
-public:
-	 tim_player_c();
-	~tim_player_c();
-
-public:
-	void SetVolume(float gain);
-
-	void Open(const void *data, size_t size);
-	void Open(const char *filename);
-	void Close(void);
-
-	void Play(bool loop, float gain);
-	void Stop(void);
-
-	void Pause(void);
-	void Resume(void);
-
-	void Ticker(void);
-
-private:
-	void OpenMidiFile(const char *filename);
-
-	bool StreamIntoBuffer(epi::sound_data_c *buf);
-
-};
+abstract_music_c * S_PlayTimidity(const byte *data, int length, bool is_mus,
+			float volume, bool looping);
 
 #endif /* __S_TIMID_H__ */
 
