@@ -18,8 +18,8 @@
 //
 // -ACB- 2004/08/18 Written
 //
-#ifndef __OGGPLAYER__
-#define __OGGPLAYER__
+#ifndef __OGGPLAYER_H__
+#define __OGGPLAYER_H__
 
 #include "i_defs.h"
 
@@ -28,70 +28,12 @@
 #include "epi/sound_data.h"
 
 class pl_entry_c;
-class abstract_music_c;
-
-
-class oggplayer_c
-{
-public:
-	oggplayer_c();
-	~oggplayer_c();
-
-	struct datalump_s
-	{
-		byte *data;
-		size_t pos;
-		size_t size;
-	};
-
-private:
-
-	enum status_e
-	{
-		NOT_LOADED, PLAYING, PAUSED, STOPPED
-	};
-	
-	int status;
-	bool looping;
-
-	FILE *ogg_file;
-	datalump_s ogg_lump;
-	OggVorbis_File ogg_stream;
-	vorbis_info *vorbis_inf;
-	bool is_stereo;
-
-	s16_t *mono_buffer;
-
-	const char *GetError(int code);
-
-	void PostOpenInit(void);
-
-	bool StreamIntoBuffer(epi::sound_data_c *buf);
-
-	void ConvertToMono(s16_t *dest, const s16_t *src, int len);
-
-public:
-	void SetVolume(float gain);
-
-	void Open(const void *data, size_t size);
-	void Open(const char *filename);
-	void Close(void);
-
-	void Play(bool loop, float gain);
-	void Stop(void);
-
-	void Pause(void);
-	void Resume(void);
-
-	void Ticker(void);
-};
-
 
 /* FUNCTIONS */
 
-abstract_music_c * S_PlayOGGMusic(const pl_entry_c *play, float volume, bool looping);
+abstract_music_c * S_PlayOGGMusic(const pl_entry_c *musdat, float volume, bool looping);
 
-#endif  // __OGGPLAYER__
+#endif  /* __OGGPLAYER_H__ */
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

@@ -25,14 +25,82 @@
 #include "i_defs.h"
 
 #include "epi/endianess.h"
+#include "epi/file.h"
+#include "epi/filesystem.h"
+
+#include "ddf/playlist.h"
 
 #include "s_cache.h"
 #include "s_blit.h"
+#include "s_music.h"
 #include "s_ogg.h"
+#include "w_wad.h"
 
 #define OGGV_NUM_SAMPLES  8192
 
 extern bool dev_stereo;  // FIXME: encapsulation
+
+
+class oggplayer_c : public abstract_music_c
+{
+public:
+	oggplayer_c();
+	~oggplayer_c();
+
+	struct datalump_s
+	{
+		byte *data;
+		size_t pos;
+		size_t size;
+	};
+
+private:
+
+	enum status_e
+	{
+		NOT_LOADED, PLAYING, PAUSED, STOPPED
+	};
+	
+	int status;
+	bool looping;
+
+	FILE *ogg_file;
+	datalump_s ogg_lump;
+
+	OggVorbis_File ogg_stream;
+	vorbis_info *vorbis_inf;
+	bool is_stereo;
+
+	s16_t *mono_buffer;
+
+public:
+	bool OpenLump(const char *lumpname);
+	bool OpenFile(const char *filename);
+
+	virtual void Close(void);
+
+	virtual void Play(bool loop);
+	virtual void Stop(void);
+
+	virtual void Pause(void);
+	virtual void Resume(void);
+
+	virtual void Ticker(void);
+	virtual void Volume(float gain);
+
+private:
+	const char *GetError(int code);
+
+	void PostOpenInit(void);
+
+	bool StreamIntoBuffer(epi::sound_data_c *buf);
+
+	void ConvertToMono(s16_t *dest, const s16_t *src, int len);
+
+};
+
+
+//----------------------------------------------------------------------------
 
 
 //
@@ -124,8 +192,13 @@ long oggplayer_ftell(void *datasource)
 
 //----------------------------------------------------------------------------
 
+
 oggplayer_c::oggplayer_c() : status(NOT_LOADED), vorbis_inf(NULL)
 {
+	ogg_file = NULL;
+
+	ogg_lump.data = NULL;
+
 	mono_buffer = new s16_t[OGGV_NUM_SAMPLES * 2];
 }
 
@@ -133,8 +206,8 @@ oggplayer_c::~oggplayer_c()
 {
 	Close();
 
-	delete[] mono_buffer;
-	mono_buffer = NULL;
+	if (mono_buffer)
+		delete[] mono_buffer;
 }
 
 const char * oggplayer_c::GetError(int code)
@@ -249,22 +322,49 @@ void oggplayer_c::ConvertToMono(s16_t *dest, const s16_t *src, int len)
 }
 
 
-void oggplayer_c::SetVolume(float gain) // FIXME: remove
-{ }
-
-
-void oggplayer_c::Open(const void *data, size_t size)
+void oggplayer_c::Volume(float gain)
 {
-	// DataLump version
-	//
+	// not needed, music volume is handled in s_blit.cc
+	// (see mix_channel_c::ComputeMusicVolume).
+}
+
+
+bool oggplayer_c::OpenLump(const char *lumpname)
+{
+	SYS_ASSERT(lumpname);
+
 	if (status != NOT_LOADED)
 		Close();
 
-	ogg_lump.data = new byte[size];
-	ogg_lump.pos = 0;
-	ogg_lump.size = size;
+	int lump = W_CheckNumForName(lumpname);
+	if (lump < 0)
+	{
+		I_Warning("oggplayer_c: LUMP '%s' not found.\n", lumpname);
+		return false;
+	}
 
-	memcpy(ogg_lump.data, data, size);  // OMG THE PAIN!!
+	epi::file_c *F = W_OpenLump(lump);
+
+	int length = F->GetLength();
+
+	byte *data = F->LoadIntoMemory();
+
+	if (! data)
+	{
+		delete F;
+		I_Warning("oggplayer_c: Error loading data.\n");
+		return false;
+	}
+	if (length < 4)
+	{
+		delete F;
+		I_Printf("oggplayer_c: ignored short data (%d bytes)\n", length);
+		return false;
+	}
+
+	ogg_lump.data = data;
+	ogg_lump.size = length;
+	ogg_lump.pos  = 0;
 
 	ov_callbacks CB;
 
@@ -287,15 +387,16 @@ void oggplayer_c::Open(const void *data, size_t size)
 		err_msg += GetError(result);
 
 		I_Error("%s\n", err_msg.c_str());
-		return; /* NOT REACHED */
+		return false; /* NOT REACHED */
     }
 
 	PostOpenInit();
+	return true;
 }
 
-void oggplayer_c::Open(const char *filename)
+bool oggplayer_c::OpenFile(const char *filename)
 {
-	// File Version
+	SYS_ASSERT(filename);
 
 	if (status != NOT_LOADED)
 		Close();
@@ -303,7 +404,8 @@ void oggplayer_c::Open(const char *filename)
 	ogg_file = fopen(filename, "rb");
     if (!ogg_file)
     {
-		I_Error("[oggplayer_c::OpenFile] Could not open file.\n");
+		I_Warning("oggplayer_c: Could not open file: '%s'\n", filename);
+		return false;
     }
 
 	ov_callbacks CB;
@@ -324,9 +426,11 @@ void oggplayer_c::Open(const char *filename)
 		err_msg += GetError(result);
 		
 		I_Error("%s\n", err_msg.c_str());
+		return false; /* NOT REACHED */
     }
 
 	PostOpenInit();
+	return true;
 }
 
 
@@ -341,6 +445,12 @@ void oggplayer_c::Close()
 	ov_clear(&ogg_stream);
 	
 	status = NOT_LOADED;
+	
+	if (ogg_lump.data)
+	{
+		delete[] ogg_lump.data;
+		ogg_lump.data = NULL;
+	}
 }
 
 
@@ -362,7 +472,7 @@ void oggplayer_c::Resume()
 }
 
 
-void oggplayer_c::Play(bool loop, float gain)
+void oggplayer_c::Play(bool loop)
 {
     if (status != NOT_LOADED && status != STOPPED)
         return;
@@ -407,6 +517,38 @@ void oggplayer_c::Ticker()
 			Stop();
 		}
 	}
+}
+
+
+//----------------------------------------------------------------------------
+
+abstract_music_c * S_PlayOGGMusic(const pl_entry_c *musdat, float volume, bool looping)
+{
+	oggplayer_c *player = new oggplayer_c();
+
+	if (musdat->infotype == MUSINF_LUMP)
+	{
+		if (! player->OpenLump(musdat->info.c_str()))
+		{
+			delete player;
+			return NULL;
+		}
+	}
+	else if (musdat->infotype == MUSINF_FILE)
+	{
+		if (! player->OpenFile(musdat->info.c_str()))
+		{
+			delete player;
+			return NULL;
+		}
+	}
+	else
+		I_Error("S_PlayOGGMusic: bad format value %d\n", musdat->infotype);
+
+	player->Volume(volume);
+	player->Play(looping);
+
+	return player;
 }
 
 //--- editor settings ---
