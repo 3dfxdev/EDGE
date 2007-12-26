@@ -22,7 +22,7 @@
 #include "common.h"
 #include "instrum.h"
 #include "playmidi.h"
-#include "readmidi.h"
+#include "loadmidi.h"
 #include "output.h"
 #include "ctrlmode.h"
 #include "timidity.h"
@@ -363,12 +363,14 @@ int Timidity_Init(int rate, int channels, int samples)
   return(0);
 }
 
+#if 0  // NOT USED
 char timidity_error[1024] = "";
 
 const char *Timidity_Error(void)
 {
   return(timidity_error);
 }
+#endif
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

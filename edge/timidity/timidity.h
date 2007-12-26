@@ -25,7 +25,7 @@
 typedef struct MidiSong_s MidiSong;
 
 extern int Timidity_Init(int rate, int channels, int samples);
-extern const char *Timidity_Error(void);
+/// extern const char *Timidity_Error(void);
 extern void Timidity_SetVolume(int volume);
 extern int Timidity_PlaySome(void *stream, int samples);
 extern MidiSong *Timidity_LoadSong(const byte *data, int length);
