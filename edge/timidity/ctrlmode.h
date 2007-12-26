@@ -20,6 +20,9 @@
     controls.h
 */
 
+#ifndef __TIMIDITY_CONTROLS_H__
+#define __TIMIDITY_CONTROLS_H__
+
 /* Return values for ControlMode.read */
 
 #define RC_ERROR -1
@@ -87,3 +90,8 @@ typedef struct ControlMode_s
 
 extern ControlMode *ctl_list[], *ctl; 
 extern char timidity_error[];
+
+#endif /* __TIMIDITY_CONTROLS_H__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

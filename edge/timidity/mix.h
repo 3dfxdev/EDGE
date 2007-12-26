@@ -1,5 +1,4 @@
 /*
-
     TiMidity -- Experimental MIDI to WAVE converter
     Copyright (C) 1995 Tuukka Toivonen <toivonen@clinet.fi>
 
@@ -19,9 +18,16 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
     mix.h
-
 */
+
+#ifndef __TIMIDITY_MIX_H__
+#define __TIMIDITY_MIX_H__
 
 extern void mix_voice(int32 *buf, int v, int32 c);
 extern int recompute_envelope(int v);
 extern void apply_envelope_to_amp(int v);
+
+#endif /* __TIMIDITY_MIX_H__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab
