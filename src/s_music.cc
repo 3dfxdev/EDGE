@@ -48,11 +48,12 @@ bool nomusic = false;
 bool nocdmusic = false;
 
 // FIXME: Temp
-extern abstract_music_c * I_PlayHWMusic(const byte *data, int length,
-			float volume, bool looping);
+abstract_music_c * I_PlayHWMusic(const byte *data, int length,
+			float volume, bool loop)
+{  return NULL; }
 
 
-void S_ChangeMusic(int entrynum, bool looping)
+void S_ChangeMusic(int entrynum, bool loop)
 {
 	if (nomusic)
 		return;
@@ -82,13 +83,13 @@ void S_ChangeMusic(int entrynum, bool looping)
 	if (play->type == MUS_CD)
 	{
 		int track = atoi(play->info);
-		music_player = I_PlayCDMusic(track, volume, looping);
+		music_player = I_PlayCDMusic(track, volume, loop);
 		return;
 	}
 
 	if (play->type == MUS_OGG)
 	{
-		music_player = S_PlayOGGMusic(play, volume, looping);
+		music_player = S_PlayOGGMusic(play, volume, loop);
 		return;
 	}
 
@@ -150,9 +151,9 @@ void S_ChangeMusic(int entrynum, bool looping)
 	bool is_mus = (data[0] == 'M' && data[1] == 'U' && data[2] == 'S');
 
 	if (var_music_dev == 0 && is_mus)
-		music_player = I_PlayHWMusic(data, length, volume, looping);
+		music_player = I_PlayHWMusic(data, length, volume, loop);
 	else
-		music_player = S_PlayTimidity(data, length, is_mus, volume, looping);
+		music_player = S_PlayTimidity(data, length, is_mus, volume, loop);
 
 #if 0
 	byte *data;

@@ -53,7 +53,7 @@ extern int var_music_dev;
 
 /* FUNCTIONS */
 
-void S_ChangeMusic(int entrynum, bool looping);
+void S_ChangeMusic(int entrynum, bool loop);
 void S_ResumeMusic(void);
 void S_PauseMusic(void);
 void S_StopMusic(void);
