@@ -1,5 +1,4 @@
 /*
-
     TiMidity -- Experimental MIDI to WAVE converter
     Copyright (C) 1995 Tuukka Toivonen <toivonen@clinet.fi>
 
@@ -17,6 +16,7 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+	loadmidi.c
 */
 
 #include "config.h"
@@ -1090,3 +1090,5 @@ past_riff:
   return groom_list(divisions, count, sp);
 }
 
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

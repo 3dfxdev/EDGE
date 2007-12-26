@@ -1,5 +1,4 @@
 /* 
-
     TiMidity -- Experimental MIDI to WAVE converter
     Copyright (C) 1995 Tuukka Toivonen <toivonen@clinet.fi>
 
@@ -18,6 +17,7 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
     dummy.c
+
     Minimal control mode -- no interaction, just stores messages.
 */
 
@@ -149,3 +149,5 @@ static int cmsg(int type, int verbosity_level, char *fmt, ...)
 #endif
 }
 
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

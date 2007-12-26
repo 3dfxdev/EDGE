@@ -1,5 +1,4 @@
 /*
-
     TiMidity -- Experimental MIDI to WAVE converter
     Copyright (C) 1995 Tuukka Toivonen <toivonen@clinet.fi>
 
@@ -18,7 +17,6 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
     playmidi.c -- random stuff in need of rearrangement
-
 */
 
 #include "config.h"
@@ -1766,3 +1764,6 @@ void Timidity_Close(void)
   free_pathlist();
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

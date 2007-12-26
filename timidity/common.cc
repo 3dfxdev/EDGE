@@ -1,5 +1,4 @@
 /*
-
     TiMidity -- Experimental MIDI to WAVE converter
     Copyright (C) 1995 Tuukka Toivonen <toivonen@clinet.fi>
 
@@ -18,8 +17,7 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
    common.c
-
-   */
+*/
 
 #include "config.h"
 
@@ -256,3 +254,6 @@ void free_pathlist(void)
   }
   pathlist = NULL;
 }
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

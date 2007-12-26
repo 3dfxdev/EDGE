@@ -1,5 +1,4 @@
 /*
-
     TiMidity -- Experimental MIDI to WAVE converter
     Copyright (C) 1995 Tuukka Toivonen <toivonen@clinet.fi>
 
@@ -20,14 +19,13 @@
     The 8-bit uLaw to 16-bit PCM and the 13-bit-PCM to 8-bit uLaw
     tables were lifted from the rsynth-2.0 sources.  The README says:
 
- >  
- > This is a text to speech system produced by integrating various pieces
- > of code and tables of data, which are all (I believe) in the public domain.
- >   
- > The bulk of the intergration was done by myself, that is Nick Ing-Simmons.
- > I can be reached via my employer at nik@tiuk.ti.com.
- >
-
+	>  
+	> This is a text to speech system produced by integrating various pieces
+	> of code and tables of data, which are all (I believe) in the public domain.
+	>   
+	> The bulk of the intergration was done by myself, that is Nick Ing-Simmons.
+	> I can be reached via my employer at nik@tiuk.ti.com.
+	>
 */
 
 #include "config.h"
@@ -1137,3 +1135,6 @@ int xmap[XMAPMAX][5] =
   { XGDRUM, 40, 64, 40, 103 },
   { XGDRUM, 40, 87, 40, 87 }
 };
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

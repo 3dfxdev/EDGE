@@ -1,5 +1,4 @@
 /*
-
     TiMidity -- Experimental MIDI to WAVE converter
     Copyright (C) 1995 Tuukka Toivonen <toivonen@clinet.fi>
 
@@ -19,7 +18,8 @@
     Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
     I bet they'll be amazed.
 
-    mix.c */
+    mix.c
+*/
 
 #include "config.h"
 
@@ -861,3 +861,6 @@ void mix_voice(int32 *buf, int v, int32 c)
 	}
     }
 }
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab
