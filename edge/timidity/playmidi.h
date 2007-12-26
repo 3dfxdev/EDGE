@@ -173,10 +173,6 @@ extern int XG_System_reverb_type;
 extern int XG_System_chorus_type;
 extern int XG_System_variation_type;
 
-extern int play_midi(MidiEvent *el, int32 events, int32 samples);
-extern int play_midi_file(char *fn);
-extern void dumb_pass_playing_list(int number_of_files, char *list_of_files[]);
-
 #endif /* __TIMIDITY_PLAYMIDI_H__ */
 
 //--- editor settings ---
