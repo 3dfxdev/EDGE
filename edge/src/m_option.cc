@@ -519,9 +519,6 @@ static optmenuitem_t soundoptions[] =
 	{OPT_Slider,   "Music Volume",  NULL, SND_SLIDER_NUM, CFGDEF_MUSIC_VOLUME, &mus_volume, M_ChangeMusVol, NULL},
 
 	{OPT_Plain,    "", NULL, 0,  0, NULL, NULL, NULL},
-	{OPT_Switch,   "Music Device",  MusicDevs,  2,  CFGDEF_MUSIC_DEVICE, &var_music_dev, NULL, NULL},
-
-	{OPT_Plain,    "", NULL, 0,  0, NULL, NULL, NULL},
 	{OPT_Switch,   "Sample Rate",   SampleRates, 5, CFGDEF_SAMPLE_RATE,  &var_sample_rate,  NULL, "NeedRestart"},
 	{OPT_Switch,   "Sample Size",   SoundBits, 2,   CFGDEF_SOUND_BITS,   &var_sound_bits,   NULL, "NeedRestart"},
 	{OPT_Switch,   "Stereo",        StereoNess, 3,  CFGDEF_SOUND_STEREO, &var_sound_stereo, NULL, "NeedRestart"},
@@ -529,6 +526,9 @@ static optmenuitem_t soundoptions[] =
 	{OPT_Plain,    "", NULL, 0,  0, NULL, NULL, NULL},
 	{OPT_Switch,  "Mix Channels",   MixChans,  4, CFGDEF_MIX_CHANNELS, &var_mix_channels, M_ChangeMixChan, NULL},
 	{OPT_Switch,  "Quiet Factor",   QuietNess, 3, CFGDEF_QUIET_FACTOR, &var_quiet_factor, NULL, NULL},
+
+	{OPT_Plain,    "", NULL, 0,  0, NULL, NULL, NULL},
+	{OPT_Switch,   "Music Device",  MusicDevs,  2,  CFGDEF_MUSIC_DEVICE, &var_music_dev, NULL, NULL},
 };
 
 static menuinfo_t soundoptionsinfo = 
