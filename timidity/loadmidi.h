@@ -29,6 +29,12 @@ typedef struct MidiEventList_s
 }
 MidiEventList;
 
+struct MidiSong
+{
+	int32 samples;
+	struct MidiEvent_s *events;
+};
+
 extern int32 quietchannels;
 
 #endif /* __TIMIDITY_LOADMIDI_H__ */

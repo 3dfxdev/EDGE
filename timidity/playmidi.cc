@@ -57,12 +57,6 @@ FLOAT_T
 int32 drumchannels=DEFAULT_DRUMCHANNELS;
 int adjust_panning_immediately=0;
 
-struct MidiSong_s
-{
-	int32 samples;
-	MidiEvent *events;
-};
-
 static int midi_playing = 0;
 static int32 lost_notes, cut_notes;
 static int32 *buffer_pointer;
@@ -1687,7 +1681,7 @@ void Timidity_SetVolume(int volume)
 }
 
 
-void Timidity_Start(MidiSong *song)
+void Timidity_Start(struct MidiSong *song)
 {
   load_missing_instruments();
   adjust_amplification();
@@ -1709,7 +1703,7 @@ void Timidity_Stop(void)
   midi_playing = 0;
 }
 
-void Timidity_FreeSong(MidiSong *song)
+void Timidity_FreeSong(struct MidiSong *song)
 {
   if (free_instruments_afterwards)
     free_instruments();

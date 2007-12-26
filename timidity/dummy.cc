@@ -36,14 +36,14 @@ extern ControlMode dummy_ctl;
 
 static PlayMode dummy_play_mode =
 {
-  DEFAULT_RATE, PE_16BIT|PE_SIGNED,
-  "EPI Audio"
+	DEFAULT_RATE, PE_16BIT|PE_SIGNED,
+	"EPI Audio"
 };
 
 PlayMode *play_mode_list[] =
 {
-  &dummy_play_mode,
-  0
+	&dummy_play_mode,
+	0
 };
 
 PlayMode *play_mode = &dummy_play_mode;
@@ -105,7 +105,7 @@ static void cmsg(int type, int verbosity, char *fmt, ...)
 ControlMode dummy_ctl = 
 {
 	"dummy interface", 's',
-	1,  // verbosity
+	2,  // verbosity
 	0,  // trace_playing
 	0,  // opened
 	ctl_open, NULL, ctl_close, ctl_read, cmsg,

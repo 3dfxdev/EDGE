@@ -29,11 +29,13 @@
 #include "loadmidi.h"
 #include "output.h"
 #include "ctrlmode.h"
+#include "timidity.h"
 
 int32 quietchannels=0;
 
 
 static int track_info, curr_track, curr_title_track;
+static int midi_port_number;
 static char title[128];
 
 #if MAXCHAN <= 16
@@ -374,15 +376,15 @@ static MidiEventList *read_midi_event(void)
 				case 0x21: /* MIDI port number */
 					if (len == 1)
 					{
-						byte midi_port_number;
+						byte port_num;
 
-						do_read(&midi_port_number,1,1);
+						do_read(&port_num,1,1);
+						midi_port_number = port_num;
 
 						if (midi_port_number == EOF)
 						{
 							ctl->cmsg(CMSG_ERROR, VERB_NORMAL,
-									"Warning: \"%s\": Short midi file.",
-									midi_name);
+									"Warning: Short midi file.");
 							return 0;
 						}
 						midi_port_number &= 0x0f;
@@ -990,6 +992,7 @@ static MidiEvent *groom_list(int32 divisions,int32 *eventsp,int32 *samplesp)
 	return groomed_list;
 }
 
+
 static MidiEvent *read_midi_file(int32 *sp)
 {
 	int32 len, divisions;
@@ -1013,6 +1016,7 @@ static MidiEvent *read_midi_file(int32 *sp)
 	{
 		if (ISDRUMCHANNEL(i)) channel[i].kit = 127;
 		else channel[i].kit = 0;
+
 		channel[i].brightness = 64;
 		channel[i].harmoniccontent = 64;
 		channel[i].variationbank = 0;
@@ -1066,7 +1070,8 @@ past_riff:
 		divisions=
 			(int32)(-(divisions_tmp/256)) * (int32)(divisions_tmp & 0xFF);
 	}
-	else divisions=(int32)(divisions_tmp);
+	else
+		divisions=(int32)(divisions_tmp);
 
 	if (len > 6)
 	{
@@ -1121,14 +1126,18 @@ past_riff:
 				else curr_track++;
 				break;
 	}
-	return groom_list(divisions, count, sp);
+
+	int32 count;
+
+	return groom_list(divisions, &count, sp);
 }
 
-MidiSong *Timidity_LoadSong(const byte *data, int length)
-{
-	MidiSong *song;
 
-	song = (MidiSong *)safe_malloc(sizeof(*song));
+struct MidiSong *Timidity_LoadSong(const byte *data, int length)
+{
+	struct MidiSong *song;
+
+	song = (struct MidiSong *)safe_malloc(sizeof(*song));
 	memset(song, 0, sizeof(*song));
 
 	/* Parse the data */
