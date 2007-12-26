@@ -68,24 +68,6 @@
    without it sound quality is very poor. */
 #define LINEAR_INTERPOLATION
 
-/* This is an experimental kludge that needs to be done right, but if
-   you've got an 8-bit sound card, or cheap multimedia speakers hooked
-   to your 16-bit output device, you should definitely give it a try.
-
-   Defining LOOKUP_HACK causes table lookups to be used in mixing
-   instead of multiplication. We convert the sample data to 8 bits at
-   load time and volumes to logarithmic 7-bit values before looking up
-   the product, which degrades sound quality noticeably.
-
-   Defining LOOKUP_HACK should save ~20% of CPU on an Intel machine.
-   LOOKUP_INTERPOLATION might give another ~5% */
-/* #define LOOKUP_HACK
-   #define LOOKUP_INTERPOLATION */
-
-/* Make envelopes twice as fast. Saves ~20% CPU time (notes decay
-   faster) and sounds more like a GUS. There is now a command line
-   option to toggle this as well. */
-/* #define FAST_DECAY */
 
 /* How many bits to use for the fractional part of sample positions.
    This affects tonal accuracy. The entire position counter must fit
@@ -162,13 +144,7 @@ typedef char int8;
 #define GUARD_BITS 3
 #define AMP_BITS (15-GUARD_BITS)
 
-#ifdef LOOKUP_HACK
-   typedef int8 sample_t;
-   typedef uint8 final_volume_t;
-#  define FINAL_VOLUME(v) (~_l2u[v])
-#  define MIXUP_SHIFT 5
-#  define MAX_AMP_VALUE 4095
-#else
+#if 1
    typedef int16 sample_t;
    typedef int32 final_volume_t;
 #  define FINAL_VOLUME(v) (v)

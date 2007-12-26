@@ -36,16 +36,6 @@ extern double expr_table[];
 extern double bend_fine[];
 extern double bend_coarse[];
 extern uint8 *_l2u; /* 13-bit PCM to 8-bit u-law */
-extern uint8 _l2u_[]; /* used in LOOKUP_HACK */
-#ifdef LOOKUP_HACK
-extern int16 _u2l[];
-extern int32 *mixup;
-#ifdef LOOKUP_INTERPOLATION
-extern int8 *iplookup;
-#endif
-#endif
-
-extern void init_tables(void);
 
 #define XMAPMAX 800
 extern int xmap[XMAPMAX][5];

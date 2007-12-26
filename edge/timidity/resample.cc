@@ -30,18 +30,12 @@
 #include "resample.h"
 
 #ifdef LINEAR_INTERPOLATION
-# if defined(LOOKUP_HACK) && defined(LOOKUP_INTERPOLATION)
-#   define RESAMPLATION \
-       v1=src[ofs>>FRACTION_BITS];\
-       v2=src[(ofs>>FRACTION_BITS)+1];\
-       *dest++ = (resample_t)(v1 + (iplookup[(((v2-v1)<<5) & 0x03FE0) | \
-           ((ofs & FRACTION_MASK) >> (FRACTION_BITS-5))]));
-# else
+
 #   define RESAMPLATION \
       v1=src[ofs>>FRACTION_BITS];\
       v2=src[(ofs>>FRACTION_BITS)+1];\
       *dest++ = (resample_t)(v1 + (((v2-v1) * (ofs & FRACTION_MASK)) >> FRACTION_BITS));
-# endif
+
 #  define INTERPVARS sample_t v1, v2
 #else
 /* Earplugs recommended for maximum listening enjoyment */
