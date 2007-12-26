@@ -25,13 +25,9 @@
 #include "ddf/main.h"
 #include "ddf/playlist.h"
 
-#ifdef USE_OGG
-#include "s_ogg.h"
-#endif
-
-#ifdef USE_HUMID
-#include "s_humid.h"
-#endif
+// FIXME !!!!!! temporary
+#undef USE_OGG
+#undef USE_HUMID
 
 #include "s_sound.h"
 #include "unx_sysinc.h"
@@ -128,6 +124,7 @@ void I_StartupMusic(void)
 	return;
 }
 
+#if 0
 //
 // I_MusicPlayback
 //
@@ -226,6 +223,7 @@ int I_MusicPlayback(i_music_info_t *musdat, int type, bool looping,
 
 	return handle;
 }
+#endif
 
 //
 // I_MusicPause
