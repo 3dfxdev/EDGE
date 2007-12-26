@@ -1715,6 +1715,11 @@ MidiSong *Timidity_LoadSong(const char *midifile)
   return(song);
 }
 
+MidiSong *Timidity_LoadSong(const byte *data, int length)
+{
+  //!!!!!! TODO : Timidity_LoadSong
+  return NULL;
+}
 
 void Timidity_Start(MidiSong *song)
 {
