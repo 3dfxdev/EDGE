@@ -53,15 +53,16 @@ typedef struct
 win32_mixer_t;
 
 // I_MUS.C - Win32 MUS Handling
-bool I_StartupMUS();
-int I_MUSPlayTrack(byte *data, int length, bool loopy, float gain);
-void I_MUSPause(void);
-void I_MUSResume(void);
-void I_MUSStop(void);
-void I_MUSTicker(void);
-bool I_MUSPlaying(void);
-void I_MUSSetVolume(float gain);
+bool I_StartupMUS(void);
 void I_ShutdownMUS(void);
+
+///---int I_MUSPlayTrack(byte *data, int length, bool loopy, float gain);
+///---void I_MUSPause(void);
+///---void I_MUSResume(void);
+///---void I_MUSStop(void);
+///---void I_MUSTicker(void);
+///---bool I_MUSPlaying(void);
+///---void I_MUSSetVolume(float gain);
 
 // I_MUSIC.C
 win32_mixer_t *I_MusicLoadMixer(DWORD type);

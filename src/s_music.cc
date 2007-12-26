@@ -47,10 +47,10 @@ bool nomusic = false;
 bool nocdmusic = false;
 
 // FIXME: Temp
-extern abstract_music_c * I_PlayHWMusic(byte *data, int length,
+extern abstract_music_c * I_PlayHWMusic(const byte *data, int length,
 			float volume, bool looping);
 
-abstract_music_c * S_PlayTimidity(byte *data, int length, bool is_mus,
+abstract_music_c * S_PlayTimidity(const byte *data, int length, bool is_mus,
 			float volume, bool looping)
 {
 	return NULL;
