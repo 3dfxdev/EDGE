@@ -1,5 +1,4 @@
 /*
-
     TiMidity -- Experimental MIDI to WAVE converter
     Copyright (C) 1995 Tuukka Toivonen <toivonen@clinet.fi>
 
@@ -743,3 +742,6 @@ void pre_resample(Sample * sp)
   sp->data = (sample_t *) newdata;
   sp->sample_rate = 0;
 }
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

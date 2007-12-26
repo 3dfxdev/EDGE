@@ -1,5 +1,4 @@
 /*
-
     TiMidity -- Experimental MIDI to WAVE converter
     Copyright (C) 1995 Tuukka Toivonen <toivonen@clinet.fi>
 
@@ -20,7 +19,6 @@
    instrum.c 
    
    Code to load and unload GUS-compatible instrument patches.
-
 */
 
 #include "config.h"
@@ -1021,3 +1019,6 @@ int set_default_instrument(char *name)
   default_program=SPECIAL_PROGRAM;
   return 0;
 }
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

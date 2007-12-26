@@ -1,5 +1,4 @@
 /* 
-
     TiMidity -- Experimental MIDI to WAVE converter
     Copyright (C) 1995 Tuukka Toivonen <toivonen@clinet.fi>
 
@@ -121,3 +120,6 @@ void s32toulaw(void *dp, int32 *lp, int32 c)
       *up++ = _l2u[l];
     }
 }
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

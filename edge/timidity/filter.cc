@@ -1,5 +1,4 @@
 /*
-
     TiMidity -- Experimental MIDI to WAVE converter
     Copyright (C) 1995 Tuukka Toivonen <toivonen@clinet.fi>
 
@@ -19,15 +18,9 @@
 
    filter.c: written by Vincent Pagel ( pagel@loria.fr ) 
  
-   implements fir antialiasing filter : should help when setting sample
+   Implements fir antialiasing filter : should help when setting sample
    rates as low as 8Khz.
-
-   April 95
-      - first draft
-
-   22/5/95
-      - modify "filter" so that it simulate leading and trailing 0 in the buffer
-   */
+*/
 
 #include "config.h"
 
@@ -198,3 +191,6 @@ void antialiasing(Sample *sp, int32 output_rate )
     
     free(temp);
 }
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab
