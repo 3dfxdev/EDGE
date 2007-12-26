@@ -31,10 +31,6 @@ MidiEventList;
 
 extern int32 quietchannels;
 
-extern MidiEvent *read_midi_file(FILE *mrw, int32 *count, int32 *sp);
-
-extern char midi_name[FILENAME_MAX+1];
-
 #endif /* __TIMIDITY_LOADMIDI_H__ */
 
 //--- editor settings ---
