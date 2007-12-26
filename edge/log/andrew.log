@@ -1,6 +1,20 @@
 Andrew Apted's Log
 
+2007/12/26:
+
+More work on new music code.  Updating WIN32 'MUS' playback
+code, also added a semaphore for safer synchronisation.
+Updated 'OGG' playback code.  Worked on 'Timidity' playback.
+
+Added 'Timidity Factor' to the Sound Options menu, used to
+control the amount of "safe bits" when timidity mixes the
+instruments together.  LOUD means 1 less safe bit (so more
+chance of clipping) and QUIET means 1 extra safe bit.
+
 2007/12/24:
+
+Save defaults whenever menus are cleared, in case of a crash
+for the poor user who spent a while adjusting everything.
 
 More reworking of the game state stuff: new E_InitialState()
 function which is (solely) responsible for setting up the
@@ -16,6 +30,10 @@ represents a loaded playable piece of music, and all the
 functions like Pause/Resume/Stop/Volume (etc) are pure
 virtual methods.  Each music subsystem will sub-class this
 base class.
+
+Added 'Music Device' into the Sound Options menu, for
+selecting whether to play MUS/MIDI via the System output
+(the midi-mapper on WIN32) or via Timidity.
 
 2007/12/23:
 
