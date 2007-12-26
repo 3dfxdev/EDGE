@@ -25,6 +25,8 @@
 #include "ddf/main.h"
 #include "ddf/playlist.h"
 
+#include "timidity/timidity.h"
+
 // FIXME !!!!!! temporary
 #undef USE_OGG
 #undef USE_HUMID
@@ -66,6 +68,10 @@ static char errordesc[MUSICERRLEN];
 bool musicpaused = false;
 
 
+extern int dev_freq;
+extern bool dev_stereo;
+
+
 void I_StartupMusic(void)
 {
 	// Clear the error message
@@ -95,26 +101,23 @@ void I_StartupMusic(void)
     }
 
 
-#ifdef USE_HUMID
+#if 1
 	if (! nosound)
 	{
-		humdinger = HumDingerInit();
-
-		if (humdinger)
+		if (0 == Timidity_Init(dev_freq, dev_stereo ? 2:1, 4096))
 		{
-			I_Printf("I_StartupMusic: Humidity Init OK\n");
+			I_Printf("I_StartupMusic: Timidity Init OK\n");
 			capable |= support_MUS | support_MIDI;
 		}
 		else
 		{
-			I_Printf("I_StartupMusic: Humidity Init FAILED: %s\n",
-				HumDingerGetError());
+			I_Printf("I_StartupMusic: Timidity Init FAILED\n");
 		}
 	}
 	else
-#endif  // USE_HUMID
+#endif
     {
-		I_Printf("I_StartupMusic: Humidity Disabled\n");
+		I_Printf("I_StartupMusic: Timidity Disabled\n");
     }
 
 	// Music is not paused by default
