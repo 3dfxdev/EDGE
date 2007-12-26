@@ -69,7 +69,7 @@ typedef struct ControlMode_s
   void (*pass_playing_list)(int number_of_files, char *list_of_files[]);
   void (*close)(void);
   int (*read)(int32 *valp);
-  int (*cmsg)(int type, int verbosity_level, char *fmt, ...);
+  void (*cmsg)(int type, int verbosity_level, char *fmt, ...);
 
   void (*refresh)(void);
   void (*reset)(void);
@@ -85,11 +85,10 @@ typedef struct ControlMode_s
   void (*panning)(int channel, int val);
   void (*sustain)(int channel, int val);
   void (*pitch_bend)(int channel, int val);
- 
-} ControlMode;
+}
+ControlMode;
 
 extern ControlMode *ctl_list[], *ctl; 
-extern char timidity_error[];
 
 #endif /* __TIMIDITY_CONTROLS_H__ */
 
