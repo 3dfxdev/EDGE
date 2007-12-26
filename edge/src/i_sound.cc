@@ -157,9 +157,6 @@ static int BuildSoundModeTryList(int want_freq, int want_bits, int want_stereo)
 }
 
 
-//
-// I_StartupSound
-//
 void I_StartupSound(void)
 {
 	if (nosound) return;
@@ -321,9 +318,7 @@ void I_StartupSound(void)
 	return;
 }
 
-//
-// I_ShutdownSound
-//
+
 void I_ShutdownSound(void)
 {
 	if (nosound)
