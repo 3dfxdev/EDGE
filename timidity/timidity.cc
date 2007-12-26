@@ -15,6 +15,8 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+	timidity.c
 */
 
 #include "config.h"
@@ -28,7 +30,9 @@
 #include "timidity.h"
 #include "tables.h"
 
-void (*s32tobuf)(void *dp, int32 *lp, int32 c);
+// pointer to conversion function
+void (*s32tobuf)(void *dp, const int32 *lp, int32 c);
+
 int free_instruments_afterwards=0;
 static char def_instr_name[256]="";
 

@@ -30,7 +30,7 @@
 /*****************************************************************/
 /* Some functions to convert signed 32-bit data to other formats */
 
-void s32tos8(void *dp, int32 *lp, int32 c)
+void s32tos8(void *dp, const int32 *lp, int32 c)
 {
   int8 *cp=(int8 *)(dp);
   int32 l;
@@ -43,7 +43,7 @@ void s32tos8(void *dp, int32 *lp, int32 c)
     }
 }
 
-void s32tou8(void *dp, int32 *lp, int32 c)
+void s32tou8(void *dp, const int32 *lp, int32 c)
 {
   uint8 *cp=(uint8 *)(dp);
   int32 l;
@@ -56,7 +56,7 @@ void s32tou8(void *dp, int32 *lp, int32 c)
     }
 }
 
-void s32tos16(void *dp, int32 *lp, int32 c)
+void s32tos16(void *dp, const int32 *lp, int32 c)
 {
   int16 *sp=(int16 *)(dp);
   int32 l;
@@ -69,7 +69,7 @@ void s32tos16(void *dp, int32 *lp, int32 c)
     }
 }
 
-void s32tou16(void *dp, int32 *lp, int32 c)
+void s32tou16(void *dp, const int32 *lp, int32 c)
 {
   uint16 *sp=(uint16 *)(dp);
   int32 l;
@@ -82,7 +82,7 @@ void s32tou16(void *dp, int32 *lp, int32 c)
     }
 }
 
-void s32tos16x(void *dp, int32 *lp, int32 c)
+void s32tos16x(void *dp, const int32 *lp, int32 c)
 {
   int16 *sp=(int16 *)(dp);
   int32 l;
@@ -95,7 +95,7 @@ void s32tos16x(void *dp, int32 *lp, int32 c)
     }
 }
 
-void s32tou16x(void *dp, int32 *lp, int32 c)
+void s32tou16x(void *dp, const int32 *lp, int32 c)
 {
   uint16 *sp=(uint16 *)(dp);
   int32 l;
@@ -108,7 +108,7 @@ void s32tou16x(void *dp, int32 *lp, int32 c)
     }
 }
 
-void s32toulaw(void *dp, int32 *lp, int32 c)
+void s32toulaw(void *dp, const int32 *lp, int32 c)
 {
   uint8 *up=(uint8 *)(dp);
   int32 l;
