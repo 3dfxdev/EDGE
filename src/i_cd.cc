@@ -45,8 +45,6 @@ static void MusicErrorPrintf(const char *fmt, ...)
 }
 
 //
-// I_StartupCD
-//
 // This routine checks attempts to init the CDROM device.
 // Returns true is successful
 //
@@ -92,13 +90,11 @@ bool I_StartupCD(void)
 	return true;
 }
 
-//
-// I_ShutdownCD
-//
-// Closes the cdrom device
-//
+
 void I_ShutdownCD()
 {
+	/* Closes the cdrom device */
+
 	if (cd_dev)
 	{
 		I_CDStopPlayback();
@@ -108,13 +104,11 @@ void I_ShutdownCD()
 	}
 }
 
-//
-// I_CDStartPlayback
-//
-// Attempts to play CD track 'tracknum', returns true on success.
-//
-bool I_CDStartPlayback(int tracknum, bool loop, float gain)
+
+abstract_music_c * I_PlayCDMusic(int tracknum, float volume, bool loop)
 {
+	/* Attempts to play CD track 'tracknum' */
+
 	if (cd_playing)
 		I_CDStopPlayback();
 
@@ -124,32 +118,32 @@ bool I_CDStartPlayback(int tracknum, bool loop, float gain)
 	if (! CD_INDRIVE(st))
 	{
 		MusicErrorPrintf("I_CDStartPlayback: no CD in drive.");
-		return false;
+		return NULL;
 	}
 
 	if (tracknum >= cd_dev->numtracks)
 	{
 		MusicErrorPrintf("I_CDStartPlayback: no such track #%d.", tracknum);
-		return false;
+		return NULL;
 	}
 
 	if (SDL_CDPlayTracks(cd_dev, tracknum, 0, 1, 0) < 0)
 	{
 		MusicErrorPrintf("I_CDStartPlayback: unable to play track #%d: %s",
 			tracknum, SDL_GetError());
-		return false;
+		return NULL;
 	}
 
 	currcd_track = tracknum;
 	currcd_loop  = loop;
-	I_CDSetVolume(gain);
+
+	I_CDSetVolume(volume);
 
 	cd_playing = true;
-	return true;
+	
+	return NULL;  // FIXME !!!!!!
 }
 
-//
-// I_CDPausePlayback
 //
 // Paused the playing CD
 //
@@ -158,8 +152,6 @@ bool I_CDPausePlayback(void)
 	return (SDL_CDPause(cd_dev) == 0);
 }
 
-//
-// I_CDresumePlayback
 //
 // Resumes the paused CD
 //
@@ -177,9 +169,7 @@ void I_CDStopPlayback(void)
 	cd_playing = false;
 }
 
-//
-// I_CDSetVolume
-//
+
 void I_CDSetVolume(float gain)
 {
 	// FIXME: no SDL function for changing CD volume
@@ -187,9 +177,7 @@ void I_CDSetVolume(float gain)
 	currcd_gain = gain;
 }
 
-//
-// I_CDFinished
-//
+
 // Has the CD Finished?
 //
 bool I_CDFinished(void)
@@ -199,16 +187,13 @@ bool I_CDFinished(void)
 	return (st == CD_STOPPED);  // what about CD_PAUSED ??
 }
 
-//
-// I_CDTicker
-//
 bool I_CDTicker(void)
 {
 	if (currcd_loop && I_CDFinished())
 	{
 		I_CDStopPlayback();  //???
 
-		if (! I_CDStartPlayback(currcd_track, currcd_loop, currcd_gain))
+		if (SDL_CDPlayTracks(cd_dev, currcd_track, 0, 1, 0) < 0)
 			return false;
 	}
 
