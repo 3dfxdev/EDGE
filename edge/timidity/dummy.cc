@@ -29,26 +29,16 @@
 #include "instrum.h"
 #include "playmidi.h"
 
-extern ControlMode dummy_control_mode;
+extern ControlMode dummy_ctl;
 
-ControlMode *ctl_list[] = 
-{
-  &dummy_control_mode,
-  0
-};
-
-ControlMode *ctl = &dummy_control_mode;
 
 /* export the playback mode */
 
-#define dpm dummy_play_mode
-
-PlayMode dpm = {
+static PlayMode dummy_play_mode =
+{
   DEFAULT_RATE, PE_16BIT|PE_SIGNED,
   "EPI Audio"
 };
-
-extern PlayMode dummy_play_mode;
 
 PlayMode *play_mode_list[] =
 {
@@ -73,81 +63,66 @@ static void ctl_sustain(int channel, int val) {}
 static void ctl_pitch_bend(int channel, int val) {}
 static void ctl_reset(void) {}
 
-static int ctl_open(int using_stdin, int using_stdout);
-static void ctl_close(void);
-static int ctl_read(int32 *valp);
-static int cmsg(int type, int verbosity_level, char *fmt, ...);
-
-/**********************************/
-/* export the interface functions */
-
-#define ctl dummy_control_mode
-
-ControlMode ctl = 
-{
-  "dummy interface", 's',
-  1,0,0,
-  ctl_open,NULL, ctl_close, ctl_read, cmsg,
-  ctl_refresh, ctl_reset, ctl_file_name, ctl_total_time, ctl_current_time, 
-  ctl_note, 
-  ctl_master_volume, ctl_program, ctl_volume, 
-  ctl_expression, ctl_panning, ctl_sustain, ctl_pitch_bend
-};
 
 static int ctl_open(int using_stdin, int using_stdout)
 {
-  ctl.opened=1;
-  return 0;
+	dummy_ctl.opened = 1;
+	return 0;
 }
 
 static void ctl_close(void)
 { 
-  ctl.opened=0;
+	dummy_ctl.opened = 0;
 }
 
 static int ctl_read(int32 *valp)
 {
-  return RC_NONE;
+	return RC_NONE;
 }
 
-static int cmsg(int type, int verbosity_level, char *fmt, ...)
+static void cmsg(int type, int verbosity, char *fmt, ...)
 {
-#ifdef GREGS_DEBUG
-  va_list ap;
-  int flag_newline = 1;
-  if ((type==CMSG_TEXT || type==CMSG_INFO || type==CMSG_WARNING) &&
-      ctl.verbosity<verbosity_level-1)
-    return 0;
-  if (*fmt == '~')
-    {
-      flag_newline = 0;
-      fmt++;
-    }
-  va_start(ap, fmt);
-  if (!ctl.opened)
-    {
-      vfprintf(stderr, fmt, ap);
-      if (flag_newline) fprintf(stderr, "\n");
-    }
-  else
-    {
-      vfprintf(stderr, fmt, ap);
-      if (flag_newline) fprintf(stderr, "\n");
-    }
-  va_end(ap);
-  if (!flag_newline) fflush(stderr);
-  return 0;
-#else
-  va_list ap;
-  if ((type==CMSG_TEXT || type==CMSG_INFO || type==CMSG_WARNING) &&
-      ctl.verbosity<verbosity_level)
-    return 0;
-  va_start(ap, fmt);
-  vsprintf(timidity_error, fmt, ap);
-  va_end(ap);
-  return 0;
-#endif
+	va_list ap;
+
+	if ((type==CMSG_TEXT || type==CMSG_INFO || type==CMSG_WARNING) &&
+		(dummy_ctl.verbosity < verbosity))
+		return;
+
+	char buffer[2048];
+
+	buffer[2047] = 0;
+
+	va_start(ap, fmt);
+	vsprintf(buffer, fmt, ap);
+	va_end(ap);
+
+	if (verbosity >= VERB_DEBUG)
+		I_Debugf("Timidity: %s\n", buffer);
+	else
+		I_Printf("Timidity: %s\n", buffer);
 }
+
+ControlMode dummy_ctl = 
+{
+	"dummy interface", 's',
+	1,  // verbosity
+	0,  // trace_playing
+	0,  // opened
+	ctl_open, NULL, ctl_close, ctl_read, cmsg,
+	ctl_refresh, ctl_reset, ctl_file_name, ctl_total_time,
+	ctl_current_time, ctl_note, 
+	ctl_master_volume, ctl_program, ctl_volume, 
+	ctl_expression, ctl_panning, ctl_sustain, ctl_pitch_bend
+};
+
+ControlMode *ctl_list[] = 
+{
+  &dummy_ctl,
+  0
+};
+
+ControlMode *ctl = &dummy_ctl;
+
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
