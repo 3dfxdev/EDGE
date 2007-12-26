@@ -30,10 +30,12 @@
 #define PE_ULAW 	0x08  /* versus linear */
 #define PE_BYTESWAP	0x10  /* versus the other way */
 
-typedef struct {
+typedef struct
+{
   int32 rate, encoding;
   char *id_name;
-} PlayMode;
+}
+PlayMode;
 
 extern PlayMode *play_mode_list[], *play_mode;
 extern int init_buffers(int kbytes);
@@ -45,22 +47,22 @@ extern int init_buffers(int kbytes);
 extern int AUDIO_BUFFER_SIZE;
 
 /* Actual copy function */
-extern void (*s32tobuf)(void *dp, int32 *lp, int32 c);
+extern void (*s32tobuf)(void *dp, const int32 *lp, int32 c);
 
 /* 8-bit signed and unsigned*/
-extern void s32tos8(void *dp, int32 *lp, int32 c);
-extern void s32tou8(void *dp, int32 *lp, int32 c);
+extern void s32tos8(void *dp, const int32 *lp, int32 c);
+extern void s32tou8(void *dp, const int32 *lp, int32 c);
 
 /* 16-bit */
-extern void s32tos16(void *dp, int32 *lp, int32 c);
-extern void s32tou16(void *dp, int32 *lp, int32 c);
+extern void s32tos16(void *dp, const int32 *lp, int32 c);
+extern void s32tou16(void *dp, const int32 *lp, int32 c);
 
 /* byte-exchanged 16-bit */
-extern void s32tos16x(void *dp, int32 *lp, int32 c);
-extern void s32tou16x(void *dp, int32 *lp, int32 c);
+extern void s32tos16x(void *dp, const int32 *lp, int32 c);
+extern void s32tou16x(void *dp, const int32 *lp, int32 c);
 
 /* uLaw (8 bits) */
-extern void s32toulaw(void *dp, int32 *lp, int32 c);
+extern void s32toulaw(void *dp, const int32 *lp, int32 c);
 
 #endif /* __TIMIDITY_OUTPUT_H__ */
 
