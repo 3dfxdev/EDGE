@@ -1,5 +1,4 @@
 /*
-
     TiMidity -- Experimental MIDI to WAVE converter
     Copyright (C) 1995 Tuukka Toivonen <toivonen@clinet.fi>
 
@@ -18,13 +17,17 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
    playmidi.h
+*/
 
-   */
+#ifndef __TIMIDITY_PLAYMIDI_H__
+#define __TIMIDITY_PLAYMIDI_H__
 
-typedef struct {
+typedef struct
+{
   int32 time;
   uint8 channel, type, a, b;
-} MidiEvent;
+}
+MidiEvent;
 
 /* Midi events */
 #define ME_NONE 	0
@@ -173,3 +176,8 @@ extern int XG_System_variation_type;
 extern int play_midi(MidiEvent *el, int32 events, int32 samples);
 extern int play_midi_file(char *fn);
 extern void dumb_pass_playing_list(int number_of_files, char *list_of_files[]);
+
+#endif /* __TIMIDITY_PLAYMIDI_H__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

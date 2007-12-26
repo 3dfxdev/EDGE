@@ -1,5 +1,4 @@
 /*
-
     TiMidity -- Experimental MIDI to WAVE converter
     Copyright (C) 1995 Tuukka Toivonen <toivonen@clinet.fi>
 
@@ -17,9 +16,11 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-
-   common.h
+	common.h
 */
+
+#ifndef __TIMIDITY_COMMON_H__
+#define __TIMIDITY_COMMON_H__
 
 extern char *program_name, current_filename[];
 
@@ -49,3 +50,7 @@ extern void skip(FILE *fp, size_t len);
 extern void *safe_malloc(size_t count);
 extern char *safe_strdup(const char *orig);
 
+#endif /* __TIMIDITY_COMMON_H__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

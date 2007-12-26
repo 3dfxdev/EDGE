@@ -1,5 +1,4 @@
 /*
-
     TiMidity -- Experimental MIDI to WAVE converter
     Copyright (C) 1995 Tuukka Toivonen <toivonen@clinet.fi>
 
@@ -17,17 +16,26 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+    timidity.h
 */
 
-typedef struct _MidiSong MidiSong;
+#ifndef __TIMIDITY_API_H__
+#define __TIMIDITY_API_H__
+
+typedef struct MidiSong_s MidiSong;
 
 extern int Timidity_Init(int rate, int channels, int samples);
 extern const char *Timidity_Error(void);
 extern void Timidity_SetVolume(int volume);
 extern int Timidity_PlaySome(void *stream, int samples);
-extern MidiSong *Timidity_LoadSong(const char *midifile);
+extern MidiSong *Timidity_LoadSong(const byte *data, int length);
 extern void Timidity_Start(MidiSong *song);
 extern int Timidity_Active(void);
 extern void Timidity_Stop(void);
 extern void Timidity_FreeSong(MidiSong *song);
 extern void Timidity_Close(void);
+
+#endif /* __TIMIDITY_API_H__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

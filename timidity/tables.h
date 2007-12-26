@@ -1,5 +1,4 @@
 /* 
-
     TiMidity -- Experimental MIDI to WAVE converter
     Copyright (C) 1995 Tuukka Toivonen <toivonen@clinet.fi>
 
@@ -19,6 +18,9 @@
 
     tables.h
 */
+
+#ifndef __TIMIDITY_TABLES_H__
+#define __TIMIDITY_TABLES_H__
 
 #ifdef LOOKUP_SINE
 extern FLOAT_T sine(int x);
@@ -48,3 +50,7 @@ extern void init_tables(void);
 #define XMAPMAX 800
 extern int xmap[XMAPMAX][5];
 
+#endif /* __TIMIDITY_TABLES_H__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

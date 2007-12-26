@@ -1,5 +1,4 @@
 /*
-
     TiMidity -- Experimental MIDI to WAVE converter
     Copyright (C) 1995 Tuukka Toivonen <toivonen@clinet.fi>
 
@@ -21,8 +20,10 @@
 
    implements fir antialiasing filter : should help when setting sample
    rates as low as 8Khz.
+*/
 
-   */
+#ifndef __TIMIDITY_FILTER_H__
+#define __TIMIDITY_FILTER_H__
 
 /* Order of the FIR filter = 20 should be enough ! */
 #define ORDER 20
@@ -33,3 +34,8 @@
 #endif
 
 extern void antialiasing(Sample *sp, int32 output_rate);
+
+#endif /* __TIMIDITY_FILTER_H__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

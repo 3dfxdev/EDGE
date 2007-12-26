@@ -1,5 +1,4 @@
 /* 
-
     TiMidity -- Experimental MIDI to WAVE converter
     Copyright (C) 1995 Tuukka Toivonen <toivonen@clinet.fi>
 
@@ -18,8 +17,10 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
     output.h
-
 */
+
+#ifndef __TIMIDITY_OUTPUT_H__
+#define __TIMIDITY_OUTPUT_H__
 
 /* Data format encoding bits */
 
@@ -61,3 +62,7 @@ extern void s32tou16x(void *dp, int32 *lp, int32 c);
 /* uLaw (8 bits) */
 extern void s32toulaw(void *dp, int32 *lp, int32 c);
 
+#endif /* __TIMIDITY_OUTPUT_H__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

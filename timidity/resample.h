@@ -1,5 +1,4 @@
 /*
-
     TiMidity -- Experimental MIDI to WAVE converter
     Copyright (C) 1995 Tuukka Toivonen <toivonen@clinet.fi>
 
@@ -20,5 +19,13 @@
     resample.h
 */
 
+#ifndef __TIMIDITY_RESAMPLE_H__
+#define __TIMIDITY_RESAMPLE_H__
+
 extern resample_t *resample_voice(int v, int32 *countptr);
 extern void pre_resample(Sample *sp);
+
+#endif /* __TIMIDITY_RESAMPLE_H__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -1,5 +1,4 @@
 /*
-
     TiMidity -- Experimental MIDI to WAVE converter
     Copyright (C) 1995 Tuukka Toivonen <toivonen@clinet.fi>
 
@@ -17,9 +16,11 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-   readmidi.h 
-   
-   */
+    loadmidi.h 
+*/
+
+#ifndef __TIMIDITY_LOADMIDI_H__
+#define __TIMIDITY_LOADMIDI_H__
 
 typedef struct MidiEventList_s
 {
@@ -33,3 +34,8 @@ extern int32 quietchannels;
 extern MidiEvent *read_midi_file(FILE *mrw, int32 *count, int32 *sp);
 
 extern char midi_name[FILENAME_MAX+1];
+
+#endif /* __TIMIDITY_LOADMIDI_H__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab
