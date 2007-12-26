@@ -18,6 +18,11 @@
 
 #include "i_defs.h"
 
+#include "epi/file.h"
+#include "epi/filesystem.h"
+
+#include "timidity/timidity.h"
+
 #include "s_cache.h"
 #include "s_blit.h"
 #include "s_timid.h"
@@ -28,21 +33,153 @@ extern bool dev_stereo;  // FIXME: encapsulation
 extern int  dev_freq;    //
 
 
-tim_player_c::tim_player_c() : status(NOT_LOADED), looping(false), song(NULL)
+class tim_player_c
 {
-}
+private:
+	enum status_e
+	{
+		NOT_LOADED, PLAYING, PAUSED, STOPPED
+	};
+	
+	int status;
+	bool looping;
 
-tim_player_c::~tim_player_c()
-{
-	Close();
-}
+	MidiSong *song;
+
+public:
+	tim_player_c() : status(NOT_LOADED), song(NULL)
+	{ }
+
+	~tim_player_c()
+	{
+		Close();
+	}
+
+public:
+
+	void Close(void)
+	{
+		if (status == NOT_LOADED)
+			return;
+
+		// Stop playback
+		Stop();
+
+		if (song)
+		{
+			Timidity_FreeSong(song);
+			song = NULL;
+		}
+		
+		status = NOT_LOADED;
+	}
+
+	void Play(bool loop)
+	{
+		if (! (status == NOT_LOADED || status == STOPPED))
+			return;
+
+		status = PLAYING;
+		looping = loop;
+
+		// Load up initial buffer data
+		Ticker();
+	}
+
+	void Stop(void)
+	{
+		if (! (status == PLAYING || status == PAUSED))
+			return;
+
+		S_QueueStop();
+
+		status = STOPPED;
+	}
+
+	void Pause(void)
+	{
+		if (status != PLAYING)
+			return;
+
+		status = PAUSED;
+	}
+
+	void Resume(void)
+	{
+		if (status != PAUSED)
+			return;
+
+		status = PLAYING;
+	}
+
+	void Ticker(void)
+	{
+		while (status == PLAYING)
+		{
+			epi::sound_data_c *buf = S_QueueGetFreeBuffer(TIMV_NUM_SAMPLES, 
+					dev_stereo ? epi::SBUF_Interleaved : epi::SBUF_Mono);
+
+			if (! buf)
+				break;
+
+			if (StreamIntoBuffer(buf))
+			{
+				S_QueueAddBuffer(buf, dev_freq);
+			}
+			else
+			{
+				// finished playing
+				S_QueueReturnBuffer(buf);
+
+				Stop();
+			}
+		}
+	}
+
+	void Volume(float gain)
+	{
+		// not needed, music volume is handled in s_blit.cc
+		// (see mix_channel_c::ComputeMusicVolume).
+	}
+
+private:
+
+	bool StreamIntoBuffer(epi::sound_data_c *buf)
+	{
+		int samples = 0;
+
+		while (samples < TIMV_NUM_SAMPLES)
+		{
+			s16_t *data_buf = buf->data_L + samples * (dev_stereo ? 2 : 1);
+
+			int got_num = Timidity_PlaySome(data_buf, TIMV_NUM_SAMPLES - samples);
+
+			if (got_num <= 0)  /* EOF */
+			{
+				if (looping)
+				{
+					Timidity_Stop();
+					Timidity_Start(song);
+
+					continue; // try again
+				}
+
+				break;
+			}
+
+			// FIXME error handling ???
+
+			samples += got_num;
+		}
+
+		return (samples > 0);
+	}
+
+};
 
 
-void tim_player_c::SetVolume(float gain) // FIXME: remove
-{ }
 
-
-void tim_player_c::Open(const void *data, size_t size)
+void OpenData(const void *data, size_t size)
 {
 	/* DataLump version */
 
@@ -67,7 +204,7 @@ void tim_player_c::Open(const void *data, size_t size)
 #endif
 }
 
-void tim_player_c::Open(const char *filename)
+void OpenFile(const char *filename)
 {
 	/* File version */
 
@@ -88,7 +225,7 @@ void tim_player_c::Open(const char *filename)
 
 }
 
-void tim_player_c::OpenMidiFile(const char *filename)
+void OpenMidiFile(const char *filename)
 {
 	// Loaded, but not playing
 	status = STOPPED;
@@ -99,121 +236,6 @@ void tim_player_c::OpenMidiFile(const char *filename)
 		I_Error("Timidity player: cannot load MIDI file!\n");
 
 	Timidity_Start(song);
-}
-
-
-void tim_player_c::Close()
-{
-	if (status == NOT_LOADED)
-		return;
-
-	// Stop playback
-	Stop();
-
-	if (song)
-	{
-		Timidity_FreeSong(song);
-		song = NULL;
-	}
-	
-	status = NOT_LOADED;
-}
-
-
-void tim_player_c::Pause()
-{
-	if (status != PLAYING)
-		return;
-
-	status = PAUSED;
-}
-
-
-void tim_player_c::Resume()
-{
-	if (status != PAUSED)
-		return;
-
-	status = PLAYING;
-}
-
-
-void tim_player_c::Play(bool loop, float gain)
-{
-    if (status != NOT_LOADED && status != STOPPED)
-        return;
-
-	status = PLAYING;
-	looping = loop;
-
-	// Load up initial buffer data
-	Ticker();
-}
-
-
-void tim_player_c::Stop()
-{
-	if (status != PLAYING && status != PAUSED)
-		return;
-
-	S_QueueStop();
-
-	status = STOPPED;
-}
-
-
-void tim_player_c::Ticker()
-{
-	while (status == PLAYING)
-	{
-		epi::sound_data_c *buf = S_QueueGetFreeBuffer(TIMV_NUM_SAMPLES, 
-				dev_stereo ? epi::SBUF_Interleaved : epi::SBUF_Mono);
-
-		if (! buf)
-			break;
-
-		if (StreamIntoBuffer(buf))
-		{
-			S_QueueAddBuffer(buf, dev_freq);
-		}
-		else
-		{
-			// finished playing
-			S_QueueReturnBuffer(buf);
-			Stop();
-		}
-	}
-}
-
-bool tim_player_c::StreamIntoBuffer(epi::sound_data_c *buf)
-{
-    int samples = 0;
-
-    while (samples < TIMV_NUM_SAMPLES)
-    {
-		s16_t *data_buf = buf->data_L + samples * (dev_stereo ? 2 : 1);
-
-        int got_num = Timidity_PlaySome(data_buf, TIMV_NUM_SAMPLES - samples);
-
-		if (got_num <= 0)  /* EOF */
-		{
-			if (looping)
-			{
-				Timidity_Stop();
-				Timidity_Start(song);
-
-				continue; // try again
-			}
-
-			break;
-		}
-
-		// FIXME error handling ???
-
-		samples += got_num;
-    }
-
-    return (samples > 0);
 }
 
 
