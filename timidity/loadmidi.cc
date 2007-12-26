@@ -21,8 +21,6 @@
 
 #include "config.h"
 
-#include <errno.h>
-
 #include "common.h"
 #include "instrum.h"
 #include "playmidi.h"
@@ -58,11 +56,9 @@ static void do_seek(int offset, int whence)
 {
 	SYS_ASSERT(whence == SEEK_CUR);
 
-	offset += song_pos;
-
-	offset = CLAMP(0, offset, song_len);
+	song_pos = CLAMP(0, song_pos + offset, song_len);
 }
-		
+
 static int do_read(void *ptr, int size, int maxnum)
 {
 	int avail = song_len - song_pos;
@@ -343,8 +339,7 @@ static MidiEventList *read_midi_event(void)
 		at+=getvl();
 		if (do_read(&me,1,1)!=1)
 		{
-			ctl->cmsg(CMSG_ERROR, VERB_NORMAL, "%s: read_midi_event: %s", 
-					current_filename, strerror(errno));
+			ctl->cmsg(CMSG_ERROR, VERB_NORMAL, "read_midi_event: EOF!");
 			return 0;
 		}
 
@@ -604,16 +599,14 @@ static int read_track(int append)
 	/* Check the formalities */
 	if ((do_read(tmp,1,4) != 4) || (do_read(&len,4,1) != 1))
 	{
-		ctl->cmsg(CMSG_ERROR, VERB_NORMAL,
-				"%s: Can't read track header.", current_filename);
+		ctl->cmsg(CMSG_ERROR, VERB_NORMAL, "Can't read track header.");
 		return -1;
 	}
 	len=EPI_BE_U32(len);
 
 	if (memcmp(tmp, "MTrk", 4))
 	{
-		ctl->cmsg(CMSG_ERROR, VERB_NORMAL,
-				"%s: Corrupt MIDI file.", current_filename);
+		ctl->cmsg(CMSG_ERROR, VERB_NORMAL, "Corrupt MIDI file.");
 		return -2;
 	}
 
@@ -1029,27 +1022,19 @@ past_riff:
 
 	if ((do_read(tmp,1,4) != 4) || (do_read(&len,4,1) != 1))
 	{
-		/* if (ferror(fp))
-		   {
-		   ctl->cmsg(CMSG_ERROR, VERB_NORMAL, "%s: %s", current_filename, 
-		   strerror(errno));
-		   }
-		   else*/
-		ctl->cmsg(CMSG_ERROR, VERB_NORMAL, 
-				"%s: Not a MIDI file!", current_filename);
+		ctl->cmsg(CMSG_ERROR, VERB_NORMAL, "Not a MIDI file!");
 		return 0;
 	}
 	len=EPI_BE_U32(len);
 
-	if (!memcmp(tmp, "RIFF", 4))
+	if (memcmp(tmp, "RIFF", 4) == 0)
 	{
 		do_read(tmp,1,12);
 		goto past_riff;
 	}
-	if (memcmp(tmp, "MThd", 4) || len < 6)
+	if (len < 6 || memcmp(tmp, "MThd", 4) != 0)
 	{
-		ctl->cmsg(CMSG_ERROR, VERB_NORMAL,
-				"%s: Not a MIDI file!", current_filename);
+		ctl->cmsg(CMSG_ERROR, VERB_NORMAL, "Not a MIDI file!");
 		return 0;
 	}
 
@@ -1075,15 +1060,12 @@ past_riff:
 
 	if (len > 6)
 	{
-		ctl->cmsg(CMSG_WARNING, VERB_NORMAL, 
-				"%s: MIDI file header size %ld bytes", 
-				current_filename, len);
+		ctl->cmsg(CMSG_WARNING, VERB_NORMAL, "MIDI file header size %ld bytes", len);
 		do_seek(len-6, SEEK_CUR); /* skip the excess */
 	}
 	if (format<0 || format >2)
 	{
-		ctl->cmsg(CMSG_ERROR, VERB_NORMAL, 
-				"%s: Unknown MIDI file format %d", current_filename, format);
+		ctl->cmsg(CMSG_ERROR, VERB_NORMAL, "Unknown MIDI file format %d", format);
 		return 0;
 	}
 	ctl->cmsg(CMSG_INFO, VERB_VERBOSE, 
