@@ -47,12 +47,10 @@ signed char drumchorusdepth[MAXCHAN][MAXNOTE];
 int
     voices=DEFAULT_VOICES;
 
-int32
-    control_ratio=0,
-    amplification=DEFAULT_AMPLIFICATION;
+int32 control_ratio=0;
+int32 amplification=DEFAULT_AMPLIFICATION;
 
-FLOAT_T
-    master_volume;
+FLOAT_T master_volume;
 
 int32 drumchannels=DEFAULT_DRUMCHANNELS;
 int adjust_panning_immediately=0;
@@ -1423,10 +1421,12 @@ static int apply_controls(void)
 
 static void do_compute_data(uint32 count)
 {
-	int i;
+I_Debugf("    do_compute_data: %d\n", count);
 	if (!count) return; /* (gl) */
-	memset(buffer_pointer, 0, count * num_ochannels * 4);
-	for (i=0; i<voices; i++)
+
+	memset(buffer_pointer, 0, count * num_ochannels * sizeof(int32));
+
+	for (int i=0; i<voices; i++)
 	{
 		if(voice[i].status != VOICE_FREE)
 		{
@@ -1448,8 +1448,9 @@ static void do_compute_data(uint32 count)
 
 /* count=0 means flush remaining buffered data to output device, then
    flush the device itself */
-static int compute_data(void *stream, int32 count)
+static int compute_data(void *stream, int32 count, int32 total)
 {
+I_Debugf("  compute_data: %d samples\n", count);
 	int rc, channels;
 
 	if ( play_mode->encoding & PE_MONO )
@@ -1468,11 +1469,11 @@ static int compute_data(void *stream, int32 count)
 		return RC_NONE;
 	}
 
-	while ((count+buffered_count) >= AUDIO_BUFFER_SIZE)
+	while ((count+buffered_count) >= total)
 	{
-		do_compute_data(AUDIO_BUFFER_SIZE-buffered_count);
-		count -= AUDIO_BUFFER_SIZE-buffered_count;
-		s32tobuf(stream, common_buffer, channels*AUDIO_BUFFER_SIZE);
+		do_compute_data(total-buffered_count);
+		count -= total-buffered_count;
+		s32tobuf(stream, common_buffer, channels*total);
 		buffer_pointer=common_buffer;
 		buffered_count=0;
 
@@ -1491,178 +1492,182 @@ static int compute_data(void *stream, int32 count)
 
 int Timidity_PlaySome(void *stream, int samples)
 {
-  int rc = RC_NONE;
-  int32 end_sample;
-  
-  if ( ! midi_playing ) {
-    return RC_NONE;
-  }
-  
-  end_sample = current_sample+samples;
-  
-  while ( current_sample < end_sample )
-  {
-    /* Handle all events that should happen at this time */
-    while (current_event->time <= current_sample)
+	int rc = RC_NONE;
+	int32 end_sample;
+
+	if ( ! midi_playing ) {
+		return 0; ////  RC_NONE;
+	}
+
+I_Debugf("\nTimidity_PlaySome: samples=%d\n", samples);
+	end_sample = current_sample + samples;
+
+	while ( current_sample < end_sample )
 	{
-      switch(current_event->type)
-	  {
-        /* Effects affecting a single note */
+		/* Handle all events that should happen at this time */
+		while (current_event->time <= current_sample)
+		{
+			switch(current_event->type)
+			{
+				/* Effects affecting a single note */
 
-        case ME_NOTEON:
-	  current_event->a += channel[current_event->channel].transpose;
-          if (!(current_event->b)) /* Velocity 0? */
-            note_off(current_event);
-          else
-            note_on(current_event);
-          break;
-  
-        case ME_NOTEOFF:
-	  current_event->a += channel[current_event->channel].transpose;
-          note_off(current_event);
-          break;
-  
-        case ME_KEYPRESSURE:
-          adjust_pressure(current_event);
-          break;
-  
-          /* Effects affecting a single channel */
-  
-        case ME_PITCH_SENS:
-          channel[current_event->channel].pitchsens=current_event->a;
-          channel[current_event->channel].pitchfactor=0;
-          break;
-          
-        case ME_PITCHWHEEL:
-          channel[current_event->channel].pitchbend=
-            current_event->a + current_event->b * 128;
-          channel[current_event->channel].pitchfactor=0;
-          /* Adjust pitch for notes already playing */
-          adjust_pitchbend(current_event->channel);
-          ctl->pitch_bend(current_event->channel, 
-              channel[current_event->channel].pitchbend);
-          break;
-          
-        case ME_MAINVOLUME:
-          channel[current_event->channel].volume=current_event->a;
-          adjust_volume(current_event->channel);
-          ctl->volume(current_event->channel, current_event->a);
-          break;
+				case ME_NOTEON:
+					current_event->a += channel[current_event->channel].transpose;
+					if (!(current_event->b)) /* Velocity 0? */
+						note_off(current_event);
+					else
+						note_on(current_event);
+					break;
 
-	case ME_MASTERVOLUME:
-	  adjust_master_volume(current_event->a + (current_event->b <<7));
-	  break;
-	      
-	case ME_REVERBERATION:
-	  channel[current_event->channel].reverberation=current_event->a;
-	  break;
+				case ME_NOTEOFF:
+					current_event->a += channel[current_event->channel].transpose;
+					note_off(current_event);
+					break;
 
-	case ME_CHORUSDEPTH:
-	  channel[current_event->channel].chorusdepth=current_event->a;
-	  break;
+				case ME_KEYPRESSURE:
+					adjust_pressure(current_event);
+					break;
 
-        case ME_PAN:
-          channel[current_event->channel].panning=current_event->a;
-          if (adjust_panning_immediately)
-            adjust_panning(current_event->channel);
-          ctl->panning(current_event->channel, current_event->a);
-          break;
-          
-        case ME_EXPRESSION:
-          channel[current_event->channel].expression=current_event->a;
-          adjust_volume(current_event->channel);
-          ctl->expression(current_event->channel, current_event->a);
-          break;
-  
-        case ME_PROGRAM:
-          /* if (ISDRUMCHANNEL(current_event->channel)) { */
-	  if (channel[current_event->channel].kit) {
-            /* Change drum set */
-            channel[current_event->channel].bank=current_event->a;
-          }
-          else
-          {
-            channel[current_event->channel].program=current_event->a;
-          }
-          ctl->program(current_event->channel, current_event->a);
-          break;
-  
-        case ME_SUSTAIN:
-          channel[current_event->channel].sustain=current_event->a;
-          if (!current_event->a)
-            drop_sustain(current_event->channel);
-          ctl->sustain(current_event->channel, current_event->a);
-          break;
-          
-        case ME_RESET_CONTROLLERS:
-          reset_controllers(current_event->channel);
-          redraw_controllers(current_event->channel);
-          break;
-  
-        case ME_ALL_NOTES_OFF:
-          all_notes_off(current_event->channel);
-          break;
-          
-        case ME_ALL_SOUNDS_OFF:
-          all_sounds_off(current_event->channel);
-          break;
+					/* Effects affecting a single channel */
 
-	case ME_HARMONICCONTENT:
-	  channel[current_event->channel].harmoniccontent=current_event->a;
-	  break;
+				case ME_PITCH_SENS:
+					channel[current_event->channel].pitchsens=current_event->a;
+					channel[current_event->channel].pitchfactor=0;
+					break;
 
-	case ME_RELEASETIME:
-	  channel[current_event->channel].releasetime=current_event->a;
-	  break;
+				case ME_PITCHWHEEL:
+					channel[current_event->channel].pitchbend=
+						current_event->a + current_event->b * 128;
+					channel[current_event->channel].pitchfactor=0;
+					/* Adjust pitch for notes already playing */
+					adjust_pitchbend(current_event->channel);
+					ctl->pitch_bend(current_event->channel, 
+							channel[current_event->channel].pitchbend);
+					break;
 
-	case ME_ATTACKTIME:
-	  channel[current_event->channel].attacktime=current_event->a;
-	  break;
+				case ME_MAINVOLUME:
+					channel[current_event->channel].volume=current_event->a;
+					adjust_volume(current_event->channel);
+					ctl->volume(current_event->channel, current_event->a);
+					break;
 
-	case ME_BRIGHTNESS:
-	  channel[current_event->channel].brightness=current_event->a;
-	  break;
+				case ME_MASTERVOLUME:
+					adjust_master_volume(current_event->a + (current_event->b <<7));
+					break;
 
-        case ME_TONE_BANK:
-          channel[current_event->channel].bank=current_event->a;
-          break;
+				case ME_REVERBERATION:
+					channel[current_event->channel].reverberation=current_event->a;
+					break;
+
+				case ME_CHORUSDEPTH:
+					channel[current_event->channel].chorusdepth=current_event->a;
+					break;
+
+				case ME_PAN:
+					channel[current_event->channel].panning=current_event->a;
+					if (adjust_panning_immediately)
+						adjust_panning(current_event->channel);
+					ctl->panning(current_event->channel, current_event->a);
+					break;
+
+				case ME_EXPRESSION:
+					channel[current_event->channel].expression=current_event->a;
+					adjust_volume(current_event->channel);
+					ctl->expression(current_event->channel, current_event->a);
+					break;
+
+				case ME_PROGRAM:
+					/* if (ISDRUMCHANNEL(current_event->channel)) { */
+					if (channel[current_event->channel].kit) {
+						/* Change drum set */
+						channel[current_event->channel].bank=current_event->a;
+					}
+					else
+					{
+						channel[current_event->channel].program=current_event->a;
+					}
+					ctl->program(current_event->channel, current_event->a);
+					break;
+
+				case ME_SUSTAIN:
+					channel[current_event->channel].sustain=current_event->a;
+					if (!current_event->a)
+						drop_sustain(current_event->channel);
+					ctl->sustain(current_event->channel, current_event->a);
+					break;
+
+				case ME_RESET_CONTROLLERS:
+					reset_controllers(current_event->channel);
+					redraw_controllers(current_event->channel);
+					break;
+
+				case ME_ALL_NOTES_OFF:
+					all_notes_off(current_event->channel);
+					break;
+
+				case ME_ALL_SOUNDS_OFF:
+					all_sounds_off(current_event->channel);
+					break;
+
+				case ME_HARMONICCONTENT:
+					channel[current_event->channel].harmoniccontent=current_event->a;
+					break;
+
+				case ME_RELEASETIME:
+					channel[current_event->channel].releasetime=current_event->a;
+					break;
+
+				case ME_ATTACKTIME:
+					channel[current_event->channel].attacktime=current_event->a;
+					break;
+
+				case ME_BRIGHTNESS:
+					channel[current_event->channel].brightness=current_event->a;
+					break;
+
+				case ME_TONE_BANK:
+					channel[current_event->channel].bank=current_event->a;
+					break;
 
 
-	case ME_TONE_KIT:
-	  if (current_event->a==SFX_BANKTYPE)
-	  {
-	    channel[current_event->channel].sfx=SFXBANK;
-	    channel[current_event->channel].kit=0;
-	  }
-	  else
-	  {
-	    channel[current_event->channel].sfx=0;
-	    channel[current_event->channel].kit=current_event->a;
-	  }
-	  break;
+				case ME_TONE_KIT:
+					if (current_event->a==SFX_BANKTYPE)
+					{
+						channel[current_event->channel].sfx=SFXBANK;
+						channel[current_event->channel].kit=0;
+					}
+					else
+					{
+						channel[current_event->channel].sfx=0;
+						channel[current_event->channel].kit=current_event->a;
+					}
+					break;
 
-        case ME_EOT:
-          /* Give the last notes a couple of seconds to decay  */
-          ctl->cmsg(CMSG_INFO, VERB_VERBOSE,
-            "Playing time: ~%d seconds", current_sample/play_mode->rate+2);
-          ctl->cmsg(CMSG_INFO, VERB_VERBOSE,
-            "Notes cut: %d", cut_notes);
-          ctl->cmsg(CMSG_INFO, VERB_VERBOSE,
-          "Notes lost totally: %d", lost_notes);
-          midi_playing = 0;
-          return RC_TUNE_END;
-        }
-      current_event++;
-    }
-    if (current_event->time > end_sample)
-      rc=compute_data(stream, end_sample-current_sample);
-    else
-      rc=compute_data(stream, current_event->time-current_sample);
-    ctl->refresh();
-    if ( (rc!=RC_NONE) && (rc!=RC_JUMP))
-      break;
-  }
-  return rc;
+				case ME_EOT:
+					/* Give the last notes a couple of seconds to decay  */
+					ctl->cmsg(CMSG_INFO, VERB_VERBOSE,
+							"Playing time: ~%d seconds", current_sample/play_mode->rate+2);
+					ctl->cmsg(CMSG_INFO, VERB_VERBOSE,
+							"Notes cut: %d", cut_notes);
+					ctl->cmsg(CMSG_INFO, VERB_VERBOSE,
+							"Notes lost totally: %d", lost_notes);
+					midi_playing = 0;
+					return RC_TUNE_END;
+			}
+			current_event++;
+		}
+		if (current_event->time > end_sample)
+			rc = compute_data(stream, end_sample-current_sample, samples);
+		else
+			rc = compute_data(stream, current_event->time-current_sample, samples);
+
+		ctl->refresh();
+
+		if ( (rc!=RC_NONE) && (rc!=RC_JUMP))
+			break;
+	}
+
+	return samples;
 }
 
 
