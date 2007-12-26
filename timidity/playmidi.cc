@@ -21,11 +21,8 @@
 
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include "config.h"
+
 #include "common.h"
 #include "instrum.h"
 #include "playmidi.h"
@@ -34,7 +31,6 @@
 #include "mix.h"
 #include "ctrlmode.h"
 #include "timidity.h"
-
 #include "tables.h"
 
 
@@ -63,10 +59,12 @@ FLOAT_T
 int32 drumchannels=DEFAULT_DRUMCHANNELS;
 int adjust_panning_immediately=0;
 
-struct _MidiSong {
+struct MidiSong_s
+{
 	int32 samples;
 	MidiEvent *events;
 };
+
 static int midi_playing = 0;
 static int32 lost_notes, cut_notes;
 static int32 *buffer_pointer;

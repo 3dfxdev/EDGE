@@ -21,11 +21,8 @@
 
     mix.c */
 
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-
 #include "config.h"
+
 #include "common.h"
 #include "instrum.h"
 #include "playmidi.h"

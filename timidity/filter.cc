@@ -29,11 +29,8 @@
       - modify "filter" so that it simulate leading and trailing 0 in the buffer
    */
 
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
-#include <stdlib.h>
 #include "config.h"
+
 #include "common.h"
 #include "ctrlmode.h"
 #include "instrum.h"

@@ -16,13 +16,10 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-
 */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 #include "config.h"
+
 #include "common.h"
 #include "instrum.h"
 #include "playmidi.h"
@@ -30,7 +27,6 @@
 #include "output.h"
 #include "ctrlmode.h"
 #include "timidity.h"
-
 #include "tables.h"
 
 void (*s32tobuf)(void *dp, int32 *lp, int32 c);

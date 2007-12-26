@@ -19,12 +19,10 @@
 
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <string.h>
-
 #include "config.h"
+
+#include <errno.h>
+
 #include "common.h"
 #include "instrum.h"
 #include "playmidi.h"

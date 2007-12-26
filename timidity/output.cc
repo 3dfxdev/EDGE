@@ -23,6 +23,7 @@
 */
 
 #include "config.h"
+
 #include "output.h"
 #include "tables.h"
 
