@@ -204,9 +204,7 @@ static int update_signal(int v)
   return 0;
 }
 
-#ifdef LOOKUP_HACK
-#  define MIXATION(a)	*lp++ += mixup[(a<<8) | (uint8)s];
-#else
+#if 1
 #  define MIXATION(a)	*lp++ += (a)*s;
 #endif
 

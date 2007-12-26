@@ -348,8 +348,6 @@ int Timidity_Init(int rate, int channels, int samples)
   resample_buffer = (resample_t*)safe_malloc(AUDIO_BUFFER_SIZE*sizeof(resample_t)+100);
   common_buffer = (int32*)safe_malloc(AUDIO_BUFFER_SIZE*num_ochannels*sizeof(int32));
 
-  init_tables();
-
   if (ctl->open(0, 0)) {
     ctl->cmsg(CMSG_ERROR, VERB_NORMAL, "Couldn't open %s\n", ctl->id_name);
     return(-1);

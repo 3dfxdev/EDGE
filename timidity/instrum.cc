@@ -828,21 +828,6 @@ static InstrumentLayer *load_instrument(char *name, int font_type, int percussio
       if (sp->note_to_use && !(sp->modes & MODES_LOOPING))
 	pre_resample(sp);
 
-#ifdef LOOKUP_HACK
-      /* Squash the 16-bit data into 8 bits. */
-      {
-	uint8 *gulp,*ulp;
-	int16 *swp;
-	int l=sp->data_length >> FRACTION_BITS;
-	gulp=ulp=safe_malloc(l+1);
-	swp=(int16 *)sp->data;
-	while(l--)
-	  *ulp++ = (*swp++ >> 8) & 0xFF;
-	free(sp->data);
-	sp->data=(sample_t *)gulp;
-      }
-#endif
-      
       if (strip_tail==1)
 	{
 	  /* Let's not really, just say we did. */
