@@ -32,6 +32,7 @@
 #include "s_sound.h"
 #include "s_music.h"
 #include "s_ogg.h"
+#include "s_timid.h"
 #include "m_misc.h"
 #include "w_wad.h"
 
@@ -49,12 +50,6 @@ bool nocdmusic = false;
 // FIXME: Temp
 extern abstract_music_c * I_PlayHWMusic(const byte *data, int length,
 			float volume, bool looping);
-
-abstract_music_c * S_PlayTimidity(const byte *data, int length, bool is_mus,
-			float volume, bool looping)
-{
-	return NULL;
-}
 
 
 void S_ChangeMusic(int entrynum, bool looping)

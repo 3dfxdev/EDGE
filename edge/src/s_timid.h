@@ -21,8 +21,9 @@
 
 #include "i_defs.h"
 
-abstract_music_c * S_PlayTimidity(const byte *data, int length, bool is_mus,
-			float volume, bool looping);
+abstract_music_c * S_PlayTimidity(byte *data, int length, bool is_mus,
+			float volume, bool loop);
+// this function will delete[] the 'data' parameter
 
 #endif /* __S_TIMID_H__ */
 
