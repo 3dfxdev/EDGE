@@ -64,10 +64,6 @@
    of envelopes and tremolo. The cost is CPU time. */
 #define CONTROLS_PER_SECOND 1000
 
-/* Strongly recommended. This option increases CPU usage by half, but
-   without it sound quality is very poor. */
-#define LINEAR_INTERPOLATION
-
 
 /* How many bits to use for the fractional part of sample positions.
    This affects tonal accuracy. The entire position counter must fit

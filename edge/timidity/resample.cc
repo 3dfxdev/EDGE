@@ -29,19 +29,12 @@
 #include "tables.h"
 #include "resample.h"
 
-#ifdef LINEAR_INTERPOLATION
-
-#   define RESAMPLATION \
+#define RESAMPLATION \
       v1=src[ofs>>FRACTION_BITS];\
       v2=src[(ofs>>FRACTION_BITS)+1];\
       *dest++ = (resample_t)(v1 + (((v2-v1) * (ofs & FRACTION_MASK)) >> FRACTION_BITS));
 
-#  define INTERPVARS sample_t v1, v2
-#else
-/* Earplugs recommended for maximum listening enjoyment */
-#  define RESAMPLATION *dest++ = src[ofs>>FRACTION_BITS];
-#  define INTERPVARS
-#endif
+#define INTERPVARS sample_t v1, v2
 
 #define FINALINTERP if (ofs == le) *dest++=src[ofs>>FRACTION_BITS];
 /* So it isn't interpolation. At least it's final. */
