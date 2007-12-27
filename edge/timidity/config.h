@@ -132,7 +132,7 @@ typedef char int8;
 #endif
 
 /* These affect general volume */
-#define GUARD_BITS 3
+#define GUARD_BITS 4
 #define AMP_BITS (15-GUARD_BITS)
 
 #if 1

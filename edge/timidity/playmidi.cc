@@ -125,10 +125,6 @@ static void reset_controllers(int c)
 
 static void redraw_controllers(int c)
 {
-  ctl->volume(c, channel[c].volume);
-  ctl->expression(c, channel[c].expression);
-  ctl->sustain(c, channel[c].sustain);
-  ctl->pitch_bend(c, channel[c].pitchbend);
 }
 
 static void reset_midi(void)
@@ -147,9 +143,8 @@ static void reset_midi(void)
 		channel[i].brightness=64;
 		channel[i].sfx=0;
 	}
-	reset_voices();
 
-	ctl->reset();
+	reset_voices();
 }
 
 static void select_sample(int v, Instrument *ip)
@@ -792,7 +787,7 @@ static void start_note(MidiEvent *e, int i)
 		ip = lp->instrument;
 		if (ip->type == INST_GUS && ip->samples != 1)
 		{
-			ctl->cmsg(CMSG_WARNING, VERB_VERBOSE, 
+			ctl_msg(CMSG_WARNING, VERB_VERBOSE, 
 					"Strange: percussion instrument with %d samples!", ip->samples);
 		}
 
@@ -996,8 +991,6 @@ static void start_note(MidiEvent *e, int i)
 	clone_voice(ip, i, e, STEREO_CLONE, variationbank);
 	clone_voice(ip, i, e, CHORUS_CLONE, variationbank);
 	clone_voice(ip, i, e, REVERB_CLONE, variationbank);
-
-	ctl->note(i);
 }
 
 static void kill_note(int i)
@@ -1005,7 +998,6 @@ static void kill_note(int i)
 	voice[i].status=VOICE_DIE;
 	if (voice[i].clone_voice >= 0)
 		voice[ voice[i].clone_voice ].status=VOICE_DIE;
-	ctl->note(i);
 }
 
 
@@ -1089,7 +1081,6 @@ static void note_on(MidiEvent *e)
 
 		cut_notes++;
 		voice[lowest].status=VOICE_FREE;
-		ctl->note(lowest);
 		start_note(e,lowest);
 	}
 	else
@@ -1105,7 +1096,6 @@ static void finish_note(int i)
 		voice[i].status=VOICE_OFF;
 		recompute_envelope(i);
 		apply_envelope_to_amp(i);
-		ctl->note(i);
 	}
 	else
 	{
@@ -1141,8 +1131,6 @@ static void note_off(MidiEvent *e)
 					if (voice[v].status == VOICE_ON)
 						voice[v].status=VOICE_SUSTAINED;
 				}
-
-				ctl->note(i);
 			}
 			else
 				finish_note(i);
@@ -1154,7 +1142,7 @@ static void note_off(MidiEvent *e)
 static void all_notes_off(int c)
 {
 	int i=voices;
-	ctl->cmsg(CMSG_INFO, VERB_DEBUG, "All notes off on channel %d", c);
+	ctl_msg(CMSG_INFO, VERB_DEBUG, "All notes off on channel %d", c);
 	while (i--)
 		if (voice[i].status==VOICE_ON &&
 				voice[i].channel==c)
@@ -1162,7 +1150,6 @@ static void all_notes_off(int c)
 			if (channel[c].sustain) 
 			{
 				voice[i].status=VOICE_SUSTAINED;
-				ctl->note(i);
 			}
 			else
 				finish_note(i);
@@ -1294,7 +1281,6 @@ I_Debugf("  compute_data: %d samples\n", count);
 		buffer_pointer=common_buffer;
 		buffered_count=0;
 
-		ctl->current_time(current_sample);
 	}
 
 	if (count>0)
@@ -1346,14 +1332,11 @@ static bool handle_recent_events(void)
 				channel[current_event->channel].pitchfactor=0;
 				/* Adjust pitch for notes already playing */
 				adjust_pitchbend(current_event->channel);
-				ctl->pitch_bend(current_event->channel, 
-						channel[current_event->channel].pitchbend);
 				break;
 
 			case ME_MAINVOLUME:
 				channel[current_event->channel].volume=current_event->a;
 				adjust_volume(current_event->channel);
-				ctl->volume(current_event->channel, current_event->a);
 				break;
 
 			case ME_MASTERVOLUME:
@@ -1372,13 +1355,11 @@ static bool handle_recent_events(void)
 				channel[current_event->channel].panning=current_event->a;
 				if (adjust_panning_immediately)
 					adjust_panning(current_event->channel);
-				ctl->panning(current_event->channel, current_event->a);
 				break;
 
 			case ME_EXPRESSION:
 				channel[current_event->channel].expression=current_event->a;
 				adjust_volume(current_event->channel);
-				ctl->expression(current_event->channel, current_event->a);
 				break;
 
 			case ME_PROGRAM:
@@ -1391,14 +1372,12 @@ static bool handle_recent_events(void)
 				{
 					channel[current_event->channel].program=current_event->a;
 				}
-				ctl->program(current_event->channel, current_event->a);
 				break;
 
 			case ME_SUSTAIN:
 				channel[current_event->channel].sustain=current_event->a;
 				if (!current_event->a)
 					drop_sustain(current_event->channel);
-				ctl->sustain(current_event->channel, current_event->a);
 				break;
 
 			case ME_RESET_CONTROLLERS:
@@ -1450,11 +1429,11 @@ static bool handle_recent_events(void)
 
 			case ME_EOT:
 				/* Give the last notes a couple of seconds to decay */
-				ctl->cmsg(CMSG_INFO, VERB_VERBOSE,
+				ctl_msg(CMSG_INFO, VERB_VERBOSE,
 						"Playing time: ~%d seconds", current_sample/play_mode->rate+2);
-				ctl->cmsg(CMSG_INFO, VERB_VERBOSE,
+				ctl_msg(CMSG_INFO, VERB_VERBOSE,
 						"Notes cut: %d", cut_notes);
-				ctl->cmsg(CMSG_INFO, VERB_VERBOSE,
+				ctl_msg(CMSG_INFO, VERB_VERBOSE,
 						"Notes lost totally: %d", lost_notes);
 				midi_playing = 0;
 
@@ -1517,7 +1496,6 @@ void Timidity_SetVolume(int volume)
 			recompute_amp(i);
 			apply_envelope_to_amp(i);
 		}
-	ctl->master_volume(amplification);
 }
 
 void Timidity_QuietFactor(int factor)

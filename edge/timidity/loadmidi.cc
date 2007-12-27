@@ -94,7 +94,7 @@ static void compute_sample_increment(int32 tempo, int32 divisions)
 	sample_correction = (int32)(a) & 0xFFFF;
 	sample_increment = (int32)(a) >> 16;
 
-	ctl->cmsg(CMSG_INFO, VERB_DEBUG, "Samples per delta-t: %d (correction %d)",
+	ctl_msg(CMSG_INFO, VERB_DEBUG, "Samples per delta-t: %d (correction %d)",
 			sample_increment, sample_correction);
 }
 
@@ -130,7 +130,7 @@ static int sysex(uint32 len, uint8 *syschan, uint8 *sysa, uint8 *sysb)
 
 	if (id==0x7e && port==0x7f && model==0x09 && adhi==0x01)
 	{
-		ctl->cmsg(CMSG_TEXT, VERB_VERBOSE, "GM System On", len);
+		ctl_msg(CMSG_TEXT, VERB_VERBOSE, "GM System On", len);
 		GM_System_On=1;
 		free(s);
 		return 0;
@@ -140,7 +140,7 @@ static int sysex(uint32 len, uint8 *syschan, uint8 *sysa, uint8 *sysb)
 
 	if (id==0x7f && len==7 && port==0x7f && model==0x04 && adhi==0x01)
 	{
-		ctl->cmsg(CMSG_TEXT, VERB_DEBUG, "Master Volume %d", s[4]+(s[5]<<7));
+		ctl_msg(CMSG_TEXT, VERB_DEBUG, "Master Volume %d", s[4]+(s[5]<<7));
 		free(s);
 		*sysa = s[4];
 		*sysb = s[5];
@@ -169,7 +169,7 @@ static int sysex(uint32 len, uint8 *syschan, uint8 *sysa, uint8 *sysb)
 	{
 		if (!adhi && !adlo && cd==0x7e && !dta)
 		{
-			ctl->cmsg(CMSG_TEXT, VERB_VERBOSE, "XG System On", len);
+			ctl_msg(CMSG_TEXT, VERB_VERBOSE, "XG System On", len);
 			XG_System_On=1;
 #ifdef tplus
 			vol_table = xg_vol_table;
@@ -213,7 +213,7 @@ static int sysex(uint32 len, uint8 *syschan, uint8 *sysa, uint8 *sysb)
 				case 0x08: /*  */
 					/* d->channel[adlo&0x0f].transpose = (char)(dta-64); */
 					channel[ch].transpose = (char)(dta-64);
-					ctl->cmsg(CMSG_TEXT, VERB_DEBUG, "transpose channel %d by %d",
+					ctl_msg(CMSG_TEXT, VERB_DEBUG, "transpose channel %d by %d",
 							(adlo&0x0f)+1, dta-64);
 					break;
 				case 0x0b: /* volume */
@@ -246,7 +246,7 @@ static int sysex(uint32 len, uint8 *syschan, uint8 *sysa, uint8 *sysb)
 		if (dtc<0) return 0;
 		if (!cd && dta==0x7f && !dtb && dtc==0x41)
 		{
-			ctl->cmsg(CMSG_TEXT, VERB_VERBOSE, "GS System On", len);
+			ctl_msg(CMSG_TEXT, VERB_VERBOSE, "GS System On", len);
 			GS_System_On=1;
 #ifdef tplus
 			vol_table = gs_vol_table;
@@ -311,7 +311,7 @@ static int dumpstring(int32 len, char *label)
 		if (s[len]<32)
 			s[len]='.';
 	}
-	ctl->cmsg(CMSG_TEXT, VERB_VERBOSE, "%s%s", label, s);
+	ctl_msg(CMSG_TEXT, VERB_VERBOSE, "%s%s", label, s);
 	free(s);
 	return 0;
 }
@@ -339,7 +339,7 @@ static MidiEventList *read_midi_event(void)
 		at+=getvl();
 		if (do_read(&me,1,1)!=1)
 		{
-			ctl->cmsg(CMSG_ERROR, VERB_NORMAL, "read_midi_event: EOF!");
+			ctl_msg(CMSG_ERROR, VERB_NORMAL, "read_midi_event: EOF!");
 			return 0;
 		}
 
@@ -378,13 +378,13 @@ static MidiEventList *read_midi_event(void)
 
 						if (midi_port_number == EOF)
 						{
-							ctl->cmsg(CMSG_ERROR, VERB_NORMAL,
+							ctl_msg(CMSG_ERROR, VERB_NORMAL,
 									"Warning: Short midi file.");
 							return 0;
 						}
 						midi_port_number &= 0x0f;
 						if (midi_port_number)
-							ctl->cmsg(CMSG_INFO, VERB_VERBOSE,
+							ctl_msg(CMSG_INFO, VERB_VERBOSE,
 									"(MIDI port number %d)", midi_port_number);
 						midi_port_number &= 0x03;
 					}
@@ -399,7 +399,7 @@ static MidiEventList *read_midi_event(void)
 					MIDIEVENT(at, ME_TEMPO, c, a, b);
 
 				default:
-					ctl->cmsg(CMSG_INFO, VERB_DEBUG, 
+					ctl_msg(CMSG_INFO, VERB_DEBUG, 
 							"(Meta event type 0x%02x, length %ld)", type, len);
 					do_seek(len, SEEK_CUR);
 					break;
@@ -512,7 +512,7 @@ static MidiEventList *read_midi_event(void)
 													   */
 									 }
 
-									 ctl->cmsg(CMSG_INFO, VERB_DEBUG, 
+									 ctl_msg(CMSG_INFO, VERB_DEBUG, 
 											 "(Data entry (MSB) for NRPN %02x,%02x: %ld)",
 											 rpn_msb[lastchan], rpn_lsb[lastchan],
 											 b);
@@ -530,7 +530,7 @@ static MidiEventList *read_midi_event(void)
 										 MIDIEVENT(at, ME_PITCH_SENS, lastchan, 2, 0);
 
 									 default:
-										 ctl->cmsg(CMSG_INFO, VERB_DEBUG, 
+										 ctl_msg(CMSG_INFO, VERB_DEBUG, 
 												 "(Data entry (MSB) for RPN %02x,%02x: %ld)",
 												 rpn_msb[lastchan], rpn_lsb[lastchan],
 												 b);
@@ -539,7 +539,7 @@ static MidiEventList *read_midi_event(void)
 								 break;
 
 							default:
-									 ctl->cmsg(CMSG_INFO, VERB_DEBUG, 
+									 ctl_msg(CMSG_INFO, VERB_DEBUG, 
 											 "(Control %d: %d)", a, b);
 									 break;
 						}
@@ -563,7 +563,7 @@ static MidiEventList *read_midi_event(void)
 					MIDIEVENT(at, ME_PITCHWHEEL, lastchan, a, b);
 
 				default: 
-					ctl->cmsg(CMSG_ERROR, VERB_NORMAL, 
+					ctl_msg(CMSG_ERROR, VERB_NORMAL, 
 							"*** Can't happen: status 0x%02X, channel 0x%02X",
 							laststatus, lastchan);
 					break;
@@ -599,14 +599,14 @@ static int read_track(int append)
 	/* Check the formalities */
 	if ((do_read(tmp,1,4) != 4) || (do_read(&len,4,1) != 1))
 	{
-		ctl->cmsg(CMSG_ERROR, VERB_NORMAL, "Can't read track header.");
+		ctl_msg(CMSG_ERROR, VERB_NORMAL, "Can't read track header.");
 		return -1;
 	}
 	len=EPI_BE_U32(len);
 
 	if (memcmp(tmp, "MTrk", 4))
 	{
-		ctl->cmsg(CMSG_ERROR, VERB_NORMAL, "Corrupt MIDI file.");
+		ctl_msg(CMSG_ERROR, VERB_NORMAL, "Corrupt MIDI file.");
 		return -2;
 	}
 
@@ -717,7 +717,7 @@ static MidiEvent *groom_list(int32 divisions,int32 *eventsp,int32 *samplesp)
 	for (i=0; i<event_count; i++)
 	{
 		skip_this_event=0;
-		ctl->cmsg(CMSG_INFO, VERB_DEBUG_SILLY,
+		ctl_msg(CMSG_INFO, VERB_DEBUG_SILLY,
 				"%6d: ch %2d: event %d (%d,%d)",
 				meep->event.time, meep->event.channel + 1,
 				meep->event.type, meep->event.a, meep->event.b);
@@ -753,7 +753,7 @@ static MidiEvent *groom_list(int32 divisions,int32 *eventsp,int32 *samplesp)
 						}
 						else
 						{
-							ctl->cmsg(CMSG_WARNING, VERB_VERBOSE,
+							ctl_msg(CMSG_WARNING, VERB_VERBOSE,
 									"XG SFX drum set is undefined");
 							skip_this_event=1;
 							break;
@@ -763,7 +763,7 @@ static MidiEvent *groom_list(int32 divisions,int32 *eventsp,int32 *samplesp)
 						new_value=meep->event.a;
 					else
 					{
-						ctl->cmsg(CMSG_WARNING, VERB_VERBOSE,
+						ctl_msg(CMSG_WARNING, VERB_VERBOSE,
 								"Drum set %d is undefined", meep->event.a);
 						if (drumset[0])
 							new_value=meep->event.a=0;
@@ -877,7 +877,7 @@ static MidiEvent *groom_list(int32 divisions,int32 *eventsp,int32 *samplesp)
 						new_value=meep->event.a;
 					else
 					{
-						ctl->cmsg(CMSG_WARNING, VERB_VERBOSE,
+						ctl_msg(CMSG_WARNING, VERB_VERBOSE,
 								"XG rhythm kit %d is undefined", meep->event.a);
 						skip_this_event=1;
 						break;
@@ -888,7 +888,7 @@ static MidiEvent *groom_list(int32 divisions,int32 *eventsp,int32 *samplesp)
 				}
 				else if (meep->event.a != SFX_BANKTYPE)
 				{
-					ctl->cmsg(CMSG_WARNING, VERB_VERBOSE,
+					ctl_msg(CMSG_WARNING, VERB_VERBOSE,
 							"XG kit %d is impossible", meep->event.a);
 					skip_this_event=1;
 					break;
@@ -903,7 +903,7 @@ static MidiEvent *groom_list(int32 divisions,int32 *eventsp,int32 *samplesp)
 					new_value=SFX_BANKTYPE;
 				else 
 				{
-					ctl->cmsg(CMSG_WARNING, VERB_VERBOSE,
+					ctl_msg(CMSG_WARNING, VERB_VERBOSE,
 							"XG Sfx bank is undefined");
 					skip_this_event=1;
 					break;
@@ -922,7 +922,7 @@ static MidiEvent *groom_list(int32 divisions,int32 *eventsp,int32 *samplesp)
 				}
 				if (XG_System_On && meep->event.a > 0 && meep->event.a < 48) {
 					channel[meep->event.channel].variationbank=meep->event.a;
-					ctl->cmsg(CMSG_WARNING, VERB_VERBOSE,
+					ctl_msg(CMSG_WARNING, VERB_VERBOSE,
 							"XG variation bank %d", meep->event.a);
 					new_value=meep->event.a=0;
 				}
@@ -930,7 +930,7 @@ static MidiEvent *groom_list(int32 divisions,int32 *eventsp,int32 *samplesp)
 					new_value=meep->event.a;
 				else 
 				{
-					ctl->cmsg(CMSG_WARNING, VERB_VERBOSE,
+					ctl_msg(CMSG_WARNING, VERB_VERBOSE,
 							"Tone bank %d is undefined", meep->event.a);
 					new_value=meep->event.a=0;
 				}
@@ -1022,7 +1022,7 @@ past_riff:
 
 	if ((do_read(tmp,1,4) != 4) || (do_read(&len,4,1) != 1))
 	{
-		ctl->cmsg(CMSG_ERROR, VERB_NORMAL, "Not a MIDI file!");
+		ctl_msg(CMSG_ERROR, VERB_NORMAL, "Not a MIDI file!");
 		return 0;
 	}
 	len=EPI_BE_U32(len);
@@ -1034,7 +1034,7 @@ past_riff:
 	}
 	if (len < 6 || memcmp(tmp, "MThd", 4) != 0)
 	{
-		ctl->cmsg(CMSG_ERROR, VERB_NORMAL, "Not a MIDI file!");
+		ctl_msg(CMSG_ERROR, VERB_NORMAL, "Not a MIDI file!");
 		return 0;
 	}
 
@@ -1060,15 +1060,15 @@ past_riff:
 
 	if (len > 6)
 	{
-		ctl->cmsg(CMSG_WARNING, VERB_NORMAL, "MIDI file header size %ld bytes", len);
+		ctl_msg(CMSG_WARNING, VERB_NORMAL, "MIDI file header size %ld bytes", len);
 		do_seek(len-6, SEEK_CUR); /* skip the excess */
 	}
 	if (format<0 || format >2)
 	{
-		ctl->cmsg(CMSG_ERROR, VERB_NORMAL, "Unknown MIDI file format %d", format);
+		ctl_msg(CMSG_ERROR, VERB_NORMAL, "Unknown MIDI file format %d", format);
 		return 0;
 	}
-	ctl->cmsg(CMSG_INFO, VERB_VERBOSE, 
+	ctl_msg(CMSG_INFO, VERB_VERBOSE, 
 			"Format: %d  Tracks: %d  Divisions: %d", format, tracks, divisions);
 
 	/* Put a do-nothing event first in the list for easier processing */

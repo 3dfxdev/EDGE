@@ -134,7 +134,7 @@ static void free_old_bank(int dr, int b, int how_old)
       {
 	if (bank->tone[i].layer != MAGIC_LOAD_INSTRUMENT)
 	  {
-	    ctl->cmsg(CMSG_INFO, VERB_DEBUG,
+	    ctl_msg(CMSG_INFO, VERB_DEBUG,
 		"Unloading %s %s[%d,%d] - last used %d.",
 		(dr)? "drum" : "inst", bank->tone[i].name,
 		i, b, bank->tone[i].last_used);
@@ -290,12 +290,12 @@ static InstrumentLayer *load_instrument(char *name, int font_type, int percussio
   
   if (noluck)
     {
-      ctl->cmsg(CMSG_ERROR, VERB_NORMAL, 
+      ctl_msg(CMSG_ERROR, VERB_NORMAL, 
 		"Instrument `%s' can't be found.", name);
       return 0;
     }
       
-  ctl->cmsg(CMSG_INFO, VERB_DEBUG, "Loading instrument %s", name);
+  ctl_msg(CMSG_INFO, VERB_DEBUG, "Loading instrument %s", name);
   
   /* Read some headers and do cursory sanity checks. There are loads
      of magic offsets. This could be rewritten... */
@@ -305,7 +305,7 @@ static InstrumentLayer *load_instrument(char *name, int font_type, int percussio
        memcmp(tmp, "GF1PATCH100\0ID#000002", 22))) /* don't know what the
 						      differences are */
     {
-      ctl->cmsg(CMSG_ERROR, VERB_NORMAL, "%s: not an instrument", name);
+      ctl_msg(CMSG_ERROR, VERB_NORMAL, "%s: not an instrument", name);
       return 0;
     }
 
@@ -346,14 +346,14 @@ static InstrumentLayer *load_instrument(char *name, int font_type, int percussio
   if (tmp[82] != 1 && tmp[82] != 0) /* instruments. To some patch makers, 
 				       0 means 1 */
     {
-      ctl->cmsg(CMSG_ERROR, VERB_NORMAL, 
+      ctl_msg(CMSG_ERROR, VERB_NORMAL, 
 	   "Can't handle patches with %d instruments", tmp[82]);
       return 0;
     }
 
   if (tmp[151] != 1 && tmp[151] != 0) /* layers. What's a layer? */
     {
-      ctl->cmsg(CMSG_ERROR, VERB_NORMAL, 
+      ctl_msg(CMSG_ERROR, VERB_NORMAL, 
 	   "Can't handle instruments with %d layers", tmp[151]);
       return 0;
     }
@@ -414,7 +414,7 @@ static InstrumentLayer *load_instrument(char *name, int font_type, int percussio
   else ip->right_sample = 0;
   ip->contents = 0;
 
-  ctl->cmsg(CMSG_INFO, VERB_DEBUG_SILLY,
+  ctl_msg(CMSG_INFO, VERB_DEBUG_SILLY,
 		    "%s%s[%d,%d] %s(%d-%d layer %d of %d)",
 	(percussion)? "   ":"", name,
 	(percussion)? note_to_use : gm_num, bank,
@@ -476,7 +476,7 @@ static InstrumentLayer *load_instrument(char *name, int font_type, int percussio
       if (1 != fread(&fractions, 1, 1, fp))
 	{
 	fail:
-	  ctl->cmsg(CMSG_ERROR, VERB_NORMAL, "Error reading sample %d", i);
+	  ctl_msg(CMSG_ERROR, VERB_NORMAL, "Error reading sample %d", i);
 	  if (stereo_layer == 1)
 	     {
 	       for (j=0; j<i; j++)
@@ -535,14 +535,14 @@ static InstrumentLayer *load_instrument(char *name, int font_type, int percussio
 	{
 	  sp->tremolo_sweep_increment=
 	    sp->tremolo_phase_increment=sp->tremolo_depth=0;
-	  ctl->cmsg(CMSG_INFO, VERB_DEBUG, " * no tremolo");
+	  ctl_msg(CMSG_INFO, VERB_DEBUG, " * no tremolo");
 	}
       else
 	{
 	  sp->tremolo_sweep_increment=convert_tremolo_sweep(tmp[12]);
 	  sp->tremolo_phase_increment=convert_tremolo_rate(tmp[13]);
 	  sp->tremolo_depth=tmp[14];
-	  ctl->cmsg(CMSG_INFO, VERB_DEBUG,
+	  ctl_msg(CMSG_INFO, VERB_DEBUG,
 	       " * tremolo: sweep %d, phase %d, depth %d",
 	       sp->tremolo_sweep_increment, sp->tremolo_phase_increment,
 	       sp->tremolo_depth);
@@ -552,7 +552,7 @@ static InstrumentLayer *load_instrument(char *name, int font_type, int percussio
 	{
 	  sp->vibrato_sweep_increment=
 	    sp->vibrato_control_ratio=sp->vibrato_depth=0;
-	  ctl->cmsg(CMSG_INFO, VERB_DEBUG, " * no vibrato");
+	  ctl_msg(CMSG_INFO, VERB_DEBUG, " * no vibrato");
 	}
       else
 	{
@@ -560,7 +560,7 @@ static InstrumentLayer *load_instrument(char *name, int font_type, int percussio
 	  sp->vibrato_sweep_increment=
 	    convert_vibrato_sweep(tmp[15], sp->vibrato_control_ratio);
 	  sp->vibrato_depth=tmp[17];
-	  ctl->cmsg(CMSG_INFO, VERB_DEBUG,
+	  ctl_msg(CMSG_INFO, VERB_DEBUG,
 	       " * vibrato: sweep %d, ctl %d, depth %d",
 	       sp->vibrato_sweep_increment, sp->vibrato_control_ratio,
 	       sp->vibrato_depth);
@@ -602,7 +602,7 @@ static InstrumentLayer *load_instrument(char *name, int font_type, int percussio
 	  (sp->modes & (MODES_SUSTAIN | MODES_LOOPING | 
 			MODES_PINGPONG | MODES_REVERSE)))
 	{
-	  ctl->cmsg(CMSG_INFO, VERB_DEBUG, " - Removing loop and/or sustain");
+	  ctl_msg(CMSG_INFO, VERB_DEBUG, " - Removing loop and/or sustain");
 	  sp->modes &=~(MODES_SUSTAIN | MODES_LOOPING | 
 			MODES_PINGPONG | MODES_REVERSE);
 	}
@@ -610,7 +610,7 @@ static InstrumentLayer *load_instrument(char *name, int font_type, int percussio
       if (strip_envelope==1)
 	{
 	  if (sp->modes & MODES_ENVELOPE)
-	    ctl->cmsg(CMSG_INFO, VERB_DEBUG, " - Removing envelope");
+	    ctl_msg(CMSG_INFO, VERB_DEBUG, " - Removing envelope");
 	  sp->modes &= ~MODES_ENVELOPE;
 	}
       else if (strip_envelope != 0)
@@ -621,7 +621,7 @@ static InstrumentLayer *load_instrument(char *name, int font_type, int percussio
 	      /* No loop? Then what's there to sustain? No envelope needed
 		 either... */
 	      sp->modes &= ~(MODES_SUSTAIN|MODES_ENVELOPE);
-	      ctl->cmsg(CMSG_INFO, VERB_DEBUG, 
+	      ctl_msg(CMSG_INFO, VERB_DEBUG, 
 			" - No loop, removing sustain and envelope");
 	    }
 	  else if (!memcmp(tmp, "??????", 6) || tmp[11] >= 100) 
@@ -629,7 +629,7 @@ static InstrumentLayer *load_instrument(char *name, int font_type, int percussio
 	      /* Envelope rates all maxed out? Envelope end at a high "offset"?
 		 That's a weird envelope. Take it out. */
 	      sp->modes &= ~MODES_ENVELOPE;
-	      ctl->cmsg(CMSG_INFO, VERB_DEBUG, 
+	      ctl_msg(CMSG_INFO, VERB_DEBUG, 
 			" - Weirdness, removing envelope");
 	    }
 	  else if (!(sp->modes & MODES_SUSTAIN))
@@ -639,7 +639,7 @@ static InstrumentLayer *load_instrument(char *name, int font_type, int percussio
 		 envelope either... at least the Gravis ones. They're mostly
 		 drums.  I think. */
 	      sp->modes &= ~MODES_ENVELOPE;
-	      ctl->cmsg(CMSG_INFO, VERB_DEBUG, 
+	      ctl_msg(CMSG_INFO, VERB_DEBUG, 
 			" - No sustain, removing envelope");
 	    }
 	}
@@ -732,7 +732,7 @@ static InstrumentLayer *load_instrument(char *name, int font_type, int percussio
 	  /* The GUS apparently plays reverse loops by reversing the
 	     whole sample. We do the same because the GUS does not SUCK. */
 
-	  ctl->cmsg(CMSG_WARNING, VERB_NORMAL, "Reverse loop in %s", name);
+	  ctl_msg(CMSG_WARNING, VERB_NORMAL, "Reverse loop in %s", name);
 	  reverse_data((int16 *)sp->data, 0, sp->data_length/2);
 
 	  t=sp->loop_start;
@@ -785,7 +785,7 @@ static InstrumentLayer *load_instrument(char *name, int font_type, int percussio
 	  if (highcount) higher /= highcount;
 	  else higher = 10000;
 	  sp->volume = (32768.0 * 0.875) /  (double)higher ;
-	  ctl->cmsg(CMSG_INFO, VERB_DEBUG, " * volume comp: %f", sp->volume);
+	  ctl_msg(CMSG_INFO, VERB_DEBUG, " * volume comp: %f", sp->volume);
 	}
 #else
       if (amp!=-1)
@@ -832,7 +832,7 @@ static InstrumentLayer *load_instrument(char *name, int font_type, int percussio
       if (strip_tail==1)
 	{
 	  /* Let's not really, just say we did. */
-	  ctl->cmsg(CMSG_INFO, VERB_DEBUG, " - Stripping tail");
+	  ctl_msg(CMSG_INFO, VERB_DEBUG, " - Stripping tail");
 	  sp->data_length = sp->loop_end;
 	}
     } /* end of sample loop */
@@ -850,7 +850,7 @@ static int fill_bank(int dr, int b)
   ToneBank *bank=((dr) ? drumset[b] : tonebank[b]);
   if (!bank)
     {
-      ctl->cmsg(CMSG_ERROR, VERB_NORMAL, 
+      ctl_msg(CMSG_ERROR, VERB_NORMAL, 
 	   "Huh. Tried to load instruments in non-existent %s %d",
 	   (dr) ? "drumset" : "tone bank", b);
       return 0;
@@ -861,7 +861,7 @@ static int fill_bank(int dr, int b)
 	{
 	  if (!(bank->tone[i].name))
 	    {
-	      ctl->cmsg(CMSG_WARNING, (b!=0) ? VERB_VERBOSE : VERB_NORMAL,
+	      ctl_msg(CMSG_WARNING, (b!=0) ? VERB_VERBOSE : VERB_NORMAL,
 		   "No instrument mapped to %s %d, program %d%s",
 		   (dr)? "drum set" : "tone bank", b, i, 
 		   (b!=0) ? "" : " - this instrument will not be heard");
@@ -907,7 +907,7 @@ static int fill_bank(int dr, int b)
 				     bank->tone[i].sf_ix
 			    			 )))
 	    {
-	      ctl->cmsg(CMSG_ERROR, VERB_NORMAL, 
+	      ctl_msg(CMSG_ERROR, VERB_NORMAL, 
 		   "Couldn't load instrument %s (%s %d, program %d)",
 		   bank->tone[i].name,
 		   (dr)? "drum set" : "tone bank", b, i);
@@ -919,7 +919,7 @@ static int fill_bank(int dr, int b)
 		current_patch_memory += bank->tone[i].layer->size;
 		purge_as_required();
 		if (current_patch_memory > max_patch_memory) {
-	      		ctl->cmsg(CMSG_ERROR, VERB_NORMAL, 
+	      		ctl_msg(CMSG_ERROR, VERB_NORMAL, 
 		   		"Not enough memory to load instrument %s (%s %d, program %d)",
 		   		bank->tone[i].name,
 		   		(dr)? "drum set" : "tone bank", b, i);
