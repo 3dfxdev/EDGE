@@ -1466,7 +1466,7 @@ static bool handle_recent_events(void)
 }
 
 
-int Timidity_PlaySome(byte *stream, int samples)
+int Timidity_PlaySome(s16_t *stream, int samples)
 {
 	if (! midi_playing)
 		return 0;
@@ -1490,7 +1490,7 @@ I_Debugf("\nTimidity_PlaySome: samples=%d\n", samples);
 
 		s32tobuf(stream, buffer_pointer, count * num_ochannels);
 
-		stream += count * num_ochannels * sizeof(s16_t);
+		stream += count * num_ochannels;
 		total_done += count;
 	}
 
@@ -1520,6 +1520,10 @@ void Timidity_SetVolume(int volume)
 	ctl->master_volume(amplification);
 }
 
+void Timidity_QuietFactor(int factor)
+{
+	// TODO !!!!! Timidity_QuietFactor
+}
 
 void Timidity_Start(struct MidiSong *song)
 {

@@ -34,7 +34,7 @@ extern int  Timidity_Active(void);
 
 extern void Timidity_SetVolume(int volume);
 extern void Timidity_QuietFactor(int factor);
-extern int  Timidity_PlaySome(void *stream, int samples);
+extern int  Timidity_PlaySome(s16_t *stream, int samples);
 
 /// extern const char *Timidity_Error(void);
 
