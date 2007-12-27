@@ -1,5 +1,10 @@
 Andrew Apted's Log
 
+2007/12/27:
+
+Timidity is working now, but volume is too quiet (by a factor
+of four at least).
+
 2007/12/26:
 
 More work on new music code.  Updating WIN32 'MUS' playback
