@@ -45,7 +45,7 @@
 // The more safe bits there are, the less likely the final
 // output sum will overflow into white noise, but the less
 // precision you have left for the volume multiplier.
-#define SAFE_BITS  3
+#define SAFE_BITS  4
 #define CLIP_THRESHHOLD  ((1L << (31-SAFE_BITS)) - 1)
 
 // This value is how much breathing room there is until
@@ -145,16 +145,13 @@ void mix_channel_c::ComputeVolume()
 			float dist = P_ApproxDistance(listen_x - pos->x, listen_y - pos->y, listen_z - pos->z);
 
 			// -AJA- this equation was chosen to mimic the DOOM falloff
-			//       function, but not cutting out @ dist=1600, instead
-			//       tapering off exponentially.
+			//       function, but instead of cutting out @ dist=1600 it
+			//       tapers off exponentially.
 			mul = exp(-MAX(1.0f, dist - S_CLOSE_DIST) / 800.0f);
 		}
 	}
 
-	float MAX_VOL = (1 << (16 - SAFE_BITS - MAX(0,var_quiet_factor-1))) - 3;
-
-	if (var_quiet_factor == 0)
-		MAX_VOL *= 2.0;
+	float MAX_VOL = (1 << (16 - SAFE_BITS - (var_quiet_factor-1))) - 3;
 
 	MAX_VOL = MAX_VOL * mul * slider_to_gain[sfx_volume];
 
@@ -175,7 +172,16 @@ void mix_channel_c::ComputeVolume()
 
 void mix_channel_c::ComputeMusicVolume()
 {
-	float MAX_VOL = (1 << (16 - SAFE_BITS - var_quiet_factor)) - 3;
+	// the MAX_VOL value here is equivalent to the 'NORMAL' quiet
+	// factor.  If the music uses the full range, then the output
+	// will also use the full range without being clipped
+	// (assuming no other sounds are playing).
+	//
+	// We do not use 'quiet_factor' here because that mainly
+	// applies to the mixing of game/UI sounds.  The music volume
+	// slider allows for quieter output.
+
+	float MAX_VOL = (1 << (16 - SAFE_BITS)) - 3;
 
  	MAX_VOL = MAX_VOL * slider_to_gain[mus_volume];
 
