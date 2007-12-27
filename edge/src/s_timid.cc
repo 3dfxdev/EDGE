@@ -28,7 +28,10 @@
 #include "s_music.h"
 #include "s_timid.h"
 
-#define TIMV_NUM_SAMPLES  8192
+#include "m_misc.h"  // var_timid_factor
+
+
+#define TIMV_NUM_SAMPLES  4096
 
 extern bool dev_stereo;  // FIXME: encapsulation
 extern int  dev_freq;    //
@@ -151,6 +154,8 @@ private:
 
 	bool StreamIntoBuffer(epi::sound_data_c *buf)
 	{
+		Timidity_QuietFactor(var_timid_factor);
+
 		int samples = 0;
 
 		while (samples < TIMV_NUM_SAMPLES)
@@ -158,6 +163,7 @@ private:
 			s16_t *data_buf = buf->data_L + samples * (dev_stereo ? 2 : 1);
 
 			int got_num = Timidity_PlaySome(data_buf, TIMV_NUM_SAMPLES - samples);
+I_Debugf("StreamIntoBuffer: got %d\n", got_num);
 
 			if (got_num <= 0)  /* EOF */
 			{
@@ -179,61 +185,8 @@ private:
 
 		return (samples > 0);
 	}
-
 };
 
-
-
-///---void OpenData(const void *data, size_t size)
-///---{
-///---	/* DataLump version */
-///---
-///---	if (status != NOT_LOADED)
-///---		Close();
-///---
-///---	if (size < 8)
-///---	{
-///---		I_Printf("Timidity player: ignoring small lump (%d bytes)\n", size);
-///---		return;
-///---	}
-///---
-///---#if (1 == 0)
-///---	// check for MUS, convert to MIDI 
-///---	//
-///---
-///---	OpenMidiFile(cached_name);
-///---#endif
-///---}
-///---
-///---void OpenFile(const char *filename)
-///---{
-///---	/* File version */
-///---
-///---	if (status != NOT_LOADED)
-///---		Close();
-///---
-///---	// FIXME: check for 'MUS' format !!!
-///---
-///---#if 0
-///---	ogg_file = fopen(filename, "rb");
-///---    if (!ogg_file)
-///---    {
-///---		I_Error("[oggplayer_c::OpenFile] Could not open file.\n");
-///---    }
-///---#endif
-///---
-///---	OpenMidiFile(filename);
-///---
-///---}
-///---
-///---void OpenMidiFile(const char *filename)
-///---{
-///---	// Loaded, but not playing
-///---	status = STOPPED;
-///---
-///---
-///---	Timidity_Start(song);
-///---}
 
 
 //----------------------------------------------------------------------------
