@@ -175,15 +175,13 @@ I_Debugf("StreamIntoBuffer: got %d\n", got_num);
 					continue; // try again
 				}
 
-				break;
+				return (samples == TIMV_NUM_SAMPLES);
 			}
-
-			// FIXME error handling ???
 
 			samples += got_num;
 		}
 
-		return (samples > 0);
+		return true;
 	}
 };
 
