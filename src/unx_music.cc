@@ -104,7 +104,7 @@ void I_StartupMusic(void)
 #if 1
 	if (! nosound)
 	{
-		if (0 == Timidity_Init(dev_freq, dev_stereo ? 2:1, 4096))
+		if (0 == Timidity_Init(dev_freq, dev_stereo ? 2 : 1))
 		{
 			I_Printf("I_StartupMusic: Timidity Init OK\n");
 			capable |= support_MUS | support_MIDI;
