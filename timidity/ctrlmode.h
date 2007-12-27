@@ -17,32 +17,11 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-    controls.h
+    ctrlmode.h
 */
 
 #ifndef __TIMIDITY_CONTROLS_H__
 #define __TIMIDITY_CONTROLS_H__
-
-/* Return values for ControlMode.read */
-
-#define RC_ERROR -1
-#define RC_NONE 0
-#define RC_QUIT 1
-#define RC_NEXT 2
-#define RC_PREVIOUS 3 /* Restart this song at beginning, or the previous
-			 song if we're less than a second into this one. */
-#define RC_FORWARD 4
-#define RC_BACK 5
-#define RC_JUMP 6
-#define RC_TOGGLE_PAUSE 7 /* Pause/continue */
-#define RC_RESTART 8 /* Restart song at beginning */
-
-#define RC_PAUSE 9 /* Really pause playing */
-#define RC_CONTINUE 10 /* Continue if paused */
-#define RC_REALLY_PREVIOUS 11 /* Really go to the previous song */
-#define RC_CHANGE_VOLUME 12
-#define RC_LOAD_FILE 13		/* Load a new midifile */
-#define RC_TUNE_END 14		/* The tune is over, play it again sam? */
 
 #define CMSG_INFO	0
 #define CMSG_WARNING	1
