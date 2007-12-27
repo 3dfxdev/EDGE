@@ -303,13 +303,11 @@ int Timidity_Init(int rate, int channels)
   num_ochannels = channels;
 
   /* Set play mode parameters */
-  play_mode->rate = rate;
-  play_mode->encoding = 0;
-  play_mode->encoding |= PE_16BIT;
-  play_mode->encoding |= PE_SIGNED;
+  play_mode_rate = rate;
+  play_mode_encoding = PE_16BIT | PE_SIGNED;
 
   if ( channels == 1 ) {
-    play_mode->encoding |= PE_MONO;
+    play_mode_encoding |= PE_MONO;
   } 
 
   s32tobuf = s32tos16;
@@ -340,8 +338,9 @@ int Timidity_Init(int rate, int channels)
 #endif
   
 
-  if (!control_ratio) {
-    control_ratio = play_mode->rate / CONTROLS_PER_SECOND;
+  if (!control_ratio)
+  {
+    control_ratio = play_mode_rate / CONTROLS_PER_SECOND;
     if(control_ratio<1)
       control_ratio=1;
     else if (control_ratio > MAX_CONTROL_RATIO)

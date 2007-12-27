@@ -679,7 +679,7 @@ static void ramp_out(resample_t *sp, int32 *lp, int v, int32 c)
 
   /* printf("Ramping out: left=%d, c=%d, li=%d\n", left, c, li); */
 
-  if (!(play_mode->encoding & PE_MONO))
+  if (!(play_mode_encoding & PE_MONO))
     {
       if (voice[v].panned==PANNED_MYSTERY)
 	{
@@ -813,7 +813,7 @@ void mix_voice(int32 *buf, int v, int32 c)
     {
       sp=resample_voice(v, &count);
       if (count<0) return;
-      if (play_mode->encoding & PE_MONO)
+      if (play_mode_encoding & PE_MONO)
 	{
 	  /* Mono output. */
 	  if (vp->envelope_increment || vp->tremolo_phase_increment)

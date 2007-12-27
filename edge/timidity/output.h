@@ -30,15 +30,9 @@
 #define PE_ULAW     0x08  /* versus linear */
 #define PE_BYTESWAP 0x10  /* versus the other way */
 
-typedef struct
-{
-  int rate, encoding;
-  char *id_name;
-}
-PlayMode;
+extern int play_mode_rate;
+extern int play_mode_encoding;
 
-extern PlayMode *play_mode_list[], *play_mode;
-extern int init_buffers(int kbytes);
 
 /* Conversion functions -- These convert the s32_t data in *lp
    to data in another format */
