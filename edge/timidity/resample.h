@@ -22,7 +22,7 @@
 #ifndef __TIMIDITY_RESAMPLE_H__
 #define __TIMIDITY_RESAMPLE_H__
 
-extern resample_t *resample_voice(int v, int32 *countptr);
+extern resample_t *resample_voice(int v, int *countptr);
 extern void pre_resample(Sample *sp);
 
 #endif /* __TIMIDITY_RESAMPLE_H__ */

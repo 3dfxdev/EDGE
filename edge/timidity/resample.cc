@@ -29,12 +29,12 @@
 #include "tables.h"
 #include "resample.h"
 
+#define INTERPVARS sample_t v1, v2
+
 #define RESAMPLATION \
       v1=src[ofs>>FRACTION_BITS];\
       v2=src[(ofs>>FRACTION_BITS)+1];\
       *dest++ = (resample_t)(v1 + (((v2-v1) * (ofs & FRACTION_MASK)) >> FRACTION_BITS));
-
-#define INTERPVARS sample_t v1, v2
 
 #define FINALINTERP if (ofs == le) *dest++=src[ofs>>FRACTION_BITS];
 /* So it isn't interpolation. At least it's final. */
@@ -61,240 +61,251 @@ static resample_t *NeedResampleBuf(int count)
 
 /*************** resampling with fixed increment *****************/
 
-static resample_t *rs_plain(int v, int32 *countptr)
+static resample_t *rs_plain(int v, int *countptr)
 {
+	/* Play sample until end, then free the voice. */
 
-  /* Play sample until end, then free the voice. */
+	INTERPVARS;
 
-  INTERPVARS;
+	Voice *vp = &voice[v];
 
-  Voice *vp = &voice[v];
+	sample_t *src=vp->sample->data;
 
-  sample_t *src=vp->sample->data;
+	int ofs   = vp->sample_offset;
+	int incr  = vp->sample_increment;
+	int le    = vp->sample->data_length;
+	int count = *countptr;
 
-  int32 
-    ofs=vp->sample_offset,
-    incr=vp->sample_increment,
-    le=vp->sample->data_length,
-    count=*countptr;
-
-  resample_t *dest = NeedResampleBuf(count);
+	resample_t *dest = NeedResampleBuf(count);
 
 #ifdef PRECALC_LOOPS
-  int32 i, j;
+	if (incr < 0)
+		incr = -incr; /* In case we're coming out of a bidir loop */
 
-  if (incr<0) incr = -incr; /* In case we're coming out of a bidir loop */
+	/* Precalc how many times we should go through the loop.
+	   NOTE: Assumes that incr > 0 and that ofs <= le */
+	int i = (le - ofs) / incr + 1;
 
-  /* Precalc how many times we should go through the loop.
-     NOTE: Assumes that incr > 0 and that ofs <= le */
-  i = (le - ofs) / incr + 1;
+	if (i > count)
+	{
+		i = count;
+		count = 0;
+	} 
+	else
+		count -= i;
 
-  if (i > count)
-    {
-      i = count;
-      count = 0;
-    } 
-  else count -= i;
+	for (int j = 0; j < i; j++)
+	{
+		RESAMPLATION;
+		ofs += incr;
+	}
 
-  for(j = 0; j < i; j++)
-    {
-      RESAMPLATION;
-      ofs += incr;
-    }
-
-  if (ofs >= le) 
-    {
-      FINALINTERP;
-      vp->status=VOICE_FREE;
-      *countptr-=count+1;
-    }
+	if (ofs >= le) 
+	{
+		FINALINTERP;
+		vp->status=VOICE_FREE;
+		*countptr-=count+1;
+	}
 
 #else /* PRECALC_LOOPS */
-    while (count--)
-    {
-      RESAMPLATION;
-      ofs += incr;
-      if (ofs >= le)
+	while (count--)
 	{
-	  FINALINTERP;
-	  vp->status=VOICE_FREE;
-	  *countptr-=count+1;
-	  break;
-	}
-    }
-#endif /* PRECALC_LOOPS */
-  
-  vp->sample_offset=ofs; /* Update offset */
+		RESAMPLATION;
+		ofs += incr;
 
-  return resample_buffer;
+		if (ofs >= le)
+		{
+			FINALINTERP;
+			vp->status=VOICE_FREE;
+			*countptr-=count+1;
+			break;
+		}
+	}
+#endif /* PRECALC_LOOPS */
+
+	vp->sample_offset=ofs; /* Update offset */
+
+	return resample_buffer;
 }
 
-static resample_t *rs_loop(Voice *vp, int32 count)
+static resample_t *rs_loop(Voice *vp, int count)
 {
+	/* Play sample until end-of-loop, skip back and continue. */
 
-  /* Play sample until end-of-loop, skip back and continue. */
+	INTERPVARS;
 
-  INTERPVARS;
+	int ofs  = vp->sample_offset; 
+	int incr = vp->sample_increment;
+	int le   = vp->sample->loop_end; 
+	int ll   = le - vp->sample->loop_start;
 
-  int32 
-    ofs=vp->sample_offset, 
-    incr=vp->sample_increment,
-    le=vp->sample->loop_end, 
-    ll=le - vp->sample->loop_start;
+	sample_t *src=vp->sample->data;
 
-  sample_t *src=vp->sample->data;
-
-  resample_t *dest = NeedResampleBuf(count);
+	resample_t *dest = NeedResampleBuf(count);
 
 #ifdef PRECALC_LOOPS
-  int32 i;
- 
-  if (ofs < 0 || le < 0)
-	  return resample_buffer;
+	if (ofs < 0 || le < 0)
+		return resample_buffer;
 
-  while (count) 
-    {
-      if (ofs >= le)
-	/* NOTE: Assumes that ll > incr and that incr > 0. */
-	ofs -= ll;
-      /* Precalc how many times we should go through the loop */
-      i = (le - ofs) / incr + 1;
-      if (i > count) 
+	while (count) 
 	{
-	  i = count;
-	  count = 0;
-	} 
-      else count -= i;
-      if (i > 0)
-      while (i--) 
-	{
-	  RESAMPLATION;
-	  ofs += incr;
+		if (ofs >= le)
+			/* NOTE: Assumes that ll > incr and that incr > 0. */
+			ofs -= ll;
+
+		/* Precalc how many times we should go through the loop */
+		int i = (le - ofs) / incr + 1;
+
+		if (i > count) 
+		{
+			i = count;
+			count = 0;
+		} 
+		else
+			count -= i;
+
+		if (i > 0)
+		{
+			while (i--) 
+			{
+				RESAMPLATION;
+				ofs += incr;
+			}
+		}
 	}
-    }
 #else
-  while (count--)
-    {
-      RESAMPLATION;
-      ofs += incr;
-      if (ofs>=le)
-	ofs -= ll; /* Hopefully the loop is longer than an increment. */
-    }
+	while (count--)
+	{
+		RESAMPLATION;
+		ofs += incr;
+		if (ofs >= le)
+			ofs -= ll; /* Hopefully the loop is longer than an increment. */
+	}
 #endif
 
-  vp->sample_offset=ofs; /* Update offset */
+	vp->sample_offset=ofs; /* Update offset */
 
-  return resample_buffer;
+	return resample_buffer;
 }
 
-static resample_t *rs_bidir(Voice *vp, int32 count)
+static resample_t *rs_bidir(Voice *vp, int count)
 {
-  INTERPVARS;
+	INTERPVARS;
 
-  int32 
-    ofs=vp->sample_offset,
-    incr=vp->sample_increment,
-    le=vp->sample->loop_end,
-    ls=vp->sample->loop_start;
+	int ofs  = vp->sample_offset;
+	int incr = vp->sample_increment;
+	int le   = vp->sample->loop_end;
+	int ls   = vp->sample->loop_start;
 
-  sample_t *src=vp->sample->data;
+	sample_t *src=vp->sample->data;
 
-  resample_t *dest = NeedResampleBuf(count);
+	resample_t *dest = NeedResampleBuf(count);
 
 #ifdef PRECALC_LOOPS
-  int32
-    le2 = le<<1, 
-    ls2 = ls<<1,
-    i;
-  /* Play normally until inside the loop region */
+	int le2 = le<<1; 
+	int ls2 = ls<<1;
+	int i;
 
-  if (ofs <= ls) 
-    {
-      /* NOTE: Assumes that incr > 0, which is NOT always the case
-	 when doing bidirectional looping.  I have yet to see a case
-	 where both ofs <= ls AND incr < 0, however. */
-      i = (ls - ofs) / incr + 1;
-      if (i > count) 
-	{
-	  i = count;
-	  count = 0;
-	} 
-      else count -= i;
-      while (i--) 
-	{
-	  RESAMPLATION;
-	  ofs += incr;
-	}
-    }
+	/* Play normally until inside the loop region */
 
-  /* Then do the bidirectional looping */
-  
-  while(count) 
-    {
-      /* Precalc how many times we should go through the loop */
-      i = ((incr > 0 ? le : ls) - ofs) / incr + 1;
-      if (i > count) 
+	if (ofs <= ls) 
 	{
-	  i = count;
-	  count = 0;
-	} 
-      else count -= i;
-      while (i--) 
-	{
-	  RESAMPLATION;
-	  ofs += incr;
+		/* NOTE: Assumes that incr > 0, which is NOT always the case
+		   when doing bidirectional looping.  I have yet to see a case
+		   where both ofs <= ls AND incr < 0, however. */
+		i = (ls - ofs) / incr + 1;
+
+		if (i > count) 
+		{
+			i = count;
+			count = 0;
+		} 
+		else
+			count -= i;
+
+		while (i--) 
+		{
+			RESAMPLATION;
+			ofs += incr;
+		}
 	}
-      if (ofs>=le) 
+
+	/* Then do the bidirectional looping */
+
+	while(count) 
 	{
-	  /* fold the overshoot back in */
-	  ofs = le2 - ofs;
-	  incr *= -1;
-	} 
-      else if (ofs <= ls) 
-	{
-	  ofs = ls2 - ofs;
-	  incr *= -1;
+		/* Precalc how many times we should go through the loop */
+		i = ((incr > 0 ? le : ls) - ofs) / incr + 1;
+
+		if (i > count) 
+		{
+			i = count;
+			count = 0;
+		} 
+		else
+			count -= i;
+
+		while (i--) 
+		{
+			RESAMPLATION;
+			ofs += incr;
+		}
+		if (ofs>=le) 
+		{
+			/* fold the overshoot back in */
+			ofs = le2 - ofs;
+			incr *= -1;
+		} 
+		else if (ofs <= ls) 
+		{
+			ofs = ls2 - ofs;
+			incr *= -1;
+		}
 	}
-    }
 
 #else /* PRECALC_LOOPS */
-  /* Play normally until inside the loop region */
+	/* Play normally until inside the loop region */
 
-  if (ofs < ls)
-    {
-      while (count--)
+	if (ofs < ls)
 	{
-	  RESAMPLATION;
-	  ofs += incr;
-	  if (ofs>=ls)
-	    break;
+		while (count--)
+		{
+			RESAMPLATION;
+			ofs += incr;
+
+			if (ofs>=ls)
+				break;
+		}
 	}
-    }
 
-  /* Then do the bidirectional looping */
+	/* Then do the bidirectional looping */
 
-  if (count>0)
-    while (count--)
-      {
-	RESAMPLATION;
-	ofs += incr;
-	if (ofs>=le)
-	  {
-	    /* fold the overshoot back in */
-	    ofs = le - (ofs - le);
-	    incr = -incr;
-	  }
-	else if (ofs <= ls)
-	  {
-	    ofs = ls + (ls - ofs);
-	    incr = -incr;
-	  }
-      }  
+	if (count > 0)
+	{
+		while (count--)
+		{
+			RESAMPLATION;
+			ofs += incr;
+
+			if (ofs>=le)
+			{
+				/* fold the overshoot back in */
+				ofs = le - (ofs - le);
+				incr = -incr;
+			}
+			else if (ofs <= ls)
+			{
+				ofs = ls + (ls - ofs);
+				incr = -incr;
+			}
+		}  
+	}  
 #endif /* PRECALC_LOOPS */
-  vp->sample_increment=incr;
-  vp->sample_offset=ofs; /* Update offset */
 
-  return resample_buffer;
+	vp->sample_increment=incr;
+	vp->sample_offset=ofs; /* Update offset */
+
+	return resample_buffer;
 }
 
 /*********************** vibrato versions ***************************/
@@ -302,458 +313,490 @@ static resample_t *rs_bidir(Voice *vp, int32 count)
 /* We only need to compute one half of the vibrato sine cycle */
 static int vib_phase_to_inc_ptr(int phase)
 {
-  if (phase < VIBRATO_SAMPLE_INCREMENTS/2)
-    return VIBRATO_SAMPLE_INCREMENTS/2-1-phase;
-  else if (phase >= 3*VIBRATO_SAMPLE_INCREMENTS/2)
-    return 5*VIBRATO_SAMPLE_INCREMENTS/2-1-phase;
-  else
-    return phase-VIBRATO_SAMPLE_INCREMENTS/2;
+	if (phase < VIBRATO_SAMPLE_INCREMENTS/2)
+		return VIBRATO_SAMPLE_INCREMENTS/2-1-phase;
+
+	else if (phase >= 3*VIBRATO_SAMPLE_INCREMENTS/2)
+		return 5*VIBRATO_SAMPLE_INCREMENTS/2-1-phase;
+
+	else
+		return phase-VIBRATO_SAMPLE_INCREMENTS/2;
 }
 
-static int32 update_vibrato(Voice *vp, int sign)
+static int update_vibrato(Voice *vp, int sign)
 {
-  int32 depth;
-  int phase, pb;
-  double a;
+	int depth;
 
-  if (vp->vibrato_phase++ >= 2*VIBRATO_SAMPLE_INCREMENTS-1)
-    vp->vibrato_phase=0;
-  phase=vib_phase_to_inc_ptr(vp->vibrato_phase);
-  
-  if (vp->vibrato_sample_increment[phase])
-    {
-      if (sign)
-	return -vp->vibrato_sample_increment[phase];
-      else
-	return vp->vibrato_sample_increment[phase];
-    }
+	if (vp->vibrato_phase++ >= 2*VIBRATO_SAMPLE_INCREMENTS-1)
+		vp->vibrato_phase=0;
 
-  /* Need to compute this sample increment. */
-    
-  depth=vp->sample->vibrato_depth<<7;
+	int phase=vib_phase_to_inc_ptr(vp->vibrato_phase);
 
-  if (vp->vibrato_sweep)
-    {
-      /* Need to update sweep */
-      vp->vibrato_sweep_position += vp->vibrato_sweep;
-      if (vp->vibrato_sweep_position >= (1<<SWEEP_SHIFT))
-	vp->vibrato_sweep=0;
-      else
+	if (vp->vibrato_sample_increment[phase])
 	{
-	  /* Adjust depth */
-	  depth *= vp->vibrato_sweep_position;
-	  depth >>= SWEEP_SHIFT;
+		if (sign)
+			return -vp->vibrato_sample_increment[phase];
+		else
+			return vp->vibrato_sample_increment[phase];
 	}
-    }
 
-  a = FSCALE(((double)(vp->sample->sample_rate) *
-	      (double)(vp->frequency)) /
-	     ((double)(vp->sample->root_freq) *
-	      (double)(play_mode_rate)),
-	     FRACTION_BITS);
+	/* Need to compute this sample increment. */
 
-  pb=(int)((sine(vp->vibrato_phase * 
-		 (SINE_CYCLE_LENGTH/(2*VIBRATO_SAMPLE_INCREMENTS)))
-	    * (double)(depth) * VIBRATO_AMPLITUDE_TUNING));
+	depth=vp->sample->vibrato_depth<<7;
 
-  if (pb<0)
-    {
-      pb=-pb;
-      a /= bend_fine[(pb>>5) & 0xFF] * bend_coarse[pb>>13];
-    }
-  else
-    a *= bend_fine[(pb>>5) & 0xFF] * bend_coarse[pb>>13];
-  
-  /* If the sweep's over, we can store the newly computed sample_increment */
-  if (!vp->vibrato_sweep)
-    vp->vibrato_sample_increment[phase]=(int32) a;
+	if (vp->vibrato_sweep)
+	{
+		/* Need to update sweep */
+		vp->vibrato_sweep_position += vp->vibrato_sweep;
+		if (vp->vibrato_sweep_position >= (1<<SWEEP_SHIFT))
+			vp->vibrato_sweep=0;
+		else
+		{
+			/* Adjust depth */
+			depth *= vp->vibrato_sweep_position;
+			depth >>= SWEEP_SHIFT;
+		}
+	}
 
-  if (sign)
-    a = -a; /* need to preserve the loop direction */
+	double a = FSCALE(((double)(vp->sample->sample_rate) *
+				(double)(vp->frequency)) /
+			((double)(vp->sample->root_freq) *
+			 (double)(play_mode_rate)), FRACTION_BITS);
 
-  return (int32) a;
+	int pb = (int)((sine(vp->vibrato_phase * 
+					(SINE_CYCLE_LENGTH/(2*VIBRATO_SAMPLE_INCREMENTS)))
+				* (double)(depth) * VIBRATO_AMPLITUDE_TUNING));
+
+	if (pb < 0)
+	{
+		pb = -pb;
+		a /= bend_fine[(pb>>5) & 0xFF] * bend_coarse[pb>>13];
+	}
+	else
+		a *= bend_fine[(pb>>5) & 0xFF] * bend_coarse[pb>>13];
+
+	/* If the sweep's over, we can store the newly computed sample_increment */
+	if (!vp->vibrato_sweep)
+		vp->vibrato_sample_increment[phase]=(int) a;
+
+	if (sign)
+		a = -a; /* need to preserve the loop direction */
+
+	return (int) a;
 }
 
-static resample_t *rs_vib_plain(int v, int32 *countptr)
+static resample_t *rs_vib_plain(int v, int *countptr)
 {
-  /* Play sample until end, then free the voice. */
+	/* Play sample until end, then free the voice. */
 
-  INTERPVARS;
+	INTERPVARS;
 
-  Voice *vp=&voice[v];
+	Voice *vp = &voice[v];
 
-  int32 
-    le=vp->sample->data_length,
-    ofs=vp->sample_offset, 
-    incr=vp->sample_increment, 
-    count=*countptr;
+	int le    = vp->sample->data_length;
+	int ofs   = vp->sample_offset; 
+	int incr  = vp->sample_increment; 
+	int count = *countptr;
 
-  int cc=vp->vibrato_control_counter;
+	int cc = vp->vibrato_control_counter;
 
-  const sample_t *src=vp->sample->data;
+	const sample_t *src = vp->sample->data;
 
-  resample_t *dest = NeedResampleBuf(count);
+	resample_t *dest = NeedResampleBuf(count);
 
-  /* This has never been tested */
+	/* This has never been tested */
 
-  if (incr<0) incr = -incr; /* In case we're coming out of a bidir loop */
+	if (incr<0)
+		incr = -incr; /* In case we're coming out of a bidir loop */
 
-  while (count--)
-    {
-      if (!cc--)
+	while (count--)
 	{
-	  cc=vp->vibrato_control_ratio;
-	  incr=update_vibrato(vp, 0);
-	}
-      RESAMPLATION;
-      ofs += incr;
-      if (ofs >= le)
-	{
-	  FINALINTERP;
-	  vp->status=VOICE_FREE;
-	  *countptr-=count+1;
-	  break;
-	}
-    }
-  
-  vp->vibrato_control_counter=cc;
-  vp->sample_increment=incr;
-  vp->sample_offset=ofs; /* Update offset */
+		if (!cc--)
+		{
+			cc=vp->vibrato_control_ratio;
+			incr=update_vibrato(vp, 0);
+		}
 
-  return resample_buffer;
+		RESAMPLATION;
+		ofs += incr;
+
+		if (ofs >= le)
+		{
+			FINALINTERP;
+			vp->status=VOICE_FREE;
+			*countptr-=count+1;
+			break;
+		}
+	}
+
+	vp->vibrato_control_counter=cc;
+	vp->sample_increment=incr;
+	vp->sample_offset=ofs; /* Update offset */
+
+	return resample_buffer;
 }
 
-static resample_t *rs_vib_loop(Voice *vp, int32 count)
+static resample_t *rs_vib_loop(Voice *vp, int count)
 {
+	/* Play sample until end-of-loop, skip back and continue. */
 
-  /* Play sample until end-of-loop, skip back and continue. */
-  
-  INTERPVARS;
+	INTERPVARS;
 
-  int32 
-    ofs=vp->sample_offset, 
-    incr=vp->sample_increment, 
-    le=vp->sample->loop_end,
-    ll=le - vp->sample->loop_start;
+	int ofs  = vp->sample_offset; 
+	int incr = vp->sample_increment; 
+	int le   = vp->sample->loop_end;
+	int ll   = le - vp->sample->loop_start;
 
-  int cc=vp->vibrato_control_counter;
+	int cc = vp->vibrato_control_counter;
 
-  const sample_t *src=vp->sample->data;
+	const sample_t *src = vp->sample->data;
 
-  resample_t *dest = NeedResampleBuf(count);
+	resample_t *dest = NeedResampleBuf(count);
 
 #ifdef PRECALC_LOOPS
-  int32 i;
-  int
-    vibflag=0;
+	int vibflag=0;
 
-  while (count) 
-    {
-      /* Hopefully the loop is longer than an increment */
-      if(ofs >= le)
-	ofs -= ll;
-      /* Precalc how many times to go through the loop, taking
-	 the vibrato control ratio into account this time. */
-      i = (le - ofs) / incr + 1;
-      if(i > count) i = count;
-      if(i > cc)
+	while (count) 
 	{
-	  i = cc;
-	  vibflag = 1;
-	} 
-      else cc -= i;
-      count -= i;
-      while(i--) 
-	{
-	  RESAMPLATION;
-	  ofs += incr;
+		/* Hopefully the loop is longer than an increment */
+		if(ofs >= le)
+			ofs -= ll;
+
+		/* Precalc how many times to go through the loop, taking
+		   the vibrato control ratio into account this time. */
+		int i = (le - ofs) / incr + 1;
+		if (i > count)
+			i = count;
+
+		if (i > cc)
+		{
+			i = cc;
+			vibflag = 1;
+		} 
+		else
+			cc -= i;
+
+		count -= i;
+
+		while (i--) 
+		{
+			RESAMPLATION;
+			ofs += incr;
+		}
+		
+		if (vibflag) 
+		{
+			cc = vp->vibrato_control_ratio;
+			incr = update_vibrato(vp, 0);
+			vibflag = 0;
+		}
 	}
-      if(vibflag) 
-	{
-	  cc = vp->vibrato_control_ratio;
-	  incr = update_vibrato(vp, 0);
-	  vibflag = 0;
-	}
-    }
 
 #else /* PRECALC_LOOPS */
-  while (count--)
-    {
-      if (!cc--)
+	while (count--)
 	{
-	  cc=vp->vibrato_control_ratio;
-	  incr=update_vibrato(vp, 0);
+		if (!cc--)
+		{
+			cc=vp->vibrato_control_ratio;
+			incr=update_vibrato(vp, 0);
+		}
+
+		RESAMPLATION;
+		ofs += incr;
+
+		if (ofs >= le)
+			ofs -= ll; /* Hopefully the loop is longer than an increment. */
 	}
-      RESAMPLATION;
-      ofs += incr;
-      if (ofs>=le)
-	ofs -= ll; /* Hopefully the loop is longer than an increment. */
-    }
 #endif /* PRECALC_LOOPS */
 
-  vp->vibrato_control_counter=cc;
-  vp->sample_increment=incr;
-  vp->sample_offset=ofs; /* Update offset */
+	vp->vibrato_control_counter=cc;
+	vp->sample_increment=incr;
+	vp->sample_offset=ofs; /* Update offset */
 
-  return resample_buffer;
+	return resample_buffer;
 }
 
-static resample_t *rs_vib_bidir(Voice *vp, int32 count)
+static resample_t *rs_vib_bidir(Voice *vp, int count)
 {
-  INTERPVARS;
+	INTERPVARS;
 
-  int32 ofs  = vp->sample_offset; 
-  int32 incr = vp->sample_increment;
-  int32 le = vp->sample->loop_end; 
-  int32 ls = vp->sample->loop_start;
+	int ofs  = vp->sample_offset; 
+	int incr = vp->sample_increment;
+	int le   = vp->sample->loop_end; 
+	int ls   = vp->sample->loop_start;
 
-  int cc = vp->vibrato_control_counter;
+	int cc = vp->vibrato_control_counter;
 
-  const sample_t *src = vp->sample->data;
+	const sample_t *src = vp->sample->data;
 
-  resample_t *dest = NeedResampleBuf(count);
+	resample_t *dest = NeedResampleBuf(count);
 
 #ifdef PRECALC_LOOPS
-  int32
-    le2=le<<1,
-    ls2=ls<<1,
-    i;
-  int
-    vibflag = 0;
+	int le2=le<<1;
+	int ls2=ls<<1;
+	int vibflag = 0;
 
-  /* Play normally until inside the loop region */
-  while (count && (ofs <= ls)) 
-    {
-      i = (ls - ofs) / incr + 1;
-      if (i > count) i = count;
-      if (i > cc) 
+	/* Play normally until inside the loop region */
+	while (count && (ofs <= ls)) 
 	{
-	  i = cc;
-	  vibflag = 1;
-	} 
-      else cc -= i;
-      count -= i;
-      while (i--) 
-	{
-	  RESAMPLATION;
-	  ofs += incr;
-	}
-      if (vibflag) 
-	{
-	  cc = vp->vibrato_control_ratio;
-	  incr = update_vibrato(vp, 0);
-	  vibflag = 0;
-	}
-    }
-  
-  /* Then do the bidirectional looping */
+		int i = (ls - ofs) / incr + 1;
 
-  while (count) 
-    {
-      /* Precalc how many times we should go through the loop */
-      i = ((incr > 0 ? le : ls) - ofs) / incr + 1;
-      if(i > count) i = count;
-      if(i > cc) 
-	{
-	  i = cc;
-	  vibflag = 1;
-	} 
-      else cc -= i;
-      count -= i;
-      while (i--) 
-	{
-	  RESAMPLATION;
-	  ofs += incr;
+		if (i > count)
+			i = count;
+
+		if (i > cc) 
+		{
+			i = cc;
+			vibflag = 1;
+		} 
+		else
+			cc -= i;
+
+		count -= i;
+
+		while (i--) 
+		{
+			RESAMPLATION;
+			ofs += incr;
+		}
+
+		if (vibflag) 
+		{
+			cc = vp->vibrato_control_ratio;
+			incr = update_vibrato(vp, 0);
+			vibflag = 0;
+		}
 	}
-      if (vibflag) 
+
+	/* Then do the bidirectional looping */
+
+	while (count) 
 	{
-	  cc = vp->vibrato_control_ratio;
-	  incr = update_vibrato(vp, (incr < 0));
-	  vibflag = 0;
+		/* Precalc how many times we should go through the loop */
+		int i = ((incr > 0 ? le : ls) - ofs) / incr + 1;
+
+		if (i > count)
+			i = count;
+
+		if (i > cc) 
+		{
+			i = cc;
+			vibflag = 1;
+		} 
+		else
+			cc -= i;
+
+		count -= i;
+
+		while (i--) 
+		{
+			RESAMPLATION;
+			ofs += incr;
+		}
+
+		if (vibflag) 
+		{
+			cc = vp->vibrato_control_ratio;
+			incr = update_vibrato(vp, (incr < 0));
+			vibflag = 0;
+		}
+		if (ofs >= le) 
+		{
+			/* fold the overshoot back in */
+			ofs = le2 - ofs;
+			incr *= -1;
+		} 
+		else if (ofs <= ls) 
+		{
+			ofs = ls2 - ofs;
+			incr *= -1;
+		}
 	}
-      if (ofs >= le) 
-	{
-	  /* fold the overshoot back in */
-	  ofs = le2 - ofs;
-	  incr *= -1;
-	} 
-      else if (ofs <= ls) 
-	{
-	  ofs = ls2 - ofs;
-	  incr *= -1;
-	}
-    }
 
 #else /* PRECALC_LOOPS */
-  /* Play normally until inside the loop region */
+	/* Play normally until inside the loop region */
 
-  if (ofs < ls)
-    {
-      while (count--)
+	if (ofs < ls)
 	{
-	  if (!cc--)
-	    {
-	      cc=vp->vibrato_control_ratio;
-	      incr=update_vibrato(vp, 0);
-	    }
-	  RESAMPLATION;
-	  ofs += incr;
-	  if (ofs>=ls)
-	    break;
+		while (count--)
+		{
+			if (!cc--)
+			{
+				cc=vp->vibrato_control_ratio;
+				incr=update_vibrato(vp, 0);
+			}
+
+			RESAMPLATION;
+			ofs += incr;
+
+			if (ofs>=ls)
+				break;
+		}
 	}
-    }
 
-  /* Then do the bidirectional looping */
+	/* Then do the bidirectional looping */
 
-  if (count>0)
-    while (count--)
-      {
-	if (!cc--)
-	  {
-	    cc=vp->vibrato_control_ratio;
-	    incr=update_vibrato(vp, (incr < 0));
-	  }
-	RESAMPLATION;
-	ofs += incr;
-	if (ofs>=le)
-	  {
-	    /* fold the overshoot back in */
-	    ofs = le - (ofs - le);
-	    incr = -incr;
-	  }
-	else if (ofs <= ls)
-	  {
-	    ofs = ls + (ls - ofs);
-	    incr = -incr;
-	  }
-      }
+	if (count > 0)
+	{
+		while (count--)
+		{
+			if (!cc--)
+			{
+				cc=vp->vibrato_control_ratio;
+				incr=update_vibrato(vp, (incr < 0));
+			}
+
+			RESAMPLATION;
+			ofs += incr;
+
+			if (ofs>=le)
+			{
+				/* fold the overshoot back in */
+				ofs = le - (ofs - le);
+				incr = -incr;
+			}
+			else if (ofs <= ls)
+			{
+				ofs = ls + (ls - ofs);
+				incr = -incr;
+			}
+		}
+	}
 #endif /* PRECALC_LOOPS */
 
-  vp->vibrato_control_counter=cc;
-  vp->sample_increment=incr;
-  vp->sample_offset=ofs; /* Update offset */
-  
-  return resample_buffer;
+	vp->vibrato_control_counter=cc;
+	vp->sample_increment=incr;
+	vp->sample_offset=ofs; /* Update offset */
+
+	return resample_buffer;
 }
 
-resample_t *resample_voice(int v, int32 *countptr)
+resample_t *resample_voice(int v, int *countptr)
 {
-  int32 ofs;
-  uint8 modes;
-  Voice *vp=&voice[v];
-  
-  if (!(vp->sample->sample_rate))
-    {
-      /* Pre-resampled data -- just update the offset and check if
-         we're out of data. */
-      ofs=vp->sample_offset >> FRACTION_BITS; /* Kind of silly to use
-						 FRACTION_BITS here... */
-      if (*countptr >= (vp->sample->data_length>>FRACTION_BITS) - ofs)
-	{
-	  /* Note finished. Free the voice. */
-	  vp->status = VOICE_FREE;
-	
-	  /* Let the caller know how much data we had left */
-	  *countptr = (vp->sample->data_length>>FRACTION_BITS) - ofs;
-	}
-      else
-	vp->sample_offset += *countptr << FRACTION_BITS;
-      
-      return (resample_t *)vp->sample->data+ofs;
-    }
+	Voice *vp=&voice[v];
+	int ofs;
 
-  /* Need to resample. Use the proper function. */
-  modes=vp->sample->modes;
+	if (!(vp->sample->sample_rate))
+	{
+		/* Pre-resampled data -- just update the offset and check if
+		   we're out of data. */
+		ofs=vp->sample_offset >> FRACTION_BITS; /* Kind of silly to use
+												   FRACTION_BITS here... */
+		if (*countptr >= (vp->sample->data_length>>FRACTION_BITS) - ofs)
+		{
+			/* Note finished. Free the voice. */
+			vp->status = VOICE_FREE;
 
-  if (vp->vibrato_control_ratio)
-    {
-      if ((modes & MODES_LOOPING) &&
-	  ((modes & MODES_ENVELOPE) ||
-	   (vp->status==VOICE_ON || vp->status==VOICE_SUSTAINED)))
-	{
-	  if (modes & MODES_PINGPONG)
-	    return rs_vib_bidir(vp, *countptr);
-	  else
-	    return rs_vib_loop(vp, *countptr);
+			/* Let the caller know how much data we had left */
+			*countptr = (vp->sample->data_length>>FRACTION_BITS) - ofs;
+		}
+		else
+			vp->sample_offset += *countptr << FRACTION_BITS;
+
+		return (resample_t *)vp->sample->data+ofs;
 	}
-      else
-	return rs_vib_plain(v, countptr);
-    }
-  else
-    {
-      if ((modes & MODES_LOOPING) &&
-	  ((modes & MODES_ENVELOPE) ||
-	   (vp->status==VOICE_ON || vp->status==VOICE_SUSTAINED)))
+
+	/* Need to resample. Use the proper function. */
+	u8_t modes=vp->sample->modes;
+
+	if (vp->vibrato_control_ratio)
 	{
-	  if (modes & MODES_PINGPONG)
-	    return rs_bidir(vp, *countptr);
-	  else
-	    return rs_loop(vp, *countptr);
+		if ((modes & MODES_LOOPING) &&
+			((modes & MODES_ENVELOPE) ||
+			 (vp->status==VOICE_ON || vp->status==VOICE_SUSTAINED)))
+		{
+			if (modes & MODES_PINGPONG)
+				return rs_vib_bidir(vp, *countptr);
+			else
+				return rs_vib_loop(vp, *countptr);
+		}
+
+		return rs_vib_plain(v, countptr);
 	}
-      else
-	return rs_plain(v, countptr);
-    }
+	else
+	{
+		if ((modes & MODES_LOOPING) &&
+			((modes & MODES_ENVELOPE) ||
+			 (vp->status==VOICE_ON || vp->status==VOICE_SUSTAINED)))
+		{
+			if (modes & MODES_PINGPONG)
+				return rs_bidir(vp, *countptr);
+			else
+				return rs_loop(vp, *countptr);
+		}
+
+		return rs_plain(v, countptr);
+	}
 }
 
 void pre_resample(Sample * sp)
 {
-  double a, xdiff;
-  int32 incr, ofs, newlen, count;
-  int16 *src = (int16 *) sp->data;
-  resample_t *newdata, *dest;
-  int16 v1, v2, v3, v4, *vptr;
-  static const char note_name[12][3] =
-  {
-    "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"
-  };
+	s16_t *src = (s16_t *) sp->data;
 
-  ctl_msg(CMSG_INFO, VERB_NOISY, " * pre-resampling for note %d (%s%d)",
-	    sp->note_to_use,
-	    note_name[sp->note_to_use % 12], (sp->note_to_use & 0x7F) / 12);
+	static const char note_name[12][3] =
+	{
+		"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"
+	};
 
-  a = ((double) (sp->sample_rate) * freq_table[(int) (sp->note_to_use)]) /
-    ((double) (sp->root_freq) * play_mode_rate);
-  if (a <= 0) return;
-  newlen = (int32)(sp->data_length / a);
-  if (newlen < 0 || (newlen >> FRACTION_BITS) > MAX_SAMPLE_SIZE) return;
-  dest = newdata = (resample_t*)safe_malloc(newlen >> (FRACTION_BITS - 1));
+	ctl_msg(CMSG_INFO, VERB_NOISY, " * pre-resampling for note %d (%s%d)",
+			sp->note_to_use,
+			note_name[sp->note_to_use % 12], (sp->note_to_use & 0x7F) / 12);
 
-  count = (newlen >> FRACTION_BITS) - 1;
-  ofs = incr = (sp->data_length - (1 << FRACTION_BITS)) / count;
+	double a = ((double) (sp->sample_rate) * freq_table[(int) (sp->note_to_use)]) /
+			   ((double) (sp->root_freq) * play_mode_rate);
+	if (a <= 0)
+		return;
 
-  if (--count)
-    *dest++ = src[0];
+	int newlen = (int)(sp->data_length / a);
+	if (newlen < 0 || (newlen >> FRACTION_BITS) > MAX_SAMPLE_SIZE)
+		return;
 
-  /* Since we're pre-processing and this doesn't have to be done in
-     real-time, we go ahead and do the full sliding cubic interpolation. */
-  while (--count)
-    {
-      vptr = src + (ofs >> FRACTION_BITS);
-      v1 = (vptr == src) ? *vptr : *(vptr - 1);
-      v2 = *vptr;
-      v3 = *(vptr + 1);
-      v4 = *(vptr + 2);
-      xdiff = FSCALENEG(ofs & FRACTION_MASK, FRACTION_BITS);
-      *dest++ = (int16)(v2 + (xdiff / 6.0) * (-2 * v1 - 3 * v2 + 6 * v3 - v4 +
-      xdiff * (3 * (v1 - 2 * v2 + v3) + xdiff * (-v1 + 3 * (v2 - v3) + v4))));
-      ofs += incr;
-    }
+	resample_t * newdata = (resample_t*)safe_malloc(newlen >> (FRACTION_BITS - 1));
+	resample_t *dest = newdata;
 
-  if (ofs & FRACTION_MASK)
-    {
-      v1 = src[ofs >> FRACTION_BITS];
-      v2 = src[(ofs >> FRACTION_BITS) + 1];
-      *dest++ = (resample_t)(v1 + (((v2 - v1) * (ofs & FRACTION_MASK)) >> FRACTION_BITS));
-    }
-  else
-    *dest++ = src[ofs >> FRACTION_BITS];
+	int count = (newlen >> FRACTION_BITS) - 1;
+	int ofs   = (sp->data_length - (1 << FRACTION_BITS)) / count;
+	int incr  = ofs;
 
-  sp->data_length = newlen;
-  sp->loop_start = (int32)(sp->loop_start / a);
-  sp->loop_end = (int32)(sp->loop_end / a);
-  free(sp->data);
-  sp->data = (sample_t *) newdata;
-  sp->sample_rate = 0;
+	if (--count)
+		*dest++ = src[0];
+
+	/* Since we're pre-processing and this doesn't have to be done in
+	   real-time, we go ahead and do the full sliding cubic interpolation. */
+	while (--count)
+	{
+		s16_t * vptr = src + (ofs >> FRACTION_BITS);
+
+		s16_t v1 = (vptr == src) ? *vptr : *(vptr - 1);
+		s16_t v2 = *vptr;
+		s16_t v3 = *(vptr + 1);
+		s16_t v4 = *(vptr + 2);
+
+		double xdiff = FSCALENEG(ofs & FRACTION_MASK, FRACTION_BITS);
+
+		*dest++ = (s16_t)(v2 + (xdiff / 6.0) * (-2 * v1 - 3 * v2 + 6 * v3 - v4 +
+						  xdiff * (3 * (v1 - 2 * v2 + v3) + xdiff * (-v1 + 3 * (v2 - v3) + v4))));
+		ofs += incr;
+	}
+
+	if (ofs & FRACTION_MASK)
+	{
+		s16_t v1 = src[ofs >> FRACTION_BITS];
+		s16_t v2 = src[(ofs >> FRACTION_BITS) + 1];
+
+		*dest++ = (resample_t)(v1 + (((v2 - v1) * (ofs & FRACTION_MASK)) >> FRACTION_BITS));
+	}
+	else
+		*dest++ = src[ofs >> FRACTION_BITS];
+
+	sp->data_length = newlen;
+	sp->loop_start  = (int)(sp->loop_start / a);
+	sp->loop_end    = (int)(sp->loop_end   / a);
+
+	free(sp->data);
+
+	sp->data = (sample_t *) newdata;
+	sp->sample_rate = 0;
 }
 
 //--- editor settings ---
