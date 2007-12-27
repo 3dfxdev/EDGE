@@ -290,65 +290,44 @@ static int read_config_file(char *name)
 
 int Timidity_Init(int rate, int channels)
 {
-  if (read_config_file(CONFIG_FILE)<0) {
-    if (read_config_file(CONFIG_FILE_ETC)<0) {
-      if (read_config_file(CONFIG_FILE_ETC_TIMIDITY)<0) {
-        return(-1);
-      }
-    }
-  }
+	if (read_config_file(CONFIG_FILE)<0)
+	{
+		if (read_config_file(CONFIG_FILE_ETC)<0)
+		{
+			if (read_config_file(CONFIG_FILE_ETC_TIMIDITY)<0)
+			{
+				return(-1);
+			}
+		}
+	}
 
-  if (channels < 1 || channels == 3 || channels == 5 || channels > 6) return(-1);
+	if (channels < 1 || channels == 3 || channels == 5 || channels > 6)
+		return(-1);
 
-  num_ochannels = channels;
+	num_ochannels = channels;
 
-  /* Set play mode parameters */
-  play_mode_rate = rate;
-  play_mode_encoding = PE_16BIT | PE_SIGNED;
+	/* Set play mode parameters */
+	play_mode_rate = rate;
+	play_mode_encoding = PE_16BIT | PE_SIGNED;
 
-  if ( channels == 1 ) {
-    play_mode_encoding |= PE_MONO;
-  } 
+	if ( channels == 1 ) {
+		play_mode_encoding |= PE_MONO;
+	} 
 
-  s32tobuf = s32tos16;
+	// EDGE's blitter only needs s32_t samples
+	s32tobuf = s32tos16;
 
-#if 0
-  switch (format) {
-    case AUDIO_S8:
-      s32tobuf = s32tos8;
-      break;
-    case AUDIO_U8:
-      s32tobuf = s32tou8;
-      break;
-    case AUDIO_S16LSB:
-      break;
-    case AUDIO_S16MSB:
-      s32tobuf = s32tos16b;
-      break;
-    case AUDIO_U16LSB:
-      s32tobuf = s32tou16l;
-      break;
-    case AUDIO_U16MSB:
-      s32tobuf = s32tou16b;
-      break;
-    default:
-      ctl_msg(CMSG_ERROR, VERB_NORMAL, "Unsupported audio format");
-      return(-1);
-  }
-#endif
-  
-
-  if (!control_ratio)
-  {
-    control_ratio = play_mode_rate / CONTROLS_PER_SECOND;
-    if(control_ratio<1)
-      control_ratio=1;
-    else if (control_ratio > MAX_CONTROL_RATIO)
-      control_ratio=MAX_CONTROL_RATIO;
-  }
-  if (*def_instr_name)
-    set_default_instrument(def_instr_name);
-  return(0);
+	if (!control_ratio)
+	{
+		control_ratio = play_mode_rate / CONTROLS_PER_SECOND;
+		if(control_ratio<1)
+			control_ratio=1;
+		else if (control_ratio > MAX_CONTROL_RATIO)
+			control_ratio=MAX_CONTROL_RATIO;
+	}
+	if (*def_instr_name)
+		set_default_instrument(def_instr_name);
+	return(0);
 }
 
 #if 0  // NOT USED
@@ -359,6 +338,36 @@ const char *Timidity_Error(void)
   return(timidity_error);
 }
 #endif
+
+
+/* export the playback mode */
+
+int play_mode_rate = DEFAULT_RATE;
+int play_mode_encoding = PE_16BIT|PE_SIGNED;
+
+int ctl_verbosity = 2;
+
+void ctl_msg(int type, int verbosity, char *fmt, ...)
+{
+	va_list ap;
+
+	if ((type==CMSG_TEXT || type==CMSG_INFO || type==CMSG_WARNING) &&
+		(verbosity > ctl_verbosity))
+		return;
+
+	char buffer[2048];
+
+	buffer[2047] = 0;
+
+	va_start(ap, fmt);
+	vsprintf(buffer, fmt, ap);
+	va_end(ap);
+
+	if (verbosity >= VERB_DEBUG)
+		I_Debugf("Timidity: %s\n", buffer);
+	else
+		I_Printf("Timidity: %s\n", buffer);
+}
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

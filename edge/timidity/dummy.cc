@@ -30,36 +30,6 @@
 #include "playmidi.h"
 
 
-/* export the playback mode */
-
-int play_mode_rate = DEFAULT_RATE;
-int play_mode_encoding = PE_16BIT|PE_SIGNED;
-
-
-int ctl_verbosity = 2;
-
-
-void ctl_msg(int type, int verbosity, char *fmt, ...)
-{
-	va_list ap;
-
-	if ((type==CMSG_TEXT || type==CMSG_INFO || type==CMSG_WARNING) &&
-		(verbosity > ctl_verbosity))
-		return;
-
-	char buffer[2048];
-
-	buffer[2047] = 0;
-
-	va_start(ap, fmt);
-	vsprintf(buffer, fmt, ap);
-	va_end(ap);
-
-	if (verbosity >= VERB_DEBUG)
-		I_Debugf("Timidity: %s\n", buffer);
-	else
-		I_Printf("Timidity: %s\n", buffer);
-}
 
 
 //--- editor settings ---
