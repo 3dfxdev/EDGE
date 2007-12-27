@@ -23,7 +23,7 @@
 #ifndef __TIMIDITY_MIX_H__
 #define __TIMIDITY_MIX_H__
 
-extern void mix_voice(int32 *buf, int v, int32 c);
+extern void mix_voice(s32_t *buf, int v, int count);
 extern int recompute_envelope(int v);
 extern void apply_envelope_to_amp(int v);
 
