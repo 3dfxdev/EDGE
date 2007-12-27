@@ -276,7 +276,7 @@ static void recompute_freq(int v)
   a = FSCALE(((double)(voice[v].sample->sample_rate) *
 	      (double)(voice[v].frequency)) /
 	     ((double)(voice[v].sample->root_freq) *
-	      (double)(play_mode->rate)),
+	      (double)(play_mode_rate)),
 	     FRACTION_BITS);
 
   if (sign) 
@@ -521,7 +521,7 @@ static void clone_voice(Instrument *ip, int v, MidiEvent *e, int clone_type, int
 	voice[w].sample = voice[v].right_sample;
 	voice[w].velocity= e->b;
 
-	milli = play_mode->rate/1000;
+	milli = play_mode_rate/1000;
 
 	if (clone_type == STEREO_CLONE) {
 		int left, right, leftpan, rightpan;
@@ -1265,7 +1265,7 @@ static void compute_data(void *stream, int32 count, int32 total)
 I_Debugf("  compute_data: %d samples\n", count);
 	int rc, channels;
 
-	if ( play_mode->encoding & PE_MONO )
+	if ( play_mode_encoding & PE_MONO )
 		channels = 1;
 	else
 		channels = num_ochannels;
@@ -1430,7 +1430,7 @@ static bool handle_recent_events(void)
 			case ME_EOT:
 				/* Give the last notes a couple of seconds to decay */
 				ctl_msg(CMSG_INFO, VERB_VERBOSE,
-						"Playing time: ~%d seconds", current_sample/play_mode->rate+2);
+						"Playing time: ~%d seconds", current_sample/play_mode_rate+2);
 				ctl_msg(CMSG_INFO, VERB_VERBOSE,
 						"Notes cut: %d", cut_notes);
 				ctl_msg(CMSG_INFO, VERB_VERBOSE,

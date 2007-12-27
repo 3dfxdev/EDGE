@@ -88,7 +88,7 @@ static int32 sample_increment, sample_correction; /*samples per MIDI delta-t*/
 static void compute_sample_increment(int32 tempo, int32 divisions)
 {
 	double a;
-	a = (double) (tempo) * (double) (play_mode->rate) * (65536.0/1000000.0) /
+	a = (double) (tempo) * (double) (play_mode_rate) * (65536.0/1000000.0) /
 		(double)(divisions);
 
 	sample_correction = (int32)(a) & 0xFFFF;

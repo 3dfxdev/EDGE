@@ -66,7 +66,8 @@ MidiEvent;
 
 #define SFX_BANKTYPE	64
 
-typedef struct {
+typedef struct
+{
   int
     bank, program, volume, sustain, panning, pitchbend, expression, 
     mono, /* one note only on this channel -- not implemented yet */
@@ -79,14 +80,16 @@ typedef struct {
     pitchfactor; /* precomputed pitch bend factor to save some fdiv's */
   char transpose;
   char *name;
-} Channel;
+}
+Channel;
 
 /* Causes the instrument's default panning to be used. */
 #define NO_PANNING -1
 /* envelope points */
 #define MAXPOINT 7
 
-typedef struct {
+typedef struct
+{
   uint8
     status, channel, note, velocity, clone_type;
   Sample *sample;
@@ -126,7 +129,8 @@ typedef struct {
     vibrato_phase, vibrato_control_ratio, vibrato_control_counter,
     envelope_stage, modulation_stage, control_counter,
     modulation_delay, modulation_counter, panning, panned;
-} Voice;
+}
+Voice;
 
 /* Voice status options: */
 #define VOICE_FREE 0

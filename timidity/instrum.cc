@@ -155,7 +155,7 @@ int32 convert_envelope_rate_attack(uint8 rate, uint8 fastness)
   r = (int32)(rate & 0x3f) << r; /* 6.9 fixed point */
 
   /* 15.15 fixed point. */
-  return (((r * 44100) / play_mode->rate) * control_ratio) 
+  return (((r * 44100) / play_mode_rate) * control_ratio) 
     << 10;
 }
 
@@ -168,7 +168,7 @@ int32 convert_envelope_rate(uint8 rate)
   r = (int32)(rate & 0x3f) << r; /* 6.9 fixed point */
 
   /* 15.15 fixed point. */
-  return (((r * 44100) / play_mode->rate) * control_ratio) 
+  return (((r * 44100) / play_mode_rate) * control_ratio) 
     << ((fast_decay) ? 10 : 9);
 }
 
@@ -188,7 +188,7 @@ int32 convert_tremolo_sweep(uint8 sweep)
 
   return
     ((control_ratio * SWEEP_TUNING) << SWEEP_SHIFT) /
-      (play_mode->rate * sweep);
+      (play_mode_rate * sweep);
 }
 
 int32 convert_vibrato_sweep(uint8 sweep, int32 vib_control_ratio)
@@ -198,26 +198,26 @@ int32 convert_vibrato_sweep(uint8 sweep, int32 vib_control_ratio)
 
   return
     (int32) (FSCALE((double) (vib_control_ratio) * SWEEP_TUNING, SWEEP_SHIFT)
-	     / (double)(play_mode->rate * sweep));
+	     / (double)(play_mode_rate * sweep));
 
   /* this was overflowing with seashore.pat
 
       ((vib_control_ratio * SWEEP_TUNING) << SWEEP_SHIFT) /
-      (play_mode->rate * sweep); */
+      (play_mode_rate * sweep); */
 }
 
 int32 convert_tremolo_rate(uint8 rate)
 {
   return
     ((SINE_CYCLE_LENGTH * control_ratio * rate) << RATE_SHIFT) /
-      (TREMOLO_RATE_TUNING * play_mode->rate);
+      (TREMOLO_RATE_TUNING * play_mode_rate);
 }
 
 int32 convert_vibrato_rate(uint8 rate)
 {
   /* Return a suitable vibrato_control_ratio value */
   return
-    (VIBRATO_RATE_TUNING * play_mode->rate) / 
+    (VIBRATO_RATE_TUNING * play_mode_rate) / 
       (rate * 2 * VIBRATO_SAMPLE_INCREMENTS);
 }
 
@@ -656,7 +656,7 @@ static InstrumentLayer *load_instrument(char *name, int font_type, int percussio
       if (sf2flag)
 	{
 	  if (sf2delay > 5) sf2delay = 5;
-	  sp->envelope_rate[DELAY] = (int32)( (sf2delay*play_mode->rate) / 1000 );
+	  sp->envelope_rate[DELAY] = (int32)( (sf2delay*play_mode_rate) / 1000 );
 	}
       else
 	{
@@ -746,7 +746,7 @@ static InstrumentLayer *load_instrument(char *name, int font_type, int percussio
       /* If necessary do some anti-aliasing filtering  */
 
       if (antialiasing_allowed)
-	  antialiasing(sp,play_mode->rate);
+	  antialiasing(sp,play_mode_rate);
 
 #ifdef ADJUST_SAMPLE_VOLUMES
       if (amp!=-1)

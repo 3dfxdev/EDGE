@@ -32,19 +32,8 @@
 
 /* export the playback mode */
 
-static PlayMode dummy_play_mode =
-{
-	DEFAULT_RATE, PE_16BIT|PE_SIGNED,
-	"EPI Audio"
-};
-
-PlayMode *play_mode_list[] =
-{
-	&dummy_play_mode,
-	0
-};
-
-PlayMode *play_mode = &dummy_play_mode;
+int play_mode_rate = DEFAULT_RATE;
+int play_mode_encoding = PE_16BIT|PE_SIGNED;
 
 
 int ctl_verbosity = 2;

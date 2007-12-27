@@ -349,7 +349,7 @@ static int32 update_vibrato(Voice *vp, int sign)
   a = FSCALE(((double)(vp->sample->sample_rate) *
 	      (double)(vp->frequency)) /
 	     ((double)(vp->sample->root_freq) *
-	      (double)(play_mode->rate)),
+	      (double)(play_mode_rate)),
 	     FRACTION_BITS);
 
   pb=(int)((sine(vp->vibrato_phase * 
@@ -712,7 +712,7 @@ void pre_resample(Sample * sp)
 	    note_name[sp->note_to_use % 12], (sp->note_to_use & 0x7F) / 12);
 
   a = ((double) (sp->sample_rate) * freq_table[(int) (sp->note_to_use)]) /
-    ((double) (sp->root_freq) * play_mode->rate);
+    ((double) (sp->root_freq) * play_mode_rate);
   if (a <= 0) return;
   newlen = (int32)(sp->data_length / a);
   if (newlen < 0 || (newlen >> FRACTION_BITS) > MAX_SAMPLE_SIZE) return;
