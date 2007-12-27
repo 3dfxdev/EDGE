@@ -22,15 +22,19 @@
 #ifndef __TIMIDITY_API_H__
 #define __TIMIDITY_API_H__
 
-extern int Timidity_Init(int rate, int channels, int samples);
-extern void Timidity_SetVolume(int volume);
-extern int Timidity_PlaySome(void *stream, int samples);
-extern struct MidiSong *Timidity_LoadSong(const byte *data, int length);
-extern void Timidity_Start(struct MidiSong *song);
-extern int Timidity_Active(void);
-extern void Timidity_Stop(void);
-extern void Timidity_FreeSong(struct MidiSong *song);
+extern int  Timidity_Init(int rate, int channels);
 extern void Timidity_Close(void);
+
+extern struct MidiSong *Timidity_LoadSong(const byte *data, int length);
+extern void Timidity_FreeSong(struct MidiSong *song);
+
+extern void Timidity_Start(struct MidiSong *song);
+extern void Timidity_Stop(void);
+extern int  Timidity_Active(void);
+
+extern void Timidity_SetVolume(int volume);
+extern void Timidity_QuietFactor(int factor);
+extern int  Timidity_PlaySome(void *stream, int samples);
 
 /// extern const char *Timidity_Error(void);
 

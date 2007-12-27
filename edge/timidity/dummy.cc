@@ -77,7 +77,7 @@ static void ctl_close(void)
 
 static int ctl_read(int32 *valp)
 {
-	return RC_NONE;
+	return 0;
 }
 
 static void cmsg(int type, int verbosity, char *fmt, ...)
