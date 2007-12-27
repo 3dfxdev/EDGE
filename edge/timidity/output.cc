@@ -30,95 +30,120 @@
 /*****************************************************************/
 /* Some functions to convert signed 32-bit data to other formats */
 
-void s32tos8(void *dp, const int32 *lp, int32 c)
+#define CLIP_THRESHHOLD  ((1L << (31-GUARD_BITS)) - 1)
+
+
+void s32tos8(void *dp, const s32_t *lp, int count)
 {
-  int8 *cp=(int8 *)(dp);
-  int32 l;
-  while (c--)
-    {
-      l=(*lp++)>>(32-8-GUARD_BITS);
-      if (l>127) l=127;
-      else if (l<-128) l=-128;
-      *cp++ = (int8) (l);
-    }
+	s8_t *dest = (s8_t *)dp;
+
+	while (count--)
+	{
+		s32_t val = *lp++;
+
+		     if (val >  CLIP_THRESHHOLD) val =  CLIP_THRESHHOLD;
+		else if (val < -CLIP_THRESHHOLD) val = -CLIP_THRESHHOLD;
+
+		*dest++ = (s8_t) (val >> (32-8-GUARD_BITS));
+	}
 }
 
-void s32tou8(void *dp, const int32 *lp, int32 c)
+void s32tou8(void *dp, const s32_t *lp, int count)
 {
-  uint8 *cp=(uint8 *)(dp);
-  int32 l;
-  while (c--)
-    {
-      l=(*lp++)>>(32-8-GUARD_BITS);
-      if (l>127) l=127;
-      else if (l<-128) l=-128;
-      *cp++ = 0x80 ^ ((uint8) l);
-    }
+	u8_t *dest = (u8_t *)dp;
+
+	while (count--)
+	{
+		s32_t val = *lp++;
+
+		     if (val >  CLIP_THRESHHOLD) val =  CLIP_THRESHHOLD;
+		else if (val < -CLIP_THRESHHOLD) val = -CLIP_THRESHHOLD;
+
+		*dest++ = (u8_t) (0x80 ^ (val >> (32-8-GUARD_BITS)));
+	}
 }
 
-void s32tos16(void *dp, const int32 *lp, int32 c)
+void s32tos16(void *dp, const s32_t *lp, int count)
 {
-  int16 *sp=(int16 *)(dp);
-  int32 l;
-  while (c--)
-    {
-      l=(*lp++)>>(32-16-GUARD_BITS);
-      if (l > 32767) l=32767;
-      else if (l<-32768) l=-32768;
-      *sp++ = (int16)(l);
-    }
+	s16_t *dest = (s16_t *)dp;
+
+	while (count--)
+	{
+		s32_t val = *lp++;
+
+		     if (val >  CLIP_THRESHHOLD) val =  CLIP_THRESHHOLD;
+		else if (val < -CLIP_THRESHHOLD) val = -CLIP_THRESHHOLD;
+
+		*dest++ = (s16_t)(val >> (32-16-GUARD_BITS));
+	}
 }
 
-void s32tou16(void *dp, const int32 *lp, int32 c)
+void s32tou16(void *dp, const s32_t *lp, int count)
 {
-  uint16 *sp=(uint16 *)(dp);
-  int32 l;
-  while (c--)
-    {
-      l=(*lp++)>>(32-16-GUARD_BITS);
-      if (l > 32767) l=32767;
-      else if (l<-32768) l=-32768;
-      *sp++ = 0x8000 ^ (uint16)(l);
-    }
+	u16_t *dest = (u16_t *)dp;
+
+	while (count--)
+	{
+		s32_t val = *lp++;
+
+		     if (val >  CLIP_THRESHHOLD) val =  CLIP_THRESHHOLD;
+		else if (val < -CLIP_THRESHHOLD) val = -CLIP_THRESHHOLD;
+
+		*dest++ = (u16_t) (0x8000 ^ (val >> (32-16-GUARD_BITS)));
+	}
 }
 
-void s32tos16x(void *dp, const int32 *lp, int32 c)
+void s32tos16x(void *dp, const s32_t *lp, int count)
 {
-  int16 *sp=(int16 *)(dp);
-  int32 l;
-  while (c--)
-    {
-      l=(*lp++)>>(32-16-GUARD_BITS);
-      if (l > 32767) l=32767;
-      else if (l<-32768) l=-32768;
-      *sp++ = EPI_Swap16((int16)(l));
-    }
+	s16_t *dest = (s16_t *)dp;
+
+	while (count--)
+	{
+		s32_t val = *lp++;
+
+		     if (val >  CLIP_THRESHHOLD) val =  CLIP_THRESHHOLD;
+		else if (val < -CLIP_THRESHHOLD) val = -CLIP_THRESHHOLD;
+
+		val >>= (32-16-GUARD_BITS);
+
+		*dest++ = (s16_t)EPI_Swap16((u16_t)val);
+	}
 }
 
-void s32tou16x(void *dp, const int32 *lp, int32 c)
+void s32tou16x(void *dp, const s32_t *lp, int count)
 {
-  uint16 *sp=(uint16 *)(dp);
-  int32 l;
-  while (c--)
-    {
-      l=(*lp++)>>(32-16-GUARD_BITS);
-      if (l > 32767) l=32767;
-      else if (l<-32768) l=-32768;
-      *sp++ = EPI_Swap16(0x8000 ^ (uint16)(l));
-    }
+	u16_t *dest = (u16_t *)dp;
+
+	while (count--)
+	{
+		s32_t val = *lp++;
+
+		     if (val >  CLIP_THRESHHOLD) val =  CLIP_THRESHHOLD;
+		else if (val < -CLIP_THRESHHOLD) val = -CLIP_THRESHHOLD;
+
+		val >>= (32-16-GUARD_BITS);
+
+		*dest++ = (u16_t) (0x8000 ^ EPI_Swap16((u16_t)val));
+	}
 }
 
-void s32toulaw(void *dp, const int32 *lp, int32 c)
+void s32toulaw(void *dp, const s32_t *lp, int count)
 {
-  uint8 *up=(uint8 *)(dp);
-  int32 l;
-  while (c--)
-    {
-      l=(*lp++)>>(32-13-GUARD_BITS);
-      if (l > 4095) l=4095;
-      else if (l<-4096) l=-4096;
-      *up++ = _l2u[l];
-    }
+	u8_t *dest = (u8_t *)dp;
+
+	while (count--)
+	{
+		s32_t val = *lp++;
+
+		     if (val >  CLIP_THRESHHOLD) val =  CLIP_THRESHHOLD;
+		else if (val < -CLIP_THRESHHOLD) val = -CLIP_THRESHHOLD;
+
+		val >>= (32-13-GUARD_BITS);
+
+		// Note: _l2u has been offsetted by 4096 to allow for
+		//       the negative values here.  (-AJA- ick!)
+		*dest++ = _l2u[val];
+	}
 }
 
 //--- editor settings ---
