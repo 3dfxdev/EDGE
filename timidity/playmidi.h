@@ -75,7 +75,7 @@ typedef struct {
     releasetime, attacktime, brightness, kit, sfx,
     /* end new */
     pitchsens;
-  FLOAT_T
+  double
     pitchfactor; /* precomputed pitch bend factor to save some fdiv's */
   char transpose;
   char *name;
@@ -115,7 +115,7 @@ typedef struct {
   
   final_volume_t left_mix, right_mix, lr_mix, rr_mix, ce_mix, lfe_mix;
 
-  FLOAT_T
+  double
     left_amp, right_amp, lr_amp, rr_amp, ce_amp, lfe_amp,
     volume, tremolo_volume, lfo_volume;
   int32

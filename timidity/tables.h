@@ -22,12 +22,7 @@
 #ifndef __TIMIDITY_TABLES_H__
 #define __TIMIDITY_TABLES_H__
 
-#ifdef LOOKUP_SINE
-extern FLOAT_T sine(int x);
-#else
-#include <math.h>
 #define sine(x) (sin((2*PI/1024.0) * (x)))
-#endif
 
 #define SINE_CYCLE_LENGTH 1024
 extern int32 freq_table[];

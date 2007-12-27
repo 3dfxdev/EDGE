@@ -32,7 +32,7 @@ typedef struct
   int32
     envelope_rate[7], envelope_offset[7],
     modulation_rate[7], modulation_offset[7];
-  FLOAT_T
+  double
     volume, resonance,
     modEnvToFilterFc, modEnvToPitch, modLfoToFilterFc;
   sample_t *data;

@@ -414,7 +414,8 @@ static InstrumentLayer *load_instrument(char *name, int font_type, int percussio
   else ip->right_sample = 0;
   ip->contents = 0;
 
-  ctl->cmsg(CMSG_INFO, VERB_NOISY, "%s%s[%d,%d] %s(%d-%d layer %d of %d)",
+  ctl->cmsg(CMSG_INFO, VERB_DEBUG_SILLY,
+		    "%s%s[%d,%d] %s(%d-%d layer %d of %d)",
 	(percussion)? "   ":"", name,
 	(percussion)? note_to_use : gm_num, bank,
 	(right_samples)? "(2) " : "",
@@ -749,9 +750,9 @@ static InstrumentLayer *load_instrument(char *name, int font_type, int percussio
 
 #ifdef ADJUST_SAMPLE_VOLUMES
       if (amp!=-1)
-	sp->volume=(FLOAT_T)((amp) / 100.0);
+	sp->volume=(double)((amp) / 100.0);
       else if (sf2flag)
-	sp->volume=(FLOAT_T)((sample_volume) / 255.0);
+	sp->volume=(double)((sample_volume) / 255.0);
       else
 	{
 	  /* Try to determine a volume scaling factor for the sample.

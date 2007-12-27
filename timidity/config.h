@@ -75,7 +75,6 @@
 
 #define MAX_SAMPLE_SIZE (1 << (32-FRACTION_BITS))
 
-typedef double FLOAT_T;
 
 /* For some reason the sample volume is always set to maximum in all
    patch files. Define this for a crude adjustment that may help
@@ -86,10 +85,6 @@ typedef double FLOAT_T;
    click removal. */
 #define MAX_DIE_TIME 20
 
-/* On some machines (especially PCs without math coprocessors),
-   looking up sine values in a table will be significantly faster than
-   computing them on the fly. Uncomment this to use lookups. */
-/* #define LOOKUP_SINE */
 
 /* Shawn McHorse's resampling optimizations. These may not in fact be
    faster on your particular machine and compiler. You'll have to run

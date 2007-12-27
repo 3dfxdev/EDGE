@@ -74,7 +74,7 @@ int recompute_envelope(int v)
 
 void apply_envelope_to_amp(int v)
 {
-  FLOAT_T lamp=voice[v].left_amp, ramp, lramp, rramp, ceamp, lfeamp;
+  double lamp=voice[v].left_amp, ramp, lramp, rramp, ceamp, lfeamp;
   int32 la,ra, lra, rra, cea, lfea;
   if (voice[v].panned == PANNED_MYSTERY)
     {
@@ -86,7 +86,7 @@ void apply_envelope_to_amp(int v)
 
       if (voice[v].tremolo_phase_increment)
 	{
-	  FLOAT_T tv = voice[v].tremolo_volume;
+	  double tv = voice[v].tremolo_volume;
 	  lramp *= tv;
 	  lamp *= tv;
 	  ceamp *= tv;
@@ -96,7 +96,7 @@ void apply_envelope_to_amp(int v)
 	}
       if (voice[v].sample->modes & MODES_ENVELOPE)
 	{
-	  FLOAT_T ev = (FLOAT_T)vol_table[voice[v].envelope_volume>>23];
+	  double ev = (double)vol_table[voice[v].envelope_volume>>23];
 	  lramp *= ev;
 	  lamp *= ev;
 	  ceamp *= ev;
@@ -131,7 +131,7 @@ void apply_envelope_to_amp(int v)
       if (voice[v].tremolo_phase_increment)
 	lamp *= voice[v].tremolo_volume;
       if (voice[v].sample->modes & MODES_ENVELOPE)
-	lamp *= (FLOAT_T)vol_table[voice[v].envelope_volume>>23];
+	lamp *= (double)vol_table[voice[v].envelope_volume>>23];
 
       la = (int32)FSCALE(lamp,AMP_BITS);
 
@@ -182,7 +182,7 @@ static void update_tremolo(int v)
   /* if (voice[v].tremolo_phase >= (SINE_CYCLE_LENGTH<<RATE_SHIFT))
      voice[v].tremolo_phase -= SINE_CYCLE_LENGTH<<RATE_SHIFT;  */
 
-  voice[v].tremolo_volume = (FLOAT_T) 
+  voice[v].tremolo_volume = (double) 
     (1.0 - FSCALENEG((sine(voice[v].tremolo_phase >> RATE_SHIFT) + 1.0)
 		    * depth * TREMOLO_AMPLITUDE_TUNING,
 		    17));

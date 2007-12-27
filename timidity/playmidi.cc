@@ -52,7 +52,7 @@ int voices=DEFAULT_VOICES;
 int32 control_ratio=0;
 int32 amplification=DEFAULT_AMPLIFICATION;
 
-FLOAT_T master_volume;
+double master_volume;
 
 int32 drumchannels=DEFAULT_DRUMCHANNELS;
 int adjust_panning_immediately=0;
@@ -91,7 +91,7 @@ int32 * NeedCommonBuf(int count)
 
 static void adjust_amplification(void)
 { 
-  master_volume = (FLOAT_T)(amplification) / (FLOAT_T)100.0;
+  master_volume = (double)(amplification) / (double)100.0;
   master_volume /= 2;
 }
 
@@ -266,7 +266,7 @@ static void recompute_freq(int v)
 	  if (pb<0)
 	    i=-i;
 	  channel[voice[v].channel].pitchfactor=
-	    (FLOAT_T)(bend_fine[(i>>5) & 0xFF] * bend_coarse[i>>13]);
+	    (double)(bend_fine[(i>>5) & 0xFF] * bend_coarse[i>>13]);
 	}
       if (pb>0)
 	voice[v].frequency=
@@ -339,7 +339,7 @@ static void recompute_amp(int v)
 	int expr = channel[chan].expression;
 	int vel = vcurve[voice[v].velocity];
 	int drumpan = NO_PANNING;
-	FLOAT_T curved_expression, curved_volume;
+	double curved_expression, curved_volume;
 
 	if (channel[chan].kit)
 	{
@@ -350,13 +350,13 @@ static void recompute_amp(int v)
 
 	if (opt_expression_curve == 2) curved_expression = 127.0 * vol_table[expr];
 	else if (opt_expression_curve == 1) curved_expression = 127.0 * expr_table[expr];
-	else curved_expression = (FLOAT_T)expr;
+	else curved_expression = (double)expr;
 
 	if (opt_volume_curve == 2) curved_volume = 127.0 * vol_table[vol];
 	else if (opt_volume_curve == 1) curved_volume = 127.0 * expr_table[vol];
-	else curved_volume = (FLOAT_T)vol;
+	else curved_volume = (double)vol;
 
-	tempamp= (int32)((FLOAT_T)vel * curved_volume * curved_expression); /* 21 bits */
+	tempamp= (int32)((double)vel * curved_volume * curved_expression); /* 21 bits */
 
 	/* TODO: use fscale */
 
@@ -391,7 +391,7 @@ static void recompute_amp(int v)
 		}
 		else
 		{
-			FLOAT_T refv = (double)(tempamp) * voice[v].sample->volume * master_volume;
+			double refv = (double)(tempamp) * voice[v].sample->volume * master_volume;
 			int wide_panning = 64;
 
 			if (num_ochannels == 4) wide_panning = 95;
@@ -661,9 +661,9 @@ static void clone_voice(Instrument *ip, int v, MidiEvent *e, int clone_type, int
 					chorus /= 3;
 					if (channel[ voice[w].channel ].pitchbend + chorus < 0x2000)
 						voice[w].orig_frequency =
-							(uint32)( (FLOAT_T)voice[w].orig_frequency * bend_fine[chorus] );
+							(uint32)( (double)voice[w].orig_frequency * bend_fine[chorus] );
 					else voice[w].orig_frequency =
-						(uint32)( (FLOAT_T)voice[w].orig_frequency / bend_fine[chorus] );
+						(uint32)( (double)voice[w].orig_frequency / bend_fine[chorus] );
 					if (subtype) voice[w].vibrato_depth *= 2;
 					break;
 				case 2: /* celeste */
@@ -690,9 +690,9 @@ static void clone_voice(Instrument *ip, int v, MidiEvent *e, int clone_type, int
 			chorus /= 3;
 			if (channel[ voice[w].channel ].pitchbend + chorus < 0x2000)
 				voice[w].orig_frequency =
-					(uint32)( (FLOAT_T)voice[w].orig_frequency * bend_fine[chorus] );
+					(uint32)( (double)voice[w].orig_frequency * bend_fine[chorus] );
 			else voice[w].orig_frequency =
-				(uint32)( (FLOAT_T)voice[w].orig_frequency / bend_fine[chorus] );
+				(uint32)( (double)voice[w].orig_frequency / bend_fine[chorus] );
 		}
 	}
 #if 0
