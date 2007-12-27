@@ -31,265 +31,313 @@
 #include "tables.h"
 
 // pointer to conversion function
-void (*s32tobuf)(void *dp, const int32 *lp, int32 c);
+void (*s32tobuf)(void *dp, const s32_t *lp, int count);
+
+int num_ochannels;
 
 int free_instruments_afterwards=0;
 static char def_instr_name[256]="";
 
-int num_ochannels;
-
 #define MAXWORDS 10
 
-static int read_config_file(char *name)
+static int read_config_file(const char *name)
 {
-  FILE *fp;
-  char tmp[1024], *w[MAXWORDS], *cp;
-  ToneBank *bank=0;
-  int i, j, k, line=0, words;
-  static int rcf_count=0;
+	ToneBank *bank = NULL;
 
-  if (rcf_count>50)
-   {
-    ctl_msg(CMSG_ERROR, VERB_NORMAL,
-      "Probable source loop in configuration files");
-    return (-1);
-   }
+	static int recursion=0;
 
-  if (!(fp=open_file(name, 1, OF_VERBOSE)))
-   return -1;
+	if (recursion > 50)
+	{
+		ctl_msg(CMSG_ERROR, VERB_NORMAL,
+				"Probable source loop in configuration files");
+		return (-1);
+	}
 
-  while (fgets(tmp, sizeof(tmp), fp))
-  {
-    line++;
-    w[words=0]=strtok(tmp, " \t\r\n\240");
-    if (!w[0] || (*w[0]=='#')) continue;
-    while (w[words] && (words < MAXWORDS))
-      {
-        w[++words]=strtok(0," \t\r\n\240");
-        if (w[words] && w[words][0]=='#') break;
-      }
-    if (!strcmp(w[0], "map")) continue;
-    if (!strcmp(w[0], "dir"))
-    {
-      if (words < 2)
-       {
-        ctl_msg(CMSG_ERROR, VERB_NORMAL,
-          "%s: line %d: No directory given\n", name, line);
-        return -2;
-       }
-      for (i=1; i<words; i++)
-        add_to_pathlist(w[i]);
-    }
-  else if (!strcmp(w[0], "source"))
-  {
-    if (words < 2)
-      {
-        ctl_msg(CMSG_ERROR, VERB_NORMAL,
-          "%s: line %d: No file name given\n", name, line);
-        return -2;
-     }
-    for (i=1; i<words; i++)
-      {
-        rcf_count++;
-      read_config_file(w[i]);
-        rcf_count--;
-      }
-  }
-      else if (!strcmp(w[0], "default"))
-  {
-    if (words != 2)
-      {
-        ctl_msg(CMSG_ERROR, VERB_NORMAL, 
-        "%s: line %d: Must specify exactly one patch name\n",
-          name, line);
-        return -2;
-      }
-    strncpy(def_instr_name, w[1], 255);
-    def_instr_name[255]='\0';
-  }
-    else if (!strcmp(w[0], "drumset"))
-  {
-    if (words < 2)
-      {
-        ctl_msg(CMSG_ERROR, VERB_NORMAL,
-          "%s: line %d: No drum set number given\n", 
-          name, line);
-      return -2;
-      }
-    i=atoi(w[1]);
-    if (i<0 || i>127)
-     {
-        ctl_msg(CMSG_ERROR, VERB_NORMAL, 
-          "%s: line %d: Drum set must be between 0 and 127\n",
-        name, line);
-        return -2;
-     }
-    if (!drumset[i])
-      {
-        drumset[i] = (ToneBank*)safe_malloc(sizeof(ToneBank));
-      memset(drumset[i], 0, sizeof(ToneBank));
-     }
-    bank=drumset[i];
-  }
-    else if (!strcmp(w[0], "bank"))
-  {
-    if (words < 2)
-     {
-        ctl_msg(CMSG_ERROR, VERB_NORMAL,
-          "%s: line %d: No bank number given\n", 
-        name, line);
-        return -2;
-     }
-    i=atoi(w[1]);
-    if (i<0 || i>127)
-      {
-        ctl_msg(CMSG_ERROR, VERB_NORMAL, 
-          "%s: line %d: Tone bank must be between 0 and 127\n",
-        name, line);
-        return -2;
-      }
-    if (!tonebank[i])
-     {
-      tonebank[i] = (ToneBank*)safe_malloc(sizeof(ToneBank));
-        memset(tonebank[i], 0, sizeof(ToneBank));
-      }
-    bank=tonebank[i];
-  }
-      else {
-  if ((words < 2) || (*w[0] < '0' || *w[0] > '9'))
-    {
-     ctl_msg(CMSG_ERROR, VERB_NORMAL,
-        "%s: line %d: syntax error\n", name, line);
-     return -2;
-    }
-  i=atoi(w[0]);
-  if (i<0 || i>127)
-    {
-      ctl_msg(CMSG_ERROR, VERB_NORMAL,
-        "%s: line %d: Program must be between 0 and 127\n",
-        name, line);
-      return -2;
-    }
-  if (!bank)
-    {
-      ctl_msg(CMSG_ERROR, VERB_NORMAL, 
-       "%s: line %d: Must specify tone bank or drum set "
-        "before assignment\n",
-        name, line);
-     return -2;
-    }
-  if (bank->tone[i].name)
-    free(bank->tone[i].name);
-  bank->tone[i].name = safe_strdup(w[1]);
-///  strcpy((bank->tone[i].name=safe_malloc(strlen(w[1])+1)),w[1]);
-  bank->tone[i].note=bank->tone[i].amp=bank->tone[i].pan=
-    bank->tone[i].strip_loop=bank->tone[i].strip_envelope=
-      bank->tone[i].strip_tail=-1;
+	FILE *fp = open_file(name, 1, OF_VERBOSE);
 
-  for (j=2; j<words; j++)
-    {
-      if (!(cp=strchr(w[j], '=')))
-        {
-    ctl_msg(CMSG_ERROR, VERB_NORMAL, "%s: line %d: bad patch option %s\n",
-      name, line, w[j]);
-    return -2;
-        }
-      *cp++=0;
-      if (!strcmp(w[j], "amp"))
-      {
-    k=atoi(cp);
-    if ((k<0 || k>MAX_AMPLIFICATION) || (*cp < '0' || *cp > '9'))
-      {
-       ctl_msg(CMSG_ERROR, VERB_NORMAL, 
-          "%s: line %d: amplification must be between "
-         "0 and %d\n", name, line, MAX_AMPLIFICATION);
-       return -2;
-      }
-    bank->tone[i].amp=k;
-        }
-      else if (!strcmp(w[j], "note"))
-        {
-    k=atoi(cp);
-    if ((k<0 || k>127) || (*cp < '0' || *cp > '9'))
-      {
-       ctl_msg(CMSG_ERROR, VERB_NORMAL, 
-         "%s: line %d: note must be between 0 and 127\n",
-          name, line);
-        return -2;
-      }
-    bank->tone[i].note=k;
-      }
-     else if (!strcmp(w[j], "pan"))
-      {
-    if (!strcmp(cp, "center"))
-      k=64;
-    else if (!strcmp(cp, "left"))
-      k=0;
-    else if (!strcmp(cp, "right"))
-      k=127;
-    else
-      k=((atoi(cp)+100) * 100) / 157;
-    if ((k<0 || k>127) ||
-       (k==0 && *cp!='-' && (*cp < '0' || *cp > '9')))
-      {
-       ctl_msg(CMSG_ERROR, VERB_NORMAL, 
-         "%s: line %d: panning must be left, right, "
-         "center, or between -100 and 100\n",
-         name, line);
-       return -2;
-      }
-    bank->tone[i].pan=k;
-      }
-     else if (!strcmp(w[j], "keep"))
-      {
-    if (!strcmp(cp, "env"))
-      bank->tone[i].strip_envelope=0;
-    else if (!strcmp(cp, "loop"))
-      bank->tone[i].strip_loop=0;
-    else
-      {
-        ctl_msg(CMSG_ERROR, VERB_NORMAL,
-          "%s: line %d: keep must be env or loop\n", name, line);
-       return -2;
-      }
-      }
-     else if (!strcmp(w[j], "strip"))
-      {
-    if (!strcmp(cp, "env"))
-      bank->tone[i].strip_envelope=1;
-    else if (!strcmp(cp, "loop"))
-      bank->tone[i].strip_loop=1;
-    else if (!strcmp(cp, "tail"))
-      bank->tone[i].strip_tail=1;
-    else
-      {
-       ctl_msg(CMSG_ERROR, VERB_NORMAL,
-         "%s: line %d: strip must be env, loop, or tail\n",
-         name, line);
-       return -2;
-      }
-      }
-     else
-      {
-    ctl_msg(CMSG_ERROR, VERB_NORMAL, "%s: line %d: bad patch option %s\n",
-      name, line, w[j]);
-    return -2;
-      }
-    }
-    }
-   }
-  if (ferror(fp))
-   {
-    ctl_msg(CMSG_ERROR, VERB_NORMAL, "Can't read from %s\n", name);
-    close_file(fp);
-    return -2;
-   }
-  close_file(fp);
-  return 0;
+	if (! fp)
+		return -1;
+
+	int line=0;
+
+	char tmp[1024];
+	char *w[MAXWORDS];
+	char *cp;
+	
+	while (fgets(tmp, sizeof(tmp), fp))
+	{
+		int words=0;
+
+		line++;
+
+		w[0] = strtok(tmp, " \t\r\n\240");
+
+		if (!w[0] || (*w[0]=='#'))
+			continue;
+
+		while (w[words] && words < MAXWORDS)
+		{
+			w[++words] = strtok(0," \t\r\n\240");
+
+			if (w[words] && w[words][0]=='#')
+				break;
+		}
+
+		if (0 == strcmp(w[0], "map"))
+			continue;
+
+		if (0 == strcmp(w[0], "dir"))
+		{
+			if (words < 2)
+			{
+				ctl_msg(CMSG_ERROR, VERB_NORMAL,
+						"%s: line %d: No directory given\n", name, line);
+				return -2;
+			}
+
+			for (int i=1; i < words; i++)
+				add_to_pathlist(w[i]);
+		}
+		else if (0 == strcmp(w[0], "source"))
+		{
+			if (words < 2)
+			{
+				ctl_msg(CMSG_ERROR, VERB_NORMAL,
+						"%s: line %d: No file name given\n", name, line);
+				return -2;
+			}
+			for (int i=1; i < words; i++)
+			{
+				recursion++;
+				read_config_file(w[i]);
+				recursion--;
+			}
+		}
+		else if (0 == strcmp(w[0], "default"))
+		{
+			if (words != 2)
+			{
+				ctl_msg(CMSG_ERROR, VERB_NORMAL, 
+						"%s: line %d: Must specify exactly one patch name\n",
+						name, line);
+				return -2;
+			}
+			strncpy(def_instr_name, w[1], 255);
+			def_instr_name[255]='\0';
+		}
+		else if (0 == strcmp(w[0], "drumset"))
+		{
+			if (words < 2)
+			{
+				ctl_msg(CMSG_ERROR, VERB_NORMAL,
+						"%s: line %d: No drum set number given\n", 
+						name, line);
+				return -2;
+			}
+
+			int i = atoi(w[1]);
+
+			if (i<0 || i>127)
+			{
+				ctl_msg(CMSG_ERROR, VERB_NORMAL, 
+						"%s: line %d: Drum set must be between 0 and 127\n",
+						name, line);
+				return -2;
+			}
+
+			if (!drumset[i])
+			{
+				drumset[i] = (ToneBank*)safe_malloc(sizeof(ToneBank));
+				memset(drumset[i], 0, sizeof(ToneBank));
+			}
+			bank=drumset[i];
+		}
+		else if (0 == strcmp(w[0], "bank"))
+		{
+			if (words < 2)
+			{
+				ctl_msg(CMSG_ERROR, VERB_NORMAL,
+						"%s: line %d: No bank number given\n", 
+						name, line);
+				return -2;
+			}
+
+			int i = atoi(w[1]);
+
+			if (i<0 || i>127)
+			{
+				ctl_msg(CMSG_ERROR, VERB_NORMAL, 
+						"%s: line %d: Tone bank must be between 0 and 127\n",
+						name, line);
+				return -2;
+			}
+			if (!tonebank[i])
+			{
+				tonebank[i] = (ToneBank*)safe_malloc(sizeof(ToneBank));
+				memset(tonebank[i], 0, sizeof(ToneBank));
+			}
+			bank=tonebank[i];
+		}
+		else
+		{
+			if ((words < 2) || (*w[0] < '0' || *w[0] > '9'))
+			{
+				ctl_msg(CMSG_ERROR, VERB_NORMAL,
+						"%s: line %d: syntax error\n", name, line);
+				return -2;
+			}
+	
+			int i = atoi(w[0]);
+			
+			if (i<0 || i>127)
+			{
+				ctl_msg(CMSG_ERROR, VERB_NORMAL,
+						"%s: line %d: Program must be between 0 and 127\n",
+						name, line);
+				return -2;
+			}
+			if (!bank)
+			{
+				ctl_msg(CMSG_ERROR, VERB_NORMAL, 
+						"%s: line %d: Must specify tone bank or drum set before assignment\n",
+						name, line);
+				return -2;
+			}
+			if (bank->tone[i].name)
+				free(bank->tone[i].name);
+
+			bank->tone[i].name = safe_strdup(w[1]);
+
+			bank->tone[i].note = -1;
+			bank->tone[i].amp  = -1;
+			bank->tone[i].pan  = -1;
+			bank->tone[i].strip_loop = -1;
+			bank->tone[i].strip_envelope = -1;
+			bank->tone[i].strip_tail = -1;
+
+			for (int j=2; j < words; j++)
+			{
+				if (! (cp=strchr(w[j], '=')))
+				{
+					ctl_msg(CMSG_ERROR, VERB_NORMAL, "%s: line %d: bad patch option %s\n",
+							name, line, w[j]);
+					return -2;
+				}
+
+				*cp++=0;
+
+				if (0 == strcmp(w[j], "amp"))
+				{
+					int k=atoi(cp);
+
+					if ((k<0 || k>MAX_AMPLIFICATION) || (*cp < '0' || *cp > '9'))
+					{
+						ctl_msg(CMSG_ERROR, VERB_NORMAL, 
+								"%s: line %d: amplification must be between 0 and %d\n", name, line, MAX_AMPLIFICATION);
+						return -2;
+					}
+					bank->tone[i].amp=k;
+				}
+				else if (0 == strcmp(w[j], "note"))
+				{
+					int k=atoi(cp);
+
+					if ((k<0 || k>127) || (*cp < '0' || *cp > '9'))
+					{
+						ctl_msg(CMSG_ERROR, VERB_NORMAL, 
+								"%s: line %d: note must be between 0 and 127\n",
+								name, line);
+						return -2;
+					}
+					bank->tone[i].note=k;
+				}
+				else if (0 == strcmp(w[j], "pan"))
+				{
+					int k;
+
+					if (0 == strcmp(cp, "center"))
+						k=64;
+					else if (0 == strcmp(cp, "left"))
+						k=0;
+					else if (0 == strcmp(cp, "right"))
+						k=127;
+					else
+						k=((atoi(cp)+100) * 100) / 157;
+
+					if ((k<0 || k>127) ||
+							(k==0 && *cp!='-' && (*cp < '0' || *cp > '9')))
+					{
+						ctl_msg(CMSG_ERROR, VERB_NORMAL, 
+								"%s: line %d: panning must be left, right, center, or between -100 and 100\n",
+								name, line);
+						return -2;
+					}
+					bank->tone[i].pan=k;
+				}
+				else if (0 == strcmp(w[j], "keep"))
+				{
+					if (0 == strcmp(cp, "env"))
+						bank->tone[i].strip_envelope=0;
+					else if (0 == strcmp(cp, "loop"))
+						bank->tone[i].strip_loop=0;
+					else
+					{
+						ctl_msg(CMSG_ERROR, VERB_NORMAL,
+								"%s: line %d: keep must be env or loop\n", name, line);
+						return -2;
+					}
+				}
+				else if (0 == strcmp(w[j], "strip"))
+				{
+					if (0 == strcmp(cp, "env"))
+						bank->tone[i].strip_envelope=1;
+					else if (0 == strcmp(cp, "loop"))
+						bank->tone[i].strip_loop=1;
+					else if (0 == strcmp(cp, "tail"))
+						bank->tone[i].strip_tail=1;
+					else
+					{
+						ctl_msg(CMSG_ERROR, VERB_NORMAL,
+								"%s: line %d: strip must be env, loop, or tail\n",
+								name, line);
+						return -2;
+					}
+				}
+				else
+				{
+					ctl_msg(CMSG_ERROR, VERB_NORMAL, "%s: line %d: bad patch option %s\n",
+							name, line, w[j]);
+					return -2;
+				}
+			}
+		}
+	}
+
+	if (ferror(fp))
+	{
+		ctl_msg(CMSG_ERROR, VERB_NORMAL, "Can't read from %s\n", name);
+		close_file(fp);
+		return -2;
+	}
+
+	close_file(fp);
+	return 0;
 }
 
 int Timidity_Init(int rate, int channels)
 {
+	switch (channels)
+	{
+		case 1: case 2: case 4: case 6:
+			/* OK */
+			break;
+
+		default:
+			return(-1);
+	}
+
+	num_ochannels = channels;
+
 	if (read_config_file(CONFIG_FILE)<0)
 	{
 		if (read_config_file(CONFIG_FILE_ETC)<0)
@@ -301,16 +349,12 @@ int Timidity_Init(int rate, int channels)
 		}
 	}
 
-	if (channels < 1 || channels == 3 || channels == 5 || channels > 6)
-		return(-1);
-
-	num_ochannels = channels;
-
 	/* Set play mode parameters */
 	play_mode_rate = rate;
 	play_mode_encoding = PE_16BIT | PE_SIGNED;
 
-	if ( channels == 1 ) {
+	if (channels == 1)
+	{
 		play_mode_encoding |= PE_MONO;
 	} 
 
@@ -320,13 +364,12 @@ int Timidity_Init(int rate, int channels)
 	if (!control_ratio)
 	{
 		control_ratio = play_mode_rate / CONTROLS_PER_SECOND;
-		if(control_ratio<1)
-			control_ratio=1;
-		else if (control_ratio > MAX_CONTROL_RATIO)
-			control_ratio=MAX_CONTROL_RATIO;
+		control_ratio = CLAMP(1, control_ratio, MAX_CONTROL_RATIO);
 	}
+
 	if (*def_instr_name)
 		set_default_instrument(def_instr_name);
+
 	return(0);
 }
 
@@ -339,6 +382,7 @@ const char *Timidity_Error(void)
 }
 #endif
 
+//------------------------------------------------------------------------
 
 /* export the playback mode */
 
