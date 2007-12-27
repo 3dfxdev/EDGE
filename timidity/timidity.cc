@@ -36,9 +36,6 @@ void (*s32tobuf)(void *dp, const int32 *lp, int32 c);
 int free_instruments_afterwards=0;
 static char def_instr_name[256]="";
 
-int AUDIO_BUFFER_SIZE;
-resample_t *resample_buffer=NULL;
-int32 *common_buffer=NULL;
 int num_ochannels;
 
 #define MAXWORDS 10
@@ -291,7 +288,7 @@ static int read_config_file(char *name)
   return 0;
 }
 
-int Timidity_Init(int rate, int channels, int samples)
+int Timidity_Init(int rate, int channels)
 {
   if (read_config_file(CONFIG_FILE)<0) {
     if (read_config_file(CONFIG_FILE_ETC)<0) {
@@ -342,13 +339,9 @@ int Timidity_Init(int rate, int channels, int samples)
   }
 #endif
   
-  AUDIO_BUFFER_SIZE = samples;
 
-  /* Allocate memory for mixing (WARNING:  Memory leak!) */
-  resample_buffer = (resample_t*)safe_malloc(AUDIO_BUFFER_SIZE*sizeof(resample_t)+100);
-  common_buffer = (int32*)safe_malloc(AUDIO_BUFFER_SIZE*num_ochannels*sizeof(int32));
-
-  if (ctl->open(0, 0)) {
+  if (ctl->open(0, 0))
+  {
     ctl->cmsg(CMSG_ERROR, VERB_NORMAL, "Couldn't open %s\n", ctl->id_name);
     return(-1);
   }

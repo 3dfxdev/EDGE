@@ -39,7 +39,25 @@
 #define FINALINTERP if (ofs == le) *dest++=src[ofs>>FRACTION_BITS];
 /* So it isn't interpolation. At least it's final. */
 
-extern resample_t *resample_buffer;
+
+resample_t *resample_buffer;
+static int resample_buf_size = 0;
+
+
+static resample_t *NeedResampleBuf(int count)
+{
+	if (count > resample_buf_size)
+	{
+		if (resample_buffer)
+			free(resample_buffer);
+
+		resample_buf_size = count;
+		resample_buffer = (resample_t*)safe_malloc(resample_buf_size * sizeof(resample_t) + 100);
+	}
+
+	return resample_buffer;
+}
+
 
 /*************** resampling with fixed increment *****************/
 
@@ -49,17 +67,18 @@ static resample_t *rs_plain(int v, int32 *countptr)
   /* Play sample until end, then free the voice. */
 
   INTERPVARS;
-  Voice 
-    *vp=&voice[v];
-  resample_t 
-    *dest=resample_buffer;
-  sample_t 
-    *src=vp->sample->data;
+
+  Voice *vp = &voice[v];
+
+  sample_t *src=vp->sample->data;
+
   int32 
     ofs=vp->sample_offset,
     incr=vp->sample_increment,
     le=vp->sample->data_length,
     count=*countptr;
+
+  resample_t *dest = NeedResampleBuf(count);
 
 #ifdef PRECALC_LOOPS
   int32 i, j;
@@ -108,6 +127,7 @@ static resample_t *rs_plain(int v, int32 *countptr)
 #endif /* PRECALC_LOOPS */
   
   vp->sample_offset=ofs; /* Update offset */
+
   return resample_buffer;
 }
 
@@ -117,20 +137,22 @@ static resample_t *rs_loop(Voice *vp, int32 count)
   /* Play sample until end-of-loop, skip back and continue. */
 
   INTERPVARS;
+
   int32 
     ofs=vp->sample_offset, 
     incr=vp->sample_increment,
     le=vp->sample->loop_end, 
     ll=le - vp->sample->loop_start;
-  resample_t
-    *dest=resample_buffer;
-  sample_t
-    *src=vp->sample->data;
+
+  sample_t *src=vp->sample->data;
+
+  resample_t *dest = NeedResampleBuf(count);
 
 #ifdef PRECALC_LOOPS
   int32 i;
  
-  if (ofs < 0 || le < 0) return resample_buffer;
+  if (ofs < 0 || le < 0)
+	  return resample_buffer;
 
   while (count) 
     {
@@ -163,21 +185,23 @@ static resample_t *rs_loop(Voice *vp, int32 count)
 #endif
 
   vp->sample_offset=ofs; /* Update offset */
+
   return resample_buffer;
 }
 
 static resample_t *rs_bidir(Voice *vp, int32 count)
 {
   INTERPVARS;
+
   int32 
     ofs=vp->sample_offset,
     incr=vp->sample_increment,
     le=vp->sample->loop_end,
     ls=vp->sample->loop_start;
-  resample_t 
-    *dest=resample_buffer; 
-  sample_t 
-    *src=vp->sample->data;
+
+  sample_t *src=vp->sample->data;
+
+  resample_t *dest = NeedResampleBuf(count);
 
 #ifdef PRECALC_LOOPS
   int32
@@ -271,6 +295,7 @@ static resample_t *rs_bidir(Voice *vp, int32 count)
 #endif /* PRECALC_LOOPS */
   vp->sample_increment=incr;
   vp->sample_offset=ofs; /* Update offset */
+
   return resample_buffer;
 }
 
@@ -353,22 +378,23 @@ static int32 update_vibrato(Voice *vp, int sign)
 
 static resample_t *rs_vib_plain(int v, int32 *countptr)
 {
-
   /* Play sample until end, then free the voice. */
 
   INTERPVARS;
+
   Voice *vp=&voice[v];
-  resample_t 
-    *dest=resample_buffer; 
-  sample_t 
-    *src=vp->sample->data;
+
   int32 
     le=vp->sample->data_length,
     ofs=vp->sample_offset, 
     incr=vp->sample_increment, 
     count=*countptr;
-  int 
-    cc=vp->vibrato_control_counter;
+
+  int cc=vp->vibrato_control_counter;
+
+  const sample_t *src=vp->sample->data;
+
+  resample_t *dest = NeedResampleBuf(count);
 
   /* This has never been tested */
 
@@ -396,6 +422,7 @@ static resample_t *rs_vib_plain(int v, int32 *countptr)
   vp->vibrato_control_counter=cc;
   vp->sample_increment=incr;
   vp->sample_offset=ofs; /* Update offset */
+
   return resample_buffer;
 }
 
@@ -405,17 +432,18 @@ static resample_t *rs_vib_loop(Voice *vp, int32 count)
   /* Play sample until end-of-loop, skip back and continue. */
   
   INTERPVARS;
+
   int32 
     ofs=vp->sample_offset, 
     incr=vp->sample_increment, 
     le=vp->sample->loop_end,
     ll=le - vp->sample->loop_start;
-  resample_t 
-    *dest=resample_buffer; 
-  sample_t 
-    *src=vp->sample->data;
-  int 
-    cc=vp->vibrato_control_counter;
+
+  int cc=vp->vibrato_control_counter;
+
+  const sample_t *src=vp->sample->data;
+
+  resample_t *dest = NeedResampleBuf(count);
 
 #ifdef PRECALC_LOOPS
   int32 i;
@@ -469,23 +497,24 @@ static resample_t *rs_vib_loop(Voice *vp, int32 count)
   vp->vibrato_control_counter=cc;
   vp->sample_increment=incr;
   vp->sample_offset=ofs; /* Update offset */
+
   return resample_buffer;
 }
 
 static resample_t *rs_vib_bidir(Voice *vp, int32 count)
 {
   INTERPVARS;
-  int32 
-    ofs=vp->sample_offset, 
-    incr=vp->sample_increment,
-    le=vp->sample->loop_end, 
-    ls=vp->sample->loop_start;
-  resample_t 
-    *dest=resample_buffer; 
-  sample_t 
-    *src=vp->sample->data;
-  int 
-    cc=vp->vibrato_control_counter;
+
+  int32 ofs  = vp->sample_offset; 
+  int32 incr = vp->sample_increment;
+  int32 le = vp->sample->loop_end; 
+  int32 ls = vp->sample->loop_start;
+
+  int cc = vp->vibrato_control_counter;
+
+  const sample_t *src = vp->sample->data;
+
+  resample_t *dest = NeedResampleBuf(count);
 
 #ifdef PRECALC_LOOPS
   int32
@@ -606,6 +635,7 @@ static resample_t *rs_vib_bidir(Voice *vp, int32 count)
   vp->vibrato_control_counter=cc;
   vp->sample_increment=incr;
   vp->sample_offset=ofs; /* Update offset */
+  
   return resample_buffer;
 }
 

@@ -44,8 +44,7 @@ signed char drumpanpot[MAXCHAN][MAXNOTE];
 signed char drumreverberation[MAXCHAN][MAXNOTE];
 signed char drumchorusdepth[MAXCHAN][MAXNOTE];
 
-int
-    voices=DEFAULT_VOICES;
+int voices=DEFAULT_VOICES;
 
 int32 control_ratio=0;
 int32 amplification=DEFAULT_AMPLIFICATION;
@@ -59,8 +58,10 @@ static int midi_playing = 0;
 static int32 lost_notes, cut_notes;
 static int32 *buffer_pointer;
 static int32 buffered_count;
-extern int32 *common_buffer;
 extern resample_t *resample_buffer; /* to free it on Timidity_Close */
+
+static int32 *common_buffer;
+static int common_buf_size = 0;
 
 static MidiEvent *event_list, *current_event;
 static int32 sample_count, current_sample;
@@ -71,6 +72,9 @@ int GS_System_On=0;
 int XG_System_reverb_type;
 int XG_System_chorus_type;
 int XG_System_variation_type;
+
+
+common_buffer = (int32*)safe_malloc(common_buf_size * num_ochannels * sizeof(int32));
 
 
 static void adjust_amplification(void)
@@ -1339,8 +1343,8 @@ static void skip_to(int32 until_time)
 		current_sample=0;
 
 	reset_midi();
-	buffered_count=0;
 	buffer_pointer=common_buffer;
+	buffered_count=0;
 	current_event=event_list;
 
 	if (until_time)
@@ -1348,76 +1352,6 @@ static void skip_to(int32 until_time)
 	ctl->reset();
 }
 
-static int apply_controls(void)
-{
-	int rc, i, did_skip=0;
-	int32 val;
-	/* ASCII renditions of CD player pictograms indicate approximate effect */
-	do
-		switch(rc=ctl->read(&val))
-		{
-			case RC_QUIT: /* [] */
-			case RC_LOAD_FILE:	  
-			case RC_NEXT: /* >>| */
-			case RC_REALLY_PREVIOUS: /* |<< */
-				return rc;
-
-			case RC_CHANGE_VOLUME:
-				if (val>0 || amplification > -val)
-					amplification += val;
-				else 
-					amplification=0;
-				if (amplification > MAX_AMPLIFICATION)
-					amplification=MAX_AMPLIFICATION;
-				adjust_amplification();
-				for (i=0; i<voices; i++)
-					if (voice[i].status != VOICE_FREE)
-					{
-						recompute_amp(i);
-						apply_envelope_to_amp(i);
-					}
-				ctl->master_volume(amplification);
-				break;
-
-			case RC_PREVIOUS: /* |<< */
-				if (current_sample < 2*play_mode->rate)
-					return RC_REALLY_PREVIOUS;
-				return RC_RESTART;
-
-			case RC_RESTART: /* |<< */
-				skip_to(0);
-				did_skip=1;
-				break;
-
-			case RC_JUMP:
-				if (val >= sample_count)
-					return RC_NEXT;
-				skip_to(val);
-				return rc;
-
-			case RC_FORWARD: /* >> */
-				if (val+current_sample >= sample_count)
-					return RC_NEXT;
-				skip_to(val+current_sample);
-				did_skip=1;
-				break;
-
-			case RC_BACK: /* << */
-				if (current_sample > val)
-					skip_to(current_sample-val);
-				else
-					skip_to(0); /* We can't seek to end of previous song. */
-				did_skip=1;
-				break;
-		}
-	while (rc!= RC_NONE);
-
-	/* Advertise the skip so that we stop computing the audio buffer */
-	if (did_skip)
-		return RC_JUMP; 
-	else
-		return rc;
-}
 
 static void do_compute_data(uint32 count)
 {
@@ -1448,7 +1382,7 @@ I_Debugf("    do_compute_data: %d\n", count);
 
 /* count=0 means flush remaining buffered data to output device, then
    flush the device itself */
-static int compute_data(void *stream, int32 count, int32 total)
+static void compute_data(void *stream, int32 count, int32 total)
 {
 I_Debugf("  compute_data: %d samples\n", count);
 	int rc, channels;
@@ -1466,7 +1400,6 @@ I_Debugf("  compute_data: %d samples\n", count);
 			s32tobuf(stream, common_buffer, channels*buffered_count);
 		buffer_pointer=common_buffer;
 		buffered_count=0;
-		return RC_NONE;
 	}
 
 	while ((count+buffered_count) >= total)
@@ -1478,25 +1411,22 @@ I_Debugf("  compute_data: %d samples\n", count);
 		buffered_count=0;
 
 		ctl->current_time(current_sample);
-		if ((rc=apply_controls())!=RC_NONE)
-			return rc;
 	}
+
 	if (count>0)
 	{
 		do_compute_data(count);
 		buffered_count += count;
 		buffer_pointer += count * channels;
 	}
-	return RC_NONE;
 }
 
 int Timidity_PlaySome(void *stream, int samples)
 {
-	int rc = RC_NONE;
 	int32 end_sample;
 
 	if ( ! midi_playing ) {
-		return 0; ////  RC_NONE;
+		return 0;
 	}
 
 I_Debugf("\nTimidity_PlaySome: samples=%d\n", samples);
@@ -1652,19 +1582,16 @@ I_Debugf("\nTimidity_PlaySome: samples=%d\n", samples);
 					ctl->cmsg(CMSG_INFO, VERB_VERBOSE,
 							"Notes lost totally: %d", lost_notes);
 					midi_playing = 0;
-					return RC_TUNE_END;
+
+					return samples;
 			}
 			current_event++;
 		}
+
 		if (current_event->time > end_sample)
-			rc = compute_data(stream, end_sample-current_sample, samples);
+			compute_data(stream, end_sample-current_sample, samples);
 		else
-			rc = compute_data(stream, current_event->time-current_sample, samples);
-
-		ctl->refresh();
-
-		if ( (rc!=RC_NONE) && (rc!=RC_JUMP))
-			break;
+			compute_data(stream, current_event->time-current_sample, samples);
 	}
 
 	return samples;
@@ -1730,12 +1657,12 @@ void Timidity_Close(void)
 	if (resample_buffer)
 	{
 		free(resample_buffer);
-		resample_buffer=NULL;
+		resample_buffer = NULL;
 	}
 	if (common_buffer)
 	{
 		free(common_buffer);
-		common_buffer=NULL;
+		common_buffer = NULL;
 	}
 	free_instruments();
 	free_pathlist();
