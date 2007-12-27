@@ -106,7 +106,6 @@ static resample_t *rs_plain(int v, int32 *countptr)
     {
       FINALINTERP;
       vp->status=VOICE_FREE;
-      ctl->note(v);
       *countptr-=count+1;
     }
 
@@ -119,7 +118,6 @@ static resample_t *rs_plain(int v, int32 *countptr)
 	{
 	  FINALINTERP;
 	  vp->status=VOICE_FREE;
- 	  ctl->note(v);
 	  *countptr-=count+1;
 	  break;
 	}
@@ -413,7 +411,6 @@ static resample_t *rs_vib_plain(int v, int32 *countptr)
 	{
 	  FINALINTERP;
 	  vp->status=VOICE_FREE;
- 	  ctl->note(v);
 	  *countptr-=count+1;
 	  break;
 	}
@@ -655,8 +652,7 @@ resample_t *resample_voice(int v, int32 *countptr)
 	{
 	  /* Note finished. Free the voice. */
 	  vp->status = VOICE_FREE;
-	  ctl->note(v);
-	  
+	
 	  /* Let the caller know how much data we had left */
 	  *countptr = (vp->sample->data_length>>FRACTION_BITS) - ofs;
 	}
@@ -711,7 +707,7 @@ void pre_resample(Sample * sp)
     "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"
   };
 
-  ctl->cmsg(CMSG_INFO, VERB_NOISY, " * pre-resampling for note %d (%s%d)",
+  ctl_msg(CMSG_INFO, VERB_NOISY, " * pre-resampling for note %d (%s%d)",
 	    sp->note_to_use,
 	    note_name[sp->note_to_use % 12], (sp->note_to_use & 0x7F) / 12);
 

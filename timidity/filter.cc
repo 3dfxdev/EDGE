@@ -147,7 +147,7 @@ static void filter(sample_t *result,sample_t *data, int32 length,float coef[])
 	}
 
     if (peak)
-	ctl->cmsg(CMSG_ERROR, VERB_NORMAL, 
+	ctl_msg(CMSG_ERROR, VERB_NORMAL, 
 		  "Saturation %2.3f %%.", 100.0*peak/ (float) length);
 }
 
@@ -166,7 +166,7 @@ void antialiasing(Sample *sp, int32 output_rate )
     float freq_cut;  /* cutoff frequency [0..1.0] FREQ_CUT/SAMP_FREQ*/
  
 
-    ctl->cmsg(CMSG_INFO, VERB_NOISY, "Antialiasing: Fsample=%iKHz",
+    ctl_msg(CMSG_INFO, VERB_NOISY, "Antialiasing: Fsample=%iKHz",
 	      sp->sample_rate);
  
     /* No oversampling  */
@@ -174,7 +174,7 @@ void antialiasing(Sample *sp, int32 output_rate )
 	return;
     
     freq_cut= (float) output_rate / (float) sp->sample_rate;
-    ctl->cmsg(CMSG_INFO, VERB_NOISY, "Antialiasing: cutoff=%f%%",
+    ctl_msg(CMSG_INFO, VERB_NOISY, "Antialiasing: cutoff=%f%%",
 	      freq_cut*100.);
 
     designfir(fir_coef,freq_cut);

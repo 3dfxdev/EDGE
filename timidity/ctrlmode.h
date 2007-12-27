@@ -39,35 +39,10 @@
 #define VERB_DEBUG	3
 #define VERB_DEBUG_SILLY	4
 
-typedef struct ControlMode_s
-{
-  char *id_name, id_character;
-  int verbosity, trace_playing, opened;
+extern int ctl_verbosity;
 
-  int (*open)(int using_stdin, int using_stdout);
-  void (*pass_playing_list)(int number_of_files, char *list_of_files[]);
-  void (*close)(void);
-  int (*read)(int32 *valp);
-  void (*cmsg)(int type, int verbosity_level, char *fmt, ...);
+void ctl_msg(int type, int verbosity, char *fmt, ...);
 
-  void (*refresh)(void);
-  void (*reset)(void);
-  void (*file_name)(char *name);
-  void (*total_time)(int tt);
-  void (*current_time)(int ct);
-
-  void (*note)(int v);
-  void (*master_volume)(int mv);
-  void (*program)(int channel, int val); /* val<0 means drum set -val */
-  void (*volume)(int channel, int val);
-  void (*expression)(int channel, int val);
-  void (*panning)(int channel, int val);
-  void (*sustain)(int channel, int val);
-  void (*pitch_bend)(int channel, int val);
-}
-ControlMode;
-
-extern ControlMode *ctl_list[], *ctl; 
 
 #endif /* __TIMIDITY_CONTROLS_H__ */
 

@@ -29,8 +29,6 @@
 #include "instrum.h"
 #include "playmidi.h"
 
-extern ControlMode dummy_ctl;
-
 
 /* export the playback mode */
 
@@ -49,43 +47,15 @@ PlayMode *play_mode_list[] =
 PlayMode *play_mode = &dummy_play_mode;
 
 
-static void ctl_refresh(void) { }
-static void ctl_total_time(int tt) {}
-static void ctl_master_volume(int mv) {}
-static void ctl_file_name(char *name) {}
-static void ctl_current_time(int ct) {}
-static void ctl_note(int v) {}
-static void ctl_program(int ch, int val) {}
-static void ctl_volume(int channel, int val) {}
-static void ctl_expression(int channel, int val) {}
-static void ctl_panning(int channel, int val) {}
-static void ctl_sustain(int channel, int val) {}
-static void ctl_pitch_bend(int channel, int val) {}
-static void ctl_reset(void) {}
+int ctl_verbosity = 2;
 
 
-static int ctl_open(int using_stdin, int using_stdout)
-{
-	dummy_ctl.opened = 1;
-	return 0;
-}
-
-static void ctl_close(void)
-{ 
-	dummy_ctl.opened = 0;
-}
-
-static int ctl_read(int32 *valp)
-{
-	return 0;
-}
-
-static void cmsg(int type, int verbosity, char *fmt, ...)
+void ctl_msg(int type, int verbosity, char *fmt, ...)
 {
 	va_list ap;
 
 	if ((type==CMSG_TEXT || type==CMSG_INFO || type==CMSG_WARNING) &&
-		(dummy_ctl.verbosity < verbosity))
+		(verbosity > ctl_verbosity))
 		return;
 
 	char buffer[2048];
@@ -101,27 +71,6 @@ static void cmsg(int type, int verbosity, char *fmt, ...)
 	else
 		I_Printf("Timidity: %s\n", buffer);
 }
-
-ControlMode dummy_ctl = 
-{
-	"dummy interface", 's',
-	2,  // verbosity
-	0,  // trace_playing
-	0,  // opened
-	ctl_open, NULL, ctl_close, ctl_read, cmsg,
-	ctl_refresh, ctl_reset, ctl_file_name, ctl_total_time,
-	ctl_current_time, ctl_note, 
-	ctl_master_volume, ctl_program, ctl_volume, 
-	ctl_expression, ctl_panning, ctl_sustain, ctl_pitch_bend
-};
-
-ControlMode *ctl_list[] = 
-{
-  &dummy_ctl,
-  0
-};
-
-ControlMode *ctl = &dummy_ctl;
 
 
 //--- editor settings ---

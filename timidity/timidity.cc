@@ -50,7 +50,7 @@ static int read_config_file(char *name)
 
   if (rcf_count>50)
    {
-    ctl->cmsg(CMSG_ERROR, VERB_NORMAL,
+    ctl_msg(CMSG_ERROR, VERB_NORMAL,
       "Probable source loop in configuration files");
     return (-1);
    }
@@ -73,7 +73,7 @@ static int read_config_file(char *name)
     {
       if (words < 2)
        {
-        ctl->cmsg(CMSG_ERROR, VERB_NORMAL,
+        ctl_msg(CMSG_ERROR, VERB_NORMAL,
           "%s: line %d: No directory given\n", name, line);
         return -2;
        }
@@ -84,7 +84,7 @@ static int read_config_file(char *name)
   {
     if (words < 2)
       {
-        ctl->cmsg(CMSG_ERROR, VERB_NORMAL,
+        ctl_msg(CMSG_ERROR, VERB_NORMAL,
           "%s: line %d: No file name given\n", name, line);
         return -2;
      }
@@ -99,7 +99,7 @@ static int read_config_file(char *name)
   {
     if (words != 2)
       {
-        ctl->cmsg(CMSG_ERROR, VERB_NORMAL, 
+        ctl_msg(CMSG_ERROR, VERB_NORMAL, 
         "%s: line %d: Must specify exactly one patch name\n",
           name, line);
         return -2;
@@ -111,7 +111,7 @@ static int read_config_file(char *name)
   {
     if (words < 2)
       {
-        ctl->cmsg(CMSG_ERROR, VERB_NORMAL,
+        ctl_msg(CMSG_ERROR, VERB_NORMAL,
           "%s: line %d: No drum set number given\n", 
           name, line);
       return -2;
@@ -119,7 +119,7 @@ static int read_config_file(char *name)
     i=atoi(w[1]);
     if (i<0 || i>127)
      {
-        ctl->cmsg(CMSG_ERROR, VERB_NORMAL, 
+        ctl_msg(CMSG_ERROR, VERB_NORMAL, 
           "%s: line %d: Drum set must be between 0 and 127\n",
         name, line);
         return -2;
@@ -135,7 +135,7 @@ static int read_config_file(char *name)
   {
     if (words < 2)
      {
-        ctl->cmsg(CMSG_ERROR, VERB_NORMAL,
+        ctl_msg(CMSG_ERROR, VERB_NORMAL,
           "%s: line %d: No bank number given\n", 
         name, line);
         return -2;
@@ -143,7 +143,7 @@ static int read_config_file(char *name)
     i=atoi(w[1]);
     if (i<0 || i>127)
       {
-        ctl->cmsg(CMSG_ERROR, VERB_NORMAL, 
+        ctl_msg(CMSG_ERROR, VERB_NORMAL, 
           "%s: line %d: Tone bank must be between 0 and 127\n",
         name, line);
         return -2;
@@ -158,21 +158,21 @@ static int read_config_file(char *name)
       else {
   if ((words < 2) || (*w[0] < '0' || *w[0] > '9'))
     {
-     ctl->cmsg(CMSG_ERROR, VERB_NORMAL,
+     ctl_msg(CMSG_ERROR, VERB_NORMAL,
         "%s: line %d: syntax error\n", name, line);
      return -2;
     }
   i=atoi(w[0]);
   if (i<0 || i>127)
     {
-      ctl->cmsg(CMSG_ERROR, VERB_NORMAL,
+      ctl_msg(CMSG_ERROR, VERB_NORMAL,
         "%s: line %d: Program must be between 0 and 127\n",
         name, line);
       return -2;
     }
   if (!bank)
     {
-      ctl->cmsg(CMSG_ERROR, VERB_NORMAL, 
+      ctl_msg(CMSG_ERROR, VERB_NORMAL, 
        "%s: line %d: Must specify tone bank or drum set "
         "before assignment\n",
         name, line);
@@ -190,7 +190,7 @@ static int read_config_file(char *name)
     {
       if (!(cp=strchr(w[j], '=')))
         {
-    ctl->cmsg(CMSG_ERROR, VERB_NORMAL, "%s: line %d: bad patch option %s\n",
+    ctl_msg(CMSG_ERROR, VERB_NORMAL, "%s: line %d: bad patch option %s\n",
       name, line, w[j]);
     return -2;
         }
@@ -200,7 +200,7 @@ static int read_config_file(char *name)
     k=atoi(cp);
     if ((k<0 || k>MAX_AMPLIFICATION) || (*cp < '0' || *cp > '9'))
       {
-       ctl->cmsg(CMSG_ERROR, VERB_NORMAL, 
+       ctl_msg(CMSG_ERROR, VERB_NORMAL, 
           "%s: line %d: amplification must be between "
          "0 and %d\n", name, line, MAX_AMPLIFICATION);
        return -2;
@@ -212,7 +212,7 @@ static int read_config_file(char *name)
     k=atoi(cp);
     if ((k<0 || k>127) || (*cp < '0' || *cp > '9'))
       {
-       ctl->cmsg(CMSG_ERROR, VERB_NORMAL, 
+       ctl_msg(CMSG_ERROR, VERB_NORMAL, 
          "%s: line %d: note must be between 0 and 127\n",
           name, line);
         return -2;
@@ -232,7 +232,7 @@ static int read_config_file(char *name)
     if ((k<0 || k>127) ||
        (k==0 && *cp!='-' && (*cp < '0' || *cp > '9')))
       {
-       ctl->cmsg(CMSG_ERROR, VERB_NORMAL, 
+       ctl_msg(CMSG_ERROR, VERB_NORMAL, 
          "%s: line %d: panning must be left, right, "
          "center, or between -100 and 100\n",
          name, line);
@@ -248,7 +248,7 @@ static int read_config_file(char *name)
       bank->tone[i].strip_loop=0;
     else
       {
-        ctl->cmsg(CMSG_ERROR, VERB_NORMAL,
+        ctl_msg(CMSG_ERROR, VERB_NORMAL,
           "%s: line %d: keep must be env or loop\n", name, line);
        return -2;
       }
@@ -263,7 +263,7 @@ static int read_config_file(char *name)
       bank->tone[i].strip_tail=1;
     else
       {
-       ctl->cmsg(CMSG_ERROR, VERB_NORMAL,
+       ctl_msg(CMSG_ERROR, VERB_NORMAL,
          "%s: line %d: strip must be env, loop, or tail\n",
          name, line);
        return -2;
@@ -271,7 +271,7 @@ static int read_config_file(char *name)
       }
      else
       {
-    ctl->cmsg(CMSG_ERROR, VERB_NORMAL, "%s: line %d: bad patch option %s\n",
+    ctl_msg(CMSG_ERROR, VERB_NORMAL, "%s: line %d: bad patch option %s\n",
       name, line, w[j]);
     return -2;
       }
@@ -280,7 +280,7 @@ static int read_config_file(char *name)
    }
   if (ferror(fp))
    {
-    ctl->cmsg(CMSG_ERROR, VERB_NORMAL, "Can't read from %s\n", name);
+    ctl_msg(CMSG_ERROR, VERB_NORMAL, "Can't read from %s\n", name);
     close_file(fp);
     return -2;
    }
@@ -334,17 +334,11 @@ int Timidity_Init(int rate, int channels)
       s32tobuf = s32tou16b;
       break;
     default:
-      ctl->cmsg(CMSG_ERROR, VERB_NORMAL, "Unsupported audio format");
+      ctl_msg(CMSG_ERROR, VERB_NORMAL, "Unsupported audio format");
       return(-1);
   }
 #endif
   
-
-  if (ctl->open(0, 0))
-  {
-    ctl->cmsg(CMSG_ERROR, VERB_NORMAL, "Couldn't open %s\n", ctl->id_name);
-    return(-1);
-  }
 
   if (!control_ratio) {
     control_ratio = play_mode->rate / CONTROLS_PER_SECOND;

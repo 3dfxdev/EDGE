@@ -103,7 +103,7 @@ FILE *open_file(char *name, int decompress, int noise_mode)
 
   if (!name || !(*name))
     {
-      ctl->cmsg(CMSG_ERROR, VERB_NORMAL, "Attempted to open nameless file.");
+      ctl_msg(CMSG_ERROR, VERB_NORMAL, "Attempted to open nameless file.");
       return 0;
     }
 
@@ -119,14 +119,14 @@ FILE *open_file(char *name, int decompress, int noise_mode)
   strncpy(current_filename, name, 1023);
   current_filename[1023]='\0';
 
-  ctl->cmsg(CMSG_INFO, VERB_DEBUG, "Trying to open %s", current_filename);
+  ctl_msg(CMSG_INFO, VERB_DEBUG, "Trying to open %s", current_filename);
   if ((fp=try_to_open(current_filename, decompress, noise_mode)))
     return fp;
 
 #ifdef ENOENT
   if (noise_mode && (errno != ENOENT))
     {
-      ctl->cmsg(CMSG_ERROR, VERB_NORMAL, "%s: %s", 
+      ctl_msg(CMSG_ERROR, VERB_NORMAL, "%s: %s", 
 	   current_filename, strerror(errno));
       return 0;
     }
@@ -145,13 +145,13 @@ FILE *open_file(char *name, int decompress, int noise_mode)
 	      strcat(current_filename, PATH_STRING);
 	  }
 	strcat(current_filename, name);
-	ctl->cmsg(CMSG_INFO, VERB_DEBUG, "Trying to open %s", current_filename);
+	ctl_msg(CMSG_INFO, VERB_DEBUG, "Trying to open %s", current_filename);
 	if ((fp=try_to_open(current_filename, decompress, noise_mode)))
 	  return fp;
 #ifdef ENOENT
 	if (noise_mode && (errno != ENOENT))
 	  {
-	    ctl->cmsg(CMSG_ERROR, VERB_NORMAL, "%s: %s", 
+	    ctl_msg(CMSG_ERROR, VERB_NORMAL, "%s: %s", 
 		 current_filename, strerror(errno));
 	    return 0;
 	  }
@@ -164,7 +164,7 @@ FILE *open_file(char *name, int decompress, int noise_mode)
   *current_filename=0;
   
   if (noise_mode>=2)
-    ctl->cmsg(CMSG_ERROR, VERB_NORMAL, "%s: %s", name, strerror(errno));
+    ctl_msg(CMSG_ERROR, VERB_NORMAL, "%s: %s", name, strerror(errno));
   
   return 0;
 }
@@ -189,7 +189,7 @@ void skip(FILE *fp, size_t len)
       if (c>1024) c=1024;
       len-=c;
       if (c!=fread(tmp, 1, c, fp))
-	ctl->cmsg(CMSG_ERROR, VERB_NORMAL, "%s: skip: %s",
+	ctl_msg(CMSG_ERROR, VERB_NORMAL, "%s: skip: %s",
 	     current_filename, strerror(errno));
     }
 }
@@ -200,16 +200,15 @@ void *safe_malloc(size_t count)
   void *p;
   if (count > (1<<21))
     {
-      ctl->cmsg(CMSG_FATAL, VERB_NORMAL, 
+      ctl_msg(CMSG_FATAL, VERB_NORMAL, 
 	   "Strange, I feel like allocating %d bytes. This must be a bug.",
 	   count);
     }
   else if ((p=malloc(count)))
     return p;
   else
-    ctl->cmsg(CMSG_FATAL, VERB_NORMAL, "Sorry. Couldn't malloc %d bytes.", count);
+    ctl_msg(CMSG_FATAL, VERB_NORMAL, "Sorry. Couldn't malloc %d bytes.", count);
 
-  ctl->close();
   exit(10);
   return(NULL);
 }
