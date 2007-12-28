@@ -29,10 +29,6 @@
 #define ORDER 20
 #define ORDER2 ORDER/2
 
-#ifndef PI
-#define PI   3.14159265
-#endif
-
 extern void antialiasing(Sample *sp, int32 output_rate);
 
 #endif /* __TIMIDITY_FILTER_H__ */

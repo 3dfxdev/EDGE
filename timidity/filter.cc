@@ -74,7 +74,7 @@ static void designfir(float *g , float fc)
     for (i =0; i < ORDER2 ;i++) 
 	{
 	    xi = (float) (i + 0.5);
-	    omega = (float)(PI * xi);
+	    omega = (float)(M_PI * xi);
 	    g[i] = (float)(sin( (double) omega * fc) / omega);
 	}
     

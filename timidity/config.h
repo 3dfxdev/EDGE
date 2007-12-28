@@ -164,10 +164,6 @@ typedef int16 resample_t;
 
 #define VIBRATO_SAMPLE_INCREMENTS 32
 
-#ifndef PI
-  #define PI 3.14159265358979323846
-#endif
-
 /* The path separator (D.M.) */
 #if defined(__WIN32__) || defined(__OS2__)
 #  define PATH_SEP '\\'
