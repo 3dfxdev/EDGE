@@ -25,7 +25,6 @@
 #include "instrum.h"
 #include "playmidi.h"
 #include "loadmidi.h"
-#include "output.h"
 #include "mix.h"
 #include "ctrlmode.h"
 #include "timidity.h"

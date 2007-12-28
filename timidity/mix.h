@@ -27,6 +27,38 @@ extern void mix_voice(s32_t *buf, int v, int count);
 extern int recompute_envelope(int v);
 extern void apply_envelope_to_amp(int v);
 
+/* Data format encoding bits */
+
+#define PE_MONO     0x01  /* versus stereo */
+#define PE_SIGNED   0x02  /* versus unsigned */
+#define PE_16BIT    0x04  /* versus 8-bit */
+#define PE_ULAW     0x08  /* versus linear */
+#define PE_BYTESWAP 0x10  /* versus the other way */
+
+extern int play_mode_rate;
+extern int play_mode_encoding;
+
+/* Conversion functions -- These convert the s32_t data in *lp
+   to data in another format */
+
+/* Actual copy function */
+extern void (*s32tobuf)(void *dp, const s32_t *lp, int count);
+
+/* 8-bit signed and unsigned*/
+extern void s32tos8(void *dp, const s32_t *lp, int count);
+extern void s32tou8(void *dp, const s32_t *lp, int count);
+
+/* 16-bit */
+extern void s32tos16(void *dp, const s32_t *lp, int count);
+extern void s32tou16(void *dp, const s32_t *lp, int count);
+
+/* byte-exchanged 16-bit */
+extern void s32tos16x(void *dp, const s32_t *lp, int count);
+extern void s32tou16x(void *dp, const s32_t *lp, int count);
+
+/* uLaw (8 bits) */
+extern void s32toulaw(void *dp, const s32_t *lp, int count);
+
 #endif /* __TIMIDITY_MIX_H__ */
 
 //--- editor settings ---
