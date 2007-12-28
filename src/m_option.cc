@@ -95,6 +95,7 @@
 #include "r_gldefs.h"
 #include "s_sound.h"
 #include "s_music.h"
+#include "s_timid.h"
 #include "r_draw.h"
 #include "r_modes.h"
 #include "r_colormap.h"
@@ -181,7 +182,7 @@ static char SampleRates[] = "11025 Hz/16000 Hz/22050 Hz/32000 Hz/44100 Hz";
 static char SoundBits[]   = "8 bit/16 bit";
 static char StereoNess[]  = "Off/On/Swapped";
 static char MixChans[]    = "8/16/32/64/96";
-static char QuietNess[]   = "Loud (distorted)/Normal/Soft";
+static char QuietNess[]   = "Loud (distorted)/Normal/Soft/Very Soft";
 static char MusicDevs[]   = "System/Timidity";
 
 // Screen resolution changes
@@ -291,6 +292,11 @@ static void M_ChangeSfxVol(int keypressed)
 static void M_ChangeMixChan(int keypressed)
 {
 	S_ChangeChannelNum();
+}
+
+static void M_ChangeTimidQuiet(int keypressed)
+{
+	S_ChangeTimidQuiet();
 }
 
 #if 0
@@ -529,7 +535,7 @@ static optmenuitem_t soundoptions[] =
 
 	{OPT_Plain,   "", NULL, 0,  0,   NULL, NULL, NULL},
 	{OPT_Switch,  "Music Device",    MusicDevs,  2,  CFGDEF_MUSIC_DEVICE, &var_music_dev, NULL, NULL},
-	{OPT_Switch,  "Timidity Factor", QuietNess,  3,  CFGDEF_QUIET_FACTOR, &var_timid_factor, NULL, NULL},
+	{OPT_Switch,  "Timidity Factor", QuietNess,  3,  CFGDEF_QUIET_FACTOR, &var_timid_factor, M_ChangeTimidQuiet, NULL},
 };
 
 static menuinfo_t soundoptionsinfo = 

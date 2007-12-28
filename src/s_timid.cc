@@ -159,8 +159,6 @@ private:
 
 	bool StreamIntoBuffer(epi::sound_data_c *buf)
 	{
-		Timidity_QuietFactor(var_timid_factor);
-
 		int samples = 0;
 
 		while (samples < TIMV_NUM_SAMPLES)
@@ -329,6 +327,12 @@ bool S_StartupTimidity(void)
 }
 
 
+void S_ChangeTimidQuiet(void)
+{
+	Timidity_QuietFactor(var_timid_factor);
+}
+
+
 abstract_music_c * S_PlayTimidity(byte *data, int length, bool is_mus,
 			float volume, bool loop)
 {
@@ -365,6 +369,8 @@ abstract_music_c * S_PlayTimidity(byte *data, int length, bool is_mus,
 
 	if (! song)
 		I_Error("Timidity player: failed to load MIDI file!\n");
+
+	S_ChangeTimidQuiet();
 
 	tim_player_c *player = new tim_player_c(song);
 
