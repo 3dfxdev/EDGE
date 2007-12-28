@@ -30,7 +30,6 @@
 #include "ctrlmode.h"
 #include "resample.h"
 #include "tables.h"
-#include "filter.h"
 
 /* Some functions get aggravated if not even the standard banks are 
    available. */
@@ -45,7 +44,6 @@ InstrumentLayer *default_instrument=0;
 /* This is only used for tracks that don't specify a program */
 int default_program=DEFAULT_PROGRAM;
 
-int antialiasing_allowed=0;
 #ifdef FAST_DECAY
 int fast_decay=1;
 #else
@@ -742,11 +740,6 @@ static InstrumentLayer *load_instrument(char *name, int font_type, int percussio
 	  sp->modes &= ~MODES_REVERSE;
 	  sp->modes |= MODES_LOOPING; /* just in case */
 	}
-
-      /* If necessary do some anti-aliasing filtering  */
-
-      if (antialiasing_allowed)
-	  antialiasing(sp,play_mode_rate);
 
 #ifdef ADJUST_SAMPLE_VOLUMES
       if (amp!=-1)
