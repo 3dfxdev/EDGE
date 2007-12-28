@@ -22,7 +22,7 @@
 #ifndef __TIMIDITY_TABLES_H__
 #define __TIMIDITY_TABLES_H__
 
-#define sine(x) (sin((2*PI/1024.0) * (x)))
+#define sine(x)  sin((x)*2*M_PI/1024.0)
 
 #define SINE_CYCLE_LENGTH 1024
 extern int32 freq_table[];
