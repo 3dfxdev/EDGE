@@ -48,18 +48,18 @@ signed char drumchorusdepth[MAXCHAN][MAXNOTE];
 
 int voices=DEFAULT_VOICES;
 
-int32 control_ratio=0;
-int32 amplification=DEFAULT_AMPLIFICATION;
+int control_ratio=0;
+int amplification=DEFAULT_AMPLIFICATION;
 
 double master_volume;
 
-int32 drumchannels=DEFAULT_DRUMCHANNELS;
+int drumchannels=DEFAULT_DRUMCHANNELS;
 int adjust_panning_immediately=0;
 
 static int midi_playing = 0;
-static int32 lost_notes, cut_notes;
+static int lost_notes, cut_notes;
 
-static int32 *common_buffer;
+static s32_t *common_buffer;
 static int common_buf_size = 0;
 
 static MidiEvent *event_list, *current_event;
@@ -81,7 +81,7 @@ int32 * NeedCommonBuf(int count)
 			free(common_buffer);
 
 		common_buf_size = count;
-		common_buffer = (int32 *)safe_malloc(common_buf_size * sizeof(int32) + 100);
+		common_buffer = (s32_t *)safe_malloc(common_buf_size * sizeof(s32_t) + 100);
 	}
 
 	return common_buffer;
@@ -90,36 +90,36 @@ int32 * NeedCommonBuf(int count)
 
 static void adjust_amplification(void)
 { 
-  master_volume = (double)(amplification) / (double)100.0;
-  master_volume /= 2;
+	master_volume = (double)(amplification) / (double)100.0;
+	master_volume /= 2;
 }
 
 
 static void adjust_master_volume(int32 vol)
 { 
-  master_volume = (double)(vol*amplification) / 1638400.0L;
-  master_volume /= 2;
+	master_volume = (double)(vol*amplification) / 1638400.0L;
+	master_volume /= 2;
 }
 
 
 static void reset_voices(void)
 {
-  int i;
-  for (i=0; i<MAX_VOICES; i++)
-    voice[i].status=VOICE_FREE;
+	int i;
+	for (i=0; i<MAX_VOICES; i++)
+		voice[i].status=VOICE_FREE;
 }
 
 /* Process the Reset All Controllers event */
 static void reset_controllers(int c)
 {
-  channel[c].volume=90; /* Some standard says, although the SCC docs say 0. */
-  channel[c].expression=127; /* SCC-1 does this. */
-  channel[c].sustain=0;
-  channel[c].pitchbend=0x2000;
-  channel[c].pitchfactor=0; /* to be computed */
+	channel[c].volume=90; /* Some standard says, although the SCC docs say 0. */
+	channel[c].expression=127; /* SCC-1 does this. */
+	channel[c].sustain=0;
+	channel[c].pitchbend=0x2000;
+	channel[c].pitchfactor=0; /* to be computed */
 
-  channel[c].reverberation = 0;
-  channel[c].chorusdepth = 0;
+	channel[c].reverberation = 0;
+	channel[c].chorusdepth = 0;
 }
 
 static void redraw_controllers(int c)
@@ -148,143 +148,152 @@ static void reset_midi(void)
 
 static void select_sample(int v, Instrument *ip)
 {
-  int32 f, cdiff, diff, midfreq;
-  int s,i;
-  Sample *sp, *closest;
+	int32 f, cdiff, diff, midfreq;
+	int s,i;
+	Sample *sp, *closest;
 
-  s=ip->samples;
-  sp=ip->sample;
+	s=ip->samples;
+	sp=ip->sample;
 
-  if (s==1)
-    {
-      voice[v].sample=sp;
-      return;
-    }
-
-  f=voice[v].orig_frequency;
-  /* 
-     No suitable sample found! We'll select the sample whose root
-     frequency is closest to the one we want. (Actually we should
-     probably convert the low, high, and root frequencies to MIDI note
-     values and compare those.) */
-
-  cdiff=0x7FFFFFFF;
-  closest=sp=ip->sample;
-  midfreq = (sp->low_freq + sp->high_freq) / 2;
-  for(i=0; i<s; i++)
-    {
-      diff=sp->root_freq - f;
-  /*  But the root freq. can perfectly well lie outside the keyrange
-   *  frequencies, so let's try:
-   */
-      /* diff=midfreq - f; */
-      if (diff<0) diff=-diff;
-      if (diff<cdiff)
+	if (s==1)
 	{
-	  cdiff=diff;
-	  closest=sp;
+		voice[v].sample=sp;
+		return;
 	}
-      sp++;
-    }
-  voice[v].sample=closest;
-  return;
+
+	f=voice[v].orig_frequency;
+	/* 
+	   No suitable sample found! We'll select the sample whose root
+	   frequency is closest to the one we want. (Actually we should
+	   probably convert the low, high, and root frequencies to MIDI note
+	   values and compare those.) */
+
+	cdiff=0x7FFFFFFF;
+	closest=sp=ip->sample;
+	midfreq = (sp->low_freq + sp->high_freq) / 2;
+	for(i=0; i<s; i++)
+	{
+		diff=sp->root_freq - f;
+		/*  But the root freq. can perfectly well lie outside the keyrange
+		 *  frequencies, so let's try:
+		 */
+		/* diff=midfreq - f; */
+		if (diff<0) diff=-diff;
+		if (diff<cdiff)
+		{
+			cdiff=diff;
+			closest=sp;
+		}
+		sp++;
+	}
+	voice[v].sample=closest;
+	return;
 }
 
 
 
 static void select_stereo_samples(int v, InstrumentLayer *lp)
 {
-  Instrument *ip;
-  InstrumentLayer *nlp, *bestvel;
-  int diffvel, midvel, mindiff;
+	Instrument *ip;
+	InstrumentLayer *nlp, *bestvel;
+	int diffvel, midvel, mindiff;
 
-/* select closest velocity */
-  bestvel = lp;
-  mindiff = 500;
-  for (nlp = lp; nlp; nlp = nlp->next) {
-	midvel = (nlp->hi + nlp->lo)/2;
-	if (!midvel) diffvel = 127;
-	else if (voice[v].velocity < nlp->lo || voice[v].velocity > nlp->hi)
-		diffvel = 200;
-	else diffvel = voice[v].velocity - midvel;
-	if (diffvel < 0) diffvel = -diffvel;
-	if (diffvel < mindiff) {
-		mindiff = diffvel;
-		bestvel = nlp;
+	/* select closest velocity */
+	bestvel = lp;
+	mindiff = 500;
+
+	for (nlp = lp; nlp; nlp = nlp->next)
+	{
+		midvel = (nlp->hi + nlp->lo)/2;
+		if (!midvel)
+			diffvel = 127;
+		else if (voice[v].velocity < nlp->lo || voice[v].velocity > nlp->hi)
+			diffvel = 200;
+		else
+			diffvel = voice[v].velocity - midvel;
+
+		if (diffvel < 0)
+			diffvel = -diffvel;
+
+		if (diffvel < mindiff)
+		{
+			mindiff = diffvel;
+			bestvel = nlp;
+		}
 	}
-  }
-  ip = bestvel->instrument;
+	ip = bestvel->instrument;
 
-  if (ip->right_sample) {
-    ip->sample = ip->right_sample;
-    ip->samples = ip->right_samples;
-    select_sample(v, ip);
-    voice[v].right_sample = voice[v].sample;
-  }
-  else voice[v].right_sample = 0;
-  ip->sample = ip->left_sample;
-  ip->samples = ip->left_samples;
-  select_sample(v, ip);
+	if (ip->right_sample)
+	{
+		ip->sample = ip->right_sample;
+		ip->samples = ip->right_samples;
+		select_sample(v, ip);
+		voice[v].right_sample = voice[v].sample;
+	}
+	else voice[v].right_sample = 0;
+	ip->sample = ip->left_sample;
+	ip->samples = ip->left_samples;
+	select_sample(v, ip);
 }
 
 
 static void recompute_freq(int v)
 {
-  int 
-    sign=(voice[v].sample_increment < 0), /* for bidirectional loops */
-    pb=channel[voice[v].channel].pitchbend;
-  double a;
-  
-  if (!voice[v].sample->sample_rate)
-    return;
+	int sign=(voice[v].sample_increment < 0); /* for bidirectional loops */
+	int pb=channel[voice[v].channel].pitchbend;
+	double a;
 
-  if (voice[v].vibrato_control_ratio)
-    {
-      /* This instrument has vibrato. Invalidate any precomputed
-         sample_increments. */
+	if (!voice[v].sample->sample_rate)
+		return;
 
-      int i=VIBRATO_SAMPLE_INCREMENTS;
-      while (i--)
-	voice[v].vibrato_sample_increment[i]=0;
-    }
-
-  if (pb==0x2000 || pb<0 || pb>0x3FFF)
-    voice[v].frequency=voice[v].orig_frequency;
-  else
-    {
-      pb-=0x2000;
-      if (!(channel[voice[v].channel].pitchfactor))
+	if (voice[v].vibrato_control_ratio)
 	{
-	  /* Damn. Somebody bent the pitch. */
-	  int32 i=pb*channel[voice[v].channel].pitchsens;
-	  if (pb<0)
-	    i=-i;
-	  channel[voice[v].channel].pitchfactor=
-	    (double)(bend_fine[(i>>5) & 0xFF] * bend_coarse[i>>13]);
+		/* This instrument has vibrato. Invalidate any precomputed
+		   sample_increments. */
+
+		int i=VIBRATO_SAMPLE_INCREMENTS;
+		while (i--)
+			voice[v].vibrato_sample_increment[i]=0;
 	}
-      if (pb>0)
-	voice[v].frequency=
-	  (int32)(channel[voice[v].channel].pitchfactor *
-		  (double)(voice[v].orig_frequency));
-      else
-	voice[v].frequency=
-	  (int32)((double)(voice[v].orig_frequency) /
-		  channel[voice[v].channel].pitchfactor);
-    }
 
-  a = FSCALE(((double)(voice[v].sample->sample_rate) *
-	      (double)(voice[v].frequency)) /
-	     ((double)(voice[v].sample->root_freq) *
-	      (double)(play_mode_rate)),
-	     FRACTION_BITS);
+	if (pb==0x2000 || pb<0 || pb>0x3FFF)
+		voice[v].frequency=voice[v].orig_frequency;
+	else
+	{
+		pb-=0x2000;
+		if (!(channel[voice[v].channel].pitchfactor))
+		{
+			/* Damn. Somebody bent the pitch. */
+			int32 i=pb*channel[voice[v].channel].pitchsens;
+			if (pb<0)
+				i=-i;
+			channel[voice[v].channel].pitchfactor=
+				(double)(bend_fine[(i>>5) & 0xFF] * bend_coarse[i>>13]);
+		}
+		if (pb>0)
+			voice[v].frequency=
+				(int32)(channel[voice[v].channel].pitchfactor *
+						(double)(voice[v].orig_frequency));
+		else
+			voice[v].frequency=
+				(int32)((double)(voice[v].orig_frequency) /
+						channel[voice[v].channel].pitchfactor);
+	}
 
-  if (sign) 
-    a = -a; /* need to preserve the loop direction */
+	a = FSCALE(((double)(voice[v].sample->sample_rate) *
+				(double)(voice[v].frequency)) /
+			((double)(voice[v].sample->root_freq) *
+			 (double)(play_mode_rate)),
+			FRACTION_BITS);
 
-  voice[v].sample_increment = (int32)(a);
+	if (sign) 
+		a = -a; /* need to preserve the loop direction */
+
+	voice[v].sample_increment = (int32)(a);
 }
 
-static int expr_curve[128] = {
+static int expr_curve[128] =
+{
 	7, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9, 10, 10, 10, 10, 11, 
 	11, 11, 11, 12, 12, 12, 12, 13, 13, 13, 14, 14, 14, 14, 15, 15, 
 	15, 16, 16, 17, 17, 17, 18, 18, 19, 19, 19, 20, 20, 21, 21, 22, 
@@ -298,30 +307,27 @@ static int expr_curve[128] = {
 
 static int panf(int pan, int speaker, int separation)
 {
-	int val;
-	val = abs(pan - speaker);
-	val = (val * 127) / separation;
-	val = 127 - val;
-	if (val < 0) val = 0;
-	if (val > 127) val = 127;
-	return expr_curve[val];
+	int val = 127 - abs(pan - speaker) * 127 / separation;
+
+	return expr_curve[CLAMP(0,val,128)];
 }
 
 
-static int vcurve[128] = {
-0,0,18,29,36,42,47,51,55,58,
-60,63,65,67,69,71,73,74,76,77,
-79,80,81,82,83,84,85,86,87,88,
-89,90,91,92,92,93,94,95,95,96,
-97,97,98,99,99,100,100,101,101,102,
-103,103,104,104,105,105,106,106,106,107,
-107,108,108,109,109,109,110,110,111,111,
-111,112,112,112,113,113,114,114,114,115,
-115,115,116,116,116,116,117,117,117,118,
-118,118,119,119,119,119,120,120,120,120,
-121,121,121,122,122,122,122,123,123,123,
-123,123,124,124,124,124,125,125,125,125,
-126,126,126,126,126,127,127,127
+static int vcurve[128] =
+{
+	0,0,18,29,36,42,47,51,55,58,
+	60,63,65,67,69,71,73,74,76,77,
+	79,80,81,82,83,84,85,86,87,88,
+	89,90,91,92,92,93,94,95,95,96,
+	97,97,98,99,99,100,100,101,101,102,
+	103,103,104,104,105,105,106,106,106,107,
+	107,108,108,109,109,109,110,110,111,111,
+	111,112,112,112,113,113,114,114,114,115,
+	115,115,116,116,116,116,117,117,117,118,
+	118,118,119,119,119,119,120,120,120,120,
+	121,121,121,122,122,122,122,123,123,123,
+	123,123,124,124,124,124,125,125,125,125,
+	126,126,126,126,126,127,127,127
 };
 
 static void recompute_amp(int v)
@@ -444,10 +450,11 @@ static int vc_alloc(int j)
 
 	while (i--)
 	{
-		if (i == j) continue;
-		if (voice[i].status & VOICE_FREE) {
+		if (i == j)
+			continue;
+
+		if (voice[i].status & VOICE_FREE)
 			return i;
-		}
 	}
 	return -1;
 }
@@ -479,16 +486,21 @@ static void clone_voice(Instrument *ip, int v, MidiEvent *e, int clone_type, int
 	int w, played_note, chorus=0, reverb=0, milli;
 	int chan = voice[v].channel;
 
-	if (clone_type == STEREO_CLONE) {
-		if (!voice[v].right_sample && variationbank != 3) return;
-		if (variationbank == 6) return;
+	if (clone_type == STEREO_CLONE)
+	{
+		if (!voice[v].right_sample && variationbank != 3)
+			return;
+		if (variationbank == 6)
+			return;
 	}
 
-	if (channel[chan].kit) {
+	if (channel[chan].kit)
+	{
 		reverb = drumreverberation[chan][voice[v].note];
 		chorus = drumchorusdepth[chan][voice[v].note];
 	}
-	else {
+	else
+	{
 		reverb = channel[chan].reverberation;
 		chorus = channel[chan].chorusdepth;
 	}
@@ -500,7 +512,8 @@ static void clone_voice(Instrument *ip, int v, MidiEvent *e, int clone_type, int
 	if (reverb > 127) reverb = 127;
 	if (chorus > 127) chorus = 127;
 
-	if (clone_type == CHORUS_CLONE) {
+	if (clone_type == CHORUS_CLONE)
+	{
 		if (variationbank == 32) chorus = 30;
 		else if (variationbank == 33) chorus = 60;
 		else if (variationbank == 34) chorus = 90;
@@ -522,30 +535,37 @@ static void clone_voice(Instrument *ip, int v, MidiEvent *e, int clone_type, int
 
 	milli = play_mode_rate/1000;
 
-	if (clone_type == STEREO_CLONE) {
+	if (clone_type == STEREO_CLONE)
+	{
 		int left, right, leftpan, rightpan;
 		int panrequest = voice[v].panning;
-		if (variationbank == 3) {
+		if (variationbank == 3)
+		{
 			voice[v].panning = 0;
 			voice[w].panning = 127;
 		}
-		else {
-			if (voice[v].sample->panning > voice[w].sample->panning) {
+		else
+		{
+			if (voice[v].sample->panning > voice[w].sample->panning)
+			{
 				left = w;
 				right = v;
 			}
-			else {
+			else
+			{
 				left = v;
 				right = w;
 			}
 #define INSTRUMENT_SEPARATION 12
 			leftpan = panrequest - INSTRUMENT_SEPARATION / 2;
 			rightpan = leftpan + INSTRUMENT_SEPARATION;
-			if (leftpan < 0) {
+			if (leftpan < 0)
+			{
 				leftpan = 0;
 				rightpan = leftpan + INSTRUMENT_SEPARATION;
 			}
-			if (rightpan > 127) {
+			if (rightpan > 127)
+			{
 				rightpan = 127;
 				leftpan = rightpan - INSTRUMENT_SEPARATION;
 			}
@@ -557,14 +577,21 @@ static void clone_voice(Instrument *ip, int v, MidiEvent *e, int clone_type, int
 
 	voice[w].volume = voice[w].sample->volume;
 
-	if (reverb) {
-		if (opt_stereo_surround) {
-			if (voice[w].panning > 64) voice[w].panning = 127;
-			else voice[w].panning = 0;
+	if (reverb)
+	{
+		if (opt_stereo_surround)
+		{
+			if (voice[w].panning > 64)
+				voice[w].panning = 127;
+			else
+				voice[w].panning = 0;
 		}
-		else {
-			if (voice[v].panning < 64) voice[w].panning = 64 + reverb/2;
-			else voice[w].panning = 64 - reverb/2;
+		else
+		{
+			if (voice[v].panning < 64)
+				voice[w].panning = 64 + reverb/2;
+			else
+				voice[w].panning = 64 - reverb/2;
 		}
 
 		/* try 98->99 for melodic instruments ? (bit much for percussion) */
@@ -574,10 +601,13 @@ static void clone_voice(Instrument *ip, int v, MidiEvent *e, int clone_type, int
 		voice[w].envelope_rate[DECAY] *= 2;
 		voice[w].envelope_rate[RELEASE] /= 2;
 
-		if (XG_System_reverb_type >= 0) {
+		if (XG_System_reverb_type >= 0)
+		{
 			int subtype = XG_System_reverb_type & 0x07;
 			int rtype = XG_System_reverb_type >>3;
-			switch (rtype) {
+
+			switch (rtype)
+			{
 				case 0: /* no effect */
 					break;
 				case 1: /* hall */
@@ -605,12 +635,15 @@ static void clone_voice(Instrument *ip, int v, MidiEvent *e, int clone_type, int
 				case 19: /* basement */
 					voice[w].velocity /= 2;
 					break;
+
 				default: break;
 			}
 		}
 	}
 	played_note = voice[w].sample->note_to_use;
-	if (!played_note) {
+
+	if (!played_note)
+	{
 		played_note = e->a & 0x7f;
 		if (variationbank == 35) played_note += 12;
 		else if (variationbank == 36) played_note -= 12;
@@ -624,40 +657,53 @@ static void clone_voice(Instrument *ip, int v, MidiEvent *e, int clone_type, int
 	voice[w].note = played_note;
 	voice[w].orig_frequency = freq_table[played_note];
 
-	if (chorus) {
-		if (opt_stereo_surround) {
-			if (voice[v].panning < 64) voice[w].panning = voice[v].panning + 32;
-			else voice[w].panning = voice[v].panning - 32;
+	if (chorus)
+	{
+		if (opt_stereo_surround)
+		{
+			if (voice[v].panning < 64)
+				voice[w].panning = voice[v].panning + 32;
+			else
+				voice[w].panning = voice[v].panning - 32;
 		}
 
-		if (!voice[w].vibrato_control_ratio) {
+		if (!voice[w].vibrato_control_ratio)
+		{
 			voice[w].vibrato_control_ratio = 100;
 			voice[w].vibrato_depth = 6;
 			voice[w].vibrato_sweep = 74;
 		}
 		voice[w].volume *= 0.40;
 		voice[v].volume = voice[w].volume;
+		
 		recompute_amp(v);
 		apply_envelope_to_amp(v);
+		
 		voice[w].vibrato_sweep = chorus/2;
 		voice[w].vibrato_depth /= 2;
-		if (!voice[w].vibrato_depth) voice[w].vibrato_depth = 2;
+		
+		if (!voice[w].vibrato_depth)
+			voice[w].vibrato_depth = 2;
+		
 		voice[w].vibrato_control_ratio /= 2;
 		voice[w].echo_delay += 30 * milli;
 
-		if (XG_System_chorus_type >= 0) {
+		if (XG_System_chorus_type >= 0)
+		{
 			int subtype = XG_System_chorus_type & 0x07;
 			int chtype = 0x0f & (XG_System_chorus_type >> 3);
-			switch (chtype) {
+
+			switch (chtype)
+			{
 				case 0: /* no effect */
 					break;
 				case 1: /* chorus */
 					chorus /= 3;
 					if (channel[ voice[w].channel ].pitchbend + chorus < 0x2000)
 						voice[w].orig_frequency =
-							(uint32)( (double)voice[w].orig_frequency * bend_fine[chorus] );
+							(u32_t)( (double)voice[w].orig_frequency * bend_fine[chorus] );
 					else voice[w].orig_frequency =
-						(uint32)( (double)voice[w].orig_frequency / bend_fine[chorus] );
+						(u32_t)( (double)voice[w].orig_frequency / bend_fine[chorus] );
 					if (subtype) voice[w].vibrato_depth *= 2;
 					break;
 				case 2: /* celeste */
@@ -676,17 +722,24 @@ static void clone_voice(Instrument *ip, int v, MidiEvent *e, int clone_type, int
 					break;
 				case 8: /* phaser */
 					break;
+
 				default:
 					break;
 			}
 		}
-		else {
+		else
+		{
 			chorus /= 3;
 			if (channel[ voice[w].channel ].pitchbend + chorus < 0x2000)
+			{
 				voice[w].orig_frequency =
-					(uint32)( (double)voice[w].orig_frequency * bend_fine[chorus] );
-			else voice[w].orig_frequency =
-				(uint32)( (double)voice[w].orig_frequency / bend_fine[chorus] );
+					(u32_t)( (double)voice[w].orig_frequency * bend_fine[chorus] );
+			}
+			else
+			{
+				voice[w].orig_frequency =
+					(u32_t)( (double)voice[w].orig_frequency / bend_fine[chorus] );
+			}
 		}
 	}
 #if 0
@@ -694,10 +747,13 @@ static void clone_voice(Instrument *ip, int v, MidiEvent *e, int clone_type, int
 	voice[w].loop_end = voice[w].sample->loop_end;
 #endif
 	voice[w].echo_delay_count = voice[w].echo_delay;
-	if (reverb) voice[w].echo_delay *= 2;
+
+	if (reverb)
+		voice[w].echo_delay *= 2;
 
 	recompute_freq(w);
 	recompute_amp(w);
+
 	if (voice[w].sample->modes & MODES_ENVELOPE)
 	{
 		/* Ramp up from 0 */
@@ -719,21 +775,27 @@ static void clone_voice(Instrument *ip, int v, MidiEvent *e, int clone_type, int
 }
 
 
-static void xremap(int *banknumpt, int *this_notept, int this_kit) {
+static void xremap(int *banknumpt, int *this_notept, int this_kit)
+{
 	int i, newmap;
 	int banknum = *banknumpt;
 	int this_note = *this_notept;
 	int newbank, newnote;
 
-	if (!this_kit) {
-		if (banknum == SFXBANK && tonebank[SFXBANK]) return;
-		if (banknum == SFXBANK && tonebank[120]) *banknumpt = 120;
+	if (!this_kit)
+	{
+		if (banknum == SFXBANK && tonebank[SFXBANK])
+			return;
+		if (banknum == SFXBANK && tonebank[120])
+			*banknumpt = 120;
 		return;
 	}
 
-	if (this_kit != 127 && this_kit != 126) return;
+	if (this_kit != 127 && this_kit != 126)
+		return;
 
-	for (i = 0; i < XMAPMAX; i++) {
+	for (i = 0; i < XMAPMAX; i++)
+	{
 		newmap = xmap[i][0];
 		if (!newmap) return;
 		if (this_kit == 127 && newmap != XGDRUM) continue;
@@ -856,7 +918,8 @@ static void start_note(MidiEvent *e, int i)
 	decaytime = 64;
 	variationbank = channel[ch].variationbank;
 
-	switch (variationbank) {
+	switch (variationbank)
+	{
 		case  8:
 			attacktime = 64+32;
 			break;
@@ -940,14 +1003,16 @@ static void start_note(MidiEvent *e, int i)
 	if (drumpan != NO_PANNING)
 		voice[i].panning=drumpan;
 
-	if (variationbank == 1) {
+	if (variationbank == 1)
+	{
 		int pan = voice[i].panning;
 		int disturb = 0;
 		/* If they're close up (no reverb) and you are behind the pianist,
 		 * high notes come from the right, so we'll spread piano etc. notes
 		 * out horizontally according to their pitches.
 		 */
-		if (this_prog < 21) {
+		if (this_prog < 21)
+		{
 			int n = voice[i].velocity - 32;
 			if (n < 0) n = 0;
 			if (n > 64) n = 64;
@@ -1071,11 +1136,15 @@ static void note_on(MidiEvent *e)
 		   in the first place... Still, this needs to be fixed. Perhaps
 		   we could use a reserve of voices to play dying notes only. */
 
-		if (cl >= 0) {
+		if (cl >= 0)
+		{
 			if (voice[cl].clone_type==STEREO_CLONE ||
 					(!voice[cl].clone_type && voice[lowest].clone_type==STEREO_CLONE))
+			{
 				voice[cl].status=VOICE_FREE;
-			else if (voice[cl].clone_voice==lowest) voice[cl].clone_voice=-1;
+			}
+			else if (voice[cl].clone_voice==lowest)
+				voice[cl].clone_voice=-1;
 		}
 
 		cut_notes++;
@@ -1228,7 +1297,7 @@ static void adjust_volume(int chan)
 }
 
 
-static void do_compute_data(int32 *buffer_pointer, uint32 count)
+static void do_compute_data(int32 *buffer_pointer, int count)
 {
 I_Debugf("    do_compute_data: %d\n", count);
 
@@ -1240,7 +1309,7 @@ I_Debugf("    do_compute_data: %d\n", count);
 		{
 			if (!voice[i].sample_offset && voice[i].echo_delay_count)
 			{
-				if ((uint32)voice[i].echo_delay_count >= count)
+				if ((int)voice[i].echo_delay_count >= count)
 					voice[i].echo_delay_count -= count;
 				else
 				{
@@ -1255,41 +1324,6 @@ I_Debugf("    do_compute_data: %d\n", count);
 	current_sample += count;
 }
 
-
-#if 0
-/* count=0 means flush remaining buffered data to output device, then
-   flush the device itself */
-static void compute_data(void *stream, int32 count, int32 total)
-{
-I_Debugf("  compute_data: %d samples\n", count);
-	int rc, channels;
-
-	if ( play_mode_encoding & PE_MONO )
-		channels = 1;
-	else
-		channels = num_ochannels;
-
-	SYS_ASSERT(s32tobuf);
-
-	while ((count + buffered_count) >= total)
-	{
-		do_compute_data(total-buffered_count);
-
-		count -= total-buffered_count;
-		s32tobuf(stream, common_buffer, channels*total);
-		buffer_pointer=common_buffer;
-		buffered_count=0;
-
-	}
-
-	if (count>0)
-	{
-		do_compute_data(count);
-		buffered_count += count;
-		buffer_pointer += count * channels;
-	}
-}
-#endif
 
 static bool handle_recent_events(void)
 {
@@ -1363,7 +1397,8 @@ static bool handle_recent_events(void)
 
 			case ME_PROGRAM:
 				/* if (ISDRUMCHANNEL(current_event->channel)) { */
-				if (channel[current_event->channel].kit) {
+				if (channel[current_event->channel].kit)
+				{
 					/* Change drum set */
 					channel[current_event->channel].bank=current_event->a;
 				}
@@ -1443,6 +1478,7 @@ static bool handle_recent_events(void)
 	return true; // OK
 }
 
+//------------------------------------------------------------------------
 
 int Timidity_PlaySome(s16_t *stream, int samples)
 {
