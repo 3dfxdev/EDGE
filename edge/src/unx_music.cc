@@ -25,13 +25,14 @@
 #include "ddf/main.h"
 #include "ddf/playlist.h"
 
-#include "timidity/timidity.h"
 
 // FIXME !!!!!! temporary
 #undef USE_OGG
 #undef USE_HUMID
 
 #include "s_sound.h"
+#include "s_music.h"
+#include "s_timid.h"
 #include "unx_sysinc.h"
 
 
@@ -104,7 +105,7 @@ void I_StartupMusic(void)
 #if 1
 	if (! nosound)
 	{
-		if (0 == Timidity_Init(dev_freq, dev_stereo ? 2 : 1))
+		if (S_StartupTimidity())
 		{
 			I_Printf("I_StartupMusic: Timidity Init OK\n");
 			capable |= support_MUS | support_MIDI;

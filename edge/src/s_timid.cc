@@ -39,6 +39,8 @@
 extern bool dev_stereo;  // FIXME: encapsulation
 extern int  dev_freq;    //
 
+static bool timidity_inited;
+
 
 class tim_player_c : public abstract_music_c
 {
@@ -196,6 +198,7 @@ static const char *config_base_dirs[] =
 {
 	"$g",   // game_dir
 	"$h",   // home_dir
+
 	".",    // current directory
 	
 #ifdef WIN32
@@ -204,6 +207,7 @@ static const char *config_base_dirs[] =
 #endif
 
 #ifdef LINUX
+	"/etc",
 	"/usr/local/lib",
 	"/usr/local/share",
 	"/usr/lib",
@@ -252,7 +256,7 @@ static const char * FindTimidityConfig(void)
 
 	for (int i = 0; config_base_dirs[i]; i++)
 	{
-		for (int j = 0; config_sub_dirs[i]; i++)
+		for (int j = 0; config_sub_dirs[j]; j++)
 		{
 			const char *base = config_base_dirs[i];
 			const char *sub  = config_sub_dirs[j];
@@ -278,11 +282,11 @@ static const char * FindTimidityConfig(void)
 			// if the directory does not exist, then there is no
 			// need to proceed (hence saving a LOT of time).
 
-			I_Debugf("TIMID: test directory '%s'\n", dir.c_str());
+			I_Debugf("TIMID: checking directory '%s'\n", dir.c_str());
 
 			if (dir.length() > 0 && ! epi::FS_IsDir(dir.c_str()))
 				continue;
-			
+
 			for (int k = 0; config_names[k]; k++)
 			{
 				std::string fn;
@@ -296,9 +300,9 @@ static const char * FindTimidityConfig(void)
 				
 				if (epi::FS_Access(fn.c_str(), epi::file_c::ACCESS_READ))
 				{
-					I_Debugf("  ^___ EXISTS !\n");
+					I_Debugf("  ^___ EXISTS\n");
 
-//!!!!!!					return strdup(fn.c_str());
+					return strdup(fn.c_str());
 				}
 			}
 		}
@@ -319,6 +323,8 @@ bool S_StartupTimidity(void)
 	if (! Timidity_Init(config_fn, dev_freq, dev_stereo ? 2 : 1))
 		return false;
 
+	timidity_inited = true;
+
 	return true; // OK!
 }
 
@@ -326,6 +332,9 @@ bool S_StartupTimidity(void)
 abstract_music_c * S_PlayTimidity(byte *data, int length, bool is_mus,
 			float volume, bool loop)
 {
+	if (!timidity_inited)
+		return NULL;
+
 	if (is_mus)
 	{
 		I_Printf("tim_player_c: Converting MUS format to MIDI...\n");
