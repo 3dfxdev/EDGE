@@ -1347,7 +1347,7 @@ void WI_Ticker(void)
 	if (bcnt == 1)
 	{
 		// intermission music
-		S_ChangeMusic(wi_stats.cur->music, true);
+		S_ChangeMusic(wi_stats.cur->episode->music, true);
 	}
 
 	if (WI_CheckForAccelerate())
