@@ -37,26 +37,13 @@
    a critical choice anymore. */
 #define DEFAULT_DRUMCHANNELS ((1<<9) | (1<<15))
 
-/* A somewhat arbitrary frequency range. The low end of this will
-   sound terrible as no lowpass filtering is performed on most
-   instruments before resampling. */
-#define MIN_OUTPUT_RATE 	4000
-#define MAX_OUTPUT_RATE 	65000
-
-/* In percent. */
-/* #define DEFAULT_AMPLIFICATION 	70 */
-/* #define DEFAULT_AMPLIFICATION 	50 */
-#define DEFAULT_AMPLIFICATION 	30
 
 /* Default sampling rate, default polyphony, and maximum polyphony.
    All but the last can be overridden from the command line. */
 #define DEFAULT_RATE	32000
-/* #define DEFAULT_VOICES	32 */
-/* #define MAX_VOICES	48 */
-#define DEFAULT_VOICES	256
+
 #define MAX_VOICES	256
 #define MAXCHAN		16
-/* #define MAXCHAN		64 */
 #define MAXNOTE		128
 
 /* 1000 here will give a control ratio of 22:1 with 22 kHz output.
