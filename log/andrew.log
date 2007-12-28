@@ -1,5 +1,14 @@
 Andrew Apted's Log
 
+2007/12/28:
+
+Timidity music playback is now finished.  I spent a while
+just cleaning up the inherited code (it's pretty bad).
+I also implemented a "smart" config finder, which searches
+for the timidity.cfg file in a whole bunch of places.
+Finally the amplitude stuff was fixed up, taking the new
+menu option 'Timidity Factor' properly into account.
+
 2007/12/27:
 
 Timidity is working now, but volume is too quiet (by a factor
