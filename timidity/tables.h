@@ -25,12 +25,12 @@
 #define sine(x)  sin((x)*2*M_PI/1024.0)
 
 #define SINE_CYCLE_LENGTH 1024
-extern int32 freq_table[];
+extern int freq_table[];
 extern double vol_table[];
 extern double expr_table[];
 extern double bend_fine[];
 extern double bend_coarse[];
-extern uint8 *_l2u; /* 13-bit PCM to 8-bit u-law */
+extern byte *_l2u; /* 13-bit PCM to 8-bit u-law */
 
 #define XMAPMAX 800
 extern int xmap[XMAPMAX][5];
