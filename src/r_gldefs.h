@@ -321,6 +321,7 @@ extern int num_active_mirrors;
 
 void MIR_Coordinate(float& x, float& y);
 void MIR_Angle(angle_t& ang);
+bool MIR_Reflective(void);
 
 
 #endif /* __RGL_DEFS_H__ */
