@@ -35,7 +35,8 @@ typedef struct PathList_s
 {
   char *path;
   struct PathList_s *next;
-} PathList;
+}
+PathList;
 
 /* Noise modes for open_file */
 #define OF_SILENT	0
