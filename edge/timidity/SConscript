@@ -14,7 +14,7 @@ env.Append(CCFLAGS = ['-ffast-math'])
 env.Append(CPPPATH = ['#.'])
 
 timid_sources = [
-    'common.cc', 'instrum.cc', 'mix.cc', 'output.cc',
+    'common.cc', 'instrum.cc', 'mix.cc',
     'playmidi.cc', 'loadmidi.cc', 'resample.cc',
     'tables.cc', 'timidity.cc']
 

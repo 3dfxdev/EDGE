@@ -24,7 +24,7 @@
 #include "common.h"
 #include "instrum.h"
 #include "playmidi.h"
-#include "output.h"
+#include "mix.h"
 #include "ctrlmode.h"
 #include "tables.h"
 #include "resample.h"

@@ -24,7 +24,7 @@
 #include <errno.h>
 
 #include "common.h"
-#include "output.h"
+#include "mix.h"
 #include "ctrlmode.h"
 
 /* I guess "rb" should be right for any libc */

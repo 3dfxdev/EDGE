@@ -18,7 +18,7 @@
     Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
     I bet they'll be amazed.
 
-    mix.c
+    mix.c (+ output.c)
 */
 
 #include "config.h"
@@ -26,7 +26,6 @@
 #include "common.h"
 #include "instrum.h"
 #include "playmidi.h"
-#include "output.h"
 #include "ctrlmode.h"
 #include "tables.h"
 #include "resample.h"
@@ -965,6 +964,127 @@ void mix_voice(s32_t *buf, int v, int count)
 			mix_single_left(sp, buf, v, count);
 	}
 }
+
+
+/*****************************************************************/
+/* Some functions to convert signed 32-bit data to other formats */
+
+#define CLIP_THRESHHOLD  ((1L << (31-GUARD_BITS)) - 1)
+
+
+void s32tos8(void *dp, const s32_t *lp, int count)
+{
+	s8_t *dest = (s8_t *)dp;
+
+	while (count--)
+	{
+		s32_t val = *lp++;
+
+		     if (val >  CLIP_THRESHHOLD) val =  CLIP_THRESHHOLD;
+		else if (val < -CLIP_THRESHHOLD) val = -CLIP_THRESHHOLD;
+
+		*dest++ = (s8_t) (val >> (32-8-GUARD_BITS));
+	}
+}
+
+void s32tou8(void *dp, const s32_t *lp, int count)
+{
+	u8_t *dest = (u8_t *)dp;
+
+	while (count--)
+	{
+		s32_t val = *lp++;
+
+		     if (val >  CLIP_THRESHHOLD) val =  CLIP_THRESHHOLD;
+		else if (val < -CLIP_THRESHHOLD) val = -CLIP_THRESHHOLD;
+
+		*dest++ = (u8_t) (0x80 ^ (val >> (32-8-GUARD_BITS)));
+	}
+}
+
+void s32tos16(void *dp, const s32_t *lp, int count)
+{
+	s16_t *dest = (s16_t *)dp;
+
+	while (count--)
+	{
+		s32_t val = *lp++;
+
+		     if (val >  CLIP_THRESHHOLD) val =  CLIP_THRESHHOLD;
+		else if (val < -CLIP_THRESHHOLD) val = -CLIP_THRESHHOLD;
+
+		*dest++ = (s16_t)(val >> (32-16-GUARD_BITS));
+	}
+}
+
+void s32tou16(void *dp, const s32_t *lp, int count)
+{
+	u16_t *dest = (u16_t *)dp;
+
+	while (count--)
+	{
+		s32_t val = *lp++;
+
+		     if (val >  CLIP_THRESHHOLD) val =  CLIP_THRESHHOLD;
+		else if (val < -CLIP_THRESHHOLD) val = -CLIP_THRESHHOLD;
+
+		*dest++ = (u16_t) (0x8000 ^ (val >> (32-16-GUARD_BITS)));
+	}
+}
+
+void s32tos16x(void *dp, const s32_t *lp, int count)
+{
+	s16_t *dest = (s16_t *)dp;
+
+	while (count--)
+	{
+		s32_t val = *lp++;
+
+		     if (val >  CLIP_THRESHHOLD) val =  CLIP_THRESHHOLD;
+		else if (val < -CLIP_THRESHHOLD) val = -CLIP_THRESHHOLD;
+
+		val >>= (32-16-GUARD_BITS);
+
+		*dest++ = (s16_t)EPI_Swap16((u16_t)val);
+	}
+}
+
+void s32tou16x(void *dp, const s32_t *lp, int count)
+{
+	u16_t *dest = (u16_t *)dp;
+
+	while (count--)
+	{
+		s32_t val = *lp++;
+
+		     if (val >  CLIP_THRESHHOLD) val =  CLIP_THRESHHOLD;
+		else if (val < -CLIP_THRESHHOLD) val = -CLIP_THRESHHOLD;
+
+		val >>= (32-16-GUARD_BITS);
+
+		*dest++ = (u16_t) (0x8000 ^ EPI_Swap16((u16_t)val));
+	}
+}
+
+void s32toulaw(void *dp, const s32_t *lp, int count)
+{
+	u8_t *dest = (u8_t *)dp;
+
+	while (count--)
+	{
+		s32_t val = *lp++;
+
+		     if (val >  CLIP_THRESHHOLD) val =  CLIP_THRESHHOLD;
+		else if (val < -CLIP_THRESHHOLD) val = -CLIP_THRESHHOLD;
+
+		val >>= (32-13-GUARD_BITS);
+
+		// Note: _l2u has been offsetted by 4096 to allow for
+		//       the negative values here.  (-AJA- ick!)
+		*dest++ = _l2u[val];
+	}
+}
+
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
