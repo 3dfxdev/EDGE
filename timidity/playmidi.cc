@@ -1513,6 +1513,9 @@ I_Debugf("\nTimidity_PlaySome: samples=%d\n", samples);
 
 static void do_recompute_amps(void)
 {
+	if (! midi_playing)
+		return;
+
 	for (int i=0; i < MAX_VOICES; i++)
 	{
 		if (voice[i].status != VOICE_FREE)
