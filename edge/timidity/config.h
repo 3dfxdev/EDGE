@@ -78,11 +78,6 @@
    a benchmark to find out. */
 #define PRECALC_LOOPS
 
-/* If calling ldexp() is faster than a floating point multiplication
-   on your machine/compiler/libm, uncomment this. It doesn't make much
-   difference either way, but hey -- it was on the TODO list, so it
-   got done. */
-/* #define USE_LDEXP */
 
 /**************************************************************************/
 /* Anything below this shouldn't need to be changed unless you're porting
@@ -114,19 +109,15 @@
 #define AMP_BITS (15-GUARD_BITS)
 
 typedef s16_t sample_t;
+typedef s16_t resample_t;
 typedef s32_t final_volume_t;
+
 #define FINAL_VOLUME(v) (v)
 #define MAX_AMP_VALUE ((1<<(AMP_BITS+1))-1)
 
-typedef s16_t resample_t;
 
-#ifdef USE_LDEXP
-#  define FSCALE(a,b) ldexp((a),(b))
-#  define FSCALENEG(a,b) ldexp((a),-(b))
-#else
-#  define FSCALE(a,b) (float)((a) * (double)(1<<(b)))
-#  define FSCALENEG(a,b) (float)((a) * (1.0L / (double)(1<<(b))))
-#endif
+#define FSCALE(a,b) (float)((a) * (double)(1<<(b)))
+#define FSCALENEG(a,b) (float)((a) * (1.0L / (double)(1<<(b))))
 
 /* Vibrato and tremolo Choices of the Day */
 #define SWEEP_TUNING 38
