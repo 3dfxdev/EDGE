@@ -21,6 +21,8 @@
 #include "epi/file.h"
 #include "epi/filesystem.h"
 #include "epi/mus_2_midi.h"
+#include "epi/path.h"
+#include "epi/str_format.h"
 
 #include "timidity/timidity.h"
 
@@ -28,6 +30,7 @@
 #include "s_music.h"
 #include "s_timid.h"
 
+#include "dm_state.h"
 #include "m_misc.h"  // var_timid_factor
 
 
@@ -188,6 +191,136 @@ I_Debugf("StreamIntoBuffer: got %d\n", got_num);
 
 
 //----------------------------------------------------------------------------
+
+static const char *config_base_dirs[] =
+{
+	"$g",   // game_dir
+	"$h",   // home_dir
+	".",    // current directory
+	
+#ifdef WIN32
+	"C:\\",
+	"D:\\",
+#endif
+
+#ifdef LINUX
+	"/usr/local/lib",
+	"/usr/local/share",
+	"/usr/lib",
+	"/usr/share",
+	"/opt",
+#endif
+
+	NULL // the end
+};
+
+static const char *config_sub_dirs[] =
+{
+	".",
+	
+	"8mbgmpat", "8MBGMPAT",
+	"freepats", "Freepats", "FREEPATS",
+	"timidity", "Timidity", "TIMIDITY",
+
+#ifdef WIN32
+	"timidity\\patches",
+#else
+	"timidity/patches",
+#endif
+
+	NULL // end of list
+};
+
+static const char *config_names[] =
+{
+	"timidity.cfg", "Timidity.cfg",
+	"TIMIDITY.cfg", "TIMIDITY.CFG",
+	
+	"crude.cfg", "Crude.cfg",
+	"CRUDE.cfg", "CRUDE.CFG",
+	
+	"freepats.cfg", "Freepats.cfg",
+	"FREEPATS.cfg", "FREEPATS.CFG",
+
+	NULL // the end
+};
+
+
+static const char * FindTimidityConfig(void)
+{
+	I_Debugf("** FindTimidityConfig:\n");
+
+	for (int i = 0; config_base_dirs[i]; i++)
+	{
+		for (int j = 0; config_sub_dirs[i]; i++)
+		{
+			const char *base = config_base_dirs[i];
+			const char *sub  = config_sub_dirs[j];
+				
+			std::string dir;
+
+			if (base[0] == '$' && base[1] == 'g')
+				dir = game_dir;
+			else if (base[0] == '$' && base[1] == 'h')
+				dir = home_dir;
+			else if (base[0] == '.')
+			{ /* leave empty */ } 
+			else
+				dir = std::string(base);
+			
+			if (sub[0] == '.')
+			{ /* no change */ }
+			else if (dir.length() == 0)
+				dir = std::string(sub);
+			else
+				dir = epi::PATH_Join(dir.c_str(), sub);
+			
+			// if the directory does not exist, then there is no
+			// need to proceed (hence saving a LOT of time).
+
+			I_Debugf("TIMID: test directory '%s'\n", dir.c_str());
+
+			if (dir.length() > 0 && ! epi::FS_IsDir(dir.c_str()))
+				continue;
+			
+			for (int k = 0; config_names[k]; k++)
+			{
+				std::string fn;
+
+				if (dir.length() == 0)
+					fn = std::string(config_names[k]);
+				else
+					fn = epi::PATH_Join(dir.c_str(), config_names[k]);
+				
+				I_Debugf("  trying '%s'\n", fn.c_str());
+				
+				if (epi::FS_Access(fn.c_str(), epi::file_c::ACCESS_READ))
+				{
+					I_Debugf("  ^___ EXISTS !\n");
+
+//!!!!!!					return strdup(fn.c_str());
+				}
+			}
+		}
+	}
+
+	I_Printf("tim_player_c: Cannot find Timidity config file!\n");
+	return NULL;
+}
+
+
+bool S_StartupTimidity(void)
+{
+	const char *config_fn = FindTimidityConfig();
+
+	if (! config_fn)
+		return false;
+
+	if (! Timidity_Init(config_fn, dev_freq, dev_stereo ? 2 : 1))
+		return false;
+
+	return true; // OK!
+}
 
 
 abstract_music_c * S_PlayTimidity(byte *data, int length, bool is_mus,
