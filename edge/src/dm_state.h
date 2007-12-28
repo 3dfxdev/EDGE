@@ -128,6 +128,7 @@ extern std::string iwad_base;
 extern std::string cache_dir;
 extern std::string ddf_dir;
 extern std::string game_dir;
+extern std::string home_dir;
 extern std::string save_dir;
 extern std::string shot_dir;
 extern std::string hub_dir;
