@@ -24,8 +24,8 @@
 
 typedef struct MidiEvent_s
 {
-  int32 time;
-  uint8 channel, type, a, b;
+  int time;
+  byte channel, type, a, b;
 }
 MidiEvent;
 
@@ -68,18 +68,36 @@ MidiEvent;
 
 typedef struct
 {
-  int
-    bank, program, volume, sustain, panning, pitchbend, expression, 
-    mono, /* one note only on this channel -- not implemented yet */
-    /* new stuff */
-    variationbank, reverberation, chorusdepth, harmoniccontent,
-    releasetime, attacktime, brightness, kit, sfx,
-    /* end new */
-    pitchsens;
-  double
-    pitchfactor; /* precomputed pitch bend factor to save some fdiv's */
-  char transpose;
-  char *name;
+	int bank;
+	int program;
+	int volume;
+	int sustain;
+	int panning;
+	int pitchbend;
+	int expression; 
+
+	int mono; /* one note only on this channel -- not implemented yet */
+
+	/* new stuff */
+	int variationbank;
+	int reverberation;
+	int chorusdepth;
+	int harmoniccontent;
+
+	int releasetime;
+	int attacktime;
+	int brightness;
+	int kit;
+	int sfx;
+	/* end new */
+
+	int pitchsens;
+
+	double pitchfactor; /* precomputed pitch bend factor to save some fdiv's */
+
+	signed char transpose;
+
+	char *name;
 }
 Channel;
 
@@ -90,45 +108,85 @@ Channel;
 
 typedef struct
 {
-  uint8
-    status, channel, note, velocity, clone_type;
-  Sample *sample;
-  Sample *left_sample;
-  Sample *right_sample;
-  int32 clone_voice;
-  int32
-    orig_frequency, frequency,
-    sample_offset, loop_start, loop_end;
-  int32
-    envelope_volume, modulation_volume;
-  int32
-    envelope_target, modulation_target;
-  int32
-    tremolo_sweep, tremolo_sweep_position, tremolo_phase,
-    lfo_sweep, lfo_sweep_position, lfo_phase,
-    vibrato_sweep, vibrato_sweep_position, vibrato_depth, vibrato_delay,
-    starttime, echo_delay_count;
-  int32
-    echo_delay,
-    sample_increment,
-    envelope_increment,
-    modulation_increment,
-    tremolo_phase_increment,
-    lfo_phase_increment;
-  
-  final_volume_t left_mix, right_mix, lr_mix, rr_mix, ce_mix, lfe_mix;
+	byte status;
+	byte channel;
+	byte note;
+	byte velocity;
+	byte clone_type;
 
-  double
-    left_amp, right_amp, lr_amp, rr_amp, ce_amp, lfe_amp,
-    volume, tremolo_volume, lfo_volume;
-  int32
-    vibrato_sample_increment[VIBRATO_SAMPLE_INCREMENTS];
-  int32
-    envelope_rate[MAXPOINT], envelope_offset[MAXPOINT];
-  int32
-    vibrato_phase, vibrato_control_ratio, vibrato_control_counter,
-    envelope_stage, modulation_stage, control_counter,
-    modulation_delay, modulation_counter, panning, panned;
+	Sample *sample;
+	Sample *left_sample;
+	Sample *right_sample;
+
+	int clone_voice;
+
+	u32_t orig_frequency;
+	u32_t frequency;
+
+	int sample_offset;
+	int loop_start;
+	int loop_end;
+	int envelope_volume;
+	int modulation_volume;
+	int envelope_target;
+	int modulation_target;
+
+	int tremolo_sweep;
+	int tremolo_sweep_position;
+	int tremolo_phase;
+
+	int lfo_sweep;
+	int lfo_sweep_position;
+	int lfo_phase;
+
+	int vibrato_sweep;
+	int vibrato_sweep_position;
+	int vibrato_depth;
+	int vibrato_delay;
+
+	int starttime;
+	int echo_delay_count;
+
+	int echo_delay;
+	int sample_increment;
+	int envelope_increment;
+	int modulation_increment;
+	int tremolo_phase_increment;
+	int lfo_phase_increment;
+
+	final_volume_t left_mix;
+	final_volume_t right_mix;
+	final_volume_t lr_mix;
+	final_volume_t rr_mix;
+	final_volume_t ce_mix;
+	final_volume_t lfe_mix;
+
+	double left_amp;
+	double right_amp;
+	double lr_amp;
+	double rr_amp;
+	double ce_amp;
+	double lfe_amp;
+
+	double volume;
+	double tremolo_volume;
+	double lfo_volume;
+
+	int vibrato_sample_increment[VIBRATO_SAMPLE_INCREMENTS];
+
+	int envelope_rate[MAXPOINT];
+	int envelope_offset[MAXPOINT];
+
+	int vibrato_phase;
+	int vibrato_control_ratio;
+	int vibrato_control_counter;
+	int envelope_stage;
+	int modulation_stage;
+	int control_counter;
+	int modulation_delay;
+	int modulation_counter;
+	int panning;
+	int panned;
 }
 Voice;
 
@@ -157,13 +215,14 @@ Voice;
 
 extern Channel channel[16];
 extern Voice voice[MAX_VOICES];
+
 extern signed char drumvolume[MAXCHAN][MAXNOTE];
 extern signed char drumpanpot[MAXCHAN][MAXNOTE];
 extern signed char drumreverberation[MAXCHAN][MAXNOTE];
 extern signed char drumchorusdepth[MAXCHAN][MAXNOTE];
 
-extern int32 control_ratio, amp_with_poly, amplification;
-extern int32 drumchannels;
+extern int control_ratio, amp_with_poly, amplification;
+extern int drumchannels;
 extern int adjust_panning_immediately;
 extern int voices;
 
