@@ -886,6 +886,7 @@ static specflags_t line_effect_names[] =
 	{"SKEW_TEX",       LINEFX_Skew,          0},
 	{"LIGHT_WALL",     LINEFX_LightWall,     0},
 	{"MIRROR",         LINEFX_Mirror,        0},
+	{"PORTAL",         LINEFX_Portal,        0},
 
 	{"UNBLOCK_THINGS", LINEFX_UnblockThings, 0},
 	{"BLOCK_SHOTS",    LINEFX_BlockShots,    0},
