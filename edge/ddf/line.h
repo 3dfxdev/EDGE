@@ -585,6 +585,9 @@ typedef enum
 
 	// make source line into a Mirror
 	LINEFX_Mirror = (1 << 9),
+
+	// make source line into a Portal
+	LINEFX_Portal = (1 << 10),
 }
 line_effect_type_e;
 
