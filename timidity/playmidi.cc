@@ -41,17 +41,18 @@ static int opt_stereo_surround = 0;
 
 Channel channel[MAXCHAN];
 Voice voice[MAX_VOICES];
+
 signed char drumvolume[MAXCHAN][MAXNOTE];
 signed char drumpanpot[MAXCHAN][MAXNOTE];
 signed char drumreverberation[MAXCHAN][MAXNOTE];
 signed char drumchorusdepth[MAXCHAN][MAXNOTE];
 
-int voices=DEFAULT_VOICES;
-
 int control_ratio=0;
-int amplification=DEFAULT_AMPLIFICATION;
 
-double master_volume;
+static double amplification = 1.0;
+static double master_volume = 1.0;
+static int quiet_factor=1;
+
 
 int drumchannels=DEFAULT_DRUMCHANNELS;
 int adjust_panning_immediately=0;
@@ -88,24 +89,27 @@ final_volume_t * NeedCommonBuf(int count)
 }
 
 
-static void adjust_amplification(void)
+static void adjust_master_volume(int vol)
 { 
-	master_volume = (double)(amplification) / (double)100.0;
-	master_volume /= 2;
+	master_volume = vol * amplification / 16384.0;
+
+	if (quiet_factor == 0)
+		master_volume *= 2.0;
+
+	if (quiet_factor >= 2)
+		master_volume /= (double)(1 << (quiet_factor-1));
 }
 
 
-static void adjust_master_volume(int vol)
+static void adjust_amplification(void)
 { 
-	master_volume = (double)(vol*amplification) / 1638400.0L;
-	master_volume /= 2;
+	adjust_master_volume(16383);
 }
 
 
 static void reset_voices(void)
 {
-	int i;
-	for (i=0; i<MAX_VOICES; i++)
+	for (int i=0; i < MAX_VOICES; i++)
 		voice[i].status=VOICE_FREE;
 }
 
@@ -251,9 +255,8 @@ static void recompute_freq(int v)
 		/* This instrument has vibrato. Invalidate any precomputed
 		   sample_increments. */
 
-		int i=VIBRATO_SAMPLE_INCREMENTS;
-		while (i--)
-			voice[v].vibrato_sample_increment[i]=0;
+		for (int i=0; i < VIBRATO_SAMPLE_INCREMENTS; i++)
+			voice[v].vibrato_sample_increment[i] = 0;
 	}
 
 	if (pb==0x2000 || pb<0 || pb>0x3FFF)
@@ -378,16 +381,14 @@ static void recompute_amp(int v)
 			voice[v].panned = PANNED_LEFT;
 
 			voice[v].left_amp=
-				FSCALENEG((double)(tempamp) * voice[v].sample->volume * master_volume,
-						20);
+				FSCALENEG((double)(tempamp) * voice[v].sample->volume * master_volume, 20);
 		}
 		else if (panning>123)
 		{
 			voice[v].panned = PANNED_RIGHT;
 
 			voice[v].left_amp= /* left_amp will be used */
-				FSCALENEG((double)(tempamp) * voice[v].sample->volume * master_volume,
-						20);
+				FSCALENEG((double)(tempamp) * voice[v].sample->volume * master_volume, 20);
 		}
 		else
 		{
@@ -431,8 +432,7 @@ static void recompute_amp(int v)
 		voice[v].panned=PANNED_CENTER;
 
 		voice[v].left_amp=
-			FSCALENEG((double)(tempamp) * voice[v].sample->volume * master_volume,
-					21);
+			FSCALENEG((double)(tempamp) * voice[v].sample->volume * master_volume, 21);
 	}
 }
 
@@ -446,9 +446,7 @@ static void recompute_amp(int v)
 /* just a variant of note_on() */
 static int vc_alloc(int j)
 {
-	int i=voices; 
-
-	while (i--)
+	for (int i=0; i < MAX_VOICES; i++)
 	{
 		if (i == j)
 			continue;
@@ -463,18 +461,25 @@ static void kill_note(int i);
 
 static void kill_others(int i)
 {
-	int j=voices; 
+	if (!voice[i].sample->exclusiveClass)
+		return;
 
-	if (!voice[i].sample->exclusiveClass) return;
-
-	while (j--)
+	for (int j=0; j < MAX_VOICES; j++)
 	{
-		if (voice[j].status & (VOICE_FREE|VOICE_OFF|VOICE_DIE)) continue;
-		if (i == j) continue;
-		if (voice[i].channel != voice[j].channel) continue;
+		if (voice[j].status & (VOICE_FREE|VOICE_OFF|VOICE_DIE))
+			continue;
+
+		if (i == j)
+			continue;
+
+		if (voice[i].channel != voice[j].channel)
+			continue;
+
 		if (voice[j].sample->note_to_use)
 		{
-			if (voice[j].sample->exclusiveClass != voice[i].sample->exclusiveClass) continue;
+			if (voice[j].sample->exclusiveClass != voice[i].sample->exclusiveClass)
+				continue;
+
 			kill_note(j);
 		}
 	}
@@ -1035,6 +1040,7 @@ static void start_note(MidiEvent *e, int i)
 
 	recompute_freq(i);
 	recompute_amp(i);
+
 	if (voice[i].sample->modes & MODES_ENVELOPE)
 	{
 		/* Ramp up from 0 */
@@ -1059,19 +1065,22 @@ static void start_note(MidiEvent *e, int i)
 
 static void kill_note(int i)
 {
-	voice[i].status=VOICE_DIE;
-	if (voice[i].clone_voice >= 0)
-		voice[ voice[i].clone_voice ].status=VOICE_DIE;
+	voice[i].status = VOICE_DIE;
+
+	int v = voice[i].clone_voice;
+	if (v >= 0)
+		voice[v].status = VOICE_DIE;
 }
 
 
 /* Only one instance of a note can be playing on a single channel. */
 static void note_on(MidiEvent *e)
 {
-	int i=voices, lowest=-1; 
-	int lv=0x7FFFFFFF, v;
+	int i, v;
+	int lowest=-1; 
+	int lv = 0x7FFFFFFF;
 
-	while (i--)
+	for (i=0; i < MAX_VOICES; i++)
 	{
 		if (voice[i].status == VOICE_FREE)
 			lowest=i; /* Can't get a lower volume than silence */
@@ -1087,38 +1096,20 @@ static void note_on(MidiEvent *e)
 		return;
 	}
 
-#if 0
-	/* Look for the decaying note with the lowest volume */
-	i=voices;
-	while (i--)
-	{
-		if (voice[i].status & ~(VOICE_ON | VOICE_DIE | VOICE_FREE))
-		{
-			v=voice[i].left_mix;
-			if ((voice[i].panned==PANNED_MYSTERY) && (voice[i].right_mix>v))
-				v=voice[i].right_mix;
-			if (v<lv)
-			{
-				lv=v;
-				lowest=i;
-			}
-		}
-	}
-#endif
-
 	/* Look for the decaying note with the lowest volume */
 	if (lowest==-1)
 	{
-		i=voices;
-		while (i--)
+		for (i=0; i < MAX_VOICES; i++)
 		{
 			if ( (voice[i].status & ~(VOICE_ON | VOICE_DIE | VOICE_FREE)) &&
 					(!voice[i].clone_type))
 			{
 				v=voice[i].left_mix;
+
 				if ((voice[i].panned==PANNED_MYSTERY) && (voice[i].right_mix>v))
 					v=voice[i].right_mix;
-				if (v<lv)
+
+				if (v < lv)
 				{
 					lv=v;
 					lowest=i;
@@ -1139,7 +1130,7 @@ static void note_on(MidiEvent *e)
 		if (cl >= 0)
 		{
 			if (voice[cl].clone_type==STEREO_CLONE ||
-					(!voice[cl].clone_type && voice[lowest].clone_type==STEREO_CLONE))
+				(!voice[cl].clone_type && voice[lowest].clone_type==STEREO_CLONE))
 			{
 				voice[cl].status=VOICE_FREE;
 			}
@@ -1162,6 +1153,7 @@ static void finish_note(int i)
 		/* We need to get the envelope out of Sustain stage */
 		voice[i].envelope_stage=3;
 		voice[i].status=VOICE_OFF;
+
 		recompute_envelope(i);
 		apply_envelope_to_amp(i);
 	}
@@ -1173,127 +1165,134 @@ static void finish_note(int i)
 		voice[i].status=VOICE_OFF;
 	}
 
-	{ int v;
-		if ( (v=voice[i].clone_voice) >= 0)
-		{
-			voice[i].clone_voice = -1;
-			finish_note(v);
-		}
+	int v = voice[i].clone_voice;
+	if (v >= 0)
+	{
+		voice[i].clone_voice = -1;
+		finish_note(v);
 	}
 }
 
 static void note_off(MidiEvent *e)
 {
-	int i=voices, v;
-	while (i--)
-		if (voice[i].status==VOICE_ON &&
-				voice[i].channel==e->channel &&
-				voice[i].note==e->a)
+	for (int i=0; i < MAX_VOICES; i++)
+	{
+		if (voice[i].status == VOICE_ON &&
+			voice[i].channel == e->channel &&
+			voice[i].note == e->a)
 		{
 			if (channel[e->channel].sustain)
 			{
 				voice[i].status=VOICE_SUSTAINED;
 
-				if ( (v=voice[i].clone_voice) >= 0)
+				int v = voice[i].clone_voice;
+				if (v >= 0)
 				{
 					if (voice[v].status == VOICE_ON)
-						voice[v].status=VOICE_SUSTAINED;
+						voice[v].status = VOICE_SUSTAINED;
 				}
 			}
 			else
 				finish_note(i);
-			return;
+
+			return;  // found the one we wanted
 		}
+	}
 }
 
 /* Process the All Notes Off event */
-static void all_notes_off(int c)
+static void all_notes_off(int chan)
 {
-	int i=voices;
-	ctl_msg(CMSG_INFO, VERB_DEBUG, "All notes off on channel %d", c);
-	while (i--)
-		if (voice[i].status==VOICE_ON &&
-				voice[i].channel==c)
+	ctl_msg(CMSG_INFO, VERB_DEBUG, "All notes off on channel %d", chan);
+
+	for (int i=0; i < MAX_VOICES; i++)
+	{
+		if (voice[i].status==VOICE_ON && voice[i].channel == chan)
 		{
-			if (channel[c].sustain) 
-			{
-				voice[i].status=VOICE_SUSTAINED;
-			}
+			if (channel[chan].sustain) 
+				voice[i].status = VOICE_SUSTAINED;
 			else
 				finish_note(i);
 		}
+	}
 }
 
 /* Process the All Sounds Off event */
-static void all_sounds_off(int c)
+static void all_sounds_off(int chan)
 {
-	int i=voices;
-	while (i--)
-		if (voice[i].channel==c && 
-				voice[i].status != VOICE_FREE &&
-				voice[i].status != VOICE_DIE)
+	for (int i=0; i < MAX_VOICES; i++)
+	{
+		if (voice[i].channel == chan && 
+			voice[i].status != VOICE_FREE &&
+			voice[i].status != VOICE_DIE)
 		{
 			kill_note(i);
 		}
+	}
 }
 
 static void adjust_pressure(MidiEvent *e)
 {
-	int i=voices;
-	while (i--)
-		if (voice[i].status==VOICE_ON &&
-				voice[i].channel==e->channel &&
-				voice[i].note==e->a)
+	for (int i=0; i < MAX_VOICES; i++)
+	{
+		if (voice[i].status == VOICE_ON &&
+			voice[i].channel == e->channel &&
+			voice[i].note == e->a)
 		{
 			voice[i].velocity=e->b;
 			recompute_amp(i);
 			apply_envelope_to_amp(i);
-			return;
+
+			return;  // found the one we wanted
 		}
+	}
 }
 
-static void adjust_panning(int c)
+static void adjust_panning(int chan)
 {
-	int i=voices;
-	while (i--)
-		if ((voice[i].channel==c) &&
-				(voice[i].status==VOICE_ON || voice[i].status==VOICE_SUSTAINED))
+	for (int i=0; i < MAX_VOICES; i++)
+	{
+		if ((voice[i].channel == chan) &&
+			(voice[i].status==VOICE_ON || voice[i].status==VOICE_SUSTAINED))
 		{
-			if (voice[i].clone_type != NOT_CLONE) continue;
-			voice[i].panning=channel[c].panning;
+			if (voice[i].clone_type != NOT_CLONE)
+				continue;
+
+			voice[i].panning = channel[chan].panning;
 			recompute_amp(i);
 			apply_envelope_to_amp(i);
 		}
+	}
 }
 
-static void drop_sustain(int c)
+static void drop_sustain(int chan)
 {
-	int i=voices;
-	while (i--)
-		if (voice[i].status==VOICE_SUSTAINED && voice[i].channel==c)
+	for (int i=0; i < MAX_VOICES; i++)
+		if (voice[i].status == VOICE_SUSTAINED && voice[i].channel == chan)
 			finish_note(i);
 }
 
-static void adjust_pitchbend(int c)
+static void adjust_pitchbend(int chan)
 {
-	int i=voices;
-	while (i--)
-		if (voice[i].status!=VOICE_FREE && voice[i].channel==c)
-		{
+	for (int i=0; i < MAX_VOICES; i++)
+	{
+		if (voice[i].status != VOICE_FREE && voice[i].channel == chan)
 			recompute_freq(i);
-		}
+	}
 }
 
 
 static void adjust_volume(int chan)
 {
-	for (int i=0; i < voices; i++)
-		if (voice[i].channel==chan &&
-				(voice[i].status==VOICE_ON || voice[i].status==VOICE_SUSTAINED))
+	for (int i=0; i < MAX_VOICES; i++)
+	{
+		if (voice[i].channel == chan &&
+			(voice[i].status==VOICE_ON || voice[i].status==VOICE_SUSTAINED))
 		{
 			recompute_amp(i);
 			apply_envelope_to_amp(i);
 		}
+	}
 }
 
 
@@ -1303,7 +1302,7 @@ I_Debugf("    do_compute_data: %d\n", count);
 
 	memset(buffer_pointer, 0, count * num_ochannels * sizeof(final_volume_t));
 
-	for (int i=0; i<voices; i++)
+	for (int i=0; i<MAX_VOICES; i++)
 	{
 		if (voice[i].status != VOICE_FREE)
 		{
@@ -1512,30 +1511,32 @@ I_Debugf("\nTimidity_PlaySome: samples=%d\n", samples);
 }
 
 
-void Timidity_SetVolume(int volume)
+static void do_recompute_amps(void)
 {
-	int i;
-	if (volume > MAX_AMPLIFICATION)
-		amplification=MAX_AMPLIFICATION;
-	else
-		if (volume < 0)
-			amplification=0;
-		else
-			amplification=volume;
-	
-	adjust_amplification();
-	
-	for (i=0; i<voices; i++)
+	for (int i=0; i < MAX_VOICES; i++)
+	{
 		if (voice[i].status != VOICE_FREE)
 		{
 			recompute_amp(i);
 			apply_envelope_to_amp(i);
 		}
+	}
+}
+
+void Timidity_SetVolume(int volume)
+{
+	amplification = CLAMP(0, volume, 1);
+	
+	adjust_amplification();
+	do_recompute_amps();
 }
 
 void Timidity_QuietFactor(int factor)
 {
-	// TODO !!!!! Timidity_QuietFactor
+	quiet_factor = factor;
+
+	adjust_amplification();
+	do_recompute_amps();
 }
 
 void Timidity_Start(struct MidiSong *song)

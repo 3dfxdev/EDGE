@@ -221,10 +221,9 @@ extern signed char drumpanpot[MAXCHAN][MAXNOTE];
 extern signed char drumreverberation[MAXCHAN][MAXNOTE];
 extern signed char drumchorusdepth[MAXCHAN][MAXNOTE];
 
-extern int control_ratio, amp_with_poly, amplification;
+extern int control_ratio, amp_with_poly;
 extern int drumchannels;
 extern int adjust_panning_immediately;
-extern int voices;
 
 #define ISDRUMCHANNEL(c) ((drumchannels & (1<<(c))))
 
