@@ -29,7 +29,7 @@
 #include "ctrlmode.h"
 #include "timidity.h"
 
-int32 quietchannels=0;
+int quietchannels=0;
 
 
 static int track_info, curr_track, curr_title_track;
@@ -44,8 +44,8 @@ static char title[128];
 
 /* to avoid some unnecessary parameter passing */
 static MidiEventList *evlist;
-static int32 event_count;
-static int32 at;
+static int event_count;
+static int at;
 
 static const byte *song_data;
 static int song_len;
@@ -82,47 +82,53 @@ static int do_read(void *ptr, int size, int maxnum)
 
 /* These would both fit into 32 bits, but they are often added in
    large multiples, so it's simpler to have two roomy ints */
-static int32 sample_increment, sample_correction; /*samples per MIDI delta-t*/
+static int sample_increment, sample_correction; /*samples per MIDI delta-t*/
 
 /* Computes how many (fractional) samples one MIDI delta-time unit contains */
-static void compute_sample_increment(int32 tempo, int32 divisions)
+static void compute_sample_increment(int tempo, int divisions)
 {
 	double a;
 	a = (double) (tempo) * (double) (play_mode_rate) * (65536.0/1000000.0) /
 		(double)(divisions);
 
-	sample_correction = (int32)(a) & 0xFFFF;
-	sample_increment = (int32)(a) >> 16;
+	sample_correction = (int)(a) & 0xFFFF;
+	sample_increment = (int)(a) >> 16;
 
 	ctl_msg(CMSG_INFO, VERB_DEBUG, "Samples per delta-t: %d (correction %d)",
 			sample_increment, sample_correction);
 }
 
 /* Read variable-length number (7 bits per byte, MSB first) */
-static int32 getvl(void)
+static int getvl(void)
 {
-	int32 l=0;
-	uint8 c;
+	int val=0;
+
 	for (;;)
 	{
+		byte c=0;
 		do_read(&c,1,1);
-		l += (c & 0x7f);
-		if (!(c & 0x80)) return l;
-		l<<=7;
+
+		val += (c & 0x7f);
+		
+		if ((c & 0x80) == 0)
+			return val;
+
+		val <<= 7;
 	}
 }
 
 
-static int sysex(uint32 len, uint8 *syschan, uint8 *sysa, uint8 *sysb)
+static int sysex(int len, byte *syschan, byte *sysa, byte *sysb)
 {
-	unsigned char *s=(unsigned char *)safe_malloc(len);
+	unsigned char *s = (unsigned char *)safe_malloc(len);
 	int id, model, ch, port, adhi, adlo, cd, dta, dtb, dtc;
-	if (len != (uint32)do_read(s, 1, len))
+
+	if (len != do_read(s, 1, len))
 	{
 		free(s);
 		return 0;
 	}
-	if (len<5) { free(s); return 0; }
+	if (len < 5) { free(s); return 0; }
 
 	if (curr_track == curr_title_track && track_info > 1) title[0] = '\0';
 
@@ -136,7 +142,7 @@ static int sysex(uint32 len, uint8 *syschan, uint8 *sysa, uint8 *sysb)
 		return 0;
 	}
 	ch = adlo & 0x0f;
-	*syschan=(uint8)ch;
+	*syschan=(byte)ch;
 
 	if (id==0x7f && len==7 && port==0x7f && model==0x04 && adhi==0x01)
 	{
@@ -150,7 +156,7 @@ static int sysex(uint32 len, uint8 *syschan, uint8 *sysa, uint8 *sysb)
 	if (len<8) { free(s); return 0; }
 	port &=0x0f;
 	ch = (adlo & 0x0f) | ((port & 0x03) << 4);
-	*syschan=(uint8)ch;
+	*syschan=(byte)ch;
 	cd=s[5]; dta=s[6];
 	
 	if (len >= 8)
@@ -296,11 +302,11 @@ static int sysex(uint32 len, uint8 *syschan, uint8 *sysa, uint8 *sysb)
 
 /* Print a string from the file, followed by a newline. Any non-ASCII
    or unprintable characters will be converted to periods. */
-static int dumpstring(int32 len, char *label)
+static int dumpstring(int len, char *label)
 {
 	signed char *s = (signed char *)safe_malloc(len+1);
 
-	if (len != (int32)do_read(s, 1, len))
+	if (len != (int)do_read(s, 1, len))
 	{
 		free(s);
 		return -1;
@@ -328,10 +334,10 @@ static int dumpstring(int32 len, char *label)
    be linked to the event list */
 static MidiEventList *read_midi_event(void)
 {
-	static uint8 laststatus, lastchan;
-	static uint8 nrpn=0, rpn_msb[16], rpn_lsb[16]; /* one per channel */
-	uint8 me, type, a,b,c;
-	int32 len;
+	static byte laststatus, lastchan;
+	static byte nrpn=0, rpn_msb[16], rpn_lsb[16]; /* one per channel */
+	byte me, type, a,b,c;
+	int len;
 	MidiEventList *noob;
 
 	for (;;)
@@ -345,8 +351,8 @@ static MidiEventList *read_midi_event(void)
 
 		if (me==0xF0 || me == 0xF7) /* SysEx event */
 		{
-			int32 sret;
-			uint8 sysa=0, sysb=0, syschan=0;
+			int sret;
+			byte sysa=0, sysb=0, syschan=0;
 
 			len=getvl();
 			sret=sysex(len, &syschan, &sysa, &sysb);
@@ -582,7 +588,7 @@ static int read_track(int append)
 {
 	MidiEventList *meep;
 	MidiEventList *next, *noob;
-	int32 len;
+	int len;
 	char tmp[4];
 
 	meep=evlist;
@@ -682,12 +688,12 @@ static void xremap_percussion(int *banknumpt, int *this_notept, int this_kit)
    samples: handle tempo changes. Strip unnecessary events from the list.
    Free the linked list.
  */
-static MidiEvent *groom_list(int32 divisions,int32 *eventsp,int32 *samplesp)
+static MidiEvent *groom_list(int divisions,int *eventsp,int *samplesp)
 {
 	MidiEvent *groomed_list, *lp;
 	MidiEventList *meep;
-	int32 i, our_event_count, tempo, skip_this_event, new_value;
-	int32 sample_cum, samples_to_do, at, st, dt, counting_time;
+	int i, our_event_count, tempo, skip_this_event, new_value;
+	int sample_cum, samples_to_do, at, st, dt, counting_time;
 
 	int current_bank[MAXCHAN], current_banktype[MAXCHAN], current_set[MAXCHAN],
 		current_kit[MAXCHAN], current_program[MAXCHAN];
@@ -986,10 +992,10 @@ static MidiEvent *groom_list(int32 divisions,int32 *eventsp,int32 *samplesp)
 }
 
 
-static MidiEvent *read_midi_file(int32 *sp)
+static MidiEvent *read_midi_file(int *sp)
 {
-	int32 len, divisions;
-	int16 format, tracks, divisions_tmp;
+	int len, divisions;
+	s16_t format, tracks, divisions_tmp;
 	int i;
 	char tmp[4];
 
@@ -1052,11 +1058,10 @@ past_riff:
 	if (divisions_tmp<0)
 	{
 		/* SMPTE time -- totally untested. Got a MIDI file that uses this? */
-		divisions=
-			(int32)(-(divisions_tmp/256)) * (int32)(divisions_tmp & 0xFF);
+		divisions = (int)(-(divisions_tmp/256)) * (int)(divisions_tmp & 0xFF);
 	}
 	else
-		divisions=(int32)(divisions_tmp);
+		divisions = (int)(divisions_tmp);
 
 	if (len > 6)
 	{
@@ -1109,7 +1114,7 @@ past_riff:
 				break;
 	}
 
-	int32 count;
+	int count;
 
 	return groom_list(divisions, &count, sp);
 }

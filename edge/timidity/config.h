@@ -110,13 +110,6 @@
 /* This is enforced by some computations that must fit in an int */
 #define MAX_CONTROL_RATIO 255
 
-typedef unsigned int uint32;
-typedef int int32; 
-typedef unsigned short uint16;
-typedef short int16;
-typedef unsigned char uint8;
-typedef char int8;
-
 #define MAX_AMPLIFICATION 800
 
 /* You could specify a complete path, e.g. "/etc/timidity.cfg", and
@@ -135,14 +128,12 @@ typedef char int8;
 #define GUARD_BITS 4
 #define AMP_BITS (15-GUARD_BITS)
 
-#if 1
-   typedef int16 sample_t;
-   typedef int32 final_volume_t;
-#  define FINAL_VOLUME(v) (v)
-#  define MAX_AMP_VALUE ((1<<(AMP_BITS+1))-1)
-#endif
+typedef s16_t sample_t;
+typedef s32_t final_volume_t;
+#define FINAL_VOLUME(v) (v)
+#define MAX_AMP_VALUE ((1<<(AMP_BITS+1))-1)
 
-typedef int16 resample_t;
+typedef s16_t resample_t;
 
 #ifdef USE_LDEXP
 #  define FSCALE(a,b) ldexp((a),(b))

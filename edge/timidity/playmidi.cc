@@ -73,7 +73,7 @@ int XG_System_chorus_type;
 int XG_System_variation_type;
 
 
-int32 * NeedCommonBuf(int count)
+final_volume_t * NeedCommonBuf(int count)
 {
 	if (count > common_buf_size)
 	{
@@ -81,7 +81,7 @@ int32 * NeedCommonBuf(int count)
 			free(common_buffer);
 
 		common_buf_size = count;
-		common_buffer = (s32_t *)safe_malloc(common_buf_size * sizeof(s32_t) + 100);
+		common_buffer = (final_volume_t *)safe_malloc(common_buf_size * sizeof(final_volume_t) + 100);
 	}
 
 	return common_buffer;
@@ -95,7 +95,7 @@ static void adjust_amplification(void)
 }
 
 
-static void adjust_master_volume(int32 vol)
+static void adjust_master_volume(int vol)
 { 
 	master_volume = (double)(vol*amplification) / 1638400.0L;
 	master_volume /= 2;
@@ -148,7 +148,7 @@ static void reset_midi(void)
 
 static void select_sample(int v, Instrument *ip)
 {
-	int32 f, cdiff, diff, midfreq;
+	int f, cdiff, diff, midfreq;
 	int s,i;
 	Sample *sp, *closest;
 
@@ -264,7 +264,7 @@ static void recompute_freq(int v)
 		if (!(channel[voice[v].channel].pitchfactor))
 		{
 			/* Damn. Somebody bent the pitch. */
-			int32 i=pb*channel[voice[v].channel].pitchsens;
+			int i=pb*channel[voice[v].channel].pitchsens;
 			if (pb<0)
 				i=-i;
 			channel[voice[v].channel].pitchfactor=
@@ -272,11 +272,11 @@ static void recompute_freq(int v)
 		}
 		if (pb>0)
 			voice[v].frequency=
-				(int32)(channel[voice[v].channel].pitchfactor *
+				(int)(channel[voice[v].channel].pitchfactor *
 						(double)(voice[v].orig_frequency));
 		else
 			voice[v].frequency=
-				(int32)((double)(voice[v].orig_frequency) /
+				(int)((double)(voice[v].orig_frequency) /
 						channel[voice[v].channel].pitchfactor);
 	}
 
@@ -289,7 +289,7 @@ static void recompute_freq(int v)
 	if (sign) 
 		a = -a; /* need to preserve the loop direction */
 
-	voice[v].sample_increment = (int32)(a);
+	voice[v].sample_increment = (int)(a);
 }
 
 static int expr_curve[128] =
@@ -332,7 +332,7 @@ static int vcurve[128] =
 
 static void recompute_amp(int v)
 {
-	int32 tempamp;
+	int tempamp;
 	int chan = voice[v].channel;
 	int panning = voice[v].panning;
 	int vol = channel[chan].volume;
@@ -356,7 +356,7 @@ static void recompute_amp(int v)
 	else if (opt_volume_curve == 1) curved_volume = 127.0 * expr_table[vol];
 	else curved_volume = (double)vol;
 
-	tempamp= (int32)((double)vel * curved_volume * curved_expression); /* 21 bits */
+	tempamp= (int)((double)vel * curved_volume * curved_expression); /* 21 bits */
 
 	/* TODO: use fscale */
 
@@ -821,7 +821,7 @@ static void start_note(MidiEvent *e, int i)
 	Instrument *ip;
 	int j, banknum, ch=e->channel;
 	int played_note, drumpan=NO_PANNING;
-	int32 rt;
+	int rt;
 	int attacktime, releasetime, decaytime, variationbank;
 	int brightness = channel[ch].brightness;
 	int harmoniccontent = channel[ch].harmoniccontent;
@@ -1069,7 +1069,7 @@ static void kill_note(int i)
 static void note_on(MidiEvent *e)
 {
 	int i=voices, lowest=-1; 
-	int32 lv=0x7FFFFFFF, v;
+	int lv=0x7FFFFFFF, v;
 
 	while (i--)
 	{
@@ -1297,11 +1297,11 @@ static void adjust_volume(int chan)
 }
 
 
-static void do_compute_data(int32 *buffer_pointer, int count)
+static void do_compute_data(final_volume_t *buffer_pointer, int count)
 {
 I_Debugf("    do_compute_data: %d\n", count);
 
-	memset(buffer_pointer, 0, count * num_ochannels * sizeof(int32));
+	memset(buffer_pointer, 0, count * num_ochannels * sizeof(final_volume_t));
 
 	for (int i=0; i<voices; i++)
 	{
@@ -1498,7 +1498,7 @@ I_Debugf("\nTimidity_PlaySome: samples=%d\n", samples);
 		int count = MIN(current_event->time, end_sample) - current_sample;
 		SYS_ASSERT(count > 0);
 
-		int32 *buffer_pointer = NeedCommonBuf(count * num_ochannels);
+		final_volume_t *buffer_pointer = NeedCommonBuf(count * num_ochannels);
 
 		do_compute_data(buffer_pointer, count);
 
