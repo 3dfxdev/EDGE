@@ -133,7 +133,7 @@ FILE *open_file(const char *name, int decompress, int noise_mode)
 #endif
 
   plp=pathlist;
-  if (name[0] != PATH_SEP)
+  if (name[0] != DIRSEPARATOR)
     while (plp)  /* Try along the path then */
       {
 	*current_filename=0;
@@ -141,8 +141,11 @@ FILE *open_file(const char *name, int decompress, int noise_mode)
 	if(l)
 	  {
 	    strcpy(current_filename, plp->path);
-	    if(current_filename[l-1]!=PATH_SEP)
-	      strcat(current_filename, PATH_STRING);
+	    if (current_filename[l-1] != DIRSEPARATOR)
+		{
+			current_filename[l-1] = DIRSEPARATOR;
+			current_filename[l] = 0;
+		}
 	  }
 	strcat(current_filename, name);
 	ctl_msg(CMSG_INFO, VERB_DEBUG, "Trying to open %s", current_filename);
