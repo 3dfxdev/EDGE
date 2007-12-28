@@ -324,7 +324,8 @@ static int read_config_file(const char *name)
 	return 0;
 }
 
-int Timidity_Init(int rate, int channels)
+
+bool Timidity_Init(const char *conf_file, int rate, int channels)
 {
 	switch (channels)
 	{
@@ -333,21 +334,13 @@ int Timidity_Init(int rate, int channels)
 			break;
 
 		default:
-			return(-1);
+			return false;
 	}
 
 	num_ochannels = channels;
 
-	if (read_config_file(CONFIG_FILE)<0)
-	{
-		if (read_config_file(CONFIG_FILE_ETC)<0)
-		{
-			if (read_config_file(CONFIG_FILE_ETC_TIMIDITY)<0)
-			{
-				return(-1);
-			}
-		}
-	}
+	if (read_config_file(conf_file) < 0)
+		return false;
 
 	/* Set play mode parameters */
 	play_mode_rate = rate;
@@ -358,7 +351,7 @@ int Timidity_Init(int rate, int channels)
 		play_mode_encoding |= PE_MONO;
 	} 
 
-	// EDGE's blitter only needs s32_t samples
+	// EDGE's blitter only needs s32_t samples.
 	s32tobuf = s32tos16;
 
 	if (!control_ratio)
@@ -370,7 +363,7 @@ int Timidity_Init(int rate, int channels)
 	if (*def_instr_name)
 		set_default_instrument(def_instr_name);
 
-	return(0);
+	return true; // OK
 }
 
 #if 0  // NOT USED

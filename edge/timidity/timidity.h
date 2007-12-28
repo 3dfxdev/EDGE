@@ -22,7 +22,7 @@
 #ifndef __TIMIDITY_API_H__
 #define __TIMIDITY_API_H__
 
-extern int  Timidity_Init(int rate, int channels);
+extern bool Timidity_Init(const char *conf_file, int rate, int channels);
 extern void Timidity_Close(void);
 
 extern struct MidiSong *Timidity_LoadSong(const byte *data, int length);
