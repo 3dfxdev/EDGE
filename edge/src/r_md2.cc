@@ -776,7 +776,7 @@ static inline void ModelCoordFunc(model_coord_data_t *data,
 	float y1 = LerpIt(vert1->y, vert2->y, data->lerp);
 	float z1 = LerpIt(vert1->z, vert2->z, data->lerp) + data->bias;
 
-	if (num_active_mirrors % 2)
+	if (MIR_Reflective())
 		y1 = -y1;
 
 	data->CalcPos(pos, x1, y1, z1);
@@ -860,7 +860,7 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 	if (mo->hyperflags & HF_NOZBUFFER)
 		blending |= BL_NoZBuf;
 
-	if (num_active_mirrors % 2)
+	if (MIR_Reflective())
 		blending |= BL_CullFront;
 	else
 		blending |= BL_CullBack;

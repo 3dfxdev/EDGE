@@ -586,7 +586,7 @@ static const image_c * R2_GetThingSprite2(mobj_t *mo, float mx, float my, bool *
 
 		ang = from_view - ang + ANG180;
 
-		if (num_active_mirrors % 2)
+		if (MIR_Reflective())
 			ang = (angle_t)0 - ang;
 
 		if (frame->rots == 16)
@@ -599,7 +599,7 @@ static const image_c * R2_GetThingSprite2(mobj_t *mo, float mx, float my, bool *
 
 	(*flip) = frame->flip[rot] ? true : false;
 
-	if (num_active_mirrors % 2)
+	if (MIR_Reflective())
 		(*flip) = !(*flip);
 
 	if (! frame->images[rot])
