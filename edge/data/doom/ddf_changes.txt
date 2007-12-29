@@ -8,6 +8,9 @@ EDGE DDF 5.6: (????-??-??)
 
 3) LINES.DDF: added new PORTAL types (480 to 484).
 
+4) LINES.DDF: added more types (542 to 559) for Thin Sliding Doors,
+              ones that are remotely activated (switch and walk).
+
 
 EDGE DDF 5.5: (2007-12-01)
 ==========================
