@@ -461,10 +461,6 @@ static void P_LineEffect(line_t *target, line_t *source,
 		target->side[1]->middle.translucency = 0.5f;
 	}
 
-	if ((special->line_effect & LINEFX_Mirror) && !source->side[1])
-	{
-		source->flags |= MLF_Mirror;
-	}
 
 	if (special->line_effect & LINEFX_VectorScroll)
 	{
@@ -666,6 +662,89 @@ static void P_SectorEffect(sector_t *target, line_t *source,
 		target->ceil.offset.x *= factor;
 		target->ceil.offset.y *= factor;
 	}
+}
+
+static void P_PortalEffect(line_t *ld)
+{
+	// already linked?
+	if (ld->portal_pair)
+		return;
+
+	if (ld->side[1])
+	{
+		I_Warning("Portal on line #%d disabled: Not one-sided!\n", ld - lines);
+		return;
+	}
+
+	if (ld->special->portal_effect == PORTFX_Mirror)
+	{
+		ld->flags |= MLF_Mirror;
+		return;
+	}
+
+	if (ld->tag <= 0)
+	{
+		I_Warning("Portal on line #%d disabled: Missing tag.\n", ld - lines);
+		return;
+	}
+
+	bool is_camera = (ld->special->portal_effect == PORTFX_Camera);
+
+	for (int i=0; i < numlines; i++)
+	{
+		line_t *other = lines + i;
+
+		if (other == ld)
+			continue;
+
+		if (other->tag != ld->tag)
+			continue;
+
+		if (other->portal_pair)
+		{
+			I_Warning("Portal on line #%d disabled: Partner already a portal.\n", ld - lines);
+			return;
+		}
+
+		if (is_camera)
+		{
+			// camera are much less restrictive than pass-able portals
+			// (they are also one-way).
+
+			ld->portal_pair = other;
+			return;
+		}
+
+		if (other->side[1])
+		{
+			I_Warning("Portal on line #%d disabled: Partner not one-sided.\n", ld - lines);
+			return;
+		}
+
+		if (other->frontsector != ld->frontsector)
+		{
+			I_Warning("Portal on line #%d disabled: Partner not in same sector.\n", ld - lines);
+			return;
+		}
+
+		float len_ratio = ld->length / other->length;
+
+		if (len_ratio < 0.95f || len_ratio > 1.05f)
+		{
+			I_Warning("Portal on line #%d disabled: Partner is different length.\n", ld - lines);
+			return;
+		}
+
+		ld->portal_pair = other;
+		other->portal_pair = ld;
+
+		// let renderer (etc) know the portal information
+		other->special = ld->special;
+
+		return; // Success !!
+	}
+
+	I_Warning("Portal on line #%d disabled: Cannot find partner!\n", ld - lines);
 }
 
 //
@@ -1621,6 +1700,12 @@ void P_SpawnSpecials(int autotag)
 
 		if (PERCENT_2_FLOAT(special->translucency) <= 0.99f && lines[i].side[1])
 			lines[i].side[1]->middle.translucency = PERCENT_2_FLOAT(special->translucency);
+
+			// -AJA- 2007/12/29: Portal effects
+		if (special->portal_effect != PORTFX_None)
+		{
+			P_PortalEffect(&lines[i]);
+		}
 
 		if (special->autoline)
 		{
