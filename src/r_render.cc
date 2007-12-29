@@ -56,8 +56,6 @@
 
 #include "n_network.h"  // N_NetUpdate
 
-#include "r_texgl.h" ///!!!!
-#include "epi/image_data.h"
 
 #define DEBUG  0
 
@@ -190,7 +188,61 @@ public:
 		tc = seg->angle << 1;
 	}
 
-	void Flip(float& x, float& y)
+	void ComputePortal()
+	{
+		seg_t  *seg   = def->seg;
+		line_t *other = seg->linedef->portal_pair;
+
+		SYS_ASSERT(other);
+			
+		float ax1 = seg->v1->x;
+		float ay1 = seg->v1->y;
+
+		float ax2 = seg->v2->x;
+		float ay2 = seg->v2->y;
+
+
+		// find corresponding coords on partner line
+		float along1 = GetAlong(seg->linedef, ax1, ay1);
+		float along2 = GetAlong(seg->linedef, ax2, ay2);
+
+		float bx1 = other->v2->x - other->dx * along1;
+		float by1 = other->v2->y - other->dy * along1;
+
+		float bx2 = other->v2->x - other->dx * along2;
+		float by2 = other->v2->y - other->dy * along2;
+
+		
+		// compute rotation angle
+		tc = ANG180 + R_PointToAngle(0,0, other->dx,other->dy) - seg->angle;
+
+		xx =  M_Cos(tc); xy = M_Sin(tc);
+		yx = -M_Sin(tc); yy = M_Cos(tc);
+
+
+		// scaling
+		float a_len = seg->length;
+		float b_len = R_PointToDist(bx1,by1, bx2,by2);
+		float scale = a_len / b_len;
+
+		xx *= scale; xy *= scale;
+		yx *= scale; yy *= scale;
+
+
+		// translation
+		xc = bx1 * xx + by1 * xy - ax1;
+		xc = bx1 * yx + by1 * yy - ay1;
+	}
+
+	void Compute()
+	{
+		if (def->is_portal)
+			ComputePortal();
+		else
+			ComputeMirror();
+	}
+
+	void Transform(float& x, float& y)
 	{
 		float tx = x, ty = y;
 
@@ -200,10 +252,11 @@ public:
 
 	void Turn(angle_t& ang)
 	{
-		ang = tc - ang;
+		return (def->is_portal) ? (tc + ang) : (tc - ang);
 	}
 }
 mirror_info_t;
+
 
 static mirror_info_t active_mirrors[MAX_MIRRORS];
 
@@ -213,26 +266,28 @@ int num_active_mirrors = 0;
 void MIR_Coordinate(float& x, float& y)
 {
 	for (int i=num_active_mirrors-1; i >= 0; i--)
-		active_mirrors[i].Flip(x, y);
+		active_mirrors[i].Transform(x, y);
 }
 
 void MIR_Angle(angle_t &ang)
 {
 	for (int i=num_active_mirrors-1; i >= 0; i--)
 		active_mirrors[i].Turn(ang);
-#if 0
-		if (num_active_mirrors > 0)
-		{
-			float nx = mo->x + M_Cos(ang);
-			float ny = mo->y + M_Sin(ang);
-
-			MIR_Coordinate(nx, ny);
-
-			ang = R_PointToAngle(mx, my, nx, ny);
-		}
-#endif
 }
 
+bool MIR_Reflective(void)
+{
+	if (num_active_mirrors == 0)
+		return false;
+
+	bool result = false;
+
+	for (int i=num_active_mirrors-1; i >= 0; i--)
+		if (! active_mirrors[i].def->is_portal)
+			result = !result;
+
+	return result;
+}
 
 static void MIR_SetClippers()
 {
@@ -279,10 +334,13 @@ static void MIR_SetClippers()
 
 		for (int k = i-1; k >= 0; k--)
 		{
-			vec2_t tmp; tmp = v1; v1 = v2; v2 = tmp;
+			if (! active_mirrors[k].def->is_portal)
+			{
+				vec2_t tmp; tmp = v1; v1 = v2; v2 = tmp;
+			}
 
-			active_mirrors[k].Flip(v1.x, v1.y);
-			active_mirrors[k].Flip(v2.x, v2.y);
+			active_mirrors[k].Transform(v1.x, v1.y);
+			active_mirrors[k].Transform(v2.x, v2.y);
 		}
 		
 		GLdouble front_p[4];
@@ -303,7 +361,7 @@ static void MIR_Push(drawmirror_c *mir)
 	SYS_ASSERT(num_active_mirrors < MAX_MIRRORS);
 
 	active_mirrors[num_active_mirrors].def = mir;
-	active_mirrors[num_active_mirrors].ComputeMirror();
+	active_mirrors[num_active_mirrors].Compute();
 
 	num_active_mirrors++;
 
@@ -849,7 +907,7 @@ static void DrawWallPart(drawfloor_t *dfloor,
 	MIR_Coordinate(x1, y1);
 	MIR_Coordinate(x2, y2);
 
-	if (num_active_mirrors % 2)
+	if (MIR_Reflective())
 	{
 		float tmp_x = x1; x1 = x2; x2 = tmp_x;
 		float tmp_y = y1; y1 = y2; y2 = tmp_y;
@@ -1513,13 +1571,15 @@ static void RGL_WalkBSPNode(unsigned int bspnum);
 
 
 static void RGL_WalkMirror(drawsub_c *dsub, seg_t *seg,
-						   angle_t left, angle_t right)
+						   angle_t left, angle_t right,
+						   bool is_portal)
 {
 	drawmirror_c *mir = R_GetDrawMirror();
 	mir->Clear(seg);
 
 	mir->left  = viewangle + left;
 	mir->right = viewangle + right;
+	mir->is_portal = is_portal;
 
 	dsub->mirrors.push_back(mir);
 
@@ -1604,11 +1664,14 @@ static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 					sx1 = ix, sy1 = iy;
 			}
 
-			active_mirrors[i].Flip(sx1, sy1);
-			active_mirrors[i].Flip(sx2, sy2);
+			active_mirrors[i].Transform(sx1, sy1);
+			active_mirrors[i].Transform(sx2, sy2);
 
-      		float tx = sx1; sx1 = sx2; sx2 = tx;
-      		float ty = sy1; sy1 = sy2; sy2 = ty;
+			if (! active_mirrors[i].def->is_portal)
+			{
+				float tx = sx1; sx1 = sx2; sx2 = tx;
+				float ty = sy1; sy1 = sy2; sy2 = ty;
+			}
 		}
 	}
 
@@ -1667,6 +1730,18 @@ static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 
 	if (seg->miniseg || span == 0)
 		return;
+
+//!!!!!!
+if (seg->linedef == (lines+2) || seg->linedef == (lines+144))
+{
+ if (num_active_mirrors == 0)
+ {
+	RGL_WalkMirror(dsub, seg, angle_L, angle_R);
+
+	RGL_1DOcclusionSet(angle_R, angle_L);
+	return;
+ }
+}
 
 	if ((seg->linedef->flags & MLF_Mirror) &&
 		(num_active_mirrors < MAX_MIRRORS))
@@ -2265,7 +2340,7 @@ static void DrawMirrorPolygon(drawmirror_c *mir)
 		glColor4f(R, G, B, alpha);
 	}
 	else
-		glColor4f(0.0, 0.0, 0.0, alpha);
+		glColor4f(1.0, 0.0, 0.0, alpha);
 
 	float x1 = mir->seg->v1->x;
 	float y1 = mir->seg->v1->y;
@@ -2408,7 +2483,7 @@ static void RGL_WalkBSPNode(unsigned int bspnum)
 	MIR_Coordinate(nd_div.x,  nd_div.y);
 	MIR_Coordinate(nd_div.dx, nd_div.dy);
 
-	if (num_active_mirrors % 2)
+	if (MIR_Reflective())
 	{
 		float tx = nd_div.x; nd_div.x = nd_div.dx; nd_div.dx = tx;
 		float ty = nd_div.y; nd_div.y = nd_div.dy; nd_div.dy = ty;
@@ -2500,11 +2575,9 @@ void RGL_RenderTrueBSP(void)
 	// handle powerup effects
 	RGL_RainbowEffect(v_player);
 
-	if (true) //!!!!! hom_detect)
-	{
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
-	}
+
+	glClearColor(0.0f, hom_detect ? 1.0f : 0.0f, 0.0f, 0.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
 
 	RGL_SetupMatrices3D();
 
