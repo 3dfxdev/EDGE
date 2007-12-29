@@ -61,25 +61,18 @@ static bool P_DoSectorsFromTag(int tag, const void *p1, void *p2,
 		bool(*func) (sector_t *, const void *, void *));
 
 
-//
-// DoPlane_wrapper
-//
 static bool DoPlane_wrapper(sector_t *s, const void *p1, void *p2)
 {
 	return EV_DoPlane(s, (const movplanedef_c*)p1, (sector_t*)p2);
 }
 
-//
-// DoLights_wrapper
-//
+
 static bool DoLights_wrapper(sector_t *s, const void *p1, void *p2)
 {
 	return EV_Lights(s, (const lightdef_c*)p1);
 }
 
-//
-// DoDonut_wrapper
-//
+
 static bool DoDonut_wrapper(sector_t *s, const void *p1, void *p2)
 {
 	return EV_DoDonut(s, (sfx_t**)p2);
@@ -92,8 +85,6 @@ static bool DoDonut_wrapper(sector_t *s, const void *p1, void *p2)
 //
 
 //
-// P_GetSide
-//
 // Will return a side_t * given the number of the current sector,
 // the line number, and the side (0/1) that you want.
 //
@@ -104,8 +95,6 @@ side_t *P_GetSide(int currentSector, int line, int side)
 	return linedef->side[side];
 }
 
-//
-// P_GetSector
 //
 // Will return a sector_t*
 //  given the number of the current sector,
@@ -119,8 +108,6 @@ sector_t *P_GetSector(int currentSector, int line, int side)
 }
 
 //
-// P_TwoSided
-//
 // Given the sector number and the line number, it will tell you whether the
 // line is two-sided or not.
 //
@@ -129,8 +116,6 @@ int P_TwoSided(int sector, int line)
 	return (sectors[sector].lines[line])->flags & MLF_TwoSided;
 }
 
-//
-// P_GetNextSector
 //
 // Return sector_t * of sector next to current; NULL if not two-sided line
 //
@@ -145,8 +130,6 @@ sector_t *P_GetNextSector(const line_t * line, const sector_t * sec)
 	return line->frontsector;
 }
 
-//
-// P_FindSurroundingHeight
 //
 // -AJA- 2001/05/29: this is an amalgamation of the previous bunch of
 //       routines, using the new REF_* flag names.  Now there's just
@@ -207,8 +190,6 @@ float P_FindSurroundingHeight(const heightref_e ref, const sector_t *sec)
 }
 
 //
-// P_FindRaiseToTexture
-//
 // FIND THE SHORTEST BOTTOM TEXTURE SURROUNDING sec
 // AND RETURN IT'S TOP HEIGHT
 //
@@ -247,8 +228,6 @@ float P_FindRaiseToTexture(sector_t * sec)
 }
 
 //
-// P_FindSectorFromTag
-//
 // Returns the FIRST sector that tag refers to.
 //
 // -KM- 1998/09/27 Doesn't need a line.
@@ -267,8 +246,6 @@ sector_t *P_FindSectorFromTag(int tag)
 	return NULL;
 }
 
-//
-// P_FindMinSurroundingLight
 //
 // Find minimum light from an adjacent sector
 //
@@ -424,9 +401,6 @@ static void AdjustLightParts(side_t *side, bool left,
 }
 
 
-//
-// P_EFTransferTrans
-//
 static void P_EFTransferTrans(sector_t *ctrl, sector_t *sec, line_t *line, 
 		const extrafloordef_c *ef, float trans)
 {
@@ -472,8 +446,6 @@ static void P_EFTransferTrans(sector_t *ctrl, sector_t *sec, line_t *line,
 	line->side[0]->middle.translucency = trans;
 }
 
-//
-// P_LineEffect
 //
 // Handles BOOM's line -> tagged line transfers.
 //
@@ -577,8 +549,6 @@ static void P_LineEffect(line_t *target, line_t *source,
 	}
 }
 
-//
-// P_SectorEffect
 //
 // Handles BOOM's line -> tagged sector transfers.
 //
@@ -1174,10 +1144,8 @@ static bool P_ActivateSpecialLine(line_t * line,
 }
 
 //
-// P_CrossSpecialLine - TRIGGER
-//
 // Called every time a thing origin is about
-// to cross a line with a non 0 special.
+// to cross a line with a non-zero special.
 //
 // -KM- 1998/09/01 Now much simpler
 // -ACB- 1998/09/12 Return success/failure
@@ -1189,8 +1157,6 @@ bool P_CrossSpecialLine(line_t *ld, int side, mobj_t * thing)
 }
 
 //
-// P_ShootSpecialLine - IMPACT SPECIALS
-//
 // Called when a thing shoots a special line.
 //
 void P_ShootSpecialLine(line_t * ld, int side, mobj_t * thing)
@@ -1199,8 +1165,6 @@ void P_ShootSpecialLine(line_t * ld, int side, mobj_t * thing)
 			side, thing, line_shootable, 1, 0);
 }
 
-//
-// P_UseSpecialLine
 //
 // Called when a thing uses a special line.
 // Only the front sides of lines are usable.
@@ -1224,8 +1188,6 @@ bool P_UseSpecialLine(mobj_t * thing, line_t * line, int side,
 			thing, line_pushable, can_reach, 0);
 }
 
-//
-// P_RemoteActivation
 //
 // Called by the RTS `ACTIVATE_LINETYPE' primitive, and also the code
 // pointer in things.ddf of the same name.  Thing can be NULL.
@@ -1357,8 +1319,6 @@ static inline void PlayerInProperties(player_t *player,
 
 
 //
-// P_PlayerInSpecialSector
-//
 // Called every tic frame that the player origin is in a special sector
 //
 // -KM- 1998/09/27 Generalised for sectors.ddf
@@ -1434,8 +1394,6 @@ static inline void ApplyScroll(vec2_t& offset, const vec2_t& delta)
 }
 
 //
-// P_UpdateSpecials
-//
 // Animate planes, scroll walls, etc.
 //
 void P_UpdateSpecials(void)
@@ -1497,8 +1455,7 @@ void P_UpdateSpecials(void)
 //  SPECIAL SPAWNING
 //
 
-//
-// P_SpawnSpecials
+
 //
 // This function is called at the start of every level.  It parses command line
 // parameters for level timer, spawns passive special sectors, (ie sectors that
@@ -1680,8 +1637,6 @@ void P_SpawnSpecials(int autotag)
 	}
 }
 
-//
-// P_DoSectorsFromTag
 //
 // -KM- 1998/09/27 This helper function is used to do stuff to all the
 //                 sectors with the specified line's tag.
