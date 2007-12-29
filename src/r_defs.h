@@ -446,6 +446,8 @@ typedef struct line_s
 
 	// slider thinker, normally NULL
 	struct slider_move_s *slider_move;
+
+	struct line_s *portal_pair;
 }
 line_t;
 
