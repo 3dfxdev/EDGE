@@ -626,6 +626,7 @@ typedef enum
 
 	PORTFX_Standard = (1 << 0),
 	PORTFX_Mirror   = (1 << 1),
+	PORTFX_Camera   = (1 << 2),
 }
 portal_effect_type_e;
 

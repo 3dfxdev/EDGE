@@ -980,6 +980,7 @@ static specflags_t portal_effect_names[] =
 {
 	{"STANDARD",   PORTFX_Standard,  0},
 	{"MIRROR",     PORTFX_Mirror,    0},
+	{"CAMERA",     PORTFX_Camera,    0},
 
 	{NULL, 0, 0}
 };
