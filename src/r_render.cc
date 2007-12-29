@@ -154,7 +154,7 @@ static inline void ClipPlaneEyeAngle(GLdouble *p, angle_t ang)
 }
 
 
-typedef struct
+typedef struct mirror_info_s
 {
 	drawmirror_c *def;
 
@@ -186,6 +186,14 @@ public:
 		//         = 2 * mir_angle - a
 
 		tc = seg->angle << 1;
+	}
+
+	float GetAlong(const line_t *ld, float x, float y)
+	{
+		if (fabs(ld->dx) >= fabs(ld->dy))
+			return (x - ld->v1->x) / ld->dx;
+		else
+			return (y - ld->v1->y) / ld->dy;
 	}
 
 	void ComputePortal()
@@ -252,7 +260,7 @@ public:
 
 	void Turn(angle_t& ang)
 	{
-		return (def->is_portal) ? (tc + ang) : (tc - ang);
+		ang = (def->is_portal) ? (tc + ang) : (tc - ang);
 	}
 }
 mirror_info_t;
@@ -287,6 +295,30 @@ bool MIR_Reflective(void)
 			result = !result;
 
 	return result;
+}
+
+static bool MIR_SegOnPortal(seg_t *seg)
+{
+	if (num_active_mirrors == 0)
+		return false;
+
+	if (seg->miniseg)
+		return false;
+
+	drawmirror_c *def = active_mirrors[num_active_mirrors-1].def;
+
+	if (def->is_portal)
+	{
+		if (seg->linedef == def->seg->linedef->portal_pair)
+			return true;
+	}
+	else // mirror
+	{
+		if (seg->linedef == def->seg->linedef)
+			return true;
+	}
+
+	return false;
 }
 
 static void MIR_SetClippers()
@@ -1619,8 +1651,7 @@ static void RGL_WalkMirror(drawsub_c *dsub, seg_t *seg,
 static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 {
 	// ignore segs sitting on current mirror
-	if (num_active_mirrors > 0 && seg ==
-		active_mirrors[num_active_mirrors-1].def->seg)
+	if (MIR_SegOnPortal(seg))
 		return;
 
 	float sx1 = seg->v1->x;
@@ -1731,25 +1762,20 @@ static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 	if (seg->miniseg || span == 0)
 		return;
 
-//!!!!!!
-if (seg->linedef == (lines+2) || seg->linedef == (lines+144))
-{
- if (num_active_mirrors == 0)
- {
-	RGL_WalkMirror(dsub, seg, angle_L, angle_R);
-
-	RGL_1DOcclusionSet(angle_R, angle_L);
-	return;
- }
-}
-
-	if ((seg->linedef->flags & MLF_Mirror) &&
-		(num_active_mirrors < MAX_MIRRORS))
+	if (num_active_mirrors < MLF_Mirror)
 	{
-		RGL_WalkMirror(dsub, seg, angle_L, angle_R);
-
-		RGL_1DOcclusionSet(angle_R, angle_L);
-		return;
+		if (seg->linedef->flags & MLF_Mirror)
+		{
+			RGL_WalkMirror(dsub, seg, angle_L, angle_R, false);
+			RGL_1DOcclusionSet(angle_R, angle_L);
+			return;
+		}
+		else if (seg->linedef->portal_pair)
+		{
+			RGL_WalkMirror(dsub, seg, angle_L, angle_R, true);
+			RGL_1DOcclusionSet(angle_R, angle_L);
+			return;
+		}
 	}
 
 	drawseg_c *dseg = R_GetDrawSeg();
