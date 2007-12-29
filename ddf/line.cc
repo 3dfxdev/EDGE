@@ -77,6 +77,7 @@ static void DDF_LineGetSpecialFlags(const char *info, void *storage);
 static void DDF_LineGetSlideType(const char *info, void *storage);
 static void DDF_LineGetLineEffect(const char *info, void *storage);
 static void DDF_LineGetSectorEffect(const char *info, void *storage);
+static void DDF_LineGetPortalEffect(const char *info, void *storage);
 
 static void DDF_LineMakeCrush(const char *info, void *storage);
 
@@ -199,11 +200,11 @@ static const commandlist_t linedef_commands[] =
 	DF("LINE_EFFECT", line_effect, DDF_LineGetLineEffect),
 	DF("LINE_PARTS",  line_parts,  DDF_LineGetScrollPart),
 	DF("SECTOR_EFFECT", sector_effect, DDF_LineGetSectorEffect),
+	DF("PORTAL_TYPE",   portal_effect, DDF_LineGetPortalEffect),
 	DF("COLOUR", fx_color, DDF_MainGetRGB),
 
 	// -AJA- backwards compatibility cruft...
 	DF("CRUSH", ddf, DDF_LineMakeCrush),
-
 	DF("SECSPECIAL", ddf, DDF_DummyFunction),
 
 	DF("!EXTRAFLOOR_TRANSLUCENCY", translucency, DDF_MainGetPercent),
@@ -885,8 +886,6 @@ static specflags_t line_effect_names[] =
 	{"SCALE_TEX",      LINEFX_Scale,         0},
 	{"SKEW_TEX",       LINEFX_Skew,          0},
 	{"LIGHT_WALL",     LINEFX_LightWall,     0},
-	{"MIRROR",         LINEFX_Mirror,        0},
-	{"PORTAL",         LINEFX_Portal,        0},
 
 	{"UNBLOCK_THINGS", LINEFX_UnblockThings, 0},
 	{"BLOCK_SHOTS",    LINEFX_BlockShots,    0},
@@ -894,8 +893,6 @@ static specflags_t line_effect_names[] =
 	{NULL, 0, 0}
 };
 
-//
-// DDF_LineGetLineEffect
 //
 // Gets the line effect flags.
 //
@@ -950,8 +947,6 @@ static specflags_t sector_effect_names[] =
 };
 
 //
-// DDF_LineGetSectorEffect
-//
 // Gets the sector effect flags.
 //
 static void DDF_LineGetSectorEffect(const char *info, void *storage)
@@ -964,7 +959,7 @@ static void DDF_LineGetSectorEffect(const char *info, void *storage)
 		return;
 	}
 
-	switch (DDF_MainCheckSpecialFlag(info, sector_effect_names,	&flag_value, true, false))
+	switch (DDF_MainCheckSpecialFlag(info, sector_effect_names, &flag_value, true, false))
 	{
 		case CHKF_Positive:
 			buffer_line.sector_effect = (sector_effect_type_e)(buffer_line.sector_effect | flag_value);
@@ -977,6 +972,44 @@ static void DDF_LineGetSectorEffect(const char *info, void *storage)
 		case CHKF_User:
 		case CHKF_Unknown:
 			DDF_WarnError("Unknown sector effect type: %s", info);
+			break;
+	}
+}
+
+static specflags_t portal_effect_names[] =
+{
+	{"STANDARD",   PORTFX_Standard,  0},
+	{"MIRROR",     PORTFX_Mirror,    0},
+
+	{NULL, 0, 0}
+};
+
+//
+// Gets the portal effect flags.
+//
+static void DDF_LineGetPortalEffect(const char *info, void *storage)
+{
+	int flag_value;
+
+	if (DDF_CompareName(info, "NONE") == 0)
+	{
+		buffer_line.portal_effect = PORTFX_None;
+		return;
+	}
+
+	switch (DDF_MainCheckSpecialFlag(info, portal_effect_names, &flag_value, true, false))
+	{
+		case CHKF_Positive:
+			buffer_line.portal_effect = (portal_effect_type_e)(buffer_line.portal_effect | flag_value);
+			break;
+
+		case CHKF_Negative:
+			buffer_line.portal_effect = (portal_effect_type_e)(buffer_line.portal_effect & ~flag_value);
+			break;
+
+		case CHKF_User:
+		case CHKF_Unknown:
+			DDF_WarnError("Unknown portal type: %s", info);
 			break;
 	}
 }
@@ -1506,40 +1539,33 @@ teleportdef_c& teleportdef_c::operator=(teleportdef_c &rhs)
 // --> Line definition type class
 
 //
-// linetype_c constructor
+// linetype_c Constructor
 //
 linetype_c::linetype_c()
 {
 	Default();
 }
 
-//
-// linetype_c copy constructor
-//
 linetype_c::linetype_c(linetype_c &rhs)
 {
 	Copy(rhs);
 }
 
 //
-// linetype_c deconstructor
+// linetype_c Destructor
 //
 linetype_c::~linetype_c()
 {
 }
 	
-//
-// linetype_c::Copy()
-//
+
 void linetype_c::Copy(linetype_c &src)
 {
 	ddf = src.ddf;
 	CopyDetail(src);
 }
 
-//
-// linetype_c::CopyDetail()
-//
+
 void linetype_c::CopyDetail(linetype_c &src)
 {
 	newtrignum = src.newtrignum;
@@ -1583,12 +1609,11 @@ void linetype_c::CopyDetail(linetype_c &src)
 	line_effect = src.line_effect;
 	line_parts = src.line_parts;
 	sector_effect = src.sector_effect;
+	portal_effect = src.portal_effect;
 	fx_color = src.fx_color;
 }
 
-//
-// linetype_c::Default()
-//
+
 void linetype_c::Default(void)
 {
 	ddf.Default();
@@ -1638,6 +1663,7 @@ void linetype_c::Default(void)
 	line_effect = LINEFX_NONE;
 	line_parts = SCPT_None;
 	sector_effect = SECTFX_None;
+	portal_effect = PORTFX_None;
 	fx_color = RGB_MAKE(0,0,0);
 }
 

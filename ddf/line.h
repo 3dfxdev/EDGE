@@ -553,7 +553,6 @@ public:
 	float height;
 };
 
-// FIXME!!! Move inside linetype_c
 typedef enum
 {
 	LINEFX_NONE = 0,
@@ -582,19 +581,12 @@ typedef enum
 
 	// experimental: make tagged lines (incl) block monster sight
 	LINEFX_BlockSight = (1 << 8),
-
-	// make source line into a Mirror
-	LINEFX_Mirror = (1 << 9),
-
-	// make source line into a Portal
-	LINEFX_Portal = (1 << 10),
 }
 line_effect_type_e;
 
-// FIXME!!! Move inside linetype_c
 typedef enum
 {
-	SECTFX_None = 0x0000,
+	SECTFX_None = 0,
 
 	// transfer sector lighting to tagged floors/ceilings
 	SECTFX_LightFloor   = 0x0001,
@@ -628,11 +620,20 @@ typedef enum
 }
 sector_effect_type_e;
 
-// -AJA- 1999/10/12: Generalised scrolling parts of walls.
-// FIXME!!! Move inside linetype_c
 typedef enum
 {
-	SCPT_None  = 0x0000,
+	PORTFX_None = 0,
+
+	PORTFX_Standard = (1 << 0),
+	PORTFX_Mirror   = (1 << 1),
+}
+portal_effect_type_e;
+
+
+// -AJA- 1999/10/12: Generalised scrolling parts of walls.
+typedef enum
+{
+	SCPT_None  = 0,
 
 	SCPT_RightUpper  = 0x0001,
 	SCPT_RightMiddle = 0x0002,
@@ -653,7 +654,7 @@ scroll_part_e;
 // -AJA- 1999/12/07: Linedef special flags
 typedef enum
 {
-	LINSP_None = 0x0000,
+	LINSP_None = 0,
 
 	// player must be able to vertically reach this linedef to press it
 	LINSP_MustReach = (1 << 0),
@@ -780,7 +781,9 @@ public:
     // -AJA- 2000/09/28: BOOM compatibility fields (and more !).
 	line_effect_type_e line_effect;
 	scroll_part_e line_parts;
+
 	sector_effect_type_e sector_effect;
+	portal_effect_type_e portal_effect;
 
 	// -AJA- 2007/07/05: color for effects (e.g. MIRRORs)
 	rgbcol_t fx_color;
