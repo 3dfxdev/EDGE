@@ -220,7 +220,7 @@ public:
 		float bx2 = other->v2->x - other->dx * along2;
 		float by2 = other->v2->y - other->dy * along2;
 
-		
+
 		// compute rotation angle
 		tc = ANG180 + R_PointToAngle(0,0, other->dx,other->dy) - seg->angle;
 
@@ -238,8 +238,8 @@ public:
 
 
 		// translation
-		xc = bx1 * xx + by1 * xy - ax1;
-		xc = bx1 * yx + by1 * yy - ay1;
+		xc = ax1 - bx1 * xx - by1 * xy;
+		yc = ay1 - bx1 * yx - by1 * yy;
 	}
 
 	void Compute()
@@ -260,7 +260,7 @@ public:
 
 	void Turn(angle_t& ang)
 	{
-		ang = (def->is_portal) ? (tc + ang) : (tc - ang);
+		ang = (def->is_portal) ? (ang - tc) : (tc - ang);
 	}
 }
 mirror_info_t;
@@ -1666,42 +1666,42 @@ static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 	{
 		for (int i=num_active_mirrors-1; i >= 0; i--)
 		{
-			seg_t *seg = active_mirrors[i].def->seg;
-
-			divline_t div;
-
-			div.x  = seg->v1->x;
-			div.y  = seg->v1->y;
-			div.dx = seg->v2->x - div.x;
-			div.dy = seg->v2->y - div.y;
-
-			int s1 = P_PointOnDivlineSide(sx1, sy1, &div);
-			int s2 = P_PointOnDivlineSide(sx2, sy2, &div);
-
-			// seg lies completely in the back space?
-			if (s1 == 1 && s2 == 1)
-				return;
-
-			if (s1 != s2)
-			{
-				// seg crosses line, need to split it
-				float ix, iy;
-
-				P_ComputeIntersection(&div, sx1, sy1, sx2, sy2, &ix, &iy);
-
-				if (s2 == 1)
-					sx2 = ix, sy2 = iy;
-				else
-					sx1 = ix, sy1 = iy;
-			}
-
 			active_mirrors[i].Transform(sx1, sy1);
 			active_mirrors[i].Transform(sx2, sy2);
 
 			if (! active_mirrors[i].def->is_portal)
 			{
-				float tx = sx1; sx1 = sx2; sx2 = tx;
-				float ty = sy1; sy1 = sy2; sy2 = ty;
+				float tmp_x = sx1; sx1 = sx2; sx2 = tmp_x;
+				float tmp_y = sy1; sy1 = sy2; sy2 = tmp_y;
+			}
+
+			seg_t *clipper = active_mirrors[i].def->seg;
+
+			divline_t div;
+
+			div.x  = clipper->v1->x;
+			div.y  = clipper->v1->y;
+			div.dx = clipper->v2->x - div.x;
+			div.dy = clipper->v2->y - div.y;
+
+			int s1 = P_PointOnDivlineSide(sx1, sy1, &div);
+			int s2 = P_PointOnDivlineSide(sx2, sy2, &div);
+
+			// seg lies completely in front of clipper?
+			if (s1 == 0 && s2 == 0)
+				return;
+
+			if (s1 != s2)
+			{
+				// seg crosses clipper, need to split it
+				float ix, iy;
+
+				P_ComputeIntersection(&div, sx1, sy1, sx2, sy2, &ix, &iy);
+
+				if (s2 == 0)
+					sx2 = ix, sy2 = iy;
+				else
+					sx1 = ix, sy1 = iy;
 			}
 		}
 	}
@@ -1762,7 +1762,7 @@ static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 	if (seg->miniseg || span == 0)
 		return;
 
-	if (num_active_mirrors < MLF_Mirror)
+	if (num_active_mirrors < MAX_MIRRORS)
 	{
 		if (seg->linedef->flags & MLF_Mirror)
 		{
@@ -2347,7 +2347,10 @@ static void DrawMirrorPolygon(drawmirror_c *mir)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	float alpha = 0.14 * (num_active_mirrors + 1);
+	float alpha = 0.15 + 0.10 * num_active_mirrors;
+
+	if (mir->is_portal)
+		alpha *= 0.7;
 
 	line_t *ld = mir->seg->linedef;
 	SYS_ASSERT(ld);
@@ -2359,9 +2362,9 @@ static void DrawMirrorPolygon(drawmirror_c *mir)
 		float B = RGB_BLU(ld->special->fx_color) / 255.0;
 
 		// looks better with reduced color in multiple reflections
-		R *= 1.0 - 0.4 * num_active_mirrors;
-		G *= 1.0 - 0.4 * num_active_mirrors;
-		B *= 1.0 - 0.4 * num_active_mirrors;
+		float reduce = 1.0f / (1 + 1.5 * num_active_mirrors);
+
+		R *= reduce; G *= reduce; B *= reduce;
 
 		glColor4f(R, G, B, alpha);
 	}
