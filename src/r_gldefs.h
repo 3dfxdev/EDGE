@@ -221,10 +221,12 @@ public:
 
 	angle_t left, right;
 
+	bool is_portal;
+
 	std::list<drawsub_c *> drawsubs;
 
 public:
-	drawmirror_c() : seg(NULL), drawsubs()
+	drawmirror_c() : seg(NULL), is_portal(false), drawsubs()
 	{ }
 
 	~drawmirror_c()
