@@ -1,5 +1,11 @@
 Andrew Apted's Log
 
+2007/12/29:
+
+Experimented with portals.  Most of the "hard stuff" has
+already been achieved by the Mirror code, add a few tweaks
+and voila: working portal rendering (1S linedefs only).
+
 2007/12/28:
 
 Timidity music playback is now finished.  I spent a while
