@@ -2394,6 +2394,80 @@ static void DrawMirrorPolygon(drawmirror_c *mir)
 	glDisable(GL_BLEND);
 }
 
+static void DrawPortalPolygon(drawmirror_c *mir)
+{
+	line_t *ld = mir->seg->linedef;
+	SYS_ASSERT(ld);
+
+	const surface_t *surf = &mir->seg->sidedef->middle;
+
+	if (! surf->image || ! ld->special ||
+		(ld->special->portal_effect != PORTFX_Standard))
+	{
+		DrawMirrorPolygon(mir);
+		return;
+	}
+
+	glDisable(GL_ALPHA_TEST);
+	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	// set texture
+	GLuint tex_id = W_ImageCache(surf->image);
+
+	glBindTexture(GL_TEXTURE_2D, tex_id);
+
+	// set colour & alpha
+	float alpha = ld->special->translucency * surf->translucency;
+
+	float R = RGB_RED(ld->special->fx_color) / 255.0;
+	float G = RGB_GRN(ld->special->fx_color) / 255.0;
+	float B = RGB_BLU(ld->special->fx_color) / 255.0;
+
+	glColor4f(R, G, B, alpha);
+
+	// get polygon coordinates
+	float x1 = mir->seg->v1->x;
+	float y1 = mir->seg->v1->y;
+	float z1 = ld->frontsector->f_h;
+
+	float x2 = mir->seg->v2->x;
+	float y2 = mir->seg->v2->y;
+	float z2 = ld->frontsector->c_h;
+
+	MIR_Coordinate(x1, y1);
+	MIR_Coordinate(x2, y2);
+
+	// get texture coordinates
+	float total_w = IM_TOTAL_WIDTH( surf->image);
+	float total_h = IM_TOTAL_HEIGHT(surf->image);
+
+	float tx1 = mir->seg->offset;
+	float tx2 = tx1 + mir->seg->length;
+
+	float ty1 = 0;
+	float ty2 = (z2 - z1);
+
+	tx1 = tx1 * surf->x_mat.x / total_w;
+	tx2 = tx2 * surf->x_mat.x / total_w;
+
+	ty1 = ty1 * surf->y_mat.y / total_h;
+	ty2 = ty2 * surf->y_mat.y / total_h;
+
+	glBegin(GL_POLYGON);
+
+	glTexCoord2f(tx1, ty1); glVertex3f(x1, y1, z1);
+	glTexCoord2f(tx1, ty2); glVertex3f(x1, y1, z2);
+	glTexCoord2f(tx2, ty2); glVertex3f(x2, y2, z2);
+	glTexCoord2f(tx2, ty1); glVertex3f(x2, y2, z1);
+
+	glEnd();
+
+	glDisable(GL_BLEND);
+	glDisable(GL_TEXTURE_2D);
+}
+
 static void RGL_DrawMirror(drawmirror_c *mir)
 {
 	RGL_FinishUnits();
@@ -2404,7 +2478,10 @@ static void RGL_DrawMirror(drawmirror_c *mir)
 	}
 	MIR_Pop();
 
-	DrawMirrorPolygon(mir);
+	if (mir->is_portal)
+		DrawPortalPolygon(mir);
+	else
+		DrawMirrorPolygon(mir);
 
 	solid_mode = true;
 	RGL_StartUnits(solid_mode);
