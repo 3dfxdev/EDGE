@@ -160,6 +160,9 @@ typedef struct mirror_info_s
 
 	float xc, xx, xy;  // x' = xc + x*xx + y*xy
 	float yc, yx, yy;  // y' = yc + x*yx + y*yy
+	float zc, z_scale; // z' = zc + z*z_scale
+
+	float xy_scale;
 
 	angle_t tc;
 
@@ -186,6 +189,10 @@ public:
 		//         = 2 * mir_angle - a
 
 		tc = seg->angle << 1;
+
+		zc = 0;
+		z_scale = 1.0f;
+		xy_scale = 1.0f;
 	}
 
 	float GetAlong(const line_t *ld, float x, float y)
@@ -231,15 +238,24 @@ public:
 		// scaling
 		float a_len = seg->length;
 		float b_len = R_PointToDist(bx1,by1, bx2,by2);
-		float scale = a_len / b_len;
 
-		xx *= scale; xy *= scale;
-		yx *= scale; yy *= scale;
+		xy_scale = a_len / MAX(1, b_len);
+
+		xx *= xy_scale; xy *= xy_scale;
+		yx *= xy_scale; yy *= xy_scale;
 
 
 		// translation
 		xc = ax1 - bx1 * xx - by1 * xy;
 		yc = ay1 - bx1 * yx - by1 * yy;
+
+
+		// heights
+		float a_h = (seg->frontsector->c_h - seg->frontsector->f_h);
+		float b_h = (other->frontsector->c_h - other->frontsector->f_h);
+
+		z_scale = a_h / MAX(1, b_h);
+		zc = seg->frontsector->f_h - other->frontsector->f_h * z_scale;
 	}
 
 	void Compute()
@@ -256,6 +272,11 @@ public:
 
 		x = xc + tx*xx + ty*xy;
 		y = yc + tx*yx + ty*yy;
+	}
+
+	void Z_Adjust(float& z)
+	{
+		z = zc + z * z_scale;
 	}
 
 	void Turn(angle_t& ang)
@@ -277,10 +298,36 @@ void MIR_Coordinate(float& x, float& y)
 		active_mirrors[i].Transform(x, y);
 }
 
+void MIR_Height(float& z)
+{
+	for (int i=num_active_mirrors-1; i >= 0; i--)
+		active_mirrors[i].Z_Adjust(z);
+}
+
 void MIR_Angle(angle_t &ang)
 {
 	for (int i=num_active_mirrors-1; i >= 0; i--)
 		active_mirrors[i].Turn(ang);
+}
+
+float MIR_XYScale(void)
+{
+	float result = 1.0f;
+
+	for (int i=num_active_mirrors-1; i >= 0; i--)
+		result *= active_mirrors[i].xy_scale;
+
+	return result;
+}
+
+float MIR_ZScale(void)
+{
+	float result = 1.0f;
+
+	for (int i=num_active_mirrors-1; i >= 0; i--)
+		result *= active_mirrors[i].z_scale;
+
+	return result;
 }
 
 bool MIR_Reflective(void)
@@ -973,7 +1020,9 @@ static void DrawWallPart(drawfloor_t *dfloor,
 	float tx0    = tex_x1;
 	float tx_mul = tex_x2 - tex_x1;
 
-	float ty_mul = surf->y_mat.y / total_h;
+	MIR_Height(tex_top_h);
+
+	float ty_mul = surf->y_mat.y / (total_h * MIR_ZScale());
 	float ty0    = IM_TOP(surf->image) - tex_top_h * ty_mul;
 
 #if (DEBUG >= 3) 
@@ -1025,6 +1074,8 @@ static void DrawWallPart(drawfloor_t *dfloor,
 		vertices[v_count].y = y1;
 		vertices[v_count].z = left_h[LI];
 
+		MIR_Height(vertices[v_count].z);
+
 		v_count++;
 	}
 
@@ -1033,6 +1084,8 @@ static void DrawWallPart(drawfloor_t *dfloor,
 		vertices[v_count].x = x2;
 		vertices[v_count].y = y2;
 		vertices[v_count].z = right_h[RI];
+
+		MIR_Height(vertices[v_count].z);
 
 		v_count++;
 	}
@@ -1948,6 +2001,7 @@ bool RGL_CheckBBox(float *bspcoord)
 static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 						  surface_t *surf, int face_dir)
 {
+	MIR_Height(h);
 
 	int num_vert, i;
 
@@ -2070,6 +2124,10 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 
 	data.x_mat = surf->x_mat;
 	data.y_mat = surf->y_mat;
+
+	float mir_scale = MIR_XYScale();
+	data.x_mat.x /= mir_scale; data.x_mat.y /= mir_scale;
+	data.y_mat.x /= mir_scale; data.y_mat.y /= mir_scale;
 
 	data.normal.Set(0, 0, (viewz > h) ? +1 : -1);
 

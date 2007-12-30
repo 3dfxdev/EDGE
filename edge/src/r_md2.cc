@@ -880,8 +880,8 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 
 	data.is_weapon = is_weapon;
 
-	data.xy_scale = scale * aspect;
-	data. z_scale = scale;
+	data.xy_scale = scale * aspect * MIR_XYScale();
+	data. z_scale = scale * MIR_ZScale();
 	data.bias = bias;
 
 	M_Angle2Matrix(is_weapon ? ~mo->vertangle : 0, &data.kx_mat, &data.kz_mat);
