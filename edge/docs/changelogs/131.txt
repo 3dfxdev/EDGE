@@ -11,8 +11,8 @@ SUMMARY
 + MD2 models for things and weapons
 + Mirrors with multiple reflections
 + Good emulation of partial-invis effect
-+ Nicer dynamic lighting
-+ Sector glow effects
++ Nicer dynamic lighting, Sector glow effects
++ Timidity music playback
 
 - Rendering glitches fixed
 - More compatible sky rendering in 3D
@@ -61,6 +61,10 @@ Bugs fixed
 
 General improvements
 --------------------
+
++ music now supported on Linux via the Timidity MIDI player
+  library.  This can also be used on WIN32 instead of the
+  native MIDI system -- see the Sound Options menu.
 
 + good emulation of DOOM's Partial-Invisibility effect.
 
@@ -348,5 +352,13 @@ DDF / RTS Goodies
 - Weapons.ddf: allow 'SEC_ATTACK' to mean 'SECOND_ATTACK' for
   consistency with all the other SEC_XXX commands.
 
-- RTS 'WHEN=xxx' tag for SPAWNTHING commands.
+- Anims.ddf: new type "GRAPHIC" is now supported, which can
+  animate graphics used for the UI (backgrounds, menus, hud).
+  You need to use the SEQUENCE command because FIRST/LAST
+  doesn't make any sense for graphics.
+
+- RTS: 'WHEN=xxx' tag for SPAWNTHING commands.
+
+- RTS: SECRET_EXIT command which is like EXIT_LEVEL but
+  takes you to the secret level instead.
 
