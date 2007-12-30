@@ -700,9 +700,12 @@ static void P_PortalEffect(line_t *ld)
 		if (other->tag != ld->tag)
 			continue;
 
-		if (other->portal_pair)
+		float h1 = ld->frontsector->c_h - ld->frontsector->f_h;
+		float h2 = other->frontsector->c_h - other->frontsector->f_h;
+
+		if (h1 < 1 || h2 < 1)
 		{
-			I_Warning("Portal on line #%d disabled: Partner already a portal.\n", ld - lines);
+			I_Warning("Portal on line #%d disabled: sector is closed.\n", ld - lines);
 			return;
 		}
 
@@ -715,15 +718,23 @@ static void P_PortalEffect(line_t *ld)
 			return;
 		}
 
+		if (other->portal_pair)
+		{
+			I_Warning("Portal on line #%d disabled: Partner already a portal.\n", ld - lines);
+			return;
+		}
+
 		if (other->side[1])
 		{
 			I_Warning("Portal on line #%d disabled: Partner not one-sided.\n", ld - lines);
 			return;
 		}
 
-		if (other->frontsector != ld->frontsector)
+		float h_ratio = h1 / h2;
+
+		if (h_ratio < 0.95f || h_ratio > 1.05f)
 		{
-			I_Warning("Portal on line #%d disabled: Partner not in same sector.\n", ld - lines);
+			I_Warning("Portal on line #%d disabled: Partner is different height.\n", ld - lines);
 			return;
 		}
 
