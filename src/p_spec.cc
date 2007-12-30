@@ -676,7 +676,7 @@ static void P_PortalEffect(line_t *ld)
 		return;
 	}
 
-	if (ld->special->portal_effect == PORTFX_Mirror)
+	if (ld->special->portal_effect & PORTFX_Mirror)
 	{
 		ld->flags |= MLF_Mirror;
 		return;
@@ -688,7 +688,7 @@ static void P_PortalEffect(line_t *ld)
 		return;
 	}
 
-	bool is_camera = (ld->special->portal_effect == PORTFX_Camera);
+	bool is_camera = (ld->special->portal_effect & PORTFX_Camera) ? true : false;
 
 	for (int i=0; i < numlines; i++)
 	{
