@@ -2402,7 +2402,7 @@ static void DrawPortalPolygon(drawmirror_c *mir)
 	const surface_t *surf = &mir->seg->sidedef->middle;
 
 	if (! surf->image || ! ld->special ||
-		(ld->special->portal_effect != PORTFX_Standard))
+		! (ld->special->portal_effect & PORTFX_Standard))
 	{
 		DrawMirrorPolygon(mir);
 		return;
