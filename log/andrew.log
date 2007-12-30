@@ -4,7 +4,11 @@ Andrew Apted's Log
 
 Experimented with portals.  Most of the "hard stuff" has
 already been achieved by the Mirror code, add a few tweaks
-and voila: working portal rendering (1S linedefs only).
+and voila: working portals (rendering only).
+
+Added new linetypes to DDF for remote activated Thin Sliding
+Doors, using the range 542 to 559, mostly switched by also
+some walk-over triggers.
 
 2007/12/28:
 
