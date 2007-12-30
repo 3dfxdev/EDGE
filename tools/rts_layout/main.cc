@@ -233,6 +233,13 @@ int main(int argc, char **argv)
   // load config after creating window (set widget values)
 //  Cookie_Load(CONFIG_FILENAME);
 
+  
+  // kill the stupid bright background of the "plastic" scheme
+  delete Fl::scheme_bg_;
+  Fl::scheme_bg_ = NULL;
+
+  main_win->image(NULL);
+  
 
 #if 1  // TEST CODE for SCRIPT LOADING and SAVING
   FILE *fp = fopen("RSCRIPT.qdoom", "r");
