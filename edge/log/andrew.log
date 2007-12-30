@@ -1,5 +1,18 @@
 Andrew Apted's Log
 
+2007/12/30:
+
+For Portals, added new method to render the surface, using
+the existing texture on the line + translucency and color
+from the DDF.  Updated physics code so that players are
+never blocked by "STANDARD" portals -- to make them truly
+portalish requires a BOOM silent line-to-line teleporter.
+
+Implemented "security camera" portals which shrink the
+rendered scene.  The XY-scale is the ratio of the viewer
+linedef to the target linedef, and the Z-scale is the
+ratio of the sector heights.
+
 2007/12/29:
 
 Experimented with portals.  Most of the "hard stuff" has
@@ -7,7 +20,7 @@ already been achieved by the Mirror code, add a few tweaks
 and voila: working portals (rendering only).
 
 Added new linetypes to DDF for remote activated Thin Sliding
-Doors, using the range 542 to 559, mostly switched by also
+Doors, using the range 542 to 559, mostly switched but also
 some walk-over triggers.
 
 2007/12/28:
