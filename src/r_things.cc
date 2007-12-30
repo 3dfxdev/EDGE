@@ -665,6 +665,10 @@ static void R2_ClipSpriteVertically(drawsub_c *dsub, drawthing_t *dthing)
 	// link in sprite.  We'll shrink it if it gets clipped.
 	LinkDrawthingIntoDrawfloor(dfloor, dthing);
 
+	// HACK: the code below cannot handle Portals
+	if (num_active_mirrors > 0)
+		return;
+
 	// handle never-clip things 
 	if (dthing->y_clipping == YCLIP_Never)
 		return;
@@ -978,8 +982,14 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 		}
 	}
 
-	if (!is_model && gzb >= gzt)
-		return;
+	if (!is_model)
+	{
+		if (gzb >= gzt)
+			return;
+
+		MIR_Height(gzb);
+		MIR_Height(gzt);
+	}
 
 	// create new draw thing
 
@@ -1003,10 +1013,12 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 	dthing->bottom = dthing->orig_bottom = gzb;
 ///----	dthing->y_offset = 0;
 
-	dthing->left_dx  = pos1 *  viewsin;
-	dthing->left_dy  = pos1 * -viewcos;
-	dthing->right_dx = pos2 *  viewsin;
-	dthing->right_dy = pos2 * -viewcos;
+	float mir_scale = MIR_XYScale();
+
+	dthing->left_dx  = pos1 *  viewsin * mir_scale;
+	dthing->left_dy  = pos1 * -viewcos * mir_scale;
+	dthing->right_dx = pos2 *  viewsin * mir_scale;
+	dthing->right_dy = pos2 * -viewcos * mir_scale;
 
 	// create shadow
 #if 0
@@ -1054,6 +1066,8 @@ I_Debugf("Render model: no skin %d\n", mo->model_skin);
 
 
 	float z = mo->z;
+
+	MIR_Height(z);
 
 	if (mo->hyperflags & HF_HOVER)
 		z += GetHoverDZ(mo);
@@ -1153,6 +1167,7 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 	z1t = z2t = dthing->top;
 
 	// MLook: tilt sprites so they look better
+	if (MIR_XYScale() >= 0.99)
 	{
 		float h = dthing->orig_top - dthing->orig_bottom;
 		float skew2 = h;
@@ -1179,7 +1194,7 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 	float tex_y1 = dthing->bottom - dthing->orig_bottom;
 	float tex_y2 = tex_y1 + (z1t - z1b);
 
-	float yscale = mo->info->scale;
+	float yscale = mo->info->scale * MIR_ZScale();
 
 	SYS_ASSERT(h > 0);
 	tex_y1 = top * tex_y1 / (h * yscale);
