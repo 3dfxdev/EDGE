@@ -1,0 +1,59 @@
+
+How Add/Delete/Edits and Undo/Redo work
+---------------------------------------
+
+Edits are probably easiest.  Either you edit the fields
+directly (in the info panel) Or you move/resize the object
+in the grid.  Both end up modifying the rad_trigger_c or
+thing_spawn_c instance, which in turn must be reflected
+by the grid view and the info panel.
+
+So an 'edit op' needs:
+   (1) an object reference (the specific thing or radtrig)
+   (2) a field reference
+   (3) the old value
+   (4) the new value
+
+Some edit ops will contain multiple ops (i.e. an atomic
+batch), where we can assume the changed fields are
+independent (i.e. change order is not an issue).
+
+
+Deletion is a bit harder.  The 'delete op' needs:
+   (1) an object reference
+   (2) a position reference (in container)
+   (3) storage pointer for the old object
+
+
+Addition ops would need:
+   (1) a position reference (esp. the container)
+   (2) storage pointer for the new object
+   (3) an output (or newly alloc'd) object reference
+
+
+Perhaps these can be merged:
+
+   (1) container ref
+   (2) field id or entry index
+   (3) field type
+   (4) old value (NULL for additions)
+   (5) new value (NULL for deletions)
+
+
+The container for rad_trigger_c is a section_c.
+The container for thing_spawn_c is a rad_trigger_c.
+
+bits[B] . pieces[R] . things[T] . field[F]
+
+Hence: rad_trigger_c ref: B >= 0, R >= 0, T = -1, F >= 0
+Hence: thing_spawn_c ref: B >= 0, R >= 0, T >= 0, F >= 0
+
+
+Needed types:
+  (1) INT
+  (2) FLOAT
+  (3) STRING
+
+  (4) RAD_TRIG_PTR
+  (5) THING_SPAWN_PTR
+
