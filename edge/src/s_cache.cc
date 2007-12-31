@@ -48,9 +48,11 @@ static std::vector<epi::sound_data_c *> fx_cache;
 
 static void Load_Silence(epi::sound_data_c *buf)
 {
-	buf->Allocate(256, epi::SBUF_Mono);
+	int length = 256;
 
-	memset(buf->data_L, 0, 256);
+	buf->Allocate(length, epi::SBUF_Mono);
+
+	memset(buf->data_L, 0, length * sizeof(s16_t));
 }
 
 static void Load_DOOM(epi::sound_data_c *buf, const byte *lump, int length)
