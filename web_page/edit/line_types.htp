@@ -34,20 +34,20 @@
 <h3 class="sub_title">Thin Sliding Doors</h3>
 
 <PRE>
-[442] : EDGE Sliding door (LEFT), SR + MONSTERS
-[443] : EDGE Sliding door (LEFT), SR
-[444] : EDGE Sliding door (LEFT), SR + FAST
-[445] : EDGE Sliding door (LEFT), S1
+[442] : EDGE Sliding door (LEFT), DR + MONSTERS
+[443] : EDGE Sliding door (LEFT), DR
+[444] : EDGE Sliding door (LEFT), DR + FAST
+[445] : EDGE Sliding door (LEFT), D1
 
-[446] : EDGE Sliding door (RIGHT), SR + MONSTERS
-[447] : EDGE Sliding door (RIGHT), SR
-[448] : EDGE Sliding door (RIGHT), SR + FAST
-[449] : EDGE Sliding door (RIGHT), S1
+[446] : EDGE Sliding door (RIGHT), DR + MONSTERS
+[447] : EDGE Sliding door (RIGHT), DR
+[448] : EDGE Sliding door (RIGHT), DR + FAST
+[449] : EDGE Sliding door (RIGHT), D1
 
-[450] : EDGE Sliding door (CENTER), SR + MONSTERS
-[451] : EDGE Sliding door (CENTER), SR
-[452] : EDGE Sliding door (CENTER), SR + FAST
-[453] : EDGE Sliding door (CENTER), S1
+[450] : EDGE Sliding door (CENTER), DR + MONSTERS
+[451] : EDGE Sliding door (CENTER), DR
+[452] : EDGE Sliding door (CENTER), DR + FAST
+[453] : EDGE Sliding door (CENTER), D1
 </PRE>
 
 
@@ -109,6 +109,8 @@
 <TABLE class="edit" BORDER=1 CELLSPACING=0 CELLPADDING=2>
 <tr><th>TRIGGER</th><th>MEANING</th></tr>
 
+<tr><td>D1</td><td>Manual, once only</td></tr>
+<tr><td>DR</td><td>Manual, repeatable</td></tr>
 <tr><td>S1</td><td>Switched, once only</td></tr>
 <tr><td>SR</td><td>Switched, repeatable</td></tr>
 <tr><td>W1</td><td>Walk over, once only</td></tr>
