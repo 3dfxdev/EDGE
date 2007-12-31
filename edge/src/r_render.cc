@@ -2407,9 +2407,6 @@ static void DrawMirrorPolygon(drawmirror_c *mir)
 
 	float alpha = 0.15 + 0.10 * num_active_mirrors;
 
-	if (mir->is_portal)
-		alpha *= 0.7;
-
 	line_t *ld = mir->seg->linedef;
 	SYS_ASSERT(ld);
 
