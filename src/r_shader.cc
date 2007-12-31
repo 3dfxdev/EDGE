@@ -223,12 +223,14 @@ private:
 	{
 		float mx = mo->x;
 		float my = mo->y;
+		float mz = MO_MIDZ(mo);
 
 		MIR_Coordinate(mx, my);
+		MIR_Height(mz);
 
 		float dx = lit_pos->x - mx;
 		float dy = lit_pos->y - my;
-		float dz = lit_pos->z - MO_MIDZ(mo);
+		float dz = lit_pos->z - mz;
 
 		float nx = normal->x;
 		float ny = normal->y;
@@ -264,10 +266,10 @@ private:
 	inline float WhatRadius(int DL)
 	{
 		if (DL == 0)
-			return mo->dlight.r;
+			return mo->dlight.r * MIR_XYScale();
 
 		return mo->info->dlight[1].radius * mo->dlight.r /
-			   mo->info->dlight[0].radius;
+			   mo->info->dlight[0].radius * MIR_XYScale();
 	}
 
 	inline rgbcol_t WhatColor(int DL)
@@ -285,12 +287,14 @@ public:
 	{
 		float mx = mo->x;
 		float my = mo->y;
+		float mz = MO_MIDZ(mo);
 
 		MIR_Coordinate(mx, my);
+		MIR_Height(mz);
 
 		float dx = x - mx;
 		float dy = y - my;
-		float dz = z - MO_MIDZ(mo);
+		float dz = z - mz;
 
 		float dist = sqrt(dx*dx + dy*dy + dz*dz);
 
@@ -319,7 +323,8 @@ public:
 	{
 		float mx = mo->x;
 		float my = mo->y;
-		
+		float mz = MO_MIDZ(mo);
+
 		if (is_weapon)
 		{
 			mx += viewcos * 24;
@@ -327,10 +332,16 @@ public:
 		}
 
 		MIR_Coordinate(mx, my);
+		MIR_Height(mz);
 
-		float dx = mod_pos->x - mx;
-		float dy = mod_pos->y - my;
-		float dz = MO_MIDZ(mod_pos) - MO_MIDZ(mo);
+		float dx = mod_pos->x;
+		float dy = mod_pos->x;
+		float dz = MO_MIDZ(mod_pos);
+			
+		MIR_Coordinate(dx, dy);
+		MIR_Height(dz);
+
+		dx -= mx; dy -= my; dz -= mz;
 
 		float dist = sqrt(dx*dx + dy*dy + dz*dz);
 
@@ -338,7 +349,7 @@ public:
 		dy /= dist;
 		dz /= dist;
 
-		dist = MAX(1.0, dist - mod_pos->radius);
+		dist = MAX(1.0, dist - mod_pos->radius * MIR_XYScale());
 
 
 		float L = 0.6 - 0.5 * (dx*nx + dy*ny + dz*nz);
@@ -467,10 +478,10 @@ private:
 	inline float WhatRadius(int DL)
 	{
 		if (DL == 0)
-			return mo->dlight.r;
+			return mo->dlight.r * MIR_XYScale();
 
 		return mo->info->dlight[1].radius * mo->dlight.r /
-			   mo->info->dlight[0].radius;
+			   mo->info->dlight[0].radius * MIR_XYScale();
 	}
 
 	inline rgbcol_t WhatColor(int DL)
@@ -715,7 +726,7 @@ public:
 private:
 	inline float WhatRadius(int DL)
 	{
-		return info->dlight[DL].radius;
+		return info->dlight[DL].radius * MIR_XYScale();
 	}
 
 	inline rgbcol_t WhatColor(int DL)
