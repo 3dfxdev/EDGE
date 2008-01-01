@@ -157,6 +157,22 @@ New features:
     [465] : EDGE Mirror, Red
     [466] : EDGE Mirror, Green
 
++ portals  @@@
+
+    [480] : EDGE Portal, Dark 50%
+    [481] : EDGE Portal, Light 30%
+    [482] : EDGE Portal, Light 70%
+    [483] : EDGE Portal, Blue 70%
+    [484] : EDGE Portal, Green 70%
+
++ security cameras @@@
+
+    [485] : EDGE Camera Portal, Plain
+    [486] : EDGE Camera Portal, White
+    [487] : EDGE Camera Portal, Cyan
+    [488] : EDGE Camera Portal, Rusty
+    [489] : EDGE Camera Portal, Green
+
 + sector glow effects.  Using one of these commands:
 
     GLOW_TYPE=FLOOR;
