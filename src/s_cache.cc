@@ -27,6 +27,8 @@
 
 #include <vector>
 
+#include "epi/file.h"
+#include "epi/filesystem.h"
 #include "epi/sound_data.h"
 
 #include "ddf/main.h"
@@ -36,6 +38,7 @@
 #include "s_cache.h"
 #include "s_ogg.h"
 
+#include "dm_state.h"  // game_dir
 #include "m_argv.h"
 #include "m_misc.h"
 #include "m_random.h"
@@ -113,6 +116,62 @@ void S_CacheClearAll(void)
 	fx_cache.erase(fx_cache.begin(), fx_cache.end());
 }
 
+
+static bool DoCacheLoad(sfxdef_c *def, epi::sound_data_c *buf)
+{
+	// open the file or lump, and read it into memory
+	epi::file_c *F;
+
+	if (def->file_name && def->file_name[0])
+	{
+		std::string fn = M_ComposeFileName(game_dir.c_str(), def->file_name.c_str());
+
+		F = epi::FS_Open(fn.c_str(), epi::file_c::ACCESS_READ | epi::file_c::ACCESS_BINARY);
+
+		if (! F)
+		{
+			M_WarnError("SFX Loader: Can't Find File '%s'\n", fn.c_str());
+			return false;
+		}
+	}
+	else 
+	{
+		int lump = W_CheckNumForName(def->lump_name.c_str());
+		if (lump < 0)
+		{
+			M_WarnError("SFX Loader: Missing sound lump: %s\n", def->lump_name.c_str());
+			return false;
+		}
+
+		F = W_OpenLump(lump);
+		SYS_ASSERT(F);
+	}
+	
+	int length = F->GetLength();
+
+	byte *data = F->LoadIntoMemory();
+
+	// no longer need the epi::file_c
+	delete F; F = NULL;
+
+	if (! data || length < 4)
+	{
+		M_WarnError("SFX Loader: Error loading data.\n");
+		return false;
+	}
+
+	// Load the data into the buffer
+
+	if (memcmp(data, "RIFF", 4) == 0)
+		Load_WAV(buf, data, length);
+	else if (memcmp(data, "Ogg", 3) == 0)
+		Load_OGG(buf, data, length);
+	else
+		Load_DOOM(buf, data, length);
+
+	return true;
+}
+
 epi::sound_data_c *S_CacheLoad(sfxdef_c *def)
 {
 	for (int i = 0; i < (int)fx_cache.size(); i++)
@@ -124,7 +183,6 @@ epi::sound_data_c *S_CacheLoad(sfxdef_c *def)
 		}
 	}
 
-
 	// create data structure
 	epi::sound_data_c *buf = new epi::sound_data_c();
 
@@ -133,39 +191,8 @@ epi::sound_data_c *S_CacheLoad(sfxdef_c *def)
 	buf->priv_data = def;
 	buf->ref_count = 1;
 
-	// load in the data from the WAD
-
-	const char *name = def->lump_name;
-	int lumpnum = W_CheckNumForName(name);
-
-	if (lumpnum == -1)
-	{
-		M_WarnError("Missing sound lump: %s\n", name);
-
-		Load_Silence(buf);
-		return buf;
-	}
-
-	// Load the data into the buffer
-
-	const byte *lump = (const byte*)W_CacheLumpNum(lumpnum);
-
-	int length = W_LumpLength(lumpnum);
-	if (length < 8)
-		I_Error("Bad SFX lump '%s' : too short!", name);
-
-	if (memcmp(lump, "RIFF", 4) == 0)
-		Load_WAV(buf, lump, length);
-	else if (memcmp(lump, "Ogg", 3) == 0)
-		Load_OGG(buf, lump, length);
-	else
-		Load_DOOM(buf, lump, length);
-
-	// caching the LUMP data is rather useless (and inefficient)
-	// since it won't be needed again until the current sound
-	// has been flushed from the sound cache.  Hence we just
-	// flush the lump data as early as possible.
-	W_DoneWithLump_Flushable(lump);
+	if (! DoCacheLoad(def, buf))
+		Load_Silence(buf);	
 
 	return buf;
 }
