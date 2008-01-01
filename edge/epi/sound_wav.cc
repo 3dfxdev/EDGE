@@ -74,16 +74,16 @@ static inline bool read_uint8(file_c *f, u8_t *val)
 
 /* Chunk management code... */
 
-#define ID_RIFF  0x46464952  /* "RIFF", in ascii. */
-#define ID_WAVE  0x45564157  /* "WAVE", in ascii. */
-#define ID_FACT  0x74636166  /* "fact", in ascii. */
+#define ID_RIFF  0x46464952U  /* "RIFF", in ascii. */
+#define ID_WAVE  0x45564157U  /* "WAVE", in ascii. */
+#define ID_FACT  0x74636166U  /* "fact", in ascii. */
 
 
 /*********************************************************
  * The FORMAT chunk...                                   *
  *********************************************************/
 
-#define ID_FMT  0x20746D66  /* "fmt ", in ascii. */
+#define ID_FMT  0x20746D66U  /* "fmt ", in ascii. */
 
 #define FMT_NORMAL 0x0001    /* Uncompressed waveform data.     */
 #define FMT_ADPCM  0x0002    /* ADPCM compressed waveform data. */
@@ -118,10 +118,8 @@ typedef struct S_WAV_FMT_T
     u32_t next_chunk_offset;
     
     u32_t sample_frame_size;
-    u32_t data_starting_offset;
-    u32_t total_bytes;
 
-    u32_t (*read_sample)(Sound_Sample *sample);
+    u32_t total_bytes;
 
     union
     {
@@ -141,6 +139,8 @@ typedef struct S_WAV_FMT_T
     } fmt;
 }
 fmt_t;
+
+static u32_t (*read_sample)(void);
 
 
 /*
@@ -178,35 +178,36 @@ static bool read_fmt_chunk(file_c *f, fmt_t *fmt)
  * The DATA chunk...                                     *
  *********************************************************/
 
-#define ID_DATA  0x61746164  /* "data", in ascii. */
+#define ID_DATA  0x61746164U  /* "data", in ascii. */
 
-typedef struct
-{
-    u32_t chunkID;
-    s32_t chunkSize;
-    /* Then, (chunkSize) bytes of waveform data... */
-}
-data_chunk_t;
-
-
-/*
- * Read in a data_t from disk. This makes this process safe regardless of
- *  the processor's byte order or how the fmt_t structure is packed.
- */
-static bool read_data_chunk(file_c *f, data_chunk_t *data)
-{
-    /* skip reading the chunk ID, since it was already read at this point... */
-    data->chunkID = ID_DATA;
-
-    return read_le_s32(f, &data->chunkSize);
-}
-
+///---typedef struct
+///---{
+///---    u32_t chunkID;
+///---    s32_t chunkSize;
+///---    /* Then, (chunkSize) bytes of waveform data... */
+///---}
+///---data_chunk_t;
+///---
+///---
+///---/*
+///--- * Read in a data_t from disk. This makes this process safe regardless of
+///--- *  the processor's byte order or how the fmt_t structure is packed.
+///--- */
+///---static bool read_data_chunk(file_c *f, data_chunk_t *data)
+///---{
+///---    /* skip reading the chunk ID, since it was already read at this point... */
+///---    data->chunkID = ID_DATA;
+///---
+///---    return read_le_s32(f, &data->chunkSize);
+///---}
 
 
 
 /*****************************************************************************
  * this is what we store in our internal->decoder_private field...           *
  *****************************************************************************/
+
+static fmt_t decoder_fmt;
 
 typedef struct
 {
@@ -215,6 +216,10 @@ typedef struct
     s32_t bytes_left;
 }
 wav_t;
+
+static wav_t decoder_wavt;
+
+static file_c *decoder_F;
 
 
 
@@ -225,13 +230,12 @@ wav_t;
 /*
  * Sound_Decode() lands here for uncompressed WAVs...
  */
-static u32_t read_sample_fmt_normal(Sound_Sample *sample)
+static u32_t read_sample_fmt_normal(void)
 {
     u32_t retval;
     
-	Sound_SampleInternal *internal = (Sound_SampleInternal *) sample->opaque;
-	
-    wav_t *w = (wav_t *) internal->decoder_private;
+
+    wav_t *w = &decoder_wavt;
 
     u32_t max = (internal->buffer_size < (u32_t) w->bytes_left) ?
                  internal->buffer_size : (u32_t) w->bytes_left;
@@ -264,7 +268,7 @@ static u32_t read_sample_fmt_normal(Sound_Sample *sample)
 static bool read_fmt_normal(file_c *f, fmt_t *fmt)
 {
     /* (don't need to read more from the RWops...) */
-    fmt->read_sample = read_sample_fmt_normal;
+    read_sample = read_sample_fmt_normal;
 
     return true; //OK
 }
@@ -283,9 +287,10 @@ static bool read_fmt_normal(file_c *f, fmt_t *fmt)
 static inline bool read_adpcm_block_headers(Sound_Sample *sample)
 {
     Sound_SampleInternal *internal = (Sound_SampleInternal *) sample->opaque;
-    file_c *rw = internal->rw;
-    wav_t *w = (wav_t *) internal->decoder_private;
+
+    wav_t *w = &decoder_wavt;
     fmt_t *fmt = w->fmt;
+
     ADPCMBLOCKHEADER *headers = fmt->fmt.adpcm.blockheaders;
 
     if (w->bytes_left < fmt->wBlockAlign)
@@ -362,10 +367,11 @@ static inline void do_adpcm_nibble(u8_t nib,
 static inline int decode_adpcm_sample_frame(Sound_Sample *sample)
 {
     Sound_SampleInternal *internal = (Sound_SampleInternal *) sample->opaque;
-    wav_t *w = (wav_t *) internal->decoder_private;
+    wav_t *w = &decoder_wavt;
     fmt_t *fmt = w->fmt;
+
     ADPCMBLOCKHEADER *headers = fmt->fmt.adpcm.blockheaders;
-    file_c *rw = internal->rw;
+    file_c *rw = decoder_F;
 
     s32_t delta;
     u8_t nib = fmt->fmt.adpcm.nibble;
@@ -421,10 +427,10 @@ static inline void put_adpcm_sample_frame2(void *_buf, fmt_t *fmt)
 /*
  * Sound_Decode() lands here for ADPCM-encoded WAVs...
  */
-static u32_t read_sample_fmt_adpcm(Sound_Sample *sample)
+static u32_t read_sample_fmt_adpcm(void)
 {
     Sound_SampleInternal *internal = (Sound_SampleInternal *) sample->opaque;
-    wav_t *w = (wav_t *) internal->decoder_private;
+    wav_t *w = &decoder_wavt;
     fmt_t *fmt = w->fmt;
     u32_t bw = 0;
 
@@ -486,17 +492,17 @@ static void free_fmt_adpcm(fmt_t *fmt)
  * safe regardless of the processor's byte order or how the fmt_t 
  * structure is packed.
  */
-static bool read_fmt_adpcm(file_c *f, fmt_t *fmt)
+static bool read_fmt_adpcm(file_c *rw, fmt_t *fmt)
 {
-    size_t i;
+///--- size_t i;
 
-    memset(&fmt->fmt.adpcm, '\0', sizeof(fmt->fmt.adpcm));
+    memset(&fmt->fmt.adpcm, 0, sizeof(fmt->fmt.adpcm));
 
-    fmt->read_sample = read_sample_fmt_adpcm;
+    read_sample = read_sample_fmt_adpcm;
 
-    if (! read_le_s16(rw, &fmt->fmt.adpcm.cbSize) ||
-        ! read_le_s16(rw, &fmt->fmt.adpcm.wSamplesPerBlock) ||
-        ! read_le_s16(rw, &fmt->fmt.adpcm.wNumCoef))
+    if (! read_le_u16(rw, &fmt->fmt.adpcm.cbSize) ||
+        ! read_le_u16(rw, &fmt->fmt.adpcm.wSamplesPerBlock) ||
+        ! read_le_u16(rw, &fmt->fmt.adpcm.wNumCoef))
 	{
 		return false;
 	}
@@ -541,10 +547,8 @@ static bool read_fmt(file_c *f, fmt_t *fmt)
 			break;
 	}
 
-	SND_DEBUG(("WAV: Format 0x%X is unknown.\n",
+	I_Debugf(("WAV Loader: Format 0x%X is unknown.\n",
 			(unsigned int) fmt->wFormatTag));
-
-    // FIXME BAIL_MACRO("WAV: Unsupported format", 0);
 
 	return false;
 }
@@ -561,7 +565,7 @@ static bool find_chunk(file_c *f, u32_t id)
     {
 		u32_t got_id;
 
-        if (! read_le_s32(f, &got_id))
+        if (! read_le_u32(f, &got_id))
 			return false;
 
         if (got_id == id)
@@ -575,9 +579,9 @@ static bool find_chunk(file_c *f, u32_t id)
 
         SYS_ASSERT(len >= 0);
 
-        pos += sizeof(u32_t) * 2 + size;
+        pos += sizeof(u32_t) * 2 + len;
 
-        if (size > 0)
+        if (len > 0)
 		{
 			if (! f->Seek(pos, file_c::SEEKPOINT_START))
 				return false;
@@ -588,83 +592,103 @@ static bool find_chunk(file_c *f, u32_t id)
 }
 
 
-sound_data_c * WAV_Load(file_c *f)
+bool WAV_Load(sound_data_c *buf, file_c *f)
 {
-	fmt_t fmt;
+	decoder_F = f;
 
-    memset(&fmt, 0, sizeof(fmt_t));
+    memset(&decoder_fmt, 0, sizeof(decoder_fmt));
 
-    Sound_SampleInternal *internal = (Sound_SampleInternal *) sample->opaque;
-    file_c *rw = internal->rw;
-    data_t d;
-    wav_t *w;
+	decoder_wavt.fmt = &decoder_fmt;
+
+
+    wav_t *w = &decoder_wavt;
+	fmt_t *fmt = w->fmt;
+
+
     u32_t pos;
 
 	u32_t header_id;
 	u32_t header_file_len;
 
 	if (! read_le_u32(f, &header_id) || header_id != ID_RIFF)
-		return NULL;  // FIXME "Not a RIFF file."
+	{
+		I_Warning("WAV Loader: Not a RIFF file.\n");
+		return false;
+	}
 
-	read_le32(f, &header_file_len);
+	read_le_u32(f, &header_file_len);
 
 	if (! read_le_u32(f, &header_id) || header_id != ID_WAVE)
-		return NULL;  // FIXME "Not a WAVE file."
+	{
+		I_Warning("WAV Loader: Not a RIFF/WAVE file.\n");
+		return false;
+	}
 
     if (! find_chunk(f, ID_FMT))
-		return NULL;  // FIXME: "Missing format chunk."
+	{
+		I_Warning("WAV Loader: Missing [fmt] chunk.\n");
+		return false;
+	}
 
     if (! read_fmt_chunk(f, fmt))
-		return NULL;  // FIXME "Can't read format chunk."
+	{
+		I_Warning("WAV Loader: Cannot decode [fmt] chunk.\n");
+		return false;
+	}
 
-    sample->actual.channels = (u8_t) fmt->wChannels;
-    sample->actual.rate = fmt->dwSamplesPerSec;
+    int channels = fmt->wChannels;
 
-	SND_DEBUG(("WAV: %d bits per sample\n", (int) fmt->wBitsPerSample));
+	if (channels != 1)  //!!!!!!
+		I_Error("Don't try and load a stereo WAV you fuckwit!\n");
 
-    if ((fmt->wBitsPerSample == 4) /*|| (fmt->wBitsPerSample == 0) */ )
-        sample->actual.format = AUDIO_S16SYS;
-    else if (fmt->wBitsPerSample == 8)
+	int freq = fmt->dwSamplesPerSec;
+
+	I_Debugf("WAV Loader: frequency %d Hz\n", freq);
+	I_Debugf("WAV Loader: %d bits per sample\n", (int) fmt->wBitsPerSample);
+
+    if (fmt->wBitsPerSample == 8)
         sample->actual.format = AUDIO_U8;
     else if (fmt->wBitsPerSample == 16)
         sample->actual.format = AUDIO_S16LSB;
     else
     {
-        // FIXME "WAV: Unsupported sample size."
-		return NULL
+        I_Warning("WAV Loader: Unsupported sample size: %d\n", fmt->wBitsPerSample);
+		return false;
     }
 
     if (! read_fmt(f, fmt))
-		return NULL;
+		return false;
 
 	f->Seek(fmt->next_chunk_offset, file_c::SEEKPOINT_START);
 
     if (! find_chunk(f, ID_DATA))
-		// FIXME "Missing data chunk."
-		return NULL;
+	{
+		I_Warning("WAV Loader: Missing [data] chunk.\n");
+		return false;
+	}
 
-    if (! read_data_chunk(f, &d))
-		// FIXME "Can't read data chunk."
-		return NULL
+	s32_t data_size;
 
-    w = (wav_t *) malloc(sizeof(wav_t));
+    if (! read_le_s32(f, &data_size))
+	{
+		I_Warning("WAV Loader: Cannot get [data] chunk size.\n");
+		return false;
+	}
 
-    w->fmt = fmt;
+    fmt->total_bytes = w->bytes_left = data_size;
 
-    fmt->total_bytes = w->bytes_left = d.chunkSize;
-    fmt->data_starting_offset = SDL_RWtell(rw);
     fmt->sample_frame_size = ( ((sample->actual.format & 0xFF) / 8) *
                                sample->actual.channels );
 
-    internal->decoder_private = (void *) w;
-
+	int num_
+	
     sample->flags = SOUND_SAMPLEFLAG_NONE;
 
     SND_DEBUG(("WAV: Accepting data stream.\n"));
 
 	// !!!!!! TODO:  load the data stream !!!
 
-    return wave;
+    return true;
 }
 
 
