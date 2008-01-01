@@ -25,10 +25,10 @@
 namespace epi
 {
 
-sound_data_c * WAV_Load(file_c *f);
+bool WAV_Load(sound_data_c *buf, file_c *f);
 // Decode WAV format sound data from the given file stream,
-// and return it in the form of a sound_data_c object.
-// Returns NULL if something went wrong.
+// storing the results in the given sound_data_c object.
+// Returns false if something went wrong.
 
 } // namespace epi
 
