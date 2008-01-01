@@ -40,6 +40,7 @@ sfxdef_container_c sfxdefs;
 static const commandlist_t sfx_commands[] =
 {
 	DF("LUMP_NAME", lump_name, DDF_MainGetLumpName),
+	DF("FILE_NAME", file_name, DDF_MainGetString),
 	DF("SINGULAR", singularity, DDF_MainGetNumeric),
 	DF("PRIORITY", priority, DDF_MainGetNumeric),
 	DF("VOLUME", volume, DDF_MainGetPercent),
@@ -126,8 +127,9 @@ static void SoundParseField(const char *field, const char *contents,
 
 static void SoundFinishEntry(void)
 {
-	if (!buffer_sfx.lump_name[0])
-		DDF_Error("Missing LUMP_NAME for sound.\n");
+	if (!buffer_sfx.lump_name[0] &&
+		!(buffer_sfx.file_name && buffer_sfx.file_name[0]))
+		DDF_Error("Missing LUMP_NAME or FILE_NAME for sound.\n");
 
 	// transfer static entry to dynamic entry.
 	dynamic_sfx->CopyDetail(buffer_sfx);
@@ -250,6 +252,7 @@ void sfxdef_c::Copy(sfxdef_c &src)
 void sfxdef_c::CopyDetail(sfxdef_c &src)
 {
 	lump_name = src.lump_name;
+	file_name = src.file_name;
 
 	// clear the internal sfx_t (ID would be wrong)
 	normal.sounds[0] = 0;
@@ -271,7 +274,8 @@ void sfxdef_c::Default()
 	ddf.Default();
 	
 	lump_name.clear();
-	
+	file_name.clear();
+
 	normal.sounds[0] = 0;
 	normal.num = 0;
 

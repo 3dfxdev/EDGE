@@ -19,6 +19,8 @@
 #ifndef __DDF_SFX_H__
 #define __DDF_SFX_H__
 
+#include "epi/utility.h"
+
 #include "base.h"
 #include "types.h"
 
@@ -87,8 +89,9 @@ public:
 	// sound's name, etc..
 	ddf_base_c ddf;
 
-    // full sound lump name
+    // full sound lump name (or file name)
 	lumpname_c lump_name;
+	epi::strent_c file_name;
 
 	// sfxinfo ID number
 	// -AJA- Changed to a sfx_t.  It serves two purposes: (a) hold the
