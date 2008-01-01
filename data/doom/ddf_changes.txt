@@ -4,12 +4,13 @@ EDGE DDF 5.6: (????-??-??)
 
 1) LINES.DDF: added new HUB types (501 to 539).
 
-2) THINGS.DDF: added [HUB_START:4099].
+2) THINGS.DDF: added [HUB_START:4099] thing.
 
-3) LINES.DDF: added new PORTAL types (480 to 484).
+3) LINES.DDF: added new PORTAL types (480 to 484), and CAMERA
+              portal types (485 to 489).
 
 4) LINES.DDF: added more types (542 to 559) for Thin Sliding Doors,
-              ones that are remotely activated (switch and walk).
+              ones which are remotely activated (switch and walk).
 
 
 EDGE DDF 5.5: (2007-12-01)
