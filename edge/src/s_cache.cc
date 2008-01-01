@@ -29,7 +29,9 @@
 
 #include "epi/file.h"
 #include "epi/filesystem.h"
+#include "epi/file_memory.h"
 #include "epi/sound_data.h"
+#include "epi/sound_wav.h"
 
 #include "ddf/main.h"
 #include "ddf/sfx.h"
@@ -47,6 +49,9 @@
 #include "w_wad.h"
 
 
+extern int dev_freq;
+
+
 static std::vector<epi::sound_data_c *> fx_cache;
 
 
@@ -54,12 +59,13 @@ static void Load_Silence(epi::sound_data_c *buf)
 {
 	int length = 256;
 
+	buf->freq = dev_freq;
 	buf->Allocate(length, epi::SBUF_Mono);
 
 	memset(buf->data_L, 0, length * sizeof(s16_t));
 }
 
-static void Load_DOOM(epi::sound_data_c *buf, const byte *lump, int length)
+static bool Load_DOOM(epi::sound_data_c *buf, const byte *lump, int length)
 {
 	buf->freq = lump[2] + (lump[3] << 8);
 
@@ -81,16 +87,20 @@ static void Load_DOOM(epi::sound_data_c *buf, const byte *lump, int length)
 
 	for (; src < s_end; src++)
 		*dest++ = (*src ^ 0x80) << 8;
+
+	return true;
 }
 
-static void Load_WAV(epi::sound_data_c *buf, const byte *lump, int length)
+static bool Load_WAV(epi::sound_data_c *buf, const byte *lump, int length)
 {
-	I_Error("Sound Load: WAV format not supported!\n");
+	epi::mem_file_c F(lump, length, false);
+
+	return epi::WAV_Load(buf, &F);
 }
 
-static void Load_OGG(epi::sound_data_c *buf, const byte *lump, int length)
+static bool Load_OGG(epi::sound_data_c *buf, const byte *lump, int length)
 {
-	S_LoadOGGSound(buf, lump, length);
+	return S_LoadOGGSound(buf, lump, length);
 }
 
 
@@ -162,14 +172,16 @@ static bool DoCacheLoad(sfxdef_c *def, epi::sound_data_c *buf)
 
 	// Load the data into the buffer
 
+	bool OK = false;
+	
 	if (memcmp(data, "RIFF", 4) == 0)
-		Load_WAV(buf, data, length);
+		OK = Load_WAV(buf, data, length);
 	else if (memcmp(data, "Ogg", 3) == 0)
-		Load_OGG(buf, data, length);
+		OK = Load_OGG(buf, data, length);
 	else
-		Load_DOOM(buf, data, length);
+		OK = Load_DOOM(buf, data, length);
 
-	return true;
+	return OK;
 }
 
 epi::sound_data_c *S_CacheLoad(sfxdef_c *def)
