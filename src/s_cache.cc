@@ -34,6 +34,7 @@
 
 #include "s_sound.h"
 #include "s_cache.h"
+#include "s_ogg.h"
 
 #include "m_argv.h"
 #include "m_misc.h"
@@ -86,7 +87,7 @@ static void Load_WAV(epi::sound_data_c *buf, const byte *lump, int length)
 
 static void Load_OGG(epi::sound_data_c *buf, const byte *lump, int length)
 {
-	I_Error("Sound Load: OGG/Vorbis format not supported!\n");
+	S_LoadOGGSound(buf, lump, length);
 }
 
 

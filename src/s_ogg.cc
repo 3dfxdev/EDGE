@@ -40,19 +40,20 @@
 
 extern bool dev_stereo;  // FIXME: encapsulation
 
+struct datalump_s
+{
+	const byte *data;
+
+	size_t pos;
+	size_t size;
+};
+
 
 class oggplayer_c : public abstract_music_c
 {
 public:
-	oggplayer_c();
+	 oggplayer_c();
 	~oggplayer_c();
-
-	struct datalump_s
-	{
-		byte *data;
-		size_t pos;
-		size_t size;
-	};
 
 private:
 
@@ -95,8 +96,6 @@ private:
 
 	bool StreamIntoBuffer(epi::sound_data_c *buf);
 
-	void ConvertToMono(s16_t *dest, const s16_t *src, int len);
-
 };
 
 
@@ -106,9 +105,9 @@ private:
 //
 // oggplayer datalump operation functions
 //
-size_t oggplayer_dlread(void *ptr, size_t size, size_t nmemb, void *datasource)
+size_t oggplayer_memread(void *ptr, size_t size, size_t nmemb, void *datasource)
 {
-	oggplayer_c::datalump_s *d = (oggplayer_c::datalump_s *)datasource;
+	datalump_s *d = (datalump_s *)datasource;
 	size_t rb = size*nmemb;
 
 	if (d->pos >= d->size)
@@ -123,9 +122,9 @@ size_t oggplayer_dlread(void *ptr, size_t size, size_t nmemb, void *datasource)
 	return rb / size;
 }
 
-int oggplayer_dlseek(void *datasource, ogg_int64_t offset, int whence)
+int oggplayer_memseek(void *datasource, ogg_int64_t offset, int whence)
 {
-	oggplayer_c::datalump_s *d = (oggplayer_c::datalump_s *)datasource;
+	datalump_s *d = (datalump_s *)datasource;
 	size_t newpos;
 
 	switch(whence)
@@ -143,9 +142,9 @@ int oggplayer_dlseek(void *datasource, ogg_int64_t offset, int whence)
 	return 0;
 }
 
-int oggplayer_dlclose(void *datasource)
+int oggplayer_memclose(void *datasource)
 {
-	oggplayer_c::datalump_s *d = (oggplayer_c::datalump_s *)datasource;
+	datalump_s *d = (datalump_s *)datasource;
 	if (d->size)
 	{
 		delete [] d->data;
@@ -156,9 +155,9 @@ int oggplayer_dlclose(void *datasource)
 	return 0;
 }
 
-long oggplayer_dltell(void *datasource)
+long oggplayer_memtell(void *datasource)
 {
-	oggplayer_c::datalump_s *d = (oggplayer_c::datalump_s *)datasource;
+	datalump_s *d = (datalump_s *)datasource;
 
 	if (d->pos >= d->size)
 		return -1;
@@ -240,6 +239,7 @@ const char * oggplayer_c::GetError(int code)
 void oggplayer_c::PostOpenInit()
 {
     vorbis_inf = ov_info(&ogg_stream, -1);
+	SYS_ASSERT(vorbis_inf);
 
     if (vorbis_inf->channels == 1)
         is_stereo = false;
@@ -248,6 +248,18 @@ void oggplayer_c::PostOpenInit()
     
 	// Loaded, but not playing
 	status = STOPPED;
+}
+
+
+static void ConvertToMono(s16_t *dest, const s16_t *src, int len)
+{
+	const s16_t *s_end = src + len*2;
+
+	for (; src < s_end; src += 2)
+	{
+		// compute average of samples
+		*dest++ = ( (int)src[0] + (int)src[1] ) >> 1;
+	}
 }
 
 
@@ -310,18 +322,6 @@ bool oggplayer_c::StreamIntoBuffer(epi::sound_data_c *buf)
 }
 
 
-void oggplayer_c::ConvertToMono(s16_t *dest, const s16_t *src, int len)
-{
-	const s16_t *s_end = src + len*2;
-
-	for (; src < s_end; src += 2)
-	{
-		// compute average of samples
-		*dest++ = ( (int)src[0] + (int)src[1] ) >> 1;
-	}
-}
-
-
 void oggplayer_c::Volume(float gain)
 {
 	// not needed, music volume is handled in s_blit.cc
@@ -368,10 +368,10 @@ bool oggplayer_c::OpenLump(const char *lumpname)
 
 	ov_callbacks CB;
 
-	CB.read_func  = oggplayer_dlread;
-	CB.seek_func  = oggplayer_dlseek;
-	CB.close_func = oggplayer_dlclose;
-	CB.tell_func  = oggplayer_dltell; 
+	CB.read_func  = oggplayer_memread;
+	CB.seek_func  = oggplayer_memseek;
+	CB.close_func = oggplayer_memclose;
+	CB.tell_func  = oggplayer_memtell; 
 
     int result = ov_open_callbacks((void*)&ogg_lump, &ogg_stream, NULL, 0, CB);
 
@@ -379,7 +379,7 @@ bool oggplayer_c::OpenLump(const char *lumpname)
     {
 		// Only time we have to kill this since OGG will deal with
 		// the handle when ov_open_callbacks() succeeds
-        oggplayer_dlclose((void*)&ogg_lump);
+        oggplayer_memclose((void*)&ogg_lump);
   
 		// Construct an error message
 		std::string err_msg("[oggplayer_c::Open](DataLump) Failed: ");
@@ -549,6 +549,87 @@ abstract_music_c * S_PlayOGGMusic(const pl_entry_c *musdat, float volume, bool l
 	player->Play(looping);
 
 	return player;
+}
+
+// #define CHUNKYNESS  2048
+// 
+// typedef struct TempChunk_s
+// {
+// 	s16_t samples[CHUNKYNESS];
+// 
+// 	int length;
+// }
+// TempChunk_t;
+
+bool S_LoadOGGSound(epi::sound_data_c *buf, const byte *data, int length)
+{
+	datalump_s ogg_lump;
+
+	ogg_lump.data = data;
+	ogg_lump.size = length;
+	ogg_lump.pos  = 0;
+
+	ov_callbacks CB;
+
+	CB.read_func  = oggplayer_memread;
+	CB.seek_func  = oggplayer_memseek;
+	CB.close_func = oggplayer_memclose;
+	CB.tell_func  = oggplayer_memtell; 
+
+	OggVorbis_File ogg_stream;
+
+    int result = ov_open_callbacks((void*)&ogg_lump, &ogg_stream, NULL, 0, CB);
+
+    if (result < 0)
+    {
+		// Only time we have to kill this since OGG will deal with
+		// the handle when ov_open_callbacks() succeeds
+        oggplayer_memclose((void*)&ogg_lump);
+  
+		// FIXME: this is too heavy handed!!
+		I_Error("Failed to load OGG sound (corrupt ogg??)\n");
+		return false; /* NOT REACHED */
+    }
+
+	vorbis_info *vorbis_inf = ov_info(&ogg_stream, -1);
+	SYS_ASSERT(vorbis_inf);
+
+	int total = (int)ov_pcm_total(&ogg_stream, -1);
+	if (total <= 0)
+		I_Error("Failed to load OGG sound (length not available).\n");
+
+	bool is_stereo = (vorbis_inf->channels > 1);
+	int ogg_endian = (EPI_BYTEORDER == EPI_LIL_ENDIAN) ? 0 : 1;
+
+	if (vorbis_inf->channels > 1)  // FIXME !!!!!
+		I_Error("Failed loading OGG sound: must be mono you fucker!\n");
+
+	buf->Allocate(length, epi::SBUF_Mono);
+
+	while (total > 0)
+	{
+		int section;
+		int got_size = ov_read(
+				&ogg_stream,
+				(char *)data_buf,
+				(OGGV_NUM_SAMPLES - samples) * (is_stereo ? 4 : 2),
+				ogg_endian,
+				2 /* bytes per sample */,
+				1 /* signed data */,
+				&section);
+
+		if (got_size == 0)  /* EOF */
+			I_Error("Short data while loading OGG\n");
+
+		if (got_size < 0)  /* ERROR */
+			I_Error("Some fuckup while loading OGG\n");
+
+		// ConvertToMono
+
+		total -= got_size;
+	}
+
+	return true;
 }
 
 //--- editor settings ---
