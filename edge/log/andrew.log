@@ -1,5 +1,12 @@
 Andrew Apted's Log
 
+2008/01/01:
+
+Worked on loading OGG/Vorbis for in-game sound effects.
+
+Began work on FILE_NAME command for SOUNDS.DDF, to allow
+external sound files.
+
 2007/12/30:
 
 For Portals, added new method to render the surface, using
