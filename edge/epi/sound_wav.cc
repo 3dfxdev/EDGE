@@ -108,6 +108,7 @@ typedef struct S_WAV_FMT_T
 {
     u32_t chunkID;
     s32_t chunkSize;
+
     s16_t wFormatTag;
     u16_t wChannels;
     u32_t dwSamplesPerSec;
@@ -116,9 +117,7 @@ typedef struct S_WAV_FMT_T
     u16_t wBitsPerSample;
 
     u32_t next_chunk_offset;
-    
     u32_t sample_frame_size;
-
     u32_t total_bytes;
 
     union
@@ -221,6 +220,8 @@ static wav_t decoder_wavt;
 
 static file_c *decoder_F;
 
+static bool decode_eof;
+static bool decode_error;
 
 
 /*****************************************************************************
@@ -252,14 +253,10 @@ static u32_t read_sample_fmt_normal(void)
 
         /* Make sure the read went smoothly... */
     if ((retval == 0) || (w->bytes_left == 0))
-        sample->flags |= SOUND_SAMPLEFLAG_EOF;
+        decode_eof = true;
 
     else if (retval == -1)
-        sample->flags |= SOUND_SAMPLEFLAG_ERROR;
-
-        /* (next call this EAGAIN may turn into an EOF or error.) */
-    else if (retval < internal->buffer_size)
-        sample->flags |= SOUND_SAMPLEFLAG_EAGAIN;
+        decode_error = true;
 
     return retval;
 }
@@ -295,7 +292,7 @@ static inline bool read_adpcm_block_headers(Sound_Sample *sample)
 
     if (w->bytes_left < fmt->wBlockAlign)
     {
-        sample->flags |= SOUND_SAMPLEFLAG_EOF;
+		decode_eof = true;
         return(0);
     }
 
@@ -442,8 +439,8 @@ static u32_t read_sample_fmt_adpcm(void)
             case 0:  /* need to read a new block... */
                 if (!read_adpcm_block_headers(sample))
                 {
-                    if ((sample->flags & SOUND_SAMPLEFLAG_EOF) == 0)
-                        sample->flags |= SOUND_SAMPLEFLAG_ERROR;
+                    if (! decode_eof)
+                        decode_error = true;
                     return(bw);
                 } /* if */
 
@@ -466,7 +463,7 @@ static u32_t read_sample_fmt_adpcm(void)
 
                 if (!decode_adpcm_sample_frame(sample))
                 {
-                    sample->flags |= SOUND_SAMPLEFLAG_ERROR;
+                    decode_error = true;
                     return(bw);
                 } /* if */
         } /* switch */
@@ -547,8 +544,7 @@ static bool read_fmt(file_c *f, fmt_t *fmt)
 			break;
 	}
 
-	I_Debugf(("WAV Loader: Format 0x%X is unknown.\n",
-			(unsigned int) fmt->wFormatTag));
+	I_Debugf("WAV Loader: Format 0x%X is unknown.\n", (u32_t) fmt->wFormatTag);
 
 	return false;
 }
@@ -642,17 +638,14 @@ bool WAV_Load(sound_data_c *buf, file_c *f)
 		I_Error("Don't try and load a stereo WAV you fuckwit!\n");
 
 	int freq = fmt->dwSamplesPerSec;
+	int bits = fmt->wBitsPerSample;
 
 	I_Debugf("WAV Loader: frequency %d Hz\n", freq);
-	I_Debugf("WAV Loader: %d bits per sample\n", (int) fmt->wBitsPerSample);
+	I_Debugf("WAV Loader: %d bits per sample\n", bits);
 
-    if (fmt->wBitsPerSample == 8)
-        sample->actual.format = AUDIO_U8;
-    else if (fmt->wBitsPerSample == 16)
-        sample->actual.format = AUDIO_S16LSB;
-    else
+    if (bits != 8 || bits != 16)
     {
-        I_Warning("WAV Loader: Unsupported sample size: %d\n", fmt->wBitsPerSample);
+        I_Warning("WAV Loader: Unsupported sample bits: %d\n", bits);
 		return false;
     }
 
@@ -680,10 +673,8 @@ bool WAV_Load(sound_data_c *buf, file_c *f)
     fmt->sample_frame_size = ( ((sample->actual.format & 0xFF) / 8) *
                                sample->actual.channels );
 
-	int num_
+	decode_eof = decode_error = false;
 	
-    sample->flags = SOUND_SAMPLEFLAG_NONE;
-
     SND_DEBUG(("WAV: Accepting data stream.\n"));
 
 	// !!!!!! TODO:  load the data stream !!!
