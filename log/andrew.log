@@ -4,8 +4,10 @@ Andrew Apted's Log
 
 Worked on loading OGG/Vorbis for in-game sound effects.
 
-Began work on FILE_NAME command for SOUNDS.DDF, to allow
-external sound files.
+Added a FILE_NAME command for SOUNDS.DDF, allowing external
+sound files.
+
+Worked on the WAV sound loader, but lots left to do.
 
 2007/12/30:
 
