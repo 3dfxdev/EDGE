@@ -33,6 +33,8 @@ class pl_entry_c;
 
 abstract_music_c * S_PlayOGGMusic(const pl_entry_c *musdat, float volume, bool looping);
 
+bool S_LoadOGGSound(epi::sound_data_c *buf, const byte *data, int length);
+
 #endif  /* __OGGPLAYER_H__ */
 
 //--- editor settings ---
