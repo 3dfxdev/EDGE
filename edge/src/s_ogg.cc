@@ -271,8 +271,6 @@ bool oggplayer_c::StreamIntoBuffer(epi::sound_data_c *buf)
 
     while (samples < OGGV_NUM_SAMPLES)
     {
-		int section;
-
 		s16_t *data_buf;
 
 		if (is_stereo and !dev_stereo)
@@ -280,24 +278,19 @@ bool oggplayer_c::StreamIntoBuffer(epi::sound_data_c *buf)
 		else
 			data_buf = buf->data_L + samples * (is_stereo ? 2 : 1);
 
-        int got_size = ov_read(
-				&ogg_stream,
-				(char *)data_buf,
-				(OGGV_NUM_SAMPLES - samples) * (is_stereo ? 4 : 2),
-				ogg_endian,
-				2 /* bytes per sample */,
-				1 /* signed data */,
+		int section;
+        int got_size = ov_read(&ogg_stream, (char *)data_buf,
+				(OGGV_NUM_SAMPLES - samples) * (is_stereo ? 2 : 1) * sizeof(s16_t),
+				ogg_endian, sizeof(s16_t), 1 /* signed data */,
 				&section);
 
 		if (got_size == 0)  /* EOF */
 		{
-			if (looping)
-			{
-				ov_raw_seek(&ogg_stream, 0);
-				continue; // try again
-			}
+			if (! looping)
+				break;
 
-			break;
+			ov_raw_seek(&ogg_stream, 0);
+			continue; // try again
 		}
 
 		if (got_size < 0)  /* ERROR */
@@ -312,10 +305,12 @@ bool oggplayer_c::StreamIntoBuffer(epi::sound_data_c *buf)
 			return false; /* NOT REACHED */
 		}
 
-		if (is_stereo and !dev_stereo)
-			ConvertToMono(buf->data_L + samples, mono_buffer, got_size / 4);
+		got_size /= (is_stereo ? 2 : 1) * sizeof(s16_t);
 
-		samples += (got_size / (is_stereo ? 4 : 2));
+		if (is_stereo and !dev_stereo)
+			ConvertToMono(buf->data_L + samples, mono_buffer, got_size);
+
+		samples += got_size;
     }
 
     return (samples > 0);
@@ -587,7 +582,7 @@ bool S_LoadOGGSound(epi::sound_data_c *buf, const byte *data, int length)
         oggplayer_memclose((void*)&ogg_lump);
   
 		// FIXME: this is too heavy handed!!
-		I_Error("Failed to load OGG sound (corrupt ogg??)\n");
+		I_Error("Failed to load OGG sound (corrupt ogg?)\n");
 		return false; /* NOT REACHED */
     }
 
@@ -606,16 +601,21 @@ bool S_LoadOGGSound(epi::sound_data_c *buf, const byte *data, int length)
 
 	buf->Allocate(length, epi::SBUF_Mono);
 
-	while (total > 0)
+	for (int samples = 0; samples < total; )
 	{
+		s16_t *data_buf;
+
+//!!		if (is_stereo and !dev_stereo)
+//!!			data_buf = mono_buffer;
+//!!		else
+				data_buf = buf->data_L + samples;
+
+		int want = MIN(1024, total - samples);
+		
 		int section;
-		int got_size = ov_read(
-				&ogg_stream,
-				(char *)data_buf,
-				(OGGV_NUM_SAMPLES - samples) * (is_stereo ? 4 : 2),
-				ogg_endian,
-				2 /* bytes per sample */,
-				1 /* signed data */,
+		int got_size = ov_read(&ogg_stream, (char *)data_buf,
+				want * (is_stereo ? 2 : 1) * sizeof(s16_t),
+				ogg_endian, sizeof(s16_t), 1 /* signed data */,
 				&section);
 
 		if (got_size == 0)  /* EOF */
@@ -624,9 +624,11 @@ bool S_LoadOGGSound(epi::sound_data_c *buf, const byte *data, int length)
 		if (got_size < 0)  /* ERROR */
 			I_Error("Some fuckup while loading OGG\n");
 
+		got_size /= (is_stereo ? 2 : 1) * sizeof(s16_t);
+
 		// ConvertToMono
 
-		total -= got_size;
+		samples += got_size;
 	}
 
 	return true;
