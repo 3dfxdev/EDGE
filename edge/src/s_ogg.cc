@@ -40,6 +40,7 @@
 
 extern bool dev_stereo;  // FIXME: encapsulation
 
+
 struct datalump_s
 {
 	const byte *data;
@@ -283,6 +284,9 @@ bool oggplayer_c::StreamIntoBuffer(epi::sound_data_c *buf)
 				(OGGV_NUM_SAMPLES - samples) * (is_stereo ? 2 : 1) * sizeof(s16_t),
 				ogg_endian, sizeof(s16_t), 1 /* signed data */,
 				&section);
+
+		if (got_size == OV_HOLE)  // ignore corruption
+			continue;
 
 		if (got_size == 0)  /* EOF */
 		{
@@ -558,6 +562,8 @@ abstract_music_c * S_PlayOGGMusic(const pl_entry_c *musdat, float volume, bool l
 
 bool S_LoadOGGSound(epi::sound_data_c *buf, const byte *data, int length)
 {
+	
+I_Debugf("S_LoadOGGSound: begun (data length %d)\n", length);
 	datalump_s ogg_lump;
 
 	ogg_lump.data = data;
@@ -590,16 +596,33 @@ bool S_LoadOGGSound(epi::sound_data_c *buf, const byte *data, int length)
 	SYS_ASSERT(vorbis_inf);
 
 	int total = (int)ov_pcm_total(&ogg_stream, -1);
+//!!!!!!!!!!!!1
+total=3100000;
 	if (total <= 0)
 		I_Error("Failed to load OGG sound (length not available).\n");
+
+	// longest possible sound (offsets use 22 bits)
+	if (total > 4000000)
+	{
+		I_Warning("OGG Sound effect too long (%d > %d) : truncated.\n",
+				  total, 4000000);
+		total = 4000000;
+	}
 
 	bool is_stereo = (vorbis_inf->channels > 1);
 	int ogg_endian = (EPI_BYTEORDER == EPI_LIL_ENDIAN) ? 0 : 1;
 
+I_Debugf("S_LoadOGGSound: %d samples, %d channels\n", total, is_stereo ? 2 : 1);
+
 	if (vorbis_inf->channels > 1)  // FIXME !!!!!
 		I_Error("Failed loading OGG sound: must be mono you fucker!\n");
 
-	buf->Allocate(length, epi::SBUF_Mono);
+	buf->Allocate(total, epi::SBUF_Mono);
+
+	buf->freq = vorbis_inf->rate;
+
+	I_Debugf("OGG SFX Loader: frequence = %d Hz\n", buf->freq);
+
 
 	for (int samples = 0; samples < total; )
 	{
@@ -618,6 +641,10 @@ bool S_LoadOGGSound(epi::sound_data_c *buf, const byte *data, int length)
 				ogg_endian, sizeof(s16_t), 1 /* signed data */,
 				&section);
 
+		if (got_size == OV_HOLE)  // ignore corruption
+			continue;
+		
+I_Debugf("got_size %d, wanted %d (sample @ %d)\n", got_size, want, samples);
 		if (got_size == 0)  /* EOF */
 			I_Error("Short data while loading OGG\n");
 
@@ -631,6 +658,9 @@ bool S_LoadOGGSound(epi::sound_data_c *buf, const byte *data, int length)
 		samples += got_size;
 	}
 
+	// !!!!!! FIXME: CLEAN UP (ov_clear or whatever)
+
+I_Debugf("ALL DONE\n");
 	return true;
 }
 
