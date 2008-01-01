@@ -218,7 +218,7 @@ wav_t;
 
 static wav_t decoder_wavt;
 
-static file_c *decoder_F;
+static file_c *decode_F;
 
 static bool decode_eof;
 static bool decode_error;
@@ -238,8 +238,7 @@ static u32_t read_sample_fmt_normal(void)
 
     wav_t *w = &decoder_wavt;
 
-    u32_t max = (internal->buffer_size < (u32_t) w->bytes_left) ?
-                 internal->buffer_size : (u32_t) w->bytes_left;
+    int max = MIN(buffer_size, w->bytes_left);
 
     SYS_ASSERT(max > 0);
 
@@ -247,7 +246,7 @@ static u32_t read_sample_fmt_normal(void)
 	 * We don't actually do any decoding, so we read the wav data
 	 * directly into the internal buffer...
 	 */
-    retval = internal->f->Read(internal->buffer, max);
+    retval = decode_F->Read(buffer, max);  // FIXME: DECODE U8 --> S16
 
     w->bytes_left -= retval;
 
@@ -281,9 +280,8 @@ static bool read_fmt_normal(file_c *f, fmt_t *fmt)
 #define SMALLEST_ADPCM_DELTA       16
 
 
-static inline bool read_adpcm_block_headers(Sound_Sample *sample)
+static inline bool read_adpcm_block_headers(file_c *f)
 {
-    Sound_SampleInternal *internal = (Sound_SampleInternal *) sample->opaque;
 
     wav_t *w = &decoder_wavt;
     fmt_t *fmt = w->fmt;
@@ -361,14 +359,13 @@ static inline void do_adpcm_nibble(u8_t nib,
 }
 
 
-static inline int decode_adpcm_sample_frame(Sound_Sample *sample)
+static inline int decode_adpcm_sample_frame()
 {
-    Sound_SampleInternal *internal = (Sound_SampleInternal *) sample->opaque;
     wav_t *w = &decoder_wavt;
     fmt_t *fmt = w->fmt;
 
     ADPCMBLOCKHEADER *headers = fmt->fmt.adpcm.blockheaders;
-    file_c *rw = decoder_F;
+    file_c *rw = decode_F;
 
     s32_t delta;
     u8_t nib = fmt->fmt.adpcm.nibble;
@@ -384,7 +381,9 @@ static inline int decode_adpcm_sample_frame(Sound_Sample *sample)
 
         if (fmt->fmt.adpcm.nibble_state == 0)
         {
-            BAIL_IF_MACRO(!read_uint8(f, &nib), NULL, 0);
+            if (!read_uint8(decode_F, &nib)) // FIXME !!!
+				I_Error("SHIT !!!!!!!!\n");
+			
             fmt->fmt.adpcm.nibble_state = 1;
             do_adpcm_nibble(nib >> 4, &headers[i], lPredSamp);
         }
@@ -426,18 +425,17 @@ static inline void put_adpcm_sample_frame2(void *_buf, fmt_t *fmt)
  */
 static u32_t read_sample_fmt_adpcm(void)
 {
-    Sound_SampleInternal *internal = (Sound_SampleInternal *) sample->opaque;
     wav_t *w = &decoder_wavt;
     fmt_t *fmt = w->fmt;
     u32_t bw = 0;
 
-    while (bw < internal->buffer_size)
+    while (bw < buffer_size)
     {
         /* write ongoing sample frame before reading more data... */
         switch (fmt->fmt.adpcm.samples_left_in_block)
         {
             case 0:  /* need to read a new block... */
-                if (!read_adpcm_block_headers(sample))
+                if (!read_adpcm_block_headers(decode_F))
                 {
                     if (! decode_eof)
                         decode_error = true;
@@ -445,23 +443,23 @@ static u32_t read_sample_fmt_adpcm(void)
                 } /* if */
 
                 /* only write first sample frame for now. */
-                put_adpcm_sample_frame2((u8_t *) internal->buffer + bw, fmt);
+                put_adpcm_sample_frame2((u8_t *) buffer + bw, fmt);
                 fmt->fmt.adpcm.samples_left_in_block--;
                 bw += fmt->sample_frame_size;
                 break;
 
             case 1:  /* output last sample frame of block... */
-                put_adpcm_sample_frame1((u8_t *) internal->buffer + bw, fmt);
+                put_adpcm_sample_frame1((u8_t *) buffer + bw, fmt);
                 fmt->fmt.adpcm.samples_left_in_block--;
                 bw += fmt->sample_frame_size;
                 break;
 
             default: /* output latest sample frame and read a new one... */
-                put_adpcm_sample_frame1((u8_t *) internal->buffer + bw, fmt);
+                put_adpcm_sample_frame1((u8_t *) buffer + bw, fmt);
                 fmt->fmt.adpcm.samples_left_in_block--;
                 bw += fmt->sample_frame_size;
 
-                if (!decode_adpcm_sample_frame(sample))
+                if (!decode_adpcm_sample_frame())
                 {
                     decode_error = true;
                     return(bw);
@@ -590,7 +588,7 @@ static bool find_chunk(file_c *f, u32_t id)
 
 bool WAV_Load(sound_data_c *buf, file_c *f)
 {
-	decoder_F = f;
+	decode_F = f;
 
     memset(&decoder_fmt, 0, sizeof(decoder_fmt));
 
@@ -670,18 +668,40 @@ bool WAV_Load(sound_data_c *buf, file_c *f)
 
     fmt->total_bytes = w->bytes_left = data_size;
 
-    fmt->sample_frame_size = ( ((sample->actual.format & 0xFF) / 8) *
-                               sample->actual.channels );
+    fmt->sample_frame_size = (sizeof(s16_t) * channels); //!!!!! FIXME: made up shit
 
 	decode_eof = decode_error = false;
 	
     SND_DEBUG(("WAV: Accepting data stream.\n"));
 
-	// !!!!!! TODO:  load the data stream !!!
+	// load the data stream
+
+	int total_size = 0;
+	
+	while (! decode_error)
+	{
+		Chunk chk = new Chunk();
+
+		int got_num = (*read_sample)(chk->buffer, 1024);
+
+		if (got_num == 0)  // EOF
+		{
+			delete chk; break;
+		}
+
+		chunk_list.push_back(chk);
+
+		total_size += got_num;
+	}
+
+	buf->Allocate(total_size, epi::SBUF_Mono);
+
+	// TODO : convert chunk list to contiguous block of samples
+	//        (also may need to convert U8 --> S16 format,
+	//         and/or convert stereo --> mono).
 
     return true;
 }
-
 
 } // namespace epi
 
