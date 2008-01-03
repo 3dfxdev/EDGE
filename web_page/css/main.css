@@ -111,6 +111,16 @@ h3.sub_title {
   /* text-align: justify; */
   }
 
+.partway {
+    font-size: smaller;
+    color: #33AA33;
+  }
+
+.done {
+    font-size: smaller;
+    color: #FF4444;
+  }
+
 .money_shot {
     text-align: right;
     padding: 4px;
