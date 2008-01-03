@@ -53,7 +53,10 @@ void sound_data_c::Allocate(int samples, int buf_mode)
 {
 	// early out when requirements are already met
 	if (data_L && length >= samples && mode == buf_mode)
+	{
+		length = samples;  // FIXME: perhaps keep allocated count
 		return;
+	}
 
 	if (data_L || data_R)
 	{

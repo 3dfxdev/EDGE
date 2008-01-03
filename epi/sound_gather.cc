@@ -66,7 +66,7 @@ s16_t * sound_gather_c::MakeChunk(int max_samples, bool _stereo)
 	SYS_ASSERT(! request);
 	SYS_ASSERT(max_samples > 0);
 
-	request = new gather_chunk_c(_stereo, max_samples);
+	request = new gather_chunk_c(max_samples, _stereo);
 
 	return request->samples;
 }
@@ -104,6 +104,7 @@ bool sound_gather_c::Finalise(sound_data_c *buf, bool want_stereo)
 	if (total_samples == 0)
 		return false;
 
+I_Debugf("Finalise: total_samples: %d\n", total_samples);
 	buf->Allocate(total_samples, want_stereo ? SBUF_Stereo : SBUF_Mono);
 
 	int pos = 0;
@@ -134,13 +135,14 @@ void sound_gather_c::TransferMono(gather_chunk_c *chunk, sound_data_c *buf, int 
 
 	if (chunk->is_stereo)
 	{
-		while (dest < dest_end)
+		for (; dest < dest_end; src += 2)
 		{
-			*dest++ = *src; src += 2;
+			*dest++ = ( (int)src[0] + (int)src[1] ) >> 1;
 		}
 	}
 	else
 	{
+I_Debugf("  TransferMono: pos=%d, count=%d buf_ptr:%p dest:%p\n", pos, count, buf->data_L, dest);
 		memcpy(dest, src, count * sizeof(s16_t));
 	}
 }
