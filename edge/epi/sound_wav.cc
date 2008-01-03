@@ -695,7 +695,7 @@ bool WAV_Load(sound_data_c *buf, file_c *f)
 	{
 		int want = 2048;
 
-		s16_t *buffer = gather.MakeChunk(want, false /* mono */); 
+		s16_t *buffer = gather.MakeChunk(want, false /* is_stereo */); 
 
 		int got_num = (*read_sample)(buffer, want);
 
@@ -711,7 +711,7 @@ bool WAV_Load(sound_data_c *buf, file_c *f)
 		gather.CommitChunk(got_num);
 	}
 
-	if (! gather.Finalise(buf, false /* want_mono */))
+	if (! gather.Finalise(buf, false /* want_stereo */))
 		I_Error("WAV Loader: no samples!\n");
 
     return true;
