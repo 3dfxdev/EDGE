@@ -7,7 +7,12 @@ is called "PORTAL7" and will be available in EDGE.WAD for
 mappers to use with the new portal line-types.
 
 Managed to get WAV sound loader working for files with raw
-16-bit samples.
+16-bit samples, single channel.
+
+Improved the WAV sfx loader to support stereo files (note:
+they get converted to MONO) and 8-bit samples.  Fixed the
+OGG/Vorbis sfx loader to handle stereo files (same deal,
+converted to MONO).
 
 2008/01/01:
 
