@@ -266,6 +266,8 @@ static int read_sample_fmt_normal(s16_t *buffer, int max_samples)
 		return 0;
 	}
 
+	// FIXME: handle case of F->Read() returns odd number (for S16)
+
 	// convert U8 samples to S16 
 	if (bytes_each == 1)
 	{
@@ -276,10 +278,11 @@ static int read_sample_fmt_normal(s16_t *buffer, int max_samples)
 			buffer[i] = (src ^ 0x80) << 8;
 		}
 	}
-
-	// FIXME: handle case of F->Read() returns odd number
-
-	// FIXME !!!!!!! byte swap 16-bit samples
+	else  // endian swap 16-bit samples
+	{
+		for (int i = 0; i < got; i++)
+			buffer[i] = EPI_LE_S16(buffer[i]);
+	}
 
     w->bytes_left -= got;
 
