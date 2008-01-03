@@ -1,5 +1,14 @@
 Andrew Apted's Log
 
+2008/01/03:
+
+Created a rather nice animated texture for portals, which
+is called "PORTAL7" and will be available in EDGE.WAD for
+mappers to use with the new portal line-types.
+
+Managed to get WAV sound loader working for files with raw
+16-bit samples.
+
 2008/01/01:
 
 Worked on loading OGG/Vorbis for in-game sound effects.
