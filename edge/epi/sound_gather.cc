@@ -49,10 +49,10 @@ public:
 
 //----------------------------------------------------------------------------
 
-gather_chunk_c::sound_gather_c() : chunks(), total_samples(0), request(NULL)
+sound_gather_c::sound_gather_c() : chunks(), total_samples(0), request(NULL)
 { }
 
-~gather_chunk_c::sound_gather_c()
+sound_gather_c::~sound_gather_c()
 {
 	if (request)
 		DiscardChunk();
@@ -61,7 +61,7 @@ gather_chunk_c::sound_gather_c() : chunks(), total_samples(0), request(NULL)
 		delete chunks[i];
 }
 
-s16_t * gather_chunk_c::MakeChunk(int max_samples, bool _stereo)
+s16_t * sound_gather_c::MakeChunk(int max_samples, bool _stereo)
 {
 	SYS_ASSERT(! request);
 	SYS_ASSERT(max_samples > 0);
@@ -71,7 +71,7 @@ s16_t * gather_chunk_c::MakeChunk(int max_samples, bool _stereo)
 	return request->samples;
 }
 
-void gather_chunk_c::CommitChunk(int actual_samples)
+void sound_gather_c::CommitChunk(int actual_samples)
 {
 	SYS_ASSERT(request);
 	SYS_ASSERT(actual_samples >= 0);
@@ -89,7 +89,7 @@ void gather_chunk_c::CommitChunk(int actual_samples)
 	request = NULL;
 }
 
-void gather_chunk_c::DiscardChunk()
+void sound_gather_c::DiscardChunk()
 {
 	SYS_ASSERT(request);
 
@@ -98,7 +98,7 @@ void gather_chunk_c::DiscardChunk()
 	request = NULL;
 }
 
-void gather_chunk_c::Finalise(sound_data_c *buf, bool want_stereo)
+void sound_gather_c::Finalise(sound_data_c *buf, bool want_stereo)
 {
 	// TODO Finalise
 }
