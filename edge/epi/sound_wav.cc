@@ -22,9 +22,10 @@
 //----------------------------------------------------------------------------
 
 #include "epi.h"
+#include "endianess.h"
 
 #include "sound_wav.h"
-#include "endianess.h"
+#include "sound_gather.h"
 
 #if 1
 #define SND_DEBUG(args)  I_Debugf(args)
@@ -139,7 +140,7 @@ typedef struct S_WAV_FMT_T
 }
 fmt_t;
 
-static u32_t (*read_sample)(void);
+static u32_t (*read_sample)(s16_t *buffer, u32_t buffer_size);
 
 
 /*
@@ -231,7 +232,7 @@ static bool decode_error;
 /*
  * Sound_Decode() lands here for uncompressed WAVs...
  */
-static u32_t read_sample_fmt_normal(void)
+static u32_t read_sample_fmt_normal(s16_t *buffer, u32_t buffer_size)
 {
     u32_t retval;
     
@@ -302,7 +303,7 @@ static inline bool read_adpcm_block_headers(file_c *f)
 			return false;
 
     for (i = 0; i < fmt->wChannels; i++)
-        if (! read_le_s16(f, &headers[i].iDelta))
+        if (! read_le_u16(f, &headers[i].iDelta))
 			return false;
 
     for (i = 0; i < fmt->wChannels; i++)
@@ -423,7 +424,7 @@ static inline void put_adpcm_sample_frame2(void *_buf, fmt_t *fmt)
 /*
  * Sound_Decode() lands here for ADPCM-encoded WAVs...
  */
-static u32_t read_sample_fmt_adpcm(void)
+static u32_t read_sample_fmt_adpcm(s16_t *buffer, u32_t buffer_size)
 {
     wav_t *w = &decoder_wavt;
     fmt_t *fmt = w->fmt;
@@ -599,8 +600,6 @@ bool WAV_Load(sound_data_c *buf, file_c *f)
 	fmt_t *fmt = w->fmt;
 
 
-    u32_t pos;
-
 	u32_t header_id;
 	u32_t header_file_len;
 
@@ -676,29 +675,25 @@ bool WAV_Load(sound_data_c *buf, file_c *f)
 
 	// load the data stream
 
-	int total_size = 0;
-	
+	sound_gather_c gather;
+
 	while (! decode_error)
 	{
-		Chunk chk = new Chunk();
+		s16_t *buffer = gather.MakeChunk(2048, false /* mono */); 
 
-		int got_num = (*read_sample)(chk->buffer, 1024);
+		int got_num = (*read_sample)(buffer, 2048);
 
 		if (got_num == 0)  // EOF
 		{
-			delete chk; break;
+			gather.DiscardChunk();
+			break;
 		}
 
-		chunk_list.push_back(chk);
-
-		total_size += got_num;
+		gather.CommitChunk(got_num);
 	}
 
-	buf->Allocate(total_size, epi::SBUF_Mono);
-
-	// TODO : convert chunk list to contiguous block of samples
-	//        (also may need to convert U8 --> S16 format,
-	//         and/or convert stereo --> mono).
+	if (! gather.Finalise(buf, false /* want_mono */))
+		I_Error("WAV Loader: no samples!\n");
 
     return true;
 }
