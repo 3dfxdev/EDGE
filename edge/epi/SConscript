@@ -23,7 +23,7 @@ epi_sources = [
     'math_random.cc', 'mersenne_twist.cc',
     'mus_2_midi.cc',
     'path.cc', 'str_format.cc',
-    'sound_data.cc', 'sound_gather.cc', ## 'sound_wav.cc',
+    'sound_data.cc', 'sound_gather.cc', 'sound_wav.cc',
     'timestamp.cc', 'utility.cc']
 
 # operating system specifics

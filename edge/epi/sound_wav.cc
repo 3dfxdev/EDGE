@@ -140,7 +140,7 @@ typedef struct S_WAV_FMT_T
 }
 fmt_t;
 
-static int (*read_sample)(s16_t *buffer, int buffer_size);
+static int (*read_sample)(s16_t *buffer, int max_samples);
 
 
 /*
@@ -232,33 +232,47 @@ static bool decode_error;
 /*
  * Sound_Decode() lands here for uncompressed WAVs...
  */
-static int read_sample_fmt_normal(s16_t *buffer, int buffer_size)
+static int read_sample_fmt_normal(s16_t *buffer, int max_samples)
 {
     wav_t *w = &decoder_wavt;
+	fmt_t *fmt = w->fmt;
 
-    int max = MIN(buffer_size, w->bytes_left);
+	int bytes_each = (fmt->wBitsPerSample / 8);
 
-    SYS_ASSERT(max > 0);
+    int want = MIN(max_samples, w->bytes_left / bytes_each);
+
+	if (want == 0)
+	{
+		decode_eof = true;
+		return 0;
+	}
 
 	/*
 	 * We don't actually do any decoding, so we read the wav data
 	 * directly into the internal buffer...
 	 */
-    int got = decode_F->Read(buffer, max);  // FIXME: DECODE U8 --> S16
+    int got = decode_F->Read(buffer, want * bytes_each);  // FIXME: DECODE U8 --> S16
 
 	if (got < 0)
 	{
 		decode_error = true;
 		return got;
 	}
-	
-    w->bytes_left -= got;
 
         /* Make sure the read went smoothly... */
-    if ((got == 0) || (w->bytes_left == 0))
+    if (got == 0)
+	{
         decode_eof = true;
+		return 0;
+	}
 
-    return got;
+	// FIXME: handle case of F->Read() returns odd number
+
+	// FIXME !!!!!!! byte swap 16-bit samples
+
+    w->bytes_left -= got;
+
+    return got / bytes_each;
 }
 
 
@@ -422,13 +436,13 @@ static inline void put_adpcm_sample_frame2(void *_buf, fmt_t *fmt)
 /*
  * Sound_Decode() lands here for ADPCM-encoded WAVs...
  */
-static int read_sample_fmt_adpcm(s16_t *buffer, int buffer_size)
+static int read_sample_fmt_adpcm(s16_t *buffer, int max_samples)
 {
     wav_t *w = &decoder_wavt;
     fmt_t *fmt = w->fmt;
     int bw = 0;
 
-    while (bw < buffer_size)
+    while (bw < max_samples)
     {
         /* write ongoing sample frame before reading more data... */
         switch (fmt->fmt.adpcm.samples_left_in_block)
@@ -638,7 +652,9 @@ bool WAV_Load(sound_data_c *buf, file_c *f)
 	I_Debugf("WAV Loader: frequency %d Hz\n", freq);
 	I_Debugf("WAV Loader: %d bits per sample\n", bits);
 
-    if (bits != 8 || bits != 16)
+	buf->freq = freq;
+
+    if (! (bits == 8 || bits == 16))
     {
         I_Warning("WAV Loader: Unsupported sample bits: %d\n", bits);
 		return false;
@@ -677,9 +693,14 @@ bool WAV_Load(sound_data_c *buf, file_c *f)
 
 	while (! decode_error)
 	{
-		s16_t *buffer = gather.MakeChunk(2048, false /* mono */); 
+		int want = 2048;
 
-		int got_num = (*read_sample)(buffer, 2048);
+		s16_t *buffer = gather.MakeChunk(want, false /* mono */); 
+
+		int got_num = (*read_sample)(buffer, want);
+
+		if (got_num < 0)
+			I_Error("WAV Loader: Error reading file (%d)\n", got_num);
 
 		if (got_num == 0)  // EOF
 		{
