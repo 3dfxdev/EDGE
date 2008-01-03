@@ -147,13 +147,14 @@ int oggplayer_memseek(void *datasource, ogg_int64_t offset, int whence)
 int oggplayer_memclose(void *datasource)
 {
 	datalump_s *d = (datalump_s *)datasource;
-	if (d->size)
+
+	if (d->size > 0)
 	{
-		delete [] d->data;
-        d->pos = 0;
+		delete[] d->data;
+        d->pos  = 0;
 		d->size = 0;
 	}
-	
+
 	return 0;
 }
 
@@ -587,18 +588,16 @@ I_Debugf("S_LoadOGGSound: begun (data length %d)\n", length);
 	vorbis_info *vorbis_inf = ov_info(&ogg_stream, -1);
 	SYS_ASSERT(vorbis_inf);
 
+	I_Debugf("OGG SFX Loader: freq %d Hz, %d channels\n",
+			 (int)vorbis_inf->rate, (int)vorbis_inf->channels);
+
+	if (vorbis_inf->channels > 2)   // FIXME: too heavy handed
+		I_Error("OGG Sfx Loader: too many channels: %d\n", vorbis_inf->channels);
 
 	bool is_stereo = (vorbis_inf->channels > 1);
 	int ogg_endian = (EPI_BYTEORDER == EPI_LIL_ENDIAN) ? 0 : 1;
 
-I_Debugf("S_LoadOGGSound: %d channels\n", vorbis_inf->channels);
-
-	if (vorbis_inf->channels > 1)  // FIXME !!!!!
-		I_Error("Failed loading OGG sound: must be mono you fucker!\n");
-
 	buf->freq = vorbis_inf->rate;
-	
-	I_Debugf("OGG SFX Loader: frequence = %d Hz\n", buf->freq);
 
 	
 	epi::sound_gather_c gather;
@@ -620,8 +619,7 @@ I_Debugf("S_LoadOGGSound: %d channels\n", vorbis_inf->channels);
 			gather.DiscardChunk();
 			continue;
 		}
-		
-I_Debugf("got_size %d, wanted %d \n", got_size, want);
+
 		if (got_size == 0)  /* EOF */
 		{
 			gather.DiscardChunk();
@@ -630,6 +628,7 @@ I_Debugf("got_size %d, wanted %d \n", got_size, want);
 		else if (got_size < 0)  /* ERROR */
 		{
 			gather.DiscardChunk();
+			// FIXME !!!!!
 			I_Error("Some fuckup while loading OGG\n");
 			/* NOT REACHED */
 		}
@@ -642,7 +641,10 @@ I_Debugf("got_size %d, wanted %d \n", got_size, want);
 	if (! gather.Finalise(buf, false /* want_stereo */))
 		I_Error("OGG SFX Loader: no samples!\n");
 
-	// !!!!!! FIXME: CLEAN UP (ov_clear or whatever)
+	// HACK: we must not free the data (in oggplayer_memclose)
+	ogg_lump.size = 0;
+
+	ov_clear(&ogg_stream);
 
 I_Debugf("ALL DONE\n");
 	return true;
