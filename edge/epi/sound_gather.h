@@ -58,10 +58,17 @@ public:
 	// get rid of current chunk (because it wasn't needed, e.g.
 	// the sound file you were reading hit EOF).
 
-	void Finalise(sound_data_c *buf, bool want_stereo);
+	bool Finalise(sound_data_c *buf, bool want_stereo);
 	// take all the stored sound data and transfer it to the
 	// sound_data_c object, making it all contiguous, and
 	// converting from/to stereoness where needed.
+	//
+	// Returns false (failure) if total samples was zero,
+	// otherwise returns true (success).
+
+private:
+	void TransferMono  (gather_chunk_c *chunk, sound_data_c *buf, int pos);
+	void TransferStereo(gather_chunk_c *chunk, sound_data_c *buf, int pos);
 };
 
 } // namespace epi

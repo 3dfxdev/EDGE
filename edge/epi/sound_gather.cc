@@ -84,8 +84,10 @@ void sound_gather_c::CommitChunk(int actual_samples)
 
 	SYS_ASSERT(actual_samples <= request->num_samples);
 
-	chunks.push_back(request);
+	request->num_samples = actual_samples;
+	total_samples += actual_samples;
 
+	chunks.push_back(request);
 	request = NULL;
 }
 
@@ -94,13 +96,81 @@ void sound_gather_c::DiscardChunk()
 	SYS_ASSERT(request);
 
 	delete request;
-
 	request = NULL;
 }
 
-void sound_gather_c::Finalise(sound_data_c *buf, bool want_stereo)
+bool sound_gather_c::Finalise(sound_data_c *buf, bool want_stereo)
 {
-	// TODO Finalise
+	if (total_samples == 0)
+		return false;
+
+	buf->Allocate(total_samples, want_stereo ? SBUF_Stereo : SBUF_Mono);
+
+	int pos = 0;
+
+	for (unsigned int i=0; i < chunks.size(); i++)
+	{
+		if (want_stereo)
+			TransferStereo(chunks[i], buf, pos);
+		else
+			TransferMono(chunks[i], buf, pos);
+
+		pos += chunks[i]->num_samples;
+	}
+
+	SYS_ASSERT(pos == total_samples);
+
+	return true;
+}
+
+void sound_gather_c::TransferMono(gather_chunk_c *chunk, sound_data_c *buf, int pos)
+{
+	int count = chunk->num_samples;
+
+	s16_t *dest = buf->data_L + pos;
+	s16_t *dest_end = dest + count;
+
+	const s16_t *src = chunk->samples;
+
+	if (chunk->is_stereo)
+	{
+		while (dest < dest_end)
+		{
+			*dest++ = *src; src += 2;
+		}
+	}
+	else
+	{
+		memcpy(dest, src, count * sizeof(s16_t));
+	}
+}
+
+void sound_gather_c::TransferStereo(gather_chunk_c *chunk, sound_data_c *buf, int pos)
+{
+	int count = chunk->num_samples;
+
+	s16_t *dest_L = buf->data_L + pos;
+	s16_t *dest_R = buf->data_R + pos;
+
+	const s16_t *src = chunk->samples;
+	const s16_t *src_end = src + count * (chunk->is_stereo ? 2 : 1);
+
+	if (chunk->is_stereo)
+	{
+		for (; src < src_end; src += 2)
+		{
+			*dest_L++ = src[0];
+			*dest_R++ = src[1];
+		}
+	}
+	else
+	{
+		while (src < src_end)
+		{
+			*dest_L++ = *src;
+			*dest_R++ = *src++;
+		}
+	}
 }
 
 }  // namespace epi
