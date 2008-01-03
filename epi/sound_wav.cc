@@ -266,6 +266,17 @@ static int read_sample_fmt_normal(s16_t *buffer, int max_samples)
 		return 0;
 	}
 
+	// convert U8 samples to S16 
+	if (bytes_each == 1)
+	{
+		for (int i = got-1; i >= 0; i--)
+		{
+			u8_t src = ((u8_t *) buffer)[i];
+
+			buffer[i] = (src ^ 0x80) << 8;
+		}
+	}
+
 	// FIXME: handle case of F->Read() returns odd number
 
 	// FIXME !!!!!!! byte swap 16-bit samples
@@ -654,7 +665,13 @@ bool WAV_Load(sound_data_c *buf, file_c *f)
 
 	buf->freq = freq;
 
-    if (! (bits == 8 || bits == 16))
+	if (bits == 32)
+	{
+        I_Warning("WAV Loader: Floating point not supported.\n");
+		return false;
+	}
+	// FIXME: 4 used for ADPCM
+	else if (! (bits == 8 || bits == 16))
     {
         I_Warning("WAV Loader: Unsupported sample bits: %d\n", bits);
 		return false;
