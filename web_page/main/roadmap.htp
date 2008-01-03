@@ -19,17 +19,34 @@ features from being implemented.
 <h3 class="sub_title">RELEASE 1.31</h3>
   <ul>
     <li type="disc">MD2 models (things &amp; weapons)
+      <span class="partway">[90%]</span>
+
     <li type="disc">Mirrors (with multiple reflections)
+      <span class="done">[DONE]</span>
+
     <li type="disc">New dynamic lighting
+      <span class="partway">[80%]</span>
+
     <li type="disc">MUS/MIDI playback for Linux
+      <span class="done">[DONE]</span>
+
     <li type="disc">RTS Layout Tool
+      <span class="partway">[30%]</span>
   </ul>
 
   <ul>
     <li type="circle">Sector glow effects
+      <span class="done">[DONE]</span>
+
     <li type="circle">Flat alignment &amp; scaling linetypes
-    <li type="circle">OGG/Vorbis for sounds
+      <span class="done">[DONE]</span>
+
     <li type="circle">TGA image format
+      <span class="done">[DONE]</span>
+
+    <li type="circle">OGG/Vorbis and WAV format sounds
+      <span class="partway">[50%]</span>
+
     <li type="circle">Hexen-like hub system
   </ul>
 
@@ -46,7 +63,6 @@ features from being implemented.
   <ul>
     <li type="circle">Better console
     <li type="circle">Inheritance for DDF
-    <li type="circle">WAV sound format
     <li type="circle">Vehicles
   </ul>
 
