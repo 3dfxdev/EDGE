@@ -140,7 +140,7 @@ typedef struct S_WAV_FMT_T
 }
 fmt_t;
 
-static u32_t (*read_sample)(s16_t *buffer, u32_t buffer_size);
+static int (*read_sample)(s16_t *buffer, int buffer_size);
 
 
 /*
@@ -213,7 +213,7 @@ typedef struct
 {
     fmt_t *fmt;
 
-    s32_t bytes_left;
+    int bytes_left;
 }
 wav_t;
 
@@ -232,11 +232,8 @@ static bool decode_error;
 /*
  * Sound_Decode() lands here for uncompressed WAVs...
  */
-static u32_t read_sample_fmt_normal(s16_t *buffer, u32_t buffer_size)
+static int read_sample_fmt_normal(s16_t *buffer, int buffer_size)
 {
-    u32_t retval;
-    
-
     wav_t *w = &decoder_wavt;
 
     int max = MIN(buffer_size, w->bytes_left);
@@ -247,18 +244,21 @@ static u32_t read_sample_fmt_normal(s16_t *buffer, u32_t buffer_size)
 	 * We don't actually do any decoding, so we read the wav data
 	 * directly into the internal buffer...
 	 */
-    retval = decode_F->Read(buffer, max);  // FIXME: DECODE U8 --> S16
+    int got = decode_F->Read(buffer, max);  // FIXME: DECODE U8 --> S16
 
-    w->bytes_left -= retval;
+	if (got < 0)
+	{
+		decode_error = true;
+		return got;
+	}
+	
+    w->bytes_left -= got;
 
         /* Make sure the read went smoothly... */
-    if ((retval == 0) || (w->bytes_left == 0))
+    if ((got == 0) || (w->bytes_left == 0))
         decode_eof = true;
 
-    else if (retval == -1)
-        decode_error = true;
-
-    return retval;
+    return got;
 }
 
 
@@ -366,9 +366,7 @@ static inline int decode_adpcm_sample_frame()
     fmt_t *fmt = w->fmt;
 
     ADPCMBLOCKHEADER *headers = fmt->fmt.adpcm.blockheaders;
-    file_c *rw = decode_F;
 
-    s32_t delta;
     u8_t nib = fmt->fmt.adpcm.nibble;
 
     for (int i = 0; i < fmt->wChannels; i++)
@@ -424,11 +422,11 @@ static inline void put_adpcm_sample_frame2(void *_buf, fmt_t *fmt)
 /*
  * Sound_Decode() lands here for ADPCM-encoded WAVs...
  */
-static u32_t read_sample_fmt_adpcm(s16_t *buffer, u32_t buffer_size)
+static int read_sample_fmt_adpcm(s16_t *buffer, int buffer_size)
 {
     wav_t *w = &decoder_wavt;
     fmt_t *fmt = w->fmt;
-    u32_t bw = 0;
+    int bw = 0;
 
     while (bw < buffer_size)
     {
