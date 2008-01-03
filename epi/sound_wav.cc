@@ -237,7 +237,9 @@ static int read_sample_fmt_normal(s16_t *buffer, int max_samples)
     wav_t *w = &decoder_wavt;
 	fmt_t *fmt = w->fmt;
 
-	int bytes_each = (fmt->wBitsPerSample / 8);
+	bool is_stereo = (fmt->wChannels == 2);
+
+	int bytes_each = (fmt->wBitsPerSample / 8) * (is_stereo ? 2 : 1);
 
     int want = MIN(max_samples, w->bytes_left / bytes_each);
 
@@ -251,16 +253,16 @@ static int read_sample_fmt_normal(s16_t *buffer, int max_samples)
 	 * We don't actually do any decoding, so we read the wav data
 	 * directly into the internal buffer...
 	 */
-    int got = decode_F->Read(buffer, want * bytes_each);  // FIXME: DECODE U8 --> S16
+    int got_bytes = decode_F->Read(buffer, want * bytes_each);  // FIXME: DECODE U8 --> S16
 
-	if (got < 0)
+	if (got_bytes < 0)
 	{
 		decode_error = true;
-		return got;
+		return got_bytes;
 	}
 
         /* Make sure the read went smoothly... */
-    if (got == 0)
+    if (got_bytes == 0)
 	{
         decode_eof = true;
 		return 0;
@@ -268,25 +270,26 @@ static int read_sample_fmt_normal(s16_t *buffer, int max_samples)
 
 	// FIXME: handle case of F->Read() returns odd number (for S16)
 
-	// convert U8 samples to S16 
-	if (bytes_each == 1)
+	if (fmt->wBitsPerSample == 8)
 	{
-		for (int i = got-1; i >= 0; i--)
+		// convert U8 samples to S16 
+		for (int i = got_bytes-1; i >= 0; i--)
 		{
 			u8_t src = ((u8_t *) buffer)[i];
 
 			buffer[i] = (src ^ 0x80) << 8;
 		}
 	}
-	else  // endian swap 16-bit samples
+	else
 	{
-		for (int i = 0; i < got; i++)
+		// endian swap 16-bit samples
+		for (int i = 0; i < got_bytes / 2; i++)
 			buffer[i] = EPI_LE_S16(buffer[i]);
 	}
 
-    w->bytes_left -= got;
+    w->bytes_left -= got_bytes;
 
-    return got / bytes_each;
+    return got_bytes / bytes_each;
 }
 
 
@@ -655,16 +658,20 @@ bool WAV_Load(sound_data_c *buf, file_c *f)
 		return false;
 	}
 
+	int freq     = fmt->dwSamplesPerSec;
+	int bits     = fmt->wBitsPerSample;
     int channels = fmt->wChannels;
 
-	if (channels != 1)  //!!!!!!
-		I_Error("Don't try and load a stereo WAV you fuckwit!\n");
+	if (channels > 2)
+	{
+		I_Warning("WAV Loader: too many channels: %d\n", channels);
+		return false;
+	}
 
-	int freq = fmt->dwSamplesPerSec;
-	int bits = fmt->wBitsPerSample;
+	bool is_stereo = (channels == 2);
 
-	I_Debugf("WAV Loader: frequency %d Hz\n", freq);
-	I_Debugf("WAV Loader: %d bits per sample\n", bits);
+	I_Debugf("WAV Loader: freq %d Hz, %d channels, %d sample bits\n",
+			 freq, channels, bits);
 
 	buf->freq = freq;
 
@@ -715,7 +722,7 @@ bool WAV_Load(sound_data_c *buf, file_c *f)
 	{
 		int want = 2048;
 
-		s16_t *buffer = gather.MakeChunk(want, false /* is_stereo */); 
+		s16_t *buffer = gather.MakeChunk(want, is_stereo);
 
 		int got_num = (*read_sample)(buffer, want);
 
