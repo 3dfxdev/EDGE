@@ -27,6 +27,7 @@
 #include "epi/endianess.h"
 #include "epi/file.h"
 #include "epi/filesystem.h"
+#include "epi/sound_gather.h"
 
 #include "ddf/playlist.h"
 
@@ -550,15 +551,6 @@ abstract_music_c * S_PlayOGGMusic(const pl_entry_c *musdat, float volume, bool l
 	return player;
 }
 
-// #define CHUNKYNESS  2048
-// 
-// typedef struct TempChunk_s
-// {
-// 	s16_t samples[CHUNKYNESS];
-// 
-// 	int length;
-// }
-// TempChunk_t;
 
 bool S_LoadOGGSound(epi::sound_data_c *buf, const byte *data, int length)
 {
@@ -595,68 +587,61 @@ I_Debugf("S_LoadOGGSound: begun (data length %d)\n", length);
 	vorbis_info *vorbis_inf = ov_info(&ogg_stream, -1);
 	SYS_ASSERT(vorbis_inf);
 
-	int total = (int)ov_pcm_total(&ogg_stream, -1);
-//!!!!!!!!!!!!1
-total=3100000;
-	if (total <= 0)
-		I_Error("Failed to load OGG sound (length not available).\n");
-
-	// longest possible sound (offsets use 22 bits)
-	if (total > 4000000)
-	{
-		I_Warning("OGG Sound effect too long (%d > %d) : truncated.\n",
-				  total, 4000000);
-		total = 4000000;
-	}
 
 	bool is_stereo = (vorbis_inf->channels > 1);
 	int ogg_endian = (EPI_BYTEORDER == EPI_LIL_ENDIAN) ? 0 : 1;
 
-I_Debugf("S_LoadOGGSound: %d samples, %d channels\n", total, is_stereo ? 2 : 1);
+I_Debugf("S_LoadOGGSound: %d channels\n", vorbis_inf->channels);
 
 	if (vorbis_inf->channels > 1)  // FIXME !!!!!
 		I_Error("Failed loading OGG sound: must be mono you fucker!\n");
 
-	buf->Allocate(total, epi::SBUF_Mono);
-
 	buf->freq = vorbis_inf->rate;
-
+	
 	I_Debugf("OGG SFX Loader: frequence = %d Hz\n", buf->freq);
 
+	
+	epi::sound_gather_c gather;
 
-	for (int samples = 0; samples < total; )
+	while (true)
 	{
-		s16_t *data_buf;
+		int want = 2048;
 
-//!!		if (is_stereo and !dev_stereo)
-//!!			data_buf = mono_buffer;
-//!!		else
-				data_buf = buf->data_L + samples;
+		s16_t *buffer = gather.MakeChunk(want, is_stereo);
 
-		int want = MIN(1024, total - samples);
-		
 		int section;
-		int got_size = ov_read(&ogg_stream, (char *)data_buf,
+		int got_size = ov_read(&ogg_stream, (char *)buffer,
 				want * (is_stereo ? 2 : 1) * sizeof(s16_t),
 				ogg_endian, sizeof(s16_t), 1 /* signed data */,
 				&section);
 
 		if (got_size == OV_HOLE)  // ignore corruption
+		{
+			gather.DiscardChunk();
 			continue;
+		}
 		
-I_Debugf("got_size %d, wanted %d (sample @ %d)\n", got_size, want, samples);
-		if (got_size == 0)  /* EOF */
-			I_Error("Short data while loading OGG\n");
-
+I_Debugf("got_size %d, wanted %d \n", got_size, want);
 		if (got_size < 0)  /* ERROR */
+		{
+			gather.DiscardChunk();
 			I_Error("Some fuckup while loading OGG\n");
+			/* NOT REACHED */
+		}
+		else if (got_size == 0)  /* EOF */
+		{
+			gather.DiscardChunk();
+			I_Error("Short data while loading OGG\n");
+			/* NOT REACHED */
+		}
 
 		got_size /= (is_stereo ? 2 : 1) * sizeof(s16_t);
 
-		// ConvertToMono
-
-		samples += got_size;
+		gather.CommitChunk(got_size);
 	}
+
+	if (! gather.Finalise(buf, false /* want_stereo */))
+		I_Error("OGG SFX Loader: no samples!\n");
 
 	// !!!!!! FIXME: CLEAN UP (ov_clear or whatever)
 
