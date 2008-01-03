@@ -622,16 +622,15 @@ I_Debugf("S_LoadOGGSound: %d channels\n", vorbis_inf->channels);
 		}
 		
 I_Debugf("got_size %d, wanted %d \n", got_size, want);
-		if (got_size < 0)  /* ERROR */
+		if (got_size == 0)  /* EOF */
+		{
+			gather.DiscardChunk();
+			break;
+		}
+		else if (got_size < 0)  /* ERROR */
 		{
 			gather.DiscardChunk();
 			I_Error("Some fuckup while loading OGG\n");
-			/* NOT REACHED */
-		}
-		else if (got_size == 0)  /* EOF */
-		{
-			gather.DiscardChunk();
-			I_Error("Short data while loading OGG\n");
 			/* NOT REACHED */
 		}
 
