@@ -19,6 +19,8 @@
 #ifndef __EPI_SOUND_GATHER_H__
 #define __EPI_SOUND_GATHER_H__
 
+#include <vector>
+
 #include "sound_data.h"
 
 namespace epi
@@ -34,6 +36,8 @@ private:
 	std::vector<gather_chunk_c *> chunks;
 
 	int total_samples;
+
+	gather_chunk_c *request;
 
 public:
 	 sound_gather_c();
