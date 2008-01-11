@@ -1,5 +1,11 @@
 Andrew Apted's Log
 
+2008/01/11:
+
+Tweaked DLIGHT compatibility, which is now closer than
+before, especially because the DLIGHT_SET/FADE/RANDOM
+actions are also converted now.
+
 2008/01/03:
 
 Created a rather nice animated texture for portals, which

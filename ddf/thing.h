@@ -267,6 +267,9 @@ typedef enum
 
 	// -AJA- 2007/11/06: gain health when causing damage
 	HF_VAMPIRE = (1 << 10),
+
+	// -AJA- 2008/01/11: compatibility for quadratic dlights
+	HF_QUADRATIC_COMPAT = (1 << 11),
 }
 mobjhyperflag_t;
 
