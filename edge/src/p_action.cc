@@ -559,6 +559,10 @@ void P_ActDLightSet(mobj_t * mo)
 	if (st && st->action_par)
 	{
 		mo->dlight.r = MAX(0.0f, ((int *)st->action_par)[0]);
+
+		if (mo->info->hyperflags & HF_QUADRATIC_COMPAT)
+			mo->dlight.r *= 0.7f;
+
 		mo->dlight.target = mo->dlight.r;
 	}
 }
@@ -570,8 +574,10 @@ void P_ActDLightFade(mobj_t * mo)
 
 	if (st && st->action_par)
 	{
-		mo->dlight.target = mo->dlight.target =
-			MAX(0.0f, ((int *)st->action_par)[0]);
+		mo->dlight.target = MAX(0.0f, ((int *)st->action_par)[0]);
+
+		if (mo->info->hyperflags & HF_QUADRATIC_COMPAT)
+			mo->dlight.target *= 0.7f;
 	}
 }
 
@@ -586,8 +592,11 @@ void P_ActDLightRandom(mobj_t * mo)
 		int high = ((int *)st->action_par)[1];
 
 		// Note: using M_Random so that gameplay is unaffected
-		int qty = low + (high - low) * M_Random() / 255;
-    
+		float qty = low + (high - low) * M_Random() / 255.0f;
+
+		if (mo->info->hyperflags & HF_QUADRATIC_COMPAT)
+			qty *= 0.7f;
+
 		mo->dlight.r = MAX(0.0f, qty);
 		mo->dlight.target = mo->dlight.r;
 	}

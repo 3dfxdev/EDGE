@@ -2017,18 +2017,38 @@ void mobjtype_c::DLightCompatibility(void)
 {
 	for (int DL = 0; DL < 2; DL++)
 	{
+		int r = RGB_RED(dlight[DL].colour);
+		int g = RGB_GRN(dlight[DL].colour);
+		int b = RGB_BLU(dlight[DL].colour);
+		
 		switch (dlight[DL].type)
 		{
+			case DLITE_Compat_QUAD:
+				dlight[DL].type = DLITE_Modulate;
+
+				// alter the radius
+				dlight[DL].radius *= 0.7;
+
+				// dim the colour
+				r = r * 170 / 255;
+				g = g * 170 / 255;
+				b = b * 170 / 255;
+				dlight[DL].colour = RGB_MAKE(r, g, b);
+
+				hyperflags |= HF_QUADRATIC_COMPAT;
+				break;
+
 			case DLITE_Compat_LIN:
 				dlight[DL].type = DLITE_Modulate;
 				dlight[DL].radius *= 2.5;
+
 				if (dlight[DL].radius > 500)
 					dlight[DL].radius = 500;
-				break;
 
-			case DLITE_Compat_QUAD:
-				dlight[DL].type = DLITE_Modulate;
-				dlight[DL].radius *= 0.65;
+				r = r * 170 / 255;
+				g = g * 170 / 255;
+				b = b * 170 / 255;
+				dlight[DL].colour = RGB_MAKE(r, g, b);
 				break;
 
 			default: // nothing to do
