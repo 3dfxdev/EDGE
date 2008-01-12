@@ -1,5 +1,11 @@
 Andrew Apted's Log
 
+2008/01/12:
+
+Fixed bug not saving generalised linetypes into savegame
+files, causing them to stop working after a load.  This
+bug was reported by BaronOfStuff.
+
 2008/01/11:
 
 Tweaked DLIGHT compatibility, which is now closer than
