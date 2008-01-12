@@ -47,6 +47,7 @@ Bugs fixed
 
 + glitches/small gaps between polygons are fixed.
 + crash with Scuba Steve's flamethrow DEH patch.
++ Boom generalised linetypes were not saved in savegames.
 
 - ID(K)FA cheats now give clip weapons full ammo.
 - fixed problem saving the 'mipmapping' setting.
