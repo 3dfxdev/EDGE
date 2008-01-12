@@ -570,6 +570,7 @@ static void MakeBoomCrusher(linetype_c *line, int number)
 	}
 }
 
+
 //
 // DDF_BoomMakeGenLine
 //
@@ -610,9 +611,7 @@ void DDF_BoomMakeGenLine(linetype_c *line, int number)
 		MakeBoomCrusher(line, number);
 }
 
-//
-// DDF_BoomGetGenLine
-//
+
 linetype_c *DDF_BoomGetGenLine(int number)
 {
 	SYS_ASSERT(DDF_IsBoomLineType(number));
@@ -624,6 +623,8 @@ linetype_c *DDF_BoomGetGenLine(int number)
 	{
 		line = new linetype_c;
 		line->Default();
+
+		line->ddf.number = number;
 
 		DDF_BoomMakeGenLine(line, number);
 
