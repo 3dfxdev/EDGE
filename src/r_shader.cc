@@ -335,9 +335,9 @@ public:
 		MIR_Height(mz);
 
 		float dx = mod_pos->x;
-		float dy = mod_pos->x;
+		float dy = mod_pos->y;
 		float dz = MO_MIDZ(mod_pos);
-			
+
 		MIR_Coordinate(dx, dy);
 		MIR_Height(dz);
 
@@ -351,8 +351,7 @@ public:
 
 		dist = MAX(1.0, dist - mod_pos->radius * MIR_XYScale());
 
-
-		float L = 0.6 - 0.5 * (dx*nx + dy*ny + dz*nz);
+		float L = 0.6 - 0.7 * (dx*nx + dy*ny + dz*nz);
 
 		L *= mo->state->bright / 255.0;
 
