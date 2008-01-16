@@ -1,5 +1,10 @@
 Andrew Apted's Log
 
+2008/01/16:
+
+Worked on linearly interpolating monster positions, which
+is especially important for models.
+
 2008/01/12:
 
 Fixed bug not saving generalised linetypes into savegame
