@@ -156,13 +156,6 @@ bool P_Move(mobj_t * actor, bool path)
 	float tryx;
 	float tryy;
 
-	//
-	// warning: 'catch', 'throw', and 'try'
-	// are all C++ reserved words
-	//
-	bool try_ok;
-	bool any_used, block_used;
-
 	if (path)
 	{
 		tryx = actor->x + actor->speed * M_Cos(actor->angle);
@@ -180,9 +173,7 @@ bool P_Move(mobj_t * actor, bool path)
 		tryy = actor->y + actor->speed * yspeed[actor->movedir];
 	}
 
-	try_ok = P_TryMove(actor, tryx, tryy);
-
-	if (!try_ok)
+	if (! P_TryMove(actor, tryx, tryy))
 	{
 		epi::array_iterator_c it;
 		line_t* ld;
@@ -197,6 +188,7 @@ bool P_Move(mobj_t * actor, bool path)
 				actor->z -= actor->info->float_speed;
 
 			actor->flags |= MF_INFLOAT;
+			// FIXME: position interpolation
 			return true;
 		}
 
@@ -211,7 +203,8 @@ bool P_Move(mobj_t * actor, bool path)
 		//       was the one activated, or false 90% of the time if there
 		//       was some other line activated.
 
-		any_used = block_used = false;
+		bool any_used = false;
+		bool block_used = false;
 					
 		for (it=spechit.GetTailIterator(); it.IsValid(); it--)
 		{
@@ -224,7 +217,7 @@ bool P_Move(mobj_t * actor, bool path)
 					block_used = true;
 			}
 		}
-			
+		
 		return any_used && (P_Random() < 230 ? block_used : !block_used);
 	}
 
@@ -235,7 +228,7 @@ bool P_Move(mobj_t * actor, bool path)
 		actor->z = actor->floorz;
 
 	// -AJA- 2008/01/16: position interpolation
-	if ((actor->state->frame & SFF_Model) ||
+	if ((actor->state->flags & SFF_Model) ||
 		(actor->flags & MF_FLOAT))
 	{
 		actor->lerp_num = CLAMP(2, actor->state->tics, 5);
