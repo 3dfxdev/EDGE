@@ -546,7 +546,7 @@ public:
 		dist = MAX(1.0, fabs(dist));
 
 
-		float L = 0.6 - 0.5 * (dz*nz);
+		float L = 0.6 - 0.7 * (dz*nz);
 
 		L *= mo->state->bright / 255.0;
 
