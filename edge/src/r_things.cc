@@ -863,7 +863,17 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 	bool is_model = (mo->state->flags & SFF_Model) ? true:false;
 
 	// transform the origin point
-	float mx = mo->x, my = mo->y;
+	float mx = mo->x, my = mo->y, mz = mo->z;
+
+	// position interpolation
+	if (mo->lerp_num > 1)
+	{
+		float along = mo->lerp_pos / (float)mo->lerp_num;
+
+		mx = mo->lerp_from.x + (mx - mo->lerp_from.x) * along;
+		my = mo->lerp_from.y + (my - mo->lerp_from.y) * along;
+		mz = mo->lerp_from.z + (mz - mo->lerp_from.z) * along;
+	}
 
 	MIR_Coordinate(mx, my);
 
@@ -999,6 +1009,8 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 	dthing->mo = mo;
 	dthing->mx = mx;
 	dthing->my = my;
+	dthing->mz = mz;
+
 	dthing->props = dsub->floors[0]->props;
 	dthing->y_clipping = y_clipping;
 	dthing->is_model = is_model;
@@ -1065,7 +1077,7 @@ I_Debugf("Render model: no skin %d\n", mo->model_skin);
 	}
 
 
-	float z = mo->z;
+	float z = dthing->mz;
 
 	MIR_Height(z);
 

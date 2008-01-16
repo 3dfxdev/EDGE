@@ -334,6 +334,12 @@ struct mobj_s : public position_c
 	// hash values for TUNNEL missiles
 	u32_t tunnel_hash[2];
 
+	// position interpolation (disabled when lerp_num <= 1)
+	short lerp_num;
+	short lerp_pos;
+
+	vec3_t lerp_from;
+
 	// touch list: sectors this thing is in or touches
 	struct touch_node_s *touch_sectors;
 

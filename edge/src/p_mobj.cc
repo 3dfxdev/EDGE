@@ -1239,6 +1239,17 @@ static void P_MobjThinker(mobj_t * mobj)
 	mobj->visibility = (15 * mobj->visibility + mobj->vis_target)  / 16;
 	mobj->dlight.r   = (15 * mobj->dlight.r + mobj->dlight.target) / 16;
 
+	// position interpolation
+	if (mobj->lerp_num > 1)
+	{
+		mobj->lerp_pos++;
+
+		if (mobj->lerp_pos >= mobj->lerp_num)
+		{
+			mobj->lerp_pos = mobj->lerp_num = 0;
+		}
+	}
+
 	// handle SKULLFLY attacks
 	if ((mobj->flags & MF_SKULLFLY) && mobj->mom.x == 0 && mobj->mom.y == 0)
 	{

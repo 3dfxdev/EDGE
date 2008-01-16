@@ -132,7 +132,7 @@ public:
 
 	bool is_model;
 
-	float mx, my;
+	float mx, my, mz;  // mz only used for models
 
 	// vertical extent of sprite (world coords)
 	float top;
