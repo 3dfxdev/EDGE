@@ -235,7 +235,8 @@ bool P_Move(mobj_t * actor, bool path)
 		actor->z = actor->floorz;
 
 	// -AJA- 2008/01/16: position interpolation
-	if (actor->state->frame & SFF_Model)
+	if ((actor->state->frame & SFF_Model) ||
+		(actor->flags & MF_FLOAT))
 	{
 		actor->lerp_num = CLAMP(2, actor->state->tics, 5);
 		actor->lerp_pos = 1;
