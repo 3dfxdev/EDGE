@@ -149,6 +149,10 @@ void P_NoiseAlert(player_t *p)
 //
 bool P_Move(mobj_t * actor, bool path)
 {
+	vec3_t orig_pos;
+	
+	orig_pos.Set(actor->x, actor->y, actor->z);
+
 	float tryx;
 	float tryy;
 
@@ -223,14 +227,21 @@ bool P_Move(mobj_t * actor, bool path)
 			
 		return any_used && (P_Random() < 230 ? block_used : !block_used);
 	}
-	else
-	{
-		actor->flags &= ~MF_INFLOAT;
-	}
+
+	actor->flags &= ~MF_INFLOAT;
 
 	if (!(actor->flags & MF_FLOAT) &&
 		!(actor->extendedflags & EF_GRAVFALL))
 		actor->z = actor->floorz;
+
+	// -AJA- 2008/01/16: position interpolation
+	if (actor->state->frame & SFF_Model)
+	{
+		actor->lerp_num = CLAMP(2, actor->state->tics, 5);
+		actor->lerp_pos = 1;
+
+		actor->lerp_from = orig_pos;
+	}
 
 	return true;
 }
