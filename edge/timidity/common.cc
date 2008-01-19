@@ -41,7 +41,6 @@ FILE *open_file(const char *name, int decompress, int noise_mode)
 {
 	FILE *fp;
 	PathList *plp;
-	int l;
 
 	if (!name || !(*name))
 	{
@@ -75,22 +74,27 @@ FILE *open_file(const char *name, int decompress, int noise_mode)
 	}
 #endif
 
-	plp=pathlist;
 	if (name[0] != DIRSEPARATOR)
-		while (plp)  /* Try along the path then */
+	{
+		/* Try along the path then */
+		for (plp = pathlist; plp; plp = plp->next)
 		{
-			*current_filename=0;
-			l=strlen(plp->path);
-			if(l)
+			current_filename[0] = 0;
+
+			int l = strlen(plp->path);
+			if (l > 0)
 			{
 				strcpy(current_filename, plp->path);
+
 				if (current_filename[l-1] != DIRSEPARATOR)
 				{
-					current_filename[l-1] = DIRSEPARATOR;
-					current_filename[l] = 0;
+					current_filename[l]   = DIRSEPARATOR;
+					current_filename[l+1] = 0;
 				}
 			}
+			
 			strcat(current_filename, name);
+
 			ctl_msg(CMSG_INFO, VERB_DEBUG, "Trying to open %s", current_filename);
 			if ((fp = fopen(current_filename, OPEN_MODE)))
 				return fp;
@@ -102,17 +106,17 @@ FILE *open_file(const char *name, int decompress, int noise_mode)
 				return 0;
 			}
 #endif
-			plp=plp->next;
 		}
+	}
 
 	/* Nothing could be opened. */
 
 	*current_filename=0;
 
-	if (noise_mode>=2)
+	if (noise_mode >= 2)
 		ctl_msg(CMSG_ERROR, VERB_NORMAL, "%s: %s", name, strerror(errno));
 
-	return 0;
+	return NULL;
 }
 
 /* This closes files opened with open_file */
