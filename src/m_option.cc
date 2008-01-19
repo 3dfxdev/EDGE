@@ -624,64 +624,78 @@ static menuinfo_t playoptionsinfo =
 };
 
 //
-//  KEY CONFIG : STANDARD
+//  KEY CONFIG : MOVEMENT
 //
 // -ACB- 1998/07/15 Altered menuinfo struct
 // -KM- 1998/07/10 Used better names :-)
 //
 static optmenuitem_t stdkeyconfig[] =
 {
-	{OPT_KeyConfig, "Primary Attack", NULL, 0, CFGDEF_KEY_FIRE,        &key_fire, NULL, NULL},
-    {OPT_KeyConfig, "Secondary Atk",  NULL, 0, CFGDEF_KEY_SECONDATK,   &key_secondatk, NULL, NULL},
-	{OPT_KeyConfig, "Use Item",       NULL, 0, CFGDEF_KEY_USE,         &key_use, NULL, NULL},
 	{OPT_KeyConfig, "Walk Forward",   NULL, 0, CFGDEF_KEY_UP,          &key_up, NULL, NULL},
 	{OPT_KeyConfig, "Walk Backwards", NULL, 0, CFGDEF_KEY_DOWN,        &key_down, NULL, NULL},
 	{OPT_KeyConfig, "Turn Left",      NULL, 0, CFGDEF_KEY_LEFT,        &key_left, NULL, NULL},
 	{OPT_KeyConfig, "Turn Right",     NULL, 0, CFGDEF_KEY_RIGHT,       &key_right, NULL, NULL},
-	{OPT_KeyConfig, "Move Up",        NULL, 0, CFGDEF_KEY_FLYUP,       &key_flyup, NULL, NULL},
-	{OPT_KeyConfig, "Move Down",      NULL, 0, CFGDEF_KEY_FLYDOWN,     &key_flydown, NULL, NULL},
 	{OPT_Plain,      "",              NULL, 0, 0,                       NULL, NULL, NULL},
-	{OPT_KeyConfig, "Run",            NULL, 0, CFGDEF_KEY_SPEED,       &key_speed, NULL, NULL},
-	{OPT_KeyConfig, "Strafe",         NULL, 0, CFGDEF_KEY_STRAFE,      &key_strafe, NULL, NULL},
 	{OPT_KeyConfig, "Strafe Left",    NULL, 0, CFGDEF_KEY_STRAFELEFT,  &key_strafeleft, NULL, NULL},
 	{OPT_KeyConfig, "Strafe Right",   NULL, 0, CFGDEF_KEY_STRAFERIGHT, &key_straferight, NULL, NULL},
-	{OPT_KeyConfig, "Toggle Autorun", NULL, 0, CFGDEF_KEY_AUTORUN,     &key_autorun, NULL, NULL}
+	{OPT_KeyConfig, "Move Up / Jump",     NULL, 0, CFGDEF_KEY_FLYUP,   &key_flyup, NULL, NULL},
+	{OPT_KeyConfig, "Move Down / Crouch", NULL, 0, CFGDEF_KEY_FLYDOWN, &key_flydown, NULL, NULL},
 };
 
 static menuinfo_t stdkeyconfiginfo = 
 {
 	stdkeyconfig, sizeof(stdkeyconfig) / sizeof(optmenuitem_t),
-	&keyboard_style, 110, 98, "M_CONTRL", NULL, 0, "Page 1", NULL, NULL
+	&keyboard_style, 142, 98, "M_CONTRL", NULL, 0, "Movement", NULL, NULL
 };
 
 //
-//  KEY CONFIG : EXTENDED
+//  KEY CONFIG : ATTACK + LOOK
 //
 // -ACB- 1998/07/15 Altered menuinfo struct
 // -ES- 1999/03/28 Added Zoom Key
 //
 static optmenuitem_t extkeyconfig[] =
 {
-	{OPT_KeyConfig, "Look Up",         NULL, 0, CFGDEF_KEY_LOOKUP,     &key_lookup, NULL, NULL},
-	{OPT_KeyConfig, "Look Down",       NULL, 0, CFGDEF_KEY_LOOKDOWN,   &key_lookdown, NULL, NULL},
-	{OPT_KeyConfig, "Center View",     NULL, 0, CFGDEF_KEY_LOOKCENTER, &key_lookcenter, NULL, NULL},
-	{OPT_KeyConfig, "Mouse Look",      NULL, 0, CFGDEF_KEY_MLOOK,      &key_mlook, NULL, NULL},
-	{OPT_KeyConfig, "Zoom in/out",     NULL, 0, CFGDEF_KEY_ZOOM,       &key_zoom, NULL, NULL},
-	{OPT_KeyConfig, "180 degree turn", NULL, 0, CFGDEF_KEY_180,        &key_180, NULL, NULL},
-	{OPT_Plain,     "",                NULL, 0, 0,                      NULL, NULL, NULL},
-	{OPT_KeyConfig, "Jump",            NULL, 0, CFGDEF_KEY_JUMP,       &key_jump, NULL, NULL},
-    {OPT_KeyConfig, "Weapon Reload",   NULL, 0, CFGDEF_KEY_RELOAD,     &key_reload, NULL, NULL},
-    {OPT_KeyConfig, "Next Weapon",     NULL, 0, CFGDEF_KEY_NEXTWEAPON, &key_nextweapon, NULL, NULL},
-    {OPT_KeyConfig, "Previous Weapon", NULL, 0, CFGDEF_KEY_PREVWEAPON, &key_prevweapon, NULL, NULL},
-	{OPT_KeyConfig, "Multiplay Talk",  NULL, 0, CFGDEF_KEY_TALK,       &key_talk, NULL, NULL},
-	{OPT_KeyConfig, "Map Toggle",      NULL, 0, CFGDEF_KEY_MAP,        &key_map, NULL, NULL},
-	{OPT_KeyConfig, "Console",         NULL, 0, CFGDEF_KEY_CONSOLE,    &key_console, NULL, NULL}
+	{OPT_KeyConfig, "Primary Attack",   NULL, 0, CFGDEF_KEY_FIRE,        &key_fire, NULL, NULL},
+	{OPT_KeyConfig, "Secondary Attack", NULL, 0, CFGDEF_KEY_SECONDATK,   &key_secondatk, NULL, NULL},
+	{OPT_KeyConfig, "Next Weapon",      NULL, 0, CFGDEF_KEY_NEXTWEAPON, &key_nextweapon, NULL, NULL},
+	{OPT_KeyConfig, "Previous Weapon",  NULL, 0, CFGDEF_KEY_PREVWEAPON, &key_prevweapon, NULL, NULL},
+	{OPT_KeyConfig, "Weapon Reload",    NULL, 0, CFGDEF_KEY_RELOAD,     &key_reload, NULL, NULL},
+	{OPT_Plain,     "",                 NULL, 0, 0,                      NULL, NULL, NULL},
+	{OPT_KeyConfig, "Look Up",          NULL, 0, CFGDEF_KEY_LOOKUP,     &key_lookup, NULL, NULL},
+	{OPT_KeyConfig, "Look Down",        NULL, 0, CFGDEF_KEY_LOOKDOWN,   &key_lookdown, NULL, NULL},
+	{OPT_KeyConfig, "Center View",      NULL, 0, CFGDEF_KEY_LOOKCENTER, &key_lookcenter, NULL, NULL},
+	{OPT_KeyConfig, "Mouse Look",       NULL, 0, CFGDEF_KEY_MLOOK,      &key_mlook, NULL, NULL},
+	{OPT_KeyConfig, "Zoom in/out",      NULL, 0, CFGDEF_KEY_ZOOM,       &key_zoom, NULL, NULL},
 };
 
 static menuinfo_t extkeyconfiginfo = 
 {
 	extkeyconfig, sizeof(extkeyconfig) / sizeof(optmenuitem_t),
-	&keyboard_style, 110, 98, "M_CONTRL", NULL, 0, "Page 2", NULL, NULL
+	&keyboard_style, 142, 98, "M_CONTRL", NULL, 0, "Attack / Look", NULL, NULL
+};
+
+//
+//  KEY CONFIG : OTHER STUFF
+//
+static optmenuitem_t otherkeyconfig[] =
+{
+	{OPT_KeyConfig, "Use Item",         NULL, 0, CFGDEF_KEY_USE,         &key_use, NULL, NULL},
+	{OPT_KeyConfig, "Strafe",           NULL, 0, CFGDEF_KEY_STRAFE,      &key_strafe, NULL, NULL},
+	{OPT_KeyConfig, "Run",              NULL, 0, CFGDEF_KEY_SPEED,       &key_speed, NULL, NULL},
+	{OPT_KeyConfig, "Toggle Autorun",   NULL, 0, CFGDEF_KEY_AUTORUN,     &key_autorun, NULL, NULL},
+	{OPT_Plain,     "",                 NULL, 0, 0,                      NULL, NULL, NULL},
+	{OPT_KeyConfig, "180 degree turn",  NULL, 0, CFGDEF_KEY_180,        &key_180, NULL, NULL},
+	{OPT_KeyConfig, "Map Toggle",       NULL, 0, CFGDEF_KEY_MAP,        &key_map, NULL, NULL},
+	{OPT_KeyConfig, "Multiplayer Talk", NULL, 0, CFGDEF_KEY_TALK,       &key_talk, NULL, NULL},
+	{OPT_KeyConfig, "Console",          NULL, 0, CFGDEF_KEY_CONSOLE,    &key_console, NULL, NULL},
+///???	{OPT_KeyConfig, "Jump",             NULL, 0, CFGDEF_KEY_JUMP,       &key_jump, NULL, NULL},
+};
+
+static menuinfo_t otherkeyconfiginfo = 
+{
+	otherkeyconfig, sizeof(otherkeyconfig) / sizeof(optmenuitem_t),
+	&keyboard_style, 142, 98, "M_CONTRL", NULL, 0, "Other Stuff", NULL, NULL
 };
 
 static char keystring1[] = "Enter to change, Backspace to Clear";
@@ -802,7 +816,10 @@ void M_OptMenuInit()
 
 	// Needed to handle the circular reference that C++ init doesn't allow
 	stdkeyconfiginfo.sister_next = &extkeyconfiginfo;
-	extkeyconfiginfo.sister_prev = &stdkeyconfiginfo;
+	extkeyconfiginfo.sister_next = &otherkeyconfiginfo;
+
+	otherkeyconfiginfo.sister_prev = &extkeyconfiginfo;
+	extkeyconfiginfo.sister_prev   = &stdkeyconfiginfo;
 
 	// Restore the config setting.
 	M_ChangeBlood(-1);
@@ -848,6 +865,9 @@ void M_OptDrawer()
 	// -ACB- 1998/06/15 Calculate height for menu and then center it.
 	menutop = 68 - ((curr_menu->item_num * font_h) / 2);
 
+	if (curr_menu->key_page[0])
+		menutop = 9 * font_h / 2;
+
 	{
 		const image_c *image;
 
@@ -874,8 +894,9 @@ void M_OptDrawer()
 							  "NEXT >");
 
 		HL_WriteText(style,2, 160 - style->fonts[2]->StringWidth(curr_menu->key_page)/2, 
-						  200-deltay*4, curr_menu->key_page);
-    
+					 curry, curr_menu->key_page);
+		curry += font_h*2;
+
 		if (keyscan)
 			HL_WriteText(style,3, 160 - (style->fonts[3]->StringWidth(keystring2) / 2), 
 							  200-deltay*2, keystring2);
@@ -1412,6 +1433,9 @@ void M_ResetToDefaults(int keypressed)
 
 	for (i = 0; i < extkeyconfiginfo.item_num; i++)
 		M_DefaultMenuItem(&extkeyconfig[i]);
+
+	for (i = 0; i < otherkeyconfiginfo.item_num; i++)
+		M_DefaultMenuItem(&otherkeyconfig[i]);
 }
 
 //
