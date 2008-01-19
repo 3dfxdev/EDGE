@@ -151,6 +151,8 @@ int oggplayer_memclose(void *datasource)
 	if (d->size > 0)
 	{
 		delete[] d->data;
+		d->data = NULL;
+
         d->pos  = 0;
 		d->size = 0;
 	}
