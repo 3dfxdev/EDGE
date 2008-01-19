@@ -638,14 +638,14 @@ static optmenuitem_t stdkeyconfig[] =
 	{OPT_Plain,      "",              NULL, 0, 0,                       NULL, NULL, NULL},
 	{OPT_KeyConfig, "Strafe Left",    NULL, 0, CFGDEF_KEY_STRAFELEFT,  &key_strafeleft, NULL, NULL},
 	{OPT_KeyConfig, "Strafe Right",   NULL, 0, CFGDEF_KEY_STRAFERIGHT, &key_straferight, NULL, NULL},
-	{OPT_KeyConfig, "Move Up / Jump",     NULL, 0, CFGDEF_KEY_FLYUP,   &key_flyup, NULL, NULL},
-	{OPT_KeyConfig, "Move Down / Crouch", NULL, 0, CFGDEF_KEY_FLYDOWN, &key_flydown, NULL, NULL},
+	{OPT_KeyConfig, "Up / Jump",      NULL, 0, CFGDEF_KEY_FLYUP,   &key_flyup, NULL, NULL},
+	{OPT_KeyConfig, "Down / Crouch",  NULL, 0, CFGDEF_KEY_FLYDOWN, &key_flydown, NULL, NULL},
 };
 
 static menuinfo_t stdkeyconfiginfo = 
 {
 	stdkeyconfig, sizeof(stdkeyconfig) / sizeof(optmenuitem_t),
-	&keyboard_style, 142, 98, "M_CONTRL", NULL, 0, "Movement", NULL, NULL
+	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0, "Movement", NULL, NULL
 };
 
 //
@@ -672,7 +672,7 @@ static optmenuitem_t extkeyconfig[] =
 static menuinfo_t extkeyconfiginfo = 
 {
 	extkeyconfig, sizeof(extkeyconfig) / sizeof(optmenuitem_t),
-	&keyboard_style, 142, 98, "M_CONTRL", NULL, 0, "Attack / Look", NULL, NULL
+	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0, "Attack / Look", NULL, NULL
 };
 
 //
@@ -686,16 +686,15 @@ static optmenuitem_t otherkeyconfig[] =
 	{OPT_KeyConfig, "Toggle Autorun",   NULL, 0, CFGDEF_KEY_AUTORUN,     &key_autorun, NULL, NULL},
 	{OPT_Plain,     "",                 NULL, 0, 0,                      NULL, NULL, NULL},
 	{OPT_KeyConfig, "180 degree turn",  NULL, 0, CFGDEF_KEY_180,        &key_180, NULL, NULL},
-	{OPT_KeyConfig, "Map Toggle",       NULL, 0, CFGDEF_KEY_MAP,        &key_map, NULL, NULL},
 	{OPT_KeyConfig, "Multiplayer Talk", NULL, 0, CFGDEF_KEY_TALK,       &key_talk, NULL, NULL},
+	{OPT_KeyConfig, "Map Toggle",       NULL, 0, CFGDEF_KEY_MAP,        &key_map, NULL, NULL},
 	{OPT_KeyConfig, "Console",          NULL, 0, CFGDEF_KEY_CONSOLE,    &key_console, NULL, NULL},
-///???	{OPT_KeyConfig, "Jump",             NULL, 0, CFGDEF_KEY_JUMP,       &key_jump, NULL, NULL},
 };
 
 static menuinfo_t otherkeyconfiginfo = 
 {
 	otherkeyconfig, sizeof(otherkeyconfig) / sizeof(optmenuitem_t),
-	&keyboard_style, 142, 98, "M_CONTRL", NULL, 0, "Other Keys", NULL, NULL
+	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0, "Other Keys", NULL, NULL
 };
 
 static char keystring1[] = "Enter to change, Backspace to Clear";
@@ -738,7 +737,7 @@ static specialkey_t specialkeylist[] =  // terminate on -1
     {KEYD_NUMLOCK,  "NumLock"},
     {KEYD_CAPSLOCK, "CapsLock"},
     {KEYD_END, "End"},
-    {32, "Space"},
+    {KEYD_SPACE, "Space"},
     {'\'', "\'"},
     {KEYD_TILDE, "Tilde"},
     {KEYD_MOUSE1, "Mouse1"},

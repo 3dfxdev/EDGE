@@ -80,7 +80,6 @@ int key_speed;
 int key_autorun;
 int key_nextweapon;
 int key_prevweapon;
-int key_jump;
 int key_map;
 int key_180;
 int key_talk;
@@ -96,8 +95,8 @@ int key_flydown;
 #define MAXPLMOVE  (forwardmove[1])
 
 static int forwardmove[2] = {0x19, 0x32};
-static int upwardmove[2]  = {0x19, 0x32};  // -MH- 1998/08/18 Up/Down movement
 static int sidemove[2]    = {0x18, 0x28};
+static int upwardmove[2]  = {0x19, 0x32};  // -MH- 1998/08/18 Up/Down movement
 static int angleturn[3]   = {640, 1280, 320};  // + slow turn 
 
 #define ZOOM_ANGLE_DIV  3
@@ -370,8 +369,8 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	if (E_InputCheckKey(key_use))
 		cmd->buttons |= BT_USE;
 
-	if (E_InputCheckKey(key_jump))
-		cmd->extbuttons |= EBT_JUMP;
+///---	if (E_InputCheckKey(key_jump))
+///---		cmd->extbuttons |= EBT_JUMP;
 
 	if (E_InputCheckKey(key_secondatk))
 		cmd->extbuttons |= EBT_SECONDATK;
@@ -417,9 +416,9 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	else if (side < -MAXPLMOVE)
 		side = -MAXPLMOVE;
 
-	cmd->upwardmove  += upward;
 	cmd->forwardmove += forward;
 	cmd->sidemove    += side;
+	cmd->upwardmove  += upward;
 
 	// -KM- 1998/09/01 Analogue binding
 	Z_Clear(analogue, int, 5);
@@ -482,15 +481,15 @@ bool INP_Responder(event_t * ev)
 void E_SetTurboScale(int scale)
 {
 	const int origforwardmove[2] = {0x19, 0x32};
-	const int origupwardmove[2] = {0x19, 0x32};
-	const int origsidemove[2] = {0x18, 0x28};
+	const int origsidemove[2]    = {0x18, 0x28};
+	const int origupwardmove[2]  = {0x19, 0x32};
 
-	upwardmove[0]  = origupwardmove[0] * scale / 100;
-	upwardmove[1]  = origupwardmove[1] * scale / 100;
 	forwardmove[0] = origforwardmove[0] * scale / 100;
 	forwardmove[1] = origforwardmove[1] * scale / 100;
 	sidemove[0]    = origsidemove[0] * scale / 100;
 	sidemove[1]    = origsidemove[1] * scale / 100;
+	upwardmove[0]  = origupwardmove[0] * scale / 100;
+	upwardmove[1]  = origupwardmove[1] * scale / 100;
 }
 
 
