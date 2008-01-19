@@ -695,7 +695,7 @@ static optmenuitem_t otherkeyconfig[] =
 static menuinfo_t otherkeyconfiginfo = 
 {
 	otherkeyconfig, sizeof(otherkeyconfig) / sizeof(optmenuitem_t),
-	&keyboard_style, 142, 98, "M_CONTRL", NULL, 0, "Other Stuff", NULL, NULL
+	&keyboard_style, 142, 98, "M_CONTRL", NULL, 0, "Other Keys", NULL, NULL
 };
 
 static char keystring1[] = "Enter to change, Backspace to Clear";
