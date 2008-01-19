@@ -44,9 +44,16 @@ static void P_UpdatePowerups(player_t *player);
 
 static void CalcHeight(player_t * player)
 {
-	// calculate the walking / running height adjustment.
-
 	bool onground = player->mo->z <= player->mo->floorz;
+
+	if (player->mo->height < (player->mo->info->height + player->mo->info->crouchheight) / 2.0f)
+		player->mo->extendedflags |= EF_CROUCHING;
+	else
+		player->mo->extendedflags &= ~EF_CROUCHING;
+
+	player->std_viewheight = player->mo->height * PERCENT_2_FLOAT(player->mo->info->viewheight);
+
+	// calculate the walking / running height adjustment.
 
 	float bob_z = 0;
 
@@ -270,7 +277,8 @@ static void MovePlayer(player_t * player)
 	// -ACB- 1998/08/09 Check that jumping is allowed in the currmap
 	//                  Make player pause before jumping again
 
-	if (level_flags.jump && cmd->upwardmove >= 7)
+	if (level_flags.jump && mo->info->jumpheight > 0 &&
+	    (cmd->upwardmove > 4))
 	{
 		if (!jumping && !crouching && !swimming && !flying && onground && !onladder)
 		{
@@ -301,44 +309,36 @@ static void MovePlayer(player_t * player)
 
 	// EDGE Feature: Crouching
 
-	if (level_flags.crouch && mo->info->crouchheight > 0)
+	if (level_flags.crouch && mo->info->crouchheight > 0 &&
+		(player->cmd.upwardmove < -4) &&
+		!swimming && !jumping && onground)
+		// NB: no ladder check, onground is sufficient
 	{
-		if (player->cmd.upwardmove < 0)
+		if (mo->height > mo->info->crouchheight)
 		{
-			if (mo->height > mo->info->crouchheight &&
-				!swimming && !jumping && onground) /// && !onladder)
+			mo->height = MAX(mo->height - 2.0f, mo->info->crouchheight);
+
+			// update any things near the player
+			P_ChangeThingSize(mo);
+
+			mo->player->deltaviewheight = -1.0f;
+		}
+	}
+	else // STAND UP
+	{
+		if (mo->height < mo->info->height)
+		{
+			// prevent standing up inside a solid area
+			if ((mo->flags & MF_NOCLIP) || mo->z+mo->height+2 <= mo->ceilingz)
 			{
-				mo->height = MAX(mo->height - 2.0f, mo->info->crouchheight);
+				mo->height = MIN(mo->height + 2, mo->info->height);
 
 				// update any things near the player
 				P_ChangeThingSize(mo);
 
-				mo->player->deltaviewheight = -1.0f;
+				mo->player->deltaviewheight = 1.0f;
 			}
 		}
-		else // STAND UP
-		{
-			if (mo->height < mo->info->height)
-			{
-				// prevent standing up inside a solid area
-				if ((mo->flags & MF_NOCLIP) || mo->z+mo->height+2 <= mo->ceilingz)
-				{
-					mo->height = MIN(mo->height + 2, mo->info->height);
-
-					// update any things near the player
-					P_ChangeThingSize(mo);
-
-					mo->player->deltaviewheight = 1.0f;
-				}
-			}
-		}
-
-		if (mo->height < (mo->info->height + mo->info->crouchheight) / 2.0f)
-			mo->extendedflags |= EF_CROUCHING;
-		else
-			mo->extendedflags &= ~EF_CROUCHING;
-
-		player->std_viewheight = mo->height * PERCENT_2_FLOAT(mo->info->viewheight);
 	}
 
 	// EDGE Feature: Zooming
