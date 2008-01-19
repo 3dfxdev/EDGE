@@ -4,6 +4,9 @@ Andrew Apted's Log
 
 Improved Keyboard Controls menu.
 
+Merged the JUMP and MOVE-UP keys into a single key, and
+tweaked the jumping/crouching code to behave sanely.
+
 2008/01/16:
 
 Worked on linearly interpolating monster positions, which
