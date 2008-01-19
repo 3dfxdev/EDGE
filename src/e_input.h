@@ -70,7 +70,6 @@ extern int key_speed;
 extern int key_autorun;
 extern int key_nextweapon;
 extern int key_prevweapon;
-extern int key_jump;
 extern int key_map;
 extern int key_180;
 extern int key_talk;

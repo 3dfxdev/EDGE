@@ -124,9 +124,10 @@ static void MovePlayer(player_t * player)
 	bool onground = player->mo->z <= player->mo->floorz;
 	bool onladder = player->mo->on_ladder >= 0;
 
-	bool swimming = player->swimming;
-	bool flying   = (player->powers[PW_Jetpack] > 0) && ! swimming;
-	bool jumping  = (player->jumpwait > 0);
+	bool swimming  = player->swimming;
+	bool flying    = (player->powers[PW_Jetpack] > 0) && ! swimming;
+	bool jumping   = (player->jumpwait > 0);
+	bool crouching = (player->mo->extendedflags & EF_CROUCHING) ? true : false;
 
 	float dx, dy;
 	float eh, ev;
@@ -161,6 +162,13 @@ static void MovePlayer(player_t * player)
 		player->mo->vertangle = 0;
 	}
 
+	// EDGE Feature: Vertical Centering
+	//
+	// -ACB- 1998/07/02 Re-routed via Ticcmd
+	//
+	if (cmd->extbuttons & EBT_CENTER)
+		player->mo->vertangle = 0;
+
 	// compute XY and Z speeds, taking swimming (etc) into account
 	// (we try to swim in view direction -- assumes no gravity).
 
@@ -177,7 +185,7 @@ static void MovePlayer(player_t * player)
 		base_z_speed /= 16.0f;
 
 	// move slower when crouching
-	if (player->mo->extendedflags & EF_CROUCHING)
+	if (crouching)
 		base_xy_speed *= CROUCH_SLOWDOWN;
 
 	dx = M_Cos(player->mo->angle);
@@ -216,8 +224,11 @@ static void MovePlayer(player_t * player)
 	player->mo->mom.y += F_vec[1] * cmd->forwardmove + S_vec[1] *
 		cmd->sidemove + U_vec[1] * cmd->upwardmove;
 
-	player->mo->mom.z += F_vec[2] * cmd->forwardmove + S_vec[2] *
-		cmd->sidemove + U_vec[2] * cmd->upwardmove;
+	if (flying || swimming || !onground || onladder)
+	{
+		player->mo->mom.z += F_vec[2] * cmd->forwardmove + S_vec[2] *
+			cmd->sidemove + U_vec[2] * cmd->upwardmove;
+	}
 
 	if (flying && !swimming)
 	{
@@ -233,7 +244,7 @@ static void MovePlayer(player_t * player)
 			if ((leveltime & 10) == 0)
 				S_StartFX(sfx_jpflow, sfx_cat, player->mo);  // fuel low
 		}
-		else if (cmd->upwardmove > 0 || (cmd->extbuttons & EBT_JUMP))
+		else if (cmd->upwardmove > 0)
 			S_StartFX(sfx_jprise, sfx_cat, player->mo);
 		else if (cmd->upwardmove < 0)
 			S_StartFX(sfx_jpdown, sfx_cat, player->mo);
@@ -243,9 +254,10 @@ static void MovePlayer(player_t * player)
 			S_StartFX(sfx_jpidle, sfx_cat, player->mo);
 	}
 
-	if (!jumping && player->mo->state == &states[player->mo->info->idle_state])
+	if (player->mo->state == &states[player->mo->info->idle_state])
 	{
-		if (onground && (cmd->forwardmove || cmd->sidemove))
+		if (!jumping && !flying && (onground || swimming) &&
+		    (cmd->forwardmove || cmd->sidemove))
 		{
 			// enter the CHASE (i.e. walking) states
 			if (player->mo->info->chase_state)
@@ -253,59 +265,18 @@ static void MovePlayer(player_t * player)
 		}
 	}
 
-	// EDGE Feature: Crouching
-
-	if (level_flags.crouch && mo->info->crouchheight > 0)
-	{
-		if (player->cmd.upwardmove < 0 &&
-			mo->height > mo->info->crouchheight &&
-			!swimming && !jumping && (onground || onladder))
-		{
-			mo->height = MAX(mo->height - 2.0f, mo->info->crouchheight);
-
-			// update any things near the player
-			P_ChangeThingSize(mo);
-
-			mo->player->deltaviewheight = -1.0f;
-		}
-		else if (player->cmd.upwardmove >= 0 &&
-				 mo->height < mo->info->height)
-		{
-			// prevent standing up inside a solid area
-			if ((mo->flags & MF_NOCLIP) || mo->z+mo->height+2 <= mo->ceilingz)
-			{
-				mo->height = MIN(mo->height + 2, mo->info->height);
-
-				// update any things near the player
-				P_ChangeThingSize(mo);
-
-				mo->player->deltaviewheight = 1.0f;
-			}
-		}
-
-		if (mo->height < (mo->info->height + mo->info->crouchheight) / 2.0f)
-			mo->extendedflags |= EF_CROUCHING;
-		else
-			mo->extendedflags &= ~EF_CROUCHING;
-
-		player->std_viewheight = mo->height * PERCENT_2_FLOAT(mo->info->viewheight);
-	}
-
 	// EDGE Feature: Jump Code
 	//
 	// -ACB- 1998/08/09 Check that jumping is allowed in the currmap
 	//                  Make player pause before jumping again
 
-	if (cmd->extbuttons & EBT_JUMP)
+	if (level_flags.jump && cmd->upwardmove >= 7)
 	{
-		if (swimming || flying)
+		if (!jumping && !crouching && !swimming && !flying && onground && !onladder)
 		{
-			player->mo->mom.z += base_z_speed * 10;
-		}
-		else if (level_flags.jump && !jumping && onground)
-		{
-			player->mo->mom.z += player->mo->info->jumpheight / 
-				(player->mo->extendedflags & EF_CROUCHING ? 1.8f : 1.4f);
+			player->mo->mom.z += player->mo->info->jumpheight / 1.4f;
+///---			(player->mo->extendedflags & EF_CROUCHING ? 1.8f : 1.4f);
+
 			player->jumpwait = player->mo->info->jump_delay;
 
 			// enter the JUMP states (if present)
@@ -328,19 +299,54 @@ static void MovePlayer(player_t * player)
 		}
 	}
 
+	// EDGE Feature: Crouching
+
+	if (level_flags.crouch && mo->info->crouchheight > 0)
+	{
+		if (player->cmd.upwardmove < 0)
+		{
+			if (mo->height > mo->info->crouchheight &&
+				!swimming && !jumping && onground) /// && !onladder)
+			{
+				mo->height = MAX(mo->height - 2.0f, mo->info->crouchheight);
+
+				// update any things near the player
+				P_ChangeThingSize(mo);
+
+				mo->player->deltaviewheight = -1.0f;
+			}
+		}
+		else // STAND UP
+		{
+			if (mo->height < mo->info->height)
+			{
+				// prevent standing up inside a solid area
+				if ((mo->flags & MF_NOCLIP) || mo->z+mo->height+2 <= mo->ceilingz)
+				{
+					mo->height = MIN(mo->height + 2, mo->info->height);
+
+					// update any things near the player
+					P_ChangeThingSize(mo);
+
+					mo->player->deltaviewheight = 1.0f;
+				}
+			}
+		}
+
+		if (mo->height < (mo->info->height + mo->info->crouchheight) / 2.0f)
+			mo->extendedflags |= EF_CROUCHING;
+		else
+			mo->extendedflags &= ~EF_CROUCHING;
+
+		player->std_viewheight = mo->height * PERCENT_2_FLOAT(mo->info->viewheight);
+	}
+
 	// EDGE Feature: Zooming
 	//
 	if (cmd->extbuttons & EBT_ZOOM)
 	{
 		P_Zoom(player);
 	}
-
-	// EDGE Feature: Vertical Centering (Mlook)
-	//
-	// -ACB- 1998/07/02 Re-routed via Ticcmd
-	//
-	if (cmd->extbuttons & EBT_CENTER)
-		player->mo->vertangle = 0;
 }
 
 

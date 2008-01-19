@@ -643,8 +643,6 @@ static void BOT_ConvertToTiccmd(bot_t *bot, ticcmd_t *dest, botcmd_t *src)
 		dest->extbuttons |= EBT_SECONDATK;
 	if (src->use)
 		dest->buttons |= BT_USE;
-	if (src->jump)
-		dest->extbuttons |= EBT_JUMP;
 	if (src->new_weapon != -1)
 		dest->buttons |= (src->new_weapon << BT_WEAPONSHIFT) & BT_WEAPONMASK;
 
@@ -666,7 +664,9 @@ static void BOT_ConvertToTiccmd(bot_t *bot, ticcmd_t *dest, botcmd_t *src)
 	dest->angleturn = (new_angle - mo->angle) >> 16;
 	dest->mlookturn = (M_ATan(new_slope) - mo->vertangle) >> 16;
 
-	dest->sidemove = dest->forwardmove = 0;
+	dest->forwardmove = 0;
+	dest->sidemove    = 0;
+	dest->upwardmove  = 0;
 
 	if (src->move_speed != 0)
 	{
@@ -679,6 +679,9 @@ static void BOT_ConvertToTiccmd(bot_t *bot, ticcmd_t *dest, botcmd_t *src)
 		dest->forwardmove = (int)fm;
 		dest->sidemove    = (int)sm;
 	}
+
+	if (src->jump)
+		dest->upwardmove = 0x20;
 }
 
 

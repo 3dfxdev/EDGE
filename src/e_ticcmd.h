@@ -98,7 +98,8 @@ buttoncode_e;
 //
 typedef enum
 {
-	EBT_JUMP = 1,
+///---	EBT_JUMP = 1,
+
 	EBT_CENTER = 4,
 
 	// -AJA- 2000/02/08: support for second attack.

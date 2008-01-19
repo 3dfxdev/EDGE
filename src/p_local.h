@@ -38,7 +38,7 @@
 #include "epi/arrays.h"
 
 #define DEATHVIEWHEIGHT  6.0f
-#define CROUCH_SLOWDOWN  0.6f
+#define CROUCH_SLOWDOWN  0.5f
 
 #define MLOOK_LIMIT    FLOAT_2_ANG(75.0f)
 

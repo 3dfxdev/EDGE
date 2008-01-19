@@ -219,7 +219,6 @@ static default_t defaults[] =
     {CFGT_Key,      "key_nextweapon",    &key_nextweapon, 0},
     {CFGT_Key,      "key_prevweapon",    &key_prevweapon, 0},
 
-    {CFGT_Key,      "key_jump",          &key_jump,       0},
     {CFGT_Key,      "key_180",           &key_180,        0},
     {CFGT_Key,      "key_map",           &key_map,        0},
     {CFGT_Key,      "key_talk",          &key_talk,       0},
