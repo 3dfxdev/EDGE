@@ -1344,7 +1344,7 @@ static void adjust_volume(int chan)
 
 static void do_compute_data(final_volume_t *buffer_pointer, int count)
 {
-I_Debugf("    do_compute_data: %d\n", count);
+//# I_Debugf("    do_compute_data: %d\n", count);
 
 	memset(buffer_pointer, 0, count * num_ochannels * sizeof(final_volume_t));
 
@@ -1530,7 +1530,8 @@ int Timidity_PlaySome(s16_t *stream, int samples)
 	if (! midi_playing)
 		return 0;
 
-I_Debugf("\nTimidity_PlaySome: samples=%d\n", samples);
+//# I_Debugf("\nTimidity_PlaySome: samples=%d\n", samples);
+
 	int end_sample = current_sample + samples;
 	int total_done = 0;
 
