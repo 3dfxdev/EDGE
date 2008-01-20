@@ -853,6 +853,23 @@ static void start_note(MidiEvent *e, int i)
 		if (! lp)
 			lp = drumset[0]->tone[this_note].layer;
 
+///---	if (! lp)
+///---	{
+///---		for (int dist = 1; dist < 4; dist++)
+///---		{
+///---			int note = aja_failsafe_drum(this_note, dist);
+///---			if (note < 0)
+///---				continue;
+///---
+///---			lp = drumset[0]->tone[note].layer;
+///---			if (! lp)
+///---				continue;
+///---
+///---			this_note = note;
+///---			break;
+///---		}
+///---	}
+
 		if (! lp)
 			return; /* No instrument? Then we can't play. */
 
@@ -882,6 +899,23 @@ static void start_note(MidiEvent *e, int i)
 
 			if (! lp)
 				lp = tonebank[0]->tone[this_prog].layer;
+
+///---		if (! lp)
+///---		{
+///---			for (int dist = 1; dist < 8; dist++)
+///---			{
+///---				int prog = aja_failsafe_program(this_prog, dist);
+///---				if (prog < 0)
+///---					continue;
+///---
+///---				lp = tonebank[0]->tone[prog].layer;
+///---				if (! lp)
+///---					continue;
+///---
+///---				this_prog = prog;
+///---				break;
+///---			}
+///---		}
 
 			if (! lp)
 				return; /* No instrument? Then we can't play. */
