@@ -888,13 +888,26 @@ static void P_XYMovement(mobj_t * mo, const region_properties_t *props)
 				mo->player->jumpwait == 0 &&
 				mo->z > mo->floorz + 0.5f)
 			{
-				float ground_h = MAX(blockline->frontsector->f_h,
-				                     blockline->backsector->f_h);
+				float ground_h;
 
-				if (mo->z > ground_h - mo->height &&
-				    mo->z < ground_h + mo->height)
+				int i = P_FindThingGap(blockline->gaps, blockline->gap_num,
+				                       mo->z + mo->height, mo->z + 2 * mo->height); 
+				if (i >= 0)
 				{
-					P_PlayerJump(mo->player, 50, 2 * TICRATE);
+					ground_h = blockline->gaps[i].f;
+				}
+				else
+				{
+					ground_h = MAX(blockline->frontsector->f_h,
+				                   blockline->backsector->f_h);
+				}
+
+				// I_Debugf("ground_h: %1.0f  mo_Z: %1.0f\n", ground_h, mo->z);
+
+				if (mo->z < ground_h - 20.5f &&
+				    mo->z > ground_h - mo->height * 1.4)
+				{
+					P_PlayerJump(mo->player, 60, 2 * TICRATE);
 				}
 			}
 
