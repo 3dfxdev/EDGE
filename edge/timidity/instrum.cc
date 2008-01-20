@@ -56,8 +56,6 @@ int last_tune_purged = 0;
 int current_patch_memory = 0;
 int max_patch_memory = 60000000;
 
-static void purge_as_required(void);
-
 static void free_instrument(Instrument *ip)
 {
 	Sample *sp;
@@ -124,30 +122,30 @@ static void free_bank(int dr, int b)
 }
 
 
-static void free_old_bank(int dr, int b, int how_old)
-{
-	ToneBank *bank=((dr) ? drumset[b] : tonebank[b]);
-
-	for (int i=0; i<MAXPROG; i++)
-	{
-		if (bank->tone[i].layer && bank->tone[i].last_used < how_old)
-		{
-			if (bank->tone[i].layer != MAGIC_LOAD_INSTRUMENT)
-			{
-				ctl_msg(CMSG_INFO, VERB_DEBUG,
-						"Unloading %s %s[%d,%d] - last used %d.",
-						(dr)? "drum" : "inst", bank->tone[i].name,
-						i, b, bank->tone[i].last_used);
-
-				if (! bank->tone[i].layer_copy)
-					free_layer(bank->tone[i].layer);
-
-				bank->tone[i].layer = NULL;
-				bank->tone[i].last_used=-1;
-			}
-		}
-	}
-}
+///---static void free_old_bank(int dr, int b, int how_old)
+///---{
+///---	ToneBank *bank=((dr) ? drumset[b] : tonebank[b]);
+///---
+///---	for (int i=0; i<MAXPROG; i++)
+///---	{
+///---		if (bank->tone[i].layer && bank->tone[i].last_used < how_old)
+///---		{
+///---			if (bank->tone[i].layer != MAGIC_LOAD_INSTRUMENT)
+///---			{
+///---				ctl_msg(CMSG_INFO, VERB_DEBUG,
+///---						"Unloading %s %s[%d,%d] - last used %d.",
+///---						(dr)? "drum" : "inst", bank->tone[i].name,
+///---						i, b, bank->tone[i].last_used);
+///---
+///---				if (! bank->tone[i].layer_copy)
+///---					free_layer(bank->tone[i].layer);
+///---
+///---				bank->tone[i].layer = NULL;
+///---				bank->tone[i].last_used=-1;
+///---			}
+///---		}
+///---	}
+///---}
 
 
 int convert_envelope_rate_attack(byte rate, byte fastness)
@@ -850,53 +848,53 @@ fail:
 /* AJA: new code */
 static const int aja_drum_remap[47][4] =
 {
-	{ 129, 133, 131,   0 },  // Acoustic Bass Drum
-	{ 128, 131, 133,   0 },  // Bass Drum
-	{ 168, 170,   0,   0 },  // Slide Stick
-	{ 133, 128, 129,   0 },  // Acoustic Snare
-	{ 151, 163,   0,   0 },  // Hand Clap
-	{ 131, 129, 128,   0 },  // Electric Snare
-	{ 138, 140,   0,   0 },  // Low Floor Tom
-	{ 137, 139,   0,   0 },  // Closed High-Hat
-	{ 143, 141,   0,   0 },  // High Floor Tom
-	{ 135, 139,   0,   0 },  // Pedal High Hat
-	{ 140, 134,   0,   0 },  // Low Tom
-	{ 137, 135,   0,   0 },  // Open High Hat
-	{ 138, 134,   0,   0 },  // Low-Mid Tom
-	{ 143, 136,   0,   0 },  // High-Mid Tom
-	{ 150, 144,   0,   0 },  // Crash Cymbal 1
-	{ 141, 136,   0,   0 },  // High Tom
-	{ 152,   0,   0,   0 },  // Ride Cymbal 1
-	{ 148,   0,   0,   0 },  // Chinses Cymbal
-	{ 149,   0,   0,   0 },  // Ride Bell
-	{ 162,   0,   0,   0 },  // Tambourine
-	{ 145,   0,   0,   0 },  // Splash Cymbal
-	{ 146,   0,   0,   0 },  // Cowbell
-	{ 142, 152,   0,   0 },  // Crash Cymbal 2
-	{ 132,   0,   0,   0 },  // Vibraslap
-	{ 144,   0,   0,   0 },  // Ride Cymbal 2
-	{ 154,   0,   0,   0 },  // High Bongo
-	{ 153,   0,   0,   0 },  // Low Bongo
-	{ 156, 157,   0,   0 },  // Mute High Conga
-	{ 155, 157,   0,   0 },  // Open High Conga
-	{ 156, 155,   0,   0 },  // Low Conga
-	{ 159, 160,   0,   0 },  // High Timbale
-	{ 158, 161,   0,   0 },  // Low Timbale
-	{ 161, 158,   0,   0 },  // High Agogo
-	{ 160, 159,   0,   0 },  // Low Agogo
-	{ 163,   0,   0,   0 },  // Cabasa
-	{ 162,   0,   0,   0 },  // Maracas
-	{ 165, 166,   0,   0 },  // Short Whistle
-	{ 164, 167,   0,   0 },  // Long Whistle
-	{ 167, 164,   0,   0 },  // Short Guiro
-	{ 166, 165,   0,   0 },  // Long Guiro
-	{ 130, 169,   0,   0 },  // Claves
-	{ 170, 168,   0,   0 },  // High Wood Block
-	{ 169, 168,   0,   0 },  // Low Wood Block
-	{ 172, 173,   0,   0 },  // Mute Cuica
-	{ 171, 174,   0,   0 },  // Open Cuica
-	{ 174, 171,   0,   0 },  // Mute Triangle
-	{ 173, 172,   0,   0 }   // Open Triangle
+	{ 36, 40, 38,  0 },  // Acoustic Bass Drum
+	{ 35, 38, 40,  0 },  // Bass Drum
+	{ 75, 77,  0,  0 },  // Slide Stick
+	{ 40, 35, 36,  0 },  // Acoustic Snare
+	{ 58, 70,  0,  0 },  // Hand Clap
+	{ 38, 36, 35,  0 },  // Electric Snare
+	{ 45, 47,  0,  0 },  // Low Floor Tom
+	{ 44, 46,  0,  0 },  // Closed High-Hat
+	{ 50, 48,  0,  0 },  // High Floor Tom
+	{ 42, 46,  0,  0 },  // Pedal High Hat
+	{ 47, 41,  0,  0 },  // Low Tom
+	{ 44, 42,  0,  0 },  // Open High Hat
+	{ 45, 41,  0,  0 },  // Low-Mid Tom
+	{ 50, 43,  0,  0 },  // High-Mid Tom
+	{ 57, 51,  0,  0 },  // Crash Cymbal 1
+	{ 48, 43,  0,  0 },  // High Tom
+	{ 59,  0,  0,  0 },  // Ride Cymbal 1
+	{ 55,  0,  0,  0 },  // Chinses Cymbal
+	{ 56,  0,  0,  0 },  // Ride Bell
+	{ 69,  0,  0,  0 },  // Tambourine
+	{ 52,  0,  0,  0 },  // Splash Cymbal
+	{ 53,  0,  0,  0 },  // Cowbell
+	{ 49, 59,  0,  0 },  // Crash Cymbal 2
+	{ 39,  0,  0,  0 },  // Vibraslap
+	{ 51,  0,  0,  0 },  // Ride Cymbal 2
+	{ 61,  0,  0,  0 },  // High Bongo
+	{ 60,  0,  0,  0 },  // Low Bongo
+	{ 63, 64,  0,  0 },  // Mute High Conga
+	{ 62, 64,  0,  0 },  // Open High Conga
+	{ 63, 62,  0,  0 },  // Low Conga
+	{ 66, 67,  0,  0 },  // High Timbale
+	{ 65, 68,  0,  0 },  // Low Timbale
+	{ 68, 65,  0,  0 },  // High Agogo
+	{ 67, 66,  0,  0 },  // Low Agogo
+	{ 70,  0,  0,  0 },  // Cabasa
+	{ 69,  0,  0,  0 },  // Maracas
+	{ 72, 73,  0,  0 },  // Short Whistle
+	{ 71, 74,  0,  0 },  // Long Whistle
+	{ 74, 71,  0,  0 },  // Short Guiro
+	{ 73, 72,  0,  0 },  // Long Guiro
+	{ 37, 76,  0,  0 },  // Claves
+	{ 77, 75,  0,  0 },  // High Wood Block
+	{ 76, 75,  0,  0 },  // Low Wood Block
+	{ 79, 80,  0,  0 },  // Mute Cuica
+	{ 78, 81,  0,  0 },  // Open Cuica
+	{ 81, 78,  0,  0 },  // Mute Triangle
+	{ 80, 79,  0,  0 }   // Open Triangle
 };                     
 
 int aja_fallback_drum(int i, int dist)
@@ -943,11 +941,56 @@ int aja_fallback_program(int i, int dist)
 }
 
 
+static bool try_load_instr(ToneBank *bank, int b, int dr, int i)
+{
+	if (! bank->tone[i].name)
+		return false;
+
+	bank->tone[i].layer_copy = 0;
+	bank->tone[i].layer = load_instrument(bank->tone[i].name, 
+			bank->tone[i].font_type, (dr) ? 1 : 0,
+			bank->tone[i].pan, bank->tone[i].amp, bank->tone[i].tuning,
+			(bank->tone[i].note!=-1) ?  bank->tone[i].note : ((dr) ? i : -1),
+			(bank->tone[i].strip_loop!=-1) ?  bank->tone[i].strip_loop : ((dr) ? 1 : -1),
+			(bank->tone[i].strip_envelope != -1) ?  bank->tone[i].strip_envelope : ((dr) ? 1 : -1),
+			bank->tone[i].strip_tail, b /* bank */,
+			((dr) ? i + 128 : i), bank->tone[i].sf_ix);
+
+	if (bank->tone[i].layer)
+	{
+		bank->tone[i].last_used = current_tune_number;
+		current_patch_memory += bank->tone[i].layer->size;
+
+		return true;
+	}
+
+	ctl_msg(CMSG_ERROR, VERB_NORMAL, 
+			"Couldn't load instrument %s (%s %d, program %d)",
+			bank->tone[i].name,
+			(dr)? "drum set" : "tone bank", b, i);
+
+	return false;
+}
+
+///---			if (current_patch_memory > max_patch_memory)
+///---			{
+///---				ctl_msg(CMSG_ERROR, VERB_NORMAL, 
+///---						"Not enough memory to load instrument %s (%s %d, program %d)",
+///---						bank->tone[i].name,
+///---						(dr)? "drum set" : "tone bank", b, i);
+///---				free_layer(bank->tone[i].layer);
+///---				bank->tone[i].layer = NULL;
+///---				bank->tone[i].last_used = -1;
+///---
+///---				errors++;
+///---				continue;
+///---			}
+
 static int fill_bank(int dr, int b)
 {
 	int errors=0;
 
-	ToneBank *bank = ((dr) ? drumset[b] : tonebank[b]);
+	ToneBank *bank = (dr) ? drumset[b] : tonebank[b];
 
 	if (!bank)
 	{
@@ -957,47 +1000,117 @@ static int fill_bank(int dr, int b)
 		return 0;
 	}
 
-	int passes = 1;
-	if (b == 0)
-		passes = dr ? 4 : 8;
+	/* Primary Pass : try to load instruments normally */
 
-	for (int dist = 0; dist < passes; dist++)
+	for (int i=0; i < MAXPROG; i++)
+	{
+		if (bank->tone[i].layer == MAGIC_LOAD_INSTRUMENT)
+		{
+			if (! try_load_instr(bank, b, dr, i))
+			{
+				if (b == 0)
+					// standard bank : try again later
+					bank->tone[i].layer = MAGIC_LOAD_INSTRUMENT;
+				else
+				{
+					if (dr)
+					{
+						if (! drumset[0]->tone[i].layer)
+							drumset[0]->tone[i].layer = MAGIC_LOAD_INSTRUMENT;
+					}
+					else
+					{
+						if (! tonebank[0]->tone[i].layer)
+							tonebank[0]->tone[i].layer = MAGIC_LOAD_INSTRUMENT;
+					}
+				}
+
+				errors++;
+			}
+		}
+	}
+
+	if (b != 0)
+		return errors;
+
+	/* Secondary Pass for Bank #0 : fallback remaps */
+
+	int passes = dr ? 4 : 8;
+
+	for (int dist = 1; dist <= passes; dist++)
 	{
 		for (int i=0; i < MAXPROG; i++)
 		{
 			if (bank->tone[i].layer != MAGIC_LOAD_INSTRUMENT)
 				continue;
 
+			int new_i;
+			if (dr)
+				new_i = aja_fallback_drum(i, dist);
+			else
+				new_i = aja_fallback_program(i, dist);
+
+			if (! bank->tone[new_i].name)
+				continue;
+
+			if (! bank->tone[new_i].layer)
+			{
+				try_load_instr(bank, b, dr, new_i);
+			}
+
+			if (bank->tone[new_i].layer &&
+				bank->tone[new_i].layer != MAGIC_LOAD_INSTRUMENT &&
+				! bank->tone[new_i].layer_copy)
+			{
+				bank->tone[i].layer = bank->tone[new_i].layer;
+				bank->tone[i].layer_copy = 1;
+
+				ctl_msg(CMSG_WARNING, VERB_NORMAL,
+						"No instrument mapped to %s %d, program %d"
+						" - remapped to program %d",
+						(dr)? "drum set" : "tone bank", b, i, new_i);
+				continue;
+			}
+
+#if 0
+			if (bank->tone[new_i].layer_copy
+				@@@@
+				
+
+			if (bank->layer
+
+			if (bank->tone[i].name)
+			{
+				try_load_instr(bank, b, dr, i);
+
+				if (bank->tone[i].layer)
+				{
+					/* it's loaded now */
+
+
+
+					continue;
+				}
+			}
+
+			if (b == 0 && 
+
 			/* -AJA- 2008/01/20: remap missing instruments */
 			if (! bank->tone[i].name && b == 0 && dist > 0)
 			{
-				int new_i;
-				if (dr)
-					new_i = aja_fallback_drum(i, dist);
-				else
-					new_i = aja_fallback_program(i, dist);
 
-				if (bank->tone[new_i].name  &&
-					bank->tone[new_i].layer &&
-				    bank->tone[new_i].layer != MAGIC_LOAD_INSTRUMENT &&
-					bank->tone[new_i].layer_copy)
-				{
-					bank->tone[i].layer = bank->tone[new_i].layer;
-					bank->tone[i].layer_copy = true;
-					continue;
-				}
+I_Debugf("MISSING %s [%d] bank:%d dist:%d ---> NEW [%d] layer:%p layer_copy:%d\n",
+         dr ? "DRUM" : "PROG", i, b, dist,
+		 new_i, bank->tone[new_i].layer, bank->tone[new_i].layer_copy);
+
 			}
 
 			if (! bank->tone[i].name)
 			{
 				// -AJA- try another remap on next pass
-				if (dist < passes)
+				if (dist < passes-1)
 					continue;
 
-				ctl_msg(CMSG_WARNING, (b!=0) ? VERB_VERBOSE : VERB_NORMAL,
-						"No instrument mapped to %s %d, program %d%s",
-						(dr)? "drum set" : "tone bank", b, i, 
-						(b!=0) ? "" : " - this instrument will not be heard");
 
 				if (b > 0)
 				{
@@ -1014,80 +1127,55 @@ static int fill_bank(int dr, int b)
 							drumset[0]->tone[i].layer = MAGIC_LOAD_INSTRUMENT;
 					}
 				}
-				bank->tone[i].layer = NULL;
-
-				errors++;
 				continue;
 			}
 
-			bank->tone[i].layer_copy = 0;
-			bank->tone[i].layer = load_instrument(bank->tone[i].name, 
-					bank->tone[i].font_type, (dr) ? 1 : 0,
-					bank->tone[i].pan, bank->tone[i].amp, bank->tone[i].tuning,
-					(bank->tone[i].note!=-1) ?  bank->tone[i].note : ((dr) ? i : -1),
-					(bank->tone[i].strip_loop!=-1) ?  bank->tone[i].strip_loop : ((dr) ? 1 : -1),
-					(bank->tone[i].strip_envelope != -1) ?  bank->tone[i].strip_envelope : ((dr) ? 1 : -1),
-					bank->tone[i].strip_tail, b /* bank */,
-					((dr) ? i + 128 : i), bank->tone[i].sf_ix);
+			if (bank->tone[i].layer)
+				continue;
+
 
 			if (! bank->tone[i].layer)
 			{
-				ctl_msg(CMSG_ERROR, VERB_NORMAL, 
-						"Couldn't load instrument %s (%s %d, program %d)",
-						bank->tone[i].name,
-						(dr)? "drum set" : "tone bank", b, i);
 				errors++;
 				continue;
 			}
+#endif
 
-			/* it's loaded now */
-
-			bank->tone[i].last_used = current_tune_number;
-			current_patch_memory += bank->tone[i].layer->size;
-			purge_as_required();
-
-			if (current_patch_memory > max_patch_memory)
-			{
-				ctl_msg(CMSG_ERROR, VERB_NORMAL, 
-						"Not enough memory to load instrument %s (%s %d, program %d)",
-						bank->tone[i].name,
-						(dr)? "drum set" : "tone bank", b, i);
-				free_layer(bank->tone[i].layer);
-				bank->tone[i].layer = NULL;
-				bank->tone[i].last_used = -1;
-
-				errors++;
-				continue;
-			}
 		} // instrument
 	} // dist
+
+	/* Final Pass : find the failures */
+
+	for (int i=0; i < MAXPROG; i++)
+	{
+		if (bank->tone[i].layer == MAGIC_LOAD_INSTRUMENT)
+		{
+			bank->tone[i].layer = NULL;
+
+			ctl_msg(CMSG_WARNING, VERB_NORMAL,
+					"No instrument mapped to %s %d, program %d%s",
+					(dr)? "drum set" : "tone bank", b, i, 
+					(b != 0) ? "" : " - this instrument will not be heard");
+
+			errors++;
+		}
+	}
 
 	return errors;
 }
 
-static void free_old_instruments(int how_old)
-{
-	for (int b=MAXBANK-1; b >= 0; b--)
-	{
-		if (tonebank[b])
-			free_old_bank(0, b, how_old);
+///---static void free_old_instruments(int how_old)
+///---{
+///---	for (int b=MAXBANK-1; b >= 0; b--)
+///---	{
+///---		if (tonebank[b])
+///---			free_old_bank(0, b, how_old);
+///---
+///---		if (drumset[b])
+///---			free_old_bank(1, b, how_old);
+///---	}
+///---}
 
-		if (drumset[b])
-			free_old_bank(1, b, how_old);
-	}
-}
-
-static void purge_as_required(void)
-{
-	if (!max_patch_memory) return;
-
-	while (last_tune_purged < current_tune_number
-			&& current_patch_memory > max_patch_memory)
-	{
-		last_tune_purged++;
-		free_old_instruments(last_tune_purged);
-	}
-}
 
 
 int load_missing_instruments(void)
