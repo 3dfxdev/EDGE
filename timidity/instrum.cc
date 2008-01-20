@@ -841,6 +841,113 @@ fail:
 	return headlp;
 }
 
+/* AJA: new code */
+static const int aja_drum_remap[47][4] =
+{
+	{ 129, 133, 131,   0 },  // Acoustic Bass Drum
+	{ 128, 131, 133,   0 },  // Bass Drum
+	{ 168, 170,   0,   0 },  // Slide Stick
+	{ 133, 128, 129,   0 },  // Acoustic Snare
+	{ 151, 163,   0,   0 },  // Hand Clap
+	{ 131, 129, 128,   0 },  // Electric Snare
+	{ 138, 140,   0,   0 },  // Low Floor Tom
+	{ 137, 139,   0,   0 },  // Closed High-Hat
+	{ 143, 141,   0,   0 },  // High Floor Tom
+	{ 135, 139,   0,   0 },  // Pedal High Hat
+	{ 140, 134,   0,   0 },  // Low Tom
+	{ 137, 135,   0,   0 },  // Open High Hat
+	{ 138, 134,   0,   0 },  // Low-Mid Tom
+	{ 143, 136,   0,   0 },  // High-Mid Tom
+	{ 150, 144,   0,   0 },  // Crash Cymbal 1
+	{ 141, 136,   0,   0 },  // High Tom
+	{ 152,   0,   0,   0 },  // Ride Cymbal 1
+	{ 148,   0,   0,   0 },  // Chinses Cymbal
+	{ 149,   0,   0,   0 },  // Ride Bell
+	{ 162,   0,   0,   0 },  // Tambourine
+	{ 145,   0,   0,   0 },  // Splash Cymbal
+	{ 146,   0,   0,   0 },  // Cowbell
+	{ 142, 152,   0,   0 },  // Crash Cymbal 2
+	{ 132,   0,   0,   0 },  // Vibraslap
+	{ 144,   0,   0,   0 },  // Ride Cymbal 2
+	{ 154,   0,   0,   0 },  // High Bongo
+	{ 153,   0,   0,   0 },  // Low Bongo
+	{ 156, 157,   0,   0 },  // Mute High Conga
+	{ 155, 157,   0,   0 },  // Open High Conga
+	{ 156, 155,   0,   0 },  // Low Conga
+	{ 159, 160,   0,   0 },  // High Timbale
+	{ 158, 161,   0,   0 },  // Low Timbale
+	{ 161, 158,   0,   0 },  // High Agogo
+	{ 160, 159,   0,   0 },  // Low Agogo
+	{ 163,   0,   0,   0 },  // Cabasa
+	{ 162,   0,   0,   0 },  // Maracas
+	{ 165, 166,   0,   0 },  // Short Whistle
+	{ 164, 167,   0,   0 },  // Long Whistle
+	{ 167, 164,   0,   0 },  // Short Guiro
+	{ 166, 165,   0,   0 },  // Long Guiro
+	{ 130, 169,   0,   0 },  // Claves
+	{ 170, 168,   0,   0 },  // High Wood Block
+	{ 169, 168,   0,   0 },  // Low Wood Block
+	{ 172, 173,   0,   0 },  // Mute Cuica
+	{ 171, 174,   0,   0 },  // Open Cuica
+	{ 174, 171,   0,   0 },  // Mute Triangle
+	{ 173, 172,   0,   0 }   // Open Triangle
+};                     
+
+static int aja_failsafe_instr(int i, int dr, int dist)
+{
+	SYS_ASSERT(dist >= 1);
+
+	if (dr) /* drum */
+	{
+		if (dist > 3)
+			return -1;
+
+		for (int k = 0; k < 47; k++)
+		{
+			const int *map = &aja_drum_remap[k][0];
+
+			if (map[0] != i)
+				continue;
+
+			if (map[dist] != 0)
+				return map[dist];
+		}
+
+		return -1;
+	}
+	else /* melodic */
+	{
+		int base = i & ~7;
+
+		// don't remap SYNTH / SOUND EFFECTS
+		if (base == 96 || base == 120)
+			return -1;
+		
+		// special checks for PERCUSSIVE
+		if (base == 112)
+		{
+			if (dist == 1 && (i >= 116 && i <= 118))
+				return 114; // steel drum
+
+			return -1;
+		}
+
+		if (dist >= 8)
+			return -1;
+
+		// try to use a lower instrument number (on the assumption
+		// that it is more "normal" than a higher one).
+
+		if (i - dist >= base)
+			return i - dist;
+
+		dist -= (i - base);
+
+		return i + dist;
+	}
+}
+
+
 static int fill_bank(int dr, int b)
 {
 	int i, errors=0;
