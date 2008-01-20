@@ -48,9 +48,9 @@ bool nomusic = false;
 bool nocdmusic = false;
 
 // FIXME: Temp
-abstract_music_c * I_PlayHWMusic(const byte *data, int length,
-			float volume, bool loop)
-{  return NULL; }
+extern abstract_music_c * I_PlayHWMusic(const byte *data, int length,
+			float volume, bool loop);
+// {  return NULL; }
 
 
 void S_ChangeMusic(int entrynum, bool loop)

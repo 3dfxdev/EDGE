@@ -131,8 +131,8 @@ private:
 	/* TODO : move static vars above in here */
 
 public:
-	 w32_midi_player_c();
-	~w32_midi_player_c();
+	 w32_midi_player_c() { }
+	~w32_midi_player_c() { }
 
 public:
 	virtual void Close(void);
@@ -248,6 +248,16 @@ bool I_StartupMUS()
 	return true;
 }
 
+
+void w32_midi_player_c::Close(void)
+{
+	// FIXME !!!!  ::Close
+}
+
+void w32_midi_player_c::Play(bool loop)
+{
+	// FIXME !!!!  ::Play
+}
 
 void w32_midi_player_c::Pause(void)
 {
