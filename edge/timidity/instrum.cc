@@ -100,9 +100,9 @@ static void free_layer(InstrumentLayer *lp)
 
 static void free_bank(int dr, int b)
 {
-	int i;
 	ToneBank *bank=((dr) ? drumset[b] : tonebank[b]);
-	for (i=0; i<MAXPROG; i++)
+
+	for (int i=0; i<MAXPROG; i++)
 	{
 		if (bank->tone[i].layer)
 		{
@@ -125,9 +125,10 @@ static void free_bank(int dr, int b)
 
 static void free_old_bank(int dr, int b, int how_old)
 {
-	int i;
 	ToneBank *bank=((dr) ? drumset[b] : tonebank[b]);
-	for (i=0; i<MAXPROG; i++)
+
+	for (int i=0; i<MAXPROG; i++)
+	{
 		if (bank->tone[i].layer && bank->tone[i].last_used < how_old)
 		{
 			if (bank->tone[i].layer != MAGIC_LOAD_INSTRUMENT)
@@ -141,6 +142,7 @@ static void free_old_bank(int dr, int b, int how_old)
 				bank->tone[i].last_used=-1;
 			}
 		}
+	}
 }
 
 
@@ -893,7 +895,7 @@ static const int aja_drum_remap[47][4] =
 	{ 173, 172,   0,   0 }   // Open Triangle
 };                     
 
-static int aja_failsafe_instr(int i, int dr, int dist)
+int aja_failsafe_instr(int i, int dr, int dist)
 {
 	SYS_ASSERT(dist >= 1);
 
@@ -1051,12 +1053,13 @@ static int fill_bank(int dr, int b)
 
 static void free_old_instruments(int how_old)
 {
-	for (int i=MAXBANK-1; i >= 0; i--)
+	for (int b=MAXBANK-1; b >= 0; b--)
 	{
-		if (tonebank[i])
-			free_old_bank(0, i, how_old);
-		if (drumset[i])
-			free_old_bank(1, i, how_old);
+		if (tonebank[b])
+			free_old_bank(0, b, how_old);
+
+		if (drumset[b])
+			free_old_bank(1, b, how_old);
 	}
 }
 
@@ -1077,12 +1080,13 @@ int load_missing_instruments(void)
 {
 	int errors=0;
 
-	for (int i=MAXBANK-1; i >= 0; i--)
+	for (int b=MAXBANK-1; b >= 0; b--)
 	{
-		if (tonebank[i])
-			errors+=fill_bank(0,i);
-		if (drumset[i])
-			errors+=fill_bank(1,i);
+		if (tonebank[b])
+			errors += fill_bank(0,b);
+
+		if (drumset[b])
+			errors += fill_bank(1,b);
 	}
 	current_tune_number++;
 
@@ -1091,12 +1095,13 @@ int load_missing_instruments(void)
 
 void free_instruments(void)
 {
-	for (int i=127; i >= 0; i--)
+	for (int b=MAXBANK-1; b >= 0; b--)
 	{
-		if (tonebank[i])
-			free_bank(0,i);
-		if (drumset[i])
-			free_bank(1,i);
+		if (tonebank[b])
+			free_bank(0,b);
+
+		if (drumset[b])
+			free_bank(1,b);
 	}
 }
 
