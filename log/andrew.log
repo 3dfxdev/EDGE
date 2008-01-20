@@ -6,6 +6,8 @@ Worked on making Timidity work better with Freepats, whereby
 it will find another patch to use when the one in Freepats
 is missing (and there are a lot missing!).
 
+Made the player jump out of swimable water.
+
 2008/01/19:
 
 Improved Keyboard Controls menu.
