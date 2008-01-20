@@ -19,7 +19,7 @@
 #ifndef __SDL_SYSTEM_INTERNAL_H__
 #define __SDL_SYSTEM_INTERNAL_H__
 
-#ifdef LINUX
+#if 1
 #include <SDL/SDL.h>
 #else
 #include <SDL.h>
