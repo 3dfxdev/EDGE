@@ -60,7 +60,7 @@ env = base_env.Copy()
 have_glbsp_h = 0
 have_lzo_h = 0
 
-if 1:
+if 1 and build_info['platform'] == 'linux':
     conf = Configure(env)
 
     if conf.CheckCXXHeader('glbsp.h'):
@@ -146,8 +146,8 @@ if 0:
 
 # SDL
 if build_info['platform'] == 'win32':
-    env.Append(CPPPATH = ['#win32_lib/SDL-1.2.11/include'])
-    env.Append(LIBPATH = ['#win32_lib/SDL-1.2.11/lib'])
+    env.Append(CPPPATH = ['#win32_lib/SDL-1.2.13/include'])
+    env.Append(LIBPATH = ['#win32_lib/SDL-1.2.13/lib'])
     # fucking stupid linker needs the next line
     env.Append(LIBS = ['-lmingw32'])
     env.Append(LIBS = ['-lSDLmain', '-lSDL.dll'])
