@@ -166,7 +166,6 @@ private:
 			s16_t *data_buf = buf->data_L + samples * (dev_stereo ? 2 : 1);
 
 			int got_num = Timidity_PlaySome(data_buf, TIMV_NUM_SAMPLES - samples);
-I_Debugf("StreamIntoBuffer: got %d\n", got_num);
 
 			if (got_num <= 0)  /* EOF */
 			{
