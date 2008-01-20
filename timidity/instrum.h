@@ -180,7 +180,8 @@ extern int current_patch_memory;
 extern int xmap[XMAPMAX][5];
 extern void pcmap(int *b, int *v, int *p, int *drums);
 
-extern int aja_failsafe_instr(int i, int dr, int dist);
+extern int aja_fallback_drum(int i, int dist);
+extern int aja_fallback_program(int i, int dist);
 
 #endif /* __TIMIDITY_INSTRUM_H__ */
 

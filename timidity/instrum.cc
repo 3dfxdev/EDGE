@@ -895,58 +895,47 @@ static const int aja_drum_remap[47][4] =
 	{ 173, 172,   0,   0 }   // Open Triangle
 };                     
 
-int aja_failsafe_instr(int i, int dr, int dist)
+int aja_fallback_drum(int i, int dist)
 {
 	SYS_ASSERT(dist >= 1);
 
-	if (dr) /* drum */
-	{
-		if (dist > 3)
-			return -1;
-
-		for (int k = 0; k < 47; k++)
-		{
-			const int *map = &aja_drum_remap[k][0];
-
-			if (map[0] != i)
-				continue;
-
-			if (map[dist] != 0)
-				return map[dist];
-		}
-
+	if (dist > 3)
 		return -1;
-	}
-	else /* melodic */
+
+	for (int k = 0; k < 47; k++)
 	{
-		int base = i & ~7;
+		const int *map = &aja_drum_remap[k][0];
 
-		// don't remap SYNTH / SOUND EFFECTS
-		if (base == 96 || base == 120)
-			return -1;
-		
-		// special checks for PERCUSSIVE
-		if (base == 112)
-		{
-			if (dist == 1 && (i >= 116 && i <= 118))
-				return 114; // steel drum
-
-			return -1;
-		}
-
-		if (dist >= 8)
-			return -1;
-
-		// try to use a lower instrument number (on the assumption
-		// that it is more "normal" than a higher one).
-
-		if (i - dist >= base)
-			return i - dist;
-
-		dist -= (i - base);
-
-		return i + dist;
+		if (map[0] == i && map[dist] != 0)
+			return map[dist];
 	}
+
+	return -1;
+}
+
+
+int aja_fallback_program(int i, int dist)
+{
+	SYS_ASSERT(dist >= 1);
+
+	if (dist > 7)
+		return -1;
+
+	int base = i & ~7;
+
+	// don't remap SYNTH / SOUND EFFECTS / PERCUSSIVE
+	if (base == 96 || base == 120 || base == 112)
+		return -1;
+
+	// try to use a lower instrument number (on the assumption
+	// that it is more "normal" than a higher one).
+
+	if (i - dist >= base)
+		return i - dist;
+
+	dist -= (i - base);
+
+	return i + dist;
 }
 
 
@@ -971,7 +960,7 @@ static int fill_bank(int dr, int b)
 				ctl_msg(CMSG_WARNING, (b!=0) ? VERB_VERBOSE : VERB_NORMAL,
 						"No instrument mapped to %s %d, program %d%s",
 						(dr)? "drum set" : "tone bank", b, i, 
-						(b!=0) ? "" : " - this instrument will not be heard");
+						(b!=0) ? "" : " - this instrument may not be heard");
 				if (b!=0)
 				{
 					/* Mark the corresponding instrument in the default
