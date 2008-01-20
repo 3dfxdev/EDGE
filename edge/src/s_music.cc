@@ -256,6 +256,8 @@ void S_PauseMusic(void)
 
 void S_StopMusic(void)
 {
+	// You can't stop the rock!! This does...
+
 	if (music_player)
 	{
 		music_player->Stop();
