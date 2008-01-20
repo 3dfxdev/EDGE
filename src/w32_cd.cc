@@ -48,9 +48,7 @@ float currcd_gain = 0.0f;
 
 HWND app_hwnd;
 
-//
-// I_StartupCD
-//
+
 bool I_StartupCD()
 {
 	if (nocdmusic) return false;
@@ -82,9 +80,7 @@ bool I_StartupCD()
 	return true;
 }
 
-//
-// I_ShutdownCD
-//
+
 void I_ShutdownCD()
 {
 	// Close all our handled objects
@@ -99,17 +95,21 @@ void I_ShutdownCD()
 	return;
 }
 
+
 //
 // I_CDStartPlayback
 //
 // Initialises playing a CD-Audio Track, returns false on failure.
 //
-bool I_CDStartPlayback(int tracknum, bool loopy, float gain)
+
+///## bool I_CDStartPlayback(int tracknum, bool loopy, float gain)
+abstract_music_c * I_PlayCDMusic(int tracknum, float volume, bool loop)
 {
 	MCI_OPEN_PARMS openparm;
 	MCI_PLAY_PARMS playparm;
 	MCI_SET_PARMS setparm;
 	MCI_STATUS_PARMS statusparm;
+
 	int numoftracks;
 	char errordesc[256];
 
@@ -124,7 +124,7 @@ bool I_CDStartPlayback(int tracknum, bool loopy, float gain)
 	if (!currcd)
 	{
 		I_PostMusicError("I_CDPlayTrack: Unable to open CD-Audio device\n");
-		return false;
+		return NULL;
 	}
 
 	// open parameters
@@ -142,7 +142,8 @@ bool I_CDStartPlayback(int tracknum, bool loopy, float gain)
 
 		delete currcd;
 		currcd = NULL;
-		return false;
+
+		return NULL;
 	}
 
 	// Set global deviceid
@@ -161,9 +162,11 @@ bool I_CDStartPlayback(int tracknum, bool loopy, float gain)
 			I_PostMusicError(errordesc);
 
 		mciSendCommand(currcd->id, MCI_CLOSE, 0, (DWORD)NULL);
+
 		delete currcd;
 		currcd = NULL;
-		return false;
+
+		return NULL;
 	}
 
 	// Get the number of CD Tracks
@@ -179,19 +182,24 @@ bool I_CDStartPlayback(int tracknum, bool loopy, float gain)
 			I_PostMusicError(errordesc);
 
 		mciSendCommand(currcd->id, MCI_CLOSE, 0, (DWORD)NULL);
+
 		delete currcd;
 		currcd = NULL;
-		return false;
+
+		return NULL;
 	}
 
 	numoftracks = (DWORD)statusparm.dwReturn;
 	if (tracknum > numoftracks)
 	{
 		mciSendCommand(currcd->id, MCI_CLOSE, 0, (DWORD)NULL);
+
 		I_PostMusicError("Track exceeds available tracks");
+
 		delete currcd;
 		currcd = NULL;
-		return false;
+
+		return NULL;
 	}
 
 	// Get the status of the CD Track
@@ -208,9 +216,11 @@ bool I_CDStartPlayback(int tracknum, bool loopy, float gain)
 			I_PostMusicError(errordesc);
 
 		mciSendCommand(currcd->id, MCI_CLOSE, 0, (DWORD)NULL);
+
 		delete currcd;
 		currcd = NULL;
-		return false;
+
+		return NULL;
 	}
 
 	// Check its an audio track....
@@ -218,9 +228,11 @@ bool I_CDStartPlayback(int tracknum, bool loopy, float gain)
 	{
 		mciSendCommand(currcd->id, MCI_CLOSE, 0, (DWORD)NULL);
 		I_PostMusicError("Track is not Audio\n");
+
 		delete currcd;
 		currcd = NULL;
-		return false;
+
+		return NULL;
 	}
 
 	// Setup time format
@@ -251,21 +263,22 @@ bool I_CDStartPlayback(int tracknum, bool loopy, float gain)
 			I_PostMusicError(errordesc);
 
 		mciSendCommand(currcd->id, MCI_CLOSE, 0, (DWORD)NULL);
+		
 		delete currcd;
 		currcd = NULL;
-		return false;
+
+		return NULL;
 	}
 
 	currcd_track = tracknum;
-	currcd_loop = loopy;
-	I_CDSetVolume(gain);
+	currcd_loop = loop;
 
-	return true;
+	I_CDSetVolume(volume);
+
+	return NULL; //!!!!! FIXME
 }
 
-//
-// I_CDPausePlayback
-//
+
 bool I_CDPausePlayback(void)
 {
 	MCI_SET_PARMS setparm;
@@ -305,9 +318,7 @@ bool I_CDPausePlayback(void)
 	return true;
 }
 
-//
-// I_CDResumePlayback
-//
+
 bool I_CDResumePlayback(void)
 {
 	MCI_SET_PARMS setparm;
@@ -350,9 +361,7 @@ bool I_CDResumePlayback(void)
 	return true;
 }
 
-//
-// I_CDStopPlayback
-//
+
 void I_CDStopPlayback(void)
 {
 	if (!currcd)
@@ -360,22 +369,23 @@ void I_CDStopPlayback(void)
 
 	mciSendCommand(currcd->id, MCI_STOP, 0, (DWORD)NULL);
 	mciSendCommand(currcd->id, MCI_CLOSE, 0, (DWORD)NULL);
+
 	delete currcd;
 	currcd = NULL;
+
 	return;
 }
 
-//
-// I_CDFinished
+
 //
 // Has the CD Finished playing
 //
 bool I_CDFinished(void)
 {
-	MCI_STATUS_PARMS statusparm;
-
 	if (!currcd)
 		return false;
+
+	MCI_STATUS_PARMS statusparm;
 
 	// Get the status of MCI CD-Audio
 	statusparm.dwCallback = (DWORD_PTR)app_hwnd;
@@ -383,7 +393,7 @@ bool I_CDFinished(void)
 
 	mciSendCommand(currcd->id, MCI_STATUS, MCI_STATUS_ITEM, (DWORD_PTR)&statusparm);
 
-	switch(statusparm.dwReturn)
+	switch (statusparm.dwReturn)
 	{
 		case MCI_MODE_NOT_READY:
 		case MCI_MODE_PLAY:
@@ -394,9 +404,7 @@ bool I_CDFinished(void)
 	return true;
 }
 
-//
-// I_CDSetVolume
-//
+
 void I_CDSetVolume(float gain)
 {
 	if (!mixer)
@@ -421,11 +429,11 @@ void I_CDSetVolume(float gain)
 	currcd_gain = gain;
 }
 
-//
-// I_CDTicker
-//
+
 bool I_CDTicker(void)
 {
+// FIXME !!!!!
+#if 0
 	if (currcd_loop && I_CDFinished())
 	{
 		I_CDStopPlayback();
@@ -433,6 +441,7 @@ bool I_CDTicker(void)
 		if (! I_CDStartPlayback(currcd_track, currcd_loop, currcd_gain))
 			return false;
 	}
+#endif
 
 	return true;
 }
