@@ -892,6 +892,9 @@ public:
     // Ambient sound transfer
 	struct sfx_s *ambient_sfx;
 
+	// -AJA- 2008/01/20: Splash sounds
+	struct sfx_s *splash_sfx;
+
 	// -AJA- 1999/10/24: Appearance control.
 	when_appear_e appear;
 

@@ -8,6 +8,9 @@ is missing (and there are a lot missing!).
 
 Made the player jump out of swimable water.
 
+Implemented SPLASH_SOUND command for SECTORS.DDF, which is
+used whenever the player enters swimable water.
+
 2008/01/19:
 
 Improved Keyboard Controls menu.
