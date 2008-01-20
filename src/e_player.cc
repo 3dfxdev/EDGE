@@ -178,6 +178,7 @@ void player_s::Reborn()
 	
 	jumpwait = 0;
 	idlewait = 0;
+	splashwait = 0;
 	air_in_lungs = 0;
 	underwater = false;
 	swimming = false;

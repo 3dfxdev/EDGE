@@ -63,6 +63,7 @@ static const commandlist_t sect_commands[] =
 	DF("VISCOSITY", viscosity, DDF_MainGetFloat),
 	DF("DRAG", drag, DDF_MainGetFloat),
 	DF("AMBIENT_SOUND", ambient_sfx, DDF_MainLookupSound),
+	DF("SPLASH_SOUND", splash_sfx, DDF_MainLookupSound),
 	DF("WHEN_APPEAR", appear, DDF_MainGetWhenAppear),
 	DF("PUSH_ANGLE", push_angle, DDF_MainGetAngle),
 	DF("PUSH_SPEED", push_speed, DDF_MainGetFloat),
@@ -498,6 +499,7 @@ void sectortype_c::CopyDetail(sectortype_c &src)
 	use_colourmap = src.use_colourmap;
 	
 	ambient_sfx = src.ambient_sfx;
+	splash_sfx = src.splash_sfx;
 
 	appear = src.appear;
 
@@ -530,6 +532,7 @@ void sectortype_c::Default()
 	e_exit = EXIT_None;
 	use_colourmap = NULL;
 	ambient_sfx = NULL;
+	splash_sfx = NULL;
 
 	appear = DEFAULT_APPEAR;
 

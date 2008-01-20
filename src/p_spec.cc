@@ -1296,7 +1296,8 @@ void P_RemoteActivation(mobj_t * thing, int typenum, int tag,
 
 static inline void PlayerInProperties(player_t *player,
 		float bz, float tz, float f_h, float c_h,
-		region_properties_t *props)
+		region_properties_t *props,
+		const sectortype_c ** swim_special)
 {
 	const sectortype_c *special = props->special;
 	float damage, factor;
@@ -1334,6 +1335,7 @@ static inline void PlayerInProperties(player_t *player,
 		mouth_z >= f_h && mouth_z <= c_h)
 	{
 		player->swimming = true;
+		*swim_special = special;
 	}
 
 	if ((special->special_flags & SECSP_Swimming) &&
@@ -1429,6 +1431,9 @@ void P_PlayerInSpecialSector(player_t * player, sector_t * sec)
 	float tz = player->mo->z + player->mo->height;
 
 	bool was_underwater = player->underwater;
+	bool was_swimming   = player->swimming;
+
+	const sectortype_c *swim_special = NULL;
 
 	player->swimming = false;
 	player->underwater = false;
@@ -1457,12 +1462,12 @@ void P_PlayerInSpecialSector(player_t * player, sector_t * sec)
 		if (C->bottom_h < floor_h || C->bottom_h > sec->c_h)
 			continue;
 
-		PlayerInProperties(player, bz, tz, floor_h, C->top_h, C->p);
+		PlayerInProperties(player, bz, tz, floor_h, C->top_h, C->p, &swim_special);
 
 		floor_h = C->top_h;
 	}
 
-	PlayerInProperties(player, bz, tz, floor_h, sec->c_h, sec->p);
+	PlayerInProperties(player, bz, tz, floor_h, sec->c_h, sec->p, &swim_special);
 
 	// breathing support: handle gasping when leaving the water
 	if (was_underwater && !player->underwater)
@@ -1473,13 +1478,28 @@ void P_PlayerInSpecialSector(player_t * player, sector_t * sec)
 			if (player->mo->info->gasp_sound)
             {
                 S_StartFX(player->mo->info->gasp_sound,
-                               P_MobjGetSfxCategory(player->mo),
-                               player->mo);
+                          P_MobjGetSfxCategory(player->mo),
+                          player->mo);
             }
 		}
 
 		player->air_in_lungs = player->mo->info->lung_capacity;
 	} 
+
+	// -AJA- 2008/01/20: water splash sounds for players
+	if (!was_swimming && player->swimming)
+	{
+		SYS_ASSERT(swim_special);
+
+		if (player->splashwait == 0 && swim_special->splash_sfx)
+		{
+			S_StartFX(swim_special->splash_sfx, SNCAT_Level, player->mo);
+		}
+	}
+	else if (was_swimming && !player->swimming)
+	{
+		player->splashwait = TICRATE;
+	}
 }
 
 static inline void ApplyScroll(vec2_t& offset, const vec2_t& delta)

@@ -669,6 +669,9 @@ void P_PlayerThink(player_t * player)
 	if (player->jumpwait > 0)
 		player->jumpwait--;
 
+	if (player->splashwait > 0)
+		player->splashwait--;
+
 	// cycle psprites
 	P_MovePsprites(player);
 
