@@ -11,6 +11,8 @@ Made the player jump out of swimable water.
 Implemented SPLASH_SOUND command for SECTORS.DDF, which is
 used whenever the player enters swimable water.
 
+Updated WIN32 code for latest SDL 1.2.13.
+
 2008/01/19:
 
 Improved Keyboard Controls menu.
