@@ -123,6 +123,33 @@ I_Debugf("Jump:%d bob_z:%1.2f  z:%1.2f  height:%1.2f delta:%1.2f --> viewz:%1.3f
 }
 
 
+void P_PlayerJump(player_t *pl, float dz, int wait)
+{
+	pl->mo->mom.z += pl->mo->info->jumpheight / 1.4f;
+
+	if (pl->jumpwait < wait)
+		pl->jumpwait = wait;
+
+	// enter the JUMP states (if present)
+	statenum_t jump_st = P_MobjFindLabel(pl->mo, "JUMP");
+	if (jump_st != S_NULL)
+		P_SetMobjStateDeferred(pl->mo, jump_st, 0);
+
+	// -AJA- 1999/09/11: New JUMP_SOUND for ddf.
+	if (pl->mo->info->jump_sound)
+	{
+		int sfx_cat;
+
+		if (pl == players[consoleplayer])
+			sfx_cat = SNCAT_Player;
+		else
+			sfx_cat = SNCAT_Opponent;
+
+		S_StartFX(pl->mo->info->jump_sound, sfx_cat, pl->mo);
+	}
+}
+
+
 static void MovePlayer(player_t * player)
 {
 	ticcmd_t *cmd;
@@ -282,28 +309,8 @@ static void MovePlayer(player_t * player)
 	{
 		if (!jumping && !crouching && !swimming && !flying && onground && !onladder)
 		{
-			player->mo->mom.z += player->mo->info->jumpheight / 1.4f;
-///---			(player->mo->extendedflags & EF_CROUCHING ? 1.8f : 1.4f);
-
-			player->jumpwait = player->mo->info->jump_delay;
-
-			// enter the JUMP states (if present)
-			statenum_t jump_st = P_MobjFindLabel(player->mo, "JUMP");
-			if (jump_st != S_NULL)
-				P_SetMobjStateDeferred(player->mo, jump_st, 0);
-
-			// -AJA- 1999/09/11: New JUMP_SOUND for ddf.
-			if (player->mo->info->jump_sound)
-            {
-                int sfx_cat;
-                
-                if (player == players[consoleplayer])
-                    sfx_cat = SNCAT_Player;
-                else
-                    sfx_cat = SNCAT_Opponent;
-
-				S_StartFX(player->mo->info->jump_sound, sfx_cat, player->mo);
-            }
+			P_PlayerJump(player, player->mo->info->jumpheight / 1.4f,
+			             player->mo->info->jump_delay);
 		}
 	}
 
@@ -311,7 +318,7 @@ static void MovePlayer(player_t * player)
 
 	if (level_flags.crouch && mo->info->crouchheight > 0 &&
 		(player->cmd.upwardmove < -4) &&
-		!swimming && !jumping && onground)
+		!player->wet_feet && !jumping && onground)
 		// NB: no ladder check, onground is sufficient
 	{
 		if (mo->height > mo->info->crouchheight)

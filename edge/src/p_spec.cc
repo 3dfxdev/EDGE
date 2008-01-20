@@ -1336,6 +1336,12 @@ static inline void PlayerInProperties(player_t *player,
 		player->swimming = true;
 	}
 
+	if ((special->special_flags & SECSP_Swimming) &&
+		player->mo->z >= f_h && player->mo->z <= c_h)
+	{
+		player->wet_feet = true;
+	}
+
 	factor = 1.0f;
 
 	if (special->special_flags & SECSP_WholeRegion)
@@ -1426,6 +1432,7 @@ void P_PlayerInSpecialSector(player_t * player, sector_t * sec)
 
 	player->swimming = false;
 	player->underwater = false;
+	player->wet_feet = false;
 
 	// traverse extrafloor list
 	floor_h = sec->f_h;

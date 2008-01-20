@@ -114,6 +114,8 @@ static savefield_t sv_fields_player[] =
 	SF(psprites[0], "psprites", NUMPSPRITES, SVT_STRUCT("psprite_t"), 
 	SR_PlayerGetPSprite, SR_PlayerPutPSprite),
 
+	// FIXME: swimming & wet_feet ???
+
 	// NOT HERE:
 	//   in_game: only in-game players are saved.
 	//   key_choices: depends on DDF too much, and not important.

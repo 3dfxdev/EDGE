@@ -124,6 +124,7 @@ void P_UpdateTotalArmour(player_t *p);
 bool P_AddWeapon(player_t *player, weapondef_c *info, int *index);
 bool P_RemoveWeapon(player_t *player, weapondef_c *info);
 bool P_PlayerSwitchWeapon(player_t *player, weapondef_c *choice);
+void P_PlayerJump(player_t *pl, float dz, int wait);
 
 //
 // P_MOBJ

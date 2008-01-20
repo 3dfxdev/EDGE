@@ -881,6 +881,23 @@ static void P_XYMovement(mobj_t * mo, const region_properties_t *props)
 				}
 			}
 
+			// -AJA- 2008/01/20: Jumping out of Water
+			if (blockline && blockline->backsector &&
+				mo->player && mo->player->mo == mo &&
+				mo->player->wet_feet && !mo->player->swimming &&
+				mo->player->jumpwait == 0 &&
+				mo->z > mo->floorz + 0.5f)
+			{
+				float ground_h = MAX(blockline->frontsector->f_h,
+				                     blockline->backsector->f_h);
+
+				if (mo->z > ground_h - mo->height &&
+				    mo->z < ground_h + mo->height)
+				{
+					P_PlayerJump(mo->player, 50, 2 * TICRATE);
+				}
+			}
+
 			if (mo->info->flags & MF_SLIDE)
 			{
 				P_SlideMove(mo, ptryx, ptryy);
