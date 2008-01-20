@@ -55,12 +55,6 @@ sources = [
     'w_texture.cc', 'w_wad.cc', 'z_zone.cc', 
     ]
 
-if 0:
-    sources = sources + [
-    'wf_util.cc', 'wf_colors.cc', 'wf_maps.cc',
-#    'wf_setup.cc'
-    ]
-
 # operating system specifics
 if build_info['platform'] == "win32":
     sources_3 = ['w32_cd.cc',
@@ -70,10 +64,6 @@ if build_info['platform'] == "win32":
 else: # linux
     sources_3 = ['i_cd.cc', 'unx_music.cc', 
         'unx_net.cc', 'unx_system.cc']
-
-# another HACK (stupid linker!)
-# sources_3 += ['s_ogg.cc'] 
-# sources_1 += ['s_humid.cc'] 
 
 env.StaticLibrary('edge1', sources + sources_3)
 
