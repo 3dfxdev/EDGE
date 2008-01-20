@@ -1,5 +1,11 @@
 Andrew Apted's Log
 
+2008/01/20:
+
+Worked on making Timidity work better with Freepats, whereby
+it will find another patch to use when the one in Freepats
+is missing (and there are a lot missing!).
+
 2008/01/19:
 
 Improved Keyboard Controls menu.
