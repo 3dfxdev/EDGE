@@ -24,6 +24,8 @@
 
 #include "i_sdlinc.h"
 
+#undef USE_OGG
+
 #ifdef USE_OGG
 #include "s_ogg.h"
 #endif
@@ -61,9 +63,7 @@ static char errordesc[MUSICERRLEN];
 oggplayer_c *oggplayer = NULL;
 #endif
 
-//
-// I_StartupMusic
-//
+
 void I_StartupMusic(void)
 {
 	// Clear the error message
@@ -105,6 +105,7 @@ void I_StartupMusic(void)
 	return;
 }
 
+#if 0  // OLD
 //
 // I_MusicPlayback
 //
@@ -192,189 +193,9 @@ int I_MusicPlayback(i_music_info_t *musdat, int type, bool looping,
 
 	return handle;
 }
-
-//
-// I_MusicPause
-//
-void I_MusicPause(int *handle)
-{
-	int type;
-
-	type = GETTYPE(*handle);
-
-	switch (type)
-	{
-		case MUS_CD:
-		{
-			if(!I_CDPausePlayback())
-			{
-				*handle = -1;
-				return;
-			}
-
-			break;
-		}
-
-		case MUS_MIDI:	{ break; }
-		case MUS_MUS:	{ I_MUSPause(); break; }
-#ifdef USE_OGG
-		case MUS_OGG:	{ oggplayer->Pause(); break; }
 #endif
 
-		default:
-			break;
-	}
 
-	musicpaused = true;
-}
-
-//
-// I_MusicResume
-//
-void I_MusicResume(int *handle)
-{
-	int type;
-
-	type = GETTYPE(*handle);
-
-	switch (type)
-	{
-		case MUS_CD:
-		{
-			if(!I_CDResumePlayback())
-			{
-				*handle = -1;
-				return;
-			}
-
-			break;
-		}
-
-		case MUS_MIDI: { break; }
-		case MUS_MUS:  { I_MUSResume(); break; }
-#ifdef USE_OGG
-		case MUS_OGG:  { oggplayer->Resume(); break; }
-#endif
-
-		default:
-			break;
-	}
-
-	musicpaused = false;
-}
-
-//
-// I_MusicKill
-//
-// You can't stop the rock!! This does...
-//
-void I_MusicKill(int *handle)
-{
-	int type;
-
-	type = GETTYPE(*handle);
-
-	switch (type)
-	{
-		case MUS_CD:   { I_CDStopPlayback(); break; }
-		case MUS_MIDI: { break; }
-		case MUS_MUS:  { I_MUSStop(); break; }
-
-		case MUS_OGG:  
-        { 
-#ifdef USE_OGG
-            oggplayer->Close(); 
-#endif
-            break; 
-        }
-
-		default:
-			break;
-	}
-
-	*handle = -1;
-}
-
-//
-// I_MusicTicker
-//
-void I_MusicTicker(int *handle)
-{
-	bool looping;
-	int type;
-	int libhandle;
-
-	libhandle = GETLIBHANDLE(*handle);
-	looping = GETLOOPBIT(*handle)?true:false;
-	type = GETTYPE(*handle);
-
-	if (musicpaused)
-		return;
-
-	switch (type)
-	{
-		case MUS_CD:
-		{
-			if (I_GetTime() % TICRATE == 0)
-			{
-				if (! I_CDTicker())
-					*handle = -1;
-			}
-			break;
-		}
-
-		case MUS_MIDI:	{ break; }	// MIDI Not used
-		case MUS_MUS:	{ break; }	// MUS Ticker is called by a timer
-#ifdef USE_OGG
-		case MUS_OGG:	{ oggplayer->Ticker(); break; }
-#endif
-
-		default:
-			break;
-	}
-}
-
-//
-// I_SetMusicVolume
-//
-void I_SetMusicVolume(int *handle, float gain)
-{
-	int type;
-	int handleint;
-
-	handleint = *handle;
-
-	type = GETTYPE(handleint);
-
-	switch (type)
-	{
-		case MUS_CD:   
-		{ 
-			I_CDSetVolume(gain);
-			break; 
-		}
-
-		// MIDI Not Used
-		case MUS_MIDI: { break; }
-
-		case MUS_MUS:
-		{
-			I_MUSSetVolume(gain);
-			break;
-		}
-
-#ifdef USE_OGG
-		case MUS_OGG: { oggplayer->SetVolume(gain); break; }
-#endif
-
-		default:
-			break;
-	}
-}
-
-//
-// I_ShutdownMusic
-//
 void I_ShutdownMusic(void)
 {
 #ifdef USE_OGG
@@ -389,9 +210,6 @@ void I_ShutdownMusic(void)
 	I_ShutdownCD();
 }
 
-//
-// I_PostMusicError
-//
 void I_PostMusicError(const char *message)
 {
 	memset(errordesc, 0, MUSICERRLEN*sizeof(char));
@@ -402,13 +220,12 @@ void I_PostMusicError(const char *message)
 		strcpy(errordesc, message);
 }
 
-//
-// I_MusicReturnError
-//
+
 char *I_MusicReturnError(void)
 {
 	return errordesc;
 }
+
 
 // MIXER STUFF (HACKED - WILL BE IN THE EPI)
 
@@ -515,9 +332,6 @@ win32_mixer_t *I_MusicLoadMixer(DWORD type)
 	return m;
 }
 
-//
-// I_MusicReleaseMixer
-// 
 void I_MusicReleaseMixer(win32_mixer_t* mixer)
 {
 	if (!mixer)
@@ -527,9 +341,6 @@ void I_MusicReleaseMixer(win32_mixer_t* mixer)
 	delete mixer;
 }
 
-//
-// I_MusicGetMixerVol
-//
 bool I_MusicGetMixerVol(win32_mixer_t* mixer, DWORD *vol)
 {
 	if (!mixer || !vol)
@@ -564,9 +375,7 @@ bool I_MusicGetMixerVol(win32_mixer_t* mixer, DWORD *vol)
 	return true;
 }
 
-//
-// I_MusicSetMixerVol
-//
+
 bool I_MusicSetMixerVol(win32_mixer_t* mixer, DWORD vol)
 {
 	if (!mixer)
