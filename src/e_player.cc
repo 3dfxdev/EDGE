@@ -181,6 +181,8 @@ void player_s::Reborn()
 	air_in_lungs = 0;
 	underwater = false;
 	swimming = false;
+	wet_feet = false;
+
 	grin_count = 0;
 	old_health = 0;
 	attackdown_count = 0;

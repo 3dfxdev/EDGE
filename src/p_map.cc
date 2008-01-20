@@ -807,7 +807,7 @@ bool P_TryMove(mobj_t * thing, float x, float y)
 		if (thing->height > tm_I.ceilnz - tm_I.floorz)
 		{
 			// doesn't fit
-			if (!blockline && tm_I.line_count==1) blockline=tm_I.line_which;
+			if (!blockline && tm_I.line_count>=1) blockline=tm_I.line_which;
 			return false;
 		}
 
@@ -818,7 +818,7 @@ bool P_TryMove(mobj_t * thing, float x, float y)
 			(thing->z + thing->height > tm_I.ceilnz))
 		{
 			// mobj must lower itself to fit.
-			if (!blockline && tm_I.line_count==1) blockline=tm_I.line_which;
+			if (!blockline && tm_I.line_count>=1) blockline=tm_I.line_which;
 			return false;
 		}
 
@@ -826,7 +826,7 @@ bool P_TryMove(mobj_t * thing, float x, float y)
 			(thing->z + thing->info->step_size) < tm_I.floorz)
 		{
 			// too big a step up.
-			if (!blockline && tm_I.line_count==1) blockline=tm_I.line_which;
+			if (!blockline && tm_I.line_count>=1) blockline=tm_I.line_which;
 			return false;
 		}
 

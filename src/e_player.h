@@ -269,6 +269,7 @@ typedef struct player_s
 	int air_in_lungs;
 	bool underwater;
 	bool swimming;
+	bool wet_feet;
 
 	// how many tics to grin :-)
 	int grin_count;
