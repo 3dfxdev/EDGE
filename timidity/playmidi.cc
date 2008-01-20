@@ -791,6 +791,7 @@ static void xremap(int *banknumpt, int *this_notept, int this_kit)
 	{
 		if (banknum == SFXBANK && tonebank[SFXBANK])
 			return;
+
 		if (banknum == SFXBANK && tonebank[120])
 			*banknumpt = 120;
 		return;
@@ -824,6 +825,7 @@ static void start_note(MidiEvent *e, int i)
 {
 	InstrumentLayer *lp;
 	Instrument *ip;
+
 	int j, banknum, ch=e->channel;
 	int played_note, drumpan=NO_PANNING;
 	int rt;
@@ -835,8 +837,10 @@ static void start_note(MidiEvent *e, int i)
 	int drumsflag = channel[ch].kit;
 	int this_prog = channel[ch].program;
 
-	if (channel[ch].sfx) banknum=channel[ch].sfx;
-	else banknum=channel[ch].bank;
+	if (channel[ch].sfx)
+		banknum=channel[ch].sfx;
+	else
+		banknum=channel[ch].bank;
 
 	voice[i].velocity=this_velocity;
 
@@ -845,11 +849,13 @@ static void start_note(MidiEvent *e, int i)
 
 	if (drumsflag)
 	{
-		if (!(lp=drumset[banknum]->tone[this_note].layer))
-		{
-			if (!(lp=drumset[0]->tone[this_note].layer))
-				return; /* No instrument? Then we can't play. */
-		}
+		lp = drumset[banknum]->tone[this_note].layer;
+		if (! lp)
+			lp = drumset[0]->tone[this_note].layer;
+
+		if (! lp)
+			return; /* No instrument? Then we can't play. */
+
 		ip = lp->instrument;
 		if (ip->type == INST_GUS && ip->samples != 1)
 		{
@@ -866,16 +872,21 @@ static void start_note(MidiEvent *e, int i)
 			voice[i].orig_frequency=freq_table[this_note & 0x7F];
 
 	}
-	else
+	else /* melodic */
 	{
 		if (channel[ch].program==SPECIAL_PROGRAM)
-			lp=default_instrument;
-		else if (!(lp=tonebank[channel[ch].bank]->
-					tone[channel[ch].program].layer))
+			lp = default_instrument;
+		else
 		{
-			if (!(lp=tonebank[0]->tone[this_prog].layer))
+			lp = tonebank[banknum]->tone[this_prog].layer;
+
+			if (! lp)
+				lp = tonebank[0]->tone[this_prog].layer;
+
+			if (! lp)
 				return; /* No instrument? Then we can't play. */
 		}
+
 		ip = lp->instrument;
 		if (ip->sample->note_to_use) /* Fixed-pitch instrument? */
 			voice[i].orig_frequency=freq_table[(int)(ip->sample->note_to_use)];
@@ -888,7 +899,8 @@ static void start_note(MidiEvent *e, int i)
 	voice[i].starttime = e->time;
 	played_note = voice[i].sample->note_to_use;
 
-	if (!played_note || !drumsflag) played_note = this_note & 0x7f;
+	if (!played_note || !drumsflag)
+		played_note = this_note & 0x7f;
 #if 0
 	played_note = ( (played_note - voice[i].sample->freq_center) * voice[i].sample->freq_scale ) / 1024 +
 		voice[i].sample->freq_center;
