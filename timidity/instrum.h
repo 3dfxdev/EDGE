@@ -118,7 +118,8 @@ typedef struct
   char *name;
   
   InstrumentLayer *layer;
-  
+  int layer_copy;
+
   int font_type, sf_ix, last_used, tuning;
   int note, amp, pan, strip_loop, strip_envelope, strip_tail;
 }

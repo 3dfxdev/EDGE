@@ -814,11 +814,11 @@ static MidiEvent *groom_list(int divisions,int *eventsp,int *samplesp)
 						/* Mark this instrument to be loaded */
 						if (!(drumset[dset]->tone[dnote].layer))
 						{
-							drumset[dset]->tone[dnote].layer=
-								MAGIC_LOAD_INSTRUMENT;
+							drumset[dset]->tone[dnote].layer = MAGIC_LOAD_INSTRUMENT;
 						}
-						else drumset[dset]->tone[dnote].last_used
-							= current_tune_number;
+						else
+							drumset[dset]->tone[dnote].last_used = current_tune_number;
+
 						if (!channel[meep->event.channel].name) channel[meep->event.channel].name=
 							drumset[dset]->name;
 					}
@@ -847,20 +847,24 @@ static MidiEvent *groom_list(int divisions,int *eventsp,int *samplesp)
 						/* Mark this instrument to be loaded */
 						if (!(drumset[dset]->tone[dnote].layer))
 						{
-							drumset[dset]->tone[dnote].layer=MAGIC_LOAD_INSTRUMENT;
+							drumset[dset]->tone[dnote].layer = MAGIC_LOAD_INSTRUMENT;
 						}
-						else drumset[dset]->tone[dnote].last_used = current_tune_number;
-						if (!channel[meep->event.channel].name) channel[meep->event.channel].name=
+						else
+							drumset[dset]->tone[dnote].last_used = current_tune_number;
+
+						if (!channel[meep->event.channel].name) channel[meep->event.channel].name =
 							drumset[dset]->name;
 					}
-					if (!drumsflag)
+					else /* melodic */
 					{
 						/* Mark this instrument to be loaded */
 						if (!(tonebank[banknum]->tone[mprog].layer))
 						{
-							tonebank[banknum]->tone[mprog].layer=MAGIC_LOAD_INSTRUMENT;
+							tonebank[banknum]->tone[mprog].layer = MAGIC_LOAD_INSTRUMENT;
 						}
-						else tonebank[banknum]->tone[mprog].last_used = current_tune_number;
+						else
+							tonebank[banknum]->tone[mprog].last_used = current_tune_number;
+
 						if (!channel[meep->event.channel].name) channel[meep->event.channel].name=
 							tonebank[banknum]->tone[mprog].name;
 					}
