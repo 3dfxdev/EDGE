@@ -70,7 +70,7 @@ void RGL_RainbowEffect(player_t *player)
 
 	if (s > 0 && player->powers[PW_Invulnerable] > 0)
 	{
-		ren_red_mul = 0.70f;
+		ren_red_mul = 0.50f;
 		ren_red_mul += (1.0f - ren_red_mul) * (1.0f - s);
 
 		ren_grn_mul = ren_red_mul;
