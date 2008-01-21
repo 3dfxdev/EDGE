@@ -54,7 +54,6 @@ int fast_decay=0;
 int current_tune_number = 0;
 int last_tune_purged = 0;
 int current_patch_memory = 0;
-int max_patch_memory = 60000000;
 
 static void free_instrument(Instrument *ip)
 {
@@ -972,19 +971,6 @@ static bool try_load_instr(ToneBank *bank, int b, int dr, int i)
 	return false;
 }
 
-///---			if (current_patch_memory > max_patch_memory)
-///---			{
-///---				ctl_msg(CMSG_ERROR, VERB_NORMAL, 
-///---						"Not enough memory to load instrument %s (%s %d, program %d)",
-///---						bank->tone[i].name,
-///---						(dr)? "drum set" : "tone bank", b, i);
-///---				free_layer(bank->tone[i].layer);
-///---				bank->tone[i].layer = NULL;
-///---				bank->tone[i].last_used = -1;
-///---
-///---				errors++;
-///---				continue;
-///---			}
 
 static int fill_bank(int dr, int b)
 {
