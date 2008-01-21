@@ -1,5 +1,14 @@
 Andrew Apted's Log
 
+2008/01/21:
+
+Fixed warning message for UPGRADES command in weapons.ddf
+when the weapon name was not found.
+
+Noticed the dlights in QDOOM QD03 looked way too bright
+despite the recent compatibility tweaked.  So looked closer
+at the formulae involved and found a better approximation.
+
 2008/01/20:
 
 Worked on making Timidity work better with Freepats, whereby

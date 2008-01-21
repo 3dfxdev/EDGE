@@ -23,6 +23,10 @@
 #include "types.h"
 
 
+#define DLIT_COMPAT_RAD(x)  (10.0f * sqrt(x))
+#define DLIT_COMPAT_ITY   0.8f
+
+
 //
 // Misc. mobj flags
 //
