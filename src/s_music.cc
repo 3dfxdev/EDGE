@@ -47,10 +47,9 @@ int var_music_dev;
 bool nomusic = false;
 bool nocdmusic = false;
 
-// FIXME: Temp
+// FIXME: put in i_system.h
 extern abstract_music_c * I_PlayHWMusic(const byte *data, int length,
 			float volume, bool loop);
-// {  return NULL; }
 
 
 void S_ChangeMusic(int entrynum, bool loop)
