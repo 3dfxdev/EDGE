@@ -21,6 +21,7 @@
 
 #include "epi/image_data.h"
 
+#include "dm_state.h"
 #include "e_player.h"
 #include "m_misc.h"
 #include "r_misc.h"
@@ -69,13 +70,12 @@ void RGL_RainbowEffect(player_t *player)
 
 	if (s > 0 && player->powers[PW_Invulnerable] > 0)
 	{
-#if 0
-		ren_red_mul = 0.80f;
+		ren_red_mul = 0.70f;
 		ren_red_mul += (1.0f - ren_red_mul) * (1.0f - s);
 
 		ren_grn_mul = ren_red_mul;
 		ren_blu_mul = ren_red_mul;
-#endif
+
 		ren_extralight = 255;
 		return;
 	}
@@ -117,6 +117,9 @@ void RGL_ColourmapEffect(player_t *player)
 
 	if (s > 0 && player->powers[PW_Invulnerable] > 0 && player->effect_colourmap)
 	{
+		if (var_invul_fx > INVULFX_Complex)
+			return;
+
 		float r, g, b;
 
 		V_GetColmapRGB(player->effect_colourmap, &r, &g, &b, false);
@@ -163,6 +166,9 @@ void RGL_PaletteEffect(player_t *player)
 
 	if (s > 0 && player->powers[PW_Invulnerable] > 0 && player->effect_colourmap)
 	{
+		if (var_invul_fx != INVULFX_Complex)
+			return;
+
 		if (GLEW_ARB_imaging || GLEW_SGI_color_matrix)
 		{
 			glFlush();
