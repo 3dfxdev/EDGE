@@ -173,8 +173,8 @@ extern int convert_vibrato_rate(byte rate);
 extern int init_soundfont(char *fname, int oldbank, int newbank, int level);
 extern InstrumentLayer *load_sbk_patch(const char *name, int gm_num, int bank, int percussion,
     int panning, int amp, int note_to_use, int sf_ix);
+
 extern int current_tune_number;
-extern int max_patch_memory;
 extern int current_patch_memory;
 
 #define XMAPMAX 800
