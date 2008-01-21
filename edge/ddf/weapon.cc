@@ -484,6 +484,9 @@ static void DDF_WGetUpgrade(const char *info, void *storage)
 	weapondef_c **dest = (weapondef_c **)storage;
 
 	*dest = weapondefs.Lookup(info);
+
+	if (*dest == NULL)
+		DDF_Warning("Unknown weapon: %s\n", info);
 }
 
 static specflags_t weapon_specials[] =
@@ -814,7 +817,6 @@ weapondef_c* weapondef_container_c::Lookup(const char* refname)
 	if (idx >= 0)
 		return (*this)[idx];
 
-	DDF_Warning("Unknown weapon type: %s\n", refname);
 	return NULL;
 }
 
