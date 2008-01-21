@@ -227,9 +227,9 @@ void RGL_EndUnit(int actual_vert)
 	{
 		local_gl_vert_t *v = &local_verts[cur_vert + i];
 
-		v->r *= ren_red_mul;
-		v->g *= ren_grn_mul;
-		v->b *= ren_blu_mul;
+		v->rgba[0] *= ren_red_mul;
+		v->rgba[1] *= ren_grn_mul;
+		v->rgba[2] *= ren_blu_mul;
 	}
 
 	cur_vert += actual_vert;
