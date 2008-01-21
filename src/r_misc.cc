@@ -118,8 +118,12 @@ angle_t viewangleoffset;
 int telept_starttic;
 int telept_active = 0;
 
-//
-// R_PointToAngle
+int telept_effect = 0;
+int telept_flash = 1;
+int telept_reverse = 0;
+
+int var_invul_fx;
+
 //
 // To get a global angle from cartesian coordinates,
 // the coordinates are flipped until they are in
@@ -210,9 +214,7 @@ angle_t R_PointToAngle(float x1, float y1, float x, float y)
 	}
 }
 
-//
-// R_PointToDist
-//
+
 float R_PointToDist(float x1, float y1, float x2, float y2)
 {
 	angle_t angle;
@@ -262,9 +264,7 @@ void R_SetViewSize(int hud)
 	set_hud = hud;
 }
 
-//
-// R_ExecuteSetViewSize
-//
+
 void R_ExecuteSetViewSize(void)
 {
 	float slopeoffset;
@@ -321,8 +321,7 @@ void R_ExecuteSetViewSize(void)
 	}
 }
 
-//
-// R_SetFOV
+
 //
 // Sets the specified field of view
 //
@@ -361,8 +360,6 @@ void R_SetZoomedFOV(angle_t newfov)
 
 
 //
-// R_Init
-//
 // Called once at startup, to initialise some rendering stuff.
 //
 void R_Init(void)
@@ -382,9 +379,7 @@ void R_Init(void)
 	RGL_LoadLights();
 }
 
-//
-// R_PointInSubsector
-//
+
 subsector_t *R_PointInSubsector(float x, float y)
 {
 	node_t *node;
@@ -403,9 +398,7 @@ subsector_t *R_PointInSubsector(float x, float y)
 	return &subsectors[nodenum & ~NF_V5_SUBSECTOR];
 }
 
-//
-// R_PointGetProps
-//
+
 region_properties_t *R_PointGetProps(subsector_t *sub, float z)
 {
 	extrafloor_t *S, *L, *C;
@@ -446,10 +439,6 @@ region_properties_t *R_PointGetProps(subsector_t *sub, float z)
 	// extrafloors were exhausted, must be top area
 	return sub->sector->p;
 }
-
-int telept_effect = 0;
-int telept_flash = 1;
-int telept_reverse = 0;
 
 void R_StartFading(int start, int range)
 {

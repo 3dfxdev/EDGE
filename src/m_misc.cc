@@ -127,6 +127,7 @@ static default_t defaults[] =
     {CFGT_Enum,     "telept_effect",     &telept_effect,  CFGDEF_TELEPT_EFFECT},
     {CFGT_Int,      "telept_reverse",    &telept_reverse, CFGDEF_TELEPT_REVERSE},
     {CFGT_Int,      "telept_flash",      &telept_flash,   CFGDEF_TELEPT_FLASH},
+    {CFGT_Int,      "invuln_fx",         &var_invul_fx,   CFGDEF_INVUL_FX},
     {CFGT_Enum,     "wipe_method",       &wipe_method,    CFGDEF_WIPE_METHOD},
     {CFGT_Int,      "wipe_reverse",      &wipe_reverse,   CFGDEF_WIPE_REVERSE},
     {CFGT_Enum,     "crosshair",         &crosshair,      CFGDEF_CROSSHAIR},

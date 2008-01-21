@@ -192,6 +192,18 @@ extern int telept_effect;
 extern int telept_flash;
 extern int telept_reverse;
 
+typedef enum
+{
+	INVULFX_Simple = 0,  // plain inverse blending
+	INVULFX_Complex,     // inverse + grayscale (color_matrix)
+	INVULFX_Textured,    // upload new textures
+
+	NUM_INVULFX
+}
+invulfx_type_e;
+
+extern int var_invul_fx;
+
 //mlook stuff
 extern int mlookspeed;
 extern bool invertmouse; // -ACB- 1999/09/03 Must be true or false - becomes boolean

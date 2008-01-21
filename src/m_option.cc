@@ -174,6 +174,7 @@ static char Huds[]      = "Full/None/Overlay";
 static char MipMaps[]   = "None/Good/Best";
 static char Details[]   = "Low/Medium/High";
 static char Hq2xMode[]  = "Off/UI Only/UI & Sprites/All";
+static char Invuls[]    = "Simple/Complex/Textured";
 
 // for CVar enums
 const char WIPE_EnumStr[] = "none/melt/crossfade/pixelfade/top/bottom/left/right/spooky/doors";
@@ -424,15 +425,16 @@ static optmenuitem_t vidoptions[] =
 #endif
 	{OPT_Switch,  "Detail Level",   Details,  3, CFGDEF_DETAIL_LEVEL,   &detail_level, M_ChangeMipMap, NULL},
 	{OPT_Switch,  "Mipmapping",     MipMaps,  3, CFGDEF_USE_MIPMAPPING, &var_mipmapping, M_ChangeMipMap, NULL},
+	{OPT_Boolean, "Shadows",        YesNo, 2,  CFGDEF_SHADOWS,  &global_flags.shadows, M_ChangeShadows, NULL},
 
 	{OPT_Plain,   "",  NULL, 0, 0, NULL, NULL, NULL},
 
 	{OPT_Switch,  "HUD",           Huds,  3,  CFGDEF_SCREEN_HUD,     &screen_hud, M_ChangeScreenHud, NULL},
-	{OPT_Boolean, "Shadows",       YesNo, 2,  CFGDEF_SHADOWS,  &global_flags.shadows, M_ChangeShadows, NULL},
 	{OPT_Switch,  "Crosshair",     CrosO, 4,  CFGDEF_CROSSHAIR,      &crosshair, NULL, NULL},
 	{OPT_Boolean, "Map Overlay",   YesNo, 2,  CFGDEF_MAP_OVERLAY,    &map_overlay, NULL, NULL},
 	{OPT_Boolean, "Map Rotation",  YesNo, 2,  CFGDEF_ROTATEMAP,      &rotatemap, NULL, NULL},
 	{OPT_Switch,  "Teleport Flash",YesNo, 2,  CFGDEF_TELEPT_FLASH,   &telept_flash, NULL, NULL},
+	{OPT_Switch,  "Invulnerability", Invuls, NUM_INVULFX,  CFGDEF_INVUL_FX,   &var_invul_fx, NULL, NULL},
 
 	{OPT_Switch,  "Wipe method",   WIPE_EnumStr, WIPE_NUMWIPES, 
                                    CFGDEF_WIPE_METHOD, &wipe_method, NULL, NULL},
