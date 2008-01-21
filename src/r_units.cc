@@ -222,6 +222,16 @@ void RGL_EndUnit(int actual_vert)
 
 	unit->count = actual_vert;
 
+	// adjust colors (for special effects)
+	for (int i = 0; i < actual_vert; i++)
+	{
+		local_gl_vert_t *v = &local_verts[cur_vert + i];
+
+		v->r *= ren_red_mul;
+		v->g *= ren_grn_mul;
+		v->b *= ren_blu_mul;
+	}
+
 	cur_vert += actual_vert;
 	cur_unit++;
 
