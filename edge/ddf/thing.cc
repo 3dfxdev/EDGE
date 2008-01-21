@@ -2020,19 +2020,17 @@ void mobjtype_c::DLightCompatibility(void)
 		int r = RGB_RED(dlight[DL].colour);
 		int g = RGB_GRN(dlight[DL].colour);
 		int b = RGB_BLU(dlight[DL].colour);
-		
+
+		// dim the colour
+		r = int(r * DLIT_COMPAT_ITY);
+		g = int(g * DLIT_COMPAT_ITY);
+		b = int(b * DLIT_COMPAT_ITY);
+
 		switch (dlight[DL].type)
 		{
 			case DLITE_Compat_QUAD:
 				dlight[DL].type = DLITE_Modulate;
-
-				// alter the radius
-				dlight[DL].radius *= 0.7;
-
-				// dim the colour
-				r = r * 170 / 255;
-				g = g * 170 / 255;
-				b = b * 170 / 255;
+				dlight[DL].radius = DLIT_COMPAT_RAD(dlight[DL].radius);
 				dlight[DL].colour = RGB_MAKE(r, g, b);
 
 				hyperflags |= HF_QUADRATIC_COMPAT;
@@ -2040,20 +2038,16 @@ void mobjtype_c::DLightCompatibility(void)
 
 			case DLITE_Compat_LIN:
 				dlight[DL].type = DLITE_Modulate;
-				dlight[DL].radius *= 2.5;
-
-				if (dlight[DL].radius > 500)
-					dlight[DL].radius = 500;
-
-				r = r * 170 / 255;
-				g = g * 170 / 255;
-				b = b * 170 / 255;
+				dlight[DL].radius *= 1.3;
 				dlight[DL].colour = RGB_MAKE(r, g, b);
 				break;
 
 			default: // nothing to do
 				break;
 		}
+
+//??	if (dlight[DL].radius > 500)
+//??		dlight[DL].radius = 500;
 	}
 }
 
