@@ -34,6 +34,7 @@
 #include "ddf/playlist.h"
 
 #include "s_sound.h"
+#include "s_timid.h"
 
 // #defines for handle information
 #define GETLIBHANDLE(_handle) (_handle&0xFF)
@@ -101,6 +102,16 @@ void I_StartupMusic(void)
     {
 		I_Printf("I_StartupMusic: OGG Music Disabled\n");
     }
+
+	if (S_StartupTimidity())
+	{
+		I_Printf("I_StartupMusic: Timidity Init OK\n");
+		capable |= support_MUS | support_MIDI;
+	}
+	else
+	{
+		I_Printf("I_StartupMusic: Timidity Init FAILED\n");
+	}
 
 	return;
 }
