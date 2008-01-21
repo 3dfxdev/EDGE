@@ -609,7 +609,7 @@ static void ThingFinishEntry(void)
 			buffer_mobj.model_skin);
 
 	if (buffer_mobj.dlight[0].radius > 512)
-		DDF_Warning("DLIGHT RADIUS value %1.1f too large (over 512).\n",
+		DDF_Warning("DLIGHT_RADIUS value %1.1f too large (over 512).\n",
 			buffer_mobj.dlight[0].radius);
 
 	// FIXME: check more stuff
