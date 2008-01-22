@@ -131,7 +131,8 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	if (!image)
 		return;
 
-	GLuint tex_id = W_ImageCache(image, false);
+	GLuint tex_id = W_ImageCache(image, false,
+					  (which == ps_crosshair) ? NULL : ren_fx_colmap);
 
 	float w = IM_WIDTH(image);
 	float h = IM_HEIGHT(image);
@@ -1160,7 +1161,8 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 
 	const image_c *image = dthing->image;
 
-	GLuint tex_id = W_ImageCache(image, false, dthing->mo->info->palremap);
+	GLuint tex_id = W_ImageCache(image, false,
+	                  ren_fx_colmap ? ren_fx_colmap : dthing->mo->info->palremap);
 
 //	float w = IM_WIDTH(image);
 	float h = IM_HEIGHT(image);

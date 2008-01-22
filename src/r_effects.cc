@@ -39,6 +39,8 @@ float ren_red_mul;
 float ren_grn_mul;
 float ren_blu_mul;
 
+const colourmap_c *ren_fx_colmap;
+
 bool var_fullbright = false;
 
 
@@ -66,15 +68,24 @@ void RGL_RainbowEffect(player_t *player)
 
 	ren_red_mul = ren_grn_mul = ren_blu_mul = 1.0f;
 
+	ren_fx_colmap = NULL;
+
 	float s = EffectStrength(player);
 
 	if (s > 0 && player->powers[PW_Invulnerable] > 0)
 	{
-		ren_red_mul = 0.50f;
-		ren_red_mul += (1.0f - ren_red_mul) * (1.0f - s);
+		if (var_invul_fx == INVULFX_Textured)
+		{
+			ren_fx_colmap = player->effect_colourmap;
+		}
+		else
+		{
+			ren_red_mul = 0.50f;
+			ren_red_mul += (1.0f - ren_red_mul) * (1.0f - s);
 
-		ren_grn_mul = ren_red_mul;
-		ren_blu_mul = ren_red_mul;
+			ren_grn_mul = ren_red_mul;
+			ren_blu_mul = ren_red_mul;
+		}
 
 		ren_extralight = 255;
 		return;

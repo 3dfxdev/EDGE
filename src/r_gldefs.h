@@ -26,6 +26,9 @@
 #ifndef __RGL_DEFS__
 #define __RGL_DEFS__
 
+#include "ddf/main.h"
+#include "ddf/image.h"
+
 #include "r_defs.h"
 
 #include <list>
@@ -77,8 +80,6 @@ const byte *RGL_BetaImage(int *w, int *h);
 //  RGL_BSP
 //
 
-
-
 void RGL_LoadLights(void);
 void RGL_RenderTrueBSP(void);
 
@@ -87,6 +88,8 @@ extern int ren_extralight;
 extern float ren_red_mul;
 extern float ren_grn_mul;
 extern float ren_blu_mul;
+
+extern const colourmap_c *ren_fx_colmap;
 
 extern int doom_fading;
 extern int var_nearclip;

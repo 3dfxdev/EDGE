@@ -193,6 +193,8 @@ static bool need_to_draw_sky = false;
 typedef struct
 {
 	const image_c *base_sky;
+	
+	const colourmap_c *fx_colmap;
 
 	int face_size;
 
@@ -207,7 +209,7 @@ skybox_info_t;
 
 static skybox_info_t box_info =
 {
-	NULL, 1,
+	NULL, NULL, 1,
 	{ 0,0,0,0,0,0 },
 	{ NULL, NULL, NULL, NULL, NULL, NULL }
 };
@@ -433,7 +435,7 @@ void RGL_DrawSkyOriginal(void)
 		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, white);
 	}
 
-	GLuint tex_id = W_ImageCache(sky_image);
+	GLuint tex_id = W_ImageCache(sky_image, false, ren_fx_colmap);
 
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, tex_id);
@@ -824,12 +826,14 @@ static const char *UserSkyFaceName(const char *base, int face)
 
 void RGL_UpdateSkyBoxTextures(void)
 {
-	if (box_info.base_sky == sky_image)
+	if (box_info.base_sky == sky_image &&
+		box_info.fx_colmap == ren_fx_colmap)
 	{
 		return;
 	}
 
-	box_info.base_sky = sky_image;
+	box_info.base_sky  = sky_image;
+	box_info.fx_colmap = ren_fx_colmap;
 
 
 	// check for custom sky images
@@ -848,7 +852,7 @@ void RGL_UpdateSkyBoxTextures(void)
 					UserSkyFaceName(sky_image->name, i), INS_Texture);
 
 		for (int k = 0; k < 6; k++)
-			box_info.tex[k] = W_ImageCache(box_info.face[k], false);
+			box_info.tex[k] = W_ImageCache(box_info.face[k], false, ren_fx_colmap);
 
 		return;
 	}
