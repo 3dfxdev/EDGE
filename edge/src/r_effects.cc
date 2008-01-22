@@ -80,8 +80,8 @@ void RGL_RainbowEffect(player_t *player)
 		}
 		else
 		{
-			ren_red_mul = 0.50f;
-			ren_red_mul += (1.0f - ren_red_mul) * (1.0f - s);
+			ren_red_mul = 0.90f;
+///???		ren_red_mul += (1.0f - ren_red_mul) * (1.0f - s);
 
 			ren_grn_mul = ren_red_mul;
 			ren_blu_mul = ren_red_mul;
