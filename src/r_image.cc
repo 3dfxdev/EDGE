@@ -35,6 +35,7 @@
 #include "i_defs_gl.h"
 
 #include <limits.h>
+#include <list>
 
 #include "epi/endianess.h"
 #include "epi/file.h"
@@ -93,9 +94,6 @@ typedef struct cached_image_s
 	// link in cache list
 	struct cached_image_s *next, *prev;
 
-///---    // number of current users
-///---	int users;
-
 	// true if image has been invalidated -- unload a.s.a.p
 	bool invalidated;
  
@@ -114,35 +112,8 @@ typedef struct cached_image_s
 cached_image_t;
 
 
+typedef std::list<image_c *> real_image_container_c;
 
-// Image container
-class real_image_container_c : public epi::array_c
-{
-public:
-	real_image_container_c() : epi::array_c(sizeof(image_c*)) {}
-	~real_image_container_c() { Clear(); }
-
-private:
-	void CleanupObject(void *obj)
-	{
-		image_c *rim = *(image_c**)obj;
-		
-		if (rim)
-			delete rim;
-	}
-
-public:
-	// List Management
-	int GetSize() { return array_entries; } 
-	int Insert(image_c *rim) { return InsertObject((void*)&rim); }
-
-	image_c* operator[](int idx) 
-	{ 
-		return *(image_c**)FetchObject(idx); 
-	} 
-
-
-};
 
 static image_c *do_Lookup(real_image_container_c& bucket, const char *name,
                           int source_type = -1)
@@ -155,11 +126,11 @@ static image_c *do_Lookup(real_image_container_c& bucket, const char *name,
 			return rim;
 	}
 
-	epi::array_iterator_c it;
+	real_image_container_c::iterator it;
 
-	for (it = bucket.GetBaseIterator(); it.IsValid(); it++)
+	for (it = bucket.begin(); it != bucket.end(); it++)
 	{
-		image_c *rim = ITERATOR_TO_TYPE(it, image_c*);
+		image_c *rim = *it;
 	
 		if (source_type != -1 && source_type != (int)rim->source_type)
 			continue;
@@ -173,9 +144,11 @@ static image_c *do_Lookup(real_image_container_c& bucket, const char *name,
 
 static void do_Animate(real_image_container_c& bucket)
 {
-	for (epi::array_iterator_c it = bucket.GetBaseIterator(); it.IsValid(); it++)
+	real_image_container_c::iterator it;
+
+	for (it = bucket.begin(); it != bucket.end(); it++)
 	{
-		image_c *rim = ITERATOR_TO_TYPE(it, image_c*);
+		image_c *rim = *it;
 
 		if (rim->anim.speed == 0)  // not animated ?
 			continue;
@@ -196,10 +169,11 @@ static void do_DebugDump(real_image_container_c& bucket)
 {
 	L_WriteDebug("{\n");
 
-	epi::array_iterator_c it;
-	for (it = bucket.GetBaseIterator(); it.IsValid(); it++)
+	real_image_container_c::iterator it;
+
+	for (it = bucket.begin(); it != bucket.end(); it++)
 	{
-		image_c *rim = ITERATOR_TO_TYPE(it, image_c*);
+		image_c *rim = *it;
 	
 		L_WriteDebug("   [%s] type %d: %dx%d < %dx%d\n",
 			rim->name, rim->source_type,
@@ -316,7 +290,7 @@ static image_c *AddDummyImage(const char *name, rgbcol_t fg, rgbcol_t bg)
 	rim->source.dummy.fg = fg;
 	rim->source.dummy.bg = bg;
 
-	dummies.Insert(rim);
+	dummies.push_back(rim);
 
 	return rim;
 }
@@ -380,9 +354,9 @@ static image_c *AddImageGraphic(const char *name,
 	rim->source_palette = W_GetPaletteForLump(lump);
 
 	if (type == IMSRC_Sprite)
-		real_sprites.Insert(rim);
+		real_sprites.push_back(rim);
 	else
-		real_graphics.Insert(rim);
+		real_graphics.push_back(rim);
 
 	return rim;
 }
@@ -399,7 +373,7 @@ static image_c *AddImageTexture(const char *name, texturedef_t *tdef)
 	rim->source.texture.tdef = tdef;
 	rim->source_palette = tdef->palette_lump;
 
-	real_textures.Insert(rim);
+	real_textures.push_back(rim);
 
 	return rim;
 }
@@ -439,7 +413,7 @@ static image_c *AddImageFlat(const char *name, int lump)
 	rim->source.flat.lump = lump;
 	rim->source_palette = W_GetPaletteForLump(lump);
 
-	real_flats.Insert(rim);
+	real_flats.push_back(rim);
 
 	return rim;
 }
@@ -529,10 +503,10 @@ static image_c *AddImageUser(imagedef_c *def)
 
 	switch (def->belong)
 	{
-		case INS_Graphic: real_graphics.Insert(rim); break;
-		case INS_Texture: real_textures.Insert(rim); break;
-		case INS_Flat:    real_flats.   Insert(rim); break;
-		case INS_Sprite:  real_sprites. Insert(rim); break;
+		case INS_Graphic: real_graphics.push_back(rim); break;
+		case INS_Texture: real_textures.push_back(rim); break;
+		case INS_Flat:    real_flats.   push_back(rim); break;
+		case INS_Sprite:  real_sprites. push_back(rim); break;
 
 		default:
 			I_Error("INTERNAL ERROR: Bad belong value: %d\n", def->belong);
@@ -670,12 +644,12 @@ const image_c ** W_ImageGetUserSprites(int *count)
 	// count number of user sprites
 	(*count) = 0;
 
-	epi::array_iterator_c it;
+	real_image_container_c::iterator it;
 
-	for (it=real_sprites.GetBaseIterator(); it.IsValid(); it++)
+	for (it = real_sprites.begin(); it != real_sprites.end(); it++)
 	{
-		image_c *rim = ITERATOR_TO_TYPE(it, image_c*);
-    
+		image_c *rim = *it;
+
 		if (rim->source_type == IMSRC_User)
 			(*count) += 1;
 	}
@@ -689,9 +663,9 @@ const image_c ** W_ImageGetUserSprites(int *count)
 	const image_c ** array = new const image_c *[*count];
 	int pos = 0;
 
-	for (it=real_sprites.GetBaseIterator(); it.IsValid(); it++)
+	for (it = real_sprites.begin(); it != real_sprites.end(); it++)
 	{
-		image_c *rim = ITERATOR_TO_TYPE(it, image_c*);
+		image_c *rim = *it;
     
 		if (rim->source_type == IMSRC_User)
 			array[pos++] = rim;
@@ -1309,37 +1283,6 @@ const char *W_ImageGetName(const image_c *image)
 //  IMAGE USAGE
 //
 
-
-///---static inline
-///---cached_image_t *ImageCacheOGL(image_c *rim)
-///---{
-///---	cached_image_t *rc;
-///---
-///---	rc = rim->ogl_cache;
-///---
-///---	if (rc && rc->users == 0 && rc->invalidated)
-///---	{
-///---		UnloadImageOGL(rc, rim);
-///---		rc = NULL;
-///---	}
-///---
-///---	// already cached ?
-///---	if (rc)
-///---	{
-///---		rc->users++;
-///---	}
-///---	else
-///---	{
-///---		// load into cache
-///---		rc = rim->ogl_cache = LoadImageOGL(rim, NULL);
-///---	}
-///---
-///---	SYS_ASSERT(rc);
-///---
-///---	return rc;
-///---}
-
-
 static cached_image_t *ImageCacheOGL(image_c *rim,
 	const colourmap_c *trans)
 {
@@ -1486,13 +1429,6 @@ bool W_InitImages(void)
 {
 	// the only initialisation the cache list needs
 	imagecachehead.next = imagecachehead.prev = &imagecachehead;
-
-	real_graphics.Clear();
-	real_textures.Clear();
-	real_flats.Clear();
-	real_sprites.Clear();
-
-	dummies.Clear();
 
     // check options
 	if (M_CheckParm("-nosmoothing"))
