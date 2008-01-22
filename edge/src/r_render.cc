@@ -969,7 +969,7 @@ static void DrawWallPart(drawfloor_t *dfloor,
 	SYS_ASSERT(surf->image);
 
 	// (need to load the image to know the opacity)
-	GLuint tex_id = W_ImageCache(surf->image);
+	GLuint tex_id = W_ImageCache(surf->image, true, ren_fx_colmap);
 
 	// ignore non-solid walls in solid mode (& vice versa)
 	if ((trans < 0.99f || surf->image->opacity >= OPAC_Masked) == solid_mode)
@@ -1390,7 +1390,7 @@ static void EmulateFloodPlane(const drawfloor_t *dfloor,
 
 	flood_emu_data_t data;
 
-	data.tex_id = W_ImageCache(surf->image);
+	data.tex_id = W_ImageCache(surf->image, true, ren_fx_colmap);
 	data.pass = 0;
 
 	data.R = data.G = data.B = 1.0f;
@@ -2045,7 +2045,7 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	SYS_ASSERT(surf->image);
 
 	// (need to load the image to know the opacity)
-	GLuint tex_id = W_ImageCache(surf->image);
+	GLuint tex_id = W_ImageCache(surf->image, true, ren_fx_colmap);
 
 	// ignore non-solid planes in solid_mode (& vice versa)
 	if ((trans < 0.99f || surf->image->opacity >= OPAC_Masked) == solid_mode)

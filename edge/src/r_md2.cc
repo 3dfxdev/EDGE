@@ -928,6 +928,7 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 	else /* (! data.is_fuzzy) */
 	{
 		skin_tex = W_ImageCache(skin_img, false,
+			ren_fx_colmap ? ren_fx_colmap :
 			is_weapon ? NULL : mo->info->palremap);
 
 		data.im_right = IM_RIGHT(skin_img);
