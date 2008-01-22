@@ -26,6 +26,8 @@
 #ifndef __R_IMAGE__
 #define __R_IMAGE__
 
+#include <vector>
+
 #include "ddf/main.h"
 #include "ddf/image.h"
 
@@ -116,17 +118,15 @@ public:
 
 	// --- information about caching ---
 
-	// no mipmapping here, GL does this itself
-	struct cached_image_s * ogl_cache;
+	std::vector< struct cached_image_s * > cache;
 
-	// --- cached translated images (OpenGL only) ---
-
-	struct
-	{
-		int num_trans;
-		struct cached_image_s ** trans;
-	}
-	trans_cache;
+///---	// --- cached translated images (OpenGL only) ---
+///---	struct
+///---	{
+///---		int num_trans;
+///---		struct cached_image_s ** trans;
+///---	}
+///---	trans_cache;
 
 	// --- animation info ---
 
@@ -149,6 +149,9 @@ public:
 	anim;
 
 public:
+	 image_c();
+	~image_c();
+
 	/* TODO: add methods here... */
 };
 

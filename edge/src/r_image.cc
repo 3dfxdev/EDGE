@@ -93,8 +93,8 @@ typedef struct cached_image_s
 	// link in cache list
 	struct cached_image_s *next, *prev;
 
-    // number of current users
-	int users;
+///---    // number of current users
+///---	int users;
 
 	// true if image has been invalidated -- unload a.s.a.p
 	bool invalidated;
@@ -261,17 +261,28 @@ static inline void Unlink(cached_image_t *rc)
 
 
 //----------------------------------------------------------------------------
-
 //
 //  IMAGE CREATION
 //
 
+image_c::image_c() : actual_w(0), actual_h(0), total_w(0), total_h(0),
+					 source_type(IMSRC_Dummy),
+					 cache()
+{
+	strcpy(name, "_UNINIT_");
+
+	memset(&source, 0, sizeof(source));
+	memset(&anim,   0, sizeof(anim));
+}
+
+image_c::~image_c()
+{
+  /* TODO: image_c destructor */
+}
+
 static image_c *NewImage(int width, int height, int opacity = OPAC_Unknown)
 {
 	image_c *rim = new image_c;
-
-	// clear newbie
-	memset(rim, 0, sizeof(image_c));
 
 	rim->actual_w = width;
 	rim->actual_h = height;
@@ -330,7 +341,7 @@ static image_c *AddImageGraphic(const char *name,
 	// do some basic checks
 	// !!! FIXME: identify lump types in wad code.
 	if (width <= 0 || width > 2048 || height <= 0 || height > 512 ||
-		ABS(offset_x) > 1024 || ABS(offset_y) > 1024)
+		ABS(offset_x) > 2048 || ABS(offset_y) > 1024)
 	{
 		// check for Heretic/Hexen images, which are raw 320x200 
 		int length = W_LumpLength(lump);
@@ -885,7 +896,6 @@ cached_image_t *LoadImageOGL(image_c *rim, const colourmap_c *trans)
 
 	rc->next = rc->prev = NULL;
 	rc->parent = rim;
-	rc->users = 0;
 	rc->invalidated = false;
 	rc->trans_map = trans;
 	rc->hue = RGB_NO_VALUE;
@@ -938,7 +948,6 @@ cached_image_t *LoadImageOGL(image_c *rim, const colourmap_c *trans)
 	if (what_pal_cached)
 		W_DoneWithLump(what_palette);
 
-	rc->users++;
 	InsertAtTail(rc);
 
 	return rc;
@@ -950,24 +959,16 @@ void UnloadImageOGL(cached_image_t *rc, image_c *rim)
 {
 	glDeleteTextures(1, &rc->tex_id);
 
-	if (rc->trans_map == NULL)
+	for (unsigned int i = 0; i < rim->cache.size(); i++)
 	{
-		rim->ogl_cache = NULL;
-		return;
-	}
-
-	int i;
-
-	for (i = 0; i < rim->trans_cache.num_trans; i++)
-	{
-		if (rim->trans_cache.trans[i] == rc)
+		if (rim->cache[i] == rc)
 		{
-			rim->trans_cache.trans[i] = NULL;
+			rim->cache[i] = NULL;
 			return;
 		}
 	}
 
-	I_Error("INTERNAL ERROR: UnloadImageOGL: no such RC in trans_cache !\n");
+	I_Error("INTERNAL ERROR: UnloadImageOGL: no such RC in cache !\n");
 }
 
 
@@ -984,7 +985,6 @@ static void UnloadImage(cached_image_t *rc)
 	SYS_ASSERT(rc);
 	SYS_ASSERT(rc != &imagecachehead);
 	SYS_ASSERT(rim);
-	SYS_ASSERT(rc->users == 0);
 
 	// unlink from the cache list
 	Unlink(rc);
@@ -1323,52 +1323,50 @@ const char *W_ImageGetName(const image_c *image)
 //
 
 
-static inline
-cached_image_t *ImageCacheOGL(image_c *rim)
-{
-	cached_image_t *rc;
+///---static inline
+///---cached_image_t *ImageCacheOGL(image_c *rim)
+///---{
+///---	cached_image_t *rc;
+///---
+///---	rc = rim->ogl_cache;
+///---
+///---	if (rc && rc->users == 0 && rc->invalidated)
+///---	{
+///---		UnloadImageOGL(rc, rim);
+///---		rc = NULL;
+///---	}
+///---
+///---	// already cached ?
+///---	if (rc)
+///---	{
+///---		rc->users++;
+///---	}
+///---	else
+///---	{
+///---		// load into cache
+///---		rc = rim->ogl_cache = LoadImageOGL(rim, NULL);
+///---	}
+///---
+///---	SYS_ASSERT(rc);
+///---
+///---	return rc;
+///---}
 
-	rc = rim->ogl_cache;
 
-	if (rc && rc->users == 0 && rc->invalidated)
-	{
-		UnloadImageOGL(rc, rim);
-		rc = NULL;
-	}
-
-	// already cached ?
-	if (rc)
-	{
-		rc->users++;
-	}
-	else
-	{
-		// load into cache
-		rc = rim->ogl_cache = LoadImageOGL(rim, NULL);
-	}
-
-	SYS_ASSERT(rc);
-
-	return rc;
-}
-
-cached_image_t *ImageCacheTransOGL(image_c *rim,
+static cached_image_t *ImageCacheOGL(image_c *rim,
 	const colourmap_c *trans)
 {
-	// already cached ?
+	// check if image + translation is already cached
 
-	int i;
 	int free_slot = -1;
 
 	cached_image_t *rc = NULL;
 
-	// find translation in set.  Afterwards, rc will be NULL if not found.
-
-	for (i = 0; i < rim->trans_cache.num_trans; i++)
+	for (int i = 0; i < (int)rim->cache.size(); i++)
 	{
-		rc = rim->trans_cache.trans[i];
+		rc = rim->cache[i];
 
-		if (rc && rc->users == 0 && rc->invalidated)
+		if (rc && rc->invalidated)
 		{
 			UnloadImageOGL(rc, rim);
 			rc = NULL;
@@ -1381,33 +1379,23 @@ cached_image_t *ImageCacheTransOGL(image_c *rim,
 		}
 
 		if (rc->trans_map == trans)
-			break;
-
-		rc = NULL;
-	}
-
-	if (rc)
-	{
-		rc->users++;
-	}
-	else
-	{
-		if (free_slot < 0)
 		{
-			// reallocate trans array
-		
-			free_slot = rim->trans_cache.num_trans;
-
-			Z_Resize(rim->trans_cache.trans, cached_image_t *, free_slot+1);
-
-			rim->trans_cache.num_trans++;
+			return rc; // found it!
 		}
-
-		// load into cache
-		rc = rim->trans_cache.trans[free_slot] = LoadImageOGL(rim, trans);
 	}
 
+	if (free_slot < 0)
+	{
+		free_slot = (int)rim->cache.size();
+
+		rim->cache.push_back(NULL);
+	}
+
+	// load into cache
+	rc = LoadImageOGL(rim, trans);
 	SYS_ASSERT(rc);
+
+	rim->cache[free_slot] = rc;
 
 	return rc;
 }
@@ -1429,45 +1417,12 @@ GLuint W_ImageCache(const image_c *image, bool anim,
 	if (anim)
 		rim = rim->anim.cur;
 
-	cached_image_t *rc;
-
-	if (trans)
-		rc = ImageCacheTransOGL(rim, trans);
-	else
-		rc = ImageCacheOGL(rim);
+	cached_image_t *rc = ImageCacheOGL(rim, trans);
 
 	SYS_ASSERT(rc->parent);
 
 	return rc->tex_id;
 }
-
-
-#if 0  // UNUSED
-void W_ImageDone(cached_image_t *rc)
-{
-///---	cached_image_t *rc;
-///---
-///---	SYS_ASSERT(c);
-///---
-///---	// Intentional Const Override
-///---	rc = ((cached_image_t *) c) - 1;
-
-	SYS_ASSERT(rc->users > 0);
-
-	rc->users--;
-
-	if (rc->users == 0)
-	{
-		// move cached image to the end of the cache list.  This way,
-		// the Most Recently Used (MRU) images are at the tail of the
-		// list, and thus the Least Recently Used (LRU) images are at the
-		// head of the cache list.
-
-		Unlink(rc);
-		InsertAtTail(rc);
-	}
-}
-#endif
 
 
 #if 0
@@ -1485,9 +1440,6 @@ rgbcol_t W_ImageGetHue(const image_c *img)
 #endif
 
 
-//
-// W_ImagePreCache
-// 
 void W_ImagePreCache(const image_c *image)
 {
 	W_ImageCache(image, false);
@@ -1601,8 +1553,6 @@ void W_ResetImages(void)
 	for (rc=imagecachehead.next; rc != &imagecachehead; rc=next)
 	{
 		next = rc->next;
-    
-		rc->users = 0; //!!!!!! FIXME: quick and dirty HACK!
 
 		rc->invalidated = true;
 	}
