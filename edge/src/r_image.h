@@ -117,14 +117,14 @@ public:
 	// --- information about caching ---
 
 	// no mipmapping here, GL does this itself
-	struct real_cached_image_s * ogl_cache;
+	struct cached_image_s * ogl_cache;
 
 	// --- cached translated images (OpenGL only) ---
 
 	struct
 	{
 		int num_trans;
-		struct real_cached_image_s ** trans;
+		struct cached_image_s ** trans;
 	}
 	trans_cache;
 
