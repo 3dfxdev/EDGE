@@ -376,9 +376,6 @@ static void LoadColourmap(const colourmap_c * colm)
 }
 
 
-//
-// V_GetTranslationTable
-//
 const byte *V_GetTranslationTable(const colourmap_c * colmap)
 {
 	// Do we need to load or recompute this colourmap ?
@@ -388,6 +385,23 @@ const byte *V_GetTranslationTable(const colourmap_c * colmap)
 
 	return (const byte*)colmap->cache.data;
 }
+
+void R_TranslatePalette(byte *new_pal, const byte *old_pal,
+                        const colourmap_c *trans)
+{
+	// do the actual translation
+	const byte *trans_table = V_GetTranslationTable(trans);
+
+	for (int j = 0; j < 256; j++)
+	{
+		int k = trans_table[j];
+
+		new_pal[j*3 + 0] = old_pal[k*3+0];
+		new_pal[j*3 + 1] = old_pal[k*3+1];
+		new_pal[j*3 + 2] = old_pal[k*3+2];
+	}
+}
+
 
 static int AnalyseColourmap(const byte *table, int alpha,
 	int *r, int *g, int *b)
