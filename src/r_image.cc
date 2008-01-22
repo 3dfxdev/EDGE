@@ -88,10 +88,10 @@ extern void CloseUserFileOrLump(imagedef_c *def, epi::file_c *f);
 // Note: multiple modes and/or multiple mips of the same image_c can
 // indeed be present in the cache list at any one time.
 //
-typedef struct real_cached_image_s
+typedef struct cached_image_s
 {
 	// link in cache list
-	struct real_cached_image_s *next, *prev;
+	struct cached_image_s *next, *prev;
 
     // number of current users
 	int users;
@@ -111,7 +111,7 @@ typedef struct real_cached_image_s
 	// texture identifier within GL
 	GLuint tex_id;
 }
-real_cached_image_t;
+cached_image_t;
 
 
 
@@ -236,11 +236,11 @@ static const image_c *dummy_skin;
 
 
 // image cache (actually a ring structure)
-static real_cached_image_t imagecachehead;
+static cached_image_t imagecachehead;
 
 
 // tiny ring helpers
-static inline void InsertAtTail(real_cached_image_t *rc)
+static inline void InsertAtTail(cached_image_t *rc)
 {
 	SYS_ASSERT(rc != &imagecachehead);
 
@@ -250,7 +250,7 @@ static inline void InsertAtTail(real_cached_image_t *rc)
 	rc->prev->next = rc;
 	rc->next->prev = rc;
 }
-static inline void Unlink(real_cached_image_t *rc)
+static inline void Unlink(cached_image_t *rc)
 {
 	SYS_ASSERT(rc != &imagecachehead);
 
@@ -820,7 +820,7 @@ static int IM_PixelLimit(image_c *rim)
 
 
 static
-real_cached_image_t *LoadImageOGL(image_c *rim, const colourmap_c *trans)
+cached_image_t *LoadImageOGL(image_c *rim, const colourmap_c *trans)
 {
 	bool clamp  = IM_ShouldClamp(rim);
 	bool mip    = IM_ShouldMipmap(rim);
@@ -881,7 +881,7 @@ real_cached_image_t *LoadImageOGL(image_c *rim, const colourmap_c *trans)
 	}
 
 
-	real_cached_image_t *rc = new real_cached_image_t;
+	cached_image_t *rc = new cached_image_t;
 
 	rc->next = rc->prev = NULL;
 	rc->parent = rim;
@@ -946,7 +946,7 @@ real_cached_image_t *LoadImageOGL(image_c *rim, const colourmap_c *trans)
 
 
 static
-void UnloadImageOGL(real_cached_image_t *rc, image_c *rim)
+void UnloadImageOGL(cached_image_t *rc, image_c *rim)
 {
 	glDeleteTextures(1, &rc->tex_id);
 
@@ -977,7 +977,7 @@ void UnloadImageOGL(real_cached_image_t *rc, image_c *rim)
 // Unloads a cached image from the cache list and frees all resources.
 // Mainly just a switch to more specialised image unloaders.
 //
-static void UnloadImage(real_cached_image_t *rc)
+static void UnloadImage(cached_image_t *rc)
 {
 	image_c *rim = rc->parent;
 
@@ -1324,9 +1324,9 @@ const char *W_ImageGetName(const image_c *image)
 
 
 static inline
-real_cached_image_t *ImageCacheOGL(image_c *rim)
+cached_image_t *ImageCacheOGL(image_c *rim)
 {
-	real_cached_image_t *rc;
+	cached_image_t *rc;
 
 	rc = rim->ogl_cache;
 
@@ -1352,7 +1352,7 @@ real_cached_image_t *ImageCacheOGL(image_c *rim)
 	return rc;
 }
 
-real_cached_image_t *ImageCacheTransOGL(image_c *rim,
+cached_image_t *ImageCacheTransOGL(image_c *rim,
 	const colourmap_c *trans)
 {
 	// already cached ?
@@ -1360,7 +1360,7 @@ real_cached_image_t *ImageCacheTransOGL(image_c *rim,
 	int i;
 	int free_slot = -1;
 
-	real_cached_image_t *rc = NULL;
+	cached_image_t *rc = NULL;
 
 	// find translation in set.  Afterwards, rc will be NULL if not found.
 
@@ -1398,7 +1398,7 @@ real_cached_image_t *ImageCacheTransOGL(image_c *rim,
 		
 			free_slot = rim->trans_cache.num_trans;
 
-			Z_Resize(rim->trans_cache.trans, real_cached_image_t *, free_slot+1);
+			Z_Resize(rim->trans_cache.trans, cached_image_t *, free_slot+1);
 
 			rim->trans_cache.num_trans++;
 		}
@@ -1429,7 +1429,7 @@ GLuint W_ImageCache(const image_c *image, bool anim,
 	if (anim)
 		rim = rim->anim.cur;
 
-	real_cached_image_t *rc;
+	cached_image_t *rc;
 
 	if (trans)
 		rc = ImageCacheTransOGL(rim, trans);
@@ -1443,14 +1443,14 @@ GLuint W_ImageCache(const image_c *image, bool anim,
 
 
 #if 0  // UNUSED
-void W_ImageDone(real_cached_image_t *rc)
+void W_ImageDone(cached_image_t *rc)
 {
-///---	real_cached_image_t *rc;
+///---	cached_image_t *rc;
 ///---
 ///---	SYS_ASSERT(c);
 ///---
 ///---	// Intentional Const Override
-///---	rc = ((real_cached_image_t *) c) - 1;
+///---	rc = ((cached_image_t *) c) - 1;
 
 	SYS_ASSERT(rc->users > 0);
 
@@ -1476,7 +1476,7 @@ rgbcol_t W_ImageGetHue(const image_c *img)
 	SYS_ASSERT(c);
 
 	// Intentional Const Override
-	real_cached_image_t *rc = ((real_cached_image_t *) c) - 1;
+	cached_image_t *rc = ((cached_image_t *) c) - 1;
 
 	SYS_ASSERT(rc->parent);
 
@@ -1596,7 +1596,7 @@ void W_UpdateImageAnims(void)
 //
 void W_ResetImages(void)
 {
-	real_cached_image_t *rc, *next;
+	cached_image_t *rc, *next;
 
 	for (rc=imagecachehead.next; rc != &imagecachehead; rc=next)
 	{
