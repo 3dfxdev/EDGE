@@ -1139,7 +1139,7 @@ static void DrawWallPart(drawfloor_t *dfloor,
 	cmap_shader->WorldMix(GL_POLYGON, data.v_count, data.tex_id,
 			trans, &data.pass, data.blending, &data, WallCoordFunc);
 
-	if (use_dlights && !ren_fx_colmap)
+	if (use_dlights && ren_extralight < 250)
 	{
 		P_DynamicLightIterator(v_bbox[BOXLEFT],  v_bbox[BOXBOTTOM], bottom,
 							   v_bbox[BOXRIGHT], v_bbox[BOXTOP],    top,
@@ -1480,7 +1480,7 @@ static void EmulateFloodPlane(const drawfloor_t *dfloor,
 				&data, FloodCoordFunc);
 	}
 
-	if (use_dlights && solid_mode && !ren_fx_colmap)
+	if (use_dlights && solid_mode && ren_extralight < 250)
 	{
 		// Note: dynamic lights could have been handled in the row-by-row
 		//       loop above (after the cmap_shader).  However it is more
@@ -2142,7 +2142,7 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	cmap_shader->WorldMix(GL_POLYGON, data.v_count, data.tex_id,
 			trans, &data.pass, data.blending, &data, PlaneCoordFunc);
 
-	if (use_dlights && !ren_fx_colmap)
+	if (use_dlights && ren_extralight < 250)
 	{
 		P_DynamicLightIterator(v_bbox[BOXLEFT],  v_bbox[BOXBOTTOM], h,
 				               v_bbox[BOXRIGHT], v_bbox[BOXTOP],    h,

@@ -939,7 +939,7 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 
 		ShadeNormals(shader, &data);
 
-		if (use_dlights && !ren_fx_colmap)
+		if (use_dlights && ren_extralight < 250)
 		{
 			float r = mo->radius;
 			
