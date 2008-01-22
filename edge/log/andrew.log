@@ -1,5 +1,15 @@
 Andrew Apted's Log
 
+2008/01/22:
+
+Reworked the image caching system, removing no longer useful
+parts (like the 'used' count), and merging the ogl_cache and
+trans_cache into a single vector.
+
+Implemented the 'TEXTURED' Invulnerability option.  Noticed
+that dlights don't look good with it, hence they are turned
+off when Invulnerability and Full-bright powerups are active.
+
 2008/01/21:
 
 Fixed warning message for UPGRADES command in weapons.ddf
