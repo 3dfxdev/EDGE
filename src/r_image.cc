@@ -135,79 +135,80 @@ public:
 	// List Management
 	int GetSize() { return array_entries; } 
 	int Insert(image_c *rim) { return InsertObject((void*)&rim); }
-	
+
 	image_c* operator[](int idx) 
 	{ 
 		return *(image_c**)FetchObject(idx); 
 	} 
 
-	image_c *Lookup(const char *name, int source_type = -1)
-	{
-		// for a normal lookup, we want USER images to override
-		if (source_type == -1)
-		{
-			image_c *rim = Lookup(name, IMSRC_User);  // recursion
-			if (rim)
-				return rim;
-		}
-
-		epi::array_iterator_c it;
-
-		for (it = GetBaseIterator(); it.IsValid(); it++)
-		{
-			image_c *rim = ITERATOR_TO_TYPE(it, image_c*);
-		
-			if (source_type != -1 && source_type != (int)rim->source_type)
-				continue;
-
-			if (stricmp(name, rim->name) == 0)
-				return rim;
-		}
-
-		return NULL;  // not found
-	}
-
-	void Animate()
-	{
-		for (epi::array_iterator_c it = GetBaseIterator(); it.IsValid(); it++)
-		{
-			image_c *rim = ITERATOR_TO_TYPE(it, image_c*);
-
-			if (rim->anim.speed == 0)  // not animated ?
-				continue;
-
-			SYS_ASSERT(rim->anim.count > 0);
-
-			rim->anim.count--;
-
-			if (rim->anim.count == 0 && rim->anim.cur->anim.next)
-			{
-				rim->anim.cur = rim->anim.cur->anim.next;
-				rim->anim.count = rim->anim.speed;
-			}
-		}
-	}
-
-	void DebugDump()
-	{
-		L_WriteDebug("{\n");
-
-		epi::array_iterator_c it;
-		for (it = GetBaseIterator(); it.IsValid(); it++)
-		{
-			image_c *rim = ITERATOR_TO_TYPE(it, image_c*);
-		
-			L_WriteDebug("   [%s] type %d: %dx%d < %dx%d\n",
-				rim->name, rim->source_type,
-				rim->actual_w, rim->actual_h,
-				rim->total_w, rim->total_h);
-		}
-
-		L_WriteDebug("}\n");
-	}
 
 };
 
+static image_c *do_Lookup(real_image_container_c& bucket, const char *name,
+                          int source_type = -1)
+{
+	// for a normal lookup, we want USER images to override
+	if (source_type == -1)
+	{
+		image_c *rim = do_Lookup(bucket, name, IMSRC_User);  // recursion
+		if (rim)
+			return rim;
+	}
+
+	epi::array_iterator_c it;
+
+	for (it = bucket.GetBaseIterator(); it.IsValid(); it++)
+	{
+		image_c *rim = ITERATOR_TO_TYPE(it, image_c*);
+	
+		if (source_type != -1 && source_type != (int)rim->source_type)
+			continue;
+
+		if (stricmp(name, rim->name) == 0)
+			return rim;
+	}
+
+	return NULL;  // not found
+}
+
+static void do_Animate(real_image_container_c& bucket)
+{
+	for (epi::array_iterator_c it = bucket.GetBaseIterator(); it.IsValid(); it++)
+	{
+		image_c *rim = ITERATOR_TO_TYPE(it, image_c*);
+
+		if (rim->anim.speed == 0)  // not animated ?
+			continue;
+
+		SYS_ASSERT(rim->anim.count > 0);
+
+		rim->anim.count--;
+
+		if (rim->anim.count == 0 && rim->anim.cur->anim.next)
+		{
+			rim->anim.cur   = rim->anim.cur->anim.next;
+			rim->anim.count = rim->anim.speed;
+		}
+	}
+}
+
+static void do_DebugDump(real_image_container_c& bucket)
+{
+	L_WriteDebug("{\n");
+
+	epi::array_iterator_c it;
+	for (it = bucket.GetBaseIterator(); it.IsValid(); it++)
+	{
+		image_c *rim = ITERATOR_TO_TYPE(it, image_c*);
+	
+		L_WriteDebug("   [%s] type %d: %dx%d < %dx%d\n",
+			rim->name, rim->source_type,
+			rim->actual_w, rim->actual_h,
+			rim->total_w, rim->total_h);
+	}
+
+	L_WriteDebug("}\n");
+}
 
 // mipmapping enabled ?
 // 0 off, 1 bilinear, 2 trilinear
@@ -643,16 +644,16 @@ void W_ImageCreateUser(void)
 
 #if 0
 	L_WriteDebug("Textures -----------------------------\n");
-	real_textures.DebugDump();
+	do_DebugDump(real_textures);
 
 	L_WriteDebug("Flats ------------------------------\n");
-	real_flats.DebugDump();
+	do_DebugDump(real_flats);
 
 	L_WriteDebug("Sprites ------------------------------\n");
-	real_sprites.DebugDump();
+	do_DebugDump(real_sprites);
 
 	L_WriteDebug("Graphics ------------------------------\n");
-	real_graphics.DebugDump();
+	do_DebugDump(real_graphics);
 #endif
 }
 
@@ -995,7 +996,7 @@ static const image_c *BackupTexture(const char *tex_name, int flags)
 	// backup plan: try a flat with the same name
 	if (! (flags & ILF_Exact))
 	{
-		rim = real_flats.Lookup(tex_name);
+		rim = do_Lookup(real_flats, tex_name);
 		if (rim)
 			return rim;
 	}
@@ -1007,13 +1008,13 @@ static const image_c *BackupTexture(const char *tex_name, int flags)
 
    	if (strnicmp(tex_name, "SKY", 3) == 0)
 	{
-		rim = dummies.Lookup("DUMMY_SKY");
+		rim = do_Lookup(dummies, "DUMMY_SKY");
 		if (rim)
 			return rim;
 	}
 
 	// return the texture dummy image
-	rim = dummies.Lookup("DUMMY_TEXTURE");
+	rim = do_Lookup(dummies, "DUMMY_TEXTURE");
 	SYS_ASSERT(rim);
 
 	return rim;
@@ -1043,7 +1044,7 @@ static const image_c *BackupFlat(const char *flat_name, int flags)
 	// backup plan 2: Texture with the same name ?
 	if (! (flags & ILF_Exact))
 	{
-		rim = real_textures.Lookup(flat_name);
+		rim = do_Lookup(real_textures, flat_name);
 		if (rim)
 			return rim;
 	}
@@ -1054,7 +1055,7 @@ static const image_c *BackupFlat(const char *flat_name, int flags)
 	M_WarnError("Unknown flat found in level: '%s'\n", flat_name);
 
 	// return the flat dummy image
-	rim = dummies.Lookup("DUMMY_FLAT");
+	rim = do_Lookup(dummies, "DUMMY_FLAT");
 	SYS_ASSERT(rim);
 
 	return rim;
@@ -1070,11 +1071,11 @@ static const image_c *BackupGraphic(const char *gfx_name, int flags)
 	// backup plan 1: look for sprites and heretic-background
 	if (! (flags & (ILF_Exact | ILF_Font)))
 	{
-		rim = real_graphics.Lookup(gfx_name, IMSRC_Raw320x200);
+		rim = do_Lookup(real_graphics, gfx_name, IMSRC_Raw320x200);
 		if (rim)
 			return rim;
   
-		rim = real_sprites.Lookup(gfx_name);
+		rim = do_Lookup(real_sprites, gfx_name);
 		if (rim)
 			return rim;
 	}
@@ -1098,7 +1099,7 @@ static const image_c *BackupGraphic(const char *gfx_name, int flags)
 	M_WarnError("Unknown graphic: '%s'\n", gfx_name);
 
 	// return the graphic dummy image
-	rim = dummies.Lookup((flags & ILF_Font) ? "DUMMY_FONT" : "DUMMY_GRAPHIC");
+	rim = do_Lookup(dummies, (flags & ILF_Font) ? "DUMMY_FONT" : "DUMMY_GRAPHIC");
 	SYS_ASSERT(rim);
 
 	return rim;
@@ -1137,19 +1138,19 @@ const image_c *W_ImageLookup(const char *name, image_namespace_e type, int flags
 	switch (type)
 	{
 		case INS_Texture:
-			rim = real_textures.Lookup(name);
+			rim = do_Lookup(real_textures, name);
 			if (! rim)
 				return BackupTexture(name, flags);
 			break;
 
 		case INS_Flat:
-			rim = real_flats.Lookup(name);
+			rim = do_Lookup(real_flats, name);
 			if (! rim)
 				return BackupFlat(name, flags);
 			break;
 
 		case INS_Sprite:
-			rim = real_sprites.Lookup(name);
+			rim = do_Lookup(real_sprites, name);
 			if (! rim)
 			{
 				if (flags & ILF_Null)
@@ -1160,7 +1161,7 @@ const image_c *W_ImageLookup(const char *name, image_namespace_e type, int flags
 			break;
 
 		default: /* INS_Graphic */
-			rim = real_graphics.Lookup(name);
+			rim = do_Lookup(real_graphics, name);
 			if (! rim)
 				return BackupGraphic(name, flags);
 			break;
@@ -1176,7 +1177,7 @@ const image_c *W_ImageForDummySprite(void)
 {
 	return dummy_sprite;
 #if 0
-	const image_c *rim = dummies.Lookup("DUMMY_SPRITE");
+	const image_c *rim = do_Lookup(dummies, "DUMMY_SPRITE");
 	SYS_ASSERT(rim);
 
 	return rim;
@@ -1219,7 +1220,7 @@ const image_c *W_ImageParseSaveString(char type, const char *name)
 			return W_ImageLookup(name, INS_Sprite);
 
 		case 'd': /* dummy */
-			rim = dummies.Lookup(name);
+			rim = do_Lookup(dummies, name);
 			if (rim)
 				return rim;
 			break;
@@ -1229,15 +1230,15 @@ const image_c *W_ImageParseSaveString(char type, const char *name)
 			break;
 	}
 
-	rim = real_graphics.Lookup(name); if (rim) return rim;
-	rim = real_textures.Lookup(name); if (rim) return rim;
-	rim = real_flats.Lookup(name);    if (rim) return rim;
-	rim = real_sprites.Lookup(name);  if (rim) return rim;
+	rim = do_Lookup(real_graphics, name); if (rim) return rim;
+	rim = do_Lookup(real_textures, name); if (rim) return rim;
+	rim = do_Lookup(real_flats, name);    if (rim) return rim;
+	rim = do_Lookup(real_sprites, name);  if (rim) return rim;
 
 	I_Warning("W_ImageParseSaveString: image [%c:%s] not found.\n", type, name);
 
 	// return the texture dummy image
-	rim = dummies.Lookup("DUMMY_TEXTURE");
+	rim = do_Lookup(dummies, "DUMMY_TEXTURE");
 	SYS_ASSERT(rim);
 
 	return rim;
@@ -1443,7 +1444,7 @@ void W_ImagePreCache(const image_c *image)
 		strcpy(alt_name, rim->name);
 		alt_name[2] = (alt_name[2] == '1') ? '2' : '1';
 
-		image_c *alt = real_textures.Lookup(alt_name);
+		image_c *alt = do_Lookup(real_textures, alt_name);
 
 		if (alt) W_ImageCache(alt, false);
 	}
@@ -1520,9 +1521,9 @@ bool W_InitImages(void)
 //
 void W_UpdateImageAnims(void)
 {
-	real_graphics.Animate();
-	real_textures.Animate();
-	real_flats.Animate();
+	do_Animate(real_graphics);
+	do_Animate(real_textures);
+	do_Animate(real_flats);
 }
 
 //
