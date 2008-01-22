@@ -883,8 +883,7 @@ void RGL_UpdateSkyBoxTextures(void)
 		R_TranslatePalette(trans_pal, what_pal, ren_fx_colmap);
 		what_pal = trans_pal;
 	}
-
-	if (sky_image->source_palette >= 0)
+	else if (sky_image->source_palette >= 0)
 	{
 		what_pal = (const byte *) W_CacheLumpNum(sky_image->source_palette);
 		what_pal_cached = true;
