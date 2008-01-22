@@ -267,6 +267,7 @@ static inline void Unlink(cached_image_t *rc)
 
 image_c::image_c() : actual_w(0), actual_h(0), total_w(0), total_h(0),
 					 source_type(IMSRC_Dummy),
+					 source_palette(-1),
 					 cache()
 {
 	strcpy(name, "_UNINIT_");
@@ -866,20 +867,9 @@ cached_image_t *LoadImageOGL(image_c *rim, const colourmap_c *trans)
 		// Note: we don't care about source_palette here. It's likely that
 		// the translation table itself would not match the other palette,
 		// and so we would still end up with messed up colours.
+		R_TranslatePalette(trans_pal, &playpal_data[0][0][0], trans);
 
 		what_palette = trans_pal;
-
-		// do the actual translation
-		const byte *trans_table = V_GetTranslationTable(trans);
-
-		for (int j = 0; j < 256; j++)
-		{
-			int k = trans_table[j];
-
-			trans_pal[j*3 + 0] = playpal_data[0][k][0];
-			trans_pal[j*3 + 1] = playpal_data[0][k][1];
-			trans_pal[j*3 + 2] = playpal_data[0][k][2];
-		}
 	}
 	else if (rim->source_palette >= 0)
 	{
