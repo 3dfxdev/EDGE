@@ -857,7 +857,7 @@ cached_image_t *LoadImageOGL(image_c *rim, const colourmap_c *trans)
 	}
 
 
-	const byte *what_palette;
+	const byte *what_palette = (const byte *) &playpal_data[0];
 	bool what_pal_cached = false;
 
 	static byte trans_pal[256 * 3];
@@ -867,18 +867,14 @@ cached_image_t *LoadImageOGL(image_c *rim, const colourmap_c *trans)
 		// Note: we don't care about source_palette here. It's likely that
 		// the translation table itself would not match the other palette,
 		// and so we would still end up with messed up colours.
-		R_TranslatePalette(trans_pal, &playpal_data[0][0][0], trans);
 
+		R_TranslatePalette(trans_pal, what_palette, trans);
 		what_palette = trans_pal;
 	}
 	else if (rim->source_palette >= 0)
 	{
 		what_palette = (const byte *) W_CacheLumpNum(rim->source_palette);
 		what_pal_cached = true;
-	}
-	else
-	{
-		what_palette = (const byte *) &playpal_data[0];
 	}
 
 
