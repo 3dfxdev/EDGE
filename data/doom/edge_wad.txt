@@ -27,6 +27,10 @@ following conditions:
 CHANGELOG
 ---------
 
+
+>>>  pinched "M_MULTI" graphic from Doom Legacy.
+
+
 EDGE WAD 5.5: (2007-12-01)
 ==========================
 
