@@ -24,6 +24,7 @@
 //----------------------------------------------------------------------------
 
 #include "i_defs.h"
+#include "i_net.h"
 
 #include "ddf/main.h"
 
@@ -133,15 +134,20 @@ welcome_proto_t;
 
 static int host_pos;
 
+static int hosting_port;
+
 static welcome_proto_t host_welcome;
 
 #define HOST_OPTIONS  6
+#define JOIN_OPTIONS  4
 
 
 static int join_pos;
 
-static const char * join_host_addr;
-static int join_host_port;
+static net_address_c * join_addr;
+static int joining_port;
+
+static int join_discover_timer;
 
 static welcome_proto_t join_welcome;
 
@@ -341,6 +347,7 @@ static const char *LocalPrintf(char *buf, int max_len, const char *str, ...)
 
 void M_NetHostBegun(void)
 {
+	host_pos = 0;
 }
 
 static const char * MODE_LIST_STR = "CNO"; // "CNOLF"
@@ -412,7 +419,16 @@ void M_DrawHostMenu(void)
 
 	int y = 30;
 	int idx = 0;
-	
+
+
+	DrawKeyword(-1, ng_host_style, y, "LOCAL ADDRESS", n_local_addr.TempString(false));
+	y += 10;
+
+	DrawKeyword(-1, ng_join_style, y, "LOCAL PORT",
+			LocalPrintf(buffer, sizeof(buffer), "%d", hosting_port));
+	y += 20;
+
+
 	DrawKeyword(idx, ng_host_style, y, "GAME", host_welcome.game_name);
 	y += 10; idx++,
 
@@ -427,11 +443,11 @@ void M_DrawHostMenu(void)
 
 	DrawKeyword(idx, ng_host_style, y, "BOTS",
 			LocalPrintf(buffer, sizeof(buffer), "%d", host_welcome.bots));
-	y += 30; idx++,
+	y += 20; idx++,
 
 	// etc
 
-	HL_WriteText(ng_host_style,(host_pos==idx) ? 3:0, 20,  y, "Begin Accepting Connections");
+	HL_WriteText(ng_host_style,(host_pos==idx) ? 2:0, 20,  y, "Begin Accepting Connections");
 }
 
 bool M_NetHostResponder(event_t * ev, int ch)
@@ -481,11 +497,8 @@ void M_NetJoinBegun(void)
 {
 	// FIXME: check for -host option (short-circuit the BD spiel)
 
-	{
-		N_OpenBroadcastSocket(false);
-
-		N_SendBroadcastDiscovery();
-	}
+	join_pos = 0;
+	join_discover_timer = 10 * TICRATE;
 }
 
 void M_DrawJoinMenu(void)
@@ -498,32 +511,35 @@ void M_DrawJoinMenu(void)
 
 	char buffer[200];
 
-	if (! join_host_addr)
+	if (join_discover_timer > 0)
 	{
-		static int timeout = 8*TICRATE;
+		HL_WriteText(ng_join_style,3,  30, 160, "Looking for Host on LAN...");
+		HL_WriteText(ng_join_style,1, 240, 160,
+				LocalPrintf(buffer, sizeof(buffer), "%d",
+					(join_discover_timer+TICRATE-1) / TICRATE));
 
-		HL_WriteText(ng_join_style,0,  30, 30, "Looking for Host on LAN...");
-		HL_WriteText(ng_join_style,1, 240, 30,
-				LocalPrintf(buffer, sizeof(buffer), "%d", timeout/TICRATE));
-
-		timeout--;
-		return;
+		join_discover_timer--;
 	}
 
 	int y = 30;
-//	int idx = 0;
+  	int idx = 0;
 	
-	DrawKeyword(-1, ng_join_style, y, "HOST ADDRESS", join_host_addr);
-	y += 10;
+	DrawKeyword(idx, ng_join_style, y, "HOST ADDRESS",
+				join_addr ? join_addr->TempString(false) : "???");
+	y += 10; idx++;
 
-	DrawKeyword(-1, ng_join_style, y, "HOST PORT",
-			LocalPrintf(buffer, sizeof(buffer), "%d", join_host_port));
-	y += 10;
+	DrawKeyword(idx, ng_join_style, y, "HOST PORT",
+			LocalPrintf(buffer, sizeof(buffer), "%d", joining_port));
+	y += 20; idx++;
 
 	// FIXME....
 
-	y += 30;
-	HL_WriteText(ng_join_style,3, 30, y, "Connect to Host now");
+
+	HL_WriteText(ng_join_style,(join_pos==idx)?2:0, 30, y, "Search LAN again");
+	y += 20; idx++;
+
+	HL_WriteText(ng_join_style,(join_pos==idx)?2:0, 30, y, "Connect to Host now");
+	y += 20; idx++;
 }
 
 bool M_NetJoinResponder(event_t * ev, int ch)
@@ -533,6 +549,17 @@ bool M_NetJoinResponder(event_t * ev, int ch)
 		S_StartFX(sfx_swtchn);
 
 		netgame_menuon = 3;
+		return true;
+	}
+
+	if (ch == KEYD_DOWNARROW || ch == KEYD_MWHEEL_DN)
+	{
+		join_pos = (join_pos + 1) % JOIN_OPTIONS;
+		return true;
+	}
+	else if (ch == KEYD_UPARROW || ch == KEYD_MWHEEL_UP)
+	{
+		join_pos = (join_pos + JOIN_OPTIONS - 1) % JOIN_OPTIONS;
 		return true;
 	}
 
@@ -612,9 +639,12 @@ void M_NetGameInit(void)
 	ng_params = new newgame_params_c();
 
 	host_pos = 0;
+	join_pos = 0;
+
 	CreateHostWelcome(&host_welcome);
 
-	join_pos = 0;
+	hosting_port = MP_EDGE_PORT;
+	joining_port = MP_EDGE_PORT;
 
 	// load styles
 	styledef_c *def;
