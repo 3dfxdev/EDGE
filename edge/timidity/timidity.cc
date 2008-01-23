@@ -382,7 +382,7 @@ const char *Timidity_Error(void)
 int play_mode_rate = DEFAULT_RATE;
 int play_mode_encoding = PE_16BIT|PE_SIGNED;
 
-int ctl_verbosity = 2;
+int ctl_verbosity = VERB_NORMAL;
 
 void ctl_msg(int type, int verbosity, char *fmt, ...)
 {
