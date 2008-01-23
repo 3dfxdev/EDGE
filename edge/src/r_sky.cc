@@ -249,9 +249,7 @@ static void RGL_SetupSkyMatrices2D(void)
 	glLoadIdentity();
 }
 
-//
-// RGL_RevertSkyMatrices
-//
+
 void RGL_RevertSkyMatrices(void)
 {
 	glMatrixMode(GL_PROJECTION);
@@ -261,9 +259,7 @@ void RGL_RevertSkyMatrices(void)
 	glPopMatrix();
 }
 
-//
-// RGL_BeginSky
-//
+
 void RGL_BeginSky(void)
 {
 	need_to_draw_sky = false;
@@ -275,9 +271,7 @@ void RGL_BeginSky(void)
 	glEdgeFlag(GL_TRUE);
 }
 
-//
-// RGL_FinishSky
-//
+
 void RGL_FinishSky(void)
 {
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
@@ -314,6 +308,7 @@ void RGL_FinishSky(void)
 	glClear(GL_DEPTH_BUFFER_BIT);
 #endif
 }
+
 
 void RGL_DrawSkyBox(void)
 {
@@ -421,6 +416,7 @@ void RGL_DrawSkyBox(void)
 	RGL_RevertSkyMatrices();
 }
 
+
 void RGL_DrawSkyOriginal(void)
 {
 	RGL_SetupSkyMatrices2D();
@@ -481,9 +477,7 @@ I_Printf("[%i] --> %1.2f  tx %1.4f\n", i, ANG_2_FLOAT(ang), tx);
 	RGL_RevertSkyMatrices();
 }
 
-//
-// RGL_DrawSkyPlane
-//
+
 void RGL_DrawSkyPlane(subsector_t *sub, float h)
 {
 	need_to_draw_sky = true;
@@ -503,9 +497,7 @@ void RGL_DrawSkyPlane(subsector_t *sub, float h)
 	glEnd();
 }
 
-//
-// RGL_DrawSkyWall
-//
+
 void RGL_DrawSkyWall(seg_t *seg, float h1, float h2)
 {
 	need_to_draw_sky = true;
