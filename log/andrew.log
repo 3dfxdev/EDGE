@@ -1,5 +1,10 @@
 Andrew Apted's Log
 
+2008/01/23:
+
+Worked a bit on the network code, removing the old crud, and
+updating the HOST-GAME and JOIN-GAME menu drawers.
+
 2008/01/22:
 
 Reworked the image caching system, removing no longer useful
