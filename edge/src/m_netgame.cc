@@ -61,7 +61,7 @@ extern gameflags_t default_gameflags;
 
 
 int netgame_menuon;
-bool netgame_we_host;
+bool netgame_we_are_host;
 
 static style_c *ng_host_style;
 static style_c *ng_join_style;
@@ -347,9 +347,17 @@ static const char *LocalPrintf(char *buf, int max_len, const char *str, ...)
 
 void M_NetHostBegun(void)
 {
-	netgame_we_host = true;
+	netgame_we_are_host = true;
+
+	if (hosting_port <= 0)
+		hosting_port = base_port;
 
 	host_pos = 0;
+
+	if (ng_params)
+		delete ng_params;
+
+	ng_params = new newgame_params_c;
 }
 
 static const char * MODE_LIST_STR = "CNO"; // "CNOLF"
@@ -457,11 +465,7 @@ bool M_NetHostResponder(event_t * ev, int ch)
 	{
 		if (host_pos == (HOST_OPTIONS-1))
 		{
-			// FIXME: !!!! check for error
-			N_OpenBroadcastSocket(true);
-
 			S_StartFX(sfx_swtchn);
-
 			netgame_menuon = 3;
 		}
 		return true;
@@ -488,17 +492,28 @@ bool M_NetHostResponder(event_t * ev, int ch)
 	return false;
 }
 
+void M_NetHostTicker(void)
+{
+	// Note: broadcast queries are handled by the general net stuff  [???]
+}
+
 
 //----------------------------------------------------------------------------
 
 void M_NetJoinBegun(void)
 {
-	netgame_we_host = true;
+	netgame_we_are_host = false;
 
-	// FIXME: check for -host option (short-circuit the BD spiel)
+	if (joining_port <= 0)
+		joining_port = base_port;
 
 	join_pos = 0;
 	join_discover_timer = 10 * TICRATE;
+
+	if (ng_params)
+		delete ng_params;
+
+	ng_params = new newgame_params_c;
 }
 
 static void JoinChangeOption(int opt, int key)
@@ -548,8 +563,6 @@ static void JoinChangeOption(int opt, int key)
 
 void M_DrawJoinMenu(void)
 {
-	netgame_we_host = false;
-
 	ng_join_style->DrawBackground();
 
 	HL_WriteText(ng_join_style,2, 80, 10, "JOIN NET GAME");
@@ -562,8 +575,6 @@ void M_DrawJoinMenu(void)
 		HL_WriteText(ng_join_style,1, 240, 160,
 				LocalPrintf(buffer, sizeof(buffer), "%d",
 					(join_discover_timer+TICRATE-1) / TICRATE));
-
-		join_discover_timer--;
 	}
 
 	int y = 30;
@@ -583,7 +594,7 @@ void M_DrawJoinMenu(void)
 	HL_WriteText(ng_join_style,(join_pos==idx)?2:0, 30, y, "Search LAN again");
 	y += 20; idx++;
 
-	HL_WriteText(ng_join_style,(join_pos==idx)?2:0, 30, y, "Connect to Host now");
+	HL_WriteText(ng_join_style,(join_pos==idx)?2:0, 30, y, "Connect to Host");
 	y += 20; idx++;
 }
 
@@ -604,9 +615,25 @@ bool M_NetJoinResponder(event_t * ev, int ch)
 		ch == KEYD_ENTER)
 	{
 		JoinChangeOption(join_pos, ch);
+		return true;
 	}
 
 	return false;
+}
+
+void M_NetJoinTicker(void)
+{
+	if (join_discover_timer > 0)
+	{
+		if ((join_discover_timer % TICRATE) == 0)
+		{
+			// FIXME: send broadcast packet
+		}
+
+		join_discover_timer--;
+	}
+
+	// FIXME: check for broadcast reply 
 }
 
 
@@ -619,7 +646,7 @@ static void NetGameStartLevel(void)
 
 	// create parameters
 
-	if (! ParseWelcomePacket(ng_params, netgame_we_host ? &host_welcome : &join_welcome))
+	if (! ParseWelcomePacket(ng_params, netgame_we_are_host ? &host_welcome : &join_welcome))
 	{
 		M_StartMessage(language["EpisodeNonExist"], NULL, false);
 		return;
@@ -649,7 +676,7 @@ void M_DrawPlayerList(void)
 		y += 10;
 	}
 	
-	if (netgame_we_host)
+	if (netgame_we_are_host)
 	{
 		HL_WriteText(ng_list_style,2, 40, 140, "Press <ENTER> to Start Game");
 	}
@@ -657,7 +684,7 @@ void M_DrawPlayerList(void)
 
 bool M_NetListResponder(event_t * ev, int ch)
 {
-	if (ch == KEYD_ENTER && netgame_we_host)
+	if (ch == KEYD_ENTER && netgame_we_are_host)
 	{
 		S_StartFX(sfx_swtchn);
 
@@ -672,6 +699,11 @@ bool M_NetListResponder(event_t * ev, int ch)
 	return false;
 }
 
+void M_NetListTicker(void)
+{
+	// FIXME: handle player update commands, BEGIN command, etc
+}
+
 
 //----------------------------------------------------------------------------
 
@@ -679,15 +711,12 @@ void M_NetGameInit(void)
 {
 	netgame_menuon = 0;
 
-	ng_params = new newgame_params_c();
-
 	host_pos = 0;
 	join_pos = 0;
 
 	CreateHostWelcome(&host_welcome);
 
-	hosting_port = MP_EDGE_PORT;
-	joining_port = MP_EDGE_PORT;
+	hosting_port = joining_port = 0;  // set later
 
 	// load styles
 	styledef_c *def;
@@ -705,6 +734,17 @@ void M_NetGameInit(void)
 
 	def = styledefs.Lookup("NET PLAYER LIST");
 	ng_list_style = def ? hu_styles.Lookup(def) : ng_default;
+
+
+	const char *str = M_GetParm("-connect");
+	if (str)
+	{
+		join_addr = new net_address_c();
+		if (! join_addr->FromString(str))
+		{
+			I_Error("Bad IP address for -connect: %s\n", str);
+		}
+	}
 }
 
 void M_NetGameDrawer(void)
@@ -725,14 +765,10 @@ bool M_NetGameResponder(event_t * ev, int ch)
 	{
 		case KEYD_ESCAPE:
 		{
-			// FIXME: send packets (Unjoin / Unhost)
-			N_CloseBroadcastSocket();
-
 			netgame_menuon = 0;
 			M_ClearMenus();
 
 			S_StartFX(sfx_swtchx);
-
 			return true;
 		}
 	}
@@ -749,16 +785,12 @@ bool M_NetGameResponder(event_t * ev, int ch)
 
 void M_NetGameTicker(void)
 {
-	// FIXME: N_DoPacketStuff()
-
-#if 0
 	switch (netgame_menuon)
 	{
 		case 1: return M_NetHostTicker();
 		case 2: return M_NetJoinTicker();
 		case 3: return M_NetListTicker();
 	}
-#endif
 }
 
 
