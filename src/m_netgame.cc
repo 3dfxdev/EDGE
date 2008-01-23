@@ -43,6 +43,7 @@
 #include "m_random.h"
 #include "m_netgame.h"
 #include "n_network.h"
+#include "n_reliable.h"
 #include "p_setup.h"
 #include "r_local.h"
 #include "s_sound.h"
@@ -295,6 +296,8 @@ void M_NetHostBegun(void)
 
 	ng_params = new newgame_params_c;
 
+	ng_params->map = G_LookupMap("1");
+
 	host_want_bots = 0;
 }
 
@@ -375,11 +378,11 @@ void M_DrawHostMenu(void)
 	y += 20;
 
 
-	DrawKeyword(idx, ng_host_style, y, "GAME", "???"); /// host_welcome.game_name);
-	y += 10; idx++,
-
-	DrawKeyword(idx, ng_host_style, y, "LEVEL", "???"); //!!!! FIXME host_welcome.level_name);
+	DrawKeyword(idx, ng_host_style, y, "GAME", ng_params->map->episode->ddf.name.c_str());
 	y += 20; idx++,
+
+	DrawKeyword(idx, ng_host_style, y, "LEVEL", ng_params->map->ddf.name.c_str());
+	y += 10; idx++,
 
 	DrawKeyword(idx, ng_host_style, y, "MODE", GetModeName(ng_params->deathmatch));
 	y += 10; idx++,
@@ -604,15 +607,13 @@ void M_DrawPlayerList(void)
 
 	for (int i = 0; i < ng_params->total_players; i++)
 	{
-		if (ng_params->players[i] & PFL_Bot)
-			continue;
-
 		DrawKeyword(-1, ng_list_style, y,
-				LocalPrintf(buffer, sizeof(buffer), "Player%d", i),
-				(ng_params->players[i] & PFL_Network) ? "IP 11.22.33.44" : "Local");
+				LocalPrintf(buffer, sizeof(buffer), "%s%d", 
+					(ng_params->players[i] & PFL_Bot) ? "Bot" : "Player", i),
+				ng_params->nodes[i] ? ng_params->nodes[i]->remote.TempString(false) : "Local");
 		y += 10;
 	}
-	
+
 	if (netgame_we_are_host)
 	{
 		HL_WriteText(ng_list_style,2, 40, 140, "Press <ENTER> to Start Game");
