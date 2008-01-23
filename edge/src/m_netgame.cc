@@ -291,7 +291,7 @@ static void DrawKeyword(int index, style_c *style, int y,
 {
 	int x = 120;
 
-	HL_WriteText(style,0, x - 10 - style->fonts[0]->StringWidth(keyword), y, keyword);
+	HL_WriteText(style,(index<0)?3:0, x - 10 - style->fonts[0]->StringWidth(keyword), y, keyword);
 	HL_WriteText(style,1, x + 10, y, value);
 
 	if ((netgame_menuon == 1 && index == host_pos) ||
@@ -347,27 +347,31 @@ static const char *LocalPrintf(char *buf, int max_len, const char *str, ...)
 
 void M_NetHostBegun(void)
 {
+	netgame_we_host = true;
+
 	host_pos = 0;
 }
 
 static const char * MODE_LIST_STR = "CNO"; // "CNOLF"
 
-static bool HostChangeOption(int opt, int dir)
+static void HostChangeOption(int opt, int key)
 {
+	int dir = (key == KEYD_LEFTARROW) ? -1 : +1;
+
 	switch (opt)
 	{
 		case 0: // Game
 			// FIXME
-			return true;
+			break;
 
 		case 1: // Level
 			// FIXME !!!!
-			return true;
+			break;
 
 		case 2: // Mode
 		{
 			const char *pos = strchr(MODE_LIST_STR, host_welcome.mode);
-			if (! pos) return 'C';
+			if (! pos) return;
 
 			pos += dir;
 
@@ -377,8 +381,7 @@ static bool HostChangeOption(int opt, int dir)
 				pos = MODE_LIST_STR;
 
 			host_welcome.mode = *pos;
-
-			return true;
+			break;
 		}
 
 		case 3: // Skill
@@ -388,7 +391,7 @@ static bool HostChangeOption(int opt, int dir)
 			else if (host_welcome.skill > 5)
 				host_welcome.skill = 1;
 
-			return true;
+			break;
 
 		case 4: // Bots
 			host_welcome.bots += dir;
@@ -400,17 +403,15 @@ static bool HostChangeOption(int opt, int dir)
 			else if (host_welcome.bots > 15)
 				host_welcome.bots = 0;
 
-			return true;
+			break;
 
 		default:
-			return false;
+			break;
 	}
 }
 
 void M_DrawHostMenu(void)
 {
-	netgame_we_host = true;
-
 	ng_host_style->DrawBackground();
 
 	HL_WriteText(ng_host_style,2, 80, 10, "HOST NET GAME");
@@ -480,10 +481,7 @@ bool M_NetHostResponder(event_t * ev, int ch)
 	if (ch == KEYD_LEFTARROW || ch == KEYD_RIGHTARROW ||
 		ch == KEYD_ENTER)
 	{
-		int dir = +1;
-		if (ch == KEYD_LEFTARROW) dir = -1;
-
-		HostChangeOption(host_pos, dir);
+		HostChangeOption(host_pos, ch);
 		return true;
 	}
 
@@ -495,11 +493,58 @@ bool M_NetHostResponder(event_t * ev, int ch)
 
 void M_NetJoinBegun(void)
 {
+	netgame_we_host = true;
+
 	// FIXME: check for -host option (short-circuit the BD spiel)
 
 	join_pos = 0;
 	join_discover_timer = 10 * TICRATE;
 }
+
+static void JoinChangeOption(int opt, int key)
+{
+	int dir = (key == KEYD_LEFTARROW) ? -1 : +1;
+
+	switch (opt)
+	{
+		case 0: // Host Addr
+			if (key == KEYD_ENTER)
+			{ // pop up input box !!!!
+			// FIXME !!!!
+			}
+			break;
+
+		case 1: // Host Port
+			if (key == KEYD_ENTER)
+			{ // pop up input box !!!!
+			// FIXME !!!!
+			}
+			else
+				joining_port += dir;
+			break;
+
+		case 2: // Search again
+		{
+			join_discover_timer = 10 * TICRATE;
+			break;
+		}
+
+		case 3: // Connect
+			if (! join_addr)
+			{
+				S_StartFX(sfx_oof);
+				return;
+			}
+
+			S_StartFX(sfx_swtchn);
+			netgame_menuon = 3;
+			break;
+
+		default:
+			break;
+	}
+}
+
 
 void M_DrawJoinMenu(void)
 {
@@ -544,14 +589,6 @@ void M_DrawJoinMenu(void)
 
 bool M_NetJoinResponder(event_t * ev, int ch)
 {
-	if (ch == KEYD_ENTER)
-	{
-		S_StartFX(sfx_swtchn);
-
-		netgame_menuon = 3;
-		return true;
-	}
-
 	if (ch == KEYD_DOWNARROW || ch == KEYD_MWHEEL_DN)
 	{
 		join_pos = (join_pos + 1) % JOIN_OPTIONS;
@@ -561,6 +598,12 @@ bool M_NetJoinResponder(event_t * ev, int ch)
 	{
 		join_pos = (join_pos + JOIN_OPTIONS - 1) % JOIN_OPTIONS;
 		return true;
+	}
+
+	if (ch == KEYD_LEFTARROW || ch == KEYD_RIGHTARROW ||
+		ch == KEYD_ENTER)
+	{
+		JoinChangeOption(join_pos, ch);
 	}
 
 	return false;
