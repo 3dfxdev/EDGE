@@ -72,7 +72,8 @@ void RGL_RainbowEffect(player_t *player)
 
 	float s = EffectStrength(player);
 
-	if (s > 0 && player->powers[PW_Invulnerable] > 0)
+	if (s > 0 && player->powers[PW_Invulnerable] > 0 &&
+		(player->effect_left & 8))
 	{
 		if (var_invul_fx == INVULFX_Textured)
 		{
@@ -126,7 +127,8 @@ void RGL_ColourmapEffect(player_t *player)
 
 	float s = EffectStrength(player);
 
-	if (s > 0 && player->powers[PW_Invulnerable] > 0 && player->effect_colourmap)
+	if (s > 0 && player->powers[PW_Invulnerable] > 0 &&
+	    player->effect_colourmap && (player->effect_left & 8))
 	{
 		if (var_invul_fx > INVULFX_Complex)
 			return;
@@ -135,9 +137,8 @@ void RGL_ColourmapEffect(player_t *player)
 
 		V_GetColmapRGB(player->effect_colourmap, &r, &g, &b, false);
 
-		r = MAX(0.5f, r) * (s + 1.0f) / 2.0f;
-		g = MAX(0.5f, g) * (s + 1.0f) / 2.0f;
-		b = MAX(0.5f, b) * (s + 1.0f) / 2.0f;
+		r = 1.0f; // MAX(0.5f, r) * (s + 1.0f) / 2.0f;
+		g = b = r;
 
 		glColor4f(r, g, b, 0.0f);
 		glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ZERO);
@@ -175,7 +176,8 @@ void RGL_PaletteEffect(player_t *player)
 
 	float s = EffectStrength(player);
 
-	if (s > 0 && player->powers[PW_Invulnerable] > 0 && player->effect_colourmap)
+	if (s > 0 && player->powers[PW_Invulnerable] > 0 &&
+	    player->effect_colourmap && (player->effect_left & 8))
 	{
 		if (var_invul_fx != INVULFX_Complex)
 			return;
@@ -208,7 +210,8 @@ void RGL_PaletteEffect(player_t *player)
 		}
 		return;
 	}
-	else if (s > 0 && player->powers[PW_NightVision] > 0 && player->effect_colourmap)
+	else if (s > 0 && player->powers[PW_NightVision] > 0 &&
+	         player->effect_colourmap)
 	{
 		float r, g, b;
 		V_GetColmapRGB(player->effect_colourmap, &r, &g, &b, false);
