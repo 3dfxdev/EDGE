@@ -87,6 +87,7 @@ static net_address_c * join_addr;
 static int joining_port;
 
 static int join_discover_timer;
+static int join_connect_timer;
 
 
 #if (0 == 1)
@@ -194,7 +195,7 @@ static bool ParseWelcomePacket(newgame_params_c *par, welcome_proto_t *we)
 	(flags.field) = (we->gameplay & (testbit)) ? true : false;
 
 	HANDLE_FLAG(nomonsters,     welcome_proto_t::GP_NoMonsters);
-	HANDLE_FLAG(fastparm,       welcome_proto_t::GP_FastMon);
+	HANDLE_FLAG(autoaim,        welcome_proto_t::GP_AutoAim);
 
 	HANDLE_FLAG(true3dgameplay, welcome_proto_t::GP_True3D);
 	HANDLE_FLAG(jump,           welcome_proto_t::GP_Jumping);
@@ -296,11 +297,114 @@ void M_NetHostBegun(void)
 
 	ng_params = new newgame_params_c;
 
+	ng_params->CopyFlags(&global_flags);
+
 	ng_params->map = G_LookupMap("1");
+
+	if (! ng_params->map)
+		ng_params->map = mapdefs[0];
 
 	host_want_bots = 0;
 }
 
+
+static void ChangeGame(newgame_params_c *param, int dir)
+{
+	gamedef_c *closest  = NULL;
+	gamedef_c *furthest = NULL;
+
+	for (int i=0; i < gamedefs.GetSize(); i++)
+	{
+		gamedef_c *def = gamedefs[i];
+
+		mapdef_c *first_map = mapdefs.Lookup(def->firstmap);
+
+		if (! first_map || ! G_MapExists(first_map))
+			continue;
+
+		const char *old_name = param->map->episode->ddf.name.c_str();
+		const char *new_name = def->ddf.name.c_str();
+
+		int compare = DDF_CompareName(new_name, old_name);
+
+		if (compare == 0)
+			continue;
+
+		if (compare * dir > 0)
+		{
+			if (! closest || dir * DDF_CompareName(new_name, closest->ddf.name.c_str()) < 0)
+				closest = def;
+		}
+		else
+		{
+			if (! furthest || dir * DDF_CompareName(new_name, furthest->ddf.name.c_str()) < 0)
+				furthest = def;
+		}
+	}
+
+I_Debugf("DIR: %d  CURRENT: %s   CLOSEST: %s   FURTHEST: %s\n",
+         dir, ng_params->map->episode->ddf.name.c_str(),
+		 closest  ?  closest->ddf.name.c_str() : "none",
+		 furthest ? furthest->ddf.name.c_str() : "none");
+
+	if (closest)
+	{
+		param->map = mapdefs.Lookup(closest->firstmap);
+		SYS_ASSERT(param->map);
+		return;
+	}
+
+	// could not find the next/previous map, hence wrap around
+	if (furthest)
+	{
+		param->map = mapdefs.Lookup(furthest->firstmap);
+		SYS_ASSERT(param->map);
+		return;
+	}
+}
+
+static void ChangeLevel(newgame_params_c *param, int dir)
+{
+	mapdef_c *closest  = NULL;
+	mapdef_c *furthest = NULL;
+
+	for (int i=0; i < mapdefs.GetSize(); i++)
+	{
+		mapdef_c *def = mapdefs[i];
+
+		if (def->episode != param->map->episode)
+			continue;
+
+		const char *old_name = param->map->ddf.name.c_str();
+		const char *new_name = def->ddf.name.c_str();
+
+		int compare = DDF_CompareName(new_name, old_name);
+
+		if (compare == 0)
+			continue;
+
+		if (compare * dir > 0)
+		{
+			if (! closest || dir * DDF_CompareName(new_name, closest->ddf.name.c_str()) < 0)
+				closest = def;
+		}
+		else
+		{
+			if (! furthest || dir * DDF_CompareName(new_name, furthest->ddf.name.c_str()) < 0)
+				furthest = def;
+		}
+	}
+
+	if (closest)
+	{
+		param->map = closest;
+		return;
+	}
+
+	// could not find the next/previous map, hence wrap around
+	if (furthest)
+		param->map = furthest;
+}
 
 static void HostChangeOption(int opt, int key)
 {
@@ -309,11 +413,11 @@ static void HostChangeOption(int opt, int key)
 	switch (opt)
 	{
 		case 0: // Game
-			// FIXME
+			ChangeGame(ng_params, dir);
 			break;
 
 		case 1: // Level
-			// FIXME !!!!
+			ChangeLevel(ng_params, dir);
 			break;
 
 		case 2: // Mode
@@ -329,11 +433,11 @@ static void HostChangeOption(int opt, int key)
 		}
 
 		case 3: // Skill
-///!!!!			ng_params->skill += dir;
-///!!!!			if (ng_params->skill < 0 || ng_params->skill > 250)
-///!!!!				ng_params->skill = 4;
-///!!!!			else if (ng_params->skill > 4)
-///!!!!				ng_params->skill = 0;
+			ng_params->skill = (skill_t)( (int)ng_params->skill + dir );
+			if ((int)ng_params->skill < (int)sk_baby || (int)ng_params->skill > 250)
+				ng_params->skill = sk_nightmare;
+			else if ((int)ng_params->skill > (int)sk_nightmare)
+				ng_params->skill = sk_baby;
 
 			break;
 
@@ -356,6 +460,8 @@ static void HostAccept(void)
 {
 	// create local player and bots
 	ng_params->SinglePlayer(host_want_bots);
+
+	netgame_menuon = 3;
 }
 
 void M_DrawHostMenu(void)
@@ -379,10 +485,10 @@ void M_DrawHostMenu(void)
 
 
 	DrawKeyword(idx, ng_host_style, y, "GAME", ng_params->map->episode->ddf.name.c_str());
-	y += 20; idx++,
+	y += 10; idx++,
 
 	DrawKeyword(idx, ng_host_style, y, "LEVEL", ng_params->map->ddf.name.c_str());
-	y += 10; idx++,
+	y += 20; idx++,
 
 	DrawKeyword(idx, ng_host_style, y, "MODE", GetModeName(ng_params->deathmatch));
 	y += 10; idx++,
@@ -407,9 +513,8 @@ bool M_NetHostResponder(event_t * ev, int ch)
 		{
 			HostAccept();
 			S_StartFX(sfx_swtchn);
-			netgame_menuon = 3;
+			return true;
 		}
-		return true;
 	}
 
 	if (ch == KEYD_DOWNARROW || ch == KEYD_MWHEEL_DN)
@@ -449,7 +554,7 @@ void M_NetJoinBegun(void)
 		joining_port = base_port;
 
 	join_pos = 0;
-	join_discover_timer = 10 * TICRATE;
+	join_discover_timer = 11 * TICRATE;
 
 	if (ng_params)
 		delete ng_params;
@@ -459,12 +564,18 @@ void M_NetJoinBegun(void)
 
 static void JoinConnect(void)
 {
-	// ??
+	netgame_menuon = 3;
 }
 
 static void JoinChangeOption(int opt, int key)
 {
 	int dir = (key == KEYD_LEFTARROW) ? -1 : +1;
+
+	if (join_connect_timer > 0)
+	{
+		S_StartFX(sfx_oof);
+		return;
+	}
 
 	switch (opt)
 	{
@@ -486,7 +597,7 @@ static void JoinChangeOption(int opt, int key)
 
 		case 2: // Search again
 		{
-			join_discover_timer = 10 * TICRATE;
+			join_discover_timer = 11 * TICRATE;
 			break;
 		}
 
@@ -497,10 +608,10 @@ static void JoinChangeOption(int opt, int key)
 				return;
 			}
 
-			JoinConnect();
+			join_connect_timer  = 11 * TICRATE;
+			join_discover_timer = 0;
 
 			S_StartFX(sfx_swtchn);
-			netgame_menuon = 3;
 			break;
 
 		default:
@@ -517,7 +628,14 @@ void M_DrawJoinMenu(void)
 
 	char buffer[200];
 
-	if (join_discover_timer > 0)
+	if (join_connect_timer > 0)
+	{
+		HL_WriteText(ng_join_style,3,  30, 160, "Connecting to Host...");
+		HL_WriteText(ng_join_style,1, 240, 160,
+				LocalPrintf(buffer, sizeof(buffer), "%d",
+					(join_connect_timer+TICRATE-1) / TICRATE));
+	}
+	else if (join_discover_timer > 0)
 	{
 		HL_WriteText(ng_join_style,3,  30, 160, "Looking for Host on LAN...");
 		HL_WriteText(ng_join_style,1, 240, 160,
@@ -571,6 +689,16 @@ bool M_NetJoinResponder(event_t * ev, int ch)
 
 void M_NetJoinTicker(void)
 {
+	if (join_connect_timer > 0)
+	{
+		join_connect_timer--;
+
+		if (join_connect_timer == (9 * TICRATE))
+		{
+		    // FIXME: make connection
+		}
+	}
+
 	if (join_discover_timer > 0)
 	{
 		if ((join_discover_timer % TICRATE) == 0)
