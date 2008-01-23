@@ -70,10 +70,6 @@ extern gameaction_e gameaction;
 class newgame_params_c
 {
 public:
-	newgame_params_c();
-	newgame_params_c(const newgame_params_c& src);
-	~newgame_params_c();
-
 	skill_t skill;
 	int deathmatch;
 
@@ -82,9 +78,16 @@ public:
 
 	int random_seed;
 	int total_players;
+
 	playerflag_e players[MAXPLAYERS];
+	net_node_c *nodes[MAXPLAYERS];
 
 	gameflags_t *flags;  // can be NULL
+
+public:
+	newgame_params_c();
+	newgame_params_c(const newgame_params_c& src);
+	~newgame_params_c();
 
 public:
 	/* methods */

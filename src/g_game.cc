@@ -892,7 +892,10 @@ newgame_params_c::newgame_params_c() :
 	total_players(0), flags(NULL)
 {
 	for (int i = 0; i < MAXPLAYERS; i++)
+	{
 		players[i] = PFL_NOPLAYER;
+		nodes[i]   = NULL;
+	}
 }
 
 newgame_params_c::newgame_params_c(const newgame_params_c& src)
@@ -924,9 +927,13 @@ void newgame_params_c::SinglePlayer(int num_bots)
 {
 	total_players = 1 + num_bots;
 	players[0] = PFL_Zero;  // i.e. !BOT and !NETWORK
+	nodes[0]   = NULL;
 
 	for (int pnum = 1; pnum <= num_bots; pnum++)
+	{
 		players[pnum] = PFL_Bot;
+		nodes[pnum]   = NULL;
+	}
 }
 
 void newgame_params_c::CopyFlags(const gameflags_t *F)
@@ -1015,6 +1022,8 @@ void G_InitNew(newgame_params_c& params)
 		{
 			G_SetConsolePlayer(pnum);
 		}
+
+		players[pnum]->node = params.nodes[pnum];
 	}
 
 	if (numplayers != params.total_players)
