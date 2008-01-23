@@ -42,7 +42,6 @@
 #include "m_random.h"
 #include "m_netgame.h"
 #include "n_network.h"
-#include "n_protocol.h"
 #include "p_setup.h"
 #include "r_local.h"
 #include "s_sound.h"
@@ -70,6 +69,68 @@ static style_c *ng_list_style;
 static newgame_params_c *ng_params;
 
 
+//
+// WELCOME ("we")
+//
+typedef struct welcome_proto_s  // FIXME: TEMP CRAP
+{
+	u16_t host_ver;  // MP_PROTOCOL_VER from host
+
+	enum
+	{
+		GAME_STR_MAX = 32
+	};
+
+	char game_name[GAME_STR_MAX];     // e.g. HELL_ON_EARTH
+
+	enum
+	{
+		LEVEL_STR_MAX = 8
+	};
+
+	char level_name[LEVEL_STR_MAX];   // e.g. MAP01
+
+	enum  // mode values:
+	{
+		MODE_Coop       = 'C',
+		MODE_New_DM     = 'N',
+		MODE_Old_DM     = 'O',  // weapons stay on map (etc)
+		MODE_LastMan    = 'L',
+		MODE_CTF        = 'F',
+	};
+
+	byte mode;
+	byte skill;  // 1 to 5
+
+	byte bots;
+	byte teams;  // 0 = no teams
+
+	enum  // gameplay bitflags:
+	{
+		GP_NoMonsters = (1 << 0),
+		GP_FastMon    = (1 << 1),
+
+		GP_True3D     = (1 << 3),
+		GP_Jumping    = (1 << 4),
+		GP_Crouching  = (1 << 5),
+
+		GP_AutoAim    = (1 << 7),
+		GP_MLook      = (1 << 8),
+	};
+
+	u32_t gameplay;
+	u32_t random_seed;
+
+	u16_t wad_checksum;  // checksum over all loaded wads
+	u16_t def_checksum;  // checksum over all definitions
+
+	byte reserved[16];  // (future expansion)
+
+	void ByteSwap();
+}
+welcome_proto_t;
+
+
 static int host_pos;
 
 static welcome_proto_t host_welcome;
@@ -87,7 +148,7 @@ static welcome_proto_t join_welcome;
 
 static void CreateHostWelcome(welcome_proto_t *we)
 {
-	we->host_ver = MP_PROTOCOL_VER;
+	we->host_ver = 1; //!!! MP_PROTOCOL_VER;
 
 	strcpy(we->game_name, "HELL ON EARTH");
 
@@ -203,6 +264,7 @@ static bool ParseWelcomePacket(newgame_params_c *par, welcome_proto_t *we)
 	return true;
 }
 
+#if 0  // OLD CRUD
 void ParsePlayerList(newgame_params_c *par, player_list_proto_t *li)
 {
 	SYS_ASSERT(li->real_players > 0);
@@ -216,6 +278,7 @@ void ParsePlayerList(newgame_params_c *par, player_list_proto_t *li)
 		par->players[p] = (playerflag_e) li->players[p].player_flags;
 	}
 }
+#endif
 
 static void DrawKeyword(int index, style_c *style, int y,
 		const char *keyword, const char *value)
