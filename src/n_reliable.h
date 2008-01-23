@@ -19,7 +19,19 @@
 #ifndef __N_RELIABLE_H__
 #define __N_RELIABLE_H__
 
-class net_node_c;
+#include "i_net.h"
+
+class net_node_c
+{
+public:
+	SOCKET sock;
+
+	net_address_c remote;
+
+public:
+	 net_node_c();
+	~net_node_c();
+};
 
 
 bool N_StartupReliableLink(int port);
