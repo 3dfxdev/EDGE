@@ -79,7 +79,7 @@ public:
 
 	void ToSockAddr(struct sockaddr_in *inaddr) const;
 
-	const char *TempString() const;
+	const char *TempString(bool with_port = true) const;
 	// returns a string representation of the address.
 	// the result is a static buffer, hence is only valid
 	// temporarily (until the next call).

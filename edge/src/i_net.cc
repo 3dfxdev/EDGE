@@ -352,15 +352,22 @@ void net_address_c::ToSockAddr(struct sockaddr_in *inaddr) const
 	dest[3] = addr[3];
 }
 
-const char * net_address_c::TempString() const
+const char * net_address_c::TempString(bool with_port) const
 {
 	static char buffer[256];
 
-	sprintf(buffer, "%d.%d.%d.%d:%d",
-			(int)addr[0],
-			(int)addr[1],
-			(int)addr[2],
-			(int)addr[3], port);
+	if (with_port)
+	{
+		sprintf(buffer, "%d.%d.%d.%d:%d",
+				(int)addr[0], (int)addr[1],
+				(int)addr[2], (int)addr[3], port);
+	}
+	else
+	{
+		sprintf(buffer, "%d.%d.%d.%d",
+				(int)addr[0], (int)addr[1],
+				(int)addr[2], (int)addr[3]);
+	}
 
 	return buffer;
 }
