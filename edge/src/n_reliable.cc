@@ -25,6 +25,8 @@
 #include "i_defs.h"
 #include "i_net.h"
 
+#include <vector>
+
 #include "n_reliable.h"
 #include "n_bcast.h"
 
@@ -269,6 +271,46 @@ int N_ReliableRecv(net_node_c *node, byte *buffer, int max_len)
 	SYS_ASSERT(actual <= max_len);
 
 	return actual;
+}
+
+
+//----------------------------------------------------------------------------
+//  NODE MANAGEMENT
+//----------------------------------------------------------------------------
+
+std::vector<net_node_c *> net_nodes;
+
+void N_ClearNodes(void)
+{
+	for (unsigned int i=0; i < net_nodes.size(); i++)
+	{
+		if (net_nodes[i])
+		{
+			delete net_nodes[i];
+			net_nodes[i] = NULL;
+		}
+	}
+
+	net_nodes.clear();
+}
+
+void N_AddNode(net_node_c *nd)
+{
+	net_nodes.push_back(nd);
+}
+
+void N_RemoveNode(net_node_c *nd)
+{
+	for (unsigned int i=0; i < net_nodes.size(); i++)
+	{
+		if (net_nodes[i] == nd)
+		{
+			net_nodes[i] = NULL;
+			return;
+		}
+	}
+
+	I_Error("INTERNAL ERROR N_RemoveNode: no such node '%p'\n", nd);
 }
 
 

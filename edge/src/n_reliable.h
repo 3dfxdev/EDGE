@@ -63,6 +63,12 @@ int N_ReliableRecv(net_node_c *node, byte *buffer, int max_len);
 // Returns the number of bytes read, 0 for none, or -1 if
 // an error occurred.  This call is non-blocking.
 
+// ===== NODE MANAGEMENT ===========
+
+void N_ClearNodes(void);
+void N_AddNode(net_node_c *nd);
+void N_RemoveNode(net_node_c *nd);
+
 #endif /* __N_RELIABLE_H__ */
 
 //--- editor settings ---
