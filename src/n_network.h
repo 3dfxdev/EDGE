@@ -28,6 +28,8 @@
 extern bool netgame;
 extern bool var_hogcpu;
 
+extern int base_port;
+
 void N_InitNetwork(void);
 
 void N_InitiateNetGame(void);
