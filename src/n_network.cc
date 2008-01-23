@@ -27,9 +27,7 @@
 
 #include "n_bcast.h"
 #include "n_reliable.h"
-#include "n_packet.h"
 #include "n_network.h"
-#include "n_protocol.h"
 
 #include "dm_state.h"
 #include "e_demo.h"
