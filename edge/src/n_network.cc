@@ -43,6 +43,8 @@
 // only true if packets are exchanged with a server
 bool netgame = false;
 
+int base_port;
+
 
 bool var_hogcpu = true;
 
@@ -69,12 +71,12 @@ void N_InitNetwork(void)
 	if (nonet)
 		return;
 
-	int base_port = MP_EDGE_PORT;
+	base_port = MP_EDGE_PORT;
 
 	const char *str = M_GetParm("-port");
 	if (str)
 		base_port = atoi(str);
-	
+
 	I_Printf("Network: base port is %d\n", base_port);
 
 	N_StartupReliableLink (base_port+0);
