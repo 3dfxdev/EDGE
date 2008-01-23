@@ -31,21 +31,11 @@
 #include "n_bcast.h"
 
 
-class net_node_c
-{
-public:
-	SOCKET sock;
+net_node_c::net_node_c() : sock(INVALID_SOCKET), remote()
+{ }
 
-	net_address_c remote;
-
-public:
-	net_node_c() : sock(INVALID_SOCKET), remote()
-	{ }
-
-	~net_node_c()
-	{ }
-};
-
+net_node_c::~net_node_c()
+{ }
 
 //----------------------------------------------------------------------------
 
