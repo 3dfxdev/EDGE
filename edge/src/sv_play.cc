@@ -262,7 +262,21 @@ savestruct_t sv_struct_psprite =
 
 int SV_PlayerCountElems(void)
 {
-	return numplayers;
+	int count = 0;
+
+	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
+	{
+		player_t *p = players[pnum];
+		if (! p) continue;
+
+		if (p->node) continue;
+
+		count++;
+	}
+
+	SYS_ASSERT(count > 0);
+
+	return count;
 }
 
 
@@ -275,6 +289,8 @@ void *SV_PlayerGetElem(int index)
 	{
 		player_t *p = players[pnum];
 		if (! p) continue;
+
+		if (p->node) continue;
 
 		if (index == 0)
 			return p;
@@ -295,6 +311,8 @@ int SV_PlayerFindElem(player_t *elem)
 	{
 		player_t *p = players[pnum];
 		if (! p) continue;
+
+		if (p->node) continue;
 
 		if (p == elem)
 			return index;
