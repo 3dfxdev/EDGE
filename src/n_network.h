@@ -19,6 +19,8 @@
 #ifndef __N_NETWORK_H__
 #define __N_NETWORK_H__
 
+#define MP_EDGE_PORT  26710
+
 #define MP_PROTOCOL_VER  1
 
 #define MP_SAVETICS  6  // past and future

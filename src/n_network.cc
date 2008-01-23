@@ -69,7 +69,7 @@ void N_InitNetwork(void)
 	if (nonet)
 		return;
 
-	int base_port = 26710;
+	int base_port = MP_EDGE_PORT;
 
 	const char *str = M_GetParm("-port");
 	if (str)
