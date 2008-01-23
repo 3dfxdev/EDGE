@@ -70,73 +70,11 @@ static style_c *ng_list_style;
 static newgame_params_c *ng_params;
 
 
-//
-// WELCOME ("we")
-//
-typedef struct welcome_proto_s  // FIXME: TEMP CRAP
-{
-	u16_t host_ver;  // MP_PROTOCOL_VER from host
-
-	enum
-	{
-		GAME_STR_MAX = 32
-	};
-
-	char game_name[GAME_STR_MAX];     // e.g. HELL_ON_EARTH
-
-	enum
-	{
-		LEVEL_STR_MAX = 8
-	};
-
-	char level_name[LEVEL_STR_MAX];   // e.g. MAP01
-
-	enum  // mode values:
-	{
-		MODE_Coop       = 'C',
-		MODE_New_DM     = 'N',
-		MODE_Old_DM     = 'O',  // weapons stay on map (etc)
-		MODE_LastMan    = 'L',
-		MODE_CTF        = 'F',
-	};
-
-	byte mode;
-	byte skill;  // 1 to 5
-
-	byte bots;
-	byte teams;  // 0 = no teams
-
-	enum  // gameplay bitflags:
-	{
-		GP_NoMonsters = (1 << 0),
-		GP_FastMon    = (1 << 1),
-
-		GP_True3D     = (1 << 3),
-		GP_Jumping    = (1 << 4),
-		GP_Crouching  = (1 << 5),
-
-		GP_AutoAim    = (1 << 7),
-		GP_MLook      = (1 << 8),
-	};
-
-	u32_t gameplay;
-	u32_t random_seed;
-
-	u16_t wad_checksum;  // checksum over all loaded wads
-	u16_t def_checksum;  // checksum over all definitions
-
-	byte reserved[16];  // (future expansion)
-
-	void ByteSwap();
-}
-welcome_proto_t;
-
-
 static int host_pos;
 
 static int hosting_port;
 
-static welcome_proto_t host_welcome;
+static int host_want_bots;
 
 #define HOST_OPTIONS  6
 #define JOIN_OPTIONS  4
@@ -149,9 +87,8 @@ static int joining_port;
 
 static int join_discover_timer;
 
-static welcome_proto_t join_welcome;
 
-
+#if (0 == 1)
 static void CreateHostWelcome(welcome_proto_t *we)
 {
 	we->host_ver = 1; //!!! MP_PROTOCOL_VER;
@@ -163,7 +100,6 @@ static void CreateHostWelcome(welcome_proto_t *we)
 	we->mode  = welcome_proto_t::MODE_New_DM;
 	we->skill = sk_medium;
 
-	we->bots  = 0;
 	we->teams = 0;
 
 	we->gameplay = welcome_proto_t::GP_True3D |
@@ -270,7 +206,6 @@ static bool ParseWelcomePacket(newgame_params_c *par, welcome_proto_t *we)
 	return true;
 }
 
-#if 0  // OLD CRUD
 void ParsePlayerList(newgame_params_c *par, player_list_proto_t *li)
 {
 	SYS_ASSERT(li->real_players > 0);
@@ -285,6 +220,7 @@ void ParsePlayerList(newgame_params_c *par, player_list_proto_t *li)
 	}
 }
 #endif
+
 
 static void DrawKeyword(int index, style_c *style, int y,
 		const char *keyword, const char *value)
@@ -306,26 +242,26 @@ static const char *GetModeName(char mode)
 	// FIXME: LDF these up
 	switch (mode)
 	{
-		case 'C': return "CO-OPERATIVE";
-		case 'O': return "OLD DEATHMATCH";
-		case 'N': return "NEW DEATHMATCH";
-		case 'L': return "LAST MAN STANDING";
-		case 'F': return "CATCH THE FLAG";
+		case 0: return "CO-OPERATIVE";
+		case 1: return "OLD DEATHMATCH";
+		case 2: return "NEW DEATHMATCH";
+		case 3: return "LAST MAN STANDING";
+		case 4: return "CATCH THE FLAG";
 
 		default: return "????";
 	}
 }
 
-static const char *GetSkillName(byte skill)
+static const char *GetSkillName(skill_t skill)
 {
 	// FIXME: LDF these up, OR BETTER: use shrunken images
 	switch (skill)
 	{
-		case 1: return "I'm Too Young To Die";
-		case 2: return "Hey, Not Too Rough";
-		case 3: return "Hurt Me Plenty";
-		case 4: return "Ultra-Violence";
-		case 5: return "Nightmare!";
+		case sk_baby: return "I'm Too Young To Die";
+		case sk_easy: return "Hey, Not Too Rough";
+		case sk_medium: return "Hurt Me Plenty";
+		case sk_hard: return "Ultra-Violence";
+		case sk_nightmare: return "Nightmare!";
 
 		default: return "????";
 	}
@@ -358,9 +294,10 @@ void M_NetHostBegun(void)
 		delete ng_params;
 
 	ng_params = new newgame_params_c;
+
+	host_want_bots = 0;
 }
 
-static const char * MODE_LIST_STR = "CNO"; // "CNOLF"
 
 static void HostChangeOption(int opt, int key)
 {
@@ -378,44 +315,44 @@ static void HostChangeOption(int opt, int key)
 
 		case 2: // Mode
 		{
-			const char *pos = strchr(MODE_LIST_STR, host_welcome.mode);
-			if (! pos) return;
+			ng_params->deathmatch += dir;
 
-			pos += dir;
+			if (ng_params->deathmatch < 0)
+				ng_params->deathmatch = 2;
+			else if (ng_params->deathmatch > 2)
+				ng_params->deathmatch = 0;
 
-			if (pos < MODE_LIST_STR)
-				pos = MODE_LIST_STR + strlen(MODE_LIST_STR) - 1;
-			else if (*pos == 0)
-				pos = MODE_LIST_STR;
-
-			host_welcome.mode = *pos;
 			break;
 		}
 
 		case 3: // Skill
-			host_welcome.skill += dir;
-			if (host_welcome.skill < 1 || host_welcome.skill > 250)
-				host_welcome.skill = 5;
-			else if (host_welcome.skill > 5)
-				host_welcome.skill = 1;
+///!!!!			ng_params->skill += dir;
+///!!!!			if (ng_params->skill < 0 || ng_params->skill > 250)
+///!!!!				ng_params->skill = 4;
+///!!!!			else if (ng_params->skill > 4)
+///!!!!				ng_params->skill = 0;
 
 			break;
 
 		case 4: // Bots
-			host_welcome.bots += dir;
-///---		if (host_welcome.bots >= 5 && (host_welcome.bots & 1))
-///---			host_welcome.bots += dir;
+			host_want_bots += dir;
 
-			if (host_welcome.bots & 0x80)
-				host_welcome.bots = 15;
-			else if (host_welcome.bots > 15)
-				host_welcome.bots = 0;
+			if (host_want_bots < 0)
+				host_want_bots = 15;
+			else if (host_want_bots > 15)
+				host_want_bots = 0;
 
 			break;
 
 		default:
 			break;
 	}
+}
+
+static void HostAccept(void)
+{
+	// create local player and bots
+	ng_params->SinglePlayer(host_want_bots);
 }
 
 void M_DrawHostMenu(void)
@@ -438,20 +375,20 @@ void M_DrawHostMenu(void)
 	y += 20;
 
 
-	DrawKeyword(idx, ng_host_style, y, "GAME", host_welcome.game_name);
+	DrawKeyword(idx, ng_host_style, y, "GAME", "???"); /// host_welcome.game_name);
 	y += 10; idx++,
 
-	DrawKeyword(idx, ng_host_style, y, "LEVEL", host_welcome.level_name);
+	DrawKeyword(idx, ng_host_style, y, "LEVEL", "???"); //!!!! FIXME host_welcome.level_name);
 	y += 20; idx++,
 
-	DrawKeyword(idx, ng_host_style, y, "MODE", GetModeName(host_welcome.mode));
+	DrawKeyword(idx, ng_host_style, y, "MODE", GetModeName(ng_params->deathmatch));
 	y += 10; idx++,
 
-	DrawKeyword(idx, ng_host_style, y, "SKILL", GetSkillName(host_welcome.skill));
+	DrawKeyword(idx, ng_host_style, y, "SKILL", GetSkillName(ng_params->skill));
 	y += 10; idx++,
 
 	DrawKeyword(idx, ng_host_style, y, "BOTS",
-			LocalPrintf(buffer, sizeof(buffer), "%d", host_welcome.bots));
+			LocalPrintf(buffer, sizeof(buffer), "%d", host_want_bots));
 	y += 20; idx++,
 
 	// etc
@@ -465,6 +402,7 @@ bool M_NetHostResponder(event_t * ev, int ch)
 	{
 		if (host_pos == (HOST_OPTIONS-1))
 		{
+			HostAccept();
 			S_StartFX(sfx_swtchn);
 			netgame_menuon = 3;
 		}
@@ -516,6 +454,11 @@ void M_NetJoinBegun(void)
 	ng_params = new newgame_params_c;
 }
 
+static void JoinConnect(void)
+{
+	// ??
+}
+
 static void JoinChangeOption(int opt, int key)
 {
 	int dir = (key == KEYD_LEFTARROW) ? -1 : +1;
@@ -550,6 +493,8 @@ static void JoinChangeOption(int opt, int key)
 				S_StartFX(sfx_oof);
 				return;
 			}
+
+			JoinConnect();
 
 			S_StartFX(sfx_swtchn);
 			netgame_menuon = 3;
@@ -644,14 +589,6 @@ static void NetGameStartLevel(void)
 	// -KM- 1998/12/17 Clear the intermission.
 	WI_Clear();
 
-	// create parameters
-
-	if (! ParseWelcomePacket(ng_params, netgame_we_are_host ? &host_welcome : &join_welcome))
-	{
-		M_StartMessage(language["EpisodeNonExist"], NULL, false);
-		return;
-	}
-
 	G_DeferredNewGame(*ng_params);
 }
 
@@ -713,8 +650,6 @@ void M_NetGameInit(void)
 
 	host_pos = 0;
 	join_pos = 0;
-
-	CreateHostWelcome(&host_welcome);
 
 	hosting_port = joining_port = 0;  // set later
 
