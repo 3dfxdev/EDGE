@@ -55,6 +55,8 @@
 
 #define PLAYER_STOPSPEED  1.0
 
+class net_node_c;
+
 // Pointer to each player in the game.
 extern struct player_s *players[MAXPLAYERS];
 extern int numplayers;
@@ -301,7 +303,9 @@ typedef struct player_s
 
 	int in_tic;  /* tic number of next input command expected */
 
-	int netnode; // REMOVE
+	// node is NULL for players and bots on the same computer,
+	// otherwise is the networking info for the remote computer.
+	net_node_c *node;
 
 	// This function will be called to initialise the ticcmd_t.
 	void (*builder)(const struct player_s *, void *data, ticcmd_t *dest);
