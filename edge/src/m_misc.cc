@@ -72,7 +72,10 @@ int cfgzoomedfov;
 
 bool var_diskicon = true;
 bool display_disk = false;
+int  display_desync = 0;
+
 static const image_c *disk_image = NULL;
+static const image_c *desynch_image = NULL;
 static const image_c *air_images[21] = { NULL };
 
 bool var_fadepower = true;
@@ -483,6 +486,23 @@ void M_DisplayAir(void)
   
 	RGL_ImageEasy320(0, 0, air_images[i - 1]);
 }
+
+void M_DisplayDesynch(void)
+{
+	if (display_desync > 0 || true) //!!!!
+	{
+		display_desync--;
+
+		if (!desynch_image)
+			desynch_image = W_ImageLookup("STDESYNC");
+
+		float w = IM_WIDTH(desynch_image);
+		float h = IM_HEIGHT(desynch_image);
+
+		RGL_Image320(160 - w/2, 72 - h/2, w, h, desynch_image);
+	}
+}
+
 
 #define PIXEL_RED(pix)  (playpal_data[0][pix][0])
 #define PIXEL_GRN(pix)  (playpal_data[0][pix][1])
