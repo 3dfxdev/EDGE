@@ -121,6 +121,7 @@ typedef struct gameflags_s
 	bool kicking;
 	bool weapon_switch;
 	bool pass_missile;
+	bool team_damage;
 }
 gameflags_t;
 

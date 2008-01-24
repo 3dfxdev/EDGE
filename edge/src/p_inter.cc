@@ -1124,8 +1124,7 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor, mobj_t * source,
 	}
 }
 
-//
-// P_TelefragMobj
+
 //
 // For killing monsters and players when something teleports on top
 // of them.  Even the invulnerability powerup doesn't stop it.  Also

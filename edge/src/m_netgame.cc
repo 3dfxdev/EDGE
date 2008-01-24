@@ -525,7 +525,7 @@ void M_DrawHostMenu(void)
 	y += 10; idx++,
 
 	DrawKeyword(idx, ng_host_style, y, "TEAM DAMAGE", ng_params->flags->team_damage ? "ON" : "OFF");
-	y += 20; idx++,
+	y += 22; idx++,
 
 
 	HL_WriteText(ng_host_style,(host_pos==idx) ? 2:0, 40,  y, "Begin Accepting Connections");

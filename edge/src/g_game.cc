@@ -197,6 +197,7 @@ void G_DoLoadLevel(void)
 	HANDLE_FLAG(level_flags.kicking, MPF_Kicking);
 	HANDLE_FLAG(level_flags.weapon_switch, MPF_WeaponSwitch);
 	HANDLE_FLAG(level_flags.pass_missile, MPF_PassMissile);
+	HANDLE_FLAG(level_flags.team_damage, MPF_TeamDamage);
 
 #undef HANDLE_FLAG
 
