@@ -33,8 +33,9 @@ typedef int statenum_t;
 
 typedef enum
 {
-	SFF_Weapon = (1 << 0),
-	SFF_Model  = (1 << 1),
+	SFF_Weapon   = (1 << 0),
+	SFF_Model    = (1 << 1),
+	SFF_Unmapped = (1 << 2), // model_frame not yet looked up
 }
 state_frame_flag_e;
 
@@ -54,6 +55,9 @@ typedef struct state_s
 
 	// duration in tics
 	int tics;
+
+	// model frame name like "run2", normally NULL
+	const char *model_frame;
 
 	// label for state, or NULL
 	const char *label;

@@ -36,9 +36,11 @@ static const state_t template_state =
 	0,          // flags
 	-1,         // tics
 
+	NULL,		// model_frame
 	NULL,       // label
 	NULL,       // routine
 	NULL,       // parameter
+
 	0,          // next state ref
 	-1          // jump state ref
 };
@@ -438,8 +440,22 @@ void DDF_StateReadState(const char *info, const char *label,
 	}
 	else if (j == '@')
 	{
-		cur->flags = SFF_Model;
-		cur->frame = atol(stateinfo[1]+1) - 1;
+		cur->frame = -1;
+
+		char first_ch = stateinfo[1][1];
+
+		if (isdigit(first_ch))
+		{
+			cur->flags = SFF_Model;
+			cur->frame = atol(stateinfo[1]+1) - 1;
+		}
+		else if (isalpha(first_ch) || (first_ch == '_'))
+		{
+			cur->flags = SFF_Unmapped;
+			cur->frame = 0;
+			cur->model_frame = Z_StrDup(stateinfo[1]+1);
+		}
+
 		if (cur->frame < 0)
 			DDF_Error("DDF_MainLoadStates: Illegal model frame: %s\n", stateinfo[1]);
 	}
