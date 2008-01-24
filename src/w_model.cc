@@ -54,7 +54,7 @@ static void FindModelFrameNames(md2_model_c *md, int model_num)
 {
 	int missing = 0;
 
-	I_Printf("Finding frame names for model '%sMD2'....\n",
+	I_Printf("Finding frame names for model '%sMD2'...\n",
 			 ddf_model_names[model_num].c_str());
 
 	for (int stnum = 1; stnum < num_states; stnum++)
@@ -86,8 +86,8 @@ static void FindModelFrameNames(md2_model_c *md, int model_num)
 	}
 
 	if (missing > 0)
-		I_Error("Missing %d frame names in model '%sMD2'\n",
-				missing, ddf_model_names[model_num].c_str() );
+		I_Error("Failed to find %d frames for model '%sMD2' (see EDGE.LOG)\n",
+				missing, ddf_model_names[model_num].c_str());
 }
 
 modeldef_c *LoadModelFromLump(int model_num)
