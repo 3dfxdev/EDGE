@@ -596,6 +596,12 @@ md2_model_c *MD2_LoadModel(epi::file_c *f)
 	return md;
 }
 
+short MD2_FindFrame(md2_model_c *md, const char *name)
+{
+ 	// FIXME !!!!
+	return -1;
+}
+
 
 /*============== MODEL RENDERING ====================*/
 

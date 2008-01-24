@@ -50,6 +50,46 @@ modeldef_c::~modeldef_c()
 }
 
 
+static void FindModelFrameNames(md2_model_c *md, int model_num)
+{
+	int missing = 0;
+
+	I_Printf("Finding frame names for model '%sMD2'....\n",
+			 ddf_model_names[model_num].c_str());
+
+	for (int stnum = 1; stnum < num_states; stnum++)
+	{
+		state_t *st = &states[stnum];
+
+		if (st->sprite != model_num)
+			continue;
+
+		if (! (st->flags & SFF_Model))
+			continue;
+
+		if (! (st->flags & SFF_Unmapped))
+			continue;
+
+		SYS_ASSERT(st->model_frame);
+
+		st->frame = MD2_FindFrame(md, st->model_frame);
+
+		if (st->frame >= 0)
+		{
+			st->flags &= ~SFF_Unmapped;
+		}
+		else
+		{
+			missing++;
+			I_Printf("-- no such frame '%s'\n", st->model_frame);
+		}
+	}
+
+	if (missing > 0)
+		I_Error("Missing %d frame names in model '%sMD2'\n",
+				missing, ddf_model_names[model_num].c_str() );
+}
+
 modeldef_c *LoadModelFromLump(int model_num)
 {
 	const char *basename = ddf_model_names[model_num].c_str();
@@ -83,6 +123,8 @@ modeldef_c *LoadModelFromLump(int model_num)
 	// need at least one skin
 	if (! def->skins[1])
 		I_Error("Missing model skin: %sSKN1\n", basename);
+
+	FindModelFrameNames(def->model, model_num);
 
 	return def;
 }

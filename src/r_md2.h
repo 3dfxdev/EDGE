@@ -31,6 +31,8 @@ class md2_model_c;
 
 md2_model_c *MD2_LoadModel(epi::file_c *f); 
 
+short MD2_FindFrame(md2_model_c *md, const char *name);
+
 void MD2_RenderModel(md2_model_c *md, const image_c * skin_img, bool is_weapon,
 		             int frame1, int frame2, float lerp,
 		             float x, float y, float z, mobj_t *mo,
