@@ -31,6 +31,8 @@
 
 #include "dm_state.h"
 #include "e_input.h"
+#include "m_random.h"
+#include "n_network.h"
 #include "p_bot.h"
 #include "p_local.h"
 #include "rad_trig.h"
@@ -524,12 +526,25 @@ static void P_UpdatePowerups(player_t *player)
 
 
 // Does the thinking of the console player, i.e. read from input
-void P_ConsolePlayerBuilder(const player_t *p, void *data, ticcmd_t *dest)
+void P_ConsolePlayerBuilder(const player_t *pl, void *data, ticcmd_t *dest)
 {
 	E_BuildTiccmd(dest);
 
-	dest->player_idx = p->pnum;
+	dest->player_idx = pl->pnum;
 }
+
+static u16_t MakeConsistency(const player_t *pl)
+{
+	u16_t result = 0;
+
+	if (pl->mo)
+	{
+		result = (int)(pl->mo->x - pl->mo->y + pl->mo->z);
+	}
+
+	return (result ^= (u16_t)P_ReadRandomState());
+}
+
 
 bool P_PlayerSwitchWeapon(player_t *player, weapondef_c *choice)
 {
@@ -585,6 +600,8 @@ void P_PlayerThink(player_t * player)
 		}
 	}
 #endif
+
+	player->consistency[gametic % (MP_SAVETICS*2)] = MakeConsistency(player);
 
 	// fixme: do this in the cheat code
 	if (player->cheats & CF_NOCLIP)
