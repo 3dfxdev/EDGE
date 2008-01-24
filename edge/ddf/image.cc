@@ -232,9 +232,13 @@ void DDF_ImageInit(void)
 }
 
 
-#if 0
 static void AddEssentialImages(void)
 {
+	// -AJA- this is a hack, these really should just be added to
+	//       our standard IMAGES.DDF file.  However some Mods use
+	//       standalone DDF and in that case these essential images
+	//       would never get loaded.
+
 	if (! imagedefs.Lookup("DLIGHT_EXP"))
 	{
 		imagedef_c *def = new imagedef_c;
@@ -245,7 +249,7 @@ static void AddEssentialImages(void)
 
 		def->Default();
 
-		def->name.Set("DLITEXP7");
+		def->name.Set("DLITEXPN");
 
 		def->belong  = INS_Graphic;
 		def->type    = IMGDT_Lump;
@@ -255,17 +259,17 @@ static void AddEssentialImages(void)
 		imagedefs.Insert(def);
 	}
 
-	if (! imagedefs.Lookup("FUZZMAP7"))
+	if (! imagedefs.Lookup("FUZZ_MAP"))
 	{
 		imagedef_c *def = new imagedef_c;
 
-		def->ddf.name.Set("FUZZMAP7");
+		def->ddf.name.Set("FUZZ_MAP");
 		def->ddf.number = 0;
 		def->ddf.crc.Reset();
 
 		def->Default();
 
-		def->name.Set("FUZZMAP7");
+		def->name.Set("FUZZMAP8");
 
 		def->belong  = INS_Texture;
 		def->type    = IMGDT_Lump;
@@ -275,11 +279,10 @@ static void AddEssentialImages(void)
 		imagedefs.Insert(def);
 	}
 }
-#endif
 
 void DDF_ImageCleanUp(void)
 {
-// 	AddEssentialImages();
+ 	AddEssentialImages();
 
 	imagedefs.Trim();		// <-- Reduce to allocated size
 }
