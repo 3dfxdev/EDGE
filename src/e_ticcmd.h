@@ -41,7 +41,7 @@ typedef struct
 	s16_t mlookturn;
 
 	// checks for net game
-	s16_t consistency;
+	u16_t consistency;
 
 	// active player number, -1 for "dropped out" player
 	s16_t player_idx;
