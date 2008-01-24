@@ -1394,3 +1394,6 @@ void P_GenerateBlockMap(int min_x, int min_y, int max_x, int max_y)
 	Z_Free(blk_cur_lines);
 	blk_cur_lines = NULL;
 }
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab
