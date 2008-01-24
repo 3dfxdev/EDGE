@@ -295,9 +295,11 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 				continue;
 		}
 
+		GLuint fuzz_tex = is_fuzzy ? W_ImageCache(fuzz_image, false) : 0;
+
 		local_gl_vert_t * glvert = RGL_BeginUnit(GL_POLYGON, 4,
 				 is_additive ? ENV_SKIP_RGB : GL_MODULATE, tex_id,
-				 is_fuzzy ? GL_MODULATE : ENV_NONE, is_fuzzy ? fuzz_tex : 0,
+				 is_fuzzy ? GL_MODULATE : ENV_NONE, fuzz_tex,
 				 pass, blending);
 
 		for (int v_idx=0; v_idx < 4; v_idx++)
@@ -1325,9 +1327,11 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 				continue;
 		}
 
+		GLuint fuzz_tex = is_fuzzy ? W_ImageCache(fuzz_image, false) : 0;
+
 		local_gl_vert_t * glvert = RGL_BeginUnit(GL_POLYGON, 4,
 				 is_additive ? ENV_SKIP_RGB : GL_MODULATE, tex_id,
-				 is_fuzzy ? GL_MODULATE : ENV_NONE, is_fuzzy ? fuzz_tex : 0,
+				 is_fuzzy ? GL_MODULATE : ENV_NONE, fuzz_tex,
 				 pass, blending);
 
 		for (int v_idx=0; v_idx < 4; v_idx++)
