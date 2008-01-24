@@ -16,6 +16,12 @@ Implemented support for model frame names in DDF, using
 syntax like "@run4" instead of a number like in "@123".
 Missing frames are shown in EDGE.lOG and are a fatal error.
 
+Worked on fixing the problem of images not being reloaded
+after a video mode change (W_ResetImages).  For some stuff,
+like colormap shader and pseudo-skybox, this is handled
+quite simply with a global 'image_reset_counter' variable.  
+However the dynamic light image is causing a big headache.
+
 2008/01/23:
 
 Worked a bit on the network code, removing the old crud, and
