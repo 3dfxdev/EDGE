@@ -444,7 +444,7 @@ static void DeathThink(player_t * player)
 	P_UpdatePowerups(player);
 
 	// lose the zoom when dead
-	if (viewiszoomed)
+	if (viewiszoomed && player == players[displayplayer])
 	{
 		R_SetFOV(normalfov);
 		viewiszoomed = false;
