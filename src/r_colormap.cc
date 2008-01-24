@@ -808,11 +808,6 @@ public:
 		(*pass_var) += 1;
 	}
 
-	virtual void CheckReset()
-	{
-		// reset checking is done in R_GetColormapShader
-	}
-
 	void SetLight(int _level)
 	{
 		light_lev = _level;
