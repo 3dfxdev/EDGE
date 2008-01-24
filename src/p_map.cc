@@ -144,9 +144,6 @@ static inline int PointOnLineSide(float x, float y, line_t *ld)
 // TELEPORT MOVE
 // 
 
-//
-// PIT_StompThing
-//
 static bool PIT_StompThing(mobj_t * thing, void *data)
 {
 	if (!(thing->flags & MF_SHOOTABLE))
@@ -187,8 +184,6 @@ static bool PIT_StompThing(mobj_t * thing, void *data)
 	return true;
 }
 
-//
-// P_TeleportMove
 //
 // Kill anything occupying the position
 //

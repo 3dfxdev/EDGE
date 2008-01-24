@@ -102,8 +102,6 @@ void G_AddBodyToQueue(mobj_t *mo)
 
 
 //
-// G_PlayerFinishLevel
-//
 // Called when a player completes a level.
 //
 void G_PlayerFinishLevel(player_t *p)
@@ -195,8 +193,6 @@ void player_s::Reborn()
 	weapon_last_frame = -1;
 }
 
-//
-// G_CheckSpot  
 //
 // Returns false if the player cannot be respawned at the given spot
 // because something is occupying it.
@@ -437,11 +433,12 @@ static void P_SpawnPlayer(player_t *p, const spawnpoint_t *point)
 
 	// Don't get stuck spawned in things: telefrag them.
 	P_TeleportMove(mobj, mobj->x, mobj->y, mobj->z);
+
+	if (! level_flags.team_damage)
+		mobj->hyperflags |= HF_SIDEIMMUNE;
 }
 
-//
-// P_SpawnVoodooDoll
-//
+
 static void P_SpawnVoodooDoll(player_t *p, const spawnpoint_t *point)
 {
 	const mobjtype_c *info = point->info;
@@ -542,9 +539,7 @@ void G_CoopSpawnPlayer(player_t *p)
 	}
 }
 
-//
-// G_SpawnVoodooDolls
-//
+
 void G_SpawnVoodooDolls(player_t *p)
 {
 	for (int i = 0; i < voodoo_doll_starts.GetSize(); i++)
@@ -755,7 +750,6 @@ spawnpoint_t *spawnpointarray_c::FindPlayer(int pnum)
 
 	return NULL;  // not found
 }
-
 
 
 //--- editor settings ---

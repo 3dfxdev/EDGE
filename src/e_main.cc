@@ -111,8 +111,8 @@ gameflags_t default_gameflags =
 	false,  // nomonsters
 	false,  // fastparm
 
-	false,  // res_respawn setting
 	false,  // respawn
+	false,  // res_respawn
 	false,  // item respawn
 
 	false,  // true 3d gameplay
@@ -125,7 +125,6 @@ gameflags_t default_gameflags =
 	AA_ON,  // autoaim
      
 	true,   // cheats
-     
 	true,   // have_extra
 	false,  // limit_zoom
 	false,  // shadows
@@ -133,7 +132,9 @@ gameflags_t default_gameflags =
 
 	false,    // edge_compat
 	true,     // kicking
-	true      // weapon_switch
+	true,     // weapon_switch
+	true,     // pass_missile
+	true,     // team_damage
 };
 
 // -KM- 1998/12/16 These flags are the users prefs and are copied to

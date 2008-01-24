@@ -69,30 +69,35 @@ public:
 typedef enum
 {
 	MPF_None          = 0x0,
-	MPF_Jumping       = 0x1,
-	MPF_Mlook         = 0x2,
-	MPF_Cheats        = 0x8,
-	MPF_ItemRespawn   = 0x10,
-	MPF_FastParm      = 0x20,     // Fast Monsters
-	MPF_ResRespawn    = 0x40,     // Resurrect Monsters (else Teleport)
-	MPF_StretchSky    = 0x80,
-	MPF_True3D        = 0x100,    // True 3D Gameplay
-	MPF_Stomp         = 0x200,    // Monsters can stomp players
-	MPF_MoreBlood     = 0x400,    // Make a bloody mess
-	MPF_Respawn       = 0x800,
-	MPF_AutoAim       = 0x1000,
-	MPF_AutoAimMlook  = 0x2000,
-	MPF_ResetPlayer   = 0x4000,   // Force player back to square #1
-	MPF_Extras        = 0x8000,
-	MPF_LimitZoom     = 0x10000,  // Limit zoom to certain weapons
-	MPF_Shadows       = 0x20000,
-	MPF_Halos         = 0x40000,
-	MPF_Crouching     = 0x80000,
-	MPF_Kicking       = 0x100000, // Weapon recoil
-	MPF_BoomCompat    = 0x200000,
-	MPF_WeaponSwitch  = 0x400000,
-	MPF_NoMonsters    = 0x800000, // (Only for demos!)
-	MPF_PassMissile   = 0x1000000,
+
+	MPF_Jumping       = (1 << 0),
+	MPF_Mlook         = (1 << 1),
+	MPF_Cheats        = (1 << 3),
+	MPF_ItemRespawn   = (1 << 4),
+	MPF_FastParm      = (1 << 5),     // Fast Monsters
+	MPF_ResRespawn    = (1 << 6),     // Resurrect Monsters (else Teleport)
+	MPF_StretchSky    = (1 << 7),
+
+	MPF_True3D        = (1 << 8),    // True 3D Gameplay
+	MPF_Stomp         = (1 << 9),    // Monsters can stomp players
+	MPF_MoreBlood     = (1 << 10),    // Make a bloody mess
+	MPF_Respawn       = (1 << 11),
+	MPF_AutoAim       = (1 << 12),
+	MPF_AutoAimMlook  = (1 << 13),
+	MPF_ResetPlayer   = (1 << 14),   // Force player back to square #1
+	MPF_Extras        = (1 << 15),
+
+	MPF_LimitZoom     = (1 << 16),  // Limit zoom to certain weapons
+	MPF_Shadows       = (1 << 17),
+	MPF_Halos         = (1 << 18),
+	MPF_Crouching     = (1 << 19),
+	MPF_Kicking       = (1 << 20), // Weapon recoil
+	MPF_BoomCompat    = (1 << 21),
+	MPF_WeaponSwitch  = (1 << 22),
+	MPF_NoMonsters    = (1 << 23), // (Only for demos!)
+
+	MPF_PassMissile   = (1 << 24),
+	MPF_TeamDamage    = (1 << 25),
 }
 mapsettings_e;
 
