@@ -517,8 +517,7 @@ static image_c *AddImageUser(imagedef_c *def)
 	return rim;
 }
 
-//
-// W_ImageCreateFlats
+
 //
 // Used to fill in the image array with flats from the WAD.  The set
 // of lumps is those that occurred between F_START and F_END in each
@@ -542,8 +541,7 @@ void W_ImageCreateFlats(int *lumps, int number)
 	}
 }
 
-//
-// W_ImageCreateTextures
+
 //
 // Used to fill in the image array with textures from the WAD.  The
 // list of texture definitions comes from each TEXTURE1/2 lump in each
@@ -568,8 +566,7 @@ void W_ImageCreateTextures(struct texturedef_s ** defs, int number)
 	}
 }
 
-//
-// W_ImageCreateSprite
+
 // 
 // Used to fill in the image array with sprites from the WAD.  The
 // lumps come from those occurring between S_START and S_END markers
@@ -601,8 +598,7 @@ const image_c *W_ImageCreateSprite(const char *name, int lump, bool is_weapon)
 	return rim;
 }
 
-//
-// W_CreateUserImages
+
 // 
 // Add the images defined in IMAGES.DDF.
 //
@@ -633,8 +629,7 @@ void W_ImageCreateUser(void)
 #endif
 }
 
-//
-// W_ImageGetUserSprites
+
 //
 // Only used during sprite initialisation.  The returned array of
 // images is guaranteed to be sorted by name.
