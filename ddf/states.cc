@@ -451,7 +451,7 @@ void DDF_StateReadState(const char *info, const char *label,
 		}
 		else if (isalpha(first_ch) || (first_ch == '_'))
 		{
-			cur->flags = SFF_Unmapped;
+			cur->flags = SFF_Model | SFF_Unmapped;
 			cur->frame = 0;
 			cur->model_frame = Z_StrDup(stateinfo[1]+1);
 		}
