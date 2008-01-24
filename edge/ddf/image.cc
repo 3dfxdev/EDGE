@@ -231,10 +231,57 @@ void DDF_ImageInit(void)
 	imagedefs.Clear();
 }
 
+
+static void AddEssentialImages(void)
+{
+	if (! imagedefs.Lookup("DLIGHT_EXP"))
+	{
+		imagedef_c *def = new imagedef_c;
+
+		def->ddf.name.Set("DLIGHT_EXP");
+		def->ddf.number = 0;
+		def->ddf.crc.Reset();
+
+		def->Default();
+
+		def->name.Set("DLITEXP7");
+
+		def->belong  = INS_Graphic;
+		def->type    = IMGDT_Lump;
+		def->format  = LIF_PNG;
+		def->special = (image_special_e) (IMGSP_Clamp | IMGSP_Smooth | IMGSP_NoMip);
+
+		imagedefs.Insert(def);
+	}
+
+	if (! imagedefs.Lookup("FUZZMAP7"))
+	{
+		imagedef_c *def = new imagedef_c;
+
+		def->ddf.name.Set("FUZZMAP7");
+		def->ddf.number = 0;
+		def->ddf.crc.Reset();
+
+		def->Default();
+
+		def->name.Set("FUZZMAP7");
+
+		def->belong  = INS_Texture;
+		def->type    = IMGDT_Lump;
+		def->format  = LIF_PNG;
+		def->special = (image_special_e) (IMGSP_NoSmooth | IMGSP_NoMip);
+
+		imagedefs.Insert(def);
+	}
+}
+
 void DDF_ImageCleanUp(void)
 {
+	AddEssentialImages();
+
 	imagedefs.Trim();		// <-- Reduce to allocated size
 }
+
 
 static void ImageParseColour(const char *value)
 {
@@ -459,6 +506,23 @@ void imagedef_container_c::CleanupObject(void *obj)
 	imagedef_c *a = *(imagedef_c**)obj;
 
 	if (a) delete a;
+}
+
+imagedef_c* imagedef_container_c::Lookup(const char *refname)
+{
+	epi::array_iterator_c it;
+
+	if (!refname || !refname[0])
+		return NULL;
+
+	for (it = GetBaseIterator(); it.IsValid(); it++)
+	{
+		imagedef_c *g = ITERATOR_TO_TYPE(it, imagedef_c*);
+		if (DDF_CompareName(g->ddf.name.c_str(), refname) == 0)
+			return g;
+	}
+
+	return NULL;
 }
 
 

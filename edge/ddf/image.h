@@ -159,15 +159,14 @@ private:
 public:
 	int GetSize() {	return array_entries; } 
 	int Insert(imagedef_c *a) { return InsertObject((void*)&a); }
-	imagedef_c* operator[](int idx) { return *(imagedef_c**)FetchObject(idx); } 
+	imagedef_c *operator[](int idx) { return *(imagedef_c**)FetchObject(idx); } 
 
 	// Search Functions
-	imagedef_c* Lookup(const char* refname);
+	imagedef_c *Lookup(const char *refname);
 };
 
 extern imagedef_container_c imagedefs;
 
-void DDF_MainLookupImage(const char *info, void *storage);
 bool DDF_ReadImages(void *data, int size);
 
 #endif  /*__DDF_IMAGE_H__*/
