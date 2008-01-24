@@ -27,8 +27,14 @@ following conditions:
 CHANGELOG
 ---------
 
+EDGE WAD 5.6
+
+>>>  added "STDESYNC" graphic.
 
 >>>  pinched "M_MULTI" graphic from Doom Legacy.
+
+>>>  added two PNG images: "FUZZMAP8" and "DLITEXPN", and
+     removed the old "FUZZMAP7" entry.
 
 
 EDGE WAD 5.5: (2007-12-01)
