@@ -77,7 +77,7 @@ static int hosting_port;
 
 static int host_want_bots;
 
-#define HOST_OPTIONS  7
+#define HOST_OPTIONS  9
 #define JOIN_OPTIONS  4
 
 
@@ -445,7 +445,15 @@ static void HostChangeOption(int opt, int key)
 			ng_params->flags->nomonsters = ! ng_params->flags->nomonsters;
 			break;
 
-		case 5: // Bots
+		case 5: // Item-Respawn
+			ng_params->flags->itemrespawn = ! ng_params->flags->itemrespawn;
+			break;
+			
+		case 6: // Team-Damage
+			ng_params->flags->team_damage = ! ng_params->flags->team_damage;
+			break;
+
+		case 7: // Bots
 			host_want_bots += dir;
 
 			if (host_want_bots < 0)
@@ -492,15 +500,21 @@ void M_DrawHostMenu(void)
 	y += 10; idx++,
 
 	DrawKeyword(idx, ng_host_style, y, "LEVEL", ng_params->map->ddf.name.c_str());
-	y += 20; idx++,
+	y += 10; idx++,
 
 	DrawKeyword(idx, ng_host_style, y, "MODE", GetModeName(ng_params->deathmatch));
 	y += 10; idx++,
 
 	DrawKeyword(idx, ng_host_style, y, "SKILL", GetSkillName(ng_params->skill));
-	y += 10; idx++,
+	y += 20; idx++,
 
 	DrawKeyword(idx, ng_host_style, y, "MONSTERS", ng_params->flags->nomonsters ? "NO" : "YES");
+	y += 10; idx++,
+
+	DrawKeyword(idx, ng_host_style, y, "ITEM RESPAWN", ng_params->flags->itemrespawn ? "YES" : "NO");
+	y += 10; idx++,
+
+	DrawKeyword(idx, ng_host_style, y, "TEAM DAMAGE", ng_params->flags->team_damage ? "YES" : "NO");
 	y += 20; idx++,
 
 	DrawKeyword(idx, ng_host_style, y, "BOTS",
@@ -509,11 +523,11 @@ void M_DrawHostMenu(void)
 
 	DrawKeyword(-1, ng_host_style, y, "BOT SKILL",
 			LocalPrintf(buffer, sizeof(buffer), "%s", "HARD"));
-	y += 20; // idx++,
+	y += 30; // idx++,
 
 	// etc
 
-	HL_WriteText(ng_host_style,(host_pos==idx) ? 2:0, 20,  y, "Begin Accepting Connections");
+	HL_WriteText(ng_host_style,(host_pos==idx) ? 2:0, 40,  y, "Begin Accepting Connections");
 }
 
 bool M_NetHostResponder(event_t * ev, int ch)
@@ -743,13 +757,40 @@ void M_DrawPlayerList(void)
 	char buffer[200];
 
 	int y = 30;
+	int i;
 
-	for (int i = 0; i < ng_params->total_players; i++)
+	int humans = 0;
+
+///	for (i = 0; i < ng_params->total_players; i++)
+///		if (! (ng_params->players[i] & PFL_Bot))
+///			humans++;
+
+	for (i = 0; i < ng_params->total_players; i++)
 	{
-		DrawKeyword(-1, ng_list_style, y,
-				LocalPrintf(buffer, sizeof(buffer), "%s%d", 
-					(ng_params->players[i] & PFL_Bot) ? "Bot" : "Player", i),
+		int flags = ng_params->players[i];
+
+		if (flags & PFL_Bot)
+			continue;
+
+		humans++;
+
+		int bots_here = 0;
+
+		for (int j = 0; j < ng_params->total_players; j++)
+		{
+			if ((ng_params->players[j] & PFL_Bot) &&
+			    (ng_params->nodes[j] == ng_params->nodes[i]))
+				bots_here++;
+		}
+
+		HL_WriteText(ng_list_style, (flags & PFL_Network)?0:3, 20, y,
+					 LocalPrintf(buffer, sizeof(buffer), "PLAYER_%d", humans));
+		
+		HL_WriteText(ng_list_style, 1, 100, y,
 				ng_params->nodes[i] ? ng_params->nodes[i]->remote.TempString(false) : "Local");
+
+		HL_WriteText(ng_list_style, (flags & PFL_Network)?0:3, 200, y,
+					 LocalPrintf(buffer, sizeof(buffer), "%d BOTS", bots_here));
 		y += 10;
 	}
 
