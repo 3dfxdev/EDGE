@@ -77,7 +77,7 @@ static int hosting_port;
 
 static int host_want_bots;
 
-#define HOST_OPTIONS  6
+#define HOST_OPTIONS  7
 #define JOIN_OPTIONS  4
 
 
@@ -441,7 +441,11 @@ static void HostChangeOption(int opt, int key)
 
 			break;
 
-		case 4: // Bots
+		case 4: // Monsters
+			ng_params->flags->nomonsters = ! ng_params->flags->nomonsters;
+			break;
+
+		case 5: // Bots
 			host_want_bots += dir;
 
 			if (host_want_bots < 0)
@@ -496,9 +500,16 @@ void M_DrawHostMenu(void)
 	DrawKeyword(idx, ng_host_style, y, "SKILL", GetSkillName(ng_params->skill));
 	y += 10; idx++,
 
+	DrawKeyword(idx, ng_host_style, y, "MONSTERS", ng_params->flags->nomonsters ? "NO" : "YES");
+	y += 20; idx++,
+
 	DrawKeyword(idx, ng_host_style, y, "BOTS",
 			LocalPrintf(buffer, sizeof(buffer), "%d", host_want_bots));
-	y += 20; idx++,
+	y += 10; idx++,
+
+	DrawKeyword(-1, ng_host_style, y, "BOT SKILL",
+			LocalPrintf(buffer, sizeof(buffer), "%s", "HARD"));
+	y += 20; // idx++,
 
 	// etc
 
