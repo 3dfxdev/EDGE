@@ -47,7 +47,7 @@
 extern float P_ApproxDistance(float dx, float dy, float dz);
 
 
-// #define DEBUG_MD2_LOAD  1
+#define DEBUG_MD2_LOAD  1
 
 
 /*============== FORMAT DEFINITIONS ====================*/
@@ -316,6 +316,8 @@ struct md2_frame_c
 {
 	md2_vertex_c *vertices;
 
+	const char *name;
+
 	// list of normals which are used.  Terminated by -1.
 	short *used_normals;
 };
@@ -374,6 +376,18 @@ public:
 
 
 /*============== LOADING CODE ====================*/
+
+static const char *CopyFrameName(raw_md2_frame_t *frm)
+{
+	char *str = new char[20];
+
+	memcpy(str, frm->name, 16);
+
+	// ensure it is NUL terminated
+	str[16] = 0;
+
+	return str;
+}
 
 static short *CreateNormalList(byte *which_normals)
 {
@@ -537,8 +551,10 @@ md2_model_c *MD2_LoadModel(epi::file_c *f)
 		translate[1] = f_ptr[4];
 		translate[2] = f_ptr[5];
 
+		md->frames[i].name = CopyFrameName(&raw_frame);
+
 #ifdef DEBUG_MD2_LOAD
-		I_Debugf("  __FRAME_%d__\n", i);
+		I_Debugf("  __FRAME_%d__[%s]\n", i, md->frames[i].name);
 		I_Debugf("    scale: %1.2f, %1.2f, %1.2f\n", scale[0], scale[1], scale[2]);
 		I_Debugf("    translate: %1.2f, %1.2f, %1.2f\n", translate[0], translate[1], translate[2]);
 #endif
