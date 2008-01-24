@@ -489,7 +489,7 @@ void M_DisplayAir(void)
 
 void M_DisplayDesynch(void)
 {
-	if (display_desync > 0 || true) //!!!!
+	if (display_desync > 0)
 	{
 		display_desync--;
 
@@ -499,7 +499,7 @@ void M_DisplayDesynch(void)
 		float w = IM_WIDTH(desynch_image);
 		float h = IM_HEIGHT(desynch_image);
 
-		RGL_Image320(160 - w/2, 72 - h/2, w, h, desynch_image);
+		RGL_Image320(160 - w/2, 140 - h/2, w, h, desynch_image);
 	}
 }
 
