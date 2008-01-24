@@ -934,7 +934,7 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 
 	if (data.is_fuzzy)
 	{
-		skin_tex = fuzz_tex;
+		skin_tex = W_ImageCache(fuzz_image, false);
 
 		data.fuzz_mul = 0.8;
 		data.fuzz_add.Set(0, 0);

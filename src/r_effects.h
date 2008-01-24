@@ -27,6 +27,7 @@
 #define __RGL_FX_H__
 
 #include "e_player.h"
+#include "r_image.h"
 
 
 class screen_effect_def_c;
@@ -59,7 +60,7 @@ void RGL_PaletteEffect(player_t *player);
 //  FUZZY Emulation
 //
 
-extern GLuint fuzz_tex;
+extern const image_c * fuzz_image;
 
 void FUZZ_Update(void);
 void FUZZ_Adjust(vec2_t *tc, mobj_t *mo);
