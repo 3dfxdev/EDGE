@@ -9,6 +9,13 @@ Added a "DESYNCHRONISED" graphic to edge.wad (STDESYNC) and
 code to display it.  This will eventually be shown when the
 game detects Net-game and Demo desynchronisation.
 
+Fixed some bugs when zooming in multiplayer games (e.g.
+another player's death would cancel your zoom).
+
+Implemented support for model frame names in DDF, using
+syntax like "@run4" instead of a number like in "@123".
+Missing frames are shown in EDGE.lOG and are a fatal error.
+
 2008/01/23:
 
 Worked a bit on the network code, removing the old crud, and
