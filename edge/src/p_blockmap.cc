@@ -824,7 +824,7 @@ void P_DynamicLightIterator(float x1, float y1, float z1,
 			if (! mo->dlight.shader)
 				  mo->dlight.shader = MakeDLightShader(mo);
 
-			mo->dlight.shader->CheckReset();
+//			mo->dlight.shader->CheckReset();
 
 			func(mo, data);
 		}
@@ -858,7 +858,7 @@ void P_SectorGlowIterator(sector_t *sec,
 		if (! mo->dlight.shader)
 			  mo->dlight.shader = MakePlaneGlow(mo);
 
-		mo->dlight.shader->CheckReset();
+//		mo->dlight.shader->CheckReset();
 
 		func(mo, data);
 	}

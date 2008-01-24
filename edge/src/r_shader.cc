@@ -278,7 +278,6 @@ private:
 	}
 
 public:
-	virtual void CheckReset() { }
 
 	virtual void Sample(multi_color_c *col, float x, float y, float z)
 	{
@@ -491,7 +490,6 @@ private:
 	}
 
 public:
-	virtual void CheckReset() { }
 
 	virtual void Sample(multi_color_c *col, float x, float y, float z)
 	{
@@ -655,7 +653,6 @@ public:
 	virtual ~wall_glow_c()
 	{ /* nothing to do */ }
 
-	virtual void CheckReset() { }
 
 	virtual void Sample(multi_color_c *col, float x, float y, float z)
 	{
@@ -749,7 +746,6 @@ private:
 	}
 
 public:
-	virtual void CheckReset() { }
 
 	virtual void Sample(multi_color_c *col, float x, float y, float z)
 	{

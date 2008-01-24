@@ -104,8 +104,8 @@ public:
 		void *data, shader_coord_func_t func) = 0;
 	// used to render overlay textures (world polygons)
 
-	virtual void CheckReset() = 0;
-	// used to recreate GL textures after mode switch
+///---	virtual void CheckReset() = 0;
+///---	// used to recreate GL textures after mode switch
 };
 
 
