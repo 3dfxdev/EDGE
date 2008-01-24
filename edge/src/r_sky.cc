@@ -196,6 +196,8 @@ typedef struct
 	
 	const colourmap_c *fx_colmap;
 
+	int reset_ctr;
+
 	int face_size;
 
 	GLuint tex[6];
@@ -209,7 +211,7 @@ skybox_info_t;
 
 static skybox_info_t box_info =
 {
-	NULL, NULL, 1,
+	NULL, NULL, 0, 1,
 	{ 0,0,0,0,0,0 },
 	{ NULL, NULL, NULL, NULL, NULL, NULL }
 };
@@ -819,13 +821,15 @@ static const char *UserSkyFaceName(const char *base, int face)
 void RGL_UpdateSkyBoxTextures(void)
 {
 	if (box_info.base_sky == sky_image &&
-		box_info.fx_colmap == ren_fx_colmap)
+		box_info.fx_colmap == ren_fx_colmap &&
+		box_info.reset_ctr == image_reset_counter)
 	{
 		return;
 	}
 
 	box_info.base_sky  = sky_image;
 	box_info.fx_colmap = ren_fx_colmap;
+	box_info.reset_ctr = image_reset_counter;
 
 
 	// check for custom sky images

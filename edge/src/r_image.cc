@@ -213,6 +213,8 @@ static const image_c *dummy_skin;
 // image cache (actually a ring structure)
 static cached_image_t imagecachehead;
 
+int image_reset_counter = 0;
+
 
 // tiny ring helpers
 static inline void InsertAtTail(cached_image_t *rc)
@@ -1332,8 +1334,6 @@ static cached_image_t *ImageCacheOGL(image_c *rim,
 
 
 //
-// W_ImageCache
-//
 // The top-level routine for caching in an image.  Mainly just a
 // switch to more specialised routines.
 //
@@ -1420,8 +1420,7 @@ static void W_CreateDummyImages(void)
 	}
 }
 
-//
-// W_InitImages
+
 //
 // Initialises the image system.
 //
@@ -1450,8 +1449,7 @@ bool W_InitImages(void)
 	return true;
 }
 
-//
-// W_UpdateImageAnims
+
 //
 // Animate all the images.
 //
@@ -1462,8 +1460,7 @@ void W_UpdateImageAnims(void)
 	do_Animate(real_flats);
 }
 
-//
-// W_ResetImages
+
 //
 // Resets all images, causing all cached images to be invalidated.
 // Needs to be called when gamma changes (GL renderer only), or when
@@ -1479,6 +1476,8 @@ void W_ResetImages(void)
 
 		rc->invalidated = true;
 	}
+
+	image_reset_counter++;
 }
 
 
