@@ -55,16 +55,6 @@ static GLuint MakeStandardDLight(void)
 
 		float away_squared = dx * dx + dy * dy;
 
-#if 0  // OLD CRUD
-		float sq = 0.3f / (1.0f + DL_OUTER * hor_p2) +
-		           0.7f * MIN(1.0f, 2.0f / (1.0f + DL_OUTER * 2.0f * hor_p2));
-
-		// ramp intensity down to zero at the outer edge
-		float horiz = sqrt(hor_p2);
-		if (horiz > 0.80f)
-			sq = sq * (0.98f - horiz) / (0.98f - 0.80f);
-#endif
-
 		float v1 = exp(-5.44 * away_squared);
 
 		int v2 = (int)(v1 * 255.4f);
