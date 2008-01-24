@@ -232,6 +232,7 @@ void DDF_ImageInit(void)
 }
 
 
+#if 0
 static void AddEssentialImages(void)
 {
 	if (! imagedefs.Lookup("DLIGHT_EXP"))
@@ -274,10 +275,11 @@ static void AddEssentialImages(void)
 		imagedefs.Insert(def);
 	}
 }
+#endif
 
 void DDF_ImageCleanUp(void)
 {
-	AddEssentialImages();
+// 	AddEssentialImages();
 
 	imagedefs.Trim();		// <-- Reduce to allocated size
 }
