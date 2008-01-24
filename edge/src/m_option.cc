@@ -1831,10 +1831,12 @@ static void M_HostNetGame(int keypressed)
 
 static void M_JoinNetGame(int keypressed)
 {
+#if 0
 	option_menuon  = 0;
 	netgame_menuon = 2;
 
 	M_NetJoinBegun();
+#endif
 }
 
 
