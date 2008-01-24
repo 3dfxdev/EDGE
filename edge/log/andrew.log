@@ -1,5 +1,14 @@
 Andrew Apted's Log
 
+2008/01/24:
+
+Improved HOST-GAME menu further, with settings for Monsters,
+Item-Respawn and Team-Damage (ON or OFF).
+
+Added a "DESYNCHRONISED" graphic to edge.wad (STDESYNC) and
+code to display it.  This will eventually be shown when the
+game detects Net-game and Demo desynchronisation.
+
 2008/01/23:
 
 Worked a bit on the network code, removing the old crud, and
