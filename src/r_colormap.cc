@@ -637,7 +637,7 @@ static void SetupLightMap(lighting_model_e model)
 
 
 //----------------------------------------------------------------------------
-//  COLORMAP
+//  COLORMAP SHADERS
 //----------------------------------------------------------------------------
 
 int R_DoomLightingEquation(int L, float dist)
@@ -712,12 +712,17 @@ private:
 	bool simple_cmap;
 
 public:
+	int reset_ctr;
+
+public:
 	colormap_shader_c(int _light, GLuint _tex) :
 		light_lev(_light), fade_tex(_tex), simple_cmap(true)
 	{ }
 
 	virtual ~colormap_shader_c()
-	{ /* nothing to do */ }
+	{
+		/* FIXME: delete texture */
+	}
 
 private:
 	inline float DistFromViewplane(float x, float y, float z)
@@ -803,6 +808,11 @@ public:
 		(*pass_var) += 1;
 	}
 
+	virtual void CheckReset()
+	{
+		// reset checking is done in R_GetColormapShader
+	}
+
 	void SetLight(int _level)
 	{
 		light_lev = _level;
@@ -821,18 +831,21 @@ abstract_shader_c *R_GetColormapShader(const struct region_properties_s *props,
 	lit_Nom = CLAMP(0, lit_Nom, 255);
 
 	// FIXME !!!! foggy / watery sectors
-	if (! std_cmap_shader)
+
+	if (! std_cmap_shader || (std_cmap_shader->reset_ctr != image_reset_counter))
 	{
+		delete std_cmap_shader;
+
 		GLuint tex = MakeColormapTexture(0);
 
 		std_cmap_shader = new colormap_shader_c(255, tex);
+		std_cmap_shader->reset_ctr = image_reset_counter;
 	}
 
 	std_cmap_shader->SetLight(lit_Nom);
 
 	return std_cmap_shader;
 }
-
 
 
 //--- editor settings ---

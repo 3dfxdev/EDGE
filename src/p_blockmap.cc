@@ -24,6 +24,7 @@
 //----------------------------------------------------------------------------
 
 #include "i_defs.h"
+#include "i_defs_gl.h"  // needed for r_shader.h
 
 #include <float.h>
 
@@ -36,11 +37,10 @@
 #include "m_bbox.h"
 #include "p_local.h"
 #include "p_spec.h"
+#include "r_shader.h"
 #include "r_state.h"
 #include "z_zone.h"
 
-
-class abstract_shader_c;
 
 // FIXME: have a proper API
 extern abstract_shader_c *MakeDLightShader(mobj_t *mo);
@@ -824,6 +824,8 @@ void P_DynamicLightIterator(float x1, float y1, float z1,
 			if (! mo->dlight.shader)
 				  mo->dlight.shader = MakeDLightShader(mo);
 
+			mo->dlight.shader->CheckReset();
+
 			func(mo, data);
 		}
 	}
@@ -855,6 +857,8 @@ void P_SectorGlowIterator(sector_t *sec,
 		// create shader if necessary
 		if (! mo->dlight.shader)
 			  mo->dlight.shader = MakePlaneGlow(mo);
+
+		mo->dlight.shader->CheckReset();
 
 		func(mo, data);
 	}
