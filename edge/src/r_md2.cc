@@ -598,8 +598,17 @@ md2_model_c *MD2_LoadModel(epi::file_c *f)
 
 short MD2_FindFrame(md2_model_c *md, const char *name)
 {
- 	// FIXME !!!!
-	return -1;
+	SYS_ASSERT(strlen(name) > 0);
+
+ 	for (int f = 0; f < md->num_frames; f++)
+	{
+		md2_frame_c *frame = &md->frames[f];
+
+		if (DDF_CompareName(name, frame->name) == 0)
+			return f;
+	}
+
+	return -1; // NOT FOUND
 }
 
 
