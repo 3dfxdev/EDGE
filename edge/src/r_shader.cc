@@ -38,39 +38,39 @@
 //  LIGHT IMAGES
 //----------------------------------------------------------------------------
 
-static GLuint MakeStandardDLight(void)
-{
-	int size = 256;
-	int hw   = size / 2;
-
-	epi::image_data_c img(size, size, 3);
-
-	for (int y = 0; y < hw; y++)
-	for (int x = y; x < hw; x++)
-	{
-		byte *dest = img.PixelAt(x, y);
-
-		float dx = (hw-1 - x) / float(hw);
-		float dy = (hw-1 - y) / float(hw);
-
-		float away_squared = dx * dx + dy * dy;
-
-		float v1 = exp(-5.44 * away_squared);
-
-		int v2 = (int)(v1 * 255.4f);
-
-		if (v2 < 0 || x == 0 || x == size-1 || y == 0 || y == size-1)
-		{
-			v2 = 0;
-		}
-
-		dest[0] = dest[1] = dest[2] = v2;
-	}
-
-	img.EightWaySymmetry();
-
-	return R_UploadTexture(&img, UPL_Smooth|UPL_Clamp);
-}
+///---static GLuint MakeStandardDLight(void)
+///---{
+///---	int size = 256;
+///---	int hw   = size / 2;
+///---
+///---	epi::image_data_c img(size, size, 3);
+///---
+///---	for (int y = 0; y < hw; y++)
+///---	for (int x = y; x < hw; x++)
+///---	{
+///---		byte *dest = img.PixelAt(x, y);
+///---
+///---		float dx = (hw-1 - x) / float(hw);
+///---		float dy = (hw-1 - y) / float(hw);
+///---
+///---		float away_squared = dx * dx + dy * dy;
+///---
+///---		float v1 = exp(-5.44 * away_squared);
+///---
+///---		int v2 = (int)(v1 * 255.4f);
+///---
+///---		if (v2 < 0 || x == 0 || x == size-1 || y == 0 || y == size-1)
+///---		{
+///---			v2 = 0;
+///---		}
+///---
+///---		dest[0] = dest[1] = dest[2] = v2;
+///---	}
+///---
+///---	img.EightWaySymmetry();
+///---
+///---	return R_UploadTexture(&img, UPL_Smooth|UPL_Clamp);
+///---}
 
 
 #define LIM_CURVE_SIZE  32
@@ -80,18 +80,21 @@ class light_image_c
 public:
 	std::string name;
 
-///	const image_c *image;
-
-	GLuint tex_id;
+	const image_c *image;
 
 	rgbcol_t curve[LIM_CURVE_SIZE];
 
 public:
-	light_image_c(const char * _name) : name(_name), tex_id(0)
+	light_image_c(const char * _name, const image_c *_img) : name(_name), image(_img)
 	{ }
 
 	~light_image_c()
 	{ }
+
+	inline GLuint tex_id() const
+	{
+		return W_ImageCache(image, false);
+	}
 
 	void MakeStdCurve() // TEMP CRUD
 	{
@@ -161,22 +164,23 @@ static light_image_c *GetLightImage(const mobjtype_c *info, int DL)
 
 		const char *shape = D_info->shape.c_str();
 
-		light_image_c *lim = new light_image_c(shape ? shape : "DLIGHT_STANDARD");
+		SYS_ASSERT(shape && strlen(shape) > 0);
 
-		if (strlen(shape) > 0)
+		const image_c *image = W_ImageLookup(shape, INS_Graphic, ILF_Null);
+
+		if (! image)
+			I_Error("Missing dynamic light graphic: %s\n", shape);
+
+		light_image_c *lim = new light_image_c(shape, image);
+
+		if (true) //!!! (DDF_CompareName(shape, "DLIGHT_EXP") == 0)
 		{
-			const image_c *image = W_ImageLookup(shape, INS_Graphic, ILF_Null);
-
-			lim->tex_id = W_ImageCache(image);
-
-			// FIXME !!!! we need the EPI::BASIC_IMAGE in order to compute the curve
-			I_Error("Custom DLIGHT shapes not yet supported.\n");
+			lim->MakeStdCurve();
 		}
 		else
 		{
-			lim->tex_id = MakeStandardDLight();
-
-			lim->MakeStdCurve();
+			// FIXME !!!! we need the EPI::BASIC_IMAGE in order to compute the curve
+			I_Error("Custom DLIGHT shapes not yet supported.\n");
 		}
 
 		D_info->cache_data = lim;
@@ -200,6 +204,7 @@ private:
 public:
 	dynlight_shader_c(mobj_t *object) : mo(object)
 	{
+		// Note: these are shared, we must not delete them
 		lim[0] = GetLightImage(mo->info, 0);
 		lim[1] = GetLightImage(mo->info, 1);
 	}
@@ -273,6 +278,8 @@ private:
 	}
 
 public:
+	virtual void CheckReset() { }
+
 	virtual void Sample(multi_color_c *col, float x, float y, float z)
 	{
 		float mx = mo->x;
@@ -389,9 +396,9 @@ public:
 			local_gl_vert_t *glvert = RGL_BeginUnit(shape, num_vert,
 						is_additive ? ENV_NONE : GL_MODULATE,
 						is_additive ? 0 : tex,
-						GL_MODULATE, lim[DL]->tex_id,
+						GL_MODULATE, lim[DL]->tex_id(),
 						*pass_var, blending);
-			
+
 			for (int v_idx=0; v_idx < num_vert; v_idx++)
 			{
 				local_gl_vert_t *dest = glvert + v_idx;
@@ -444,7 +451,7 @@ public:
 		lim[0] = GetLightImage(mo->info, 0);
 		lim[1] = GetLightImage(mo->info, 1);
 	}
-	
+
 	virtual ~plane_glow_c()
 	{ /* nothing to do */ }
 
@@ -484,6 +491,8 @@ private:
 	}
 
 public:
+	virtual void CheckReset() { }
+
 	virtual void Sample(multi_color_c *col, float x, float y, float z)
 	{
 		const sector_t *sec = mo->subsector->sector;
@@ -586,7 +595,7 @@ public:
 			local_gl_vert_t *glvert = RGL_BeginUnit(shape, num_vert,
 						is_additive ? ENV_NONE : GL_MODULATE,
 						is_additive ? 0 : tex,
-						GL_MODULATE, lim[DL]->tex_id,
+						GL_MODULATE, lim[DL]->tex_id(),
 						*pass_var, blending);
 			
 			for (int v_idx=0; v_idx < num_vert; v_idx++)
@@ -621,6 +630,12 @@ abstract_shader_c *MakePlaneGlow(mobj_t *mo)
 
 
 
+//----------------------------------------------------------------------------
+//  WALL GLOWS
+//----------------------------------------------------------------------------
+
+#if 0  // POSSIBLE FUTURE FEATURE
+
 class wall_glow_c : public abstract_shader_c
 {
 private:
@@ -639,6 +654,8 @@ public:
 
 	virtual ~wall_glow_c()
 	{ /* nothing to do */ }
+
+	virtual void CheckReset() { }
 
 	virtual void Sample(multi_color_c *col, float x, float y, float z)
 	{
@@ -667,11 +684,14 @@ public:
 	}
 };
 
+#endif
 
 
 //----------------------------------------------------------------------------
 //  LASER GLOWS
 //----------------------------------------------------------------------------
+
+#if 0  // POSSIBLE FUTURE FEATURE
 
 class laser_glow_c : public abstract_shader_c
 {
@@ -729,6 +749,8 @@ private:
 	}
 
 public:
+	virtual void CheckReset() { }
+
 	virtual void Sample(multi_color_c *col, float x, float y, float z)
 	{
 		x -= s.x;
@@ -781,6 +803,8 @@ public:
 		/* TODO */
 	}
 };
+
+#endif
 
 
 //--- editor settings ---
