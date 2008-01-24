@@ -731,7 +731,7 @@ void DEM_GetTiccmd(ticcmd_t *cmd)
 { 
     cmd->angleturn   = (short) DEM_GetShort();
     cmd->mlookturn   = (short) DEM_GetShort();
-    cmd->consistency = (short) DEM_GetShort();
+    cmd->consistency = (unsigned short) DEM_GetShort();
     cmd->player_idx  = (short) DEM_GetShort();
 
     cmd->forwardmove = (signed char) DEM_GetByte();
