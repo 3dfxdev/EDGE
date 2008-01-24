@@ -2246,7 +2246,7 @@ void dlight_info_c::Default()
 	height = PERCENT_MAKE(50);
 	leaky  = false;
 
-	shape.Set("");
+	shape.Set("DLIGHT_EXP");
 
 	cache_data = NULL;
 }
