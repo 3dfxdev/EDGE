@@ -1,8 +1,8 @@
 
-CHANGELOG FOR 1.31-BETA#1 (since 1.29)
+CHANGELOG FOR 1.31-BETA#2 (since 1.29)
 ======================================
 
-(Date: DECEMBER 2007)
+(Date: JANUARY 2007)
 
 
 SUMMARY
@@ -18,21 +18,23 @@ SUMMARY
 - More compatible sky rendering in 3D
 - Improved way of emulating DOOM light fading
 - More robust emulation of flat-flooding trick
+- WAV and OGG/Vorbis loaders for SFX
 - TGA (targa) image format supported
-- Flat alignment and scaling line-types
 
 * Weak spots for monsters
 * New BECOME() action for changing type
 * Armor properties can be modified
 * Weapons can share a clip for both attacks
+* Flat alignment and scaling line-types
 
 
 KNOWN PROBLEMS
 --------------
 
 + sound still does not work under Vista.
++ CD music is currently broken.
 + colormapped sectors (e.g. blue water) don't work yet.
-- monsters with models seem to move very jerkily.
+
 - console background is a bit messed up.
 - additive dyn-lights on mid-masked textures look weird.
 - new DOOM lighting emulation is not as smooth as before.
@@ -106,8 +108,10 @@ General improvements
 
 - new "H.Q.2x Scaling" option in the Video Options menu.
 
-- new (experimental) way of emulating the grayscale effect of the
-  Invulnerable powerup (card/driver must support color-matrix).
+- new "Invulnerability" option in the Video Options menu.
+
+- a working HOST-GAME menu which allows you to start deathmatch
+  games with bots.  There's also a new Team-Damage setting.
 
 - better gamma handling (now done by the video driver).
 - more robust emulation of the flat-flooding trick.
@@ -115,7 +119,10 @@ General improvements
 - thin sliding doors can be activated remotely.
 - better way to gauge the player's actual speed.
 - sped up turning for path-following monsters.
+- players will jump out of water at the edge.
 - new -fullbright option for debugging.
+- merged JUMP and MOVE-UP into a single key.
+- better keyboard controls menu.
 - console key is configurable.
 
 
@@ -124,11 +131,13 @@ New features:
 
 + MD2 models (from Quake 2) are now supported for map things and
   player weapons.  Any state frame can specify a model by using
-  the special '@123' syntax for the frame (instead of a letter).
-  The number is the absolute frame number in the MD2 model, which
-  begins at 1.  For example:
+  the special '@123' or '@framename' syntax for the frame (instead
+  of a letter).  The number is the absolute frame number in the MD2
+  model, beginning at 1, or you can use the frame name.
 
     STATES(IDLE)=TROO:@5:7:NORMAL:NOTHING;  // the 5th frame
+
+    STATES(IDLE)=TROO:@run3:7:NORMAL:NOTHING;  // frame called "run3"
 
   The model itself must be stored in a wad, and the lump name is
   the sprite base ("TROO") plus "MD2" on the end --> "TROOMD2".
@@ -190,6 +199,9 @@ New features:
     [7041] : EDGE Nukage Glow
     [7042] : EDGE Lava Glow
     [7043] : EDGE Water Glow
+
++ support for OGG/Vorbis and WAV formats for SFX.  Sounds can now
+  be external files using the new FILE_NAME command in SOUNDS.DDF.
 
 + TGA images are now supported by IMAGES.DDF.
 
@@ -330,6 +342,13 @@ DDF / RTS Goodies
 - for object brightness, LIT00 - LIT99 can be used in state
   frames where the keywords 'NORMAL' and 'BRIGHT' are used.
   This allows fine-grained control of dynamic lights.
+
+- SPLASH_SOUND command for SECTORS.DDF, which is played whenever
+  a player enters the water.  Requires the SWIM special.
+
+- FIX_TRANS=BLACKEN command for IMAGES.DDF which ensures that
+  every completely transparent pixel (alpha=0) in the image is
+  black.  Useful for fixing the "white borders" problem.
 
 - the existing RESISTANCE_CLASS feature has been supplemented by
   a new RESISTANCE_MULTIPLY command which lets you control how
