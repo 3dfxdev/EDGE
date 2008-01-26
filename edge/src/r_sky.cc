@@ -487,13 +487,20 @@ void RGL_DrawSkyPlane(subsector_t *sub, float h)
 	if (dumb_sky)
 		return;
 
+	MIR_Height(h);
+
 	glNormal3f(0, 0, (viewz > h) ? 1.0f : -1.0f);
 
 	glBegin(GL_POLYGON);
 
 	for (seg_t *seg=sub->segs; seg; seg=seg->sub_next)
 	{
-		glVertex3f(seg->v1->x, seg->v1->y, h);
+		float x = seg->v1->x;
+		float y = seg->v1->y;
+
+		MIR_Coordinate(x, y);
+
+		glVertex3f(x, y, h);
 	}
 
 	glEnd();
@@ -511,6 +518,12 @@ void RGL_DrawSkyWall(seg_t *seg, float h1, float h2)
 	float y1 = seg->v1->y;
 	float x2 = seg->v2->x;
 	float y2 = seg->v2->y;
+
+	MIR_Coordinate(x1, y1);
+	MIR_Coordinate(x2, y2);
+
+	MIR_Height(h1);
+	MIR_Height(h2);
 
 	glNormal3f(y2 - y1, x1 - x2, 0);
 
