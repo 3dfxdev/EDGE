@@ -162,7 +162,7 @@ public:
 	imagedef_c *operator[](int idx) { return *(imagedef_c**)FetchObject(idx); } 
 
 	// Search Functions
-	imagedef_c *Lookup(const char *refname);
+	imagedef_c *Lookup(const char *refname, image_namespace_e belong);
 };
 
 extern imagedef_container_c imagedefs;
