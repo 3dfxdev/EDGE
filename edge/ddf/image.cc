@@ -111,18 +111,11 @@ static bool ImageStartEntry(const char *name)
 		if (strlen(name) > 15)
 			DDF_Error("Image name [%s] too long.\n", name);
 
-		epi::array_iterator_c it;
-		imagedef_c *a;
-
-		for (it = imagedefs.GetBaseIterator(); it.IsValid(); it++)
+		imagedef_c *a = imagedefs.Lookup(name, belong);
+		if (a)
 		{
-			a = ITERATOR_TO_TYPE(it, imagedef_c*);
-			if (DDF_CompareName(a->ddf.name.c_str(), name) == 0)
-			{
-				dynamic_image = a;
-				replaces = true;
-				break;
-			}
+			dynamic_image = a;
+			replaces = true;
 		}
 	}
 
@@ -239,15 +232,15 @@ static void AddEssentialImages(void)
 	//       standalone DDF and in that case these essential images
 	//       would never get loaded.
 
-	if (! imagedefs.Lookup("DLIGHT_EXP"))
+	if (! imagedefs.Lookup("DLIGHT_EXP", INS_Graphic))
 	{
 		imagedef_c *def = new imagedef_c;
+
+		def->Default();
 
 		def->ddf.name.Set("DLIGHT_EXP");
 		def->ddf.number = 0;
 		def->ddf.crc.Reset();
-
-		def->Default();
 
 		def->name.Set("DLITEXPN");
 
@@ -259,15 +252,15 @@ static void AddEssentialImages(void)
 		imagedefs.Insert(def);
 	}
 
-	if (! imagedefs.Lookup("FUZZ_MAP"))
+	if (! imagedefs.Lookup("FUZZ_MAP", INS_Texture))
 	{
 		imagedef_c *def = new imagedef_c;
+
+		def->Default();
 
 		def->ddf.name.Set("FUZZ_MAP");
 		def->ddf.number = 0;
 		def->ddf.crc.Reset();
-
-		def->Default();
 
 		def->name.Set("FUZZMAP8");
 
@@ -513,7 +506,7 @@ void imagedef_container_c::CleanupObject(void *obj)
 	if (a) delete a;
 }
 
-imagedef_c* imagedef_container_c::Lookup(const char *refname)
+imagedef_c * imagedef_container_c::Lookup(const char *refname, image_namespace_e belong)
 {
 	epi::array_iterator_c it;
 
@@ -523,7 +516,7 @@ imagedef_c* imagedef_container_c::Lookup(const char *refname)
 	for (it = GetBaseIterator(); it.IsValid(); it++)
 	{
 		imagedef_c *g = ITERATOR_TO_TYPE(it, imagedef_c*);
-		if (DDF_CompareName(g->ddf.name.c_str(), refname) == 0)
+		if (DDF_CompareName(g->ddf.name.c_str(), refname) == 0 && g->belong == belong)
 			return g;
 	}
 
