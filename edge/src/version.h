@@ -23,11 +23,11 @@
 #define EDGEVERSTR  "1.31-Beta#2"
 
 // patch level (Savegames and Demos)
-#define EDGEPATCH  4
+#define EDGEPATCH  5
 
 // -ES- 2000/03/04 The version of EDGE.WAD we require.
 #define EDGE_WAD_VERSION 5
-#define EDGE_WAD_VERSION_FRAC 5
+#define EDGE_WAD_VERSION_FRAC 6
 #define EDGE_WAD_SUB_VERSION 0
 
 
