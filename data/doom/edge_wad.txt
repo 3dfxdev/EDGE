@@ -1,6 +1,6 @@
 ==========================
 |                        |
-|  EDGE.WAD VERSION 5.5  |
+|  EDGE.WAD VERSION 5.6  |
 |                        |
 ==========================
 
@@ -8,7 +8,7 @@ LICENSE
 -------
 
 The material in EDGE.WAD is:
-    Copyright (C) 1999-2007 the Edge Team.
+    Copyright (C) 1999-2008 the Edge Team.
     Copyright (C) 1993-1996 id Software, Inc.
 
 Permission is hereby granted, free of charge, to use, copy, modify,
@@ -27,14 +27,27 @@ following conditions:
 CHANGELOG
 ---------
 
-EDGE WAD 5.6
+EDGE WAD 5.6: (2008-01-26)
+==========================
 
->>>  added "STDESYNC" graphic.
+1) LINES.DDF: added new HUB types (501 to 539).
 
->>>  pinched "M_MULTI" graphic from Doom Legacy.
+2) THINGS.DDF: added [HUB_START:4099] thing.
 
->>>  added two PNG images: "FUZZMAP8" and "DLITEXPN", and
-     removed the old "FUZZMAP7" entry.
+3) LINES.DDF: added new PORTAL types (480 to 484), and CAMERA
+              portal types (485 to 489).
+
+4) LINES.DDF: added more types (542 to 559) for Thin Sliding Doors,
+              ones which are remotely activated (switch and walk).
+
+5) IMAGES.DDF and ANIMS.DDF: added PORTAL7 animated texture.
+
+6) added "STDESYNC" graphic.
+
+7) pinched "M_MULTI" graphic from Doom Legacy.
+
+8) added two PNG images: "FUZZMAP8" and "DLITEXPN", and removed
+   the old "FUZZMAP7" entry.
 
 
 EDGE WAD 5.5: (2007-12-01)
