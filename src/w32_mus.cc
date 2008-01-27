@@ -166,14 +166,15 @@ public:
 
 		// -AJA- funky stuff here to prevent the W32 system ticker
 		//       callback from getting the rug pulled out from
-		//       under it.
+		//       under its feet.
 		SDL_SemWait(semaphore);
+
+		current = NULL;
 
 		Close();
 
 		delete[] data;
-
-		current = NULL;
+		data = NULL;
 
 		SDL_SemPost(semaphore);
 	}
@@ -237,7 +238,7 @@ void w32_mus_player_c::Resume()
 
 void w32_mus_player_c::Stop()
 {
-	if (!pos || paused)
+	if (!data || !pos)
 		return;
 
 	paused = true;
@@ -539,10 +540,9 @@ void I_ShutdownMUS(void)
 	SDL_SemWait(semaphore);
 	SDL_SemPost(semaphore);
 
+	// If there is a registered song, unregister it.
 	if (w32_mus_player_c::current)
 	{
-		// If there is a registered song, unregister it.
-		w32_mus_player_c::current->Stop();
 		delete w32_mus_player_c::current;
 	}
 
@@ -578,9 +578,9 @@ abstract_music_c * I_PlayHWMusic(const byte *data, int length, float  volume, bo
 		return NULL;
 	}
 
+	// If there is a registered song, unregister it.
 	if (w32_mus_player_c::current)
 	{
-		w32_mus_player_c::current->Stop();
 		delete w32_mus_player_c::current;
 	}
 
