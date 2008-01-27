@@ -89,16 +89,18 @@ void HandleKeyEvent(SDL_Event* ev)
 	// handle certain keys which don't behave normally
 	if (sym == SDLK_CAPSLOCK || sym == SDLK_NUMLOCK)
 	{
-		event.type = ev_keydown;
-		event.value.key = TranslateSDLKey(sym);
-		E_PostEvent(&event);
-
-		event.type = ev_keyup;
-		E_PostEvent(&event);
-
 #ifdef DEBUG_KB
 		L_WriteDebug("   HandleKey: CAPS or NUMLOCK\n");
 #endif
+		if (ev->type == SDL_KEYDOWN)
+		{
+			event.type = ev_keydown;
+			event.value.key = TranslateSDLKey(sym);
+			E_PostEvent(&event);
+
+			event.type = ev_keyup;
+			E_PostEvent(&event);
+		}
 		return;
 	}
 
