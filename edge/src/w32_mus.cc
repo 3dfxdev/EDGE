@@ -23,11 +23,15 @@
 #include "e_main.h"
 #include "s_music.h"
 
+// TODO: endianness handling (not a huge issue since the Win32
+//       platform is predominantly for x86 architecture).
+
 typedef unsigned short int UWORD;
 
 typedef struct
 {
 	char ID[4];           // identifier - Always "MUS" 0x1A
+
 	UWORD scorelen;       // Score Length
 	UWORD scorestart;     // Score Start Offset in bytes
 	UWORD channels;       // number of primary channels
@@ -124,7 +128,7 @@ private:
 	byte *data;
 	int length;
 
-	const musheader_t *song_info = NULL;
+	const musheader_t *song_info;
 	const byte *pos;        // The current play position.
 
 	bool paused;            // The song is playing.
@@ -133,6 +137,9 @@ private:
 	int waitticks;    
 
 	byte chanVols[16];      // Last volume for each channel.
+
+public:
+	static w32_mus_player_c *current;
 
 public:
 	w32_mus_player_c(const byte *_dat, int _len, bool _loop) :
@@ -149,15 +156,30 @@ public:
 
 		for (int ch = 0; ch < 16; ch++)
 			chanVols[ch] = 0;  // TODO: what should it be???
+
+		current = this;
 	}
 
 	~w32_mus_player_c()
 	{
+		SYS_ASSERT(current == this);
+
+		// -AJA- funky stuff here to prevent the W32 system ticker
+		//       callback from getting the rug pulled out from
+		//       under it.
+		SDL_SemWait(semaphore);
+
 		delete[] data;
+
+		current = NULL;
+
+		SDL_SemPost(semaphore);
 	}
 
 public:
-	bool IsPaused() { return paused; }
+//  bool IsPaused() { return paused; }
+
+	void SysTicker(void);
 
 public:
 	virtual void Close(void);
@@ -174,50 +196,16 @@ public:
 private:
 	const byte *SongStartAddress(void)
 	{
+		// Address of the start of the MUS track.
+
 		SYS_ASSERT(data);
 
 		return data + song_info->scorestart;
 	}
 };
 
-static w32_mus_player_c *mus_player;
 
 
-
-//
-// Address of the start of the MUS track.
-//
-
-//
-// System Ticker Routine
-//
-static void I_MUSTicker(void);
-
-void CALLBACK SysTicker(UINT id, UINT msg, DWORD user, DWORD dw1, DWORD dw2)
-{
-	// Sanity Checks...
-	if (!midiavailable)
-		return;
-
-	if (! (app_state & APP_STATE_ACTIVE))
-		return;
-
-	// -AJA- we don't block on the semaphore, as that may be a
-	//       problem for the operating system (the MSDN docs
-	//       say this timer event callback is called from a
-	//       system multimedia thread).
-
-	if (SDL_SemTryWait(semaphore) != 0)
-		return;
-
-	if (mus_player && ! mus_player->IsPaused())
-	{
-		I_MUSTicker();
-		I_MUSTicker();
-	}
-
-	SDL_SemPost(semaphore);
-}
 
 
 void w32_mus_player_c::Close(void)
@@ -249,16 +237,7 @@ void w32_mus_player_c::Resume()
 
 void w32_mus_player_c::Stop()
 {
-	byte *data;
-
-	if (!midiavailable)
-		return;
-
-	// OUT OF DATE COMMENT !!!!  -AJA- 2005/10/25: must set 'playing' to false _before_ deleting the
-	//       song data, to prevent a race condition (I_MUSTicker may get
-	//       called in-between deleting the data and setting 'song' to NULL).
 	paused = true;
-	pos = NULL;
 
 	// Reset pitchwheel on all channels
 	for (int i=0; i <= 15; i++)              
@@ -268,11 +247,6 @@ void w32_mus_player_c::Stop()
 	midiOutShortMsg(midioutput, 0xB0+(121<<8));
 
 	midiOutReset(midioutput); 
-
-	// Free resources
-	data = (byte*)song;
-	delete [] data;
-	song = NULL;
 }
 
 
@@ -296,15 +270,18 @@ void w32_mus_player_c::Volume(float gain)
 void w32_mus_player_c::Ticker()
 {
 	// this ticker function does nothing.  The 70Hz timer
-	// callback (I_MUSTicker) does all the work.
+	// callback (SysTicker) does all the work.
 }
 
 
 //
 // Called at 140Hz, interprets the MUS data to MIDI events.
 //
-static void I_MUSTicker(void)
+void w32_mus_player_c::SysTicker(void)
 {
+	if (paused)
+		return;
+
 	waitticks--;
 
 	if (waitticks > 0)
@@ -315,10 +292,11 @@ static void I_MUSTicker(void)
 	//
 	// We assume playpos is OK. We'll keep playing events until the
 	// 'last' bit is set, and then the waitticks is set.
+	// (AJA: Note the looping limit in case of corrupt file).
 	//
 	for (int iloop=0; iloop < 50; iloop++)
 	{
-		museventdesc_t *evDesc = (museventdesc_t*)pos++;
+		museventdesc_t *evDesc = (museventdesc_t *)pos++;
 
 		byte midiStatus = 0;
 		byte midiChan   = 0;
@@ -418,7 +396,7 @@ static void I_MUSTicker(void)
 		// Choose the channel.
 		midiChan = evDesc->channel;
 
-		// Redirect MUS channel 16 to MIDI channel 10 (drums).
+		// Redirect MUS channel 15 to MIDI channel 9 (drums).
 		if (midiChan == 15)
 			midiChan = 9;
 		else if(midiChan == 9)
@@ -448,9 +426,10 @@ static void I_MUSTicker(void)
 	}
 
 	// Read the number of ticks to wait.
-	for (int iloop = 0; iloop < 10; iloop++)
+	for (int jloop = 0; jloop < 10; jloop++)
 	{
 		byte val = *pos++;
+
 		waitticks = (waitticks * 128) + (val & 0x7f);
 
 		if ((val & 0x80) == 0)
@@ -460,6 +439,33 @@ static void I_MUSTicker(void)
 
 
 //----------------------------------------------------------------------------
+
+void CALLBACK SysTicker(UINT id, UINT msg, DWORD user, DWORD dw1, DWORD dw2)
+{
+	// Sanity Checks...
+	if (!midiavailable)
+		return;
+
+	if (! (app_state & APP_STATE_ACTIVE))
+		return;
+
+	// -AJA- we don't block on the semaphore, as that may be a
+	//       problem for the operating system (the MSDN docs
+	//       say this timer event callback is called from a
+	//       system multimedia thread).
+
+	if (SDL_SemTryWait(semaphore) != 0)
+		return;
+
+	if (w32_mus_player_c::current)
+	{
+		w32_mus_player_c::current->SysTicker();
+		w32_mus_player_c::current->SysTicker();
+	}
+
+	SDL_SemPost(semaphore);
+}
+
 
 bool I_StartupMUS()
 {
@@ -505,17 +511,15 @@ bool I_StartupMUS()
 	I_MusicSetMixerVol(mixer, 0);
 
 	// Non-mixer defaults
-	playing       = false;
-	midiavailable = true;
-	song          = NULL;
-	pos       = NULL;
+	w32_mus_player_c::current = NULL;
 
 	// Startup music clock
-	int clockspeed;
+	int clockspeed = 1000 / ACTUAL_TIMER_HZ;
 
 	timeBeginPeriod(TIMER_RES);
-	clockspeed = 1000 / ACTUAL_TIMER_HZ;
 	timerID = timeSetEvent(clockspeed, TIMER_RES, SysTicker, 0, TIME_PERIODIC);
+
+	midiavailable = true;
 
 	return true;
 }
@@ -532,12 +536,17 @@ void I_ShutdownMUS(void)
 	// No need to restore the semaphore since we are shutting down.
 	SDL_SemWait(semaphore);
 
+	if (w32_mus_player_c::current)
+	{
+		// If there is a registered song, unregister it.
+		w32_mus_player_c::current->Stop();
+
+		delete w32_mus_player_c::current;
+	}
+
 	// Kill timer
 	timeKillEvent(timerID);
 	timeEndPeriod(TIMER_RES);
-
-//!!!!!	// If there is a registered song, unregister it.
-//!!!!!	I_MUSStop();
 
 	// Restore the original volume.
 
@@ -549,13 +558,8 @@ void I_ShutdownMUS(void)
 		mixer = NULL;
 	}
 
-	midiOutClose(midioutput);
-
 	// Switch off...
-	playing       = false;
-	midiavailable = false;
-	song          = NULL;
-	pos       = NULL;
+	midiOutClose(midioutput);
 }
 
 
@@ -564,34 +568,31 @@ abstract_music_c * I_PlayHWMusic(const byte *data, int length, float  volume, bo
 	if (!midiavailable)
 		return NULL;
 
-	// grab semaphore to prevent race conditions with I_MUSTicker
-	SDL_SemWait(&semaphore);
-
-	if (mus_player)
-	{
-		mus_player->Stop();
-		delete mus_player;
-	}
-
+	// verify format
 	if (length < 16 ||
 		! (data[0] == 'M' && data[1] == 'U' && data[2] == 'S' && data[3] == 0x1A))
 	{
 		I_Warning("I_PlayHWMusic: wrong format (not MUS)\n");
-
-		SDL_SemPost(&semaphore);
 		return NULL;
 	}
 
-	// !!!!!! FIXME: grab semaphore (SDL_SemWait) to prevent I_MUSTicker running
+	// grab semaphore to prevent race conditions with I_MUSTicker
+	SDL_SemWait(semaphore);
 
-	mus_player = new w32_mus_player_c(data, length, loop);
+	if (w32_mus_player_c::current)
+	{
+		w32_mus_player_c::current->Stop();
+		delete w32_mus_player_c::current;
+	}
+
+	w32_mus_player_c *player = new w32_mus_player_c(data, length, loop);
 
 	player->Volume(volume);
 	player->Play(loop);
 
-	SDL_SemPost(&semaphore);
+	SDL_SemPost(semaphore);
 
-	return mus_player;
+	return player;
 }
 
 //--- editor settings ---
