@@ -142,8 +142,8 @@ public:
 	static w32_mus_player_c *current;
 
 public:
-	w32_mus_player_c(const byte *_dat, int _len, bool _loop) :
-		length(_len), paused(true), looping(_loop), waitticks(0)
+	w32_mus_player_c(const byte *_dat, int _len) :
+		length(_len), paused(true), looping(false), waitticks(0)
 	{
 		data = new byte[length];
 
@@ -168,6 +168,8 @@ public:
 		//       callback from getting the rug pulled out from
 		//       under it.
 		SDL_SemWait(semaphore);
+
+		Close();
 
 		delete[] data;
 
@@ -205,17 +207,14 @@ private:
 };
 
 
-
-
-
 void w32_mus_player_c::Close(void)
 {
-	// FIXME !!!!  ::Close
+	Stop();
 }
 
 void w32_mus_player_c::Play(bool loop)
 {
-	// FIXME !!!!  ::Play
+	SYS_ASSERT(pos);
 
 	paused = false;
 }
@@ -237,6 +236,9 @@ void w32_mus_player_c::Resume()
 
 void w32_mus_player_c::Stop()
 {
+	if (!pos || paused)
+		return;
+
 	paused = true;
 
 	// Reset pitchwheel on all channels
@@ -255,11 +257,11 @@ void w32_mus_player_c::Volume(float gain)
 	if (!mixer)
 		return;
 
-	DWORD actualvol;
-
 	gain = CLAMP(0, gain, 1);
 
 	// Calculate a given value in range
+	DWORD actualvol;
+
 	actualvol = int(gain * (mixer->maxvol - mixer->minvol));
 	actualvol += mixer->minvol;
 
@@ -283,7 +285,6 @@ void w32_mus_player_c::SysTicker(void)
 		return;
 
 	waitticks--;
-
 	if (waitticks > 0)
 		return;
 
@@ -510,7 +511,6 @@ bool I_StartupMUS()
 	// All is quiet on startup
 	I_MusicSetMixerVol(mixer, 0);
 
-	// Non-mixer defaults
 	w32_mus_player_c::current = NULL;
 
 	// Startup music clock
@@ -533,14 +533,13 @@ void I_ShutdownMUS(void)
 	midiavailable = false;
 
 	// wait for the timer handler to finish (if active).
-	// No need to restore the semaphore since we are shutting down.
 	SDL_SemWait(semaphore);
+	SDL_SemPost(semaphore);
 
 	if (w32_mus_player_c::current)
 	{
 		// If there is a registered song, unregister it.
 		w32_mus_player_c::current->Stop();
-
 		delete w32_mus_player_c::current;
 	}
 
@@ -576,16 +575,16 @@ abstract_music_c * I_PlayHWMusic(const byte *data, int length, float  volume, bo
 		return NULL;
 	}
 
-	// grab semaphore to prevent race conditions with I_MUSTicker
-	SDL_SemWait(semaphore);
-
 	if (w32_mus_player_c::current)
 	{
 		w32_mus_player_c::current->Stop();
 		delete w32_mus_player_c::current;
 	}
 
-	w32_mus_player_c *player = new w32_mus_player_c(data, length, loop);
+	// grab semaphore to prevent race conditions with I_MUSTicker
+	SDL_SemWait(semaphore);
+
+	w32_mus_player_c *player = new w32_mus_player_c(data, length);
 
 	player->Volume(volume);
 	player->Play(loop);
