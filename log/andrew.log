@@ -6,8 +6,12 @@ Worked on reorganising and refactoring the Win32 MUS playing
 code to fit in well with the new music system, and to prevent
 possible race conditions.
 
-Noticed CAPSLOCK not working properly, SDL must have changed
-the behaviour of that key, so I refixed it.  Sigh.
+Noticed CAPSLOCK not working properly in Linux, so I "fixed"
+it, however that broke under Win32.  Sigh.  Seems that some
+part of the system (maybe SDL, or maybe X windows) produces
+different behaviour.  This may have to become a configuration
+option if these kinds of shenanigans continue, but for now I
+will use a '#ifdef WIN32' hack.
 
 2008/01/24:
 
