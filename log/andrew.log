@@ -1,5 +1,14 @@
 Andrew Apted's Log
 
+2008/01/27:
+
+Worked on reorganising and refactoring the Win32 MUS playing
+code to fit in well with the new music system, and to prevent
+possible race conditions.
+
+Noticed CAPSLOCK not working properly, SDL must have changed
+the behaviour of that key, so I refixed it.  Sigh.
+
 2008/01/24:
 
 Improved HOST-GAME menu further, with settings for Monsters,
