@@ -216,7 +216,8 @@ void w32_mus_player_c::Play(bool loop)
 {
 	SYS_ASSERT(pos);
 
-	paused = false;
+	paused  = false;
+	looping = loop;
 }
 
 void w32_mus_player_c::Pause(void)
@@ -416,13 +417,15 @@ void w32_mus_player_c::SysTicker(void)
 	// Check for end of score.
 	if (scoreEnd)
 	{
-		if (looping)
-			pos = SongStartAddress();
-		else
+		if (! looping)
+		{
 			paused = true;  // TODO: stopped/playing/paused trichotomy
 
-		// Reset the MIDI output so no notes are left playing when the song ends.
-		midiOutReset(midioutput);
+			// Reset the MIDI output so no notes are left playing when the song ends.
+			midiOutReset(midioutput);
+		}
+
+		pos = SongStartAddress();
 		return;
 	}
 
