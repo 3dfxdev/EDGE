@@ -207,11 +207,14 @@ private:
 	}
 };
 
+w32_mus_player_c * w32_mus_player_c::current = NULL;
+
 
 void w32_mus_player_c::Close(void)
 {
 	Stop();
 }
+
 
 void w32_mus_player_c::Play(bool loop)
 {
