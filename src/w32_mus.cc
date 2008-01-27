@@ -103,16 +103,11 @@ static char ctrl_mus2midi[NUM_MUS_CTRLS] =
 	121             // Reset all controllers.
 };
 
+
+bool midiavailable = false;		// Available?
+
 static HMIDIOUT midioutput;             // OUTPUT port...
 static win32_mixer_t *mixer = NULL;
-
-static musheader_t *song = NULL;        // The song.
-static byte *playpos;                   // The current play position.
-static bool midiavailable = false;		// Available?
-static bool playing       = false;		// The song is playing.
-static bool looping       = false;		// The song is looping.
-static int waitticks = 0;
-static byte chanVols[16];				// Last volume for each channel.
 
 // Timer Control
 #define ACTUAL_TIMER_HZ   70  // -AJA- was 140 !!
@@ -120,19 +115,49 @@ static byte chanVols[16];				// Last volume for each channel.
 #define TIMER_RES 7                     // Timer resolution.
 static int timerID;                     // Timer ID
 
-
 static SDL_sem *semaphore;  // thread protection
 
 
-class w32_midi_player_c : public abstract_music_c
+class w32_mus_player_c : public abstract_music_c
 {
 private:
+	byte *data;
+	int length;
 
-	/* TODO : move static vars above in here */
+	const musheader_t *song_info = NULL;
+	const byte *pos;        // The current play position.
+
+	bool paused;            // The song is playing.
+	bool looping;           // The song is looping.
+
+	int waitticks;    
+
+	byte chanVols[16];      // Last volume for each channel.
 
 public:
-	 w32_midi_player_c() { }
-	~w32_midi_player_c() { }
+	w32_mus_player_c(const byte *_dat, int _len, bool _loop) :
+		length(_len), paused(true), looping(_loop), waitticks(0)
+	{
+		data = new byte[length];
+
+		memcpy(data, _dat, length);
+
+		song_info = (musheader_t*)data;
+
+		// Go to the beginning of the song.
+		pos = SongStartAddress();
+
+		for (int ch = 0; ch < 16; ch++)
+			chanVols[ch] = 0;  // TODO: what should it be???
+	}
+
+	~w32_mus_player_c()
+	{
+		delete[] data;
+	}
+
+public:
+	bool IsPaused() { return paused; }
 
 public:
 	virtual void Close(void);
@@ -147,20 +172,21 @@ public:
 	virtual void Volume(float gain);
 
 private:
+	const byte *SongStartAddress(void)
+	{
+		SYS_ASSERT(data);
 
+		return data + song_info->scorestart;
+	}
 };
+
+static w32_mus_player_c *mus_player;
+
 
 
 //
 // Address of the start of the MUS track.
 //
-static byte *SongStartAddress(void)
-{
-	if (!song)
-		return 0;
-
-	return (byte*)song + song->scorestart;
-}
 
 //
 // System Ticker Routine
@@ -170,10 +196,13 @@ static void I_MUSTicker(void);
 void CALLBACK SysTicker(UINT id, UINT msg, DWORD user, DWORD dw1, DWORD dw2)
 {
 	// Sanity Checks...
-	if (!(app_state & APP_STATE_ACTIVE) || !midiavailable || !song || !playing)
+	if (!midiavailable)
 		return;
 
-	// -AJA- we don't block on the semaphore, as they may be a
+	if (! (app_state & APP_STATE_ACTIVE))
+		return;
+
+	// -AJA- we don't block on the semaphore, as that may be a
 	//       problem for the operating system (the MSDN docs
 	//       say this timer event callback is called from a
 	//       system multimedia thread).
@@ -181,111 +210,55 @@ void CALLBACK SysTicker(UINT id, UINT msg, DWORD user, DWORD dw1, DWORD dw2)
 	if (SDL_SemTryWait(semaphore) != 0)
 		return;
 
-	I_MUSTicker();
-	I_MUSTicker();
+	if (mus_player && ! mus_player->IsPaused())
+	{
+		I_MUSTicker();
+		I_MUSTicker();
+	}
 
 	SDL_SemPost(semaphore);
 }
 
 
-//
-// Returns true if no problems.
-//
-bool I_StartupMUS()
-{
-	if (midiavailable)
-		return true; // Already initialized.
-
-	semaphore = SDL_CreateSemaphore(1);
-	SYS_ASSERT(semaphore);
-
-	// Insert code here...
-	mixer = I_MusicLoadMixer(MIXERLINE_COMPONENTTYPE_SRC_SYNTHESIZER);
-	if (!mixer)
-	{
-		I_Printf("I_StartupMUS: Couldn't load the midi mixer\n");
-		return false;
-	}
-
-	// Open the midi stream.
-	MMRESULT res = midiOutOpen(&midioutput, MIDI_MAPPER, 0, 0, CALLBACK_NULL);
-	if (res != MMSYSERR_NOERROR)
-	{
-		I_MusicReleaseMixer(mixer);
-		mixer = NULL;
-		
-		I_Printf("I_StartupMUS: Couldn't open the midi device\n");
-		return false;
-	}
-
-	if (!I_MusicGetMixerVol(mixer, &mixer->originalvol))
-	{
-		I_MusicReleaseMixer(mixer);
-		mixer = NULL;
-		
-		midiOutClose(midioutput);
-
-		I_Printf("I_StartupMUS: Unable to get original volume\n");
-		return false;
-	}
-	
-	// All is quiet on startup
-	I_MusicSetMixerVol(mixer, 0);
-    
-	// Non-mixer defaults
-	playing       = false;
-	midiavailable = true;
-	song          = NULL;
-	playpos       = NULL;
-
-	// Startup music clock
-	int clockspeed;
-
-	timeBeginPeriod(TIMER_RES);
-	clockspeed = 1000 / ACTUAL_TIMER_HZ;
-	timerID = timeSetEvent(clockspeed, TIMER_RES, SysTicker, 0, TIME_PERIODIC);
-
-	return true;
-}
-
-
-void w32_midi_player_c::Close(void)
+void w32_mus_player_c::Close(void)
 {
 	// FIXME !!!!  ::Close
 }
 
-void w32_midi_player_c::Play(bool loop)
+void w32_mus_player_c::Play(bool loop)
 {
 	// FIXME !!!!  ::Play
+
+	paused = false;
 }
 
-void w32_midi_player_c::Pause(void)
+void w32_mus_player_c::Pause(void)
 {
-	playing = false;
+	paused = true;
 
 	// Stop all the notes.
 	midiOutReset(midioutput);
 }
 
 
-void w32_midi_player_c::Resume()
+void w32_mus_player_c::Resume()
 {
-	playing = true;
+	paused = false;
 }
 
 
-void w32_midi_player_c::Stop()
+void w32_mus_player_c::Stop()
 {
 	byte *data;
 
 	if (!midiavailable)
 		return;
 
-	// -AJA- 2005/10/25: must set 'playing' to false _before_ deleting the
+	// OUT OF DATE COMMENT !!!!  -AJA- 2005/10/25: must set 'playing' to false _before_ deleting the
 	//       song data, to prevent a race condition (I_MUSTicker may get
 	//       called in-between deleting the data and setting 'song' to NULL).
-	playing = false;
-	playpos = NULL;
+	paused = true;
+	pos = NULL;
 
 	// Reset pitchwheel on all channels
 	for (int i=0; i <= 15; i++)              
@@ -303,7 +276,7 @@ void w32_midi_player_c::Stop()
 }
 
 
-void w32_midi_player_c::Volume(float gain)
+void w32_mus_player_c::Volume(float gain)
 {
 	if (!mixer)
 		return;
@@ -320,48 +293,10 @@ void w32_midi_player_c::Volume(float gain)
 }
 
 
-void w32_midi_player_c::Ticker()
+void w32_mus_player_c::Ticker()
 {
 	// this ticker function does nothing.  The 70Hz timer
 	// callback (I_MUSTicker) does all the work.
-}
-
-
-void I_ShutdownMUS(void)
-{
-	if (!midiavailable)
-		return;
-
-	midiavailable = false;
-
-	// wait for the timer handler to finish (if active).
-	// No need to restore the semaphore since we are shutting down.
-	SDL_SemWait(semaphore);
-
-	// Kill timer
-	timeKillEvent(timerID);
-	timeEndPeriod(TIMER_RES);
-
-//!!!!!	// If there is a registered song, unregister it.
-//!!!!!	I_MUSStop();
-
-	// Restore the original volume.
-
-	// Close all our handled objects
-	if (mixer)
-	{
-		I_MusicSetMixerVol(mixer, mixer->originalvol);
-		I_MusicReleaseMixer(mixer);
-		mixer = NULL;
-	}
-
-	midiOutClose(midioutput);
-
-	// Switch off...
-	playing       = false;
-	midiavailable = false;
-	song          = NULL;
-	playpos       = NULL;
 }
 
 
@@ -383,7 +318,7 @@ static void I_MUSTicker(void)
 	//
 	for (int iloop=0; iloop < 50; iloop++)
 	{
-		museventdesc_t *evDesc = (museventdesc_t*)playpos++;
+		museventdesc_t *evDesc = (museventdesc_t*)pos++;
 
 		byte midiStatus = 0;
 		byte midiChan   = 0;
@@ -396,7 +331,7 @@ static void I_MUSTicker(void)
 			case MUS_EV_RELEASE_NOTE:
 			{
 				midiStatus = 0x80;
-				midiParm1  = *playpos++; // Note
+				midiParm1  = *pos++; // Note
 				midiParm2  = 0x40;       // Velocity (64)
 				break;
 			}
@@ -404,11 +339,11 @@ static void I_MUSTicker(void)
 			case MUS_EV_PLAY_NOTE:
 			{
 				midiStatus = 0x90;
-				midiParm1 = *playpos++;
+				midiParm1 = *pos++;
 
 				// Is the volume there, too?
 				if (midiParm1 & 0x80) 
-					chanVols[evDesc->channel] = *playpos++;
+					chanVols[evDesc->channel] = *pos++;
 
 				midiParm1 &= 0x7f;
 				midiParm2 = chanVols[evDesc->channel];
@@ -421,7 +356,7 @@ static void I_MUSTicker(void)
 				long pitchwheel;
 
 				// Scale to MIDI Pitch range
-				pitchwheel = *playpos++;
+				pitchwheel = *pos++;
 				pitchwheel *= 16384;
 				pitchwheel /= 256;
 
@@ -434,19 +369,19 @@ static void I_MUSTicker(void)
 
 			case MUS_EV_SYSTEM:
 			{
-				byte scratch = *playpos++;
+				byte scratch = *pos++;
 
 				midiStatus = 0xb0;
 				midiParm1 = ctrl_mus2midi[scratch];
-				midiParm2 = (scratch==12)?song->instrcnt+1:0;
+				midiParm2 = (scratch==12) ? song_info->instrcnt+1 : 0;
 				break;
 			}
 
 			case MUS_EV_CONTROLLER:
 			{
 				midiStatus = 0xb0;
-				midiParm1 = *playpos++;
-				midiParm2 = *playpos++;
+				midiParm1 = *pos++;
+				midiParm2 = *pos++;
 
 				// The instrument control is mapped to another kind of MIDI event.
 				if (midiParm1 == MUS_CTRL_INSTRUMENT)
@@ -503,9 +438,9 @@ static void I_MUSTicker(void)
 	if (scoreEnd)
 	{
 		if (looping)
-			playpos = SongStartAddress();
+			pos = SongStartAddress();
 		else
-			playing = false;
+			paused = true;  // TODO: stopped/playing/paused trichotomy
 
 		// Reset the MIDI output so no notes are left playing when the song ends.
 		midiOutReset(midioutput);
@@ -515,7 +450,7 @@ static void I_MUSTicker(void)
 	// Read the number of ticks to wait.
 	for (int iloop = 0; iloop < 10; iloop++)
 	{
-		byte val = *playpos++;
+		byte val = *pos++;
 		waitticks = (waitticks * 128) + (val & 0x7f);
 
 		if ((val & 0x80) == 0)
@@ -524,38 +459,139 @@ static void I_MUSTicker(void)
 }
 
 
+//----------------------------------------------------------------------------
+
+bool I_StartupMUS()
+{
+	/* Returns true if no problems */
+
+	if (midiavailable)
+		return true; // Already initialized.
+
+	semaphore = SDL_CreateSemaphore(1);
+	SYS_ASSERT(semaphore);
+
+	// Insert code here...
+	mixer = I_MusicLoadMixer(MIXERLINE_COMPONENTTYPE_SRC_SYNTHESIZER);
+	if (!mixer)
+	{
+		I_Printf("I_StartupMUS: Couldn't load the midi mixer\n");
+		return false;
+	}
+
+	// Open the midi stream.
+	MMRESULT res = midiOutOpen(&midioutput, MIDI_MAPPER, 0, 0, CALLBACK_NULL);
+	if (res != MMSYSERR_NOERROR)
+	{
+		I_MusicReleaseMixer(mixer);
+		mixer = NULL;
+		
+		I_Printf("I_StartupMUS: Couldn't open the midi device\n");
+		return false;
+	}
+
+	if (!I_MusicGetMixerVol(mixer, &mixer->originalvol))
+	{
+		I_MusicReleaseMixer(mixer);
+		mixer = NULL;
+		
+		midiOutClose(midioutput);
+
+		I_Printf("I_StartupMUS: Unable to get original volume\n");
+		return false;
+	}
+	
+	// All is quiet on startup
+	I_MusicSetMixerVol(mixer, 0);
+
+	// Non-mixer defaults
+	playing       = false;
+	midiavailable = true;
+	song          = NULL;
+	pos       = NULL;
+
+	// Startup music clock
+	int clockspeed;
+
+	timeBeginPeriod(TIMER_RES);
+	clockspeed = 1000 / ACTUAL_TIMER_HZ;
+	timerID = timeSetEvent(clockspeed, TIMER_RES, SysTicker, 0, TIME_PERIODIC);
+
+	return true;
+}
+
+
+void I_ShutdownMUS(void)
+{
+	if (!midiavailable)
+		return;
+
+	midiavailable = false;
+
+	// wait for the timer handler to finish (if active).
+	// No need to restore the semaphore since we are shutting down.
+	SDL_SemWait(semaphore);
+
+	// Kill timer
+	timeKillEvent(timerID);
+	timeEndPeriod(TIMER_RES);
+
+//!!!!!	// If there is a registered song, unregister it.
+//!!!!!	I_MUSStop();
+
+	// Restore the original volume.
+
+	// Close all our handled objects
+	if (mixer)
+	{
+		I_MusicSetMixerVol(mixer, mixer->originalvol);
+		I_MusicReleaseMixer(mixer);
+		mixer = NULL;
+	}
+
+	midiOutClose(midioutput);
+
+	// Switch off...
+	playing       = false;
+	midiavailable = false;
+	song          = NULL;
+	pos       = NULL;
+}
+
+
 abstract_music_c * I_PlayHWMusic(const byte *data, int length, float  volume, bool loop)
 {
 	if (!midiavailable)
 		return NULL;
 
-//!!!!!	// Kill any previous music
-//!!!!!	if (song)
-//!!!!!		I_MUSStop();
+	// grab semaphore to prevent race conditions with I_MUSTicker
+	SDL_SemWait(&semaphore);
+
+	if (mus_player)
+	{
+		mus_player->Stop();
+		delete mus_player;
+	}
 
 	if (length < 16 ||
 		! (data[0] == 'M' && data[1] == 'U' && data[2] == 'S' && data[3] == 0x1A))
 	{
 		I_Warning("I_PlayHWMusic: wrong format (not MUS)\n");
+
+		SDL_SemPost(&semaphore);
 		return NULL;
 	}
 
 	// !!!!!! FIXME: grab semaphore (SDL_SemWait) to prevent I_MUSTicker running
 
-	song = (musheader_t*) new byte[length];
-
-	w32_midi_player_c *player = new w32_midi_player_c();
-
-	memcpy(song, data, length);
-
-	playpos = SongStartAddress();       // Go to the beginning of the song.
-	looping = loop;
-	playing = true;
+	mus_player = new w32_mus_player_c(data, length, loop);
 
 	player->Volume(volume);
 	player->Play(loop);
 
-	return player;
+	SDL_SemPost(&semaphore);
+
+	return mus_player;
 }
 
 //--- editor settings ---
