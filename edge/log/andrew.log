@@ -1,5 +1,12 @@
 Andrew Apted's Log
 
+2008/01/28:
+
+The image cache system still had problems after a mode switch,
+which was caused by faulty caching logic (the old texture ids
+were being used after the new ones had been created).  Hence
+reworked that code again to finally fix this issue.
+
 2008/01/27:
 
 Worked on reorganising and refactoring the Win32 MUS playing
