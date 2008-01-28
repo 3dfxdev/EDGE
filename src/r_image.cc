@@ -1307,7 +1307,7 @@ static cached_image_t *ImageCacheOGL(image_c *rim,
 	if (! rc)
 	{
 		// add entry into cache
-		cached_image_t *rc = new cached_image_t;
+		rc = new cached_image_t;
 
 ///---	rc->next = rc->prev = NULL;
 		rc->parent = rim;
@@ -1337,6 +1337,7 @@ static cached_image_t *ImageCacheOGL(image_c *rim,
 		glDeleteTextures(1, &rc->tex_id);
 
 		rc->tex_id = 0;
+		rc->invalidated = false;
 	}
 
 	if (rc->tex_id == 0)
