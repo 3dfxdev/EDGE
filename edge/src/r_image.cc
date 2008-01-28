@@ -91,8 +91,8 @@ extern void CloseUserFileOrLump(imagedef_c *def, epi::file_c *f);
 //
 typedef struct cached_image_s
 {
-	// link in cache list
-	struct cached_image_s *next, *prev;
+///---	// link in cache list
+///---	struct cached_image_s *next, *prev;
 
 	// true if image has been invalidated -- unload a.s.a.p
 	bool invalidated;
@@ -211,7 +211,7 @@ static const image_c *dummy_skin;
 
 
 // image cache (actually a ring structure)
-static cached_image_t imagecachehead;
+static std::list<cached_image_t *> image_cache;
 
 int image_reset_counter = 0;
 
@@ -219,6 +219,9 @@ int image_reset_counter = 0;
 // tiny ring helpers
 static inline void InsertAtTail(cached_image_t *rc)
 {
+	image_cache.push_back(rc);
+
+#if 0  // OLD WAY
 	SYS_ASSERT(rc != &imagecachehead);
 
 	rc->prev =  imagecachehead.prev;
@@ -226,13 +229,17 @@ static inline void InsertAtTail(cached_image_t *rc)
 
 	rc->prev->next = rc;
 	rc->next->prev = rc;
+#endif
 }
 static inline void Unlink(cached_image_t *rc)
 {
+	// FIXME: Unlink
+#if 0
 	SYS_ASSERT(rc != &imagecachehead);
 
 	rc->prev->next = rc->next;
 	rc->next->prev = rc->prev;
+#endif
 }
 
 
@@ -803,8 +810,7 @@ static int IM_PixelLimit(image_c *rim)
 }
 
 
-static
-cached_image_t *LoadImageOGL(image_c *rim, const colourmap_c *trans)
+static GLuint LoadImageOGL(image_c *rim, const colourmap_c *trans)
 {
 	bool clamp  = IM_ShouldClamp(rim);
 	bool mip    = IM_ShouldMipmap(rim);
@@ -850,15 +856,6 @@ cached_image_t *LoadImageOGL(image_c *rim, const colourmap_c *trans)
 	}
 
 
-	cached_image_t *rc = new cached_image_t;
-
-	rc->next = rc->prev = NULL;
-	rc->parent = rim;
-	rc->invalidated = false;
-	rc->trans_map = trans;
-	rc->hue = RGB_NO_VALUE;
-
-
 	epi::image_data_c *tmp_img = ReadAsEpiBlock(rim);
 
 	if (rim->opacity == OPAC_Unknown)
@@ -895,7 +892,7 @@ cached_image_t *LoadImageOGL(image_c *rim, const colourmap_c *trans)
 	}
 
 
-	rc->tex_id = R_UploadTexture(tmp_img,
+	GLuint tex_id = R_UploadTexture(tmp_img,
 		(clamp  ? UPL_Clamp  : 0) |
 		(mip    ? UPL_MipMap : 0) |
 		(smooth ? UPL_Smooth : 0) |
@@ -905,13 +902,14 @@ cached_image_t *LoadImageOGL(image_c *rim, const colourmap_c *trans)
 
 	if (what_pal_cached)
 		W_DoneWithLump(what_palette);
-
-	InsertAtTail(rc);
-
-	return rc;
+	
+	return tex_id;
 }
 
 
+
+
+#if 0
 static
 void UnloadImageOGL(cached_image_t *rc, image_c *rim)
 {
@@ -951,6 +949,7 @@ static void UnloadImage(cached_image_t *rc)
 
 	delete rc;
 }
+#endif
 
 
 //----------------------------------------------------------------------------
@@ -1293,12 +1292,6 @@ static cached_image_t *ImageCacheOGL(image_c *rim,
 	{
 		rc = rim->cache[i];
 
-		if (rc && rc->invalidated)
-		{
-			UnloadImageOGL(rc, rim);
-			rc = NULL;
-		}
-
 		if (! rc)
 		{
 			free_slot = i;
@@ -1306,23 +1299,51 @@ static cached_image_t *ImageCacheOGL(image_c *rim,
 		}
 
 		if (rc->trans_map == trans)
-		{
-			return rc; // found it!
-		}
+			break;
+
+		rc = NULL;
 	}
 
-	if (free_slot < 0)
+	if (! rc)
 	{
-		free_slot = (int)rim->cache.size();
+		// add entry into cache
+		cached_image_t *rc = new cached_image_t;
 
-		rim->cache.push_back(NULL);
+///---	rc->next = rc->prev = NULL;
+		rc->parent = rim;
+		rc->invalidated = false;
+		rc->trans_map = trans;
+		rc->hue = RGB_NO_VALUE;
+		rc->tex_id = 0;
+
+		InsertAtTail(rc);
+
+		if (free_slot < 0)
+		{
+			free_slot = (int)rim->cache.size();
+
+			rim->cache.push_back(NULL);
+		}
+
+		rim->cache[free_slot] = rc;
 	}
 
-	// load into cache
-	rc = LoadImageOGL(rim, trans);
 	SYS_ASSERT(rc);
 
-	rim->cache[free_slot] = rc;
+	if (rc->invalidated)
+	{
+		SYS_ASSERT(rc->tex_id != 0);
+
+		glDeleteTextures(1, &rc->tex_id);
+
+		rc->tex_id = 0;
+	}
+
+	if (rc->tex_id == 0)
+	{
+		// load image into cache
+		rc->tex_id = LoadImageOGL(rim, trans);
+	}
 
 	return rc;
 }
@@ -1422,7 +1443,7 @@ static void W_CreateDummyImages(void)
 bool W_InitImages(void)
 {
 	// the only initialisation the cache list needs
-	imagecachehead.next = imagecachehead.prev = &imagecachehead;
+///---	imagecachehead.next = imagecachehead.prev = &imagecachehead;
 
     // check options
 	if (M_CheckParm("-nosmoothing"))
@@ -1463,11 +1484,12 @@ void W_UpdateImageAnims(void)
 //
 void W_ResetImages(void)
 {
-	cached_image_t *rc, *next;
+	std::list<cached_image_t *>::iterator CI;
 
-	for (rc=imagecachehead.next; rc != &imagecachehead; rc=next)
+	for (CI = image_cache.begin(); CI != image_cache.end(); CI++)
 	{
-		next = rc->next;
+		cached_image_t *rc = *CI;
+		SYS_ASSERT(rc);
 
 		rc->invalidated = true;
 	}
