@@ -14,6 +14,10 @@ unbind all textures, and because EDGE still thinks they are
 bound, EDGE is unbinding the wrong ones (ones newly bound
 after the mode switch).  Holy fuck....
 
+Fixed weird issue where HQ2X-Scaling + Invuln-Textured
+only made the screen grayscale (not inverse), because the
+INVUL colormap was being applied _twice_.
+
 2008/01/27:
 
 Worked on reorganising and refactoring the Win32 MUS playing
