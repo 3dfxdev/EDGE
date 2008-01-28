@@ -226,8 +226,6 @@ void R_SoftInitResolution(void)
 	RGL_SoftInit();
 	RGL_SoftInitUnits();	// -ACB- 2004/02/15 Needed to sort vars lost in res change
 
-	W_ResetImages();
-
 	L_WriteDebug("-  returning true.\n");
 
 	return ;
@@ -236,6 +234,8 @@ void R_SoftInitResolution(void)
 
 static bool DoExecuteChangeResolution(scrmode_c *mode)
 {
+	W_ResetImages();
+
 	bool was_ok = I_SetScreenSize(mode);
 
 	if (! was_ok)
