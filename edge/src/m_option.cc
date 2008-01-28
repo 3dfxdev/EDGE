@@ -374,7 +374,7 @@ static void M_DefaultMenuItem(optmenuitem_t *item)
 #define LANGUAGE_POS  8
 #define HOSTNET_POS   11
 
-static optmenuitem_t mainmenu[] =
+static optmenuitem_t mainoptions[] =
 {
 	{OPT_Function, "Keyboard Controls", NULL,  0, 0, NULL, M_KeyboardOptions, "Controls"},
 	{OPT_Function, "Mouse Options",     NULL,  0, 0, NULL, M_AnalogueOptions, "AnalogueOptions"},
@@ -394,9 +394,9 @@ static optmenuitem_t mainmenu[] =
 	{OPT_Function, "Reset to Defaults", NULL,  0, 0, NULL, M_ResetToDefaults, "ResetToDefaults"}
 };
 
-static menuinfo_t mainmenuinfo = 
+static menuinfo_t mainoptionsinfo = 
 {
-	mainmenu, sizeof(mainmenu) / sizeof(optmenuitem_t), 
+	mainoptions, sizeof(mainoptions) / sizeof(optmenuitem_t), 
 	&opt_def_style, 164, 108, "M_OPTTTL", NULL, 0, "", NULL, NULL
 };
 
@@ -761,25 +761,25 @@ void M_OptCheckNetgame(void)
 {
 	if (gamestate >= GS_LEVEL && !demoplayback)
 	{
-		strcpy(mainmenu[HOSTNET_POS+0].name, "Leave Game");
-		mainmenu[HOSTNET_POS+0].routine = &M_EndGame;
-		mainmenu[HOSTNET_POS+0].help = NULL;
+		strcpy(mainoptions[HOSTNET_POS+0].name, "Leave Game");
+		mainoptions[HOSTNET_POS+0].routine = &M_EndGame;
+		mainoptions[HOSTNET_POS+0].help = NULL;
 
-		strcpy(mainmenu[HOSTNET_POS+1].name, "");
-		mainmenu[HOSTNET_POS+1].type = OPT_Plain;
-		mainmenu[HOSTNET_POS+1].routine = NULL;
-		mainmenu[HOSTNET_POS+1].help = NULL;
+		strcpy(mainoptions[HOSTNET_POS+1].name, "");
+		mainoptions[HOSTNET_POS+1].type = OPT_Plain;
+		mainoptions[HOSTNET_POS+1].routine = NULL;
+		mainoptions[HOSTNET_POS+1].help = NULL;
 	}
 	else
 	{
-		strcpy(mainmenu[HOSTNET_POS+0].name, "Host Net Game");
-		mainmenu[HOSTNET_POS+0].routine = &M_HostNetGame;
-		mainmenu[HOSTNET_POS+0].help = NULL;
+		strcpy(mainoptions[HOSTNET_POS+0].name, "Host Net Game");
+		mainoptions[HOSTNET_POS+0].routine = &M_HostNetGame;
+		mainoptions[HOSTNET_POS+0].help = NULL;
 
-		strcpy(mainmenu[HOSTNET_POS+1].name, "Join Net Game");
-		mainmenu[HOSTNET_POS+1].type = OPT_Function;
-		mainmenu[HOSTNET_POS+1].routine = &M_JoinNetGame;
-		mainmenu[HOSTNET_POS+1].help = NULL;
+		strcpy(mainoptions[HOSTNET_POS+1].name, "Join Net Game");
+		mainoptions[HOSTNET_POS+1].type = OPT_Function;
+		mainoptions[HOSTNET_POS+1].routine = &M_JoinNetGame;
+		mainoptions[HOSTNET_POS+1].help = NULL;
 	}
 }
 
@@ -789,7 +789,7 @@ void M_OptCheckNetgame(void)
 void M_OptMenuInit()
 {
 	option_menuon = 0;
-	curr_menu = &mainmenuinfo;
+	curr_menu = &mainoptionsinfo;
 	curr_item = curr_menu->items + curr_menu->pos;
 	keyscan = 0;
 
@@ -910,7 +910,7 @@ void M_OptDrawer()
 		M_ResOptDrawer(style, curry, curry + (deltay * (resoptionsinfo.item_num - 2)), 
 					   deltay, curr_menu->menu_center);
 	}
-	else if (curr_menu == &mainmenuinfo)
+	else if (curr_menu == &mainoptionsinfo)
 	{
 		M_LanguageDrawer(curr_menu->menu_center, curry, deltay);
 	}
@@ -1317,13 +1317,13 @@ bool M_OptResponder(event_t * ev, int ch)
 		case KEYD_MOUSE2:
 		case KEYD_MOUSE3:
 		{
-			if (curr_menu == &mainmenuinfo)
+			if (curr_menu == &mainoptionsinfo)
 			{
 				option_menuon = 0;
 			}
 			else
 			{
-				curr_menu = &mainmenuinfo;
+				curr_menu = &mainoptionsinfo;
 				curr_item = curr_menu->items + curr_menu->pos;
 			}
 			S_StartFX(sfx_swtchx);
@@ -1414,8 +1414,8 @@ void M_ResetToDefaults(int keypressed)
 {
 	int i;
 
-	for (i = 0; i < mainmenuinfo.item_num; i++)
-		M_DefaultMenuItem(&mainmenu[i]);
+	for (i = 0; i < mainoptionsinfo.item_num; i++)
+		M_DefaultMenuItem(&mainoptions[i]);
 
 	for (i = 0; i < vidoptionsinfo.item_num; i++)
 		M_DefaultMenuItem(&vidoptions[i]);
