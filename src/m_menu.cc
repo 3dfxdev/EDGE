@@ -2020,7 +2020,7 @@ void M_Drawer(void)
 	SYS_ASSERT(style);
 
 	style->DrawBackground();
-	
+
 	// call Draw routine
 	if (currentMenu->draw_func)
 		(* currentMenu->draw_func)();
@@ -2032,8 +2032,6 @@ void M_Drawer(void)
 
 	for (i = 0; i < max; i++, y += LINEHEIGHT)
 	{
-		const image_c *image;
-    
 		// ignore blank lines
 		if (! currentMenu->menuitems[i].patch_name[0])
 			continue;
@@ -2041,8 +2039,8 @@ void M_Drawer(void)
 		if (! currentMenu->menuitems[i].image)
 			currentMenu->menuitems[i].image = W_ImageLookup(
 				currentMenu->menuitems[i].patch_name);
-    
-		image = currentMenu->menuitems[i].image;
+
+		const image_c *image = currentMenu->menuitems[i].image;
 
 		RGL_ImageEasy320(x, y, image);
 	}
