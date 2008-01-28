@@ -7,6 +7,13 @@ which was caused by faulty caching logic (the old texture ids
 were being used after the new ones had been created).  Hence
 reworked that code again to finally fix this issue.
 
+ARRGGHH!! the problem is still there!  But I think I know
+what is going on: after the video mode switch, the Win32 GL
+driver (Note: the problem does not occur in Linux) must
+unbind all textures, and because EDGE still thinks they are
+bound, EDGE is unbinding the wrong ones (ones newly bound
+after the mode switch).  Holy fuck....
+
 2008/01/27:
 
 Worked on reorganising and refactoring the Win32 MUS playing
