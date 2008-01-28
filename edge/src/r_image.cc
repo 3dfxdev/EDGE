@@ -94,8 +94,8 @@ typedef struct cached_image_s
 ///---	// link in cache list
 ///---	struct cached_image_s *next, *prev;
 
-	// true if image has been invalidated -- unload a.s.a.p
-	bool invalidated;
+///---	// true if image has been invalidated -- unload a.s.a.p
+///---	bool invalidated;
  
 	// parent image
 	image_c *parent;
@@ -1311,25 +1311,22 @@ static cached_image_t *ImageCacheOGL(image_c *rim,
 
 ///---	rc->next = rc->prev = NULL;
 		rc->parent = rim;
-		rc->invalidated = false;
+///---		rc->invalidated = false;
 		rc->trans_map = trans;
 		rc->hue = RGB_NO_VALUE;
 		rc->tex_id = 0;
 
 		InsertAtTail(rc);
 
-		if (free_slot < 0)
-		{
-			free_slot = (int)rim->cache.size();
-
-			rim->cache.push_back(NULL);
-		}
-
-		rim->cache[free_slot] = rc;
+		if (free_slot >= 0)
+			rim->cache[free_slot] = rc;
+		else
+			rim->cache.push_back(rc);
 	}
 
 	SYS_ASSERT(rc);
 
+#if 0  // REMOVE
 	if (rc->invalidated)
 	{
 		SYS_ASSERT(rc->tex_id != 0);
@@ -1339,6 +1336,7 @@ static cached_image_t *ImageCacheOGL(image_c *rim,
 		rc->tex_id = 0;
 		rc->invalidated = false;
 	}
+#endif
 
 	if (rc->tex_id == 0)
 	{
@@ -1492,7 +1490,11 @@ void W_ResetImages(void)
 		cached_image_t *rc = *CI;
 		SYS_ASSERT(rc);
 
-		rc->invalidated = true;
+		if (rc->tex_id != 0)
+		{
+			glDeleteTextures(1, &rc->tex_id);
+			rc->tex_id = 0;
+		}
 	}
 
 	image_reset_counter++;
