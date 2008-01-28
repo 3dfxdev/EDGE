@@ -873,22 +873,20 @@ static GLuint LoadImageOGL(image_c *rim, const colourmap_c *trans)
 		delete tmp_img;
 		tmp_img = scaled_img;
 	}
-
-	if (tmp_img->bpp >= 3 && trans != NULL)
-	{
-		if (trans == font_whiten_map)
-			tmp_img->Whiten();
-		else
-			R_PaletteRemapRGBA(tmp_img, what_palette, (const byte *) &playpal_data[0]);
-	}
-
-	if (tmp_img->bpp == 1)
+	else if (tmp_img->bpp == 1)
 	{
 		epi::image_data_c *rgb_img =
 				R_PalettisedToRGB(tmp_img, what_palette, rim->opacity);
 
 		delete tmp_img;
 		tmp_img = rgb_img;
+	}
+	else if (tmp_img->bpp >= 3 && trans != NULL)
+	{
+		if (trans == font_whiten_map)
+			tmp_img->Whiten();
+		else
+			R_PaletteRemapRGBA(tmp_img, what_palette, (const byte *) &playpal_data[0]);
 	}
 
 
