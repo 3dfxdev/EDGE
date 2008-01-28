@@ -52,6 +52,7 @@ HWND app_hwnd;
 bool I_StartupCD()
 {
 	if (nocdmusic) return false;
+return false; //!!!!!!
 
 	SDL_SysWMinfo wm_info;
 
