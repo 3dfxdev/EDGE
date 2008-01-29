@@ -21,6 +21,37 @@
   <h2 class="page_title"> Latest News </h2>
 
 
+  <use BeginNews title="Beta#2 is Out" date="29-Jan-2008">
+
+  EDGE 1.31-Beta#2 is now available for download and testing.
+  This release updates to SDL 1.2.13 which fixed the sound
+  problem under Vista.
+  
+  <p>
+  New features include support for 16-bit
+  sounds (WAV and OGG/Vorbis formats), music playback for Linux,
+  and an Invulnerability setting in the video options.
+
+  <p>
+  However the main thrust of this release is fixing bugs
+  (such as the messed up screen after changing resolution)
+  and other enhancements (like using MD2 frame names in DDF).
+
+  <p>
+  Download it here:
+  <a href="http://downloads.sourceforge.net/edge/Edge-1.31-Beta2.zip">
+  Edge-1.31-Beta2.zip
+  </a> (2.9 MB)
+
+  <p>
+  Changes since Beta#1 are here:
+  <a href="http://sourceforge.net/project/shownotes.php?release_id=571978&group_id=2232">
+  Change List
+  </a>
+
+  <use EndNews>
+
+
   <use BeginNews title="1.31 Beta#1 Available" date="12-Dec-2007">
 
   We are happy to announce that EDGE 1.31-Beta#1 has been released.
