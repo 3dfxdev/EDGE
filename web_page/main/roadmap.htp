@@ -19,7 +19,7 @@ features from being implemented.
 <h3 class="sub_title">RELEASE 1.31</h3>
   <ul>
     <li type="disc">MD2 models (things &amp; weapons)
-      <span class="partway">[90%]</span>
+      <span class="done">[DONE]</span>
 
     <li type="disc">Mirrors (with multiple reflections)
       <span class="done">[DONE]</span>
@@ -45,9 +45,8 @@ features from being implemented.
       <span class="done">[DONE]</span>
 
     <li type="circle">OGG/Vorbis and WAV format sounds
-      <span class="partway">[50%]</span>
+      <span class="partway">[80%]</span>
 
-    <li type="circle">Hexen-like hub system
   </ul>
 
 <hr>
@@ -63,6 +62,7 @@ features from being implemented.
   <ul>
     <li type="circle">Better console
     <li type="circle">Inheritance for DDF
+    <li type="circle">Hexen-like hub system
     <li type="circle">Vehicles
   </ul>
 
