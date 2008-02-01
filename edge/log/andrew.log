@@ -1,5 +1,15 @@
 Andrew Apted's Log
 
+2008/02/01:
+
+Fixed bug not setting up 'nodes' array in the newgame_params_c
+copy constructor, which caused an assertion error when saving
+a game started from the HOST-NET-GAME menu.
+
+2008/01/29:
+
++ Put out EDGE 1.31-Beta#2 +
+
 2008/01/28:
 
 The image cache system still had problems after a mode switch,
