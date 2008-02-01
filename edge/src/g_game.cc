@@ -904,13 +904,16 @@ newgame_params_c::newgame_params_c(const newgame_params_c& src)
 	skill = src.skill;
 	deathmatch = src.deathmatch;
 
-	map  = src.map;
+	map = src.map;
 
 	random_seed   = src.random_seed;
 	total_players = src.total_players;
 
 	for (int i = 0; i < MAXPLAYERS; i++)
+	{
 		players[i] = src.players[i];
+		nodes[i] = src.nodes[i];
+	}
 
 	flags = NULL;
 
