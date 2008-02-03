@@ -54,16 +54,14 @@ features from being implemented.
 <h3 class="sub_title">RELEASE 1.32</h3>
   <ul>
     <li type="disc">LAN-based multiplayer
-    <li type="disc">Custom HUDs using LUA scripting
     <li type="disc">Better documentation (DDF Online)
-    <li type="disc">Bullet holes / Blood splats
+    <li type="disc">Improved bots
   </ul>
 
   <ul>
     <li type="circle">Better console
+    <li type="circle">Bullet holes / Blood splats
     <li type="circle">Inheritance for DDF
-    <li type="circle">Hexen-like hub system
-    <li type="circle">Vehicles
   </ul>
 
 <hr>
