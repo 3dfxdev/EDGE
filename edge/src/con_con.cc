@@ -42,45 +42,48 @@
 
 #define CON_GFX_HT  (SCREENHEIGHT * 3 / 5)
 
-typedef struct coninfo_s 
-{
-	visible_t visible;
 
-	int cursor;
+static visible_t con_visible;
 
-	//   char s[SCREENROWS][SCREENCOLS];
-	//   char input[BACKBUFFER+1][SCREENCOLS];
-
-}
-coninfo_t;
-
-static coninfo_t con_info;
+static int con_cursor;
 
 static const image_c *con_font;
 
+// the console's background
+static style_c *console_style;
+
+
+#define MAX_CON_LINES  100
+
+// entry [0] is the bottom-most one
+static std::string * console_lines[MAX_CON_LINES];
+
+
+#define MAX_CON_INPUT  255
+
+static char input_line[MAX_CON_INPUT];
+static int  input_pos = 0;
+
 
 // stores the console toggle effect
-/// wipeinfo_t *conwipe = NULL;
 static int conwipeactive = 0;
 static int conwipepos = 0;
 static int conwipemethod = WIPE_Crossfade;
 static bool conwipereverse = 0;
 static int conwipeduration = 10;
 
+
 #define KEYREPEATDELAY ((250 * TICRATE) / 1000)
 #define KEYREPEATRATE  (TICRATE / 15)
 
-// the console's screen
-static style_c *console_style;
-
-typedef struct consoleline_s
-{
-	char *s;  // The String
-
-	int len;  // the length of the string, not counting terminating 0.
-
-}
-consoleline_t;
+ typedef struct consoleline_s
+ {
+ 	char *s;  // The String
+ 
+ 	int len;  // the length of the string, not counting terminating 0.
+ 
+ }
+ consoleline_t;
 
 // All the output lines of the console (not only those currently visible).
 // A line can be of any length. If the screen is too narrow for it, the line
@@ -92,78 +95,77 @@ static int linebuffersize = 0;  // shows the size
 
 // lastline: The last output text line. This is different from the others
 // because it is growable, you can print twice without newline.
-char *lastline = NULL;  // the last text line of the console.
+static char *lastline = NULL;  // the last text line of the console.
 
-int lastlinesize = 0;
-int lastlinepos = 0;
-int lastlineend = 0;
+static int lastlinesize = 0;
+static int lastlinepos = 0;
+static int lastlineend = 0;
 
 // Properly split up last line.
 // s: array of string start pointers, l: array of string lengths,
 // n: number of strings.
-char **vislastline_s = NULL;
-int *vislastline_l = NULL;
-int vislastline_n = 0;
+static char **vislastline_s = NULL;
+static int *vislastline_l = NULL;
+static int vislastline_n = 0;
 
 // Command Line
-char *cmdline = NULL;
-int cmdlinesize = 0;
-int cmdlinepos = 0;
-int cmdlineend = 0;
+static char *cmdline = NULL;
+static int cmdlinesize = 0;
+static int cmdlinepos = 0;
+static int cmdlineend = 0;
 
 // Properly split up command line.
-char **viscmdline_s = NULL;
-int *viscmdline_l = NULL;
-int viscmdline_n = 0;
+static char **viscmdline_s = NULL;
+static int *viscmdline_l = NULL;
+static int viscmdline_n = 0;
 
 // Command line backup: If you press UPARROW when you've written something
 // at the command line, it will be backuped here, and it's possible to restore
 // it by pressing DOWNARROW before you've executed another command.
-char *cmdlinebkp = NULL;
-int cmdlinebkpsize = 0;
+static char *cmdlinebkp = NULL;
+static int cmdlinebkpsize = 0;
 
 // Command Line History. All the written commands.
-consoleline_t *cmdhistory = NULL;
-int cmdhistoryend = 0;
-int cmdhistorysize = 0;
+static consoleline_t *cmdhistory = NULL;
+static int cmdhistoryend = 0;
+static int cmdhistorysize = 0;
 
 // when browsing the cmdhistory, this shows the current index. Otherwise it's -1.
-int cmdhistorypos = -1;
+static int cmdhistorypos = -1;
 
 // The text of the console, with lines split up properly for the current
 // resolution.
-char **curlines = NULL;
+static char **curlines = NULL;
 
 // the length of each of curlines
-int *curlinelengths = NULL;
+static int *curlinelengths = NULL;
 
 // the number of allocated rows in curlines and curlinelengths.
-int curlinesize = 0;
+static int curlinesize = 0;
 
 // number of visible console lines (curlines+vislastline+viscmdline).
-int numvislines = 0;
+static int numvislines = 0;
 
 // width of console. Measured in characters if in text mode, and in pixels
 // if in graphics mode.
-static int conwidth;
 static int conrows;
 
 // the console row that is displayed at the bottom of screen, -1 if cmdline
 // is the bottom one.
-int bottomrow = -1;
+static int bottomrow = -1;
 
 // if true, nothing will be displayed in the console, and there will be no
 // command history.
-bool no_con_history = 0;
+static bool no_con_history = 0;
 
 // always type ev_keydown
-int RepeatKey;
-int RepeatCountdown;
+static int RepeatKey;
+static int RepeatCountdown;
 
 // tells whether shift is pressed, and pgup/dn should scroll to top/bottom of linebuffer.
-bool KeysShifted;
+static bool KeysShifted;
 
-bool TabbedLast;
+static bool TabbedLast;
 
 bool CON_HandleKey(int key);
 
@@ -177,22 +179,29 @@ scrollstate_e;
 
 static scrollstate_e scroll_state;
 
+
+static void CON_ScrollLinesUp(void)
+{
+	delete console_lines[MAX_CON_LINES-1];
+
+	for (int i = MAX_CON_LINES-1; i > 0; i--)
+		console_lines[i] = console_lines[i-1];
+
+	console_lines[0] = NULL;
+}
+
+
+
 static int (*MaxTextLen) (const char *s);
 
-static int MaxTextLen_gfx(const char *s)
-{
-	if (! console_style)
-		return MIN(100, strlen(s));
 
-	return console_style->fonts[0]->MaxFit(conwidth, s);
-}
 
 static int MaxTextLen_text(const char *s)
 {
 	int len = (int)strlen(s);
 
-	if (len > conwidth)
-		return conwidth;
+	if (len > 100)
+		return 100;
 	else
 		return len;
 }
@@ -263,6 +272,10 @@ static void UpdateNumvislines(void)
 
 static void AddConsoleLine(const char *s)
 {
+	CON_ScrollLinesUp();
+
+	console_lines[0] = new std::string(s);
+
 	if (no_con_history)
 		return;
 
@@ -284,10 +297,13 @@ static void UpdateCmdLine(void)
 	}
 	AddSplitRow(&viscmdline_s, &viscmdline_l, &viscmdline_n, cmdline);
 	cmdline[cmdlineend] = 0;
-	// the cursor should not blink when you're writing.
-	con_info.cursor = 0;
+
 	UpdateNumvislines();
+
+	// the cursor should not blink when you're writing.
+	con_cursor = 0;
 }
+
 static void UpdateLastLine(void)
 {
 	vislastline_n = 0;
@@ -327,7 +343,6 @@ static void UpdateConsole(void)
 //
 void CON_InitConsole(void)
 {
-	conwidth = 100;
 	conrows  = 100;
 
 	MaxTextLen = MaxTextLen_text;
@@ -356,13 +371,13 @@ void CON_SetVisible(visible_t v)
 {
 	if (v == vs_toggle)
 	{
-		v = (con_info.visible == vs_notvisible) ? vs_maximal : vs_notvisible;
+		v = (con_visible == vs_notvisible) ? vs_maximal : vs_notvisible;
 	}
 
-	if (con_info.visible == v)
+	if (con_visible == v)
 		return;
 
-	con_info.visible = v;
+	con_visible = v;
 
 	if (v == vs_maximal)
 	{
@@ -431,6 +446,27 @@ void CON_Printf(const char *message, ...)
 	PrintString(buffer);
 }
 
+void CON_Message(const char *message,...)
+{
+	va_list argptr;
+	char buffer[1024];
+
+	va_start(argptr, message);
+
+	// Print the message into a text string
+	vsprintf(buffer, message, argptr);
+
+	va_end(argptr);
+
+
+///	HU_StartMessage(buffer);
+
+	strcat(buffer, "\n");
+
+	PrintString(buffer);
+
+}
+
 void CON_MessageLDF(const char *lookup, ...)
 {
 	va_list argptr;
@@ -442,60 +478,34 @@ void CON_MessageLDF(const char *lookup, ...)
 	vsprintf(buffer, lookup, argptr);
 	va_end(argptr);
 
-	HU_StartMessage(buffer);
+///	HU_StartMessage(buffer);
 
 	strcat(buffer, "\n");
 
 	PrintString(buffer);
 }
 
-void CON_Message(const char *message,...)
-{
-	va_list argptr;
-	char buffer[1024];
-
-	va_start(argptr, message);
-
-	// Print the message into a text string
-	vsprintf(buffer, message, argptr);
-
-	HU_StartMessage(buffer);
-
-	strcat(buffer, "\n");
-
-	PrintString(buffer);
-
-	va_end(argptr);
-}
 
 void CON_Ticker(void)
 {
-	coninfo_t *info = &con_info; ///--- (coninfo_t *)gui->process;
+	con_cursor = (con_cursor + 1) & 31;
 
-	info->cursor = (info->cursor + 1) & 31;
-
-	if (info->visible != vs_notvisible)
+	if (con_visible != vs_notvisible)
 	{
 		// Handle repeating keys
 		switch (scroll_state)
 		{
 		case SCROLLUP:
-			if (bottomrow > 0)
-				bottomrow--;
-			if (bottomrow == -1)
-				bottomrow = numvislines - 2;  // numvislines-1 (commandline) is the last line
+			if (bottomrow < MAX_CON_LINES-10)
+				bottomrow++;
 
 			break;
 
 		case SCROLLDN:
-			if (bottomrow == -1)
-				break;  // already at bottom. Can't scroll down.
+			if (bottomrow >= 0)
+				bottomrow--;
 
-			if (bottomrow < numvislines - 2)
-				bottomrow++;
-			else
-				bottomrow = -1;
-			break;
+			break;  
 
 		default:
 			if (RepeatCountdown)
@@ -514,7 +524,7 @@ void CON_Ticker(void)
 
 	if (conwipeactive)
 	{
-		if (info->visible == vs_notvisible)
+		if (con_visible == vs_notvisible)
 		{
 			conwipepos--;
 			if (conwipepos <= 0)
@@ -537,6 +547,9 @@ static int YMUL;
 
 static void WriteChar(int x, int y, char ch, int text_type)
 {
+	if (x + SIZE < 0)
+		return;
+
 	GLuint tex_id = W_ImageCache(con_font);
 
 	glEnable(GL_TEXTURE_2D);
@@ -546,7 +559,10 @@ static void WriteChar(int x, int y, char ch, int text_type)
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GREATER, 0);
 
-	glColor4f(1.0f, 1.0f, text_type ? 0 : 1.0f, 1.0f);
+	if (text_type == 1)
+		glColor3f(1.00f, 1.00f, 0.00f);
+	else
+		glColor3f(0.80f, 0.80f, 0.80f);
 
 	int px =      int((byte)ch) % 16;
 	int py = 15 - int((byte)ch) / 16;
@@ -581,29 +597,22 @@ static void WriteChar(int x, int y, char ch, int text_type)
 }
 
 // writes the text on coords (x,y) of the console
-static void WriteText(int x, int y, const char *s, int len, int text_type)
+static void WriteText(int x, int y, const char *s, int text_type)
 {
-	char buffer[1024];
-
-	if (len > 1020)
-		len = 1020;
-
-	Z_StrNCpy(buffer, s, len);
-
-	for (s = buffer; *s; s++)
+	for (; *s; s++)
 	{
 		WriteChar(x, y, *s, text_type);
 
 		x += XMUL;
+
+		if (x >= SCREENWIDTH)
+			return;
 	}
 
 ///---	HL_WriteText(console_style, text_type, x, y, buffer, 0.5f);
 }
 
 
-//
-// Draws the console in graphics mode.
-//
 void CON_Drawer(void)
 {
 	if (! con_font)
@@ -621,40 +630,11 @@ void CON_Drawer(void)
 		console_style = hu_styles.Lookup(def);
 	}
 
-	coninfo_t *info = &con_info; //--- (coninfo_t *)gui->process;
-
-	int i;
-	int bottom;
-	int len, c;
-
-	if (info->visible == vs_notvisible && !conwipeactive)
-	{
+	if (con_visible == vs_notvisible && !conwipeactive)
 		return;
-	}
 
-	int y = SCREENHEIGHT;
 
-	if (conwipeactive)
-		y = y - CON_GFX_HT * (conwipepos) / CON_WIPE_TICS;
-	else
-		y = y - CON_GFX_HT;
-
-	console_style->DrawBackground(0, y, SCREENWIDTH, SCREENHEIGHT - y, 1);
-
-	if (bottomrow == -1)
-		bottom = numvislines;
-	else
-		bottom = bottomrow;
-
-	i = bottom - 1; // bottom - conrows;
-
-	if (false) // i < 0)
-	{
-		// leave some blank lines before the top
-
-		y -= i;
-		i = 0;
-	}
+	// determine font sizing and spacing
 
 	if (SCREENWIDTH < 400)
 	{
@@ -670,29 +650,64 @@ void CON_Drawer(void)
 	}
 
 
-	for (; i < curlinesize ; i++, y += YMUL)
+	// -- background --
+
+	int y = SCREENHEIGHT;
+
+	if (conwipeactive)
+		y = y - CON_GFX_HT * (conwipepos) / CON_WIPE_TICS;
+	else
+		y = y - CON_GFX_HT;
+
+	console_style->DrawBackground(0, y, SCREENWIDTH, SCREENHEIGHT - y, 1);
+
+	y += 3;
+
+	// -- input line --
+
+	if (bottomrow == -1)
 	{
-		WriteText(0, y, curlines[i], curlinelengths[i], 0);
+		// TODO
+		WriteText(0, y, ">hello world", 1);
+
+		y += YMUL;
 	}
 
-	i -= curlinesize;
+	y += 6;
 
-	for (; i < vislastline_n; i++, y += YMUL)
+	// -- text lines --
+
+	for (int i = MAX(0,bottomrow); i < MAX_CON_LINES; i++)
 	{
-		WriteText(0, y, vislastline_s[i], vislastline_l[i], 0);
+		if (console_lines[i])
+		{
+			WriteText(0, y, console_lines[i]->c_str(), 0);
+		}
+
+		y += YMUL;
+
+		if (y >= SCREENHEIGHT)
+			break;
 	}
 
-	i -= vislastline_n;
-
-	for (; i < viscmdline_n; i++, y += YMUL)
-	{
-		WriteText(0, y, viscmdline_s[i], viscmdline_l[i], 1);
-	}
+///-- 	i -= curlinesize;
+///-- 
+///-- 	for (; i < vislastline_n; i++, y += YMUL)
+///-- 	{
+///-- 		WriteText(0, y, vislastline_s[i], vislastline_l[i], 0);
+///-- 	}
+///-- 
+///-- 	i -= vislastline_n;
+///-- 
+///-- 	for (; i < viscmdline_n; i++, y += YMUL)
+///-- 	{
+///-- 		WriteText(0, y, viscmdline_s[i], viscmdline_l[i], 1);
+///-- 	}
 
 #if 0  // TODO !!!!!!
 
 	// draw the cursor on the right place of the command line.
-	if (info->cursor < 16 && bottomrow == -1)
+	if (con_cursor < 16 && bottomrow == -1)
 	{
 		// the command line can be more than one row high, so we must first search
 		// for the line containing the cursor.
@@ -755,7 +770,7 @@ bool CON_HandleKey(int key)
 	case KEYD_PGUP:
 		if (KeysShifted)
 			// Move to top of console buffer
-			bottomrow = 0;
+			bottomrow = MAX_CON_LINES - 10;  //!!! FIXME
 		else
 			// Start scrolling console buffer up
 			scroll_state = SCROLLUP;
@@ -972,7 +987,7 @@ bool CON_Responder(event_t * ev)
 		return true;
 	}
 
-	if (con_info.visible == vs_notvisible)
+	if (con_visible == vs_notvisible)
 		return false;
 
 	if (ev->type == ev_keyup)
@@ -1027,7 +1042,8 @@ void CON_Start(void)
 	CON_CreateCVarInt("conwipeduration", cf_normal, &conwipeduration);
 	CON_CreateCVarBool("conwipereverse", cf_normal, &conwipereverse);
 
-	con_info.visible = vs_notvisible;
+	con_visible = vs_notvisible;
+	con_cursor  = 0;
 }
 
 //--- editor settings ---
