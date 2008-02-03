@@ -1415,8 +1415,7 @@ static void E_Startup(void)
 
 	SetupLogAndDebugFiles();
 
-	// -ACB- 1999/09/20 defines to be used?
-	CON_InitConsole(79, 25, false);  // AJA: FIXME: init later (in startcode[])
+	CON_InitConsole();
 
 	ShowDateAndVersion();
 

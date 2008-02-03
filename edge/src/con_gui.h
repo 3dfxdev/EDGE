@@ -33,11 +33,8 @@ bool CON_Responder(event_t * ev);
 // Drawer. Draws the console.
 void CON_Drawer(void);
 
-// Re-inits the console after a resolution change.
-bool CON_InitResolution(void);
-
-// Inits the console for the given dimensions.
-void CON_InitConsole(int width, int height, int gfxmode);
+// Initialises the console
+void CON_InitConsole(void);
 
 #endif /* __CON_MAIN_GUI_H */
 
