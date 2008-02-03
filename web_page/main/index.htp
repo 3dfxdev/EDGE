@@ -21,10 +21,29 @@
   <h2 class="page_title"> Latest News </h2>
 
 
+  <use BeginNews title="Beta#2 Update" date="02-Feb-2008">
+
+  EDGE 1.31-Beta#2 has been updated to fix a fatal error
+  when saving a game, mainly when starting
+  the game from the new HOST-NET-GAME menu.
+  
+  Another problem causing multiple popup dialogs
+  when the D: drive is a CDROM or DVD
+  should also be fixed.
+  
+  <p>
+  New Download link:
+  <a href="http://downloads.sourceforge.net/edge/Edge-1.31-Beta2c.zip">
+  Edge-1.31-Beta2c.zip
+  </a> (2.9 MB)
+
+  <use EndNews>
+
+
   <use BeginNews title="Beta#2 is Out" date="29-Jan-2008">
 
   EDGE 1.31-Beta#2 is now available for download and testing.
-  This release updates to SDL 1.2.13 which fixed the sound
+  This release updates to SDL 1.2.13 which fixes the sound
   problem under Vista.
   
   <p>
