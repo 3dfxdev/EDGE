@@ -324,12 +324,11 @@ static void UpdateConsole(void)
 
 //
 // Initialises the console with the given dimensions, in characters.
-// gfxmode tells whether it should be initialised to work in graphics mode.
 //
-void CON_InitConsole(int width, int height, int gfxmode)
+void CON_InitConsole(void)
 {
-	conwidth = width;
-	conrows  = height;
+	conwidth = 100;
+	conrows  = 100;
 
 	MaxTextLen = MaxTextLen_text;
 
@@ -531,12 +530,6 @@ void CON_Ticker(void)
 }
 
 
-//      SIZE   XMUL   YMUL
-// 320   9      7      10
-// 640   13     9      14
-// 800+  16     11     18
-
-
 static int SIZE;
 static int XMUL;
 static int YMUL;
@@ -665,11 +658,11 @@ void CON_Drawer(void)
 
 	if (SCREENWIDTH < 400)
 	{
-		SIZE = 8; XMUL = 7; YMUL = 10;
+		SIZE = 10; XMUL = 7; YMUL = 11;
 	}
 	else if (SCREENWIDTH < 700)
 	{
-		SIZE = 12;  XMUL = 9;  YMUL = 14;
+		SIZE = 13;  XMUL = 9;  YMUL = 14;
 	}
 	else
 	{
