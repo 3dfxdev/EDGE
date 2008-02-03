@@ -24,6 +24,7 @@
 //
 
 #include "i_defs.h"
+#include "i_defs_gl.h"
 
 #include "con_defs.h"
 #include "e_input.h"
@@ -31,6 +32,7 @@
 #include "hu_stuff.h"
 #include "hu_style.h"
 #include "m_argv.h"
+#include "r_image.h"
 #include "r_modes.h"
 #include "r_wipe.h"
 #include "z_zone.h"
@@ -54,6 +56,8 @@ typedef struct coninfo_s
 coninfo_t;
 
 static coninfo_t con_info;
+
+static const image_c *con_font;
 
 
 // stores the console toggle effect
@@ -320,8 +324,6 @@ static void UpdateConsole(void)
 }
 
 //
-// CON_InitConsole
-//
 // Initialises the console with the given dimensions, in characters.
 // gfxmode tells whether it should be initialised to work in graphics mode.
 //
@@ -536,6 +538,57 @@ void CON_Ticker(void)
 	}
 }
 
+
+static int SIZE = 14;
+static int XMUL = 11-1;
+static int YMUL = 18-1;
+
+
+static void WriteChar(int x, int y, char ch, int text_type)
+{
+	GLuint tex_id = W_ImageCache(con_font);
+
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, tex_id);
+ 
+	glEnable(GL_BLEND);
+	glEnable(GL_ALPHA_TEST);
+	glAlphaFunc(GL_GREATER, 0);
+
+	glColor4f(1.0f, 1.0f, text_type ? 0 : 1.0f, 1.0f);
+
+	int px =      int((byte)ch) % 16;
+	int py = 15 - int((byte)ch) / 16;
+
+	float tx1 = (px  ) / 16.0;
+	float tx2 = (px+1) / 16.0;
+
+	float ty1 = (py  ) / 16.0;
+	float ty2 = (py+1) / 16.0;
+
+
+	glBegin(GL_POLYGON);
+  
+	glTexCoord2f(tx1, ty1);
+	glVertex2i(x, y);
+
+	glTexCoord2f(tx1, ty2); 
+	glVertex2i(x, y + SIZE);
+  
+	glTexCoord2f(tx2, ty2);
+	glVertex2i(x + SIZE, y + SIZE);
+  
+	glTexCoord2f(tx2, ty1);
+	glVertex2i(x + SIZE, y);
+  
+	glEnd();
+
+
+	glDisable(GL_TEXTURE_2D);
+	glDisable(GL_ALPHA_TEST);
+	glDisable(GL_BLEND);
+}
+
 // writes the text on coords (x,y) of the console
 static void WriteText(int x, int y, const char *s, int len, int text_type)
 {
@@ -546,14 +599,29 @@ static void WriteText(int x, int y, const char *s, int len, int text_type)
 
 	Z_StrNCpy(buffer, s, len);
 
-	HL_WriteText(console_style, text_type, x, y, buffer, 0.5f);
+	for (s = buffer; *s; s++)
+	{
+		WriteChar(x, y, *s, text_type);
+
+		x += XMUL;
+	}
+
+///---	HL_WriteText(console_style, text_type, x, y, buffer, 0.5f);
 }
+
 
 //
 // Draws the console in graphics mode.
 //
 void CON_Drawer(void)
 {
+	if (! con_font)
+	{
+		con_font = W_ImageLookup("CON_FONT_2", INS_Graphic, ILF_Exact|ILF_Null);
+		if (! con_font)
+			I_Error("Cannot find essential image: CON_FONT_2\n");
+	}
+
 	if (! console_style)
 	{
 		styledef_c *def = styledefs.Lookup("CONSOLE");
@@ -574,14 +642,14 @@ void CON_Drawer(void)
 		return;
 	}
 
-	int wiping_y = 0;
+	int bottom_y;
 	
 	if (conwipeactive)
-	{
-		wiping_y = SCREENHEIGHT - (CON_GFX_HT-4) * (conwipepos) / CON_WIPE_TICS;
-	}
+		bottom_y = SCREENHEIGHT - (CON_GFX_HT-4) * (conwipepos) / CON_WIPE_TICS;
+	else
+		bottom_y = SCREENHEIGHT - CON_GFX_HT;
 
-	console_style->DrawBackground(0, wiping_y, SCREENWIDTH, SCREENHEIGHT - wiping_y, 1);
+	console_style->DrawBackground(0, bottom_y, SCREENWIDTH, SCREENHEIGHT - bottom_y, 1);
 
 	if (bottomrow == -1)
 		bottom = numvislines;
@@ -590,30 +658,32 @@ void CON_Drawer(void)
 
 	y = 0;
 	i = bottom - conrows;
+
 	if (i < 0)
-	{  // leave some blank lines before the top
+	{
+		// leave some blank lines before the top
 
 		y -= i;
 		i = 0;
 	}
 
-	// !!!! FIXME: y * 4 shite
-
-	wiping_y = wiping_y * 200 / SCREENHEIGHT;
-
 	for (; i < curlinesize && y < conrows; i++, y++)
 	{
-		WriteText(0, y * 4 - wiping_y, curlines[i], curlinelengths[i], 0);
+		WriteText(0, bottom_y + y * YMUL, curlines[i], curlinelengths[i], 0);
 	}
+
 	i -= curlinesize;
+
 	for (; i < vislastline_n && y < conrows; i++, y++)
 	{
-		WriteText(0, y * 4 - wiping_y, vislastline_s[i], vislastline_l[i], 0);
+		WriteText(0, bottom_y + y * YMUL, vislastline_s[i], vislastline_l[i], 0);
 	}
+
 	i -= vislastline_n;
+
 	for (; i < viscmdline_n && y < conrows; i++, y++)
 	{
-		WriteText(0, y * 4 - wiping_y, viscmdline_s[i], viscmdline_l[i], 1);
+		WriteText(0, bottom_y + y * YMUL, viscmdline_s[i], viscmdline_l[i], 1);
 	}
 
 	// draw the cursor on the right place of the command line.
@@ -631,8 +701,9 @@ void CON_Drawer(void)
 			i--;
 			y--;
 			len -= viscmdline_l[i];
-		}
-		while (len > cmdlinepos && i > 0);
+
+		} while (len > cmdlinepos && i > 0);
+
 		// now draw the cursor on the right x position of the right line.
 		// But only draw it if it's on the screen
 		if (len <= cmdlinepos)
@@ -641,8 +712,10 @@ void CON_Drawer(void)
 			c = viscmdline_s[i][len];
 			// temporarily truncate the cmdline to the cursor position.
 			viscmdline_s[i][len] = 0;
-			WriteText(console_style->fonts[1]->StringWidth(viscmdline_s[i]) / 2,
-				y * 4 - wiping_y, "_", 1, 1);
+
+			WriteText(16 * strlen(viscmdline_s[i]) / 2, bottom_y + y * YMUL,
+				      "_", 1, 1);
+
 			viscmdline_s[i][len] = c;
 		}
 	}
