@@ -199,8 +199,7 @@ static const char *config_base_dirs[] =
 	".",    // current directory
 	
 #ifdef WIN32
-	"C:\\",
-	"D:\\",
+	"\\",
 #endif
 
 #ifdef LINUX
