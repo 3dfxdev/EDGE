@@ -271,6 +271,26 @@ static void AddEssentialImages(void)
 
 		imagedefs.Insert(def);
 	}
+
+	if (! imagedefs.Lookup("CON_FONT_2", INS_Graphic))
+	{
+		imagedef_c *def = new imagedef_c;
+
+		def->Default();
+
+		def->ddf.name.Set("CON_FONT_2");
+		def->ddf.number = 0;
+		def->ddf.crc.Reset();
+
+		def->name.Set("CONFONT2");
+
+		def->belong  = INS_Graphic;
+		def->type    = IMGDT_Lump;
+		def->format  = LIF_PNG;
+		def->special = (image_special_e) (IMGSP_Clamp | IMGSP_Smooth | IMGSP_NoMip);
+
+		imagedefs.Insert(def);
+	}
 }
 
 void DDF_ImageCleanUp(void)
