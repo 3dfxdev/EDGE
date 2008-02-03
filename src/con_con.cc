@@ -45,13 +45,12 @@
 typedef struct coninfo_s 
 {
 	visible_t visible;
+
 	int cursor;
+
 	//   char s[SCREENROWS][SCREENCOLS];
 	//   char input[BACKBUFFER+1][SCREENCOLS];
-	int x, y, pos;
-	int backbuffer;
-	int page;
-	bool echo;
+
 }
 coninfo_t;
 
@@ -330,17 +329,10 @@ static void UpdateConsole(void)
 void CON_InitConsole(int width, int height, int gfxmode)
 {
 	conwidth = width;
+	conrows  = height;
 
-	if (gfxmode)
-	{
-		MaxTextLen = MaxTextLen_gfx;
-		conrows = (height * 200 / SCREENHEIGHT) / 4;
-	}
-	else
-	{
-		MaxTextLen = MaxTextLen_text;
-		conrows = height;
-	}
+	MaxTextLen = MaxTextLen_text;
+
 
 	if (lastline == NULL)
 	{
@@ -539,9 +531,15 @@ void CON_Ticker(void)
 }
 
 
-static int SIZE = 14;
-static int XMUL = 11-1;
-static int YMUL = 18-1;
+//      SIZE   XMUL   YMUL
+// 320   9      7      10
+// 640   13     9      14
+// 800+  16     11     18
+
+
+static int SIZE;
+static int XMUL;
+static int YMUL;
 
 
 static void WriteChar(int x, int y, char ch, int text_type)
@@ -633,7 +631,6 @@ void CON_Drawer(void)
 	coninfo_t *info = &con_info; //--- (coninfo_t *)gui->process;
 
 	int i;
-	int y;
 	int bottom;
 	int len, c;
 
@@ -642,24 +639,23 @@ void CON_Drawer(void)
 		return;
 	}
 
-	int bottom_y;
-	
-	if (conwipeactive)
-		bottom_y = SCREENHEIGHT - (CON_GFX_HT-4) * (conwipepos) / CON_WIPE_TICS;
-	else
-		bottom_y = SCREENHEIGHT - CON_GFX_HT;
+	int y = SCREENHEIGHT;
 
-	console_style->DrawBackground(0, bottom_y, SCREENWIDTH, SCREENHEIGHT - bottom_y, 1);
+	if (conwipeactive)
+		y = y - CON_GFX_HT * (conwipepos) / CON_WIPE_TICS;
+	else
+		y = y - CON_GFX_HT;
+
+	console_style->DrawBackground(0, y, SCREENWIDTH, SCREENHEIGHT - y, 1);
 
 	if (bottomrow == -1)
 		bottom = numvislines;
 	else
 		bottom = bottomrow;
 
-	y = 0;
-	i = bottom - conrows;
+	i = bottom - 1; // bottom - conrows;
 
-	if (i < 0)
+	if (false) // i < 0)
 	{
 		// leave some blank lines before the top
 
@@ -667,24 +663,40 @@ void CON_Drawer(void)
 		i = 0;
 	}
 
-	for (; i < curlinesize && y < conrows; i++, y++)
+	if (SCREENWIDTH < 400)
 	{
-		WriteText(0, bottom_y + y * YMUL, curlines[i], curlinelengths[i], 0);
+		SIZE = 8; XMUL = 7; YMUL = 10;
+	}
+	else if (SCREENWIDTH < 700)
+	{
+		SIZE = 12;  XMUL = 9;  YMUL = 14;
+	}
+	else
+	{
+		SIZE = 16;  XMUL = 11;  YMUL = 18;
+	}
+
+
+	for (; i < curlinesize ; i++, y += YMUL)
+	{
+		WriteText(0, y, curlines[i], curlinelengths[i], 0);
 	}
 
 	i -= curlinesize;
 
-	for (; i < vislastline_n && y < conrows; i++, y++)
+	for (; i < vislastline_n; i++, y += YMUL)
 	{
-		WriteText(0, bottom_y + y * YMUL, vislastline_s[i], vislastline_l[i], 0);
+		WriteText(0, y, vislastline_s[i], vislastline_l[i], 0);
 	}
 
 	i -= vislastline_n;
 
-	for (; i < viscmdline_n && y < conrows; i++, y++)
+	for (; i < viscmdline_n; i++, y += YMUL)
 	{
-		WriteText(0, bottom_y + y * YMUL, viscmdline_s[i], viscmdline_l[i], 1);
+		WriteText(0, y, viscmdline_s[i], viscmdline_l[i], 1);
 	}
+
+#if 0  // TODO !!!!!!
 
 	// draw the cursor on the right place of the command line.
 	if (info->cursor < 16 && bottomrow == -1)
@@ -719,6 +731,8 @@ void CON_Drawer(void)
 			viscmdline_s[i][len] = c;
 		}
 	}
+
+#endif
 }
 
 #if 0
@@ -1013,15 +1027,10 @@ bool CON_Responder(event_t * ev)
 	return false;
 }
 
-bool CON_InitResolution(void)
-{
-	CON_InitConsole(SCREENWIDTH, CON_GFX_HT, true);
-	return true;
-}
 
 void CON_Start(void)
 {
-	CON_CreateCVarEnum("conwipemethod", cf_normal, &conwipemethod, WIPE_EnumStr, WIPE_NUMWIPES);
+	CON_CreateCVarEnum("conwipemethod",  cf_normal, &conwipemethod, WIPE_EnumStr, WIPE_NUMWIPES);
 	CON_CreateCVarInt("conwipeduration", cf_normal, &conwipeduration);
 	CON_CreateCVarBool("conwipereverse", cf_normal, &conwipereverse);
 
