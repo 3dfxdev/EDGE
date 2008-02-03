@@ -1,5 +1,9 @@
 Andrew Apted's Log
 
+2008/02/03:
+
+Worked on making the Console look a bit nicer.
+
 2008/02/01:
 
 Fixed bug not setting up 'nodes' array in the newgame_params_c
