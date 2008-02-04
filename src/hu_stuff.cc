@@ -208,7 +208,7 @@ void HU_Start(void)
 		I_Printf("\n");
 		I_Printf("--------------------------------------------------\n");
 
-		CON_MessageColor(RGB_MAKE(255,0,0));
+		CON_MessageColor(RGB_MAKE(0,255,0));
 
 		string = language[currmap->description];
 		I_Printf("Entering %s\n", string);
