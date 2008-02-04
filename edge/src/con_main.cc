@@ -71,6 +71,7 @@ static const con_cmd_t consolecommands[] =
 	{"type", 0, CMD_Type},
 	{"typeof", 0, CMD_TypeOf},
 	{"quit", 0, CMD_QuitEDGE},
+	{"exit", 0, CMD_QuitEDGE},
 };
 
 static int GetArgs(const char *args, int argc, char **argv)
