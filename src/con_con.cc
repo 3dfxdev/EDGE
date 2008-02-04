@@ -53,10 +53,41 @@ static const image_c *con_font;
 static style_c *console_style;
 
 
-#define MAX_CON_LINES  100
+#define T_WHITE   RGB_MAKE(208,208,208)
+#define T_YELLOW  RGB_MAKE(255,255,0)
+
+#define MAX_CON_LINES  160
+
+class console_line_c
+{
+public:
+	std::string line;
+
+	rgbcol_t color;
+
+public:
+	console_line_c(const std::string& text, rgbcol_t _col = T_WHITE) :
+		line(text), color(_col)
+	{ }
+
+	console_line_c(const char *text, rgbcol_t _col = T_WHITE) :
+		line(text), color(_col)
+	{ }
+
+	~console_line_c()
+	{ }
+
+	void Append(const char *text)
+	{
+		line = line + std::string(text);
+	}
+};
 
 // entry [0] is the bottom-most one
-static std::string * console_lines[MAX_CON_LINES];
+static console_line_c * console_lines[MAX_CON_LINES];
+
+static int con_used_lines = 0;
+static bool con_partial_last_line = false;
 
 
 #define MAX_CON_INPUT  255
@@ -180,14 +211,31 @@ scrollstate_e;
 static scrollstate_e scroll_state;
 
 
-static void CON_ScrollLinesUp(void)
+static void CON_AddLine(const char *s, bool partial)
 {
+	if (con_partial_last_line)
+	{
+		SYS_ASSERT(console_lines[0]);
+
+		console_lines[0]->Append(s);
+
+		con_partial_last_line = partial;
+		return;
+	}
+
+	// scroll everything up 
+
 	delete console_lines[MAX_CON_LINES-1];
 
 	for (int i = MAX_CON_LINES-1; i > 0; i--)
 		console_lines[i] = console_lines[i-1];
 
-	console_lines[0] = NULL;
+	console_lines[0] = new console_line_c(s);
+
+	con_partial_last_line = partial;
+
+	if (con_used_lines < MAX_CON_LINES)
+		con_used_lines++;
 }
 
 
@@ -272,10 +320,6 @@ static void UpdateNumvislines(void)
 
 static void AddConsoleLine(const char *s)
 {
-	CON_ScrollLinesUp();
-
-	console_lines[0] = new std::string(s);
-
 	if (no_con_history)
 		return;
 
@@ -338,35 +382,6 @@ static void UpdateConsole(void)
 	UpdateCmdLine();
 }
 
-//
-// Initialises the console with the given dimensions, in characters.
-//
-void CON_InitConsole(void)
-{
-	conrows  = 100;
-
-	MaxTextLen = MaxTextLen_text;
-
-
-	if (lastline == NULL)
-	{
-		// First time. Init lastline and cmdline and cmdhistory, and add dummy
-		// elements
-		GrowLine(&lastline, &lastlinesize, 128);
-		lastline[0] = 0;
-		GrowLine(&cmdline, &cmdlinesize, 128);
-		cmdline[0] = '>';
-		cmdline[1] = 0;
-		cmdlinepos = 1;
-		cmdlineend = 1;
-		AddCommandToHistory(cmdline);
-		AddConsoleLine("");
-		no_con_history = M_CheckParm("-noconhistory")?true:false;
-	}
-
-	UpdateConsole();
-}
-
 void CON_SetVisible(visible_t v)
 {
 	if (v == vs_toggle)
@@ -392,46 +407,37 @@ void CON_SetVisible(visible_t v)
 	}
 }
 
-static void PrintString(const char *s)
-{
-	const char *src;
 
-	for (src = s; *src; src++)
+static void SplitIntoLines(char *src)
+{
+	char *dest = src;
+	char *line = dest;
+
+	while (*src)
 	{
 		if (*src == '\n')
-		{  // new line, add it to the console history.
-
-			lastline[lastlineend] = 0;
-			AddConsoleLine(lastline);
-			lastlinepos = lastlineend = 0;
-			continue;
-		}
-
-		if (*src == '\r')
 		{
-			lastlinepos = 0;
-			continue;
+			*dest++ = 0;
+
+			CON_AddLine(line, false);
+
+			line = dest;
+
+			src++; continue;
 		}
 
-		if (*src == '\x8' && lastlinepos > 0)
-		{  // backspace
-			lastlinepos--;
-			continue;
+		// strip non-printing characters (including backspace)
+		if (! isprint(*src))
+		{
+			src++; continue;
 		}
 
-		lastline[lastlinepos] = *src;
-		lastlinepos++;
-
-		if (lastlinepos > lastlineend)
-			lastlineend = lastlinepos;
-
-		// verify that lastline is big enough to contain the final \0
-		GrowLine(&lastline, &lastlinesize, lastlineend + 1);
+		*dest++ = *src++;
 	}
 
-	lastline[lastlineend] = 0;
+	*dest++ = 0;
 
-	UpdateLastLine();
+	CON_AddLine(line, true);
 }
 
 void CON_Printf(const char *message, ...)
@@ -443,7 +449,7 @@ void CON_Printf(const char *message, ...)
 	vsprintf(buffer, message, argptr);
 	va_end(argptr);
 
-	PrintString(buffer);
+	SplitIntoLines(buffer);
 }
 
 void CON_Message(const char *message,...)
@@ -459,11 +465,11 @@ void CON_Message(const char *message,...)
 	va_end(argptr);
 
 
-///	HU_StartMessage(buffer);
+	HU_StartMessage(buffer);
 
 	strcat(buffer, "\n");
 
-	PrintString(buffer);
+	SplitIntoLines(buffer);
 
 }
 
@@ -478,11 +484,11 @@ void CON_MessageLDF(const char *lookup, ...)
 	vsprintf(buffer, lookup, argptr);
 	va_end(argptr);
 
-///	HU_StartMessage(buffer);
+	HU_StartMessage(buffer);
 
 	strcat(buffer, "\n");
 
-	PrintString(buffer);
+	SplitIntoLines(buffer);
 }
 
 
@@ -545,7 +551,7 @@ static int XMUL;
 static int YMUL;
 
 
-static void WriteChar(int x, int y, char ch, int text_type)
+static void WriteChar(int x, int y, char ch, rgbcol_t col)
 {
 	if (x + SIZE < 0)
 		return;
@@ -559,10 +565,10 @@ static void WriteChar(int x, int y, char ch, int text_type)
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GREATER, 0);
 
-	if (text_type == 1)
-		glColor3f(1.00f, 1.00f, 0.00f);
-	else
-		glColor3f(0.80f, 0.80f, 0.80f);
+	float alpha = 1.0f;
+
+	glColor4f(RGB_RED(col)/255.0f, RGB_GRN(col)/255.0f, 
+	          RGB_BLU(col)/255.0f, alpha);
 
 	int px =      int((byte)ch) % 16;
 	int py = 15 - int((byte)ch) / 16;
@@ -597,11 +603,11 @@ static void WriteChar(int x, int y, char ch, int text_type)
 }
 
 // writes the text on coords (x,y) of the console
-static void WriteText(int x, int y, const char *s, int text_type)
+static void WriteText(int x, int y, const char *s, rgbcol_t col)
 {
 	for (; *s; s++)
 	{
-		WriteChar(x, y, *s, text_type);
+		WriteChar(x, y, *s, col);
 
 		x += XMUL;
 
@@ -668,7 +674,7 @@ void CON_Drawer(void)
 	if (bottomrow == -1)
 	{
 		// TODO
-		WriteText(0, y, ">hello world", 1);
+		WriteText(0, y, ">hello world", T_YELLOW);
 
 		y += YMUL;
 	}
@@ -679,9 +685,11 @@ void CON_Drawer(void)
 
 	for (int i = MAX(0,bottomrow); i < MAX_CON_LINES; i++)
 	{
-		if (console_lines[i])
+		console_line_c *CL = console_lines[i];
+
+		if (CL)
 		{
-			WriteText(0, y, console_lines[i]->c_str(), 0);
+			WriteText(0, y, CL->line.c_str(), CL->color);
 		}
 
 		y += YMUL;
@@ -1035,6 +1043,38 @@ bool CON_Responder(event_t * ev)
 	return false;
 }
 
+
+//
+// Initialises the console with the given dimensions, in characters.
+//
+void CON_InitConsole(void)
+{
+	conrows  = 100;
+
+	MaxTextLen = MaxTextLen_text;
+
+
+	if (lastline == NULL)
+	{
+		// First time. Init lastline and cmdline and cmdhistory, and add dummy
+		// elements
+		GrowLine(&lastline, &lastlinesize, 128);
+		lastline[0] = 0;
+		GrowLine(&cmdline, &cmdlinesize, 128);
+
+		cmdline[0] = '>';
+		cmdline[1] = 0;
+		cmdlinepos = 1;
+		cmdlineend = 1;
+
+		AddCommandToHistory(cmdline);
+		AddConsoleLine("");
+
+		no_con_history = M_CheckParm("-noconhistory")?true:false;
+	}
+
+	UpdateConsole();
+}
 
 void CON_Start(void)
 {
