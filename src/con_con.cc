@@ -32,6 +32,7 @@
 #include "hu_stuff.h"
 #include "hu_style.h"
 #include "m_argv.h"
+#include "r_draw.h"
 #include "r_image.h"
 #include "r_modes.h"
 #include "r_wipe.h"
@@ -55,6 +56,9 @@ static style_c *console_style;
 
 #define T_WHITE   RGB_MAKE(208,208,208)
 #define T_YELLOW  RGB_MAKE(255,255,0)
+
+static rgbcol_t current_color;
+
 
 #define MAX_CON_LINES  160
 
@@ -163,7 +167,7 @@ static void CON_AddLine(const char *s, bool partial)
 	for (int i = MAX_CON_LINES-1; i > 0; i--)
 		console_lines[i] = console_lines[i-1];
 
-	console_lines[0] = new console_line_c(s);
+	console_lines[0] = new console_line_c(s, current_color);
 
 	con_partial_last_line = partial;
 
@@ -273,6 +277,8 @@ static void SplitIntoLines(char *src)
 	{
 		CON_AddLine(line, true);
 	}
+
+	current_color = T_WHITE;
 }
 
 void CON_Printf(const char *message, ...)
@@ -324,6 +330,11 @@ void CON_MessageLDF(const char *lookup, ...)
 	strcat(buffer, "\n");
 
 	SplitIntoLines(buffer);
+}
+
+void CON_MessageColor(rgbcol_t col)
+{
+	current_color = col;
 }
 
 
@@ -385,6 +396,13 @@ static int SIZE;
 static int XMUL;
 static int YMUL;
 
+
+static void HorizontalLine(int y, rgbcol_t col)
+{
+	float alpha = 1.0f;
+
+	RGL_SolidBox(0, y, SCREENWIDTH-1, 1, col, alpha);
+}
 
 static void WriteChar(int x, int y, char ch, rgbcol_t col)
 {
@@ -524,7 +542,7 @@ void CON_Drawer(void)
 			}
 		}
 
-		y += YMUL + YMUL / 3;
+		y += YMUL + YMUL / 2;
 	}
 
 	// -- text lines --
@@ -536,7 +554,10 @@ void CON_Drawer(void)
 		if (! CL)
 			break;
 
-		WriteText(0, y, CL->line.c_str(), CL->color);
+		if (strncmp(CL->line.c_str(), "-----", 5) == 0)
+			HorizontalLine(y + YMUL/2, CL->color);
+		else
+			WriteText(0, y, CL->line.c_str(), CL->color);
 
 		y += YMUL;
 
@@ -807,6 +828,8 @@ void CON_InitConsole(void)
 	cmd_hist_pos = -1;
 
 	CON_ClearInputLine();
+
+	current_color = T_WHITE;
 
 	CON_AddLine("", false);
 	CON_AddLine("", false);

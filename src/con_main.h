@@ -19,6 +19,8 @@
 #ifndef __CON_MAIN_H
 #define __CON_MAIN_H
 
+#include "ddf/types.h"
+
 void CON_TryCommand(const char *cmd);
 
 // Prints messages.  cf printf.
@@ -38,6 +40,9 @@ void CON_MessageLDF(const char *lookup, ...);
 void CON_PlayerMessage(int plyr, const char *message, ...) GCCATTR((format(printf, 2, 3)));
 // Looks up in LDF.
 void CON_PlayerMessageLDF(int plyr, const char *message, ...);
+
+// this color will apply to the next CON_Message or CON_Printf call.
+void CON_MessageColor(rgbcol_t col);
 
 typedef enum
 {
