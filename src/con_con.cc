@@ -89,10 +89,14 @@ static console_line_c * console_lines[MAX_CON_LINES];
 static int con_used_lines = 0;
 static bool con_partial_last_line = false;
 
+// the console row that is displayed at the bottom of screen, -1 if cmdline
+// is the bottom one.
+static int bottomrow = -1;
+
 
 #define MAX_CON_INPUT  255
 
-static char input_line[MAX_CON_INPUT];
+static char input_line[MAX_CON_INPUT+2];
 static int  input_pos = 0;
 
 
@@ -107,6 +111,17 @@ static int conwipeduration = 10;
 #define KEYREPEATDELAY ((250 * TICRATE) / 1000)
 #define KEYREPEATRATE  (TICRATE / 15)
 
+
+#define MAX_CMD_HISTORY  100
+
+static std::string *cmd_history[MAX_CMD_HISTORY];
+
+static int cmd_used_hist = 0;
+
+// when browsing the cmdhistory, this shows the current index. Otherwise it's -1.
+static int cmd_hist_pos = -1;
+
+
  typedef struct consoleline_s
  {
  	char *s;  // The String
@@ -116,74 +131,70 @@ static int conwipeduration = 10;
  }
  consoleline_t;
 
-// All the output lines of the console (not only those currently visible).
-// A line can be of any length. If the screen is too narrow for it, the line
-// will be split up on screen, but it will remain intact in this array.
-static consoleline_t *linebuffer = NULL;
-static int linebufferpos = 0;  // shows the index after the last one
+///---// All the output lines of the console (not only those currently visible).
+///---// A line can be of any length. If the screen is too narrow for it, the line
+///---// will be split up on screen, but it will remain intact in this array.
+///---static consoleline_t *linebuffer = NULL;
+///---static int linebufferpos = 0;  // shows the index after the last one
+///---
+///---static int linebuffersize = 0;  // shows the size
 
-static int linebuffersize = 0;  // shows the size
+///---// lastline: The last output text line. This is different from the others
+///---// because it is growable, you can print twice without newline.
+///---static char *lastline = NULL;  // the last text line of the console.
+///---
+///---static int lastlinesize = 0;
+///---static int lastlinepos = 0;
+///---static int lastlineend = 0;
 
-// lastline: The last output text line. This is different from the others
-// because it is growable, you can print twice without newline.
-static char *lastline = NULL;  // the last text line of the console.
+///---// Properly split up last line.
+///---// s: array of string start pointers, l: array of string lengths,
+///---// n: number of strings.
+///---static char **vislastline_s = NULL;
+///---static int *vislastline_l = NULL;
+///---static int vislastline_n = 0;
 
-static int lastlinesize = 0;
-static int lastlinepos = 0;
-static int lastlineend = 0;
+///---// Command Line
+///---static char *cmdline = NULL;
+///---static int cmdlinesize = 0;
+///---static int cmdlinepos = 0;
+///---static int cmdlineend = 0;
 
-// Properly split up last line.
-// s: array of string start pointers, l: array of string lengths,
-// n: number of strings.
-static char **vislastline_s = NULL;
-static int *vislastline_l = NULL;
-static int vislastline_n = 0;
+///--- // Properly split up command line.
+///--- static char **viscmdline_s = NULL;
+///--- static int *viscmdline_l = NULL;
+///--- static int viscmdline_n = 0;
 
-// Command Line
-static char *cmdline = NULL;
-static int cmdlinesize = 0;
-static int cmdlinepos = 0;
-static int cmdlineend = 0;
+///--- // Command line backup: If you press UPARROW when you've written something
+///--- // at the command line, it will be backuped here, and it's possible to restore
+///--- // it by pressing DOWNARROW before you've executed another command.
+///--- static char *cmdlinebkp = NULL;
+///--- static int cmdlinebkpsize = 0;
 
-// Properly split up command line.
-static char **viscmdline_s = NULL;
-static int *viscmdline_l = NULL;
-static int viscmdline_n = 0;
-
-// Command line backup: If you press UPARROW when you've written something
-// at the command line, it will be backuped here, and it's possible to restore
-// it by pressing DOWNARROW before you've executed another command.
-static char *cmdlinebkp = NULL;
-static int cmdlinebkpsize = 0;
-
-// Command Line History. All the written commands.
-static consoleline_t *cmdhistory = NULL;
-static int cmdhistoryend = 0;
-static int cmdhistorysize = 0;
+///---// Command Line History. All the written commands.
+///---static consoleline_t *cmdhistory = NULL;
+///---static int cmdhistoryend = 0;
+///---static int cmdhistorysize = 0;
 
 // when browsing the cmdhistory, this shows the current index. Otherwise it's -1.
-static int cmdhistorypos = -1;
+///---static int cmdhistorypos = -1;
 
-// The text of the console, with lines split up properly for the current
-// resolution.
-static char **curlines = NULL;
+///---// The text of the console, with lines split up properly for the current
+///---// resolution.
+///---static char **curlines = NULL;
 
-// the length of each of curlines
-static int *curlinelengths = NULL;
+///---// the length of each of curlines
+///---static int *curlinelengths = NULL;
+///---
+///---// the number of allocated rows in curlines and curlinelengths.
+///---static int curlinesize = 0;
+///---
+///---// number of visible console lines (curlines+vislastline+viscmdline).
+///---static int numvislines = 0;
 
-// the number of allocated rows in curlines and curlinelengths.
-static int curlinesize = 0;
-
-// number of visible console lines (curlines+vislastline+viscmdline).
-static int numvislines = 0;
-
-// width of console. Measured in characters if in text mode, and in pixels
-// if in graphics mode.
-static int conrows;
-
-// the console row that is displayed at the bottom of screen, -1 if cmdline
-// is the bottom one.
-static int bottomrow = -1;
+///---// width of console. Measured in characters if in text mode, and in pixels
+///---// if in graphics mode.
+///---static int conrows;
 
 // if true, nothing will be displayed in the console, and there will be no
 // command history.
@@ -238,155 +249,34 @@ static void CON_AddLine(const char *s, bool partial)
 		con_used_lines++;
 }
 
-
-
-static int (*MaxTextLen) (const char *s);
-
-
-
-static int MaxTextLen_text(const char *s)
+static void CON_AddCmdHistory(const char *s)
 {
-	int len = (int)strlen(s);
+	// scroll everything up 
+	delete cmd_history[MAX_CMD_HISTORY-1];
 
-	if (len > 100)
-		return 100;
-	else
-		return len;
+	for (int i = MAX_CMD_HISTORY-1; i > 0; i--)
+		cmd_history[i] = cmd_history[i-1];
+
+	cmd_history[0] = new std::string(s);
+
+	if (cmd_used_hist < MAX_CMD_HISTORY)
+		cmd_used_hist++;
 }
 
-// Adds a line of text to either cmdhistory or linebuffer
-static void AddLine(consoleline_t ** line, int *pos, int *size, const char *s)
+static void CON_ClearInputLine(void)
 {
-	consoleline_t *l;
-
-	// we always have two free lines at the end, these can be used temporarily
-	// for easier lastline and cmdline handling
-	if (*pos >= *size - 2)
-		Z_Resize(*line, consoleline_t, *size += 8);
-
-	l = &(*line)[*pos];
-	l->len = (int)strlen(s);
-	l->s = Z_New(char, l->len + 1);
-	Z_MoveData(l->s, s, char, l->len + 1);
-
-	(*pos)++;
+	input_line[0] = 0;
+	input_pos = 0;
 }
 
-//
-// GrowLine
-//
-// helper function for use with cmdline and lastline. Verifies that
-// *line can contain newlen characters
-//
-static void GrowLine(char **line, int *len, int newlen)
-{
-	if (newlen <= *len)
-		return;  // don't need to do anything
-
-	// always grow 128 byte at a time
-	newlen = (newlen + 127) & ~127;
-
-	Z_Resize(*line, char, newlen);
-	if (!*line)
-		I_Error("GrowLine: Out of memory!");
-
-	*len = newlen;
-}
-
-// splits up s in conwidth wide chunks, and stores pointers to the start of
-// each line at the end of the *lines array.
-static void AddSplitRow(char ***lines, int **lengths, int *size, char *s)
-{
-	int len;
-
-	do
-	{
-		(*size)++;
-		Z_Resize(*lines, char *, *size);
-		Z_Resize(*lengths, int, *size);
-
-		len = MaxTextLen(s);
-		(*lines)[(*size) - 1] = s;
-		(*lengths)[(*size) - 1] = len;
-		s += len;
-	}
-	while (*s);
-}
-
-static void UpdateNumvislines(void)
-{
-	numvislines = curlinesize + vislastline_n + viscmdline_n;
-}
-
-static void AddConsoleLine(const char *s)
-{
-	if (no_con_history)
-		return;
-
-	AddLine(&linebuffer, &linebufferpos, &linebuffersize, s);
-	AddSplitRow(&curlines, &curlinelengths, &curlinesize, linebuffer[linebufferpos - 1].s);
-	UpdateNumvislines();
-}
-
-// updates cmdline after it has been changed.
-static void UpdateCmdLine(void)
-{
-	viscmdline_n = 0;
-	if (cmdlinepos == cmdlineend)
-	{  // the cursor is at the end of the command line, allocate space for it too.
-
-		GrowLine(&cmdline, &cmdlinesize, cmdlineend + 2);
-		cmdline[cmdlineend] = '_';
-		cmdline[cmdlineend + 1] = 0;
-	}
-	AddSplitRow(&viscmdline_s, &viscmdline_l, &viscmdline_n, cmdline);
-	cmdline[cmdlineend] = 0;
-
-	UpdateNumvislines();
-
-	// the cursor should not blink when you're writing.
-	con_cursor = 0;
-}
-
-static void UpdateLastLine(void)
-{
-	vislastline_n = 0;
-	AddSplitRow(&vislastline_s, &vislastline_l, &vislastline_n, lastline);
-	UpdateNumvislines();
-}
-
-static void AddCommandToHistory(char *s)
-{
-	// Don't add the string if it's the same as the previous one in history.
-	// Add it if history is empty, though.
-	if (no_con_history)
-		return;
-	if (!cmdhistory || strcmp(cmdhistory[cmdhistoryend - 1].s, s))
-		AddLine(&cmdhistory, &cmdhistoryend, &cmdhistorysize, s);
-}
-
-static void UpdateConsole(void)
-{
-	int i;
-
-	curlinesize = 0;
-
-	for (i = 0; i < linebufferpos; i++)
-	{
-		AddSplitRow(&curlines, &curlinelengths, &curlinesize, linebuffer[i].s);
-	}
-
-	bottomrow = -1;
-
-	UpdateLastLine();
-	UpdateCmdLine();
-}
 
 void CON_SetVisible(visible_t v)
 {
 	if (v == vs_toggle)
 	{
 		v = (con_visible == vs_notvisible) ? vs_maximal : vs_notvisible;
+
+		scroll_state = NOSCROLL;
 	}
 
 	if (con_visible == v)
@@ -396,7 +286,7 @@ void CON_SetVisible(visible_t v)
 
 	if (v == vs_maximal)
 	{
-		cmdhistorypos = -1;
+///!!!!		cmdhistorypos = -1;
 		TabbedLast = false;
 	}
 
@@ -508,7 +398,7 @@ void CON_Ticker(void)
 			break;
 
 		case SCROLLDN:
-			if (bottomrow >= 0)
+			if (bottomrow > -1)
 				bottomrow--;
 
 			break;  
@@ -673,8 +563,23 @@ void CON_Drawer(void)
 
 	if (bottomrow == -1)
 	{
-		// TODO
-		WriteText(0, y, ">hello world", T_YELLOW);
+		WriteText(0, y, ">", T_YELLOW);
+
+		if (cmd_hist_pos >= 0)
+		{
+			const char *text = cmd_history[cmd_hist_pos]->c_str();
+
+			WriteText(XMUL, y, text, T_YELLOW);
+		}
+		else
+		{
+			WriteText(XMUL, y, input_line, T_YELLOW);
+
+			if (con_cursor < 16)
+			{
+				WriteText((input_pos+1) * XMUL, y, "_", T_YELLOW);
+			}
+		}
 
 		y += YMUL;
 	}
@@ -795,65 +700,72 @@ bool CON_HandleKey(int key)
 	
 	case KEYD_HOME:
 		// Move cursor to start of line
-		cmdlinepos = 1;
+		input_pos = 0;
+		con_cursor = 0;
 		break;
 	
 	case KEYD_END:
 		// Move cursor to end of line
-		cmdlinepos = cmdlineend;
+		while (input_line[input_pos] != 0)
+			input_pos++;
+		con_cursor = 0;
 		break;
 	
 	case KEYD_LEFTARROW:
 		// Move cursor left one character
 	
-		if (cmdlinepos > 1)
-			cmdlinepos--;
+		if (input_pos > 0)
+			input_pos--;
+		con_cursor = 0;
 		break;
 	
 	case KEYD_RIGHTARROW:
 		// Move cursor right one character
 	
-		if (cmdlinepos < cmdlineend)
-			cmdlinepos++;
+		if (input_line[input_pos] != 0)
+			input_pos++;
+		con_cursor = 0;
 		break;
 	
 	case KEYD_BACKSPACE:
 		// Erase character to left of cursor
 	
-		if (cmdlinepos > 1)
+		if (input_pos > 0)
 		{
-			char *c, *e;
-	
-			e = &cmdline[cmdlineend];
-			c = &cmdline[cmdlinepos];
-	
-			for (; c <= e; c++)
-				*(c - 1) = *c;
-	
-			cmdlineend--;
-			cmdlinepos--;
+///!!!!			char *c, *e;
+///!!!!	
+///!!!!			e = &cmdline[cmdlineend];
+///!!!!			c = &cmdline[cmdlinepos];
+///!!!!	
+///!!!!			for (; c <= e; c++)
+///!!!!				*(c - 1) = *c;
+///!!!!	
+///!!!!			cmdlineend--;
+///!!!!			cmdlinepos--;
 		}
 	
 		TabbedLast = false;
+		con_cursor = 0;
 		break;
 	
 	case KEYD_DELETE:
 		// Erase charater under cursor
 	
-		if (cmdlinepos < cmdlineend)
+		if (input_line[input_pos] != 0)
 		{
-			char *c, *e;
-	
-			e = &cmdline[cmdlineend];
-			c = &cmdline[cmdlinepos + 1];
-	
-			for (; c <= e; c++)
-				*(c - 1) = *c;
-	
-			cmdlineend--;
+///!!!!			char *c, *e;
+///!!!!	
+///!!!!			e = &cmdline[cmdlineend];
+///!!!!			c = &cmdline[cmdlinepos + 1];
+///!!!!	
+///!!!!			for (; c <= e; c++)
+///!!!!				*(c - 1) = *c;
+///!!!!	
+///!!!!			cmdlineend--;
 		}
 	
 		TabbedLast = false;
+		con_cursor = 0;
 		break;
 	
 	case KEYD_RALT:
@@ -867,51 +779,19 @@ bool CON_HandleKey(int key)
 		break;
 	
 	case KEYD_UPARROW:
-		// Move to previous entry in the command history
-		if (cmdhistorypos == -1)
-		{
-			cmdhistorypos = cmdhistoryend - 1;
-			// backup cmdline temporarily: It can be recovered until the next
-			// command you execute. another command.
-			GrowLine(&cmdlinebkp, &cmdlinebkpsize, cmdlineend + 1);
-			Z_MoveData(cmdlinebkp, cmdline, char, cmdlineend + 1);
-	
-			// add to history unofficially, so that it will be overwritten.
-			cmdhistory[cmdhistoryend].s = cmdlinebkp;
-			cmdhistory[cmdhistoryend].len = (int)strlen(cmdlinebkp);
-		}
-		else if (cmdhistorypos)
-		{
-			cmdhistorypos--;
-		}
-	
-		// set command line to the history index.
-		cmdlineend = cmdlinepos = cmdhistory[cmdhistorypos].len;
-		GrowLine(&cmdline, &cmdlinesize, cmdlineend + 1);
-		Z_MoveData(cmdline, cmdhistory[cmdhistorypos].s, char, cmdlineend + 1);
-	
+		if (cmd_hist_pos < cmd_used_hist)
+			cmd_hist_pos++;
+
 		TabbedLast = false;
 		break;
 	
 	case KEYD_DOWNARROW:
 		// Move to next entry in the command history
 	
-		if (cmdhistorypos != -1 && cmdhistorypos < cmdhistoryend)
-		{
-			cmdhistorypos++;
-			// set command line to the history item.
-			cmdlineend = cmdlinepos = cmdhistory[cmdhistorypos].len;
-			GrowLine(&cmdline, &cmdlinesize, cmdlineend + 1);
-			Z_MoveData(cmdline, cmdhistory[cmdhistorypos].s, char, cmdlineend + 1);
+		if (cmd_hist_pos > -1)
+			cmd_hist_pos--;
 	
-			if (cmdhistorypos == cmdhistoryend)
-			{  // we just restored the cmdline backup, now we aren't browsing history anymore.
-	
-				cmdhistorypos = -1;
-			}
-	
-			TabbedLast = false;
-		}
+		TabbedLast = false;
 		break;
 
 	case KEYD_ENTER:
@@ -919,17 +799,14 @@ bool CON_HandleKey(int key)
 		// Execute command line (ENTER)
 	
 		// Add it to history & draw it
-		AddCommandToHistory(cmdline);
-		CON_Printf("\n%s\n", cmdline);
+		CON_AddCmdHistory(input_line);
+		CON_Printf("\n>%s\n", input_line);
 	
 		// Run it!
-		CON_TryCommand(cmdline + 1);
+		CON_TryCommand(input_line);
 	
-		// clear cmdline
-		cmdline[1] = 0;
-		cmdlinepos = 1;
-		cmdlineend = 1;
-		cmdhistorypos = -1;
+		CON_ClearInputLine();
+
 		TabbedLast = false;
 		break;
 	
@@ -937,13 +814,10 @@ bool CON_HandleKey(int key)
 		// Close console, clear command line, but if we're in the
 		// fullscreen console mode, there's nothing to fall back on
 		// if it's closed.
-		cmdline[1] = 0;
-		cmdlinepos = 1;
-		cmdlineend = 1;
-		cmdhistorypos = -1;
+		CON_ClearInputLine();
 	
 		TabbedLast = false;
-		UpdateCmdLine();
+///---	UpdateCmdLine();
 	
 		CON_SetVisible(vs_notvisible);
 		break;
@@ -955,34 +829,37 @@ bool CON_HandleKey(int key)
 		}
 		else
 		{
-			// Add keypress to command line
-			char data = key;
-			char *c, *e;
-	
-			GrowLine(&cmdline, &cmdlinesize, cmdlineend + 2);
-	
-			// move everything after the cursor, including the 0, one step to the right
-			e = &cmdline[cmdlineend];
-			c = &cmdline[cmdlinepos];
-	
-			for (; e >= c; e--)
-			{
-				*(e + 1) = *e;
-			}
-	
-			// insert the character
-			*c = data;
-	
-			cmdlinepos++;
-			cmdlineend++;
+			input_line[input_pos++] = key;
+
+///!!!!			// Add keypress to command line
+///!!!!			char data = key;
+///!!!!			char *c, *e;
+///!!!!	
+///!!!!///---		GrowLine(&cmdline, &cmdlinesize, cmdlineend + 2);
+///!!!!	
+///!!!!			// move everything after the cursor, including the 0, one step to the right
+///!!!!			e = &cmdline[cmdlineend];
+///!!!!			c = &cmdline[cmdlinepos];
+///!!!!	
+///!!!!			for (; e >= c; e--)
+///!!!!			{
+///!!!!				*(e + 1) = *e;
+///!!!!			}
+///!!!!	
+///!!!!			// insert the character
+///!!!!			*c = data;
+///!!!!	
+///!!!!			cmdlinepos++;
+///!!!!			cmdlineend++;
 		}
 		TabbedLast = false;
+		con_cursor = 0;
 	
 		break;
 
 	}
 	// something in the console has probably changed, so we update it
-	UpdateCmdLine();
+///---UpdateCmdLine();
 
 	return true;
 }
@@ -1049,31 +926,16 @@ bool CON_Responder(event_t * ev)
 //
 void CON_InitConsole(void)
 {
-	conrows  = 100;
+	con_used_lines = 0;
+	cmd_used_hist  = 0;
 
-	MaxTextLen = MaxTextLen_text;
+	bottomrow = -1;
+	cmd_hist_pos = -1;
 
+	CON_ClearInputLine();
 
-	if (lastline == NULL)
-	{
-		// First time. Init lastline and cmdline and cmdhistory, and add dummy
-		// elements
-		GrowLine(&lastline, &lastlinesize, 128);
-		lastline[0] = 0;
-		GrowLine(&cmdline, &cmdlinesize, 128);
-
-		cmdline[0] = '>';
-		cmdline[1] = 0;
-		cmdlinepos = 1;
-		cmdlineend = 1;
-
-		AddCommandToHistory(cmdline);
-		AddConsoleLine("");
-
-		no_con_history = M_CheckParm("-noconhistory")?true:false;
-	}
-
-	UpdateConsole();
+	CON_AddLine("", false);
+	CON_AddLine("", false);
 }
 
 void CON_Start(void)
