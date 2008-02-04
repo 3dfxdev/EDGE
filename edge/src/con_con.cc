@@ -298,6 +298,27 @@ void CON_SetVisible(visible_t v)
 }
 
 
+static void StripWhitespace(char *src)
+{
+	const char *start = src;
+
+	while (*start && isspace(*start))
+		start++;
+
+	const char *end = src + strlen(src);
+
+	while (end > start && isspace(end[-1]))
+		end--;
+
+	while (start < end)
+	{
+		*src++ = *start++;
+	}
+
+	*src = 0;
+}
+
+
 static void SplitIntoLines(char *src)
 {
 	char *dest = src;
@@ -797,13 +818,22 @@ bool CON_HandleKey(int key)
 	case KEYD_ENTER:
 	
 		// Execute command line (ENTER)
-	
-		// Add it to history & draw it
-		CON_AddCmdHistory(input_line);
-		CON_Printf("\n>%s\n", input_line);
-	
-		// Run it!
-		CON_TryCommand(input_line);
+
+		StripWhitespace(input_line);
+
+		if (strlen(input_line) == 0)
+		{
+			CON_AddCmdHistory(">\n");
+		}
+		else
+		{
+			// Add it to history & draw it
+			CON_AddCmdHistory(input_line);
+			CON_Printf("\n>%s\n", input_line);
+		
+			// Run it!
+			CON_TryCommand(input_line);
+		}
 	
 		CON_ClearInputLine();
 
@@ -825,11 +855,22 @@ bool CON_HandleKey(int key)
 	default:
 		if (key < 32 || key > 126)
 		{
-			// Do nothing
+			// ignore non-printable characters
+			break;
 		}
-		else
+
+		if (input_pos >= MAX_CON_INPUT-1)
+			break;
+
+		// make room for new character, shift the trailing NUL too
 		{
-			input_line[input_pos++] = key;
+			for (int j = MAX_CON_INPUT-2; j >= input_pos; j--)
+				input_line[j+1] = input_line[j];
+
+			input_line[MAX_CON_INPUT-1] = 0;
+		}
+
+		input_line[input_pos++] = key;
 
 ///!!!!			// Add keypress to command line
 ///!!!!			char data = key;
@@ -851,7 +892,7 @@ bool CON_HandleKey(int key)
 ///!!!!	
 ///!!!!			cmdlinepos++;
 ///!!!!			cmdlineend++;
-		}
+
 		TabbedLast = false;
 		con_cursor = 0;
 	
