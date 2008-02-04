@@ -205,6 +205,11 @@ void HU_Start(void)
 	if (currmap->description &&
 		language.IsValidRef(currmap->description))
 	{
+		I_Printf("\n");
+		I_Printf("--------------------------------------------------\n");
+
+		CON_MessageColor(RGB_MAKE(255,0,0));
+
 		string = language[currmap->description];
 		I_Printf("Entering %s\n", string);
 
