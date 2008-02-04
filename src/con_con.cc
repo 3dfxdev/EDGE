@@ -122,84 +122,6 @@ static int cmd_used_hist = 0;
 static int cmd_hist_pos = -1;
 
 
- typedef struct consoleline_s
- {
- 	char *s;  // The String
- 
- 	int len;  // the length of the string, not counting terminating 0.
- 
- }
- consoleline_t;
-
-///---// All the output lines of the console (not only those currently visible).
-///---// A line can be of any length. If the screen is too narrow for it, the line
-///---// will be split up on screen, but it will remain intact in this array.
-///---static consoleline_t *linebuffer = NULL;
-///---static int linebufferpos = 0;  // shows the index after the last one
-///---
-///---static int linebuffersize = 0;  // shows the size
-
-///---// lastline: The last output text line. This is different from the others
-///---// because it is growable, you can print twice without newline.
-///---static char *lastline = NULL;  // the last text line of the console.
-///---
-///---static int lastlinesize = 0;
-///---static int lastlinepos = 0;
-///---static int lastlineend = 0;
-
-///---// Properly split up last line.
-///---// s: array of string start pointers, l: array of string lengths,
-///---// n: number of strings.
-///---static char **vislastline_s = NULL;
-///---static int *vislastline_l = NULL;
-///---static int vislastline_n = 0;
-
-///---// Command Line
-///---static char *cmdline = NULL;
-///---static int cmdlinesize = 0;
-///---static int cmdlinepos = 0;
-///---static int cmdlineend = 0;
-
-///--- // Properly split up command line.
-///--- static char **viscmdline_s = NULL;
-///--- static int *viscmdline_l = NULL;
-///--- static int viscmdline_n = 0;
-
-///--- // Command line backup: If you press UPARROW when you've written something
-///--- // at the command line, it will be backuped here, and it's possible to restore
-///--- // it by pressing DOWNARROW before you've executed another command.
-///--- static char *cmdlinebkp = NULL;
-///--- static int cmdlinebkpsize = 0;
-
-///---// Command Line History. All the written commands.
-///---static consoleline_t *cmdhistory = NULL;
-///---static int cmdhistoryend = 0;
-///---static int cmdhistorysize = 0;
-
-// when browsing the cmdhistory, this shows the current index. Otherwise it's -1.
-///---static int cmdhistorypos = -1;
-
-///---// The text of the console, with lines split up properly for the current
-///---// resolution.
-///---static char **curlines = NULL;
-
-///---// the length of each of curlines
-///---static int *curlinelengths = NULL;
-///---
-///---// the number of allocated rows in curlines and curlinelengths.
-///---static int curlinesize = 0;
-///---
-///---// number of visible console lines (curlines+vislastline+viscmdline).
-///---static int numvislines = 0;
-
-///---// width of console. Measured in characters if in text mode, and in pixels
-///---// if in graphics mode.
-///---static int conrows;
-
-// if true, nothing will be displayed in the console, and there will be no
-// command history.
-static bool no_con_history = 0;
-
 // always type ev_keydown
 static int RepeatKey;
 static int RepeatCountdown;
@@ -286,7 +208,6 @@ void CON_SetVisible(visible_t v)
 
 	if (v == vs_maximal)
 	{
-///!!!!		cmdhistorypos = -1;
 		TabbedLast = false;
 	}
 
@@ -348,7 +269,10 @@ static void SplitIntoLines(char *src)
 
 	*dest++ = 0;
 
-	CON_AddLine(line, true);
+	if (line[0])
+	{
+		CON_AddLine(line, true);
+	}
 }
 
 void CON_Printf(const char *message, ...)
@@ -525,8 +449,6 @@ static void WriteText(int x, int y, const char *s, rgbcol_t col)
 		if (x >= SCREENWIDTH)
 			return;
 	}
-
-///---	HL_WriteText(console_style, text_type, x, y, buffer, 0.5f);
 }
 
 
@@ -555,15 +477,15 @@ void CON_Drawer(void)
 
 	if (SCREENWIDTH < 400)
 	{
-		SIZE = 10; XMUL = 7; YMUL = 11;
+		SIZE = 10; XMUL = 7; YMUL = 12;
 	}
 	else if (SCREENWIDTH < 700)
 	{
-		SIZE = 13;  XMUL = 9;  YMUL = 14;
+		SIZE = 13;  XMUL = 9;  YMUL = 15;
 	}
 	else
 	{
-		SIZE = 16;  XMUL = 11;  YMUL = 18;
+		SIZE = 16;  XMUL = 11;  YMUL = 19;
 	}
 
 
@@ -621,58 +543,6 @@ void CON_Drawer(void)
 		if (y >= SCREENHEIGHT)
 			break;
 	}
-
-///-- 	i -= curlinesize;
-///-- 
-///-- 	for (; i < vislastline_n; i++, y += YMUL)
-///-- 	{
-///-- 		WriteText(0, y, vislastline_s[i], vislastline_l[i], 0);
-///-- 	}
-///-- 
-///-- 	i -= vislastline_n;
-///-- 
-///-- 	for (; i < viscmdline_n; i++, y += YMUL)
-///-- 	{
-///-- 		WriteText(0, y, viscmdline_s[i], viscmdline_l[i], 1);
-///-- 	}
-
-#if 0  // TODO !!!!!!
-
-	// draw the cursor on the right place of the command line.
-	if (con_cursor < 16 && bottomrow == -1)
-	{
-		// the command line can be more than one row high, so we must first search
-		// for the line containing the cursor.
-		i = viscmdline_n;
-		y = conrows;
-		// if the cursor is alone, we must add an extra char for it
-		len = cmdlineend;  //==cmdlinepos?cmdlineend+1:cmdlineend;
-
-		do
-		{
-			i--;
-			y--;
-			len -= viscmdline_l[i];
-
-		} while (len > cmdlinepos && i > 0);
-
-		// now draw the cursor on the right x position of the right line.
-		// But only draw it if it's on the screen
-		if (len <= cmdlinepos)
-		{
-			len = cmdlinepos - len;
-			c = viscmdline_s[i][len];
-			// temporarily truncate the cmdline to the cursor position.
-			viscmdline_s[i][len] = 0;
-
-			WriteText(16 * strlen(viscmdline_s[i]) / 2, bottom_y + y * YMUL,
-				      "_", 1, 1);
-
-			viscmdline_s[i][len] = c;
-		}
-	}
-
-#endif
 }
 
 #if 0
@@ -787,7 +657,7 @@ bool CON_HandleKey(int key)
 		break;
 	
 	case KEYD_UPARROW:
-		if (cmd_hist_pos < cmd_used_hist)
+		if (cmd_hist_pos < cmd_used_hist-1)
 			cmd_hist_pos++;
 
 		TabbedLast = false;
@@ -834,7 +704,6 @@ bool CON_HandleKey(int key)
 		CON_ClearInputLine();
 	
 		TabbedLast = false;
-///---	UpdateCmdLine();
 	
 		CON_SetVisible(vs_notvisible);
 		break;
@@ -857,37 +726,14 @@ bool CON_HandleKey(int key)
 			input_line[MAX_CON_INPUT-1] = 0;
 		}
 
+		// Add keypress to command line
 		input_line[input_pos++] = key;
-
-///!!!!			// Add keypress to command line
-///!!!!			char data = key;
-///!!!!			char *c, *e;
-///!!!!	
-///!!!!///---		GrowLine(&cmdline, &cmdlinesize, cmdlineend + 2);
-///!!!!	
-///!!!!			// move everything after the cursor, including the 0, one step to the right
-///!!!!			e = &cmdline[cmdlineend];
-///!!!!			c = &cmdline[cmdlinepos];
-///!!!!	
-///!!!!			for (; e >= c; e--)
-///!!!!			{
-///!!!!				*(e + 1) = *e;
-///!!!!			}
-///!!!!	
-///!!!!			// insert the character
-///!!!!			*c = data;
-///!!!!	
-///!!!!			cmdlinepos++;
-///!!!!			cmdlineend++;
 
 		TabbedLast = false;
 		con_cursor = 0;
-	
 		break;
 
 	}
-	// something in the console has probably changed, so we update it
-///---UpdateCmdLine();
 
 	return true;
 }
