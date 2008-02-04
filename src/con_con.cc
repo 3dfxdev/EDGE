@@ -578,7 +578,7 @@ void CON_Drawer(void)
 
 	console_style->DrawBackground(0, y, SCREENWIDTH, SCREENHEIGHT - y, 1);
 
-	y += 3;
+	y += 4;
 
 	// -- input line --
 
@@ -598,14 +598,12 @@ void CON_Drawer(void)
 
 			if (con_cursor < 16)
 			{
-				WriteText((input_pos+1) * XMUL, y, "_", T_YELLOW);
+				WriteText((input_pos+1) * XMUL, y - 2, "_", T_YELLOW);
 			}
 		}
 
-		y += YMUL;
+		y += YMUL + YMUL / 3;
 	}
-
-	y += 6;
 
 	// -- text lines --
 
@@ -613,10 +611,10 @@ void CON_Drawer(void)
 	{
 		console_line_c *CL = console_lines[i];
 
-		if (CL)
-		{
-			WriteText(0, y, CL->line.c_str(), CL->color);
-		}
+		if (! CL)
+			break;
+
+		WriteText(0, y, CL->line.c_str(), CL->color);
 
 		y += YMUL;
 
@@ -753,16 +751,11 @@ bool CON_HandleKey(int key)
 	
 		if (input_pos > 0)
 		{
-///!!!!			char *c, *e;
-///!!!!	
-///!!!!			e = &cmdline[cmdlineend];
-///!!!!			c = &cmdline[cmdlinepos];
-///!!!!	
-///!!!!			for (; c <= e; c++)
-///!!!!				*(c - 1) = *c;
-///!!!!	
-///!!!!			cmdlineend--;
-///!!!!			cmdlinepos--;
+			input_pos--;
+
+			// shift characters back
+			for (int j = input_pos; j < MAX_CON_INPUT-2; j++)
+				input_line[j] = input_line[j+1];
 		}
 	
 		TabbedLast = false;
@@ -774,15 +767,9 @@ bool CON_HandleKey(int key)
 	
 		if (input_line[input_pos] != 0)
 		{
-///!!!!			char *c, *e;
-///!!!!	
-///!!!!			e = &cmdline[cmdlineend];
-///!!!!			c = &cmdline[cmdlinepos + 1];
-///!!!!	
-///!!!!			for (; c <= e; c++)
-///!!!!				*(c - 1) = *c;
-///!!!!	
-///!!!!			cmdlineend--;
+			// shift characters back
+			for (int j = input_pos; j < MAX_CON_INPUT-2; j++)
+				input_line[j] = input_line[j+1];
 		}
 	
 		TabbedLast = false;
@@ -823,7 +810,7 @@ bool CON_HandleKey(int key)
 
 		if (strlen(input_line) == 0)
 		{
-			CON_AddCmdHistory(">\n");
+			CON_Printf(">\n");
 		}
 		else
 		{
