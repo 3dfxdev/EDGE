@@ -499,8 +499,9 @@ static void SpecialWadVerify(void)
 //
 static void ShowNotice(void)
 {
-	I_Printf("%s", language["Notice"]);
+	CON_MessageColor(RGB_MAKE(64,192,255));
 
+	I_Printf("%s", language["Notice"]);
 }
 
 
