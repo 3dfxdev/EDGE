@@ -41,8 +41,6 @@
 
 #define CON_WIPE_TICS  12
 
-#define CON_GFX_HT  (SCREENHEIGHT * 3 / 5)
-
 
 static visible_t con_visible;
 
@@ -509,6 +507,11 @@ void CON_Drawer(void)
 
 	// -- background --
 
+	int CON_GFX_HT = (SCREENHEIGHT * 3 / 5) / YMUL;
+
+	CON_GFX_HT = (CON_GFX_HT - 1) * YMUL + YMUL * 3 / 4 - 2;
+
+
 	int y = SCREENHEIGHT;
 
 	if (conwipeactive)
@@ -518,7 +521,7 @@ void CON_Drawer(void)
 
 	console_style->DrawBackground(0, y, SCREENWIDTH, SCREENHEIGHT - y, 1);
 
-	y += 4;
+	y += YMUL / 4;
 
 	// -- input line --
 
@@ -542,8 +545,10 @@ void CON_Drawer(void)
 			}
 		}
 
-		y += YMUL + YMUL / 2;
+		y += YMUL;
 	}
+
+	y += YMUL / 2;
 
 	// -- text lines --
 
@@ -554,7 +559,7 @@ void CON_Drawer(void)
 		if (! CL)
 			break;
 
-		if (strncmp(CL->line.c_str(), "-----", 5) == 0)
+		if (strncmp(CL->line.c_str(), "--------", 8) == 0)
 			HorizontalLine(y + YMUL/2, CL->color);
 		else
 			WriteText(0, y, CL->line.c_str(), CL->color);
