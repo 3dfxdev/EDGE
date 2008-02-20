@@ -1036,6 +1036,9 @@ static int fill_bank(int dr, int b)
 			else
 				new_i = aja_fallback_program(i, dist);
 
+			if (new_i < 0)
+				continue;
+
 			if (! bank->tone[new_i].name)
 				continue;
 
