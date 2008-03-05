@@ -54,6 +54,7 @@ static style_c *console_style;
 
 #define T_WHITE   RGB_MAKE(208,208,208)
 #define T_YELLOW  RGB_MAKE(255,255,0)
+#define T_PURPLE  RGB_MAKE(255,32,255)
 
 static rgbcol_t current_color;
 
@@ -527,21 +528,21 @@ void CON_Drawer(void)
 
 	if (bottomrow == -1)
 	{
-		WriteText(0, y, ">", T_YELLOW);
+		WriteText(0, y, ">", T_PURPLE);
 
 		if (cmd_hist_pos >= 0)
 		{
 			const char *text = cmd_history[cmd_hist_pos]->c_str();
 
-			WriteText(XMUL, y, text, T_YELLOW);
+			WriteText(XMUL, y, text, T_PURPLE);
 		}
 		else
 		{
-			WriteText(XMUL, y, input_line, T_YELLOW);
+			WriteText(XMUL, y, input_line, T_PURPLE);
 
 			if (con_cursor < 16)
 			{
-				WriteText((input_pos+1) * XMUL, y - 2, "_", T_YELLOW);
+				WriteText((input_pos+1) * XMUL, y - 2, "_", T_PURPLE);
 			}
 		}
 
