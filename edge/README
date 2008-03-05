@@ -400,7 +400,6 @@ Command line options:
   -blockmap            Force EDGE to generate its own blockmap.
   -fastsprites         Load sprite images at start of level.
   -newmap OR -newhud   Automap overlay.
-  -noconhistory        Disable console history (save some memory).
   -nograb              Don't grab the mouse cursor.
   -warpmouse           Use special mouse handling code.
 
