@@ -262,7 +262,7 @@ void G_DoLoadLevel(void)
 	gamestate = GS_LEVEL;
 
 	CON_SetVisible( /* !!! showMessages?vs_minimal: */ vs_notvisible);
-	CON_Printf("%s\n", currmap->ddf.name.c_str());
+///---	CON_Printf("%s\n", currmap->ddf.name.c_str());
 
 	// clear cmd building stuff
 	E_ClearInput();
