@@ -42,6 +42,7 @@ GammaLevelOne  ="Gamma correction level 1";
 GammaLevelTwo  ="Gamma correction level 2";
 GammaLevelThree="Gamma correction level 3";
 GammaLevelFour ="Gamma correction level 4";
+GammaLevelFive ="Gamma correction level 5";
 
 EmptySlot="Empty Slot";
 

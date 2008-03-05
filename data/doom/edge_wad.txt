@@ -44,10 +44,12 @@ EDGE WAD 5.6: (2008-01-26)
 
 6) added "STDESYNC" graphic.
 
-7) pinched "M_MULTI" graphic from Doom Legacy.
+7) [undone]
 
 8) added two PNG images: "FUZZMAP8" and "DLITEXPN", and removed
    the old "FUZZMAP7" entry.
+
+9) added console font PNG image: "CONFONT2".
 
 
 EDGE WAD 5.5: (2007-12-01)
