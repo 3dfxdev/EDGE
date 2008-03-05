@@ -425,8 +425,9 @@ static optmenuitem_t vidoptions[] =
 #endif
 	{OPT_Switch,  "Detail Level",   Details,  3, CFGDEF_DETAIL_LEVEL,   &detail_level, M_ChangeMipMap, NULL},
 	{OPT_Switch,  "Mipmapping",     MipMaps,  3, CFGDEF_USE_MIPMAPPING, &var_mipmapping, M_ChangeMipMap, NULL},
+#if 0
 	{OPT_Boolean, "Shadows",        YesNo, 2,  CFGDEF_SHADOWS,  &global_flags.shadows, M_ChangeShadows, NULL},
-
+#endif
 	{OPT_Plain,   "",  NULL, 0, 0, NULL, NULL, NULL},
 
 	{OPT_Switch,  "HUD",           Huds,  3,  CFGDEF_SCREEN_HUD,     &screen_hud, M_ChangeScreenHud, NULL},
