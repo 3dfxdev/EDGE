@@ -1185,9 +1185,9 @@ static void SetupLogAndDebugFiles(void)
 	//                 then logs all the CON_Printfs, I_Printfs and I_Errors.
 	//
 	// -ACB- 1999/10/02 Don't print to console, since we don't have a console yet.
-	//
-	int p = M_CheckParm("-debug");
-	if (true) //!!!!!!!!1
+
+	/// int p = M_CheckParm("-debug");
+	if (true)
 	{
 		debugfile = fopen(debug_fn.c_str(), "w");
 
@@ -1610,6 +1610,9 @@ void E_Main(int argc, const char **argv)
 		E_Startup();
 
 		E_InitialState();
+
+		CON_MessageColor(RGB_MAKE(255,255,0));
+		I_Printf("EDGE v" EDGEVERSTR " initialisation complete.\n");
 
 		I_Debugf("- Entering game loop...\n");
 

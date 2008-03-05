@@ -117,27 +117,27 @@ void DDF_Warning(const char *err, ...)
 	vsprintf(buffer, err, argptr);
 	va_end(argptr);
 
-	I_Warning("\n");
+	I_Warning("%s", buffer);
 
 	if (!cur_ddf_filename.empty())
 	{
-		I_Warning("Found problem near line %d of %s\n", 
+		I_Printf("  problem occurred near line %d of %s\n", 
 				  cur_ddf_line_num, cur_ddf_filename.c_str());
 	}
 
 	if (!cur_ddf_entryname.empty())
 	{
-		I_Warning("occurred in entry: %s\n", 
+		I_Printf("  problem occurred in entry: %s\n", 
 				  cur_ddf_entryname.c_str());
 	}
 	
 	if (!cur_ddf_linedata.empty())
 	{
-		I_Warning("with line contents: %s\n", 
+		I_Printf("  with line contents: %s\n", 
 				  cur_ddf_linedata.c_str());
 	}
-	
-	I_Warning("%s", buffer);
+
+///	I_Printf("\n");
 }
 
 void DDF_WarnError(const char *err, ...)

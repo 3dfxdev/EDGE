@@ -55,6 +55,7 @@ static style_c *console_style;
 #define T_WHITE   RGB_MAKE(208,208,208)
 #define T_YELLOW  RGB_MAKE(255,255,0)
 #define T_PURPLE  RGB_MAKE(255,32,255)
+#define T_ORANGE  RGB_MAKE(255,72,0)
 
 static rgbcol_t current_color;
 
@@ -166,7 +167,12 @@ static void CON_AddLine(const char *s, bool partial)
 	for (int i = MAX_CON_LINES-1; i > 0; i--)
 		console_lines[i] = console_lines[i-1];
 
-	console_lines[0] = new console_line_c(s, current_color);
+	rgbcol_t col = current_color;
+
+	if (col == T_WHITE && (strncmp(s, "WARNING", 7) == 0))
+		col = T_ORANGE;
+
+	console_lines[0] = new console_line_c(s, col);
 
 	con_partial_last_line = partial;
 
