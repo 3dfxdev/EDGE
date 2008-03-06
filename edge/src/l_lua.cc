@@ -19,13 +19,20 @@
 #include "i_defs.h"
 #include "i_luainc.h"
 
+#include "ddf/main.h"
+#include "ddf/font.h"
+
 #include "e_main.h"
 #include "l_lua.h"
 #include "version.h"
 
 #include "e_player.h"
+#include "hu_font.h"
 #include "w_wad.h"
 #include "z_zone.h"
+
+#include "r_misc.h"     //  R_Render
+#include "r_automap.h"  // AM_Drawer
 
 
 static lua_State *HUD_ST;
@@ -40,7 +47,11 @@ static colourmap_c *cur_colmap = NULL;
 
 static void FrameSetup(void)
 {
-	cur_font = DDF_MainLookupFont("DOOM");
+	fontdef_c *DEF = fontdefs.Lookup("DOOM");  // FIXME allow other default
+	SYS_ASSERT(DEF);
+
+	cur_font = hu_fonts.Lookup(DEF);
+	SYS_ASSERT(cur_font);
 
 	cur_colmap = NULL;
 
@@ -59,7 +70,7 @@ static void FrameSetup(void)
 	// TODO: setup some fields in 'hud' module
 }
 
-static void DoWriteText(  )
+static void DoWriteText(int x, int y, const char *str)
 {
 }
 
@@ -257,7 +268,7 @@ static int PL_health(lua_State *L)
 {
 	//... FIXME
 
-	lua_pushinteger(L, (int)math.floor(cur_player->health+0.99));
+	lua_pushinteger(L, (int)floor(cur_player->health+0.99));
 	return 1;
 }
 
@@ -291,7 +302,7 @@ static int PL_has_key(lua_State *L)
 	if (key < 1 || key > 16)
 		I_Error("player.has_key: bad key number: %d\n", key);
 
-	int value = (cur_player->keys & (1 << (key-1))) ? 1 : 0;
+	int value = (cur_player->cards & (1 << (key-1))) ? 1 : 0;
 
 	lua_pushboolean(L, value);
 	return 1;
@@ -357,22 +368,22 @@ static int PL_cur_ammo(lua_State *L)
 
 	if (cur_player->ready_wp >= 0)
 	{
-		playerweapon_t *pw = &p->weapons[p->ready_wp];
+		playerweapon_t *pw = &cur_player->weapons[cur_player->ready_wp];
 
 		if (pw->info->ammo[clip] != AM_NoAmmo)
 		{
 			if (pw->info->show_clip)
 			{
-				SYS_ASSERT(pw->info->ammopershot[0] > 0);
+				SYS_ASSERT(pw->info->ammopershot[clip] > 0);
 
-				value = pw->clip_size[0] / pw->info->ammopershot[0];
+				value = pw->clip_size[clip] / pw->info->ammopershot[clip];
 			}
 			else
 			{
-				value = p->ammo[pw->info->ammo[0]].num;
+				value = cur_player->ammo[pw->info->ammo[clip]].num;
 
-				if (pw->info->clip_size[0] > 0)
-					value += pw->clip_size[0];
+				if (pw->info->clip_size[clip] > 0)
+					value += pw->clip_size[clip];
 			}
 		}
 	}
@@ -526,7 +537,7 @@ void LU_RunHud(void)
 	}
 
 	// remove the traceback function and 'hud' table
-	lua_pop(HUD_ST, 2)
+	lua_pop(HUD_ST, 2);
 }
 
 
