@@ -70,8 +70,32 @@ static void FrameSetup(void)
 	// TODO: setup some fields in 'hud' module
 }
 
+
 static void DoWriteText(int x, int y, const char *str)
 {
+	float scale = 1.0f;
+
+	float cx = x;
+	float cy = y;
+
+	for (; *str; str++)
+	{
+		char ch = *str;
+
+		if (ch == '\n')
+		{
+			cx = x;
+			cy += 12.0f * scale;  // FIXME: use font's height
+			continue;
+		}
+
+		if (cx >= 320.0f)
+			continue;
+
+		cur_font->DrawChar(cx, cy, ch, scale,1.0f, cur_colmap, 1.0f);
+
+		cx += cur_font->CharWidth(ch) * scale;
+	}
 }
 
 
@@ -114,9 +138,9 @@ static int HD_scaling(lua_State *L)
 }
 
 
-// hud.get_mode()
+// hud.game_mode()
 //
-static int HD_get_mode(lua_State *L)
+static int HD_game_mode(lua_State *L)
 {
 	//!!!! FIXME
 	
@@ -129,7 +153,13 @@ static int HD_get_mode(lua_State *L)
 //
 static int HD_text_font(lua_State *L)
 {
-	//... FIXME
+	const char *font_name = luaL_checkstring(L, 1);
+
+	fontdef_c *DEF = fontdefs.Lookup(font_name);
+	SYS_ASSERT(DEF);
+
+	cur_font = hu_fonts.Lookup(DEF);
+	SYS_ASSERT(cur_font);
 
 	return 0;
 }
@@ -179,7 +209,7 @@ static int HD_draw_number(lua_State *L)
 	int len = luaL_checkint(L, 3);
 	int num = luaL_checkint(L, 4);
 
-	if (len < 1)
+	if (len < 1 || len > 20)
 		I_Error("hud.draw_number: bad field length: %d\n", len);
 
 	char buffer[200];
@@ -203,7 +233,7 @@ static int HD_render_world(lua_State *L)
 
 	// FIXME: set view window
 
-	R_Render();
+ 	R_Render();
 
 	return 0;
 }
@@ -231,7 +261,7 @@ static const luaL_Reg hud_module[] =
 	{ "raw_debug_print", HD_raw_debug_print },
 
     { "scaling",         HD_scaling     },
-    { "get_mode",        HD_get_mode     },
+    { "game_mode",       HD_game_mode     },
     { "text_font",       HD_text_font   },
     { "text_color",      HD_text_color  },
     { "draw_image",      HD_draw_image  },
@@ -309,7 +339,7 @@ static int PL_has_key(lua_State *L)
 }
 
 
-// player.has_weapon_slot(keynum)
+// player.has_weapon_slot(slot)
 //
 static int PL_has_weapon_slot(lua_State *L)
 {
