@@ -55,23 +55,115 @@ static int HD_raw_debug_print(lua_State *L)
 }
 
 
+// hud.scaling(w, h)
+//
+static int HD_scaling(lua_State *L)
+{
+	int pnum = luaL_checkint(L, 1);
+
+	//... FIXME
+
+	return 0;
+}
+
+
+// hud.text_font(name)
+//
+static int HD_text_font(lua_State *L)
+{
+	int pnum = luaL_checkint(L, 1);
+
+	//... FIXME
+
+	return 0;
+}
+
+
+// hud.text_color(name)
+//
+static int HD_text_color(lua_State *L)
+{
+	int pnum = luaL_checkint(L, 1);
+
+	//... FIXME
+
+	return 0;
+}
+
+
+// hud.draw_image(x, y, name)
+//
+static int HD_draw_image(lua_State *L)
+{
+	int pnum = luaL_checkint(L, 1);
+
+	//... FIXME
+
+	return 0;
+}
+
+
+// hud.draw_text(x, y, str)
+//
+static int HD_draw_text(lua_State *L)
+{
+	int pnum = luaL_checkint(L, 1);
+
+	//... FIXME
+
+	return 0;
+}
+
+
+// hud.number(x, y, len, num)
+//
+static int HD_draw_number(lua_State *L)
+{
+	int pnum = luaL_checkint(L, 1);
+
+	//... FIXME
+
+	return 0;
+}
+
+
+// hud.render_world(x, y, w, h)
+//
+static int HD_render_world(lua_State *L)
+{
+	int pnum = luaL_checkint(L, 1);
+
+	//... FIXME
+
+	return 0;
+}
+
+
+// hud.render_automap(x, y, w, h)
+//
+static int HD_render_automap(lua_State *L)
+{
+	int pnum = luaL_checkint(L, 1);
+
+	//... FIXME
+
+	return 0;
+}
+
+
 static const luaL_Reg hud_module[] =
 {
 	{ "raw_debug_print", HD_raw_debug_print },
 
-//  { "xxx",      HD_xxx },
-//  { "xxx",      HD_xxx },
-//  { "xxx",      HD_xxx },
-//  { "xxx",      HD_xxx },
-//  { "xxx",      HD_xxx },
-//  { "xxx",      HD_xxx },
-//  { "xxx",      HD_xxx },
-//  { "xxx",      HD_xxx },
-//  { "xxx",      HD_xxx },
-//  { "xxx",      HD_xxx },
-//  { "xxx",      HD_xxx },
-//  { "xxx",      HD_xxx },
-//  { "xxx",      HD_xxx },
+    { "scaling",         HD_scaling     },
+    { "text_font",       HD_text_font   },
+    { "text_color",      HD_text_color  },
+    { "draw_image",      HD_draw_image  },
+    { "draw_text",       HD_draw_text   },
+    { "draw_number",     HD_draw_number },
+
+    { "render_world",    HD_render_world   },
+    { "render_automap",  HD_render_automap },
 
 	{ NULL, NULL } // the end
 };
@@ -84,7 +176,103 @@ static const luaL_Reg hud_module[] =
 
 // player.set_who(pnum)
 //
-int PL_set_who(lua_State *L)
+static int PL_set_who(lua_State *L)
+{
+	int pnum = luaL_checkint(L, 1);
+
+	//... FIXME
+
+	return 0;
+}
+
+
+// player.health()
+//
+static int PL_health(lua_State *L)
+{
+	int pnum = luaL_checkint(L, 1);
+
+	//... FIXME
+
+	return 0;
+}
+
+
+// player.armor(type)
+//
+static int PL_armor(lua_State *L)
+{
+	int pnum = luaL_checkint(L, 1);
+
+	//... FIXME
+
+	return 0;
+}
+
+
+// player.frags()
+//
+static int PL_frags(lua_State *L)
+{
+	int pnum = luaL_checkint(L, 1);
+
+	//... FIXME
+
+	return 0;
+}
+
+
+// player.has_key(key)
+//
+static int PL_has_key(lua_State *L)
+{
+	int pnum = luaL_checkint(L, 1);
+
+	//... FIXME
+
+	return 0;
+}
+
+
+// player.has_weapon_slot(keynum)
+//
+static int PL_has_weapon_slot(lua_State *L)
+{
+	int pnum = luaL_checkint(L, 1);
+
+	//... FIXME
+
+	return 0;
+}
+
+
+// player.ammo(type)
+//
+static int PL_ammo(lua_State *L)
+{
+	int pnum = luaL_checkint(L, 1);
+
+	//... FIXME
+
+	return 0;
+}
+
+
+// player.ammomax(type)
+//
+static int PL_ammomax(lua_State *L)
+{
+	int pnum = luaL_checkint(L, 1);
+
+	//... FIXME
+
+	return 0;
+}
+
+
+// player.cur_ammo(clip)
+//
+static int PL_cur_ammo(lua_State *L)
 {
 	int pnum = luaL_checkint(L, 1);
 
@@ -96,24 +284,16 @@ int PL_set_who(lua_State *L)
 
 static const luaL_Reg player_module[] =
 {
-	{ "set_who",    PL_set_who },
+	{ "set_who",   PL_set_who },
+    { "health",    PL_health  },
+    { "armor",     PL_armor   },
+    { "frags",     PL_frags   },
 
-//  { "xx",    PL_xx },
-//  { "xx",    PL_xx },
-//  { "xx",    PL_xx },
-//  { "xx",    PL_xx },
-//  { "xx",    PL_xx },
-//  { "xx",    PL_xx },
-//  { "xx",    PL_xx },
-//  { "xx",    PL_xx },
-//  { "xx",    PL_xx },
-//  { "xx",    PL_xx },
-//  { "xx",    PL_xx },
-//  { "xx",    PL_xx },
-//  { "xx",    PL_xx },
-//  { "xx",    PL_xx },
-//  { "xx",    PL_xx },
-//  { "xx",    PL_xx },
+    { "has_key",      PL_has_key  },
+    { "has_weapon_slot", PL_has_weapon_slot },
+    { "ammo",         PL_ammo     },
+    { "ammomax",      PL_ammomax  },
+    { "cur_ammo",     PL_cur_ammo },
 
 	{ NULL, NULL } // the end
 };
