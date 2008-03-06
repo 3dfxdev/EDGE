@@ -96,7 +96,7 @@ end
 
 function hud.draw_all()
 
-  hud.hud_scaling(320, 200)
+  hud.scaling(320, 200)
   hud.text_color()
 
   if hud.mode == "full" or hud.mode == "overlay" then
@@ -106,6 +106,8 @@ function hud.draw_all()
   elseif hud.mode == "automap" then
     hud.render_automap(0, 0, 320, 200-32)
   end
+
+  hud.draw_text(40, 70, "TESTING NEW EDGE HUD CODE!")
 
   if hud.mode == "normal" or hud.mode == "automap" then
     doom_status_bar()
