@@ -44,6 +44,11 @@
 
 #define DEBUG  0
 
+
+// FIXME: make this depend on "bot skill" global
+static int attack_chance = 40;
+
+
 static bot_t *looking_bot;
 static mobj_t *lkbot_target;
 static int lkbot_score;
@@ -512,7 +517,7 @@ static void BOT_Chase(bot_t *bot, bool seetarget, bool move_ok)
 
 			bot->cmd.face_mobj = mo->target;
 			// Shoot it,
-			bot->cmd.attack = true;
+			bot->cmd.attack = M_Random() < attack_chance;
 
 			if (bot->move_count < 0)
 			{
