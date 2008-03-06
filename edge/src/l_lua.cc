@@ -28,6 +28,7 @@
 
 #include "e_player.h"
 #include "hu_font.h"
+#include "r_draw.h"
 #include "w_wad.h"
 #include "z_zone.h"
 
@@ -179,7 +180,16 @@ static int HD_text_color(lua_State *L)
 //
 static int HD_draw_image(lua_State *L)
 {
-	//... FIXME
+	int x = luaL_checkint(L, 1);
+	int y = luaL_checkint(L, 2);
+
+	const char *name = luaL_checkstring(L, 3);
+
+	const image_c *img = W_ImageLookup(name, INS_Graphic);
+	if (img)
+	{
+		RGL_ImageEasy320(x, y, img);
+	}
 
 	return 0;
 }
