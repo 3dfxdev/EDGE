@@ -23,6 +23,7 @@
 #include "l_lua.h"
 #include "version.h"
 
+#include "e_player.h"
 #include "w_wad.h"
 #include "z_zone.h"
 
@@ -30,6 +31,37 @@
 static lua_State *HUD_ST;
 
 static bool has_loaded = false;
+
+static player_t *cur_player = NULL;
+
+static font_c *cur_font = NULL;
+static colourmap_c *cur_colmap = NULL;
+
+
+static void FrameSetup(void)
+{
+	cur_font = DDF_MainLookupFont("DOOM");
+
+	cur_colmap = NULL;
+
+	cur_player = players[displayplayer];
+
+	
+	// setup some fields in 'player' module
+
+	lua_getglobal(HUD_ST, "player");
+
+	// TODO
+
+	lua_pop(HUD_ST, 1);
+
+
+	// TODO: setup some fields in 'hud' module
+}
+
+static void DoWriteText(  )
+{
+}
 
 
 //------------------------------------------------------------------------
@@ -59,7 +91,11 @@ static int HD_raw_debug_print(lua_State *L)
 //
 static int HD_scaling(lua_State *L)
 {
-	int pnum = luaL_checkint(L, 1);
+	int w = luaL_checkint(L, 1);
+	int h = luaL_checkint(L, 2);
+
+	if (w <= 80 || h <= 80)
+		I_Error("Bad hud.scaling size: %dx%d\n", w, h);
 
 	//... FIXME
 
@@ -67,12 +103,21 @@ static int HD_scaling(lua_State *L)
 }
 
 
+// hud.get_mode()
+//
+static int HD_get_mode(lua_State *L)
+{
+	//!!!! FIXME
+	
+	lua_pushstring(L, "sp");
+	return 1;
+}
+
+
 // hud.text_font(name)
 //
 static int HD_text_font(lua_State *L)
 {
-	int pnum = luaL_checkint(L, 1);
-
 	//... FIXME
 
 	return 0;
@@ -83,8 +128,6 @@ static int HD_text_font(lua_State *L)
 //
 static int HD_text_color(lua_State *L)
 {
-	int pnum = luaL_checkint(L, 1);
-
 	//... FIXME
 
 	return 0;
@@ -95,8 +138,6 @@ static int HD_text_color(lua_State *L)
 //
 static int HD_draw_image(lua_State *L)
 {
-	int pnum = luaL_checkint(L, 1);
-
 	//... FIXME
 
 	return 0;
@@ -107,9 +148,12 @@ static int HD_draw_image(lua_State *L)
 //
 static int HD_draw_text(lua_State *L)
 {
-	int pnum = luaL_checkint(L, 1);
+	int x = luaL_checkint(L, 1);
+	int y = luaL_checkint(L, 2);
 
-	//... FIXME
+	const char *str = luaL_checkstring(L, 3);
+
+	DoWriteText(x, y, str);
 
 	return 0;
 }
@@ -119,9 +163,19 @@ static int HD_draw_text(lua_State *L)
 //
 static int HD_draw_number(lua_State *L)
 {
-	int pnum = luaL_checkint(L, 1);
+	int x   = luaL_checkint(L, 1);
+	int y   = luaL_checkint(L, 2);
+	int len = luaL_checkint(L, 3);
+	int num = luaL_checkint(L, 4);
 
-	//... FIXME
+	if (len < 1)
+		I_Error("hud.draw_number: bad field length: %d\n", len);
+
+	char buffer[200];
+
+	sprintf(buffer, "%*d", len, num);
+
+	DoWriteText(x, y, buffer);
 
 	return 0;
 }
@@ -131,9 +185,14 @@ static int HD_draw_number(lua_State *L)
 //
 static int HD_render_world(lua_State *L)
 {
-	int pnum = luaL_checkint(L, 1);
+	int x = luaL_checkint(L, 1);
+	int y = luaL_checkint(L, 2);
+	int w = luaL_checkint(L, 3);
+	int h = luaL_checkint(L, 4);
 
-	//... FIXME
+	// FIXME: set view window
+
+	R_Render();
 
 	return 0;
 }
@@ -143,9 +202,14 @@ static int HD_render_world(lua_State *L)
 //
 static int HD_render_automap(lua_State *L)
 {
-	int pnum = luaL_checkint(L, 1);
+	int x = luaL_checkint(L, 1);
+	int y = luaL_checkint(L, 2);
+	int w = luaL_checkint(L, 3);
+	int h = luaL_checkint(L, 4);
 
-	//... FIXME
+	// FIXME: set view window
+
+	AM_Drawer();
 
 	return 0;
 }
@@ -156,6 +220,7 @@ static const luaL_Reg hud_module[] =
 	{ "raw_debug_print", HD_raw_debug_print },
 
     { "scaling",         HD_scaling     },
+    { "get_mode",        HD_get_mode     },
     { "text_font",       HD_text_font   },
     { "text_color",      HD_text_color  },
     { "draw_image",      HD_draw_image  },
@@ -190,11 +255,10 @@ static int PL_set_who(lua_State *L)
 //
 static int PL_health(lua_State *L)
 {
-	int pnum = luaL_checkint(L, 1);
-
 	//... FIXME
 
-	return 0;
+	lua_pushinteger(L, (int)math.floor(cur_player->health+0.99));
+	return 1;
 }
 
 
@@ -202,11 +266,10 @@ static int PL_health(lua_State *L)
 //
 static int PL_armor(lua_State *L)
 {
-	int pnum = luaL_checkint(L, 1);
+	//!!! FIXME
 
-	//... FIXME
-
-	return 0;
+	lua_pushinteger(L, 0);
+	return 1;
 }
 
 
@@ -214,11 +277,8 @@ static int PL_armor(lua_State *L)
 //
 static int PL_frags(lua_State *L)
 {
-	int pnum = luaL_checkint(L, 1);
-
-	//... FIXME
-
-	return 0;
+	lua_pushinteger(L, cur_player->frags);
+	return 1;
 }
 
 
@@ -226,11 +286,15 @@ static int PL_frags(lua_State *L)
 //
 static int PL_has_key(lua_State *L)
 {
-	int pnum = luaL_checkint(L, 1);
+	int key = luaL_checkint(L, 1);
 
-	//... FIXME
+	if (key < 1 || key > 16)
+		I_Error("player.has_key: bad key number: %d\n", key);
 
-	return 0;
+	int value = (cur_player->keys & (1 << (key-1))) ? 1 : 0;
+
+	lua_pushboolean(L, value);
+	return 1;
 }
 
 
@@ -238,11 +302,15 @@ static int PL_has_key(lua_State *L)
 //
 static int PL_has_weapon_slot(lua_State *L)
 {
-	int pnum = luaL_checkint(L, 1);
+	int slot = luaL_checkint(L, 1);
 
-	//... FIXME
+	if (slot < 0 || slot > 9)
+		I_Error("player.has_weapon_slot: bad slot number: %d\n", slot);
 
-	return 0;
+	int value = cur_player->avail_weapons[slot] ? 1 : 0;
+
+	lua_pushboolean(L, value);
+	return 1;
 }
 
 
@@ -250,11 +318,13 @@ static int PL_has_weapon_slot(lua_State *L)
 //
 static int PL_ammo(lua_State *L)
 {
-	int pnum = luaL_checkint(L, 1);
+	int ammo = luaL_checkint(L, 1);
 
-	//... FIXME
+	if (ammo < 1 || ammo > NUMAMMO)
+		I_Error("player.ammo: bad ammo number: %d\n", ammo);
 
-	return 0;
+	lua_pushinteger(L, cur_player->ammo[ammo-1].num);
+	return 1;
 }
 
 
@@ -262,11 +332,13 @@ static int PL_ammo(lua_State *L)
 //
 static int PL_ammomax(lua_State *L)
 {
-	int pnum = luaL_checkint(L, 1);
+	int ammo = luaL_checkint(L, 1);
 
-	//... FIXME
+	if (ammo < 1 || ammo > NUMAMMO)
+		I_Error("player.ammomax: bad ammo number: %d\n", ammo);
 
-	return 0;
+	lua_pushinteger(L, cur_player->ammo[ammo-1].num);
+	return 1;
 }
 
 
@@ -274,11 +346,39 @@ static int PL_ammomax(lua_State *L)
 //
 static int PL_cur_ammo(lua_State *L)
 {
-	int pnum = luaL_checkint(L, 1);
+	int clip = luaL_checkint(L, 1);
 
-	//... FIXME
+	if (clip < 1 || clip > 2)
+		I_Error("player.cur_ammo: bad clip number: %d\n", clip);
 
-	return 0;
+	clip--;
+
+	int value = 0;
+
+	if (cur_player->ready_wp >= 0)
+	{
+		playerweapon_t *pw = &p->weapons[p->ready_wp];
+
+		if (pw->info->ammo[clip] != AM_NoAmmo)
+		{
+			if (pw->info->show_clip)
+			{
+				SYS_ASSERT(pw->info->ammopershot[0] > 0);
+
+				value = pw->clip_size[0] / pw->info->ammopershot[0];
+			}
+			else
+			{
+				value = p->ammo[pw->info->ammo[0]].num;
+
+				if (pw->info->clip_size[0] > 0)
+					value += pw->clip_size[0];
+			}
+		}
+	}
+
+	lua_pushinteger(L, value);
+	return 1;
 }
 
 
@@ -401,16 +501,7 @@ void LU_LoadScripts(void)
 
 void LU_RunHud(void)
 {
-	lua_getglobal(HUD_ST, "player");
-
-	// TODO: set some fields (who etc) in 'player' table
-
-	lua_pop(HUD_ST, 1);
-
-
-	lua_getglobal(HUD_ST, "hud");
-
-	// TODO: set some fields (width and height) in 'hud' table
+	FrameSetup();
 
 
 	lua_getglobal(HUD_ST, "stack_trace");
@@ -418,15 +509,15 @@ void LU_RunHud(void)
 	if (lua_type(HUD_ST, -1) == LUA_TNIL)
 		I_Error("LUA scripts: missing function '%s'\n", "stack_trace");
 
-	lua_getfield(HUD_ST, -2, "draw_all");
+	lua_getglobal(HUD_ST, "hud");
+	lua_getfield(HUD_ST, -1, "draw_all");
 
 	if (lua_type(HUD_ST, -1) == LUA_TNIL)
 		I_Error("LUA scripts: missing function 'hud.%s'\n", "draw_all");
 
 	int nargs = 0;
-	int nresult = 0;
 
-	int status = lua_pcall(HUD_ST, nargs, nresult, -2-nargs);
+	int status = lua_pcall(HUD_ST, nargs, 0, -3-nargs);
 	if (status != 0)
 	{
 		const char *msg = lua_tolstring(HUD_ST, -1, NULL);
@@ -435,8 +526,7 @@ void LU_RunHud(void)
 	}
 
 	// remove the traceback function and 'hud' table
-	lua_remove(HUD_ST, -1-nresult);
-	lua_remove(HUD_ST, -1-nresult);
+	lua_pop(HUD_ST, 2)
 }
 
 
