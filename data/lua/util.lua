@@ -86,6 +86,21 @@ end
 
 ----====| EDGE INTERFACE |====----
 
+function hud.printf(fmt, ...)
+  if fmt then
+    hud.raw_debug_print(string.format(fmt, ...))
+  end
+end
+
+--[[
+function hud.debugf(fmt, ...)
+  if fmt then
+    hud.raw_debug_print(string.format(fmt, ...))
+  end
+end
+--]]
+
+
 function stack_trace(msg)
 
   -- guard against very early errors
@@ -155,18 +170,4 @@ function stack_trace(msg)
   return msg
 end
 
-
---[[
-function hud.printf(fmt, ...)
-  if fmt then
-    hud.raw_log_print(string.format(fmt, ...))
-  end
-end
---]]
-
-function hud.debugf(fmt, ...)
-  if fmt then
-    hud.raw_debug_print(string.format(fmt, ...))
-  end
-end
 
