@@ -4,7 +4,7 @@
 --  Under the GNU General Public License.
 --------------------------------------------
 
-function doom_weapon_icon(x, y, slot, off_pic, on_pic)
+function doom_weapon_icon(slot, x, y, off_pic, on_pic)
   if player.has_weapon_slot(slot) then
     hud.draw_image(x, y, on_pic)
   else
@@ -43,8 +43,8 @@ function doom_status_bar()
 
   hud.text_font("STAT_DIGIT")
 
-  hud.draw_number( 44, 171, 3, player.cur_ammo(1));
-  hud.draw_number( 90, 171, 3, player.health());
+  hud.draw_number(44, 171, 3, player.cur_ammo(1));
+  hud.draw_number(90, 171, 3, player.health());
 
   local armor = 0
   for i = 1,5 do
@@ -58,7 +58,7 @@ function doom_status_bar()
     hud.draw_number(138, 171, 2, player.frags());
 
   else
-    hud.draw_image("STARMS", 104, 168);
+    hud.draw_image(104, 168, "STARMS");
 
     doom_weapon_icon(2, 111, 172, "STGNUM2", "STYSNUM2"); 
     doom_weapon_icon(3, 123, 172, "STGNUM3", "STYSNUM3");
@@ -77,15 +77,15 @@ function doom_status_bar()
 
   hud.text_font("YELLOW_DIGIT")
 
-  hud.draw_number( 3, player.ammo(1), 288, 173);
-  hud.draw_number( 3, player.ammo(2), 288, 179);
-  hud.draw_number( 3, player.ammo(3), 288, 185);
-  hud.draw_number( 3, player.ammo(4), 288, 191);
+  hud.draw_number(288, 173, 3, player.ammo(1));
+  hud.draw_number(288, 179, 3, player.ammo(2));
+  hud.draw_number(288, 185, 3, player.ammo(3));
+  hud.draw_number(288, 191, 3, player.ammo(4));
 
-  hud.draw_number( 3, player.ammomax(1), 314, 173);
-  hud.draw_number( 3, player.ammomax(2), 314, 179);
-  hud.draw_number( 3, player.ammomax(3), 314, 185);
-  hud.draw_number( 3, player.ammomax(4), 314, 191);
+  hud.draw_number(314, 173, 3, player.ammomax(1));
+  hud.draw_number(314, 179, 3, player.ammomax(2));
+  hud.draw_number(314, 185, 3, player.ammomax(3));
+  hud.draw_number(314, 191, 3, player.ammomax(4));
 end
 
 
@@ -96,18 +96,18 @@ end
 
 function hud.draw_all()
 
+  hud.mode = "normal" --!!!!!
+
   hud.scaling(320, 200)
   hud.text_color()
 
   if hud.mode == "full" or hud.mode == "overlay" then
     hud.render_world(0, 0, 320, 200)
   elseif hud.mode == "normal" then
-    hud.render_world(0, 0, 320, 200-32)
+    hud.render_world(0, 32, 320, 200-32)
   elseif hud.mode == "automap" then
-    hud.render_automap(0, 0, 320, 200-32)
+    hud.render_automap(0, 32, 320, 200-32)
   end
-
-  hud.draw_text(40, 70, "TESTING NEW EDGE HUD CODE!")
 
   if hud.mode == "normal" or hud.mode == "automap" then
     doom_status_bar()
