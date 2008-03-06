@@ -59,6 +59,7 @@ env = base_env.Copy()
 # check for globally installed glBSP and LZO headers
 have_glbsp_h = 0
 have_lzo_h = 0
+have_lua_h = 0
 
 if 1 and build_info['platform'] == 'linux':
     conf = Configure(env)
@@ -116,6 +117,13 @@ if have_lzo_h == 2:
     env.Append(LIBS = ['lzo2'])
 else:
     env.Append(LIBS = ['lzo'])
+
+# LUA
+if not have_lua_h:
+    env.Append(CPPPATH = ['#lua/src'])
+    env.Append(LIBPATH = ['#lua/src'])
+
+env.Append(LIBS = ['lua'])
 
 # JPEG, PNG and ZLIB
 if build_info['platform'] == 'win32':
@@ -220,4 +228,4 @@ SConscript('timidity/SConscript')
 env.Program('gledge32', ['main.cc'])
 
 ##--- editor settings ---
-## vi:ts=4:sw=4:expandtab
+## vi:ts=4:sw=4:expandtab:filetype=python
