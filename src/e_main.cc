@@ -57,6 +57,7 @@
 #include "g_game.h"
 #include "hu_stuff.h"
 #include "l_glbsp.h"
+#include "l_lua.h"
 #include "m_argv.h"
 #include "m_bbox.h"
 #include "m_misc.h"
@@ -600,11 +601,13 @@ void E_Display(void)
 		case GS_LEVEL:
 			HU_Erase();
 
-			if (automapactive < 2)
-				R_Render();
+			LU_RunHud();
 
-			if (automapactive > 0)
-				AM_Drawer();
+///---			if (automapactive < 2)
+///---				R_Render();
+///---
+///---			if (automapactive > 0)
+///---				AM_Drawer();
 
 			if (need_save_screenshot)
 			{
@@ -612,7 +615,8 @@ void E_Display(void)
 				need_save_screenshot = false;
 			}
 
-			ST_Drawer();
+///---		ST_Drawer();
+
 			HU_Drawer();
 			RAD_Drawer();
 			break;
@@ -1388,6 +1392,8 @@ startuporder_t startcode[] =
 	{  1, S_Init               },
 	{  1, N_InitNetwork        },
 	{  2, ST_Init              },
+	{  1, LU_Init              },
+	{  4, LU_LoadScripts       },
 	{  0, NULL                 }
 };
 
