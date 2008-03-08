@@ -952,9 +952,7 @@ static inline void AddWallTile(side_t *sd, float z1, float z2,
 	wt->flags = flags;
 }
 
-//
-// P_ComputeWallTiles
-//
+
 void P_ComputeWallTiles(line_t *ld, int sidenum)
 {
 	side_t *sd = ld->side[sidenum];
@@ -978,12 +976,20 @@ void P_ComputeWallTiles(line_t *ld, int sidenum)
 	// clear existing tiles
 	sd->tile_used = 0;
 
+	float slope_fh = sec->f_h;
+	if (sec->f_slope)
+		slope_fh = MIN(sec->f_slope->z1, sec->f_slope->z2);
+
+	float slope_ch = sec->c_h;
+	if (sec->c_slope)
+		slope_ch = MAX(sec->c_slope->z1, sec->c_slope->z2);
+
 	if (! other)
 	{
 		if (! sd->middle.image)
 			return;
 
-		AddWallTile(sd, sec->f_h, sec->c_h, 
+		AddWallTile(sd, slope_fh, slope_ch, 
 			(ld->flags & MLF_LowerUnpegged) ? 
 			sec->f_h + IM_HEIGHT(sd->middle.image) : sec->c_h,
 			&sd->middle, 0);
@@ -995,7 +1001,7 @@ void P_ComputeWallTiles(line_t *ld, int sidenum)
 	if (sec->f_h < other->f_h)
 	{
 		if (sd->bottom.image)
-			AddWallTile(sd, sec->f_h, other->f_h, 
+			AddWallTile(sd, slope_fh, other->f_h, 
 			(ld->flags & MLF_LowerUnpegged) ? sec->c_h : other->f_h,
 			&sd->bottom, 0);
 		else
@@ -1006,9 +1012,9 @@ void P_ComputeWallTiles(line_t *ld, int sidenum)
 		! (IS_SKY(sec->ceil) && IS_SKY(other->ceil)))
 	{
 		if (sd->top.image)
-			AddWallTile(sd, other->c_h, sec->c_h, 
+			AddWallTile(sd, other->c_h, slope_ch, 
 			(ld->flags & MLF_UpperUnpegged) ? sec->c_h : 
-		other->c_h + IM_HEIGHT(sd->top.image), &sd->top, 0);
+			other->c_h + IM_HEIGHT(sd->top.image), &sd->top, 0);
 		else
 			upper_invis = true;
 	}
@@ -1113,9 +1119,7 @@ void P_ComputeWallTiles(line_t *ld, int sidenum)
 	}
 }
 
-//
-// P_RecomputeGapsAroundSector
-// 
+
 void P_RecomputeGapsAroundSector(sector_t *sec)
 {
 	int i;
