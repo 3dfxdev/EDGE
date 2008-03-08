@@ -758,6 +758,125 @@ static void P_PortalEffect(line_t *ld)
 	I_Warning("Portal on line #%d disabled: Cannot find partner!\n", ld - lines);
 }
 
+static slope_plane_t * FakeSlope_BoundIt(line_t *ld, sector_t *sec, float z1, float z2)
+{
+	// determine slope's 2D coordinates
+	float d_close = 0;
+	float d_far   = 0;
+
+	float nx =  ld->dy / ld->length;
+	float ny = -ld->dx / ld->length;
+
+	if (sec == ld->backsector)
+	{
+		nx = -nx;
+		ny = -ny;
+	}
+
+	for (int k = 0; k < sec->linecount; k++)
+	{
+		for (int vert = 0; vert < 2; vert++)
+		{
+			vec2_t *V = (vert == 0) ? sec->lines[k]->v1 : sec->lines[k]->v2;
+
+			float dist = nx * (V->x - ld->v1->x) +
+			             ny * (V->y - ld->v1->y);
+
+			d_close = MIN(d_close, dist);
+			d_far   = MAX(d_far,   dist);
+		}
+	}
+
+L_WriteDebug("FAKE SLOPE in #%d: dists %1.3f -> %1.3f\n", sec - sectors, d_close, d_far);
+
+	if (d_far - d_close < 0.5)
+	{
+		I_Warning("Fake slope in sector #%d disabled: no area?!?\n", sec - sectors);
+		return NULL;
+	}
+
+	slope_plane_t *result = new slope_plane_t;
+
+	result->x1 = ld->v1->x + nx * d_close;
+	result->y1 = ld->v1->y + ny * d_close;
+	result->z1 = z1;
+
+	result->x2 = ld->v1->x + nx * d_far;
+	result->y2 = ld->v1->y + ny * d_far;
+	result->z2 = z2;
+
+	return result;
+}
+
+static void FakeSlope_Floor(line_t *ld)
+{
+	if (! ld->side[1])
+	{
+		I_Warning("Fake slope on line #%d disabled: Not two-sided!\n", ld - lines);
+		return;
+	}
+
+	sector_t *sec = ld->frontsector;
+
+	float z1 = ld->backsector->f_h;
+	float z2 = sec->f_h;
+
+	if (fabs(z1 - z2) < 0.5)
+	{
+		I_Warning("Fake slope on line #%d disabled: floors are same height\n", ld - lines);
+		return;
+	}
+
+	if (z1 > z2)
+	{
+		sec = ld->backsector;
+
+		z1 = z2;
+		z2 = sec->f_h;
+	}
+
+	if (sec->f_slope)
+	{
+		I_Warning("Fake slope in sector #%d disabled: floor already sloped!\n", sec - sectors);
+		return;
+	}
+
+	sec->f_slope = FakeSlope_BoundIt(ld, sec, z1, z2);
+}
+
+static void FakeSlope_Ceiling(line_t *ld)
+{
+	if (! ld->side[1])
+		return;
+
+	sector_t *sec = ld->frontsector;
+
+	float z1 = sec->c_h;
+	float z2 = ld->backsector->c_h;
+
+	if (fabs(z1 - z2) < 0.5)
+	{
+		I_Warning("Fake slope on line #%d disabled: ceilings are same height\n", ld - lines);
+		return;
+	}
+
+	if (z1 > z2)
+	{
+		sec = ld->backsector;
+
+		z2 = z1;
+		z1 = sec->c_h;
+	}
+
+	if (sec->c_slope)
+	{
+		I_Warning("Fake slope in sector #%d disabled: ceiling already sloped!\n", sec - sectors);
+		return;
+	}
+
+	sec->c_slope = FakeSlope_BoundIt(ld, sec, z2, z1);
+}
+
 //
 // EVENTS
 //
@@ -1741,6 +1860,16 @@ void P_SpawnSpecials(int autotag)
 
 				P_FloodExtraFloors(tsec);
 			}
+		}
+
+		// Fake slopes
+		if (special->slope_type & SLP_FakeFloor)
+		{
+			FakeSlope_Floor(&lines[i]);
+		}
+		if (special->slope_type & SLP_FakeCeiling)
+		{
+			FakeSlope_Ceiling(&lines[i]);
 		}
 
 		if (special->autoline)
