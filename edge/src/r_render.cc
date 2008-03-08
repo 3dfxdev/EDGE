@@ -1513,7 +1513,7 @@ static void EmulateFloodPlane(const drawfloor_t *dfloor,
 }
 
 
-static bool RGL_DrawSeg(drawfloor_t *dfloor, seg_t *seg)
+static void RGL_DrawSeg(drawfloor_t *dfloor, seg_t *seg)
 {
 	//
 	// Analyses floor/ceiling heights, and add corresponding walls/floors
@@ -1534,8 +1534,8 @@ static bool RGL_DrawSeg(drawfloor_t *dfloor, seg_t *seg)
 
 	side_t *sd = cur_seg->sidedef;
 
-	float f1 = dfloor->f_h;
-	float c1 = dfloor->c_h;
+	float f1 = dfloor->prev ? dfloor->f_h : -32767.0;
+	float c1 = dfloor->next ? dfloor->c_h : +32767.0;
 
 	float f, c, x_offset;
 	float tex_top_h;
@@ -1629,26 +1629,26 @@ static bool RGL_DrawSeg(drawfloor_t *dfloor, seg_t *seg)
 			cur_seg->front_sub->sector->c_h);
 	}
 
-	if (cur_seg->sidedef->middle.image == NULL)
-	{
-		// -AJA- hack for transparent doors (this test would normally be
-		// above this block, not inside it).
-		//
-		if (f1 >= c1)
-			return true;
-
-		return false;
-	}
-
-	// handle sliders that are totally solid and closed
-	if (cur_seg->linedef->slide_door &&
-		! cur_seg->linedef->slide_door->s.see_through &&
-		! cur_seg->linedef->slider_move)
-	{
-		return true;
-	}
-
-	return false;
+///---	if (cur_seg->sidedef->middle.image == NULL)
+///---	{
+///---		// -AJA- hack for transparent doors (this test would normally be
+///---		// above this block, not inside it).
+///---		//
+///---		if (f1 >= c1)
+///---			return true;
+///---
+///---		return false;
+///---	}
+///---
+///---	// handle sliders that are totally solid and closed
+///---	if (cur_seg->linedef->slide_door &&
+///---		! cur_seg->linedef->slide_door->s.see_through &&
+///---		! cur_seg->linedef->slider_move)
+///---	{
+///---		return true;
+///---	}
+///---
+///---	return false;
 }
 
 
@@ -2019,6 +2019,15 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	if (surf->override_p)
 		props = surf->override_p;
 
+	
+	slope_plane_t *slope = NULL;
+
+	if (face_dir > 0 && dfloor->prev == NULL)
+		slope = cur_sub->sector->f_slope;
+
+	if (face_dir < 0 && dfloor->next == NULL)
+		slope = cur_sub->sector->c_slope;
+
 
 	float trans = surf->translucency;
 
@@ -2082,15 +2091,34 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 		{
 			float x = seg->v1->x;
 			float y = seg->v1->y;
+			float z = h;
 
 			// must do this before mirror adjustment
 			M_AddToBox(v_bbox, x, y);
+
+			if (slope)
+			{
+				// FIXME: precompute (store in slope_plane_t)
+				float dx = slope->x2 - slope->x1;
+				float dy = slope->y2 - slope->y1;
+
+				float d_len = sqrt(dx*dx + dy*dy);
+
+				dx /= d_len;
+				dy /= d_len;
+
+				float along = ((x - slope->x1) * dx + (y - slope->y1) * dy) / d_len;
+
+				z = slope->z1 + along * (slope->z2 - slope->z1);
+
+				MIR_Height(z);
+			}
 
 			MIR_Coordinate(x, y);
 
 			vertices[v_count].x = x;
 			vertices[v_count].y = y;
-			vertices[v_count].z = h;
+			vertices[v_count].z = z;
 
 			v_count++;
 		}

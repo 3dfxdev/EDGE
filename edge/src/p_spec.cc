@@ -842,6 +842,8 @@ static void FakeSlope_Floor(line_t *ld)
 	}
 
 	sec->f_slope = FakeSlope_BoundIt(ld, sec, z1, z2);
+
+	P_RecomputeTilesInSector(sec);
 }
 
 static void FakeSlope_Ceiling(line_t *ld)
@@ -875,6 +877,8 @@ static void FakeSlope_Ceiling(line_t *ld)
 	}
 
 	sec->c_slope = FakeSlope_BoundIt(ld, sec, z2, z1);
+
+	P_RecomputeTilesInSector(sec);
 }
 
 //
