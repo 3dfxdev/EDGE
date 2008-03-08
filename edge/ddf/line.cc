@@ -78,6 +78,7 @@ static void DDF_LineGetSlideType(const char *info, void *storage);
 static void DDF_LineGetLineEffect(const char *info, void *storage);
 static void DDF_LineGetSectorEffect(const char *info, void *storage);
 static void DDF_LineGetPortalEffect(const char *info, void *storage);
+static void DDF_LineGetSlopeType(const char *info, void *storage);
 
 static void DDF_LineMakeCrush(const char *info, void *storage);
 
@@ -201,6 +202,7 @@ static const commandlist_t linedef_commands[] =
 	DF("LINE_PARTS",  line_parts,  DDF_LineGetScrollPart),
 	DF("SECTOR_EFFECT", sector_effect, DDF_LineGetSectorEffect),
 	DF("PORTAL_TYPE",   portal_effect, DDF_LineGetPortalEffect),
+	DF("SLOPE_TYPE", slope_type, DDF_LineGetSlopeType),
 	DF("COLOUR", fx_color, DDF_MainGetRGB),
 
 	// -AJA- backwards compatibility cruft...
@@ -1018,6 +1020,41 @@ static void DDF_LineGetPortalEffect(const char *info, void *storage)
 	}
 }
 
+static specflags_t slope_type_names[] =
+{
+	{"FAKE_FLOOR",   SLP_FakeFloor,   0},
+	{"FAKE_CEILING", SLP_FakeCeiling, 0},
+
+	{NULL, 0, 0}
+};
+
+static void DDF_LineGetSlopeType(const char *info, void *storage)
+{
+	int flag_value;
+
+	if (DDF_CompareName(info, "NONE") == 0)
+	{
+		buffer_line.slope_type = SLP_NONE;
+		return;
+	}
+
+	switch (DDF_MainCheckSpecialFlag(info, slope_type_names, &flag_value, true, false))
+	{
+		case CHKF_Positive:
+			buffer_line.slope_type = (slope_type_e)(buffer_line.slope_type | flag_value);
+			break;
+
+		case CHKF_Negative:
+			buffer_line.slope_type = (slope_type_e)(buffer_line.slope_type & ~flag_value);
+			break;
+
+		case CHKF_User:
+		case CHKF_Unknown:
+			DDF_WarnError("Unknown slope type: %s", info);
+			break;
+	}
+}
+
 static void DDF_LineMakeCrush(const char *info, void *storage)
 {
 	buffer_line.f.crush_damage = 10;
@@ -1614,6 +1651,7 @@ void linetype_c::CopyDetail(linetype_c &src)
 	line_parts = src.line_parts;
 	sector_effect = src.sector_effect;
 	portal_effect = src.portal_effect;
+	slope_type = src.slope_type;
 	fx_color = src.fx_color;
 }
 
@@ -1668,6 +1706,7 @@ void linetype_c::Default(void)
 	line_parts = SCPT_None;
 	sector_effect = SECTFX_None;
 	portal_effect = PORTFX_None;
+	slope_type = SLP_NONE;
 	fx_color = RGB_MAKE(0,0,0);
 }
 

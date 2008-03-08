@@ -630,6 +630,15 @@ typedef enum
 }
 portal_effect_type_e;
 
+// -AJA- 2008/03/08: slope types
+typedef enum
+{
+	SLP_NONE = 0,
+
+	SLP_FakeFloor   = (1 << 0),
+	SLP_FakeCeiling = (1 << 1),
+}
+slope_type_e;
 
 // -AJA- 1999/10/12: Generalised scrolling parts of walls.
 typedef enum
@@ -785,6 +794,8 @@ public:
 
 	sector_effect_type_e sector_effect;
 	portal_effect_type_e portal_effect;
+
+	slope_type_e slope_type;
 
 	// -AJA- 2007/07/05: color for effects (e.g. MIRRORs)
 	rgbcol_t fx_color;
