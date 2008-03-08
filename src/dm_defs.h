@@ -69,6 +69,10 @@ gamestate_e;
 // -AJA- 2004/11/04: This bit should be zero (otherwise old WAD).
 #define MTF_RESERVED    256
 
+// -AJA- 2008/03/08: Extrafloor placement
+#define MTF_EXFLOOR_SHIFT   10
+#define MTF_EXFLOOR_MASK    0x0F
+
 typedef enum
 {
 	sk_invalid   = -1,
