@@ -1,8 +1,21 @@
 Andrew Apted's Log
 
+2008/03/08:
+
+Support for a 4-bit "EXTRAFLOOR" field in the options field of
+the THINGS lump (bits 10-13), allowing things to be placed on
+extrafloors more easily (may need Editor support).  For safety
+the MTF_RESERVED flag (bit 8) must also be clear.
+
+Began work on fake slopes.
+
+2008/03/06:
+
+Began work on LUA HUD support.
+
 2008/02/03:
 
-Worked on making the Console look a bit nicer.
+Worked on making a nicer looking Console.
 
 2008/02/01:
 
