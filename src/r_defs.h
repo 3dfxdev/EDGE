@@ -211,6 +211,13 @@ typedef struct
 }
 vgap_t;
 
+typedef struct slope_plane_s
+{
+	float x1, y1, z1;
+	float x2, y2, z2;
+}
+slope_plane_t;
+
 
 //
 // The SECTORS record, at runtime.
@@ -258,6 +265,10 @@ typedef struct sector_s
     // 
 	region_properties_t *p;
  
+ 	// slope information, normally NULL
+	slope_plane_t *f_slope;
+	slope_plane_t *c_slope;
+
 	// linked list of extrafloors that this sector controls.  NULL means
 	// that this sector is not a controller.
 	//
