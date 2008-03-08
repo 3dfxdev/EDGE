@@ -1088,45 +1088,6 @@ static bool P_ActivateSpecialLine(line_t * line,
 		}
 	}
 
-	// Extrafloor transfers
-	if (line && special->ef.type && tag > 0)
-	{
-		sector_t *ctrl = line->frontsector;
-
-		for (tsec = P_FindSectorFromTag(tag); tsec; tsec = tsec->tag_next)
-		{
-			if (special->ef.type & EXFL_BoomTex)
-			{
-				if (ctrl->f_h <= tsec->f_h)
-				{
-					tsec->props.colourmap = ctrl->props.colourmap;
-
-					// FIXME: BOOM's invisible floor feature
-					continue;
-				}
-			}
-
-			P_AddExtraFloor(tsec, line);
-
-			// transfer any translucency
-			if (PERCENT_2_FLOAT(special->translucency) <= 0.99f)
-			{
-				P_EFTransferTrans(ctrl, tsec, line, &special->ef,
-						PERCENT_2_FLOAT(special->translucency));
-			}
-
-			// update the line gaps & things:
-			P_RecomputeTilesInSector(tsec);
-			P_RecomputeGapsAroundSector(tsec);
-
-			// FIXME: tele-frag any things in the way
-
-			P_FloodExtraFloors(tsec);
-
-			texSwitch = true;
-		}
-	}
-
 	// Tagged line effects
 	if (line && special->line_effect)
 	{
@@ -1743,6 +1704,43 @@ void P_SpawnSpecials(int autotag)
 		if (special->portal_effect != PORTFX_None)
 		{
 			P_PortalEffect(&lines[i]);
+		}
+
+		// Extrafloor creation
+		if (special->ef.type != EXFL_None && lines[i].tag > 0)
+		{
+			sector_t *ctrl = lines[i].frontsector;
+
+			for (sector_t * tsec = P_FindSectorFromTag(lines[i].tag); tsec; tsec = tsec->tag_next)
+			{
+				if (special->ef.type & EXFL_BoomTex)
+				{
+					if (ctrl->f_h <= tsec->f_h)
+					{
+						tsec->props.colourmap = ctrl->props.colourmap;
+
+						// FIXME: BOOM's invisible floor feature
+						continue;
+					}
+				}
+
+				P_AddExtraFloor(tsec, &lines[i]);
+
+				// transfer any translucency
+				if (PERCENT_2_FLOAT(special->translucency) <= 0.99f)
+				{
+					P_EFTransferTrans(ctrl, tsec, &lines[i], &special->ef,
+							PERCENT_2_FLOAT(special->translucency));
+				}
+
+				// update the line gaps & things:
+				P_RecomputeTilesInSector(tsec);
+				P_RecomputeGapsAroundSector(tsec);
+
+				// FIXME: tele-frag any things in the way
+
+				P_FloodExtraFloors(tsec);
+			}
 		}
 
 		if (special->autoline)

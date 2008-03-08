@@ -1080,7 +1080,26 @@ static void LoadThings(int lump)
 			continue;
 		}
 
-		z = (objtype->flags & MF_SPAWNCEILING) ? ONCEILINGZ : ONFLOORZ;
+		sector_t *sec = R_PointInSubsector(x, y)->sector;
+		
+		z = sec->f_h;
+		
+		if (objtype->flags & MF_SPAWNCEILING)
+			z = sec->c_h - objtype->height;
+
+		if ((options & MTF_RESERVED) == 0 && (options & MTF_EXFLOOR_MASK))
+		{
+			int floor_num = (options & MTF_EXFLOOR_MASK) >> MTF_EXFLOOR_SHIFT;
+
+			for (extrafloor_t *ef = sec->bottom_ef; ef; ef = ef->higher)
+			{
+				z = ef->top_h;
+
+				floor_num--;
+				if (floor_num == 0)
+					break;
+			}
+		}
 
 		SpawnMapThing(objtype, x, y, z, angle, options, 0);
 	}
@@ -1139,10 +1158,12 @@ static void LoadHexenThings(int lump)
 			continue;
 		}
 
-		z += R_PointInSubsector(x, y)->sector->f_h;
+		sector_t *sec = R_PointInSubsector(x, y)->sector;
+		
+		z += sec->f_h;
 
 		if (objtype->flags & MF_SPAWNCEILING)
-			z = ONCEILINGZ;
+			z = sec->c_h - objtype->height;
 
 		SpawnMapThing(objtype, x, y, z, angle, options, tag);
 	}
@@ -2325,6 +2346,10 @@ void P_SetupLevel(void)
 	for (j=0; j < numsectors; j++)
 		P_RecomputeGapsAroundSector(sectors + j);
 
+	// set up world state
+	// (must be before loading things to create Extrafloors)
+	P_SpawnSpecials(currmap->autotag);
+
 	G_ClearBodyQueue();
 
 	// -AJA- 1999/10/21: Clear out player starts (ready to load).
@@ -2342,9 +2367,6 @@ void P_SetupLevel(void)
 	L_WriteDebug("MAP CRCS: S=%08x L=%08x T=%08x\n",
 		mapsector_CRC.crc, mapline_CRC.crc, mapthing_CRC.crc);
 #endif
-
-	// set up world state
-	P_SpawnSpecials(currmap->autotag);
 
 	CreateVertexSeclists();
 

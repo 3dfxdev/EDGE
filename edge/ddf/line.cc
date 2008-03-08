@@ -375,6 +375,9 @@ static void LinedefFinishEntry(void)
 
 	if (buffer_line.ef.type != EXFL_None)
 	{
+		// AUTO is no longer needed for extrafloors
+		buffer_line.autoline = false;
+
 		if ((buffer_line.ef.type & EXFL_Flooder) && (buffer_line.ef.type & EXFL_NoShade))
 		{
 			DDF_WarnError2(129, "FLOODER and NOSHADE tags cannot be used together.\n");
