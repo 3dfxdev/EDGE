@@ -457,6 +457,19 @@ static void MIR_Pop()
 }
 
 
+float Slope_GetHeight(slope_plane_t *slope, float x, float y)
+{
+	// FIXME: precompute (store in slope_plane_t)
+	float dx = slope->x2 - slope->x1;
+	float dy = slope->y2 - slope->y1;
+
+	float d_len = dx*dx + dy*dy;
+
+	float along = ((x - slope->x1) * dx + (y - slope->y1) * dy) / d_len;
+
+	return slope->z1 + along * (slope->z2 - slope->z1);
+}
+
 
 #if 0
 static void DrawLaser(player_t *p)
@@ -965,7 +978,8 @@ typedef struct wall_tile_s
 	// vertical extent of this tile.  The seg determines the horizontal
 	// extent.
 	// 
-	float z1, z2;
+	float lz1, lz2;
+	float rz1, rz2;
 
     // texturing top, in world coordinates
 	float tex_z;
@@ -985,6 +999,36 @@ static wall_tile_t tiles[MAX_WALL_TILE];
 
 
 static inline void AddWallTile(side_t *sd, float z1, float z2,
+							   float tex_z, surface_t *surface, int flags,
+							   float f_min, float c_max)
+{
+	wall_tile_t *wt;
+
+	if (! surface->image)
+		return;
+
+	if (tile_used >= MAX_WALL_TILE)
+		return;
+
+	z1 = MAX(f_min, z1);
+	z2 = MIN(c_max, z2);
+
+	if (z1 >= z2 - 0.01)
+		return;
+
+	wt = tiles + tile_used;
+
+	wt->lz1 = wt->rz1 = z1;
+	wt->lz2 = wt->rz2 = z2;
+
+	wt->tex_z = tex_z;
+	wt->surface = surface;
+	wt->flags = flags;
+
+	tile_used++;
+}
+
+static inline void AddWallTile2(side_t *sd, float lz1, float lz2, float rz1, float rz2,
 							   float tex_z, surface_t *surface, int flags)
 {
 	wall_tile_t *wt;
@@ -997,8 +1041,12 @@ static inline void AddWallTile(side_t *sd, float z1, float z2,
 
 	wt = tiles + tile_used;
 
-	wt->z1 = z1;
-	wt->z2 = z2;
+	wt->lz1 = lz1;
+	wt->lz2 = lz2;
+	
+	wt->rz1 = rz1;
+	wt->rz2 = rz2;
+
 	wt->tex_z = tex_z;
 	wt->surface = surface;
 	wt->flags = flags;
@@ -1006,8 +1054,9 @@ static inline void AddWallTile(side_t *sd, float z1, float z2,
 	tile_used++;
 }
 
-static void ComputeWallTiles(line_t *ld, int sidenum)
+static void ComputeWallTiles(seg_t *seg, int sidenum, float f_min, float c_max)
 {
+	line_t *ld = seg->linedef;
 	side_t *sd = ld->side[sidenum];
 	sector_t *sec, *other;
 	surface_t *surf;
@@ -1046,29 +1095,49 @@ static void ComputeWallTiles(line_t *ld, int sidenum)
 		AddWallTile(sd, slope_fh, slope_ch, 
 			(ld->flags & MLF_LowerUnpegged) ? 
 			sec->f_h + IM_HEIGHT(sd->middle.image) : sec->c_h,
-			&sd->middle, 0);
+			&sd->middle, 0, f_min, c_max);
 		return;
 	}
 
 	// handle lower, upper and mid-masker
 
-	if (sec->f_h < other->f_h)
+	if (slope_fh < other->f_h)
 	{
-		if (sd->bottom.image)
+		if (other->f_slope)
+		{
+			float lz1 = slope_fh; // MIN(other->f_slope->z1, other->f_slope->z2) - 8.0;
+			float rz1 = slope_fh; // lz1;
+
+			float lz2 = Slope_GetHeight(other->f_slope, seg->v1->x, seg->v1->y);
+			float rz2 = Slope_GetHeight(other->f_slope, seg->v2->x, seg->v2->y);
+
+			AddWallTile2(sd, lz1, lz2, rz1, rz2,
+				(ld->flags & MLF_LowerUnpegged) ? sec->c_h : other->f_h,
+				&sd->bottom, 0);
+		}
+		else if (sd->bottom.image)
+		{
 			AddWallTile(sd, slope_fh, other->f_h, 
-			(ld->flags & MLF_LowerUnpegged) ? sec->c_h : other->f_h,
-			&sd->bottom, 0);
+				(ld->flags & MLF_LowerUnpegged) ? sec->c_h : other->f_h,
+				&sd->bottom, 0, f_min, c_max);
+		}
 		else
 			lower_invis = true;
 	}
 
-	if (sec->c_h > other->c_h &&
+	if (slope_ch > other->c_h &&
 		! (IS_SKY(sec->ceil) && IS_SKY(other->ceil)))
 	{
-		if (sd->top.image)
+		if (other->c_slope)
+		{
+		}
+		else if (sd->top.image)
+		{
 			AddWallTile(sd, other->c_h, slope_ch, 
-			(ld->flags & MLF_UpperUnpegged) ? sec->c_h : 
-			other->c_h + IM_HEIGHT(sd->top.image), &sd->top, 0);
+				(ld->flags & MLF_UpperUnpegged) ? sec->c_h : 
+				other->c_h + IM_HEIGHT(sd->top.image), &sd->top, 0,
+				f_min, c_max);
+		}
 		else
 			upper_invis = true;
 	}
@@ -1108,7 +1177,7 @@ static void ComputeWallTiles(line_t *ld, int sidenum)
 
 		if (c2 > f2)
 		{
-			AddWallTile(sd, f2, c2, tex_z, &sd->middle, WTILF_MidMask);
+			AddWallTile(sd, f2, c2, tex_z, &sd->middle, WTILF_MidMask, f_min, c_max);
 		}
 	}
 
@@ -1166,7 +1235,7 @@ static void ComputeWallTiles(line_t *ld, int sidenum)
 			tex_z = (C->ef_line->flags & MLF_LowerUnpegged) ?
 				C->bottom_h + IM_HEIGHT(surf->image) : C->top_h;
 
-			AddWallTile(sd, C->bottom_h, C->top_h, tex_z, surf, flags);
+			AddWallTile(sd, C->bottom_h, C->top_h, tex_z, surf, flags, f_min, c_max);
 		}
 
 		floor_h = C->top_h;
@@ -1175,8 +1244,9 @@ static void ComputeWallTiles(line_t *ld, int sidenum)
 
 
 static void DrawWallPart(drawfloor_t *dfloor,
-		                 float x1, float y1, float x2, float y2,
-		                 float top, float bottom, float tex_top_h, wall_tile_t *wt,
+		                 float x1, float y1, float lz1, float lz2,
+						 float x2, float y2, float rz1, float rz2,
+		                 float tex_top_h, wall_tile_t *wt,
 						 bool mid_masked, bool opaque,
    						 float tex_x1, float tex_x2,
 						 region_properties_t *props = NULL)
@@ -1263,8 +1333,8 @@ static void DrawWallPart(drawfloor_t *dfloor,
 	float  left_h[MAX_EDGE_VERT]; int  left_num=2;
 	float right_h[MAX_EDGE_VERT]; int right_num=2;
 
-	left_h[0]  = bottom; left_h[1]  = top;
-	right_h[0] = bottom; right_h[1] = top;
+	left_h[0]  = lz1; left_h[1]  = lz2;
+	right_h[0] = rz1; right_h[1] = rz2;
 
 	if (solid_mode) /// && ! (wt->flags & WTILF_IsExtra)
 	{
@@ -1366,6 +1436,9 @@ static void DrawWallPart(drawfloor_t *dfloor,
 
 	if (use_dlights && ren_extralight < 250)
 	{
+		float bottom = MIN(lz1, rz1);
+		float top    = MAX(lz2, rz2);
+
 		P_DynamicLightIterator(v_bbox[BOXLEFT],  v_bbox[BOXBOTTOM], bottom,
 							   v_bbox[BOXRIGHT], v_bbox[BOXTOP],    top,
 							   DLIT_Wall, &data);
@@ -1480,7 +1553,7 @@ static void DrawSlidingDoor(drawfloor_t *dfloor, float c, float f,
 		s_tex += x_offset;
 		e_tex += x_offset;
 
-		DrawWallPart(dfloor, x1,y1, x2,y2, c, f, tex_top_h, wt, true, opaque, s_tex, e_tex);
+		DrawWallPart(dfloor, x1,y1,f,f, x2,y2,c,c, tex_top_h, wt, true, opaque, s_tex, e_tex);
 	}
 }
 
@@ -1759,16 +1832,11 @@ static void RGL_DrawSeg(drawfloor_t *dfloor, seg_t *seg)
 
 	side_t *sd = cur_seg->sidedef;
 
-	float f1 = dfloor->prev ? dfloor->f_h : -32767.0;
-	float c1 = dfloor->next ? dfloor->c_h : +32767.0;
-
-	float f, c, x_offset;
-	float tex_top_h;
-
-	bool opaque;
+	float f_min = dfloor->prev ? dfloor->f_h : -32767.0;
+	float c_max = dfloor->next ? dfloor->c_h : +32767.0;
 
 #if (DEBUG >= 3)
-	L_WriteDebug( "   BUILD WALLS %1.1f .. %1.1f\n", f1, c1);
+	L_WriteDebug( "   BUILD WALLS %1.1f .. %1.1f\n", f_min, c1);
 #endif
 
 	// handle TRANSLUCENT + THICK floors (a bit of a hack)
@@ -1776,27 +1844,20 @@ static void RGL_DrawSeg(drawfloor_t *dfloor, seg_t *seg)
 		(dfloor->ef->ef_info->type & EXFL_Thick) &&
 		(dfloor->ef->top->translucency < 0.99f))
 	{
-		c1 = dfloor->ef->top_h;
+		c_max = dfloor->ef->top_h;
 	}
 
 
-	ComputeWallTiles(seg->linedef, seg->side);
+	ComputeWallTiles(seg, seg->side, f_min, c_max);
 
 	for (int j=0; j < tile_used; j++)
 	{
 		wall_tile_t *wt = tiles + j;
 
-		c = MIN(c1, wt->z2);
-		f = MAX(f1, wt->z1);
-
-		// not visible ?
-		if (f >= c)
-			continue;
-
 		SYS_ASSERT(wt->surface->image);
 
-		tex_top_h = wt->tex_z + wt->surface->offset.y;
-		x_offset  = wt->surface->offset.x;
+		float tex_top_h = wt->tex_z + wt->surface->offset.y;
+		float x_offset  = wt->surface->offset.x;
 
 		if (wt->flags & WTILF_ExtraX)
 		{
@@ -1808,14 +1869,14 @@ static void RGL_DrawSeg(drawfloor_t *dfloor, seg_t *seg)
 			tex_top_h += cur_seg->sidedef->middle.offset.y;
 		}
 
-		opaque = (! cur_seg->backsector) ||
+		bool opaque = (! cur_seg->backsector) ||
 			(wt->surface->translucency >= 0.99f &&
 			 wt->surface->image->opacity == OPAC_Solid);
 
 		// check for horizontal sliders
 		if ((wt->flags & WTILF_MidMask) && cur_seg->linedef->slide_door)
 		{
-			DrawSlidingDoor(dfloor, c, f, tex_top_h, wt, opaque, x_offset);
+			DrawSlidingDoor(dfloor, wt->lz2, wt->lz1, tex_top_h, wt, opaque, x_offset);
 			continue;
 		}
 
@@ -1830,10 +1891,12 @@ static void RGL_DrawSeg(drawfloor_t *dfloor, seg_t *seg)
 		tex_x1 += x_offset;
 		tex_x2 += x_offset;
 
-		DrawWallPart(dfloor, x1,y1, x2,y2, c, f, tex_top_h, wt,
-			(wt->flags & WTILF_MidMask) ? true : false, 
+		DrawWallPart(dfloor,
+			x1,y1, wt->lz1,wt->lz2,
+		    x2,y2, wt->rz1,wt->rz2, tex_top_h,
+			wt, (wt->flags & WTILF_MidMask) ? true : false, 
 			opaque, tex_x1, tex_x2, (wt->flags & WTILF_MidMask) ?
-			  &cur_seg->sidedef->sector->props : NULL);
+			&cur_seg->sidedef->sector->props : NULL);
 	}
 
 	// -AJA- 2004/04/21: Emulate Flat-Flooding TRICK
@@ -2268,7 +2331,7 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 		return;
 
 	// ignore non-facing planes
-	if ((viewz > h) != (face_dir > 0))
+	if ((viewz > h) != (face_dir > 0) && !slope)
 		return;
 
 	// ignore dud regions (floor >= ceiling)
@@ -2326,18 +2389,7 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 
 			if (slope)
 			{
-				// FIXME: precompute (store in slope_plane_t)
-				float dx = slope->x2 - slope->x1;
-				float dy = slope->y2 - slope->y1;
-
-				float d_len = sqrt(dx*dx + dy*dy);
-
-				dx /= d_len;
-				dy /= d_len;
-
-				float along = ((x - slope->x1) * dx + (y - slope->y1) * dy) / d_len;
-
-				z = slope->z1 + along * (slope->z2 - slope->z1);
+				z = Slope_GetHeight(slope, x, y);
 
 				MIR_Height(z);
 			}
