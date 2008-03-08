@@ -321,36 +321,6 @@ typedef struct sector_s
 sector_t;
 
 
-typedef enum
-{
-	WTILF_IsExtra  = (1 << 0),
-	WTILF_ExtraX   = (1 << 1),  // side of an extrafloor
-	WTILF_ExtraY   = (1 << 2),  //
-
-	WTILF_MidMask  = (1 << 4),  // the mid-masked part (gratings etc)
-
-}
-wall_tile_flag_e;
-
-typedef struct wall_tile_s
-{
-	// vertical extent of this tile.  The seg determines the horizontal
-	// extent.
-	// 
-	float z1, z2;
-
-    // texturing top, in world coordinates
-	float tex_z;
-
-	// various flags
-	int flags;
-
-	// corresponding surface.  NULL if this tile is unused.
-	surface_t *surface;
-}
-wall_tile_t;
-
-
 //
 // The SideDef.
 //
@@ -363,10 +333,10 @@ typedef struct side_s
 	// Sector the SideDef is facing.
 	sector_t *sector;
 
-	// set of tiles used for this side
-	short tile_max;
-	short tile_used;
-	wall_tile_t *tiles;
+///---	// set of tiles used for this side
+///---	short tile_max;
+///---	short tile_used;
+///---	wall_tile_t *tiles;
 
 	// midmasker Y offset
 	float midmask_offset;

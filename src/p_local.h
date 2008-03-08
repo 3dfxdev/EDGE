@@ -212,9 +212,9 @@ int P_FindThingGap(vgap_t * gaps, int gap_num, float z1, float z2);
 void P_ComputeGaps(line_t * ld);
 float P_ComputeThingGap(mobj_t * thing, sector_t * sec, float z, float * f, float * c);
 void P_AddExtraFloor(sector_t *sec, line_t *line);
-void P_ComputeWallTiles(line_t *ld, int sidenum);
 void P_RecomputeGapsAroundSector(sector_t *sec);
-void P_RecomputeTilesInSector(sector_t *sec);
+///--- void P_ComputeWallTiles(line_t *ld, int sidenum);
+///--- void P_RecomputeTilesInSector(sector_t *sec);
 void P_FloodExtraFloors(sector_t *sector);
 
 bool P_ThingsInArea(float *bbox);

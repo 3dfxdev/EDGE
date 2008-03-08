@@ -831,8 +831,8 @@ void RAD_ActChangeTex(rad_trigger_t *R, mobj_t *actor, void *param)
 			break;
 		}
 
-		P_ComputeWallTiles(lines + i, 0);
-		P_ComputeWallTiles(lines + i, 1);
+///---		P_ComputeWallTiles(lines + i, 0);
+///---		P_ComputeWallTiles(lines + i, 1);
 	}
 }
 
