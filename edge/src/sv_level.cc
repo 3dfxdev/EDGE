@@ -698,7 +698,7 @@ void SV_SectorFinaliseElems(void)
 		sector_t *sec = sectors + i;
 
 		P_RecomputeGapsAroundSector(sec);
-		P_RecomputeTilesInSector(sec);
+///---	P_RecomputeTilesInSector(sec);
 		P_FloodExtraFloors(sec);
 
 		// check for animation

@@ -949,6 +949,231 @@ static inline void GreetNeighbourSector(float *hts, int& num,
 }
 
 
+typedef enum
+{
+	WTILF_IsExtra  = (1 << 0),
+	WTILF_ExtraX   = (1 << 1),  // side of an extrafloor
+	WTILF_ExtraY   = (1 << 2),  //
+
+	WTILF_MidMask  = (1 << 4),  // the mid-masked part (gratings etc)
+
+}
+wall_tile_flag_e;
+
+typedef struct wall_tile_s
+{
+	// vertical extent of this tile.  The seg determines the horizontal
+	// extent.
+	// 
+	float z1, z2;
+
+    // texturing top, in world coordinates
+	float tex_z;
+
+	// various flags
+	int flags;
+
+	// corresponding surface.  NULL if this tile is unused.
+	surface_t *surface;
+}
+wall_tile_t;
+
+
+#define MAX_WALL_TILE  64
+static int tile_used;
+static wall_tile_t tiles[MAX_WALL_TILE];
+
+
+static inline void AddWallTile(side_t *sd, float z1, float z2,
+							   float tex_z, surface_t *surface, int flags)
+{
+	wall_tile_t *wt;
+
+	if (! surface->image)
+		return;
+
+	if (tile_used >= MAX_WALL_TILE)
+		return;
+
+	wt = tiles + tile_used;
+
+	wt->z1 = z1;
+	wt->z2 = z2;
+	wt->tex_z = tex_z;
+	wt->surface = surface;
+	wt->flags = flags;
+
+	tile_used++;
+}
+
+static void ComputeWallTiles(line_t *ld, int sidenum)
+{
+	side_t *sd = ld->side[sidenum];
+	sector_t *sec, *other;
+	surface_t *surf;
+
+	extrafloor_t *S, *L, *C;
+	float floor_h;
+	float tex_z;
+
+	bool lower_invis = false;
+	bool upper_invis = false;
+
+
+	// clear existing tiles
+	tile_used = 0;
+
+	if (! sd)
+		return;
+
+	sec = sd->sector;
+	other = sidenum ? ld->frontsector : ld->backsector;
+
+
+	float slope_fh = sec->f_h;
+	if (sec->f_slope)
+		slope_fh = MIN(sec->f_slope->z1, sec->f_slope->z2);
+
+	float slope_ch = sec->c_h;
+	if (sec->c_slope)
+		slope_ch = MAX(sec->c_slope->z1, sec->c_slope->z2);
+
+	if (! other)
+	{
+		if (! sd->middle.image)
+			return;
+
+		AddWallTile(sd, slope_fh, slope_ch, 
+			(ld->flags & MLF_LowerUnpegged) ? 
+			sec->f_h + IM_HEIGHT(sd->middle.image) : sec->c_h,
+			&sd->middle, 0);
+		return;
+	}
+
+	// handle lower, upper and mid-masker
+
+	if (sec->f_h < other->f_h)
+	{
+		if (sd->bottom.image)
+			AddWallTile(sd, slope_fh, other->f_h, 
+			(ld->flags & MLF_LowerUnpegged) ? sec->c_h : other->f_h,
+			&sd->bottom, 0);
+		else
+			lower_invis = true;
+	}
+
+	if (sec->c_h > other->c_h &&
+		! (IS_SKY(sec->ceil) && IS_SKY(other->ceil)))
+	{
+		if (sd->top.image)
+			AddWallTile(sd, other->c_h, slope_ch, 
+			(ld->flags & MLF_UpperUnpegged) ? sec->c_h : 
+			other->c_h + IM_HEIGHT(sd->top.image), &sd->top, 0);
+		else
+			upper_invis = true;
+	}
+
+	if (sd->middle.image)
+	{
+		float f1 = MAX(sec->f_h, other->f_h);
+		float c1 = MIN(sec->c_h, other->c_h);
+
+		float f2, c2;
+
+		if (ld->flags & MLF_LowerUnpegged)
+		{
+			f2 = f1 + sd->midmask_offset;
+			c2 = f2 + IM_HEIGHT(sd->middle.image);
+		}
+		else
+		{
+			c2 = c1 + sd->midmask_offset;
+			f2 = c2 - IM_HEIGHT(sd->middle.image);
+		}
+
+		tex_z = c2;
+
+		// hack for transparent doors
+		{
+			if (lower_invis) f1 = sec->f_h;
+			if (upper_invis) c1 = sec->c_h;
+		}
+
+		// hack for "see-through" lines (same sector on both sides)
+		if (sec != other)
+		{
+			f2 = MAX(f2, f1);
+			c2 = MIN(c2, c1);
+		}
+
+		if (c2 > f2)
+		{
+			AddWallTile(sd, f2, c2, tex_z, &sd->middle, WTILF_MidMask);
+		}
+	}
+
+	// -- thick extrafloor sides --
+
+	// -AJA- Don't bother drawing extrafloor sides if the front/back
+	//       sectors have the same tag (and thus the same extrafloors).
+	//
+	if (other->tag == sec->tag)
+		return;
+
+	floor_h = other->f_h;
+
+	S = other->bottom_ef;
+	L = other->bottom_liq;
+
+	while (S || L)
+	{
+		if (!L || (S && S->bottom_h < L->bottom_h))
+		{
+			C = S;  S = S->higher;
+		}
+		else
+		{
+			C = L;  L = L->higher;
+		}
+
+		SYS_ASSERT(C);
+
+		// ignore liquids in the middle of THICK solids, or below real
+		// floor or above real ceiling
+		//
+		if (C->bottom_h < floor_h || C->bottom_h > other->c_h)
+			continue;
+
+		if (C->ef_info->type & EXFL_Thick)
+		{
+			int flags = WTILF_IsExtra;
+
+			// -AJA- 1999/09/25: Better DDF control of side texture.
+			if (C->ef_info->type & EXFL_SideUpper)
+				surf = &sd->top;
+			else if (C->ef_info->type & EXFL_SideLower)
+				surf = &sd->bottom;
+			else
+			{
+				surf = &C->ef_line->side[0]->middle;
+
+				flags |= WTILF_ExtraX;
+
+				if (C->ef_info->type & EXFL_SideMidY)
+					flags |= WTILF_ExtraY;
+			}
+
+			tex_z = (C->ef_line->flags & MLF_LowerUnpegged) ?
+				C->bottom_h + IM_HEIGHT(surf->image) : C->top_h;
+
+			AddWallTile(sd, C->bottom_h, C->top_h, tex_z, surf, flags);
+		}
+
+		floor_h = C->top_h;
+	}
+}
+
+
 static void DrawWallPart(drawfloor_t *dfloor,
 		                 float x1, float y1, float x2, float y2,
 		                 float top, float bottom, float tex_top_h, wall_tile_t *wt,
@@ -1554,9 +1779,12 @@ static void RGL_DrawSeg(drawfloor_t *dfloor, seg_t *seg)
 		c1 = dfloor->ef->top_h;
 	}
 
-	for (int j=0; j < sd->tile_used; j++)
+
+	ComputeWallTiles(seg->linedef, seg->side);
+
+	for (int j=0; j < tile_used; j++)
 	{
-		wall_tile_t *wt = sd->tiles + j;
+		wall_tile_t *wt = tiles + j;
 
 		c = MIN(c1, wt->z2);
 		f = MAX(f1, wt->z1);

@@ -1132,8 +1132,8 @@ static bool MoveSlider(slider_move_t *smov)
                     ld->side[0]->middle.image = NULL;
                     ld->side[1]->middle.image = NULL;
 
-                    P_ComputeWallTiles(ld, 0);
-                    P_ComputeWallTiles(ld, 1);
+///---              P_ComputeWallTiles(ld, 0);
+///---              P_ComputeWallTiles(ld, 1);
 
                     return true; // REMOVE ME
                 }

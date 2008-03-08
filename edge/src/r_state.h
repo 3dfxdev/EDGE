@@ -61,8 +61,8 @@ extern line_t *lines;
 extern int numsides;
 extern side_t *sides;
 
-extern int numwalltiles;
-extern wall_tile_t *walltiles;
+///---extern int numwalltiles;
+///---extern wall_tile_t *walltiles;
 
 extern int numvertgaps;
 extern vgap_t *vertgaps;

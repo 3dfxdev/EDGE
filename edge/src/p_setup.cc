@@ -102,8 +102,8 @@ line_t *lines;
 int numsides;
 side_t *sides;
 
-int numwalltiles;
-wall_tile_t *walltiles;
+///---int numwalltiles;
+///---wall_tile_t *walltiles;
 
 int numvertgaps;
 vgap_t *vertgaps;
@@ -1567,6 +1567,7 @@ static void SetupSlidingDoors(void)
 // Computes how many wall tiles we'll need.  The tiles themselves are 
 // created elsewhere.
 //
+#if 0  // NO LONGER USED
 static void SetupWallTiles(void)
 {
 	int i, wt_index;
@@ -1637,6 +1638,7 @@ static void SetupWallTiles(void)
 
 	SYS_ASSERT(wt_index == numwalltiles);
 }
+#endif
 
 //
 // SetupVertGaps
@@ -2300,7 +2302,7 @@ void P_SetupLevel(void)
 
 	numsides = 0;
 	numextrafloors = 0;
-	numwalltiles = 0;
+///---	numwalltiles = 0;
 	numvertgaps = 0;
 
 	LoadVertexes(lumpnum + ML_VERTEXES);
@@ -2315,7 +2317,7 @@ void P_SetupLevel(void)
 
 	SetupExtrafloors();
 	SetupSlidingDoors();
-	SetupWallTiles();
+///---	SetupWallTiles();
 	SetupVertGaps();
 
 	delete[] temp_line_sides;
@@ -2332,11 +2334,11 @@ void P_SetupLevel(void)
 
 	GroupLines();
 
-	{
-		int j;
-		for (j=0; j < numsectors; j++)
-			P_RecomputeTilesInSector(sectors + j);
-	}
+///---	{
+///---		int j;
+///---		for (j=0; j < numsectors; j++)
+///---			P_RecomputeTilesInSector(sectors + j);
+///---	}
 
 	DetectDeepWaterTrick();
 
