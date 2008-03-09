@@ -99,6 +99,33 @@ static void DoWriteText(int x, int y, const char *str)
 	}
 }
 
+static void DoWriteText_RightAlign(int x, int y, const char *str)
+{
+	float scale = 1.0f;
+
+	float cx = x;
+	float cy = y;
+
+	for (int pos = strlen(str)-1; pos >= 0; pos--)
+	{
+		char ch = str[pos];
+
+		if (ch == '\n')
+		{
+			cx = x;
+			cy += 12.0f * scale;  // FIXME: use font's height
+			continue;
+		}
+
+		if (cx >= 320.0f)
+			continue;
+
+		cx -= cur_font->CharWidth(ch) * scale;
+
+		cur_font->DrawChar(cx, cy, ch, scale,1.0f, cur_colmap, 1.0f);
+	}
+}
+
 
 //------------------------------------------------------------------------
 //  HUD MODULE
@@ -210,9 +237,9 @@ static int HD_draw_text(lua_State *L)
 }
 
 
-// hud.number(x, y, len, num)
+// hud.draw_num2(x, y, len, num)
 //
-static int HD_draw_number(lua_State *L)
+static int HD_draw_num2(lua_State *L)
 {
 	int x   = luaL_checkint(L, 1);
 	int y   = luaL_checkint(L, 2);
@@ -222,11 +249,34 @@ static int HD_draw_number(lua_State *L)
 	if (len < 1 || len > 20)
 		I_Error("hud.draw_number: bad field length: %d\n", len);
 
+	bool is_neg = false;
+
+	if (num < 0 && len > 1)
+	{
+		is_neg = true; len--;
+	}
+
+	// build the integer backwards
+
 	char buffer[200];
+	char *pos = &buffer[sizeof(buffer)-4];
 
-	sprintf(buffer, "%*d", len, num);
+	*--pos = 0;
 
-	DoWriteText(x, y, buffer);
+	if (num == 0)
+	{
+		*--pos = '0';
+	}
+	else
+	{
+		for (; num > 0 && len > 0; num /= 10, len--)
+			*--pos = '0' + (num % 10);
+
+		if (is_neg)
+			*--pos = '-';
+	}
+
+	DoWriteText_RightAlign(x, y, pos);
 
 	return 0;
 }
@@ -271,12 +321,12 @@ static const luaL_Reg hud_module[] =
 	{ "raw_debug_print", HD_raw_debug_print },
 
     { "scaling",         HD_scaling     },
-    { "game_mode",       HD_game_mode     },
+    { "game_mode",       HD_game_mode   },
     { "text_font",       HD_text_font   },
     { "text_color",      HD_text_color  },
     { "draw_image",      HD_draw_image  },
     { "draw_text",       HD_draw_text   },
-    { "draw_number",     HD_draw_number },
+    { "draw_num2",       HD_draw_num2   },
 
     { "render_world",    HD_render_world   },
     { "render_automap",  HD_render_automap },
@@ -306,9 +356,7 @@ static int PL_set_who(lua_State *L)
 //
 static int PL_health(lua_State *L)
 {
-	//... FIXME
-
-	lua_pushinteger(L, (int)floor(cur_player->health+0.99));
+	lua_pushinteger(L, (int)floor(cur_player->health + 0.99));
 	return 1;
 }
 
@@ -317,9 +365,12 @@ static int PL_health(lua_State *L)
 //
 static int PL_armor(lua_State *L)
 {
-	//!!! FIXME
+	int kind = luaL_checkint(L, 1);
 
-	lua_pushinteger(L, 0);
+	if (kind < 1 || kind > NUMARMOUR)
+		I_Error("player.armor: bad armor index: %d\n", kind);
+
+	lua_pushinteger(L, (int)floor(cur_player->armours[kind] + 0.99));
 	return 1;
 }
 
@@ -388,7 +439,7 @@ static int PL_ammomax(lua_State *L)
 	if (ammo < 1 || ammo > NUMAMMO)
 		I_Error("player.ammomax: bad ammo number: %d\n", ammo);
 
-	lua_pushinteger(L, cur_player->ammo[ammo-1].num);
+	lua_pushinteger(L, cur_player->ammo[ammo-1].max);
 	return 1;
 }
 
