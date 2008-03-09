@@ -171,3 +171,5 @@ function stack_trace(msg)
 end
 
 
+TICRATE = 35
+
