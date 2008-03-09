@@ -4,6 +4,8 @@
 --  Under the GNU General Public License.
 --------------------------------------------
 
+face_count = 1
+
 function doom_weapon_icon(slot, x, y, off_pic, on_pic)
   if player.has_weapon_slot(slot) then
     hud.draw_image(x, y, on_pic)
@@ -27,11 +29,136 @@ end
 
 
 function doomguy_face(x, y)
-  -- TODO !!!
 
-  -- faceback too
+  -- This routine handles the face states and their timing.
+  -- The precedence of expressions is:
+  --
+  --    dead > evil grin > turned head > straight ahead
 
-  hud.draw_image(x-1, y-1, "STFEVL0")
+  local function pain_digit()
+
+    local base = 100; --!!!! FIXME  player.healthmax();
+    local health = math.min(base, player.health())
+    
+    local index = int(4.99 * (base - health) / base);
+
+    assert(index >= 0)
+    assert(index <= 4)
+
+    return tostring(index)
+  end
+
+
+  -- FIXME faceback too
+
+  x = x-1
+  y = y-1
+
+	-- dead ?
+	if player.health() <= 0 then
+
+    hud.draw_image(x, y, "STFDEAD0")
+    return
+	end
+
+
+
+  hud.draw_image(x, y, "STFST" .. pain_digit() .. "1")
+
+--[[
+{
+	player_t *p = players[displayplayer];
+	SYS_ASSERT(p);
+
+	angle_t badguyangle;
+	angle_t diffang;
+
+	if (p->face_count > 0)
+	{
+		p->face_count--;
+		return;
+	}
+
+	// evil grin if just picked up weapon
+	if (p->grin_count)
+	{
+		p->face_index = ST_CalcPainOffset(p) + ST_EVILGRINOFFSET;
+		face_count = 7;
+		return;
+	}
+
+	// being attacked ?
+	if (p->damagecount && p->attacker && p->attacker != p->mo)
+	{
+		if ((p->old_health - p->health) > ST_MUCHPAIN)
+		{
+			p->face_index = ST_CalcPainOffset(p) + ST_OUCHOFFSET;
+			face_count = 1*TICRATE;
+			return;
+		}
+
+		badguyangle = R_PointToAngle(p->mo->x, p->mo->y,
+			p->attacker->x, p->attacker->y);
+
+		diffang = badguyangle - p->mo->angle;
+
+		p->face_index = ST_CalcPainOffset(p);
+		face_count = 1*TICRATE;
+
+		if (diffang < ANG45 || diffang > ANG315 ||
+			(diffang > ANG135 && diffang < ANG225))
+		{
+			// head-on  
+			p->face_index += ST_RAMPAGEOFFSET;
+		}
+		else if (diffang >= ANG45 && diffang <= ANG135)
+		{
+			// turn face left
+			p->face_index += ST_TURNOFFSET + 1;
+		}
+		else
+		{
+			// turn face right
+			p->face_index += ST_TURNOFFSET;
+		}
+		return;
+	}
+
+	// getting hurt because of your own damn stupidity
+	if (p->damagecount)
+	{
+		if ((p->old_health - p->health) > ST_MUCHPAIN)
+		{
+			p->face_index = ST_CalcPainOffset(p) + ST_OUCHOFFSET;
+			face_count = 1*TICRATE;
+			return;
+		}
+
+		p->face_index = ST_CalcPainOffset(p) + ST_RAMPAGEOFFSET;
+		face_count = 1*TICRATE;
+		return;
+	}
+
+	// rapid firing
+	if (p->attackdown_count > ST_RAMPAGEDELAY)
+	{
+		p->face_index = ST_CalcPainOffset(p) + ST_RAMPAGEOFFSET;
+		face_count = 7;
+		return;
+	}
+
+	// invulnerability
+	if ((p->cheats & CF_GODMODE) || p->powers[PW_Invulnerable] > 0)
+	{
+		p->face_index = ST_GODFACE;
+		face_count = 7;
+		return;
+	}
+
+	// default: look about the place...
+	p->face_index = ST_CalcPainOffset(p) + (M_Random() % 3);
+	face_count = int(TICRATE/2);
+--]]
 end
 
 
