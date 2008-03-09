@@ -55,6 +55,7 @@ static style_c *console_style;
 #define T_WHITE   RGB_MAKE(208,208,208)
 #define T_YELLOW  RGB_MAKE(255,255,0)
 #define T_PURPLE  RGB_MAKE(255,32,255)
+#define T_BLUE    RGB_MAKE( 32,32,255)
 #define T_ORANGE  RGB_MAKE(255,72,0)
 
 static rgbcol_t current_color;
@@ -719,7 +720,9 @@ bool CON_HandleKey(int key)
 		{
 			// Add it to history & draw it
 			CON_AddCmdHistory(input_line);
-			CON_Printf("\n>%s\n", input_line);
+
+			CON_MessageColor(T_BLUE);
+			CON_Printf(">%s\n", input_line);
 		
 			// Run it!
 			CON_TryCommand(input_line);
