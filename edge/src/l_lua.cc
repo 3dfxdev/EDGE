@@ -504,16 +504,13 @@ void LU_Close(void)
 
 void LU_LoadScripts(void)
 {
-	// absolutely need this
-	W_GetNumForName("LUAHUD");
-
 	static const char *script_lumps[] =
 	{
-		"LUAUTIL0",  // edge.wad
-		"LUAUTIL1",  // user add-on
-		"LUAUTIL2",  // user add-on
+		"LUAHUD0",  // edge.wad - base
+		"LUAHUD1",  // edge.wad - hud
 
-		"LUAHUD",
+		"LUAHUD2",  // user - in a TC
+		"LUAHUD3",  // user - for a add-on
 
 		NULL  // end of list
 	};
@@ -543,10 +540,13 @@ void LU_LoadScripts(void)
 			        script_lumps[i], status, msg);
 		}
 
+		has_loaded = true;
+
 		Z_Free(buffer);
 	}
 
-	has_loaded = true;
+	if (! has_loaded)
+		I_Error("Missing required LUAHUDx lumps!\n");
 }
 
 
