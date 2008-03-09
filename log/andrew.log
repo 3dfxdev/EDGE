@@ -1,5 +1,19 @@
 Andrew Apted's Log
 
+2008/03/09:
+
+Being realistic, I don't think EDGE will ever get networking
+operational again.  We've had nearly nine years to do it, and
+something else always takes priority -- most notably the Fake
+Slopes that I began yesterday, which has kinda put too much on
+my plate, and it is networking that has slipped off.
+
+That's not so bad, other ports do a good job of multiplayer,
+EDGE's strength has been single player Mods and TCs.  Removing
+the networking code should simplify the code quite a lot.
+I'm going to keep the Bots though, as I'm fairly interested
+in that and will probably tackle good bot AI in the future.
+
 2008/03/08:
 
 Support for a 4-bit "EXTRAFLOOR" field in the options field of
@@ -7,11 +21,24 @@ the THINGS lump (bits 10-13), allowing things to be placed on
 extrafloors more easily (may need Editor support).  For safety
 the MTF_RESERVED flag (bit 8) must also be clear.
 
-Began work on fake slopes.
+Began work on Fake Slopes @@@
+
+Removed the wall tile list from linedefs, compute on the fly @@@
 
 2008/03/06:
 
-Began work on LUA HUD support.
+Began work on LUA HUD support.  The following lumps contain the
+lua code:
+
+   LUAHUD0  : edge.wad - standard utilities
+   LUAHUD1  : edge.wad - DOOM huds
+   LUAHUD2  : user - for TCs / Mods
+   LUAHUD3  : user - for Add-ons / Enhancers
+
+The API to the engine code is contained (currently) in two
+modules: "hud" contains the drawing stuff and "player" contains
+functions for accessing player info (health, ammo, etc).  The
+engine calls a lua-supplied function: hud.draw_all().
 
 2008/02/03:
 
