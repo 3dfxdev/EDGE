@@ -41,21 +41,21 @@ function doom_status_bar()
   hud.draw_image( 90, 171, "STTPRCNT");
   hud.draw_image(221, 171, "STTPRCNT");
 
-  hud.text_font("STAT_DIGIT")
+  hud.text_font("BIG_DIGIT")
 
-  hud.draw_number(44, 171, 3, player.cur_ammo(1));
-  hud.draw_number(90, 171, 3, player.health());
+  hud.draw_num2(44, 171, 3, player.cur_ammo(1));
+  hud.draw_num2(90, 171, 3, player.health());
 
   local armor = 0
   for i = 1,5 do
     armor = math.max(armor, player.armor(i))
   end
 
-  hud.draw_number(221, 171, 3, armor)
+  hud.draw_num2(221, 171, 3, armor)
 
   if hud.game_mode() == "dm" then
 
-    hud.draw_number(138, 171, 2, player.frags());
+    hud.draw_num2(138, 171, 2, player.frags());
 
   else
     hud.draw_image(104, 168, "STARMS");
@@ -77,15 +77,15 @@ function doom_status_bar()
 
   hud.text_font("YELLOW_DIGIT")
 
-  hud.draw_number(288, 173, 3, player.ammo(1));
-  hud.draw_number(288, 179, 3, player.ammo(2));
-  hud.draw_number(288, 185, 3, player.ammo(3));
-  hud.draw_number(288, 191, 3, player.ammo(4));
+  hud.draw_num2(288, 173, 3, player.ammo(1));
+  hud.draw_num2(288, 179, 3, player.ammo(2));
+  hud.draw_num2(288, 185, 3, player.ammo(3));
+  hud.draw_num2(288, 191, 3, player.ammo(4));
 
-  hud.draw_number(314, 173, 3, player.ammomax(1));
-  hud.draw_number(314, 179, 3, player.ammomax(2));
-  hud.draw_number(314, 185, 3, player.ammomax(3));
-  hud.draw_number(314, 191, 3, player.ammomax(4));
+  hud.draw_num2(314, 173, 3, player.ammomax(1));
+  hud.draw_num2(314, 179, 3, player.ammomax(2));
+  hud.draw_num2(314, 185, 3, player.ammomax(3));
+  hud.draw_num2(314, 191, 3, player.ammomax(4));
 end
 
 
