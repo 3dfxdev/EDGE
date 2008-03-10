@@ -2,6 +2,16 @@ Andrew Apted's Log
 
 2008/03/10:
 
+Removed DEMO support (which was broken).
+
+Removed support for CD music.
+
+Started implementing new console variable (CVAR) system, with
+the goal to unite cvars, menu options, CFG file settings and
+most command-line options.
+
+2008/03/09:
+
 Being realistic, I don't think EDGE will ever get networking
 operational again.  We've had nearly nine years to do it, and
 something else always takes priority -- most notably the Fake
@@ -13,10 +23,6 @@ EDGE's strength has been single player Mods and TCs.  Removing
 the networking code should simplify the code quite a lot.
 I'm going to keep the Bots though, as I'm fairly interested
 in that and will probably tackle good bot AI in the future.
-
-Removed DEMO support (which was broken).
-
-Removed support for CD music.
 
 2008/03/08:
 
