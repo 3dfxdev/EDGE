@@ -72,12 +72,12 @@ void I_StartupMusic(void)
 
 	if (nomusic) return;
 
-	// MCI CD Support
-	if (I_StartupCD())
-	{
-		capable |= support_CD;
-		I_Printf("I_StartupMusic: CD Music Init OK\n");
-	}
+///---	// MCI CD Support
+///---	if (I_StartupCD())
+///---	{
+///---		capable |= support_CD;
+///---		I_Printf("I_StartupMusic: CD Music Init OK\n");
+///---	}
 
 	// Music is not paused by default
 	musicpaused = false;
@@ -218,7 +218,6 @@ void I_ShutdownMusic(void)
 #endif
 
 	I_ShutdownMUS();
-	I_ShutdownCD();
 }
 
 void I_PostMusicError(const char *message)
