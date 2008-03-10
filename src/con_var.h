@@ -61,7 +61,7 @@ private:
 		return (str != NULL) && (str != buffer);
 	}
 
-	void DoFloat(float value);
+	void FmtFloat(float value);
 	void DoStr(const char *value);
 };
 

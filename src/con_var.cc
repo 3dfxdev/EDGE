@@ -28,7 +28,7 @@ cvar_c::cvar_c(int value) : d(value), f(value), str(buffer)
 
 cvar_c::cvar_c(float value) : d(I_ROUND(value)), f(value), str(buffer)
 {
-	DoFloat(value);
+	FmtFloat(value);
 }
 
 cvar_c::cvar_c(const char *value) : str(buffer)
@@ -61,7 +61,6 @@ cvar_c& cvar_c::operator= (int value)
 	f = value;
 
 	str = buffer;
-
 	sprintf(buffer, "%d", value);
 
 	return *this;
@@ -78,8 +77,7 @@ cvar_c& cvar_c::operator= (float value)
 	f = value;
 
 	str = buffer;
-
-	DoFloat(value);
+	FmtFloat(value);
 
 	return *this;
 }
@@ -108,7 +106,7 @@ cvar_c& cvar_c::operator= (const cvar_c& other)
 	return *this;
 }
 
-void cvar_c::DoFloat(float value)
+void cvar_c::FmtFloat(float value)
 {
 	float ab = fabs(value);
 
@@ -129,12 +127,9 @@ void cvar_c::DoStr(const char *value)
 		free((void *) str);
 	}
 
-	int len = strlen(value);
-
-	if (len+1 <= BUFSIZE)
+	if (strlen(value)+1 <= BUFSIZE)
 	{
 		str = buffer;
-
 		strcpy(buffer, value);
 	}
 	else
@@ -150,6 +145,9 @@ void cvar_c::DoStr(const char *value)
 //----------------------------------------------------------------------------
 //  LIST OF ALL CVARS
 //----------------------------------------------------------------------------
+
+
+
 
 
 //--- editor settings ---
