@@ -349,9 +349,6 @@ void W_PrecacheLevel(void)
 	int count = 0;
 	int i;
 
-	if (demoplayback)
-		return;
-
 	// do sprites first -- when memory is tight, they'll be the first
 	// images to be removed from the cache(s).
 

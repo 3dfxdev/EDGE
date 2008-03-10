@@ -50,7 +50,6 @@
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "dstrings.h"
-#include "e_demo.h"
 #include "e_input.h"
 #include "f_finale.h"
 #include "f_interm.h"
@@ -808,23 +807,6 @@ I_Debugf("E_DoAdvanceTitle: done (ga != nil)\n");
 			break;
 		}
 
-		default:  // Play Demo
-		{
-			char buffer[9];
-
-			sprintf(buffer, "DEMO%x", demo_num++);
-
-			if (W_CheckNumForName(buffer) < 0)
-			{
-				demo_num = 1;
-				sprintf(buffer, "DEMO1");
-			}
-
-			// -AJA- FIXME: demos in lumps not yet supported
-			// G_DeferredPlayDemo(buffer);
-
-			break;
-		}
 	}
 I_Debugf("E_DoAdvanceTitle: done\n");
 }
@@ -1335,9 +1317,6 @@ static void InitDDF(void)
 
 void E_EngineShutdown(void)
 {
-	if (demorecording)
-		G_FinishDemo();
-
 	N_QuitNetGame();
 
 	S_StopMusic();
@@ -1473,28 +1452,6 @@ static void E_InitialState(void)
 	// do demos and loadgames first, as they contain all of the
 	// necessary state already (in the demo file / savegame).
 
-	ps = M_GetParm("-playdemo");
-	if (ps)
-	{
-		// quit after one demo
-		singledemo = true;
-		G_DeferredPlayDemo(ps);
-		return;
-	}
-	else if (dragged_demo.length() > 0)
-	{
-		singledemo = true;
-		G_DeferredPlayDemo(dragged_demo.c_str());
-		return;
-	}
-
-	ps = M_GetParm("-timedemo");
-	if (ps)
-	{
-		G_DeferredTimeDemo(ps);
-		return;
-	}
-
 	ps = M_GetParm("-loadgame");
 	if (ps)
 	{
@@ -1576,13 +1533,7 @@ static void E_InitialState(void)
 
 	params.SinglePlayer(bots);
 
-	ps = M_GetParm("-record");
-	if (ps)
-		G_DeferredRecordDemo(params, ps);
-	else
-		G_DeferredNewGame(params);
-
-///		gameaction = ga_recorddemo;
+	G_DeferredNewGame(params);
 }
 
 

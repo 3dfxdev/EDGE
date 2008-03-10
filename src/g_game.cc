@@ -34,7 +34,6 @@
 
 #include "con_main.h"
 #include "dstrings.h"
-#include "e_demo.h"
 #include "e_input.h"
 #include "e_main.h"
 #include "f_finale.h"
@@ -246,11 +245,6 @@ void G_DoLoadLevel(void)
 
 	P_SetupLevel();
 
-///---	if (demorecording && demo_notbegun)
-///---	{
-///---		G_BeginRecording();
-///---	}
-
 	RAD_SpawnTriggers(currmap->ddf.name.c_str());
 
 	starttime = I_GetTime();
@@ -279,8 +273,7 @@ void G_DoLoadLevel(void)
 bool G_Responder(event_t * ev)
 {
 	// any other key pops up menu if in demos
-	if (gameaction == ga_nothing && !singledemo &&
-		(demoplayback || gamestate == GS_TITLESCREEN))
+	if (gameaction == ga_nothing && (gamestate == GS_TITLESCREEN))
 	{
 		if (ev->type == ev_keydown)
 		{
@@ -295,7 +288,7 @@ bool G_Responder(event_t * ev)
 	if (ev->type == ev_keydown && ev->value.key == KEYD_F12)
 	{
 		// 25-6-98 KM Allow spy mode for demos even in deathmatch
-		if (gamestate == GS_LEVEL && (demoplayback || true || !DEATHMATCH())) //!!!! DEBUGGING
+		if (gamestate == GS_LEVEL && !DEATHMATCH()) //!!!! DEBUGGING
 		{
 			G_ToggleDisplayPlayer();
 			return true;
@@ -401,11 +394,11 @@ void G_BigStuff(void)
 				break;
 
 			case ga_playdemo:
-				G_DoPlayDemo();
+				// G_DoPlayDemo();
 				break;
 
 			case ga_recorddemo:
-				G_DoRecordDemo();
+				// G_DoRecordDemo();
 				break;
 
 			case ga_intermission:
@@ -981,7 +974,6 @@ static void G_DoNewGame(void)
 
 	SYS_ASSERT(defer_params);
 
-	demoplayback = false;
 	quickSaveSlot = -1;
 
 	G_InitNew(*defer_params);
@@ -1053,7 +1045,6 @@ void G_InitNew(newgame_params_c& params)
 
 	P_WriteRandomState(params.random_seed);
 
-	demoplayback = false;
 	automapactive = false;
 
 	gameskill = params.skill;
