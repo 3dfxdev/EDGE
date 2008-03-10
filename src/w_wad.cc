@@ -160,27 +160,36 @@ public:
 		wadtex(), deh_lump(-1), animated(-1), switches(-1),
 		companion_gwa(-1), dir_hash()
 	{
+		file_name = strdup(_fname);
+
 		for (int d = 0; d < NUM_DDF_READERS; d++)
 			ddf_lumps[d] = -1;
 	}
 
+	~data_file_c()
+	{
+		free((void*)file_name);
+	}
 };
 
-class datafile_array_c : public epi::array_c
-{
-public:
-	datafile_array_c() : epi::array_c(sizeof(data_file_c*)) { }
-	~datafile_array_c() { Clear(); }
+static std::vector<data_file_c *> data_files;
 
-private:
-	void CleanupObject(void *obj) { delete *(data_file_c**)obj; }
 
-public:
-    // List Management
-	int GetSize() { return array_entries; }
-	int Insert(data_file_c *c) { return InsertObject((void*)&c); }
-	data_file_c* operator[](int idx) { return *(data_file_c**)FetchObject(idx); }
-};
+///---class datafile_array_c : public epi::array_c
+///---{
+///---public:
+///---	datafile_array_c() : epi::array_c(sizeof(data_file_c*)) { }
+///---	~datafile_array_c() { Clear(); }
+///---
+///---private:
+///---	void CleanupObject(void *obj) { delete *(data_file_c**)obj; }
+///---
+///---public:
+///---    -- List Management
+///---	int GetSize() { return array_entries; }
+///---	int Insert(data_file_c *c) { return InsertObject((void*)&c); }
+///---	data_file_c* operator[](int idx) { return *(data_file_c**)FetchObject(idx); }
+///---};
 
 
 // Raw filenames
@@ -271,8 +280,6 @@ static lumpheader_t lumphead;
 // number of freeable bytes in cache (excluding headers).
 // Used to decide how many bytes we should flush.
 static int cache_size = 0;
-
-static datafile_array_c data_files;
 
 // the first datafile which contains a PLAYPAL lump
 static int palette_datafile = -1;
@@ -443,7 +450,7 @@ static inline bool IsGL_Prefix(const char *name)
 //
 void W_GetTextureLumps(int file, wadtex_resource_c *res)
 {
-	SYS_ASSERT(0 <= file && file < data_files.GetSize());
+	SYS_ASSERT(0 <= file && file < (int)data_files.size());
 	SYS_ASSERT(res);
 
 	data_file_c *df = data_files[file];
@@ -1016,10 +1023,10 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 
 	startlump = numlumps;
 
-	int datafile = data_files.GetSize();
+	int datafile = (int)data_files.size();
 
-	data_file_c *df = new data_file_c(Z_StrDup(filename), kind, file);
-	data_files.Insert(df);
+	data_file_c *df = new data_file_c(filename, kind, file);
+	data_files.push_back(df);
 
 	// for RTS scripts, adding the data_file is enough
 	if (kind == FLKIND_Script)
@@ -1304,7 +1311,7 @@ void W_ReadDDF(void)
 			ext_loaded = (* DDF_Readers[d].func)(NULL, 0);
 		}
 
-		for (int f = 0; f < data_files.GetSize(); f++)
+		for (int f = 0; f < (int)data_files.size(); f++)
 		{
 			data_file_c *df = data_files[f];
 
@@ -1648,12 +1655,12 @@ int W_LumpLength(int lump)
 int W_FindFlatSequence(const char *start, const char *end, 
 					   int *s_offset, int *e_offset)
 {
-	for (int file = data_files.GetSize()-1; file >= 0; file--)
+	for (int file = (int)data_files.size()-1; file >= 0; file--)
 	{
-		int i;
 		data_file_c *df = data_files[file];
 
 		// look for start name
+		int i;
 		for (i=0; i < df->flat_lumps.GetSize(); i++)
 		{
 			if (strncmp(start, W_GetLumpName(df->flat_lumps[i]), 8) == 0)
@@ -1680,14 +1687,13 @@ int W_FindFlatSequence(const char *start, const char *end,
 	return -1;
 }
 
-//
-// W_GetListLumps
+
 //
 // Returns NULL for an empty list.
 //
 epi::u32array_c& W_GetListLumps(int file, lumplist_e which)
 {
-	SYS_ASSERT(0 <= file && file < data_files.GetSize());
+	SYS_ASSERT(0 <= file && file < (int)data_files.size());
 
 	data_file_c *df = data_files[file];
 
@@ -1704,17 +1710,13 @@ epi::u32array_c& W_GetListLumps(int file, lumplist_e which)
 	return df->sprite_lumps; /* NOT REACHED */
 }
 
-//
-// W_GetNumFiles
-//
+
 int W_GetNumFiles(void)
 {
-	return data_files.GetSize();
+	return (int)data_files.size();
 }
 
-//
-// W_GetFileForLump
-//
+
 int W_GetFileForLump(int lump)
 {
 	SYS_ASSERT(lump >= 0 && lump < numlumps);
@@ -1722,8 +1724,7 @@ int W_GetFileForLump(int lump)
 	return lumpinfo[lump].file;
 }
 
-//
-// W_ReadLump
+
 //
 // Loads the lump into the given buffer,
 // which must be >= W_LumpLength().
