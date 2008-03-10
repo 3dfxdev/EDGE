@@ -766,12 +766,6 @@ void M_LoadSelect(int choice)
 //
 void M_LoadGame(int choice)
 {
-	if (demorecording)
-	{
-		M_StartMessage("Cannot load a game while recording a demo", NULL, false);
-		return;
-	}
-
 	if (netgame)
 	{
 		M_StartMessage(language["NoLoadInNetGame"], NULL, false);
@@ -859,12 +853,6 @@ void M_SaveSelect(int choice)
 //
 void M_SaveGame(int choice)
 {
-	if (demorecording)
-	{
-		M_StartMessage("Cannot save a game while recording a demo", NULL, false);
-		return;
-	}
-
 	if (gamestate != GS_LEVEL)
 	{
 		M_StartMessage(language["SaveWhenNotPlaying"], NULL, false);
@@ -1047,7 +1035,7 @@ void M_DrawNewGame(void)
 
 void M_NewGame(int choice)
 {
-	if (netgame && !demoplayback)
+	if (netgame)
 	{
 		M_StartMessage(language["NewNetGame"], NULL, false);
 		return;

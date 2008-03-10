@@ -760,7 +760,7 @@ static specialkey_t specialkeylist[] =  // terminate on -1
 //
 void M_OptCheckNetgame(void)
 {
-	if (gamestate >= GS_LEVEL && !demoplayback)
+	if (gamestate >= GS_LEVEL)
 	{
 		strcpy(mainoptions[HOSTNET_POS+0].name, "Leave Game");
 		mainoptions[HOSTNET_POS+0].routine = &M_EndGame;

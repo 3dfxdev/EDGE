@@ -30,7 +30,6 @@
 #include "n_network.h"
 
 #include "dm_state.h"
-#include "e_demo.h"
 #include "e_input.h"
 #include "e_main.h"
 #include "g_game.h"
@@ -438,9 +437,6 @@ void N_TiccmdTicker(void)
 		return;
 	}
 
-	if (demoplayback)
-		E_DemoReadTick();
-
 	int buf = gametic % BACKUPTICS;
 
 	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
@@ -448,8 +444,7 @@ void N_TiccmdTicker(void)
 		player_t *p = players[pnum];
 		if (! p) continue;
 
-		if (! demoplayback)
-			memcpy(&p->cmd, p->in_cmds + buf, sizeof(ticcmd_t));
+		memcpy(&p->cmd, p->in_cmds + buf, sizeof(ticcmd_t));
 
 		// check for turbo cheats
 		if (p->cmd.forwardmove > TURBOTHRESHOLD
@@ -471,15 +466,6 @@ void N_TiccmdTicker(void)
 			else
 				p->consistency[buf] = P_ReadRandomState() & 0xff;
 		}
-	}
-
-	if (demorecording)
-	{
-		E_DemoWriteTick();
-
-		// press q to end demo recording
-		if (E_InputCheckKey((int)('q')))
-			G_FinishDemo();
 	}
 
 	gametic++;
