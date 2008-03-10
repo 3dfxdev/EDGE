@@ -65,9 +65,9 @@ std::vector<std::string> ddf_model_names;
 // fixup routine is called.
 epi::strlist_c redirs;
 
-#define NUMSPLIT 10	 // Max Number of sections a state is split info
+#define NUM_SPLIT 10  // Max Number of sections a state is split info
 
-static char *stateinfo[NUMSPLIT + 1];
+static std::string stateinfo[NUM_SPLIT + 1];
 
 
 // a little caching makes a big difference here
@@ -167,11 +167,12 @@ static int DDF_MainSplitIntoState(const char *info)
 
 	strcpy(infobuf, info);
 
-	memset(stateinfo, 0, sizeof(stateinfo));
+	for (cur=0; cur < NUM_SPLIT+1; cur++)
+		stateinfo[cur] = std::string();
 
 	first = temp = infobuf;
 
-	for (cur=0; !done && cur < NUMSPLIT; temp++)
+	for (cur=0; !done && cur < NUM_SPLIT; temp++)
 	{
 		if (*temp == '(')
 		{
@@ -202,17 +203,18 @@ static int DDF_MainSplitIntoState(const char *info)
 		if (first[0] == '#')
 		{
 			// signify that we have found redirector
-			stateinfo[0] = Z_StrDup(first + 1);
-			stateinfo[1] = NULL;
-			stateinfo[2] = NULL;
+			stateinfo[0] = std::string(first + 1);
+			stateinfo[1] = std::string();
+			stateinfo[2] = std::string();
 
 			if (! done)
-				stateinfo[1] = Z_StrDup(temp + 1);
+				stateinfo[1] = std::string(temp + 1);
 
 			return -1;
 		}
 
-		stateinfo[cur++] = Z_StrDup(first);
+		stateinfo[cur++] = std::string(first);
+
 		first = temp + 1;
 	}
 
@@ -222,25 +224,6 @@ static int DDF_MainSplitIntoState(const char *info)
 	return cur;
 }
 
-//
-// DDF_DestroyStates
-//
-// Kills a leak.
-// -ES- 2000/02/02 Added.
-//
-static void DestroyStateInfo(void)
-{
-	int i;
-  
-	for (i = 0; i < NUMSPLIT; i++)
-	{
-		if (stateinfo[i])
-		{
-			Z_Free(stateinfo[i]);
-			stateinfo[i] = NULL;
-		}
-	}
-}
 
 //
 // DDF_MainSplitActionArg
@@ -250,9 +233,10 @@ static void DestroyStateInfo(void)
 //
 // -AJA- 1999/08/10: written.
 //
-static void DDF_MainSplitActionArg(char *info, char *actname, char *actarg)
+static void DDF_MainSplitActionArg(const char *info, char *actname, char *actarg)
 {
 	int len = strlen(info);
+
 	char *mid = strchr(info, '(');
 
 	if (mid && len >= 4 && info[len - 1] == ')')
@@ -345,35 +329,33 @@ void DDF_StateReadState(const char *info, const char *label,
 		DDF_Error("Bad state '%s'\n", info);
 	}
 
-	if (stateinfo[0] == NULL)
+	if (stateinfo[0].empty())
 		DDF_Error("Missing sprite in state frames: `%s'\n", info);
 
 	//--------------------------------------------------
 	//----------------REDIRECTOR HANDLING---------------
 	//--------------------------------------------------
 
-	if (stateinfo[2] == NULL)
+	if (stateinfo[2].empty())
 	{
 		if ((*first) == 0)
 			DDF_Error("Redirector used without any states (`%s')\n", info);
 
 		cur = &states[(*last)];
 
-		SYS_ASSERT(stateinfo[0]);
+		SYS_ASSERT(! stateinfo[0].empty());
 
-		if (DDF_CompareName(stateinfo[0], "REMOVE") == 0)
+		if (DDF_CompareName(stateinfo[0].c_str(), "REMOVE") == 0)
 		{
 			cur->nextstate = -1;
-			DestroyStateInfo();
 			return;
 		}  
 
-		cur->nextstate = (StateGetRedirector(stateinfo[0]) + 1) << 16;
+		cur->nextstate = (StateGetRedirector(stateinfo[0].c_str()) + 1) << 16;
 
-		if (stateinfo[1] != NULL)
-			cur->nextstate += MAX(0, atoi(stateinfo[1]) - 1);
+		if (! stateinfo[1].empty())
+			cur->nextstate += MAX(0, atoi(stateinfo[1].c_str()) - 1);
 
-		DestroyStateInfo();
 		return;
 	}
 
@@ -403,7 +385,7 @@ void DDF_StateReadState(const char *info, const char *label,
 			state_num[0] = num_states-1;
     
 		// ...therefore copy the label
-		cur->label = Z_StrDup(label);
+		cur->label = strdup(label);
 	}
 
 	if (redir && cur->nextstate == 0)
@@ -418,12 +400,12 @@ void DDF_StateReadState(const char *info, const char *label,
 	//----------------SPRITE NAME HANDLING--------------
 	//--------------------------------------------------
 
-	if (!stateinfo[1] || !stateinfo[2] || !stateinfo[3])
+	if (stateinfo[1].empty() || stateinfo[2].empty() || stateinfo[3].empty())
 		DDF_Error("Bad state frame, missing fields: %s\n", info);
   
-	if (strlen(stateinfo[0]) != 4)
+	if (strlen(stateinfo[0].c_str()) != 4)
 		DDF_Error("DDF_MainLoadStates: Sprite names must be 4 "
-				  "characters long '%s'.\n", stateinfo[0]);
+				  "characters long '%s'.\n", stateinfo[0].c_str());
 
 	//--------------------------------------------------
 	//--------------SPRITE INDEX HANDLING---------------
@@ -432,7 +414,9 @@ void DDF_StateReadState(const char *info, const char *label,
 	cur->flags = 0;
 
 	// look at the first character
-	j = stateinfo[1][0];
+	const char *sprite_x = stateinfo[1].c_str();
+
+	j = sprite_x[0];
 
 	if ('A' <= j && j <= ']')
 	{
@@ -442,51 +426,51 @@ void DDF_StateReadState(const char *info, const char *label,
 	{
 		cur->frame = -1;
 
-		char first_ch = stateinfo[1][1];
+		char first_ch = sprite_x[1];
 
 		if (isdigit(first_ch))
 		{
 			cur->flags = SFF_Model;
-			cur->frame = atol(stateinfo[1]+1) - 1;
+			cur->frame = atol(sprite_x+1) - 1;
 		}
 		else if (isalpha(first_ch) || (first_ch == '_'))
 		{
 			cur->flags = SFF_Model | SFF_Unmapped;
 			cur->frame = 0;
-			cur->model_frame = Z_StrDup(stateinfo[1]+1);
+			cur->model_frame = strdup(sprite_x+1);
 		}
 
 		if (cur->frame < 0)
-			DDF_Error("DDF_MainLoadStates: Illegal model frame: %s\n", stateinfo[1]);
+			DDF_Error("DDF_MainLoadStates: Illegal model frame: %s\n", sprite_x);
 	}
 	else
-		DDF_Error("DDF_MainLoadStates: Illegal sprite frame: %s\n", stateinfo[1]);
+		DDF_Error("DDF_MainLoadStates: Illegal sprite frame: %s\n", sprite_x);
 
 	if (is_weapon)
 		cur->flags |= SFF_Weapon;
 
 	if (cur->flags & SFF_Model)
-		cur->sprite = AddModelName(stateinfo[0]);
+		cur->sprite = AddModelName(stateinfo[0].c_str());
 	else
-		cur->sprite = AddSpriteName(stateinfo[0]);
+		cur->sprite = AddSpriteName(stateinfo[0].c_str());
 
 	//--------------------------------------------------
 	//------------STATE TIC COUNT HANDLING--------------
 	//--------------------------------------------------
 
-	cur->tics = atol(stateinfo[2]);
+	cur->tics = atol(stateinfo[2].c_str());
 
 	//--------------------------------------------------
 	//------------STATE BRIGHTNESS LEVEL----------------
 	//--------------------------------------------------
 
-	if (strcmp(stateinfo[3], "NORMAL") == 0)
+	if (strcmp(stateinfo[3].c_str(), "NORMAL") == 0)
 		cur->bright = 0;
-	else if (strcmp(stateinfo[3], "BRIGHT") == 0)
+	else if (strcmp(stateinfo[3].c_str(), "BRIGHT") == 0)
 		cur->bright = 255;
-	else if (strncmp(stateinfo[3], "LIT", 3) == 0)
+	else if (strncmp(stateinfo[3].c_str(), "LIT", 3) == 0)
 	{
-		cur->bright = strtol(stateinfo[3]+3, NULL, 10);
+		cur->bright = strtol(stateinfo[3].c_str()+3, NULL, 10);
 		cur->bright = CLAMP(0, cur->bright * 255 / 99, 255);
 	}
 	else
@@ -496,14 +480,14 @@ void DDF_StateReadState(const char *info, const char *label,
 	//------------STATE ACTION CODE HANDLING------------
 	//--------------------------------------------------
 
-	if (stateinfo[4])
+	if (! stateinfo[4].empty())
 	{
 		// Get Action Code Ref (Using remainder of the string).
 		// Go through all the actions, end if terminator or action found
 		//
 		// -AJA- 1999/08/10: Updated to handle a special argument.
 
-		DDF_MainSplitActionArg(stateinfo[4], action_name, action_arg);
+		DDF_MainSplitActionArg(stateinfo[4].c_str(), action_name, action_arg);
 
 		for (i=0; action_list[i].actionname; i++)
 		{
@@ -526,7 +510,7 @@ void DDF_StateReadState(const char *info, const char *label,
 		}
 
 		if (!action_list[i].actionname)
-			DDF_WarnError("Unknown code pointer: %s\n", stateinfo[4]);
+			DDF_WarnError("Unknown code pointer: %s\n", stateinfo[4].c_str());
 		else
 		{
 			cur->action = action_list[i].action;
@@ -536,16 +520,8 @@ void DDF_StateReadState(const char *info, const char *label,
 				(* action_list[i].handle_arg)(action_arg, cur);
 		}
 	}
-
-	//--------------------------------------------------
-	//---------------- MISC1 and MISC2 -----------------
-	//--------------------------------------------------
-
-	if ((stateinfo[5] || stateinfo[6]) && !no_obsoletes)
-		DDF_WarnError("Misc1 and Misc2 are no longer used.\n");
-
-	DestroyStateInfo();
 }
+
 
 //
 // DDF_StateFinishStates
