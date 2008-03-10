@@ -173,8 +173,6 @@ std::string shot_dir;
 
 int crosshair = 0;
 
-static std::string dragged_demo;
-
 
 class startup_progress_c
 {
@@ -1188,10 +1186,7 @@ static void AddSingleCmdLineFile(const char *name)
 	int kind = FLKIND_Lump;
 
 	if (stricmp(ext.c_str(), "edm") == 0)
-	{
-		dragged_demo = std::string(name);
-		return;
-	}
+		I_Error("Demos are no longer supported\n");
 
 	// no need to check for GWA (shouldn't be added manually)
 
@@ -1451,6 +1446,12 @@ static void E_InitialState(void)
 
 	// do demos and loadgames first, as they contain all of the
 	// necessary state already (in the demo file / savegame).
+
+	if (M_CheckParm("-playdemo") || M_CheckParm("-timedemo") ||
+	    M_CheckParm("-record"))
+	{
+		I_Error("Demos are no longer supported\n");
+	}
 
 	ps = M_GetParm("-loadgame");
 	if (ps)
