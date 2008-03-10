@@ -70,8 +70,8 @@ gamestate_e;
 #define MTF_RESERVED    256
 
 // -AJA- 2008/03/08: Extrafloor placement
+#define MTF_EXFLOOR_MASK    0x3C00
 #define MTF_EXFLOOR_SHIFT   10
-#define MTF_EXFLOOR_MASK    0x0F
 
 typedef enum
 {
