@@ -110,7 +110,9 @@ void cvar_c::FmtFloat(float value)
 {
 	float ab = fabs(value);
 
-	if (ab >= 1e5)
+	if (ab >= 1e10)  // handle huge numbers
+		sprintf(buffer, "%1.4e", value);
+	else if (ab >= 1e5)
 		sprintf(buffer, "%1.1f", value);
 	else if (ab >= 1e3)
 		sprintf(buffer, "%1.3f", value);
