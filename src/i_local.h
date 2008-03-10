@@ -19,16 +19,6 @@
 #ifndef __SYSTEM_LOCAL_H__
 #define __SYSTEM_LOCAL_H__
 
-// I_CD
-bool I_StartupCD(void);
-bool I_CDStartPlayback(int tracknum, bool loopy, float gain);
-bool I_CDPausePlayback(void);
-bool I_CDResumePlayback(void);
-void I_CDStopPlayback(void);
-void I_CDSetVolume(float gain);
-bool I_CDFinished(void);
-bool I_CDTicker(void);
-void I_ShutdownCD();
 
 // I_CTRL
 void I_CentreMouse();

@@ -209,7 +209,7 @@ void I_ShutdownMusic(void);
 // previously playing music should be killed (via I_MusicKill) before
 // calling this function.
 
-abstract_music_c * I_PlayCDMusic(int track, float volume, bool looping);
+///--- abstract_music_c * I_PlayCDMusic(int track, float volume, bool looping);
 
 ///---void I_MusicPause(int *handle);
 ///---// Pauses the music.

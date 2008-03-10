@@ -81,11 +81,6 @@ void I_StartupMusic(void)
 	if (nomusic) return;
 
 	capable = 0;
-	if (!nocdmusic)
-	{
-		if (I_StartupCD())
-			capable = support_CD;
-	}
 
 #ifdef USE_OGG
 	if (! nosound)
@@ -250,7 +245,6 @@ void I_ShutdownMusic(void)
 	}
 #endif
 
-	I_ShutdownCD();
 }
 
 

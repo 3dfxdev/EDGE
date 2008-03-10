@@ -56,15 +56,12 @@ sources = [
 
 # operating system specifics
 if build_info['platform'] == "win32":
-    sources_3 = ['w32_cd.cc',
-        'w32_music.cc', 'w32_mus.cc',
-        'w32_net.cc', 'w32_system.cc']
+    sources = sources + [ 'w32_music.cc', 'w32_mus.cc', 'w32_net.cc', 'w32_system.cc']
 
 else: # linux
-    sources_3 = ['i_cd.cc', 'unx_music.cc', 
-        'unx_net.cc', 'unx_system.cc']
+    sources = sources + ['unx_music.cc', 'unx_net.cc', 'unx_system.cc']
 
-env.StaticLibrary('edge1', sources + sources_3)
+env.StaticLibrary('edge1', sources)
 
 ##--- editor settings ---
 ## vi:ts=4:sw=4:expandtab
