@@ -14,6 +14,8 @@ the networking code should simplify the code quite a lot.
 I'm going to keep the Bots though, as I'm fairly interested
 in that and will probably tackle good bot AI in the future.
 
+Removed DEMO support (which was broken).
+
 2008/03/08:
 
 Support for a 4-bit "EXTRAFLOOR" field in the options field of
@@ -21,9 +23,11 @@ the THINGS lump (bits 10-13), allowing things to be placed on
 extrafloors more easily (may need Editor support).  For safety
 the MTF_RESERVED flag (bit 8) must also be clear.
 
-Began work on Fake Slopes @@@
+Began work on Fake Slopes.
 
-Removed the wall tile list from linedefs, compute on the fly @@@
+Removed the wall tile list from linedefs, now we just compute
+them on the fly.  The walltile_t structure will probably be
+gone for good soon.
 
 2008/03/06:
 
