@@ -1,6 +1,6 @@
 Andrew Apted's Log
 
-2008/03/09:
+2008/03/10:
 
 Being realistic, I don't think EDGE will ever get networking
 operational again.  We've had nearly nine years to do it, and
@@ -15,6 +15,8 @@ I'm going to keep the Bots though, as I'm fairly interested
 in that and will probably tackle good bot AI in the future.
 
 Removed DEMO support (which was broken).
+
+Removed support for CD music.
 
 2008/03/08:
 
