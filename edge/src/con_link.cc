@@ -35,10 +35,10 @@ cvar_link_t  all_cvars[] =
 
 	// "edge_version"
 
-	{ &r_width,      "640",     "cfo",  "r_width,width,screenwidth" },
-	{ &r_height,     "480",     "cfo",  "r_height,height,screenheight" },
-    { &r_depth,      "32",      "cfo",  "r_depth,bits,screendepth" },
-    { &r_fullscreen, "1",       "cfo",  "r_fullscreen,fullscreen" },
+	{ "cfo",  &r_width,      "640",    "r_width", "width,screenwidth" },
+	{ "cfo",  &r_height,     "480",    "r_height", "height,screenheight" },
+    { "cfo",  &r_depth,      "32",     "r_depth", "bits,screendepth" },
+    { "cfo",  &r_fullscreen, "1",      "r_fullscreen", "fullscreen" },
 
 #if 0  // TODO
     {"directx",           &force_directx,  0},

@@ -79,14 +79,20 @@ cvar_flag_e;
 
 typedef struct cvar_link_s
 {
-	// the console variable
+	// flags (a combination of letters, "" for none)
+	const char *flags;
+
+	// the console variable itself
 	cvar_c *var;
 
-	// various flags
-	int flags;
+	// default value
+	const char *def_val;
 
-	// name of variable (aliases are separated by commas)
-	const char *names;
+	// name of variable
+	const char *name;
+
+	// aliases (separated by commas), or NULL if none
+	const char *aliases;
 }
 cvar_link_t;
 
