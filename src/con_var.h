@@ -66,6 +66,34 @@ private:
 };
 
 
+typedef enum
+{
+	CV_NONE = 0,
+
+	CV_Config   = (1 << 0),  // saved in user's config file
+	CV_Option   = (1 << 1),  // settable from the command line
+	CV_ReadOnly = (1 << 2),  // cannot change in console
+}
+cvar_flag_e;
+
+
+typedef struct cvar_link_s
+{
+	// the console variable
+	cvar_c *var;
+
+	// various flags
+	int flags;
+
+	// name of variable (aliases are separated by commas)
+	const char *names;
+}
+cvar_link_t;
+
+
+extern cvar_link_t all_cvars[];
+
+
 #endif // __CON_VAR_H__
 
 //--- editor settings ---
