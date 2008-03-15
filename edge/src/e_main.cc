@@ -144,8 +144,6 @@ gameflags_t default_gameflags =
 
 gameflags_t global_flags;
 
-static bool advance_title;
-
 int newnmrespawn = 0;
 
 bool rotatemap = false;
@@ -172,6 +170,8 @@ std::string hub_dir;
 std::string shot_dir;
 
 int crosshair = 0;
+
+static void E_TitleDrawer(void);
 
 
 class startup_progress_c
@@ -627,7 +627,7 @@ void E_Display(void)
 			break;
 
 		case GS_TITLESCREEN:
-			E_PageDrawer();
+			E_TitleDrawer();
 			break;
 
 		case GS_NOTHING:
@@ -685,148 +685,110 @@ void E_Display(void)
 	I_FinishFrame();  // page flip or blit buffer
 }
 
+
 //
 //  DEMO LOOP
 //
-static int demosequence;
-static int demo_num;
-static int page_map;
-static int page_pic;
-static int pagetic;
-static const image_c *page_image = NULL;
+static int title_game;
+static int title_pic;
+static int title_countdown;
+
+static const image_c *title_image = NULL;
 
 
-void E_PageTicker(void)
+static void E_TitleDrawer(void)
 {
-	if (pagetic > 0)
-	{
-		pagetic--;
-
-		if (pagetic == 0)
-			E_AdvanceTitle();
-	}
-}
-
-#define NOPAGE_COLOUR  RGB_MAKE(0,0,0)
-
-void E_PageDrawer(void)
-{
-	if (page_image)
-		RGL_Image320(0, 0, 320, 200, page_image);
+	if (title_image)
+		RGL_Image320(0, 0, 320, 200, title_image);
 	else
-		RGL_SolidBox(0, 0, SCREENWIDTH, SCREENHEIGHT, NOPAGE_COLOUR, 1);
+		RGL_SolidBox(0, 0, SCREENWIDTH, SCREENHEIGHT, RGB_MAKE(64,64,64), 1);
 }
 
-// called after each demo or intro demosequence finishes
-void E_AdvanceTitle(void)
-{
-	advance_title = true;
-}
-
-static void TitleNextPicture(void)
-{
-I_Debugf("TitleNextPicture: begun\n");
-	int count;
-	gamedef_c *g;
-  
-	// prevent an infinite loop
-	for (count=0; count < 200; count++)
-	{
-I_Debugf("  page_map=%d  page_pic=%d\n", page_map, page_pic);
-		g = gamedefs[page_map];
-		SYS_ASSERT(g);
-
-		if (page_pic >= g->titlepics.GetSize())
-		{
-			page_map = (page_map + 1) % gamedefs.GetSize();
-			page_pic = 0;
-			continue;
-		}
-
-		// ignore non-existing episodes.  Doesn't include title-only ones
-		// like [EDGE].
-		if (page_pic == 0 && g->firstmap && g->firstmap[0] &&
-			W_CheckNumForName(g->firstmap) == -1)
-		{
-			page_map = (page_map + 1) % gamedefs.GetSize();
-			continue;
-		}
-
-		// ignore non-existing images
-		page_image = W_ImageLookup(g->titlepics[page_pic], INS_Graphic, ILF_Null);
-
-		if (! page_image)
-		{
-			page_pic += 1;
-			continue;
-		}
-
-		// found one !!
-		if (page_pic == 0 && g->titlemusic > 0)
-			S_ChangeMusic(g->titlemusic, false);
-
-		page_pic += 1;
-		return;
-	}
-I_Debugf("TitleNextPicture: done\n");
-}
 
 //
 // This cycles through the demo sequences.
 // -KM- 1998/12/16 Fixed for DDF.
 //
-static void E_DoAdvanceTitle(void)
+void E_AdvanceTitle(void)
 {
-I_Debugf("E_DoAdvanceTitle: begin\n");
-	advance_title = false;
+	title_pic++;
 
-	if (gameaction != ga_nothing)
-{
-I_Debugf("E_DoAdvanceTitle: done (ga != nil)\n");
-		return;
-}
-	paused = false;
-
-#if 0  // DISABLED FOR NOW -- ONLY SHOW PICS
-	demosequence = (demosequence + 1) % 2;  // - Kester
-#else
-	demosequence = 0;
-#endif
-
-	switch (demosequence)  // - Kester
+	// prevent an infinite loop
+	for (int loop=0; loop < 100; loop++)
 	{
-		case 0:  // Title Picture
+		gamedef_c *g = gamedefs[title_game];
+		SYS_ASSERT(g);
+
+		if (title_pic >= g->titlepics.GetSize())
 		{
-			gamestate = GS_TITLESCREEN;
-
-			TitleNextPicture();
-
-			pagetic = gamedefs[page_map]->titletics;
-			break;
+			title_game = (title_game + 1) % gamedefs.GetSize();
+			title_pic  = 0;
+			continue;
 		}
 
+		// ignore non-existing episodes.  Doesn't include title-only ones
+		// like [EDGE].
+		if (title_pic == 0 && g->firstmap && g->firstmap[0] &&
+			W_CheckNumForName(g->firstmap) == -1)
+		{
+			title_game = (title_game + 1) % gamedefs.GetSize();
+			title_pic  = 0;
+			continue;
+		}
+
+		// ignore non-existing images
+		title_image = W_ImageLookup(g->titlepics[title_pic], INS_Graphic, ILF_Null);
+
+		if (! title_image)
+		{
+			title_pic++;
+			continue;
+		}
+
+		// found one !!
+
+		if (title_pic == 0 && g->titlemusic > 0)
+			S_ChangeMusic(g->titlemusic, false);
+
+		title_countdown = g->titletics;
+		return;
 	}
-I_Debugf("E_DoAdvanceTitle: done\n");
+
+	// not found
+
+	title_image = NULL;
+	title_countdown = TICRATE;
 }
 
-//
-// E_StartTitle
-//
+
 void E_StartTitle(void)
 {
 	gameaction = ga_nothing;
-	demosequence = 1;
-	demo_num = 1;
+	gamestate  = GS_TITLESCREEN;
+
+	paused = false;
 
 	// force pic overflow -> first available titlepic
-	page_map = gamedefs.GetSize() - 1;
-	page_pic = 999;
+	title_game = gamedefs.GetSize() - 1;
+	title_pic = 29999;
+	title_countdown = 1;
  
 	E_AdvanceTitle();
 }
 
-//
-// InitDirectories
+
+void E_TitleTicker(void)
+{
+	if (title_countdown > 0)
+	{
+		title_countdown--;
+
+		if (title_countdown == 0)
+			E_AdvanceTitle();
+	}
+}
+
+
 //
 // Detects which directories to search for DDFs, WADs and other files in.
 //
@@ -936,8 +898,7 @@ void InitDirectories(void)
         epi::FS_MakeDir(shot_dir.c_str());
 }
 
-//
-// CheckExternal
+
 //
 // Checks if DDF files exist in the DDF directory, and if so then
 // enables "external-ddf mode", which prevents the DDF lumps within
@@ -957,8 +918,7 @@ void CheckExternal(void)
 		external_ddf = true;
 }
 
-//
-// E_IdentifyVersion
+
 //
 // Adds an IWAD and EDGE.WAD. -ES-  2000/01/01 Rewritten.
 //
@@ -1595,6 +1555,7 @@ void E_Main(int argc, const char **argv)
 	epi::Shutdown();
 }
 
+
 //
 // Called when this application has lost focus (i.e. an ALT+TAB event)
 //
@@ -1602,6 +1563,7 @@ void E_Idle(void)
 {
 	E_ReleaseAllKeys();
 }
+
 
 //
 // This Function is called for a single loop in the system.
@@ -1630,8 +1592,8 @@ void E_Tick(void)
 
 	for (; counts > 0; counts--)  // run the tics
 	{
-		if (advance_title)
-			E_DoAdvanceTitle();
+///---		if (advance_title)
+///---			E_DoAdvanceTitle();
 
 		CON_Ticker();
 		M_Ticker();

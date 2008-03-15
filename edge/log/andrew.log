@@ -1,5 +1,12 @@
 Andrew Apted's Log
 
+2008/03/15:
+
+Reworked title screens (yet again) in order to fix the issue
+reported by Nick Perrin: fast animated title pics could stop
+the user from starting a new game.  The new code is a lot
+cleaner than before, this should be solved for good now.
+
 2008/03/10:
 
 Removed DEMO support (which was broken).

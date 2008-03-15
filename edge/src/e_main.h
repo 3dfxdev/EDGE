@@ -32,8 +32,7 @@ void E_Main(int argc, const char **argv);
 void E_Idle(void);
 void E_Tick(void);
 
-void E_PageTicker(void);
-void E_PageDrawer(void);
+void E_TitleTicker(void);
 void E_AdvanceTitle(void);
 void E_StartTitle(void);
 void E_EngineShutdown(void);
