@@ -176,8 +176,7 @@ void V_InitPalette(void)
 				pal_black, pal_white, pal_red, pal_green, pal_blue);
 }
 
-//
-// V_InitTranslationTables
+
 //
 // Reads the translation tables for various things, especially text
 // colours.  The text colourmaps to use are currently hardcoded, when
@@ -262,8 +261,7 @@ int V_FindColour(int r, int g, int b)
 	return best;
 }
 
-//
-// V_FindPureColour
+
 // 
 // Find the best match for the pure colour.  `which' is 0 for red, 1
 // for green and 2 for blue.
@@ -298,9 +296,7 @@ static int V_FindPureColour(int which)
 	return best;
 }
 
-//
-// V_SetPalette
-//
+
 void V_SetPalette(int type, float amount)
 {
 	int palette = 0;
@@ -333,8 +329,7 @@ void V_SetPalette(int type, float amount)
 	cur_palette = palette;
 }
 
-//
-// LoadColourmap
+
 //
 // Computes the right "colourmap" (more precisely, coltable) to put into
 // the dc_colourmap & ds_colourmap variables for use by the column &
@@ -652,7 +647,7 @@ int R_DoomLightingEquation(int L, float dist)
 	return CLAMP(min_L, index, 31);
 }
 
-GLuint MakeColormapTexture( int mode )
+GLuint MakeColormapTexture(const byte *map, int length, int mode)
 {
 	epi::image_data_c img(256, 64, 4);
 
@@ -668,7 +663,8 @@ GLuint MakeColormapTexture( int mode )
 
 			int index = R_DoomLightingEquation(L, dist);
 
-			// FIXME: lookup value in COLORMAP[]
+			index = index * length / 32;
+
 			if (false) //!!!! (mode == 1)
 			{
 				// GL_DECAL mode
@@ -680,10 +676,22 @@ GLuint MakeColormapTexture( int mode )
 			else if (mode == 0)
 			{
 				// GL_MODULATE mode
-				dest[0] = 255 - index * 8;
-				dest[1] = dest[0];
-				dest[2] = dest[0];
-				dest[3] = 255;
+				if (map)
+				{
+					int new_col = map[index*256 + 4];
+
+					dest[0] = playpal_data[0][new_col][0];
+					dest[1] = playpal_data[0][new_col][1];
+					dest[2] = playpal_data[0][new_col][2];
+					dest[3] = 255;
+				}
+				else
+				{
+					dest[0] = 255 - index * 8;
+					dest[1] = dest[0];
+					dest[2] = dest[0];
+					dest[3] = 255;
+				}
 			}
 			else if (mode == 2)
 			{
@@ -831,7 +839,11 @@ abstract_shader_c *R_GetColormapShader(const struct region_properties_s *props,
 	{
 		delete std_cmap_shader;
 
-		GLuint tex = MakeColormapTexture(0);
+		//!!!!! TEST
+		const colourmap_c *colmap = colourmaps.Lookup("LAVA");
+		const byte *map = V_GetTranslationTable(colmap);
+
+		GLuint tex = MakeColormapTexture(map, colmap->length, 0);
 
 		std_cmap_shader = new colormap_shader_c(255, tex);
 		std_cmap_shader->reset_ctr = image_reset_counter;
