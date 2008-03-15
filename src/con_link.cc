@@ -35,18 +35,19 @@ cvar_link_t  all_cvars[] =
 
 	// "edge_version"
 
-	{ "cfo",  &r_width,      "640",    "r_width", "width,screenwidth" },
-	{ "cfo",  &r_height,     "480",    "r_height", "height,screenheight" },
-    { "cfo",  &r_depth,      "32",     "r_depth", "bits,screendepth" },
-    { "cfo",  &r_fullscreen, "1",      "r_fullscreen", "fullscreen" },
+	{ "cfor", &r_width,      "640",    "r_width", "width,screenwidth" },
+	{ "cfor", &r_height,     "480",    "r_height", "height,screenheight" },
+    { "cfor", &r_depth,      "32",     "r_depth", "bits,screendepth" },
+    { "cforb",&r_fullscreen, "1",      "r_fullscreen", "fullscreen" },
+
+	{ "cfo",  &s_sfxvol,     "10",     "s_sfxvol", "sfx_volume" },
+	{ "cfo",  &s_musvol,     "10",     "s_musvol", "mus_volume" },
 
 #if 0  // TODO
     {"directx",           &force_directx,  0},
     {"waveout",           &force_waveout,  0},
     {"usegamma",          &var_gamma,             CFGDEF_CURRENT_GAMMA},
  
-    {"sfx_volume",        &sfx_volume,                CFGDEF_SOUND_VOLUME},
-    {"music_volume",      &mus_volume,                CFGDEF_MUSIC_VOLUME},
     {"music_device",      &var_music_dev,             CFGDEF_MUSIC_DEVICE},
     {"sample_rate",       &var_sample_rate,             CFGDEF_SAMPLE_RATE},
     {"sound_bits",        &var_sound_bits,              CFGDEF_SOUND_BITS},
