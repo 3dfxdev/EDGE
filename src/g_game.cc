@@ -431,7 +431,7 @@ void G_Ticker(void)
 	switch (gamestate)
 	{
 		case GS_TITLESCREEN:
-			E_PageTicker();
+			E_TitleTicker();
 			break;
 
 		case GS_LEVEL:
