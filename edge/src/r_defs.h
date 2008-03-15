@@ -103,7 +103,8 @@ typedef struct region_properties_s
 {
 	// rendering related
 	int lightlevel;
-	const colourmap_c *colourmap;
+
+	const colourmap_c *colourmap;  // can be NULL
 
 	// special type (e.g. damaging)
 	int type;

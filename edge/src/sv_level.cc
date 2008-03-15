@@ -959,13 +959,16 @@ bool SR_LevelGetColmap(void *storage, int index, void *extra)
 	else
 		(*dest) = NULL;
 
+	// -AJA- 2008/03/15: backwards compatibility
+	if (*dest && stricmp((*dest)->ddf.name.c_str(), "NORMAL") == 0)
+		*dest = NULL;
+
 	SV_FreeString(str);
 	return true;
 }
 
 //
-// The string is the name of the colourmap.  NULL strings are not
-// allowed or used.
+// The string is the name of the colourmap.
 //
 void SR_LevelPutColmap(void *storage, int index, void *extra)
 {
