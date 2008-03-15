@@ -7,6 +7,10 @@ reported by Nick Perrin: fast animated title pics could stop
 the user from starting a new game.  The new code is a lot
 cleaner than before, this should be solved for good now.
 
+Implemented better caching for fake skyboxes, so that the
+invulnerability powerup (Textured mode) doesn't slow down
+when fading out.
+
 2008/03/10:
 
 Removed DEMO support (which was broken).

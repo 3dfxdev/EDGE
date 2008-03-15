@@ -61,7 +61,7 @@ void RGL_DrawSkyOriginal(void);
 void RGL_DrawSkyPlane(subsector_t *sub, float h);
 void RGL_DrawSkyWall(seg_t *seg, float h1, float h2);
 
-void RGL_UpdateSkyBoxTextures(void);
+int  RGL_UpdateSkyBoxTextures(void);
 void RGL_PreCacheSky(void);
 
 ///--- void RGL_CalcSkyCoord(float sx, float sy, float sz, bool narrow, float *tx, float *ty);

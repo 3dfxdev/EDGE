@@ -207,13 +207,20 @@ typedef struct
 	const image_c *face[6];
 
 }
-skybox_info_t;
+fake_skybox_t;
 
-static skybox_info_t box_info =
+static fake_skybox_t fake_box[2] =
 {
-	NULL, NULL, 0, 1,
-	{ 0,0,0,0,0,0 },
-	{ NULL, NULL, NULL, NULL, NULL, NULL }
+	{
+		NULL, NULL, 0, 1,
+		{ 0,0,0,0,0,0 },
+		{ NULL, NULL, NULL, NULL, NULL, NULL }
+	},
+	{
+		NULL, NULL, 0, 1,
+		{ 0,0,0,0,0,0 },
+		{ NULL, NULL, NULL, NULL, NULL, NULL }
+	}
 };
 
 
@@ -316,7 +323,8 @@ void RGL_DrawSkyBox(void)
 {
 	float dist = var_farclip / 2.0f;
 
-	RGL_UpdateSkyBoxTextures();
+	int SK = RGL_UpdateSkyBoxTextures();
+
 	RGL_SetupSkyMatrices(dist);
 
 	float v0 = 0.0f;
@@ -324,7 +332,7 @@ void RGL_DrawSkyBox(void)
 
 	if (dumb_clamp)
 	{
-		float size = box_info.face_size;
+		float size = fake_box[SK].face_size;
 
 		v0 = 0.5f / size;
 		v1 = 1.0f - v0;
@@ -348,7 +356,7 @@ void RGL_DrawSkyBox(void)
 	}
 
 	// top
-	glBindTexture(GL_TEXTURE_2D, box_info.tex[WSKY_Top]);
+	glBindTexture(GL_TEXTURE_2D, fake_box[SK].tex[WSKY_Top]);
         glNormal3i(0, 0, -1);
 
 	glBegin(GL_QUADS);
@@ -359,7 +367,7 @@ void RGL_DrawSkyBox(void)
 	glEnd();
 
 	// bottom
-	glBindTexture(GL_TEXTURE_2D, box_info.tex[WSKY_Bottom]);
+	glBindTexture(GL_TEXTURE_2D, fake_box[SK].tex[WSKY_Bottom]);
         glNormal3i(0, 0, +1);
 
 	glBegin(GL_QUADS);
@@ -370,7 +378,7 @@ void RGL_DrawSkyBox(void)
 	glEnd();
 
 	// north
-	glBindTexture(GL_TEXTURE_2D, box_info.tex[WSKY_North]);
+	glBindTexture(GL_TEXTURE_2D, fake_box[SK].tex[WSKY_North]);
         glNormal3i(0, -1, 0);
 
 	glBegin(GL_QUADS);
@@ -381,7 +389,7 @@ void RGL_DrawSkyBox(void)
 	glEnd();
 
 	// east
-	glBindTexture(GL_TEXTURE_2D, box_info.tex[WSKY_East]);
+	glBindTexture(GL_TEXTURE_2D, fake_box[SK].tex[WSKY_East]);
         glNormal3i(-1, 0, 0);
 
 	glBegin(GL_QUADS);
@@ -392,7 +400,7 @@ void RGL_DrawSkyBox(void)
 	glEnd();
 
 	// south
-	glBindTexture(GL_TEXTURE_2D, box_info.tex[WSKY_South]);
+	glBindTexture(GL_TEXTURE_2D, fake_box[SK].tex[WSKY_South]);
         glNormal3i(0, +1, 0);
 
 	glBegin(GL_QUADS);
@@ -403,7 +411,7 @@ void RGL_DrawSkyBox(void)
 	glEnd();
 
 	// west
-	glBindTexture(GL_TEXTURE_2D, box_info.tex[WSKY_West]);
+	glBindTexture(GL_TEXTURE_2D, fake_box[SK].tex[WSKY_West]);
         glNormal3i(+1, 0, 0);
 
 	glBegin(GL_QUADS);
@@ -674,15 +682,15 @@ static void BlurCentre(epi::image_data_c& img)
 }
 
 static GLuint BuildFace(const epi::image_data_c *sky, int face,
-				  	    const byte *what_palette)
+				  	    fake_skybox_t *info, const byte *what_palette)
 			
 {
-	int img_size = box_info.face_size;
+	int img_size = info->face_size;
 
 	epi::image_data_c img(img_size, img_size, 3);
 
 
-	bool narrow = SkyIsNarrow(box_info.base_sky);
+	bool narrow = SkyIsNarrow(info->base_sky);
 
 	const byte *src = sky->pixels;
 
@@ -831,48 +839,48 @@ static const char *UserSkyFaceName(const char *base, int face)
 }
 
 
-void RGL_UpdateSkyBoxTextures(void)
+int RGL_UpdateSkyBoxTextures(void)
 {
-	if (box_info.base_sky == sky_image &&
-		box_info.fx_colmap == ren_fx_colmap &&
-		box_info.reset_ctr == image_reset_counter)
+	int SK = ren_fx_colmap ? 1 : 0;
+
+	fake_skybox_t *info = &fake_box[SK];
+
+	if (info->base_sky  == sky_image &&
+		info->fx_colmap == ren_fx_colmap &&
+		info->reset_ctr == image_reset_counter)
 	{
-		return;
+		return SK;
 	}
 
-	box_info.base_sky  = sky_image;
-	box_info.fx_colmap = ren_fx_colmap;
-	box_info.reset_ctr = image_reset_counter;
+	info->base_sky  = sky_image;
+	info->fx_colmap = ren_fx_colmap;
+	info->reset_ctr = image_reset_counter;
 
 
 	// check for custom sky images
-	box_info.face[WSKY_North] = W_ImageLookup(
-			UserSkyFaceName(sky_image->name, WSKY_North), INS_Texture,
-			ILF_Null);
+	info->face[WSKY_North] = W_ImageLookup(
+			UserSkyFaceName(sky_image->name, WSKY_North), INS_Texture, ILF_Null);
 
-	if (box_info.face[WSKY_North])
+	if (info->face[WSKY_North])
 	{
 		custom_sky_box = true;
 
-		box_info.face_size = box_info.face[WSKY_North]->total_w;
+		info->face_size = info->face[WSKY_North]->total_w;
 
 		for (int i = WSKY_East; i < 6; i++)
-			box_info.face[i] = W_ImageLookup(
+			info->face[i] = W_ImageLookup(
 					UserSkyFaceName(sky_image->name, i), INS_Texture);
 
 		for (int k = 0; k < 6; k++)
-			box_info.tex[k] = W_ImageCache(box_info.face[k], false, ren_fx_colmap);
+			info->tex[k] = W_ImageCache(info->face[k], false, ren_fx_colmap);
 
-		return;
+		return SK;
 	}
 
 
 	// Create pseudo sky box
 
-//???	// use low-res box sides for low-res sky images
-//???	int size = (sky->actual_h < 228) ? 128 : 256;
-
-	box_info.face_size = 256;
+	info->face_size = 256;
 
 	custom_sky_box = false;
 
@@ -898,45 +906,31 @@ void RGL_UpdateSkyBoxTextures(void)
 		what_pal_cached = true;
 	}
 
-	box_info.tex[WSKY_North]  = BuildFace(block, WSKY_North,  what_pal);
-	box_info.tex[WSKY_East]   = BuildFace(block, WSKY_East,   what_pal);
-	box_info.tex[WSKY_Top]    = BuildFace(block, WSKY_Top,    what_pal);
-	box_info.tex[WSKY_Bottom] = BuildFace(block, WSKY_Bottom, what_pal);
+	info->tex[WSKY_North]  = BuildFace(block, WSKY_North,  info, what_pal);
+	info->tex[WSKY_East]   = BuildFace(block, WSKY_East,   info, what_pal);
+	info->tex[WSKY_Top]    = BuildFace(block, WSKY_Top,    info, what_pal);
+	info->tex[WSKY_Bottom] = BuildFace(block, WSKY_Bottom, info, what_pal);
 
 	// optimisation: can share side textures when narrow
 
-	box_info.tex[WSKY_South] = SkyIsNarrow(sky_image) ? box_info.tex[WSKY_North] :
-						 BuildFace(block, WSKY_South, what_pal );
+	info->tex[WSKY_South] = SkyIsNarrow(sky_image) ? info->tex[WSKY_North] :
+						 BuildFace(block, WSKY_South, info, what_pal );
 
-	box_info.tex[WSKY_West]  = SkyIsNarrow(sky_image) ? box_info.tex[WSKY_East] :
-						 BuildFace(block, WSKY_West, what_pal );
+	info->tex[WSKY_West]  = SkyIsNarrow(sky_image) ? info->tex[WSKY_East] :
+						 BuildFace(block, WSKY_West, info, what_pal );
 
 	delete block;
 
 	if (what_pal_cached)
 		W_DoneWithLump(what_pal);
+
+	return SK;
 }
 
 
 void RGL_PreCacheSky(void)
 {
-#if 0   // ????
-	if (sky_stretch == STRETCH_ORIGINAL)
-		return;
-
-	W_ImagePreCache(box_info.north);
-	W_ImagePreCache(box_info.east);
-	W_ImagePreCache(box_info.top);
-
-	if (box_info.south != box_info.north)
-		W_ImagePreCache(box_info.south);
-
-	if (box_info.west != box_info.east)
-		W_ImagePreCache(box_info.west);
-
-	if (box_info.bottom != box_info.top)
-		W_ImagePreCache(box_info.bottom);
-#endif
+	// TODO
 }
 
 //--- editor settings ---
