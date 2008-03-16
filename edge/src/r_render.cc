@@ -1832,8 +1832,8 @@ static void RGL_DrawSeg(drawfloor_t *dfloor, seg_t *seg)
 
 	side_t *sd = cur_seg->sidedef;
 
-	float f_min = dfloor->prev ? dfloor->f_h : -32767.0;
-	float c_max = dfloor->next ? dfloor->c_h : +32767.0;
+	float f_min =dfloor->f_h;// dfloor->prev ? dfloor->f_h : -32767.0; //!!!!!!
+	float c_max =dfloor->c_h;// dfloor->next ? dfloor->c_h : +32767.0;
 
 #if (DEBUG >= 3)
 	L_WriteDebug( "   BUILD WALLS %1.1f .. %1.1f\n", f_min, c1);
@@ -3045,8 +3045,11 @@ void RGL_RenderTrueBSP(void)
 	RGL_RainbowEffect(v_player);
 
 
-	glClearColor(0.0f, hom_detect ? 1.0f : 0.0f, 0.0f, 0.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
+	if (hom_detect)
+	{
+		glClearColor(0.0f, 1.0f, 0.0f, 0.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+	}
 
 	RGL_SetupMatrices3D();
 
