@@ -1,5 +1,11 @@
 Andrew Apted's Log
 
+2008/03/16:
+
+OK simple colormapped sectors (e.g. water, lava) are working
+again.  I have forgotten how to simulate more complex effects
+like fog, so this will have to do.
+
 2008/03/15:
 
 Reworked title screens (yet again) in order to fix the issue
@@ -10,6 +16,8 @@ cleaner than before, this should be solved for good now.
 Implemented better caching for fake skyboxes, so that the
 invulnerability powerup (Textured mode) doesn't slow down
 when fading out.
+
+Did some work on colormapped sectors.
 
 2008/03/10:
 
