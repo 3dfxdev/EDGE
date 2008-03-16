@@ -1651,7 +1651,7 @@ static void M_ChangePassMissile(int keypressed)
 // this used by both MIPMIP, SMOOTHING and DETAIL options
 static void M_ChangeMipMap(int keypressed)
 {
-	W_ResetImages();
+	W_DeleteAllImages();
 }
 
 static void M_ChangeShadows(int keypressed)
