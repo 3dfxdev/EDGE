@@ -906,6 +906,11 @@ int RGL_UpdateSkyBoxTextures(void)
 		what_pal_cached = true;
 	}
 
+	if (info->tex[0])
+	{
+		glDeleteTextures(6, info->tex);
+	}
+
 	info->tex[WSKY_North]  = BuildFace(block, WSKY_North,  info, what_pal);
 	info->tex[WSKY_East]   = BuildFace(block, WSKY_East,   info, what_pal);
 	info->tex[WSKY_Top]    = BuildFace(block, WSKY_Top,    info, what_pal);
