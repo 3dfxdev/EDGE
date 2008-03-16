@@ -1474,12 +1474,7 @@ void W_UpdateImageAnims(void)
 }
 
 
-//
-// Resets all images, causing all cached images to be invalidated.
-// Needs to be called when gamma changes (GL renderer only), or when
-// certain other parameters change (e.g. GL mipmapping modes).
-//
-void W_ResetImages(void)
+void W_DeleteAllImages(void)
 {
 	std::list<cached_image_t *>::iterator CI;
 

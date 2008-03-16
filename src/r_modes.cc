@@ -234,7 +234,7 @@ void R_SoftInitResolution(void)
 
 static bool DoExecuteChangeResolution(scrmode_c *mode)
 {
-	W_ResetImages();
+	W_DeleteAllImages();
 
 	bool was_ok = I_SetScreenSize(mode);
 
