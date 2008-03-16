@@ -19,6 +19,8 @@
 #ifndef __CON_VAR_H__
 #define __CON_VAR_H__
 
+#include <vector>
+
 class cvar_c
 {
 public:
@@ -66,6 +68,7 @@ private:
 };
 
 
+#if 0
 typedef enum
 {
 	CV_NONE = 0,
@@ -75,6 +78,7 @@ typedef enum
 	CV_ReadOnly = (1 << 2),  // cannot change in console
 }
 cvar_flag_e;
+#endif
 
 
 typedef struct cvar_link_s
@@ -99,6 +103,27 @@ cvar_link_t;
 
 extern cvar_link_t all_cvars[];
 
+
+void CON_ResetAllVars(void);
+// sets all cvars to their default value.
+
+cvar_link_t * CON_FindVar(const char *name, bool no_alias = false);
+// look for a CVAR with the given name.
+
+int CON_FindMultiVar(std::vector<cvar_link_t *>& list,
+                     const char *pattern, const char *flags = "");
+// find all cvars which match the pattern, and copy pointers to
+// them into the given list.  The flags parameter, if present,
+// contains lowercase letters to match the CVAR with the flag,
+// and/or uppercase letters to require the flag to be absent.
+// NOTE: Aliases are NOT CHECKED.
+// Returns number of matches found.
+
+bool CON_SetVar(const char *name, const char *flags, const char *value);
+// sets the cvar with the given name (possibly an alias) with the
+// given value.  The flags parameter can limit the search, and
+// must begin with an 'A' to prevent matching aliases.
+// Returns true if the cvar was found.
 
 #endif // __CON_VAR_H__
 
