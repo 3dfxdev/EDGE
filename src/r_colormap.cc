@@ -880,45 +880,9 @@ abstract_shader_c *R_GetColormapShader(const struct region_properties_s *props,
 	}
 
 
-	shader->Update();
-
-
-///---	if (! std_cmap_shader || (std_cmap_shader->reset_ctr != image_reset_counter))
-///---	{
-///---		delete std_cmap_shader;
-///---
-///---		GLuint tex = MakeColormapTexture(NULL, 32, 0);
-///---
-///---		std_cmap_shader = new colormap_shader_c(255, tex);
-///---		std_cmap_shader->reset_ctr = image_reset_counter;
-///---	}
-///---
-///---	if (props->colourmap)
-///---	{
-///---		colormap_shader_c *X = (colormap_shader_c *) props->colourmap->analysis;
-///---
-///---		if (! X || (X->reset_ctr != image_reset_counter))
-///---		{
-///---			delete X;
-///---
-///---			GLuint tex = MakeColormapTexture(map, props->colourmap->length, 0);
-///---
-///---			shader = new colormap_shader_c(255, tex);
-///---			shader->reset_ctr = image_reset_counter;
-///---
-///---			// Intentional Const Override
-///---			colourmap_c *CM = (colourmap_c *)props->colourmap;
-///---			CM->analysis = shader;
-///---		}
-///---	}
-///---
-///---
-///---	if (props->colourmap)
-///---		shader = (colormap_shader_c *) props->colourmap->analysis;
-///---	else
-///---		shader = std_cmap_shader;
-
 	SYS_ASSERT(shader);
+
+	shader->Update();
 
 
 	int lit_Nom = props->lightlevel + light_add + ren_extralight;
