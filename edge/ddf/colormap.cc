@@ -287,6 +287,7 @@ colourmap_c::~colourmap_c()
 void colourmap_c::Copy(colourmap_c &src)
 {
 	ddf = src.ddf;
+
 	CopyDetail(src);
 }
 
@@ -306,6 +307,7 @@ void colourmap_c::CopyDetail(colourmap_c &src)
 
 	// FIXME!!! Cache struct to class
 	cache.data = src.cache.data;
+	analysis = NULL;
 }
 
 //
@@ -326,6 +328,7 @@ void colourmap_c::Default()
 
 	// FIXME!!! Cache struct to class
 	cache.data = NULL;
+	analysis = NULL;
 }
 
 //
