@@ -77,6 +77,8 @@ public:
 	rgbcol_t font_colour;  // (computed only, not in DDF)
 
 	colmapcache_t cache;
+
+	void *analysis;
 };
 
 // Colourmap container
