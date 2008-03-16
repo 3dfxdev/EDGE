@@ -26,7 +26,7 @@
 #include "i_defs.h"
 #include "i_defs_gl.h"
 
-#include <stdlib.h>  // atoi()
+// #include <stdlib.h>  // atoi()
 
 #include "r_colormap.h"
 #include "dm_defs.h"
@@ -91,22 +91,6 @@ int pal_red, pal_green, pal_blue;
 int pal_yellow, pal_green1, pal_brown1;
 
 static int V_FindPureColour(int which);
-
-
-class colmap_analysis_c
-{
-public:
-	// the DDF entry which we have analysed
-	colourmap_c *def;
-
-public:
-	colmap_analysis_c()
-	{ }
-
-	~colmap_analysis_c()
-	{ }
-
-};
 
 
 void V_InitPalette(void)
@@ -647,71 +631,11 @@ int R_DoomLightingEquation(int L, float dist)
 	return CLAMP(min_L, index, 31);
 }
 
-GLuint MakeColormapTexture(const byte *map, int length, int mode)
-{
-	epi::image_data_c img(256, 64, 4);
-
-	for (int L = 0; L < 64; L++)
-	{
-		byte *dest = img.PixelAt(0, L);
-
-		for (int x = 0; x < 256; x++, dest += 4)
-		{
-			float dist = 1600.0f * x / 255.0;
-
-			// DOOM lighting formula
-
-			int index = R_DoomLightingEquation(L, dist);
-
-			index = index * length / 32;
-
-			if (false) //!!!! (mode == 1)
-			{
-				// GL_DECAL mode
-				dest[0] = 0;
-				dest[1] = 0;
-				dest[2] = 0;
-				dest[3] = 0 + index * 8;
-			}
-			else if (mode == 0)
-			{
-				// GL_MODULATE mode
-				if (map)
-				{
-					int new_col = map[index*256 + 4];
-
-					dest[0] = playpal_data[0][new_col][0];
-					dest[1] = playpal_data[0][new_col][1];
-					dest[2] = playpal_data[0][new_col][2];
-					dest[3] = 255;
-				}
-				else
-				{
-					dest[0] = 255 - index * 8;
-					dest[1] = dest[0];
-					dest[2] = dest[0];
-					dest[3] = 255;
-				}
-			}
-			else if (mode == 2)
-			{
-				// additive pass (OLD CARDS)
-				dest[0] = index * 8 * 128/256;
-				dest[1] = dest[0];
-				dest[2] = dest[0];
-				dest[3] = 255;
-			}
-		}
-	}
-
-	return R_UploadTexture(&img, UPL_Smooth|UPL_Clamp);
-}
-
 
 class colormap_shader_c : public abstract_shader_c
 {
 private:
-	// FIXME colormap_c 
+	const colourmap_c *colmap;
 
 	int light_lev;
 
@@ -719,12 +643,14 @@ private:
 
 	bool simple_cmap;
 
+	rgbcol_t whites[32];
+
 public:
 	int reset_ctr;
 
 public:
-	colormap_shader_c(int _light, GLuint _tex) :
-		light_lev(_light), fade_tex(_tex), simple_cmap(true)
+	colormap_shader_c(const colourmap_c *CM) : colmap(CM),
+		light_lev(255), fade_tex(0), simple_cmap(true)
 	{ }
 
 	virtual ~colormap_shader_c()
@@ -761,11 +687,11 @@ public:
 
 		int cmap_idx = R_DoomLightingEquation(light_lev/4, dist);
 
-		int X = 255 - cmap_idx * 8 - cmap_idx / 5;
+		rgbcol_t WH = whites[cmap_idx];
 
-		col->mod_R += X;
-		col->mod_G += X;
-		col->mod_B += X;
+		col->mod_R += RGB_RED(WH);
+		col->mod_G += RGB_GRN(WH);
+		col->mod_B += RGB_BLU(WH);
 
 		// FIXME: for foggy maps, need to adjust add_R/G/B too
 	}
@@ -816,10 +742,115 @@ public:
 		(*pass_var) += 1;
 	}
 
+private:
+	void MakeColormapTexture(int mode)
+	{
+		epi::image_data_c img(256, 64, 4);
+
+		const byte *map = NULL;
+		int length = 32;
+		
+		if (colmap)
+		{
+			map = V_GetTranslationTable(colmap);
+			length = colmap->length;
+
+			for (int ci = 0; ci < 32; ci++)
+			{
+				const byte new_col = map[ci*256 + 4];
+
+				int r = playpal_data[0][new_col][0];
+				int g = playpal_data[0][new_col][1];
+				int b = playpal_data[0][new_col][2];
+
+				whites[ci] = RGB_MAKE(r, g, b);
+			}
+		}
+		else
+		{
+			for (int ci = 0; ci < 32; ci++)
+			{
+				int ity = 255 - ci * 8 - ci / 5;
+
+				whites[ci] = RGB_MAKE(ity, ity, ity);
+			}
+		}
+
+		for (int L = 0; L < 64; L++)
+		{
+			byte *dest = img.PixelAt(0, L);
+
+			for (int x = 0; x < 256; x++, dest += 4)
+			{
+				float dist = 1600.0f * x / 255.0;
+
+				// DOOM lighting formula
+
+				int index = R_DoomLightingEquation(L, dist);
+
+				index = index * length / 32;
+
+				if (false) //!!!! (mode == 1)
+				{
+					// GL_DECAL mode
+					dest[0] = 0;
+					dest[1] = 0;
+					dest[2] = 0;
+					dest[3] = 0 + index * 8;
+				}
+				else if (mode == 0)
+				{
+					// GL_MODULATE mode
+					if (map)
+					{
+						dest[0] = RGB_RED(whites[index]);
+						dest[1] = RGB_GRN(whites[index]);
+						dest[2] = RGB_BLU(whites[index]);
+						dest[3] = 255;
+					}
+					else
+					{
+						dest[0] = 255 - index * 8;
+						dest[1] = dest[0];
+						dest[2] = dest[0];
+						dest[3] = 255;
+					}
+				}
+				else if (mode == 2)
+				{
+					// additive pass (OLD CARDS)
+					dest[0] = index * 8 * 128/256;
+					dest[1] = dest[0];
+					dest[2] = dest[0];
+					dest[3] = 255;
+				}
+			}
+		}
+
+		fade_tex = R_UploadTexture(&img, UPL_Smooth|UPL_Clamp);
+	}
+
+public:
+	void Update()
+	{
+		if (fade_tex == 0 || reset_ctr != image_reset_counter)
+		{
+			if (fade_tex != 0)
+			{
+				glDeleteTextures(1, &fade_tex);
+			}
+
+			MakeColormapTexture(0);
+
+			reset_ctr = image_reset_counter;
+		}
+	}
+
 	void SetLight(int _level)
 	{
 		light_lev = _level;
 	}
+
 };
 
 
@@ -829,29 +860,74 @@ static colormap_shader_c *std_cmap_shader;
 abstract_shader_c *R_GetColormapShader(const struct region_properties_s *props,
 		int light_add)
 {
+	if (! std_cmap_shader)
+		std_cmap_shader = new colormap_shader_c(NULL);
+
+	colormap_shader_c *shader = std_cmap_shader;
+
+	if (props->colourmap)
+	{
+		if (props->colourmap->analysis)
+			shader = (colormap_shader_c *) props->colourmap->analysis;
+		else
+		{
+			shader = new colormap_shader_c(props->colourmap);
+
+			// Intentional Const Override
+			colourmap_c *CM = (colourmap_c *)props->colourmap;
+			CM->analysis = shader;
+		}
+	}
+
+
+	shader->Update();
+
+
+///---	if (! std_cmap_shader || (std_cmap_shader->reset_ctr != image_reset_counter))
+///---	{
+///---		delete std_cmap_shader;
+///---
+///---		GLuint tex = MakeColormapTexture(NULL, 32, 0);
+///---
+///---		std_cmap_shader = new colormap_shader_c(255, tex);
+///---		std_cmap_shader->reset_ctr = image_reset_counter;
+///---	}
+///---
+///---	if (props->colourmap)
+///---	{
+///---		colormap_shader_c *X = (colormap_shader_c *) props->colourmap->analysis;
+///---
+///---		if (! X || (X->reset_ctr != image_reset_counter))
+///---		{
+///---			delete X;
+///---
+///---			GLuint tex = MakeColormapTexture(map, props->colourmap->length, 0);
+///---
+///---			shader = new colormap_shader_c(255, tex);
+///---			shader->reset_ctr = image_reset_counter;
+///---
+///---			// Intentional Const Override
+///---			colourmap_c *CM = (colourmap_c *)props->colourmap;
+///---			CM->analysis = shader;
+///---		}
+///---	}
+///---
+///---
+///---	if (props->colourmap)
+///---		shader = (colormap_shader_c *) props->colourmap->analysis;
+///---	else
+///---		shader = std_cmap_shader;
+
+	SYS_ASSERT(shader);
+
+
 	int lit_Nom = props->lightlevel + light_add + ren_extralight;
 
 	lit_Nom = CLAMP(0, lit_Nom, 255);
 
-	// FIXME !!!! foggy / watery sectors
+	shader->SetLight(lit_Nom);
 
-	if (! std_cmap_shader || (std_cmap_shader->reset_ctr != image_reset_counter))
-	{
-		delete std_cmap_shader;
-
-		//!!!!! TEST
-		const colourmap_c *colmap = colourmaps.Lookup("LAVA");
-		const byte *map = V_GetTranslationTable(colmap);
-
-		GLuint tex = MakeColormapTexture(map, colmap->length, 0);
-
-		std_cmap_shader = new colormap_shader_c(255, tex);
-		std_cmap_shader->reset_ctr = image_reset_counter;
-	}
-
-	std_cmap_shader->SetLight(lit_Nom);
-
-	return std_cmap_shader;
+	return shader;
 }
 
 
