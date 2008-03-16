@@ -21,9 +21,9 @@
 #include "con_var.h"
 
 
-extern cvar_c r_width, r_height, r_depth, r_fullscreen;
-
-
+// TESTING STUFF
+cvar_c r_width, r_height, r_depth, r_fullscreen;
+cvar_c s_sfxvol, s_musvol;
 
 
 cvar_link_t  all_cvars[] =
