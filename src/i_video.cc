@@ -225,6 +225,8 @@ bool I_SetScreenSize(scrmode_c *mode)
 
 void I_StartFrame(void)
 {
+	glClearColor(0, 0, 0, 0);
+	glClear(GL_COLOR_BUFFER_BIT);
 }
 
 
