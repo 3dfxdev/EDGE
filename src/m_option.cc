@@ -91,7 +91,6 @@
 #include "n_network.h"
 #include "p_local.h"
 #include "r_misc.h"
-#include "r_vbinit.h"
 #include "r_gldefs.h"
 #include "s_sound.h"
 #include "s_music.h"
