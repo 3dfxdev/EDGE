@@ -47,6 +47,7 @@
 #include "con_defs.h"
 #include "con_gui.h"
 #include "con_main.h"
+#include "con_var.h"
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "dstrings.h"
@@ -1352,11 +1353,13 @@ static void E_Startup(void)
 	// -AJA- 2000/02/02: initialise global gameflags to defaults
 	global_flags = default_gameflags;
 
+	
 	InitDirectories();
 
 	SetupLogAndDebugFiles();
 
 	CON_InitConsole();
+	CON_ResetAllVars();
 
 	ShowDateAndVersion();
 
