@@ -30,6 +30,7 @@
 #include "e_player.h"
 #include "hu_font.h"
 #include "r_draw.h"
+#include "r_modes.h"
 #include "w_wad.h"
 #include "z_zone.h"
 
@@ -74,10 +75,10 @@ static void FrameSetup(void)
 	lua_getglobal(HUD_ST, "hud");
 
 	lua_pushinteger(HUD_ST, screen_hud);
-	lua_setfield(HUD_ST, -1, "which");
+	lua_setfield(HUD_ST, -2, "which");
 
 	lua_pushboolean(HUD_ST, automapactive);
-	lua_setfield(HUD_ST, -1, "automap");
+	lua_setfield(HUD_ST, -2, "automap");
 
 	lua_pop(HUD_ST, 1);
 }
@@ -302,7 +303,10 @@ static int HD_render_world(lua_State *L)
 	int w = luaL_checkint(L, 3);
 	int h = luaL_checkint(L, 4);
 
- 	R_Render(x, y, w, h);
+	x = FROM_320(x); y = FROM_200(y);
+	w = FROM_320(w); h = FROM_200(h);
+
+ 	R_Render(x, SCREENHEIGHT-(y+h), w, h);
 
 	return 0;
 }
@@ -317,7 +321,10 @@ static int HD_render_automap(lua_State *L)
 	int w = luaL_checkint(L, 3);
 	int h = luaL_checkint(L, 4);
 
-	AM_Drawer(x, y, w, h);
+	x = FROM_320(x); y = FROM_200(y);
+	w = FROM_320(w); h = FROM_200(h);
+
+ 	AM_Drawer(x, SCREENHEIGHT-(y+h), w, h);
 
 	return 0;
 }
