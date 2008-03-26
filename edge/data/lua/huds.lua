@@ -216,8 +216,37 @@ function doom_status_bar()
 end
 
 
-function overlay_status_bar()
+function doom_overlay_status()
   -- TODO !!!!
+end
+
+
+function doom_automap()
+
+  hud.automap_colors(
+  {
+    grid    = "#006666",
+
+    wall    = "#FF0000",
+    step    = "#C08050",
+    ledge   = "#77DD77",
+    ceil    = "#DDDD00",
+    secret  = "#00CCCC",
+    allmap  = "#888888",
+
+    player  = "#FFFFFF",
+    monster = "#00DD00",
+    corpse  = "#DD0000",
+    item    = "#0000FF",
+    missile = "#FFBB00",
+    scenery = "#773311",
+  })
+
+  hud.solid_box(0, 0, 320, 200-32, "#505050")
+  hud.render_automap(0, 0, 320, 200-32)
+
+  hud.draw_text(0, 200-32-10, hud.map_title())
+  doom_status_bar()
 end
 
 
@@ -225,22 +254,26 @@ function hud.draw_all()
 
   hud.scaling(320, 200)
   hud.text_color()
-
-  -- there are three possible huds
-  hud.which = hud.which % 3
+  hud.text_font("DOOM")
 
   if hud.automap then
-    hud.render_automap(0, 0, 320, 200-32)
-  elseif hud.which == 0 then
+    doom_automap()
+    return
+  end
+
+  -- there are three standard HUDs
+  hud.which = hud.which % 3
+
+  if hud.which == 0 then
     hud.render_world(0, 0, 320, 200-32)
   else
     hud.render_world(0, 0, 320, 200)
   end
 
-  if hud.automap or hud.which == 0 then
+  if hud.which == 0 then
     doom_status_bar()
   elseif hud.which == 2 then
-    overlay_status_bar()
+    doom_overlay_status()
   end
 
   -- TODO: air bar
