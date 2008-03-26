@@ -118,8 +118,7 @@ void RGL_SetupMatrices3D(void)
 {
 	GLfloat ambient[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-	glViewport(viewwindow_x, SCREENHEIGHT - viewwindow_y - viewwindow_h,
-			   viewwindow_w, viewwindow_h);
+	glViewport(viewwindow_x, viewwindow_y, viewwindow_w, viewwindow_h);
 
 	// calculate perspective matrix
 

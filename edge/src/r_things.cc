@@ -186,18 +186,17 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	// clip psprite to view window
 	glEnable(GL_SCISSOR_TEST);
 
-	glScissor(viewwindow_x, SCREENHEIGHT - viewwindow_h - viewwindow_y,
-			  viewwindow_w, viewwindow_h);
+	glScissor(viewwindow_x, viewwindow_y, viewwindow_w, viewwindow_h);
 
 	x1b = (float)viewwindow_x + x1b;
 	x1t = (float)viewwindow_x + x1t;
 	x2t = (float)viewwindow_x + x2t;
 	x2b = (float)viewwindow_x + x2b;
 
-	y1b = (float)(SCREENHEIGHT - viewwindow_y - viewwindow_h) + y1b - 1;
-	y1t = (float)(SCREENHEIGHT - viewwindow_y - viewwindow_h) + y1t - 1;
-	y2t = (float)(SCREENHEIGHT - viewwindow_y - viewwindow_h) + y2t - 1;
-	y2b = (float)(SCREENHEIGHT - viewwindow_y - viewwindow_h) + y2b - 1;
+	y1b = (float)viewwindow_y + y1b - 1;
+	y1t = (float)viewwindow_y + y1t - 1;
+	y2t = (float)viewwindow_y + y2t - 1;
+	y2b = (float)viewwindow_y + y2b - 1;
 
 
 	psprite_coord_data_t data;
