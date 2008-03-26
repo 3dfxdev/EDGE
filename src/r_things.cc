@@ -176,28 +176,28 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 
 	float x1b, y1b, x1t, y1t, x2b, y2b, x2t, y2t;  // screen coords
 
-	x1b = x1t = viewwindowwidth  * tx1 / 320.0f;
-	x2b = x2t = viewwindowwidth  * tx2 / 320.0f;
+	x1b = x1t = viewwindow_w  * tx1 / 320.0f;
+	x2b = x2t = viewwindow_w  * tx2 / 320.0f;
 
-	y1b = y2b = viewwindowheight * ty1 / 200.0f;
-	y1t = y2t = viewwindowheight * ty2 / 200.0f;
+	y1b = y2b = viewwindow_h * ty1 / 200.0f;
+	y1t = y2t = viewwindow_h * ty2 / 200.0f;
 
 
 	// clip psprite to view window
 	glEnable(GL_SCISSOR_TEST);
 
-	glScissor(viewwindowx, SCREENHEIGHT-viewwindowheight-viewwindowy,
-			  viewwindowwidth, viewwindowheight);
+	glScissor(viewwindow_x, SCREENHEIGHT - viewwindow_h - viewwindow_y,
+			  viewwindow_w, viewwindow_h);
 
-	x1b = (float)viewwindowx + x1b;
-	x1t = (float)viewwindowx + x1t;
-	x2t = (float)viewwindowx + x2t;
-	x2b = (float)viewwindowx + x2b;
+	x1b = (float)viewwindow_x + x1b;
+	x1t = (float)viewwindow_x + x1t;
+	x2t = (float)viewwindow_x + x2t;
+	x2b = (float)viewwindow_x + x2b;
 
-	y1b = (float)(SCREENHEIGHT - viewwindowy - viewwindowheight) + y1b - 1;
-	y1t = (float)(SCREENHEIGHT - viewwindowy - viewwindowheight) + y1t - 1;
-	y2t = (float)(SCREENHEIGHT - viewwindowy - viewwindowheight) + y2t - 1;
-	y2b = (float)(SCREENHEIGHT - viewwindowy - viewwindowheight) + y2b - 1;
+	y1b = (float)(SCREENHEIGHT - viewwindow_y - viewwindow_h) + y1b - 1;
+	y1t = (float)(SCREENHEIGHT - viewwindow_y - viewwindow_h) + y1t - 1;
+	y2t = (float)(SCREENHEIGHT - viewwindow_y - viewwindow_h) + y2t - 1;
+	y2b = (float)(SCREENHEIGHT - viewwindow_y - viewwindow_h) + y2b - 1;
 
 
 	psprite_coord_data_t data;
@@ -373,7 +373,7 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	glDisable(GL_SCISSOR_TEST);
 }
 
-static void DrawStdCrossHair(int sbarheight)
+static void DrawStdCrossHair(void)
 {
 	static int crhcount = 0;
 	static int crhdir = 1;   // -ACB- 1999/09/19 change from ch * to crh *. chdir is a function.
@@ -387,12 +387,10 @@ static void DrawStdCrossHair(int sbarheight)
 	crhcount += crhdir;
 
 	int col = RED + crhcount / 4;  /* FIXME: configurable colour ? */
-	int mul = 1 + (SCREENWIDTH / 300);
+	int mul = 1 + (viewwindow_w / 300);
 
-	int x = SCREENWIDTH / 2;
-	int y = (SCREENHEIGHT - sbarheight) / 2;
-
-	y += sbarheight;
+	int x = viewwindow_x + viewwindow_w / 2;
+	int y = viewwindow_y + viewwindow_h / 2;
 
 	switch (crosshair)
 	{
@@ -457,8 +455,8 @@ void RGL_DrawWeaponSprites(player_t * p)
 		}
 	}
 
-	if (!got_cross && !automapactive && p->health > 0)
-		DrawStdCrossHair((screen_hud != HUD_Full) ? 0 : FROM_200(ST_HEIGHT));
+	if (!got_cross && p->health > 0)
+		DrawStdCrossHair();
 }
 
 

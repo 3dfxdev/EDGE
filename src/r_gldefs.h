@@ -81,7 +81,6 @@ const byte *RGL_BetaImage(int *w, int *h);
 //
 
 void RGL_LoadLights(void);
-void RGL_RenderTrueBSP(void);
 
 extern int ren_extralight;
 

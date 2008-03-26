@@ -1280,10 +1280,8 @@ static void AM_RenderScene(void)
 	glLineWidth(1.0f);
 }
 
-//
-// AM_Drawer
-//
-void AM_Drawer(void)
+
+void AM_Drawer(int x, int y, int w, int h)
 {
 	if (!automapactive)
 		return;

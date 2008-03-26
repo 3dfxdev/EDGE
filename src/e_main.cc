@@ -67,7 +67,6 @@
 #include "p_spec.h"
 #include "r_local.h"
 #include "rad_trig.h"
-#include "r_vbinit.h"
 #include "r_gldefs.h"
 #include "r_wipe.h"
 #include "s_sound.h"
@@ -583,9 +582,9 @@ void E_Display(void)
 	if (nodrawers)
 		return;  // for comparative timing / profiling
 
-	// change the view size if needed  [FIXME!! bullcrap here]
-	if (setsizeneeded)
-		R_ExecuteSetViewSize();
+///---	// change the view size if needed  [FIXME!! bullcrap here]
+///---	if (setsizeneeded)
+///---		R_ExecuteSetViewSize();
 
 	// Start the frame - should we need to.
 	I_StartFrame();

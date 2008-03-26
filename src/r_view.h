@@ -63,8 +63,6 @@ struct camera_s
 	// executed at the start of every frame when it's used for rendering,
 	// to set some globals
 	callback_t *frame_start;
-	// Optional, does any necessary cleanup at end of frame
-	callback_t *frame_end;
 
 	// If the camera is attached to a player, this points to it. Otherwise
 	// it's NULL. It's used for psprite drawing.
@@ -73,13 +71,9 @@ struct camera_s
 };
 
 extern camera_t *camera;
-extern struct mobj_s *background_camera_mo;
 
 // Adds a callback to the end of *list. Use this for start_frame lists.
 extern void R_AddStartCallback(callback_t ** list, void (*f) (void *), void *data, void (*kill_data) (void *));
-
-// Adds a callback to the start of *list. Use this for end_frame lists.
-extern void R_AddEndCallback(callback_t ** list, void (*f) (void *), void *data, void (*kill_data) (void *));
 
 // Destroys a list of callbacks
 extern void R_DestroyCallbackList(callback_t ** list);
@@ -88,6 +82,7 @@ extern void R_DestroyCallbackList(callback_t ** list);
 extern void R_CallCallbackList(callback_t * list);
 
 void R_DestroyCamera(camera_t * c);
+
 camera_t *R_CreateCamera(void);
 
 #endif // __R_VIEW__

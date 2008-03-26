@@ -42,7 +42,6 @@
 #include "s_sound.h"
 #include "s_music.h"
 #include "r_misc.h"
-#include "r_view.h"
 #include "r_draw.h"
 #include "r_modes.h"
 
@@ -583,7 +582,7 @@ static void WI_End(void)
 
 	background_camera_mo = NULL;
 
-	R_ExecuteSetViewSize();
+///---	R_ExecuteSetViewSize();
 
 	F_StartFinale(&currmap->f_end, nextmap ? ga_finale : ga_nothing);
 }
@@ -1395,7 +1394,7 @@ void WI_Drawer(void)
 
 	if (background_camera_mo)
 	{
-		R_Render();
+		R_Render(0, 0, SCREENWIDTH, SCREENHEIGHT);
 	} 
 	else
 	{
@@ -1582,7 +1581,7 @@ void WI_Start(void)
 
 			background_camera_mo = mo;
 
-			R_ExecuteSetViewSize();
+///---			R_ExecuteSetViewSize();
 
 			// we don't want to see players
 			for (int pnum = 0; pnum < MAXPLAYERS; pnum++)

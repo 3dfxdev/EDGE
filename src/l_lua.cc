@@ -302,9 +302,7 @@ static int HD_render_world(lua_State *L)
 	int w = luaL_checkint(L, 3);
 	int h = luaL_checkint(L, 4);
 
-	// FIXME: set view window
-
- 	R_Render();
+ 	R_Render(x, y, w, h);
 
 	return 0;
 }
@@ -319,9 +317,7 @@ static int HD_render_automap(lua_State *L)
 	int w = luaL_checkint(L, 3);
 	int h = luaL_checkint(L, 4);
 
-	// FIXME: set view window
-
-	AM_Drawer();
+	AM_Drawer(x, y, w, h);
 
 	return 0;
 }

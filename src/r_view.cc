@@ -93,23 +93,6 @@ void R_AddStartCallback(callback_t ** list, void (*f) (void *), void *data, void
 	c->kill_data = kill_data;
 }
 
-//
-// Adds a callback to the start of *list. Use this for end_frame lists.
-//
-void R_AddEndCallback(callback_t ** list, void (*f) (void *), void *data, void (*kill_data) (void *))
-{
-	callback_t *c;
-
-	c = Z_New(callback_t, 1);
-	c->f = f;
-	c->data = data;
-	c->kill_data = kill_data;
-	c->prev = NULL;
-	c->next = *list;
-	if (*list)
-		(*list)->prev = c;
-	*list = c;
-}
 
 //
 // R_DestroyCamera
@@ -117,7 +100,6 @@ void R_AddEndCallback(callback_t ** list, void (*f) (void *), void *data, void (
 void R_DestroyCamera(camera_t * c)
 {
 	R_DestroyCallbackList(&c->frame_start);
-	R_DestroyCallbackList(&c->frame_end);
 
 	Z_Free(c);
 }

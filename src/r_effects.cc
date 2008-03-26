@@ -148,11 +148,11 @@ void RGL_ColourmapEffect(player_t *player)
 
 		glBegin(GL_QUADS);
 	  
-		x1 = viewwindowx;
-		x2 = viewwindowx + viewwindowwidth;
+		x1 = viewwindow_x;
+		x2 = viewwindow_x + viewwindow_w;
 
-		y1 = SCREENHEIGHT - viewwindowy;
-		y2 = SCREENHEIGHT - viewwindowy - viewwindowheight;
+		y1 = SCREENHEIGHT - viewwindow_y;
+		y2 = SCREENHEIGHT - viewwindow_y - viewwindow_h;
 
 		glVertex2i(x1, y1);
 		glVertex2i(x2, y1);
@@ -199,13 +199,13 @@ void RGL_PaletteEffect(player_t *player)
 
 			glLoadMatrixf(gray_mat);
 
-			int x = viewwindowx;
-			int y = SCREENHEIGHT-viewwindowheight-viewwindowy;
+			int x = viewwindow_x;
+			int y = SCREENHEIGHT - viewwindow_h - viewwindow_y;
 
 			glPixelZoom(1, 1);
 			glRasterPos2i(x, y);
 
-			glCopyPixels(x, y, viewwindowwidth, viewwindowheight, GL_COLOR);
+			glCopyPixels(x, y, viewwindow_w, viewwindow_h, GL_COLOR);
 
 			glLoadIdentity();
 		}
