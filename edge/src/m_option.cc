@@ -170,7 +170,7 @@ static char Axis[]      = "Turn/Forward/Strafe/MLook/Fly/Disable";
 static char DLMode[]    = "Off/On";
 static char JpgPng[]    = "JPEG/PNG";  // basic on/off
 static char AAim[]      = "Off/On/Mlook";
-static char Huds[]      = "Full/None/Overlay";
+///---static char Huds[]      = "Full/None/Overlay";
 static char MipMaps[]   = "None/Good/Best";
 static char Details[]   = "Low/Medium/High";
 static char Hq2xMode[]  = "Off/UI Only/UI & Sprites/All";
@@ -273,11 +273,6 @@ typedef struct specialkey_s
 	char keystring[20];
 }
 specialkey_t;
-
-static void M_ChangeScreenHud(int keypressed)
-{
-	R_SetViewSize(screen_hud);
-}
 
 
 static void M_ChangeMusVol(int keypressed)
@@ -430,7 +425,7 @@ static optmenuitem_t vidoptions[] =
 #endif
 	{OPT_Plain,   "",  NULL, 0, 0, NULL, NULL, NULL},
 
-	{OPT_Switch,  "HUD",           Huds,  3,  CFGDEF_SCREEN_HUD,     &screen_hud, M_ChangeScreenHud, NULL},
+///---	{OPT_Switch,  "HUD",           Huds,  3,  CFGDEF_SCREEN_HUD,     &screen_hud, M_ChangeScreenHud, NULL},
 	{OPT_Switch,  "Crosshair",     CrosO, 4,  CFGDEF_CROSSHAIR,      &crosshair, NULL, NULL},
 	{OPT_Boolean, "Map Overlay",   YesNo, 2,  CFGDEF_MAP_OVERLAY,    &map_overlay, NULL, NULL},
 	{OPT_Boolean, "Map Rotation",  YesNo, 2,  CFGDEF_ROTATEMAP,      &rotatemap, NULL, NULL},

@@ -491,7 +491,7 @@ static void UpdateWidgets(void)
 {
 	static int largeammo = 1994;  // means "n/a"
 
-	bool is_overlay = (screen_hud == HUD_Overlay);
+	bool is_overlay = (screen_hud == 2);
 
 	int i;
 	keys_e cards;
@@ -671,8 +671,8 @@ static void DoPaletteStuff(void)
 
 void ST_Drawer()
 {
-	st_statusbaron       = (screen_hud != HUD_None) || automapactive;
-	st_baron_not_overlay = (screen_hud == HUD_Full) || automapactive;
+	st_statusbaron       = (screen_hud != 1) || automapactive;
+	st_baron_not_overlay = (screen_hud == 0) || automapactive;
 
 	UpdateWidgets();
 

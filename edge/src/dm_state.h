@@ -173,15 +173,7 @@ extern bool swapstereo;
 extern bool infight;
 extern bool png_scrshots;
 
-typedef enum
-{
-	HUD_Full = 0,
-	HUD_None,
-	HUD_Overlay,
-
-	NUMHUD
-}
-hud_type_e;
+#define NUMHUD  120
 
 extern int crosshair;
 extern int screen_hud;
