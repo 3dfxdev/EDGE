@@ -1,10 +1,29 @@
 Andrew Apted's Log
 
+2008/03/26:
+
+Worked on LUA huds.  Internally the screen_hud value will range
+from 0 to 119, and the hud drawer will use % (modulo arithmetic)
+for the actual hud to draw (allows 2-6,8-10 huds).
+
+Large rework of renderer setup bits, especially the viewwindow*
+variables.  Most of the r_view and r_vbinit code was removed.
+The hud.render_world() lua call now handles the coordinates
+given to it.
+
+Just noticed that the weapon is drawn wrongly when the status
+bar is present, and it's not a recent bug because 1.29 has the
+same problem!  The weapon in original DOOM gets clipped by the
+status bar, so you see more of it without the bar, however in
+EDGE the weapon gets vertically squished when the status bar is
+shown.  As I don't want to get brutally clubbed to death by a
+hundred angry weapon modders, I'm not going to fix this :-).
+
 2008/03/16:
 
 OK simple colormapped sectors (e.g. water, lava) are working
 again.  I have forgotten how to simulate more complex effects
-like fog, so this will have to do.
+like fog, so this will have to do for now.
 
 2008/03/15:
 
