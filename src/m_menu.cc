@@ -247,7 +247,6 @@ void M_EndGame(int choice);
 static void M_ChangeMessages(int choice);
 static void M_SfxVol(int choice);
 static void M_MusicVol(int choice);
-static void M_SizeDisplay(int choice);
 // static void M_Sound(int choice);
 
 static void M_FinishReadThis(int choice);
@@ -1369,29 +1368,6 @@ void M_QuitEDGE(int choice)
 	M_StartMessage(msg.c_str(), QuitResponse, true);
 }
 
-// 98-7-10 KM Use new defines
-void M_SizeDisplay(int choice)
-{
-	switch (choice)
-	{
-		case SLIDERLEFT:
-			if (screen_hud <= 0)
-				return;
-
-			screen_hud--;
-			break;
-
-		case SLIDERRIGHT:
-			if (screen_hud+1 >= NUMHUD)
-				return;
-
-			screen_hud++;
-			break;
-	}
-
-	R_SetViewSize(screen_hud);
-}
-
 
 //----------------------------------------------------------------------------
 //   MENU FUNCTIONS
@@ -1635,8 +1611,9 @@ bool M_Responder(event_t * ev)
 
 				if (automapactive || chat_on)
 					return false;
-				// 98-7-10 KM Use new defines
-				M_SizeDisplay(SLIDERLEFT);
+
+				screen_hud = (screen_hud - 1 + NUMHUD) % NUMHUD;
+
 				S_StartFX(sfx_stnmov);
 				return true;
 
@@ -1644,8 +1621,9 @@ bool M_Responder(event_t * ev)
 
 				if (automapactive || chat_on)
 					return false;
-				// 98-7-10 KM Use new defines
-				M_SizeDisplay(SLIDERRIGHT);
+
+				screen_hud = (screen_hud + 1) % NUMHUD;
+
 				S_StartFX(sfx_stnmov);
 				return true;
 
