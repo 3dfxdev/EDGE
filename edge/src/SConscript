@@ -21,7 +21,8 @@ if 1: # not build_info['release']:
 sources = [
     'i_main.cc',  'i_ctrl.cc', 'i_video.cc',
     'i_sound.cc', 'i_net.cc',
-    'con_con.cc', 'con_cvar.cc', 'con_main.cc', 'con_var.cc',
+    'con_con.cc',  'con_cvar.cc', 'con_main.cc',
+    'con_link.cc', 'con_var.cc',
     'e_input.cc', 'e_main.cc', 
     'e_player.cc', 'f_finale.cc', 'f_interm.cc',
     'g_game.cc',
