@@ -97,7 +97,8 @@
 //
 
 // scale on entry
-#define INITSCALEMTOF (0.2f)
+#define INIT_MSCALE (4.0f)
+#define  MAX_MSCALE (200.0f)
 
 // how much the automap moves window per tic in frame-buffer coordinates
 // moves a whole screen-width in 1.5 seconds
@@ -149,8 +150,8 @@ static float m_scale;
 
 
 // translates between frame-buffer and map distances
-#define FTOM(xx) ((float)((xx) / m_scale / f_scale))
 #define MTOF(xx) (  (int)((xx) * m_scale * f_scale))
+#define FTOM(xx) ((float)((xx) / m_scale / f_scale))
 
 // translates between frame-buffer and map coordinates
 #define CXMTOF(xx)  (f_x + f_w/2 + MTOF((xx) - m_cx))
@@ -358,12 +359,14 @@ static void LevelInit(void)
 
 	FindMinMaxBoundaries();
 
-	scale_mtof = min_scale_mtof * (10.0f/7.0f);
+///---	scale_mtof = min_scale_mtof * (10.0f/7.0f);
+///---
+///---	if (scale_mtof > max_scale_mtof)
+///---		scale_mtof = max_scale_mtof;
+///---
+///---	scale_ftom = 1 / scale_mtof;
 
-	if (scale_mtof > max_scale_mtof)
-		scale_mtof = max_scale_mtof;
-
-	scale_ftom = 1 / scale_mtof;
+	m_scale = INIT_MSCALE;
 }
 
 void AM_InitResolution(void)
@@ -422,18 +425,13 @@ static void AM_Show(void)
 	else
 		automapactive = 2;
 
-	f_oldloc.x = FLT_MAX; // -ACB- 2003/09/21 Max value was FLOAT_MAX; changed it to fall in line with its type
-
 	panning_x = 0;
 	panning_y = 0;
 	zooming   = -1;
 	bigstate  = false;
 
-	m_w = FTOM(f_w);
-	m_h = FTOM(f_h);
-
-	m_x = p->mo->x - m_w / 2;
-	m_y = p->mo->y - m_h / 2;
+	m_cx = p->mo->x;
+	m_cy = p->mo->y;
 
 }
 
@@ -464,8 +462,8 @@ static void ChangeWindowScale(float factor)
 {
 	m_scale *= factor;
 
-	m_scale = MIN(m_scale, 1.0);
-	m_scale = MAX(m_scale, 200.0);
+	m_scale = MAX(m_scale, 1.0);
+	m_scale = MIN(m_scale, MAX_MSCALE);
 
 ///---	if (m_scale < 1.0f)
 ///---		m_scale = 
@@ -591,7 +589,7 @@ bool AM_Responder(event_t * ev)
 
 		case AM_FOLLOWKEY:
 			followplayer = !followplayer;
-			f_oldloc.x = FLT_MAX; // -ACB- 2003/09/21 Max value was INT_MAX; changed it to fall in line with its type
+
 			// -ACB- 1998/08/10 Use DDF Lang Reference
 			if (followplayer)
 				CON_PlayerMessageLDF(consoleplayer, "AutoMapFollowOn");
@@ -781,11 +779,13 @@ static void DrawMline(mline_t * ml, int colour)
 	RGL_SolidLine(x1, y1, x2, y2, rgb);
 }
 
+
 //
 // Draws flat (floor/ceiling tile) aligned grid lines.
 //
 static void DrawGrid(int colour)
 {
+#if 0  // FIXME !!!!!!
 	float x, y;
 	float start, end;
 	mline_t ml;
@@ -817,6 +817,7 @@ static void DrawGrid(int colour)
 		ml.b.y = y;
 		DrawMline(&ml, colour);
 	}
+#endif
 }
 
 
@@ -1194,17 +1195,30 @@ static bool AM_CheckBBox(float *bspcoord)
 	if (rotatemap)
 	{
 		// FIXME: quick'n'dirty hack, removes benefit of BSP render
+		return true;
 		if (! followplayer)
 			return true;
 
 		// HACKITUDE: just make tested area bigger
+#if 0
 		float d = MAX(m_x2 - m_x, m_y2 - m_y) / 2.0f;
 
 		return ! (xr < (m_x - d) || xl > (m_x2 + d) ||
  				  yt < (m_y - d) || yb > (m_y2 + d));
+#endif
 	}
 
-	return ! (xr < m_x || xl > m_x2 || yt < m_y || yb > m_y2);
+	int x1 = CXMTOF(xl);
+	int x2 = CXMTOF(xr);
+
+	int y1 = CYMTOF(yb);
+	int y2 = CYMTOF(yt);
+
+	if (x2 < f_x || y2 < f_y || x1 >= f_x+f_w || y1 >= f_y+f_h)
+		return false;
+
+	// some part of bbox is visible
+	return true;
 }
 
 
@@ -1249,7 +1263,7 @@ static void DrawMarks(void)
 			char name[20];
 			sprintf(name, "%d", i);
 
-			HL_WriteText(automap_style,1, (int)sx, (int)sy, buf);
+			HL_WriteText(automap_style,1, (int)sx, (int)sy, name);
 		}
 	}
 }
@@ -1288,7 +1302,7 @@ void AM_Drawer(int x, int y, int w, int h)
 	f_w = w;
 	f_h = h;
 
-	f_scale = MAX(f_w, f_h) / m_size;
+	f_scale = MAX(f_w, f_h) / map_size / 2.0f;
 
 	SYS_ASSERT(automap_style);
 
