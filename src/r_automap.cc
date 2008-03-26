@@ -88,7 +88,7 @@
 #define AM_MARKKEY    'm'
 #define AM_CLEARMARKKEY    'c'
 
-#define AM_NUMMARKPOINTS 10
+#define AM_NUMMARKPOINTS  9
 
 //
 // NOTE:
@@ -139,16 +139,6 @@ static float m_cx, m_cy;
 static float m_scale;
 
 
-///---static float m_x, m_y;  // LL x,y where the window is on the map (map coords)
-///---static float m_x2, m_y2;  // UR x,y where the window is on the map (map coords)
-///---
-///---//
-///---// width/height of window on map (map coords)
-///---//
-///---static float m_w;
-///---static float m_h;
-
-
 // translates between frame-buffer and map distances
 #define MTOF(xx) (  (int)((xx) * m_scale * f_scale))
 #define FTOM(xx) ((float)((xx) / m_scale / f_scale))
@@ -166,14 +156,6 @@ static float map_min_y;
 static float map_max_x;
 static float map_max_y;
 
-///---
-///---static float max_w;  // max_x-min_x,
-///---static float max_h;  // max_y-min_y
-///---
-///---static float min_scale_mtof;  // used to tell when to stop zooming out
-///---static float max_scale_mtof;  // used to tell when to stop zooming in
-
-
 
 // how far the window pans each tic (map coords)
 static float panning_x = 0;
@@ -182,15 +164,6 @@ static float panning_y = 0;
 // how far the window zooms in each tic (map coords)
 static float zooming = -1;
 
-
-///---// old location used by the Follower routine
-///---static mpoint_t f_oldloc;
-
-///---// used by MTOF to scale from map-to-frame-buffer coords
-///---static float scale_mtof = INITSCALEMTOF;
-///---
-///---// used by FTOM to scale from frame-buffer-to-map coords (=1/scale_mtof)
-///---static float scale_ftom;
 
 // where the points are
 static mpoint_t markpoints[AM_NUMMARKPOINTS];
@@ -215,49 +188,6 @@ extern style_c *automap_style;  // FIXME: put in header
 // current am colourmap
 static const byte *am_colmap = NULL;
 
-
-///---static void ActivateNewScale(void)
-///---{
-///---	m_x += m_w / 2;
-///---	m_y += m_h / 2;
-///---	m_w = FTOM(f_w);
-///---	m_h = FTOM(f_h);
-///---	m_x -= m_w / 2;
-///---	m_y -= m_h / 2;
-///---	m_x2 = m_x + m_w;
-///---	m_y2 = m_y + m_h;
-///---}
-
-///---static void SaveScaleAndLoc(void)
-///---{
-///---	old_m_x = m_x;
-///---	old_m_y = m_y;
-///---	old_m_w = m_w;
-///---	old_m_h = m_h;
-///---}
-///---
-///---static void RestoreScaleAndLoc(player_t *p)
-///---{
-///---	m_w = old_m_w;
-///---	m_h = old_m_h;
-///---
-///---	if (!followplayer)
-///---	{
-///---		m_x = old_m_x;
-///---		m_y = old_m_y;
-///---	}
-///---	else
-///---	{
-///---		m_x = p->mo->x - m_w / 2;
-///---		m_y = p->mo->y - m_h / 2;
-///---	}
-///---	m_x2 = m_x + m_w;
-///---	m_y2 = m_y + m_h;
-///---
-///---	// Change the scaling multipliers
-///---	scale_mtof = (float)f_w / m_w;
-///---	scale_ftom = 1 / scale_mtof;
-///---}
 
 //
 // adds a marker at the current location
@@ -295,42 +225,7 @@ static void FindMinMaxBoundaries(void)
 	float map_h = map_max_y - map_min_y;
 
 	map_size = MAX(map_w, map_h);
-
-///---	float a = (float)SCREENWIDTH  / map_w / 1.25f;
-///---	float b = (float)SCREENHEIGHT / map_h / 1.25f;
-///---
-///---	min_scale_mtof = a < b ? a : b;
-///---	max_scale_mtof = (float)SCREENHEIGHT / 20.0f;
 }
-
-
-///---static void ChangeWindowLoc(void)
-///---{
-///---	if (m_paninc.x != 0 || m_paninc.y != 0)
-///---	{
-///---		followplayer = 0;
-///---		f_oldloc.x = FLT_MAX; // -ACB- 2003/09/21 Max value was INT_MAX; changed it to fall in line with its type
-///---	}
-///---
-///---
-///---	if (zooming > 0)
-///---	{
-///---		m_scale *= zooming;
-///---
-///---	if (m_x + m_w / 2 > max_x)
-///---		m_x = max_x - m_w / 2;
-///---	else if (m_x + m_w / 2 < min_x)
-///---		m_x = min_x - m_w / 2;
-///---
-///---	if (m_y + m_h / 2 > max_y)
-///---		m_y = max_y - m_h / 2;
-///---	else if (m_y + m_h / 2 < min_y)
-///---		m_y = min_y - m_h / 2;
-///---
-///---	m_x2 = m_x + m_w;
-///---	m_y2 = m_y + m_h;
-///---}
-
 
 
 static void ClearMarks(void)
@@ -358,13 +253,6 @@ static void LevelInit(void)
 	ClearMarks();
 
 	FindMinMaxBoundaries();
-
-///---	scale_mtof = min_scale_mtof * (10.0f/7.0f);
-///---
-///---	if (scale_mtof > max_scale_mtof)
-///---		scale_mtof = max_scale_mtof;
-///---
-///---	scale_ftom = 1 / scale_mtof;
 
 	m_scale = INIT_MSCALE;
 }
@@ -435,25 +323,6 @@ static void AM_Show(void)
 
 }
 
-///---//
-///---// set the window scale to the maximum size
-///---//
-///---static void MinOutWindowScale(void)
-///---{
-///---	scale_mtof = min_scale_mtof;
-///---	scale_ftom = 1 / scale_mtof;
-///---	ActivateNewScale();
-///---}
-///---
-///---//
-///---// set the window scale to the minimum size
-///---//
-///---static void MaxOutWindowScale(void)
-///---{
-///---	scale_mtof = max_scale_mtof;
-///---	scale_ftom = 1 / scale_mtof;
-///---	ActivateNewScale();
-///---}
 
 //
 // Zooming
@@ -464,18 +333,6 @@ static void ChangeWindowScale(float factor)
 
 	m_scale = MAX(m_scale, 1.0);
 	m_scale = MIN(m_scale, MAX_MSCALE);
-
-///---	if (m_scale < 1.0f)
-///---		m_scale = 
-///---	scale_mtof *= factor;
-///---	scale_ftom = 1.0f / scale_mtof;
-///---
-///---	if (scale_mtof < min_scale_mtof)
-///---		MinOutWindowScale();
-///---	else if (scale_mtof > max_scale_mtof)
-///---		MaxOutWindowScale();
-///---	else
-///---		ActivateNewScale();
 }
 
 
@@ -648,24 +505,9 @@ bool AM_Responder(event_t * ev)
 	return rc;
 }
 
-///---static void DoFollowPlayer(player_t *p)
-///---{
-///---	if (f_oldloc.x != p->mo->x || f_oldloc.y != p->mo->y)
-///---	{
-///---		m_x = FTOM(MTOF(p->mo->x)) - m_w / 2;
-///---		m_y = FTOM(MTOF(p->mo->y)) - m_h / 2;
-///---		
-///---		m_x2 = m_x + m_w;
-///---		m_y2 = m_y + m_h;
-///---		
-///---		f_oldloc.x = p->mo->x;
-///---		f_oldloc.y = p->mo->y;
-///---	}
-///---}
-
 
 //
-// Updates on Game Tick
+// Updates on game tick
 //
 void AM_Ticker(void)
 {
@@ -1257,13 +1099,19 @@ static void DrawMarks(void)
 	{
 		if (markpoints[i].x != -1)
 		{
-			float sx = CXMTOF(markpoints[i].x);
-			float sy = CYMTOF(markpoints[i].y);
+			float cx = CXMTOF(markpoints[i].x);
+			float cy = CYMTOF(markpoints[i].y);
 
-			char name[20];
-			sprintf(name, "%d", i);
+			float scale = 1.0f; /// f_w / 320.0f;
 
-			HL_WriteText(automap_style,1, (int)sx, (int)sy, name);
+			font_c *am_font = automap_style->fonts[0];
+			SYS_ASSERT(am_font);
+
+			// oh fuck me!
+			cx = cx * 320.f / SCREENWIDTH;
+			cy = 200.0 - (cy * 200.0f / SCREENHEIGHT);
+
+			am_font->DrawChar(cx, cy, '1'+i, scale,1.0f, NULL,1.0f);
 		}
 	}
 }
