@@ -49,6 +49,7 @@
 #define HU_TITLEHEIGHT	1
 #define HU_TITLEX	0
 #define HU_TITLEY	(200 - 32 - 10) 
+
 #define HU_INPUTTOGGLE	key_talk
 #define HU_INPUTX	HU_MSGX
 #define HU_INPUTY	(HU_MSGY + HU_MSGHEIGHT * (FONT_HEIGHT+1))
@@ -56,8 +57,9 @@
 #define HU_INPUTHEIGHT	1
 
 bool chat_on;
-static hu_textline_t w_title;
 static hu_itext_t w_chat;
+
+std::string w_map_title;
 
 static char *chat_dest;
 static hu_itext_t *w_inputbuffer;
@@ -187,9 +189,6 @@ void HU_Start(void)
 	// create the message widget
 	HL_InitSText(&w_message, HU_MSGX, HU_MSGY, HU_MSGHEIGHT, message_style, 0);
 
-	// create the map title widget
-	HL_InitTextLine(&w_title, HU_TITLEX, HU_TITLEY, automap_style, 0);
-
 	//create stuff for showstats cheat
 	// 23-6-98 KM Limits info added.
 	HL_InitTextLine(&textlinefps,
@@ -213,8 +212,7 @@ void HU_Start(void)
 		string = language[currmap->description];
 		I_Printf("Entering %s\n", string);
 
-		for (; *string; string++)
-			HL_AddCharToTextLine(&w_title, *string);
+		w_map_title = std::string(string);
 	}
 
 	// create the chat widget
@@ -235,8 +233,8 @@ void HU_Drawer(void)
 	if (chat_on)
 		HL_DrawIText(&w_chat);
 
-	if (automapactive)
-		HL_DrawTextLine(&w_title, false);
+///---	if (automapactive)
+///---		HL_DrawTextLine(&w_title, false);
 
 	//now, draw stats
 	// -ACB- 1998/09/11 Used White Colour Scaling.
@@ -323,7 +321,6 @@ void HU_Erase(void)
 
 	HL_EraseSText(&w_message);
 	HL_EraseIText(&w_chat);
-	HL_EraseTextLine(&w_title);
 }
 
 // Starts displaying the message.
