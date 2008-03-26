@@ -48,6 +48,9 @@ static font_c *cur_font = NULL;
 static colourmap_c *cur_colmap = NULL;
 
 
+extern std::string w_map_title;
+
+
 static void FrameSetup(void)
 {
 	fontdef_c *DEF = fontdefs.Lookup("DOOM");  // FIXME allow other default
@@ -144,6 +147,47 @@ static void DoWriteText_RightAlign(int x, int y, const char *str)
 //------------------------------------------------------------------------
 
 
+static rgbcol_t ParseColor(lua_State *L, int index)
+{
+	if (lua_isstring(L, index))
+	{
+		const char *name = lua_tostring(L, index);
+
+		// FIXME: validate!!
+
+		return (rgbcol_t) strtol(name+1, NULL, 16);
+	}
+
+	if (lua_istable(L, index))
+	{
+		// parse 'r', 'g', 'b' fields
+		int r, g, b;
+
+		lua_getfield(L, index, "r");
+		if (! lua_isnumber(L, -1))
+			I_Error("Bad color table in lua script (missing \"r\")\n");
+		r = lua_tointeger(L, -1);
+
+		lua_getfield(L, index, "g");
+		if (! lua_isnumber(L, -1))
+			I_Error("Bad color table in lua script (missing \"g\")\n");
+		g = lua_tointeger(L, -1);
+
+		lua_getfield(L, index, "b");
+		if (! lua_isnumber(L, -1))
+			I_Error("Bad color table in lua script (missing \"b\")\n");
+		b = lua_tointeger(L, -1);
+
+		lua_pop(L, 3);
+
+		return RGB_MAKE(r, g, b);
+	}
+
+	I_Error("Bad color value in lua script!\n");
+	return 0; /* NOT REACHED */
+}
+
+
 // hud.raw_debug_print(str)
 //
 static int HD_raw_debug_print(lua_State *L)
@@ -182,10 +226,61 @@ static int HD_scaling(lua_State *L)
 //
 static int HD_game_mode(lua_State *L)
 {
-	//!!!! FIXME
-	
-	lua_pushstring(L, "sp");
+	if (DEATHMATCH())
+		lua_pushstring(L, "dm");
+	else if (COOP_MATCH())
+		lua_pushstring(L, "coop");
+	else
+		lua_pushstring(L, "sp");
+
 	return 1;
+}
+
+
+// hud.map_title()
+//
+static int HD_map_title(lua_State *L)
+{
+	lua_pushstring(L, w_map_title.c_str());
+	return 1;
+}
+
+
+// hud.solid_box(x, y, w, h, color [,alpha])
+//
+static int HD_solid_box(lua_State *L)
+{
+	int x = luaL_checkint(L, 1);
+	int y = luaL_checkint(L, 2);
+	int w = luaL_checkint(L, 3);
+	int h = luaL_checkint(L, 4);
+
+	rgbcol_t col = ParseColor(L, 5);
+
+	float alpha = 1.0;  // FIXME
+
+	RGL_SolidBox(x, y, w, h, col, alpha);
+
+	return 0;
+}
+
+
+// hud.solid_line(x1, y1, x2, y2, color [,alpha])
+//
+static int HD_solid_line(lua_State *L)
+{
+	int x1 = luaL_checkint(L, 1);
+	int y1 = luaL_checkint(L, 2);
+	int x2 = luaL_checkint(L, 3);
+	int y2 = luaL_checkint(L, 4);
+
+	rgbcol_t col = ParseColor(L, 5);
+
+	float alpha = 1.0;  // FIXME
+
+	RGL_SolidLine(x1, y1, x2, y2, col, alpha);
+
+	return 0;
 }
 
 
@@ -330,14 +425,35 @@ static int HD_render_automap(lua_State *L)
 }
 
 
+// hud.automap_colors(table)
+//
+static int HD_automap_colors(lua_State *L)
+{
+	//... FIXME
+
+	return 0;
+}
+
+
+
+
 static const luaL_Reg hud_module[] =
 {
 	{ "raw_debug_print", HD_raw_debug_print },
 
+	// query functions
+    { "game_mode",       HD_game_mode },
+    { "map_title",  	 HD_map_title },
+
+	// set-state functions
     { "scaling",         HD_scaling     },
-    { "game_mode",       HD_game_mode   },
     { "text_font",       HD_text_font   },
     { "text_color",      HD_text_color  },
+    { "automap_colors",  HD_automap_colors },
+
+	// drawing functions
+    { "solid_box",       HD_solid_box   },
+    { "solid_line",      HD_solid_line  },
     { "draw_image",      HD_draw_image  },
     { "draw_text",       HD_draw_text   },
     { "draw_num2",       HD_draw_num2   },
