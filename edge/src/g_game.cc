@@ -49,7 +49,6 @@
 #include "rad_trig.h"
 #include "r_automap.h"
 #include "r_sky.h"
-#include "r_view.h"
 #include "r_modes.h"
 #include "s_sound.h"
 #include "s_music.h"
@@ -154,7 +153,7 @@ void G_DoLoadLevel(void)
 	// -AJA- FIXME: this background camera stuff is a mess
 	background_camera_mo = NULL;
 
-	R_ExecuteSetViewSize();
+///---	R_ExecuteSetViewSize();
 
 	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
 	{

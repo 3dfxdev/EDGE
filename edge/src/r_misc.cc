@@ -45,8 +45,6 @@
 #include "r_misc.h"
 #include "r_modes.h"
 #include "r_units.h"
-#include "r_vbinit.h"
-#include "r_view.h"
 #include "st_stuff.h"
 
 
@@ -54,25 +52,19 @@
 // Fineangles in the viewwidth wide window.
 angle_t FIELDOFVIEW = ANG90;
 
-// The used aspect ratio. A normal texel will look aspect_ratio*4/3
-// times wider than high on the monitor
-static const float aspect_ratio = 200.0f / 320.0f;
-
 // the extreme angles of the view
-static angle_t rightangle;
-static angle_t leftangle;
+angle_t rightangle;
+angle_t leftangle;
 
 float leftslope;
 float rightslope;
 float topslope;
 float bottomslope;
 
-int viewwidth;
-int viewheight;
-int viewwindowx;
-int viewwindowy;
-int viewwindowwidth;
-int viewwindowheight;
+int viewwindow_x;
+int viewwindow_y;
+int viewwindow_w;
+int viewwindow_h;
 
 angle_t viewangle = 0;
 angle_t viewvertangle = 0;
@@ -103,9 +95,9 @@ float viewsin;
 
 player_t *viewplayer;
 
-camera_t *camera = NULL;
+///--- camera_t *camera = NULL;
+///--- camera_t *background_camera = NULL;
 
-camera_t *background_camera = NULL;
 mobj_t *background_camera_mo = NULL;
 
 //
@@ -246,78 +238,30 @@ float R_PointToDist(float x1, float y1, float x2, float y2)
 	return dist;
 }
 
-//
-// R_SetViewSize
-//
-// Do not really change anything here,
-// because it might be in the middle of a refresh.
-//
-// The change will take effect next refresh.
-
-bool setsizeneeded;
-int set_hud;
-
-void R_SetViewSize(int hud)
-{
-	setsizeneeded = true;
-
-	set_hud = hud;
-}
 
 
 void R_ExecuteSetViewSize(void)
 {
-	float slopeoffset;
-
-	setsizeneeded = false;
-
-	int sbar_height = FROM_200(ST_HEIGHT);
-
-	viewwidth  = SCREENWIDTH;
-	viewheight = SCREENHEIGHT;
-
-	if (set_hud == HUD_Full && ! background_camera_mo)
-	{
-		viewheight -= sbar_height;
-	}
-
-	L_WriteDebug("R_ExecuteSetViewSize: view=%dx%d SCREEN=%dx%d\n",
-				 viewwidth, viewheight, SCREENWIDTH, SCREENHEIGHT);
-
-	viewwindowwidth  = viewwidth;
-	viewwindowheight = viewheight;
-	viewwindowx = 0;
-	viewwindowy = 0;
-
-	leftslope = M_Tan(leftangle);
-	rightslope = M_Tan(rightangle);
-
-	slopeoffset = M_Tan(FIELDOFVIEW / 2) * aspect_ratio;
-	slopeoffset = slopeoffset * viewwindowheight / viewwindowwidth;
-	slopeoffset = slopeoffset * SCREENWIDTH / SCREENHEIGHT;
-
-	topslope = slopeoffset;
-	bottomslope = -slopeoffset;
 
 	{
-		// -AJA- FIXME: cameras should be renewed when starting a new
-		//       level (since there will be new mobjs).
-
-		// -AJA- 1999/10/22: background cameras.  This code really sucks
-		//       arse, needs improving.
-		if (background_camera_mo && !background_camera)
-		{
-			background_camera = R_CreateCamera();
-			R_InitCamera_StdObject(background_camera, background_camera_mo);
-			camera = background_camera;
-		}
-
-		if (!camera || (background_camera && !background_camera_mo))
-		{
-			camera = R_CreateCamera();
-			R_InitCamera_StdPlayer(camera);
-			background_camera = NULL;
-		}
+///---		// -AJA- FIXME: cameras should be renewed when starting a new
+///---		//       level (since there will be new mobjs).
+///---
+///---		// -AJA- 1999/10/22: background cameras.  This code really sucks
+///---		//       arse, needs improving.
+///---		if (background_camera_mo && !background_camera)
+///---		{
+///---			background_camera = R_CreateCamera();
+///---			R_InitCamera_StdObject(background_camera, background_camera_mo);
+///---			camera = background_camera;
+///---		}
+///---
+///---		if (!camera || (background_camera && !background_camera_mo))
+///---		{
+///---			camera = R_CreateCamera();
+///---			R_InitCamera_StdPlayer(camera);
+///---			background_camera = NULL;
+///---		}
 	}
 }
 
@@ -334,26 +278,29 @@ void R_SetFOV(angle_t fov)
 	if (fov > ((ANG90 + 17) / 18) * 35)
 		fov = ANG90 / 18 * 35;
 
-	setsizeneeded = true;
-
 	leftangle   = fov / 2;
 	rightangle  = (fov/2) * -1; // -ACB- 1999/09/27 Fixed MSVC Compiler Problem
+
 	FIELDOFVIEW = leftangle - rightangle;
 }
+
 
 void R_SetNormalFOV(angle_t newfov)
 {
 	menunormalfov = (newfov - ANG45 / 18) / (ANG45 / 9);
 	cfgnormalfov = (newfov + ANG45 / 90) / (ANG180 / 180);
 	normalfov = newfov;
+
 	if (!viewiszoomed)
 		R_SetFOV(normalfov);
 }
+
 void R_SetZoomedFOV(angle_t newfov)
 {
 	menuzoomedfov = (newfov - ANG45 / 18) / (ANG45 / 9);
 	cfgzoomedfov = (newfov + ANG45 / 90) / (ANG180 / 180);
 	zoomedfov = newfov;
+
 	if (viewiszoomed)
 		R_SetFOV(zoomedfov);
 }
@@ -366,7 +313,6 @@ void R_Init(void)
 {
 	E_ProgressMessage(language["RefreshDaemon"]);
 
-	R_SetViewSize(screen_hud);
 	R_SetNormalFOV((angle_t)(cfgnormalfov * (angle_t)((float)ANG45 / 45.0f)));
 	R_SetZoomedFOV((angle_t)(cfgzoomedfov * (angle_t)((float)ANG45 / 45.0f)));
 	R_SetFOV(normalfov);

@@ -30,7 +30,6 @@
 
 void R_InitCamera_StdObject(camera_t * c, struct mobj_s * mo);
 void R_InitCamera_StdPlayer(camera_t * c);
-void R_InitCamera_ViewOffs(camera_t * c, angle_t offs);
 
 #endif // __R_VBINIT_H__
 

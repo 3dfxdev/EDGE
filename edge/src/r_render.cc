@@ -43,6 +43,7 @@
 #include "p_local.h"
 #include "r_defs.h"
 #include "r_misc.h"
+#include "r_modes.h"
 #include "r_gldefs.h"
 #include "r_colormap.h"
 #include "r_effects.h"
@@ -52,7 +53,6 @@
 #include "r_sky.h"
 #include "r_things.h"
 #include "r_units.h"
-#include "r_view.h"
 
 #include "n_network.h"  // N_NetUpdate
 
@@ -73,8 +73,6 @@ sector_t *frontsector;
 sector_t *backsector;
 
 unsigned int root_node;
-
-extern camera_t *camera;
 
 
 int detail_level = 1;
@@ -2990,44 +2988,8 @@ void RGL_LoadLights(void)
 // firstly front to back (drawing all solid walls & planes) and then
 // from back to front (drawing everything else, sprites etc..).
 //
-void RGL_RenderTrueBSP(void)
+static void RGL_RenderTrueBSP(void)
 {
-	// compute the 1D projection of the view angle
-	angle_t oned_side_angle;
-	{
-		float k, d;
-
-		// k is just the mlook angle (in radians)
-		k = ANG_2_FLOAT(viewvertangle);
-		if (k > 180.0) k -= 360.0;
-		k = k * M_PI / 180.0f;
-
-		sprite_skew = tan((-k) / 2.0);
-
-		k = fabs(k);
-
-		// d is just the distance horizontally forward from the eye to
-		// the top/bottom edge of the view rectangle.
-		d = cos(k) - sin(k) * topslope;
-
-		oned_side_angle = (d <= 0.01f) ? ANG180 : M_ATan(leftslope / d);
-	}
-
-	// setup clip angles
-	if (oned_side_angle != ANG180)
-	{
-		clip_left  = 0 + oned_side_angle;
-		clip_right = 0 - oned_side_angle;
-		clip_scope = clip_left - clip_right;
-	}
-	else
-	{
-		// not clipping to the viewport.  Dummy values.
-		clip_scope = ANG180;
-		clip_left  = 0 + ANG45;
-		clip_right = 0 - ANG45;
-	}
-
 	// clear extra light on player's weapon
 	rgl_weapon_r = rgl_weapon_g = rgl_weapon_b = 0;
 
@@ -3086,12 +3048,51 @@ void RGL_RenderTrueBSP(void)
 }
 
 
-void R_Render(void)
+static void InitCamera(mobj_t *mo)
 {
-	// Load the details for the camera
-	// FIXME!! Organise camera handling 
-	if (camera)
-		R_CallCallbackList(camera->frame_start);
+	leftslope  = M_Tan(leftangle);
+	rightslope = M_Tan(rightangle);
+
+	float slopeoffset;
+
+	slopeoffset = M_Tan(FIELDOFVIEW / 2) * aspect_ratio;
+	slopeoffset = slopeoffset * viewwindow_h / viewwindow_w;
+	slopeoffset = slopeoffset * SCREENWIDTH / SCREENHEIGHT;
+
+	topslope    =  slopeoffset;
+	bottomslope = -slopeoffset;
+
+
+	viewx = mo->x;
+	viewy = mo->y;
+	viewz = mo->z;
+	viewangle = mo->angle;
+
+	if (mo->player)
+		viewz += mo->player->viewz;
+	else
+		viewz += mo->height * 9 / 10;
+
+	viewsubsector = mo->subsector;
+	viewvertangle = mo->vertangle;
+	view_props = R_PointGetProps(viewsubsector, viewz);
+
+	if (mo->player)
+	{
+		viewvertangle += M_ATan(mo->player->kick_offset);
+
+		if (! level_flags.mlook)
+			viewvertangle = 0;
+
+		// No heads above the ceiling
+		if (viewz > mo->player->mo->ceilingz - 2)
+			viewz = mo->player->mo->ceilingz - 2;
+
+		// No heads below the floor, please
+		if (viewz < mo->player->mo->floorz + 2)
+			viewz = mo->player->mo->floorz + 2;
+	}
+
 
 	// do some more stuff
 	viewsin = M_Sin(viewangle);
@@ -3113,6 +3114,58 @@ void R_Render(void)
 	viewright.y = viewforward.z * viewup.x - viewup.z * viewforward.x;
 	viewright.z = viewforward.x * viewup.y - viewup.x * viewforward.y;
 
+
+	// compute the 1D projection of the view angle
+	angle_t oned_side_angle;
+	{
+		float k, d;
+
+		// k is just the mlook angle (in radians)
+		k = ANG_2_FLOAT(viewvertangle);
+		if (k > 180.0) k -= 360.0;
+		k = k * M_PI / 180.0f;
+
+		sprite_skew = tan((-k) / 2.0);
+
+		k = fabs(k);
+
+		// d is just the distance horizontally forward from the eye to
+		// the top/bottom edge of the view rectangle.
+		d = cos(k) - sin(k) * topslope;
+
+		oned_side_angle = (d <= 0.01f) ? ANG180 : M_ATan(leftslope / d);
+	}
+
+	// setup clip angles
+	if (oned_side_angle != ANG180)
+	{
+		clip_left  = 0 + oned_side_angle;
+		clip_right = 0 - oned_side_angle;
+		clip_scope = clip_left - clip_right;
+	}
+	else
+	{
+		// not clipping to the viewport.  Dummy values.
+		clip_scope = ANG180;
+		clip_left  = 0 + ANG45;
+		clip_right = 0 - ANG45;
+	}
+}
+
+
+void R_Render(int x, int y, int w, int h)
+{
+	viewwindow_x = x;
+	viewwindow_y = y;
+	viewwindow_w = w;
+	viewwindow_h = h;
+
+
+	// Load the details for the camera
+	if (background_camera_mo)
+		InitCamera(background_camera_mo);
+	else
+		InitCamera(players[displayplayer]->mo);
 
 	// Profiling
 	framecount++;

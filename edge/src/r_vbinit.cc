@@ -82,6 +82,8 @@ void R_InitCamera_StdObject(camera_t * c, mobj_t * mo)
 	R_AddStartCallback(&c->frame_start, CameraFrameInit_StdObject, o, Z_Free);
 }
 
+
+
 static void CameraFrameInit_StdPlayer(void *data)
 {
 	camera_t *c = (camera_t*)data;
@@ -110,35 +112,9 @@ static void CameraFrameInit_StdPlayer(void *data)
 		viewz = player->mo->floorz + 2;
 }
 
-
 void R_InitCamera_StdPlayer(camera_t * c)
 {
 	R_AddStartCallback(&c->frame_start, CameraFrameInit_StdPlayer, c, NULL);
-}
-
-typedef struct
-{
-	angle_t offs;
-}
-camera_start_viewoffs_t;
-
-static void CameraFrameInit_ViewOffs(void *data)
-{
-	camera_start_viewoffs_t *o = (camera_start_viewoffs_t*)data;
-
-	viewangle += o->offs;
-}
-
-void R_InitCamera_ViewOffs(camera_t * c, angle_t offs)
-{
-	camera_start_viewoffs_t *data;
-
-	R_InitCamera_StdPlayer(c);
-
-	data = Z_New(camera_start_viewoffs_t, 1);
-	data->offs = offs;
-
-	R_AddStartCallback(&c->frame_start, CameraFrameInit_ViewOffs, data, Z_Free);
 }
 
 

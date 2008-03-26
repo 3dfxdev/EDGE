@@ -42,12 +42,10 @@ extern angle_t viewvertangle;
 extern subsector_t *viewsubsector;
 extern region_properties_t *view_props;
 
-extern int viewwidth;
-extern int viewheight;
-extern int viewwindowx;
-extern int viewwindowy;
-extern int viewwindowwidth;
-extern int viewwindowheight;
+extern int viewwindow_x;
+extern int viewwindow_y;
+extern int viewwindow_w;
+extern int viewwindow_h;
 
 extern vec3_t viewforward;
 extern vec3_t viewup;
@@ -61,9 +59,18 @@ extern int linecount;
 extern angle_t normalfov, zoomedfov;
 extern bool viewiszoomed;
 
-extern bool setsizeneeded;
-
 extern int framecount;
+
+extern struct mobj_s *background_camera_mo;
+
+extern angle_t rightangle;
+extern angle_t leftangle;
+extern angle_t FIELDOFVIEW;
+
+// The used aspect ratio. A normal texel will look aspect_ratio*4/3
+// times wider than high on the monitor
+#define aspect_ratio  (200.0f / 320.0f)
+
 
 //
 // Utility functions.
@@ -78,7 +85,7 @@ region_properties_t *R_PointGetProps(subsector_t *sub, float z);
 //
 
 // Renders the view for the next frame.
-void R_Render(void);
+void R_Render(int x, int y, int w, int h);
 
 // Called by startup code.
 void R_Init(void);

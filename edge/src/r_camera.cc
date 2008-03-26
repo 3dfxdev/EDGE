@@ -91,8 +91,8 @@ void camera_c::Recalculate()
 	horiz_slope = SideAng.Tan();
 
 	float aspect = ASPECT_RATIO *
-		(float(viewwindowheight) / SCREENHEIGHT) /
-		(float(viewwindowwidth)  / SCREENWIDTH);
+		(float(viewwindow_h) / SCREENHEIGHT) /
+		(float(viewwindow_w) / SCREENWIDTH);
 
 	vert_slope = horiz_slope * aspect;
 

@@ -46,8 +46,6 @@ int SCREENHEIGHT;
 int SCREENBITS;
 bool FULLSCREEN;
 
-extern bool setsizeneeded; // FIXME
-
 
 static std::vector<scrmode_c *> screen_modes;
 
@@ -294,8 +292,6 @@ void R_InitialResolution(void)
 {
 	L_WriteDebug("R_InitialResolution...\n");
 
-	setsizeneeded = true;  // need to re-init some stuff
-
 	scrmode_c mode;
 
 	mode.width  = SCREENWIDTH;
@@ -332,8 +328,6 @@ void R_InitialResolution(void)
 bool R_ChangeResolution(scrmode_c *mode)
 {
 	L_WriteDebug("R_ChangeResolution...\n");
-
-	setsizeneeded = true;  // need to re-init some stuff
 
     if (DoExecuteChangeResolution(mode))
 		return true;
