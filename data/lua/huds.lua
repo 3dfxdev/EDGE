@@ -226,17 +226,20 @@ function hud.draw_all()
   hud.scaling(320, 200)
   hud.text_color()
 
+  -- there are three possible huds
+  hud.which = hud.which % 3
+
   if hud.automap then
     hud.render_automap(0, 0, 320, 200-32)
-  elseif (hud.which % 3) == 1 then
+  elseif hud.which == 0 then
     hud.render_world(0, 0, 320, 200-32)
   else
     hud.render_world(0, 0, 320, 200)
   end
 
-  if hud.automap or (hud.which % 3) == 0 then
+  if hud.automap or hud.which == 0 then
     doom_status_bar()
-  elseif (hud.which % 3) == 2 then
+  elseif hud.which == 2 then
     overlay_status_bar()
   end
 
