@@ -223,22 +223,20 @@ end
 
 function hud.draw_all()
 
-  hud.mode = "normal" --!!!!!
-
   hud.scaling(320, 200)
   hud.text_color()
 
-  if hud.mode == "full" or hud.mode == "overlay" then
+  if hud.automap then
+    hud.render_automap(0, 0, 320, 200-32)
+  elseif (hud.which % 3) == 1 then
+    hud.render_world(0, 0, 320, 200-32)
+  else
     hud.render_world(0, 0, 320, 200)
-  elseif hud.mode == "normal" then
-    hud.render_world(0, 32, 320, 200-32)
-  elseif hud.mode == "automap" then
-    hud.render_automap(0, 32, 320, 200-32)
   end
 
-  if hud.mode == "normal" or hud.mode == "automap" then
+  if hud.automap or (hud.which % 3) == 0 then
     doom_status_bar()
-  elseif hud.mode == "overlay" then
+  elseif (hud.which % 3) == 2 then
     overlay_status_bar()
   end
 

@@ -22,6 +22,7 @@
 #include "ddf/main.h"
 #include "ddf/font.h"
 
+#include "dm_state.h"
 #include "e_main.h"
 #include "l_lua.h"
 #include "version.h"
@@ -68,7 +69,17 @@ static void FrameSetup(void)
 	lua_pop(HUD_ST, 1);
 
 
-	// TODO: setup some fields in 'hud' module
+	// setup some fields in 'hud' module
+
+	lua_getglobal(HUD_ST, "hud");
+
+	lua_pushinteger(HUD_ST, screen_hud);
+	lua_setfield(HUD_ST, -1, "which");
+
+	lua_pushboolean(HUD_ST, automapactive);
+	lua_setfield(HUD_ST, -1, "automap");
+
+	lua_pop(HUD_ST, 1);
 }
 
 
