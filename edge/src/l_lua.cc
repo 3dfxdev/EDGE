@@ -431,11 +431,44 @@ static int HD_render_automap(lua_State *L)
 }
 
 
+static const char * am_color_names[AM_NUM_COLORS] =
+{
+    "grid",     // AMCOL_Grid
+
+    "wall",     // AMCOL_Wall
+    "step",     // AMCOL_Step
+    "ledge",    // AMCOL_Ledge
+    "ceil",     // AMCOL_Ceil
+    "secret",   // AMCOL_Secret
+    "allmap",   // AMCOL_Allmap
+
+    "player",   // AMCOL_Player
+    "monster",  // AMCOL_Monster
+    "corpse",   // AMCOL_Corpse
+    "item",     // AMCOL_Item
+    "missile",  // AMCOL_Missile
+    "scenery"   // AMCOL_Scenery
+};
+
+
 // hud.automap_colors(table)
 //
 static int HD_automap_colors(lua_State *L)
 {
-	//... FIXME
+	if (! lua_istable(L, 1))
+		I_Error("hud.automap_colors() requires a table!\n");
+
+	for (int which = 0; which < AM_NUM_COLORS; which++)
+	{
+		lua_getfield(L, 1, am_color_names[which]);
+		
+		if (! lua_isnil(L, -1))
+		{
+			AM_SetColor(which, ParseColor(L, -1));
+		}
+
+		lua_pop(L, 1);
+	}
 
 	return 0;
 }
