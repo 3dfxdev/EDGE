@@ -29,6 +29,8 @@
 #include "dm_defs.h"
 #include "e_event.h"
 
+#include "ddf/types.h"
+
 //
 // Automap drawing structs
 //
@@ -59,6 +61,33 @@ void AM_Drawer(int x, int y, int w, int h);
 // Called to force the automap to quit
 // if the level is completed while it is up.
 void AM_Stop(void);
+
+
+// color setting API
+
+typedef enum
+{
+	AMCOL_Grid = 0,
+
+    AMCOL_Wall,
+    AMCOL_Step,
+    AMCOL_Ledge,
+    AMCOL_Ceil,
+    AMCOL_Secret,
+    AMCOL_Allmap,
+
+    AMCOL_Player,
+    AMCOL_Monster,
+    AMCOL_Corpse,
+    AMCOL_Item,
+    AMCOL_Missile,
+    AMCOL_Scenery,
+
+	AM_NUM_COLORS
+}
+automap_color_e;
+
+void AM_SetColor(int which, rgbcol_t color);
 
 #endif /* __AMMAP_H__ */
 

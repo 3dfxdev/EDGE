@@ -26,8 +26,6 @@
 #include "i_defs.h"
 #include "i_defs_gl.h"
 
-#include "r_automap.h"
-
 #include "con_cvar.h"
 #include "con_main.h"
 #include "e_input.h"
@@ -38,6 +36,7 @@
 #include "m_misc.h"
 #include "n_network.h"
 #include "p_local.h"
+#include "r_automap.h"
 #include "st_stuff.h"
 #include "r_draw.h"
 #include "r_colormap.h"
@@ -50,26 +49,43 @@
 #define DEBUG_TRUEBSP  0
 #define DEBUG_COLLIDE  0
 
-// Automap colours
+// Automap colors
 
-#define BACK_COL    (BLACK)
-#define YOUR_COL    (WHITE)
-#define WALL_COL    (RED)
-#define FLOOR_COL   (BROWN + BROWN_LEN/2)
-#define CEIL_COL    (YELLOW)
-#define REGION_COL  (BEIGE)
-#define TELE_COL    (RED + RED_LEN/2)
-#define SECRET_COL  (CYAN + CYAN_LEN/4)
-#define GRID_COL    (GRAY + GRAY_LEN*3/4)
-#define XHAIR_COL   (GRAY + GRAY_LEN/3)
-#define ALLMAP_COL  (GRAY + GRAY_LEN/2)
-#define MINI_COL    (BLUE + BLUE_LEN/2)
+static rgbcol_t am_colors[AM_NUM_COLORS] =
+{
+	RGB_MAKE( 64, 64, 64),  // AMCOL_Grid
 
-#define THING_COL   (BROWN + BROWN_LEN*2/3)
-#define MONST_COL   (GREEN + 2)
-#define DEAD_COL    (RED + 2)
-#define MISSL_COL   (ORANGE)
-#define ITEM_COL    (BLUE+1)
+    RGB_MAKE(255,255,  0),  // AMCOL_Wall
+    RGB_MAKE(255,255,  0),  // AMCOL_Step
+    RGB_MAKE(255,255,  0),  // AMCOL_Ledge
+    RGB_MAKE(255,255,  0),  // AMCOL_Ceil
+    RGB_MAKE(255,255,  0),  // AMCOL_Secret
+    RGB_MAKE(255,255,  0),  // AMCOL_Allmap
+
+    RGB_MAKE(255,255,255),  // AMCOL_Player
+    RGB_MAKE(255,255,255),  // AMCOL_Monster
+    RGB_MAKE(255,255,255),  // AMCOL_Corpse
+    RGB_MAKE(255,255,255),  // AMCOL_Item
+    RGB_MAKE(255,255,255),  // AMCOL_Missile
+    RGB_MAKE(255,255,255)   // AMCOL_Scenery
+};
+
+///---#define YOUR_COL    (WHITE)
+///---#define WALL_COL    (RED)
+///---#define FLOOR_COL   (BROWN + BROWN_LEN/2)
+///---#define CEIL_COL    (YELLOW)
+///---#define REGION_COL  (BEIGE)
+///---#define TELE_COL    (RED + RED_LEN/2)
+///---#define SECRET_COL  (CYAN + CYAN_LEN/4)
+///---#define GRID_COL    (GRAY + GRAY_LEN*3/4)
+///---#define ALLMAP_COL  (GRAY + GRAY_LEN/2)
+///---#define MINI_COL    (BLUE + BLUE_LEN/2)
+///---
+///---#define THING_COL   (BROWN + BROWN_LEN*2/3)
+///---#define MONST_COL   (GREEN + 2)
+///---#define DEAD_COL    (RED + 2)
+///---#define MISSL_COL   (ORANGE)
+///---#define ITEM_COL    (BLUE+1)
 
 // Automap keys
 // Ideally these would be configurable...
@@ -184,9 +200,6 @@ static bool bigstate = false;
 bool map_overlay = false;
 
 extern style_c *automap_style;  // FIXME: put in header
-
-// current am colourmap
-static const byte *am_colmap = NULL;
 
 
 //
@@ -585,14 +598,11 @@ static inline angle_t GetRotatedAngle(player_t *p, angle_t src)
 //
 // Draw visible parts of lines.
 //
-static void DrawMline(mline_t * ml, int colour)
+static void DrawMline(mline_t * ml, rgbcol_t rgb)
 {
 	int x1, y1, x2, y2;
 	int f_x2 = f_x + f_w - 1;
 	int f_y2 = f_y + f_h - 1;
-
-	SYS_ASSERT(am_colmap);
-	SYS_ASSERT(0 <= colour && colour <= 255);
 
 	// transform to frame-buffer coordinates.
 	x1 = CXMTOF(ml->a.x);
@@ -607,8 +617,6 @@ static void DrawMline(mline_t * ml, int colour)
 		return;
 	}
 
-	rgbcol_t rgb = V_LookupColour(colour);
-		
 	if (!var_smoothmap)
 	{
 		if (x1 == x2 or y1 == y2)
@@ -625,9 +633,11 @@ static void DrawMline(mline_t * ml, int colour)
 //
 // Draws flat (floor/ceiling tile) aligned grid lines.
 //
-static void DrawGrid(int colour)
+static void DrawGrid()
 {
 #if 0  // FIXME !!!!!!
+	int colour = AMCOL_Grid;
+
 	float x, y;
 	float start, end;
 	mline_t ml;
@@ -696,6 +706,7 @@ static bool CheckSimiliarRegions(sector_t *front, sector_t *back)
 	return (F || B) ? false : true;
 }
 
+
 //
 // Determines visible lines, draws them.
 //
@@ -718,7 +729,7 @@ static void AM_WalkSeg(seg_t *seg, player_t *p)
 		GetRotatedCoords(p,seg->v1->x, seg->v1->y, &l.a.x, &l.a.y);
 		GetRotatedCoords(p,seg->v2->x, seg->v2->y, &l.b.x, &l.b.y);
 
-		DrawMline(&l, MINI_COL);
+		DrawMline(&l, RGB_MAKE(0,0,128));
 #endif
 		return;
 	}
@@ -733,63 +744,63 @@ static void AM_WalkSeg(seg_t *seg, player_t *p)
 	GetRotatedCoords(p,seg->v1->x, seg->v1->y, &l.a.x, &l.a.y);
 	GetRotatedCoords(p,seg->v2->x, seg->v2->y, &l.b.x, &l.b.y);
 
-	if (cheating || (line->flags & MLF_Mapped))
+	if ((line->flags & MLF_Mapped) || cheating)
 	{
 		if ((line->flags & MLF_DontDraw) && !cheating)
 			return;
 
 		if (!front || !back)
 		{
-			DrawMline(&l, WALL_COL);
+			DrawMline(&l, am_colors[AMCOL_Wall]);
 		}
 		else
 		{
-			if (line->special && line->special->singlesided)
-			{  
-				// teleporters
-				DrawMline(&l, TELE_COL);
-			}
-			else if (line->flags & MLF_Secret)
+			if (line->flags & MLF_Secret)
 			{  
 				// secret door
 				if (cheating)
-					DrawMline(&l, SECRET_COL);
+					DrawMline(&l, am_colors[AMCOL_Secret]);
 				else
-					DrawMline(&l, WALL_COL);
+					DrawMline(&l, am_colors[AMCOL_Wall]);
 			}
 			else if (back->f_h != front->f_h)
 			{
+				float diff = fabs(back->f_h - front->f_h);
+
 				// floor level change
-				DrawMline(&l, FLOOR_COL);
+				if (diff > 24)
+					DrawMline(&l, am_colors[AMCOL_Ledge]);
+				else
+					DrawMline(&l, am_colors[AMCOL_Step]);
 			}
 			else if (back->c_h != front->c_h)
 			{
 				// ceiling level change
-				DrawMline(&l, CEIL_COL);
+				DrawMline(&l, am_colors[AMCOL_Ceil]);
 			}
 			else if ((front->exfloor_used > 0 || back->exfloor_used > 0) &&
 				(front->exfloor_used != back->exfloor_used ||
 				! CheckSimiliarRegions(front, back)))
 			{
 				// -AJA- 1999/10/09: extra floor change.
-				DrawMline(&l, REGION_COL);
+				DrawMline(&l, am_colors[AMCOL_Ledge]);
 			}
 			else if (cheating)
 			{
-				DrawMline(&l, ALLMAP_COL);
+				DrawMline(&l, am_colors[AMCOL_Allmap]);
 			}
 		}
 	}
 	else if (p->powers[PW_AllMap])
 	{
 		if (! (line->flags & MLF_DontDraw))
-			DrawMline(&l, ALLMAP_COL);
+			DrawMline(&l, am_colors[AMCOL_Allmap]);
 	}
 }
 
 
 static void DrawLineCharacter(player_t *p,mline_t *lineguy, int lineguylines, 
-							  float radius, angle_t angle, int colour, float x, float y)
+							  float radius, angle_t angle, rgbcol_t rgb, float x, float y)
 {
 	int i;
 	mline_t l;
@@ -821,12 +832,13 @@ static void DrawLineCharacter(player_t *p,mline_t *lineguy, int lineguylines,
 		l.b.x += ch_x;
 		l.b.y += ch_y;
 
-		DrawMline(&l, colour);
+		DrawMline(&l, rgb);
 	}
 }
 
+
 #if (DEBUG_COLLIDE == 1)
-static void DrawObjectBounds(player_t *p, mobj_t *mo, int colour)
+static void DrawObjectBounds(player_t *p, mobj_t *mo, rgbcol_t rgb)
 {
 	float R = mo->radius;
 
@@ -842,33 +854,33 @@ static void DrawObjectBounds(player_t *p, mobj_t *mo, int colour)
 
 	GetRotatedCoords(p, lx, ly, &ml.a.x, &ml.a.y);
 	GetRotatedCoords(p, lx, hy, &ml.b.x, &ml.b.y);
-	DrawMline(&ml, colour);
+	DrawMline(&ml, rgb);
 
 	GetRotatedCoords(p, lx, hy, &ml.a.x, &ml.a.y);
 	GetRotatedCoords(p, hx, hy, &ml.b.x, &ml.b.y);
-	DrawMline(&ml, colour);
+	DrawMline(&ml, rgb);
 
 	GetRotatedCoords(p, hx, hy, &ml.a.x, &ml.a.y);
 	GetRotatedCoords(p, hx, ly, &ml.b.x, &ml.b.y);
-	DrawMline(&ml, colour);
+	DrawMline(&ml, rgb);
 
 	GetRotatedCoords(p, hx, ly, &ml.a.x, &ml.a.y);
 	GetRotatedCoords(p, lx, ly, &ml.b.x, &ml.b.y);
-	DrawMline(&ml, colour);
+	DrawMline(&ml, rgb);
 }
 #endif
 
 
-static int player_colours[8] =
+static rgbcol_t player_colors[8] =
 {
-	GREEN,
-	GRAY + GRAY_LEN*2/3,
-	BROWN,
-	RED + RED_LEN/2,
-	ORANGE,
-	GRAY + GRAY_LEN*1/3,
-	RED,
-	PINK
+	RGB_MAKE(  5,255,  5),  // GREEN,
+	RGB_MAKE( 80, 80, 80),  // GRAY + GRAY_LEN*2/3,
+	RGB_MAKE(160,100, 50),  // BROWN,
+	RGB_MAKE(255,255,255),  // RED + RED_LEN/2,
+	RGB_MAKE(255,176,  5),  // ORANGE,
+	RGB_MAKE(170,170,170),  // GRAY + GRAY_LEN*1/3,
+	RGB_MAKE(255,  5,  5),  // RED,
+	RGB_MAKE(255,185,225),  // PINK
 };
 
 //
@@ -932,22 +944,20 @@ static mline_t thin_triangle_guy[] =
 
 static void AM_DrawPlayer(mobj_t *mo)
 {
-	int colour;
-
 	player_t *p = players[displayplayer];
 
 #if (DEBUG_COLLIDE == 1)
-	DrawObjectBounds(p, mo, YOUR_COL);
+	DrawObjectBounds(p, mo, am_colors[AMCOL_Player]);
 #endif
 
 	if (!netgame)
 	{
 		if (cheating)
 			DrawLineCharacter(p, cheat_player_arrow, NUMCHEATPLYRLINES, 
-				mo->radius, mo->angle, YOUR_COL, mo->x, mo->y);
+				mo->radius, mo->angle, am_colors[AMCOL_Player], mo->x, mo->y);
 		else
 			DrawLineCharacter(p, player_arrow, NUMPLYRLINES, 
-				mo->radius, mo->angle, YOUR_COL, mo->x, mo->y);
+				mo->radius, mo->angle, am_colors[AMCOL_Player], mo->x, mo->y);
 
 		return;
 	}
@@ -957,18 +967,16 @@ static void AM_DrawPlayer(mobj_t *mo)
 		return;
 #endif
 
-	if (mo->player->powers[PW_PartInvis])
-		colour = (GRAY + GRAY_LEN*3/4);
-	else
-		colour = player_colours[mo->player->pnum & 0x07];
-
 	DrawLineCharacter(p, player_arrow, NUMPLYRLINES, 
-		mo->radius, mo->angle, colour, mo->x, mo->y);
+		mo->radius, mo->angle,
+		player_colors[mo->player->pnum & 0x07],
+		mo->x, mo->y);
 }
+
 
 static void AM_WalkThing(mobj_t *mo)
 {
-	int colour = THING_COL;
+	int index = AMCOL_Scenery;
 
 	if (mo->player && mo->player->mo == mo)
 	{
@@ -980,25 +988,23 @@ static void AM_WalkThing(mobj_t *mo)
 		return;
 
 	// -AJA- more colourful things
-	if ((mo->flags & MF_FUZZY) || mo->visibility < 0.1f)
-		colour = (GRAY + GRAY_LEN*3/4);
-	else if (mo->flags & MF_SPECIAL)
-		colour = ITEM_COL;
+	if (mo->flags & MF_SPECIAL)
+		index = AMCOL_Item;
 	else if (mo->flags & MF_MISSILE)
-		colour = MISSL_COL;
+		index = AMCOL_Missile;
 	else if (mo->extendedflags & EF_MONSTER && mo->health <= 0)
-		colour = DEAD_COL;
+		index = AMCOL_Corpse;
 	else if (mo->extendedflags & EF_MONSTER)
-		colour = MONST_COL;
+		index = AMCOL_Monster;
 
 #if (DEBUG_COLLIDE == 1)
-	DrawObjectBounds(players[displayplayer], mo, colour);
+	DrawObjectBounds(players[displayplayer], mo, am_colors[index]);
 	return;
 #endif
 
 	DrawLineCharacter(players[displayplayer],
 		thin_triangle_guy, NUMTHINTRIANGLEGUYLINES,
-		mo->radius, mo->angle, colour, mo->x, mo->y);
+		mo->radius, mo->angle, am_colors[index], mo->x, mo->y);
 }
 
 
@@ -1154,27 +1160,20 @@ void AM_Drawer(int x, int y, int w, int h)
 
 	SYS_ASSERT(automap_style);
 
-	if (automapactive == 1)
-		am_colmap = am_overlay_colmap;
-
-	if (automapactive == 2)
-	{
-		am_colmap = am_normal_colmap;
-
-		// clear the framebuffer
-		automap_style->DrawBackground(f_x, f_y, f_w, f_h);
-	}
-
 	if (grid && !rotatemap)
-		DrawGrid(GRID_COL);
+		DrawGrid();
 
 	AM_RenderScene();
 
 	DrawMarks();
+}
 
-#ifdef DEVELOPERS
-	am_colmap = NULL;
-#endif
+
+void AM_SetColor(int which, rgbcol_t color)
+{
+	SYS_ASSERT(0 <= which && which < AM_NUM_COLORS);
+
+	am_colors[which] = color;
 }
 
 //--- editor settings ---
