@@ -255,6 +255,9 @@ static int HD_solid_box(lua_State *L)
 	int w = luaL_checkint(L, 3);
 	int h = luaL_checkint(L, 4);
 
+	w = FROM_320(w); h = FROM_200(h);
+	x = FROM_320(x); y = SCREENHEIGHT - FROM_200(y) - h;
+
 	rgbcol_t col = ParseColor(L, 5);
 
 	float alpha = 1.0;  // FIXME
@@ -273,6 +276,9 @@ static int HD_solid_line(lua_State *L)
 	int y1 = luaL_checkint(L, 2);
 	int x2 = luaL_checkint(L, 3);
 	int y2 = luaL_checkint(L, 4);
+
+	x1 = FROM_320(x1); y1 = SCREENHEIGHT - FROM_200(y1);
+	x2 = FROM_320(x2); y2 = SCREENHEIGHT - FROM_200(y2);
 
 	rgbcol_t col = ParseColor(L, 5);
 
