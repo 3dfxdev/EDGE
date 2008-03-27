@@ -143,6 +143,9 @@ void RGL_SolidBox(int x, int y, int w, int h, rgbcol_t col, float alpha)
 
 void RGL_SolidLine(int x1, int y1, int x2, int y2, rgbcol_t col, float alpha)
 {
+	if (alpha < 0.99f)
+		glEnable(GL_BLEND);
+  
 	glColor4f(RGB_RED(col)/255.0, RGB_GRN(col)/255.0, RGB_BLU(col)/255.0, alpha);
   
 	glBegin(GL_LINES);
@@ -151,6 +154,7 @@ void RGL_SolidLine(int x1, int y1, int x2, int y2, rgbcol_t col, float alpha)
 	glVertex2i(x2, y2);
   
 	glEnd();
+	glDisable(GL_BLEND);
 }
 
 
