@@ -1,5 +1,12 @@
 Andrew Apted's Log
 
+2008/03/27:
+
+More LUA hud work.  Implemented changeable automap colors.
+Implemented hud.set_alpha() and hud.set_scale(), but they don't
+work on images yet.  Added hud.thin_box() and hud.gradient_box()
+functions.
+
 2008/03/26:
 
 Worked on LUA huds.  Internally the screen_hud value will range
@@ -18,6 +25,8 @@ status bar, so you see more of it without the bar, however in
 EDGE the weapon gets vertically squished when the status bar is
 shown.  As I don't want to get brutally clubbed to death by a
 hundred angry weapon modders, I'm not going to fix this :-).
+
+Began work on large cleanup of the Automap code.
 
 2008/03/16:
 
