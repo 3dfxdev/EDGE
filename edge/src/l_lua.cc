@@ -93,7 +93,7 @@ static void FrameSetup(void)
 }
 
 
-static void DoWriteText(int x, int y, const char *str)
+static void DoWriteText(float x, float y, const char *str)
 {
 	float cx = x;
 	float cy = y;
@@ -118,7 +118,7 @@ static void DoWriteText(int x, int y, const char *str)
 	}
 }
 
-static void DoWriteText_RightAlign(int x, int y, const char *str)
+static void DoWriteText_RightAlign(float x, float y, const char *str)
 {
 	float cx = x;
 	float cy = y;
@@ -249,91 +249,6 @@ static int HD_map_title(lua_State *L)
 }
 
 
-// hud.solid_box(x, y, w, h, color [,alpha])
-//
-static int HD_solid_box(lua_State *L)
-{
-	int x = luaL_checkint(L, 1);
-	int y = luaL_checkint(L, 2);
-	int w = luaL_checkint(L, 3);
-	int h = luaL_checkint(L, 4);
-
-	w = FROM_320(w); h = FROM_200(h);
-	x = FROM_320(x); y = SCREENHEIGHT - FROM_200(y) - h;
-
-	rgbcol_t rgb = ParseColor(L, 5);
-
-	RGL_SolidBox(x, y, w, h, rgb, cur_alpha);
-
-	return 0;
-}
-
-
-// hud.solid_line(x1, y1, x2, y2, color [,alpha])
-//
-static int HD_solid_line(lua_State *L)
-{
-	int x1 = luaL_checkint(L, 1);
-	int y1 = luaL_checkint(L, 2);
-	int x2 = luaL_checkint(L, 3);
-	int y2 = luaL_checkint(L, 4);
-
-	x1 = FROM_320(x1); y1 = SCREENHEIGHT - FROM_200(y1);
-	x2 = FROM_320(x2); y2 = SCREENHEIGHT - FROM_200(y2);
-
-	rgbcol_t rgb = ParseColor(L, 5);
-
-	RGL_SolidLine(x1, y1, x2, y2, rgb, cur_alpha);
-
-	return 0;
-}
-
-
-// hud.thin_box(x, y, w, h, color)
-//
-static int HD_thin_box(lua_State *L)
-{
-	int x = luaL_checkint(L, 1);
-	int y = luaL_checkint(L, 2);
-	int w = luaL_checkint(L, 3);
-	int h = luaL_checkint(L, 4);
-
-	w = FROM_320(w); h = FROM_200(h);
-	x = FROM_320(x); y = SCREENHEIGHT - FROM_200(y) - h;
-
-	rgbcol_t rgb = ParseColor(L, 5);
-
-	RGL_ThinBox(x, y, w, h, rgb, cur_alpha);
-
-	return 0;
-}
-
-
-// hud.gradient_box(x, y, w, h, TL, BL, TR, BR)
-//
-static int HD_gradient_box(lua_State *L)
-{
-	int x = luaL_checkint(L, 1);
-	int y = luaL_checkint(L, 2);
-	int w = luaL_checkint(L, 3);
-	int h = luaL_checkint(L, 4);
-
-	w = FROM_320(w); h = FROM_200(h);
-	x = FROM_320(x); y = SCREENHEIGHT - FROM_200(y) - h;
-
-	rgbcol_t cols[4];
-
-	cols[0] = ParseColor(L, 5);
-	cols[1] = ParseColor(L, 6);
-	cols[2] = ParseColor(L, 7);
-	cols[3] = ParseColor(L, 8);
-
-	RGL_GradientBox(x, y, w, h, cols, cur_alpha);
-
-	return 0;
-}
-
-
 // hud.text_font(name)
 //
 static int HD_text_font(lua_State *L)
@@ -383,22 +298,185 @@ static int HD_set_alpha(lua_State *L)
 }
 
 
+// hud.solid_box(x, y, w, h, color [,alpha])
+//
+static int HD_solid_box(lua_State *L)
+{
+	float x = luaL_checknumber(L, 1);
+	float y = luaL_checknumber(L, 2);
+	float w = luaL_checknumber(L, 3);
+	float h = luaL_checknumber(L, 4);
+
+	w = FROM_320(w); h = FROM_200(h);
+	x = FROM_320(x); y = SCREENHEIGHT - FROM_200(y) - h;
+
+	rgbcol_t rgb = ParseColor(L, 5);
+
+	RGL_SolidBox((int)x, (int)y, I_ROUND(w), I_ROUND(h), rgb, cur_alpha);
+
+	return 0;
+}
+
+
+// hud.solid_line(x1, y1, x2, y2, color [,alpha])
+//
+static int HD_solid_line(lua_State *L)
+{
+	float x1 = luaL_checknumber(L, 1);
+	float y1 = luaL_checknumber(L, 2);
+	float x2 = luaL_checknumber(L, 3);
+	float y2 = luaL_checknumber(L, 4);
+
+	x1 = FROM_320(x1); y1 = SCREENHEIGHT - FROM_200(y1);
+	x2 = FROM_320(x2); y2 = SCREENHEIGHT - FROM_200(y2);
+
+	rgbcol_t rgb = ParseColor(L, 5);
+
+	RGL_SolidLine((int)x1, (int)y1, (int)x2, (int)y2, rgb, cur_alpha);
+
+	return 0;
+}
+
+
+// hud.thin_box(x, y, w, h, color)
+//
+static int HD_thin_box(lua_State *L)
+{
+	float x = luaL_checknumber(L, 1);
+	float y = luaL_checknumber(L, 2);
+	float w = luaL_checknumber(L, 3);
+	float h = luaL_checknumber(L, 4);
+
+	w = FROM_320(w); h = FROM_200(h);
+	x = FROM_320(x); y = SCREENHEIGHT - FROM_200(y) - h;
+
+	rgbcol_t rgb = ParseColor(L, 5);
+
+	RGL_ThinBox((int)x, (int)y, I_ROUND(w), I_ROUND(h), rgb, cur_alpha);
+
+	return 0;
+}
+
+
+// hud.gradient_box(x, y, w, h, TL, BL, TR, BR)
+//
+static int HD_gradient_box(lua_State *L)
+{
+	float x = luaL_checknumber(L, 1);
+	float y = luaL_checknumber(L, 2);
+	float w = luaL_checknumber(L, 3);
+	float h = luaL_checknumber(L, 4);
+
+	w = FROM_320(w); h = FROM_200(h);
+	x = FROM_320(x); y = SCREENHEIGHT - FROM_200(y) - h;
+
+	rgbcol_t cols[4];
+
+	cols[0] = ParseColor(L, 5);
+	cols[1] = ParseColor(L, 6);
+	cols[2] = ParseColor(L, 7);
+	cols[3] = ParseColor(L, 8);
+
+	RGL_GradientBox((int)x, (int)y, I_ROUND(w), I_ROUND(h), cols, cur_alpha);
+
+	return 0;
+}
+
+
 // hud.draw_image(x, y, name)
 //
 static int HD_draw_image(lua_State *L)
 {
-	int x = luaL_checkint(L, 1);
-	int y = luaL_checkint(L, 2);
+	float x = luaL_checknumber(L, 1);
+	float y = luaL_checknumber(L, 2);
 
 	const char *name = luaL_checkstring(L, 3);
-
-	// FIXME: alpha
-	// FIXME: cur_scale
 
 	const image_c *img = W_ImageLookup(name, INS_Graphic);
 	if (img)
 	{
-		RGL_ImageEasy320(x, y, img);
+		x -= IM_OFFSETX(img);
+		y -= IM_OFFSETY(img);
+
+		float w = IM_WIDTH(img);
+		float h = IM_HEIGHT(img);
+
+		w *= cur_scale;
+		h *= cur_scale;
+
+		w = FROM_320(w); h = FROM_200(h);
+		x = FROM_320(x); y = SCREENHEIGHT - FROM_200(y) - h;
+
+		RGL_DrawImage(x, y, w, h, img,
+		              0, 0, IM_RIGHT(img), IM_TOP(img),
+					  NULL, cur_alpha);
+	}
+
+	return 0;
+}
+
+
+// hud.stretch_image(x, y, w, h, name)
+//
+static int HD_stretch_image(lua_State *L)
+{
+	float x = luaL_checknumber(L, 1);
+	float y = luaL_checknumber(L, 2);
+	float w = luaL_checknumber(L, 3);
+	float h = luaL_checknumber(L, 4);
+
+	const char *name = luaL_checkstring(L, 5);
+
+	const image_c *img = W_ImageLookup(name, INS_Graphic);
+	if (img)
+	{
+		w = FROM_320(w); h = FROM_200(h);
+		x = FROM_320(x); y = SCREENHEIGHT - FROM_200(y) - h;
+
+		RGL_DrawImage(x, y, w, h, img,
+		              0, 0, IM_RIGHT(img), IM_TOP(img),
+					  NULL, cur_alpha);
+	}
+
+	return 0;
+}
+
+
+// hud.tile_image(x, y, w, h, name, [x_offset, y_offset])
+//
+static int HD_tile_image(lua_State *L)
+{
+	float x = luaL_checknumber(L, 1);
+	float y = luaL_checknumber(L, 2);
+	float w = luaL_checknumber(L, 3);
+	float h = luaL_checknumber(L, 4);
+
+	const char *name = luaL_checkstring(L, 5);
+
+	float offset_x = 0;
+	float offset_y = 0;
+
+	if (lua_isnumber(L, 6))
+		offset_x = lua_tonumber(L, 6);
+
+	if (lua_isnumber(L, 7))
+		offset_y = lua_tonumber(L, 7);
+
+	const image_c *img = W_ImageLookup(name, INS_Texture);
+	if (img)
+	{
+		w = FROM_320(w); h = FROM_200(h);
+		x = FROM_320(x); y = SCREENHEIGHT - FROM_200(y) - h;
+
+		float tx_scale = w / IM_TOTAL_WIDTH(img)  / cur_scale;
+		float ty_scale = h / IM_TOTAL_HEIGHT(img) / cur_scale;
+
+		RGL_DrawImage(x, y, w, h, img,
+		              (offset_x) * tx_scale,
+					  (offset_y) * ty_scale,
+					  (offset_x + 1) * tx_scale,
+					  (offset_y + 1) * ty_scale,
+					  NULL, cur_alpha);
 	}
 
 	return 0;
@@ -409,8 +487,8 @@ static int HD_draw_image(lua_State *L)
 //
 static int HD_draw_text(lua_State *L)
 {
-	int x = luaL_checkint(L, 1);
-	int y = luaL_checkint(L, 2);
+	float x = luaL_checknumber(L, 1);
+	float y = luaL_checknumber(L, 2);
 
 	const char *str = luaL_checkstring(L, 3);
 
@@ -424,8 +502,9 @@ static int HD_draw_text(lua_State *L)
 //
 static int HD_draw_num2(lua_State *L)
 {
-	int x   = luaL_checkint(L, 1);
-	int y   = luaL_checkint(L, 2);
+	float x = luaL_checknumber(L, 1);
+	float y = luaL_checknumber(L, 2);
+
 	int len = luaL_checkint(L, 3);
 	int num = luaL_checkint(L, 4);
 
@@ -469,15 +548,15 @@ static int HD_draw_num2(lua_State *L)
 //
 static int HD_render_world(lua_State *L)
 {
-	int x = luaL_checkint(L, 1);
-	int y = luaL_checkint(L, 2);
-	int w = luaL_checkint(L, 3);
-	int h = luaL_checkint(L, 4);
+	float x = luaL_checknumber(L, 1);
+	float y = luaL_checknumber(L, 2);
+	float w = luaL_checknumber(L, 3);
+	float h = luaL_checknumber(L, 4);
 
 	x = FROM_320(x); y = FROM_200(y);
 	w = FROM_320(w); h = FROM_200(h);
 
- 	R_Render(x, SCREENHEIGHT-(y+h), w, h);
+ 	R_Render((int)x, SCREENHEIGHT-(int)(y+h), I_ROUND(w), I_ROUND(h));
 
 	return 0;
 }
@@ -487,15 +566,15 @@ static int HD_render_world(lua_State *L)
 //
 static int HD_render_automap(lua_State *L)
 {
-	int x = luaL_checkint(L, 1);
-	int y = luaL_checkint(L, 2);
-	int w = luaL_checkint(L, 3);
-	int h = luaL_checkint(L, 4);
+	float x = luaL_checknumber(L, 1);
+	float y = luaL_checknumber(L, 2);
+	float w = luaL_checknumber(L, 3);
+	float h = luaL_checknumber(L, 4);
 
 	x = FROM_320(x); y = FROM_200(y);
 	w = FROM_320(w); h = FROM_200(h);
 
- 	AM_Drawer(x, SCREENHEIGHT-(y+h), w, h);
+ 	AM_Drawer((int)x, SCREENHEIGHT-(int)(y+h), I_ROUND(w), I_ROUND(h));
 
 	return 0;
 }
@@ -567,6 +646,8 @@ static const luaL_Reg hud_module[] =
     { "gradient_box",    HD_gradient_box },
 
     { "draw_image",      HD_draw_image  },
+    { "stretch_image",   HD_stretch_image },
+    { "tile_image",      HD_tile_image  },
     { "draw_text",       HD_draw_text   },
     { "draw_num2",       HD_draw_num2   },
 
