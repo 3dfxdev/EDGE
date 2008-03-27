@@ -195,12 +195,12 @@ void RGL_GradientBox(int x, int y, int w, int h, rgbcol_t *cols, float alpha)
   
 	glBegin(GL_QUADS);
 
-	glColor4f(RGB_RED(cols[0])/255.0, RGB_GRN(cols[0])/255.0,
-	          RGB_BLU(cols[0])/255.0, alpha);
-	glVertex2i(x, y);
-
 	glColor4f(RGB_RED(cols[1])/255.0, RGB_GRN(cols[1])/255.0,
 	          RGB_BLU(cols[1])/255.0, alpha);
+	glVertex2i(x, y);
+
+	glColor4f(RGB_RED(cols[0])/255.0, RGB_GRN(cols[0])/255.0,
+	          RGB_BLU(cols[0])/255.0, alpha);
 	glVertex2i(x, y+h);
 
 	glColor4f(RGB_RED(cols[2])/255.0, RGB_GRN(cols[2])/255.0,

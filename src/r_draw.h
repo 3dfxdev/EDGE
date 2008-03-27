@@ -59,7 +59,7 @@ void RGL_SolidLine(int x1, int y1, int x2, int y2, rgbcol_t col, float alpha = 1
 // Draw a thin outline of a box.
 void RGL_ThinBox(int x, int y, int w, int h, rgbcol_t col, float alpha = 1.0);
 
-// Like RGL_SolidBox but the colors of each corner (BL, TL, TR, BR) can
+// Like RGL_SolidBox but the colors of each corner (TL, BL, TR, BR) can
 // be specified individually.
 void RGL_GradientBox(int x, int y, int w, int h, rgbcol_t *cols, float alpha = 1.0);
 
