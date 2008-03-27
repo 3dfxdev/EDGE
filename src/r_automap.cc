@@ -53,9 +53,9 @@
 
 static rgbcol_t am_colors[AM_NUM_COLORS] =
 {
-	RGB_MAKE( 64, 64, 64),  // AMCOL_Grid
+	RGB_MAKE(  0,  0,255),  // AMCOL_Grid
 
-    RGB_MAKE(255,255,  0),  // AMCOL_Wall
+    RGB_MAKE(255,  0,  0),  // AMCOL_Wall
     RGB_MAKE(255,255,  0),  // AMCOL_Step
     RGB_MAKE(255,255,  0),  // AMCOL_Ledge
     RGB_MAKE(255,255,  0),  // AMCOL_Ceil
@@ -63,11 +63,11 @@ static rgbcol_t am_colors[AM_NUM_COLORS] =
     RGB_MAKE(255,255,  0),  // AMCOL_Allmap
 
     RGB_MAKE(255,255,255),  // AMCOL_Player
-    RGB_MAKE(255,255,255),  // AMCOL_Monster
-    RGB_MAKE(255,255,255),  // AMCOL_Corpse
-    RGB_MAKE(255,255,255),  // AMCOL_Item
-    RGB_MAKE(255,255,255),  // AMCOL_Missile
-    RGB_MAKE(255,255,255)   // AMCOL_Scenery
+    RGB_MAKE(  0,255,  0),  // AMCOL_Monster
+    RGB_MAKE(  0,255,  0),  // AMCOL_Corpse
+    RGB_MAKE(  0,255,  0),  // AMCOL_Item
+    RGB_MAKE(  0,255,  0),  // AMCOL_Missile
+    RGB_MAKE(  0,255,  0)   // AMCOL_Scenery
 };
 
 ///---#define YOUR_COL    (WHITE)
