@@ -46,6 +46,8 @@ static player_t *cur_player = NULL;
 
 static font_c *cur_font = NULL;
 static colourmap_c *cur_colmap = NULL;
+static float cur_scale;
+static float cur_alpha;
 
 
 extern std::string w_map_title;
@@ -60,6 +62,8 @@ static void FrameSetup(void)
 	SYS_ASSERT(cur_font);
 
 	cur_colmap = NULL;
+	cur_scale  = 1.0f;
+	cur_alpha  = 1.0f;
 
 	cur_player = players[displayplayer];
 
@@ -83,14 +87,14 @@ static void FrameSetup(void)
 	lua_pushboolean(HUD_ST, automapactive);
 	lua_setfield(HUD_ST, -2, "automap");
 
+	// TODO: game_time, passed_time
+
 	lua_pop(HUD_ST, 1);
 }
 
 
 static void DoWriteText(int x, int y, const char *str)
 {
-	float scale = 1.0f;
-
 	float cx = x;
 	float cy = y;
 
@@ -101,23 +105,21 @@ static void DoWriteText(int x, int y, const char *str)
 		if (ch == '\n')
 		{
 			cx = x;
-			cy += 12.0f * scale;  // FIXME: use font's height
+			cy += 12.0f * cur_scale;  // FIXME: use font's height
 			continue;
 		}
 
 		if (cx >= 320.0f)
 			continue;
 
-		cur_font->DrawChar(cx, cy, ch, scale,1.0f, cur_colmap, 1.0f);
+		cur_font->DrawChar(cx, cy, ch, cur_scale,1.0f, cur_colmap, cur_alpha);
 
-		cx += cur_font->CharWidth(ch) * scale;
+		cx += cur_font->CharWidth(ch) * cur_scale;
 	}
 }
 
 static void DoWriteText_RightAlign(int x, int y, const char *str)
 {
-	float scale = 1.0f;
-
 	float cx = x;
 	float cy = y;
 
@@ -128,16 +130,16 @@ static void DoWriteText_RightAlign(int x, int y, const char *str)
 		if (ch == '\n')
 		{
 			cx = x;
-			cy += 12.0f * scale;  // FIXME: use font's height
+			cy += 12.0f * cur_scale;  // FIXME: use font's height
 			continue;
 		}
 
 		if (cx >= 320.0f)
 			continue;
 
-		cx -= cur_font->CharWidth(ch) * scale;
+		cx -= cur_font->CharWidth(ch) * cur_scale;
 
-		cur_font->DrawChar(cx, cy, ch, scale,1.0f, cur_colmap, 1.0f);
+		cur_font->DrawChar(cx, cy, ch, cur_scale,1.0f, cur_colmap, cur_alpha);
 	}
 }
 
@@ -153,7 +155,8 @@ static rgbcol_t ParseColor(lua_State *L, int index)
 	{
 		const char *name = lua_tostring(L, index);
 
-		// FIXME: validate!!
+		if (name[0] != '#')
+			I_Error("Bad color in lua script (missing #) : %s\n", name);
 
 		return (rgbcol_t) strtol(name+1, NULL, 16);
 	}
@@ -206,15 +209,15 @@ static int HD_raw_debug_print(lua_State *L)
 }
 
 
-// hud.scaling(w, h)
+// hud.coord_sys(w, h)
 //
-static int HD_scaling(lua_State *L)
+static int HD_coord_sys(lua_State *L)
 {
 	int w = luaL_checkint(L, 1);
 	int h = luaL_checkint(L, 2);
 
-	if (w <= 80 || h <= 80)
-		I_Error("Bad hud.scaling size: %dx%d\n", w, h);
+	if (w <= 80 || h <= 50)
+		I_Error("Bad hud.coord_sys size: %dx%d\n", w, h);
 
 	//... FIXME
 
@@ -258,11 +261,9 @@ static int HD_solid_box(lua_State *L)
 	w = FROM_320(w); h = FROM_200(h);
 	x = FROM_320(x); y = SCREENHEIGHT - FROM_200(y) - h;
 
-	rgbcol_t col = ParseColor(L, 5);
+	rgbcol_t rgb = ParseColor(L, 5);
 
-	float alpha = 1.0;  // FIXME
-
-	RGL_SolidBox(x, y, w, h, col, alpha);
+	RGL_SolidBox(x, y, w, h, rgb, cur_alpha);
 
 	return 0;
 }
@@ -280,11 +281,54 @@ static int HD_solid_line(lua_State *L)
 	x1 = FROM_320(x1); y1 = SCREENHEIGHT - FROM_200(y1);
 	x2 = FROM_320(x2); y2 = SCREENHEIGHT - FROM_200(y2);
 
-	rgbcol_t col = ParseColor(L, 5);
+	rgbcol_t rgb = ParseColor(L, 5);
 
-	float alpha = 1.0;  // FIXME
+	RGL_SolidLine(x1, y1, x2, y2, rgb, cur_alpha);
 
-	RGL_SolidLine(x1, y1, x2, y2, col, alpha);
+	return 0;
+}
+
+
+// hud.thin_box(x, y, w, h, color)
+//
+static int HD_thin_box(lua_State *L)
+{
+	int x = luaL_checkint(L, 1);
+	int y = luaL_checkint(L, 2);
+	int w = luaL_checkint(L, 3);
+	int h = luaL_checkint(L, 4);
+
+	w = FROM_320(w); h = FROM_200(h);
+	x = FROM_320(x); y = SCREENHEIGHT - FROM_200(y) - h;
+
+	rgbcol_t rgb = ParseColor(L, 5);
+
+	RGL_ThinBox(x, y, w, h, rgb, cur_alpha);
+
+	return 0;
+}
+
+
+// hud.gradient_box(x, y, w, h, TL, TR, BL, BR)
+//
+static int HD_gradient_box(lua_State *L)
+{
+	int x = luaL_checkint(L, 1);
+	int y = luaL_checkint(L, 2);
+	int w = luaL_checkint(L, 3);
+	int h = luaL_checkint(L, 4);
+
+	w = FROM_320(w); h = FROM_200(h);
+	x = FROM_320(x); y = SCREENHEIGHT - FROM_200(y) - h;
+
+	rgbcol_t cols[4];
+
+	cols[1] = ParseColor(L, 5);
+	cols[0] = ParseColor(L, 6);
+	cols[3] = ParseColor(L, 7);
+	cols[2] = ParseColor(L, 8);
+
+	RGL_GradientBox(x, y, w, h, cols, cur_alpha);
 
 	return 0;
 }
@@ -316,6 +360,29 @@ static int HD_text_color(lua_State *L)
 }
 
 
+// hud.set_scale(value)
+//
+static int HD_set_scale(lua_State *L)
+{
+	cur_scale = luaL_checknumber(L, 1);
+
+	if (cur_scale <= 0)
+		I_Error("hud.set_scale: Bad scale value: %1.3f\n", cur_scale);
+
+	return 0;
+}
+
+
+// hud.set_alpha(value)
+//
+static int HD_set_alpha(lua_State *L)
+{
+	cur_alpha = luaL_checknumber(L, 1);
+
+	return 0;
+}
+
+
 // hud.draw_image(x, y, name)
 //
 static int HD_draw_image(lua_State *L)
@@ -324,6 +391,9 @@ static int HD_draw_image(lua_State *L)
 	int y = luaL_checkint(L, 2);
 
 	const char *name = luaL_checkstring(L, 3);
+
+	// FIXME: alpha
+	// FIXME: cur_scale
 
 	const image_c *img = W_ImageLookup(name, INS_Graphic);
 	if (img)
@@ -474,8 +544,6 @@ static int HD_automap_colors(lua_State *L)
 }
 
 
-
-
 static const luaL_Reg hud_module[] =
 {
 	{ "raw_debug_print", HD_raw_debug_print },
@@ -485,14 +553,19 @@ static const luaL_Reg hud_module[] =
     { "map_title",  	 HD_map_title },
 
 	// set-state functions
-    { "scaling",         HD_scaling     },
+    { "coord_sys",       HD_coord_sys   },
     { "text_font",       HD_text_font   },
     { "text_color",      HD_text_color  },
+    { "set_scale",       HD_set_scale   },
+    { "set_alpha",       HD_set_alpha   },
     { "automap_colors",  HD_automap_colors },
 
 	// drawing functions
     { "solid_box",       HD_solid_box   },
     { "solid_line",      HD_solid_line  },
+    { "thin_box",        HD_thin_box    },
+    { "gradient_box",    HD_gradient_box },
+
     { "draw_image",      HD_draw_image  },
     { "draw_text",       HD_draw_text   },
     { "draw_num2",       HD_draw_num2   },
