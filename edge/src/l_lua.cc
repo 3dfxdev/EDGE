@@ -309,7 +309,7 @@ static int HD_thin_box(lua_State *L)
 }
 
 
-// hud.gradient_box(x, y, w, h, TL, TR, BL, BR)
+// hud.gradient_box(x, y, w, h, TL, BL, TR, BR)
 //
 static int HD_gradient_box(lua_State *L)
 {
@@ -323,10 +323,10 @@ static int HD_gradient_box(lua_State *L)
 
 	rgbcol_t cols[4];
 
-	cols[1] = ParseColor(L, 5);
-	cols[0] = ParseColor(L, 6);
-	cols[3] = ParseColor(L, 7);
-	cols[2] = ParseColor(L, 8);
+	cols[0] = ParseColor(L, 5);
+	cols[1] = ParseColor(L, 6);
+	cols[2] = ParseColor(L, 7);
+	cols[3] = ParseColor(L, 8);
 
 	RGL_GradientBox(x, y, w, h, cols, cur_alpha);
 
