@@ -158,6 +158,64 @@ void RGL_SolidLine(int x1, int y1, int x2, int y2, rgbcol_t col, float alpha)
 }
 
 
+void RGL_ThinBox(int x, int y, int w, int h, rgbcol_t col, float alpha)
+{
+	if (alpha < 0.99f)
+		glEnable(GL_BLEND);
+  
+	glColor4f(RGB_RED(col)/255.0, RGB_GRN(col)/255.0, RGB_BLU(col)/255.0, alpha);
+  
+	glBegin(GL_QUADS);
+	glVertex2i(x,   y);   glVertex2i(x,   y+h);
+	glVertex2i(x+2, y+h); glVertex2i(x+2, y);
+	glEnd();
+
+	glBegin(GL_QUADS);
+	glVertex2i(x+w-2, y);   glVertex2i(x+w-2, y+h);
+	glVertex2i(x+w,   y+h); glVertex2i(x+w,   y);
+	glEnd();
+
+	glBegin(GL_QUADS);
+	glVertex2i(x+2,   y);   glVertex2i(x+2,   y+2);
+	glVertex2i(x+w-2, y+2); glVertex2i(x+w-2, y);
+	glEnd();
+
+	glBegin(GL_QUADS);
+	glVertex2i(x+2,   y+h-2); glVertex2i(x+2,   y+h);
+	glVertex2i(x+w-2, y+h);   glVertex2i(x+w-2, y+h-2);
+	glEnd();
+
+	glDisable(GL_BLEND);
+}
+
+void RGL_GradientBox(int x, int y, int w, int h, rgbcol_t *cols, float alpha)
+{
+	if (alpha < 0.99f)
+		glEnable(GL_BLEND);
+  
+	glBegin(GL_QUADS);
+
+	glColor4f(RGB_RED(cols[0])/255.0, RGB_GRN(cols[0])/255.0,
+	          RGB_BLU(cols[0])/255.0, alpha);
+	glVertex2i(x, y);
+
+	glColor4f(RGB_RED(cols[1])/255.0, RGB_GRN(cols[1])/255.0,
+	          RGB_BLU(cols[1])/255.0, alpha);
+	glVertex2i(x, y+h);
+
+	glColor4f(RGB_RED(cols[2])/255.0, RGB_GRN(cols[2])/255.0,
+	          RGB_BLU(cols[2])/255.0, alpha);
+	glVertex2i(x+w, y+h);
+
+	glColor4f(RGB_RED(cols[3])/255.0, RGB_GRN(cols[3])/255.0,
+	          RGB_BLU(cols[3])/255.0, alpha);
+	glVertex2i(x+w, y);
+  
+	glEnd();
+	glDisable(GL_BLEND);
+}
+
+
 void RGL_ReadScreen(int x, int y, int w, int h, byte *rgb_buffer)
 {
 	glFlush();
