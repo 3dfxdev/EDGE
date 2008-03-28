@@ -1,5 +1,13 @@
 Andrew Apted's Log
 
+2008/03/28:
+
+Added more LUA hud functions, especially in the 'player' module,
+such as player.air_in_lungs(), needed to draw the air bar, and a
+whole swag like player.is_crouching().  Also implemented the
+player.set_who() function, which controls which player we are
+getting info from, plus is used for render_world() too!
+
 2008/03/27:
 
 More LUA hud work.  Implemented changeable automap colors.
