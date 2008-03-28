@@ -38,6 +38,7 @@
 #include "e_main.h"
 #include "f_finale.h"
 #include "g_game.h"
+#include "l_lua.h"
 #include "m_cheat.h"
 #include "m_menu.h"
 #include "m_random.h"
@@ -241,7 +242,7 @@ void G_DoLoadLevel(void)
 	players[consoleplayer]->viewz = FLO_UNUSED;
 
 	leveltime = 0;
-
+	
 	P_SetupLevel();
 
 	RAD_SpawnTriggers(currmap->ddf.name.c_str());
@@ -249,6 +250,8 @@ void G_DoLoadLevel(void)
 	starttime = I_GetTime();
 	exittime = INT_MAX;
 	exit_skipall = false;
+
+	LU_BeginLevel();
 
 	BOT_BeginLevel();
 

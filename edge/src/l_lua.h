@@ -24,6 +24,7 @@ void LU_Close(void);
 
 void LU_LoadScripts(void);
 
+void LU_BeginLevel(void);
 void LU_RunHud(void);
 
 #endif // __L_LUA_H__
