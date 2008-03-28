@@ -751,7 +751,8 @@ void RAD_ActChangeTex(rad_trigger_t *R, mobj_t *actor, void *param)
 
 	if (ctex->what == CHTEX_Sky)
 	{
-		sky_image = image;
+		if (image)
+			sky_image = image;
 		return;
 	}
 
