@@ -132,8 +132,6 @@ static rgbcol_t am_colors[AM_NUM_COLORS] =
 static int cheating = 0;
 static int grid = 0;
 
-static int leveljuststarted = 1;  // kludge until LevelInit() is called
-
 int automapactive = 0;
 
 
@@ -144,6 +142,8 @@ static int f_w, f_h;
 // scale value which makes the whole map fit into the on-screen area
 // (multiplying map coords by this value).
 static float f_scale;
+
+static mobj_t *f_focus;
 
 
 // location on map which the map is centred on
@@ -238,6 +238,9 @@ static void FindMinMaxBoundaries(void)
 	float map_h = map_max_y - map_min_y;
 
 	map_size = MAX(map_w, map_h);
+
+	m_cx = (map_min_x + map_max_x) / 2.0;
+	m_cy = (map_min_y + map_max_y) / 2.0;
 }
 
 
@@ -259,9 +262,9 @@ static void ClearMarks(void)
 static void LevelInit(void)
 {
 	if (!cheat_amap.sequence)
+	{
 		cheat_amap.sequence = language["iddt"];
-
-	leveljuststarted = 0;
+	}
 
 	ClearMarks();
 
@@ -312,14 +315,9 @@ static void AM_Show(void)
 	///	AM_Stop();
 		return;
 
-
 	LevelInit();
 
-	player_t *p = players[displayplayer];
-
 	stopped = false;
-
-	SYS_ASSERT(p);
 
 	if (map_overlay == true)
 		automapactive = 1;
@@ -330,10 +328,6 @@ static void AM_Show(void)
 	panning_y = 0;
 	zooming   = -1;
 	bigstate  = false;
-
-	m_cx = p->mo->x;
-	m_cy = p->mo->y;
-
 }
 
 
@@ -528,14 +522,7 @@ void AM_Ticker(void)
 		return;
 
 	// Change x,y location
-	if (followplayer)
-	{
-		player_t *p = players[displayplayer];
-
-		m_cx = p->mo->x;
-		m_cy = p->mo->y;
-	}
-	else
+	if (! followplayer)
 	{
 		m_cx += panning_x;
 		m_cy += panning_y;
@@ -567,8 +554,7 @@ static inline void Rotate(float * x, float * y, angle_t a)
 	*y = new_y;
 }
 
-static inline void GetRotatedCoords(player_t *p, float sx, float sy,
-									float *dx, float *dy)
+static inline void GetRotatedCoords(float sx, float sy, float *dx, float *dy)
 {
 	*dx = sx;
 	*dy = sy;
@@ -576,20 +562,20 @@ static inline void GetRotatedCoords(player_t *p, float sx, float sy,
 	if (rotatemap)
 	{
 		// rotate coordinates so they are on the map correctly
-		*dx -= p->mo->x;
-		*dy -= p->mo->y;
+		*dx -= f_focus->x;
+		*dy -= f_focus->y;
 
-		Rotate(dx, dy, ANG90 - p->mo->angle);
+		Rotate(dx, dy, ANG90 - f_focus->angle);
 
-		*dx += p->mo->x;
-		*dy += p->mo->y;
+		*dx += f_focus->x;
+		*dy += f_focus->y;
 	}
 }
 
-static inline angle_t GetRotatedAngle(player_t *p, angle_t src)
+static inline angle_t GetRotatedAngle(angle_t src)
 {
 	if (rotatemap)
-		return src + ANG90 - p->mo->angle;
+		return src + ANG90 - f_focus->angle;
 
 	return src;
 }
@@ -712,7 +698,7 @@ static bool CheckSimiliarRegions(sector_t *front, sector_t *back)
 //
 // -AJA- This is now *lineseg* based, not linedef.
 //
-static void AM_WalkSeg(seg_t *seg, player_t *p)
+static void AM_WalkSeg(seg_t *seg)
 {
 	mline_t l;
 	line_t *line;
@@ -726,8 +712,8 @@ static void AM_WalkSeg(seg_t *seg, player_t *p)
 		if (seg->partner && seg > seg->partner)
 			return;
 
-		GetRotatedCoords(p,seg->v1->x, seg->v1->y, &l.a.x, &l.a.y);
-		GetRotatedCoords(p,seg->v2->x, seg->v2->y, &l.b.x, &l.b.y);
+		GetRotatedCoords(seg->v1->x, seg->v1->y, &l.a.x, &l.a.y);
+		GetRotatedCoords(seg->v2->x, seg->v2->y, &l.b.x, &l.b.y);
 
 		DrawMline(&l, RGB_MAKE(0,0,128));
 #endif
@@ -741,8 +727,8 @@ static void AM_WalkSeg(seg_t *seg, player_t *p)
 	if (line->side[1] == seg->sidedef)
 		return;
 
-	GetRotatedCoords(p,seg->v1->x, seg->v1->y, &l.a.x, &l.a.y);
-	GetRotatedCoords(p,seg->v2->x, seg->v2->y, &l.b.x, &l.b.y);
+	GetRotatedCoords(seg->v1->x, seg->v1->y, &l.a.x, &l.a.y);
+	GetRotatedCoords(seg->v2->x, seg->v2->y, &l.b.x, &l.b.y);
 
 	if ((line->flags & MLF_Mapped) || cheating)
 	{
@@ -791,7 +777,7 @@ static void AM_WalkSeg(seg_t *seg, player_t *p)
 			}
 		}
 	}
-	else if (p->powers[PW_AllMap])
+	else if (f_focus->player && f_focus->player->powers[PW_AllMap] != 0)
 	{
 		if (! (line->flags & MLF_DontDraw))
 			DrawMline(&l, am_colors[AMCOL_Allmap]);
@@ -799,8 +785,9 @@ static void AM_WalkSeg(seg_t *seg, player_t *p)
 }
 
 
-static void DrawLineCharacter(player_t *p,mline_t *lineguy, int lineguylines, 
-							  float radius, angle_t angle, rgbcol_t rgb, float x, float y)
+static void DrawLineCharacter(mline_t *lineguy, int lineguylines, 
+							  float radius, angle_t angle,
+							  rgbcol_t rgb, float x, float y)
 {
 	int i;
 	mline_t l;
@@ -809,8 +796,9 @@ static void DrawLineCharacter(player_t *p,mline_t *lineguy, int lineguylines,
 	if (radius < 2)
 		radius = 2;
 
-	GetRotatedCoords(p,x, y, &ch_x, &ch_y);
-	angle = GetRotatedAngle(p,angle);
+	GetRotatedCoords(x, y, &ch_x, &ch_y);
+
+	angle = GetRotatedAngle(angle);
 
 	for (i = 0; i < lineguylines; i++)
 	{
@@ -838,7 +826,7 @@ static void DrawLineCharacter(player_t *p,mline_t *lineguy, int lineguylines,
 
 
 #if (DEBUG_COLLIDE == 1)
-static void DrawObjectBounds(player_t *p, mobj_t *mo, rgbcol_t rgb)
+static void DrawObjectBounds(mobj_t *mo, rgbcol_t rgb)
 {
 	float R = mo->radius;
 
@@ -852,20 +840,20 @@ static void DrawObjectBounds(player_t *p, mobj_t *mo, rgbcol_t rgb)
 
 	mline_t ml;
 
-	GetRotatedCoords(p, lx, ly, &ml.a.x, &ml.a.y);
-	GetRotatedCoords(p, lx, hy, &ml.b.x, &ml.b.y);
+	GetRotatedCoords(lx, ly, &ml.a.x, &ml.a.y);
+	GetRotatedCoords(lx, hy, &ml.b.x, &ml.b.y);
 	DrawMline(&ml, rgb);
 
-	GetRotatedCoords(p, lx, hy, &ml.a.x, &ml.a.y);
-	GetRotatedCoords(p, hx, hy, &ml.b.x, &ml.b.y);
+	GetRotatedCoords(lx, hy, &ml.a.x, &ml.a.y);
+	GetRotatedCoords(hx, hy, &ml.b.x, &ml.b.y);
 	DrawMline(&ml, rgb);
 
-	GetRotatedCoords(p, hx, hy, &ml.a.x, &ml.a.y);
-	GetRotatedCoords(p, hx, ly, &ml.b.x, &ml.b.y);
+	GetRotatedCoords(hx, hy, &ml.a.x, &ml.a.y);
+	GetRotatedCoords(hx, ly, &ml.b.x, &ml.b.y);
 	DrawMline(&ml, rgb);
 
-	GetRotatedCoords(p, hx, ly, &ml.a.x, &ml.a.y);
-	GetRotatedCoords(p, lx, ly, &ml.b.x, &ml.b.y);
+	GetRotatedCoords(hx, ly, &ml.a.x, &ml.a.y);
+	GetRotatedCoords(lx, ly, &ml.b.x, &ml.b.y);
 	DrawMline(&ml, rgb);
 }
 #endif
@@ -944,20 +932,20 @@ static mline_t thin_triangle_guy[] =
 
 static void AM_DrawPlayer(mobj_t *mo)
 {
-	player_t *p = players[displayplayer];
-
 #if (DEBUG_COLLIDE == 1)
-	DrawObjectBounds(p, mo, am_colors[AMCOL_Player]);
+	DrawObjectBounds(mo, am_colors[AMCOL_Player]);
 #endif
 
 	if (!netgame)
 	{
 		if (cheating)
-			DrawLineCharacter(p, cheat_player_arrow, NUMCHEATPLYRLINES, 
-				mo->radius, mo->angle, am_colors[AMCOL_Player], mo->x, mo->y);
+			DrawLineCharacter(cheat_player_arrow, NUMCHEATPLYRLINES, 
+				mo->radius, mo->angle,
+				am_colors[AMCOL_Player], mo->x, mo->y);
 		else
-			DrawLineCharacter(p, player_arrow, NUMPLYRLINES, 
-				mo->radius, mo->angle, am_colors[AMCOL_Player], mo->x, mo->y);
+			DrawLineCharacter(player_arrow, NUMPLYRLINES, 
+				mo->radius, mo->angle,
+				am_colors[AMCOL_Player], mo->x, mo->y);
 
 		return;
 	}
@@ -967,7 +955,7 @@ static void AM_DrawPlayer(mobj_t *mo)
 		return;
 #endif
 
-	DrawLineCharacter(p, player_arrow, NUMPLYRLINES, 
+	DrawLineCharacter(player_arrow, NUMPLYRLINES, 
 		mo->radius, mo->angle,
 		player_colors[mo->player->pnum & 0x07],
 		mo->x, mo->y);
@@ -998,11 +986,11 @@ static void AM_WalkThing(mobj_t *mo)
 		index = AMCOL_Monster;
 
 #if (DEBUG_COLLIDE == 1)
-	DrawObjectBounds(players[displayplayer], mo, am_colors[index]);
+	DrawObjectBounds(mo, am_colors[index]);
 	return;
 #endif
 
-	DrawLineCharacter(players[displayplayer],
+	DrawLineCharacter(
 		thin_triangle_guy, NUMTHINTRIANGLEGUYLINES,
 		mo->radius, mo->angle, am_colors[index], mo->x, mo->y);
 }
@@ -1018,7 +1006,7 @@ static void AM_WalkSubsector(unsigned int num)
 	// handle each seg
 	for (seg_t *seg = sub->segs; seg; seg = seg->sub_next)
 	{
-		AM_WalkSeg(seg, players[displayplayer]);
+		AM_WalkSeg(seg);
 	}
 
 	// handle each thing
@@ -1146,7 +1134,7 @@ static void AM_RenderScene(void)
 }
 
 
-void AM_Drawer(int x, int y, int w, int h)
+void AM_Drawer(int x, int y, int w, int h, mobj_t *focus)
 {
 	if (!automapactive)
 		return;
@@ -1157,6 +1145,13 @@ void AM_Drawer(int x, int y, int w, int h)
 	f_h = h;
 
 	f_scale = MAX(f_w, f_h) / map_size / 2.0f;
+	f_focus = focus;
+
+	if (followplayer)
+	{
+		m_cx = f_focus->x;
+		m_cy = f_focus->y;
+	}
 
 	SYS_ASSERT(automap_style);
 
