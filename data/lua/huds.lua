@@ -4,7 +4,9 @@
 --  Under the GNU General Public License.
 --------------------------------------------
 
-face_count = 1
+face_time = 0
+face_image = "STFST01"
+
 
 function doom_weapon_icon(slot, x, y, off_pic, on_pic)
   if player.has_weapon_slot(slot) then
@@ -49,21 +51,37 @@ function doomguy_face(x, y)
   end
 
 
-  -- FIXME faceback too
+  local function select_new_face()
 
-  x = x-1
-  y = y-1
+    -- dead ?
+    if player.health() <= 0 then
+      face_image = "STFDEAD0"
+      face_time  = 10
+      return
+    end
 
-	-- dead ?
-	if player.health() <= 0 then
+    -- evil grin when player just picked up a weapon
+    if player.is_grinning() then
+      face_image = "STFEVL" .. pain_digit()
+      face_time  = 7
+      return
+    end
 
-    hud.draw_image(x, y, "STFDEAD0")
-    return
-	end
+    -- rampaging?
+    if player.is_rampaging() then
+      face_image = "STFKILL" .. pain_digit()
+      face_time  = 7
+      return
+    end
+
+  -- god mode?
+  -- if player.has_power("invuln") or player.has_cheat("god") then
+  --   face_image = "STFGOD0"
+  --
 
 
-
-  hud.draw_image(x, y, "STFST" .. pain_digit() .. "1")
+    face_image = "STFST" .. pain_digit() .. "1"
+    face_time  = 17
 
 --[[
 {
@@ -73,9 +91,9 @@ function doomguy_face(x, y)
 	angle_t badguyangle;
 	angle_t diffang;
 
-	if (p->face_count > 0)
+	if (p->face_time > 0)
 	{
-		p->face_count--;
+		p->face_time--;
 		return;
 	}
 
@@ -83,7 +101,7 @@ function doomguy_face(x, y)
 	if (p->grin_count)
 	{
 		p->face_index = ST_CalcPainOffset(p) + ST_EVILGRINOFFSET;
-		face_count = 7;
+		face_time = 7;
 		return;
 	}
 
@@ -93,7 +111,7 @@ function doomguy_face(x, y)
 		if ((p->old_health - p->health) > ST_MUCHPAIN)
 		{
 			p->face_index = ST_CalcPainOffset(p) + ST_OUCHOFFSET;
-			face_count = 1*TICRATE;
+			face_time = 1*TICRATE;
 			return;
 		}
 
@@ -103,7 +121,7 @@ function doomguy_face(x, y)
 		diffang = badguyangle - p->mo->angle;
 
 		p->face_index = ST_CalcPainOffset(p);
-		face_count = 1*TICRATE;
+		face_time = 1*TICRATE;
 
 		if (diffang < ANG45 || diffang > ANG315 ||
 			(diffang > ANG135 && diffang < ANG225))
@@ -130,12 +148,12 @@ function doomguy_face(x, y)
 		if ((p->old_health - p->health) > ST_MUCHPAIN)
 		{
 			p->face_index = ST_CalcPainOffset(p) + ST_OUCHOFFSET;
-			face_count = 1*TICRATE;
+			face_time = 1*TICRATE;
 			return;
 		}
 
 		p->face_index = ST_CalcPainOffset(p) + ST_RAMPAGEOFFSET;
-		face_count = 1*TICRATE;
+		face_time = 1*TICRATE;
 		return;
 	}
 
@@ -143,7 +161,7 @@ function doomguy_face(x, y)
 	if (p->attackdown_count > ST_RAMPAGEDELAY)
 	{
 		p->face_index = ST_CalcPainOffset(p) + ST_RAMPAGEOFFSET;
-		face_count = 7;
+		face_time = 7;
 		return;
 	}
 
@@ -151,14 +169,29 @@ function doomguy_face(x, y)
 	if ((p->cheats & CF_GODMODE) || p->powers[PW_Invulnerable] > 0)
 	{
 		p->face_index = ST_GODFACE;
-		face_count = 7;
+		face_time = 7;
 		return;
 	}
 
 	// default: look about the place...
 	p->face_index = ST_CalcPainOffset(p) + (M_Random() % 3);
-	face_count = int(TICRATE/2);
+	face_time = int(TICRATE/2);
 --]]
+  end
+
+
+  face_time = face_time - hud.passed_time
+
+  if face_time <= 0 then
+    select_new_face()
+  end
+
+  -- FIXME faceback
+
+  x = x-1
+  y = y-1
+
+  hud.draw_image(x, y, face_image)
 end
 
 
@@ -170,15 +203,9 @@ function doom_status_bar()
 
   hud.text_font("BIG_DIGIT")
 
-  hud.draw_num2(44, 171, 3, player.cur_ammo(1));
-  hud.draw_num2(90, 171, 3, player.health());
-
-  local armor = 0
-  for i = 1,5 do
-    armor = math.max(armor, player.armor(i))
-  end
-
-  hud.draw_num2(221, 171, 3, armor)
+  hud.draw_num2( 44, 171, 3, player.main_ammo(1));
+  hud.draw_num2( 90, 171, 3, player.health());
+  hud.draw_num2(221, 171, 3, player.total_armor())
 
   if hud.game_mode() == "dm" then
 
@@ -223,6 +250,7 @@ end
 
 function doom_automap()
 
+--[[ 
   hud.automap_colors(
   {
     grid    = "#006666",
@@ -241,20 +269,40 @@ function doom_automap()
     missile = "#FFBB00",
     scenery = "#773311",
   })
+--]]
 
-  hud.solid_box(0, 0, 320, 200-32, "#505050")
+  -- Background is already black, only need to use 'solid_box'
+  -- when we want a different color.
+  --
+  -- hud.solid_box(0, 0, 320, 200-32, "#505050")
+
   hud.render_automap(0, 0, 320, 200-32)
 
-  hud.draw_text(0, 200-32-10, hud.map_title())
   doom_status_bar()
+
+  hud.text_font("DOOM")
+  hud.draw_text(0, 200-32-10, hud.map_title())
+end
+
+
+function edge_air_bar()
+  if player.health() <= 0 or not player.under_water() then
+    return
+  end
+
+  local air = player.air_in_lungs()
+
+  air = int(1 + 21 * (air / 100.1))
+
+  local bar_name = string.format("AIRBAR%02d", air)
+
+  hud.draw_image(0, 0, bar_name)
 end
 
 
 function hud.draw_all()
 
-  hud.scaling(320, 200)
-  hud.text_color()
-  hud.text_font("DOOM")
+  hud.coord_sys(320, 200)
 
   if hud.automap then
     doom_automap()
@@ -276,6 +324,6 @@ function hud.draw_all()
     doom_overlay_status()
   end
 
-  -- TODO: air bar
+  edge_air_bar()
 end
 
