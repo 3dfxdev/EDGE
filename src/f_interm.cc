@@ -1394,7 +1394,7 @@ void WI_Drawer(void)
 
 	if (background_camera_mo)
 	{
-		R_Render(0, 0, SCREENWIDTH, SCREENHEIGHT);
+		R_Render(0, 0, SCREENWIDTH, SCREENHEIGHT, background_camera_mo);
 	} 
 	else
 	{
