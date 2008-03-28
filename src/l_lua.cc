@@ -572,7 +572,7 @@ static int HD_render_world(lua_State *L)
 	x = FROM_320(x); y = FROM_200(y);
 	w = FROM_320(w); h = FROM_200(h);
 
- 	R_Render((int)x, SCREENHEIGHT-(int)(y+h), I_ROUND(w), I_ROUND(h));
+ 	R_Render((int)x, SCREENHEIGHT-(int)(y+h), I_ROUND(w), I_ROUND(h), cur_player->mo);
 
 	return 0;
 }
@@ -590,7 +590,7 @@ static int HD_render_automap(lua_State *L)
 	x = FROM_320(x); y = FROM_200(y);
 	w = FROM_320(w); h = FROM_200(h);
 
- 	AM_Drawer((int)x, SCREENHEIGHT-(int)(y+h), I_ROUND(w), I_ROUND(h));
+ 	AM_Drawer((int)x, SCREENHEIGHT-(int)(y+h), I_ROUND(w), I_ROUND(h), cur_player->mo);
 
 	return 0;
 }
