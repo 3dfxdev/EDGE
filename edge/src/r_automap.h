@@ -26,10 +26,11 @@
 #ifndef __AMMAP_H__
 #define __AMMAP_H__
 
+#include "ddf/types.h"
+
 #include "dm_defs.h"
 #include "e_event.h"
-
-#include "ddf/types.h"
+#include "p_mobj.h"
 
 //
 // Automap drawing structs
