@@ -85,7 +85,7 @@ region_properties_t *R_PointGetProps(subsector_t *sub, float z);
 //
 
 // Renders the view for the next frame.
-void R_Render(int x, int y, int w, int h);
+void R_Render(int x, int y, int w, int h, mobj_t *camera);
 
 // Called by startup code.
 void R_Init(void);

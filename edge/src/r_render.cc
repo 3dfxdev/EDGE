@@ -3153,7 +3153,7 @@ static void InitCamera(mobj_t *mo)
 }
 
 
-void R_Render(int x, int y, int w, int h)
+void R_Render(int x, int y, int w, int h, mobj_t *camera)
 {
 	viewwindow_x = x;
 	viewwindow_y = y;
@@ -3162,10 +3162,7 @@ void R_Render(int x, int y, int w, int h)
 
 
 	// Load the details for the camera
-	if (background_camera_mo)
-		InitCamera(background_camera_mo);
-	else
-		InitCamera(players[displayplayer]->mo);
+	InitCamera(camera);
 
 	// Profiling
 	framecount++;
