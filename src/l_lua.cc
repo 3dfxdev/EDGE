@@ -796,6 +796,15 @@ static int PL_is_rampaging(lua_State *L)
 }
 
 
+// player.is_grinning()
+//
+static int PL_is_grinning(lua_State *L)
+{
+	lua_pushboolean(L, (cur_player->grin_count > 0) ? 1 : 0);
+	return 1;
+}
+
+
 // player.is_using()
 //
 static int PL_is_using(lua_State *L)
@@ -945,6 +954,7 @@ static const luaL_Reg player_module[] =
     { "is_using",        PL_is_using      },
     { "is_attacking",    PL_is_attacking  },
     { "is_rampaging",    PL_is_rampaging  },
+    { "is_grinning",     PL_is_grinning   },
 
     { "under_water",     PL_under_water   },
     { "on_ground",       PL_on_ground     },
