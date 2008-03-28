@@ -679,15 +679,53 @@ static const luaL_Reg hud_module[] =
 //------------------------------------------------------------------------
 
 
-// player.set_who(pnum)
+// player.num_players()
+//
+static int PL_num_players(lua_State *L)
+{
+	lua_pushinteger(L, numplayers);
+	return 1;
+}
+
+
+// player.set_who(index)
 //
 static int PL_set_who(lua_State *L)
 {
-	int pnum = luaL_checkint(L, 1);
+	int index = luaL_checkint(L, 1);
 
-	//... FIXME
+	if (index < 0 || index >= numplayers)
+		I_Error("player.set_who: bad index value: %d (numplayers=%d)\n", index, numplayers);
+
+	if (index == 0)
+	{
+		cur_player = players[consoleplayer];
+		return 0;
+	}
+
+	int who = displayplayer;
+
+	for (; index > 1; index--)
+	{
+		do
+		{
+			who = (who + 1) % MAXPLAYERS;
+		}
+		while (players[who] == NULL);
+	}
+
+	cur_player = players[who];
 
 	return 0;
+}
+
+
+// player.is_bot()
+//
+static int PL_is_bot(lua_State *L)
+{
+	lua_pushboolean(L, (cur_player->playerflags & PFL_Bot) ? 1 : 0);
+	return 1;
 }
 
 
@@ -938,7 +976,9 @@ static int PL_main_ammo(lua_State *L)
 
 static const luaL_Reg player_module[] =
 {
+	{ "num_players", PL_num_players },
 	{ "set_who",     PL_set_who },
+    { "is_bot",      PL_is_bot  },
 
     { "health",      PL_health      },
     { "armor",       PL_armor       },
