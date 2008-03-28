@@ -723,6 +723,98 @@ static int PL_frags(lua_State *L)
 }
 
 
+// player.under_water()
+//
+static int PL_under_water(lua_State *L)
+{
+	lua_pushboolean(L, cur_player->underwater ? 1 : 0);
+	return 1;
+}
+
+
+// player.on_ground()
+//
+static int PL_on_ground(lua_State *L)
+{
+	lua_pushboolean(L, (cur_player->mo->z <= cur_player->mo->floorz) ? 1 : 0);
+	return 1;
+}
+
+
+// player.is_swimming()
+//
+static int PL_is_swimming(lua_State *L)
+{
+	lua_pushboolean(L, cur_player->swimming ? 1 : 0);
+	return 1;
+}
+
+
+// player.is_jumping()
+//
+static int PL_is_jumping(lua_State *L)
+{
+	lua_pushboolean(L, (cur_player->jumpwait > 0) ? 1 : 0);
+	return 1;
+}
+
+
+// player.is_crouching()
+//
+static int PL_is_crouching(lua_State *L)
+{
+	lua_pushboolean(L, (cur_player->mo->extendedflags & EF_CROUCHING) ? 1 : 0);
+	return 1;
+}
+
+
+// player.is_attacking()
+//
+static int PL_is_attacking(lua_State *L)
+{
+	lua_pushboolean(L, (cur_player->attackdown[0] ||
+	                    cur_player->attackdown[1]) ? 1 : 0);
+	return 1;
+}
+
+
+// player.is_rampaging()
+//
+static int PL_is_rampaging(lua_State *L)
+{
+	lua_pushboolean(L, (cur_player->attackdown_count >= 70) ? 1 : 0);
+	return 1;
+}
+
+
+// player.is_using()
+//
+static int PL_is_using(lua_State *L)
+{
+	lua_pushboolean(L, cur_player->usedown ? 1 : 0);
+	return 1;
+}
+
+
+// player.move_speed()
+//
+static int PL_move_speed(lua_State *L)
+{
+	lua_pushnumber(L, cur_player->actual_speed)
+	return 1;
+}
+
+
+// player.air_in_lungs()
+//
+static int PL_air_in_lungs(lua_State *L)
+{
+	@@@
+	lua_pushnumber(L, air_in_lungs);
+	return 1;
+}
+
+
 // player.has_key(key)
 //
 static int PL_has_key(lua_State *L)
@@ -783,37 +875,30 @@ static int PL_ammomax(lua_State *L)
 }
 
 
-// player.cur_ammo(clip)
+// player.main_ammo(clip)
 //
-static int PL_cur_ammo(lua_State *L)
+static int PL_main_ammo(lua_State *L)
 {
-	int clip = luaL_checkint(L, 1);
-
-	if (clip < 1 || clip > 2)
-		I_Error("player.cur_ammo: bad clip number: %d\n", clip);
-
-	clip--;
-
 	int value = 0;
 
 	if (cur_player->ready_wp >= 0)
 	{
 		playerweapon_t *pw = &cur_player->weapons[cur_player->ready_wp];
 
-		if (pw->info->ammo[clip] != AM_NoAmmo)
+		if (pw->info->ammo[0] != AM_NoAmmo)
 		{
 			if (pw->info->show_clip)
 			{
-				SYS_ASSERT(pw->info->ammopershot[clip] > 0);
+				SYS_ASSERT(pw->info->ammopershot[0] > 0);
 
-				value = pw->clip_size[clip] / pw->info->ammopershot[clip];
+				value = pw->clip_size[0] / pw->info->ammopershot[0];
 			}
 			else
 			{
-				value = cur_player->ammo[pw->info->ammo[clip]].num;
+				value = cur_player->ammo[pw->info->ammo[0]].num;
 
-				if (pw->info->clip_size[clip] > 0)
-					value += pw->clip_size[clip];
+				if (pw->info->clip_size[0] > 0)
+					value += pw->clip_size[0];
 			}
 		}
 	}
@@ -825,16 +910,27 @@ static int PL_cur_ammo(lua_State *L)
 
 static const luaL_Reg player_module[] =
 {
-	{ "set_who",   PL_set_who },
-    { "health",    PL_health  },
-    { "armor",     PL_armor   },
-    { "frags",     PL_frags   },
+	{ "set_who",     PL_set_who },
 
-    { "has_key",      PL_has_key  },
+    { "health",      PL_health      },
+    { "armor",       PL_armor       },
+    { "total_armor", PL_total_armor },
+    { "frags",       PL_frags       },
+    { "ammo",        PL_ammo        },
+    { "ammomax",     PL_ammomax     },
+    { "main_ammo",   PL_main_ammo   },
+
+    { "is_swimming",     PL_is_swimming   },
+    { "is_jumping",      PL_is_jumping    },
+    { "is_crouching",    PL_is_crouching  },
+    { "is_using",        PL_is_using      },
+    { "is_attacking",    PL_is_attacking  },
+    { "is_rampaging",    PL_is_rampaging  },
+    { "under_water",     PL_under_water   },
+    { "on_ground",       PL_on_ground     },
+
+    { "has_key",         PL_has_key  },
     { "has_weapon_slot", PL_has_weapon_slot },
-    { "ammo",         PL_ammo     },
-    { "ammomax",      PL_ammomax  },
-    { "cur_ammo",     PL_cur_ammo },
 
 	{ NULL, NULL } // the end
 };
