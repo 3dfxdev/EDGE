@@ -53,7 +53,7 @@
 
 static rgbcol_t am_colors[AM_NUM_COLORS] =
 {
-	RGB_MAKE(112,112,112),  // AMCOL_Grid
+	RGB_MAKE( 80, 80,112),  // AMCOL_Grid
 
     RGB_MAKE(255,  0,  0),  // AMCOL_Wall
     RGB_MAKE(192,128, 80),  // AMCOL_Step
@@ -621,41 +621,32 @@ static void DrawMline(mline_t * ml, rgbcol_t rgb)
 //
 static void DrawGrid()
 {
-#if 0  // FIXME !!!!!!
-	int colour = AMCOL_Grid;
+	int mx0 = (int)m_cx & ~127;
+	int my0 = (int)m_cy & ~127;
 
-	float x, y;
-	float start, end;
-	mline_t ml;
-
-	// Figure out start of vertical gridlines
-	start = m_x + (float)fmod((float)BLOCKMAP_UNIT - (m_x - bmap_orgx), (float)BLOCKMAP_UNIT);
-	end = m_x + m_w;
-
-	// draw vertical gridlines
-	ml.a.y = m_y;
-	ml.b.y = m_y + m_h;
-	for (x = start; x < end; x += BLOCKMAP_UNIT)
+	for (int j = 0; ; j++)
 	{
-		ml.a.x = x;
-		ml.b.x = x;
-		DrawMline(&ml, colour);
+		int x1 = CXMTOF(mx0 - j * 128);
+		int x2 = CXMTOF(mx0 + j * 128 + 128);
+
+		if (x1 < f_x && x2 >= f_x + f_w)
+			break;
+
+		RGL_SolidBox(x1, f_y, 1, f_h, am_colors[AMCOL_Grid]);
+		RGL_SolidBox(x2, f_y, 1, f_h, am_colors[AMCOL_Grid]);
 	}
 
-	// Figure out start of horizontal gridlines
-	start = m_y + (float)fmod((float)BLOCKMAP_UNIT - (m_y - bmap_orgy), (float)BLOCKMAP_UNIT);
-	end = m_y + m_h;
-
-	// draw horizontal gridlines
-	ml.a.x = m_x;
-	ml.b.x = m_x + m_w;
-	for (y = start; y < end; y += BLOCKMAP_UNIT)
+	for (int k = 0; ; k++)
 	{
-		ml.a.y = y;
-		ml.b.y = y;
-		DrawMline(&ml, colour);
+		int y1 = CYMTOF(my0 - k * 128);
+		int y2 = CYMTOF(my0 + k * 128 + 128);
+
+		if (y1 < f_y && y2 >= f_y + f_h)
+			break;
+
+		RGL_SolidBox(f_x, y1, f_w, 1, am_colors[AMCOL_Grid]);
+		RGL_SolidBox(f_x, y2, f_w, 1, am_colors[AMCOL_Grid]);
 	}
-#endif
 }
 
 
