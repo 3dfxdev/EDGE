@@ -67,6 +67,9 @@ int rgl_weapon_g;
 int rgl_weapon_b;
 
 
+extern mobj_t * view_cam_mo;
+
+
 // The minimum distance between player and a visible sprite.
 #define MINZ        (4.0f)
 
@@ -852,8 +855,8 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 
 	SYS_ASSERT(mo->state);
 
-	// ignore the player him/herself
-	if (mo == players[displayplayer]->mo && num_active_mirrors == 0)
+	// ignore the camera itself
+	if (mo == view_cam_mo && num_active_mirrors == 0)
 		return;
 
 	// ignore invisible things

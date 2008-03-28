@@ -85,6 +85,8 @@ int doom_fading = 1;
 angle_t clip_left, clip_right;
 angle_t clip_scope;
 
+mobj_t *view_cam_mo;
+
 
 static int checkcoord[12][4] =
 {
@@ -2900,8 +2902,10 @@ static void RGL_DrawSubsector(drawsub_c *dsub)
 
 static void DoWeaponModel(void)
 {
-	player_t *pl = players[displayplayer];
-	SYS_ASSERT(pl);
+	player_t *pl = view_cam_mo->player;
+
+	if (! pl)
+		return;
 
 	// clear the depth buffer, so that the weapon is never clipped
 	// by the world geometry.  NOTE: a tad expensive, but I don't
@@ -3000,8 +3004,7 @@ static void RGL_RenderTrueBSP(void)
 
 	drawsubs.clear();
 
-	player_t *v_player = players[displayplayer];
-	SYS_ASSERT(v_player);
+	player_t *v_player = view_cam_mo->player;
 	
 	// handle powerup effects
 	RGL_RainbowEffect(v_player);
@@ -3035,12 +3038,15 @@ static void RGL_RenderTrueBSP(void)
 	// now draw 2D stuff like psprites, and add effects
 	RGL_SetupMatrices2D();
 
-	RGL_DrawWeaponSprites(v_player);
+	if (v_player)
+	{
+		RGL_DrawWeaponSprites(v_player);
 
-	RGL_ColourmapEffect(v_player);
-	RGL_PaletteEffect(v_player);
+		RGL_ColourmapEffect(v_player);
+		RGL_PaletteEffect(v_player);
 
-	RGL_DrawCrosshair(v_player);
+		RGL_DrawCrosshair(v_player);
+	}
 
 #if (DEBUG >= 3) 
 	L_WriteDebug( "\n\n");
@@ -3159,6 +3165,10 @@ void R_Render(int x, int y, int w, int h, mobj_t *camera)
 	viewwindow_y = y;
 	viewwindow_w = w;
 	viewwindow_h = h;
+
+	view_cam_mo = camera;
+
+	// FIXME: SCISSOR TEST
 
 
 	// Load the details for the camera
