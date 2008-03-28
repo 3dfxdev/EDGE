@@ -714,6 +714,15 @@ static int PL_armor(lua_State *L)
 }
 
 
+// player.total_armor(type)
+//
+static int PL_total_armor(lua_State *L)
+{
+	lua_pushinteger(L, (int)floor(cur_player->totalarmour + 0.99));
+	return 1;
+}
+
+
 // player.frags()
 //
 static int PL_frags(lua_State *L)
@@ -800,7 +809,7 @@ static int PL_is_using(lua_State *L)
 //
 static int PL_move_speed(lua_State *L)
 {
-	lua_pushnumber(L, cur_player->actual_speed)
+	lua_pushnumber(L, cur_player->actual_speed);
 	return 1;
 }
 
@@ -809,8 +818,18 @@ static int PL_move_speed(lua_State *L)
 //
 static int PL_air_in_lungs(lua_State *L)
 {
-	@@@
-	lua_pushnumber(L, air_in_lungs);
+	if (cur_player->air_in_lungs <= 0)
+	{
+		lua_pushnumber(L, 0.0f);
+		return 1;
+	}
+
+	float value = cur_player->air_in_lungs * 100.0f /
+	              cur_player->mo->info->lung_capacity;
+
+	value = CLAMP(0.0f, value, 100.0f);
+
+	lua_pushnumber(L, value);
 	return 1;
 }
 
@@ -926,8 +945,11 @@ static const luaL_Reg player_module[] =
     { "is_using",        PL_is_using      },
     { "is_attacking",    PL_is_attacking  },
     { "is_rampaging",    PL_is_rampaging  },
+
     { "under_water",     PL_under_water   },
     { "on_ground",       PL_on_ground     },
+    { "move_speed",      PL_move_speed    },
+    { "air_in_lungs",    PL_air_in_lungs  },
 
     { "has_key",         PL_has_key  },
     { "has_weapon_slot", PL_has_weapon_slot },
