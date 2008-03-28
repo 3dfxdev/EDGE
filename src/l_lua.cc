@@ -49,6 +49,7 @@ static colourmap_c *cur_colmap = NULL;
 static float cur_scale;
 static float cur_alpha;
 
+static int hud_last_time = -1;
 
 extern std::string w_map_title;
 
@@ -67,7 +68,15 @@ static void FrameSetup(void)
 
 	cur_player = players[displayplayer];
 
-	
+
+	int now_time = I_GetTime();
+
+	if (hud_last_time <= 0 || hud_last_time > now_time)
+		hud_last_time = now_time;
+
+	int tics = MIN(now_time - hud_last_time, TICRATE);
+
+
 	// setup some fields in 'player' module
 
 	lua_getglobal(HUD_ST, "player");
@@ -87,7 +96,11 @@ static void FrameSetup(void)
 	lua_pushboolean(HUD_ST, automapactive);
 	lua_setfield(HUD_ST, -2, "automap");
 
-	// TODO: game_time, passed_time
+	lua_pushinteger(HUD_ST, now_time);
+	lua_setfield(HUD_ST, -2, "now_time");
+
+	lua_pushinteger(HUD_ST, tics);
+	lua_setfield(HUD_ST, -2, "passed_time");
 
 	lua_pop(HUD_ST, 1);
 }
@@ -465,11 +478,14 @@ static int HD_tile_image(lua_State *L)
 	const image_c *img = W_ImageLookup(name, INS_Texture);
 	if (img)
 	{
-		w = FROM_320(w); h = FROM_200(h);
-		x = FROM_320(x); y = SCREENHEIGHT - FROM_200(y) - h;
+		offset_x /=  w;
+		offset_y /= -h;
 
 		float tx_scale = w / IM_TOTAL_WIDTH(img)  / cur_scale;
 		float ty_scale = h / IM_TOTAL_HEIGHT(img) / cur_scale;
+
+		w = FROM_320(w); h = FROM_200(h);
+		x = FROM_320(x); y = SCREENHEIGHT - FROM_200(y) - h;
 
 		RGL_DrawImage(x, y, w, h, img,
 		              (offset_x) * tx_scale,
@@ -921,6 +937,12 @@ void LU_LoadScripts(void)
 
 	if (! has_loaded)
 		I_Error("Missing required LUAHUDx lumps!\n");
+}
+
+
+void LU_BeginLevel(void)
+{
+	hud_last_time = -1;
 }
 
 
