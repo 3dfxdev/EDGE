@@ -1666,6 +1666,9 @@ static void EmulateFloodPlane(const drawfloor_t *dfloor,
 	const surface_t *surf = (face_dir > 0) ? &flood_ref->floor :
 		&flood_ref->ceil;
 
+	if (! surf->image)
+		return;
+
 	// ignore sky and invisible planes
 	if (IS_SKY(*surf) || surf->translucency < 0.01f)
 		return;
@@ -1684,7 +1687,6 @@ static void EmulateFloodPlane(const drawfloor_t *dfloor,
 
 
 	SYS_ASSERT(props);
-	SYS_ASSERT(surf->image);
 
 	flood_emu_data_t data;
 
@@ -2297,6 +2299,14 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	int num_vert, i;
 
 
+	if (! surf->image)
+		return;
+
+	// ignore sky
+	if (IS_SKY(*surf))
+		return;
+
+
 	region_properties_t *props = dfloor->props;
 
 	// more deep water hackitude
@@ -2322,10 +2332,6 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 
 	float trans = surf->translucency;
 
-	// ignore sky
-	if (IS_SKY(*surf))
-		return;
-
 	// ignore invisible planes
 	if (trans < 0.01f)
 		return;
@@ -2342,7 +2348,6 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	if (cur_sub->segs == NULL)
 		return;
 
-	SYS_ASSERT(surf->image);
 
 	// (need to load the image to know the opacity)
 	GLuint tex_id = W_ImageCache(surf->image, true, ren_fx_colmap);
