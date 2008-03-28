@@ -292,11 +292,9 @@ function edge_air_bar()
 
   local air = player.air_in_lungs()
 
-  air = int(1 + 21 * (air / 100.1))
+  air = int(1 + 21 * ((100-air) / 100.1))
 
-  local bar_name = string.format("AIRBAR%02d", air)
-
-  hud.draw_image(0, 0, bar_name)
+  hud.draw_image(0, 0, string.format("AIRBAR%02d", air))
 end
 
 
