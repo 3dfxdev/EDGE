@@ -324,9 +324,6 @@ bool G_Responder(event_t * ev)
 		if (RAD_Responder(ev))
 			return true;  // RTS system ate it
 
-		if (ST_Responder(ev))
-			return true;  // status window ate it 
-
 		if (AM_Responder(ev))
 			return true;  // automap ate it 
 
