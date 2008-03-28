@@ -293,14 +293,6 @@ static void RefreshBackground(void)
 	}
 }
 
-//
-// ST_Responder
-//
-bool ST_Responder(event_t * ev)
-{
-	// does nothing at the moment
-	return false;
-}
 
 static void DrawWidgets(void)
 {
@@ -623,52 +615,6 @@ void ST_Ticker(void)
     p->old_health = p->health;
 }
 
-// -AJA- 1999/07/03: Rewrote this routine, since the palette handling
-// has been moved to v_colour.c/h (and made more flexible).  Later on it
-// might be good to DDF-ify all this, allowing other palette lumps and
-// being able to set priorities for the different effects.
-
-static void DoPaletteStuff(void)
-{
-	int palette = PALETTE_NORMAL;
-	float amount = 0;
-
-	player_t *p = players[displayplayer];
-	SYS_ASSERT(p);
-
-	int cnt = p->damagecount;
-
-	if (p->powers[PW_Berserk] > 0)
-	{
-		int bzc = MIN(20, (int) p->powers[PW_Berserk]); // slowly fade berzerk out
-
-		if (bzc > cnt)
-			cnt = bzc;
-	}
-
-	if (cnt)
-	{
-		palette = PALETTE_PAIN;
-		amount = (cnt + 7) / 64.0f;
-	}
-	else if (p->bonuscount)
-	{
-		palette = PALETTE_BONUS;
-		amount = (p->bonuscount + 7) / 32.0f;
-	}
-	else if (p->powers[PW_AcidSuit] > 4 * 32 ||
-		fmod(p->powers[PW_AcidSuit], 16) >= 8)
-	{
-		palette = PALETTE_SUIT;
-		amount = 1.0f;
-	}
-
-	// This routine will limit `amount' to acceptable values, and will
-	// only update the video palette/colourmaps when the palette actually
-	// changes.
-	V_SetPalette(palette, amount);
-}
-
 void ST_Drawer()
 {
 	st_statusbaron       = (screen_hud != 1) || automapactive;
@@ -676,16 +622,11 @@ void ST_Drawer()
 
 	UpdateWidgets();
 
-	// Do red-/gold-shifts from damage/items
-	DoPaletteStuff();
-
 	// draw status bar background to off-screen buff
 	RefreshBackground();
 
 	// and refresh all widgets
 	DrawWidgets();
-
-	M_DisplayAir();
 }
 
 static void LoadGraphics(void)

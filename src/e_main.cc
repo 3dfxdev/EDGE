@@ -598,6 +598,8 @@ void E_Display(void)
 		case GS_LEVEL:
 			HU_Erase();
 
+			R_PaletteStuff();
+
 			LU_RunHud();
 
 ///---			if (automapactive < 2)

@@ -32,6 +32,7 @@
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "e_main.h"
+#include "e_player.h"
 #include "m_argv.h"
 #include "r_misc.h"
 #include "r_gldefs.h"
@@ -613,6 +614,53 @@ static void SetupLightMap(lighting_model_e model)
 	}
 }
 #endif
+
+
+// -AJA- 1999/07/03: Rewrote this routine, since the palette handling
+// has been moved to v_colour.c/h (and made more flexible).  Later on it
+// might be good to DDF-ify all this, allowing other palette lumps and
+// being able to set priorities for the different effects.
+
+void R_PaletteStuff(void)
+{
+	int palette = PALETTE_NORMAL;
+	float amount = 0;
+
+	player_t *p = players[displayplayer];
+	SYS_ASSERT(p);
+
+	int cnt = p->damagecount;
+
+	if (p->powers[PW_Berserk] > 0)
+	{
+		int bzc = MIN(20, (int) p->powers[PW_Berserk]); // slowly fade berzerk out
+
+		if (bzc > cnt)
+			cnt = bzc;
+	}
+
+	if (cnt)
+	{
+		palette = PALETTE_PAIN;
+		amount = (cnt + 7) / 64.0f;
+	}
+	else if (p->bonuscount)
+	{
+		palette = PALETTE_BONUS;
+		amount = (p->bonuscount + 7) / 32.0f;
+	}
+	else if (p->powers[PW_AcidSuit] > 4 * 32 ||
+		fmod(p->powers[PW_AcidSuit], 16) >= 8)
+	{
+		palette = PALETTE_SUIT;
+		amount = 1.0f;
+	}
+
+	// This routine will limit `amount' to acceptable values, and will
+	// only update the video palette/colourmaps when the palette actually
+	// changes.
+	V_SetPalette(palette, amount);
+}
 
 
 //----------------------------------------------------------------------------
