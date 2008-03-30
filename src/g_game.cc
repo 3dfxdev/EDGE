@@ -439,7 +439,6 @@ void G_Ticker(void)
 			N_TiccmdTicker();
 
 			P_Ticker();
-			ST_Ticker();
 			AM_Ticker();
 			HU_Ticker();
 			RAD_Ticker();

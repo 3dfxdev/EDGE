@@ -603,6 +603,8 @@ void P_PlayerThink(player_t * player)
 
 	player->consistency[gametic % (MP_SAVETICS*2)] = MakeConsistency(player);
 
+	player->old_health = player->health;
+
 	// fixme: do this in the cheat code
 	if (player->cheats & CF_NOCLIP)
 		player->mo->flags |= MF_NOCLIP;
