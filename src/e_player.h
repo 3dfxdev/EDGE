@@ -244,6 +244,9 @@ typedef struct player_s
 	// Who did damage (NULL for floors/ceilings).
 	mobj_t *attacker;
 
+	// how much damage was done (used for status bar)
+	float damage_pain;
+
 	// So gun flashes light up the screen.
 	int extralight;
 	bool flash;
@@ -277,9 +280,6 @@ typedef struct player_s
 
 	// how many tics to grin :-)
 	int grin_count;
-
-	// used (and updated) by the status bar to gauge amount of pain
-	float old_health;
 
 	// how many tics player has been attacking (for rampage face)
 	int attackdown_count;

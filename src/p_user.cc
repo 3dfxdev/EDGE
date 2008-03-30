@@ -406,7 +406,7 @@ static void DeathThink(player_t * player)
 			player->mo->angle = angle;
 			player->mo->vertangle = M_ATan(slope);
 
-			if (player->damagecount)
+			if (player->damagecount > 0)
 				player->damagecount--;
 		}
 		else 
@@ -434,7 +434,7 @@ static void DeathThink(player_t * player)
 				player->damagecount--;
 		}
 	}
-	else if (player->damagecount)
+	else if (player->damagecount > 0)
 		player->damagecount--;
 
 	// -AJA- 1999/08/07: Fade out armor points too.
@@ -601,9 +601,10 @@ void P_PlayerThink(player_t * player)
 	}
 #endif
 
-	player->consistency[gametic % (MP_SAVETICS*2)] = MakeConsistency(player);
+	if (player->damagecount <= 0)
+		player->damage_pain = 0;
 
-	player->old_health = player->health;
+	player->consistency[gametic % (MP_SAVETICS*2)] = MakeConsistency(player);
 
 	// fixme: do this in the cheat code
 	if (player->cheats & CF_NOCLIP)
@@ -698,13 +699,13 @@ void P_PlayerThink(player_t * player)
 
 	P_UpdatePowerups(player);
 
-	if (player->damagecount)
+	if (player->damagecount > 0)
 		player->damagecount--;
 
-	if (player->bonuscount)
+	if (player->bonuscount > 0)
 		player->bonuscount--;
 
-	if (player->grin_count)
+	if (player->grin_count > 0)
 		player->grin_count--;
 
 	if (player->attackdown[0] || player->attackdown[1])

@@ -123,6 +123,7 @@ void G_PlayerFinishLevel(player_t *p)
 
 	// no palette changes 
 	p->damagecount = 0;
+	p->damage_pain = 0;
 	p->bonuscount  = 0;
 	p->grin_count  = 0;
 }
@@ -162,7 +163,9 @@ void player_s::Reborn()
 	refire = 0;
 	bob = 0;
 	kick_offset = 0;
-	damagecount = bonuscount = 0;
+	bonuscount = 0;
+	damagecount = 0;
+	damage_pain = 0;
 	extralight = 0;
 	flash = false;
 
@@ -182,7 +185,6 @@ void player_s::Reborn()
 	wet_feet = false;
 
 	grin_count = 0;
-	old_health = 0;
 	attackdown_count = 0;
 	face_index = 0;
 	face_count = 0;
@@ -399,6 +401,7 @@ static void P_SpawnPlayer(player_t *p, const spawnpoint_t *point)
 	p->playerstate = PST_LIVE;
 	p->refire = 0;
 	p->damagecount = 0;
+	p->damage_pain = 0;
 	p->bonuscount = 0;
 	p->extralight = 0;
 	p->effect_colourmap = NULL;
