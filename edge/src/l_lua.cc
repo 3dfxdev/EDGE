@@ -755,6 +755,8 @@ static int PL_armor(lua_State *L)
 
 	if (kind < 1 || kind > NUMARMOUR)
 		I_Error("player.armor: bad armor index: %d\n", kind);
+	
+	kind--;
 
 	lua_pushinteger(L, (int)floor(cur_player->armours[kind] + 0.99));
 	return 1;
@@ -899,7 +901,9 @@ static int PL_has_key(lua_State *L)
 	if (key < 1 || key > 16)
 		I_Error("player.has_key: bad key number: %d\n", key);
 
-	int value = (cur_player->cards & (1 << (key-1))) ? 1 : 0;
+	key--;
+
+	int value = (cur_player->cards & (1 << key)) ? 1 : 0;
 
 	lua_pushboolean(L, value);
 	return 1;
@@ -910,12 +914,18 @@ static int PL_has_key(lua_State *L)
 //
 static int PL_has_power(lua_State *L)
 {
-	int index = luaL_checkint(L, 1);
+	int power = luaL_checkint(L, 1);
 
-	if (index < 1 || index > NUMPOWERS)
-		I_Error("player.has_power: bad powerup number: %d\n", index);
+	if (power < 1 || power > NUMPOWERS)
+		I_Error("player.has_power: bad powerup number: %d\n", power);
 
-	int value = (cur_player->powers[index] > 0) ? 1 : 0;
+	power--;
+
+	int value = (cur_player->powers[power] > 0) ? 1 : 0;
+
+	// special check for GOD mode
+	if (power == PW_Invulnerable && (cur_player->cheats && CF_GODMODE))
+		value = 1;
 
 	lua_pushboolean(L, value);
 	return 1;
@@ -1008,7 +1018,9 @@ static int PL_ammo(lua_State *L)
 	if (ammo < 1 || ammo > NUMAMMO)
 		I_Error("player.ammo: bad ammo number: %d\n", ammo);
 
-	lua_pushinteger(L, cur_player->ammo[ammo-1].num);
+	ammo--;
+
+	lua_pushinteger(L, cur_player->ammo[ammo].num);
 	return 1;
 }
 
@@ -1022,7 +1034,9 @@ static int PL_ammomax(lua_State *L)
 	if (ammo < 1 || ammo > NUMAMMO)
 		I_Error("player.ammomax: bad ammo number: %d\n", ammo);
 
-	lua_pushinteger(L, cur_player->ammo[ammo-1].max);
+	ammo--;
+
+	lua_pushinteger(L, cur_player->ammo[ammo].max);
 	return 1;
 }
 
