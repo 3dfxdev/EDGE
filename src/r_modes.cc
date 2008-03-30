@@ -38,7 +38,6 @@
 #include "r_image.h"
 #include "r_units.h"
 #include "r_draw.h"
-#include "st_stuff.h"
 
 // Globals
 int SCREENWIDTH;
@@ -209,8 +208,6 @@ bool R_IncrementResolution(scrmode_c *mode, int what, int dir)
 void R_SoftInitResolution(void)
 {
 	L_WriteDebug("R_SoftInitResolution...\n");
-
-	ST_ReInit();
 
 	AM_InitResolution();
 

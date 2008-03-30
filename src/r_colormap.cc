@@ -36,7 +36,6 @@
 #include "m_argv.h"
 #include "r_misc.h"
 #include "r_gldefs.h"
-#include "st_stuff.h"
 #include "r_modes.h"
 #include "r_image.h"
 #include "r_shader.h"

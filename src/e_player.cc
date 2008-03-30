@@ -41,7 +41,6 @@
 #include "m_random.h"
 #include "p_bot.h"
 #include "p_local.h"
-#include "st_stuff.h"
 
 
 //
@@ -425,7 +424,6 @@ static void P_SpawnPlayer(player_t *p, const spawnpoint_t *point)
 	if (p->pnum == consoleplayer)
 	{
 		// wake up the status bar and heads up text
-		ST_Start();
 		HU_Start();
 
 		SetPlayerConVars(p);

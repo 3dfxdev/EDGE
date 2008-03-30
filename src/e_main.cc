@@ -60,6 +60,7 @@
 #include "l_lua.h"
 #include "m_argv.h"
 #include "m_bbox.h"
+#include "m_cheat.h"
 #include "m_misc.h"
 #include "m_menu.h"
 #include "n_network.h"
@@ -71,7 +72,6 @@
 #include "r_wipe.h"
 #include "s_sound.h"
 #include "s_music.h"
-#include "st_stuff.h"
 #include "sv_chunk.h"
 #include "sv_main.h"
 #include "r_colormap.h"
@@ -1327,7 +1327,7 @@ startuporder_t startcode[] =
 	{  1, W_InitPicAnims       },
 	{  1, S_Init               },
 	{  1, N_InitNetwork        },
-	{  2, ST_Init              },
+	{  1, M_CheatInit          },
 	{  1, LU_Init              },
 	{  4, LU_LoadScripts       },
 	{  0, NULL                 }

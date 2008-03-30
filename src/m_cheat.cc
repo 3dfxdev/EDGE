@@ -48,7 +48,6 @@
 #include "p_local.h"
 #include "p_mobj.h"
 #include "p_bot.h"
-#include "st_stuff.h"
 #include "w_wad.h"
 
 #include <stdio.h>

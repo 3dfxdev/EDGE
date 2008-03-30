@@ -47,7 +47,6 @@
 #include "p_setup.h"
 #include "r_local.h"
 #include "s_sound.h"
-#include "st_stuff.h"
 #include "sv_chunk.h"
 #include "sv_main.h"
 #include "r_draw.h"
