@@ -187,18 +187,18 @@ KEYS =
   red_skull    = 7,
   green_skull  = 8,
 
-  gold   =  9,  gold_key   =  9,
-  silver = 10,  silver_key = 10,
-  brass  = 11,  brass_key  = 11,
-  copper = 12,  copper_key = 12,
+  gold_key   =  9,
+  silver_key = 10,
+  brass_key  = 11,
+  copper_key = 12,
 
-  steel  = 13,  steel_key  = 13,
-  wooden = 14,  wooden_key = 14,
-  fire   = 15,  fire_key   = 15,
-  water  = 16,  water_key  = 16,
+  steel_key  = 13,
+  wooden_key = 14,
+  fire_key   = 15,
+  water_key  = 16,
 }
 
-POWERUPS =
+POWERS =
 {
   invuln    = 1,
   berserk   = 2,
@@ -223,7 +223,7 @@ AMMOS =
   gas      = 8,
 }
 
-ARMOURS =
+ARMORS =
 {
   green  = 1,
   blue   = 2,
