@@ -52,7 +52,7 @@ function doomguy_face(x, y)
 
 
   local function turn_digit()
-    return tostring(1 + int(math.random() * 2.99))
+    return tostring(int(math.random() * 2.99))
   end
 
 
@@ -88,9 +88,9 @@ function doomguy_face(x, y)
       end
 
       if dir < 0 then
-        face_image = "STFTL" .. pain_digit()
+        face_image = "STFTL" .. pain_digit() .. "0"
       elseif dir > 0 then
-        face_image = "STFTR" .. pain_digit()
+        face_image = "STFTR" .. pain_digit() .. "0"
       else
         face_image = "STFKILL" .. pain_digit()
       end
