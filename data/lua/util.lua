@@ -171,5 +171,64 @@ function stack_trace(msg)
 end
 
 
+----====| ENGINE CONSTANTS |====----
+
 TICRATE = 35
+
+KEYS =
+{
+  blue_card    = 1,
+  yellow_card  = 2,
+  red_card     = 3,
+  green_card   = 4,
+
+  blue_skull   = 5,
+  yellow_skull = 6,
+  red_skull    = 7,
+  green_skull  = 8,
+
+  gold   =  9,  gold_key   =  9,
+  silver = 10,  silver_key = 10,
+  brass  = 11,  brass_key  = 11,
+  copper = 12,  copper_key = 12,
+
+  steel  = 13,  steel_key  = 13,
+  wooden = 14,  wooden_key = 14,
+  fire   = 15,  fire_key   = 15,
+  water  = 16,  water_key  = 16,
+}
+
+POWERUPS =
+{
+  invuln    = 1,
+  berserk   = 2,
+  invis     = 3,
+  acid_suit = 4,
+  automap   = 5,
+  goggles   = 6,
+  jet_pack  = 7,
+  night_vis = 8,
+  scuba     = 9,
+}
+
+AMMOS =
+{
+  bullets  = 1,
+  shells   = 2,
+  rockets  = 3,
+  cells    = 4,
+  pellets  = 5,
+  nails    = 6,
+  grenades = 7,
+  gas      = 8,
+}
+
+ARMOURS =
+{
+  green  = 1,
+  blue   = 2,
+  purple = 3,
+  yellow = 4,
+  red    = 5,
+}
 
