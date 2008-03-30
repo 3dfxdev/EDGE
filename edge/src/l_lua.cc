@@ -1100,9 +1100,7 @@ static int PL_hurt_by(lua_State *L)
 //
 static int PL_hurt_pain(lua_State *L)
 {
-	float pain = cur_player->old_health - cur_player->health;
-
-	lua_pushnumber(L, MAX(pain, 0));
+	lua_pushnumber(L, cur_player->damage_pain);
 	return 1;
 }
 

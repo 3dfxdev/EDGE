@@ -1026,7 +1026,10 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor, mobj_t * source,
 
 		// add damage after armour / invuln detection
 		if (damage > 0)
+		{
 			player->damagecount += (int)MAX(damage, DAMAGE_ADD_MIN);
+			player->damage_pain += damage;
+		}
 
 		// teleport stomp does 10k points...
 		if (player->damagecount > DAMAGE_LIMIT)
@@ -1149,6 +1152,7 @@ void P_TelefragMobj(mobj_t * target, mobj_t * inflictor, const damage_c * damtyp
 	{
 		target->player->attacker = inflictor;
 		target->player->damagecount = DAMAGE_LIMIT;
+		target->player->damage_pain = target->info->spawnhealth;
 	}
 
 	P_KillMobj(inflictor, target, damtype);
