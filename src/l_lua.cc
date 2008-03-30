@@ -729,6 +729,15 @@ static int PL_is_bot(lua_State *L)
 }
 
 
+// player.get_name()
+//
+static int PL_get_name(lua_State *L)
+{
+	lua_pushstring(L, cur_player->playername);
+	return 1;
+}
+
+
 // player.health()
 //
 static int PL_health(lua_State *L)
@@ -913,6 +922,67 @@ static int PL_has_weapon_slot(lua_State *L)
 }
 
 
+static int PL_cur_weapon_slot(lua_State *L)
+{
+	int slot;
+
+	if (cur_player->ready_wp < 0)
+		slot = -1;
+	else
+		slot = cur_player->weapons[cur_player->ready_wp].info->bind_key;
+
+	lua_pushinteger(L, slot);
+	return 1;
+}
+
+
+// player.has_weapon(name)
+//
+static int PL_has_weapon(lua_State *L)
+{
+	const char * name = luaL_checkstring(L, 1);
+	SYS_ASSERT(name);
+
+	for (int j = 0; j < MAXWEAPONS; j++)
+	{
+		playerweapon_t *pw = &cur_player->weapons[j];
+
+		if (pw->owned && ! (pw->flags & PLWEP_Removing))
+		{
+			if (DDF_CompareName(name, pw->info->ddf.name.c_str()) == 0)
+			{
+				lua_pushboolean(L, 1);
+				return 1;
+			}
+		}
+	}
+
+	lua_pushboolean(L, 0);
+	return 1;
+}
+
+
+static int PL_cur_weapon(lua_State *L)
+{
+	if (cur_player->pending_wp >= 0)
+	{
+		lua_pushstring(L, "change");
+		return 1;
+	}
+
+	if (cur_player->ready_wp < 0)
+	{
+		lua_pushstring(L, "none");
+		return 1;
+	}
+
+	weapondef_c *info = cur_player->weapons[cur_player->ready_wp].info;
+
+	lua_pushstring(L, info->ddf.name.c_str());
+	return 1;
+}
+
+
 // player.ammo(type)
 //
 static int PL_ammo(lua_State *L)
@@ -977,8 +1047,9 @@ static int PL_main_ammo(lua_State *L)
 static const luaL_Reg player_module[] =
 {
 	{ "num_players", PL_num_players },
-	{ "set_who",     PL_set_who },
-    { "is_bot",      PL_is_bot  },
+	{ "set_who",     PL_set_who  },
+    { "is_bot",      PL_is_bot   },
+    { "get_name",    PL_get_name },
 
     { "health",      PL_health      },
     { "armor",       PL_armor       },
@@ -1002,7 +1073,10 @@ static const luaL_Reg player_module[] =
     { "air_in_lungs",    PL_air_in_lungs  },
 
     { "has_key",         PL_has_key  },
+    { "has_weapon",      PL_has_weapon      },
     { "has_weapon_slot", PL_has_weapon_slot },
+    { "cur_weapon",      PL_cur_weapon      },
+    { "cur_weapon_slot", PL_cur_weapon_slot },
 
 	{ NULL, NULL } // the end
 };
