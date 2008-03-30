@@ -70,11 +70,14 @@ static void FrameSetup(void)
 
 
 	int now_time = I_GetTime();
+	int passed_time = 0;
 
-	if (hud_last_time <= 0 || hud_last_time > now_time)
-		hud_last_time = now_time;
+	if (hud_last_time > 0 && hud_last_time <= now_time)
+	{
+		passed_time = MIN(now_time - hud_last_time, TICRATE);
+	}
 
-	int tics = MIN(now_time - hud_last_time, TICRATE);
+	hud_last_time = now_time;
 
 
 	// setup some fields in 'player' module
@@ -99,7 +102,7 @@ static void FrameSetup(void)
 	lua_pushinteger(HUD_ST, now_time);
 	lua_setfield(HUD_ST, -2, "now_time");
 
-	lua_pushinteger(HUD_ST, tics);
+	lua_pushinteger(HUD_ST, passed_time);
 	lua_setfield(HUD_ST, -2, "passed_time");
 
 	lua_pop(HUD_ST, 1);
