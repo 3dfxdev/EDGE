@@ -1074,6 +1074,64 @@ static int PL_main_ammo(lua_State *L)
 }
 
 
+// player.hurt_by()
+//
+static int PL_hurt_by(lua_State *L)
+{
+	if (cur_player->damagecount <= 0)
+		return 0;  // return NIL
+
+	if (cur_player->attacker)
+	{
+		lua_pushstring(L, "enemy");
+		return 1;
+	}
+
+	// getting hurt because of your own damn stupidity
+	lua_pushstring(L, "self");
+	return 1;
+}
+
+
+// player.hurt_pain()
+//
+static int PL_hurt_pain(lua_State *L)
+{
+	float pain = cur_player->old_health - cur_player->health;
+
+	lua_pushnumber(L, MAX(pain, 0));
+	return 1;
+}
+
+
+// player.hurt_dir()
+//
+static int PL_hurt_dir(lua_State *L)
+{
+	int dir = 0;
+
+	if (cur_player->attacker && cur_player->attacker != cur_player->mo)
+	{
+		mobj_t *badguy = cur_player->attacker;
+		mobj_t *pmo    = cur_player->mo;
+
+		angle_t diff = R_PointToAngle(pmo->x, pmo->y, badguy->x, badguy->y) - pmo->angle;
+
+		if (diff >= ANG45 && diff <= ANG135)
+		{
+			dir = -1;
+		}
+		else if (diff >= ANG225 && diff <= ANG315)
+		{
+			dir = +1;
+		}
+	}
+
+	lua_pushinteger(L, dir);
+	return 1;
+}
+
+
 static const luaL_Reg player_module[] =
 {
 	{ "num_players", PL_num_players },
@@ -1108,6 +1166,10 @@ static const luaL_Reg player_module[] =
     { "has_weapon_slot", PL_has_weapon_slot },
     { "cur_weapon",      PL_cur_weapon      },
     { "cur_weapon_slot", PL_cur_weapon_slot },
+
+    { "hurt_by",         PL_hurt_by    },
+    { "hurt_pain",       PL_hurt_pain  },
+    { "hurt_dir",        PL_hurt_dir   },
 
 	{ NULL, NULL } // the end
 };
