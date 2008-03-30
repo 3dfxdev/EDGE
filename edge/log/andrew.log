@@ -1,5 +1,11 @@
 Andrew Apted's Log
 
+2008/03/30:
+
+LUA huds are really shaping up, so much so that the st_stuff.cc
+and st_lib.cc files have been removed!!  The doomguy_face() in
+the lua code is now complete.
+
 2008/03/28:
 
 Added more LUA hud functions, especially in the 'player' module,
