@@ -51,6 +51,11 @@ function doomguy_face(x, y)
   end
 
 
+  local function turn_digit()
+    return tostring(1 + int(math.random() * 2.99))
+  end
+
+
   local function select_new_face()
 
     -- dead ?
@@ -67,6 +72,33 @@ function doomguy_face(x, y)
       return
     end
 
+    -- being attacked ?
+    if player.hurt_by() then
+      
+      if player.hurt_pain() > 50 then
+        face_image = "STFOUCH" .. pain_digit()
+        face_time = 35
+        return
+      end
+
+      local dir = 0
+
+      if player.hurt_by() == "enemy" then
+        dir = player.hurt_dir()
+      end
+
+      if dir < 0 then
+        face_image = "STFTL" .. pain_digit()
+      elseif dir > 0 then
+        face_image = "STFTR" .. pain_digit()
+      else
+        face_image = "STFKILL" .. pain_digit()
+      end
+
+      face_time = 35
+      return
+    end
+
     -- rampaging?
     if player.is_rampaging() then
       face_image = "STFKILL" .. pain_digit()
@@ -74,111 +106,20 @@ function doomguy_face(x, y)
       return
     end
 
-  -- god mode?
-  -- if player.has_power("invuln") or player.has_cheat("god") then
-  --   face_image = "STFGOD0"
-  --
+    -- god mode?
+    if player.has_power(POWERS.invuln) then
+      face_image = "STFGOD0"
+      face_time  = 7
+      return
+    end
 
-
-    face_image = "STFST" .. pain_digit() .. "1"
+    -- default: look about the place...
+    face_image = "STFST" .. pain_digit() .. turn_digit()
     face_time  = 17
-
---[[
-{
-	player_t *p = players[displayplayer];
-	SYS_ASSERT(p);
-
-	angle_t badguyangle;
-	angle_t diffang;
-
-	if (p->face_time > 0)
-	{
-		p->face_time--;
-		return;
-	}
-
-	// evil grin if just picked up weapon
-	if (p->grin_count)
-	{
-		p->face_index = ST_CalcPainOffset(p) + ST_EVILGRINOFFSET;
-		face_time = 7;
-		return;
-	}
-
-	// being attacked ?
-	if (p->damagecount && p->attacker && p->attacker != p->mo)
-	{
-		if ((p->old_health - p->health) > ST_MUCHPAIN)
-		{
-			p->face_index = ST_CalcPainOffset(p) + ST_OUCHOFFSET;
-			face_time = 1*TICRATE;
-			return;
-		}
-
-		badguyangle = R_PointToAngle(p->mo->x, p->mo->y,
-			p->attacker->x, p->attacker->y);
-
-		diffang = badguyangle - p->mo->angle;
-
-		p->face_index = ST_CalcPainOffset(p);
-		face_time = 1*TICRATE;
-
-		if (diffang < ANG45 || diffang > ANG315 ||
-			(diffang > ANG135 && diffang < ANG225))
-		{
-			// head-on  
-			p->face_index += ST_RAMPAGEOFFSET;
-		}
-		else if (diffang >= ANG45 && diffang <= ANG135)
-		{
-			// turn face left
-			p->face_index += ST_TURNOFFSET + 1;
-		}
-		else
-		{
-			// turn face right
-			p->face_index += ST_TURNOFFSET;
-		}
-		return;
-	}
-
-	// getting hurt because of your own damn stupidity
-	if (p->damagecount)
-	{
-		if ((p->old_health - p->health) > ST_MUCHPAIN)
-		{
-			p->face_index = ST_CalcPainOffset(p) + ST_OUCHOFFSET;
-			face_time = 1*TICRATE;
-			return;
-		}
-
-		p->face_index = ST_CalcPainOffset(p) + ST_RAMPAGEOFFSET;
-		face_time = 1*TICRATE;
-		return;
-	}
-
-	// rapid firing
-	if (p->attackdown_count > ST_RAMPAGEDELAY)
-	{
-		p->face_index = ST_CalcPainOffset(p) + ST_RAMPAGEOFFSET;
-		face_time = 7;
-		return;
-	}
-
-	// invulnerability
-	if ((p->cheats & CF_GODMODE) || p->powers[PW_Invulnerable] > 0)
-	{
-		p->face_index = ST_GODFACE;
-		face_time = 7;
-		return;
-	}
-
-	// default: look about the place...
-	p->face_index = ST_CalcPainOffset(p) + (M_Random() % 3);
-	face_time = int(TICRATE/2);
---]]
   end
 
+
+  ---| doomguy_face |---
 
   face_time = face_time - hud.passed_time
 
@@ -188,10 +129,7 @@ function doomguy_face(x, y)
 
   -- FIXME faceback
 
-  x = x-1
-  y = y-1
-
-  hud.draw_image(x, y, face_image)
+  hud.draw_image(x-1, y-1, face_image)
 end
 
 
