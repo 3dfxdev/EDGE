@@ -45,7 +45,6 @@
 #include "r_misc.h"
 #include "r_modes.h"
 #include "r_units.h"
-#include "st_stuff.h"
 
 
 // -ES- 1999/03/14 Dynamic Field Of View

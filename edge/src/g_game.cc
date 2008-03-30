@@ -53,7 +53,6 @@
 #include "r_modes.h"
 #include "s_sound.h"
 #include "s_music.h"
-#include "st_stuff.h"
 #include "sv_chunk.h"
 #include "sv_main.h"
 #include "r_colormap.h"
@@ -778,7 +777,8 @@ static void G_DoLoadGame(void)
 		HUB_CopyHubsForLoadgame(fn_base.c_str());
 	}
 
-	ST_Start();
+	V_SetPalette(PALETTE_NORMAL, 0);
+
 	HU_Start();
 }
 
