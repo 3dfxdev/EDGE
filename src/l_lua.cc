@@ -906,6 +906,22 @@ static int PL_has_key(lua_State *L)
 }
 
 
+// player.has_power(key)
+//
+static int PL_has_power(lua_State *L)
+{
+	int index = luaL_checkint(L, 1);
+
+	if (index < 1 || index > NUMPOWERS)
+		I_Error("player.has_power: bad powerup number: %d\n", index);
+
+	int value = (cur_player->powers[index] > 0) ? 1 : 0;
+
+	lua_pushboolean(L, value);
+	return 1;
+}
+
+
 // player.has_weapon_slot(slot)
 //
 static int PL_has_weapon_slot(lua_State *L)
@@ -1072,7 +1088,8 @@ static const luaL_Reg player_module[] =
     { "move_speed",      PL_move_speed    },
     { "air_in_lungs",    PL_air_in_lungs  },
 
-    { "has_key",         PL_has_key  },
+    { "has_key",         PL_has_key   },
+    { "has_power",       PL_has_power },
     { "has_weapon",      PL_has_weapon      },
     { "has_weapon_slot", PL_has_weapon_slot },
     { "cur_weapon",      PL_cur_weapon      },
