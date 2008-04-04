@@ -33,7 +33,7 @@ void AssertFail(const char *msg, ...)
 
   buffer[MSG_BUF_LEN-2] = 0;
 
-  GlobalError("Sorry, an internal error occurred.\n%s", buffer);
+  FatalError("Sorry, an internal error occurred.\n%s", buffer);
 }
 
 

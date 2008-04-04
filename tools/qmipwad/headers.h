@@ -19,27 +19,6 @@
 #ifndef __COMMON_HEADER__
 #define __COMMON_HEADER__
 
-// ---- C_LOG ----
-
-#define MESG(src, ...)  \
-		GlobalMessage("0" src , "" , __VA_ARGS__)
-
-#define WARN(src, ...)  \
-		GlobalMessage("1" src , "" , "WARNING: " __VA_ARGS__)
-
-#define DEBUG1(src, ...)  \
-		GlobalMessage("2" src , __func__ , __VA_ARGS__)
-
-#define DEBUG2(src, ...)  \
-		GlobalMessage("3" src , __func__ , __VA_ARGS__)
-
-
-void GlobalMessage(const char *source, const char *func,
-		           const char *message, ...);
-// FIXME: description
-
-void GlobalError(const char *message, ...);
-
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -58,6 +37,9 @@ void GlobalError(const char *message, ...);
 #include "u_assert.h"
 #include "u_util.h"
 #include "u_file.h"
+
+
+void FatalError(const char *str, ...);
 
 
 #endif // __COMMON_HEADER__
