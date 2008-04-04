@@ -22,6 +22,7 @@
 
 #include "im_image.h"
 #include "im_mip.h"
+#include "im_png.h"
 #include "pakfile.h"
 #include "q1_structs.h"
 
@@ -143,8 +144,47 @@ inline byte MIP_MapColor(u32_t rgb_col)
 
 rgb_image_c *MIP_LoadImage(const char *filename)
 {
-  // TODO: MIP_LoadImage
-  return new rgb_image_c(16,16);
+  // Note: extension checks are case-insensitive
+
+  if (CheckExtension(filename, "bmp") || CheckExtension(filename, "tga") ||
+      CheckExtension(filename, "gif") || CheckExtension(filename, "pcx") ||
+      CheckExtension(filename, "pgm") || CheckExtension(filename, "ppm") ||
+      CheckExtension(filename, "tif") || CheckExtension(filename, "tiff"))
+  {
+    printf("WARNING: Skipping unsupported format: %s\n", filename);
+    return NULL;
+  }
+
+  if (CheckExtension(filename, "jpg") ||
+      CheckExtension(filename, "jpeg"))
+  {
+    // TODO: JPEG
+    printf("WARNING: Skipping unsupported format: %s\n", filename);
+    return NULL;
+  }
+
+  if (! CheckExtension(filename, "png"))
+  {
+    printf("WARNING: Skipping non-image file: %s\n", filename);
+    return NULL;
+  }
+
+
+  FILE *fp = fopen(filename, "rb");
+
+  if (! fp)
+  {
+    printf("WARNING: Failed to open image file: %s\n", filename);
+    return NULL;
+  }
+
+  printf("Loading PNG file: %s\n", filename);
+
+  rgb_image_c * img = PNG_Load(fp);
+
+  fclose(fp);
+
+  return img;
 }
 
 
@@ -159,7 +199,7 @@ std::string MIP_FileToLumpName(const char *filename)
 
   if (strlen(base) > 15)
   {
-    printf("WARNING: lump name too long, will abbreviate\n");
+    printf("WARNING: Lump name too long, will abbreviate\n");
 
     // create new name using first and last 7 characters
     char new_name[20];
@@ -178,7 +218,7 @@ std::string MIP_FileToLumpName(const char *filename)
   // check if already exists
   if (all_lump_names.find(base) != all_lump_names.end())
   {
-    printf("WARNING: lump name '%s' already exists, will not duplicate\n", base);
+    printf("WARNING: Lump name '%s' already exists, will not duplicate\n", base);
     return std::string();
   }
 
@@ -235,7 +275,7 @@ bool MIP_ProcessImage(const char *filename)
 
   if ((img->width & 7) != 0 || (img->height & 7) != 0)
   {
-    printf("WARNING: image size not multiple of 8, will scale up\n");
+    printf("WARNING: Image size not multiple of 8, will scale up\n");
 
     int new_w = (img->width  | 7) + 1;
     int new_h = (img->height | 7) + 1;
@@ -254,8 +294,9 @@ bool MIP_ProcessImage(const char *filename)
 
   int offset = sizeof(mm_tex);
   
+  memset(mm_tex.name, 0, sizeof(mm_tex.name));
   strcpy(mm_tex.name, lump_name.c_str());
-  
+ 
   mm_tex.width  = LE_U32(img->width);
   mm_tex.height = LE_U32(img->height);
 
