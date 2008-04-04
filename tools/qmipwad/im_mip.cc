@@ -23,6 +23,7 @@
 #include "im_image.h"
 #include "im_mip.h"
 #include "pakfile.h"
+#include "q1_structs.h"
 
 
 std::map<std::string, int> all_lump_names;
@@ -142,15 +143,51 @@ inline byte MIP_MapColor(u32_t rgb_col)
 
 rgb_image_c *MIP_LoadImage(const char *filename)
 {
-  // TODO
+  // TODO: MIP_LoadImage
   return new rgb_image_c(16,16);
 }
 
 
 std::string MIP_FileToLumpName(const char *filename)
 {
-  // TODO
-  return "FOO";
+  char *base = ReplaceExtension(FindBaseName(filename), NULL);
+
+  if (strlen(base) == 0)
+    FatalError("Weird image filename: %s\n", filename);
+
+  // TODO: abbreviations for special characters
+
+  if (strlen(base) > 15)
+  {
+    printf("WARNING: lump name too long, will abbreviate\n");
+
+    // create new name using first and last 7 characters
+    char new_name[20];
+
+    memset(new_name, 0, sizeof(new_name));
+    memcpy(new_name, base, 7);
+    memcpy(new_name+8, base + strlen(base) - 7, 7);
+
+    new_name[7] = '_';
+
+    StringFree(base);
+
+    base = StringDup(new_name);
+  }
+
+  // check if already exists
+  if (all_lump_names.find(base) != all_lump_names.end())
+  {
+    printf("WARNING: lump name '%s' already exists, will not duplicate\n", base);
+    return std::string();
+  }
+
+  all_lump_names[base] = 1;
+
+  std::string result(base);
+  StringFree(base);
+
+  return result;
 }
 
 
@@ -186,9 +223,19 @@ bool MIP_ProcessImage(const char *filename)
   if (! img)
     return false;
 
+  std::string lump_name = MIP_FileToLumpName(filename);
+
+  if (lump_name.empty())
+  {
+    delete img;
+    return false;
+  }
+
+  printf("--> %s\n", lump_name.c_str());
+
   if ((img->width & 7) != 0 || (img->height & 7) != 0)
   {
-    printf("WARNING: image size not multiple of 8: %s\n", filename);
+    printf("WARNING: image size not multiple of 8, will scale up\n");
 
     int new_w = (img->width  | 7) + 1;
     int new_h = (img->height | 7) + 1;
@@ -199,19 +246,34 @@ bool MIP_ProcessImage(const char *filename)
   }
 
 
-  std::string lump_name = MIP_FileToLumpName(filename);
-
-  if (lump_name.empty())
-  {
-    delete img;
-    return false;
-  }
-
   WAD2_NewLump(lump_name.c_str());
 
-  // TODO
 
-  for (int mip = 0; mip < 4; mip++)
+  // mip header
+  miptex_t mm_tex;
+
+  int offset = sizeof(mm_tex);
+  
+  strcpy(mm_tex.name, lump_name.c_str());
+  
+  mm_tex.width  = LE_U32(img->width);
+  mm_tex.height = LE_U32(img->height);
+
+  for (int i = 0; i < MIP_LEVELS; i++)
+  {
+    mm_tex.offsets[i] = LE_U32(offset);
+
+    int w = img->width  / (1 << i);
+    int h = img->height / (1 << i);
+
+    offset += w * h;
+  }
+
+  WAD2_AppendData(&mm_tex, sizeof(mm_tex));
+
+
+  // now the actual textures
+  for (int mip = 0; mip < MIP_LEVELS; mip++)
   {
     MIP_ConvertImage(img);
 
