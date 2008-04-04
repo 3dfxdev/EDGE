@@ -25,4 +25,4 @@ void MIP_ProcessImage(const char *filename);
 #endif  /* __IMAGE_MIP_H__ */
 
 //--- editor settings ---
-// vi:ts=4:sw=4:noexpandtab
+// vi:ts=2:sw=2:expandtab

@@ -81,8 +81,8 @@ const byte quake1_palette[256*3] =
 
 void MIP_ProcessImage(const char *filename)
 {
-	// TODO
+  // TODO
 }
 
 //--- editor settings ---
-// vi:ts=4:sw=4:noexpandtab
+// vi:ts=2:sw=2:expandtab
