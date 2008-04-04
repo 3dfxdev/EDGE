@@ -503,7 +503,7 @@ void WAD2_CloseWrite(void)
 
   // write the directory
 
-  LogPrintf("Writing WAD2 directory...\n");
+  LogPrintf("Writing WAD2 directory\n");
 
   raw_wad2_header_t header;
 

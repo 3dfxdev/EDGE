@@ -63,7 +63,7 @@ rgb_image_c *PNG_Load(FILE *fp)
   if (fread(sig_buf, 1, CHECK_PNG_BYTES, fp) != CHECK_PNG_BYTES ||
     png_sig_cmp(sig_buf, (png_size_t)0, CHECK_PNG_BYTES) != 0)
   {
-    fprintf(stderr, "PNG_Load - File is not a PNG image !\n");
+    printf("PNG_Load : File is not a PNG image !\n");
     goto failed;
   }
 
@@ -82,7 +82,7 @@ rgb_image_c *PNG_Load(FILE *fp)
    */
   if (setjmp(png_ptr->jmpbuf))
   {
-    fprintf(stderr, "PNG_Load - Error loading PNG image !\n");
+    printf("PNG_Load : Error loading PNG image!\n");
     goto failed;
   }
 
@@ -110,7 +110,7 @@ rgb_image_c *PNG_Load(FILE *fp)
   tot_W = (int)width;
   tot_H = (int)height;
 
-  printf("Loading PNG image: %dx%d\n", tot_W, tot_H);
+  printf("  loading PNG image, size: %dx%d\n", tot_W, tot_H);
 
   img = new rgb_image_c(tot_W, tot_H);
 
@@ -243,7 +243,7 @@ bool PNG_Save(FILE *fp, rgb_image_c *img, int compress)
    */
   if (setjmp(png_ptr->jmpbuf))
   {
-    fprintf(stderr, "PNG: Error saving PNG image !\n");
+    printf("PNG_Save : Error saving PNG image!\n");
     goto failed;
   }
 

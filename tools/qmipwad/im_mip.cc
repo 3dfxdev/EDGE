@@ -178,8 +178,6 @@ rgb_image_c *MIP_LoadImage(const char *filename)
     return NULL;
   }
 
-  printf("Loading PNG file: %s\n", filename);
-
   rgb_image_c * img = PNG_Load(fp);
 
   fclose(fp);
@@ -215,10 +213,12 @@ std::string MIP_FileToLumpName(const char *filename)
     base = StringDup(new_name);
   }
 
+  printf("  lump name: %s\n", base);
+
   // check if already exists
   if (all_lump_names.find(base) != all_lump_names.end())
   {
-    printf("WARNING: Lump name '%s' already exists, will not duplicate\n", base);
+    printf("WARNING: Lump already exists, will not duplicate\n");
     return std::string();
   }
 
@@ -256,29 +256,24 @@ void MIP_ConvertImage(rgb_image_c *img)
 
 bool MIP_ProcessImage(const char *filename)
 {
-//  printf("Loading ");
+  std::string lump_name = MIP_FileToLumpName(filename);
+
+  if (lump_name.empty())
+    return false;
 
   rgb_image_c * img = MIP_LoadImage(filename);
 
   if (! img)
     return false;
 
-  std::string lump_name = MIP_FileToLumpName(filename);
-
-  if (lump_name.empty())
-  {
-    delete img;
-    return false;
-  }
-
-  printf("--> %s\n", lump_name.c_str());
-
   if ((img->width & 7) != 0 || (img->height & 7) != 0)
   {
     printf("WARNING: Image size not multiple of 8, will scale up\n");
 
-    int new_w = (img->width  | 7) + 1;
-    int new_h = (img->height | 7) + 1;
+    int new_w = (img->width  + 7) & ~7;
+    int new_h = (img->height + 7) & ~7;
+
+    printf("  new size: %dx%d\n", new_w, new_h);
 
     rgb_image_c *tmp = img->ScaledDup(new_w, new_h);
 
@@ -314,13 +309,15 @@ bool MIP_ProcessImage(const char *filename)
 
 
   // now the actual textures
-  for (int mip = 0; mip < MIP_LEVELS; mip++)
-  {
-    MIP_ConvertImage(img);
+  MIP_ConvertImage(img);
 
+  for (int mip = 1; mip < MIP_LEVELS; mip++)
+  {
     rgb_image_c *tmp = img->NiceMip();
 
     delete img; img = tmp;
+
+    MIP_ConvertImage(img);
   }
 
   WAD2_FinishLump();
