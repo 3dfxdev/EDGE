@@ -31,15 +31,17 @@ std::vector<std::string> input_names;
 
 void FatalError(const char *message, ...)
 {
-  fprintf(stderr, "ERROR: ");
+  fprintf(stdout, "FATAL ERROR: ");
 
   va_list argptr;
 
   va_start(argptr, message);
-  vfprintf(stderr, message, argptr);
+  vfprintf(stdout, message, argptr);
   va_end(argptr);
 
-  fprintf(stderr, "\n");
+  fprintf(stdout, "\n");
+  fflush(stdout);
+
   exit(9);
 }
 
@@ -138,11 +140,22 @@ int main(int argc, char **argv)
   if (! WAD2_OpenWrite(output_name.c_str()))
     FatalError("Cannot create WAD2 file: %s\n", output_name.c_str());
 
+  printf("\n");
+  printf("----------------------------------------\n");
+
   int failures = 0;
 
   for (unsigned int j = 0; j < input_names.size(); j++)
+  {
+    printf("Processing: %s\n", input_names[j].c_str());
+
     if (! MIP_ProcessImage(input_names[j].c_str()))
       failures++;
+
+    printf("\n");
+  }
+
+  printf("----------------------------------------\n");
 
   WAD2_CloseWrite();
 
