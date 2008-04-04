@@ -21,48 +21,117 @@
 #include <time.h>
 
 
+std::string output_name;
+
+std::vector<std::string> input_names;
+
+
 void FatalError(const char *message, ...)
 {
-	fprintf(stderr, "ERROR: ");
+  fprintf(stderr, "ERROR: ");
 
-	va_list argptr;
+  va_list argptr;
 
-	va_start(argptr, message);
-	vfprintf(stderr, message, argptr);
-	va_end(argptr);
+  va_start(argptr, message);
+  vfprintf(stderr, message, argptr);
+  va_end(argptr);
 
-	exit(9);
+  fprintf(stderr, "\n");
+  exit(9);
 }
 
 
 void ShowTitle(void)
 {
-	printf("\n");
-	printf("**** QMIPWAD v0.02 ");
-	printf(" (C) 2008 Andrew Apted ****\n");
-	printf("\n");
+  printf("\n");
+  printf("**** QMIPWAD v0.05  (C) 2008 Andrew Apted ****\n");
+  printf("\n");
 }
+
 
 void ShowUsage(void)
 {
-	printf("USAGE: qmipwad  [OPTIONS...]  FILES...  -o OUTPUT.wad\n");
-	printf("\n");
+  printf("USAGE: qmipwad  [OPTIONS...]  FILES...  -o OUTPUT.wad\n");
+  printf("\n");
 
-	printf("OPTIONS:\n");
-	printf("   none yet !\n");
-	printf("\n");
+  printf("OPTIONS:\n");
+  printf("   none yet !\n");
+  printf("\n");
+}
+
+
+/* returns number of arguments used, at least 1 */
+int HandleOption(int argc, char **argv)
+{
+  if (StringCaseCmp(argv[0], "-o") == 0 ||
+      StringCaseCmp(argv[0], "-output")  == 0 ||
+      StringCaseCmp(argv[0], "--output") == 0)
+  {
+    if (argc <= 1 || argv[1][0] == '-')
+      FatalError("Missing output filename after %s\n", argv[0]);
+
+    output_name = std::string(argv[1]);
+
+    return 2;
+  }
+
+  FatalError("Unknown option: %s\n", argv[0]);
+  return 1; // NOT REACHED
+}
+
+
+void HandleFile(const char *filename)
+{
+  input_names.push_back(std::string(filename));
 }
 
 
 int main(int argc, char **argv)
 {
-	// TODO
+  // skip program name itself
+  argv++, argc--;
 
-	ShowTitle();
-	ShowUsage();
+  if (argc <= 0 ||
+      StringCaseCmp(argv[0], "/?") == 0 ||
+      StringCaseCmp(argv[0], "-h") == 0 ||
+      StringCaseCmp(argv[0], "-help") == 0 ||
+      StringCaseCmp(argv[0], "--help") == 0)
+  {
+    ShowTitle();
+    ShowUsage();
+    exit(1);
+  }
 
-	return 0;
+  ShowTitle();
+
+  // handle command-line arguments
+  while (argc > 0)
+  {
+    if (argv[0][0] == '-')
+    {
+      int num = HandleOption(argc, argv);
+
+      argv += num;
+      argc -= num;
+
+      continue;
+    }
+
+    HandleFile(argv[0]);
+
+    argv++;
+    argc--;
+  }
+
+  // validate stuff
+  if (strlen(output_name.c_str()) == 0)
+    FatalError("No output file was specified (use: -o filename)\n");
+
+  if (input_names.size() == 0)
+    FatalError("No input images were specified!\n");
+
+  return 0;
 }
 
 //--- editor settings ---
-// vi:ts=4:sw=4:noexpandtab
+// vi:ts=2:sw=2:expandtab
