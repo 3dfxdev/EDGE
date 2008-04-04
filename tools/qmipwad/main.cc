@@ -35,6 +35,14 @@ void FatalError(const char *message, ...)
 }
 
 
+void ShowTitle(void)
+{
+	printf("\n");
+	printf("**** QMIPWAD v0.02 ");
+	printf(" (C) 2008 Andrew Apted ****\n");
+	printf("\n");
+}
+
 void ShowUsage(void)
 {
 	printf("USAGE: qmipwad  [OPTIONS...]  FILES...  -o OUTPUT.wad\n");
@@ -49,6 +57,9 @@ void ShowUsage(void)
 int main(int argc, char **argv)
 {
 	// TODO
+
+	ShowTitle();
+	ShowUsage();
 
 	return 0;
 }
