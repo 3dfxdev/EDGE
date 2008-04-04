@@ -20,6 +20,9 @@
 
 #include <time.h>
 
+#include "im_mip.h"
+#include "pakfile.h"
+
 
 std::string output_name;
 
@@ -129,6 +132,18 @@ int main(int argc, char **argv)
 
   if (input_names.size() == 0)
     FatalError("No input images were specified!\n");
+
+
+  // now make the output WAD2 file!
+  if (! WAD2_OpenWrite(output_name.c_str()))
+    FatalError("Cannot create WAD2 file: %s\n", output_name.c_str());
+
+  for (unsigned int j = 0; j < input_names.size(); j++)
+    MIP_ProcessImage(input_names[j].c_str());
+
+  WAD2_CloseWrite();
+
+  printf("All done!\n");
 
   return 0;
 }
