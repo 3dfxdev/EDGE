@@ -36,4 +36,4 @@ bool PNG_Save(FILE *fp, const rgb_image_c *img, int compress = 3);
 #endif  /* __IMAGE_PNG_H__ */
 
 //--- editor settings ---
-// vi:ts=4:sw=4:noexpandtab
+// vi:ts=2:sw=2:expandtab

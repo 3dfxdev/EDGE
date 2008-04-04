@@ -43,3 +43,6 @@ void FatalError(const char *str, ...);
 
 
 #endif // __COMMON_HEADER__
+
+//--- editor settings ---
+// vi:ts=2:sw=2:expandtab
