@@ -20,7 +20,7 @@
 #define __IMAGE_MIP_H__
 
 
-void MIP_ProcessImage(const char *filename);
+bool MIP_ProcessImage(const char *filename);
 
 #endif  /* __IMAGE_MIP_H__ */
 

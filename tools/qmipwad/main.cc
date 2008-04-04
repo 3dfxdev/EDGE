@@ -138,12 +138,16 @@ int main(int argc, char **argv)
   if (! WAD2_OpenWrite(output_name.c_str()))
     FatalError("Cannot create WAD2 file: %s\n", output_name.c_str());
 
+  int failures = 0;
+
   for (unsigned int j = 0; j < input_names.size(); j++)
-    MIP_ProcessImage(input_names[j].c_str());
+    if (! MIP_ProcessImage(input_names[j].c_str()))
+      failures++;
 
   WAD2_CloseWrite();
 
-  printf("All done!\n");
+  printf("Mipped %d images, with %d failures\n",
+         (int)input_names.size() - failures, failures);
 
   return 0;
 }

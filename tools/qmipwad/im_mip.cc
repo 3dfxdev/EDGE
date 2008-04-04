@@ -20,6 +20,7 @@
 
 #include "im_image.h"
 #include "im_mip.h"
+#include "pakfile.h"
 
 
 const byte quake1_palette[256*3] =
@@ -79,9 +80,53 @@ const byte quake1_palette[256*3] =
 };
 
 
-void MIP_ProcessImage(const char *filename)
+rgb_image_c *MIP_LoadImage(const char *filename)
 {
   // TODO
+  return new rgb_image_c(16,16);
+}
+
+
+std::string MIP_FileToLumpName(const char *filename)
+{
+  // TODO
+  return "FOO";
+}
+
+
+bool MIP_ProcessImage(const char *filename)
+{
+//  printf("Loading ");
+
+  rgb_image_c * img = MIP_LoadImage(filename);
+
+  if (! img)
+    return false;
+
+  if ((img->width & 7) != 0 || (img->height & 7) != 0)
+  {
+    printf("WARNING: image size not multiple of 8: %s\n", filename);
+
+    int new_w = (img->width  | 7) + 1;
+    int new_h = (img->height | 7) + 1;
+
+    rgb_image_c *tmp = img->ScaledDup(new_w, new_h);
+
+    delete img; img = tmp;
+  }
+
+
+  std::string lump_name = MIP_FileToLumpName(filename);
+
+  WAD2_NewLump(lump_name.c_str());
+
+  // TODO
+
+  WAD2_FinishLump();
+
+  delete img;
+
+  return true;
 }
 
 //--- editor settings ---
