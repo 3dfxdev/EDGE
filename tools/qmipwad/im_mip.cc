@@ -18,9 +18,18 @@
 
 #include "headers.h"
 
+#include <map>
+
 #include "im_image.h"
 #include "im_mip.h"
 #include "pakfile.h"
+
+
+std::map<std::string, int> all_lump_names;
+
+std::map<u32_t, byte> color_cache;
+
+int max_color_cache = 64 * 1024;
 
 
 const byte quake1_palette[256*3] =
@@ -80,6 +89,57 @@ const byte quake1_palette[256*3] =
 };
 
 
+byte MIP_FindColor(const byte *palette, u32_t rgb_col)
+{
+  int best_idx  = -1;
+  int best_dist = (1<<30);
+
+  for (int i = 0; i < 255; i++)
+  {
+    int dr = RGB_R(rgb_col) - palette[i*3+0];
+    int dg = RGB_G(rgb_col) - palette[i*3+1];
+    int db = RGB_B(rgb_col) - palette[i*3+2];
+
+    int dist = dr*dr + dg*dg + db*db;
+
+    // exact match?
+    if (dist == 0)
+      return i;
+
+    if (dist < best_dist)
+    {
+      best_idx  = i;
+      best_dist = dist;
+    }
+  }
+
+  SYS_ASSERT(best_idx >= 0);
+
+  return best_idx;
+}
+
+
+inline byte MIP_MapColor(u32_t rgb_col)
+{
+  rgb_col &= 0xFFFFFF;  // ignore alpha
+
+  if (color_cache.find(rgb_col) != color_cache.end())
+    return color_cache[rgb_col];
+
+  // don't let the color cache grow without limit
+  if ((int)color_cache.size() >= max_color_cache)
+  {
+    color_cache.clear();
+  }
+
+  byte pal_idx = MIP_FindColor(quake1_palette, rgb_col);
+
+  color_cache[rgb_col] = pal_idx;
+
+  return pal_idx;
+}
+
+
 rgb_image_c *MIP_LoadImage(const char *filename)
 {
   // TODO
@@ -91,6 +151,29 @@ std::string MIP_FileToLumpName(const char *filename)
 {
   // TODO
   return "FOO";
+}
+
+
+void MIP_ConvertImage(rgb_image_c *img)
+{
+  byte *line_buf = new byte[img->width];
+
+  for (int y = 0; y < img->height; y++)  
+  {
+    const u32_t *src   = & img->PixelAt(0, y);
+    const u32_t *src_e = src + img->width;
+
+    byte *dest = line_buf;
+
+    for (; src < src_e; src++)
+    {
+      *dest++ = MIP_MapColor(*src);
+    }
+
+    WAD2_AppendData(line_buf, img->width);
+  }
+
+  delete[] line_buf;
 }
 
 
@@ -118,14 +201,28 @@ bool MIP_ProcessImage(const char *filename)
 
   std::string lump_name = MIP_FileToLumpName(filename);
 
+  if (lump_name.empty())
+  {
+    delete img;
+    return false;
+  }
+
   WAD2_NewLump(lump_name.c_str());
 
   // TODO
 
+  for (int mip = 0; mip < 4; mip++)
+  {
+    MIP_ConvertImage(img);
+
+    rgb_image_c *tmp = img->NiceMip();
+
+    delete img; img = tmp;
+  }
+
   WAD2_FinishLump();
 
   delete img;
-
   return true;
 }
 
