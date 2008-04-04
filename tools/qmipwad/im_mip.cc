@@ -151,7 +151,7 @@ rgb_image_c *MIP_LoadImage(const char *filename)
       CheckExtension(filename, "pgm") || CheckExtension(filename, "ppm") ||
       CheckExtension(filename, "tif") || CheckExtension(filename, "tiff"))
   {
-    printf("WARNING: Skipping unsupported format: %s\n", filename);
+    printf("FAILURE: Unsupported image format\n");
     return NULL;
   }
 
@@ -159,13 +159,13 @@ rgb_image_c *MIP_LoadImage(const char *filename)
       CheckExtension(filename, "jpeg"))
   {
     // TODO: JPEG
-    printf("WARNING: Skipping unsupported format: %s\n", filename);
+    printf("FAILURE: JPEG image format not supported yet\n");
     return NULL;
   }
 
   if (! CheckExtension(filename, "png"))
   {
-    printf("WARNING: Skipping non-image file: %s\n", filename);
+    printf("FAILURE: Not an image file\n");
     return NULL;
   }
 
@@ -174,7 +174,7 @@ rgb_image_c *MIP_LoadImage(const char *filename)
 
   if (! fp)
   {
-    printf("WARNING: Failed to open image file: %s\n", filename);
+    printf("FAILURE: Cannot open image file: %s\n", filename);
     return NULL;
   }
 
@@ -197,7 +197,7 @@ std::string MIP_FileToLumpName(const char *filename)
 
   if (strlen(base) > 15)
   {
-    printf("WARNING: Lump name too long, will abbreviate\n");
+    printf("WARNING: Lump name too long, must abbreviate it\n");
 
     // create new name using first and last 7 characters
     char new_name[20];
@@ -213,12 +213,12 @@ std::string MIP_FileToLumpName(const char *filename)
     base = StringDup(new_name);
   }
 
-  printf("  lump name: %s\n", base);
+  printf("   lump name: %s\n", base);
 
   // check if already exists
   if (all_lump_names.find(base) != all_lump_names.end())
   {
-    printf("WARNING: Lump already exists, will not duplicate\n");
+    printf("FAILURE: Lump already exists, will not duplicate\n");
     return std::string();
   }
 
@@ -273,7 +273,7 @@ bool MIP_ProcessImage(const char *filename)
     int new_w = (img->width  + 7) & ~7;
     int new_h = (img->height + 7) & ~7;
 
-    printf("  new size: %dx%d\n", new_w, new_h);
+    printf("   new size: %dx%d\n", new_w, new_h);
 
     rgb_image_c *tmp = img->ScaledDup(new_w, new_h);
 
