@@ -24,8 +24,9 @@ LDFLAGS=-Xlinker --warn-common $(SDL_LDFLAGS)
 
 OBJS=	u_assert.o \
 	u_file.o   \
-	u_util.o  \
+	u_util.o   \
 	im_image.o \
+	im_mip.o   \
 	im_png.o   \
 	pakfile.o  \
 	main.o
