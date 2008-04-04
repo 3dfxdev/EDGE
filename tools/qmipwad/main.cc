@@ -141,13 +141,14 @@ int main(int argc, char **argv)
     FatalError("Cannot create WAD2 file: %s\n", output_name.c_str());
 
   printf("\n");
-  printf("----------------------------------------\n");
+  printf("--------------------------------------------------\n");
 
   int failures = 0;
 
   for (unsigned int j = 0; j < input_names.size(); j++)
   {
-    printf("Processing: %s\n", input_names[j].c_str());
+    printf("Processing %d/%d: %s\n", 1+(int)j, (int)input_names.size(),
+           input_names[j].c_str());
 
     if (! MIP_ProcessImage(input_names[j].c_str()))
       failures++;
@@ -155,7 +156,7 @@ int main(int argc, char **argv)
     printf("\n");
   }
 
-  printf("----------------------------------------\n");
+  printf("--------------------------------------------------\n");
 
   WAD2_CloseWrite();
 

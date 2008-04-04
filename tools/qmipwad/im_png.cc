@@ -110,7 +110,7 @@ rgb_image_c *PNG_Load(FILE *fp)
   tot_W = (int)width;
   tot_H = (int)height;
 
-  printf("  loading PNG image, size: %dx%d\n", tot_W, tot_H);
+  printf("   loading PNG image, size: %dx%d\n", tot_W, tot_H);
 
   img = new rgb_image_c(tot_W, tot_H);
 
