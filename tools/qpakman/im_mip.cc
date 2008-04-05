@@ -202,7 +202,7 @@ std::string MIP_FileToLumpName(const char *filename)
 
   if (strlen(base) > 15)
   {
-    printf("WARNING: Lump name too long, must abbreviate it\n");
+    printf("WARNING: Lump name too long, will abbreviate it\n");
 
     // create new name using first and last 7 characters
     char new_name[20];
