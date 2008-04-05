@@ -65,7 +65,7 @@ void FatalError(const char *message, ...)
 void ShowTitle(void)
 {
   printf("\n");
-  printf("**** QPAKMAN v0.07  (C) 2008 Andrew Apted ****\n");
+  printf("**** QPAKMAN v0.20  (C) 2008 Andrew Apted ****\n");
   printf("\n");
 }
 
