@@ -20,6 +20,7 @@
 
 #include <time.h>
 
+#include "archive.h"
 #include "im_mip.h"
 #include "pakfile.h"
 
@@ -146,56 +147,17 @@ void AddInputFile(const char *filename)
 }
 
 
-void Main_CreatePAK(void)
-{
-  // TODO
-  FatalError("PAK creation not yet implemented\n");
-}
-
-
-void Main_CreateMIP(void)
-{
-  if (input_names.size() == 0)
-    FatalError("No input images were specified!\n");
-
-  // now make the output WAD2 file!
-  if (! WAD2_OpenWrite(output_name.c_str()))
-    FatalError("Cannot create WAD2 file: %s\n", output_name.c_str());
-
-  printf("\n");
-  printf("--------------------------------------------------\n");
-
-  int failures = 0;
-
-  for (unsigned int j = 0; j < input_names.size(); j++)
-  {
-    printf("Processing %d/%d: %s\n", 1+(int)j, (int)input_names.size(),
-           input_names[j].c_str());
-
-    if (! MIP_ProcessImage(input_names[j].c_str()))
-      failures++;
-
-    printf("\n");
-  }
-
-  printf("--------------------------------------------------\n");
-
-  WAD2_CloseWrite();
-
-  printf("Mipped %d images, with %d failures\n",
-         (int)input_names.size() - failures, failures);
-
-}
-
 
 void Main_Create(void)
 {
-    if (CheckExtension(output_name.c_str(), "wad"))
-      Main_CreateMIP();
-    else if (CheckExtension(output_name.c_str(), "pak"))
-      Main_CreatePAK();
-    else
-      FatalError("Unknown output file format: ^s\n", output_name.c_str());
+  const char *filename = output_name.c_str();
+
+  if (CheckExtension(filename, "wad"))
+    MIP_CreateWAD(filename);
+  else if (CheckExtension(filename, "pak"))
+    ARC_CreatePAK(filename);
+  else
+    FatalError("Unknown output file format: ^s\n", output_name.c_str());
 }
 
 
@@ -209,10 +171,20 @@ void Main_List(void)
 
   const char *filename = input_names[0].c_str();
 
-  if (CheckExtension(filename, "wad"))
-    ARC_ListWAD(filename);
-  else if (CheckExtension(filename, "pak"))
-    ARC_ListPAK();
+  if (CheckExtension(filename, "pak"))
+  {
+    // FIXME: check for error !!!!!!!
+    PAK_OpenRead(filename);
+    PAK_ListEntries();
+    PAK_CloseRead();
+  }
+  else if (CheckExtension(filename, "wad"))
+  {
+    // FIXME: check for error !!!!!!!
+    WAD2_OpenRead(filename);
+    WAD2_ListEntries();
+    WAD2_CloseRead();
+  }
   else
     FatalError("Unknown input file format: ^s\n", filename);
 }
@@ -231,7 +203,7 @@ void Main_Extract(void)
   if (CheckExtension(filename, "wad"))
     MIP_ExtractWAD(filename);
   else if (CheckExtension(filename, "pak"))
-    ARC_ExtractPAK();
+    ARC_ExtractPAK(filename);
   else
     FatalError("Unknown input file format: ^s\n", filename);
 }
