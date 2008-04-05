@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------
-//  QMIPTEX Main program
+//  QPAKMAN Main program
 //------------------------------------------------------------------------
 // 
 //  Copyright (c) 2008  Andrew J Apted
@@ -49,18 +49,28 @@ void FatalError(const char *message, ...)
 void ShowTitle(void)
 {
   printf("\n");
-  printf("**** QMIPWAD v0.05  (C) 2008 Andrew Apted ****\n");
+  printf("**** QPAKMAN v0.07  (C) 2008 Andrew Apted ****\n");
   printf("\n");
 }
 
 
 void ShowUsage(void)
 {
-  printf("USAGE: qmipwad  [OPTIONS...]  FILES...  -o OUTPUT.wad\n");
+  printf("USAGE: qpakman  [OPTIONS...]  FILES...  -o OUTPUT.pak\n");
+  printf("       qpakman  [OPTIONS...]  IMAGES..  -o OUTPUT.wad\n");
+  printf("       qpakman  [OPTIONS...]  INPUT.pak/wad\n");
   printf("\n");
 
   printf("OPTIONS:\n");
-  printf("   none yet !\n");
+  printf("   -r  -recursive   descend into directories (PAK creation)\n");
+  printf("   -l  -list        list contents of PAK/WAD file\n");
+  printf("   -e  -extract     extract PAK/WAD contents into current dir\n");
+  printf("       -overwrite   overwrite existing files when extracting\n");
+  printf("\n");
+
+  printf("This program is free software, under the terms of the GNU General\n");
+  printf("Public License, and comes with ABSOLUTELY NO WARRANTY.  See the\n");
+  printf("accompanying documentation for more details.  USE AT OWN RISK.\n");
   printf("\n");
 }
 
