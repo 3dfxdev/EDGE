@@ -28,6 +28,21 @@ std::string output_name;
 
 std::vector<std::string> input_names;
 
+typedef enum
+{
+  ACT_None = 0,
+
+  ACT_Create,
+  ACT_List,
+  ACT_Extract
+}
+prog_action_type_e;
+
+static prog_action_type_e program_action = ACT_None;
+
+bool opt_recursive = false;
+bool opt_overwrite = false;
+
 
 void FatalError(const char *message, ...)
 {
@@ -78,16 +93,46 @@ void ShowUsage(void)
 /* returns number of arguments used, at least 1 */
 int HandleOption(int argc, char **argv)
 {
-  if (StringCaseCmp(argv[0], "-o") == 0 ||
-      StringCaseCmp(argv[0], "-output")  == 0 ||
-      StringCaseCmp(argv[0], "--output") == 0)
+  const char *opt = argv[0];
+
+  // GNU style options begin with two dashes
+  if (opt[0] == '-' && opt[1] == '-')
+    opt++;
+
+  if (StringCaseCmp(opt, "-o") == 0 || StringCaseCmp(opt, "-output") == 0)
   {
     if (argc <= 1 || argv[1][0] == '-')
       FatalError("Missing output filename after %s\n", argv[0]);
 
     output_name = std::string(argv[1]);
 
+    program_action = ACT_Create;
     return 2;
+  }
+
+  if (StringCaseCmp(opt, "-l") == 0 || StringCaseCmp(opt, "-list") == 0)
+  {
+    program_action = ACT_List;
+    return 1;
+  }
+
+  if (StringCaseCmp(opt, "-e") == 0 || StringCaseCmp(opt, "-extract") == 0)
+  {
+    program_action = ACT_Extract;
+    return 1;
+  }
+
+  if (StringCaseCmp(opt, "-r") == 0 || StringCaseCmp(opt, "-recursive") == 0)
+  {
+    opt_recursive = true;
+    return 1;
+  }
+
+  // no short version because this option is dangerous
+  if (StringCaseCmp(opt, "-overwrite") == 0)
+  {
+    opt_overwrite = true;
+    return 1;
   }
 
   FatalError("Unknown option: %s\n", argv[0]);
@@ -95,9 +140,100 @@ int HandleOption(int argc, char **argv)
 }
 
 
-void HandleFile(const char *filename)
+void AddInputFile(const char *filename)
 {
   input_names.push_back(std::string(filename));
+}
+
+
+void Main_CreatePAK(void)
+{
+  // TODO
+  FatalError("PAK creation not yet implemented\n");
+}
+
+
+void Main_CreateMIP(void)
+{
+  if (input_names.size() == 0)
+    FatalError("No input images were specified!\n");
+
+  // now make the output WAD2 file!
+  if (! WAD2_OpenWrite(output_name.c_str()))
+    FatalError("Cannot create WAD2 file: %s\n", output_name.c_str());
+
+  printf("\n");
+  printf("--------------------------------------------------\n");
+
+  int failures = 0;
+
+  for (unsigned int j = 0; j < input_names.size(); j++)
+  {
+    printf("Processing %d/%d: %s\n", 1+(int)j, (int)input_names.size(),
+           input_names[j].c_str());
+
+    if (! MIP_ProcessImage(input_names[j].c_str()))
+      failures++;
+
+    printf("\n");
+  }
+
+  printf("--------------------------------------------------\n");
+
+  WAD2_CloseWrite();
+
+  printf("Mipped %d images, with %d failures\n",
+         (int)input_names.size() - failures, failures);
+
+}
+
+
+void Main_Create(void)
+{
+    if (CheckExtension(output_name.c_str(), "wad"))
+      Main_CreateMIP();
+    else if (CheckExtension(output_name.c_str(), "pak"))
+      Main_CreatePAK();
+    else
+      FatalError("Unknown output file format: ^s\n", output_name.c_str());
+}
+
+
+void Main_List(void)
+{
+  if (input_names.size() == 0)
+    FatalError("Missing input file to list\n");
+
+  if (input_names.size() > 1)
+    FatalError("Can only list one input file\n");
+
+  const char *filename = input_names[0].c_str();
+
+  if (CheckExtension(filename, "wad"))
+    ARC_ListWAD(filename);
+  else if (CheckExtension(filename, "pak"))
+    ARC_ListPAK();
+  else
+    FatalError("Unknown input file format: ^s\n", filename);
+}
+
+
+void Main_Extract(void)
+{
+  if (input_names.size() == 0)
+    FatalError("Missing input file to extract\n");
+
+  if (input_names.size() > 1)
+    FatalError("Can only extract one input file\n");
+
+  const char *filename = input_names[0].c_str();
+
+  if (CheckExtension(filename, "wad"))
+    MIP_ExtractWAD(filename);
+  else if (CheckExtension(filename, "pak"))
+    ARC_ExtractPAK();
+  else
+    FatalError("Unknown input file format: ^s\n", filename);
 }
 
 
@@ -132,46 +268,30 @@ int main(int argc, char **argv)
       continue;
     }
 
-    HandleFile(argv[0]);
+    AddInputFile(argv[0]);
 
     argv++;
     argc--;
   }
 
-  // validate stuff
-  if (strlen(output_name.c_str()) == 0)
-    FatalError("No output file was specified (use: -o filename)\n");
-
-  if (input_names.size() == 0)
-    FatalError("No input images were specified!\n");
-
-
-  // now make the output WAD2 file!
-  if (! WAD2_OpenWrite(output_name.c_str()))
-    FatalError("Cannot create WAD2 file: %s\n", output_name.c_str());
-
-  printf("\n");
-  printf("--------------------------------------------------\n");
-
-  int failures = 0;
-
-  for (unsigned int j = 0; j < input_names.size(); j++)
+  switch (program_action)
   {
-    printf("Processing %d/%d: %s\n", 1+(int)j, (int)input_names.size(),
-           input_names[j].c_str());
+    case ACT_Create:
+      Main_Create();
+      break;
 
-    if (! MIP_ProcessImage(input_names[j].c_str()))
-      failures++;
+    case ACT_List:
+      Main_List();
+      break;
 
-    printf("\n");
+    case ACT_Extract:
+      Main_Extract();
+      break;
+
+    default:
+      FatalError("Nothing to do (missing output file?)\n");
+      break; // NOT REACHED
   }
-
-  printf("--------------------------------------------------\n");
-
-  WAD2_CloseWrite();
-
-  printf("Mipped %d images, with %d failures\n",
-         (int)input_names.size() - failures, failures);
 
   return 0;
 }
