@@ -311,7 +311,7 @@ void PAK_AppendData(const void *data, int length)
   {
     if (fwrite(data, length, 1, w_pak_fp) != 1)
     {
-      //TODO : write_errors++
+      /// write_errors++
     }
   }
 }
@@ -452,8 +452,6 @@ void WAD2_CloseRead(void)
 
 int WAD2_FindEntry(const char *name)
 {
-  // FIXME: optimise this (with a cache)
-
   for (unsigned int i = 0; i < wad_R_header.num_lumps; i++)
   {
     if (StringCaseCmp(name, wad_R_dir[i].name) == 0)
@@ -610,7 +608,7 @@ void WAD2_AppendData(const void *data, int length)
   {
     if (fwrite(data, length, 1, wad_W_fp) != 1)
     {
-      //TODO : write_errors++
+      /// write_errors++
     }
   }
 }
