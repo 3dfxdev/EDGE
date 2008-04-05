@@ -6,7 +6,7 @@
 
 # --- variables that can be overridden ---
 
-PROGRAM=qmipwad
+PROGRAM=qpakman
 
 CXX=g++
 
