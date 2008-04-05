@@ -117,6 +117,7 @@ bool PAK_OpenRead(const char *filename)
 //    DebugPrintf(" %4d: %08x %08x : %s\n", i, E->offset, E->length, E->name);
   }
 
+  // FIXME: allow PAK with no entries!!!!
   if (r_header.entry_num == 0)
   {
     LogPrintf("PAK_OpenRead: could not read any dir-entries!\n");
@@ -189,6 +190,28 @@ bool PAK_ReadData(int entry, int offset, int length, void *buffer)
   int res = fread(buffer, length, 1, r_pak_fp);
 
   return (res == 1);
+}
+
+
+void PAK_ListEntries(void)
+{
+  printf("--------------------------------------------------\n");
+
+  if (r_header.entry_num == 0)
+  {
+    printf("PAK file is empty\n");
+  }
+  else
+  {
+    for (int i = 0; i < (int)r_header.entry_num; i++)
+    {
+      raw_pak_entry_t *E = &r_directory[i];
+
+      printf("%4d: +%08x %08x : %s\n", i+1, E->offset, E->length, E->name);
+    }
+  }
+
+  printf("--------------------------------------------------\n");
 }
 
 
@@ -355,6 +378,7 @@ bool WAD2_OpenRead(const char *filename)
 
   /* read directory */
 
+  // FIXME: allow WAD2 with no entries!!!!
   if (wad_R_header.num_lumps == 0)
   {
     LogPrintf("WAD2_OpenRead: empty WAD2 file!\n");
@@ -461,6 +485,29 @@ bool WAD2_ReadData(int entry, int offset, int length, void *buffer)
 
   return (res == 1);
 }
+
+
+void WAD2_ListEntries(void)
+{
+  printf("--------------------------------------------------\n");
+
+  if (wad_R_header.num_lumps == 0)
+  {
+    printf("WAD2 file is empty\n");
+  }
+  else
+  {
+    for (int i = 0; i < (int)wad_R_header.num_lumps; i++)
+    {
+      raw_wad2_lump_t *L = &wad_R_dir[i];
+
+      printf("%4d: +%08x %08x : %s\n", i+1, L->start, L->length, L->name);
+    }
+  }
+
+  printf("--------------------------------------------------\n");
+}
+
 
 
 //------------------------------------------------------------------------
