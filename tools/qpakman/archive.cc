@@ -32,14 +32,14 @@ extern bool opt_overwrite;
 
 void ARC_CreatePAK(const char *filename)
 {
-  // TODO
+  // TODO: ARC_CreatePAK
   FatalError("PAK creation not yet implemented\n");
 }
 
 
 void ARC_ExtractPAK(const char *filename)
 {
-  // TODO
+  // TODO: ARC_ExtractPAK
   FatalError("PAK extraction not yet implemented\n");
 }
 
