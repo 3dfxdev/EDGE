@@ -19,8 +19,9 @@
 #ifndef __IMAGE_MIP_H__
 #define __IMAGE_MIP_H__
 
-
 bool MIP_ProcessImage(const char *filename);
+void MIP_CreateWAD(const char *filename);
+void MIP_ExtractWAD(const char *filename);
 
 #endif  /* __IMAGE_MIP_H__ */
 

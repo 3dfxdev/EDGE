@@ -26,6 +26,11 @@
 #include "pakfile.h"
 #include "q1_structs.h"
 
+extern std::vector<std::string> input_names;
+
+extern bool opt_recursive;
+extern bool opt_overwrite;
+
 
 std::map<std::string, int> all_lump_names;
 
@@ -324,6 +329,48 @@ bool MIP_ProcessImage(const char *filename)
 
   delete img;
   return true;
+}
+
+
+void MIP_CreateWAD(const char *filename)
+{
+  if (input_names.size() == 0)
+    FatalError("No input images were specified!\n");
+
+  // now make the output WAD2 file!
+  if (! WAD2_OpenWrite(filename))
+    FatalError("Cannot create WAD2 file: %s\n", filename);
+
+  printf("\n");
+  printf("--------------------------------------------------\n");
+
+  int failures = 0;
+
+  for (unsigned int j = 0; j < input_names.size(); j++)
+  {
+    printf("Processing %d/%d: %s\n", 1+(int)j, (int)input_names.size(),
+           input_names[j].c_str());
+
+    if (! MIP_ProcessImage(input_names[j].c_str()))
+      failures++;
+
+    printf("\n");
+  }
+
+  printf("--------------------------------------------------\n");
+
+  WAD2_CloseWrite();
+
+  printf("Mipped %d images, with %d failures\n",
+         (int)input_names.size() - failures, failures);
+
+}
+
+
+void MIP_ExtractWAD(const char *filename)
+{
+  // TODO: MIP_ExtractWAD
+  FatalError("Extracting WAD2 not yet implemented.\n");
 }
 
 //--- editor settings ---
