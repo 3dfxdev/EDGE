@@ -129,6 +129,8 @@ static void DoWriteText(float x, float y, const char *str)
 	float cx = x;
 	float cy = y;
 
+	float f_h = cur_font->NominalHeight() * 1.5;
+
 	for (; *str; str++)
 	{
 		char ch = *str;
@@ -136,7 +138,7 @@ static void DoWriteText(float x, float y, const char *str)
 		if (ch == '\n')
 		{
 			cx = x;
-			cy += 12.0f * cur_scale;  // FIXME: use font's height
+			cy += f_h * cur_scale;
 			continue;
 		}
 
@@ -154,6 +156,8 @@ static void DoWriteText_RightAlign(float x, float y, const char *str)
 	float cx = x;
 	float cy = y;
 
+	float f_h = cur_font->NominalHeight() * 1.5;
+
 	for (int pos = strlen(str)-1; pos >= 0; pos--)
 	{
 		char ch = str[pos];
@@ -161,7 +165,7 @@ static void DoWriteText_RightAlign(float x, float y, const char *str)
 		if (ch == '\n')
 		{
 			cx = x;
-			cy += 12.0f * cur_scale;  // FIXME: use font's height
+			cy += f_h * cur_scale;
 			continue;
 		}
 
