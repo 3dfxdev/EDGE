@@ -152,11 +152,11 @@ means you can show other information here instead of
 
 <p>
 <b>hud.draw_all()</b> : this is the function which EDGE calls
-to draw [u]everything[/u].  The normal version (in edge.wad)
-will call the above functions depending on the current HUD
-number and whether the user is in the automap or not.
+to draw <em>everything</em>.  The normal version (in EDGE.WAD)
+will call the above functions depending on the user's current HUD
+and whether the automap is active or not.
 Replacing this function gives you total control: you could
-provide more or less huds that the usual three, ignore the
+provide more huds (or less) than the usual three, ignore the
 automap mode completely if you wanted, or even draw the view
 from multiple players.
 
@@ -168,7 +168,7 @@ from multiple players.
 
 <p><span class="VAR">hud.automap</span><br>
 This variable is true while the user is viewing the automap
-(pressed TAB) and false for the normal view.
+(by pressing TAB) and false for the normal view.
 
 <p><span class="VAR">hud.which</span><br>
 This variable is the current HUD number which the user cycles
