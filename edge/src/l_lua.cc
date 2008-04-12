@@ -24,6 +24,7 @@
 
 #include "dm_state.h"
 #include "e_main.h"
+#include "g_game.h"
 #include "l_lua.h"
 #include "version.h"
 
@@ -252,6 +253,27 @@ static int HD_game_mode(lua_State *L)
 	else
 		lua_pushstring(L, "sp");
 
+	return 1;
+}
+
+
+// hud.game_name()
+//
+static int HD_game_name(lua_State *L)
+{
+	gamedef_c *g = currmap->episode;
+	SYS_ASSERT(g);
+
+	lua_pushstring(L, g->ddf.name.c_str());
+	return 1;
+}
+
+
+// hud.map_name()
+//
+static int HD_map_name(lua_State *L)
+{
+	lua_pushstring(L, currmap->ddf.name.c_str());
 	return 1;
 }
 
@@ -648,6 +670,8 @@ static const luaL_Reg hud_module[] =
 
 	// query functions
     { "game_mode",       HD_game_mode },
+    { "game_name",       HD_game_name },
+    { "map_name",  	     HD_map_name },
     { "map_title",  	 HD_map_title },
 
 	// set-state functions
@@ -1077,6 +1101,125 @@ static int PL_main_ammo(lua_State *L)
 }
 
 
+// player.ammo_type(ATK)
+//
+static int PL_ammo_type(lua_State *L)
+{
+	int ATK = luaL_checkint(L, 1);
+
+	if (ATK < 1 || ATK > 2)
+		I_Error("player.ammo_type: bad attack number: %d\n", ATK);
+
+	ATK--;
+
+	int value = 0;
+
+	if (cur_player->ready_wp >= 0)
+	{
+		playerweapon_t *pw = &cur_player->weapons[cur_player->ready_wp];
+		
+		value = 1 + (int) pw->info->ammo[ATK];
+	}
+
+	lua_pushinteger(L, value);
+	return 1;
+}
+
+
+// player.ammo_pershot(ATK)
+//
+static int PL_ammo_pershot(lua_State *L)
+{
+	int ATK = luaL_checkint(L, 1);
+
+	if (ATK < 1 || ATK > 2)
+		I_Error("player.ammo_pershot: bad attack number: %d\n", ATK);
+
+	ATK--;
+
+	int value = 0;
+
+	if (cur_player->ready_wp >= 0)
+	{
+		playerweapon_t *pw = &cur_player->weapons[cur_player->ready_wp];
+		
+		value = pw->info->ammopershot[ATK];
+	}
+
+	lua_pushinteger(L, value);
+	return 1;
+}
+
+
+// player.clip_ammo(ATK)
+//
+static int PL_clip_ammo(lua_State *L)
+{
+	int ATK = luaL_checkint(L, 1);
+
+	if (ATK < 1 || ATK > 2)
+		I_Error("player.clip_ammo: bad attack number: %d\n", ATK);
+
+	ATK--;
+
+	int value = 0;
+
+	if (cur_player->ready_wp >= 0)
+	{
+		playerweapon_t *pw = &cur_player->weapons[cur_player->ready_wp];
+
+		value = pw->clip_size[ATK];
+	}
+
+	lua_pushinteger(L, value);
+	return 1;
+}
+
+
+// player.clip_size(ATK)
+//
+static int PL_clip_size(lua_State *L)
+{
+	int ATK = luaL_checkint(L, 1);
+
+	if (ATK < 1 || ATK > 2)
+		I_Error("player.clip_size: bad attack number: %d\n", ATK);
+
+	ATK--;
+
+	int value = 0;
+
+	if (cur_player->ready_wp >= 0)
+	{
+		playerweapon_t *pw = &cur_player->weapons[cur_player->ready_wp];
+
+		value = pw->info->clip_size[ATK];
+	}
+
+	lua_pushinteger(L, value);
+	return 1;
+}
+
+
+// player.clip_is_shared()
+//
+static int PL_clip_is_shared(lua_State *L)
+{
+	int value = 0;
+
+	if (cur_player->ready_wp >= 0)
+	{
+		playerweapon_t *pw = &cur_player->weapons[cur_player->ready_wp];
+
+		if (pw->info->shared_clip)
+			value = 1;
+	}
+
+	lua_pushboolean(L, value);
+	return 1;
+}
+
+
 // player.hurt_by()
 //
 static int PL_hurt_by(lua_State *L)
@@ -1146,7 +1289,6 @@ static const luaL_Reg player_module[] =
     { "frags",       PL_frags       },
     { "ammo",        PL_ammo        },
     { "ammomax",     PL_ammomax     },
-    { "main_ammo",   PL_main_ammo   },
 
     { "is_swimming",     PL_is_swimming   },
     { "is_jumping",      PL_is_jumping    },
@@ -1167,6 +1309,13 @@ static const luaL_Reg player_module[] =
     { "has_weapon_slot", PL_has_weapon_slot },
     { "cur_weapon",      PL_cur_weapon      },
     { "cur_weapon_slot", PL_cur_weapon_slot },
+
+    { "main_ammo",       PL_main_ammo  },
+    { "ammo_type",       PL_ammo_type  },
+    { "ammo_pershot",    PL_ammo_pershot },
+    { "clip_ammo",       PL_clip_ammo  },
+    { "clip_size",       PL_clip_size  },
+    { "clip_is_shared",  PL_clip_is_shared },
 
     { "hurt_by",         PL_hurt_by    },
     { "hurt_pain",       PL_hurt_pain  },
@@ -1232,11 +1381,13 @@ void LU_LoadScripts(void)
 {
 	static const char *script_lumps[] =
 	{
-		"LUAHUD0",  // edge.wad - base
-		"LUAHUD1",  // edge.wad - hud
+		"LUAUTIL0",  // edge.wad
+		"LUAUTIL1",  // user - in a TC
+		"LUAUTIL2",  // user - for a add-on
 
-		"LUAHUD2",  // user - in a TC
-		"LUAHUD3",  // user - for a add-on
+		"LUAHUD0",  // edge.wad
+		"LUAHUD1",  // user - in a TC
+		"LUAHUD2",  // user - for a add-on
 
 		NULL  // end of list
 	};
