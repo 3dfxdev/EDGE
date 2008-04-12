@@ -78,15 +78,23 @@ are loaded when present:
 </tr>
 <tr>
   <td class="L1">LUAHUD1</td>
-  <td class="L2">&nbsp;from a TC/Mod</td>
+  <td class="L2">&nbsp;from a TC/Project</td>
 </tr>
 <tr>
   <td class="L1">LUAHUD2</td>
-  <td class="L2">&nbsp;from an Add-on</td>
+  <td class="L2">&nbsp;from a Mod/Addon</td>
 </tr>
 </table>
 </center>
 
+<p>
+The lumps ending with '0' are the ones in EDGE.WAD and should not be
+replaced by custom pwads (especially LUAUTIL0 which has some important
+house-keeping functions).
+Lumps ending with '1' are for large projects and Total Conversions,
+which generally have new maps, textures and monsters.
+Lumps ending with '2' are for smaller mods/addons, stuff like new
+weapons, which could be used in addition to a large project or TC.
 
 
 </body>
