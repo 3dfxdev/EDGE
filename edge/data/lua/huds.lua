@@ -39,10 +39,9 @@ function doomguy_face(x, y)
 
   local function pain_digit()
 
-    local base = 100; --!!!! FIXME  player.healthmax();
-    local health = math.min(base, player.health())
+    local health = math.min(100, player.health())
     
-    local index = int(4.99 * (base - health) / base);
+    local index = int(4.99 * (100 - health) / 100);
 
     assert(index >= 0)
     assert(index <= 4)
@@ -182,7 +181,36 @@ end
 
 
 function doom_overlay_status()
-  -- TODO !!!!
+  hud.text_font("BIG_DIGIT")
+
+  hud.draw_num2(100, 171, 3, player.health());
+
+  hud.text_color("TEXT_YELLOW");
+  hud.draw_num2( 44, 171, 3, player.main_ammo(1));
+
+  if player.total_armor() > 100 then
+    hud.text_color("TEXT_BLUE");
+  else
+    hud.text_color("TEXT_GREEN");
+  end
+  hud.draw_num2(242, 171, 3, player.total_armor())
+
+  doom_key(256, 171, 1, 5, "STKEYS0", "STKEYS3", "STKEYS6")
+  doom_key(256, 181, 2, 6, "STKEYS1", "STKEYS4", "STKEYS7")
+  doom_key(256, 191, 3, 7, "STKEYS2", "STKEYS5", "STKEYS8")
+
+  hud.text_font("YELLOW_DIGIT")
+  hud.text_color("");
+
+  hud.draw_num2(288, 173, 3, player.ammo(1));
+  hud.draw_num2(288, 179, 3, player.ammo(2));
+  hud.draw_num2(288, 185, 3, player.ammo(3));
+  hud.draw_num2(288, 191, 3, player.ammo(4));
+
+  hud.draw_num2(314, 173, 3, player.ammomax(1));
+  hud.draw_num2(314, 179, 3, player.ammomax(2));
+  hud.draw_num2(314, 185, 3, player.ammomax(3));
+  hud.draw_num2(314, 191, 3, player.ammomax(4));
 end
 
 
