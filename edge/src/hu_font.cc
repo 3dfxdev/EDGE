@@ -158,9 +158,7 @@ void font_c::LoadImageDiv()
 	I_Error("LoadImageDiv called??\n");
 }
 
-//
-// font_c::Load
-//
+
 void font_c::Load()
 {
 	switch (def->type)
@@ -179,9 +177,7 @@ void font_c::Load()
 	}
 }
 
-//
-// font_c::NominalWidth, NominalHeight
-//
+
 int font_c::NominalWidth() const
 {
 	if (def->type == FNTYP_Image)
@@ -206,9 +202,7 @@ int font_c::NominalHeight() const
 	return 1; /* NOT REACHED */
 }
 
-//
-// font_c::HasChar
-//
+
 bool font_c::HasChar(char ch) const
 {
 	SYS_ASSERT(def->type == FNTYP_Patch);
@@ -221,9 +215,7 @@ bool font_c::HasChar(char ch) const
 	return (p_cache.images[idx - p_cache.first] != NULL);
 }
 
-//
-// font_c::CharImage
-//
+
 const image_c *font_c::CharImage(char ch) const
 {
 	SYS_ASSERT(def->type == FNTYP_Patch);
@@ -245,8 +237,7 @@ const image_c *font_c::CharImage(char ch) const
 	return p_cache.images[idx - p_cache.first];
 }
 
-//
-// font_c::CharWidth
+
 //
 // Returns the width of the IBM cp437 char in the font.
 //
@@ -268,8 +259,7 @@ int font_c::CharWidth(char ch) const  // XXX: return float ???
 	return I_ROUND(IM_WIDTH(im));
 }
 
-//
-// font_c::MaxFit
+
 //
 // Returns the maximum number of characters which can fit within pixel_w
 // pixels.  The string may not contain any newline characters.
@@ -302,8 +292,7 @@ int font_c::MaxFit(int pixel_w, const char *str) const
 	return s - str;
 }
 
-//
-// font_c::StringWidth
+
 //
 // Find string width from hu_font chars.  The string may not contain
 // any newline characters.
@@ -318,8 +307,7 @@ int font_c::StringWidth(const char *str) const
 	return w;
 }
 
-//
-// font_c::StringLines
+
 //
 // Find number of lines in string.
 //
@@ -334,18 +322,12 @@ int font_c::StringLines(const char *str) const
 	return lines;
 }
 
-//
-// font_c::DrawChar
-//
-void font_c::DrawChar(float x, float y, char ch, float scale, float aspect,
+
+void font_c::DrawChar320(float x, float y, char ch, float scale, float aspect,
     const colourmap_c *colmap, float alpha) const
 {
-	if (def->type == FNTYP_Image)
-	{
-		// FIXME !!!!
-		return;
-	}
-	
+	SYS_ASSERT(def->type != FNTYP_Image);
+
 	const image_c *image = CharImage(ch);
 
 	if (! image)
@@ -371,9 +353,7 @@ void font_c::DrawChar(float x, float y, char ch, float scale, float aspect,
 //  font_container_c class
 //----------------------------------------------------------------------------
 
-//
-// font_container_c::CleanupObject()
-//
+
 void font_container_c::CleanupObject(void *obj)
 {
 	font_c *a = *(font_c**)obj;
@@ -381,9 +361,7 @@ void font_container_c::CleanupObject(void *obj)
 	if (a) delete a;
 }
 
-//
-// font_container_c::Lookup()
-//
+
 // Never returns NULL.
 //
 font_c* font_container_c::Lookup(fontdef_c *def)

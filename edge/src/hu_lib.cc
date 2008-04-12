@@ -82,7 +82,7 @@ void HL_WriteTextTrans(style_c *style, int text_type, int x, int y,
 		if (cx >= 320.0f)
 			continue;
 
-		font->DrawChar(cx, cy, ch, scale,1.0f, colmap, 1.0f);
+		font->DrawChar320(cx, cy, ch, scale,1.0f, colmap, 1.0f);
 
 		cx += font->CharWidth(ch) * scale;
 	}
@@ -186,7 +186,7 @@ void HL_DrawTextLineAlpha(hu_textline_t * L, bool drawcursor, const colourmap_c 
 		if (x < -w)
 			continue;
 
-		font->DrawChar(x, y, ch, scale,1.0f, colmap, alpha);
+		font->DrawChar320(x, y, ch, scale,1.0f, colmap, alpha);
 	}
 
 	// draw the cursor if requested
@@ -194,7 +194,7 @@ void HL_DrawTextLineAlpha(hu_textline_t * L, bool drawcursor, const colourmap_c 
 	{
 		if (drawcursor && x < 320)
 		{
-			font->DrawChar(x, y, '_', scale,1.0f, colmap, alpha);
+			font->DrawChar320(x, y, '_', scale,1.0f, colmap, alpha);
 		}
 	}
 }

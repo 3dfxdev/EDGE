@@ -1095,7 +1095,7 @@ static void DrawMarks(void)
 			cx = cx * 320.f / SCREENWIDTH;
 			cy = 200.0 - (cy * 200.0f / SCREENHEIGHT);
 
-			am_font->DrawChar(cx, cy, '1'+i, scale,1.0f, NULL,1.0f);
+			am_font->DrawChar320(cx, cy, '1'+i, scale,1.0f, NULL,1.0f);
 		}
 	}
 }
