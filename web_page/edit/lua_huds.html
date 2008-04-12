@@ -31,6 +31,16 @@
         color: #ddd;
         background-color: black;
      }
+     .VAR {
+        color: #3333FF;
+        font-size: x-large;
+        font-family: monospace;
+     }
+     .FUNC {
+        color: #22AA22;
+        font-size: x-large;
+        font-family: monospace;
+     }
   </style>
 </head>
 
@@ -150,23 +160,148 @@ from multiple players.
 
 <h2>HUD MODULE<h2>
 
+
 <h3>General Queries</h3>
 
+<p><span class="VAR">hud.automap</span>
+
+<p><span class="VAR">hud.which</span>
+
+<p><span class="VAR">hud.now_time</span>
+
+<p><span class="VAR">hud.passed_time</span>
+
+<p><span class="FUNC">hud.game_mode()</span>
+
+<p><span class="FUNC">hud.game_name()</span>
+
+<p><span class="FUNC">hud.map_name()</span>
+
+<p><span class="FUNC">hud.map_title()</span>
+
+
 <h3>Drawing Stuff</h3>
+
+<p><span class="FUNC">hud.coord_sys(w, h)</span>
+
+<p><span class="FUNC">hud.text_font(name)</span>
+
+<p><span class="FUNC">hud.text_color(name)</span>
+
+<p><span class="FUNC">hud.set_scale(value)</span>
+
+<p><span class="FUNC">hud.set_alpha(value)</span>
+
+<p><span class="FUNC">hud.solid_box(x, y, w, h, color)</span>
+
+<p><span class="FUNC">hud.solid_line(x1, y1, x2, y2, color)</span>
+
+<p><span class="FUNC">hud.thin_box(x, y, w, h, color)</span>
+
+<p><span class="FUNC">hud.gradient_box(x, y, w, h, TL, BL, TR, BR)</span>
+
+<p><span class="FUNC">hud.draw_image(x, y, name)</span>
+
+<p><span class="FUNC">hud.stretch_image(x, y, w, h, name)</span>
+
+<p><span class="FUNC">hud.tile_image(x, y, w, h, name, [x_offset, y_offset])</span>
+
+<p><span class="FUNC">hud.draw_text(x, y, str)</span>
+
+<p><span class="FUNC">hud.draw_num2(x, y, len, num)</span>
+
+<p><span class="FUNC">hud.render_world(x, y, w, h)</span>
+
+<p><span class="FUNC">hud.render_automap(x, y, w, h)</span>
+
+<p><span class="FUNC">hud.automap_colors(table)</span>
 
 
 
 <h2>PLAYER MODULE<h2>
 
+
 <h3>General Queries</h3>
+
+<p><span class="FUNC">player.is_bot()</span>
+
+<p><span class="FUNC">player.get_name()</span>
+
+<p><span class="FUNC">player.health()</span>
+
+<p><span class="FUNC">player.armor(type)</span>
+
+<p><span class="FUNC">player.total_armor(type)</span>
+
+<p><span class="FUNC">player.frags()</span>
+
+<p><span class="FUNC">player.move_speed()</span>
+
+<p><span class="FUNC">player.air_in_lungs()</span>
+
+<p><span class="FUNC">player.has_key(key)</span>
+
+<p><span class="FUNC">player.has_power(key)</span>
+
 
 <h3>Weapon Stuff</h3>
 
+<p><span class="FUNC">player.has_weapon_slot(slot)</span>
+
+<p><span class="FUNC">player.has_weapon(name)</span>
+
+<p><span class="FUNC">player.ammo(type)</span>
+
+<p><span class="FUNC">player.ammomax(type)</span>
+
+<p><span class="FUNC">player.main_ammo(clip)</span>
+
+<p><span class="FUNC">player.ammo_type(ATK)</span>
+
+<p><span class="FUNC">player.ammo_pershot(ATK)</span>
+
+<p><span class="FUNC">player.clip_ammo(ATK)</span>
+
+<p><span class="FUNC">player.clip_size(ATK)</span>
+
+<p><span class="FUNC">player.clip_is_shared()</span>
+
+
 <h3>Conditions</h3>
 
+<p><span class="FUNC">player.under_water()</span>
+
+<p><span class="FUNC">player.on_ground()</span>
+
+<p><span class="FUNC">player.is_swimming()</span>
+
+<p><span class="FUNC">player.is_jumping()</span>
+
+<p><span class="FUNC">player.is_crouching()</span>
+
+<p><span class="FUNC">player.is_attacking()</span>
+
+<p><span class="FUNC">player.is_rampaging()</span>
+
+<p><span class="FUNC">player.is_grinning()</span>
+
+<p><span class="FUNC">player.is_using()</span>
+
+<h3>Miscellaneous</h3>
+
+<p><span class="FUNC">player.num_players()</span>
+
+<p><span class="FUNC">player.set_who(index)</span>
+
+<p><span class="FUNC">player.hurt_by()</span>
+
+<p><span class="FUNC">player.hurt_pain()</span>
+
+<p><span class="FUNC">player.hurt_dir()</span>
 
 
-<h2>DEFAULT CODE</h2>
+
+<h2>DEFAULT HUD CODE</h2>
 
 <PRE>
 
