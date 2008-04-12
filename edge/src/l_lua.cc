@@ -769,7 +769,9 @@ static int PL_get_name(lua_State *L)
 //
 static int PL_health(lua_State *L)
 {
-	lua_pushinteger(L, (int)floor(cur_player->health + 0.99));
+	float h = cur_player->health * 100 / cur_player->mo->info->spawnhealth;
+
+	lua_pushinteger(L, (int)floor(h + 0.99));
 	return 1;
 }
 
