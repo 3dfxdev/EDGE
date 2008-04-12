@@ -50,9 +50,16 @@ static colourmap_c *cur_colmap = NULL;
 static float cur_scale;
 static float cur_alpha;
 
+static float cur_coord_W;
+static float cur_coord_H;
+
 static int hud_last_time = -1;
 
 extern std::string w_map_title;
+
+
+#define COORD_X(x)  ((x) * SCREENWIDTH  / cur_coord_W)
+#define COORD_Y(y)  ((y) * SCREENHEIGHT / cur_coord_H)
 
 
 static void FrameSetup(void)
@@ -68,6 +75,9 @@ static void FrameSetup(void)
 	cur_alpha  = 1.0f;
 
 	cur_player = players[displayplayer];
+
+	cur_coord_W = 320;
+	cur_coord_H = 200;
 
 
 	int now_time = I_GetTime();
@@ -115,10 +125,10 @@ static void DoDrawChar(float cx, float cy, char ch)
 	cy -= IM_OFFSETY(image) * sc_y;
 
 	RGL_DrawImage(
-	    FROM_320(cx),
-		SCREENHEIGHT - FROM_200(cy + IM_HEIGHT(image) * sc_y),
-		FROM_320(IM_WIDTH(image))  * sc_x,
-		FROM_200(IM_HEIGHT(image)) * sc_y,
+	    COORD_X(cx),
+		SCREENHEIGHT - COORD_Y(cy + IM_HEIGHT(image) * sc_y),
+		COORD_X(IM_WIDTH(image))  * sc_x,
+		COORD_Y(IM_HEIGHT(image)) * sc_y,
 		image, 0.0f, 0.0f,
 		IM_RIGHT(image), IM_TOP(image),
 		cur_colmap, cur_alpha);
@@ -142,7 +152,7 @@ static void DoWriteText(float x, float y, const char *str)
 			continue;
 		}
 
-		if (FROM_320(cx) >= SCREENWIDTH)
+		if (COORD_X(cx) >= SCREENWIDTH)
 			continue;
 
 		DoDrawChar(cx, cy, ch);
@@ -169,7 +179,7 @@ static void DoWriteText_RightAlign(float x, float y, const char *str)
 			continue;
 		}
 
-		if (FROM_320(cx) >= SCREENWIDTH)
+		if (COORD_X(cx) >= SCREENWIDTH)
 			continue;
 
 		cx -= cur_font->CharWidth(ch) * cur_scale;
@@ -254,7 +264,8 @@ static int HD_coord_sys(lua_State *L)
 	if (w < 64 || h < 64)
 		I_Error("Bad hud.coord_sys size: %dx%d\n", w, h);
 
-	//... FIXME
+	cur_coord_W = w;
+	cur_coord_H = h;
 
 	return 0;
 }
@@ -379,8 +390,8 @@ static int HD_solid_box(lua_State *L)
 	float w = luaL_checknumber(L, 3);
 	float h = luaL_checknumber(L, 4);
 
-	w = FROM_320(w); h = FROM_200(h);
-	x = FROM_320(x); y = SCREENHEIGHT - FROM_200(y) - h;
+	w = COORD_X(w); h = COORD_Y(h);
+	x = COORD_X(x); y = SCREENHEIGHT - COORD_Y(y) - h;
 
 	rgbcol_t rgb = ParseColor(L, 5);
 
@@ -399,8 +410,8 @@ static int HD_solid_line(lua_State *L)
 	float x2 = luaL_checknumber(L, 3);
 	float y2 = luaL_checknumber(L, 4);
 
-	x1 = FROM_320(x1); y1 = SCREENHEIGHT - FROM_200(y1);
-	x2 = FROM_320(x2); y2 = SCREENHEIGHT - FROM_200(y2);
+	x1 = COORD_X(x1); y1 = SCREENHEIGHT - COORD_Y(y1);
+	x2 = COORD_X(x2); y2 = SCREENHEIGHT - COORD_Y(y2);
 
 	rgbcol_t rgb = ParseColor(L, 5);
 
@@ -419,8 +430,8 @@ static int HD_thin_box(lua_State *L)
 	float w = luaL_checknumber(L, 3);
 	float h = luaL_checknumber(L, 4);
 
-	w = FROM_320(w); h = FROM_200(h);
-	x = FROM_320(x); y = SCREENHEIGHT - FROM_200(y) - h;
+	w = COORD_X(w); h = COORD_Y(h);
+	x = COORD_X(x); y = SCREENHEIGHT - COORD_Y(y) - h;
 
 	rgbcol_t rgb = ParseColor(L, 5);
 
@@ -439,8 +450,8 @@ static int HD_gradient_box(lua_State *L)
 	float w = luaL_checknumber(L, 3);
 	float h = luaL_checknumber(L, 4);
 
-	w = FROM_320(w); h = FROM_200(h);
-	x = FROM_320(x); y = SCREENHEIGHT - FROM_200(y) - h;
+	w = COORD_X(w); h = COORD_Y(h);
+	x = COORD_X(x); y = SCREENHEIGHT - COORD_Y(y) - h;
 
 	rgbcol_t cols[4];
 
@@ -476,8 +487,8 @@ static int HD_draw_image(lua_State *L)
 		w *= cur_scale;
 		h *= cur_scale;
 
-		w = FROM_320(w); h = FROM_200(h);
-		x = FROM_320(x); y = SCREENHEIGHT - FROM_200(y) - h;
+		w = COORD_X(w); h = COORD_Y(h);
+		x = COORD_X(x); y = SCREENHEIGHT - COORD_Y(y) - h;
 
 		RGL_DrawImage(x, y, w, h, img,
 		              0, 0, IM_RIGHT(img), IM_TOP(img),
@@ -502,8 +513,8 @@ static int HD_stretch_image(lua_State *L)
 	const image_c *img = W_ImageLookup(name, INS_Graphic);
 	if (img)
 	{
-		w = FROM_320(w); h = FROM_200(h);
-		x = FROM_320(x); y = SCREENHEIGHT - FROM_200(y) - h;
+		w = COORD_X(w); h = COORD_Y(h);
+		x = COORD_X(x); y = SCREENHEIGHT - COORD_Y(y) - h;
 
 		RGL_DrawImage(x, y, w, h, img,
 		              0, 0, IM_RIGHT(img), IM_TOP(img),
@@ -543,8 +554,8 @@ static int HD_tile_image(lua_State *L)
 		float tx_scale = w / IM_TOTAL_WIDTH(img)  / cur_scale;
 		float ty_scale = h / IM_TOTAL_HEIGHT(img) / cur_scale;
 
-		w = FROM_320(w); h = FROM_200(h);
-		x = FROM_320(x); y = SCREENHEIGHT - FROM_200(y) - h;
+		w = COORD_X(w); h = COORD_Y(h);
+		x = COORD_X(x); y = SCREENHEIGHT - COORD_Y(y) - h;
 
 		RGL_DrawImage(x, y, w, h, img,
 		              (offset_x) * tx_scale,
@@ -628,8 +639,8 @@ static int HD_render_world(lua_State *L)
 	float w = luaL_checknumber(L, 3);
 	float h = luaL_checknumber(L, 4);
 
-	x = FROM_320(x); y = FROM_200(y);
-	w = FROM_320(w); h = FROM_200(h);
+	x = COORD_X(x); y = COORD_Y(y);
+	w = COORD_X(w); h = COORD_Y(h);
 
  	R_Render((int)x, SCREENHEIGHT-(int)(y+h), I_ROUND(w), I_ROUND(h), cur_player->mo);
 
@@ -646,8 +657,8 @@ static int HD_render_automap(lua_State *L)
 	float w = luaL_checknumber(L, 3);
 	float h = luaL_checknumber(L, 4);
 
-	x = FROM_320(x); y = FROM_200(y);
-	w = FROM_320(w); h = FROM_200(h);
+	x = COORD_X(x); y = COORD_Y(y);
+	w = COORD_X(w); h = COORD_Y(h);
 
  	AM_Drawer((int)x, SCREENHEIGHT-(int)(y+h), I_ROUND(w), I_ROUND(h), cur_player->mo);
 
