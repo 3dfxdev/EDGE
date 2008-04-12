@@ -23,6 +23,9 @@
         text-align: left;
         border-left: 1px solid #666666;
      }
+     .LL {
+        border-left: 1px solid #666666;
+     }
      PRE {
         margin-left: 24px;
         margin-right: 24px;
@@ -244,76 +247,197 @@ The 'value' parameter ranges from 0.0 (completely invisible) to 1.0
 The default alpha is 1.0 and is reset before each call to hud.draw_all().
 
 <p><span class="FUNC">hud.solid_box(x, y, w, h, color)</span><br>
+@@TODO@@
 
 <p><span class="FUNC">hud.solid_line(x1, y1, x2, y2, color)</span><br>
+@@TODO@@
 
 <p><span class="FUNC">hud.thin_box(x, y, w, h, color)</span><br>
+@@TODO@@
 
 <p><span class="FUNC">hud.gradient_box(x, y, w, h, TL, BL, TR, BR)</span><br>
+@@TODO@@
 
 <p><span class="FUNC">hud.draw_image(x, y, name)</span><br>
+@@TODO@@
 
 <p><span class="FUNC">hud.stretch_image(x, y, w, h, name)</span><br>
+@@TODO@@
 
 <p><span class="FUNC">hud.tile_image(x, y, w, h, name, [x_offset, y_offset])</span><br>
+@@TODO@@
 
 <p><span class="FUNC">hud.draw_text(x, y, str)</span><br>
+@@TODO@@
 
 <p><span class="FUNC">hud.draw_num2(x, y, len, num)</span><br>
+@@TODO@@
 
 <p><span class="FUNC">hud.render_world(x, y, w, h)</span><br>
+@@TODO@@
 
 <p><span class="FUNC">hud.render_automap(x, y, w, h)</span><br>
+@@TODO@@
 
 <p><span class="FUNC">hud.automap_colors(table)</span><br>
+@@TODO@@
 
 
 
-<h2>PLAYER MODULE<h2>
+<h2>PLAYER MODULE</h2>
 
 
 <h3>General Queries</h3>
 
 <p><span class="FUNC">player.is_bot()</span><br>
+Returns true if the current player is a bot.
 
 <p><span class="FUNC">player.get_name()</span><br>
+Returns the name of the current player.
 
 <p><span class="FUNC">player.health()</span><br>
+Returns the health of the current player.  The result will normally
+be in the range 0 to 100, regardless of the SPAWNHEALTH setting for
+the player in DDF (in other words, the result is a percentage value
+of the spawn health).  Values higher than 100 are possible when the
+player has bonus health (e.g. from the Soul Sphere pickup)
 
 <p><span class="FUNC">player.armor(type)</span><br>
+For the given armor type, returns the amount the player is
+currently wearing.  The 'type' parameter is in the range 1-5,
+but the following names can be used for more readable code:
+
+<div style="font-family:monospace; font-size:large">
+<table>
+<tr> <td>ARMORS.green</td> </tr>
+<tr> <td>ARMORS.blue</td> </tr>
+<tr> <td>ARMORS.purple</td> </tr>
+<tr> <td>ARMORS.yellow</td> </tr>
+<tr> <td>ARMORS.red</td> </tr>
+</table>
+</div>
 
 <p><span class="FUNC">player.total_armor(type)</span><br>
+Returns the total amount of armor the player has.
 
 <p><span class="FUNC">player.frags()</span><br>
+Number of frags the player has (for Deathmatch games).
 
 <p><span class="FUNC">player.move_speed()</span><br>
+Returns a number for how fast the player is currently moving,
+roughly the number of map units per tic (there are 35 tics
+per second).
 
 <p><span class="FUNC">player.air_in_lungs()</span><br>
+Returns amount of air in the player lungs, as a percentage
+value from 0 to 100.
+Only guaranteed to be valid while the player is underwater.
 
 <p><span class="FUNC">player.has_key(key)</span><br>
+Returns true if the player currently has the specified key,
+which is a number from 1 to 16.  For more readable code, the
+following names can be used:
 
-<p><span class="FUNC">player.has_power(key)</span><br>
+<div style="font-family:monospace; font-size:large">
+<table>
+<tr> <td>KEYS.blue_card</td>   <td class="LL">KEYS.gold_key </td> </tr>
+<tr> <td>KEYS.red_card</td>    <td class="LL">KEYS.brass_key</td> </tr>
+<tr> <td>KEYS.yellow_card</td> <td class="LL">KEYS.steel_key</td> </tr>
+<tr> <td>KEYS.green_card</td>  <td class="LL">KEYS.fire_key </td> </tr>
+
+<tr> <td>KEYS.blue_skull  </td><td class="LL">KEYS.silver_key</td> </tr>
+<tr> <td>KEYS.red_skull   </td><td class="LL">KEYS.copper_key</td> </tr>
+<tr> <td>KEYS.yellow_skull</td><td class="LL">KEYS.wooden_key</td> </tr>
+<tr> <td>KEYS.green_skull </td><td class="LL">KEYS.water_key </td> </tr>
+</table>
+</div>
+
+<p><span class="FUNC">player.has_power(power)</span><br>
+Returns true if the player currently has the specified powerup.
+The 'power' parameter is a number from 1 to 16.
+For more readable code, the following names can be used:
+
+<div style="font-family:monospace; font-size:large">
+<table>
+<tr> <td>POWERS.invuln   </td> </tr>
+<tr> <td>POWERS.berserk  </td> </tr>
+<tr> <td>POWERS.invis    </td> </tr>
+<tr> <td>POWERS.acid_suit</td> </tr>
+
+<tr> <td>POWERS.automap  </td> </tr>
+<tr> <td>POWERS.goggles  </td> </tr>
+<tr> <td>POWERS.jet_pack </td> </tr>
+<tr> <td>POWERS.night_vis</td> </tr>
+<tr> <td>POWERS.scuba    </td> </tr>
+</table>
+</div>
 
 
 <h3>Weapon Stuff</h3>
 
-<p><span class="FUNC">player.has_weapon_slot(slot)</span><br>
-
 <p><span class="FUNC">player.has_weapon(name)</span><br>
+Returns true if the player currently owns the weapon, where 'name'
+is the DDF name of the weapon.
+
+<p><span class="FUNC">player.has_weapon_slot(slot)</span><br>
+Returns true if the player currently owns any weapon which uses
+the given 'slot', which is a number for 0 to 9 (same as the
+BINDKEY command in the DDF).
 
 <p><span class="FUNC">player.ammo(type)</span><br>
+Returns the amount of ammo the player is carrying (not including
+any ammo inside the clips of weapons).
+The 'type' parameter is a number in the range 1-16.
+For more readable code, one of the following names can be
+used instead:
+
+<div style="font-family:monospace; font-size:large">
+<table>
+<tr> <td>AMMOS.bullets</td> <td class="LL">AMMOS.pellets </td> </tr>
+<tr> <td>AMMOS.shells </td> <td class="LL">AMMOS.nails   </td> </tr>
+<tr> <td>AMMOS.rockets</td> <td class="LL">AMMOS.grenades</td> </tr>
+<tr> <td>AMMOS.cells  </td> <td class="LL">AMMOS.gas     </td> </tr>
+</table>
+</div>
 
 <p><span class="FUNC">player.ammomax(type)</span><br>
+Returns the maximum amount of ammo the player can carry
+(not including weapon clips).  The 'type' parameter is the
+same as the player.ammo() function.
 
-<p><span class="FUNC">player.main_ammo(clip)</span><br>
+<p><span class="FUNC">player.main_ammo()</span><br>
+Returns the main ammo quantity for the player's current weapon.
+This is zero for weapons that don't use any ammo (like the FIST).
+If the weapon has a clip and the SHOWCLIP command (in DDF) is
+true, then the amount of ammo inside the clip is returned instead.
+Note that only the primary attack is checked, the secondary attack
+(if present) will be ignored.
 
 <p><span class="FUNC">player.ammo_type(ATK)</span><br>
+Returns the ammo type of the player's current weapon for the
+given attack (primary or secondary).  The result is in the
+range 1-16, or can be 0 for the special case of NOAMMO.
+The 'ATK' parameter is 1 for the primary attack, 2 for the
+secondary attack, and is compulsory.
 
 <p><span class="FUNC">player.ammo_pershot(ATK)</span><br>
+Returns the ammo used up per shot by the current weapon for the
+given attack (primary or secondary).  Same as the AMMOPERSHOT
+commands in WEAPONS.DDF.
+The 'ATK' parameter is 1 for the primary attack, 2 for the
+secondary attack, and is compulsory.
 
 <p><span class="FUNC">player.clip_ammo(ATK)</span><br>
+Returns the current amount of ammo the clip in the player's current
+weapon is holding, or zero if the weapon has no clip.
+The 'ATK' parameter is 1 for the primary attack, 2 for the
+secondary attack, and is compulsory.
 
 <p><span class="FUNC">player.clip_size(ATK)</span><br>
+Returns the maximum amount of ammo the clip in the player's current
+weapon can hold, or zero if the weapon has no clip.
+The 'ATK' parameter is 1 for the primary attack, 2 for the
+secondary attack, and is compulsory.
 
 <p><span class="FUNC">player.clip_is_shared()</span><br> 
 Returns true if the player's current weapon is sharing a single
@@ -356,7 +480,7 @@ Returns true if player is grinning (after picking up a weapon).
 Returns the total number of players in the game, including bots.
 
 <p><span class="FUNC">player.set_who(index)</span><br>
-Sets who the current player is.  @@@
+Sets who the current player is.  @@TODO@@
 
 <p><span class="FUNC">player.hurt_by()</span><br>
 If the player has been hurt in the last few seconds, this
