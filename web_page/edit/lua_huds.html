@@ -158,63 +158,114 @@ automap mode completely if you wanted, or even draw the view
 from multiple players.
 
 
-<h2>HUD MODULE<h2>
+<h2>HUD MODULE</h2>
 
 
 <h3>General Queries</h3>
 
-<p><span class="VAR">hud.automap</span>
+<p><span class="VAR">hud.automap</span><br>
+This variable is true while the user is viewing the automap
+(pressed TAB) and false for the normal view.
 
-<p><span class="VAR">hud.which</span>
+<p><span class="VAR">hud.which</span><br>
+This variable is the current HUD number which the user cycles
+through when pressing '+' and '-' keys.  It ranges from 0 to 119,
+allowing 120 different HUD screens, but in reality you must
+use the modulo operator '%' to convert this number to a smaller
+range.  For a single HUD, simply ignore this value.  For two HUDs
+use 'hud.which % 2'.  For three HUDs use 'hud.which % 3',
+and so forth...  The following are good modulo numbers:
+2,3,4,5,6,8 and 10 (because they divide into 120).
 
-<p><span class="VAR">hud.now_time</span>
+<p><span class="VAR">hud.now_time</span><br>
+This variable contains the current time, in terms of "tics"
+where there are 35 tics per second.  In other words, after each
+1/35th of a second the value of hud.now_time increases by one.
+It keeps going even during menus or while the game is paused.
 
-<p><span class="VAR">hud.passed_time</span>
+<p><span class="VAR">hud.passed_time</span><br>
+This variable contains the number of "tics" that have passed
+since the last time the hud.draw_all() function was called.
+Note that a result of zero is possible.
 
-<p><span class="FUNC">hud.game_mode()</span>
+<p><span class="FUNC">hud.game_mode()</span><br>
+This function returns a string for the current game mode:
+<FONT color="#FF3333">"sp"</font> (Single Player),
+<FONT color="#FF3333">"coop"</font> (Cooperative), or
+<FONT color="#FF3333">"dm"</font> (Deathmatch).
 
-<p><span class="FUNC">hud.game_name()</span>
+<p><span class="FUNC">hud.game_name()</span><br>
+This function returns the DDF name of the current game being
+played (the one defined in GAMES.DDF).
 
-<p><span class="FUNC">hud.map_name()</span>
+<p><span class="FUNC">hud.map_name()</span><br>
+This function returns the DDF name of the current map being
+played (the one defined in LEVELS.DDF).
 
-<p><span class="FUNC">hud.map_title()</span>
+<p><span class="FUNC">hud.map_title()</span><br>
+This function returns the title of the map being played,
+mainly to be displayed on the automap.
 
 
 <h3>Drawing Stuff</h3>
 
-<p><span class="FUNC">hud.coord_sys(w, h)</span>
+<p><span class="FUNC">hud.coord_sys(w, h)</span><br>
+In the original DOOM, the screen size was always 320x200,
+and by default all of the drawing functions here use screen
+coordinates as if that were the case (even when EDGE is running
+in different modes likes 640x480 or 1024x768).
 
-<p><span class="FUNC">hud.text_font(name)</span>
+This function allows you to set a different "virtual" resolution,
+for example 640x400, and then all coordinates will be for this
+new system, plus the size of images and text characters will be
+affected as well.
 
-<p><span class="FUNC">hud.text_color(name)</span>
+<p><span class="FUNC">hud.text_font(name)</span><br>
+Sets the current text font, where the 'name' parameter refers to an
+entry in FONTS.DDF.
+The default font is "DOOM" and is reset before each call to hud.draw_all().
 
-<p><span class="FUNC">hud.set_scale(value)</span>
+<p><span class="FUNC">hud.text_color(name)</span><br>
+Sets the current text color, which must refer to an entry in
+COLMAPS.DDF, or can be the empty string
+<FONT color="#FF3333">""</FONT> which causes the text to be
+drawn normally (without being colormapped).
+The default is "" and is reset before each call to hud.draw_all().
 
-<p><span class="FUNC">hud.set_alpha(value)</span>
+<p><span class="FUNC">hud.set_scale(value)</span><br>
+Sets the scaling for drawing text and for hud.draw_image().
+Larger values make the text/image bigger.
+The default scale is 1.0 and is reset before each call to hud.draw_all().
 
-<p><span class="FUNC">hud.solid_box(x, y, w, h, color)</span>
+<p><span class="FUNC">hud.set_alpha(value)</span><br>
+Set the alpha value for drawing text, lines, boxes and images.
+The 'value' parameter ranges from 0.0 (completely invisible) to 1.0
+(completely solid).
+The default alpha is 1.0 and is reset before each call to hud.draw_all().
 
-<p><span class="FUNC">hud.solid_line(x1, y1, x2, y2, color)</span>
+<p><span class="FUNC">hud.solid_box(x, y, w, h, color)</span><br>
 
-<p><span class="FUNC">hud.thin_box(x, y, w, h, color)</span>
+<p><span class="FUNC">hud.solid_line(x1, y1, x2, y2, color)</span><br>
 
-<p><span class="FUNC">hud.gradient_box(x, y, w, h, TL, BL, TR, BR)</span>
+<p><span class="FUNC">hud.thin_box(x, y, w, h, color)</span><br>
 
-<p><span class="FUNC">hud.draw_image(x, y, name)</span>
+<p><span class="FUNC">hud.gradient_box(x, y, w, h, TL, BL, TR, BR)</span><br>
 
-<p><span class="FUNC">hud.stretch_image(x, y, w, h, name)</span>
+<p><span class="FUNC">hud.draw_image(x, y, name)</span><br>
 
-<p><span class="FUNC">hud.tile_image(x, y, w, h, name, [x_offset, y_offset])</span>
+<p><span class="FUNC">hud.stretch_image(x, y, w, h, name)</span><br>
 
-<p><span class="FUNC">hud.draw_text(x, y, str)</span>
+<p><span class="FUNC">hud.tile_image(x, y, w, h, name, [x_offset, y_offset])</span><br>
 
-<p><span class="FUNC">hud.draw_num2(x, y, len, num)</span>
+<p><span class="FUNC">hud.draw_text(x, y, str)</span><br>
 
-<p><span class="FUNC">hud.render_world(x, y, w, h)</span>
+<p><span class="FUNC">hud.draw_num2(x, y, len, num)</span><br>
 
-<p><span class="FUNC">hud.render_automap(x, y, w, h)</span>
+<p><span class="FUNC">hud.render_world(x, y, w, h)</span><br>
 
-<p><span class="FUNC">hud.automap_colors(table)</span>
+<p><span class="FUNC">hud.render_automap(x, y, w, h)</span><br>
+
+<p><span class="FUNC">hud.automap_colors(table)</span><br>
 
 
 
@@ -223,81 +274,105 @@ from multiple players.
 
 <h3>General Queries</h3>
 
-<p><span class="FUNC">player.is_bot()</span>
+<p><span class="FUNC">player.is_bot()</span><br>
 
-<p><span class="FUNC">player.get_name()</span>
+<p><span class="FUNC">player.get_name()</span><br>
 
-<p><span class="FUNC">player.health()</span>
+<p><span class="FUNC">player.health()</span><br>
 
-<p><span class="FUNC">player.armor(type)</span>
+<p><span class="FUNC">player.armor(type)</span><br>
 
-<p><span class="FUNC">player.total_armor(type)</span>
+<p><span class="FUNC">player.total_armor(type)</span><br>
 
-<p><span class="FUNC">player.frags()</span>
+<p><span class="FUNC">player.frags()</span><br>
 
-<p><span class="FUNC">player.move_speed()</span>
+<p><span class="FUNC">player.move_speed()</span><br>
 
-<p><span class="FUNC">player.air_in_lungs()</span>
+<p><span class="FUNC">player.air_in_lungs()</span><br>
 
-<p><span class="FUNC">player.has_key(key)</span>
+<p><span class="FUNC">player.has_key(key)</span><br>
 
-<p><span class="FUNC">player.has_power(key)</span>
+<p><span class="FUNC">player.has_power(key)</span><br>
 
 
 <h3>Weapon Stuff</h3>
 
-<p><span class="FUNC">player.has_weapon_slot(slot)</span>
+<p><span class="FUNC">player.has_weapon_slot(slot)</span><br>
 
-<p><span class="FUNC">player.has_weapon(name)</span>
+<p><span class="FUNC">player.has_weapon(name)</span><br>
 
-<p><span class="FUNC">player.ammo(type)</span>
+<p><span class="FUNC">player.ammo(type)</span><br>
 
-<p><span class="FUNC">player.ammomax(type)</span>
+<p><span class="FUNC">player.ammomax(type)</span><br>
 
-<p><span class="FUNC">player.main_ammo(clip)</span>
+<p><span class="FUNC">player.main_ammo(clip)</span><br>
 
-<p><span class="FUNC">player.ammo_type(ATK)</span>
+<p><span class="FUNC">player.ammo_type(ATK)</span><br>
 
-<p><span class="FUNC">player.ammo_pershot(ATK)</span>
+<p><span class="FUNC">player.ammo_pershot(ATK)</span><br>
 
-<p><span class="FUNC">player.clip_ammo(ATK)</span>
+<p><span class="FUNC">player.clip_ammo(ATK)</span><br>
 
-<p><span class="FUNC">player.clip_size(ATK)</span>
+<p><span class="FUNC">player.clip_size(ATK)</span><br>
 
-<p><span class="FUNC">player.clip_is_shared()</span>
-
+<p><span class="FUNC">player.clip_is_shared()</span><br> 
+Returns true if the player's current weapon is sharing a single
+clip between primary and secondary attackes (the SHARED_CLIP
+command).
 
 <h3>Conditions</h3>
 
-<p><span class="FUNC">player.under_water()</span>
+<p><span class="FUNC">player.on_ground()</span><br>
+Returns true if player is standing on solid ground.
 
-<p><span class="FUNC">player.on_ground()</span>
+<p><span class="FUNC">player.under_water()</span><br>
+Returns true if player is in AIRLESS water and doesn't have the
+Scuba powerup.
 
-<p><span class="FUNC">player.is_swimming()</span>
+<p><span class="FUNC">player.is_swimming()</span><br>
+Returns true if player is in swimmable water (i.e. the SWIM sector special).
 
-<p><span class="FUNC">player.is_jumping()</span>
+<p><span class="FUNC">player.is_jumping()</span><br>
+Returns true if player is jumping.
 
-<p><span class="FUNC">player.is_crouching()</span>
+<p><span class="FUNC">player.is_crouching()</span><br>
+Returns true if player is crouching.
 
-<p><span class="FUNC">player.is_attacking()</span>
+<p><span class="FUNC">player.is_attacking()</span><br>
+Returns true if player is firing his weapon (either first or second attack).
 
-<p><span class="FUNC">player.is_rampaging()</span>
+<p><span class="FUNC">player.is_rampaging()</span><br>
+Returns true if player has been firing his weapon for two seconds or more.
 
-<p><span class="FUNC">player.is_grinning()</span>
+<p><span class="FUNC">player.is_using()</span><br>
+Returns true if player is holding the USE button down.
 
-<p><span class="FUNC">player.is_using()</span>
+<p><span class="FUNC">player.is_grinning()</span><br>
+Returns true if player is grinning (after picking up a weapon).
 
 <h3>Miscellaneous</h3>
 
-<p><span class="FUNC">player.num_players()</span>
+<p><span class="FUNC">player.num_players()</span><br>
+Returns the total number of players in the game, including bots.
 
-<p><span class="FUNC">player.set_who(index)</span>
+<p><span class="FUNC">player.set_who(index)</span><br>
+Sets who the current player is.  @@@
 
-<p><span class="FUNC">player.hurt_by()</span>
+<p><span class="FUNC">player.hurt_by()</span><br>
+If the player has been hurt in the last few seconds, this
+returns the string <B><FONT COLOR="#FF4444">&quot;enemy&quot;</FONT></B>,
+or if the player hurt himself with his own damn stupidity then the
+string <B><FONT COLOR="#FF4444">&quot;self&quot;</FONT></B> is
+returned.  Otherwise this function returns <FONT color="#FF4444">nil</font>.
 
-<p><span class="FUNC">player.hurt_pain()</span>
+<p><span class="FUNC">player.hurt_pain()</span><br>
+If the player was just hurt, this returns the damage amount,
+otherwise this function returns 0.
 
-<p><span class="FUNC">player.hurt_dir()</span>
+<p><span class="FUNC">player.hurt_dir()</span><br>
+If the player was just hurt, this returns a direction relative to the
+player where the attacker was: -1 for the left side, +1 for the right
+side, and 0 for all other cases.
 
 
 
