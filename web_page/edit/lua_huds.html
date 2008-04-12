@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=iso-8859-1">
+  <meta name="robots" content="all">
+
+  <title> Lua HUDs </title>
+
+  <style type="text/css" title="currentStyle">
+     TABLE {
+        border: 1px solid black;
+        background-color: #ffd;
+     }
+     TABLE TD {
+        border-bottom: 1px solid #666666;
+     }
+     .L1 {
+        width: 8em;
+        text-align: center;
+     }
+     .L2 {
+        width: 16em;
+        text-align: left;
+        border-left: 1px solid #666666;
+     }
+  </style>
+</head>
+
+<body>
+
+<h1>Lua HUD Manual</h1>
+
+by Andrew Apted. &nbsp; April 2008
+
+
+<h2>OVERVIEW</h2>
+
+Lua is a scripting language, which is quite easy to
+learn even if you've never programmed before.
+More information can be found here:
+<a href="http://www.lua.org">
+Lua home page</a>
+
+<p>
+EDGE looks for several lumps to load Lua scripts from.
+Lumps called "LUAUTIL#" (where # is a digit) contain
+utility code, useful stuff that is not HUD-related,
+whereas lumps called "LUAHUD#" contain the code
+for drawing the HUD (which is nearly everything on
+the screen while the user is playing a level).
+
+<p>
+The following lumps are looked for (in the order listed) and
+are loaded when present:
+
+<center>
+<table>
+<tr>
+  <td class="L1"><b>LUMP</b></td>
+  <td class="L2"><b>&nbsp;Source</b></td>
+</tr>
+<tr>
+  <td class="L1">LUAUTIL0</td>
+  <td class="L2">&nbsp;from EDGE.WAD</td>
+</tr>
+<tr>
+  <td class="L1">LUAUTIL1</td>
+  <td class="L2">&nbsp;from a TC/Mod</td>
+</tr>
+<tr>
+  <td class="L1">LUAUTIL2</td>
+  <td class="L2">&nbsp;from an Add-on</td>
+</tr>
+
+<tr>
+  <td class="L1">LUAHUD0</td>
+  <td class="L2">&nbsp;from EDGE.WAD</td>
+</tr>
+<tr>
+  <td class="L1">LUAHUD1</td>
+  <td class="L2">&nbsp;from a TC/Mod</td>
+</tr>
+<tr>
+  <td class="L1">LUAHUD2</td>
+  <td class="L2">&nbsp;from an Add-on</td>
+</tr>
+</table>
+</center>
+
+
+
+</body>
+</html>
