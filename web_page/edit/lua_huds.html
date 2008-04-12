@@ -226,37 +226,62 @@ affected as well.
 <p><span class="FUNC">hud.text_font(name)</span><br>
 Sets the current text font, where the 'name' parameter refers to an
 entry in FONTS.DDF.
-The default font is "DOOM" and is reset before each call to hud.draw_all().
+The default font is "DOOM" and is reset after each frame.
 
 <p><span class="FUNC">hud.text_color(name)</span><br>
 Sets the current text color, which must refer to an entry in
 COLMAPS.DDF, or can be the empty string
 <FONT color="#FF3333">""</FONT> which causes the text to be
 drawn normally (without being colormapped).
-The default is "" and is reset before each call to hud.draw_all().
+The default is "" and is reset after each frame.
 
 <p><span class="FUNC">hud.set_scale(value)</span><br>
 Sets the scaling for drawing text and for hud.draw_image().
 Larger values make the text/image bigger.
-The default scale is 1.0 and is reset before each call to hud.draw_all().
+The default scale is 1.0 and is reset after each frame.
 
 <p><span class="FUNC">hud.set_alpha(value)</span><br>
 Set the alpha value for drawing text, lines, boxes and images.
 The 'value' parameter ranges from 0.0 (completely invisible) to 1.0
 (completely solid).
-The default alpha is 1.0 and is reset before each call to hud.draw_all().
+The default alpha is 1.0 and is reset after each frame.
 
 <p><span class="FUNC">hud.solid_box(x, y, w, h, color)</span><br>
-@@TODO@@
+Draws a solid rectangle consisting of a single color.
+The 'x' and 'y' parameters are the coordinates of the top left
+corner, whereas 'w' and 'h' are the width and height.
+The current alpha value is also applied.
+
+<p>
+The 'color' parameter can take two different forms.  Firstly it may
+be a string with the same notation as DDF and HTML, which begins with a
+"#" character and is followed by 6 hexadecimal digits.
+For example <FONT color="#FF3333">"#FF0000"</font> for red
+and <FONT color="#FF3333">"#0000FF"</font> for blue.
+Secondly it can be a Lua table with fields called 'r', 'g' and 'b'
+(for red, green and blue).  Each of these fields is a number
+from 0 to 255.
+For example: <FONT color="#0000AA">{ r=255, g=170, b=0 }</font> for orange.
+
 
 <p><span class="FUNC">hud.solid_line(x1, y1, x2, y2, color)</span><br>
-@@TODO@@
+Draws a solid line between the start coordinate (x1,y1) to the
+end coordinate (x2, y2).
+The 'color' parameter is the same as for hud.solid_box(), and
+the current alpha value is also applied.
 
 <p><span class="FUNC">hud.thin_box(x, y, w, h, color)</span><br>
-@@TODO@@
+Similar to hud.solid_box(), but only draws the outline of a rectangle.
+The inside area is not affected.  The sides are always two pixels
+thick, and never go outside the specified area.
+The 'color' parameter is the same as for hud.solid_box(), and
+the current alpha value is also applied.
 
 <p><span class="FUNC">hud.gradient_box(x, y, w, h, TL, BL, TR, BR)</span><br>
-@@TODO@@
+Similar to hud.solid_box(), but the colors for each corner are
+specified: 'TL' for top left, 'BL' for bottom left,
+'TR' for top right and 'BR' for bottom right.
+The current alpha value will also be applied.
 
 <p><span class="FUNC">hud.draw_image(x, y, name)</span><br>
 @@TODO@@
