@@ -81,15 +81,6 @@ static void FrameSetup(void)
 	hud_last_time = now_time;
 
 
-	// setup some fields in 'player' module
-
-	lua_getglobal(HUD_ST, "player");
-
-	// TODO
-
-	lua_pop(HUD_ST, 1);
-
-
 	// setup some fields in 'hud' module
 
 	lua_getglobal(HUD_ST, "hud");
@@ -110,6 +101,29 @@ static void FrameSetup(void)
 }
 
 
+static void DoDrawChar(float cx, float cy, char ch)
+{
+	const image_c *image = cur_font->CharImage(ch);
+
+	if (! image)
+		return;
+	
+	float sc_x = cur_scale;  // * aspect
+	float sc_y = cur_scale;
+
+	cx -= IM_OFFSETX(image) * sc_x;
+	cy -= IM_OFFSETY(image) * sc_y;
+
+	RGL_DrawImage(
+	    FROM_320(cx),
+		SCREENHEIGHT - FROM_200(cy + IM_HEIGHT(image) * sc_y),
+		FROM_320(IM_WIDTH(image))  * sc_x,
+		FROM_200(IM_HEIGHT(image)) * sc_y,
+		image, 0.0f, 0.0f,
+		IM_RIGHT(image), IM_TOP(image),
+		cur_colmap, cur_alpha);
+}
+
 static void DoWriteText(float x, float y, const char *str)
 {
 	float cx = x;
@@ -126,10 +140,10 @@ static void DoWriteText(float x, float y, const char *str)
 			continue;
 		}
 
-		if (cx >= 320.0f)
+		if (FROM_320(cx) >= SCREENWIDTH)
 			continue;
 
-		cur_font->DrawChar(cx, cy, ch, cur_scale,1.0f, cur_colmap, cur_alpha);
+		DoDrawChar(cx, cy, ch);
 
 		cx += cur_font->CharWidth(ch) * cur_scale;
 	}
@@ -151,12 +165,12 @@ static void DoWriteText_RightAlign(float x, float y, const char *str)
 			continue;
 		}
 
-		if (cx >= 320.0f)
+		if (FROM_320(cx) >= SCREENWIDTH)
 			continue;
 
 		cx -= cur_font->CharWidth(ch) * cur_scale;
 
-		cur_font->DrawChar(cx, cy, ch, cur_scale,1.0f, cur_colmap, cur_alpha);
+		DoDrawChar(cx, cy, ch);
 	}
 }
 
@@ -233,7 +247,7 @@ static int HD_coord_sys(lua_State *L)
 	int w = luaL_checkint(L, 1);
 	int h = luaL_checkint(L, 2);
 
-	if (w <= 80 || h <= 50)
+	if (w < 64 || h < 64)
 		I_Error("Bad hud.coord_sys size: %dx%d\n", w, h);
 
 	//... FIXME
@@ -307,7 +321,23 @@ static int HD_text_font(lua_State *L)
 //
 static int HD_text_color(lua_State *L)
 {
-	//... FIXME
+	// TODO: table colors { r=xxx,g=xxx,b=xxx }
+
+	const char *col_str = luaL_checkstring(L, 1);
+
+	if (strlen(col_str) == 0)
+	{
+		cur_colmap = NULL;
+		return 0;
+	}
+
+	if (col_str[0] == '#')
+		I_Error("hud.text_color: cannot use # colors yet!\n");
+
+	cur_colmap = colourmaps.Lookup(col_str);
+
+	if (! cur_colmap)
+		I_Error("hud.text_color: no such colormap: %s\n", col_str);
 
 	return 0;
 }
