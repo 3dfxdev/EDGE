@@ -279,7 +279,7 @@ the current alpha value is also applied.
 
 <p><span class="FUNC">hud.gradient_box(x, y, w, h, TL, BL, TR, BR)</span><br>
 Similar to hud.solid_box(), but the colors for each corner are
-specified: 'TL' for top left, 'BL' for bottom left,
+specified individually: 'TL' for top left, 'BL' for bottom left,
 'TR' for top right and 'BR' for bottom right.
 The current alpha value will also be applied.
 
@@ -329,7 +329,7 @@ player has bonus health (e.g. from the Soul Sphere pickup)
 
 <p><span class="FUNC">player.armor(type)</span><br>
 For the given armor type, returns the amount the player is
-currently wearing.  The 'type' parameter is in the range 1-5,
+currently wearing.  The 'type' parameter is a number in the range 1-5,
 but the following names can be used for more readable code:
 
 <div style="font-family:monospace; font-size:large">
@@ -408,6 +408,12 @@ is the DDF name of the weapon.
 Returns true if the player currently owns any weapon which uses
 the given 'slot', which is a number for 0 to 9 (same as the
 BINDKEY command in the DDF).
+
+<p><span class="FUNC">player.cur_weapon()</span><br>
+@@TODO@@
+
+<p><span class="FUNC">player.cur_weapon_slot()</span><br>
+@@TODO@@
 
 <p><span class="FUNC">player.ammo(type)</span><br>
 Returns the amount of ammo the player is carrying (not including
