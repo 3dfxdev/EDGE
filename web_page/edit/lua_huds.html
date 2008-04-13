@@ -193,9 +193,9 @@ Note that a result of zero is possible.
 
 <p><span class="FUNC">hud.game_mode()</span><br>
 This function returns a string for the current game mode:
-<FONT color="#FF3333">"sp"</font> (Single Player),
-<FONT color="#FF3333">"coop"</font> (Cooperative), or
-<FONT color="#FF3333">"dm"</font> (Deathmatch).
+<FONT color="#FF3333"><B>"sp"</b></font> (Single Player),
+<FONT color="#FF3333"><B>"coop"</b></font> (Cooperative), or
+<FONT color="#FF3333"><B>"dm"</b></font> (Deathmatch).
 
 <p><span class="FUNC">hud.game_name()</span><br>
 This function returns the DDF name of the current game being
@@ -301,7 +301,7 @@ and can be used to offset the texture by a certain number of pixels.
 
 <p><span class="FUNC">hud.draw_text(x, y, str)</span><br>
 Draws some text on the screen using the current text font, color,
-alpha and scaling values.  Newlines (<FONT color="FF3333">"\n"</font>)
+alpha and scaling values.  Newlines (<FONT color="#FF3333">"\n"</font>)
 in the string can be used to draw multi-line text.
 
 <p><span class="FUNC">hud.draw_num2(x, y, len, num)</span><br>
@@ -324,7 +324,32 @@ drawn, hence you can use this function to create an overlay automap
 behind it, use the hud.solid_box() function first.
 
 <p><span class="FUNC">hud.automap_colors(table)</span><br>
-@@TODO@@
+This function can be used to change some or all of the colors used
+when drawing the automap.  The 'table' parameter is a Lua table
+where the names are automap parts and the values are the colors.
+For example: <FONT color="#0000AA">{ grid = "#006666", wall = "#FFFFFF" }</font>.
+Parts that are not present in the table are not affected (stay the same as before).
+Here is a list of all the automap parts that can be changed:
+
+<div style="font-family:monospace; font-size:large">
+<table>
+<tr> <td style="width:8em"><B>Automap Part</b></td>
+     <td class="LL"><B>&nbsp;Description</b></td>
+<tr> <td>grid    </td><td class="LL">&nbsp;Grid lines </td>
+<tr> <td>wall    </td><td class="LL">&nbsp;One sided walls </td>
+<tr> <td>step    </td><td class="LL">&nbsp;Floor height change, climable </td>
+<tr> <td>ledge   </td><td class="LL">&nbsp;Floor drop-off, too high to climb </td>
+<tr> <td>ceil    </td><td class="LL">&nbsp;Ceiling height difference</td>
+<tr> <td>secret  </td><td class="LL">&nbsp;Secret doors </td>
+<tr> <td>allmap  </td><td class="LL">&nbsp;Unseen walls when you have the All-Map</td>
+<tr> <td>player  </td><td class="LL">&nbsp;Player object </td>
+<tr> <td>monster </td><td class="LL">&nbsp;Monsters </td>
+<tr> <td>corpse  </td><td class="LL">&nbsp;Dead monsters </td>
+<tr> <td>item    </td><td class="LL">&nbsp;Pickup items </td>
+<tr> <td>missile </td><td class="LL">&nbsp;Missiles, fireballs, etc </td>
+<tr> <td>scenery </td><td class="LL">&nbsp;Scenery items </td>
+</table>
+</div>
 
 
 
@@ -430,9 +455,9 @@ BINDKEY command in the DDF).
 
 <p><span class="FUNC">player.cur_weapon()</span><br>
 Returns the DDF name of the weapon the player is currently
-holding, or the special value <FONT color="#FF3333">"none"</font>
+holding, or the special value <FONT color="#FF3333"><B>"none"</b></font>
 when the player is holding no weapon at all, or
-<FONT color="#FF3333">"change"</font> while the weapon is
+<FONT color="#FF3333"><B>"change"</b></font> while the weapon is
 switching to a new one.
 
 <p><span class="FUNC">player.cur_weapon_slot()</span><br>
@@ -536,14 +561,21 @@ Returns true if player is grinning (after picking up a weapon).
 Returns the total number of players in the game, including bots.
 
 <p><span class="FUNC">player.set_who(index)</span><br>
-Sets who the current player is.  @@TODO@@
+Sets who the current player is.  The 'index' parameter is a
+small number: 1 for the "main player" on this computer
+(the person at the keyboard), 2 for the next player in the list, etc...
+upto the number of players in the game. 
+All the player query functions described here return their results
+for the current player, and the hud.render_world()
+and hud.render_automap() functions also draw their stuff for the
+current player.
 
 <p><span class="FUNC">player.hurt_by()</span><br>
 If the player has been hurt in the last few seconds, this
-returns the string <B><FONT COLOR="#FF4444">&quot;enemy&quot;</FONT></B>,
+returns the string <B><FONT COLOR="#FF3333">&quot;enemy&quot;</FONT></B>,
 or if the player hurt himself with his own damn stupidity then the
-string <B><FONT COLOR="#FF4444">&quot;self&quot;</FONT></B> is
-returned.  Otherwise this function returns <FONT color="#FF4444">nil</font>.
+string <B><FONT COLOR="#FF3333">&quot;self&quot;</FONT></B> is
+returned.  Otherwise this function returns <FONT color="#0000AA"><B>nil</b></font>.
 
 <p><span class="FUNC">player.hurt_pain()</span><br>
 If the player was just hurt, this returns the damage amount,
