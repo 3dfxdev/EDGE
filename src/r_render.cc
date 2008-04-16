@@ -1105,8 +1105,8 @@ static void ComputeWallTiles(seg_t *seg, int sidenum, float f_min, float c_max)
 	{
 		if (other->f_slope)
 		{
-			float lz1 = slope_fh; // MIN(other->f_slope->z1, other->f_slope->z2) - 8.0;
-			float rz1 = slope_fh; // lz1;
+			float lz1 = slope_fh;
+			float rz1 = slope_fh;
 
 			float lz2 = Slope_GetHeight(other->f_slope, seg->v1->x, seg->v1->y);
 			float rz2 = Slope_GetHeight(other->f_slope, seg->v2->x, seg->v2->y);
@@ -1130,6 +1130,15 @@ static void ComputeWallTiles(seg_t *seg, int sidenum, float f_min, float c_max)
 	{
 		if (other->c_slope)
 		{
+			float lz1 = Slope_GetHeight(other->c_slope, seg->v1->x, seg->v1->y);
+			float rz1 = Slope_GetHeight(other->c_slope, seg->v2->x, seg->v2->y);
+
+			float lz2 = slope_ch;
+			float rz2 = slope_ch;
+
+			AddWallTile2(sd, lz1, lz2, rz1, rz2,
+				(ld->flags & MLF_UpperUnpegged) ? sec->c_h : 
+				other->c_h + IM_HEIGHT(sd->top.image), &sd->top, 0);
 		}
 		else if (sd->top.image)
 		{
