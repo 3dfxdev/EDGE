@@ -182,11 +182,11 @@ drawthing_t;
 typedef struct drawfloor_s
 {
 public:
-	// link for list, drawing order
-	struct drawfloor_s *next, *prev;
+	short is_lowest;
+	short is_highest;
 
-	// link for height order list
-	struct drawfloor_s *higher, *lower;
+	// link for list, rendering order
+	struct drawfloor_s *next_R, *prev_R;
 
 	// heights for this floor
 	float f_h, c_h, top_h;
@@ -205,8 +205,8 @@ public:
 public:
 	void Clear()
 	{
-		next = prev = NULL;
-		higher = lower = NULL;
+		is_highest = is_lowest = false;
+		next_R = prev_R = NULL;
 		floor = ceil = NULL;
 		ef = NULL;
 		props = NULL;
@@ -255,11 +255,11 @@ class drawsub_c
 public:
 	subsector_t *sub;
 
-    // floors.  During the WALK phase they are sorted in
-	// height order (lowest to highest).
-	// For the DRAW phase they get sorted into rendering order
-	// (furthest to closest).
+    // floors, sorted in height order (lowest to highest).
 	std::vector<drawfloor_t *> floors;
+
+	// link list of floors, render order (furthest to closest)
+	drawfloor_t *floors_R;
 
 	std::list<drawseg_c *> segs;
 
@@ -280,6 +280,7 @@ public:
 		sub = ss;
 		visible = false;
 		sorted  = false;
+		floors_R = NULL;
 
 		floors.clear();
 		segs.clear();

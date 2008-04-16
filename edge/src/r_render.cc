@@ -1834,15 +1834,15 @@ static void RGL_DrawSeg(drawfloor_t *dfloor, seg_t *seg)
 
 	side_t *sd = cur_seg->sidedef;
 
-	float f_min =dfloor->f_h;// dfloor->prev ? dfloor->f_h : -32767.0; //!!!!!!
-	float c_max =dfloor->c_h;// dfloor->next ? dfloor->c_h : +32767.0;
+	float f_min = dfloor->is_lowest  ? -32767.0 : dfloor->f_h;
+	float c_max = dfloor->is_highest ? +32767.0 : dfloor->c_h;
 
 #if (DEBUG >= 3)
 	L_WriteDebug( "   BUILD WALLS %1.1f .. %1.1f\n", f_min, c1);
 #endif
 
 	// handle TRANSLUCENT + THICK floors (a bit of a hack)
-	if (dfloor->ef && dfloor->higher &&
+	if (dfloor->ef && !dfloor->is_highest &&
 		(dfloor->ef->ef_info->type & EXFL_Thick) &&
 		(dfloor->ef->top->translucency < 0.99f))
 	{
@@ -1902,7 +1902,7 @@ static void RGL_DrawSeg(drawfloor_t *dfloor, seg_t *seg)
 	}
 
 	// -AJA- 2004/04/21: Emulate Flat-Flooding TRICK
-	if (! hom_detect && solid_mode && dfloor->prev == NULL &&
+	if (! hom_detect && solid_mode && dfloor->is_lowest &&
 		sd->bottom.image == NULL && cur_seg->back_sub &&
 		cur_seg->back_sub->sector->f_h > cur_seg->front_sub->sector->f_h &&
 		cur_seg->back_sub->sector->f_h < viewz)
@@ -1912,7 +1912,7 @@ static void RGL_DrawSeg(drawfloor_t *dfloor, seg_t *seg)
 			cur_seg->back_sub->sector->f_h);
 	}
 
-	if (! hom_detect && solid_mode && dfloor->prev == NULL &&
+	if (! hom_detect && solid_mode && dfloor->is_highest &&
 		sd->top.image == NULL && cur_seg->back_sub &&
 		cur_seg->back_sub->sector->c_h < cur_seg->front_sub->sector->c_h &&
 		cur_seg->back_sub->sector->c_h > viewz)
@@ -2311,8 +2311,8 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 
 	// more deep water hackitude
 	if (cur_sub->deep_ref &&
-		((face_dir > 0 && dfloor->prev == NULL) ||
-		 (face_dir < 0 && dfloor->next == NULL)))
+		((face_dir > 0 && dfloor->prev_R == NULL) ||
+		 (face_dir < 0 && dfloor->next_R == NULL)))
 	{
 		props = &cur_sub->deep_ref->props;
 	}
@@ -2323,10 +2323,10 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	
 	slope_plane_t *slope = NULL;
 
-	if (face_dir > 0 && dfloor->prev == NULL)
+	if (face_dir > 0 && dfloor->prev_R == NULL)
 		slope = cur_sub->sector->f_slope;
 
-	if (face_dir < 0 && dfloor->next == NULL)
+	if (face_dir < 0 && dfloor->next_R == NULL)
 		slope = cur_sub->sector->c_slope;
 
 
@@ -2531,36 +2531,36 @@ static inline void AddNewDrawFloor(drawsub_c *dsub, extrafloor_t *ef,
 	dfloor->ef    = ef;
 	dfloor->props = props;
 
-#if 0
-	drawfloor_t *tail;
+	// link it in, height order
 
-	// link it in
-	// (order is very important)
-	if (cur_sub->floors == NULL || f_h > viewz)
+	dsub->floors.push_back(dfloor);
+
+	// link it in, rendering order (very important)
+
+	if (dsub->floors_R == NULL || f_h > viewz)
 	{
 		// add to head
-		dfloor->next = cur_sub->floors;
-		dfloor->prev = NULL;
+		dfloor->next_R = dsub->floors_R;
+		dfloor->prev_R = NULL;
 
-		if (cur_sub->floors)
-			cur_sub->floors->prev = dfloor;
+		if (dsub->floors_R)
+			dsub->floors_R->prev_R = dfloor;
 
-		cur_sub->floors = dfloor;
+		dsub->floors_R = dfloor;
 	}
 	else
 	{
 		// add to tail
-		for (tail=cur_sub->floors; tail->next; tail=tail->next)
+		drawfloor_t *tail;
+
+		for (tail = dsub->floors_R; tail->next_R; tail = tail->next_R)
 		{ /* nothing here */ }
 
-		dfloor->next = NULL;
-		dfloor->prev = tail;
+		dfloor->next_R = NULL;
+		dfloor->prev_R = tail;
 
-		tail->next = dfloor;
+		tail->next_R = dfloor;
 	}
-#endif
-
-	dsub->floors.push_back(dfloor);
 }
 
 
@@ -2658,6 +2658,9 @@ static void RGL_WalkSubsector(int num)
 		de_c ? cur_sub->deep_ref->c_h : sector->c_h,
 		de_f ? &cur_sub->deep_ref->floor : floor_s,
 		de_c ? &cur_sub->deep_ref->ceil : &sector->ceil, sector->p);
+
+	K->floors[0]->is_lowest = true;
+	K->floors[K->floors.size() - 1]->is_highest = true;
 
 	// handle each sprite in the subsector.  Must be done before walls,
 	// since the wall code will update the 1D occlusion buffer.
@@ -2878,16 +2881,11 @@ static void RGL_DrawSubsector(drawsub_c *dsub)
 
 	cur_sub = sub;
 
-	//!!!!! FIXME : sort dfloors into correct order
-	// if (! dsub->sorted) std::sort(dsub->floors.begin(), dsub->floors.end(), SORTER)
-
-	std::vector<drawfloor_t *>::iterator DFI;
+	drawfloor_t *dfloor;
 
 	// handle each floor, drawing planes and things
-	for (DFI = dsub->floors.begin(); DFI != dsub->floors.end(); DFI++)
+	for (dfloor = dsub->floors_R; dfloor != NULL; dfloor = dfloor->next_R)
 	{
-		drawfloor_t *dfloor = *DFI;
-
 		std::list<drawseg_c *>::iterator SEGI;
 
 		for (SEGI = dsub->segs.begin(); SEGI != dsub->segs.end(); SEGI++)

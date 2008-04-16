@@ -675,6 +675,8 @@ static void R2_ClipSpriteVertically(drawsub_c *dsub, drawthing_t *dthing)
 	if (dthing->y_clipping == YCLIP_Never)
 		return;
 
+#if 0  // DISABLED FOR NOW : FIX LATER !!
+
 	// Note that sprites are not clipped by the lowest floor or
 	// highest ceiling, OR by *solid* extrafloors (even translucent
 	// ones) -- UNLESS y_clipping == YCLIP_Hard.
@@ -683,7 +685,7 @@ static void R2_ClipSpriteVertically(drawsub_c *dsub, drawthing_t *dthing)
 	c1 = dfloor->c_h;
 
 	// handle TRANSLUCENT + THICK floors (a bit of a hack)
-	if (dfloor->ef && dfloor->ef->ef_info && dfloor->higher &&
+	if (dfloor->ef && dfloor->ef->ef_info && !dfloor->is_highest &&
 		(dfloor->ef->ef_info->type & EXFL_Thick) &&
 		(dfloor->ef->top->translucency < 0.99f))
 	{
@@ -712,7 +714,7 @@ static void R2_ClipSpriteVertically(drawsub_c *dsub, drawthing_t *dthing)
 
 	for (;;)
 	{
-		if (!dfloor->lower)
+		if (dfloor->is_lowest)
 			break;
 
 		if ((dthing->bottom >= f1 - SY_FUDGE) ||
@@ -752,7 +754,7 @@ static void R2_ClipSpriteVertically(drawsub_c *dsub, drawthing_t *dthing)
 		c1 = dfloor->c_h;
 
 		// handle TRANSLUCENT + THICK floors (a bit of a hack)
-		if (dfloor->ef && dfloor->ef->ef_info && dfloor->higher &&
+		if (dfloor->ef && dfloor->ef->ef_info && !dfloor->is_highest &&
 			(dfloor->ef->ef_info->type & EXFL_Thick) &&
 			(dfloor->ef->top->translucency < 0.99f))
 		{
@@ -783,7 +785,7 @@ static void R2_ClipSpriteVertically(drawsub_c *dsub, drawthing_t *dthing)
 
 	for (;;)
 	{
-		if (!dfloor->higher)
+		if (dfloor->is_highest)
 			break;
 
 		if ((dthing->bottom >= c1 - SY_FUDGE) ||
@@ -823,7 +825,7 @@ static void R2_ClipSpriteVertically(drawsub_c *dsub, drawthing_t *dthing)
 		c1 = dfloor->c_h;
 
 		// handle TRANSLUCENT + THICK floors (a bit of a hack)
-		if (dfloor->ef && dfloor->ef->ef_info && dfloor->higher &&
+		if (dfloor->ef && dfloor->ef->ef_info && !dfloor->is_highest &&
 			(dfloor->ef->ef_info->type & EXFL_Thick) &&
 			(dfloor->ef->top->translucency < 0.99f))
 		{
@@ -845,6 +847,8 @@ static void R2_ClipSpriteVertically(drawsub_c *dsub, drawthing_t *dthing)
 
 		SYS_ASSERT(dthing->bottom < dthing->top);
 	}
+
+#endif
 }
 
 
