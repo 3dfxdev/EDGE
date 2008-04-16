@@ -381,7 +381,7 @@ static int HD_set_alpha(lua_State *L)
 }
 
 
-// hud.solid_box(x, y, w, h, color [,alpha])
+// hud.solid_box(x, y, w, h, color)
 //
 static int HD_solid_box(lua_State *L)
 {
@@ -401,7 +401,7 @@ static int HD_solid_box(lua_State *L)
 }
 
 
-// hud.solid_line(x1, y1, x2, y2, color [,alpha])
+// hud.solid_line(x1, y1, x2, y2, color)
 //
 static int HD_solid_line(lua_State *L)
 {
@@ -984,7 +984,7 @@ static int PL_has_key(lua_State *L)
 }
 
 
-// player.has_power(key)
+// player.has_power(power)
 //
 static int PL_has_power(lua_State *L)
 {
