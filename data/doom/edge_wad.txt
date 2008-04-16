@@ -1,6 +1,6 @@
 ==========================
 |                        |
-|  EDGE.WAD VERSION 5.6  |
+|  EDGE.WAD VERSION 5.7  |
 |                        |
 ==========================
 
@@ -11,21 +11,28 @@ The material in EDGE.WAD is:
     Copyright (C) 1999-2008 the Edge Team.
     Copyright (C) 1993-1996 id Software, Inc.
 
-Permission is hereby granted, free of charge, to use, copy, modify,
-merge, publish, distribute and/or sell this material, subject to the
-following conditions:
+This material is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
 
-1. The above copyright notices and this permission notice shall
-   be included in all reproductions of this material.
-
-2. The material is provided "AS IS", with NO WARRANTY OF ANY KIND,
-   express or implied.  You use this material AT YOUR OWN RISK.
-   In no event will the authors be held liable for any damages
-   arising from the use of this material.
+This material is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
 
 CHANGELOG
 ---------
+
+EDGE WAD 5.7: (2008-04-16)
+==========================
+
+1) LINES.DDF: added new Fake Slope types (567 to 569).
+
+2) added LUAUTIL0 and LUAHUD0 lumps, which contain the Lua code
+   for drawing the Doom status bar.
+
 
 EDGE WAD 5.6: (2008-01-26)
 ==========================
