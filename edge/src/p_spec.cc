@@ -758,6 +758,7 @@ static void P_PortalEffect(line_t *ld)
 	I_Warning("Portal on line #%d disabled: Cannot find partner!\n", ld - lines);
 }
 
+
 static slope_plane_t * FakeSlope_BoundIt(line_t *ld, sector_t *sec, float z1, float z2)
 {
 	// determine slope's 2D coordinates
@@ -818,8 +819,8 @@ static void FakeSlope_Floor(line_t *ld)
 
 	sector_t *sec = ld->frontsector;
 
-	float z1 = ld->backsector->f_h;
-	float z2 = sec->f_h;
+	float z1 = ld->backsector ->f_h;
+	float z2 = ld->frontsector->f_h;
 
 	if (fabs(z1 - z2) < 0.5)
 	{
@@ -831,8 +832,8 @@ static void FakeSlope_Floor(line_t *ld)
 	{
 		sec = ld->backsector;
 
-		z1 = z2;
-		z2 = sec->f_h;
+		z1 = ld->frontsector->f_h;
+		z2 = ld->backsector ->f_h;
 	}
 
 	if (sec->f_slope)
@@ -840,6 +841,9 @@ static void FakeSlope_Floor(line_t *ld)
 		I_Warning("Fake slope in sector #%d disabled: floor already sloped!\n", sec - sectors);
 		return;
 	}
+
+	// limit height difference to no more than 16 units
+	z1 = MAX(z1, z2 - 16.0);
 
 	sec->f_slope = FakeSlope_BoundIt(ld, sec, z1, z2);
 }
@@ -851,8 +855,8 @@ static void FakeSlope_Ceiling(line_t *ld)
 
 	sector_t *sec = ld->frontsector;
 
-	float z1 = sec->c_h;
-	float z2 = ld->backsector->c_h;
+	float z1 = ld->frontsector->c_h;
+	float z2 = ld->backsector ->c_h;
 
 	if (fabs(z1 - z2) < 0.5)
 	{
@@ -864,8 +868,8 @@ static void FakeSlope_Ceiling(line_t *ld)
 	{
 		sec = ld->backsector;
 
-		z2 = z1;
-		z1 = sec->c_h;
+		z1 = ld->backsector ->c_h;
+		z2 = ld->frontsector->c_h;
 	}
 
 	if (sec->c_slope)
@@ -873,6 +877,9 @@ static void FakeSlope_Ceiling(line_t *ld)
 		I_Warning("Fake slope in sector #%d disabled: ceiling already sloped!\n", sec - sectors);
 		return;
 	}
+
+	// limit height difference to no more than 16 units
+	z2 = MIN(z2, z1 + 16.0);
 
 	sec->c_slope = FakeSlope_BoundIt(ld, sec, z2, z1);
 }
