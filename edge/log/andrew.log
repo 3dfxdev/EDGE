@@ -1,5 +1,11 @@
 Andrew Apted's Log
 
+2008/04/16:
+
+Worked on fixing the renderer (drawing order of DrawFloors).
+
+Worked on the fake slopes.
+
 2008/03/30:
 
 LUA huds are really shaping up, so much so that the st_stuff.cc
