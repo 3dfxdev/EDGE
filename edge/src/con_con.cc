@@ -398,7 +398,7 @@ void CON_Ticker(void)
 }
 
 
-static int SIZE;
+static int FNSZ;
 static int XMUL;
 static int YMUL;
 
@@ -412,7 +412,7 @@ static void HorizontalLine(int y, rgbcol_t col)
 
 static void WriteChar(int x, int y, char ch, rgbcol_t col)
 {
-	if (x + SIZE < 0)
+	if (x + FNSZ < 0)
 		return;
 
 	GLuint tex_id = W_ImageCache(con_font);
@@ -445,13 +445,13 @@ static void WriteChar(int x, int y, char ch, rgbcol_t col)
 	glVertex2i(x, y);
 
 	glTexCoord2f(tx1, ty2); 
-	glVertex2i(x, y + SIZE);
+	glVertex2i(x, y + FNSZ);
   
 	glTexCoord2f(tx2, ty2);
-	glVertex2i(x + SIZE, y + SIZE);
+	glVertex2i(x + FNSZ, y + FNSZ);
   
 	glTexCoord2f(tx2, ty1);
-	glVertex2i(x + SIZE, y);
+	glVertex2i(x + FNSZ, y);
   
 	glEnd();
 
@@ -501,15 +501,15 @@ void CON_Drawer(void)
 
 	if (SCREENWIDTH < 400)
 	{
-		SIZE = 10; XMUL = 7; YMUL = 12;
+		FNSZ = 10; XMUL = 7; YMUL = 12;
 	}
 	else if (SCREENWIDTH < 700)
 	{
-		SIZE = 13;  XMUL = 9;  YMUL = 15;
+		FNSZ = 13;  XMUL = 9;  YMUL = 15;
 	}
 	else
 	{
-		SIZE = 16;  XMUL = 11;  YMUL = 19;
+		FNSZ = 16;  XMUL = 11;  YMUL = 19;
 	}
 
 
