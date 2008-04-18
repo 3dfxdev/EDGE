@@ -2,15 +2,13 @@
 TODO for QPakMan
 ================
 
--  texture wad creation:
-   -  handle prefixes: star_ "*" plus_ "+" dash_ "-"
-   -  handle suffixes: _fbr (full-bright) 
-
--  allow opening PAK/WAD files with no entries
-
 +  texture wad unpacking
 
 +  pak creation
 
 +  pak unpacking
+
+TEST: mip wad creation
+
+TEST: allow opening PAK/WAD files with no entries
 
