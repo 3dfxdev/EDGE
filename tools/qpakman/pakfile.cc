@@ -71,13 +71,7 @@ bool PAK_OpenRead(const char *filename)
 
   /* read directory */
 
-  if (r_header.entry_num == 0)
-  {
-    LogPrintf("PAK_OpenRead: empty PAK file!\n");
-    fclose(r_pak_fp);
-    return false;
-  }
-  if (r_header.entry_num >= 4000)  // sanity check
+  if (r_header.entry_num >= 5000)  // sanity check
   {
     LogPrintf("PAK_OpenRead: bad header (%d entries?)\n", r_header.entry_num);
     fclose(r_pak_fp);
@@ -91,7 +85,7 @@ bool PAK_OpenRead(const char *filename)
     return false;
   }
 
-  r_directory = new raw_pak_entry_t[r_header.entry_num];
+  r_directory = new raw_pak_entry_t[r_header.entry_num + 1];
 
   for (int i = 0; i < (int)r_header.entry_num; i++)
   {
@@ -101,6 +95,17 @@ bool PAK_OpenRead(const char *filename)
 
     if (res == EOF || res != 1 || ferror(r_pak_fp))
     {
+      if (i == 0)
+      {
+        LogPrintf("PAK_OpenRead: could not read any dir-entries!\n");
+
+        delete[] r_directory;
+        r_directory = NULL;
+
+        fclose(r_pak_fp);
+        return false;
+      }
+
       LogPrintf("PAK_OpenRead: hit EOF reading dir-entry %d\n", i);
 
       // truncate directory
@@ -115,18 +120,6 @@ bool PAK_OpenRead(const char *filename)
     E->length = LE_U32(E->length);
 
 //    DebugPrintf(" %4d: %08x %08x : %s\n", i, E->offset, E->length, E->name);
-  }
-
-  // FIXME: allow PAK with no entries!!!!
-  if (r_header.entry_num == 0)
-  {
-    LogPrintf("PAK_OpenRead: could not read any dir-entries!\n");
-
-    delete[] r_directory;
-    r_directory = NULL;
-
-    fclose(r_pak_fp);
-    return false;
   }
 
   return true; // OK
@@ -146,7 +139,6 @@ void PAK_CloseRead(void)
 void PAK_FindMaps(std::vector<int>& entries)
 {
   entries.resize(0);
-  entries.reserve(r_header.entry_num);
 
   for (int i = 0; i < (int)r_header.entry_num; i++)
   {
@@ -378,14 +370,7 @@ bool WAD2_OpenRead(const char *filename)
 
   /* read directory */
 
-  // FIXME: allow WAD2 with no entries!!!!
-  if (wad_R_header.num_lumps == 0)
-  {
-    LogPrintf("WAD2_OpenRead: empty WAD2 file!\n");
-    fclose(wad_R_fp);
-    return false;
-  }
-  if (wad_R_header.num_lumps >= 4000)  // sanity check
+  if (wad_R_header.num_lumps >= 5000)  // sanity check
   {
     LogPrintf("WAD2_OpenRead: bad header (%d entries?)\n", wad_R_header.num_lumps);
     fclose(wad_R_fp);
@@ -399,7 +384,7 @@ bool WAD2_OpenRead(const char *filename)
     return false;
   }
 
-  wad_R_dir = new raw_wad2_lump_t[wad_R_header.num_lumps];
+  wad_R_dir = new raw_wad2_lump_t[wad_R_header.num_lumps + 1];
 
   for (int i = 0; i < (int)wad_R_header.num_lumps; i++)
   {
@@ -409,6 +394,17 @@ bool WAD2_OpenRead(const char *filename)
 
     if (res == EOF || res != 1 || ferror(wad_R_fp))
     {
+      if (i == 0)
+      {
+        LogPrintf("WAD2_OpenRead: could not read any dir-entries!\n");
+
+        delete[] wad_R_dir;
+        wad_R_dir = NULL;
+
+        fclose(wad_R_fp);
+        return false;
+      }
+
       LogPrintf("WAD2_OpenRead: hit EOF reading dir-entry %d\n", i);
 
       // truncate directory
@@ -424,17 +420,6 @@ bool WAD2_OpenRead(const char *filename)
     L->u_len  = LE_U32(L->u_len);
 
 //    DebugPrintf(" %4d: %08x %08x : %s\n", i, L->start, L->length, L->name);
-  }
-
-  if (wad_R_header.num_lumps == 0)
-  {
-    LogPrintf("WAD2_OpenRead: could not read any dir-entries!\n");
-
-    delete[] wad_R_dir;
-    wad_R_dir = NULL;
-
-    fclose(wad_R_fp);
-    return false;
   }
 
   return true; // OK
