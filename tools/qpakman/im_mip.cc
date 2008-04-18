@@ -38,6 +38,8 @@ std::map<u32_t, byte> color_cache;
 
 int max_color_cache = 64 * 1024;
 
+static bool cache_allow_fullbright = false;
+
 
 const byte quake1_palette[256*3] =
 {
@@ -101,7 +103,7 @@ byte MIP_FindColor(const byte *palette, u32_t rgb_col)
   int best_idx  = -1;
   int best_dist = (1<<30);
 
-  for (int i = 0; i < 255; i++)
+  for (int i = (cache_allow_fullbright ? 255 : 255-32); i >= 0; i--)
   {
     int dr = RGB_R(rgb_col) - palette[i*3+0];
     int dg = RGB_G(rgb_col) - palette[i*3+1];
@@ -191,14 +193,60 @@ rgb_image_c *MIP_LoadImage(const char *filename)
 }
 
 
-std::string MIP_FileToLumpName(const char *filename)
+static bool ReplacePrefix(char *name, const char *prefix, char ch)
+{
+  if (strncmp(name, prefix, strlen(prefix)) != 0)
+    return false;
+
+  *name++ = ch;
+
+  int move_chars = strlen(prefix) - 1;
+
+  if (move_chars > 1)
+  {
+    int new_len = strlen(name) - move_chars;
+
+    // +1 to copy the trailing NUL as well
+    memmove(name, name + move_chars, new_len + 1);
+  }
+
+  return true;
+}
+
+static void ApplyAbbreviations(char *name, bool *fullbright)
+{
+  // make it lower case
+  for (char *u = name; *u; u++)
+    *u = tolower(*u);
+
+  int len = strlen(name);
+
+  if (len >= 6)
+  {
+       ReplacePrefix(name, "star_", '*')
+    || ReplacePrefix(name, "plus_", '+')
+    || ReplacePrefix(name, "dash_", '-');
+  }
+
+  len = strlen(name);
+
+  if (len >= 5 && memcmp(name+len-4, "_fbr", 4) == 0)
+  {
+    *fullbright = true;
+
+    name[len-4] = 0;
+  }
+}
+
+
+std::string MIP_FileToLumpName(const char *filename, bool * fullbright)
 {
   char *base = ReplaceExtension(FindBaseName(filename), NULL);
 
   if (strlen(base) == 0)
     FatalError("Weird image filename: %s\n", filename);
 
-  // TODO: abbreviations for special characters
+  ApplyAbbreviations(base, fullbright);
 
   if (strlen(base) > 15)
   {
@@ -261,7 +309,9 @@ void MIP_ConvertImage(rgb_image_c *img)
 
 bool MIP_ProcessImage(const char *filename)
 {
-  std::string lump_name = MIP_FileToLumpName(filename);
+  bool fullbright = false;
+
+  std::string lump_name = MIP_FileToLumpName(filename, &fullbright);
 
   if (lump_name.empty())
     return false;
@@ -311,6 +361,13 @@ bool MIP_ProcessImage(const char *filename)
   }
 
   WAD2_AppendData(&mm_tex, sizeof(mm_tex));
+
+
+  if (fullbright != cache_allow_fullbright)
+  {
+    color_cache.clear();
+    cache_allow_fullbright = fullbright;
+  }
 
 
   // now the actual textures
