@@ -2,7 +2,7 @@
 //  PNG Image Handling
 //------------------------------------------------------------------------
 // 
-//  Copyright (c) 2003-2008  The EDGE Team.
+//  Copyright (c) 2008  Andrew J Apted
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
