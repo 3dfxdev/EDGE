@@ -257,9 +257,7 @@ std::string MIP_FileToLumpName(const char *filename, bool * fullbright)
 
     memset(new_name, 0, sizeof(new_name));
     memcpy(new_name, base, 7);
-    memcpy(new_name+8, base + strlen(base) - 7, 7);
-
-    new_name[7] = '_';
+    memcpy(new_name+7, base + strlen(base) - 8, 8);
 
     StringFree(base);
 
