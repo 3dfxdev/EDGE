@@ -550,7 +550,21 @@ bool MIP_ExtractMipTex(int entry, const char *lump_name)
 
   const char *filename = ExpandFileName(lump_name, fullbright);
 
-  printf("   Saving to file: %s\n", filename);
+  // printf("   Saving to file: %s\n", filename);
+
+  // TODO: check if already exists!!!!!
+
+  FILE *fp = fopen(filename, "wb");
+  if (! fp)
+  {
+    printf("FAILURE: cannot create output file: %s\n", filename);
+    delete img;
+    return false;
+  }
+
+  PNG_Save(fp, img);
+
+  fclose(fp);
 
   delete img;
 
@@ -567,6 +581,7 @@ void MIP_ExtractWAD(const char *filename)
   printf("--------------------------------------------------\n");
 
   int num_lumps = WAD2_NumEntries();
+
   int skipped  = 0;
   int failures = 0;
 
