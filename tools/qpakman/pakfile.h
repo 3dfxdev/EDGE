@@ -30,6 +30,8 @@ int  PAK_FindEntry(const char *name);
 void PAK_FindMaps(std::vector<int>& entries);
 
 int  PAK_EntryLen(int entry);
+const char * PAK_EntryName(int entry);
+
 bool PAK_ReadData(int entry, int offset, int length, void *buffer);
 
 void PAK_ListEntries(void);
@@ -54,6 +56,8 @@ int  WAD2_NumEntries(void);
 int  WAD2_FindEntry(const char *name);
 int  WAD2_EntryLen(int entry);
 int  WAD2_EntryType(int entry);
+const char * WAD2_EntryName(int entry);
+
 bool WAD2_ReadData(int entry, int offset, int length, void *buffer);
 
 void WAD2_ListEntries(void);

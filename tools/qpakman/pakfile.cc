@@ -141,6 +141,30 @@ int PAK_NumEntries(void)
   return (int)r_header.entry_num;
 }
 
+int PAK_FindEntry(const char *name)
+{
+  for (unsigned int i = 0; i < r_header.entry_num; i++)
+  {
+    if (StringCaseCmp(name, r_directory[i].name) == 0)
+      return i;
+  }
+
+  return -1; // not found
+}
+
+int PAK_EntryLen(int entry)
+{
+  SYS_ASSERT(entry >= 0 && entry < (int)r_header.entry_num);
+
+  return r_directory[entry].length;
+}
+
+const char * PAK_EntryName(int entry)
+{
+  SYS_ASSERT(entry >= 0 && entry < (int)r_header.entry_num);
+
+  return r_directory[entry].name;
+}
 
 void PAK_FindMaps(std::vector<int>& entries)
 {
@@ -464,6 +488,13 @@ int WAD2_EntryLen(int entry)
   SYS_ASSERT(entry >= 0 && entry < (int)wad_R_header.num_lumps);
 
   return wad_R_dir[entry].u_len;
+}
+
+const char * WAD2_EntryName(int entry)
+{
+  SYS_ASSERT(entry >= 0 && entry < (int)wad_R_header.num_lumps);
+
+  return wad_R_dir[entry].name;
 }
 
 int WAD2_EntryType(int entry)
