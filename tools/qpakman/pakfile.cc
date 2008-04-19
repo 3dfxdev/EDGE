@@ -136,6 +136,12 @@ void PAK_CloseRead(void)
 }
 
 
+int PAK_NumEntries(void)
+{
+  return (int)r_header.entry_num;
+}
+
+
 void PAK_FindMaps(std::vector<int>& entries)
 {
   entries.resize(0);
@@ -434,6 +440,13 @@ void WAD2_CloseRead(void)
   delete[] wad_R_dir;
   wad_R_dir = NULL;
 }
+
+
+int WAD2_NumEntries(void)
+{
+  return (int)wad_R_header.num_lumps;
+}
+
 
 int WAD2_FindEntry(const char *name)
 {
