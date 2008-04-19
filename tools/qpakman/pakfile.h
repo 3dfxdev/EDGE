@@ -51,6 +51,7 @@ void WAD2_CloseRead(void);
 
 int  WAD2_FindEntry(const char *name);
 int  WAD2_EntryLen(int entry);
+int  WAD2_EntryType(int entry);
 bool WAD2_ReadData(int entry, int offset, int length, void *buffer);
 
 void WAD2_ListEntries(void);
@@ -61,7 +62,7 @@ void WAD2_ListEntries(void);
 bool WAD2_OpenWrite(const char *filename);
 void WAD2_CloseWrite(void);
 
-void WAD2_NewLump(const char *name, u8_t type = 0);
+void WAD2_NewLump(const char *name, int type = 0);
 void WAD2_AppendData(const void *data, int length);
 void WAD2_FinishLump(void);
 
@@ -130,6 +131,9 @@ raw_wad2_lump_t;
 #define TYP_QPIC     66
 #define TYP_SOUND    67
 #define TYP_MIPTEX   68
+
+// this value is only returned from WAD2_EntryType()
+#define TYP_COMPRESSED  256
 
 
 #endif /* __PAK_FILES_H__ */
