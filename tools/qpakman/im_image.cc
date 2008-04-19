@@ -105,7 +105,7 @@ void rgb_image_c::RemoveAlpha()
 
   while (pos < p_end)
   {
-    int a = 255 - RGB_A(*pos);
+    int a = RGB_A(*pos);
 
     u8_t r = RGB_R(*pos) * a / 255;
     u8_t g = RGB_G(*pos) * a / 255;
