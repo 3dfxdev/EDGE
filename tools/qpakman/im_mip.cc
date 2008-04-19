@@ -225,7 +225,8 @@ static void ApplyAbbreviations(char *name, bool *fullbright)
   {
        ReplacePrefix(name, "star_", '*')
     || ReplacePrefix(name, "plus_", '+')
-    || ReplacePrefix(name, "dash_", '-');
+    || ReplacePrefix(name, "minu_", '-')
+    || ReplacePrefix(name, "divd_", '/');
   }
 
   len = strlen(name);
@@ -424,9 +425,136 @@ void MIP_CreateWAD(const char *filename)
 
 //------------------------------------------------------------------------
 
+static const char * ExpandFileName(const char *lump_name, bool fullbright)
+{
+  int max_len = strlen(lump_name) + 32;
+
+  char *result = StringNew(max_len);
+
+  // convert any special first character
+  if (lump_name[0] == '*')
+  {
+    strcpy(result, "star_");
+  }
+  else if (lump_name[0] == '+')
+  {
+    strcpy(result, "plus_");
+  }
+  else if (lump_name[0] == '-')
+  {
+    strcpy(result, "minu_");
+  }
+  else if (lump_name[0] == '/')
+  {
+    strcpy(result, "divd_");
+  }
+  else
+  {
+    result[0] = lump_name[0];
+    result[1] = 0;
+  }
+
+  strcat(result, lump_name + 1);
+
+  // sanitize filename (remove problematic characters)
+  bool warned = false;
+
+  for (char *p = result; *p; p++)
+  {
+    if (*p == ' ')
+      *p = '_';
+
+    if (*p != '_' && *p != '-' && ! isalnum(*p))
+    {
+      if (! warned)
+      {
+        printf("WARNING: removing weird characters from name (\\%03o)\n",
+               (unsigned char)*p);
+        warned = true;
+      }
+
+      *p = '_';
+    }
+  }
+
+  if (fullbright)
+    strcat(result, "_fbr");
+
+  strcat(result, ".png");
+
+  return result;
+}
+
+
 bool MIP_ExtractMipTex(int entry, const char *lump_name)
 {
-  return false;
+  // mip header
+  miptex_t mm_tex;
+
+  if (! WAD2_ReadData(entry, 0, (int)sizeof(mm_tex), &mm_tex))
+  {
+    printf("FAILURE: could not read miptex header!\n");
+    return false;
+  }
+
+  // (We ignore the internal name and offsets)
+
+  mm_tex.width  = LE_U32(mm_tex.width);
+  mm_tex.height = LE_U32(mm_tex.height);
+
+  int width  = mm_tex.width;
+  int height = mm_tex.height;
+
+  if (width  < 8 || width  > 4096 ||
+      height < 8 || height > 4096)
+  {
+    printf("FAILURE: weird size of image: %dx%d\n", width, height);
+    return false;
+  }
+
+  byte *pixels = new byte[width * height];
+
+  // NOTE: we assume that the pixels directly follow the miptex header
+  
+  if (! WAD2_ReadData(entry, (int)sizeof(mm_tex), width * height, pixels))
+  {
+    printf("FAILURE: could not read %d pixels!\n", width * height);
+    delete pixels;
+    return false;
+  }
+
+  // create the image for saving.
+  // if the image contains fullbright pixels, the output filename
+  // will be given the '_fbr' prefix.
+  bool fullbright = false;
+
+  rgb_image_c *img = new rgb_image_c(width, height);
+
+  for (int y = 0; y < height; y++)
+  for (int x = 0; x < width;  x++)
+  {
+    byte pix = pixels[y*width + x];
+
+    if (pix >= 256-32)
+      fullbright = true;
+
+    byte R = quake1_palette[pix*3 + 0];
+    byte G = quake1_palette[pix*3 + 1];
+    byte B = quake1_palette[pix*3 + 2];
+
+    img->PixelAt(x, y) = MAKE_RGB(R, G, B);
+  }
+
+  delete pixels;
+
+
+  const char *filename = ExpandFileName(lump_name, fullbright);
+
+  printf("   Saving to file: %s\n", filename);
+
+  delete img;
+
+  return true;
 }
 
 
