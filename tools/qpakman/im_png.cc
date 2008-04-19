@@ -132,11 +132,7 @@ rgb_image_c *PNG_Load(FILE *fp)
     png_set_gray_to_rgb(png_ptr);
   }
 
-  if (color_type == PNG_COLOR_TYPE_RGB ||
-      color_type == PNG_COLOR_TYPE_RGB_ALPHA)
-  {
-    png_set_bgr(png_ptr);
-  }
+  png_set_bgr(png_ptr);
 
   /* read alpha channel or add a dummy one */
   if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS))
@@ -144,20 +140,9 @@ rgb_image_c *PNG_Load(FILE *fp)
     png_set_tRNS_to_alpha(png_ptr);
   }
 
-///---  else if (color_type == PNG_COLOR_TYPE_RGB ||
-///---           color_type == PNG_COLOR_TYPE_GRAY)
-///---  {
-///---    png_set_add_alpha(png_ptr, ALPHA_SOLID, PNG_FILLER_BEFORE);
-///---  }
-///---  else
-///---  {
-///---    png_set_invert_alpha(png_ptr);
-///---  }
-
   if (color_type & PNG_COLOR_MASK_ALPHA)
   {
     png_set_invert_alpha(png_ptr);
-//    png_set_swap_alpha(png_ptr);
   }
   else
   {
