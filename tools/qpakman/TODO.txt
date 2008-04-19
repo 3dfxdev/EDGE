@@ -8,3 +8,5 @@ TODO for QPakMan
 
 +  pak unpacking
 
+-  create xming Makefile
+
