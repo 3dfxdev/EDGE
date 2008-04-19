@@ -453,6 +453,16 @@ int WAD2_EntryLen(int entry)
   return wad_R_dir[entry].u_len;
 }
 
+int WAD2_EntryType(int entry)
+{
+  SYS_ASSERT(entry >= 0 && entry < (int)wad_R_header.num_lumps);
+
+  if (wad_R_dir[entry].compression != 0)
+    return TYP_COMPRESSED;
+
+  return wad_R_dir[entry].type;
+}
+
 bool WAD2_ReadData(int entry, int offset, int length, void *buffer)
 {
   SYS_ASSERT(entry >= 0 && entry < (int)wad_R_header.num_lumps);
@@ -590,7 +600,7 @@ void WAD2_CloseWrite(void)
 }
 
 
-void WAD2_NewLump(const char *name, u8_t type)
+void WAD2_NewLump(const char *name, int type)
 {
   SYS_ASSERT(strlen(name) <= 15);
 
