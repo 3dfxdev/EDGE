@@ -493,7 +493,7 @@ bool MIP_ExtractMipTex(int entry, const char *lump_name)
 
   if (! WAD2_ReadData(entry, 0, (int)sizeof(mm_tex), &mm_tex))
   {
-    printf("FAILURE: could not read miptex header!\n");
+    printf("FAILURE: could not read miptex header!\n\n");
     return false;
   }
 
@@ -508,7 +508,7 @@ bool MIP_ExtractMipTex(int entry, const char *lump_name)
   if (width  < 8 || width  > 4096 ||
       height < 8 || height > 4096)
   {
-    printf("FAILURE: weird size of image: %dx%d\n", width, height);
+    printf("FAILURE: weird size of image: %dx%d\n\n", width, height);
     return false;
   }
 
@@ -518,7 +518,7 @@ bool MIP_ExtractMipTex(int entry, const char *lump_name)
   
   if (! WAD2_ReadData(entry, (int)sizeof(mm_tex), width * height, pixels))
   {
-    printf("FAILURE: could not read %d pixels!\n", width * height);
+    printf("FAILURE: could not read %dx%d pixels from miptex\n\n", width, height);
     delete pixels;
     return false;
   }
@@ -550,25 +550,40 @@ bool MIP_ExtractMipTex(int entry, const char *lump_name)
 
   const char *filename = ExpandFileName(lump_name, fullbright);
 
-  // printf("   Saving to file: %s\n", filename);
-
-  // TODO: check if already exists!!!!!
-
-  FILE *fp = fopen(filename, "wb");
-  if (! fp)
+  if (FileExists(filename) && ! opt_overwrite)
   {
-    printf("FAILURE: cannot create output file: %s\n", filename);
+    printf("FAILURE: will not overwrite file: %s\n\n", filename);
+
     delete img;
+    StringFree(filename);
+    
     return false;
   }
 
-  PNG_Save(fp, img);
 
-  fclose(fp);
+  bool failed = false;
+
+  FILE *fp = fopen(filename, "wb");
+  if (fp)
+  {
+    if (! PNG_Save(fp, img))
+    {
+      printf("FAILURE: error while writing PNG file\n\n");
+      failed = true;
+    }
+
+    fclose(fp);
+  }
+  else
+  {
+    printf("FAILURE: cannot create output file: %s\n\n", filename);
+    failed = true;
+  }
 
   delete img;
+  StringFree(filename);
 
-  return true;
+  return ! failed;
 }
 
 
