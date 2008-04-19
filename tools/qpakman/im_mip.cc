@@ -422,12 +422,52 @@ void MIP_CreateWAD(const char *filename)
 }
 
 
+//------------------------------------------------------------------------
+
+bool MIP_ExtractMipTex(int entry, const char *lump_name)
+{
+  return false;
+}
+
+
 void MIP_ExtractWAD(const char *filename)
 {
   if (! WAD2_OpenRead(filename))
     FatalError("Cannot open WAD2 file: %s\n", filename);
 
+  printf("\n");
+  printf("--------------------------------------------------\n");
+
+  int num_lumps = WAD2_NumEntries();
+  int skipped  = 0;
+  int failures = 0;
+
+  for (int i = 0; i < num_lumps; i++)
+  {
+    int type = WAD2_EntryType(i);
+    const char *name = WAD2_EntryName(i);
+
+    if (type != TYP_MIPTEX)
+    {
+      printf("SKIPPING NON-MIPTEX entry %d/%d : %s\n", i+1, num_lumps, name);
+      skipped++;
+      continue;
+    }
+
+    printf("Unpacking entry %d/%d : %s\n", i+1, num_lumps, name);
+
+    if (! MIP_ExtractMipTex(i, name))
+      failures++;
+  }
+
+  printf("\n");
+  printf("--------------------------------------------------\n");
+
   WAD2_CloseRead();
+
+  printf("Skipped %d non-miptex lumps\n", skipped);
+  printf("Extracted %d miptex, with %d failures\n",
+         num_lumps - failures - skipped, failures);
 }
 
 //--- editor settings ---
