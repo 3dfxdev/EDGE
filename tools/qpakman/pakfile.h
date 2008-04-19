@@ -61,7 +61,7 @@ void WAD2_ListEntries(void);
 bool WAD2_OpenWrite(const char *filename);
 void WAD2_CloseWrite(void);
 
-void WAD2_NewLump(const char *name);
+void WAD2_NewLump(const char *name, u8_t type = 0);
 void WAD2_AppendData(const void *data, int length);
 void WAD2_FinishLump(void);
 
@@ -117,6 +117,19 @@ typedef struct
   char  name[16];  // must be null terminated
 }
 raw_wad2_lump_t;
+
+// compression method (from Quake1 source)
+#define CMP_NONE  0
+#define CMP_LZSS  1
+
+// lump types (from Quake1 source)
+#define TYP_NONE      0
+#define TYP_LABEL     1
+#define TYP_PALETTE  64
+#define TYP_QTEX     65
+#define TYP_QPIC     66
+#define TYP_SOUND    67
+#define TYP_MIPTEX   68
 
 
 #endif /* __PAK_FILES_H__ */

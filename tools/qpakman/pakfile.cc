@@ -470,6 +470,22 @@ bool WAD2_ReadData(int entry, int offset, int length, void *buffer)
 }
 
 
+static char LetterForType(u8_t type)
+{
+  switch (type)
+  {
+    case TYP_NONE:    return 'x';
+    case TYP_LABEL:   return 'L';
+    case TYP_PALETTE: return 'C';
+    case TYP_QTEX:    return 'T';
+    case TYP_QPIC:    return 'P';
+    case TYP_SOUND:   return 'S';
+    case TYP_MIPTEX:  return 'M';
+
+    default: return '?';
+  }
+}
+
 void WAD2_ListEntries(void)
 {
   printf("--------------------------------------------------\n");
@@ -484,7 +500,8 @@ void WAD2_ListEntries(void)
     {
       raw_wad2_lump_t *L = &wad_R_dir[i];
 
-      printf("%4d: +%08x %08x : %s\n", i+1, L->start, L->length, L->name);
+      printf("%4d: +%08x %08x %c : %s\n", i+1, L->start, L->length,
+             LetterForType(L->type), L->name);
     }
   }
 
@@ -573,7 +590,7 @@ void WAD2_CloseWrite(void)
 }
 
 
-void WAD2_NewLump(const char *name)
+void WAD2_NewLump(const char *name, u8_t type)
 {
   SYS_ASSERT(strlen(name) <= 15);
 
@@ -581,6 +598,7 @@ void WAD2_NewLump(const char *name)
 
   strcpy(wad_W_lump.name, name);
 
+  wad_W_lump.type  = type;
   wad_W_lump.start = (u32_t)ftell(wad_W_fp);
 }
 
