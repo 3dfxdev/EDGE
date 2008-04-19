@@ -36,7 +36,7 @@ std::map<std::string, int> all_lump_names;
 
 std::map<u32_t, byte> color_cache;
 
-int max_color_cache = 64 * 1024;
+int max_color_cache = 1024;
 
 static bool cache_allow_fullbright = false;
 
@@ -334,7 +334,7 @@ bool MIP_ProcessImage(const char *filename)
   }
 
 
-  WAD2_NewLump(lump_name.c_str());
+  WAD2_NewLump(lump_name.c_str(), TYP_MIPTEX);
 
 
   // mip header
@@ -424,8 +424,10 @@ void MIP_CreateWAD(const char *filename)
 
 void MIP_ExtractWAD(const char *filename)
 {
-  // TODO: MIP_ExtractWAD
-  FatalError("Extracting WAD2 not yet implemented.\n");
+  if (! WAD2_OpenRead(filename))
+    FatalError("Cannot open WAD2 file: %s\n", filename);
+
+  WAD2_CloseRead();
 }
 
 //--- editor settings ---
