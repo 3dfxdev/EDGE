@@ -142,7 +142,7 @@ rgb_image_c *PNG_Load(FILE *fp)
 
   if (color_type & PNG_COLOR_MASK_ALPHA)
   {
-    png_set_invert_alpha(png_ptr);
+//    png_set_invert_alpha(png_ptr);
   }
   else
   {
