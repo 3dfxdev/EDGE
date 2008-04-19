@@ -25,6 +25,7 @@
 bool PAK_OpenRead(const char *filename);
 void PAK_CloseRead(void);
 
+int  PAK_NumEntries(void);
 int  PAK_FindEntry(const char *name);
 void PAK_FindMaps(std::vector<int>& entries);
 
@@ -49,6 +50,7 @@ void PAK_FinishLump(void);
 bool WAD2_OpenRead(const char *filename);
 void WAD2_CloseRead(void);
 
+int  WAD2_NumEntries(void);
 int  WAD2_FindEntry(const char *name);
 int  WAD2_EntryLen(int entry);
 int  WAD2_EntryType(int entry);
