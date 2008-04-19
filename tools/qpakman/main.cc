@@ -24,7 +24,7 @@
 #include "im_mip.h"
 #include "pakfile.h"
 
-#define VERSION  "0.25"
+#define VERSION  "0.30"
 
 
 std::string output_name;
