@@ -27,7 +27,7 @@ rgb_image_c * PNG_Load(FILE *fp);
 // loads the given PNG image.  Returns 0 if something went wrong.
 // The image will be RGB or RGBA (never paletted).
 
-bool PNG_Save(FILE *fp, const rgb_image_c *img, int compress = 3);
+bool PNG_Save(FILE *fp, rgb_image_c *img, int compress = 3);
 // saves the image (in PNG format) to the given file.  The compression
 // level should be between 1 (Z_BEST_SPEED) and 9 (Z_BEST_COMPRESSION).
 // Returns false if failed to save.

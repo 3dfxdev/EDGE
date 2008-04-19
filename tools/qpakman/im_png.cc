@@ -126,14 +126,14 @@ rgb_image_c *PNG_Load(FILE *fp)
     png_set_palette_to_rgb(png_ptr);
 
   /* expand greyscale into RGB */
-    if (color_type == PNG_COLOR_TYPE_GRAY ||
-    color_type == PNG_COLOR_TYPE_GRAY_ALPHA)
+  if (color_type == PNG_COLOR_TYPE_GRAY ||
+      color_type == PNG_COLOR_TYPE_GRAY_ALPHA)
   {
     png_set_gray_to_rgb(png_ptr);
   }
 
   if (color_type == PNG_COLOR_TYPE_RGB ||
-    color_type == PNG_COLOR_TYPE_RGB_ALPHA)
+      color_type == PNG_COLOR_TYPE_RGB_ALPHA)
   {
     png_set_bgr(png_ptr);
   }
@@ -251,17 +251,15 @@ bool PNG_Save(FILE *fp, rgb_image_c *img, int compress)
   png_set_compression_level(png_ptr, compress);
 
   png_set_IHDR(png_ptr, info_ptr, img->width, img->height, 8,
-      PNG_COLOR_TYPE_RGB,
+      PNG_COLOR_TYPE_RGB_ALPHA,
       PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT,
       PNG_FILTER_TYPE_DEFAULT);
-
-  png_set_invert_alpha(png_ptr);
-
-  img->RemoveAlpha();
 
 #if (UT_BYTEORDER == UT_BIG_ENDIAN)
   img->SwapEndian();
 #endif
+
+  png_set_bgr(png_ptr);
 
   row_pointers = new png_bytep[img->height];
 
