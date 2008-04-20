@@ -30,6 +30,9 @@ extern bool opt_recursive;
 extern bool opt_overwrite;
 
 
+std::map<std::string, int> all_created_dirs;
+
+
 void ARC_CreatePAK(const char *filename)
 {
   // TODO: ARC_CreatePAK
@@ -39,13 +42,67 @@ void ARC_CreatePAK(const char *filename)
 
 //------------------------------------------------------------------------
 
+const char *SanitizeOutputFilename(const char *name)
+{
+  // FIXME !!!! SanitizeOutputFilename
+
+  // (a) replace spaces and weird chars with '_' (show WARNING)
+  // (b) replace \ with /
+  // (c) strip leading / characters
+
+  return StringDup(name);
+}
+
+
+static bool ARC_CreateNeededDirs(const char *filename)
+{
+  for (int level = 0; level < 32; level++)
+  {
+    const char *end_p = filename;
+
+    for (int i = 0; i <= level; i++)
+    {
+      end_p = strchr(end_p, '/');
+
+      if (! end_p)
+        return true;
+
+      if (i < level)
+        end_p++;
+    }
+
+    char *dir_name = StringNew(end_p - filename + 4);
+
+    StringMaxCopy(dir_name, filename, end_p - filename);
+
+    // check whether we made the directory before
+    if (all_created_dirs.find(dir_name) == all_created_dirs.end())
+    {
+printf("MAKING DIRECTORY: %s\n", dir_name);
+
+      if (! FileMakeDir(dir_name))
+      {
+        printf("FAILURE: could not create directory: %s\n", dir_name);
+        StringFree(dir_name);
+        return false;
+      }
+
+      all_created_dirs[dir_name] = 1;
+    }
+
+    StringFree(dir_name);
+  }
+
+  printf("FAILURE: path name stupidly deep!\n\n");
+  return false;
+}
+
+
 bool ARC_ExtractOneFile(int entry, const char *name)
 {
-  int entry_len = PAK_EntryLen(entry);
-
-
-  // FIXME: validate/sanitize entry name
-  const char * filename = StringDup(name);
+  const char * filename = SanitizeOutputFilename(name);
+  if (! filename)
+    return false;
 
 
   if (FileExists(filename) && ! opt_overwrite)
@@ -56,6 +113,15 @@ bool ARC_ExtractOneFile(int entry, const char *name)
     return false;
   }
 
+  if (! ARC_CreateNeededDirs(filename))
+  {
+    // error message displayed by ARC_CreateNeededDirs()
+    StringFree(filename);
+    return false;
+  }
+
+
+  int entry_len = PAK_EntryLen(entry);
 
   bool failed = false;
 
