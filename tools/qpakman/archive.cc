@@ -71,7 +71,7 @@ bool ARC_ExtractOneFile(int entry, const char *name)
     {
       int count = MIN((int)sizeof(buffer), entry_len - position);
 
-      if (! WAD2_ReadData(entry, position, count, buffer))
+      if (! PAK_ReadData(entry, position, count, buffer))
       {
         printf("FAILURE: read error on %d bytes\n\n", count);
         failed = true;
@@ -105,7 +105,7 @@ bool ARC_ExtractOneFile(int entry, const char *name)
 void ARC_ExtractPAK(const char *filename)
 {
   if (! PAK_OpenRead(filename))
-    FatalError("Cannot open WAD2 file: %s\n", filename);
+    FatalError("Cannot open PAK file: %s\n", filename);
 
   printf("\n");
   printf("--------------------------------------------------\n");
