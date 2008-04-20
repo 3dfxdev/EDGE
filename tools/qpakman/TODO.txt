@@ -6,7 +6,8 @@ TODO for QPakMan
    
 +  pak creation
 
-+  pak unpacking
+>>> pak unpacking
+   SanitizeOutputName
 
 -  create xming Makefile
 
