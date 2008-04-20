@@ -44,11 +44,14 @@ void ARC_CreatePAK(const char *filename)
 
 const char *SanitizeOutputFilename(const char *name)
 {
-  // FIXME !!!! SanitizeOutputFilename
-
+  // Sanitize the output filename as follows:
+  //
   // (a) replace spaces and weird chars with '_' (show WARNING)
   // (b) replace \ with /
   // (c) strip leading / characters
+  // (d) disallow .. and //
+
+  // FIXME !!!! SanitizeOutputFilename
 
   return StringDup(name);
 }
@@ -56,7 +59,7 @@ const char *SanitizeOutputFilename(const char *name)
 
 static bool ARC_CreateNeededDirs(const char *filename)
 {
-  for (int level = 0; level < 32; level++)
+  for (int level = 0; level < 60; level++)
   {
     const char *end_p = filename;
 
@@ -78,22 +81,23 @@ static bool ARC_CreateNeededDirs(const char *filename)
     // check whether we made the directory before
     if (all_created_dirs.find(dir_name) == all_created_dirs.end())
     {
-printf("MAKING DIRECTORY: %s\n", dir_name);
+      // add it to created-list anyway, to prevent more warnings
+      all_created_dirs[dir_name] = 1;
 
       if (! FileMakeDir(dir_name))
       {
-        printf("FAILURE: could not create directory: %s\n", dir_name);
+        printf("WARNING: could not create directory: %s\n", dir_name);
+#if 0
         StringFree(dir_name);
         return false;
+#endif
       }
-
-      all_created_dirs[dir_name] = 1;
     }
 
     StringFree(dir_name);
   }
 
-  printf("FAILURE: path name stupidly deep!\n\n");
+  // should never get here (but no biggie if we do)
   return false;
 }
 
@@ -115,9 +119,11 @@ bool ARC_ExtractOneFile(int entry, const char *name)
 
   if (! ARC_CreateNeededDirs(filename))
   {
+#if 0
     // error message displayed by ARC_CreateNeededDirs()
     StringFree(filename);
     return false;
+#endif
   }
 
 
