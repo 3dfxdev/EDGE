@@ -175,15 +175,17 @@ void Main_List(void)
 
   if (CheckExtension(filename, "pak"))
   {
-    // FIXME: check for error !!!!!!!
-    PAK_OpenRead(filename);
+    if (! PAK_OpenRead(filename))
+      FatalError("Could not open PAK file: %s\n", filename);
+
     PAK_ListEntries();
     PAK_CloseRead();
   }
   else if (CheckExtension(filename, "wad"))
   {
-    // FIXME: check for error !!!!!!!
-    WAD2_OpenRead(filename);
+    if (! WAD2_OpenRead(filename))
+      FatalError("Could not open WAD2 file: %s\n", filename);
+
     WAD2_ListEntries();
     WAD2_CloseRead();
   }

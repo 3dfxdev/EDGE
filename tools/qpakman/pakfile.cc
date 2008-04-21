@@ -43,7 +43,7 @@ bool PAK_OpenRead(const char *filename)
 
   if (! r_pak_fp)
   {
-    LogPrintf("PAK_OpenRead: cannot open file: %s\n", filename);
+//  LogPrintf("PAK_OpenRead: no such file: %s\n", filename);
     return false;
   }
 
@@ -375,7 +375,7 @@ bool WAD2_OpenRead(const char *filename)
 
   if (! wad_R_fp)
   {
-    LogPrintf("WAD2_OpenRead: cannot open file: %s\n", filename);
+//  LogPrintf("WAD2_OpenRead: no such file: %s\n", filename);
     return false;
   }
 
