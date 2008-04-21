@@ -238,8 +238,8 @@ void ARC_ExtractPAK(const char *filename)
       failures++;
   }
 
-  printf("\n");
   printf("--------------------------------------------------\n");
+  printf("\n");
 
   PAK_CloseRead();
 
@@ -251,6 +251,11 @@ void ARC_ExtractPAK(const char *filename)
 
 
 //------------------------------------------------------------------------
+
+// forward declaration
+void ARC_StoreDir(int depth, const char *path,
+                  int *num_pack, int *failures, int *skipped);
+
 
 void Spaces(int depth)
 {
@@ -268,14 +273,14 @@ const char * MakePakLumpName(const char *filename)
 
 
 void ARC_StoreFile(int depth, int list_index, int list_total,
-                   const char *pathname,
+                   const char *path, bool is_dir,
                    int *num_pack, int *failures, int *skipped)
 {
-  if (PathIsDirectory(pathname))
+  if (is_dir)
   {
     if (! opt_recursive)
     {
-      printf("SKIPPING DIRECTORY: %s\n", pathname);
+      printf("SKIPPING DIRECTORY: %s\n", path);
 
       (*skipped) += 1;
       return;
@@ -284,16 +289,17 @@ void ARC_StoreFile(int depth, int list_index, int list_total,
     if (depth+1 >= ARC_MAX_DEPTH)
     {
       Spaces(depth);
-      printf("Skipping too-deep directory: %s\n", pathname);
+      printf("Skipping too-deep directory: %s\n", path);
 
       (*skipped) += 1;
       return;
     }
 
     Spaces(depth);
-    printf("Descending into directory: %s\n", pathname);
+    printf("Descending into directory: %s\n", path);
 
-    // FIXME scan directory !!!!
+    ARC_StoreDir(depth + 1, path,
+                 num_pack, failures, skipped);
 
     // we don't bump the 'num_pack' value here because the
     // directory itself does not exist in the PAK file as a
@@ -302,13 +308,16 @@ void ARC_StoreFile(int depth, int list_index, int list_total,
   }
 
 
-  // pathname refers to a normal file, create a PAK entry for it
+  // path refers to a normal file, create a PAK entry for it
   // and then copy the data.
 
   Spaces(depth);
-  printf("Processing %d/%d: %s\n", list_index, list_total, pathname);
+  if (list_total > 0)
+    printf("Processing %d/%d: %s\n", list_index, list_total, path);
+  else
+    printf("Processing: %s\n", path);
 
-  const char *lump_name = MakePakLumpName(pathname);
+  const char *lump_name = MakePakLumpName(path);
   if (! lump_name)
   {
     (*failures) += 1;
@@ -329,7 +338,7 @@ void ARC_StoreFile(int depth, int list_index, int list_total,
   all_pak_lumps[lump_name] = 1;
 
 
-  FILE *fp = fopen(pathname, "rb");
+  FILE *fp = fopen(path, "rb");
   if (! fp)
   {
     Spaces(depth);
@@ -384,6 +393,83 @@ void ARC_StoreFile(int depth, int list_index, int list_total,
 }
 
 
+typedef struct
+{
+  int depth;
+
+  int *num_pack;
+  int *failures;
+  int *skipped;
+}
+pak_iter_info_t;
+
+
+static void PakDirScanner(const char *name, int flags, void *priv_dat)
+{
+  pak_iter_info_t *iter_info = (pak_iter_info_t *) priv_dat;
+
+  if (flags & SCAN_F_Hidden)
+  {
+    Spaces(iter_info->depth);
+    printf("SKIPPING HIDDEN FILE: %s\n", name);
+
+    (* iter_info->skipped) += 1;
+    return;
+  }
+  
+  Spaces(iter_info->depth);
+  printf("Sucking up file: %s\n", name);
+  return;
+
+#if 0
+  ARC_StoreFile(iter_info->depth, 0, 0, name,
+                (flags & SCAN_F_IsDir) ? true : false,
+                iter_info->num_pack, iter_info->failures,
+                iter_info->skipped);
+#endif
+}
+
+
+void ARC_StoreDir(int depth, const char *path,
+                  int *num_pack, int *failures, int *skipped)
+{
+  pak_iter_info_t iter_info;
+
+  iter_info.depth    = depth;
+  iter_info.num_pack = num_pack;
+  iter_info.failures = failures;
+  iter_info.skipped  = skipped;
+
+  int result = ScanDirectory(path, PakDirScanner, &iter_info);
+
+  if (result == SCAN_ERR_NoExist)
+  {
+    Spaces(depth - 1);
+    printf("FAILURE: no such directory\n\n");
+
+    (*failures) += 1;
+    return;
+  }
+
+  if (result < 0)
+  {
+    Spaces(depth - 1);
+    printf("FAILURE: error scanning directory\n\n");
+
+    (*failures) += 1;
+    return;
+  }
+
+  if (result == 0)
+  {
+    Spaces(depth);
+    printf("(empty directory)\n");
+  }
+
+  printf("\n");
+}
+
+
 void ARC_CreatePAK(const char *filename)
 {
   if (input_names.size() == 0)
@@ -401,13 +487,15 @@ void ARC_CreatePAK(const char *filename)
 
   for (unsigned int j = 0; j < input_names.size(); j++)
   {
+    const char *pathname = input_names[j].c_str();
+
     ARC_StoreFile(0, 1+(int)j, (int)input_names.size(),
-                  input_names[j].c_str(),
+                  pathname, PathIsDirectory(pathname),
                   &num_pack, &failures, &skipped);
   }
 
-  printf("\n");
   printf("--------------------------------------------------\n");
+  printf("\n");
 
   PAK_CloseWrite();
 
