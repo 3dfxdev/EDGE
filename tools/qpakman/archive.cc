@@ -18,6 +18,8 @@
 
 #include "headers.h"
 
+#include <errno.h>
+
 #include <map>
 
 #include "archive.h"
@@ -304,7 +306,7 @@ void ARC_StoreFile(int depth, int list_index, int list_total,
   // and then copy the data.
 
   Spaces(depth);
-  printf("Adding file: %s\n", pathname);
+  printf("Processing %d/%d: %s\n", list_index, list_total, pathname);
 
   const char *lump_name = MakePakLumpName(pathname);
   if (! lump_name)
@@ -328,7 +330,7 @@ void ARC_StoreFile(int depth, int list_index, int list_total,
   if (! fp)
   {
     Spaces(depth);
-    printf("FAILURE: could not open file\n\n");
+    printf("FAILURE: no such file\n\n");
 
     StringFree(lump_name);
 
@@ -357,7 +359,12 @@ void ARC_StoreFile(int depth, int list_index, int list_total,
 
     if (count < 0)  // Error
     {
-      // FIXME: show type of error  : WARNING
+      int what_error = errno;
+
+      Spaces(depth);
+      printf("FAILURE: error reading file: %s\n\n",
+             (what_error == 0) ? "Unknown error" : strerror(what_error));
+
       read_error = true;
       break;
     }
@@ -368,6 +375,9 @@ void ARC_StoreFile(int depth, int list_index, int list_total,
   PAK_FinishLump();
 
   fclose(fp);
+
+  if (read_error)
+    (*failures) += 1;
 }
 
 
