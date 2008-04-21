@@ -28,7 +28,6 @@
 
 extern std::vector<std::string> input_names;
 
-extern bool opt_recursive;
 extern bool opt_overwrite;
 
 
@@ -623,7 +622,9 @@ void MIP_ExtractWAD(const char *filename)
 
   WAD2_CloseRead();
 
-  printf("Skipped %d non-miptex lumps\n", skipped);
+  if (skipped > 0)
+    printf("Skipped %d non-miptex lumps\n", skipped);
+
   printf("Extracted %d miptex, with %d failures\n",
          num_lumps - failures - skipped, failures);
 }
