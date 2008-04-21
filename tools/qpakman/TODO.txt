@@ -2,12 +2,7 @@
 TODO for QPakMan
 ================
 
--  Main_List(): check for errors opening the PAK/WAD2 files!
-   
 +  pak creation
-
->>> pak unpacking
-   SanitizeOutputName
 
 -  create xming Makefile
 
