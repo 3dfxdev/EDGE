@@ -31,16 +31,10 @@ extern bool opt_overwrite;
 
 
 std::map<std::string, int> all_created_dirs;
+std::map<std::string, int> all_pak_lumps;
 
+#define ARC_MAX_DEPTH  8
 
-void ARC_CreatePAK(const char *filename)
-{
-  // TODO: ARC_CreatePAK
-  FatalError("PAK creation not yet implemented\n");
-}
-
-
-//------------------------------------------------------------------------
 
 const char *SanitizeOutputName(const char *name)
 {
@@ -251,6 +245,163 @@ void ARC_ExtractPAK(const char *filename)
 
   printf("Extracted %d entries, with %d failures\n",
          num_files - failures - skipped, failures);
+}
+
+
+//------------------------------------------------------------------------
+
+void Spaces(int depth)
+{
+  for (; depth > 0; depth--)
+    printf("  ");
+}
+
+
+const char * MakePakLumpName(const char *filename)
+{
+  //!!!! FIXME MakePakLumpName
+
+  return StringDup(filename);
+}
+
+
+void ARC_StoreFile(int depth, int list_index, int list_total,
+                   const char *pathname,
+                   int *num_pack, int *failures, int *skipped)
+{
+  if (PathIsDirectory(pathname))
+  {
+    if (! opt_recursive)
+    {
+      printf("SKIPPING DIRECTORY: %s\n", pathname);
+
+      (*skipped) += 1;
+      return;
+    }
+
+    if (depth+1 >= ARC_MAX_DEPTH)
+    {
+      Spaces(depth);
+      printf("Skipping too-deep directory: %s\n", pathname);
+
+      (*skipped) += 1;
+      return;
+    }
+
+    Spaces(depth);
+    printf("Descending into directory: %s\n", pathname);
+
+    // FIXME scan directory !!!!
+
+    // we don't bump the 'num_pack' value here because the
+    // directory itself does not exist in the PAK file as a
+    // separate entry.
+    return;
+  }
+
+
+  // pathname refers to a normal file, create a PAK entry for it
+  // and then copy the data.
+
+  Spaces(depth);
+  printf("Adding file: %s\n", pathname);
+
+  const char *lump_name = MakePakLumpName(pathname);
+  if (! lump_name)
+  {
+    (*failures) += 1;
+    return;
+  }
+
+  if (all_pak_lumps.find(lump_name) != all_pak_lumps.end())
+  {
+    Spaces(depth);
+    printf("FAILURE: lump name already exists, will not duplicate\n\n");
+
+    StringFree(lump_name);
+
+    (*failures) += 1;
+    return;
+  }
+
+  FILE *fp = fopen(pathname, "rb");
+  if (! fp)
+  {
+    Spaces(depth);
+    printf("FAILURE: could not open file\n\n");
+
+    StringFree(lump_name);
+
+    (*failures) += 1;
+    return;
+  }
+
+
+  PAK_NewLump(lump_name);
+
+  StringFree(lump_name);
+
+  (*num_pack) += 1;
+
+  // transfer data
+  bool read_error = false;
+
+  static byte buffer[1024];
+
+  for (;;)
+  {
+    int count = fread(buffer, 1, (size_t)sizeof(buffer), fp);
+
+    if (count == 0)  // EOF
+      break;
+
+    if (count < 0)  // Error
+    {
+      // FIXME: show type of error  : WARNING
+      read_error = true;
+      break;
+    }
+
+    PAK_AppendData(buffer, count);
+  }
+
+  PAK_FinishLump();
+
+  fclose(fp);
+}
+
+
+void ARC_CreatePAK(const char *filename)
+{
+  if (input_names.size() == 0)
+    FatalError("No input files were specified!\n");
+
+  if (! PAK_OpenWrite(filename))
+    FatalError("Cannot create PAK file: %s\n", filename);
+
+  printf("\n");
+  printf("--------------------------------------------------\n");
+
+  int num_pack = 0;
+  int failures = 0;
+  int skipped  = 0;
+
+  for (unsigned int j = 0; j < input_names.size(); j++)
+  {
+    ARC_StoreFile(0, 1+(int)j, (int)input_names.size(),
+                  input_names[j].c_str(),
+                  &num_pack, &failures, &skipped);
+  }
+
+  printf("\n");
+  printf("--------------------------------------------------\n");
+
+  PAK_CloseWrite();
+
+  if (skipped > 0)
+    printf("Skipped %d directories\n", skipped);
+
+  printf("Packed %d files, with %d failures\n", num_pack, failures);
 }
 
 //--- editor settings ---
