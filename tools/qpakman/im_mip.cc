@@ -617,8 +617,8 @@ void MIP_ExtractWAD(const char *filename)
       failures++;
   }
 
-  printf("\n");
   printf("--------------------------------------------------\n");
+  printf("\n");
 
   WAD2_CloseRead();
 
