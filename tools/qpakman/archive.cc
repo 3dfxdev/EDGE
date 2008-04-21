@@ -318,13 +318,16 @@ void ARC_StoreFile(int depth, int list_index, int list_total,
   if (all_pak_lumps.find(lump_name) != all_pak_lumps.end())
   {
     Spaces(depth);
-    printf("FAILURE: lump name already exists, will not duplicate\n\n");
+    printf("FAILURE: Lump already exists, will not duplicate\n\n");
 
     StringFree(lump_name);
 
     (*failures) += 1;
     return;
   }
+
+  all_pak_lumps[lump_name] = 1;
+
 
   FILE *fp = fopen(pathname, "rb");
   if (! fp)
@@ -338,12 +341,12 @@ void ARC_StoreFile(int depth, int list_index, int list_total,
     return;
   }
 
-
   PAK_NewLump(lump_name);
 
   StringFree(lump_name);
 
   (*num_pack) += 1;
+
 
   // transfer data
   bool read_error = false;
