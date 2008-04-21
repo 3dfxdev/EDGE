@@ -2,7 +2,9 @@
 TODO for QPakMan
 ================
 
-+  pak creation
+>>> pak creation
+   + scan directories
+   + MakePakLumpName
 
 +  response files
 
