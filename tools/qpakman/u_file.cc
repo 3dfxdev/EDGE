@@ -78,8 +78,7 @@ bool HasExtension(const char *filename)
   return false;
 }
 
-//
-// CheckExtension
+
 //
 // When ext is NULL, checks if the file has no extension.
 //
@@ -103,8 +102,7 @@ bool CheckExtension(const char *filename, const char *ext)
   return (A >= 1) && (filename[A] == '.');
 }
 
-//
-// ReplaceExtension
+
 //
 // When ext is NULL, any existing extension is removed.
 //
@@ -322,6 +320,35 @@ u8_t *FileLoad(const char *filename, int *length)
 void FileFree(u8_t *mem)
 {
   free((void*) mem);
+}
+
+
+//
+// Note: returns false when the path doesn't exist.
+//
+bool PathIsDirectory(const char *path)
+{
+#ifdef WIN32
+  char old_dir[MAX_PATH+1];
+
+  if (GetCurrentDirectory(MAX_PATH, (LPSTR)old_dir) == FALSE)
+      return false;
+
+  bool result = SetCurrentDirectory(path);
+
+  SetCurrentDirectory(old_dir);
+
+  return result;
+
+#else // UNIX or MACOSX
+
+  struct stat finfo;
+
+  if (stat(path, &finfo) != 0)
+    return false;
+
+  return (S_ISDIR(finfo.st_mode)) ? true : false;
+#endif
 }
 
 

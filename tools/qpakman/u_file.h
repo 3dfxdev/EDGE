@@ -44,6 +44,9 @@ bool FileMakeDir(const char *dir_name);
 u8_t *FileLoad(const char *filename, int *length);
 void FileFree(u8_t *mem);
 
+// directory functions
+bool PathIsDirectory(const char *path);
+
 //------------------------------------------------------------------------
 
 typedef enum
