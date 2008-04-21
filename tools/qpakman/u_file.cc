@@ -421,6 +421,11 @@ int ScanDirectory(const char *path, directory_iter_f func, void *priv_dat)
     if (strlen(fdata->d_name) == 0)
       continue;
 
+    // skip the funky "." and ".." dirs 
+    if (strcmp(fdata->d_name, ".")  == 0 ||
+        strcmp(fdata->d_name, "..") == 0)
+      continue;
+
 
     const char *full_name = StringPrintf("%s/%s", path, fdata->d_name);
  
@@ -435,7 +440,7 @@ int ScanDirectory(const char *path, directory_iter_f func, void *priv_dat)
 
     StringFree(full_name);
 
-    
+
     int flags = 0;
 
     if (S_ISDIR(finfo.st_mode))
