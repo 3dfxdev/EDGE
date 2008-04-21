@@ -42,7 +42,7 @@ void ARC_CreatePAK(const char *filename)
 
 //------------------------------------------------------------------------
 
-const char *SanitizeOutputFilename(const char *name)
+const char *SanitizeOutputName(const char *name)
 {
   // Sanitize the output filename as follows:
   //
@@ -51,9 +51,54 @@ const char *SanitizeOutputFilename(const char *name)
   // (c) strip leading / characters
   // (d) disallow .. and //
 
-  // FIXME !!!! SanitizeOutputFilename
+  while (*name == '/' || *name == '\\' || *name == '.')
+    name++;
 
-  return StringDup(name);
+  int name_len = strlen(name);
+
+  char *filename = StringNew(name_len + 32);
+  char *pos = filename;
+
+  bool warned = false;
+
+  for (; *name; name++)
+  {
+    char ch = *name;
+
+    if (ch == ' ')  ch = '_';
+    if (ch == '\\') ch = '/';
+
+    if ((ch == '.' && name[1] == '.') ||
+        (ch == '/' && name[1] == '/'))
+    {
+      continue;
+    }
+
+    if (! (isalnum(ch) || ch == '_' || ch == '-' ||
+           ch == '/'   || ch == '.'))
+    {
+      if (! warned)
+      {
+        printf("WARNING: removing weird characters from name (\\%03o)\n",
+               (unsigned char)ch);
+        warned = true;
+      }
+
+      ch = '_';
+    }
+
+    *pos++ = ch;
+  }
+
+  *pos = 0;
+
+  if (strlen(filename) == 0)
+  {
+    printf("FAILURE: illegal filename\n");
+    return NULL;
+  }
+  
+  return filename;
 }
 
 
@@ -104,7 +149,7 @@ static bool ARC_CreateNeededDirs(const char *filename)
 
 bool ARC_ExtractOneFile(int entry, const char *name)
 {
-  const char * filename = SanitizeOutputFilename(name);
+  const char * filename = SanitizeOutputName(name);
   if (! filename)
     return false;
 
