@@ -4,5 +4,7 @@ TODO for QPakMan
 
 +  pak creation
 
++  response files
+
 -  create xming Makefile
 
