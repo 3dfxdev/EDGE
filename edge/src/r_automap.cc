@@ -1126,9 +1126,6 @@ static void AM_RenderScene(void)
 
 void AM_Drawer(int x, int y, int w, int h, mobj_t *focus)
 {
-	if (!automapactive)
-		return;
-	
 	f_x = x;
 	f_y = y;
 	f_w = w;
