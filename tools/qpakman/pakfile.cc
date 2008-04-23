@@ -276,6 +276,8 @@ void PAK_CloseWrite(void)
 
   // write the directory
 
+  LogPrintf("Writing PAK directory\n");
+
   raw_pak_header_t header;
 
   memcpy(header.magic, PAK_MAGIC, 4);
