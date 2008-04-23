@@ -28,6 +28,7 @@
 #include "q1_structs.h"
 
 extern std::vector<std::string> input_names;
+extern std::string output_name;
 
 extern bool opt_recursive;
 extern bool opt_overwrite;
@@ -532,6 +533,18 @@ void ARC_ProcessPath(const char *path)
       (isalpha(path[0]) && path[1] == ':'))
   {
     printf("SKIPPING ABSOLUTE PATH: %s\n", path);
+    return;
+  }
+
+  if (path[0] == '.' || strlen(path) == 0)
+  {
+    printf("SKIPPING BAD PATH: %s\n", path);
+    return;
+  }
+
+  if (StringCaseCmp(path, output_name.c_str()) == 0)
+  {
+    printf("SKIPPING OUTPUT FILE: %s\n", path);
     return;
   }
 
