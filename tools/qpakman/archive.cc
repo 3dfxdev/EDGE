@@ -18,8 +18,6 @@
 
 #include "headers.h"
 
-#include <errno.h>
-
 #include <map>
 #include <algorithm>
 
