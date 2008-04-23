@@ -478,7 +478,7 @@ void ARC_ProcessPath(const char *path,
     }
     else if (result == 0)
     {
-      printf("(empty directory)\n");
+      printf("(empty directory)\n\n");
     }
   }
   else
