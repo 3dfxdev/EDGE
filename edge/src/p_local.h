@@ -42,7 +42,7 @@
 
 #define MLOOK_LIMIT    FLOAT_2_ANG(75.0f)
 
-#define MAXMOVE      (100.0f)
+#define MAXMOVE      (200.0f)
 #define STEPMOVE     (16.0f)
 #define USERANGE     (64.0f)
 #define USE_Z_RANGE  (32.0f)
