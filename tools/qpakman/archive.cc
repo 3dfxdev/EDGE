@@ -37,7 +37,8 @@ extern bool opt_overwrite;
 std::map<std::string, int> all_created_dirs;
 std::map<std::string, int> all_pak_lumps;
 
-#define ARC_MAX_DEPTH  5
+static int total_packed;
+
 
 
 const char *SanitizeOutputName(const char *name)
@@ -298,7 +299,9 @@ void ARC_StoreFile(const char *path,
   FILE *fp = fopen(path, "rb");
   if (! fp)
   {
-    printf("FAILURE: no such file\n\n");
+    int what_error = errno;
+
+    printf("FAILURE: could not open: %s\n\n", strerror(what_error));
 
     StringFree(lump_name);
 
@@ -337,6 +340,8 @@ void ARC_StoreFile(const char *path,
     }
 
     PAK_AppendData(buffer, count);
+
+    total_packed += count;
   }
 
   PAK_FinishLump();
@@ -445,6 +450,8 @@ void ARC_CreatePAK(const char *filename)
   int failures = 0;
   int skipped  = 0;
 
+  total_packed = 0;
+
   // ALGORITHM
   //
   // The basic approach is to treat the 'input_names' vector as a
@@ -477,7 +484,8 @@ void ARC_CreatePAK(const char *filename)
   if (skipped > 0)
     printf("Skipped %d pathnames\n", skipped);
 
-  printf("Packed %d files, with %d failures\n", num_pack, failures);
+  printf("Packed %d files (%1.2f MB), with %d failures\n",
+         num_pack, (total_packed+9999) / 1000000.0, failures);
 }
 
 //--- editor settings ---
