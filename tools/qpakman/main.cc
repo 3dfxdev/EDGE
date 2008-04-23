@@ -24,7 +24,7 @@
 #include "im_mip.h"
 #include "pakfile.h"
 
-#define VERSION  "0.50"
+#define VERSION  "0.52"
 
 
 std::string output_name;
@@ -43,7 +43,7 @@ prog_action_type_e;
 
 static prog_action_type_e program_action = ACT_None;
 
-bool opt_recursive = false;
+bool opt_recursive = true;
 bool opt_overwrite = false;
 
 
@@ -80,7 +80,6 @@ void ShowUsage(void)
   printf("\n");
 
   printf("OPTIONS:\n");
-  printf("   -r  -recursive   descend into directories (PAK creation)\n");
   printf("   -l  -list        list contents of PAK/WAD file\n");
   printf("   -e  -extract     extract PAK/WAD contents into current dir\n");
   printf("       -overwrite   overwrite existing files when extracting\n");
@@ -125,11 +124,13 @@ int HandleOption(int argc, char **argv)
     return 1;
   }
 
+#if 0  // RECURSIVE NOW THE DEFAULT
   if (StringCaseCmp(opt, "-r") == 0 || StringCaseCmp(opt, "-recursive") == 0)
   {
     opt_recursive = true;
     return 1;
   }
+#endif
 
   // no short version because this option is dangerous
   if (StringCaseCmp(opt, "-overwrite") == 0)
@@ -159,7 +160,7 @@ void Main_Create(void)
   else if (CheckExtension(filename, "pak"))
     ARC_CreatePAK(filename);
   else
-    FatalError("Unknown output file format: ^s\n", output_name.c_str());
+    FatalError("Unknown output file format: %s\n", output_name.c_str());
 }
 
 
@@ -190,7 +191,7 @@ void Main_List(void)
     WAD2_CloseRead();
   }
   else
-    FatalError("Unknown input file format: ^s\n", filename);
+    FatalError("Unknown input file format: %s\n", filename);
 }
 
 
@@ -209,7 +210,7 @@ void Main_Extract(void)
   else if (CheckExtension(filename, "pak"))
     ARC_ExtractPAK(filename);
   else
-    FatalError("Unknown input file format: ^s\n", filename);
+    FatalError("Unknown input file format: %s\n", filename);
 }
 
 
