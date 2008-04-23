@@ -53,9 +53,7 @@ const char *SanitizeOutputName(const char *name)
   while (*name == '/' || *name == '\\' || *name == '.')
     name++;
 
-  int name_len = strlen(name);
-
-  char *filename = StringNew(name_len + 32);
+  char *filename = StringNew(strlen(name) + 32);
   char *pos = filename;
 
   bool warned = false;
@@ -263,11 +261,66 @@ void Spaces(int depth)
 }
 
 
-const char * MakePakLumpName(const char *filename)
+const char * SanitizeInputName(const char *name)
 {
-  //!!!! FIXME MakePakLumpName
+  // Sanitize the input filename as follows:
+  //
+  // (a) check if name is too long
+  // (b) strip leading / characters
+  // (c) replace spaces and weird chars with '_' (show WARNING)
+  // (d) replace \ with /
 
-  return StringDup(filename);
+  while (*name == '/' || *name == '\\' || *name == '.')
+    name++;
+
+  if (strlen(name) > 55)
+  {
+    printf("FAILURE: filename is too long for PAK format.\n");
+    return NULL;
+  }
+
+  char *lumpname = StringNew(strlen(name) + 32);
+  char *pos = lumpname;
+
+  bool warned = false;
+
+  for (; *name; name++)
+  {
+    int ch = (unsigned char) *name;
+
+    if (isspace(ch)) ch = '_';
+    if (ch == '\\')  ch = '/';
+
+    if ((ch == '.' && name[1] == '.') ||
+        (ch == '/' && name[1] == '/'))
+    {
+      continue;
+    }
+
+    if (ch < 32 || ch > 126)
+    {
+      if (! warned)
+      {
+        printf("WARNING: removing weird characters from name (\\%03o)\n",
+               (unsigned char)ch);
+        warned = true;
+      }
+
+      ch = '_';
+    }
+
+    *pos++ = ch;
+  }
+
+  *pos = 0;
+
+  if (strlen(lumpname) == 0)
+  {
+    printf("FAILURE: illegal filename\n");
+    return NULL;
+  }
+  
+  return lumpname;
 }
 
 
@@ -276,7 +329,7 @@ void ARC_StoreFile(const char *path,
 {
   printf("Storing: %s\n", path);
 
-  const char *lump_name = MakePakLumpName(path);
+  const char *lump_name = SanitizeInputName(path);
   if (! lump_name)
   {
     (*failures) += 1;
