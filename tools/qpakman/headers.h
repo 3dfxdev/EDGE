@@ -20,9 +20,16 @@
 #define __COMMON_HEADER__
 
 
+#ifdef WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <errno.h>
 
 #include <string.h>
 #include <ctype.h>
