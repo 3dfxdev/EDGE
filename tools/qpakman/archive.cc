@@ -36,7 +36,7 @@ extern bool opt_overwrite;
 std::map<std::string, int> all_created_dirs;
 std::map<std::string, int> all_pak_lumps;
 
-#define ARC_MAX_DEPTH  8
+#define ARC_MAX_DEPTH  5
 
 
 const char *SanitizeOutputName(const char *name)
@@ -527,6 +527,14 @@ static void PakDirScanner2(const char *name, int flags, void *priv_dat)
 
 void ARC_ProcessPath(const char *path)
 {
+  // absolute filenames are not allowed
+  if (path[0] == '/' || path[0] == '\\' ||
+      (isalpha(path[0]) && path[1] == ':'))
+  {
+    printf("SKIPPING ABSOLUTE PATH: %s\n", path);
+    return;
+  }
+
   if (PathIsDirectory(path))
   {
     printf("\n");
