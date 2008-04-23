@@ -10,14 +10,12 @@ PROGRAM=qpakman
 
 CXX=g++
 
-#OPTIM=-O2 -NDEBUG
-OPTIM=-g3 -O
+OPTIM=-g -O2
 
 CPPFLAGS=-I.
-
 CXXFLAGS=-Wall $(OPTIM) -fno-rtti -DUNIX
 
-LDFLAGS=-Xlinker --warn-common $(SDL_LDFLAGS)
+LDFLAGS=-Xlinker --warn-common
 
 
 # ----- OBJECTS and LIBRARIES ------------------------------------------
