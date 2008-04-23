@@ -715,54 +715,40 @@ void P_CalcFullProperties(const mobj_t *mo, region_properties_t *new_p)
 //
 static void P_XYMovement(mobj_t * mo, const region_properties_t *props)
 {
-	player_t *player;
-
 	float orig_x = mo->x;
 	float orig_y = mo->y;
 
 	float ptryx;
 	float ptryy;
-	float xmove;
-	float ymove;
 	float xstep;
 	float ystep;
 	float absx,absy;
 	float maxstep;
 
-	int did_move;
+	if (fabs(mo->mom.x) > MAXMOVE)
+	{
+		float factor = MAXMOVE / fabs(mo->mom.x);
+		mo->mom.x *= factor;
+		mo->mom.y *= factor;
+	}
 
-	player = mo->player;
+	if (fabs(mo->mom.y) > MAXMOVE)
+	{
+		float factor = MAXMOVE / fabs(mo->mom.y);
+		mo->mom.x *= factor;
+		mo->mom.y *= factor;
+	}
 
-	if (mo->mom.x > MAXMOVE)
-		mo->mom.x = MAXMOVE;
-	else if (mo->mom.x < -MAXMOVE)
-		mo->mom.x = -MAXMOVE;
-
-	if (mo->mom.y > MAXMOVE)
-		mo->mom.y = MAXMOVE;
-	else if (mo->mom.y < -MAXMOVE)
-		mo->mom.y = -MAXMOVE;
-
-	xmove = mo->mom.x;
-	ymove = mo->mom.y;
+	float xmove = mo->mom.x;
+	float ymove = mo->mom.y;
 
 	// -AJA- 1999/07/31: Ride that rawhide :->
-#if 1
 	if (mo->above_mo && !(mo->above_mo->flags & MF_FLOAT) &&
 		mo->above_mo->floorz < (mo->z + mo->height + 1))
 	{
 		mo->above_mo->mom.x += xmove * mo->info->ride_friction;
 		mo->above_mo->mom.y += ymove * mo->info->ride_friction;
 	}
-#else
-	if (mo->ride_em && (mo->z == mo->floorz))
-	{
-		xmove += (mo->ride_em->x + mo->ride_dx - mo->x) *
-			mo->ride_em->info->ride_friction;
-		ymove += (mo->ride_em->y + mo->ride_dy - mo->y) *
-			mo->ride_em->info->ride_friction;
-	}
-#endif
 
 	// -AJA- 1999/10/09: Reworked viscosity.
 	xmove *= 1.0f - props->viscosity;
@@ -839,7 +825,7 @@ static void P_XYMovement(mobj_t * mo, const region_properties_t *props)
 			ymove = 0;
 		}
 
-		did_move = P_TryMove(mo, ptryx, ptryy);
+		int did_move = P_TryMove(mo, ptryx, ptryy);
 
 		// unable to complete desired move ?
 		if (!did_move)
