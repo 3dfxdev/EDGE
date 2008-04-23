@@ -18,8 +18,6 @@
 
 #include "headers.h"
 
-#include <errno.h>
-
 #ifdef WIN32
 #include <io.h>
 #endif
@@ -395,9 +393,17 @@ int ScanDirectory(const char *path, directory_iter_f func, void *priv_dat)
     if (fdata.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN)
       flags |= SCAN_F_Hidden;
 
-    (* func)(fdata.cFileName, flags, priv_dat);
+    if (strcmp(fdata.cFileName, ".")  == 0 ||
+        strcmp(fdata.cFileName, "..") == 0)
+    {
+      // skip the funky "." and ".." dirs 
+    }
+    else
+    {
+      (* func)(fdata.cFileName, flags, priv_dat);
 
-    count++;
+      count++;
+    }
   }
   while (FindNextFile(handle, &fdata) != FALSE);
 
