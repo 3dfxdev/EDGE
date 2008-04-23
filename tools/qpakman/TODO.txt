@@ -2,10 +2,6 @@
 TODO for QPakMan
 ================
 
->>> pak creation
-   + scan directories
-   + MakePakLumpName
-
 +  response files
 
 -  create xming Makefile
