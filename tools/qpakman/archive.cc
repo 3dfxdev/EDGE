@@ -490,14 +490,6 @@ static void PakDirScanner2(const char *name, int flags, void *priv_dat)
     return;
   }
 
-  if (StringCaseCmp(name, "qpakman")     == 0 ||
-      StringCaseCmp(name, "qpakman.exe") == 0)
-  {
-    printf("SKIPPING MYSELF: %s\n", name);
-
-//    (* scan_info->skipped) += 1;
-    return;
-  }
 
 
   const char *prefix = scan_info->prefix;
@@ -539,6 +531,15 @@ void ARC_ProcessPath(const char *path)
   if (path[0] == '.' || strlen(path) == 0)
   {
     printf("SKIPPING BAD PATH: %s\n", path);
+    return;
+  }
+
+  if (StringCaseCmp(path, "qpakman")     == 0 ||
+      StringCaseCmp(path, "qpakman.exe") == 0)
+  {
+    printf("SKIPPING MYSELF: %s\n", path);
+
+//    (* scan_info->skipped) += 1;
     return;
   }
 
