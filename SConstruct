@@ -56,9 +56,8 @@ Export('base_env')
 
 env = base_env.Copy()
 
-# check for globally installed glBSP and LZO headers
+# check for globally installed glBSP headers
 have_glbsp_h = 0
-have_lzo_h = 0
 have_lua_h = 0
 
 if 1 and build_info['platform'] == 'linux':
@@ -67,13 +66,6 @@ if 1 and build_info['platform'] == 'linux':
     if conf.CheckCXXHeader('glbsp.h'):
         have_glbsp_h = 1
         env.Append(CCFLAGS = ['-DHAVE_GLBSP_H'])
-
-    if conf.CheckCXXHeader('lzo/lzo1x.h'):
-        have_lzo_h = 2
-        env.Append(CCFLAGS = ['-DHAVE_LZO_LZO1X_H'])
-    elif conf.CheckCXXHeader('lzo1x.h'):
-        have_lzo_h = 1
-        env.Append(CCFLAGS = ['-DHAVE_LZO1X_H'])
 
     env = conf.Finish()
 
@@ -108,15 +100,6 @@ env.Append(LIBS = ['glbsp'])
 # Deh_Edge
 env.Append(LIBPATH = ['#deh_edge'])
 env.Append(LIBS = ['dehedge'])
-
-# LZO
-if not have_lzo_h:
-    env.Append(LIBPATH = ['#lzo'])
-
-if have_lzo_h == 2:
-    env.Append(LIBS = ['lzo2'])
-else:
-    env.Append(LIBS = ['lzo'])
 
 # LUA
 if not have_lua_h:
@@ -220,9 +203,6 @@ SConscript('src/SConscript')
 SConscript('ddf/SConscript')
 SConscript('epi/SConscript')
 SConscript('deh_edge/SConscript.edge')
-
-if not have_lzo_h:
-    SConscript('lzo/SConscript')
 
 if not have_glbsp_h:
     SConscript('glbsp/SConscript.edge')
