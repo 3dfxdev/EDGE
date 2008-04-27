@@ -630,7 +630,7 @@ static int HD_draw_num2(lua_State *L)
 }
 
 
-// hud.render_world(x, y, w, h [,options])
+// hud.render_world(x, y, w, h, [options])
 //
 static int HD_render_world(lua_State *L)
 {
@@ -676,7 +676,7 @@ static void ParseAutomapOptions(lua_State *L, int IDX, int *state, float *zoom)
 
 	for (int k = 0; k < 6; k++)
 	{
-		lua_getfield(L, 1, st_names[k]);
+		lua_getfield(L, IDX, st_names[k]);
 
 		if (! lua_isnil(L, -1))
 		{
@@ -691,7 +691,7 @@ static void ParseAutomapOptions(lua_State *L, int IDX, int *state, float *zoom)
 }
 
 
-// hud.render_automap(x, y, w, h [,options])
+// hud.render_automap(x, y, w, h, [options])
 //
 static int HD_render_automap(lua_State *L)
 {
@@ -708,11 +708,8 @@ static int HD_render_automap(lua_State *L)
 
 	AM_GetState(&old_state, &old_zoom);
 
-	if (! lua_isnil(L, 5))
+	if (lua_istable(L, 5))
 	{
-		if (! lua_istable(L, 5))
-			I_Error("hud.render_automap: options must be a table!\n");
-
 		int   new_state = old_state;
 		float new_zoom  = old_zoom;
 
