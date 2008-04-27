@@ -59,7 +59,7 @@ static rgbcol_t am_colors[AM_NUM_COLORS] =
     RGB_MAKE(192,128, 80),  // AMCOL_Ledge
     RGB_MAKE(220,220,  0),  // AMCOL_Ceil
     RGB_MAKE(  0,200,200),  // AMCOL_Secret
-    RGB_MAKE(136,136,136),  // AMCOL_Allmap
+    RGB_MAKE(112,112,112),  // AMCOL_Allmap
 
     RGB_MAKE(255,255,255),  // AMCOL_Player
     RGB_MAKE(  0,255,  0),  // AMCOL_Monster
