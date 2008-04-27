@@ -120,8 +120,12 @@ else:
 
 # LUA
 if not have_lua_h:
-    env.Append(CPPPATH = ['#lua/src'])
-    env.Append(LIBPATH = ['#lua/src'])
+    if build_info['platform'] == 'win32':
+        env.Append(CPPPATH = ['#win32_lib/lua-5.1.2/src'])
+        env.Append(LIBPATH = ['#win32_lib/lua-5.1.2/src'])
+    else: #linux
+        env.Append(CPPPATH = ['#lua/src'])
+        env.Append(LIBPATH = ['#lua/src'])
 
 env.Append(LIBS = ['lua'])
 
