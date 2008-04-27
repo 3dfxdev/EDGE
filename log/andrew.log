@@ -6,7 +6,13 @@ Worked on "Sand-Boxing" the Lua code, so that EDGE mods cannot
 do nasty stuff like deleting files on people's computers.  It
 is not a true sandbox (using setfenv), instead I simply don't
 open certain libraries (namely: package, io and os) and I also
-remove other functions (namely: dofile and loadfile).
+remove certain functions (namely: dofile and loadfile).
+
+Removed the "Map Overlay" option from the Video Options menu,
+since the automap is now handled by the LUA scripts.
+
+Worked on more control in Lua scripts over drawing the automap
+via a fifth 'options' parameter to hud.render_automap().
 
 2008/04/16:
 
