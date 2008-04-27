@@ -1,5 +1,13 @@
 Andrew Apted's Log
 
+2008/04/27:
+
+Worked on "Sand-Boxing" the Lua code, so that EDGE mods cannot
+do nasty stuff like deleting files on people's computers.  It
+is not a true sandbox (using setfenv), instead I simply don't
+open certain libraries (namely: package, io and os) and I also
+remove other functions (namely: dofile and loadfile).
+
 2008/04/16:
 
 Worked on fixing the renderer (drawing order of DrawFloors).

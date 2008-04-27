@@ -1374,6 +1374,49 @@ static const luaL_Reg player_module[] =
 
 //------------------------------------------------------------------------
 
+static const luaL_Reg lua_somelibs[] =
+{
+	{"", luaopen_base},
+	{LUA_TABLIBNAME, luaopen_table},
+	{LUA_STRLIBNAME, luaopen_string},
+	{LUA_MATHLIBNAME, luaopen_math},
+	{LUA_DBLIBNAME,  luaopen_debug},  // TODO: remove this too
+	{NULL, NULL}
+};
+
+static void open_somelibs(lua_State *L)
+{
+	// -AJA- modified 'lua_openlibs' from Lua source code, which
+	//       removes these libraries: package, io, os.
+
+	const luaL_Reg *lib = lua_somelibs;
+
+	for (; lib->func; lib++)
+	{
+		lua_pushcfunction(L, lib->func);
+		lua_pushstring(L, lib->name);
+		lua_call(L, 1, 0);
+	}
+}
+
+static void remove_loaders(lua_State *L)
+{
+	// -AJA- sandboxing: remove the dofile() and loadfile() functions
+	//       which are supplied by the Lua baselib.
+
+	static const char * bad_funcs[] =
+	{
+		"dofile", "loadfile",
+
+		NULL  // end of list
+	};
+
+	for (int i = 0; bad_funcs[i]; i++)
+	{
+		lua_pushnil(L);
+		lua_setfield(L, LUA_GLOBALSINDEX, bad_funcs[i]);
+	}
+}
 
 static int p_init_lua(lua_State *L)
 {
@@ -1382,7 +1425,9 @@ static int p_init_lua(lua_State *L)
 	{
 		/* open libraries */
 
-		luaL_openlibs(L);
+		open_somelibs(L);
+
+		remove_loaders(L);
 
 		/* register our own modules */
 
