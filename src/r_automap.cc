@@ -69,22 +69,6 @@ static rgbcol_t am_colors[AM_NUM_COLORS] =
     RGB_MAKE(120, 60, 30)   // AMCOL_Scenery
 };
 
-///---#define YOUR_COL    (WHITE)
-///---#define WALL_COL    (RED)
-///---#define FLOOR_COL   (BROWN + BROWN_LEN/2)
-///---#define CEIL_COL    (YELLOW)
-///---#define REGION_COL  (BEIGE)
-///---#define TELE_COL    (RED + RED_LEN/2)
-///---#define SECRET_COL  (CYAN + CYAN_LEN/4)
-///---#define GRID_COL    (GRAY + GRAY_LEN*3/4)
-///---#define ALLMAP_COL  (GRAY + GRAY_LEN/2)
-///---#define MINI_COL    (BLUE + BLUE_LEN/2)
-///---
-///---#define THING_COL   (BROWN + BROWN_LEN*2/3)
-///---#define MONST_COL   (GREEN + 2)
-///---#define DEAD_COL    (RED + 2)
-///---#define MISSL_COL   (ORANGE)
-///---#define ITEM_COL    (BLUE+1)
 
 // Automap keys
 // Ideally these would be configurable...
@@ -130,6 +114,10 @@ static rgbcol_t am_colors[AM_NUM_COLORS] =
 
 static int cheating = 0;
 static int grid = 0;
+
+static bool show_things = false;
+static bool show_walls  = false;
+static bool show_allmap = false;
 
 bool automapactive = false;
 
@@ -484,7 +472,11 @@ bool AM_Responder(event_t * ev)
 		if (!DEATHMATCH() && M_CheckCheat(&cheat_amap, (char)ev->value.key))
 		{
 			rc = false;
+
 			cheating = (cheating + 1) % 3;
+
+			show_things = (cheating == 2) ? true : false;
+			show_walls  = (cheating >= 1) ? true : false;
 		}
 	}
 
@@ -700,9 +692,9 @@ static void AM_WalkSeg(seg_t *seg)
 	GetRotatedCoords(seg->v1->x, seg->v1->y, &l.a.x, &l.a.y);
 	GetRotatedCoords(seg->v2->x, seg->v2->y, &l.b.x, &l.b.y);
 
-	if ((line->flags & MLF_Mapped) || cheating)
+	if ((line->flags & MLF_Mapped) || show_walls)
 	{
-		if ((line->flags & MLF_DontDraw) && !cheating)
+		if ((line->flags & MLF_DontDraw) && !show_walls)
 			return;
 
 		if (!front || !back)
@@ -714,7 +706,7 @@ static void AM_WalkSeg(seg_t *seg)
 			if (line->flags & MLF_Secret)
 			{  
 				// secret door
-				if (cheating)
+				if (show_walls)
 					DrawMline(&l, am_colors[AMCOL_Secret]);
 				else
 					DrawMline(&l, am_colors[AMCOL_Wall]);
@@ -741,13 +733,13 @@ static void AM_WalkSeg(seg_t *seg)
 				// -AJA- 1999/10/09: extra floor change.
 				DrawMline(&l, am_colors[AMCOL_Ledge]);
 			}
-			else if (cheating)
+			else if (show_walls)
 			{
 				DrawMline(&l, am_colors[AMCOL_Allmap]);
 			}
 		}
 	}
-	else if (f_focus->player && f_focus->player->powers[PW_AllMap] != 0)
+	else if (f_focus->player && (show_allmap || f_focus->player->powers[PW_AllMap] != 0))
 	{
 		if (! (line->flags & MLF_DontDraw))
 			DrawMline(&l, am_colors[AMCOL_Allmap]);
@@ -942,7 +934,7 @@ static void AM_WalkThing(mobj_t *mo)
 		return;
 	}
 
-	if (cheating != 2)
+	if (! show_things)
 		return;
 
 	// -AJA- more colourful things
@@ -1136,6 +1128,44 @@ void AM_SetColor(int which, rgbcol_t color)
 	SYS_ASSERT(0 <= which && which < AM_NUM_COLORS);
 
 	am_colors[which] = color;
+}
+
+
+void AM_GetState(int *state, float *zoom)
+{
+	*state = 0;
+
+	if (grid)
+		*state |= AMST_Grid;
+
+	if (followplayer)
+		*state |= AMST_Follow;
+	
+	if (rotatemap)
+		*state |= AMST_Rotate;
+
+	if (show_things)
+		*state |= AMST_Things;
+
+	if (show_walls)
+		*state |= AMST_Walls;
+
+	// nothing required for AMST_Allmap flag (no actual state)
+
+	*zoom = m_scale;
+}
+
+void AM_SetState(int state, float zoom)
+{
+	grid         = (state & AMST_Grid)   ? true : false;
+	followplayer = (state & AMST_Follow) ? true : false;
+	rotatemap    = (state & AMST_Rotate) ? true : false;
+
+	show_things  = (state & AMST_Things) ? true : false;
+	show_walls   = (state & AMST_Walls)  ? true : false;
+	show_allmap  = (state & AMST_Allmap) ? true : false;
+
+	m_scale = zoom;
 }
 
 //--- editor settings ---

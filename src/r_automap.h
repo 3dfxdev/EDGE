@@ -93,6 +93,22 @@ automap_color_e;
 
 void AM_SetColor(int which, rgbcol_t color);
 
+
+typedef enum
+{
+	AMST_Grid    = (1 << 0),  // draw the grid
+	AMST_Follow  = (1 << 1),  // follow the player
+	AMST_Rotate  = (1 << 2),  // rotate the map (disables grid)
+
+	AMST_Things  = (1 << 4),  // draw all objects
+	AMST_Walls   = (1 << 5),  // draw all walls (like IDDT)
+	AMST_Allmap  = (1 << 6),  // draw like Allmap powerup
+}
+automap_state_e;
+
+void AM_GetState(int *state, float *zoom);
+void AM_SetState(int  state, float  zoom);
+
 #endif /* __AMMAP_H__ */
 
 //--- editor settings ---
