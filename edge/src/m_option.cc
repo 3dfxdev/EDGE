@@ -95,6 +95,7 @@
 #include "s_sound.h"
 #include "s_music.h"
 #include "s_timid.h"
+#include "r_automap.h"
 #include "r_draw.h"
 #include "r_modes.h"
 #include "r_colormap.h"
@@ -424,9 +425,7 @@ static optmenuitem_t vidoptions[] =
 #endif
 	{OPT_Plain,   "",  NULL, 0, 0, NULL, NULL, NULL},
 
-///---	{OPT_Switch,  "HUD",           Huds,  3,  CFGDEF_SCREEN_HUD,     &screen_hud, M_ChangeScreenHud, NULL},
 	{OPT_Switch,  "Crosshair",     CrosO, 4,  CFGDEF_CROSSHAIR,      &crosshair, NULL, NULL},
-	{OPT_Boolean, "Map Overlay",   YesNo, 2,  CFGDEF_MAP_OVERLAY,    &map_overlay, NULL, NULL},
 	{OPT_Boolean, "Map Rotation",  YesNo, 2,  CFGDEF_ROTATEMAP,      &rotatemap, NULL, NULL},
 	{OPT_Switch,  "Teleport Flash",YesNo, 2,  CFGDEF_TELEPT_FLASH,   &telept_flash, NULL, NULL},
 	{OPT_Switch,  "Invulnerability", Invuls, NUM_INVULFX,  CFGDEF_INVUL_FX,   &var_invul_fx, NULL, NULL},

@@ -65,7 +65,6 @@ extern int deathmatch;
 // Note that there is no way to disable the
 //  status bar explicitely.
 extern bool statusbaractive;
-extern int automapactive;  // In AutoMap mode?
 extern bool menuactive;  // Menu overlayed?
 extern bool rts_menuactive;
 extern bool paused;  // Game Pause?
@@ -166,8 +165,6 @@ extern const image_c *skyflatimage;
 extern int maketic;
 
 //misc stuff
-extern bool map_overlay;
-extern bool rotatemap;
 extern bool showstats;
 extern bool swapstereo;
 extern bool infight;

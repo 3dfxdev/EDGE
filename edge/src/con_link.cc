@@ -70,7 +70,6 @@ cvar_link_t  all_cvars[] =
     {"wipe_reverse",      &wipe_reverse,              CFGDEF_WIPE_REVERSE},
     {"crosshair",         &crosshair,                 CFGDEF_CROSSHAIR},
     {"rotatemap",         &rotatemap,                 CFGDEF_ROTATEMAP},
-    {"newhud",            &map_overlay,               CFGDEF_MAP_OVERLAY},
     {"respawnsetting",    &global_flags.res_respawn,  CFGDEF_RES_RESPAWN},
     {"itemrespawn",       &global_flags.itemrespawn,  CFGDEF_ITEMRESPAWN},
     {"respawn",           &global_flags.respawn,      CFGDEF_RESPAWN},

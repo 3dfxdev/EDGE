@@ -98,7 +98,7 @@ static void FrameSetup(void)
 	lua_pushinteger(HUD_ST, screen_hud);
 	lua_setfield(HUD_ST, -2, "which");
 
-	lua_pushboolean(HUD_ST, automapactive);
+	lua_pushboolean(HUD_ST, automapactive ? 1 : 0);
 	lua_setfield(HUD_ST, -2, "automap");
 
 	lua_pushinteger(HUD_ST, now_time);
