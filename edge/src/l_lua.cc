@@ -630,7 +630,7 @@ static int HD_draw_num2(lua_State *L)
 }
 
 
-// hud.render_world(x, y, w, h)
+// hud.render_world(x, y, w, h [,options])
 //
 static int HD_render_world(lua_State *L)
 {
@@ -648,7 +648,50 @@ static int HD_render_world(lua_State *L)
 }
 
 
-// hud.render_automap(x, y, w, h)
+static void ParseAutomapOptions(lua_State *L, int IDX, int *state, float *zoom)
+{
+	lua_getfield(L, IDX, "zoom");
+
+	if (! lua_isnil(L, -1))
+	{
+		(*zoom) = luaL_checknumber(L, -1);
+
+		// impose a very broad limit
+		(*zoom) = CLAMP(0.2f, *zoom, 100.0f);
+	}
+
+	lua_pop(L, 1);
+
+
+	static const char * st_names[6] =
+	{
+		"grid",   "rotate", "follow",
+		"things", "walls",  "allmap"
+	};
+	static const int st_flags[6] =
+	{
+		AMST_Grid,   AMST_Rotate, AMST_Follow,
+		AMST_Things, AMST_Walls,  AMST_Allmap
+	};
+
+	for (int k = 0; k < 6; k++)
+	{
+		lua_getfield(L, 1, st_names[k]);
+
+		if (! lua_isnil(L, -1))
+		{
+			if (lua_toboolean(L, -1))
+				(*state) |= st_flags[k];
+			else
+				(*state) &= ~st_flags[k];
+		}
+
+		lua_pop(L, 1);
+	}
+}
+
+
+// hud.render_automap(x, y, w, h [,options])
 //
 static int HD_render_automap(lua_State *L)
 {
@@ -660,7 +703,27 @@ static int HD_render_automap(lua_State *L)
 	x = COORD_X(x); y = COORD_Y(y);
 	w = COORD_X(w); h = COORD_Y(h);
 
+	int   old_state;
+	float old_zoom;
+
+	AM_GetState(&old_state, &old_zoom);
+
+	if (! lua_isnil(L, 5))
+	{
+		if (! lua_istable(L, 5))
+			I_Error("hud.render_automap: options must be a table!\n");
+
+		int   new_state = old_state;
+		float new_zoom  = old_zoom;
+
+		ParseAutomapOptions(L, 5, &new_state, &new_zoom);
+
+		AM_SetState(new_state, new_zoom);
+	}
+
  	AM_Drawer((int)x, SCREENHEIGHT-(int)(y+h), I_ROUND(w), I_ROUND(h), cur_player->mo);
+
+	AM_SetState(old_state, old_zoom);
 
 	return 0;
 }
