@@ -146,7 +146,6 @@ gameflags_t global_flags;
 
 int newnmrespawn = 0;
 
-bool rotatemap = false;
 bool showstats = false;
 bool swapstereo = false;
 bool mus_pause_stop = false;

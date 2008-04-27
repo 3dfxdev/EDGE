@@ -52,10 +52,11 @@
 #include "rad_trig.h"
 #include "rad_act.h"
 #include "r_defs.h"
-#include "s_sound.h"
+#include "r_automap.h"
 #include "r_colormap.h"
 #include "r_draw.h"
 #include "r_modes.h"
+#include "s_sound.h"
 #include "w_wad.h"
 #include "z_zone.h"
 
@@ -224,9 +225,6 @@ static byte *rad_memptr;
 static int rad_memfile_size;
 
 
-//
-// RAD_FindScriptByName
-//
 rad_script_t * RAD_FindScriptByName(const char *map_name, const char *name)
 {
 	rad_script_t *scr;
@@ -247,9 +245,7 @@ rad_script_t * RAD_FindScriptByName(const char *map_name, const char *name)
 	return NULL;
 }
 
-//
-// RAD_FindTriggerByName
-//
+
 rad_trigger_t * RAD_FindTriggerByName(const char *name)
 {
 	rad_trigger_t *trig;
@@ -267,9 +263,7 @@ rad_trigger_t * RAD_FindTriggerByName(const char *name)
 	return NULL;
 }
 
-//
-// RAD_FindTriggerByScript
-//
+
 rad_trigger_t * RAD_FindTriggerByScript(const rad_script_t *scr)
 {
 	rad_trigger_t *trig;
@@ -283,9 +277,7 @@ rad_trigger_t * RAD_FindTriggerByScript(const rad_script_t *scr)
 	return NULL;  // no worries if none.
 }
 
-//
-// RAD_FindStateByLabel
-//
+
 rts_state_t * RAD_FindStateByLabel(rad_script_t *scr, char *label)
 {
 	rts_state_t *st;
@@ -303,8 +295,6 @@ rts_state_t * RAD_FindStateByLabel(rad_script_t *scr, char *label)
 	return NULL;
 }
 
-//
-// RAD_EnableByTag
 //
 // Looks for all current triggers with the given tag number, and
 // either enables them or disables them (based on `disable').
@@ -352,9 +342,7 @@ bool RAD_WithinRadius(mobj_t * mo, rad_script_t * r)
 	return true;
 }
 
-//
-// RAD_CheckBossTrig
-//
+
 static bool RAD_CheckBossTrig(rad_trigger_t *trig, s_ondeath_t *cond)
 {
 	mobj_t *mo;
@@ -391,9 +379,7 @@ static bool RAD_CheckBossTrig(rad_trigger_t *trig, s_ondeath_t *cond)
 	return true;
 }
 
-//
-// RAD_CheckHeightTrig
-//
+
 static bool RAD_CheckHeightTrig(rad_trigger_t *trig, 
 		s_onheight_t *cond)
 {
@@ -637,8 +623,7 @@ void RAD_DoRadiTrigger(player_t * p)
 	}
 }
 
-//
-// RAD_GroupTriggerTags
+
 //
 // Called from RAD_SpawnTriggers to set the tag_next & tag_prev fields
 // of each rad_trigger_t, keeping all triggers with the same tag in a
@@ -674,9 +659,7 @@ void RAD_GroupTriggerTags(rad_trigger_t *trig)
 	cur->tag_prev = trig;
 }
 
-//
-// RAD_SpawnTriggers
-//
+
 void RAD_SpawnTriggers(const char *map_name)
 {
 	rad_script_t *scr;
@@ -734,9 +717,7 @@ void RAD_SpawnTriggers(const char *map_name)
 	}
 }
 
-//
-// RAD_ClearCachedInfo
-//
+
 static void RAD_ClearCachedInfo(void)
 {
 	rad_script_t *scr;
@@ -759,9 +740,7 @@ static void RAD_ClearCachedInfo(void)
 	}
 }
 
-//
-// RAD_ClearTriggers
-//
+
 void RAD_ClearTriggers(void)
 {
 	// remove all dynamic triggers
@@ -860,8 +839,7 @@ static int ReadScriptLine(char *buf, int max)
 	return real_num;
 }
 
-//
-// RAD_ParseScript
+
 //
 // -ACB- 1998/07/10 Renamed function and used I_Print for functions,
 //                  Version displayed at all times.
@@ -891,9 +869,7 @@ static void RAD_ParseScript(void)
 	RAD_ParserDone();
 }
 
-//
-// RAD_LoadFile
-//
+
 void RAD_LoadFile(const char *name)
 {
 	SYS_ASSERT(name);
@@ -910,9 +886,7 @@ void RAD_LoadFile(const char *name)
 	Z_Free(rad_memfile);
 }
 
-//
-// RAD_ReadScript
-//
+
 bool RAD_ReadScript(void *data, int size)
 {
 	if (data == NULL)
@@ -947,9 +921,7 @@ bool RAD_ReadScript(void *data, int size)
 	return true;
 }
 
-//
-// RAD_Init
-//
+
 void RAD_Init(void)
 {
 	RAD_InitTips();
@@ -999,9 +971,7 @@ static void RAD_MenuDrawer(void)
 	rts_curr_menu->Drawer();
 }
 
-//
-// RAD_Drawer
-//
+
 void RAD_Drawer(void)
 {
 	if (! automapactive)
@@ -1011,9 +981,7 @@ void RAD_Drawer(void)
 		RAD_MenuDrawer();
 }
 
-//
-// RAD_Responder
-//
+
 bool RAD_Responder(event_t * ev)
 {
 	if (ev->type != ev_keydown)

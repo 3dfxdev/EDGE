@@ -32,6 +32,9 @@
 #include "e_event.h"
 #include "p_mobj.h"
 
+extern bool automapactive;
+extern bool rotatemap;
+
 //
 // Automap drawing structs
 //

@@ -55,6 +55,7 @@
 #include "r_gldefs.h"
 #include "s_music.h"  // mus_volume
 #include "s_sound.h"
+#include "r_automap.h"
 #include "r_colormap.h"
 #include "r_draw.h"
 #include "r_modes.h"
@@ -135,7 +136,6 @@ static default_t defaults[] =
     {CFGT_Int,      "wipe_reverse",      &wipe_reverse,   CFGDEF_WIPE_REVERSE},
     {CFGT_Enum,     "crosshair",         &crosshair,      CFGDEF_CROSSHAIR},
     {CFGT_Boolean,  "rotatemap",         &rotatemap,      CFGDEF_ROTATEMAP},
-    {CFGT_Boolean,  "newhud",            &map_overlay,    CFGDEF_MAP_OVERLAY},
     {CFGT_Boolean,  "respawnsetting",    &global_flags.res_respawn, CFGDEF_RES_RESPAWN},
     {CFGT_Boolean,  "itemrespawn",       &global_flags.itemrespawn, CFGDEF_ITEMRESPAWN},
     {CFGT_Boolean,  "respawn",           &global_flags.respawn, CFGDEF_RESPAWN},

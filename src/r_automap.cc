@@ -131,7 +131,7 @@ static rgbcol_t am_colors[AM_NUM_COLORS] =
 static int cheating = 0;
 static int grid = 0;
 
-int automapactive = 0;
+bool automapactive = false;
 
 
 // location and size of window on screen
@@ -196,7 +196,7 @@ static bool stopped = true;
 
 static bool bigstate = false;
 
-bool map_overlay = false;
+bool rotatemap = false;
 
 extern style_c *automap_style;  // FIXME: put in header
 
@@ -275,17 +275,12 @@ static void LevelInit(void)
 void AM_InitResolution(void)
 {
 	LevelInit();  // -ES- 1998/08/20
-
-	CON_CreateCVarBool("newhud", cf_normal, &map_overlay);
-
-	if (M_CheckParm("-newmap"))
-		map_overlay = true;
 }
 
 
 void AM_Stop(void)
 {
-	automapactive = 0;
+	automapactive = false;
 	stopped = true;
 
 	panning_x = 0;
@@ -299,16 +294,13 @@ static void AM_Hide(void)
 	panning_x = 0;
 	panning_y = 0;
 	zooming   = -1;
-	automapactive = 0;
+	automapactive = false;
 	bigstate = false;
 }
 
 static void AM_Show(void)
 {
-	if (map_overlay == true)
-		automapactive = 1;
-	else
-		automapactive = 2;
+	automapactive = true;
 
 	if (! stopped)
 	///	AM_Stop();
@@ -317,11 +309,6 @@ static void AM_Show(void)
 	LevelInit();
 
 	stopped = false;
-
-	if (map_overlay == true)
-		automapactive = 1;
-	else
-		automapactive = 2;
 
 	panning_x = 0;
 	panning_y = 0;
@@ -486,14 +473,7 @@ bool AM_Responder(event_t * ev)
 			if (ev->value.key == (AM_ENDKEY >> 16) || 
 				ev->value.key == (AM_ENDKEY & 0xffff))
 			{
-				if (automapactive == 1)
-				{
-					automapactive = 2;
-				}
-				else
-				{
-					AM_Hide();
-				}
+				AM_Hide();
 			}
 			else
 			{
