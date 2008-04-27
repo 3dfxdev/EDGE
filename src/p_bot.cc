@@ -45,11 +45,12 @@
 #define DEBUG  0
 
 
-int bot_skill = 0;  // range is 0 to 2
+int bot_skill = 1;  // range is 0 to 2
 
 
-// FIXME: make this depend on "bot skill" global
-static int attack_chance = 40;
+static int strafe_chances[3] = { 128, 192, 256 };
+static int attack_chances[3] = {  32,  64, 160 };
+static int    move_speeds[3] = {  36,  45,  50 };
 
 
 static bot_t *looking_bot;
@@ -447,7 +448,7 @@ static void BOT_SelectWeapon(bot_t *bot)
 
 static void BOT_Move(bot_t *bot)
 {
-	bot->cmd.move_speed = 0x32;
+	bot->cmd.move_speed = move_speeds[bot_skill];
 	bot->cmd.move_angle = bot->angle + bot->strafedir;
 }
 
@@ -520,18 +521,22 @@ static void BOT_Chase(bot_t *bot, bool seetarget, bool move_ok)
 
 			bot->cmd.face_mobj = mo->target;
 			// Shoot it,
-			bot->cmd.attack = M_Random() < attack_chance;
+			bot->cmd.attack = M_Random() < attack_chances[bot_skill];
 
 			if (bot->move_count < 0)
 			{
 				bot->move_count = 20 + (M_Random() & 63);
+				bot->strafedir = 0;
 
 				if (BOT_MeleeWeapon(bot))
+				{
 					// run directly toward target
-					bot->strafedir = 0;
-				else
+				}
+				else if (M_Random() < strafe_chances[bot_skill])
+				{
 					// strafe it.
 					bot->strafedir = (M_Random()%5 - 2) * (int)ANG45;
+				}
 			}
 		}
 

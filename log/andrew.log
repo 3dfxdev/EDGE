@@ -17,6 +17,10 @@ via a fifth 'options' parameter to hud.render_automap().
 Removed the LZO compression library dependency.  Very old
 savegames (before EDGE 1.29) are no longer loadable.
 
+Implemented the "Bot Skill" in the Host-Net-Game menu.
+The three skill levels control three bot factors: move speed,
+amount of strafing, and amount of attacking.
+
 2008/04/16:
 
 Worked on fixing the renderer (drawing order of DrawFloors).
