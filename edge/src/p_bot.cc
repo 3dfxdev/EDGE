@@ -45,6 +45,9 @@
 #define DEBUG  0
 
 
+int bot_skill = 0;  // range is 0 to 2
+
+
 // FIXME: make this depend on "bot skill" global
 static int attack_chance = 40;
 
@@ -710,8 +713,7 @@ void P_BotPlayerBuilder(const player_t *p, void *data, ticcmd_t *cmd)
 	BOT_ConvertToTiccmd(bot, cmd, &bot->cmd);
 }
 
-//
-// P_BotCreate
+
 //
 // Converts the player (which should be empty, i.e. neither a network
 // or console player) to a bot.  Recreate is true for bot players
@@ -733,15 +735,12 @@ void P_BotCreate(player_t *p, bool recreate)
 		sprintf(p->playername, "Bot%d", p->pnum + 1);
 }
 
-//
-// BOT_BeginLevel
-//
+
 void BOT_BeginLevel(void)
 {
 }
 
-//
-// BOT_EndLevel
+
 //
 // Done at level shutdown, right after all mobjs have been removed.
 // Erases anything level specific from the bot structs.
