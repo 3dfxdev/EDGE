@@ -26,14 +26,6 @@
 
 #include <zlib.h>
 
-#ifdef HAVE_LZO_LZO1X_H
-#include <lzo/lzo1x.h>
-#elif defined(HAVE_LZO1X_H)
-#include <lzo1x.h>
-#else
-#include "lzo/minilzo.h"
-#endif
-
 #include "epi/math_crc.h"
 
 #include "sv_chunk.h"
@@ -126,28 +118,19 @@ static inline bool VerifyMarker(const char *id)
 		isalnum(id[2]) && isalnum(id[3]);
 }
 
-//
-// SV_ChunkInit
-//
+
 void SV_ChunkInit(void)
 {
-	if (lzo_init() != LZO_E_OK)
-		I_Error("SV_ChunkInit: LZO initialisation error !\n");
-
 	/* ZLib doesn't need to be initialised */
 }
 
-//
-// SV_ChunkShutdown
-//
+
 void SV_ChunkShutdown(void)
 {
 	// nothing to do
 }
 
-//
-// SV_GetError
-//
+
 int SV_GetError(void)
 {
 	int result = last_error;
@@ -161,9 +144,6 @@ int SV_GetError(void)
 //  READING PRIMITIVES
 //----------------------------------------------------------------------------
 
-//
-// SV_OpenReadFile
-//
 bool SV_OpenReadFile(const char *filename)
 {
 	L_WriteDebug("Opening savegame file (R): %s\n", filename);
@@ -181,9 +161,6 @@ bool SV_OpenReadFile(const char *filename)
 	return true;
 }
 
-//
-// SV_CloseReadFile
-//
 bool SV_CloseReadFile(void)
 {
 	SYS_ASSERT(current_fp);
@@ -199,8 +176,6 @@ bool SV_CloseReadFile(void)
 	return true;
 }
 
-//
-// SV_VerifyHeader
 //
 // Sets the version field, which is BCD, with the patch level in the
 // two least significant digits.
@@ -231,12 +206,16 @@ bool SV_VerifyHeader(int *version)
 		return false;
 	}
 
+	if (savegame_version < 0x12902)
+	{
+		I_Debugf("LOADGAME: Savegame is too old (0x%05x < 0x%05x)\n",
+		         savegame_version, 0x12902);
+		return false;
+	}
+
 	return true;
 }
 
-//
-// SV_VerifyContents
-//
 bool SV_VerifyContents(void)
 {
 	SYS_ASSERT(current_fp);
@@ -288,27 +267,7 @@ bool SV_VerifyContents(void)
 			return false;
 		}
 
-		if (savegame_version < 0x12901)
-		{
-			// check for matching markers
-			char end_marker[6];
-
-			SV_GetMarker(end_marker);
-
-			if (! VerifyMarker(end_marker))
-			{
-				I_Warning("LOADGAME: Verify failed: Invalid end marker: "
-					"%02X %02X %02X %02X\n", end_marker[0], end_marker[1],
-					end_marker[2], end_marker[3]);
-				return false;
-			}
-			else if (stricmp(start_marker, end_marker) != 0)
-			{
-				I_Warning("LOADGAME: Verify failed: Mismatched markers: "
-					"%s != %s\n", start_marker, end_marker);
-				return false;
-			}
-		}
+		SYS_ASSERT(savegame_version >= 0x12901);
 	}
 
 	// check trailer
@@ -338,9 +297,6 @@ bool SV_VerifyContents(void)
 	return true;
 }
 
-//
-// SV_GetByte
-//
 unsigned char SV_GetByte(void) 
 { 
 	chunk_t *cur;
@@ -400,14 +356,10 @@ unsigned char SV_GetByte(void)
 	return result;
 }
 
-//
-// SV_PushReadChunk
-//
 bool SV_PushReadChunk(const char *id)
 {
 	chunk_t *cur;
 	unsigned int file_len;
-	char marker[6];
 
 	if (chunk_stack_size >= MAX_CHUNK_DEPTH)
 		I_Error("SV_PushReadChunk: Too many Pushes (missing Pop somewhere).\n");
@@ -428,7 +380,7 @@ bool SV_PushReadChunk(const char *id)
 		unsigned int i;
 
 		unsigned int orig_len;
-		lzo_uint decomp_len;
+		unsigned int decomp_len;
 
 		// read uncompressed size
 		orig_len = SV_GetInt();
@@ -448,15 +400,9 @@ bool SV_PushReadChunk(const char *id)
 		// decompress data
 		decomp_len = orig_len;
 
-		if (savegame_version < 0x12902)
-		{
-			int res = lzo1x_decompress_safe(file_data, file_len,
-				cur->start, &decomp_len, NULL);
+		SYS_ASSERT(savegame_version >= 0x12902);
 
-			if (res != LZO_E_OK)
-				I_Error("LOADGAME: ReadChunk [%s] failed: LZO Decompress error.\n", id);
-		}
-		else if (orig_len == file_len)
+		if (orig_len == file_len)
 		{
 			// no compression
 			memcpy(cur->start, file_data, file_len);
@@ -480,11 +426,7 @@ bool SV_PushReadChunk(const char *id)
 
 		SYS_ASSERT(decomp_len == orig_len);
 
-		if (savegame_version < 0x12901)
-		{
-			for (i=0; i < decomp_len; i++)
-				cur->start[i] ^= (byte)(XOR_STRING[i % XOR_LEN]);
-		}
+		SYS_ASSERT(savegame_version >= 0x12901);
 
 		delete[] file_data;
 	}
@@ -506,21 +448,13 @@ bool SV_PushReadChunk(const char *id)
 
 	// check for matching markers
 
-	if (savegame_version < 0x12901)
-	{
-		SV_GetMarker(marker);
-
-		if (strcmp(cur->e_mark, marker) != 0)
-			I_Warning("LOADGAME: ReadChunk [%s]: Bad end marker.\n", id);
-	}
+	SYS_ASSERT(savegame_version >= 0x12901);
 
 	// let the SV_GetByte routine (etc) see the new chunk
 	chunk_stack_size++;
 	return true;
 }
 
-// SV_PopReadChunk
-//
 bool SV_PopReadChunk(void)
 {
 	chunk_t *cur;
@@ -542,9 +476,6 @@ bool SV_PopReadChunk(void)
 	return true;
 }
 
-//
-// SV_RemainingChunkSize
-//
 int SV_RemainingChunkSize(void)
 {
 	chunk_t *cur;
@@ -559,9 +490,6 @@ int SV_RemainingChunkSize(void)
 	return (cur->end - cur->pos);
 }
 
-//
-// SV_SkipReadChunk
-//
 bool SV_SkipReadChunk(const char *id)
 {
 	if (! SV_PushReadChunk(id))
@@ -575,9 +503,6 @@ bool SV_SkipReadChunk(const char *id)
 //  WRITING PRIMITIVES
 //----------------------------------------------------------------------------
 
-//
-// SV_OpenWriteFile
-//
 bool SV_OpenWriteFile(const char *filename, int version)
 {
 	L_WriteDebug("Opening savegame file (W): %s\n", filename);
@@ -606,9 +531,6 @@ bool SV_OpenWriteFile(const char *filename, int version)
 	return true;
 }
 
-//
-// SV_CloseWriteFile
-//
 bool SV_CloseWriteFile(void)
 {
 	SYS_ASSERT(current_fp);
@@ -633,9 +555,6 @@ bool SV_CloseWriteFile(void)
 	return true;
 }
 
-//
-// SV_PushWriteChunk
-//
 bool SV_PushWriteChunk(const char *id)
 {
 	chunk_t *cur;
@@ -659,9 +578,6 @@ bool SV_PushWriteChunk(const char *id)
 	return true;
 }
 
-//
-// SV_PopWriteChunk
-//
 bool SV_PopWriteChunk(void)
 {
 	int i;
@@ -749,9 +665,6 @@ bool SV_PopWriteChunk(void)
 	return true;
 }
 
-//
-// SV_PutByte
-//
 void SV_PutByte(unsigned char value) 
 {
 	chunk_t *cur;
