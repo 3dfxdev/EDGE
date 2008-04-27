@@ -44,6 +44,7 @@
 #include "m_netgame.h"
 #include "n_network.h"
 #include "n_reliable.h"
+#include "p_bot.h"
 #include "p_setup.h"
 #include "r_local.h"
 #include "s_sound.h"
@@ -76,7 +77,7 @@ static int hosting_port;
 
 static int host_want_bots;
 
-#define HOST_OPTIONS  9
+#define HOST_OPTIONS  10
 #define JOIN_OPTIONS  4
 
 
@@ -268,6 +269,18 @@ static const char *GetSkillName(skill_t skill)
 	}
 }
 
+static const char *GetBotSkillName(int sk)
+{
+	switch (sk)
+	{
+		case 0: return "Low";
+		case 1: return "Medium";
+		case 2: return "High";
+
+		default: return "????";
+	}
+}
+
 static const char *LocalPrintf(char *buf, int max_len, const char *str, ...)
 {
 	va_list argptr;
@@ -450,15 +463,24 @@ static void HostChangeOption(int opt, int key)
 
 			break;
 
-		case 5: // Monsters
+		case 5: // Bot Skill
+			bot_skill += dir;
+			if (bot_skill < 0)
+				bot_skill = 2;
+			else if (bot_skill > 2)
+				bot_skill = 0;
+
+			break;
+
+		case 6: // Monsters
 			ng_params->flags->nomonsters = ! ng_params->flags->nomonsters;
 			break;
 
-		case 6: // Item-Respawn
+		case 7: // Item-Respawn
 			ng_params->flags->itemrespawn = ! ng_params->flags->itemrespawn;
 			break;
 			
-		case 7: // Team-Damage
+		case 8: // Team-Damage
 			ng_params->flags->team_damage = ! ng_params->flags->team_damage;
 			break;
 
@@ -496,35 +518,34 @@ void M_DrawHostMenu(void)
 
 
 	DrawKeyword(idx, ng_host_style, y, "GAME", ng_params->map->episode->ddf.name.c_str());
-	y += 10; idx++,
+	y += 10; idx++;
 
 	DrawKeyword(idx, ng_host_style, y, "LEVEL", ng_params->map->ddf.name.c_str());
-	y += 18; idx++,
+	y += 18; idx++;
 
 
 	DrawKeyword(idx, ng_host_style, y, "MODE", GetModeName(ng_params->deathmatch));
-	y += 10; idx++,
+	y += 10; idx++;
 
 	DrawKeyword(idx, ng_host_style, y, "SKILL", GetSkillName(ng_params->skill));
-	y += 10; idx++,
+	y += 10; idx++;
 
 	DrawKeyword(idx, ng_host_style, y, "BOTS",
 			LocalPrintf(buffer, sizeof(buffer), "%d", host_want_bots));
-	y += 10; idx++,
+	y += 10; idx++;
 
-	DrawKeyword(-1, ng_host_style, y, "BOT SKILL",
-			LocalPrintf(buffer, sizeof(buffer), "%s", "HIGH"));
-	y += 18; // idx++,
+	DrawKeyword(idx, ng_host_style, y, "BOT SKILL", GetBotSkillName(bot_skill));
+	y += 18; idx++;
 
 
 	DrawKeyword(idx, ng_host_style, y, "MONSTERS", ng_params->flags->nomonsters ? "OFF" : "ON");
-	y += 10; idx++,
+	y += 10; idx++;
 
 	DrawKeyword(idx, ng_host_style, y, "ITEM RESPAWN", ng_params->flags->itemrespawn ? "ON" : "OFF");
-	y += 10; idx++,
+	y += 10; idx++;
 
 	DrawKeyword(idx, ng_host_style, y, "TEAM DAMAGE", ng_params->flags->team_damage ? "ON" : "OFF");
-	y += 22; idx++,
+	y += 22; idx++;
 
 
 	HL_WriteText(ng_host_style,(host_pos==idx) ? 2:0, 40,  y, "Begin Accepting Connections");
