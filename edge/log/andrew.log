@@ -14,6 +14,9 @@ since the automap is now handled by the LUA scripts.
 Worked on more control in Lua scripts over drawing the automap
 via a fifth 'options' parameter to hud.render_automap().
 
+Removed the LZO compression library dependency.  Very old
+savegames (before EDGE 1.29) are no longer loadable.
+
 2008/04/16:
 
 Worked on fixing the renderer (drawing order of DrawFloors).

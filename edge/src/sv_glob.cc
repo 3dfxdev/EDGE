@@ -381,10 +381,10 @@ static bool GlobReadVARI(saveglobals_t *globs)
 
 	if (global_commands[i].name)
 	{
-    int offset = global_commands[i].offset_p - (char *) &dummy_glob;
+		int offset = global_commands[i].offset_p - (char *) &dummy_glob;
 
 		// found it, so parse it
-    storage = ((char *) globs) + offset;
+		storage = ((char *) globs) + offset;
 
 		(* global_commands[i].parse_func)(var_data, storage);
 	}
