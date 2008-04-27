@@ -233,20 +233,14 @@ static void FindMinMaxBoundaries(void)
 
 static void ClearMarks(void)
 {
-	int i;
-
-	for (i = 0; i < AM_NUMMARKPOINTS; i++)
+	for (int i = 0; i < AM_NUMMARKPOINTS; i++)
 		markpoints[i].x = -1;  // means empty
 
 	markpointnum = 0;
 }
 
 
-//
-// should be called at the start of every level
-// right now, i figure it out myself
-//
-static void LevelInit(void)
+void AM_InitLevel(void)
 {
 	if (!cheat_amap.sequence)
 	{
@@ -258,11 +252,6 @@ static void LevelInit(void)
 	FindMinMaxBoundaries();
 
 	m_scale = INIT_MSCALE;
-}
-
-void AM_InitResolution(void)
-{
-	LevelInit();  // -ES- 1998/08/20
 }
 
 
@@ -294,7 +283,7 @@ static void AM_Show(void)
 	///	AM_Stop();
 		return;
 
-	LevelInit();
+	AM_InitLevel();
 
 	stopped = false;
 

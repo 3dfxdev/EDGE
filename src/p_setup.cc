@@ -48,6 +48,7 @@
 #include "p_bot.h"
 #include "p_hubs.h"
 #include "p_setup.h"
+#include "r_automap.h"
 #include "r_gldefs.h"
 #include "r_sky.h"
 #include "s_sound.h"
@@ -2369,6 +2370,8 @@ void P_SetupLevel(void)
 #endif
 
 	CreateVertexSeclists();
+
+	AM_InitLevel();
 
 	RGL_UpdateSkyBoxTextures();
 

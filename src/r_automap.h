@@ -50,7 +50,7 @@ typedef struct
 }
 mline_t;
 
-void AM_InitResolution(void);
+void AM_InitLevel(void);
 
 // Called by main loop.
 bool AM_Responder(event_t * ev);
