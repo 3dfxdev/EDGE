@@ -613,7 +613,7 @@ void M_ReadSaveStrings(void)
 	{
 		if (ex_slots[i].corrupt)
 		{
-			strncpy(ex_slots[i].desc, language["CorruptSlot"],
+			strncpy(ex_slots[i].desc, language["Corrupt_Slot"],
 					SAVESTRINGSIZE - 1);
 			continue;
 		}
@@ -720,7 +720,9 @@ void M_DrawLoad(void)
 	// draw screenshot ?
 
 	for (i = 0; i < SAVE_SLOTS; i++)
-		HL_WriteText(load_style,0, LoadDef.x + 8, LoadDef.y + LINEHEIGHT * (i), ex_slots[i].desc);
+		HL_WriteText(load_style, ex_slots[i].corrupt ? 3 : 0,
+		             LoadDef.x + 8, LoadDef.y + LINEHEIGHT * (i),
+					 ex_slots[i].desc);
 
 	M_DrawSaveLoadCommon(i, i+1, load_style);
 }
