@@ -971,7 +971,7 @@ static void IdentifyVersion(void)
         
         // Is it missing the extension?
         std::string ext = epi::PATH_GetExtension(iwad_par.c_str());
-        if (ext.empty())  // FIXME???? stricmp(ext.c_str(), EDGEWADEXT) != 0)
+        if (ext.empty())
         {
             fn += ("." EDGEWADEXT);
         }
