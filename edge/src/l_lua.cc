@@ -1383,6 +1383,33 @@ static int PL_hurt_dir(lua_State *L)
 }
 
 
+// player.hurt_angle()
+//
+static int PL_hurt_angle(lua_State *L)
+{
+	float value = 0;
+
+	if (cur_player->attacker && cur_player->attacker != cur_player->mo)
+	{
+		mobj_t *badguy = cur_player->attacker;
+		mobj_t *pmo    = cur_player->mo;
+
+		angle_t real_a = R_PointToAngle(pmo->x, pmo->y, badguy->x, badguy->y);
+
+		value = ANG_2_FLOAT(real_a);
+
+		if (value > 360.0f)
+			value -= 360.0f;
+
+		if (value < 0)
+			value += 360.0f;
+	}
+
+	lua_pushnumber(L, value);
+	return 1;
+}
+
+
 static const luaL_Reg player_module[] =
 {
 	{ "num_players", PL_num_players },
@@ -1427,6 +1454,7 @@ static const luaL_Reg player_module[] =
     { "hurt_by",         PL_hurt_by    },
     { "hurt_pain",       PL_hurt_pain  },
     { "hurt_dir",        PL_hurt_dir   },
+    { "hurt_angle",      PL_hurt_angle },
 
 	{ NULL, NULL } // the end
 };

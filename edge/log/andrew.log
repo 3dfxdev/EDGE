@@ -4,6 +4,9 @@ Andrew Apted's Log
 
 Fixed bug with markers when automap is rotated.
 
+Added a player.hurt_angle() to the Lua API, which returns the
+global angle (0 to 359 degrees) of the attacker from the player.
+
 2008/04/27:
 
 Worked on "Sand-Boxing" the Lua code, so that EDGE mods cannot
