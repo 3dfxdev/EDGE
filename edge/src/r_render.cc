@@ -751,6 +751,8 @@ typedef struct
 	float tx_mul, ty_mul;
 
 	vec3_t normal;
+
+	bool mid_masked;
 }
 wall_coord_data_t;
 
@@ -840,7 +842,7 @@ static void DLIT_Wall(mobj_t *mo, void *dataptr)
 	wall_coord_data_t *data = (wall_coord_data_t *)dataptr;
 
 	// light behind the plane ?    
-	if (! mo->info->dlight[0].leaky)
+	if (! mo->info->dlight[0].leaky && ! data->mid_masked)
 	{
 		float mx = mo->x;
 		float my = mo->y;
@@ -1302,7 +1304,7 @@ static void DrawWallPart(drawfloor_t *dfloor,
 		float tmp_x = x1; x1 = x2; x2 = tmp_x;
 		float tmp_y = y1; y1 = y2; y2 = tmp_y;
 
-		tmp_x = tex_x1; tex_x1 = 0-tex_x2; tex_x2 = 0-tmp_x;
+		tmp_x = 0-tex_x1; tex_x1 = 0-tex_x2; tex_x2 = tmp_x;
 	}
 
 	SYS_ASSERT(currmap);
@@ -1352,7 +1354,7 @@ static void DrawWallPart(drawfloor_t *dfloor,
 	left_h[0]  = lz1; left_h[1]  = lz2;
 	right_h[0] = rz1; right_h[1] = rz2;
 
-	if (solid_mode) /// && ! (wt->flags & WTILF_IsExtra)
+	if (solid_mode && !mid_masked)
 	{
 		GreetNeighbourSector(left_h,  left_num,  cur_seg->nb_sec[0]);
 		GreetNeighbourSector(right_h, right_num, cur_seg->nb_sec[1]);
@@ -1443,6 +1445,7 @@ static void DrawWallPart(drawfloor_t *dfloor,
 	data.pass   = 0;
 	data.blending = blending;
 	data.trans = trans;
+	data.mid_masked = mid_masked;
 
 
 	abstract_shader_c *cmap_shader = R_GetColormapShader(props, lit_adjust);
@@ -1470,6 +1473,7 @@ static void DrawSlidingDoor(drawfloor_t *dfloor, float c, float f,
 						    float tex_top_h, wall_tile_t *wt,
 						    bool opaque, float x_offset)
 {
+
 	/* smov may be NULL */
 	slider_move_t *smov = cur_seg->linedef->slider_move;
 
@@ -1569,7 +1573,7 @@ static void DrawSlidingDoor(drawfloor_t *dfloor, float c, float f,
 		s_tex += x_offset;
 		e_tex += x_offset;
 
-		DrawWallPart(dfloor, x1,y1,f,f, x2,y2,c,c, tex_top_h, wt, true, opaque, s_tex, e_tex);
+		DrawWallPart(dfloor, x1,y1,f,c, x2,y2,f,c, tex_top_h, wt, true, opaque, s_tex, e_tex);
 	}
 }
 
