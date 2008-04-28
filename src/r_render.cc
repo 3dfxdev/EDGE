@@ -861,7 +861,7 @@ static void DLIT_Wall(mobj_t *mo, void *dataptr)
 	int blending = (data->blending & ~BL_Alpha) | BL_Add;
 	
 	mo->dlight.shader->WorldMix(GL_POLYGON, data->v_count, data->tex_id,
-			data->trans, &data->pass, blending,
+			data->trans, &data->pass, blending, data->mid_masked,
 			data, WallCoordFunc);
 }
 
@@ -874,7 +874,7 @@ static void GLOWLIT_Wall(mobj_t *mo, void *dataptr)
 	int blending = (data->blending & ~BL_Alpha) | BL_Add;
 
 	mo->dlight.shader->WorldMix(GL_POLYGON, data->v_count, data->tex_id,
-			data->trans, &data->pass, blending,
+			data->trans, &data->pass, blending, data->mid_masked,
 			data, WallCoordFunc);
 }
 
@@ -902,7 +902,7 @@ static void DLIT_Plane(mobj_t *mo, void *dataptr)
 	int blending = (data->blending & ~BL_Alpha) | BL_Add;
 
 	mo->dlight.shader->WorldMix(GL_POLYGON, data->v_count, data->tex_id,
-			data->trans, &data->pass, blending,
+			data->trans, &data->pass, blending, false /* masked */,
 			data, PlaneCoordFunc);
 }
 
@@ -915,7 +915,7 @@ static void GLOWLIT_Plane(mobj_t *mo, void *dataptr)
 	int blending = (data->blending & ~BL_Alpha) | BL_Add;
 
 	mo->dlight.shader->WorldMix(GL_POLYGON, data->v_count, data->tex_id,
-			data->trans, &data->pass, blending,
+			data->trans, &data->pass, blending, false,
 			data, PlaneCoordFunc);
 }
 
@@ -1451,7 +1451,8 @@ static void DrawWallPart(drawfloor_t *dfloor,
 	abstract_shader_c *cmap_shader = R_GetColormapShader(props, lit_adjust);
 
 	cmap_shader->WorldMix(GL_POLYGON, data.v_count, data.tex_id,
-			trans, &data.pass, data.blending, &data, WallCoordFunc);
+			trans, &data.pass, data.blending, data.mid_masked,
+			&data, WallCoordFunc);
 
 	if (use_dlights && ren_extralight < 250)
 	{
@@ -1671,7 +1672,7 @@ static void DLIT_Flood(mobj_t *mo, void *dataptr)
 		}
 
 		mo->dlight.shader->WorldMix(GL_QUAD_STRIP, data->v_count,
-				data->tex_id, 1.0, &data->pass, blending,
+				data->tex_id, 1.0, &data->pass, blending, false,
 				data, FloodCoordFunc);
 	}
 }
@@ -1796,7 +1797,7 @@ static void EmulateFloodPlane(const drawfloor_t *dfloor,
 #endif
 
 		cmap_shader->WorldMix(GL_QUAD_STRIP, data.v_count,
-				data.tex_id, 1.0, &data.pass, BL_NONE,
+				data.tex_id, 1.0, &data.pass, BL_NONE, false,
 				&data, FloodCoordFunc);
 	}
 
@@ -2474,7 +2475,8 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	abstract_shader_c *cmap_shader = R_GetColormapShader(props);
 
 	cmap_shader->WorldMix(GL_POLYGON, data.v_count, data.tex_id,
-			trans, &data.pass, data.blending, &data, PlaneCoordFunc);
+			trans, &data.pass, data.blending, false /* masked */,
+			&data, PlaneCoordFunc);
 
 	if (use_dlights && ren_extralight < 250)
 	{

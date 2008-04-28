@@ -763,7 +763,7 @@ public:
 
 	virtual void WorldMix(GLuint shape, int num_vert,
 		GLuint tex, float alpha, int *pass_var, int blending,
-		void *data, shader_coord_func_t func)
+		bool masked, void *data, shader_coord_func_t func)
 	{
 		local_gl_vert_t * glvert = RGL_BeginUnit(shape, num_vert,
 				GL_MODULATE, tex,
