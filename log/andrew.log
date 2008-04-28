@@ -9,6 +9,8 @@ global angle (0 to 359 degrees) of the attacker from the player.
 
 Fixed dynamic lights on sloped floors/ceilings.
 
+Fixed dynamic lights on sliding doors.
+
 2008/04/27:
 
 Worked on "Sand-Boxing" the Lua code, so that EDGE mods cannot
