@@ -11,6 +11,10 @@ Fixed dynamic lights on sloped floors/ceilings.
 
 Fixed dynamic lights on sliding doors.
 
+Worked on fixing ADDITIVE lights on mid-masked textures, which
+need to use the ENV_SKIP_RGB mode to handle the transparent
+parts properly.
+
 2008/04/27:
 
 Worked on "Sand-Boxing" the Lua code, so that EDGE mods cannot
