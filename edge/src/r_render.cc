@@ -806,6 +806,8 @@ typedef struct
 	vec2_t y_mat;
 
 	vec3_t normal;
+
+	slope_plane_t *slope;
 }
 plane_coord_data_t;
 
@@ -882,7 +884,12 @@ static void DLIT_Plane(mobj_t *mo, void *dataptr)
 	// light behind the plane ?    
 	if (! mo->info->dlight[0].leaky)
 	{
-		if ((MO_MIDZ(mo) > data->vert[0].z) != (data->normal.z > 0))
+		float z = data->vert[0].z;
+		
+		if (data->slope)
+			z = Slope_GetHeight(data->slope, mo->x, mo->y);
+
+		if ((MO_MIDZ(mo) > z) != (data->normal.z > 0))
 			return;
 	}
 
@@ -2457,6 +2464,7 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	data.pass   = 0;
 	data.blending = blending;
 	data.trans = trans;
+	data.slope = slope;
 
 
 	abstract_shader_c *cmap_shader = R_GetColormapShader(props);
