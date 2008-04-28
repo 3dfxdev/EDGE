@@ -1,5 +1,9 @@
 Andrew Apted's Log
 
+2008/04/28:
+
+Fixed bug with markers when automap is rotated.
+
 2008/04/27:
 
 Worked on "Sand-Boxing" the Lua code, so that EDGE mods cannot

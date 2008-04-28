@@ -1042,22 +1042,26 @@ static void DrawMarks(void)
 {
 	for (int i = 0; i < AM_NUMMARKPOINTS; i++)
 	{
-		if (markpoints[i].x != -1)
-		{
-			float cx = CXMTOF(markpoints[i].x);
-			float cy = CYMTOF(markpoints[i].y);
+		if (markpoints[i].x == -1)
+			continue;
 
-			float scale = 1.0f; /// f_w / 320.0f;
+		float mx, my;
 
-			font_c *am_font = automap_style->fonts[0];
-			SYS_ASSERT(am_font);
+		GetRotatedCoords(markpoints[i].x, markpoints[i].y, &mx, &my);
 
-			// oh fuck me!
-			cx = cx * 320.f / SCREENWIDTH;
-			cy = 200.0 - (cy * 200.0f / SCREENHEIGHT);
+		float cx = CXMTOF(mx);
+		float cy = CYMTOF(my);
 
-			am_font->DrawChar320(cx, cy, '1'+i, scale,1.0f, NULL,1.0f);
-		}
+		float scale = 1.0f; /// f_w / 320.0f;
+
+		font_c *am_font = automap_style->fonts[0];
+		SYS_ASSERT(am_font);
+
+		// oh fuck me!
+		cx = cx * 320.f / SCREENWIDTH;
+		cy = 200.0 - (cy * 200.0f / SCREENHEIGHT);
+
+		am_font->DrawChar320(cx, cy, '1'+i, scale,1.0f, NULL,1.0f);
 	}
 }
 
