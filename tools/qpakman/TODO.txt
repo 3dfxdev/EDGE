@@ -2,7 +2,11 @@
 TODO for QPakMan
 ================
 
+?  miptex extraction from BSP files
+
+?  handling of other WAD2 formats (gfx.wad)
+
 +  response files
 
--  create xming Makefile
+-  synchronize u_file (etc?) improvements with Oblige code
 
