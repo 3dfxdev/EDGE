@@ -104,9 +104,6 @@ byte MIP_FindColor(const byte *palette, u32_t rgb_col)
   int best_idx  = -1;
   int best_dist = (1<<30);
 
-  if (RGB_A(rgb_col) <= 128)
-    return transparent_color;
-
   // Note: we skip index #0 (black), which is used for transparency
   //       in skies.  Black is duplicated at index #48 though.
 
@@ -137,7 +134,11 @@ byte MIP_FindColor(const byte *palette, u32_t rgb_col)
 
 inline byte MIP_MapColor(u32_t rgb_col)
 {
-  rgb_col &= 0xFFFFFF;  // ignore alpha
+  if (RGB_A(rgb_col) <= 128)
+    return transparent_color;
+
+  // ignore alpha from now on
+  rgb_col &= 0xFFFFFF;
 
   if (color_cache.find(rgb_col) != color_cache.end())
     return color_cache[rgb_col];
