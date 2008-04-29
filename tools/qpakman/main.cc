@@ -24,7 +24,7 @@
 #include "im_mip.h"
 #include "pakfile.h"
 
-#define VERSION  "0.52"
+#define VERSION  "0.55"
 
 
 std::string output_name;
@@ -148,7 +148,6 @@ void AddInputFile(const char *filename)
 {
   input_names.push_back(std::string(filename));
 }
-
 
 
 void Main_Create(void)
