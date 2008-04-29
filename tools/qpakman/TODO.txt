@@ -4,7 +4,11 @@ TODO for QPakMan
 
 ?  miptex extraction from BSP files
 
-?  handling of other WAD2 formats (gfx.wad)
+?  PIC packing / unpacking (gfx.wad)
+   -  have a -pic option
+   -  enabled automatically for "gfx.wad" output file
+   -  CONCHARS is probably pic (override tag when unpacking)
+   -  CONCHARS may use index #0 instead of #255 for transparency
 
 +  response files
 
