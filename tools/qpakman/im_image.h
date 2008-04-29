@@ -23,8 +23,8 @@
 #define ALPHA_TRANS  0
 
 
-#define MAKE_RGB(r,g,b)     (((r) << 16) | ((g) << 8) | (b) | (ALPHA_SOLID<<24))
-#define MAKE_RGBA(r,g,b,a)  (((r) << 16) | ((g) << 8) | (b) | ((a)<<24))
+#define MAKE_RGB(r,g,b)     (u32_t)(((r) << 16) | ((g) << 8) | (b) | (ALPHA_SOLID<<24))
+#define MAKE_RGBA(r,g,b,a)  (u32_t)(((r) << 16) | ((g) << 8) | (b) | ((a)<<24))
 
 #define RGB_R(col)  (((col) >> 16) & 0xFF)
 #define RGB_G(col)  (((col) >>  8) & 0xFF)
@@ -96,6 +96,10 @@ public:
   // (hence the image MUST have an even width and height).  The
   // color components (R,G,B,A) in each 2x2 block are averaged to
   // produce the target pixel.
+
+  void QuakeSkyFix();
+  // replaces solid black pixels in the left half of the image
+  // with transparent parts.  Used for processing Quake 1 skies.
 };
 
 
