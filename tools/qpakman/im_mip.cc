@@ -39,6 +39,8 @@ int max_color_cache = 1024;
 
 static bool cache_allow_fullbright = false;
 
+static byte transparent_color = 0;
+
 
 const byte quake1_palette[256*3] =
 {
@@ -102,7 +104,13 @@ byte MIP_FindColor(const byte *palette, u32_t rgb_col)
   int best_idx  = -1;
   int best_dist = (1<<30);
 
-  for (int i = (cache_allow_fullbright ? 255 : 255-32); i >= 0; i--)
+  if (RGB_A(rgb_col) <= 128)
+    return transparent_color;
+
+  // Note: we skip index #0 (black), which is used for transparency
+  //       in skies.  Black is duplicated at index #48 though.
+
+  for (int i = (cache_allow_fullbright ? 255 : 255-32); i > 0; i--)
   {
     int dr = RGB_R(rgb_col) - palette[i*3+0];
     int dg = RGB_G(rgb_col) - palette[i*3+1];
@@ -333,6 +341,11 @@ bool MIP_ProcessImage(const char *filename)
     delete img; img = tmp;
   }
 
+  if (StringCaseCmpPartial(lump_name.c_str(), "sky") == 0)
+  {
+    img->QuakeSkyFix();
+  }
+
 
   WAD2_NewLump(lump_name.c_str(), TYP_MIPTEX);
 
@@ -545,6 +558,12 @@ bool MIP_ExtractMipTex(int entry, const char *lump_name)
   }
 
   delete pixels;
+
+
+  if (StringCaseCmpPartial(lump_name, "sky") == 0)
+  {
+    img->QuakeSkyFix();
+  }
 
 
   const char *filename = ExpandFileName(lump_name, fullbright);
