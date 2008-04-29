@@ -7,6 +7,7 @@
 PROGRAM=qpakman.exe
 
 CXX=i586-mingw32msvc-g++
+STRIP=i586-mingw32msvc-strip
 
 OPTIM=-O2
 
@@ -53,7 +54,8 @@ relink:
 	$(MAKE) $(PROGRAM)
 
 $(PROGRAM): $(OBJS)
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(OBJS) -o $(PROGRAM) $(LIBS)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(LIBS)
+	$(STRIP) --strip-debug $@
 
 
 .PHONY: all clean relink
