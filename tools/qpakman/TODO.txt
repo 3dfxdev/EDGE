@@ -2,15 +2,18 @@
 TODO for QPakMan
 ================
 
-?  miptex extraction from BSP files
++  PAK creation: skip everything starting with '.'
 
-?  PIC packing / unpacking (gfx.wad)
+-  PIC packing / unpacking (gfx.wad)
    -  have a -pic option
    -  enabled automatically for "gfx.wad" output file
-   -  CONCHARS is probably pic (override tag when unpacking)
-   -  CONCHARS may use index #0 instead of #255 for transparency
 
-+  response files
+   -  CONCHARS is a block of raw pixels (where 0 is transparency)
+   -  TINYFONT also.
+
+-  miptex extraction from BSP files (also: all BSP in PAKs)
+
+-  external palette support (-c -colors)
 
 -  synchronize u_file (etc?) improvements with Oblige code
 
