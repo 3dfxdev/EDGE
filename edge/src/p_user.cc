@@ -601,6 +601,9 @@ void P_PlayerThink(player_t * player)
 	}
 #endif
 
+	if (player->attacker && player->attacker->isRemoved())
+		player->attacker = NULL;
+
 	if (player->damagecount <= 0)
 		player->damage_pain = 0;
 
