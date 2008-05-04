@@ -121,32 +121,6 @@ static void free_bank(int dr, int b)
 }
 
 
-///---static void free_old_bank(int dr, int b, int how_old)
-///---{
-///---	ToneBank *bank=((dr) ? drumset[b] : tonebank[b]);
-///---
-///---	for (int i=0; i<MAXPROG; i++)
-///---	{
-///---		if (bank->tone[i].layer && bank->tone[i].last_used < how_old)
-///---		{
-///---			if (bank->tone[i].layer != MAGIC_LOAD_INSTRUMENT)
-///---			{
-///---				ctl_msg(CMSG_INFO, VERB_DEBUG,
-///---						"Unloading %s %s[%d,%d] - last used %d.",
-///---						(dr)? "drum" : "inst", bank->tone[i].name,
-///---						i, b, bank->tone[i].last_used);
-///---
-///---				if (! bank->tone[i].layer_copy)
-///---					free_layer(bank->tone[i].layer);
-///---
-///---				bank->tone[i].layer = NULL;
-///---				bank->tone[i].last_used=-1;
-///---			}
-///---		}
-///---	}
-///---}
-
-
 int convert_envelope_rate_attack(byte rate, byte fastness)
 {
 	int r = 3 - ((rate>>6) & 0x3);
@@ -942,6 +916,8 @@ int aja_fallback_program(int i, int dist)
 
 static bool try_load_instr(ToneBank *bank, int b, int dr, int i)
 {
+	SYS_ASSERT(i >= 0);
+
 	if (! bank->tone[i].name)
 		return false;
 
@@ -1061,75 +1037,6 @@ static int fill_bank(int dr, int b)
 				continue;
 			}
 
-#if 0
-			if (bank->tone[new_i].layer_copy
-				@@@@
-				
-
-			if (bank->layer
-
-			if (bank->tone[i].name)
-			{
-				try_load_instr(bank, b, dr, i);
-
-				if (bank->tone[i].layer)
-				{
-					/* it's loaded now */
-
-
-
-					continue;
-				}
-			}
-
-			if (b == 0 && 
-
-			/* -AJA- 2008/01/20: remap missing instruments */
-			if (! bank->tone[i].name && b == 0 && dist > 0)
-			{
-
-I_Debugf("MISSING %s [%d] bank:%d dist:%d ---> NEW [%d] layer:%p layer_copy:%d\n",
-         dr ? "DRUM" : "PROG", i, b, dist,
-		 new_i, bank->tone[new_i].layer, bank->tone[new_i].layer_copy);
-
-			}
-
-			if (! bank->tone[i].name)
-			{
-				// -AJA- try another remap on next pass
-				if (dist < passes-1)
-					continue;
-
-
-				if (b > 0)
-				{
-					// Mark the corresponding instrument in the default
-					// bank / drumset for loading (if it isn't already)
-					if (!dr)
-					{
-						if (! tonebank[0]->tone[i].layer)
-							tonebank[0]->tone[i].layer = MAGIC_LOAD_INSTRUMENT;
-					}
-					else
-					{
-						if (! drumset[0]->tone[i].layer)
-							drumset[0]->tone[i].layer = MAGIC_LOAD_INSTRUMENT;
-					}
-				}
-				continue;
-			}
-
-			if (bank->tone[i].layer)
-				continue;
-
-
-			if (! bank->tone[i].layer)
-			{
-				errors++;
-				continue;
-			}
-#endif
-
 		} // instrument
 	} // dist
 
@@ -1152,19 +1059,6 @@ I_Debugf("MISSING %s [%d] bank:%d dist:%d ---> NEW [%d] layer:%p layer_copy:%d\n
 
 	return errors;
 }
-
-///---static void free_old_instruments(int how_old)
-///---{
-///---	for (int b=MAXBANK-1; b >= 0; b--)
-///---	{
-///---		if (tonebank[b])
-///---			free_old_bank(0, b, how_old);
-///---
-///---		if (drumset[b])
-///---			free_old_bank(1, b, how_old);
-///---	}
-///---}
-
 
 
 int load_missing_instruments(void)
