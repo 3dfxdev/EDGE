@@ -20,7 +20,7 @@
 
 #define EDGEVER       131
 #define EDGEVERHEX  0x131
-#define EDGEVERSTR  "1.31-Beta#3"
+#define EDGEVERSTR  "1.31-RC#1"
 
 // patch level (Savegames and Demos)
 #define EDGEPATCH  7
