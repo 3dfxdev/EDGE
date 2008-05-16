@@ -1058,7 +1058,7 @@ static int PL_has_power(lua_State *L)
 	int value = (cur_player->powers[power] > 0) ? 1 : 0;
 
 	// special check for GOD mode
-	if (power == PW_Invulnerable && (cur_player->cheats && CF_GODMODE))
+	if (power == PW_Invulnerable && (cur_player->cheats & CF_GODMODE))
 		value = 1;
 
 	lua_pushboolean(L, value);
