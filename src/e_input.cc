@@ -434,7 +434,10 @@ bool INP_Responder(event_t * ev)
 		case ev_keydown:
 
 			if (ev->value.key < NUMKEYS)
-				gamekeydown[ev->value.key] |= GK_DOWN;
+			{
+				gamekeydown[ev->value.key] &= ~GK_UP;
+				gamekeydown[ev->value.key] |=  GK_DOWN;
+			}
 
 			// eat key down events 
 			return true;
