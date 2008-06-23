@@ -103,25 +103,6 @@ mapsettings_e;
 
 typedef enum
 {
-	// standard Doom shading
-	LMODEL_Doom = 0,
-
-	// Doom shading without the brighter N/S, darker E/W walls
-	LMODEL_Doomish = 1,
-
-	// flat lighting (no shading at all)
-	LMODEL_Flat = 2,
-
-	// vertex lighting
-	LMODEL_Vertex = 3,
-
- 	// Invalid (-ACB- 2003/10/06: MSVC wants the invalid value as part of the enum)
- 	LMODEL_Invalid = 999
-}
-lighting_model_e;
-
-typedef enum
-{
 	// standard Doom intermission stats
 	WISTYLE_Doom = 0,
 
@@ -181,8 +162,6 @@ public:
 	// the level start. (MAP07)
 	int autotag;
 
-	// -AJA- 2000/08/23: lighting model & intermission style
-	lighting_model_e lighting;
 	intermission_style_e wistyle;
 
 	// -KM- 1998/11/25 Generalised finales.

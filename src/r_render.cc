@@ -1312,7 +1312,7 @@ static void DrawWallPart(drawfloor_t *dfloor,
 	int lit_adjust = 0;
 
 	// do the N/S/W/E bizzo...
-	if (currmap->lighting == LMODEL_Doom && props->lightlevel > 0)
+	if (currmap->episode->lighting == LMODEL_Doom && props->lightlevel > 0)
 	{
 		if (cur_seg->v1->y == cur_seg->v2->y)
 			lit_adjust -= 16;

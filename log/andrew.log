@@ -1,5 +1,11 @@
 Andrew Apted's Log
 
+2008/06/23:
+
+Removed the LEVELS.DDF "LIGHTING" command and in its stead
+added it to GAMES.DDF (so it is now a property of the whole
+game), since I plan to re-implement "LIGHTING=FLAT"...
+
 2008/04/28:
 
 Fixed bug with markers when automap is rotated.
