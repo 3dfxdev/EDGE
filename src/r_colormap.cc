@@ -742,7 +742,7 @@ public:
 		int cmap_idx;
 		
 		if (lt_model >= LMODEL_Flat)
-			cmap_idx = CLAMP(0, 31-light_lev/8, 31);
+			cmap_idx = CLAMP(0, 42-light_lev/6, 31);
 		else
 			cmap_idx = R_DoomLightingEquation(light_lev/4, dist);
 
@@ -848,7 +848,7 @@ private:
 				if (lt_model >= LMODEL_Flat)
 				{
 					// FLAT lighting
-					index = (63-L) / 2;
+					index = CLAMP(0, 42 - (L*2/3), 31);
 				}
 				else
 				{
