@@ -1066,6 +1066,27 @@ static int PL_has_power(lua_State *L)
 }
 
 
+// player.power_left(power)
+//
+static int PL_power_left(lua_State *L)
+{
+	int power = luaL_checkint(L, 1);
+
+	if (power < 1 || power > NUMPOWERS)
+		I_Error("player.power_left: bad powerup number: %d\n", power);
+
+	power--;
+
+	float value = cur_player->powers[power];
+
+	if (value > 0)
+		value /= TICRATE;
+
+	lua_pushnumber(L, value);
+	return 1;
+}
+
+
 // player.has_weapon_slot(slot)
 //
 static int PL_has_weapon_slot(lua_State *L)
@@ -1439,6 +1460,7 @@ static const luaL_Reg player_module[] =
 
     { "has_key",         PL_has_key   },
     { "has_power",       PL_has_power },
+    { "power_left",      PL_power_left },
     { "has_weapon",      PL_has_weapon      },
     { "has_weapon_slot", PL_has_weapon_slot },
     { "cur_weapon",      PL_cur_weapon      },
