@@ -145,7 +145,26 @@ public:
 	wi_animdef_container_c& operator=(wi_animdef_container_c &rhs);
 	wi_animdef_c* operator[](int idx) { return *(wi_animdef_c**)FetchObject(idx); } 
 };
-	
+
+typedef enum
+{
+	// standard Doom shading
+	LMODEL_Doom = 0,
+
+	// Doom shading without the brighter N/S, darker E/W walls
+	LMODEL_Doomish = 1,
+
+	// flat lighting (no shading at all)
+	LMODEL_Flat = 2,
+
+	// vertex lighting
+	LMODEL_Vertex = 3,
+
+ 	// Invalid (-ACB- 2003/10/06: MSVC wants the invalid value as part of the enum)
+ 	LMODEL_Invalid = 999
+}
+lighting_model_e;
+
 // Game definition file
 class gamedef_c
 {
@@ -190,6 +209,8 @@ public:
 	int titlemusic;
 	int titletics;
 	int special_music;
+
+	lighting_model_e lighting;
 };
 
 class gamedef_container_c : public epi::array_c

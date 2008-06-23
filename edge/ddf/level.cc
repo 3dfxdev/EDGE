@@ -30,7 +30,6 @@
 
 static void DDF_LevelGetSpecials(const char *info, void *storage);
 static void DDF_LevelGetPic(const char *info, void *storage);
-static void DDF_LevelGetLighting(const char *info, void *storage);
 static void DDF_LevelGetWistyle(const char *info, void *storage);
 
 mapdef_container_c mapdefs;
@@ -82,9 +81,11 @@ static const commandlist_t level_commands[] =
 	DF("AUTOTAG", autotag, DDF_MainGetNumeric),
 	DF("PARTIME", partime, DDF_MainGetTime),
 	DF("EPISODE", episode_name, DDF_MainGetString),
-	DF("LIGHTING", lighting, DDF_LevelGetLighting),
 	DF("STATS", wistyle, DDF_LevelGetWistyle),
 	DF("SPECIAL", ddf, DDF_LevelGetSpecials),
+
+	// -AJA- backwards compatibility cruft...
+	DF("LIGHTING", ddf, DDF_DummyFunction),
 
 	DDF_CMD_END
 };
@@ -310,35 +311,12 @@ void DDF_LevelGetSpecials(const char *info, void *storage)
 	}
 }
 
-static specflags_t lighting_names[] =
-{
-	{"DOOM",    LMODEL_Doom, 0},
-	{"DOOMISH", LMODEL_Doomish, 0},
-	{"FLAT",    LMODEL_Flat, 0},
-	{"VERTEX",  LMODEL_Vertex, 0},
-	{NULL, 0, 0}
-};
-
 static specflags_t wistyle_names[] =
 {
 	{"DOOM", WISTYLE_Doom, 0},
 	{"NONE", WISTYLE_None, 0},
 	{NULL, 0, 0}
 };
-
-void DDF_LevelGetLighting(const char *info, void *storage)
-{
-	int flag_value;
-
-	if (CHKF_Positive != DDF_MainCheckSpecialFlag(info, 
-		lighting_names, &flag_value, false, false))
-	{
-		DDF_WarnError("DDF_LevelGetLighting: Unknown model: %s", info);
-		return;
-	}
-
-	((lighting_model_e *)storage)[0] = (lighting_model_e)flag_value;
-}
 
 void DDF_LevelGetWistyle(const char *info, void *storage)
 {
@@ -460,7 +438,6 @@ void mapdef_c::CopyDetail(mapdef_c &src)
 
 	autotag = src.autotag;
 
-	lighting = src.lighting;
 	wistyle = src.wistyle;
 
 	f_pre = src.f_pre;
@@ -491,7 +468,6 @@ void mapdef_c::Default()
 
 	autotag = 0;
 
-	lighting = LMODEL_Doom;
 	wistyle = WISTYLE_Doom;
 
 	f_pre.Default();

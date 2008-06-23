@@ -36,6 +36,7 @@ static wi_framedef_c buffer_framedef;
 static void DDF_GameGetPic (const char *info, void *storage);
 static void DDF_GameGetAnim(const char *info, void *storage);
 static void DDF_GameGetMap (const char *info, void *storage);
+static void DDF_GameGetLighting(const char *info, void *storage);
 
 #define DDF_CMD_BASE  buffer_gamedef
 
@@ -58,6 +59,7 @@ static const commandlist_t gamedef_commands[] =
 	DF("TITLE_MUSIC", titlemusic, DDF_MainGetNumeric),
 	DF("TITLE_TIME", titletics, DDF_MainGetTime),
 	DF("SPECIAL_MUSIC", special_music, DDF_MainGetNumeric),
+	DF("LIGHTING", lighting, DDF_GameGetLighting),
 
 	// these don't quite fit in yet
 	DF("TITLE_GRAPHIC", ddf, DDF_GameGetPic),
@@ -279,6 +281,32 @@ static void DDF_GameGetPic (const char *info, void *storage)
 {
 	buffer_gamedef.titlepics.Insert(info);
 }
+
+
+static specflags_t lighting_names[] =
+{
+	{"DOOM",    LMODEL_Doom, 0},
+	{"DOOMISH", LMODEL_Doomish, 0},
+	{"FLAT",    LMODEL_Flat, 0},
+	{"VERTEX",  LMODEL_Vertex, 0},
+	{NULL, 0, 0}
+};
+
+void DDF_GameGetLighting(const char *info, void *storage)
+{
+	int flag_value;
+
+	if (CHKF_Positive != DDF_MainCheckSpecialFlag(info, 
+		lighting_names, &flag_value, false, false))
+	{
+		DDF_WarnError("GAMES.DDF LIGHTING: Unknown model: %s", info);
+		return;
+	}
+
+	((lighting_model_e *)storage)[0] = (lighting_model_e)flag_value;
+}
+
+
 
 // --> world intermission mappos class
 
@@ -736,12 +764,12 @@ void gamedef_c::CopyDetail(gamedef_c &src)
 	firstmap = src.firstmap;
 	namegraphic = src.namegraphic;
 
-	titlepics = src.titlepics;
-
+	titlepics  = src.titlepics;
 	titlemusic = src.titlemusic;
-	titletics = src.titletics;
+	titletics  = src.titletics;
 
 	special_music = src.special_music;
+	lighting = src.lighting;
 }
 
 //
@@ -779,6 +807,7 @@ void gamedef_c::Default()
 	titletics = TICRATE * 4;
 
 	special_music = 0;
+	lighting = LMODEL_Doom;
 }
 
 //
