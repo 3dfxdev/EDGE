@@ -28,10 +28,15 @@
 
 // #include <stdlib.h>  // atoi()
 
+#include "ddf/main.h"
+#include "ddf/colormap.h"
+#include "ddf/game.h"
+
 #include "r_colormap.h"
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "e_main.h"
+#include "g_game.h"  // currmap
 #include "e_player.h"
 #include "m_argv.h"
 #include "r_misc.h"
@@ -689,6 +694,7 @@ private:
 	GLuint fade_tex;
 
 	bool simple_cmap;
+	lighting_model_e lt_model;
 
 	rgbcol_t whites[32];
 
@@ -697,7 +703,8 @@ public:
 
 public:
 	colormap_shader_c(const colourmap_c *CM) : colmap(CM),
-		light_lev(255), fade_tex(0), simple_cmap(true)
+		light_lev(255), fade_tex(0),
+		simple_cmap(true), lt_model(LMODEL_Doom)
 	{ }
 
 	virtual ~colormap_shader_c()
@@ -732,7 +739,12 @@ public:
 
 		float dist = DistFromViewplane(x, y, z);
 
-		int cmap_idx = R_DoomLightingEquation(light_lev/4, dist);
+		int cmap_idx;
+		
+		if (lt_model >= LMODEL_Flat)
+			cmap_idx = CLAMP(0, 31-light_lev/8, 31);
+		else
+			cmap_idx = R_DoomLightingEquation(light_lev/4, dist);
 
 		rgbcol_t WH = whites[cmap_idx];
 
@@ -831,9 +843,18 @@ private:
 			{
 				float dist = 1600.0f * x / 255.0;
 
-				// DOOM lighting formula
+				int index;
 
-				int index = R_DoomLightingEquation(L, dist);
+				if (lt_model >= LMODEL_Flat)
+				{
+					// FLAT lighting
+					index = (63-L) / 2;
+				}
+				else
+				{
+					// DOOM lighting formula
+					index = R_DoomLightingEquation(L, dist);
+				}
 
 				index = index * length / 32;
 
@@ -880,12 +901,15 @@ private:
 public:
 	void Update()
 	{
-		if (fade_tex == 0 || reset_ctr != image_reset_counter)
+		if (fade_tex == 0 || reset_ctr != image_reset_counter ||
+		    lt_model != currmap->episode->lighting)
 		{
 			if (fade_tex != 0)
 			{
 				glDeleteTextures(1, &fade_tex);
 			}
+
+			lt_model = currmap->episode->lighting;
 
 			MakeColormapTexture(0);
 
