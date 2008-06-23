@@ -4,10 +4,12 @@ Andrew Apted's Log
 
 Removed the LEVELS.DDF "LIGHTING" command and in its stead
 added it to GAMES.DDF (so it is now a property of the whole
-game), since I plan to re-implement "LIGHTING=FLAT"...
+game).
 
-Implemented new Lua function: hud.power_left(), which returns
-the amount of the powerup remaining (in seconds).
+Added new Lua function: hud.power_left(), which returns the
+amount of the powerup remaining (in seconds).
+
+Implemented the "LIGHTING=FLAT" mode.
 
 2008/04/28:
 
