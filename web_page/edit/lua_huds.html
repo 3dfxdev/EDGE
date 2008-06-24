@@ -469,6 +469,15 @@ For more readable code, the following names can be used:
 </table>
 </div>
 
+<p><span class="FUNC">player.power_left(power)</span><br>
+Returns the number of seconds remaining for the specified powerup,
+or zero when the player does not have it.
+The berserk powerup only counts down the red-screen effect, and returns -1
+when that is finished.
+The automap powerup returns a large value when active and it never
+counts down.
+The result for invulnerability is not affected by the God-mode cheat.
+
 
 <h3>Weapon Stuff</h3>
 
