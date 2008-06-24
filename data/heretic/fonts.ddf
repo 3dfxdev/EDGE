@@ -12,6 +12,10 @@
 TYPE=PATCH;
 PATCHES=FONTA01("!":"Z"),FONTA59("_");
 
+[DOOM] // required by Lua huds
+TYPE=PATCH;
+PATCHES=FONTA01("!":"Z"),FONTA59("_");
+
 [HTIC_BIG]
 TYPE=PATCH;
 PATCHES=FONTB01("!":"Z");
