@@ -6,6 +6,8 @@ EDGE DDF 5.7: (2008-08-26)
 
 2) THINGS.DDF: reduced JUMP_DELAY on players from 26T to 21T.
 
+3) LANGUAGE.LDF: fixed the idbehold9 entry (SCUBA powerup).
+
 
 EDGE DDF 5.6: (2008-01-26)
 ==========================
