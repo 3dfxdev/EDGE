@@ -1,12 +1,19 @@
 
-EDGE DDF 5.7: (2008-08-26)
+EDGE DDF 5.8: (2008-06-24)
+==========================
+
+1) THINGS.DDF: reduced JUMP_DELAY on players from 26T to 21T.
+
+2) LANGUAGE.LDF: fixed the idbehold9 entry (SCUBA powerup).
+
+3) WEAPONS.DDF: fixed timing of the [SUPERSHOTGUN], which was
+                slower than in original DOOM.
+
+
+EDGE DDF 5.7: (2008-04-16)
 ==========================
 
 1) LINES.DDF: added new Fake Slope types (567 to 569).
-
-2) THINGS.DDF: reduced JUMP_DELAY on players from 26T to 21T.
-
-3) LANGUAGE.LDF: fixed the idbehold9 entry (SCUBA powerup).
 
 
 EDGE DDF 5.6: (2008-01-26)

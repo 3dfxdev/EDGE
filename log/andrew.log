@@ -1,12 +1,22 @@
 Andrew Apted's Log
 
+2008/06/24:
+
+Tweaked dynamic lighting for PLASMA, ROCKET and BFG balls.
+
+Investigated why EDGE's double shotgun is slower than standard
+DOOM.  It turns out that DOOM's A_CloseShotgun2 code pointer
+has an embedded A_Refire() in it, effectively skipping that
+frame (6 tics) while repeatedly firing.  However this was not
+reflected in EDGE's DDF.  Fixed now.
+
 2008/06/23:
 
 Removed the LEVELS.DDF "LIGHTING" command and in its stead
 added it to GAMES.DDF (so it is now a property of the whole
 game).
 
-Added new Lua function: hud.power_left(), which returns the
+Added new Lua function: player.power_left(), which returns the
 amount of the powerup remaining (in seconds).
 
 Implemented the "LIGHTING=FLAT" mode.
