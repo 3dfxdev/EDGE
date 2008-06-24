@@ -1,8 +1,10 @@
 
-EDGE DDF 5.7: (2008-04-16)
+EDGE DDF 5.7: (2008-08-26)
 ==========================
 
 1) LINES.DDF: added new Fake Slope types (567 to 569).
+
+2) THINGS.DDF: reduced JUMP_DELAY on players from 26T to 21T.
 
 
 EDGE DDF 5.6: (2008-01-26)
