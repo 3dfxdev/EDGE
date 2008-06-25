@@ -608,10 +608,12 @@ void M_NetJoinBegun(void)
 	ng_params = new newgame_params_c;
 }
 
+#if 0
 static void JoinConnect(void)
 {
 	netgame_menuon = 3;
 }
+#endif
 
 static void JoinChangeOption(int opt, int key)
 {

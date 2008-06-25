@@ -138,7 +138,6 @@ static void M_ChangeJumping(int keypressed);
 static void M_ChangeCrouching(int keypressed);
 static void M_ChangeExtra(int keypressed);
 static void M_ChangeGamma(int keypressed);
-static void M_ChangeShadows(int keypressed);
 static void M_ChangeKicking(int keypressed);
 static void M_ChangeWeaponSwitch(int keypressed);
 static void M_ChangeMipMap(int keypressed);
@@ -1647,6 +1646,7 @@ static void M_ChangeMipMap(int keypressed)
 	W_DeleteAllImages();
 }
 
+#if 0
 static void M_ChangeShadows(int keypressed)
 {
 	if (currmap && ((currmap->force_on | currmap->force_off) & MPF_Shadows))
@@ -1655,7 +1655,6 @@ static void M_ChangeShadows(int keypressed)
 	level_flags.shadows = global_flags.shadows;
 }
 
-#if 0
 static void M_ChangeHalos(int keypressed)
 {
 	if (currmap && ((currmap->force_on | currmap->force_off) & MPF_Halos))

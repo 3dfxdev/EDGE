@@ -165,6 +165,7 @@ static void do_Animate(real_image_container_c& bucket)
 	}
 }
 
+#if 0
 static void do_DebugDump(real_image_container_c& bucket)
 {
 	L_WriteDebug("{\n");
@@ -183,6 +184,7 @@ static void do_DebugDump(real_image_container_c& bucket)
 
 	L_WriteDebug("}\n");
 }
+#endif
 
 // mipmapping enabled ?
 // 0 off, 1 bilinear, 2 trilinear
