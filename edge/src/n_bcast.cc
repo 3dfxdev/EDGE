@@ -77,7 +77,7 @@ bool N_StartupBroadcastLink(int port)
 	net_address_c my_addr;
 
 	my_addr.FromSockAddr(&sock_addr);
-I_Printf(">>> my_addr (bc) : %s\n", my_addr.TempString());
+// I_Printf(">>> my_addr (bc) : %s\n", my_addr.TempString());
 
 	I_SetBroadcast(host_broadcast_sock, 1);
 
