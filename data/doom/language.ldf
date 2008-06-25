@@ -1,7 +1,7 @@
 //
-//    EDGE DEFAULT.LDF -redefine or add new messages.
+//    EDGE LANGUAGE.LDF -redefine or add new messages.
 //    For documentation, see http://edge.sourceforge.net/
-//    DDF Version 5.4
+//    DDF Version 5.8
 //
 
 <LANGUAGES>
