@@ -22,6 +22,8 @@ adding the directory containing the CFG file to the pathlist,
 and for Linux looks for uppercase and lowercase versions of
 patch names (8MBGMPAT now works!).
 
+Tidied up network debugging printfs.
+
 2008/06/24:
 
 Tweaked dynamic lighting for PLASMA, ROCKET and BFG balls.

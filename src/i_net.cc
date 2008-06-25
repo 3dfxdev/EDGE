@@ -60,7 +60,7 @@ static bool GetLocalAddress(void)
 	// ensure name is NUL-terminated
 	buffer[sizeof(buffer)-1] = 0;
 	
-	I_Printf(">> LocalHostName: %s\n", buffer);
+//	I_Printf(">> LocalHostName: %s\n", buffer);
 
 	local = gethostbyname(buffer);
 
@@ -76,8 +76,8 @@ static bool GetLocalAddress(void)
 	{
 		const byte *raw_addr = (byte *) local->h_addr_list[i];
 
-		I_Printf(">> LocalAddress: %u.%u.%u.%u\n",
-				 raw_addr[0], raw_addr[1], raw_addr[2], raw_addr[3]);
+//		I_Printf(">> LocalAddress: %u.%u.%u.%u\n",
+//				 raw_addr[0], raw_addr[1], raw_addr[2], raw_addr[3]);
 
 		if (best < 0 &&
 			raw_addr[0] != 127 && raw_addr[0] != 0 &&
@@ -140,17 +140,14 @@ static bool Scan_IFCONFIG(bool got_local)
 	// entries (entries can have various sizes, but always >=
 	// sizeof(struct ifreq)... IP entries have minimum size).
 
-I_Printf("offset: %d  sizeof:%d  ifc_len:%d\n",
-offset, (int)sizeof(struct ifreq),  (int)config.ifc_len);
-
     while (offset + (int)sizeof(struct ifreq) <= (int)config.ifc_len)
 	{
         struct ifreq req;
 
 		memcpy(&req, buffer+offset, sizeof(req));
 
-I_Printf("> name = %6.6s\n", req.ifr_name);
-I_Printf("> family = %d\n", req.ifr_addr.sa_family);
+// I_Printf("> name = %6.6s\n", req.ifr_name);
+// I_Printf("> family = %d\n", req.ifr_addr.sa_family);
 
         // make sure it's an entry for IP (not AppleTalk, ARP, etc)
         if (req.ifr_addr.sa_family == AF_INET)
@@ -159,9 +156,10 @@ I_Printf("> family = %d\n", req.ifr_addr.sa_family);
 			// really want is the interface's broadcast address.
 			// -AJA- need to ignore loopback (127.0.0.1).
 
-net_address_c cur_A;
-cur_A.FromSockAddr((struct sockaddr_in*)&req.ifr_addr);
-I_Printf(">> address = %s\n", cur_A.TempString());
+			net_address_c cur_A;
+			cur_A.FromSockAddr((struct sockaddr_in*)&req.ifr_addr);
+
+// I_Printf(">> address = %s\n", cur_A.TempString());
 
             if (cur_A.addr[0] != 127 && cur_A.addr[0] != 0 &&
 				cur_A.addr[0] != 255 &&
@@ -171,7 +169,7 @@ I_Printf(">> address = %s\n", cur_A.TempString());
 
 				cur_B.FromSockAddr((struct sockaddr_in*) &req.ifr_addr);
 
-I_Printf(">> found broadcast addr: %s\n", cur_B.TempString());
+// I_Printf(">> found broadcast addr: %s\n", cur_B.TempString());
 
 				if (! found_one)
 				{
