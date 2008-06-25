@@ -169,60 +169,6 @@ static void DrawColumnIntoEpiBlock(image_c *rim, epi::image_data_c *img,
 }
 
 
-//
-// CheckBlockSolid
-//
-// FIXME: Avoid future checks.
-//
-#define MAX_STRAY_PIXELS  2
-
-static void CheckEpiBlockSolid(image_c *rim, epi::image_data_c *img)
-{
-	
-#if 0  // DISABLED FOR NOW : Really Necessary???
-
-	SYS_ASSERT(img->bpp == 1);
-
-	int w1 = rim->actual_w;
-	int h1 = rim->actual_h;
-	int w2 = rim->total_w;
-	int h2 = rim->total_h;
-
-	int total_num = w1 * h1;
-	int alpha_count=0;
-
-	int x, y;
-
-	for (x=0; x < w1; x++)
-	for (y=0; y < h1; y++)
-	{
-		byte src_pix = img->pixels[y * img->width + x];
-
-		if (src_pix != TRANS_PIXEL)
-			continue;
-
-		alpha_count++;
-
-		// only ignore stray pixels on large images
-		if (total_num >= 512 && alpha_count > MAX_STRAY_PIXELS)
-			return;
-	}
-
-	// image is totally solid.  Blacken any transparent parts.
-	rim->opacity = OPAC_Solid;
-
-	for (x=0; x < w2; x++)
-	for (y=0; y < h2; y++)
-	{
-		if (x >= w1 || y >= h1 ||
-			img->pixels[y * img->width + x] == TRANS_PIXEL)
-		{
-			img->pixels[y * img->width + x] = pal_black;
-		}
-	}
-#endif
-}
-
 
 //------------------------------------------------------------------------
 
@@ -354,10 +300,6 @@ static epi::image_data_c *ReadTextureAsEpiBlock(image_c *rim)
 		W_DoneWithLump(realpatch);
 	}
 
-//???	// update solid flag, if needed
-//???	if (! rim->img_solid)
-//???		CheckEpiBlockSolid(rim, img);
-
 	return img;
 }
 
@@ -415,10 +357,6 @@ static epi::image_data_c *ReadPatchAsEpiBlock(image_c *rim)
 	}
 
 	W_DoneWithLump(realpatch);
-
-///???	// update solid flag, if needed
-///???	if (! rim->img_solid)
-///???		CheckEpiBlockSolid(rim, img);
 
 	return img;
 }
@@ -491,7 +429,7 @@ static epi::image_data_c * CreateUserColourImage(image_c *rim, imagedef_c *def)
 	return img;
 }
 
-static void CreateUserBuiltinShadow(epi::image_data_c *img, imagedef_c *def)
+void R_CreateUserBuiltinShadow(epi::image_data_c *img, imagedef_c *def)
 {
 	SYS_ASSERT(img->bpp == 4);
 	SYS_ASSERT(img->width == img->height);
