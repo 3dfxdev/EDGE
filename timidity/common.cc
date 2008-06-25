@@ -27,19 +27,28 @@
 #include "mix.h"
 #include "ctrlmode.h"
 
-/* I guess "rb" should be right for any libc */
-#define OPEN_MODE "rb"
 
 char current_filename[1024];
 
 static PathList *pathlist=NULL;
 
 
+static bool filename_absolute(const char *name)
+{
+	if (name[0] == DIRSEPARATOR)
+		return true;
+
+	if (isalpha(name[0]) && name[1] == ':')
+		return true;
+
+	return false;
+}
+
+
 /* This is meant to find and open files for reading, possibly piping
    them through a decompressor. */
-FILE *open_file(const char *name, int decompress, int noise_mode)
+FILE *open_file_via_paths(const char *name, int noise_mode)
 {
-	FILE *fp;
 	PathList *plp;
 
 	if (!name || !(*name))
@@ -48,21 +57,15 @@ FILE *open_file(const char *name, int decompress, int noise_mode)
 		return 0;
 	}
 
-#ifdef DEFAULT_PATH
-	if (pathlist==NULL)
-	{
-		/* Generate path list */
-		add_to_pathlist(DEFAULT_PATH);
-	}
-#endif
-
 	/* First try the given name */
 
 	strncpy(current_filename, name, 1023);
 	current_filename[1023]='\0';
 
 	ctl_msg(CMSG_INFO, VERB_DEBUG, "Trying to open %s", current_filename);
-	if ((fp = fopen(current_filename, OPEN_MODE)))
+
+	FILE *fp = fopen(current_filename, "rb");
+	if (fp)
 		return fp;
 
 #ifdef ENOENT
@@ -74,7 +77,7 @@ FILE *open_file(const char *name, int decompress, int noise_mode)
 	}
 #endif
 
-	if (name[0] != DIRSEPARATOR)
+	if (! filename_absolute(name))
 	{
 		/* Try along the path then */
 		for (plp = pathlist; plp; plp = plp->next)
@@ -96,8 +99,11 @@ FILE *open_file(const char *name, int decompress, int noise_mode)
 			strcat(current_filename, name);
 
 			ctl_msg(CMSG_INFO, VERB_DEBUG, "Trying to open %s", current_filename);
-			if ((fp = fopen(current_filename, OPEN_MODE)))
+
+			fp = fopen(current_filename, "rb");
+			if (fp)
 				return fp;
+
 #ifdef ENOENT
 			if (noise_mode && (errno != ENOENT))
 			{
@@ -119,11 +125,40 @@ FILE *open_file(const char *name, int decompress, int noise_mode)
 	return NULL;
 }
 
-/* This closes files opened with open_file */
-void close_file(FILE *fp)
+FILE *open_via_paths_NOCASE(const char *name, int noise_mode)
 {
-	fclose(fp);
+	FILE *fp = open_file_via_paths(name, noise_mode);
+	if (fp)
+		return fp;
+
+#ifndef WIN32
+	char *u_name = safe_strdup(name);
+	char *p;
+	for (p = u_name; *p; p++)
+		*p = toupper(*p);
+
+	fp = open_file_via_paths(u_name, noise_mode);
+	free(u_name);
+
+	if (fp)
+		return fp;
+#endif
+
+#ifndef WIN32
+	char *l_name = safe_strdup(name);
+	for (p = l_name; *p; p++)
+		*p = tolower(*p);
+
+	fp = open_file_via_paths(l_name, noise_mode);
+	free(l_name);
+
+	if (fp)
+		return fp;
+#endif
+
+	return NULL;
 }
+
 
 /* This is meant for skipping a few bytes in a file or fifo. */
 void skip(FILE *fp, size_t len)
@@ -175,33 +210,72 @@ char *safe_strdup(const char *orig)
 	return result;
 }
 
-/* This adds a directory to the path list */
-void add_to_pathlist(char *s)
+
+void init_pathlist(void)
 {
-	PathList *plp = (PathList*) safe_malloc(sizeof(PathList));
-	plp->path = safe_strdup(s);
-	///  strcpy((plp->path=safe_malloc(strlen(s)+1)),s);
-	plp->next=pathlist;
-	pathlist=plp;
+	pathlist = NULL;
+
+#ifdef DEFAULT_PATH
+	/* Generate path list */
+	add_to_pathlist(DEFAULT_PATH);
+#endif
+}
+
+/* This adds a directory to the path list */
+void add_to_pathlist(const char *s)
+{
+fprintf(stderr, "add_to_pathlist: '%s'\n", s); //!!!!
+
+
+	PathList *pl = (PathList*) safe_malloc(sizeof(PathList));
+	pl->path = safe_strdup(s);
+
+	// add to head of list (will be checked first)
+	pl->next = pathlist;
+	pathlist = pl;
+}
+
+void add_basedir_to_pathlist(const char *s)
+{
+	const char *pos = s + strlen(s) - 1;
+
+	for (; pos > s; pos--)
+	{
+		if (*pos == '/')
+			break;
+
+#ifdef WIN32
+		if (*pos == '\\')
+			break;
+
+		if (*pos == ':')
+			return;
+#endif
+	}
+
+	// no directory separator from 2nd character onwards
+	if (pos <= s)
+		return;
+
+	char *dir = safe_strdup(s);
+	dir[pos - s] = 0;
+
+	add_to_pathlist(dir);
+
+	free(dir);
 }
 
 /* Free memory associated to path list */
 void free_pathlist(void)
 {
-	PathList *plp, *next_plp;
-
-	for (plp = pathlist; plp; plp = next_plp)
+	while (pathlist)
 	{
-		if (plp->path)
-		{
-			free(plp->path);
-			plp->path=NULL;
-		}
+		PathList *pl = pathlist;
+		pathlist = pl->next;
 
-		next_plp = plp->next;
-		free(plp);
+		free(pl->path);
+		free(pl);
 	}
-	pathlist = NULL;
 }
 
 //--- editor settings ---
