@@ -759,7 +759,7 @@ static void P_PortalEffect(line_t *ld)
 }
 
 
-static slope_plane_t * FakeSlope_BoundIt(line_t *ld, sector_t *sec, float z1, float z2)
+static slope_plane_t * DetailSlope_BoundIt(line_t *ld, sector_t *sec, float z1, float z2)
 {
 	// determine slope's 2D coordinates
 	float d_close = 0;
@@ -788,11 +788,11 @@ static slope_plane_t * FakeSlope_BoundIt(line_t *ld, sector_t *sec, float z1, fl
 		}
 	}
 
-L_WriteDebug("FAKE SLOPE in #%d: dists %1.3f -> %1.3f\n", sec - sectors, d_close, d_far);
+L_WriteDebug("DETAIL SLOPE in #%d: dists %1.3f -> %1.3f\n", sec - sectors, d_close, d_far);
 
 	if (d_far - d_close < 0.5)
 	{
-		I_Warning("Fake slope in sector #%d disabled: no area?!?\n", sec - sectors);
+		I_Warning("Detail slope in sector #%d disabled: no area?!?\n", sec - sectors);
 		return NULL;
 	}
 
@@ -809,11 +809,11 @@ L_WriteDebug("FAKE SLOPE in #%d: dists %1.3f -> %1.3f\n", sec - sectors, d_close
 	return result;
 }
 
-static void FakeSlope_Floor(line_t *ld)
+static void DetailSlope_Floor(line_t *ld)
 {
 	if (! ld->side[1])
 	{
-		I_Warning("Fake slope on line #%d disabled: Not two-sided!\n", ld - lines);
+		I_Warning("Detail slope on line #%d disabled: Not two-sided!\n", ld - lines);
 		return;
 	}
 
@@ -824,7 +824,7 @@ static void FakeSlope_Floor(line_t *ld)
 
 	if (fabs(z1 - z2) < 0.5)
 	{
-		I_Warning("Fake slope on line #%d disabled: floors are same height\n", ld - lines);
+		I_Warning("Detail slope on line #%d disabled: floors are same height\n", ld - lines);
 		return;
 	}
 
@@ -838,17 +838,17 @@ static void FakeSlope_Floor(line_t *ld)
 
 	if (sec->f_slope)
 	{
-		I_Warning("Fake slope in sector #%d disabled: floor already sloped!\n", sec - sectors);
+		I_Warning("Detail slope in sector #%d disabled: floor already sloped!\n", sec - sectors);
 		return;
 	}
 
 	// limit height difference to no more than 16 units
 	z1 = MAX(z1, z2 - 16.0);
 
-	sec->f_slope = FakeSlope_BoundIt(ld, sec, z1, z2);
+	sec->f_slope = DetailSlope_BoundIt(ld, sec, z1, z2);
 }
 
-static void FakeSlope_Ceiling(line_t *ld)
+static void DetailSlope_Ceiling(line_t *ld)
 {
 	if (! ld->side[1])
 		return;
@@ -860,7 +860,7 @@ static void FakeSlope_Ceiling(line_t *ld)
 
 	if (fabs(z1 - z2) < 0.5)
 	{
-		I_Warning("Fake slope on line #%d disabled: ceilings are same height\n", ld - lines);
+		I_Warning("Detail slope on line #%d disabled: ceilings are same height\n", ld - lines);
 		return;
 	}
 
@@ -874,14 +874,14 @@ static void FakeSlope_Ceiling(line_t *ld)
 
 	if (sec->c_slope)
 	{
-		I_Warning("Fake slope in sector #%d disabled: ceiling already sloped!\n", sec - sectors);
+		I_Warning("Detail slope in sector #%d disabled: ceiling already sloped!\n", sec - sectors);
 		return;
 	}
 
 	// limit height difference to no more than 16 units
 	z2 = MIN(z2, z1 + 16.0);
 
-	sec->c_slope = FakeSlope_BoundIt(ld, sec, z2, z1);
+	sec->c_slope = DetailSlope_BoundIt(ld, sec, z2, z1);
 }
 
 //
@@ -1867,14 +1867,14 @@ void P_SpawnSpecials(int autotag)
 			}
 		}
 
-		// Fake slopes
-		if (special->slope_type & SLP_FakeFloor)
+		// Detail slopes
+		if (special->slope_type & SLP_DetailFloor)
 		{
-			FakeSlope_Floor(&lines[i]);
+			DetailSlope_Floor(&lines[i]);
 		}
-		if (special->slope_type & SLP_FakeCeiling)
+		if (special->slope_type & SLP_DetailCeiling)
 		{
-			FakeSlope_Ceiling(&lines[i]);
+			DetailSlope_Ceiling(&lines[i]);
 		}
 
 		if (special->autoline)

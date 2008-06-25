@@ -1022,8 +1022,8 @@ static void DDF_LineGetPortalEffect(const char *info, void *storage)
 
 static specflags_t slope_type_names[] =
 {
-	{"FAKE_FLOOR",   SLP_FakeFloor,   0},
-	{"FAKE_CEILING", SLP_FakeCeiling, 0},
+	{"FAKE_FLOOR",   SLP_DetailFloor,   0},
+	{"FAKE_CEILING", SLP_DetailCeiling, 0},
 
 	{NULL, 0, 0}
 };

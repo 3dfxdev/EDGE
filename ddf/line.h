@@ -635,8 +635,8 @@ typedef enum
 {
 	SLP_NONE = 0,
 
-	SLP_FakeFloor   = (1 << 0),
-	SLP_FakeCeiling = (1 << 1),
+	SLP_DetailFloor   = (1 << 0),
+	SLP_DetailCeiling = (1 << 1),
 }
 slope_type_e;
 

@@ -13,7 +13,7 @@ EDGE DDF 5.8: (2008-06-24)
 EDGE DDF 5.7: (2008-04-16)
 ==========================
 
-1) LINES.DDF: added new Fake Slope types (567 to 569).
+1) LINES.DDF: added new Detail Slope types (567 to 569).
 
 
 EDGE DDF 5.6: (2008-01-26)
