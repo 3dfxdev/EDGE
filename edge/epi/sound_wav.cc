@@ -412,7 +412,7 @@ static inline int decode_adpcm_sample_frame()
         if (fmt->fmt.adpcm.nibble_state == 0)
         {
             if (!read_uint8(decode_F, &nib)) // FIXME !!!
-				I_Error("SHIT !!!!!!!!\n");
+				I_Error("WAV DECODE ERROR: adcpm read\n");
 			
             fmt->fmt.adpcm.nibble_state = 1;
             do_adpcm_nibble(nib >> 4, &headers[i], lPredSamp);
