@@ -28,7 +28,7 @@ CHANGELOG
 EDGE WAD 5.7: (2008-04-16)
 ==========================
 
-1) LINES.DDF: added new Fake Slope types (567 to 569).
+1) LINES.DDF: added new Detail Slope types (567 to 569).
 
 2) added LUAUTIL0 and LUAHUD0 lumps, which contain the Lua code
    for drawing the Doom status bar.
