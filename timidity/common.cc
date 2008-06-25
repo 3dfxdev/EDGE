@@ -224,8 +224,11 @@ void init_pathlist(void)
 /* This adds a directory to the path list */
 void add_to_pathlist(const char *s)
 {
-fprintf(stderr, "add_to_pathlist: '%s'\n", s); //!!!!
+// fprintf(stderr, "add_to_pathlist: '%s'\n", s);
 
+	// no need to add the current directory
+	if (strcmp(s, ".") == 0)
+		return;
 
 	PathList *pl = (PathList*) safe_malloc(sizeof(PathList));
 	pl->path = safe_strdup(s);
