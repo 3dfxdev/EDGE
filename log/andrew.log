@@ -17,6 +17,11 @@ at the very end of the buffer (apparently libvorbisfile seeks
 there to compute the total size).  Also made the OGG loader a
 bit more tolerant (replaced some I_Errors with I_Warnings).
 
+Worked on the Timidity issues.  Reworked the path handling,
+adding the directory containing the CFG file to the pathlist,
+and for Linux looks for uppercase and lowercase versions of
+patch names (8MBGMPAT now works!).
+
 2008/06/24:
 
 Tweaked dynamic lighting for PLASMA, ROCKET and BFG balls.
