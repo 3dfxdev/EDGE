@@ -218,9 +218,20 @@ static const char *config_sub_dirs[] =
 {
 	".",
 	
-	"8mbgmpat", "8MBGMPAT",
-	"freepats", "Freepats", "FREEPATS",
-	"timidity", "Timidity", "TIMIDITY",
+	"freepats",
+#ifndef WIN32
+	"Freepats", "FREEPATS",
+#endif
+
+	"timidity",
+#ifndef WIN32
+	"Timidity", "TIMIDITY",
+#endif
+
+	"8mbgmpat",
+#ifndef WIN32
+	"8MBGMPAT",
+#endif
 
 #ifdef WIN32
 	"timidity\\patches",
@@ -233,14 +244,20 @@ static const char *config_sub_dirs[] =
 
 static const char *config_names[] =
 {
-	"timidity.cfg", "Timidity.cfg",
-	"TIMIDITY.cfg", "TIMIDITY.CFG",
-	
-	"crude.cfg", "Crude.cfg",
-	"CRUDE.cfg", "CRUDE.CFG",
-	
-	"freepats.cfg", "Freepats.cfg",
-	"FREEPATS.cfg", "FREEPATS.CFG",
+	"timidity.cfg",
+#ifndef WIN32
+	"Timidity.cfg", "TIMIDITY.cfg", "TIMIDITY.CFG",
+#endif
+
+	"crude.cfg",
+#ifndef WIN32
+	"Crude.cfg", "CRUDE.cfg", "CRUDE.CFG",
+#endif	
+
+	"freepats.cfg",
+#ifndef WIN32
+	"Freepats.cfg", "FREEPATS.cfg", "FREEPATS.CFG",
+#endif
 
 	NULL // the end
 };
