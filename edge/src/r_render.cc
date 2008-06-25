@@ -2323,7 +2323,6 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 
 	int num_vert, i;
 
-
 	if (! surf->image)
 		return;
 
