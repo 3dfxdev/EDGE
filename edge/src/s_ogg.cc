@@ -114,7 +114,7 @@ size_t oggplayer_memread(void *ptr, size_t size, size_t nmemb, void *datasource)
 
 	if (d->pos >= d->size)
 		return 0;
-	
+
 	if (d->pos + rb > d->size)
 		rb = d->size - d->pos;
 
@@ -137,7 +137,7 @@ int oggplayer_memseek(void *datasource, ogg_int64_t offset, int whence)
 		default: { return -1; }	// WTF?
 	}
 	
-	if (newpos >= d->size)
+	if (newpos > d->size)
 		return -1;
 
 	d->pos = newpos;
@@ -164,9 +164,9 @@ long oggplayer_memtell(void *datasource)
 {
 	datalump_s *d = (datalump_s *)datasource;
 
-	if (d->pos >= d->size)
+	if (d->pos > d->size)
 		return -1;
-			
+
 	return d->pos;
 }
 
@@ -361,7 +361,7 @@ bool oggplayer_c::OpenLump(const char *lumpname)
 	if (length < 4)
 	{
 		delete F;
-		I_Printf("oggplayer_c: ignored short data (%d bytes)\n", length);
+		I_Debugf("oggplayer_c: ignored short data (%d bytes)\n", length);
 		return false;
 	}
 
@@ -557,8 +557,6 @@ abstract_music_c * S_PlayOGGMusic(const pl_entry_c *musdat, float volume, bool l
 
 bool S_LoadOGGSound(epi::sound_data_c *buf, const byte *data, int length)
 {
-	
-I_Debugf("S_LoadOGGSound: begun (data length %d)\n", length);
 	datalump_s ogg_lump;
 
 	ogg_lump.data = data;
@@ -578,13 +576,13 @@ I_Debugf("S_LoadOGGSound: begun (data length %d)\n", length);
 
     if (result < 0)
     {
+		I_Warning("Failed to load OGG sound (corrupt ogg?) error=%d\n", result);
+
 		// Only time we have to kill this since OGG will deal with
 		// the handle when ov_open_callbacks() succeeds
         oggplayer_memclose((void*)&ogg_lump);
   
-		// FIXME: this is too heavy handed!!
-		I_Error("Failed to load OGG sound (corrupt ogg?)\n");
-		return false; /* NOT REACHED */
+		return false;
     }
 
 	vorbis_info *vorbis_inf = ov_info(&ogg_stream, -1);
@@ -593,8 +591,15 @@ I_Debugf("S_LoadOGGSound: begun (data length %d)\n", length);
 	I_Debugf("OGG SFX Loader: freq %d Hz, %d channels\n",
 			 (int)vorbis_inf->rate, (int)vorbis_inf->channels);
 
-	if (vorbis_inf->channels > 2)   // FIXME: too heavy handed
-		I_Error("OGG Sfx Loader: too many channels: %d\n", vorbis_inf->channels);
+	if (vorbis_inf->channels > 2)
+	{
+		I_Warning("OGG Sfx Loader: too many channels: %d\n", vorbis_inf->channels);
+
+		ogg_lump.size = 0;
+		ov_clear(&ogg_stream);
+
+		return false;
+	}
 
 	bool is_stereo = (vorbis_inf->channels > 1);
 	int ogg_endian = (EPI_BYTEORDER == EPI_LIL_ENDIAN) ? 0 : 1;
@@ -630,9 +635,10 @@ I_Debugf("S_LoadOGGSound: begun (data length %d)\n", length);
 		else if (got_size < 0)  /* ERROR */
 		{
 			gather.DiscardChunk();
+
 			// FIXME !!!!!
 			I_Error("Some fuckup while loading OGG\n");
-			/* NOT REACHED */
+			return false; /* NOT REACHED */
 		}
 
 		got_size /= (is_stereo ? 2 : 1) * sizeof(s16_t);
@@ -648,7 +654,6 @@ I_Debugf("S_LoadOGGSound: begun (data length %d)\n", length);
 
 	ov_clear(&ogg_stream);
 
-I_Debugf("ALL DONE\n");
 	return true;
 }
 
