@@ -53,7 +53,7 @@ static int read_config_file(const char *name)
 		return (-1);
 	}
 
-	FILE *fp = open_file(name, 1, OF_VERBOSE);
+	FILE *fp = open_file_via_paths(name, OF_VERBOSE);
 
 	if (! fp)
 		return -1;
@@ -316,11 +316,12 @@ static int read_config_file(const char *name)
 	if (ferror(fp))
 	{
 		ctl_msg(CMSG_ERROR, VERB_NORMAL, "Can't read from %s\n", name);
-		close_file(fp);
+
+		fclose(fp);
 		return -2;
 	}
 
-	close_file(fp);
+	fclose(fp);
 	return 0;
 }
 
@@ -338,6 +339,11 @@ bool Timidity_Init(const char *conf_file, int rate, int channels)
 	}
 
 	num_ochannels = channels;
+
+	init_pathlist();
+
+	// add the directory containing the config file to pathlist
+	add_basedir_to_pathlist(conf_file);
 
 	if (read_config_file(conf_file) < 0)
 		return false;

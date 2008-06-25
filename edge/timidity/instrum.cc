@@ -221,7 +221,7 @@ static InstrumentLayer *load_instrument(char *name, int font_type, int percussio
 {
 	InstrumentLayer *lp, *lastlp, *headlp;
 	Instrument *ip;
-	FILE *fp;
+
 	byte tmp[1024];
 	int i,j,noluck=0;
 
@@ -236,9 +236,12 @@ static InstrumentLayer *load_instrument(char *name, int font_type, int percussio
 	if (!name) return 0;
 
 	/* Open patch file */
-	if ((fp=open_file(name, 1, OF_NORMAL)) == NULL)
+	FILE *fp = open_via_paths_NOCASE(name, OF_NORMAL);
+
+	if (fp == NULL)
 	{
 		noluck=1;
+
 #ifdef PATCH_EXT_LIST
 		/* Try with various extensions */
 		for (i=0; patch_ext[i]; i++)
@@ -248,7 +251,10 @@ static InstrumentLayer *load_instrument(char *name, int font_type, int percussio
 				char path[1024];
 				strcpy(path, name);
 				strcat(path, patch_ext[i]);
-				if ((fp=open_file(path, 1, OF_NORMAL)) != NULL)
+
+				fp = open_via_paths_NOCASE(path, OF_NORMAL);
+
+				if (fp)
 				{
 					noluck=0;
 					break;
@@ -814,7 +820,7 @@ fail:
 	} /* end of vlayer loop */
 
 
-	close_file(fp);
+	fclose(fp);
 	return headlp;
 }
 

@@ -43,11 +43,16 @@ PathList;
 #define OF_NORMAL	1
 #define OF_VERBOSE	2
 
-extern FILE *open_file(const char *name, int decompress, int noise_mode);
-extern void add_to_pathlist(char *s);
+extern void init_pathlist(void);
 extern void free_pathlist(void);
-extern void close_file(FILE *fp);
+extern void add_to_pathlist(const char *s);
+extern void add_basedir_to_pathlist(const char *name);
+
+extern FILE *open_file_via_paths(const char *name, int noise_mode);
+extern FILE *open_via_paths_NOCASE(const char *name, int noise_mode);
+
 extern void skip(FILE *fp, size_t len);
+
 extern void *safe_malloc(size_t count);
 extern char *safe_strdup(const char *orig);
 
