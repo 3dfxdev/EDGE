@@ -562,9 +562,7 @@ static void SortSpriteLumps(data_file_c *df)
 //  for the lump name.
 //
 
-//
-// FreeLump
-//
+#if 0  // UNUSED ??
 static void FreeLump(lumpheader_t *h)
 {
 	int lumpnum = h->lumpindex;
@@ -586,6 +584,7 @@ static void FreeLump(lumpheader_t *h)
 	h->next->prev = h->prev;
 	Z_Free(h);
 }
+#endif
 
 //
 // MarkAsCached

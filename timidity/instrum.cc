@@ -219,7 +219,8 @@ static InstrumentLayer *load_instrument(char *name, int font_type, int percussio
 		int strip_loop, int strip_envelope,
 		int strip_tail, int bank, int gm_num, int sf_ix)
 {
-	InstrumentLayer *lp, *lastlp, *headlp;
+	InstrumentLayer *lp, *lastlp;
+	InstrumentLayer *headlp = NULL;
 	Instrument *ip;
 
 	byte tmp[1024];
@@ -231,7 +232,8 @@ static InstrumentLayer *load_instrument(char *name, int font_type, int percussio
 	int sf2flag = 0;
 	int right_samples = 0;
 	int stereo_channels = 1, stereo_layer;
-	int vlayer_list[19][4], vlayer, vlayer_count;
+	int vlayer_list[19][4], vlayer;
+	int vlayer_count = 0;
 
 	if (!name) return 0;
 
@@ -313,7 +315,7 @@ static InstrumentLayer *load_instrument(char *name, int font_type, int percussio
 	 * THEN, for each sample, see below
 	 */
 
-	if (!memcmp(tmp + 93, "SF2EXT", 6))
+	if (0 == memcmp(tmp + 93, "SF2EXT", 6))
 	{
 		sf2flag = 1;
 		vlayer_count = tmp[152];
@@ -402,20 +404,22 @@ static InstrumentLayer *load_instrument(char *name, int font_type, int percussio
 
 		for (stereo_layer = 0; stereo_layer < stereo_channels; stereo_layer++)
 		{
-			int sample_count;
+			int sample_count = ip->left_samples;
 
-			if (stereo_layer == 0) sample_count = ip->left_samples;
-			else if (stereo_layer == 1) sample_count = ip->right_samples;
+			///--- if (stereo_layer == 0) sample_count = ip->left_samples;
+			///--- else
+			if (stereo_layer == 1)
+				sample_count = ip->right_samples;
 
 			for (i=0; i < sample_count; i++)
 			{
 				s32_t tmplong;
 				u16_t tmpshort;
-				u16_t sample_volume;
+				u16_t sample_volume = 0;
 				byte tmpchar;
 
 				byte fractions;
-				byte sf2delay;
+				byte sf2delay = 1;
 
 #define READ_CHAR(thing) \
 				if (1 != fread(&tmpchar, 1, 1, fp)) goto fail; \

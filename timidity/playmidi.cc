@@ -341,7 +341,7 @@ static void recompute_amp(int v)
 	int vol = channel[chan].volume;
 	int expr = channel[chan].expression;
 	int vel = vcurve[voice[v].velocity];
-	int drumpan = NO_PANNING;
+//	int drumpan = NO_PANNING;
 	double curved_expression, curved_volume;
 
 	if (channel[chan].kit)

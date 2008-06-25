@@ -640,17 +640,12 @@ const image_c * R2_GetOtherSprite(int spritenum, int framenum, bool *flip)
 
 static void R2_ClipSpriteVertically(drawsub_c *dsub, drawthing_t *dthing)
 {
-	drawfloor_t *dfloor = NULL, *df_orig;
-	drawthing_t *dnew, *dt_orig;
-
-	float z;
-	float f1, c1;
-	float f1_orig, c1_orig;
+	drawfloor_t *dfloor = NULL;
 
 	// find the thing's nominal region.  This section is equivalent to
 	// the R_PointInVertRegion() code (but using drawfloors).
 
-	z = (dthing->top + dthing->bottom) / 2.0f;
+	float z = (dthing->top + dthing->bottom) / 2.0f;
 
 	std::vector<drawfloor_t *>::iterator DFI;
 
@@ -676,6 +671,11 @@ static void R2_ClipSpriteVertically(drawsub_c *dsub, drawthing_t *dthing)
 		return;
 
 #if 0  // DISABLED FOR NOW : FIX LATER !!
+	drawfloor_t *df_orig;
+	drawthing_t *dnew, *dt_orig;
+
+	float f1, f1_orig;
+	float c1, c1_orig;
 
 	// Note that sprites are not clipped by the lowest floor or
 	// highest ceiling, OR by *solid* extrafloors (even translucent
