@@ -11,6 +11,12 @@ only that textures (anywhere) are never flipped in mirrors.
 Fixed the crash bug with ceiling slopes, thanks to DartMerc
 and his "cursed" wad :).
 
+Found and fixed the problem with Chronoteeth's OGG sounds,
+caused by our custom 'tell' callback returning an error when
+at the very end of the buffer (apparently libvorbisfile seeks
+there to compute the total size).  Also made the OGG loader a
+bit more tolerant (replaced some I_Errors with I_Warnings).
+
 2008/06/24:
 
 Tweaked dynamic lighting for PLASMA, ROCKET and BFG balls.

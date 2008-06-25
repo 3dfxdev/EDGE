@@ -129,6 +129,8 @@ void S_CacheClearAll(void)
 
 static bool DoCacheLoad(sfxdef_c *def, epi::sound_data_c *buf)
 {
+	I_Debugf("S_CacheLoad: [%s]\n", def->ddf.name.c_str());
+
 	// open the file or lump, and read it into memory
 	epi::file_c *F;
 
