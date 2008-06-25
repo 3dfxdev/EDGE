@@ -1,5 +1,16 @@
 Andrew Apted's Log
 
+2008/06/25:
+
+Renamed "Fake" slopes to "Detail" slopes.
+
+Investigated the reported problem of sliding doors messing up
+in mirrors.  Could not reproduce it (LEFT or CENTER sliders),
+only that textures (anywhere) are never flipped in mirrors.
+
+Fixed the crash bug with ceiling slopes, thanks to DartMerc
+and his "cursed" wad :).
+
 2008/06/24:
 
 Tweaked dynamic lighting for PLASMA, ROCKET and BFG balls.

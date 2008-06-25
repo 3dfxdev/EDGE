@@ -1007,14 +1007,14 @@ static int tile_used;
 static wall_tile_t tiles[MAX_WALL_TILE];
 
 
-static inline void AddWallTile(side_t *sd, float z1, float z2,
-							   float tex_z, surface_t *surface, int flags,
+static inline void AddWallTile(surface_t *surface,
+                               float z1, float z2,
+							   float tex_z, int flags,
 							   float f_min, float c_max)
 {
 	wall_tile_t *wt;
 
-	if (! surface->image)
-		return;
+	SYS_ASSERT(surface->image);
 
 	if (tile_used >= MAX_WALL_TILE)
 		return;
@@ -1037,13 +1037,13 @@ static inline void AddWallTile(side_t *sd, float z1, float z2,
 	tile_used++;
 }
 
-static inline void AddWallTile2(side_t *sd, float lz1, float lz2, float rz1, float rz2,
-							   float tex_z, surface_t *surface, int flags)
+static inline void AddWallTile2(surface_t *surface,
+                                float lz1, float lz2, float rz1, float rz2,
+							    float tex_z, int flags)
 {
 	wall_tile_t *wt;
 
-	if (! surface->image)
-		return;
+	SYS_ASSERT(surface->image);
 
 	if (tile_used >= MAX_WALL_TILE)
 		return;
@@ -1098,13 +1098,13 @@ static void ComputeWallTiles(seg_t *seg, int sidenum, float f_min, float c_max)
 
 	if (! other)
 	{
-		if (! sd->middle.image)
-			return;
-
-		AddWallTile(sd, slope_fh, slope_ch, 
-			(ld->flags & MLF_LowerUnpegged) ? 
-			sec->f_h + IM_HEIGHT(sd->middle.image) : sec->c_h,
-			&sd->middle, 0, f_min, c_max);
+		if (sd->middle.image)
+		{
+			AddWallTile(&sd->middle, slope_fh, slope_ch, 
+				(ld->flags & MLF_LowerUnpegged) ? 
+				sec->f_h + IM_HEIGHT(sd->middle.image) : sec->c_h,
+				0, f_min, c_max);
+		}
 		return;
 	}
 
@@ -1112,7 +1112,11 @@ static void ComputeWallTiles(seg_t *seg, int sidenum, float f_min, float c_max)
 
 	if (slope_fh < other->f_h)
 	{
-		if (other->f_slope)
+		if (! sd->bottom.image)
+		{
+			lower_invis = true;
+		}
+		else if (other->f_slope)
 		{
 			float lz1 = slope_fh;
 			float rz1 = slope_fh;
@@ -1120,24 +1124,25 @@ static void ComputeWallTiles(seg_t *seg, int sidenum, float f_min, float c_max)
 			float lz2 = Slope_GetHeight(other->f_slope, seg->v1->x, seg->v1->y);
 			float rz2 = Slope_GetHeight(other->f_slope, seg->v2->x, seg->v2->y);
 
-			AddWallTile2(sd, lz1, lz2, rz1, rz2,
-				(ld->flags & MLF_LowerUnpegged) ? sec->c_h : other->f_h,
-				&sd->bottom, 0);
-		}
-		else if (sd->bottom.image)
-		{
-			AddWallTile(sd, slope_fh, other->f_h, 
-				(ld->flags & MLF_LowerUnpegged) ? sec->c_h : other->f_h,
-				&sd->bottom, 0, f_min, c_max);
+			AddWallTile2(&sd->bottom, lz1, lz2, rz1, rz2,
+				(ld->flags & MLF_LowerUnpegged) ? sec->c_h : other->f_h, 0);
 		}
 		else
-			lower_invis = true;
+		{
+			AddWallTile(&sd->bottom, slope_fh, other->f_h, 
+				(ld->flags & MLF_LowerUnpegged) ? sec->c_h : other->f_h,
+				0, f_min, c_max);
+		}
 	}
 
 	if (slope_ch > other->c_h &&
 		! (IS_SKY(sec->ceil) && IS_SKY(other->ceil)))
 	{
-		if (other->c_slope)
+		if (! sd->top.image)
+		{
+			upper_invis = true;
+		}
+		else if (other->c_slope)
 		{
 			float lz1 = Slope_GetHeight(other->c_slope, seg->v1->x, seg->v1->y);
 			float rz1 = Slope_GetHeight(other->c_slope, seg->v2->x, seg->v2->y);
@@ -1145,19 +1150,17 @@ static void ComputeWallTiles(seg_t *seg, int sidenum, float f_min, float c_max)
 			float lz2 = slope_ch;
 			float rz2 = slope_ch;
 
-			AddWallTile2(sd, lz1, lz2, rz1, rz2,
+			AddWallTile2(&sd->top, lz1, lz2, rz1, rz2,
 				(ld->flags & MLF_UpperUnpegged) ? sec->c_h : 
-				other->c_h + IM_HEIGHT(sd->top.image), &sd->top, 0);
-		}
-		else if (sd->top.image)
-		{
-			AddWallTile(sd, other->c_h, slope_ch, 
-				(ld->flags & MLF_UpperUnpegged) ? sec->c_h : 
-				other->c_h + IM_HEIGHT(sd->top.image), &sd->top, 0,
-				f_min, c_max);
+				other->c_h + IM_HEIGHT(sd->top.image), 0);
 		}
 		else
-			upper_invis = true;
+		{
+			AddWallTile(&sd->top, other->c_h, slope_ch, 
+				(ld->flags & MLF_UpperUnpegged) ? sec->c_h : 
+				other->c_h + IM_HEIGHT(sd->top.image),
+				0, f_min, c_max);
+		}
 	}
 
 	if (sd->middle.image)
@@ -1195,7 +1198,7 @@ static void ComputeWallTiles(seg_t *seg, int sidenum, float f_min, float c_max)
 
 		if (c2 > f2)
 		{
-			AddWallTile(sd, f2, c2, tex_z, &sd->middle, WTILF_MidMask, f_min, c_max);
+			AddWallTile(&sd->middle, f2, c2, tex_z, WTILF_MidMask, f_min, c_max);
 		}
 	}
 
@@ -1253,7 +1256,8 @@ static void ComputeWallTiles(seg_t *seg, int sidenum, float f_min, float c_max)
 			tex_z = (C->ef_line->flags & MLF_LowerUnpegged) ?
 				C->bottom_h + IM_HEIGHT(surf->image) : C->top_h;
 
-			AddWallTile(sd, C->bottom_h, C->top_h, tex_z, surf, flags, f_min, c_max);
+			if (surf->image)
+				AddWallTile(surf, C->bottom_h, C->top_h, tex_z, flags, f_min, c_max);
 		}
 
 		floor_h = C->top_h;
