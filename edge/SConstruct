@@ -67,6 +67,10 @@ if 1 and build_info['platform'] == 'linux':
         have_glbsp_h = 1
         env.Append(CCFLAGS = ['-DHAVE_GLBSP_H'])
 
+    if conf.CheckCHeader('lua.h') or conf.CheckCHeader('lua5.1/lua.h'):
+        have_lua_h = 1
+        env.Append(CCFLAGS = ['-DHAVE_LUA_H'])
+
     env = conf.Finish()
 
 
