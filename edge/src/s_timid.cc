@@ -333,6 +333,8 @@ bool S_StartupTimidity(void)
 	if (! config_fn)
 		return false;
 
+	I_Printf("Loading Timidity config: %s\n", config_fn);
+
 	if (! Timidity_Init(config_fn, dev_freq, dev_stereo ? 2 : 1))
 		return false;
 
