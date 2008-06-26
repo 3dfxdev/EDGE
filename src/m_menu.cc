@@ -1704,6 +1704,8 @@ bool M_Responder(event_t * ev)
 					case 2: { msg = language["GammaLevelTwo"];  break; }
 					case 3: { msg = language["GammaLevelThree"];  break; }
 					case 4: { msg = language["GammaLevelFour"];  break; }
+					case 5: { msg = language["GammaLevelFive"];  break; }
+
 					default: { msg = NULL; break; }
 				}
 				
