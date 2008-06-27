@@ -24,7 +24,7 @@
     <li><a href="edit_guide/overview.htm">Editing Guide</a>
     <li><a href="logs/129.htm">Changelogs</a>
     <li><a href="roadmap.htm">Road Map</a>
-    <li><a href="faq.htm">F.A.Q</a>
+    <li><span class="notdone" hhref="faq.htm">F.A.Q</span>
   </ul>
 </li>
 
