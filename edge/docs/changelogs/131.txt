@@ -138,7 +138,7 @@ New features:
   player weapons.  Any state frame can specify a model by using
   the special '@123' or '@framename' syntax for the frame (instead
   of a letter).  The number is the absolute frame number in the MD2
-  model, beginning at 1, or you can use the frame name.
+  model, beginning at 1, or you can use the frame name.  Examples:
 
     STATES(IDLE)=TROO:@5:7:NORMAL:NOTHING;  // the 5th frame
 
@@ -184,7 +184,22 @@ New features:
     [465] : EDGE Mirror, Red
     [466] : EDGE Mirror, Green
 
-+ portals  @@@
++ portals are similar to mirrors: a one-sided line which pairs
+  up with another one-sided line with the same tag, and each
+  line renders the view through the partnering line.  Both
+  linedefs must be the same length and have sectors that are
+  the same height (a little bit of leeway is permitted).
+
+  To allow the player to cross portals, use a boom line-to-line
+  teleporter (such as type 244) slightly in front of each portal
+  line.  Otherwise use a blockline linedef there since the
+  portal lines themselves do not block players.
+
+  Note that missiles and hitscan shots do not cross portals.
+  Monsters and bots don't know about them and will not cross
+  them deliberately and cannot see across them.
+
+  Portal linetypes in EDGE.WAD:
 
     [480] : EDGE Portal, Dark 50%
     [481] : EDGE Portal, Light 30%
@@ -192,7 +207,15 @@ New features:
     [483] : EDGE Portal, Blue 70%
     [484] : EDGE Portal, Green 70%
 
-+ security cameras @@@
++ security cameras are portals which are one-way, and which
+  allow shrinking the viewed area.  The shrinking is done by
+  using a short line for the "screen" side, and a long line
+  for the "camera" side, as well as a height difference.
+
+  For example, the light blue screens in the PortalDemo are
+  32x32, and their partner lines are 128x128.
+
+  Security camera linetypes in EDGE.WAD:
 
     [485] : EDGE Camera Portal, Plain
     [486] : EDGE Camera Portal, White
@@ -413,8 +436,9 @@ DDF / RTS Goodies
 
 - Anims.ddf: new type "GRAPHIC" is now supported, which can
   animate graphics used for the UI (backgrounds, menus, hud).
-  You need to use the SEQUENCE command because FIRST/LAST
-  doesn't make any sense for graphics.
+  You need to use the SEQUENCE command (because FIRST/LAST
+  doesn't make any sense for graphics), and the graphics must
+  have the same size and X/Y offsets.
 
 - RTS: 'WHEN=xxx' tag for SPAWNTHING commands.
 
