@@ -2,7 +2,7 @@
 TODO for QPakMan
 ================
 
-+  PAK creation: skip everything starting with '.'
+TEST:  PAK creation: skip everything starting with '.'
 
 -  PIC packing / unpacking (gfx.wad)
    -  have a -pic option
