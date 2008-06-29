@@ -11,6 +11,7 @@ all: out
 	cd shots && htp -quiet @shots_build.rsp
 	cd ddf   && htp -quiet @ddf_build.rsp
 	cd rts   && htp -quiet @rts_build.rsp
+	cd edit  && htp -quiet @edit_build.rsp
 
 clean:
 	rm -f out/*.htm out/*.txt
@@ -18,6 +19,7 @@ clean:
 	rm -f out/logs/*.*
 	rm -f out/ddf_online/*.htm
 	rm -f out/rts_online/*.htm
+	rm -f out/edit_guide/*.htm
 	rm -f out/css/*.css
 	rm -f out/images/*.*
 
@@ -30,6 +32,7 @@ out:
 	mkdir $@/logs
 	mkdir $@/rts_online
 	mkdir $@/ddf_online
+	mkdir $@/edit_guide
 
 zip:
 	cd .. && zip -rl web_page.zip web_page
