@@ -48,7 +48,8 @@ Bugs fixed
 - proper test for existing titlepics in GAMES.DDF.
 - fixed console PLAYSOUND command when sound is not found.
 - no sprite check for spawned map-things (easier debugging).
-- fixed badly synchronised flash state of super-shotgun.
+- fixed timing of Super Shotgun (was too slow).
+- fixed badly synchronised flash state of Super Shotgun.
 - prevent blood splats when Demon attacks a GOD-mode player.
 
 
@@ -108,12 +109,26 @@ General improvements
 - improved, more consistent handling of alpha channels.
 - thin sliding doors can be activated remotely.
 - better way to gauge the player's actual speed.
+- basic skill levels for BOTs in deathmatch games.
 - sped up turning for path-following monsters.
 - players will jump out of water at the edge.
 - new -fullbright option for debugging.
 - merged JUMP and MOVE-UP into a single key.
+- nicer looking console (better font, colors).
 - better keyboard controls menu.
 - console key is configurable.
+
+
+Features Removed:
+-----------------
+
+- cruddy shadows @@@
+
+- Demo support (playback and recording)  @@@ blah
+
+- CD Music playback (via PLAYLIST.DDF) @@@
+
+- LZO library, very old savegames won't work @@@
 
 
 New features:
@@ -143,6 +158,16 @@ New features:
   in the state frames.
 
   MODEL_OFFSET etc etc etc @@@@
+
++ Lua-scripted HUDS.
+
+  @@@@@
+
+  sand-boxed for safety
+
++ Detail Slopes
+
+   @@@@@
 
 + mirrors are one-sided linedefs with a special linetype.
   They have a glassy look, and can be tinted with a color,
@@ -194,6 +219,10 @@ New features:
 
 + support for OGG/Vorbis and WAV formats for SFX.  Sounds can now
   be external files using the new FILE_NAME command in SOUNDS.DDF.
+
++ map support for placing things on Extrafloors  @@@@
+  bits 10-13 
+  MTF_RESERVED flag (bit 8) must also be clear
 
 + TGA images are now supported by IMAGES.DDF.
 
@@ -334,6 +363,8 @@ DDF / RTS Goodies
 - for object brightness, LIT00 - LIT99 can be used in state
   frames where the keywords 'NORMAL' and 'BRIGHT' are used.
   This allows fine-grained control of dynamic lights.
+
+@@@ GAMES.DDF LIGHTING=FLAT, removed LEVELS.DDF LIGHTING cmd
 
 - SPLASH_SOUND command for SECTORS.DDF, which is played whenever
   a player enters the water.  Requires the SWIM special.
