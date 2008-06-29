@@ -391,7 +391,8 @@ Date: FEBRUARY 2008
 
 - Anims.ddf: new type "GRAPHIC" is now supported, which can
   animate graphics used for the UI (backgrounds, menus, hud).
-  You need to use the SEQUENCE command, and the graphics must
+  You need to use the SEQUENCE command (because FIRST/LAST
+  doesn't make any sense for graphics), and the graphics must
   have the same size and X/Y offsets.
 
 - RTS: 'WHEN=xxx' tag for SPAWNTHING commands.
