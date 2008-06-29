@@ -1,44 +1,34 @@
 
-CHANGELOG FOR 1.31-BETA#2 (since 1.29)
-======================================
+CHANGELOG FOR 1.31 (since 1.29)
+===============================
 
-(Date: JANUARY 2007)
+(Date: JULY 2008)
 
 
 SUMMARY
 -------
 
 + MD2 models for things and weapons
++ Lua-scripted HUDs
++ Detail Slopes
 + Mirrors with multiple reflections
-+ Good emulation of partial-invis effect
 + Nicer dynamic lighting, Sector glow effects
 + Timidity music playback
 
 - Rendering glitches fixed
+- Good emulation of partial-invis effect
 - More compatible sky rendering in 3D
 - Improved way of emulating DOOM light fading
 - More robust emulation of flat-flooding trick
-- WAV and OGG/Vorbis loaders for SFX
+- WAV and OGG/Vorbis loaders for sound effects
 - TGA (targa) image format supported
+- Nicer looking console
 
 * Weak spots for monsters
 * New BECOME() action for changing type
 * Armor properties can be modified
 * Weapons can share a clip for both attacks
 * Flat alignment and scaling line-types
-
-
-KNOWN PROBLEMS
---------------
-
-+ sound still does not work under Vista.
-+ CD music is currently broken.
-+ colormapped sectors (e.g. blue water) don't work yet.
-
-- console background is a bit messed up.
-- additive dyn-lights on mid-masked textures look weird.
-- new DOOM lighting emulation is not as smooth as before.
-- things that use BECOME can get stuck if new RADIUS is bigger.
 
 
 ------------------------------------------------------------------------
@@ -151,6 +141,8 @@ New features:
   Upto nine skins can currently be used (1 to 9).  The skin can
   also be changed dynamically by using the SET_SKIN(##) action
   in the state frames.
+
+  MODEL_OFFSET etc etc etc @@@@
 
 + mirrors are one-sided linedefs with a special linetype.
   They have a glassy look, and can be tinted with a color,
