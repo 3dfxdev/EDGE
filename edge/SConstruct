@@ -136,13 +136,6 @@ if build_info['platform'] == 'linux' and build_info['release']:
     env.Append(LIBPATH = ['#linux_lib/fltk-1.1.7/lib'])
     env.Append(LIBS = ['fltk', 'fltk_images'])
 
-# HawkNL
-if 0:
-    env.Append(CCFLAGS = ['-DUSE_HAWKNL'])
-    env.Append(CPPPATH = ['#HawkNL1.70/include'])
-    env.Append(LIBPATH = ['#HawkNL1.70/src'])
-    env.Append(LIBS = ['NL2'])
-
 # SDL
 if build_info['platform'] == 'win32':
     env.Append(CPPPATH = ['#win32_lib/SDL-1.2.13/include'])
