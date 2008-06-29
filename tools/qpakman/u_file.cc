@@ -393,6 +393,10 @@ int ScanDirectory(const char *path, directory_iter_f func, void *priv_dat)
     if (fdata.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN)
       flags |= SCAN_F_Hidden;
 
+    // minor kludge for consistency with Unix
+    if (fdata.cFileName[0] == '.' && isalpha(fdata.cFileName[1]))
+      flags |= SCAN_F_Hidden;
+
     if (strcmp(fdata.cFileName, ".")  == 0 ||
         strcmp(fdata.cFileName, "..") == 0)
     {
