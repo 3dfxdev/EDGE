@@ -20,15 +20,15 @@ SUMMARY
 - More compatible sky rendering in 3D
 - Improved way of emulating DOOM light fading
 - More robust emulation of flat-flooding trick
-- WAV and OGG/Vorbis loaders for sound effects
-- TGA (targa) image format supported
 - Nicer looking console
 
+* TGA (targa) image format supported
+* WAV and OGG/Vorbis loaders for sound effects
+* Flat alignment and scaling line-types
 * Weak spots for monsters
-* New BECOME() action for changing type
+* DDF BECOME() action for changing type
 * Armor properties can be modified
 * Weapons can share a clip for both attacks
-* Flat alignment and scaling line-types
 
 
 ------------------------------------------------------------------------
@@ -122,11 +122,11 @@ General improvements
 Features Removed:
 -----------------
 
-- cruddy shadows @@@
-
 - Demo support (playback and recording)  @@@ blah
 
 - CD Music playback (via PLAYLIST.DDF) @@@
+
+- the old shadows feature 
 
 - LZO library, very old savegames won't work @@@
 
@@ -243,9 +243,13 @@ New features:
 + support for OGG/Vorbis and WAV formats for SFX.  Sounds can now
   be external files using the new FILE_NAME command in SOUNDS.DDF.
 
-+ map support for placing things on Extrafloors  @@@@
-  bits 10-13 
-  MTF_RESERVED flag (bit 8) must also be clear
++ map support for placing things on Extrafloors.  Bits 10-13 of
+  the options field is used as a 4 bit number for the extrafloor
+  to place the thing on.  Zero means the lowest ground (same as
+  before), 1 means the next extrafloor up, and so on...
+  
+  Note: the BOOM MTF_RESERVED flag (bit 8) must also be clear for
+  this field to be considered valid and usable.
 
 + TGA images are now supported by IMAGES.DDF.
 
@@ -332,7 +336,7 @@ DDF / RTS Goodies
   finally it falls back to the normal DEATH states.
 
 + BECOME action for THINGS.DDF allows a thing to turn into another
-  type of thing.  Can be used on players too.  Health and Side
+  type of thing.  Can be used on players too.  HEALTH and SIDE
   values remain the same.  The new state frame can also be given
   (the default is IDLE:1).  For example:
 
@@ -387,7 +391,16 @@ DDF / RTS Goodies
   frames where the keywords 'NORMAL' and 'BRIGHT' are used.
   This allows fine-grained control of dynamic lights.
 
-@@@ GAMES.DDF LIGHTING=FLAT, removed LEVELS.DDF LIGHTING cmd
+- new way to get FLAT lighting, which doesn't diminish by
+  distance.  The following command in GAMES.DDF enables flat
+  lighting:
+
+     LIGHTING=FLAT;
+
+  The default is "DOOM".  There is also a "DOOMISH" setting
+  which is the same as DOOM but without the adjustment of
+  walls that are purple horizontal or vertical.  The previous
+  method (LIGHTING command in LEVELS.DDF) has been removed.
 
 - SPLASH_SOUND command for SECTORS.DDF, which is played whenever
   a player enters the water.  Requires the SWIM special.
