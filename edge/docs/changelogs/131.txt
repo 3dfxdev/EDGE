@@ -122,13 +122,16 @@ General improvements
 Features Removed:
 -----------------
 
-- Demo support (playback and recording)  @@@ blah
+- demo support (playback and recording) was removed.
 
-- CD Music playback (via PLAYLIST.DDF) @@@
+- CD Music playback (via PLAYLIST.DDF) was removed, since that
+  code caused a total lack of sound under Windows Vista.
 
-- the old shadows feature 
+- the old shadows feature (which never looked particularly good)
+  didn't survive an overhaul of the rendering code.
 
-- LZO library, very old savegames won't work @@@
+- removed the LZO library.  This means very old savegames won't
+  work.  Savegames made with EDGE 1.29 should be fine.
 
 
 New features:
@@ -180,6 +183,8 @@ New features:
   @@@@@
 
   sand-boxed for safety
+
+  See the Lua-HUD manual for full details.
 
 + Detail Slopes
 
