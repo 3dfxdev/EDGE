@@ -157,7 +157,23 @@ New features:
   also be changed dynamically by using the SET_SKIN(##) action
   in the state frames.
 
-  MODEL_OFFSET etc etc etc @@@@
+  These extra commands can be used in THINGS.DDF:
+
+    MODEL_SCALE=1.5;      // draw the model bigger
+    MODEL_ASPECT=0.7;     // make the model fatter/skinnier
+    MODEL_BIAS=24.0;      // add this to every z coordinate
+
+  These commands can be used in WEAPONS.DDF:
+
+    MODEL_ASPECT=1.0;     // make the weapon fatter/skinnier
+    MODEL_BIAS=0.0;       // add this to every z coordinate
+    MODEL_FORWARD=2.2;    // move the weapon forward/backward
+    MODEL_SIDE=-3.5;      // move the weapon right/left
+
+  Note: there is no MODEL_SCALE command for WEAPONS.DDF (scaling
+  has no effect because the model is drawn at the camera point).
+  Changing MODEL_FORWARD, MODEL_SIDE and/or MODEL_BIAS can have
+  a big impact on the apparent size of the weapon.
 
 + Lua-scripted HUDS.
 
@@ -395,7 +411,7 @@ DDF / RTS Goodies
   distance.  The following command in GAMES.DDF enables flat
   lighting:
 
-     LIGHTING=FLAT;
+    LIGHTING=FLAT;
 
   The default is "DOOM".  There is also a "DOOMISH" setting
   which is the same as DOOM but without the adjustment of
