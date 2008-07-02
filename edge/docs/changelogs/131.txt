@@ -178,17 +178,24 @@ New features:
   Changing MODEL_FORWARD, MODEL_SIDE and/or MODEL_BIAS can have
   a big impact on the apparent size of the weapon.
 
-+ Lua-scripted HUDS.
-
-  @@@@@
-
-  sand-boxed for safety
++ Lua-scripted HUDS allow new status bars, automaps and other
+  Head Up Display elements to be created by writing a script in
+  the Lua programming language.
 
   See the Lua-HUD manual for full details.
 
-+ Detail Slopes
++ Detail Slopes are a limited rendering-only form of slopes
+  supported by EDGE 1.31, mainly useful for adding some detail
+  your map.  They work by putting a special linetype on the
+  front linedef of a stair step, and that step will be sloped
+  down to the lower floor (for ceilings, they slope up to the
+  higher ceiling).
 
-   @@@@@
+  The following Slope types are defined in EDGE.WAD:
+
+    [567]  // EDGE Detail Slope : FLOOR
+    [568]  // EDGE Detail Slope : CEILING
+    [569]  // EDGE Detail Slope : FLOOR+CEILING
 
 + mirrors are one-sided linedefs with a special linetype.
   They have a glassy look, and can be tinted with a color,
