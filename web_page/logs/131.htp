@@ -19,6 +19,7 @@ Date: FEBRUARY 2008
 + crash with Scuba Steve's flamethrow DEH patch.
 + Boom generalised linetypes were not saved in savegames.
 
+- fixed timing of Super Shotgun (was too slow).
 - ID(K)FA cheats now give clip weapons full ammo.
 - fixed problem saving the 'mipmapping' setting.
 - custom sky-boxes should always be used when present.
@@ -26,20 +27,13 @@ Date: FEBRUARY 2008
 - proper test for existing titlepics in GAMES.DDF.
 - fixed console PLAYSOUND command when sound is not found.
 - no sprite check for spawned map-things (easier debugging).
-- fixed badly synchronised flash state of super-shotgun.
+- fixed badly synchronised flash state of Super Shotgun.
 - prevent blood splats when Demon attacks a GOD-mode player.
 </PRE>
 
 
-<PRE class="changes">
-<u>Features removed / changed</u>
-
-- XXX
-</PRE>
-
-
 <PRE class="features">
-<u>General improvements</u>
+<u>General improvements:</u>
 
 + music now supported on Linux via the Timidity MIDI player
   library.  This can also be used on WIN32 instead of the
@@ -94,12 +88,30 @@ Date: FEBRUARY 2008
 - improved, more consistent handling of alpha channels.
 - thin sliding doors can be activated remotely.
 - better way to gauge the player's actual speed.
+- basic skill levels for BOTs in deathmatch games.
 - sped up turning for path-following monsters.
 - players will jump out of water at the edge.
 - new -fullbright option for debugging.
 - merged JUMP and MOVE-UP into a single key.
+- nicer looking console (better font, colors).
 - better keyboard controls menu.
 - console key is configurable.
+</PRE>
+
+
+<PRE class="changes">
+<u>Features removed:</u>
+
+- demo support (playback and recording) was removed.
+
+- CD Music playback (via PLAYLIST.DDF) was removed, since that
+  code caused a total lack of sound under Windows Vista.
+
+- the old shadows feature (which never looked particularly good)
+  didn't survive an overhaul of the rendering code.
+
+- removed the LZO library.  This means very old savegames won't
+  work.  Savegames made with EDGE 1.29 should be fine.
 </PRE>
 
 
@@ -128,6 +140,43 @@ Date: FEBRUARY 2008
   Upto nine skins can currently be used (1 to 9).  The skin can
   also be changed dynamically by using the SET_SKIN(##) action
   in the state frames.
+
+  These extra commands can be used in THINGS.DDF:
+
+    MODEL_SCALE=1.5;      // draw the model bigger
+    MODEL_ASPECT=0.7;     // make the model fatter/skinnier
+    MODEL_BIAS=24.0;      // add this to every z coordinate
+
+  These commands can be used in WEAPONS.DDF:
+
+    MODEL_ASPECT=1.0;     // make the weapon fatter/skinnier
+    MODEL_BIAS=0.0;       // add this to every z coordinate
+    MODEL_FORWARD=2.2;    // move the weapon forward/backward
+    MODEL_SIDE=-3.5;      // move the weapon right/left
+
+  Note: there is no MODEL_SCALE command for WEAPONS.DDF (scaling
+  has no effect because the model is drawn at the camera point).
+  Changing MODEL_FORWARD, MODEL_SIDE and/or MODEL_BIAS can have
+  a huge impact on the apparent size of the weapon.
+
++ Lua-scripted HUDS allow new status bars, automaps and other
+  Head Up Display elements to be created by writing a script in
+  the Lua programming language.
+
+  See the Lua-HUD manual for full details.
+
++ Detail Slopes are a limited rendering-only form of slopes
+  supported by EDGE 1.31, mainly useful for adding some detail
+  your map.  They work by putting a special linetype on the
+  front linedef of a stair step, and that step will be sloped
+  down to the lower floor (for ceilings, they slope up to the
+  higher ceiling).
+
+  The following Slope types are defined in EDGE.WAD:
+
+    [567] : EDGE Detail Slope, FLOOR
+    [568] : EDGE Detail Slope, CEILING
+    [569] : EDGE Detail Slope, FLOOR+CEILING
 
 + mirrors are one-sided linedefs with a special linetype.
   They have a glassy look, and can be tinted with a color,
@@ -203,6 +252,14 @@ Date: FEBRUARY 2008
 + support for OGG/Vorbis and WAV formats for SFX.  Sounds can now
   be external files using the new FILE_NAME command in SOUNDS.DDF.
 
++ map support for placing things on Extrafloors.  Bits 10-13 of
+  the options field is used as a 4 bit number for the extrafloor
+  to place the thing on.  Zero means the lowest ground (same as
+  before), 1 means the next extrafloor up, and so on...
+  
+  Note: the BOOM MTF_RESERVED flag (bit 8) must also be clear for
+  this field to be considered valid and usable.
+
 + TGA images are now supported by IMAGES.DDF.
 
 + flat alignment/scaling linetypes have been added to EDGE.WAD.
@@ -258,7 +315,7 @@ Date: FEBRUARY 2008
 
 
 <PRE class="features">
-<u>New DDF and RTS goodies:</u>
+<u>DDF / RTS Goodies:</u>
 
 + new WEAKNESS feature allows a monster to receive more damage
   from certain attacks than others.  You can also specify a zone
@@ -289,7 +346,7 @@ Date: FEBRUARY 2008
   finally it falls back to the normal DEATH states.
 
 + BECOME action for THINGS.DDF allows a thing to turn into another
-  type of thing.  Can be used on players too.  Health and Side
+  type of thing.  Can be used on players too.  HEALTH and SIDE
   values remain the same.  The new state frame can also be given
   (the default is IDLE:1).  For example:
 
@@ -343,6 +400,17 @@ Date: FEBRUARY 2008
 - for object brightness, LIT00 - LIT99 can be used in state
   frames where the keywords 'NORMAL' and 'BRIGHT' are used.
   This allows fine-grained control of dynamic lights.
+
+- new way to get FLAT lighting, which doesn't diminish by
+  distance.  The following command in GAMES.DDF enables flat
+  lighting:
+
+    LIGHTING=FLAT;
+
+  The default is "DOOM".  There is also a "DOOMISH" setting
+  which is the same as DOOM but without the adjustment of
+  walls that are purple horizontal or vertical.  The previous
+  method (LIGHTING command in LEVELS.DDF) has been removed.
 
 - SPLASH_SOUND command for SECTORS.DDF, which is played whenever
   a player enters the water.  Requires the SWIM special.
