@@ -53,48 +53,7 @@ Date: JULY 2007
 </PRE>
 
 
-<PRE class="changes">
-<u>Features removed / changed</u>
-
-+ software rendering has been removed.  We don't have the time to
-  maintain the software renderer anymore, and keeping two renderers
-  means that adding new features (like slopes and models) needs
-  twice as much work (if not more -- doing things with OpenGL is
-  usually a lot easier than doing it with software).
-
-+ the demo format has changed, and previously recorded demos won't
-  work anymore.  The new format has the ".EDM" extension (but omit
-  this when using the -record and -playdemo options).
-
-+ looping sounds have changed.  To keep a sound looping,
-  it must be continally replayed (in addition to having
-  LOOP=TRUE line in SOUNDS.DDF).  A good rule of thumb is
-  to wait half the length of the sound, e.g. if the sound
-  lasts 1.6 seconds then replay it every 0.8 seconds (28
-  ticks) to guarantee that it loops continuously.
-
-- the EDGE-specific sector types have been renumbered to the
-  range 4400-4499.  This may affect old mods, which can be
-  made to work using the new -ecompat option.
-
-- screenshots are now available in JPEG or PNG format.  New 
-  "screenshot" console command (Note: it does not capture the 
-  console itself).  Screenshots are now placed in a folder
-  called "screenshots".
-
-- Set Resolution menu: removed 'TEST RESOLUTION' button.
-
-- renamed -debugfile option to -debug, and the filename is now
-  hardcoded as "debug.txt" (stored in same place as "edge.log").
-
-- the "CONSTANT" dynamic lighting type (in DDF) was removed.
-
-- replaced the [DOG] sprites and sounds in EDGE.WAD with a
-  colormapped demon, due to copyright/license concerns.
-</PRE>
-
-
-<PRE class="features">
+<PRE class="improvements">
 <u>General improvements</u>
 
 + drag and drop support.  You no longer have to use the -file option
@@ -181,6 +140,47 @@ Date: JULY 2007
 - number of RTS tip slots has increased to 45.
 - RTS tip messages are shown on the console.
 - fixes for 64-bit architectures (Darren Salt).
+</PRE>
+
+
+<PRE class="changes">
+<u>Features removed / changed</u>
+
++ software rendering has been removed.  We don't have the time to
+  maintain the software renderer anymore, and keeping two renderers
+  means that adding new features (like slopes and models) needs
+  twice as much work (if not more -- doing things with OpenGL is
+  usually a lot easier than doing it with software).
+
++ the demo format has changed, and previously recorded demos won't
+  work anymore.  The new format has the ".EDM" extension (but omit
+  this when using the -record and -playdemo options).
+
++ looping sounds have changed.  To keep a sound looping,
+  it must be continally replayed (in addition to having
+  LOOP=TRUE line in SOUNDS.DDF).  A good rule of thumb is
+  to wait half the length of the sound, e.g. if the sound
+  lasts 1.6 seconds then replay it every 0.8 seconds (28
+  ticks) to guarantee that it loops continuously.
+
+- the EDGE-specific sector types have been renumbered to the
+  range 4400-4499.  This may affect old mods, which can be
+  made to work using the new -ecompat option.
+
+- screenshots are now available in JPEG or PNG format.  New 
+  "screenshot" console command (Note: it does not capture the 
+  console itself).  Screenshots are now placed in a folder
+  called "screenshots".
+
+- Set Resolution menu: removed 'TEST RESOLUTION' button.
+
+- renamed -debugfile option to -debug, and the filename is now
+  hardcoded as "debug.txt" (stored in same place as "edge.log").
+
+- the "CONSTANT" dynamic lighting type (in DDF) was removed.
+
+- replaced the [DOG] sprites and sounds in EDGE.WAD with a
+  colormapped demon, due to copyright/license concerns.
 </PRE>
 
 

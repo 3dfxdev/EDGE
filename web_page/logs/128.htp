@@ -59,17 +59,7 @@ Date: MAY 24th 2004
 </PRE>
 
 
-<PRE class="changes">
-<u>Features removed:</u>
-
-* MP3 music support, due to MP3 licensing which is incompatible with
-  open source software.
-
-- stretchsky option and related code.
-</PRE>
-
-
-<PRE class="features">
+<PRE class="improvements">
 <u>General improvements</u>
 
 + new directories for config file and savegames.  If your machine support
@@ -108,6 +98,16 @@ Date: MAY 24th 2004
 - Pixelfade wipe has been implemented for OpenGL mode.
 - text strings look better in modes smaller than 640x400.
 - friendly monsters now work a bit better.
+</PRE>
+
+
+<PRE class="changes">
+<u>Features removed:</u>
+
+* MP3 music support, due to MP3 licensing which is incompatible with
+  open source software.
+
+- stretchsky option and related code.
 </PRE>
 
 

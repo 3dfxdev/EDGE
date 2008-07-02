@@ -32,17 +32,13 @@ Date: MARCH 8th 2000
 </PRE>
 
 <PRE class="changes">
-<u>Features removed:</u>
+<u>Features Removed / Changed:</u>
 
- - NO_BRIGHT special in colmap.ddf.
- - LUMPEXISTS in lines.ddf and sectors.ddf.
- - LINK field in sounds.ddf.
- - COLOURMAP= and COLOURMAPLUMP= in lines.ddf and sectors.ddf.
-   (use USE_COLOURMAP=[colmap-name] instead).
-</PRE>
-
-<PRE class="changes">
-<u>Changes:</u>
+ - removed NO_BRIGHT special in colmap.ddf.
+ - removed LUMPEXISTS in lines.ddf and sectors.ddf.
+ - removed LINK field in sounds.ddf.
+ - COLOURMAP= and COLOURMAPLUMP= in lines.ddf and sectors.ddf
+   are gone (use USE_COLOURMAP=[colmap-name] instead).
 
  - All weapon code pointers lost their "WEAPON_" prefix.
  - WEAPON_SPAWN() code pointer has become EJECT().
