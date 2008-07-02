@@ -31,10 +31,6 @@ features from being implemented.
 
   </ul>
 
-  <ul>
-    ? Nice looking shadows<br>
-  </ul>
-
 <hr>
 
 <b>Notes:</b>
@@ -48,12 +44,13 @@ features from being implemented.
     No timeframes are given here.
     It will be done when it's done.
 
-  <!-- li
-    The multiplayer code will be designed for LAN-based play
+  <li>
+    A notable absence here is Multiplayer support.
+    This never seems to be a high priority amongst EDGE
+    developers and EDGE modders.
+    If it ever gets done, then it will be designed for
+    LAN-based play
     (like the original DOOM networking).
-    Playing over the Internet might be possible,
-    but will probably be too laggy to be enjoyable.
-  -->
 
   <li>
     Some things we <b>don't plan</b> on adding
