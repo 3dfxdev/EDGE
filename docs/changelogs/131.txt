@@ -41,6 +41,7 @@ Bugs fixed
 + crash with Scuba Steve's flamethrow DEH patch.
 + Boom generalised linetypes were not saved in savegames.
 
+- fixed timing of Super Shotgun (was too slow).
 - ID(K)FA cheats now give clip weapons full ammo.
 - fixed problem saving the 'mipmapping' setting.
 - custom sky-boxes should always be used when present.
@@ -48,7 +49,6 @@ Bugs fixed
 - proper test for existing titlepics in GAMES.DDF.
 - fixed console PLAYSOUND command when sound is not found.
 - no sprite check for spawned map-things (easier debugging).
-- fixed timing of Super Shotgun (was too slow).
 - fixed badly synchronised flash state of Super Shotgun.
 - prevent blood splats when Demon attacks a GOD-mode player.
 
