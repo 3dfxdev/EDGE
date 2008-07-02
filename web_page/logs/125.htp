@@ -37,23 +37,19 @@ Date: FEBRUARY 19th 2001
 
 
 <PRE class="changes">
-<u>Features removed:</u>
+<u>Features Removed / Changed:</u>
 
 -  the NOAMMO attack special from DDF is gone.  It's only useful
    purpose was for ejecting shells, but the EJECT() code pointer
    is good for that (and doesn't use ammo).
 
--  the "SAVE" command in RTS, quite non-useful, even dangerous.
+-  removed the "SAVE" command in RTS, not useful, even dangerous.
 
--  the "BITS" and "STEREO" commands from sounds.ddf.  They never did
-   anything.
+-  the "BITS" and "STEREO" commands from sounds.ddf are gone.
+   They never did anything.
 
--  the colmap.ddf "NOSKY" special and "PRIORITY" command.
-</PRE>
-
-
-<PRE class="changes">
-<u>Changes to existing features</u>
+-  the colmap.ddf "NOSKY" special and "PRIORITY" command were
+   removed.
 
 -  RANDOMJUMP action has been removed.  The new JUMP() code pointer
    should be used instead, like this:

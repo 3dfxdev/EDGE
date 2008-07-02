@@ -25,7 +25,7 @@ Date: JUNE 12th 2004
 - fix for some memory trashing problems (Darren Salt).
 </PRE>
 
-<PRE class="features">
+<PRE class="improvements">
 <u>General Improvements</u>
 
 - look for patch lumps first in between P_START/P_END.

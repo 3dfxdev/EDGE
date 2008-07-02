@@ -52,17 +52,8 @@ Date: AUGUST 17th 2001
 </PRE>
 
 
-<PRE class="changes">
-<u>Features removed:</u>
-
--  the "MISSILE" tag for the ACTIVATORS line in lines.ddf.  The rule
-   now is that missiles can activate _any_ TYPE=SHOOT linedef (but
-   only missiles from players can trigger player-only lines, etc).
-</PRE>
-
-
-<PRE class="features">
-<u>New features:</u>
+<PRE class="improvements">
+<u>General Improvements:</u>
 
 -  complete support for GL rendering.
 
@@ -138,6 +129,15 @@ Date: AUGUST 17th 2001
    for sprites where 8 rots aren't enough.  The old flipping thing
    will work with these too, e.g. TROOA9AG, TROOAAAF, TROOABAE,
    TROOACAD.
+</PRE>
+
+
+<PRE class="changes">
+<u>Features removed:</u>
+
+-  the "MISSILE" tag for the ACTIVATORS line in lines.ddf.  The rule
+   now is that missiles can activate _any_ TYPE=SHOOT linedef (but
+   only missiles from players can trigger player-only lines, etc).
 </PRE>
 
 
