@@ -102,14 +102,14 @@ General improvements
 - new "Invulnerability" option in the Video Options menu.
 
 - a working HOST-GAME menu which allows you to start deathmatch
-  games with bots.  There's also a new Team-Damage setting.
+  games with Bots.  There's also a new Team-Damage setting and
+  basic skill levels for the Bots.
 
 - better gamma handling (now done by the video driver).
 - more robust emulation of the flat-flooding trick.
 - improved, more consistent handling of alpha channels.
 - thin sliding doors can be activated remotely.
 - better way to gauge the player's actual speed.
-- basic skill levels for BOTs in deathmatch games.
 - sped up turning for path-following monsters.
 - players will jump out of water at the edge.
 - new -fullbright option for debugging.
