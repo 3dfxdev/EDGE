@@ -176,7 +176,7 @@ New features:
   Note: there is no MODEL_SCALE command for WEAPONS.DDF (scaling
   has no effect because the model is drawn at the camera point).
   Changing MODEL_FORWARD, MODEL_SIDE and/or MODEL_BIAS can have
-  a big impact on the apparent size of the weapon.
+  a huge impact on the apparent size of the weapon.
 
 + Lua-scripted HUDS allow new status bars, automaps and other
   Head Up Display elements to be created by writing a script in
@@ -193,9 +193,9 @@ New features:
 
   The following Slope types are defined in EDGE.WAD:
 
-    [567]  // EDGE Detail Slope : FLOOR
-    [568]  // EDGE Detail Slope : CEILING
-    [569]  // EDGE Detail Slope : FLOOR+CEILING
+    [567] : EDGE Detail Slope, FLOOR
+    [568] : EDGE Detail Slope, CEILING
+    [569] : EDGE Detail Slope, FLOOR+CEILING
 
 + mirrors are one-sided linedefs with a special linetype.
   They have a glassy look, and can be tinted with a color,
