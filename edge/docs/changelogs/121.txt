@@ -30,7 +30,7 @@ Changes:
  - the VOLUME field of sounds.ddf now uses a percentage.
 
  - the GRAVITY field of sectors.ddf and lines.ddf now accepts floating
-   point values (like 0.5).  The values may be different two, I'm not
+   point values (like 0.5).  The values may be different too, I'm not
    sure what the old value for "normal" gravity was, but the new value
    for normal gravity is 8.0 (or just 8 if you prefer).
 
