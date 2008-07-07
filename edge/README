@@ -7,7 +7,7 @@ Welcome to EDGE, the Enhanced Doom Gaming Engine.
 Website: http://edge.sourceforge.net
 
 Archive listing:
-  * edge.exe           - EDGE Executable (OpenGL rendering)
+  * edge32.exe         - EDGE Executable (OpenGL rendering)
   * edge.wad           - EDGE WAD Information, version 5.8
   * SDL.dll            - Simple DirectMedia Layer, version 1.2.13
   * Changelog-131.txt  - Changes since 1.29
@@ -107,7 +107,7 @@ Summary of Changes in 1.31:
   * Weapons can share a clip for both attacks
 
 
-Bugs fixed in 1.29:
+Bugs fixed in 1.31:
   + glitches/small gaps between polygons are fixed.
   + crash with Scuba Steve's flamethrow DEH patch.
   + Boom generalised linetypes were not saved in savegames.
