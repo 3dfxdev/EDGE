@@ -1,5 +1,5 @@
 
-EDGE 1.29 README.TXT
+EDGE 1.31 README.TXT
 ====================
 
 Welcome to EDGE, the Enhanced Doom Gaming Engine.
@@ -7,11 +7,10 @@ Welcome to EDGE, the Enhanced Doom Gaming Engine.
 Website: http://edge.sourceforge.net
 
 Archive listing:
-  * gledge32.exe       - EDGE Executable (OpenGL rendering)
-  * gledge-linux       - EDGE Linux binary
-  * edge.wad           - EDGE WAD Information, version 5.3
-  * SDL.dll            - Simple DirectMedia Layer, version 1.2.11
-  * Changelog-129.txt  - Changes since 1.28A
+  * edge.exe           - EDGE Executable (OpenGL rendering)
+  * edge.wad           - EDGE WAD Information, version 5.8
+  * SDL.dll            - Simple DirectMedia Layer, version 1.2.13
+  * Changelog-131.txt  - Changes since 1.29
   * Edge-Readme.txt    - Guess what you are reading?
 
 
@@ -84,130 +83,54 @@ Notable EDGE features:
   - Many limits and bugs from original DOOM removed.
 
 
-Major changes in 1.29:
-  + Drag 'n' Drop support.
-  + Greatly improved BOOM compatibility.
-  + Handle DeHackEd and BEX patches.
-  + New startup with a progress bar.
+Summary of Changes in 1.31:
+  + MD2 models for things and weapons
+  + Lua-scripted HUDs
+  + Detail Slopes
+  + Mirrors with multiple reflections
+  + Nicer dynamic lighting, Sector glow effects
+  + Timidity music playback
 
-  + OGG/Vorbis music playback.
-  + IMAGES.DDF, supporting PNG and JPEG images.
-  + Added a Sound Options menu.
-  + Software rendering was removed.
+  - Rendering glitches fixed
+  - Good emulation of partial-invis effect
+  - More compatible sky rendering in 3D
+  - Improved way of emulating DOOM light fading
+  - More robust emulation of flat-flooding trick
+  - Nicer looking console
+
+  * TGA (targa) image format supported
+  * WAV and OGG/Vorbis loaders for sound effects
+  * Flat alignment and scaling line-types
+  * Weak spots for monsters
+  * DDF BECOME() action for changing type
+  * Armor properties can be modified
+  * Weapons can share a clip for both attacks
 
 
 Bugs fixed in 1.29:
-  + crash loading a savegame with dynamic lights when D/L disabled.
-  + fixed crash when starting a level in deathmatch mode.
-  + quotes (") usable in response files (for filenames with spaces).
-  + fixed "jerk up/down" when player steps onto a lowering lift.
+  + glitches/small gaps between polygons are fixed.
+  + crash with Scuba Steve's flamethrow DEH patch.
+  + Boom generalised linetypes were not saved in savegames.
 
-  - arch-vile no longer resurrects monsters into itself.
-  - fix for teleport on MAP06 (going to wrong place).
-  - berserk strength now lasts the whole level.
-  - night vision wasn't affecting the sky, fixed.
-  - monsters on different sides now attack each other.
-  - autorun is remembered in the config file again.
-  - revenant missiles fixed to match the original.
-  - fixed 'detuning' problem with MUS playback.
-
-  * Many more... See the 1.29 ChangeLog for the complete list.
-
-
-General improvements in 1.29:
-  + drag and drop support.  You can pass wads, demos, scripts and
-    DeHackEd patches to EDGE by dragging them onto the executable.
-    Everything before the first option is considered a file to add.
-
-  + improved BOOM compatibility:
-    - handle the ELEVATOR linetypes.
-    - support for Current/Wind/Push/Pull forces.
-    - support for Icy/Muddy floors.
-    - handle BOOM colormaps.
-    - load the SWITCHES and ANIMATED lumps.
-    - support for line-to-line teleporters.
-    - support for platform toggle linetypes.
-
-  + support for OGG/Vorbis Music playing.  OGG/Vorbis is music format
-    similar to MP3, but is free from patents and does not require any
-    royalty fees.
-
-  + built-in support for DeHackEd and BEX patches, using normal files
-    (with .DEH or .BEX extension), and also the DEHACKED lump.  Patch
-    files can be added with the -deh option (like in other ports).
-
-  - Linux: fatal errors produce a pop-up dialog box, and EDGE can be
-    run by double clicking the executable.
-
-  - more robust sound initialisation code.
-  - emulation for Doom's original lighting.
-  - ability to use 32-bit screen modes (16.7 million colours).
-  - V3 and V5 GL-NODES, for very complex levels (Deus Vult MAP05).
-  - sky improvements, including a stretch option in Video menu.
-  - the DeathBot is back! and meaner than ever...
-  - correct map names for TNT Evilution and Plutonia Experiment.
-  - missing wad files (given with -file) now produce an error.
-  - can disable mouse-look in the gameplay options.
-  - console now slides up/down, smaller font.
-
-  * See the 1.29 ChangeLog for more...
+  - fixed firing rate of Super Shotgun (was too slow).
+  - ID(K)FA cheats now give clip weapons full ammo.
+  - fixed problem saving the 'mipmapping' setting.
+  - custom sky-boxes should always be used when present.
+  - fix for filenames (like "foo.bar.wad") containing two dots.
+  - proper test for existing titlepics in GAMES.DDF.
+  - fixed console PLAYSOUND command when sound is not found.
+  - no sprite check for spawned map-things (easier debugging).
+  - fixed badly synchronised flash state of Super Shotgun.
+  - prevent blood splats when Demon attacks a GOD-mode player.
 
 
-New DDF/RTS features in 1.29:
-  + new IMAGES.DDF file.  The corresponding wad lump is DDFIMAGE.  You
-    can define any type of images in this file (textures, flats, sprites
-    and screen graphics), and they will override any from the WAD file
-    with the same name.  Supports PNG and JPEG formats, either as lumps
-    in a WAD or as external files.  Allows the full range of colours.
-
-  + new FONTS.DDF file.  The equivalent wad lump is DDFFONT.  This is
-    for defining fonts (the set of character images for drawing text).
-
-  - new STYLES.DDF file.  THIS IS EXPERIMENTAL !!  The idea is to
-    define the background colour/image and text font/colour/scaling
-    information (and sounds too) for various parts of EDGE's user
-    interface.  It may undergo significant changes (without keeping
-    compatibility), and it might even be scrapped!  USE AT OWN RISK.
-
-  + new RTS menu system.  A script can show a menu, which pauses the
-    game until the user selects an option.  The script can then see
-    what the user selected and perform some specific actions.
-
-  - support for thing "TAG" numbers in RTS scripts.
-
-  + weapon clip handling has been greatly improved (and made sane).
-
-  + support for manual reloading (new key in Keyboard Options), and
-    also next-weapon and previous-weapon keys.
-
-  + Eight new ammo types: AMMO9, AMMO10 ... upto AMMO16.
-
-  - There are new weapon specials, and they can be given to the primary
-    and secondary attack separately (e.g. SEC_SPECIAL command).  They
-    include: ANIMATED, NO_SWITCH, NO_TRIGGER, FRESH, NO_MANUAL and
-    NO_PARTIAL.  Many of these control reloading behaviour.
-
-  - Numerous new weapon states: EMPTY states for when the weapon has
-    run out of ammo (primary attack only), IDLE for when the player
-    hasn't used the weapon for a while, WARMUP and SECWARMUP for
-    showing a "spin-up" animation, and finally DISCARD / SECDISCARD
-    states for reloading a weapon which wasn't empty.
-
-  - RELOAD states for monsters.
-  - SEQUENCE command for ANIMS.DDF.
-  - can specify a colour directly in COLMAP.DDF (no lumps needed).
-  - flags for friendly monsters: ULTRA_LOYAL and SIDE_IMMUNE.
-  - better control over explosion damage (EXPLODE_RADIUS command).
-  - WHEN_APPEAR in DDF and RTS now accepts simpler syntax.
-
-  * That was just a summary.  See the 1.29 ChangeLog for more...
+(See the 1.31 ChangeLog for all the details...)
 
 
 Known Issues:
-  - Multiplayer (networking) does not work yet.  We have made a
-    little bit of progress recently, for example you can play
-    deathmatch with bots.  We plan to get LAN-based multiplayer
-    working in the next release.
+  - Multiplayer (networking) does not work.  The type of networking
+    that DOOM used back in 1994 is obsolete today, and EDGE doesn't
+    have a suitable replacement yet.
 
   - Drag-and-drop does not work in Linux.
 
@@ -288,7 +211,7 @@ Contact points:
   * For the latest news and developments visit the EDGE Website
     at http://edge.sourceforge.net
 
-  * For Forums, Bug Reports and CVS Access visit the EDGE Project
+  * For Forums, Bug Reports and SVN Access visit the EDGE Project
     site at http://sourceforge.net/projects/edge
 
   * For more information on "GL Nodes", see the glBSP homepage at
@@ -301,13 +224,13 @@ Compiling EDGE:
 
 Command line options:
   * Note that "(no)" here means that the option switch can optionally
-    be prefixed with the word "no", e.g. -shadows OR -noshadows.  The
+    be prefixed with the word "no", e.g. -monsters OR -nomonsters.  The
     plain option enables the feature, the one with "no" disables it.
 
   -version             Show version of EDGE and exit.
 
   -width  <wd>         Select video mode's width.
-  -height  <ht>        Select video mode's height.
+  -height <ht>         Select video mode's height.
   -res  <wd> <ht>      Select video mode (width AND height).
   -bpp  <depth>        Video depth: 1 for 8-bit, 2 for 16-bit.
   -lang  <language>    Language for game messages.
@@ -325,11 +248,8 @@ Command line options:
 
   -warp  <map>         Warp to map (use full name e.g. E1M1 or MAP01).
   -loadgame  <slot>    Warp, loading game from slot.
-  -record  <file>      Record a demo into the given file.
-  -playdemo  <file>    Play the previously recorded demo.
-  -timedemo  <file>    Play and time the demo (test performance).
   -skill  <num>        Skill level for warp (1 to 5).
-  -screenshot  <rate>  Movie mode ! Takes regular screenshots.
+  -screenshot  <rate>  Movie mode! Takes regular screenshots.
   -turbo  <num>        Running speed, 100 is normal.
   -vspeed  <num>       Look up/down speed, 1000 is normal.
 
@@ -365,11 +285,7 @@ Command line options:
 
   -(no)smoothing       Smoothing for graphic images (mainly GL).
   -(no)mipmap          Mipmapping enable/disable.
-  -(no)shadows         Shadows are drawn under things.
-  -(no)dither          Dither the graphics (in GL).
-  -(no)halos           (Unimplemented) Halos/coronas around lights.
   -(no)dlights         Dynamic lighting enable/disable.
-  -(no)trans           Whether translucent stuff is rendered.
   -(no)jumping         Whether player jumping is allowed.
   -(no)crouching       Whether player crouching is allowed.
   -(no)mlook           Whether Mouse-look up/down is allowed.
@@ -393,15 +309,10 @@ Command line options:
   -(no)hogcpu          Smoother gameplay vs less CPU utilisation.
 
   -trilinear           Trilinear mipmapping.
-  -nointerp            Video: Don't interpolate colourmaps.
-  -nodraw              Disable rendering (for performance testing).
-  -nogfxmode           Disable all video (for performance testing).
-
   -blockmap            Force EDGE to generate its own blockmap.
   -fastsprites         Load sprite images at start of level.
-  -newmap OR -newhud   Automap overlay.
-  -nograb              Don't grab the mouse cursor.
   -warpmouse           Use special mouse handling code.
+  -nograb              Don't grab the mouse cursor.
 
 
 Console commands:
@@ -417,7 +328,7 @@ Console commands:
     displays the value of that variable.
 
 
-**** Credits ****
+**** CREDITS ****
 
 Current EDGE Team:
     Andrew Apted (aka "Ajapted")     : programming
