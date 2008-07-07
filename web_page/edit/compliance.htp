@@ -104,7 +104,7 @@ form of "patch" files (which have the ".DEH" extension).
 BEX is the <b>B</b>oom <b>EX</b>tensions to DeHackEd patches.
 
 <p>
-EDGE 1.29 implements DeHackEd and BEX patches using a library
+EDGE implements DeHackEd and BEX patches using a library
 called DEH_EDGE (which also exists as a stand-alone program).
 DEH_EDGE converts the patch file into DDF, which EDGE then loads.
 EDGE supports the standard <i>-deh</i> option for specifying
@@ -114,11 +114,11 @@ onto the EXE.  The "DEHACKED" wad lump is also supported.
 
 <p>
 Some really old DeHackEd patches are not in a text format,
-instead they are a binary format.  EDGE 1.29 can actually
+instead they are a binary format.  EDGE can actually
 load these old binary patches! (most other ports cannot).
 
 <p>
-List of things not supported by EDGE 1.29:
+List of things not supported by EDGE yet:
 <ul>
 
 <li>the BEX "INCLUDE" directive
@@ -154,11 +154,11 @@ in particular the exact boundaries of subsectors, which was
 missing in the original DOOM nodes.
 
 <p>
-EDGE 1.29 supports V1,V2,V3 and V5 format GL Nodes, both internally
+EDGE 1.31 supports V1,V2,V3 and V5 format GL Nodes, both internally
 (in the same WAD as the levels) or externally as GWA files.
 
 <p>
-EDGE 1.29 lacks one feature to make it fully compliant with
+EDGE lacks one feature to make it fully compliant with
 the GL Nodes spec: support for map names longer than 5 letters
 (using the special "GL_LEVEL" map marker).
 
@@ -179,7 +179,7 @@ which can define texture sources and attributes (like scaling)
 in a standard but extensible way.
 
 <p>
-EDGE 1.29 has no support for this spec yet, apart from the
+EDGE 1.31 has no support for this spec yet, apart from the
 ability to load the 320x200 Heretic/Hexen title graphics and
 support for larger flats (from 128x128 upto 1024x1024).
 
@@ -201,27 +201,24 @@ already handle those.
 
 <p>
 <B>Images:</B> <br>
-Using IMAGES.DDF, EDGE 1.29 can load PNG and JPEG format images.
-We plan to support TGA format soon.
+Using IMAGES.DDF, EDGE can load PNG, JPEG and TGA format images.
 
 <p>
 <B>Sounds:</B> <br>
-EDGE does not support any new sound formats yet.
-We plan to support WAV and Ogg/Vorbis in the next release.
+EDGE supports both WAV and Ogg/Vorbis formats.
 
 <p>
 <B>Music:</B> <br>
-EDGE 1.29 supports Ogg/Vorbis for music.  We plan
-to implement software synthesized MUS and MIDI music
-playback in a future release.
+EDGE supports Ogg/Vorbis for music, as well as 
+software synthesized MUS and MIDI playback.
 
 <p>
 <B>Packages:</B> <br>
-EDGE does not support any package formats (like ZIP files).
+EDGE does not support any package formats (like ZIP or PK3 files).
 
 <p>
 <B>Others:</B> <br>
-We will support MD2 models in the next release.
+EDGE 1.31 support MD2 models.
 
 </block>
 

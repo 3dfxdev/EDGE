@@ -55,12 +55,12 @@ use an EDGE
 plus there are a couple new
 <a href="thing_types.htm">Thing types</a>
 as well.
-This editing guide contains a handy list
+This editing guide contains some handy lists
 of all the available types
-for EDGE 1.29 (in summary form).
+for EDGE 1.31.
 
 <p>
-<b>Extrafloors</b> (also called '3D Floors') are one of EDGE's
+<b>Extrafloors</b> (also called "3D Floors") are one of EDGE's
 coolest features, removing the limitation of DOOM mapping
 which doesn't allow rooms over rooms.
 EDGE can also make Liquids, with translucent surfaces and
@@ -130,8 +130,12 @@ link in the menu.
 <!---
 {h3 class="sub_title"}Graphics{/h3}
 
-EDGE 1.29 ...  PNG and JPEG ...  Skyboxes ...
+EDGE 1.31 ...  PNG and JPEG ...  Skyboxes ...
 --->
+
+
+<!--- Lua HUDS --->
+
 
 </block>
 
