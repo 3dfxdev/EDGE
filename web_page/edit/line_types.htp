@@ -4,7 +4,7 @@
 
 <block name="content">
 
-<h2 class="page_title">EDGE 1.29 Line Types</h2>
+<h2 class="page_title">EDGE 1.31 Line Types</h2>
 
 
 <h3 class="sub_title">Translucent Lines</h3>
@@ -28,6 +28,28 @@
 [427] : EDGE SCROLL RIGHT AND UP
 [428] : EDGE SCROLL RIGHT AND DOWN
 [429] : EDGE SCROLL FAST LOWER AND MIDDLE TEXTURE (WATERFALLS)
+</PRE>
+
+
+<h3 class="sub_title">Extrafloors</h3>
+
+<PRE>
+[400] : EDGE Thick Extrafloor
+[401] : EDGE Thick Extrafloor (use upper texture)
+[402] : EDGE Thick Extrafloor (use lower texture)
+
+[403] : EDGE Liquid Extrafloor (Opaque)
+[404] : EDGE Liquid Extrafloor (80% Translucent)
+[405] : EDGE Liquid Extrafloor (60% Translucent)
+[406] : EDGE Liquid Extrafloor (40% Translucent)
+[407] : EDGE Liquid Extrafloor (20% Translucent)
+[408] : EDGE Liquid Extrafloor (Invisible)
+
+[413] : EDGE Thin Extrafloor (Opaque)
+[414] : EDGE Thin Extrafloor (80% Translucent)
+[415] : EDGE Thin Extrafloor (60% Translucent)
+[416] : EDGE Thin Extrafloor (40% Translucent)
+[417] : EDGE Thin Extrafloor (20% Translucent)
 </PRE>
 
 
@@ -79,26 +101,84 @@
 </PRE>
 
 
-<h3 class="sub_title">Extrafloors</h3>
+<h3 class="sub_title">Mirrors</h3>
 
 <PRE>
-[400] : EDGE Thick Extrafloor (control texture)
-[401] : EDGE Thick Extrafloor (master upper texture)
-[402] : EDGE Thick Extrafloor (master lower texture)
-
-[403] : EDGE Liquid Extrafloor (Opaque)
-[404] : EDGE Liquid Extrafloor (80% Translucent)
-[405] : EDGE Liquid Extrafloor (60% Translucent)
-[406] : EDGE Liquid Extrafloor (40% Translucent)
-[407] : EDGE Liquid Extrafloor (20% Translucent)
-[408] : EDGE Liquid Extrafloor (Invisible)
-
-[413] : EDGE Thin Extrafloor (Opaque)
-[414] : EDGE Thin Extrafloor (80% Translucent)
-[415] : EDGE Thin Extrafloor (60% Translucent)
-[416] : EDGE Thin Extrafloor (40% Translucent)
-[417] : EDGE Thin Extrafloor (20% Translucent)
+[462] : EDGE Mirror (Plain)
+[463] : EDGE Mirror (White)
+[464] : EDGE Mirror (Blue)
+[465] : EDGE Mirror (Red)
+[466] : EDGE Mirror (Green)
 </PRE>
+
+
+<h3 class="sub_title">Portals</h3>
+
+<PRE>
+[480] : EDGE Portal (Dark  50%)
+[481] : EDGE Portal (Light 30%)
+[482] : EDGE Portal (Light 70%)
+[483] : EDGE Portal (Blue  70%)
+[484] : EDGE Portal (Green 70%)
+
+[485] : EDGE Camera Portal (Plain)
+[486] : EDGE Camera Portal (White)
+[487] : EDGE Camera Portal (Cyan)
+[488] : EDGE Camera Portal (Rusty)
+[489] : EDGE Camera Portal (Green)
+</PRE>
+
+
+<h3 class="sub_title">Slopes</h3>
+
+<PRE>
+[567] : EDGE Detail Slope - FLOOR
+[568] : EDGE Detail Slope - CEILING
+[569] : EDGE Detail Slope - FLOOR+CEILING
+</PRE>
+
+
+<h3 class="sub_title">Flat Alignment</h3>
+
+<PRE>
+[800] : Align and rotate front sector's FLOOR
+[801] : Align and rotate back  sector's FLOOR
+[802] : Align and rotate front sector's CEILING
+[803] : Align and rotate back  sector's CEILING
+[804] : Align and rotate front sector's FLOOR+CEILING
+[805] : Align and rotate back  sector's FLOOR+CEILING
+
+[810] : Align, scale and rotate front sector's FLOOR
+[811] : Align, scale and rotate back  sector's FLOOR
+[812] : Align, scale and rotate front sector's CEILING
+[813] : Align, scale and rotate back  sector's CEILING
+[814] : Align, scale and rotate front sector's FLOOR+CEILING
+[815] : Align, scale and rotate back  sector's FLOOR+CEILING
+
+[820] : Scale front sector's FLOOR
+[821] : Scale back  sector's FLOOR
+[822] : Scale front sector's CEILING
+[823] : Scale back  sector's CEILING
+[824] : Scale front sector's FLOOR+CEILING
+[825] : Scale back  sector's FLOOR+CEILING
+</PRE>
+
+
+<h3 class="sub_title">Ladders</h3>
+
+<PRE>
+[470] : EDGE Ladder,  48 units high
+[471] : EDGE Ladder,  80 units high
+[472] : EDGE Ladder, 120 units high
+[473] : EDGE Ladder, 160 units high
+[474] : EDGE Ladder, 192 units high
+[475] : EDGE Ladder, 256 units high
+[476] : EDGE Ladder, 384 units high
+[477] : EDGE Ladder, 512 units high
+[478] : EDGE Ladder, 768 units high
+[479] : EDGE Ladder, no limit
+</PRE>
+
 
 <p><br>
 
