@@ -18,3 +18,49 @@ table.edit {
 li.edit {
     margin: 10px;
   }
+
+.lua_TABLE {
+    border: 1px solid black;
+    background-color: #ffd;
+  }
+
+.lua_TABLE TD {
+    border-bottom: 1px solid #666666;
+  }
+
+.lua_L1 {
+    width: 8em;
+    text-align: center;
+  }
+
+.lua_L2 {
+    width: 16em;
+    text-align: left;
+    border-left: 1px solid #666666;
+  }
+
+.lua_LL {
+    border-left: 1px solid #666666;
+  }
+
+.lua_PRE {
+    margin-left: 24px;
+    margin-right: 24px;
+    font-size: x-large;
+    font-family: monospace;
+    color: #ddd;
+    background-color: black;
+  }
+
+.lua_VAR {
+    color: #3333FF;
+    font-size: x-large;
+    font-family: monospace;
+  }
+
+.lua_FUNC {
+    color: #22AA22;
+    font-size: x-large;
+    font-family: monospace;
+  }
+
