@@ -4,13 +4,17 @@
 
 <block name="content">
 
-<h2 class="page_title">EDGE 1.29 Thing Types</h2>
+<h2 class="page_title">EDGE 1.31 Thing Types</h2>
 
 <h3 class="sub_title">Pickup Items</h3>
 
 <PRE>
 [7000] : NIGHTVISION_SPECS
 [7020] : JETPACK
+
+[7031] : PURPLE_ARMOUR
+[7032] : YELLOW_ARMOUR
+[7033] : RED_ARMOUR
 </PRE>
 
 
@@ -19,6 +23,15 @@
 <PRE>
 [7010] : BURNT_SPIKE_STUMP
 [7104] : UNSTABLE_BARREL
+</PRE>
+
+
+<h3 class="sub_title">Glowing Floors</h3>
+
+<PRE>
+[7041] : EDGE Nukage Glow
+[7042] : EDGE Lava Glow
+[7043] : EDGE Water Glow
 </PRE>
 
 
