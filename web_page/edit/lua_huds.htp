@@ -586,6 +586,14 @@ player to his attacker.  The result is in degrees (ranging from
 
 <h3 class="sub_title">STANDARD HUD CODE</h3>
 
+Here is what standard HUD code stored in EDGE.WAD looks like
+(with syntax highlighting).
+It implements the original DOOM status bar, including all the
+logic for the Doomguy face, and other HUD elements
+(e.g. the underwater AIR bar).
+
+<p>
+
 <PRE class="lua_PRE">
 
 <I><FONT COLOR="#EEBB99">--------------------------------------------
@@ -862,5 +870,7 @@ face_image <B><FONT COLOR="#77CCDD">=</FONT></B> <B><FONT COLOR="#FF4444">&quot;
 
 </PRE>
 
-</body>
-</html>
+</block>
+
+<!--- template --->
+<file include="edit_page.tpl">

@@ -3,6 +3,7 @@
 ;
 overview.htp ../out/edit_guide/overview.htm
 compliance.htp ../out/edit_guide/compliance.htm
+lua_huds.htp ../out/edit_guide/lua_huds.htm
 line_types.htp ../out/edit_guide/line_types.htm
 sec_types.htp ../out/edit_guide/sec_types.htm
 thing_types.htp ../out/edit_guide/thing_types.htm
