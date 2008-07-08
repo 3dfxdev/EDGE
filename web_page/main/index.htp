@@ -4,279 +4,329 @@
 
 <block name="content">
 
-  <h2 class="page_title"> Welcome to the EDGE! </h2>
+<h2 class="page_title"> Welcome to the EDGE! </h2>
 
-  <img class="main_image" src="thumbs/demos_C.jpg"
-       width="160" height="120" alt="Screenshot">
- 
-  The EDGE project is a programming project to develop a
-  DOOM<SUP>tm</SUP> style engine aimed at the Total Conversion
-  developer, but still able to play the original DOOM games.
-  This project started with the DOOM source released by
-  id software.
+<img class="main_image" src="thumbs/demos_C.jpg"
+     width="160" height="120" alt="Screenshot">
 
-  <p style="clear:right">
-  </p>
+The EDGE project is a programming project to develop a
+DOOM<SUP>tm</SUP> style engine aimed at the Total Conversion
+developer, but still able to play the original DOOM games.
+This project started with the DOOM source released by
+id software.
 
-  <h2 class="page_title"> Latest News </h2>
+<p style="clear:right">
+</p>
 
-
-  <use BeginNews title="Beta#2 Update" date="02-Feb-2008">
-
-  EDGE 1.31-Beta#2 has been updated to fix a fatal error
-  when saving a game, mainly when starting
-  the game from the new HOST-NET-GAME menu.
-  
-  Another problem causing multiple popup dialogs
-  when the D: drive is a CDROM or DVD
-  should also be fixed.
-  
-  <p>
-  New Download link:
-  <a href="http://downloads.sourceforge.net/edge/Edge-1.31-Beta2c.zip">
-  Edge-1.31-Beta2c.zip
-  </a> (2.9 MB)
-
-  <use EndNews>
+<h2 class="page_title"> Latest News </h2>
 
 
-  <use BeginNews title="Beta#2 is Out" date="29-Jan-2008">
+<use BeginNews title="1.31 RC#1 Available" date="09-Jul-2008">
 
-  EDGE 1.31-Beta#2 is now available for download and testing.
-  This release updates to SDL 1.2.13 which fixes the sound
-  problem under Vista.
-  
-  <p>
-  New features include support for 16-bit
-  sounds (WAV and OGG/Vorbis formats), music playback for Linux,
-  and an Invulnerability setting in the video options.
+As always we are delighted to announce that EDGE 1.31-RC#1
+is now available for download.
+Since this is a Release Candidate (RC), it should be as
+stable and complete as the full release, and we will not be
+adding any new features now, only fixing bugs.
 
-  <p>
-  However the main thrust of this release is fixing bugs
-  (such as the messed up screen after changing resolution)
-  and other enhancements (like using MD2 frame names in DDF).
+<p>
+The biggest new feature is Lua-scripted HUDs, giving modders
+great power to create new status bars and other Heads-Up-Display
+elements.
+Also worth noting are the new Detail Slopes, which are a bit
+limited but good for adding some cool slopey details into your maps.
 
-  <p>
-  Download it here:
-  <a href="http://downloads.sourceforge.net/edge/Edge-1.31-Beta2c.zip">
-  Edge-1.31-Beta2.zip
-  </a> (2.9 MB)
+<p>
+Many bugs have been fixed since Beta#2, for example:
+colormapped sectors (blue water etc) are working again,
+the Super Shotgun firing rate was too slow and has
+been rectified, and Timidity music playback is now finished
+and works well in both Linux and Windows.
 
-  <p>
-  Changes since Beta#1 are here:
-  <a href="http://sourceforge.net/project/shownotes.php?release_id=571978&group_id=2232">
-  Change List
-  </a>
+<p>
+Lastly, some things have been removed, such as
+demo support and CD music playback,
+because of difficult-to-fix bugs
+and lack of interest in these features.
 
-  <use EndNews>
+<p>
+The complete list of changes since EDGE 1.29 is here:
+<a href="logs/131.htm">1.31 ChangeLog</a>
 
+<p>
+>Download Link: XXX
 
-  <use BeginNews title="1.31 Beta#1 Available" date="12-Dec-2007">
-
-  We are happy to announce that EDGE 1.31-Beta#1 has been released.
-  This is a Work-In-Progress package provided for testing,
-  and there is still a lot left to do.
-  Three demo wads are included: one for MD2 models, one for Mirrors,
-  and one showing the flat alignment/scaling feature.
-
-  <p>
-  <font color="#6666CC"><u>MAJOR CHANGES</u></font>
-  <ul>
-    <li> MD2 models for things and weapons
-    <li> Mirrors with multiple reflections
-    <li> Good emulation of partial-invisibility effect
-    <li> Nicer dynamic lighting, sector glow effects
-    <li> Improved way of emulating DOOM light fading
-    <li> Rendering glitches fixed
-
-  </ul><ul>
-    <li> Flat alignment and scaling line-types
-    <li> TGA (targa) image format supported
-    <li> Monster weak spots, defined by DDF
-    <li> New DDF BECOME() action for changing type
-    <li> Armor properties can be modified
-  </ul>
-
-  <p>
-  <font color="#FF6666"><u>KNOWN PROBLEMS</u></font>
-  <ul>
-    <li> changing resolution messes up the screen (must restart)
-    <li> sound still does not work under Vista
-    <li> colormapped sectors (e.g. blue water) don't work yet
-    <li> monsters with models seem to move very jerkily
-    <li> console background is a bit messed up
-    <li> additive dyn-lights on mid-masked textures look weird
-  </ul>
-  
-  <p>
-  Download it here:
-  <a href="http://downloads.sourceforge.net/edge/Edge-1.31-Beta1.zip">
-  Edge-1.31-Beta1.zip
-  </a> (2.6 MB)
-
-  <p>
-  Full list of changes is here:
-  <a href="https://sourceforge.net/project/shownotes.php?release_id=560547&group_id=2232">
-  Change List
-  </a>
-
-  <use EndNews>
+<use EndNews>
 
 
-  <use BeginNews title="Editing Guide Begun" date="23-Sep-2007">
 
-  The
-  <a href="edit_guide/overview.htm">
-  EDGE Editing Guide</a> is going to collect lots of useful
-  information about modding for EDGE into one convenient
-  corner of our website.
-  It will encompass both DDF Online and RTS Online,
-  contain various Tutorials, and heaps of other goodies.
- 
-  <p>
-  Although it's a little bare right now, it still contains quite
-  a bit of handy information, including lists of EDGE's
-  Line/Sector/Thing types, and a page describing the
-  compliance of EDGE with various standards.
+<use BeginNews title="Beta#2 Update" date="02-Feb-2008">
 
-  <use EndNews>
+EDGE 1.31-Beta#2 has been updated to fix a fatal error
+when saving a game, mainly when starting
+the game from the new HOST-NET-GAME menu.
 
+Another problem causing multiple popup dialogs
+when the D: drive is a CDROM or DVD
+should also be fixed.
 
-  <use BeginNews title="Hi-res Texture Pack" date="13-Sep-2007">
+<p>
+New Download link:
+<a href="http://downloads.sourceforge.net/edge/Edge-1.31-Beta2c.zip">
+Edge-1.31-Beta2c.zip
+</a> (2.9 MB)
 
-  The DHTP (Doom Hires Texture Pack) is now available for EDGE.
-
-  <p>
-  This pack has been put together by KuriKai and others, combining
-  their own work with resources from the old JDTP pack in order to
-  create the best looking set of high-resolution textures for DOOM.
-  
-  <p>
-  Downloads and more information
-  <a href="http://forums.yaa.dk/viewtopic.php?f=32&t=69&start=0&st=0&sk=t&sd=a">
-  HERE</a>.
-  
-  <br>
-  (Note: the pack is 56 MB)
-  
-  <use EndNews>
+<use EndNews>
 
 
-  <use BeginNews title="EDGE 1.29 Released!!" date="15-Jul-2007">
 
-  We are thrilled to announce the full release of EDGE 1.29.
-  It has been in development for a long time (too long actually),
-  and the EDGE Team has changed shape several times, but we
-  finally made it.
-  Thanks to everybody who helped with testing etc...
-  We hope you enjoy this release.
+<use BeginNews title="Beta#2 is Out" date="29-Jan-2008">
 
-  <p>
-  Major changes in 1.29:
-  <ul>
-    <li> Drag 'n' Drop support.
-    <li> Greatly improved BOOM compatibility.
-    <li> Handle DeHackEd and BEX patches.
-    <li> OGG/Vorbis music playback.
-    <li> IMAGES.DDF supporting PNG and JPEG images.
+EDGE 1.31-Beta#2 is now available for download and testing.
+This release updates to SDL 1.2.13 which fixes the sound
+problem under Vista.
 
-  </ul><ul>
-    <li> Good emulation of DOOM lighting.
-    <li> New startup with a progress bar.
-    <li> Added a Sound Options menu.
-    <li> Software rendering was removed.
-  </ul>
+<p>
+New features include support for 16-bit
+sounds (WAV and OGG/Vorbis formats), music playback for Linux,
+and an Invulnerability setting in the video options.
 
-  Plus many many bug fixes and general improvements, and lots of
-  new DDF and RTS features.
+<p>
+However the main thrust of this release is fixing bugs
+(such as the messed up screen after changing resolution)
+and other enhancements (like using MD2 frame names in DDF).
 
-  <p>
-  See all changes since 1.28A:
-  <a href="http://edge.sourceforge.net/logs/129.htm">
-  ChangeLog
-  </a>
+<p>
+Download it here:
+<a href="http://downloads.sourceforge.net/edge/Edge-1.31-Beta2c.zip">
+Edge-1.31-Beta2.zip
+</a> (2.9 MB)
 
-  <p>
-  Download Win32 binary:
-  <a href="http://downloads.sourceforge.net/edge/edge-1.29-win32.zip">
-  edge-1.29-win32.zip
-  </a> (2.2 MB)
+<p>
+Changes since Beta#1 are here:
+<a href="http://sourceforge.net/project/shownotes.php?release_id=571978&group_id=2232">
+Change List
+</a>
 
-  <use EndNews>
+<use EndNews>
 
 
-  <use BeginNews title="EDGE Road Map" date="14-Jun-2007">
 
-  With the full release of 1.29 quickly approaching,
-  we have been thinking about what direction to take EDGE
-  in the future.
-  The new <a href="roadmap.htm">Road Map</a> document
-  gives an overview of the main features we have planned.
+<use BeginNews title="1.31 Beta#1 Available" date="12-Dec-2007">
 
-  <use EndNews>
+We are happy to announce that EDGE 1.31-Beta#1 has been released.
+This is a Work-In-Progress package provided for testing,
+and there is still a lot left to do.
+Three demo wads are included: one for MD2 models, one for Mirrors,
+and one showing the flat alignment/scaling feature.
 
+<p>
+<font color="#6666CC"><u>MAJOR CHANGES</u></font>
+<ul>
+  <li> MD2 models for things and weapons
+  <li> Mirrors with multiple reflections
+  <li> Good emulation of partial-invisibility effect
+  <li> Nicer dynamic lighting, sector glow effects
+  <li> Improved way of emulating DOOM light fading
+  <li> Rendering glitches fixed
 
-  <use BeginNews title="1.29 RC#6 is Out" date="6-Jun-2007">
+</ul><ul>
+  <li> Flat alignment and scaling line-types
+  <li> TGA (targa) image format supported
+  <li> Monster weak spots, defined by DDF
+  <li> New DDF BECOME() action for changing type
+  <li> Armor properties can be modified
+</ul>
 
-  Release Candidate #6 for
-  EDGE 1.29 is now out of the lab and ready for testing.
-  This is mainly a bug-fix release, but also includes new
-  sound startup code which tries hard to find a working
-  sound-mode, and options for setting what SDL sound driver
-  to use.  This package also contains a Linux binary
-  (note: experimental!).
-  <br>
+<p>
+<font color="#FF6666"><u>KNOWN PROBLEMS</u></font>
+<ul>
+  <li> changing resolution messes up the screen (must restart)
+  <li> sound still does not work under Vista
+  <li> colormapped sectors (e.g. blue water) don't work yet
+  <li> monsters with models seem to move very jerkily
+  <li> console background is a bit messed up
+  <li> additive dyn-lights on mid-masked textures look weird
+</ul>
 
-  <p>
-  Download it here:
-  <a href="http://downloads.sourceforge.net/edge/edge-1.29RC6.zip">
-  edge-1.29RC6.zip
-  </a> (3.1 MB)
+<p>
+Download it here:
+<a href="http://downloads.sourceforge.net/edge/Edge-1.31-Beta1.zip">
+Edge-1.31-Beta1.zip
+</a> (2.6 MB)
 
-  <p>
-  List of changes since RC#5 is here:
-  <a href="http://sourceforge.net/project/shownotes.php?release_id=513629&group_id=2232">
-  ChangeLog
-  </a>
+<p>
+Full list of changes is here:
+<a href="https://sourceforge.net/project/shownotes.php?release_id=560547&group_id=2232">
+Change List
+</a>
 
-  <use EndNews>
-
-
-  <use BeginNews title="EMUS v1.0 Released" date="3-June-2007">
-
-  EMUS stands for <b>E</b>dge <b>M</b>odders <b>U</b>tility <b>S</b>uite
-  and is a program written by Luke "Lobo" Brennan.
-
-  EMUS contains a whole bunch of utilities which are very handy for
-  developing EDGE-based projects, namely:
-
-  <ul>
-    <li> RTS-IDE
-    <li> DDF-Offline
-    <li> ToDo List
-    <li> FRT (File Renamer Tool)
-    <li> IDT (Images.DDF Tool)
-    <li> ELI (Edge Lump Importer)
-    <li> WMT (Wad Merging Tool)
-  </ul>
-
-  Download here:
-  <a href="http://firstgen.no-ip.com/download/lukedownload.asp?DownloadID=15">
-  EMUS v1.0</a> (638 KB)
-
-  <p>
-  Please note you must have the
-  <a href="http://www.microsoft.com/downloads/details.aspx?FamilyID=0856EACB-4362-4B0D-8EDD-AAB15C5E04F5&displaylang=en">
-  Microsoft .Net Framework 2.0</a>
-  installed to run EMUS.
-
-  <use EndNews>
+<use EndNews>
 
 
-  <hr>
-  <p>
-  Previous news items are available here:
-  <a href="old_news.htm">Older News</a>
+
+<use BeginNews title="Editing Guide Begun" date="23-Sep-2007">
+
+The
+<a href="edit_guide/overview.htm">
+EDGE Editing Guide</a> is going to collect lots of useful
+information about modding for EDGE into one convenient
+corner of our website.
+It will encompass both DDF Online and RTS Online,
+contain various Tutorials, and heaps of other goodies.
+
+<p>
+Although it's a little bare right now, it still contains quite
+a bit of handy information, including lists of EDGE's
+Line/Sector/Thing types, and a page describing the
+compliance of EDGE with various standards.
+
+<use EndNews>
+
+
+
+<use BeginNews title="Hi-res Texture Pack" date="13-Sep-2007">
+
+The DHTP (Doom Hires Texture Pack) is now available for EDGE.
+
+<p>
+This pack has been put together by KuriKai and others, combining
+their own work with resources from the old JDTP pack in order to
+create the best looking set of high-resolution textures for DOOM.
+
+<p>
+Downloads and more information
+<a href="http://forums.yaa.dk/viewtopic.php?f=32&t=69&start=0&st=0&sk=t&sd=a">
+HERE</a>.
+
+<br>
+(Note: the pack is 56 MB)
+
+<use EndNews>
+
+
+
+<use BigNews title="EDGE 1.29 Released!!" date="15-Jul-2007">
+
+We are thrilled to announce the full release of EDGE 1.29.
+It has been in development for a long time (too long actually),
+and the EDGE Team has changed shape several times, but we
+finally made it.
+Thanks to everybody who helped with testing etc...
+We hope you enjoy this release.
+
+<p>
+Major changes in 1.29:
+<ul>
+  <li> Drag 'n' Drop support.
+  <li> Greatly improved BOOM compatibility.
+  <li> Handle DeHackEd and BEX patches.
+  <li> OGG/Vorbis music playback.
+  <li> IMAGES.DDF supporting PNG and JPEG images.
+
+</ul><ul>
+  <li> Good emulation of DOOM lighting.
+  <li> New startup with a progress bar.
+  <li> Added a Sound Options menu.
+  <li> Software rendering was removed.
+</ul>
+
+Plus many many bug fixes and general improvements, and lots of
+new DDF and RTS features.
+
+<p>
+See all changes since 1.28A:
+<a href="http://edge.sourceforge.net/logs/129.htm">
+ChangeLog
+</a>
+
+<p>
+Download Win32 binary:
+<a href="http://downloads.sourceforge.net/edge/edge-1.29-win32.zip">
+edge-1.29-win32.zip
+</a> (2.2 MB)
+
+<use EndNews>
+
+
+
+<use BeginNews title="EDGE Road Map" date="14-Jun-2007">
+
+With the full release of 1.29 quickly approaching,
+we have been thinking about what direction to take EDGE
+in the future.
+The new <a href="roadmap.htm">Road Map</a> document
+gives an overview of the main features we have planned.
+
+<use EndNews>
+
+
+
+<use BeginNews title="1.29 RC#6 is Out" date="6-Jun-2007">
+
+Release Candidate #6 for
+EDGE 1.29 is now out of the lab and ready for testing.
+This is mainly a bug-fix release, but also includes new
+sound startup code which tries hard to find a working
+sound-mode, and options for setting what SDL sound driver
+to use.  This package also contains a Linux binary
+(note: experimental!).
+<br>
+
+<p>
+Download it here:
+<a href="http://downloads.sourceforge.net/edge/edge-1.29RC6.zip">
+edge-1.29RC6.zip
+</a> (3.1 MB)
+
+<p>
+List of changes since RC#5 is here:
+<a href="http://sourceforge.net/project/shownotes.php?release_id=513629&group_id=2232">
+ChangeLog
+</a>
+
+<use EndNews>
+
+
+
+<use BeginNews title="EMUS v1.0 Released" date="3-June-2007">
+
+EMUS stands for <b>E</b>dge <b>M</b>odders <b>U</b>tility <b>S</b>uite
+and is a program written by Luke "Lobo" Brennan.
+
+EMUS contains a whole bunch of utilities which are very handy for
+developing EDGE-based projects, namely:
+
+<ul>
+  <li> RTS-IDE
+  <li> DDF-Offline
+  <li> ToDo List
+  <li> FRT (File Renamer Tool)
+  <li> IDT (Images.DDF Tool)
+  <li> ELI (Edge Lump Importer)
+  <li> WMT (Wad Merging Tool)
+</ul>
+
+Download here:
+<a href="http://firstgen.no-ip.com/download/lukedownload.asp?DownloadID=15">
+EMUS v1.0</a> (638 KB)
+
+<p>
+Please note you must have the
+<a href="http://www.microsoft.com/downloads/details.aspx?FamilyID=0856EACB-4362-4B0D-8EDD-AAB15C5E04F5&displaylang=en">
+Microsoft .Net Framework 2.0</a>
+installed to run EMUS.
+
+<use EndNews>
+
+
+
+<hr>
+<p>
+<i>
+Previous news items are available here:
+<a href="old_news.htm">Older News</a>
+</i>
 
 
 </block>
