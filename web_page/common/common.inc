@@ -22,6 +22,17 @@
   <div class="news_body">
 </block>
  
+<block BigNews>
+<div class="news">
+  <table class="news_big_title" width="95%">
+  <tr>
+    <td align="left">  <use title> </td>
+    <td align="right"> <use date> </td>
+  </tr>
+  </table>
+  <div class="news_body">
+</block>
+ 
 <block EndNews>
   </div>
 </div>
