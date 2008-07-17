@@ -67,9 +67,14 @@ if 1 and build_info['platform'] == 'linux':
         have_glbsp_h = 1
         env.Append(CCFLAGS = ['-DHAVE_GLBSP_H'])
 
-    if conf.CheckCHeader('lua.h') or conf.CheckCHeader('lua5.1/lua.h'):
+    if conf.CheckCHeader('lua.h')
         have_lua_h = 1
         env.Append(CCFLAGS = ['-DHAVE_LUA_H'])
+
+    # Debian bullshit
+    if conf.CheckCHeader('lua5.1/lua.h'):
+        have_lua_h = 2
+        env.Append(CCFLAGS = ['-DHAVE_LUA_51_H'])
 
     env = conf.Finish()
 
@@ -106,15 +111,18 @@ env.Append(LIBPATH = ['#deh_edge'])
 env.Append(LIBS = ['dehedge'])
 
 # LUA
-if not have_lua_h:
+if have_lua_h == 2:
+    env.Append(LIBS = ['lua5.1'])
+elif have_lua_h:
+    env.Append(LIBS = ['lua'])
+else
     if build_info['platform'] == 'win32':
         env.Append(CPPPATH = ['#win32_lib/lua-5.1.2/src'])
         env.Append(LIBPATH = ['#win32_lib/lua-5.1.2/src'])
     else: #linux
         env.Append(CPPPATH = ['#lua/src'])
         env.Append(LIBPATH = ['#lua/src'])
-
-env.Append(LIBS = ['lua'])
+    env.Append(LIBS = ['lua'])
 
 # JPEG, PNG and ZLIB
 if build_info['platform'] == 'win32':
