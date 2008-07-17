@@ -21,9 +21,25 @@
 
 /* LUA Scripting Language */
 
+#if defined(HAVE_LUA_51_H)
+
+#include <lua5.1/lua.h>
+#include <lua5.1/lauxlib.h>
+#include <lua5.1/lualib.h>
+
+#elif defined(HAVE_LUA_H)
+
+#include <lua.h>
+#include <lauxlib.h>
+#include <lualib.h>
+
+#else // local copy
+
 #include "lua.h"
 #include "lauxlib.h"
 #include "lualib.h"
+
+#endif
 
 #endif // __EDGE_LUA_INC__
 
