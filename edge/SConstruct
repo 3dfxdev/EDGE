@@ -25,16 +25,16 @@ Export('build_info')
 base_env = Environment()
 
 if build_info['cross']:
-  base_env.Tool('crossmingw', toolpath=['build'])
+    base_env.Tool('crossmingw', toolpath=['build'])
 
 # warnings
 base_env.Append(CCFLAGS = ['-Wall'])
 
 # optimisation
 if build_info['release']:
-  base_env.Append(CCFLAGS = ['-O2'])
+    base_env.Append(CCFLAGS = ['-O2'])
 else:
-  base_env.Append(CCFLAGS = ['-O', '-g3'])
+    base_env.Append(CCFLAGS = ['-O', '-g3'])
 
 # platform
 base_env.Append(CCFLAGS = ['-D' + build_info['platform'].upper()])
