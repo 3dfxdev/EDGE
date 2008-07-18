@@ -67,14 +67,17 @@ if 1 and build_info['platform'] == 'linux':
         have_glbsp_h = 1
         env.Append(CCFLAGS = ['-DHAVE_GLBSP_H'])
 
-    if conf.CheckCHeader('lua.h'):
-        have_lua_h = 1
-        env.Append(CCFLAGS = ['-DHAVE_LUA_H'])
-
-    # Debian bullshit
-    if conf.CheckCHeader('lua5.1/lua.h'):
-        have_lua_h = 2
-        env.Append(CCFLAGS = ['-DHAVE_LUA_51_H'])
+### -AJA- System-wide lua is disabled since we require the Lua library
+###       to be compiled with a C++ compiler
+#
+#    if conf.CheckCHeader('lua.h'):
+#        have_lua_h = 1
+#        env.Append(CCFLAGS = ['-DHAVE_LUA_H'])
+#
+#    # Debian crap
+#    if conf.CheckCHeader('lua5.1/lua.h'):
+#        have_lua_h = 2
+#        env.Append(CCFLAGS = ['-DHAVE_LUA_51_H'])
 
     env = conf.Finish()
 
