@@ -314,7 +314,6 @@ int TranslateSDLKey(int key)
 		case SDLK_TAB: return KEYD_TAB;
 		case SDLK_RETURN: return KEYD_ENTER;
 		case SDLK_ESCAPE: return KEYD_ESCAPE;
-		case SDLK_DELETE:
 		case SDLK_BACKSPACE: return KEYD_BACKSPACE;
 
 		case SDLK_UP:    return KEYD_UPARROW;
@@ -323,11 +322,12 @@ int TranslateSDLKey(int key)
 		case SDLK_RIGHT: return KEYD_RIGHTARROW;
 
 		case SDLK_HOME:   return KEYD_HOME;
-		case SDLK_END: return KEYD_END;
-		case SDLK_PAGEUP:   return KEYD_PGUP;
-		case SDLK_PAGEDOWN:   return KEYD_PGDN;
+		case SDLK_END:    return KEYD_END;
 		case SDLK_INSERT: return KEYD_INSERT;
-		case SDLK_PRINT: return KEYD_PRTSCR;
+		case SDLK_DELETE: return KEYD_DELETE;
+		case SDLK_PAGEUP: return KEYD_PGUP;
+		case SDLK_PAGEDOWN: return KEYD_PGDN;
+		case SDLK_PRINT:  return KEYD_PRTSCR;
 
 		case SDLK_F1:  return KEYD_F1;
 		case SDLK_F2:  return KEYD_F2;
