@@ -2867,6 +2867,9 @@ static void DrawPortalPolygon(drawmirror_c *mir)
 
 static void RGL_DrawMirror(drawmirror_c *mir)
 {
+	// mark the segment on the automap
+	mir->seg->linedef->flags |= MLF_Mapped;
+
 	RGL_FinishUnits();
 
 	MIR_Push(mir);
