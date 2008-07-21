@@ -1113,8 +1113,6 @@ I_Debugf("Render model: no skin %d\n", mo->model_skin);
 
 typedef struct
 {
-///---	float R, G, B;
-
 	mobj_t *mo;
 
 	vec3_t vert[4];

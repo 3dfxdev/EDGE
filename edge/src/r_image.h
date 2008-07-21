@@ -120,14 +120,6 @@ public:
 
 	std::vector< struct cached_image_s * > cache;
 
-///---	// --- cached translated images (OpenGL only) ---
-///---	struct
-///---	{
-///---		int num_trans;
-///---		struct cached_image_s ** trans;
-///---	}
-///---	trans_cache;
-
 	// --- animation info ---
 
 	struct
@@ -259,9 +251,6 @@ typedef enum
 
 	// INTERNAL ONLY: Source is from IMAGE.DDF
 	IMSRC_User,
-
-///---	// INTERNAL ONLY: Source was a sky texture, merged for a pseudo sky box
-///---	IMSRC_SkyMerge,
 
 	// INTERNAL ONLY: Source is dummy image
 	IMSRC_Dummy,

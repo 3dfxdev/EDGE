@@ -97,7 +97,6 @@ bool R_ChangeResolution(scrmode_c *mode);
 
 void R_SoftInitResolution(void);
 
-void R_ExecuteSetViewSize(void);
 // only call these when it really is time to do the actual resolution
 // or view size change, i.e. at the start of a frame.
 

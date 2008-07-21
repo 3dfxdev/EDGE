@@ -711,9 +711,6 @@ public:
 	// Number of times this line can be triggered. -1 = Any amount
 	int count;
 
-///---	// Crush.  If true, players will be crushed.  If false, obj will stop(/return)
-///---	bool crush;
-
 	// Floor - FIXME!!! Pointer/reference to table?
 	movplanedef_c f;
 

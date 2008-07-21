@@ -180,28 +180,6 @@ static bool read_fmt_chunk(file_c *f, fmt_t *fmt)
 
 #define ID_DATA  0x61746164U  /* "data", in ascii. */
 
-///---typedef struct
-///---{
-///---    u32_t chunkID;
-///---    s32_t chunkSize;
-///---    /* Then, (chunkSize) bytes of waveform data... */
-///---}
-///---data_chunk_t;
-///---
-///---
-///---/*
-///--- * Read in a data_t from disk. This makes this process safe regardless of
-///--- *  the processor's byte order or how the fmt_t structure is packed.
-///--- */
-///---static bool read_data_chunk(file_c *f, data_chunk_t *data)
-///---{
-///---    /* skip reading the chunk ID, since it was already read at this point... */
-///---    data->chunkID = ID_DATA;
-///---
-///---    return read_le_s32(f, &data->chunkSize);
-///---}
-
-
 
 /*****************************************************************************
  * this is what we store in our internal->decoder_private field...           *
@@ -519,8 +497,6 @@ static void free_fmt_adpcm(fmt_t *fmt)
  */
 static bool read_fmt_adpcm(file_c *rw, fmt_t *fmt)
 {
-///--- size_t i;
-
     memset(&fmt->fmt.adpcm, 0, sizeof(fmt->fmt.adpcm));
 
     read_sample = read_sample_fmt_adpcm;

@@ -369,9 +369,6 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	if (E_InputCheckKey(key_use))
 		cmd->buttons |= BT_USE;
 
-///---	if (E_InputCheckKey(key_jump))
-///---		cmd->extbuttons |= EBT_JUMP;
-
 	if (E_InputCheckKey(key_secondatk))
 		cmd->extbuttons |= EBT_SECONDATK;
 

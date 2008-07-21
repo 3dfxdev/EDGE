@@ -728,9 +728,7 @@ exfloor_fit_e P_ExtraFloorFits(sector_t *sec, float z1, float z2)
 	return EXFIT_Ok;
 }
 
-//
-// P_AddExtraFloor
-//
+
 void P_AddExtraFloor(sector_t *sec, line_t *line)
 {
 	sector_t *ctrl = line->frontsector;
@@ -876,9 +874,7 @@ void P_AddExtraFloor(sector_t *sec, line_t *line)
 		sec->bottom_ef = newbie;
 }
 
-//
-// P_FloodExtraFloors
-//
+
 void P_FloodExtraFloors(sector_t *sector)
 {
 	extrafloor_t *S, *L, *C;
@@ -950,17 +946,6 @@ void P_RecomputeGapsAroundSector(sector_t *sec)
 
 	sec->sight_gap_num = GAP_SightConstruct(sec->sight_gaps, sec);
 }
-
-///---void P_RecomputeTilesInSector(sector_t *sec)
-///---{
-///---	int i;
-///---
-///---	for (i=0; i < sec->linecount; i++)
-///---	{
-///---		P_ComputeWallTiles(sec->lines[i], 0);
-///---		P_ComputeWallTiles(sec->lines[i], 1);
-///---	}
-///---}
 
 
 static inline bool PST_CheckBBox(float *bspcoord, float *test)

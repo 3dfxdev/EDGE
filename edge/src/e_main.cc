@@ -581,10 +581,6 @@ void E_Display(void)
 	if (nodrawers)
 		return;  // for comparative timing / profiling
 
-///---	// change the view size if needed  [FIXME!! bullcrap here]
-///---	if (setsizeneeded)
-///---		R_ExecuteSetViewSize();
-
 	// Start the frame - should we need to.
 	I_StartFrame();
 
@@ -601,19 +597,11 @@ void E_Display(void)
 
 			LU_RunHud();
 
-///---			if (automapactive < 2)
-///---				R_Render();
-///---
-///---			if (automapactive > 0)
-///---				AM_Drawer();
-
 			if (need_save_screenshot)
 			{
 				M_MakeSaveScreenShot();
 				need_save_screenshot = false;
 			}
-
-///---		ST_Drawer();
 
 			HU_Drawer();
 			RAD_Drawer();
@@ -1595,9 +1583,6 @@ void E_Tick(void)
 
 	for (; counts > 0; counts--)  // run the tics
 	{
-///---		if (advance_title)
-///---			E_DoAdvanceTitle();
-
 		CON_Ticker();
 		M_Ticker();
 

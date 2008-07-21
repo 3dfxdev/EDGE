@@ -233,9 +233,6 @@ void HU_Drawer(void)
 	if (chat_on)
 		HL_DrawIText(&w_chat);
 
-///---	if (automapactive)
-///---		HL_DrawTextLine(&w_title, false);
-
 	//now, draw stats
 	// -ACB- 1998/09/11 Used White Colour Scaling.
 	if (showstats)

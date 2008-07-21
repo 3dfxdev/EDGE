@@ -1946,27 +1946,6 @@ static void RGL_DrawSeg(drawfloor_t *dfloor, seg_t *seg)
 			cur_seg->back_sub->sector->c_h,
 			cur_seg->front_sub->sector->c_h);
 	}
-
-///---	if (cur_seg->sidedef->middle.image == NULL)
-///---	{
-///---		// -AJA- hack for transparent doors (this test would normally be
-///---		// above this block, not inside it).
-///---		//
-///---		if (f1 >= c1)
-///---			return true;
-///---
-///---		return false;
-///---	}
-///---
-///---	// handle sliders that are totally solid and closed
-///---	if (cur_seg->linedef->slide_door &&
-///---		! cur_seg->linedef->slide_door->s.see_through &&
-///---		! cur_seg->linedef->slider_move)
-///---	{
-///---		return true;
-///---	}
-///---
-///---	return false;
 }
 
 

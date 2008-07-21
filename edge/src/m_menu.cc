@@ -1544,14 +1544,6 @@ bool M_Responder(event_t * ev)
 			{
 				input_string += ch;
 			}
-
-///---		epi::string_c s;
-///---		s = input_string;
-///---		s += ch;
-///---		
-///---		SYS_ASSERT(dialog_style);
-///---		if (dialog_style->fonts[1]->StringWidth(s.c_str()) < 300)
-///---			input_string.Set(s.c_str());
 		}
 
 		return true;
@@ -1880,12 +1872,6 @@ static void DrawMessage(void)
 
 	std::string input(input_string);
 
-///---		if (!msg_string.empty())
-///---			msg = msg_string.c_str();
-///---		
-///---		if (!input_string.empty())
-///---			input = input_string.c_str();
-	
 	if (msg_mode == 2)
 		input += "_";
 	

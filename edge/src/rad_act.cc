@@ -167,10 +167,7 @@ static void SetupTip(drawtip_t *cur)
 		if (*ch_ptr == '\n')
 		{
 			if (cur->hu_linenum == TIP_LINE_MAX)
-			{
-				/// M_WarnError("RTS Tip is too tall !\n");
 				break;
-			}
 
 			need_newbie = true;
 			continue;
@@ -831,9 +828,6 @@ void RAD_ActChangeTex(rad_trigger_t *R, mobj_t *actor, void *param)
 		default:
 			break;
 		}
-
-///---		P_ComputeWallTiles(lines + i, 0);
-///---		P_ComputeWallTiles(lines + i, 1);
 	}
 }
 
