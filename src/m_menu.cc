@@ -1521,7 +1521,7 @@ bool M_Responder(event_t * ev)
 			return true;
 		}
 
-		if (ch == KEYD_BACKSPACE && !input_string.empty())
+		if ((ch == KEYD_BACKSPACE || ch == KEYD_DELETE) && !input_string.empty())
 		{
 			std::string s = input_string.c_str();
 
