@@ -1,4 +1,14 @@
 
+EDGE DDF 5.9: (2008-?????)
+==========================
+
+1) LINES.DDF: fixed the close-wait-open types (16,76,175,196) by
+              adding the missing PAUSE_TIME command.
+
+2) ATTACKS.DDF: fixed player's ATTACKRANGE which should be 2048
+                (MISSILERANGE in the doom code) but was 1024.
+
+
 EDGE DDF 5.8: (2008-06-24)
 ==========================
 

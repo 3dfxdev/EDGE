@@ -42,6 +42,7 @@ Bugs fixed
 + Boom generalised linetypes were not saved in savegames.
 
 - fixed firing rate of Super Shotgun (was too slow).
+- fixed attack range of hit-scan weapons.
 - ID(K)FA cheats now give clip weapons full ammo.
 - fixed problem saving the 'mipmapping' setting.
 - custom sky-boxes should always be used when present.
@@ -51,6 +52,8 @@ Bugs fixed
 - no sprite check for spawned map-things (easier debugging).
 - fixed badly synchronised flash state of Super Shotgun.
 - prevent blood splats when Demon attacks a GOD-mode player.
+- allow binding of DELETE key (distinct from BACKSPACE).
+- close-wait-open linetypes were not waiting, fixed.
 
 
 General improvements
