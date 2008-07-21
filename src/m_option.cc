@@ -169,7 +169,6 @@ static char Axis[]      = "Turn/Forward/Strafe/MLook/Fly/Disable";
 static char DLMode[]    = "Off/On";
 static char JpgPng[]    = "JPEG/PNG";  // basic on/off
 static char AAim[]      = "Off/On/Mlook";
-///---static char Huds[]      = "Full/None/Overlay";
 static char MipMaps[]   = "None/Good/Best";
 static char Details[]   = "Low/Medium/High";
 static char Hq2xMode[]  = "Off/UI Only/UI & Sprites/All";

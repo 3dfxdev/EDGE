@@ -1860,7 +1860,6 @@ void P_SpawnSpecials(int autotag)
 				}
 
 				// update the line gaps & things:
-///---			P_RecomputeTilesInSector(tsec);
 				P_RecomputeGapsAroundSector(tsec);
 
 				P_FloodExtraFloors(tsec);

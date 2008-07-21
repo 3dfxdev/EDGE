@@ -91,12 +91,6 @@ extern void CloseUserFileOrLump(imagedef_c *def, epi::file_c *f);
 //
 typedef struct cached_image_s
 {
-///---	// link in cache list
-///---	struct cached_image_s *next, *prev;
-
-///---	// true if image has been invalidated -- unload a.s.a.p
-///---	bool invalidated;
- 
 	// parent image
 	image_c *parent;
   
@@ -1309,9 +1303,7 @@ static cached_image_t *ImageCacheOGL(image_c *rim,
 		// add entry into cache
 		rc = new cached_image_t;
 
-///---	rc->next = rc->prev = NULL;
 		rc->parent = rim;
-///---		rc->invalidated = false;
 		rc->trans_map = trans;
 		rc->hue = RGB_NO_VALUE;
 		rc->tex_id = 0;
@@ -1441,9 +1433,6 @@ static void W_CreateDummyImages(void)
 //
 bool W_InitImages(void)
 {
-	// the only initialisation the cache list needs
-///---	imagecachehead.next = imagecachehead.prev = &imagecachehead;
-
     // check options
 	if (M_CheckParm("-nosmoothing"))
 		var_smoothing = 0;

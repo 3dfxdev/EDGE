@@ -2105,7 +2105,6 @@ bool P_SolidSectorMove(sector_t *sec, bool is_ceiling,
 		sec->f_h += dh;
 
 	P_RecomputeGapsAroundSector(sec);
-///---	P_RecomputeTilesInSector(sec);
 	P_FloodExtraFloors(sec);
 
 	if (! nocarething)
@@ -2139,7 +2138,6 @@ bool P_SolidSectorMove(sector_t *sec, bool is_ceiling,
 		}
 
 		P_RecomputeGapsAroundSector(ef->sector);
-///---		P_RecomputeTilesInSector(ef->sector);
 		P_FloodExtraFloors(ef->sector);
 	}
 

@@ -48,9 +48,6 @@ sky_box_face_e;
 
 void R_ComputeSkyHeights(void);
 
-///--- #define STRETCH_MIRROR    3
-///--- #define STRETCH_ORIGINAL  4
-
 void RGL_SetupSkyMatrices(void);
 void RGL_RevertSkyMatrices(void);
 void RGL_BeginSky(void);
@@ -64,7 +61,6 @@ void RGL_DrawSkyWall(seg_t *seg, float h1, float h2);
 int  RGL_UpdateSkyBoxTextures(void);
 void RGL_PreCacheSky(void);
 
-///--- void RGL_CalcSkyCoord(float sx, float sy, float sz, bool narrow, float *tx, float *ty);
 
 #endif /* __R_SKY__ */
 

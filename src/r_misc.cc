@@ -94,9 +94,6 @@ float viewsin;
 
 player_t *viewplayer;
 
-///--- camera_t *camera = NULL;
-///--- camera_t *background_camera = NULL;
-
 mobj_t *background_camera_mo = NULL;
 
 //
@@ -237,32 +234,6 @@ float R_PointToDist(float x1, float y1, float x2, float y2)
 	return dist;
 }
 
-
-
-void R_ExecuteSetViewSize(void)
-{
-
-	{
-///---		// -AJA- FIXME: cameras should be renewed when starting a new
-///---		//       level (since there will be new mobjs).
-///---
-///---		// -AJA- 1999/10/22: background cameras.  This code really sucks
-///---		//       arse, needs improving.
-///---		if (background_camera_mo && !background_camera)
-///---		{
-///---			background_camera = R_CreateCamera();
-///---			R_InitCamera_StdObject(background_camera, background_camera_mo);
-///---			camera = background_camera;
-///---		}
-///---
-///---		if (!camera || (background_camera && !background_camera_mo))
-///---		{
-///---			camera = R_CreateCamera();
-///---			R_InitCamera_StdPlayer(camera);
-///---			background_camera = NULL;
-///---		}
-	}
-}
 
 
 //

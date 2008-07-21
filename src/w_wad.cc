@@ -175,23 +175,6 @@ public:
 static std::vector<data_file_c *> data_files;
 
 
-///---class datafile_array_c : public epi::array_c
-///---{
-///---public:
-///---	datafile_array_c() : epi::array_c(sizeof(data_file_c*)) { }
-///---	~datafile_array_c() { Clear(); }
-///---
-///---private:
-///---	void CleanupObject(void *obj) { delete *(data_file_c**)obj; }
-///---
-///---public:
-///---    -- List Management
-///---	int GetSize() { return array_entries; }
-///---	int Insert(data_file_c *c) { return InsertObject((void*)&c); }
-///---	data_file_c* operator[](int idx) { return *(data_file_c**)FetchObject(idx); }
-///---};
-
-
 // Raw filenames
 class raw_filename_c
 {

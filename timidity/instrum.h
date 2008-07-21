@@ -98,13 +98,6 @@ typedef struct InstrumentLayer_s
 }
 InstrumentLayer;
 
-///---struct cfg_type
-///---{
-///--- int font_code;
-///--- int num;
-///--- const char *name;
-///---};
-
 #define FONT_NORMAL 0
 #define FONT_FFF    1
 #define FONT_SBK    2

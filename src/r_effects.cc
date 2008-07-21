@@ -19,8 +19,6 @@
 #include "i_defs.h"
 #include "i_defs_gl.h"
 
-///--- #include "epi/image_data.h"
-
 #include "dm_state.h"
 #include "e_player.h"
 #include "m_misc.h"
@@ -262,38 +260,6 @@ const image_c *fuzz_image;
 float fuzz_yoffset;
 
 
-///---static void FUZZ_MakeTexture(void)
-///---{
-///---	int lump = W_GetNumForName("FUZZMAP7");
-///---
-///---	// make sure lump is right size
-///---	if (W_LumpLength(lump) < 256*256)
-///---		I_Error("Lump 'FUZZMAP7' is too small!\n");
-///---
-///---	const byte *fuzz = (const byte*)W_CacheLumpNum(lump);
-///---
-///---	epi::image_data_c img(256, 256, 4);
-///---
-///---	img.Clear();
-///---
-///---	for (int y = 0; y < 256; y++)
-///---	for (int x = 0; x < 256; x++)
-///---	{
-///---		byte *dest = img.PixelAt(x, y);
-///---
-///---		dest[3] = fuzz[y*256 + x];
-///---	}
-///---	
-///---	W_DoneWithLump(fuzz);
-///---
-///---FILE *fp = fopen("FUZZMAP7.png", "wb"); SYS_ASSERT(fp);
-///---epi::PNG_Save(fp, &img);
-///---fclose(fp);
-///---
-///---	fuzz_tex = R_UploadTexture(&img);
-///---}
-
-
 void FUZZ_Update(void)
 {
 	if (! fuzz_image)
@@ -301,10 +267,6 @@ void FUZZ_Update(void)
 		fuzz_image = W_ImageLookup("FUZZ_MAP", INS_Texture, ILF_Exact|ILF_Null);
 		if (! fuzz_image)
 			I_Error("Cannot find essential image: FUZZ_MAP\n");
-
-///---		FUZZ_MakeTexture();
-
-////		fuzz_reset_ctr = image_reset_counter;
 	}
 
 	fuzz_yoffset = ((framecount * 3) & 1023) / 256.0;

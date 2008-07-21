@@ -44,9 +44,6 @@ extern int bmap_height;
 extern float bmap_orgx;  // origin of block map
 extern float bmap_orgy;
 
-///--- extern mobj_t **blocklinks;   // for thing chains
-///--- extern mobj_t **blocklights;  // for dynamic lights
-
 #define BLOCKMAP_GET_X(x)  ((int) ((x) - bmap_orgx) / BLOCKMAP_UNIT)
 #define BLOCKMAP_GET_Y(y)  ((int) ((y) - bmap_orgy) / BLOCKMAP_UNIT)
 
@@ -66,10 +63,6 @@ typedef struct intercept_s
 	line_t *line;
 }
 intercept_t;
-
-///--- typedef bool (* traverse_func_t)(intercept_t * in, void *data);
-
-///--- typedef bool (* iterate_func_t)(mobj_t *mo, void *data);
 
 extern divline_t trace;
 
@@ -94,10 +87,6 @@ bool P_BlockLinesIterator(float x1, float y1, float x2, float y2,
 bool P_BlockThingsIterator(float x1, float y1, float x2, float y2,
 		                   bool (* func)(mobj_t *, void *),
 						   void *data = NULL);
-
-///---bool P_RadiusThingsIterator(float x, float y, float r,
-///---		                    bool (* func)(mobj_t *mo, void *data),
-///---						    void *data = NULL);
 
 void P_DynamicLightIterator(float x1, float y1, float z1,
 		                    float x2, float y2, float z2,

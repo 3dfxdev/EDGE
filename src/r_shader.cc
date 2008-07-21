@@ -38,41 +38,6 @@
 //  LIGHT IMAGES
 //----------------------------------------------------------------------------
 
-///---static GLuint MakeStandardDLight(void)
-///---{
-///---	int size = 256;
-///---	int hw   = size / 2;
-///---
-///---	epi::image_data_c img(size, size, 3);
-///---
-///---	for (int y = 0; y < hw; y++)
-///---	for (int x = y; x < hw; x++)
-///---	{
-///---		byte *dest = img.PixelAt(x, y);
-///---
-///---		float dx = (hw-1 - x) / float(hw);
-///---		float dy = (hw-1 - y) / float(hw);
-///---
-///---		float away_squared = dx * dx + dy * dy;
-///---
-///---		float v1 = exp(-5.44 * away_squared);
-///---
-///---		int v2 = (int)(v1 * 255.4f);
-///---
-///---		if (v2 < 0 || x == 0 || x == size-1 || y == 0 || y == size-1)
-///---		{
-///---			v2 = 0;
-///---		}
-///---
-///---		dest[0] = dest[1] = dest[2] = v2;
-///---	}
-///---
-///---	img.EightWaySymmetry();
-///---
-///---	return R_UploadTexture(&img, UPL_Smooth|UPL_Clamp);
-///---}
-
-
 #define LIM_CURVE_SIZE  32
 
 class light_image_c

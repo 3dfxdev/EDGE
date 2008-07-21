@@ -406,8 +406,6 @@ static InstrumentLayer *load_instrument(char *name, int font_type, int percussio
 		{
 			int sample_count = ip->left_samples;
 
-			///--- if (stereo_layer == 0) sample_count = ip->left_samples;
-			///--- else
 			if (stereo_layer == 1)
 				sample_count = ip->right_samples;
 

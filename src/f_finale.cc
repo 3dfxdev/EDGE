@@ -316,7 +316,6 @@ void F_Ticker(void)
 			if (picnum >= finale->pics.GetSize())
 			{
 				DoBumpFinale();
-				///--- picnum = 0;
 			}
 			break;
 

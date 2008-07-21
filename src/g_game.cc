@@ -153,8 +153,6 @@ void G_DoLoadLevel(void)
 	// -AJA- FIXME: this background camera stuff is a mess
 	background_camera_mo = NULL;
 
-///---	R_ExecuteSetViewSize();
-
 	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
 	{
 		player_t *p = players[pnum];
@@ -257,7 +255,6 @@ void G_DoLoadLevel(void)
 	gamestate = GS_LEVEL;
 
 	CON_SetVisible( /* !!! showMessages?vs_minimal: */ vs_notvisible);
-///---	CON_Printf("%s\n", currmap->ddf.name.c_str());
 
 	// clear cmd building stuff
 	E_ClearInput();

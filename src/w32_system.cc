@@ -146,14 +146,6 @@ void I_TraceBack(void)
 }
 
 
-///---//
-///---// returns time in 1/TICRATE second tics
-///---//
-///---int I_GetTime(void)
-///---{
-///---	return ticcount;
-///---}
-
 //
 // I_Warning
 //
@@ -180,8 +172,6 @@ void I_Error(const char *error,...)
 	va_start(argptr, error);
 	vsprintf(msgbuf, error, argptr);
 	va_end(argptr);
-
-///---	ChangeDisplaySettings(0, 0);
 
 	if (logfile)
 	{

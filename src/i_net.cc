@@ -243,7 +243,6 @@ static bool SetupAddresses(void)
 			n_broadcast_listen = n_local_addr;
 			n_broadcast_listen.GuessBroadcast();
 		}
-///---	I_Printf("WARNING: cannot find any broadcast addresses!\n");
 	}
 #endif
 

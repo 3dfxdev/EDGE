@@ -151,9 +151,6 @@ image_data_c *PNG_Load(file_c *f, int read_flags)
 	if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS))
 		png_set_tRNS_to_alpha(png_ptr);
 
-///---	/* set alpha position and filler value */
-///---	png_set_filler(png_ptr, 0xFF, PNG_FILLER_AFTER);
-
 	/* let all the above calls take effect */
 	png_read_update_info(png_ptr, info_ptr);
 
@@ -248,8 +245,6 @@ bool PNG_GetInfo(file_c *f, int *width, int *height, bool *solid)
 
 	png_get_IHDR(png_ptr, info_ptr, &pu_width, &pu_height, &bit_depth,
 			&color_type, &interlace_type, NULL, NULL);
-
-///--- png_read_end(png_ptr, info_ptr);
 
 	*width  = (int)pu_width;
 	*height = (int)pu_height;

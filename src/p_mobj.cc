@@ -1864,7 +1864,6 @@ mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c *info)
 		{
 			mobj->dlight.r = mobj->dlight.target = dinfo->radius;
 			mobj->dlight.color = dinfo->colour;
-///---		mobj->dlight.lim = W_ImageLookup(dinfo->shape, INS_Graphic, ILF_Null);
 
 			// leave 'shader' field as NULL : renderer will create it
 		}

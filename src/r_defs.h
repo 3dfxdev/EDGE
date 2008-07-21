@@ -334,11 +334,6 @@ typedef struct side_s
 	// Sector the SideDef is facing.
 	sector_t *sector;
 
-///---	// set of tiles used for this side
-///---	short tile_max;
-///---	short tile_used;
-///---	wall_tile_t *tiles;
-
 	// midmasker Y offset
 	float midmask_offset;
 }

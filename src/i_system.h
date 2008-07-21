@@ -162,32 +162,6 @@ extern bool nomusic;
 extern bool nocdmusic;
 // Similarly for CD music. Ignored if nomusic is true.
 
-///---typedef enum 
-///---{
-///---	IMUSSF_DATA,
-///---	IMUSSF_FILE,
-///---	IMUSSF_LUMP,
-///---	IMUSSF_CD
-///---}
-///---i_music_srcformat_e;
-///---
-///---typedef struct i_music_info_s
-///---{
-///---	int format;
-///---
-///---	union
-///---	{
-///---		struct { void *ptr; int size; } data;
-///---		struct { const char *name; } file;
-///---		struct { int handle; int pos; int size; } lump;
-///---		struct { int track; } cd;
-///---	}
-///---	info;
-///---}
-///---i_music_info_t;
-///---// Struct for setting up music playback. This 
-///---// is here because it is an interface between engine and EPI Code.
-
 void I_StartupMusic(void);
 // Initialises the music system.  Returns true if successful,
 // otherwise false.  (You should set "nomusic" to true if it fails).
@@ -199,39 +173,10 @@ void I_ShutdownMusic(void);
 // I_StartupMusic().  Must be called by I_SystemShutdown(), the main
 // code never calls this function.
 
-///--- int I_MusicPlayback(i_music_info_t* musdat, int type, bool looping,
-///--- 	float gain);
 
-// Starts music playing using the 'i_music_info_t' for info.
-//
-// Returns an integer handle that is used to refer to the music (in
-// the other functions below), or -1 if an error occurred.  Note: any
-// previously playing music should be killed (via I_MusicKill) before
-// calling this function.
-
-///--- abstract_music_c * I_PlayCDMusic(int track, float volume, bool looping);
-
-///---void I_MusicPause(int *handle);
-///---// Pauses the music.
-///---
-///---void I_MusicResume(int *handle);
-///---// Resumes the music after being paused.
-///---
-///---void I_MusicKill(int *handle);
-///---// You can't stop the rock!!  This does.
-///---
-///---void I_SetMusicVolume(int *handle, float gain);
-///---// Sets the music's volume.  The gain is in the range 0.0 to 1.0
-///---// from quietest to loudest.
-///---
-///---void I_MusicTicker(int *handle);
-///---// Called once in a while.  Should keep the music going.
-///---
-///---char *I_MusicReturnError(void);
-///---// Returns an error message string that describes the error from the
-///---// last music function that failed.  It may return an empty string if
-///---// no errors have yet occurred, but never NULL.  The message is not
-///---// cleared.
+#if 0
+abstract_music_c * I_PlayCDMusic(int track, float volume, bool looping);
+#endif
 
 
 //--------------------------------------------------------

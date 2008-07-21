@@ -582,8 +582,6 @@ static void WI_End(void)
 
 	background_camera_mo = NULL;
 
-///---	R_ExecuteSetViewSize();
-
 	F_StartFinale(&currmap->f_end, nextmap ? ga_finale : ga_nothing);
 }
 
@@ -1580,8 +1578,6 @@ void WI_Start(void)
 				continue;
 
 			background_camera_mo = mo;
-
-///---			R_ExecuteSetViewSize();
 
 			// we don't want to see players
 			for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
