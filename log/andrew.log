@@ -1,5 +1,18 @@
 Andrew Apted's Log
 
+2008/07/13:
+
+Fixed the close-wait-open door linetypes (16,76,175,196) which
+are supposed to wait for 30 seconds, but were not waiting at all.
+
+Fixed attack range of player's hitscan weapons: should be 2048
+(same as MISSILERANGE) but was 1024.
+
+Fixed portal and mirror linedefs which were not being shown on
+the automap.
+
+Fixed the DELETE key which was being converted to BACKSPACE.
+
 2008/06/25:
 
 Renamed "Fake" slopes to "Detail" slopes.
