@@ -214,8 +214,9 @@ vgap_t;
 
 typedef struct slope_plane_s
 {
-	float x1, y1, z1;
-	float x2, y2, z2;
+	// Note: z coords are relative to the floor/ceiling height
+	float x1, y1, dz1;
+	float x2, y2, dz2;
 }
 slope_plane_t;
 

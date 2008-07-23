@@ -759,7 +759,7 @@ static void P_PortalEffect(line_t *ld)
 }
 
 
-static slope_plane_t * DetailSlope_BoundIt(line_t *ld, sector_t *sec, float z1, float z2)
+static slope_plane_t * DetailSlope_BoundIt(line_t *ld, sector_t *sec, float dz1, float dz2)
 {
 	// determine slope's 2D coordinates
 	float d_close = 0;
@@ -798,13 +798,13 @@ L_WriteDebug("DETAIL SLOPE in #%d: dists %1.3f -> %1.3f\n", sec - sectors, d_clo
 
 	slope_plane_t *result = new slope_plane_t;
 
-	result->x1 = ld->v1->x + nx * d_close;
-	result->y1 = ld->v1->y + ny * d_close;
-	result->z1 = z1;
+	result->x1  = ld->v1->x + nx * d_close;
+	result->y1  = ld->v1->y + ny * d_close;
+	result->dz1 = dz1;
 
-	result->x2 = ld->v1->x + nx * d_far;
-	result->y2 = ld->v1->y + ny * d_far;
-	result->z2 = z2;
+	result->x2  = ld->v1->x + nx * d_far;
+	result->y2  = ld->v1->y + ny * d_far;
+	result->dz2 = dz2;
 
 	return result;
 }
@@ -845,7 +845,7 @@ static void DetailSlope_Floor(line_t *ld)
 	// limit height difference to no more than 16 units
 	z1 = MAX(z1, z2 - 16.0);
 
-	sec->f_slope = DetailSlope_BoundIt(ld, sec, z1, z2);
+	sec->f_slope = DetailSlope_BoundIt(ld, sec, z1 - sec->f_h, z2 - sec->f_h);
 }
 
 static void DetailSlope_Ceiling(line_t *ld)
@@ -881,7 +881,7 @@ static void DetailSlope_Ceiling(line_t *ld)
 	// limit height difference to no more than 16 units
 	z2 = MIN(z2, z1 + 16.0);
 
-	sec->c_slope = DetailSlope_BoundIt(ld, sec, z2, z1);
+	sec->c_slope = DetailSlope_BoundIt(ld, sec, z2 - sec->c_h, z1 - sec->c_h);
 }
 
 //

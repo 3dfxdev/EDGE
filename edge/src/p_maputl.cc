@@ -637,12 +637,19 @@ void P_ComputeGaps(line_t * ld)
 	if (back->c_h <= front->f_h || front->c_h <= back->f_h)
 	{
 		// closed door.
+
+		// -AJA- MUNDO HACK for slopes!!!!
+		if (front->f_slope || back->f_slope ||
+		    front->c_slope || back->c_slope)
+		{
+			ld->blocked = false;
+		}
+
 		return;
 	}
 
 	// FIXME: strictly speaking this is not correct, as the front or
 	// back sector may be filled up with thick opaque extrafloors.
-	//
 	ld->blocked = false;
 
 	// handle horizontal sliders
