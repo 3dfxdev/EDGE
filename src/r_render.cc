@@ -467,7 +467,7 @@ float Slope_GetHeight(slope_plane_t *slope, float x, float y)
 
 	float along = ((x - slope->x1) * dx + (y - slope->y1) * dy) / d_len;
 
-	return slope->z1 + along * (slope->z2 - slope->z1);
+	return slope->dz1 + along * (slope->dz2 - slope->dz1);
 }
 
 
@@ -889,7 +889,7 @@ static void DLIT_Plane(mobj_t *mo, void *dataptr)
 		float z = data->vert[0].z;
 		
 		if (data->slope)
-			z = Slope_GetHeight(data->slope, mo->x, mo->y);
+			z += Slope_GetHeight(data->slope, mo->x, mo->y);
 
 		if ((MO_MIDZ(mo) > z) != (data->normal.z > 0))
 			return;
@@ -1090,11 +1090,11 @@ static void ComputeWallTiles(seg_t *seg, int sidenum, float f_min, float c_max)
 
 	float slope_fh = sec->f_h;
 	if (sec->f_slope)
-		slope_fh = MIN(sec->f_slope->z1, sec->f_slope->z2);
+		slope_fh += MIN(sec->f_slope->dz1, sec->f_slope->dz2);
 
 	float slope_ch = sec->c_h;
 	if (sec->c_slope)
-		slope_ch = MAX(sec->c_slope->z1, sec->c_slope->z2);
+		slope_ch += MAX(sec->c_slope->dz1, sec->c_slope->dz2);
 
 	if (! other)
 	{
@@ -1121,8 +1121,8 @@ static void ComputeWallTiles(seg_t *seg, int sidenum, float f_min, float c_max)
 			float lz1 = slope_fh;
 			float rz1 = slope_fh;
 
-			float lz2 = Slope_GetHeight(other->f_slope, seg->v1->x, seg->v1->y);
-			float rz2 = Slope_GetHeight(other->f_slope, seg->v2->x, seg->v2->y);
+			float lz2 = other->f_h + Slope_GetHeight(other->f_slope, seg->v1->x, seg->v1->y);
+			float rz2 = other->f_h + Slope_GetHeight(other->f_slope, seg->v2->x, seg->v2->y);
 
 			AddWallTile2(&sd->bottom, lz1, lz2, rz1, rz2,
 				(ld->flags & MLF_LowerUnpegged) ? sec->c_h : other->f_h, 0);
@@ -1144,8 +1144,8 @@ static void ComputeWallTiles(seg_t *seg, int sidenum, float f_min, float c_max)
 		}
 		else if (other->c_slope)
 		{
-			float lz1 = Slope_GetHeight(other->c_slope, seg->v1->x, seg->v1->y);
-			float rz1 = Slope_GetHeight(other->c_slope, seg->v2->x, seg->v2->y);
+			float lz1 = other->c_h + Slope_GetHeight(other->c_slope, seg->v1->x, seg->v1->y);
+			float rz1 = other->c_h + Slope_GetHeight(other->c_slope, seg->v2->x, seg->v2->y);
 
 			float lz2 = slope_ch;
 			float rz2 = slope_ch;
@@ -2298,6 +2298,8 @@ bool RGL_CheckBBox(float *bspcoord)
 static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 						  surface_t *surf, int face_dir)
 {
+	float orig_h = h;
+
 	MIR_Height(h);
 
 	int num_vert, i;
@@ -2344,7 +2346,7 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 		return;
 
 	// ignore dud regions (floor >= ceiling)
-	if (dfloor->f_h > dfloor->c_h)
+	if (dfloor->f_h > dfloor->c_h && !slope)
 		return;
 
 	// ignore empty subsectors
@@ -2384,7 +2386,7 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	int v_count = 0;
 
 	for (seg=cur_sub->segs, i=0; seg && (i < MAX_PLVERT); 
-		seg=seg->sub_next, i++)
+		 seg=seg->sub_next, i++)
 	{
 		if (v_count < MAX_PLVERT)
 		{
@@ -2397,7 +2399,7 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 
 			if (slope)
 			{
-				z = Slope_GetHeight(slope, x, y);
+				z = orig_h + Slope_GetHeight(slope, x, y);
 
 				MIR_Height(z);
 			}
