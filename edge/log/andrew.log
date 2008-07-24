@@ -6,6 +6,8 @@ The SCons folks decided to break backwards compatibility (for
 no good reason imho), hence I have fixed the scripts for EDGE
 to use the env Clone() method instead of Copy().
 
+Updated the INSTALL and tech/libraries.txt documents.
+
 2008/07/23:
 
 Fixed slope code to handle sectors which move up/down.
