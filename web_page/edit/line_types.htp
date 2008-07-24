@@ -101,6 +101,22 @@
 </PRE>
 
 
+<h3 class="sub_title">Ladders</h3>
+
+<PRE>
+[470] : EDGE Ladder,  48 units high
+[471] : EDGE Ladder,  80 units high
+[472] : EDGE Ladder, 120 units high
+[473] : EDGE Ladder, 160 units high
+[474] : EDGE Ladder, 192 units high
+[475] : EDGE Ladder, 256 units high
+[476] : EDGE Ladder, 384 units high
+[477] : EDGE Ladder, 512 units high
+[478] : EDGE Ladder, 768 units high
+[479] : EDGE Ladder, no limit
+</PRE>
+
+
 <h3 class="sub_title">Mirrors</h3>
 
 <PRE>
@@ -161,22 +177,6 @@
 [823] : Scale back  sector's CEILING
 [824] : Scale front sector's FLOOR+CEILING
 [825] : Scale back  sector's FLOOR+CEILING
-</PRE>
-
-
-<h3 class="sub_title">Ladders</h3>
-
-<PRE>
-[470] : EDGE Ladder,  48 units high
-[471] : EDGE Ladder,  80 units high
-[472] : EDGE Ladder, 120 units high
-[473] : EDGE Ladder, 160 units high
-[474] : EDGE Ladder, 192 units high
-[475] : EDGE Ladder, 256 units high
-[476] : EDGE Ladder, 384 units high
-[477] : EDGE Ladder, 512 units high
-[478] : EDGE Ladder, 768 units high
-[479] : EDGE Ladder, no limit
 </PRE>
 
 
