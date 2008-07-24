@@ -1,8 +1,8 @@
 
-EDGE 1.29 COMPILATION NOTES
+EDGE 1.31 COMPILATION NOTES
 ===========================
 
-by Andrew Apted, June 2007.
+by Andrew Apted, July 2008.
 
 
 Note 1
@@ -10,9 +10,9 @@ Note 1
 
 If you downloaded the EDGE source code from the SVN (Subversion)
 repository, then you will need to add a copy of the GLBSP source
-code and possibly the other libraries which EDGE uses.
+code, LUA 5.1 and possibly the other libraries which EDGE uses.
 
-The easiest way to get them is to download the 1.29 source code
+The easiest way to get them is to download the 1.31 source code
 package and move/copy the missing pieces from there.
 
 Note 2
@@ -55,17 +55,28 @@ There are three basic configurations:
 Libraries
 ---------
 
-For the list of libraries required by EDGE, see the
-text document: docs/tech/libraries.txt
+For the list of libraries required by EDGE, see the text
+document: docs/tech/libraries.txt
 
 The scons build system not only builds the main engine code
 (i.e. all the stuff in the src/ directory) but also builds
-the EPI, Deh_Edge, GLBSP, and LZO libraries.
+the EPI, Deh_Edge, and GLBSP libraries.
 
 The following libraries are linked statically in the
 release=true builds and must be built manually before
-running scons: zlib, libpng, jpeglib, libogg, libvorbis
+running scons: lua, zlib, libpng, jpeglib, libogg, libvorbis
 and libvorbisfile.  Also FLTK for Linux binaries.
+
+
+Lua Notes
+---------
+
+The Lua library needs to be compiled with a C++ compiler
+(g++) instead of a C compiler (gcc).  That is because Lua
+must use C++ exception handling to handle errors properly
+when linked to a C++ program.  For this reason, using a
+system-wide Lua library is NOT supported because it would
+have been compiled with a C compiler.
 
 
 Resource File
@@ -87,4 +98,6 @@ LINKS
 =====
 
 http://www.scons.org     
+
+(see docs/tech/libraries.txt for more links)
 

@@ -1,13 +1,12 @@
 
-EDGE Required Libraries
-=======================
+EDGE 1.31 Required Libraries
+============================
 
 Internal (in SVN)
 -----------------
 
 EPI      : Edge Platform Interface (utility code)
 Deh_Edge : DeHackEd/BEX patch to DDF converter
-LZO      : Compression library
 Timidity : MIDI playback library
 
 
@@ -20,19 +19,19 @@ glBSP    : GL-Nodes builder
 External
 --------
 
-LibSDL  : Simple DirectMedia Library (video and input)
-SDL_net : Networking library for SDL
+LibSDL   : Simple DirectMedia Library (video and input)
 
-OpenGL  : 3D Graphics library
-GLEW    : OpenGL Extension Wrangler library
+OpenGL   : 3D Graphics library
+GLEW     : OpenGL Extension Wrangler library
 
 OGG + Vorbis + VorbisFile : Compressed sound and music
 
-FLTK    : Fast Light ToolKit, for error dialogs  [Linux only]
+Lua      : Lua scripting language
+FLTK     : Fast Light ToolKit, for error dialogs  [Linux only]
 
-LibPNG  : PNG image handling (Portable Network Graphics)
-Jpeglib : JPEG image handling
-Zlib    : Compression library (used by LibPNG too)
+LibPNG   : PNG image handling (Portable Network Graphics)
+Jpeglib  : JPEG image handling
+Zlib     : Compression library (used by LibPNG too)
 
 
 LINKS
@@ -46,8 +45,8 @@ http://www.libsdl.org/
 http://www.libsdl.org/projects/SDL_net/
 
 http://www.vorbis.com/
+http://www.lua.org/
 http://www.fltk.org/
-http://www.oberhumer.com/opensource/lzo
 
 http://www.opengl.org/
 http://glew.sourceforge.net/
