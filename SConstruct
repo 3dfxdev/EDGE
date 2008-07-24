@@ -3,6 +3,8 @@
 #
 import os
 
+EnsureSConsVersion(0, 96, 93)
+
 build_info = {}
 
 build_info['cross'] = ('cross' in ARGUMENTS) and ARGUMENTS['cross']
@@ -54,7 +56,7 @@ Export('base_env')
 
 #----- LIBRARIES ----------------------------------
 
-env = base_env.Copy()
+env = base_env.Clone()
 
 # check for globally installed glBSP headers
 have_glbsp_h = 0

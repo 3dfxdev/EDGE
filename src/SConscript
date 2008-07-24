@@ -6,7 +6,7 @@ import os
 Import('build_info')
 Import('main_env')
 
-env = main_env.Copy()
+env = main_env.Clone()
 
 env.Append(CCFLAGS = ['-ffast-math'])
 
