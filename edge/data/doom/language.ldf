@@ -57,11 +57,15 @@ GotMedi="Picked up a medikit.";
 GotSoul="Supercharge!";
 
 GotBlueCard="Picked up a blue keycard.";
-GotYellowCard="Picked up a yellow keycard.";
-GotRedCard="Picked up a red keycard.";
 GotBlueSkull="Picked up a blue skull key.";
+GotYellowCard="Picked up a yellow keycard.";
 GotYellowSkull="Picked up a yellow skull key.";
+GotRedCard="Picked up a red keycard.";
 GotRedSkull="Picked up a red skull key.";
+GotGreenCard="Picked up a green keycard.";
+GotGreenSkull="Picked up a green skull key.";
+GotOrangeCard="Picked up an orange keycard.";
+GotOrangeSkull="Picked up an orange skull key.";
 
 GotInvulner="Invulnerability!";
 GotBerserk="Berserk!";
@@ -92,11 +96,15 @@ GotPlasmaGun="You got the plasma gun!";
 GotShotgun="You got the shotgun!";
 
 NeedBlueForObject="You need a blue key to activate this object";
-NeedYellowForObject="You need a yellow key to activate this object";
-NeedRedForObject="You need a red key to activate this object";
 NeedBlueForDoor="You need a blue key to open this door";
+NeedYellowForObject="You need a yellow key to activate this object";
 NeedYellowForDoor="You need a yellow key to open this door";
+NeedRedForObject="You need a red key to activate this object";
 NeedRedForDoor="You need a red key to open this door";
+NeedGreenForObject="You need a green key to activate this object";
+NeedGreenForDoor="You need a green key to open this door";
+NeedOrangeForObject="You need an orange key to activate this object";
+NeedOrangeForDoor="You need an orange key to open this door";
 NeedAnyForDoor="You need at least one key to open this door";
 NeedAllForDoor="You need all keys to open this door";
 
