@@ -145,6 +145,28 @@
 </PRE>
 
 
+<h3 class="sub_title">Green Key Doors</h3>
+
+<PRE>
+[490] : EDGE Green Key MANUAL DOOR - SR
+[491] : EDGE Green Key MANUAL DOOR - S1
+[492] : EDGE Green Key TAGGED DOOR - SR
+[493] : EDGE Green Key TAGGED DOOR - S1
+[494] : EDGE Green Key BLAZING DOOR - S1
+</PRE>
+
+
+<h3 class="sub_title">Orange Key Doors</h3>
+
+<PRE>
+[495] : EDGE Orange Key MANUAL DOOR - SR
+[496] : EDGE Orange Key MANUAL DOOR - S1
+[497] : EDGE Orange Key TAGGED DOOR - SR
+[498] : EDGE Orange Key TAGGED DOOR - S1
+[499] : EDGE Orange Key BLAZING DOOR - S1
+</PRE>
+
+
 <h3 class="sub_title">Slopes</h3>
 
 <PRE>
