@@ -1,5 +1,11 @@
 Andrew Apted's Log
 
+2008/08/07:
+
+Added new GREEN and ORANGE key things (card and skull) into
+the standard EDGE DDF, as well as a bunch of new locked door
+linetypes (in the range 490-499) to use with them.
+
 2008/07/24:
 
 The SCons folks decided to break backwards compatibility (for

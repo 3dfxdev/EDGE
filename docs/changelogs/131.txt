@@ -131,7 +131,7 @@ Features Removed:
   code caused a total lack of sound under Windows Vista.
 
 - the old shadows feature (which never looked particularly good)
-  didn't survive an overhaul of the rendering code.
+  did not survive an overhaul of the rendering code.
 
 - removed the LZO library.  This means very old savegames won't
   work.  Savegames made with EDGE 1.29 should be fine.
@@ -320,6 +320,27 @@ New features:
     [7031] : PURPLE_ARMOUR
     [7032] : YELLOW_ARMOUR
     [7033] : RED_ARMOUR
+
+- four new key things were added to EDGE.WAD:
+
+    [7015] : GREEN_KEY
+    [7017] : GREEN_SKULLKEY
+    [7018] : ORANGE_KEY
+    [7019] : ORANGE_SKULLKEY
+
+  and also ten locked door linetypes to use with them:
+
+    [490] : EDGE Green Key MANUAL DOOR - SR
+    [491] : EDGE Green Key MANUAL DOOR - S1
+    [492] : EDGE Green Key TAGGED DOOR - SR
+    [493] : EDGE Green Key TAGGED DOOR - S1
+    [494] : EDGE Green Key BLAZING DOOR - S1
+
+    [495] : EDGE Orange Key MANUAL DOOR - SR
+    [496] : EDGE Orange Key MANUAL DOOR - S1
+    [497] : EDGE Orange Key TAGGED DOOR - SR
+    [498] : EDGE Orange Key TAGGED DOOR - S1
+    [499] : EDGE Orange Key BLAZING DOOR - S1
 
 - some LADDER linetypes were added to EDGE.WAD:
 
