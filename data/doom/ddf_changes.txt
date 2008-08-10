@@ -8,14 +8,12 @@ EDGE DDF 5.9: (2008-?????)
 2) ATTACKS.DDF: fixed player's ATTACKRANGE which should be 2048
                 (MISSILERANGE in the doom code) but was 1024.
 
-3) THINGS.DDF: added four new key things:
+3) THINGS.DDF: added two new key things:
                [7015] : GREEN_KEY
                [7017] : GREEN_SKULLKEY
-               [7018] : ORANGE_KEY
-               [7019] : ORANGE_SKULLKEY
 
-4) LINES.DDF and LANGUAGE.LDF: add added ten new locked door types for
-                               the GREEN and ORANGE keys (490 to 499).
+4) LINES.DDF, LANGUAGE.LDF: added five new locked door types
+                            for the new GREEN key (490 to 495).
 
 
 EDGE DDF 5.8: (2008-06-24)
