@@ -104,6 +104,15 @@ NeedGreenForDoor="You need a green key to open this door";
 NeedAnyForDoor="You need at least one key to open this door";
 NeedAllForDoor="You need all keys to open this door";
 
+NeedGoldKey  ="You need a gold key to open this door";
+NeedSilverKey="You need a silver key to open this door";
+NeedBrassKey ="You need a brass key to open this door";
+NeedCopperKey="You need a copper key to open this door";
+NeedSteelKey ="You need a steel key to open this door";
+NeedWoodenKey="You need a wooden key to open this door";
+NeedFireKey  ="You need a fire key to open this door";
+NeedWaterKey ="You need a water key to open this door";
+
 GameSaved="game saved.";
 
 UnsentMsg="[Message unsent]";
