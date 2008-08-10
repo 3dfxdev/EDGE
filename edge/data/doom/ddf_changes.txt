@@ -15,6 +15,10 @@ EDGE DDF 5.9: (2008-?????)
 4) LINES.DDF, LANGUAGE.LDF: added five new locked door types
                             for the new GREEN key (490 to 495).
 
+5) LINES.DDF, LANGUAGE.LDF: added 20 new locked door types (580-599)
+                            for the other eight keys: GOLD, SILVER,
+                            BRASS, COPPER, STEEL, WOODEN, FIRE, WATER.
+
 
 EDGE DDF 5.8: (2008-06-24)
 ==========================
