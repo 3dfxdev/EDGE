@@ -1918,6 +1918,11 @@ static void RGL_DrawSeg(drawfloor_t *dfloor, seg_t *seg)
 		tex_x1 += x_offset;
 		tex_x2 += x_offset;
 
+		if (MIR_Reflective())
+		{
+			float tmp_tx = tex_x1; tex_x1 = tex_x2; tex_x2 = tmp_tx;
+		}
+
 		DrawWallPart(dfloor,
 			x1,y1, wt->lz1,wt->lz2,
 		    x2,y2, wt->rz1,wt->rz2, tex_top_h,
