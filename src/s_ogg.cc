@@ -636,9 +636,8 @@ bool S_LoadOGGSound(epi::sound_data_c *buf, const byte *data, int length)
 		{
 			gather.DiscardChunk();
 
-			// FIXME !!!!!
-			I_Error("Some fuckup while loading OGG\n");
-			return false; /* NOT REACHED */
+			I_Warning("Problem occurred while loading OGG (%d)\n", got_size);
+			break;
 		}
 
 		got_size /= (is_stereo ? 2 : 1) * sizeof(s16_t);
