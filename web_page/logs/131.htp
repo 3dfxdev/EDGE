@@ -302,26 +302,42 @@ Date: JULY 2008
     [7032] : YELLOW_ARMOUR
     [7033] : RED_ARMOUR
 
-- four new key things were added to EDGE.WAD:
+- two new key things were added to EDGE.WAD:
 
     [7015] : GREEN_KEY
     [7017] : GREEN_SKULLKEY
-    [7018] : ORANGE_KEY
-    [7019] : ORANGE_SKULLKEY
 
-  and also ten locked door linetypes to use with them:
+- these locked door linetypes were also added to EDGE.WAD:
 
-    [490] : EDGE Green Key MANUAL DOOR - SR
-    [491] : EDGE Green Key MANUAL DOOR - S1
-    [492] : EDGE Green Key TAGGED DOOR - SR
-    [493] : EDGE Green Key TAGGED DOOR - S1
-    [494] : EDGE Green Key BLAZING DOOR - S1
+    [490] : EDGE Green Key DOOR - DR
+    [491] : EDGE Green Key DOOR - D1
+    [492] : EDGE Green Key DOOR - SR
+    [493] : EDGE Green Key DOOR - S1
+    [494] : EDGE Green Key BLAZING DOOR - D1
 
-    [495] : EDGE Orange Key MANUAL DOOR - SR
-    [496] : EDGE Orange Key MANUAL DOOR - S1
-    [497] : EDGE Orange Key TAGGED DOOR - SR
-    [498] : EDGE Orange Key TAGGED DOOR - S1
-    [499] : EDGE Orange Key BLAZING DOOR - S1
+    [580] : EDGE Gold Key DOOR - DR
+    [581] : EDGE Gold Key DOOR - D1
+    [582] : EDGE Gold Key DOOR - SR
+    [583] : EDGE Gold Key DOOR - S1
+
+    [584] : EDGE Silver Key DOOR - DR
+    [585] : EDGE Silver Key DOOR - D1
+    [586] : EDGE Silver Key DOOR - SR
+    [587] : EDGE Silver Key DOOR - S1
+
+    [588] : EDGE Brass Key DOOR - DR
+    [589] : EDGE Brass Key DOOR - D1
+    [590] : EDGE Copper Key DOOR - DR
+    [591] : EDGE Copper Key DOOR - D1
+    [592] : EDGE Steel Key DOOR - DR
+    [593] : EDGE Steel Key DOOR - D1
+
+    [594] : EDGE Wooden Key DOOR - DR
+    [595] : EDGE Wooden Key DOOR - D1
+    [596] : EDGE Fire Key DOOR - DR
+    [597] : EDGE Fire Key DOOR - D1
+    [598] : EDGE Water Key DOOR - DR
+    [599] : EDGE Water Key DOOR - D1
 
 - some LADDER linetypes were added to EDGE.WAD:
 
