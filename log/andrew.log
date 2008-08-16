@@ -1,5 +1,15 @@
 Andrew Apted's Log
 
+2008/08/10:
+
+Fixed textures in mirrors which were not flipped.  Flats are
+still wrong though.
+
+Removed the ORANGE key thing and locked door linetypes, and in
+it's stead added locked door types for the eight remaining keys
+(GOLD, SILVER, COPPER, BRASS, STEEL, WOODEN, WATER, FIRE) with
+linetypes in the range 580-599.
+
 2008/08/07:
 
 Added new GREEN and ORANGE key things (card and skull) into
