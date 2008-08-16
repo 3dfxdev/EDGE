@@ -480,13 +480,6 @@ static void SpecialWadVerify(void)
 				  "available at http://edge.sourceforge.net/",
 				  EDGE_WAD_VERSION, EDGE_WAD_VERSION_FRAC, wad_ver, wad_ver_frac);
 	}
-	else if (EDGE_WAD_SUB_VERSION > wad_sub_ver)
-	{
-		I_Warning("Slightly out-of-date EDGE.WAD (v%d.%d.%d) found,\n"
-				  "%d.%d.%d is recommended. Get it at http://edge.sourceforge.net/",
-				  wad_ver, wad_ver_frac, wad_sub_ver,
-				  EDGE_WAD_VERSION, EDGE_WAD_VERSION_FRAC, EDGE_WAD_SUB_VERSION);
-	}
 
 	I_Printf("EDGE.WAD version %d.%d.%d found.\n", wad_ver, wad_ver_frac, wad_sub_ver);
 }
