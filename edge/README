@@ -78,10 +78,33 @@ Notable EDGE features:
 
   - Hardware accelerated 3D rendering (via OpenGL).
 
+  - MD2 models for monsters, items and player weapons.
+
   - Jumping, Look up/down, Flying (JetPack), Zooming.
 
   - Many limits and bugs from original DOOM removed.
 
+
+Timidity Music Support:
+    Timidity is a program for playing MIDI music, and EDGE includes
+    has a built-in version of it.  For Linux users this is the only
+    way to hear DOOM format music, but Windows users can use it too
+    (see the Music Device entry in the Sound Options menu). 
+
+    Timidity requires "GUS Patch" files to work, which are special
+    sound data for musical instruments.  Under Linux you can simply
+    install the 'freepats' package and it should work.  Otherwise
+    a good quality patchset can be found in the idgames archive:
+    search for "8mbgmpat", download the zip, create a folder where
+    EDGE is installed called "8mbgmpat" and unpack the files into
+    that folder.  Then run EDGE and the following messages should
+    appear in the console:
+
+    >  Loading Timidity config: ./8mbgmpat/TIMIDITY.CFG
+    >  I_StartupMusic: Timidity Init OK
+
+
+------------------------------------------------------------------------
 
 Summary of Changes in 1.31:
   + MD2 models for things and weapons
