@@ -1,5 +1,5 @@
 
-EDGE DDF 5.9: (2008-?????)
+EDGE DDF 5.9: (2008-08-16)
 ==========================
 
 1) LINES.DDF: fixed the close-wait-open types (16,76,175,196) by
