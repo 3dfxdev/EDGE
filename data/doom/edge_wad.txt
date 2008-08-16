@@ -1,6 +1,6 @@
 ==========================
 |                        |
-|  EDGE.WAD VERSION 5.8  |
+|  EDGE.WAD VERSION 5.9  |
 |                        |
 ==========================
 
@@ -24,6 +24,27 @@ GNU General Public License for more details.
 
 CHANGELOG
 ---------
+
+EDGE DDF 5.9: (2008-08-16)
+==========================
+
+1) LINES.DDF: fixed the close-wait-open types (16,76,175,196) by
+              adding the missing PAUSE_TIME command.
+
+2) ATTACKS.DDF: fixed player's ATTACKRANGE which should be 2048
+                (MISSILERANGE in the doom code) but was 1024.
+
+3) THINGS.DDF: added two new key things:
+               [7015] : GREEN_KEY
+               [7017] : GREEN_SKULLKEY
+
+4) LINES.DDF, LANGUAGE.LDF: added five new locked door types
+                            for the new GREEN key (490 to 495).
+
+5) LINES.DDF, LANGUAGE.LDF: added 20 new locked door types (580-599)
+                            for the other eight keys: GOLD, SILVER,
+                            BRASS, COPPER, STEEL, WOODEN, FIRE, WATER.
+
 
 EDGE WAD 5.8: (2008-06-24)
 ==========================
