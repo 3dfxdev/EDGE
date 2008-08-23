@@ -3,10 +3,10 @@
 //
 //    These scripts replace hardcoded events for both DOOM 1 and 2.
 //    For documentation, see http://edge.sourceforge.net/
-//    DDF Version 5.8
+//    DDF Version 5.9
 //
 
-#VERSION 1.29
+#VERSION 1.31
 
 // *****************
 // * DOOM1 scripts *
