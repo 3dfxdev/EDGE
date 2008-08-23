@@ -3584,9 +3584,7 @@ void P_ActBecome(struct mobj_s *mo)
 	P_SetMobjStateDeferred(mo, state, 0);
 }
 
-//
-// P_PlayerAttack
-//
+
 // -AJA- 1999/08/08: New attack flag FORCEAIM, which fixes chainsaw.
 //
 void P_PlayerAttack(mobj_t * p_obj, const atkdef_c * attack)

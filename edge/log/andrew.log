@@ -1,5 +1,11 @@
 Andrew Apted's Log
 
+2008/08/23:
+
+Made the weapon EJECT() action show a proper error message
+(instead of an assertion failure) if the attack name was not
+known or left unset.
+
 2008/08/10:
 
 Fixed textures in mirrors which were not flipped.  Flats are

@@ -1482,8 +1482,6 @@ void A_WeaponShootSA(mobj_t * mo) { DoWeaponShoot(mo, 1); }
 
 
 //
-// A_WeaponEject
-//
 // Used for ejecting shells (or other effects).
 //
 // -AJA- 1999/09/10: written.
@@ -1498,6 +1496,10 @@ void A_WeaponEject(mobj_t * mo)
 
 	if (psp->state && psp->state->action_par)
 		attack = (atkdef_c *) psp->state->action_par;
+
+	if (! attack)
+		I_Error("Weapon [%s] missing attack for EJECT action.\n",
+			info->ddf.name.c_str());
 
 	P_PlayerAttack(mo, attack);
 }
