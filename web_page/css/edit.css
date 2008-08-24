@@ -46,21 +46,21 @@ li.edit {
 .lua_PRE {
     margin-left: 24px;
     margin-right: 24px;
-    font-size: x-large;
+    font-size: large;
     font-family: monospace;
     color: #ddd;
     background-color: black;
   }
 
 .lua_VAR {
-    color: #95f;
-    font-size: x-large;
+    color: #88f;
+    font-size: large;
     font-family: monospace;
   }
 
 .lua_FUNC {
-    color: #22AA22;
-    font-size: x-large;
+    color: #2a2;
+    font-size: large;
     font-family: monospace;
   }
 
