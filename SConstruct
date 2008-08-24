@@ -145,8 +145,8 @@ env.Append(LIBS = ['png', 'jpeg', 'z'])
 # FLTK
 if build_info['platform'] == 'linux' and build_info['release']:
     env.Append(CCFLAGS = ['-DUSE_FLTK'])
-    env.ParseConfig('#linux_lib/fltk-1.1.7/fltk-config --cflags')
-    env.Append(LIBPATH = ['#linux_lib/fltk-1.1.7/lib'])
+    env.ParseConfig('#linux_lib/fltk-1.1.9/fltk-config --cflags')
+    env.Append(LIBPATH = ['#linux_lib/fltk-1.1.9/lib'])
     env.Append(LIBS = ['fltk', 'fltk_images'])
 
 # SDL
