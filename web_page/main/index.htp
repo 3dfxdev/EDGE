@@ -21,6 +21,45 @@ id software.
 <h2 class="page_title"> Latest News </h2>
 
 
+<use BigNews title="EDGE 1.31 RELEASED" date="24-Aug-2008">
+
+The full release of EDGE 1.31 is now available for download.
+
+<p>
+MAJOR CHANGES:
+<ul>
+  <li> Greatly improved renderer
+  <li> MD2 models for things and weapons
+  <li> Lua scripted HUDs
+  <li> Detail Slopes
+  <li> Mirrors with multiple reflections
+  <li> Timidity music playback
+  <li> TGA (targa) image format supported
+  <li> WAV and OGG/Vorbis loaders for sound effects
+</ul>
+
+<p>
+See the complete list of changes since EDGE 1.29 here:
+<a href="logs/131.htm">1.31 ChangeLog</a>
+
+<p>
+Some things have been removed in 1.31, such as support for
+demos (recording and playback) and CD music.
+
+<p>
+Savegames from EDGE 1.29 should still work,
+however savegames from earlier versions (like 1.28a)
+do not work.
+
+<p>
+Download Link:
+<a href="http://downloads.sourceforge.net/edge/Edge-1.31-win32.zip">
+Edge-1.31-win32.zip
+</a> (2.9 MB)
+
+<use EndNews>
+
+
 <use BeginNews title="1.31 RC#1 Available" date="09-Jul-2008">
 
 As always we are delighted to announce that EDGE 1.31-RC#1
@@ -54,7 +93,10 @@ The complete list of changes since EDGE 1.29 is here:
 <a href="logs/131.htm">1.31 ChangeLog</a>
 
 <p>
->Download Link: XXX
+Download Link:
+<a href="http://downloads.sourceforge.net/edge/Edge-1.31-RC1.zip">
+Edge-1.31-RC1.zip
+</a> (3.5 MB)
 
 <use EndNews>
 
