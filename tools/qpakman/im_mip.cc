@@ -28,7 +28,7 @@
 
 extern std::vector<std::string> input_names;
 
-extern bool opt_overwrite;
+extern bool opt_force;
 
 
 std::map<std::string, int> all_lump_names;
@@ -569,7 +569,7 @@ bool MIP_ExtractMipTex(int entry, const char *lump_name)
 
   const char *filename = ExpandFileName(lump_name, fullbright);
 
-  if (FileExists(filename) && ! opt_overwrite)
+  if (FileExists(filename) && ! opt_force)
   {
     printf("FAILURE: will not overwrite file: %s\n\n", filename);
 

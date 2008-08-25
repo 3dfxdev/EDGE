@@ -29,7 +29,7 @@ extern std::vector<std::string> input_names;
 extern std::string output_name;
 
 extern bool opt_recursive;
-extern bool opt_overwrite;
+extern bool opt_force;
 
 
 std::map<std::string, int> all_created_dirs;
@@ -149,7 +149,7 @@ bool ARC_ExtractOneFile(int entry, const char *name)
     return false;
 
 
-  if (FileExists(filename) && ! opt_overwrite)
+  if (FileExists(filename) && ! opt_force)
   {
     printf("FAILURE: will not overwrite file: %s\n\n", filename);
 
