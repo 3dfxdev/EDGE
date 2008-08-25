@@ -2,14 +2,14 @@
 TODO for QPakMan
 ================
 
--  allow -f for -overwrite
-
 -  PIC packing / unpacking (gfx.wad)
    -  have -p -pic option
    -  enabled automatically for "gfx.wad" file
 
    -  CONCHARS is a block of raw pixels (where 0 is transparency)
    -  TINYFONT also.
+
+   -  find palette in PAK file
 
 -  convert to/from gfx/xxx.lmp files  [unless -raw option]
 -  convert to/from textures/xxx.wal files (Quake2)
