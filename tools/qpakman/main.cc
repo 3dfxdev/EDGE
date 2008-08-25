@@ -22,6 +22,7 @@
 #include <time.h>
 
 #include "archive.h"
+#include "im_color.h"
 #include "im_mip.h"
 #include "pakfile.h"
 
@@ -320,6 +321,8 @@ int main(int argc, char **argv)
     argv++;
     argc--;
   }
+
+  COL_SetPalette(game_type);
 
   switch (program_action)
   {
