@@ -226,6 +226,16 @@ void COL_SetFullBright(bool enable)
 }
 
 
+u32_t COL_ReadPalette(byte pix)
+{
+  byte R = quake1_palette[pix*3 + 0];  // FIXME: current palette
+  byte G = quake1_palette[pix*3 + 1];
+  byte B = quake1_palette[pix*3 + 2];
+
+  return MAKE_RGB(R, G, B);
+}
+
+
 byte COL_FindColor(const byte *palette, u32_t rgb_col)
 {
   int best_idx  = -1;

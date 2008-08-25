@@ -22,6 +22,8 @@
 void COL_SetPalette(int game_type);
 void COL_SetFullBright(bool enable);
 
+u32_t COL_ReadPalette(byte pix);
+
 byte COL_FindColor(const byte *palette, u32_t rgb_col);
 byte COL_MapColor(u32_t rgb_col);
 

@@ -428,11 +428,7 @@ bool MIP_ExtractMipTex(int entry, const char *lump_name)
     if (pix >= 256-32)
       fullbright = true;
 
-    byte R = quake1_palette[pix*3 + 0];
-    byte G = quake1_palette[pix*3 + 1];
-    byte B = quake1_palette[pix*3 + 2];
-
-    img->PixelAt(x, y) = MAKE_RGB(R, G, B);
+    img->PixelAt(x, y) = COL_ReadPalette(pix);
   }
 
   delete pixels;
