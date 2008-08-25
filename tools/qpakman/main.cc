@@ -17,6 +17,7 @@
 //------------------------------------------------------------------------
 
 #include "headers.h"
+#include "main.h"
 
 #include <time.h>
 
@@ -24,12 +25,15 @@
 #include "im_mip.h"
 #include "pakfile.h"
 
-#define VERSION  "0.57"
+
+#define VERSION  "0.60"
 
 
 std::string output_name;
 
 std::vector<std::string> input_names;
+
+std::string color_name;
 
 typedef enum
 {
@@ -37,14 +41,19 @@ typedef enum
 
   ACT_Create,
   ACT_List,
-  ACT_Extract
+  ACT_Extract,
+  ACT_MakeTex
 }
 prog_action_type_e;
 
 static prog_action_type_e program_action = ACT_None;
 
-bool opt_recursive = true;
-bool opt_force = false;
+
+game_kind_e game_type = GAME_Quake1;
+
+bool opt_force   = false;
+bool opt_raw     = false;
+bool opt_picture = false;
 
 
 void FatalError(const char *message, ...)
@@ -80,9 +89,16 @@ void ShowUsage(void)
   printf("\n");
 
   printf("OPTIONS:\n");
-  printf("   -l  -list        list contents of PAK/WAD file\n");
-  printf("   -e  -extract     extract PAK/WAD contents into current dir\n");
-  printf("   -f  -force       overwrite existing files when extracting\n");
+  printf("   -l  -list         list contents of PAK/WAD file\n");
+  printf("   -e  -extract      extract PAK/WAD contents into current dir\n");
+  printf("   -m  -maketex      make a texture WAD from BSP files\n");
+  printf("\n");
+
+  printf("   -c  -colors  XXX  load color palette from given file\n");
+  printf("   -g  -game    XXX  select game (quake1, quake2, hexen2)\n");
+  printf("   -f  -force        overwrite existing files when extracting\n");
+  printf("   -p  -pic          create PIC format images in the WAD\n");
+  printf("   -r  -raw          do not convert anything\n");
   printf("\n");
 
   printf("This program is free software, under the terms of the GNU General\n");
@@ -124,6 +140,23 @@ int HandleOption(int argc, char **argv)
     return 1;
   }
 
+  if (StringCaseCmp(opt, "-m") == 0 || StringCaseCmp(opt, "-maketex") == 0)
+  {
+    program_action = ACT_MakeTex;
+    return 1;
+  }
+
+
+  if (StringCaseCmp(opt, "-c") == 0 || StringCaseCmp(opt, "-color") == 0 ||
+      StringCaseCmp(opt, "-colors") == 0)
+  {
+    if (argc <= 1 || argv[1][0] == '-')
+      FatalError("Missing filename after %s\n", argv[0]);
+
+    color_name = std::string(argv[1]);
+    return 2;
+  }
+
   if (StringCaseCmp(opt, "-f") == 0 || StringCaseCmp(opt, "-force") == 0 ||
       StringCaseCmp(opt, "-overwrite") == 0)
   {
@@ -131,8 +164,47 @@ int HandleOption(int argc, char **argv)
     return 1;
   }
 
+  if (StringCaseCmp(opt, "-g") == 0 || StringCaseCmp(opt, "-game") == 0)
+  {
+    if (argc <= 1 || argv[1][0] == '-')
+      FatalError("Missing keyword after %s\n", argv[0]);
+
+    if (StringCaseCmp(argv[1], "q1") == 0 ||
+        StringCaseCmp(argv[1], "quake") == 0 ||
+        StringCaseCmp(argv[1], "quake1") == 0)
+    {
+      game_type = GAME_Quake1;
+    }
+    else if (StringCaseCmp(argv[1], "q2") == 0 ||
+             StringCaseCmp(argv[1], "quake2") == 0)
+    {
+      game_type = GAME_Quake2;
+    }
+    else if (StringCaseCmp(argv[1], "h2") == 0 ||
+             StringCaseCmp(argv[1], "hexen2") == 0)
+    {
+      game_type = GAME_Hexen2;
+    }
+    else
+      FatalError("Unknown game type: %s\n", argv[1]);
+
+    return 2;
+  }
+
+  if (StringCaseCmp(opt, "-p") == 0 || StringCaseCmp(opt, "-pic") == 0)
+  {
+    opt_picture = true;
+    return 1;
+  }
+
+  if (StringCaseCmp(opt, "-r") == 0 || StringCaseCmp(opt, "-raw") == 0)
+  {
+    opt_raw = true;
+    return 1;
+  }
+
   FatalError("Unknown option: %s\n", argv[0]);
-  return 1; // NOT REACHED
+  return 0; // NOT REACHED
 }
 
 
@@ -205,6 +277,13 @@ void Main_Extract(void)
 }
 
 
+void Main_MakeTex(void)
+{
+  // TODO
+    FatalError("MakeTex not implemented!\n");
+}
+
+
 int main(int argc, char **argv)
 {
   // skip program name itself
@@ -254,6 +333,10 @@ int main(int argc, char **argv)
 
     case ACT_Extract:
       Main_Extract();
+      break;
+
+    case ACT_MakeTex:
+      Main_MakeTex();
       break;
 
     default:

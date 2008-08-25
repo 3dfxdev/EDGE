@@ -20,7 +20,22 @@
 #define __QPAKMAN_MAIN_H__
 
 
+typedef enum
+{
+  GAME_Quake1 = 0,
+  GAME_Quake2 = 1,
+  GAME_Hexen2 = 2,
+}
+game_kind_e;
+
+extern game_kind_e game_type;
+
+extern std::string color_name;
+
+
 extern bool opt_force;
+extern bool opt_picture;
+extern bool opt_raw;
 
 
 void FatalError(const char *str, ...);
