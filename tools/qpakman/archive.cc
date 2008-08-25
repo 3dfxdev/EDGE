@@ -27,18 +27,17 @@
 #include "q1_structs.h"
 
 
+#define opt_recursive  true
+
+
 extern std::vector<std::string> input_names;
 extern std::string output_name;
-
-extern bool opt_recursive;
-extern bool opt_force;
 
 
 std::map<std::string, int> all_created_dirs;
 std::map<std::string, int> all_pak_lumps;
 
 static int total_packed;
-
 
 
 const char *SanitizeOutputName(const char *name)
