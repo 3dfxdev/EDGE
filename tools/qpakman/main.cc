@@ -92,14 +92,14 @@ void ShowUsage(void)
   printf("OPTIONS:\n");
   printf("   -l  -list        list contents of PAK/WAD file\n");
   printf("   -e  -extract     extract PAK/WAD contents into current dir\n");
-  printf("   -m  -maketex     make a texture WAD from BSP files\n");
+//printf("   -m  -maketex     make a texture WAD from BSP files\n");
   printf("\n");
 
   printf("   -c  -colors XXX  load color palette from given file\n");
   printf("   -g  -game   XXX  select game (quake1, quake2, hexen2)\n");
   printf("   -f  -force       overwrite existing files when extracting\n");
-  printf("   -p  -pic         create PIC format images in the WAD\n");
-  printf("   -r  -raw         do not convert anything\n");
+//printf("   -p  -pic         create PIC format images in the WAD\n");
+//printf("   -r  -raw         do not convert anything\n");
   printf("\n");
 
   printf("This program is free software, under the terms of the GNU General\n");
@@ -322,7 +322,10 @@ int main(int argc, char **argv)
     argc--;
   }
 
-  COL_SetPalette(game_type);
+  if (color_name.empty())
+    COL_SetPalette(game_type);
+  else
+    COL_LoadPaletteFromFile(color_name.c_str());
 
   switch (program_action)
   {

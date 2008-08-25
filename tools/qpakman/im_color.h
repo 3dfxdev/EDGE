@@ -29,6 +29,8 @@ void COL_SetTransparent(byte pix);
 byte COL_FindColor(const byte *palette, u32_t rgb_col);
 byte COL_MapColor(u32_t rgb_col);
 
+void COL_LoadPaletteFromFile(const char *filename);
+
 #endif  /* __IMAGE_COLOR_H__ */
 
 //--- editor settings ---

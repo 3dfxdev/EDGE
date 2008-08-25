@@ -323,5 +323,84 @@ byte COL_MapColor(u32_t rgb_col)
 }
 
 
+void COL_LoadPaletteFromFile(const char *filename)
+{
+  int length;
+
+  u8_t *data = FileLoad(filename, &length);
+
+  if (! data)
+    FatalError("Could not open colors file: %s\n", filename);
+ 
+  // see whether file is text or binary
+  bool is_binary = false;
+
+  for (int i = 0; i < length; i++)
+  {
+    if (data[i] & 0x80 || data[i] < 7)
+    {
+      is_binary = true;
+      break;
+    }
+  }
+
+  printf("Loading colors%s from: %s\n",
+         is_binary ? "" : " (TEXT)", filename);
+
+  if (is_binary)
+  {
+    if (length < (int)sizeof(palette))
+      FatalError("Colors file too short!\n");
+
+    memcpy(palette, data, sizeof(palette));
+  }
+  else
+  {
+    // modify the text : nothing but digits and spaces
+    for (int i = 0; i < length; i++)
+    {
+      if (! isalnum(data[i]))
+        data[i] = ' ';
+    }
+
+    // parse R,G,B triplets
+    // NOTE that FileLoad() ensures a NUL-terminated buffer
+
+    const char *buf = (char *)data;
+
+    for (int pix = 0; pix < 256; pix++)
+    {
+      while (*buf == ' ') buf++;
+
+      if (*buf == 0)
+        FatalError("Not enough colors (failed at #%d)\n", pix);
+
+      int R=0, G=0, B=0;
+      int num_chars = 0;
+      
+      int got = sscanf(buf, "%d %d %d%n", &R, &G, &B, &num_chars);
+
+      if (got == EOF || got == 0)
+        FatalError("Not enough colors (failed at #%d)\n", pix);
+
+      if (R < 0 || R > 255 ||
+          G < 0 || G > 255 ||
+          B < 0 || B > 255)
+      {
+        FatalError("Bad color at #%d : (%d %d %d)\n", pix, R, G, B);
+      }
+
+      palette[pix*3+0] = R;
+      palette[pix*3+1] = G;
+      palette[pix*3+2] = B;
+
+      buf += num_chars;
+    }
+  }
+
+  FileFree(data);
+}
+
+
 //--- editor settings ---
 // vi:ts=2:sw=2:expandtab
