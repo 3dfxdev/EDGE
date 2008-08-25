@@ -303,6 +303,9 @@ u8_t *FileLoad(const char *filename, int *length)
   if (! data)
     AssertFail("Out of memory (%d bytes for FileLoad)\n", *length);
 
+  // ensure buffer is NUL-terminated
+  data[*length] = 0;
+
   if (1 != fread(data, *length, 1, fp))
   {
     FileFree(data);
