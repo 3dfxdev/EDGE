@@ -24,12 +24,13 @@
 #include "im_image.h"
 
 
+#define MAX_COLOR_CACHE  1024
+
 static std::map<u32_t, byte> color_cache;
 
-int max_color_cache = 1024;
+static byte palette[256*3];
 
-static bool cache_allow_fullbright = false;
-
+static bool allow_fullbright  = false;
 static byte transparent_color = 0;
 
 
@@ -202,24 +203,52 @@ const byte hexen2_palette[256*3] =
 };
 
 
-void COL_SetPalette(int game_type)
+void COL_WritePalette(const byte *source)
 {
-  // !!!! FIXME
-  switch (game_type)
-  {
-    case 0:
-      break;
-  }
+  memcpy(palette, source, sizeof(palette));
 
   color_cache.clear();
 }
 
 
+void COL_SetPalette(game_kind_e type)
+{
+  switch (type)
+  {
+    case GAME_Quake1:
+      COL_WritePalette(quake1_palette);
+      break;
+
+    case GAME_Quake2:
+      COL_WritePalette(quake2_palette);
+      break;
+
+    case GAME_Hexen2:
+      COL_WritePalette(hexen2_palette);
+      break;
+
+    default:
+      FatalError("COL_SetPalette: unknown game (%d)\n", (int)type);
+  }
+}
+
+
+void COL_SetTransparent(byte pix)
+{
+  if (transparent_color != pix)
+  {
+    transparent_color = pix;
+
+    color_cache.clear();
+  }
+}
+
+
 void COL_SetFullBright(bool enable)
 {
-  if (enable != cache_allow_fullbright)
+  if (enable != allow_fullbright)
   {
-    cache_allow_fullbright = enable;
+    allow_fullbright = enable;
 
     color_cache.clear();
   }
@@ -228,9 +257,9 @@ void COL_SetFullBright(bool enable)
 
 u32_t COL_ReadPalette(byte pix)
 {
-  byte R = quake1_palette[pix*3 + 0];  // FIXME: current palette
-  byte G = quake1_palette[pix*3 + 1];
-  byte B = quake1_palette[pix*3 + 2];
+  byte R = palette[pix*3 + 0];
+  byte G = palette[pix*3 + 1];
+  byte B = palette[pix*3 + 2];
 
   return MAKE_RGB(R, G, B);
 }
@@ -244,7 +273,7 @@ byte COL_FindColor(const byte *palette, u32_t rgb_col)
   // Note: we skip index #0 (black), which is used for transparency
   //       in skies.  Black is duplicated at index #48 though.
 
-  for (int i = (cache_allow_fullbright ? 255 : 255-32); i > 0; i--)
+  for (int i = (allow_fullbright ? 255 : 255-32); i > 0; i--)
   {
     int dr = RGB_R(rgb_col) - palette[i*3+0];
     int dg = RGB_G(rgb_col) - palette[i*3+1];
@@ -281,12 +310,12 @@ byte COL_MapColor(u32_t rgb_col)
     return color_cache[rgb_col];
 
   // don't let the color cache grow without limit
-  if ((int)color_cache.size() >= max_color_cache)
+  if ((int)color_cache.size() >= MAX_COLOR_CACHE)
   {
     color_cache.clear();
   }
 
-  byte pal_idx = COL_FindColor(quake1_palette, rgb_col);
+  byte pal_idx = COL_FindColor(palette, rgb_col);
 
   color_cache[rgb_col] = pal_idx;
 
