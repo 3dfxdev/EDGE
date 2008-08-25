@@ -409,6 +409,9 @@ static void PakDirScanner2(const char *name, int flags, void *priv_dat)
   if (flags & SCAN_F_Hidden)
     return;
 
+  if (StringCaseCmp(name, "CVS") == 0)
+    return;
+
   const char *prefix = (const char *)priv_dat;
 
   std::string full_name(prefix);
