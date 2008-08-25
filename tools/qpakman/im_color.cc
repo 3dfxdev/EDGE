@@ -21,6 +21,7 @@
 
 #include <map>
 
+#include "im_color.h"
 #include "im_image.h"
 
 
