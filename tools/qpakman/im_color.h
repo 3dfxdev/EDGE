@@ -19,10 +19,12 @@
 #ifndef __IMAGE_COLOR_H__
 #define __IMAGE_COLOR_H__
 
-void COL_SetPalette(int game_type);
-void COL_SetFullBright(bool enable);
-
+void COL_SetPalette(game_kind_e type);
+void COL_WritePalette(const byte *source);
 u32_t COL_ReadPalette(byte pix);
+
+void COL_SetFullBright(bool enable);
+void COL_SetTransparent(byte pix);
 
 byte COL_FindColor(const byte *palette, u32_t rgb_col);
 byte COL_MapColor(u32_t rgb_col);
