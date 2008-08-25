@@ -17,6 +17,7 @@
 //------------------------------------------------------------------------
 
 #include "headers.h"
+#include "main.h"
 
 #include <map>
 #include <algorithm>
@@ -24,6 +25,7 @@
 #include "archive.h"
 #include "pakfile.h"
 #include "q1_structs.h"
+
 
 extern std::vector<std::string> input_names;
 extern std::string output_name;
