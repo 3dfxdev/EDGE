@@ -44,7 +44,7 @@ prog_action_type_e;
 static prog_action_type_e program_action = ACT_None;
 
 bool opt_recursive = true;
-bool opt_overwrite = false;
+bool opt_force = false;
 
 
 void FatalError(const char *message, ...)
@@ -82,7 +82,7 @@ void ShowUsage(void)
   printf("OPTIONS:\n");
   printf("   -l  -list        list contents of PAK/WAD file\n");
   printf("   -e  -extract     extract PAK/WAD contents into current dir\n");
-  printf("       -overwrite   overwrite existing files when extracting\n");
+  printf("   -f  -force       overwrite existing files when extracting\n");
   printf("\n");
 
   printf("This program is free software, under the terms of the GNU General\n");
@@ -124,18 +124,10 @@ int HandleOption(int argc, char **argv)
     return 1;
   }
 
-#if 0  // RECURSIVE NOW THE DEFAULT
-  if (StringCaseCmp(opt, "-r") == 0 || StringCaseCmp(opt, "-recursive") == 0)
+  if (StringCaseCmp(opt, "-f") == 0 || StringCaseCmp(opt, "-force") == 0 ||
+      StringCaseCmp(opt, "-overwrite") == 0)
   {
-    opt_recursive = true;
-    return 1;
-  }
-#endif
-
-  // no short version because this option is dangerous
-  if (StringCaseCmp(opt, "-overwrite") == 0)
-  {
-    opt_overwrite = true;
+    opt_force = true;
     return 1;
   }
 
