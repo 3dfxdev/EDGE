@@ -32,6 +32,7 @@ LDFLAGS=-Xlinker --warn-common
 OBJS=	u_assert.o \
 	u_file.o   \
 	u_util.o   \
+	im_color.o \
 	im_image.o \
 	im_mip.o   \
 	im_png.o   \
