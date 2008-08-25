@@ -17,11 +17,14 @@
 //------------------------------------------------------------------------
 
 #include "headers.h"
+#include "main.h"
 
 #include "im_png.h"
 
 
-#undef _SETJMP_H  // workaround for some weirdness in pngconf.h
+// workaround for some weirdness in pngconf.h
+#undef _SETJMP_H
+
 #include <png.h>
 
 

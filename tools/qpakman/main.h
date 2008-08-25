@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------
-//  Common Headers
+//  Global Vars
 //------------------------------------------------------------------------
 //
 //  Copyright (c) 2008  Andrew J Apted
@@ -16,37 +16,17 @@
 //
 //------------------------------------------------------------------------
 
-#ifndef __COMMON_HEADER__
-#define __COMMON_HEADER__
+#ifndef __QPAKMAN_MAIN_H__
+#define __QPAKMAN_MAIN_H__
 
 
-#ifdef WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#endif
+extern bool opt_force;
 
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#include <errno.h>
-
-#include <string.h>
-#include <ctype.h>
-#include <math.h>
-
-#include <string>
-#include <vector>
-
-#include "u_type.h"
-#include "u_macro.h"
-#include "u_endian.h"
-#include "u_assert.h"
-#include "u_util.h"
-#include "u_file.h"
+void FatalError(const char *str, ...);
 
 
-#endif // __COMMON_HEADER__
+#endif // __QPAKMAN_MAIN_H__
 
 //--- editor settings ---
 // vi:ts=2:sw=2:expandtab
