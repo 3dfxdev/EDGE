@@ -2,18 +2,26 @@
 TODO for QPakMan
 ================
 
-TEST:  PAK creation: skip everything starting with '.'
+-  allow -f for -overwrite
 
 -  PIC packing / unpacking (gfx.wad)
-   -  have a -pic option
-   -  enabled automatically for "gfx.wad" output file
+   -  have -p -pic option
+   -  enabled automatically for "gfx.wad" file
 
    -  CONCHARS is a block of raw pixels (where 0 is transparency)
    -  TINYFONT also.
 
+-  convert to/from gfx/xxx.lmp files  [unless -raw option]
+-  convert to/from textures/xxx.wal files (Quake2)
+
 -  miptex extraction from BSP files (also: all BSP in PAKs)
+   -m -miptex
+
+-  -g -game option (quake2 etc).
 
 -  external palette support (-c -colors)
 
--  synchronize u_file (etc?) improvements with Oblige code
+-  joining 2+ paks (or wads) with -j -join option
+
+-  synchronize u_file and PAK improvements with Oblige code
 
