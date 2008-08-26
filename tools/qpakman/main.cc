@@ -125,6 +125,10 @@ int HandleOption(int argc, char **argv)
 
     output_name = std::string(argv[1]);
 
+    // automatically enable -pic option for gfx.wad
+    if (StringCaseCmp(FindBaseName(argv[1]), "gfx.wad") == 0)
+      opt_picture = true;
+
     program_action = ACT_Create;
     return 2;
   }
