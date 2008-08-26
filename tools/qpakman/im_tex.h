@@ -19,7 +19,9 @@
 #ifndef __IMAGE_TEXTURE_H__
 #define __IMAGE_TEXTURE_H__
 
-void TEX_ExtractTextures(const char *dest_file, std::vector<std::string>& src_files);
+void TEX_ExtractFromPAK(const char *src_file);
+void TEX_ExtractFromBSP(const char *src_file);
+void TEX_ExtractFromWAD(const char *src_file);
 
 #endif  /* __IMAGE_TEXTURE_H__ */
 

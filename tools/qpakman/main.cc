@@ -24,6 +24,7 @@
 #include "archive.h"
 #include "im_color.h"
 #include "im_mip.h"
+#include "im_tex.h"
 #include "pakfile.h"
 
 
@@ -284,8 +285,30 @@ void Main_Extract(void)
 
 void Main_MakeTex(void)
 {
-  // TODO
-    FatalError("MakeTex not implemented!\n");
+  if (input_names.size() == 0)
+    FatalError("Missing input files for maketex\n");
+
+  if (! WAD2_OpenWrite(output_name.c_str()))
+    FatalError("Could not create texture file: %s", output_name.c_str());
+
+  for (unsigned int i = 0; i < input_names.size(); i++)
+  {
+    const char *filename = input_names[i].c_str();
+
+    if (CheckExtension(filename, "pak"))
+      TEX_ExtractFromPAK(filename);
+    else if (CheckExtension(filename, "bsp"))
+      TEX_ExtractFromBSP(filename);
+    else if (CheckExtension(filename, "wad"))
+      TEX_ExtractFromWAD(filename);
+    else
+    {
+      printf("FAILURE: unknown file type for maketex: %s\n", filename);
+      break;
+    }
+  }
+
+  WAD2_CloseWrite();
 }
 
 
