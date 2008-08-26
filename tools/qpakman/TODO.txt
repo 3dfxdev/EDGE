@@ -2,6 +2,14 @@
 TODO for QPakMan
 ================
 
+TEST: -game option
+
+TEST: -colors option
+
+TEST: miptex extraction from BSP files (or all BSP in PAKs) : -maketex
+
+-  PAK creation: if input file is "pak", merge rather than store
+
 -  PIC packing / unpacking (gfx.wad)
    -  have -p -pic option
    -  enabled automatically for "gfx.wad" file
@@ -14,14 +22,10 @@ TODO for QPakMan
 -  convert to/from gfx/xxx.lmp files  [unless -raw option]
 -  convert to/from textures/xxx.wal files (Quake2)
 
--  miptex extraction from BSP files (also: all BSP in PAKs)
-   -m -miptex
-
--  -g -game option (quake2 etc).
-
--  external palette support (-c -colors)
-
--  joining 2+ paks (or wads) with -j -join option
+-  implement -raw option
+   - miptex wad unpack, pack
+   - gfx.wad unpack, pack
+   etc....
 
 -  synchronize u_file and PAK improvements with Oblige code
 
