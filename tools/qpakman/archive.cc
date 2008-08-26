@@ -232,7 +232,7 @@ void ARC_ExtractPAK(const char *filename)
   {
     const char *name = PAK_EntryName(i);
 
-    printf("Unpacking entry %d/%d : %s\n", i+1, num_files, name);
+    printf("Unpacking %d/%d : %s\n", i+1, num_files, name);
 
     if (! ARC_ExtractOneFile(i, name))
       failures++;

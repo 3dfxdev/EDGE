@@ -101,17 +101,15 @@ static void ExtractMipTex(read_func_F read_func)
     FatalError("dmiptexlump_t");
 
   int num_miptex = LE_S32(header.num_miptex);
-  
+
   for (int i = 0; i < num_miptex; i++)
   {
-//fprintf(stderr, "  mip %d/%d\n", i+1, num_miptex);
     u32_t data_ofs;
 
     if (! read_func(tex_start + 4 + i*4, 4, &data_ofs))
       FatalError("data_ofs");
 
     data_ofs = LE_U32(data_ofs);
-//fprintf(stderr, "  data_ofs=%d\n", data_ofs);
 
     // -1 means unused slot
     if (data_ofs & 0x8000000U)
@@ -133,6 +131,8 @@ static void ExtractMipTex(read_func_F read_func)
     // already seen it?
     if (tex_db.find((const char *)mip.name) != tex_db.end())
       continue;
+
+    printf("  Copying %d/%d : %s\n", i+1, num_miptex, mip.name);
 
     // sanity check
     SYS_ASSERT(mip.width  <= 2048);
@@ -188,8 +188,6 @@ void TEX_ExtractDone()
 
 void TEX_ExtractFromPAK(const char *filename)
 {
-  LogPrintf("Opening: %s\n", filename);
-
   if (! PAK_OpenRead(filename))
   {
     FatalError("Could not open pak file: %s", filename);
@@ -201,14 +199,18 @@ void TEX_ExtractFromPAK(const char *filename)
 
   for (unsigned int m = 0; m < maps.size(); m++)
   {
-//    DebugPrintf("Doing map %d/%d\n", m+1, (int)maps.size());
-
     pak_entry = maps[m];
+
+    printf("\n");
+    printf("Processing map %d/%d : %s\n", m+1, (int)maps.size(),
+           PAK_EntryName(pak_entry));
 
     ExtractMipTex(pak_reader);
   }
 
   PAK_CloseRead();
+
+  printf("\n");
 }
 
 
@@ -219,9 +221,14 @@ void TEX_ExtractFromBSP(const char *filename)
   if (! bsp_fp)
     FatalError("Could not open file: %s", filename);
 
+  printf("Opened BSP file: %s\n", filename);
+
   ExtractMipTex(bsp_reader);
 
   fclose(bsp_fp);
+
+  printf("Closed BSP file.\n");
+  printf("\n");
 }
 
 
@@ -244,6 +251,8 @@ void TEX_ExtractFromWAD(const char *filename)
     if (tex_db.find((const char *)name) != tex_db.end())
       continue;
     
+    printf("  Copying %d/%d : %s\n", i+1, num_entires, name);
+
     WAD2_NewLump(name, TYP_MIPTEX);
 
     // copy the data
@@ -260,6 +269,8 @@ void TEX_ExtractFromWAD(const char *filename)
         FatalError("wad copy");
 
       WAD2_AppendData(buffer, want_len);
+
+      offset += want_len;
     }
 
     WAD2_FinishLump();
@@ -268,6 +279,8 @@ void TEX_ExtractFromWAD(const char *filename)
   }
 
   WAD2_CloseRead();
+
+  printf("\n");
 }
 
 //--- editor settings ---

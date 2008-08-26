@@ -130,7 +130,9 @@ int HandleOption(int argc, char **argv)
     if (StringCaseCmp(FindBaseName(argv[1]), "gfx.wad") == 0)
       opt_picture = true;
 
-    program_action = ACT_Create;
+    if (program_action == ACT_None)
+      program_action = ACT_Create;
+
     return 2;
   }
 
@@ -291,6 +293,9 @@ void Main_MakeTex(void)
   if (! WAD2_OpenWrite(output_name.c_str()))
     FatalError("Could not create texture file: %s", output_name.c_str());
 
+  printf("\n");
+  printf("--------------------------------------------------\n");
+
   TEX_ExtractStart();
 
   for (unsigned int i = 0; i < input_names.size(); i++)
@@ -311,6 +316,8 @@ void Main_MakeTex(void)
   }
 
   TEX_ExtractDone();
+
+  printf("--------------------------------------------------\n");
 
   WAD2_CloseWrite();
 }
