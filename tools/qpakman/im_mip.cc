@@ -154,7 +154,8 @@ std::string MIP_FileToLumpName(const char *filename, bool * fullbright)
     base = StringDup(new_name);
   }
 
-  printf("   lump name: %s\n", base);
+  if (! opt_picture)
+    printf("   lump name: %s\n", base);
 
   // check if already exists
   if (all_lump_names.find(base) != all_lump_names.end())
@@ -197,10 +198,16 @@ void MIP_ConvertImage(rgb_image_c *img)
 
 bool MIP_InsertPicture(rgb_image_c *img, const char *lump_name)
 {
+  char *upper_name = StringDup(lump_name);
+  for (char *u = upper_name; *u; u++)
+    *u = toupper(*u);
+
+  printf("   pic name: %s\n", upper_name);
+
   COL_SetTransparent(255);
   COL_SetFullBright(true);
 
-  WAD2_NewLump(lump_name, TYP_QPIC);
+  WAD2_NewLump(upper_name, TYP_QPIC);
 
   // create PIC header
   pic_header_t pic;
@@ -214,12 +221,19 @@ bool MIP_InsertPicture(rgb_image_c *img, const char *lump_name)
 
   WAD2_FinishLump();
 
+  StringFree(upper_name);
   return true;
 }
 
 
 bool MIP_InsertRawBlock(rgb_image_c *img, const char *lump_name, bool black_is_trans)
 {
+  char *upper_name = StringDup(lump_name);
+  for (char *u = upper_name; *u; u++)
+    *u = toupper(*u);
+
+  printf("   raw block name: %s\n", upper_name);
+
   // ensure the correct transparency color is used
   if (black_is_trans)
     img->BlackToTrans();
@@ -227,12 +241,15 @@ bool MIP_InsertRawBlock(rgb_image_c *img, const char *lump_name, bool black_is_t
   COL_SetTransparent(0);
   COL_SetFullBright(true);
 
-  WAD2_NewLump(lump_name, TYP_NONE);
+  // TYP_NONE might be more appropriate here, however the gfx.wad
+  // in both Quake1 and Hexen2 uses TYP_MIPTEX, so I do the same.
+  WAD2_NewLump(upper_name, TYP_MIPTEX);
 
   MIP_ConvertImage(img);
 
   WAD2_FinishLump();
 
+  StringFree(upper_name);
   return true;
 }
 
