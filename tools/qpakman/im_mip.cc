@@ -504,7 +504,7 @@ void MIP_ExtractWAD(const char *filename)
       continue;
     }
 
-    printf("Unpacking entry %d/%d : %s\n", i+1, num_lumps, name);
+    printf("Unpacking %d/%d : %s\n", i+1, num_lumps, name);
 
     if (! MIP_ExtractMipTex(i, name))
       failures++;
