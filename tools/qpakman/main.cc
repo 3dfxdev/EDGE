@@ -28,7 +28,7 @@
 #include "pakfile.h"
 
 
-#define VERSION  "0.60"
+#define VERSION  "0.61"
 
 
 std::string output_name;
