@@ -19,9 +19,12 @@
 #ifndef __IMAGE_TEXTURE_H__
 #define __IMAGE_TEXTURE_H__
 
-void TEX_ExtractFromPAK(const char *src_file);
-void TEX_ExtractFromBSP(const char *src_file);
-void TEX_ExtractFromWAD(const char *src_file);
+void TEX_ExtractStart();
+void TEX_ExtractDone();
+
+void TEX_ExtractFromPAK(const char *filename);
+void TEX_ExtractFromBSP(const char *filename);
+void TEX_ExtractFromWAD(const char *filename);
 
 #endif  /* __IMAGE_TEXTURE_H__ */
 
