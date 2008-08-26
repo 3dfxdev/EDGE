@@ -100,6 +100,9 @@ public:
   void QuakeSkyFix();
   // replaces solid black pixels in the left half of the image
   // with transparent parts.  Used for processing Quake 1 skies.
+
+  void BlackToTrans();
+  // replaces all black pixels with transparency.
 };
 
 

@@ -218,8 +218,12 @@ bool MIP_InsertPicture(rgb_image_c *img, const char *lump_name)
 }
 
 
-bool MIP_InsertRawBlock(rgb_image_c *img, const char *lump_name)
+bool MIP_InsertRawBlock(rgb_image_c *img, const char *lump_name, bool black_is_trans)
 {
+  // ensure the correct transparency color is used
+  if (black_is_trans)
+    img->BlackToTrans();
+
   COL_SetTransparent(0);
   COL_SetFullBright(true);
 
@@ -251,7 +255,7 @@ bool MIP_ProcessImage(const char *filename)
   if (StringCaseCmp(lump_name.c_str(), "CONCHARS") == 0 ||
       StringCaseCmp(lump_name.c_str(), "TINYFONT") == 0)
   {
-    bool result = MIP_InsertRawBlock(img, lump_name.c_str());
+    bool result = MIP_InsertRawBlock(img, lump_name.c_str(), true);
 
     delete img;
     return result;
