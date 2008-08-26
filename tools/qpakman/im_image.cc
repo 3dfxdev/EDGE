@@ -218,5 +218,22 @@ void rgb_image_c::QuakeSkyFix()
 }
 
 
+void rgb_image_c::BlackToTrans()
+{
+  for (int y = 0; y < height; y++)
+  {
+    u32_t *pix = &PixelAt(0, y);
+    u32_t *pix_end = &PixelAt(width, y);
+
+    for (; pix < pix_end; pix++)
+      if (*pix == MAKE_RGB(0,0,0))
+        *pix = MAKE_RGBA(0,0,0,ALPHA_TRANS);
+  }
+
+  // we assume some parts were transparent
+  is_solid = false;
+}
+
+
 //--- editor settings ---
 // vi:ts=2:sw=2:expandtab
