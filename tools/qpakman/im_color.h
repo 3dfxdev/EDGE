@@ -22,6 +22,7 @@
 void COL_SetPalette(game_kind_e type);
 void COL_WritePalette(const byte *source);
 u32_t COL_ReadPalette(byte pix);
+u32_t COL_ReadPalWithTrans(byte pix);
 
 void COL_SetFullBright(bool enable);
 void COL_SetTransparent(byte pix);
