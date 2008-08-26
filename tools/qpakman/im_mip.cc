@@ -405,7 +405,7 @@ static bool Do_SaveImage(rgb_image_c *img, const char *lump_name, bool fullbrigh
 
   fclose(fp);
 
-  delete img;
+  StringFree(filename);
 
   return result;
 }
@@ -534,17 +534,26 @@ bool MIP_ExtractPicture(int entry, const char *lump_name)
 
 bool MIP_ExtractRawBlock(int entry, const char *lump_name)
 {
-  int width, height;
   int total = WAD2_EntryLen(entry);
 
-  if (StringCaseCmp(lump_name, "TINYFONT") == 0)
+  // guess size
+  int width, height;
+
+  if (StringCaseCmp(lump_name, "CONCHARS") == 0)
   {
-    width  = (int)(sqrt(total*2) + 0.5);
-    height = width / 2;
+    width  = 128;
+    height = 128;
   }
-  else // CONCHARS
+  else if (StringCaseCmp(lump_name, "TINYFONT") == 0)
   {
-    width  = (int)(sqrt(total) + 0.5);
+    width  = 128;
+    height = 32;
+  }
+  else
+  {
+    for (width = 4096; width*width > total; width /= 2)
+    { }
+
     height = width;
   }
 
@@ -608,15 +617,15 @@ void MIP_ExtractWAD(const char *filename)
 
     // special handling for two odd-ball lumps (raw pixels)
     if (StringCaseCmp(name, "CONCHARS") == 0 ||
-        StringCaseCmp(name, "TINYFONT"))
+        StringCaseCmp(name, "TINYFONT") == 0)
     {
-      printf("Unpacking RAW BLOCK %d/%d : %s\n", i+1, num_lumps, name);
+      printf("Unpacking %d/%d (BLOCK) : %s\n", i+1, num_lumps, name);
 
       MIP_ExtractRawBlock(i, name);
     }
     else if (type == TYP_QPIC)
     {
-      printf("Unpacking PIC %d/%d : %s\n", i+1, num_lumps, name);
+      printf("Unpacking %d/%d (PIC) : %s\n", i+1, num_lumps, name);
 
       if (! MIP_ExtractPicture(i, name))
         failures++;
