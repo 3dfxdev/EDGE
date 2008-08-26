@@ -93,13 +93,13 @@ void ShowUsage(void)
   printf("OPTIONS:\n");
   printf("   -l  -list        list contents of PAK/WAD file\n");
   printf("   -e  -extract     extract PAK/WAD contents into current dir\n");
-//printf("   -m  -maketex     make a texture WAD from BSP files\n");
+  printf("   -m  -maketex     make a texture WAD from BSP files\n");
   printf("\n");
 
   printf("   -c  -colors XXX  load color palette from given file\n");
   printf("   -g  -game   XXX  select game (quake1, quake2, hexen2)\n");
   printf("   -f  -force       overwrite existing files when extracting\n");
-//printf("   -p  -pic         create PIC format images in the WAD\n");
+  printf("   -p  -pic         create PIC format images in the WAD\n");
 //printf("   -r  -raw         do not convert anything\n");
   printf("\n");
 
