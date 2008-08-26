@@ -1,0 +1,40 @@
+
+QPakMan 0.61 README
+===================
+
+by Andrew Apted  (August 2008)
+
+
+INTRODUCTION
+------------
+
+QPakMan is a command-line (text only) program for creating and
+unpacking the PAK and WAD files used by the games Quake, Quake II
+and Hexen II.
+ 
+
+>>>
+
+
+
+COPYRIGHT and LICENSE
+---------------------
+
+Copyright (C) 2008 Andrew Apted
+
+QPakMan is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published
+by the Free Software Foundation; either version 2 of the License,
+or (at your option) any later version.
+
+QPakMan is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+
+CONTACT DETAILS
+---------------
+
+Email: <ajapted@gmail.com>
+
