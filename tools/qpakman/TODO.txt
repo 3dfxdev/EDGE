@@ -6,8 +6,6 @@ TEST: -game option
 
 TEST: -colors option
 
-TEST: miptex extraction from BSP files (or all BSP in PAKs) : -maketex
-
 -  PAK creation: if input file is "pak", merge rather than store
 
 -  PIC packing / unpacking (gfx.wad)
@@ -18,6 +16,8 @@ TEST: miptex extraction from BSP files (or all BSP in PAKs) : -maketex
    -  TINYFONT also.
 
    -  find palette in PAK file
+
++  make the MakeTEX mode more robust (no FatalError calls).
 
 -  convert to/from gfx/xxx.lmp files  [unless -raw option]
 -  convert to/from textures/xxx.wal files (Quake2)
