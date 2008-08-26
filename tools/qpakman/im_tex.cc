@@ -147,7 +147,7 @@ static void ExtractMipTex(read_func_F read_func)
     // create WAD2 lump and mark database as seen
     tex_db[(const char *)mip.name] = 1;
 
-    WAD2_NewLump(mip.name);
+    WAD2_NewLump(mip.name, TYP_MIPTEX);
 
     mip.width  = LE_U32(mip.width);
     mip.height = LE_U32(mip.height);
@@ -192,7 +192,7 @@ void TEX_ExtractFromPAK(const char *filename)
 
   if (! PAK_OpenRead(filename))
   {
-    FatalError("Could not open file: %s", filename);
+    FatalError("Could not open pak file: %s", filename);
   }
 
   std::vector<int> maps;
@@ -227,8 +227,47 @@ void TEX_ExtractFromBSP(const char *filename)
 
 void TEX_ExtractFromWAD(const char *filename)
 {
-  // TODO
-  FatalError("TEX_ExtractFromWAD not implemented!\n");
+  if (! WAD2_OpenRead(filename))
+    FatalError("Could not open wad file: %s", filename);
+
+  int num_entires = WAD2_NumEntries();
+
+  for (int i = 0; i < num_entires; i++)
+  {
+    const char *name = WAD2_EntryName(i);
+
+    // skip PICs
+    if (WAD2_EntryType(i) != TYP_MIPTEX)
+      continue;
+
+    // already seen it?
+    if (tex_db.find((const char *)name) != tex_db.end())
+      continue;
+    
+    WAD2_NewLump(name, TYP_MIPTEX);
+
+    // copy the data
+    int offset = 0;
+    int total  = WAD2_EntryLen(i);
+
+    while (offset < total)
+    {
+      byte buffer[1000];
+
+      int want_len = MIN((int)sizeof(buffer), total - offset);
+    
+      if (! WAD2_ReadData(i, offset, want_len, buffer))
+        FatalError("wad copy");
+
+      WAD2_AppendData(buffer, want_len);
+    }
+
+    WAD2_FinishLump();
+
+    tex_db[name] = 1;
+  }
+
+  WAD2_CloseRead();
 }
 
 //--- editor settings ---
