@@ -13,8 +13,99 @@ unpacking the PAK and WAD files used by the games Quake, Quake II
 and Hexen II.
  
 
->>>
+COMMON TASKS
+============
 
+1. Listing the contents of PAK and WAD files:
+
+   qpakman -list pak1.pak
+   qpakman -list gfx.wad
+
+
+2. Unpacking a PAK file:
+
+   qpakman -extract pak0.pak
+
+The entire contents of the PAK file are extracted into the
+current folder.  
+
+
+3. Creating a PAK file:
+
+   qpakman FILES.... -o dest.pak
+
+Blah
+
+
+4. Unpacking a WAD file:
+
+   qpakman -extract textures.wad
+
+Blah
+
+
+5. Creating a textures WAD:
+
+   qpakman IMAGES... -o textures.wad
+
+Blah
+
+
+6. Creating the special GFX.WAD:
+
+   qpakman IMAGES... -o GFX.WAD
+
+Blah
+
+
+7. Extracting textures from the game:
+
+   qpakman -maketex pak0.pak pak1.pak -o quake_tex.pak
+
+Blah
+
+
+COMMON OPTIONS
+==============
+
+Options have a short form (like -g) and a long form (-game),
+it doesn't matter which one you use.  Some options take a
+value or keyword after them, which must be separated from the
+option by a space (like: -game hexen2).
+
+
+-g -game  XXX    This specifies which game the PAK or WAD
+                 file is for.  It sets the default palette
+                 and can affect which files are converted
+                 to/from PNG format.
+
+                 Usable keywords are:
+                    q1  quake1
+                    q2  quake2
+                    h2  hexen2
+
+-c -colors XXX   Lets you load a different palette than
+                 the default one (even when -game is used).
+                 Must be followed by a filename containing
+                 the palette, either raw format (768 bytes)
+                 or text format (768 numbers).
+
+-f -force        Forces extracted files to overwrite any
+                 existing file with the same name.  Normally
+                 QPakMan will not overwrite existing files
+                 when extracting fro PAK or WAD.
+
+-p -pic          When creating a WAD, stores the images in
+                 Quake PIC format instead of MIPTEX format.
+
+                 NOTE: this option is automatically enabled
+                 when the output file is called "gfx.wad"
+                 (or "GFX.WAD").
+
+                 NOTE 2: the CONCHARS and TINYFONT lumps
+                 are always treated specially (created as
+                 raw blocks of pixels), whether this option
+                 is given or not.
 
 
 COPYRIGHT and LICENSE
