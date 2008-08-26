@@ -376,6 +376,41 @@ static const char * ExpandFileName(const char *lump_name, bool fullbright)
 }
 
 
+static bool Do_SaveImage(rgb_image_c *img, const char *lump_name, bool fullbright)
+{
+  const char *filename = ExpandFileName(lump_name, fullbright);
+
+  if (FileExists(filename) && ! opt_force)
+  {
+    printf("FAILURE: will not overwrite file: %s\n\n", filename);
+
+    StringFree(filename);
+    return false;
+  }
+
+  FILE *fp = fopen(filename, "wb");
+
+  if (! fp)
+  {
+    printf("FAILURE: cannot create output file: %s\n\n", filename);
+
+    StringFree(filename);
+    return false;
+  }
+
+  bool result = PNG_Save(fp, img);
+
+  if (! result)
+    printf("FAILURE: error while writing PNG file\n\n");
+
+  fclose(fp);
+
+  delete img;
+
+  return result;
+}
+
+
 bool MIP_ExtractMipTex(int entry, const char *lump_name)
 {
   // mip header
@@ -431,51 +466,125 @@ bool MIP_ExtractMipTex(int entry, const char *lump_name)
     img->PixelAt(x, y) = COL_ReadPalette(pix);
   }
 
-  delete pixels;
-
 
   if (StringCaseCmpPartial(lump_name, "sky") == 0)
   {
     img->QuakeSkyFix();
   }
 
+  bool result = Do_SaveImage(img, lump_name, fullbright);
 
-  const char *filename = ExpandFileName(lump_name, fullbright);
+  delete img;
+  delete pixels;
 
-  if (FileExists(filename) && ! opt_force)
+  return result;
+}
+
+
+bool MIP_ExtractPicture(int entry, const char *lump_name)
+{
+  pic_header_t pic;
+
+  if (! WAD2_ReadData(entry, 0, (int)sizeof(pic), &pic))
   {
-    printf("FAILURE: will not overwrite file: %s\n\n", filename);
-
-    delete img;
-    StringFree(filename);
-    
+    printf("FAILURE: could not read picture header!\n\n");
     return false;
   }
 
+  int width  = LE_U32(pic.width);
+  int height = LE_U32(pic.height);
 
-  bool failed = false;
-
-  FILE *fp = fopen(filename, "wb");
-  if (fp)
+  if (width  < 1 || width  > 2048 ||
+      height < 1 || height > 2048)
   {
-    if (! PNG_Save(fp, img))
-    {
-      printf("FAILURE: error while writing PNG file\n\n");
-      failed = true;
-    }
+    printf("FAILURE: weird size of picture: %dx%d\n\n", width, height);
+    return false;
+  }
 
-    fclose(fp);
-  }
-  else
+  byte *pixels = new byte[width * height];
+
+  if (! WAD2_ReadData(entry, (int)sizeof(pic), width * height, pixels))
   {
-    printf("FAILURE: cannot create output file: %s\n\n", filename);
-    failed = true;
+    printf("FAILURE: could not read %dx%d pixels from picture\n\n", width, height);
+    delete pixels;
+    return false;
   }
+
+  // create the image for saving.
+  COL_SetTransparent(255);
+
+  rgb_image_c *img = new rgb_image_c(width, height);
+
+  for (int y = 0; y < height; y++)
+  for (int x = 0; x < width;  x++)
+  {
+    byte pix = pixels[y*width + x];
+
+    img->PixelAt(x, y) = COL_ReadPalWithTrans(pix);
+  }
+
+  bool result = Do_SaveImage(img, lump_name, false /* fullbright */);
 
   delete img;
-  StringFree(filename);
+  delete pixels;
 
-  return ! failed;
+  return result;
+}
+
+
+bool MIP_ExtractRawBlock(int entry, const char *lump_name)
+{
+  int width, height;
+  int total = WAD2_EntryLen(entry);
+
+  if (StringCaseCmp(lump_name, "TINYFONT") == 0)
+  {
+    width  = (int)(sqrt(total*2) + 0.5);
+    height = width / 2;
+  }
+  else // CONCHARS
+  {
+    width  = (int)(sqrt(total) + 0.5);
+    height = width;
+  }
+
+  printf("  Guessing size to be: %dx%d\n", width, height);
+
+  if (width  < 8 || width  > 2048 ||
+      height < 8 || height > 2048)
+  {
+    printf("FAILURE: weird size of picture: %dx%d\n\n", width, height);
+    return false;
+  }
+
+  byte *pixels = new byte[width * height];
+
+  if (! WAD2_ReadData(entry, 0, width * height, pixels))
+  {
+    printf("FAILURE: could not read %dx%d pixels from picture\n\n", width, height);
+    delete pixels;
+    return false;
+  }
+
+  // create the image for saving
+  COL_SetTransparent(0);
+
+  rgb_image_c *img = new rgb_image_c(width, height);
+
+  for (int y = 0; y < height; y++)
+  for (int x = 0; x < width;  x++)
+  {
+    byte pix = pixels[y*width + x];
+
+    img->PixelAt(x, y) = COL_ReadPalWithTrans(pix);
+  }
+
+  bool result = Do_SaveImage(img, lump_name, false /* fullbright */);
+
+  delete img;
+  delete pixels;
+
+  return result;
 }
 
 
@@ -497,17 +606,34 @@ void MIP_ExtractWAD(const char *filename)
     int type = WAD2_EntryType(i);
     const char *name = WAD2_EntryName(i);
 
-    if (type != TYP_MIPTEX)
+    // special handling for two odd-ball lumps (raw pixels)
+    if (StringCaseCmp(name, "CONCHARS") == 0 ||
+        StringCaseCmp(name, "TINYFONT"))
+    {
+      printf("Unpacking RAW BLOCK %d/%d : %s\n", i+1, num_lumps, name);
+
+      MIP_ExtractRawBlock(i, name);
+    }
+    else if (type == TYP_QPIC)
+    {
+      printf("Unpacking PIC %d/%d : %s\n", i+1, num_lumps, name);
+
+      if (! MIP_ExtractPicture(i, name))
+        failures++;
+    }
+    else if (type == TYP_MIPTEX)
+    {
+      printf("Unpacking %d/%d : %s\n", i+1, num_lumps, name);
+
+      if (! MIP_ExtractMipTex(i, name))
+        failures++;
+    }
+    else
     {
       printf("SKIPPING NON-MIPTEX entry %d/%d : %s\n", i+1, num_lumps, name);
       skipped++;
       continue;
     }
-
-    printf("Unpacking %d/%d : %s\n", i+1, num_lumps, name);
-
-    if (! MIP_ExtractMipTex(i, name))
-      failures++;
   }
 
   printf("--------------------------------------------------\n");
@@ -518,7 +644,7 @@ void MIP_ExtractWAD(const char *filename)
   if (skipped > 0)
     printf("Skipped %d non-miptex lumps\n", skipped);
 
-  printf("Extracted %d miptex, with %d failures\n",
+  printf("Extracted %d entries, with %d failures\n",
          num_lumps - failures - skipped, failures);
 }
 

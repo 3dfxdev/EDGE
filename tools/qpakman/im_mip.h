@@ -23,6 +23,17 @@ bool MIP_ProcessImage(const char *filename);
 void MIP_CreateWAD(const char *filename);
 void MIP_ExtractWAD(const char *filename);
 
+/* ----- PIC structure ---------------------- */
+
+typedef struct
+{
+  u32_t width;
+  u32_t height;
+
+//  byte pixels[width * height];
+}
+pic_header_t;
+
 #endif  /* __IMAGE_MIP_H__ */
 
 //--- editor settings ---
