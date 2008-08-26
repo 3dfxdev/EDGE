@@ -266,6 +266,19 @@ u32_t COL_ReadPalette(byte pix)
 }
 
 
+u32_t COL_ReadPalWithTrans(byte pix)
+{
+  if (pix == transparent_color)
+    return MAKE_RGBA(0, 0, 0, ALPHA_TRANS);
+
+  byte R = palette[pix*3 + 0];
+  byte G = palette[pix*3 + 1];
+  byte B = palette[pix*3 + 2];
+
+  return MAKE_RGB(R, G, B);
+}
+
+
 byte COL_FindColor(const byte *palette, u32_t rgb_col)
 {
   int best_idx  = -1;
