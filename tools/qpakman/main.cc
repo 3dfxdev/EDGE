@@ -291,6 +291,8 @@ void Main_MakeTex(void)
   if (! WAD2_OpenWrite(output_name.c_str()))
     FatalError("Could not create texture file: %s", output_name.c_str());
 
+  TEX_ExtractStart();
+
   for (unsigned int i = 0; i < input_names.size(); i++)
   {
     const char *filename = input_names[i].c_str();
@@ -307,6 +309,8 @@ void Main_MakeTex(void)
       break;
     }
   }
+
+  TEX_ExtractDone();
 
   WAD2_CloseWrite();
 }

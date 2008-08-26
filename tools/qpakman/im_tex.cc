@@ -48,12 +48,35 @@
 
 typedef std::map<std::string, int> miptex_database_t;
 
+static miptex_database_t tex_db;
 
-static void ExtractMipTex(miptex_database_t& tex_db, int map_idx)
+
+typedef bool (* read_func_F)(int offset, int length, void *buffer);
+
+
+static int  pak_entry;
+static bool pak_reader(int offset, int length, void *buffer)
+{
+  return PAK_ReadData(pak_entry, offset, length, buffer);
+}
+
+static FILE *bsp_fp;
+static bool bsp_reader(int offset, int length, void *buffer)
+{
+  if (fseek(bsp_fp, offset, SEEK_SET) != 0)
+      return false;
+
+  int res = fread(buffer, length, 1, bsp_fp);
+
+  return (res == 1);
+}
+
+
+static void ExtractMipTex(read_func_F read_func)
 {
   dheader_t bsp;
 
-  if (! PAK_ReadData(map_idx, 0, sizeof(bsp), &bsp))
+  if (! read_func(0, sizeof(bsp), &bsp))
     FatalError("dheader_t");
 
   bsp.version = LE_S32(bsp.version);
@@ -74,7 +97,7 @@ static void ExtractMipTex(miptex_database_t& tex_db, int map_idx)
 
   dmiptexlump_t header;
 
-  if (! PAK_ReadData(map_idx, tex_start, sizeof(header), &header))
+  if (! read_func(tex_start, sizeof(header), &header))
     FatalError("dmiptexlump_t");
 
   int num_miptex = LE_S32(header.num_miptex);
@@ -84,7 +107,7 @@ static void ExtractMipTex(miptex_database_t& tex_db, int map_idx)
 //fprintf(stderr, "  mip %d/%d\n", i+1, num_miptex);
     u32_t data_ofs;
 
-    if (! PAK_ReadData(map_idx, tex_start + 4 + i*4, 4, &data_ofs))
+    if (! read_func(tex_start + 4 + i*4, 4, &data_ofs))
       FatalError("data_ofs");
 
     data_ofs = LE_U32(data_ofs);
@@ -96,7 +119,7 @@ static void ExtractMipTex(miptex_database_t& tex_db, int map_idx)
 
     miptex_t mip;
 
-    if (! PAK_ReadData(map_idx, tex_start + data_ofs, sizeof(miptex_t), &mip))
+    if (! read_func(tex_start + data_ofs, sizeof(miptex_t), &mip))
       FatalError("miptex_t");
 
     mip.width  = LE_U32(mip.width);
@@ -138,7 +161,7 @@ static void ExtractMipTex(miptex_database_t& tex_db, int map_idx)
     {
       int count = MIN(pixels, 1024);
 
-      if (! PAK_ReadData(map_idx, tex_start + data_ofs, count, buffer))
+      if (! read_func(tex_start + data_ofs, count, buffer))
         FatalError("pixels");
 
       WAD2_AppendData(buffer, count);
@@ -152,44 +175,60 @@ static void ExtractMipTex(miptex_database_t& tex_db, int map_idx)
 }
 
 
-void TEX_ExtractTextures(const char *dest_file, std::vector<std::string>& src_files)
+void TEX_ExtractStart()
 {
-  SYS_ASSERT(src_files.size() > 0);
+  tex_db.clear();
+}
 
-  if (! WAD2_OpenWrite(dest_file))
+void TEX_ExtractDone()
+{
+  // nothing needed
+}
+
+
+void TEX_ExtractFromPAK(const char *filename)
+{
+  LogPrintf("Opening: %s\n", filename);
+
+  if (! PAK_OpenRead(filename))
   {
-    FatalError("Could not create file: %s", dest_file);
+    FatalError("Could not open file: %s", filename);
   }
 
-  miptex_database_t tex_db;
+  std::vector<int> maps;
 
-  for (unsigned int pp = 0; pp < src_files.size(); pp++)
+  PAK_FindMaps(maps);
+
+  for (unsigned int m = 0; m < maps.size(); m++)
   {
-    const char *filename = src_files[pp].c_str();
-
-    LogPrintf("Opening: %s\n", filename);
-
-    if (! PAK_OpenRead(filename))
-    {
-      // should not happen because we have checked that the files exist
-      FatalError("Could not open file: %s", filename);
-    }
-
-    std::vector<int> maps;
-
-    PAK_FindMaps(maps);
-
-    for (unsigned int m = 0; m < maps.size(); m++)
-    {
 //    DebugPrintf("Doing map %d/%d\n", m+1, (int)maps.size());
 
-      ExtractMipTex(tex_db, maps[m]);
-    }
+    pak_entry = maps[m];
 
-    PAK_CloseRead();
+    ExtractMipTex(pak_reader);
   }
 
-  WAD2_CloseWrite();
+  PAK_CloseRead();
+}
+
+
+void TEX_ExtractFromBSP(const char *filename)
+{
+  bsp_fp = fopen(filename, "rb");
+
+  if (! bsp_fp)
+    FatalError("Could not open file: %s", filename);
+
+  ExtractMipTex(bsp_reader);
+
+  fclose(bsp_fp);
+}
+
+
+void TEX_ExtractFromWAD(const char *filename)
+{
+  // TODO
+  FatalError("TEX_ExtractFromWAD not implemented!\n");
 }
 
 //--- editor settings ---
