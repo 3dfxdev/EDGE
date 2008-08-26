@@ -108,6 +108,13 @@ option by a space (like: -game hexen2).
                  is given or not.
 
 
+FILENAME CONVENTIONS
+--------------------
+
+Some of the textures used in Quake (etc) have special names
+like "*lava" and "+2shoot" which >>>>
+
+
 COPYRIGHT and LICENSE
 ---------------------
 
