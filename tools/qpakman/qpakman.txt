@@ -1,5 +1,5 @@
 
-QPakMan 0.61 README
+QPakMan 0.62 README
 ===================
 
 by Andrew Apted  (August 2008)
@@ -28,7 +28,7 @@ first big number (prefixed by +) is the offset of the lump
 In the WAD format there is a type value for each lump, and this
 is shown as a single letter (after the size, before the name).
 The following table shows all possible types, however only 'M'
-and 'P' are common:
+and 'P' types are common:
 
       M  :  Miptex texture
       P  :  PIC image
@@ -45,42 +45,49 @@ and 'P' are common:
    qpakman -extract pak0.pak
 
 The entire contents of the PAK file are extracted into the
-current folder.  
+current folder.  If a file already exists, it will NOT be
+overwritten (unless the -force option is given).
 
 
 3. Creating a PAK file:
 
    qpakman FILES.... -o dest.pak
 
-Blah
+All the specified files are stored in a newly created PAK file.
+Folders may also be given and their contents are recursively 
+added to the PAK.
 
 
 4. Unpacking a WAD file:
 
    qpakman -extract textures.wad
 
-Blah
+The whole contents of the WAD file are extracted as PNG images
+into the current folder.  If a file already exists, it will NOT
+be overwritten (unless the -force option is present).
 
 
 5. Creating a textures WAD:
 
    qpakman IMAGES... -o textures.wad
 
-Blah
+All the specified images are stored in a newly created WAD
+file.  Currently only PNG format is supported.
+
 
 
 6. Creating the special GFX.WAD:
 
    qpakman IMAGES... -o GFX.WAD
 
-Blah
+>>>
 
 
 7. Extracting textures from the game:
 
    qpakman -maketex *.pak -o quake_tex.pak
 
-Blah
+>>>
 
 
 COMMON OPTIONS
@@ -102,7 +109,7 @@ option by a space (like: -game hexen2).
                     q2  quake2
                     h2  hexen2
 
--c -colors XXX   Lets you load a different palette than
+-c -colors  XXX  Lets you load a different palette than
                  the default one (even when -game is used).
                  Must be followed by a filename containing
                  the palette, either raw format (768 bytes)
@@ -118,7 +125,7 @@ option by a space (like: -game hexen2).
 
                  NOTE: this option is automatically enabled
                  when the output file is called "gfx.wad"
-                 (or "GFX.WAD").
+                 (or "GFX.WAD", case is not significant).
 
                  NOTE 2: the CONCHARS and TINYFONT lumps
                  are always treated specially (created as
@@ -130,13 +137,13 @@ FILENAME CONVENTIONS
 --------------------
 
 Some of the textures used in Quake (etc) have special names
-like "*lava" and "+2shoot" which >>>>
+like "*lava" and "+2shoot" which  >>>>
 
 
 COPYRIGHT and LICENSE
 ---------------------
 
-Copyright (C) 2008 Andrew Apted
+Copyright (C) 2008  Andrew Apted
 
 QPakMan is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published
