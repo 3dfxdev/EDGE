@@ -155,7 +155,7 @@ std::string MIP_FileToLumpName(const char *filename, bool * fullbright)
   }
 
   if (! opt_picture)
-    printf("   lump name: %s\n", base);
+    printf("   miptex name: %s\n", base);
 
   // check if already exists
   if (all_lump_names.find(base) != all_lump_names.end())
