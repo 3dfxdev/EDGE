@@ -2,18 +2,17 @@
 TODO for QPakMan
 ================
 
-TEST: -colors option
-
-TEST: gfx.wad creation (quake1 | hexen2)
++  make MakeTEX mode more robust (no FatalError calls).
 
 -  PAK creation: if input file is "pak", merge rather than store
-
-+  make MakeTEX mode more robust (no FatalError calls).
+-  WAD creation: if input file is "wad", merge it
 
 -  convert to/from gfx/xxx.lmp files  [unless -raw option]
 -  convert to/from textures/xxx.wal files (Quake2)
 
 -  unpacking images from PAK: find palette in PAK file [unless -c option]
+
+-  for -colors option: support PCX format
 
 -  implement -raw option
    - miptex wad unpack | pack
