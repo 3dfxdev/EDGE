@@ -21,6 +21,24 @@ COMMON TASKS
    qpakman -list pak1.pak
    qpakman -list gfx.wad
 
+Shows all the lumps contained in the PAK or WAD file.  The
+first big number (prefixed by +) is the offset of the lump
+(in hexadecimal) and the second number is the lump size.
+
+In the WAD format there is a type value for each lump, and this
+is shown as a single letter (after the size, before the name).
+The following table shows all possible types, however only 'M'
+and 'P' are common:
+
+      M  :  Miptex texture
+      P  :  PIC image
+      x  :  Unknown / invalid
+
+      C  :  Color palette
+      L  :  Label
+      S  :  Sound
+      T  :  QTex
+
 
 2. Unpacking a PAK file:
 
@@ -60,7 +78,7 @@ Blah
 
 7. Extracting textures from the game:
 
-   qpakman -maketex pak0.pak pak1.pak -o quake_tex.pak
+   qpakman -maketex *.pak -o quake_tex.pak
 
 Blah
 
