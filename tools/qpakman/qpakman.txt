@@ -32,7 +32,7 @@ and 'P' types are common:
 
       M  :  Miptex texture
       P  :  PIC image
-      x  :  Unknown / invalid
+      x  :  unknown / invalid
 
       C  :  Color palette
       L  :  Label
@@ -66,27 +66,56 @@ The whole contents of the WAD file are extracted as PNG images
 into the current folder.  If a file already exists, it will NOT
 be overwritten (unless the -force option is present).
 
+Certain Quake texture names begin with a symbol which is not
+suitable in file names, e.g. "*lava" or "+2shoot".  Therefore
+QPakMan will convert them to a prefix (four letters and '_')
+while unpacking, and reconvert to a symbol while packing, as
+per the following table:
+
+      *   star_
+      +   plus_
+      -   minu_
+      /   divd_
+
+There are also textures which contain "full bright" pixels,
+which occur in the range 224-255 and are never drawn darker
+(e.g. in shadows).  To support this feature, QPakMan will
+save textures containing full-bright pixels with a "_fbr"
+suffix (for example: "tlight03_fbr.png"), and will only use
+full-bright pixels while packing if that suffix is present.
+
 
 5. Creating a textures WAD:
 
    qpakman IMAGES... -o textures.wad
 
-All the specified images are stored in a newly created WAD
-file.  Currently only PNG format is supported.
+All the specified images are converted to MIPTEX (Quake's
+texture format) and stored in a newly created WAD file.
+Currently the input images must be in PNG format.
+
+See the notes above about filename conventions.
 
 
-
-6. Creating the special GFX.WAD:
+6. Creating the GFX.WAD file:
 
    qpakman IMAGES... -o GFX.WAD
 
->>>
+This stores the images as PIC format in a newly created
+file called "GFX.WAD" (upper or lower case does not matter).
+If you want to use a different output name, the -pic option
+must be given to enable conversion to PIC format.
+
+Conversion to PIC format will use all the colors in the
+palette (no special treatment of fullbright colors).
 
 
 7. Extracting textures from the game:
 
-   qpakman -maketex *.pak -o quake_tex.pak
+   qpakman -maketex *.pak -o textures.wad
 
+This creates a texture WAD you need when using a Quake
+editor (like Quark or GTKradiant) to make your own maps.
+which can then be used with Quake editors (like QuarK).
 >>>
 
 
@@ -128,16 +157,9 @@ option by a space (like: -game hexen2).
                  (or "GFX.WAD", case is not significant).
 
                  NOTE 2: the CONCHARS and TINYFONT lumps
-                 are always treated specially (created as
-                 raw blocks of pixels), whether this option
+                 are always treated specially, created as
+                 raw blocks of pixels, whether this option
                  is given or not.
-
-
-FILENAME CONVENTIONS
---------------------
-
-Some of the textures used in Quake (etc) have special names
-like "*lava" and "+2shoot" which  >>>>
 
 
 COPYRIGHT and LICENSE
@@ -160,4 +182,6 @@ CONTACT DETAILS
 ---------------
 
 Email: <ajapted@gmail.com>
+
+Forum: http://openarena.ws/board/index.php?topic=1710.0
 
