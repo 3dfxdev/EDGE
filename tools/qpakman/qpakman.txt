@@ -2,16 +2,15 @@
 QPakMan 0.62 README
 ===================
 
-by Andrew Apted  (August 2008)
+by Andrew Apted.  August 2008
 
 
 INTRODUCTION
 ------------
 
-QPakMan is a command-line (text only) program for creating and
-unpacking the PAK and WAD files used by the games Quake, Quake II
-and Hexen II.
- 
+QPakMan is a command-line (text only) program for managing the
+PAK and WAD files used by the games Quake, Quake II and Hexen II.
+
 
 COMMON TASKS
 ============
@@ -25,10 +24,9 @@ Shows all the lumps contained in the PAK or WAD file.  The
 first big number (prefixed by +) is the offset of the lump
 (in hexadecimal) and the second number is the lump size.
 
-In the WAD format there is a type value for each lump, and this
-is shown as a single letter (after the size, before the name).
-The following table shows all possible types, however only 'M'
-and 'P' types are common:
+In the WAD format there is a type letter for each lump,
+shown after the size and before the name.  Here is a list
+of all the types (only 'M' and 'P' are common) :
 
       M  :  Miptex texture
       P  :  PIC image
@@ -54,8 +52,8 @@ overwritten (unless the -force option is given).
    qpakman FILES.... -o dest.pak
 
 All the specified files are stored in a newly created PAK file.
-Folders may also be given and their contents are recursively 
-added to the PAK.
+Folders can be given and their contents are recursively added
+to the PAK.
 
 
 4. Unpacking a WAD file:
@@ -67,7 +65,7 @@ into the current folder.  If a file already exists, it will NOT
 be overwritten (unless the -force option is present).
 
 Certain Quake texture names begin with a symbol which is not
-suitable in file names, e.g. "*lava" or "+2shoot".  Therefore
+suitable in filenames, e.g. "*lava" or "+2shoot".  Therefore
 QPakMan will convert them to a prefix (four letters and '_')
 while unpacking, and reconvert to a symbol while packing, as
 per the following table:
@@ -78,11 +76,11 @@ per the following table:
       /   divd_
 
 There are also textures which contain "full bright" pixels,
-which occur in the range 224-255 and are never drawn darker
-(e.g. in shadows).  To support this feature, QPakMan will
-save textures containing full-bright pixels with a "_fbr"
-suffix (for example: "tlight03_fbr.png"), and will only use
-full-bright pixels while packing if that suffix is present.
+palette colors in the range 224-255 which are never drawn
+darker (e.g. in shadows).  To support this feature, QPakMan
+saves textures containing full bright pixels with a "_fbr"
+suffix (for example "tlight03_fbr.png"), and will only use
+full bright pixels while packing if that suffix is present.
 
 
 5. Creating a textures WAD:
@@ -103,20 +101,20 @@ See the notes above about filename conventions.
 This stores the images as PIC format in a newly created
 file called "GFX.WAD" (upper or lower case does not matter).
 If you want to use a different output name, the -pic option
-must be given to enable conversion to PIC format.
+must also be given to enable conversion to PIC format.
 
-Conversion to PIC format will use all the colors in the
-palette (no special treatment of fullbright colors).
+Conversion to PIC format uses all colors in the palette
+(no special treatment of full bright pixels).
 
 
-7. Extracting textures from the game:
+7. Making a texture wad for editing:
 
    qpakman -maketex *.pak -o textures.wad
 
-This creates a texture WAD you need when using a Quake
-editor (like Quark or GTKradiant) to make your own maps.
-which can then be used with Quake editors (like QuarK).
->>>
+This creates a texture WAD which a quake editor (like Quark
+or GTKradiant) needs to work properly.  You need to specify
+the PAK files for the full game (Quake I or Hexen II).  It
+can also process individual BSP files.
 
 
 COMMON OPTIONS
@@ -129,9 +127,8 @@ option by a space (like: -game hexen2).
 
 
 -g -game  XXX    This specifies which game the PAK or WAD
-                 file is for.  It sets the default palette
-                 and can affect which files are converted
-                 to/from PNG format.
+                 is for.  It sets the default palette and
+                 might affect how lumps are converted.
 
                  Usable keywords are:
                     q1  quake1
@@ -140,14 +137,15 @@ option by a space (like: -game hexen2).
 
 -c -colors  XXX  Lets you load a different palette than
                  the default one (even when -game is used).
-                 Must be followed by a filename containing
-                 the palette, either raw format (768 bytes)
-                 or text format (768 numbers).
+
+                 Must be followed by a filename for the
+                 palette.  It can be either raw format
+                 (768 bytes) or text format (768 numbers).
 
 -f -force        Forces extracted files to overwrite any
                  existing file with the same name.  Normally
                  QPakMan will not overwrite existing files
-                 when extracting fro PAK or WAD.
+                 when extracting from a PAK or WAD.
 
 -p -pic          When creating a WAD, stores the images in
                  Quake PIC format instead of MIPTEX format.
@@ -157,9 +155,8 @@ option by a space (like: -game hexen2).
                  (or "GFX.WAD", case is not significant).
 
                  NOTE 2: the CONCHARS and TINYFONT lumps
-                 are always treated specially, created as
-                 raw blocks of pixels, whether this option
-                 is given or not.
+                 are special, and are always created as a
+                 raw blocks of pixels.
 
 
 COPYRIGHT and LICENSE
