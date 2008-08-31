@@ -744,7 +744,7 @@ bool MIP_DecodeWAL(int entry, const char *filename)
 {
   wal_header_t wal;
 
-  if (! WAD2_ReadData(entry, 0, (int)sizeof(wal), &wal))
+  if (! PAK_ReadData(entry, 0, (int)sizeof(wal), &wal))
   {
     printf("FAILURE: could not read WAL header!\n\n");
     return false;
