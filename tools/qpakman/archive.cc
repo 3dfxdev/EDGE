@@ -155,16 +155,25 @@ bool ARC_ExtractOneFile(int entry, const char *name)
   {
     printf("  Converting WAL texture to PNG...\n");
 
+    ARC_CreateNeededDirs(filename);
+
     const char *png_name = ReplaceExtension(filename, "png");
-    StringFree(filename);
 
     if (FileExists(png_name) && ! opt_force)
     {
       printf("FAILURE: will not overwrite file: %s\n\n", png_name);
+      StringFree(filename);
       return false;
     }
 
-    return MIP_DecodeWAL(entry, png_name);
+    if (MIP_DecodeWAL(entry, png_name))
+    {
+      StringFree(filename);
+      return true; // OK!
+    }
+
+    // failed, therefore save as raw
+    printf("  Saving as a raw file instead\n");
   }
 
 
