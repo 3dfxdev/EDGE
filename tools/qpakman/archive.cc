@@ -24,6 +24,7 @@
 
 #include "archive.h"
 #include "pakfile.h"
+#include "im_mip.h"
 #include "q1_structs.h"
 
 
@@ -148,6 +149,23 @@ bool ARC_ExtractOneFile(int entry, const char *name)
   const char * filename = SanitizeOutputName(name);
   if (! filename)
     return false;
+
+
+  if (game_type == GAME_Quake2 && CheckExtension(filename, "WAL"))
+  {
+    printf("  Converting WAL texture to PNG...\n");
+
+    const char *png_name = ReplaceExtension(filename, "png");
+    StringFree(filename);
+
+    if (FileExists(png_name) && ! opt_force)
+    {
+      printf("FAILURE: will not overwrite file: %s\n\n", png_name);
+      return false;
+    }
+
+    return MIP_DecodeWAL(entry, png_name);
+  }
 
 
   if (FileExists(filename) && ! opt_force)
