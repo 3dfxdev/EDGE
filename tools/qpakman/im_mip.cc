@@ -736,5 +736,96 @@ void MIP_ExtractWAD(const char *filename)
          num_lumps - failures - skipped, failures);
 }
 
+
+//------------------------------------------------------------------------
+
+
+bool MIP_DecodeWAL(int entry, const char *filename)
+{
+  wal_header_t wal;
+
+  if (! WAD2_ReadData(entry, 0, (int)sizeof(wal), &wal))
+  {
+    printf("FAILURE: could not read WAL header!\n\n");
+    return false;
+  }
+
+  // (We ignore the internal name)
+
+  int width  = LE_U32(wal.width);
+  int height = LE_U32(wal.height);
+  int offset = LE_U32(wal.offsets[0]);
+
+  if (width  < 8 || width  > 4096 ||
+      height < 8 || height > 4096)
+  {
+    printf("FAILURE: weird size of image: %dx%d\n\n", width, height);
+    return false;
+  }
+
+  int total = PAK_EntryLen(entry);
+
+  if (offset < 80 || offset > total - width*height*85/64)
+  {
+    printf("FAILURE: invalid offset in WAL header (0x%08x)\n", offset);
+    return false;
+  }
+
+  byte *pixels = new byte[width * height];
+
+  if (! PAK_ReadData(entry, offset, width * height, pixels))
+  {
+    printf("FAILURE: could not read %dx%d pixels from WAL\n\n", width, height);
+    delete pixels;
+    return false;
+  }
+
+  // create the image for saving.
+  COL_SetFullBright(true);
+
+  rgb_image_c *img = new rgb_image_c(width, height);
+
+  for (int y = 0; y < height; y++)
+  for (int x = 0; x < width;  x++)
+  {
+    byte pix = pixels[y*width + x];
+
+    img->PixelAt(x, y) = COL_ReadPalette(pix);
+  }
+
+  delete pixels;
+
+
+  // TODO: transparent bits and/or SKY
+
+
+  FILE *fp = fopen(filename, "wb");
+
+  if (! fp)
+  {
+    printf("FAILURE: cannot create output file: %s\n\n", filename);
+
+    delete img;
+    return false;
+  }
+
+  bool result = PNG_Save(fp, img);
+
+  fclose(fp);
+
+  delete img;
+
+  if (! result)
+    printf("FAILURE: error while writing PNG file\n\n");
+
+  return result;
+}
+
+
+void MIP_EncodeWAL(const char *filename)
+{
+  FatalError("MIP_EncodeWAL: not yet implemented.\n");
+}
+
 //--- editor settings ---
 // vi:ts=2:sw=2:expandtab
