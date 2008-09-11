@@ -2,23 +2,29 @@
 TODO for QPakMan
 ================
 
+++  Miptex creation: Floyd-Steinberg it up
+
 +  make MakeTEX mode more robust (no FatalError calls).
 
 -  PAK creation: if input file is "pak", merge rather than store
 -  WAD creation: if input file is "wad", merge it
 
 -  convert to/from gfx/xxx.lmp files  [unless -raw option]
+
+   EXCEPTIONS:
+      palette.lmp colormap.lmp pop.lmp
+      player.lmp tinttab.lmp tinttab2.lmp invpal.lmp
+
 -  convert to/from textures/xxx.wal files (Quake2)
+   >>> handle + and * prefixes
 
 -  unpacking images from PAK: find palette in PAK file [unless -c option]
 
--  for -colors option: support PCX format
+-  for -colors option: support PCX format (Quake2)
 
 -  implement -raw option
    - miptex wad unpack | pack
    - gfx.wad    unpack | pack
    - pak files  unpack | pack
    etc....
-
--  synchronize u_file and PAK improvements with Oblige code
 
