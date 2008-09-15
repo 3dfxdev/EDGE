@@ -25,6 +25,8 @@
 
 #include "i_defs.h"
 
+#include <algorithm>
+
 #include "z_zone.h"
 #include "dm_defs.h"
 #include "dm_state.h"
