@@ -1,5 +1,11 @@
 Andrew Apted's Log
 
+2008/09/25:
+
+Made an error message (when an attack is used that has no
+ATTACKTYPE field in the DDF) only appear with -strict option
+is used.  This allows the bm20.wad (Bone Match) mod to run.
+
 2008/08/24:
 
 * EDGE 1.31 was released *

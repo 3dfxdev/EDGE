@@ -2649,12 +2649,12 @@ static void P_DoAttack(mobj_t * object)
 			break;
 		}
 
-		default:  // THIS SHOULD NOT HAPPEN
+		case ATK_NONE:
+		default:
 		{
-#ifdef DEVELOPERS
-			I_Error("P_DoAttack: %s has an unknown attack type.\n", 
-				object->info->ddf.name.c_str());
-#endif
+			if (strict_errors)
+				I_Error("P_DoAttack: %s has an unknown attack type.\n", 
+					object->info->ddf.name.c_str());
 			break;
 		}
 	}
