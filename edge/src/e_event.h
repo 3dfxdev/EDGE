@@ -48,7 +48,12 @@ typedef struct
 
 	union
 	{
-		int key;
+		struct 
+	    {
+	        int sym;
+	    	int unicode;
+	    }
+	    key;
 	
 		struct
 		{

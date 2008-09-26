@@ -992,7 +992,7 @@ bool RAD_Responder(event_t * ev)
 		
 	SYS_ASSERT(rts_curr_menu);
 
-	int check = rts_curr_menu->CheckKey(ev->value.key);
+	int check = rts_curr_menu->CheckKey(ev->value.key.sym);
 
 	if (check >= 0)
 	{

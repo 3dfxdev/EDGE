@@ -82,9 +82,11 @@ void HandleKeyEvent(SDL_Event* ev)
 		L_WriteDebug("  HandleKey: UP\n");
 #endif
 
-	event_t event;
-
 	int sym = (int)ev->key.keysym.sym;
+
+	event_t event;
+	event.value.key.sym = TranslateSDLKey(sym);
+	event.value.key.unicode = ev->key.keysym.unicode;
 
 	// handle certain keys which don't behave normally
 	if (sym == SDLK_CAPSLOCK || sym == SDLK_NUMLOCK)
@@ -102,7 +104,6 @@ void HandleKeyEvent(SDL_Event* ev)
 			return;
 #endif
 		event.type = ev_keydown;
-		event.value.key = TranslateSDLKey(sym);
 		E_PostEvent(&event);
 
 		event.type = ev_keyup;
@@ -111,17 +112,20 @@ void HandleKeyEvent(SDL_Event* ev)
 	}
 
 	event.type = (ev->type == SDL_KEYDOWN) ? ev_keydown : ev_keyup;
-	event.value.key = TranslateSDLKey(sym);
 
 #ifdef DEBUG_KB
 	L_WriteDebug("   HandleKey: sym=%d scan=%d unicode=%d --> key=%d\n",
-			sym, ev->key.keysym.scancode, ev->key.keysym.unicode, event.value.key);
+			sym, ev->key.keysym.scancode, ev->key.keysym.unicode, event.value.key.sym);
 #endif
 
-	if (event.value.key < 0)
+	if (event.value.key.sym == KEYD_IGNORE &&
+	    event.value.key.unicode == 0)
+	{
+		// No translation possible for SDL symbol and no unicode value
 		return;
+	}
 
-    if (event.value.key == KEYD_TAB && alt_is_down)
+    if (event.value.key.sym == KEYD_TAB && alt_is_down)
     {
 #ifdef DEBUG_KB
 		L_WriteDebug("   HandleKey: ALT-TAB\n");
@@ -130,7 +134,7 @@ void HandleKeyEvent(SDL_Event* ev)
 		return;
     }
 
-	if (event.value.key == KEYD_LALT)
+	if (event.value.key.sym == KEYD_LALT)
 		alt_is_down = (event.type == ev_keydown);
 
 	E_PostEvent(&event);
@@ -151,20 +155,20 @@ void HandleMouseButtonEvent(SDL_Event * ev)
 	switch (ev->button.button)
 	{
 		case 1:
-			event.value.key = KEYD_MOUSE1; break;
+			event.value.key.sym = KEYD_MOUSE1; break;
 
 		case 2:
-			event.value.key = KEYD_MOUSE2; break;
+			event.value.key.sym = KEYD_MOUSE2; break;
 
 		case 3:
-			event.value.key = KEYD_MOUSE3; break;
+			event.value.key.sym = KEYD_MOUSE3; break;
 
 		// handle the mouse wheel
 		case 4: 
-			event.value.key = KEYD_MWHEEL_UP; break; 
+			event.value.key.sym = KEYD_MWHEEL_UP; break; 
 
 		case 5: 
-			event.value.key = KEYD_MWHEEL_DN; break; 
+			event.value.key.sym = KEYD_MWHEEL_DN; break; 
 
 		default:
 			return;
@@ -305,7 +309,7 @@ void InactiveEventProcess(SDL_Event *sdl_ev)
 
 //
 // Translates a key from SDL -> EDGE
-// Returns -1 if no suitable translation exists.
+// Returns KEYD_IGNORE if no suitable translation exists.
 //
 int TranslateSDLKey(int key)
 {
@@ -381,7 +385,7 @@ int TranslateSDLKey(int key)
 	if (key <= 0x7f)
 		return tolower(key);
 
-	return -1;
+	return KEYD_IGNORE;
 }
 
 void I_CentreMouse(void)
@@ -396,8 +400,9 @@ void I_StartupControl(void)
 {
 	alt_is_down = false;
 
-	if (M_CheckParm("-unicode"))
-		SDL_EnableUNICODE(1);
+	// -ACB- 2008/09/20: No longer an option as we need to
+	//                   value for console.
+	SDL_EnableUNICODE(1);
 }
 
 void I_ControlGetEvents(void)

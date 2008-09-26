@@ -128,8 +128,8 @@ static int cmd_hist_pos = -1;
 
 
 // always type ev_keydown
-static int RepeatKey;
-static int RepeatCountdown;
+static int repeat_key;
+static int repeat_countdown;
 
 // tells whether shift is pressed, and pgup/dn should scroll to top/bottom of linebuffer.
 static bool KeysShifted;
@@ -366,14 +366,14 @@ void CON_Ticker(void)
 			break;  
 
 		default:
-			if (RepeatCountdown)
+			if (repeat_countdown)
 			{
-				RepeatCountdown -= 1;
+				repeat_countdown -= 1;
 
-				while (RepeatCountdown <= 0)
+				while (repeat_countdown <= 0)
 				{
-					RepeatCountdown += KEYREPEATRATE;
-					CON_HandleKey(RepeatKey);
+					repeat_countdown += KEYREPEATRATE;
+					CON_HandleKey(repeat_key);
 				}
 			}
 			break;
@@ -774,9 +774,45 @@ bool CON_HandleKey(int key)
 	return true;
 }
 
+int GetKeycode(event_t *ev)
+{
+    int sym = ev->value.key.sym;
+
+	switch (sym)
+	{
+		case KEYD_TAB:
+		case KEYD_PGUP:
+		case KEYD_PGDN:
+		case KEYD_HOME:
+		case KEYD_END:
+		case KEYD_LEFTARROW:
+		case KEYD_RIGHTARROW:
+		case KEYD_BACKSPACE:
+		case KEYD_DELETE:
+		case KEYD_UPARROW:
+		case KEYD_DOWNARROW:
+		case KEYD_ENTER:
+		case KEYD_ESCAPE:
+			return sym;
+			break;
+
+		default:
+			break;
+    }
+
+    int unicode = ev->value.key.unicode;
+    if (HU_IS_PRINTABLE(unicode))
+        return unicode;
+
+    if (HU_IS_PRINTABLE(sym))
+        return sym;
+
+    return KEYD_IGNORE;
+}
+
 bool CON_Responder(event_t * ev)
 {
-	if (ev->type == ev_keydown && ev->value.key == key_console)
+	if (ev->type == ev_keydown && ev->value.key.sym == key_console)
 	{
 		CON_SetVisible(vs_toggle);
 		return true;
@@ -785,19 +821,23 @@ bool CON_Responder(event_t * ev)
 	if (con_visible == vs_notvisible)
 		return false;
 
+    // LUA is case sensitive, so look for
+    // uppercase characters in the untranslated
+    // value. -ACB- 2008/09/21 
+    int key = GetKeycode(ev);
+    if (key == KEYD_IGNORE)
+        return false;
+
 	if (ev->type == ev_keyup)
 	{
-		if (ev->value.key == RepeatKey)
-			RepeatCountdown = 0;
+		if (key == repeat_key)
+			repeat_countdown = 0;
 
-		switch (ev->value.key)
+		switch (key)
 		{
 			case KEYD_PGUP:
 			case KEYD_PGDN:
 				scroll_state = NOSCROLL;
-				break;
-			case KEYD_RSHIFT:
-				KeysShifted = false;
 				break;
 			default:
 				return false;
@@ -806,7 +846,7 @@ bool CON_Responder(event_t * ev)
 	else if (ev->type == ev_keydown)
 	{
 		// Okay, fine. Most keys don't repeat
-		switch (ev->value.key)
+		switch (key)
 		{
 			case KEYD_RIGHTARROW:
 			case KEYD_LEFTARROW:
@@ -815,16 +855,16 @@ bool CON_Responder(event_t * ev)
 			case KEYD_SPACE:
 			case KEYD_BACKSPACE:
 			case KEYD_DELETE:
-				RepeatCountdown = KEYREPEATDELAY;
+				repeat_countdown = KEYREPEATDELAY;
 				break;
 			default:
-				RepeatCountdown = 0;
+				repeat_countdown = 0;
 				break;
 		}
 
-		RepeatKey = ev->value.key;
+		repeat_key = key;
 
-		return CON_HandleKey(RepeatKey);
+		return CON_HandleKey(repeat_key);
 	}
 
 	return false;

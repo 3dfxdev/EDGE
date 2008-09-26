@@ -314,8 +314,8 @@ bool AM_Responder(event_t * ev)
 	if (! automapactive)
 	{
 		if (ev->type == ev_keydown &&
-			(ev->value.key == (AM_STARTKEY >> 16) ||
-			 ev->value.key == (AM_STARTKEY & 0xffff)))
+			(ev->value.key.sym == (AM_STARTKEY >> 16) ||
+			 ev->value.key.sym == (AM_STARTKEY & 0xffff)))
 		{
 			AM_Show();
 			return true;
@@ -328,7 +328,7 @@ bool AM_Responder(event_t * ev)
 
 	if (ev->type == ev_keyup)
 	{
-		switch (ev->value.key)
+		switch (ev->value.key.sym)
 		{
 		case AM_PANRIGHTKEY:
 		case AM_PANLEFTKEY:
@@ -357,7 +357,7 @@ bool AM_Responder(event_t * ev)
 	if (ev->type == ev_keydown)
 	{
 		rc = true;
-		switch (ev->value.key)
+		switch (ev->value.key.sym)
 		{
 		case AM_PANRIGHTKEY:
 			// pan right
@@ -447,8 +447,8 @@ bool AM_Responder(event_t * ev)
 			break;
 
 		default:
-			if (ev->value.key == (AM_ENDKEY >> 16) || 
-				ev->value.key == (AM_ENDKEY & 0xffff))
+			if (ev->value.key.sym == (AM_ENDKEY >> 16) || 
+				ev->value.key.sym == (AM_ENDKEY & 0xffff))
 			{
 				AM_Hide();
 			}
@@ -458,7 +458,7 @@ bool AM_Responder(event_t * ev)
 			}
 		}
 		// -ACB- 1999/09/28 Proper casting
-		if (!DEATHMATCH() && M_CheckCheat(&cheat_amap, (char)ev->value.key))
+		if (!DEATHMATCH() && M_CheckCheat(&cheat_amap, (char)ev->value.key.sym))
 		{
 			rc = false;
 
