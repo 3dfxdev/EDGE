@@ -429,19 +429,22 @@ bool INP_Responder(event_t * ev)
 	switch (ev->type)
 	{
 		case ev_keydown:
-
-			if (ev->value.key < NUMKEYS)
+			if (ev->value.key.sym != KEYD_IGNORE &&
+			    ev->value.key.sym < NUMKEYS)
 			{
-				gamekeydown[ev->value.key] &= ~GK_UP;
-				gamekeydown[ev->value.key] |=  GK_DOWN;
+				gamekeydown[ev->value.key.sym] &= ~GK_UP;
+				gamekeydown[ev->value.key.sym] |=  GK_DOWN;
 			}
 
 			// eat key down events 
 			return true;
 
 		case ev_keyup:
-			if (ev->value.key < NUMKEYS)
-				gamekeydown[ev->value.key] |= GK_UP;
+			if (ev->value.key.sym != KEYD_IGNORE &&
+			    ev->value.key.sym < NUMKEYS)
+			{
+				gamekeydown[ev->value.key.sym] |= GK_UP;
+			}
 
 			// always let key up events filter down 
 			return false;
@@ -530,7 +533,8 @@ void E_ReleaseAllKeys(void)
 			event_t ev;
 			
 			ev.type = ev_keyup;
-			ev.value.key = i;
+			ev.value.key.sym = i;
+			ev.value.key.unicode = 0;
 			
 			E_PostEvent(&ev);
 		}
@@ -550,7 +554,7 @@ if (ev->type == ev_keydown || ev->type == ev_keyup)
 {
 	L_WriteDebug("EVENT @ %08x %d %s\n",
 		I_ReadMicroSeconds()/1000,
-		ev->value.key,
+		ev->value.key.sym,
 		(ev->type == ev_keyup) ? "DOWN" : "up");
 }
 #endif

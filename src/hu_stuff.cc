@@ -86,59 +86,6 @@ static style_c *message_style;
 static style_c *chat_style;
 
 
-// -ACB- 1999/09/28 was english_shiftxform. Only one used.
-static const unsigned char shiftxform[] =
-{
-	0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
-	11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-	21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
-
-	' ', '!', '"', '#', '$', '%', '&',
-	'"',  // shift-'
-	'(', ')', '*', '+',
-	'<',  // shift-,
-	'_',  // shift--
-	'>',  // shift-.
-	'?',  // shift-/
-	')',  // shift-0
-	'!',  // shift-1
-	'@',  // shift-2
-	'#',  // shift-3
-	'$',  // shift-4
-	'%',  // shift-5
-	'^',  // shift-6
-	'&',  // shift-7
-	'*',  // shift-8
-	'(',  // shift-9
-	':',
-	':',  // shift-;
-	'<',
-	'+',  // shift-=
-	'>', '?', '@',
-	'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N',
-	'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
-	'[',  // shift-[
-	'!',  // shift-backslash
-	']',  // shift-]
-	'"', '_',
-	'\'',  // shift-`
-	'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N',
-	'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
-	'{', '|', '}', '~', 127,
-
-	128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139,
-	140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151,
-	152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163,
-	164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175,
-	176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187,
-	188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 
-	200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 
-	212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223,
-	224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 
-	236, 237, 238, 239, 240, 241, 242, 243, 244, 245, 246, 247, 
-	248, 249, 250, 251, 252, 253, 254, 255
-};
-
 //
 // Heads-up Init
 //
@@ -335,9 +282,6 @@ void HU_StartMessage(const char *msg)
 
 void HU_Ticker(void)
 {
-	int i,rc;
-	char c;
-
 	// tick down message counter if message is up
 	if (message_counter && !--message_counter)
 	{
@@ -357,38 +301,39 @@ void HU_Ticker(void)
 		if (pnum == consoleplayer)
 			continue;
 
-		c = p->cmd.chatchar;
-		i = p->pnum;
-		if (c)
+		char c = p->cmd.chatchar;
+		p->cmd.chatchar = 0;
+		if (! c)
+			continue;
+
+		int i = p->pnum;
+
+		if (c <= HU_BROADCAST)
 		{
-			if (c <= HU_BROADCAST)
-				chat_dest[i] = c;
-			else
+			chat_dest[i] = c;
+			continue;
+		}
+
+		int rc = HL_KeyInIText(&w_inputbuffer[i], c);
+
+		if (rc && c == KEYD_ENTER)
+		{
+			if (w_inputbuffer[i].L.len
+				&& (chat_dest[i] == consoleplayer + 1
+				|| chat_dest[i] == HU_BROADCAST))
 			{
-				if (c >= 'a' && c <= 'z')
-					c = (char)shiftxform[(unsigned char)c];
-				rc = HL_KeyInIText(&w_inputbuffer[i], c);
-				if (rc && c == KEYD_ENTER)
-				{
-					if (w_inputbuffer[i].L.len
-						&& (chat_dest[i] == consoleplayer + 1
-						|| chat_dest[i] == HU_BROADCAST))
-					{
-						HL_AddMessageToSText(&w_message, p->playername, w_inputbuffer[i].L.ch);
+				HL_AddMessageToSText(&w_message, p->playername, w_inputbuffer[i].L.ch);
 
-						message_on = true;
-						message_no_overwrite = true;
-						message_counter = HU_MSGTIMEOUT;
+				message_on = true;
+				message_no_overwrite = true;
+				message_counter = HU_MSGTIMEOUT;
 
-						if (W_CheckNumForName("DSRADIO") >= 0)
-							S_StartFX(sfx_radio, SNCAT_UI);
-						else
-							S_StartFX(sfx_tink, SNCAT_UI);
-					}
-					HL_ResetIText(&w_inputbuffer[i]);
-				}
+				if (W_CheckNumForName("DSRADIO") >= 0)
+					S_StartFX(sfx_radio, SNCAT_UI);
+				else
+					S_StartFX(sfx_tink, SNCAT_UI);
 			}
-			p->cmd.chatchar = 0;
+			HL_ResetIText(&w_inputbuffer[i]);
 		}
 	}
 }
@@ -432,72 +377,57 @@ char HU_DequeueChatChar(void)
 bool HU_Responder(event_t * ev)
 {
 	static char lastmessage[HU_MAXLINELENGTH + 1];
-	bool eatkey = false;
-	static bool shiftdown = false;
-	static bool altdown = false;
-	unsigned char c;
-
-	if (ev->type == ev_analogue)
-		return false;
-
-	c = ev->value.key;
-
-	if (c == KEYD_RSHIFT)
-	{
-		shiftdown = (ev->type == ev_keydown);
-		return false;
-	}
-	else if (c == KEYD_RALT || c == KEYD_LALT)
-	{
-		altdown = (ev->type == ev_keydown);
-		return false;
-	}
 
 	if (ev->type != ev_keydown)
 		return false;
 
+	int sym = ev->value.key.sym;
+
 	if (!chat_on)
 	{
-		if (c == KEYD_ENTER)
+		if (sym == KEYD_ENTER)
 		{
 			message_on = true;
 			message_counter = HU_MSGTIMEOUT;
-			eatkey = false;
+			return false;
 		}
-		else if (netgame && c && ((c == (HU_INPUTTOGGLE >> 16)) || (c == (HU_INPUTTOGGLE & 0xffff))))
+		else if (netgame && sym && ((sym == (HU_INPUTTOGGLE >> 16)) || (sym == (HU_INPUTTOGGLE & 0xffff))))
 		{
-			eatkey = chat_on = true;
+			chat_on = true;
 			HL_ResetIText(&w_chat);
 			HU_QueueChatChar(HU_BROADCAST);
+			return true;
 		}
+
+		return false;
 	}
+
+	unsigned char c;
+
+	// -ACB- 2008/09/22 Use unicode key if valid
+	int unicode = ev->value.key.unicode;
+	if (HU_IS_PRINTABLE(unicode))
+		c = (char)unicode;
 	else
+		c = (char)sym;
+
+	bool eatkey = HL_KeyInIText(&w_chat, c);
+	if (eatkey)
+		HU_QueueChatChar(c);
+
+	if (sym == KEYD_ENTER)
 	{
-		if (shiftdown || (c >= 'a' && c <= 'z'))
-			c = shiftxform[c];
+		chat_on = false;
 
-		eatkey = HL_KeyInIText(&w_chat, c);
-		if (eatkey)
-		{
-			// static unsigned char buf[20]; // DEBUG
-			HU_QueueChatChar(c);
-
-			// sprintf(buf, "KEY: %d => %d", ev->data1, c);
-			//      consoleplayer->message = buf;
-		}
-		if (c == KEYD_ENTER)
-		{
-			chat_on = false;
-
-			if (w_chat.L.len)
-				CON_PlayerMessage(consoleplayer, lastmessage, w_chat.L.ch);
-		}
-		else if (c == KEYD_ESCAPE)
-			chat_on = false;
+		if (w_chat.L.len)
+			CON_PlayerMessage(consoleplayer, lastmessage, w_chat.L.ch);
+	}
+	else if (sym == KEYD_ESCAPE)
+	{
+		chat_on = false;
 	}
 
 	return eatkey;
-
 }
 
 //--- editor settings ---

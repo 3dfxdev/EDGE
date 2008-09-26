@@ -1456,13 +1456,12 @@ void M_StopMessage(void)
 //
 bool M_Responder(event_t * ev)
 {
-	int ch;
 	int i;
 
 	if (ev->type != ev_keydown)
 		return false;
 
-	ch = ev->value.key;
+	int ch = ev->value.key.sym;
 
 	// -ACB- 1999/10/11 F1 is responsible for print screen at any time
 	if (ch == KEYD_F1 || ch == KEYD_PRTSCR)
@@ -1533,11 +1532,17 @@ bool M_Responder(event_t * ev)
 			return true;
 		}
 		
-		ch = toupper(ch);
+        // Use unicode encoding if available
+        int unicode = ev->value.key.unicode;
+        if (HU_IS_PRINTABLE(unicode))
+            ch = unicode;
+		else
+			ch = toupper(ch);
+
 		if (ch == '-')
 			ch = '_';
-			
-		if (ch >= 32 && ch <= 126)  // FIXME: international characters ??
+
+		if (HU_IS_PRINTABLE(ch))  // FIXME: international characters ??
 		{
 			// Set the input_string only if fits
 			if (input_string.size() < 64)

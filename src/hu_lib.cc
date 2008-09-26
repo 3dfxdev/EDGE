@@ -323,7 +323,7 @@ void HL_AddPrefixToIText(hu_itext_t * it, const char *str)
 // returns true if it ate the key
 bool HL_KeyInIText(hu_itext_t * it, const char ch)
 {
-	if (ch >= ' ' && ch <= '_')
+	if (HU_IS_PRINTABLE(ch))
 		HL_AddCharToTextLine(&it->L, (char)ch);
 	else if (ch == KEYD_BACKSPACE)
 		HL_DelCharFromIText(it);

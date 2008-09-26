@@ -45,6 +45,8 @@ extern int showMessages;
 
 #define HU_MSGTIMEOUT	(4*TICRATE)
 
+#define HU_IS_PRINTABLE(c) ((c) >= 32 && (c) <= 126)
+
 extern bool chat_on;
 
 //
