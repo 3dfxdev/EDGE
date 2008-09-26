@@ -856,6 +856,8 @@ static void start_note(MidiEvent *e, int i)
 		if (! lp)
 			return; /* No instrument? Then we can't play. */
 
+		SYS_ASSERT(lp != MAGIC_LOAD_INSTRUMENT);
+
 		ip = lp->instrument;
 		if (ip->type == INST_GUS && ip->samples != 1)
 		{
@@ -886,6 +888,9 @@ static void start_note(MidiEvent *e, int i)
 			if (! lp)
 				return; /* No instrument? Then we can't play. */
 		}
+
+		// -AJA- all instruments have been loaded already
+		SYS_ASSERT(lp != MAGIC_LOAD_INSTRUMENT);
 
 		ip = lp->instrument;
 		if (ip->sample->note_to_use) /* Fixed-pitch instrument? */
