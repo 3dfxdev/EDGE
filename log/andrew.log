@@ -1,9 +1,17 @@
 Andrew Apted's Log
 
+2008/09/26:
+
+Fixed problem in timidity where some instruments could still
+be marked as need-to-load (layer == MAGIC_LOAD_INSTRUMENT)
+even after the loading phase was finished.
+
+Applied patch by Andrew Baker for unicode field in event_t.
+
 2008/09/25:
 
 Made an error message (when an attack is used that has no
-ATTACKTYPE field in the DDF) only appear with -strict option
+ATTACKTYPE field in the DDF) only appear when -strict option
 is used.  This allows the bm20.wad (Bone Match) mod to run.
 
 2008/08/24:
