@@ -234,8 +234,10 @@ static const char *config_sub_dirs[] =
 #endif
 
 #ifdef WIN32
+	"timidity\\current",
 	"timidity\\patches",
 #else
+	"timidity/current",
 	"timidity/patches",
 #endif
 
