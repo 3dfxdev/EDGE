@@ -43,14 +43,16 @@ public:
 
 public:
     void Open();
+
     void CallFunction(const char *parent_name, const char *name);
-    lua_State* GetState() { return this->state; } 
-    void LoadBuffer(const char *name, char *buffer, int length);
     void LoadModule(const char *name, const luaL_Reg *funcs);
-    std::string RunCommand(const char *cmd);
+    void LoadBuffer(const char *name, char *buffer, int length);
+
+/// lua_State* GetState() { return this->state; } 
+/// std::string RunCommand(const char *cmd);
 
     void SetIntVar(const char *table, const char *name, int value);
-    void SetBoolVar(const char *table, const char *name, int value);
+    void SetBoolVar(const char *table, const char *name, bool value);
     void SetStringVar(const char *table, const char *name, const char * value);
 
 private:
@@ -63,6 +65,8 @@ extern lua_vm_c *vm; // The instance
 
 void LU_Init();
 void LU_Close();
+
+void LU_LoadScripts();
 
 #endif // __L_LUA_H__
 

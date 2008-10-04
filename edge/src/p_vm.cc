@@ -19,10 +19,11 @@
 #include "i_defs.h"
 #include "i_luainc.h"
 
+#include "ddf/types.h"
+
 #include "l_lua.h"
 #include "p_vm.h"
 
-#include "ddf/types.h"
 #include "p_local.h"  
 #include "p_mobj.h"
 #include "r_state.h"
