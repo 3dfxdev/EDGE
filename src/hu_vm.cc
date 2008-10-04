@@ -95,7 +95,7 @@ static void FrameSetup(void)
 	vm->SetIntVar("hud", "now_time", now_time);
 	vm->SetIntVar("hud", "passed_time", passed_time);
 
-	vm->SetBoolVar("hud", "automap", automapactive ? 1 : 0);
+	vm->SetBoolVar("hud", "automap", automapactive);
 }
 
 
