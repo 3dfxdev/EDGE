@@ -402,7 +402,10 @@ static bool RAD_CheckHeightTrig(rad_trigger_t *trig,
 		}
 	}
 
-	h = cond->cached_sector->f_h;
+	if (cond->is_ceil)
+		h = cond->cached_sector->c_h;
+	else
+		h = cond->cached_sector->f_h;
 
 	return (cond->z1 <= h && h <= cond->z2);
 }
