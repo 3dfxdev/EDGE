@@ -262,6 +262,13 @@ void M_CheckBooleanParm(const char *parm, bool *boolval, bool reverse)
 	}
 }
 
+bool M_TestBoolean(const char *parm, bool default_val)
+{
+	bool tmp = default_val;
+	M_CheckBooleanParm(parm, &tmp);
+	return tmp;
+}
+
 //
 // M_GetArgument
 //
