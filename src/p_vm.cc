@@ -776,9 +776,9 @@ static void SetSidedefTexture(int sd_num,
 }
 
 
-// world.get_sidedef_prop(prop_type, sidedef_num)
+// world.get_side_prop(prop_type, sidedef_num)
 //
-static int PS_get_sidedef_prop(lua_State *L)
+static int PS_get_side_prop(lua_State *L)
 {
     if (lua_gettop(L) < 2)
     {
@@ -837,9 +837,9 @@ static int PS_get_sidedef_prop(lua_State *L)
     return 1;
 }
 
-// world.set_sidedef_prop(prop_type, sidedef_num, attribute_value)
+// world.set_side_prop(prop_type, sidedef_num, attribute_value)
 //
-static int PS_set_sidedef_prop(lua_State *L)
+static int PS_set_side_prop(lua_State *L)
 {
     if (lua_gettop(L) < 3)
     {
@@ -1290,14 +1290,16 @@ static int PS_spawn_thing(lua_State *L)
 const luaL_Reg world_module[] =
 {
 	{ "activate_line_type",  PS_activate_line_type },
+	{ "spawn_thing",         PS_spawn_thing },
+
 	{ "get_line_prop",       PS_get_line_prop },
-	{ "get_sidedef_prop",    PS_get_sidedef_prop },
+	{ "get_side_prop",       PS_get_side_prop },
 	{ "get_sec_prop",        PS_get_sec_prop },
 	{ "get_sectors",         PS_get_sectors },
-	{ "set_sidedef_prop",    PS_set_sidedef_prop },
+	{ "set_side_prop",       PS_set_side_prop },
 	{ "set_sec_prop",        PS_set_sec_prop },
-	{ "spawn_thing",         PS_spawn_thing },
-    { NULL,                  NULL }
+
+    { NULL, NULL }  // the end
 };
 
 
