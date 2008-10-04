@@ -1,5 +1,186 @@
 ANDY BAKER'S LOG
 
+DATE: 2008/09/25
+Performed basic testing of the LUA Console development. 
+
+The LUA modules that were added are detailed below:
+
+--[ Console module ]--
+
+console.get_var(<var_name>)
+  => Returns current console var value
+
+console.get_var_default(<var_name>) 
+  => Returns console var default value
+
+console.set_var(<var_name>, <var_value>)
+  => Set console variable
+
+console.write(<output>)
+  => Output text to the console.
+
+--[ Engine module ]--
+
+engine.exit()
+  => Exit the engine.
+
+--[ World module ]--
+
+-- Side definition property handling
+world.get_sidedef_prof(<property>, <sidedef_num>)
+  => Return a sidedef property value
+
+world.set_sidedef_prof(<property>, <sidedef_num>, <attribute_value>)
+  => Set a sidedef property value
+
+Valid sidedef properties are:
+"upper_tex"   - Upper texture
+"middle_tex"  - Middle texture
+"lower_tex"   - Lower texture
+
+-- Line property handling
+world.get_line_prop(<property>, <line_num>)
+  => Return a line property value
+
+Valid line properties are:
+"sidedefs"    - Sidedefs [Read only]
+
+-- Sector property handling
+world.get_sec_prop(<property>, <sector_num>)
+  => Return a sector property value
+
+world.set_sec_prop(<property>, <sector_num(s)>, <attribute_value>)
+  => Set a sector property value. The second parameter can 
+     be a table of sector numbers, which allows for the return of
+     the world.get_sectors() to be used directly.
+
+Valid sector properties are:
+"light"       - Light level
+"ceiling"     - Ceiling height
+"floor"       - Floor height
+"ceiling_tex" - Ceiling Texture
+"floor_tex"   - Floor Texture
+"lines"       - Linedefs [Read only]
+
+-- Others:
+world.activate_line_type(<linedef-action-type>, <tag>)
+  => Activates 'linedef action type' on all sectors with 'tag'. 
+
+world.spawn_thing(<thing_name/thing_num>, <angle>, <x>, <y>, <z>)
+  => Attempts to spawn a thing at ('x','y','z'), facing 'angle'. The
+     first parameter is treated like a thing name if a string, otherwise
+     it is treated like a thing number.
+
+DATE: 2008/09/24
+
+Implemented a slimmed down version of the console variables that were
+being developed in 'con_var.h'. Due to the limited amount of time, I felt
+that a basic implementation was better than leaving uncompleted functions
+in the code. The original code has been left in the source file as comments,
+which will allow it to be visited if required.
+
+Reimplemented the following CVARs:
+
+Source var       CVAR name        Default value
+-----------      ---------------  --------------
+cv_diskicon      "diskicon"       "1" 
+cv_hogcpu        "hogcpu"         "1" 
+cv_fadepower     "fadepower"      "1" 
+cv_smoothmap     "smoothmap"      "1" 
+
+cv_lighting      "lighting"       "1" 
+cv_colormaterial "colormaterial"  "1" 
+cv_dumbsky       "dumbsky"        "0" 
+
+cv_nearclip      "nearclip"       "4" 
+cv_farclip       "farclip"        "64000" 
+
+The 'language' setting is now stored in a CVAR ('cv_language'), which is 
+not linked into the all_cvars[] link table. As it would be necessary
+to implement a handler or a modified indicator to the structure, the
+decision was made to leave this as a possible future development. The
+sole purpose for converting the string value had been to remove the
+string hack in the config loadup.
+
+The big concern with implementing cvar_c had been the size of each compared
+to what they replacing. In the majority of cases, the cvar_c is used as
+a replacement for a boolean value which occupies a single byte at 
+most, whereas the cvar_c is at least 40 bytes. The size of the cvar_c is 
+down to how it holds a integer representation, a float representation and 
+32 character string buffer. This handling is very quick in terms of 
+access, but it should be possible for code to be as fast, without occupying 
+as much space. Therefore member accesses are done via class method. Given 
+that the class methods for accessing the vars are inline and return
+only the private member, they should be optimised by compiler to be as 
+quick as directly accessing the class member. 
+
+DATE: 2008/09/23
+
+Implemented an auto-complete functionality in the console using the TAB
+key. Given the length of the method names in the functions, it seems a 
+considerable improvement. The auto-complete works by first extracting a 
+token from the current line and looking for matches in the global 
+table. The code is aware of the syntax of tables and hence will 
+recurse into tables for keys to form the auto-completion. No 
+auto-completion will be attempted on a blank token, therefore it 
+always necessary to enter at least one character before this will 
+work. The works like the bash shell where the first TAB will complete
+as much of the line is possible; the second TAB will, assuming the
+first did not return a unique completion, display a list of possible
+completions.
+
+Added a LUA Function for exiting in the new "engine" module.
+ 
+Added functionality to retrieve and set the ceiling height, floor height and
+light level of a sector using new methods in the "world" module.
+
+DATE: 2008/09/22
+
+Handled the possiblity of the output from the vm.RunCommand() exceeding the 
+various fixed width buffers in the console code. Any output is limited to
+80 characters on each line.
+
+Introduced a new macro, HU_IS_PRINTABLE, into the HUD stuff 
+header 'hu_stuff.h'. This is used to check whether a ASCII code is in 
+printable range for the engine font. This is used in functions which
+take user input as text to determine if the 'unicode' value of the
+keyboard event should be used. 
+
+For keyboard events which do not generate a valid key symbol, but where the 
+unicode could be valid, the engine will generate a key event with the sym set 
+to KEYD_IGNORE. This is required where certain keys are ignored - i.e. the 
+keys with accents on the french keyboard - but otherwise produce a useable 
+keycode when used with a modifier key pressed.
+
+DATE: 2008/09/21
+
+Modified the event to include a 'unicode' member in a union with the
+'sym'. This does not increase the size of 'event_t' as the other
+entry in the union of the structure already contains two integers for
+analogue member. The 'unicode' contains a translated value, which will be
+used by the engine for user input for fields, therefore removing the
+need for maintaining the shift status and translation tables for each
+keyboard layout. 
+
+DATE: 2008/09/17
+
+Created a LUA interface for play simulation in a new file 'p_lua.cc'. The
+name of the module is 'world'. 
+
+Added VM initialisation for playsim module to startup 
+function (E_Startup @ e_main.cc).
+
+DATE: 2008/09/16
+
+Looked qt the LUA console development. The aim is to replace the existing
+console interpreter with a wrapper to the LUA script language and then create 
+LUA modules for manipulating the playsim. This would allow for some
+in-game editing functionality. This was born of the desire to improve
+upon the Radius Scripting system (RTS) that exists in the current engine and
+to use LUA to either replace or augment RTS. However, it would be
+first necessary to learn how LUA works and knock down the size the 
+development to something that could be done in the available time.
+
 DATE: 2006/02/15
 
 Patched the configure.ac to look for glbsp in the detect the header

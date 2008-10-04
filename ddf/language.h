@@ -51,7 +51,7 @@ public:
 	int GetChoiceCount() { return choices.GetSize(); }
 	int GetChoice() { return current; }
 	
-	const char* GetName(int idx = -1);
+	const char* GetName(int idx = -1); // Find language name
 	bool IsValid() { return (current>=0 && current < choices.GetSize()); }
 	bool IsValidRef(const char *refname);
 	
