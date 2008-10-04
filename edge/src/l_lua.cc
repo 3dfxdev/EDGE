@@ -43,59 +43,36 @@ lua_State *HUD_ST;
 
 static bool has_loaded = false;
 
-static int hud_last_time = -1;
 
-
-static void FrameSetup(void)
+//
+// Constructor
+//
+lua_vm_c::lua_vm_c() : state(NULL)
 {
-	fontdef_c *DEF = fontdefs.Lookup("DOOM");  // FIXME allow other default
-	SYS_ASSERT(DEF);
+	/* nothing needed */
+}
 
-	cur_font = hu_fonts.Lookup(DEF);
-	SYS_ASSERT(cur_font);
-
-	cur_colmap = NULL;
-	cur_scale  = 1.0f;
-	cur_alpha  = 1.0f;
-
-	cur_player = players[displayplayer];
-
-	cur_coord_W = 320;
-	cur_coord_H = 200;
-
-
-	int now_time = I_GetTime();
-	int passed_time = 0;
-
-	if (hud_last_time > 0 && hud_last_time <= now_time)
-	{
-		passed_time = MIN(now_time - hud_last_time, TICRATE);
-	}
-
-	hud_last_time = now_time;
-
-
-	// setup some fields in 'hud' module
-
-	lua_getglobal(HUD_ST, "hud");
-
-	lua_pushinteger(HUD_ST, screen_hud);
-	lua_setfield(HUD_ST, -2, "which");
-
-	lua_pushboolean(HUD_ST, automapactive ? 1 : 0);
-	lua_setfield(HUD_ST, -2, "automap");
-
-	lua_pushinteger(HUD_ST, now_time);
-	lua_setfield(HUD_ST, -2, "now_time");
-
-	lua_pushinteger(HUD_ST, passed_time);
-	lua_setfield(HUD_ST, -2, "passed_time");
-
-	lua_pop(HUD_ST, 1);
+//
+// Destructor
+//
+lua_vm_c::~lua_vm_c()
+{
+	lua_close(state);
+	state = NULL;
 }
 
 
-//------------------------------------------------------------------------
+void lua_vm_c::Open()
+{
+    state = lua_open();
+    if (! state)
+        I_Error("LUA Init failed: cannot create new state");
+
+    int status = lua_cpcall(state, &p_init_lua, NULL);
+    if (status != 0)
+        I_Error("LUA Init failed (status %d)", status);
+}
+
 
 static const luaL_Reg lua_somelibs[] =
 {
@@ -107,7 +84,7 @@ static const luaL_Reg lua_somelibs[] =
 	{NULL, NULL}
 };
 
-static void open_somelibs(lua_State *L)
+void lua_vm_c::open_basic_libs(lua_State *L)
 {
 	// -AJA- modified 'lua_openlibs' from Lua source code, which
 	//       removes these libraries: package, io, os.
@@ -122,7 +99,7 @@ static void open_somelibs(lua_State *L)
 	}
 }
 
-static void remove_loaders(lua_State *L)
+void lua_vm_c::remove_loaders(lua_State *L)
 {
 	// -AJA- sandboxing: remove the dofile() and loadfile() functions
 	//       which are supplied by the Lua baselib.
@@ -130,8 +107,7 @@ static void remove_loaders(lua_State *L)
 	static const char * bad_funcs[] =
 	{
 		"dofile", "loadfile",
-
-		NULL  // end of list
+		NULL // the end
 	};
 
 	for (int i = 0; bad_funcs[i]; i++)
@@ -141,24 +117,15 @@ static void remove_loaders(lua_State *L)
 	}
 }
 
-static int p_init_lua(lua_State *L)
+int lua_vm_c::init_lua(lua_State *L)
 {
 	/* stop collector during initialization */
 	lua_gc(L, LUA_GCSTOP, 0);
 	{
 		/* open libraries */
-
-		open_somelibs(L);
+		open_basic_libs(L);
 
 		remove_loaders(L);
-
-		/* register our own modules */
-
-		luaL_register(HUD_ST, "hud",    hud_module);
-		luaL_register(HUD_ST, "player", player_module);
-
-		// remove the tables which luaL_register created
-		lua_pop(L, 2);
 	}
 	lua_gc(L, LUA_GCRESTART, 0);
 
@@ -166,28 +133,87 @@ static int p_init_lua(lua_State *L)
 }
 
 
+void lua_vm_c::LoadModule(const char *name, const luaL_Reg *funcs)
+{
+    luaL_register(state, name, funcs);
+    lua_pop(state, 1);
+}
+
+
+void lua_vm_c::SetIntVar(const char *parent, const char *name, int value)
+{
+	int stack_idx = LUA_GLOBALSINDEX;
+
+	if (parent)
+	{
+		lua_getglobal(state, parent);
+		if (lua_isnil(state, -1))
+			I_Error("VM Error: no such global table '%s'\n", parent)
+		stack_idx = -2;
+	}
+
+	lua_pushnumber(state, value);
+	lua_setfield(state, stack_idx, name);
+
+	if (parent)
+		lua_pop(state, 1);
+}
+
+void lua_vm_c::SetBoolVar(const char *parent, const char *name, bool value)
+{
+	int stack_idx = LUA_GLOBALSINDEX;
+
+	if (parent)
+	{
+		lua_getglobal(state, parent);
+		if (lua_isnil(state, -1))
+			I_Error("VM Error: no such global table '%s'\n", parent)
+		stack_idx = -2;
+	}
+
+	lua_pushboolean(state, value ? 1 : 0);
+	lua_setfield(state, stack_idx, name);
+
+	if (parent)
+		lua_pop(state, 1);
+}
+
+void lua_vm_c::SetStringVar(const char *parent, const char *name, const char *value)
+{
+	int stack_idx = LUA_GLOBALSINDEX;
+
+	if (parent)
+	{
+		lua_getglobal(state, parent);
+		if (lua_isnil(state, -1))
+			I_Error("VM Error: no such global table '%s'\n", parent)
+		stack_idx = -2;
+	}
+
+	lua_pushstring(state, value);
+	lua_setfield(state, stack_idx, name);
+
+	if (parent)
+		lua_pop(state, 1);
+}
+
+
+//------------------------------------------------------------------------
+
 void LU_Init(void)
 {
-	HUD_ST = lua_open();
+	vm = new lua_vm_c();
 
-	if (! HUD_ST)
-		I_Error("LUA Init failed: cannot create new state");
-
-	int status = lua_cpcall(HUD_ST, &p_init_lua, NULL);
-
-	if (status != 0)
-		I_Error("LUA Init failed (status %d)", status);
-
-	// FIXME !!!! make sure script cannot load any DLLs or other scripts
+	vm->Open();
 }
 
 
 void LU_Close(void)
 {
-	if (HUD_ST)
+	if (vm)
 	{
-		lua_close(HUD_ST);
-		HUD_ST = NULL;
+		delete vm;
+		vm = NULL;
 	}
 }
 
