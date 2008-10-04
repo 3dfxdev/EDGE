@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------
-//  LUA PHYSICS module
+//  LUA Play Simulation Interface
 //------------------------------------------------------------------------
 //
 //  Copyright (c) 2006-2008  The EDGE Team.
@@ -19,29 +19,27 @@
 #include "i_defs.h"
 #include "i_luainc.h"
 
-#include "ddf/main.h"
-#include "ddf/font.h"
+#include "l_lua.h"
+#include "p_vm.h"
+
+#include "ddf/types.h"
+#include "p_local.h"  
+#include "p_mobj.h"
+#include "r_state.h"
 
 #include "dm_state.h"
 #include "e_main.h"
 #include "g_game.h"
-#include "l_lua.h"
-#include "version.h"
 
 #include "e_player.h"
 #include "hu_font.h"
 #include "r_draw.h"
 #include "r_modes.h"
-#include "w_wad.h"
-#include "z_zone.h"
-
-#include "r_misc.h"     //  R_Render
-#include "r_automap.h"  // AM_Drawer
+#include "r_image.h"
+#include "r_sky.h"
 
 
-extern  lua_State *HUD_ST;
-
-player_t *cur_player = NULL;
+static player_t *cur_player = NULL;
 
 
 //------------------------------------------------------------------------
@@ -668,7 +666,7 @@ static int PL_hurt_angle(lua_State *L)
 }
 
 
-static const luaL_Reg player_module[] =
+const luaL_Reg player_module[] =
 {
 	{ "num_players", PL_num_players },
 	{ "set_who",     PL_set_who  },
@@ -718,6 +716,602 @@ static const luaL_Reg player_module[] =
 	{ NULL, NULL } // the end
 };
 
+
+//------------------------------------------------------------------------
+//  WORLD MODULE
+//------------------------------------------------------------------------
+
+// world.activate_line_type(type, tag)
+//
+static int PS_activate_line_type(lua_State *L)
+{
+    if (lua_gettop(L) != 2)
+    {
+        return luaL_error(L, 
+                          "\nRequired parameters: %s", 
+                          "<linedef-action-type> <tag>");
+    }
+
+    int typenum = luaL_checkint(L, 1);
+    int tag = luaL_checkint(L, 2);
+
+	P_RemoteActivation(NULL, typenum, tag, 0, line_Any);
+
+    return 0;
+}
+
+// ---- Sidedefs ----
+typedef enum
+{
+    PS_SDPROP_UPPERTEX,
+    PS_SDPROP_MIDDLETEX,
+    PS_SDPROP_LOWERTEX,
+    PS_SDPROP_NUMTYPES
+}
+ps_sidedef_prop_e;
+
+static const char *ps_sidedef_properties[PS_SDPROP_NUMTYPES] = 
+{ 
+    "upper_tex", 
+    "middle_tex",
+    "lower_tex"
+};
+
+static void SetSidedefTexture(int sd_num, 
+                              int prop_type, 
+                              const image_c* image)
+{
+    if (sd_num < 0 || sd_num >= numsides)
+        return;
+
+    side_t *side = sides + sd_num;
+
+    if (prop_type == PS_SDPROP_UPPERTEX)
+        side->top.image = image;
+    else if (prop_type == PS_SDPROP_MIDDLETEX)
+        side->middle.image = image;
+    else /* if (prop_type == PS_SDPROP_LOWERTEX) */
+        side->bottom.image = image;
+}
+
+
+// world.get_sidedef_prop(prop_type, sidedef_num)
+//
+static int PS_get_sidedef_prop(lua_State *L)
+{
+    if (lua_gettop(L) < 2)
+    {
+        return luaL_error(L, 
+                   "\nRequired parameters: %s", 
+                   "<property>, <sidedef_no>");
+    }
+
+    // Get property type
+    const char *prop = lua_tolstring(L, 1, NULL);
+
+    int prop_type = 0; 
+    while(prop_type < PS_SDPROP_NUMTYPES && 
+          strcmp(ps_sidedef_properties[prop_type],prop))
+        prop_type++;
+
+    if (prop_type == PS_SDPROP_NUMTYPES)
+        return luaL_error(L, "Invalid property");
+
+    // Get property from sector
+    int sd_num = luaL_checkint(L, 2);
+    if (sd_num >= 0 && sd_num < numlines)
+    {
+        side_t *side = sides + sd_num;
+        const image_c *image = NULL;
+
+        switch (prop_type)
+        {
+        case PS_SDPROP_UPPERTEX:
+        case PS_SDPROP_MIDDLETEX:
+        case PS_SDPROP_LOWERTEX:
+            if (prop_type == PS_SDPROP_UPPERTEX)
+                image = side->top.image;
+            else if (prop_type == PS_SDPROP_MIDDLETEX)
+                image = side->middle.image;
+            else /* if (prop_type == PS_SDPROP_LOWERTEX) */
+                image = side->bottom.image;
+
+            if (image)
+                lua_pushstring(L, image->name);
+            else
+                lua_pushnil(L);
+            break;
+
+        default:
+            lua_pushnil(L);
+            break;
+        }
+
+    }
+    else
+    {
+        lua_pushnil(L);
+    }
+
+    return 1;
+}
+
+// world.set_sidedef_prop(prop_type, sidedef_num, attribute_value)
+//
+static int PS_set_sidedef_prop(lua_State *L)
+{
+    if (lua_gettop(L) < 3)
+    {
+        return luaL_error(L, 
+                          "\nRequired parameters: %s", 
+                          "<property>, <sidedef_num>, <attribute_value>");
+    }
+
+    // Get property type
+    const char *prop = lua_tolstring(L, 1, NULL);
+
+    int prop_type = 0; 
+    while(prop_type < PS_SDPROP_NUMTYPES && 
+          strcmp(ps_sidedef_properties[prop_type],prop))
+        prop_type++;
+
+    if (prop_type == PS_SDPROP_NUMTYPES)
+        return luaL_error(L, "Invalid property");
+
+    // Set sidedef(s)
+    if (prop_type >= PS_SDPROP_UPPERTEX &&
+        prop_type <= PS_SDPROP_LOWERTEX)
+    {
+        const image_c *image = W_ImageLookup(luaL_checkstring(L, 3),
+                                             INS_Texture);
+        if (image)
+        {
+            int type = lua_type(L, 2);
+            if (type == LUA_TTABLE)
+            {
+                lua_pushnil(L);  // Get first key
+                while (lua_next(L, 2) != 0) {
+                    if (lua_type(L, -1) == LUA_TNUMBER)
+                        SetSidedefTexture(lua_tointeger(L, -1),
+                                          prop_type,
+                                          image);
+
+                    lua_pop(L, 1); // Pop value, leaving the key for next func
+                }
+            }
+            else if (type == LUA_TNUMBER)
+            {
+                SetSidedefTexture(luaL_checkint(L, 2),
+                                  prop_type,
+                                  image);
+            }
+            else 
+            {
+                return luaL_error(L, "Expected numeric or table.");
+            }
+        }
+    }
+    return 0;
+}
+
+
+// ---- Lines ----
+typedef enum
+{
+    PS_LINEPROP_SIDEDEFS,
+    PS_LINEPROP_NUMTYPES
+}
+ps_line_prop_e;
+
+static const char *ps_line_properties[PS_LINEPROP_NUMTYPES] = 
+{ 
+    "sidedefs"
+};
+
+// world.get_line_prop(prop_type, line_num)
+//
+static int PS_get_line_prop(lua_State *L)
+{
+    if (lua_gettop(L) < 2)
+    {
+        return luaL_error(L, 
+                          "\nRequired parameters: %s", 
+                          "<property>, <line_num>");
+    }
+
+    // Get property type
+    const char *prop = lua_tolstring(L, 1, NULL);
+
+    int prop_type = 0; 
+    while(prop_type < PS_LINEPROP_NUMTYPES && 
+          strcmp(ps_line_properties[prop_type],prop))
+        prop_type++;
+
+    if (prop_type == PS_LINEPROP_NUMTYPES)
+        return luaL_error(L, "Invalid property");
+
+    // Get property from sector
+    int line_num = luaL_checkint(L, 2);
+    if (line_num >= 0 && line_num < numlines)
+    {
+        line_t *line = lines + line_num;
+
+        switch(prop_type)
+        {
+
+        case PS_LINEPROP_SIDEDEFS:
+        {
+            lua_createtable(L, 0, 2);
+            int table_index = lua_gettop(L);
+
+            side_t* side;
+            for (int i=0; i<2; i++)
+            {
+                side = line->side[i];
+                if (side)
+                    lua_pushinteger(L, side - sides);
+                else
+                    lua_pushnil(L);
+
+                lua_rawseti(L, table_index, i+1);
+            }
+            break;
+        }
+
+        default:
+            lua_pushnil(L);
+            break;
+        }
+    }
+    else
+    {
+        lua_pushnil(L);
+    }
+
+    return 1;
+}
+
+
+// ---- Sectors ----
+typedef enum
+{
+    PS_SECTPROP_LIGHTING,
+    PS_SECTPROP_CEILING,
+    PS_SECTPROP_FLOOR,
+    PS_SECTPROP_CEILING_TEX,
+    PS_SECTPROP_FLOOR_TEX,
+    PS_SECTPROP_LINES,
+    PS_SECTPROP_NUMTYPES
+}
+ps_sector_prop_e;
+
+static const char *ps_sector_properties[PS_SECTPROP_NUMTYPES] = 
+{ 
+    "light", "ceiling", "floor", "ceiling_tex", "floor_tex", "lines"
+};
+
+static void SetSectorProperty(lua_State *L, 
+                              int sec_num, 
+                              int prop_type, 
+                              int index)
+{
+    if (sec_num < 0 || sec_num >= numsectors)
+        return;
+
+    sector_t *sec = sectors + sec_num;
+
+    switch (prop_type)
+    {
+    case PS_SECTPROP_LIGHTING:
+        sec->props.lightlevel = luaL_checkint(L, index);
+        break;
+
+    case PS_SECTPROP_CEILING:
+    case PS_SECTPROP_FLOOR:
+    {
+        float dh = (float)luaL_checknumber(L, index);
+        bool is_ceiling;
+        if (prop_type == PS_SECTPROP_CEILING)
+        {    
+            dh = dh - sec->c_h;
+            is_ceiling = true;
+        }
+        else
+        {    
+            dh = dh - sec->f_h;
+            is_ceiling = false;
+        }
+
+        if (P_CheckSolidSectorMove(sec, is_ceiling, dh))
+            P_SolidSectorMove(sec, is_ceiling, dh);
+
+        break;
+    }
+    
+    case PS_SECTPROP_CEILING_TEX:
+    case PS_SECTPROP_FLOOR_TEX:
+    {
+        const image_c *image = W_ImageLookup(luaL_checkstring(L, index), 
+                                             INS_Flat);
+        if (image)
+        {
+			if (prop_type == PS_SECTPROP_FLOOR_TEX)
+				sec->floor.image = image;
+			else
+				sec->ceil.image = image;
+
+			if (image == skyflatimage)
+                R_ComputeSkyHeights();
+		}
+
+        break;
+    }
+
+    default:
+        break;
+    }
+}
+
+// world.get_sectors(tag)
+//
+static int PS_get_sectors(lua_State *L) 
+{
+    if (lua_gettop(L) != 1)
+    {
+        return luaL_error(L, 
+                          "\nRequired parameters: %s", 
+                          "<tag>");
+    }
+
+    int tag = luaL_checkint(L, 1); 
+
+	// OPTIMISE !
+    int table_index = 0;
+    int table_pos = 1;
+	for (int i=0; i < numsectors; i++)
+	{
+		if (sectors[i].tag == tag)
+        {
+            if (!table_index)
+            {
+                lua_createtable(L, 0, 1);
+                table_index = lua_gettop(L);
+            }
+
+            lua_pushinteger(L, i);
+            lua_rawseti(L, table_index, table_pos);
+
+            table_pos++;
+        }
+	}
+    
+    // No table created on the stack, therefore push on a NIL as 
+    // the return value
+    if (!table_index)
+        lua_pushnil(L);
+
+    return 1;
+}
+
+// world.get_sec_prop(prop_type, sector_num)
+//
+static int PS_get_sec_prop(lua_State *L)
+{
+    if (lua_gettop(L) != 2)
+    {
+        return luaL_error(L, 
+                          "\nRequired parameters: %s", 
+                          "<property>, <sector_num>");
+    }
+
+    // Get property type
+    const char *prop = lua_tolstring(L, 1, NULL);
+
+    int prop_type = 0; 
+    while(prop_type < PS_SECTPROP_NUMTYPES && 
+          strcmp(ps_sector_properties[prop_type],prop))
+        prop_type++;
+
+    if (prop_type == PS_SECTPROP_NUMTYPES)
+        return luaL_error(L, "Invalid property");
+
+    // Get property from sector
+    int sec_num = luaL_checkint(L, 2);
+    if (sec_num >= 0 && sec_num < numsectors)
+    {
+        sector_t *sec = sectors + sec_num;
+
+        switch (prop_type)
+        {
+        case PS_SECTPROP_LIGHTING:
+            lua_pushinteger(L, sec->props.lightlevel);
+            break;
+
+        case PS_SECTPROP_CEILING:
+            lua_pushnumber(L, sec->c_h);
+            break;
+
+        case PS_SECTPROP_FLOOR:
+            lua_pushnumber(L, sec->f_h);
+            break;
+
+        case PS_SECTPROP_CEILING_TEX:
+            lua_pushstring(L, sec->ceil.image->name);
+            break;
+
+        case PS_SECTPROP_FLOOR_TEX:
+            lua_pushstring(L, sec->floor.image->name);
+            break;
+
+        case PS_SECTPROP_LINES:
+            if (sec->linecount)
+            {
+                lua_createtable(L, 0, sec->linecount);
+                int table_index = lua_gettop(L);
+
+                for(int i=0; i<sec->linecount; i++)
+                {
+                    lua_pushinteger(L, sec->lines[i] - lines);
+                    lua_rawseti(L, table_index, i+1);
+                }
+            }
+            else
+            {
+                lua_pushnil(L);
+            }
+
+            break;
+
+        default:
+            lua_pushnil(L);
+            break;
+        }
+    }
+    else
+    {
+        lua_pushnil(L);
+    }
+
+    return 1;
+}
+
+// world.set_sec_prop(prop_type, sector_num(s), attribute_value)
+//
+static int PS_set_sec_prop(lua_State *L)
+{
+    if (lua_gettop(L) < 3)
+    {
+        return luaL_error(L, 
+                          "\nRequired parameters: %s", 
+                          "<property>, <sector_nums>, <attribute_value>");
+    }
+
+    // Get property type
+    const char *prop = lua_tolstring(L, 1, NULL);
+
+    int prop_type = 0; 
+    while(prop_type < PS_SECTPROP_NUMTYPES && 
+          strcmp(ps_sector_properties[prop_type],prop))
+        prop_type++;
+
+    if (prop_type == PS_SECTPROP_NUMTYPES)
+        return luaL_error(L, "Invalid property");
+
+    if (prop_type == PS_SECTPROP_LINES) // Read-only 
+        return luaL_error(L, "Property is read only");
+
+    // Get sector(s)
+    const int prop_value_index = 3;
+    int type = lua_type(L, 2);
+    if (type == LUA_TTABLE)
+    {
+        lua_pushnil(L);  // Get first key
+        while (lua_next(L, 2) != 0) {
+            if (lua_type(L, -1) == LUA_TNUMBER)
+                SetSectorProperty(L, 
+                                  lua_tointeger(L, -1),
+                                  prop_type,
+                                  prop_value_index);
+
+            lua_pop(L, 1); // Pop value, leaving the key for next func
+        }
+    }
+    else if (type == LUA_TNUMBER)
+    {
+        SetSectorProperty(L, 
+                          luaL_checkint(L, 2),
+                          prop_type,
+                          prop_value_index);
+    }
+    else 
+    {
+        return luaL_error(L, "Expected numeric or table.");
+    }
+
+    return 0;
+}
+
+// world.spawn_thing(thing_name/thing_num, angle, x, y, z)
+//
+static int PS_spawn_thing(lua_State *L)
+{
+    if (lua_gettop(L) != 5)
+    {
+        return luaL_error(L, 
+                   "\nRequired parameters: %s", 
+                   "<thing name/num>, <angle>, <x>, <y>, <z>");
+    }
+
+	const mobjtype_c *minfo;
+    if (lua_isnumber(L, 1))
+    {
+        int type = lua_tointeger(L,1);
+        minfo = mobjtypes.Lookup(type);
+        if (minfo == NULL)
+            return luaL_error(L, "Unknown thing type '%d'", type);
+    }
+    else
+    {
+        const char *name = lua_tolstring(L, 1, NULL);
+
+        const int idx = mobjtypes.FindLast(name);
+        if (idx < 0)
+            return luaL_error(L, "Unknown thing name '%s'", name);
+        
+        minfo = mobjtypes[idx];
+    }
+
+    int angle = luaL_checkint(L, 2);
+    int x = luaL_checkint(L, 3);
+    int y = luaL_checkint(L, 4);
+    int z = luaL_checkint(L, 5);
+
+	mobj_t *mo = P_MobjCreateObject(x, y, z, minfo);
+	if (!P_CheckAbsPosition(mo, x, y, z))
+	{
+		P_RemoveMobj(mo);
+		return 0;
+	}
+
+	P_SetMobjDirAndSpeed(mo, angle, 0, 0);
+
+	mo->spawnpoint.x = x;
+	mo->spawnpoint.y = y;
+	mo->spawnpoint.z = z;
+	mo->spawnpoint.angle = angle;
+	mo->spawnpoint.vertangle = 0;
+	mo->spawnpoint.info = minfo;
+	mo->spawnpoint.flags = 0;
+
+    return 0;
+}
+
+const luaL_Reg world_module[] =
+{
+	{ "activate_line_type",  PS_activate_line_type },
+	{ "get_line_prop",       PS_get_line_prop },
+	{ "get_sidedef_prop",    PS_get_sidedef_prop },
+	{ "get_sec_prop",        PS_get_sec_prop },
+	{ "get_sectors",         PS_get_sectors },
+	{ "set_sidedef_prop",    PS_set_sidedef_prop },
+	{ "set_sec_prop",        PS_set_sec_prop },
+	{ "spawn_thing",         PS_spawn_thing },
+    { NULL,                  NULL }
+};
+
+
+//------------------------------------------------------------------------
+
+void P_RegisterModules()
+{
+    vm->LoadModule("player", player_module);
+    vm->LoadModule("world",  world_module);
+}
+
+void P_SetupPlayerModule(int player)
+{
+    cur_player = players[player];
+}
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
