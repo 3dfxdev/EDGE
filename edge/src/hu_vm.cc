@@ -19,27 +19,24 @@
 #include "i_defs.h"
 #include "i_luainc.h"
 
+#include "l_lua.h"
+#include "hu_vm.h"
+#include "p_vm.h"
+
 #include "ddf/main.h"
 #include "ddf/font.h"
 
 #include "dm_state.h"
 #include "e_main.h"
 #include "g_game.h"
-#include "l_lua.h"
-#include "version.h"
+#include "w_wad.h"
 
 #include "e_player.h"
 #include "hu_font.h"
 #include "r_draw.h"
 #include "r_modes.h"
-#include "w_wad.h"
-#include "z_zone.h"
-
 #include "r_misc.h"     //  R_Render
 #include "r_automap.h"  // AM_Drawer
-
-
-extern lua_State *HUD_ST;
 
 
 static font_c *cur_font = NULL;
@@ -50,11 +47,56 @@ static float cur_alpha;
 static float cur_coord_W;
 static float cur_coord_H;
 
+static player_t *render_player = NULL;
+
+static int hud_last_time = -1;
+
 extern std::string w_map_title;
 
 
 #define COORD_X(x)  ((x) * SCREENWIDTH  / cur_coord_W)
 #define COORD_Y(y)  ((y) * SCREENHEIGHT / cur_coord_H)
+
+
+//------------------------------------------------------------------------
+
+static void FrameSetup(void)
+{
+	fontdef_c *DEF = fontdefs.Lookup("DOOM");  // FIXME allow other default
+	SYS_ASSERT(DEF);
+
+	cur_font = hu_fonts.Lookup(DEF);
+	SYS_ASSERT(cur_font);
+
+	cur_colmap = NULL;
+	cur_scale  = 1.0f;
+	cur_alpha  = 1.0f;
+
+	cur_coord_W = 320;
+	cur_coord_H = 200;
+
+	render_player = players[displayplayer];
+
+
+	int now_time = I_GetTime();
+	int passed_time = 0;
+
+	if (hud_last_time > 0 && hud_last_time <= now_time)
+	{
+		passed_time = MIN(now_time - hud_last_time, TICRATE);
+	}
+
+	hud_last_time = now_time;
+
+
+	// setup some fields in 'hud' module
+
+	vm->SetIntVar("hud", "which", screen_hud);
+	vm->SetIntVar("hud", "now_time", now_time);
+	vm->SetIntVar("hud", "passed_time", passed_time);
+
+	vm->SetBoolVar("hud", "automap", automapactive ? 1 : 0);
+}
 
 
 static void DoDrawChar(float cx, float cy, char ch)
@@ -586,7 +628,8 @@ static int HD_render_world(lua_State *L)
 	x = COORD_X(x); y = COORD_Y(y);
 	w = COORD_X(w); h = COORD_Y(h);
 
- 	R_Render((int)x, SCREENHEIGHT-(int)(y+h), I_ROUND(w), I_ROUND(h), cur_player->mo);
+ 	R_Render((int)x, SCREENHEIGHT-(int)(y+h), I_ROUND(w), I_ROUND(h),
+			 render_player->mo);
 
 	return 0;
 }
@@ -662,7 +705,8 @@ static int HD_render_automap(lua_State *L)
 		AM_SetState(new_state, new_zoom);
 	}
 
- 	AM_Drawer((int)x, SCREENHEIGHT-(int)(y+h), I_ROUND(w), I_ROUND(h), cur_player->mo);
+ 	AM_Drawer((int)x, SCREENHEIGHT-(int)(y+h), I_ROUND(w), I_ROUND(h),
+			  render_player->mo);
 
 	AM_SetState(old_state, old_zoom);
 
@@ -713,7 +757,7 @@ static int HD_automap_colors(lua_State *L)
 }
 
 
-static const luaL_Reg hud_module[] =
+const luaL_Reg hud_module[] =
 {
 	{ "raw_debug_print", HD_raw_debug_print },
 
@@ -749,6 +793,29 @@ static const luaL_Reg hud_module[] =
 	{ NULL, NULL } // the end
 };
 
+
+//------------------------------------------------------------------------
+// HUD Functions
+//------------------------------------------------------------------------
+
+void HU_RegisterModules()
+{
+    vm->LoadModule("hud", hud_module);
+}
+
+void HU_BeginLevel(void)
+{
+	hud_last_time = -1;
+}
+
+void HU_RunHud(void)
+{ 
+    P_SetupPlayerModule(displayplayer);
+
+	FrameSetup();
+
+    vm->CallFunction("hud", "draw_all");
+}
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
