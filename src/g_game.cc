@@ -38,6 +38,7 @@
 #include "e_main.h"
 #include "f_finale.h"
 #include "g_game.h"
+#include "hu_vm.h"
 #include "l_lua.h"
 #include "m_cheat.h"
 #include "m_menu.h"
@@ -248,7 +249,7 @@ void G_DoLoadLevel(void)
 	exittime = INT_MAX;
 	exit_skipall = false;
 
-	LU_BeginLevel();
+	HU_BeginLevel();
 
 	BOT_BeginLevel();
 

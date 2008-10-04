@@ -22,10 +22,13 @@
 #include "ddf/main.h"
 #include "ddf/font.h"
 
+#include "l_lua.h"
+#include "hu_vm.h"
+#include "p_vm.h"
+
 #include "dm_state.h"
 #include "e_main.h"
 #include "g_game.h"
-#include "l_lua.h"
 #include "version.h"
 
 #include "e_player.h"
@@ -39,7 +42,8 @@
 #include "r_automap.h"  // AM_Drawer
 
 
-lua_State *HUD_ST;
+lua_vm_c *vm;  // the instance
+
 
 static bool has_loaded = false;
 
@@ -68,7 +72,7 @@ void lua_vm_c::Open()
     if (! state)
         I_Error("LUA Init failed: cannot create new state");
 
-    int status = lua_cpcall(state, &p_init_lua, NULL);
+    int status = lua_cpcall(state, &init_lua, NULL);
     if (status != 0)
         I_Error("LUA Init failed (status %d)", status);
 }
@@ -139,6 +143,22 @@ void lua_vm_c::LoadModule(const char *name, const luaL_Reg *funcs)
     lua_pop(state, 1);
 }
 
+void lua_vm_c::LoadBuffer(const char *name, char *buffer, int length)
+{
+    int status = luaL_loadbuffer(state, buffer, length, name);
+
+    if (status == 0)
+        status = lua_pcall(this->state, 0, 0, 0);
+
+    if (status != 0)
+    {
+        const char *msg = lua_tolstring(this->state, -1, NULL);
+
+        I_Error("LUA scripts: failure loading '%s' (%d)\n%s",
+                name, status, msg);
+    }
+}
+
 
 void lua_vm_c::SetIntVar(const char *parent, const char *name, int value)
 {
@@ -148,7 +168,7 @@ void lua_vm_c::SetIntVar(const char *parent, const char *name, int value)
 	{
 		lua_getglobal(state, parent);
 		if (lua_isnil(state, -1))
-			I_Error("VM Error: no such global table '%s'\n", parent)
+			I_Error("VM Error: no such global table '%s'\n", parent);
 		stack_idx = -2;
 	}
 
@@ -167,7 +187,7 @@ void lua_vm_c::SetBoolVar(const char *parent, const char *name, bool value)
 	{
 		lua_getglobal(state, parent);
 		if (lua_isnil(state, -1))
-			I_Error("VM Error: no such global table '%s'\n", parent)
+			I_Error("VM Error: no such global table '%s'\n", parent);
 		stack_idx = -2;
 	}
 
@@ -186,7 +206,7 @@ void lua_vm_c::SetStringVar(const char *parent, const char *name, const char *va
 	{
 		lua_getglobal(state, parent);
 		if (lua_isnil(state, -1))
-			I_Error("VM Error: no such global table '%s'\n", parent)
+			I_Error("VM Error: no such global table '%s'\n", parent);
 		stack_idx = -2;
 	}
 
@@ -198,17 +218,63 @@ void lua_vm_c::SetStringVar(const char *parent, const char *name, const char *va
 }
 
 
+void lua_vm_c::CallFunction(const char *parent, const char *name)
+{
+	lua_getglobal(state, "stack_trace");
+
+	if (lua_isnil(state, -1))
+		I_Error("LUA scripts: missing function '%s'\n", "stack_trace");
+
+	if (parent)
+	{
+		lua_getglobal(state, parent);
+		if (lua_isnil(state, -1))
+			I_Error("VM Error: no such global table '%s'\n", parent);
+		lua_getfield(state, -1, name);
+	}
+	else
+	{
+		lua_pushnil(state);
+		lua_getglobal(state, name);
+	}
+
+	if (lua_isnil(state, -1))
+	{
+		if (parent)
+			I_Error("LUA scripts: missing function '%s.%s'\n", parent, name);
+		else
+			I_Error("LUA scripts: missing function '%s'\n", name);
+	}
+
+	int nargs = 0;
+
+	int status = lua_pcall(state, nargs, 0, -3-nargs);
+	if (status != 0)
+	{
+		const char *msg = lua_tolstring(state, -1, NULL);
+
+		I_Error("LUA script error:\n%s", msg);
+	}
+
+	// remove the traceback function and parent table
+	lua_pop(state, 2);
+}
+
+
 //------------------------------------------------------------------------
 
-void LU_Init(void)
+void LU_Init()
 {
 	vm = new lua_vm_c();
 
 	vm->Open();
+
+	HU_RegisterModules();
+	 P_RegisterModules();
 }
 
 
-void LU_Close(void)
+void LU_Close()
 {
 	if (vm)
 	{
@@ -218,17 +284,17 @@ void LU_Close(void)
 }
 
 
-void LU_LoadScripts(void)
+void LU_LoadScripts()
 {
 	static const char *script_lumps[] =
 	{
 		"LUAUTIL0",  // edge.wad
 		"LUAUTIL1",  // user - in a TC
-		"LUAUTIL2",  // user - for a add-on
+		"LUAUTIL2",  // user - for an add-on
 
 		"LUAHUD0",  // edge.wad
 		"LUAHUD1",  // user - in a TC
-		"LUAHUD2",  // user - for a add-on
+		"LUAHUD2",  // user - for an add-on
 
 		NULL  // end of list
 	};
@@ -245,64 +311,17 @@ void LU_LoadScripts(void)
 		char *buffer = (char *)W_LoadLumpNum(lump);
 		int length   = W_LumpLength(lump);
 
-		int status = luaL_loadbuffer(HUD_ST, buffer, length, script_lumps[i]);
-
-		if (status == 0)
-			status = lua_pcall(HUD_ST, 0, 0, 0);
-
-		if (status != 0)
-		{
-			const char *msg = lua_tolstring(HUD_ST, -1, NULL);
-
-			I_Error("LUA scripts: failure loading '%s' lump (%d)\n%s",
-			        script_lumps[i], status, msg);
-		}
-
-		has_loaded = true;
+		vm->LoadBuffer(script_lumps[i], buffer, length);
 
 		Z_Free(buffer);
+
+		has_loaded = true;
 	}
 
 	if (! has_loaded)
 		I_Error("Missing required LUAHUDx lumps!\n");
 }
 
-
-void LU_BeginLevel(void)
-{
-	hud_last_time = -1;
-}
-
-
-void LU_RunHud(void)
-{
-	FrameSetup();
-
-
-	lua_getglobal(HUD_ST, "stack_trace");
-
-	if (lua_type(HUD_ST, -1) == LUA_TNIL)
-		I_Error("LUA scripts: missing function '%s'\n", "stack_trace");
-
-	lua_getglobal(HUD_ST, "hud");
-	lua_getfield(HUD_ST, -1, "draw_all");
-
-	if (lua_type(HUD_ST, -1) == LUA_TNIL)
-		I_Error("LUA scripts: missing function 'hud.%s'\n", "draw_all");
-
-	int nargs = 0;
-
-	int status = lua_pcall(HUD_ST, nargs, 0, -3-nargs);
-	if (status != 0)
-	{
-		const char *msg = lua_tolstring(HUD_ST, -1, NULL);
-
-		I_Error("LUA script error:\n%s", msg);
-	}
-
-	// remove the traceback function and 'hud' table
-	lua_pop(HUD_ST, 2);
-}
 
 
 //--- editor settings ---

@@ -5,6 +5,10 @@ Andrew Apted's Log
 Applied and simplified Andrew Baker's patch for new RTS
 condition: ONCEILINGHEIGHT.
 
+Integrated and modified Andrew Baker's patch which creates
+a class for the Lua VM (lua_vm_c) and moves the HUD module
+code into "hu_vm.cc" and the PLAYSIM module into "p_vm.cc".
+
 2008/09/26:
 
 Fixed problem in timidity where some instruments could still

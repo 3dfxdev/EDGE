@@ -19,12 +19,12 @@
 #include "i_defs.h"
 #include "i_luainc.h"
 
+#include "ddf/main.h"
+#include "ddf/font.h"
+
 #include "l_lua.h"
 #include "hu_vm.h"
 #include "p_vm.h"
-
-#include "ddf/main.h"
-#include "ddf/font.h"
 
 #include "dm_state.h"
 #include "e_main.h"

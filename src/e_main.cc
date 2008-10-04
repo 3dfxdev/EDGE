@@ -56,6 +56,7 @@
 #include "f_interm.h"
 #include "g_game.h"
 #include "hu_stuff.h"
+#include "hu_vm.h"
 #include "l_glbsp.h"
 #include "l_lua.h"
 #include "m_argv.h"
@@ -588,7 +589,7 @@ void E_Display(void)
 
 			R_PaletteStuff();
 
-			LU_RunHud();
+			HU_RunHud();
 
 			if (need_save_screenshot)
 			{
