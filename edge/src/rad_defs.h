@@ -449,6 +449,9 @@ typedef struct s_onheight_s
 	// next in link (order is unimportant)
 	struct s_onheight_s *next;
 
+	// Ceiling/Floor
+	bool is_ceil;
+
 	// height range, trigger won't activate until sector's floor is
 	// within this range (inclusive).
 	float z1, z2;

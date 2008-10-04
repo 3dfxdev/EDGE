@@ -1,5 +1,10 @@
 Andrew Apted's Log
 
+2008/10/04:
+
+Applied and simplified Andrew Baker's patch for new RTS
+condition: ONCEILINGHEIGHT.
+
 2008/09/26:
 
 Fixed problem in timidity where some instruments could still
