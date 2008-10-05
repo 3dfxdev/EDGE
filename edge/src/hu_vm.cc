@@ -756,6 +756,36 @@ static int HD_automap_colors(lua_State *L)
 	return 0;
 }
 
+// hud.set_render_who(index)
+//
+static int HD_set_render_who(lua_State *L)
+{
+	int index = luaL_checkint(L, 1);
+
+	if (index < 0 || index >= numplayers)
+		I_Error("hud.set_render_who: bad index value: %d (numplayers=%d)\n", index, numplayers);
+
+	if (index == 0)
+	{
+		render_player = players[consoleplayer];
+		return 0;
+	}
+
+	int who = displayplayer;
+
+	for (; index > 1; index--)
+	{
+		do
+		{
+			who = (who + 1) % MAXPLAYERS;
+		}
+		while (players[who] == NULL);
+	}
+
+	render_player = players[who];
+	return 0;
+}
+
 
 const luaL_Reg hud_module[] =
 {
@@ -789,6 +819,7 @@ const luaL_Reg hud_module[] =
 
     { "render_world",    HD_render_world   },
     { "render_automap",  HD_render_automap },
+	{ "set_render_who",  HD_set_render_who },
 
 	{ NULL, NULL } // the end
 };
