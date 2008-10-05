@@ -1,5 +1,14 @@
 Andrew Apted's Log
 
+2008/10/05:
+
+Implemented new Lua function: hud.set_render_who(index)
+used to control from which player the render_world and
+render_automap functions use.  Before the player.set_who()
+function controlled this, but after Andrew Baker's patch
+the HUD and PLAYSIM Lua modules are more separated and
+this change maintains that separation.
+
 2008/10/04:
 
 Applied and simplified Andrew Baker's patch for new RTS
