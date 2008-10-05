@@ -6,7 +6,7 @@
 
 <h2 class="page_title">Lua HUD Manual</h2>
 
-by Andrew Apted. &nbsp; July 2008
+by Andrew Apted. &nbsp; October 2008
 
 
 <h3 class="sub_title">OVERVIEW</h3>
@@ -267,12 +267,13 @@ parameter gives the maximum number of characters (including the minus
 sign if the number is negative).
 
 <p><span class="lua_FUNC">hud.render_world(x, y, w, h)</span><br>
-Renders the view from the current player on the screen, in a
+Renders the view for the player on the screen, in a
 rectangle with the given coordinates.  The player's weapon is
-also drawn.
+also drawn.  The views of different players can be rendered
+by using the hud.set_render_who() function below.
 
 <p><span class="lua_FUNC">hud.render_automap(x, y, w, h, [options])</span><br>
-Renders the automap for the current player on the screen, in a
+Renders the automap for the player on the screen, in a
 rectangle with the given coordinates.  Note that no background is
 drawn, hence you can use this function to create an overlay automap
 (drawn over the top of the player's view).  If you need a solid color
@@ -304,6 +305,14 @@ make the map bigger</td>
 <tr> <td>allmap</td><td class="lua_LL">&nbsp;draw walls like All-Map powerup</td>
 </table>
 </div>
+
+
+<p><span class="lua_FUNC">hud.set_render_who(index)</span><br>
+Sets the current player for rendering the world or the
+automap.  The 'index' parameter is a
+small number: 1 for the "main player" on this computer
+(the person at the keyboard), 2 for the next player in the list, etc...
+upto the number of players in the game. 
 
 
 <p><span class="lua_FUNC">hud.automap_colors(table)</span><br>
@@ -558,9 +567,7 @@ small number: 1 for the "main player" on this computer
 (the person at the keyboard), 2 for the next player in the list, etc...
 upto the number of players in the game. 
 All the player query functions described here return their results
-for the current player, and the hud.render_world()
-and hud.render_automap() functions also draw their stuff for the
-current player.
+for the current player.
 
 <p><span class="lua_FUNC">player.hurt_by()</span><br>
 If the player has been hurt in the last few seconds, this
