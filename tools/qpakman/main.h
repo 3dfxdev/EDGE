@@ -22,9 +22,10 @@
 
 typedef enum
 {
-  GAME_Quake1 = 0,
-  GAME_Quake2 = 1,
-  GAME_Hexen2 = 2,
+  GAME_Quake1   = 0,
+  GAME_Quake2   = 1,
+  GAME_Hexen2   = 2,
+  GAME_Haktoria = 3,
 }
 game_kind_e;
 
