@@ -131,9 +131,8 @@ option by a space (like: -game hexen2).
                  might affect how lumps are converted.
 
                  Usable keywords are:
-                    q1  quake1
-                    q2  quake2
-                    h2  hexen2
+                    q1   quake1   h2   hexen2
+                    q2   quake2   hak  haktoria
 
 -c -colors  XXX  Lets you load a different palette than
                  the default one (even when -game is used).

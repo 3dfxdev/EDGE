@@ -193,6 +193,11 @@ int HandleOption(int argc, char **argv)
     {
       game_type = GAME_Hexen2;
     }
+    else if (StringCaseCmp(argv[1], "hak") == 0 ||
+             StringCaseCmp(argv[1], "haktoria") == 0)
+    {
+      game_type = GAME_Haktoria;
+    }
     else
       FatalError("Unknown game type: %s\n", argv[1]);
 
