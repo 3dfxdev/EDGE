@@ -4,10 +4,37 @@ TODO for QPakMan
 
 +  convert to/from gfx/xxx.lmp files  [unless -raw option]
 
-   EXCEPTIONS:
-      palette.lmp colormap.lmp pop.lmp
-      player.lmp tinttab.lmp tinttab2.lmp invpal.lmp
-      fontsize.lmp [Hexen II]
++  handle special lumps:
+     
+   Quake1/Hexen2:
+
+      gfx/palette.lmp  :  ???
+
+      gfx/colormap.lmp  : parse from a ".txt" file
+                     analyse into a ".ana" file (as well as lmp)
+
+      gfx/pop.lmp  : to/from PNG file (16x16)
+
+   Hexen2 only:
+
+      gfx/player.lmp  : parse from a ".txt" file
+                        analyse into a ".ana" file
+
+      gfx/fontsize.lmp : parse/output a ".txt" file, 27 lines with 27 numbers
+     
+      gfx/tinttab.lmp  ???
+      gfx/tinttab2.lmp  ???
+
+      gfx/invpal.lmp  :  SPECIAL CASE TO -o  // generate if ".txt" file exists 
+
+   Quake2:
+      pics/pop.lmp  :  to/from PNG file (16x16)
+
+      pics/colormap.pcx  :  parse from a ".txt" file
+                            analyse into a ".ana" file
+
+      pics/16to8.dat  :  SPECIAL CASE TO -o  // generate if ".txt" file exists
+
 
 -  convert to/from textures/xxx.wal files (Quake2)
    >>> handle + and * prefixes
