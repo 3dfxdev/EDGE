@@ -6,7 +6,7 @@ TODO for QPakMan
 
 +  handle special lumps:
 
-   Quake1/Hexen2:
+   Quake/HexenII:
 
       gfx/palette.lmp  :  to/from ".txt" file
 
@@ -15,19 +15,21 @@ TODO for QPakMan
 
       gfx/pop.lmp  : to/from PNG file (16x16)
 
-   Hexen2 only:
+   HexenII only:
 
       gfx/player.lmp  : parse from a ".txt" file
                         analyse into a ".ana" file
 
-      gfx/fontsize.lmp : parse/output a ".txt" file, 27 lines with 27 numbers
-     
-      gfx/tinttab.lmp  ???
-      gfx/tinttab2.lmp  ???
+      gfx/menu/conchars.lmp : to/from PNG  [SEE MIPWAD for size logic]
+
+      gfx/menu/fontsize.lmp : parse/output a ".txt" file, 27 lines with 27 numbers
+
+      gfx/tinttab.lmp   : parse from ".txt" file, create "ana" file
+      gfx/tinttab2.lmp  : parse from ".txt" file, create "ana" file
 
       gfx/invpal.lmp  :  SPECIAL CASE TO -o  // generate if ".txt" file exists 
 
-   Quake2:
+   QuakeII only:
       pics/pop.lmp  :  to/from PNG file (16x16)
 
       pics/colormap.pcx  :  parse from a ".txt" file
@@ -79,7 +81,9 @@ COLORMAP SOURCE FORMAT
 
 bright_pixels = { num, num, low-high, low-high ... }
 
-translucency = 66   # quake 2
+translucency = 175   # quakeII / hexenII's tinttab2
+
+additive = 255 255  # column factor, row factor : hexen2 tinttab
 
 map =
 {
