@@ -173,9 +173,12 @@ std::string MIP_FileToLumpName(const char *filename, bool * fullbright)
 }
 
 
-void MIP_ConvertImage(rgb_image_c *img)
+void MIP_ConvertImage(rgb_image_c *img, bool dither = false)
 {
   byte *line_buf = new byte[img->width];
+  s16_t *err_buf = new s16_t[img->width * 3];
+
+  memset(err_buf, 0, sizeof(s16_t) * img->width * 3);
 
   for (int y = 0; y < img->height; y++)  
   {
@@ -184,15 +187,62 @@ void MIP_ConvertImage(rgb_image_c *img)
 
     byte *dest = line_buf;
 
-    for (; src < src_e; src++)
+    if (dither)
     {
-      *dest++ = COL_MapColor(*src);
+      s16_t *errs = err_buf;
+
+      s16_t r = 0;
+      s16_t g = 0;
+      s16_t b = 0;
+
+      for (; src < src_e; src++)
+      {
+        // add error from previous line
+        r = (r + errs[0]) >> 1;
+        g = (g + errs[1]) >> 1;
+        b = (b + errs[2]) >> 1;
+
+        r += RGB_R(*src);
+        g += RGB_G(*src);
+        b += RGB_B(*src);
+
+        byte alpha = RGB_A(*src);
+
+        // clamp result
+        if (r & 0xF00) r = (r < 0) ? 0 : 255;
+        if (g & 0xF00) g = (g < 0) ? 0 : 255;
+        if (b & 0xF00) b = (b < 0) ? 0 : 255;
+
+        // store pixel
+        byte pix = COL_MapColor(MAKE_RGBA(r, g, b, alpha));
+
+        *dest++ = pix;
+
+        // determine new error
+        u32_t got = COL_ReadPalette(pix);
+
+        r -= RGB_R(got);
+        g -= RGB_G(got);
+        b -= RGB_B(got);
+
+        *errs++ = r;
+        *errs++ = g;
+        *errs++ = b;
+      }
+    }
+    else
+    {
+      for (; src < src_e; src++)
+      {
+        *dest++ = COL_MapColor(*src);
+      }
     }
 
     WAD2_AppendData(line_buf, img->width);
   }
 
   delete[] line_buf;
+  delete[] err_buf;
 }
 
 
@@ -338,7 +388,7 @@ bool MIP_ProcessImage(const char *filename)
 
 
   // now the actual textures
-  MIP_ConvertImage(img);
+  MIP_ConvertImage(img, opt_dither);
 
   for (int mip = 1; mip < MIP_LEVELS; mip++)
   {
@@ -346,7 +396,7 @@ bool MIP_ProcessImage(const char *filename)
 
     delete img; img = tmp;
 
-    MIP_ConvertImage(img);
+    MIP_ConvertImage(img, true);
   }
 
   WAD2_FinishLump();
