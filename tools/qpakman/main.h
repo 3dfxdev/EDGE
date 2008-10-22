@@ -37,6 +37,7 @@ extern std::string color_name;
 extern bool opt_force;
 extern bool opt_picture;
 extern bool opt_raw;
+extern bool opt_dither;
 
 
 void FatalError(const char *str, ...);

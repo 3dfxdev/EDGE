@@ -56,6 +56,7 @@ game_kind_e game_type = GAME_Quake1;
 bool opt_force   = false;
 bool opt_raw     = false;
 bool opt_picture = false;
+bool opt_dither  = false;
 
 
 void FatalError(const char *message, ...)
