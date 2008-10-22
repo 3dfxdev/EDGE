@@ -5,13 +5,13 @@ TODO for QPakMan
 +  convert to/from gfx/xxx.lmp files  [unless -raw option]
 
 +  handle special lumps:
-     
+
    Quake1/Hexen2:
 
-      gfx/palette.lmp  :  ???
+      gfx/palette.lmp  :  to/from ".txt" file
 
       gfx/colormap.lmp  : parse from a ".txt" file
-                     analyse into a ".ana" file (as well as lmp)
+                          analyse into a ".ana" file (as well as lmp)
 
       gfx/pop.lmp  : to/from PNG file (16x16)
 
@@ -53,4 +53,91 @@ TODO for QPakMan
    - gfx.wad    unpack | pack
    - pak files  unpack | pack
    etc....
+
+
+----------------------------------------------------------------------
+
+PALETTE SOURCE FORMAT
+
+# comment
+// comment
+palette =
+{
+  r, g, b,
+  r, g, b,
+  r, g, b,
+  # .... 256 entries
+}
+
+
+----------------------------------------------------------------------
+
+COLORMAP SOURCE FORMAT
+
+# comment
+// comment
+
+bright_pixels = { num, num, low-high, low-high ... }
+
+translucency = 66   # quake 2
+
+map =
+{
+  intensity,
+  intensity,
+  intensity,
+  intensity,
+  # ... 64 intensity numbers
+
+  # each intensity is 256 for medium, 0-255 for darker, 257+ for brighter
+}
+
+bright_map =
+{
+  intensity,
+  intensity,
+  intensity,
+  # ... 64 intensity numbers
+}
+
+
+----------------------------------------------------------------------
+
+FONTSIZE FORMAT
+
+# comment
+// comment
+widths =
+{
+  10, 13,  5, ..  # 27 numbers per line
+  12, 12, 13, ..
+  11, 13,  7, ..
+  14, 12, 11, ..
+  # .... 27 lines
+}
+
+
+----------------------------------------------------------------------
+
+PLAYER.LMP FORMAT
+
+# comment
+// comment
+
+[CRUSADER]
+...
+
+[NECROMANCER]
+...
+
+[PALADIN]
+top_pixels = { num, num, low-high, low-high ... }
+bottom_pixels = { num, num, low-high, low-high ... }
+targets =
+{
+  low, high,
+  low, high,
+  low, high,
+  ....  # 11 pairs of pixels
+}
 
