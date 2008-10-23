@@ -65,10 +65,41 @@ static bool StorePalette(FILE *fp, const char *lump)
   return true; // OK
 }
 
+static bool StoreFontsize(FILE *fp, const char *lump)
+{
+  printf("  Converting fontsize back to LMP...\n");
+
+  const char *new_lump = ReplaceExtension(lump, "lmp");
+
+  PAK_NewLump(new_lump);
+
+  all_pak_lumps[new_lump] = 1;
+
+  byte fontsize[729];
+
+  for (int i = 0; i < 729; i++)
+  {
+    int value = 0;
+
+    if (1 != fscanf(fp, " %i ", &value))
+      FatalError("Not enough values in fontsize.txt (failed at #%d)\n", i);
+
+    fontsize[i] = value;
+  }
+
+  PAK_AppendData(fontsize, 729);
+  PAK_FinishLump();
+
+  return true; // OK
+}
+
 
 bool ARC_IsSpecialInput (const char *lump)
 {
   if (StringCaseCmp(lump, "gfx/palette.txt") == 0)
+    return true;
+
+  if (StringCaseCmp(lump, "gfx/menu/fontsize.txt") == 0)
     return true;
 
   // TODO ARC_IsSpecialInput
@@ -79,6 +110,9 @@ bool ARC_StoreSpecial(FILE *fp, const char *lump, const char *path)
 {
   if (StringCaseCmp(lump, "gfx/palette.txt") == 0)
     return StorePalette(fp, lump);
+
+  if (StringCaseCmp(lump, "gfx/menu/fontsize.txt") == 0)
+    return StoreFontsize(fp, lump);
 
   // TODO ARC_StoreSpecial
   return false;
@@ -130,9 +164,49 @@ static bool ExtractPalette(int entry, const char *path)
   return true; // OK
 }
 
-static bool ExtractFontSize(int entry, const char *path)
+static bool ExtractFontsize(int entry, const char *path)
 {
-  // TODO
+  printf("  Converting fontsize to TXT...\n");
+
+  const char *filename = ReplaceExtension(path, "txt");
+
+  if (FileExists(filename) && ! opt_force)
+  {
+    printf("FAILURE: will not overwrite file: %s\n\n", filename);
+    return false;
+  }
+
+  int total = PAK_EntryLen(entry);
+
+  if (total < 729)
+  {
+    printf("FAILURE: invalid length for fontsize.lmp (%d < 729)\n", total);
+    return false;
+  }
+
+  FILE *fp = fopen(filename, "wb");
+
+  if (! fp)
+  {
+    printf("FAILURE: cannot create output file: %s\n\n", filename);
+    return false;
+  }
+
+  byte fontsize[729];
+
+  PAK_ReadData(entry, 0, 729, fontsize);
+
+  for (int y = 0; y < 27; y++)
+  {
+    for (int x = 0; x < 27; x++)
+      fprintf(fp, " %2d", fontsize[27*y+x]);
+
+    fprintf(fp, "\n");
+  }
+
+  fclose(fp);
+
+  return true; // OK
 }
 
 static bool ExtractWAL(int entry, const char *path)
@@ -156,6 +230,9 @@ bool ARC_IsSpecialOutput(const char *lump)
   if (StringCaseCmp(lump, "gfx/palette.lmp") == 0)
     return true;
 
+  if (StringCaseCmp(lump, "gfx/menu/fontsize.lmp") == 0)
+    return true;
+
   if (game_type == GAME_Quake2 && CheckExtension(lump, "WAL"))
     return true;
 
@@ -163,14 +240,13 @@ bool ARC_IsSpecialOutput(const char *lump)
   return false;
 }
 
-
 bool ARC_ExtractSpecial(int entry, const char *lump, const char *path)
 {
   if (StringCaseCmp(lump, "gfx/palette.lmp") == 0)
     return ExtractPalette(entry, path);
 
   if (StringCaseCmp(lump, "gfx/menu/fontsize.lmp") == 0)
-    return ExtractFontSize(entry, path);
+    return ExtractFontsize(entry, path);
 
   if (game_type == GAME_Quake2 && CheckExtension(lump, "WAL"))
     return ExtractWAL(entry, path);
