@@ -29,6 +29,7 @@ OBJS=	u_assert.o \
 	im_png.o   \
 	im_tex.o   \
 	archive.o  \
+	arc_spec.o \
 	pakfile.o  \
 	main.o
 
