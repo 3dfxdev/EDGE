@@ -32,6 +32,7 @@
 
 static void GEN_InversePalette(const char *filename)
 {
+  // Hexen II lump
   printf("Generating inverse palette: %s\n", filename);
 
   FILE *fp = fopen(filename, "wb");
@@ -39,7 +40,7 @@ static void GEN_InversePalette(const char *filename)
     FatalError("Cannot create file! %s\n", strerror(errno));
 
   COL_SetFullBright(true);
-  COL_SetTransparent(255);
+  COL_SetTransparent(0);  // will not occur
 
   char buffer[64];
 
@@ -49,6 +50,41 @@ static void GEN_InversePalette(const char *filename)
     for (int b = 0; b < 64; b++)
     {
       buffer[b] = COL_MapColor(MAKE_RGB(r<<2, g<<2, b<<2));
+    }
+
+    if (1 != fwrite(buffer, sizeof(buffer), 1, fp))
+    {
+      fclose(fp);
+      FatalError("Error writing file!\n");
+    }
+  }
+
+  fclose(fp);
+
+  printf("Finished.\n");
+}
+
+
+static void GEN_16to8_Table(const char *filename)
+{
+  // Quake II lump
+  printf("Generating Inverse16 table: %s\n", filename);
+
+  FILE *fp = fopen(filename, "wb");
+  if (! fp)
+    FatalError("Cannot create file! %s\n", strerror(errno));
+
+  COL_SetFullBright(true);
+  COL_SetTransparent(0);  // will not occur
+
+  char buffer[32];
+
+  for (int b = 0; b < 32; b++)
+  for (int g = 0; g < 64; g++)
+  {
+    for (int r = 0; r < 32; r++)
+    {
+      buffer[r] = COL_MapColor(MAKE_RGB(r<<3, g<<2, b<<3));
     }
 
     if (1 != fwrite(buffer, sizeof(buffer), 1, fp))
@@ -74,7 +110,11 @@ bool GEN_TryCreateSpecial(const char *filename)
     return true;
   }
 
-  // 16to8.dat
+  if (StringCaseCmp(FindBaseName(filename), "16to8.dat") == 0)
+  {
+    GEN_16to8_Table(filename);
+    return true;
+  }
 
   // tinttab.lmp
   // tinttab2.lmp
