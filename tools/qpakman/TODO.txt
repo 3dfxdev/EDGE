@@ -12,7 +12,7 @@ TODO for QPakMan
 
       gfx/pop.lmp  : to/from PNG file (16x16)
 
-      gfx/palette.lmp  :  to/from TXT file
+   Y  gfx/palette.lmp  :  to/from TXT file
 
       gfx/colormap.lmp  : unpack: create analysis file ".ana"
                           
@@ -24,7 +24,7 @@ TODO for QPakMan
 
       gfx/menu/conchars.lmp : to/from PNG  [SEE MIPWAD for size logic]
 
-      gfx/menu/fontsize.lmp : to/from TXT file
+   Y  gfx/menu/fontsize.lmp : to/from TXT file
 
       gfx/player.lmp  : as per colormap.lmp
 
