@@ -495,6 +495,14 @@ void ARC_ProcessPath(const char *path,
       return;
     }
 
+    if (StringCaseCmp(FindBaseName(path), ".svn") == 0 ||
+        StringCaseCmp(FindBaseName(path), "CVS")  == 0)
+    {
+      printf("SKIPPING REPOSITORY CRAP: %s\n", path);
+      (*skipped) += 1;
+      return;
+    }
+
     printf("\n");
     printf("Processing directory: %s\n", path);
 
@@ -509,11 +517,21 @@ void ARC_ProcessPath(const char *path,
     {
       printf("(empty directory)\n\n");
     }
+
+    return;
   }
-  else
+
+
+  if (CheckExtension(path, "pak"))
   {
-    ARC_StoreFile(path, num_pack, failures, skipped);
+    // TODO
+    printf("MERGING PAKS NOT IMPLEMENTED: %s\n", path);
+    (*failures) += 1;
+    return;
   }
+
+
+  ARC_StoreFile(path, num_pack, failures, skipped);
 }
 
 
