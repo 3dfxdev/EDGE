@@ -101,7 +101,7 @@ void ShowUsage(void)
   printf("   -g  -game   XXX  select game (quake1, quake2, hexen2)\n");
   printf("   -f  -force       overwrite existing files when extracting\n");
   printf("   -p  -pic         create PIC format images in the WAD\n");
-//printf("   -r  -raw         do not convert anything\n");
+  printf("   -r  -raw         do not convert anything\n");
   printf("\n");
 
   printf("This program is free software, under the terms of the GNU General\n");
