@@ -2,40 +2,45 @@
 TODO for QPakMan
 ================
 
-+  convert to/from gfx/xxx.lmp files  [unless -raw option]
++  convert to/from the gfx/xxx.lmp files
+   When -raw option is used, lmps will be unpacked (not pngs)
+   For packing, -raw will ignore png files in gfx/
 
 +  handle special lumps:
 
    Quake/HexenII:
 
-      gfx/palette.lmp  :  to/from ".txt" file
-
-      gfx/colormap.lmp  : parse from a ".txt" file
-                          analyse into a ".ana" file (as well as lmp)
-
       gfx/pop.lmp  : to/from PNG file (16x16)
+
+      gfx/palette.lmp  :  to/from TXT file
+
+      gfx/colormap.lmp  : unpack: create analysis file ".ana"
+                                  (ignored for packing)
+                          
+                          qpakman gfx/colormap.gen -o gfx/colormap.lmp
+
+                          ANA and GEN files ignored for packing
 
    HexenII only:
 
-      gfx/player.lmp  : parse from a ".txt" file
-                        analyse into a ".ana" file
-
       gfx/menu/conchars.lmp : to/from PNG  [SEE MIPWAD for size logic]
 
-      gfx/menu/fontsize.lmp : parse/output a ".txt" file, 27 lines with 27 numbers
+      gfx/menu/fontsize.lmp : to/from TXT file
 
-      gfx/tinttab.lmp   : parse from ".txt" file, create "ana" file
-      gfx/tinttab2.lmp  : parse from ".txt" file, create "ana" file
+      gfx/player.lmp  : as per colormap.lmp
 
-      gfx/invpal.lmp  :  SPECIAL CASE TO -o  // generate if ".txt" file exists 
+      gfx/tinttab.lmp   : as per colormap.lmp
+      gfx/tinttab2.lmp  : as per colormap.lmp
+
+      gfx/invpal.lmp  :  qpakman -o gfx/invpal.lmp
 
    QuakeII only:
       pics/pop.lmp  :  to/from PNG file (16x16)
 
-      pics/colormap.pcx  :  parse from a ".txt" file
-                            analyse into a ".ana" file
+      pics/colormap.pcx  :  as per colormap.lmp
+                            also creates palette.ana
 
-      pics/16to8.dat  :  SPECIAL CASE TO -o  // generate if ".txt" file exists
+      pics/16to8.dat  :  qpakman -o pics/16to8.dat
 
 
 -  convert to/from textures/xxx.wal files (Quake2)
@@ -51,9 +56,9 @@ TODO for QPakMan
 -  unpacking images from PAK: find palette in PAK file [unless -c option]
 
 -  implement -raw option
-   - miptex wad unpack | pack
-   - gfx.wad    unpack | pack
-   - pak files  unpack | pack
+   - miptex wad unpack  (.mip is the raw file)
+   - gfx.wad    unpack  (.pic is the raw file)
+   - pak files  unpack
    etc....
 
 
@@ -61,15 +66,14 @@ TODO for QPakMan
 
 PALETTE SOURCE FORMAT
 
-# comment
-// comment
-palette =
-{
-  r, g, b,
-  r, g, b,
-  r, g, b,
-  # .... 256 entries
-}
+768 numbers, 3 per line
+
+
+----------------------------------------------------------------------
+
+FONTSIZE FORMAT
+
+729 numbers, 27 per line
 
 
 ----------------------------------------------------------------------
@@ -81,9 +85,9 @@ COLORMAP SOURCE FORMAT
 
 bright_pixels = { num, num, low-high, low-high ... }
 
-translucency = 175   # quakeII / hexenII's tinttab2
-
-additive = 255 255  # column factor, row factor : hexen2 tinttab
+row_factor = 85
+column_factor = 171
+clamp_hue = 0
 
 map =
 {
@@ -107,18 +111,11 @@ bright_map =
 
 ----------------------------------------------------------------------
 
-FONTSIZE FORMAT
+TINTTAB FORMAT
 
-# comment
-// comment
-widths =
-{
-  10, 13,  5, ..  # 27 numbers per line
-  12, 12, 13, ..
-  11, 13,  7, ..
-  14, 12, 11, ..
-  # .... 27 lines
-}
+row_factor = 85
+column_factor = 171
+clamp_hue = 1
 
 
 ----------------------------------------------------------------------
