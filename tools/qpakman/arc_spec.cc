@@ -44,8 +44,37 @@ bool ARC_StoreSpecial(FILE *fp, const char *lump, const char *path)
 
 //------------------------------------------------------------------------
 
+static bool ExtractPalette(int entry, const char *path)
+{
+  // TODO
+}
+
+static bool ExtractFontSize(int entry, const char *path)
+{
+  // TODO
+}
+
+static bool ExtractWAL(int entry, const char *path)
+{
+  printf("  Converting WAL texture to PNG...\n");
+
+  const char *png_name = ReplaceExtension(path, "png");
+
+  if (FileExists(png_name) && ! opt_force)
+  {
+    printf("FAILURE: will not overwrite file: %s\n\n", png_name);
+    return false;
+  }
+
+  return MIP_DecodeWAL(entry, png_name);
+}
+
+
 bool ARC_IsSpecialOutput(const char *lump)
 {
+  if (game_type == GAME_Quake2 && CheckExtension(lump, "WAL"))
+    return true;
+
   // TODO ARC_IsSpecialOutput
   return false;
 }
@@ -53,6 +82,16 @@ bool ARC_IsSpecialOutput(const char *lump)
 
 bool ARC_ExtractSpecial(int entry, const char *lump, const char *path)
 {
+  if (StringCaseCmp(lump, "gfx/palette.lmp") == 0)
+    return ExtractPalette(entry, path);
+
+  if (StringCaseCmp(lump, "gfx/menu/fontsize.lmp") == 0)
+    return ExtractFontSize(entry, path);
+
+  if (game_type == GAME_Quake2 && CheckExtension(lump, "WAL"))
+    return ExtractWAL(entry, path);
+
+
   // TODO ARC_ExtractSpecial
   return false;
 }

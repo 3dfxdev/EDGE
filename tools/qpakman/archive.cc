@@ -152,6 +152,9 @@ bool ARC_ExtractOneFile(int entry, const char *name)
     return false;
 
 
+  ARC_CreateNeededDirs(filename);
+
+
   if (! opt_raw && ARC_IsSpecialOutput(name))
   {
     bool result = ARC_ExtractSpecial(entry, name, filename);
@@ -162,32 +165,6 @@ bool ARC_ExtractOneFile(int entry, const char *name)
   }
 
 
-  if (game_type == GAME_Quake2 && CheckExtension(filename, "WAL"))
-  {
-    printf("  Converting WAL texture to PNG...\n");
-
-    ARC_CreateNeededDirs(filename);
-
-    const char *png_name = ReplaceExtension(filename, "png");
-
-    if (FileExists(png_name) && ! opt_force)
-    {
-      printf("FAILURE: will not overwrite file: %s\n\n", png_name);
-      StringFree(filename);
-      return false;
-    }
-
-    if (MIP_DecodeWAL(entry, png_name))
-    {
-      StringFree(filename);
-      return true; // OK!
-    }
-
-    // failed, therefore save as raw
-    printf("  Saving as a raw file instead\n");
-  }
-
-
   if (FileExists(filename) && ! opt_force)
   {
     printf("FAILURE: will not overwrite file: %s\n\n", filename);
@@ -195,16 +172,6 @@ bool ARC_ExtractOneFile(int entry, const char *name)
     StringFree(filename);
     return false;
   }
-
-  if (! ARC_CreateNeededDirs(filename))
-  {
-#if 0
-    // error message displayed by ARC_CreateNeededDirs()
-    StringFree(filename);
-    return false;
-#endif
-  }
-
 
   int entry_len = PAK_EntryLen(entry);
 
