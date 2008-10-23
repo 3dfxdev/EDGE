@@ -34,9 +34,9 @@ extern std::map<std::string, int> all_pak_lumps;
 
 static bool StorePalette(FILE *fp, const char *lump)
 {
-  printf("  Converting palette from TXT...\n");
+  printf("  Converting palette back to LMP...\n");
 
-  const char *new_lump = ReplaceExtension(lump, "txt");
+  const char *new_lump = ReplaceExtension(lump, "lmp");
 
   PAK_NewLump(new_lump);
 
