@@ -102,6 +102,54 @@ static void GEN_16to8_Table(const char *filename)
 
 //------------------------------------------------------------------------
 
+static void GEN_TintTable(const char *filename, int x_mul, int y_mul)
+{
+  // Hexen II lumps
+  printf("Generating tint table: %s\n", filename);
+
+  FILE *fp = fopen(filename, "wb");
+  if (! fp)
+    FatalError("Cannot create file! %s\n", strerror(errno));
+
+  COL_SetFullBright(true);
+  COL_SetTransparent(0);  // will not occur
+
+  char buffer[256];  // one row
+
+  for (int y = 0; y < 256; y++)
+  {
+    for (int x = 0; x < 256; x++)
+    {
+      u32_t XC = COL_ReadPalette(x);
+      u32_t YC = COL_ReadPalette(y);
+
+      int r = (RGB_R(XC) * x_mul + RGB_R(YC) * y_mul) >> 8;
+      int g = (RGB_G(XC) * x_mul + RGB_G(YC) * y_mul) >> 8;
+      int b = (RGB_B(XC) * x_mul + RGB_B(YC) * y_mul) >> 8;
+
+      // clamp the result
+      if (r & 0xF00) r = 255;
+      if (g & 0xF00) g = 255;
+      if (b & 0xF00) b = 255;
+
+      buffer[x] = COL_MapColor(MAKE_RGB(r, g, b));
+    }
+
+    if (1 != fwrite(buffer, sizeof(buffer), 1, fp))
+    {
+      fclose(fp);
+      FatalError("Error writing file!\n");
+    }
+  }
+
+  fclose(fp);
+
+  printf("Finished.\n");
+}
+
+
+//------------------------------------------------------------------------
+
 bool GEN_TryCreateSpecial(const char *filename)
 {
   if (StringCaseCmp(FindBaseName(filename), "invpal.lmp") == 0)
@@ -116,8 +164,16 @@ bool GEN_TryCreateSpecial(const char *filename)
     return true;
   }
 
-  // tinttab.lmp
-  // tinttab2.lmp
+  if (StringCaseCmp(FindBaseName(filename), "tinttab2.lmp") == 0)
+  {
+    GEN_TintTable(filename, 165, 91);
+    return true;
+  }
+  else if (StringCaseCmp(FindBaseName(filename), "tinttab.lmp") == 0)
+  {
+    GEN_TintTable(filename, 128, 200);
+    return true;
+  }
 
   return false;
 }

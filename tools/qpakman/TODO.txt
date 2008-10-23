@@ -29,7 +29,7 @@ TODO for QPakMan
       gfx/player.lmp  : as per colormap.lmp
 
       gfx/tinttab.lmp   : as per colormap.lmp
-      gfx/tinttab2.lmp  : as per colormap.lmp
+   Y  gfx/tinttab2.lmp  : as per colormap.lmp
 
    Y  gfx/invpal.lmp  :  qpakman -o gfx/invpal.lmp
 
