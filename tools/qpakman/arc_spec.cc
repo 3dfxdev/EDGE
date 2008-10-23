@@ -46,7 +46,45 @@ bool ARC_StoreSpecial(FILE *fp, const char *lump, const char *path)
 
 static bool ExtractPalette(int entry, const char *path)
 {
-  // TODO
+  printf("  Converting palette to TXT...\n");
+
+  const char *filename = ReplaceExtension(path, "txt");
+
+  if (FileExists(filename) && ! opt_force)
+  {
+    printf("FAILURE: will not overwrite file: %s\n\n", filename);
+    return false;
+  }
+
+  int total = PAK_EntryLen(entry);
+
+  if (total < 768)
+  {
+    printf("FAILURE: invalid length for palette.lmp (%d < 768)\n", total);
+    return false;
+  }
+
+  FILE *fp = fopen(filename, "wb");
+
+  if (! fp)
+  {
+    printf("FAILURE: cannot create output file: %s\n\n", filename);
+    return false;
+  }
+
+  byte palette[768];
+
+  PAK_ReadData(entry, 0, 768, palette);
+
+  for (int i = 0; i < 256; i++)
+  {
+    fprintf(fp, "%3d %3d %3d\n",
+            palette[i*3+0], palette[i*3+1], palette[i*3+2]);
+  }
+
+  fclose(fp);
+
+  return true; // OK
 }
 
 static bool ExtractFontSize(int entry, const char *path)
@@ -72,6 +110,9 @@ static bool ExtractWAL(int entry, const char *path)
 
 bool ARC_IsSpecialOutput(const char *lump)
 {
+  if (StringCaseCmp(lump, "gfx/palette.lmp") == 0)
+    return true;
+
   if (game_type == GAME_Quake2 && CheckExtension(lump, "WAL"))
     return true;
 
