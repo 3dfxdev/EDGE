@@ -23,6 +23,7 @@
 
 #include "archive.h"
 #include "im_color.h"
+#include "im_gen.h"
 #include "im_mip.h"
 #include "im_tex.h"
 #include "pakfile.h"
@@ -236,6 +237,8 @@ void Main_Create(void)
     MIP_CreateWAD(filename);
   else if (CheckExtension(filename, "pak"))
     ARC_CreatePAK(filename);
+  else if (GEN_TryCreateSpecial(filename))
+  { /* OK */ }
   else
     FatalError("Unknown output file format: %s\n", output_name.c_str());
 }
