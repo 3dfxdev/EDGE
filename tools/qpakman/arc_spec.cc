@@ -29,14 +29,57 @@
 #include "q1_structs.h"
 
 
+extern std::map<std::string, int> all_pak_lumps;
+
+
+static bool StorePalette(FILE *fp, const char *lump)
+{
+  printf("  Converting palette from TXT...\n");
+
+  const char *new_lump = ReplaceExtension(lump, "txt");
+
+  PAK_NewLump(new_lump);
+
+  all_pak_lumps[new_lump] = 1;
+
+  byte palette[768];
+
+  for (int pix = 0; pix < 256; pix++)
+  {
+    int R, G, B;
+
+    if (3 != fscanf(fp, " %i %i %i ", &R, &G, &B))
+      FatalError("Not enough colors in palette.txt (failed at #%d)\n", pix);
+
+    if (R < 0 || R > 255 || G < 0 || G > 255 || B < 0 || B > 255)
+      FatalError("Bad color in palette.txt at #%d : (%d %d %d)\n", pix, R, G, B);
+
+    palette[pix*3+0] = R;
+    palette[pix*3+1] = G;
+    palette[pix*3+2] = B;
+  }
+
+  PAK_AppendData(palette, 768);
+  PAK_FinishLump();
+
+  return true; // OK
+}
+
+
 bool ARC_IsSpecialInput (const char *lump)
 {
+  if (StringCaseCmp(lump, "gfx/palette.txt") == 0)
+    return true;
+
   // TODO ARC_IsSpecialInput
   return false;
 }
 
 bool ARC_StoreSpecial(FILE *fp, const char *lump, const char *path)
 {
+  if (StringCaseCmp(lump, "gfx/palette.txt") == 0)
+    return StorePalette(fp, lump);
+
   // TODO ARC_StoreSpecial
   return false;
 }
@@ -76,10 +119,10 @@ static bool ExtractPalette(int entry, const char *path)
 
   PAK_ReadData(entry, 0, 768, palette);
 
-  for (int i = 0; i < 256; i++)
+  for (int pix = 0; pix < 256; pix++)
   {
     fprintf(fp, "%3d %3d %3d\n",
-            palette[i*3+0], palette[i*3+1], palette[i*3+2]);
+            palette[pix*3+0], palette[pix*3+1], palette[pix*3+2]);
   }
 
   fclose(fp);
