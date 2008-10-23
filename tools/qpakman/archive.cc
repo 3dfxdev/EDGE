@@ -374,7 +374,9 @@ void ARC_StoreFile(const char *path,
 
   if (! opt_raw && ARC_IsSpecialInput(lump_name))
   {
-    if (! ARC_StoreSpecial(fp, lump_name, path))
+    if (ARC_StoreSpecial(fp, lump_name, path))
+      (*num_pack) += 1;
+    else
       (*failures) += 1;
 
     StringFree(lump_name);
