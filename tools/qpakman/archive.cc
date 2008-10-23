@@ -23,6 +23,7 @@
 #include <algorithm>
 
 #include "archive.h"
+#include "arc_spec.h"
 #include "pakfile.h"
 #include "im_mip.h"
 #include "q1_structs.h"
@@ -151,6 +152,16 @@ bool ARC_ExtractOneFile(int entry, const char *name)
     return false;
 
 
+  if (! opt_raw && ARC_IsSpecialOutput(name))
+  {
+    bool result = ARC_ExtractSpecial(entry, name, filename);
+
+    StringFree(filename);
+
+    return result;
+  }
+
+
   if (game_type == GAME_Quake2 && CheckExtension(filename, "WAL"))
   {
     printf("  Converting WAL texture to PNG...\n");
@@ -235,6 +246,13 @@ bool ARC_ExtractOneFile(int entry, const char *name)
     printf("FAILURE: cannot create output file: %s\n\n", filename);
     failed = true;
   }
+
+
+  if (! opt_raw && ARC_IsAnalyseOutput(name))
+  {
+    ARC_AnalyseSpecial(entry, name, filename);
+  }
+
 
   StringFree(filename);
 
@@ -372,8 +390,6 @@ void ARC_StoreFile(const char *path,
     return;
   }
 
-  all_pak_lumps[lump_name] = 1;
-
 
   FILE *fp = fopen(path, "rb");
   if (! fp)
@@ -388,7 +404,22 @@ void ARC_StoreFile(const char *path,
     return;
   }
 
+
+  if (! opt_raw && ARC_IsSpecialInput(lump_name))
+  {
+    if (! ARC_StoreSpecial(fp, lump_name, path))
+      (*failures) += 1;
+
+    StringFree(lump_name);
+
+    fclose(fp);
+    return;
+  }
+
+
   PAK_NewLump(lump_name);
+
+  all_pak_lumps[lump_name] = 1;
 
   StringFree(lump_name);
 

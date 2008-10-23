@@ -29,13 +29,13 @@
 #include "q1_structs.h"
 
 
-bool ARC_IsSpecialInput (const char *lump_name)
+bool ARC_IsSpecialInput (const char *lump)
 {
   // TODO ARC_IsSpecialInput
   return false;
 }
 
-bool ARC_StoreSpecial(FILE *fp, const char *path)
+bool ARC_StoreSpecial(FILE *fp, const char *lump, const char *path)
 {
   // TODO ARC_StoreSpecial
   return false;
@@ -44,16 +44,31 @@ bool ARC_StoreSpecial(FILE *fp, const char *path)
 
 //------------------------------------------------------------------------
 
-bool ARC_IsSpecialOutput(const char *lump_name)
+bool ARC_IsSpecialOutput(const char *lump)
 {
   // TODO ARC_IsSpecialOutput
   return false;
 }
 
 
-bool ARC_ExtractSpecial(int entry, const char *lump_name)
+bool ARC_ExtractSpecial(int entry, const char *lump, const char *path)
 {
   // TODO ARC_ExtractSpecial
+  return false;
+}
+
+
+//------------------------------------------------------------------------
+
+bool ARC_IsAnalyseOutput(const char *lump)
+{
+  // TODO ARC_IsAnalyseOutput
+  return false;
+}
+
+bool ARC_AnalyseSpecial(int entry, const char *lump, const char *path)
+{
+  // TODO ARC_AnalyseSpecial
   return false;
 }
 

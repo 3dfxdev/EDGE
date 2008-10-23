@@ -19,11 +19,13 @@
 #ifndef __ARCHIVE_SPECIAL_H__
 #define __ARCHIVE_SPECIAL_H__
 
-bool ARC_IsSpecialInput (const char *lump_name);
-bool ARC_IsSpecialOutput(const char *lump_name);
+bool ARC_IsSpecialInput (const char *lump);
+bool ARC_IsSpecialOutput(const char *lump);
+bool ARC_IsAnalyseOutput(const char *lump);
 
-bool ARC_StoreSpecial(FILE *fp, const char *path);
-bool ARC_ExtractSpecial(int entry, const char *lump_name);
+bool ARC_StoreSpecial(FILE *fp, const char *lump, const char *path);
+bool ARC_ExtractSpecial(int entry, const char *lump, const char *path);
+bool ARC_AnalyseSpecial(int entry, const char *lump, const char *path);
 
 #endif  /* __ARCHIVE_SPECIAL_H__ */
 
