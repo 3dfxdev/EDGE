@@ -31,7 +31,7 @@ TODO for QPakMan
       gfx/tinttab.lmp   : as per colormap.lmp
       gfx/tinttab2.lmp  : as per colormap.lmp
 
-      gfx/invpal.lmp  :  qpakman -o gfx/invpal.lmp
+   Y  gfx/invpal.lmp  :  qpakman -o gfx/invpal.lmp
 
    QuakeII only:
       pics/pop.lmp  :  to/from PNG file (16x16)
@@ -39,7 +39,7 @@ TODO for QPakMan
       pics/colormap.pcx  :  as per colormap.lmp
                             also creates palette.ana
 
-      pics/16to8.dat  :  qpakman -o pics/16to8.dat
+   Y  pics/16to8.dat  :  qpakman -o pics/16to8.dat
 
 
 -  convert to/from textures/xxx.wal files (Quake2)
