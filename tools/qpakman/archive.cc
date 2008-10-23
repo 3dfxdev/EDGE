@@ -561,6 +561,14 @@ void ARC_ProcessPath(const char *path,
     return;
   }
 
+  if (CheckExtension(path, "ana") ||
+      CheckExtension(path, "gen"))
+  {
+    printf("SKIPPING ANALYSIS or GENERATOR: %s\n", path);
+    (*skipped) += 1;
+    return;
+  }
+
 
   ARC_StoreFile(path, num_pack, failures, skipped);
 }
