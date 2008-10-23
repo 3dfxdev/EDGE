@@ -15,7 +15,6 @@ TODO for QPakMan
       gfx/palette.lmp  :  to/from TXT file
 
       gfx/colormap.lmp  : unpack: create analysis file ".ana"
-                                  (ignored for packing)
                           
                           qpakman gfx/colormap.gen -o gfx/colormap.lmp
 
