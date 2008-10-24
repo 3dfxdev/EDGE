@@ -25,12 +25,113 @@
 #include "archive.h"
 #include "arc_spec.h"
 #include "pakfile.h"
+#include "im_color.h"
+#include "im_image.h"
 #include "im_mip.h"
+#include "im_png.h"
 #include "q1_structs.h"
 
 
 extern std::map<std::string, int> all_pak_lumps;
 
+
+static bool StorePOP(FILE *fp, const char *lump)
+{
+  printf("  Converting POP back to LMP...\n");
+
+  rgb_image_c *img = PNG_Load(fp);
+
+  if (! img)
+  {
+    printf("FAILURE: failed to load POP image!\n");
+    return false;
+  }
+
+  const char *new_lump = ReplaceExtension(lump, "lmp");
+
+  PAK_NewLump(new_lump);
+
+  all_pak_lumps[new_lump] = 1;
+
+  // re-encode the POP graphic
+  COL_SetFullBright(true);
+  COL_SetTransparent(0);
+
+  for (int y = 0; y < img->height; y++)
+  for (int x = 0; x < img->width;  x++)
+  {
+    byte pix = COL_MapColor(img->PixelAt(x, y));
+
+    PAK_AppendData(&pix, 1);
+  }
+
+  PAK_FinishLump();
+
+  delete img;
+
+  return true; // OK
+}
+
+static bool ExtractPOP(int entry, const char *path)
+{
+  printf("  Converting POP to PNG...\n");
+
+  const char *png_name = ReplaceExtension(path, "png");
+
+  if (FileExists(png_name) && ! opt_force)
+  {
+    printf("FAILURE: will not overwrite file: %s\n\n", png_name);
+    return false;
+  }
+
+  int total = PAK_EntryLen(entry);
+
+  if (total < 16*16)
+  {
+    printf("FAILURE: invalid length for pop.lmp (%d < 16*16)\n", total);
+    return false;
+  }
+
+
+  byte pop[16*16];
+
+  PAK_ReadData(entry, 0, 16*16, pop);
+
+  // create the image for saving.
+  COL_SetFullBright(true);
+
+  rgb_image_c *img = new rgb_image_c(16, 16);
+
+  for (int y = 0; y < 16; y++)
+  for (int x = 0; x < 16;  x++)
+  {
+    img->PixelAt(x, y) = COL_ReadPalette(pop[y*16+x]);
+  }
+
+
+  FILE *fp = fopen(png_name, "wb");
+
+  if (! fp)
+  {
+    printf("FAILURE: cannot create output file: %s\n\n", png_name);
+    delete img;
+    return false;
+  }
+
+  bool result = PNG_Save(fp, img);
+
+  fclose(fp);
+
+  delete img;
+
+  if (! result)
+    printf("FAILURE: error while writing PNG file\n\n");
+
+  return result;
+}
+
+
+//------------------------------------------------------------------------
 
 static bool StorePalette(FILE *fp, const char *lump)
 {
@@ -94,6 +195,7 @@ static bool StoreFontsize(FILE *fp, const char *lump)
 }
 
 
+
 bool ARC_IsSpecialInput (const char *lump)
 {
   if (StringCaseCmp(lump, "gfx/palette.txt") == 0)
@@ -102,7 +204,6 @@ bool ARC_IsSpecialInput (const char *lump)
   if (StringCaseCmp(lump, "gfx/menu/fontsize.txt") == 0)
     return true;
 
-  // TODO ARC_IsSpecialInput
   return false;
 }
 
@@ -114,7 +215,9 @@ bool ARC_StoreSpecial(FILE *fp, const char *lump, const char *path)
   if (StringCaseCmp(lump, "gfx/menu/fontsize.txt") == 0)
     return StoreFontsize(fp, lump);
 
-  // TODO ARC_StoreSpecial
+///  if (StringCaseCmp(FindBaseName(lump), "pop.png") == 0)
+///    return StorePOP(fp, lump);
+
   return false;
 }
 
@@ -236,7 +339,7 @@ bool ARC_IsSpecialOutput(const char *lump)
   if (game_type == GAME_Quake2 && CheckExtension(lump, "WAL"))
     return true;
 
-  // TODO ARC_IsSpecialOutput
+
   return false;
 }
 
@@ -248,11 +351,13 @@ bool ARC_ExtractSpecial(int entry, const char *lump, const char *path)
   if (StringCaseCmp(lump, "gfx/menu/fontsize.lmp") == 0)
     return ExtractFontsize(entry, path);
 
+///  if (StringCaseCmp(FindBaseName(lump), "pop.lmp") == 0)
+///    return ExtractPOP(entry, path);
+
   if (game_type == GAME_Quake2 && CheckExtension(lump, "WAL"))
     return ExtractWAL(entry, path);
 
 
-  // TODO ARC_ExtractSpecial
   return false;
 }
 
