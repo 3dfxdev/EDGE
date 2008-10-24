@@ -35,7 +35,9 @@
 extern std::map<std::string, int> all_pak_lumps;
 
 
-static bool StorePOP(FILE *fp, const char *lump)
+// -AJA- This is not used, because it can produce the wrong data
+//       due to duplicate colors in the palette.
+bool ARC_StorePOP(FILE *fp, const char *lump)
 {
   printf("  Converting POP back to LMP...\n");
 
@@ -166,64 +168,6 @@ static bool StorePalette(FILE *fp, const char *lump)
   return true; // OK
 }
 
-static bool StoreFontsize(FILE *fp, const char *lump)
-{
-  printf("  Converting fontsize back to LMP...\n");
-
-  const char *new_lump = ReplaceExtension(lump, "lmp");
-
-  PAK_NewLump(new_lump);
-
-  all_pak_lumps[new_lump] = 1;
-
-  byte fontsize[729];
-
-  for (int i = 0; i < 729; i++)
-  {
-    int value = 0;
-
-    if (1 != fscanf(fp, " %i ", &value))
-      FatalError("Not enough values in fontsize.txt (failed at #%d)\n", i);
-
-    fontsize[i] = value;
-  }
-
-  PAK_AppendData(fontsize, 729);
-  PAK_FinishLump();
-
-  return true; // OK
-}
-
-
-
-bool ARC_IsSpecialInput (const char *lump)
-{
-  if (StringCaseCmp(lump, "gfx/palette.txt") == 0)
-    return true;
-
-  if (StringCaseCmp(lump, "gfx/menu/fontsize.txt") == 0)
-    return true;
-
-  return false;
-}
-
-bool ARC_StoreSpecial(FILE *fp, const char *lump, const char *path)
-{
-  if (StringCaseCmp(lump, "gfx/palette.txt") == 0)
-    return StorePalette(fp, lump);
-
-  if (StringCaseCmp(lump, "gfx/menu/fontsize.txt") == 0)
-    return StoreFontsize(fp, lump);
-
-///  if (StringCaseCmp(FindBaseName(lump), "pop.png") == 0)
-///    return StorePOP(fp, lump);
-
-  return false;
-}
-
-
-//------------------------------------------------------------------------
-
 static bool ExtractPalette(int entry, const char *path)
 {
   printf("  Converting palette to TXT...\n");
@@ -263,6 +207,37 @@ static bool ExtractPalette(int entry, const char *path)
   }
 
   fclose(fp);
+
+  return true; // OK
+}
+
+
+//------------------------------------------------------------------------
+
+static bool StoreFontsize(FILE *fp, const char *lump)
+{
+  printf("  Converting fontsize back to LMP...\n");
+
+  const char *new_lump = ReplaceExtension(lump, "lmp");
+
+  PAK_NewLump(new_lump);
+
+  all_pak_lumps[new_lump] = 1;
+
+  byte fontsize[729];
+
+  for (int i = 0; i < 729; i++)
+  {
+    int value = 0;
+
+    if (1 != fscanf(fp, " %i ", &value))
+      FatalError("Not enough values in fontsize.txt (failed at #%d)\n", i);
+
+    fontsize[i] = value;
+  }
+
+  PAK_AppendData(fontsize, 729);
+  PAK_FinishLump();
 
   return true; // OK
 }
@@ -312,6 +287,9 @@ static bool ExtractFontsize(int entry, const char *path)
   return true; // OK
 }
 
+
+//------------------------------------------------------------------------
+
 static bool ExtractWAL(int entry, const char *path)
 {
   printf("  Converting WAL texture to PNG...\n");
@@ -325,6 +303,35 @@ static bool ExtractWAL(int entry, const char *path)
   }
 
   return MIP_DecodeWAL(entry, png_name);
+}
+
+
+
+//------------------------------------------------------------------------
+
+bool ARC_IsSpecialInput (const char *lump)
+{
+  if (StringCaseCmp(lump, "gfx/palette.txt") == 0)
+    return true;
+
+  if (StringCaseCmp(lump, "gfx/menu/fontsize.txt") == 0)
+    return true;
+
+  return false;
+}
+
+bool ARC_StoreSpecial(FILE *fp, const char *lump, const char *path)
+{
+  if (StringCaseCmp(lump, "gfx/palette.txt") == 0)
+    return StorePalette(fp, lump);
+
+  if (StringCaseCmp(lump, "gfx/menu/fontsize.txt") == 0)
+    return StoreFontsize(fp, lump);
+
+///  if (StringCaseCmp(FindBaseName(lump), "pop.png") == 0)
+///    return StorePOP(fp, lump);
+
+  return false;
 }
 
 
@@ -351,9 +358,6 @@ bool ARC_ExtractSpecial(int entry, const char *lump, const char *path)
   if (StringCaseCmp(lump, "gfx/menu/fontsize.lmp") == 0)
     return ExtractFontsize(entry, path);
 
-///  if (StringCaseCmp(FindBaseName(lump), "pop.lmp") == 0)
-///    return ExtractPOP(entry, path);
-
   if (game_type == GAME_Quake2 && CheckExtension(lump, "WAL"))
     return ExtractWAL(entry, path);
 
@@ -364,15 +368,14 @@ bool ARC_ExtractSpecial(int entry, const char *lump, const char *path)
 
 //------------------------------------------------------------------------
 
-bool ARC_IsAnalyseOutput(const char *lump)
+bool ARC_TryAnalyseSpecial(int entry, const char *lump, const char *path)
 {
-  // TODO ARC_IsAnalyseOutput
-  return false;
-}
+  if (StringCaseCmp(FindBaseName(lump), "pop.lmp") == 0)
+  {
+    ExtractPOP(entry, path);
+    return true;
+  }
 
-bool ARC_AnalyseSpecial(int entry, const char *lump, const char *path)
-{
-  // TODO ARC_AnalyseSpecial
   return false;
 }
 

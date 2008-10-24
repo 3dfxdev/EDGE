@@ -215,9 +215,9 @@ bool ARC_ExtractOneFile(int entry, const char *name)
   }
 
 
-  if (! opt_raw && ARC_IsAnalyseOutput(name))
+  if (! opt_raw)
   {
-    ARC_AnalyseSpecial(entry, name, filename);
+    ARC_TryAnalyseSpecial(entry, name, filename);
   }
 
 
