@@ -155,13 +155,16 @@ bool ARC_ExtractOneFile(int entry, const char *name)
   ARC_CreateNeededDirs(filename);
 
 
-  if (! opt_raw && ARC_IsSpecialOutput(name))
+  if (! opt_raw)
   {
-    bool result = ARC_ExtractSpecial(entry, name, filename);
+    int result = ARC_TryExtractSpecial(entry, name, filename);
 
-    StringFree(filename);
+    if (result != ARCSP_Normal)
+    {
+      StringFree(filename);
 
-    return result;
+      return (result != ARCSP_Failed);
+    }
   }
 
 
@@ -212,12 +215,6 @@ bool ARC_ExtractOneFile(int entry, const char *name)
   {
     printf("FAILURE: cannot create output file: %s\n\n", filename);
     failed = true;
-  }
-
-
-  if (! opt_raw)
-  {
-    ARC_TryAnalyseSpecial(entry, name, filename);
   }
 
 
@@ -372,17 +369,24 @@ void ARC_StoreFile(const char *path,
   }
 
 
-  if (! opt_raw && ARC_IsSpecialInput(lump_name))
+  if (! opt_raw)
   {
-    if (ARC_StoreSpecial(fp, lump_name, path))
-      (*num_pack) += 1;
-    else
-      (*failures) += 1;
+    int result = ARC_TryStoreSpecial(fp, lump_name, path);
 
-    StringFree(lump_name);
+    if (result != ARCSP_Normal)
+    {
+      fclose(fp);
+      StringFree(lump_name);
 
-    fclose(fp);
-    return;
+      if (result == ARCSP_Success)
+        (*num_pack) += 1;
+      else if (result == ARCSP_Ignored)
+        (*skipped)  += 1;
+      else
+        (*failures) += 1;
+
+      return;
+    }
   }
 
 

@@ -19,13 +19,17 @@
 #ifndef __ARCHIVE_SPECIAL_H__
 #define __ARCHIVE_SPECIAL_H__
 
-bool ARC_IsSpecialInput (const char *lump);
-bool ARC_IsSpecialOutput(const char *lump);
+typedef enum
+{
+  ARCSP_Normal  = 0,  // lump should be handled as normal
+  ARCSP_Success,      // lump was special, successfully (un)packed
+  ARCSP_Failed,       // lump was special, failed to (un)pack
+  ARCSP_Ignored,      // lump was special and was ignored
+}
+arc_special_result_e;
 
-bool ARC_StoreSpecial(FILE *fp, const char *lump, const char *path);
-bool ARC_ExtractSpecial(int entry, const char *lump, const char *path);
-
-bool ARC_TryAnalyseSpecial(int entry, const char *lump, const char *path);
+int ARC_TryStoreSpecial(FILE *fp, const char *lump, const char *path);
+int ARC_TryExtractSpecial(int entry, const char *lump, const char *path);
 
 #endif  /* __ARCHIVE_SPECIAL_H__ */
 
