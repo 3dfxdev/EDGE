@@ -573,7 +573,7 @@ bool MIP_ExtractMipTex(int entry, const char *lump_name)
   if (! WAD2_ReadData(entry, (int)sizeof(mm_tex), width * height, pixels))
   {
     printf("FAILURE: could not read %dx%d pixels from miptex\n\n", width, height);
-    delete pixels;
+    delete[] pixels;
     return false;
   }
 
@@ -603,8 +603,8 @@ bool MIP_ExtractMipTex(int entry, const char *lump_name)
 
   bool result = Do_SaveImage(img, lump_name, fullbright);
 
-  delete img;
-  delete pixels;
+  delete   img;
+  delete[] pixels;
 
   return result;
 }
@@ -635,7 +635,7 @@ bool MIP_ExtractPicture(int entry, const char *lump_name)
   if (! WAD2_ReadData(entry, (int)sizeof(pic), width * height, pixels))
   {
     printf("FAILURE: could not read %dx%d pixels from picture\n\n", width, height);
-    delete pixels;
+    delete[] pixels;
     return false;
   }
 
@@ -654,8 +654,8 @@ bool MIP_ExtractPicture(int entry, const char *lump_name)
 
   bool result = Do_SaveImage(img, lump_name, false /* fullbright */);
 
-  delete img;
-  delete pixels;
+  delete   img;
+  delete[] pixels;
 
   return result;
 }
@@ -700,7 +700,7 @@ bool MIP_ExtractRawBlock(int entry, const char *lump_name)
   if (! WAD2_ReadData(entry, 0, width * height, pixels))
   {
     printf("FAILURE: could not read %dx%d pixels from picture\n\n", width, height);
-    delete pixels;
+    delete[] pixels;
     return false;
   }
 
@@ -719,8 +719,8 @@ bool MIP_ExtractRawBlock(int entry, const char *lump_name)
 
   bool result = Do_SaveImage(img, lump_name, false /* fullbright */);
 
-  delete img;
-  delete pixels;
+  delete   img;
+  delete[] pixels;
 
   return result;
 }
@@ -826,7 +826,7 @@ bool MIP_DecodeWAL(int entry, const char *filename)
   if (! PAK_ReadData(entry, offset, width * height, pixels))
   {
     printf("FAILURE: could not read %dx%d pixels from WAL\n\n", width, height);
-    delete pixels;
+    delete[] pixels;
     return false;
   }
 
@@ -843,7 +843,7 @@ bool MIP_DecodeWAL(int entry, const char *filename)
     img->PixelAt(x, y) = COL_ReadPalette(pix);
   }
 
-  delete pixels;
+  delete[] pixels;
 
 
   // TODO: transparent bits and/or SKY
