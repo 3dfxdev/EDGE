@@ -37,7 +37,8 @@ extern std::map<std::string, int> all_pak_lumps;
 
 // -AJA- This is not used, it can produce the wrong data because of
 //       duplicate colors in the palette.
-int ARC_StorePOP(FILE *fp, const char *lump)
+#if 0
+static int StorePOP(FILE *fp, const char *lump)
 {
   printf("  Converting POP back to LMP...\n");
 
@@ -73,10 +74,11 @@ int ARC_StorePOP(FILE *fp, const char *lump)
 
   return ARCSP_Success;
 }
+#endif
 
-static int ExtractPOP(int entry, const char *path)
+static int AnalysePOP(int entry, const char *path)
 {
-  printf("  Converting POP to PNG...\n");
+  printf("  Analysing POP to PNG...\n");
 
   const char *png_name = ReplaceExtension(path, "png");
 
@@ -288,7 +290,13 @@ static bool ExtractFontsize(int entry, const char *path)
 
 //------------------------------------------------------------------------
 
-static bool ExtractWAL(int entry, const char *path)
+static int StoreWAL(FILE *fp, const char *lump)
+{
+  // TODO
+  return ARCSP_Failed;
+}
+
+static int ExtractWAL(int entry, const char *path)
 {
   printf("  Converting WAL texture to PNG...\n");
 
@@ -308,6 +316,59 @@ static bool ExtractWAL(int entry, const char *path)
 
 //------------------------------------------------------------------------
 
+static int StoreLMP(FILE *fp, const char *lump)
+{
+  // TODO
+  return ARCSP_Failed;
+}
+
+static int ExtractLMP(int entry, const char *path)
+{
+  // TODO
+  return ARCSP_Failed;
+}
+
+
+//------------------------------------------------------------------------
+
+static int StoreConchars(FILE *fp, const char *lump)
+{
+  // TODO
+  return ARCSP_Failed;
+}
+
+static int ExtractConchars(int entry, const char *path)
+{
+  // TODO
+  return ARCSP_Failed;
+}
+
+
+//------------------------------------------------------------------------
+
+static int AnalyseQ1Colormap(int entry, const char *path)
+{
+  // TODO
+  // unpack the LMP file as well
+  return ARCSP_Normal;
+}
+
+static int AnalyseQ2Colormap(int entry, const char *path)
+{
+  // TODO
+  return ARCSP_Normal;
+}
+
+static int AnalysePlayermap(int entry, const char *path)
+{
+  // TODO
+  // unpack the LMP file as well
+  return ARCSP_Normal;
+}
+
+
+//------------------------------------------------------------------------
+
 int ARC_TryStoreSpecial(FILE *fp, const char *lump, const char *path)
 {
   if (StringCaseCmp(lump, "gfx/palette.txt") == 0)
@@ -316,8 +377,23 @@ int ARC_TryStoreSpecial(FILE *fp, const char *lump, const char *path)
   if (StringCaseCmp(lump, "gfx/menu/fontsize.txt") == 0)
     return StoreFontsize(fp, lump);
 
+  if (StringCaseCmp(lump, "gfx/menu/conchars.png") == 0)
+    return StoreConchars(fp, lump);
+
   if (StringCaseCmp(FindBaseName(lump), "pop.png") == 0)
     return ARCSP_Ignored;
+
+  if (game_type != GAME_Quake2 && CheckExtension(lump, "PNG") &&
+      StringCaseCmpPartial(lump, "gfx/") == 0)
+  {
+    return StoreLMP(fp, lump);
+  }
+
+  if (game_type == GAME_Quake2 && CheckExtension(lump, "PNG") &&
+      StringCaseCmpPartial(lump, "textures/") == 0)
+  {
+    return StoreWAL(fp, lump);
+  }
 
   // just a normal file
   return ARCSP_Normal;
@@ -333,7 +409,25 @@ int ARC_TryExtractSpecial(int entry, const char *lump, const char *path)
     return ExtractFontsize(entry, path);
 
   if (StringCaseCmp(FindBaseName(lump), "pop.lmp") == 0)
-    return ExtractPOP(entry, path);
+    return AnalysePOP(entry, path);
+
+  if (StringCaseCmp(lump, "gfx/menu/conchars.lmp") == 0)
+    return ExtractConchars(entry, path);
+
+  if (StringCaseCmp(lump, "gfx/colormap.lmp") == 0)
+    return AnalyseQ1Colormap(entry, path);
+
+  if (StringCaseCmp(lump, "pics/colormap.pcx") == 0)
+    return AnalyseQ2Colormap(entry, path);
+
+  if (StringCaseCmp(lump, "gfx/player.lmp") == 0)
+    return AnalysePlayermap(entry, path);
+
+  if (game_type != GAME_Quake2 && CheckExtension(lump, "LMP") &&
+      StringCaseCmpPartial(lump, "gfx/") == 0)
+  {
+    return ExtractLMP(entry, path);
+  }
 
   if (game_type == GAME_Quake2 && CheckExtension(lump, "WAL"))
     return ExtractWAL(entry, path);
