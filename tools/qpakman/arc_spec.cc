@@ -187,7 +187,7 @@ static int ExtractPalette(int entry, const char *path)
     return ARCSP_Failed;
   }
 
-  FILE *fp = fopen(filename, "wb");
+  FILE *fp = fopen(filename, "w");
   if (! fp)
   {
     printf("FAILURE: cannot create output file: %s\n\n", filename);
@@ -263,7 +263,7 @@ static bool ExtractFontsize(int entry, const char *path)
     return ARCSP_Failed;
   }
 
-  FILE *fp = fopen(filename, "wb");
+  FILE *fp = fopen(filename, "w");
   if (! fp)
   {
     printf("FAILURE: cannot create output file: %s\n\n", filename);
@@ -324,8 +324,79 @@ static int StoreLMP(FILE *fp, const char *lump)
 
 static int ExtractLMP(int entry, const char *path)
 {
-  // TODO
-  return ARCSP_Failed;
+  printf("  Converting LMP graphic to PNG...\n");
+
+  const char *png_name = ReplaceExtension(path, "png");
+
+  if (FileExists(png_name) && ! opt_force)
+  {
+    printf("FAILURE: will not overwrite file: %s\n\n", png_name);
+    return ARCSP_Failed;
+  }
+
+  int length = PAK_EntryLen(entry);
+
+  // determine size of image
+  int W = 0, H = 0;
+
+  if (length >= 8)
+  {
+    pic_header_t pic;
+
+    PAK_ReadData(entry, 0, sizeof(pic_header_t), &pic);
+
+    W = LE_U32(pic.width);
+    H = LE_U32(pic.height);
+  }
+
+  length -= 8;
+
+  if (W <= 0 || H <= 0 || W*H > length)
+  {
+    printf("FAILURE: invalid size in LMP graphic (%dx%d)\n", W, H);
+    return ARCSP_Failed;
+  }
+
+
+  COL_SetFullBright(true);
+  COL_SetTransparent(255);
+
+  rgb_image_c *img = new rgb_image_c(W, H);
+
+  byte *pixels = new byte[W];
+
+  for (int y = 0; y < H; y++)
+  {
+    PAK_ReadData(entry, 8+y*W, W, pixels);
+
+    // TODO: optimise this with a new COL_xxxx function
+    for (int x = 0; x < W; x++)
+    {
+      img->PixelAt(x, y) = COL_ReadPalWithTrans(pixels[x]);
+    }
+  }
+
+  delete[] pixels;
+
+
+  FILE *fp = fopen(png_name, "wb");
+  if (! fp)
+  {
+    printf("FAILURE: cannot create output file: %s\n\n", png_name);
+    delete img;
+    return ARCSP_Failed;
+  }
+
+  bool result = PNG_Save(fp, img);
+
+  if (! result)
+    printf("FAILURE: error while writing PNG file\n\n");
+
+  fclose(fp);
+  delete img;
+ 
+
+  return result ? ARCSP_Success : ARCSP_Failed;
 }
 
 
