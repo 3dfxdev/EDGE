@@ -396,7 +396,7 @@ static int ExtractLMP(int entry, const char *path)
 
   length -= 8;
 
-  if (W <= 0 || H <= 0 || W*H > length)
+  if (W <= 0 || H <= 0 || W > 4096 || H > 4096 || W*H > length)
   {
     printf("FAILURE: invalid size in LMP graphic (%dx%d)\n", W, H);
     return ARCSP_Failed;
