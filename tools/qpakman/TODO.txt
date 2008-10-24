@@ -2,7 +2,7 @@
 TODO for QPakMan
 ================
 
-+  convert to/from the gfx/xxx.lmp files
+++ convert to/from the gfx/xxx.lmp files
    When -raw option is used, lmps will be unpacked (not pngs)
    For packing, -raw will ignore png files in gfx/
 
@@ -10,7 +10,7 @@ TODO for QPakMan
 
    Quake/HexenII:
 
-      gfx/pop.lmp  : to/from PNG file (16x16)
+   N  gfx/pop.lmp  : to/from PNG file (16x16)
 
    Y  gfx/palette.lmp  :  to/from TXT file
 
@@ -28,13 +28,13 @@ TODO for QPakMan
 
       gfx/player.lmp  : as per colormap.lmp
 
-      gfx/tinttab.lmp   : as per colormap.lmp
+   Y  gfx/tinttab.lmp   : as per colormap.lmp
    Y  gfx/tinttab2.lmp  : as per colormap.lmp
 
    Y  gfx/invpal.lmp  :  qpakman -o gfx/invpal.lmp
 
    QuakeII only:
-      pics/pop.lmp  :  to/from PNG file (16x16)
+   N  pics/pop.lmp  :  to/from PNG file (16x16)
 
       pics/colormap.pcx  :  as per colormap.lmp
                             also creates palette.ana
