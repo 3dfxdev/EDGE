@@ -1,8 +1,8 @@
 
-QPakMan 0.62 README
+QPakMan 0.66 README
 ===================
 
-by Andrew Apted.  August 2008
+by Andrew Apted.  October 2008
 
 
 INTRODUCTION
@@ -46,6 +46,10 @@ The entire contents of the PAK file are extracted into the
 current folder.  If a file already exists, it will NOT be
 overwritten (unless the -force option is given).
 
+Certain files (such as Quake LMP files, Quake II WAL files)
+will be converted to PNG image format during unpack.  This
+can be suppressed with the -raw option.
+
 
 3. Creating a PAK file:
 
@@ -54,6 +58,14 @@ overwritten (unless the -force option is given).
 All the specified files are stored in a newly created PAK file.
 Folders can be given and their contents are recursively added
 to the PAK.
+
+Certain files will be converted from PNG format to a custom
+format during the packing process.  In particular, files in
+the "gfx/" folder are converted to LMP (Quake and Hexen II
+only), and files in the "textures/" folder are converted to
+WAL format (Quake II only).  The -raw option prevents this.
+
+[[TODO: palette.lmp & fontsize.lmp]]
 
 
 4. Unpacking a WAD file:
@@ -146,6 +158,10 @@ option by a space (like: -game hexen2).
                  QPakMan will not overwrite existing files
                  when extracting from a PAK or WAD.
 
+-r -raw          Prevents conversion of lumps (especially
+                 from/to PNG images) while packing or
+                 unpacking a PAK file.
+
 -p -pic          When creating a WAD, stores the images in
                  Quake PIC format instead of MIPTEX format.
 
@@ -156,6 +172,25 @@ option by a space (like: -game hexen2).
                  NOTE 2: the CONCHARS and TINYFONT lumps
                  are special, and are always created as a
                  raw blocks of pixels.
+
+
+LESS COMMON TASKS
+=================
+
+1. Creating an inverse palette lump for Hexen II:
+
+   qpakman -game h2 -o invpal.lmp
+
+
+2. Creating an inverse palette lump for Quake II:
+
+   qpakman -game q2 -o 16to8.dat
+
+
+3. Making the tint tables for Hexen II:
+
+   qpakman -game h2 -o tinttab.lmp
+   qpakman -game h2 -o tinttab2.lmp
 
 
 COPYRIGHT and LICENSE
