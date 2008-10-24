@@ -2,6 +2,8 @@
 TODO for QPakMan
 ================
 
+>>>>  SKIP tinttab, invpal (etc) for LMP-->PNG conversion
+
 ++ convert to/from the gfx/xxx.lmp files
    When -raw option is used, lmps will be unpacked (not pngs)
    For packing, -raw will ignore png files in gfx/
@@ -114,7 +116,6 @@ TINTTAB FORMAT
 
 row_factor = 85
 column_factor = 171
-clamp_hue = 1
 
 
 ----------------------------------------------------------------------
@@ -140,4 +141,26 @@ targets =
   low, high,
   ....  # 11 pairs of pixels
 }
+
+
+
+==============
+ PARSING CODE
+==============
+
+TOKENS:
+  word     :  [a-zA-Z][a-zA-Z_0-9]*  or  ["][^"]*["]
+  number   :  [+-]?[0-9][0-9]*
+  symbols  :  { }  [ ]  ,  =
+
+PRODUCTIONS:
+  value    :  word | number
+
+  section  :  \[ value \]
+
+  list     :  \{ value (\, value)* \}
+
+  assign   :  word \= (value | list)
+
+  block    :  section? assign assign*
 
