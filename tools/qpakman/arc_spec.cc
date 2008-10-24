@@ -35,9 +35,9 @@
 extern std::map<std::string, int> all_pak_lumps;
 
 
-// -AJA- This is not used, because it can produce the wrong data
-//       due to duplicate colors in the palette.
-bool ARC_StorePOP(FILE *fp, const char *lump)
+// -AJA- This is not used, it can produce the wrong data because of
+//       duplicate colors in the palette.
+int ARC_StorePOP(FILE *fp, const char *lump)
 {
   printf("  Converting POP back to LMP...\n");
 
@@ -46,7 +46,7 @@ bool ARC_StorePOP(FILE *fp, const char *lump)
   if (! img)
   {
     printf("FAILURE: failed to load POP image!\n");
-    return false;
+    return ARCSP_Failed;
   }
 
   const char *new_lump = ReplaceExtension(lump, "lmp");
@@ -71,10 +71,10 @@ bool ARC_StorePOP(FILE *fp, const char *lump)
 
   delete img;
 
-  return true; // OK
+  return ARCSP_Success;
 }
 
-static bool ExtractPOP(int entry, const char *path)
+static int ExtractPOP(int entry, const char *path)
 {
   printf("  Converting POP to PNG...\n");
 
@@ -83,17 +83,15 @@ static bool ExtractPOP(int entry, const char *path)
   if (FileExists(png_name) && ! opt_force)
   {
     printf("FAILURE: will not overwrite file: %s\n\n", png_name);
-    return false;
+    return ARCSP_Failed;
   }
 
-  int total = PAK_EntryLen(entry);
-
-  if (total < 16*16)
+  int length = PAK_EntryLen(entry);
+  if (length < 16*16)
   {
-    printf("FAILURE: invalid length for pop.lmp (%d < 16*16)\n", total);
-    return false;
+    printf("FAILURE: invalid length for pop.lmp (%d < 16*16)\n", length);
+    return ARCSP_Failed;
   }
-
 
   byte pop[16*16];
 
@@ -112,24 +110,23 @@ static bool ExtractPOP(int entry, const char *path)
 
 
   FILE *fp = fopen(png_name, "wb");
-
   if (! fp)
   {
     printf("FAILURE: cannot create output file: %s\n\n", png_name);
     delete img;
-    return false;
+    return ARCSP_Failed;
   }
 
   bool result = PNG_Save(fp, img);
 
-  fclose(fp);
-
-  delete img;
-
   if (! result)
     printf("FAILURE: error while writing PNG file\n\n");
 
-  return result;
+  fclose(fp);
+  delete img;
+
+  // POP image is merely additional to the POP lmp
+  return ARCSP_Normal;
 }
 
 
@@ -152,10 +149,11 @@ static bool StorePalette(FILE *fp, const char *lump)
     int R, G, B;
 
     if (3 != fscanf(fp, " %i %i %i ", &R, &G, &B))
-      FatalError("Not enough colors in palette.txt (failed at #%d)\n", pix);
-
-    if (R < 0 || R > 255 || G < 0 || G > 255 || B < 0 || B > 255)
-      FatalError("Bad color in palette.txt at #%d : (%d %d %d)\n", pix, R, G, B);
+    {
+      printf("FAILURE: Not enough colors in palette.txt (failed at #%d)\n", pix);
+      PAK_FinishLump();
+      return ARCSP_Failed;
+    }
 
     palette[pix*3+0] = R;
     palette[pix*3+1] = G;
@@ -165,10 +163,10 @@ static bool StorePalette(FILE *fp, const char *lump)
   PAK_AppendData(palette, 768);
   PAK_FinishLump();
 
-  return true; // OK
+  return ARCSP_Success;
 }
 
-static bool ExtractPalette(int entry, const char *path)
+static int ExtractPalette(int entry, const char *path)
 {
   printf("  Converting palette to TXT...\n");
 
@@ -177,28 +175,26 @@ static bool ExtractPalette(int entry, const char *path)
   if (FileExists(filename) && ! opt_force)
   {
     printf("FAILURE: will not overwrite file: %s\n\n", filename);
-    return false;
+    return ARCSP_Failed;
   }
 
-  int total = PAK_EntryLen(entry);
-
-  if (total < 768)
+  int length = PAK_EntryLen(entry);
+  if (length < 256*3)
   {
-    printf("FAILURE: invalid length for palette.lmp (%d < 768)\n", total);
-    return false;
+    printf("FAILURE: invalid length for palette.lmp (%d < 256*3)\n", length);
+    return ARCSP_Failed;
   }
 
   FILE *fp = fopen(filename, "wb");
-
   if (! fp)
   {
     printf("FAILURE: cannot create output file: %s\n\n", filename);
-    return false;
+    return ARCSP_Failed;
   }
 
-  byte palette[768];
+  byte palette[256*3];
 
-  PAK_ReadData(entry, 0, 768, palette);
+  PAK_ReadData(entry, 0, 256*3, palette);
 
   for (int pix = 0; pix < 256; pix++)
   {
@@ -208,7 +204,7 @@ static bool ExtractPalette(int entry, const char *path)
 
   fclose(fp);
 
-  return true; // OK
+  return ARCSP_Success;
 }
 
 
@@ -228,18 +224,22 @@ static bool StoreFontsize(FILE *fp, const char *lump)
 
   for (int i = 0; i < 729; i++)
   {
-    int value = 0;
+    int size = 0;
 
-    if (1 != fscanf(fp, " %i ", &value))
-      FatalError("Not enough values in fontsize.txt (failed at #%d)\n", i);
+    if (1 != fscanf(fp, " %i ", &size))
+    {
+      printf("FAILURE: Not enough sizes in fontsize.txt (failed at #%d)\n", i);
+      PAK_FinishLump();
+      return ARCSP_Failed;
+    }
 
-    fontsize[i] = value;
+    fontsize[i] = size;
   }
 
   PAK_AppendData(fontsize, 729);
   PAK_FinishLump();
 
-  return true; // OK
+  return ARCSP_Success;
 }
 
 static bool ExtractFontsize(int entry, const char *path)
@@ -251,23 +251,21 @@ static bool ExtractFontsize(int entry, const char *path)
   if (FileExists(filename) && ! opt_force)
   {
     printf("FAILURE: will not overwrite file: %s\n\n", filename);
-    return false;
+    return ARCSP_Failed;
   }
 
-  int total = PAK_EntryLen(entry);
-
-  if (total < 729)
+  int length = PAK_EntryLen(entry);
+  if (length < 729)
   {
-    printf("FAILURE: invalid length for fontsize.lmp (%d < 729)\n", total);
-    return false;
+    printf("FAILURE: invalid length for fontsize.lmp (%d < 729)\n", length);
+    return ARCSP_Failed;
   }
 
   FILE *fp = fopen(filename, "wb");
-
   if (! fp)
   {
     printf("FAILURE: cannot create output file: %s\n\n", filename);
-    return false;
+    return ARCSP_Failed;
   }
 
   byte fontsize[729];
@@ -284,7 +282,7 @@ static bool ExtractFontsize(int entry, const char *path)
 
   fclose(fp);
 
-  return true; // OK
+  return ARCSP_Success;
 }
 
 
@@ -299,32 +297,18 @@ static bool ExtractWAL(int entry, const char *path)
   if (FileExists(png_name) && ! opt_force)
   {
     printf("FAILURE: will not overwrite file: %s\n\n", png_name);
-    return false;
+    return ARCSP_Failed;
   }
 
-  return MIP_DecodeWAL(entry, png_name);
-}
+  bool result = MIP_DecodeWAL(entry, png_name);
 
+  return result ? ARCSP_Success : ARCSP_Failed;
+}
 
 
 //------------------------------------------------------------------------
 
-bool ARC_IsSpecialInput (const char *lump)
-{
-  if (StringCaseCmp(lump, "gfx/palette.txt") == 0)
-    return true;
-
-  if (StringCaseCmp(lump, "gfx/menu/fontsize.txt") == 0)
-    return true;
-
-  if (StringCaseCmp(FindBaseName(lump), "pop.png") == 0)
-    return true;
-
-
-  return false;
-}
-
-bool ARC_StoreSpecial(FILE *fp, const char *lump, const char *path)
+int ARC_TryStoreSpecial(FILE *fp, const char *lump, const char *path)
 {
   if (StringCaseCmp(lump, "gfx/palette.txt") == 0)
     return StorePalette(fp, lump);
@@ -333,29 +317,14 @@ bool ARC_StoreSpecial(FILE *fp, const char *lump, const char *path)
     return StoreFontsize(fp, lump);
 
   if (StringCaseCmp(FindBaseName(lump), "pop.png") == 0)
-    return true;  // simply ignore it
+    return ARCSP_Ignored;
 
-
-  return false;
+  // just a normal file
+  return ARCSP_Normal;
 }
 
 
-bool ARC_IsSpecialOutput(const char *lump)
-{
-  if (StringCaseCmp(lump, "gfx/palette.lmp") == 0)
-    return true;
-
-  if (StringCaseCmp(lump, "gfx/menu/fontsize.lmp") == 0)
-    return true;
-
-  if (game_type == GAME_Quake2 && CheckExtension(lump, "WAL"))
-    return true;
-
-
-  return false;
-}
-
-bool ARC_ExtractSpecial(int entry, const char *lump, const char *path)
+int ARC_TryExtractSpecial(int entry, const char *lump, const char *path)
 {
   if (StringCaseCmp(lump, "gfx/palette.lmp") == 0)
     return ExtractPalette(entry, path);
@@ -363,25 +332,14 @@ bool ARC_ExtractSpecial(int entry, const char *lump, const char *path)
   if (StringCaseCmp(lump, "gfx/menu/fontsize.lmp") == 0)
     return ExtractFontsize(entry, path);
 
+  if (StringCaseCmp(FindBaseName(lump), "pop.lmp") == 0)
+    return ExtractPOP(entry, path);
+
   if (game_type == GAME_Quake2 && CheckExtension(lump, "WAL"))
     return ExtractWAL(entry, path);
 
-
-  return false;
-}
-
-
-//------------------------------------------------------------------------
-
-bool ARC_TryAnalyseSpecial(int entry, const char *lump, const char *path)
-{
-  if (StringCaseCmp(FindBaseName(lump), "pop.lmp") == 0)
-  {
-    ExtractPOP(entry, path);
-    return true;
-  }
-
-  return false;
+  // just a normal lump
+  return ARCSP_Normal;
 }
 
 
