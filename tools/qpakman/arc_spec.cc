@@ -318,8 +318,53 @@ static int ExtractWAL(int entry, const char *path)
 
 static int StoreLMP(FILE *fp, const char *lump)
 {
-  // TODO
-  return ARCSP_Failed;
+  printf("  Converting PNG graphic to LMP...\n");
+
+  rgb_image_c *img = PNG_Load(fp);
+
+  if (! img)
+  {
+    printf("FAILURE: failed to load PNG image!\n");
+    return ARCSP_Failed;
+  }
+
+  const char *new_lump = ReplaceExtension(lump, "lmp");
+
+  PAK_NewLump(new_lump);
+
+  all_pak_lumps[new_lump] = 1;
+
+  // create simple header
+  pic_header_t pic;
+
+  pic.width  = LE_U32(img->width);
+  pic.height = LE_U32(img->height);
+
+  PAK_AppendData(&pic, sizeof(pic));
+
+
+  // write all the pixels
+  COL_SetFullBright(true);
+  COL_SetTransparent(255);
+
+  byte *pixels = new byte[img->width];
+
+  for (int y = 0; y < img->height; y++)
+  {
+    for (int x = 0; x < img->width; x++)
+    {
+      pixels[x] = COL_MapColor(img->PixelAt(x, y));
+    }
+
+    PAK_AppendData(pixels, img->width);
+  }
+
+  delete[] pixels;
+
+
+  PAK_FinishLump();
+
+  return ARCSP_Success;
 }
 
 static int ExtractLMP(int entry, const char *path)
