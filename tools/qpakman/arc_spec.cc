@@ -317,6 +317,10 @@ bool ARC_IsSpecialInput (const char *lump)
   if (StringCaseCmp(lump, "gfx/menu/fontsize.txt") == 0)
     return true;
 
+  if (StringCaseCmp(FindBaseName(lump), "pop.png") == 0)
+    return true;
+
+
   return false;
 }
 
@@ -328,8 +332,9 @@ bool ARC_StoreSpecial(FILE *fp, const char *lump, const char *path)
   if (StringCaseCmp(lump, "gfx/menu/fontsize.txt") == 0)
     return StoreFontsize(fp, lump);
 
-///  if (StringCaseCmp(FindBaseName(lump), "pop.png") == 0)
-///    return StorePOP(fp, lump);
+  if (StringCaseCmp(FindBaseName(lump), "pop.png") == 0)
+    return true;  // simply ignore it
+
 
   return false;
 }
