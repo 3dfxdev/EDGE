@@ -186,6 +186,10 @@ static void GiveAmmoLimit(pickup_info_t *pu, benefit_t *be)
 
 	pu->player->ammo[ammo].max = limit;
 
+	// new limit could be lower...
+	if (pu->player->ammo[ammo].num > pu->player->ammo[ammo].max)
+		pu->player->ammo[ammo].num = pu->player->ammo[ammo].max;
+
 	pu->got_it = true;
 }
 

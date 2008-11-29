@@ -1,5 +1,11 @@
 Andrew Apted's Log
 
+2008/11/29:
+
+Fixed bug with LOSE_BENEFIT on ammo limits, it did not
+ensure that tne current ammount of ammo was <= the new
+limit.
+
 2008/10/05:
 
 Implemented new Lua function: hud.set_render_who(index)
