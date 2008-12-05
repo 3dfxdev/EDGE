@@ -1,5 +1,11 @@
 Andrew Apted's Log
 
+2008/12/05:
+
+Save the player 'refire' field into savegames, to fix
+the "first attack is always accurate" bug reported by
+doomer1.
+
 2008/11/29:
 
 Fixed bug with LOSE_BENEFIT on ammo limits, it did not
