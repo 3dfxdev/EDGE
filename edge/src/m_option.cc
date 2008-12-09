@@ -382,7 +382,7 @@ static optmenuitem_t mainoptions[] =
 	{OPT_Switch,   "Messages",          YesNo, 2, CFGDEF_SHOWMESSAGES, &showMessages, NULL, "Messages"},
 	{OPT_Plain,    "",                  NULL,  0, 0, NULL, NULL, NULL},
 	{OPT_Function, "Host NetGame",      NULL,  0, 0, NULL, M_HostNetGame, NULL},
-	{OPT_Function, "Join NetGame",      NULL,  0, 0, NULL, M_JoinNetGame, NULL},
+//	{OPT_Function, "Join NetGame",      NULL,  0, 0, NULL, M_JoinNetGame, NULL},
 	{OPT_Plain,    "",                  NULL,  0,              0, NULL, NULL, NULL},
 	{OPT_Function, "Reset to Defaults", NULL,  0, 0, NULL, M_ResetToDefaults, "ResetToDefaults"}
 };
@@ -768,10 +768,12 @@ void M_OptCheckNetgame(void)
 		mainoptions[HOSTNET_POS+0].routine = &M_HostNetGame;
 		mainoptions[HOSTNET_POS+0].help = NULL;
 
+#if 0
 		strcpy(mainoptions[HOSTNET_POS+1].name, "Join Net Game");
 		mainoptions[HOSTNET_POS+1].type = OPT_Function;
 		mainoptions[HOSTNET_POS+1].routine = &M_JoinNetGame;
 		mainoptions[HOSTNET_POS+1].help = NULL;
+#endif
 	}
 }
 

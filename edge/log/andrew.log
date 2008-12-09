@@ -1,5 +1,10 @@
 Andrew Apted's Log
 
+2008/12/09:
+
+Disabled the "Join Net Game" button in the options menu,
+which never did anything.
+
 2008/12/05:
 
 Save the player 'refire' field into savegames, to fix
