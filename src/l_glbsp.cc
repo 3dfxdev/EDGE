@@ -84,7 +84,7 @@ static void GCCATTR((format (printf,1,2)))
 	vsprintf(message_buf, str, args);
 	va_end(args);
 
-	I_Error("Builing nodes failed: %s\n", message_buf);
+	I_Error("Building nodes failed: %s\n", message_buf);
 }
 
 //
