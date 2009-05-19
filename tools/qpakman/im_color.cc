@@ -344,10 +344,13 @@ byte COL_FindColor(const byte *palette, u32_t rgb_col)
   int best_idx  = -1;
   int best_dist = (1<<30);
 
+
   // Note: we skip index #0 (black), which is used for transparency
   //       in skies.  Black is duplicated at index #48 though.
+  int min_col = (game_type == GAME_Quake1) ? 1 : 0;
+  int max_col = allow_fullbright ? 255 : 255-32;
 
-  for (int i = (allow_fullbright ? 255 : 255-32); i > 0; i--)
+  for (int i = min_col; i <= max_col; i++)
   {
     int dr = RGB_R(rgb_col) - palette[i*3+0];
     int dg = RGB_G(rgb_col) - palette[i*3+1];
