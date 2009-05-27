@@ -955,101 +955,18 @@ void P_RecomputeGapsAroundSector(sector_t *sec)
 }
 
 
-static inline bool PST_CheckBBox(float *bspcoord, float *test)
+static bool PIT_CheckThingLine(mobj_t *mo, void *data)
 {
-	return (test[BOXRIGHT]  < bspcoord[BOXLEFT] ||
-			test[BOXLEFT]   > bspcoord[BOXRIGHT] ||
-			test[BOXTOP]    < bspcoord[BOXBOTTOM] ||
-			test[BOXBOTTOM] > bspcoord[BOXTOP]) ? false : true;
-}
-
-static bool TraverseSubsec(unsigned int bspnum, float *bbox,
-								bool (*func)(mobj_t *mo))
-{
-	subsector_t *sub;
-	node_t *node;
-	mobj_t *obj;
-
-	// just a normal node ?
-	if (! (bspnum & NF_V5_SUBSECTOR))
-	{
-		node = nodes + bspnum;
-
-		// recursively check the children nodes
-		// OPTIMISE: check against partition lines instead of bboxes.
-
-		if (PST_CheckBBox(node->bbox[0], bbox))
-		{
-			if (! TraverseSubsec(node->children[0], bbox, func))
-				return false;
-		}
-
-		if (PST_CheckBBox(node->bbox[1], bbox))
-		{
-			if (! TraverseSubsec(node->children[1], bbox, func))
-				return false;
-		}
-
-		return true;
-	}
-
-	// the sharp end: check all things in the subsector
-
-	sub = subsectors + (bspnum & ~NF_V5_SUBSECTOR);
-
-	for (obj=sub->thinglist; obj; obj=obj->snext)
-	{
-		if (! (* func)(obj))
-			return false;
-	}
-
-	return true;
-}
-
-//
-// P_SubsecThingIterator
-//
-// Iterate over all things that touch a certain rectangle on the map,
-// using the BSP tree.
-//
-// If any function returns false, then this routine returns false and
-// nothing else is checked.  Otherwise true is returned.
-//
-bool P_SubsecThingIterator(float *bbox,
-								bool (*func)(mobj_t *mo))
-{
-	return TraverseSubsec(root_node, bbox, func);
-}
-
-static float checkempty_bbox[4];
-static line_t *checkempty_line;
-
-static bool PST_CheckThingArea(mobj_t *mo)
-{
-	if (mo->x + mo->radius < checkempty_bbox[BOXLEFT] ||
-		mo->x - mo->radius > checkempty_bbox[BOXRIGHT] ||
-		mo->y + mo->radius < checkempty_bbox[BOXBOTTOM] ||
-		mo->y - mo->radius > checkempty_bbox[BOXTOP])
-	{
-		// keep looking
-		return true;
-	}
+	line_t *checkempty_line = (line_t *)data;
 
 	// ignore corpses and pickup items
-	if (! (mo->flags & MF_SOLID) && (mo->flags & MF_CORPSE))
+	if (! (mo->flags & MF_SOLID))
 		return true;
 
 	if (mo->flags & MF_SPECIAL)
 		return true;
 
-	// we've found a thing in that area: we can stop now
-	return false;
-}
-
-static bool PST_CheckThingLine(mobj_t *mo)
-{
 	float bbox[4];
-	int side;
 
 	bbox[BOXLEFT]   = mo->x - mo->radius;
 	bbox[BOXRIGHT]  = mo->x + mo->radius;
@@ -1057,47 +974,26 @@ static bool PST_CheckThingLine(mobj_t *mo)
 	bbox[BOXTOP]    = mo->y + mo->radius;
 
 	// found a thing on the line ?
-	side = P_BoxOnLineSide(bbox, checkempty_line);
+	int side = P_BoxOnLineSide(bbox, checkempty_line);
 
-	if (side != -1)
-		return true;
+	if (side == -1)
+		return false;
 
-	// ignore corpses and pickup items
-	if (! (mo->flags & MF_SOLID) && (mo->flags & MF_CORPSE))
-		return true;
-
-	if (mo->flags & MF_SPECIAL)
-		return true;
-
-	return false;
-}
-
-//
-// P_ThingsInArea
-//
-// Checks if there are any things contained within the given rectangle
-// on the 2D map.
-//
-bool P_ThingsInArea(float *bbox)
-{
-	checkempty_bbox[BOXLEFT]   = bbox[BOXLEFT];
-	checkempty_bbox[BOXRIGHT]  = bbox[BOXRIGHT];
-	checkempty_bbox[BOXBOTTOM] = bbox[BOXBOTTOM];
-	checkempty_bbox[BOXTOP]    = bbox[BOXTOP];
-
-	return ! P_SubsecThingIterator(bbox, PST_CheckThingArea);
+	// keep on looking
+	return true;
 }
 
 //
 // P_ThingsOnLine
 //
-// Checks if there are any things touching the given line.
+// Checks if there are any solid things touching the given line.
 //
 bool P_ThingsOnLine(line_t *ld)
 {
-	checkempty_line = ld;
-
-	return ! P_SubsecThingIterator(ld->bbox, PST_CheckThingLine);
+	return ! P_BlockThingsIterator(
+	               ld->bbox[BOXLEFT],  ld->bbox[BOXBOTTOM],
+	               ld->bbox[BOXRIGHT], ld->bbox[BOXTOP],
+				   PIT_CheckThingLine, ld);
 }
 
 
