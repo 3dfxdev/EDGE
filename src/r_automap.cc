@@ -652,43 +652,21 @@ static bool CheckSimiliarRegions(sector_t *front, sector_t *back)
 //
 // Determines visible lines, draws them.
 //
-// -AJA- This is now *lineseg* based, not linedef.
-//
-static void AM_WalkSeg(seg_t *seg)
+static void AM_WalkLine(line_t *ld)
 {
 	mline_t l;
-	line_t *line;
 
-	sector_t *front = seg->frontsector;
-	sector_t *back  = seg->backsector;
+	sector_t *front = ld->frontsector;
+	sector_t *back  = ld->backsector;
 
-	if (seg->miniseg)
+	SYS_ASSERT(ld);
+
+	GetRotatedCoords(ld->v1->x, ld->v1->y, &l.a.x, &l.a.y);
+	GetRotatedCoords(ld->v2->x, ld->v2->y, &l.b.x, &l.b.y);
+
+	if ((ld->flags & MLF_Mapped) || show_walls)
 	{
-#if (DEBUG_TRUEBSP == 1)
-		if (seg->partner && seg > seg->partner)
-			return;
-
-		GetRotatedCoords(seg->v1->x, seg->v1->y, &l.a.x, &l.a.y);
-		GetRotatedCoords(seg->v2->x, seg->v2->y, &l.b.x, &l.b.y);
-
-		DrawMline(&l, RGB_MAKE(0,0,128));
-#endif
-		return;
-	}
-
-	line = seg->linedef;
-	SYS_ASSERT(line);
-
-	// only draw segs on the _right_ side of linedefs
-	if (line->side[1] == seg->sidedef)
-		return;
-
-	GetRotatedCoords(seg->v1->x, seg->v1->y, &l.a.x, &l.a.y);
-	GetRotatedCoords(seg->v2->x, seg->v2->y, &l.b.x, &l.b.y);
-
-	if ((line->flags & MLF_Mapped) || show_walls)
-	{
-		if ((line->flags & MLF_DontDraw) && !show_walls)
+		if ((ld->flags & MLF_DontDraw) && !show_walls)
 			return;
 
 		if (!front || !back)
@@ -697,7 +675,7 @@ static void AM_WalkSeg(seg_t *seg)
 		}
 		else
 		{
-			if (line->flags & MLF_Secret)
+			if (ld->flags & MLF_Secret)
 			{  
 				// secret door
 				if (show_walls)
@@ -735,7 +713,7 @@ static void AM_WalkSeg(seg_t *seg)
 	}
 	else if (f_focus->player && (show_allmap || f_focus->player->powers[PW_AllMap] != 0))
 	{
-		if (! (line->flags & MLF_DontDraw))
+		if (! (ld->flags & MLF_DontDraw))
 			DrawMline(&l, am_colors[AMCOL_Allmap]);
 	}
 }
@@ -953,27 +931,6 @@ static void AM_WalkThing(mobj_t *mo)
 
 
 //
-// Visit a subsector and draw everything.
-//
-static void AM_WalkSubsector(unsigned int num)
-{
-	subsector_t *sub = &subsectors[num];
-
-	// handle each seg
-	for (seg_t *seg = sub->segs; seg; seg = seg->sub_next)
-	{
-		AM_WalkSeg(seg);
-	}
-
-	// handle each thing
-	for (mobj_t *mo = sub->thinglist; mo; mo = mo->snext)
-	{
-		AM_WalkThing(mo);
-	}
-}
-
-
-//
 // Checks BSP node/subtree bounding box.
 // Returns true if some part of the bbox might be visible.
 //
@@ -1011,35 +968,6 @@ static bool AM_CheckBBox(float *bspcoord)
 
 	// some part of bbox is visible
 	return true;
-}
-
-
-//
-// Walks all subsectors below a given node, traversing subtree
-// recursively.  Just call with BSP root.
-//
-static void AM_WalkBSPNode(unsigned int bspnum)
-{
-	node_t *node;
-	int side;
-
-	// Found a subsector?
-	if (bspnum & NF_V5_SUBSECTOR)
-	{
-		AM_WalkSubsector(bspnum & (~NF_V5_SUBSECTOR));
-		return;
-	}
-
-	node = &nodes[bspnum];
-	side = 0;
-
-	// Recursively divide right space
-	if (AM_CheckBBox(node->bbox[0]))
-		AM_WalkBSPNode(node->children[side]);
-
-	// Recursively divide back space
-	if (AM_CheckBBox(node->bbox[side ^ 1]))
-		AM_WalkBSPNode(node->children[side ^ 1]);
 }
 
 
@@ -1083,8 +1011,12 @@ static void AM_RenderScene(void)
 		glLineWidth(1.5f);
 	}
 
-	// walk the bsp tree
-	AM_WalkBSPNode(root_node);
+	// FIXME optimise this!
+	for (int i = 0; i < numlines; i++)
+		AM_WalkLine(lines + i);
+
+	for (mobj_t *mo = mobjlisthead; mo; mo=mo->next)
+		AM_WalkThing(mo);
 
 	glDisable(GL_LINE_SMOOTH);
 	glDisable(GL_BLEND);
