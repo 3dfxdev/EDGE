@@ -581,13 +581,18 @@ static void DrawMline(mline_t * ml, rgbcol_t rgb)
 //
 static void DrawGrid()
 {
-	int mx0 = (int)m_cx & ~127;
-	int my0 = (int)m_cy & ~127;
+	int grid_size = 256;
+
+	int mx0 = (int)m_cx & ~(grid_size-1);
+	int my0 = (int)m_cy & ~(grid_size-1);
+
+mx0 += 32;
+my0 += 32;
 
 	for (int j = 0; ; j++)
 	{
-		int x1 = CXMTOF(mx0 - j * 128);
-		int x2 = CXMTOF(mx0 + j * 128 + 128);
+		int x1 = CXMTOF(mx0 - j * grid_size);
+		int x2 = CXMTOF(mx0 + j * grid_size + grid_size);
 
 		if (x1 < f_x && x2 >= f_x + f_w)
 			break;
@@ -598,8 +603,8 @@ static void DrawGrid()
 
 	for (int k = 0; ; k++)
 	{
-		int y1 = CYMTOF(my0 - k * 128);
-		int y2 = CYMTOF(my0 + k * 128 + 128);
+		int y1 = CYMTOF(my0 - k * grid_size);
+		int y2 = CYMTOF(my0 + k * grid_size + grid_size);
 
 		if (y1 < f_y && y2 >= f_y + f_h)
 			break;
