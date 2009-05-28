@@ -2250,8 +2250,6 @@ void P_SetupLevel(void)
 
 	delete[] temp_line_sides;
 
-	DoBlockMap(lumpnum + ML_BLOCKMAP);
-
 	SYS_ASSERT(gl_lumpnum >= 0);
 
 	LoadGLVertexes(gl_lumpnum + ML_GL_VERT);
@@ -2259,6 +2257,8 @@ void P_SetupLevel(void)
 	LoadSubsectors(gl_lumpnum + ML_GL_SSECT, "GL_SSECT");
 	LoadNodes(gl_lumpnum + ML_GL_NODES, "GL_NODES");
 	LoadReject(lumpnum + ML_REJECT);
+
+	DoBlockMap(lumpnum + ML_BLOCKMAP);
 
 	GroupLines();
 
