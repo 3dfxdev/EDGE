@@ -296,25 +296,6 @@ void R_Init(void)
 }
 
 
-subsector_t *R_PointInSubsector(float x, float y)
-{
-	node_t *node;
-	int side;
-	unsigned int nodenum;
-
-	nodenum = root_node;
-
-	while (!(nodenum & NF_V5_SUBSECTOR))
-	{
-		node = &nodes[nodenum];
-		side = P_PointOnDivlineSide(x, y, &node->div);
-		nodenum = node->children[side];
-	}
-
-	return &subsectors[nodenum & ~NF_V5_SUBSECTOR];
-}
-
-
 region_properties_t *R_PointGetProps(subsector_t *sub, float z)
 {
 	extrafloor_t *S, *L, *C;
