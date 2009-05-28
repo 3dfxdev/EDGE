@@ -1383,7 +1383,9 @@ static int SubsecFillHoles(void)
 	for (int y = 0; y < bmap_height; y++)
 	for (int x = 0; x < bmap_width;  x++)
 	{
-		if (subsec_map[y * bmap_width + x])
+		int bnum = y * bmap_width + x;
+
+		if (subsec_map[bnum])
 			continue;
 
 		holes++;
@@ -1397,7 +1399,18 @@ static int SubsecFillHoles(void)
 			    0 <= ny && ny < bmap_height &&
 				subsec_map[ny * bmap_width + nx])
 			{
-				subsec_map[y * bmap_width + x] = subsec_map[ny * bmap_width + nx];
+				subsec_set_t *other = subsec_map[ny * bmap_width + nx];
+				SYS_ASSERT(other->size() > 0);
+				
+				// we only need a single subsector for our hole
+				if (other->size() == 1)
+					subsec_map[bnum] = other;
+				else
+				{
+					subsec_map[bnum] = new subsec_set_t;
+					subsec_map[bnum]->push_back(other->front());
+				}
+				
 				filled++;
 				break;
 			}
