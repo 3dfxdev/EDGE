@@ -120,210 +120,78 @@ static inline void AddSightIntercept(float frac, sector_t *sec)
 	wall_icpts.push_back(WI);
 }
 
-//
-// CrossSubsector
-//
-// Returns false if LOS is blocked by the given subsector, otherwise
-// true.  Note: extrafloors are not checked here.
-//
-static bool CrossSubsector(subsector_t *sub)
+
+static bool PTR_SightTraverse(intercept_t * in, void *data)
 {
-	seg_t *seg;
-	line_t *ld;
-
-	int s1, s2;
-
-	sector_t *front;
-	sector_t *back;
-	divline_t divl;
-
-	float frac;
-	float slope;
-
-	// check lines
-	for (seg = sub->segs; seg != NULL; seg = seg->sub_next)
-	{
-		if (seg->miniseg)
-			continue;
-
-		// ignore segs that face away from the source.  We only want to
-		// process linedefs on the _far_ side of each subsector.
-		//
-		if ((angle_t)(seg->angle - sight_I.angle) < ANG180)
-			continue;
-
-		ld = seg->linedef;
-
-		// line already checked ? (e.g. multiple segs on it)
-		if (ld->validcount == validcount)
-			continue;
-
-		ld->validcount = validcount;
-
-		// line outside of bbox ?
-		if (ld->bbox[BOXLEFT] > sight_I.bbox[BOXRIGHT] ||
-			ld->bbox[BOXRIGHT] < sight_I.bbox[BOXLEFT] ||
-			ld->bbox[BOXBOTTOM] > sight_I.bbox[BOXTOP] ||
-			ld->bbox[BOXTOP] < sight_I.bbox[BOXBOTTOM])
-			continue;
-
-		// does linedef cross LOS ?
-		s1 = P_PointOnDivlineSide(ld->v1->x, ld->v1->y, &sight_I.src);
-		s2 = P_PointOnDivlineSide(ld->v2->x, ld->v2->y, &sight_I.src);
-
-		if (s1 == s2)
-			continue;
-
-		// linedef crosses LOS (extended to infinity), now check if the
-		// cross point lies within the finite LOS range.
-		// 
-		divl.x  = ld->v1->x;
-		divl.y  = ld->v1->y;
-		divl.dx = ld->dx;
-		divl.dy = ld->dy;
-
-		s1 = P_PointOnDivlineSide(sight_I.src.x, sight_I.src.y, &divl);
-		s2 = P_PointOnDivlineSide(sight_I.dest.x, sight_I.dest.y, &divl);
-
-		if (s1 == s2)
-			continue;
-
-		// stop because it is not two sided anyway
-		if (!(ld->flags & MLF_TwoSided) || ld->blocked)
-		{
-			return false;
-		}
-
-		// line explicitly blocks sight ?  (XDoom compatibility)
-		if (ld->flags & MLF_SightBlock)
-			return false;
-
-		// -AJA- 2001/11/11: closed Sliding door ?
-		if (ld->slide_door && ! ld->slide_door->s.see_through &&
-			! ld->slider_move)
-		{
-			return false;
-		}
-
-		front = seg->frontsector;
-		back = seg->backsector;
-
-		SYS_ASSERT(back);
-
-		// compute intercept vector (fraction from 0 to 1)
-		{
-			float num, den;
-
-			den = divl.dy * sight_I.src.dx - divl.dx * sight_I.src.dy;
-
-			// parallel ?  
-			// -AJA- probably can't happen due to the above Divline checks
-			if (fabs(den) < 0.0001)
-				continue;
-
-			num = (divl.x - sight_I.src.x) * divl.dy + 
-				(sight_I.src.y - divl.y) * divl.dx;
-
-			frac = num / den;
-
-			// too close to source ?
-			if (frac < 0.0001f)
-				continue;
-		}
-
-		if (front->f_h != back->f_h)
-		{
-			float openbottom = MAX(ld->frontsector->f_h, ld->backsector->f_h);
-			slope = (openbottom - sight_I.src_z) / frac;
-			if (slope > sight_I.bottom_slope)
-				sight_I.bottom_slope = slope;
-		}
-
-		if (front->c_h != back->c_h)
-		{
-			float opentop = MIN(ld->frontsector->c_h, ld->backsector->c_h);
-			slope = (opentop - sight_I.src_z) / frac;
-			if (slope < sight_I.top_slope)
-				sight_I.top_slope = slope;
-		}
-
-		// did our slope range close up ?
-		if (sight_I.top_slope <= sight_I.bottom_slope)
-			return false;
-
-		// shouldn't be any more matching linedefs
-		AddSightIntercept(frac, front);
+	if (in->thing)
 		return true;
+	
+	line_t *ld = in->line;
+	SYS_ASSERT(ld);
+
+	// stop because it is not two sided anyway
+	if (!ld->backsector || !(ld->flags & MLF_TwoSided) || ld->blocked)
+		return false;
+
+	// line explicitly blocks sight ?  (XDoom compatibility)
+	if (ld->flags & MLF_SightBlock)
+		return false;
+
+	// -AJA- 2001/11/11: closed Sliding door ?
+	if (ld->slide_door && ! ld->slide_door->s.see_through &&
+		! ld->slider_move)
+	{
+		return false;
 	}
 
-	// LOS ray went completely passed the subsector
+	sector_t *front = ld->frontsector;
+	sector_t *back  = ld->backsector;
+
+	SYS_ASSERT(back);
+
+	// too close to source?
+	if (in->frac < 0.001)
+		return true;
+
+	if (front->f_h != back->f_h)
+	{
+		float openbottom = MAX(ld->frontsector->f_h, ld->backsector->f_h);
+		float slope = (openbottom - sight_I.src_z) / in->frac;
+		if (slope > sight_I.bottom_slope)
+			sight_I.bottom_slope = slope;
+	}
+
+	if (front->c_h != back->c_h)
+	{
+		float opentop = MIN(ld->frontsector->c_h, ld->backsector->c_h);
+		float slope = (opentop - sight_I.src_z) / in->frac;
+		if (slope < sight_I.top_slope)
+			sight_I.top_slope = slope;
+	}
+
+	// did our slope range close up ?
+	if (sight_I.top_slope <= sight_I.bottom_slope)
+		return false;
+
+	AddSightIntercept(in->frac, front);
+
+	if (front->exfloor_used > 0)
+		sight_I.exfloors = true;
+
 	return true;
 }
 
-//
-// CheckSightBSP
-//
-// Returns false if LOS is blocked by the given node, otherwise true.
-// Note: extrafloors are not checked here.
-//
-static bool CheckSightBSP(unsigned int bspnum)
+static bool CheckSightBlockmap(void)
 {
-	SYS_ASSERT(bspnum >= 0);
-
-	while (! (bspnum & NF_V5_SUBSECTOR))
+	if (! P_PathTraverse(sight_I.src.x, sight_I.src.y,
+	                     sight_I.src.x + sight_I.src.dx,
+	                     sight_I.src.y + sight_I.src.dy,
+				         PT_ADDLINES, PTR_SightTraverse))
 	{
-		node_t *node = nodes + bspnum;
-		int s1, s2;
-
-#if (DEBUG_SIGHT >= 2)
-		L_WriteDebug("CheckSightBSP: node %d (%1.1f,%1.1f) + (%1.1f,%1.1f)\n",
-			bspnum, node->div.x, node->div.y, node->div.dx, node->div.dy);
-#endif
-
-		// decide which side the src and dest points are on
-		s1 = P_PointOnDivlineSide(sight_I.src.x, sight_I.src.y, &node->div);
-		s2 = P_PointOnDivlineSide(sight_I.dest.x, sight_I.dest.y, &node->div);
-
-#if (DEBUG_SIGHT >= 2)
-		L_WriteDebug("  Sides: %d %d\n", s1, s2);
-#endif
-
-		// If sides are different, we must recursively check both.
-		// NOTE WELL: we do the source side first, so that subsectors are
-		// visited in the correct order (closest -> furthest away).
-
-		if (s1 != s2)
-		{
-			if (! CheckSightBSP(node->children[s1]))
-				return false;
-		}
-
-		bspnum = node->children[s2];
+		return false;  // hit one-sided line (etc)
 	}
 
-	bspnum &= ~NF_V5_SUBSECTOR;
-
-	SYS_ASSERT(0 <= bspnum && int(bspnum) < numsubsectors);
-
-	{
-		subsector_t *sub = subsectors + bspnum;
-
-#if (DEBUG_SIGHT >= 2)
-		L_WriteDebug("  Subsec %d  SEC %d\n", bspnum, sub->sector - sectors);
-#endif
-
-		if (sub->sector->exfloor_used > 0)
-			sight_I.exfloors = true;
-
-		// when target subsector is reached, there are no more lines to
-		// check, since we only check lines on the _far_ side of the
-		// subsector and the target object is inside its subsector.
-
-		if (sub != sight_I.dest_sub)
-			return CrossSubsector(sub);
-
-		AddSightIntercept(1.0f, sub->sector);
-	}
+	AddSightIntercept(1.0, sight_I.dest_sub->sector);
 
 	return true;
 }
@@ -495,7 +363,7 @@ bool P_CheckSight(mobj_t * src, mobj_t * dest)
 
 	if (! DoCheckReject(src->subsector->sector, dest->subsector->sector))
 		return false;
-	
+
 	// An unobstructed LOS is possible.
 	// Now look from eyes of t1 to any part of t2.
 
@@ -559,7 +427,7 @@ bool P_CheckSight(mobj_t * src, mobj_t * dest)
 	sight_I.exfloors = false;
 
 	// initial pass -- check for basic blockage & create intercepts
-	if (! CheckSightBSP(root_node))
+	if (! CheckSightBlockmap())
 		return false;
 
 	// no extrafloors encountered ?  Then the checks made by
@@ -654,7 +522,7 @@ bool P_CheckSightToPoint(mobj_t * src, float x, float y, float z)
 
 	sight_I.exfloors = false;
 
-	if (! CheckSightBSP(root_node))
+	if (! CheckSightBlockmap())
 		return false;
 
 #if 1
