@@ -181,10 +181,13 @@ static force_t *P_NewForce(void)
 void P_AddPointForce(sector_t *sec, float length)
 {
 	// search for the point objects
-	for (subsector_t *sub = sec->subsectors; sub; sub = sub->sec_next)
-		for (mobj_t *mo = sub->thinglist; mo; mo = mo->snext)
-			if (mo->hyperflags & HF_POINT_FORCE)
-			{
+	for (touch_node_t *tn = sec->touch_things; tn; tn = tn->sec_next)
+	{
+		mobj_t *mo = tn->mo;
+
+		if (mo && mo->subsector->sector == sec &&
+		    (mo->hyperflags & HF_POINT_FORCE))
+		{
 				force_t *f = P_NewForce();
 
 				f->is_point = true;
@@ -194,7 +197,8 @@ void P_AddPointForce(sector_t *sec, float length)
 				f->radius = length * 2.0f;
 				f->magnitude = length * mo->info->speed / PUSH_FACTOR / 24.0f;
 				f->sector = sec;
-			}
+		}
+	}
 }
 
 void P_AddSectorForce(sector_t *sec, bool is_wind, float x_mag, float y_mag)

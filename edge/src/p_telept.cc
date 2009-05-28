@@ -41,15 +41,19 @@ static mobj_t *FindTeleportMan(int tag, const mobjtype_c *info)
 {
     for (int i = 0; i < numsectors; i++)
     {
-        if (sectors[i].tag != tag)
+		sector_t *sec = &sectors[i];
+
+        if (sec->tag != tag)
             continue;
 
-        for (subsector_t *sub = sectors[i].subsectors; sub; sub = sub->sec_next)
-        {
-            for (mobj_t *mo = sub->thinglist; mo; mo = mo->snext)
-                if (mo->info == info)
-                    return mo;
-        }
+		for (touch_node_t *tn = sec->touch_things; tn; tn = tn->sec_next)
+		{
+			if (tn->mo && tn->mo->info == info &&
+				tn->mo->subsector->sector == sec)
+			{
+				return tn->mo;
+			}
+		}
     }
 
     return NULL;  // not found
