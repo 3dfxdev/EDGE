@@ -332,7 +332,6 @@ Command line options:
   -(no)hogcpu          Smoother gameplay vs less CPU utilisation.
 
   -trilinear           Trilinear mipmapping.
-  -blockmap            Force EDGE to generate its own blockmap.
   -fastsprites         Load sprite images at start of level.
   -warpmouse           Use special mouse handling code.
   -nograb              Don't grab the mouse cursor.
