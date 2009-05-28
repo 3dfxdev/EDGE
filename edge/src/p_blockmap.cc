@@ -331,28 +331,6 @@ void P_UnsetThingPosition(mobj_t * mo)
 	{
 		// (inert things don't need to be in subsector list)
 
-		if (mo->snext)
-		{
-			SYS_ASSERT(mo->snext->sprev == mo);
-
-			mo->snext->sprev = mo->sprev;
-		}
-
-		if (mo->sprev)
-		{
-			SYS_ASSERT(mo->sprev->snext == mo);
-
-			mo->sprev->snext = mo->snext;
-		}
-		else
-		{
-			SYS_ASSERT(mo->subsector->thinglist == mo);
-
-			mo->subsector->thinglist = mo->snext;
-		}
-
-		mo->snext = NULL;
-		mo->sprev = NULL;
 	}
 
 	// unlink from touching list.
@@ -505,7 +483,7 @@ void P_SetThingPosition(mobj_t * mo)
 	touch_node_t *tn;
 
 	// -ES- 1999/12/04 The position must be unset before it's set again.
-	if (mo->snext || mo->sprev || mo->bnext || mo->bprev)
+	if (mo->bnext || mo->bprev)
 		I_Error("INTERNAL ERROR: Double P_SetThingPosition call.");
 
 	SYS_ASSERT(! (mo->dlnext || mo->dlprev));
@@ -517,16 +495,7 @@ void P_SetThingPosition(mobj_t * mo)
 	// determine properties
 	mo->props = R_PointGetProps(ss, mo->z + mo->height/2);
 
-	if (! (mo->flags & MF_NOSECTOR))
-	{
-		mo->snext = ss->thinglist;
-		mo->sprev = NULL;
-
-		if (ss->thinglist)
-			ss->thinglist->sprev = mo;
-
-		ss->thinglist = mo;
-	}
+	///  if (! (mo->flags & MF_NOSECTOR)) add_to_subsector
 
 	// link into touching list
 

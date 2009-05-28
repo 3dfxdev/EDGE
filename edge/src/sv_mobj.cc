@@ -129,7 +129,7 @@ static savefield_t sv_fields_mobj[] =
 
 	// NOT HERE:
 	//   subsector & region: these are regenerated.
-	//   next,prev,snext,sprev,bnext,bprev: links are regenerated.
+	//   next,prev,bnext,bprev: links are regenerated.
 	//   tunnel_hash: would be meaningless, and not important.
 	//   lastlookup: being reset to zero won't hurt.
 	//   ...

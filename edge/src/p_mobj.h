@@ -350,9 +350,6 @@ struct mobj_s : public position_c
 	// Links in blocks (if needed).
 	mobj_t *bnext, *bprev;
 
-	// More list: links in subsector (if needed)
-	mobj_t *snext, *sprev;
-
 	// One more: link in dynamic light blockmap
 	mobj_t *dlnext, *dlprev;
 
