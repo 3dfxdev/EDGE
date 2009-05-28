@@ -262,49 +262,19 @@ static void PerformSectorLinkage(mobj_t *mo, sector_t *sec)
 	TN_LinkIntoSector(tn, sec);
 }
 
-static void SetPositionBSP(setposbsp_t *info, int nodenum)
+static bool PIT_GetSectors(line_t *ld, void *data)
 {
-	while (! (nodenum & NF_V5_SUBSECTOR))
+	setposbsp_t *pos = (setposbsp_t *) data;
+
+	if (P_BoxOnLineSide(pos->bbox, ld) == -1)
 	{
-		node_t *nd = nodes + nodenum;
+		PerformSectorLinkage(pos->mo, ld->frontsector);
 
-		int side = P_BoxOnDivLineSide(info->bbox, &nd->div);
-
-		// if box touches partition line, we must traverse both sides
-		if (side == -1)
-		{
-			SetPositionBSP(info, nd->children[0]);
-			side = 1;
-		}
-
-		SYS_ASSERT(side == 0 || side == 1);
-
-		nodenum = nd->children[side];
+		if (ld->backsector && ld->backsector != ld->frontsector)
+			PerformSectorLinkage(pos->mo, ld->backsector);
 	}
 
-	// reached a leaf of the BSP.  Need to check BBOX against all
-	// linedef segs.  This is because we can get false positives, since
-	// we don't actually split the thing's BBOX when it intersects with
-	// a partition line.
-	subsector_t *sub = subsectors + (nodenum & ~NF_V5_SUBSECTOR);
-
-	for (seg_t *seg=sub->segs; seg; seg=seg->sub_next)
-	{
-		divline_t div;
-
-		if (seg->miniseg)
-			continue;
-
-		div.x = seg->v1->x;
-		div.y = seg->v1->y;
-		div.dx = seg->v2->x - div.x;
-		div.dy = seg->v2->y - div.y;
-
-		if (P_BoxOnDivLineSide(info->bbox, &div) == 1)
-			return;
-	}
-
-	PerformSectorLinkage(info->mo, sub->sector);
+	return true;
 }
 
 //
@@ -474,7 +444,6 @@ void P_UnsetThingFinally(mobj_t * mo)
 //
 void P_SetThingPosition(mobj_t * mo)
 {
-	subsector_t *ss;
 	int blockx;
 	int blocky;
 	int bnum;
@@ -489,7 +458,7 @@ void P_SetThingPosition(mobj_t * mo)
 	SYS_ASSERT(! (mo->dlnext || mo->dlprev));
 
 	// link into subsector
-	ss = R_PointInSubsector(mo->x, mo->y);
+	subsector_t *ss = R_PointInSubsector(mo->x, mo->y);
 	mo->subsector = ss;
 
 	// determine properties
@@ -504,13 +473,16 @@ void P_SetThingPosition(mobj_t * mo)
 #endif
 
 	pos.mo = mo;
-
 	pos.bbox[BOXLEFT]   = mo->x - mo->radius;
 	pos.bbox[BOXRIGHT]  = mo->x + mo->radius;
 	pos.bbox[BOXBOTTOM] = mo->y - mo->radius;
 	pos.bbox[BOXTOP]    = mo->y + mo->radius;
 
-	SetPositionBSP(&pos, root_node);
+	P_BlockLinesIterator(mo->x - mo->radius, mo->y - mo->radius,
+	                     mo->x + mo->radius, mo->y + mo->radius,
+						 PIT_GetSectors, &pos),
+
+	PerformSectorLinkage(mo, mo->subsector->sector);
 
 	// handle any left-over unused touch nodes
 
