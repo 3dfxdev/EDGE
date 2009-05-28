@@ -1441,24 +1441,60 @@ void P_GenerateSubsecMap(void)
 	}
 }
 
-subsector_t *R_PointInSubsector(float x, float y)
+bool R_SubsectorContainsPoint(subsector_t *sub, float x, float y)
 {
-	node_t *node;
-	int side;
-	unsigned int nodenum;
-
-	nodenum = root_node;
-
-	while (!(nodenum & NF_V5_SUBSECTOR))
+	for (seg_t *seg = sub->segs; seg; seg = seg->sub_next)
 	{
-		node = &nodes[nodenum];
-		side = P_PointOnDivlineSide(x, y, &node->div);
-		nodenum = node->children[side];
+		divline_t div;
+
+		div.x  = seg->v1->x;
+		div.y  = seg->v1->y;
+		div.dx = seg->v2->x - div.x;
+		div.dy = seg->v2->y - div.y;
+
+		if (P_PointOnDivlineSide(x, y, &div) == 1)
+			return false;
 	}
 
-	return &subsectors[nodenum & ~NF_V5_SUBSECTOR];
+	return true;
 }
 
+subsector_t *R_PointInSubsector(float x, float y)
+{
+	int bx = BLOCKMAP_GET_X(x);
+	int by = BLOCKMAP_GET_Y(y);
+
+	if (bx < 0) bx = 0;
+	if (by < 0) by = 0;
+
+	if (bx >= bmap_width)  bx = bmap_width-1;
+	if (by >= bmap_height) by = bmap_height-1;
+
+	subsec_set_t *list = subsec_map[by * bmap_width + bx];
+	SYS_ASSERT(list);
+	SYS_ASSERT(list->size() > 0);
+
+	// Start search at second entry.  If search fails then
+	// we assume the point is in the very first entry.
+	//
+	// The reason for this logic is to handle points which
+	// lie in void space or outside of the map.  The old BSP
+	// method would handle such points gracefully, since the
+	// traversal always lead to a valid subsector. 
+
+	subsec_set_t::iterator LI = list->begin();
+
+	for (LI++; LI != list->end(); LI++)
+	{
+		subsector_t *sub = *LI;
+		SYS_ASSERT(sub);
+
+		if (R_SubsectorContainsPoint(sub, x, y))
+			return sub;
+	}
+
+	return list->front();
+}
 
 
 //--- editor settings ---
