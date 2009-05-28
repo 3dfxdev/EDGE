@@ -32,7 +32,7 @@ static void Poly_Setup(void)
 	max_subsecs = numlines * 2;
 }
 
-// Nasty allocation crud....  Fixme
+// Nasty allocation shit....  Fixme
 
 static inline seg_t *NewSeg(void)
 {
@@ -63,9 +63,139 @@ static inline subsector_t *NewSubsector(void)
 }
 
 
+static subsector_t *CreateSubsector(sector_t *sec)
+{
+	subsector_t *sub = NewSubsector();
+
+	sub->sector = sec;
+
+	// bbox is computed at the very end
+	
+	return sub;
+}
+
+static seg_t * CreateOneSeg(line_t *ld, sector_t *sec, int side,
+                            vertex_t *v1, vertex_t *v2)
+{
+	seg_t *g = NewSeg();
+
+	g->v1 = v1;
+	g->v2 = v2;
+	g->angle = R_PointToAngle(v1->x, v1->y, v2->x, v2->y);
+	g->length = R_PointToDist(v1->x, v1->y, v2->x, v2->y);
+
+	// Note: these fields are setup by GroupLines:
+	//          front_sub,
+	//          back_sub
+	//          backsector
+
+	g->miniseg = false;
+
+	g->offset  = 0;
+	g->sidedef = ld->side[side];
+	g->linedef = ld;
+	g->side    = side;
+
+	g->frontsector = sec;
+
+	if (! sec->subsectors)
+		sec->subsectors = CreateSubsector(sec);
+
+	subsector_t *sub = sec->subsectors;
+
+	// add seg to subsector
+	g->sub_next = sub->segs;
+	sub->segs = g;
+
+	return g;
+}
+
+// FIXME: SplitSeg
+
+
+static void Poly_CreateSegs(void)
+{
+	for (int i=0; i < numlines; i++)
+	{
+		line_t *ld = &lines[i];
+
+		// ignore zero-length lines		
+		if (ld->length < 0.1)
+			continue;
+
+		// TODO: handle overlapping lines
+
+		// ignore self-referencing lines
+		if (ld->frontsector == ld->backsector)
+			continue;
+
+		seg_t *right = CreateOneSeg(ld, ld->frontsector, 0, ld->v1, ld->v2);
+		seg_t *left  = NULL;
+
+		if (ld->backsector)
+		{
+			left = CreateOneSeg(ld, ld->backsector, 1, ld->v2, ld->v1 );
+
+			right->partner = left;
+			left ->partner = right;
+		}
+	}
+}
+
+
+static seg_t * ChoosePartition(subsector_t *sub)
+{
+	return NULL;
+}
+
+
+static void TrySplitSubsector(subsector_t *sub)
+{
+	seg_t * partition = ChoosePartition(sub);
+
+	if (! partition)
+	{
+		sub->convex = true;
+		return;
+	}
+
+	// blah...
+}
+
+
+void Poly_SplitSector(sector_t *sec)
+{
+	// skip sectors which reference no linedefs
+	if (! sec->subsectors)
+		return;
+
+	for (;;)
+	{
+		int changes = 0;
+
+		for (subsector_t *sub = sec->subsectors; sub; sub = sub->sec_next)
+		{
+			if (! sub->convex)
+			{
+				TrySplitSubsector(sub);
+				changes++;
+			}
+		}
+
+		if (changes == 0)
+			return;
+	}
+}
+
+
 void R_PolygonizeMap(void)
 {
 	Poly_Setup();
+
+	Poly_CreateSegs();
+
+	for (int i = 0; i < numsectors; i++)
+		Poly_SplitSector(&sectors[i]);
 }
 
 //--- editor settings ---

@@ -449,6 +449,8 @@ typedef struct subsector_s
 
 	// -AJA- 2004/04/20: used when emulating deep-water TRICK
 	struct sector_s *deep_ref;
+
+	bool convex;
 }
 subsector_t;
 
