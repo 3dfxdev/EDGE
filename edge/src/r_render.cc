@@ -2582,11 +2582,9 @@ static inline void AddNewDrawFloor(drawsub_c *dsub, extrafloor_t *ef,
 // Visit a subsector, and collect information, such as where the
 // walls, planes (ceilings & floors) and things need to be drawn.
 //
-static void RGL_WalkSubsector(int num)
+static void RGL_WalkSubsector(subsector_t *sub)
 {
-	subsector_t *sub = &subsectors[num];
 	seg_t *seg;
-	mobj_t *mo;
 	sector_t *sector;
 	surface_t *floor_s;
 	float floor_h;
@@ -2594,7 +2592,7 @@ static void RGL_WalkSubsector(int num)
 	extrafloor_t *S, *L, *C;
 
 #if (DEBUG >= 1)
-	L_WriteDebug( "\nVISITING SUBSEC %d (sector %d)\n\n", num, sub->sector - sectors);
+	L_WriteDebug( "\nVISITING SUBSEC %p (sector %d)\n\n", sub, sub->sector - sectors);
 #endif
 
 	cur_sub = sub;
@@ -2677,9 +2675,12 @@ static void RGL_WalkSubsector(int num)
 	// handle each sprite in the subsector.  Must be done before walls,
 	// since the wall code will update the 1D occlusion buffer.
 
-	for (mo=cur_sub->thinglist; mo; mo=mo->snext)
+	for (touch_node_t *tn = cur_sub->sector->touch_things; tn; tn = tn->sec_next)
 	{
-		RGL_WalkThing(K, mo);
+		// FIXME: render things that merely touch the sector too
+		//        (and mark them as done).
+		if (tn->mo && tn->mo->subsector == cur_sub)
+			RGL_WalkThing(K, tn->mo);
 	}
 
 	// clip 1D occlusion buffer.
@@ -2954,7 +2955,8 @@ static void RGL_WalkBSPNode(unsigned int bspnum)
 	// Found a subsector?
 	if (bspnum & NF_V5_SUBSECTOR)
 	{
-		RGL_WalkSubsector(bspnum & (~NF_V5_SUBSECTOR));
+		int num = bspnum & (~NF_V5_SUBSECTOR);
+		RGL_WalkSubsector(&subsectors[num]);
 		return;
 	}
 
