@@ -1331,5 +1331,122 @@ void P_GenerateBlockMap(int min_x, int min_y, int max_x, int max_y)
 	blk_cur_lines = NULL;
 }
 
+
+//--------------------------------------------------------------------------
+//
+// SUBSECTOR BLOCKMAP
+//
+
+typedef std::list<subsector_t *> subsec_set_t;
+
+//## class subsec_set_c
+//## {
+//## public:
+//## 	std::list<subsector_t *> subs;
+//## 
+//## public:
+//## 	 subsec_set_c() : subs() { }
+//## 	~subsec_set_c() { } 
+//## };
+
+static subsec_set_t **subsec_map;
+static int subsec_map_total;
+
+static void SubsecAdd(subsector_t *sub)
+{
+	int lx = BLOCKMAP_GET_X(sub->bbox[BOXLEFT]);
+	int ly = BLOCKMAP_GET_Y(sub->bbox[BOXBOTTOM]);
+	int hx = BLOCKMAP_GET_X(sub->bbox[BOXRIGHT]);
+	int hy = BLOCKMAP_GET_Y(sub->bbox[BOXTOP]);
+
+	SYS_ASSERT(0 <= lx && lx <= hx && hx < bmap_width);
+	SYS_ASSERT(0 <= ly && ly <= hy && hy < bmap_height);
+	
+	for (int by = ly; by <= hy; by++)
+	for (int bx = lx; bx <= hx; bx++)
+	{
+		int bnum = by * bmap_width + bx;	
+
+		if (! subsec_map[bnum])
+			subsec_map[bnum] = new subsec_set_t;
+
+		subsec_map[bnum]->push_back(sub);
+		subsec_map_total++;
+	}
+}
+
+static int SubsecFillHoles(void)
+{
+	int holes  = 0;
+	int filled = 0;
+
+	for (int y = 0; y < bmap_height; y++)
+	for (int x = 0; x < bmap_width;  x++)
+	{
+		if (subsec_map[y * bmap_width + x])
+			continue;
+
+		holes++;
+
+		for (int side = 0; side < 4; side++)
+		{
+			int nx = x + ((side==0) ? 1 : (side==2) ? -1 : 0);
+			int ny = y + ((side==1) ? 1 : (side==3) ? -1 : 0);
+
+			if (0 <= nx && nx < bmap_width  &&
+			    0 <= ny && ny < bmap_height &&
+				subsec_map[ny * bmap_width + nx])
+			{
+				subsec_map[y * bmap_width + x] = subsec_map[ny * bmap_width + nx];
+				filled++;
+				break;
+			}
+		}
+	}
+
+	I_Debugf("SubsecFillHoles: %d holes, %d filled\n", holes, filled);
+
+	return holes;
+}
+
+void P_GenerateSubsecMap(void)
+{
+	subsec_map = new subsec_set_t * [bmap_width * bmap_height];
+	subsec_map_total = 0;
+
+	Z_Clear(subsec_map, subsec_set_t *, bmap_width * bmap_height);
+
+	for (int i = 0; i < numsubsectors; i++)
+		SubsecAdd(&subsectors[i]);
+
+	if (subsec_map_total < 1)
+		I_Error("No subsectors ????\n");
+
+	while (SubsecFillHoles() > 0)
+	{
+		/* repeat until all holes filled */
+	}
+}
+
+subsector_t *R_PointInSubsector(float x, float y)
+{
+	node_t *node;
+	int side;
+	unsigned int nodenum;
+
+	nodenum = root_node;
+
+	while (!(nodenum & NF_V5_SUBSECTOR))
+	{
+		node = &nodes[nodenum];
+		side = P_PointOnDivlineSide(x, y, &node->div);
+		nodenum = node->children[side];
+	}
+
+	return &subsectors[nodenum & ~NF_V5_SUBSECTOR];
+}
+
+
+
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
