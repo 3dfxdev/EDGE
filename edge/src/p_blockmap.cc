@@ -128,7 +128,7 @@ int touchstat_free;
 // FIXME: incorporate into FlushCaches
 touch_node_t *free_touch_nodes;
 
-static inline touch_node_t *TouchNodeAlloc(void)
+static inline touch_node_t *TN_Alloc(void)
 {
 	touch_node_t *tn;
 
@@ -149,7 +149,7 @@ static inline touch_node_t *TouchNodeAlloc(void)
 	return tn;
 }
 
-static inline void TouchNodeFree(touch_node_t *tn)
+static inline void TN_Free(touch_node_t *tn)
 {
 #ifdef DEVELOPERS
 	touchstat_free++;
@@ -160,7 +160,7 @@ static inline void TouchNodeFree(touch_node_t *tn)
 	free_touch_nodes = tn;
 }
 
-static inline void TouchNodeLinkIntoSector(touch_node_t *tn, sector_t *sec)
+static inline void TN_LinkIntoSector(touch_node_t *tn, sector_t *sec)
 {
 	tn->sec = sec;
 
@@ -173,7 +173,7 @@ static inline void TouchNodeLinkIntoSector(touch_node_t *tn, sector_t *sec)
 	sec->touch_things = tn;
 }
 
-static inline void TouchNodeLinkIntoThing(touch_node_t *tn, mobj_t *mo)
+static inline void TN_LinkIntoThing(touch_node_t *tn, mobj_t *mo)
 {
 	tn->mo = mo;
 
@@ -186,7 +186,7 @@ static inline void TouchNodeLinkIntoThing(touch_node_t *tn, mobj_t *mo)
 	mo->touch_sectors = tn;
 }
 
-static inline void TouchNodeUnlinkFromSector(touch_node_t *tn)
+static inline void TN_UnlinkFromSector(touch_node_t *tn)
 {
 	if (tn->sec_next)
 		tn->sec_next->sec_prev = tn->sec_prev;
@@ -197,7 +197,7 @@ static inline void TouchNodeUnlinkFromSector(touch_node_t *tn)
 		tn->sec->touch_things = tn->sec_next;
 }
 
-static inline void TouchNodeUnlinkFromThing(touch_node_t *tn)
+static inline void TN_UnlinkFromThing(touch_node_t *tn)
 {
 	if (tn->mo_next)
 		tn->mo_next->mo_prev = tn->mo_prev;
@@ -210,22 +210,60 @@ static inline void TouchNodeUnlinkFromThing(touch_node_t *tn)
 
 typedef struct setposbsp_s
 {
-	mobj_t *thing;
+	mobj_t *mo;
 
 	float bbox[4];
 }
 setposbsp_t;
 
-//
-// SetPositionBSP
-//
+
+static void PerformSectorLinkage(mobj_t *mo, sector_t *sec)
+{
+#ifdef DEVELOPERS
+	touchstat_miss++;
+#endif
+
+	touch_node_t *tn;
+
+	for (tn = mo->touch_sectors; tn; tn = tn->mo_next)
+	{
+		if (! tn->mo)
+		{
+			// found unused touch node.  We reuse it.
+			tn->mo = mo;
+
+			if (tn->sec != sec)
+			{
+				TN_UnlinkFromSector(tn);
+				TN_LinkIntoSector(tn, sec);
+			}
+#ifdef DEVELOPERS
+			else
+			{
+				touchstat_miss--;
+				touchstat_hit++;
+			}
+#endif
+
+			return;
+		}
+
+		SYS_ASSERT(tn->mo == mo);
+
+		// sector already present ?
+		if (tn->sec == sec)
+			return;
+	}
+
+	// need to allocate a new touch node
+	tn = TN_Alloc();
+
+	TN_LinkIntoThing(tn,  mo);
+	TN_LinkIntoSector(tn, sec);
+}
+
 static void SetPositionBSP(setposbsp_t *info, int nodenum)
 {
-	touch_node_t *tn;
-	sector_t *sec;
-	subsector_t *sub;
-	seg_t *seg;
-
 	while (! (nodenum & NF_V5_SUBSECTOR))
 	{
 		node_t *nd = nodes + nodenum;
@@ -248,10 +286,9 @@ static void SetPositionBSP(setposbsp_t *info, int nodenum)
 	// linedef segs.  This is because we can get false positives, since
 	// we don't actually split the thing's BBOX when it intersects with
 	// a partition line.
+	subsector_t *sub = subsectors + (nodenum & ~NF_V5_SUBSECTOR);
 
-	sub = subsectors + (nodenum & ~NF_V5_SUBSECTOR);
-
-	for (seg=sub->segs; seg; seg=seg->sub_next)
+	for (seg_t *seg=sub->segs; seg; seg=seg->sub_next)
 	{
 		divline_t div;
 
@@ -267,49 +304,7 @@ static void SetPositionBSP(setposbsp_t *info, int nodenum)
 			return;
 	}
 
-	// Perform linkage...
-
-	sec = sub->sector;
-
-#ifdef DEVELOPERS
-	touchstat_miss++;
-#endif
-
-	for (tn = info->thing->touch_sectors; tn; tn = tn->mo_next)
-	{
-		if (! tn->mo)
-		{
-			// found unused touch node.  We reuse it.
-			tn->mo = info->thing;
-
-			if (tn->sec != sec)
-			{
-				TouchNodeUnlinkFromSector(tn);
-				TouchNodeLinkIntoSector(tn, sec);
-			}
-#ifdef DEVELOPERS
-			else
-			{
-				touchstat_miss--;
-				touchstat_hit++;
-			}
-#endif
-
-			return;
-		}
-
-		SYS_ASSERT(tn->mo == info->thing);
-
-		// sector already present ?
-		if (tn->sec == sec)
-			return;
-	}
-
-	// need to allocate a new touch node
-	tn = TouchNodeAlloc();
-
-	TouchNodeLinkIntoThing(tn, info->thing);
-	TouchNodeLinkIntoSector(tn, sec);
+	PerformSectorLinkage(info->mo, sub->sector);
 }
 
 //
@@ -479,19 +474,17 @@ void P_UnsetThingPosition(mobj_t * mo)
 // 
 void P_UnsetThingFinally(mobj_t * mo)
 {
-	touch_node_t *tn;
-
 	P_UnsetThingPosition(mo);
 
 	// clear out touch nodes
 
 	while (mo->touch_sectors)
 	{
-		tn = mo->touch_sectors;
+		touch_node_t *tn = mo->touch_sectors;
 		mo->touch_sectors = tn->mo_next;
 
-		TouchNodeUnlinkFromSector(tn);
-		TouchNodeFree(tn);
+		TN_UnlinkFromSector(tn);
+		TN_Free(tn);
 	}
 }
 
@@ -541,7 +534,8 @@ void P_SetThingPosition(mobj_t * mo)
 	touchstat_moves++;
 #endif
 
-	pos.thing = mo;
+	pos.mo = mo;
+
 	pos.bbox[BOXLEFT]   = mo->x - mo->radius;
 	pos.bbox[BOXRIGHT]  = mo->x + mo->radius;
 	pos.bbox[BOXBOTTOM] = mo->y - mo->radius;
@@ -568,8 +562,8 @@ void P_SetThingPosition(mobj_t * mo)
 
 			SYS_ASSERT(! cur->mo);
 
-			TouchNodeUnlinkFromSector(cur);
-			TouchNodeFree(cur);
+			TN_UnlinkFromSector(cur);
+			TN_Free(cur);
 		}
 	}
 
@@ -658,7 +652,6 @@ void P_SetThingPosition(mobj_t * mo)
 }
 
 //
-// P_ChangeThingPosition
 //
 // New routine to "atomicly" move a thing.  Apart from object
 // construction and destruction, this routine should always be called
@@ -676,15 +669,13 @@ void P_ChangeThingPosition(mobj_t * mo, float x, float y, float z)
 	P_SetThingPosition(mo);
 }
 
-//
-// P_FreeSectorTouchNodes
-// 
+
 void P_FreeSectorTouchNodes(sector_t *sec)
 {
 	touch_node_t *tn;
 
 	for (tn = sec->touch_things; tn; tn = tn->sec_next)
-		TouchNodeFree(tn);
+		TN_Free(tn);
 }
 
 
