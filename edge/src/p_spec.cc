@@ -1669,14 +1669,18 @@ void P_UpdateSpecials(void)
 // -KM- 1998/09/27 Generalised for sectors.ddf
 // -KM- 1998/11/25 Lines with auto tag are automatically triggered.
 //
-void P_SpawnSpecials(int autotag)
+// -AJA- split into two, the first is called _before_ things are
+//       loaded, and the second one _afterwards_.
+//
+void P_SpawnSpecials1(void)
 {
-	sector_t *sector;
-	const sectortype_c *secSpecial;
-	const linetype_c *special;
 	const char *s;
-
 	int i;
+
+	active_sector_anims.clear();
+	active_line_anims.clear();
+
+	P_ClearButtons();
 
 	// See if -TIMER needs to be used.
 	levelTimer = false;
@@ -1698,12 +1702,89 @@ void P_SpawnSpecials(int autotag)
 		levelTimeCount = time;
 	}
 
-	P_ClearButtons();
+	for (i = 0; i < numlines; i++)
+	{
+		const linetype_c *special = lines[i].special;
+
+		if (! special)
+		{
+			lines[i].count = 0;
+			continue;
+		}
+
+		// -AJA- 1999/10/23: weed out non-appearing lines.
+		if (! G_CheckWhenAppear(special->appear))
+		{
+			lines[i].special = NULL;
+			continue;
+		}
+
+		lines[i].count = special->count;
+
+		// -AJA- 2007/12/29: Portal effects
+		if (special->portal_effect != PORTFX_None)
+		{
+			P_PortalEffect(&lines[i]);
+		}
+
+		// Extrafloor creation
+		if (special->ef.type != EXFL_None && lines[i].tag > 0)
+		{
+			sector_t *ctrl = lines[i].frontsector;
+
+			for (sector_t * tsec = P_FindSectorFromTag(lines[i].tag); tsec; tsec = tsec->tag_next)
+			{
+				if (special->ef.type & EXFL_BoomTex)
+				{
+					if (ctrl->f_h <= tsec->f_h)
+					{
+						tsec->props.colourmap = ctrl->props.colourmap;
+
+						// FIXME: BOOM's invisible floor feature
+						continue;
+					}
+				}
+
+				P_AddExtraFloor(tsec, &lines[i]);
+
+				// transfer any translucency
+				if (PERCENT_2_FLOAT(special->translucency) <= 0.99f)
+				{
+					P_EFTransferTrans(ctrl, tsec, &lines[i], &special->ef,
+							PERCENT_2_FLOAT(special->translucency));
+				}
+
+				// update the line gaps & things:
+				P_RecomputeGapsAroundSector(tsec);
+
+				P_FloodExtraFloors(tsec);
+			}
+		}
+
+		// Detail slopes
+		if (special->slope_type & SLP_DetailFloor)
+		{
+			DetailSlope_Floor(&lines[i]);
+		}
+		if (special->slope_type & SLP_DetailCeiling)
+		{
+			DetailSlope_Ceiling(&lines[i]);
+		}
+	}
+}
+
+void P_SpawnSpecials2(int autotag)
+{
+	sector_t *sector;
+	const sectortype_c *secSpecial;
+	const linetype_c *special;
+
+	int i;
+
 
 	//
 	// Init special SECTORs.
 	//
-	active_sector_anims.clear();
 
 	sector = sectors;
 	for (i = 0; i < numsectors; i++, sector++)
@@ -1787,26 +1868,13 @@ void P_SpawnSpecials(int autotag)
 	// -KM-  Removed Limit
 	// -KM- 1998/09/01 Added lines.ddf support
 	//
-	active_line_anims.clear();
 
 	for (i = 0; i < numlines; i++)
 	{
 		special = lines[i].special;
 
 		if (! special)
-		{
-			lines[i].count = 0;
 			continue;
-		}
-
-		// -AJA- 1999/10/23: weed out non-appearing lines.
-		if (! G_CheckWhenAppear(special->appear))
-		{
-			lines[i].special = NULL;
-			continue;
-		}
-
-		lines[i].count = special->count;
 
 		if (special->s_xspeed || special->s_yspeed)
 		{
@@ -1825,56 +1893,6 @@ void P_SpawnSpecials(int autotag)
 
 		if (PERCENT_2_FLOAT(special->translucency) <= 0.99f && lines[i].side[1])
 			lines[i].side[1]->middle.translucency = PERCENT_2_FLOAT(special->translucency);
-
-			// -AJA- 2007/12/29: Portal effects
-		if (special->portal_effect != PORTFX_None)
-		{
-			P_PortalEffect(&lines[i]);
-		}
-
-		// Extrafloor creation
-		if (special->ef.type != EXFL_None && lines[i].tag > 0)
-		{
-			sector_t *ctrl = lines[i].frontsector;
-
-			for (sector_t * tsec = P_FindSectorFromTag(lines[i].tag); tsec; tsec = tsec->tag_next)
-			{
-				if (special->ef.type & EXFL_BoomTex)
-				{
-					if (ctrl->f_h <= tsec->f_h)
-					{
-						tsec->props.colourmap = ctrl->props.colourmap;
-
-						// FIXME: BOOM's invisible floor feature
-						continue;
-					}
-				}
-
-				P_AddExtraFloor(tsec, &lines[i]);
-
-				// transfer any translucency
-				if (PERCENT_2_FLOAT(special->translucency) <= 0.99f)
-				{
-					P_EFTransferTrans(ctrl, tsec, &lines[i], &special->ef,
-							PERCENT_2_FLOAT(special->translucency));
-				}
-
-				// update the line gaps & things:
-				P_RecomputeGapsAroundSector(tsec);
-
-				P_FloodExtraFloors(tsec);
-			}
-		}
-
-		// Detail slopes
-		if (special->slope_type & SLP_DetailFloor)
-		{
-			DetailSlope_Floor(&lines[i]);
-		}
-		if (special->slope_type & SLP_DetailCeiling)
-		{
-			DetailSlope_Ceiling(&lines[i]);
-		}
 
 		if (special->autoline)
 		{

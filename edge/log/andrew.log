@@ -1,5 +1,12 @@
 Andrew Apted's Log
 
+2009/05/28:
+
+Split P_SpawnSpecials() into two functions, one which is
+called before loading things, and one which is called
+afterwards.  This fixes the broken BOOM point pushers,
+which could not find any things (not loaded yet).
+
 2008/12/09:
 
 Disabled the "Join Net Game" button in the options menu,
