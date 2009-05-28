@@ -444,9 +444,6 @@ typedef struct subsector_s
 	sector_t *sector;
 	struct seg_s *segs;
 
-    // list of mobjs in subsector
-	mobj_t *thinglist;
-
 	// pointer to bounding box (usually in parent node)
 	float *bbox;
 

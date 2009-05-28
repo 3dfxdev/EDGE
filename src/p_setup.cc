@@ -526,7 +526,6 @@ static void LoadV3Subsectors(const byte *data, int length)
 				currmap->lump.c_str());
 
 		ss->sector = NULL;
-		ss->thinglist = NULL;
 
 		// this is updated when the nodes are loaded
 		ss->bbox = dummy_bbox;
@@ -617,7 +616,6 @@ static void LoadSubsectors(int lump, const char *name)
 			I_Error("Bad WAD: level %s has invalid SSECTORS.\n", currmap->lump.c_str());
 
 		ss->sector = NULL;
-		ss->thinglist = NULL;
 
 		// this is updated when the nodes are loaded
 		ss->bbox = dummy_bbox;
