@@ -143,23 +143,161 @@ static void Poly_CreateSegs(void)
 }
 
 
-static seg_t * ChoosePartition(subsector_t *sub)
+static void DetermineMiddle(subsector_t *sub, float *x, float *y)
 {
-	return NULL;
+	int total=0;
+
+	*x = 0;
+	*y = 0;
+
+	for (seg_t *cur = sub->segs; cur; cur = cur->sub_next)
+	{
+		*x += cur->v1->x + cur->v2->x;
+		*y += cur->v1->y + cur->v2->y;
+
+		total += 2;
+	}
+
+	*x /= total;
+	*y /= total;
+}
+
+
+static void ClockwiseOrder(subsector_t *sub)
+{
+	float mid_x, mid_y;
+
+	DetermineMiddle(sub, &mid_x, &mid_y);
+
+	seg_t *cur;
+	seg_t ** array;
+	seg_t *seg_buffer[32];
+
+	int i;
+	int total = 0;
+
+	int first = 0;
+	int score = -1;
+
+#if DEBUG_SUBSEC
+	PrintDebug("Subsec: Clockwising %d\n", sub->index);
+#endif
+
+	// count segs and create an array to manipulate them
+	for (cur=sub->seg_list; cur; cur=cur->next)
+		total++;
+
+	// use local array if small enough
+	if (total <= 32)
+		array = seg_buffer;
+	else
+		array = UtilCalloc(total * sizeof(seg_t *));
+
+	for (cur=sub->seg_list, i=0; cur; cur=cur->next, i++)
+		array[i] = cur;
+
+	if (i != total)
+		InternalError("ClockwiseOrder miscounted.");
+
+	// sort segs by angle (from the middle point to the start vertex).
+	// The desired order (clockwise) means descending angles.
+
+	i = 0;
+
+	while (i+1 < total)
+	{
+		seg_t *A = array[i];
+		seg_t *B = array[i+1];
+
+		angle_t angle1, angle2;
+
+		angle1 = UtilComputeAngle(A->start->x - sub->mid_x, A->start->y - sub->mid_y);
+		angle2 = UtilComputeAngle(B->start->x - sub->mid_x, B->start->y - sub->mid_y);
+
+		if (angle1 < angle2)
+		{
+			// swap 'em
+			array[i] = B;
+			array[i+1] = A;
+
+			// bubble down
+			if (i > 0)
+				i--;
+		}
+		else
+		{
+			// bubble up
+			i++;
+		}
+	}
+
+	// transfer sorted array back into sub
+	sub->seg_list = NULL;
+
+	for (i=total-1; i >= 0; i--)
+	{
+		int j = (i + first) % total;
+
+		array[j]->next = sub->seg_list;
+		sub->seg_list  = array[j];
+	}
+
+	if (total > 32)
+		UtilFree(array);
+
+#if DEBUG_SORTER
+	PrintDebug("Sorted SEGS around (%1.1f,%1.1f)\n", sub->mid_x, sub->mid_y);
+
+	for (cur=sub->seg_list; cur; cur=cur->next)
+	{
+		angle_g angle = UtilComputeAngle(cur->start->x - sub->mid_x,
+				cur->start->y - sub->mid_y);
+
+		PrintDebug("  Seg %p: Angle %1.6f  (%1.1f,%1.1f) -> (%1.1f,%1.1f)\n",
+				cur, angle, cur->start->x, cur->start->y, cur->end->x, cur->end->y);
+	}
+#endif
+}
+
+
+static bool ChoosePartition(subsector_t *sub, divline_t *div)
+{
+	int total = 0;
+	for (seg_t *Z = sub->segs; Z; Z=Z->sub_next)
+		total++;
+
+	if (total <= 3)
+		return false;
+
+	// FIXME: if total > ### median shit
+
+	return false;
 }
 
 
 static void TrySplitSubsector(subsector_t *sub)
 {
-	seg_t * partition = ChoosePartition(sub);
+	divline_t party;
 
-	if (! partition)
+	if (! ChoosePartition(sub, &party))
 	{
 		sub->convex = true;
 		return;
 	}
 
-	// blah...
+	subsector_t *left = CreateSubsector(sub->sector);
+
+	left->sec_next = sub->sector->subsectors;
+	sub->sector->subsectors = left;
+
+	seg_t *seg_list = sub->segs;
+	sub->segs = NULL;
+
+	intersection_t *cut_list;
+
+	SeparateSegs(sub, seg_list, &party, left, sub, &cut_list);
+
+	AddMinisegs( cut_list ) ;
 }
 
 
