@@ -309,6 +309,7 @@ public:
 
 		floors.clear();
 		segs.clear();
+		segs2.clear();
 		mirrors.clear();
 	}
 };
