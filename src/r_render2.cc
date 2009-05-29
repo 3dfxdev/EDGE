@@ -117,6 +117,8 @@ static void LineSet_Done(void)
 
 static void LineSet_InsertFree(drawseg2_c *dseg)
 {
+	SYS_ASSERT(dseg);
+
 	std::list<drawseg2_c *>::iterator LI;
 
 	for (LI = free_lines.begin(); LI != free_lines.end(); LI++)
@@ -176,18 +178,23 @@ static inline int LineSet_Overlap(drawseg2_c *A, drawseg2_c *B)
 
 static void LineSet_TestBlocking(drawseg2_c *dseg)
 {
+	SYS_ASSERT(dseg);
+	SYS_ASSERT(dseg->seg);
+
 	std::list<drawseg2_c *>::iterator LI;
 
-	for (LI = free_lines.begin(); LI != free_lines.end(); LI++)
+	for (LI = free_lines.begin(); LI != free_lines.end(); )
 	{
-		drawseg2_c *other = *LI;
+		drawseg2_c *other = *LI; LI++;
+		SYS_ASSERT(other);
+		SYS_ASSERT(other->seg);
 
 		int cmp = LineSet_Overlap(dseg, other);
 
 		if (cmp < 0)
 		{
 			// the new seg occludes an existing 'free' line,
-			// hence it must be moved to the blocked list.
+			// hence that must be moved to the blocked list.
 			free_lines.remove(other);
 			blocked_lines.push_back(other);
 
@@ -202,9 +209,11 @@ static void LineSet_TestBlocking(drawseg2_c *dseg)
 		}
 	}
 
-	for (LI = blocked_lines.begin(); LI != blocked_lines.end(); LI++)
+	for (LI = blocked_lines.begin(); LI != blocked_lines.end(); )
 	{
-		drawseg2_c *other = *LI;
+		drawseg2_c *other = *LI; LI++;
+		SYS_ASSERT(other);
+		SYS_ASSERT(other->seg);
 
 		int cmp = LineSet_Overlap(dseg, other);
 
@@ -304,7 +313,7 @@ static drawseg2_c * LineSet_RemoveFirst(void)
 {
 	if (free_lines.empty())
 	{
-		SYS_ASSERT(blocked_lines.empty());
+//!!!!	SYS_ASSERT(blocked_lines.empty());
 		return NULL;
 	}
 
@@ -317,8 +326,9 @@ static drawseg2_c * LineSet_RemoveFirst(void)
 	for (LI = dseg->occludes.begin(); LI != dseg->occludes.end(); LI++)
 	{
 		drawseg2_c *other = *LI;
-
+		SYS_ASSERT(other);
 		SYS_ASSERT(other->blockers >= 1);
+
 		other->blockers--;
 
 		if (other->blockers == 0)
