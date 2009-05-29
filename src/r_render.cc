@@ -2684,6 +2684,7 @@ void RGL_WalkSubsector(subsector_t *sub, bool do_segs = true)
 	}
 
 	// clip 1D occlusion buffer.
+if (do_segs)
 	for (seg=sub->segs; seg; seg=seg->sub_next)
 	{
 		RGL_WalkSeg(K, seg);
@@ -3044,7 +3045,7 @@ static void RGL_RenderTrueBSP(void)
 	// needed for drawing the sky
 	RGL_BeginSky();
 
-#if 0
+#if 1
 	// walk the bsp tree
 	RGL_WalkBSPNode(root_node);
 #else
@@ -3080,7 +3081,7 @@ static void RGL_RenderTrueBSP(void)
 }
 
 
-static void InitCamera(mobj_t *mo)
+void InitCamera(mobj_t *mo)
 {
 	leftslope  = M_Tan(leftangle);
 	rightslope = M_Tan(rightangle);

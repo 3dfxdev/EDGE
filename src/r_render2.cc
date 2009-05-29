@@ -73,6 +73,8 @@ extern float sprite_skew;
 extern void RGL_WalkSubsector(subsector_t *sub, bool do_segs);
 extern void RGL_DrawSubList(std::list<drawsub_c *> &dsubs);
 
+extern void InitCamera(mobj_t *mo);
+
 
 class drawseg2_c
 {
@@ -98,16 +100,14 @@ public:
 };
 
 
-static std::list<drawseg2_c *> line_set;
-
-static int crap_muck;
+static std::list<drawseg2_c *> free_lines;
+static std::list<drawseg2_c *> blocked_lines;
 
 
 static void LineSet_Init(void)
 {
-	line_set.clear();
-
-	crap_muck = 0;
+	free_lines.clear();
+	blocked_lines.clear();
 }
 
 static void LineSet_Done(void)
@@ -115,17 +115,114 @@ static void LineSet_Done(void)
 	// nothing needed
 }
 
+static void LineSet_InsertFree(drawseg2_c *dseg)
+{
+	std::list<drawseg2_c *>::iterator LI;
+
+	for (LI = free_lines.begin(); LI != free_lines.end(); LI++)
+	{
+		drawseg2_c *other = *LI;
+
+		if (dseg->dist < other->dist)
+			break;
+	}
+
+	free_lines.insert(LI, dseg);
+}
+
+static inline int LineSet_Overlap(drawseg2_c *A, drawseg2_c *B)
+{
+	// RETURN:  0 if no overlap
+	//         -1 if A is closer than (blocks) B
+	//         +1 if A is further than (is blocked by) B
+
+	// subsectors are convex, hence no two segs from the
+	// same subsector can overlap
+	if (A->seg->front_sub == B->seg->front_sub)
+		return 0;
+	
+	// test angle range
+	angle_t L = B->left  - A->right;
+	angle_t R = B->right - A->right;
+
+	if (L >= A->span && R >= A->span)
+		return 0;
+
+	// test line-line-camera relationship
+	divline_t A_div;
+	divline_t B_div;
+
+	A_div.x  = A->seg->v1->x;
+	A_div.y  = A->seg->v1->y;
+	A_div.dx = A->seg->v2->x - A_div.x;
+	A_div.dy = A->seg->v2->y - A_div.y;
+
+	int side1 = P_PointOnDivlineSide(B->seg->v1->x, B->seg->v1->y, &A_div);
+	int side2 = P_PointOnDivlineSide(B->seg->v2->x, B->seg->v2->y, &A_div);
+
+	if (side1 == side2)
+		return (P_PointOnDivlineSide(viewx, viewy, &A_div) == side1) ? +1 : -1;
+
+	B_div.x  = B->seg->v1->x;
+	B_div.y  = B->seg->v1->y;
+	B_div.dx = B->seg->v2->x - B_div.x;
+	B_div.dy = B->seg->v2->y - B_div.y;
+
+	int side3 = P_PointOnDivlineSide(A->seg->v1->x, A->seg->v1->y, &B_div);
+	// we assume side4 would be the same
+
+	return (P_PointOnDivlineSide(viewx, viewy, &B_div) == side3) ? -1 : +1;
+}
+
+static void LineSet_TestBlocking(drawseg2_c *dseg)
+{
+	std::list<drawseg2_c *>::iterator LI;
+
+	for (LI = free_lines.begin(); LI != free_lines.end(); LI++)
+	{
+		drawseg2_c *other = *LI;
+
+		int cmp = LineSet_Overlap(dseg, other);
+
+		if (cmp < 0)
+		{
+			// the new seg occludes an existing 'free' line,
+			// hence it must be moved to the blocked list.
+			free_lines.remove(other);
+			blocked_lines.push_back(other);
+
+			dseg->occludes.push_back(other);
+			other->blockers++;
+		}
+		else if (cmp > 0)
+		{
+			// the new seg is occluded
+			other->occludes.push_back(dseg);
+			dseg->blockers++;
+		}
+	}
+
+	for (LI = blocked_lines.begin(); LI != blocked_lines.end(); LI++)
+	{
+		drawseg2_c *other = *LI;
+
+		int cmp = LineSet_Overlap(dseg, other);
+
+		if (cmp < 0)
+		{
+			dseg->occludes.push_back(other);
+			other->blockers++;
+		}
+		else if (cmp > 0)
+		{
+			other->occludes.push_back(dseg);
+			dseg->blockers++;
+		}
+	}
+}
+
 static void LineSet_AddSeg(seg_t *seg)
 {
-	// CRAP FOR TESTING !!!
-	if (crap_muck)
-		return;
-	else if (line_set.size() >= 100)
-		crap_muck = 1;
-
-	if (seg->miniseg)
-		return;
-
 	float sx1 = seg->v1->x;
 	float sy1 = seg->v1->y;
 
@@ -187,20 +284,14 @@ static void LineSet_AddSeg(seg_t *seg)
 	dseg->right = angle_R;
 	dseg->span  = span;
 
-	// FIXME: better distance calc
-	dseg->dist  = R_PointToDist(viewx, viewy, (sx1+sx2)*0.5, (sy1+sy2)*0.5);
+	dseg->dist = R_PointToDist(viewx, viewy, (sx1+sx2)*0.5, (sy1+sy2)*0.5);
 
-	std::list<drawseg2_c *>::iterator LI;
+	LineSet_TestBlocking(dseg);
 
-	for (LI = line_set.begin(); LI != line_set.end(); LI++)
-	{
-		drawseg2_c *other = *LI;
-
-		if (dseg->dist < other->dist)
-			break;
-	}
-
-	line_set.insert(LI, dseg);
+	if (dseg->blockers == 0)
+		LineSet_InsertFree(dseg);
+	else
+		blocked_lines.push_back(dseg);
 }
 
 static void LineSet_AddSegList(seg_t *first)
@@ -211,12 +302,31 @@ static void LineSet_AddSegList(seg_t *first)
 
 static drawseg2_c * LineSet_RemoveFirst(void)
 {
-	if (line_set.empty())
+	if (free_lines.empty())
+	{
+		SYS_ASSERT(blocked_lines.empty());
 		return NULL;
+	}
 
-	drawseg2_c *dseg = line_set.front();
+	drawseg2_c *dseg = free_lines.front();
 
-	line_set.pop_front();
+	free_lines.pop_front();
+
+	// removing this seg causes other lines to become unblocked
+	std::list<drawseg2_c *>::iterator LI;
+	for (LI = dseg->occludes.begin(); LI != dseg->occludes.end(); LI++)
+	{
+		drawseg2_c *other = *LI;
+
+		SYS_ASSERT(other->blockers >= 1);
+		other->blockers--;
+
+		if (other->blockers == 0)
+		{
+			blocked_lines.remove(other);
+			LineSet_InsertFree(other);
+		}
+	}
 
 	return dseg;
 }
@@ -234,17 +344,15 @@ static void RGL_WalkSeg2(drawseg2_c *dseg)
 {
 	subsector_t *back = dseg->seg->back_sub;
 
-	if (back && back->rend_seen != framecount)
-	{
-		RGL_WalkSubsector2(back);
-	}
-
-	SYS_ASSERT(dseg->seg->linedef);
-
 	// only one-sided walls affect the 1D occlusion buffer
-	if (dseg->seg->linedef->blocked)
+	if (dseg->seg->linedef &&
+	    dseg->seg->linedef->blocked)
 	{
 		RGL_1DOcclusionSet(dseg->right, dseg->left);
+	}
+	else if (back && back->rend_seen != framecount)
+	{
+		RGL_WalkSubsector2(back);
 	}
 }
 
@@ -328,112 +436,7 @@ static void RGL_RenderNEW(void)
 }
 
 
-static void InitCamera(mobj_t *mo)
-{
-	leftslope  = M_Tan(leftangle);
-	rightslope = M_Tan(rightangle);
-
-	float slopeoffset;
-
-	slopeoffset = M_Tan(FIELDOFVIEW / 2) * aspect_ratio;
-	slopeoffset = slopeoffset * viewwindow_h / viewwindow_w;
-	slopeoffset = slopeoffset * SCREENWIDTH / SCREENHEIGHT;
-
-	topslope    =  slopeoffset;
-	bottomslope = -slopeoffset;
-
-
-	viewx = mo->x;
-	viewy = mo->y;
-	viewz = mo->z;
-	viewangle = mo->angle;
-
-	if (mo->player)
-		viewz += mo->player->viewz;
-	else
-		viewz += mo->height * 9 / 10;
-
-	viewsubsector = mo->subsector;
-	viewvertangle = mo->vertangle;
-	view_props = R_PointGetProps(viewsubsector, viewz);
-
-	if (mo->player)
-	{
-		viewvertangle += M_ATan(mo->player->kick_offset);
-
-		if (! level_flags.mlook)
-			viewvertangle = 0;
-
-		// No heads above the ceiling
-		if (viewz > mo->player->mo->ceilingz - 2)
-			viewz = mo->player->mo->ceilingz - 2;
-
-		// No heads below the floor, please
-		if (viewz < mo->player->mo->floorz + 2)
-			viewz = mo->player->mo->floorz + 2;
-	}
-
-
-	// do some more stuff
-	viewsin = M_Sin(viewangle);
-	viewcos = M_Cos(viewangle);
-
-	float lk_sin = M_Sin(viewvertangle);
-	float lk_cos = M_Cos(viewvertangle);
-
-	viewforward.x = lk_cos * viewcos;
-	viewforward.y = lk_cos * viewsin;
-	viewforward.z = lk_sin;
-
-	viewup.x = -lk_sin * viewcos;
-	viewup.y = -lk_sin * viewsin;
-	viewup.z =  lk_cos;
-
-	// cross product
-	viewright.x = viewforward.y * viewup.z - viewup.y * viewforward.z;
-	viewright.y = viewforward.z * viewup.x - viewup.z * viewforward.x;
-	viewright.z = viewforward.x * viewup.y - viewup.x * viewforward.y;
-
-
-	// compute the 1D projection of the view angle
-	angle_t oned_side_angle;
-	{
-		float k, d;
-
-		// k is just the mlook angle (in radians)
-		k = ANG_2_FLOAT(viewvertangle);
-		if (k > 180.0) k -= 360.0;
-		k = k * M_PI / 180.0f;
-
-		sprite_skew = tan((-k) / 2.0);
-
-		k = fabs(k);
-
-		// d is just the distance horizontally forward from the eye to
-		// the top/bottom edge of the view rectangle.
-		d = cos(k) - sin(k) * topslope;
-
-		oned_side_angle = (d <= 0.01f) ? ANG180 : M_ATan(leftslope / d);
-	}
-
-	// setup clip angles
-	if (oned_side_angle != ANG180)
-	{
-		clip_left  = 0 + oned_side_angle;
-		clip_right = 0 - oned_side_angle;
-		clip_scope = clip_left - clip_right;
-	}
-	else
-	{
-		// not clipping to the viewport.  Dummy values.
-		clip_scope = ANG180;
-		clip_left  = 0 + ANG45;
-		clip_right = 0 - ANG45;
-	}
-}
-
-
-void R_Render(int x, int y, int w, int h, mobj_t *camera)
+void R_Render2(int x, int y, int w, int h, mobj_t *camera)
 {
 	viewwindow_x = x;
 	viewwindow_y = y;
