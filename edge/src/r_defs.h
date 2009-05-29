@@ -451,6 +451,8 @@ typedef struct subsector_s
 	struct sector_s *deep_ref;
 
 	bool convex;
+
+	int rend_seen;
 }
 subsector_t;
 
