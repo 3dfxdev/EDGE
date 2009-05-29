@@ -2601,6 +2601,8 @@ void RGL_WalkSubsector(subsector_t *sub, bool do_segs = true)
 	drawsub_c *K = R_GetDrawSub();
 	K->Clear(sub);
 
+	cur_sub->dsub = K;
+
 	// --- handle sky (using the depth buffer) ---
 
 	if (IS_SKY(cur_sub->sector->floor) && viewz > cur_sub->sector->f_h)
@@ -2683,12 +2685,11 @@ void RGL_WalkSubsector(subsector_t *sub, bool do_segs = true)
 			RGL_WalkThing(K, tn->mo);
 	}
 
-	// clip 1D occlusion buffer.
-if (do_segs)
-	for (seg=sub->segs; seg; seg=seg->sub_next)
-	{
-		RGL_WalkSeg(K, seg);
-	}
+///----	// clip 1D occlusion buffer.
+///----	for (seg=sub->segs; seg; seg=seg->sub_next)
+///----	{
+///----		RGL_WalkSeg(K, seg);
+///----	}
 
 	// add drawsub to list (closest -> furthest)
 
@@ -2903,9 +2904,10 @@ static void RGL_DrawSubsector(drawsub_c *dsub)
 	// handle each floor, drawing planes and things
 	for (dfloor = dsub->floors_R; dfloor != NULL; dfloor = dfloor->next_R)
 	{
-		std::list<drawseg_c *>::iterator SEGI;
+		// NEW RENDERER : drawing segs here is probably WRONG
+		std::list<drawseg2_c *>::iterator SEGI;
 
-		for (SEGI = dsub->segs.begin(); SEGI != dsub->segs.end(); SEGI++)
+		for (SEGI = dsub->segs2.begin(); SEGI != dsub->segs2.end(); SEGI++)
 		{
 			RGL_DrawSeg(dfloor, (*SEGI)->seg);
 		}

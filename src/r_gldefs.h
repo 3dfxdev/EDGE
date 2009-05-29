@@ -243,7 +243,31 @@ public:
 };
 
 
-class drawseg_c   // HOPEFULLY this can go away
+class drawseg2_c
+{
+public:
+	seg_t *seg;
+
+	angle_t left, right, span;
+
+	float dist;
+
+	// segs which we block
+	std::list<drawseg2_c *> occludes;
+
+	// count of segs which block us
+	int blockers;
+
+public:
+	drawseg2_c(seg_t *_seg) : seg(_seg), occludes(), blockers(0)
+	{ }
+
+	~drawseg2_c()
+	{ }
+};
+
+
+class drawseg_c   // FIXME : REMOVE
 {
 public:
 	seg_t *seg;
@@ -261,7 +285,8 @@ public:
 	// link list of floors, render order (furthest to closest)
 	drawfloor_t *floors_R;
 
-	std::list<drawseg_c *> segs;
+	std::list<drawseg2_c *> segs2;
+	std::list<drawseg_c *> segs;  // FIXME !!!!! REMOVE
 
 	std::list<drawmirror_c *> mirrors;
 
@@ -269,7 +294,7 @@ public:
 	bool sorted;
 
 public:
-	drawsub_c() : sub(NULL), floors(), segs(), mirrors()
+	drawsub_c() : sub(NULL), floors(), segs2(), segs(), mirrors()
 	{ }
 
 	~drawsub_c()
