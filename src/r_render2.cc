@@ -52,31 +52,26 @@
 
 #define DEBUG  0
 
-#define FLOOD_DIST    1024.0f
-#define FLOOD_EXPAND  128.0f
-
 
 // #define DEBUG_GREET_NEIGHBOUR
 
 
-
-side_t *sidedef;
-line_t *linedef;
-sector_t *frontsector;
-sector_t *backsector;
-
-
-int detail_level = 1;
-int use_dlights = 0;
-
-int doom_fading = 1;
-
-
 // -ES- 1999/03/20 Different right & left side clip angles, for asymmetric FOVs.
-angle_t clip_left, clip_right;
-angle_t clip_scope;
+extern angle_t clip_left, clip_right;
+extern angle_t clip_scope;
 
-mobj_t *view_cam_mo;
+extern std::list<drawsub_c *> drawsubs;
+
+extern mobj_t *view_cam_mo;
+
+extern int rgl_weapon_r;
+extern int rgl_weapon_g;
+extern int rgl_weapon_b;
+
+extern float sprite_skew;
+
+extern void RGL_WalkSubsector(subsector_t *sub, bool do_segs);
+extern void RGL_DrawSubList(std::list<drawsub_c *> &dsubs);
 
 
 class drawseg2_c
@@ -88,8 +83,14 @@ public:
 
 	float dist;
 
+	// segs which we block
+	std::list<drawseg2_c *> occludes;
+
+	// count of segs which block us
+	int blockers;
+
 public:
-	drawseg2_c(seg_t *_seg) : seg(_seg)
+	drawseg2_c(seg_t *_seg) : seg(_seg), occludes(), blockers(0)
 	{ }
 
 	~drawseg2_c()
@@ -180,7 +181,7 @@ static void LineSet_AddSeg(seg_t *seg)
 	if (RGL_1DOcclusionTest(angle_R, angle_L))
 		return;
 
-	drawseg2_c *dseg = new drawseg_c(seg);
+	drawseg2_c *dseg = new drawseg2_c(seg);
 
 	dseg->left  = angle_L;
 	dseg->right = angle_R;
@@ -189,7 +190,17 @@ static void LineSet_AddSeg(seg_t *seg)
 	// FIXME: better distance calc
 	dseg->dist  = R_PointToDist(viewx, viewy, (sx1+sx2)*0.5, (sy1+sy2)*0.5);
 
-	line_set.push_back(dseg);
+	std::list<drawseg2_c *>::iterator LI;
+
+	for (LI = line_set.begin(); LI != line_set.end(); LI++)
+	{
+		drawseg2_c *other = *LI;
+
+		if (dseg->dist < other->dist)
+			break;
+	}
+
+	line_set.insert(LI, dseg);
 }
 
 static void LineSet_AddSegList(seg_t *first)
@@ -198,33 +209,54 @@ static void LineSet_AddSegList(seg_t *first)
 		LineSet_AddSeg(first);
 }
 
-static drawseg2_t * LineSet_RemoveFirst(void)
+static drawseg2_c * LineSet_RemoveFirst(void)
 {
 	if (line_set.empty())
 		return NULL;
 
-	drawseg2_t *dseg = line_set.front();
+	drawseg2_c *dseg = line_set.front();
 
 	line_set.pop_front();
 
 	return dseg;
 }
 
-
-static void RGL_WalkSeg2(drawseg2_t *dseg)
+static void RGL_WalkSubsector2(subsector_t *sub)
 {
+	LineSet_AddSegList(sub->segs);
+
+	sub->rend_seen = framecount;
+
+	RGL_WalkSubsector(sub, false);
+}
+
+static void RGL_WalkSeg2(drawseg2_c *dseg)
+{
+	subsector_t *back = dseg->seg->back_sub;
+
+	if (back && back->rend_seen != framecount)
+	{
+		RGL_WalkSubsector2(back);
+	}
+
+	SYS_ASSERT(dseg->seg->linedef);
+
+	// only one-sided walls affect the 1D occlusion buffer
+	if (dseg->seg->linedef->blocked)
+	{
+		RGL_1DOcclusionSet(dseg->right, dseg->left);
+	}
 }
 
 static void RGL_WalkLevel(void)
 {
-#if 1
 	LineSet_Init();
 
-	LineSet_AddSegList(viewsubsector->segs);
+	RGL_WalkSubsector2(viewsubsector);
 
 	for (;;)
 	{
-		drawseg2_t *dseg = LineSet_RemoveFirst();
+		drawseg2_c *dseg = LineSet_RemoveFirst();
 
 		if (! dseg)  // all done?
 			break;
@@ -233,30 +265,10 @@ static void RGL_WalkLevel(void)
 	}
 
 	LineSet_Done();
-#else
-	// brute force : render the whole level
-	for (int ik = 0; ik < numsubsectors; ik++)
-		RGL_WalkSubsector(subsectors + ik);
-#endif
 }
 
 
-void RGL_LoadLights(void)
-{
-#ifdef SHADOW_PROTOTYPE
-	shadow_image = W_ImageLookup("SHADOW_STD");
-#endif
-}
-
-//
-// RGL_RenderTrueBSP
-//
-// OpenGL BSP rendering.  Initialises all structures, then walks the
-// BSP tree collecting information, then renders each subsector:
-// firstly front to back (drawing all solid walls & planes) and then
-// from back to front (drawing everything else, sprites etc..).
-//
-static void RGL_RenderTrueBSP(void)
+static void RGL_RenderNEW(void)
 {
 	// clear extra light on player's weapon
 	rgl_weapon_r = rgl_weapon_g = rgl_weapon_b = 0;
@@ -293,7 +305,7 @@ static void RGL_RenderTrueBSP(void)
 
 	RGL_DrawSubList(drawsubs);
 
-	DoWeaponModel();
+//!!!	DoWeaponModel();
 
 	glDisable(GL_DEPTH_TEST);
 
@@ -440,7 +452,7 @@ void R_Render(int x, int y, int w, int h, mobj_t *camera)
 	framecount++;
 	validcount++;
 
-	RGL_RenderTrueBSP();
+	RGL_RenderNEW();
 }
 
 

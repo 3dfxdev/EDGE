@@ -73,6 +73,7 @@ static bool level_active = false;
 
 
 extern void P_GenerateSubsecMap(void);
+extern void R_PolygonizeMap(void);
 
 //
 // MAP related Lookup tables.
@@ -2259,6 +2260,8 @@ void P_SetupLevel(void)
 	LoadReject(lumpnum + ML_REJECT);
 
 	DoBlockMap(lumpnum + ML_BLOCKMAP);
+
+//!!!	R_PolygonizeMap();
 
 	GroupLines();
 

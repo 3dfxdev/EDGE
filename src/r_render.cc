@@ -122,7 +122,7 @@ static seg_t *cur_seg;
 
 static bool solid_mode;
 
-static std::list<drawsub_c *> drawsubs;
+std::list<drawsub_c *> drawsubs;
 
 #ifdef SHADOW_PROTOTYPE
 static const image_c *shadow_image = NULL;
@@ -2582,7 +2582,7 @@ static inline void AddNewDrawFloor(drawsub_c *dsub, extrafloor_t *ef,
 // Visit a subsector, and collect information, such as where the
 // walls, planes (ceilings & floors) and things need to be drawn.
 //
-static void RGL_WalkSubsector(subsector_t *sub)
+void RGL_WalkSubsector(subsector_t *sub, bool do_segs = true)
 {
 	seg_t *seg;
 	sector_t *sector;
@@ -2701,7 +2701,7 @@ static void RGL_WalkSubsector(subsector_t *sub)
 static void RGL_DrawSubsector(drawsub_c *dsub);
 
 
-static void RGL_DrawSubList(std::list<drawsub_c *> &dsubs)
+void RGL_DrawSubList(std::list<drawsub_c *> &dsubs)
 {
 	// draw all solid walls and planes
 	solid_mode = true;
@@ -3044,8 +3044,14 @@ static void RGL_RenderTrueBSP(void)
 	// needed for drawing the sky
 	RGL_BeginSky();
 
+#if 0
 	// walk the bsp tree
 	RGL_WalkBSPNode(root_node);
+#else
+	// brute force : render the whole level
+	for (int ik = 0; ik < numsubsectors; ik++)
+		RGL_WalkSubsector(subsectors + ik);
+#endif
 
 	RGL_FinishSky();
 
