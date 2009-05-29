@@ -59,6 +59,8 @@ struct line_s;
 struct side_s;
 struct region_properties_s;
 
+class drawsub_c;
+
 
 //
 // Touch Node
@@ -453,6 +455,7 @@ typedef struct subsector_s
 	bool convex;
 
 	int rend_seen;
+	drawsub_c *dsub;  // only valid if rend_seen == framecount
 }
 subsector_t;
 

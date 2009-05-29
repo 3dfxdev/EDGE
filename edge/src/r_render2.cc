@@ -76,30 +76,6 @@ extern void RGL_DrawSubList(std::list<drawsub_c *> &dsubs);
 extern void InitCamera(mobj_t *mo);
 
 
-class drawseg2_c
-{
-public:
-	seg_t *seg;
-
-	angle_t left, right, span;
-
-	float dist;
-
-	// segs which we block
-	std::list<drawseg2_c *> occludes;
-
-	// count of segs which block us
-	int blockers;
-
-public:
-	drawseg2_c(seg_t *_seg) : seg(_seg), occludes(), blockers(0)
-	{ }
-
-	~drawseg2_c()
-	{ }
-};
-
-
 static std::list<drawseg2_c *> free_lines;
 static std::list<drawseg2_c *> blocked_lines;
 
@@ -301,12 +277,13 @@ static void LineSet_AddSeg(seg_t *seg)
 		LineSet_InsertFree(dseg);
 	else
 		blocked_lines.push_back(dseg);
-}
 
-static void LineSet_AddSegList(seg_t *first)
-{
-	for (; first; first = first->sub_next)
-		LineSet_AddSeg(first);
+	// add drawseg into drawsubsector
+	if (! dseg->seg->miniseg)
+	{
+		SYS_ASSERT(seg->front_sub->rend_seen == framecount);
+		seg->front_sub->dsub->segs2.push_back(dseg);
+	}
 }
 
 static drawseg2_c * LineSet_RemoveFirst(void)
@@ -343,11 +320,12 @@ static drawseg2_c * LineSet_RemoveFirst(void)
 
 static void RGL_WalkSubsector2(subsector_t *sub)
 {
-	LineSet_AddSegList(sub->segs);
+	RGL_WalkSubsector(sub, false);
 
 	sub->rend_seen = framecount;
 
-	RGL_WalkSubsector(sub, false);
+	for (seg_t *seg = sub->segs; seg; seg = seg->sub_next)
+		LineSet_AddSeg(seg);
 }
 
 static void RGL_WalkSeg2(drawseg2_c *dseg)
