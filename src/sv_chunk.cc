@@ -571,9 +571,9 @@ bool SV_PushWriteChunk(const char *id)
 	strupr(cur->e_mark);
 
 	// create initial buffer
-	cur->start = new byte[1024];
+	cur->start = new byte[4096];
 	cur->pos   = cur->start;
-	cur->end   = cur->start + 1024;
+	cur->end   = cur->start + 4096;
 
 	return true;
 }
@@ -706,7 +706,7 @@ void SV_PutByte(unsigned char value)
 	if (cur->pos == cur->end)
 	{
 		int old_len = (cur->end - cur->start);
-		int new_len = (cur->end - cur->start) + 1024;
+		int new_len = old_len * 2;
 		int pos_idx = (cur->pos - cur->start);
 
 		byte *new_start = new byte[new_len];
