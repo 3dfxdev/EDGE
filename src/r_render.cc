@@ -3425,80 +3425,6 @@ void RGL_LoadLights(void)
 #endif
 }
 
-//
-// RGL_RenderTrueBSP
-//
-// OpenGL BSP rendering.  Initialises all structures, then walks the
-// BSP tree collecting information, then renders each subsector:
-// firstly front to back (drawing all solid walls & planes) and then
-// from back to front (drawing everything else, sprites etc..).
-//
-static void RGL_RenderTrueBSP(void)
-{
-	// clear extra light on player's weapon
-	rgl_weapon_r = rgl_weapon_g = rgl_weapon_b = 0;
-
-	FUZZ_Update();
-
-	R2_ClearBSP();
-	RGL_1DOcclusionClear();
-
-	drawsubs.clear();
-
-	player_t *v_player = view_cam_mo->player;
-	
-	// handle powerup effects
-	RGL_RainbowEffect(v_player);
-
-
-	if (hom_detect)
-	{
-		glClearColor(0.0f, 1.0f, 0.0f, 0.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
-	}
-
-	RGL_SetupMatrices3D();
-
-	glClear(GL_DEPTH_BUFFER_BIT);
-	glEnable(GL_DEPTH_TEST);
-
-	// needed for drawing the sky
-	RGL_BeginSky();
-
-#if 1
-	// walk the bsp tree
-	RGL_WalkBSPNode(root_node);
-#else
-	// brute force : render the whole level
-	for (int ik = 0; ik < numsubsectors; ik++)
-		RGL_WalkSubsector(subsectors + ik);
-#endif
-
-	RGL_FinishSky();
-
-	RGL_DrawSubList(drawsubs);
-
-	DoWeaponModel();
-
-	glDisable(GL_DEPTH_TEST);
-
-	// now draw 2D stuff like psprites, and add effects
-	RGL_SetupMatrices2D();
-
-	if (v_player)
-	{
-		RGL_DrawWeaponSprites(v_player);
-
-		RGL_ColourmapEffect(v_player);
-		RGL_PaletteEffect(v_player);
-
-		RGL_DrawCrosshair(v_player);
-	}
-
-#if (DEBUG >= 3) 
-	L_WriteDebug( "\n\n");
-#endif
-}
 
 
 void InitCamera(mobj_t *mo)
@@ -3644,7 +3570,7 @@ static void RGL_RenderNEW(void)
 
 	RGL_DrawSegList(drawsegs);
 
-//!!!	DoWeaponModel();
+	DoWeaponModel();
 
 	glDisable(GL_DEPTH_TEST);
 
