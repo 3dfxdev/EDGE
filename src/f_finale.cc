@@ -480,27 +480,27 @@ static void CastPerformAction(void)
 
 	// Yuk, handles sounds
 
-	if (caststate->action == P_ActMakeCloseAttemptSound)
+	if (caststate->action == A_MakeCloseAttemptSound)
 	{
 		if (castorder->closecombat)
 			sfx = castorder->closecombat->initsound;
 	}
-	else if (caststate->action == P_ActMeleeAttack)
+	else if (caststate->action == A_MeleeAttack)
 	{
 		if (castorder->closecombat)
 			sfx = castorder->closecombat->sound;
 	}
-	else if (caststate->action == P_ActMakeRangeAttemptSound)
+	else if (caststate->action == A_MakeRangeAttemptSound)
 	{
 		if (castorder->rangeattack)
 			sfx = castorder->rangeattack->initsound;
 	}
-	else if (caststate->action == P_ActRangeAttack)
+	else if (caststate->action == A_RangeAttack)
 	{
 		if (castorder->rangeattack)
 			CAST_RangeAttack(castorder->rangeattack);
 	}
-	else if (caststate->action == P_ActComboAttack)
+	else if (caststate->action == A_ComboAttack)
 	{
 		if (castonmelee && castorder->closecombat)
 		{
@@ -515,7 +515,7 @@ static void CastPerformAction(void)
 	{
 		sfx = castorder->activesound;
 	}
-	else if (caststate->action == P_ActWalkSoundChase)
+	else if (caststate->action == A_WalkSoundChase)
 	{
 		sfx = castorder->walksound;
 	}
@@ -576,7 +576,7 @@ static void CastTicker(void)
 	// advance to next state in animation
 	// -AJA- if there's a jumpstate, enter it occasionally
 
-	if (caststate->action == P_ActJump && caststate->jumpstate &&
+	if (caststate->action == A_Jump && caststate->jumpstate &&
 		(M_Random() < 64))
 		st = caststate->jumpstate;
 	else

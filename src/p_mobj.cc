@@ -504,7 +504,7 @@ bool P_SetMobjState(mobj_t * mobj, statenum_t state)
 		(states + st->nextstate);
 
 	if (st->action)
-		(* st->action)(mobj);
+		(* st->action)(mobj, st->action_par);
 
 	return true;
 }

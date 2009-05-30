@@ -63,7 +63,7 @@ typedef struct state_s
 	const char *label;
 
 	// routine to be performed
-	void (* action)(struct mobj_s * object);
+	void (* action)(struct mobj_s * mo, void *data);
 
 	// parameter for routine, or NULL
 	void *action_par;

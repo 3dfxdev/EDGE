@@ -90,7 +90,7 @@ static int SfxFlags(const mobjtype_c *info)
 // parameters needed: linetype number & tag number, which are stored
 // in the state's `action_par' field as a pointer to two integers.
 // 
-void P_ActActivateLineType(mobj_t * mo)
+void A_ActivateLineType(mobj_t * mo, void *data)
 {
 	int *values;
   
@@ -111,7 +111,7 @@ void P_ActActivateLineType(mobj_t * mo)
 // Allows things to enable or disable radius triggers (by tag number),
 // like linetypes can do already.
 //
-void P_ActEnableRadTrig(mobj_t * mo)
+void A_EnableRadTrig(mobj_t * mo, void *data)
 {
 	if (!mo->state || !mo->state->action_par)
 		return;
@@ -121,7 +121,7 @@ void P_ActEnableRadTrig(mobj_t * mo)
 	RAD_EnableByTag(mo, value[0], false);
 }
 
-void P_ActDisableRadTrig(mobj_t * mo)
+void A_DisableRadTrig(mobj_t * mo, void *data)
 {
 	if (!mo->state || !mo->state->action_par)
 		return;
@@ -328,11 +328,9 @@ static bool DecideRangeAttack(mobj_t * mo)
 }
 
 //
-// P_ActFaceTarget
-//
 // Look at the prey......
 //
-void P_ActFaceTarget(mobj_t *mo)
+void A_FaceTarget(mobj_t *mo, void *data)
 {
 	mobj_t *target = mo->target;
 
@@ -378,7 +376,7 @@ void P_ActFaceTarget(mobj_t *mo)
 }
 
 
-void P_ActMakeIntoCorpse(mobj_t * mo)
+void A_MakeDead(mobj_t * mo, void *data)
 {
 	// Gives the effect of the object being a corpse....
 
@@ -430,7 +428,7 @@ void P_BringCorpseToLife(mobj_t * corpse)
 }
 
 
-void P_ActResetSpreadCount(mobj_t * mo)
+void A_ResetSpreadCount(mobj_t * mo, void *data)
 {
 	// Resets the spreader count for fixed-order spreaders, normally used
 	// at the beginning of a set of missile states to ensure that an object
@@ -443,7 +441,7 @@ void P_ActResetSpreadCount(mobj_t * mo)
 //-------------------VISIBILITY HANDLING ROUTINES--------------------
 //-------------------------------------------------------------------
 
-void P_ActTransSet(mobj_t * mo)
+void A_TransSet(mobj_t * mo, void *data)
 {
 	float value = VISIBLE;
 
@@ -458,7 +456,7 @@ void P_ActTransSet(mobj_t * mo)
 	mo->visibility = mo->vis_target = value;
 }
 
-void P_ActTransFade(mobj_t * mo)
+void A_TransFade(mobj_t * mo, void *data)
 {
 	float value = INVISIBLE;
 
@@ -473,7 +471,7 @@ void P_ActTransFade(mobj_t * mo)
 	mo->vis_target = value;
 }
 
-void P_ActTransLess(mobj_t * mo)
+void A_TransLess(mobj_t * mo, void *data)
 {
 	float value = 0.05f;
 
@@ -491,7 +489,7 @@ void P_ActTransLess(mobj_t * mo)
 		mo->vis_target = INVISIBLE;
 }
 
-void P_ActTransMore(mobj_t * mo)
+void A_TransMore(mobj_t * mo, void *data)
 {
 	float value = 0.05f;
 
@@ -510,8 +508,6 @@ void P_ActTransMore(mobj_t * mo)
 }
 
 //
-// P_ActTransAlternate
-//
 // Alters the translucency of an item, EF_LESSVIS is used
 // internally to tell the object if it should be getting
 // more visible or less visible; EF_LESSVIS is set when an
@@ -519,7 +515,7 @@ void P_ActTransMore(mobj_t * mo)
 // to a level of lowest translucency) and the flag is unset
 // if the object has become as highly translucent as possible.
 //
-void P_ActTransAlternate(mobj_t * mo)
+void A_TransAlternate(mobj_t * mo, void *data)
 {
 	const state_t *st;
 	float value = 0.05f;
@@ -553,7 +549,7 @@ void P_ActTransAlternate(mobj_t * mo)
 }
 
 
-void P_ActDLightSet(mobj_t * mo)
+void A_DLightSet(mobj_t * mo, void *data)
 {
 	const state_t *st = mo->state;
 
@@ -569,7 +565,7 @@ void P_ActDLightSet(mobj_t * mo)
 }
 
 
-void P_ActDLightFade(mobj_t * mo)
+void A_DLightFade(mobj_t * mo, void *data)
 {
 	const state_t *st = mo->state;
 
@@ -583,7 +579,7 @@ void P_ActDLightFade(mobj_t * mo)
 }
 
 
-void P_ActDLightRandom(mobj_t * mo)
+void A_DLightRandom(mobj_t * mo, void *data)
 {
 	const state_t *st = mo->state;
 
@@ -603,7 +599,7 @@ void P_ActDLightRandom(mobj_t * mo)
 	}
 }
 
-void P_ActDLightColour(struct mobj_s *mo)
+void A_DLightColour(mobj_t *mo, void *data)
 {
 	const state_t *st = mo->state;
 
@@ -613,7 +609,7 @@ void P_ActDLightColour(struct mobj_s *mo)
 	}
 }
 
-void P_ActSetSkin(mobj_t * mo)
+void A_SetSkin(mobj_t * mo, void *data)
 {
 	const state_t *st = mo->state;
 
@@ -635,7 +631,7 @@ void P_ActSetSkin(mobj_t * mo)
 //------------------- MOVEMENT ROUTINES -----------------------------
 //-------------------------------------------------------------------
 
-void P_ActFaceDir(mobj_t * mo)
+void A_FaceDir(mobj_t * mo, void *data)
 {
 	const state_t *st = mo->state;
 
@@ -645,7 +641,7 @@ void P_ActFaceDir(mobj_t * mo)
 		mo->angle = 0;
 }
 
-void P_ActTurnDir(mobj_t * mo)
+void A_TurnDir(mobj_t * mo, void *data)
 {
 	const state_t *st = mo->state;
 
@@ -657,7 +653,7 @@ void P_ActTurnDir(mobj_t * mo)
 	mo->angle += turn;
 }
 
-void P_ActTurnRandom(mobj_t * mo)
+void A_TurnRandom(mobj_t * mo, void *data)
 {
 	const state_t *st = mo->state;
 	int turn = 359;
@@ -675,7 +671,7 @@ void P_ActTurnRandom(mobj_t * mo)
 		mo->angle += (angle_t)(turn << (ANGLEBITS - 10));
 }
 
-void P_ActMlookFace(mobj_t * mo)
+void A_MlookFace(mobj_t * mo, void *data)
 {
 	const state_t *st = mo->state;
 
@@ -685,7 +681,7 @@ void P_ActMlookFace(mobj_t * mo)
 		mo->vertangle = 0;
 }
 
-void P_ActMlookTurn(mobj_t * mo)
+void A_MlookTurn(mobj_t * mo, void *data)
 {
 	const state_t *st = mo->state;
 
@@ -693,7 +689,7 @@ void P_ActMlookTurn(mobj_t * mo)
 		mo->vertangle = M_ATan(*(float *)st->action_par);
 }
 
-void P_ActMoveFwd(mobj_t * mo)
+void A_MoveFwd(mobj_t * mo, void *data)
 {
 	const state_t *st = mo->state;
 
@@ -709,7 +705,7 @@ void P_ActMoveFwd(mobj_t * mo)
 	}
 }
 
-void P_ActMoveRight(mobj_t * mo)
+void A_MoveRight(mobj_t * mo, void *data)
 {
 	const state_t *st = mo->state;
 
@@ -725,7 +721,7 @@ void P_ActMoveRight(mobj_t * mo)
 	}
 }
 
-void P_ActMoveUp(mobj_t * mo)
+void A_MoveUp(mobj_t * mo, void *data)
 {
 	const state_t *st = mo->state;
 
@@ -733,7 +729,7 @@ void P_ActMoveUp(mobj_t * mo)
 		mo->mom.z += *(float *)st->action_par;
 }
 
-void P_ActStopMoving(mobj_t * mo)
+void A_StopMoving(mobj_t * mo, void *data)
 {
 	mo->mom.x = mo->mom.y = mo->mom.z = 0;
 }
@@ -743,7 +739,7 @@ void P_ActStopMoving(mobj_t * mo)
 //-------------------SOUND CAUSING ROUTINES--------------------------
 //-------------------------------------------------------------------
 
-void P_ActPlaySound(mobj_t * mo)
+void A_PlaySound(mobj_t * mo, void *data)
 {
 	// Generate an arbitrary sound.
 
@@ -763,7 +759,7 @@ void P_ActPlaySound(mobj_t * mo)
 }
 
 
-void P_ActKillSound(mobj_t * mo)
+void A_KillSound(mobj_t * mo, void *data)
 {
 	// Kill any current sounds from this thing.
 
@@ -771,7 +767,7 @@ void P_ActKillSound(mobj_t * mo)
 }
 
 
-void P_ActMakeAmbientSound(mobj_t * mo)
+void A_MakeAmbientSound(mobj_t * mo, void *data)
 {
 	// Just a sound generating procedure that cause the sound ref
 	// in seesound to be generated.
@@ -783,7 +779,7 @@ void P_ActMakeAmbientSound(mobj_t * mo)
 }
 
 
-void P_ActMakeAmbientSoundRandom(mobj_t * mo)
+void A_MakeAmbientSoundRandom(mobj_t * mo, void *data)
 {
 	// Give a small "random" chance that this object will make its
 	// ambient sound. Currently this is a set value of 50, however
@@ -800,7 +796,7 @@ void P_ActMakeAmbientSoundRandom(mobj_t * mo)
 }
 
 
-void P_ActMakeActiveSound(mobj_t * mo)
+void A_MakeActiveSound(mobj_t * mo, void *data)
 {
 	// Just a sound generating procedure that cause the sound ref
 	// in activesound to be generated.
@@ -814,7 +810,7 @@ void P_ActMakeActiveSound(mobj_t * mo)
 }
 
 
-void P_ActMakeDyingSound(mobj_t * mo)
+void A_MakeDyingSound(mobj_t * mo, void *data)
 {
 	// This procedure is like everyother sound generating
 	// procedure with the exception that if the object is
@@ -830,7 +826,7 @@ void P_ActMakeDyingSound(mobj_t * mo)
 }
 
 
-void P_ActMakePainSound(mobj_t * mo)
+void A_MakePainSound(mobj_t * mo, void *data)
 {
 	// Ow!! it hurts!
 
@@ -842,7 +838,7 @@ void P_ActMakePainSound(mobj_t * mo)
 }
 
 
-void P_ActMakeOverKillSound(mobj_t * mo)
+void A_MakeOverKillSound(mobj_t * mo, void *data)
 {
 	if (mo->info->overkill_sound)
 		S_StartFX(mo->info->overkill_sound, P_MobjGetSfxCategory(mo),
@@ -852,7 +848,7 @@ void P_ActMakeOverKillSound(mobj_t * mo)
 }
 
 
-void P_ActMakeCloseAttemptSound(mobj_t * mo)
+void A_MakeCloseAttemptSound(mobj_t * mo, void *data)
 {
 	// Attempting close combat sound
 
@@ -869,7 +865,7 @@ void P_ActMakeCloseAttemptSound(mobj_t * mo)
 }
 
 
-void P_ActMakeRangeAttemptSound(mobj_t * mo)
+void A_MakeRangeAttemptSound(mobj_t * mo, void *data)
 {
 	// Attempting range attack sound
 
@@ -891,11 +887,9 @@ void P_ActMakeRangeAttemptSound(mobj_t * mo)
 //-------------------------------------------------------------------
 
 //
-// P_ActDamageExplosion
-//
 // Radius Attack damage set by info->damage. Used for the original Barrels
 //
-void P_ActDamageExplosion(mobj_t * mo)
+void A_DamageExplosion(mobj_t * mo, void *data)
 {
 	float damage;
   
@@ -918,11 +912,9 @@ void P_ActDamageExplosion(mobj_t * mo)
 }
 
 //
-// P_ActThrust
-//
 // Thrust set by info->damage.
 //
-void P_ActThrust(mobj_t * mo)
+void A_Thrust(mobj_t * mo, void *data)
 {
 	float damage;
   
@@ -948,20 +940,16 @@ void P_ActThrust(mobj_t * mo)
 //-------------------------------------------------------------------
 
 //
-// P_ActExplode
-//
 // The object blows up, like a missile.
 //
 // -AJA- 1999/08/21: Replaced P_ActExplodeMissile (which was identical
 //       to p_mobj's P_ExplodeMissile) with this.
 //
-void P_ActExplode(mobj_t * mo)
+void A_Explode(mobj_t * mo, void *data)
 {
 	P_MobjExplodeMissile(mo);
 }
 
-//
-// P_ActCheckMissileSpawn
 //
 // This procedure handles a newly spawned missile, it moved
 // by half the amount of momentum and then checked to see
@@ -1480,8 +1468,6 @@ int P_BulletContact(mobj_t * source, mobj_t * target,
 }
 
 //
-// P_ActCreateSmokeTrail
-//
 // Just spawns smoke behind an mobj: the smoke is
 // risen by giving it z momentum, in order to
 // prevent the smoke appearing uniform (which obviously
@@ -1492,7 +1478,7 @@ int P_BulletContact(mobj_t * source, mobj_t * target,
 // -ACB- 1998/08/10 Written
 // -ACB- 1999/10/01 Check thing's current attack has a smoke projectile
 //
-void P_ActCreateSmokeTrail(mobj_t * projectile)
+void A_CreateSmokeTrail(mobj_t * projectile, void *data)
 {
 	const atkdef_c *attack = projectile->currentattack;
 
@@ -1519,8 +1505,6 @@ void P_ActCreateSmokeTrail(mobj_t * projectile)
 		smoke->tics = 1;
 }
 
-//
-// P_ActHomingProjectile
 //
 // This projectile will alter its course to intercept its
 // target, if is possible for this procedure to be called
@@ -1549,7 +1533,7 @@ void P_ActCreateSmokeTrail(mobj_t * projectile)
 //
 // -ACB- 1998/08/10
 //
-void P_ActHomingProjectile(mobj_t * projectile)
+void A_HomingProjectile(mobj_t * projectile, void *data)
 {
 	const atkdef_c *attack = projectile->currentattack;
 
@@ -1557,7 +1541,7 @@ void P_ActHomingProjectile(mobj_t * projectile)
 		return;
 
 	if (attack->flags & AF_TraceSmoke)
-		P_ActCreateSmokeTrail(projectile);
+		A_CreateSmokeTrail(projectile, NULL);
 
 	if (projectile->extendedflags & EF_FIRSTCHECK)
 	{
@@ -1614,12 +1598,10 @@ void P_ActHomingProjectile(mobj_t * projectile)
 }
 
 //
-// P_ActHomeToSpot
-//
 // This projectile will alter its course to intercept its target,
 // or explode if it has reached it.  Used by the bossbrain cube.
 //
-void P_ActHomeToSpot(mobj_t * projectile)
+void A_HomeToSpot(mobj_t * projectile, void *data)
 {
 	mobj_t *target = projectile->target;
   
@@ -1898,13 +1880,11 @@ static void DoMeleeAttack(mobj_t * mo)
 //
 
 //
-// P_ActTrackerFollow
-//
 // Called by the tracker to follow its target.
 //
 // -ACB- 1998/08/22
 //
-void P_ActTrackerFollow(mobj_t * tracker)
+void A_TrackerFollow(mobj_t * tracker, void *data)
 {
 	mobj_t *destination = tracker->target;
 
@@ -1924,33 +1904,29 @@ void P_ActTrackerFollow(mobj_t * tracker)
 }
 
 //
-// P_ActTrackerActive
-//
 // Called by the tracker to make its active sound: also tracks
 //
 // -ACB- 1998/08/22
 //
-void P_ActTrackerActive(mobj_t * tracker)
+void A_TrackerActive(mobj_t * tracker, void *data)
 {
 	if (tracker->info->activesound)
 		S_StartFX(tracker->info->activesound, P_MobjGetSfxCategory(tracker), tracker);
 
-	P_ActTrackerFollow(tracker);
+	A_TrackerFollow(tracker, NULL);
 }
 
-//
-// P_ActTrackerStart
 //
 // Called by the tracker to make its launch (see) sound: also tracks
 //
 // -ACB- 1998/08/22
 //
-void P_ActTrackerStart(mobj_t * tracker)
+void A_TrackerStart(mobj_t * tracker, void *data)
 {
 	if (tracker->info->seesound)
 		S_StartFX(tracker->info->seesound, P_MobjGetSfxCategory(tracker), tracker);
 
-	P_ActTrackerFollow(tracker);
+	A_TrackerFollow(tracker, NULL);
 }
 
 //
@@ -1981,11 +1957,9 @@ static void LaunchTracker(mobj_t * mo)
 	// tracker's target is the object's target
 	tracker->SetTarget(target);
 
-	P_ActTrackerFollow(tracker);
+	A_TrackerFollow(tracker, NULL);
 }
 
-//
-// P_ActEffectTracker
 //
 // Called by the object that launched the tracker to
 // cause damage to its target and a radius attack
@@ -1993,7 +1967,7 @@ static void LaunchTracker(mobj_t * mo)
 //
 // -ACB- 1998/08/22
 //
-void P_ActEffectTracker(mobj_t * mo)
+void A_EffectTracker(mobj_t * mo, void *data)
 {
 	mobj_t *tracker;
 	mobj_t *target;
@@ -2008,7 +1982,7 @@ void P_ActEffectTracker(mobj_t * mo)
 	target = mo->target;
 
 	if (attack->flags & AF_FaceTarget)
-		P_ActFaceTarget(mo);
+		A_FaceTarget(mo);
 
 	if (attack->flags & AF_NeedSight)
 	{
@@ -2373,29 +2347,29 @@ void P_TouchyContact(mobj_t *touchy, mobj_t *victim)
 }
 
 
-void P_ActTouchyRearm(mobj_t * touchy)
+void A_TouchyRearm(mobj_t * mo, void *data)
 {
-	touchy->flags |= MF_TOUCHY;
+	mo->flags |= MF_TOUCHY;
 }
 
-void P_ActTouchyDisarm(mobj_t * touchy)
+void A_TouchyDisarm(mobj_t * mo, void *data)
 {
-	touchy->flags &= ~MF_TOUCHY;
+	mo->flags &= ~MF_TOUCHY;
 }
 
 
-void P_ActBounceRearm(mobj_t * mo)
+void A_BounceRearm(mobj_t * mo, void *data)
 {
 	mo->extendedflags &= ~EF_JUSTBOUNCED;
 }
 
-void P_ActBounceDisarm(mobj_t * mo)
+void A_BounceDisarm(mobj_t * mo, void *data)
 {
 	mo->extendedflags |= EF_JUSTBOUNCED;
 }
 
 
-void P_ActDropItem(mobj_t * mo)
+void A_DropItem(mobj_t * mo, void *data)
 {
 	const mobjtype_c *info = mo->info->dropitem;
 
@@ -2408,7 +2382,7 @@ void P_ActDropItem(mobj_t * mo)
 
 	if (! info)
 	{
-		M_WarnError("P_ActDropItem: %s specifies no item to drop.\n", 
+		M_WarnError("A_DropItem: %s specifies no item to drop.\n", 
 					mo->info->ddf.name.c_str());
 		return;
 	}
@@ -2436,7 +2410,7 @@ void P_ActDropItem(mobj_t * mo)
 	item->spawnpoint.flags = 0;
 }
 
-void P_ActSpawn(mobj_t * mo)
+void A_Spawn(mobj_t * mo, void *data)
 {
 	if (!mo->state || !mo->state->action_par)
 		I_Error("SPAWN() action used without a object name!\n");
@@ -2456,7 +2430,7 @@ void P_ActSpawn(mobj_t * mo)
 }
 
 
-void P_ActPathCheck(mobj_t * mo)
+void A_PathCheck(mobj_t * mo, void *data)
 {
 	// Checks if the creature is a path follower, and if so enters the
 	// meander states.
@@ -2471,7 +2445,7 @@ void P_ActPathCheck(mobj_t * mo)
 }
 
 
-void P_ActPathFollow(mobj_t * mo)
+void A_PathFollow(mobj_t * mo, void *data)
 {
 	// For path-following creatures (spawned via RTS), makes the creature
 	// follow the path by trying to get to the next node.
@@ -2661,8 +2635,6 @@ static void P_DoAttack(mobj_t * mo)
 }
 
 //
-// P_ActComboAttack
-//
 // This is called at end of a set of states that can result in
 // either a closecombat or ranged attack. The procedure checks
 // to see if the target is within melee range and picks the
@@ -2670,7 +2642,7 @@ static void P_DoAttack(mobj_t * mo)
 //
 // -ACB- 1998/08/07
 //
-void P_ActComboAttack(mobj_t * mo)
+void A_ComboAttack(mobj_t * mo, void *data)
 {
 	const atkdef_c *attack;
 
@@ -2685,7 +2657,7 @@ void P_ActComboAttack(mobj_t * mo)
 	if (attack)
 	{
 		if (attack->flags & AF_FaceTarget)
-			P_ActFaceTarget(mo);
+			A_FaceTarget(mo);
 
 		if (attack->flags & AF_NeedSight)
 		{
@@ -2709,13 +2681,11 @@ void P_ActComboAttack(mobj_t * mo)
 }
 
 //
-// P_ActMeleeAttack
-//
 // Setup a close combat assault
 //
 // -ACB- 1998/08/07
 //
-void P_ActMeleeAttack(mobj_t * mo)
+void A_MeleeAttack(mobj_t * mo, void *data)
 {
 	const atkdef_c *attack;
 
@@ -2727,13 +2697,13 @@ void P_ActMeleeAttack(mobj_t * mo)
 
 	if (!attack)
 	{
-		M_WarnError("P_ActMeleeAttack: %s has no close combat attack.\n", 
+		M_WarnError("A_MeleeAttack: %s has no close combat attack.\n", 
 					mo->info->ddf.name.c_str());
 		return;
 	}
 
 	if (attack->flags & AF_FaceTarget)
-		P_ActFaceTarget(mo);
+		A_FaceTarget(mo);
 
 	if (attack->flags & AF_NeedSight)
 	{
@@ -2746,13 +2716,11 @@ void P_ActMeleeAttack(mobj_t * mo)
 }
 
 //
-// P_ActRangeAttack
-//
 // Setup an attack at range
 //
 // -ACB- 1998/08/07
 //
-void P_ActRangeAttack(mobj_t * mo)
+void A_RangeAttack(mobj_t * mo, void *data)
 {
 	const atkdef_c *attack;
 
@@ -2764,13 +2732,13 @@ void P_ActRangeAttack(mobj_t * mo)
 
 	if (!attack)
 	{
-		M_WarnError("P_ActRangeAttack: %s hasn't got a range attack.\n", 
+		M_WarnError("A_RangeAttack: %s hasn't got a range attack.\n", 
 					mo->info->ddf.name.c_str());
 		return;
 	}
 
 	if (attack->flags & AF_FaceTarget)
-		P_ActFaceTarget(mo);
+		A_FaceTarget(mo);
 
 	if (attack->flags & AF_NeedSight)
 	{
@@ -2783,15 +2751,13 @@ void P_ActRangeAttack(mobj_t * mo)
 }
 
 //
-// P_ActSpareAttack
-//
 // Setup an attack that is not defined as close or range. can be
 // used to act as a follow attack for close or range, if you want one to
 // add to the others.
 //
 // -ACB- 1998/08/24
 //
-void P_ActSpareAttack(mobj_t *mo)
+void A_SpareAttack(mobj_t *mo, void *data)
 {
 	const atkdef_c *attack;
 
@@ -2804,7 +2770,7 @@ void P_ActSpareAttack(mobj_t *mo)
 	if (attack)
 	{
 		if ((attack->flags & AF_FaceTarget) && mo->target)
-			P_ActFaceTarget(mo);
+			A_FaceTarget(mo);
 
 		if ((attack->flags & AF_NeedSight) && mo->target)
 		{
@@ -2818,15 +2784,13 @@ void P_ActSpareAttack(mobj_t *mo)
 #ifdef DEVELOPERS
 	else
 	{
-		M_WarnError("P_ActSpareAttack: %s hasn't got a spare attack\n", mo->info->ddf.name.c_str());
+		M_WarnError("A_SpareAttack: %s hasn't got a spare attack\n", mo->info->ddf.name.c_str());
 		return;
 	}
 #endif
 
 }
 
-//
-// P_ActRefireCheck
 //
 // This procedure will be called inbetween firing on an object
 // that will fire repeatly (Chaingunner/Arachontron etc...), the
@@ -2839,7 +2803,7 @@ void P_ActSpareAttack(mobj_t *mo)
 //
 // -ACB- 1998/08/10
 //
-void P_ActRefireCheck(mobj_t * mo)
+void A_RefireCheck(mobj_t * mo, void *data)
 {
 	mobj_t *target;
 	const atkdef_c *attack;
@@ -2850,7 +2814,7 @@ void P_ActRefireCheck(mobj_t * mo)
 		return;
 
 	if (attack->flags & AF_FaceTarget)
-		P_ActFaceTarget(mo);
+		A_FaceTarget(mo);
 
 	// Random chance that object will keep firing regardless
 	if (P_RandomTest(attack->keepfirechance))
@@ -2870,14 +2834,12 @@ void P_ActRefireCheck(mobj_t * mo)
 }
 
 //
-// P_ActReloadCheck
-//
 // Enter reload states if the monster has shot a certain number of
 // shots (given by RELOAD_SHOTS command).
 //
 // -AJA- 2004/11/15: added this.
 //
-void P_ActReloadCheck(mobj_t * mo)
+void A_ReloadCheck(mobj_t * mo, void *data)
 {
 	mo->shot_count++;
 
@@ -2890,7 +2852,7 @@ void P_ActReloadCheck(mobj_t * mo)
 	}
 }
 
-void P_ActReloadReset(mobj_t * mo)
+void A_ReloadReset(mobj_t * mo, void *data)
 {
 	mo->shot_count = 0;
 }
@@ -3022,13 +2984,11 @@ static bool CreateAggression(mobj_t * mo)
 
 
 //
-// P_ActStandardLook
-//
 // Standard Lookout procedure
 //
 // -ACB- 1998/08/22
 //
-void P_ActStandardLook(mobj_t * mo)
+void A_StandardLook(mobj_t * mo, void *data)
 {
 	int targ_pnum;
 	mobj_t *targ = NULL;
@@ -3086,13 +3046,11 @@ void P_ActStandardLook(mobj_t * mo)
 }
 
 //
-// P_ActPlayerSupportLook
-//
 // Player Support Lookout procedure
 //
 // -ACB- 1998/09/05
 //
-void P_ActPlayerSupportLook(mobj_t * mo)
+void A_PlayerSupportLook(mobj_t * mo, void *data)
 {
 	mo->threshold = 0;  // any shot will wake up
 
@@ -3119,10 +3077,7 @@ void P_ActPlayerSupportLook(mobj_t * mo)
 		P_SetMobjStateDeferred(mo, mo->info->meander_state, 0);
 }
 
-//
-// P_ActStandardMeander
-//
-void P_ActStandardMeander(mobj_t * mo)
+void A_StandardMeander(mobj_t * mo, void *data)
 {
 	int delta;
 
@@ -3145,10 +3100,7 @@ void P_ActStandardMeander(mobj_t * mo)
 	}
 }
 
-//
-// P_ActPlayerSupportMeander
-//
-void P_ActPlayerSupportMeander(mobj_t * mo)
+void A_PlayerSupportMeander(mobj_t * mo, void *data)
 {
 	int delta;
 
@@ -3185,14 +3137,12 @@ void P_ActPlayerSupportMeander(mobj_t * mo)
 }
 
 //
-// P_ActStandardChase
-//
 // Standard AI Chase Procedure
 //
 // -ACB- 1998/08/22 Procedure Written
 // -ACB- 1998/09/05 Added Support Object Check
 //
-void P_ActStandardChase(mobj_t * mo)
+void A_StandardChase(mobj_t * mo, void *data)
 {
 	int delta;
 	sfx_t *sound;
@@ -3297,14 +3247,12 @@ void P_ActStandardChase(mobj_t * mo)
 }
 
 //
-// P_ActResurrectChase
-//
 // Before undertaking the standard chase procedure, the object
 // will check for a nearby corpse and raises one if it exists.
 //
 // -ACB- 1998/09/05 Support Check: Raised object supports raiser's supportobj
 //
-void P_ActResurrectChase(mobj_t * mo)
+void A_ResurrectChase(mobj_t * mo, void *data)
 {
 	mobj_t *corpse;
 
@@ -3338,15 +3286,13 @@ void P_ActResurrectChase(mobj_t * mo)
 		return;
 	}
 
-	P_ActStandardChase(mo);
+	A_StandardChase(mo, NULL);
 }
 
 //
-// P_ActWalkSoundChase
-//
 // Make a sound and then chase...
 //
-void P_ActWalkSoundChase(mobj_t * mo)
+void A_WalkSoundChase(mobj_t * mo, void *data)
 {
 	if (!mo->info->walksound)
 	{
@@ -3356,20 +3302,20 @@ void P_ActWalkSoundChase(mobj_t * mo)
 	}
 
 	S_StartFX(mo->info->walksound, P_MobjGetSfxCategory(mo), mo);
-	P_ActStandardChase(mo);
+	A_StandardChase(mo, NULL);
 }
 
 
-void P_ActDie(mobj_t * mo)
+void A_Die(mobj_t * mo, void *data)
 {
 	// Boom/MBF compatibility.
 
 	P_DamageMobj(mo, NULL, NULL, mo->health + 1, NULL);
 }
 
-void P_ActKeenDie(mobj_t * mo)
+void A_KeenDie(mobj_t * mo, void *data)
 {
-	P_ActMakeIntoCorpse(mo);
+	A_MakeDead(mo, NULL);
 
 	// see if all other Keens are dead
 	for (mobj_t *cur = mobjlisthead; cur != NULL; cur = cur->next)
@@ -3390,7 +3336,7 @@ void P_ActKeenDie(mobj_t * mo)
 }
 
 
-void P_ActCheckMoving(mobj_t * mo)
+void A_CheckMoving(mobj_t * mo, void *data)
 {
 	// -KM- 1999/01/31 Returns a player to spawnstate when not moving.
 
@@ -3417,7 +3363,7 @@ void P_ActCheckMoving(mobj_t * mo)
 	}
 }
 
-void P_ActCheckActivity(mobj_t *mo)
+void A_CheckActivity(mobj_t *mo, void *data)
 {
 	player_t *pl = mo->player;
 
@@ -3464,7 +3410,7 @@ void P_ActCheckActivity(mobj_t *mo)
 }
 
 
-void P_ActCheckBlood(mobj_t * mo)
+void A_CheckBlood(mobj_t * mo, void *data)
 {
 	// -KM- 1999/01/31 Part of the extra blood option, makes blood stick around...
 	// -AJA- 1999/10/02: ...but not indefinitely.
@@ -3479,7 +3425,7 @@ void P_ActCheckBlood(mobj_t * mo)
 }
 
 
-void P_ActJump(mobj_t * mo)
+void A_Jump(mobj_t * mo, void *data)
 {
 	// Jumps to the given label, possibly randomly.
 	//
@@ -3505,18 +3451,18 @@ void P_ActJump(mobj_t * mo)
 }
 
 
-void P_ActSetInvuln(struct mobj_s *mo)
+void A_SetInvuln(struct mobj_s *mo, void *data)
 {
 	mo->hyperflags |= HF_INVULNERABLE;
 }
 
-void P_ActClearInvuln(struct mobj_s *mo)
+void A_ClearInvuln(struct mobj_s *mo, void *data)
 {
 	mo->hyperflags &= ~HF_INVULNERABLE;
 }
 
 
-void P_ActBecome(struct mobj_s *mo)
+void A_Become(struct mobj_s *mo, void *data)
 {
 	if (!mo->state || !mo->state->action_par)
 	{
@@ -3602,7 +3548,7 @@ void P_PlayerAttack(mobj_t * p_obj, const atkdef_c * attack)
 	p_obj->SetTarget(target);
 
 	if (attack->flags & AF_FaceTarget)
-		P_ActFaceTarget(p_obj);
+		A_FaceTarget(p_obj);
 
 	P_DoAttack(p_obj);
 }

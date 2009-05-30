@@ -215,7 +215,7 @@ checkflag_result_e;
 typedef struct
 {
 	const char *actionname;
-	void (*action) (struct mobj_s * mo);
+	void (*action) (struct mobj_s *mo, void *data);
 
 	// -AJA- 1999/08/09: This function handles the argument when brackets
 	// are present (e.g. "WEAPON_SHOOT(FIREBALL)").  NULL if unused.

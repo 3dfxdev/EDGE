@@ -83,7 +83,7 @@ void P_SetPsprite(player_t * p, int position, int stnum)
 	p->action_psp = position;
 
 	if (st->action)
-		(* st->action)(p->mo);
+		(* st->action)(p->mo, st->action_par);
 }
 
 
@@ -931,7 +931,7 @@ static void BobWeapon(player_t *p, weapondef_c *info)
 // Follows after getting weapon up,
 // or after previous attack/fire sequence.
 //
-void A_WeaponReady(mobj_t * mo)
+void A_WeaponReady(mobj_t * mo, void *data)
 {
 	player_t *p = mo->player;
 	pspdef_t *psp = &p->psprites[p->action_psp];
@@ -1059,9 +1059,9 @@ void A_WeaponReady(mobj_t * mo)
 }
 
 
-void A_WeaponEmpty(mobj_t * mo)
+void A_WeaponEmpty(mobj_t * mo, void *data)
 {
-	A_WeaponReady(mo);
+	A_WeaponReady(mo, data);
 }
 
 //
@@ -1110,8 +1110,8 @@ static void DoReFire(mobj_t * mo, int ATK)
 		SwitchAway(p, ATK, 0);
 }
 
-void A_ReFire  (mobj_t * mo) { DoReFire(mo, 0); }
-void A_ReFireSA(mobj_t * mo) { DoReFire(mo, 1); }
+void A_ReFire  (mobj_t * mo, void *) { DoReFire(mo, 0); }
+void A_ReFireSA(mobj_t * mo, void *) { DoReFire(mo, 1); }
 
 //
 // A_NoFire
@@ -1162,13 +1162,13 @@ static void DoNoFire(mobj_t * mo, int ATK, bool does_return)
 		SwitchAway(p, ATK, 0);
 }
 
-void A_NoFire  (mobj_t * mo)       { DoNoFire(mo, 0, false); }
-void A_NoFireSA(mobj_t * mo)       { DoNoFire(mo, 1, false); }
-void A_NoFireReturn  (mobj_t * mo) { DoNoFire(mo, 0, true);  }
-void A_NoFireReturnSA(mobj_t * mo) { DoNoFire(mo, 1, true);  }
+void A_NoFire        (mobj_t * mo, void *) { DoNoFire(mo, 0, false); }
+void A_NoFireSA      (mobj_t * mo, void *) { DoNoFire(mo, 1, false); }
+void A_NoFireReturn  (mobj_t * mo, void *) { DoNoFire(mo, 0, true);  }
+void A_NoFireReturnSA(mobj_t * mo, void *) { DoNoFire(mo, 1, true);  }
 
 
-void A_WeaponKick(mobj_t * mo)
+void A_WeaponKick(mobj_t * mo, void *data)
 {
 	player_t *p = mo->player;
 	pspdef_t *psp = &p->psprites[p->action_psp];
@@ -1219,11 +1219,11 @@ static void DoCheckReload(mobj_t * mo, int ATK)
 		SwitchAway(p, ATK, 0);
 }
 
-void A_CheckReload  (mobj_t * mo) { DoCheckReload(mo, 0); }
-void A_CheckReloadSA(mobj_t * mo) { DoCheckReload(mo, 1); }
+void A_CheckReload  (mobj_t * mo, void *) { DoCheckReload(mo, 0); }
+void A_CheckReloadSA(mobj_t * mo, void *) { DoCheckReload(mo, 1); }
 
 
-void A_Lower(mobj_t * mo)
+void A_Lower(mobj_t * mo, void *data)
 {
 	// Lowers current weapon, and changes weapon at bottom
 
@@ -1278,7 +1278,7 @@ void A_Lower(mobj_t * mo)
 }
 
 
-void A_Raise(mobj_t * mo)
+void A_Raise(mobj_t * mo, void *data)
 {
 	player_t *p = mo->player;
 	pspdef_t *psp = &p->psprites[p->action_psp];
@@ -1301,7 +1301,7 @@ void A_Raise(mobj_t * mo)
 }
 
 
-void A_SetCrosshair(mobj_t * mo)
+void A_SetCrosshair(mobj_t * mo, void *data)
 {
 	player_t *p = mo->player;
 	pspdef_t *psp = &p->psprites[p->action_psp];
@@ -1312,7 +1312,7 @@ void A_SetCrosshair(mobj_t * mo)
 	P_SetPspriteDeferred(p, ps_crosshair, psp->state->jumpstate);
 }
 
-void A_TargetJump(mobj_t * mo)
+void A_TargetJump(mobj_t * mo, void *data)
 {
 	player_t *p = mo->player;
 	pspdef_t *psp = &p->psprites[p->action_psp];
@@ -1333,7 +1333,7 @@ void A_TargetJump(mobj_t * mo)
 	P_SetPspriteDeferred(p, ps_crosshair, psp->state->jumpstate);
 }
 
-void A_FriendJump(mobj_t * mo)
+void A_FriendJump(mobj_t * mo, void *data)
 {
 	player_t *p = mo->player;
 	pspdef_t *psp = &p->psprites[p->action_psp];
@@ -1379,8 +1379,8 @@ static void DoGunFlash(mobj_t * mo, int ATK)
 	}
 }
 
-void A_GunFlash  (mobj_t * mo) { DoGunFlash(mo, 0); }
-void A_GunFlashSA(mobj_t * mo) { DoGunFlash(mo, 1); }
+void A_GunFlash  (mobj_t * mo, void *) { DoGunFlash(mo, 0); }
+void A_GunFlashSA(mobj_t * mo, void *) { DoGunFlash(mo, 1); }
 
 
 static void DoWeaponShoot(mobj_t * mo, int ATK)
@@ -1477,8 +1477,8 @@ static void DoWeaponShoot(mobj_t * mo, int ATK)
 	p->idlewait = 0;
 }
 
-void A_WeaponShoot  (mobj_t * mo) { DoWeaponShoot(mo, 0); }
-void A_WeaponShootSA(mobj_t * mo) { DoWeaponShoot(mo, 1); }
+void A_WeaponShoot  (mobj_t * mo, void *) { DoWeaponShoot(mo, 0); }
+void A_WeaponShootSA(mobj_t * mo, void *) { DoWeaponShoot(mo, 1); }
 
 
 //
@@ -1486,7 +1486,7 @@ void A_WeaponShootSA(mobj_t * mo) { DoWeaponShoot(mo, 1); }
 //
 // -AJA- 1999/09/10: written.
 //
-void A_WeaponEject(mobj_t * mo)
+void A_WeaponEject(mobj_t * mo, void *data)
 {
 	player_t *p = mo->player;
 	pspdef_t *psp = &p->psprites[p->action_psp];
@@ -1505,7 +1505,7 @@ void A_WeaponEject(mobj_t * mo)
 }
 
 
-void A_WeaponPlaySound(mobj_t * mo)
+void A_WeaponPlaySound(mobj_t * mo, void *data)
 {
 	// Generate an arbitrary sound from this weapon.
 
@@ -1527,7 +1527,7 @@ void A_WeaponPlaySound(mobj_t * mo)
 }
 
 
-void A_WeaponKillSound(mobj_t * mo)
+void A_WeaponKillSound(mobj_t * mo, void *data)
 {
 	// kill any current sound from this weapon
 
@@ -1535,19 +1535,19 @@ void A_WeaponKillSound(mobj_t * mo)
 }
 
 
-void A_SFXWeapon1(mobj_t * mo)
+void A_SFXWeapon1(mobj_t * mo, void *data)
 {
 	player_t *p = mo->player;
 	S_StartFX(p->weapons[p->ready_wp].info->sound1, WeapSfxCat(p), mo);
 }
 
-void A_SFXWeapon2(mobj_t * mo)
+void A_SFXWeapon2(mobj_t * mo, void *data)
 {
 	player_t *p = mo->player;
 	S_StartFX(p->weapons[p->ready_wp].info->sound2, WeapSfxCat(p), mo);
 }
 
-void A_SFXWeapon3(mobj_t * mo)
+void A_SFXWeapon3(mobj_t * mo, void *data)
 {
 	player_t *p = mo->player;
 	S_StartFX(p->weapons[p->ready_wp].info->sound3, WeapSfxCat(p), mo);
@@ -1556,12 +1556,12 @@ void A_SFXWeapon3(mobj_t * mo)
 //
 // These three routines make a flash of light when a weapon fires.
 //
-void A_Light0(mobj_t * mo) { mo->player->extralight = 0; }
-void A_Light1(mobj_t * mo) { mo->player->extralight = 1; }
-void A_Light2(mobj_t * mo) { mo->player->extralight = 2; }
+void A_Light0(mobj_t * mo, void *) { mo->player->extralight = 0; }
+void A_Light1(mobj_t * mo, void *) { mo->player->extralight = 1; }
+void A_Light2(mobj_t * mo, void *) { mo->player->extralight = 2; }
 
 
-void A_WeaponJump(mobj_t * mo)
+void A_WeaponJump(mobj_t * mo, void *data)
 {
 	player_t *p = mo->player;
 	pspdef_t *psp = &p->psprites[p->action_psp];
@@ -1590,7 +1590,7 @@ void A_WeaponJump(mobj_t * mo)
 }
 
 
-void A_WeaponTransSet(mobj_t * mo)
+void A_WeaponTransSet(mobj_t * mo, void *data)
 {
 	player_t *p = mo->player;
 	pspdef_t *psp = &p->psprites[p->action_psp];
@@ -1606,7 +1606,7 @@ void A_WeaponTransSet(mobj_t * mo)
 }
 
 
-void A_WeaponTransFade(mobj_t * mo)
+void A_WeaponTransFade(mobj_t * mo, void *data)
 {
 	player_t *p = mo->player;
 	pspdef_t *psp = &p->psprites[p->action_psp];
@@ -1623,7 +1623,7 @@ void A_WeaponTransFade(mobj_t * mo)
 }
 
 
-void A_WeaponEnableRadTrig(mobj_t *mo)
+void A_WeaponEnableRadTrig(mobj_t *mo, void *data)
 {
 	player_t *p = mo->player;
 	pspdef_t *psp = &p->psprites[p->action_psp];
@@ -1635,7 +1635,7 @@ void A_WeaponEnableRadTrig(mobj_t *mo)
 	}
 }
 
-void A_WeaponDisableRadTrig(mobj_t *mo)
+void A_WeaponDisableRadTrig(mobj_t *mo, void *data)
 {
 	player_t *p = mo->player;
 	pspdef_t *psp = &p->psprites[p->action_psp];
@@ -1648,7 +1648,7 @@ void A_WeaponDisableRadTrig(mobj_t *mo)
 }
 
 
-void A_WeaponSetSkin(mobj_t * mo)
+void A_WeaponSetSkin(mobj_t * mo, void *data)
 {
 	player_t *p = mo->player;
 	pspdef_t *psp = &p->psprites[p->action_psp];
