@@ -66,15 +66,6 @@
 // #define DEBUG_GREET_NEIGHBOUR
 
 
-
-side_t *sidedef;
-line_t *linedef;
-sector_t *frontsector;
-sector_t *backsector;
-
-unsigned int root_node;
-
-
 int detail_level = 1;
 int use_dlights = 0;
 
@@ -96,12 +87,6 @@ extern int rgl_weapon_b;
 extern float sprite_skew;
 
 // common stuff
-
-extern sector_t *frontsector;
-extern sector_t *backsector;
-
-static subsector_t *cur_sub;
-static seg_t *cur_seg;
 
 static bool solid_mode;
 
@@ -1250,7 +1235,8 @@ static void ComputeWallTiles(seg_t *seg, int sidenum, float f_min, float c_max)
 }
 
 
-static void DrawWallPart(drawfloor_t *dfloor,
+static void DrawWallPart(seg_t *wseg,
+                         drawfloor_t *dfloor,
 		                 float x1, float y1, float lz1, float lz2,
 						 float x2, float y2, float rz1, float rz2,
 		                 float tex_top_h, wall_tile_t *wt,
@@ -1303,12 +1289,11 @@ static void DrawWallPart(drawfloor_t *dfloor,
 	// do the N/S/W/E bizzo...
 	if (currmap->episode->lighting == LMODEL_Doom && props->lightlevel > 0)
 	{
-		if (cur_seg->v1->y == cur_seg->v2->y)
+		if (wseg->v1->y == wseg->v2->y)
 			lit_adjust -= 16;
-		else if (cur_seg->v1->x == cur_seg->v2->x)
+		else if (wseg->v1->x == wseg->v2->x)
 			lit_adjust += 16;
 	}
-
 
 
 	float total_w = IM_TOTAL_WIDTH( surf->image);
@@ -1345,8 +1330,8 @@ static void DrawWallPart(drawfloor_t *dfloor,
 
 	if (solid_mode && !mid_masked)
 	{
-		GreetNeighbourSector(left_h,  left_num,  cur_seg->nb_sec[0]);
-		GreetNeighbourSector(right_h, right_num, cur_seg->nb_sec[1]);
+		GreetNeighbourSector(left_h,  left_num,  wseg->nb_sec[0]);
+		GreetNeighbourSector(right_h, right_num, wseg->nb_sec[1]);
 
 #if DEBUG_GREET_NEIGHBOUR
 		SYS_ASSERT(left_num  <= MAX_EDGE_VERT);
@@ -1452,43 +1437,44 @@ static void DrawWallPart(drawfloor_t *dfloor,
 							   v_bbox[BOXRIGHT], v_bbox[BOXTOP],    top,
 							   DLIT_Wall, &data);
 
-		P_SectorGlowIterator(cur_seg->frontsector,
+		P_SectorGlowIterator(wseg->frontsector,
 				             v_bbox[BOXLEFT],  v_bbox[BOXBOTTOM], bottom,
 							 v_bbox[BOXRIGHT], v_bbox[BOXTOP],    top,
 							 GLOWLIT_Wall, &data);
 	}
 }
 
-static void DrawSlidingDoor(drawfloor_t *dfloor, float c, float f,
+static void DrawSlidingDoor(seg_t *wseg,
+                            drawfloor_t *dfloor, float c, float f,
 						    float tex_top_h, wall_tile_t *wt,
 						    bool opaque, float x_offset)
 {
 
 	/* smov may be NULL */
-	slider_move_t *smov = cur_seg->linedef->slider_move;
+	slider_move_t *smov = wseg->linedef->slider_move;
 
 	float opening = smov ? smov->opening : 0;
 
-	line_t *ld = cur_seg->linedef;
+	line_t *ld = wseg->linedef;
 
 /// float im_width = IM_WIDTH(wt->surface->image);
 
 	int num_parts = 1;
-	if (cur_seg->linedef->slide_door->s.type == SLIDE_Center)
+	if (wseg->linedef->slide_door->s.type == SLIDE_Center)
 		num_parts = 2;
 
 	// extent of current seg along the linedef
 	float s_seg, e_seg;
 
-	if (cur_seg->side == 0)
+	if (wseg->side == 0)
 	{
-		s_seg = cur_seg->offset;
-		e_seg = s_seg + cur_seg->length;
+		s_seg = wseg->offset;
+		e_seg = s_seg + wseg->length;
 	}
 	else
 	{
-		e_seg = ld->length - cur_seg->offset;
-		s_seg = e_seg - cur_seg->length;
+		e_seg = ld->length - wseg->offset;
+		s_seg = e_seg - wseg->length;
 	}
 
 	for (int part = 0; part < num_parts; part++)
@@ -1497,7 +1483,7 @@ static void DrawSlidingDoor(drawfloor_t *dfloor, float c, float f,
 		float s_along, s_tex;
 		float e_along, e_tex;
 
-		switch (cur_seg->linedef->slide_door->s.type)
+		switch (wseg->linedef->slide_door->s.type)
 		{
 			case SLIDE_Left:
 				s_along = 0;
@@ -1563,7 +1549,7 @@ static void DrawSlidingDoor(drawfloor_t *dfloor, float c, float f,
 		s_tex += x_offset;
 		e_tex += x_offset;
 
-		DrawWallPart(dfloor, x1,y1,f,c, x2,y2,f,c, tex_top_h, wt, true, opaque, s_tex, e_tex);
+		DrawWallPart(wseg, dfloor, x1,y1,f,c, x2,y2,f,c, tex_top_h, wt, true, opaque, s_tex, e_tex);
 	}
 }
 
@@ -1581,6 +1567,7 @@ typedef struct
 	float R, G, B;
 
 	float plane_h;
+	seg_t *seg;
 
 	float tx0, ty0;
 	float image_w, image_h;
@@ -1639,11 +1626,11 @@ static void DLIT_Flood(mobj_t *mo, void *dataptr)
 
 	SYS_ASSERT(mo->dlight.shader);
 
-	float sx = cur_seg->v1->x;
-	float sy = cur_seg->v1->y;
+	float sx = data->seg->v1->x;
+	float sy = data->seg->v1->y;
 
-	float dx = cur_seg->v2->x - sx;
-	float dy = cur_seg->v2->y - sy;
+	float dx = data->seg->v2->x - sx;
+	float dy = data->seg->v2->y - sy;
 
 	int blending = BL_Add;
 
@@ -1667,7 +1654,7 @@ static void DLIT_Flood(mobj_t *mo, void *dataptr)
 }
 
 
-static void EmulateFloodPlane(const drawfloor_t *dfloor,
+static void EmulateFloodPlane(seg_t *seg, const drawfloor_t *dfloor,
 	const sector_t *flood_ref, int face_dir, float h1, float h2)
 {
 	if (num_active_mirrors > 0)
@@ -1688,8 +1675,8 @@ static void EmulateFloodPlane(const drawfloor_t *dfloor,
 		return;
 
 	// ignore fake 3D bridges (Batman MAP03)
-	if (cur_seg->linedef &&
-	    cur_seg->linedef->frontsector == cur_seg->linedef->backsector)
+	if (seg->linedef &&
+	    seg->linedef->frontsector == seg->linedef->backsector)
 		return;
 
 	const region_properties_t *props = surf->override_p ?
@@ -1706,6 +1693,7 @@ static void EmulateFloodPlane(const drawfloor_t *dfloor,
 	data.R = data.G = data.B = 1.0f;
 
 	data.plane_h = (face_dir > 0) ? h2 : h1;
+	data.seg = seg;
 
 	data.tx0 = surf->offset.x;
 	data.ty0 = surf->offset.y;
@@ -1722,7 +1710,7 @@ static void EmulateFloodPlane(const drawfloor_t *dfloor,
 	// The more the better, upto a limit of 64 pieces, and
 	// also limiting the size of the pieces.
 
-	float piece_w = cur_seg->length;
+	float piece_w = seg->length;
 	float piece_h = h2 - h1;
 
 	int piece_col = 1;
@@ -1750,11 +1738,11 @@ static void EmulateFloodPlane(const drawfloor_t *dfloor,
 
 	SYS_ASSERT(piece_col <= MAX_FLOOD_VERT);
 
-	float sx = cur_seg->v1->x;
-	float sy = cur_seg->v1->y;
+	float sx = seg->v1->x;
+	float sy = seg->v1->y;
 
-	float dx = cur_seg->v2->x - sx;
-	float dy = cur_seg->v2->y - sy;
+	float dx = seg->v2->x - sx;
+	float dy = seg->v2->y - sy;
 	float dh = h2 - h1;
 
 	data.piece_row = piece_row;
@@ -1797,8 +1785,8 @@ static void EmulateFloodPlane(const drawfloor_t *dfloor,
 		//       efficient to handle them here, and duplicate the striping
 		//       code in the DLIT_Flood function.
 
-		float ex = cur_seg->v2->x;
-		float ey = cur_seg->v2->y;
+		float ex = seg->v2->x;
+		float ey = seg->v2->y;
 
 		// compute bbox for finding dlights (use 'lit_pos' coords).
 		float other_h = (face_dir > 0) ? h1 : h2;
@@ -1829,20 +1817,19 @@ static void RGL_DrawSeg(drawfloor_t *dfloor, seg_t *seg)
 	// Analyses floor/ceiling heights, and add corresponding walls/floors
 	// to the drawfloor.  Returns true if the whole region was "solid".
 	//
-	cur_seg = seg;
 
 	SYS_ASSERT(!seg->miniseg && seg->linedef);
 
 	// mark the segment on the automap
 	seg->linedef->flags |= MLF_Mapped;
 
-	frontsector = seg->front_sub->sector;
-	backsector  = NULL;
+	sector_t *frontsector = seg->front_sub->sector;
+	sector_t *backsector  = NULL;
 
 	if (seg->back_sub)
 		backsector = seg->back_sub->sector;
 
-	side_t *sd = cur_seg->sidedef;
+	side_t *sd = seg->sidedef;
 
 	float f_min = dfloor->is_lowest  ? -32767.0 : dfloor->f_h;
 	float c_max = dfloor->is_highest ? +32767.0 : dfloor->c_h;
@@ -1873,32 +1860,32 @@ static void RGL_DrawSeg(drawfloor_t *dfloor, seg_t *seg)
 
 		if (wt->flags & WTILF_ExtraX)
 		{
-			x_offset += cur_seg->sidedef->middle.offset.x;
+			x_offset += seg->sidedef->middle.offset.x;
 		}
 		if (wt->flags & WTILF_ExtraY)
 		{
 			// needed separate Y flag to maintain compatibility
-			tex_top_h += cur_seg->sidedef->middle.offset.y;
+			tex_top_h += seg->sidedef->middle.offset.y;
 		}
 
-		bool opaque = (! cur_seg->backsector) ||
+		bool opaque = (! seg->backsector) ||
 			(wt->surface->translucency >= 0.99f &&
 			 wt->surface->image->opacity == OPAC_Solid);
 
 		// check for horizontal sliders
-		if ((wt->flags & WTILF_MidMask) && cur_seg->linedef->slide_door)
+		if ((wt->flags & WTILF_MidMask) && seg->linedef->slide_door)
 		{
-			DrawSlidingDoor(dfloor, wt->lz2, wt->lz1, tex_top_h, wt, opaque, x_offset);
+			DrawSlidingDoor(seg, dfloor, wt->lz2, wt->lz1, tex_top_h, wt, opaque, x_offset);
 			continue;
 		}
 
-		float x1 = cur_seg->v1->x;
-		float y1 = cur_seg->v1->y;
-		float x2 = cur_seg->v2->x;
-		float y2 = cur_seg->v2->y;
+		float x1 = seg->v1->x;
+		float y1 = seg->v1->y;
+		float x2 = seg->v2->x;
+		float y2 = seg->v2->y;
 
-		float tex_x1 = cur_seg->offset;
-		float tex_x2 = tex_x1 + cur_seg->length;
+		float tex_x1 = seg->offset;
+		float tex_x2 = tex_x1 + seg->length;
 
 		tex_x1 += x_offset;
 		tex_x2 += x_offset;
@@ -1908,33 +1895,33 @@ static void RGL_DrawSeg(drawfloor_t *dfloor, seg_t *seg)
 			float tmp_tx = tex_x1; tex_x1 = tex_x2; tex_x2 = tmp_tx;
 		}
 
-		DrawWallPart(dfloor,
+		DrawWallPart(seg, dfloor,
 			x1,y1, wt->lz1,wt->lz2,
 		    x2,y2, wt->rz1,wt->rz2, tex_top_h,
 			wt, (wt->flags & WTILF_MidMask) ? true : false, 
 			opaque, tex_x1, tex_x2, (wt->flags & WTILF_MidMask) ?
-			&cur_seg->sidedef->sector->props : NULL);
+			&seg->sidedef->sector->props : NULL);
 	}
 
 	// -AJA- 2004/04/21: Emulate Flat-Flooding TRICK
 	if (! hom_detect && solid_mode && dfloor->is_lowest &&
-		sd->bottom.image == NULL && cur_seg->back_sub &&
-		cur_seg->back_sub->sector->f_h > cur_seg->front_sub->sector->f_h &&
-		cur_seg->back_sub->sector->f_h < viewz)
+		sd->bottom.image == NULL && seg->back_sub &&
+		seg->back_sub->sector->f_h > seg->front_sub->sector->f_h &&
+		seg->back_sub->sector->f_h < viewz)
 	{
-		EmulateFloodPlane(dfloor, cur_seg->back_sub->sector, +1,
-			cur_seg->front_sub->sector->f_h,
-			cur_seg->back_sub->sector->f_h);
+		EmulateFloodPlane(seg, dfloor, seg->back_sub->sector, +1,
+			seg->front_sub->sector->f_h,
+			seg->back_sub->sector->f_h);
 	}
 
 	if (! hom_detect && solid_mode && dfloor->is_highest &&
-		sd->top.image == NULL && cur_seg->back_sub &&
-		cur_seg->back_sub->sector->c_h < cur_seg->front_sub->sector->c_h &&
-		cur_seg->back_sub->sector->c_h > viewz)
+		sd->top.image == NULL && seg->back_sub &&
+		seg->back_sub->sector->c_h < seg->front_sub->sector->c_h &&
+		seg->back_sub->sector->c_h > viewz)
 	{
-		EmulateFloodPlane(dfloor, cur_seg->back_sub->sector, -1,
-			cur_seg->back_sub->sector->c_h,
-			cur_seg->front_sub->sector->c_h);
+		EmulateFloodPlane(seg, dfloor, seg->back_sub->sector, -1,
+			seg->back_sub->sector->c_h,
+			seg->front_sub->sector->c_h);
 	}
 }
 
@@ -1955,8 +1942,6 @@ static void RGL_WalkMirror(drawsub_c *dsub, seg_t *seg,
 	// push mirror (translation matrix)
 	MIR_Push(mir);
 
-	subsector_t *save_sub = cur_sub;
-
 	angle_t save_clip_L   = clip_left;
 	angle_t save_clip_R   = clip_right;
 	angle_t save_scope    = clip_scope;
@@ -1967,8 +1952,6 @@ static void RGL_WalkMirror(drawsub_c *dsub, seg_t *seg,
 
 	// perform another BSP walk
 ///????	RGL_WalkBSPNode(root_node);
-
-	cur_sub = save_sub;
 
 	clip_left  = save_clip_L;
 	clip_right = save_clip_R;
@@ -2137,7 +2120,7 @@ static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 }
 
 
-static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
+static void RGL_DrawPlane(subsector_t *sub, drawfloor_t *dfloor, float h,
 						  surface_t *surf, int face_dir)
 {
 	float orig_h = h;
@@ -2157,11 +2140,11 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	region_properties_t *props = dfloor->props;
 
 	// more deep water hackitude
-	if (cur_sub->deep_ref &&
+	if (sub->deep_ref &&
 		((face_dir > 0 && dfloor->prev_R == NULL) ||
 		 (face_dir < 0 && dfloor->next_R == NULL)))
 	{
-		props = &cur_sub->deep_ref->props;
+		props = &sub->deep_ref->props;
 	}
 
 	if (surf->override_p)
@@ -2171,10 +2154,10 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	slope_plane_t *slope = NULL;
 
 	if (face_dir > 0 && dfloor->prev_R == NULL)
-		slope = cur_sub->sector->f_slope;
+		slope = sub->sector->f_slope;
 
 	if (face_dir < 0 && dfloor->next_R == NULL)
-		slope = cur_sub->sector->c_slope;
+		slope = sub->sector->c_slope;
 
 
 	float trans = surf->translucency;
@@ -2192,7 +2175,7 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 		return;
 
 	// ignore empty subsectors
-	if (cur_sub->segs == NULL)
+	if (sub->segs == NULL)
 		return;
 
 
@@ -2206,7 +2189,7 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	
 	// count number of actual vertices
 	seg_t *seg;
-	for (seg=cur_sub->segs, num_vert=0; seg; seg=seg->sub_next, num_vert++)
+	for (seg=sub->segs, num_vert=0; seg; seg=seg->sub_next, num_vert++)
 	{
 		/* no other code needed */
 	}
@@ -2227,7 +2210,7 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 
 	int v_count = 0;
 
-	for (seg=cur_sub->segs, i=0; seg && (i < MAX_PLVERT); 
+	for (seg=sub->segs, i=0; seg && (i < MAX_PLVERT); 
 		 seg=seg->sub_next, i++)
 	{
 		if (v_count < MAX_PLVERT)
@@ -2310,7 +2293,7 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 				               v_bbox[BOXRIGHT], v_bbox[BOXTOP],    h,
 							   DLIT_Plane, &data);
 
-		P_SectorGlowIterator(cur_sub->sector,
+		P_SectorGlowIterator(sub->sector,
 				             v_bbox[BOXLEFT],  v_bbox[BOXBOTTOM], h,
 				             v_bbox[BOXRIGHT], v_bbox[BOXTOP],    h,
 							 GLOWLIT_Plane, &data);
@@ -2386,24 +2369,23 @@ void RGL_WalkSubsector(subsector_t *sub, bool do_segs = true)
 	L_WriteDebug( "\nVISITING SUBSEC %p (sector %d)\n\n", sub, sub->sector - sectors);
 #endif
 
-	cur_sub = sub;
-	sector = cur_sub->sector;
+	sector = sub->sector;
 
 	drawsub_c *K = R_GetDrawSub();
 	K->Clear(sub);
 
-	cur_sub->dsub = K;
+	sub->dsub = K;
 
 	// --- handle sky (using the depth buffer) ---
 
-	if (IS_SKY(cur_sub->sector->floor) && viewz > cur_sub->sector->f_h)
+	if (IS_SKY(sub->sector->floor) && viewz > sub->sector->f_h)
 	{
-		RGL_DrawSkyPlane(cur_sub, cur_sub->sector->f_h);
+		RGL_DrawSkyPlane(sub, sub->sector->f_h);
 	}
 
-	if (IS_SKY(cur_sub->sector->ceil) && viewz < cur_sub->sector->sky_h)
+	if (IS_SKY(sub->sector->ceil) && viewz < sub->sector->sky_h)
 	{
-		RGL_DrawSkyPlane(cur_sub, cur_sub->sector->sky_h);
+		RGL_DrawSkyPlane(sub, sub->sector->sky_h);
 	}
 
 	// add in each extrafloor, traversing strictly upwards
@@ -2439,12 +2421,12 @@ void RGL_WalkSubsector(subsector_t *sub, bool do_segs = true)
 		if (C->bottom_h < floor_h || C->bottom_h > sector->c_h)
 			continue;
 
-		bool de_f = (cur_sub->deep_ref && K->floors.size() == 0);
+		bool de_f = (sub->deep_ref && K->floors.size() == 0);
 
 		AddNewDrawFloor(K, C,
-			de_f ? cur_sub->deep_ref->f_h : floor_h,
+			de_f ? sub->deep_ref->f_h : floor_h,
 			C->bottom_h, C->top_h,
-			de_f ? &cur_sub->deep_ref->floor : floor_s,
+			de_f ? &sub->deep_ref->floor : floor_s,
 			C->bottom, C->p);
 
 		floor_s = C->top;
@@ -2452,15 +2434,15 @@ void RGL_WalkSubsector(subsector_t *sub, bool do_segs = true)
 	}
 
 	// -AJA- 2004/04/22: emulate the Deep-Water TRICK (above too)
-	bool de_f = (cur_sub->deep_ref && K->floors.size() == 0);
-	bool de_c = (cur_sub->deep_ref != NULL);
+	bool de_f = (sub->deep_ref && K->floors.size() == 0);
+	bool de_c = (sub->deep_ref != NULL);
 
 	AddNewDrawFloor(K, NULL,
-		de_f ? cur_sub->deep_ref->f_h : floor_h,
-		de_c ? cur_sub->deep_ref->c_h : sector->c_h,
-		de_c ? cur_sub->deep_ref->c_h : sector->c_h,
-		de_f ? &cur_sub->deep_ref->floor : floor_s,
-		de_c ? &cur_sub->deep_ref->ceil : &sector->ceil, sector->p);
+		de_f ? sub->deep_ref->f_h : floor_h,
+		de_c ? sub->deep_ref->c_h : sector->c_h,
+		de_c ? sub->deep_ref->c_h : sector->c_h,
+		de_f ? &sub->deep_ref->floor : floor_s,
+		de_c ? &sub->deep_ref->ceil : &sector->ceil, sector->p);
 
 	K->floors[0]->is_lowest = true;
 	K->floors[K->floors.size() - 1]->is_highest = true;
@@ -2468,11 +2450,11 @@ void RGL_WalkSubsector(subsector_t *sub, bool do_segs = true)
 	// handle each sprite in the subsector.  Must be done before walls,
 	// since the wall code will update the 1D occlusion buffer.
 
-	for (touch_node_t *tn = cur_sub->sector->touch_things; tn; tn = tn->sec_next)
+	for (touch_node_t *tn = sub->sector->touch_things; tn; tn = tn->sec_next)
 	{
 		// FIXME: render things that merely touch the sector too
 		//        (and mark them as done).
-		if (tn->mo && tn->mo->subsector == cur_sub)
+		if (tn->mo && tn->mo->subsector == sub)
 			RGL_WalkThing(K, tn->mo);
 	}
 }
@@ -2686,8 +2668,6 @@ static void RGL_DrawSubsector(drawsub_c *dsub)
 	L_WriteDebug("\nREVISITING SUBSEC %d\n\n", (int)(sub - subsectors));
 #endif
 
-	cur_sub = sub;
-
 	if (solid_mode)
 	{
 		std::list<drawmirror_c *>::iterator MRI;
@@ -2697,8 +2677,6 @@ static void RGL_DrawSubsector(drawsub_c *dsub)
 			RGL_DrawMirror(*MRI);
 		}
 	}
-
-	cur_sub = sub;
 
 	drawfloor_t *dfloor;
 
@@ -2711,8 +2689,8 @@ static void RGL_DrawSubsector(drawsub_c *dsub)
 		{
 		}
 
-		RGL_DrawPlane(dfloor, dfloor->c_h, dfloor->ceil,  -1);
-		RGL_DrawPlane(dfloor, dfloor->f_h, dfloor->floor, +1);
+		RGL_DrawPlane(sub, dfloor, dfloor->c_h, dfloor->ceil,  -1);
+		RGL_DrawPlane(sub, dfloor, dfloor->f_h, dfloor->floor, +1);
 
 		if (! solid_mode)
 		{

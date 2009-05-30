@@ -772,12 +772,9 @@ static void SetupRootNode(void)
 {
 	if (numnodes > 0)
 	{
-		root_node = numnodes - 1;
 	}
 	else
 	{
-		root_node = NF_V5_SUBSECTOR | 0;
-
 		// compute bbox for the single subsector
 		M_ClearBox(dummy_bbox);
 
