@@ -930,47 +930,6 @@ static void AM_WalkThing(mobj_t *mo)
 }
 
 
-//
-// Checks BSP node/subtree bounding box.
-// Returns true if some part of the bbox might be visible.
-//
-static bool AM_CheckBBox(float *bspcoord)
-{
-	float xl = bspcoord[BOXLEFT];
-	float yt = bspcoord[BOXTOP];
-	float xr = bspcoord[BOXRIGHT];
-	float yb = bspcoord[BOXBOTTOM];
-
-	if (rotatemap)
-	{
-		// FIXME: quick'n'dirty hack, removes benefit of BSP render
-		return true;
-		if (! followplayer)
-			return true;
-
-		// HACKITUDE: just make tested area bigger
-#if 0
-		float d = MAX(m_x2 - m_x, m_y2 - m_y) / 2.0f;
-
-		return ! (xr < (m_x - d) || xl > (m_x2 + d) ||
- 				  yt < (m_y - d) || yb > (m_y2 + d));
-#endif
-	}
-
-	int x1 = CXMTOF(xl);
-	int x2 = CXMTOF(xr);
-
-	int y1 = CYMTOF(yb);
-	int y2 = CYMTOF(yt);
-
-	if (x2 < f_x || y2 < f_y || x1 >= f_x+f_w || y1 >= f_y+f_h)
-		return false;
-
-	// some part of bbox is visible
-	return true;
-}
-
-
 static void DrawMarks(void)
 {
 	for (int i = 0; i < AM_NUMMARKPOINTS; i++)
