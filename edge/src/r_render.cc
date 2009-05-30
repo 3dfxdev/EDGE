@@ -129,9 +129,6 @@ static std::list<drawseg2_c *> blocked_lines;
 
 static std::list<drawseg2_c *> drawsegs;
 
-#ifdef SHADOW_PROTOTYPE
-static const image_c *shadow_image = NULL;
-#endif
 
 
 // ========= MIRROR STUFF ===========
@@ -2483,51 +2480,6 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 				             v_bbox[BOXRIGHT], v_bbox[BOXTOP],    h,
 							 GLOWLIT_Plane, &data);
 	}
-
-#ifdef SHADOW_PROTOTYPE
-	if (level_flags.shadows && solid_mode && face_dir > 0)
-	{
-		wall_plane_data_t dat2;
-		memcpy(&dat2, &data, sizeof(dat2));
-
-		dat2.dlights = NULL;
-		dat2.trans = 0.5;
-		dat2.image = shadow_image;
-
-		tex_id = W_ImageCache(dat2.image);
-
-		for (drawthing_t *dthing=dfloor->things; dthing; dthing=dthing->next)
-		{
-			if (dthing->mo->info->shadow_trans <= 0 || dthing->mo->floorz >= viewz)
-				continue;
-
-			dat2.tx = -(dthing->mo->x - dthing->mo->radius);
-			dat2.ty = -(dthing->mo->y - dthing->mo->radius);
-
-			dat2.x_mat.x = 0.5f / dthing->mo->radius;
-			dat2.x_mat.y = 0;
-
-			dat2.y_mat.y = 0.5f / dthing->mo->radius;
-			dat2.y_mat.x = 0;
-
-			poly = RGL_NewPolyQuad(num_vert);
-
-			for (seg=cur_sub->segs, i=0; seg && (i < MAX_PLVERT); 
-				seg=seg->sub_next, i++)
-			{
-				PQ_ADD_VERT(poly, seg->v1->x, seg->v1->y, h);
-			}
-
-			RGL_BoundPolyQuad(poly);
-
-			RGL_RenderPolyQuad(poly, &data, ShadowCoordFunc, tex_id,0,
-				/* pass */ 2, BL_Alpha);
-
-			RGL_FreePolyQuad(poly);
-		}
-	}
-#endif
-
 }
 
 static inline void AddNewDrawFloor(drawsub_c *dsub, extrafloor_t *ef,
@@ -3415,15 +3367,6 @@ static void RGL_WalkBSPNode(unsigned int bspnum)
 		RGL_WalkBSPNode(node->children[side ^ 1]);
 }
 
-//
-// RGL_LoadLights
-//
-void RGL_LoadLights(void)
-{
-#ifdef SHADOW_PROTOTYPE
-	shadow_image = W_ImageLookup("SHADOW_STD");
-#endif
-}
 
 
 
