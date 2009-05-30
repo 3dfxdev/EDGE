@@ -147,47 +147,47 @@ void P_NoiseAlert(player_t *p)
 // Move in the current direction,
 // returns false if the move is blocked.
 //
-bool P_Move(mobj_t * actor, bool path)
+bool P_Move(mobj_t * mo, bool path)
 {
 	vec3_t orig_pos;
 	
-	orig_pos.Set(actor->x, actor->y, actor->z);
+	orig_pos.Set(mo->x, mo->y, mo->z);
 
 	float tryx;
 	float tryy;
 
 	if (path)
 	{
-		tryx = actor->x + actor->speed * M_Cos(actor->angle);
-		tryy = actor->y + actor->speed * M_Sin(actor->angle);
+		tryx = mo->x + mo->speed * M_Cos(mo->angle);
+		tryy = mo->y + mo->speed * M_Sin(mo->angle);
 	}
 	else
 	{
-		if (actor->movedir == DI_NODIR)
+		if (mo->movedir == DI_NODIR)
 			return false;
 
-		if ((unsigned)actor->movedir >= 8)
-			I_Error("Weird actor->movedir!");
+		if ((unsigned)mo->movedir >= 8)
+			I_Error("Weird mo->movedir!");
 
-		tryx = actor->x + actor->speed * xspeed[actor->movedir];
-		tryy = actor->y + actor->speed * yspeed[actor->movedir];
+		tryx = mo->x + mo->speed * xspeed[mo->movedir];
+		tryy = mo->y + mo->speed * yspeed[mo->movedir];
 	}
 
-	if (! P_TryMove(actor, tryx, tryy))
+	if (! P_TryMove(mo, tryx, tryy))
 	{
 		epi::array_iterator_c it;
 		line_t* ld;
 		
 		// open any specials
-		if (actor->flags & MF_FLOAT && floatok)
+		if (mo->flags & MF_FLOAT && floatok)
 		{
 			// must adjust height
-			if (actor->z < float_destz)
-				actor->z += actor->info->float_speed;
+			if (mo->z < float_destz)
+				mo->z += mo->info->float_speed;
 			else
-				actor->z -= actor->info->float_speed;
+				mo->z -= mo->info->float_speed;
 
-			actor->flags |= MF_INFLOAT;
+			mo->flags |= MF_INFLOAT;
 			// FIXME: position interpolation
 			return true;
 		}
@@ -195,7 +195,7 @@ bool P_Move(mobj_t * actor, bool path)
 		if (spechit.GetSize() == 0)
 			return false;
 
-		actor->movedir = DI_NODIR;
+		mo->movedir = DI_NODIR;
 
 		// -AJA- 1999/09/10: As Lee Killough points out, this is where
 		//       monsters can get stuck in doortracks.  We follow Lee's
@@ -209,7 +209,7 @@ bool P_Move(mobj_t * actor, bool path)
 		for (it=spechit.GetTailIterator(); it.IsValid(); it--)
 		{
 			ld = ITERATOR_TO_TYPE(it, line_t*);
-			if (P_UseSpecialLine(actor, ld, 0, -FLT_MAX, FLT_MAX))
+			if (P_UseSpecialLine(mo, ld, 0, -FLT_MAX, FLT_MAX))
 			{
 				any_used = true;
 
@@ -221,20 +221,20 @@ bool P_Move(mobj_t * actor, bool path)
 		return any_used && (P_Random() < 230 ? block_used : !block_used);
 	}
 
-	actor->flags &= ~MF_INFLOAT;
+	mo->flags &= ~MF_INFLOAT;
 
-	if (!(actor->flags & MF_FLOAT) &&
-		!(actor->extendedflags & EF_GRAVFALL))
-		actor->z = actor->floorz;
+	if (!(mo->flags & MF_FLOAT) &&
+		!(mo->extendedflags & EF_GRAVFALL))
+		mo->z = mo->floorz;
 
 	// -AJA- 2008/01/16: position interpolation
-	if ((actor->state->flags & SFF_Model) ||
-		(actor->flags & MF_FLOAT))
+	if ((mo->state->flags & SFF_Model) ||
+		(mo->flags & MF_FLOAT))
 	{
-		actor->lerp_num = CLAMP(2, actor->state->tics, 10);
-		actor->lerp_pos = 1;
+		mo->lerp_num = CLAMP(2, mo->state->tics, 10);
+		mo->lerp_pos = 1;
 
-		actor->lerp_from = orig_pos;
+		mo->lerp_from = orig_pos;
 	}
 
 	return true;
@@ -250,17 +250,17 @@ bool P_Move(mobj_t * actor, bool path)
 // If a door is in the way,
 // an OpenDoor call is made to start it opening.
 //
-static bool TryWalk(mobj_t * actor)
+static bool TryWalk(mobj_t * mo)
 {
-	if (!P_Move(actor, false))
+	if (!P_Move(mo, false))
 		return false;
 
-	actor->movecount = P_Random() & 15;
+	mo->movecount = P_Random() & 15;
 	return true;
 }
 
 // -ACB- 1998/09/06 actor is now an object; different movement choices.
-void P_NewChaseDir(mobj_t * object)
+void P_NewChaseDir(mobj_t * mo)
 {
 	float deltax;
 	float deltay;
@@ -270,7 +270,7 @@ void P_NewChaseDir(mobj_t * object)
 	dirtype_e olddir;
 	dirtype_e turnaround;
 
-	olddir = object->movedir;
+	olddir = mo->movedir;
 	turnaround = opposite[olddir];
 
 	//
@@ -290,16 +290,16 @@ void P_NewChaseDir(mobj_t * object)
 	//
 	// -ACB- 1998/09/06
 
-	if (object->target)
+	if (mo->target)
 	{
-		deltax = object->target->x - object->x;
-		deltay = object->target->y - object->y;
+		deltax = mo->target->x - mo->x;
+		deltay = mo->target->y - mo->y;
 	}
-	else if (object->supportobj)
+	else if (mo->supportobj)
 	{
 		// not too close
-		deltax = (object->supportobj->x - object->x) - (object->supportobj->radius * 4);
-		deltay = (object->supportobj->y - object->y) - (object->supportobj->radius * 4);
+		deltax = (mo->supportobj->x - mo->x) - (mo->supportobj->radius * 4);
+		deltay = (mo->supportobj->y - mo->y) - (mo->supportobj->radius * 4);
 	}
 	else
 	{
@@ -324,8 +324,8 @@ void P_NewChaseDir(mobj_t * object)
 	// try direct route
 	if (d[1] != DI_NODIR && d[2] != DI_NODIR)
 	{
-		object->movedir = diags[((deltay < 0) << 1) + (deltax > 0)];
-		if (object->movedir != turnaround && TryWalk(object))
+		mo->movedir = diags[((deltay < 0) << 1) + (deltax > 0)];
+		if (mo->movedir != turnaround && TryWalk(mo))
 			return;
 	}
 
@@ -345,8 +345,8 @@ void P_NewChaseDir(mobj_t * object)
 
 	if (d[1] != DI_NODIR)
 	{
-		object->movedir = d[1];
-		if (TryWalk(object))
+		mo->movedir = d[1];
+		if (TryWalk(mo))
 		{
 			// either moved forward or attacked
 			return;
@@ -355,9 +355,9 @@ void P_NewChaseDir(mobj_t * object)
 
 	if (d[2] != DI_NODIR)
 	{
-		object->movedir = d[2];
+		mo->movedir = d[2];
 
-		if (TryWalk(object))
+		if (TryWalk(mo))
 			return;
 	}
 
@@ -365,9 +365,9 @@ void P_NewChaseDir(mobj_t * object)
 	// so pick another direction.
 	if (olddir != DI_NODIR)
 	{
-		object->movedir = olddir;
+		mo->movedir = olddir;
 
-		if (TryWalk(object))
+		if (TryWalk(mo))
 			return;
 	}
 
@@ -378,9 +378,9 @@ void P_NewChaseDir(mobj_t * object)
 		{
 			if (tdir != turnaround)
 			{
-				object->movedir = tdir;
+				mo->movedir = tdir;
 
-				if (TryWalk(object))
+				if (TryWalk(mo))
 					return;
 			}
 		}
@@ -391,9 +391,9 @@ void P_NewChaseDir(mobj_t * object)
 		{
 			if (tdir != turnaround)
 			{
-				object->movedir = tdir;
+				mo->movedir = tdir;
 
-				if (TryWalk(object))
+				if (TryWalk(mo))
 					return;
 			}
 		}
@@ -401,13 +401,13 @@ void P_NewChaseDir(mobj_t * object)
 
 	if (turnaround != DI_NODIR)
 	{
-		object->movedir = turnaround;
-		if (TryWalk(object))
+		mo->movedir = turnaround;
+		if (TryWalk(mo))
 			return;
 	}
 
 	// cannot move
-	object->movedir = DI_NODIR;
+	mo->movedir = DI_NODIR;
 }
 
 //
@@ -416,7 +416,7 @@ void P_NewChaseDir(mobj_t * object)
 //
 // Returns true if a player is targeted.
 //
-bool P_LookForPlayers(mobj_t * actor, angle_t range)
+bool P_LookForPlayers(mobj_t * mo, angle_t range)
 {
 	int c;
 	int stop;
@@ -425,11 +425,11 @@ bool P_LookForPlayers(mobj_t * actor, angle_t range)
 	float dist;
 
 	c = 0;
-	stop = (actor->lastlook - 1 + MAXPLAYERS) % MAXPLAYERS;
+	stop = (mo->lastlook - 1 + MAXPLAYERS) % MAXPLAYERS;
 
-	for (; actor->lastlook != stop; actor->lastlook = (actor->lastlook + 1) % MAXPLAYERS)
+	for (; mo->lastlook != stop; mo->lastlook = (mo->lastlook + 1) % MAXPLAYERS)
 	{
-		player = players[actor->lastlook];
+		player = players[mo->lastlook];
 
 		if (!player)
 			continue;
@@ -445,20 +445,20 @@ bool P_LookForPlayers(mobj_t * actor, angle_t range)
 			continue;
 
 		// on the same team ?
-		if ((actor->side & player->mo->side) != 0)
+		if ((mo->side & player->mo->side) != 0)
 			continue;
 
 		if (range < ANG180)
 		{
-			an = R_PointToAngle(actor->x, actor->y, player->mo->x,
-				player->mo->y) - actor->angle;
+			an = R_PointToAngle(mo->x, mo->y, player->mo->x,
+				player->mo->y) - mo->angle;
 
 			if (range <= an && an <= (range * -1))
 			{
 				// behind back.
 				// if real close, react anyway
-				dist = P_ApproxDistance(player->mo->x - actor->x,
-					player->mo->y - actor->y);
+				dist = P_ApproxDistance(player->mo->x - mo->x,
+					player->mo->y - mo->y);
 
 				if (dist > MELEERANGE)
 					continue;
@@ -466,10 +466,10 @@ bool P_LookForPlayers(mobj_t * actor, angle_t range)
 		}
 
 		// out of sight ?
-		if (!P_CheckSight(actor, player->mo))
+		if (!P_CheckSight(mo, player->mo))
 			continue;
 
-		actor->SetTarget(player->mo);
+		mo->SetTarget(player->mo);
 		return true;
 	}
 
@@ -562,7 +562,7 @@ static void SpawnDeathMissile(mobj_t *source, float x, float y, float z)
 		th->tics = 1;
 }
 
-void P_ActBrainScream(mobj_t * bossbrain)
+void A_BrainScream(mobj_t * bossbrain, void *data)
 {
 	// The brain and his pain...
 
@@ -584,7 +584,7 @@ void P_ActBrainScream(mobj_t * bossbrain)
 		S_StartFX(bossbrain->info->deathsound, P_MobjGetSfxCategory(bossbrain), bossbrain);
 }
 
-void P_ActBrainMissileExplode(mobj_t * mo)
+void A_BrainMissileExplode(mobj_t * mo, void *data)
 {
 	float x, y, z;
 
@@ -598,12 +598,12 @@ void P_ActBrainMissileExplode(mobj_t * mo)
 	SpawnDeathMissile(mo->source, x, y, z);
 }
 
-void P_ActBrainDie(mobj_t * bossbrain)
+void A_BrainDie(mobj_t * bossbrain, void *data)
 {
 	G_ExitLevel(TICRATE);
 }
 
-void P_ActBrainSpit(mobj_t * shooter)
+void A_BrainSpit(mobj_t * shooter, void *data)
 {
 	static int easy = 0;
 
@@ -615,11 +615,11 @@ void P_ActBrainSpit(mobj_t * shooter)
 		return;
 
 	// shoot out a cube
-	P_ActRangeAttack(shooter);
+	A_RangeAttack(shooter, NULL);
 }
 
 
-void P_ActCubeSpawn(mobj_t * cube)
+void A_CubeSpawn(mobj_t * cube, void *data)
 {
 	mobj_t *targ;
 	mobj_t *newmobj;
@@ -675,7 +675,7 @@ void P_ActCubeSpawn(mobj_t * cube)
 	P_TeleportMove(newmobj, newmobj->x, newmobj->y, newmobj->z);
 }
 
-void P_ActPlayerScream(mobj_t * mo)
+void A_PlayerScream(mobj_t * mo, void *data)
 {
 	sfx_t *sound;
 
