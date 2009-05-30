@@ -133,6 +133,8 @@ static void SV_SaveDATA(savearray_t *A)
 
 	SV_PutString(A->array_name);
 
+	I_Debugf("Saving %d x %s\n", num_elem, A->array_name);
+
 	for (i=0; i < num_elem; i++)
 	{
 		sv_current_elem = (* A->get_elem)(i);
