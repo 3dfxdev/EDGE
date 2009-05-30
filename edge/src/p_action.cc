@@ -48,6 +48,7 @@
 #include "g_game.h"
 #include "m_misc.h"
 #include "m_random.h"
+#include "p_action.h"
 #include "p_local.h"
 #include "p_weapon.h"
 #include "r_state.h"
@@ -220,21 +221,21 @@ bool P_ActLookForTargets(mobj_t *we)
 // -ACB- 1998/08/15
 // -KM- 1998/11/25 Added attack parameter.
 //
-static bool DecideMeleeAttack(mobj_t * object, const atkdef_c * attack)
+static bool DecideMeleeAttack(mobj_t * mo, const atkdef_c * attack)
 {
 	mobj_t *target;
 	float distance;
 	float meleedist;
 
-	target = object->target;
+	target = mo->target;
 
 	if (!target)
 		return false;
 
-	distance = P_ApproxDistance(target->x - object->x, target->y - object->y);
+	distance = P_ApproxDistance(target->x - mo->x, target->y - mo->y);
 
 	if (level_flags.true3dgameplay)
-		distance = P_ApproxDistance(target->z - object->z, distance);
+		distance = P_ApproxDistance(target->z - mo->z, distance);
 
 	meleedist = attack ? attack->range : MELEERANGE;
 	meleedist += target->radius - 20.0f;	// Check the thing's actual radius		
@@ -242,7 +243,7 @@ static bool DecideMeleeAttack(mobj_t * object, const atkdef_c * attack)
 	if (distance >= meleedist)
 		return false;
 
-	return P_CheckSight(object, target);
+	return P_CheckSight(mo, target);
 }
 
 //
@@ -260,42 +261,42 @@ static bool DecideMeleeAttack(mobj_t * object, const atkdef_c * attack)
 //
 // -ACB- 1998/08/15
 //
-static bool DecideRangeAttack(mobj_t * object)
+static bool DecideRangeAttack(mobj_t * mo)
 {
 	percent_t chance;
 	float distance;
 	const atkdef_c *attack;
 
-	if (! object->target)
+	if (! mo->target)
 		return false;
 
-	if (object->info->rangeattack)
-		attack = object->info->rangeattack;
+	if (mo->info->rangeattack)
+		attack = mo->info->rangeattack;
 	else
 		return false;  // cannot evaluate range with no attack range
 
 	// Just been hit (and have felt pain), so in true tit-for-tat
 	// style, the object - without regard to anything else - hits back.
-	if (object->flags & MF_JUSTHIT)
+	if (mo->flags & MF_JUSTHIT)
 	{
-		if (! P_CheckSight(object, object->target))
+		if (! P_CheckSight(mo, mo->target))
                 	return false;
 
-		object->flags &= ~MF_JUSTHIT;
+		mo->flags &= ~MF_JUSTHIT;
 		return true;
 	}
 
 	// Bit slow on the up-take: the object hasn't had time to
 	// react his target.
-	if (object->reactiontime)
+	if (mo->reactiontime)
 		return false;
 
 	// Get the distance, a basis for our decision making from now on
-	distance = P_ApproxDistance(object->x - object->target->x,
-								object->y - object->target->y);
+	distance = P_ApproxDistance(mo->x - mo->target->x,
+								mo->y - mo->target->y);
 
 	// If no close-combat attack, increase the chance of a missile attack
-	if (!object->info->melee_state)
+	if (!mo->info->melee_state)
 		distance -= 192;
 	else
 		distance -= 64;
@@ -309,13 +310,13 @@ static bool DecideRangeAttack(mobj_t * object)
 		return false;
 
 	// Object likes to fire? if so, double the chance of it happening
-	if (object->extendedflags & EF_TRIGGERHAPPY)
+	if (mo->extendedflags & EF_TRIGGERHAPPY)
 		distance /= 2;
 
 	// The chance in the object is one given that the attack will happen, so
 	// we inverse the result (since its one in 255) to get the chance that
 	// the attack will not happen.
-	chance = 1.0f - object->info->minatkchance;
+	chance = 1.0f - mo->info->minatkchance;
 	chance = MIN(distance / 255.0f, chance);
 
 	// now after modifing distance where applicable, we get the random number and
@@ -323,7 +324,7 @@ static bool DecideRangeAttack(mobj_t * object)
 	if (P_RandomTest(chance))
 		return false;
 
-	return P_CheckSight(object, object->target);
+	return P_CheckSight(mo, mo->target);
 }
 
 //
@@ -331,49 +332,49 @@ static bool DecideRangeAttack(mobj_t * object)
 //
 // Look at the prey......
 //
-void P_ActFaceTarget(mobj_t * object)
+void P_ActFaceTarget(mobj_t *mo)
 {
-	mobj_t *target = object->target;
+	mobj_t *target = mo->target;
 
 	if (!target)
 		return;
 
-	if (object->flags & MF_STEALTH)
-		object->vis_target = VISIBLE;
+	if (mo->flags & MF_STEALTH)
+		mo->vis_target = VISIBLE;
 
-	object->flags &= ~MF_AMBUSH;
+	mo->flags &= ~MF_AMBUSH;
 
-	object->angle = R_PointToAngle(object->x, object->y, target->x, target->y);
+	mo->angle = R_PointToAngle(mo->x, mo->y, target->x, target->y);
 
-	float dist = R_PointToDist(object->x, object->y, target->x, target->y);
+	float dist = R_PointToDist(mo->x, mo->y, target->x, target->y);
 
 	if (dist >= 0.1f)
 	{
-		float dz = MO_MIDZ(target) - MO_MIDZ(object);
+		float dz = MO_MIDZ(target) - MO_MIDZ(mo);
 
-		object->vertangle = M_ATan(dz / dist);
+		mo->vertangle = M_ATan(dz / dist);
 	}
 
 	if (target->flags & MF_FUZZY)
 	{
-		object->angle += P_RandomNegPos() << (ANGLEBITS - 11);
-		object->vertangle += M_ATan(P_RandomNegPos() / 1024.0f);
+		mo->angle += P_RandomNegPos() << (ANGLEBITS - 11);
+		mo->vertangle += M_ATan(P_RandomNegPos() / 1024.0f);
 	}
 
 	if (target->visibility < VISIBLE)
 	{
 		float amount = (VISIBLE - target->visibility);
 
-		object->angle += (angle_t)(P_RandomNegPos() * (ANGLEBITS - 12) * amount);
-		object->vertangle += M_ATan(P_RandomNegPos() * amount / 2048.0f);
+		mo->angle += (angle_t)(P_RandomNegPos() * (ANGLEBITS - 12) * amount);
+		mo->vertangle += M_ATan(P_RandomNegPos() * amount / 2048.0f);
 	}
 
 	// don't look up/down too far...
-	if (object->vertangle < ANG180 && object->vertangle > ANG45)
-		object->vertangle = ANG45;
+	if (mo->vertangle < ANG180 && mo->vertangle > ANG45)
+		mo->vertangle = ANG45;
 		
-	if (object->vertangle >= ANG180 && object->vertangle < ANG315)
-		object->vertangle = ANG315;
+	if (mo->vertangle >= ANG180 && mo->vertangle < ANG315)
+		mo->vertangle = ANG315;
 }
 
 
@@ -518,12 +519,12 @@ void P_ActTransMore(mobj_t * mo)
 // to a level of lowest translucency) and the flag is unset
 // if the object has become as highly translucent as possible.
 //
-void P_ActTransAlternate(mobj_t * object)
+void P_ActTransAlternate(mobj_t * mo)
 {
 	const state_t *st;
 	float value = 0.05f;
 
-	st = object->state;
+	st = mo->state;
 
 	if (st && st->action_par)
 	{
@@ -531,22 +532,22 @@ void P_ActTransAlternate(mobj_t * object)
 		value = MAX(0.0f, MIN(1.0f, value));
 	}
 
-	if (object->extendedflags & EF_LESSVIS)
+	if (mo->extendedflags & EF_LESSVIS)
 	{
-		object->vis_target -= value;
-		if (object->vis_target <= INVISIBLE)
+		mo->vis_target -= value;
+		if (mo->vis_target <= INVISIBLE)
 		{
-			object->vis_target = INVISIBLE;
-			object->extendedflags &= ~EF_LESSVIS;
+			mo->vis_target = INVISIBLE;
+			mo->extendedflags &= ~EF_LESSVIS;
 		}
 	}
 	else
 	{
-		object->vis_target += value;
-		if (object->vis_target >= VISIBLE)
+		mo->vis_target += value;
+		if (mo->vis_target >= VISIBLE)
 		{
-			object->vis_target = VISIBLE;
-			object->extendedflags |= EF_LESSVIS;
+			mo->vis_target = VISIBLE;
+			mo->extendedflags |= EF_LESSVIS;
 		}
 	}
 }
@@ -894,26 +895,26 @@ void P_ActMakeRangeAttemptSound(mobj_t * mo)
 //
 // Radius Attack damage set by info->damage. Used for the original Barrels
 //
-void P_ActDamageExplosion(mobj_t * object)
+void P_ActDamageExplosion(mobj_t * mo)
 {
 	float damage;
   
-	DAMAGE_COMPUTE(damage, &object->info->explode_damage);
+	DAMAGE_COMPUTE(damage, &mo->info->explode_damage);
 
 #ifdef DEVELOPERS
 	if (!damage)
 	{
-		L_WriteDebug("%s caused no explosion damage\n", object->info->ddf.name.c_str());
+		L_WriteDebug("%s caused no explosion damage\n", mo->info->ddf.name.c_str());
 		return;
 	}
 #endif
 
 	// -AJA- 2004/09/27: new EXPLODE_RADIUS command (overrides normal calc)
-	float radius = object->info->explode_radius;
+	float radius = mo->info->explode_radius;
 	if (radius == 0) radius = damage;
 
-	P_RadiusAttack(object, object->source, radius, damage,
-				   &object->info->explode_damage, false);
+	P_RadiusAttack(mo, mo->source, radius, damage,
+				   &mo->info->explode_damage, false);
 }
 
 //
@@ -921,25 +922,25 @@ void P_ActDamageExplosion(mobj_t * object)
 //
 // Thrust set by info->damage.
 //
-void P_ActThrust(mobj_t * object)
+void P_ActThrust(mobj_t * mo)
 {
 	float damage;
   
-	DAMAGE_COMPUTE(damage, &object->info->explode_damage);
+	DAMAGE_COMPUTE(damage, &mo->info->explode_damage);
 
 #ifdef DEVELOPERS
 	if (!damage)
 	{
-		L_WriteDebug("%s caused no thrust\n", object->info->ddf.name.c_str());
+		L_WriteDebug("%s caused no thrust\n", mo->info->ddf.name.c_str());
 		return;
 	}
 #endif
 
-	float radius = object->info->explode_radius;
+	float radius = mo->info->explode_radius;
 	if (radius == 0) radius = damage;
 
-	P_RadiusAttack(object, object->source, radius, damage,
-				   &object->info->explode_damage, true);
+	P_RadiusAttack(mo, mo->source, radius, damage,
+				   &mo->info->explode_damage, true);
 }
 
 //-------------------------------------------------------------------
@@ -954,9 +955,9 @@ void P_ActThrust(mobj_t * object)
 // -AJA- 1999/08/21: Replaced P_ActExplodeMissile (which was identical
 //       to p_mobj's P_ExplodeMissile) with this.
 //
-void P_ActExplode(mobj_t * object)
+void P_ActExplode(mobj_t * mo)
 {
-	P_MobjExplodeMissile(object);
+	P_MobjExplodeMissile(mo);
 }
 
 //
@@ -1286,15 +1287,15 @@ I_Debugf("ANGLE CHECK: %1.2f < %1.2f < %1.2f\n",
 //           0 if hit but no damage was done.
 //          +1 if hit and damage was done.
 //
-int P_MissileContact(mobj_t * object, mobj_t * target)
+int P_MissileContact(mobj_t * mo, mobj_t * target)
 {
-	mobj_t *source = object->source;
+	mobj_t *source = mo->source;
 
 	if (source)
 	{
 		// check for ghosts (attack passes through)
-		if (object->currentattack && BITSET_EMPTY ==
-			(object->currentattack->attack_class & ~target->info->ghost))
+		if (mo->currentattack && BITSET_EMPTY ==
+			(mo->currentattack->attack_class & ~target->info->ghost))
 			return -1;
 
 		if ((target->side & source->side) != 0)
@@ -1312,12 +1313,12 @@ int P_MissileContact(mobj_t * object, mobj_t * target)
 				return 0;
 		}
 
-		if (object->currentattack != NULL &&
+		if (mo->currentattack != NULL &&
 			! (target->extendedflags & EF_OWNATTACKHURTS))
 		{
-			if (object->currentattack == target->info->rangeattack)
+			if (mo->currentattack == target->info->rangeattack)
 				return 0;
-			if (object->currentattack == target->info->closecombat)
+			if (mo->currentattack == target->info->closecombat)
 				return 0;
 		}
 	}
@@ -1325,10 +1326,10 @@ int P_MissileContact(mobj_t * object, mobj_t * target)
 	const damage_c *damtype;
 
 	// transitional hack
-	if (object->currentattack)
-		damtype = &object->currentattack->damage;
+	if (mo->currentattack)
+		damtype = &mo->currentattack->damage;
 	else
-		damtype = &object->info->explode_damage;
+		damtype = &mo->info->explode_damage;
 
 	float damage;
 	DAMAGE_COMPUTE(damage, damtype);
@@ -1336,54 +1337,53 @@ int P_MissileContact(mobj_t * object, mobj_t * target)
 	bool weak_spot = false;
 
 	// check for Weakness against the attack
-	if (Weakness_CheckHit(target, object->currentattack,
-				object->x, object->y, MO_MIDZ(object)))
+	if (Weakness_CheckHit(target, mo->currentattack, mo->x, mo->y, MO_MIDZ(mo)))
 	{
 		damage *= target->info->weak.multiply;
 		weak_spot = true;
 	}
 
 	// check for immunity against the attack
-	if (object->hyperflags & HF_INVULNERABLE)
+	if (mo->hyperflags & HF_INVULNERABLE)
 		return 0;
 
-	if (!weak_spot && object->currentattack && BITSET_EMPTY ==
-		(object->currentattack->attack_class & ~target->info->immunity))
+	if (!weak_spot && mo->currentattack && BITSET_EMPTY ==
+		(mo->currentattack->attack_class & ~target->info->immunity))
 	{
 		return 0;
 	}
 
 	// support for "tunnelling" missiles, which should only do damage at
 	// the first impact.
-	if (object->extendedflags & EF_TUNNEL)
+	if (mo->extendedflags & EF_TUNNEL)
 	{
 		// this hash is very basic, but should work OK
 		u32_t hash = (u32_t)(long)target;
 
-		if (object->tunnel_hash[0] == hash || object->tunnel_hash[1] == hash)
+		if (mo->tunnel_hash[0] == hash || mo->tunnel_hash[1] == hash)
 			return -1;
 
-		object->tunnel_hash[0] = object->tunnel_hash[1];
-		object->tunnel_hash[1] = hash;
+		mo->tunnel_hash[0] = mo->tunnel_hash[1];
+		mo->tunnel_hash[1] = hash;
 	}
 
 	// Berserk handling
-	if (object->player && object->currentattack &&
-		object->player->powers[PW_Berserk] != 0.0f)
+	if (mo->player && mo->currentattack &&
+		mo->player->powers[PW_Berserk] != 0.0f)
 	{
-		damage *= object->currentattack->berserk_mul;
+		damage *= mo->currentattack->berserk_mul;
 	}
 
 	if (!damage)
 	{
 #ifdef DEVELOPERS
 		L_WriteDebug("%s missile did zero damage.\n", 
-					 object->info->ddf.name.c_str());
+					 mo->info->ddf.name.c_str());
 #endif
 		return 0;
 	}
 
-	P_DamageMobj(target, object, object->source, damage, damtype, weak_spot);
+	P_DamageMobj(target, mo, mo->source, damage, damtype, weak_spot);
 	return 1;
 }
 
@@ -1961,10 +1961,10 @@ void P_ActTrackerStart(mobj_t * tracker)
 //
 // -ACB- 1998/08/22
 //
-static void LaunchTracker(mobj_t * object)
+static void LaunchTracker(mobj_t * mo)
 {
-	const atkdef_c *attack = object->currentattack;
-	mobj_t *target = object->target;
+	const atkdef_c *attack = mo->currentattack;
+	mobj_t *target = mo->target;
 
 	if (!attack || !target)
 		return;
@@ -1973,10 +1973,10 @@ static void LaunchTracker(mobj_t * object)
 								 attack->atk_mobj);
 
 	// link the tracker to the object
-	object->SetTracer(tracker);
+	mo->SetTracer(tracker);
 
 	// tracker source is the object
-	tracker->SetRealSource(object);
+	tracker->SetRealSource(mo);
 
 	// tracker's target is the object's target
 	tracker->SetTarget(target);
@@ -1993,7 +1993,7 @@ static void LaunchTracker(mobj_t * object)
 //
 // -ACB- 1998/08/22
 //
-void P_ActEffectTracker(mobj_t * object)
+void P_ActEffectTracker(mobj_t * mo)
 {
 	mobj_t *tracker;
 	mobj_t *target;
@@ -2001,35 +2001,35 @@ void P_ActEffectTracker(mobj_t * object)
 	angle_t angle;
 	float damage;
 
-	if (!object->target || !object->currentattack)
+	if (!mo->target || !mo->currentattack)
 		return;
 
-	attack = object->currentattack;
-	target = object->target;
+	attack = mo->currentattack;
+	target = mo->target;
 
 	if (attack->flags & AF_FaceTarget)
-		P_ActFaceTarget(object);
+		P_ActFaceTarget(mo);
 
 	if (attack->flags & AF_NeedSight)
 	{
-		if (!P_CheckSight(object, target))
+		if (!P_CheckSight(mo, target))
 			return;
 	}
 
 	if (attack->sound)
-		S_StartFX(attack->sound, P_MobjGetSfxCategory(object), object);
+		S_StartFX(attack->sound, P_MobjGetSfxCategory(mo), mo);
 
-	angle = object->angle;
-	tracker = object->tracer;
+	angle = mo->angle;
+	tracker = mo->tracer;
 
 	DAMAGE_COMPUTE(damage, &attack->damage);
 
 	if (damage)
-		P_DamageMobj(target, object, object, damage, &attack->damage);
+		P_DamageMobj(target, mo, mo, damage, &attack->damage);
 #ifdef DEVELOPERS
 	else
 		L_WriteDebug("%s + %s attack has zero damage\n",
-					 object->info->ddf.name.c_str(), 
+					 mo->info->ddf.name.c_str(), 
 					 tracker->info->ddf.name.c_str());
 #endif
 
@@ -2052,16 +2052,16 @@ void P_ActEffectTracker(mobj_t * object)
 #ifdef DEVELOPERS
 	if (!tracker->info->explode_damage.nominal)
 		L_WriteDebug("%s + %s explosion has zero damage\n",
-					 object->info->ddf.name.c_str(), 
+					 mo->info->ddf.name.c_str(), 
 					 tracker->info->ddf.name.c_str());
 #endif
 
 	DAMAGE_COMPUTE(damage, &tracker->info->explode_damage);
 
-	float radius = object->info->explode_radius;
+	float radius = mo->info->explode_radius;
 	if (radius == 0) radius = damage;
 
-	P_RadiusAttack(tracker, object, radius, damage,
+	P_RadiusAttack(tracker, mo, radius, damage,
 				   &tracker->info->explode_damage, false);
 }
 
@@ -2069,25 +2069,25 @@ void P_ActEffectTracker(mobj_t * object)
 //--------------------BOSS HANDLING PROCEDURES---------------------
 //-----------------------------------------------------------------
 
-static void ShootToSpot(mobj_t * object)
+static void ShootToSpot(mobj_t * mo)
 {
 	// Note: using a static int here for better randomness.
 	// -AJA- FIXME: should be global to allow synchronisation in Netgames
 	static int current_spot = 0;
 
-	if (! object->currentattack)
+	if (! mo->currentattack)
 		return;
 
 	if (brain_spots.number < 0)
 	{
-		if (! object->info->spitspot)
+		if (! mo->info->spitspot)
 		{
 			M_WarnError("Thing [%s] used SHOOT_TO_SPOT attack, but has no "
-						"SPIT_SPOT\n", object->info->ddf.name.c_str());
+						"SPIT_SPOT\n", mo->info->ddf.name.c_str());
 			return;
 		}
 
-		P_LookForShootSpots(object->info->spitspot);
+		P_LookForShootSpots(mo->info->spitspot);
 	}
 
 	if (brain_spots.number == 0)
@@ -2099,8 +2099,8 @@ static void ShootToSpot(mobj_t * object)
 	current_spot += P_Random();
 	current_spot %= brain_spots.number;
   
-	LaunchProjectile(object, brain_spots.targets[current_spot],
-					 object->currentattack->atk_mobj);
+	LaunchProjectile(mo, brain_spots.targets[current_spot],
+					 mo->currentattack->atk_mobj);
 }
 
 //-------------------------------------------------------------------
@@ -2222,11 +2222,11 @@ static void ObjectSpawning(mobj_t * parent, angle_t angle)
 // -ACB- 1998/08/23 (I think....)
 //
 
-static void ObjectTripleSpawn(mobj_t * object)
+static void ObjectTripleSpawn(mobj_t * mo)
 {
-	ObjectSpawning(object, object->angle + ANG90);
-	ObjectSpawning(object, object->angle + ANG180);
-	ObjectSpawning(object, object->angle + ANG270);
+	ObjectSpawning(mo, mo->angle + ANG90);
+	ObjectSpawning(mo, mo->angle + ANG180);
+	ObjectSpawning(mo, mo->angle + ANG270);
 }
 
 //-------------------------------------------------------------------
@@ -2241,41 +2241,41 @@ static void ObjectTripleSpawn(mobj_t * object)
 //
 // -ACB- 1998/08/16
 //
-static void SkullFlyAssault(mobj_t * object)
+static void SkullFlyAssault(mobj_t * mo)
 {
-	if (!object->currentattack)
+	if (!mo->currentattack)
 		return;
 
-	if (!object->target && !object->player)
+	if (!mo->target && !mo->player)
 	{
 		// -AJA- 2000/09/29: fix for the zombie lost soul bug
 		// -AJA- 2000/10/22: monsters only !  Don't stuff up gibs/missiles.
-		if (object->extendedflags & EF_MONSTER)
-			object->flags |= MF_SKULLFLY;
+		if (mo->extendedflags & EF_MONSTER)
+			mo->flags |= MF_SKULLFLY;
 		return;
 	}
 
-	float speed = object->currentattack->assault_speed;
+	float speed = mo->currentattack->assault_speed;
 
 	// -KM- 1999/01/31 Fix skulls in nightmare mode
 	if (level_flags.fastparm)
-		speed *= object->info->fast;
+		speed *= mo->info->fast;
 
-	sfx_t *sound = object->currentattack->initsound;
+	sfx_t *sound = mo->currentattack->initsound;
 
 	if (sound)
-		S_StartFX(sound, P_MobjGetSfxCategory(object), object);
+		S_StartFX(sound, P_MobjGetSfxCategory(mo), mo);
 
-	object->flags |= MF_SKULLFLY;
+	mo->flags |= MF_SKULLFLY;
 
 	// determine destination
 	float tx, ty, tz;
 
-	P_TargetTheory(object, object->target, &tx, &ty, &tz);
+	P_TargetTheory(mo, mo->target, &tx, &ty, &tz);
 
-	float slope = P_ApproxSlope(tx - object->x, ty - object->y, tz - object->z);
+	float slope = P_ApproxSlope(tx - mo->x, ty - mo->y, tz - mo->z);
 
-	P_SetMobjDirAndSpeed(object, object->angle, slope, speed);
+	P_SetMobjDirAndSpeed(mo, mo->angle, slope, speed);
 }
 
 //
@@ -2289,9 +2289,9 @@ static void SkullFlyAssault(mobj_t * object)
 // -AJA- 1999/09/12: Now uses P_SetMobjStateDeferred, since this
 //                   routine can be called by TryMove/PIT_CheckRelThing.
 //
-void P_SlammedIntoObject(mobj_t * object, mobj_t * target)
+void P_SlammedIntoObject(mobj_t * mo, mobj_t * target)
 {
-	if (object->currentattack)
+	if (mo->currentattack)
 	{
 		if (target != NULL)
 		{
@@ -2300,22 +2300,22 @@ void P_SlammedIntoObject(mobj_t * object, mobj_t * target)
 			{
 				float damage;
 
-				DAMAGE_COMPUTE(damage, &object->currentattack->damage);
+				DAMAGE_COMPUTE(damage, &mo->currentattack->damage);
 
-				P_DamageMobj(target, object, object, damage,
-							 &object->currentattack->damage);
+				P_DamageMobj(target, mo, mo, damage,
+							 &mo->currentattack->damage);
 			}
 		}
 
-		sfx_t *sound = object->currentattack->sound;
+		sfx_t *sound = mo->currentattack->sound;
 		if (sound)
-			S_StartFX(sound, P_MobjGetSfxCategory(object), object);
+			S_StartFX(sound, P_MobjGetSfxCategory(mo), mo);
 	}
 
-	object->flags &= ~MF_SKULLFLY;
-	object->mom.x = object->mom.y = object->mom.z = 0;
+	mo->flags &= ~MF_SKULLFLY;
+	mo->mom.x = mo->mom.y = mo->mom.z = 0;
 
-	P_SetMobjStateDeferred(object, object->info->idle_state, 0);
+	P_SetMobjStateDeferred(mo, mo->info->idle_state, 0);
 }
 
 
@@ -2568,9 +2568,9 @@ void P_ActPathFollow(mobj_t * mo)
 //
 // -ACB- 1998/08/07
 //
-static void P_DoAttack(mobj_t * object)
+static void P_DoAttack(mobj_t * mo)
 {
-	const atkdef_c *attack = object->currentattack;
+	const atkdef_c *attack = mo->currentattack;
 
 	SYS_ASSERT(attack);
 
@@ -2578,74 +2578,74 @@ static void P_DoAttack(mobj_t * object)
 	{
 		case ATK_CLOSECOMBAT:
 		{
-			DoMeleeAttack(object);
+			DoMeleeAttack(mo);
 			break;
 		}
 
 		case ATK_PROJECTILE:
 		{
-			LaunchProjectile(object, object->target, attack->atk_mobj);
+			LaunchProjectile(mo, mo->target, attack->atk_mobj);
 			break;
 		}
 
 		case ATK_SMARTPROJECTILE:
 		{
-			LaunchSmartProjectile(object, object->target, attack->atk_mobj);
+			LaunchSmartProjectile(mo, mo->target, attack->atk_mobj);
 			break;
 		}
 
 		case ATK_RANDOMSPREAD:
 		{
-			LaunchRandomSpread(object);
+			LaunchRandomSpread(mo);
 			break;
 		}
 
 		case ATK_SHOOTTOSPOT:
 		{
-			ShootToSpot(object);
+			ShootToSpot(mo);
 			break;
 		}
 
 		case ATK_SHOT:
 		{
-			ShotAttack(object);
+			ShotAttack(mo);
 			break;
 		}
 
 		case ATK_SKULLFLY:
 		{
-			SkullFlyAssault(object);
+			SkullFlyAssault(mo);
 			break;
 		}
 
 		case ATK_SPAWNER:
 		{
-			ObjectSpawning(object, object->angle);
+			ObjectSpawning(mo, mo->angle);
 			break;
 		}
 
 		case ATK_SPREADER:
 		{
-			LaunchOrderedSpread(object);
+			LaunchOrderedSpread(mo);
 			break;
 		}
 
 		case ATK_TRACKER:
 		{
-			LaunchTracker(object);
+			LaunchTracker(mo);
 			break;
 		}
 
 		case ATK_TRIPLESPAWNER:
 		{
-			ObjectTripleSpawn(object);
+			ObjectTripleSpawn(mo);
 			break;
 		}
 
 		// -KM- 1998/11/25 Added spray attack
 		case ATK_SPRAY:
 		{
-			SprayAttack(object);
+			SprayAttack(mo);
 			break;
 		}
 
@@ -2654,7 +2654,7 @@ static void P_DoAttack(mobj_t * object)
 		{
 			if (strict_errors)
 				I_Error("P_DoAttack: %s has an unknown attack type.\n", 
-					object->info->ddf.name.c_str());
+					mo->info->ddf.name.c_str());
 			break;
 		}
 	}
@@ -2670,39 +2670,39 @@ static void P_DoAttack(mobj_t * object)
 //
 // -ACB- 1998/08/07
 //
-void P_ActComboAttack(mobj_t * object)
+void P_ActComboAttack(mobj_t * mo)
 {
 	const atkdef_c *attack;
 
-	if (!object->target)
+	if (!mo->target)
 		return;
 
-	if (DecideMeleeAttack(object, object->info->closecombat))
-		attack = object->info->closecombat;
+	if (DecideMeleeAttack(mo, mo->info->closecombat))
+		attack = mo->info->closecombat;
 	else
-		attack = object->info->rangeattack;
+		attack = mo->info->rangeattack;
 
 	if (attack)
 	{
 		if (attack->flags & AF_FaceTarget)
-			P_ActFaceTarget(object);
+			P_ActFaceTarget(mo);
 
 		if (attack->flags & AF_NeedSight)
 		{
-			if (!P_CheckSight(object, object->target))
+			if (!P_CheckSight(mo, mo->target))
 				return;
 		}
 
-		object->currentattack = attack;
-		P_DoAttack(object);
+		mo->currentattack = attack;
+		P_DoAttack(mo);
 	}
 #ifdef DEVELOPERS
 	else
 	{
-		if (!object->info->closecombat)
-			M_WarnError("%s hasn't got a close combat attack\n", object->info->ddf.name.c_str());
+		if (!mo->info->closecombat)
+			M_WarnError("%s hasn't got a close combat attack\n", mo->info->ddf.name.c_str());
 		else
-			M_WarnError("%s hasn't got a range attack\n", object->info->ddf.name.c_str());
+			M_WarnError("%s hasn't got a range attack\n", mo->info->ddf.name.c_str());
 	}
 #endif
 
@@ -2715,34 +2715,34 @@ void P_ActComboAttack(mobj_t * object)
 //
 // -ACB- 1998/08/07
 //
-void P_ActMeleeAttack(mobj_t * object)
+void P_ActMeleeAttack(mobj_t * mo)
 {
 	const atkdef_c *attack;
 
-	attack = object->info->closecombat;
+	attack = mo->info->closecombat;
 
 	// -AJA- 1999/08/10: Multiple attack support.
-	if (object->state && object->state->action_par)
-		attack = (const atkdef_c *) object->state->action_par;
+	if (mo->state && mo->state->action_par)
+		attack = (const atkdef_c *) mo->state->action_par;
 
 	if (!attack)
 	{
 		M_WarnError("P_ActMeleeAttack: %s has no close combat attack.\n", 
-					object->info->ddf.name.c_str());
+					mo->info->ddf.name.c_str());
 		return;
 	}
 
 	if (attack->flags & AF_FaceTarget)
-		P_ActFaceTarget(object);
+		P_ActFaceTarget(mo);
 
 	if (attack->flags & AF_NeedSight)
 	{
-		if (!object->target || !P_CheckSight(object, object->target))
+		if (!mo->target || !P_CheckSight(mo, mo->target))
 			return;
 	}
 
-	object->currentattack = attack;
-	P_DoAttack(object);
+	mo->currentattack = attack;
+	P_DoAttack(mo);
 }
 
 //
@@ -2752,34 +2752,34 @@ void P_ActMeleeAttack(mobj_t * object)
 //
 // -ACB- 1998/08/07
 //
-void P_ActRangeAttack(mobj_t * object)
+void P_ActRangeAttack(mobj_t * mo)
 {
 	const atkdef_c *attack;
 
-	attack = object->info->rangeattack;
+	attack = mo->info->rangeattack;
 
 	// -AJA- 1999/08/10: Multiple attack support.
-	if (object->state && object->state->action_par)
-		attack = (const atkdef_c *) object->state->action_par;
+	if (mo->state && mo->state->action_par)
+		attack = (const atkdef_c *) mo->state->action_par;
 
 	if (!attack)
 	{
 		M_WarnError("P_ActRangeAttack: %s hasn't got a range attack.\n", 
-					object->info->ddf.name.c_str());
+					mo->info->ddf.name.c_str());
 		return;
 	}
 
 	if (attack->flags & AF_FaceTarget)
-		P_ActFaceTarget(object);
+		P_ActFaceTarget(mo);
 
 	if (attack->flags & AF_NeedSight)
 	{
-		if (!object->target || !P_CheckSight(object, object->target))
+		if (!mo->target || !P_CheckSight(mo, mo->target))
 			return;
 	}
 
-	object->currentattack = attack;
-	P_DoAttack(object);
+	mo->currentattack = attack;
+	P_DoAttack(mo);
 }
 
 //
@@ -2791,34 +2791,34 @@ void P_ActRangeAttack(mobj_t * object)
 //
 // -ACB- 1998/08/24
 //
-void P_ActSpareAttack(mobj_t *object)
+void P_ActSpareAttack(mobj_t *mo)
 {
 	const atkdef_c *attack;
 
-	attack = object->info->spareattack;
+	attack = mo->info->spareattack;
 
 	// -AJA- 1999/08/10: Multiple attack support.
-	if (object->state && object->state->action_par)
-		attack = (const atkdef_c *) object->state->action_par;
+	if (mo->state && mo->state->action_par)
+		attack = (const atkdef_c *) mo->state->action_par;
 
 	if (attack)
 	{
-		if ((attack->flags & AF_FaceTarget) && object->target)
-			P_ActFaceTarget(object);
+		if ((attack->flags & AF_FaceTarget) && mo->target)
+			P_ActFaceTarget(mo);
 
-		if ((attack->flags & AF_NeedSight) && object->target)
+		if ((attack->flags & AF_NeedSight) && mo->target)
 		{
-			if (!P_CheckSight(object, object->target))
+			if (!P_CheckSight(mo, mo->target))
 				return;
 		}
 
-		object->currentattack = attack;
-		P_DoAttack(object);
+		mo->currentattack = attack;
+		P_DoAttack(mo);
 	}
 #ifdef DEVELOPERS
 	else
 	{
-		M_WarnError("P_ActSpareAttack: %s hasn't got a spare attack\n", object->info->ddf.name.c_str());
+		M_WarnError("P_ActSpareAttack: %s hasn't got a spare attack\n", mo->info->ddf.name.c_str());
 		return;
 	}
 #endif
@@ -2839,33 +2839,33 @@ void P_ActSpareAttack(mobj_t *object)
 //
 // -ACB- 1998/08/10
 //
-void P_ActRefireCheck(mobj_t * object)
+void P_ActRefireCheck(mobj_t * mo)
 {
 	mobj_t *target;
 	const atkdef_c *attack;
 
-	attack = object->currentattack;
+	attack = mo->currentattack;
 
 	if (! attack)
 		return;
 
 	if (attack->flags & AF_FaceTarget)
-		P_ActFaceTarget(object);
+		P_ActFaceTarget(mo);
 
 	// Random chance that object will keep firing regardless
 	if (P_RandomTest(attack->keepfirechance))
 		return;
 
-	target = object->target;
+	target = mo->target;
 
-	if (!target || (target->health <= 0) || !P_CheckSight(object, target))
+	if (!target || (target->health <= 0) || !P_CheckSight(mo, target))
 	{
-		if (object->info->chase_state)
-			P_SetMobjStateDeferred(object, object->info->chase_state, 0);
+		if (mo->info->chase_state)
+			P_SetMobjStateDeferred(mo, mo->info->chase_state, 0);
 	}
-	else if (object->flags & MF_STEALTH)
+	else if (mo->flags & MF_STEALTH)
 	{
-		object->vis_target = VISIBLE;
+		mo->vis_target = VISIBLE;
 	}
 }
 
@@ -2877,22 +2877,22 @@ void P_ActRefireCheck(mobj_t * object)
 //
 // -AJA- 2004/11/15: added this.
 //
-void P_ActReloadCheck(mobj_t * object)
+void P_ActReloadCheck(mobj_t * mo)
 {
-	object->shot_count++;
+	mo->shot_count++;
 
-	if (object->shot_count >= object->info->reload_shots)
+	if (mo->shot_count >= mo->info->reload_shots)
 	{
-		object->shot_count = 0;
+		mo->shot_count = 0;
 
-		if (object->info->reload_state)
-			P_SetMobjStateDeferred(object, object->info->reload_state, 0);
+		if (mo->info->reload_state)
+			P_SetMobjStateDeferred(mo, mo->info->reload_state, 0);
 	}
 }
 
-void P_ActReloadReset(mobj_t * object)
+void P_ActReloadReset(mobj_t * mo)
 {
-	object->shot_count = 0;
+	mo->shot_count = 0;
 }
 
 //---------------------------------------------
@@ -2942,7 +2942,7 @@ static mobj_t *SelectTarget(bool newlev)
 //
 // -ACB- 2000/06/20 Re-written and Simplified
 //
-static bool CreateAggression(mobj_t * object)
+static bool CreateAggression(mobj_t * mo)
 {
 	static const mapdef_c *mapcheck = NULL;	// FIXME!!! Lose this static sh*te!
 	static mobj_t *target = NULL;
@@ -2977,7 +2977,7 @@ static bool CreateAggression(mobj_t * object)
 	}
 
 	// Don't target self...
-	if (object == target)
+	if (mo == target)
 		return false;
 
 	// This object has been checked too many times, try a another one.
@@ -2988,10 +2988,10 @@ static bool CreateAggression(mobj_t * object)
 		return false;
 	}
 
-	objinfo = object->info;
+	objinfo = mo->info;
 	targinfo = target->info;
 
-	if (!P_CheckSight(object, target))
+	if (!P_CheckSight(mo, target))
 		return false;
 
 	if (targinfo == objinfo)
@@ -3012,10 +3012,10 @@ static bool CreateAggression(mobj_t * object)
 		return false;
 	}
 
-	object->SetTarget(target);
+	mo->SetTarget(target);
 
-	if (object->info->chase_state)
-		P_SetMobjStateDeferred(object, object->info->chase_state, 0);
+	if (mo->info->chase_state)
+		P_SetMobjStateDeferred(mo, mo->info->chase_state, 0);
 
 	return true;
 }
@@ -3028,14 +3028,14 @@ static bool CreateAggression(mobj_t * object)
 //
 // -ACB- 1998/08/22
 //
-void P_ActStandardLook(mobj_t * object)
+void P_ActStandardLook(mobj_t * mo)
 {
 	int targ_pnum;
 	mobj_t *targ = NULL;
 
-	object->threshold = 0;  // any shot will wake up
+	mo->threshold = 0;  // any shot will wake up
 
-	targ_pnum = object->subsector->sector->sound_player;
+	targ_pnum = mo->subsector->sector->sound_player;
 
 	if (targ_pnum >= 0 && targ_pnum < MAXPLAYERS && 
 		players[targ_pnum])
@@ -3045,44 +3045,44 @@ void P_ActStandardLook(mobj_t * object)
 
 	// -AJA- 2004/09/02: ignore the sound of a friend
 	// FIXME: maybe wake up and support that player ??
-	if (targ && (targ->side & object->side) != 0)
+	if (targ && (targ->side & mo->side) != 0)
 		targ = NULL;
 
-	if (object->flags & MF_STEALTH)
-		object->vis_target = VISIBLE;
+	if (mo->flags & MF_STEALTH)
+		mo->vis_target = VISIBLE;
 
 	if (infight)
 	{
-		if (CreateAggression(object))
+		if (CreateAggression(mo))
 			return;
 	}
 
 	if (targ && (targ->flags & MF_SHOOTABLE))
 	{
-		object->SetTarget(targ);
+		mo->SetTarget(targ);
 
-		if (object->flags & MF_AMBUSH)
+		if (mo->flags & MF_AMBUSH)
 		{
-			if (!P_CheckSight(object, object->target) && 
-				!P_LookForPlayers(object, object->info->sight_angle))
+			if (!P_CheckSight(mo, mo->target) && 
+				!P_LookForPlayers(mo, mo->info->sight_angle))
 				return;
 		}
 	}
 	else
 	{
-		if (!P_LookForPlayers(object, object->info->sight_angle))
+		if (!P_LookForPlayers(mo, mo->info->sight_angle))
 			return;
 	}
 
-	if (object->info->seesound)
+	if (mo->info->seesound)
 	{
-		S_StartFX(object->info->seesound, P_MobjGetSfxCategory(object),
-					   object, SfxFlags(object->info));
+		S_StartFX(mo->info->seesound, P_MobjGetSfxCategory(mo),
+					   mo, SfxFlags(mo->info));
 	}
 
 	// -AJA- this will remove objects which have no chase states.
         // For compatibility with original DOOM.
-	P_SetMobjStateDeferred(object, object->info->chase_state, 0);
+	P_SetMobjStateDeferred(mo, mo->info->chase_state, 0);
 }
 
 //
@@ -3092,82 +3092,82 @@ void P_ActStandardLook(mobj_t * object)
 //
 // -ACB- 1998/09/05
 //
-void P_ActPlayerSupportLook(mobj_t * object)
+void P_ActPlayerSupportLook(mobj_t * mo)
 {
-	object->threshold = 0;  // any shot will wake up
+	mo->threshold = 0;  // any shot will wake up
 
-	if (object->flags & MF_STEALTH)
-		object->vis_target = VISIBLE;
+	if (mo->flags & MF_STEALTH)
+		mo->vis_target = VISIBLE;
 
-	if (!object->supportobj)
+	if (!mo->supportobj)
 	{
-		if (! P_ActLookForTargets(object))
+		if (! P_ActLookForTargets(mo))
 			return;
 
 		// -AJA- 2004/09/02: join the player's side
-		if (object->side == 0)
-			object->side = object->target->side;
+		if (mo->side == 0)
+			mo->side = mo->target->side;
 
-		if (object->info->seesound)
+		if (mo->info->seesound)
 		{
-			S_StartFX(object->info->seesound, P_MobjGetSfxCategory(object),
-						   object, SfxFlags(object->info));
+			S_StartFX(mo->info->seesound, P_MobjGetSfxCategory(mo),
+						   mo, SfxFlags(mo->info));
 		}
 	}
 
-	if (object->info->meander_state)
-		P_SetMobjStateDeferred(object, object->info->meander_state, 0);
+	if (mo->info->meander_state)
+		P_SetMobjStateDeferred(mo, mo->info->meander_state, 0);
 }
 
 //
 // P_ActStandardMeander
 //
-void P_ActStandardMeander(mobj_t * object)
+void P_ActStandardMeander(mobj_t * mo)
 {
 	int delta;
 
-	object->threshold = 0;  // any shot will wake up
+	mo->threshold = 0;  // any shot will wake up
 
 	// move within supporting distance of player
-	if (--object->movecount < 0 || !P_Move(object, false))
-		P_NewChaseDir(object);
+	if (--mo->movecount < 0 || !P_Move(mo, false))
+		P_NewChaseDir(mo);
 
 	// turn towards movement direction if not there yet
-	if (object->movedir < 8)
+	if (mo->movedir < 8)
 	{
-		object->angle &= (7 << 29);
-		delta = object->angle - (object->movedir << 29);
+		mo->angle &= (7 << 29);
+		delta = mo->angle - (mo->movedir << 29);
 
 		if (delta > 0)
-			object->angle -= ANG45;
+			mo->angle -= ANG45;
 		else if (delta < 0)
-			object->angle += ANG45;
+			mo->angle += ANG45;
 	}
 }
 
 //
 // P_ActPlayerSupportMeander
 //
-void P_ActPlayerSupportMeander(mobj_t * object)
+void P_ActPlayerSupportMeander(mobj_t * mo)
 {
 	int delta;
 
-	object->threshold = 0;  // any shot will wake up
+	mo->threshold = 0;  // any shot will wake up
 
 	// move within supporting distance of player
-	if (--object->movecount < 0 || !P_Move(object, false))
-		P_NewChaseDir(object);
+	if (--mo->movecount < 0 || !P_Move(mo, false))
+		P_NewChaseDir(mo);
 
 	// turn towards movement direction if not there yet
-	if (object->movedir < 8)
+	if (mo->movedir < 8)
 	{
-		object->angle &= (7 << 29);
-		delta = object->angle - (object->movedir << 29);
+		mo->angle &= (7 << 29);
+		delta = mo->angle - (mo->movedir << 29);
 
 		if (delta > 0)
-			object->angle -= ANG45;
+			mo->angle -= ANG45;
 		else if (delta < 0)
-			object->angle += ANG45;
+			mo->angle += ANG45;
 	}
 
 	//
@@ -3181,7 +3181,7 @@ void P_ActPlayerSupportMeander(mobj_t * object)
 		return;
 		} */
 
-	P_ActLookForTargets(object);
+	P_ActLookForTargets(mo);
 }
 
 //
@@ -3192,88 +3192,88 @@ void P_ActPlayerSupportMeander(mobj_t * object)
 // -ACB- 1998/08/22 Procedure Written
 // -ACB- 1998/09/05 Added Support Object Check
 //
-void P_ActStandardChase(mobj_t * object)
+void P_ActStandardChase(mobj_t * mo)
 {
 	int delta;
 	sfx_t *sound;
 
-	if (object->reactiontime)
-		object->reactiontime--;
+	if (mo->reactiontime)
+		mo->reactiontime--;
 
 	// object has a pain threshold, while this is true, reduce it. while
 	// the threshold is true, the object will remain intent on its target.
-	if (object->threshold)
+	if (mo->threshold)
 	{
-		if (!object->target || object->target->health <= 0)
-			object->threshold = 0;
+		if (!mo->target || mo->target->health <= 0)
+			mo->threshold = 0;
 		else
-			object->threshold--;
+			mo->threshold--;
 	}
 
 	// A Chasing Stealth Creature becomes less visible
-	if (object->flags & MF_STEALTH)
-		object->vis_target = INVISIBLE;
+	if (mo->flags & MF_STEALTH)
+		mo->vis_target = INVISIBLE;
 
 	// turn towards movement direction if not there yet
-	if (object->movedir < 8)
+	if (mo->movedir < 8)
 	{
-		object->angle &= (7 << 29);
-		delta = object->angle - (object->movedir << 29);
+		mo->angle &= (7 << 29);
+		delta = mo->angle - (mo->movedir << 29);
 
 		if (delta > 0)
-			object->angle -= ANG45;
+			mo->angle -= ANG45;
 		else if (delta < 0)
-			object->angle += ANG45;
+			mo->angle += ANG45;
 	}
 
-	if (!object->target || !(object->target->flags & MF_SHOOTABLE))
+	if (!mo->target || !(mo->target->flags & MF_SHOOTABLE))
 	{
-		if (P_ActLookForTargets(object))
+		if (P_ActLookForTargets(mo))
 			return;
 
 		// -ACB- 1998/09/06 Target is not relevant: NULLify.
-		object->SetTarget(NULL);
+		mo->SetTarget(NULL);
 
-		P_SetMobjStateDeferred(object, object->info->idle_state, 0);
+		P_SetMobjStateDeferred(mo, mo->info->idle_state, 0);
 		return;
 	}
 
 	// do not attack twice in a row
-	if (object->flags & MF_JUSTATTACKED)
+	if (mo->flags & MF_JUSTATTACKED)
 	{
-		object->flags &= ~MF_JUSTATTACKED;
+		mo->flags &= ~MF_JUSTATTACKED;
 
 		// -KM- 1998/12/16 Nightmare mode set the fast parm.
 		if (!level_flags.fastparm)
-			P_NewChaseDir(object);
+			P_NewChaseDir(mo);
 
 		return;
 	}
 
-	sound = object->info->attacksound;
+	sound = mo->info->attacksound;
 
 	// check for melee attack
-	if (object->info->melee_state && DecideMeleeAttack(object, object->info->closecombat))
+	if (mo->info->melee_state && DecideMeleeAttack(mo, mo->info->closecombat))
 	{
 		if (sound)
-			S_StartFX(sound, P_MobjGetSfxCategory(object), object);
+			S_StartFX(sound, P_MobjGetSfxCategory(mo), mo);
 
-		if (object->info->melee_state)
-			P_SetMobjStateDeferred(object, object->info->melee_state, 0);
+		if (mo->info->melee_state)
+			P_SetMobjStateDeferred(mo, mo->info->melee_state, 0);
 		return;
 	}
 
 	// check for missile attack
-	if (object->info->missile_state)
+	if (mo->info->missile_state)
 	{
 		// -KM- 1998/12/16 Nightmare set the fastparm.
-		if (!(!level_flags.fastparm && object->movecount))
+		if (!(!level_flags.fastparm && mo->movecount))
 		{
-			if (DecideRangeAttack(object))
+			if (DecideRangeAttack(mo))
 			{
-				if (object->info->missile_state)
-					P_SetMobjStateDeferred(object, object->info->missile_state, 0);
-				object->flags |= MF_JUSTATTACKED;
+				if (mo->info->missile_state)
+					P_SetMobjStateDeferred(mo, mo->info->missile_state, 0);
+				mo->flags |= MF_JUSTATTACKED;
 				return;
 			}
 		}
@@ -3281,19 +3281,19 @@ void P_ActStandardChase(mobj_t * object)
 
 	// possibly choose another target
 	// -ACB- 1998/09/05 Object->support->object check, go for new targets
-	if (!P_CheckSight(object, object->target) && !object->threshold)
+	if (!P_CheckSight(mo, mo->target) && !mo->threshold)
 	{
-		if (P_ActLookForTargets(object))
+		if (P_ActLookForTargets(mo))
 			return;
 	}
 
 	// chase towards player
-	if (--object->movecount < 0 || !P_Move(object, false))
-		P_NewChaseDir(object);
+	if (--mo->movecount < 0 || !P_Move(mo, false))
+		P_NewChaseDir(mo);
 
 	// make active sound
-	if (object->info->activesound && M_Random() < 3)
-		S_StartFX(object->info->activesound, P_MobjGetSfxCategory(object), object);
+	if (mo->info->activesound && M_Random() < 3)
+		S_StartFX(mo->info->activesound, P_MobjGetSfxCategory(mo), mo);
 }
 
 //
@@ -3304,17 +3304,17 @@ void P_ActStandardChase(mobj_t * object)
 //
 // -ACB- 1998/09/05 Support Check: Raised object supports raiser's supportobj
 //
-void P_ActResurrectChase(mobj_t * object)
+void P_ActResurrectChase(mobj_t * mo)
 {
 	mobj_t *corpse;
 
-	corpse = P_MapFindCorpse(object);
+	corpse = P_MapFindCorpse(mo);
 
 	if (corpse)
 	{
-		object->angle = R_PointToAngle(object->x, object->y, corpse->x, corpse->y);
-		if (object->info->res_state)
-			P_SetMobjStateDeferred(object, object->info->res_state, 0);
+		mo->angle = R_PointToAngle(mo->x, mo->y, corpse->x, corpse->y);
+		if (mo->info->res_state)
+			P_SetMobjStateDeferred(mo, mo->info->res_state, 0);
 
 		// corpses without raise states should be skipped
 		SYS_ASSERT(corpse->info->raise_state);
@@ -3322,10 +3322,10 @@ void P_ActResurrectChase(mobj_t * object)
 		P_BringCorpseToLife(corpse);
 
 		// -ACB- 1998/09/05 Support Check: Res creatures to support that object
-		if (object->supportobj)
+		if (mo->supportobj)
 		{
-			corpse->SetSupportObj(object->supportobj);
-			corpse->SetTarget(object->target);
+			corpse->SetSupportObj(mo->supportobj);
+			corpse->SetTarget(mo->target);
 		}
 		else
 		{
@@ -3334,11 +3334,11 @@ void P_ActResurrectChase(mobj_t * object)
 		}
 
 		// -AJA- Resurrected creatures are on Archvile's side (like MBF)
-		corpse->side = object->side;
+		corpse->side = mo->side;
 		return;
 	}
 
-	P_ActStandardChase(object);
+	P_ActStandardChase(mo);
 }
 
 //
@@ -3346,17 +3346,17 @@ void P_ActResurrectChase(mobj_t * object)
 //
 // Make a sound and then chase...
 //
-void P_ActWalkSoundChase(mobj_t * object)
+void P_ActWalkSoundChase(mobj_t * mo)
 {
-	if (!object->info->walksound)
+	if (!mo->info->walksound)
 	{
 		M_WarnError("WALKSOUND_CHASE: %s hasn't got a walksound.\n", 
-					object->info->ddf.name.c_str());
+					mo->info->ddf.name.c_str());
 		return;
 	}
 
-	S_StartFX(object->info->walksound, P_MobjGetSfxCategory(object), object);
-	P_ActStandardChase(object);
+	S_StartFX(mo->info->walksound, P_MobjGetSfxCategory(mo), mo);
+	P_ActStandardChase(mo);
 }
 
 
