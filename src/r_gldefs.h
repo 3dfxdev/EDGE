@@ -252,6 +252,9 @@ public:
 
 	float dist;
 
+	// when not NULL, this drawsub should be drawn with the seg
+	drawsub_c * linked_sub;
+
 	// segs which we block
 	std::list<drawseg2_c *> occludes;
 
@@ -259,7 +262,8 @@ public:
 	int blockers;
 
 public:
-	drawseg2_c(seg_t *_seg) : seg(_seg), occludes(), blockers(0)
+	drawseg2_c(seg_t *_seg) : seg(_seg), linked_sub(NULL),
+	                          occludes(), blockers(0)
 	{ }
 
 	~drawseg2_c()

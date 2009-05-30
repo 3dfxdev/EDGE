@@ -2657,15 +2657,28 @@ void RGL_WalkSubsector(subsector_t *sub, bool do_segs = true)
 }
 
 
-static void RGL_DrawSeg2(drawseg2_c *dseg)
-{
-	// FIXME
-}
-
-
 static void RGL_DrawSubsector(drawsub_c *dsub);
 
 
+static void RGL_DrawSeg2(drawseg2_c *dseg)
+{
+	if (dseg->linked_sub)
+		RGL_DrawSubsector(dseg->linked_sub);
+
+	if (! dseg->seg->miniseg)
+	{
+		drawsub_c *dsub = dseg->seg->front_sub->dsub;
+		SYS_ASSERT(dsub);
+
+		drawfloor_t *dfloor;
+
+		for (dfloor = dsub->floors_R; dfloor != NULL; dfloor = dfloor->next_R)
+			RGL_DrawSeg(dfloor, dseg->seg);
+	}
+}
+
+
+// OLD CODE : REMOVE ME
 void RGL_DrawSubList(std::list<drawsub_c *> &dsubs)
 {
 	// draw all solid walls and planes
@@ -2691,13 +2704,17 @@ void RGL_DrawSubList(std::list<drawsub_c *> &dsubs)
 	RGL_FinishUnits();
 }
 
-void RGL_DrawSegList(std::list<drawseg2_c *> &dsegs)
+
+void RGL_DrawSegList(std::list<drawseg2_c *> &dsegs, drawsub_c *dsub)
 {
 	// draw all solid walls and planes
 	solid_mode = true;
 	RGL_StartUnits(solid_mode);
 
 	std::list<drawseg2_c *>::iterator FI;  // Forward Iterator
+
+	if (dsub)
+		RGL_DrawSubsector(dsub);
 
 	for (FI = dsegs.begin(); FI != dsegs.end(); FI++)
 		RGL_DrawSeg2(*FI);
@@ -2712,6 +2729,9 @@ void RGL_DrawSegList(std::list<drawseg2_c *> &dsegs)
 
 	for (RI = dsegs.rbegin(); RI != dsegs.rend(); RI++)
 		RGL_DrawSeg2(*RI);
+
+	if (dsub)
+		RGL_DrawSubsector(dsub);
 
 	RGL_FinishUnits();
 }
@@ -2891,12 +2911,10 @@ static void RGL_DrawSubsector(drawsub_c *dsub)
 	// handle each floor, drawing planes and things
 	for (dfloor = dsub->floors_R; dfloor != NULL; dfloor = dfloor->next_R)
 	{
-		// NEW RENDERER : drawing segs here is probably WRONG
 		std::list<drawseg2_c *>::iterator SEGI;
 
 		for (SEGI = dsub->segs2.begin(); SEGI != dsub->segs2.end(); SEGI++)
 		{
-			RGL_DrawSeg(dfloor, (*SEGI)->seg);
 		}
 
 		RGL_DrawPlane(dfloor, dfloor->c_h, dfloor->ceil,  -1);
@@ -3292,6 +3310,8 @@ static void RGL_WalkSeg2(drawseg2_c *dseg)
 	else if (back && back->rend_seen != framecount)
 	{
 		RGL_WalkSubsector2(back);
+
+		dseg->linked_sub = back->dsub;
 	}
 }
 
@@ -3511,7 +3531,7 @@ static void RGL_RenderNEW(void)
 
 	RGL_FinishSky();
 
-	RGL_DrawSegList(drawsegs);
+	RGL_DrawSegList(drawsegs, viewsubsector->dsub);
 
 	DoWeaponModel();
 
