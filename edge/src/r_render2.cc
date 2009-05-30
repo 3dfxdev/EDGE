@@ -108,11 +108,29 @@ static void LineSet_InsertFree(drawseg2_c *dseg)
 	free_lines.insert(LI, dseg);
 }
 
-static inline int LineSet_Overlap(drawseg2_c *A, drawseg2_c *B)
+/*inline*/ float ApproxPerpDist(
+				float x, float y,
+                float x1, float y1, float x2, float y2)
+{
+	x  -= x1; y  -= y1;
+	x2 -= x1; y2 -= y1;
+
+	float adx = fabs(x2);
+	float ady = fabs(y2);
+
+  	float len = adx + ady - 0.5 * MIN(adx, ady);
+	// float len = sqrt(x2*x2 + y2 * y2);
+
+	return (x * y2 - y * x2) / len;
+}
+
+static /*inline*/ int LineSet_Overlap(drawseg2_c *A, drawseg2_c *B)
 {
 	// RETURN:  0 if no overlap
 	//         -1 if A is closer than (blocks) B
 	//         +1 if A is further than (is blocked by) B
+
+	SYS_ASSERT(A->seg != B->seg);
 
 	// subsectors are convex, hence no two segs from the
 	// same subsector can overlap
@@ -123,10 +141,83 @@ static inline int LineSet_Overlap(drawseg2_c *A, drawseg2_c *B)
 	angle_t L = B->left  - A->right;
 	angle_t R = B->right - A->right;
 
-	if (L >= A->span && R >= A->span)
+	if (L == ANG0 || L >= A->span || R == ANG0 || R >= A->span)
 		return 0;
 
 	// test line-line-camera relationship
+	
+	const vertex_t *av1 = A->seg->v1;
+	const vertex_t *av2 = A->seg->v2;
+
+	const vertex_t *bv1 = B->seg->v1;
+	const vertex_t *bv2 = B->seg->v2;
+
+	float a1 = ApproxPerpDist(av1->x, av1->y,  bv1->x, bv1->y, bv2->x, bv2->y);
+	float a2 = ApproxPerpDist(av2->x, av2->y,  bv1->x, bv1->y, bv2->x, bv2->y);
+
+	float b1 = ApproxPerpDist(bv1->x, bv1->y,  av1->x, av1->y, av2->x, av2->y);
+	float b2 = ApproxPerpDist(bv2->x, bv2->y,  av1->x, av1->y, av2->x, av2->y);
+
+		float ca = ApproxPerpDist(viewx, viewy,  av1->x, av1->y, av2->x, av2->y);
+		float cb = ApproxPerpDist(viewx, viewy,  bv1->x, bv1->y, bv2->x, bv2->y);
+
+if (false)
+I_Debugf("a: %+8.3f %+8.3f  b: %+8.3f %+8.3f  ac:%+8.3f  bc:%+8.3f\n",
+         a1, a2, b1, b2, ca, cb);
+
+if (true)
+	if (fabs(a1) < 0.01 && fabs(a2) < 0.01 &&
+	    fabs(b1) < 0.01 && fabs(b2) < 0.01)
+	{
+		I_Debugf("OVERLAPPING SEGS:\n");
+		I_Debugf("  A = (%1.1f %1.1f) -> (%1.1f %1.1f)\n", av1->x, av1->y, av2->x, av2->y);
+		I_Debugf("  B = (%1.1f %1.1f) -> (%1.1f %1.1f)\n", bv1->x, bv1->y, bv2->x, bv2->y);
+		I_Debugf("  A = %08x-%08x B = %08x-%08x\n", A->right, A->left, B->right, B->left);
+	}
+
+
+	int a_side = 0;
+	int b_side = 0;
+
+	if (a1 >  0.01 && a2 >  0.01) a_side = +1;
+	if (a1 < -0.01 && a2 < -0.01) a_side = -1;
+
+	if (b1 >  0.01 && b2 >  0.01) b_side = +1;
+	if (b1 < -0.01 && b2 < -0.01) b_side = -1;
+
+	if (a_side == 0 || b_side == 0)
+		return 0;
+	
+	if (b_side != 0)
+	{
+		// B is completely on one side of A,
+		// check if camera is on same side or not
+
+
+		int c_side = (ca > 0.01) ? +1 : (ca < -0.01) ? -1 : 0;
+
+		if (c_side != 0)
+			return (c_side == b_side) ? -1 : +1;
+	}
+
+	if (a_side != 0)
+	{
+		// A is completely on one side of B,
+		// check if camera is on same side or not
+
+
+		int c_side = (cb > 0.01) ? +1 : (cb < -0.01) ? -1 : 0;
+
+		if (c_side != 0)
+			return (c_side == a_side) ? +1 : -1;
+	}
+
+	// we should not get here, but no biggie
+	I_Debugf("FUCK\n");
+
+	return 0;
+
+#if 0
 	divline_t A_div;
 	divline_t B_div;
 
@@ -150,6 +241,7 @@ static inline int LineSet_Overlap(drawseg2_c *A, drawseg2_c *B)
 	// we assume side4 would be the same
 
 	return (P_PointOnDivlineSide(viewx, viewy, &B_div) == side3) ? -1 : +1;
+#endif
 }
 
 static void LineSet_TestBlocking(drawseg2_c *dseg)
@@ -290,6 +382,8 @@ static drawseg2_c * LineSet_RemoveFirst(void)
 {
 	if (free_lines.empty())
 	{
+		if ((leveltime & 7) == 0)
+			I_Printf("cyclic lines: %d\n", blocked_lines.size());
 //!!!!	SYS_ASSERT(blocked_lines.empty());
 		return NULL;
 	}
