@@ -41,6 +41,7 @@ sources = [
     'rad_act.cc', 'rad_pars.cc', 'rad_trig.cc', 
     'r_automap.cc', 'r_draw.cc', 'r_shader.cc',
     'r_render.cc', 'r_effects.cc', 'r_main.cc',
+    # 'r_polys.cc',
     'r_occlude.cc', 'm_logo.cc', 'r_things.cc', 'r_units.cc', 
     'r_wipe.cc', 'r_misc.cc', 'r_sky.cc',
     's_blit.cc', 's_cache.cc', 's_sound.cc',
