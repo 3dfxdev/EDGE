@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-//  EDGE OpenGL Rendering (BSP Traversal)
+//  EDGE OpenGL Rendering
 //----------------------------------------------------------------------------
 // 
 //  Copyright (c) 1999-2008  The EDGE Team.
@@ -86,23 +86,6 @@ angle_t clip_left, clip_right;
 angle_t clip_scope;
 
 mobj_t *view_cam_mo;
-
-
-static int checkcoord[12][4] =
-{
-  {BOXRIGHT, BOXTOP, BOXLEFT, BOXBOTTOM},
-  {BOXRIGHT, BOXTOP, BOXLEFT, BOXTOP},
-  {BOXRIGHT, BOXBOTTOM, BOXLEFT, BOXTOP},
-  {0},
-  {BOXLEFT, BOXTOP, BOXLEFT, BOXBOTTOM},
-  {0},
-  {BOXRIGHT, BOXBOTTOM, BOXRIGHT, BOXTOP},
-  {0},
-  {BOXLEFT, BOXTOP, BOXRIGHT, BOXBOTTOM},
-  {BOXLEFT, BOXBOTTOM, BOXRIGHT, BOXBOTTOM},
-  {BOXLEFT, BOXBOTTOM, BOXRIGHT, BOXTOP}
-};
-
 
 
 // colour of the player's weapon
@@ -1956,9 +1939,6 @@ static void RGL_DrawSeg(drawfloor_t *dfloor, seg_t *seg)
 }
 
 
-static void RGL_WalkBSPNode(unsigned int bspnum);
-
-
 static void RGL_WalkMirror(drawsub_c *dsub, seg_t *seg,
 						   angle_t left, angle_t right,
 						   bool is_portal)
@@ -1986,7 +1966,7 @@ static void RGL_WalkMirror(drawsub_c *dsub, seg_t *seg,
 	clip_scope = left - right;
 
 	// perform another BSP walk
-	RGL_WalkBSPNode(root_node);
+///????	RGL_WalkBSPNode(root_node);
 
 	cur_sub = save_sub;
 
@@ -2154,151 +2134,6 @@ static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 		RGL_1DOcclusionSet(angle_R, angle_L);
 	}
 
-	// --- handle sky (using the depth buffer) ---
-
-	bool upper_sky = false;
-	bool lower_sky = false;
-
-	if (backsector && IS_SKY(frontsector->floor) && IS_SKY(backsector->floor))
-		lower_sky = true;
-
-	if (backsector && IS_SKY(frontsector->ceil) && IS_SKY(backsector->ceil))
-		upper_sky = true;
-
-	if (lower_sky && frontsector->f_h < backsector->f_h)
-	{
-		RGL_DrawSkyWall(seg, frontsector->f_h, backsector->f_h);
-	}
-
-	if (IS_SKY(frontsector->ceil))
-	{
-		if (frontsector->c_h < frontsector->sky_h &&
-			(! backsector || ! IS_SKY(backsector->ceil) ||
-			backsector->f_h >= frontsector->c_h))
-		{
-			RGL_DrawSkyWall(seg, frontsector->c_h, frontsector->sky_h);
-		}
-		else if (backsector && IS_SKY(backsector->ceil))
-		{
-			float max_f = MAX(frontsector->f_h, backsector->f_h);
-
-			if (backsector->c_h <= max_f && max_f < frontsector->sky_h)
-			{
-				RGL_DrawSkyWall(seg, max_f, frontsector->sky_h);
-			}
-		}
-	}
-	// -AJA- 2004/08/29: Emulate Sky-Flooding TRICK
-	else if (! hom_detect && backsector && IS_SKY(backsector->ceil) &&
-			 seg->sidedef->top.image == NULL &&
-			 backsector->c_h < frontsector->c_h)
-	{
-		RGL_DrawSkyWall(seg, backsector->c_h, frontsector->c_h);
-	}
-}
-
-//
-// RGL_CheckBBox
-//
-// Checks BSP node/subtree bounding box.
-// Returns true if some part of the bbox might be visible.
-//
-// Placed here to be close to RGL_WalkSeg(), which has similiar angle
-// clipping stuff in it.
-//
-
-bool RGL_CheckBBox(float *bspcoord)
-{
-	if (num_active_mirrors > 0)
-	{
-		// a flipped bbox may no longer be axis aligned, hence we
-		// need to find the bounding area of the transformed box.
-		static float new_bbox[4];
-
-		M_ClearBox(new_bbox);
-
-		for (int p=0; p < 4; p++)
-		{
-			float tx = bspcoord[(p & 1) ? BOXLEFT   : BOXRIGHT];
-			float ty = bspcoord[(p & 2) ? BOXBOTTOM : BOXTOP];
-
-			MIR_Coordinate(tx, ty);
-
-			M_AddToBox(new_bbox, tx, ty);
-		}
-
-		bspcoord = new_bbox;
-	}
-			
-	int boxx, boxy;
-
-	// Find the corners of the box
-	// that define the edges from current viewpoint.
-	if (viewx <= bspcoord[BOXLEFT])
-		boxx = 0;
-	else if (viewx < bspcoord[BOXRIGHT])
-		boxx = 1;
-	else
-		boxx = 2;
-
-	if (viewy >= bspcoord[BOXTOP])
-		boxy = 0;
-	else if (viewy > bspcoord[BOXBOTTOM])
-		boxy = 1;
-	else
-		boxy = 2;
-
-	int boxpos = (boxy << 2) + boxx;
-
-	if (boxpos == 5)
-		return true;
-
-	float x1 = bspcoord[checkcoord[boxpos][0]];
-	float y1 = bspcoord[checkcoord[boxpos][1]];
-	float x2 = bspcoord[checkcoord[boxpos][2]];
-	float y2 = bspcoord[checkcoord[boxpos][3]];
-
-	// check clip list for an open space
-	angle_t angle_L = R_PointToAngle(viewx, viewy, x1, y1);
-	angle_t angle_R = R_PointToAngle(viewx, viewy, x2, y2);
-
-	angle_t span = angle_L - angle_R;
-
-	// Sitting on a line?
-	if (span >= ANG180)
-		return true;
-
-	angle_L -= viewangle;
-	angle_R -= viewangle;
-
-	if (clip_scope != ANG180)
-	{
-		angle_t tspan1 = angle_L - clip_right;
-		angle_t tspan2 = clip_left - angle_R;
-
-		if (tspan1 > clip_scope)
-		{
-			// Totally off the left edge?
-			if (tspan2 >= ANG180)
-				return false;
-
-			angle_L = clip_left;
-		}
-
-		if (tspan2 > clip_scope)
-		{
-			// Totally off the right edge?
-			if (tspan1 >= ANG180)
-				return false;
-
-			angle_R = clip_right;
-		}
-
-		if (angle_L == angle_R)
-			return false;
-	}
-
-	return ! RGL_1DOcclusionTest(angle_R, angle_L);
 }
 
 
@@ -2541,7 +2376,6 @@ static inline void AddNewDrawFloor(drawsub_c *dsub, extrafloor_t *ef,
 //
 void RGL_WalkSubsector(subsector_t *sub, bool do_segs = true)
 {
-	seg_t *seg;
 	sector_t *sector;
 	surface_t *floor_s;
 	float floor_h;
@@ -2641,19 +2475,6 @@ void RGL_WalkSubsector(subsector_t *sub, bool do_segs = true)
 		if (tn->mo && tn->mo->subsector == cur_sub)
 			RGL_WalkThing(K, tn->mo);
 	}
-
-///----	// clip 1D occlusion buffer.
-///----	for (seg=sub->segs; seg; seg=seg->sub_next)
-///----	{
-///----		RGL_WalkSeg(K, seg);
-///----	}
-
-	// add drawsub to list (closest -> furthest)
-
-///--- 	if (num_active_mirrors > 0)
-///--- 		active_mirrors[num_active_mirrors-1].def->drawsubs.push_back(K);
-///--- 	else
-///--- 		drawsubs.push_back(K);
 }
 
 
@@ -2675,33 +2496,6 @@ static void RGL_DrawSeg2(drawseg2_c *dseg)
 		for (dfloor = dsub->floors_R; dfloor != NULL; dfloor = dfloor->next_R)
 			RGL_DrawSeg(dfloor, dseg->seg);
 	}
-}
-
-
-// OLD CODE : REMOVE ME
-void RGL_DrawSubList(std::list<drawsub_c *> &dsubs)
-{
-	// draw all solid walls and planes
-	solid_mode = true;
-	RGL_StartUnits(solid_mode);
-
-	std::list<drawsub_c *>::iterator FI;  // Forward Iterator
-
-	for (FI = dsubs.begin(); FI != dsubs.end(); FI++)
-		RGL_DrawSubsector(*FI);
-
-	RGL_FinishUnits();
-
-	// draw all sprites and masked/translucent walls/planes
-	solid_mode = false;
-	RGL_StartUnits(solid_mode);
-
-	std::list<drawsub_c *>::reverse_iterator RI;
-
-	for (RI = dsubs.rbegin(); RI != dsubs.rend(); RI++)
-		RGL_DrawSubsector(*RI);
-
-	RGL_FinishUnits();
 }
 
 
@@ -2870,7 +2664,7 @@ static void RGL_DrawMirror(drawmirror_c *mir)
 
 	MIR_Push(mir);
 	{
-		RGL_DrawSubList(mir->drawsubs);
+///???	RGL_DrawSubList(mir->drawsubs);
 	}
 	MIR_Pop();
 
@@ -3255,9 +3049,8 @@ static drawseg2_c * LineSet_RemoveFirst(void)
 {
 	if (free_lines.empty())
 	{
-		if ((leveltime & 7) == 0)
+		if ((leveltime & 7) == 0 && ! blocked_lines.empty())
 			I_Printf("cyclic lines: %d\n", blocked_lines.size());
-//!!!!	SYS_ASSERT(blocked_lines.empty());
 		return NULL;
 	}
 
@@ -3297,13 +3090,14 @@ static void RGL_WalkSubsector2(subsector_t *sub)
 
 static void RGL_WalkSeg2(drawseg2_c *dseg)
 {
+	seg_t *seg = dseg->seg;
+
 	drawsegs.push_back(dseg);
 
-	subsector_t *back = dseg->seg->back_sub;
+	subsector_t *back = seg->back_sub;
 
 	// only one-sided walls affect the 1D occlusion buffer
-	if (dseg->seg->linedef &&
-	    dseg->seg->linedef->blocked)
+	if (seg->linedef && seg->linedef->blocked)
 	{
 		RGL_1DOcclusionSet(dseg->right, dseg->left);
 	}
@@ -3312,6 +3106,54 @@ static void RGL_WalkSeg2(drawseg2_c *dseg)
 		RGL_WalkSubsector2(back);
 
 		dseg->linked_sub = back->dsub;
+	}
+
+	// --- handle sky (using the depth buffer) ---
+
+	bool upper_sky = false;
+	bool lower_sky = false;
+
+	sector_t *frontsector = seg->front_sub->sector;
+	sector_t *backsector  = NULL;
+
+	if (back)
+		backsector = back->sector;
+
+	if (backsector && IS_SKY(frontsector->floor) && IS_SKY(backsector->floor))
+		lower_sky = true;
+
+	if (backsector && IS_SKY(frontsector->ceil) && IS_SKY(backsector->ceil))
+		upper_sky = true;
+
+	if (lower_sky && frontsector->f_h < backsector->f_h)
+	{
+		RGL_DrawSkyWall(seg, frontsector->f_h, backsector->f_h);
+	}
+
+	if (IS_SKY(frontsector->ceil))
+	{
+		if (frontsector->c_h < frontsector->sky_h &&
+			(! backsector || ! IS_SKY(backsector->ceil) ||
+			backsector->f_h >= frontsector->c_h))
+		{
+			RGL_DrawSkyWall(seg, frontsector->c_h, frontsector->sky_h);
+		}
+		else if (backsector && IS_SKY(backsector->ceil))
+		{
+			float max_f = MAX(frontsector->f_h, backsector->f_h);
+
+			if (backsector->c_h <= max_f && max_f < frontsector->sky_h)
+			{
+				RGL_DrawSkyWall(seg, max_f, frontsector->sky_h);
+			}
+		}
+	}
+	// -AJA- 2004/08/29: Emulate Sky-Flooding TRICK
+	else if (! hom_detect && backsector && IS_SKY(backsector->ceil) &&
+			 seg->sidedef->top.image == NULL &&
+			 backsector->c_h < frontsector->c_h)
+	{
+		RGL_DrawSkyWall(seg, backsector->c_h, frontsector->c_h);
 	}
 }
 
@@ -3333,61 +3175,6 @@ static void RGL_WalkLevel(void)
 
 	LineSet_Done();
 }
-
-//
-// RGL_WalkBSPNode
-//
-// Walks all subsectors below a given node, traversing subtree
-// recursively, collecting information.  Just call with BSP root.
-//
-static void RGL_WalkBSPNode(unsigned int bspnum)
-{
-	node_t *node;
-	int side;
-
-	// Found a subsector?
-	if (bspnum & NF_V5_SUBSECTOR)
-	{
-		int num = bspnum & (~NF_V5_SUBSECTOR);
-		RGL_WalkSubsector(&subsectors[num]);
-		return;
-	}
-
-	node = &nodes[bspnum];
-
-	// Decide which side the view point is on.
-
-	divline_t nd_div;
-
-	nd_div.x  = node->div.x;
-	nd_div.y  = node->div.y;
-	nd_div.dx = node->div.x + node->div.dx;
-	nd_div.dy = node->div.y + node->div.dy;
-
-	MIR_Coordinate(nd_div.x,  nd_div.y);
-	MIR_Coordinate(nd_div.dx, nd_div.dy);
-
-	if (MIR_Reflective())
-	{
-		float tx = nd_div.x; nd_div.x = nd_div.dx; nd_div.dx = tx;
-		float ty = nd_div.y; nd_div.y = nd_div.dy; nd_div.dy = ty;
-	}
-
-	nd_div.dx -= nd_div.x;
-	nd_div.dy -= nd_div.y;
-	
-	side = P_PointOnDivlineSide(viewx, viewy, &nd_div);
-
-	// Recursively divide front space.
-	if (RGL_CheckBBox(node->bbox[side]))
-		RGL_WalkBSPNode(node->children[side]);
-
-	// Recursively divide back space.
-	if (RGL_CheckBBox(node->bbox[side ^ 1]))
-		RGL_WalkBSPNode(node->children[side ^ 1]);
-}
-
-
 
 
 void InitCamera(mobj_t *mo)
