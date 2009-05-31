@@ -486,7 +486,7 @@ void RGL_DrawWeaponModel(player_t * p)
 	if (! (st->flags & SFF_Model))
 		return;
 
-	modeldef_c *md = W_GetModel(st->sprite);
+	modeldef_c *md = W_GetModel(st->sprite, w->states);
 
 	int skin_num = p->weapons[p->ready_wp].model_skin;
 
@@ -1082,7 +1082,7 @@ static void RGL_DrawModel(drawthing_t *dthing)
 
 	const state_t *st = &mo->info->states[mo->ztate];
 
-	modeldef_c *md = W_GetModel(st->sprite);
+	modeldef_c *md = W_GetModel(st->sprite, ((mobjtype_c*)mo->info)->states);
 
 	const image_c *skin_img = md->skins[mo->model_skin];
 

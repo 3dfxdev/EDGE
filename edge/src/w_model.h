@@ -48,7 +48,7 @@ void W_InitModels(void);
 
 // void W_PrecacheModels(void);
 
-modeldef_c *W_GetModel(int model_num);
+modeldef_c *W_GetModel(int model_num, std::vector<state_t> & states);
 
 // XXX W_GetModelSkin(int model_num, int skin_num);
 
