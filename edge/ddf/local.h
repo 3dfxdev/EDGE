@@ -349,9 +349,8 @@ void DDF_StateReadState (const char *info, const char *label,
 			 const char *redir, const actioncode_t * action_list,
 			 bool is_weapon);
 void DDF_StateFinishStates (std::vector<state_t> &group);
-void DDF_StateFixupStates (std::vector<state_t> &group);
 void DDF_StateCleanUp (void);
-int DDF_StateFindLabel (std::vector<state_t> &group, const char *label);
+int DDF_StateFindLabel (const std::vector<state_t> &group, const char *label);
 
 // DDF_SECT Code
 void DDF_SectorInit (void);

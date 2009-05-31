@@ -1386,15 +1386,22 @@ int DDF_MainLookupDirector(const mobjtype_c *info, const char *ref)
 	int len = p ? (p - ref) : strlen(ref);
 
 	if (len <= 0)
-		DDF_Error("Bad Director `%s' : Nothing after divide\n", ref);
+		DDF_Error("Bad Director '%s' : Nothing after divide\n", ref);
 
 	std::string director(ref, len);
 
-	int state  = DDF_StateFindLabel(info->first_state, info->last_state, director.c_str());
-	int offset = p ? MAX(0, atoi(p + 1) - 1) : 0;
+	int index = DDF_StateFindLabel(info->states, director.c_str());
 
-	// FIXME: check for overflow
-	return state + offset;
+	if (p)
+		index += MAX(0, atoi(p + 1) - 1);
+
+	if (index >= (int)info->states.size())
+	{
+		DDF_Warning("Bad Director '%s' : offset is too large\n", ref);
+		index = MAX(0, (int)info->states.size() - 1);
+	}
+
+	return index;
 }
 
 
