@@ -131,10 +131,8 @@ void DDF_StateInit(void)
 	// setup the 'SPR_NULL' sprite
 	// (Not strictly needed, but means we can access the arrays
 	//  without subtracting 1)
-#if 1
 	AddSpriteName("!NULL!");
 	AddModelName ("!NULL!");
-#endif
 }
 
 void DDF_StateCleanUp(void)
@@ -143,8 +141,6 @@ void DDF_StateCleanUp(void)
 }
 
 
-//
-// DDF_MainSplitIntoState
 //
 // Small procedure that takes the info and splits it into relevant stuff
 //
@@ -226,8 +222,6 @@ static int DDF_MainSplitIntoState(const char *info)
 
 
 //
-// DDF_MainSplitActionArg
-//
 // Small procedure that takes an action like "FOO(BAR)", and splits it
 // into two strings "FOO" and "BAR".
 //
@@ -255,9 +249,6 @@ static void DDF_MainSplitActionArg(const char *info, char *actname, char *actarg
 	}
 }
 
-//
-// StateGetRedirector
-//
 static int StateGetRedirector(const char *redir)
 {
 	epi::array_iterator_c it;
@@ -274,9 +265,6 @@ static int StateGetRedirector(const char *redir)
 	return redirs.GetSize()-1;
 }
 
-//
-// DDF_StateFindLabel
-//
 int DDF_StateFindLabel(int first, int last, const char *label)
 {
 	int i;
@@ -300,9 +288,6 @@ int DDF_StateFindLabel(int first, int last, const char *label)
 	return 0;
 }
 
-//
-// DDF_StateReadState
-//
 void DDF_StateReadState(const char *info, const char *label,
 						int *first, int *last, int *state_num, int index,
 						const char *redir, const actioncode_t *action_list,
@@ -524,8 +509,6 @@ void DDF_StateReadState(const char *info, const char *label,
 
 
 //
-// DDF_StateFinishStates
-//
 // Check through the states on an mobj and attempts to dereference any
 // encoded state redirectors.
 //
@@ -535,44 +518,44 @@ void DDF_StateFinishStates(int first, int last)
 
 	for (i=first; i <= last; i++)
 	{
+		state_t *st = &states[i];
+
 		// handle next state ref
-		if (states[i].nextstate == -1)
+		if (st->nextstate == -1)
 		{
-			states[i].nextstate = S_NULL;
+			st->nextstate = S_NULL;
 		}
-		else if ((states[i].nextstate >> 16) == 0)
+		else if ((st->nextstate >> 16) == 0)
 		{
-			states[i].nextstate = (i == last) ? S_NULL : i+1;
+			st->nextstate = (i == last) ? S_NULL : i+1;
 		}
 		else
 		{
-			states[i].nextstate = DDF_StateFindLabel(first, last,
-												redirs[(states[i].nextstate >> 16) - 1]) +
-				(states[i].nextstate & 0xFFFF);
+			st->nextstate = DDF_StateFindLabel(first, last,
+												redirs[(st->nextstate >> 16) - 1]) +
+				(st->nextstate & 0xFFFF);
 		}
 
 		// handle jump state ref
-		if (states[i].jumpstate == -1)
+		if (st->jumpstate == -1)
 		{
-			states[i].jumpstate = S_NULL;
+			st->jumpstate = S_NULL;
 		}
-		else if ((states[i].jumpstate >> 16) == 0)
+		else if ((st->jumpstate >> 16) == 0)
 		{
-			states[i].jumpstate = (i == last) ? S_NULL : i+1;
+			st->jumpstate = (i == last) ? S_NULL : i+1;
 		}
 		else
 		{
-			states[i].jumpstate = DDF_StateFindLabel(first, last,
-												 redirs[(states[i].jumpstate >> 16) - 1]) +
-				(states[i].jumpstate & 0xFFFF);
+			st->jumpstate = DDF_StateFindLabel(first, last,
+												 redirs[(st->jumpstate >> 16) - 1]) +
+				(st->jumpstate & 0xFFFF);
 		}
 	}
   
 	redirs.Clear();
 }
 
-//
-// DDF_StateGetAttack
 //
 // Parse the special argument for the state as an attack.
 //
