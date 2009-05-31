@@ -88,7 +88,7 @@ static savefield_t sv_fields_mobj[] =
 	SF(speed, "speed", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
 	SF(fuse, "fuse", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(info, "info", 1, SVT_STRING, SR_MobjGetType, SR_MobjPutType),
-	SF(state, "state", 1, SVT_STRING, SR_MobjGetState, SR_MobjPutState),
+	SF(ztate, "state", 1, SVT_STRING, SR_MobjGetState, SR_MobjPutState),
 	SF(next_state, "next_state", 1, SVT_STRING, SR_MobjGetState, SR_MobjPutState),
 	SF(tics, "tics", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(flags, "flags", 1, SVT_INT, SR_GetInt, SR_PutInt),
@@ -337,7 +337,7 @@ void SV_MobjCreateElems(int num_elems)
 
 		// initialise defaults
 		cur->info = mobjtypes[0];
-		cur->state = cur->next_state = states+1;
+		cur->ztate = cur->next_state = 1;
 
 		cur->model_skin = 1;
 		cur->model_last_frame = -1;
@@ -586,88 +586,75 @@ void SR_MobjPutAttack(void *storage, int index, void *extra)
 
 //----------------------------------------------------------------------------
 
-//
-// SR_MobjGetState
-//
 bool SR_MobjGetState(void *storage, int index, void *extra)
 {
-	state_t ** dest = (state_t **)storage + index;
+	int *dest = (int *)storage + index;
 
-	char buffer[256];
-	char *base_p, *off_p;
-	int base, offset;
-
-	const char *swizzle;
 	const mobj_t *mo = (mobj_t *) sv_current_elem;
-	const mobjtype_c *actual;
 
 	SYS_ASSERT(mo);
 	SYS_ASSERT(mo->info);
 
-	swizzle = SV_GetString();
+	const char *swizzle = SV_GetString();
 
 	if (! swizzle)
 	{
-		*dest = NULL;
+		*dest = S_NULL;
 		return true;
 	}
+
+	char buffer[256];
 
 	Z_StrNCpy(buffer, swizzle, 256-1);
 	SV_FreeString(swizzle);
 
 	// separate string at `:' characters
 
-	base_p = strchr(buffer, ':');
+	char *base_p = strchr(buffer, ':');
 
 	if (base_p == NULL || base_p[0] == 0)
 		I_Error("Corrupt savegame: bad state 1/2: `%s'\n", buffer);
 
 	*base_p++ = 0;
 
-	off_p = strchr(base_p, ':');
+	char *off_p = strchr(base_p, ':');
 
 	if (off_p == NULL || off_p[0] == 0)
 		I_Error("Corrupt savegame: bad state 2/2: `%s'\n", base_p);
 
 	*off_p++ = 0;
 
-	// find thing that contains the state
-	actual = mo->info;
+	// Note: the THING name is ignored
 
-	if (buffer[0] != '*')
-	{
-		// Do we care about those in the disabled group?
-		actual = mobjtypes.Lookup(buffer);
-		if (!actual)
-			I_Error("LOADGAME: no such thing %s for state %s:%s\n",
-			buffer, base_p, off_p);
-	}
 
 	// find base state
-	offset = strtol(off_p, NULL, 0) - 1;
+	int base   = 1;
+	int offset = strtol(off_p, NULL, 0);
 
-	for (base=actual->first_state; base <= actual->last_state; base++)
+	if (base_p[0] != '*')
 	{
-		if (! states[base].label)
-			continue;
+		for (base = (int)mo->info->states.size()-1; base > 0; base--)
+		{
+			if (! mo->info->states[base].label)
+				continue;
 
-		if (DDF_CompareName(base_p, states[base].label) == 0)
-			break;
-	}
+			if (DDF_CompareName(base_p, mo->info->states[base].label) == 0)
+				break;
+		}
 
-	if (base > actual->last_state)
-	{
-		I_Warning("LOADGAME: no such label `%s' for state.\n", base_p);
-		offset = 0;
+		if (base <= 0)
+		{
+			I_Warning("LOADGAME: no such label '%s' for state.\n", base_p);
 
-		if (actual->idle_state)
-			base = actual->idle_state;
-		else if (actual->spawn_state)
-			base = actual->spawn_state;
-		else if (actual->meander_state)
-			base = actual->meander_state;
-		else
-			base = actual->first_state;
+			if (mo->info->idle_state)
+				base = mo->info->idle_state;
+			else if (mo->info->meander_state)
+				base = mo->info->meander_state;
+			else
+				base = 1;
+
+			offset = 1;
+		}
 	}
 
 #if 0
@@ -675,7 +662,7 @@ bool SR_MobjGetState(void *storage, int index, void *extra)
 		buffer, base_p, off_p, base + offset);
 #endif
 
-	*dest = states + base + offset;
+	*dest = base + offset-1;
 
 	return true;
 }
@@ -704,102 +691,53 @@ bool SR_MobjGetState(void *storage, int index, void *extra)
 //
 void SR_MobjPutState(void *storage, int index, void *extra)
 {
-	state_t *S = ((state_t **)storage)[index];
-
-	char swizzle[256];
-
-	int s_num, base;
+	int stnum = ((int *)storage)[index];
 
 	const mobj_t *mo = (mobj_t *) sv_current_elem;
-	const mobjtype_c *actual;
 
 	SYS_ASSERT(mo);
 	SYS_ASSERT(mo->info);
 
-	if (S == NULL)
+	if (stnum == S_NULL)
 	{
 		SV_PutString(NULL);
 		return;
 	}
 
 	// object has no states ?
-	if (mo->info->last_state <= 0 || 
-		mo->info->last_state < mo->info->first_state)
+	if (mo->info->states.empty())
 	{
-		I_Warning("SAVEGAME: object [%s] has no states !!\n", mo->info->ddf.name.c_str());
+		I_Warning("SAVEGAME: object [%s] has no states!\n", mo->info->ddf.name.c_str());
 		SV_PutString(NULL);
 		return;
 	}
 
-	// get state number, check if valid
-	s_num = (int)(S - states);
-
-	if (s_num < 0 || s_num >= num_states)
+	// check if valid
+	if (stnum < 0 || stnum >= (int)mo->info->states.size())
 	{
 		I_Warning("SAVEGAME: object [%s] is in invalid state %d\n", 
-			mo->info->ddf.name.c_str(), s_num);
+			mo->info->ddf.name.c_str(), stnum);
 
 		if (mo->info->idle_state)
-			s_num = mo->info->idle_state;
-		else if (mo->info->spawn_state)
-			s_num = mo->info->spawn_state;
-		else if (mo->info->meander_state)
-			s_num = mo->info->meander_state;
+			stnum = mo->info->idle_state;
 		else
-		{
-			SV_PutString("*:*:1");
-			return;
-		}
+			stnum = 1;
 	}
 
-	// state gone AWOL into another object ?
-	actual = mo->info;
-
-	if (s_num < mo->info->first_state || s_num > mo->info->last_state)
-	{
-		I_Warning("SAVEGAME: object [%s] is in AWOL state %d\n",
-			mo->info->ddf.name.c_str(), s_num);
-
-		epi::array_iterator_c it;
-
-		// look for real object
-		for (it = mobjtypes.GetBaseIterator(); it.IsValid(); it++)
-		{
-			actual = ITERATOR_TO_TYPE(it, mobjtype_c*);
-
-			if (actual->last_state <= 0 ||
-				actual->last_state < actual->first_state)
-				continue;
-
-			if (actual->first_state <= s_num && s_num <= actual->last_state)
-				break;
-		}
-
-		if (it.IsValid())
-		{
-			I_Warning("-- ARGH: state %d cannot be found !!\n", s_num);
-			SV_PutString("*:*:1");
-			return;
-		}
-
-		if (! actual->ddf.name)
-		{
-			I_Warning("-- OOPS: state %d found in unnamed object !!\n", s_num);
-			SV_PutString("*:*:1");
-			return;
-		}
-	}
 
 	// find the nearest base state
+	int base;
 
-	for (base = s_num; 
-		base > mo->info->first_state && states[base].label == NULL;
-		base--)
+	for (base = stnum; 
+		 (base > 1) && mo->info->states[base].label == NULL;
+		 base--)
 	{ /* nothing */ }
 
-	sprintf(swizzle, "%s:%s:%d", 
-		actual == mo->info ? "*" : actual->ddf.name.c_str(), 
-		states[base].label ? states[base].label : "*", 1 + s_num - base);
+	char swizzle[256];
+
+	sprintf(swizzle, "*:%s:%d", 
+		(base >= 1) ? mo->info->states[base].label : "*",
+		stnum - base + 1);
 
 #if 0
 	L_WriteDebug("Swizzled state %d of [%s] -> `%s'\n", 
