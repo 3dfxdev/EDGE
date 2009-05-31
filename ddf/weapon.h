@@ -21,6 +21,7 @@
 
 #include "base.h"
 #include "types.h"
+#include "states.h"
 
 
 // ------------------------------------------------------------------
@@ -58,10 +59,11 @@ public:
 	
 private:
 	void Copy(weapondef_c &src);
+	void CopyStates(weapondef_c &src);
 	
 public:
-	void CopyDetail(weapondef_c &src);
 	void Default(void);
+	void CopyDetail(weapondef_c &src);
 
 	weapondef_c& operator=(weapondef_c &rhs);
 
@@ -77,8 +79,7 @@ public:
 	float kick;				// Amount of kick this weapon gives
   
 	// range of states used
-	int first_state;
-	int last_state;
+	std::vector<state_t> states;
   
 	int up_state;			// State to use when raising the weapon 
 	int down_state;			// State to use when lowering the weapon (if changing weapon)

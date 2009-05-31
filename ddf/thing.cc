@@ -465,8 +465,7 @@ static bool ThingTryParseState(const char *field,
 	if (thing_starters[i].label)
 		starter = &thing_starters[i];
 
-	DDF_StateReadState(contents, labname.c_str(),
-		&buffer_mobj.first_state, &buffer_mobj.last_state,
+	DDF_StateReadState(contents, labname.c_str(), buffer_mobj.states,
 		starter ? starter->state_num : NULL, index, 
 		is_last ? starter ? starter->last_redir : "IDLE" : NULL, 
 		thing_actions, false);
@@ -546,8 +545,7 @@ void ThingParseField(const char *field, const char *contents,
 
 static void ThingFinishEntry(void)
 {
-	if (buffer_mobj.first_state)
-		DDF_StateFinishStates(buffer_mobj.first_state, buffer_mobj.last_state);
+	DDF_StateFinishStates(buffer_mobj.states);
 
 	// count-as-kill things are automatically monsters
 	if (buffer_mobj.flags & MF_COUNTKILL)
@@ -1732,18 +1730,19 @@ bool DDF_MainParseCondition(const char *info, condition_check_t *cond)
 
 // ---> mobjdef class
 
-mobjtype_c::mobjtype_c()
+mobjtype_c::mobjtype_c() : states()
 {
 	Default();
 }
 
-mobjtype_c::mobjtype_c(mobjtype_c &rhs)
+mobjtype_c::mobjtype_c(mobjtype_c &rhs) : states()
 {
 	Copy(rhs);
 }
 
 mobjtype_c::~mobjtype_c()
 {
+	// FIXME
 }
 
 
@@ -1756,8 +1755,7 @@ void mobjtype_c::Copy(mobjtype_c &src)
 
 void mobjtype_c::CopyDetail(mobjtype_c &src)
 {
-	first_state = src.first_state; 
-	last_state = src.last_state; 
+	CopyStates(src);
 
     spawn_state = src.spawn_state; 
     idle_state = src.idle_state; 
@@ -1883,13 +1881,18 @@ void mobjtype_c::CopyDetail(mobjtype_c &src)
 	spitspot_ref = src.spitspot_ref; 
 }
 
+void mobjtype_c::CopyStates(mobjtype_c &src)
+{
+	std::vector<state_t>::iterator SI;
+
+	for (SI = src.states.begin(); SI != src.states.end(); SI++)
+		states.push_back(*SI);
+}
+
 
 void mobjtype_c::Default()
 {
 	ddf.Default();
-
-	first_state = 0;
-	last_state = 0; 
 
     spawn_state = 0;
     idle_state = 0;

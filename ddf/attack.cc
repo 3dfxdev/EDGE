@@ -178,9 +178,7 @@ static void AttackFinishEntry(void)
 	// handle attacks that have mobjs
 	if (attack_has_mobj)
 	{
-		if (buffer_mobj.first_state)
-			DDF_StateFinishStates(buffer_mobj.first_state, 
-								  buffer_mobj.last_state);
+		DDF_StateFinishStates(buffer_mobj.states); 
 
 		// check MOBJ stuff
 

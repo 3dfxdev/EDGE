@@ -26,10 +26,8 @@
 //-----------------------  THING STATE STUFF   ----------------------------
 //-------------------------------------------------------------------------
 
-typedef int statenum_t;
-
 #define S_NULL    0   // state
-#define SPR_NULL  0   // sprite
+#define SPR_NULL  0   // sprite / model
 
 typedef enum
 {
@@ -79,8 +77,7 @@ state_t;
 
 // -------EXTERNALISATIONS-------
 
-extern state_t *states;
-extern int num_states;
+extern const state_t ddf_template_state;
 
 extern std::vector<std::string> ddf_sprite_names;
 extern std::vector<std::string> ddf_model_names;
