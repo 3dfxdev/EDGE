@@ -65,7 +65,7 @@ static void P_SetWeaponState(player_t * p, int position,
 
 	SYS_ASSERT(stnum < (int)w->states.size());
 
-	state_t *st = &w->states[stnum];
+	const state_t *st = &w->states[stnum];
 
 	// model interpolation stuff
 	if (psp->state != S_NULL &&
@@ -1150,7 +1150,7 @@ static void DoNoFire(mobj_t * mo, int ATK, bool does_return)
 		}
 	}
 
-	state_t *st = &w->states[psp->state];
+	const state_t *st = &w->states[psp->state];
 
 	p->refire = w->refire_inacc ? 0 : 1;
 	p->remember_atk[ATK] = does_return ? st->nextstate : -1;
@@ -1304,7 +1304,7 @@ void A_SetCrosshair(mobj_t * mo, void *data)
 	pspdef_t *psp = &p->psprites[p->action_psp];
 	weapondef_c *w = p->weapons[p->ready_wp].info;
 
-	state_t *st = &w->states[psp->state];
+	const state_t *st = &w->states[psp->state];
 
 	if (st->jumpstate == S_NULL)
 		return;
@@ -1318,7 +1318,7 @@ void A_TargetJump(mobj_t * mo, void *data)
 	pspdef_t *psp = &p->psprites[p->action_psp];
 	weapondef_c *w = p->weapons[p->ready_wp].info;
 
-	state_t *st = &w->states[psp->state];
+	const state_t *st = &w->states[psp->state];
 
 	if (st->jumpstate == S_NULL)
 		return;
@@ -1342,7 +1342,7 @@ void A_FriendJump(mobj_t * mo, void *data)
 	pspdef_t *psp = &p->psprites[p->action_psp];
 	weapondef_c *w = p->weapons[p->ready_wp].info;
 
-	state_t *st = &w->states[psp->state];
+	const state_t *st = &w->states[psp->state];
 
 	if (st->jumpstate == S_NULL)
 		return;
@@ -1582,7 +1582,7 @@ void A_WeaponJump(mobj_t * mo, void *data)
 		return;
 	}
 
-	state_t *st = &w->states[psp->state];
+	const state_t *st = &w->states[psp->state];
 
 	jump = (act_jump_info_t *) data;
 

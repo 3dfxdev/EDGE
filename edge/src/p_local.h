@@ -97,6 +97,7 @@ void P_BringCorpseToLife(mobj_t * corpse);
 #define GRIN_TIME   (TICRATE * 2)
 
 void P_SetupPsprites(player_t * curplayer);
+void P_FixWeaponStates(player_t *p);
 void P_MovePsprites(player_t * curplayer);
 void P_DropWeapon(player_t * player);
 bool P_CheckWeaponSprite(weapondef_c *info);
@@ -138,9 +139,9 @@ extern iteminque_t *itemquehead;
 extern mobj_t *mobjlisthead;
 
 void P_RemoveMobj(mobj_t * th);
-statenum_t P_MobjFindLabel(mobj_t * mobj, const char *label);
-bool P_SetMobjState(mobj_t * mobj, statenum_t state);
-bool P_SetMobjStateDeferred(mobj_t * mobj, statenum_t state, int tic_skip);
+int  P_MobjFindLabel(mobj_t * mobj, const char *label);
+bool P_SetMobjState(mobj_t * mobj, int stnum);
+bool P_SetMobjStateDeferred(mobj_t * mobj, int stnum, int tic_skip);
 void P_SetMobjDirAndSpeed(mobj_t * mobj, angle_t angle, float slope, float speed);
 void P_RunMobjThinkers(void);
 void P_SpawnPuff(float x, float y, float z, const mobjtype_c * puff);

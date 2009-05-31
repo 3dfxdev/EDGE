@@ -123,6 +123,7 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 							player_t * player, region_properties_t *props,
 							const state_t *state)
 {
+	
 	if (state->flags & SFF_Model)
 		return;
 
@@ -561,13 +562,14 @@ static const image_c * R2_GetThingSprite2(mobj_t *mo, float mx, float my, bool *
 	// Note: can return NULL for no image.
 
 	// decide which patch to use for sprite relative to player
-	SYS_ASSERT(mo->state);
+	SYS_ASSERT(mo->ztate != S_NULL);
 
-	if (mo->state->sprite == SPR_NULL)
+	const state_t *st = mo->info->states[mo->ztate];
+
+	if (st->sprite == SPR_NULL)
 		return NULL;
 
-	spriteframe_c *frame = W_GetSpriteFrame(mo->state->sprite,
-			mo->state->frame);
+	spriteframe_c *frame = W_GetSpriteFrame(st->sprite, st->frame);
 
 	if (! frame)
 	{
@@ -856,7 +858,7 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 {
 	/* Visit a single thing that exists in the current subsector */
 
-	SYS_ASSERT(mo->state);
+	SYS_ASSERT(mo->ztate != S_NULL);
 
 	// ignore the camera itself
 	if (mo == view_cam_mo && num_active_mirrors == 0)
@@ -1279,7 +1281,7 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 
 	if (! is_fuzzy)
 	{
-		abstract_shader_c *shader = R_GetColormapShader(dthing->props, mo->state->bright);
+		abstract_shader_c *shader = R_GetColormapShader(dthing->props, mo->info->states[mo->ztate].bright);
 
 		for (int v=0; v < 4; v++)
 		{

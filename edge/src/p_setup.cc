@@ -905,8 +905,6 @@ static void SpawnMapThing(const mobjtype_c *info,
 						  float x, float y, float z,
 						  angle_t angle, int options, int tag)
 {
-	int bit;
-	mobj_t *mobj;
 	spawnpoint_t point;
 
 	point.x = x;
@@ -956,6 +954,8 @@ static void SpawnMapThing(const mobjtype_c *info,
 	if (DEATHMATCH() && (options & MTF_NOT_DM))
 		return;
 
+	int bit;
+
 	if (gameskill == sk_baby)
 		bit = 1;
 	else if (gameskill == sk_nightmare)
@@ -980,23 +980,28 @@ static void SpawnMapThing(const mobjtype_c *info,
 
 	// spawn it now !
 	// Use MobjCreateObject -ACB- 1998/08/06
-	mobj = P_MobjCreateObject(x, y, z, info);
+	mobj_t *mo = P_MobjCreateObject(x, y, z, info);
 
-	mobj->angle = angle;
-	mobj->spawnpoint = point;
+	mo->angle = angle;
+	mo->spawnpoint = point;
 
-	if (mobj->state && mobj->state->tics > 1)
-		mobj->tics = 1 + (P_Random() % mobj->state->tics);
+	if (mo->ztate)
+	{
+		int st_tics = mo->info->states[mo->ztate].tics;
+
+		if (st_tics > 1)
+			mo->tics = 1 + (P_Random() % st_tics);
+	}
 
 	if (options & MTF_AMBUSH)
 	{
-		mobj->flags |= MF_AMBUSH;
-		mobj->spawnpoint.flags |= MF_AMBUSH;
+		mo->flags |= MF_AMBUSH;
+		mo->spawnpoint.flags |= MF_AMBUSH;
 	}
 
 	// -AJA- 2000/09/22: MBF compatibility flag
 	if (options & MTF_FRIEND)
-		mobj->side = ~0;
+		mo->side = ~0;
 }
 
 static void LoadThings(int lump)

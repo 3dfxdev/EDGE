@@ -133,7 +133,7 @@ void P_PlayerJump(player_t *pl, float dz, int wait)
 		pl->jumpwait = wait;
 
 	// enter the JUMP states (if present)
-	statenum_t jump_st = P_MobjFindLabel(pl->mo, "JUMP");
+	int jump_st = P_MobjFindLabel(pl->mo, "JUMP");
 	if (jump_st != S_NULL)
 		P_SetMobjStateDeferred(pl->mo, jump_st, 0);
 
@@ -290,7 +290,7 @@ static void MovePlayer(player_t * player)
 			S_StartFX(sfx_jpidle, sfx_cat, player->mo);
 	}
 
-	if (player->mo->state == &states[player->mo->info->idle_state])
+	if (player->mo->state == player->mo->info->idle_state)
 	{
 		if (!jumping && !flying && (onground || swimming) &&
 		    (cmd->forwardmove || cmd->sidemove))

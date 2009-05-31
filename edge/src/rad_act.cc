@@ -671,10 +671,18 @@ void RAD_ActThingEvent(rad_trigger_t *R, mobj_t *actor, void *param)
 		if (! RAD_WithinRadius(mo, R->info))
 			continue;
 
-		statenum_t state = P_MobjFindLabel(mo, tev->label);
+		int state = P_MobjFindLabel(mo, tev->label);
+
+		state += tev->offset;
+
+		// verify new state number
+		if (state >= (int)mo->info->states.size())
+			state =  (int)mo->info->states.size()-1;
+		else if (state < 1)
+			state = 1;
 
 		if (state)
-			P_SetMobjStateDeferred(mo, state + tev->offset, 0);
+			P_SetMobjStateDeferred(mo, state, 0);
 	}
 }
 

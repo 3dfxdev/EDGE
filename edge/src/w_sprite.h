@@ -78,7 +78,7 @@ public:
 
 void W_InitSprites(void);
 
-bool W_CheckSpritesExist(int st_low, int st_high);
+bool W_CheckSpritesExist(const std::vector<state_t> &group);
 void W_PrecacheSprites(void);
 
 spriteframe_c *W_GetSpriteFrame(int spr_num, int framenum);
