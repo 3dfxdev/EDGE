@@ -435,7 +435,7 @@ void RGL_DrawWeaponSprites(player_t * p)
 			return;
 
 		RGL_DrawPSprite(psp, ps_weapon, p, view_props,
-						states + w->zoom_state);
+						&w->states[w->zoom_state]);
 	}
 	else
 	{

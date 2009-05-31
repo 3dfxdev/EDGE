@@ -53,8 +53,8 @@ typedef struct
 	// current state.  NULL state means not active
 	const state_t *state;
 
-	// state to enter next.
-	const state_t *next_state;
+	// state to enter next (could be S_NULL)
+	int next_state;
 
 	// time (in tics) remaining for current state
 	int tics;
