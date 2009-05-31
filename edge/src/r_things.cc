@@ -450,7 +450,11 @@ void RGL_DrawWeaponSprites(player_t * p)
 			if (psp->state == S_NULL)
 				continue;
 
-			RGL_DrawPSprite(psp, i, p, view_props, psp->state);
+			if (p->ready_wp < 0)
+				continue;
+			weapondef_c *w = p->weapons[p->ready_wp].info;
+
+			RGL_DrawPSprite(psp, i, p, view_props, &w->states[psp->state]);
 
 			if (i == ps_crosshair)
 				got_cross = true;
@@ -475,12 +479,14 @@ void RGL_DrawWeaponModel(player_t * p)
 	if (psp->state == S_NULL)
 		return;
 
-	if (! (psp->state->flags & SFF_Model))
-		return;
-
 	weapondef_c *w = p->weapons[p->ready_wp].info;
 
-	modeldef_c *md = W_GetModel(psp->state->sprite);
+	const state_t *st = &w->states[psp->state];
+
+	if (! (st->flags & SFF_Model))
+		return;
+
+	modeldef_c *md = W_GetModel(st->sprite);
 
 	int skin_num = p->weapons[p->ready_wp].model_skin;
 
@@ -511,22 +517,22 @@ I_Debugf("Render model: no skin %d\n", skin_num);
 	y += viewright.y * w->model_side;
 	z += viewright.z * w->model_side;
 
-	int last_frame = psp->state->frame;
+	int last_frame = st->frame;
 	float lerp = 0.0;
 
 	if (p->weapon_last_frame >= 0)
 	{
-		SYS_ASSERT(psp->state);
-		SYS_ASSERT(psp->state->tics > 1);
+		SYS_ASSERT(st);
+		SYS_ASSERT(st->tics > 1);
 
 		last_frame = p->weapon_last_frame;
 
-		lerp = (psp->state->tics - psp->tics + 1) / (float)(psp->state->tics);
+		lerp = (st->tics - psp->tics + 1) / (float)(st->tics);
 		lerp = CLAMP(0, lerp, 1);
 	}
 
 	MD2_RenderModel(md->model, skin_img, true,
-			        last_frame, psp->state->frame, lerp,
+			        last_frame, st->frame, lerp,
 			        x, y, z, p->mo, view_props,
 					1.0f /* scale */, w->model_aspect, w->model_bias);
 }
@@ -564,7 +570,7 @@ static const image_c * R2_GetThingSprite2(mobj_t *mo, float mx, float my, bool *
 	// decide which patch to use for sprite relative to player
 	SYS_ASSERT(mo->ztate != S_NULL);
 
-	const state_t *st = mo->info->states[mo->ztate];
+	const state_t *st = &mo->info->states[mo->ztate];
 
 	if (st->sprite == SPR_NULL)
 		return NULL;
@@ -868,7 +874,7 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 	if (mo->visibility == INVISIBLE)
 		return;
 
-	bool is_model = (mo->state->flags & SFF_Model) ? true:false;
+	bool is_model = (mo->info->states[mo->ztate].flags & SFF_Model) ? true:false;
 
 	// transform the origin point
 	float mx = mo->x, my = mo->y, mz = mo->z;
@@ -1074,7 +1080,9 @@ static void RGL_DrawModel(drawthing_t *dthing)
 {
 	mobj_t *mo = dthing->mo;
 
-	modeldef_c *md = W_GetModel(mo->state->sprite);
+	const state_t *st = &mo->info->states[mo->ztate];
+
+	modeldef_c *md = W_GetModel(st->sprite);
 
 	const image_c *skin_img = md->skins[mo->model_skin];
 
@@ -1092,21 +1100,21 @@ I_Debugf("Render model: no skin %d\n", mo->model_skin);
 	if (mo->hyperflags & HF_HOVER)
 		z += GetHoverDZ(mo);
 
-	int last_frame = mo->state->frame;
+	int last_frame = st->frame;
 	float lerp = 0.0;
 
 	if (mo->model_last_frame >= 0)
 	{
 		last_frame = mo->model_last_frame;
 
-		SYS_ASSERT(mo->state->tics > 1);
+		SYS_ASSERT(st->tics > 1);
 
-		lerp = (mo->state->tics - mo->tics + 1) / (float)(mo->state->tics);
+		lerp = (st->tics - mo->tics + 1) / (float)(st->tics);
 		lerp = CLAMP(0, lerp, 1);
 	}
 
 	MD2_RenderModel(md->model, skin_img, false,
-			        last_frame, mo->state->frame, lerp,
+			        last_frame, st->frame, lerp,
 					dthing->mx, dthing->my, z, mo, mo->props,
 					mo->info->model_scale, mo->info->model_aspect,
 					mo->info->model_bias);

@@ -314,7 +314,7 @@ public:
 
 		float L = 0.6 - 0.7 * (dx*nx + dy*ny + dz*nz);
 
-		L *= mo->info->state[mo->ztate].bright / 255.0;
+		L *= mo->info->states[mo->ztate].bright / 255.0;
 
 		for (int DL = 0; DL < 2; DL++)
 		{
@@ -511,7 +511,7 @@ public:
 
 		float L = 0.6 - 0.7 * (dz*nz);
 
-		L *= mo->info->state[mo->ztate].bright / 255.0;
+		L *= mo->info->states[mo->ztate].bright / 255.0;
 
 		for (int DL = 0; DL < 2; DL++)
 		{

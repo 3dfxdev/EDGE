@@ -435,7 +435,7 @@ static void CheckSpriteFrames(spritedef_c *def)
 // W_InitSprites
 //
 // Use the sprite lists in the WAD (S_START..S_END) to flesh out the
-// known sprite definitions (global `sprites' array, created while
+// known sprite definitions (global 'sprites' array, created while
 // parsing DDF) with images.
 //
 // Checking for missing frames still done at run time.
@@ -605,12 +605,15 @@ void W_PrecacheSprites(void)
 
 	for (mo = mobjlisthead; mo; mo = mo->next)
 	{
-		SYS_ASSERT(mo->state);
+		for (int i = 1; i < (int)mo->info->states.size(); i++)
+		{
+			const state_t *st = &mo-info->states[i];
 
-		if (mo->state->sprite < 1 || mo->state->sprite >= numsprites)
-			continue;
+			if (st->sprite < 1 || st->sprite >= numsprites)
+				continue;
 
-		sprite_present[mo->state->sprite] = 1;
+			sprite_present[st->sprite] = 1;
+		}
 	}
 
 	for (i=1; i < numsprites; i++)  // ignore SPR_NULL

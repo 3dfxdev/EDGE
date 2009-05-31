@@ -550,9 +550,6 @@ bool SR_PlayerGetState(void *storage, int index, void *extra)
 {
 	int *dest = (int *)storage + index;
 
-	char buffer[256];
-	char *base_p, *off_p;
-
 	const char *swizzle = SV_GetString();
 
 	if (! swizzle)
@@ -561,19 +558,21 @@ bool SR_PlayerGetState(void *storage, int index, void *extra)
 		return true;
 	}
 
+	char buffer[256];
+
 	Z_StrNCpy(buffer, swizzle, 256-1);
 	SV_FreeString(swizzle);
 
 	// separate string at `:' characters
 
-	base_p = strchr(buffer, ':');
+	char *base_p = strchr(buffer, ':');
 
 	if (base_p == NULL || base_p[0] == 0)
 		I_Error("Corrupt savegame: bad weapon state 1: `%s'\n", buffer);
 
 	*base_p++ = 0;
 
-	off_p = strchr(base_p, ':');
+	char *off_p = strchr(base_p, ':');
 
 	if (off_p == NULL || off_p[0] == 0)
 		I_Error("Corrupt savegame: bad weapon state 2: `%s'\n", base_p);
@@ -583,7 +582,7 @@ bool SR_PlayerGetState(void *storage, int index, void *extra)
 	int offset = strtol(off_p, NULL, 0);
 
 
-	if (buffer[0] == '*')
+	if (buffer[0] == '*' || base_p[0] == '*')
 	{
 		*dest = offset;
 		return true;
@@ -611,7 +610,7 @@ bool SR_PlayerGetState(void *storage, int index, void *extra)
 			break;
 	}
 
-	if (base < 0)
+	if (base <= 0)
 	{
 		I_Warning("LOADGAME: no such label `%s' for weapon state.\n", base_p);
 
@@ -619,7 +618,7 @@ bool SR_PlayerGetState(void *storage, int index, void *extra)
 		offset = 1;
 	}
 
-	*dest = base + offset - 1;
+	*dest = base + offset-1;
 
 	return true;
 }
@@ -649,6 +648,10 @@ void SR_PlayerPutState(void *storage, int index, void *extra)
 		SV_PutString(NULL);
 		return;
 	}
+
+	// we don't have the reference to the weapon here, which
+	// makes we cannot determine the BASE (except with very
+	// ugly slow code).  So we don't worry about it.
 
 	std::string buf(epi::STR_Format("*:*:%d", stnum));
 
