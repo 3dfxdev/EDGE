@@ -50,24 +50,25 @@ modeldef_c::~modeldef_c()
 }
 
 
-static void FindModelFrameNames(md2_model_c *md, int model_num)
+static void FindModelFrameNames(std::vector<state_t> & states,
+                                md2_model_c *md, int model_num)
 {
 	int missing = 0;
 
-	I_Printf("Finding frame names for model '%sMD2'...\n",
-			 ddf_model_names[model_num].c_str());
+//	I_Printf("Finding frame names for model '%sMD2'...\n",
+//			 ddf_model_names[model_num].c_str());
 
-	for (int stnum = 1; stnum < num_states; stnum++)
+	for (int stnum = 0; stnum < (int)states.size(); stnum++)
 	{
 		state_t *st = &states[stnum];
 
-		if (st->sprite != model_num)
+		if (! (st->flags & SFF_Unmapped))
 			continue;
 
 		if (! (st->flags & SFF_Model))
 			continue;
 
-		if (! (st->flags & SFF_Unmapped))
+		if (st->sprite != model_num)
 			continue;
 
 		SYS_ASSERT(st->model_frame);
@@ -124,8 +125,6 @@ modeldef_c *LoadModelFromLump(int model_num)
 	if (! def->skins[1])
 		I_Error("Missing model skin: %sSKN1\n", basename);
 
-	FindModelFrameNames(def->model, model_num);
-
 	return def;
 }
 
@@ -145,7 +144,7 @@ void W_InitModels(void)
 }
 
 
-modeldef_c *W_GetModel(int model_num)
+modeldef_c *W_GetModel(int model_num, std::vector<state_t> & states)
 {
 	// model_num comes from the 'sprite' field of state_t, and
 	// is also an index into ddf_model_names vector.
@@ -157,6 +156,11 @@ modeldef_c *W_GetModel(int model_num)
 	{
 		models[model_num] = LoadModelFromLump(model_num);
 	}
+
+	modeldef_c *def = models[model_num];
+
+	// FIXME : don't call this every time
+	FindModelFrameNames(states, def->model, model_num);
 
 	return models[model_num];
 }
