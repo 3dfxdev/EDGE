@@ -28,7 +28,7 @@
 extern float M_Tan(angle_t ang)  GCCATTR((const));
 
 
-static const state_t template_state =
+const state_t ddf_template_state =
 {
 	0,          // sprite ref
 	0,          // frame ref
@@ -45,9 +45,6 @@ static const state_t template_state =
 	-1          // jump state ref
 };
 
-// -KM- 1998/11/25 All weapon related states are out
-state_t *states = NULL;
-int num_states;
 
 std::vector<std::string> ddf_sprite_names;
 std::vector<std::string> ddf_model_names;
@@ -123,11 +120,6 @@ static int AddModelName(const char *name)
 
 void DDF_StateInit(void)
 {
-	// setup the 'S_NULL' state
-	states = Z_New(state_t, 1);
-	states[0] = template_state;
-	num_states = 1;
-
 	// setup the 'SPR_NULL' sprite
 	// (Not strictly needed, but means we can access the arrays
 	//  without subtracting 1)
@@ -265,23 +257,21 @@ static int StateGetRedirector(const char *redir)
 	return redirs.GetSize()-1;
 }
 
-int DDF_StateFindLabel(int first, int last, const char *label)
+int DDF_StateFindLabel(const std::vector<state_t> &group, const char *label)
 {
-	int i;
-
-	for (i=first; i <= last; i++)
+	for (int i = 1; i < (int)group.size(); i++)
 	{
-		if (!states[i].label)
+		if (! group[i].label)
 			continue;
 
-		if (DDF_CompareName(states[i].label, label) == 0)
+		if (DDF_CompareName(group[i].label, label) == 0)
 			return i;
 	}
 
 	// compatibility hack:
 	if (DDF_CompareName(label, "IDLE") == 0)
 	{
-		return DDF_StateFindLabel(first, last, "SPAWN");
+		return DDF_StateFindLabel(group, "SPAWN");
 	}
   
 	DDF_Error("Unknown label `%s' (object has no such frames).\n", label);
@@ -289,7 +279,7 @@ int DDF_StateFindLabel(int first, int last, const char *label)
 }
 
 void DDF_StateReadState(const char *info, const char *label,
-						int *first, int *last, int *state_num, int index,
+						std::vector<state_t> &group, int *state_num, int index,
 						const char *redir, const actioncode_t *action_list,
 						bool is_weapon)
 {
@@ -323,10 +313,10 @@ void DDF_StateReadState(const char *info, const char *label,
 
 	if (stateinfo[2].empty())
 	{
-		if ((*first) == 0)
+		if (group.empty())
 			DDF_Error("Redirector used without any states (`%s')\n", info);
 
-		cur = &states[(*last)];
+		cur = &group.back();
 
 		SYS_ASSERT(! stateinfo[0].empty());
 
@@ -348,26 +338,20 @@ void DDF_StateReadState(const char *info, const char *label,
 	//---------------- ALLOCATE NEW STATE --------------
 	//--------------------------------------------------
 
-	Z_Resize(states, state_t, ++num_states);
+	// insert DUMMY at front of group (compatibility wart)
+	if (group.empty())
+		group.push_back(ddf_template_state);
 
-	cur = &states[num_states-1];
+	// add new state (initialise with defaults)
+	group.push_back(ddf_template_state);
 
-	// initialise with defaults
-	cur[0] = template_state;
-  
-	if ((*first) == 0)
-	{
-		// very first state for thing/weapon
-		(*first) = num_states-1;
-	}
+	cur = &group.back();
 
-	(*last) = num_states-1;
-  
 	if (index == 0)
 	{
 		// first state in this set of states
 		if (state_num)
-			state_num[0] = num_states-1;
+			*state_num = (int)group.size()-1;
     
 		// ...therefore copy the label
 		cur->label = strdup(label);
@@ -512,13 +496,13 @@ void DDF_StateReadState(const char *info, const char *label,
 // Check through the states on an mobj and attempts to dereference any
 // encoded state redirectors.
 //
-void DDF_StateFinishStates(int first, int last)
+void DDF_StateFinishStates(std::vector<state_t> &group)
 {
-	int i;
+	int last = (int)group.size() - 1;
 
-	for (i=first; i <= last; i++)
+	for (int i = 1; i < (int)group.size(); i++)
 	{
-		state_t *st = &states[i];
+		state_t *st = &group[i];
 
 		// handle next state ref
 		if (st->nextstate == -1)
@@ -531,8 +515,7 @@ void DDF_StateFinishStates(int first, int last)
 		}
 		else
 		{
-			st->nextstate = DDF_StateFindLabel(first, last,
-												redirs[(st->nextstate >> 16) - 1]) +
+			st->nextstate = DDF_StateFindLabel(group, redirs[(st->nextstate >> 16) - 1]) +
 				(st->nextstate & 0xFFFF);
 		}
 
@@ -547,8 +530,7 @@ void DDF_StateFinishStates(int first, int last)
 		}
 		else
 		{
-			st->jumpstate = DDF_StateFindLabel(first, last,
-												 redirs[(st->jumpstate >> 16) - 1]) +
+			st->jumpstate = DDF_StateFindLabel(group, redirs[(st->jumpstate >> 16) - 1]) +
 				(st->jumpstate & 0xFFFF);
 		}
 	}
