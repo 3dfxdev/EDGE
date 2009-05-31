@@ -233,8 +233,7 @@ static pspdef_t sv_dummy_psprite;
 static savefield_t sv_fields_psprite[] =
 {
 	SF(state, "state", 1, SVT_STRING, SR_PlayerGetState, SR_PlayerPutState),
-	SF(next_state, "next_state", 1, SVT_STRING, 
-	SR_PlayerGetState, SR_PlayerPutState),
+	SF(next_state, "next_state", 1, SVT_STRING, SR_PlayerGetState, SR_PlayerPutState),
 	SF(tics, "tics", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(visibility, "visibility", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
 	SF(vis_target, "vis_target", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
@@ -448,9 +447,6 @@ void SV_PlayerFinaliseElems(void)
 
 //----------------------------------------------------------------------------
 
-//
-// SR_PlayerGetAmmo
-//
 bool SR_PlayerGetAmmo(void *storage, int index, void *extra)
 {
 	playerammo_t *dest = (playerammo_t *)storage + index;
@@ -461,9 +457,6 @@ bool SR_PlayerGetAmmo(void *storage, int index, void *extra)
 	return true;  // presumably
 }
 
-//
-// SR_PlayerPutAmmo
-//
 void SR_PlayerPutAmmo(void *storage, int index, void *extra)
 {
 	playerammo_t *src = (playerammo_t *)storage + index;
@@ -471,9 +464,6 @@ void SR_PlayerPutAmmo(void *storage, int index, void *extra)
 	SV_SaveStruct(src, &sv_struct_playerammo);
 }
 
-//
-// SR_PlayerGetWeapon
-//
 bool SR_PlayerGetWeapon(void *storage, int index, void *extra)
 {
 	playerweapon_t *dest = (playerweapon_t *)storage + index;
@@ -484,9 +474,6 @@ bool SR_PlayerGetWeapon(void *storage, int index, void *extra)
 	return true;  // presumably
 }
 
-//
-// SR_PlayerPutWeapon
-//
 void SR_PlayerPutWeapon(void *storage, int index, void *extra)
 {
 	playerweapon_t *src = (playerweapon_t *)storage + index;
@@ -494,9 +481,6 @@ void SR_PlayerPutWeapon(void *storage, int index, void *extra)
 	SV_SaveStruct(src, &sv_struct_playerweapon);
 }
 
-//
-// SR_PlayerGetPSprite
-//
 bool SR_PlayerGetPSprite(void *storage, int index, void *extra)
 {
 	pspdef_t *dest = (pspdef_t *)storage + index;
@@ -508,9 +492,6 @@ bool SR_PlayerGetPSprite(void *storage, int index, void *extra)
 	return true;  // presumably
 }
 
-//
-// SR_PlayerPutPSprite
-//
 void SR_PlayerPutPSprite(void *storage, int index, void *extra)
 {
 	pspdef_t *src = (pspdef_t *)storage + index;
@@ -518,9 +499,6 @@ void SR_PlayerPutPSprite(void *storage, int index, void *extra)
 	SV_SaveStruct(src, &sv_struct_psprite);
 }
 
-//
-// SR_PlayerGetName
-//
 bool SR_PlayerGetName(void *storage, int index, void *extra)
 {
 	char *dest = (char *)storage;
@@ -535,9 +513,6 @@ bool SR_PlayerGetName(void *storage, int index, void *extra)
 	return true;
 }
 
-//
-// SR_PlayerPutName
-//
 void SR_PlayerPutName(void *storage, int index, void *extra)
 {
 	char *src = (char *)storage;
@@ -547,9 +522,6 @@ void SR_PlayerPutName(void *storage, int index, void *extra)
 	SV_PutString(src);
 }
 
-//
-// SR_WeaponGetInfo
-//
 bool SR_WeaponGetInfo(void *storage, int index, void *extra)
 {
 	weapondef_c ** dest = (weapondef_c **)storage + index;
@@ -563,9 +535,6 @@ bool SR_WeaponGetInfo(void *storage, int index, void *extra)
 	return true;
 }
 
-//
-// SR_WeaponPutInfo
-//
 void SR_WeaponPutInfo(void *storage, int index, void *extra)
 {
 	weapondef_c *info = ((weapondef_c **)storage)[index];
@@ -576,25 +545,18 @@ void SR_WeaponPutInfo(void *storage, int index, void *extra)
 
 //----------------------------------------------------------------------------
 
-//
-// SR_PlayerGetState
-//
 bool SR_PlayerGetState(void *storage, int index, void *extra)
 {
-	state_t ** dest = (state_t **)storage + index;
+	int *dest = (int *)storage + index;
 
 	char buffer[256];
 	char *base_p, *off_p;
-	int base, offset;
 
-	const char *swizzle;
-	const weapondef_c *actual;
-
-	swizzle = SV_GetString();
+	const char *swizzle = SV_GetString();
 
 	if (! swizzle)
 	{
-		*dest = NULL;
+		*dest = S_NULL;
 		return true;
 	}
 
@@ -617,52 +579,46 @@ bool SR_PlayerGetState(void *storage, int index, void *extra)
 
 	*off_p++ = 0;
 
+	int offset = strtol(off_p, NULL, 0);
+
+
+	if (buffer[0] == '*')
+	{
+		*dest = offset;
+		return true;
+	}
+
+
 	// find weapon that contains the state
 	// Traverses backwards in case #CLEARALL was used.
-	actual = NULL;
-
-/*	for (i=numweapons-1; i >= 0; i--)
-	{
-		actual = weaponinfo[i];
-
-		if (! actual->ddf.name)
-			continue;
-
-		if (DDF_CompareName(buffer, actual->ddf.name) == 0)
-			break;
-	}
-*/
-	actual = weapondefs.Lookup(buffer);
+	const weapondef_c *actual = weapondefs.Lookup(buffer);
 	if (!actual)
+	{
 		I_Error("LOADGAME: no such weapon %s for state %s:%s\n",
-		buffer, base_p, off_p);
+				buffer, base_p, off_p);
+	}
 
 	// find base state
-	offset = strtol(off_p, NULL, 0) - 1;
+	int base;
 
-	for (base=actual->first_state; base <= actual->last_state; base++)
+	for (base = (int)actual->states.size()-1; base > 0; base--)
 	{
-		if (! states[base].label)
+		if (! actual->states[base].label)
 			continue;
 
-		if (DDF_CompareName(base_p, states[base].label) == 0)
+		if (DDF_CompareName(base_p, actual->states[base].label) == 0)
 			break;
 	}
 
-	if (base > actual->last_state)
+	if (base < 0)
 	{
 		I_Warning("LOADGAME: no such label `%s' for weapon state.\n", base_p);
 
-		offset = 0;
 		base = actual->ready_state;
+		offset = 1;
 	}
 
-#if 0
-	L_WriteDebug("Unswizzled weapon state `%s:%s:%s' -> %d\n", 
-		buffer, base_p, off_p, base + offset);
-#endif
-
-	*dest = states + base + offset;
+	*dest = base + offset - 1;
 
 	return true;
 }
@@ -685,78 +641,15 @@ bool SR_PlayerGetState(void *storage, int index, void *extra)
 //
 void SR_PlayerPutState(void *storage, int index, void *extra)
 {
-	state_t *S = ((state_t **)storage)[index];
+	int stnum = ((int *)storage)[index];
 
-	if (S == NULL)
+	if (stnum == S_NULL)
 	{
 		SV_PutString(NULL);
 		return;
 	}
 
-	// get state number, check if valid
-	int s_num = S - states;
-
-	if (s_num < 0 || s_num >= num_states)
-	{
-		I_Warning("SAVEGAME: weapon is in invalid state %d\n", s_num);
-		s_num = weapondefs[0]->first_state;
-	}
-
-	// find the weapon that this state belongs to.
-	// Traverses backwards in case #CLEARALL was used.
-	const weapondef_c *actual = NULL;
-
-/*
-	for (i=numweapons-1; i >= 0; i--)
-	{
-		actual = weaponinfo[i];
-
-		if (actual->last_state <= 0 ||
-			actual->last_state < actual->first_state)
-			continue;
-
-		if (actual->first_state <= s_num && s_num <= actual->last_state)
-			break;
-	}
-*/
-	epi::array_iterator_c it;
-
-	for (it=weapondefs.GetIterator(weapondefs.GetDisabledCount());
-			it.IsValid(); it++)
-	{
-		actual = ITERATOR_TO_TYPE(it, weapondef_c*);
-
-		if (actual->last_state <= 0 ||
-			actual->last_state < actual->first_state)
-			continue;
-
-		if (actual->first_state <= s_num && s_num <= actual->last_state)
-			break;
-	}
-
-	if (!it.IsValid())
-	{
-		I_Warning("SAVEGAME: weapon state %d cannot be found !!\n", s_num);
-		actual = weapondefs[0];
-		s_num = actual->first_state;
-	}
-
-	// find the nearest base state
-	int base;
-
-	for (base = s_num; 
-		base > actual->first_state && states[base].label == NULL;
-		base--)
-	{ /* nothing */ }
-
-	std::string buf(epi::STR_Format("%s:%s:%d",
-			actual->ddf.name.c_str(),
-			states[base].label ? states[base].label : "*",
-			1 + s_num - base));
-
-#if 0
-	L_WriteDebug("Swizzled state of weapon %d -> `%s'\n", s_num, buf.c_str());
-#endif
+	std::string buf(epi::STR_Format("*:*:%d", stnum));
 
 	SV_PutString(buf.c_str());
 }
