@@ -430,6 +430,7 @@ void SV_PlayerFinaliseElems(void)
 			p->armours[ARMOUR_Purple] = 0;
 		}
 
+		P_FixWeaponStates(p);
 		P_UpdateAvailWeapons(p);
 		P_UpdateTotalArmour(p);
 	}
