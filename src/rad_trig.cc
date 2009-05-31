@@ -432,10 +432,18 @@ bool RAD_CheckReachedTrigger(mobj_t * thing)
 
 	if (scr->path_event_label)
 	{
-		statenum_t state = P_MobjFindLabel(thing, scr->path_event_label);
+		int state = P_MobjFindLabel(thing, scr->path_event_label);
+
+		state += scr->path_event_offset;
+
+		// verify new state number
+		if (state >= (int)thing->info->states.size())
+			state =  (int)thing->info->states.size()-1;
+		else if (state < 1)
+			state = 1;
 
 		if (state)
-			P_SetMobjStateDeferred(thing, state + scr->path_event_offset, 0);
+			P_SetMobjStateDeferred(thing, state, 0);
 	}
 
 	if (scr->next_path_total == 0)

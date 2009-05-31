@@ -75,7 +75,7 @@
 
 #define DEBUG_MOBJ  0
 
-#if 1  // DEBUGGING
+#if 0  // DEBUGGING
 void P_DumpMobjs(void)
 {
 	mobj_t *mo;
@@ -91,8 +91,7 @@ void P_DumpMobjs(void)
 			mo, mo->next, mo->prev,
 			mo->info->ddf.name.c_str(),
 			mo->x, mo->y, mo->z,
-			mo->state ? mo->state - states : -1,
-			mo->next_state ? mo->next_state - states : -1,
+			mo->state, mo->next_state,
 			mo->tics);
 	}
 
@@ -139,11 +138,12 @@ static void EnterBounceStates(mobj_t * mo)
 		return;
 
 	// give deferred states a higher priority
-	if (!mo->state || !mo->next_state ||
-		(mo->next_state - states) != mo->state->nextstate)
-	{
+	if (mo->ztate == S_NULL)
 		return;
-	}
+
+	const state_t *st = &mo->info->states[mo->ztate];
+	if (mo->next_state != st->nextstate)
+		return;
 
 	mo->extendedflags |= EF_JUSTBOUNCED;
 
@@ -473,35 +473,35 @@ void mobj_t::SetRealSource(mobj_t *ref)
 //
 // Returns true if the mobj is still present.
 //
-bool P_SetMobjState(mobj_t * mobj, statenum_t state)
+bool P_SetMobjState(mobj_t * mobj, int stnum)
 {
-	state_t *st;
-
 	// ignore removed objects
 	if (mobj->isRemoved())
 		return false;
 
-	if (state == S_NULL)
+	if (stnum == S_NULL)
 	{
 		P_RemoveMobj(mobj);
 		return false;
 	}
 
-	st = &states[state];
+	SYS_ASSERT(stnum < (int)mo->info->states.size());
+
+	const state_t *st  = &mo->info->states[stnum];
+	const state_t *old = &mo->info->states[mo->ztate];
 
 	// model interpolation stuff
-	if ((st->flags & SFF_Model) && (mobj->state->flags & SFF_Model) &&
-		(st->sprite == mobj->state->sprite) && st->tics > 1)
+	if ((st->flags & SFF_Model) && (old->flags & SFF_Model) &&
+		(st->sprite == old->sprite) && st->tics > 1)
 	{
-		mobj->model_last_frame = mobj->state->frame;
+		mobj->model_last_frame = old->frame;
 	}
 	else
 		mobj->model_last_frame = -1;
 
-	mobj->state  = st;
-	mobj->tics   = st->tics;
-	mobj->next_state = (st->nextstate == S_NULL) ? NULL :
-		(states + st->nextstate);
+	mobj->ztate = stnum;
+	mobj->next_state = st->nextstate;
+	mobj->tics = st->tics;
 
 	if (st->action)
 		(* st->action)(mobj, st->action_par);
@@ -521,19 +521,13 @@ bool P_SetMobjState(mobj_t * mobj, statenum_t state)
 //
 // -AJA- 1999/09/12: written.
 //
-bool P_SetMobjStateDeferred(mobj_t * mo, statenum_t stnum, int tic_skip)
+bool P_SetMobjStateDeferred(mobj_t * mo, int stnum, int tic_skip)
 {
 	// ignore removed objects
-	if (mo->isRemoved() || !mo->next_state)
+	if (mo->isRemoved() || mo->next_state == S_NULL)
 		return false;
 
-///???	if (stnum == S_NULL)
-///???	{
-///???		P_RemoveMobj(mo);
-///???		return false;
-///???	}
-
-	mo->next_state = (stnum == S_NULL) ? NULL : (states + stnum);
+	mo->next_state = stnum;
 
 	mo->tics = 0;
 	mo->tic_skip = tic_skip;
@@ -542,21 +536,17 @@ bool P_SetMobjStateDeferred(mobj_t * mo, statenum_t stnum, int tic_skip)
 }
 
 //
-// P_MobjFindLabel
-//
 // Look for the given label in the mobj's states.  Returns the state
 // number if found, otherwise S_NULL.
 //
-statenum_t P_MobjFindLabel(mobj_t * mobj, const char *label)
+int P_MobjFindLabel(mobj_t * mobj, const char *label)
 {
-	int i;
-
-	for (i=mobj->info->first_state; i <= mobj->info->last_state; i++)
+	for (int i=1; i < (int)mobj->info->states.size(); i++)
 	{
-		if (! states[i].label)
+		if (! mobj->info->states[i].label)
 			continue;
 
-		if (DDF_CompareName(states[i].label, label) == 0)
+		if (DDF_CompareName(mobj->info->states[i].label, label) == 0)
 			return i;
 	}
 
@@ -1246,7 +1236,7 @@ static void P_MobjThinker(mobj_t * mobj)
 	SYS_ASSERT_MSG(mobj->next != (mobj_t *)-1,
 		("P_MobjThinker INTERNAL ERROR: mobj has been Z_Freed"));
 
-	SYS_ASSERT(mobj->state);
+	SYS_ASSERT(mobj->ztate != S_NULL);
 	SYS_ASSERT(mobj->refcount >= 0);
 
 	mobj->ClearStaleRefs();
@@ -1393,8 +1383,7 @@ static void P_MobjThinker(mobj_t * mobj)
 		// You can cycle through multiple states in a tic.
 		// NOTE: returns false if object freed itself.
 
-		P_SetMobjState(mobj, mobj->next_state ?
-			(mobj->next_state - states) : S_NULL);
+		P_SetMobjState(mobj, mobj->next_state);
 
 		if (mobj->isRemoved())
 			return;
@@ -1558,8 +1547,8 @@ void P_RemoveMobj(mobj_t *mo)
 	}
 
 	// mark as REMOVED
-	mo->state = NULL;
-	mo->next_state = NULL;
+	mo->state = S_NULL;
+	mo->next_state = S_NULL;
 
 	// Clear all references to other mobjs
 	mo->SetTarget(NULL);
@@ -1668,11 +1657,11 @@ void P_SpawnBlood(float x, float y, float z, float damage,
 		if (th->tics < 1)
 			th->tics = 1;
 
-		if (damage <= 12 && th->state && th->next_state)
-			P_SetMobjState(th, th->next_state - states);
+		if (damage <= 12 && th->ztate && th->next_state)
+			P_SetMobjState(th, th->next_state);
 
-		if (damage <= 8 && th->state && th->next_state)
-			P_SetMobjState(th, th->next_state - states);
+		if (damage <= 8 && th->ztate && th->next_state)
+			P_SetMobjState(th, th->next_state);
 	}
 }
 
@@ -1837,18 +1826,16 @@ mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c *info)
 	// -AJA- So that the first action gets executed, the `next_state'
 	//       is set to the first state and `tics' set to 0.
 	//
-	state_t *st;
+	int state = info->idle_state;
 
 	if (info->spawn_state)
-		st = &states[info->spawn_state];
+		state = info->spawn_state;
 	else if (info->meander_state)
-		st = &states[info->meander_state];
-	else
-		st = &states[info->idle_state];
+		state = info->meander_state;
 
-	mobj->state  = st;
-	mobj->tics   = 0;
-	mobj->next_state = st;
+	mobj->state = state;
+	mobj->next_state = state;
+	mobj->tics = mobj->tic_skip = 0;
 
 	SYS_ASSERT(! mobj->isRemoved());
 

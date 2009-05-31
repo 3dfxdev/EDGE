@@ -551,20 +551,20 @@ void W_InitSprites(void)
 	sprite_map = NULL;
 }
 
-bool W_CheckSpritesExist(int st_low, int st_high)
+bool W_CheckSpritesExist(const std::vector<state_t> &group)
 {
-	if (st_low == S_NULL)
-		return true;
-	
-	SYS_ASSERT(st_low <= st_high);
-
-	while (st_low <= st_high &&	states[st_low].sprite == SPR_NULL)
-		st_low++;
-
-	if (st_low > st_high)
+	if (group.empty())
 		return true;
 
-	if (sprites[states[st_low].sprite]->frames > 0)
+	int pos = 1;
+
+	while (pos < (int)group.size()-1 && group[pos].sprite == SPR_NULL)
+		pos++;
+
+	if (pos >= (int)group.size())
+		return true;
+
+	if (sprites[group[pos].sprite]->frames > 0)
 		return true;	
 
 	return false;

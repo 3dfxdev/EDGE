@@ -738,10 +738,8 @@ void P_DynamicLightIterator(float x1, float y1, float z1,
 	{
 		for (mobj_t *mo = dlmap_things[by * dlmap_width + bx]; mo; mo = mo->dlnext)
 		{
-			SYS_ASSERT(mo->state);
-
 			// skip "off" lights
-			if (mo->state->bright <= 0 || mo->dlight.r <= 0)
+			if (mo->info->states[mo->ztate].bright <= 0 || mo->dlight.r <= 0)
 				continue;
 
 			// check whether radius touches the given bbox
@@ -771,10 +769,8 @@ void P_SectorGlowIterator(sector_t *sec,
 {
 	for (mobj_t *mo = sec->glow_things; mo; mo = mo->dlnext)
 	{
-		SYS_ASSERT(mo->state);
-
 		// skip "off" lights
-		if (mo->state->bright <= 0 || mo->dlight.r <= 0)
+		if (mo->info->states[mo->ztate].bright <= 0 || mo->dlight.r <= 0)
 			continue;
 
 		// check whether radius touches the given bbox

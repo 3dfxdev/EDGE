@@ -750,7 +750,8 @@ void P_KillMobj(mobj_t * source, mobj_t * target, const damage_c *damtype,
 			E_ClearInput();
 	}
 
-	statenum_t state = S_NULL;
+	int state = S_NULL;
+
 	bool overkill = (target->health < -target->info->spawnhealth);
 
 	if (weak_spot)
@@ -1089,7 +1090,7 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor, mobj_t * source,
 		// setup to hit back
 		target->flags |= MF_JUSTHIT;
 
-		statenum_t state = S_NULL;
+		int state = S_NULL;
 
 		if (weak_spot)
 			state = P_MobjFindLabel(target, "WEAKPAIN");
@@ -1122,8 +1123,8 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor, mobj_t * source,
 		target->SetTarget(source);
 		target->threshold = BASETHRESHOLD;
 
-		if (target->state == &states[target->info->idle_state] &&
-			target->info->chase_state)
+		if ((target->ztate == target->info->idle_state) &&
+		    target->info->chase_state != S_NULL)
 		{
 			P_SetMobjStateDeferred(target, target->info->chase_state, 0);
 		}

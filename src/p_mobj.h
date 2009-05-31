@@ -49,6 +49,10 @@ struct state_s;
 struct subsector_s;
 struct touch_node_s;
 
+#ifndef S_NULL
+#define S_NULL  0
+#endif
+
 #define STOPSPEED   		0.07f
 #define OOF_SPEED   		20.0f
 
@@ -236,8 +240,8 @@ struct mobj_s : public position_c
 	int tics;
 	int tic_skip;
 
-	const struct state_s *state;
-	const struct state_s *next_state;
+	int ztate;
+	int next_state;
 
 	// flags (Old and New)
 	int flags;
@@ -356,7 +360,7 @@ struct mobj_s : public position_c
 public:
 	inline bool isRemoved()
 	{
-		return (state == NULL);
+		return (ztate == S_NULL);
 	}
 	
 	void SetTracer(mobj_t *ref);

@@ -223,15 +223,15 @@ bool P_Move(mobj_t * mo, bool path)
 
 	mo->flags &= ~MF_INFLOAT;
 
-	if (!(mo->flags & MF_FLOAT) &&
-		!(mo->extendedflags & EF_GRAVFALL))
+	if (!(mo->flags & MF_FLOAT) && !(mo->extendedflags & EF_GRAVFALL))
 		mo->z = mo->floorz;
 
 	// -AJA- 2008/01/16: position interpolation
-	if ((mo->state->flags & SFF_Model) ||
-		(mo->flags & MF_FLOAT))
+	const state_t *st = &mo->info->states[mo->ztate];
+
+	if ((st->flags & SFF_Model) || (mo->flags & MF_FLOAT))
 	{
-		mo->lerp_num = CLAMP(2, mo->state->tics, 10);
+		mo->lerp_num = CLAMP(2, st->tics, 10);
 		mo->lerp_pos = 1;
 
 		mo->lerp_from = orig_pos;
