@@ -88,20 +88,18 @@ static int SfxFlags(const mobjtype_c *info)
 // Allows things to also activate linetypes, bringing them into the
 // fold with radius triggers, which can also do it.  There's only two
 // parameters needed: linetype number & tag number, which are stored
-// in the state's `action_par' field as a pointer to two integers.
+// in the state's 'action_par' field as a pointer to two integers.
 // 
 void A_ActivateLineType(mobj_t * mo, void *data)
 {
-	int *values;
+	if (data)
+	{
+		int *values = (int *) data;
   
-	if (!mo->state || !mo->state->action_par)
-		return;
-
-	values = (int *) mo->state->action_par;
-  
-	// Note the `NULL' here: this prevents the activation from failing
-	// because the object isn't a PLAYER, for example.
-	P_RemoteActivation(NULL, values[0], values[1], 0, line_Any);
+		// Note the `NULL' here: this prevents the activation from failing
+		// because the object isn't a PLAYER, for example.
+		P_RemoteActivation(NULL, values[0], values[1], 0, line_Any);
+	}
 }
 
 //
@@ -113,22 +111,22 @@ void A_ActivateLineType(mobj_t * mo, void *data)
 //
 void A_EnableRadTrig(mobj_t * mo, void *data)
 {
-	if (!mo->state || !mo->state->action_par)
-		return;
+	if (data)
+	{
+		int tag = *(int *)data;
 
-	int *value = (int *) mo->state->action_par;
-
-	RAD_EnableByTag(mo, value[0], false);
+		RAD_EnableByTag(mo, tag, false);
+	}
 }
 
 void A_DisableRadTrig(mobj_t * mo, void *data)
 {
-	if (!mo->state || !mo->state->action_par)
-		return;
+	if (data)
+	{
+		int tag = *(int *)data;
 
-	int *value = (int *) mo->state->action_par;
-	
-	RAD_EnableByTag(mo, value[0], true);
+		RAD_EnableByTag(mo, tag, false);
+	}
 }
 
 //
@@ -445,11 +443,9 @@ void A_TransSet(mobj_t * mo, void *data)
 {
 	float value = VISIBLE;
 
-	const state_t *st = mo->state;
-
-	if (st && st->action_par)
+	if (data)
 	{
-		value = ((percent_t *)st->action_par)[0];
+		value = *(percent_t *)data;
 		value = MAX(0.0f, MIN(1.0f, value));
 	}
 
@@ -460,11 +456,9 @@ void A_TransFade(mobj_t * mo, void *data)
 {
 	float value = INVISIBLE;
 
-	const state_t *st = mo->state;
-
-	if (st && st->action_par)
+	if (data)
 	{
-		value = ((percent_t *)st->action_par)[0];
+		value = *(percent_t *)data;
 		value = MAX(0.0f, MIN(1.0f, value));
 	}
 
@@ -475,11 +469,9 @@ void A_TransLess(mobj_t * mo, void *data)
 {
 	float value = 0.05f;
 
-	const state_t *st = mo->state;
-
-	if (st && st->action_par)
+	if (data)
 	{
-		value = ((percent_t *)st->action_par)[0];
+		value = *(percent_t *)data;
 		value = MAX(0.0f, MIN(1.0f, value));
 	}
 
@@ -493,11 +485,9 @@ void A_TransMore(mobj_t * mo, void *data)
 {
 	float value = 0.05f;
 
-	const state_t *st = mo->state;
-
-	if (st && st->action_par)
+	if (data)
 	{
-		value = ((percent_t *)st->action_par)[0];
+		value = *(percent_t *)data;
 		value = MAX(0.0f, MIN(1.0f, value));
 	}
 
@@ -517,20 +507,18 @@ void A_TransMore(mobj_t * mo, void *data)
 //
 void A_TransAlternate(mobj_t * mo, void *data)
 {
-	const state_t *st;
 	float value = 0.05f;
 
-	st = mo->state;
-
-	if (st && st->action_par)
+	if (data)
 	{
-		value = ((percent_t *)st->action_par)[0];
+		value = *(percent_t *)data;
 		value = MAX(0.0f, MIN(1.0f, value));
 	}
 
 	if (mo->extendedflags & EF_LESSVIS)
 	{
 		mo->vis_target -= value;
+
 		if (mo->vis_target <= INVISIBLE)
 		{
 			mo->vis_target = INVISIBLE;
@@ -540,6 +528,7 @@ void A_TransAlternate(mobj_t * mo, void *data)
 	else
 	{
 		mo->vis_target += value;
+
 		if (mo->vis_target >= VISIBLE)
 		{
 			mo->vis_target = VISIBLE;
@@ -551,11 +540,9 @@ void A_TransAlternate(mobj_t * mo, void *data)
 
 void A_DLightSet(mobj_t * mo, void *data)
 {
-	const state_t *st = mo->state;
-
-	if (st && st->action_par)
+	if (data)
 	{
-		mo->dlight.r = MAX(0.0f, ((int *)st->action_par)[0]);
+		mo->dlight.r = MAX(0.0f, *(int *)data);
 
 		if (mo->info->hyperflags & HF_QUADRATIC_COMPAT)
 			mo->dlight.r = DLIT_COMPAT_RAD(mo->dlight.r);
@@ -567,11 +554,9 @@ void A_DLightSet(mobj_t * mo, void *data)
 
 void A_DLightFade(mobj_t * mo, void *data)
 {
-	const state_t *st = mo->state;
-
-	if (st && st->action_par)
+	if (data)
 	{
-		mo->dlight.target = MAX(0.0f, ((int *)st->action_par)[0]);
+		mo->dlight.target = MAX(0.0f, *(int *)data);
 
 		if (mo->info->hyperflags & HF_QUADRATIC_COMPAT)
 			mo->dlight.target = DLIT_COMPAT_RAD(mo->dlight.target);
@@ -581,12 +566,10 @@ void A_DLightFade(mobj_t * mo, void *data)
 
 void A_DLightRandom(mobj_t * mo, void *data)
 {
-	const state_t *st = mo->state;
-
-	if (st && st->action_par)
+	if (data)
 	{
-		int low  = ((int *)st->action_par)[0];
-		int high = ((int *)st->action_par)[1];
+		int low  = ((int *)data)[0];
+		int high = ((int *)data)[1];
 
 		// Note: using M_Random so that gameplay is unaffected
 		float qty = low + (high - low) * M_Random() / 255.0f;
@@ -601,21 +584,15 @@ void A_DLightRandom(mobj_t * mo, void *data)
 
 void A_DLightColour(mobj_t *mo, void *data)
 {
-	const state_t *st = mo->state;
-
-	if (st && st->action_par)
-	{
-		mo->dlight.color = ((rgbcol_t*) st->action_par)[0];
-	}
+	if (data)
+		mo->dlight.color = *(rgbcol_t *)data;
 }
 
 void A_SetSkin(mobj_t * mo, void *data)
 {
-	const state_t *st = mo->state;
-
-	if (st && st->action_par)
+	if (data)
 	{
-		int skin = ((int *)st->action_par)[0];
+		int skin = *(int *)data;
 
 		if (skin < 0 || skin > 9)
 			I_Error("Thing [%s]: Bad skin number %d in SET_SKIN action.\n",
@@ -633,35 +610,28 @@ void A_SetSkin(mobj_t * mo, void *data)
 
 void A_FaceDir(mobj_t * mo, void *data)
 {
-	const state_t *st = mo->state;
-
-	if (st && st->action_par)
-		mo->angle = *(angle_t *)st->action_par;
+	if (data)
+		mo->angle = *(angle_t *)data;
 	else
 		mo->angle = 0;
 }
 
 void A_TurnDir(mobj_t * mo, void *data)
 {
-	const state_t *st = mo->state;
-
 	angle_t turn = ANG180;
 
-	if (st && st->action_par)
-		turn = *(angle_t *)st->action_par;
+	if (data)
+		turn = *(angle_t *)data;
 
 	mo->angle += turn;
 }
 
 void A_TurnRandom(mobj_t * mo, void *data)
 {
-	const state_t *st = mo->state;
 	int turn = 359;
 
-	if (st && st->action_par)
-	{
-        turn = (int)ANG_2_FLOAT(*(angle_t *)st->action_par);
-	}
+	if (data)
+        turn = (int)ANG_2_FLOAT(*(angle_t *)data);
 
 	turn = turn * P_Random() / 90;  // 10 bits of angle
    
@@ -673,29 +643,23 @@ void A_TurnRandom(mobj_t * mo, void *data)
 
 void A_MlookFace(mobj_t * mo, void *data)
 {
-	const state_t *st = mo->state;
-
-	if (st && st->action_par)
-		mo->vertangle = M_ATan(*(float *)st->action_par);
+	if (data)
+		mo->vertangle = M_ATan(*(float *)data);
 	else
 		mo->vertangle = 0;
 }
 
 void A_MlookTurn(mobj_t * mo, void *data)
 {
-	const state_t *st = mo->state;
-
-	if (st && st->action_par)
-		mo->vertangle = M_ATan(*(float *)st->action_par);
+	if (data)
+		mo->vertangle = M_ATan(*(float *)data);
 }
 
 void A_MoveFwd(mobj_t * mo, void *data)
 {
-	const state_t *st = mo->state;
-
-	if (st && st->action_par)
+	if (data)
 	{
-		float amount = *(float *)st->action_par;
+		float amount = *(float *)data;
     
 		float dx = M_Cos(mo->angle);
 		float dy = M_Sin(mo->angle);
@@ -707,11 +671,9 @@ void A_MoveFwd(mobj_t * mo, void *data)
 
 void A_MoveRight(mobj_t * mo, void *data)
 {
-	const state_t *st = mo->state;
-
-	if (st && st->action_par)
+	if (data)
 	{
-		float amount = *(float *)st->action_par;
+		float amount = *(float *)data;
     
 		float dx = M_Cos(mo->angle - ANG90);
 		float dy = M_Sin(mo->angle - ANG90);
@@ -723,10 +685,8 @@ void A_MoveRight(mobj_t * mo, void *data)
 
 void A_MoveUp(mobj_t * mo, void *data)
 {
-	const state_t *st = mo->state;
-
-	if (st && st->action_par)
-		mo->mom.z += *(float *)st->action_par;
+	if (data)
+		mo->mom.z += *(float *)data;
 }
 
 void A_StopMoving(mobj_t * mo, void *data)
@@ -743,17 +703,14 @@ void A_PlaySound(mobj_t * mo, void *data)
 {
 	// Generate an arbitrary sound.
 
-	sfx_t *sound = NULL;
-
-	if (mo->state && mo->state->action_par)
-		sound = (sfx_t *) mo->state->action_par;
-
-	if (! sound)
+	if (! data)
 	{
 		M_WarnError("P_ActPlaySound: missing sound name in %s.\n", 
 					mo->info->ddf.name.c_str());
 		return;
 	}
+
+	sfx_t *sound = (sfx_t *)data;
 
 	S_StartFX(sound, P_MobjGetSfxCategory(mo), mo);
 }
@@ -2373,10 +2330,9 @@ void A_DropItem(mobj_t * mo, void *data)
 {
 	const mobjtype_c *info = mo->info->dropitem;
 
-	if (mo->state && mo->state->action_par)
+	if (data)
 	{
-		mobj_strref_c *ref = (mobj_strref_c *) mo->state->action_par;
-
+		mobj_strref_c *ref = (mobj_strref_c *)data;
 		info = ref->GetRef();
 	}
 
@@ -2412,10 +2368,10 @@ void A_DropItem(mobj_t * mo, void *data)
 
 void A_Spawn(mobj_t * mo, void *data)
 {
-	if (!mo->state || !mo->state->action_par)
+	if (! data)
 		I_Error("SPAWN() action used without a object name!\n");
 
-	mobj_strref_c *ref = (mobj_strref_c *) mo->state->action_par;
+	mobj_strref_c *ref = (mobj_strref_c *)data;
 
 	const mobjtype_c *info = ref->GetRef();
 	SYS_ASSERT(info);
@@ -2692,8 +2648,8 @@ void A_MeleeAttack(mobj_t * mo, void *data)
 	attack = mo->info->closecombat;
 
 	// -AJA- 1999/08/10: Multiple attack support.
-	if (mo->state && mo->state->action_par)
-		attack = (const atkdef_c *) mo->state->action_par;
+	if (data)
+		attack = (const atkdef_c *)data;
 
 	if (!attack)
 	{
@@ -2727,8 +2683,8 @@ void A_RangeAttack(mobj_t * mo, void *data)
 	attack = mo->info->rangeattack;
 
 	// -AJA- 1999/08/10: Multiple attack support.
-	if (mo->state && mo->state->action_par)
-		attack = (const atkdef_c *) mo->state->action_par;
+	if (data)
+		attack = (const atkdef_c *)data;
 
 	if (!attack)
 	{
@@ -2764,8 +2720,8 @@ void A_SpareAttack(mobj_t *mo, void *data)
 	attack = mo->info->spareattack;
 
 	// -AJA- 1999/08/10: Multiple attack support.
-	if (mo->state && mo->state->action_par)
-		attack = (const atkdef_c *) mo->state->action_par;
+	if (data)
+		attack = (const atkdef_c *)data;
 
 	if (attack)
 	{
@@ -2779,6 +2735,7 @@ void A_SpareAttack(mobj_t *mo, void *data)
 		}
 
 		mo->currentattack = attack;
+
 		P_DoAttack(mo);
 	}
 #ifdef DEVELOPERS
@@ -3373,7 +3330,7 @@ void A_CheckActivity(mobj_t *mo, void *data)
 	if (pl->swimming)
 	{
 		// enter the SWIM states (if present)
-		statenum_t swim_st = P_MobjFindLabel(pl->mo, "SWIM");
+		int swim_st = P_MobjFindLabel(pl->mo, "SWIM");
 
 		if (swim_st == S_NULL)
 			swim_st = pl->mo->info->chase_state;
@@ -3387,7 +3344,7 @@ void A_CheckActivity(mobj_t *mo, void *data)
 	if (pl->powers[PW_Jetpack] > 0)
 	{
 		// enter the FLY states (if present)
-		statenum_t fly_st = P_MobjFindLabel(pl->mo, "FLY");
+		int fly_st = P_MobjFindLabel(pl->mo, "FLY");
 
 		if (fly_st != S_NULL)
 			P_SetMobjStateDeferred(pl->mo, fly_st, 0);
@@ -3398,7 +3355,7 @@ void A_CheckActivity(mobj_t *mo, void *data)
 	if (mo->on_ladder >= 0)
 	{
 		// enter the CLIMB states (if present)
-		statenum_t climb_st = P_MobjFindLabel(pl->mo, "CLIMB");
+		int climb_st = P_MobjFindLabel(pl->mo, "CLIMB");
 
 		if (climb_st != S_NULL)
 			P_SetMobjStateDeferred(pl->mo, climb_st, 0);
@@ -3431,22 +3388,23 @@ void A_Jump(mobj_t * mo, void *data)
 	//
 	// Note: nothing to do with monsters physically jumping.
 
-	if (!mo->state || !mo->state->action_par)
+	if (! data)
 	{
 		M_WarnError("JUMP action used in [%s] without a label !\n",
 					mo->info->ddf.name.c_str());
 		return;
 	}
 
-	act_jump_info_t *jump = (act_jump_info_t *) mo->state->action_par;
+	act_jump_info_t *jump = (act_jump_info_t *)data;
 
 	SYS_ASSERT(jump->chance >= 0);
 	SYS_ASSERT(jump->chance <= 1);
 
 	if (P_RandomTest(jump->chance))
 	{
-		mo->next_state = (mo->state->jumpstate == S_NULL) ?
-			NULL : (states + mo->state->jumpstate);
+		state_t *st = &mo->info->states[mo->ztate];
+
+		mo->next_state = st->jumpstate;
 	}
 }
 
@@ -3464,14 +3422,14 @@ void A_ClearInvuln(struct mobj_s *mo, void *data)
 
 void A_Become(struct mobj_s *mo, void *data)
 {
-	if (!mo->state || !mo->state->action_par)
+	if (! data)
 	{
 		I_Error("BECOME action used in [%s] without arguments!\n",
 				mo->info->ddf.name.c_str());
 		return; /* NOT REACHED */
 	}
 
-	act_become_info_t *become = (act_become_info_t *) mo->state->action_par;
+	act_become_info_t *become = (act_become_info_t *)data;
 
 	if (! become->info)
 	{
@@ -3520,7 +3478,7 @@ void A_Become(struct mobj_s *mo, void *data)
 	}
 	P_SetThingPosition(mo);
 
-	statenum_t state = P_MobjFindLabel(mo, become->start.label.c_str());
+	int state = P_MobjFindLabel(mo, become->start.label.c_str());
 	if (state == S_NULL)
 		I_Error("BECOME action: frame '%s' in [%s] not found!\n",
 				become->start.label.c_str(), mo->info->ddf.name.c_str());
