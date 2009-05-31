@@ -111,11 +111,37 @@ static void P_SetWeaponStateDeferred(player_t * p, int position,
 	psp->tics = 0;
 }
 
+void P_FixWeaponStates(player_t *p)
+{
+	// this makes sure that after a loadgame (especially
+	// from an older version or when DDF has changes) that
+	// the state numbers are in range.
+
+	weapondef_c *w = NULL;
+
+	if (p->ready_wp >= 0)
+		w = p->weapons[p->ready_wp].info;
+
+	for (int i = 0; i < NUMPSPRITES; i++)
+	{
+		pspdef_t *psp = &p->psprites[i];
+
+		if (! w)
+		{
+			psp->state = psp->next_state = S_NULL;
+			continue;
+		}
+
+		if (psp->state < 0 || psp->state >= (int)w->states.size())
+			psp->state = (i == ps_weapon) ? w->ready_state : S_NULL;
+
+		if (psp->next_state < 0 || psp->next_state >= (int)w->states.size())
+			psp->next_state = (i == ps_weapon) ? w->ready_state : S_NULL;
+	}
+}
 
 //
-// P_CheckWeaponSprite
-//
-// returns true if the sprite(s) for the weapon exist.  Prevents being
+// Returns true if the sprite(s) for the weapon exist.  Prevents being
 // able to e.g. select the super shotgun when playing with a DOOM 1
 // IWAD (and cheating).
 //
