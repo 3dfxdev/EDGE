@@ -233,8 +233,7 @@ static bool WeaponTryParseState(const char *field,
 	if (weapon_starters[i].label)
 		starter = &weapon_starters[i];
 
-	DDF_StateReadState(contents, labname.c_str(),
-			&buffer_weapon.first_state, &buffer_weapon.last_state,
+	DDF_StateReadState(contents, labname.c_str(), buffer_weapon.states,
 			starter ? starter->state_num : NULL, index, 
 			is_last ? starter ? starter->last_redir : "READY" : NULL, 
 			weapon_actions, true);
@@ -297,11 +296,11 @@ static void WeaponParseField(const char *field, const char *contents,
 
 static void WeaponFinishEntry(void)
 {
-	if (! buffer_weapon.first_state)
+	if (buffer_weapon.states.empty())
 		DDF_Error("Weapon `%s' has missing states.\n",
 			dynamic_weapon->ddf.name.c_str());
 
-	DDF_StateFinishStates(buffer_weapon.first_state, buffer_weapon.last_state);
+	DDF_StateFinishStates(buffer_weapon.states);
 
 	// check stuff...
 	int ATK;
@@ -558,7 +557,7 @@ bool DDF_WeaponIsUpgrade(weapondef_c *weap, weapondef_c *old)
 //
 // weapondef_c Constructor
 //
-weapondef_c::weapondef_c()
+weapondef_c::weapondef_c() : states()
 {
 	Default();
 }
@@ -566,7 +565,7 @@ weapondef_c::weapondef_c()
 //
 // weapondef_c Copy constructor
 //
-weapondef_c::weapondef_c(weapondef_c &rhs)
+weapondef_c::weapondef_c(weapondef_c &rhs) : states()
 {
 	Copy(rhs);
 }
@@ -576,6 +575,7 @@ weapondef_c::weapondef_c(weapondef_c &rhs)
 //
 weapondef_c::~weapondef_c()
 {
+	// FIXME
 }
 
 //
@@ -592,6 +592,8 @@ void weapondef_c::Copy(weapondef_c &src)
 //
 void weapondef_c::CopyDetail(weapondef_c &src)
 {
+	CopyStates(src);
+
 	for (int ATK = 0; ATK < 2; ATK++)
 	{
 		attack[ATK] = src.attack[ATK];
@@ -609,9 +611,6 @@ void weapondef_c::CopyDetail(weapondef_c &src)
 	}
 
 	kick = src.kick;
-
-	first_state = src.first_state;
-	last_state  = src.last_state;
 
 	up_state    = src.up_state;
 	down_state  = src.down_state;
@@ -662,6 +661,13 @@ void weapondef_c::CopyDetail(weapondef_c &src)
 	model_side = src.model_side;
 }
 
+void weapondef_c::CopyStates(weapondef_c &src)
+{
+	std::vector<state_t>::iterator SI;
+
+	for (SI = src.states.begin(); SI != src.states.end(); SI++)
+		states.push_back(*SI);
+}
 //
 // weapondef_c::Default()
 //
@@ -688,9 +694,6 @@ void weapondef_c::Default(void)
 	specials[1] = (weapon_flag_e)(DEFAULT_WPSP & ~WPSP_SwitchAway);
 
 	kick = 0.0f;
-
-	first_state = 0;
-	last_state = 0;
 
 	up_state = 0;
 	down_state= 0;

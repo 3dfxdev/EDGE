@@ -21,6 +21,7 @@
 
 #include "base.h"
 #include "types.h"
+#include "states.h"
 
 
 #define DLIT_COMPAT_RAD(x)  (10.0f * sqrt(x))
@@ -738,8 +739,7 @@ public:
 	ddf_base_c ddf;
 
 	// range of states used
-	int first_state;
-	int last_state;
+	std::vector<state_t> states;
   
 	int spawn_state;
 	int idle_state;
@@ -900,10 +900,11 @@ public:
 
 private:
 	void Copy(mobjtype_c &src);
+	void CopyStates(mobjtype_c &src);
 
 public:
-	void CopyDetail(mobjtype_c &src);
 	void Default();
+	void CopyDetail(mobjtype_c &src);
 	
 	mobjtype_c& operator=(mobjtype_c &rhs);
 
