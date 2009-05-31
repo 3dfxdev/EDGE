@@ -248,19 +248,19 @@ static bool CorpseShouldSlide(mobj_t * mo)
 //
 // TeleportRespawn
 //
-static void TeleportRespawn(mobj_t * mobj)
+static void TeleportRespawn(mobj_t * mo)
 {
 	float x, y, z, oldradius, oldheight;
-	const mobjtype_c *info = mobj->spawnpoint.info;
+	const mobjtype_c *info = mo->spawnpoint.info;
 	mobj_t *new_mo;
 	int oldflags;
 
 	if (!info)
 		return;
 
-	x = mobj->spawnpoint.x;
-	y = mobj->spawnpoint.y;
-	z = mobj->spawnpoint.z;
+	x = mo->spawnpoint.x;
+	y = mo->spawnpoint.y;
+	z = mo->spawnpoint.z;
 
 	// something is occupying it's position?
 
@@ -268,21 +268,21 @@ static void TeleportRespawn(mobj_t * mobj)
 	// -ACB- 2004/02/01 Check if the object can respawn in this position with
 	// its correct radius. Should this check fail restore the old values back
 	//
-	oldradius = mobj->radius;
-	oldheight = mobj->height;
-	oldflags = mobj->flags;
+	oldradius = mo->radius;
+	oldheight = mo->height;
+	oldflags = mo->flags;
 
-	mobj->radius = mobj->spawnpoint.info->radius;
-	mobj->height = mobj->spawnpoint.info->height;
+	mo->radius = mo->spawnpoint.info->radius;
+	mo->height = mo->spawnpoint.info->height;
 
 	if (info->flags & MF_SOLID)						// Should it be solid?
-		mobj->flags |= MF_SOLID;
+		mo->flags |= MF_SOLID;
 
-	if (!P_CheckAbsPosition(mobj, x, y, z))
+	if (!P_CheckAbsPosition(mo, x, y, z))
 	{
-		mobj->radius = oldradius;
-		mobj->height = oldheight;
-		mobj->flags = oldflags;
+		mo->radius = oldradius;
+		mo->height = oldheight;
+		mo->flags = oldflags;
 		return;
 	}
 
@@ -291,7 +291,7 @@ static void TeleportRespawn(mobj_t * mobj)
 
 	// temp fix for teleport flash...
 	if (info->respawneffect)
-		P_MobjCreateObject(mobj->x, mobj->y, mobj->z, info->respawneffect);
+		P_MobjCreateObject(mo->x, mo->y, mo->z, info->respawneffect);
 
 	// spawn a teleport fog at the new spot...
 
@@ -303,18 +303,18 @@ static void TeleportRespawn(mobj_t * mobj)
 	// -ACB- 1998/08/06 Create Object
 	new_mo = P_MobjCreateObject(x, y, z, info);
 
-	new_mo->spawnpoint = mobj->spawnpoint;
-	new_mo->angle = mobj->spawnpoint.angle;
-	new_mo->vertangle = mobj->spawnpoint.vertangle;
-	new_mo->tag = mobj->spawnpoint.tag;
+	new_mo->spawnpoint = mo->spawnpoint;
+	new_mo->angle = mo->spawnpoint.angle;
+	new_mo->vertangle = mo->spawnpoint.vertangle;
+	new_mo->tag = mo->spawnpoint.tag;
 
-	if (mobj->spawnpoint.flags & MF_AMBUSH)
+	if (mo->spawnpoint.flags & MF_AMBUSH)
 		new_mo->flags |= MF_AMBUSH;
 
 	new_mo->reactiontime = RESPAWN_DELAY;
 
 	// remove the old monster.
-	P_RemoveMobj(mobj);
+	P_RemoveMobj(mo);
 }
 
 //
@@ -325,73 +325,73 @@ static void TeleportRespawn(mobj_t * mobj)
 //                  Given a reaction time, delays monster starting up immediately.
 //                  Doesn't try to raise an object with no raisestate
 //
-static void ResurrectRespawn(mobj_t * mobj)
+static void ResurrectRespawn(mobj_t * mo)
 {
 	float x, y, z, oldradius, oldheight;
 	const mobjtype_c *info;
 	int oldflags;
 
-	x = mobj->x;
-	y = mobj->y;
-	z = mobj->z;
+	x = mo->x;
+	y = mo->y;
+	z = mo->z;
 
-	info = mobj->info;
+	info = mo->info;
 
 	// cannot raise the unraisable
 	if (!info->raise_state)
 		return;
 
 	// don't respawn gibs
-	if (mobj->extendedflags & EF_GIBBED)
+	if (mo->extendedflags & EF_GIBBED)
 		return;
 
 	//
 	// -ACB- 2004/02/01 Check if the object can respawn in this position with
 	// its correct radius. Should this check fail restore the old values back
 	//
-	oldradius = mobj->radius;
-	oldheight = mobj->height;
-	oldflags = mobj->flags;
+	oldradius = mo->radius;
+	oldheight = mo->height;
+	oldflags = mo->flags;
 
-	mobj->radius = info->radius;
-	mobj->height = info->height;
+	mo->radius = info->radius;
+	mo->height = info->height;
 
 	if (info->flags & MF_SOLID)					// Should it be solid?
-		mobj->flags |= MF_SOLID;
+		mo->flags |= MF_SOLID;
 
-	if (!P_CheckAbsPosition(mobj, x, y, z))
+	if (!P_CheckAbsPosition(mo, x, y, z))
 	{
-		mobj->radius = oldradius;
-		mobj->height = oldheight;
-		mobj->flags = oldflags;
+		mo->radius = oldradius;
+		mo->height = oldheight;
+		mo->flags = oldflags;
 		return;
 	}
 
 	// Resurrect monster
 	if (info->overkill_sound)
-		S_StartFX(info->overkill_sound, P_MobjGetSfxCategory(mobj), mobj);
+		S_StartFX(info->overkill_sound, P_MobjGetSfxCategory(mo), mo);
 
-	P_SetMobjState(mobj, info->raise_state);
+	P_SetMobjState(mo, info->raise_state);
 
-	SYS_ASSERT(! mobj->isRemoved());
+	SYS_ASSERT(! mo->isRemoved());
 
-	mobj->flags = info->flags;
-	mobj->extendedflags = info->extendedflags;
-	mobj->hyperflags = info->hyperflags;
-	mobj->health = info->spawnhealth;
+	mo->flags = info->flags;
+	mo->extendedflags = info->extendedflags;
+	mo->hyperflags = info->hyperflags;
+	mo->health = info->spawnhealth;
 
-	mobj->visibility = PERCENT_2_FLOAT(info->translucency);
-	mobj->movecount = 0;  // -ACB- 1998/08/03 Don't head off in any direction
+	mo->visibility = PERCENT_2_FLOAT(info->translucency);
+	mo->movecount = 0;  // -ACB- 1998/08/03 Don't head off in any direction
 
-	mobj->SetSource(NULL);
-	mobj->SetTarget(NULL);
+	mo->SetSource(NULL);
+	mo->SetTarget(NULL);
 
-	mobj->tag = mobj->spawnpoint.tag;
+	mo->tag = mo->spawnpoint.tag;
 
-	if (mobj->spawnpoint.flags & MF_AMBUSH)
-		mobj->flags |= MF_AMBUSH;
+	if (mo->spawnpoint.flags & MF_AMBUSH)
+		mo->flags |= MF_AMBUSH;
 
-	mobj->reactiontime = RESPAWN_DELAY;
+	mo->reactiontime = RESPAWN_DELAY;
 	return;
 }
 
@@ -473,15 +473,15 @@ void mobj_t::SetRealSource(mobj_t *ref)
 //
 // Returns true if the mobj is still present.
 //
-bool P_SetMobjState(mobj_t * mobj, int stnum)
+bool P_SetMobjState(mobj_t * mo, int stnum)
 {
 	// ignore removed objects
-	if (mobj->isRemoved())
+	if (mo->isRemoved())
 		return false;
 
 	if (stnum == S_NULL)
 	{
-		P_RemoveMobj(mobj);
+		P_RemoveMobj(mo);
 		return false;
 	}
 
@@ -494,17 +494,17 @@ bool P_SetMobjState(mobj_t * mobj, int stnum)
 	if ((st->flags & SFF_Model) && (old->flags & SFF_Model) &&
 		(st->sprite == old->sprite) && st->tics > 1)
 	{
-		mobj->model_last_frame = old->frame;
+		mo->model_last_frame = old->frame;
 	}
 	else
-		mobj->model_last_frame = -1;
+		mo->model_last_frame = -1;
 
-	mobj->ztate = stnum;
-	mobj->next_state = st->nextstate;
-	mobj->tics = st->tics;
+	mo->ztate = stnum;
+	mo->next_state = st->nextstate;
+	mo->tics = st->tics;
 
 	if (st->action)
-		(* st->action)(mobj, st->action_par);
+		(* st->action)(mo, st->action_par);
 
 	return true;
 }
@@ -539,14 +539,14 @@ bool P_SetMobjStateDeferred(mobj_t * mo, int stnum, int tic_skip)
 // Look for the given label in the mobj's states.  Returns the state
 // number if found, otherwise S_NULL.
 //
-int P_MobjFindLabel(mobj_t * mobj, const char *label)
+int P_MobjFindLabel(mobj_t * mo, const char *label)
 {
-	for (int i=1; i < (int)mobj->info->states.size(); i++)
+	for (int i=1; i < (int)mo->info->states.size(); i++)
 	{
-		if (! mobj->info->states[i].label)
+		if (! mo->info->states[i].label)
 			continue;
 
-		if (DDF_CompareName(mobj->info->states[i].label, label) == 0)
+		if (DDF_CompareName(mo->info->states[i].label, label) == 0)
 			return i;
 	}
 
@@ -1228,111 +1228,111 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 //
 #define MAX_THINK_LOOP  8
 
-static void P_MobjThinker(mobj_t * mobj)
+static void P_MobjThinker(mobj_t * mo)
 {
 	const region_properties_t *props;
 	region_properties_t player_props;
 
-	SYS_ASSERT_MSG(mobj->next != (mobj_t *)-1,
+	SYS_ASSERT_MSG(mo->next != (mobj_t *)-1,
 		("P_MobjThinker INTERNAL ERROR: mobj has been Z_Freed"));
 
-	SYS_ASSERT(mobj->ztate != S_NULL);
-	SYS_ASSERT(mobj->refcount >= 0);
+	SYS_ASSERT(mo->ztate != S_NULL);
+	SYS_ASSERT(mo->refcount >= 0);
 
-	mobj->ClearStaleRefs();
+	mo->ClearStaleRefs();
 
-	mobj->visibility = (15 * mobj->visibility + mobj->vis_target)  / 16;
-	mobj->dlight.r   = (15 * mobj->dlight.r + mobj->dlight.target) / 16;
+	mo->visibility = (15 * mo->visibility + mo->vis_target)  / 16;
+	mo->dlight.r   = (15 * mo->dlight.r + mo->dlight.target) / 16;
 
 	// position interpolation
-	if (mobj->lerp_num > 1)
+	if (mo->lerp_num > 1)
 	{
-		mobj->lerp_pos++;
+		mo->lerp_pos++;
 
-		if (mobj->lerp_pos >= mobj->lerp_num)
+		if (mo->lerp_pos >= mo->lerp_num)
 		{
-			mobj->lerp_pos = mobj->lerp_num = 0;
+			mo->lerp_pos = mo->lerp_num = 0;
 		}
 	}
 
 	// handle SKULLFLY attacks
-	if ((mobj->flags & MF_SKULLFLY) && mobj->mom.x == 0 && mobj->mom.y == 0)
+	if ((mo->flags & MF_SKULLFLY) && mo->mom.x == 0 && mo->mom.y == 0)
 	{
 		// the skull slammed into something
-		mobj->flags &= ~MF_SKULLFLY;
-		mobj->mom.x = mobj->mom.y = mobj->mom.z = 0;
+		mo->flags &= ~MF_SKULLFLY;
+		mo->mom.x = mo->mom.y = mo->mom.z = 0;
 
-		P_SetMobjState(mobj, mobj->info->idle_state);
+		P_SetMobjState(mo, mo->info->idle_state);
 
-		if (mobj->isRemoved()) return;
+		if (mo->isRemoved()) return;
 	}
 
 	// determine properties, & handle push sectors
 
-	SYS_ASSERT(mobj->props);
+	SYS_ASSERT(mo->props);
 
-	if (mobj->player)
+	if (mo->player)
 	{
-		P_CalcFullProperties(mobj, &player_props);
+		P_CalcFullProperties(mo, &player_props);
 
-		mobj->mom.x += player_props.push.x;
-		mobj->mom.y += player_props.push.y;
-		mobj->mom.z += player_props.push.z;
+		mo->mom.x += player_props.push.x;
+		mo->mom.y += player_props.push.y;
+		mo->mom.z += player_props.push.z;
 
 		props = &player_props;
 	}
 	else
 	{
-		props = mobj->props;
+		props = mo->props;
 
 		if (props->push.x || props->push.y || props->push.z)
 		{
 			sector_flag_e flags = props->special ?
 				props->special->special_flags : SECSP_PushConstant;
 
-			if (!((mobj->flags & MF_NOGRAVITY) || (flags & SECSP_PushAll))  &&
-				(mobj->z <= mobj->floorz + 1.0f || (flags & SECSP_WholeRegion)))
+			if (!((mo->flags & MF_NOGRAVITY) || (flags & SECSP_PushAll))  &&
+				(mo->z <= mo->floorz + 1.0f || (flags & SECSP_WholeRegion)))
 			{
 				float push_mul = 1.0f;
 
-				SYS_ASSERT(mobj->info->mass > 0);
+				SYS_ASSERT(mo->info->mass > 0);
 				if (! (flags & SECSP_PushConstant))
-					push_mul = 100.0f / mobj->info->mass;
+					push_mul = 100.0f / mo->info->mass;
 
-				mobj->mom.x += push_mul * props->push.x;
-				mobj->mom.y += push_mul * props->push.y;
-				mobj->mom.z += push_mul * props->push.z;
+				mo->mom.x += push_mul * props->push.x;
+				mo->mom.y += push_mul * props->push.y;
+				mo->mom.z += push_mul * props->push.z;
 			}
 		}
 	}
 
 	// momentum movement
-	if (mobj->mom.x != 0 || mobj->mom.y != 0 || mobj->player)
+	if (mo->mom.x != 0 || mo->mom.y != 0 || mo->player)
 	{
-		P_XYMovement(mobj, props);
+		P_XYMovement(mo, props);
 
-		if (mobj->isRemoved()) return;
+		if (mo->isRemoved()) return;
 	}
 
-	if ((mobj->z != mobj->floorz) || mobj->mom.z != 0) //  || mobj->ride_em)
+	if ((mo->z != mo->floorz) || mo->mom.z != 0) //  || mo->ride_em)
 	{
-		P_ZMovement(mobj, props);
+		P_ZMovement(mo, props);
 
-		if (mobj->isRemoved()) return;
+		if (mo->isRemoved()) return;
 	}
 
-	if (mobj->fuse >= 0)
+	if (mo->fuse >= 0)
 	{
-		if (!--mobj->fuse)
-			P_MobjExplodeMissile(mobj);
+		if (!--mo->fuse)
+			P_MobjExplodeMissile(mo);
 
-		if (mobj->isRemoved()) return;
+		if (mo->isRemoved()) return;
 	}
 
-	if (mobj->tics < 0)
+	if (mo->tics < 0)
 	{
 		// check for nightmare respawn
-		if (!(mobj->extendedflags & EF_MONSTER))
+		if (!(mo->extendedflags & EF_MONSTER))
 			return;
 
 		// replaced respawnmonsters & newnmrespawn with respawnsetting
@@ -1340,14 +1340,14 @@ static void P_MobjThinker(mobj_t * mobj)
 		if (!level_flags.respawn)
 			return;
 
-		mobj->movecount++;
+		mo->movecount++;
 
 		//
 		// Uses movecount as a timer, when movecount hits 12*TICRATE the
 		// object will try to respawn. So after 12 seconds the object will
 		// try to respawn.
 		//
-		if (mobj->movecount < mobj->info->respawntime)
+		if (mo->movecount < mo->info->respawntime)
 			return;
 
 		// if the first 5 bits of leveltime are on, don't respawn now...ok?
@@ -1361,9 +1361,9 @@ static void P_MobjThinker(mobj_t * mobj)
 		// replaced respawnmonsters & newnmrespawn with respawnsetting
 		// -ACB- 1998/07/30
 		if (level_flags.res_respawn)
-			ResurrectRespawn(mobj);
+			ResurrectRespawn(mo);
 		else
-			TeleportRespawn(mobj);
+			TeleportRespawn(mo);
 
 		return;
 	}
@@ -1374,21 +1374,21 @@ static void P_MobjThinker(mobj_t * mobj)
 
 	for (int loop_count=0; loop_count < MAX_THINK_LOOP; loop_count++)
 	{
-		mobj->tics -= (1 + mobj->tic_skip);
-		mobj->tic_skip = 0;
+		mo->tics -= (1 + mo->tic_skip);
+		mo->tic_skip = 0;
 
-		if (mobj->tics >= 1)
+		if (mo->tics >= 1)
 			break;
 
 		// You can cycle through multiple states in a tic.
 		// NOTE: returns false if object freed itself.
 
-		P_SetMobjState(mobj, mobj->next_state);
+		P_SetMobjState(mo, mo->next_state);
 
-		if (mobj->isRemoved())
+		if (mo->isRemoved())
 			return;
 
-		if (mobj->tics != 0)
+		if (mo->tics != 0)
 			break;
 	}
 }
@@ -1547,7 +1547,7 @@ void P_RemoveMobj(mobj_t *mo)
 	}
 
 	// mark as REMOVED
-	mo->state = S_NULL;
+	mo->ztate = S_NULL;
 	mo->next_state = S_NULL;
 
 	// Clear all references to other mobjs
@@ -1778,43 +1778,43 @@ void P_MobjRemoveMissile(mobj_t * missile)
 //
 mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c *info)
 {
-	mobj_t *mobj = Z_New(mobj_t, 1);
+	mobj_t *mo = Z_New(mobj_t, 1);
 
-	Z_Clear(mobj, mobj_t, 1);
+	Z_Clear(mo, mobj_t, 1);
 
 #if (DEBUG_MOBJ > 0)
 	L_WriteDebug("tics=%05d  CREATE %p [%s]  AT %1.0f,%1.0f,%1.0f\n", 
-		leveltime, mobj, info->ddf.name.c_str(), x, y, z);
+		leveltime, mo, info->ddf.name.c_str(), x, y, z);
 #endif
 
-	mobj->info = info;
-	mobj->x = x;
-	mobj->y = y;
-	mobj->radius = info->radius;
-	mobj->height = info->height;
-	mobj->flags = info->flags;
-	mobj->health = info->spawnhealth;
-	mobj->speed = info->speed;
-	mobj->fuse = info->fuse;
-	mobj->side = info->side;
-	mobj->model_skin = info->model_skin;
-	mobj->model_last_frame = -1;
+	mo->info = info;
+	mo->x = x;
+	mo->y = y;
+	mo->radius = info->radius;
+	mo->height = info->height;
+	mo->flags = info->flags;
+	mo->health = info->spawnhealth;
+	mo->speed = info->speed;
+	mo->fuse = info->fuse;
+	mo->side = info->side;
+	mo->model_skin = info->model_skin;
+	mo->model_last_frame = -1;
 
 	if (level_flags.fastparm)
-		mobj->speed *= info->fast;
+		mo->speed *= info->fast;
 
 	// -ACB- 1998/06/25 new mobj Stuff (1998/07/11 - invisibility added)
-	mobj->extendedflags = info->extendedflags;
-	mobj->hyperflags = info->hyperflags;
-	mobj->vis_target = mobj->visibility = PERCENT_2_FLOAT(info->translucency);
+	mo->extendedflags = info->extendedflags;
+	mo->hyperflags = info->hyperflags;
+	mo->vis_target = mo->visibility = PERCENT_2_FLOAT(info->translucency);
 
-	mobj->currentattack = NULL;
-	mobj->on_ladder = -1;
+	mo->currentattack = NULL;
+	mo->on_ladder = -1;
 
 	if (gameskill != sk_nightmare)
-		mobj->reactiontime = info->reactiontime;
+		mo->reactiontime = info->reactiontime;
 
-	mobj->lastlook = P_Random() % MAXPLAYERS;
+	mo->lastlook = P_Random() % MAXPLAYERS;
 
 	//
 	// Do not set the state with P_SetMobjState,
@@ -1833,15 +1833,15 @@ mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c *info)
 	else if (info->meander_state)
 		state = info->meander_state;
 
-	mobj->state = state;
-	mobj->next_state = state;
-	mobj->tics = mobj->tic_skip = 0;
+	mo->ztate = state;
+	mo->next_state = state;
+	mo->tics = mo->tic_skip = 0;
 
-	SYS_ASSERT(! mobj->isRemoved());
+	SYS_ASSERT(! mo->isRemoved());
 
 	// enable usable items
-	if (mobj->extendedflags & EF_USABLE)
-		mobj->flags |= MF_TOUCHY;
+	if (mo->extendedflags & EF_USABLE)
+		mo->flags |= MF_TOUCHY;
 
 	// handle dynamic lights
 	{
@@ -1849,24 +1849,24 @@ mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c *info)
 
 		if (dinfo->type != DLITE_None)
 		{
-			mobj->dlight.r = mobj->dlight.target = dinfo->radius;
-			mobj->dlight.color = dinfo->colour;
+			mo->dlight.r = mo->dlight.target = dinfo->radius;
+			mo->dlight.color = dinfo->colour;
 
 			// leave 'shader' field as NULL : renderer will create it
 		}
 	}
 
 	// set subsector and/or block links
-	P_SetThingPosition(mobj);
+	P_SetThingPosition(mo);
 
 	// -AJA- 1999/07/30: Updated for extra floors.
 
-	sector_t *sec = mobj->subsector->sector;
+	sector_t *sec = mo->subsector->sector;
 
-	mobj->z = P_ComputeThingGap(mobj, sec, z, &mobj->floorz, &mobj->ceilingz);
+	mo->z = P_ComputeThingGap(mo, sec, z, &mo->floorz, &mo->ceilingz);
 
 	// Find the real players height (TELEPORT WEAPONS).
-	mobj->origheight = z;
+	mo->origheight = z;
 
 	// update totals for countable items.  Doing it here means that
 	// things spawned dynamically can be counted as well.  Whilst this
@@ -1874,10 +1874,10 @@ mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c *info)
 	// when RTS comes into play -- trying to second guess which
 	// spawnthings should not be counted just doesn't work).
 
-	if (mobj->flags & MF_COUNTKILL)
+	if (mo->flags & MF_COUNTKILL)
 		wi_stats.kills++;
 
-	if (mobj->flags & MF_COUNTITEM)
+	if (mo->flags & MF_COUNTITEM)
 		wi_stats.items++;
 
 	//
@@ -1888,9 +1888,9 @@ mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c *info)
 	//
 	// -AJA- 1999/09/15: now adds to _head_ of list (for speed).
 	//
-	AddMobjToList(mobj);
+	AddMobjToList(mo);
 
-	return mobj;
+	return mo;
 }
 
 //
