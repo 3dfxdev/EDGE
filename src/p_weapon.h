@@ -50,8 +50,8 @@ psprnum_t;
 
 typedef struct
 {
-	// current state.  NULL state means not active
-	const state_t *state;
+	// current state.  S_NULL state means not active
+	int state;
 
 	// state to enter next (could be S_NULL)
 	int next_state;

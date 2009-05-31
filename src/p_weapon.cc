@@ -58,7 +58,7 @@ static void P_SetWeaponState(player_t * p, int position,
 	if (stnum == S_NULL)
 	{
 		// object removed itself
-		psp->state = NULL;
+		psp->state = S_NULL;
 		psp->next_state = S_NULL;
 		return;
 	}
@@ -68,18 +68,18 @@ static void P_SetWeaponState(player_t * p, int position,
 	state_t *st = &w->states[stnum];
 
 	// model interpolation stuff
-	if (psp->state &&
-		(st->flags & SFF_Model) && (psp->state->flags & SFF_Model) &&
-		(st->sprite == psp->state->sprite) && st->tics > 1)
+	if (psp->state != S_NULL &&
+		(st->flags & SFF_Model) && (st->flags & SFF_Model) &&
+		(st->sprite == st->sprite) && st->tics > 1)
 	{
-		p->weapon_last_frame = psp->state->frame;
+		p->weapon_last_frame = st->frame;
 	}
 	else
 		p->weapon_last_frame = -1;
 
-	psp->state = st;
-	psp->tics  = st->tics;
+	psp->state = stnum;
 	psp->next_state = st->nextstate;
+	psp->tics  = st->tics;
 
 	// call action routine
 
@@ -99,7 +99,7 @@ static void P_SetWeaponStateDeferred(player_t * p, int position,
 {
 	pspdef_t *psp = &p->psprites[position];
 
-	if (stnum == S_NULL || psp->state == NULL)
+	if (stnum == S_NULL || psp->state == S_NULL)
 	{
 		P_SetWeaponState(p, position, w, stnum);
 		return;
@@ -107,8 +107,8 @@ static void P_SetWeaponStateDeferred(player_t * p, int position,
 
 	SYS_ASSERT(stnum < (int)w->states.size());
 
-	psp->tics = 0;
 	psp->next_state = stnum;
+	psp->tics = 0;
 }
 
 
@@ -127,7 +127,7 @@ bool P_CheckWeaponSprite(weapondef_c *w)
 	if (w->up_state == S_NULL)
 		return false;
 
-	return W_CheckSpritesExist(w->first_state, w->last_state);
+	return W_CheckSpritesExist(w->states);
 }
 
 static bool ButtonDown(player_t *p, int ATK)
@@ -379,8 +379,8 @@ static void P_BringUpWeapon(player_t * p)
 
 		for (int i = 0; i < NUMPSPRITES; i++)
 		{
-			p->psprites[i].state = NULL
-			p->psprites[i].next_state = S_NULL
+			p->psprites[i].state = S_NULL;
+			p->psprites[i].next_state = S_NULL;
 		}
 
 		if (viewiszoomed && p == players[displayplayer])
@@ -754,7 +754,7 @@ void P_SetupPsprites(player_t * p)
 	{
 		pspdef_t *psp = &p->psprites[i];
 
-		psp->state = NULL;
+		psp->state = S_NULL;
 		psp->next_state = S_NULL;
 		psp->sx = psp->sy = 0;
 		psp->visibility = psp->vis_target = VISIBLE;
@@ -789,7 +789,7 @@ void P_MovePsprites(player_t * p)
 	for (int i = 0; i < NUMPSPRITES; i++, psp++)
 	{
 		// a null state means not active
-		if (! psp->state)
+		if (psp->state == S_NULL)
 			continue;
 
 		for (int loop_count=0; loop_count < MAX_PSP_LOOP; loop_count++)
@@ -922,7 +922,7 @@ void A_WeaponReady(mobj_t * mo, void *data)
 	// check for emptiness.  The ready_state check is needed since this
 	// code is also used by the EMPTY action (prevent looping).
 	if (w->empty_state && ! WeaponCouldAutoFire(p, p->ready_wp, 0) &&
-		psp->state == &w->states[w->ready_state])
+		psp->state == w->ready_state)
 	{
 		// don't use Deferred here, since we don't want the weapon to
 		// display the ready sprite (even only briefly).
@@ -930,8 +930,8 @@ void A_WeaponReady(mobj_t * mo, void *data)
 		return;
 	}
 
-	if (w->idle && (psp->state == &w->states[w->ready_state] ||
-		(w->empty_state && psp->state == &w->states[w->empty_state])))
+	if (w->idle && (psp->state == w->ready_state ||
+		(w->empty_state && psp->state == w->empty_state)))
 	{
 		S_StartFX(w->idle, WeapSfxCat(p), mo);
 	}
@@ -1124,8 +1124,10 @@ static void DoNoFire(mobj_t * mo, int ATK, bool does_return)
 		}
 	}
 
+	state_t *st = &w->states[psp->state];
+
 	p->refire = w->refire_inacc ? 0 : 1;
-	p->remember_atk[ATK] = does_return ? psp->state->nextstate : -1;
+	p->remember_atk[ATK] = does_return ? st->nextstate : -1;
 
 	if (WeaponCouldAutoFire(p, p->ready_wp, ATK))
 		GotoReadyState(p);
@@ -1142,15 +1144,14 @@ void A_NoFireReturnSA(mobj_t * mo, void *) { DoNoFire(mo, 1, true);  }
 void A_WeaponKick(mobj_t * mo, void *data)
 {
 	player_t *p = mo->player;
-	pspdef_t *psp = &p->psprites[p->action_psp];
-
-	float kick = 0.05f;
 
 	if (! level_flags.kicking)
 		return;
 
-	if (psp->state && psp->state->action_par)
-		kick = ((float *) psp->state->action_par)[0];
+	float kick = 0.05f;
+
+	if (data)
+		kick = *(float *)data;
 
 	p->deltaviewheight -= kick;
 	p->kick_offset = kick;
@@ -1277,10 +1278,12 @@ void A_SetCrosshair(mobj_t * mo, void *data)
 	pspdef_t *psp = &p->psprites[p->action_psp];
 	weapondef_c *w = p->weapons[p->ready_wp].info;
 
-	if (psp->state->jumpstate == S_NULL)
-		return;  // show warning ??
+	state_t *st = &w->states[psp->state];
 
-	P_SetWeaponStateDeferred(p, ps_crosshair, w, psp->state->jumpstate);
+	if (st->jumpstate == S_NULL)
+		return;
+
+	P_SetWeaponStateDeferred(p, ps_crosshair, w, st->jumpstate);
 }
 
 void A_TargetJump(mobj_t * mo, void *data)
@@ -1289,8 +1292,10 @@ void A_TargetJump(mobj_t * mo, void *data)
 	pspdef_t *psp = &p->psprites[p->action_psp];
 	weapondef_c *w = p->weapons[p->ready_wp].info;
 
-	if (psp->state->jumpstate == S_NULL)
-		return;  // show warning ?? error ???
+	state_t *st = &w->states[psp->state];
+
+	if (st->jumpstate == S_NULL)
+		return;
 
 	atkdef_c *attack = p->weapons[p->ready_wp].info->attack[0];
 
@@ -1302,7 +1307,7 @@ void A_TargetJump(mobj_t * mo, void *data)
 	if (! obj)
 		return;
 
-	P_SetWeaponStateDeferred(p, ps_crosshair, w, psp->state->jumpstate);
+	P_SetWeaponStateDeferred(p, ps_crosshair, w, st->jumpstate);
 }
 
 void A_FriendJump(mobj_t * mo, void *data)
@@ -1311,8 +1316,10 @@ void A_FriendJump(mobj_t * mo, void *data)
 	pspdef_t *psp = &p->psprites[p->action_psp];
 	weapondef_c *w = p->weapons[p->ready_wp].info;
 
-	if (psp->state->jumpstate == S_NULL)
-		return;  // show warning ?? error ???
+	state_t *st = &w->states[psp->state];
+
+	if (st->jumpstate == S_NULL)
+		return;
 
 	atkdef_c *attack = p->weapons[p->ready_wp].info->attack[0];
 
@@ -1327,7 +1334,7 @@ void A_FriendJump(mobj_t * mo, void *data)
 	if ((obj->side & mo->side) == 0 || obj->target == mo)
 		return;
 
-	P_SetWeaponStateDeferred(p, ps_crosshair, w, psp->state->jumpstate);
+	P_SetWeaponStateDeferred(p, ps_crosshair, w, st->jumpstate);
 }
 
 
@@ -1356,10 +1363,9 @@ void A_GunFlash  (mobj_t * mo, void *) { DoGunFlash(mo, 0); }
 void A_GunFlashSA(mobj_t * mo, void *) { DoGunFlash(mo, 1); }
 
 
-static void DoWeaponShoot(mobj_t * mo, int ATK)
+static void DoWeaponShoot(mobj_t * mo, int ATK, void *data)
 {
 	player_t *p = mo->player;
-	pspdef_t *psp = &p->psprites[p->action_psp];
 
 	SYS_ASSERT(p->ready_wp >= 0);
 
@@ -1367,8 +1373,8 @@ static void DoWeaponShoot(mobj_t * mo, int ATK)
 	atkdef_c *attack = w->attack[ATK];
 
 	// -AJA- 1999/08/10: Multiple attack support.
-	if (psp->state && psp->state->action_par)
-		attack = (atkdef_c *) psp->state->action_par;
+	if (data)
+		attack = (atkdef_c *) data;
 
 	if (! attack)
 		I_Error("Weapon [%s] missing attack for %s action.\n",
@@ -1450,8 +1456,8 @@ static void DoWeaponShoot(mobj_t * mo, int ATK)
 	p->idlewait = 0;
 }
 
-void A_WeaponShoot  (mobj_t * mo, void *) { DoWeaponShoot(mo, 0); }
-void A_WeaponShootSA(mobj_t * mo, void *) { DoWeaponShoot(mo, 1); }
+void A_WeaponShoot  (mobj_t * mo, void *data) { DoWeaponShoot(mo, 0, data); }
+void A_WeaponShootSA(mobj_t * mo, void *data) { DoWeaponShoot(mo, 1, data); }
 
 
 //
@@ -1462,13 +1468,12 @@ void A_WeaponShootSA(mobj_t * mo, void *) { DoWeaponShoot(mo, 1); }
 void A_WeaponEject(mobj_t * mo, void *data)
 {
 	player_t *p = mo->player;
-	pspdef_t *psp = &p->psprites[p->action_psp];
-
 	weapondef_c *w = p->weapons[p->ready_wp].info;
+
 	atkdef_c *attack = w->eject_attack;
 
-	if (psp->state && psp->state->action_par)
-		attack = (atkdef_c *) psp->state->action_par;
+	if (data)
+		attack = (atkdef_c *) data;
 
 	if (! attack)
 		I_Error("Weapon [%s] missing attack for EJECT action.\n",
@@ -1483,18 +1488,14 @@ void A_WeaponPlaySound(mobj_t * mo, void *data)
 	// Generate an arbitrary sound from this weapon.
 
 	player_t *p = mo->player;
-	pspdef_t *psp = &p->psprites[p->action_psp];
 
-	sfx_t *sound = NULL;
-
-	if (psp->state && psp->state->action_par)
-		sound = (sfx_t *) psp->state->action_par;
-
-	if (! sound)
+	if (! data)
 	{
 		M_WarnError("A_WeaponPlaySound: missing sound name !\n");
 		return;
 	}
+
+	sfx_t *sound = (sfx_t *) data;
 
 	S_StartFX(sound, WeapSfxCat(p), mo);
 }
@@ -1544,26 +1545,27 @@ void A_WeaponJump(mobj_t * mo, void *data)
 {
 	player_t *p = mo->player;
 	pspdef_t *psp = &p->psprites[p->action_psp];
-
 	weapondef_c *w = p->weapons[p->ready_wp].info;
 
 	act_jump_info_t *jump;
 
-	if (!psp->state || !psp->state->action_par)
+	if (psp->state == S_NULL || !data)
 	{
 		M_WarnError("JUMP used in weapon [%s] without a label !\n",
 				w->ddf.name.c_str());
 		return;
 	}
 
-	jump = (act_jump_info_t *) psp->state->action_par;
+	state_t *st = &w->states[psp->state];
+
+	jump = (act_jump_info_t *) data;
 
 	SYS_ASSERT(jump->chance >= 0);
 	SYS_ASSERT(jump->chance <= 1);
 
 	if (P_RandomTest(jump->chance))
 	{
-		psp->next_state = psp->state->jumpstate;
+		psp->next_state = st->jumpstate;
 	}
 }
 
@@ -1572,11 +1574,12 @@ void A_WeaponTransSet(mobj_t * mo, void *data)
 {
 	player_t *p = mo->player;
 	pspdef_t *psp = &p->psprites[p->action_psp];
+
 	float value = VISIBLE;
 
-	if (psp->state && psp->state->action_par)
+	if (data)
 	{
-		value = ((percent_t *) psp->state->action_par)[0];
+		value = *(percent_t *)data;
 		value = MAX(0.0f, MIN(1.0f, value));
 	}
 
@@ -1586,14 +1589,14 @@ void A_WeaponTransSet(mobj_t * mo, void *data)
 
 void A_WeaponTransFade(mobj_t * mo, void *data)
 {
-	player_t *p = mo->player;
+	player_t *p   = mo->player;
 	pspdef_t *psp = &p->psprites[p->action_psp];
 
 	float value = INVISIBLE;
 
-	if (psp->state && psp->state->action_par)
+	if (data)
 	{
-		value = ((percent_t *) psp->state->action_par)[0];
+		value = *(percent_t *)data;
 		value = MAX(0.0f, MIN(1.0f, value));
 	}
 
@@ -1603,24 +1606,20 @@ void A_WeaponTransFade(mobj_t * mo, void *data)
 
 void A_WeaponEnableRadTrig(mobj_t *mo, void *data)
 {
-	player_t *p = mo->player;
-	pspdef_t *psp = &p->psprites[p->action_psp];
-
-	if (psp->state && psp->state->action_par)
+	if (data)
 	{
-		int tag = *(int *)psp->state->action_par;
+		int tag = *(int *)data;
+
 		RAD_EnableByTag(mo, tag, false);
 	}
 }
 
 void A_WeaponDisableRadTrig(mobj_t *mo, void *data)
 {
-	player_t *p = mo->player;
-	pspdef_t *psp = &p->psprites[p->action_psp];
-
-	if (psp->state && psp->state->action_par)
+	if (data)
 	{
-		int tag = *(int *)psp->state->action_par;
+		int tag = *(int *)data;
+
 		RAD_EnableByTag(mo, tag, true);
 	}
 }
@@ -1629,16 +1628,11 @@ void A_WeaponDisableRadTrig(mobj_t *mo, void *data)
 void A_WeaponSetSkin(mobj_t * mo, void *data)
 {
 	player_t *p = mo->player;
-	pspdef_t *psp = &p->psprites[p->action_psp];
-
-	SYS_ASSERT(p->ready_wp >= 0);
 	weapondef_c *w = p->weapons[p->ready_wp].info;
 
-	const state_t *st = psp->state;
-
-	if (st && st->action_par)
+	if (data)
 	{
-		int skin = ((int *)st->action_par)[0];
+		int skin = *(int *)data;
 
 		if (skin < 0 || skin > 9)
 			I_Error("Weapon [%s]: Bad skin number %d in SET_SKIN action.\n",
