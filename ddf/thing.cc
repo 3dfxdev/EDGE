@@ -522,6 +522,7 @@ static bool ThingStartEntry(const char *buffer)
 	dynamic_mobj->ddf.number = number;
 
 	// instantiate the static entry
+	buffer_mobj.states.clear();
 	buffer_mobj.Default();
 
 	return (idx >= 0);
@@ -1532,8 +1533,8 @@ mobjtype_c *DDF_MobjMakeAttackObj(mobjtype_c *info, const char *atk_name)
 
 	mobjtype_c *result = new mobjtype_c;
 
-	result->CopyDetail(info[0]);
 	result->ddf.name.Set(name.c_str());
+	result->CopyDetail(info[0]);
 
 	// backwards compat
 	result->DLightCompatibility();
@@ -1887,6 +1888,15 @@ void mobjtype_c::CopyStates(mobjtype_c &src)
 
 	for (SI = src.states.begin(); SI != src.states.end(); SI++)
 		states.push_back(*SI);
+#if 0
+	I_Debugf("STATES FOR [%s]\n", ddf.name.c_str());
+	for (SI = src.states.begin(); SI != src.states.end(); SI++)
+	{
+		I_Debugf("  %s=%d:%d:x%d:%p -> %d\n",
+			SI->label ? SI->label : "=",
+			SI->sprite, SI->frame, SI->tics, SI->action, SI->nextstate);
+	}
+#endif
 }
 
 
