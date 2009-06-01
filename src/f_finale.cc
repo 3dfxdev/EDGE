@@ -673,7 +673,7 @@ static void CastDrawer(void)
 
 	if (cast_state->flags & SFF_Model)
 	{
-		modeldef_c *md = W_GetModel(cast_state->sprite);
+		modeldef_c *md = W_GetModel(cast_state->sprite, ((mobjtype_c*)cast_info)->states);
 
 		const image_c *skin_img = md->skins[cast_info->model_skin];
 

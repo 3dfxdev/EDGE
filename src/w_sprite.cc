@@ -430,6 +430,52 @@ static void CheckSpriteFrames(spritedef_c *def)
 	}
 }
 
+static void CountFramesInGroup(std::vector<state_t> & group)
+{
+	for (int i = 1; i < (int)group.size(); i++)
+	{
+		state_t *st = &group[i];
+
+		if (st->flags & SFF_Model)
+			continue;
+
+		if (st->sprite == SPR_NULL)
+			continue;
+
+		spritedef_c *def = sprites[st->sprite];
+
+		if (def->numframes < st->frame+1)
+			def->numframes = st->frame+1;
+	}
+}
+
+static void MarkWeaponSprites(void)
+{
+	epi::array_iterator_c it;
+	
+	for (it = weapondefs.GetIterator(weapondefs.GetDisabledCount());
+		 it.IsValid(); it++)
+	{
+		weapondef_c *w = ITERATOR_TO_TYPE(it, weapondef_c*);
+		if (! w) continue;
+
+		for (int i = 1; i < (int)w->states.size(); i++)
+		{
+			state_t *st = &w->states[i];
+
+			if (st->flags & SFF_Model)
+				continue;
+
+			if (st->sprite == SPR_NULL)
+				continue;
+
+			spritedef_c *def = sprites[st->sprite];
+
+			def->frames[st->frame].is_weapon = true;
+		}
+	}
+}
+
 //
 // W_InitSprites
 //
@@ -466,20 +512,22 @@ void W_InitSprites(void)
 
 	// 2. Scan the state table, count frames 
 
-	for (int stnum = 1; stnum < num_states; stnum++)
+	epi::array_iterator_c it;
+	
+	for (it = weapondefs.GetIterator(weapondefs.GetDisabledCount());
+		 it.IsValid(); it++)
 	{
-		state_t *st = &states[stnum];
+		weapondef_c *info = ITERATOR_TO_TYPE(it, weapondef_c*);
 
-		if (st->flags & SFF_Model)
-			continue;
+		if (info) CountFramesInGroup(info->states);
+	}
 
-		if (st->sprite == SPR_NULL)
-			continue;
+	for (it = mobjtypes.GetIterator(mobjtypes.GetDisabledCount());
+		 it.IsValid(); it++)
+	{
+		mobjtype_c *info = ITERATOR_TO_TYPE(it, mobjtype_c*);
 
-		spritedef_c *def = sprites[st->sprite];
-
-		if (def->numframes < st->frame+1)
-			def->numframes = st->frame+1;
+		if (info) CountFramesInGroup(info->states);
 	}
 
 	// 3. Allocate frames
@@ -495,21 +543,7 @@ void W_InitSprites(void)
 
 	// 4. Mark weapon frames
 
-	for (int st_kk = 1; st_kk < num_states; st_kk++)
-	{
-		state_t *st = &states[st_kk];
-
-		if (st->flags & SFF_Model)
-			continue;
-
-		if (st->sprite == SPR_NULL)
-			continue;
-
-		spritedef_c *def = sprites[st->sprite];
-
-		if (st->flags & SFF_Weapon)
-			def->frames[st->frame].is_weapon = true;
-	}
+	MarkWeaponSprites();
 
 	// 5. Fill in frames using wad lumps + images.ddf
 	
@@ -606,7 +640,7 @@ void W_PrecacheSprites(void)
 	{
 		for (int i = 1; i < (int)mo->info->states.size(); i++)
 		{
-			const state_t *st = &mo-info->states[i];
+			const state_t *st = &mo->info->states[i];
 
 			if (st->sprite < 1 || st->sprite >= numsprites)
 				continue;
