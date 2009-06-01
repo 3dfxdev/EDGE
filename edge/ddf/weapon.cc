@@ -273,6 +273,7 @@ static bool WeaponStartEntry(const char *name)
 	dynamic_weapon->ddf.number = 0;
 
 	// instantiate the static entries
+	buffer_weapon.states.clear();
 	buffer_weapon.Default();
 
 	return (existing != NULL);

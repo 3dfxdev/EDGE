@@ -143,6 +143,8 @@ static bool AttackStartEntry(const char *name)
 
 	// instantiate the static entries
 	buffer_atk.Default();
+
+	buffer_mobj.states.clear();
 	buffer_mobj.Default();
 
 	return (existing != NULL);
