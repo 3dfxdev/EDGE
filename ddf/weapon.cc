@@ -664,6 +664,8 @@ void weapondef_c::CopyDetail(weapondef_c &src)
 
 void weapondef_c::CopyStates(weapondef_c &src)
 {
+	states.clear();
+
 	std::vector<state_t>::iterator SI;
 
 	for (SI = src.states.begin(); SI != src.states.end(); SI++)
