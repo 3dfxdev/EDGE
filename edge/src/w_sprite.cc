@@ -536,9 +536,9 @@ void W_InitSprites(void)
 	{
 		spritedef_c *def = sprites[k];
 
-		SYS_ASSERT(def->numframes > 0);
+		int numframes = MAX(1, def->numframes);
 
-		def->frames = new spriteframe_c[def->numframes];
+		def->frames = new spriteframe_c[numframes];
 	}
 
 	// 4. Mark weapon frames

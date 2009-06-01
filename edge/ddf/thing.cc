@@ -1230,6 +1230,7 @@ static const specflags_t normal_specials[] =
 	{"SHOOTABLE", MF_SHOOTABLE, 0},
 	{"COUNT_AS_KILL", MF_COUNTKILL, 0},
 	{"COUNT_AS_ITEM", MF_COUNTITEM, 0},
+	{"SKULLFLY", MF_SKULLFLY, 0},
 	{"SPECIAL", MF_SPECIAL, 0},
 	{"SECTOR", MF_NOSECTOR, 1},
 	{"BLOCKMAP", MF_NOBLOCKMAP, 1},
@@ -1884,6 +1885,8 @@ void mobjtype_c::CopyDetail(mobjtype_c &src)
 
 void mobjtype_c::CopyStates(mobjtype_c &src)
 {
+	states.clear();
+
 	std::vector<state_t>::iterator SI;
 
 	for (SI = src.states.begin(); SI != src.states.end(); SI++)
