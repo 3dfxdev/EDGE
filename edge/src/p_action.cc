@@ -3402,7 +3402,7 @@ void A_Jump(mobj_t * mo, void *data)
 
 	if (P_RandomTest(jump->chance))
 	{
-		const state_t *st = &mo->info->states[mo->ztate];
+		const state_t *st = &mo->info->states[mo->state];
 
 		mo->next_state = st->jumpstate;
 	}

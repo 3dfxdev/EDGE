@@ -88,7 +88,7 @@ static savefield_t sv_fields_mobj[] =
 	SF(speed, "speed", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
 	SF(fuse, "fuse", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(info, "info", 1, SVT_STRING, SR_MobjGetType, SR_MobjPutType),
-	SF(ztate, "state", 1, SVT_STRING, SR_MobjGetState, SR_MobjPutState),
+	SF(state, "state", 1, SVT_STRING, SR_MobjGetState, SR_MobjPutState),
 	SF(next_state, "next_state", 1, SVT_STRING, SR_MobjGetState, SR_MobjPutState),
 	SF(tics, "tics", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(flags, "flags", 1, SVT_INT, SR_GetInt, SR_PutInt),
@@ -337,7 +337,7 @@ void SV_MobjCreateElems(int num_elems)
 
 		// initialise defaults
 		cur->info = mobjtypes[0];
-		cur->ztate = cur->next_state = 1;
+		cur->state = cur->next_state = 1;
 
 		cur->model_skin = 1;
 		cur->model_last_frame = -1;

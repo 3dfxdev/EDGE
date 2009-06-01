@@ -240,7 +240,7 @@ struct mobj_s : public position_c
 	int tics;
 	int tic_skip;
 
-	int ztate;
+	int state;
 	int next_state;
 
 	// flags (Old and New)
@@ -360,7 +360,7 @@ struct mobj_s : public position_c
 public:
 	inline bool isRemoved()
 	{
-		return (ztate == S_NULL);
+		return (state == S_NULL);
 	}
 	
 	void SetTracer(mobj_t *ref);

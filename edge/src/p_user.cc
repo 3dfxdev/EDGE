@@ -290,7 +290,7 @@ static void MovePlayer(player_t * player)
 			S_StartFX(sfx_jpidle, sfx_cat, player->mo);
 	}
 
-	if (player->mo->ztate == player->mo->info->idle_state)
+	if (player->mo->state == player->mo->info->idle_state)
 	{
 		if (!jumping && !flying && (onground || swimming) &&
 		    (cmd->forwardmove || cmd->sidemove))

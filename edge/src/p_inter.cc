@@ -1123,7 +1123,7 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor, mobj_t * source,
 		target->SetTarget(source);
 		target->threshold = BASETHRESHOLD;
 
-		if ((target->ztate == target->info->idle_state) &&
+		if ((target->state == target->info->idle_state) &&
 		    target->info->chase_state != S_NULL)
 		{
 			P_SetMobjStateDeferred(target, target->info->chase_state, 0);

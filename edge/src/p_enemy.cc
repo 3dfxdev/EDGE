@@ -227,7 +227,7 @@ bool P_Move(mobj_t * mo, bool path)
 		mo->z = mo->floorz;
 
 	// -AJA- 2008/01/16: position interpolation
-	const state_t *st = &mo->info->states[mo->ztate];
+	const state_t *st = &mo->info->states[mo->state];
 
 	if ((st->flags & SFF_Model) || (mo->flags & MF_FLOAT))
 	{

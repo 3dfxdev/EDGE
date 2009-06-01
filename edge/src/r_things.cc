@@ -568,9 +568,9 @@ static const image_c * R2_GetThingSprite2(mobj_t *mo, float mx, float my, bool *
 	// Note: can return NULL for no image.
 
 	// decide which patch to use for sprite relative to player
-	SYS_ASSERT(mo->ztate != S_NULL);
+	SYS_ASSERT(mo->state != S_NULL);
 
-	const state_t *st = &mo->info->states[mo->ztate];
+	const state_t *st = &mo->info->states[mo->state];
 
 	if (st->sprite == SPR_NULL)
 		return NULL;
@@ -864,7 +864,7 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 {
 	/* Visit a single thing that exists in the current subsector */
 
-	SYS_ASSERT(mo->ztate != S_NULL);
+	SYS_ASSERT(mo->state != S_NULL);
 
 	// ignore the camera itself
 	if (mo == view_cam_mo && num_active_mirrors == 0)
@@ -874,7 +874,7 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 	if (mo->visibility == INVISIBLE)
 		return;
 
-	bool is_model = (mo->info->states[mo->ztate].flags & SFF_Model) ? true:false;
+	bool is_model = (mo->info->states[mo->state].flags & SFF_Model) ? true:false;
 
 	// transform the origin point
 	float mx = mo->x, my = mo->y, mz = mo->z;
@@ -1080,7 +1080,7 @@ static void RGL_DrawModel(drawthing_t *dthing)
 {
 	mobj_t *mo = dthing->mo;
 
-	const state_t *st = &mo->info->states[mo->ztate];
+	const state_t *st = &mo->info->states[mo->state];
 
 	modeldef_c *md = W_GetModel(st->sprite, ((mobjtype_c*)mo->info)->states);
 
@@ -1289,7 +1289,7 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 
 	if (! is_fuzzy)
 	{
-		abstract_shader_c *shader = R_GetColormapShader(dthing->props, mo->info->states[mo->ztate].bright);
+		abstract_shader_c *shader = R_GetColormapShader(dthing->props, mo->info->states[mo->state].bright);
 
 		for (int v=0; v < 4; v++)
 		{
