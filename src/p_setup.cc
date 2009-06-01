@@ -985,9 +985,9 @@ static void SpawnMapThing(const mobjtype_c *info,
 	mo->angle = angle;
 	mo->spawnpoint = point;
 
-	if (mo->ztate)
+	if (mo->state)
 	{
-		int st_tics = mo->info->states[mo->ztate].tics;
+		int st_tics = mo->info->states[mo->state].tics;
 
 		if (st_tics > 1)
 			mo->tics = 1 + (P_Random() % st_tics);

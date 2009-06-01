@@ -138,10 +138,10 @@ static void EnterBounceStates(mobj_t * mo)
 		return;
 
 	// give deferred states a higher priority
-	if (mo->ztate == S_NULL)
+	if (mo->state == S_NULL)
 		return;
 
-	const state_t *st = &mo->info->states[mo->ztate];
+	const state_t *st = &mo->info->states[mo->state];
 	if (mo->next_state != st->nextstate)
 		return;
 
@@ -488,7 +488,7 @@ bool P_SetMobjState(mobj_t * mo, int stnum)
 	SYS_ASSERT(stnum < (int)mo->info->states.size());
 
 	const state_t *st  = &mo->info->states[stnum];
-	const state_t *old = &mo->info->states[mo->ztate];
+	const state_t *old = &mo->info->states[mo->state];
 
 	// model interpolation stuff
 	if ((st->flags & SFF_Model) && (old->flags & SFF_Model) &&
@@ -499,7 +499,7 @@ bool P_SetMobjState(mobj_t * mo, int stnum)
 	else
 		mo->model_last_frame = -1;
 
-	mo->ztate = stnum;
+	mo->state = stnum;
 	mo->next_state = st->nextstate;
 	mo->tics = st->tics;
 
@@ -1236,7 +1236,7 @@ static void P_MobjThinker(mobj_t * mo)
 	SYS_ASSERT_MSG(mo->next != (mobj_t *)-1,
 		("P_MobjThinker INTERNAL ERROR: mobj has been Z_Freed"));
 
-	SYS_ASSERT(mo->ztate != S_NULL);
+	SYS_ASSERT(mo->state != S_NULL);
 	SYS_ASSERT(mo->refcount >= 0);
 
 	mo->ClearStaleRefs();
@@ -1547,7 +1547,7 @@ void P_RemoveMobj(mobj_t *mo)
 	}
 
 	// mark as REMOVED
-	mo->ztate = S_NULL;
+	mo->state = S_NULL;
 	mo->next_state = S_NULL;
 
 	// Clear all references to other mobjs
@@ -1657,10 +1657,10 @@ void P_SpawnBlood(float x, float y, float z, float damage,
 		if (th->tics < 1)
 			th->tics = 1;
 
-		if (damage <= 12 && th->ztate && th->next_state)
+		if (damage <= 12 && th->state && th->next_state)
 			P_SetMobjState(th, th->next_state);
 
-		if (damage <= 8 && th->ztate && th->next_state)
+		if (damage <= 8 && th->state && th->next_state)
 			P_SetMobjState(th, th->next_state);
 	}
 }
@@ -1833,7 +1833,7 @@ mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c *info)
 	else if (info->meander_state)
 		state = info->meander_state;
 
-	mo->ztate = state;
+	mo->state = state;
 	mo->next_state = state;
 	mo->tics = mo->tic_skip = 0;
 
