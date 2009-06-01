@@ -2753,9 +2753,8 @@ static void LineSet_InsertFree(drawseg2_c *dseg)
 	free_lines.insert(LI, dseg);
 }
 
-/*inline*/ float ApproxPerpDist(
-				float x, float y,
-                float x1, float y1, float x2, float y2)
+static inline float ApproxPerpDist( float x, float y,
+						float x1, float y1, float x2, float y2)
 {
 	x  -= x1; y  -= y1;
 	x2 -= x1; y2 -= y1;
@@ -2769,7 +2768,7 @@ static void LineSet_InsertFree(drawseg2_c *dseg)
 	return (x * y2 - y * x2) / len;
 }
 
-static /*inline*/ int LineSet_Overlap(drawseg2_c *A, drawseg2_c *B)
+static inline int LineSet_Overlap(drawseg2_c *A, drawseg2_c *B)
 {
 	// RETURN:  0 if no overlap
 	//         -1 if A is closer than (blocks) B
@@ -2803,23 +2802,8 @@ static /*inline*/ int LineSet_Overlap(drawseg2_c *A, drawseg2_c *B)
 	float b1 = ApproxPerpDist(bv1->x, bv1->y,  av1->x, av1->y, av2->x, av2->y);
 	float b2 = ApproxPerpDist(bv2->x, bv2->y,  av1->x, av1->y, av2->x, av2->y);
 
-		float ca = ApproxPerpDist(viewx, viewy,  av1->x, av1->y, av2->x, av2->y);
-		float cb = ApproxPerpDist(viewx, viewy,  bv1->x, bv1->y, bv2->x, bv2->y);
-
-if (true)
-I_Debugf("a: %+8.3f %+8.3f  b: %+8.3f %+8.3f  ac:%+8.3f  bc:%+8.3f\n",
-         a1, a2, b1, b2, ca, cb);
-
-if (true)
-	if (fabs(a1) < 0.01 && fabs(a2) < 0.01 &&
-	    fabs(b1) < 0.01 && fabs(b2) < 0.01)
-	{
-		I_Debugf("OVERLAPPING SEGS:\n");
-		I_Debugf("  A = (%1.1f %1.1f) -> (%1.1f %1.1f)\n", av1->x, av1->y, av2->x, av2->y);
-		I_Debugf("  B = (%1.1f %1.1f) -> (%1.1f %1.1f)\n", bv1->x, bv1->y, bv2->x, bv2->y);
-		I_Debugf("  A = %08x-%08x B = %08x-%08x\n", A->right, A->left, B->right, B->left);
-	}
-
+if (false)
+I_Debugf("a: %+8.3f %+8.3f  b: %+8.3f %+8.3f\n", a1, a2, b1, b2);
 
 	int a_side = 0;
 	int b_side = 0;
@@ -2830,19 +2814,15 @@ if (true)
 	if (b1 >  0.01 && b2 >  0.01) b_side = +1;
 	if (b1 < -0.01 && b2 < -0.01) b_side = -1;
 
-	if (a_side == 0 || b_side == 0)
-		return 0;
+///???	if (a_side == 0 || b_side == 0)
+///???		return 0;
 	
 	if (b_side != 0)
 	{
 		// B is completely on one side of A,
 		// check if camera is on same side or not
 
-
-		int c_side = (ca > 0.01) ? +1 : (ca < -0.01) ? -1 : 0;
-
-		if (c_side != 0)
-			return (c_side == b_side) ? +1 : -1;
+		return b_side;
 	}
 
 	if (a_side != 0)
@@ -2850,43 +2830,11 @@ if (true)
 		// A is completely on one side of B,
 		// check if camera is on same side or not
 
-
-		int c_side = (cb > 0.01) ? +1 : (cb < -0.01) ? -1 : 0;
-
-		if (c_side != 0)
-			return (c_side == a_side) ? -1 : +1;
+		return -a_side;
 	}
 
 	// we should not get here, but no biggie
-	I_Debugf("FUCK\n");
-
 	return 0;
-
-#if 0
-	divline_t A_div;
-	divline_t B_div;
-
-	A_div.x  = A->seg->v1->x;
-	A_div.y  = A->seg->v1->y;
-	A_div.dx = A->seg->v2->x - A_div.x;
-	A_div.dy = A->seg->v2->y - A_div.y;
-
-	int side1 = P_PointOnDivlineSide(B->seg->v1->x, B->seg->v1->y, &A_div);
-	int side2 = P_PointOnDivlineSide(B->seg->v2->x, B->seg->v2->y, &A_div);
-
-	if (side1 == side2)
-		return (P_PointOnDivlineSide(viewx, viewy, &A_div) == side1) ? +1 : -1;
-
-	B_div.x  = B->seg->v1->x;
-	B_div.y  = B->seg->v1->y;
-	B_div.dx = B->seg->v2->x - B_div.x;
-	B_div.dy = B->seg->v2->y - B_div.y;
-
-	int side3 = P_PointOnDivlineSide(A->seg->v1->x, A->seg->v1->y, &B_div);
-	// we assume side4 would be the same
-
-	return (P_PointOnDivlineSide(viewx, viewy, &B_div) == side3) ? -1 : +1;
-#endif
 }
 
 static void LineSet_TestBlocking(drawseg2_c *A)
