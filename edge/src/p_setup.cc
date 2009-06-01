@@ -122,16 +122,6 @@ epi::crc32_c mapthing_CRC;
 
 int mapthing_NUM;
 
-// REJECT
-//
-// For fast sight rejection.
-// Speeds up enemy AI by skipping detailed
-//  LineOf Sight calculation.
-// Without special effect, this could be
-//  used as a PVS lookup as well.
-// Can be NULL.
-//
-const byte *rejectmatrix;
 
 static bool hexen_level;
 static bool v5_nodes;
@@ -2057,33 +2047,6 @@ static void CreateVertexSeclists(void)
 }
 
 
-static void LoadReject(int lump)
-{
-	int req_length;
-
-	if (! W_VerifyLumpName(lump, "REJECT"))
-		I_Error("Bad WAD: level %s missing REJECT.  Build the nodes !\n", 
-		currmap->lump.c_str());
-
-///	if (W_LumpLength(lump) == 0)
-///		I_Error("Bad WAD: level %s missing REJECT.  Build the nodes !\n", 
-///		currmap->lump.c_str());
-
-	req_length = (numsectors * numsectors + 7) / 8;
-
-	if (W_LumpLength(lump) < req_length)
-	{
-		M_WarnError("Level %s has invalid REJECT info !\n", 
-					currmap->lump.c_str());
-					
-		rejectmatrix = NULL;
-		return;
-	}
-
-	rejectmatrix = (const byte*)W_CacheLumpNum(lump);
-}
-
-
 static void P_RemoveSectorStuff(void)
 {
 	int i;
@@ -2139,9 +2102,6 @@ void ShutdownLevel(void)
 	delete[] v_seclists;   v_seclists = NULL;
 
 	P_DestroyBlockMap();
-
-	if (rejectmatrix)
-		W_DoneWithLump(rejectmatrix);
 }
 
 
@@ -2259,7 +2219,8 @@ void P_SetupLevel(void)
 	LoadGLSegs(gl_lumpnum + ML_GL_SEGS);
 	LoadSubsectors(gl_lumpnum + ML_GL_SSECT, "GL_SSECT");
 	LoadNodes(gl_lumpnum + ML_GL_NODES, "GL_NODES");
-	LoadReject(lumpnum + ML_REJECT);
+
+	// REJECT is ignored
 
 	DoBlockMap(lumpnum + ML_BLOCKMAP);
 
