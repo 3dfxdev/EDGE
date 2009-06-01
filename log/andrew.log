@@ -1,5 +1,17 @@
 Andrew Apted's Log
 
+2009/06/01:
+
+Removed the global states[] array, in favour of storing the
+states locally in each DDF mobjtype_c or weapondef_c.  It
+was a bigger job than it sounds :-)
+
+Added 'SKULLFLY' special to DDF (for DeHackEd compat).
+
+Replaced various code that used the BSP with equivalent
+using the blockmap, like: P_CheckSight, R_PointInSubsector,
+P_ThingsOnLine, and the automap rendering.
+
 2009/05/28:
 
 Split P_SpawnSpecials() into two functions, one which is
