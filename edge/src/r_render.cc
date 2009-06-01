@@ -2806,7 +2806,7 @@ static /*inline*/ int LineSet_Overlap(drawseg2_c *A, drawseg2_c *B)
 		float ca = ApproxPerpDist(viewx, viewy,  av1->x, av1->y, av2->x, av2->y);
 		float cb = ApproxPerpDist(viewx, viewy,  bv1->x, bv1->y, bv2->x, bv2->y);
 
-if (false)
+if (true)
 I_Debugf("a: %+8.3f %+8.3f  b: %+8.3f %+8.3f  ac:%+8.3f  bc:%+8.3f\n",
          a1, a2, b1, b2, ca, cb);
 
@@ -2842,7 +2842,7 @@ if (true)
 		int c_side = (ca > 0.01) ? +1 : (ca < -0.01) ? -1 : 0;
 
 		if (c_side != 0)
-			return (c_side == b_side) ? -1 : +1;
+			return (c_side == b_side) ? +1 : -1;
 	}
 
 	if (a_side != 0)
@@ -2854,7 +2854,7 @@ if (true)
 		int c_side = (cb > 0.01) ? +1 : (cb < -0.01) ? -1 : 0;
 
 		if (c_side != 0)
-			return (c_side == a_side) ? +1 : -1;
+			return (c_side == a_side) ? -1 : +1;
 	}
 
 	// we should not get here, but no biggie
@@ -2889,62 +2889,65 @@ if (true)
 #endif
 }
 
-static void LineSet_TestBlocking(drawseg2_c *dseg)
+static void LineSet_TestBlocking(drawseg2_c *A)
 {
-	SYS_ASSERT(dseg);
-	SYS_ASSERT(dseg->seg);
+	SYS_ASSERT(A);
+	SYS_ASSERT(A->seg);
 
 	std::list<drawseg2_c *>::iterator LI;
 
-	for (LI = free_lines.begin(); LI != free_lines.end(); )
+	for (LI = blocked_lines.begin(); LI != blocked_lines.end(); )
 	{
-		drawseg2_c *other = *LI; LI++;
-		SYS_ASSERT(other);
-		SYS_ASSERT(other->seg);
+		drawseg2_c *B = *LI; LI++;
+		SYS_ASSERT(B);
+		SYS_ASSERT(B->seg);
 
-		int cmp = LineSet_Overlap(dseg, other);
+		int cmp = LineSet_Overlap(A, B);
 
 		if (cmp < 0)
 		{
+			A->occludes.push_back(B);
+			B->blockers++;
+		}
+		else if (cmp > 0)
+		{
+			B->occludes.push_back(A);
+			A->blockers++;
+		}
+	}
+
+	for (LI = free_lines.begin(); LI != free_lines.end(); )
+	{
+		drawseg2_c *B = *LI; LI++;
+		SYS_ASSERT(B);
+		SYS_ASSERT(B->seg);
+
+		int cmp = LineSet_Overlap(A, B);
+
+		if (cmp < 0)
+		{
+			A->occludes.push_back(B);
+			B->blockers++;
+
 			// the new seg occludes an existing 'free' line,
 			// hence that must be moved to the blocked list.
-			free_lines.remove(other);
-			blocked_lines.push_back(other);
-
-			dseg->occludes.push_back(other);
-			other->blockers++;
+			free_lines.remove(B);
+			blocked_lines.push_back(B);
 		}
 		else if (cmp > 0)
 		{
 			// the new seg is occluded
-			other->occludes.push_back(dseg);
-			dseg->blockers++;
+			B->occludes.push_back(A);
+			A->blockers++;
 		}
 	}
 
-	for (LI = blocked_lines.begin(); LI != blocked_lines.end(); )
-	{
-		drawseg2_c *other = *LI; LI++;
-		SYS_ASSERT(other);
-		SYS_ASSERT(other->seg);
-
-		int cmp = LineSet_Overlap(dseg, other);
-
-		if (cmp < 0)
-		{
-			dseg->occludes.push_back(other);
-			other->blockers++;
-		}
-		else if (cmp > 0)
-		{
-			other->occludes.push_back(dseg);
-			dseg->blockers++;
-		}
-	}
 }
 
 static void LineSet_AddSeg(seg_t *seg)
 {
+//I_Debugf("  trying seg %d, linedef %d:%d\n", seg - segs,
+//seg->linedef ? seg->linedef - lines : -1, seg->side);
 	float sx1 = seg->v1->x;
 	float sy1 = seg->v1->y;
 
@@ -2995,10 +2998,12 @@ static void LineSet_AddSeg(seg_t *seg)
 	
 	if (span == 0)
 		return;
+//I_Debugf("    survived clipping\n");
 
 	// visibility test
 	if (RGL_1DOcclusionTest(angle_R, angle_L))
 		return;
+//I_Debugf("    survived 1D occlusion\n");
 
 	drawseg2_c *dseg = new drawseg2_c(seg);
 
@@ -3010,6 +3015,7 @@ static void LineSet_AddSeg(seg_t *seg)
 
 	LineSet_TestBlocking(dseg);
 
+//I_Debugf("    ---> %s\n", dseg->blockers ? "blocked_lines" : "free_list");
 	if (dseg->blockers == 0)
 		LineSet_InsertFree(dseg);
 	else
@@ -3034,6 +3040,9 @@ static drawseg2_c * LineSet_RemoveFirst(void)
 
 	drawseg2_c *dseg = free_lines.front();
 
+//I_Debugf("  handling seg %d, linedef %d:%d\n", dseg->seg - segs,
+//dseg->seg->linedef ? dseg->seg->linedef - lines : -1, dseg->seg->side);
+
 	free_lines.pop_front();
 
 	// removing this seg causes other lines to become unblocked
@@ -3048,6 +3057,7 @@ static drawseg2_c * LineSet_RemoveFirst(void)
 
 		if (other->blockers == 0)
 		{
+//I_Debugf("    unblocked seg %d\n", other->seg - segs);
 			blocked_lines.remove(other);
 			LineSet_InsertFree(other);
 		}
@@ -3058,6 +3068,7 @@ static drawseg2_c * LineSet_RemoveFirst(void)
 
 static void RGL_WalkSubsector2(subsector_t *sub)
 {
+//I_Debugf("  WALKING SUBSECTOR %d\n", sub - subsectors);
 	RGL_WalkSubsector(sub, false);
 
 	sub->rend_seen = framecount;
@@ -3137,6 +3148,7 @@ static void RGL_WalkSeg2(drawseg2_c *dseg)
 
 static void RGL_WalkLevel(void)
 {
+//I_Debugf("RGL_WalkLevel @ (%1.2f %1.2f)\n", viewx, viewy);
 	LineSet_Init();
 
 	RGL_WalkSubsector2(viewsubsector);
