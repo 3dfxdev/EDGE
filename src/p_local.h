@@ -302,9 +302,6 @@ void P_LineAttack(mobj_t * t1, angle_t angle, float distance, float slope, float
 // -AJA- 2000/07/31: line data changed back to shorts.
 //
 
-// for fast sight rejection.  Can be NULL
-extern const byte *rejectmatrix;
-
 
 //
 // P_INTER

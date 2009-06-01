@@ -296,55 +296,6 @@ static bool CheckSightSameSubsector(mobj_t *src, mobj_t *dest)
 	return false;
 }
 
-//
-// P_CheckSight
-//
-// Returns true if a straight line between t1 and t2 is unobstructed.
-// Uses the REJECT info.
-//
-static inline bool DoCheckReject(sector_t *sec1, sector_t *sec2)
-{
-#if 0  // PROFILING
-	{
-		static int lasttime = 0;
-
-		if (leveltime - lasttime > 5*TICRATE)
-		{
-			L_WriteDebug("REJECT  HIT %d  MISS %d\n", sight_rej_hit,
-				sight_rej_miss);
-
-			sight_rej_hit = sight_rej_miss = 0;
-			lasttime = leveltime;
-		}
-	}
-#endif
-
-	// Determine subsector entries in REJECT table.
-	if (rejectmatrix)
-	{
-		int s1 = sec1 - sectors;
-		int s2 = sec2 - sectors;
-		int pnum = s1 * numsectors + s2;
-		int bytenum = pnum >> 3;
-		int bitnum = 1 << (pnum & 7);
-
-		if (rejectmatrix[bytenum] & bitnum)
-		{
-#ifdef DEVELOPERS
-			sight_rej_hit++;
-#endif
-			// can't possibly be connected
-			return false;
-		}
-	}
-
-#ifdef DEVELOPERS
-	sight_rej_miss++;
-#endif
-
-	return true;
-}
-
 bool P_CheckSight(mobj_t * src, mobj_t * dest)
 {
 	// -ACB- 1998/07/20 t2 is Invisible, t1 cannot possibly see it.
@@ -360,9 +311,6 @@ bool P_CheckSight(mobj_t * src, mobj_t * dest)
 
 	SYS_ASSERT(src->subsector);
 	SYS_ASSERT(dest->subsector);
-
-	if (! DoCheckReject(src->subsector->sector, dest->subsector->sector))
-		return false;
 
 	// An unobstructed LOS is possible.
 	// Now look from eyes of t1 to any part of t2.
@@ -488,9 +436,6 @@ bool P_CheckSightToPoint(mobj_t * src, float x, float y, float z)
 
 	if (dest_sub == src->subsector)
 		return true;
-
-	if (! DoCheckReject(src->subsector->sector, dest_sub->sector))
-		return false;
 
 	validcount++;
 
