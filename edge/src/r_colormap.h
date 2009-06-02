@@ -93,20 +93,7 @@ abstract_shader_c *R_GetColormapShader(
 // text translation tables
 extern const byte *font_whitener;
 extern const colourmap_c *font_whiten_map;
-
-extern const colourmap_c *text_red_map;
 extern const colourmap_c *text_white_map;
-extern const colourmap_c *text_grey_map;
-extern const colourmap_c *text_green_map;
-extern const colourmap_c *text_brown_map;
-extern const colourmap_c *text_blue_map;
-extern const colourmap_c *text_purple_map;
-extern const colourmap_c *text_yellow_map;
-extern const colourmap_c *text_orange_map;
-
-// automap translation tables
-extern const byte *am_normal_colmap;
-extern const byte *am_overlay_colmap;
 
 // colour indices from palette
 extern int pal_black,  pal_white,  pal_gray239;
