@@ -794,7 +794,6 @@ int GetKeycode(event_t *ev)
 		case KEYD_ENTER:
 		case KEYD_ESCAPE:
 			return sym;
-			break;
 
 		default:
 			break;
@@ -825,8 +824,6 @@ bool CON_Responder(event_t * ev)
     // uppercase characters in the untranslated
     // value. -ACB- 2008/09/21 
     int key = GetKeycode(ev);
-    if (key == KEYD_IGNORE)
-        return false;
 
 	if (ev->type == ev_keyup)
 	{
@@ -845,6 +842,9 @@ bool CON_Responder(event_t * ev)
 	}
 	else if (ev->type == ev_keydown)
 	{
+		if (key == KEYD_IGNORE)
+			return true;
+
 		// Okay, fine. Most keys don't repeat
 		switch (key)
 		{
