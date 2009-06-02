@@ -97,9 +97,6 @@ subsector_t *subsectors;
 int numextrafloors;
 extrafloor_t *extrafloors;
 
-int numnodes;
-node_t *nodes;
-
 int numlines;
 line_t *lines;
 
@@ -520,7 +517,7 @@ static void LoadV3Subsectors(const byte *data, int length)
 
 		ss->sector = NULL;
 
-		// this is updated when the nodes are loaded
+		// FIXME: subsector bbox
 		ss->bbox = dummy_bbox;
 
 		for (j = 0; j < countsegs; j++)
@@ -610,7 +607,7 @@ static void LoadSubsectors(int lump, const char *name)
 
 		ss->sector = NULL;
 
-		// this is updated when the nodes are loaded
+		// FIXME: subsector bbox
 		ss->bbox = dummy_bbox;
 
 		for (j = 0; j < countsegs; j++)
@@ -756,138 +753,6 @@ static void LoadSectors(int lump)
 	}
 
 	W_DoneWithLump(data);
-}
-
-static void SetupRootNode(void)
-{
-	if (numnodes > 0)
-	{
-	}
-	else
-	{
-		// compute bbox for the single subsector
-		M_ClearBox(dummy_bbox);
-
-		int i;
-		seg_t *seg;
-
-		for (i=0, seg=segs; i < numsegs; i++, seg++)
-		{
-			M_AddToBox(dummy_bbox, seg->v1->x, seg->v1->y);
-			M_AddToBox(dummy_bbox, seg->v2->x, seg->v2->y);
-		}
-	}
-}
-
-
-static void LoadV5Nodes(const void *data, int length)
-{
-	int i, j;
-	const raw_v5_node_t *mn;
-	node_t *nd;
-
-	numnodes = length / sizeof(raw_v5_node_t);
-
-	nodes = new node_t[numnodes+1];
-		
-	Z_Clear(nodes, node_t, numnodes);
-
-	mn = (const raw_v5_node_t *) data;
-	nd = nodes;
-
-	for (i = 0; i < numnodes; i++, nd++, mn++)
-	{
-		nd->div.x  = EPI_LE_S16(mn->x);
-		nd->div.y  = EPI_LE_S16(mn->y);
-		nd->div.dx = EPI_LE_S16(mn->dx);
-		nd->div.dy = EPI_LE_S16(mn->dy);
-
-		nd->div_len = R_PointToDist(0, 0, nd->div.dx, nd->div.dy);
-
-		for (j = 0; j < 2; j++)
-		{
-			nd->children[j] = EPI_LE_U32(mn->children[j]);
-
-			nd->bbox[j][BOXTOP]    = (float) EPI_LE_S16(mn->bbox[j].maxy);
-			nd->bbox[j][BOXBOTTOM] = (float) EPI_LE_S16(mn->bbox[j].miny);
-			nd->bbox[j][BOXLEFT]   = (float) EPI_LE_S16(mn->bbox[j].minx);
-			nd->bbox[j][BOXRIGHT]  = (float) EPI_LE_S16(mn->bbox[j].maxx);
-
-			// update bbox pointers in subsector
-			if (nd->children[j] & NF_V5_SUBSECTOR)
-			{
-				subsector_t *ss = subsectors + (nd->children[j] & ~NF_V5_SUBSECTOR);
-				ss->bbox = &nd->bbox[j][0];
-			}
-		}
-	}
-
-	SetupRootNode();
-}
-
-
-static void LoadNodes(int lump, const char *name)
-{
-	int i, j;
-	const raw_node_t *mn;
-	node_t *nd;
-
-	if (! W_VerifyLumpName(lump, name))
-		I_Error("Bad WAD: level %s missing %s.\n", 
-				currmap->lump.c_str(), name);
-
-	// Note: zero numnodes is valid.
-	int length = W_LumpLength(lump);
-	const void *data = W_CacheLumpNum(lump);
-
-	if (v5_nodes)
-	{
-		LoadV5Nodes(data, length);
-		W_DoneWithLump(data);
-		return;
-	}
-
-	numnodes = length / sizeof(raw_node_t);
-
-	nodes = new node_t[numnodes+1];
-		
-	Z_Clear(nodes, node_t, numnodes);
-
-	mn = (const raw_node_t *) data;
-	nd = nodes;
-
-	for (i = 0; i < numnodes; i++, nd++, mn++)
-	{
-		nd->div.x  = EPI_LE_S16(mn->x);
-		nd->div.y  = EPI_LE_S16(mn->y);
-		nd->div.dx = EPI_LE_S16(mn->dx);
-		nd->div.dy = EPI_LE_S16(mn->dy);
-
-		nd->div_len = R_PointToDist(0, 0, nd->div.dx, nd->div.dy);
-
-		for (j = 0; j < 2; j++)
-		{
-			nd->children[j] = EPI_LE_U16(mn->children[j]);
-
-			nd->bbox[j][BOXTOP]    = (float) EPI_LE_S16(mn->bbox[j].maxy);
-			nd->bbox[j][BOXBOTTOM] = (float) EPI_LE_S16(mn->bbox[j].miny);
-			nd->bbox[j][BOXLEFT]   = (float) EPI_LE_S16(mn->bbox[j].minx);
-			nd->bbox[j][BOXRIGHT]  = (float) EPI_LE_S16(mn->bbox[j].maxx);
-
-			// change to correct bit, and update bbox pointers
-			if (nd->children[j] & NF_SUBSECTOR)
-			{
-				nd->children[j] = NF_V5_SUBSECTOR | (nd->children[j] & ~NF_SUBSECTOR);
-
-				subsector_t *ss = subsectors + (nd->children[j] & ~NF_V5_SUBSECTOR);
-				ss->bbox = &nd->bbox[j][0];
-			}
-		}
-	}
-
-	W_DoneWithLump(data);
-
-	SetupRootNode();
 }
 
 
@@ -2088,7 +1953,6 @@ void ShutdownLevel(void)
 	DDF_BoomClearGenTypes();
 
 	delete[] segs;         segs = NULL;
-	delete[] nodes;        nodes = NULL;
 	delete[] vertexes;     vertexes = NULL;
 	delete[] sides;        sides = NULL;
 	delete[] lines;        lines = NULL;
@@ -2218,7 +2082,6 @@ void P_SetupLevel(void)
 	LoadGLVertexes(gl_lumpnum + ML_GL_VERT);
 	LoadGLSegs(gl_lumpnum + ML_GL_SEGS);
 	LoadSubsectors(gl_lumpnum + ML_GL_SSECT, "GL_SSECT");
-	LoadNodes(gl_lumpnum + ML_GL_NODES, "GL_NODES");
 
 	// REJECT is ignored
 

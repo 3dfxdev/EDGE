@@ -523,22 +523,6 @@ typedef struct divline_s
 }
 divline_t;
 
-//
-// BSP node.
-//
-typedef struct node_s
-{
-	divline_t div;
-	float div_len;
-
-	// bit NF_V5_SUBSECTOR set for a subsector.
-	unsigned int children[2];
-
-	// Bounding boxes for this node.
-	float bbox[2][4];
-}
-node_t;
-
 
 #endif /*__R_DEFS__*/
 
