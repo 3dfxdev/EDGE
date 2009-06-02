@@ -546,13 +546,13 @@ static menuinfo_t soundoptionsinfo =
 //
 static optmenuitem_t playoptions[] =
 {
-	{OPT_Switch,  "AutoAiming",         AAim, 3, 
-     CFGDEF_AUTOAIM,     
-     &global_flags.autoaim, M_ChangeAutoAim, NULL},
-
 	{OPT_Boolean, "Mouse Look",         YesNo, 2, 
      CFGDEF_MLOOK,       
      &global_flags.mlook, M_ChangeMLook, NULL},
+
+	{OPT_Switch,  "AutoAiming",         AAim, 3, 
+     CFGDEF_AUTOAIM,     
+     &global_flags.autoaim, M_ChangeAutoAim, NULL},
 
 	{OPT_Boolean, "Jumping",            YesNo, 2, 
      CFGDEF_JUMP,        
