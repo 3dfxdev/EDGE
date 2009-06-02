@@ -48,9 +48,6 @@ static int con_cursor;
 
 static const image_c *con_font;
 
-// the console's background
-static style_c *console_style;
-
 
 #define T_WHITE   RGB_MAKE(208,208,208)
 #define T_YELLOW  RGB_MAKE(255,255,0)
@@ -108,9 +105,6 @@ static int  input_pos = 0;
 // stores the console toggle effect
 static int conwipeactive = 0;
 static int conwipepos = 0;
-static int conwipemethod = WIPE_Crossfade;
-static bool conwipereverse = 0;
-static int conwipeduration = 10;
 
 
 #define KEYREPEATDELAY ((250 * TICRATE) / 1000)
@@ -485,14 +479,6 @@ void CON_Drawer(void)
 			I_Error("Cannot find essential image: CON_FONT_2\n");
 	}
 
-	if (! console_style)
-	{
-		styledef_c *def = styledefs.Lookup("CONSOLE");
-		if (! def)
-			def = default_style;
-		console_style = hu_styles.Lookup(def);
-	}
-
 	if (con_visible == vs_notvisible && !conwipeactive)
 		return;
 
@@ -527,7 +513,7 @@ void CON_Drawer(void)
 	else
 		y = y - CON_GFX_HT;
 
-	console_style->DrawBackground(0, y, SCREENWIDTH, SCREENHEIGHT - y, 1);
+	RGL_SolidBox(0, y, SCREENWIDTH, SCREENWIDTH - y, RGB_MAKE(0,0,16), 0.75);
 
 	y += YMUL / 4;
 
@@ -892,10 +878,6 @@ void CON_InitConsole(void)
 
 void CON_Start(void)
 {
-	CON_CreateCVarEnum("conwipemethod",  cf_normal, &conwipemethod, WIPE_EnumStr, WIPE_NUMWIPES);
-	CON_CreateCVarInt("conwipeduration", cf_normal, &conwipeduration);
-	CON_CreateCVarBool("conwipereverse", cf_normal, &conwipereverse);
-
 	con_visible = vs_notvisible;
 	con_cursor  = 0;
 }
