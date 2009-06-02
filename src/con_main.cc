@@ -51,6 +51,8 @@ int CMD_Set(const char *args);
 int CMD_QuitEDGE(const char *args);
 int CMD_Crc(const char *args);
 int CMD_PlaySound(const char *args);
+int CMD_ShowFiles(const char *args);
+int CMD_ShowLumps(const char *args);
 
 
 // Current console commands.  Needs extending badly.
@@ -66,6 +68,8 @@ static const con_cmd_t consolecommands[] =
 	{"playsound", 0, CMD_PlaySound},
 	{"eat", 0, CMD_Eat},
 	{"exec", 0, CMD_Exec},
+	{"show_files", 0, CMD_ShowFiles},
+	{"show_lumps", 0, CMD_ShowLumps},
 	{"screenshot", 0, CMD_ScreenShot},
 	{"set", 0, CMD_Set},
 	{"type", 0, CMD_Type},
@@ -491,6 +495,20 @@ int CMD_PlaySound(const char *args)
 	}
 
 	KillArgs(argc, argv);
+	return 0;
+}
+
+int CMD_ShowFiles(const char *args)
+{
+	W_ShowFiles();
+	return 0;
+}
+
+int CMD_ShowLumps(const char *args)
+{
+	int for_file = -1;  // all files
+
+	W_ShowLumps(for_file);
 	return 0;
 }
 

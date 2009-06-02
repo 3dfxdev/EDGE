@@ -428,9 +428,6 @@ static inline bool IsGL_Prefix(const char *name)
 	return name[0] == 'G' && name[1] == 'L' && name[2] == '_';
 }
 
-//
-// W_GetTextureLumps
-//
 void W_GetTextureLumps(int file, wadtex_resource_c *res)
 {
 	SYS_ASSERT(0 <= file && file < (int)data_files.size());
@@ -458,8 +455,6 @@ void W_GetTextureLumps(int file, wadtex_resource_c *res)
 	}
 }
 
-//
-// SortLumps
 //
 // Create the lumpmap[] array, which is sorted by name for fast
 // searching.  It also makes sure that entries with the same name all
@@ -499,8 +494,6 @@ static void SortLumps(void)
 	}
 }
 
-//
-// SortSpriteLumps
 //
 // Put the sprite list in sorted order (of name), required by
 // R_InitSprites (speed optimisation).
@@ -545,33 +538,6 @@ static void SortSpriteLumps(data_file_c *df)
 //  for the lump name.
 //
 
-#if 0  // UNUSED ??
-static void FreeLump(lumpheader_t *h)
-{
-	int lumpnum = h->lumpindex;
-
-	cache_size -= W_LumpLength(lumpnum);
-#ifdef DEVELOPERS
-	if (h->id != lumpheader_s::LUMPID)
-		I_Error("FreeLump: id != LUMPID");
-	h->id = 0;
-	if (h == NULL)
-		I_Error("FreeLump: NULL lump");
-	if (h->users)
-		I_Error("FreeLump: lump %d has %d users!", lumpnum, h->users);
-	if (lumplookup[lumpnum] != h)
-		I_Error("FreeLump: Internal error, lump %d", lumpnum);
-#endif
-	lumplookup[lumpnum] = NULL;
-	h->prev->next = h->next;
-	h->next->prev = h->prev;
-	Z_Free(h);
-}
-#endif
-
-//
-// MarkAsCached
-//
 static void MarkAsCached(lumpheader_t *item)
 {
 #ifdef DEVELOPERS
@@ -588,9 +554,6 @@ static void MarkAsCached(lumpheader_t *item)
 	cache_size += W_LumpLength(item->lumpindex);
 }
 
-//
-// AddLump
-//
 static void AddLump(data_file_c *df, int lump, int pos, int size, int file, 
 					int sort_index, const char *name, bool allow_ddf)
 {
@@ -840,8 +803,6 @@ static void CheckForLevel(data_file_c *df, int lump, const char *name,
 	}
 }
 
-//
-// HasInternalGLNodes
 //
 // Determine if WAD file contains GL nodes for every level.
 //
@@ -1204,9 +1165,6 @@ static void InitCaches(void)
 	lumphead.next = lumphead.prev = &lumphead;
 }
 
-//
-// W_AddRawFilename
-//
 void W_AddRawFilename(const char *file, int kind)
 {
 	I_Debugf("Added filename: %s\n", file);
@@ -1214,8 +1172,6 @@ void W_AddRawFilename(const char *file, int kind)
     wadfiles.push_back(new raw_filename_c(file, kind));
 }
 
-//
-// W_InitMultipleFiles
 //
 // Pass a null terminated list of files to use.
 // Files with a .wad extension are idlink files with multiple lumps.
@@ -1393,8 +1349,6 @@ epi::file_c *W_OpenLump(const char *name)
 }
 
 //
-// W_GetFileName
-//
 // Returns the filename of the WAD file containing the given lump, or
 // NULL if it wasn't a WAD file (e.g. a pure lump).
 //
@@ -1412,8 +1366,6 @@ const char *W_GetFileName(int lump)
 	return df->file_name;
 }
 
-//
-// W_GetPaletteForLump
 //
 // Returns the palette lump that should be used for the given lump
 // (presumably an image), otherwise -1 (indicating that the global
@@ -1484,8 +1436,6 @@ int W_CheckNumForName2(const char *name)
 }
 
 //
-// W_GetNumForName
-//
 // Calls W_CheckNumForName, but bombs out if not found.
 //
 int W_GetNumForName2(const char *name)
@@ -1498,8 +1448,6 @@ int W_GetNumForName2(const char *name)
 	return i;
 }
 
-//
-// W_CheckNumForTexPatch
 //
 // Returns -1 if name not found.
 //
@@ -1600,8 +1548,6 @@ int W_CheckNumForTexPatch(const char *name)
 }
 
 //
-// W_VerifyLumpName
-//
 // Verifies that the given lump number is valid and has the given
 // name.
 //
@@ -1616,8 +1562,6 @@ bool W_VerifyLumpName(int lump, const char *name)
 }
 
 //
-// W_LumpLength
-//
 // Returns the buffer size needed to load the given lump.
 //
 int W_LumpLength(int lump)
@@ -1628,8 +1572,6 @@ int W_LumpLength(int lump)
 	return lumpinfo[lump].size;
 }
 
-//
-// W_FindFlatSequence
 //
 // Returns the file number containing the sequence, or -1 if not
 // found.  Search is from newest wad file to oldest wad file.
@@ -1743,9 +1685,6 @@ static byte *W_ReadLumpAlloc(int lump, int *length)
 	return data;
 }
 
-//
-// W_DoneWithLump
-//
 void W_DoneWithLump(const void *ptr)
 {
 	lumpheader_t *h = ((lumpheader_t *)ptr); // Intentional Const Override
@@ -1773,8 +1712,6 @@ void W_DoneWithLump(const void *ptr)
 	}
 }
 
-//
-// W_DoneWithLump_Flushable
 //
 // Call this if the lump probably won't be used for a while, to hint the
 // system to flush it early.
@@ -1809,9 +1746,6 @@ void W_DoneWithLump_Flushable(const void *ptr)
 	}
 }
 
-//
-// W_CacheLumpNum
-//
 const void *W_CacheLumpNum2 (int lump)
 {
 	lumpheader_t *h;
@@ -1851,16 +1785,11 @@ const void *W_CacheLumpNum2 (int lump)
 	return (void *)(h + 1);
 }
 
-//
-// W_CacheLumpName
-//
 const void *W_CacheLumpName2(const char *name)
 {
 	return W_CacheLumpNum2(W_GetNumForName2(name));
 }
 
-//
-// W_PreCacheLumpNum
 //
 // Attempts to load lump into the cache, if it isn't already there
 //
@@ -1869,17 +1798,11 @@ void W_PreCacheLumpNum(int lump)
 	W_DoneWithLump(W_CacheLumpNum(lump));
 }
 
-//
-// W_PreCacheLumpName
-//
 void W_PreCacheLumpName(const char *name)
 {
 	W_DoneWithLump(W_CacheLumpName(name));
 }
 
-//
-// W_CacheInfo
-//
 int W_CacheInfo(int level)
 {
 	lumpheader_t *h;
@@ -1896,8 +1819,6 @@ int W_CacheInfo(int level)
 }
 
 //
-// W_LoadLumpNum
-//
 // Returns a copy of the lump (it is your responsibility to free it)
 //
 void *W_LoadLumpNum(int lump)
@@ -1912,21 +1833,71 @@ void *W_LoadLumpNum(int lump)
 	return p;
 }
 
-//
-// W_LoadLumpName
-//
 void *W_LoadLumpName(const char *name)
 {
 	return W_LoadLumpNum(W_GetNumForName2(name));
 }
 
-//
-// W_GetLumpName
-//
 const char *W_GetLumpName(int lump)
 {
 	return lumpinfo[lump].name;
 }
+
+
+static const char *FileKind_Strings[] =
+{
+	"iwad", "pwad", "edge", "gwa", "hwa",
+	"lump", "ddf",  "demo", "scr", "deh",
+	"???",  "???",  "???",  "???"
+};
+
+static const char *LumpKind_Strings[] =
+{
+	"normal", "???", "???",
+	"marker", "???", "???",
+	"wadtex", "???", "???", "???",
+	"ddf",    "???", "???", "???",
+
+	"tx", "colmap", "flat", "sprite", "patch",
+	"???", "???", "???", "???"
+};
+
+
+void W_ShowLumps(int for_file)
+{
+	I_Printf("Lump list:\n");
+
+	int total = 0;
+
+	for (int i = 0; i < numlumps; i++)
+	{
+		lumpinfo_t *L = &lumpinfo[i];
+
+		if (for_file >= 1 && L->file != for_file-1)
+			continue;
+		
+		I_Printf(" %4d %-9s %2d %-6s %7d @ 0x%08x\n", 
+		         i+1, L->name,
+				 L->file+1, LumpKind_Strings[L->kind],
+				 L->size, L->position);
+		total++;
+	}
+
+	I_Printf("Total: %d\n", total);
+}
+
+void W_ShowFiles(void)
+{
+	I_Printf("File list:\n");
+
+	for (int i = 0; i < (int)data_files.size(); i++)
+	{
+		data_file_c *df = data_files[i];
+
+		I_Printf(" %2d %-4s %s\n", i+1, FileKind_Strings[df->kind], df->file_name);
+	}
+}
+
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
