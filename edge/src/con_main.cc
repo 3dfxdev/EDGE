@@ -244,7 +244,7 @@ int CMD_ArgText(const char *args)
 {
 	int argc;
 	int i;
-	char *(argv[10]);
+	char *argv[10];
 
 	argc = GetArgs(args, 10, argv);
 
@@ -506,9 +506,25 @@ int CMD_ShowFiles(const char *args)
 
 int CMD_ShowLumps(const char *args)
 {
+	char *argv[4];
+	int argc;
+
+	argc = GetArgs(args, 4, argv);
+
 	int for_file = -1;  // all files
 
-	W_ShowLumps(for_file);
+	const char *match = NULL;
+
+	if (argc >= 2 && isdigit(argv[1][0]))
+		for_file = atoi(argv[1]);
+
+	if (argc >= 3)
+	{
+		strupr(argv[2]);
+		match = argv[2];
+	}
+
+	W_ShowLumps(for_file, match);
 	return 0;
 }
 
