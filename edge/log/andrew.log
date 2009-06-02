@@ -1,5 +1,13 @@
 Andrew Apted's Log
 
+2009/06/02:
+
+Implemented the following console commands:
+   show_files
+   show_lumps [file  [match]]
+
+NEW Renderer is coming along, fixed some glitches.
+
 2009/06/01:
 
 Removed the global states[] array, in favour of storing the
