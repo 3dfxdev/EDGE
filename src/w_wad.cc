@@ -1863,7 +1863,7 @@ static const char *LumpKind_Strings[] =
 };
 
 
-void W_ShowLumps(int for_file)
+void W_ShowLumps(int for_file, const char *match)
 {
 	I_Printf("Lump list:\n");
 
@@ -1875,7 +1875,11 @@ void W_ShowLumps(int for_file)
 
 		if (for_file >= 1 && L->file != for_file-1)
 			continue;
-		
+
+		if (match && *match)
+			if (! strstr(L->name, match))
+				continue;
+
 		I_Printf(" %4d %-9s %2d %-6s %7d @ 0x%08x\n", 
 		         i+1, L->name,
 				 L->file+1, LumpKind_Strings[L->kind],
