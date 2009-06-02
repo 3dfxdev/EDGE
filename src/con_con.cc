@@ -513,7 +513,7 @@ void CON_Drawer(void)
 	else
 		y = y - CON_GFX_HT;
 
-	RGL_SolidBox(0, y, SCREENWIDTH, SCREENWIDTH - y, RGB_MAKE(0,0,16), 0.75);
+	RGL_SolidBox(0, y, SCREENWIDTH, SCREENWIDTH - y, RGB_MAKE(0,0,8), 0.75);
 
 	y += YMUL / 4;
 
