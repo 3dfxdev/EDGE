@@ -172,7 +172,7 @@ static char AAim[]      = "Off/On/Mlook";
 static char MipMaps[]   = "None/Good/Best";
 static char Details[]   = "Low/Medium/High";
 static char Hq2xMode[]  = "Off/UI Only/UI & Sprites/All";
-static char Invuls[]    = "Simple/Complex/Textured";
+static char Invuls[]    = "Simple/Textured";
 
 // for CVar enums
 const char WIPE_EnumStr[] = "none/melt/crossfade/pixelfade/top/bottom/left/right/spooky/doors";

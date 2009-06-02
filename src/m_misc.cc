@@ -387,6 +387,9 @@ void M_LoadDefaults(void)
 		key_console = KEYD_TILDE;
 	}
 
+	if (var_invul_fx >= 2)
+		var_invul_fx = 1;
+
 	return;
 }
 
