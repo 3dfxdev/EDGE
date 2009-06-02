@@ -25,19 +25,33 @@
 
 static int max_segs;
 static int max_subsecs;
+static int max_glvert;
 
 static void Poly_Setup(void)
 {
+	numsegs = 0;
+	numsubsectors = 0;
+	num_gl_vertexes = 0;
+
 	max_segs    = numsides * 4;
 	max_subsecs = numlines * 2;
+	max_glvert  = numsides * 3;
+
+	segs = new seg_t[numsegs];
+	subsectors = new subsector_t[numsubsectors];
+	gl_vertexes = new vertex_t[num_gl_vertexes];
+
+	Z_Clear(segs, seg_t, numsegs);
+	Z_Clear(subsectors, subsector_t, numsubsectors);
+	Z_Clear(gl_vertexes, vertex_t, num_gl_vertexes);
 }
 
 // Nasty allocation shit....  Fixme
 
-static inline seg_t *NewSeg(void)
+static seg_t *NewSeg(void)
 {
 	if (numsegs >= max_segs)
-		I_Error("R_PolygonizeMap: too many segs !\n");
+		I_Error("R_PolygonizeMap: ran out of segs !\n");
 
 	seg_t *seg = segs + numsegs;
 
@@ -48,10 +62,10 @@ static inline seg_t *NewSeg(void)
 	return seg;
 }
 
-static inline subsector_t *NewSubsector(void)
+static subsector_t *NewSubsector(void)
 {
 	if (numsubsectors >= max_segs)
-		I_Error("WF_BuildBSP: too many subsectors !\n");
+		I_Error("WF_BuildBSP: ran out of subsectors !\n");
 
 	subsector_t *sub = subsectors + numsubsectors;
 
@@ -60,6 +74,20 @@ static inline subsector_t *NewSubsector(void)
 	numsubsectors++;
 
 	return sub;
+}
+
+static vertex_t *NewVertex(void)
+{
+	if (num_gl_vertexes >= max_glvert)
+		I_Error("R_PolygonizeMap: ran out of vertices !\n");
+
+	vertex_t *vert = gl_vertexes + num_gl_vertexes;
+
+	memset(vert, 0, sizeof(vertex_t));
+
+	num_gl_vertexes++;
+
+	return vert;
 }
 
 
