@@ -93,7 +93,6 @@ abstract_shader_c *R_GetColormapShader(
 
 // text translation tables
 extern const colourmap_c *font_whiten_map;
-extern const colourmap_c *text_white_map;
 
 // colour indices from palette
 extern int pal_black,  pal_white,  pal_gray239;

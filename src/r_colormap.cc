@@ -73,7 +73,6 @@ static bool old_gamma = -1;
 
 // text translation tables
 const colourmap_c *font_whiten_map = NULL;
-const colourmap_c *text_white_map  = NULL;
 
 
 // colour indices from palette
@@ -164,13 +163,8 @@ void V_InitPalette(void)
 //
 static void InitTranslationTables(void)
 {
-	if (font_whiten_map)
-		return;
-
-	// look up the general colmaps & coltables
-
-	font_whiten_map = colourmaps.Lookup("FONTWHITEN");
-	text_white_map  = colourmaps.Lookup("TEXT_WHITE");
+	if (! font_whiten_map)
+		font_whiten_map = colourmaps.Lookup("FONTWHITEN");
 }
 
 static int cur_palette = -1;
