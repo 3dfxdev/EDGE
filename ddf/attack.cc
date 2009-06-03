@@ -53,6 +53,7 @@ const commandlist_t damage_commands[] =
 	DF("ERROR", error, DDF_MainGetFloat),
 	DF("DELAY", delay, DDF_MainGetTime),
 
+	DF("OBITUARY", obituary, DDF_MainGetString),
 	DF("PAIN_STATE", pain, DDF_AtkGetLabel),
 	DF("DEATH_STATE", death, DDF_AtkGetLabel),
 	DF("OVERKILL_STATE", overkill, DDF_AtkGetLabel),

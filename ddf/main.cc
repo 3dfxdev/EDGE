@@ -2103,6 +2103,7 @@ void damage_c::Copy(damage_c &src)
 	error = src.error;
 	delay = src.delay;
 
+	obituary = src.obituary;
 	pain = src.pain;
 	death = src.death;
 	overkill = src.overkill;
@@ -2115,14 +2116,17 @@ void damage_c::Copy(damage_c &src)
 //
 void damage_c::Default(damage_c::default_e def)
 {
+	obituary.clear();
+
 	switch (def)
 	{
 		case DEFAULT_MobjChoke:
 		{
-			nominal	= 6.0f;		
+			nominal	= 6.0f;	
 			linear_max = 14.0f;	
-			error = -1.0f;			
-			delay = 2 * TICRATE;   
+			error = -1.0f;
+			delay = 2 * TICRATE;
+			obituary = "OB_DROWN";
 			no_armour = true;
 			break;
 		}

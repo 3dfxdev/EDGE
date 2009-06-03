@@ -590,6 +590,9 @@ public:
 	// would be once every second.  Only used for slime/crush damage.
 	int delay;
 
+	// death message, names an entry in LANGUAGES.LDF
+	epi::strent_c obituary;
+
 	// override labels for various states, if the object being damaged
 	// has such a state then it is used instead of the normal ones
 	// (PAIN, DEATH, OVERKILL).  Defaults to NULL.

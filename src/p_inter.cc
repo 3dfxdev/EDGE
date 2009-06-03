@@ -663,6 +663,19 @@ void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
 	RunPickupEffects(info.player, special, special->info->pickup_effects);
 }
 
+
+void P_ObituaryMessage(mobj_t * victim, mobj_t * killer, const damage_c *damtype)
+{
+	CON_PlayerMessage(victim->player->pnum, "You're dead, fucker!\n");
+/*
+			language.IsValidRef(special->info->pickup_message))
+		{
+			CON_PlayerMessage(info.player->pnum, "%s",
+				language[special->info->pickup_message]);
+*/
+}
+
+
 //
 // P_KillMobj
 //
@@ -726,6 +739,8 @@ void P_KillMobj(mobj_t * source, mobj_t * target, const damage_c *damtype,
 
 	if (target->player)
 	{
+		P_ObituaryMessage(target, source, damtype);
+
 		// count environment kills against you
 		if (!source)
 		{
