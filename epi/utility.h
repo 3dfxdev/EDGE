@@ -105,7 +105,7 @@ namespace epi
 	
 		const char *c_str(void) const { return data; }
 	
-		bool empty() { return data?(data[0] == '\0'?true:false):true; }
+		bool empty() const { return (data && data[0]) ? false : true; }
 	
 		void Set(const char *s);
 		void Set(const char *s, int max);
