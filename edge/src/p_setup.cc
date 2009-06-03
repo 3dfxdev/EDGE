@@ -110,9 +110,6 @@ vertex_seclist_t *v_seclists;
 
 static line_t **linebuffer = NULL;
 
-// bbox used 
-static float dummy_bbox[4];
-
 epi::crc32_c mapsector_CRC;
 epi::crc32_c mapline_CRC;
 epi::crc32_c mapthing_CRC;
@@ -517,8 +514,7 @@ static void LoadV3Subsectors(const byte *data, int length)
 
 		ss->sector = NULL;
 
-		// FIXME: subsector bbox
-		ss->bbox = dummy_bbox;
+		M_ClearBox(ss->bbox);
 
 		for (j = 0; j < countsegs; j++)
 		{
@@ -607,8 +603,7 @@ static void LoadSubsectors(int lump, const char *name)
 
 		ss->sector = NULL;
 
-		// FIXME: subsector bbox
-		ss->bbox = dummy_bbox;
+		M_ClearBox(ss->bbox);
 
 		for (j = 0; j < countsegs; j++)
 		{
@@ -1693,7 +1688,7 @@ static void DoBlockMap(int lump)
 // Builds sector line lists and subsector sector numbers.
 // Finds block bounding boxes for sectors.
 //
-void GroupLines(void)
+static void GroupLines(void)
 {
 	int i;
 	int j;
@@ -1701,7 +1696,6 @@ void GroupLines(void)
 	line_t *li;
 	sector_t *sector;
 	seg_t *seg;
-	float bbox[4];
 	line_t **line_p;
 
 	// setup remaining seg information
@@ -1738,6 +1732,8 @@ void GroupLines(void)
 	line_p = linebuffer;
 	sector = sectors;
 
+	float bbox[4];
+
 	for (i = 0; i < numsectors; i++, sector++)
 	{
 		M_ClearBox(bbox);
@@ -1759,6 +1755,22 @@ void GroupLines(void)
 		sector->sfx_origin.x = (bbox[BOXRIGHT] + bbox[BOXLEFT]) / 2;
 		sector->sfx_origin.y = (bbox[BOXTOP] + bbox[BOXBOTTOM]) / 2;
 		sector->sfx_origin.z = (sector->f_h + sector->c_h) / 2;
+	}
+}
+
+static void FindSubsecExtents(void)
+{
+	for (int i = 0; i < numsubsectors; i++)
+	{
+		subsector_t *sub = &subsectors[i];
+
+		M_ClearBox(sub->bbox);
+
+		for (seg_t *seg = sub->segs; seg; seg = seg->sub_next)
+		{
+			M_AddToBox(sub->bbox, seg->v1->x, seg->v1->y);
+			M_AddToBox(sub->bbox, seg->v2->x, seg->v2->y);
+		}
 	}
 }
 
@@ -2085,9 +2097,11 @@ void P_SetupLevel(void)
 
 	// REJECT is ignored
 
-	DoBlockMap(lumpnum + ML_BLOCKMAP);
+	FindSubsecExtents();
 
 //!!!	R_PolygonizeMap();
+
+	DoBlockMap(lumpnum + ML_BLOCKMAP);
 
 	GroupLines();
 

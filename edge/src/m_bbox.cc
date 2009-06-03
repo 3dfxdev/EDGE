@@ -31,8 +31,8 @@
 
 void M_ClearBox(float * box)
 {
-	box[BOXTOP]    = box[BOXRIGHT] = -FLT_MAX;
-	box[BOXBOTTOM] = box[BOXLEFT]  =  FLT_MAX;
+	box[BOXTOP]    = box[BOXRIGHT] = -65535.0;
+	box[BOXBOTTOM] = box[BOXLEFT]  =  65535.0;
 }
 
 void M_AddToBox(float * box, float x, float y)

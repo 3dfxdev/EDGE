@@ -446,8 +446,7 @@ typedef struct subsector_s
 	sector_t *sector;
 	struct seg_s *segs;
 
-	// pointer to bounding box (usually in parent node)
-	float *bbox;
+	float bbox[4];
 
 	// -AJA- 2004/04/20: used when emulating deep-water TRICK
 	struct sector_s *deep_ref;
