@@ -664,15 +664,95 @@ void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
 }
 
 
+// FIXME: move this into utility code
+static std::string PatternSubst(const char *format, const std::vector<std::string> & keywords)
+{
+	std::string result;
+
+	while (*format)
+	{
+		const char *pos = strchr(format, '%');
+
+		if (! pos)
+		{
+			result = result + std::string(format);
+			break;
+		}
+
+		if (pos > format)
+			result = result + std::string(format, pos - format);
+
+		pos++;
+
+		char key[4];
+		
+		key[0] = *pos++;
+		key[1] = 0;
+
+		if (! key[0])
+			break;
+
+		if (isalpha(key[0]))
+		{
+			for (int i = 0; i+1 < (int)keywords.size(); i += 2)
+			{
+				if (strcmp(key, keywords[i].c_str()) == 0)
+				{
+					result = result + keywords[i+1];
+					break;
+				}
+			}
+		}
+		else if (key[0] == '%')
+		{
+			result = result + std::string("%");
+		}
+		else
+		{
+			result = result + std::string("%");
+			result = result + std::string(key);
+		}
+
+		format = pos;
+	}
+
+	return result;
+}
+
+static void DoObituary(const char *format, mobj_t *victim, mobj_t *killer)
+{
+	std::vector<std::string> keywords;
+
+	keywords.push_back("o");
+	keywords.push_back("the player");
+
+	keywords.push_back("k");
+	keywords.push_back("somebody");
+
+	std::string msg = PatternSubst(format, keywords);
+
+	CON_PlayerMessage(victim->player->pnum, "%s", msg.c_str());
+}
+
 void P_ObituaryMessage(mobj_t * victim, mobj_t * killer, const damage_c *damtype)
 {
-	CON_PlayerMessage(victim->player->pnum, "You're dead, fucker!\n");
-/*
-			language.IsValidRef(special->info->pickup_message))
+	if (damtype && !damtype->obituary.empty())
+	{
+		const char *ref = damtype->obituary.c_str();
+
+		if (language.IsValidRef(ref))
 		{
-			CON_PlayerMessage(info.player->pnum, "%s",
-				language[special->info->pickup_message]);
-*/
+			DoObituary(language[ref], victim, killer);
+			return;
+		}
+
+		I_Debugf("Missing obituary entry in LDF: '%s'\n", ref);
+	}
+
+	if (killer)
+		DoObituary("%o was killed.", victim, killer);
+	else
+		DoObituary("%o died.", victim, killer);
 }
 
 
