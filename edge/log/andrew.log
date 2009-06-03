@@ -10,6 +10,9 @@ The RTS tip commands now support '#' colors.
 Removed the 'COMPLEX' setting for invulnerability effect, since
 it doesn't work on old cards and rarely on Radeon cards.
 
+Worked on obituary messages, new 'OBITUARY' field of DAMAGE
+structure which refers to a message in LANGUAGES.LDF.
+
 2009/06/02:
 
 Implemented the following console commands:
