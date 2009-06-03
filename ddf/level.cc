@@ -49,6 +49,7 @@ static const commandlist_t finale_commands[] =
     DF("TEXT_FLAT", text_flat, DDF_MainGetLumpName),
     DF("TEXT_SPEED", text_speed, DDF_MainGetFloat),
     DF("TEXT_WAIT", text_wait, DDF_MainGetNumeric),
+	DF("COLOUR", text_rgb, DDF_MainGetRGB),
     DF("COLOURMAP", text_colmap, DDF_MainGetColourmap),
     DF("GRAPHIC", text, DDF_LevelGetPic),
     DF("GRAPHIC_WAIT", picwait, DDF_MainGetTime),
@@ -358,6 +359,7 @@ void map_finaledef_c::Copy(map_finaledef_c &src)
 	text_flat = src.text_flat;
 	text_speed = src.text_speed;
 	text_wait = src.text_wait;
+	text_rgb = src.text_rgb;
 	text_colmap = src.text_colmap;
 	
 	pics = src.pics;		
@@ -375,6 +377,7 @@ void map_finaledef_c::Default()
 	text_flat.clear();
 	text_speed = 3.0f;
 	text_wait = 150;
+	text_rgb = RGB_NO_VALUE;
 	text_colmap = NULL;
 
 	pics.Clear();

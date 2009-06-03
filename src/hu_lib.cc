@@ -56,7 +56,7 @@ void HL_Init(void)
 // Write a string using the hu_font and index translator.
 //
 void HL_WriteTextTrans(style_c *style, int text_type, int x, int y,
-	const colourmap_c *colmap, const char *str, float scale)
+	rgbcol_t col, const char *str, float scale)
 {
 	float cx = x;
 	float cy = y;
@@ -82,7 +82,7 @@ void HL_WriteTextTrans(style_c *style, int text_type, int x, int y,
 		if (cx >= 320.0f)
 			continue;
 
-		font->DrawChar320(cx, cy, ch, scale,1.0f, colmap, 1.0f);
+		font->DrawChar320(cx, cy, ch, scale,1.0f, col, 1.0f);
 
 		cx += font->CharWidth(ch) * scale;
 	}
@@ -95,7 +95,9 @@ void HL_WriteTextTrans(style_c *style, int text_type, int x, int y,
 //
 void HL_WriteText(style_c *style, int text_type, int x, int y, const char *str, float scale)
 {
-	HL_WriteTextTrans(style, text_type, x, y, style->def->text[text_type].colmap, str, scale);
+	HL_WriteTextTrans(style, text_type, x, y,
+			V_GetFontColor(style->def->text[text_type].colmap),
+			str, scale);
 }
 
 //----------------------------------------------------------------------------
@@ -150,8 +152,8 @@ bool HL_DelCharFromTextLine(hu_textline_t * t)
 // -AJA- 2000/03/05: Index replaced with pointer to trans table.
 // -AJA- 2000/10/22: Renamed for alpha support.
 //
-void HL_DrawTextLineAlpha(hu_textline_t * L, bool drawcursor, const colourmap_c *colmap,
-	float alpha)
+void HL_DrawTextLineAlpha(hu_textline_t * L, bool drawcursor,
+			rgbcol_t col, float alpha)
 {
 	int i, x, y, w;
 
@@ -164,8 +166,8 @@ void HL_DrawTextLineAlpha(hu_textline_t * L, bool drawcursor, const colourmap_c 
 	if (! font)
 		I_Error("Style [%s] is missing a font !\n", L->style->def->ddf.name.c_str());
 
-	if (! colmap)
-		colmap =L->style->def->text[L->text_type].colmap;
+	if (col == RGB_NO_VALUE)
+		col = V_GetFontColor(L->style->def->text[L->text_type].colmap);
 
 	// -AJA- 1999/09/07: centred text.
 	if (L->centre)
@@ -186,7 +188,7 @@ void HL_DrawTextLineAlpha(hu_textline_t * L, bool drawcursor, const colourmap_c 
 		if (x < -w)
 			continue;
 
-		font->DrawChar320(x, y, ch, scale,1.0f, colmap, alpha);
+		font->DrawChar320(x, y, ch, scale,1.0f, col, alpha);
 	}
 
 	// draw the cursor if requested
@@ -194,14 +196,14 @@ void HL_DrawTextLineAlpha(hu_textline_t * L, bool drawcursor, const colourmap_c 
 	{
 		if (drawcursor && x < 320)
 		{
-			font->DrawChar320(x, y, '_', scale,1.0f, colmap, alpha);
+			font->DrawChar320(x, y, '_', scale,1.0f, col, alpha);
 		}
 	}
 }
 
 void HL_DrawTextLine(hu_textline_t * L, bool drawcursor)
 {
-	HL_DrawTextLineAlpha(L, drawcursor, NULL, 1.0f);
+	HL_DrawTextLineAlpha(L, drawcursor, RGB_NO_VALUE, 1.0f);
 }
 
 // sorta called by HU_Erase and just better darn get things straight

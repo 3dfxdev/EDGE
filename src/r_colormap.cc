@@ -503,6 +503,8 @@ void TransformColourmap(colourmap_c *colmap)
 void V_GetColmapRGB(const colourmap_c *colmap,
 					float *r, float *g, float *b)
 {
+	SYS_ASSERT(colmap);
+
 	if (colmap->gl_colour == RGB_NO_VALUE)
 	{
 		// Intention Const Override
@@ -516,6 +518,9 @@ void V_GetColmapRGB(const colourmap_c *colmap,
 
 rgbcol_t V_GetFontColor(const colourmap_c *colmap)
 {
+	if (! colmap)
+		return RGB_NO_VALUE;
+
 	if (colmap->font_colour == RGB_NO_VALUE)
 	{
 		// Intention Const Override
@@ -545,7 +550,9 @@ rgbcol_t V_ParseFontColor(const char *name, bool strict)
 			if (strict)
 				I_Error("Unknown colormap: '%s'\n", name);
 			else
-				return RGB_MAKE(255,0,255);
+				I_Debugf("Unknown colormap: '%s'\n", name);
+
+			return RGB_MAKE(255,0,255);
 		}
 
 		rgb = V_GetFontColor(colmap);

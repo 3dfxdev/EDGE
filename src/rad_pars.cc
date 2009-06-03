@@ -1427,15 +1427,15 @@ static void RAD_ParseTipPos(int pnum, const char ** pars)
 
 static void RAD_ParseTipColour(int pnum, const char ** pars)
 {
-	// Tip_Set_Colour <colmap ref>
-	// Tip_Set_Colour <colmap ref> <time>
+	// Tip_Set_Colour <color>
+	// Tip_Set_Colour <color> <time>
 
 	s_tip_prop_t *tp;
 
 	tp = Z_New(s_tip_prop_t, 1);
 	tp[0] = default_tip_props;
 
-	tp->colourmap_name = Z_StrDup(pars[1]);
+	tp->color_name = Z_StrDup(pars[1]);
 
 	if (pnum >= 3)
 		RAD_CheckForTime(pars[2], &tp->time);

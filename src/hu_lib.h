@@ -171,12 +171,12 @@ void HL_EraseIText(hu_itext_t * it);
 
 // -ACB- 1998/06/10
 void HL_DrawTextLineAlpha(hu_textline_t * l, bool drawcursor, 
-    const colourmap_c *colmap, float alpha);
+		rgbcol_t col, float alpha);
 
 
 void HL_WriteText(style_c *style, int text_type, int x, int y, const char *str, float scale = 1.0f);
 void HL_WriteTextTrans(style_c *style, int text_type, int x, int y,
-	const colourmap_c *colmap, const char *str, float scale = 1.0f);
+		rgbcol_t col, const char *str, float scale = 1.0f);
 
 #endif  // __HULIB__
 
