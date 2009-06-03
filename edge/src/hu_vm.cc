@@ -179,32 +179,14 @@ static void DoWriteText_RightAlign(float x, float y, const char *str)
 
 static rgbcol_t ParseColor(lua_State *L, int index)
 {
-	rgbcol_t rgb;
-
 	if (lua_isstring(L, index))
 	{
 		const char *name = lua_tostring(L, index);
 
-		if (name[0] == '#')
-		{
-			rgb = strtol(name+1, NULL, 16);
-		}
-		else if (! name[0])
-		{
-			return RGB_NO_VALUE;
-		}
-		else
-		{
-			// lookup colormap name
-			const colourmap_c *colmap = colourmaps.Lookup(name);
-
-			if (! colmap)
-				I_Error("Unknown colormap in lua script: '%s'\n", name);
-	
-			rgb = V_GetFontColor(colmap);
-		}
+		return V_ParseFontColor(name, true);
 	}
-	else if (lua_istable(L, index))
+
+	if (lua_istable(L, index))
 	{
 		// parse 'r', 'g', 'b' fields
 		int r, g, b;
@@ -226,18 +208,16 @@ static rgbcol_t ParseColor(lua_State *L, int index)
 
 		lua_pop(L, 3);
 
-		rgb = RGB_MAKE(r, g, b);
-	}
-	else
-	{
-		I_Error("Bad color value in lua script!\n");
-		return 0; /* NOT REACHED */
+		rgbcol_t rgb = RGB_MAKE(r, g, b);
+
+		if (rgb == RGB_NO_VALUE)
+			rgb ^= 0x000101;
+
+		return rgb;
 	}
 
-	if (rgb == RGB_NO_VALUE)
-		rgb ^= 0x000101;
-
-	return rgb;
+	I_Error("Bad color value in lua script!\n");
+	return 0; /* NOT REACHED */
 }
 
 

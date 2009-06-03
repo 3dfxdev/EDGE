@@ -86,6 +86,7 @@ void R_TranslatePalette(byte *new_pal, const byte *old_pal,
 void V_GetColmapRGB(const colourmap_c *colmap, float *r, float *g, float *b);
 
 rgbcol_t V_GetFontColor(const colourmap_c *colmap);
+rgbcol_t V_ParseFontColor(const char *name, bool strict = false);
 
 abstract_shader_c *R_GetColormapShader(
 		const struct region_properties_s *props, int light_add = 0);
