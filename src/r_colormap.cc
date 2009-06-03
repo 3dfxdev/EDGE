@@ -525,6 +525,38 @@ rgbcol_t V_GetFontColor(const colourmap_c *colmap)
 	return colmap->font_colour;
 }
 
+rgbcol_t V_ParseFontColor(const char *name, bool strict)
+{
+	if (! name || ! name[0])
+		return RGB_NO_VALUE;
+
+	rgbcol_t rgb;
+
+	if (name[0] == '#')
+	{
+		rgb = strtol(name+1, NULL, 16);
+	}
+	else
+	{
+		const colourmap_c *colmap = colourmaps.Lookup(name);
+
+		if (! colmap)
+		{
+			if (strict)
+				I_Error("Unknown colormap: '%s'\n", name);
+			else
+				return RGB_MAKE(255,0,255);
+		}
+
+		rgb = V_GetFontColor(colmap);
+	}
+
+	if (rgb == RGB_NO_VALUE)
+		rgb ^= 0x000101;
+	
+	return rgb;
+}
+
 //
 // Call this at the start of each frame (before any rendering or
 // render-related work has been done).  Will update the palette and/or
