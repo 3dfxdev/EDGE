@@ -119,7 +119,8 @@ static void DoDrawChar(float cx, float cy, char ch)
 		COORD_Y(IM_HEIGHT(image)) * sc_y,
 		image, 0.0f, 0.0f,
 		IM_RIGHT(image), IM_TOP(image),
-		cur_colmap, cur_alpha);
+		cur_alpha);
+		//!!!!!!!!! COLOR
 }
 
 static void DoWriteText(float x, float y, const char *str)
@@ -478,7 +479,7 @@ static int HD_draw_image(lua_State *L)
 
 		RGL_DrawImage(x, y, w, h, img,
 		              0, 0, IM_RIGHT(img), IM_TOP(img),
-					  NULL, cur_alpha);
+					  cur_alpha);
 	}
 
 	return 0;
@@ -504,7 +505,7 @@ static int HD_stretch_image(lua_State *L)
 
 		RGL_DrawImage(x, y, w, h, img,
 		              0, 0, IM_RIGHT(img), IM_TOP(img),
-					  NULL, cur_alpha);
+					  cur_alpha);
 	}
 
 	return 0;
@@ -548,7 +549,7 @@ static int HD_tile_image(lua_State *L)
 					  (offset_y) * ty_scale,
 					  (offset_x + 1) * tx_scale,
 					  (offset_y + 1) * ty_scale,
-					  NULL, cur_alpha);
+					  cur_alpha);
 	}
 
 	return 0;
