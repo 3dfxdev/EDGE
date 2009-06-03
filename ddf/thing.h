@@ -280,48 +280,6 @@ mobjhyperflag_t;
 
 
 // ------------------------------------------------------------------
-// -----------------SCREEN EFFECT DEFINITIONS------------------------
-// ------------------------------------------------------------------
-
-#define NUM_FX_SLOT  30
-
-typedef struct tint_effect_def_s
-{
-	const colourmap_c *colmap;  // if NULL, use the next field
-	rgbcol_t colour;
-
-	int fade_out_time;  // in tics
-	bool flashes;  // otherwise smoothly fades out
-}
-tint_effect_def_t;
-
-typedef struct icon_effect_def_s
-{
-	lumpname_c graphic;
-	int num_frames;
-	float x, y;  // in 320x200 coordinates
-	int alignment;  // FIXME: left/right top/bottom (etc)
-	float scale, aspect;
-	percent_t translucency;
-}
-icon_effect_def_t;
-
-class screen_effect_def_c
-{
-public:
-	screen_effect_def_c();
-	screen_effect_def_c(screen_effect_def_c &rhs); 
-	~screen_effect_def_c();
-
-	ddf_base_c ddf;
-
-	tint_effect_def_t tint;
-	icon_effect_def_t icon;
-
-	struct sfx_s *sound;
-};
-
-// ------------------------------------------------------------------
 // ------------------------BENEFIT TYPES-----------------------------
 // ------------------------------------------------------------------
 
