@@ -345,7 +345,8 @@ void font_c::DrawChar320(float x, float y, char ch, float scale, float aspect,
 		FROM_200(IM_HEIGHT(image)) * sc_y,
 		image, 0.0f, 0.0f,
 		IM_RIGHT(image), IM_TOP(image),
-		colmap, alpha);
+		alpha);
+		//!!!!!!! COLOR
 }
 
 

@@ -367,7 +367,7 @@ static void TextWrite(void)
 	{
 		RGL_DrawImage(0, 0, SCREENWIDTH, SCREENHEIGHT, finale_textback,
 				0.0f, 0.0f, IM_RIGHT(finale_textback) * finale_textbackscale,
-				IM_TOP(finale_textback) * finale_textbackscale, NULL, 1.0f);
+				IM_TOP(finale_textback) * finale_textbackscale);
 	}
 	
 	// draw some of the text onto the screen
@@ -724,7 +724,7 @@ static void CastDrawer(void)
 				  image, 
 				  flip ? IM_RIGHT(image) : 0, 0,
 				  flip ? 0 : IM_RIGHT(image), IM_TOP(image),
-				  NULL, 1.0f, cast_info->palremap);
+				  1.0f, RGB_NO_VALUE, cast_info->palremap);
 }
 
 //

@@ -106,7 +106,7 @@ void style_c::DrawBackground(int x, int y, int w, int h, int align)
 				0.0f, align ? (1.0f - top * h / IM_HEIGHT(bg_image) / y_scale) : 0.0f,
 				right  * w / IM_WIDTH(bg_image)  / x_scale,
 				align ? 1.0f : (top * h / IM_HEIGHT(bg_image) / y_scale),
-				NULL, alpha);
+				alpha);
 	}
 	else if (def->special & SYLSP_TiledNoScale)
 	{
@@ -114,12 +114,12 @@ void style_c::DrawBackground(int x, int y, int w, int h, int align)
 				0.0f, align ? (1.0f - top * h / IM_HEIGHT(bg_image)) : 0.0f,
 				right  * w / IM_WIDTH(bg_image),
 				align ? 1.0f : (top * h / IM_HEIGHT(bg_image)),
-				NULL, alpha);
+				alpha);
 	}
 	else
 	{
 		RGL_DrawImage(x, y, w, h, bg_image, 0.0f, 0.0f,
-					  right, top, NULL, alpha);
+					  right, top, alpha);
 	}
 }
 

@@ -303,7 +303,7 @@ void RAD_DisplayTips(void)
 
 			RGL_DrawImage(x, SCREENHEIGHT-1 - y-h, w, h, image,
 						  0, 0, IM_RIGHT(image), IM_TOP(image),
-						  NULL, alpha);
+						  alpha);
 
 			continue;
 		}

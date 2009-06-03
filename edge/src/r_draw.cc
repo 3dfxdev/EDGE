@@ -45,7 +45,7 @@ void RGL_NewScreenSize(int width, int height, int bits)
 
 void RGL_DrawImage(float x, float y, float w, float h, const image_c *image, 
 				   float tx1, float ty1, float tx2, float ty2,
-				   const colourmap_c *textmap, float alpha,
+				   float alpha, rgbcol_t text_col,
 				   const colourmap_c *palremap)
 {
 	int x1 = I_ROUND(x);
@@ -58,8 +58,16 @@ void RGL_DrawImage(float x, float y, float w, float h, const image_c *image,
 
 	float r = 1.0f, g = 1.0f, b = 1.0f;
 
-	GLuint tex_id = W_ImageCache(image, true,
-		(textmap && (textmap->special & COLSP_Whiten)) ? font_whiten_map : palremap);
+	if (text_col != RGB_NO_VALUE)
+	{
+		r = RGB_RED(text_col) / 255.0;
+		g = RGB_GRN(text_col) / 255.0;
+		b = RGB_BLU(text_col) / 255.0;
+
+		palremap = font_whiten_map;
+	}
+
+	GLuint tex_id = W_ImageCache(image, true, palremap);
 
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, tex_id);
@@ -76,9 +84,6 @@ void RGL_DrawImage(float x, float y, float w, float h, const image_c *image,
 
 	if (image->opacity == OPAC_Complex || alpha < 0.99f)
 		glEnable(GL_BLEND);
-
-	if (textmap)
-		V_GetColmapRGB(textmap, &r, &g, &b, true);
 
 	glColor4f(r, g, b, alpha);
 
@@ -113,8 +118,7 @@ void RGL_Image320(float x, float y, float w, float h, const image_c *image)
 			FROM_320(x-IM_OFFSETX(image)),
             SCREENHEIGHT - FROM_200(y-IM_OFFSETY(image)) - FROM_200(h),
             FROM_320(w), FROM_200(h), image,
-			0, 0, IM_RIGHT(image), IM_TOP(image),
-			NULL, 1.0f);
+			0, 0, IM_RIGHT(image), IM_TOP(image));
 }
 
 void RGL_ImageEasy320(float x, float y, const image_c *image)
