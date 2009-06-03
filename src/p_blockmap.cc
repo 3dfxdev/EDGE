@@ -1335,21 +1335,15 @@ void P_GenerateBlockMap(int min_x, int min_y, int max_x, int max_y)
 
 typedef std::list<subsector_t *> subsec_set_t;
 
-//## class subsec_set_c
-//## {
-//## public:
-//## 	std::list<subsector_t *> subs;
-//## 
-//## public:
-//## 	 subsec_set_c() : subs() { }
-//## 	~subsec_set_c() { } 
-//## };
-
 static subsec_set_t **subsec_map;
 static int subsec_map_total;
 
 static void SubsecAdd(subsector_t *sub)
 {
+	// no bbox when no segs
+	if (! sub->segs)
+		return;
+
 	int lx = BLOCKMAP_GET_X(sub->bbox[BOXLEFT]);
 	int ly = BLOCKMAP_GET_Y(sub->bbox[BOXBOTTOM]);
 	int hx = BLOCKMAP_GET_X(sub->bbox[BOXRIGHT]);
