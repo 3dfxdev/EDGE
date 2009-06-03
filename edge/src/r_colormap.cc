@@ -72,7 +72,6 @@ static bool old_gamma = -1;
 
 
 // text translation tables
-const byte *font_whitener = NULL;
 const colourmap_c *font_whiten_map = NULL;
 const colourmap_c *text_white_map  = NULL;
 
@@ -165,16 +164,13 @@ void V_InitPalette(void)
 //
 static void InitTranslationTables(void)
 {
-	if (font_whitener)
+	if (font_whiten_map)
 		return;
 
 	// look up the general colmaps & coltables
 
 	font_whiten_map = colourmaps.Lookup("FONTWHITEN");
-
-	font_whitener = V_GetTranslationTable(font_whiten_map);
-
-	text_white_map = colourmaps.Lookup("TEXT_WHITE");
+	text_white_map  = colourmaps.Lookup("TEXT_WHITE");
 }
 
 static int cur_palette = -1;
@@ -317,16 +313,10 @@ static void LoadColourmap(const colourmap_c * colm)
 
 	data_in = data + (colm->start * 256);
 
-	bool whiten = (colm->special & COLSP_Whiten) ? true : false;
-
 	Z_Resize(cache->data, byte, colm->length * 256);
 
-	if (whiten)
-		for (int j = 0; j < colm->length * 256; j++)
-			cache->data[j] = data_in[font_whitener[j]];
-	else
-		for (int j = 0; j < colm->length * 256; j++)
-			cache->data[j] = data_in[j];
+	for (int j = 0; j < colm->length * 256; j++)
+		cache->data[j] = data_in[j];
 
 	W_DoneWithLump(data);
 }
