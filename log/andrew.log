@@ -2,14 +2,19 @@ Andrew Apted's Log
 
 2009/06/03:
 
-hud.text_color() now supports '#' color strings and color
-tables.  RTS tip commands now support '#' colors.
+Improved text drawing code, consistently use 'rgbcol_t'
+instead of colormaps for colored text.  The hud.text_color()
+Lua function now supports '#' color strings and color tables.
+The RTS tip commands now support '#' colors.
+
+Removed the 'COMPLEX' setting for invulnerability effect, since
+it doesn't work on old cards and rarely on Radeon cards.
 
 2009/06/02:
 
 Implemented the following console commands:
    show_files
-   show_lumps [file  [match]]
+   show_lumps [file [match]]
 
 NEW Renderer is coming along, fixed some glitches.
 
@@ -25,12 +30,20 @@ Replaced various code that used the BSP with equivalent
 using the blockmap, like: P_CheckSight, R_PointInSubsector,
 P_ThingsOnLine, and the automap rendering.
 
+Fixed slowdown with saving large levels, because the chunk
+allocation only grew by 1024 bytes each reallocation.
+
+Updated all thing & weapon action functions to pass in
+the 'action_par' directly as second parameter.
+
 2009/05/28:
 
 Split P_SpawnSpecials() into two functions, one which is
 called before loading things, and one which is called
 afterwards.  This fixes the broken BOOM point pushers,
 which could not find any things (not loaded yet).
+
+Begin work on a new BSP-free rendering method.
 
 2008/12/09:
 
