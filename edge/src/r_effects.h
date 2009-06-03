@@ -30,16 +30,11 @@
 #include "r_image.h"
 
 
-class screen_effect_def_c;
-
-
 class screen_fx_slot_c
 {
 public:
 	screen_fx_slot_c();
 	~screen_fx_slot_c() { }
-
-	const screen_effect_def_c *def;
 
 	bool active;
 
