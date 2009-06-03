@@ -99,7 +99,7 @@ void RGL_RainbowEffect(player_t *player)
 	{
 		float r, g, b;
 
-		V_GetColmapRGB(player->effect_colourmap, &r, &g, &b, false);
+		V_GetColmapRGB(player->effect_colourmap, &r, &g, &b);
 
 		ren_red_mul = 1.0f - (1.0f - r) * s;
 		ren_grn_mul = 1.0f - (1.0f - g) * s;
@@ -137,7 +137,7 @@ void RGL_ColourmapEffect(player_t *player)
 
 		float r, g, b;
 
-		V_GetColmapRGB(player->effect_colourmap, &r, &g, &b, false);
+		V_GetColmapRGB(player->effect_colourmap, &r, &g, &b);
 
 		r = 1.0f; // MAX(0.5f, r) * (s + 1.0f) / 2.0f;
 		g = b = r;
@@ -187,7 +187,7 @@ void RGL_PaletteEffect(player_t *player)
 	         player->effect_colourmap)
 	{
 		float r, g, b;
-		V_GetColmapRGB(player->effect_colourmap, &r, &g, &b, false);
+		V_GetColmapRGB(player->effect_colourmap, &r, &g, &b);
 		glColor4f(r, g, b, 0.20f * s);
 	}
 	else
