@@ -501,23 +501,28 @@ void TransformColourmap(colourmap_c *colmap)
 
 
 void V_GetColmapRGB(const colourmap_c *colmap,
-					float *r, float *g, float *b,
-					bool font)
+					float *r, float *g, float *b)
 {
-	if (colmap->gl_colour   == RGB_NO_VALUE ||
-		colmap->font_colour == RGB_NO_VALUE)
+	if (colmap->gl_colour == RGB_NO_VALUE)
 	{
 		// Intention Const Override
 		TransformColourmap((colourmap_c *)colmap);
 	}
 
-	rgbcol_t col = font ? colmap->font_colour : colmap->gl_colour;
+	(*r) = GAMMA_CONV((colmap->gl_colour >> 16) & 0xFF) / 255.0f;
+	(*g) = GAMMA_CONV((colmap->gl_colour >>  8) & 0xFF) / 255.0f;
+	(*b) = GAMMA_CONV((colmap->gl_colour      ) & 0xFF) / 255.0f;
+}
 
-	SYS_ASSERT(col != RGB_NO_VALUE);
+rgbcol_t V_GetFontColor(const colourmap_c *colmap)
+{
+	if (colmap->font_colour == RGB_NO_VALUE)
+	{
+		// Intention Const Override
+		TransformColourmap((colourmap_c *)colmap);
+	}
 
-	(*r) = GAMMA_CONV((col >> 16) & 0xFF) / 255.0f;
-	(*g) = GAMMA_CONV((col >>  8) & 0xFF) / 255.0f;
-	(*b) = GAMMA_CONV((col      ) & 0xFF) / 255.0f;
+	return colmap->font_colour;
 }
 
 //

@@ -83,9 +83,9 @@ const byte *V_GetTranslationTable(const colourmap_c * colmap);
 void R_TranslatePalette(byte *new_pal, const byte *old_pal,
                         const colourmap_c *trans);
 
-// support for GL
-void V_GetColmapRGB(const colourmap_c *colmap,
-    float *r, float *g, float *b, bool font);
+void V_GetColmapRGB(const colourmap_c *colmap, float *r, float *g, float *b);
+
+rgbcol_t V_GetFontColor(const colourmap_c *colmap);
 
 abstract_shader_c *R_GetColormapShader(
 		const struct region_properties_s *props, int light_add = 0);
