@@ -86,12 +86,6 @@ static bool ColmapStartEntry(const char *name)
 	// instantiate the static entry
 	buffer_colmap.Default();
 
-	// make sure fonts get whitened properly (as the default)
-	if (strnicmp(dynamic_colmap->ddf.name.c_str(), "TEXT", 4) == 0)
-	{
-		buffer_colmap.special = COLSP_Whiten;
-	}
-
 	return (existing != NULL);
 }
 
@@ -184,15 +178,14 @@ void DDF_ColmapCleanUp(void)
 specflags_t colmap_specials[] =
 {
 	{"FLASH",  COLSP_NoFlash, true},
-	{"WHITEN", COLSP_Whiten,  false},
 
 	// -AJA- backwards compatibility cruft...
-	{"!SKY",   0, 0},
+	{"WHITEN", 0, 0},
+	{"SKY",    0, 0},
+
 	{NULL, 0, 0}
 };
 
-//
-// DDF_ColmapGetSpecial
 //
 // Gets the colourmap specials.
 //

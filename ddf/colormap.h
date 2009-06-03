@@ -33,9 +33,6 @@ typedef enum
 	
 	// don't apply gun-flash type effects (looks silly for fog)
 	COLSP_NoFlash  = 0x0001,
-
-	// for fonts, apply the FONTWHITEN mapping first
-	COLSP_Whiten   = 0x0002
 }
 colourspecial_e;
 
