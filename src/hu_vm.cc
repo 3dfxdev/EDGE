@@ -37,10 +37,11 @@
 #include "r_modes.h"
 #include "r_misc.h"     //  R_Render
 #include "r_automap.h"  // AM_Drawer
+#include "r_colormap.h"
 
 
 static font_c *cur_font = NULL;
-static colourmap_c *cur_colmap = NULL;
+static rgbcol_t cur_color = RGB_NO_VALUE;
 static float cur_scale;
 static float cur_alpha;
 
@@ -68,7 +69,7 @@ static void FrameSetup(void)
 	cur_font = hu_fonts.Lookup(DEF);
 	SYS_ASSERT(cur_font);
 
-	cur_colmap = NULL;
+	cur_color  = RGB_NO_VALUE;
 	cur_scale  = 1.0f;
 	cur_alpha  = 1.0f;
 
@@ -119,8 +120,7 @@ static void DoDrawChar(float cx, float cy, char ch)
 		COORD_Y(IM_HEIGHT(image)) * sc_y,
 		image, 0.0f, 0.0f,
 		IM_RIGHT(image), IM_TOP(image),
-		cur_alpha);
-		//!!!!!!!!! COLOR
+		cur_alpha, cur_color);
 }
 
 static void DoWriteText(float x, float y, const char *str)
@@ -179,17 +179,32 @@ static void DoWriteText_RightAlign(float x, float y, const char *str)
 
 static rgbcol_t ParseColor(lua_State *L, int index)
 {
+	rgbcol_t rgb;
+
 	if (lua_isstring(L, index))
 	{
 		const char *name = lua_tostring(L, index);
 
-		if (name[0] != '#')
-			I_Error("Bad color in lua script (missing #) : %s\n", name);
+		if (name[0] == '#')
+		{
+			rgb = strtol(name+1, NULL, 16);
+		}
+		else if (! name[0])
+		{
+			return RGB_NO_VALUE;
+		}
+		else
+		{
+			// lookup colormap name
+			const colourmap_c *colmap = colourmaps.Lookup(name);
 
-		return (rgbcol_t) strtol(name+1, NULL, 16);
+			if (! colmap)
+				I_Error("Unknown colormap in lua script: '%s'\n", name);
+	
+			rgb = V_GetFontColor(colmap);
+		}
 	}
-
-	if (lua_istable(L, index))
+	else if (lua_istable(L, index))
 	{
 		// parse 'r', 'g', 'b' fields
 		int r, g, b;
@@ -211,11 +226,18 @@ static rgbcol_t ParseColor(lua_State *L, int index)
 
 		lua_pop(L, 3);
 
-		return RGB_MAKE(r, g, b);
+		rgb = RGB_MAKE(r, g, b);
+	}
+	else
+	{
+		I_Error("Bad color value in lua script!\n");
+		return 0; /* NOT REACHED */
 	}
 
-	I_Error("Bad color value in lua script!\n");
-	return 0; /* NOT REACHED */
+	if (rgb == RGB_NO_VALUE)
+		rgb ^= 0x000101;
+
+	return rgb;
 }
 
 
@@ -323,23 +345,11 @@ static int HD_text_font(lua_State *L)
 //
 static int HD_text_color(lua_State *L)
 {
-	// TODO: table colors { r=xxx,g=xxx,b=xxx }
+	cur_color = RGB_NO_VALUE;
 
-	const char *col_str = luaL_checkstring(L, 1);
-
-	if (strlen(col_str) == 0)
-	{
-		cur_colmap = NULL;
-		return 0;
-	}
-
-	if (col_str[0] == '#')
-		I_Error("hud.text_color: cannot use # colors yet!\n");
-
-	cur_colmap = colourmaps.Lookup(col_str);
-
-	if (! cur_colmap)
-		I_Error("hud.text_color: no such colormap: %s\n", col_str);
+	int nargs = lua_gettop(L);
+	if (nargs >= 1)
+		cur_color = ParseColor(L, 1);
 
 	return 0;
 }
