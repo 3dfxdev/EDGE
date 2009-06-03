@@ -89,6 +89,7 @@ static const char *finaletext;
 
 static gameaction_e newgameaction;
 static const map_finaledef_c *finale;
+static rgbcol_t finale_textcol;
 
 static void CastInitNew(int num);
 static void CastTicker(void);
@@ -232,6 +233,12 @@ static void LookupFinaleStuff(void)
 	{
 		finale_textback = NULL;
 	}
+
+	// text color
+	finale_textcol = finale->text_rgb;
+
+	if (finale->text_colmap)
+		finale_textcol = V_GetFontColor(finale->text_colmap);
 }
 
 
@@ -392,7 +399,7 @@ static void TextWrite(void)
 
 		if (count == 0 || *ch == 0)
 		{
-			HL_DrawTextLineAlpha(&L, false, finale->text_colmap, 1.0f);
+			HL_DrawTextLineAlpha(&L, false, finale_textcol, 1.0f);
 			break;
 		}
 
@@ -401,7 +408,7 @@ static void TextWrite(void)
 		if (c == '\n')
 		{
 			cy += 11;
-			HL_DrawTextLineAlpha(&L, false, finale->text_colmap, 1.0f);
+			HL_DrawTextLineAlpha(&L, false, finale_textcol, 1.0f);
 			HL_InitTextLine(&L, cx, cy, finale_hack_style, 0);
 			continue;
 		}

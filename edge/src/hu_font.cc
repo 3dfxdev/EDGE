@@ -324,7 +324,7 @@ int font_c::StringLines(const char *str) const
 
 
 void font_c::DrawChar320(float x, float y, char ch, float scale, float aspect,
-    const colourmap_c *colmap, float alpha) const
+    rgbcol_t col, float alpha) const
 {
 	SYS_ASSERT(def->type != FNTYP_Image);
 
@@ -345,8 +345,7 @@ void font_c::DrawChar320(float x, float y, char ch, float scale, float aspect,
 		FROM_200(IM_HEIGHT(image)) * sc_y,
 		image, 0.0f, 0.0f,
 		IM_RIGHT(image), IM_TOP(image),
-		alpha);
-		//!!!!!!! COLOR
+		alpha, col);
 }
 
 

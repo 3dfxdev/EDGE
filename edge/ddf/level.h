@@ -50,6 +50,7 @@ public:
 	lumpname_c text_flat;
 	float text_speed;
 	unsigned int text_wait;
+	rgbcol_t text_rgb;
 	const colourmap_c *text_colmap;
 
 	// Pic

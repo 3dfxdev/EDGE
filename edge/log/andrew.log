@@ -1,5 +1,10 @@
 Andrew Apted's Log
 
+2009/06/03:
+
+hud.text_color() now supports '#' color strings and color
+tables.  RTS tip commands now support '#' colors.
+
 2009/06/02:
 
 Implemented the following console commands:

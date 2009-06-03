@@ -57,21 +57,21 @@ drawtip_t tip_slots[MAXTIPSLOT];
 
 static s_tip_prop_t fixed_props[FIXEDSLOTS] =
 {
-	{  1, 0.50f, 0.50f, 0, "TEXT_WHITE",  1.0f }, 
-	{  2, 0.20f, 0.25f, 1, "TEXT_WHITE",  1.0f },
-	{  3, 0.20f, 0.75f, 1, "TEXT_WHITE",  1.0f },
-	{  4, 0.50f, 0.50f, 0, "TEXT_BLUE",   1.0f },
-	{  5, 0.20f, 0.25f, 1, "TEXT_BLUE",   1.0f },
-	{  6, 0.20f, 0.75f, 1, "TEXT_BLUE",   1.0f },
-	{  7, 0.50f, 0.50f, 0, "TEXT_YELLOW", 1.0f },
-	{  8, 0.20f, 0.25f, 1, "TEXT_YELLOW", 1.0f },
-	{  9, 0.20f, 0.75f, 1, "TEXT_YELLOW", 1.0f },
-	{ 10, 0.50f, 0.50f, 0, "NORMAL",      1.0f },  // will be RED
-	{ 11, 0.20f, 0.25f, 1, "NORMAL",      1.0f },  //
-	{ 12, 0.20f, 0.75f, 1, "NORMAL",      1.0f },  //
-	{ 13, 0.50f, 0.50f, 0, "TEXT_GREEN",  1.0f },
-	{ 14, 0.20f, 0.25f, 1, "TEXT_GREEN",  1.0f },
-	{ 15, 0.20f, 0.75f, 1, "TEXT_GREEN",  1.0f } 
+	{  1, 0.50f, 0.50f, 0, "#FFFFFF", 1.0f }, 
+	{  2, 0.20f, 0.25f, 1, "#FFFFFF", 1.0f },
+	{  3, 0.20f, 0.75f, 1, "#FFFFFF", 1.0f },
+	{  4, 0.50f, 0.50f, 0, "#3333FF", 1.0f },
+	{  5, 0.20f, 0.25f, 1, "#3333FF", 1.0f },
+	{  6, 0.20f, 0.75f, 1, "#3333FF", 1.0f },
+	{  7, 0.50f, 0.50f, 0, "#FFFF00", 1.0f },
+	{  8, 0.20f, 0.25f, 1, "#FFFF00", 1.0f },
+	{  9, 0.20f, 0.75f, 1, "#FFFF00", 1.0f },
+	{ 10, 0.50f, 0.50f, 0, "",        1.0f },
+	{ 11, 0.20f, 0.25f, 1, "",        1.0f },
+	{ 12, 0.20f, 0.75f, 1, "",        1.0f },
+	{ 13, 0.50f, 0.50f, 0, "#33FF33", 1.0f },
+	{ 14, 0.20f, 0.25f, 1, "#33FF33", 1.0f },
+	{ 15, 0.20f, 0.75f, 1, "#33FF33", 1.0f } 
 };
 
 static style_c *rts_hack_style;
@@ -91,7 +91,7 @@ void RAD_InitTips(void)
 		Z_MoveData(&current->p, src, s_tip_prop_t, 1);
 
 		current->delay = -1;
-		current->colmap = NULL;
+		current->color = RGB_NO_VALUE;
 
 		current->p.slot_num  = i;
 	}
@@ -135,12 +135,8 @@ static void SetupTip(drawtip_t *cur)
 	if (cur->tip_graphic)
 		return;
 
-	if (! cur->colmap)
-	{
-		cur->colmap = colourmaps.Lookup(cur->p.colourmap_name); 
-		if (! cur->colmap)
-			cur->colmap = text_white_map;
-	}
+	if (cur->color == RGB_NO_VALUE)
+		cur->color = V_ParseFontColor(cur->p.color_name);
 
 	// build HULIB information
 
@@ -313,7 +309,7 @@ void RAD_DisplayTips(void)
 		for (i=0; i < current->hu_linenum; i++)
 		{
 			HL_DrawTextLineAlpha(current->hu_lines + i, false,
-				current->colmap, alpha);
+				current->color, alpha);
 		}
 	}
 }
@@ -397,11 +393,8 @@ void RAD_ActTipProps(rad_trigger_t *R, mobj_t *actor, void *param)
 	if (tp->left_just >= 0)
 		current->p.left_just = tp->left_just;
 
-	if (tp->colourmap_name)
-	{
-		// FIXME!!! Catch lookup failure 
-		current->colmap = colourmaps.Lookup(tp->colourmap_name); 
-	}
+	if (tp->color_name)
+		current->color = V_ParseFontColor(tp->color_name); 
 
 	if (tp->translucency >= 0)
 	{

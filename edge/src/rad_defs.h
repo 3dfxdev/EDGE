@@ -60,8 +60,8 @@ typedef struct s_tip_prop_s
 	// left justify.  Can be 1, 0, or < 0 for no change.
 	int left_just;
 
-	// tip colourmap, or NULL for no change
-	const char *colourmap_name;
+	// tip color, or NULL for no change
+	const char *color_name;
 
 	// translucency value (normally 1.0), or < 0 for no change
 	percent_t translucency;
@@ -641,7 +641,7 @@ typedef struct drawtip_s
 	float scale;
 
 	// current colour
-	const colourmap_c *colmap;
+	rgbcol_t color;
 
 	// fading fields
 	int fade_time;
