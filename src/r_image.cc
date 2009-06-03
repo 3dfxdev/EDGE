@@ -212,34 +212,6 @@ static std::list<cached_image_t *> image_cache;
 int image_reset_counter = 0;
 
 
-// tiny ring helpers
-static inline void InsertAtTail(cached_image_t *rc)
-{
-	image_cache.push_back(rc);
-
-#if 0  // OLD WAY
-	SYS_ASSERT(rc != &imagecachehead);
-
-	rc->prev =  imagecachehead.prev;
-	rc->next = &imagecachehead;
-
-	rc->prev->next = rc;
-	rc->next->prev = rc;
-#endif
-}
-static inline void Unlink(cached_image_t *rc)
-{
-	// FIXME: Unlink
-#if 0
-	SYS_ASSERT(rc != &imagecachehead);
-
-	rc->prev->next = rc->next;
-	rc->next->prev = rc->prev;
-#endif
-}
-
-
-
 //----------------------------------------------------------------------------
 //
 //  IMAGE CREATION
@@ -901,51 +873,6 @@ static GLuint LoadImageOGL(image_c *rim, const colourmap_c *trans)
 }
 
 
-
-
-#if 0
-static
-void UnloadImageOGL(cached_image_t *rc, image_c *rim)
-{
-	glDeleteTextures(1, &rc->tex_id);
-
-	for (unsigned int i = 0; i < rim->cache.size(); i++)
-	{
-		if (rim->cache[i] == rc)
-		{
-			rim->cache[i] = NULL;
-			return;
-		}
-	}
-
-	I_Error("INTERNAL ERROR: UnloadImageOGL: no such RC in cache !\n");
-}
-
-
-//
-// UnloadImage
-//
-// Unloads a cached image from the cache list and frees all resources.
-// Mainly just a switch to more specialised image unloaders.
-//
-static void UnloadImage(cached_image_t *rc)
-{
-	image_c *rim = rc->parent;
-
-	SYS_ASSERT(rc);
-	SYS_ASSERT(rc != &imagecachehead);
-	SYS_ASSERT(rim);
-
-	// unlink from the cache list
-	Unlink(rc);
-
-	UnloadImageOGL(rc, rim);
-
-	delete rc;
-}
-#endif
-
-
 //----------------------------------------------------------------------------
 //  IMAGE LOOKUP
 //----------------------------------------------------------------------------
@@ -1308,27 +1235,15 @@ static cached_image_t *ImageCacheOGL(image_c *rim,
 		rc->hue = RGB_NO_VALUE;
 		rc->tex_id = 0;
 
-		InsertAtTail(rc);
-
 		if (free_slot >= 0)
 			rim->cache[free_slot] = rc;
 		else
 			rim->cache.push_back(rc);
+
+		image_cache.push_back(rc);
 	}
 
 	SYS_ASSERT(rc);
-
-#if 0  // REMOVE
-	if (rc->invalidated)
-	{
-		SYS_ASSERT(rc->tex_id != 0);
-
-		glDeleteTextures(1, &rc->tex_id);
-
-		rc->tex_id = 0;
-		rc->invalidated = false;
-	}
-#endif
 
 	if (rc->tex_id == 0)
 	{
