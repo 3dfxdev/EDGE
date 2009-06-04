@@ -30,7 +30,7 @@ public:
 	const char *str;
 
 private:
-	enum bufsize_e { BUFSIZE = 32 };
+	enum bufsize_e { BUFSIZE = 24 };
 
 	// local buffer used for integers, floats and small strings.
 	// in use whenever (s == buffer).  Otherwise s is on the heap,
@@ -68,35 +68,19 @@ private:
 };
 
 
-#if 0
-typedef enum
-{
-	CV_NONE = 0,
-
-	CV_Config   = (1 << 0),  // saved in user's config file
-	CV_Option   = (1 << 1),  // settable from the command line
-	CV_ReadOnly = (1 << 2),  // cannot change in console
-}
-cvar_flag_e;
-#endif
-
-
 typedef struct cvar_link_s
 {
-	// flags (a combination of letters, "" for none)
-	const char *flags;
+	// name of variable
+	const char *name;
 
 	// the console variable itself
 	cvar_c *var;
 
+	// flags (a combination of letters, "" for none)
+	const char *flags;
+
 	// default value
 	const char *def_val;
-
-	// name of variable
-	const char *name;
-
-	// aliases (separated by commas), or NULL if none
-	const char *aliases;
 }
 cvar_link_t;
 
@@ -107,7 +91,7 @@ extern cvar_link_t all_cvars[];
 void CON_ResetAllVars(void);
 // sets all cvars to their default value.
 
-cvar_link_t * CON_FindVar(const char *name, bool no_alias = false);
+cvar_link_t * CON_FindVar(const char *name);
 // look for a CVAR with the given name.
 
 int CON_FindMultiVar(std::vector<cvar_link_t *>& list,
@@ -116,7 +100,7 @@ int CON_FindMultiVar(std::vector<cvar_link_t *>& list,
 // them into the given list.  The flags parameter, if present,
 // contains lowercase letters to match the CVAR with the flag,
 // and/or uppercase letters to require the flag to be absent.
-// NOTE: Aliases are NOT CHECKED.
+//
 // Returns number of matches found.
 
 bool CON_SetVar(const char *name, const char *flags, const char *value);

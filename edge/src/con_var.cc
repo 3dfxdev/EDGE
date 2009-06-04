@@ -183,17 +183,12 @@ void CON_ResetAllVars(void)
 }
 
 
-cvar_link_t * CON_FindVar(const char *name, bool no_alias)
+cvar_link_t * CON_FindVar(const char *name)
 {
 	for (int i = 0; all_cvars[i].var; i++)
 	{
 		if (stricmp(all_cvars[i].name, name) == 0)
 			return &all_cvars[i];
-
-		if (! no_alias)
-		{
-			// FIXME: check aliases
-		}
 	}
 
 	return NULL;
@@ -230,7 +225,7 @@ bool CON_SetVar(const char *name, const char *flags, const char *value)
 		flags++;
 	}
 
-	cvar_link_t *L = CON_FindVar(name, no_alias);
+	cvar_link_t *L = CON_FindVar(name);
 
 	if (! L)
 	{
