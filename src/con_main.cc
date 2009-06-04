@@ -36,82 +36,19 @@
 #define BACKBUFFER 10
 
 
-static int GetArgs(const char *args, int argc, char **argv)
-{
-	int i, j, k = 0, m;
-	const int len = (const int)strlen(args);
-	char *s;
-	int quote;
+#define MAX_CON_ARGS  64
 
-	// skip any leading spaces
-	for (i = 0; args[i] == ' '; i++)
-		;
 
-	for (; i < len; i = j)
-	{
-		// find end of arg
-		if (args[i] == '\"')
-		{
-			quote = 1;
-			i++;
-			for (j = i; args[j] != '\"' && j < len; j++)
-				;
-		} else
-		{
-			quote = 0;
-			for (j = i; args[j] != ' ' && j < len; j++)
-				;
-		}
 
-		s = Z_New(char, j - i + 1);
-		for (m = 0; m < j - i; m++)
-		{
-			// -ES- 1999/07/25 Convert to lowercase, to avoid case sensitivity
-			s[m] = tolower(args[i + m]);
-		}
-		s[j - i] = '\0';
 
-		argv[k] = s;
-
-		if (++k == argc)
-			break;
-
-		if (quote)
-			// skip the ending quote
-			j++;
-
-		// skip whitespace until the next arg
-		while (args[j] == ' ' && j < len)
-			j++;
-	}
-
-	return k;
-}
-
-static void KillArgs(int argc, char *(argv[]))
-{
-	int i;
-
-	for (i = 0; i < argc; i++)
-		Z_Free(argv[i]);
-}
-
-int CMD_Exec(const char *args)
+int CMD_Exec(const char **argv, int argc)
 {
 	FILE *script;
-	int argc;
-	char *argv[2];
 	char buffer[SCREENCOLS];
-
-	argc = GetArgs(args, 2, argv);
-
-	if (!argc)
-		return 1;
 
 	if (argc != 2)
 	{
 		CON_Printf("Usage: exec <script name.cfg>\n");
-		KillArgs(argc, argv);
 		return 1;
 	}
 
@@ -119,7 +56,6 @@ int CMD_Exec(const char *args)
 	if (!script)
 	{
 		CON_Printf("Unable to open \'%s\'!\n", argv[1]);
-		KillArgs(argc, argv);
 		return 1;
 	}
 
@@ -129,26 +65,17 @@ int CMD_Exec(const char *args)
 	}
 
 	fclose(script);
-	KillArgs(argc, argv);
 	return 0;
 }
 
-int CMD_Type(const char *args)
+int CMD_Type(const char **argv, int argc)
 {
 	FILE *script;
-	int argc;
-	char *argv[2];
 	char buffer[SCREENCOLS];
-
-	argc = GetArgs(args, 2, argv);
-
-	if (!argc)
-		return 1;
 
 	if (argc != 2)
 	{
-		CON_Printf("Usage: type <file name.txt>\n");
-		KillArgs(argc, argv);
+		CON_Printf("Usage: type <filename.txt>\n");
 		return 2;
 	}
 
@@ -156,7 +83,6 @@ int CMD_Type(const char *args)
 	if (!script)
 	{
 		CON_Printf("Unable to open \'%s\'!\n", argv[1]);
-		KillArgs(argc, argv);
 		return 3;
 	}
 	while (fgets(buffer, SCREENCOLS - 1, script))
@@ -164,43 +90,31 @@ int CMD_Type(const char *args)
 		CON_Printf("%s", buffer);
 	}
 	fclose(script);
-	KillArgs(argc, argv);
+
 	return 0;
 }
 
-int CMD_ArgText(const char *args)
+int CMD_DumpArgs(const char **argv, int argc)
 {
-	int argc;
-	int i;
-	char *argv[10];
+	I_Printf("Arguments:\n");
 
-	argc = GetArgs(args, 10, argv);
+	for (int i = 0; i < argc; i++)
+		I_Printf(" %2d len:%d text:\"%s\"\n", i, (int)strlen(argv[i]), argv[i]);
 
-	for (i = 0; i < argc; i++)
-		CON_Printf("%d:(%d) \"%s\"\n", i, (int)strlen(argv[i]), argv[i]);
-
-	KillArgs(argc, argv);
 	return 0;
 }
 
 //
 // Eats memory.
 //
-int CMD_Eat(const char *args)
+int CMD_Eat(const char **argv, int argc)
 {
-	int argc;
-	char *argv[2];
 	int bytes;
 	static char *p = NULL;
-
-	argc = GetArgs(args, 2, argv);
-	if (!argc)
-		return 1;
 
 	if (argc != 2 || 1 != sscanf(argv[1], "%d", &bytes))
 	{
 		CON_Printf("Eat memory. Usage: eat <size>\n");
-		KillArgs(argc, argv);
 		return 2;
 	}
 
@@ -215,25 +129,21 @@ int CMD_Eat(const char *args)
 	return 0;
 }
 
-int CMD_ScreenShot(const char *args)
+int CMD_ScreenShot(const char **argv, int argc)
 {
 	G_DeferredScreenShot();
 
 	return 0;
 }
 
-int CMD_Set(const char *args)
+int CMD_Set(const char **argv, int argc)
 {
-	int argc;
 	cvar_t *var;
 	// temp argv: Just to handle 'const' keyword properly
 	char *tmpargv[3];
-	const char *argv[3];
 	int i;
 	int e = 0;
 	char buf[1025];
-
-	argc = GetArgs(args, 3, tmpargv);
 
 	for (i = 0; i < argc; i++)
 		argv[i] = tmpargv[i];
@@ -308,18 +218,13 @@ int CMD_Set(const char *args)
 		break;
 	}
 
-	KillArgs(argc, tmpargv);
 	return e;
 }
 
-int CMD_TypeOf(const char *args)
+int CMD_TypeOf(const char **argv, int argc)
 {
 	cvar_t *v;
-	char *argv[2];
-	int argc;
 	int e;
-
-	argc = GetArgs(args, 2, argv);
 
 	if (argc < 2)
 	{
@@ -337,18 +242,16 @@ int CMD_TypeOf(const char *args)
 		}
 		else
 		{
-			CON_Printf("No console variable called \"%s\"!\n", args);
+			CON_Printf("No console variable called \"%s\"!\n", argv[1]);
 			e = 2;
 		}
 	}
-
-	KillArgs(argc, argv);
 
 	return e;
 }
 
 
-int CMD_QuitEDGE(const char *args)
+int CMD_QuitEDGE(const char **argv, int argc)
 {
 	M_QuitEDGE(0);
 
@@ -356,15 +259,10 @@ int CMD_QuitEDGE(const char *args)
 }
 
 
-int CMD_Crc(const char *args)
+int CMD_Crc(const char **argv, int argc)
 {
-	int argc;
-	char *argv[3];
-
 	int lump, length;
 	const byte *data;
-
-	argc = GetArgs(args, 2, argv);
 
 	if (argc != 2)
 	{
@@ -393,18 +291,12 @@ int CMD_Crc(const char *args)
 		CON_Printf("  %s  %d bytes  crc = %08x\n", argv[1], length, result.crc);
 	}
 
-	KillArgs(argc, argv);
 	return 0;
 }
 
-int CMD_PlaySound(const char *args)
+int CMD_PlaySound(const char **argv, int argc)
 {
-	int argc;
-	char *argv[3];
-
 	sfx_t *sfx;
-
-	argc = GetArgs(args, 2, argv);
 
 	if (argc != 2)
 	{
@@ -422,41 +314,39 @@ int CMD_PlaySound(const char *args)
 		S_StartFX(sfx, SNCAT_UI);
 	}
 
-	KillArgs(argc, argv);
 	return 0;
 }
 
-int CMD_ShowFiles(const char *args)
+int CMD_ShowFiles(const char **argv, int argc)
 {
 	W_ShowFiles();
 	return 0;
 }
 
-int CMD_ShowLumps(const char *args)
+int CMD_ShowLumps(const char **argv, int argc)
 {
-	char *argv[4];
-	int argc;
-
-	argc = GetArgs(args, 4, argv);
-
 	int for_file = -1;  // all files
 
-	const char *match = NULL;
+	char *match = NULL;
 
 	if (argc >= 2 && isdigit(argv[1][0]))
 		for_file = atoi(argv[1]);
 
 	if (argc >= 3)
 	{
-		strupr(argv[2]);
-		match = argv[2];
+		match = strdup(argv[2]);
+		strupr(match);
 	}
 
 	W_ShowLumps(for_file, match);
+
+	if (match)
+		free(match);
+
 	return 0;
 }
 
-int CMD_ShowVars(const char *args)
+int CMD_ShowVars(const char **argv, int argc)
 {
 	I_Printf("All console vars:\n");
 
@@ -471,68 +361,136 @@ int CMD_ShowVars(const char *args)
 }
 
 
+//----------------------------------------------------------------------------
+
+
+static int GetArgs(const char *line, char **argv, int max_argc)
+{
+	while (isspace(*line))
+		line++;
+
+	int i, j, k = 0, m;
+	const int len = (const int)strlen(line);
+	char *s;
+	int quote;
+
+	// skip any leading spaces
+	for (i = 0; args[i] == ' '; i++)
+		;
+
+	for (; i < len; i = j)
+	{
+		// find end of arg
+		if (args[i] == '\"')
+		{
+			quote = 1;
+			i++;
+			for (j = i; args[j] != '\"' && j < len; j++)
+				;
+		} else
+		{
+			quote = 0;
+			for (j = i; args[j] != ' ' && j < len; j++)
+				;
+		}
+
+		s = Z_New(char, j - i + 1);
+		for (m = 0; m < j - i; m++)
+		{
+			// -ES- 1999/07/25 Convert to lowercase, to avoid case sensitivity
+			s[m] = tolower(args[i + m]);
+		}
+		s[j - i] = '\0';
+
+		argv[k] = s;
+
+		if (++k == argc)
+			break;
+
+		if (quote)
+			// skip the ending quote
+			j++;
+
+		// skip whitespace until the next arg
+		while (args[j] == ' ' && j < len)
+			j++;
+	}
+
+	return k;
+}
+
+static void KillArgs(char **argv, int argc)
+{
+	for (int i = 0; i < argc; i++)
+		free(argv[i]);
+}
+
+
 typedef struct
 {
 	const char *name;
-	int flags;
-	int (*cmd) (const char *arg);
+
+	int (* func) (const char **argv, int argc);
 }
 con_cmd_t;
 
-
-// Current console commands.  Needs extending badly.
-// 'Builtin' commands should be added here
-// TODO: add another file (i_exec.c) that can load in
-//   'external' commands.  On a real operating system,
-//   these 'external' commands could be loaded in using
-//   dynamic linking, on DOS they must be linked statically.
-static const con_cmd_t consolecommands[] =
+//
+// Current console commands:
+//
+static const con_cmd_t builtin_commands[] =
 {
-	{"args", 0, CMD_ArgText},
-	{"crc", 0, CMD_Crc},
-	{"playsound", 0, CMD_PlaySound},
-	{"eat", 0, CMD_Eat},
-	{"exec", 0, CMD_Exec},
-	{"show_files", 0, CMD_ShowFiles},
-	{"show_lumps", 0, CMD_ShowLumps},
-	{"show_vars",  0, CMD_ShowVars},
-	{"screenshot", 0, CMD_ScreenShot},
-	{"set", 0, CMD_Set},
-	{"type", 0, CMD_Type},
-	{"typeof", 0, CMD_TypeOf},
-	{"quit", 0, CMD_QuitEDGE},
-	{"exit", 0, CMD_QuitEDGE},
+	{ "args",           CMD_DumpArgs },
+	{ "crc",            CMD_Crc },
+	{ "playsound",      CMD_PlaySound },
+	{ "eat",            CMD_Eat },
+	{ "exec",           CMD_Exec },
+	{ "show_files",     CMD_ShowFiles },
+	{ "show_lumps",     CMD_ShowLumps },
+	{ "show_vars",      CMD_ShowVars },
+	{ "screenshot",     CMD_ScreenShot },
+	{ "set",            CMD_Set },
+	{ "type",           CMD_Type },
+	{ "typeof",         CMD_TypeOf },
+	{ "quit",           CMD_QuitEDGE },
+	{ "exit",           CMD_QuitEDGE },
+
+	// end of list
+	{ NULL, NULL }
 };
+
+
+static int FindCommand(const char *name)
+{
+	for (int i = 0; builtin_commands[i].name; i++)
+	{
+		if (strcmp(name, builtin_commands[i].name) == 0)
+			return i;
+	}
+
+	return -1;  // not found
+}
 
 void CON_TryCommand(const char *cmd)
 {
-	int i, j, e;
-	const char *s, *c;
+	char *argv[MAX_CON_ARGS];
+	int argc = GetArgs(cmd, argv, MAX_CON_ARGS);
 
-	while (isspace(*cmd))
-		cmd++;
-
-	if (strlen(cmd) == 0)
+	if (argc == 0)
 		return;
 
-	for (i = sizeof(consolecommands) / sizeof(consolecommands[0]); i--;)
-	{
-		s = consolecommands[i].name;
-		c = cmd;
-		for (j = strlen(consolecommands[i].name); j--; s++, c++)
-			if (*s != *c)
-				break;
-		if (j == -1 && (!*c || *c == ' '))
-		{
-			e = consolecommands[i].cmd(cmd);
-			if (e)
-				CON_Printf("Error %d\n", e);
-			return;
-		}
-	}
-	CON_Printf("Bad Command.\n");
-}
+	int cmd = FindCommand(argv[0]);
 
+	if (cmd >= 0)
+	{
+		int err = (* builtin_commands[cmd].func)(argv, argc);
+	}
+	else
+	{
+		CON_Printf("Unknown Command.\n");
+	}
+
+	KillArgs(argv, argc);
+}
 
 
 //
