@@ -29,6 +29,10 @@ public:
 	float f;
 	const char *str;
 
+	// this is incremented each time a value is set.
+	// (Note: whether the value is different is not checked)
+	short modified;
+
 private:
 	enum bufsize_e { BUFSIZE = 24 };
 
@@ -38,7 +42,7 @@ private:
 	char buffer[BUFSIZE];
 
 public:
-	cvar_c() : d(0), f(0.0f), str(buffer)
+	cvar_c() : d(0), f(0.0f), str(buffer), modified(0)
 	{
 		buffer[0] = '0';
 		buffer[1] =  0;

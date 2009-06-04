@@ -22,22 +22,22 @@
 #include "con_main.h"
 
 
-cvar_c::cvar_c(int value) : d(value), f(value), str(buffer)
+cvar_c::cvar_c(int value) : d(value), f(value), str(buffer), modified(0)
 {
 	sprintf(buffer, "%d", value);
 }
 
-cvar_c::cvar_c(float value) : d(I_ROUND(value)), f(value), str(buffer)
+cvar_c::cvar_c(float value) : d(I_ROUND(value)), f(value), str(buffer), modified(0)
 {
 	FmtFloat(value);
 }
 
-cvar_c::cvar_c(const char *value) : str(buffer)
+cvar_c::cvar_c(const char *value) : str(buffer), modified(0)
 {
 	DoStr(value);
 }
 
-cvar_c::cvar_c(const cvar_c& other) : str(buffer)
+cvar_c::cvar_c(const cvar_c& other) : str(buffer), modified(0)
 {
 	DoStr(other.str);
 }
@@ -64,6 +64,7 @@ cvar_c& cvar_c::operator= (int value)
 	str = buffer;
 	sprintf(buffer, "%d", value);
 
+	modified++;
 	return *this;
 }
 
@@ -80,6 +81,7 @@ cvar_c& cvar_c::operator= (float value)
 	str = buffer;
 	FmtFloat(value);
 
+	modified++;
 	return *this;
 }
 
@@ -87,6 +89,7 @@ cvar_c& cvar_c::operator= (const char *value)
 {
 	DoStr(value);
 
+	modified++;
 	return *this;
 }
 
@@ -94,6 +97,7 @@ cvar_c& cvar_c::operator= (std::string value)
 {
 	DoStr(value.c_str());
 
+	modified++;
 	return *this;
 }
 
@@ -104,9 +108,11 @@ cvar_c& cvar_c::operator= (const cvar_c& other)
 		DoStr(other.str);
 	}
 
+	modified++;
 	return *this;
 }
 
+// private method
 void cvar_c::FmtFloat(float value)
 {
 	float ab = fabs(value);
@@ -123,6 +129,7 @@ void cvar_c::FmtFloat(float value)
 		sprintf(buffer, "%1.7f", value);
 }
 
+// private method
 void cvar_c::DoStr(const char *value)
 {
 	if (Allocd())
@@ -179,6 +186,10 @@ void CON_ResetAllVars(void)
 	for (int i = 0; all_cvars[i].var; i++)
 	{
 		*all_cvars[i].var = all_cvars[i].def_val;
+
+		// this function is equivalent to construction,
+		// hence ensure the modified count is zero.
+		all_cvars[i].var->modified = 0;
 	}
 }
 
