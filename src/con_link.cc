@@ -24,6 +24,10 @@
 extern cvar_c r_width, r_height, r_depth, r_fullscreen;
 extern cvar_c r_colormaterial, r_colorlighting;
 extern cvar_c r_dumbsky, r_dumbmulti, r_dumbcombine, r_dumbclamp;
+extern cvar_c r_nearclip, r_farclip, r_fadepower;
+
+extern cvar_c am_smoothmap;
+extern cvar_c m_diskicon, m_busywait;
 
 
 // TEMP
@@ -40,24 +44,25 @@ cvar_c s_volume, s_musicvol;
 
 cvar_link_t  all_cvars[] =
 {
-
-//----------------------------------------------------------------------------
-//  CONFIG FILE + COMMAND LINE OPTION
-//----------------------------------------------------------------------------
-
-	// "edge_version"
-
 	{ "r_width",      &r_width,      "rc",  "640"   },
 	{ "r_height",     &r_height,     "rc",  "480"   },
     { "r_depth",      &r_depth,      "rc",  "32"    },
     { "r_fullscreen", &r_fullscreen, "rc",  "1"     },
 
-	{ "r_colormaterial", &r_colormaterial, "", "1"  },
-	{ "r_colorlighting", &r_colorlighting, "", "1"  },
-	{ "r_dumbsky",       &r_dumbsky,       "", "0"  },
-	{ "r_dumbmulti",     &r_dumbmulti,     "", "0"  },
-	{ "r_dumbcombine",   &r_dumbcombine,   "", "0"  },
-	{ "r_dumbclamp",     &r_dumbclamp,     "", "0"  },
+	{ "r_nearclip",   &r_nearclip,   "c",   "4"     },
+	{ "r_farclip",    &r_farclip,    "c",   "64000" },
+	{ "r_fadepower",  &r_fadepower,  "c",   "1",    },
+
+	{ "r_colormaterial", &r_colormaterial, "",   "1"  },
+	{ "r_colorlighting", &r_colorlighting, "",   "1"  },
+	{ "r_dumbsky",       &r_dumbsky,       "",   "0"  },
+	{ "r_dumbmulti",     &r_dumbmulti,     "",   "0"  },
+	{ "r_dumbcombine",   &r_dumbcombine,   "",   "0"  },
+	{ "r_dumbclamp",     &r_dumbclamp,     "",   "0"  },
+
+	{ "am_smoothmap", &am_smoothmap, "c",   "1",    },
+	{ "m_diskicon",   &m_diskicon,   "c",   "1",    },
+	{ "m_busywait",   &m_busywait,   "c",   "1",    },
 
 	{ "s_volume",     &s_volume,     "c",   "10",   },
 	{ "s_musicvol",   &s_musicvol,   "c",   "10",   },
@@ -137,13 +142,6 @@ cvar_link_t  all_cvars[] =
 
     /------- VARS --------------------
 
-    {"var_diskicon",      &var_diskicon,   1},
-    {"var_hogcpu",        &var_hogcpu,     1},
-    {"var_fadepower",     &var_fadepower,  1},
-    {"var_smoothmap",     &var_smoothmap,  1},
-
-    {"var_nearclip",      &var_nearclip,   4},
-    {"var_farclip",       &var_farclip,    64000},
 #endif
 
 
