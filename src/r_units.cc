@@ -27,7 +27,6 @@
 
 #include "epi/image_data.h"
 
-#include "con_cvar.h"
 #include "m_argv.h"
 #include "r_gldefs.h"
 #include "r_units.h"

@@ -21,7 +21,6 @@
 #include "epi/math_crc.h"
 
 #include "con_main.h"
-#include "con_defs.h"
 #include "con_var.h"
 
 #include "g_game.h"
