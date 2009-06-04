@@ -94,7 +94,7 @@ int CMD_Type(char **argv, int argc)
 	return 0;
 }
 
-int CMD_DumpArgs(char **argv, int argc)
+int CMD_ArgList(char **argv, int argc)
 {
 	I_Printf("Arguments:\n");
 
@@ -124,31 +124,34 @@ int CMD_Crc(char **argv, int argc)
 	int lump, length;
 	const byte *data;
 
-	if (argc != 2)
+	if (argc < 2)
 	{
 		CON_Printf("Usage: crc <lump>\n");
 		return 1;
 	}
 
-	lump = W_CheckNumForName(argv[1]);
-
-	if (lump == -1)
+	for (int i = 1; i < argc; i++)
 	{
-		CON_Printf("No such lump: %s\n", argv[1]);
-	}
-	else
-	{
-		data = (const byte*)W_CacheLumpNum(lump);
-		length = W_LumpLength(lump);
+		lump = W_CheckNumForName(argv[i]);
 
-		epi::crc32_c result;
+		if (lump == -1)
+		{
+			CON_Printf("No such lump: %s\n", argv[i]);
+		}
+		else
+		{
+			data = (const byte*)W_CacheLumpNum(lump);
+			length = W_LumpLength(lump);
 
-		result.Reset();
-		result.AddBlock(data, length);
+			epi::crc32_c result;
 
-		W_DoneWithLump(data);
+			result.Reset();
+			result.AddBlock(data, length);
 
-		CON_Printf("  %s  %d bytes  crc = %08x\n", argv[1], length, result.crc);
+			W_DoneWithLump(data);
+
+			CON_Printf("  %s  %d bytes  crc = %08x\n", argv[i], length, result.crc);
+		}
 	}
 
 	return 0;
@@ -205,14 +208,29 @@ int CMD_ShowLumps(char **argv, int argc)
 
 int CMD_ShowVars(char **argv, int argc)
 {
+	char *match = NULL;
+
+	if (argc >= 2)
+		match = argv[1];
+
 	I_Printf("All console vars:\n");
+
+	int total = 0;
 
 	for (int i = 0; all_cvars[i].name; i++)
 	{
+		if (match && *match)
+			if (! strstr(all_cvars[i].name, match))
+				continue;
+
 		cvar_c *var = all_cvars[i].var;
 
 		I_Printf("  %-15s \"%s\"\n", all_cvars[i].name, var->str);
+		total++;
 	}
+
+	if (total == 0)
+		I_Printf("Nothing matched.\n");
 
 	return 0;
 }
@@ -261,7 +279,11 @@ static int GetArgs(const char *line, char **argv, int max_argc)
 				line++;
 		}
 
-		argv[argc++] = StrDup(start, line - start);
+		// ignore empty strings at beginning of the line
+		if (! (argc == 0 && start == line))
+		{
+			argv[argc++] = StrDup(start, line - start);
+		}
 
 		if (*line)
 			line++;
@@ -290,13 +312,13 @@ con_cmd_t;
 //
 static const con_cmd_t builtin_commands[] =
 {
-	{ "args",           CMD_DumpArgs },
+	{ "args",           CMD_ArgList },
 	{ "crc",            CMD_Crc },
 	{ "playsound",      CMD_PlaySound },
 	{ "exec",           CMD_Exec },
-	{ "show_files",     CMD_ShowFiles },
-	{ "show_lumps",     CMD_ShowLumps },
-	{ "show_vars",      CMD_ShowVars },
+	{ "showfiles",      CMD_ShowFiles },
+	{ "showlumps",      CMD_ShowLumps },
+	{ "showvars",       CMD_ShowVars },
 	{ "screenshot",     CMD_ScreenShot },
 	{ "type",           CMD_Type },
 	{ "quit",           CMD_QuitEDGE },
@@ -330,11 +352,22 @@ void CON_TryCommand(const char *cmd)
 
 	if (index >= 0)
 	{
-		int err = (* builtin_commands[index].func)(argv, argc);
+		(* builtin_commands[index].func)(argv, argc);
 	}
 	else
 	{
-		CON_Printf("Unknown Command.\n");
+		cvar_link_t *link = CON_FindVar(argv[0]);
+
+		if (! link)
+			I_Printf("Unknown Command or CVar.\n");
+		else if (argc <= 1)
+			I_Printf("%s \"%s\"\n", argv[0], link->var->str);
+		else if (argc >= 3)
+			I_Printf("Can only assign one value (%d given).\n", argc-1);
+		else if (strchr(link->flags, 'r'))
+			I_Printf("That cvar is read only.\n");
+		else
+			*link->var = argv[1];
 	}
 
 	KillArgs(argv, argc);
