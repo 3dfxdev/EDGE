@@ -727,7 +727,7 @@ static void DoObituary(const char *format, mobj_t *victim, mobj_t *killer)
 	keywords.push_back("the player");
 
 	keywords.push_back("k");
-	keywords.push_back("somebody");
+	keywords.push_back("a foe");
 
 	std::string msg = PatternSubst(format, keywords);
 
