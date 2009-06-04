@@ -103,10 +103,10 @@ static int edge_version;
 static default_t defaults[] =
 {
     {CFGT_Int,		"edge_version",		 &edge_version,	  0},
-    {CFGT_Int,		"screenwidth",		 &SCREENWIDTH,	  CFGDEF_SCREENWIDTH},
-    {CFGT_Int,		"screenheight",		 &SCREENHEIGHT,	  CFGDEF_SCREENHEIGHT},
-    {CFGT_Int,		"screendepth",		 &SCREENBITS,	  CFGDEF_SCREENBITS},
-    {CFGT_Boolean,	"fullscreen",		 &FULLSCREEN,	  CFGDEF_FULLSCREEN},
+//    {CFGT_Int,		"screenwidth",		 &SCREENWIDTH,	  CFGDEF_SCREENWIDTH},
+//    {CFGT_Int,		"screenheight",		 &SCREENHEIGHT,	  CFGDEF_SCREENHEIGHT},
+//    {CFGT_Int,		"screendepth",		 &SCREENBITS,	  CFGDEF_SCREENBITS},
+//    {CFGT_Boolean,	"fullscreen",		 &FULLSCREEN,	  CFGDEF_FULLSCREEN},
     {CFGT_Boolean,	"directx",			 &force_directx,  0},
     {CFGT_Boolean,	"waveout",			 &force_waveout,  0},
     {CFGT_Int,      "usegamma",          &var_gamma,  CFGDEF_CURRENT_GAMMA},
@@ -259,6 +259,13 @@ void M_SaveDefaults(void)
 	// -AJA- 2004/01/10: this doesn't fit in yet...
 	fprintf(f, "language\t\t\"%s\"\n", language.GetName());
 
+	for (int k = 0; all_cvars[k].name; k++)
+	{
+		cvar_c *var = all_cvars[k].var;
+
+		fprintf(f, "%s\t\"%s\"\n", all_cvars[k].name, var->str);
+	}
+
 	for (int i = 0; i < numdefaults; i++)
 	{
 		int v;
@@ -358,6 +365,13 @@ void M_LoadDefaults(void)
 				continue;  // FIXME: show warning
 			
 			config_language = newstr;
+			continue;
+		}
+
+		cvar_link_t *link = CON_FindVar(def);
+		if (link)
+		{
+			*link->var = parm;
 			continue;
 		}
 
