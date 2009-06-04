@@ -1,5 +1,10 @@
 Andrew Apted's Log
 
+2009/06/04:
+
+Started down the long road to replacing most configuration
+variables in the code with cvars.
+
 2009/06/03:
 
 Improved text drawing code, consistently use 'rgbcol_t'
