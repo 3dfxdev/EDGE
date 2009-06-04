@@ -360,7 +360,7 @@ abstract_music_c * S_PlayTimidity(byte *data, int length, bool is_mus,
 
 	if (is_mus)
 	{
-		I_Printf("tim_player_c: Converting MUS format to MIDI...\n");
+		I_Debugf("tim_player_c: Converting MUS format to MIDI...\n");
 
 		byte *midi_data;
 		int midi_len;
