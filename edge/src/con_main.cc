@@ -359,7 +359,7 @@ void CON_TryCommand(const char *cmd)
 		cvar_link_t *link = CON_FindVar(argv[0]);
 
 		if (! link)
-			I_Printf("Unknown Command or CVar.\n");
+			I_Printf("Unknown Command or Variable.\n");
 		else if (argc <= 1)
 			I_Printf("%s \"%s\"\n", argv[0], link->var->str);
 		else if (argc >= 3)

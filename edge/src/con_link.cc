@@ -22,7 +22,17 @@
 
 
 extern cvar_c r_width, r_height, r_depth, r_fullscreen;
-extern cvar_c s_volume, s_musvol;
+
+// TEMP
+cvar_c s_volume, s_musicvol;
+
+
+// Flag letters:
+// =============
+//
+//   r : read only, user cannot change it
+//   c : config file (saved and loaded)
+//
 
 
 cvar_link_t  all_cvars[] =
@@ -39,8 +49,8 @@ cvar_link_t  all_cvars[] =
     { "r_depth",      &r_depth,      "rc",  "32"    },
     { "r_fullscreen", &r_fullscreen, "rc",  "1"     },
 
-	{ "s_volume",    &s_volume,      "c",   "10",   },
-	{ "s_musvol",    &s_musvol,      "c",   "10",   },
+	{ "s_volume",     &s_volume,     "c",   "10",   },
+	{ "s_musicvol",   &s_musicvol,   "c",   "10",   },
 
 #if 0  // TODO
     {"directx",           &force_directx,  0},

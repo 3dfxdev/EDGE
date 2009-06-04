@@ -45,6 +45,11 @@ int SCREENHEIGHT;
 int SCREENBITS;
 bool FULLSCREEN;
 
+cvar_c r_width;
+cvar_c r_height;
+cvar_c r_depth;
+cvar_c r_fullscreen;
+
 
 static std::vector<scrmode_c *> screen_modes;
 
@@ -234,10 +239,15 @@ static bool DoExecuteChangeResolution(scrmode_c *mode)
 	if (! was_ok)
 		return false;
 
-	SCREENWIDTH  = mode->width;
-	SCREENHEIGHT = mode->height;
-	SCREENBITS   = mode->depth;
-	FULLSCREEN   = mode->full;
+	r_width      = mode->width;
+	r_height     = mode->height;
+	r_depth      = mode->depth;
+	r_fullscreen = mode->full;
+
+	SCREENWIDTH  = r_width.d;
+	SCREENHEIGHT = r_height.d;
+	SCREENBITS   = r_depth.d;
+	FULLSCREEN   = r_fullscreen.d;
 
 	// gfx card doesn't like to switch too rapidly
 	I_Sleep(250);
@@ -289,10 +299,15 @@ void R_InitialResolution(void)
 
 	scrmode_c mode;
 
-	mode.width  = SCREENWIDTH;
-	mode.height = SCREENHEIGHT;
-	mode.depth  = SCREENBITS;
-	mode.full   = FULLSCREEN;
+	mode.width  = r_width.d;
+	mode.height = r_height.d;
+	mode.depth  = r_depth.d;
+	mode.full   = r_fullscreen.d;
+
+	// restrict depth to allowable values
+	if (mode.depth < 15) mode.depth = 15;
+	else if (mode.depth > 32) mode.depth = 32;
+
 
     if (DoExecuteChangeResolution(&mode))
 	{
@@ -331,10 +346,10 @@ bool R_ChangeResolution(scrmode_c *mode)
 
 	scrmode_c old_mode;
 
-	old_mode.width  = SCREENWIDTH;
-	old_mode.height = SCREENHEIGHT;
-	old_mode.depth  = SCREENBITS;
-	old_mode.full   = FULLSCREEN;
+	old_mode.width  = r_width.d;
+	old_mode.height = r_height.d;
+	old_mode.depth  = r_depth.d;
+	old_mode.full   = r_fullscreen.d;
 
     if (DoExecuteChangeResolution(&old_mode))
 		return false;

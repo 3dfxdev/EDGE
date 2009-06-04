@@ -173,6 +173,11 @@ int crosshair = 0;
 
 static void E_TitleDrawer(void);
 
+extern cvar_c r_width;
+extern cvar_c r_height;
+extern cvar_c r_depth;
+extern cvar_c r_fullscreen;
+
 
 class startup_progress_c
 {
@@ -262,35 +267,33 @@ static void SetGlobalVars(void)
 	// Screen Resolution Check...
 	s = M_GetParm("-width");
 	if (s)
-		SCREENWIDTH = atoi(s);
+		r_width = atoi(s);
 
 	s = M_GetParm("-height");
 	if (s)
-		SCREENHEIGHT = atoi(s);
+		r_height = atoi(s);
 
 	p = M_CheckParm("-res");
 	if (p && p + 2 < M_GetArgCount())
 	{
-		SCREENWIDTH  = atoi(M_GetArgument(p + 1));
-		SCREENHEIGHT = atoi(M_GetArgument(p + 2));
+		r_width  = atoi(M_GetArgument(p + 1));
+		r_height = atoi(M_GetArgument(p + 2));
 	}
 
 	// Bits per pixel check....
 	s = M_GetParm("-bpp");
 	if (s)
 	{
-		SCREENBITS = atoi(s);
+		r_depth = atoi(s);
 
-		if (SCREENBITS <= 4) // backwards compat
-			SCREENBITS *= 8;
+		if (r_depth.d <= 4) // backwards compat
+			r_depth = r_depth.d * 8;
 	}
 
-	// restrict depth to allowable values
-	if (SCREENBITS < 15) SCREENBITS = 15;
-	else if (SCREENBITS > 32) SCREENBITS = 32;
-
-	M_CheckBooleanParm("windowed",   &FULLSCREEN, true);
-	M_CheckBooleanParm("fullscreen", &FULLSCREEN, false);
+	bool fullscreen = r_fullscreen.d;
+	M_CheckBooleanParm("windowed",   &fullscreen, true);
+	M_CheckBooleanParm("fullscreen", &fullscreen, false);
+	r_fullscreen = fullscreen ? 1 : 0;
 
 	// sprite kludge (TrueBSP)
 	p = M_CheckParm("-spritekludge");
