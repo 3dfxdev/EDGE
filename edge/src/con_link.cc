@@ -21,9 +21,8 @@
 #include "con_var.h"
 
 
-// TESTING STUFF
-cvar_c r_width, r_height, r_depth, r_fullscreen;
-cvar_c s_volume, s_musvol;
+extern cvar_c r_width, r_height, r_depth, r_fullscreen;
+extern cvar_c s_volume, s_musvol;
 
 
 cvar_link_t  all_cvars[] =
@@ -35,13 +34,13 @@ cvar_link_t  all_cvars[] =
 
 	// "edge_version"
 
-	{ "r_width",      &r_width,      "r",  "640"   },
-	{ "r_height",     &r_height,     "r",  "480"   },
-    { "r_depth",      &r_depth,      "r",  "32"    },
-    { "r_fullscreen", &r_fullscreen, "r",  "1"     },
+	{ "r_width",      &r_width,      "rc",  "640"   },
+	{ "r_height",     &r_height,     "rc",  "480"   },
+    { "r_depth",      &r_depth,      "rc",  "32"    },
+    { "r_fullscreen", &r_fullscreen, "rc",  "1"     },
 
-	{ "s_volume",    &s_volume,      "",   "10",   },
-	{ "s_musvol",    &s_musvol,      "",   "10",   },
+	{ "s_volume",    &s_volume,      "c",   "10",   },
+	{ "s_musvol",    &s_musvol,      "c",   "10",   },
 
 #if 0  // TODO
     {"directx",           &force_directx,  0},

@@ -263,7 +263,8 @@ void M_SaveDefaults(void)
 	{
 		cvar_c *var = all_cvars[k].var;
 
-		fprintf(f, "%s\t\"%s\"\n", all_cvars[k].name, var->str);
+		if (strchr(all_cvars[k].flags, 'c'))
+			fprintf(f, "%s\t\"%s\"\n", all_cvars[k].name, var->str);
 	}
 
 	for (int i = 0; i < numdefaults; i++)
@@ -371,7 +372,8 @@ void M_LoadDefaults(void)
 		cvar_link_t *link = CON_FindVar(def);
 		if (link)
 		{
-			*link->var = parm;
+			if (strchr(link->flags, 'c'))
+				*link->var = parm;
 			continue;
 		}
 
