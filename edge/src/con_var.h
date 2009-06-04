@@ -31,7 +31,7 @@ public:
 
 	// this is incremented each time a value is set.
 	// (Note: whether the value is different is not checked)
-	short modified;
+	int modified;
 
 private:
 	enum bufsize_e { BUFSIZE = 24 };
