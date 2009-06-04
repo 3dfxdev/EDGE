@@ -23,7 +23,7 @@
 
 // TESTING STUFF
 cvar_c r_width, r_height, r_depth, r_fullscreen;
-cvar_c s_sfxvol, s_musvol;
+cvar_c s_volume, s_musvol;
 
 
 cvar_link_t  all_cvars[] =
@@ -35,13 +35,13 @@ cvar_link_t  all_cvars[] =
 
 	// "edge_version"
 
-	{ "cfor", &r_width,      "640",    "r_width", "width,screenwidth" },
-	{ "cfor", &r_height,     "480",    "r_height", "height,screenheight" },
-    { "cfor", &r_depth,      "32",     "r_depth", "bits,screendepth" },
-    { "cforb",&r_fullscreen, "1",      "r_fullscreen", "fullscreen" },
+	{ "r_width",      &r_width,      "r",  "640"   },
+	{ "r_height",     &r_height,     "r",  "480"   },
+    { "r_depth",      &r_depth,      "r",  "32"    },
+    { "r_fullscreen", &r_fullscreen, "r",  "1"     },
 
-	{ "cfo",  &s_sfxvol,     "10",     "s_sfxvol", "sfx_volume" },
-	{ "cfo",  &s_musvol,     "10",     "s_musvol", "mus_volume" },
+	{ "s_volume",    &s_volume,      "",   "10",   },
+	{ "s_musvol",    &s_musvol,      "",   "10",   },
 
 #if 0  // TODO
     {"directx",           &force_directx,  0},
@@ -130,7 +130,7 @@ cvar_link_t  all_cvars[] =
 
 //---- END OF LIST -----------------------------------------------------------
 
-	{ NULL, 0, NULL }
+	{ NULL, NULL, NULL, NULL }
 };
 
 //--- editor settings ---

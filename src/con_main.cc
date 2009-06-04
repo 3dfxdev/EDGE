@@ -22,6 +22,8 @@
 
 #include "con_main.h"
 #include "con_defs.h"
+#include "con_var.h"
+
 #include "g_game.h"
 #include "m_menu.h"
 #include "s_sound.h"
@@ -33,50 +35,6 @@
 #define SCREENCOLS 80
 #define BACKBUFFER 10
 
-typedef struct
-{
-	const char *name;
-	int flags;
-	int (*cmd) (const char *arg);
-}
-con_cmd_t;
-
-int CMD_Eat(const char *args);
-int CMD_Exec(const char *args);
-int CMD_ArgText(const char *args);
-int CMD_Type(const char *args);
-int CMD_TypeOf(const char *args);
-int CMD_ScreenShot(const char *args);
-int CMD_Set(const char *args);
-int CMD_QuitEDGE(const char *args);
-int CMD_Crc(const char *args);
-int CMD_PlaySound(const char *args);
-int CMD_ShowFiles(const char *args);
-int CMD_ShowLumps(const char *args);
-
-
-// Current console commands.  Needs extending badly.
-// 'Builtin' commands should be added here
-// TODO: add another file (i_exec.c) that can load in
-//   'external' commands.  On a real operating system,
-//   these 'external' commands could be loaded in using
-//   dynamic linking, on DOS they must be linked statically.
-static const con_cmd_t consolecommands[] =
-{
-	{"args", 0, CMD_ArgText},
-	{"crc", 0, CMD_Crc},
-	{"playsound", 0, CMD_PlaySound},
-	{"eat", 0, CMD_Eat},
-	{"exec", 0, CMD_Exec},
-	{"show_files", 0, CMD_ShowFiles},
-	{"show_lumps", 0, CMD_ShowLumps},
-	{"screenshot", 0, CMD_ScreenShot},
-	{"set", 0, CMD_Set},
-	{"type", 0, CMD_Type},
-	{"typeof", 0, CMD_TypeOf},
-	{"quit", 0, CMD_QuitEDGE},
-	{"exit", 0, CMD_QuitEDGE},
-};
 
 static int GetArgs(const char *args, int argc, char **argv)
 {
@@ -137,36 +95,6 @@ static void KillArgs(int argc, char *(argv[]))
 	for (i = 0; i < argc; i++)
 		Z_Free(argv[i]);
 }
-
-void CON_TryCommand(const char *cmd)
-{
-	int i, j, e;
-	const char *s, *c;
-
-	while (isspace(*cmd))
-		cmd++;
-
-	if (strlen(cmd) == 0)
-		return;
-
-	for (i = sizeof(consolecommands) / sizeof(consolecommands[0]); i--;)
-	{
-		s = consolecommands[i].name;
-		c = cmd;
-		for (j = strlen(consolecommands[i].name); j--; s++, c++)
-			if (*s != *c)
-				break;
-		if (j == -1 && (!*c || *c == ' '))
-		{
-			e = consolecommands[i].cmd(cmd);
-			if (e)
-				CON_Printf("Error %d\n", e);
-			return;
-		}
-	}
-	CON_Printf("Bad Command.\n");
-}
-
 
 int CMD_Exec(const char *args)
 {
@@ -527,6 +455,85 @@ int CMD_ShowLumps(const char *args)
 	W_ShowLumps(for_file, match);
 	return 0;
 }
+
+int CMD_ShowVars(const char *args)
+{
+	I_Printf("All console vars:\n");
+
+	for (int i = 0; all_cvars[i].name; i++)
+	{
+		cvar_c *var = all_cvars[i].var;
+
+		I_Printf("  %-15s \"%s\"\n", all_cvars[i].name, var->str);
+	}
+
+	return 0;
+}
+
+
+typedef struct
+{
+	const char *name;
+	int flags;
+	int (*cmd) (const char *arg);
+}
+con_cmd_t;
+
+
+// Current console commands.  Needs extending badly.
+// 'Builtin' commands should be added here
+// TODO: add another file (i_exec.c) that can load in
+//   'external' commands.  On a real operating system,
+//   these 'external' commands could be loaded in using
+//   dynamic linking, on DOS they must be linked statically.
+static const con_cmd_t consolecommands[] =
+{
+	{"args", 0, CMD_ArgText},
+	{"crc", 0, CMD_Crc},
+	{"playsound", 0, CMD_PlaySound},
+	{"eat", 0, CMD_Eat},
+	{"exec", 0, CMD_Exec},
+	{"show_files", 0, CMD_ShowFiles},
+	{"show_lumps", 0, CMD_ShowLumps},
+	{"show_vars",  0, CMD_ShowVars},
+	{"screenshot", 0, CMD_ScreenShot},
+	{"set", 0, CMD_Set},
+	{"type", 0, CMD_Type},
+	{"typeof", 0, CMD_TypeOf},
+	{"quit", 0, CMD_QuitEDGE},
+	{"exit", 0, CMD_QuitEDGE},
+};
+
+void CON_TryCommand(const char *cmd)
+{
+	int i, j, e;
+	const char *s, *c;
+
+	while (isspace(*cmd))
+		cmd++;
+
+	if (strlen(cmd) == 0)
+		return;
+
+	for (i = sizeof(consolecommands) / sizeof(consolecommands[0]); i--;)
+	{
+		s = consolecommands[i].name;
+		c = cmd;
+		for (j = strlen(consolecommands[i].name); j--; s++, c++)
+			if (*s != *c)
+				break;
+		if (j == -1 && (!*c || *c == ' '))
+		{
+			e = consolecommands[i].cmd(cmd);
+			if (e)
+				CON_Printf("Error %d\n", e);
+			return;
+		}
+	}
+	CON_Printf("Bad Command.\n");
+}
+
+
 
 //
 // CON_PlayerMessage
