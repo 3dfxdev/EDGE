@@ -42,6 +42,9 @@
 #define DAMAGE_LIMIT  100
 
 
+bool var_obituaries = true;
+
+
 typedef struct
 {
 	benefit_t *list;  // full list of benefits
@@ -736,6 +739,9 @@ static void DoObituary(const char *format, mobj_t *victim, mobj_t *killer)
 
 void P_ObituaryMessage(mobj_t * victim, mobj_t * killer, const damage_c *damtype)
 {
+	if (! var_obituaries)
+		return;
+
 	if (damtype && !damtype->obituary.empty())
 	{
 		const char *ref = damtype->obituary.c_str();
