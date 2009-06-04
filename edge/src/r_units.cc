@@ -39,13 +39,13 @@
 #include "r_shader.h" //!!!
 
 
-bool use_lighting = true;
-bool use_color_material = true;
+cvar_c r_colormaterial;
+cvar_c r_colorlighting;
 
-bool dumb_sky     = false;
-bool dumb_multi   = false;
-bool dumb_combine = false;
-bool dumb_clamp   = false;
+cvar_c r_dumbsky;
+cvar_c r_dumbmulti;
+cvar_c r_dumbcombine;
+cvar_c r_dumbclamp;
 
 
 #define MAX_L_VERT  4096
@@ -96,14 +96,6 @@ static bool batch_sort;
 //
 void RGL_InitUnits(void)
 {
-	M_CheckBooleanParm("lighting",      &use_lighting, false);
-	M_CheckBooleanParm("colormaterial", &use_color_material, false);
-	M_CheckBooleanParm("dumbsky",       &dumb_sky, false);
-
-	CON_CreateCVarBool("lighting",      cf_normal, &use_lighting);
-	CON_CreateCVarBool("colormaterial", cf_normal, &use_color_material);
-	CON_CreateCVarBool("dumbsky",       cf_normal, &dumb_sky);
-
 	// Run the soft init code
 	RGL_SoftInitUnits();
 }
@@ -289,7 +281,7 @@ static void EnableCustomEnv(GLuint env, bool enable)
 
 static inline void RGL_SendRawVector(const local_gl_vert_t *V)
 {
-	if (use_color_material || ! use_lighting)
+	if (r_colormaterial.d || ! r_colorlighting.d)
 		glColor4fv(V->rgba);
 	else
 	{
@@ -462,7 +454,7 @@ void RGL_DrawUnits(void)
 			glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, &old_clamp);
 
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
-				dumb_clamp ? GL_CLAMP : GL_CLAMP_TO_EDGE);
+				r_dumbclamp.d ? GL_CLAMP : GL_CLAMP_TO_EDGE);
 		}
 
 		glBegin(unit->shape);
@@ -507,88 +499,6 @@ void RGL_DrawUnits(void)
 	glDisable(GL_BLEND);
 	glDisable(GL_CULL_FACE);
 }
-
-
-
-//============================================================================
-
-
-#if 0
-{
-	/* FIRST PASS : draw the colormapped primitive */
-
-	local_gl_vert_t *glvert;
-
-	bool simple_cmap = true;
-
-	if (true)
-	{
-	if (fade_tex[0] == 0)
-		fade_tex[0] = MakeColormapTexture(0); // simple_cmap ? 0 : 1);
-	
-		glvert = RGL_BeginUnit(shape, num_vert, GL_MODULATE, tex,
-				(simple_cmap || dumb_multi) ? GL_MODULATE : GL_DECAL,
-				fade_tex[0], group, blending);
-		group++;
-
-		for (int v_idx=0; v_idx < num_vert; v_idx++)
-		{
-			local_gl_vert_t *dest = glvert + v_idx;
-
-			dest->rgba[3] = alpha;
-
-			vec3_t lit_pos;
-
-			(*func)(func_data, v_idx, &dest->pos, dest->rgba,
-					&dest->texc[0], &dest->normal, &lit_pos);
-
-			TexCoord_Fader(dest, 1, &lit_pos);
-		}
-
-		RGL_EndUnit(num_vert);
-	}
-
-	// FOR OLD CARDS: additive pass (yuck!)
-
-	if (dumb_multi && ! simple_cmap)
-	{
-		if (dumb_combine && (blending & (BL_Masked | BL_Alpha | BL_Add)))
-		{
-			// Ouch : for very old (dumb) cards, anything with holes or 
-			//        translucent parts is going to be fucked.
-			return;
-		}
-
-		if (fade_tex[1] == 0)
-			fade_tex[1] = MakeColormapTexture(2);
-
-		blending |= BL_Add;
-
-		glvert = RGL_BeginUnit(shape, num_vert, GL_MODULATE, fade_tex[1],
-					0, 0, group, blending);
-		group++;
-
-		for (int v_idx=0; v_idx < num_vert; v_idx++)
-		{
-			local_gl_vert_t *dest = glvert + v_idx;
-
-			vec3_t lit_pos;
-
-			(*func)(func_data, v_idx, &dest->pos, dest->rgba,
-					&dest->texc[1], &dest->normal, &lit_pos);
-
-			dest->rgba[0] = 1.0;
-			dest->rgba[1] = 1.0;
-			dest->rgba[2] = 1.0;
-			dest->rgba[3] = alpha;
-
-			TexCoord_Fader(dest, 0, &lit_pos);
-		}
-
-		RGL_EndUnit(num_vert);
-	}
-}
-#endif
 
 
 //--- editor settings ---
