@@ -296,7 +296,7 @@ void RGL_FinishSky(void)
 
 	if (level_flags.mlook || custom_sky_box)
 	{
-		if (! dumb_sky)
+		if (! r_dumbsky.d)
 			glDepthFunc(GL_GREATER);
 
 		RGL_DrawSkyBox();
@@ -330,7 +330,7 @@ void RGL_DrawSkyBox(void)
 	float v0 = 0.0f;
 	float v1 = 1.0f;
 
-	if (dumb_clamp)
+	if (r_dumbclamp.d)
 	{
 		float size = fake_box[SK].face_size;
 
@@ -347,7 +347,7 @@ void RGL_DrawSkyBox(void)
 	col[2] = LT_BLU(255);
 	col[3] = 1.0f;
 
-	if (use_color_material || ! use_lighting)
+	if (r_colormaterial.d || ! r_colorlighting.d)
 		glColor4fv(col);
 	else
 	{
@@ -433,7 +433,7 @@ void RGL_DrawSkyOriginal(void)
 
 	float white[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-	if (use_color_material || ! use_lighting)
+	if (r_colormaterial.d || ! r_colorlighting.d)
 		glColor4fv(white);
 	else
 	{
@@ -492,7 +492,7 @@ void RGL_DrawSkyPlane(subsector_t *sub, float h)
 {
 	need_to_draw_sky = true;
 
-	if (dumb_sky)
+	if (r_dumbsky.d)
 		return;
 
 	MIR_Height(h);
@@ -519,7 +519,7 @@ void RGL_DrawSkyWall(seg_t *seg, float h1, float h2)
 {
 	need_to_draw_sky = true;
 
-	if (dumb_sky)
+	if (r_dumbsky.d)
 		return;
 
 	float x1 = seg->v1->x;

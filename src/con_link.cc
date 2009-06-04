@@ -22,6 +22,9 @@
 
 
 extern cvar_c r_width, r_height, r_depth, r_fullscreen;
+extern cvar_c r_colormaterial, r_colorlighting;
+extern cvar_c r_dumbsky, r_dumbmulti, r_dumbcombine, r_dumbclamp;
+
 
 // TEMP
 cvar_c s_volume, s_musicvol;
@@ -48,6 +51,13 @@ cvar_link_t  all_cvars[] =
 	{ "r_height",     &r_height,     "rc",  "480"   },
     { "r_depth",      &r_depth,      "rc",  "32"    },
     { "r_fullscreen", &r_fullscreen, "rc",  "1"     },
+
+	{ "r_colormaterial", &r_colormaterial, "", "1"  },
+	{ "r_colorlighting", &r_colorlighting, "", "1"  },
+	{ "r_dumbsky",       &r_dumbsky,       "", "0"  },
+	{ "r_dumbmulti",     &r_dumbmulti,     "", "0"  },
+	{ "r_dumbcombine",   &r_dumbcombine,   "", "0"  },
+	{ "r_dumbclamp",     &r_dumbclamp,     "", "0"  },
 
 	{ "s_volume",     &s_volume,     "c",   "10",   },
 	{ "s_musicvol",   &s_musicvol,   "c",   "10",   },

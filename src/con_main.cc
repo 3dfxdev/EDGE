@@ -213,7 +213,7 @@ int CMD_ShowVars(char **argv, int argc)
 	if (argc >= 2)
 		match = argv[1];
 
-	I_Printf("All console vars:\n");
+	I_Printf("Console Variables:\n");
 
 	int total = 0;
 
