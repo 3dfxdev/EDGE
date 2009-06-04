@@ -112,6 +112,8 @@ static rgbcol_t am_colors[AM_NUM_COLORS] =
 #define WHEEL_ZOOMIN  1.32f
 
 
+cvar_c am_smoothmap;
+
 static int cheating = 0;
 static int grid = 0;
 
@@ -563,7 +565,7 @@ static void DrawMline(mline_t * ml, rgbcol_t rgb)
 		return;
 	}
 
-	if (!var_smoothmap)
+	if (! am_smoothmap.d)
 	{
 		if (x1 == x2 or y1 == y2)
 		{
@@ -963,7 +965,7 @@ static void AM_RenderScene(void)
 
 	glScissor(f_x, f_y, f_w, f_h);
 
-	if (var_smoothmap)
+	if (am_smoothmap.d)
 	{
 		glEnable(GL_LINE_SMOOTH);
 		glEnable(GL_BLEND);

@@ -38,8 +38,8 @@ int glmax_tex_size;
 int glmax_tex_units;
 
 
-int var_nearclip = 4;
-int var_farclip  = 64000;
+cvar_c r_nearclip;
+cvar_c r_farclip;
 
 
 typedef enum
@@ -120,9 +120,9 @@ void RGL_SetupMatrices3D(void)
 	glMatrixMode(GL_PROJECTION);
 
 	glLoadIdentity();
-	glFrustum(rightslope * var_nearclip, leftslope * var_nearclip,
-			  bottomslope * var_nearclip, topslope * var_nearclip,
-			  var_nearclip, var_farclip);
+	glFrustum(rightslope  * r_nearclip.f, leftslope * r_nearclip.f,
+			  bottomslope * r_nearclip.f, topslope  * r_nearclip.f,
+			  r_nearclip.f, r_farclip.f);
 
 	// calculate look-at matrix
 

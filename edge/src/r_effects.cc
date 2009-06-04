@@ -48,7 +48,7 @@ static inline float EffectStrength(player_t *player)
 	if (player->effect_left >= EFFECT_MAX_TIME)
 		return 1.0f;
 
-	if (var_fadepower)
+	if (r_fadepower.d)
 	{
 		return player->effect_left / (float)EFFECT_MAX_TIME;
 	}

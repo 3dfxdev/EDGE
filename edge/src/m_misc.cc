@@ -71,7 +71,11 @@
 int cfgnormalfov;
 int cfgzoomedfov;
 
-bool var_diskicon = true;
+std::string config_language;
+
+cvar_c m_diskicon;
+cvar_c r_fadepower;
+
 bool display_disk = false;
 int  display_desync = 0;
 
@@ -79,16 +83,11 @@ static const image_c *disk_image = NULL;
 static const image_c *desynch_image = NULL;
 static const image_c *air_images[21] = { NULL };
 
-bool var_fadepower = true;
-bool var_smoothmap = true;
-
 bool force_directx = false;
 bool force_waveout = false;
 
 unsigned short save_screenshot[160][100];
 bool save_screenshot_valid = false;
-
-std::string config_language;
 
 int var_sample_rate = 0;
 int var_sound_bits = 0;
@@ -103,10 +102,6 @@ static int edge_version;
 static default_t defaults[] =
 {
     {CFGT_Int,		"edge_version",		 &edge_version,	  0},
-//    {CFGT_Int,		"screenwidth",		 &SCREENWIDTH,	  CFGDEF_SCREENWIDTH},
-//    {CFGT_Int,		"screenheight",		 &SCREENHEIGHT,	  CFGDEF_SCREENHEIGHT},
-//    {CFGT_Int,		"screendepth",		 &SCREENBITS,	  CFGDEF_SCREENBITS},
-//    {CFGT_Boolean,	"fullscreen",		 &FULLSCREEN,	  CFGDEF_FULLSCREEN},
     {CFGT_Boolean,	"directx",			 &force_directx,  0},
     {CFGT_Boolean,	"waveout",			 &force_waveout,  0},
     {CFGT_Int,      "usegamma",          &var_gamma,  CFGDEF_CURRENT_GAMMA},
@@ -188,14 +183,8 @@ static default_t defaults[] =
 
 	// -------------------- VARS --------------------
 
-	{CFGT_Boolean,  "var_diskicon",      &var_diskicon,   1},
-	{CFGT_Boolean,  "var_hogcpu",        &var_hogcpu,     1},
-	{CFGT_Boolean,  "var_fadepower",     &var_fadepower,  1},
-	{CFGT_Boolean,  "var_smoothmap",     &var_smoothmap,  1},
 	{CFGT_Boolean,  "var_obituaries",    &var_obituaries, 1},
 
-	{CFGT_Int,      "var_nearclip",      &var_nearclip,   4},
-	{CFGT_Int,      "var_farclip",       &var_farclip,    64000},
 
 	// -------------------- KEYS --------------------
 
@@ -412,30 +401,13 @@ void M_LoadDefaults(void)
 
 void M_InitMiscConVars(void)
 {
-	M_CheckBooleanParm("diskicon", &var_diskicon, false);
-	CON_CreateCVarBool("diskicon", cf_normal, &var_diskicon);
-
-	M_CheckBooleanParm("hogcpu", &var_hogcpu, false);
-	CON_CreateCVarBool("hogcpu", cf_normal, &var_hogcpu);
-
-	M_CheckBooleanParm("fadepower", &var_fadepower, false);
-	CON_CreateCVarBool("fadepower", cf_normal, &var_fadepower);
-
-	M_CheckBooleanParm("smoothmap", &var_smoothmap, false);
-	CON_CreateCVarBool("smoothmap", cf_normal, &var_smoothmap);
-
-
 	const char *s = M_GetParm("-nearclip");
 	if (s)
-		var_nearclip = atoi(s);
+		r_nearclip = atoi(s);
 
 	s = M_GetParm("-farclip");
 	if (s)
-		var_farclip = atoi(s);
-
-	CON_CreateCVarInt("nearclip", cf_normal, &var_nearclip);
-	CON_CreateCVarInt("farclip",  cf_normal, &var_farclip);
-
+		r_farclip = atoi(s);
 
 	if (M_CheckParm("-hqscale") || M_CheckParm("-hqall"))
 		hq2x_scaling = 3;
@@ -448,7 +420,7 @@ void M_DisplayDisk(void)
 {
 	/* displays disk icon during loading... */
 
-	if (!var_diskicon || !display_disk)
+	if (!display_disk || !m_diskicon.d)
 		return;
    
 	if (!disk_image)

@@ -77,8 +77,9 @@ extern int  display_desync;
 extern bool force_directx;
 extern bool force_waveout;
 
-extern bool var_fadepower;
-extern bool var_smoothmap;
+extern cvar_c r_fadepower;
+extern cvar_c am_smoothmap;
+
 extern bool var_obituaries;
 
 extern int var_sample_rate;

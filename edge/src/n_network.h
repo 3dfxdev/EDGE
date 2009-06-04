@@ -26,7 +26,8 @@
 #define MP_SAVETICS  6  // past and future
 
 extern bool netgame;
-extern bool var_hogcpu;
+
+extern cvar_c m_busywait;
 
 extern int base_port;
 

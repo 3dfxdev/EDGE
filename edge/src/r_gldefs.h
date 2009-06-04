@@ -81,7 +81,8 @@ const byte *RGL_BetaImage(int *w, int *h);
 //  RGL_BSP
 //
 
-void RGL_LoadLights(void);
+extern cvar_c r_nearclip;
+extern cvar_c r_farclip;
 
 extern int ren_extralight;
 
@@ -92,8 +93,6 @@ extern float ren_blu_mul;
 extern const colourmap_c *ren_fx_colmap;
 
 extern int doom_fading;
-extern int var_nearclip;
-extern int var_farclip;
 
 #define APPROX_DIST2(dx,dy)  \
 	((dx) + (dy) - 0.5f * MIN((dx),(dy)))
