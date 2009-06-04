@@ -39,6 +39,10 @@
 #include "z_zone.h"
 
 
+// TEMP !!!
+void CON_ErrorDialog(const char *msg);
+
+
 #define CON_WIPE_TICS  12
 
 
@@ -46,7 +50,7 @@ static visible_t con_visible;
 
 static int con_cursor;
 
-static const image_c *con_font;
+const image_c *con_font;
 
 
 #define T_WHITE   RGB_MAKE(208,208,208)
@@ -404,7 +408,7 @@ static void HorizontalLine(int y, rgbcol_t col)
 	RGL_SolidBox(0, y, SCREENWIDTH-1, 1, col, alpha);
 }
 
-static void WriteChar(int x, int y, char ch, rgbcol_t col)
+void CON_WriteChar(int x, int y, char ch, rgbcol_t col)
 {
 	if (x + FNSZ < 0)
 		return;
@@ -456,11 +460,11 @@ static void WriteChar(int x, int y, char ch, rgbcol_t col)
 }
 
 // writes the text on coords (x,y) of the console
-static void WriteText(int x, int y, const char *s, rgbcol_t col)
+void CON_WriteText(int x, int y, const char *s, rgbcol_t col)
 {
 	for (; *s; s++)
 	{
-		WriteChar(x, y, *s, col);
+		CON_WriteChar(x, y, *s, col);
 
 		x += XMUL;
 
@@ -499,6 +503,11 @@ void CON_Drawer(void)
 	}
 
 
+/// CON_ErrorDialog("CON_ClearInputLine: unknown keyword 'FOOBIE_BLETCH' -- check DDF.\n");
+/// return;
+
+
+
 	// -- background --
 
 	int CON_GFX_HT = (SCREENHEIGHT * 3 / 5) / YMUL;
@@ -521,21 +530,21 @@ void CON_Drawer(void)
 
 	if (bottomrow == -1)
 	{
-		WriteText(0, y, ">", T_PURPLE);
+		CON_WriteText(0, y, ">", T_PURPLE);
 
 		if (cmd_hist_pos >= 0)
 		{
 			const char *text = cmd_history[cmd_hist_pos]->c_str();
 
-			WriteText(XMUL, y, text, T_PURPLE);
+			CON_WriteText(XMUL, y, text, T_PURPLE);
 		}
 		else
 		{
-			WriteText(XMUL, y, input_line, T_PURPLE);
+			CON_WriteText(XMUL, y, input_line, T_PURPLE);
 
 			if (con_cursor < 16)
 			{
-				WriteText((input_pos+1) * XMUL, y - 2, "_", T_PURPLE);
+				CON_WriteText((input_pos+1) * XMUL, y - 2, "_", T_PURPLE);
 			}
 		}
 
@@ -556,7 +565,7 @@ void CON_Drawer(void)
 		if (strncmp(CL->line.c_str(), "--------", 8) == 0)
 			HorizontalLine(y + YMUL/2, CL->color);
 		else
-			WriteText(0, y, CL->line.c_str(), CL->color);
+			CON_WriteText(0, y, CL->line.c_str(), CL->color);
 
 		y += YMUL;
 
@@ -881,6 +890,79 @@ void CON_Start(void)
 	con_visible = vs_notvisible;
 	con_cursor  = 0;
 }
+
+
+//----------------------------------------------------------------------------
+
+
+static std::vector<std::string> error_lines;
+
+
+static void FormatMessage(const char *msg, int width)
+{
+	error_lines.clear();
+
+	while ((int)strlen(msg) > width)
+	{
+		error_lines.push_back(std::string(msg, width));
+
+		msg += width;
+	}
+
+	error_lines.push_back(std::string(msg));
+}
+
+
+static void Rectangle(int x1, int y1, int x2, int y2, rgbcol_t col)
+{
+	RGL_SolidBox(x1, y1, x2-x1, y2-y1, col);
+}
+
+
+static void DrawErrorDialog(void)
+{
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	int x1 = SCREENWIDTH / 4;
+	int x2 = SCREENWIDTH * 3 / 4;
+	int y1 = SCREENHEIGHT * 3 / 10;
+	int y2 = SCREENHEIGHT * 7 / 10;
+
+	Rectangle(x1, y1, x2, y2-22, RGB_MAKE(176,176,176));
+	Rectangle(x1, y2-22, x2, y2, RGB_MAKE(  0, 32,176));
+
+	Rectangle(x1+6, y2-90, x1+52, y2-40, RGB_MAKE(255,0,0));
+
+	Rectangle(x1+27, y2-82, x1+31, y2-78, RGB_MAKE(255,255,255));
+	Rectangle(x1+27, y2-72, x1+31, y2-48, RGB_MAKE(255,255,255));
+
+
+	int tx = (x1+x2) /2 - 6 * XMUL;
+	int ty = y2-22 + MAX(0, 22-YMUL)/2;
+
+	CON_WriteText(tx, ty, "Fatal Error", RGB_MAKE(255,255,255));
+
+	ty = y2 - 60;
+
+	int show_lines = MIN(6, (int)error_lines.size());
+
+	for (int line = 0; line < show_lines; line++)
+	{
+		CON_WriteText(x1+70, ty, error_lines[line].c_str(), RGB_MAKE(0,0,0));
+
+		ty -= YMUL;
+	}
+}
+
+
+void CON_ErrorDialog(const char *msg)
+{
+	FormatMessage(msg, 24);
+
+	DrawErrorDialog();
+}
+
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
