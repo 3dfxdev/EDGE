@@ -337,13 +337,12 @@ void M_LoadDefaults(void)
 		char def[80];
 		char strparm[100];
 
-		int parm;
-
-		std::string newstr;
-		bool isstring = false;
-
 		if (fscanf(f, "%79s %[^\n]\n", def, strparm) != 2)
 			continue;
+
+		std::string newstr(strparm);
+		bool isstring = false;
+		int parm = 0;
 
 		if (strparm[0] == '"')
 		{
@@ -373,7 +372,7 @@ void M_LoadDefaults(void)
 		if (link)
 		{
 			if (strchr(link->flags, 'c'))
-				*link->var = parm;
+				*link->var = newstr.c_str();
 			continue;
 		}
 
