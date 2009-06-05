@@ -62,6 +62,9 @@
 #define FLOOD_DIST    1024.0f
 #define FLOOD_EXPAND  128.0f
 
+#define MIN_FOV  5
+#define MAX_FOV  150
+
 
 // #define DEBUG_GREET_NEIGHBOUR
 
@@ -3115,8 +3118,17 @@ static void RGL_WalkLevel(void)
 }
 
 
-void InitCamera(mobj_t *mo)
+void InitCamera(mobj_t *mo, float fov)
 {
+	if (fov < MIN_FOV) fov = MIN_FOV;
+	if (fov > MAX_FOV) fov = MAX_FOV;
+
+	leftangle   = FLOAT_2_ANG( fov / 2.0f);
+	rightangle  = FLOAT_2_ANG(-fov / 2.0f);
+
+	angle_t FIELDOFVIEW = leftangle - rightangle;
+
+
 	leftslope  = M_Tan(leftangle);
 	rightslope = M_Tan(rightangle);
 
@@ -3294,7 +3306,9 @@ void R_Render(int x, int y, int w, int h, mobj_t *camera)
 
 
 	// Load the details for the camera
-	InitCamera(camera);
+	float fov = (view_zoom > 0) ? view_zoom : r_fov.f;
+
+	InitCamera(camera, fov);
 
 	// Profiling
 	framecount++;

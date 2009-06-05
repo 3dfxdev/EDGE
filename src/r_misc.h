@@ -56,8 +56,10 @@ extern int validcount;
 extern int linecount;
 
 // -ES- 1999/03/29 Added these
-extern angle_t normalfov, zoomedfov;
-extern bool viewiszoomed;
+extern float view_zoom;
+
+extern cvar_c r_fov;
+extern cvar_c r_zoomedfov;
 
 extern int framecount;
 
@@ -65,7 +67,6 @@ extern struct mobj_s *background_camera_mo;
 
 extern angle_t rightangle;
 extern angle_t leftangle;
-extern angle_t FIELDOFVIEW;
 
 // The used aspect ratio. A normal texel will look aspect_ratio*4/3
 // times wider than high on the monitor
@@ -92,13 +93,6 @@ void R_Init(void);
 
 // -ES- 1998/09/11 Added these prototypes.
 void R_SetViewSize(int blocks);
-
-// Changes Field of View to the specified angle.
-void R_SetFOV(angle_t fov);
-
-// Changes the FOV variables that the zoom key toggles between.
-void R_SetNormalFOV(angle_t newfov);
-void R_SetZoomedFOV(angle_t newfov);
 
 void R_StartFading(int start, int range);
 

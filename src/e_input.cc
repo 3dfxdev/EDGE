@@ -284,7 +284,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	{
 		int angle_rate = angleturn[t_speed];
 
-		if (viewiszoomed)
+		if (view_zoom > 0)
 			angle_rate /= ZOOM_ANGLE_DIV;
 
 		if (E_InputCheckKey(key_right))
@@ -305,7 +305,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	{
 		int mlook_rate = angleturn[m_speed] / 2;
 
-		if (viewiszoomed)
+		if (view_zoom > 0)
 			mlook_rate /= ZOOM_ANGLE_DIV;
 
 		// -ACB- 1998/07/02 Use VertAngle for Look/up down.
