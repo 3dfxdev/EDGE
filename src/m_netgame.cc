@@ -58,10 +58,14 @@
 #include "z_zone.h"
 
 
+int netgame_menuon;
+
+
+#if 0
+
+
 extern gameflags_t default_gameflags;
 
-
-int netgame_menuon;
 bool netgame_we_are_host;
 
 static style_c *ng_host_style;
@@ -932,6 +936,7 @@ void M_NetGameTicker(void)
 	}
 }
 
+#endif
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

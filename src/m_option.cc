@@ -108,6 +108,10 @@
 
 int option_menuon = 0;
 
+
+#if 0
+
+
 //submenus
 static void M_KeyboardOptions(int keypressed);
 static void M_VideoOptions(int keypressed);
@@ -130,7 +134,6 @@ static void M_ChangeRespawn(int keypressed);
 static void M_ChangePassMissile(int keypressed);
 
 //Special function declarations
-int menunormalfov, menuzoomedfov;
 
 static void M_ChangeBlood(int keypressed);
 static void M_ChangeMLook(int keypressed);
@@ -293,21 +296,6 @@ static void M_ChangeTimidQuiet(int keypressed)
 	S_ChangeTimidQuiet();
 }
 
-#if 0
-//
-// M_ChangeNormalFOV
-//
-static void M_ChangeNormalFOV(int keypressed)
-{
-	R_SetNormalFOV((ANG45 / 9) * (menunormalfov + 1));
-}
-
-static void M_ChangeZoomedFOV(int keypressed)
-{
-	R_SetZoomedFOV((ANG45 / 9) * (menuzoomedfov + 1));
-}
-#endif
-
 static int M_GetCurrentSwitchValue(optmenuitem_t *item)
 {
 	int retval = 0;
@@ -402,11 +390,6 @@ static menuinfo_t mainoptionsinfo =
 static optmenuitem_t vidoptions[] =
 {
 	{OPT_Slider,  "Brightness",    NULL,  6,  CFGDEF_CURRENT_GAMMA,  &var_gamma, M_ChangeGamma, NULL},
-
-#if 0 // Really don't get the reason for these - a map developers 
-	{OPT_Slider,  "Field Of View", NULL,  35, 17,      &menunormalfov, M_ChangeNormalFOV, NULL},
-	{OPT_Slider,  "Zoomed FOV",    NULL,  35, 1,      &menuzoomedfov, M_ChangeZoomedFOV, NULL},
-#endif 
 
 	{OPT_Plain,   "",  NULL,  0,  0, NULL, NULL, NULL},
 
@@ -1839,6 +1822,8 @@ static void M_JoinNetGame(int keypressed)
 #endif
 }
 
+
+#endif
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

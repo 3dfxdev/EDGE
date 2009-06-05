@@ -1194,7 +1194,7 @@ void M_Episode(int choice)
 
 void M_Options(int choice)
 {
-	option_menuon = 1;
+//!!!!!	option_menuon = 1;
 }
 
 //
@@ -1555,11 +1555,11 @@ bool M_Responder(event_t * ev)
 	}
 
 	// new options menu on - use that responder
-	if (option_menuon)
-		return M_OptResponder(ev, ch);
+//!!!!!	if (option_menuon)
+//!!!!!		return M_OptResponder(ev, ch);
 
-	if (netgame_menuon)
-		return M_NetGameResponder(ev, ch);
+//!!!!!	if (netgame_menuon)
+//!!!!!		return M_NetGameResponder(ev, ch);
 
 	// Save Game string input
 	if (saveStringEnter)
@@ -1838,7 +1838,7 @@ void M_StartControlPanel(void)
 	currentMenu = &MainDef;  // JDC
 	itemOn = currentMenu->lastOn;  // JDC
 
-	M_OptCheckNetgame();
+//!!!!!	M_OptCheckNetgame();
 }
 
 static int FindChar(std::string& str, char ch, int pos)
@@ -1967,13 +1967,13 @@ void M_Drawer(void)
 	// new options menu enable, use that drawer instead
 	if (option_menuon)
 	{
-		M_OptDrawer();
+//!!!!!		M_OptDrawer();
 		return;
 	}
 
 	if (netgame_menuon)
 	{
-		M_NetGameDrawer();
+//!!!!!		M_NetGameDrawer();
 		return;
 	}
 
@@ -2037,13 +2037,13 @@ void M_Ticker(void)
 {
 	if (option_menuon)
 	{
-		M_OptTicker();
+//!!!!!		M_OptTicker();
 		return;
 	}
 
 	if (netgame_menuon)
 	{
-		M_NetGameTicker();
+//!!!!!		M_NetGameTicker();
 		return;
 	}
 
@@ -2150,8 +2150,8 @@ void M_Init(void)
 		ReadMenu1[0].select_func = M_FinishReadThis;
 	}
 
-	M_OptMenuInit();
-	M_NetGameInit();
+//!!!!!	M_OptMenuInit();
+//!!!!!	M_NetGameInit();
 }
 
 

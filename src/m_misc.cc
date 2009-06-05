@@ -67,9 +67,6 @@
 //
 // DEFAULTS
 //
-int cfgnormalfov;
-int cfgzoomedfov;
-
 std::string config_language;
 
 cvar_c m_diskicon;
@@ -172,9 +169,6 @@ static default_t defaults[] =
     {CFGT_Int,      "joy_yaxis",         &joy_yaxis,      CFGDEF_JOY_YAXIS},
 
     {CFGT_Int,      "screen_hud",        &screen_hud,     CFGDEF_SCREEN_HUD},
-    // -ES- 1999/03/30 Added fov stuff.
-    {CFGT_Int,      "fieldofview",       &cfgnormalfov,   CFGDEF_NORMALFOV},
-    {CFGT_Int,      "zoomedfieldofview", &cfgzoomedfov,   CFGDEF_ZOOMEDFOV},
 
     {CFGT_Int,      "save_page",         &save_page, 0},
 
@@ -316,7 +310,7 @@ void M_LoadDefaults(void)
 		I_Warning("Couldn't open config file %s for reading.\n", cfgfile.c_str());
 		I_Warning("Resetting config to RECOMMENDED values...\n");
 
-		M_ResetToDefaults(0);
+///???		M_ResetToDefaults(0);
 		return;
 	}
 

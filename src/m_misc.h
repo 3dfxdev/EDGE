@@ -89,8 +89,6 @@ extern int var_mix_channels;
 extern int var_quiet_factor;
 extern int var_timid_factor;
 
-extern int cfgnormalfov, cfgzoomedfov;
-
 extern std::string config_language;
 
 #endif  /* __M_MISC__ */
