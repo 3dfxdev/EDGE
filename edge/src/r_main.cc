@@ -41,6 +41,8 @@ int glmax_tex_units;
 cvar_c r_nearclip;
 cvar_c r_farclip;
 
+extern cvar_c r_dithering;
+
 
 typedef enum
 {
@@ -268,7 +270,7 @@ void RGL_SoftInit(void)
 	glDisable(GL_LINE_SMOOTH);
 	glDisable(GL_POLYGON_SMOOTH);
 
-	if (var_dithering)
+	if (r_dithering.d)
 		glEnable(GL_DITHER);
 	else
 		glDisable(GL_DITHER);

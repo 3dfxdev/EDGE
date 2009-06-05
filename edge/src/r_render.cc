@@ -70,9 +70,8 @@
 
 
 int detail_level = 1;
-int use_dlights = 0;
 
-int doom_fading = 1;
+cvar_c r_dynamiclight;
 
 
 // -ES- 1999/03/20 Different right & left side clip angles, for asymmetric FOVs.
@@ -1431,7 +1430,7 @@ static void DrawWallPart(seg_t *wseg,
 			trans, &data.pass, data.blending, data.mid_masked,
 			&data, WallCoordFunc);
 
-	if (use_dlights && ren_extralight < 250)
+	if (r_dynamiclight.d && ren_extralight < 250)
 	{
 		float bottom = MIN(lz1, rz1);
 		float top    = MAX(lz2, rz2);
@@ -1781,7 +1780,7 @@ static void EmulateFloodPlane(seg_t *seg, const drawfloor_t *dfloor,
 				&data, FloodCoordFunc);
 	}
 
-	if (use_dlights && solid_mode && ren_extralight < 250)
+	if (r_dynamiclight.d && solid_mode && ren_extralight < 250)
 	{
 		// Note: dynamic lights could have been handled in the row-by-row
 		//       loop above (after the cmap_shader).  However it is more
@@ -2290,7 +2289,7 @@ static void RGL_DrawPlane(subsector_t *sub, drawfloor_t *dfloor, float h,
 			trans, &data.pass, data.blending, false /* masked */,
 			&data, PlaneCoordFunc);
 
-	if (use_dlights && ren_extralight < 250)
+	if (r_dynamiclight.d && ren_extralight < 250)
 	{
 		P_DynamicLightIterator(v_bbox[BOXLEFT],  v_bbox[BOXBOTTOM], h,
 				               v_bbox[BOXRIGHT], v_bbox[BOXTOP],    h,
