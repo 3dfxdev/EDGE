@@ -30,10 +30,14 @@
 
 extern int netgame_menuon;  // 1 = HOST, 2 = JOIN, 3 = PLAYERS
 
+#if 0
+
 void M_NetGameInit(void);
 void M_NetGameDrawer(void);
 void M_NetGameTicker(void);
 bool M_NetGameResponder(event_t * ev, int ch);
+
+#endif
 
 #endif /* __M_NETGAME_H__ */
 

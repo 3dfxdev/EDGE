@@ -30,12 +30,16 @@
 
 extern int option_menuon;
 
+#if 0
+
 void M_OptMenuInit(void);
 void M_OptDrawer(void);
 void M_OptTicker(void);
 bool M_OptResponder(event_t * ev, int ch);
 void M_ResetToDefaults(int keypressed);
 void M_OptCheckNetgame(void);
+
+#endif
 
 #endif // __M_OPTION__
 
