@@ -285,6 +285,10 @@ int CMD_Help(char **argv, int argc)
 	I_Printf("To show the value of a variable, just type its name.\n");
 	I_Printf("To change it, follow the name with a space and the new value.\n");
 	I_Printf("\n");
+	I_Printf("Press ~ to close the console.\n");
+	I_Printf("The PGUP and PGDN keys scroll the console up and down.\n");
+	I_Printf("The UP and DOWN arrow keys let you recall previous commands.\n");
+	I_Printf("\n");
 	I_Printf("Have a nice day!\n");
 
 	return 0;
