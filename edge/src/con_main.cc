@@ -38,6 +38,18 @@
 #define MAX_CON_ARGS  64
 
 
+typedef struct
+{
+	const char *name;
+
+	int (* func)(char **argv, int argc);
+}
+con_cmd_t;
+
+
+// forward decl.
+extern const con_cmd_t builtin_commands[];
+
 
 
 int CMD_Exec(char **argv, int argc)
@@ -234,9 +246,54 @@ int CMD_ShowVars(char **argv, int argc)
 	return 0;
 }
 
+int CMD_ShowCmds(char **argv, int argc)
+{
+	char *match = NULL;
+
+	if (argc >= 2)
+		match = argv[1];
+
+	I_Printf("Console Commands:\n");
+
+	int total = 0;
+
+	for (int i = 0; builtin_commands[i].name; i++)
+	{
+		if (match && *match)
+			if (! strstr(builtin_commands[i].name, match))
+				continue;
+
+		I_Printf("  %-15s\n", builtin_commands[i].name);
+		total++;
+	}
+
+	if (total == 0)
+		I_Printf("Nothing matched.\n");
+
+	return 0;
+}
+
+
+int CMD_Help(char **argv, int argc)
+{
+	I_Printf("Welcome to the EDGE Console.\n");
+	I_Printf("\n");
+	I_Printf("Use the 'showcmds' command to list all commands.\n");
+	I_Printf("The 'showvars' command will list all variables.\n");
+	I_Printf("Both of these can take a keyword to match the names with.\n");
+	I_Printf("\n");
+	I_Printf("To show the value of a variable, just type its name.\n");
+	I_Printf("To change it, follow the name with a space and the new value.\n");
+	I_Printf("\n");
+	I_Printf("Have a nice day!\n");
+
+	return 0;
+}
+
 
 //----------------------------------------------------------------------------
 
+// oh lordy....
 static char *StrDup(const char *start, int len)
 {
 	char *buf = new char[len + 2];
@@ -298,25 +355,19 @@ static void KillArgs(char **argv, int argc)
 }
 
 
-typedef struct
-{
-	const char *name;
-
-	int (* func) (char **argv, int argc);
-}
-con_cmd_t;
-
 //
 // Current console commands:
 //
-static const con_cmd_t builtin_commands[] =
+const con_cmd_t builtin_commands[] =
 {
 	{ "args",           CMD_ArgList },
 	{ "crc",            CMD_Crc },
 	{ "playsound",      CMD_PlaySound },
 	{ "exec",           CMD_Exec },
+	{ "help",           CMD_Help },
 	{ "showfiles",      CMD_ShowFiles },
 	{ "showlumps",      CMD_ShowLumps },
+	{ "showcmds",       CMD_ShowCmds },
 	{ "showvars",       CMD_ShowVars },
 	{ "screenshot",     CMD_ScreenShot },
 	{ "type",           CMD_Type },
