@@ -72,7 +72,7 @@ int mouseSensitivity;  // has default.  Note: used only in platform code
 // Show messages has default, 0 = off, 1 = on
 int showMessages;
 
-int screen_hud;  // has default
+cvar_c m_screenhud;
 
 static std::string msg_string;
 static int msg_lastmenu;
@@ -1611,7 +1611,7 @@ bool M_Responder(event_t * ev)
 				if (automapactive || chat_on)
 					return false;
 
-				screen_hud = (screen_hud - 1 + NUMHUD) % NUMHUD;
+				m_screenhud = (m_screenhud.d - 1 + NUMHUD) % NUMHUD;
 
 				S_StartFX(sfx_stnmov);
 				return true;
@@ -1621,7 +1621,7 @@ bool M_Responder(event_t * ev)
 				if (automapactive || chat_on)
 					return false;
 
-				screen_hud = (screen_hud + 1) % NUMHUD;
+				m_screenhud = (m_screenhud.d + 1) % NUMHUD;
 
 				S_StartFX(sfx_stnmov);
 				return true;

@@ -92,7 +92,6 @@ extern float ren_blu_mul;
 
 extern const colourmap_c *ren_fx_colmap;
 
-extern int doom_fading;
 
 #define APPROX_DIST2(dx,dy)  \
 	((dx) + (dy) - 0.5f * MIN((dx),(dy)))
@@ -319,8 +318,9 @@ public:
 };
 
 
+extern cvar_c r_dynamiclight;
+
 extern int detail_level;
-extern int use_dlights;
 extern int sprite_kludge;
 
 const image_c * R2_GetThingSprite(mobj_t *mo, bool *flip);

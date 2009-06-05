@@ -67,6 +67,13 @@
 #include "z_zone.h"
 
 
+// MipMapping: 0 off, 1 bilinear, 2 trilinear
+cvar_c r_mipmapping;
+cvar_c r_smoothing;
+cvar_c r_dithering;
+cvar_c r_hq2x;
+
+
 // LIGHTING DEBUGGING
 // #define MAKE_TEXTURES_WHITE  1
 
@@ -179,16 +186,6 @@ static void do_DebugDump(real_image_container_c& bucket)
 	L_WriteDebug("}\n");
 }
 #endif
-
-// mipmapping enabled ?
-// 0 off, 1 bilinear, 2 trilinear
-int var_mipmapping = 1;
-
-int var_smoothing  = 1;
-
-bool var_dithering = false;
-
-int hq2x_scaling = 1;
 
 
 // total set of images
@@ -729,7 +726,7 @@ static bool IM_ShouldSmooth(image_c *rim)
 
 	// TODO: more smooth options
 
-	return var_smoothing ? true : false;
+	return r_smoothing.d ? true : false;
 }
 
 static bool IM_ShouldHQ2X(image_c *rim)
@@ -738,10 +735,10 @@ static bool IM_ShouldHQ2X(image_c *rim)
 	//       always PNG or JPEG (etc) and never palettised, hence
 	//       the Hq2x scaling would never apply.
 	
-	if (hq2x_scaling == 0)
+	if (r_hq2x.d <= 0)
 		return false;
 
-	if (hq2x_scaling >= 3)
+	if (r_hq2x.d >= 3)
 		return true;
 
 	switch (rim->source_type)
@@ -758,7 +755,7 @@ static bool IM_ShouldHQ2X(image_c *rim)
 			break;
 #endif
 		case IMSRC_Sprite:
-			if (hq2x_scaling >= 2)
+			if (r_hq2x.d >= 2)
 				return true;
 			break;
 
@@ -1350,18 +1347,21 @@ bool W_InitImages(void)
 {
     // check options
 	if (M_CheckParm("-nosmoothing"))
-		var_smoothing = 0;
+		r_smoothing = 0;
 	else if (M_CheckParm("-smoothing"))
-		var_smoothing = 1;
+		r_smoothing = 1;
 
 	if (M_CheckParm("-nomipmap"))
-		var_mipmapping = 0;
+		r_mipmapping = 0;
 	else if (M_CheckParm("-mipmap"))
-		var_mipmapping = 1;
+		r_mipmapping = 1;
 	else if (M_CheckParm("-trilinear"))
-		var_mipmapping = 2;
+		r_mipmapping = 2;
 
-	M_CheckBooleanParm("dither", &var_dithering, false);
+	if (M_CheckParm("-nodither"))
+		r_dithering = 0;
+	else if (M_CheckParm("-dither"))
+		r_dithering = 1;
 
 	W_CreateDummyImages();
 

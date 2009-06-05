@@ -168,12 +168,11 @@ extern int maketic;
 extern bool showstats;
 extern bool swapstereo;
 extern bool infight;
-extern bool png_scrshots;
 
 #define NUMHUD  120
 
 extern int crosshair;
-extern int screen_hud;
+extern cvar_c m_screenhud;
 
 // -ES- 1999/08/15 Added teleport effects
 extern int telept_effect;

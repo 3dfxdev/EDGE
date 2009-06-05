@@ -26,9 +26,14 @@ extern cvar_c r_colormaterial, r_colorlighting;
 extern cvar_c r_dumbsky, r_dumbmulti, r_dumbcombine, r_dumbclamp;
 extern cvar_c r_nearclip, r_farclip, r_fadepower;
 extern cvar_c r_fov, r_zoomedfov;
+extern cvar_c r_mipmapping, r_smoothing;
+extern cvar_c r_dithering, r_hq2x;
+extern cvar_c r_dynamiclight;
 
 extern cvar_c am_smoothmap;
-extern cvar_c m_diskicon, m_busywait;
+extern cvar_c m_diskicon, m_busywait, m_screenhud;
+extern cvar_c m_obituaries;
+
 
 
 // TEMP
@@ -56,6 +61,13 @@ cvar_link_t  all_cvars[] =
 	{ "r_fov",        &r_fov,        "c",   "90",   },
 	{ "r_zoomedfov",  &r_zoomedfov,  "c",   "10",   },
 
+	{ "r_mipmapping", &r_mipmapping, "c",   "0"  },
+	{ "r_smoothing",  &r_smoothing,  "c",   "0"  },
+	{ "r_dithering",  &r_dithering,  "c",   "0"  },
+	{ "r_hq2x",       &r_hq2x,       "c",   "1"  },
+
+	{ "r_dynamiclight",  &r_dynamiclight,  "c",  "1"  },
+
 	{ "r_colormaterial", &r_colormaterial, "",   "1"  },
 	{ "r_colorlighting", &r_colorlighting, "",   "1"  },
 	{ "r_dumbsky",       &r_dumbsky,       "",   "0"  },
@@ -66,6 +78,8 @@ cvar_link_t  all_cvars[] =
 	{ "am_smoothmap", &am_smoothmap, "c",   "1",    },
 	{ "m_diskicon",   &m_diskicon,   "c",   "1",    },
 	{ "m_busywait",   &m_busywait,   "c",   "1",    },
+	{ "m_screenhud",  &m_screenhud,  "c",   "0",    },
+	{ "m_obituaries", &m_obituaries, "c",   "1",    },
 
 	{ "s_volume",     &s_volume,     "c",   "10",   },
 	{ "s_musicvol",   &s_musicvol,   "c",   "10",   },

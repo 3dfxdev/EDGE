@@ -92,7 +92,7 @@ static void FrameSetup(void)
 
 	// setup some fields in 'hud' module
 
-	vm->SetIntVar("hud", "which", screen_hud);
+	vm->SetIntVar("hud", "which", m_screenhud.d);
 	vm->SetIntVar("hud", "now_time", now_time);
 	vm->SetIntVar("hud", "passed_time", passed_time);
 

@@ -150,7 +150,6 @@ bool showstats = false;
 bool swapstereo = false;
 bool mus_pause_stop = false;
 bool infight = false;
-bool png_scrshots = false;
 
 bool external_ddf = false;
 bool hom_detect = false;
@@ -348,9 +347,9 @@ static void SetGlobalVars(void)
 	M_CheckBooleanParm("autoload", &autoquickload, false);
 
 	if (M_CheckParm("-dlights"))
-		use_dlights = 1;
+		r_dynamiclight = 1;
 	else if (M_CheckParm("-nodlights"))
-		use_dlights = 0;
+		r_dynamiclight = 0;
 
 	if (M_CheckParm("-fullbright"))
 		var_fullbright = true;

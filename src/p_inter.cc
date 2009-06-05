@@ -42,7 +42,7 @@
 #define DAMAGE_LIMIT  100
 
 
-bool var_obituaries = true;
+cvar_c m_obituaries;
 
 
 typedef struct
@@ -739,7 +739,7 @@ static void DoObituary(const char *format, mobj_t *victim, mobj_t *killer)
 
 void P_ObituaryMessage(mobj_t * victim, mobj_t * killer, const damage_c *damtype)
 {
-	if (! var_obituaries)
+	if (! m_obituaries.d)
 		return;
 
 	if (damtype && !damtype->obituary.empty())

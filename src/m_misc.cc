@@ -94,6 +94,8 @@ int var_timid_factor = 0;
 
 static int edge_version;
 
+extern cvar_c r_hq2x;
+
 
 static default_t defaults[] =
 {
@@ -134,7 +136,6 @@ static default_t defaults[] =
     {CFGT_Int,      "grav",              &global_flags.menu_grav, CFGDEF_MENU_GRAV},
     {CFGT_Boolean,  "true3dgameplay",    &global_flags.true3dgameplay, CFGDEF_TRUE3DGAMEPLAY},
     {CFGT_Enum,     "autoaim",           &global_flags.autoaim, CFGDEF_AUTOAIM},
-    {CFGT_Int,      "doom_fading",       &doom_fading,    CFGDEF_DOOM_FADING},
     {CFGT_Boolean,  "shootthru_scenery", &global_flags.pass_missile, CFGDEF_PASS_MISSILE},
 
     // -KM- 1998/07/21 Save the blood setting
@@ -147,12 +148,7 @@ static default_t defaults[] =
     {CFGT_Boolean,  "mlook",             &global_flags.mlook, CFGDEF_MLOOK},
     {CFGT_Boolean,  "jumping",           &global_flags.jump, CFGDEF_JUMP},
     {CFGT_Boolean,  "crouching",         &global_flags.crouch, CFGDEF_CROUCH},
-    {CFGT_Int,      "mipmapping",        &var_mipmapping, CFGDEF_USE_MIPMAPPING},
-    {CFGT_Int,      "smoothing",         &var_smoothing,  CFGDEF_USE_SMOOTHING},
-    {CFGT_Boolean,  "dither",            &var_dithering, 0},
-    {CFGT_Int,      "dlights",           &use_dlights,    CFGDEF_USE_DLIGHTS},
     {CFGT_Int,      "detail_level",      &detail_level,   CFGDEF_DETAIL_LEVEL},
-	{CFGT_Int,      "hq2x_scaling",      &hq2x_scaling,   CFGDEF_HQ2X_SCALING},
 
     // -KM- 1998/09/01 Useless mouse/joy stuff removed,
     //                 analogue binding added
@@ -168,16 +164,7 @@ static default_t defaults[] =
     {CFGT_Int,      "joy_xaxis",         &joy_xaxis,      CFGDEF_JOY_XAXIS},
     {CFGT_Int,      "joy_yaxis",         &joy_yaxis,      CFGDEF_JOY_YAXIS},
 
-    {CFGT_Int,      "screen_hud",        &screen_hud,     CFGDEF_SCREEN_HUD},
-
     {CFGT_Int,      "save_page",         &save_page, 0},
-
-    {CFGT_Boolean,  "png_scrshots",      &png_scrshots,   CFGDEF_PNG_SCRSHOTS},
-
-	// -------------------- VARS --------------------
-
-	{CFGT_Boolean,  "var_obituaries",    &var_obituaries, 1},
-
 
 	// -------------------- KEYS --------------------
 
@@ -403,9 +390,9 @@ void M_InitMiscConVars(void)
 		r_farclip = atoi(s);
 
 	if (M_CheckParm("-hqscale") || M_CheckParm("-hqall"))
-		hq2x_scaling = 3;
+		r_hq2x = 3;
 	else if (M_CheckParm("-nohqscale"))
-		hq2x_scaling = 0;
+		r_hq2x = 0;
 }
 
 
@@ -495,12 +482,7 @@ void M_DisplayDesynch(void)
 
 void M_ScreenShot(bool show_msg)
 {
-	const char *extension;
-
-    if (png_scrshots) 
-		extension = "png";
-	else
-		extension = "jpg";
+	const char *extension = "png";
 
 	std::string fn;
 
@@ -531,10 +513,7 @@ void M_ScreenShot(bool show_msg)
 	RGL_ReadScreen(0, 0, SCREENWIDTH, SCREENHEIGHT, img->PixelAt(0,0));
 
 	bool result;
-    if (png_scrshots)
-        result = epi::PNG_Save(fp, img);
-    else
-        result = epi::JPEG_Save(fp, img);
+	result = epi::PNG_Save(fp, img);
 
 	if (show_msg)
 	{

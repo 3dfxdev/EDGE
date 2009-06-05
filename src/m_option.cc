@@ -396,14 +396,10 @@ static optmenuitem_t vidoptions[] =
 	{OPT_Switch,  "Smoothing",         YesNo, 2, CFGDEF_USE_SMOOTHING,  &var_smoothing, M_ChangeMipMap, NULL},
 	{OPT_Switch,  "H.Q.2x Scaling", Hq2xMode, 4, CFGDEF_HQ2X_SCALING,   &hq2x_scaling, M_ChangeMipMap, NULL},
 	{OPT_Switch,  "Dynamic Lighting", DLMode, 2, CFGDEF_USE_DLIGHTS,    &use_dlights, M_ChangeDLights, NULL},
-#if 0
-	{OPT_Boolean, "Doom-like fading", YesNo, 2, CFGDEF_DOOM_FADING,    &doom_fading, NULL, NULL},
-#endif
+
 	{OPT_Switch,  "Detail Level",   Details,  3, CFGDEF_DETAIL_LEVEL,   &detail_level, M_ChangeMipMap, NULL},
 	{OPT_Switch,  "Mipmapping",     MipMaps,  3, CFGDEF_USE_MIPMAPPING, &var_mipmapping, M_ChangeMipMap, NULL},
-#if 0
-	{OPT_Boolean, "Shadows",        YesNo, 2,  CFGDEF_SHADOWS,  &global_flags.shadows, M_ChangeShadows, NULL},
-#endif
+
 	{OPT_Plain,   "",  NULL, 0, 0, NULL, NULL, NULL},
 
 	{OPT_Switch,  "Crosshair",     CrosO, 4,  CFGDEF_CROSSHAIR,      &crosshair, NULL, NULL},
@@ -414,8 +410,6 @@ static optmenuitem_t vidoptions[] =
 	{OPT_Switch,  "Wipe method",   WIPE_EnumStr, WIPE_NUMWIPES, 
                                    CFGDEF_WIPE_METHOD, &wipe_method, NULL, NULL},
   
-	{OPT_Boolean, "Screenshot Format",  JpgPng, 2, CFGDEF_PNG_SCRSHOTS, &png_scrshots, NULL, NULL}
-
 #if 0  // TEMPORARILY DISABLED (we need an `Advanced Options' menu)
 	{OPT_Switch,  "Teleportation effect", WIPE_EnumStr, WIPE_NUMWIPES, 
                                               CFGDEF_TELEPT_EFFECT,  &telept_effect, NULL, NULL},
