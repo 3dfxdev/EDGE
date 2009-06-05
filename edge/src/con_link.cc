@@ -25,6 +25,7 @@ extern cvar_c r_width, r_height, r_depth, r_fullscreen;
 extern cvar_c r_colormaterial, r_colorlighting;
 extern cvar_c r_dumbsky, r_dumbmulti, r_dumbcombine, r_dumbclamp;
 extern cvar_c r_nearclip, r_farclip, r_fadepower;
+extern cvar_c r_fov, r_zoomedfov;
 
 extern cvar_c am_smoothmap;
 extern cvar_c m_diskicon, m_busywait;
@@ -52,6 +53,8 @@ cvar_link_t  all_cvars[] =
 	{ "r_nearclip",   &r_nearclip,   "c",   "4"     },
 	{ "r_farclip",    &r_farclip,    "c",   "64000" },
 	{ "r_fadepower",  &r_fadepower,  "c",   "1",    },
+	{ "r_fov",        &r_fov,        "c",   "90",   },
+	{ "r_zoomedfov",  &r_zoomedfov,  "c",   "10",   },
 
 	{ "r_colormaterial", &r_colormaterial, "",   "1"  },
 	{ "r_colorlighting", &r_colorlighting, "",   "1"  },
@@ -132,9 +135,6 @@ cvar_link_t  all_cvars[] =
     {"joy_yaxis",         &joy_yaxis,                 CFGDEF_JOY_YAXIS},
 
     {"screen_hud",        &screen_hud,                CFGDEF_SCREEN_HUD},
-
-    {"fieldofview",       &cfgnormalfov,              CFGDEF_NORMALFOV},
-    {"zoomedfieldofview", &cfgzoomedfov,              CFGDEF_ZOOMEDFOV},
 
     {"save_page",         &save_page, 0},
 

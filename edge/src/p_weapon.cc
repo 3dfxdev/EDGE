@@ -377,8 +377,6 @@ static void SwitchAway(player_t * p, int ATK, int reload)
 }
 
 //
-// P_BringUpWeapon
-//
 // Starts bringing the pending weapon up
 // from the bottom of the screen.
 //
@@ -409,8 +407,8 @@ static void P_BringUpWeapon(player_t * p)
 			p->psprites[i].next_state = S_NULL;
 		}
 
-		if (viewiszoomed && p == players[displayplayer])
-			R_SetFOV(zoomedfov);
+		if (view_zoom > 0 && p == players[displayplayer])
+			view_zoom = r_zoomedfov.f;
 		return;
 	}
 
@@ -423,15 +421,12 @@ static void P_BringUpWeapon(player_t * p)
 	if (w->specials[0] & WPSP_Animated)
 		p->psprites[ps_weapon].sy = 0;
 
-	// we don't need to check level_flags.limit_zoom, as viewiszoomed
-	// should always be false when we get here.
-
-	if (viewiszoomed && p == players[displayplayer])
+	// assume that 'LimitZoom' mode is not active (otherwise
+	// the view_zoom value should be zero).
+	if (view_zoom > 0 && p == players[displayplayer])
 	{
 		if (w->zoom_fov > 0)
-			R_SetFOV(w->zoom_fov);
-		else
-			R_SetFOV(zoomedfov);
+			view_zoom = w->zoom_fov;
 	}
 
 	if (w->start)
@@ -852,10 +847,9 @@ void P_Zoom(player_t *pl)
 	if (pl != players[displayplayer])
 		return;
 
-	if (viewiszoomed)
+	if (view_zoom > 0)
 	{
-		R_SetFOV(normalfov);
-		viewiszoomed = false;
+		view_zoom = 0;
 		return;
 	}
 
@@ -865,17 +859,10 @@ void P_Zoom(player_t *pl)
 		fov = pl->weapons[pl->ready_wp].info->zoom_fov;
 
 	// In `LimitZoom' mode, only allow zooming if weapon supports it
-	if (level_flags.limit_zoom)
-	{
-		if (fov <= 0)
-			return;
-	}
+	if (level_flags.limit_zoom && fov <= 0)
+		return;
 
-	if (fov <= 0)
-		fov = zoomedfov;
-
-	R_SetFOV(fov);
-	viewiszoomed = true;
+	view_zoom = (fov > 0) ? fov : r_zoomedfov.f;
 }
 
 
@@ -1230,11 +1217,13 @@ void A_Lower(mobj_t * mo, void *data)
 
 	weapondef_c *w = p->weapons[p->ready_wp].info;
 
-	if (level_flags.limit_zoom && viewiszoomed && p == players[displayplayer])
+	if (view_zoom > 0 && p == players[displayplayer])
 	{
 		// In `LimitZoom' mode, disable any current zoom
-		R_SetFOV(normalfov);
-		viewiszoomed = false;
+		if (level_flags.limit_zoom)
+			view_zoom = 0;
+		else
+			view_zoom = r_zoomedfov.f;
 	}
 
 	psp->sy += LOWERSPEED;

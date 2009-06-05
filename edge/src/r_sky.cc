@@ -184,9 +184,6 @@ void R_ComputeSkyHeights(void)
 //----------------------------------------------------------------------------
 
 
-extern angle_t FIELDOFVIEW;
-
-
 static bool need_to_draw_sky = false;
 
 
@@ -449,6 +446,8 @@ void RGL_DrawSkyOriginal(void)
 	// divide screen into 32 vertical strips, since mapping is non-linear
 	glBegin(GL_QUAD_STRIP);
  
+	angle_t FIELDOFVIEW = leftangle - rightangle;
+
 	float focal_len = M_Tan((FIELDOFVIEW) / 2);
 	float centerxfrac = SCREENWIDTH / 2.0f;
 
