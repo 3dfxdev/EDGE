@@ -23,6 +23,9 @@
 #include "p_local.h"
 
 
+#define DIST_EPSILON  0.2f
+
+
 static int max_segs;
 static int max_subsecs;
 static int max_glvert;
@@ -138,7 +141,111 @@ static seg_t * CreateOneSeg(line_t *ld, sector_t *sec, int side,
 	return g;
 }
 
-// FIXME: SplitSeg
+
+static inline void ComputeIntersection(seg_t *cur, divline_t& party,
+  float perp_c, float perp_d, float *x, float *y)
+{
+	// horizontal partition against vertical seg
+	if (party.dy == 0 && cur->v1->x == cur->v2->x)
+	{
+		*x = cur->v1->x;
+		*y = party.y;
+		return;
+	}
+
+	// vertical partition against horizontal seg
+	if (party.dx == 0 && cur->v1->y == cur->v2->y)
+	{
+		*x = party.x;
+		*y = cur->v1->y;
+		return;
+	}
+
+	// 0 = start, 1 = end
+	double ds = perp_c / (perp_c - perp_d);
+
+	if (cur->pdx == 0)
+		*x = cur->psx;
+	else
+		*x = cur->psx + (cur->pdx * ds);
+
+	if (cur->pdy == 0)
+		*y = cur->psy;
+	else
+		*y = cur->psy + (cur->pdy * ds);
+}
+
+//
+// SplitSeg
+//
+// -AJA- Splits the given seg at the point (x,y).  The new seg is
+//       returned.  The old seg is shortened (the original start
+//       vertex is unchanged), whereas the new seg becomes the cut-off
+//       tail (keeping the original end vertex).
+//
+//       If the seg has a partner, than that partner is also split.
+//       NOTE WELL: the new piece of the partner seg is inserted into
+//       the same list as the partner seg (and after it) -- thus ALL
+//       segs (except the one we are currently splitting) must exist
+//       on a singly-linked list somewhere. 
+//
+static seg_t *SplitSeg(seg_t *old_seg, float x, float y)
+{
+# if DEBUG_SPLIT
+	if (old_seg->linedef)
+		PrintDebug("Splitting Linedef %d (%p) at (%1.1f,%1.1f)\n",
+				old_seg->linedef->index, old_seg, x, y);
+	else
+		PrintDebug("Splitting Miniseg %p at (%1.1f,%1.1f)\n", old_seg, x, y);
+# endif
+
+	seg_t *new_seg = NewSeg();
+
+	vertex_t *new_vert = NewVertex(x, y);
+
+	// copy seg info
+	new_seg[0] = old_seg[0];
+	new_seg->next = NULL;
+
+	old_seg->v2 = new_vert;
+	new_seg->v1 = new_vert;
+
+	old_seg->length = R_PointToDist(old_seg->v1->x, old_seg->v1->y, x, y);
+	new_seg->length = R_PointToDist(new_seg->v2->x, old_seg->v2->y, x, y);
+
+# if DEBUG_SPLIT
+	PrintDebug("Splitting Vertex is %04X at (%1.1f,%1.1f)\n",
+			new_vert->index, new_vert->x, new_vert->y);
+# endif
+
+	// handle partners
+
+	if (old_seg->partner)
+	{
+#   if DEBUG_SPLIT
+		PrintDebug("Splitting Partner %p\n", old_seg->partner);
+#   endif
+
+		new_seg->partner = NewSeg();
+
+		// copy seg info
+		new_seg->partner[0] = old_seg->partner[0];
+
+		// IMPORTANT: keep partner relationship valid
+		new_seg->partner->partner = new_seg;
+
+		old_seg->partner->v1 = new_vert;
+		new_seg->partner->v2 = new_vert;
+
+		old_seg->partner->length = old_seg->length;
+		new_seg->partner->length = new_seg->length;
+
+		// link it into list
+		old_seg->partner->next = new_seg->partner;
+	}
+
+	return new_seg;
+}
 
 
 static void Poly_CreateSegs(void)
@@ -302,6 +409,84 @@ static bool ChoosePartition(subsector_t *sub, divline_t *div)
 	return false;
 }
 
+static void DivideOneSeg(seg_t *cur, divline_t& party,
+	subsector_t *left, subsector_t *right,
+    intersection_t ** cut_list)
+{
+	seg_t *new_seg;
+
+	float_g x, y;
+
+	/* get state of lines' relation to each other */
+	float a = UtilPerpDist(part, cur->psx, cur->psy);
+	float b = UtilPerpDist(part, cur->pex, cur->pey);
+
+	/* check for being on the same line */
+	if (fabs(a) <= DIST_EPSILON && fabs(b) <= DIST_EPSILON)
+	{
+		AddIntersection(cut_list, cur->start, part);
+		AddIntersection(cut_list, cur->end,   part);
+
+		// this seg runs along the same line as the partition.  check
+		// whether it goes in the same direction or the opposite.
+
+		if (cur->pdx*part->pdx + cur->pdy*part->pdy < 0)
+		{
+			AddSeg(left, cur);
+		}
+		else
+		{
+			AddSeg(right, cur);
+		}
+
+		return;
+	}
+
+	/* check for right side */
+	if (a > -DIST_EPSILON && b > -DIST_EPSILON)
+	{
+		if (a < DIST_EPSILON)
+			AddIntersection(cut_list, cur->start, part, self_ref);
+		else if (b < DIST_EPSILON)
+			AddIntersection(cut_list, cur->end, part, self_ref);
+
+		AddSeg(right, cur);
+		return;
+	}
+
+	/* check for left side */
+	if (a < DIST_EPSILON && b < DIST_EPSILON)
+	{
+		if (a > -DIST_EPSILON)
+			AddIntersection(cut_list, cur->start, part, self_ref);
+		else if (b > -DIST_EPSILON)
+			AddIntersection(cut_list, cur->end, part, self_ref);
+
+		AddSeg(left, cur);
+		return;
+	}
+
+	// when we reach here, we have a and b non-zero and opposite sign,
+	// hence this seg will be split by the partition line.
+
+	ComputeIntersection(cur, party, a, b, &x, &y);
+
+	new_seg = SplitSeg(cur, x, y);
+
+	AddIntersection(cut_list, cur->end, part, self_ref);
+
+	if (a < 0)
+	{
+		AddSeg(left,  cur);
+		AddSeg(right, new_seg);
+	}
+	else
+	{
+		AddSeg(right, cur);
+		AddSeg(left,  new_seg);
+	}
+}
+
 
 static void TrySplitSubsector(subsector_t *sub)
 {
@@ -315,6 +500,7 @@ static void TrySplitSubsector(subsector_t *sub)
 
 	subsector_t *left = CreateSubsector(sub->sector);
 
+	// link new subsector into the Sector
 	left->sec_next = sub->sector->subsectors;
 	sub->sector->subsectors = left;
 
@@ -323,7 +509,13 @@ static void TrySplitSubsector(subsector_t *sub)
 
 	intersection_t *cut_list;
 
-	SeparateSegs(sub, seg_list, &party, left, sub, &cut_list);
+	while (seg_list)
+	{
+		seg_t *cur = seg_list;
+		seg_list = seg_list->next;
+
+		DivideOneSeg(cur, party, left, sub, cut_list);
+	}
 
 	AddMinisegs( cut_list ) ;
 }
