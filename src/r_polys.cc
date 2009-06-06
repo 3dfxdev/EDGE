@@ -94,6 +94,41 @@ static vertex_t *NewVertex(void)
 }
 
 
+//----------------------------------------------------------------------------
+
+// an "intersection" remembers the vertex that touches a BSP divider
+// line (especially a new vertex that is created at a seg split).
+
+// Note: two points can exist in the intersection list with
+//       the same along value but different dirs.
+typedef struct
+{
+	vertex_t *v;
+
+	// how far along the partition line the vertex is.
+	// bigger value are further along the partition line.
+	// Only used for sorting the list.
+	int along;
+
+	// direction that miniseg will touch, +1 for further along
+	// the partition, and -1 for backwards on the partition.
+	// The values +2 and -2 indicate REMOVED points.
+	int dir;
+}
+intersect_t;
+
+struct Compare_Intersect_pred
+{
+	inline bool operator() (const intersect_t& A, const intersect_t& B) const
+	{
+		if (A.along != B.along)
+			return A.along < B.along;
+
+		return A.dir < B.dir;
+	}
+};
+
+
 static subsector_t *CreateSubsector(sector_t *sec)
 {
 	subsector_t *sub = NewSubsector();
@@ -429,55 +464,18 @@ static inline float AlongDist(divline_t& party, float x, float y)
 }
 
 
-static void AddIntersection(intersection_t ** cut_list,
-    vertex_t *vert, seg_t *part, boolean_g self_ref)
+static void AddIntersection(std::vector<intersect_t> & cut_list,
+                               divline_t & party, vertex_t *v, int dir);
 {
-  intersection_t *cut;
-  intersection_t *after;
+	float along = AlongDist(party, v->x, v->y);
 
-  /* check if vertex already present */
-  for (cut=(*cut_list); cut; cut=cut->next)
-  {
-    if (vert == cut->vertex)
-      return;
-  }
+	intersect_t new_cut;
 
-  /* create new intersection */
-  cut = NewIntersection();
+	new_cut.v = v;
+	new_cut.along = I_ROUND(along * 5.6f);
+	new_cut.dir = dir;
 
-  cut->vertex = vert;
-  cut->along_dist = UtilParallelDist(part, vert->x, vert->y);
-  cut->self_ref = self_ref;
- 
-  cut->before = VertexCheckOpen(vert, -part->pdx, -part->pdy);
-  cut->after  = VertexCheckOpen(vert,  part->pdx,  part->pdy);
- 
-  /* enqueue the new intersection into the list */
-
-  for (after=(*cut_list); after && after->next; after=after->next)
-  { }
-
-  while (after && cut->along_dist < after->along_dist) 
-    after = after->prev;
-  
-  /* link it in */
-  cut->next = after ? after->next : (*cut_list);
-  cut->prev = after;
-
-  if (after)
-  {
-    if (after->next)
-      after->next->prev = cut;
-    
-    after->next = cut;
-  }
-  else
-  {
-    if (*cut_list)
-      (*cut_list)->prev = cut;
-    
-    (*cut_list) = cut;
-  }
+	cut_list.push_back(new_cut);
 }
 
 
@@ -497,7 +495,7 @@ static bool ChoosePartition(subsector_t *sub, divline_t *div)
 
 static void DivideOneSeg(seg_t *cur, divline_t& party,
 	subsector_t *left, subsector_t *right,
-    intersection_t ** cut_list)
+	std::vector<intersect_t> & cut_list)
 {
 	seg_t *new_seg;
 
@@ -517,14 +515,18 @@ static void DivideOneSeg(seg_t *cur, divline_t& party,
 		if (SameDir(party, cur))
 		{
 			AddSeg(right, cur);
+
+			// +2 and -2 mean "remove"
+			AddIntersection(cut_list, party, cur->v1, +2);
+			AddIntersection(cut_list, party, cur->v2, -2);
 		}
 		else
 		{
 			AddSeg(left, cur);
-		}
 
-		// don't need to add any intersections, since there should
-		// be another seg that comes away from the line.
+			AddIntersection(cut_list, party, cur->v1, -2);
+			AddIntersection(cut_list, party, cur->v2, +2);
+		}
 
 		return;
 	}
@@ -564,8 +566,6 @@ static void DivideOneSeg(seg_t *cur, divline_t& party,
 
 	new_seg = SplitSeg(cur, x, y);
 
-	AddIntersection(cut_list, party, new_seg->v1, a_side);
-
 	if (a_side < 0)
 	{
 		AddSeg(left,  cur);
@@ -575,6 +575,64 @@ static void DivideOneSeg(seg_t *cur, divline_t& party,
 	{
 		AddSeg(right, cur);
 		AddSeg(left,  new_seg);
+	}
+
+	AddIntersection(cut_list, party, new_seg->v1, a_side);
+}
+
+
+static void AddMinisegs(sector_t *sec, divline_t& party,
+	subsector_t *left, subsector_t *right,
+	std::vector<intersect_t> & cut_list)
+{
+	if (cut_list.empty())
+		return;
+
+	std::sort(cut_list.begin(), cut_list.end(),
+	          Compare_Intersect_pred());
+
+	std::vector<intersect_t>::iterator A, B;
+
+	A = cut_list.begin();
+
+	while (A != cut_list.end())
+	{
+		if (A.dir != +1)
+		{
+			A++; continue;
+		}
+
+		B = A; B++;
+
+		if (B == cut_list.end())
+			break;
+
+		// this handles multiple +1 entries and also ensures
+		// that the +2 "remove" entry kills a +1 entry.
+		if (A.along == B.along)
+		{
+			A++; continue;
+		}
+
+		if (B.dir != -1)
+		{
+			I_Debugf("WARNING: bad pair in intersection list\n");
+
+			A = B; continue;
+		}
+
+		// found a viable miniseg!
+
+		seg_t *seg_L = ...
+		seg_t *seg_R = ...
+		
+		seg_L->partner = seg_R;
+		seg_R->partner = seg_L;
+
+		AddSeg(left,  seg_L);
+		AddSeg(right, seg_R);
+
+		B++; A = B; continue;
 	}
 }
 
@@ -598,7 +656,7 @@ static void TrySplitSubsector(subsector_t *sub)
 	seg_t *seg_list = sub->segs;
 	sub->segs = NULL;
 
-	intersection_t *cut_list;
+	std::vector<intersect_t> cut_list;
 
 	while (seg_list)
 	{
@@ -608,7 +666,7 @@ static void TrySplitSubsector(subsector_t *sub)
 		DivideOneSeg(cur, party, left, sub, cut_list);
 	}
 
-	AddMinisegs( cut_list ) ;
+	AddMinisegs(sub->sector, party, left, sub, cut_list);
 }
 
 
