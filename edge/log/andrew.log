@@ -1,5 +1,14 @@
 Andrew Apted's Log
 
+2009/06/06:
+
+Been working on a sector "Polygonizer", which despite the
+name actually breaks a sector into CONVEX polygons.  Yeah
+it's deja vu.  This time I'm adapting the glBSP code to do
+the job.  Since we are processing each sector separately,
+and don't need to ensure a well-balanced bsp tree, this
+should be much faster than a real bsp build of a map.
+
 2009/06/04:
 
 Started down the long road to replacing most configuration
