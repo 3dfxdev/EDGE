@@ -479,18 +479,52 @@ static void AddIntersection(std::vector<intersect_t> & cut_list,
 }
 
 
-static bool ChoosePartition(subsector_t *sub, divline_t *div)
+static float EvaluateParty(seg_t *seg_list, divline_t& party)
 {
-	int total = 0;
-	for (seg_t *Z = sub->segs; Z; Z=Z->sub_next)
-		total++;
+	int left  = 0;
+	int right = 0;
+	int split = 0;
 
-	if (total <= 3)
-		return false;
+	for (seg_t *cur = seg_list; cur; cur = cur->sub_next)
+	{
+		float a = PerpDist(party, cur->v1->x, cur->v1->y);
+		float b = PerpDist(party, cur->v2->x, cur->v2->y);
 
-	// FIXME: if total > ### median shit
+		int a_side = (a < -DIST_EPSILON) ? -1 : (a > DIST_EPSILON) ? +1 : 0;
+		int b_side = (b < -DIST_EPSILON) ? -1 : (b > DIST_EPSILON) ? +1 : 0;
 
-	return false;
+		if (a_side == 0 && b_side == 0)
+		{
+			// seg runs along the same line as the partition
+			if (SameDir(party, cur))
+				right++;
+			else
+				left++;
+		}
+		else if (a_side >= 0 && b_side >= 0)
+		{
+			right++;
+		}
+		else if (a_side <= 0 && b_side <= 0)
+		{
+			left++;
+		}
+		else
+		{
+			// partition line would split this seg
+			left++; right++; split++;
+		}
+	}
+
+	// completely unusable?
+	if (left == 0 || right == 0)
+		return -1;
+
+	// determine cost
+	int diff  = abs(left - right);
+	int total = left + right;
+
+	return (diff * 100.0f + split * split * 365.0f) / (float)total;
 }
 
 static void DivideOneSeg(seg_t *cur, divline_t& party,
@@ -579,6 +613,22 @@ static void DivideOneSeg(seg_t *cur, divline_t& party,
 
 	AddIntersection(cut_list, party, new_seg->v1, a_side);
 }
+
+
+static bool ChoosePartition(subsector_t *sub, divline_t *div)
+{
+	int total = 0;
+	for (seg_t *Z = sub->segs; Z; Z=Z->sub_next)
+		total++;
+
+	if (total <= 3)
+		return false;
+
+	// FIXME: if total > ### median shit
+
+	return false;
+}
+
 
 
 static void AddMinisegs(sector_t *sec, divline_t& party,
