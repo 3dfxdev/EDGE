@@ -27,6 +27,7 @@
 #include "m_menu.h"
 #include "s_sound.h"
 #include "w_wad.h"
+#include "version.h"
 #include "z_zone.h"
 
 
@@ -294,6 +295,12 @@ int CMD_Help(char **argv, int argc)
 	return 0;
 }
 
+int CMD_Version(char **argv, int argc)
+{
+	I_Printf("EDGE v" EDGEVERSTR "\n");
+	return 0;
+}
+
 
 //----------------------------------------------------------------------------
 
@@ -375,6 +382,7 @@ const con_cmd_t builtin_commands[] =
 	{ "showvars",       CMD_ShowVars },
 	{ "screenshot",     CMD_ScreenShot },
 	{ "type",           CMD_Type },
+	{ "version",        CMD_Version },
 	{ "quit",           CMD_QuitEDGE },
 	{ "exit",           CMD_QuitEDGE },
 
