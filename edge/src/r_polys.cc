@@ -105,6 +105,13 @@ static subsector_t *CreateSubsector(sector_t *sec)
 	return sub;
 }
 
+static void AddSeg(subsector_t *sub, seg_t *seg)
+{
+	// add seg to subsector
+	seg->sub_next = sub->segs;
+	sub->segs = seg;
+}
+
 static seg_t * CreateOneSeg(line_t *ld, sector_t *sec, int side,
                             vertex_t *v1, vertex_t *v2)
 {
@@ -134,9 +141,7 @@ static seg_t * CreateOneSeg(line_t *ld, sector_t *sec, int side,
 
 	subsector_t *sub = sec->subsectors;
 
-	// add seg to subsector
-	g->sub_next = sub->segs;
-	sub->segs = g;
+	AddSeg(sub, g);
 
 	return g;
 }
@@ -395,6 +400,87 @@ static void ClockwiseOrder(subsector_t *sub)
 }
 
 
+static inline bool SameDir(divline_t& party, seg_t *seg)
+{
+	float sdx = seg->v2->x - seg->v1->x;
+	float sdy = seg->v2->y - seg->v1->y;
+
+	return (sdx * party.dx + sdy * party.dy) >= 0;
+}
+
+static inline float PerpDist(divline_t& party, float x, float y)
+{
+	x -= party.x;
+	y -= party.y;
+
+	float len = sqrt(party.dx * party.dx + party.dy * party.dy);
+
+	return (x * party.dy - y * party.dx) / len;
+}
+
+static inline float AlongDist(divline_t& party, float x, float y)
+{
+	x -= party.x;
+	y -= party.y;
+
+	float len = sqrt(party.dx * party.dx + party.dy * party.dy);
+
+	return (x * party.dx + y * party.dy) / len;
+}
+
+
+static void AddIntersection(intersection_t ** cut_list,
+    vertex_t *vert, seg_t *part, boolean_g self_ref)
+{
+  intersection_t *cut;
+  intersection_t *after;
+
+  /* check if vertex already present */
+  for (cut=(*cut_list); cut; cut=cut->next)
+  {
+    if (vert == cut->vertex)
+      return;
+  }
+
+  /* create new intersection */
+  cut = NewIntersection();
+
+  cut->vertex = vert;
+  cut->along_dist = UtilParallelDist(part, vert->x, vert->y);
+  cut->self_ref = self_ref;
+ 
+  cut->before = VertexCheckOpen(vert, -part->pdx, -part->pdy);
+  cut->after  = VertexCheckOpen(vert,  part->pdx,  part->pdy);
+ 
+  /* enqueue the new intersection into the list */
+
+  for (after=(*cut_list); after && after->next; after=after->next)
+  { }
+
+  while (after && cut->along_dist < after->along_dist) 
+    after = after->prev;
+  
+  /* link it in */
+  cut->next = after ? after->next : (*cut_list);
+  cut->prev = after;
+
+  if (after)
+  {
+    if (after->next)
+      after->next->prev = cut;
+    
+    after->next = cut;
+  }
+  else
+  {
+    if (*cut_list)
+      (*cut_list)->prev = cut;
+    
+    (*cut_list) = cut;
+  }
+}
+
+
 static bool ChoosePartition(subsector_t *sub, divline_t *div)
 {
 	int total = 0;
@@ -415,52 +501,53 @@ static void DivideOneSeg(seg_t *cur, divline_t& party,
 {
 	seg_t *new_seg;
 
-	float_g x, y;
-
 	/* get state of lines' relation to each other */
-	float a = UtilPerpDist(part, cur->psx, cur->psy);
-	float b = UtilPerpDist(part, cur->pex, cur->pey);
+	float a = PerpDist(party, cur->v1->x, cur->v1->y);
+	float b = PerpDist(party, cur->v2->x, cur->v2->y);
+
+	int a_side = (a < -DIST_EPSILON) ? -1 : (a > DIST_EPSILON) ? +1 : 0;
+	int b_side = (b < -DIST_EPSILON) ? -1 : (b > DIST_EPSILON) ? +1 : 0;
 
 	/* check for being on the same line */
-	if (fabs(a) <= DIST_EPSILON && fabs(b) <= DIST_EPSILON)
+	if (a_side == 0 && b_side == 0)
 	{
-		AddIntersection(cut_list, cur->start, part);
-		AddIntersection(cut_list, cur->end,   part);
-
 		// this seg runs along the same line as the partition.  check
 		// whether it goes in the same direction or the opposite.
 
-		if (cur->pdx*part->pdx + cur->pdy*part->pdy < 0)
-		{
-			AddSeg(left, cur);
-		}
-		else
+		if (SameDir(party, cur))
 		{
 			AddSeg(right, cur);
 		}
+		else
+		{
+			AddSeg(left, cur);
+		}
+
+		// don't need to add any intersections, since there should
+		// be another seg that comes away from the line.
 
 		return;
 	}
 
 	/* check for right side */
-	if (a > -DIST_EPSILON && b > -DIST_EPSILON)
+	if (a_side >= 0 && b_side >= 0)
 	{
-		if (a < DIST_EPSILON)
-			AddIntersection(cut_list, cur->start, part, self_ref);
-		else if (b < DIST_EPSILON)
-			AddIntersection(cut_list, cur->end, part, self_ref);
+		if (a_side == 0)
+			AddIntersection(cut_list, party, cur->v1, -1);
+		else if (b_side == 0)
+			AddIntersection(cut_list, party, cur->v2, +1);
 
 		AddSeg(right, cur);
 		return;
 	}
 
 	/* check for left side */
-	if (a < DIST_EPSILON && b < DIST_EPSILON)
+	if (a_side <= 0 && b_side <= 0)
 	{
-		if (a > -DIST_EPSILON)
-			AddIntersection(cut_list, cur->start, part, self_ref);
-		else if (b > -DIST_EPSILON)
-			AddIntersection(cut_list, cur->end, part, self_ref);
+		if (a_side == 0)
+			AddIntersection(cut_list, party, cur->v1, +1);
+		else if (b_side == 0)
+			AddIntersection(cut_list, party, cur->v2, -1);
 
 		AddSeg(left, cur);
 		return;
@@ -469,13 +556,17 @@ static void DivideOneSeg(seg_t *cur, divline_t& party,
 	// when we reach here, we have a and b non-zero and opposite sign,
 	// hence this seg will be split by the partition line.
 
+	SYS_ASSERT(a_side == -b_side);
+
+	float x, y;
+
 	ComputeIntersection(cur, party, a, b, &x, &y);
 
 	new_seg = SplitSeg(cur, x, y);
 
-	AddIntersection(cut_list, cur->end, part, self_ref);
+	AddIntersection(cut_list, party, new_seg->v1, a_side);
 
-	if (a < 0)
+	if (a_side < 0)
 	{
 		AddSeg(left,  cur);
 		AddSeg(right, new_seg);
