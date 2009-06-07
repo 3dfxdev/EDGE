@@ -38,6 +38,7 @@
 #include "r_misc.h"     //  R_Render
 #include "r_automap.h"  // AM_Drawer
 #include "r_colormap.h"
+#include "s_sound.h"
 
 
 static font_c *cur_font = NULL;
@@ -778,6 +779,33 @@ static int HD_set_render_who(lua_State *L)
 }
 
 
+// hud.play_sound(name, [volume])
+//
+static int HD_play_sound(lua_State *L)
+{
+	const char *name = luaL_checkstring(L, 1);
+
+	float volume = 1.0f;
+
+	int nargs = lua_gettop(L);
+	if (nargs >= 2)
+		volume = luaL_checknumber(L, 2) / 100.0f;
+
+	if (volume <= 0)
+		return 0;
+
+	sfx_t *fx = sfxdefs.GetEffect(name);
+
+	if (! fx)
+		I_Error("Lua script problem: unknown sound '%s'\n", name);
+
+	// FIXME: support 'volume' parameter
+
+	S_StartFX(fx);
+	return 0;
+}
+
+
 const luaL_Reg hud_module[] =
 {
 	{ "raw_debug_print", HD_raw_debug_print },
@@ -811,6 +839,9 @@ const luaL_Reg hud_module[] =
     { "render_world",    HD_render_world   },
     { "render_automap",  HD_render_automap },
 	{ "set_render_who",  HD_set_render_who },
+
+	// sound functions
+	{ "play_sound",      HD_play_sound },
 
 	{ NULL, NULL } // the end
 };
