@@ -603,6 +603,20 @@ static int PL_hurt_by(lua_State *L)
 }
 
 
+// player.hurt_mon()
+//
+static int PL_hurt_mon(lua_State *L)
+{
+	if (cur_player->damagecount > 0 && cur_player->attacker)
+	{
+		lua_pushstring(L, cur_player->attacker->info->ddf.name.c_str());
+		return 1;
+	}
+
+	return 0;  // return NIL
+}
+
+
 // player.hurt_pain()
 //
 static int PL_hurt_pain(lua_State *L)
@@ -710,6 +724,7 @@ const luaL_Reg player_module[] =
     { "clip_is_shared",  PL_clip_is_shared },
 
     { "hurt_by",         PL_hurt_by    },
+    { "hurt_mon",        PL_hurt_mon   },
     { "hurt_pain",       PL_hurt_pain  },
     { "hurt_dir",        PL_hurt_dir   },
     { "hurt_angle",      PL_hurt_angle },
