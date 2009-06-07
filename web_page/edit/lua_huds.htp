@@ -571,15 +571,19 @@ for the current player.
 
 <p><span class="lua_FUNC">player.hurt_by()</span><br>
 If the player has been hurt in the last few seconds, this
-returns the string <B><FONT COLOR="#FF3333">&quot;enemy&quot;</FONT></B>,
-or if the player hurt himself with his own damn stupidity then the
-string <B><FONT COLOR="#FF3333">&quot;self&quot;</FONT></B> is
-returned.  Otherwise this function returns <FONT color="#0000AA"><B>nil</b></font>.
+returns a string describing what did the damage.  Otherwise
+this function returns <FONT color="#0000AA"><B>nil</b></font>.
+The result is usually <B><FONT COLOR="#FF3333">&quot;enemy&quot;</FONT></B>,
+but could be <B><FONT COLOR="#FF3333">&quot;friend&quot;</FONT></B> for
+friendly fire.  If the player hurt himself with his own damn stupidity then the
+result is <B><FONT COLOR="#FF3333">&quot;self&quot;</FONT></B>,
+whereas damaging floors and crushers will return
+<B><FONT COLOR="#FF3333">&quot;other&quot;</FONT></B>.
 
 <p><span class="lua_FUNC">player.hurt_mon()</span><br>
 If the player has been hurt in the last few seconds, this
-returns the name of the monster or other player.
-Otherwise this function returns <FONT color="#0000AA"><B>nil</b></font>.
+returns the name of the monster or other player.  Otherwise
+this function returns <FONT color="#0000AA"><B>nil</b></font>.
 
 <p><span class="lua_FUNC">player.hurt_pain()</span><br>
 If the player was just hurt, this returns the damage amount,
