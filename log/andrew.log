@@ -1,5 +1,11 @@
 Andrew Apted's Log
 
+2009/06/07:
+
+Lua huds: added player.hurt_mon() method which returns the
+DDF name of the monster/player which did the damage.  Also
+added new hud.play_sound() method, self explanatory.
+
 2009/06/06:
 
 Been working on a sector "Polygonizer", which despite the
