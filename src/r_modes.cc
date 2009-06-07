@@ -34,7 +34,6 @@
 #include "r_modes.h"
 #include "r_gldefs.h"
 #include "r_colormap.h"
-#include "r_automap.h"
 #include "r_image.h"
 #include "r_units.h"
 #include "r_draw.h"

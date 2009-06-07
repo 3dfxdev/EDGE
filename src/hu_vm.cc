@@ -36,7 +36,7 @@
 #include "r_draw.h"
 #include "r_modes.h"
 #include "r_misc.h"     //  R_Render
-#include "r_automap.h"  // AM_Drawer
+#include "am_map.h"     // AM_Drawer
 #include "r_colormap.h"
 #include "s_sound.h"
 
