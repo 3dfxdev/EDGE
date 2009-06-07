@@ -33,6 +33,7 @@ extern cvar_c r_dynamiclight;
 extern cvar_c am_smoothmap;
 extern cvar_c m_diskicon, m_busywait, m_screenhud;
 extern cvar_c m_obituaries;
+extern cvar_c debug_subsector;
 
 
 
@@ -83,6 +84,8 @@ cvar_link_t  all_cvars[] =
 
 	{ "s_volume",     &s_volume,     "c",   "10",   },
 	{ "s_musicvol",   &s_musicvol,   "c",   "10",   },
+
+	{ "debug_subsector", &debug_subsector, "", "0" },
 
 //---- END OF LIST -----------------------------------------------------------
 

@@ -112,6 +112,8 @@ static rgbcol_t am_colors[AM_NUM_COLORS] =
 
 
 cvar_c am_smoothmap;
+cvar_c debug_subsector;
+
 
 static int cheating = 0;
 static int grid = 0;
@@ -720,6 +722,20 @@ static void AM_WalkLine(line_t *ld)
 }
 
 
+static void AM_DrawSubsector(subsector_t *sub)
+{
+	for (seg_t *seg = sub->segs; seg; seg = seg->sub_next)
+	{
+		mline_t l;
+
+		GetRotatedCoords(seg->v1->x, seg->v1->y, &l.a.x, &l.a.y);
+		GetRotatedCoords(seg->v2->x, seg->v2->y, &l.b.x, &l.b.y);
+
+		DrawMline(&l, RGB_MAKE(255,0,255));
+	}
+}
+
+
 static void DrawLineCharacter(mline_t *lineguy, int lineguylines, 
 							  float radius, angle_t angle,
 							  rgbcol_t rgb, float x, float y)
@@ -1008,6 +1024,9 @@ void AM_Drawer(int x, int y, int w, int h, mobj_t *focus)
 		DrawGrid();
 
 	AM_RenderScene();
+
+	if (debug_subsector.d)
+		AM_DrawSubsector(focus->subsector);
 
 	DrawMarks();
 }
