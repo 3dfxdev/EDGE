@@ -38,9 +38,6 @@
 #include "w_wad.h"
 #include "z_zone.h"
 
-#include "r_misc.h"     //  R_Render
-#include "r_automap.h"  // AM_Drawer
-
 
 lua_vm_c *vm;  // the instance
 

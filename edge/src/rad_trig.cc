@@ -37,6 +37,7 @@
 #include "epi/file.h"
 #include "epi/filesystem.h"
 
+#include "am_map.h"
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "e_main.h"
@@ -52,7 +53,6 @@
 #include "rad_trig.h"
 #include "rad_act.h"
 #include "r_defs.h"
-#include "r_automap.h"
 #include "r_colormap.h"
 #include "r_draw.h"
 #include "r_modes.h"
