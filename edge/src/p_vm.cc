@@ -591,14 +591,16 @@ static int PL_hurt_by(lua_State *L)
 	if (cur_player->damagecount <= 0)
 		return 0;  // return NIL
 
-	if (cur_player->attacker)
-	{
-		lua_pushstring(L, "enemy");
-		return 1;
-	}
-
 	// getting hurt because of your own damn stupidity
-	lua_pushstring(L, "self");
+	if (cur_player->attacker == cur_player->mo)
+		lua_pushstring(L, "self");
+	else if (cur_player->attacker && (cur_player->attacker->side & cur_player->mo->side))
+		lua_pushstring(L, "friend");
+	else if (cur_player->attacker)
+		lua_pushstring(L, "enemy");
+	else
+		lua_pushstring(L, "other");
+
 	return 1;
 }
 
@@ -607,7 +609,9 @@ static int PL_hurt_by(lua_State *L)
 //
 static int PL_hurt_mon(lua_State *L)
 {
-	if (cur_player->damagecount > 0 && cur_player->attacker)
+	if (cur_player->damagecount > 0 &&
+		cur_player->attacker &&
+		cur_player->attacker != cur_player->mo)
 	{
 		lua_pushstring(L, cur_player->attacker->info->ddf.name.c_str());
 		return 1;
