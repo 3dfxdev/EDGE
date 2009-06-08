@@ -69,9 +69,8 @@
 // #define DEBUG_GREET_NEIGHBOUR
 
 
-int detail_level = 1;
-
 cvar_c r_dynamiclight;
+cvar_c r_detaillevel;
 
 
 // -ES- 1999/03/20 Different right & left side clip angles, for asymmetric FOVs.

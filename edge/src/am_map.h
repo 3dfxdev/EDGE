@@ -33,7 +33,9 @@
 #include "p_mobj.h"
 
 extern bool automapactive;
-extern bool rotatemap;
+
+extern cvar_c am_rotate;
+extern cvar_c am_smoothing;
 
 //
 // Automap drawing structs

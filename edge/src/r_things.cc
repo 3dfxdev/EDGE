@@ -274,7 +274,8 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 
 	RGL_StartUnits(false);
 
-	int num_pass = is_fuzzy ? 1 : (4 + detail_level * 2);
+	int k = CLAMP(0, r_detaillevel.d, 2);
+	int num_pass = is_fuzzy ? 1 : (4 + k * 2);
 
 	for (int pass = 0; pass < num_pass; pass++)
 	{
@@ -1315,7 +1316,8 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 
 	/* draw the sprite */
 
-	int num_pass = is_fuzzy ? 1 : (3 + detail_level * 2);
+	int k = CLAMP(0, r_detaillevel.d, 2);
+	int num_pass = is_fuzzy ? 1 : (3 + k * 2);
 
 	for (int pass = 0; pass < num_pass; pass++)
 	{

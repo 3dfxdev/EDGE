@@ -176,6 +176,8 @@ extern cvar_c r_height;
 extern cvar_c r_depth;
 extern cvar_c r_fullscreen;
 
+extern cvar_c debug_fullbright;
+
 
 class startup_progress_c
 {
@@ -321,7 +323,6 @@ static void SetGlobalVars(void)
 	}
 
 	// -AJA- 1999/10/18: Reworked these with M_CheckBooleanParm
-	M_CheckBooleanParm("rotatemap", &rotatemap, false);
 	M_CheckBooleanParm("invertmouse", &invertmouse, false);
 	M_CheckBooleanParm("showstats", &showstats, false);
 	M_CheckBooleanParm("hom", &hom_detect, false);
@@ -346,13 +347,16 @@ static void SetGlobalVars(void)
 	M_CheckBooleanParm("weaponswitch", &global_flags.weapon_switch, false);
 	M_CheckBooleanParm("autoload", &autoquickload, false);
 
+	if (M_CheckParm("-rotatemap"))
+		am_rotate = 1;
+
 	if (M_CheckParm("-dlights"))
 		r_dynamiclight = 1;
 	else if (M_CheckParm("-nodlights"))
 		r_dynamiclight = 0;
 
 	if (M_CheckParm("-fullbright"))
-		var_fullbright = true;
+		debug_fullbright = 1;
 
 	if (M_CheckParm("-ecompat"))
 		global_flags.edge_compat = true;

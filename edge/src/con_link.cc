@@ -28,12 +28,15 @@ extern cvar_c r_nearclip, r_farclip, r_fadepower;
 extern cvar_c r_fov, r_zoomedfov;
 extern cvar_c r_mipmapping, r_smoothing;
 extern cvar_c r_dithering, r_hq2x;
-extern cvar_c r_dynamiclight;
+extern cvar_c r_dynamiclight, r_invultex;
+extern cvar_c r_detaillevel;
 
-extern cvar_c am_smoothmap;
+extern cvar_c am_rotate, am_smoothing;
 extern cvar_c m_diskicon, m_busywait, m_screenhud;
-extern cvar_c m_obituaries;
-extern cvar_c debug_subsector;
+extern cvar_c m_messages, m_obituaries;
+extern cvar_c debug_fullbright, debug_subsector;
+
+extern cvar_c in_autorun;
 
 
 
@@ -68,6 +71,8 @@ cvar_link_t  all_cvars[] =
 	{ "r_hq2x",       &r_hq2x,       "c",   "1"  },
 
 	{ "r_dynamiclight",  &r_dynamiclight,  "c",  "1"  },
+	{ "r_detaillevel",   &r_detaillevel,   "c",  "1"  },
+	{ "r_invultex",      &r_invultex,      "c",  "1"  },
 
 	{ "r_colormaterial", &r_colormaterial, "",   "1"  },
 	{ "r_colorlighting", &r_colorlighting, "",   "1"  },
@@ -76,16 +81,22 @@ cvar_link_t  all_cvars[] =
 	{ "r_dumbcombine",   &r_dumbcombine,   "",   "0"  },
 	{ "r_dumbclamp",     &r_dumbclamp,     "",   "0"  },
 
-	{ "am_smoothmap", &am_smoothmap, "c",   "1",    },
+	{ "am_rotate",    &am_rotate,    "c",   "0",    },
+	{ "am_smoothing", &am_smoothing, "c",   "1",    },
+
+	{ "in_autorun",   &in_autorun,   "c",   "0",    },
+
 	{ "m_diskicon",   &m_diskicon,   "c",   "1",    },
 	{ "m_busywait",   &m_busywait,   "c",   "1",    },
-	{ "m_screenhud",  &m_screenhud,  "c",   "0",    },
+	{ "m_messages",   &m_messages,   "c",   "1",    },
 	{ "m_obituaries", &m_obituaries, "c",   "1",    },
+	{ "m_screenhud",  &m_screenhud,  "c",   "0",    },
 
 	{ "s_volume",     &s_volume,     "c",   "10",   },
 	{ "s_musicvol",   &s_musicvol,   "c",   "10",   },
 
-	{ "debug_subsector", &debug_subsector, "", "0" },
+	{ "debug_fullbright", &debug_fullbright, "h", "0" },
+	{ "debug_subsector",  &debug_subsector,  "h", "0" },
 
 //---- END OF LIST -----------------------------------------------------------
 

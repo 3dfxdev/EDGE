@@ -40,7 +40,9 @@ float ren_blu_mul;
 
 const colourmap_c *ren_fx_colmap;
 
-bool var_fullbright = false;
+cvar_c r_invultex;
+
+cvar_c debug_fullbright;
 
 
 static inline float EffectStrength(player_t *player)
@@ -63,7 +65,7 @@ static inline float EffectStrength(player_t *player)
 //
 void RGL_RainbowEffect(player_t *player)
 {
-	ren_extralight = var_fullbright ? 255 : player ? player->extralight * 16 : 0;
+	ren_extralight = debug_fullbright.d ? 255 : player ? player->extralight * 16 : 0;
 
 	ren_red_mul = ren_grn_mul = ren_blu_mul = 1.0f;
 
@@ -77,7 +79,7 @@ void RGL_RainbowEffect(player_t *player)
 	if (s > 0 && player->powers[PW_Invulnerable] > 0 &&
 		(player->effect_left & 8))
 	{
-		if (var_invul_fx == INVULFX_Textured)
+		if (r_invultex.d)
 		{
 			ren_fx_colmap = player->effect_colourmap;
 		}
@@ -95,7 +97,7 @@ void RGL_RainbowEffect(player_t *player)
 	}
 
 	if (s > 0 && player->powers[PW_NightVision] > 0 &&
-		player->effect_colourmap && !var_fullbright)
+		player->effect_colourmap && !debug_fullbright.d)
 	{
 		float r, g, b;
 
@@ -109,7 +111,7 @@ void RGL_RainbowEffect(player_t *player)
 		return;
 	}
 
-	if (s > 0 && player->powers[PW_Infrared] > 0 && !var_fullbright)
+	if (s > 0 && player->powers[PW_Infrared] > 0 && !debug_fullbright.d)
 	{
 		ren_extralight = int(s * 255);
 		return;
@@ -132,7 +134,7 @@ void RGL_ColourmapEffect(player_t *player)
 	if (s > 0 && player->powers[PW_Invulnerable] > 0 &&
 	    player->effect_colourmap && (player->effect_left & 8))
 	{
-		if (var_invul_fx != INVULFX_Simple)
+		if (r_invultex.d)
 			return;
 
 		float r, g, b;

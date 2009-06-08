@@ -988,9 +988,10 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 
 	/* draw the model */
 
+	int k = CLAMP(0, r_detaillevel.d, 2);
+
 	int num_pass = data.is_fuzzy  ? 1 :
-		           data.is_weapon ? (3 + detail_level) :
-					                (2 + detail_level*2);
+		           data.is_weapon ? (3 + k) : (2 + k*2);
 
 	for (int pass = 0; pass < num_pass; pass++)
 	{

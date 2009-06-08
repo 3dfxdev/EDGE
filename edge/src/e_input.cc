@@ -114,7 +114,7 @@ static int turnheld;   // for accelerative turning
 static int mlookheld;  // for accelerative mlooking 
 
 // toggled by autorun button.
-bool autorunning = false;
+cvar_c in_autorun;
 
 //-------------------------------------------
 // -KM-  1998/09/01 Analogue binding
@@ -193,7 +193,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	bool strafe = E_InputCheckKey(key_strafe);
 	int speed = E_InputCheckKey(key_speed) ? 1 : 0;
 
-	if (autorunning)
+	if (in_autorun.d)
 		speed = !speed;
 
 	int forward = 0;
@@ -246,7 +246,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	{
 		if (allowautorun)
 		{
-			autorunning  = !autorunning;
+			in_autorun = in_autorun.d ? 0 : 1;
 			allowautorun = false;
 		}
 	}
