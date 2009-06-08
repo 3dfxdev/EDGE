@@ -554,7 +554,7 @@ static void InsertChar(char ch)
 
 	input_line[MAX_CON_INPUT-1] = 0;
 
-	input_line[input_pos++] = key;
+	input_line[input_pos++] = ch;
 }
 
 static void TabComplete(void)
@@ -584,21 +584,32 @@ static void TabComplete(void)
 	std::vector<const char *> match_cmds;
 	std::vector<const char *> match_vars;
 
-	CON_MatchAllCmds(match_cmds, input_line);
-	CON_MatchAllVars(match_vars, input_line);
+	int num_cmd = CON_MatchAllCmds(match_cmds, input_line);
+	int num_var = CON_MatchAllVars(match_vars, input_line);
+
+	CON_MessageColor(T_BLUE);
+	CON_Printf(">%s\n", input_line);
 
 	input_line[input_pos] = save_ch;
 
-	if (match_cmds.size() + match_vars.size() == 0)
+	if (num_cmd + num_var == 0)
 	{
 		CON_Printf("No matches.\n");
 		return;
 	}
 
-	if (match_cmds.size() + match_vars.size() == 1)
+	if (num_cmd + num_var == 1)
 	{
-		// FIXME
-		CON_Printf("Got a match\n");
+		const char *name = (num_var > 0) ? match_vars[0] : match_cmds[0];
+
+		SYS_ASSERT((int)strlen(name) >= input_pos);
+
+		for (name += input_pos; *name; name++)
+			InsertChar(*name);
+
+		InsertChar(' ');
+
+		con_cursor = 0;
 		return;
 	}
 

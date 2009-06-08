@@ -55,6 +55,9 @@ visible_t;
 // Displays/Hides the console.
 void CON_SetVisible(visible_t v);
 
+int CON_MatchAllCmds(std::vector<const char *>& list,
+                     const char *pattern);
+
 #endif // __CON_MAIN_H
 
 //--- editor settings ---
