@@ -61,6 +61,16 @@ public:
 	cvar_c& operator= (std::string value);
 	cvar_c& operator= (const cvar_c& other);
 
+	// this checks and clears the 'modified' value
+	inline bool CheckModified()
+	{
+		if (modified)
+		{
+			modified = 0; return true;
+		}
+		return false;
+	}
+
 private:
 	inline bool Allocd()
 	{
