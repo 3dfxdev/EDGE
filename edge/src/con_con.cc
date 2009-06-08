@@ -2,7 +2,7 @@
 //  EDGE Console Interface code.
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -115,6 +115,7 @@ static int conwipepos = 0;
 #define KEYREPEATRATE  (TICRATE / 15)
 
 
+// TODO: console var to control history size
 #define MAX_CMD_HISTORY  100
 
 static std::string *cmd_history[MAX_CMD_HISTORY];
@@ -181,6 +182,11 @@ static void CON_AddLine(const char *s, bool partial)
 
 static void CON_AddCmdHistory(const char *s)
 {
+	// don't add if same as previous command
+	if (cmd_used_hist > 0)
+		if (strcmp(s, cmd_history[0]->c_str()) == 0)
+			return;
+
 	// scroll everything up 
 	delete cmd_history[MAX_CMD_HISTORY-1];
 
@@ -591,13 +597,6 @@ bool CON_HandleKey(int key)
 {
 	switch (key)
 	{
-#if 0  // -ES- fixme - implement tab stuff (need commands first, though)
-	case KEYD_TAB:
-		// Try to do tab-completion
-		TabComplete();
-		break;
-#endif
-	
 	case KEYD_PGUP:
 		if (KeysShifted)
 			// Move to top of console buffer
@@ -675,6 +674,13 @@ bool CON_HandleKey(int key)
 		con_cursor = 0;
 		break;
 	
+#if 0  // -ES- fixme - implement tab stuff (need commands first, though)
+	case KEYD_TAB:
+		// Try to do tab-completion
+		TabComplete();
+		break;
+#endif
+
 	case KEYD_RALT:
 	case KEYD_RCTRL:
 		// Do nothing
