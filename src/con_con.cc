@@ -48,7 +48,10 @@ void CON_ErrorDialog(const char *msg);
 
 static visible_t con_visible;
 
-static int con_cursor;
+// stores the console toggle effect
+static int conwipeactive = 0;
+static int conwipepos = 0;
+
 
 const image_c *con_font;
 
@@ -62,6 +65,7 @@ const image_c *con_font;
 static rgbcol_t current_color;
 
 
+// TODO: console var
 #define MAX_CON_LINES  160
 
 class console_line_c
@@ -105,15 +109,14 @@ static int bottomrow = -1;
 static char input_line[MAX_CON_INPUT+2];
 static int  input_pos = 0;
 
-
-// stores the console toggle effect
-static int conwipeactive = 0;
-static int conwipepos = 0;
+static int con_cursor;
 
 
 #define KEYREPEATDELAY ((250 * TICRATE) / 1000)
 #define KEYREPEATRATE  (TICRATE / 15)
 
+
+// HISTORY
 
 // TODO: console var to control history size
 #define MAX_CMD_HISTORY  100
@@ -135,8 +138,6 @@ static bool KeysShifted;
 
 static bool TabbedLast;
 
-bool CON_HandleKey(int key);
-
 typedef enum
 {
 	NOSCROLL,
@@ -145,7 +146,7 @@ typedef enum
 }
 scrollstate_e;
 
-static scrollstate_e scroll_state;
+static int scroll_dir = 0;
 
 
 static void CON_AddLine(const char *s, bool partial)
@@ -212,7 +213,7 @@ void CON_SetVisible(visible_t v)
 	{
 		v = (con_visible == vs_notvisible) ? vs_maximal : vs_notvisible;
 
-		scroll_state = NOSCROLL;
+		scroll_dir = 0;
 	}
 
 	if (con_visible == v)
@@ -345,60 +346,6 @@ void CON_MessageLDF(const char *lookup, ...)
 void CON_MessageColor(rgbcol_t col)
 {
 	current_color = col;
-}
-
-
-void CON_Ticker(void)
-{
-	con_cursor = (con_cursor + 1) & 31;
-
-	if (con_visible != vs_notvisible)
-	{
-		// Handle repeating keys
-		switch (scroll_state)
-		{
-		case SCROLLUP:
-			if (bottomrow < MAX_CON_LINES-10)
-				bottomrow++;
-
-			break;
-
-		case SCROLLDN:
-			if (bottomrow > -1)
-				bottomrow--;
-
-			break;  
-
-		default:
-			if (repeat_countdown)
-			{
-				repeat_countdown -= 1;
-
-				while (repeat_countdown <= 0)
-				{
-					repeat_countdown += KEYREPEATRATE;
-					CON_HandleKey(repeat_key);
-				}
-			}
-			break;
-		}
-	}
-
-	if (conwipeactive)
-	{
-		if (con_visible == vs_notvisible)
-		{
-			conwipepos--;
-			if (conwipepos <= 0)
-				conwipeactive = false;
-		}
-		else
-		{
-			conwipepos++;
-			if (conwipepos >= CON_WIPE_TICS)
-				conwipeactive = false;
-		}
-	}
 }
 
 
@@ -547,12 +494,10 @@ void CON_Drawer(void)
 		else
 		{
 			CON_WriteText(XMUL, y, input_line, T_PURPLE);
-
-			if (con_cursor < 16)
-			{
-				CON_WriteText((input_pos+1) * XMUL, y - 2, "_", T_PURPLE);
-			}
 		}
+
+		if (con_cursor < 16)
+			CON_WriteText((input_pos+1) * XMUL, y - 2, "_", T_PURPLE);
 
 		y += YMUL;
 	}
@@ -593,94 +538,31 @@ static void RemoveTabCommand(char *name)
 }
 #endif
 
+static void GotoEndOfLine(void)
+{
+	if (cmd_hist_pos < 0)
+		input_pos = strlen(input_line);
+	else
+		input_pos = strlen(cmd_history[cmd_hist_pos]->c_str());
+
+	con_cursor = 0;
+}
+
+static void EditHistory(void)
+{
+	if (cmd_hist_pos >= 0)
+	{
+		strcpy(input_line, cmd_history[cmd_hist_pos]->c_str());
+
+		cmd_hist_pos = -1;
+	}
+}
+
+
 bool CON_HandleKey(int key)
 {
 	switch (key)
 	{
-	case KEYD_PGUP:
-		if (KeysShifted)
-			// Move to top of console buffer
-			bottomrow = MAX_CON_LINES - 10;  //!!! FIXME
-		else
-			// Start scrolling console buffer up
-			scroll_state = SCROLLUP;
-		break;
-	
-	case KEYD_PGDN:
-		if (KeysShifted)
-			// Move to bottom of console buffer
-			bottomrow = -1;
-		else
-			// Start scrolling console buffer down
-			scroll_state = SCROLLDN;
-		break;
-	
-	case KEYD_HOME:
-		// Move cursor to start of line
-		input_pos = 0;
-		con_cursor = 0;
-		break;
-	
-	case KEYD_END:
-		// Move cursor to end of line
-		while (input_line[input_pos] != 0)
-			input_pos++;
-		con_cursor = 0;
-		break;
-	
-	case KEYD_LEFTARROW:
-		// Move cursor left one character
-	
-		if (input_pos > 0)
-			input_pos--;
-		con_cursor = 0;
-		break;
-	
-	case KEYD_RIGHTARROW:
-		// Move cursor right one character
-	
-		if (input_line[input_pos] != 0)
-			input_pos++;
-		con_cursor = 0;
-		break;
-	
-	case KEYD_BACKSPACE:
-		// Erase character to left of cursor
-	
-		if (input_pos > 0)
-		{
-			input_pos--;
-
-			// shift characters back
-			for (int j = input_pos; j < MAX_CON_INPUT-2; j++)
-				input_line[j] = input_line[j+1];
-		}
-	
-		TabbedLast = false;
-		con_cursor = 0;
-		break;
-	
-	case KEYD_DELETE:
-		// Erase charater under cursor
-	
-		if (input_line[input_pos] != 0)
-		{
-			// shift characters back
-			for (int j = input_pos; j < MAX_CON_INPUT-2; j++)
-				input_line[j] = input_line[j+1];
-		}
-	
-		TabbedLast = false;
-		con_cursor = 0;
-		break;
-	
-#if 0  // -ES- fixme - implement tab stuff (need commands first, though)
-	case KEYD_TAB:
-		// Try to do tab-completion
-		TabComplete();
-		break;
-#endif
-
 	case KEYD_ALT:
 	case KEYD_CTRL:
 		// Do nothing
@@ -691,26 +573,82 @@ bool CON_HandleKey(int key)
 		KeysShifted = true;
 		break;
 	
-	case KEYD_UPARROW:
-		if (cmd_hist_pos < cmd_used_hist-1)
-			cmd_hist_pos++;
+	case KEYD_PGUP:
+		if (KeysShifted)
+			// Move to top of console buffer
+			bottomrow = MAX_CON_LINES - 10;  //!!! FIXME
+		else
+			// Start scrolling console buffer up
+			scroll_dir = +1;
+		break;
+	
+	case KEYD_PGDN:
+		if (KeysShifted)
+			// Move to bottom of console buffer
+			bottomrow = -1;
+		else
+			// Start scrolling console buffer down
+			scroll_dir = -1;
+		break;
+	
+	case KEYD_HOME:
+		// Move cursor to start of line
+		input_pos = 0;
+		con_cursor = 0;
+		break;
+	
+	case KEYD_END:
+		// Move cursor to end of line
+		GotoEndOfLine();
+		break;
 
+	case KEYD_UPARROW:
+		// Move to previous entry in the command history
+		if (cmd_hist_pos < cmd_used_hist-1)
+		{
+			cmd_hist_pos++;
+			GotoEndOfLine();
+		}
 		TabbedLast = false;
 		break;
 	
 	case KEYD_DOWNARROW:
 		// Move to next entry in the command history
-	
 		if (cmd_hist_pos > -1)
+		{
 			cmd_hist_pos--;
-	
+			GotoEndOfLine();
+		}	
 		TabbedLast = false;
 		break;
 
-	case KEYD_ENTER:
-	
-		// Execute command line (ENTER)
+	case KEYD_LEFTARROW:
+		// Move cursor left one character
+		if (input_pos > 0)
+			input_pos--;
 
+		con_cursor = 0;
+		break;
+	
+	case KEYD_RIGHTARROW:
+		// Move cursor right one character
+		if (cmd_hist_pos < 0)
+		{
+			if (input_line[input_pos] != 0)
+				input_pos++;
+		}
+		else
+		{
+			if (cmd_history[cmd_hist_pos]->c_str()[input_pos] != 0)
+				input_pos++;
+		}
+		con_cursor = 0;
+		break;
+	
+	case KEYD_ENTER:
+		EditHistory();
+
+		// Execute command line (ENTER)
 		StripWhitespace(input_line);
 
 		if (strlen(input_line) == 0)
@@ -735,23 +673,65 @@ bool CON_HandleKey(int key)
 		TabbedLast = false;
 		break;
 	
+	case KEYD_BACKSPACE:
+		// Erase character to left of cursor
+		EditHistory();
+	
+		if (input_pos > 0)
+		{
+			input_pos--;
+
+			// shift characters back
+			for (int j = input_pos; j < MAX_CON_INPUT-2; j++)
+				input_line[j] = input_line[j+1];
+		}
+	
+		TabbedLast = false;
+		con_cursor = 0;
+		break;
+	
+	case KEYD_DELETE:
+		// Erase charater under cursor
+		EditHistory();
+	
+		if (input_line[input_pos] != 0)
+		{
+			// shift characters back
+			for (int j = input_pos; j < MAX_CON_INPUT-2; j++)
+				input_line[j] = input_line[j+1];
+		}
+	
+		TabbedLast = false;
+		con_cursor = 0;
+		break;
+	
+#if 0  // -ES- fixme - implement tab stuff (need commands first, though)
+	case KEYD_TAB:
+		// Try to do tab-completion
+		TabComplete();
+		break;
+#endif
+
 	case KEYD_ESCAPE:
 		// Close console, clear command line, but if we're in the
 		// fullscreen console mode, there's nothing to fall back on
 		// if it's closed.
 		CON_ClearInputLine();
-	
+
+		cmd_hist_pos = -1;
 		TabbedLast = false;
 	
 		CON_SetVisible(vs_notvisible);
 		break;
-	
+
 	default:
 		if (key < 32 || key > 126)
 		{
 			// ignore non-printable characters
 			break;
 		}
+
+		EditHistory();
 
 		if (input_pos >= MAX_CON_INPUT-1)
 			break;
@@ -836,8 +816,13 @@ bool CON_Responder(event_t * ev)
 		{
 			case KEYD_PGUP:
 			case KEYD_PGDN:
-				scroll_state = NOSCROLL;
+				scroll_dir = 0;
 				break;
+
+			case KEYD_SHIFT:
+				KeysShifted = false;
+				break;
+
 			default:
 				return false;
 		}
@@ -870,6 +855,57 @@ bool CON_Responder(event_t * ev)
 	}
 
 	return false;
+}
+
+void CON_Ticker(void)
+{
+	con_cursor = (con_cursor + 1) & 31;
+
+	if (con_visible != vs_notvisible)
+	{
+		// Handle repeating keys
+		switch (scroll_dir)
+		{
+		case +1:
+			if (bottomrow < MAX_CON_LINES-10)
+				bottomrow++;
+			break;
+
+		case -1:
+			if (bottomrow > -1)
+				bottomrow--;
+			break;  
+
+		default:
+			if (repeat_countdown)
+			{
+				repeat_countdown -= 1;
+
+				while (repeat_countdown <= 0)
+				{
+					repeat_countdown += KEYREPEATRATE;
+					CON_HandleKey(repeat_key);
+				}
+			}
+			break;
+		}
+	}
+
+	if (conwipeactive)
+	{
+		if (con_visible == vs_notvisible)
+		{
+			conwipepos--;
+			if (conwipepos <= 0)
+				conwipeactive = false;
+		}
+		else
+		{
+			conwipepos++;
+			if (conwipepos >= CON_WIPE_TICS)
+				conwipeactive = false;
+		}
+	}
 }
 
 
