@@ -88,7 +88,6 @@ bool save_screenshot_valid = false;
 int var_sample_rate = 0;
 int var_sound_bits = 0;
 int var_sound_stereo = 0;
-int var_mix_channels = 0;
 int var_quiet_factor = 0;
 int var_timid_factor = 0;
 
@@ -110,7 +109,6 @@ static default_t defaults[] =
     {CFGT_Int,      "sample_rate",       &var_sample_rate,  CFGDEF_SAMPLE_RATE},
     {CFGT_Int,      "sound_bits",        &var_sound_bits,   CFGDEF_SOUND_BITS},
     {CFGT_Int,      "sound_stereo",      &var_sound_stereo, CFGDEF_SOUND_STEREO},
-    {CFGT_Int,      "mix_channels",      &var_mix_channels, CFGDEF_MIX_CHANNELS},
     {CFGT_Int,      "quiet_factor",      &var_quiet_factor, CFGDEF_QUIET_FACTOR},
     {CFGT_Int,      "timidity_quiet",    &var_timid_factor, CFGDEF_QUIET_FACTOR},
 

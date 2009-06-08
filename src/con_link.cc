@@ -38,10 +38,9 @@ extern cvar_c debug_fullbright, debug_subsector;
 
 extern cvar_c in_autorun;
 
+extern cvar_c s_volume, s_musicvol;
+extern cvar_c s_mixchannels;
 
-
-// TEMP
-cvar_c s_volume, s_musicvol;
 
 
 // Flag letters:
@@ -92,8 +91,9 @@ cvar_link_t  all_cvars[] =
 	{ "m_obituaries", &m_obituaries, "c",   "1",    },
 	{ "m_screenhud",  &m_screenhud,  "c",   "0",    },
 
-	{ "s_volume",     &s_volume,     "c",   "10",   },
-	{ "s_musicvol",   &s_musicvol,   "c",   "10",   },
+	{ "s_volume",      &s_volume,       "c",   "10",   },
+	{ "s_musicvol",    &s_musicvol,     "c",   "10",   },
+	{ "s_mixchannels", &s_mixchannels,  "c",   "16",   },
 
 	{ "debug_fullbright", &debug_fullbright, "h", "0" },
 	{ "debug_subsector",  &debug_subsector,  "h", "0" },
