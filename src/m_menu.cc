@@ -70,7 +70,7 @@
 int mouseSensitivity;  // has default.  Note: used only in platform code
 
 // Show messages has default, 0 = off, 1 = on
-int showMessages;
+cvar_c m_messages;
 
 cvar_c m_screenhud;
 
@@ -1205,9 +1205,9 @@ void M_ChangeMessages(int choice)
 	// warning: unused parameter `int choice'
 	(void) choice;
 
-	showMessages = 1 - showMessages;
+	m_messages = m_messages.d ? 0 : 1;
 
-	if (showMessages)
+	if (m_messages.d)
 		CON_Printf("%s\n", language["MessagesOn"]);
 	else
 		CON_Printf("%s\n", language["MessagesOff"]);

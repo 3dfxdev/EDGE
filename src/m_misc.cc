@@ -114,8 +114,6 @@ static default_t defaults[] =
     {CFGT_Int,      "quiet_factor",      &var_quiet_factor, CFGDEF_QUIET_FACTOR},
     {CFGT_Int,      "timidity_quiet",    &var_timid_factor, CFGDEF_QUIET_FACTOR},
 
-    {CFGT_Int,      "show_messages",     &showMessages,   CFGDEF_SHOWMESSAGES},
-    {CFGT_Boolean,  "autorun",           &autorunning,    0},
     {CFGT_Int,      "mouse_sensitivity", &mouseSensitivity, CFGDEF_MOUSESENSITIVITY},
     {CFGT_Boolean,  "invertmouse",       &invertmouse,    CFGDEF_INVERTMOUSE},
     {CFGT_Int,      "mlookspeed",        &mlookspeed,     CFGDEF_MLOOKSPEED},
@@ -124,11 +122,10 @@ static default_t defaults[] =
     {CFGT_Enum,     "telept_effect",     &telept_effect,  CFGDEF_TELEPT_EFFECT},
     {CFGT_Int,      "telept_reverse",    &telept_reverse, CFGDEF_TELEPT_REVERSE},
     {CFGT_Int,      "telept_flash",      &telept_flash,   CFGDEF_TELEPT_FLASH},
-    {CFGT_Int,      "invuln_fx",         &var_invul_fx,   CFGDEF_INVUL_FX},
     {CFGT_Enum,     "wipe_method",       &wipe_method,    CFGDEF_WIPE_METHOD},
     {CFGT_Int,      "wipe_reverse",      &wipe_reverse,   CFGDEF_WIPE_REVERSE},
     {CFGT_Enum,     "crosshair",         &crosshair,      CFGDEF_CROSSHAIR},
-    {CFGT_Boolean,  "rotatemap",         &rotatemap,      CFGDEF_ROTATEMAP},
+
     {CFGT_Boolean,  "respawnsetting",    &global_flags.res_respawn, CFGDEF_RES_RESPAWN},
     {CFGT_Boolean,  "itemrespawn",       &global_flags.itemrespawn, CFGDEF_ITEMRESPAWN},
     {CFGT_Boolean,  "respawn",           &global_flags.respawn, CFGDEF_RESPAWN},
@@ -148,7 +145,6 @@ static default_t defaults[] =
     {CFGT_Boolean,  "mlook",             &global_flags.mlook, CFGDEF_MLOOK},
     {CFGT_Boolean,  "jumping",           &global_flags.jump, CFGDEF_JUMP},
     {CFGT_Boolean,  "crouching",         &global_flags.crouch, CFGDEF_CROUCH},
-    {CFGT_Int,      "detail_level",      &detail_level,   CFGDEF_DETAIL_LEVEL},
 
     // -KM- 1998/09/01 Useless mouse/joy stuff removed,
     //                 analogue binding added
@@ -371,9 +367,6 @@ void M_LoadDefaults(void)
 
 		key_console = KEYD_TILDE;
 	}
-
-	if (var_invul_fx >= 2)
-		var_invul_fx = 1;
 
 	return;
 }

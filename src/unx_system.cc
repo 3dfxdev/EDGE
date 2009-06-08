@@ -169,9 +169,6 @@ unsigned long I_GetMicroSec (void)
 }
 
 
-extern int autorun;  // Autorun state
-
-
 bool microtimer_installed = 1;
 
 

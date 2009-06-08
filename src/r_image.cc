@@ -769,7 +769,7 @@ static bool IM_ShouldHQ2X(image_c *rim)
 static int IM_PixelLimit(image_c *rim)
 {
 	if (IM_ShouldMipmap(rim))
-		return 65536 * (1 << (2 * detail_level));
+		return 65536 * (1 << (2 * CLAMP(0, r_detaillevel.d, 2)));
 
 	return (1 << 24);
 }

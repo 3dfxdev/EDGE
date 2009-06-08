@@ -30,7 +30,7 @@
 #include "hu_lib.h"
 #include "r_defs.h"
 
-extern int showMessages;
+extern cvar_c m_messages;
 
 //
 // Globally visible constants.

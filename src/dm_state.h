@@ -188,7 +188,7 @@ typedef enum
 }
 invulfx_type_e;
 
-extern int var_invul_fx;
+extern cvar_c r_invultex;  // "TEXTURED" mode of invulnerability
 
 //mlook stuff
 extern int mlookspeed;

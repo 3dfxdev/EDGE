@@ -255,7 +255,7 @@ void G_DoLoadLevel(void)
 
 	gamestate = GS_LEVEL;
 
-	CON_SetVisible( /* !!! showMessages?vs_minimal: */ vs_notvisible);
+	CON_SetVisible(vs_notvisible);
 
 	// clear cmd building stuff
 	E_ClearInput();

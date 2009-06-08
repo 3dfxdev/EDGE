@@ -78,7 +78,6 @@ extern bool force_directx;
 extern bool force_waveout;
 
 extern cvar_c r_fadepower;
-extern cvar_c am_smoothmap;
 extern cvar_c m_obituaries;
 
 extern int var_sample_rate;

@@ -44,9 +44,6 @@ extern cvar_c r_dumbcombine;
 extern cvar_c r_dumbclamp;
 
 
-extern bool var_fullbright;
-
-
 //
 //  RGL_MAIN
 //
@@ -320,7 +317,8 @@ public:
 
 extern cvar_c r_dynamiclight;
 
-extern int detail_level;
+extern cvar_c r_detaillevel;
+
 extern int sprite_kludge;
 
 const image_c * R2_GetThingSprite(mobj_t *mo, bool *flip);

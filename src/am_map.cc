@@ -111,12 +111,15 @@ static rgbcol_t am_colors[AM_NUM_COLORS] =
 #define WHEEL_ZOOMIN  1.32f
 
 
-cvar_c am_smoothmap;
+cvar_c am_smoothing;
+cvar_c am_rotate;
+
 cvar_c debug_subsector;
 
 
 static int cheating = 0;
 static int grid = 0;
+static bool rotatemap = false;
 
 static bool show_things = false;
 static bool show_walls  = false;
@@ -187,8 +190,6 @@ static bool stopped = true;
 
 static bool bigstate = false;
 
-bool rotatemap = false;
-
 extern style_c *automap_style;  // FIXME: put in header
 
 
@@ -255,6 +256,8 @@ void AM_InitLevel(void)
 	FindMinMaxBoundaries();
 
 	m_scale = INIT_MSCALE;
+
+	rotatemap = am_rotate.d ? true : false;
 }
 
 
@@ -481,6 +484,11 @@ bool AM_Responder(event_t * ev)
 //
 void AM_Ticker(void)
 {
+	if (am_rotate.CheckModified())
+	{
+		rotatemap = am_rotate.d ? true : false;
+	}
+
 	if (!automapactive)
 		return;
 
@@ -522,7 +530,7 @@ static inline void GetRotatedCoords(float sx, float sy, float *dx, float *dy)
 	*dx = sx;
 	*dy = sy;
 
-	if (rotatemap)
+	if (am_rotate.d)
 	{
 		// rotate coordinates so they are on the map correctly
 		*dx -= f_focus->x;
@@ -537,7 +545,7 @@ static inline void GetRotatedCoords(float sx, float sy, float *dx, float *dy)
 
 static inline angle_t GetRotatedAngle(angle_t src)
 {
-	if (rotatemap)
+	if (am_rotate.d)
 		return src + ANG90 - f_focus->angle;
 
 	return src;
@@ -566,7 +574,7 @@ static void DrawMline(mline_t * ml, rgbcol_t rgb)
 		return;
 	}
 
-	if (! am_smoothmap.d)
+	if (! am_smoothing.d)
 	{
 		if (x1 == x2 or y1 == y2)
 		{
@@ -980,7 +988,7 @@ static void AM_RenderScene(void)
 
 	glScissor(f_x, f_y, f_w, f_h);
 
-	if (am_smoothmap.d)
+	if (am_smoothing.d)
 	{
 		glEnable(GL_LINE_SMOOTH);
 		glEnable(GL_BLEND);
@@ -1020,7 +1028,7 @@ void AM_Drawer(int x, int y, int w, int h, mobj_t *focus)
 
 	SYS_ASSERT(automap_style);
 
-	if (grid && !rotatemap)
+	if (grid && !am_rotate.d)
 		DrawGrid();
 
 	AM_RenderScene();

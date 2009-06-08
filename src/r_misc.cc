@@ -110,8 +110,6 @@ int telept_effect = 0;
 int telept_flash = 1;
 int telept_reverse = 0;
 
-int var_invul_fx;
-
 //
 // To get a global angle from cartesian coordinates,
 // the coordinates are flipped until they are in
