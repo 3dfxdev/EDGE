@@ -55,7 +55,7 @@
 #define QUIET_BITS  0
 
 
-#define MIN_CHANNELS    8
+#define MIN_CHANNELS    4
 #define MAX_CHANNELS  128
 
 mix_channel_c *mix_chan[MAX_CHANNELS];
@@ -560,9 +560,8 @@ void S_FreeChannels(void)
 		}
 
 		delete chan;
+		mix_chan[i] = NULL;
 	}
-
-	memset(mix_chan, 0, sizeof(mix_chan));
 }
 
 void S_KillChannel(int k)
@@ -589,46 +588,56 @@ void S_ReallocChannels(int total)
 	{
 		for (int i = num_chan; i < total; i++)
 			mix_chan[i] = new mix_channel_c();
+
+		num_chan = total;
+		return;
 	}
 
-	if (total < num_chan)
+	// kill all non-UI sounds, pack the UI sounds into the
+	// remaining slots (normally there will be enough), and
+	// delete the unused channels
+	int i, k;
+
+	for (i = 0; i < num_chan; i++)
 	{
-		// kill all non-UI sounds, pack the UI sounds into the
-		// remaining slots (normally there will be enough), and
-		// delete the unused channels
-		int i, j;
+		mix_channel_c *chan = mix_chan[i];
 
-		for (i = 0; i < num_chan; i++)
-		{
-			mix_channel_c *chan = mix_chan[i];
-
-			if (chan->state == CHAN_Playing)
-			{
-				if (chan->category != SNCAT_UI)
-					S_KillChannel(i);
-			}
-		}
-
-		for (i = j = 0; i < num_chan; i++)
-		{
-			if (mix_chan[i])
-			{
-				/* SWAP ! */
-				mix_channel_c *tmp = mix_chan[j];
-
-				mix_chan[j] = mix_chan[i];
-				mix_chan[i] = tmp;
-			}
-		}
-
-		for (i = total; i < num_chan; i++)
-		{
-			if (mix_chan[i]->state == CHAN_Playing)
+		if (chan->state != CHAN_Empty)
+			if (chan->category != SNCAT_UI)
 				S_KillChannel(i);
+	}
 
-			delete mix_chan[i];
-			mix_chan[i] = NULL;
+	i = k = 0;
+
+	// 'i' finds the used channels, 'k' finds the empty ones
+	while (i < num_chan && k < num_chan)
+	{
+		if (mix_chan[k]->state != CHAN_Empty)
+		{
+			k++; continue;
 		}
+
+		if (i <= k || mix_chan[i]->state == CHAN_Empty)
+		{
+			i++; continue;
+		}
+
+		/* SWAP */
+		mix_channel_c *tmp = mix_chan[k];
+
+		mix_chan[k] = mix_chan[i];
+		mix_chan[i] = tmp;
+
+		i++; k++;
+	}
+
+	for (i = total; i < num_chan; i++)
+	{
+		if (mix_chan[i]->state == CHAN_Playing)
+			S_KillChannel(i);
+
+		delete mix_chan[i];
+		mix_chan[i] = NULL;
 	}
 
 	num_chan = total;
