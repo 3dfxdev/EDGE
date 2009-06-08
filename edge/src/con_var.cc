@@ -174,13 +174,6 @@ static bool CON_MatchFlags(const char *var_f, const char *want_f)
 }
 
 
-static bool CON_MatchPattern(const char *name, const char *pat)
-{
-	// FIXME !!!
-	return false;
-}
-
-
 void CON_ResetAllVars(void)
 {
 	for (int i = 0; all_cvars[i].var; i++)
@@ -206,7 +199,22 @@ cvar_link_t * CON_FindVar(const char *name)
 }
 
 
-int CON_FindMultiVar(std::vector<cvar_link_t *>& list,
+bool CON_MatchPattern(const char *name, const char *pat)
+{
+	while (*name && *pat)
+	{
+		if (*name != *pat)
+			return false;
+
+		name++;
+		pat++;
+	}
+
+	return (*pat == 0);
+}
+
+
+int CON_MatchAllVars(std::vector<const char *>& list,
                      const char *pattern, const char *flags)
 {
 	list.clear();
@@ -219,7 +227,7 @@ int CON_FindMultiVar(std::vector<cvar_link_t *>& list,
 		if (! CON_MatchFlags(all_cvars[i].flags, flags))
 			continue;
 
-		list.push_back(&all_cvars[i]);
+		list.push_back(all_cvars[i].name);
 	}
 
 	return (int)list.size();

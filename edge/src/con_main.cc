@@ -436,6 +436,26 @@ void CON_TryCommand(const char *cmd)
 }
 
 
+extern bool CON_MatchPattern(const char *name, const char *pat);
+
+
+int CON_MatchAllCmds(std::vector<const char *>& list,
+                     const char *pattern)
+{
+	list.clear();
+
+	for (int i = 0; builtin_commands[i].name; i++)
+	{
+		if (! CON_MatchPattern(builtin_commands[i].name, pattern))
+			continue;
+
+		list.push_back(builtin_commands[i].name);
+	}
+
+	return (int)list.size();
+}
+
+
 //
 // CON_PlayerMessage
 //
