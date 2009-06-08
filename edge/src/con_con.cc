@@ -525,19 +525,6 @@ void CON_Drawer(void)
 	}
 }
 
-#if 0
-static void TabComplete(void)
-{  // -ES- fixme - implement these
-
-}
-static void AddTabCommand(char *name)
-{
-}
-static void RemoveTabCommand(char *name)
-{
-}
-#endif
-
 static void GotoEndOfLine(void)
 {
 	if (cmd_hist_pos < 0)
@@ -555,6 +542,78 @@ static void EditHistory(void)
 		strcpy(input_line, cmd_history[cmd_hist_pos]->c_str());
 
 		cmd_hist_pos = -1;
+	}
+}
+
+static void InsertChar(char ch)
+{
+	// make room for new character, shift the trailing NUL too
+
+	for (int j = MAX_CON_INPUT-2; j >= input_pos; j--)
+		input_line[j+1] = input_line[j];
+
+	input_line[MAX_CON_INPUT-1] = 0;
+
+	input_line[input_pos++] = key;
+}
+
+static void TabComplete(void)
+{
+	EditHistory();
+
+	// check if we are positioned after a word
+	{
+		if (input_pos == 0)
+			return ;
+
+		if (isdigit(input_line[0]))
+			return ;
+
+		for (int i=0; i < input_pos; i++)
+		{
+			char ch = input_line[i];
+
+			if (! (isalnum(ch) || ch == '_'))
+				return ;
+		}
+	}
+
+	char save_ch = input_line[input_pos];
+	input_line[input_pos] = 0;
+
+	std::vector<const char *> match_cmds;
+	std::vector<const char *> match_vars;
+
+	CON_MatchAllCmds(match_cmds, input_line);
+	CON_MatchAllVars(match_vars, input_line);
+
+	input_line[input_pos] = save_ch;
+
+	if (match_cmds.size() + match_vars.size() == 0)
+	{
+		CON_Printf("No matches.\n");
+		return;
+	}
+
+	if (match_cmds.size() + match_vars.size() == 1)
+	{
+		// FIXME
+		CON_Printf("Got a match\n");
+		return;
+	}
+
+	if (match_cmds.size() > 0)
+	{
+		CON_MessageColor(T_ORANGE);
+		CON_Printf("Possible commands: (%u)\n", match_cmds.size());
+		// FIXME
+	}
+
+	if (match_vars.size() > 0)
+	{
+		CON_MessageColor(T_ORANGE);
+		CON_Printf("Possible variables: (%u)\n", match_vars.size());
+		// FIXME
 	}
 }
 
@@ -705,12 +764,10 @@ bool CON_HandleKey(int key)
 		con_cursor = 0;
 		break;
 	
-#if 0  // -ES- fixme - implement tab stuff (need commands first, though)
 	case KEYD_TAB:
 		// Try to do tab-completion
 		TabComplete();
 		break;
-#endif
 
 	case KEYD_ESCAPE:
 		// Close console, clear command line, but if we're in the
@@ -736,16 +793,7 @@ bool CON_HandleKey(int key)
 		if (input_pos >= MAX_CON_INPUT-1)
 			break;
 
-		// make room for new character, shift the trailing NUL too
-		{
-			for (int j = MAX_CON_INPUT-2; j >= input_pos; j--)
-				input_line[j+1] = input_line[j];
-
-			input_line[MAX_CON_INPUT-1] = 0;
-		}
-
-		// Add keypress to command line
-		input_line[input_pos++] = key;
+		InsertChar(key);
 
 		TabbedLast = false;
 		con_cursor = 0;
