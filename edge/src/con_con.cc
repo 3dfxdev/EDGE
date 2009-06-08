@@ -61,6 +61,7 @@ const image_c *con_font;
 #define T_PURPLE  RGB_MAKE(255,32,255)
 #define T_BLUE    RGB_MAKE(128,128,255)
 #define T_ORANGE  RGB_MAKE(255,72,0)
+#define T_GREEN   RGB_MAKE(0,208,72)
 
 static rgbcol_t current_color;
 
@@ -557,6 +558,61 @@ static void InsertChar(char ch)
 	input_line[input_pos++] = ch;
 }
 
+static void ListCompletions(std::vector<const char *> & list, int max_row, rgbcol_t color)
+{
+	int max_col = SCREENWIDTH / XMUL - 4;
+	max_col = CLAMP(24, max_col, 78);
+
+	char buffer[200];
+	int buf_len = 0;
+
+	buffer[buf_len] = 0;
+
+	for (int i = 0; i < (int)list.size(); i++)
+	{
+		const char *name = list[i];
+		int n_len = (int)strlen(name);
+
+		if (n_len >= max_col * 2 / 3)
+		{
+			CON_MessageColor(color);
+			CON_Printf("  %s\n", name);
+			max_row--;
+			continue;
+		}
+
+		if (buf_len + 1 + n_len > max_col)
+		{
+			CON_MessageColor(color);
+			CON_Printf("  %s\n", buffer);
+			max_row--;
+
+			buf_len = 0;
+			buffer[buf_len] = 0;
+
+			if (max_row <= 0)
+			{
+				CON_MessageColor(color);
+				CON_Printf("  etc...\n");
+				break;
+			}
+		}
+
+		if (buf_len > 0)
+			buffer[buf_len++] = ' ';
+
+		strcpy(buffer + buf_len, name);
+
+		buf_len += n_len;
+	}
+
+	if (buf_len > 0)
+	{
+		CON_MessageColor(color);
+		CON_Printf("  %s\n", buffer);
+	}
+}
+
 static void TabComplete(void)
 {
 	EditHistory();
@@ -587,6 +643,26 @@ static void TabComplete(void)
 	int num_cmd = CON_MatchAllCmds(match_cmds, input_line);
 	int num_var = CON_MatchAllVars(match_vars, input_line);
 
+	// we have an unambiguous match, no need to print anything
+	if (num_cmd + num_var == 1)
+	{
+		input_line[input_pos] = save_ch;
+
+		const char *name = (num_var > 0) ? match_vars[0] : match_cmds[0];
+
+		SYS_ASSERT((int)strlen(name) >= input_pos);
+
+		for (name += input_pos; *name; name++)
+			InsertChar(*name);
+
+		if (save_ch != ' ')
+			InsertChar(' ');
+
+		con_cursor = 0;
+		return;
+	}
+
+	// show what we were trying to match
 	CON_MessageColor(T_BLUE);
 	CON_Printf(">%s\n", input_line);
 
@@ -598,33 +674,18 @@ static void TabComplete(void)
 		return;
 	}
 
-	if (num_cmd + num_var == 1)
+	if (match_vars.size() > 0)
 	{
-		const char *name = (num_var > 0) ? match_vars[0] : match_cmds[0];
+		CON_Printf("%u Possible variables:\n", match_vars.size());
 
-		SYS_ASSERT((int)strlen(name) >= input_pos);
-
-		for (name += input_pos; *name; name++)
-			InsertChar(*name);
-
-		InsertChar(' ');
-
-		con_cursor = 0;
-		return;
+		ListCompletions(match_vars, 7, T_GREEN);
 	}
 
 	if (match_cmds.size() > 0)
 	{
-		CON_MessageColor(T_ORANGE);
-		CON_Printf("Possible commands: (%u)\n", match_cmds.size());
-		// FIXME
-	}
+		CON_Printf("%u Possible commands:\n", match_cmds.size());
 
-	if (match_vars.size() > 0)
-	{
-		CON_MessageColor(T_ORANGE);
-		CON_Printf("Possible variables: (%u)\n", match_vars.size());
-		// FIXME
+		ListCompletions(match_cmds, 3, T_ORANGE);
 	}
 }
 
