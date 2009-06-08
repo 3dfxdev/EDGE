@@ -681,12 +681,12 @@ bool CON_HandleKey(int key)
 		break;
 #endif
 
-	case KEYD_RALT:
-	case KEYD_RCTRL:
+	case KEYD_ALT:
+	case KEYD_CTRL:
 		// Do nothing
 		break;
 	
-	case KEYD_RSHIFT:
+	case KEYD_SHIFT:
 		// SHIFT was pressed
 		KeysShifted = true;
 		break;

@@ -165,10 +165,9 @@ gameflags_t;
 #define KEYD_F10        (0x80+0x44)
 #define KEYD_F11        (0x80+0x57)
 #define KEYD_F12        (0x80+0x58)
-#define KEYD_RCTRL      (0x80+0x1d)
-#define KEYD_RSHIFT     (0x80+0x36)
-#define KEYD_RALT       (0x80+0x38)
-#define KEYD_LALT       KEYD_RALT
+#define KEYD_CTRL       (0x80+0x1d)
+#define KEYD_SHIFT      (0x80+0x36)
+#define KEYD_ALT        (0x80+0x38)
 #define KEYD_NUMLOCK    (0x80+0x45)
 #define KEYD_SCRLOCK    (0x80+0x46)
 #define KEYD_HOME       (0x80+0x47)
