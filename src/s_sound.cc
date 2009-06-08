@@ -39,50 +39,23 @@ extern float listen_y;
 extern float listen_z;
 
 
-/* See m_option.cc for corresponding menu items */
-const int channel_counts[5] = { 8, 16, 32, 64, 96 };
+cvar_c s_volume;
+cvar_c s_musicvol;
+cvar_c s_mixchannels;
 
 
-const int category_limit_table[3][8][3] =
+const int category_limit_table[SNCAT_NUMTYPES][2] =
 {
-	/* 8 channel (TEST) */
-	{
-		{ 1, 1, 1 }, // UI
-		{ 1, 1, 1 }, // Player
-		{ 1, 1, 1 }, // Weapon
+	/* 64 channel */
 
-		{ 1, 1, 1 }, // Opponent
-		{ 1, 1, 1 }, // Monster
-		{ 1, 1, 1 }, // Object
-		{ 1, 1, 1 }, // Level
-	},
-
-	/* 16 channel */
-	{
-		{ 1, 1, 1 }, // UI
-		{ 1, 1, 1 }, // Player
-		{ 2, 2, 2 }, // Weapon
-
-		{ 0, 2, 7 }, // Opponent
-		{ 7, 5, 0 }, // Monster
-		{ 3, 3, 3 }, // Object
-		{ 2, 2, 2 }, // Level
-	},
-
-	/* 32 channel */
-	{
-		{ 2, 2, 2 }, // UI
-		{ 2, 2, 2 }, // Player
-		{ 3, 3, 3 }, // Weapon
-
-		{ 0, 5,12 }, // Opponent
-		{14,10, 2 }, // Monster
-		{ 7, 6, 7 }, // Object
-		{ 4, 4, 4 }, // Level
-	},
-
-	// NOTE: never put a '0' on the WEAPON line, since the top
-	// four categories should never be merged with the rest.
+    //COOP  DM
+	{   3,   3  }, // UI
+	{   4,   4  }, // Player
+	{   7,   7  }, // Weapon
+	{   8,  24  }, // Opponent
+	{  22,   4  }, // Monster
+	{  12,  14  }, // Object
+	{   8,   8  }, // Level
 };
 
 
@@ -92,25 +65,56 @@ static int cat_counts[SNCAT_NUMTYPES];
 
 static void SetupCategoryLimits(void)
 {
-	// Assumes: num_chan to be already set, and the DEATHMATCH()
+	// Assumes: num_chan is already set, and the DEATHMATCH()
 	//          and COOP_MATCH() macros are working.
 
-	int mode = 0;
-	if (COOP_MATCH()) mode = 1;
-	if (DEATHMATCH()) mode = 2;
+	int mode = DEATHMATCH() ? 1 : 0;
 
-	int idx = 0;
-	if (num_chan >= 16) idx=1;
-	if (num_chan >= 32) idx=2;
-
-	int multiply = 1;
-	if (num_chan >= 64) multiply = num_chan / 32;
+	int remainders[SNCAT_NUMTYPES];
+	int total = 0;
 
 	for (int t = 0; t < SNCAT_NUMTYPES; t++)
 	{
-		cat_limits[t] = category_limit_table[idx][t][mode] * multiply;
+		int limit = category_limit_table[t][mode];
+
+		cat_limits[t] = limit * num_chan / 64;
 		cat_counts[t] = 0;
+
+		total = total + cat_limits[t];
+		remainders[t] = limit * num_chan % 64;
+
+//		I_Debugf("Initial limit [%d] = %d  remainder:%d\n", 
+//		         t, cat_limits[t], remainders[t]);
 	}
+
+//	I_Debugf("Total: %d\n", total);
+
+	SYS_ASSERT(total <= num_chan);
+
+	// distribute any extra channels (weapons get preference)
+
+	while (total < num_chan)
+	{
+		int best = 0;
+		int best_rem = -1;
+
+		for (int t = 0; t < SNCAT_NUMTYPES; t++)
+			if (remainders[t] > best_rem)
+			{
+				best = t;
+				best_rem = remainders[t];
+			}
+
+		cat_limits[best] += 1;
+		remainders[best] = -1;
+
+		total++;
+	}
+
+	I_Debugf("SFX Category limits: %d %d %d  %d %d %d %d\n",
+			 cat_limits[0], cat_limits[1], cat_limits[2],
+			 cat_limits[3], cat_limits[4], cat_limits[5],
+			 cat_limits[6]);
 }
 
 static int FindFreeChannel(void)
@@ -255,7 +259,7 @@ void S_Init(void)
 {
 	if (nosound) return;
 
-	int want_chan = channel_counts[var_mix_channels];
+	int want_chan = CLAMP(16, s_mixchannels.d, 64);
 
 	I_Printf("I_StartupSound: Init %d mixing channels\n", want_chan);
 
@@ -441,8 +445,8 @@ void S_StartFX(sfx_t *sfx, int category, position_c *pos, int flags)
 
 //I_Printf("StartFX: '%s' cat:%d flags:0x%04x\n", def->ddf.name.c_str(), category, flags);
 
-	while (cat_limits[category] == 0)
-		category++;
+	if (cat_limits[category] == 0)
+		return;
 
 	I_LockAudio();
 	{
@@ -496,6 +500,9 @@ void S_SoundTicker(void)
 {
 	if (nosound) return;
 
+	if (s_mixchannels.CheckModified())
+		S_ChangeChannelNum();
+
 	I_LockAudio();
 	{
 		if (gamestate == GS_LEVEL)
@@ -521,11 +528,16 @@ void S_ChangeChannelNum(void)
 
 	I_LockAudio();
 	{
-		int want_chan = channel_counts[var_mix_channels];
+		int want_chan = CLAMP(16, s_mixchannels.d, 64);
 
-		S_ReallocChannels(want_chan);
+//!!!!!! FIXME
+		int ui_chan = 0; S_ReallocChannels(want_chan);
 
 		SetupCategoryLimits();
+
+		// correct value for UI channels (which are kept by
+		// the S_ReallocChannels call)
+		cat_counts[SNCAT_UI] = ui_chan;
 	}
 	I_UnlockAudio();
 }
