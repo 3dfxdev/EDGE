@@ -134,7 +134,7 @@ void HandleKeyEvent(SDL_Event* ev)
 		return;
     }
 
-	if (event.value.key.sym == KEYD_LALT)
+	if (event.value.key.sym == KEYD_ALT)
 		alt_is_down = (event.type == ev_keydown);
 
 	E_PostEvent(&event);
@@ -371,13 +371,13 @@ int TranslateSDLKey(int key)
 		case SDLK_PAUSE:     return KEYD_PAUSE;
 
 		case SDLK_LSHIFT:
-		case SDLK_RSHIFT: return KEYD_RSHIFT;
+		case SDLK_RSHIFT: return KEYD_SHIFT;
 		case SDLK_LCTRL:
-		case SDLK_RCTRL:  return KEYD_RCTRL;
+		case SDLK_RCTRL:  return KEYD_CTRL;
+		case SDLK_LALT:
+		case SDLK_RALT:   return KEYD_ALT;
 		case SDLK_LMETA:
-		case SDLK_LALT:   return KEYD_LALT;
-		case SDLK_RMETA:
-		case SDLK_RALT:   return KEYD_RALT;
+		case SDLK_RMETA:  return KEYD_ALT;
 
 		default: break;
 	}
