@@ -1,5 +1,13 @@
 Andrew Apted's Log
 
+2009/06/08:
+
+Worked on our console.  Using and editing previous commands
+now works properly.  Implemented tab-completion of cvars
+and commands (showing the matches if there are more than
+one).  Added some useful commands: showvars, showcmds, etc.
+The EDGE console is now decent.
+
 2009/06/07:
 
 Lua huds: added player.hurt_mon() method which returns the
