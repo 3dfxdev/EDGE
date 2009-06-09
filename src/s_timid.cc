@@ -31,7 +31,6 @@
 #include "s_timid.h"
 
 #include "dm_state.h"
-#include "m_misc.h"  // var_timid_factor
 
 
 #define TIMV_NUM_SAMPLES  4096
@@ -40,6 +39,9 @@ extern bool dev_stereo;  // FIXME: encapsulation
 extern int  dev_freq;    //
 
 static bool timidity_inited;
+
+
+cvar_c tim_quietfactor;
 
 
 class tim_player_c : public abstract_music_c
@@ -348,7 +350,9 @@ bool S_StartupTimidity(void)
 
 void S_ChangeTimidQuiet(void)
 {
-	Timidity_QuietFactor(var_timid_factor);
+	int factor = CLAMP(0, tim_quietfactor.d, 2);
+
+	Timidity_QuietFactor(factor);
 }
 
 

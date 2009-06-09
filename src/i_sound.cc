@@ -201,9 +201,9 @@ void I_StartupSound(void)
 
 	const char *p;
 
-	int want_freq = sample_rates[var_sample_rate];
-	int want_bits = sample_bits [var_sound_bits];
-	bool want_stereo = (var_sound_stereo >= 1);
+	int want_freq = CLAMP(8000, s_rate.d, 64000);
+	int want_bits = (s_bits.d < 12) ? 8 : 16;
+	bool want_stereo = s_stereo.d ? true : false;
 
 	p = M_GetParm("-freq");
 	if (p)
@@ -291,25 +291,9 @@ void I_StartupSound(void)
 	dev_stereo = (mydev.channels == 2);
 
 	// update Sound Options menu
-	if (dev_bits != sample_bits[var_sound_bits])
-		var_sound_bits = (dev_bits >= 16) ? 1 : 0;
-
-	if (dev_stereo != (var_sound_stereo >= 1))
-		var_sound_stereo = dev_stereo ? 1 : 0;
-
-	if (dev_freq != sample_rates[var_sample_rate])
-	{
-		if (dev_freq >= 38000)
-			var_sample_rate = 4; // 44 Khz
-		else if (dev_freq >= 27000)
-			var_sample_rate = 3; // 32 Khz
-		else if (dev_freq >= 19000)
-			var_sample_rate = 2; // 22 Khz
-		else if (dev_freq >= 13500)
-			var_sample_rate = 1; // 16 Khz
-		else
-			var_sample_rate = 0; // 11 Khz
-	}
+	s_rate   = dev_freq;
+	s_bits   = dev_bits;
+	s_stereo = dev_stereo ? 1 : 0;
 
 	// display some useful stuff
 	I_Printf("I_StartupSound: Success @ %d Hz, %d bit %s\n",

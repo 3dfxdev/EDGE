@@ -85,12 +85,6 @@ bool force_waveout = false;
 unsigned short save_screenshot[160][100];
 bool save_screenshot_valid = false;
 
-int var_sample_rate = 0;
-int var_sound_bits = 0;
-int var_sound_stereo = 0;
-int var_quiet_factor = 0;
-int var_timid_factor = 0;
-
 static int edge_version;
 
 extern cvar_c r_hq2x;
@@ -103,13 +97,6 @@ static default_t defaults[] =
     {CFGT_Boolean,	"waveout",			 &force_waveout,  0},
     {CFGT_Int,      "usegamma",          &var_gamma,  CFGDEF_CURRENT_GAMMA},
  
-    {CFGT_Int,      "music_device",      &var_music_dev,  CFGDEF_MUSIC_DEVICE},
-    {CFGT_Int,      "sample_rate",       &var_sample_rate,  CFGDEF_SAMPLE_RATE},
-    {CFGT_Int,      "sound_bits",        &var_sound_bits,   CFGDEF_SOUND_BITS},
-    {CFGT_Int,      "sound_stereo",      &var_sound_stereo, CFGDEF_SOUND_STEREO},
-    {CFGT_Int,      "quiet_factor",      &var_quiet_factor, CFGDEF_QUIET_FACTOR},
-    {CFGT_Int,      "timidity_quiet",    &var_timid_factor, CFGDEF_QUIET_FACTOR},
-
     {CFGT_Int,      "mouse_sensitivity", &mouseSensitivity, CFGDEF_MOUSESENSITIVITY},
     {CFGT_Boolean,  "invertmouse",       &invertmouse,    CFGDEF_INVERTMOUSE},
     {CFGT_Int,      "mlookspeed",        &mlookspeed,     CFGDEF_MLOOKSPEED},

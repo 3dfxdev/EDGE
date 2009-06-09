@@ -80,12 +80,6 @@ extern bool force_waveout;
 extern cvar_c r_fadepower;
 extern cvar_c m_obituaries;
 
-extern int var_sample_rate;
-extern int var_sound_bits;
-extern int var_sound_stereo;
-extern int var_quiet_factor;
-extern int var_timid_factor;
-
 extern std::string config_language;
 
 #endif  /* __M_MISC__ */

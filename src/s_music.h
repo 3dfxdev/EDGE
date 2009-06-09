@@ -48,8 +48,8 @@ public:
 /* VARIABLES */
 
 extern cvar_c s_musicvol;  // range is 0.0 to 1.0
-
-extern int var_music_dev;
+extern cvar_c s_timidity;
+extern cvar_c tim_quietfactor;
 
 /* FUNCTIONS */
 
