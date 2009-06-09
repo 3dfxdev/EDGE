@@ -344,6 +344,11 @@ Here is a list of all the automap parts that can be changed:
 </div>
 
 
+<h3>Audio Functions</h3>
+
+<p><span class="lua_FUNC">hud.play_sound(name)</span><br>
+Plays the given sound, which must be an entry in SOUNDS.DDF.
+
 
 <h3 class="sub_title">PLAYER MODULE</h3>
 
