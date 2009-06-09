@@ -93,7 +93,7 @@ cvar_link_t  all_cvars[] =
 
 	{ "s_volume",      &s_volume,       "c",   "10",   },
 	{ "s_musicvol",    &s_musicvol,     "c",   "10",   },
-	{ "s_mixchannels", &s_mixchannels,  "c",   "16",   },
+	{ "s_mixchannels", &s_mixchannels,  "c",   "32",   },
 
 	{ "debug_fullbright", &debug_fullbright, "h", "0" },
 	{ "debug_subsector",  &debug_subsector,  "h", "0" },
