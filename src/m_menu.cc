@@ -411,12 +411,12 @@ static menu_t ReadDef2 =
 // SOUND VOLUME MENU
 //
 
-static menuitem_t SoundMenu[] =
+static menuitem_t SoundMenu[4] =
 {
-	{  2, "M_SFXVOL", NULL, M_SfxVol, 's'},
-	{ -1, "", NULL, 0},
-	{  2, "M_MUSVOL", NULL, M_MusicVol, 'm'},
-	{ -1, "", NULL, 0}
+	{  2, "M_SFXVOL", NULL, M_SfxVol, 's' },
+	{ -1, "", NULL, 0 },
+	{  2, "M_MUSVOL", NULL, M_MusicVol, 'm' },
+	{ -1, "", NULL, 0 }
 };
 
 static menu_t SoundDef =
@@ -987,15 +987,15 @@ void M_SfxVol(int choice)
 	switch (choice)
 	{
 		case SLIDERLEFT:
-			if (s_volume.f > 0.0f)
-				s_volume = MAX(s_volume.f - VOLUME_STEP, 0.0f);
+			s_volume = s_volume.f - VOLUME_STEP;
 			break;
 
 		case SLIDERRIGHT:
-			if (s_volume.f < 1.0f)
-				s_volume = MIN(s_volume.f + VOLUME_STEP, 1.0f);
+			s_volume = s_volume.f + VOLUME_STEP;
 			break;
 	}
+
+	s_volume = CLAMP(0.0f, s_volume.f, 1.0f);
 
 	S_ChangeSoundVolume();
 }
@@ -1006,15 +1006,15 @@ void M_MusicVol(int choice)
 	switch (choice)
 	{
 		case SLIDERLEFT:
-			if (s_musicvol.f > 0.0f)
-				s_musicvol = MAX(s_musicvol.f - VOLUME_STEP, 0.0f);
+			s_musicvol = s_musicvol.f - VOLUME_STEP;
 			break;
 
 		case SLIDERRIGHT:
-			if (s_musicvol.f < 1.0f)
-				s_musicvol = MIN(s_musicvol.f + VOLUME_STEP, 1.0f);
+			s_musicvol = s_musicvol.f + VOLUME_STEP;
 			break;
 	}
+
+	s_musicvol = CLAMP(0.0f, s_musicvol.f, 1.0f);
 
 	S_ChangeMusicVolume();
 }

@@ -73,8 +73,6 @@ static std::list<epi::sound_data_c *> playing_qbufs;
 static mix_channel_c *queue_chan;
 
 
-cvar_c s_volume;
-
 static bool sfxpaused = false;
 
 // these are analogous to viewx/y/z/angle
