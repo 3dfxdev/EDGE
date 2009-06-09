@@ -410,27 +410,18 @@ static menu_t ReadDef2 =
 //
 // SOUND VOLUME MENU
 //
-typedef enum
-{
-	sfx_vol,
-	sfx_empty1,
-	music_vol,
-	sfx_empty2,
-	sound_end
-}
-sound_e;
 
 static menuitem_t SoundMenu[] =
 {
-	{2, "M_SFXVOL", NULL, M_SfxVol, 's'},
-	{-1, "", NULL, 0},
-	{2, "M_MUSVOL", NULL, M_MusicVol, 'm'},
-	{-1, "", NULL, 0}
+	{  2, "M_SFXVOL", NULL, M_SfxVol, 's'},
+	{ -1, "", NULL, 0},
+	{  2, "M_MUSVOL", NULL, M_MusicVol, 'm'},
+	{ -1, "", NULL, 0}
 };
 
 static menu_t SoundDef =
 {
-	sound_end,
+	4,
 	&MainDef,  ///  &OptionsDef,
 	SoundMenu,
 	&sound_vol_style,
@@ -970,8 +961,14 @@ void M_DrawSound(void)
 {
 	RGL_ImageEasy320(60, 38, menu_svol);
 
-	M_DrawThermo(SoundDef.x, SoundDef.y + LINEHEIGHT * (sfx_vol   + 1), SND_SLIDER_NUM, sfx_volume, 1);
-	M_DrawThermo(SoundDef.x, SoundDef.y + LINEHEIGHT * (music_vol + 1), SND_SLIDER_NUM, mus_volume, 1);
+	int sfx_slide_pos = I_ROUND(s_volume.f   * SND_SLIDER_NUM);
+	int mus_slide_pos = I_ROUND(s_musicvol.f * SND_SLIDER_NUM);
+
+	sfx_slide_pos = CLAMP(0, sfx_slide_pos, SND_SLIDER_NUM-1);
+	mus_slide_pos = CLAMP(0, mus_slide_pos, SND_SLIDER_NUM-1);
+
+	M_DrawThermo(SoundDef.x, SoundDef.y + LINEHEIGHT * 1, SND_SLIDER_NUM, sfx_slide_pos, 1);
+	M_DrawThermo(SoundDef.x, SoundDef.y + LINEHEIGHT * 3, SND_SLIDER_NUM, mus_slide_pos, 1);
 }
 
 #if 0
@@ -981,21 +978,22 @@ void M_Sound(int choice)
 }
 #endif
 
+
+#define VOLUME_STEP  (1.0f / SND_SLIDER_NUM)
+
 // -ACB- 1999/10/10 Sound API Volume re-added
 void M_SfxVol(int choice)
 {
 	switch (choice)
 	{
 		case SLIDERLEFT:
-			if (sfx_volume > 0)
-				sfx_volume--;
-
+			if (s_volume.f > 0.0f)
+				s_volume = MAX(s_volume.f - VOLUME_STEP, 0.0f);
 			break;
 
 		case SLIDERRIGHT:
-			if (sfx_volume < SND_SLIDER_NUM-1)
-				sfx_volume++;
-
+			if (s_volume.f < 1.0f)
+				s_volume = MIN(s_volume.f + VOLUME_STEP, 1.0f);
 			break;
 	}
 
@@ -1008,15 +1006,13 @@ void M_MusicVol(int choice)
 	switch (choice)
 	{
 		case SLIDERLEFT:
-			if (mus_volume > 0)
-				mus_volume--;
-
+			if (s_musicvol.f > 0.0f)
+				s_musicvol = MAX(s_musicvol.f - VOLUME_STEP, 0.0f);
 			break;
 
 		case SLIDERRIGHT:
-			if (mus_volume < SND_SLIDER_NUM-1)
-				mus_volume++;
-
+			if (s_musicvol.f < 1.0f)
+				s_musicvol = MIN(s_musicvol.f + VOLUME_STEP, 1.0f);
 			break;
 	}
 
@@ -1644,7 +1640,7 @@ bool M_Responder(event_t * ev)
 
 				M_StartControlPanel();
 				currentMenu = &SoundDef;
-				itemOn = sfx_vol;
+				itemOn = 0;
 				S_StartFX(sfx_swtchn);
 				return true;
 
