@@ -34,7 +34,6 @@ struct sfx_s;
 // for the sliders
 #define SND_SLIDER_NUM  20
 
-extern float slider_to_gain[SND_SLIDER_NUM];
 
 // Sound Categories
 // ----------------
@@ -88,7 +87,7 @@ fx_flag_e;
 
 
 // Vars
-extern int sfx_volume;  // 0 .. SND_SLIDER_NUM-1
+extern cvar_c s_volume;  // range is 0.0 to 1.0
 
 
 // Init/Shutdown

@@ -47,7 +47,7 @@ public:
 
 /* VARIABLES */
 
-extern int mus_volume;  // 0 .. SND_SLIDER_NUM-1
+extern cvar_c s_musicvol;  // range is 0.0 to 1.0
 
 extern int var_music_dev;
 

@@ -174,6 +174,10 @@ void I_ShutdownMusic(void);
 // code never calls this function.
 
 
+extern abstract_music_c * I_PlayHWMusic(const byte *data,
+			int length, float volume, bool loop);
+
+
 #if 0
 abstract_music_c * I_PlayCDMusic(int track, float volume, bool looping);
 #endif

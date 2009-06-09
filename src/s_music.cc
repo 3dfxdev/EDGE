@@ -36,20 +36,18 @@
 #include "m_misc.h"
 #include "w_wad.h"
 
-// Current music handle
-static abstract_music_c *music_player;
-
-// music slider value
-int mus_volume;
-
-int var_music_dev;
-
 bool nomusic = false;
 bool nocdmusic = false;
 
-// FIXME: put in i_system.h
-extern abstract_music_c * I_PlayHWMusic(const byte *data, int length,
-			float volume, bool loop);
+
+// music slider value
+cvar_c s_musicvol;
+
+int var_music_dev;
+
+
+// Current music handle
+static abstract_music_c *music_player;
 
 
 void S_ChangeMusic(int entrynum, bool loop)
@@ -71,7 +69,11 @@ void S_ChangeMusic(int entrynum, bool loop)
 		return;
 	}
 
-	float volume = slider_to_gain[mus_volume];
+	float user_vol = CLAMP(0.0f, s_musicvol.f, 1.0f);
+
+	// -AJA- use a power curve to give useful distinctions of
+	//       volume levels at the quiet end.
+	user_vol = pow(user_vol, 2.5);
 
 	if (play->type == MUS_MP3)
 	{
@@ -88,7 +90,7 @@ void S_ChangeMusic(int entrynum, bool loop)
 
 	if (play->type == MUS_OGG)
 	{
-		music_player = S_PlayOGGMusic(play, volume, loop);
+		music_player = S_PlayOGGMusic(play, user_vol, loop);
 		return;
 	}
 
@@ -150,9 +152,9 @@ void S_ChangeMusic(int entrynum, bool loop)
 	bool is_mus = (data[0] == 'M' && data[1] == 'U' && data[2] == 'S');
 
 	if (var_music_dev == 0 && is_mus)
-		music_player = I_PlayHWMusic(data, length, volume, loop);
+		music_player = I_PlayHWMusic(data, length, user_vol, loop);
 	else
-		music_player = S_PlayTimidity(data, length, is_mus, volume, loop);
+		music_player = S_PlayTimidity(data, length, is_mus, user_vol, loop);
 
 #if 0
 	byte *data;
@@ -277,7 +279,12 @@ void S_MusicTicker(void)
 void S_ChangeMusicVolume(void)
 {
 	if (music_player)
-		music_player->Volume(slider_to_gain[mus_volume]);
+	{
+		float user_vol = CLAMP(0.0f, s_musicvol.f, 1.0f);
+		user_vol = pow(user_vol, 2.5);
+
+		music_player->Volume(user_vol);
+	}
 }
 
 

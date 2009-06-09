@@ -80,20 +80,20 @@ cvar_link_t  all_cvars[] =
 	{ "r_dumbcombine",   &r_dumbcombine,   "",   "0"  },
 	{ "r_dumbclamp",     &r_dumbclamp,     "",   "0"  },
 
-	{ "am_rotate",    &am_rotate,    "c",   "0",    },
-	{ "am_smoothing", &am_smoothing, "c",   "1",    },
+	{ "am_rotate",    &am_rotate,    "c",   "0"  },
+	{ "am_smoothing", &am_smoothing, "c",   "1"  },
 
-	{ "in_autorun",   &in_autorun,   "c",   "0",    },
+	{ "in_autorun",   &in_autorun,   "c",   "0"  },
 
-	{ "m_diskicon",   &m_diskicon,   "c",   "1",    },
-	{ "m_busywait",   &m_busywait,   "c",   "1",    },
-	{ "m_messages",   &m_messages,   "c",   "1",    },
-	{ "m_obituaries", &m_obituaries, "c",   "1",    },
-	{ "m_screenhud",  &m_screenhud,  "c",   "0",    },
+	{ "m_diskicon",   &m_diskicon,   "c",   "1"  },
+	{ "m_busywait",   &m_busywait,   "c",   "1"  },
+	{ "m_messages",   &m_messages,   "c",   "1"  },
+	{ "m_obituaries", &m_obituaries, "c",   "1"  },
+	{ "m_screenhud",  &m_screenhud,  "c",   "0"  },
 
-	{ "s_volume",      &s_volume,       "c",   "10",   },
-	{ "s_musicvol",    &s_musicvol,     "c",   "10",   },
-	{ "s_mixchannels", &s_mixchannels,  "c",   "32",   },
+	{ "s_volume",      &s_volume,       "c",   "0.5"  },
+	{ "s_musicvol",    &s_musicvol,     "c",   "0.5"  },
+	{ "s_mixchannels", &s_mixchannels,  "c",   "32"   },
 
 	{ "debug_fullbright", &debug_fullbright, "h", "0" },
 	{ "debug_subsector",  &debug_subsector,  "h", "0" },
