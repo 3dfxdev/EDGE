@@ -32,8 +32,6 @@
 #include "p_local.h" // P_ApproxDistance
 
 
-static bool allow_hogs = true;
-
 extern float listen_x;
 extern float listen_y;
 extern float listen_z;
@@ -171,7 +169,7 @@ static int FindBiggestHog(int real_cat)
 		// found a hog!
 		if (biggest_hog < 0 || extra > biggest_extra)
 		{
-			biggest_hog = hog;
+			biggest_hog   = hog;
 			biggest_extra = extra;
 		}
 	}
@@ -214,12 +212,11 @@ static int ChannelScore(sfxdef_c *def, int category, position_c *pos, bool boss)
 	return base_score * 100 - def->priority;
 }
 
-static int FindChannelToKill(int kill_cat, int real_cat, int new_score)
+static int FindChannelToKill(int kill_cat, int new_cat, int new_score)
 {
 	int kill_idx = -1;
 	int kill_score = (1<<30);
 
-//I_Printf("FindChannelToKill: cat:%d new_score:%d\n", kill_cat, new_score);
 	for (int j=0; j < num_chan; j++)
 	{
 		mix_channel_c *chan = mix_chan[j];
@@ -232,18 +229,17 @@ static int FindChannelToKill(int kill_cat, int real_cat, int new_score)
 		
 		int score = ChannelScore(chan->def, chan->category,
 								 chan->pos, chan->boss);
-//I_Printf("> [%d] '%s' = %d\n", j, chan->def->ddf.name.c_str(), score);
-		// find one with LOWEST score
+
 		if (score < kill_score)
 		{
 			kill_idx = j;
 			kill_score = score;
 		}
 	}
-//I_Printf("kill_idx = %d\n", kill_idx);
+
 	SYS_ASSERT(kill_idx >= 0);
 
-	if (kill_cat != real_cat)
+	if (kill_cat != new_cat)
 		return kill_idx;
 
 	// if the score for new sound is worse than any existing
@@ -313,7 +309,6 @@ static void S_PlaySound(int idx, sfxdef_c *def, int category, position_c *pos, i
 {
 //I_Printf("S_PlaySound on idx #%d DEF:%p\n", idx, def);
 
-//I_Printf("Looked up def: %p, caching...\n", def);
 	epi::sound_data_c *buf = S_CacheLoad(def);
 	if (! buf)
 		return;
@@ -323,11 +318,9 @@ static void S_PlaySound(int idx, sfxdef_c *def, int category, position_c *pos, i
 	chan->state = CHAN_Playing;
 	chan->data  = buf;
 
-//I_Printf("chan=%p data=%p\n", chan, chan->data);
-
 	chan->def = def;
 	chan->pos = pos;
-	chan->category = category; //?? store use_cat and orig_cat
+	chan->category = category;
 
 	// volume computed during mixing (?)
     chan->volume_L = 0;
@@ -340,8 +333,6 @@ static void S_PlaySound(int idx, sfxdef_c *def, int category, position_c *pos, i
 	chan->boss = (flags & FX_Boss) ? true : false;
 
 	chan->ComputeDelta();
-
-//I_Printf("FINISHED: delta=0x%lx\n", chan->delta);
 }
 
 static void DoStartFX(sfxdef_c *def, int category, position_c *pos, int flags)
@@ -374,12 +365,6 @@ static void DoStartFX(sfxdef_c *def, int category, position_c *pos, int flags)
 	}
 
 	k = FindFreeChannel();
-
-	if (! allow_hogs)
-	{
-		if (cat_counts[category] >= cat_limits[category])
-			k = -1;
-	}
 
 //I_Printf("@ free channel = #%d\n", k);
 	if (k < 0)
@@ -425,6 +410,9 @@ void S_StartFX(sfx_t *sfx, int category, position_c *pos, int flags)
 	if (category >= SNCAT_Opponent && ! pos)
 		I_Error("S_StartFX: position missing for category: %d\n", category);
 
+	if (cat_limits[category] == 0)
+		return;
+
 	sfxdef_c *def = LookupEffectDef(sfx);
 	SYS_ASSERT(def);
 
@@ -444,9 +432,6 @@ void S_StartFX(sfx_t *sfx, int category, position_c *pos, int flags)
 	}
 
 //I_Printf("StartFX: '%s' cat:%d flags:0x%04x\n", def->ddf.name.c_str(), category, flags);
-
-	if (cat_limits[category] == 0)
-		return;
 
 	I_LockAudio();
 	{
@@ -468,7 +453,6 @@ void S_StopFX(position_c *pos)
 
 			if (chan->state == CHAN_Playing && chan->pos == pos)
 			{
-//I_Printf("S_StopFX: killing #%d\n", i);
 				S_KillChannel(i);
 			}
 		}
@@ -530,14 +514,9 @@ void S_ChangeChannelNum(void)
 	{
 		int want_chan = CLAMP(16, s_mixchannels.d, 64);
 
-//!!!!!! FIXME
-		int ui_chan = 0; S_ReallocChannels(want_chan);
+		S_ReallocChannels(want_chan);
 
 		SetupCategoryLimits();
-
-		// correct value for UI channels (which are kept by
-		// the S_ReallocChannels call)
-		cat_counts[SNCAT_UI] = ui_chan;
 	}
 	I_UnlockAudio();
 }
