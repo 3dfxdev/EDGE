@@ -42,8 +42,7 @@ bool nocdmusic = false;
 
 // music slider value
 cvar_c s_musicvol;
-
-int var_music_dev;
+cvar_c s_timidity;
 
 
 // Current music handle
@@ -151,7 +150,7 @@ void S_ChangeMusic(int entrynum, bool loop)
 	
 	bool is_mus = (data[0] == 'M' && data[1] == 'U' && data[2] == 'S');
 
-	if (var_music_dev == 0 && is_mus)
+	if (!s_timidity.d && is_mus)
 		music_player = I_PlayHWMusic(data, length, user_vol, loop);
 	else
 		music_player = S_PlayTimidity(data, length, is_mus, user_vol, loop);

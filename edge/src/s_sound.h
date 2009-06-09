@@ -88,6 +88,10 @@ fx_flag_e;
 
 // Vars
 extern cvar_c s_volume;  // range is 0.0 to 1.0
+extern cvar_c s_rate;    // sample-rate in Hz
+extern cvar_c s_bits;    // bits, 8 or 16
+extern cvar_c s_stereo;  // can be 0 or 1
+extern cvar_c s_quietfactor;  // can be 0, 1 or 2
 
 
 // Init/Shutdown

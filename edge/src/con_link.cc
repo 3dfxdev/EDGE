@@ -38,9 +38,17 @@ extern cvar_c debug_fullbright, debug_subsector;
 
 extern cvar_c in_autorun;
 
-extern cvar_c s_volume, s_musicvol;
-extern cvar_c s_mixchannels;
+extern cvar_c s_volume, s_musicvol, s_mixchan;
+extern cvar_c s_rate, s_bits, s_stereo;
+extern cvar_c s_quietfactor, s_timidity;
+extern cvar_c tim_quietfactor;
 
+
+#ifdef LINUX
+#define S_TIMIDITY_CFG  "1"
+#else
+#define S_TIMIDITY_CFG  "0"
+#endif
 
 
 // Flag letters:
@@ -48,6 +56,7 @@ extern cvar_c s_mixchannels;
 //
 //   r : read only, user cannot change it
 //   c : config file (saved and loaded)
+//   h : cheat
 //
 
 
@@ -91,9 +100,16 @@ cvar_link_t  all_cvars[] =
 	{ "m_obituaries", &m_obituaries, "c",   "1"  },
 	{ "m_screenhud",  &m_screenhud,  "c",   "0"  },
 
-	{ "s_volume",      &s_volume,       "c",   "0.5"  },
-	{ "s_musicvol",    &s_musicvol,     "c",   "0.5"  },
-	{ "s_mixchannels", &s_mixchannels,  "c",   "32"   },
+	{ "s_volume",     &s_volume,     "c",   "0.5"  },
+	{ "s_musicvol",   &s_musicvol,   "c",   "0.5"  },
+	{ "s_mixchan",    &s_mixchan,    "c",   "32"   },
+	{ "s_rate",       &s_rate,       "c",   "22050" },
+	{ "s_bits",       &s_bits,       "c",   "16" },
+	{ "s_stereo",     &s_stereo,     "c",   "1"  },
+	{ "s_timidity",   &s_timidity,   "c",   S_TIMIDITY_CFG  },
+
+	{ "s_quietfactor",   &s_quietfactor,   "c",  "1"  },
+	{ "tim_quietfactor", &tim_quietfactor, "c",  "1"  },
 
 	{ "debug_fullbright", &debug_fullbright, "h", "0" },
 	{ "debug_subsector",  &debug_subsector,  "h", "0" },

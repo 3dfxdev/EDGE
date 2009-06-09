@@ -38,7 +38,11 @@ extern float listen_z;
 
 
 cvar_c s_volume;
-cvar_c s_mixchannels;
+cvar_c s_mixchan;
+
+cvar_c s_rate;
+cvar_c s_bits;
+cvar_c s_stereo;
 
 
 const int category_limit_table[SNCAT_NUMTYPES][2] =
@@ -254,7 +258,7 @@ void S_Init(void)
 {
 	if (nosound) return;
 
-	int want_chan = CLAMP(16, s_mixchannels.d, 64);
+	int want_chan = CLAMP(16, s_mixchan.d, 64);
 
 	I_Printf("I_StartupSound: Init %d mixing channels\n", want_chan);
 
@@ -483,7 +487,7 @@ void S_SoundTicker(void)
 {
 	if (nosound) return;
 
-	if (s_mixchannels.CheckModified())
+	if (s_mixchan.CheckModified())
 		S_ChangeChannelNum();
 
 	I_LockAudio();
@@ -511,7 +515,7 @@ void S_ChangeChannelNum(void)
 
 	I_LockAudio();
 	{
-		int want_chan = CLAMP(16, s_mixchannels.d, 64);
+		int want_chan = CLAMP(16, s_mixchan.d, 64);
 
 		S_ReallocChannels(want_chan);
 

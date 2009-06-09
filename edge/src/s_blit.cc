@@ -64,6 +64,8 @@ int num_chan;
 static int *mix_buffer;
 static int mix_buf_len;
 
+cvar_c s_quietfactor;
+
 
 #define MAX_QUEUE_BUFS  16
 
@@ -137,7 +139,9 @@ void mix_channel_c::ComputeVolume()
 		}
 	}
 
-	float MAX_VOL = (1 << (16 - SAFE_BITS - (var_quiet_factor-1))) - 3;
+	int bitnum = 16 - SAFE_BITS - CLAMP(0, s_quietfactor.d, 2) + 1;
+
+	float MAX_VOL = (1 << bitnum) - 3;
 
 	float user_vol = CLAMP(0.0f, s_volume.f, 1.0f);
 
@@ -154,7 +158,7 @@ void mix_channel_c::ComputeVolume()
 	volume_L = (int) (MAX_VOL * (1.0 - sep));
 	volume_R = (int) (MAX_VOL * (0.0 + sep));
 
-	if (var_sound_stereo == 2)  /* SWAP ! */
+	if (dev_stereo == 2)  /* SWAP ! */
 	{
 		int tmp = volume_L;
 		volume_L = volume_R;
