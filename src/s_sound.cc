@@ -38,7 +38,6 @@ extern float listen_z;
 
 
 cvar_c s_volume;
-cvar_c s_musicvol;
 cvar_c s_mixchannels;
 
 
@@ -346,7 +345,7 @@ static void DoStartFX(sfxdef_c *def, int category, position_c *pos, int flags)
 //I_Printf("@ already playing on #%d\n", k);
 		mix_channel_c *chan = mix_chan[k];
 
-		if (def->looping)
+		if (def->looping && def == chan->def)
 		{
 //I_Printf("@@ RE-LOOPING\n");
 			chan->loop = true;
