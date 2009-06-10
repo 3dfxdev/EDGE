@@ -2,7 +2,7 @@
 //  EDGE Moving Object Handling Code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -986,10 +986,7 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 	float delta;
 	float zmove;
 
-	// -KM- 1998/11/25 Gravity is now not precalculated so that
-	//  menu changes affect instantly.
-	float gravity = props->gravity / 8.0f * 
-		(float)level_flags.menu_grav / (float)MENU_GRAV_NORMAL;
+	float gravity = props->gravity / 8.0f;
 
 	// check for smooth step up
 	if (mo->player && mo->player->mo == mo && mo->z < mo->floorz)
@@ -1336,7 +1333,7 @@ static void P_MobjThinker(mobj_t * mo)
 
 		// replaced respawnmonsters & newnmrespawn with respawnsetting
 		// -ACB- 1998/07/30
-		if (!level_flags.respawn)
+		if (! (map_features & MPF_MonRespawn))
 			return;
 
 		mo->movecount++;
@@ -1359,10 +1356,10 @@ static void P_MobjThinker(mobj_t * mo)
 
 		// replaced respawnmonsters & newnmrespawn with respawnsetting
 		// -ACB- 1998/07/30
-		if (level_flags.res_respawn)
+//FIXME		if (level_mon_respawn == 2)
+//FIXME			TeleportRespawn(mo);
+//FIXME		else
 			ResurrectRespawn(mo);
-		else
-			TeleportRespawn(mo);
 
 		return;
 	}
@@ -1516,7 +1513,7 @@ void P_RemoveMobj(mobj_t *mo)
 	}
 
 	if (! (mo->flags & MF_MISSILE) &&
-		(deathmatch >= 2 || level_flags.itemrespawn) &&
+		(deathmatch >= 2 || g_itemrespawn.d) &&
 		(mo->info->flags & MF_SPECIAL) && 
 		!(mo->extendedflags & EF_NORESPAWN) &&
 		!(mo->flags & MF_DROPPED))
@@ -1637,7 +1634,9 @@ void P_SpawnBlood(float x, float y, float z, float damage,
 
 	angle += ANG180;
 
-	num = (int) (!level_flags.more_blood ? 1.0f : (M_Random() % 7) + 
+	bool can_more = g_moreblood.d && !(map_features & MPF_NoMoreBlood);
+
+	num = (int) (!can_more ? 1.0f : (M_Random() % 7) + 
 		(float)((MAX(damage / 4.0f, 7.0f))));
 
 	while (num--)
@@ -1683,7 +1682,7 @@ void P_MobjItemRespawn(void)
 	iteminque_t *cur, *next;
 
 	// only respawn items in deathmatch or if itemrespawn
-	if (! (deathmatch >= 2 || level_flags.itemrespawn))
+	if (! (deathmatch >= 2 || g_itemrespawn.d))
 		return;
 
 	// No item-respawn-que exists, so nothing to process.
@@ -1799,7 +1798,7 @@ mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c *info)
 	mo->model_skin = info->model_skin;
 	mo->model_last_frame = -1;
 
-	if (level_flags.fastparm)
+	if (g_fastmon.d || (map_features & MPF_FastMon))
 		mo->speed *= info->fast;
 
 	// -ACB- 1998/06/25 new mobj Stuff (1998/07/11 - invisibility added)

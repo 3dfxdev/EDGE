@@ -2,7 +2,7 @@
 //  EDGE Game Handling Code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -364,7 +364,7 @@ static void P_SpawnPlayer(player_t *p, const spawnpoint_t *point)
 	// Don't get stuck spawned in things: telefrag them.
 	P_TeleportMove(mobj, mobj->x, mobj->y, mobj->z);
 
-	if (! level_flags.team_damage)
+	if (! g_teamdamage.d)
 		mobj->hyperflags |= HF_SIDEIMMUNE;
 }
 

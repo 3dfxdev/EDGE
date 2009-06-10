@@ -2,7 +2,7 @@
 //  EDGE Play Simulation Action routines
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -232,7 +232,7 @@ static bool DecideMeleeAttack(mobj_t * mo, const atkdef_c * attack)
 
 	distance = P_ApproxDistance(target->x - mo->x, target->y - mo->y);
 
-	if (level_flags.true3dgameplay)
+	if (g_true3d.d && !(map_features & MPF_NoTrue3D))
 		distance = P_ApproxDistance(target->z - mo->z, distance);
 
 	meleedist = attack ? attack->range : MELEERANGE;
@@ -1121,7 +1121,7 @@ static void LaunchSmartProjectile(mobj_t * source, mobj_t * target,
 		float dy = source->y - target->y;
 
 		float s = type->speed;
-		if (level_flags.fastparm)
+		if (g_fastmon.d || (map_features & MPF_FastMon))
 			s *= type->fast;
 
 		float a = mx * mx + my * my - s * s;
@@ -2189,7 +2189,7 @@ static void SkullFlyAssault(mobj_t * mo)
 	float speed = mo->currentattack->assault_speed;
 
 	// -KM- 1999/01/31 Fix skulls in nightmare mode
-	if (level_flags.fastparm)
+	if (g_fastmon.d || (map_features & MPF_FastMon))
 		speed *= mo->info->fast;
 
 	sfx_t *sound = mo->currentattack->initsound;
@@ -3150,10 +3150,8 @@ void A_StandardChase(mobj_t * mo, void *data)
 	{
 		mo->flags &= ~MF_JUSTATTACKED;
 
-		// -KM- 1998/12/16 Nightmare mode set the fast parm.
-		if (!level_flags.fastparm)
+		if (! (g_fastmon.d || (map_features & MPF_FastMon)))
 			P_NewChaseDir(mo);
-
 		return;
 	}
 
@@ -3174,12 +3172,13 @@ void A_StandardChase(mobj_t * mo, void *data)
 	if (mo->info->missile_state)
 	{
 		// -KM- 1998/12/16 Nightmare set the fastparm.
-		if (!(!level_flags.fastparm && mo->movecount))
+		if (g_fastmon.d || (map_features & MPF_FastMon) || mo->movecount == 0)
 		{
 			if (DecideRangeAttack(mo))
 			{
 				if (mo->info->missile_state)
 					P_SetMobjStateDeferred(mo, mo->info->missile_state, 0);
+
 				mo->flags |= MF_JUSTATTACKED;
 				return;
 			}
@@ -3372,7 +3371,7 @@ void A_CheckBlood(mobj_t * mo, void *data)
 	// -KM- 1999/01/31 Part of the extra blood option, makes blood stick around...
 	// -AJA- 1999/10/02: ...but not indefinitely.
 
-	if (level_flags.more_blood && mo->tics >= 0)
+	if ((g_moreblood.d && !(map_features & MPF_NoMoreBlood)) && mo->tics >= 0)
 	{
 		int val = P_Random();
 
@@ -3445,7 +3444,10 @@ void A_Become(struct mobj_s *mo, void *data)
 
 		mo->radius = mo->info->radius;
 		mo->height = mo->info->height;
-		mo->speed  = mo->info->speed * (level_flags.fastparm ? mo->info->fast : 1);
+		mo->speed  = mo->info->speed;
+		
+		if (g_fastmon.d || (map_features & MPF_FastMon))
+			mo->speed *= mo->info->fast;
 
 		// Note: health is not changed
 

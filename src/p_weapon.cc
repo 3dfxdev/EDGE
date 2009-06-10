@@ -2,7 +2,7 @@
 //  EDGE Weapon (player sprites) Action Code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -32,6 +32,7 @@
 #include "e_event.h"
 #include "dm_defs.h"
 #include "dm_state.h"
+#include "g_game.h"
 #include "m_misc.h"
 #include "m_random.h"
 #include "p_action.h"
@@ -656,7 +657,7 @@ void P_TrySwitchNewWeapon(player_t *p, int new_weap, ammotype_e new_ammo)
 	if (p->pending_wp != WPSEL_NoChange)
 		return;
 
-	if (! level_flags.weapon_switch && p->ready_wp != WPSEL_None &&
+	if (! g_weaponswitch.d && p->ready_wp != WPSEL_None &&
 		(WeaponCouldAutoFire(p, p->ready_wp, 0) ||
 		 WeaponCouldAutoFire(p, p->ready_wp, 1)))
 	{
@@ -859,7 +860,7 @@ void P_Zoom(player_t *pl)
 		fov = pl->weapons[pl->ready_wp].info->zoom_fov;
 
 	// In `LimitZoom' mode, only allow zooming if weapon supports it
-	if (level_flags.limit_zoom && fov <= 0)
+	if ((map_features & MPF_LimitZoom) && fov <= 0)
 		return;
 
 	view_zoom = (fov > 0) ? fov : r_zoomedfov.f;
@@ -1156,10 +1157,10 @@ void A_NoFireReturnSA(mobj_t * mo, void *) { DoNoFire(mo, 1, true);  }
 
 void A_WeaponKick(mobj_t * mo, void *data)
 {
-	player_t *p = mo->player;
-
-	if (! level_flags.kicking)
+	if (! g_weaponkick.d)
 		return;
+
+	player_t *p = mo->player;
 
 	float kick = 0.05f;
 
@@ -1220,7 +1221,7 @@ void A_Lower(mobj_t * mo, void *data)
 	if (view_zoom > 0 && p == players[displayplayer])
 	{
 		// In `LimitZoom' mode, disable any current zoom
-		if (level_flags.limit_zoom)
+		if (map_features & MPF_LimitZoom)
 			view_zoom = 0;
 		else
 			view_zoom = r_zoomedfov.f;
@@ -1422,7 +1423,7 @@ static void DoWeaponShoot(mobj_t * mo, int ATK, void *data)
 
 	P_PlayerAttack(mo, attack);
 
-	if (level_flags.kicking && ATK == 0)
+	if (g_weaponkick.d && ATK == 0)
 	{
 		p->deltaviewheight -= w->kick;
 		p->kick_offset = w->kick;

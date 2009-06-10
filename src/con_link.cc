@@ -2,7 +2,7 @@
 //  LIST OF ALL CVARS
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 2007-2008  The EDGE Team.
+//  Copyright (c) 2007-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -34,6 +34,8 @@ extern cvar_c r_detaillevel;
 extern cvar_c am_rotate, am_smoothing;
 extern cvar_c m_diskicon, m_busywait, m_screenhud;
 extern cvar_c m_messages, m_obituaries;
+
+extern cvar_c debug_nomonsters;
 extern cvar_c debug_fullbright, debug_subsector;
 
 extern cvar_c in_autorun;
@@ -42,6 +44,14 @@ extern cvar_c s_volume, s_musicvol, s_mixchan;
 extern cvar_c s_rate, s_bits, s_stereo;
 extern cvar_c s_quietfactor, s_timidity;
 extern cvar_c tim_quietfactor;
+
+extern cvar_c g_mlook, g_autoaim;
+extern cvar_c g_jumping, g_crouching;
+extern cvar_c g_true3d;
+extern cvar_c g_moreblood, g_noextra;
+extern cvar_c g_fastmon, g_passmissile;
+extern cvar_c g_weaponkick, g_weaponswitch;
+
 
 
 #ifdef LINUX
@@ -62,6 +72,18 @@ extern cvar_c tim_quietfactor;
 
 cvar_link_t  all_cvars[] =
 {
+    { "g_mlook",        &g_mlook,        "c",   "1"  },
+    { "g_autoaim",      &g_autoaim,      "c",   "1"  },
+    { "g_jumping",      &g_jumping,      "c",   "0"  },
+    { "g_crouching",    &g_crouching,    "c",   "0"  },
+    { "g_true3d",       &g_true3d,       "c",   "1"  },
+    { "g_noextra",      &g_noextra,      "c",   "0"  },
+    { "g_moreblood",    &g_moreblood,    "c",   "0"  },
+    { "g_fastmon",      &g_fastmon,      "c",   "0"  },
+    { "g_passmissile",  &g_passmissile,  "c",   "1"  },
+    { "g_weaponkick",   &g_weaponkick,   "c",   "0"  },
+    { "g_weaponswitch", &g_weaponswitch, "c",   "1"  },
+
 	{ "r_width",      &r_width,      "rc",  "640"   },
 	{ "r_height",     &r_height,     "rc",  "480"   },
     { "r_depth",      &r_depth,      "rc",  "32"    },
@@ -111,6 +133,7 @@ cvar_link_t  all_cvars[] =
 	{ "s_quietfactor",   &s_quietfactor,   "c",  "1"  },
 	{ "tim_quietfactor", &tim_quietfactor, "c",  "1"  },
 
+	{ "debug_nomonsters", &debug_nomonsters, "h", "0" },
 	{ "debug_fullbright", &debug_fullbright, "h", "0" },
 	{ "debug_subsector",  &debug_subsector,  "h", "0" },
 

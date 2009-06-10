@@ -2,7 +2,7 @@
 //  EDGE Player User Code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -31,6 +31,7 @@
 
 #include "dm_state.h"
 #include "e_input.h"
+#include "g_game.h"
 #include "m_random.h"
 #include "n_network.h"
 #include "p_bot.h"
@@ -182,7 +183,11 @@ static void MovePlayer(player_t * player)
 	// -ACB- 1998/07/02 New Code used, rerouted via Ticcmd
 	// -ACB- 1998/07/27 Used defines for look limits.
 	//
-	if (level_flags.mlook)
+	if (! g_mlook.d || (map_features & MPF_NoMLook))
+	{
+		player->mo->vertangle = 0;
+	}
+	else
 	{
 		angle_t V = player->mo->vertangle + (angle_t)(cmd->mlookturn << 16);
 
@@ -192,10 +197,6 @@ static void MovePlayer(player_t * player)
 			V = (ANG_MAX - MLOOK_LIMIT);
 
 		player->mo->vertangle = V;
-	}
-	else
-	{
-		player->mo->vertangle = 0;
 	}
 
 	// EDGE Feature: Vertical Centering
@@ -301,24 +302,27 @@ static void MovePlayer(player_t * player)
 		}
 	}
 
-	// EDGE Feature: Jump Code
+	// EDGE Feature : Jumping
 	//
 	// -ACB- 1998/08/09 Check that jumping is allowed in the currmap
 	//                  Make player pause before jumping again
 
-	if (level_flags.jump && mo->info->jumpheight > 0 &&
-	    (cmd->upwardmove > 4))
+	if (g_jumping.d && !(map_features & MPF_NoJumping))
 	{
-		if (!jumping && !crouching && !swimming && !flying && onground && !onladder)
+		if (mo->info->jumpheight > 0 && (cmd->upwardmove > 4))
 		{
-			P_PlayerJump(player, player->mo->info->jumpheight / 1.4f,
-			             player->mo->info->jump_delay);
+			if (!jumping && !crouching && !swimming && !flying && onground && !onladder)
+			{
+				P_PlayerJump(player, player->mo->info->jumpheight / 1.4f,
+							 player->mo->info->jump_delay);
+			}
 		}
 	}
 
-	// EDGE Feature: Crouching
+	// EDGE Feature : Crouching
+	bool can_crouch = g_crouching.d && !(map_features & MPF_NoCrouching);
 
-	if (level_flags.crouch && mo->info->crouchheight > 0 &&
+	if (can_crouch && mo->info->crouchheight > 0 &&
 		(player->cmd.upwardmove < -4) &&
 		!player->wet_feet && !jumping && onground)
 		// NB: no ladder check, onground is sufficient

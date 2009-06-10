@@ -2,7 +2,7 @@
 //  EDGE Main Init + Program Loop Code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -106,43 +106,6 @@ bool need_save_screenshot  = false;
 FILE *logfile = NULL;
 FILE *debugfile = NULL;
 
-gameflags_t default_gameflags =
-{
-	false,  // nomonsters
-	false,  // fastparm
-
-	false,  // respawn
-	false,  // res_respawn
-	false,  // item respawn
-
-	false,  // true 3d gameplay
-	MENU_GRAV_NORMAL, // gravity
-	false,  // more blood
-
-	true,   // jump
-	true,   // crouch
-	true,   // mlook
-	AA_ON,  // autoaim
-     
-	true,   // cheats
-	true,   // have_extra
-	false,  // limit_zoom
-	false,  // shadows
-	false,  // halos
-
-	false,    // edge_compat
-	true,     // kicking
-	true,     // weapon_switch
-	true,     // pass_missile
-	true,     // team_damage
-};
-
-// -KM- 1998/12/16 These flags are the users prefs and are copied to
-//   gameflags when a new level is started.
-// -AJA- 2000/02/02: Removed initialisation (done in code using
-//       `default_gameflags').
-
-gameflags_t global_flags;
 
 int newnmrespawn = 0;
 
@@ -329,6 +292,8 @@ static void SetGlobalVars(void)
 	M_CheckBooleanParm("sound", &nosound, true);
 	M_CheckBooleanParm("music", &nomusic, true);
 	M_CheckBooleanParm("cdmusic", &nocdmusic, true);
+
+#if 0
 	M_CheckBooleanParm("itemrespawn", &global_flags.itemrespawn, false);
 	M_CheckBooleanParm("mlook", &global_flags.mlook, false);
 	M_CheckBooleanParm("monsters", &global_flags.nomonsters, true);
@@ -343,6 +308,10 @@ static void SetGlobalVars(void)
 	M_CheckBooleanParm("jumping", &global_flags.jump, false);
 	M_CheckBooleanParm("crouching", &global_flags.crouch, false);
 	M_CheckBooleanParm("weaponswitch", &global_flags.weapon_switch, false);
+
+	if (M_CheckParm("-respawn"))
+		global_flags.respawn = true;
+#endif
 	M_CheckBooleanParm("autoload", &autoquickload, false);
 
 	if (M_CheckParm("-rotatemap"))
@@ -356,21 +325,8 @@ static void SetGlobalVars(void)
 	if (M_CheckParm("-fullbright"))
 		debug_fullbright = 1;
 
-	if (M_CheckParm("-ecompat"))
-		global_flags.edge_compat = true;
-
-	if (!global_flags.respawn)
-	{
-		if (M_CheckParm("-newnmrespawn"))
-		{
-			global_flags.res_respawn = true;
-			global_flags.respawn = true;
-		}
-		else if (M_CheckParm("-respawn"))
-		{
-			global_flags.respawn = true;
-		}
-	}
+///FIXME	if (M_CheckParm("-ecompat"))
+///FIXME		global_flags.edge_compat = true;
 
 	// check for strict and no-warning options
 	M_CheckBooleanParm("strict", &strict_errors, false);
@@ -1334,10 +1290,6 @@ static void E_Startup(void)
 		I_Error("\nEDGE version is " EDGEVERSTR "\n");
 	}
 
-	// -AJA- 2000/02/02: initialise global gameflags to defaults
-	global_flags = default_gameflags;
-
-	
 	InitDirectories();
 
 	SetupLogAndDebugFiles();
