@@ -77,7 +77,7 @@ static bool FontStartEntry(const char *name)
 		dynamic_font = new fontdef_c;
 
 		if (name && name[0])
-			dynamic_font->ddf.name.Set(name);
+			dynamic_font->ddf.name = name;
 		else
 			dynamic_font->ddf.SetUniqueName("UNNAMED_FONT", fontdefs.GetSize());
 

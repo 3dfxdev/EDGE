@@ -792,7 +792,7 @@ static void G_DoSaveGame(void)
 	// --- fill in global structure ---
 
 	globs->game  = SV_DupString(currmap->episode_name);
-	globs->level = SV_DupString(currmap->ddf.name);
+	globs->level = SV_DupString(currmap->ddf.name.c_str());
 
 	globs->skill = gameskill;
 	globs->netgame = netgame ? (1+deathmatch) : 0;

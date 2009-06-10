@@ -127,7 +127,7 @@ static bool StyleStartEntry(const char *name)
 		dynamic_style = new styledef_c;
 
 		if (name && name[0])
-			dynamic_style->ddf.name.Set(name);
+			dynamic_style->ddf.name = name;
 		else
 			dynamic_style->ddf.SetUniqueName("UNNAMED_STYLE", styledefs.GetSize());
 

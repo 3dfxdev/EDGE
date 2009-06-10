@@ -514,7 +514,7 @@ static bool ThingStartEntry(const char *buffer)
 		if (name.empty())
 			dynamic_mobj->ddf.SetUniqueName("UNNAMED_THING", mobjtypes.GetSize());
 		else
-			dynamic_mobj->ddf.name.Set(name.c_str());
+			dynamic_mobj->ddf.name = name;
 
 		mobjtypes.Insert(dynamic_mobj);
 	}
@@ -1521,7 +1521,7 @@ mobjtype_c *DDF_MobjMakeAttackObj(mobjtype_c *info, const char *atk_name)
 
 	mobjtype_c *result = new mobjtype_c;
 
-	result->ddf.name.Set(name.c_str());
+	result->ddf.name = name;
 	result->CopyDetail(info[0]);
 
 	// backwards compat

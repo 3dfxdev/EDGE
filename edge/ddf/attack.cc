@@ -129,7 +129,7 @@ static bool AttackStartEntry(const char *name)
 		dynamic_atk = new atkdef_c;
 
 		if (name && name[0])
-			dynamic_atk->ddf.name.Set(name);
+			dynamic_atk->ddf.name = name;
 		else
 			dynamic_atk->ddf.SetUniqueName("UNNAMED_ATTACK", atkdefs.GetSize());
 

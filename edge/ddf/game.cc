@@ -92,7 +92,7 @@ static bool GameStartEntry (const char *name)
 		dynamic_gamedef = new gamedef_c;
 
 		if (name && name[0])
-			dynamic_gamedef->ddf.name.Set(name);
+			dynamic_gamedef->ddf.name = name;
 		else
 			dynamic_gamedef->ddf.SetUniqueName("UNNAMED_GAMEDEF", gamedefs.GetSize());
 

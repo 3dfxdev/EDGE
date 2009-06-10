@@ -125,7 +125,7 @@ static bool ImageStartEntry(const char *name)
 		dynamic_image = new imagedef_c;
 
 		if (name && name[0])
-			dynamic_image->ddf.name.Set(name);
+			dynamic_image->ddf.name = name;
 		else
 			dynamic_image->ddf.SetUniqueName("UNNAMED", imagedefs.GetSize());
 
@@ -238,11 +238,11 @@ static void AddEssentialImages(void)
 
 		def->Default();
 
-		def->ddf.name.Set("DLIGHT_EXP");
+		def->ddf.name = ("DLIGHT_EXP");
 		def->ddf.number = 0;
 		def->ddf.crc.Reset();
 
-		def->name.Set("DLITEXPN");
+		def->name = ("DLITEXPN");
 
 		def->belong  = INS_Graphic;
 		def->type    = IMGDT_Lump;
@@ -258,7 +258,7 @@ static void AddEssentialImages(void)
 
 		def->Default();
 
-		def->ddf.name.Set("FUZZ_MAP");
+		def->ddf.name =  ("FUZZ_MAP");
 		def->ddf.number = 0;
 		def->ddf.crc.Reset();
 
@@ -278,7 +278,7 @@ static void AddEssentialImages(void)
 
 		def->Default();
 
-		def->ddf.name.Set("CON_FONT_2");
+		def->ddf.name = ("CON_FONT_2");
 		def->ddf.number = 0;
 		def->ddf.crc.Reset();
 
