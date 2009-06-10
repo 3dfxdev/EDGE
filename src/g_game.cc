@@ -140,6 +140,8 @@ cvar_c g_weaponswitch;
 
 cvar_c debug_nomonsters;
 
+cvar_c edge_compat;
+
 // FIXME: these probably should be done another way
 cvar_c g_itemrespawn;
 cvar_c g_teamdamage;

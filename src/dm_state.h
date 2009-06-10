@@ -44,6 +44,8 @@ class image_c;
 
 extern bool devparm;  // DEBUG: launched with -devparm
 
+extern cvar_c edge_compat;
+
 extern cvar_c g_mlook;
 extern cvar_c g_autoaim;
 extern cvar_c g_jumping;

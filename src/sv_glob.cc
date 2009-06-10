@@ -70,7 +70,7 @@ static const global_command_t global_commands[] =
 {
 	{ "GAME",  GV_GetString, GV_PutString, GLOB_OFF(game) },
 	{ "LEVEL", GV_GetString, GV_PutString, GLOB_OFF(level) },
-	{ "GRAVITY", GV_GetInt, GV_PutInt, GLOB_OFF(flags.menu_grav) },
+///	{ "GRAVITY", GV_GetInt, GV_PutInt, GLOB_OFF(flags.menu_grav) },
 	{ "LEVEL_TIME", GV_GetInt, GV_PutInt, GLOB_OFF(level_time) },
 	{ "EXIT_TIME", GV_GetInt, GV_PutInt, GLOB_OFF(exit_time) },
 	{ "P_RANDOM", GV_GetInt, GV_PutInt, GLOB_OFF(p_random) },

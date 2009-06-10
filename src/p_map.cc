@@ -1598,18 +1598,6 @@ mobj_t *DoMapTargetAutoAim(mobj_t * source, angle_t angle, float distance, bool 
 	if (! aim_I.target)
 		return NULL;
 
-//??	// -KM- 1999/01/31 Look at the thing you aimed at.  Is sometimes
-//??	//   useful, sometimes annoying :-)
-//??	if (source->player && level_flags.autoaim == AA_MLOOK)
-//??	{
-//??		float slope = P_ApproxSlope(source->x - aim_I.target->x,
-//??				source->y - aim_I.target->y, aim_I.target->z - source->z);
-//??
-//??		slope = CLAMP(-1.0f, slope, 1.0f);
-//??
-//??		source->vertangle = M_ATan(slope);
-//??	}
-
 	return aim_I.target;
 }
 

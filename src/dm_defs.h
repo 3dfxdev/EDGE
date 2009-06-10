@@ -85,49 +85,6 @@ typedef enum
 }
 skill_t;
 
-// -KM- 1998/12/16 Added gameflags typedef here.
-typedef enum
-{
-	AA_OFF,
-	AA_ON,
-	AA_MLOOK
-}
-autoaim_t;
-
-typedef struct gameflags_s
-{
-	// checkparm of -nomonsters
-	bool nomonsters;
-
-	// checkparm of -fast
-	bool fastparm;
-
-	bool respawn;
-	bool res_respawn;
-	bool itemrespawn;
-
-	bool true3dgameplay;
-	int menu_grav;
-	bool more_blood;
-
-	bool jump;
-	bool crouch;
-	bool mlook;
-	autoaim_t autoaim;
-
-	bool cheats;
-	bool have_extra;
-	bool limit_zoom;
-	bool shadows;
-	bool halos;
-
-	bool edge_compat;
-	bool kicking;
-	bool weapon_switch;
-	bool pass_missile;
-	bool team_damage;
-}
-gameflags_t;
 
 #define  VISIBLE (1.0f)
 #define  VISSTEP (1.0f/256.0f)
