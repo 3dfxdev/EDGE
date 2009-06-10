@@ -176,6 +176,7 @@ static const commandlist_t linedef_commands[] =
 	DF("EXIT", e_exit, DDF_SectGetExit),
 	DF("HUB_EXIT", hub_exit, DDF_MainGetNumeric),
 
+	// FIXME: WTF
 	{"SCROLL", DDF_LineGetScroller, &s_dir, NULL},
 	{"SCROLLING_SPEED", DDF_MainGetFloat, &s_speed, NULL},
 
@@ -192,12 +193,12 @@ static const commandlist_t linedef_commands[] =
 	DF("MUSIC", music, DDF_MainGetNumeric),
 	DF("AUTO", autoline, DDF_MainGetBoolean),
 	DF("SINGLESIDED", singlesided, DDF_MainGetBoolean),
-	DF("EXTRAFLOOR_TYPE", ddf, DDF_LineGetExtraFloor),
-	DF("EXTRAFLOOR_CONTROL", ddf, DDF_LineGetEFControl),
+	DF("EXTRAFLOOR_TYPE", ef.type, DDF_LineGetExtraFloor),
+	DF("EXTRAFLOOR_CONTROL", ef.control, DDF_LineGetEFControl),
 	DF("TRANSLUCENCY", translucency, DDF_MainGetPercent),
 	DF("WHEN_APPEAR", appear, DDF_MainGetWhenAppear),
 	DF("SPECIAL", special_flags, DDF_LineGetSpecialFlags),
-	DF("RADIUS_TRIGGER", ddf, DDF_LineGetRadTrig),
+	DF("RADIUS_TRIGGER", trigger_effect, DDF_LineGetRadTrig),
 	DF("LINE_EFFECT", line_effect, DDF_LineGetLineEffect),
 	DF("LINE_PARTS",  line_parts,  DDF_LineGetScrollPart),
 	DF("SECTOR_EFFECT", sector_effect, DDF_LineGetSectorEffect),
@@ -294,9 +295,6 @@ s_activators[] =
 //  DDF PARSE ROUTINES
 //
 
-//
-// LinedefStartEntry
-//
 static bool LinedefStartEntry(const char *name)
 {
 	int number = MAX(0, atoi(name));
@@ -328,9 +326,6 @@ static bool LinedefStartEntry(const char *name)
 	return (existing != NULL);
 }
 
-//
-// LinedefParseField
-//
 static void LinedefParseField(const char *field, const char *contents,
 							  int index, bool is_last)
 {
@@ -344,9 +339,6 @@ static void LinedefParseField(const char *field, const char *contents,
 	DDF_WarnError2(128, "Unknown lines.ddf command: %s\n", field);
 }
 
-//
-// LinedefFinishEntry
-//
 static void LinedefFinishEntry(void)
 {
 	// -KM- 1999/01/29 Convert old style scroller to new.
@@ -416,18 +408,12 @@ static void LinedefFinishEntry(void)
 	// FIXME: Do something!
 }
 
-//
-// LinedefClearAll
-//
 static void LinedefClearAll(void)
 {
 	// it is safe to just delete all the lines
 	linetypes.Reset();
 }
 
-//
-// DDF_ReadLines
-//
 bool DDF_ReadLines(void *data, int size)
 {
 	readinfo_t lines;
@@ -458,9 +444,6 @@ bool DDF_ReadLines(void *data, int size)
 	return DDF_MainReadFile(&lines);
 }
 
-//
-// DDF_LinedefInit
-//
 void DDF_LinedefInit(void)
 {
 	linetypes.Reset();
@@ -475,9 +458,6 @@ void DDF_LinedefInit(void)
 	linetypes.Insert(l);
 }
 
-//
-// DDF_LinedefCleanUp
-//
 void DDF_LinedefCleanUp(void)
 {
 	epi::array_iterator_c it;
@@ -502,8 +482,6 @@ void DDF_LinedefCleanUp(void)
 }
 
 //
-// DDF_LineGetScroller
-//
 // Check for scroll types
 //
 void DDF_LineGetScroller(const char *info, void *storage)
@@ -520,9 +498,7 @@ void DDF_LineGetScroller(const char *info, void *storage)
 }
 
 //
-// DDF_LineGetSecurity
-//
-// Get Red/Blue/Yellow
+// Get Red/Blue/Yellow keys
 //
 void DDF_LineGetSecurity(const char *info, void *storage)
 {
@@ -558,8 +534,6 @@ void DDF_LineGetSecurity(const char *info, void *storage)
 }
 
 //
-// DDF_LineGetTrigType
-//
 // Check for walk/push/shoot
 //
 void DDF_LineGetTrigType(const char *info, void *storage)
@@ -586,8 +560,6 @@ void DDF_LineGetTrigType(const char *info, void *storage)
 	DDF_WarnError2(129, "Unknown Trigger type %s\n", info);
 }
 
-//
-// DDF_LineGetActivators
 //
 // Get player/monsters/missiles
 //
@@ -630,8 +602,7 @@ static specflags_t extrafloor_types[] =
 	{NULL, 0, 0}
 };
 
-//
-// DDF_LineGetExtraFloor
+
 //
 // Gets the extra floor type(s).
 //
@@ -640,27 +611,27 @@ static specflags_t extrafloor_types[] =
 //
 void DDF_LineGetExtraFloor(const char *info, void *storage)
 {
-	int flag_value;
+	extrafloor_type_e *type = (extrafloor_type_e *)storage;
 
 	if (DDF_CompareName(info, "NONE") == 0)
 	{
-		buffer_line.ef.type = EXFL_None;
+		*type = EXFL_None;
 		return;
 	}
 
-	switch (DDF_MainCheckSpecialFlag(info, extrafloor_types,
-		&flag_value, true, false))
+	int value;
+
+	switch (DDF_MainCheckSpecialFlag(info, extrafloor_types, &value, true))
 	{
 		case CHKF_Positive:
-			buffer_line.ef.type = (extrafloor_type_e)(buffer_line.ef.type | flag_value);
+			*type = (extrafloor_type_e)(*type | value);
 			break;
 
 		case CHKF_Negative:
-			buffer_line.ef.type = (extrafloor_type_e)(buffer_line.ef.type & ~flag_value);
+			*type = (extrafloor_type_e)(*type & ~value);
 			break;
 
-		case CHKF_User:
-		case CHKF_Unknown:
+		default:
 			DDF_WarnError2(129, "Unknown Extrafloor Type: %s\n", info);
 			break;
 	}
@@ -673,22 +644,21 @@ static specflags_t ef_control_types[] =
 	{NULL, 0, 0}
 };
 
-//
-// DDF_LineGetEFControl
-//
+
 void DDF_LineGetEFControl(const char *info, void *storage)
 {
-	int flag_value;
+	extrafloor_control_e *control = (extrafloor_control_e *)storage;
 
-	switch (DDF_MainCheckSpecialFlag(info, ef_control_types, &flag_value, false, false))
+	int value;
+
+	switch (DDF_MainCheckSpecialFlag(info, ef_control_types, &value))
 	{
 		case CHKF_Positive:
 		case CHKF_Negative:
-			buffer_line.ef.control = (extrafloor_control_e)(flag_value);
+			*control = (extrafloor_control_e)(value);
 			break;
 
-		case CHKF_User:
-		case CHKF_Unknown:
+		default:
 			DDF_WarnError("Unknown CONTROL_EXTRAFLOOR tag: %s", info);
 			break;
 	}
@@ -723,29 +693,27 @@ static specflags_t teleport_specials[] =
 };
 
 //
-// DDF_LineGetTeleportSpecial
-//
 // Gets the teleporter special flags.
 //
 // -AJA- 1999/07/12: written.
 //
 void DDF_LineGetTeleportSpecial(const char *info, void *storage)
 {
-	int flag_value;
+	teleportspecial_e *dest = (teleportspecial_e *)storage;
 
-	switch (DDF_MainCheckSpecialFlag(info, teleport_specials,
-		&flag_value, true, false))
+	int value;
+
+	switch (DDF_MainCheckSpecialFlag(info, teleport_specials, &value, true))
 	{
 		case CHKF_Positive:
-			buffer_line.t.special = (teleportspecial_e)(buffer_line.t.special | flag_value);
+			*dest = (teleportspecial_e)(*dest | value);
 			break;
 
 		case CHKF_Negative:
-			buffer_line.t.special = (teleportspecial_e)(buffer_line.t.special & ~flag_value);
+			*dest = (teleportspecial_e)(*dest & ~value);
 			break;
 
-		case CHKF_User:
-		case CHKF_Unknown:
+		default:
 			DDF_WarnError("DDF_LineGetTeleportSpecial: Unknown Special: %s\n", info);
 			break;
 	}
@@ -767,15 +735,12 @@ static specflags_t scrollpart_specials[] =
 };
 
 //
-// DDF_LineGetScrollPart
-//
 // Gets the scroll part flags.
 //
 // -AJA- 1999/07/12: written.
 //
 void DDF_LineGetScrollPart(const char *info, void *storage)
 {
-	int flag_value;
 	scroll_part_e *dest = (scroll_part_e *)storage;
 
 	if (DDF_CompareName(info, "NONE") == 0)
@@ -784,19 +749,19 @@ void DDF_LineGetScrollPart(const char *info, void *storage)
 		return;
 	}
 
-	switch (DDF_MainCheckSpecialFlag(info, scrollpart_specials,
-		&flag_value, true, false))
+	int value;
+
+	switch (DDF_MainCheckSpecialFlag(info, scrollpart_specials, &value, true))
 	{
 		case CHKF_Positive:
-			(*dest) = (scroll_part_e)((*dest) | flag_value);
+			(*dest) = (scroll_part_e)((*dest) | value);
 			break;
 
 		case CHKF_Negative:
-			(*dest) = (scroll_part_e)((*dest) & ~flag_value);
+			(*dest) = (scroll_part_e)((*dest) & ~value);
 			break;
 
-		case CHKF_User:
-		case CHKF_Unknown:
+		default:
 			DDF_WarnError("DDF_LineGetScrollPart: Unknown Part: %s", info);
 			break;
 	}
@@ -813,47 +778,45 @@ static specflags_t line_specials[] =
 };
 
 //
-// DDF_LineGetSpecialFlags
-//
 // Gets the line special flags.
 //
 void DDF_LineGetSpecialFlags(const char *info, void *storage)
 {
-	int flag_value;
+	line_special_e *flags = (line_special_e *)storage;
 
-	switch (DDF_MainCheckSpecialFlag(info, line_specials, &flag_value,
-		true, false))
+	int value;
+
+	switch (DDF_MainCheckSpecialFlag(info, line_specials, &value, true))
 	{
 	case CHKF_Positive:
-		buffer_line.special_flags = (line_special_e)(buffer_line.special_flags | flag_value);
+		*flags = (line_special_e)(*flags | value);
 		break;
 
 	case CHKF_Negative:
-		buffer_line.special_flags = (line_special_e)(buffer_line.special_flags & ~flag_value);
+		*flags = (line_special_e)(*flags & ~value);
 		break;
 
-	case CHKF_User:
-	case CHKF_Unknown:
+	default:
 		DDF_WarnError2(129, "Unknown line special: %s", info);
 		break;
 	}
 }
 
 //
-// DDF_LineGetRadTrig
-//
 // Gets the line's radius trigger effect.
 //
 static void DDF_LineGetRadTrig(const char *info, void *storage)
 {
+	int *trig = (int *)storage;
+
 	if (DDF_CompareName(info, "ENABLE_TAGGED") == 0)
 	{
-		buffer_line.trigger_effect = +1;
+		*trig = +1;
 		return;
 	}
-	if (DDF_CompareName(info, "DISABLE_TAGGED") == 0)
+	else if (DDF_CompareName(info, "DISABLE_TAGGED") == 0)
 	{
-		buffer_line.trigger_effect = -1;
+		*trig = -1;
 		return;
 	}
 
@@ -903,27 +866,28 @@ static specflags_t line_effect_names[] =
 //
 static void DDF_LineGetLineEffect(const char *info, void *storage)
 {
-	int flag_value;
+	line_effect_type_e *dest = (line_effect_type_e *)storage;
 
 	if (DDF_CompareName(info, "NONE") == 0)
 	{
-		buffer_line.line_effect = LINEFX_NONE;
+		*dest = LINEFX_NONE;
 		return;
 	}
 
+	int value;
+
 	switch (DDF_MainCheckSpecialFlag(info, line_effect_names,
-		&flag_value, true, false))
+		&value, true, false))
 	{
 		case CHKF_Positive:
-			buffer_line.line_effect = (line_effect_type_e)(buffer_line.line_effect | flag_value);
+			*dest = (line_effect_type_e)(*dest | value);
 			break;
 
 		case CHKF_Negative:
-			buffer_line.line_effect = (line_effect_type_e)(buffer_line.line_effect & ~flag_value);
+			*dest = (line_effect_type_e)(*dest & ~value);
 			break;
 
-		case CHKF_User:
-		case CHKF_Unknown:
+		default:
 			DDF_WarnError("Unknown line effect type: %s", info);
 			break;
 	}
@@ -956,26 +920,27 @@ static specflags_t sector_effect_names[] =
 //
 static void DDF_LineGetSectorEffect(const char *info, void *storage)
 {
-	int flag_value;
+	sector_effect_type_e *sect_fx = (sector_effect_type_e *)storage;
 
 	if (DDF_CompareName(info, "NONE") == 0)
 	{
-		buffer_line.sector_effect = SECTFX_None;
+		*sect_fx = SECTFX_None;
 		return;
 	}
 
-	switch (DDF_MainCheckSpecialFlag(info, sector_effect_names, &flag_value, true, false))
+	int value;
+
+	switch (DDF_MainCheckSpecialFlag(info, sector_effect_names, &value, true, false))
 	{
 		case CHKF_Positive:
-			buffer_line.sector_effect = (sector_effect_type_e)(buffer_line.sector_effect | flag_value);
+			*sect_fx = (sector_effect_type_e)(*sect_fx | value);
 			break;
 
 		case CHKF_Negative:
-			buffer_line.sector_effect = (sector_effect_type_e)(buffer_line.sector_effect & ~flag_value);
+			*sect_fx = (sector_effect_type_e)(*sect_fx & ~value);
 			break;
 
-		case CHKF_User:
-		case CHKF_Unknown:
+		default:
 			DDF_WarnError("Unknown sector effect type: %s", info);
 			break;
 	}
@@ -995,26 +960,27 @@ static specflags_t portal_effect_names[] =
 //
 static void DDF_LineGetPortalEffect(const char *info, void *storage)
 {
-	int flag_value;
+	portal_effect_type_e *port_fx = (portal_effect_type_e *)storage;
 
 	if (DDF_CompareName(info, "NONE") == 0)
 	{
-		buffer_line.portal_effect = PORTFX_None;
+		*port_fx = PORTFX_None;
 		return;
 	}
 
-	switch (DDF_MainCheckSpecialFlag(info, portal_effect_names, &flag_value, true, false))
+	int value;
+
+	switch (DDF_MainCheckSpecialFlag(info, portal_effect_names, &value, true, false))
 	{
 		case CHKF_Positive:
-			buffer_line.portal_effect = (portal_effect_type_e)(buffer_line.portal_effect | flag_value);
+			*port_fx = (portal_effect_type_e)(*port_fx | value);
 			break;
 
 		case CHKF_Negative:
-			buffer_line.portal_effect = (portal_effect_type_e)(buffer_line.portal_effect & ~flag_value);
+			*port_fx = (portal_effect_type_e)(*port_fx & ~value);
 			break;
 
-		case CHKF_User:
-		case CHKF_Unknown:
+		default:
 			DDF_WarnError("Unknown portal type: %s", info);
 			break;
 	}
@@ -1030,26 +996,27 @@ static specflags_t slope_type_names[] =
 
 static void DDF_LineGetSlopeType(const char *info, void *storage)
 {
-	int flag_value;
+	slope_type_e *sltype = (slope_type_e *)storage;
 
 	if (DDF_CompareName(info, "NONE") == 0)
 	{
-		buffer_line.slope_type = SLP_NONE;
+		*sltype = SLP_NONE;
 		return;
 	}
 
-	switch (DDF_MainCheckSpecialFlag(info, slope_type_names, &flag_value, true, false))
+	int value;
+
+	switch (DDF_MainCheckSpecialFlag(info, slope_type_names, &value, true))
 	{
 		case CHKF_Positive:
-			buffer_line.slope_type = (slope_type_e)(buffer_line.slope_type | flag_value);
+			*sltype = (slope_type_e)(*sltype | value);
 			break;
 
 		case CHKF_Negative:
-			buffer_line.slope_type = (slope_type_e)(buffer_line.slope_type & ~flag_value);
+			*sltype = (slope_type_e)(*sltype & ~value);
 			break;
 
-		case CHKF_User:
-		case CHKF_Unknown:
+		default:
 			DDF_WarnError("Unknown slope type: %s", info);
 			break;
 	}
@@ -1057,6 +1024,7 @@ static void DDF_LineGetSlopeType(const char *info, void *storage)
 
 static void DDF_LineMakeCrush(const char *info, void *storage)
 {
+	// FIXME
 	buffer_line.f.crush_damage = 10;
 	buffer_line.c.crush_damage = 10;
 }
@@ -1740,9 +1708,6 @@ linetype_container_c::~linetype_container_c()
 	Clear();
 }
 
-//
-// linetype_container_c::CleanupObject
-//
 void linetype_container_c::CleanupObject(void *obj)
 {
 	linetype_c *l = *(linetype_c**)obj;
@@ -1753,8 +1718,6 @@ void linetype_container_c::CleanupObject(void *obj)
 	return;
 }
 
-//
-// linetype_c* linetype_container_c::Lookup()
 //
 // Looks an linetype by id, returns NULL if line can't be found.
 //
@@ -1790,8 +1753,6 @@ linetype_c* linetype_container_c::Lookup(const int id)
 	return l;
 }
 
-//
-// linetype_container_c::Reset()
 //
 // Clears down both the data and the cache
 //

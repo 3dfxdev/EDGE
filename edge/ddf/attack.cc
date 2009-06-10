@@ -74,8 +74,8 @@ static const commandlist_t attack_commands[] =
 	// sub-commands
 	DDF_SUB_LIST("DAMAGE", damage, damage_commands, buffer_damage),
 
-	DF("ATTACKTYPE", ddf, DDF_AtkGetType),
-	DF("ATTACK_SPECIAL", ddf, DDF_AtkGetSpecial),
+	DF("ATTACKTYPE", attackstyle, DDF_AtkGetType),
+	DF("ATTACK_SPECIAL", flags, DDF_AtkGetSpecial),
 	DF("ACCURACY_SLOPE", accuracy_slope, DDF_MainGetSlope),
 	DF("ACCURACY_ANGLE", accuracy_angle, DDF_MainGetAngle),
 	DF("ATTACK_HEIGHT", height, DDF_MainGetFloat),
@@ -339,25 +339,27 @@ static const specflags_t attack_specials[] =
 
     // -AJA- backwards compatibility cruft...
     {"!NOAMMO", AF_None, 0},
+
     {NULL, AF_None, 0}
 };
 
 static void DDF_AtkGetSpecial(const char *info, void *storage)
 {
-	int flag_value;
+	attackflags_e *flags = (attackflags_e *)storage;
 
-	switch (DDF_MainCheckSpecialFlag(info, attack_specials, &flag_value, true, false))
+	int value;
+
+	switch (DDF_MainCheckSpecialFlag(info, attack_specials, &value, true))
 	{
 		case CHKF_Positive:
-			buffer_atk.flags = (attackflags_e)(buffer_atk.flags | flag_value);
+			*flags = (attackflags_e)(*flags | value);
 			break;
     
 		case CHKF_Negative:
-			buffer_atk.flags = (attackflags_e)(buffer_atk.flags & ~flag_value);
+			*flags = (attackflags_e)(*flags & ~value);
 			break;
 
-		case CHKF_User:
-		case CHKF_Unknown:
+		default:
 			DDF_WarnError2(128, "DDF_AtkGetSpecials: Unknown Attack Special: %s\n", info);
 			break;
 	}
@@ -383,26 +385,23 @@ static const char *attack_class[NUMATKCLASS] =
 
 static void DDF_AtkGetType(const char *info, void *storage)
 {
-	int i;
+	attackstyle_e *atkst = (attackstyle_e *)storage;
 
-	i = 0;
+	int i = 0;
 
-	while (i != NUMATKCLASS && DDF_CompareName(info, attack_class[i]))
+	while (i != NUMATKCLASS && DDF_CompareName(info, attack_class[i]) != 0)
 		i++;
 
 	if (i == NUMATKCLASS)
 	{
 		DDF_WarnError2(128, "DDF_AtkGetType: No such attack type '%s'\n", info);
-		buffer_atk.attackstyle = ATK_SHOT;
+		*atkst = ATK_SHOT;
 		return;
 	}
   
-	buffer_atk.attackstyle = (attackstyle_e)i;
+	*atkst = (attackstyle_e)i;
 }
 
-//
-// DDF_AtkGetLabel
-//
 static void DDF_AtkGetLabel(const char *info, void *storage)
 {
 	label_offset_c *lab = (label_offset_c *)storage;
@@ -444,18 +443,12 @@ atkdef_c::~atkdef_c()
 {
 }
 
-//
-// atkdef_c::Copy()
-//
 void atkdef_c::Copy(atkdef_c &src)
 {
 	ddf = src.ddf;
 	CopyDetail(src);
 }
 
-//
-// atkdef_c::CopyDetail()
-//
 void atkdef_c::CopyDetail(atkdef_c &src)
 {
 	attackstyle = src.attackstyle;
@@ -491,9 +484,6 @@ void atkdef_c::CopyDetail(atkdef_c &src)
 	puff_ref = src.puff_ref;
 }
 
-//
-// atkdef_c::Default()
-//
 void atkdef_c::Default()
 {
 	ddf.Default();
