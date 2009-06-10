@@ -1,5 +1,17 @@
 Andrew Apted's Log
 
+2009/06/10:
+
+Reworked the MPF_XXX level specials to be a simple flag
+(instead of the force_on, force_off duality), and removed
+some not very useful settings (e.g. MPF_WeaponSwitch).
+
+In a similar vein, replaced the 'global_flags' with cvars
+(such as g_mlook, g_true3d etc), and completely removed
+the 'level_flags' variable -- instead checking either the
+related cvar or the new 'map_features' bitmask (or both).
+Now all the nasty HANDLE_FLAG() stuff is gone.
+
 2009/06/08:
 
 Worked on our console.  Using and editing previous commands
