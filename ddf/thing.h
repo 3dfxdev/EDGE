@@ -728,6 +728,7 @@ public:
 	float step_size;
 	float mass;
 
+	// Note: these flag fields must stay together
 	int flags;
 	int extendedflags;
 	int hyperflags;

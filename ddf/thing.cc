@@ -107,9 +107,9 @@ const commandlist_t thing_commands[] =
 	DF("MASS", mass, DDF_MainGetFloat),
 	DF("SPEED", speed, DDF_MainGetFloat),
 	DF("FAST", fast, DDF_MainGetFloat),
-	DF("SPECIAL", ddf, DDF_MobjGetSpecial),
-	DF("EXTRA", ddf, DDF_MobjGetExtra),
-	DF("PROJECTILE_SPECIAL", ddf, DDF_MobjGetSpecial),
+	DF("SPECIAL", flags, DDF_MobjGetSpecial),
+	DF("PROJECTILE_SPECIAL", flags, DDF_MobjGetSpecial),
+	DF("EXTRA", extendedflags, DDF_MobjGetExtra),
 	DF("RESPAWN_TIME", respawntime, DDF_MainGetTime),
 	DF("FUSE", fuse, DDF_MainGetTime),
 	DF("LIFESPAN", fuse, DDF_MainGetTime),
@@ -1296,75 +1296,66 @@ static specflags_t hyper_specials[] =
 	{NULL, 0, 0}
 };
 
-//
-// DDF_MobjGetSpecial
-//
-// Compares info the the entries in special flag lists.  If found
-// apply attribs for it to current buffer_mobj.
-//
+
 void DDF_MobjGetSpecial(const char *info, void *storage)
 {
-	int flag_value;
+	int *flags = (int *)storage;
+	int *extflags = flags + 1;  // ouch, a little hacky
+	int *hypflags = flags + 2;
 
 	// handle the "INVISIBLE" tag
 	if (DDF_CompareName(info, "INVISIBLE") == 0)
 	{
-		buffer_mobj.translucency = PERCENT_MAKE(0);
+//FIXME!!!		buffer_mobj.translucency = PERCENT_MAKE(0);
 		return;
 	}
 
-	// handle the "NOSHADOW" tag
+	// silently eat the "NOSHADOW" tag
 	if (DDF_CompareName(info, "NOSHADOW") == 0)
-	{
-		buffer_mobj.shadow_trans = PERCENT_MAKE(0);
 		return;
-	}
 
 	// the "MISSILE" tag needs special treatment, since it sets both
 	// normal flags & extended flags.
 	if (DDF_CompareName(info, "MISSILE") == 0)
 	{
-		buffer_mobj.flags |= MF_MISSILE;
-		buffer_mobj.extendedflags |= EF_CROSSLINES | EF_NOFRICTION;
+		*flags    |= MF_MISSILE;
+		*extflags |= EF_CROSSLINES | EF_NOFRICTION;
 		return;
 	}
 
-	int *flag_ptr = &buffer_mobj.flags; 
+	int value;
 
-	checkflag_result_e res =
-		DDF_MainCheckSpecialFlag(info, normal_specials,
-			&flag_value, true, false);
+	int *flag_ptr = flags;
 
-	if (res == CHKF_User || res == CHKF_Unknown)
+	checkflag_result_e res = DDF_MainCheckSpecialFlag(info, normal_specials, &value, true);
+
+	if (res == CHKF_Unknown)
 	{
 		// wasn't a normal special.  Try the extended ones...
-		flag_ptr = &buffer_mobj.extendedflags;
+		flag_ptr = extflags;
 
-		res = DDF_MainCheckSpecialFlag(info, extended_specials,
-				&flag_value, true, false);
+		res = DDF_MainCheckSpecialFlag(info, extended_specials, &value, true);
 	}
 
-	if (res == CHKF_User || res == CHKF_Unknown)
+	if (res == CHKF_Unknown)
 	{
 		// -AJA- 2004/08/25: Try the hyper specials...
-		flag_ptr = &buffer_mobj.hyperflags;
+		flag_ptr = hypflags;
 
-		res = DDF_MainCheckSpecialFlag(info, hyper_specials,
-				&flag_value, true, false);
+		res = DDF_MainCheckSpecialFlag(info, hyper_specials, &value, true);
 	}
 
 	switch (res)
 	{
 		case CHKF_Positive:
-			*flag_ptr |= flag_value;
+			*flag_ptr |= value;
 			break;
 
 		case CHKF_Negative:
-			*flag_ptr &= ~flag_value;
+			*flag_ptr &= ~value;
 			break;
 
-		case CHKF_User:
-		case CHKF_Unknown:
+		default:
 			DDF_WarnError2(128, "DDF_MobjGetSpecial: Unknown special '%s'\n", info);
 			break;
 	}
@@ -1405,24 +1396,20 @@ void DDF_MobjGetDLight(const char *info, void *storage)
 }
 
 //
-// DDF_MobjGetExtra
-//
 // The "EXTRA" field. FIXME: Improve the system.
 //
 void DDF_MobjGetExtra(const char *info, void *storage)
 {
+	int *extflags = (int *)storage;
+
 	// If NULL is passed, then the mobj is not marked as extra. Otherwise,
 	// it is (in the future, we may support a system where extras can be split
 	// up into several subsets, which can be individually toggled, based
 	// on the EXTRA= value).
 	if (!DDF_CompareName(info, "NULL"))
-	{
-		buffer_mobj.extendedflags &= ~EF_EXTRA;
-	}
+		*extflags &= ~EF_EXTRA;
 	else
-	{
-		buffer_mobj.extendedflags |= EF_EXTRA;
-	}
+		*extflags |=  EF_EXTRA;
 }
 
 //
