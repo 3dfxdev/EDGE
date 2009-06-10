@@ -2,7 +2,7 @@
 //  EDGE Data Definition File Code (Level Defines)
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -28,7 +28,7 @@
 #undef  DF
 #define DF  DDF_CMD
 
-static void DDF_LevelGetSpecials(const char *info, void *storage);
+       void DDF_LevelGetSpecials(const char *info, void *storage);
 static void DDF_LevelGetPic(const char *info, void *storage);
 static void DDF_LevelGetWistyle(const char *info, void *storage);
 
@@ -91,39 +91,24 @@ static const commandlist_t level_commands[] =
 	DDF_CMD_END
 };
 
-static specflags_t deprec_map_specials[] =
-{
-    {"TRANSLUCENCY", 0, 0},
-    {NULL, 0, 0}
-};
-
 static specflags_t map_specials[] =
 {
-    {"JUMPING", MPF_Jumping, 0},
-    {"MLOOK", MPF_Mlook, 0},
-    {"FREELOOK", MPF_Mlook, 0},  // -AJA- backwards compat.
-    {"CHEATS", MPF_Cheats, 0},
-    {"ITEM_RESPAWN", MPF_ItemRespawn, 0},
-    {"FAST_MONSTERS", MPF_FastParm, 0},
-    {"RESURRECT_RESPAWN", MPF_ResRespawn, 0},
-    {"TELEPORT_RESPAWN", MPF_ResRespawn, 1},
-    {"STRETCH_SKY", MPF_StretchSky, 0},
-    {"NORMAL_SKY", MPF_StretchSky, 1},
-    {"TRUE3D", MPF_True3D, 0},
-    {"ENEMY_STOMP", MPF_Stomp, 0},
-    {"MORE_BLOOD", MPF_MoreBlood, 0},
-    {"NORMAL_BLOOD", MPF_MoreBlood, 1},
-    {"RESPAWN", MPF_Respawn, 0},
-    {"AUTOAIM", MPF_AutoAim, 0},
-    {"AA_MLOOK", MPF_AutoAimMlook, 0},
-    {"EXTRAS", MPF_Extras, 0},
-    {"RESET_PLAYER", MPF_ResetPlayer, 0},
-    {"LIMIT_ZOOM", MPF_LimitZoom, 0},
-    {"SHADOWS", MPF_Shadows, 0},
-    {"HALOS", MPF_Halos, 0},
-    {"CROUCHING", MPF_Crouching, 0},
-    {"WEAPON_KICK", MPF_Kicking, 0},
-    {"BOOM_COMPAT", MPF_BoomCompat, 0},
+    {"CHEATS",   MPF_NoCheats, 1},
+    {"JUMPING",  MPF_NoJumping, 1},
+    {"MLOOK",    MPF_NoMLook, 1},
+    {"FREELOOK", MPF_NoMLook, 1},  // -AJA- backwards compat.
+
+    {"CROUCHING",    MPF_NoCrouching, 1},
+    {"TRUE3D",       MPF_NoTrue3D, 1},
+    {"MOREBLOOD",    MPF_NoMoreBlood, 1},
+    {"NORMAL_BLOOD", MPF_NoMoreBlood, 0},
+
+    {"ITEM_RESPAWN",  MPF_ItemRespawn, 0},
+    {"FAST_MONSTERS", MPF_FastMon, 0},
+    {"ENEMY_STOMP",   MPF_Stomp, 0},
+    {"RESET_PLAYER",  MPF_ResetPlayer, 0},
+    {"LIMIT_ZOOM",    MPF_LimitZoom, 0},
+
     {NULL, 0, 0}
 };
 
@@ -269,45 +254,23 @@ void DDF_LevelGetPic(const char *info, void *storage)
 void DDF_LevelGetSpecials(const char *info, void *storage)
 {
 	// -AJA- 2000/02/02: reworked this for new system.
-
 	int flag_value;
 
-    // Handle depreciated flags
-	switch (DDF_MainCheckSpecialFlag(info, deprec_map_specials, 
-                                     &flag_value, true, true))
-	{
-		case CHKF_Positive:
-		case CHKF_Negative:
-		case CHKF_User:
-            DDF_Warning("Level special '%s' deprecated.\n", info);
-            return;
-            break;
-
-		case CHKF_Unknown:
-			break;
-    }
+	int *dest = (int *)storage;
 
     // Handle working flags
-	switch (DDF_MainCheckSpecialFlag(info, map_specials, 
-                                     &flag_value, true, true))
+	switch (DDF_MainCheckSpecialFlag(info, map_specials, &flag_value, true))
 	{
 		case CHKF_Positive:
-			buffer_map.force_on  |=  flag_value;
-			buffer_map.force_off &= ~flag_value;
+			*dest |= flag_value;
 			break;
 
 		case CHKF_Negative:
-			buffer_map.force_on  &= ~flag_value;
-			buffer_map.force_off |= flag_value;
+			*dest &= ~flag_value;
 			break;
 
-		case CHKF_User:
-			buffer_map.force_on  &= ~flag_value;
-			buffer_map.force_off &= ~flag_value;
-			break;
-
-		case CHKF_Unknown:
-			DDF_WarnError("DDF_LevelGetSpecials: Unknown level special: %s", info);
+		default:
+			DDF_Warning("Unknown level special: %s", info);
 			break;
 	}
 }
@@ -433,8 +396,7 @@ void mapdef_c::CopyDetail(mapdef_c &src)
 	
 	episode_name = src.episode_name;
 	
-	force_on = src.force_on;
-	force_off = src.force_off;
+	features = src.features;
 
 	nextmapname = src.nextmapname;
 	secretmapname = src.secretmapname;
@@ -463,8 +425,7 @@ void mapdef_c::Default()
 	episode = NULL;
 	episode_name.clear();	
 
-	force_on = MPF_None;
-	force_off = MPF_None;
+	features = MPF_NONE;
 
 	nextmapname.clear();
 	secretmapname.clear();

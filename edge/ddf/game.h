@@ -2,7 +2,7 @@
 //  EDGE Data Definition File Code (Main)
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -211,6 +211,9 @@ public:
 	int special_music;
 
 	lighting_model_e lighting;
+
+	// contains a bitmask of MPF_XXX flags
+	int features;
 };
 
 class gamedef_container_c : public epi::array_c
