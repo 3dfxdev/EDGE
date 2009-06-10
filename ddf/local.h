@@ -276,7 +276,8 @@ void DDF_DummyFunction (const char *info, void *storage);
 
 checkflag_result_e DDF_MainCheckSpecialFlag(const char *name,
 			      const specflags_t * flag_set, int *flag_value,
-			      bool allow_prefixes, bool allow_user);
+			      bool allow_prefixes = false,
+				  bool allow_user = false);
 
 int DDF_MainLookupDirector (const mobjtype_c * obj, const char *info);
 

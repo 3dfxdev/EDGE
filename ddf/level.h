@@ -2,7 +2,7 @@
 //  EDGE Data Definition File Code (Main)
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -69,38 +69,27 @@ public:
 
 typedef enum
 {
-	MPF_None          = 0x0,
+	MPF_NONE          = 0x0,
 
-	MPF_Jumping       = (1 << 0),
-	MPF_Mlook         = (1 << 1),
-	MPF_Cheats        = (1 << 3),
+	MPF_NoCheats      = (1 << 3),
+	MPF_NoJumping     = (1 << 0),
+	MPF_NoMLook       = (1 << 1),
+	MPF_NoCrouching   = (1 << 19),
+	MPF_NoTrue3D      = (1 << 8),    // DOOM 2D physics
+	MPF_NoMoreBlood   = (1 << 10),   // Make a bloody mess
+
 	MPF_ItemRespawn   = (1 << 4),
-	MPF_FastParm      = (1 << 5),     // Fast Monsters
-	MPF_ResRespawn    = (1 << 6),     // Resurrect Monsters (else Teleport)
-	MPF_StretchSky    = (1 << 7),
-
-	MPF_True3D        = (1 << 8),    // True 3D Gameplay
+	MPF_MonRespawn    = (1 << 11),
+	MPF_FastMon       = (1 << 5),    // Fast Monsters
 	MPF_Stomp         = (1 << 9),    // Monsters can stomp players
-	MPF_MoreBlood     = (1 << 10),    // Make a bloody mess
-	MPF_Respawn       = (1 << 11),
-	MPF_AutoAim       = (1 << 12),
-	MPF_AutoAimMlook  = (1 << 13),
 	MPF_ResetPlayer   = (1 << 14),   // Force player back to square #1
-	MPF_Extras        = (1 << 15),
-
-	MPF_LimitZoom     = (1 << 16),  // Limit zoom to certain weapons
-	MPF_Shadows       = (1 << 17),
-	MPF_Halos         = (1 << 18),
-	MPF_Crouching     = (1 << 19),
-	MPF_Kicking       = (1 << 20), // Weapon recoil
-	MPF_BoomCompat    = (1 << 21),
-	MPF_WeaponSwitch  = (1 << 22),
-	MPF_NoMonsters    = (1 << 23), // (Only for demos!)
-
-	MPF_PassMissile   = (1 << 24),
-	MPF_TeamDamage    = (1 << 25),
+	MPF_LimitZoom     = (1 << 16),   // Limit zoom to certain weapons
 }
-mapsettings_e;
+map_setting_e;
+
+#define MPF_ALL_NEGATIVES  \
+	(MPF_NoCheats | MPF_NoJumping | MPF_NoMLook |  \
+	 MPF_NoCrouching | MPF_NoTrue3D | MPF_NoMoreBlood)
 
 typedef enum
 {
@@ -147,11 +136,8 @@ public:
 	gamedef_c *episode;  // set during DDF_CleanUp
 	epi::strent_c episode_name;			
 
-	// flags come in two flavours: "force on" and "force off".  When not
-	// forced, then the user is allowed to control it (not applicable to
-	// all the flags, e.g. RESET_PLAYER).
-	int force_on;
-	int force_off;
+	// contains a bitmask of MPF_XXX flags
+	int features;
 
 	// name of the next normal level
 	lumpname_c nextmapname;

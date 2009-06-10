@@ -2,7 +2,7 @@
 //  EDGE Data Definition File Code (Game settings)
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -38,6 +38,9 @@ static void DDF_GameGetAnim(const char *info, void *storage);
 static void DDF_GameGetMap (const char *info, void *storage);
 static void DDF_GameGetLighting(const char *info, void *storage);
 
+extern void DDF_LevelGetSpecials(const char *info, void *storage);
+
+
 #define DDF_CMD_BASE  buffer_gamedef
 
 static const commandlist_t gamedef_commands[] = 
@@ -60,6 +63,7 @@ static const commandlist_t gamedef_commands[] =
 	DF("TITLE_TIME", titletics, DDF_MainGetTime),
 	DF("SPECIAL_MUSIC", special_music, DDF_MainGetNumeric),
 	DF("LIGHTING", lighting, DDF_GameGetLighting),
+	DF("FEATURES", features, DDF_LevelGetSpecials),
 
 	// these don't quite fit in yet
 	DF("TITLE_GRAPHIC", ddf, DDF_GameGetPic),
@@ -770,6 +774,7 @@ void gamedef_c::CopyDetail(gamedef_c &src)
 
 	special_music = src.special_music;
 	lighting = src.lighting;
+	features = src.features;
 }
 
 //
@@ -808,6 +813,7 @@ void gamedef_c::Default()
 
 	special_music = 0;
 	lighting = LMODEL_Doom;
+	features = MPF_NONE;
 }
 
 //
