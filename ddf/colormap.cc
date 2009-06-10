@@ -74,7 +74,7 @@ static bool ColmapStartEntry(const char *name)
 		dynamic_colmap = new colourmap_c;
 
 		if (name && name[0])
-			dynamic_colmap->ddf.name.Set(name);
+			dynamic_colmap->ddf.name = name;
 		else
 			dynamic_colmap->ddf.SetUniqueName("UNNAMED_COLMAP", colourmaps.GetSize());
 
@@ -236,7 +236,7 @@ void DDF_ColourmapAddRaw(const char *lump_name, int size)
 
 	def->Default();
 
-	def->ddf.name.Set(lump_name);
+	def->ddf.name = lump_name;
 	def->ddf.number = 0;
 	def->ddf.crc.Reset();
 

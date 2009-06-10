@@ -2041,9 +2041,7 @@ void ddf_base_c::Default()
 //
 void ddf_base_c::SetUniqueName(const char *prefix, int num)
 {
-	std::string result = epi::STR_Format("_%s_%d\n", prefix, num);
-
-	name.Set(result.c_str());
+	name = epi::STR_Format("_%s_%d\n", prefix, num);
 }
 
 //

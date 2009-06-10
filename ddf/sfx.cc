@@ -97,7 +97,7 @@ static bool SoundStartEntry(const char *name)
 		dynamic_sfx = new sfxdef_c;
 
 		if (name && name[0])
-			dynamic_sfx->ddf.name.Set(name);
+			dynamic_sfx->ddf.name = name;
 		else
 			dynamic_sfx->ddf.SetUniqueName("UNNAMED_SOUND", sfxdefs.GetSize());
 

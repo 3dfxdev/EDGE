@@ -69,7 +69,7 @@ static bool SwitchStartEntry(const char *name)
 		dynamic_switchdef = new switchdef_c;
 		
 		if (name && name[0])
-			dynamic_switchdef->ddf.name.Set(name);
+			dynamic_switchdef->ddf.name = name;
 		else
 			dynamic_switchdef->ddf.SetUniqueName("UNNAMED_SWITCH", switchdefs.GetSize());
 		

@@ -263,7 +263,7 @@ static bool WeaponStartEntry(const char *name)
 		dynamic_weapon = new weapondef_c;
 
 		if (name && name[0])
-			dynamic_weapon->ddf.name.Set(name);
+			dynamic_weapon->ddf.name = name;
 		else
 			dynamic_weapon->ddf.SetUniqueName("UNNAMED_WEAPON", weapondefs.GetSize());
 

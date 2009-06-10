@@ -134,7 +134,7 @@ static bool LevelStartEntry(const char *name)
 		dynamic_map = new mapdef_c;
 
 		if (name && name[0])
-			dynamic_map->ddf.name.Set(name);
+			dynamic_map->ddf.name = name;
 		else
 			dynamic_map->ddf.SetUniqueName("UNNAMED_LEVEL_MAP", mapdefs.GetSize());
 

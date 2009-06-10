@@ -89,7 +89,7 @@ static bool AnimStartEntry(const char *name)
 		dynamic_anim = new animdef_c;
 
 		if (name && name[0])
-			dynamic_anim->ddf.name.Set(name);
+			dynamic_anim->ddf.name = name;
 		else
 			dynamic_anim->ddf.SetUniqueName("UNNAMED_ANIM", animdefs.GetSize());
 
