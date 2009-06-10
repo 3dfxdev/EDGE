@@ -333,8 +333,8 @@ static bool PIT_CheckAbsThing(mobj_t * thing, void *data)
 		if (tm_I.mover->source && tm_I.mover->source == thing)
 			return true;
 
-    if ((thing->hyperflags & HF_PASSMISSILE) && g_passmissile.d)
-      return true;
+		if ((thing->hyperflags & HF_PASSMISSILE) && g_passmissile.d)
+			return true;
 
 		// thing isn't shootable, return depending on if the thing is solid.
 		if (!(thing->flags & MF_SHOOTABLE))
@@ -1770,7 +1770,8 @@ static bool PIT_RadiusAttack(mobj_t * thing, void *data)
 	if (! (thing->flags & MF_SHOOTABLE))
 		return true;
 
-	if ((thing->hyperflags & HF_SIDEIMMUNE) && bomb_I.source &&
+	if ((thing->hyperflags & HF_SIDEIMMUNE) &&
+	    bomb_I.source && (thing != bomb_I.source) &&
 		(thing->side & bomb_I.source->side) != 0)
 	{
 		return true;
@@ -1810,7 +1811,7 @@ static bool PIT_RadiusAttack(mobj_t * thing, void *data)
 			P_ThrustMobj(thing, bomb_I.spot, bomb_I.damage * dist);
 		else
 			P_DamageMobj(thing, bomb_I.spot, bomb_I.source, 
-			bomb_I.damage * dist, bomb_I.damtype);
+				bomb_I.damage * dist, bomb_I.damtype);
 	}
 	return true;
 }
