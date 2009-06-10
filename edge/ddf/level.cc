@@ -83,7 +83,7 @@ static const commandlist_t level_commands[] =
 	DF("PARTIME", partime, DDF_MainGetTime),
 	DF("EPISODE", episode_name, DDF_MainGetString),
 	DF("STATS", wistyle, DDF_LevelGetWistyle),
-	DF("SPECIAL", ddf, DDF_LevelGetSpecials),
+	DF("SPECIAL", features, DDF_LevelGetSpecials),
 
 	// -AJA- backwards compatibility cruft...
 	DF("LIGHTING", ddf, DDF_DummyFunction),

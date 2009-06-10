@@ -2005,7 +2005,7 @@ const char *DDF_MainDecodeList(const char *info, char divider, bool simple)
 //
 // ddf_base_c Constructor
 //
-ddf_base_c::ddf_base_c()
+ddf_base_c::ddf_base_c() : name()
 {
 }
 
