@@ -2,7 +2,7 @@
 //  EDGE Global State Variables
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -44,9 +44,22 @@ class image_c;
 
 extern bool devparm;  // DEBUG: launched with -devparm
 
-extern gameflags_t global_flags;
+extern cvar_c g_mlook;
+extern cvar_c g_autoaim;
+extern cvar_c g_jumping;
+extern cvar_c g_crouching;
+extern cvar_c g_true3d;
+extern cvar_c g_noextra;
+extern cvar_c g_moreblood;
+extern cvar_c g_fastmon;
+extern cvar_c g_passmissile;
+extern cvar_c g_weaponkick;
+extern cvar_c g_weaponswitch;
 
-extern gameflags_t level_flags;
+extern cvar_c debug_nomonsters;
+
+extern cvar_c g_itemrespawn;
+extern cvar_c g_teamdamage;
 
 
 

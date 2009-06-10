@@ -2,7 +2,7 @@
 //  EDGE Radius Trigger Actions
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -441,11 +441,11 @@ void RAD_ActSpawnThing(rad_trigger_t *R, mobj_t *actor, void *param)
 		return;
 
 	// -AJA- 1999/10/02: -nomonsters check.
-	if (level_flags.nomonsters && (minfo->extendedflags & EF_MONSTER))
+	if ((debug_nomonsters.d || DEATHMATCH()) && (minfo->extendedflags & EF_MONSTER))
 		return;
 
 	// -AJA- 1999/10/07: -noextra check.
-	if (!level_flags.have_extra && (minfo->extendedflags & EF_EXTRA))
+	if (g_noextra.d && (minfo->extendedflags & EF_EXTRA))
 		return;
 
 	// -AJA- 1999/09/11: Support for supplying Z value.
@@ -842,8 +842,11 @@ void RAD_ActSkill(rad_trigger_t *R, mobj_t *actor, void *param)
 
 	gameskill = skill->skill;
 
-	level_flags.fastparm = skill->fastmonsters;
-	level_flags.respawn  = skill->respawn;
+	if (skill->fastmonsters)
+		map_features |= MPF_FastMon;
+	
+	if (gameskill == sk_nightmare)
+		map_features |= MPF_MonRespawn;
 }
 
 static void MoveOneSector(sector_t *sec, s_movesector_t *t)

@@ -2,7 +2,7 @@
 //  EDGE Interactions (picking up items etc..) Code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -30,6 +30,7 @@
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "e_input.h"
+#include "g_game.h"
 #include "dstrings.h"
 #include "m_random.h"
 #include "p_local.h"
@@ -944,13 +945,13 @@ void P_ThrustMobj(mobj_t * target, mobj_t * inflictor, float thrust)
 	target->mom.x += push * M_Cos(angle);
 	target->mom.y += push * M_Sin(angle);
 
-	if (level_flags.true3dgameplay)
-	{
-		float dz = MO_MIDZ(target) - MO_MIDZ(inflictor);
-		float slope = P_ApproxSlope(dx, dy, dz);
+	if (!g_true3d.d || (map_features & MPF_NoTrue3D))
+		return;
 
-		target->mom.z += push * slope / 2;
-	}
+	float dz = MO_MIDZ(target) - MO_MIDZ(inflictor);
+	float slope = P_ApproxSlope(dx, dy, dz);
+
+	target->mom.z += push * slope / 2;
 }
 
 //

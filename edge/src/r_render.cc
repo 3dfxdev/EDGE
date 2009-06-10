@@ -2,7 +2,7 @@
 //  EDGE OpenGL Rendering
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -3158,7 +3158,7 @@ void InitCamera(mobj_t *mo, float fov)
 	{
 		viewvertangle += M_ATan(mo->player->kick_offset);
 
-		if (! level_flags.mlook)
+		if (! g_mlook.d || (map_features & MPF_NoMLook))
 			viewvertangle = 0;
 
 		// No heads above the ceiling

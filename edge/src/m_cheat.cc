@@ -2,7 +2,7 @@
 //  EDGE Cheat Sequence Checking
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -243,7 +243,7 @@ bool M_CheatResponder(event_t * ev)
 	char key = (char) ev->value.key.sym;
 
 	// no cheating in netgames or if disallowed in levels.ddf
-	if (!level_flags.cheats)
+	if (map_features & MPF_NoCheats)
 		return false;
 
 #if 0 //!!!! TEMP DISABLED, NETWORK DEBUGGING

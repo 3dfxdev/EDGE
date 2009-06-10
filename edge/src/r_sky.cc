@@ -2,7 +2,7 @@
 //  EDGE OpenGL Rendering (Skies)
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -24,6 +24,7 @@
 #include "epi/image_data.h"
 
 #include "dm_state.h"
+#include "g_game.h"
 #include "m_math.h"
 #include "r_misc.h"
 #include "w_flat.h"
@@ -291,7 +292,7 @@ void RGL_FinishSky(void)
 
 	glDepthMask(GL_FALSE);
 
-	if (level_flags.mlook || custom_sky_box)
+	if (custom_sky_box || (g_mlook.d && !(map_features & MPF_NoMLook)))
 	{
 		if (! r_dumbsky.d)
 			glDepthFunc(GL_GREATER);

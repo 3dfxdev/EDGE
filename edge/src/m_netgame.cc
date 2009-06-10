@@ -2,7 +2,7 @@
 //  EDGE Network Menu Code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -63,8 +63,6 @@ int netgame_menuon;
 
 #if 0
 
-
-extern gameflags_t default_gameflags;
 
 bool netgame_we_are_host;
 
@@ -193,22 +191,6 @@ static bool ParseWelcomePacket(newgame_params_c *par, welcome_proto_t *we)
 
 	/* FIXME: we->bots, we->teams */
 
-	gameflags_t flags = default_gameflags;
-
-#define HANDLE_FLAG(field, testbit)  \
-	(flags.field) = (we->gameplay & (testbit)) ? true : false;
-
-	HANDLE_FLAG(nomonsters,     welcome_proto_t::GP_NoMonsters);
-	HANDLE_FLAG(autoaim,        welcome_proto_t::GP_AutoAim);
-
-	HANDLE_FLAG(true3dgameplay, welcome_proto_t::GP_True3D);
-	HANDLE_FLAG(jump,           welcome_proto_t::GP_Jumping);
-	HANDLE_FLAG(crouch,         welcome_proto_t::GP_Crouching);
-	HANDLE_FLAG(mlook,          welcome_proto_t::GP_MLook);
-
-	flags.autoaim =
-		(we->gameplay & welcome_proto_t::GP_AutoAim) ? AA_ON : AA_OFF;
-
 	return true;
 }
 
@@ -312,8 +294,6 @@ void M_NetHostBegun(void)
 		delete ng_params;
 
 	ng_params = new newgame_params_c;
-
-	ng_params->CopyFlags(&global_flags);
 
 	ng_params->map = G_LookupMap("1");
 
@@ -477,15 +457,15 @@ static void HostChangeOption(int opt, int key)
 			break;
 
 		case 6: // Monsters
-			ng_params->flags->nomonsters = ! ng_params->flags->nomonsters;
+// FIXME			ng_params->flags->nomonsters = ! ng_params->flags->nomonsters;
 			break;
 
 		case 7: // Item-Respawn
-			ng_params->flags->itemrespawn = ! ng_params->flags->itemrespawn;
+// FIXME			ng_params->flags->itemrespawn = ! ng_params->flags->itemrespawn;
 			break;
 			
 		case 8: // Team-Damage
-			ng_params->flags->team_damage = ! ng_params->flags->team_damage;
+// FIXME			ng_params->flags->team_damage = ! ng_params->flags->team_damage;
 			break;
 
 		default:
@@ -542,6 +522,7 @@ void M_DrawHostMenu(void)
 	y += 18; idx++;
 
 
+#if 0 //!!!!! FIXME
 	DrawKeyword(idx, ng_host_style, y, "MONSTERS", ng_params->flags->nomonsters ? "OFF" : "ON");
 	y += 10; idx++;
 
@@ -550,7 +531,7 @@ void M_DrawHostMenu(void)
 
 	DrawKeyword(idx, ng_host_style, y, "TEAM DAMAGE", ng_params->flags->team_damage ? "ON" : "OFF");
 	y += 22; idx++;
-
+#endif
 
 	HL_WriteText(ng_host_style,(host_pos==idx) ? 2:0, 40,  y, "Begin Accepting Connections");
 }

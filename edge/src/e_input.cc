@@ -2,7 +2,7 @@
 //  EDGE Input handling
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -34,6 +34,7 @@
 #include "e_event.h"
 #include "e_input.h"
 #include "e_main.h"
+#include "g_game.h"
 #include "hu_stuff.h"
 #include "m_math.h"
 #include "m_misc.h"
@@ -301,7 +302,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 
 	cmd->mlookturn = 0;
 
-	if (level_flags.mlook)
+	if (g_mlook.d && !(map_features & MPF_NoMLook))
 	{
 		int mlook_rate = angleturn[m_speed] / 2;
 
@@ -326,7 +327,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	}
 
 	// -MH- 1998/08/18 Fly up
-	if (level_flags.true3dgameplay)
+	if (g_true3d.d && !(map_features & MPF_NoTrue3D))
 	{
 		if ((E_InputCheckKey(key_flyup)))
 			upward += upwardmove[speed];
@@ -453,7 +454,8 @@ bool INP_Responder(event_t * ev)
 		case ev_analogue:
 			{
 				// -AJA- 1999/07/27: Mlook key like quake's.
-				if (level_flags.mlook && E_InputCheckKey(key_mlook))
+				if ((g_mlook.d && !(map_features & MPF_NoMLook)) &&
+				    E_InputCheckKey(key_mlook))
 				{
 					if (ev->value.analogue.axis == mouse_xaxis)
 					{

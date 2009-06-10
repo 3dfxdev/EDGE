@@ -2,7 +2,7 @@
 //  EDGE Moving, Aiming, Shooting & Collision code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -160,7 +160,7 @@ static bool PIT_StompThing(mobj_t * thing, void *data)
 		return true;  // no, we did not
 
 	// -AJA- 1999/07/30: True 3d gameplay checks.
-	if (level_flags.true3dgameplay)
+	if (g_true3d.d && !(map_features & MPF_NoTrue3D))
 	{
 		if (tm_I.z >= thing->z + thing->height)
 		{
@@ -177,7 +177,7 @@ static bool PIT_StompThing(mobj_t * thing, void *data)
 		}
 	}
 
-	if (!tm_I.mover->player && (currmap->force_off & MPF_Stomp))
+	if (!tm_I.mover->player && (map_features & MPF_Stomp))
 		return false;
 
 	P_TelefragMobj(thing, tm_I.mover, NULL);
@@ -306,7 +306,8 @@ static bool PIT_CheckAbsThing(mobj_t * thing, void *data)
 	if (tm_I.z != ONFLOORZ && tm_I.z != ONCEILINGZ)
 	{
 		// -KM- 1998/9/19 True 3d gameplay checks.
-		if ((tm_I.flags & MF_MISSILE) || level_flags.true3dgameplay)
+		if ((tm_I.flags & MF_MISSILE) ||
+		    (g_true3d.d && !(map_features & MPF_NoTrue3D)))
 		{
 			// overhead ?
 			if (tm_I.z >= thing->z + thing->height)
@@ -332,7 +333,7 @@ static bool PIT_CheckAbsThing(mobj_t * thing, void *data)
 		if (tm_I.mover->source && tm_I.mover->source == thing)
 			return true;
 
-    if ((thing->hyperflags & HF_PASSMISSILE) && level_flags.pass_missile)
+    if ((thing->hyperflags & HF_PASSMISSILE) && g_passmissile.d)
       return true;
 
 		// thing isn't shootable, return depending on if the thing is solid.
@@ -585,7 +586,8 @@ static bool PIT_CheckRelThing(mobj_t * thing, void *data)
 		return true;  // no we missed this thing
 
 	// -KM- 1998/9/19 True 3d gameplay checks.
-	if (level_flags.true3dgameplay && !(thing->flags & MF_SPECIAL))
+	if (g_true3d.d && !(map_features & MPF_NoTrue3D) &&
+	    !(thing->flags & MF_SPECIAL))
 	{
 		float top_z = thing->z + thing->height;
 
@@ -655,7 +657,7 @@ static bool PIT_CheckRelThing(mobj_t * thing, void *data)
 		if (tm_I.mover->source && tm_I.mover->source == thing)
 			return true;
 
-    if ((thing->hyperflags & HF_PASSMISSILE) && level_flags.pass_missile)
+    if ((thing->hyperflags & HF_PASSMISSILE) && g_passmissile.d)
       return true;
 
 		// thing isn't shootable, return depending on if the thing is solid.
@@ -1556,7 +1558,7 @@ mobj_t *DoMapTargetAutoAim(mobj_t * source, angle_t angle, float distance, bool 
 	float x2, y2;
 
 	// -KM- 1999/01/31 Autoaim is an option.
-	if (source->player && !level_flags.autoaim && !force_aim)
+	if (source->player && !(g_autoaim.d || force_aim))
 	{
 		return NULL;
 	}
@@ -1596,17 +1598,17 @@ mobj_t *DoMapTargetAutoAim(mobj_t * source, angle_t angle, float distance, bool 
 	if (! aim_I.target)
 		return NULL;
 
-	// -KM- 1999/01/31 Look at the thing you aimed at.  Is sometimes
-	//   useful, sometimes annoying :-)
-	if (source->player && level_flags.autoaim == AA_MLOOK)
-	{
-		float slope = P_ApproxSlope(source->x - aim_I.target->x,
-				source->y - aim_I.target->y, aim_I.target->z - source->z);
-
-		slope = CLAMP(-1.0f, slope, 1.0f);
-
-		source->vertangle = M_ATan(slope);
-	}
+//??	// -KM- 1999/01/31 Look at the thing you aimed at.  Is sometimes
+//??	//   useful, sometimes annoying :-)
+//??	if (source->player && level_flags.autoaim == AA_MLOOK)
+//??	{
+//??		float slope = P_ApproxSlope(source->x - aim_I.target->x,
+//??				source->y - aim_I.target->y, aim_I.target->z - source->z);
+//??
+//??		slope = CLAMP(-1.0f, slope, 1.0f);
+//??
+//??		source->vertangle = M_ATan(slope);
+//??	}
 
 	return aim_I.target;
 }
@@ -1829,7 +1831,7 @@ void P_RadiusAttack(mobj_t * spot, mobj_t * source, float radius,
 	bomb_I.damage = damage;
 	bomb_I.damtype = damtype;
 	bomb_I.thrust = thrust_only;
-	bomb_I.use_3d = level_flags.true3dgameplay;
+	bomb_I.use_3d = (g_true3d.d && !(map_features & MPF_NoTrue3D));
 
 	//
 	// -ACB- 1998/07/15 This normally does damage to everything within

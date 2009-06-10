@@ -2,7 +2,7 @@
 //  EDGE Game Handling Code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -62,7 +62,7 @@ extern gameaction_e gameaction;
 //    ga_playdemo    : defer_demoname, timingdemo, singledemo
 //    ga_recorddemo  : defer_demoname, defer_demo_parm
 // 
-//    ga_loadlevel   : currmap, players, gameskill+dm+level_flags ETC
+//    ga_loadlevel   : currmap, players, gameskill+dm ETC
 //    ga_intermission: currmap, nextmap, players, wi_stats ETC
 //    ga_finale      : nextmap, players
 
@@ -82,8 +82,6 @@ public:
 	playerflag_e players[MAXPLAYERS];
 	net_node_c *nodes[MAXPLAYERS];
 
-	gameflags_t *flags;  // can be NULL
-
 public:
 	newgame_params_c();
 	newgame_params_c(const newgame_params_c& src);
@@ -94,8 +92,6 @@ public:
 
 	void SinglePlayer(int num_bots = 0);
 	// setup for single player (no netgame) and possibly some bots.
-
-	void CopyFlags(const gameflags_t *F);
 };
 
 //
@@ -137,6 +133,8 @@ std::string G_FileNameFromSlot(int slot);
 
 extern const mapdef_c* currmap;
 extern const mapdef_c* nextmap;
+
+extern int map_features;  // combination of MPF_XXX flags
 
 mapdef_c* G_LookupMap(const char *refname);
 

@@ -2,7 +2,7 @@
 //  EDGE Player Handling
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -111,8 +111,8 @@ skill_t gameskill = sk_invalid;
 const mapdef_c *currmap = NULL;
 const mapdef_c *nextmap = NULL;
 
-// -KM- 1998/12/16 These flags hold everything needed about a level
-gameflags_t level_flags;
+// combination of MPF_XXX flags
+int map_features;
 
 
 //--------------------------------------------
@@ -125,12 +125,31 @@ static char defer_save_desc[32];
 static newgame_params_c *defer_params = NULL;
 
 
+// user preferences
+cvar_c g_mlook;
+cvar_c g_autoaim;
+cvar_c g_jumping;
+cvar_c g_crouching;
+cvar_c g_true3d;
+cvar_c g_noextra;
+cvar_c g_moreblood;
+cvar_c g_fastmon;
+cvar_c g_passmissile;
+cvar_c g_weaponkick;
+cvar_c g_weaponswitch;
+
+cvar_c debug_nomonsters;
+
+// FIXME: these probably should be done another way
+cvar_c g_itemrespawn;
+cvar_c g_teamdamage;
+
+
 //
 // REQUIRED STATE:
-//   (a) currmap
+//   (a) currmap, map_features
 //   (b) players[], numplayers (etc)
 //   (c) gameskill + deathmatch
-//   (d) level_flags
 //
 //   ??  exittime
 //
@@ -159,8 +178,7 @@ void G_DoLoadLevel(void)
 		player_t *p = players[pnum];
 		if (! p) continue;
 
-		if (p->playerstate == PST_DEAD ||
-			(currmap->force_on & MPF_ResetPlayer))
+		if (p->playerstate == PST_DEAD || (map_features & MPF_ResetPlayer))
 		{
 			p->playerstate = PST_REBORN;
 		}
@@ -168,48 +186,7 @@ void G_DoLoadLevel(void)
 		p->frags = 0;
 	}
 
-	// -KM- 1998/12/16 Make map flags actually do stuff.
-	// -AJA- 2000/02/02: Made it more generic.
-
-#define HANDLE_FLAG(var, specflag)  \
-	if (currmap->force_on & (specflag))  \
-	(var) = true;  \
-	else if (currmap->force_off & (specflag))  \
-	(var) = false;
-
-	HANDLE_FLAG(level_flags.jump, MPF_Jumping);
-	HANDLE_FLAG(level_flags.crouch, MPF_Crouching);
-	HANDLE_FLAG(level_flags.mlook, MPF_Mlook);
-	HANDLE_FLAG(level_flags.itemrespawn, MPF_ItemRespawn);
-	HANDLE_FLAG(level_flags.fastparm, MPF_FastParm);
-	HANDLE_FLAG(level_flags.true3dgameplay, MPF_True3D);
-	HANDLE_FLAG(level_flags.more_blood, MPF_MoreBlood);
-	HANDLE_FLAG(level_flags.cheats, MPF_Cheats);
-	HANDLE_FLAG(level_flags.respawn, MPF_Respawn);
-	HANDLE_FLAG(level_flags.res_respawn, MPF_ResRespawn);
-	HANDLE_FLAG(level_flags.have_extra, MPF_Extras);
-	HANDLE_FLAG(level_flags.limit_zoom, MPF_LimitZoom);
-	HANDLE_FLAG(level_flags.kicking, MPF_Kicking);
-	HANDLE_FLAG(level_flags.weapon_switch, MPF_WeaponSwitch);
-	HANDLE_FLAG(level_flags.pass_missile, MPF_PassMissile);
-	HANDLE_FLAG(level_flags.team_damage, MPF_TeamDamage);
-
-#undef HANDLE_FLAG
-
-	if (currmap->force_on & MPF_BoomCompat)
-		level_flags.edge_compat = false;
-	else if (currmap->force_off & MPF_BoomCompat)
-		level_flags.edge_compat = true;
-
-	if (currmap->force_on & MPF_AutoAim)
-	{
-		if (currmap->force_on & MPF_AutoAimMlook)
-			level_flags.autoaim = AA_MLOOK;
-		else
-			level_flags.autoaim = AA_ON;
-	}
-	else if (currmap->force_off & MPF_AutoAim)
-		level_flags.autoaim = AA_OFF;
+	//???  level_flags.item_respawn
 
 	//
 	// Note: It should be noted that only the gameskill is
@@ -402,6 +379,8 @@ void G_BigStuff(void)
 			case ga_finale:
 				SYS_ASSERT(nextmap);
 				currmap = nextmap;
+				map_features = currmap->features | currmap->episode->features;
+
 				F_StartFinale(&currmap->f_pre, ga_loadlevel);
 				break;
 
@@ -593,6 +572,7 @@ static void G_DoCompleted(void)
 		if (exit_skipall && nextmap)
 		{
 			currmap = nextmap;
+			map_features = currmap->features | currmap->episode->features;
 			gameaction = ga_loadlevel;
 		}
 		else
@@ -708,8 +688,6 @@ static void G_DoLoadGame(void)
 	// this player is a dummy one, replaced during actual load
 	params.SinglePlayer(0);
 
-	params.CopyFlags(&globs->flags);
-	
 	G_InitNew(params);
 
 	G_DoLoadLevel();
@@ -811,7 +789,6 @@ static void G_DoSaveGame(void)
 
 	globs->game  = SV_DupString(currmap->episode_name);
 	globs->level = SV_DupString(currmap->ddf.name);
-	globs->flags = level_flags;
 
 	globs->skill = gameskill;
 	globs->netgame = netgame ? (1+deathmatch) : 0;
@@ -877,7 +854,7 @@ static void G_DoSaveGame(void)
 newgame_params_c::newgame_params_c() :
 	skill(sk_medium), deathmatch(0),
 	map(NULL), random_seed(0),
-	total_players(0), flags(NULL)
+	total_players(0)
 {
 	for (int i = 0; i < MAXPLAYERS; i++)
 	{
@@ -901,18 +878,10 @@ newgame_params_c::newgame_params_c(const newgame_params_c& src)
 		players[i] = src.players[i];
 		nodes[i] = src.nodes[i];
 	}
-
-	flags = NULL;
-
-	if (src.flags)
-		CopyFlags(src.flags);
 }
 
 newgame_params_c::~newgame_params_c()
-{
-	if (flags)
-		delete flags;
-}
+{ }
 
 void newgame_params_c::SinglePlayer(int num_bots)
 {
@@ -927,15 +896,15 @@ void newgame_params_c::SinglePlayer(int num_bots)
 	}
 }
 
-void newgame_params_c::CopyFlags(const gameflags_t *F)
-{
-	if (flags)
-		delete flags;
-
-	flags = new gameflags_t;
-
-	memcpy(flags, F, sizeof(gameflags_t));
-}
+//??  void newgame_params_c::CopyFlags(const gameflags_t *F)
+//??  {
+//??  	if (flags)
+//??  		delete flags;
+//??  
+//??  	flags = new gameflags_t;
+//??  
+//??  	memcpy(flags, F, sizeof(gameflags_t));
+//??  }
 
 //
 // This is the procedure that changes the currmap
@@ -1034,8 +1003,16 @@ void G_InitNew(newgame_params_c& params)
 
 	currmap = params.map;
 
+	map_features = currmap->features | currmap->episode->features;
+
 	if (params.skill > sk_nightmare)
 		params.skill = sk_nightmare;
+
+	if (params.skill == sk_nightmare)
+	{
+		map_features |= MPF_FastMon;
+		map_features |= MPF_MonRespawn;
+	}
 
 	P_WriteRandomState(params.random_seed);
 
@@ -1046,17 +1023,11 @@ void G_InitNew(newgame_params_c& params)
 
 // L_WriteDebug("G_InitNew: Deathmatch %d Skill %d\n", params.deathmatch, (int)params.skill);
 
-	// copy global flags into the level-specific flags
-	if (params.flags)
-		level_flags = *params.flags;
-	else
-		level_flags = global_flags;
-
-	if (params.skill == sk_nightmare)
-	{
-		level_flags.fastparm = true;
-		level_flags.respawn = true;
-	}
+//??  	// copy global flags into the level-specific flags
+//??  	if (params.flags)
+//??  		level_flags = *params.flags;
+//??  	else
+//??  		level_flags = global_flags;
 
 	N_ResetTics();
 }

@@ -2,7 +2,7 @@
 //  EDGE Level Loading/Setup Code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -820,11 +820,11 @@ static void SpawnMapThing(const mobjtype_c *info,
 		return;
 
 	// don't spawn any monsters if -nomonsters
-	if (level_flags.nomonsters && (info->extendedflags & EF_MONSTER))
+	if ((debug_nomonsters.d || DEATHMATCH()) && (info->extendedflags & EF_MONSTER))
 		return;
 
 	// -AJA- 1999/10/07: don't spawn extra things if -noextra.
-	if (!level_flags.have_extra && (info->extendedflags & EF_EXTRA))
+	if (g_noextra.d && (info->extendedflags & EF_EXTRA))
 		return;
 
 	// spawn it now !
@@ -2193,6 +2193,9 @@ linetype_c *P_LookupLineType(int num)
 }	
 
 
+bool level_edge_compat = false; //!!!!!!! FIXME @@@@
+
+
 sectortype_c *P_LookupSectorType(int num)
 {
 	if (num <= 0)
@@ -2204,7 +2207,7 @@ sectortype_c *P_LookupSectorType(int num)
 	if (def)
 		return def;
 
-	if (level_flags.edge_compat && (num > 0) && (num < 100))
+	if (level_edge_compat && (num > 0) && (num < 100))
 	{
 		sectortype_c* def = sectortypes.Lookup(4400 + num);
 		if (def)

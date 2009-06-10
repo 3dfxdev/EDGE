@@ -2,7 +2,7 @@
 //  EDGE New SaveGame Handling (Globals)
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -158,29 +158,13 @@ static void GV_GetLevelFlags(const char *info, void *storage)
 #define HANDLE_FLAG(var, specflag)  \
 	(var) = (flags & (specflag)) ? true : false;
 
-	HANDLE_FLAG(dest->jump, MPF_Jumping);
-	HANDLE_FLAG(dest->crouch, MPF_Crouching);
-	HANDLE_FLAG(dest->mlook, MPF_Mlook);
 	HANDLE_FLAG(dest->itemrespawn, MPF_ItemRespawn);
-	HANDLE_FLAG(dest->fastparm, MPF_FastParm);
-	HANDLE_FLAG(dest->true3dgameplay, MPF_True3D);
-	HANDLE_FLAG(dest->more_blood, MPF_MoreBlood);
-	HANDLE_FLAG(dest->cheats, MPF_Cheats);
 	HANDLE_FLAG(dest->respawn, MPF_Respawn);
-	HANDLE_FLAG(dest->res_respawn, MPF_ResRespawn);
-	HANDLE_FLAG(dest->have_extra, MPF_Extras);
-	HANDLE_FLAG(dest->limit_zoom, MPF_LimitZoom);
-	HANDLE_FLAG(dest->kicking, MPF_Kicking);
-	HANDLE_FLAG(dest->weapon_switch, MPF_WeaponSwitch);
-	HANDLE_FLAG(dest->pass_missile, MPF_PassMissile);
-	HANDLE_FLAG(dest->team_damage, MPF_TeamDamage);
 
 #undef HANDLE_FLAG
 
 	dest->edge_compat = (flags & MPF_BoomCompat) ? false : true;
 
-	dest->autoaim = (flags & MPF_AutoAim) ? 
-		((flags & MPF_AutoAimMlook) ? AA_MLOOK : AA_ON) : AA_OFF;
 }
 
 static void GV_GetImage(const char *info, void *storage)
@@ -257,32 +241,13 @@ static const char *GV_PutLevelFlags(void *storage)
 #define HANDLE_FLAG(var, specflag)  \
 	if (var) flags |= (specflag);
 
-	HANDLE_FLAG(src->jump, MPF_Jumping);
-	HANDLE_FLAG(src->crouch, MPF_Crouching);
-	HANDLE_FLAG(src->mlook, MPF_Mlook);
 	HANDLE_FLAG(src->itemrespawn, MPF_ItemRespawn);
-	HANDLE_FLAG(src->fastparm, MPF_FastParm);
-	HANDLE_FLAG(src->true3dgameplay, MPF_True3D);
-	HANDLE_FLAG(src->more_blood, MPF_MoreBlood);
-	HANDLE_FLAG(src->cheats, MPF_Cheats);
 	HANDLE_FLAG(src->respawn, MPF_Respawn);
-	HANDLE_FLAG(src->res_respawn, MPF_ResRespawn);
-	HANDLE_FLAG(src->have_extra, MPF_Extras);
-	HANDLE_FLAG(src->limit_zoom, MPF_LimitZoom);
-	HANDLE_FLAG(src->kicking, MPF_Kicking);
-	HANDLE_FLAG(src->weapon_switch, MPF_WeaponSwitch);
-	HANDLE_FLAG(src->pass_missile, MPF_PassMissile);
-	HANDLE_FLAG(src->team_damage, MPF_TeamDamage);
 
 #undef HANDLE_FLAG
 
 	if (!src->edge_compat)
 		flags |= MPF_BoomCompat;
-
-	if (src->autoaim != AA_OFF)
-		flags |= MPF_AutoAim;
-	if (src->autoaim == AA_MLOOK)
-		flags |= MPF_AutoAimMlook;
 
 	return GV_PutInt(&flags);
 }
