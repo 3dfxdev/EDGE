@@ -690,6 +690,8 @@ static void G_DoLoadGame(void)
 
 	G_InitNew(params);
 
+	map_features = globs->map_features;
+
 	G_DoLoadLevel();
 
 	// -- Check LEVEL consistency (crc) --
@@ -792,6 +794,7 @@ static void G_DoSaveGame(void)
 
 	globs->skill = gameskill;
 	globs->netgame = netgame ? (1+deathmatch) : 0;
+	globs->map_features = map_features;
 	globs->p_random = P_ReadRandomState();
 
 	globs->console_player = consoleplayer; // NB: not used
@@ -949,8 +952,6 @@ static void G_DoNewGame(void)
 	F_StartFinale(&currmap->f_pre, ga_loadlevel);
 }
 
-//
-// G_InitNew
 //
 // -ACB- 1998/07/12 Removed Lost Soul/Spectre Ability stuff
 // -ACB- 1998/08/10 Inits new game without the need for gamemap or episode.
