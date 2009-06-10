@@ -35,13 +35,11 @@
 static void GV_GetInt(const char *info, void *storage);
 static void GV_GetString(const char *info, void *storage);
 static void GV_GetCheckCRC(const char *info, void *storage);
-static void GV_GetLevelFlags(const char *info, void *storage);
 static void GV_GetImage(const char *info, void *storage);
 
 static const char *GV_PutInt(void *storage);
 static const char *GV_PutString(void *storage);
 static const char *GV_PutCheckCRC(void *storage);
-static const char *GV_PutLevelFlags(void *storage);
 static const char *GV_PutImage(void *storage);
 
 
@@ -72,7 +70,6 @@ static const global_command_t global_commands[] =
 {
 	{ "GAME",  GV_GetString, GV_PutString, GLOB_OFF(game) },
 	{ "LEVEL", GV_GetString, GV_PutString, GLOB_OFF(level) },
-	{ "FLAGS", GV_GetLevelFlags, GV_PutLevelFlags, GLOB_OFF(flags) },
 	{ "GRAVITY", GV_GetInt, GV_PutInt, GLOB_OFF(flags.menu_grav) },
 	{ "LEVEL_TIME", GV_GetInt, GV_PutInt, GLOB_OFF(level_time) },
 	{ "EXIT_TIME", GV_GetInt, GV_PutInt, GLOB_OFF(exit_time) },
@@ -84,6 +81,7 @@ static const global_command_t global_commands[] =
 	{ "CONSOLE_PLAYER", GV_GetInt, GV_PutInt, GLOB_OFF(console_player) },
 	{ "SKILL", GV_GetInt, GV_PutInt, GLOB_OFF(skill) },
 	{ "NETGAME", GV_GetInt, GV_PutInt, GLOB_OFF(netgame) },
+	{ "MAP_FEATURES", GV_GetInt, GV_PutInt, GLOB_OFF(map_features) },
 	{ "SKY_IMAGE", GV_GetImage, GV_PutImage, GLOB_OFF(sky_image) },
 
 	{ "DESCRIPTION", GV_GetString, GV_PutString, GLOB_OFF(description) },
@@ -144,28 +142,6 @@ static void GV_GetCheckCRC(const char *info, void *storage)
 	sscanf(info, "%d %u", &dest->count, &dest->crc);
 }
 
-static void GV_GetLevelFlags(const char *info, void *storage)
-{
-	gameflags_t *dest = (gameflags_t *)storage;
-	int flags;
-
-	SYS_ASSERT(info && storage);
-
-	flags = strtol(info, NULL, 0);
-
-	Z_Clear(dest, gameflags_t, 1);
-
-#define HANDLE_FLAG(var, specflag)  \
-	(var) = (flags & (specflag)) ? true : false;
-
-	HANDLE_FLAG(dest->itemrespawn, MPF_ItemRespawn);
-	HANDLE_FLAG(dest->respawn, MPF_Respawn);
-
-#undef HANDLE_FLAG
-
-	dest->edge_compat = (flags & MPF_BoomCompat) ? false : true;
-
-}
 
 static void GV_GetImage(const char *info, void *storage)
 {
@@ -227,29 +203,6 @@ static const char *GV_PutCheckCRC(void *storage)
 	sprintf(buffer, "%d %u", src->count, src->crc);
 
 	return SV_DupString(buffer);
-}
-
-static const char *GV_PutLevelFlags(void *storage)
-{
-	gameflags_t *src = (gameflags_t *)storage;
-	int flags;
-
-	SYS_ASSERT(storage);
-
-	flags = 0;
-
-#define HANDLE_FLAG(var, specflag)  \
-	if (var) flags |= (specflag);
-
-	HANDLE_FLAG(src->itemrespawn, MPF_ItemRespawn);
-	HANDLE_FLAG(src->respawn, MPF_Respawn);
-
-#undef HANDLE_FLAG
-
-	if (!src->edge_compat)
-		flags |= MPF_BoomCompat;
-
-	return GV_PutInt(&flags);
 }
 
 static const char *GV_PutImage(void *storage)

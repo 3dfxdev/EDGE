@@ -293,6 +293,8 @@ static void SetGlobalVars(void)
 	M_CheckBooleanParm("music", &nomusic, true);
 	M_CheckBooleanParm("cdmusic", &nocdmusic, true);
 
+	if (M_CheckParm("-nomonsters"))
+		debug_nomonsters = 1;
 #if 0
 	M_CheckBooleanParm("itemrespawn", &global_flags.itemrespawn, false);
 	M_CheckBooleanParm("mlook", &global_flags.mlook, false);
