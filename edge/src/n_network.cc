@@ -47,8 +47,6 @@ int base_port;
 
 cvar_c m_busywait;
 
-extern gameflags_t default_gameflags;
-
 
 int gametic;
 int maketic;

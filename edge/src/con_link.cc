@@ -21,15 +21,14 @@
 #include "con_var.h"
 
 
-extern cvar_c r_width, r_height, r_depth, r_fullscreen;
-extern cvar_c r_colormaterial, r_colorlighting;
-extern cvar_c r_dumbsky, r_dumbmulti, r_dumbcombine, r_dumbclamp;
-extern cvar_c r_nearclip, r_farclip, r_fadepower;
-extern cvar_c r_fov, r_zoomedfov;
-extern cvar_c r_mipmapping, r_smoothing;
-extern cvar_c r_dithering, r_hq2x;
-extern cvar_c r_dynamiclight, r_invultex;
-extern cvar_c r_detaillevel;
+extern cvar_c edge_compat;
+
+extern cvar_c g_mlook, g_autoaim;
+extern cvar_c g_jumping, g_crouching;
+extern cvar_c g_true3d;
+extern cvar_c g_moreblood, g_noextra;
+extern cvar_c g_fastmon, g_passmissile;
+extern cvar_c g_weaponkick, g_weaponswitch;
 
 extern cvar_c am_rotate, am_smoothing;
 extern cvar_c m_diskicon, m_busywait, m_screenhud;
@@ -40,18 +39,20 @@ extern cvar_c debug_fullbright, debug_subsector;
 
 extern cvar_c in_autorun;
 
+extern cvar_c r_width, r_height, r_depth, r_fullscreen;
+extern cvar_c r_colormaterial, r_colorlighting;
+extern cvar_c r_dumbsky, r_dumbmulti, r_dumbcombine, r_dumbclamp;
+extern cvar_c r_nearclip, r_farclip, r_fadepower;
+extern cvar_c r_fov, r_zoomedfov;
+extern cvar_c r_mipmapping, r_smoothing;
+extern cvar_c r_dithering, r_hq2x;
+extern cvar_c r_dynamiclight, r_invultex;
+extern cvar_c r_detaillevel;
+
 extern cvar_c s_volume, s_musicvol, s_mixchan;
 extern cvar_c s_rate, s_bits, s_stereo;
 extern cvar_c s_quietfactor, s_timidity;
 extern cvar_c tim_quietfactor;
-
-extern cvar_c g_mlook, g_autoaim;
-extern cvar_c g_jumping, g_crouching;
-extern cvar_c g_true3d;
-extern cvar_c g_moreblood, g_noextra;
-extern cvar_c g_fastmon, g_passmissile;
-extern cvar_c g_weaponkick, g_weaponswitch;
-
 
 
 #ifdef LINUX
@@ -72,6 +73,8 @@ extern cvar_c g_weaponkick, g_weaponswitch;
 
 cvar_link_t  all_cvars[] =
 {
+    { "edge_compat",    &edge_compat,    "",    "0"  },
+
     { "g_mlook",        &g_mlook,        "c",   "1"  },
     { "g_autoaim",      &g_autoaim,      "c",   "1"  },
     { "g_jumping",      &g_jumping,      "c",   "0"  },
@@ -83,6 +86,17 @@ cvar_link_t  all_cvars[] =
     { "g_passmissile",  &g_passmissile,  "c",   "1"  },
     { "g_weaponkick",   &g_weaponkick,   "c",   "0"  },
     { "g_weaponswitch", &g_weaponswitch, "c",   "1"  },
+
+	{ "am_rotate",    &am_rotate,    "c",   "0"  },
+	{ "am_smoothing", &am_smoothing, "c",   "1"  },
+
+	{ "in_autorun",   &in_autorun,   "c",   "0"  },
+
+	{ "m_diskicon",   &m_diskicon,   "c",   "1"  },
+	{ "m_busywait",   &m_busywait,   "c",   "1"  },
+	{ "m_messages",   &m_messages,   "c",   "1"  },
+	{ "m_obituaries", &m_obituaries, "c",   "1"  },
+	{ "m_screenhud",  &m_screenhud,  "c",   "0"  },
 
 	{ "r_width",      &r_width,      "rc",  "640"   },
 	{ "r_height",     &r_height,     "rc",  "480"   },
@@ -110,17 +124,6 @@ cvar_link_t  all_cvars[] =
 	{ "r_dumbmulti",     &r_dumbmulti,     "",   "0"  },
 	{ "r_dumbcombine",   &r_dumbcombine,   "",   "0"  },
 	{ "r_dumbclamp",     &r_dumbclamp,     "",   "0"  },
-
-	{ "am_rotate",    &am_rotate,    "c",   "0"  },
-	{ "am_smoothing", &am_smoothing, "c",   "1"  },
-
-	{ "in_autorun",   &in_autorun,   "c",   "0"  },
-
-	{ "m_diskicon",   &m_diskicon,   "c",   "1"  },
-	{ "m_busywait",   &m_busywait,   "c",   "1"  },
-	{ "m_messages",   &m_messages,   "c",   "1"  },
-	{ "m_obituaries", &m_obituaries, "c",   "1"  },
-	{ "m_screenhud",  &m_screenhud,  "c",   "0"  },
 
 	{ "s_volume",     &s_volume,     "c",   "0.5"  },
 	{ "s_musicvol",   &s_musicvol,   "c",   "0.5"  },

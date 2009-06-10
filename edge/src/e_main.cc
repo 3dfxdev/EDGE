@@ -327,8 +327,8 @@ static void SetGlobalVars(void)
 	if (M_CheckParm("-fullbright"))
 		debug_fullbright = 1;
 
-///FIXME	if (M_CheckParm("-ecompat"))
-///FIXME		global_flags.edge_compat = true;
+	if (M_CheckParm("-ecompat") || M_CheckParm("-edgecompat"))
+		edge_compat = 1;
 
 	// check for strict and no-warning options
 	M_CheckBooleanParm("strict", &strict_errors, false);

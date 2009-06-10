@@ -2193,9 +2193,6 @@ linetype_c *P_LookupLineType(int num)
 }	
 
 
-bool level_edge_compat = false; //!!!!!!! FIXME @@@@
-
-
 sectortype_c *P_LookupSectorType(int num)
 {
 	if (num <= 0)
@@ -2207,7 +2204,7 @@ sectortype_c *P_LookupSectorType(int num)
 	if (def)
 		return def;
 
-	if (level_edge_compat && (num > 0) && (num < 100))
+	if (edge_compat.d && (num > 0) && (num < 100))
 	{
 		sectortype_c* def = sectortypes.Lookup(4400 + num);
 		if (def)
