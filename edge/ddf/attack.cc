@@ -23,6 +23,10 @@
 
 #include "local.h"
 
+#include "thing.h"
+#include "states.h"
+#include "attack.h"
+
 
 #undef  DF
 #define DF  DDF_CMD

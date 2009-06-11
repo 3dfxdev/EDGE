@@ -19,6 +19,9 @@
 #include "local.h"
 
 #include "states.h"
+#include "attack.h"
+#include "thing.h"
+#include "sfx.h"
 
 #include "src/p_action.h"
 

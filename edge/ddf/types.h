@@ -30,6 +30,8 @@
 
 class mobjtype_c;
 
+#define LOOKUP_CACHESIZE 211
+
 
 // RGB 8:8:8
 // (FIXME: use epi::colour_c)
@@ -78,6 +80,37 @@ typedef u32_t angle_t;
 #define F2AX(n)  (((n) < 0) ? (360.0f + (n)) : (n))
 #define ANG_2_FLOAT(a)  ((float) (a) * 360.0f / 4294967296.0f)
 #define FLOAT_2_ANG(n)  ((angle_t) (F2AX(n) / 360.0f * 4294967296.0f))
+
+
+// a bitset is a set of named bits, from `A' to `Z'.
+typedef int bitset_t;
+
+#define BITSET_EMPTY  0
+#define BITSET_FULL   0x7FFFFFFF
+#define BITSET_MAKE(ch)  (1 << ((ch) - 'A'))
+
+
+// -AJA- 1999/10/24: Reimplemented when_appear_e type.
+typedef enum
+{
+	WNAP_None        = 0x0000,
+
+	WNAP_SkillLevel1 = 0x0001,
+	WNAP_SkillLevel2 = 0x0002,
+	WNAP_SkillLevel3 = 0x0004,
+	WNAP_SkillLevel4 = 0x0008,
+	WNAP_SkillLevel5 = 0x0010,
+
+	WNAP_Single      = 0x0100,
+	WNAP_Coop        = 0x0200,
+	WNAP_DeathMatch  = 0x0400,
+
+	WNAP_SkillBits   = 0x001F,
+	WNAP_NetBits     = 0x0700
+}
+when_appear_e;
+
+#define DEFAULT_APPEAR  ((when_appear_e)(0xFFFF))
 
 
 // Our lumpname class
@@ -153,6 +186,83 @@ public:
 			 
 		return *this; 
 	}
+};
+
+
+// override labels for various states, if the object being damaged
+// has such a state then it is used instead of the normal ones
+// (PAIN, DEATH, OVERKILL).  Defaults to NULL.
+class label_offset_c
+{
+public:
+	label_offset_c();
+	label_offset_c(label_offset_c &rhs);
+	~label_offset_c(); 
+
+private:
+	void Copy(label_offset_c &src);
+
+public:
+	void Default();
+	label_offset_c& operator=(label_offset_c &rhs);
+
+	epi::strent_c label;
+	int offset;
+};
+
+
+class damage_c
+{
+public:
+	damage_c();
+	damage_c(damage_c &rhs);
+	~damage_c();
+	
+	enum default_e
+	{
+		DEFAULT_Attack,
+		DEFAULT_Mobj,
+		DEFAULT_MobjChoke,
+		DEFAULT_Sector,
+		DEFAULT_Numtypes
+	};
+	
+private:
+	void Copy(damage_c &src);
+
+public:
+	void Default(default_e def);
+	damage_c& operator= (damage_c &rhs);
+
+	// nominal damage amount (required)
+	float nominal;
+
+	// used for DAMAGE.MAX: when this is > 0, the damage is random
+	// between nominal and linear_max, where each value has equal
+	// probability.
+	float linear_max;
+  
+	// used for DAMAGE.ERROR: when this is > 0, the damage is the
+	// nominal value +/- this error amount, with a bell-shaped
+	// distribution (values near the nominal are much more likely than
+	// values at the outer extreme).
+	float error;
+
+	// delay (in terms of tics) between damage application, e.g. 34
+	// would be once every second.  Only used for slime/crush damage.
+	int delay;
+
+	// death message, names an entry in LANGUAGES.LDF
+	epi::strent_c obituary;
+
+	// override labels for various states, if the object being damaged
+	// has such a state then it is used instead of the normal ones
+	// (PAIN, DEATH, OVERKILL).  Defaults to NULL.
+	label_offset_c pain, death, overkill;
+
+	// this flag says that the damage is unaffected by the player's
+	// armour -- and vice versa.
+	bool no_armour;
 };
 
 

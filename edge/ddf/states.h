@@ -75,6 +75,34 @@ typedef struct state_s
 state_t;
 
 
+// Info for the JUMP action
+typedef struct act_jump_info_s
+{
+	// chance value
+	percent_t chance; 
+
+public:
+	 act_jump_info_s();
+	~act_jump_info_s();
+}
+act_jump_info_t;
+
+
+// Info for the BECOME action
+typedef struct act_become_info_s
+{
+	const mobjtype_c *info;
+	epi::strent_c info_ref;
+
+	label_offset_c start;
+
+public:
+	 act_become_info_s();
+	~act_become_info_s();
+}
+act_become_info_t;
+
+
 // -------EXTERNALISATIONS-------
 
 extern const state_t ddf_template_state;

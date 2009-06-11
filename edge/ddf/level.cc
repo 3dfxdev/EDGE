@@ -24,6 +24,7 @@
 #include "epi/utility.h"
 
 #include "level.h"
+#include "game.h"
 
 #undef  DF
 #define DF  DDF_CMD

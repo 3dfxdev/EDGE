@@ -144,28 +144,6 @@ typedef enum
 }
 exittype_e;
 
-// -AJA- 1999/10/24: Reimplemented when_appear_e type.
-// NOTE TO SELF: Move to an area for linedef/rts/sector stuff
-typedef enum
-{
-	WNAP_None        = 0x0000,
-
-	WNAP_SkillLevel1 = 0x0001,
-	WNAP_SkillLevel2 = 0x0002,
-	WNAP_SkillLevel3 = 0x0004,
-	WNAP_SkillLevel4 = 0x0008,
-	WNAP_SkillLevel5 = 0x0010,
-
-	WNAP_Single      = 0x0100,
-	WNAP_Coop        = 0x0200,
-	WNAP_DeathMatch  = 0x0400,
-
-	WNAP_SkillBits   = 0x001F,
-	WNAP_NetBits     = 0x0700
-}
-when_appear_e;
-
-#define DEFAULT_APPEAR  ((when_appear_e)(0xFFFF))
 
 // -AJA- 1999/06/21: extra floor types
 // FIXME!!! Move into to extrafloordef_c?

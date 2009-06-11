@@ -394,9 +394,6 @@ void DDF_ImageCleanUp (void);
 // Miscellaneous stuff needed here & there
 extern mobjtype_c buffer_mobj;
 
-extern movplanedef_c buffer_floor;
-extern damage_c buffer_damage;
-
 extern const commandlist_t floor_commands[];
 extern const commandlist_t damage_commands[];
 
