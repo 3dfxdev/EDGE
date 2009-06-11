@@ -23,38 +23,46 @@
 #include "epi/math_crc.h"
 #include "epi/utility.h"
 
+#include "base.h"
 #include "types.h"
 
 #define DEBUG_DDF  0
 
 // Forward declarations
-struct mobj_s;
-struct sfx_s;
 struct condition_check_s;
+struct sfx_s;
+struct state_s;
 
+struct mobj_s;  // engine class
+
+class animdef_c;
 class atkdef_c;
 class colourmap_c;
+class dlight_info_c;
+class donutdef_c;
+class extrafloordef_c;
+class fontpatch_c;
+class fontdef_c;
 class gamedef_c;
-class mapdef_c;
-class mobjtype_c;
-class pl_entry_c;
-class weapondef_c;
+class imagedef_c;
+class lightdef_c;
 class linetype_c;
+class mapdef_c;
+class map_finaledef_c;
+
+class mobjtype_c;
+class movplanedef_c;
+class pickup_effect_c;
+class pl_entry_c;
 class sectortype_c;
-
-
-///???  #include "thing.h"
-///???  #include "attack.h"
-///???  #include "states.h"
-///???  #include "weapon.h"
-///???  
-///???  #include "line.h"
-///???  #include "level.h"
-///???  #include "game.h"
-///???  
-///???  #include "playlist.h"
-///???  #include "sfx.h"
-///???  #include "language.h"
+class sfxdef_c;
+class sliding_door_c;
+class styledef_c;
+class switchdef_c;
+class teleportdef_c;
+class weakness_info_c;
+class weapondef_c;
+class wi_animdef_c;
 
 
 // State updates, number of tics / second.
