@@ -30,6 +30,9 @@
 #include "g_game.h"
 #include "p_mobj.h"
 
+#include "ddf/game.h"
+#include "ddf/level.h"
+
 // Called by main loop.
 bool F_Responder(event_t * ev);
 

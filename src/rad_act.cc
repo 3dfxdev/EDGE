@@ -23,6 +23,9 @@
 
 #include <limits.h>
 
+#include "ddf/language.h"
+#include "ddf/level.h"
+
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "con_main.h"

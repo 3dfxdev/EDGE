@@ -26,7 +26,8 @@
 #include "epi/file.h"
 #include "epi/filesystem.h"
 
-#include "ddf/main.h"
+#include "ddf/playlist.h"
+#include "ddf/sfx.h"
 
 #include "dm_state.h"
 #include "s_sound.h"

@@ -20,6 +20,9 @@
 
 #include "epi/math_crc.h"
 
+#include "ddf/language.h"
+#include "ddf/sfx.h"
+
 #include "con_main.h"
 #include "con_var.h"
 

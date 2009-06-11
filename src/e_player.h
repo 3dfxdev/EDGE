@@ -42,6 +42,9 @@
 #include "e_ticcmd.h"
 
 #include "ddf/colormap.h"  // colmap.ddf stuff
+#include "ddf/line.h"
+#include "ddf/thing.h"
+#include "ddf/weapon.h"
 
 // Networking and tick handling related.
 #define BACKUPTICS 12

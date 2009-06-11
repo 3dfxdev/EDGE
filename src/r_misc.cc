@@ -31,6 +31,8 @@
 
 #include <math.h>
 
+#include "ddf/language.h"
+
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "e_main.h"

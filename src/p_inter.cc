@@ -25,6 +25,9 @@
 
 #include "i_defs.h"
 
+#include "ddf/language.h"
+#include "ddf/level.h"
+
 #include "am_map.h"
 #include "con_main.h"
 #include "dm_defs.h"

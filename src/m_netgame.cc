@@ -26,7 +26,6 @@
 #include "i_defs.h"
 #include "i_net.h"
 
-#include "ddf/main.h"
 
 #include "con_main.h"
 #include "dm_defs.h"

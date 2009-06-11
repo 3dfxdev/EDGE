@@ -26,7 +26,6 @@
 #ifndef __P_PSPR__
 #define __P_PSPR__
 
-#include "ddf/main.h"
 
 // maximum weapons player can hold at once
 #define MAXWEAPONS  64

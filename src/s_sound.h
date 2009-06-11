@@ -26,6 +26,8 @@
 #ifndef __S_SOUND_H__
 #define __S_SOUND_H__
 
+#include "ddf/sfx.h"
+
 // Forward declarations
 class position_c;
 struct mobj_s;

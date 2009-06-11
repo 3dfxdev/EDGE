@@ -26,7 +26,6 @@
 #ifndef __R_DRAW_H__
 #define __R_DRAW_H__
 
-#include "ddf/main.h"
 #include "r_image.h"
 
 void RGL_DrawImage(float x, float y, float w, float h, const image_c *image,

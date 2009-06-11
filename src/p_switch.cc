@@ -25,7 +25,6 @@
 
 #include "i_defs.h"
 
-#include "ddf/main.h"
 #include "ddf/switch.h"
 
 #include "dm_defs.h"

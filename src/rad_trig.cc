@@ -37,6 +37,8 @@
 #include "epi/file.h"
 #include "epi/filesystem.h"
 
+#include "ddf/language.h"
+
 #include "am_map.h"
 #include "dm_defs.h"
 #include "dm_state.h"

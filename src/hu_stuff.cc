@@ -26,6 +26,9 @@
 #include "i_defs.h"
 #include "hu_stuff.h"
 
+#include "ddf/language.h"
+#include "ddf/level.h"
+
 #include "con_main.h"
 #include "dm_state.h"
 #include "e_input.h"

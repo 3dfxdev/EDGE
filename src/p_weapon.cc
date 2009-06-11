@@ -29,6 +29,9 @@
 #include "i_defs.h"
 #include "p_weapon.h"
 
+#include "ddf/level.h"
+#include "ddf/weapon.h"
+
 #include "e_event.h"
 #include "dm_defs.h"
 #include "dm_state.h"

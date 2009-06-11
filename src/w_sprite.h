@@ -29,6 +29,8 @@
 #include "e_player.h"
 #include "r_defs.h"
 
+#include "ddf/states.h"
+
 //      
 // Sprites are patches with a special naming convention so they can be
 // recognized by R_InitSprites.  The base name is NNNNFx or NNNNFxFx,

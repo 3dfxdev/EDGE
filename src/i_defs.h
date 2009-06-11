@@ -16,15 +16,17 @@
 //
 //----------------------------------------------------------------------------
 
-#ifndef __SYSTEM_SPECIFIC_DEFS__
-#define __SYSTEM_SPECIFIC_DEFS__
+#ifndef __I_DEFS_H__
+#define __I_DEFS_H__
 
 #include "epi/epi.h"
+
+#include "ddf/main.h"
 
 #include "i_system.h"
 #include "con_var.h"
 
-#endif /*__SYSTEM_SPECIFIC_DEFS__*/
+#endif /*__I_DEFS_H__*/
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

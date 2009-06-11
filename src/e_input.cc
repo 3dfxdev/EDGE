@@ -29,6 +29,8 @@
 
 #include "i_defs.h"
 
+#include "ddf/level.h"
+
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "e_event.h"

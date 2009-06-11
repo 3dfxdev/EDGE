@@ -33,7 +33,6 @@
 #include "epi/sound_data.h"
 #include "epi/sound_wav.h"
 
-#include "ddf/main.h"
 #include "ddf/sfx.h"
 
 #include "s_sound.h"

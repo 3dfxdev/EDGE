@@ -37,6 +37,9 @@
 
 #include "epi/arrays.h"
 
+#include "ddf/thing.h"
+#include "ddf/weapon.h"
+
 #define DEATHVIEWHEIGHT  6.0f
 #define CROUCH_SLOWDOWN  0.5f
 

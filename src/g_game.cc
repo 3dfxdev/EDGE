@@ -32,6 +32,11 @@
 #include "epi/path.h"
 #include "epi/str_format.h"
 
+#include "ddf/game.h"
+#include "ddf/level.h"
+#include "ddf/language.h"
+#include "ddf/sfx.h"
+
 #include "con_main.h"
 #include "dstrings.h"
 #include "e_input.h"
