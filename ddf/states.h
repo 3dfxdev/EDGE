@@ -16,8 +16,8 @@
 //
 //----------------------------------------------------------------------------
 
-#ifndef __DDF_STAT_H__
-#define __DDF_STAT_H__
+#ifndef __DDF_STATES_H__
+#define __DDF_STATES_H__
 
 #include <vector>
 
@@ -111,7 +111,7 @@ extern std::vector<std::string> ddf_sprite_names;
 extern std::vector<std::string> ddf_model_names;
 
 
-#endif // __DDF_STAT_H__
+#endif // __DDF_STATES_H__
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

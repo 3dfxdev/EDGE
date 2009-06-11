@@ -21,10 +21,10 @@
 
 #include "epi/utility.h"
 
-#include "base.h"
-#include "types.h"
+#include "main.h"
 
-class image_c;
+
+class image_c;  // engine class
 
 //
 // SWITCHES

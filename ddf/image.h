@@ -21,8 +21,7 @@
 
 #include "epi/utility.h"
 
-#include "base.h"
-#include "types.h"
+#include "main.h"
 
 typedef enum
 {

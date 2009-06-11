@@ -22,8 +22,7 @@
 #include "epi/math_crc.h"
 #include "epi/utility.h"
 
-#include "base.h"
-#include "types.h"
+#include "main.h"
 
 
 // ------------------------------------------------------------------
