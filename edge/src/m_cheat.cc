@@ -38,8 +38,10 @@
 #include "i_defs.h"
 #include "m_cheat.h"
 
+#include "ddf/language.h"
+#include "ddf/level.h"
+
 #include "con_main.h"
-#include "ddf/main.h"
 #include "dstrings.h"
 #include "g_game.h"
 #include "m_menu.h"

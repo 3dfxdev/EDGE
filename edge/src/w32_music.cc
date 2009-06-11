@@ -24,7 +24,6 @@
 
 #include "i_sdlinc.h"
 
-#include "ddf/main.h"
 #include "ddf/playlist.h"
 
 #include "s_sound.h"

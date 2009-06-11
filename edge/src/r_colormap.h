@@ -29,7 +29,6 @@
 #include "dm_defs.h"
 
 #include "ddf/types.h"
-#include "ddf/main.h"
 #include "ddf/colormap.h"
 
 #include "r_defs.h"

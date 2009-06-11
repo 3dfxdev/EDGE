@@ -41,6 +41,8 @@
 #include "epi/image_jpeg.h"
 #include "epi/image_png.h"
 
+#include "ddf/language.h"
+
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "e_input.h"

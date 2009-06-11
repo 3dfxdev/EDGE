@@ -32,7 +32,10 @@
 
 #include "epi/str_format.h"
 
-#include "ddf/main.h"
+#include "ddf/game.h"
+#include "ddf/level.h"
+#include "ddf/language.h"
+#include "ddf/sfx.h"
 
 #include "con_main.h"
 #include "dm_defs.h"

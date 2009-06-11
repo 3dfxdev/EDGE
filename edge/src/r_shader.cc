@@ -19,9 +19,10 @@
 #include "i_defs.h"
 #include "i_defs_gl.h"
 
-#include "ddf/main.h"
-
 #include "epi/image_data.h"
+
+#include "ddf/thing.h"
+#include "ddf/level.h"
 
 #include "p_mobj.h"
 #include "r_defs.h"

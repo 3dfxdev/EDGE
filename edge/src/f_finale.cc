@@ -31,7 +31,9 @@
 #include "i_defs.h"
 #include "i_defs_gl.h"
 
-#include "ddf/main.h"
+#include "ddf/thing.h"
+#include "ddf/attack.h"
+#include "ddf/language.h"
 
 #include "dm_defs.h"
 #include "dm_state.h"

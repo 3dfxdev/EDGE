@@ -22,7 +22,6 @@
 
 #include "i_defs.h"
 
-#include "ddf/main.h"
 #include "ddf/playlist.h"
 
 #include "s_sound.h"

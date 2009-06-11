@@ -26,11 +26,9 @@
 #include "i_defs.h"
 #include "i_defs_gl.h"
 
-// #include <stdlib.h>  // atoi()
-
-#include "ddf/main.h"
 #include "ddf/colormap.h"
 #include "ddf/game.h"
+#include "ddf/level.h"
 
 #include "r_colormap.h"
 #include "dm_defs.h"

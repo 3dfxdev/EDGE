@@ -19,7 +19,6 @@
 #include "i_defs.h"
 #include "i_luainc.h"
 
-#include "ddf/main.h"
 #include "ddf/font.h"
 
 #include "l_lua.h"

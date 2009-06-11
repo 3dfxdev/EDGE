@@ -19,8 +19,9 @@
 #include "i_defs.h"
 #include "i_luainc.h"
 
-#include "ddf/main.h"
 #include "ddf/font.h"
+#include "ddf/game.h"
+#include "ddf/level.h"
 
 #include "l_lua.h"
 #include "hu_vm.h"

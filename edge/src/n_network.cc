@@ -25,6 +25,8 @@
 #include "epi/types.h"
 #include "epi/endianess.h"
 
+#include "ddf/language.h"
+
 #include "n_bcast.h"
 #include "n_reliable.h"
 #include "n_network.h"

@@ -22,6 +22,7 @@
 #include <math.h>
 
 #include "epi/image_data.h"
+#include "ddf/level.h"
 
 #include "dm_state.h"
 #include "g_game.h"

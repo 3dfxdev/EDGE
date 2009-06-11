@@ -40,6 +40,9 @@
 
 #include <float.h>
 
+#include "ddf/game.h"
+#include "ddf/level.h"
+
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "g_game.h"

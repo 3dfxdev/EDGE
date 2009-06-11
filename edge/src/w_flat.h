@@ -34,7 +34,6 @@
 #include "r_defs.h"
 #include "r_state.h"
 
-#include "ddf/main.h"
 #include "ddf/anim.h"
 
 void W_InitFlats(void);

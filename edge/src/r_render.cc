@@ -35,6 +35,9 @@
 
 #include <math.h>
 
+#include "ddf/game.h"
+#include "ddf/level.h"
+
 #include "dm_data.h"
 #include "dm_defs.h"
 #include "dm_state.h"
@@ -1824,7 +1827,7 @@ static void RGL_DrawSeg(drawfloor_t *dfloor, seg_t *seg)
 	// mark the segment on the automap
 	seg->linedef->flags |= MLF_Mapped;
 
-	sector_t *frontsector = seg->front_sub->sector;
+	//sector_t *frontsector = seg->front_sub->sector;
 	sector_t *backsector  = NULL;
 
 	if (seg->back_sub)
@@ -1969,7 +1972,7 @@ static void RGL_WalkMirror(drawsub_c *dsub, seg_t *seg,
 // Visit a single seg of the subsector, and for one-sided lines update
 // the 1D occlusion buffer.
 //
-static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
+void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 {
 	// ignore segs sitting on current mirror
 	if (MIR_SegOnPortal(seg))
@@ -2105,7 +2108,7 @@ static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 	dsub->segs.push_back(dseg);
 
 
-	sector_t *frontsector = seg->front_sub->sector;
+	//sector_t *frontsector = seg->front_sub->sector;
 	sector_t *backsector  = NULL;
 
 	if (seg->back_sub)

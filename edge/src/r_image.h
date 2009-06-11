@@ -28,7 +28,6 @@
 
 #include <vector>
 
-#include "ddf/main.h"
 #include "ddf/image.h"
 
 #include "r_defs.h"

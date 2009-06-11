@@ -52,6 +52,9 @@
 #include "i_defs_gl.h"  // we need r_shader.h
 #include "p_mobj.h"
 
+#include "ddf/game.h"
+#include "ddf/level.h"
+
 #include "con_main.h"
 #include "dm_defs.h"
 #include "dm_state.h"

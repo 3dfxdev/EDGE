@@ -18,7 +18,6 @@
 
 #include "i_defs.h"
 
-#include "ddf/main.h"
 #include "ddf/font.h"
 
 #include "dm_defs.h"

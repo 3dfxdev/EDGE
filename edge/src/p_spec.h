@@ -31,7 +31,6 @@
 #ifndef __P_SPEC__
 #define __P_SPEC__
 
-#include "ddf/main.h"
 #include "r_defs.h"
 #include "r_image.h"
 

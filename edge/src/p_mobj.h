@@ -32,7 +32,8 @@
 #ifndef __P_MOBJ_H__
 #define __P_MOBJ_H__
 
-#include "ddf/types.h"
+#include "ddf/attack.h"
+
 #include "m_math.h"
 
 // forward decl.

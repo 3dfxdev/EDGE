@@ -42,6 +42,9 @@
 #include "i_defs.h"
 #include "p_action.h"
 
+#include "ddf/game.h"
+#include "ddf/level.h"
+
 #include "con_main.h"
 #include "dm_defs.h"
 #include "dm_state.h"

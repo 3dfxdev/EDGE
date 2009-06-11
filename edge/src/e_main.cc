@@ -43,6 +43,9 @@
 #include "epi/path.h"
 #include "epi/utility.h"
 
+#include "ddf/game.h"
+#include "ddf/language.h"
+
 #include "am_map.h"
 #include "con_gui.h"
 #include "con_main.h"

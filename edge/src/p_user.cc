@@ -28,6 +28,8 @@
 #include <float.h>
 
 #include "ddf/colormap.h"
+#include "ddf/language.h"
+#include "ddf/level.h"
 
 #include "dm_state.h"
 #include "e_input.h"

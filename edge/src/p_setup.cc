@@ -30,8 +30,10 @@
 #include "epi/endianess.h"
 #include "epi/math_crc.h"
 
-#include "ddf/main.h"
 #include "ddf/colormap.h"
+#include "ddf/game.h"
+#include "ddf/level.h"
+#include "ddf/language.h"
 
 #include "dm_defs.h"
 #include "dm_state.h"

@@ -19,12 +19,16 @@
 #ifndef __RAD_MAIN_H__
 #define __RAD_MAIN_H__
 
-#include "ddf/main.h"
 
 #include "r_defs.h"
 #include "hu_stuff.h"
 
 #include "epi/math_crc.h"
+
+#include "ddf/main.h"
+#include "ddf/attack.h"
+#include "ddf/thing.h"
+#include "ddf/weapon.h"
 
 struct rts_state_s;
 struct rad_script_s;
