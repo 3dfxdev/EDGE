@@ -391,6 +391,8 @@ void DDF_StyleCleanUp (void);
 void DDF_ImageInit (void);
 void DDF_ImageCleanUp (void);
 
+float DDF_Tan(float degrees);
+
 // Miscellaneous stuff needed here & there
 extern mobjtype_c buffer_mobj;
 
