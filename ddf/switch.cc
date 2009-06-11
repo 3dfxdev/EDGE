@@ -22,6 +22,7 @@
 #include "local.h"
 
 #include "switch.h"
+#include "sfx.h"
 
 #undef  DF
 #define DF  DDF_CMD

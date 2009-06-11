@@ -18,6 +18,9 @@
 
 #include "local.h"
 
+#include "line.h"
+#include "sfx.h"
+
 
 static linetype_container_c   genlinetypes;    // <-- Generalised
 static sectortype_container_c gensectortypes;  // <-- Generalised

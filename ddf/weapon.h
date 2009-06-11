@@ -28,6 +28,30 @@
 // -----------------------WEAPON HANDLING----------------------------
 // ------------------------------------------------------------------
 
+// Ammunition types defined.
+typedef enum
+{
+	AM_DontCare = -2,  // Only used for P_SelectNewWeapon()
+	AM_NoAmmo   = -1,  // Unlimited for chainsaw / fist.
+  
+	AM_Bullet = 0, // Pistol / chaingun ammo.
+	AM_Shell,      // Shotgun / double barreled shotgun.
+	AM_Rocket,     // Missile launcher.
+	AM_Cell,       // Plasma rifle, BFG.
+
+	// New ammo types
+	AM_Pellet,
+	AM_Nail,
+	AM_Grenade,
+	AM_Gas,
+
+	AM_9,  AM_10, AM_11, AM_12,
+	AM_13, AM_14, AM_15, AM_16,
+
+	NUMAMMO  // Total count (16)
+}
+ammotype_e;
+
 #define WEAPON_KEYS 10
 
 // -AJA- 2000/01/12: Weapon special flags

@@ -21,6 +21,10 @@
 
 #include "local.h"
 
+#include "game.h"
+#include "level.h"
+#include "sfx.h"
+
 
 #undef  DF
 #define DF  DDF_CMD

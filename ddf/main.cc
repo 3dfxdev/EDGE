@@ -25,6 +25,8 @@
 #include "epi/str_format.h"
 
 #include "colormap.h"
+#include "attack.h"
+#include "thing.h"
 
 #include "src/p_action.h"
 

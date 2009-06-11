@@ -30,6 +30,7 @@
 // Forward declarations
 struct mobj_s;
 struct sfx_s;
+struct condition_check_s;
 
 class atkdef_c;
 class colourmap_c;
@@ -38,20 +39,22 @@ class mapdef_c;
 class mobjtype_c;
 class pl_entry_c;
 class weapondef_c;
+class linetype_c;
+class sectortype_c;
 
 
-#include "thing.h"
-#include "attack.h"
-#include "states.h"
-#include "weapon.h"
-
-#include "line.h"
-#include "level.h"
-#include "game.h"
-
-#include "playlist.h"
-#include "sfx.h"
-#include "language.h"
+///???  #include "thing.h"
+///???  #include "attack.h"
+///???  #include "states.h"
+///???  #include "weapon.h"
+///???  
+///???  #include "line.h"
+///???  #include "level.h"
+///???  #include "game.h"
+///???  
+///???  #include "playlist.h"
+///???  #include "sfx.h"
+///???  #include "language.h"
 
 
 // State updates, number of tics / second.
@@ -66,34 +69,6 @@ class weapondef_c;
 #define VISCOSITY   		0.0f
 #define DRAG        		0.99f
 #define RIDE_FRICTION    	0.7f
-
-
-// Info for the JUMP action
-typedef struct act_jump_info_s
-{
-	// chance value
-	percent_t chance; 
-
-public:
-	 act_jump_info_s();
-	~act_jump_info_s();
-}
-act_jump_info_t;
-
-
-// Info for the BECOME action
-typedef struct act_become_info_s
-{
-	const mobjtype_c *info;
-	epi::strent_c info_ref;
-
-	label_offset_c start;
-
-public:
-	 act_become_info_s();
-	~act_become_info_s();
-}
-act_become_info_t;
 
 
 // ------------------------------------------------------------------
@@ -118,7 +93,7 @@ void DDF_SetWhere(const std::string& dir);
 
 void DDF_Load(epi::file_c *f);
 
-bool DDF_MainParseCondition(const char *str, condition_check_t *cond);
+bool DDF_MainParseCondition(const char *str, struct condition_check_s *cond);
 void DDF_MainGetWhenAppear(const char *info, void *storage);
 void DDF_MainGetRGB(const char *info, void *storage);
 bool DDF_MainDecodeBrackets(const char *info, char *outer, char *inner, int buf_len);

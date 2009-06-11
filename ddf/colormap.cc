@@ -191,21 +191,21 @@ specflags_t colmap_specials[] =
 //
 void DDF_ColmapGetSpecial(const char *info, void *storage)
 {
-	int flag_value;
+	colourspecial_e *spec = (colourspecial_e *)storage;
 
-	switch (DDF_MainCheckSpecialFlag(info, colmap_specials, &flag_value,
-				true, false))
+	int value;
+
+	switch (DDF_MainCheckSpecialFlag(info, colmap_specials, &value, true))
 	{
 		case CHKF_Positive:
-			buffer_colmap.special = (colourspecial_e)(buffer_colmap.special | flag_value);
+			*spec = (colourspecial_e)(*spec | value);
 			break;
 
 		case CHKF_Negative:
-			buffer_colmap.special = (colourspecial_e)(buffer_colmap.special & ~flag_value);
+			*spec = (colourspecial_e)(*spec & ~value);
 			break;
 
-		case CHKF_User:
-		case CHKF_Unknown:
+		default:
 			DDF_WarnError2(128, "DDF_ColmapGetSpecial: Unknown Special: %s", info);
 			break;
 	}

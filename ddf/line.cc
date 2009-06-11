@@ -33,6 +33,8 @@
 #include <limits.h>
 
 #include "line.h"
+#include "thing.h"
+#include "sfx.h"
 
 #undef  DF
 #define DF  DDF_CMD
@@ -291,6 +293,43 @@ s_activators[] =
 	{ "MISSILE", 0 }
 };
 
+
+const specflags_t keytype_names[] =
+{
+	{"BLUECARD",    KF_BlueCard,    0},
+	{"YELLOWCARD",  KF_YellowCard,  0},
+	{"REDCARD",     KF_RedCard,     0},
+	{"GREENCARD",   KF_GreenCard,   0},
+
+	{"BLUESKULL",   KF_BlueSkull,   0},
+	{"YELLOWSKULL", KF_YellowSkull, 0},
+	{"REDSKULL",    KF_RedSkull,    0},
+	{"GREENSKULL",  KF_GreenSkull,  0},
+
+	{"GOLD_KEY",    KF_GoldKey,     0},
+	{"SILVER_KEY",  KF_SilverKey,   0},
+	{"BRASS_KEY",   KF_BrassKey,    0},
+	{"COPPER_KEY",  KF_CopperKey,   0},
+	{"STEEL_KEY",   KF_SteelKey,    0},
+	{"WOODEN_KEY",  KF_WoodenKey,   0},
+	{"FIRE_KEY",    KF_FireKey,     0},
+	{"WATER_KEY",   KF_WaterKey,    0},
+
+	// -AJA- compatibility (this way is the easiest)
+	{"KEY_BLUECARD",    KF_BlueCard,    0},
+	{"KEY_YELLOWCARD",  KF_YellowCard,  0},
+	{"KEY_REDCARD",     KF_RedCard,     0},
+	{"KEY_GREENCARD",   KF_GreenCard,   0},
+
+	{"KEY_BLUESKULL",   KF_BlueSkull,   0},
+	{"KEY_YELLOWSKULL", KF_YellowSkull, 0},
+	{"KEY_REDSKULL",    KF_RedSkull,    0},
+	{"KEY_GREENSKULL",  KF_GreenSkull,  0},
+
+	{NULL, 0, 0}
+};
+
+
 //
 //  DDF PARSE ROUTINES
 //
@@ -502,6 +541,8 @@ void DDF_LineGetScroller(const char *info, void *storage)
 //
 void DDF_LineGetSecurity(const char *info, void *storage)
 {
+	keys_e *keys = (keys_e *)storage;
+
 	int i;
 	bool required = false;
 
@@ -510,21 +551,21 @@ void DDF_LineGetSecurity(const char *info, void *storage)
 		required = true;
 		info++;
 	}
-	else if (buffer_line.keys & KF_STRICTLY_ALL)
+	else if (*keys & KF_STRICTLY_ALL)
 	{
 		// -AJA- when there is at least one required key, then the
 		// non-required keys don't have any effect.
 		return;
 	}
 
-	for (i = sizeof(s_keys) / sizeof(s_keys[0]); i--;)
+	for (i = sizeof(s_keys) / sizeof(s_keys[0]); i--; )
 	{
 		if (DDF_CompareName(info, s_keys[i].s) == 0)
 		{
-			buffer_line.keys = (keys_e)(buffer_line.keys | s_keys[i].n);
+			*keys = (keys_e)(*keys | s_keys[i].n);
 
 			if (required)
-				buffer_line.keys = (keys_e)(buffer_line.keys | KF_STRICTLY_ALL);
+				*keys = (keys_e)(*keys | KF_STRICTLY_ALL);
 
 			return;
 		}
@@ -538,6 +579,8 @@ void DDF_LineGetSecurity(const char *info, void *storage)
 //
 void DDF_LineGetTrigType(const char *info, void *storage)
 {
+	trigger_e *type = (trigger_e *)storage;
+
 	int i;
 
 	for (i = sizeof(s_trigger) / sizeof(s_trigger[0]); i--;)
@@ -547,12 +590,12 @@ void DDF_LineGetTrigType(const char *info, void *storage)
 #if 0  // DISABLED FOR NOW
 			if (global_flags.edge_compat && (trigger_e)s_trigger[i].n == line_manual)
 			{
-				buffer_line.type = line_pushable;
+				*type = line_pushable;
 				return;
 			}
 #endif
 					
-			buffer_line.type = (trigger_e)s_trigger[i].n;
+			*type = (trigger_e)s_trigger[i].n;
 			return;
 		}
 	}
@@ -565,13 +608,15 @@ void DDF_LineGetTrigType(const char *info, void *storage)
 //
 void DDF_LineGetActivators(const char *info, void *storage)
 {
+	trigacttype_e *obj = (trigacttype_e *)storage;
+
 	int i;
 
-	for (i = sizeof(s_activators) / sizeof(s_activators[0]); i--;)
+	for (i = sizeof(s_activators) / sizeof(s_activators[0]); i--; )
 	{
 		if (DDF_CompareName(info, s_activators[i].s) == 0)
 		{
-			buffer_line.obj = (trigacttype_e)(buffer_line.obj | s_activators[i].n);
+			*obj = (trigacttype_e)(*obj | s_activators[i].n);
 			return;
 		}
 	}

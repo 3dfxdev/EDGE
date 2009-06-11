@@ -359,6 +359,8 @@ static void ImageParseLump(const char *spec)
 
 static void DDF_ImageGetType(const char *info, void *storage)
 {
+	imagedata_type_e *type = (imagedata_type_e *)storage;
+
 	const char *colon = DDF_MainDecodeList(info, ':', true);
 
 	if (! colon || colon == info || (colon - info) >= 16 || colon[1] == 0)
@@ -371,22 +373,22 @@ static void DDF_ImageGetType(const char *info, void *storage)
 
 	if (DDF_CompareName(keyword, "COLOUR") == 0)
 	{
-		buffer_image.type = IMGDT_Colour;
+		*type = IMGDT_Colour;
 		ImageParseColour(colon + 1);
 	}
 	else if (DDF_CompareName(keyword, "BUILTIN") == 0)
 	{
-		buffer_image.type = IMGDT_Builtin;
+		*type = IMGDT_Builtin;
 		ImageParseBuiltin(colon + 1);
 	}
 	else if (DDF_CompareName(keyword, "FILE") == 0)
 	{
-		buffer_image.type = IMGDT_File;
+		*type = IMGDT_File;
 		ImageParseName(colon + 1);
 	}
 	else if (DDF_CompareName(keyword, "LUMP") == 0)
 	{
-		buffer_image.type = IMGDT_Lump;
+		*type = IMGDT_Lump;
 		ImageParseLump(colon + 1);
 	}
 	else
@@ -410,21 +412,19 @@ static void DDF_ImageGetSpecial(const char *info, void *storage)
 {
 	image_special_e *dest = (image_special_e *)storage;
 
-	int flag_value;
+	int value;
 
-	switch (DDF_MainCheckSpecialFlag(info, image_specials,
-			&flag_value, false /* allow_prefixes */, false))
+	switch (DDF_MainCheckSpecialFlag(info, image_specials, &value))
 	{
 		case CHKF_Positive:
-			*dest = (image_special_e)(*dest | flag_value);
+			*dest = (image_special_e)(*dest | value);
 			break;
 
 		case CHKF_Negative:
-			*dest = (image_special_e)(*dest & ~flag_value);
+			*dest = (image_special_e)(*dest & ~value);
 			break;
 
-		case CHKF_User:
-		case CHKF_Unknown:
+		default:
 			DDF_WarnError("Unknown image special: %s\n", info);
 			break;
 	}
@@ -432,13 +432,15 @@ static void DDF_ImageGetSpecial(const char *info, void *storage)
 
 static void DDF_ImageGetFixTrans(const char *info, void *storage)
 {
+	int *fix_trans = (int *)storage;
+
 	if (DDF_CompareName(info, "NONE") == 0)
 	{
-		buffer_image.fix_trans = FIXTRN_None;
+		*fix_trans = FIXTRN_None;
 	}
 	else if (DDF_CompareName(info, "BLACKEN") == 0)
 	{
-		buffer_image.fix_trans = FIXTRN_Blacken;
+		*fix_trans = FIXTRN_Blacken;
 	}
 	else
 		DDF_Error("Unknown FIX_TRANS type: %s\n", info);

@@ -296,30 +296,6 @@ typedef enum
 }
 benefit_type_e;
 
-// Ammunition types defined.
-typedef enum
-{
-	AM_DontCare = -2,  // Only used for P_SelectNewWeapon()
-	AM_NoAmmo   = -1,  // Unlimited for chainsaw / fist.
-  
-	AM_Bullet = 0, // Pistol / chaingun ammo.
-	AM_Shell,      // Shotgun / double barreled shotgun.
-	AM_Rocket,     // Missile launcher.
-	AM_Cell,       // Plasma rifle, BFG.
-
-	// New ammo types
-	AM_Pellet,
-	AM_Nail,
-	AM_Grenade,
-	AM_Gas,
-
-	AM_9,  AM_10, AM_11, AM_12,
-	AM_13, AM_14, AM_15, AM_16,
-
-	NUMAMMO  // Total count (16)
-}
-ammotype_e;
-
 typedef enum
 {
 	// weak armour, saves 33% of damage
@@ -522,87 +498,6 @@ condition_check_t;
 // --------------------MOVING OBJECT INFORMATION---------------------
 // ------------------------------------------------------------------
 
-//
-// -ACB- 2003/05/15: Moved this outside of damage_c. GCC and VC.NET have 
-// different- and conflicting - issues with structs in structs
-//
-// override labels for various states, if the object being damaged
-// has such a state then it is used instead of the normal ones
-// (PAIN, DEATH, OVERKILL).  Defaults to NULL.
-//
-
-class label_offset_c
-{
-public:
-	label_offset_c();
-	label_offset_c(label_offset_c &rhs);
-	~label_offset_c(); 
-
-private:
-	void Copy(label_offset_c &src);
-
-public:
-	void Default();
-	label_offset_c& operator=(label_offset_c &rhs);
-
-	epi::strent_c label;
-	int offset;
-};
-
-class damage_c
-{
-public:
-	damage_c();
-	damage_c(damage_c &rhs);
-	~damage_c();
-	
-	enum default_e
-	{
-		DEFAULT_Attack,
-		DEFAULT_Mobj,
-		DEFAULT_MobjChoke,
-		DEFAULT_Sector,
-		DEFAULT_Numtypes
-	};
-	
-private:
-	void Copy(damage_c &src);
-
-public:
-	void Default(default_e def);
-	damage_c& operator= (damage_c &rhs);
-
-	// nominal damage amount (required)
-	float nominal;
-
-	// used for DAMAGE.MAX: when this is > 0, the damage is random
-	// between nominal and linear_max, where each value has equal
-	// probability.
-	float linear_max;
-  
-	// used for DAMAGE.ERROR: when this is > 0, the damage is the
-	// nominal value +/- this error amount, with a bell-shaped
-	// distribution (values near the nominal are much more likely than
-	// values at the outer extreme).
-	float error;
-
-	// delay (in terms of tics) between damage application, e.g. 34
-	// would be once every second.  Only used for slime/crush damage.
-	int delay;
-
-	// death message, names an entry in LANGUAGES.LDF
-	epi::strent_c obituary;
-
-	// override labels for various states, if the object being damaged
-	// has such a state then it is used instead of the normal ones
-	// (PAIN, DEATH, OVERKILL).  Defaults to NULL.
-	label_offset_c pain, death, overkill;
-
-	// this flag says that the damage is unaffected by the player's
-	// armour -- and vice versa.
-	bool no_armour;
-};
-
 typedef enum
 {
 	GLOW_None    = 0,
@@ -619,13 +514,6 @@ typedef enum
 	SPYA_TopDown  = 2,
 }
 sprite_y_alignment_e;
-
-// a bitset is a set of named bits, from `A' to `Z'.
-typedef int bitset_t;
-
-#define BITSET_EMPTY  0
-#define BITSET_FULL   0x7FFFFFFF
-#define BITSET_MAKE(ch)  (1 << ((ch) - 'A'))
 
 // dynamic light info
 
@@ -874,7 +762,6 @@ public:
 };
 
 // Our mobjdef container
-#define LOOKUP_CACHESIZE 211
 
 class mobjtype_container_c : public epi::array_c
 {

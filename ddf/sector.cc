@@ -32,6 +32,9 @@
 static sectortype_c buffer_sector;
 static sectortype_c *dynamic_sector;
 
+extern damage_c buffer_damage;
+extern movplanedef_c buffer_floor;
+
 sectortype_container_c sectortypes; 	// <-- User-defined
 
 void DDF_SectGetSpecialFlags(const char *info, void *storage);

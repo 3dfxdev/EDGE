@@ -28,6 +28,9 @@
 #include "local.h"
 
 #include "thing.h"
+#include "attack.h"
+#include "weapon.h"
+#include "sfx.h"
 
 #include "src/p_action.h"
 
@@ -39,6 +42,8 @@
 
 mobjtype_c buffer_mobj;
 mobjtype_c *dynamic_mobj;
+
+extern damage_c buffer_damage;
 
 mobjtype_container_c mobjtypes;
 
@@ -328,40 +333,7 @@ static const actioncode_t thing_actions[] =
 	{NULL, NULL, NULL}
 };
 
-const specflags_t keytype_names[] =
-{
-	{"BLUECARD",    KF_BlueCard,    0},
-	{"YELLOWCARD",  KF_YellowCard,  0},
-	{"REDCARD",     KF_RedCard,     0},
-	{"GREENCARD",   KF_GreenCard,   0},
-
-	{"BLUESKULL",   KF_BlueSkull,   0},
-	{"YELLOWSKULL", KF_YellowSkull, 0},
-	{"REDSKULL",    KF_RedSkull,    0},
-	{"GREENSKULL",  KF_GreenSkull,  0},
-
-	{"GOLD_KEY",    KF_GoldKey,     0},
-	{"SILVER_KEY",  KF_SilverKey,   0},
-	{"BRASS_KEY",   KF_BrassKey,    0},
-	{"COPPER_KEY",  KF_CopperKey,   0},
-	{"STEEL_KEY",   KF_SteelKey,    0},
-	{"WOODEN_KEY",  KF_WoodenKey,   0},
-	{"FIRE_KEY",    KF_FireKey,     0},
-	{"WATER_KEY",   KF_WaterKey,    0},
-
-	// -AJA- compatibility (this way is the easiest)
-	{"KEY_BLUECARD",    KF_BlueCard,    0},
-	{"KEY_YELLOWCARD",  KF_YellowCard,  0},
-	{"KEY_REDCARD",     KF_RedCard,     0},
-	{"KEY_GREENCARD",   KF_GreenCard,   0},
-
-	{"KEY_BLUESKULL",   KF_BlueSkull,   0},
-	{"KEY_YELLOWSKULL", KF_YellowSkull, 0},
-	{"KEY_REDSKULL",    KF_RedSkull,    0},
-	{"KEY_GREENSKULL",  KF_GreenSkull,  0},
-
-	{NULL, 0, 0}
-};
+extern const specflags_t keytype_names[];
 
 const specflags_t armourtype_names[] =
 {
