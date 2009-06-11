@@ -19,8 +19,7 @@
 #ifndef __DDF_MUS_H__
 #define __DDF_MUS_H__
 
-#include "base.h"
-#include "types.h"
+#include "main.h"
 
 // ----------------------------------------------------------------
 // -------------------------MUSIC PLAYLIST-------------------------

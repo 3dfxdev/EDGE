@@ -19,11 +19,8 @@
 #ifndef __DDF_LEVEL_H__
 #define __DDF_LEVEL_H__
 
-#include "base.h"
-#include "types.h"
+#include "main.h"
 
-
-class gamedef_c;
 
 // ------------------------------------------------------------------
 // ---------------MAP STRUCTURES AND CONFIGURATION-------------------

@@ -30,7 +30,7 @@
 
 class mobjtype_c;
 
-#define LOOKUP_CACHESIZE 211
+#define LOOKUP_CACHESIZE  211
 
 
 // RGB 8:8:8

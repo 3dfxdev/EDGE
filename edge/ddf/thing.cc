@@ -333,7 +333,6 @@ static const actioncode_t thing_actions[] =
 	{NULL, NULL, NULL}
 };
 
-extern const specflags_t keytype_names[];
 
 const specflags_t armourtype_names[] =
 {

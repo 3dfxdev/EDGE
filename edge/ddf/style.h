@@ -21,8 +21,7 @@
 
 #include "epi/utility.h"
 
-#include "base.h"
-#include "types.h"
+#include "main.h"
 
 class fontdef_c;
 class colourmap_c;

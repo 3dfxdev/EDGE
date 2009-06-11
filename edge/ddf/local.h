@@ -396,6 +396,8 @@ float DDF_Tan(float degrees);
 // Miscellaneous stuff needed here & there
 extern mobjtype_c buffer_mobj;
 
+extern const specflags_t keytype_names[];
+
 extern const commandlist_t floor_commands[];
 extern const commandlist_t damage_commands[];
 

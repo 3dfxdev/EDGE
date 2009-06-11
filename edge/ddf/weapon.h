@@ -19,8 +19,7 @@
 #ifndef __DDF_WEAPON_H__
 #define __DDF_WEAPON_H__
 
-#include "base.h"
-#include "types.h"
+#include "main.h"
 #include "states.h"
 
 

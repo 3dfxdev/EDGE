@@ -21,8 +21,7 @@
 
 #include "epi/utility.h"
 
-#include "base.h"
-#include "types.h"
+#include "main.h"
 
 //
 // -AJA- 2004/11/13 Fonts.ddf

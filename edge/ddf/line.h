@@ -19,10 +19,7 @@
 #ifndef __DDF_LINE_H__
 #define __DDF_LINE_H__
 
-#include "epi/utility.h"
-
-#include "base.h"
-#include "types.h"
+#include "main.h"
 
 // ------------------------------------------------------------------
 // ------------------------LINEDEF TYPES-----------------------------
