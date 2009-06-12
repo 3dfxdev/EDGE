@@ -57,18 +57,6 @@ int			numglobaldefs;
 ddef_t		fields[MAX_FIELDS];
 int			numfielddefs;
 
-char		precache_sounds[MAX_SOUNDS][MAX_DATA_PATH];
-int			precache_sounds_block[MAX_SOUNDS];
-int			numsounds;
-
-char		precache_models[MAX_MODELS][MAX_DATA_PATH];
-int			precache_models_block[MAX_SOUNDS];
-int			nummodels;
-
-char		precache_files[MAX_FILES][MAX_DATA_PATH];
-int			precache_files_block[MAX_SOUNDS];
-int			numfiles;
-
 
 // CopyString returns an offset from the string heap
 int	CopyString (char *str)
@@ -160,12 +148,10 @@ void InitData (void)
 }
 
 
-void WriteData (int crc)
+static void WriteData (void)
 {
 	def_t		*def;
 	ddef_t		*dd;
-	dprograms_t	progs;
-	FILE		*h;
 	int			i;
 
 	for (def = pr.def_head.next ; def ; def = def->next)
@@ -176,24 +162,24 @@ void WriteData (int crc)
 //			numfunctions++;
 
 		}
-		else if (def->type->type == ev_field)
-		{
-			dd = &fields[numfielddefs];
-			numfielddefs++;
-			dd->type = def->type->aux_type->type;
-			dd->s_name = CopyString (def->name);
-			dd->ofs = G_INT(def->ofs);
-		}
-		dd = &globals[numglobaldefs];
-		numglobaldefs++;
-		dd->type = def->type->type;
-		if ( !def->initialized
-		&& def->type->type != ev_function
-		&& def->type->type != ev_field
-		&& def->scope == NULL)
-			dd->type |= DEF_SAVEGLOBAL;
-		dd->s_name = CopyString (def->name);
-		dd->ofs = def->ofs;
+    else if (def->type->type == ev_field)
+    {
+      dd = &fields[numfielddefs];
+      numfielddefs++;
+      dd->type = def->type->aux_type->type;
+      dd->s_name = CopyString (def->name);
+      dd->ofs = G_INT(def->ofs);
+    }
+    dd = &globals[numglobaldefs];
+    numglobaldefs++;
+    dd->type = def->type->type;
+    if ( !def->initialized
+        && def->type->type != ev_function
+        && def->type->type != ev_field
+        && def->scope == NULL)
+      dd->type |= DEF_SAVEGLOBAL;
+    dd->s_name = CopyString (def->name);
+    dd->ofs = def->ofs;
 	}
 
 //PrintStrings ();
@@ -209,77 +195,6 @@ strofs = (strofs+3)&~3;
 	printf ("%6i numglobaldefs\n", numglobaldefs);
 	printf ("%6i numfielddefs\n", numfielddefs);
 	printf ("%6i numpr_globals\n", numpr_globals);
-	
-	h = SafeOpenWrite ("lol.wtf");
-	SafeWrite (h, &progs, sizeof(progs));
-
-	progs.ofs_strings = ftell (h);
-	progs.numstrings = strofs;
-	SafeWrite (h, strings, strofs);
-
-	progs.ofs_statements = ftell (h);
-	progs.numstatements = numstatements;
-	for (i=0 ; i<numstatements ; i++)
-	{
-		statements[i].op = LittleShort(statements[i].op);
-		statements[i].a = LittleShort(statements[i].a);
-		statements[i].b = LittleShort(statements[i].b);
-		statements[i].c = LittleShort(statements[i].c);
-	}
-	SafeWrite (h, statements, numstatements*sizeof(dstatement_t));
-
-	progs.ofs_functions = ftell (h);
-	progs.numfunctions = numfunctions;
-	for (i=0 ; i<numfunctions ; i++)
-	{
-	functions[i].first_statement = LittleLong (functions[i].first_statement);
-	functions[i].parm_start = LittleLong (functions[i].parm_start);
-	functions[i].s_name = LittleLong (functions[i].s_name);
-	functions[i].s_file = LittleLong (functions[i].s_file);
-	functions[i].numparms = LittleLong (functions[i].numparms);
-	functions[i].locals = LittleLong (functions[i].locals);
-	}	
-	SafeWrite (h, functions, numfunctions*sizeof(dfunction_t));
-
-	progs.ofs_globaldefs = ftell (h);
-	progs.numglobaldefs = numglobaldefs;
-	for (i=0 ; i<numglobaldefs ; i++)
-	{
-		globals[i].type = LittleShort (globals[i].type);
-		globals[i].ofs = LittleShort (globals[i].ofs);
-		globals[i].s_name = LittleLong (globals[i].s_name);
-	}
-	SafeWrite (h, globals, numglobaldefs*sizeof(ddef_t));
-
-	progs.ofs_fielddefs = ftell (h);
-	progs.numfielddefs = numfielddefs;
-	for (i=0 ; i<numfielddefs ; i++)
-	{
-		fields[i].type = LittleShort (fields[i].type);
-		fields[i].ofs = LittleShort (fields[i].ofs);
-		fields[i].s_name = LittleLong (fields[i].s_name);
-	}
-	SafeWrite (h, fields, numfielddefs*sizeof(ddef_t));
-
-	progs.ofs_globals = ftell (h);
-	progs.numglobals = numpr_globals;
-	for (i=0 ; i<numpr_globals ; i++)
-		((int *)pr_globals)[i] = LittleLong (((int *)pr_globals)[i]);
-	SafeWrite (h, pr_globals, numpr_globals*4);
-
-	printf ("%6i TOTAL SIZE\n", (int)ftell (h));	
-
-	progs.entityfields = pr.size_fields;
-
-	progs.version = PROG_VERSION;
-	progs.crc = crc;
-	
-// byte swap the header and write it out
-	for (i=0 ; i<sizeof(progs)/4 ; i++)
-		((int *)&progs)[i] = LittleLong ( ((int *)&progs)[i] );		
-	fseek (h, 0, SEEK_SET);
-	SafeWrite (h, &progs, sizeof(progs));
-	fclose (h);
 	
 }
 
@@ -756,6 +671,9 @@ int main (int argc, char **argv)
 	
 	if (!PR_FinishCompilation ())
 		Error ("compilation errors");
+
+  WriteData();
+
 
 	stop = I_FloatTime ();
 	printf ("%i seconds elapsed.\n", (int)(stop-start));

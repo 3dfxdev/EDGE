@@ -432,18 +432,6 @@ extern	int			numpr_globals;
 
 extern	char	pr_immediate_string[2048];
 
-extern	char		precache_sounds[MAX_SOUNDS][MAX_DATA_PATH];
-extern	int			precache_sounds_block[MAX_SOUNDS];
-extern	int			numsounds;
-
-extern	char		precache_models[MAX_MODELS][MAX_DATA_PATH];
-extern	int			precache_models_block[MAX_SOUNDS];
-extern	int			nummodels;
-
-extern	char		precache_files[MAX_FILES][MAX_DATA_PATH];
-extern	int			precache_files_block[MAX_SOUNDS];
-extern	int			numfiles;
-
 int	CopyString (char *str);
 
 #endif
