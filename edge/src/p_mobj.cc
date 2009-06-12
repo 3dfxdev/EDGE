@@ -837,24 +837,22 @@ static void P_XYMovement(mobj_t * mo, const region_properties_t *props)
 				// These special lines were not activated in P_TryMove since it 
 				// failed.  Ugh !
 				//
-				if (spechit.GetSize() > 0)
+				if (spechit.size() > 0)
 				{
-					epi::array_iterator_c it;
-					line_t* ld;
-					
-					for (it=spechit.GetTailIterator(); it.IsValid(); it--)
+					for (int i = (int)spechit.size()-1; i >= 0; i--)
 					{
-						ld = ITERATOR_TO_TYPE(it, line_t*);
-						
-						P_ShootSpecialLine(ld, PointOnLineSide(mo->x, mo->y, ld), 
-											mo->source);
+						line_t *ld = spechit[i];
+						int side = PointOnLineSide(mo->x, mo->y, ld);
+
+						P_ShootSpecialLine(ld, side, mo->source);
 					}	
 				}
 				
 				if (blockline && blockline->special)
 				{
-					P_ShootSpecialLine(blockline, 
-						PointOnLineSide(mo->x, mo->y, blockline), mo->source);
+					int side = PointOnLineSide(mo->x, mo->y, blockline);
+
+					P_ShootSpecialLine(blockline, side, mo->source);
 				}
 			}
 

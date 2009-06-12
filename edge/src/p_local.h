@@ -249,21 +249,6 @@ typedef enum
 }
 check_sec_move_e;
 
-// --> Line list class
-class linelist_c : public epi::array_c
-{
-public:
-	linelist_c() : epi::array_c(sizeof(line_t*)) {}
-	~linelist_c() { Clear(); }
-
-private:
-	void CleanupObject(void *obj) { /* ... */ }
-
-public:
-	int GetSize() {	return array_entries; } 
-	int Insert(line_t *l) { return InsertObject((void*)&l); }
-	line_t* operator[](int idx) { return *(line_t**)FetchObject(idx); } 
-};
 
 // If "floatok" true, move would be OK at float_destz height.
 extern bool floatok;
@@ -272,7 +257,7 @@ extern float float_destz;
 extern bool mobj_hit_sky;
 extern line_t *blockline;
 
-extern linelist_c spechit;
+extern std::vector<line_t *> spechit;
 
 void P_MapInit(void);
 bool P_MapCheckBlockingLine(mobj_t * thing, mobj_t * spawnthing);
