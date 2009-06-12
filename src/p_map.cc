@@ -102,7 +102,8 @@ float float_destz;
 // keep track of special lines as they are hit,
 // but don't process them until the move is proven valid
 
-linelist_c spechit;		// List of special lines that have been hit
+// List of special lines that have been hit
+std::vector<line_t *> spechit;
 
 typedef struct shoot_trav_info_s
 {
@@ -209,9 +210,6 @@ bool P_TeleportMove(mobj_t * thing, float x, float y, float z)
 	tm_I.dropoff = tm_I.floorz;
 	tm_I.above = NULL;
 	tm_I.below = NULL;
-
-	// -ACB- 2004/08/01 Don't think this is needed
-	//	spechit.ZeroiseCount();
 
 	float r = thing->radius;
 	
@@ -501,7 +499,7 @@ static bool PIT_CheckRelLine(line_t * ld, void *data)
 
 	// if contacted a special line, add it to the list
 	if (ld->special)
-		spechit.Insert(ld);
+		spechit.push_back(ld);
 
 	// check for hitting a sky-hack line
 	{
@@ -758,7 +756,7 @@ static bool P_CheckRelPosition(mobj_t * thing, float x, float y)
 	if (tm_I.flags & MF_NOCLIP)
 		return true;
 
-	spechit.ZeroiseCount();
+	spechit.clear();
 
 	// -KM- 1998/11/25 Corpses aren't supposed to hang in the air...
 	if (! (tm_I.flags & (MF_NOCLIP | MF_CORPSE)))
@@ -779,32 +777,55 @@ static bool P_CheckRelPosition(mobj_t * thing, float x, float y)
 	return true;
 }
 
-//
-// P_TryMove
+static void HitSpecialLines(mobj_t *mo, float oldx, float oldy )
+{
+	if (mo->player || (mo->extendedflags & EF_MONSTER))
+	{
+		/* OK */
+	}
+	else if (mo->currentattack && (mo->currentattack->flags & AF_NoTriggerLines))
+	{
+		return;
+	}
+
+	for (int i = (int)spechit.size()-1; i >= 0; i--)
+	{
+		line_t *ld = spechit[i];
+
+		SYS_ASSERT(ld->special);
+
+		int side    = PointOnLineSide(mo->x, mo->y, ld);
+		int oldside = PointOnLineSide(oldx, oldy, ld);
+
+		if (side != oldside)
+		{
+			if (mo->flags & MF_MISSILE)
+				P_ShootSpecialLine(ld, oldside, mo->source);
+			else
+				P_CrossSpecialLine(ld, oldside, mo);
+		}
+	}
+}
+
 //
 // Attempt to move to a new position,
 // crossing special lines unless MF_TELEPORT is set.
 //
-bool P_TryMove(mobj_t * thing, float x, float y)
+bool P_TryMove(mobj_t * mo, float x, float y)
 {
-	float oldx;
-	float oldy;
-	line_t *ld;
-	bool fell_off_thing;
-
-	float z = thing->z;
+	float z = mo->z;
 
 	floatok = false;
 
 	// solid wall or thing ?
-	if (!P_CheckRelPosition(thing, x, y))
+	if (!P_CheckRelPosition(mo, x, y))
 		return false;
 
-	fell_off_thing = (thing->below_mo && !tm_I.below);
+	bool fell_off_thing = (mo->below_mo && !tm_I.below);
 
-	if (!(thing->flags & MF_NOCLIP))
+	if (!(mo->flags & MF_NOCLIP))
 	{
-		if (thing->height > tm_I.ceilnz - tm_I.floorz)
+		if (mo->height > tm_I.ceilnz - tm_I.floorz)
 		{
 			// doesn't fit
 			if (!blockline && tm_I.line_count>=1) blockline=tm_I.line_which;
@@ -814,16 +835,16 @@ bool P_TryMove(mobj_t * thing, float x, float y)
 		floatok = true;
 		float_destz = tm_I.floorz;
 
-		if (!(thing->flags & MF_TELEPORT) &&
-			(thing->z + thing->height > tm_I.ceilnz))
+		if (!(mo->flags & MF_TELEPORT) &&
+			(mo->z + mo->height > tm_I.ceilnz))
 		{
 			// mobj must lower itself to fit.
 			if (!blockline && tm_I.line_count>=1) blockline=tm_I.line_which;
 			return false;
 		}
 
-		if (!(thing->flags & MF_TELEPORT) &&
-			(thing->z + thing->info->step_size) < tm_I.floorz)
+		if (!(mo->flags & MF_TELEPORT) &&
+			(mo->z + mo->info->step_size) < tm_I.floorz)
 		{
 			// too big a step up.
 			if (!blockline && tm_I.line_count>=1) blockline=tm_I.line_which;
@@ -831,18 +852,18 @@ bool P_TryMove(mobj_t * thing, float x, float y)
 		}
 
 		if (!fell_off_thing &&
-			!(thing->flags & (MF_TELEPORT | MF_DROPOFF | MF_FLOAT)) &&
-			(thing->z - thing->info->step_size) > tm_I.floorz)
+			!(mo->flags & (MF_TELEPORT | MF_DROPOFF | MF_FLOAT)) &&
+			(mo->z - mo->info->step_size) > tm_I.floorz)
 		{
 			// too big a step down.
 			return false;
 		}
 
 		if (!fell_off_thing &&
-			!((thing->flags & (MF_DROPOFF | MF_FLOAT)) ||
-			(thing->extendedflags & (EF_EDGEWALKER | EF_WATERWALKER))) &&
-			(tm_I.floorz - tm_I.dropoff > thing->info->step_size) &&
-			(thing->floorz - thing->dropoffz <= thing->info->step_size))
+			!((mo->flags & (MF_DROPOFF | MF_FLOAT)) ||
+			(mo->extendedflags & (EF_EDGEWALKER | EF_WATERWALKER))) &&
+			(tm_I.floorz - tm_I.dropoff > mo->info->step_size) &&
+			(mo->floorz - mo->dropoffz <= mo->info->step_size))
 		{
 			// don't stand over a dropoff.
 			return false;
@@ -851,57 +872,31 @@ bool P_TryMove(mobj_t * thing, float x, float y)
 
 	// the move is ok, so link the thing into its new position
 
-	oldx = thing->x;
-	oldy = thing->y;
-	thing->floorz = tm_I.floorz;
-	thing->ceilingz = tm_I.ceilnz;
-	thing->dropoffz = tm_I.dropoff;
+	float oldx = mo->x;
+	float oldy = mo->y;
+
+	mo->floorz   = tm_I.floorz;
+	mo->ceilingz = tm_I.ceilnz;
+	mo->dropoffz = tm_I.dropoff;
 
 	// -AJA- 1999/08/02: Improved MF_TELEPORT handling.
-	if (thing->flags & (MF_TELEPORT | MF_NOCLIP))
+	if (mo->flags & (MF_TELEPORT | MF_NOCLIP))
 	{
-		if (z <= thing->floorz)
-			z = thing->floorz;
-		else if (z + thing->height > thing->ceilingz)
-			z = thing->ceilingz - thing->height;
+		if (z <= mo->floorz)
+			z = mo->floorz;
+		else if (z + mo->height > mo->ceilingz)
+			z = mo->ceilingz - mo->height;
 	}
 
-	P_ChangeThingPosition(thing, x, y, z);
+	P_ChangeThingPosition(mo, x, y, z);
 
-	thing->SetAboveMo(tm_I.above);
-	thing->SetBelowMo(tm_I.below);
+	mo->SetAboveMo(tm_I.above);
+	mo->SetBelowMo(tm_I.below);
 
 	// if any special lines were hit, do the effect
-	if (spechit.GetSize() && !(thing->flags & (MF_TELEPORT | MF_NOCLIP)))
+	if (spechit.size() > 0 && !(mo->flags & (MF_TELEPORT | MF_NOCLIP)))
 	{
-		// Thing doesn't change, so we check the notriggerlines flag once..
-		if (thing->player || (thing->extendedflags & EF_MONSTER) ||
-			!(thing->currentattack && 
-			(thing->currentattack->flags & AF_NoTriggerLines)))
-		{		
-			epi::array_iterator_c it;
-			
-			for (it=spechit.GetTailIterator(); it.IsValid(); it--)
-			{
-				ld = ITERATOR_TO_TYPE(it, line_t*);
-				if (ld->special)	// Shouldn't this always be a special?
-				{
-					int side;
-					int oldside;
-		
-					side = PointOnLineSide(thing->x, thing->y, ld);
-					oldside = PointOnLineSide(oldx, oldy, ld);
-	
-					if (side != oldside)
-					{
-						if (thing->flags & MF_MISSILE)
-							P_ShootSpecialLine(ld, oldside, thing->source);
-						else
-							P_CrossSpecialLine(ld, oldside, thing);
-					}
-				}
-			}
-		}
+		HitSpecialLines(mo, oldx, oldy);
 	}
 
 	return true;
@@ -918,32 +913,32 @@ bool P_TryMove(mobj_t * thing, float x, float y)
 // If the thing doesn't fit, the z will be set to the lowest value
 // and false will be returned.
 //
-static bool P_ThingHeightClip(mobj_t * thing)
+static bool P_ThingHeightClip(mobj_t * mo)
 {
-	bool onfloor = (fabs(thing->z - thing->floorz) < 1);
+	bool onfloor = (fabs(mo->z - mo->floorz) < 1);
 
-	P_CheckRelPosition(thing, thing->x, thing->y);
+	P_CheckRelPosition(mo, mo->x, mo->y);
 
-	thing->floorz = tm_I.floorz;
-	thing->ceilingz = tm_I.ceilnz;
-	thing->dropoffz = tm_I.dropoff;
+	mo->floorz = tm_I.floorz;
+	mo->ceilingz = tm_I.ceilnz;
+	mo->dropoffz = tm_I.dropoff;
 
-	thing->SetAboveMo(tm_I.above);
-	thing->SetBelowMo(tm_I.below);
+	mo->SetAboveMo(tm_I.above);
+	mo->SetBelowMo(tm_I.below);
 
 	if (onfloor)
 	{
 		// walking monsters rise and fall with the floor
-		thing->z = thing->floorz;
+		mo->z = mo->floorz;
 	}
 	else
 	{
 		// don't adjust a floating monster unless forced to
-		if (thing->z + thing->height > thing->ceilingz)
-			thing->z = thing->ceilingz - thing->height;
+		if (mo->z + mo->height > mo->ceilingz)
+			mo->z = mo->ceilingz - mo->height;
 	}
 
-	if (thing->ceilingz - thing->floorz < thing->height)
+	if (mo->ceilingz - mo->floorz < mo->height)
 		return false;
 
 	return true;
@@ -2403,12 +2398,9 @@ bool P_MapCheckBlockingLine(mobj_t * thing, mobj_t * spawnthing)
 	return false;
 }
 
-//
-// P_MapInit
-//
 void P_MapInit(void)
 {
-	spechit.Clear();
+	spechit.clear();
 }
 
 
