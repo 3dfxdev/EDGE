@@ -133,6 +133,8 @@ enum
 };
 
 
+#define	MAX_PARMS	8
+
 typedef struct statement_s
 {
 	unsigned short	op;
@@ -150,8 +152,6 @@ typedef struct
 }
 ddef_t;
 #define	DEF_SAVEGLOBAL	(1<<15)
-
-#define	MAX_PARMS	8
 
 typedef struct
 {

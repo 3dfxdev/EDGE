@@ -265,69 +265,6 @@ def_t	*PR_ParseImmediate (void)
 }
 
 
-void PrecacheSound (def_t *e, int ch)
-{
-	char	*n;
-	int		i;
-	
-	if (!e->ofs)
-		return;
-	n = G_STRING(e->ofs);
-	for (i=0 ; i<numsounds ; i++)
-		if (!strcmp(n, precache_sounds[i]))
-			return;
-	if (numsounds == MAX_SOUNDS)
-		Error ("PrecacheSound: numsounds == MAX_SOUNDS");
-	strcpy (precache_sounds[i], n);
-	if (ch >= '1'  && ch <= '9')
-		precache_sounds_block[i] = ch - '0';
-	else
-		precache_sounds_block[i] = 1;
-	numsounds++;
-}
-
-void PrecacheModel (def_t *e, int ch)
-{
-	char	*n;
-	int		i;
-	
-	if (!e->ofs)
-		return;
-	n = G_STRING(e->ofs);
-	for (i=0 ; i<nummodels ; i++)
-		if (!strcmp(n, precache_models[i]))
-			return;
-	if (numsounds == MAX_SOUNDS)
-		Error ("PrecacheModels: numsounds == MAX_SOUNDS");
-	strcpy (precache_models[i], n);
-	if (ch >= '1'  && ch <= '9')
-		precache_models_block[i] = ch - '0';
-	else
-		precache_models_block[i] = 1;
-	nummodels++;
-}
-
-void PrecacheFile (def_t *e, int ch)
-{
-	char	*n;
-	int		i;
-	
-	if (!e->ofs)
-		return;
-	n = G_STRING(e->ofs);
-	for (i=0 ; i<numfiles ; i++)
-		if (!strcmp(n, precache_files[i]))
-			return;
-	if (numfiles == MAX_FILES)
-		Error ("PrecacheFile: numfiles == MAX_FILES");
-	strcpy (precache_files[i], n);
-	if (ch >= '1'  && ch <= '9')
-		precache_files_block[i] = ch - '0';
-	else
-		precache_files_block[i] = 1;
-	numfiles++;
-}
-
 /*
 ============
 PR_ParseFunctionCall
@@ -354,17 +291,6 @@ def_t *PR_ParseFunctionCall (def_t *func)
 				PR_ParseError ("too many parameters");
 			e = PR_Expression (TOP_PRIORITY);
 
-			if (arg == 0 && func->name)
-			{
-			// save information for model and sound caching
-				if (!strncmp(func->name,"precache_sound", 14))
-					PrecacheSound (e, func->name[14]);
-				else if (!strncmp(func->name,"precache_model", 14))
-					PrecacheModel (e, func->name[14]);
-				else if (!strncmp(func->name,"precache_file", 13))
-					PrecacheFile (e, func->name[13]);
-			}
-						
 			if (t->num_parms != -1 && ( e->type != t->parm_types[arg] ) )
 				PR_ParseError ("type mismatch on parm %i", arg);
 		// a vector copy will copy everything
