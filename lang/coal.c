@@ -33,13 +33,10 @@
 #include "q_comp.c"
 
 #include "r_cmds.c"
-// #include "r_load.c"
 #include "r_exec.c"
 
 
-
 char		sourcedir[1024];
-char		destfile[1024];
 
 float		pr_globals[MAX_REGS];
 int			numpr_globals;
@@ -213,7 +210,7 @@ strofs = (strofs+3)&~3;
 	printf ("%6i numfielddefs\n", numfielddefs);
 	printf ("%6i numpr_globals\n", numpr_globals);
 	
-	h = SafeOpenWrite (destfile);
+	h = SafeOpenWrite ("lol.wtf");
 	SafeWrite (h, &progs, sizeof(progs));
 
 	progs.ofs_strings = ftell (h);
@@ -715,7 +712,8 @@ int main (int argc, char **argv)
 	char	*src;
 	char	*src2;
 	char	filename[1024];
-	int		p, crc;
+	int		p;
+  int   k;
 	double	start, stop;
 
 	start = I_FloatTime ();
@@ -723,67 +721,44 @@ int main (int argc, char **argv)
 	myargc = argc;
 	myargv = argv;
 	
-	if ( CheckParm ("-?") || CheckParm ("-help"))
+	if (argc <= 1 || CheckParm ("-?") || CheckParm ("-help"))
 	{
-		printf ("coal looks for progs_src in the current directory.\n");
-		printf ("to look in a different directory: coal -src <directory>\n");
+		printf ("USAGE: coal [OPTIONS] file ...\n");
 		return 0;
 	}
 	
-	p = CheckParm ("-src");
-	if (p && p < argc-1 )
-	{
-		strcpy (sourcedir, argv[p+1]);
-		strcat (sourcedir, "/");
-		printf ("Source directory: %s\n", sourcedir);
-	}
-	else
-		strcpy (sourcedir, "");
+  strcpy (sourcedir, "");
 
 	InitData ();
 	
+	pr_dumpasm = false;
+
 	sprintf (filename, "%sprogs_src", sourcedir);
 	LoadFile (filename, (void *)&src);
 	
-	src = COM_Parse (src);
-	if (!src)
-		Error ("No destination filename.  coal -help for info.\n");
-	strcpy (destfile, com_token);
-	printf ("outputfile: %s\n", destfile);
-	
-	pr_dumpasm = false;
 
 	PR_BeginCompilation (malloc (0x100000), 0x100000);
 
 // compile all the files
-	do
+  for (k = 1; k < argc; k++)
 	{
-		src = COM_Parse(src);
-		if (!src)
-			break;
-		sprintf (filename, "%s%s", sourcedir, com_token);
+    if (argv[k][0] == '-')
+      Error("Bad filename: %s\n", argv[k]);
+
+		sprintf (filename, "%s%s", sourcedir, argv[k]);
 		printf ("compiling %s\n", filename);
+
 		LoadFile (filename, (void *)&src2);
 
 		if (!PR_CompileFile (src2, filename) )
 			exit (1);
-			
-	} while (1);
+		
+    // FIXME: FreeFile(src2);
+
+	}
 	
 	if (!PR_FinishCompilation ())
 		Error ("compilation errors");
-
-	p = CheckParm ("-asm");
-	if (p)
-	{
-		for (p++ ; p<argc ; p++)
-		{
-			if (argv[p][0] == '-')
-				break;
-			PrintFunction (argv[p]);
-		}
-	}
-	
 
 	stop = I_FloatTime ();
 	printf ("%i seconds elapsed.\n", (int)(stop-start));
@@ -806,20 +781,6 @@ int main (int argc, char **argv)
         break;
       }
     }
-
-///    def_t	*d;
-///	
-///    for (d=pr.def_head.next ; d ; d=d->next)
-///    {
-///      if (!strcmp (d->name, "end_sys_globals"))
-///        break;
-///			
-///      if (d->type->type == ev_function && strcmp(d->name, "main") == 0)
-///      {
-///        main_func = (func_t) d->ofs;
-///        break;
-///      }
-///    }
   }
 
   if (! (int)main_func)
@@ -829,15 +790,6 @@ int main (int argc, char **argv)
 
   PR_ExecuteProgram(main_func);
 	
-
-///---// write progdefs.h
-///---	crc = PR_WriteProgdefs ("progdefs.h");
-///---	
-///---// write data file
-///---	WriteData (crc);
-///---	
-///---// write files.dat
-///---	WriteFiles ();
 
   return 0;
 }
