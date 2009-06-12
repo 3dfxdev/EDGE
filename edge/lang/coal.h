@@ -276,16 +276,6 @@ typedef struct def_s
 
 //=============================================================================
 
-///---typedef union eval_s
-///---{
-///---	string_t			string;
-///---	float				_float;
-///---	float				vector[3];
-///---	func_t				function;
-///---	int					_int;
-///---	union eval_s		*ptr;
-///---} eval_t;	
-
 extern	int		type_size[8];
 extern	def_t	*def_for_type[8];
 

@@ -44,26 +44,13 @@ typedef union eval_s
 //??      entity_state_t baseline;
 //??  
 //??      float freetime;		// sv.time when the object was freed
-//??      entvars_t v;		// C exported fields from progs
+//??      vars_t v;		// C exported fields from progs
 //??  // other fields from progs come immediately after
 //??  } edict_t;
 
 typedef int edict_t;  //!!!! TEMP
 
 #define	EDICT_FROM_AREA(l) STRUCT_FROM_LINK(l,edict_t,area)
-
-//============================================================================
-
-typedef int globalvars_t;  //!!!! TEMP
-typedef int entvars_t;     //!!!! TEMP
-
-///--- extern dprograms_t *progs;
-// extern dfunction_t *pr_functions;
-// extern char *pr_strings;
-// extern int pr_strings_size;
-// extern dstatement_t *pr_statements;
-// extern globalvars_t *pr_global_struct;
-///---extern float *pr_globals;	// same as pr_global_struct
 
 extern int pr_edict_size;	// in bytes
 

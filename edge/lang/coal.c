@@ -733,9 +733,6 @@ int main (int argc, char **argv)
 	
 	pr_dumpasm = false;
 
-	sprintf (filename, "%sprogs_src", sourcedir);
-	LoadFile (filename, (void *)&src);
-	
 
 	PR_BeginCompilation (malloc (0x100000), 0x100000);
 
