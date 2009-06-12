@@ -1452,14 +1452,14 @@ static void LoadData(void)
 	{
 		styledef_c *def = styledefs.Lookup("STATS");
 		if (! def) def = default_style;
-		wi_sp_style = hu_styles.Lookup(def);
+		wi_sp_style = HU_LookupStyle(def);
 	}
 
 	if (! wi_net_style)
 	{
 		styledef_c *def = styledefs.Lookup("NET STATS");
 		if (! def) def = default_style;
-		wi_net_style = hu_styles.Lookup(def);
+		wi_net_style = HU_LookupStyle(def);
 	}
 
 	const gamedef_c *gd = wi_stats.cur->episode;

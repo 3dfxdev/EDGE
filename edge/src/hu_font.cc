@@ -2,7 +2,7 @@
 //  EDGE Heads-up-display Font code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 2004-2008  The EDGE Team.
+//  Copyright (c) 2004-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -18,6 +18,8 @@
 
 #include "i_defs.h"
 
+#include <map>
+
 #include "ddf/font.h"
 
 #include "dm_defs.h"
@@ -32,8 +34,7 @@
 #define DUMMY_WIDTH  4
 
 
-// all the fonts that's fit to print
-font_container_c hu_fonts;
+static std::map<fontdef_c *, font_c *> hu_fonts;
 
 
 font_c::font_c(fontdef_c *_def) : def(_def)
@@ -348,41 +349,20 @@ void font_c::DrawChar320(float x, float y, char ch, float scale, float aspect,
 }
 
 
-//----------------------------------------------------------------------------
-//  font_container_c class
-//----------------------------------------------------------------------------
-
-
-void font_container_c::CleanupObject(void *obj)
+font_c *HU_LookupFont(fontdef_c *def)
 {
-	font_c *a = *(font_c**)obj;
-
-	if (a) delete a;
-}
-
-
-// Never returns NULL.
-//
-font_c* font_container_c::Lookup(fontdef_c *def)
-{
-	SYS_ASSERT(def);
-
-	for (epi::array_iterator_c it = GetIterator(0); it.IsValid(); it++)
+	if (hu_fonts.find(def) != hu_fonts.end())
 	{
-		font_c *f = ITERATOR_TO_TYPE(it, font_c*);
-
-		if (def == f->def)
-			return f;
+		return hu_fonts[def];
 	}
 
 	font_c *new_f = new font_c(def);
+	hu_fonts[def] = new_f;
 
 	new_f->Load();
-	Insert(new_f);
 
 	return new_f;
 }
-
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

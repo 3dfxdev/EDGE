@@ -847,16 +847,16 @@ void M_NetGameInit(void)
 
 	def = styledefs.Lookup("OPTIONS");
 	if (! def) def = default_style;
-	ng_default = hu_styles.Lookup(def);
+	ng_default = HU_LookupStyle(def);
 
 	def = styledefs.Lookup("HOST NETGAME");
-	ng_host_style = def ? hu_styles.Lookup(def) : ng_default;
+	ng_host_style = def ? HU_LookupStyle(def) : ng_default;
 
 	def = styledefs.Lookup("JOIN NETGAME");
-	ng_join_style = def ? hu_styles.Lookup(def) : ng_default;
+	ng_join_style = def ? HU_LookupStyle(def) : ng_default;
 
 	def = styledefs.Lookup("NET PLAYER LIST");
-	ng_list_style = def ? hu_styles.Lookup(def) : ng_default;
+	ng_list_style = def ? HU_LookupStyle(def) : ng_default;
 
 
 	const char *str = M_GetParm("-connect");

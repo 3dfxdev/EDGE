@@ -123,7 +123,7 @@ static void SetupTip(drawtip_t *cur)
 		styledef_c *def = styledefs.Lookup("RTS_TIP");
 		if (! def)
 			def = default_style;
-		rts_hack_style = hu_styles.Lookup(def);
+		rts_hack_style = HU_LookupStyle(def);
 	}
 
 	int i;

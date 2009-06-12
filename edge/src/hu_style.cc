@@ -2,7 +2,7 @@
 //  EDGE Heads-up-display Style code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 2004-2008  The EDGE Team.
+//  Copyright (c) 2004-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -17,8 +17,10 @@
 //----------------------------------------------------------------------------
 
 #include "i_defs.h"
-#include "hu_style.h"
 
+#include <map>
+
+#include "hu_style.h"
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "r_local.h"
@@ -29,7 +31,7 @@
 
 
 // Edge has lots of style
-style_container_c hu_styles;
+static std::map<styledef_c *, style_c*> hu_styles;
 
 
 style_c::style_c(styledef_c *_def) : def(_def), bg_image(NULL)
@@ -44,9 +46,6 @@ style_c::~style_c()
 }
 
 
-//
-// style_c::Load
-//
 void style_c::Load()
 {
 	if (def->bg.image_name.c_str())
@@ -62,12 +61,10 @@ void style_c::Load()
 	for (int T = 0; T < styledef_c::NUM_TXST; T++)
 	{
 		if (def->text[T].font)
-			fonts[T] = hu_fonts.Lookup(def->text[T].font);
+			fonts[T] = HU_LookupFont(def->text[T].font);
 	}
 }
 
-//
-// style_c::DrawBackground
 //
 // !!! FIXME: align -- temp fix for console.
 //
@@ -123,43 +120,21 @@ void style_c::DrawBackground(int x, int y, int w, int h, int align)
 	}
 }
 
-// ---> style_container_c class
 
-//
-// style_container_c::CleanupObject()
-//
-void style_container_c::CleanupObject(void *obj)
+style_c *HU_LookupStyle(styledef_c *def)
 {
-	style_c *a = *(style_c**)obj;
-
-	if (a) delete a;
-}
-
-//
-// style_container_c::Lookup()
-//
-// Never returns NULL.
-//
-style_c* style_container_c::Lookup(styledef_c *def)
-{
-	SYS_ASSERT(def);
-
-	for (epi::array_iterator_c it = GetIterator(0); it.IsValid(); it++)
+	if (hu_styles.find(def) != hu_styles.end())
 	{
-		style_c *st = ITERATOR_TO_TYPE(it, style_c*);
-
-		if (def == st->def)
-			return st;
+		return hu_styles[def];
 	}
 
 	style_c *new_st = new style_c(def);
+	hu_styles[def] = new_st;
 
 	new_st->Load();
-	Insert(new_st);
 
 	return new_st;
 }
-
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

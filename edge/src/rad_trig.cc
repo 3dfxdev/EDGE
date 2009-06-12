@@ -954,7 +954,7 @@ void RAD_StartMenu(rad_trigger_t *R, s_show_menu_t *menu)
 	if (! def) def = styledefs.Lookup("MENU");
 	if (! def) def = default_style;
 
-	rts_curr_menu = new rts_menu_c(menu, R, hu_styles.Lookup(def));
+	rts_curr_menu = new rts_menu_c(menu, R, HU_LookupStyle(def));
 	rts_menuactive = true;
 }
 

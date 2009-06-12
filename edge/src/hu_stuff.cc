@@ -120,17 +120,17 @@ void HU_Start(void)
 	styledef_c *msg_styledef = styledefs.Lookup("MESSAGES");
 	if (! msg_styledef)
 		msg_styledef = default_style;
-	message_style = hu_styles.Lookup(msg_styledef);
+	message_style = HU_LookupStyle(msg_styledef);
 
 	styledef_c *map_styledef = styledefs.Lookup("AUTOMAP");
 	if (! map_styledef)
 		map_styledef = default_style;
-	automap_style = hu_styles.Lookup(map_styledef);
+	automap_style = HU_LookupStyle(map_styledef);
 
 	styledef_c *chat_styledef = styledefs.Lookup("CHAT");
 	if (! chat_styledef)
 		chat_styledef = default_style;
-	chat_style = hu_styles.Lookup(chat_styledef);
+	chat_style = HU_LookupStyle(chat_styledef);
 
 	message_on = false;
 	message_no_overwrite = false;

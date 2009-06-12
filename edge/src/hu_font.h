@@ -2,7 +2,7 @@
 //  EDGE Heads-up-display Font code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 2004-2008  The EDGE Team.
+//  Copyright (c) 2004-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -94,25 +94,8 @@ private:
 	void LoadImageDiv();
 };
 
-class font_container_c : public epi::array_c 
-{
-public:
-	font_container_c() : epi::array_c(sizeof(font_c*)) {}
-	~font_container_c() { Clear(); } 
 
-private:
-	void CleanupObject(void *obj);
-
-public:
-	int GetSize() {	return array_entries; } 
-	int Insert(font_c *a) { return InsertObject((void*)&a); }
-	font_c* operator[](int idx) { return *(font_c**)FetchObject(idx); } 
-
-	// Search Functions
-	font_c* Lookup(fontdef_c *def);
-};
-
-extern font_container_c hu_fonts;
+font_c *HU_LookupFont(fontdef_c *def);
 
 #endif  // __HU_FONT__
 

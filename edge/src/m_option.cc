@@ -768,22 +768,22 @@ void M_OptMenuInit()
 
 	def = styledefs.Lookup("OPTIONS");
 	if (! def) def = default_style;
-	opt_def_style = hu_styles.Lookup(def);
+	opt_def_style = HU_LookupStyle(def);
 
 	def = styledefs.Lookup("KEYBOARD CONTROLS");
-	keyboard_style = def ? hu_styles.Lookup(def) : opt_def_style;
+	keyboard_style = def ? HU_LookupStyle(def) : opt_def_style;
 
 	def = styledefs.Lookup("MOUSE CONTROLS");
-	mouse_style = def ? hu_styles.Lookup(def) : opt_def_style;
+	mouse_style = def ? HU_LookupStyle(def) : opt_def_style;
 
 	def = styledefs.Lookup("GAMEPLAY OPTIONS");
-	gameplay_style = def ? hu_styles.Lookup(def) : opt_def_style;
+	gameplay_style = def ? HU_LookupStyle(def) : opt_def_style;
 
 	def = styledefs.Lookup("VIDEO OPTIONS");
-	video_style = def ? hu_styles.Lookup(def) : opt_def_style;
+	video_style = def ? HU_LookupStyle(def) : opt_def_style;
 
 	def = styledefs.Lookup("SET RESOLUTION");
-	setres_style = def ? hu_styles.Lookup(def) : opt_def_style;
+	setres_style = def ? HU_LookupStyle(def) : opt_def_style;
 
 	// Needed to handle the circular reference that C++ init doesn't allow
 	stdkeyconfiginfo.sister_next = &extkeyconfiginfo;
