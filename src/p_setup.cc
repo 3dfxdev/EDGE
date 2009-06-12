@@ -126,11 +126,6 @@ static bool v5_nodes;
 static int *temp_line_sides;
 
 
-extern spawnpointarray_c dm_starts;
-extern spawnpointarray_c coop_starts;
-extern spawnpointarray_c voodoo_doll_starts;
-
-
 static void CheckEvilutionBug(byte *data, int length)
 {
 	// The IWAD for TNT Evilution has a bug in MAP31 which prevents
@@ -771,7 +766,7 @@ static void SpawnMapThing(const mobjtype_c *info,
 	// count deathmatch start positions
 	if (info->playernum < 0)
 	{
-		dm_starts.Insert(&point);
+		G_AddDeathmatchStart(point);
 		return;
 	}
 
@@ -780,15 +775,17 @@ static void SpawnMapThing(const mobjtype_c *info,
 	{
 		// -AJA- 2004/12/30: for duplicate players, the LAST one must
 		//       be used (so levels with Voodoo dolls work properly).
-		spawnpoint_t *prev = coop_starts.FindPlayer(info->playernum);
+		spawnpoint_t *prev = G_FindCoopPlayer(info->playernum);
 
-		if (prev)
+		if (! prev)
+			G_AddCoopStart(point);
+		else
 		{
-			voodoo_doll_starts.Insert (prev);
+			G_AddVoodooDoll(*prev);
+
+			// overwrite the one in the Coop list
 			memcpy(prev, &point, sizeof(point));
 		}
-		else
-			coop_starts.Insert(&point);
 		return;
 	}
 
@@ -2120,9 +2117,7 @@ void P_SetupLevel(void)
 	P_SpawnSpecials1();
 
 	// -AJA- 1999/10/21: Clear out player starts (ready to load).
-	dm_starts.Clear();
-	coop_starts.Clear();
-	voodoo_doll_starts.Clear();
+	G_ClearPlayerStarts();
 
 	if (hexen_level)
 		LoadHexenThings(lumpnum + ML_THINGS);
@@ -2167,9 +2162,7 @@ void P_Init(void)
 
 	currmap = NULL; //!!! mapdefs[0];
 
-	dm_starts.Clear();
-	coop_starts.Clear();
-	voodoo_doll_starts.Clear();
+	G_ClearPlayerStarts();
 
 	HUB_Init();
 	HUB_DeleteHubSaves();
