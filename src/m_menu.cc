@@ -2072,30 +2072,30 @@ void M_Init(void)
 
 	def = styledefs.Lookup("MENU");
 	if (! def) def = default_style;
-	menu_def_style = hu_styles.Lookup(def);
+	menu_def_style = HU_LookupStyle(def);
 
 	def = styledefs.Lookup("MAIN MENU");
-	main_menu_style = def ? hu_styles.Lookup(def) : menu_def_style;
+	main_menu_style = def ? HU_LookupStyle(def) : menu_def_style;
 
 	def = styledefs.Lookup("CHOOSE EPISODE");
-	episode_style = def ? hu_styles.Lookup(def) : menu_def_style;
+	episode_style = def ? HU_LookupStyle(def) : menu_def_style;
 
 	def = styledefs.Lookup("CHOOSE SKILL");
-	skill_style = def ? hu_styles.Lookup(def) : menu_def_style;
+	skill_style = def ? HU_LookupStyle(def) : menu_def_style;
 
 	def = styledefs.Lookup("LOAD MENU");
-	load_style = def ? hu_styles.Lookup(def) : menu_def_style;
+	load_style = def ? HU_LookupStyle(def) : menu_def_style;
 
 	def = styledefs.Lookup("SAVE MENU");
-	save_style = def ? hu_styles.Lookup(def) : menu_def_style;
+	save_style = def ? HU_LookupStyle(def) : menu_def_style;
 
 	def = styledefs.Lookup("DIALOG");
-	dialog_style = def ? hu_styles.Lookup(def) : menu_def_style;
+	dialog_style = def ? HU_LookupStyle(def) : menu_def_style;
 
 	def = styledefs.Lookup("SOUND VOLUME");
 	if (! def) def = styledefs.Lookup("OPTIONS");
 	if (! def) def = default_style;
-	sound_vol_style = hu_styles.Lookup(def);
+	sound_vol_style = HU_LookupStyle(def);
 
 	// lookup required images
 	therm_l = W_ImageLookup("M_THERML");

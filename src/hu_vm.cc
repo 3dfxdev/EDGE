@@ -68,7 +68,7 @@ static void FrameSetup(void)
 	fontdef_c *DEF = fontdefs.Lookup("DOOM");  // FIXME allow other default
 	SYS_ASSERT(DEF);
 
-	cur_font = hu_fonts.Lookup(DEF);
+	cur_font = HU_LookupFont(DEF);
 	SYS_ASSERT(cur_font);
 
 	cur_color  = RGB_NO_VALUE;
@@ -316,7 +316,7 @@ static int HD_text_font(lua_State *L)
 	fontdef_c *DEF = fontdefs.Lookup(font_name);
 	SYS_ASSERT(DEF);
 
-	cur_font = hu_fonts.Lookup(DEF);
+	cur_font = HU_LookupFont(DEF);
 	SYS_ASSERT(cur_font);
 
 	return 0;

@@ -2,7 +2,7 @@
 //  EDGE Heads-up-display Style code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 2004-2008  The EDGE Team.
+//  Copyright (c) 2004-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -44,25 +44,8 @@ public:
 	void DrawBackground(int x = 0, int y = 0, int w = 0, int h = 0, int align = 0);
 };
 
-class style_container_c : public epi::array_c 
-{
-public:
-	style_container_c() : epi::array_c(sizeof(style_c*)) {}
-	~style_container_c() { Clear(); } 
 
-private:
-	void CleanupObject(void *obj);
-
-public:
-	int GetSize() {	return array_entries; } 
-	int Insert(style_c *a) { return InsertObject((void*)&a); }
-	style_c* operator[](int idx) { return *(style_c**)FetchObject(idx); } 
-
-	// Search Functions
-	style_c* Lookup(styledef_c *def);
-};
-
-extern style_container_c hu_styles;
+style_c *HU_LookupStyle(styledef_c *def);
 
 #endif  // __HU_STYLE__
 

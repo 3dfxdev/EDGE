@@ -215,11 +215,11 @@ static void LookupFinaleStuff(void)
 		styledef_c *def = styledefs.Lookup("CAST SCREEN");
 		if (! def)
 			def = default_style;
-		cast_style = hu_styles.Lookup(def);
+		cast_style = HU_LookupStyle(def);
 	}
 
 	if (! finale_hack_style)
-		finale_hack_style = hu_styles.Lookup(default_style); //???
+		finale_hack_style = HU_LookupStyle(default_style); //???
 
 	if (finale->text_flat[0])
 	{
