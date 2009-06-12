@@ -2,7 +2,7 @@
 //  Texture Conversion and Caching code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -50,27 +50,10 @@ public:
 	int num_tex;
 };
 
-class texset_array_c : public epi::array_c
-{
-public:
-	texset_array_c() : epi::array_c(sizeof(texture_set_c*)) { }
-	~texset_array_c() { Clear(); }
 
-private:
-	void CleanupObject(void *obj) { delete *(texture_set_c**)obj; }
-
-public:
-    // List Management
-	int GetSize() { return array_entries; }
-	int Insert(texture_set_c *c) { return InsertObject((void*)&c); }
-	texture_set_c* operator[](int idx) { return *(texture_set_c**)FetchObject(idx); }
-};
-
-static texset_array_c tex_sets;
+static std::vector<texture_set_c *> tex_sets;
 
 
-//
-// InstallTextureLumps
 //
 // -ACB- 1998/09/09 Removed the Doom II SkyName change: unnecessary and not DDF.
 //                  Reformatted and cleaned up.
@@ -150,7 +133,7 @@ static void InstallTextureLumps(int file, const wadtex_resource_c *WT)
 
 	texture_set_c *cur_set = new texture_set_c(numtextures1 + numtextures2);
 
-	tex_sets.Insert(cur_set);
+	tex_sets.push_back(cur_set);
 
 	for (i = 0; i < cur_set->num_tex; i++, directory++)
 	{
@@ -227,8 +210,6 @@ static void InstallTextureLumps(int file, const wadtex_resource_c *WT)
 }
 
 //
-// W_InitTextures
-//
 // Initialises the texture list with the textures from the world map.
 //
 // -ACB- 1998/09/09 Fixed the Display routine from display rubbish.
@@ -244,7 +225,7 @@ void W_InitTextures(void)
 
 	I_Printf("W_InitTextures...\n");
 
-	SYS_ASSERT(tex_sets.GetSize() == 0);
+	SYS_ASSERT(tex_sets.empty());
 
 	// iterate over each file, creating our sets of textures
 	// -ACB- 1998/09/09 Removed the Doom II SkyName change: unnecessary and not DDF.
@@ -272,7 +253,7 @@ void W_InitTextures(void)
 		InstallTextureLumps(file, &WT);
 	}
 
-	if (tex_sets.GetSize() == 0)
+	if (tex_sets.empty())
 		I_Error("No textures found !  Make sure the chosen IWAD is valid.\n");
 
 	// now clump all of the texturedefs together and sort 'em, primarily
@@ -280,12 +261,12 @@ void W_InitTextures(void)
 	// (measure of newness).  We ignore "dud" textures (missing
 	// patches).
 
-	for (j=0; j < tex_sets.GetSize(); j++)
+	for (j=0; j < (int)tex_sets.size(); j++)
 		numtextures += tex_sets[j]->num_tex;
 
 	textures = cur = new texturedef_t*[numtextures];
 
-	for (j=0; j < tex_sets.GetSize(); j++)
+	for (j=0; j < (int)tex_sets.size(); j++)
 	{
 		texture_set_c *set = tex_sets[j];
 
@@ -339,8 +320,6 @@ void W_InitTextures(void)
 }
 
 //
-// W_FindTextureSequence
-//
 // Returns the set number containing the texture names (with the
 // offset values updated to the indexes), or -1 if none could be
 // found.  Used by animation code.
@@ -352,7 +331,7 @@ int W_FindTextureSequence(const char *start, const char *end,
 {
 	int i, j;
 
-	for (i = tex_sets.GetSize()-1; i >= 0; i--)
+	for (i = (int)tex_sets.size()-1; i >= 0; i--)
 	{
 		// look for start name
 		for (j=0; j < tex_sets[i]->num_tex; j++)
@@ -379,17 +358,13 @@ int W_FindTextureSequence(const char *start, const char *end,
 	return -1;
 }
 
-//
-// W_TextureNameInSet
-//
 const char *W_TextureNameInSet(int set, int offset)
 {
-	SYS_ASSERT(0 <= set && set < tex_sets.GetSize());
+	SYS_ASSERT(0 <= set && set < (int)tex_sets.size());
 	SYS_ASSERT(0 <= offset && offset < tex_sets[set]->num_tex);
 
 	return tex_sets[set]->textures[offset]->name;
 }
-
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
