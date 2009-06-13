@@ -268,7 +268,7 @@ typedef struct def_s
 
 // pr_loc.h -- program local defs
 
-#define	MAX_ERRORS		10
+#define	MAX_ERRORS		20
 
 #define	MAX_NAME		64		// chars long
 
@@ -412,9 +412,6 @@ extern	def_t	def_ret, def_parms[MAX_PARMS];
 #define	MAX_STATEMENTS	65536
 #define	MAX_FUNCTIONS	8192
 
-#define	MAX_SOUNDS		1024
-#define	MAX_MODELS		1024
-#define	MAX_FILES		1024
 #define	MAX_DATA_PATH	64
 
 extern	char	strings[MAX_STRINGS];
