@@ -27,13 +27,22 @@
 #include <sys/ioctl.h>
 
 // -AJA- 2005/04/01: Yet another work-around for the huge pile of shit called C++
+#ifdef LINUX
 #define ntohl  ntohl_FUCK
 #define ntohs  ntohs_FUCK
 #define htonl  htonl_FUCK
 #define htons  htons_FUCK
+#endif
 
 #include <arpa/inet.h>
+
+#ifdef LINUX
 #include <linux/netdevice.h> 
+#endif
+
+#ifdef MACOSX
+#include <net/if.h>
+#endif
 
 // possible: <linux/if.h>
 //           <linux/sockios.h>

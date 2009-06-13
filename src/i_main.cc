@@ -40,7 +40,7 @@ int I_Main(int argc, char *argv[])
 
     I_SetupSignalHandlers(allow_coredump);
 
-#ifndef LINUX
+#ifdef WIN32
 	// -AJA- give us a proper name in the Task Manager
 	SDL_RegisterApp(TITLE, 0, 0);
 #endif
