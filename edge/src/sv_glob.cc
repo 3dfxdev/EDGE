@@ -82,6 +82,7 @@ static const global_command_t global_commands[] =
 	{ "SKILL", GV_GetInt, GV_PutInt, GLOB_OFF(skill) },
 	{ "NETGAME", GV_GetInt, GV_PutInt, GLOB_OFF(netgame) },
 	{ "MAP_FEATURES", GV_GetInt, GV_PutInt, GLOB_OFF(map_features) },
+	{ "EDGE_COMPAT", GV_GetInt, GV_PutInt, GLOB_OFF(edge_compat) },
 	{ "SKY_IMAGE", GV_GetImage, GV_PutImage, GLOB_OFF(sky_image) },
 
 	{ "DESCRIPTION", GV_GetString, GV_PutString, GLOB_OFF(description) },

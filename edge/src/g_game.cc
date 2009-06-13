@@ -698,6 +698,7 @@ static void G_DoLoadGame(void)
 	G_InitNew(params);
 
 	map_features = globs->map_features;
+	edge_compat  = globs->edge_compat;
 
 	G_DoLoadLevel();
 
@@ -802,6 +803,8 @@ static void G_DoSaveGame(void)
 	globs->skill = gameskill;
 	globs->netgame = netgame ? (1+deathmatch) : 0;
 	globs->map_features = map_features;
+	globs->edge_compat = edge_compat.d;
+
 	globs->p_random = P_ReadRandomState();
 
 	globs->console_player = consoleplayer; // NB: not used
