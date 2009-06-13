@@ -110,7 +110,7 @@ static void ColmapFinishEntry(void)
 		buffer_colmap.start = 0;
 	}
 
-	if (buffer_colmap.length <= 0)
+	if (! buffer_colmap.lump_name.empty() && buffer_colmap.length <= 0)
 	{
 		DDF_WarnError2(128, "Bad LENGTH value for colmap: %d\n", buffer_colmap.length);
 		buffer_colmap.length = 1;
@@ -274,9 +274,6 @@ colourmap_c::~colourmap_c()
 {
 }
 
-//
-// colourmap_c::Copy()
-//
 void colourmap_c::Copy(colourmap_c &src)
 {
 	ddf = src.ddf;
@@ -284,9 +281,6 @@ void colourmap_c::Copy(colourmap_c &src)
 	CopyDetail(src);
 }
 
-//
-// colourmap_c::CopyDetail()
-//
 void colourmap_c::CopyDetail(colourmap_c &src)
 {
 	lump_name = src.lump_name;
@@ -303,9 +297,6 @@ void colourmap_c::CopyDetail(colourmap_c &src)
 	analysis = NULL;
 }
 
-//
-// colourmap_c::Default()
-//
 void colourmap_c::Default()
 {
 	ddf.Default();
@@ -337,25 +328,16 @@ colourmap_c& colourmap_c::operator=(colourmap_c &rhs)
 
 // --> colourmap_container_c class
 
-//
-// colourmap_container_c::colourmap_container_c()
-//
 colourmap_container_c::colourmap_container_c() : epi::array_c(sizeof(atkdef_c*))
 {
 	num_disabled = 0;	
 }
 
-//
-// ~colourmap_container_c::colourmap_container_c()
-//
 colourmap_container_c::~colourmap_container_c()
 {
 	Clear();					// <-- Destroy self before exiting
 }
 
-//
-// colourmap_container_c::CleanupObject
-//
 void colourmap_container_c::CleanupObject(void *obj)
 {
 	colourmap_c *c = *(colourmap_c**)obj;
@@ -366,9 +348,6 @@ void colourmap_container_c::CleanupObject(void *obj)
 	return;
 }
 
-//
-// colourmap_c* colourmap_container_c::Lookup()
-//
 colourmap_c* colourmap_container_c::Lookup(const char *refname)
 {
 	epi::array_iterator_c it;
