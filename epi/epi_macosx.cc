@@ -28,15 +28,11 @@ namespace epi
     //
     bool Init(void)
     {
-		bool ok;
-
 		if (inited)
 			Shutdown();
 
-		ok = true;
-
-		inited = ok;
-        return ok;
+		inited = true;
+        return inited;
     }
 
     //
@@ -44,11 +40,19 @@ namespace epi
     //
     void Shutdown(void)
     {
-
 		inited = false;
     }
 
 } // namespace epi
+
+// FIXME: Better place for this?
+void strupr(char *str)
+{
+	if (str)
+		for (; *str; str++)
+			*str = toupper(*str);
+}
+
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

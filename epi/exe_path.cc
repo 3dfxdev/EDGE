@@ -101,7 +101,7 @@ const char *GetExecutablePath(const char *argv0)
 	   enough, -1 is returned and the expected buffer size is
 	   copied in *bufsize.
 	   */
-	int pathlen = PATH_MAX * 2;
+	u32_t pathlen = PATH_MAX * 2;
 
 	dir = new char [pathlen+2];
 
