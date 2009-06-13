@@ -565,7 +565,7 @@ void P_SetMobjDirAndSpeed(mobj_t * mo, angle_t angle, float slope, float speed)
 
 	mo->mom.z = M_Sin(mo->vertangle) * speed;
 	speed    *= M_Cos(mo->vertangle);
-
+	
 	mo->mom.x = M_Cos(angle) * speed;
 	mo->mom.y = M_Sin(angle) * speed;
 }

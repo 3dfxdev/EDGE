@@ -32,6 +32,10 @@
 #include <linux/sockios.h>
 #endif
 
+#ifdef MACOSX
+#include <net/if.h>
+#endif
+
 #include "epi/endianess.h"
 
 #include "m_argv.h"
@@ -96,7 +100,7 @@ static bool GetLocalAddress(void)
 	return false;
 }
 
-#ifdef LINUX
+#ifndef WIN32
 static bool Scan_IFCONFIG(bool got_local)
 {
 	if (M_CheckParm("-noifconfig"))
@@ -203,7 +207,7 @@ static bool Scan_IFCONFIG(bool got_local)
 	return true;
 }
 
-#endif // LINUX
+#endif // !WIN32
 
 
 static bool SetupAddresses(void)

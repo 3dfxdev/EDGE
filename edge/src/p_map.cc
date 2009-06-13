@@ -1526,7 +1526,7 @@ void P_TargetTheory(mobj_t * source, mobj_t * target, float *x, float *y, float 
 		(*y) = target->y;
 		(*z) = MO_MIDZ(target);
 	}
-	else
+	else 
 	{
 		float start_z;
 
