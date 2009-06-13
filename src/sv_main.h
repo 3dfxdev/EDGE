@@ -277,6 +277,7 @@ typedef struct
 	int skill;
 	int netgame;
 	int map_features;
+	int edge_compat;
 
 	const image_c *sky_image;  // -AJA- added 2003/12/19
 
