@@ -46,15 +46,15 @@ void(float x, float y, float card, float skull,
 
     local float index; index = math_floor(4.99 * (100 - health) / 100);
 
-    sys_assert(index >= 0)
-    sys_assert(index <= 4)
+    sys_assert(index >= 0);
+    sys_assert(index <= 4);
 
-    return string_format("%d", index)
+    return string_format("%d", index);
   };
 
   void() turn_digit =
   {
-    local float r = math_random() * 2.99;
+    local float r; r = math_random() * 2.99;
     r = math_floor(r);
     return string_format("%d", r);
   };
@@ -138,7 +138,7 @@ void(float x, float y) doomguy_face =
 
   //---| doomguy_face |---
 
-  face_time = face_time - hud_passed_time
+  face_time = face_time - hud_passed_time;
 
   if (face_time <= 0)
     select_new_face();
@@ -152,7 +152,7 @@ void(float x, float y) doomguy_face =
 void() doom_little_ammo =
 {
   hud_text_font("YELLOW_DIGIT");
-  hud_text_color("");
+  hud_text_color("wtf");
 
   a = player_ammo(1); hud_draw_num2(288, 173, 3, a);
   a = player_ammo(2); hud_draw_num2(288, 179, 3, a);
@@ -273,18 +273,18 @@ void() edge_air_bar =
 };
 
 
-void() draw_all() =
+void() draw_all =
 {
   hud_coord_sys(320, 200);
 
   if (hud_automap())
   {
     doom_automap();
-    return
+    return;
   }
 
   // there are three standard HUDs
-  hud_which = hud_which % 3;
+  hud_which = math_mod(hud_which, 3);
 
   if (hud_which == 0)
     hud_render_world(0, 0, 320, 200 - 32);
