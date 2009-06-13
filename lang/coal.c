@@ -638,7 +638,7 @@ int main (int argc, char **argv)
 	
 	if (argc <= 1 || CheckParm ("-?") || CheckParm ("-help"))
 	{
-		printf ("USAGE: coal [OPTIONS] file ...\n");
+		printf ("USAGE: coal [OPTIONS] filename.qc ...\n");
 		return 0;
 	}
 	
