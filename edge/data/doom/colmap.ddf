@@ -28,6 +28,11 @@ lump = "AUTOMAPS";
 start = 1;
 length = 1;
 
+[YELLOW_THING]
+lump = "TXTYLWS2";
+start = 1;
+length = 1;
+
 // --- Powerup effects -------------
 
 // For the invulnerability effect
