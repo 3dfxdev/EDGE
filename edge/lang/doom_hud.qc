@@ -8,7 +8,7 @@ float  face_time;
 string face_image;
 
 
-void(float slot, float x, float y, string off_pic, string on_pic) =
+void (float slot, float x, float y, string off_pic, string on_pic) doom_weapon_icon =
 {
   if (player_has_weapon_slot(slot))
     hud_draw_image(x, y, on_pic);
@@ -20,8 +20,8 @@ void(float slot, float x, float y, string off_pic, string on_pic) =
 void(float x, float y, float card, float skull,
      string card_pic, string skull_pic, string both_pic) doom_key =
 {
-  local float has_cd = player_has_key(card);
-  local float has_sk = player_has_key(skull);
+  local float has_cd ; has_cd = player_has_key(card);
+  local float has_sk ; has_cd = player_has_key(skull);
   
   if (has_cd && has_sk)
   {
@@ -38,93 +38,103 @@ void(float x, float y, float card, float skull,
 };
 
 
-function doomguy_face(x, y)
+  void() pain_digit =
+  {
+    local float health; health = player_health();
+    if (health > 100)
+      health = 100;
 
+    local float index; index = math_floor(4.99 * (100 - health) / 100);
+
+    sys_assert(index >= 0)
+    sys_assert(index <= 4)
+
+    return string_format("%d", index)
+  };
+
+  void() turn_digit =
+  {
+    local float r = math_random() * 2.99;
+    r = math_floor(r);
+    return string_format("%d", r);
+  };
+
+  void() select_new_face =
+  {
+    // dead ?
+    if (player_health() <= 0)
+    {
+      face_image = "STFDEAD0";
+      face_time  = 10;
+      return;
+    }
+
+    // evil grin when player just picked up a weapon
+    if (player_is_grinning())
+    {
+      face_image = string_concat("STFEVL", pain_digit());
+      face_time  = 7;
+      return;
+    }
+
+    // being attacked ?
+    if (player_hurt_by())
+    {
+      if (player_hurt_pain() > 50)
+      {
+        face_image = string_concat("STFOUCH", pain_digit());
+        face_time = 26;
+        return;
+      }
+
+      local float dir; dir = 0;
+
+      if (player_hurt_by() == "enemy" ||
+          player_hurt_by() == "friend")
+      {
+        dir = player_hurt_dir();
+      }
+
+      if (dir < 0) then
+        face_image = string_concat3("STFTL", pain_digit(), "0");
+      else if (dir > 0) then
+        face_image = string_concat3("STFTR", pain_digit(), "0");
+      else
+        face_image = string_concat("STFKILL", pain_digit());
+
+      face_time = 35;
+      return;
+    }
+
+    // rampaging?
+    if (player_is_rampaging())
+    {
+      face_image = string_concat("STFKILL", pain_digit());
+      face_time  = 7;
+      return;
+    }
+
+    // god mode?
+    if (player_has_power("invuln"))
+    {
+      face_image = "STFGOD0";
+      face_time  = 7;
+      return;
+    }
+
+    // default: look about the place...
+    face_image = string_concat3("STFST", pain_digit(), turn_digit());
+    face_time  = 17;
+  };
+
+void(float x, float y) doomguy_face =
+{
   // This routine handles the face states and their timing.
   // The precedence of expressions is:
   //
   //    dead > evil grin > turned head > straight ahead
 
-  local function pain_digit()
-
-    local health = math.min(100, player_health())
-    
-    local index = int(4.99 * (100 - health) / 100);
-
-    assert(index >= 0)
-    assert(index <= 4)
-
-    return tostring(index)
-  end
-
-
-  local function turn_digit()
-    return tostring(int(math.random() * 2.99))
-  end
-
-
-  local function select_new_face()
-
-    // dead ?
-    if player_health() <= 0 then
-      face_image = "STFDEAD0"
-      face_time  = 10
-      return
-    end
-
-    // evil grin when player just picked up a weapon
-    if player_is_grinning() then
-      face_image = "STFEVL" .. pain_digit()
-      face_time  = 7
-      return
-    end
-
-    // being attacked ?
-    if player_hurt_by() then
-      
-      if player_hurt_pain() > 50 then
-        face_image = "STFOUCH" .. pain_digit()
-        face_time = 26
-        return
-      end
-
-      local dir = 0
-
-      if player_hurt_by() == "enemy" or player_hurt_by() == "friend" then
-        dir = player_hurt_dir()
-      end
-
-      if dir < 0 then
-        face_image = "STFTL" .. pain_digit() .. "0"
-      elseif dir > 0 then
-        face_image = "STFTR" .. pain_digit() .. "0"
-      else
-        face_image = "STFKILL" .. pain_digit()
-      end
-
-      face_time = 35
-      return
-    end
-
-    // rampaging?
-    if player_is_rampaging() then
-      face_image = "STFKILL" .. pain_digit()
-      face_time  = 7
-      return
-    end
-
-    // god mode?
-    if player_has_power(POWERS.invuln) then
-      face_image = "STFGOD0"
-      face_time  = 7
-      return
-    end
-
-    // default: look about the place...
-    face_image = "STFST" .. pain_digit() .. turn_digit()
-    face_time  = 17
-  end
-
+// ABOVE FUNCS SHOULD BE HERE \\
 
   //---| doomguy_face |---
 
