@@ -18,6 +18,10 @@ QCCFILES = coal.o
 coal: $(QCCFILES)
 	$(CC) $(CFLAGS) -o $@ $(QCCFILES)
 
+test:
+	./coal mod_base.qc mod_hud.qc mod_player.qc doom_hud.qc
+
+.PHONY: all clean test
 
 #--- editor settings ------------
 # vi:ts=8:sw=8:noexpandtab
