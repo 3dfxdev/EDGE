@@ -118,7 +118,7 @@ public:
 	backgroundstyle_c bg;
 
 	// the four text styles
-	typedef enum
+	enum
 	{
 		T_TEXT = 0, // main text style
 		T_ALT,      // alternative text style
