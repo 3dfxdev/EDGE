@@ -46,7 +46,12 @@ float M_Tan (angle_t ang)
 
 angle_t M_ATan (float slope)
 {
-	return (angle_t) ((float) ANG180 * atan (slope) / M_PI);
+	// angle_t is an unsigned type, hence we need to handle
+	// negative slopes specially to keep some compilers happy.
+	if (slope < 0)
+		return ~ (angle_t) ((float) ANG180 * atan(-slope) / M_PI);
+	else
+		return   (angle_t) ((float) ANG180 * atan( slope) / M_PI);
 }
 
 void M_Angle2Matrix (angle_t ang, vec2_t * x, vec2_t * y)
