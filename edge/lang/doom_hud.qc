@@ -7,29 +7,35 @@
 float  face_time;
 string face_image;
 
-float hud_which;
 
-
-function doom_weapon_icon(slot, x, y, off_pic, on_pic)
-  if player_has_weapon_slot(slot) then
-    hud_draw_image(x, y, on_pic)
+void(float slot, float x, float y, string off_pic, string on_pic) =
+{
+  if (player_has_weapon_slot(slot))
+    hud_draw_image(x, y, on_pic);
   else
-    hud_draw_image(x, y, off_pic)
-  end
-end
+    hud_draw_image(x, y, off_pic);
+};
 
 
-function doom_key(x, y, card, skull, card_pic, skull_pic, both_pic)
-
-  local has_sk = player_has_key(skull)
+void(float x, float y, float card, float skull,
+     string card_pic, string skull_pic, string both_pic) doom_key =
+{
+  local float has_cd = player_has_key(card);
+  local float has_sk = player_has_key(skull);
   
-  if player_has_key(card) then
-    hud_draw_image(x, y, sel(has_sk, both_pic, card_pic))
-
-  elseif has_sk then
-    hud_draw_image(x, y, skull_pic)
-  end
-end
+  if (has_cd && has_sk)
+  {
+    hud_draw_image(x, y, both_pic);
+  }
+  else if (has_cd)
+  {
+    hud_draw_image(x, y, card_pic);
+  }
+  else if (has_sk)
+  {
+    hud_draw_image(x, y, skull_pic);
+  }
+};
 
 
 function doomguy_face(x, y)
@@ -124,19 +130,18 @@ function doomguy_face(x, y)
 
   face_time = face_time - hud_passed_time
 
-  if face_time <= 0 then
-    select_new_face()
-  end
+  if (face_time <= 0)
+    select_new_face();
 
   // FIXME faceback
 
-  hud_draw_image(x - 1, y - 1, face_image)
-end
+  hud_draw_image(x - 1, y - 1, face_image);
+};
 
 
 void() doom_little_ammo =
 {
-  hud_text_font("YELLOW_DIGIT")
+  hud_text_font("YELLOW_DIGIT");
   hud_text_color("");
 
   a = player_ammo(1); hud_draw_num2(288, 173, 3, a);
@@ -148,7 +153,7 @@ void() doom_little_ammo =
   a = player_ammomax(2); hud_draw_num2(314, 179, 3, a);
   a = player_ammomax(3); hud_draw_num2(314, 185, 3, a);
   a = player_ammomax(4); hud_draw_num2(314, 191, 3, a);
-}
+};
 
 
 void() doom_status_bar =
@@ -159,18 +164,19 @@ void() doom_status_bar =
   hud_draw_image( 90, 171, "STTPRCNT");
   hud_draw_image(221, 171, "STTPRCNT");
 
-  hud_text_font("BIG_DIGIT")
+  hud_text_font("BIG_DIGIT");
 
   a = player_main_ammo(1) ; hud_draw_num2( 44, 171, 3, a);
   a = player_health()     ; hud_draw_num2( 90, 171, 3, a);
   a = player_total_armor(); hud_draw_num2(221, 171, 3, a)
 
-  if hud_game_mode() == "dm" then
-
-    a = player_frags()
+  if (hud_game_mode() == "dm")
+  {
+    a = player_frags();
     hud_draw_num2(138, 171, 2, a);
-
+  }
   else
+  {
     hud_draw_image(104, 168, "STARMS");
 
     doom_weapon_icon(2, 111, 172, "STGNUM2", "STYSNUM2"); 
@@ -180,45 +186,45 @@ void() doom_status_bar =
     doom_weapon_icon(5, 111, 182, "STGNUM5", "STYSNUM5");
     doom_weapon_icon(6, 123, 182, "STGNUM6", "STYSNUM6");
     doom_weapon_icon(7, 135, 182, "STGNUM7", "STYSNUM7");
-  end
+  }
 
-  doomguy_face(144, 169)
+  doomguy_face(144, 169);
 
-  doom_key(239, 171, 1, 5, "STKEYS0", "STKEYS3", "STKEYS6")
-  doom_key(239, 181, 2, 6, "STKEYS1", "STKEYS4", "STKEYS7")
-  doom_key(239, 191, 3, 7, "STKEYS2", "STKEYS5", "STKEYS8")
+  doom_key(239, 171, 1, 5, "STKEYS0", "STKEYS3", "STKEYS6");
+  doom_key(239, 181, 2, 6, "STKEYS1", "STKEYS4", "STKEYS7");
+  doom_key(239, 191, 3, 7, "STKEYS2", "STKEYS5", "STKEYS8");
 
-  doom_little_ammo()
-}
+  doom_little_ammo();
+};
 
 
 void() doom_overlay_status =
 {
-  local float a
+  local float a;
 
-  hud_text_font("BIG_DIGIT")
+  hud_text_font("BIG_DIGIT");
 
-  a = player_health()
+  a = player_health();
   hud_draw_num2(100, 171, 3, health);
 
-  a = player_main_ammo(1)
+  a = player_main_ammo(1);
   hud_text_color("TEXT_YELLOW");
   hud_draw_num2( 44, 171, 3, a);
 
-  a = player_total_armor()
-  if player_total_armor() > 100 then
+  a = player_total_armor();
+  if (player_total_armor() > 100)
     hud_text_color("TEXT_BLUE");
   else
     hud_text_color("TEXT_GREEN");
-  end
-  hud_draw_num2(242, 171, 3, a)
 
-  doom_key(256, 171, 1, 5, "STKEYS0", "STKEYS3", "STKEYS6")
-  doom_key(256, 181, 2, 6, "STKEYS1", "STKEYS4", "STKEYS7")
-  doom_key(256, 191, 3, 7, "STKEYS2", "STKEYS5", "STKEYS8")
+  hud_draw_num2(242, 171, 3, a);
 
-  doom_little_ammo()
-}
+  doom_key(256, 171, 1, 5, "STKEYS0", "STKEYS3", "STKEYS6");
+  doom_key(256, 181, 2, 6, "STKEYS1", "STKEYS4", "STKEYS7");
+  doom_key(256, 191, 3, 7, "STKEYS2", "STKEYS5", "STKEYS8");
+
+  doom_little_ammo();
+};
 
 
 void() doom_automap =
@@ -228,57 +234,58 @@ void() doom_automap =
   //
   // hud_solid_box(0, 0, 320, 200-32, "#505050")
 
-  hud_render_automap(0, 0, 320, 200 - 32)
+  hud_render_automap(0, 0, 320, 200 - 32);
 
-  doom_status_bar()
+  doom_status_bar();
 
-  local string title = hud_map_title()
+  local string title = hud_map_title();
 
-  hud_text_font("DOOM")
-  hud_draw_text(0, 200 - 32 - 10, title)
-}
+  hud_text_font("DOOM");
+  hud_draw_text(0, 200 - 32 - 10, title);
+};
 
 
 void() edge_air_bar =
 {
-  if player_health() <= 0 || ! player_under_water() then
-    return
-  end
+  if (player_health() <= 0)
+    return;
 
-  local float air; air = player_air_in_lungs()
+  if (! player_under_water())
+    return;
 
-  air = math_floor(1 + 21 * ((100 - air) / 100.1))
+  local float air; air = player_air_in_lungs();
 
-  local string barname = string_format("AIRBAR%02d", air)
+  air = math_floor(1 + 21 * ((100 - air) / 100.1));
 
-  hud_draw_image(0, 0, barname, air))
-end
+  local string barname = string_format("AIRBAR%02d", air);
+
+  hud_draw_image(0, 0, barname, air);
+};
 
 
 void() draw_all() =
 {
-  hud_coord_sys(320, 200)
+  hud_coord_sys(320, 200);
 
-  if hud_automap() then
-    doom_automap()
+  if (hud_automap())
+  {
+    doom_automap();
     return
-  end
+  }
 
   // there are three standard HUDs
-  hud_which = hud_which % 3
+  hud_which = hud_which % 3;
 
-  if hud_which == 0 then
-    hud_render_world(0, 0, 320, 200 - 32)
+  if (hud_which == 0)
+    hud_render_world(0, 0, 320, 200 - 32);
   else
-    hud_render_world(0, 0, 320, 200)
-  end
+    hud_render_world(0, 0, 320, 200);
 
-  if hud_which == 0 then
-    doom_status_bar()
-  elseif hud_which == 2 then
-    doom_overlay_status()
-  end
+  if (hud_which == 0)
+    doom_status_bar();
+  else if (hud_which == 2) then
+    doom_overlay_status();
 
-  edge_air_bar()
-end
+  edge_air_bar();
+};
 
