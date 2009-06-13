@@ -476,8 +476,8 @@ void TransformColourmap(colourmap_c *colmap)
 		AnalyseColourmap(table, 0, &r, &g, &b);
 
 #if 0  // DEBUGGING
-			I_Printf("COLMAP [%s] alpha %d --> (%d, %d, %d) score %d\n",
-				colmap->ddf.name.c_str(), 0, r, g, b, score);
+		I_Debugf("COLMAP [%s] alpha %d --> (%d %d %d)\n",
+				 colmap->ddf.name.c_str(), 0, r, g, b);
 #endif
 
 		r = MIN(255, MAX(0, r));
@@ -807,18 +807,32 @@ private:
 		const byte *map = NULL;
 		int length = 32;
 		
-		if (colmap)
+		if (colmap && colmap->length > 0)
 		{
 			map = V_GetTranslationTable(colmap);
 			length = colmap->length;
 
 			for (int ci = 0; ci < 32; ci++)
 			{
-				const byte new_col = map[ci*256 + 4];
+				int cmap_idx = length * ci / 32;
+
+				// +4 gets the white pixel -- FIXME: doom specific
+				const byte new_col = map[cmap_idx*256 + 4];
 
 				int r = playpal_data[0][new_col][0];
 				int g = playpal_data[0][new_col][1];
 				int b = playpal_data[0][new_col][2];
+
+				whites[ci] = RGB_MAKE(r, g, b);
+			}
+		}
+		else if (colmap)  // GL_COLOUR
+		{
+			for (int ci = 0; ci < 32; ci++)
+			{
+				int r = RGB_RED(colmap->gl_colour) * (31-ci) / 31;
+				int g = RGB_GRN(colmap->gl_colour) * (31-ci) / 31;
+				int b = RGB_BLU(colmap->gl_colour) * (31-ci) / 31;
 
 				whites[ci] = RGB_MAKE(r, g, b);
 			}
@@ -854,7 +868,7 @@ private:
 					index = R_DoomLightingEquation(L, dist);
 				}
 
-				index = index * length / 32;
+				//WTF  index = index * length / 32;
 
 				if (false) //!!!! (mode == 1)
 				{
@@ -867,7 +881,7 @@ private:
 				else if (mode == 0)
 				{
 					// GL_MODULATE mode
-					if (map)
+					if (colmap)
 					{
 						dest[0] = RGB_RED(whites[index]);
 						dest[1] = RGB_GRN(whites[index]);
@@ -954,7 +968,14 @@ abstract_shader_c *R_GetColormapShader(const struct region_properties_s *props,
 	shader->Update();
 
 
-	int lit_Nom = props->lightlevel + light_add + ren_extralight;
+	int lit_Nom = props->lightlevel + light_add;
+
+	if (! (props->colourmap &&
+		   (props->colourmap->special & COLSP_NoFlash)) ||
+		ren_extralight > 250)
+	{
+		lit_Nom += ren_extralight;
+	}
 
 	lit_Nom = CLAMP(0, lit_Nom, 255);
 

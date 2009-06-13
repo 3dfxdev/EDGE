@@ -1,5 +1,16 @@
 Andrew Apted's Log
 
+2009/06/13:
+
+Fixed some issues with Colormaps: allow creating colormap
+DDF entries which only use the GL_COLOUR command (no LUMP
+or LENGTH commands), which just colorises everything by
+the given color.  Also fixed sprite lighting when using
+colormap lumps with less than 32 maps.  As an extra bonus,
+got the NO_FLASH special working again.
+
+TODO: simplify entries in our standard COLMAPS.DDF
+
 2009/06/10:
 
 Reworked the MPF_XXX level specials to be a simple flag
