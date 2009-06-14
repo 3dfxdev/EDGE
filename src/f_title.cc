@@ -93,7 +93,7 @@ static void DrawStars(int millies)
 			float w = SI->size / (7000 - z * 611);
 
 			float dx = (SI->x - 160) * z / 7.0;
-			float dy = (SI->x - 100) * z / 12.0;
+			float dy = (SI->y - 100) * z / 12.0;
 		
 			DrawOneStar(SI->x + dx - w, SI->y + dy - w, w, alpha);
 		}
@@ -130,6 +130,7 @@ static void InsertNewStars(int millies)
 	{
 		float f = (2200 - millies) / float(2200 - 740);
 		total = millies + int(millies * f);
+	}
 
 		for (; all_count < total; all_count++)
 		{
@@ -144,12 +145,13 @@ static void InsertNewStars(int millies)
 
 			star_field.push_back(st);
 		}
-	}
 }
 
 
 bool RGL_DrawTitle(int millies)
 {
+	millies = millies - 500;
+
 	if (millies > 2140)
 		return true;  // finished
 
@@ -157,18 +159,18 @@ bool RGL_DrawTitle(int millies)
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-
 	glEnable(GL_BLEND);
 
+	if (millies > 0)
+	{
+		RemoveDeadStars(millies);
 
-	RemoveDeadStars(millies);
+		DrawStars(millies);
 
-	DrawStars(millies);
+		DrawName(millies);
 
-	DrawName(millies);
-
-	InsertNewStars(millies);
-
+		InsertNewStars(millies);
+	}
 
 	glDisable(GL_BLEND);
 
