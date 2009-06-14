@@ -154,7 +154,7 @@ void(float x, float y) doomguy_face =
 void() doom_little_ammo =
 {
   hud_text_font("YELLOW_DIGIT");
-  hud_text_color("x");
+  hud_text_color("");
 
   local float a;
 
