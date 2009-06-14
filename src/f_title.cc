@@ -23,6 +23,7 @@
 #include "r_misc.h"
 #include "r_gldefs.h"
 #include "r_draw.h"
+#include "r_modes.h"
 
 
 typedef struct
@@ -37,8 +38,10 @@ static std::list<star_info_t> star_field;
 
 #define STAR_ALPHA(t_diff)  (0.99 - (t_diff) / 2000.0)
 
+#define STAR_Z(t_diff)  (0.3 + (t_diff) / 100.0)
 
-static void RemoveDeadStars(void)
+
+static void RemoveDeadStars(int millies)
 {
 	for (;;)
 	{
@@ -52,38 +55,55 @@ static void RemoveDeadStars(void)
 
 		star_field.pop_front();
 	}
-
 }
 
+
+static void DrawOneStar(float mx, float my, float sz, float alpha)
+{
+	float x = SCREENWIDTH  * mx / 320.0f;
+	float y = SCREENHEIGHT * my / 200.0f;
+
+	glColor4f(1.0f, 1.0f, 1.0f, alpha);
+
+	glBegin(GL_POLYGON);
+
+	glVertex2f(x - sz, y - sz);
+	glVertex2f(x - sz, y + sz);
+	glVertex2f(x + sz, y + sz);
+	glVertex2f(x + sz, y - sz);
+
+	glEnd();
+}
 
 static void DrawStars(int millies)
 {
-	float dist = 0;
-	if (millies > 1200)
-		dist = millies - 1200;
+	float dist = (millies < 1200) ? 0 : (millies - 1200);
 
 	std::list<star_info_t>::iterator SI;
 
-	while (! star_field.empty() && star_field.
-
 	for (SI = star_field.begin(); SI != star_field.end(); SI++)
 	{
-		star_info_t& 
-		float alpha = 0.99 - (millies - t) / 2000.0; 
-    if S.a > 0 and S.z*611 < 6930-dist*100 then
-      local w = S.big / (7000 - S.z*611)
-      local dx = (S.x - 160) * S.z / 7 
-      local dy = (S.y - 100) * S.z / 12
-      hud.stretch_image(S.x+dx-w, S.y+dy-w, w*2, w*2, "STAR")
-      S.z = S.z + 0.3
-      S.a = S.a - 0.015
-    end
-  end
+		float t_diff = millies - SI->t;
+
+		float alpha = STAR_ALPHA(t_diff);
+		float z     = STAR_Z(t_diff);
+
+		if (z * 611 < 6930 - dist * 100.0)
+		{
+			float w = SI->size / (7000 - z * 611);
+
+			float dx = (SI->x - 160) * z / 7.0;
+			float dy = (SI->x - 100) * z / 12.0;
+		
+			DrawOneStar(SI->x + dx - w, SI->y + dy - w, w, alpha);
+		}
+  	}
 }
 
 
-static void DrawName(void)
+static void DrawName(int millies)
 {
+#if 0
   hud.set_alpha(1)
   hud.solid_box(0, 0, 320, 30, "#000000")
   hud.solid_box(0, 170, 320, 30, "#000000")
@@ -96,22 +116,35 @@ static void DrawName(void)
     hud.set_alpha(fade ^ 1.5)
     hud.stretch_image(60, 160, 200, 20, "EDGE_MNEM")
   end
-
+#endif
 }
 
 
 static void InsertNewStars(int millies)
 {
-  local num = 25
-  if mmm > 26 then num = num - (mmm - 26) * 1 end
+	static int all_count = 0;
 
-  for loop = 1,num do
-    local x = math.random() * 320
-    local y = math.random() * 200
-    local big = (math.random() + 1) * 16000
+	int total = millies;
 
-    table.insert(star_field, { x=x, y=y, z=0.3, a=0.99, big=big })
-  end
+	if (millies > 740)
+	{
+		float f = (2200 - millies) / float(2200 - 740);
+		total = millies + int(millies * f);
+
+		for (; all_count < total; all_count++)
+		{
+			star_info_t st;
+
+			st.x = (rand() & 0x0FFF) / 12.80f;
+			st.y = (rand() & 0x0FFF) / 20.48f;
+
+			st.t = millies;
+
+			st.size = ((rand() & 0x0FFF) / 4096.0 + 1) * 16000.0;
+
+			star_field.push_back(st);
+		}
+	}
 }
 
 
@@ -128,14 +161,13 @@ bool RGL_DrawTitle(int millies)
 	glEnable(GL_BLEND);
 
 
-	RemoveDeadStars();
+	RemoveDeadStars(millies);
 
-	DrawStars(milliest);
+	DrawStars(millies);
 
-	DrawName();
+	DrawName(millies);
 
 	InsertNewStars(millies);
-
 
 
 	glDisable(GL_BLEND);
