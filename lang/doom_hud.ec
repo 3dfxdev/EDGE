@@ -38,7 +38,7 @@ void(float x, float y, float card, float skull,
 };
 
 
-  void() pain_digit =
+  string() pain_digit =
   {
     local float health; health = player_health();
     if (health > 100)
@@ -95,9 +95,9 @@ void(float x, float y, float card, float skull,
         dir = player_hurt_dir();
       }
 
-      if (dir < 0) then
+      if (dir < 0)
         face_image = string_concat3("STFTL", pain_digit(), "0");
-      else if (dir > 0) then
+      else if (dir > 0)
         face_image = string_concat3("STFTR", pain_digit(), "0");
       else
         face_image = string_concat("STFKILL", pain_digit());
@@ -154,6 +154,8 @@ void() doom_little_ammo =
   hud_text_font("YELLOW_DIGIT");
   hud_text_color("wtf");
 
+  local float a;
+
   a = player_ammo(1); hud_draw_num2(288, 173, 3, a);
   a = player_ammo(2); hud_draw_num2(288, 179, 3, a);
   a = player_ammo(3); hud_draw_num2(288, 185, 3, a);
@@ -178,7 +180,7 @@ void() doom_status_bar =
 
   a = player_main_ammo(1) ; hud_draw_num2( 44, 171, 3, a);
   a = player_health()     ; hud_draw_num2( 90, 171, 3, a);
-  a = player_total_armor(); hud_draw_num2(221, 171, 3, a)
+  a = player_total_armor(); hud_draw_num2(221, 171, 3, a);
 
   if (hud_game_mode() == "dm")
   {
@@ -215,7 +217,7 @@ void() doom_overlay_status =
   hud_text_font("BIG_DIGIT");
 
   a = player_health();
-  hud_draw_num2(100, 171, 3, health);
+  hud_draw_num2(100, 171, 3, a);
 
   a = player_main_ammo(1);
   hud_text_color("TEXT_YELLOW");
@@ -248,7 +250,7 @@ void() doom_automap =
 
   doom_status_bar();
 
-  local string title = hud_map_title();
+  local string title; title = hud_map_title();
 
   hud_text_font("DOOM");
   hud_draw_text(0, 200 - 32 - 10, title);
@@ -267,9 +269,9 @@ void() edge_air_bar =
 
   air = math_floor(1 + 21 * ((100 - air) / 100.1));
 
-  local string barname = string_format("AIRBAR%02d", air);
+  local string barname; barname = string_format("AIRBAR%02d", air);
 
-  hud_draw_image(0, 0, barname, air);
+  hud_draw_image(0, 0, barname);
 };
 
 
@@ -277,7 +279,7 @@ void() draw_all =
 {
   hud_coord_sys(320, 200);
 
-  if (hud_automap())
+  if (hud_automap)
   {
     doom_automap();
     return;
@@ -293,7 +295,7 @@ void() draw_all =
 
   if (hud_which == 0)
     doom_status_bar();
-  else if (hud_which == 2) then
+  else if (hud_which == 2)
     doom_overlay_status();
 
   edge_air_bar();
