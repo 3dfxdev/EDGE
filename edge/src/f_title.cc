@@ -25,60 +25,125 @@
 #include "r_draw.h"
 
 
-
-void RGL_DrawProgress(int perc, int glbsp_perc)
+typedef struct
 {
-	/* show EDGE logo and a progress indicator */
+	float x, y;
+	float t;
+	float size;
+}
+star_info_t;
+
+static std::list<star_info_t> star_field;
+
+#define STAR_ALPHA(t_diff)  (0.99 - (t_diff) / 2000.0)
+
+
+static void RemoveDeadStars(void)
+{
+	for (;;)
+	{
+		if (star_field.empty())
+			break;
+
+		float t_diff = star_field.front().t - millies;
+
+		if (STAR_ALPHA(t_diff) > 0)
+			break;
+
+		star_field.pop_front();
+	}
+
+}
+
+
+static void DrawStars(int millies)
+{
+	float dist = 0;
+	if (millies > 1200)
+		dist = millies - 1200;
+
+	std::list<star_info_t>::iterator SI;
+
+	while (! star_field.empty() && star_field.
+
+	for (SI = star_field.begin(); SI != star_field.end(); SI++)
+	{
+		star_info_t& 
+		float alpha = 0.99 - (millies - t) / 2000.0; 
+    if S.a > 0 and S.z*611 < 6930-dist*100 then
+      local w = S.big / (7000 - S.z*611)
+      local dx = (S.x - 160) * S.z / 7 
+      local dy = (S.y - 100) * S.z / 12
+      hud.stretch_image(S.x+dx-w, S.y+dy-w, w*2, w*2, "STAR")
+      S.z = S.z + 0.3
+      S.a = S.a - 0.015
+    end
+  end
+}
+
+
+static void DrawName(void)
+{
+  hud.set_alpha(1)
+  hud.solid_box(0, 0, 320, 30, "#000000")
+  hud.solid_box(0, 170, 320, 30, "#000000")
+
+  hud.stretch_image(0, 30, 320, 140, "EDGE")
+
+  fade = (mmm - 11) / 30 
+  if fade > 1 then fade = 2 - fade end
+  if fade > 0 then
+    hud.set_alpha(fade ^ 1.5)
+    hud.stretch_image(60, 160, 200, 20, "EDGE_MNEM")
+  end
+
+}
+
+
+static void InsertNewStars(int millies)
+{
+  local num = 25
+  if mmm > 26 then num = num - (mmm - 26) * 1 end
+
+  for loop = 1,num do
+    local x = math.random() * 320
+    local y = math.random() * 200
+    local big = (math.random() + 1) * 16000
+
+    table.insert(star_field, { x=x, y=y, z=0.3, a=0.99, big=big })
+  end
+}
+
+
+bool RGL_DrawTitle(int millies)
+{
+	if (millies > 2140)
+		return true;  // finished
+
 
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
+
+
 	glEnable(GL_BLEND);
 
-	int y = SCREENHEIGHT - 20;
-	
-	const byte *logo_lum; int lw, lh;
-	const byte *text_lum; int tw, th;
 
-	logo_lum = RGL_LogoImage(&lw, &lh);
-	text_lum = RGL_InitImage(&tw, &th);
+	RemoveDeadStars();
 
-	ProgressSection(logo_lum, lw, lh, text_lum, tw, th,
-		0.4f, 0.6f, 1.0f, &y, perc, 1.0f);
+	DrawStars(milliest);
 
-	y -= 40;
+	DrawName();
 
-	if (glbsp_perc >= 0 || glbsp_last_prog_time > 0)
-	{
-		// logic here is to avoid the brief flash of progress
-		int tim = I_GetTime();
-		float alpha = 1.0f;
+	InsertNewStars(millies);
 
-		if (glbsp_perc >= 0)
-			glbsp_last_prog_time = tim;
-		else
-		{
-			alpha = 1.0f - float(tim - glbsp_last_prog_time) / (TICRATE*3/2);
 
-			if (alpha < 0)
-			{
-				alpha = 0;
-				glbsp_last_prog_time = 0;
-			}
-
-			glbsp_perc = 100;
-		}
-
-		logo_lum = RGL_GlbspImage(&lw, &lh);
-		text_lum = RGL_BuildImage(&tw, &th);
-
-		ProgressSection(logo_lum, lw, lh, text_lum, tw, th,
-			1.0f, 0.2f, 0.1f, &y, glbsp_perc, alpha);
-	}
 
 	glDisable(GL_BLEND);
 
 	I_FinishFrame();
 	I_StartFrame();
+
+	return false;
 }
 
 
