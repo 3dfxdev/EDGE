@@ -292,7 +292,7 @@ def_t *PR_ParseFunctionCall (def_t *func)
 			e = PR_Expression (TOP_PRIORITY);
 
 			if (t->num_parms != -1 && ( e->type != t->parm_types[arg] ) )
-				PR_ParseError ("type mismatch on parm %i", arg);
+				PR_ParseError ("type mismatch on parm %i", arg+1);
 		// a vector copy will copy everything
 			def_parms[arg].type = t->parm_types[arg];
 			PR_Statement (&pr_opcodes[OP_STORE_V], e, &def_parms[arg]);
