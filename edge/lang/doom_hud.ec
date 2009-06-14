@@ -52,7 +52,7 @@ void(float x, float y, float card, float skull,
     return string_format("%d", index);
   };
 
-  void() turn_digit =
+  string() turn_digit =
   {
     local float r; r = math_random() * 2.99;
     r = math_floor(r);
@@ -78,7 +78,7 @@ void(float x, float y, float card, float skull,
     }
 
     // being attacked ?
-    if (player_hurt_by())
+    if (player_hurt_by() != "none")
     {
       if (player_hurt_pain() > 50)
       {
@@ -138,6 +138,8 @@ void(float x, float y) doomguy_face =
 
   //---| doomguy_face |---
 
+  sprint("doomguy_face");
+
   face_time = face_time - hud_passed_time;
 
   if (face_time <= 0)
@@ -152,7 +154,7 @@ void(float x, float y) doomguy_face =
 void() doom_little_ammo =
 {
   hud_text_font("YELLOW_DIGIT");
-  hud_text_color("wtf");
+  hud_text_color("x");
 
   local float a;
 
@@ -299,5 +301,14 @@ void() draw_all =
     doom_overlay_status();
 
   edge_air_bar();
+};
+
+
+void() main =
+{
+  hud_which = 0;
+  hud_automap = 1;
+
+  draw_all();
 };
 
