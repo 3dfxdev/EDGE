@@ -45,6 +45,7 @@ char *pr_opnames[] = {
     "MUL_VF",
 
     "DIV",
+    "MOD",
 
     "ADD_F",
     "ADD_V",
@@ -356,7 +357,18 @@ PR_ExecuteProgram(func_t fnum)
 	    break;
 
 	case OP_DIV_F:
+      if (b->_float == 0)
+        Error("Division by zero");
 	    c->_float = a->_float / b->_float;
+	    break;
+
+	case OP_MOD_F:
+      if (b->_float == 0)
+        Error("Division by zero");
+      {
+        float d = floorf(a->_float / b->_float);
+	      c->_float = a->_float - d * b->_float;
+      }
 	    break;
 
 	case OP_BITAND:

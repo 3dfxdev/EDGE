@@ -16,7 +16,7 @@ clean:
 
 QCCFILES = coal.o
 coal: $(QCCFILES)
-	$(CC) $(CFLAGS) -o $@ $(QCCFILES)
+	$(CC) $(CFLAGS) -o $@ $(QCCFILES) -lm
 
 test:
 	./coal mod_base.ec mod_hud.ec mod_player.ec doom_hud.ec
