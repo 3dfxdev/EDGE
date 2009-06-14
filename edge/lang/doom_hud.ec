@@ -307,7 +307,7 @@ void() draw_all =
 void() main =
 {
   hud_which = 0;
-  hud_automap = 1;
+  hud_automap = 0;
 
   draw_all();
 };
