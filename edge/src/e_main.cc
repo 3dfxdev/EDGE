@@ -222,6 +222,26 @@ void E_NodeProgress(int perc)
 	s_progress.drawIt(perc);
 }
 
+
+extern bool RGL_DrawTitle(int millies);
+extern int I_GetMillies(void);
+
+static void DoSplash(void)
+{
+	int start_millies = I_GetMillies();
+
+	for (;;)
+	{
+		int millies = I_GetMillies() - start_millies;
+
+		if (RGL_DrawTitle(millies))
+			break;
+
+		// FIXME: abort on keyboard press
+	}
+}
+
+
 //
 // -ACB- 1999/09/20 Created. Sets Global Stuff.
 //
@@ -1309,6 +1329,8 @@ static void E_Startup(void)
 	SetGlobalVars();
 
 	DoSystemStartup();
+
+	DoSplash();
 
 	I_PutTitle(E_TITLE); // Needs to be done once the system is up and running
 
