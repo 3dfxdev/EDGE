@@ -60,7 +60,9 @@ enum
 	OP_MUL_V,
 	OP_MUL_FV,
 	OP_MUL_VF,
+
 	OP_DIV_F,
+	OP_MOD_F,
 	OP_ADD_F,
 	OP_ADD_V,
 	OP_SUB_F,
