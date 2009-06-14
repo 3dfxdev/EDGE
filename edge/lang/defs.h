@@ -56,6 +56,7 @@ etype_t;
 enum
 {
 	OP_DONE,
+	OP_POWER_F,
 	OP_MUL_F,
 	OP_MUL_V,
 	OP_MUL_FV,

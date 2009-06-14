@@ -44,6 +44,8 @@ opcode_t pr_opcodes[] =
 {
  {"<DONE>", "DONE", -1, false, &def_entity, &def_field, &def_void},
 
+ {"^", "POWER", 1, false, &def_float, &def_float, &def_float},
+
  {"*", "MUL_F", 2, false, &def_float, &def_float, &def_float},
  {"*", "MUL_V", 2, false, &def_vector, &def_vector, &def_float},
  {"*", "MUL_FV", 2, false, &def_float, &def_vector, &def_vector},
