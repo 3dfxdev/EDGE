@@ -19,7 +19,7 @@ coal: $(QCCFILES)
 	$(CC) $(CFLAGS) -o $@ $(QCCFILES)
 
 test:
-	./coal mod_base.qc mod_hud.qc mod_player.qc doom_hud.qc
+	./coal mod_base.ec mod_hud.ec mod_player.ec doom_hud.ec
 
 .PHONY: all clean test
 
