@@ -31,6 +31,7 @@ typedef struct
 	float x, y;
 	float t;
 	float size;
+	float r, g, b;
 }
 star_info_t;
 
@@ -58,12 +59,13 @@ static void RemoveDeadStars(int millies)
 }
 
 
-static void DrawOneStar(float mx, float my, float sz, float alpha)
+static void DrawOneStar(float mx, float my, float sz,
+                        float r, float g, float b, float alpha)
 {
 	float x = SCREENWIDTH  * mx / 320.0f;
 	float y = SCREENHEIGHT * my / 200.0f;
 
-	glColor4f(1.0f, 1.0f, 1.0f, alpha);
+	glColor4f(r, g, b, alpha);
 
 	glBegin(GL_POLYGON);
 
@@ -77,7 +79,7 @@ static void DrawOneStar(float mx, float my, float sz, float alpha)
 
 static void DrawStars(int millies)
 {
-	float dist = (millies < 1200) ? 0 : (millies - 1200);
+	float dist = 0; //// (millies < 1600) ? 0 : (millies - 1600);
 
 	std::list<star_info_t>::iterator SI;
 
@@ -95,7 +97,8 @@ static void DrawStars(int millies)
 			float dx = (SI->x - 160) * z / 7.0;
 			float dy = (SI->y - 100) * z / 12.0;
 		
-			DrawOneStar(SI->x + dx - w, SI->y + dy - w, w, alpha);
+			DrawOneStar(SI->x + dx, SI->y + dy, w,
+						SI->r, SI->g, SI->b, alpha);
 		}
   	}
 }
@@ -128,23 +131,29 @@ static void InsertNewStars(int millies)
 
 	if (millies > 740)
 	{
-		float f = (2200 - millies) / float(2200 - 740);
+		float f = (2300 - millies) / float(2300 - 740);
 		total = millies + int(millies * f);
 	}
 
-		for (; all_count < total; all_count++)
-		{
-			star_info_t st;
+	total = total * 2 / 4;
 
-			st.x = (rand() & 0x0FFF) / 12.80f;
-			st.y = (rand() & 0x0FFF) / 20.48f;
+	for (; all_count < total; all_count++)
+	{
+		star_info_t st;
 
-			st.t = millies;
+		st.x = (rand() & 0x0FFF) / 12.80f;
+		st.y = (rand() & 0x0FFF) / 20.48f;
 
-			st.size = ((rand() & 0x0FFF) / 4096.0 + 1) * 16000.0;
+		st.t = millies;
 
-			star_field.push_back(st);
-		}
+		st.size = ((rand() & 0x0FFF) / 4096.0 + 1) * 16000.0;
+
+		st.r = pow((rand() & 0xFF) / 255.0, 0.3);
+		st.g = pow((rand() & 0xFF) / 255.0, 0.3) / 2.0;
+		st.b = pow((rand() & 0xFF) / 255.0, 0.3);
+
+		star_field.push_back(st);
+	}
 }
 
 
@@ -152,7 +161,7 @@ bool RGL_DrawTitle(int millies)
 {
 	millies = millies - 500;
 
-	if (millies > 2140)
+	if (millies > 3000)
 		return true;  // finished
 
 
