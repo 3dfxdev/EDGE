@@ -38,7 +38,11 @@ int		pr_error_count;
 
 char	*pr_punctuation[] =
 // longer symbols must be before a shorter partial match
-{"&&", "||", "<=", ">=","==", "!=", ";", ",", "!", "*", "/", "%", "(", ")", "-", "+", "=", "[", "]", "{", "}", "...", ".", "<", ">" , "#" , "&" , "|" , NULL};
+{"&&", "||", "<=", ">=","==", "!=", ";", ",", "!",
+ "*", "/", "%", "^","(", ")", "-", "+", "=",
+ "[", "]", "{", "}", "...", ".", "<", ">", "#", "&", "|",
+ NULL
+};
 
 // simple types.  function types are dynamically allocated
 type_t	type_void = {ev_void, &def_void};

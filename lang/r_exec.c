@@ -371,6 +371,10 @@ PR_ExecuteProgram(func_t fnum)
       }
 	    break;
 
+	case OP_POWER_F:
+	    c->_float = powf(a->_float, b->_float);
+	    break;
+
 	case OP_BITAND:
 	    c->_float = (int)a->_float & (int)b->_float;
 	    break;
