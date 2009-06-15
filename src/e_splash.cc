@@ -26,6 +26,9 @@
 #include "r_modes.h"
 
 
+extern int I_GetMillies(void);
+
+
 typedef struct
 {
 	float x, y;
@@ -37,7 +40,7 @@ star_info_t;
 
 static std::list<star_info_t> star_field;
 
-#define STAR_ALPHA(t_diff)  (0.99 - (t_diff) / 2000.0)
+#define STAR_ALPHA(t_diff)  (0.99 - (t_diff) / 3000.0)
 
 #define STAR_Z(t_diff)  (0.3 + (t_diff) / 100.0)
 
@@ -104,8 +107,96 @@ static void DrawStars(int millies)
 }
 
 
+static const char *edge_shape[7] =
+{
+	"                 ",
+	" 3#7 ##1 3#7 3#7 ",
+	" #   #9# #   #   ",
+	" ##  # # # # ##  ",
+	" #   #3# # # #   ",
+	" 9#1 ##7 9## 9#1 ",
+	"                 ",
+};
+
+static int edge_row_sizes[] =
+{ 50, 30, 19, 19, 19, 30, 40 };
+
+static int edge_column_sizes[] =
+{
+   5, 25,28,20, 6, 25,28,20, 6, 25,28,20, 6, 25,28,20, 5,
+};
+
 static void DrawName(int millies)
 {
+	int rows = 7;
+	int cols = 17;
+
+	glColor3f(0, 0, 0);
+
+	int y1 = 0;
+	int y2 = 0;
+
+	for (int y = 0; y < rows; y++, y1 = y2)
+	{
+		y2 = y1 + edge_row_sizes[y];
+
+		int x1 = 0;
+		int x2 = 0;
+
+		for (int x = 0; x < cols; x++, x1 = x2)
+		{
+			x2 = x1 + edge_column_sizes[x];
+
+			char shape = edge_shape[rows-1-y][x];
+
+			if (shape == '#')
+				continue;
+
+			int ix1 = x1 * SCREENWIDTH / 320;
+			int ix2 = x2 * SCREENWIDTH / 320;
+
+			int iy1 = y1 * SCREENHEIGHT / 200;
+			int iy2 = y2 * SCREENHEIGHT / 200;
+
+			glBegin(GL_POLYGON);
+
+			switch (shape)
+			{
+				case '9':
+					glVertex2i(ix1, iy1);
+					glVertex2i(ix1, iy2);
+					glVertex2i(ix2, iy1);
+					break;
+
+				case '7':
+					glVertex2i(ix1, iy1);
+					glVertex2i(ix2, iy2);
+					glVertex2i(ix2, iy1);
+					break;
+
+				case '3':
+					glVertex2i(ix1, iy1);
+					glVertex2i(ix1, iy2);
+					glVertex2i(ix2, iy2);
+					break;
+
+				case '1':
+					glVertex2i(ix1, iy2);
+					glVertex2i(ix2, iy2);
+					glVertex2i(ix2, iy1);
+					break;
+
+				default:
+					glVertex2i(ix1, iy1);
+					glVertex2i(ix1, iy2);
+					glVertex2i(ix2, iy2);
+					glVertex2i(ix2, iy1);
+					break;
+			}
+
+			glEnd();
+		}
+	}
 #if 0
   hud.set_alpha(1)
   hud.solid_box(0, 0, 320, 30, "#000000")
@@ -129,9 +220,9 @@ static void InsertNewStars(int millies)
 
 	int total = millies;
 
-	if (millies > 740)
+	if (millies > 2740)
 	{
-		float f = (2300 - millies) / float(2300 - 740);
+		float f = (2000 - millies) / float(2000 - 740);
 		total = millies + int(millies * f);
 	}
 
@@ -148,8 +239,8 @@ static void InsertNewStars(int millies)
 
 		st.size = ((rand() & 0x0FFF) / 4096.0 + 1) * 16000.0;
 
-		st.r = pow((rand() & 0xFF) / 255.0, 0.3);
-		st.g = pow((rand() & 0xFF) / 255.0, 0.3) / 2.0;
+		st.r = pow((rand() & 0xFF) / 255.0, 0.3) / 2.5;
+		st.g = pow((rand() & 0xFF) / 255.0, 0.3) / 1.5;
 		st.b = pow((rand() & 0xFF) / 255.0, 0.3);
 
 		star_field.push_back(st);
@@ -157,20 +248,16 @@ static void InsertNewStars(int millies)
 }
 
 
-bool RGL_DrawTitle(int millies)
+bool E_DrawSplash(int millies)
 {
 	millies = millies - 500;
-
-	if (millies > 3000)
-		return true;  // finished
-
 
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	glEnable(GL_BLEND);
 
-	if (millies > 0)
+	if (millies > 0 && millies < 2200)
 	{
 		RemoveDeadStars(millies);
 
@@ -186,7 +273,23 @@ bool RGL_DrawTitle(int millies)
 	I_FinishFrame();
 	I_StartFrame();
 
-	return false;
+	return (millies >= 2200);  // finished
+}
+
+
+void E_SplashScreen(void)
+{
+	int start_millies = I_GetMillies();
+
+	for (;;)
+	{
+		int millies = I_GetMillies() - start_millies;
+
+		if (E_DrawSplash(millies))
+			break;
+
+		// FIXME: abort on keyboard press
+	}
 }
 
 
