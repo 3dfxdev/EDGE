@@ -32,6 +32,8 @@ extern int I_GetMillies(void);
 extern unsigned char rndtable[256];
 
 
+static int color;  // 0 to 7
+
 typedef struct
 {
 	float x, y;
@@ -61,6 +63,7 @@ static void CreateStarTex(void)
 
 		float dist = sqrt((x-64)*(x-64) + (y-64)*(y-64));
 
+		// FIXME: use a fast fudge
 		angle_t ang = R_PointToAngle(64.5, 64.5, x, y);
 
 		int rnd = rndtable[(u32_t)ang >> 24];
@@ -85,7 +88,9 @@ static void RemoveDeadStars(int millies)
 
 		float t_diff = star_field.front().t - millies;
 
-		if (STAR_ALPHA(t_diff) > 0)
+		float z = STAR_Z(t_diff);
+
+		if (z * 611 < 6930)
 			break;
 
 		star_field.pop_front();
@@ -119,8 +124,6 @@ static void DrawStars(int millies)
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, star_tex);
 
-	float dist = 0; //// (millies < 1600) ? 0 : (millies - 1600);
-
 	std::list<star_info_t>::iterator SI;
 
 	for (SI = star_field.begin(); SI != star_field.end(); SI++)
@@ -130,7 +133,7 @@ static void DrawStars(int millies)
 		float alpha = STAR_ALPHA(t_diff);
 		float z     = STAR_Z(t_diff);
 
-		if (z * 611 < 6930 - dist * 100.0)
+		if (z * 611 < 6930)
 		{
 			float w = SI->size / (7000 - z * 611);
 
@@ -159,11 +162,11 @@ static const char *edge_shape[7] =
 };
 
 static int edge_row_sizes[] =
-{ 54, 29, 17, 17, 17, 29, 44 };
+{ 64, 24, 12, 12, 12, 24, 52 };
 
 static int edge_column_sizes[] =
 {
-   9, 24,29,18, 6, 24,29,18, 6, 24,29,18, 6, 24,29,18, 9,
+   11, 24,28,18, 6, 24,28,18, 6, 24,28,18, 6, 24,28,18, 11,
 };
 
 static void DrawName(int millies)
@@ -301,6 +304,10 @@ static void InsertNewStars(int millies)
 {
 	static int all_count = 0;
 
+	float r_factor = (color & 4) ? 1.0f : 0.5f;
+	float g_factor = (color & 2) ? 1.0f : 0.5f;
+	float b_factor = (color & 1) ? 1.0f : 0.5f;
+
 	int total = millies;
 
 	if (millies > 7740)
@@ -322,11 +329,18 @@ static void InsertNewStars(int millies)
 
 		st.size = ((rand() & 0x0FFF) / 4096.0 + 1) * 16000.0;
 
-		st.r = pow((rand() & 0xFF) / 255.0, 0.3) / 2.0;
-		st.g = pow((rand() & 0xFF) / 255.0, 0.3) / 1.0;
-		st.b = pow((rand() & 0xFF) / 255.0, 0.3) / 1.0;
-
-		// st.g = st.b = st.r;
+		if (color == 0)
+		{
+			st.r = pow((rand() & 0xFF) / 255.0, 0.3);
+			st.g = st.r;
+			st.b = st.r;
+		}
+		else
+		{
+			st.r = pow((rand() & 0xFF) / 255.0, 0.3) * r_factor; 
+			st.g = pow((rand() & 0xFF) / 255.0, 0.3) * g_factor;
+			st.b = pow((rand() & 0xFF) / 255.0, 0.3) * b_factor;
+		}
 
 		star_field.push_back(st);
 	}
@@ -335,7 +349,7 @@ static void InsertNewStars(int millies)
 
 bool E_DrawSplash(int millies)
 {
-	int max_time = 3200;
+	int max_time = 3000;
 
 	millies = millies - 500;
 
@@ -366,6 +380,10 @@ bool E_DrawSplash(int millies)
 
 void E_SplashScreen(void)
 {
+	srand(time(NULL));
+
+	color = rand() & 7;
+
 	CreateStarTex();
 
 	int start_millies = I_GetMillies();
