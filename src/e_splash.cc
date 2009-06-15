@@ -24,9 +24,12 @@
 #include "r_gldefs.h"
 #include "r_draw.h"
 #include "r_modes.h"
+#include "r_texgl.h"
 
 
 extern int I_GetMillies(void);
+
+extern unsigned char rndtable[256];
 
 
 typedef struct
@@ -40,9 +43,37 @@ star_info_t;
 
 static std::list<star_info_t> star_field;
 
-#define STAR_ALPHA(t_diff)  (0.99 - (t_diff) /  1200.0)
+#define STAR_ALPHA(t_diff)  (0.99 - (t_diff) /  7000.0)
 
-#define STAR_Z(t_diff)  (0.3 + (t_diff) / 100.0)
+#define STAR_Z(t_diff)  (0.3 + (t_diff) /  100.0)
+
+static GLuint star_tex;
+
+
+static void CreateStarTex(void)
+{
+	epi::image_data_c *img = new epi::image_data_c(128, 128);
+
+	for (int y = 0; y < 128; y++)
+	for (int x = 0; x < 128; x++)
+	{
+		u8_t *pix = img->PixelAt(x, y);
+
+		float dist = sqrt((x-64)*(x-64) + (y-64)*(y-64));
+
+		angle_t ang = R_PointToAngle(64.5, 64.5, x, y);
+
+		int rnd = rndtable[(u32_t)ang >> 24];
+
+		*pix = CLAMP(0, 255 - dist * 4.2, 255) * (rnd / 512.0 + 0.5);
+
+		pix[1] = pix[2] = pix[0];
+	}
+
+	star_tex = R_UploadTexture(img, UPL_Smooth);
+
+	delete img;
+}
 
 
 static void RemoveDeadStars(int millies)
@@ -72,16 +103,22 @@ static void DrawOneStar(float mx, float my, float sz,
 
 	glBegin(GL_POLYGON);
 
-	glVertex2f(x - sz, y - sz);
-	glVertex2f(x - sz, y + sz);
-	glVertex2f(x + sz, y + sz);
-	glVertex2f(x + sz, y - sz);
+	glTexCoord2f(0.0, 0.0); glVertex2f(x - sz, y - sz);
+	glTexCoord2f(0.0, 1.0); glVertex2f(x - sz, y + sz);
+	glTexCoord2f(1.0, 1.0); glVertex2f(x + sz, y + sz);
+	glTexCoord2f(1.0, 0.0); glVertex2f(x + sz, y - sz);
 
 	glEnd();
 }
 
 static void DrawStars(int millies)
 {
+	// additive blending
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, star_tex);
+
 	float dist = 0; //// (millies < 1600) ? 0 : (millies - 1600);
 
 	std::list<star_info_t>::iterator SI;
@@ -104,6 +141,9 @@ static void DrawStars(int millies)
 						SI->r, SI->g, SI->b, alpha);
 		}
   	}
+
+	glDisable(GL_TEXTURE_2D);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 
@@ -282,11 +322,11 @@ static void InsertNewStars(int millies)
 
 		st.size = ((rand() & 0x0FFF) / 4096.0 + 1) * 16000.0;
 
-		st.r = pow((rand() & 0xFF) / 255.0, 0.3) ;
-		st.g = pow((rand() & 0xFF) / 255.0, 0.3) / 1.5;
-		st.b = pow((rand() & 0xFF) / 255.0, 0.3) / 3.0;
+		st.r = pow((rand() & 0xFF) / 255.0, 0.3) / 2.0;
+		st.g = pow((rand() & 0xFF) / 255.0, 0.3) / 1.0;
+		st.b = pow((rand() & 0xFF) / 255.0, 0.3) / 1.0;
 
-		st.g = st.b = st.r;
+		// st.g = st.b = st.r;
 
 		star_field.push_back(st);
 	}
@@ -295,6 +335,8 @@ static void InsertNewStars(int millies)
 
 bool E_DrawSplash(int millies)
 {
+	int max_time = 3200;
+
 	millies = millies - 500;
 
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -302,13 +344,13 @@ bool E_DrawSplash(int millies)
 
 	glEnable(GL_BLEND);
 
-	if (millies > 0 && millies < 4200)
+	if (millies > 0 && millies < max_time)
 	{
 		RemoveDeadStars(millies);
 
 		DrawStars(millies);
 
-		DrawName(millies);
+  		DrawName(millies);
 
 		InsertNewStars(millies);
 	}
@@ -318,12 +360,14 @@ bool E_DrawSplash(int millies)
 	I_FinishFrame();
 	I_StartFrame();
 
-	return (millies >= 4200);  // finished
+	return (millies >= max_time);  // finished
 }
 
 
 void E_SplashScreen(void)
 {
+	CreateStarTex();
+
 	int start_millies = I_GetMillies();
 
 	for (;;)
