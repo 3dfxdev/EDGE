@@ -168,7 +168,7 @@ public:
 
 		if (pp != perc)
 		{
-			perc = pp; drawIt();
+			perc = pp; //!!!!  drawIt();
 		}
 	}
 
@@ -223,23 +223,7 @@ void E_NodeProgress(int perc)
 }
 
 
-extern bool RGL_DrawTitle(int millies);
-extern int I_GetMillies(void);
-
-static void DoSplash(void)
-{
-	int start_millies = I_GetMillies();
-
-	for (;;)
-	{
-		int millies = I_GetMillies() - start_millies;
-
-		if (RGL_DrawTitle(millies))
-			break;
-
-		// FIXME: abort on keyboard press
-	}
-}
+extern void E_SplashScreen(void);
 
 
 //
@@ -1330,7 +1314,7 @@ static void E_Startup(void)
 
 	DoSystemStartup();
 
-	DoSplash();
+	E_SplashScreen();
 
 	I_PutTitle(E_TITLE); // Needs to be done once the system is up and running
 
