@@ -40,7 +40,7 @@ star_info_t;
 
 static std::list<star_info_t> star_field;
 
-#define STAR_ALPHA(t_diff)  (0.99 - (t_diff) / 3000.0)
+#define STAR_ALPHA(t_diff)  (0.99 - (t_diff) /  1200.0)
 
 #define STAR_Z(t_diff)  (0.3 + (t_diff) / 100.0)
 
@@ -111,19 +111,19 @@ static const char *edge_shape[7] =
 {
 	"                 ",
 	" 3#7 ##1 3#7 3#7 ",
-	" #   #9# #   #   ",
-	" ##  # # # # ##  ",
-	" #   #3# # # #   ",
+	" #   #8# #   #   ",
+	" #7  # # # 1 #7  ",
+	" #   #2# #2# #   ",
 	" 9#1 ##7 9## 9#1 ",
 	"                 ",
 };
 
 static int edge_row_sizes[] =
-{ 50, 30, 19, 19, 19, 30, 40 };
+{ 54, 29, 17, 17, 17, 29, 44 };
 
 static int edge_column_sizes[] =
 {
-   5, 25,28,20, 6, 25,28,20, 6, 25,28,20, 6, 25,28,20, 5,
+   9, 24,29,18, 6, 24,29,18, 6, 24,29,18, 6, 24,29,18, 9,
 };
 
 static void DrawName(int millies)
@@ -158,43 +158,86 @@ static void DrawName(int millies)
 			int iy1 = y1 * SCREENHEIGHT / 200;
 			int iy2 = y2 * SCREENHEIGHT / 200;
 
-			glBegin(GL_POLYGON);
+			int hx = (ix1 + ix2) / 2;
+			int hy = (iy1 + iy2) / 2;
+
+			int ix3 = ix1 + (ix2 - ix1) / 7;
+			int ix4 = ix2 - (ix2 - ix1) / 7;
+
+			int iy3 = iy1 + (iy2 - iy1) / 7;
+			int iy4 = iy2 - (iy2 - iy1) / 7;
 
 			switch (shape)
 			{
 				case '9':
+					glBegin(GL_TRIANGLE_FAN);
 					glVertex2i(ix1, iy1);
-					glVertex2i(ix1, iy2);
 					glVertex2i(ix2, iy1);
+					glVertex2i(hx,  iy3);
+					glVertex2i(ix3, hy);
+					glVertex2i(ix1, iy2);
+					glEnd();
 					break;
 
 				case '7':
-					glVertex2i(ix1, iy1);
-					glVertex2i(ix2, iy2);
+					glBegin(GL_TRIANGLE_FAN);
 					glVertex2i(ix2, iy1);
+					glVertex2i(ix1, iy1);
+					glVertex2i(hx,  iy3);
+					glVertex2i(ix4, hy);
+					glVertex2i(ix2, iy2);
+					glEnd();
 					break;
 
 				case '3':
-					glVertex2i(ix1, iy1);
+					glBegin(GL_TRIANGLE_FAN);
 					glVertex2i(ix1, iy2);
 					glVertex2i(ix2, iy2);
+					glVertex2i(hx,  iy4);
+					glVertex2i(ix3, hy);
+					glVertex2i(ix1, iy1);
+					glEnd();
 					break;
 
 				case '1':
-					glVertex2i(ix1, iy2);
+					glBegin(GL_TRIANGLE_FAN);
 					glVertex2i(ix2, iy2);
 					glVertex2i(ix2, iy1);
+					glVertex2i(ix4, hy);
+					glVertex2i(hx,  iy4);
+					glVertex2i(ix1, iy2);
+					glEnd();
+					break;
+
+				case '8':
+					glBegin(GL_POLYGON);
+					glVertex2i(ix2, iy1);
+					glVertex2i(ix1, iy1);
+					glVertex2i(ix1, iy2);
+					glVertex2f(hx,  iy4);
+					glVertex2f(ix4, hy);
+					glEnd();
+					break;
+
+				case '2':
+					glBegin(GL_POLYGON);
+					glVertex2i(ix1, iy1);
+					glVertex2i(ix1, iy2);
+					glVertex2i(ix2, iy2);
+					glVertex2f(ix4, hy);
+					glVertex2f(hx,  iy3);
+					glEnd();
 					break;
 
 				default:
+					glBegin(GL_POLYGON);
 					glVertex2i(ix1, iy1);
 					glVertex2i(ix1, iy2);
 					glVertex2i(ix2, iy2);
 					glVertex2i(ix2, iy1);
+					glEnd();
 					break;
 			}
-
-			glEnd();
 		}
 	}
 #if 0
@@ -220,13 +263,13 @@ static void InsertNewStars(int millies)
 
 	int total = millies;
 
-	if (millies > 2740)
+	if (millies > 7740)
 	{
-		float f = (2000 - millies) / float(2000 - 740);
+		float f = (2800 - millies) / float(2800 - 1740);
 		total = millies + int(millies * f);
 	}
 
-	total = total * 2 / 4;
+	total = total * 4 / 4;
 
 	for (; all_count < total; all_count++)
 	{
@@ -239,9 +282,11 @@ static void InsertNewStars(int millies)
 
 		st.size = ((rand() & 0x0FFF) / 4096.0 + 1) * 16000.0;
 
-		st.r = pow((rand() & 0xFF) / 255.0, 0.3) / 2.5;
+		st.r = pow((rand() & 0xFF) / 255.0, 0.3) ;
 		st.g = pow((rand() & 0xFF) / 255.0, 0.3) / 1.5;
-		st.b = pow((rand() & 0xFF) / 255.0, 0.3);
+		st.b = pow((rand() & 0xFF) / 255.0, 0.3) / 3.0;
+
+		st.g = st.b = st.r;
 
 		star_field.push_back(st);
 	}
@@ -257,7 +302,7 @@ bool E_DrawSplash(int millies)
 
 	glEnable(GL_BLEND);
 
-	if (millies > 0 && millies < 2200)
+	if (millies > 0 && millies < 4200)
 	{
 		RemoveDeadStars(millies);
 
@@ -273,7 +318,7 @@ bool E_DrawSplash(int millies)
 	I_FinishFrame();
 	I_StartFrame();
 
-	return (millies >= 2200);  // finished
+	return (millies >= 4200);  // finished
 }
 
 
