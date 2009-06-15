@@ -2,7 +2,7 @@
 //  EDGE TITLE SCREEN
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 2009  Andrew Apted
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -467,20 +467,6 @@ static void DrawName(int millies)
 			}
 		}
 	}
-#if 0
-  hud.set_alpha(1)
-  hud.solid_box(0, 0, 320, 30, "#000000")
-  hud.solid_box(0, 170, 320, 30, "#000000")
-
-  hud.stretch_image(0, 30, 320, 140, "EDGE")
-
-  fade = (mmm - 11) / 30 
-  if fade > 1 then fade = 2 - fade end
-  if fade > 0 then
-    hud.set_alpha(fade ^ 1.5)
-    hud.stretch_image(60, 160, 200, 20, "EDGE_MNEM")
-  end
-#endif
 }
 
 
@@ -492,7 +478,9 @@ static void DrawLogo(int millies)
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, logo_tex);
 
-	float alpha = millies / 2900.0;
+	float alpha = millies / 1800.0;
+	if (alpha > 1)
+		alpha = 3.0 - alpha * 2.0;
 
 	glColor4f(1.0, 1.0, 1.0, alpha);
 
@@ -565,9 +553,9 @@ static void InsertNewStars(int millies)
 
 bool E_DrawSplash(int millies)
 {
-	int max_time = 3000;
+	int max_time = 2700;
 
-	millies = millies - 500;
+	millies = millies - 400;
 
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
