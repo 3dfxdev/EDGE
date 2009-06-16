@@ -509,9 +509,6 @@ static void M_DisplayPause(void)
 			      0, 0, IM_RIGHT(pause_image), IM_TOP(pause_image));
 }
 
-wipetype_e wipe_method = WIPE_Melt;
-int wipe_reverse = 0;
-
 static bool need_wipe = false;
 
 void E_ForceWipe(void)
@@ -519,13 +516,14 @@ void E_ForceWipe(void)
 	if (gamestate == GS_NOTHING)
 		return;
 
-	if (wipe_method == WIPE_None)
-		return;
+	if (r_wipemethod.d > (int)WIPE_None &&
+	    r_wipemethod.d < (int)WIPE_NUMWIPES)
+	{
+		need_wipe = true;
 
-	need_wipe = true;
-
-	// capture screen now (before new level is loaded etc..)
-	E_Display();
+		// capture screen now (before new level is loaded etc..)
+		E_Display();
+	}
 }
 
 //
@@ -545,8 +543,7 @@ void E_Display(void)
 	// Start the frame - should we need to.
 	I_StartFrame();
 
-	// -AJA- 1999/08/02: Make sure palette/gamma is OK. This also should
-	//       fix (finally !) the "gamma too late on walls" bug.
+	// -AJA- 1999/08/02: Make sure palette/gamma is OK.
 	V_ColourNewFrame();
 
 	switch (gamestate)
@@ -591,7 +588,7 @@ void E_Display(void)
 		//
 		if (RGL_DoWipe())
 		{
-			RGL_StopWipe();
+			RGL_EndWipe();
 			wipe_gl_active = false;
 		}
 	}
@@ -602,7 +599,8 @@ void E_Display(void)
 		need_wipe = false;
 		wipe_gl_active = true;
 
-		RGL_InitWipe(wipe_reverse, wipe_method);
+		// r_wipemethod cvar was validated in E_ForceWipe
+		RGL_StartWipe((wipetype_e)r_wipemethod.d, r_wipereverse.d);
 	}
 
 	if (paused)

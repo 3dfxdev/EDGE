@@ -64,9 +64,7 @@ static bool loaded_playpal = false;
 #define RADIATION_PAL     13
 
 // -AJA- 1999/07/03: moved these here from v_res.c:
-int var_gamma;
-
-static bool old_gamma = -1;
+cvar_c r_gamma;
 
 
 // text translation tables
@@ -172,9 +170,7 @@ void V_InitColour(void)
 {
 	const char *s = M_GetParm("-gamma");
 	if (s)
-	{
-		var_gamma = MAX(0, MIN(5, atoi(s)));
-	}
+		r_gamma = s;
 
 	InitTranslationTables();
 }
@@ -580,13 +576,11 @@ rgbcol_t V_ParseFontColor(const char *name, bool strict)
 //
 void V_ColourNewFrame(void)
 {
-	if (var_gamma != old_gamma)
+	if (r_gamma.CheckModified())
 	{
-		float gamma = 1.0 / (1.0 - var_gamma/8.0);
+		float gamma = CLAMP(0.25f, r_gamma.f, 4.0f);
 
 		I_SetGamma(gamma);
-
-		old_gamma = var_gamma;
 	}
 }
 
