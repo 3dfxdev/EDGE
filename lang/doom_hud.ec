@@ -288,7 +288,7 @@ void() draw_all =
   }
 
   // there are three standard HUDs
-  hud_which = math_mod(hud_which, 3);
+  hud_which = hud_which % 3;
 
   if (hud_which == 0)
     hud_render_world(0, 0, 320, 200 - 32);
