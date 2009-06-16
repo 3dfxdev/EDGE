@@ -225,9 +225,9 @@ static void CreateStarTex(void)
 	{
 		u8_t *pix = img->PixelAt(x, y);
 
-		float dist = sqrt((x-64)*(x-64) + (y-64)*(y-64));
+		// FIXME: use a fast fudge for dist and angle
+		float dist = sqrtf((x-64)*(x-64) + (y-64)*(y-64));
 
-		// FIXME: use a fast fudge
 		angle_t ang = R_PointToAngle(64.5, 64.5, x, y);
 
 		int rnd = rndtable[(u32_t)ang >> 24];
@@ -603,6 +603,9 @@ void E_SplashScreen(void)
 
 		// FIXME: abort on keyboard press
 	}
+
+	glDeleteTextures(1, &star_tex);
+	glDeleteTextures(1, &logo_tex);
 }
 
 
