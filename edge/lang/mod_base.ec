@@ -10,7 +10,6 @@ void(float v) sys_assert = { };
 
 float(float v) math_floor = { return v; };
 float() math_random = { return 1; };
-float(float a, float b) math_mod = { return b - 1; };
 
 // STRING
 
