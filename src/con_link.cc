@@ -47,7 +47,8 @@ extern cvar_c r_fov, r_zoomedfov;
 extern cvar_c r_mipmapping, r_smoothing;
 extern cvar_c r_dithering, r_hq2x;
 extern cvar_c r_dynamiclight, r_invultex;
-extern cvar_c r_detaillevel;
+extern cvar_c r_gamma, r_detaillevel;
+extern cvar_c r_wipemethod, r_wipereverse;
 
 extern cvar_c s_volume, s_musicvol, s_mixchan;
 extern cvar_c s_rate, s_bits, s_stereo;
@@ -103,6 +104,7 @@ cvar_link_t  all_cvars[] =
     { "r_depth",      &r_depth,      "rc",  "32"    },
     { "r_fullscreen", &r_fullscreen, "rc",  "1"     },
 
+	{ "r_gamma",      &r_gamma,      "c",   "1"  },
 	{ "r_nearclip",   &r_nearclip,   "c",   "4"     },
 	{ "r_farclip",    &r_farclip,    "c",   "64000" },
 	{ "r_fadepower",  &r_fadepower,  "c",   "1",    },
@@ -117,6 +119,8 @@ cvar_link_t  all_cvars[] =
 	{ "r_dynamiclight",  &r_dynamiclight,  "c",  "1"  },
 	{ "r_detaillevel",   &r_detaillevel,   "c",  "1"  },
 	{ "r_invultex",      &r_invultex,      "c",  "1"  },
+	{ "r_wipemethod",    &r_wipemethod,    "c",  "1" /* Melt */ },
+	{ "r_wipereverse",   &r_wipereverse,   "c",  "0"  },
 
 	{ "r_colormaterial", &r_colormaterial, "",   "1"  },
 	{ "r_colorlighting", &r_colorlighting, "",   "1"  },

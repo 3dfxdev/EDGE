@@ -94,10 +94,8 @@ extern cvar_c r_hq2x;
 
 static default_t defaults[] =
 {
-    {CFGT_Int,		"edge_version",		 &edge_version,	  0},
     {CFGT_Boolean,	"directx",			 &force_directx,  0},
     {CFGT_Boolean,	"waveout",			 &force_waveout,  0},
-    {CFGT_Int,      "usegamma",          &var_gamma,  CFGDEF_CURRENT_GAMMA},
  
     {CFGT_Int,      "mouse_sensitivity", &mouseSensitivity, CFGDEF_MOUSESENSITIVITY},
     {CFGT_Boolean,  "invertmouse",       &invertmouse,    CFGDEF_INVERTMOUSE},
@@ -107,8 +105,6 @@ static default_t defaults[] =
     {CFGT_Enum,     "telept_effect",     &telept_effect,  CFGDEF_TELEPT_EFFECT},
     {CFGT_Int,      "telept_reverse",    &telept_reverse, CFGDEF_TELEPT_REVERSE},
     {CFGT_Int,      "telept_flash",      &telept_flash,   CFGDEF_TELEPT_FLASH},
-    {CFGT_Enum,     "wipe_method",       &wipe_method,    CFGDEF_WIPE_METHOD},
-    {CFGT_Int,      "wipe_reverse",      &wipe_reverse,   CFGDEF_WIPE_REVERSE},
     {CFGT_Enum,     "crosshair",         &crosshair,      CFGDEF_CROSSHAIR},
 
     // -KM- 1998/09/01 Useless mouse/joy stuff removed,
@@ -121,9 +117,6 @@ static default_t defaults[] =
     {CFGT_Int,      "forwardmove_speed", &forwardmovespeed, CFGDEF_FORWARDMOVESPEED},
     {CFGT_Int,      "angleturn_speed",   &angleturnspeed, CFGDEF_ANGLETURNSPEED},
     {CFGT_Int,      "sidemove_speed",    &sidemovespeed,  CFGDEF_SIDEMOVESPEED},
-
-    {CFGT_Int,      "joy_xaxis",         &joy_xaxis,      CFGDEF_JOY_XAXIS},
-    {CFGT_Int,      "joy_yaxis",         &joy_yaxis,      CFGDEF_JOY_YAXIS},
 
     {CFGT_Int,      "save_page",         &save_page, 0},
 
@@ -166,8 +159,6 @@ static default_t defaults[] =
 
 void M_SaveDefaults(void)
 {
-	edge_version = EDGEVER;
-
 ///---	// Don't want to save settings in a network game: might not
 ///---	// be ours.
 ///---	if (netgame)
@@ -185,6 +176,8 @@ void M_SaveDefaults(void)
 		I_Warning("Couldn't open config file %s for writing.", cfgfile.c_str());
 		return;  // can't write the file, but don't complain
 	}
+
+	fprintf(f, "edge_version\t\t\"%d\"\n", EDGEVER);
 
 	// -AJA- 2004/01/10: this doesn't fit in yet...
 	fprintf(f, "language\t\t\"%s\"\n", language.GetName());
@@ -324,14 +317,6 @@ void M_LoadDefaults(void)
 	}
 
 	fclose(f);
-
-	if (edge_version == 0)
-	{
-		// config file is from an older version (< 1.31)
-		// Hence fix some things up here...
-
-		key_console = KEYD_TILDE;
-	}
 
 	return;
 }

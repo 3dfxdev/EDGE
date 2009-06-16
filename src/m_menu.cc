@@ -1446,6 +1446,45 @@ void M_StopMessage(void)
 }
 #endif
 
+static void M_BumpGamma(void)
+{
+	int new_lev = 0;
+
+	if (r_gamma.f < 1.1)
+		new_lev = 1;
+	else if (r_gamma.f < 1.25)
+		new_lev = 2;
+	else if (r_gamma.f < 1.45)
+		new_lev = 3;
+	else if (r_gamma.f < 1.8)
+		new_lev = 4;
+	else if (r_gamma.f < 2.2)
+		new_lev = 5;
+
+	// update cvar with new value
+	if (new_lev == 5)
+		r_gamma = 2.4f;
+	else
+		r_gamma = (float)(1.0 / (1.0 - new_lev/8.0));
+
+	const char *msg = NULL;
+
+	switch (new_lev)
+	{
+		case 0: { msg = language["GammaOff"];  break; }
+		case 1: { msg = language["GammaLevelOne"];  break; }
+		case 2: { msg = language["GammaLevelTwo"];  break; }
+		case 3: { msg = language["GammaLevelThree"];  break; }
+		case 4: { msg = language["GammaLevelFour"];  break; }
+		case 5: { msg = language["GammaLevelFive"];  break; }
+
+		default: { msg = NULL; break; }
+	}
+
+	if (msg)	
+		CON_Printf("%s\n", msg);
+}
+
 //
 // CONTROL PANEL
 //
@@ -1687,26 +1726,7 @@ bool M_Responder(event_t * ev)
 
 			case KEYD_F11:  // gamma toggle
 
-				var_gamma++;
-				if (var_gamma > 5)
-					var_gamma = 0;
-
-				const char *msg = NULL;
-				
-				switch(var_gamma)
-				{
-					case 0: { msg = language["GammaOff"];  break; }
-					case 1: { msg = language["GammaLevelOne"];  break; }
-					case 2: { msg = language["GammaLevelTwo"];  break; }
-					case 3: { msg = language["GammaLevelThree"];  break; }
-					case 4: { msg = language["GammaLevelFour"];  break; }
-					case 5: { msg = language["GammaLevelFive"];  break; }
-
-					default: { msg = NULL; break; }
-				}
-				
-				if (msg)	
-					CON_Printf("%s\n", msg);
+				M_BumpGamma();
 
 				// -AJA- 1999/07/03: removed PLAYPAL reference.
 				return true;
