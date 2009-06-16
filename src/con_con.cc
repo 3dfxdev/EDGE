@@ -20,7 +20,7 @@
 // (rheit@iastate.edu).  Randy Heit has given his permission to
 // release this code under the GPL, for which the EDGE Team is very
 // grateful.  The original GPL'd version `c_consol.c' can be found in
-// the contrib/ directory.
+// the docs/contrib/ directory.
 //
 
 #include "i_defs.h"
