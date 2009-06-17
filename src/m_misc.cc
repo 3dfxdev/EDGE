@@ -87,8 +87,6 @@ bool force_waveout = false;
 unsigned short save_screenshot[160][100];
 bool save_screenshot_valid = false;
 
-static int edge_version;
-
 extern cvar_c r_hq2x;
 
 
@@ -255,6 +253,8 @@ void M_LoadDefaults(void)
 		return;
 	}
 
+	int edge_version = 0;
+
 	while (!feof(f))
 	{
 		char def[80];
@@ -280,6 +280,18 @@ void M_LoadDefaults(void)
 			sscanf(strparm + 2, "%x", &parm);
 		else
 			sscanf(strparm, "%i", &parm);
+
+		if (strcmp(def, "edge_version") == 0)
+		{
+			if (isstring)
+				edge_version = atoi(strparm+1);
+			else
+				edge_version = parm;
+
+			I_Printf("Config file version: %d.%02d\n",
+			         edge_version/100, edge_version%100);
+			continue;
+		}
 
 		// -AJA- 2004/01/10: this doesn't fit in yet...
 		if (strcmp(def, "language") == 0)
