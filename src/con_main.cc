@@ -223,7 +223,15 @@ int CMD_ShowLumps(char **argv, int argc)
 
 int CMD_ShowVars(char **argv, int argc)
 {
+	bool show_defaults = false;
+
 	char *match = NULL;
+
+	if (argc >= 2 && strcmp(argv[1], "-l") == 0)
+	{
+		show_defaults = true;
+		argv++; argc--;
+	}
 
 	if (argc >= 2)
 		match = argv[1];
@@ -240,7 +248,11 @@ int CMD_ShowVars(char **argv, int argc)
 
 		cvar_c *var = all_cvars[i].var;
 
-		I_Printf("  %-15s \"%s\"\n", all_cvars[i].name, var->str);
+		if (show_defaults)
+			I_Printf("  %-15s \"%s\" (%s)\n", all_cvars[i].name, var->str, all_cvars[i].def_val);
+		else
+			I_Printf("  %-15s \"%s\"\n", all_cvars[i].name, var->str);
+
 		total++;
 	}
 
