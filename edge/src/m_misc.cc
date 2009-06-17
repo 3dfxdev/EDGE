@@ -95,20 +95,11 @@ static default_t defaults[] =
     {CFGT_Boolean,	"directx",			 &force_directx,  0},
     {CFGT_Boolean,	"waveout",			 &force_waveout,  0},
  
-    {CFGT_Int,      "mouse_sensitivity", &mouseSensitivity, CFGDEF_MOUSESENSITIVITY},
-    {CFGT_Boolean,  "invertmouse",       &invertmouse,    CFGDEF_INVERTMOUSE},
-    {CFGT_Int,      "mlookspeed",        &mlookspeed,     CFGDEF_MLOOKSPEED},
-
     // -ES- 1998/11/28 Save fade settings
     {CFGT_Enum,     "telept_effect",     &telept_effect,  CFGDEF_TELEPT_EFFECT},
     {CFGT_Int,      "telept_reverse",    &telept_reverse, CFGDEF_TELEPT_REVERSE},
     {CFGT_Int,      "telept_flash",      &telept_flash,   CFGDEF_TELEPT_FLASH},
     {CFGT_Enum,     "crosshair",         &crosshair,      CFGDEF_CROSSHAIR},
-
-    // -KM- 1998/09/01 Useless mouse/joy stuff removed,
-    //                 analogue binding added
-    {CFGT_Int,      "mouse_xaxis",       &mouse_xaxis,    CFGDEF_MOUSE_XAXIS},
-    {CFGT_Int,      "mouse_yaxis",       &mouse_yaxis,    CFGDEF_MOUSE_YAXIS},
 
     // -ACB- 1998/09/06 Two-stage turning & Speed controls added
     {CFGT_Boolean,  "twostage_turning",  &stageturn,      CFGDEF_STAGETURN},

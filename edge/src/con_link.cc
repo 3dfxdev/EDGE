@@ -38,6 +38,9 @@ extern cvar_c debug_nomonsters;
 extern cvar_c debug_fullbright, debug_subsector;
 
 extern cvar_c in_autorun;
+extern cvar_c mouse_xaxis, mouse_yaxis;
+extern cvar_c mouse_xsens, mouse_ysens;
+extern cvar_c mouse_invert;
 
 extern cvar_c r_width, r_height, r_depth, r_fullscreen;
 extern cvar_c r_colormaterial, r_colorlighting;
@@ -92,6 +95,11 @@ cvar_link_t  all_cvars[] =
 	{ "am_smoothing",   &am_smoothing,   "c",   "1"  },
                                         
 	{ "in_autorun",     &in_autorun,     "c",   "0"  },
+	{ "mouse_xaxis",    &mouse_xaxis,    "c",   "0" /* AXIS_TURN */  },
+	{ "mouse_yaxis",    &mouse_yaxis,    "c",   "3" /* AXIS_MLOOK */ },
+	{ "mouse_xsens",    &mouse_xsens,    "c",   "10"  },
+	{ "mouse_ysens",    &mouse_ysens,    "c",   "10"  },
+	{ "mouse_invert",   &mouse_invert,   "c",   "0"  },
                                         
 	{ "m_diskicon",     &m_diskicon,     "c",   "1"  },
 	{ "m_busywait",     &m_busywait,     "c",   "1"  },
