@@ -205,17 +205,6 @@ invulfx_type_e;
 extern cvar_c r_invultex;  // "TEXTURED" mode of invulnerability
 
 
-//
-// -ACB- 1998/09/06 Analogue binding:
-//                   Two stage turning, angleturn control
-//                   horzmovement control, vertmovement control
-//                   strafemovediv;
-//
-extern bool stageturn;
-extern int forwardmovespeed;
-extern int angleturnspeed;
-extern int sidemovespeed;
-
 #endif /*__D_STATE_H__*/
 
 //--- editor settings ---

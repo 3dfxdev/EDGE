@@ -628,7 +628,6 @@ void E_Display(void)
 	CON_Drawer();
 
 	M_DisplayDisk();
-	M_DisplayDesynch();
 
 	I_FinishFrame();  // page flip or blit buffer
 }
