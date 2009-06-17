@@ -304,7 +304,7 @@ void R_StartFading(int start, int range)
 
 static std::vector<drawthing_t  *> drawthings;
 static std::vector<drawfloor_t  *> drawfloors;
-static std::vector<drawseg_c    *> drawsegs;
+static std::vector<drawseg2_c   *> drawsegs;
 static std::vector<drawsub_c    *> drawsubs;
 static std::vector<drawmirror_c *> drawmirrors;
 
@@ -315,8 +315,6 @@ static int drawsub_pos;
 static int drawmirror_pos;
 
 
-//
-// R2_InitUtil
 //
 // One-time initialisation routine.
 //
@@ -375,11 +373,11 @@ drawfloor_t *R_GetDrawFloor()
 	return drawfloors[drawfloor_pos++];
 }
 
-drawseg_c *R_GetDrawSeg()
+drawseg2_c *R_GetDrawSeg()
 {
 	if (drawseg_pos >= (int)drawsegs.size())
 	{
-		drawsegs.push_back(new drawseg_c);
+		drawsegs.push_back(new drawseg2_c);
 	}
 
 	return drawsegs[drawseg_pos++];

@@ -1966,6 +1966,7 @@ static void RGL_WalkMirror(drawsub_c *dsub, seg_t *seg,
 }
 
 
+#if (0 == 1)  // OLD CRUD
 //
 // RGL_WalkSeg
 //
@@ -2102,7 +2103,7 @@ void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 		}
 	}
 
-	drawseg_c *dseg = R_GetDrawSeg();
+	drawseg_c *dseg = NULL; /// R_GetDrawSeg();
 	dseg->seg = seg;
 
 	dsub->segs.push_back(dseg);
@@ -2122,6 +2123,7 @@ void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 	}
 
 }
+#endif
 
 
 static void RGL_DrawPlane(subsector_t *sub, drawfloor_t *dfloor, float h,
@@ -2957,8 +2959,10 @@ static void LineSet_AddSeg(seg_t *seg)
 		return;
 //I_Debugf("    survived 1D occlusion\n");
 
-	drawseg2_c *dseg = new drawseg2_c(seg);
+	drawseg2_c *dseg = R_GetDrawSeg();
 
+	dseg->Clear(seg);
+	
 	dseg->left  = angle_L;
 	dseg->right = angle_R;
 	dseg->span  = span;
