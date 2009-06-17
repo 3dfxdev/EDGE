@@ -123,23 +123,15 @@ cvar_c in_autorun;
 // -KM-  1998/09/01 Analogue binding
 // -ACB- 1998/09/06 Two-stage turning switch
 //
-int mouse_xaxis = AXIS_TURN;  // joystick values are used once
-int mouse_yaxis = AXIS_FORWARD;
-int joy_xaxis = AXIS_TURN;  // joystick values are repeated
-int joy_yaxis = AXIS_FORWARD;
 
 // The last one is ignored (AXIS_DISABLE)
-static int analogue[6] = {0, 0, 0, 0, 0, 0};
+static float analogue[6] = {0, 0, 0, 0, 0, 0};
 
 bool stageturn;  // Stage Turn Control
 
 int forwardmovespeed;  // Speed controls
 int angleturnspeed;
 int sidemovespeed;
-int mlookspeed = 1000 / 64;
-
-// -ACB- 1999/09/30 Has to be true or false - bool-ified
-bool invertmouse = false;
 
 
 bool E_InputCheckKey(int keynum)
@@ -199,9 +191,9 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	if (in_autorun.d)
 		speed = !speed;
 
-	int forward = 0;
-	int upward = 0;  // -MH- 1998/08/18 Fly Up/Down movement
-	int side = 0;
+	float forward = 0;
+	float upward = 0;  // -MH- 1998/08/18 Fly Up/Down movement
+	float side = 0;
 
 	//
 	// -KM- 1998/09/01 use two stage accelerative turning on all devices
@@ -212,7 +204,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	int t_speed = speed;
 
 	if (E_InputCheckKey(key_right) || E_InputCheckKey(key_left) ||
-		(analogue[AXIS_TURN] && stageturn))
+		(analogue[AXIS_TURN] != 0 && stageturn))
 		turnheld++;
 	else
 		turnheld = 0;
@@ -320,8 +312,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 			cmd->mlookturn -= mlook_rate;
 
 		// -KM- 1998/09/01 More analogue binding
-		cmd->mlookturn += analogue[AXIS_MLOOK] * mlook_rate /
-			((21 - mlookspeed) << 3);
+		cmd->mlookturn += analogue[AXIS_MLOOK] * mlook_rate / 30.0f;
 
 		// -ACB- 1998/07/02 Use CENTER flag to center the vertical look.
 		if (E_InputCheckKey(key_lookcenter))
@@ -351,7 +342,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	// -KM- 1998/09/01 Analogue binding
 	// -ACB- 1998/09/06 Forward Move Speed Control
 	int i = GetSpeedDivisor(forwardmovespeed);
-	forward -= analogue[AXIS_FORWARD] * forwardmove[speed] / i;
+	forward += analogue[AXIS_FORWARD] * forwardmove[speed] / i;
 
 	// -ACB- 1998/09/06 Side Move Speed Control
 	int j = GetSpeedDivisor(sidemovespeed);
@@ -416,12 +407,13 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	else if (side < -MAXPLMOVE)
 		side = -MAXPLMOVE;
 
-	cmd->forwardmove += forward;
-	cmd->sidemove    += side;
-	cmd->upwardmove  += upward;
+	cmd->forwardmove += I_ROUND(forward);
+	cmd->sidemove    += I_ROUND(side);
+	cmd->upwardmove  += I_ROUND(upward);
 
 	// -KM- 1998/09/01 Analogue binding
-	Z_Clear(analogue, int, 5);
+	for (int k = 0; k < 6; k++)
+		analogue[k] = 0;
 }
 
 //
@@ -459,12 +451,12 @@ bool INP_Responder(event_t * ev)
 				if ((g_mlook.d && !(map_features & MPF_NoMLook)) &&
 				    E_InputCheckKey(key_mlook))
 				{
-					if (ev->value.analogue.axis == mouse_xaxis)
+					if (ev->value.analogue.axis == mouse_xaxis.d)
 					{
 						analogue[AXIS_TURN] += ev->value.analogue.amount;
 						return true;
 					}
-					if (ev->value.analogue.axis == mouse_yaxis)
+					if (ev->value.analogue.axis == mouse_yaxis.d)
 					{
 						analogue[AXIS_MLOOK] += ev->value.analogue.amount;
 						return true;
@@ -503,7 +495,9 @@ void E_SetTurboScale(int scale)
 void E_ClearInput(void)
 {
 	Z_Clear(gamekeydown, byte, NUMKEYS);
-	Z_Clear(analogue, int, 5);
+
+	for (int k = 0; k < 6; k++)
+		analogue[k] = 0;
 
 	turnheld  = 0;
 	mlookheld = 0;

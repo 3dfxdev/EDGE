@@ -145,6 +145,10 @@ u32_t I_ReadMicroSeconds(void);
 // value will overflow regularly (assuming `long' is 32 bits), the
 // caller should check for this situation.
 
+extern cvar_c mouse_xaxis, mouse_xsens;
+extern cvar_c mouse_yaxis, mouse_ysens;
+extern cvar_c mouse_invert;
+
 
 //--------------------------------------------------------
 //  MUSIC functions.

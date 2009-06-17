@@ -277,13 +277,13 @@ static void SetGlobalVars(void)
 	}
 
 	// speed for mouse look
-	s = M_GetParm("-vspeed");
-	if (s)
-	{
-		mlookspeed = atoi(s) / 64;
-		if (mlookspeed >= 20)
-			mlookspeed = 19;
-	}
+///???	s = M_GetParm("-vspeed");
+///???	if (s)
+///???	{
+///???		mlookspeed = atoi(s) / 64;
+///???		if (mlookspeed >= 20)
+///???			mlookspeed = 19;
+///???	}
 
 	s = M_GetParm("-screenshot");
 	if (s)
@@ -293,7 +293,7 @@ static void SetGlobalVars(void)
 	}
 
 	// -AJA- 1999/10/18: Reworked these with M_CheckBooleanParm
-	M_CheckBooleanParm("invertmouse", &invertmouse, false);
+///???	M_CheckBooleanParm("invertmouse", &invertmouse, false);
 	M_CheckBooleanParm("showstats", &showstats, false);
 	M_CheckBooleanParm("hom", &hom_detect, false);
 	M_CheckBooleanParm("sound", &nosound, true);

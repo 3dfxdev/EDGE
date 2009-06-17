@@ -156,7 +156,6 @@ extern bool precache;
 // if true, enable HOM detection (hall of mirrors effect)
 extern bool hom_detect;
 
-extern int mouseSensitivity;
 extern int save_page;
 
 extern int quickSaveSlot;
@@ -205,15 +204,6 @@ invulfx_type_e;
 
 extern cvar_c r_invultex;  // "TEXTURED" mode of invulnerability
 
-//mlook stuff
-extern int mlookspeed;
-extern bool invertmouse; // -ACB- 1999/09/03 Must be true or false - becomes boolean
-
-// -KM- 1998/09/01 Analogue binding stuff, These hold what axis they bind to.
-extern int joy_xaxis;
-extern int joy_yaxis;
-extern int mouse_xaxis;
-extern int mouse_yaxis;
 
 //
 // -ACB- 1998/09/06 Analogue binding:

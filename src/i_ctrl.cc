@@ -28,6 +28,12 @@
 #include "r_modes.h"
 
 
+cvar_c mouse_xaxis, mouse_xsens;
+cvar_c mouse_yaxis, mouse_ysens;
+
+cvar_c mouse_invert;
+
+
 #undef DEBUG_KB
 
 
@@ -205,22 +211,22 @@ void HandleMouseMotionEvent(SDL_Event * ev)
 		event_t event;
 
 		event.type = ev_analogue;
-		event.value.analogue.axis = mouse_xaxis;
-		event.value.analogue.amount = dx * mouseSensitivity;
-		
+		event.value.analogue.axis = mouse_xaxis.d;
+		event.value.analogue.amount = dx * mouse_xsens.f;
+
 		E_PostEvent(&event);
 	}
 
 	if (dy)
 	{
-		if (!invertmouse)
+		if (mouse_invert.d == 0)
 			dy = -dy;
 
 		event_t event;
 
 		event.type = ev_analogue;
-		event.value.analogue.axis = mouse_yaxis;
-		event.value.analogue.amount = dy * mouseSensitivity;
+		event.value.analogue.axis = mouse_yaxis.d;
+		event.value.analogue.amount = dy * mouse_ysens.f;
 
 		E_PostEvent(&event);
 	}

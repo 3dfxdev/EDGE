@@ -23,8 +23,8 @@
 
 #include "ddf/main.h"
 
-#include "i_system.h"
 #include "con_var.h"
+#include "i_system.h"
 
 #endif /*__I_DEFS_H__*/
 

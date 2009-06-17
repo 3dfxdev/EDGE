@@ -58,7 +58,7 @@ typedef struct
 		struct
 		{
 			int axis;
-			int amount;
+			float amount;
 		} 
 		analogue;
 	} 
