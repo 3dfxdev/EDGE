@@ -321,7 +321,7 @@ typedef struct
 	char		*name;
 	char		*opname;
 	float		priority;
-	qboolean	right_associative;
+	bool	right_associative;
 	def_t		*type_a, *type_b, *type_c;
 } opcode_t;
 
@@ -330,7 +330,7 @@ typedef struct
 
 extern	opcode_t	pr_opcodes[99];		// sized by initialization
 
-extern	qboolean	pr_dumpasm;
+extern	bool	pr_dumpasm;
 
 extern	def_t		*pr_global_defs[MAX_REGS];	// to find def for a global variable
 
@@ -354,7 +354,7 @@ void PR_Lex (void);
 type_t *PR_ParseType (void);
 char *PR_ParseName (void);
 
-qboolean PR_Check (char *string);
+bool PR_Check (char *string);
 void PR_Expect (char *string);
 void PR_ParseError (char *error, ...);
 
@@ -380,14 +380,14 @@ extern	def_t	*pr_scope;
 extern	int		pr_error_count;
 
 void PR_NewLine (void);
-def_t *PR_GetDef (type_t *type, char *name, def_t *scope, qboolean allocate);
+def_t *PR_GetDef (type_t *type, char *name, def_t *scope, bool allocate);
 
 void PR_PrintDefs (void);
 
 void PR_SkipToSemicolon (void);
 
 extern	char		pr_parm_names[MAX_PARMS][MAX_NAME];
-extern	qboolean	pr_trace;
+extern	bool	pr_trace;
 
 #define	G_FLOAT(o) (pr_globals[o])
 #define	G_INT(o) (*(int *)&pr_globals[o])
@@ -399,9 +399,9 @@ char *PR_ValueString (etype_t type, eval_t *val);
 
 void PR_ClearGrabMacros (void);
 
-qboolean	PR_CompileFile (char *string, char *filename);
+bool	PR_CompileFile (char *string, char *filename);
 
-extern	qboolean	pr_dumpasm;
+extern	bool	pr_dumpasm;
 
 extern	string_t	s_file;			// filename for function definition
 

@@ -30,8 +30,6 @@
 #include <time.h>
 #include <stdarg.h>
 
-#define qboolean  bool
-
 
 typedef unsigned char byte;
 
@@ -93,7 +91,7 @@ float	LittleFloat (float l);
 char *COM_Parse (char *data);
 
 extern	char		com_token[1024];
-extern	qboolean	com_eof;
+extern	bool	com_eof;
 
 char *copystring(char *s);
 
@@ -103,9 +101,8 @@ void CRC_ProcessByte(unsigned short *crcvalue, byte data);
 unsigned short CRC_Value(unsigned short crcvalue);
 
 void	CreatePath (char *path);
-void CopyFile (char *from, char *to);
 
-extern	qboolean		archive;
+extern	bool		archive;
 extern	char			archivedir[1024];
 
 
