@@ -257,19 +257,21 @@ public:
 	int blockers;
 
 public:
-	drawseg2_c(seg_t *_seg) : seg(_seg), linked_sub(NULL),
-	                          occludes(), blockers(0)
+	drawseg2_c() : seg(NULL), linked_sub(NULL), occludes(), blockers(0)
 	{ }
 
 	~drawseg2_c()
 	{ }
-};
 
+	void Clear(seg_t *ss)
+	{
+		seg = ss;
 
-class drawseg_c   // FIXME : REMOVE
-{
-public:
-	seg_t *seg;
+		linked_sub = NULL;
+		blockers = 0;
+
+		occludes.clear();
+	}
 };
 
 
@@ -285,7 +287,6 @@ public:
 	drawfloor_t *floors_R;
 
 	std::list<drawseg2_c *> segs2;
-	std::list<drawseg_c *> segs;  // FIXME !!!!! REMOVE
 
 	std::list<drawmirror_c *> mirrors;
 
@@ -293,7 +294,7 @@ public:
 	bool sorted;
 
 public:
-	drawsub_c() : sub(NULL), floors(), segs2(), segs(), mirrors()
+	drawsub_c() : sub(NULL), floors(), segs2(), mirrors()
 	{ }
 
 	~drawsub_c()
@@ -307,7 +308,6 @@ public:
 		floors_R = NULL;
 
 		floors.clear();
-		segs.clear();
 		segs2.clear();
 		mirrors.clear();
 	}
@@ -333,7 +333,7 @@ void R2_ClearBSP(void);
 
 drawthing_t  *R_GetDrawThing();
 drawfloor_t  *R_GetDrawFloor();
-drawseg_c    *R_GetDrawSeg();
+drawseg2_c   *R_GetDrawSeg();
 drawsub_c    *R_GetDrawSub();
 drawmirror_c *R_GetDrawMirror();
 
