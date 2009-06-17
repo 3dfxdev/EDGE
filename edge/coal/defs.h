@@ -21,21 +21,20 @@
 #ifndef __DEFS_CC_H__
 #define __DEFS_CC_H__
 
-// this file is shared by quake and qcc
 
 typedef int	func_t;
 typedef int	string_t;
 
 typedef enum
 {
-  ev_void,
-  ev_string,
-  ev_float,
-  ev_vector,
-  ev_entity,
-  ev_field,
-  ev_function,
-  ev_pointer
+	ev_void,
+	ev_string,
+	ev_float,
+	ev_vector,
+	ev_entity,
+	ev_field,
+	ev_function,
+	ev_pointer
 }
 etype_t;
 
@@ -140,8 +139,9 @@ enum
 
 typedef struct statement_s
 {
-	unsigned short	op;
-	short	a,b,c;
+	unsigned short op;
+
+	short a,b,c;
 }
 dstatement_t;
 
@@ -154,6 +154,7 @@ typedef struct
 	int			s_name;
 }
 ddef_t;
+
 #define	DEF_SAVEGLOBAL	(1<<15)
 
 typedef struct
@@ -172,36 +173,7 @@ typedef struct
 }
 dfunction_t;
 
-
-#define	PROG_VERSION	6
-typedef struct
-{
-	int		version;
-	int		crc;			// check of header file
-	
-	int		ofs_statements;
-	int		numstatements;	// statement 0 is an error
-
-	int		ofs_globaldefs;
-	int		numglobaldefs;
-	
-	int		ofs_fielddefs;
-	int		numfielddefs;
-	
-	int		ofs_functions;
-	int		numfunctions;	// function 0 is an empty
-	
-	int		ofs_strings;
-	int		numstrings;		// first string is a null string
-
-	int		ofs_globals;
-	int		numglobals;
-	
-	int		entityfields;
-}
-dprograms_t;
-
-#endif
+#endif // __DEFS_CC_H__
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
