@@ -45,9 +45,6 @@ int Q_strcasecmp (char *s1, char *s2);
 void Q_getwd (char *out);
 
 int filelength (FILE *f);
-int	FileTime (char *path);
-
-void	Q_mkdir (char *path);
 
 extern	char		qdir[1024];
 extern	char		gamedir[1024];
@@ -93,17 +90,10 @@ char *COM_Parse (char *data);
 extern	char		com_token[1024];
 extern	bool	com_eof;
 
-char *copystring(char *s);
-
 
 void CRC_Init(unsigned short *crcvalue);
 void CRC_ProcessByte(unsigned short *crcvalue, byte data);
 unsigned short CRC_Value(unsigned short crcvalue);
-
-void	CreatePath (char *path);
-
-extern	bool		archive;
-extern	char			archivedir[1024];
 
 
 #endif
