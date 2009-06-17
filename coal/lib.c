@@ -38,9 +38,9 @@ int myargc;
 char **myargv;
 
 char		com_token[1024];
-qboolean	com_eof;
+bool	com_eof;
 
-qboolean		archive;
+bool		archive;
 char			archivedir[1024];
 
 
@@ -611,24 +611,6 @@ void	CreatePath (char *path)
 	}
 }
 
-
-/*
-============
-CopyFile
-
-  Used to archive source files
-============
-*/
-void CopyFile (char *from, char *to)
-{
-	void	*buffer;
-	int		length;
-
-	length = LoadFile (from, &buffer);
-	CreatePath (to);
-	SaveFile (to, buffer, length);
-	free (buffer);
-}
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

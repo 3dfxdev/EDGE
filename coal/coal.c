@@ -468,12 +468,10 @@ called after all files are compiled to check for errors
 Returns false if errors were detected.
 ==============
 */
-qboolean	PR_FinishCompilation (void)
+bool	PR_FinishCompilation (void)
 {
 	def_t		*d;
-	qboolean	errors;
-	
-	errors = false;
+	bool	errors = false;
 	
 // check to make sure all functions prototyped have code
 	for (d=pr.def_head.next ; d ; d=d->next)

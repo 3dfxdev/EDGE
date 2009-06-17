@@ -99,7 +99,7 @@ Call at start of file and when *pr_file_p == '\n'
 */
 void PR_NewLine (void)
 {
-	qboolean	m;
+	bool	m;
 	
 	if (*pr_file_p == '\n')
 	{
@@ -348,7 +348,7 @@ void PR_FindMacro (void)
 }
 
 // just parses text, returning false if an eol is reached
-qboolean PR_SimpleGetToken (void)
+bool PR_SimpleGetToken (void)
 {
 	int		c;
 	int		i;
@@ -536,7 +536,7 @@ Returns true and gets the next token if the current token equals string
 Returns false and does nothing otherwise
 =============
 */
-qboolean PR_Check (char *string)
+bool PR_Check (char *string)
 {
 	if (strcmp (string, pr_token))
 		return false;

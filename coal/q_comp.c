@@ -28,7 +28,7 @@ int			pr_edict_size;
 //========================================
 
 def_t		*pr_scope;		// the function being parsed, or NULL
-qboolean	pr_dumpasm;
+bool	pr_dumpasm;
 string_t	s_file;			// filename for function definition
 
 int			locals_end;		// for tracking local variables vs temps
@@ -680,7 +680,7 @@ If type is NULL, it will match any type
 If allocate is true, a new def will be allocated if it can't be found
 ============
 */
-def_t *PR_GetDef (type_t *type, char *name, def_t *scope, qboolean allocate)
+def_t *PR_GetDef (type_t *type, char *name, def_t *scope, bool allocate)
 {
 	def_t		*def, **old;
 	char element[MAX_NAME];
@@ -851,7 +851,7 @@ PR_CompileFile
 compiles the 0 terminated text, adding defintions to the pr structure
 ============
 */
-qboolean	PR_CompileFile (char *string, char *filename)
+bool	PR_CompileFile (char *string, char *filename)
 {	
 	if (!pr.memory)
 		Error ("PR_CompileFile: Didn't clear");
