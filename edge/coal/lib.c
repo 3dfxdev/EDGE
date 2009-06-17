@@ -31,14 +31,6 @@
 #include <libc.h>
 #endif
 
-#define PATHSEPERATOR   '/'
-
-// set these before calling CheckParm
-int myargc;
-char **myargv;
-
-char		com_token[1024];
-bool	com_eof;
 
 
 /*
@@ -63,35 +55,6 @@ void Error (char *error, ...)
 
 
 /*
-
-qdir will hold the path up to the quake directory, including the slash
-
-  f:\quake\
-  /raid/quake/
-
-gamedir will hold qdir + the game directory (id1, id2, etc)
-
-  */
-
-char		qdir[1024];
-char		gamedir[1024];
-
-
-char *ExpandPath (char *path)
-{
-	static char full[1024];
-	if (!qdir)
-		Error ("ExpandPath called without qdir set");
-	if (path[0] == '/' || path[0] == '\\' || path[1] == ':')
-		return path;
-	sprintf (full, "%s%s", qdir, path);
-	return full;
-}
-
-
-
-
-/*
 ================
 I_FloatTime
 ================
@@ -108,175 +71,12 @@ double I_FloatTime (void)
 
 
 /*
-==============
-COM_Parse
-
-Parse a token out of a string
-==============
-*/
-char *COM_Parse (char *data)
-{
-	int		c;
-	int		len;
-	
-	len = 0;
-	com_token[0] = 0;
-	
-	if (!data)
-		return NULL;
-		
-// skip whitespace
-skipwhite:
-	while ( (c = *data) <= ' ')
-	{
-		if (c == 0)
-		{
-			com_eof = true;
-			return NULL;			// end of file;
-		}
-		data++;
-	}
-	
-// skip // comments
-	if (c=='/' && data[1] == '/')
-	{
-		while (*data && *data != '\n')
-			data++;
-		goto skipwhite;
-	}
-	
-
-// handle quoted strings specially
-	if (c == '\"')
-	{
-		data++;
-		do
-		{
-			c = *data++;
-			if (c=='\"')
-			{
-				com_token[len] = 0;
-				return data;
-			}
-			com_token[len] = c;
-			len++;
-		} while (1);
-	}
-
-// parse single characters
-	if (c=='{' || c=='}'|| c==')'|| c=='(' || c=='\'' || c==':')
-	{
-		com_token[len] = c;
-		len++;
-		com_token[len] = 0;
-		return data+1;
-	}
-
-// parse a regular word
-	do
-	{
-		com_token[len] = c;
-		data++;
-		len++;
-		c = *data;
-	if (c=='{' || c=='}'|| c==')'|| c=='(' || c=='\'' || c==':')
-			break;
-	} while (c>32);
-	
-	com_token[len] = 0;
-	return data;
-}
-
-
-int Q_strncasecmp (char *s1, char *s2, int n)
-{
-	int		c1, c2;
-	
-	while (1)
-	{
-		c1 = *s1++;
-		c2 = *s2++;
-
-		if (!n--)
-			return 0;		// strings are equal until end point
-		
-		if (c1 != c2)
-		{
-			if (c1 >= 'a' && c1 <= 'z')
-				c1 -= ('a' - 'A');
-			if (c2 >= 'a' && c2 <= 'z')
-				c2 -= ('a' - 'A');
-			if (c1 != c2)
-				return -1;		// strings not equal
-		}
-		if (!c1)
-			return 0;		// strings are equal
-	}
-	
-	return -1;
-}
-
-int Q_strcasecmp (char *s1, char *s2)
-{
-	return Q_strncasecmp (s1, s2, 99999);
-}
-
-
-char *strupr (char *start)
-{
-	char	*in;
-	in = start;
-	while (*in)
-	{
-		*in = toupper(*in);
-		in++;
-	}
-	return start;
-}
-
-char *strlower (char *start)
-{
-	char	*in;
-	in = start;
-	while (*in)
-	{
-		*in = tolower(*in);
-		in++;
-	}
-	return start;
-}
-
-
-/*
 =============================================================================
 
 						MISC FUNCTIONS
 
 =============================================================================
 */
-
-
-/*
-=================
-CheckParm
-
-Checks for the given parameter in the program's command line arguments
-Returns the argument number (1 to argc-1) or 0 if not present
-=================
-*/
-int CheckParm (char *check)
-{
-	int             i;
-
-	for (i = 1;i<myargc;i++)
-	{
-		if ( !Q_strcasecmp(check, myargv[i]) )
-			return i;
-	}
-
-	return 0;
-}
-
 
 
 /*
@@ -373,48 +173,6 @@ void    SaveFile (char *filename, void *buffer, int count)
 	f = SafeOpenWrite (filename);
 	SafeWrite (f, buffer, count);
 	fclose (f);
-}
-
-
-
-/*
-==============
-ParseNum / ParseHex
-==============
-*/
-int ParseHex (char *hex)
-{
-	char    *str;
-	int    num;
-
-	num = 0;
-	str = hex;
-
-	while (*str)
-	{
-		num <<= 4;
-		if (*str >= '0' && *str <= '9')
-			num += *str-'0';
-		else if (*str >= 'a' && *str <= 'f')
-			num += 10 + *str-'a';
-		else if (*str >= 'A' && *str <= 'F')
-			num += 10 + *str-'A';
-		else
-			Error ("Bad hex number: %s",hex);
-		str++;
-	}
-
-	return num;
-}
-
-
-int ParseNum (char *str)
-{
-	if (str[0] == '$')
-		return ParseHex (str+1);
-	if (str[0] == '0' && str[1] == 'x')
-		return ParseHex (str+2);
-	return atol (str);
 }
 
 

@@ -631,10 +631,9 @@ int main (int argc, char **argv)
 
 	start = I_FloatTime ();
 
-	myargc = argc;
-	myargv = argv;
-	
-	if (argc <= 1 || CheckParm ("-?") || CheckParm ("-help"))
+	if (argc <= 1 ||
+	    (strcmp(argv[1], "-?") == 0) || (strcmp(argv[1], "-h") == 0) ||
+		(strcmp(argv[1], "-help") == 0) || (strcmp(argv[1], "--help") == 0))
 	{
 		printf ("USAGE: coal [OPTIONS] filename.qc ...\n");
 		return 0;
