@@ -40,9 +40,6 @@ char **myargv;
 char		com_token[1024];
 bool	com_eof;
 
-bool		archive;
-char			archivedir[1024];
-
 
 /*
 =================
@@ -93,15 +90,6 @@ char *ExpandPath (char *path)
 
 
 
-char *copystring(char *s)
-{
-	char	*b;
-	b = malloc(strlen(s)+1);
-	strcpy (b, s);
-	return b;
-}
-
-
 
 /*
 ================
@@ -115,38 +103,6 @@ double I_FloatTime (void)
 	time (&t);
 	
 	return t;
-}
-
-
-
-void Q_mkdir (char *path)
-{
-#ifdef WIN32
-	if (_mkdir (path) != -1)
-		return;
-#else
-	if (mkdir (path, 0777) != -1)
-		return;
-#endif
-	if (errno != EEXIST)
-		Error ("mkdir %s: %s",path, strerror(errno));
-}
-
-/*
-============
-FileTime
-
-returns -1 if not present
-============
-*/
-int	FileTime (char *path)
-{
-	struct	stat	buf;
-	
-	if (stat (path,&buf) == -1)
-		return -1;
-	
-	return buf.st_mtime;
 }
 
 
@@ -587,29 +543,6 @@ float	LittleFloat (float l)
 
 #endif
 
-
-//=============================================================================
-
-/*
-============
-CreatePath
-============
-*/
-void	CreatePath (char *path)
-{
-	char	*ofs, c;
-	
-	for (ofs = path+1 ; *ofs ; ofs++)
-	{
-		c = *ofs;
-		if (c == '/' || c == '\\')
-		{	// create the directory
-			*ofs = 0;
-			Q_mkdir (path);
-			*ofs = c;
-		}
-	}
-}
 
 
 //--- editor settings ---
