@@ -639,16 +639,16 @@ char	pr_parm_names[MAX_PARMS][MAX_NAME];
 
 type_t *PR_ParseType (void)
 {
-	type_t	new;
+	type_t	t_new;
 	type_t	*type;
 	char	*name;
 	
 	if (PR_Check ("."))
 	{
-		memset (&new, 0, sizeof(new));
-		new.type = ev_field;
-		new.aux_type = PR_ParseType ();
-		return PR_FindType (&new);
+		memset (&t_new, 0, sizeof(t_new));
+		t_new.type = ev_field;
+		t_new.aux_type = PR_ParseType ();
+		return PR_FindType (&t_new);
 	}
 	
 	if (!strcmp (pr_token, "float") )
@@ -674,27 +674,30 @@ type_t *PR_ParseType (void)
 		return type;
 	
 // function type
-	memset (&new, 0, sizeof(new));
-	new.type = ev_function;
-	new.aux_type = type;	// return type
-	new.num_parms = 0;
+	memset (&t_new, 0, sizeof(t_new));
+	t_new.type = ev_function;
+	t_new.aux_type = type;	// return type
+	t_new.num_parms = 0;
 	if (!PR_Check (")"))
 	{
 		if (PR_Check ("..."))
-			new.num_parms = -1;	// variable args
+			t_new.num_parms = -1;	// variable args
 		else
 			do
 			{
 				type = PR_ParseType ();
 				name = PR_ParseName ();
-				strcpy (pr_parm_names[new.num_parms], name);
-				new.parm_types[new.num_parms] = type;
-				new.num_parms++;
+				strcpy (pr_parm_names[t_new.num_parms], name);
+				t_new.parm_types[t_new.num_parms] = type;
+				t_new.num_parms++;
 			} while (PR_Check (","));
 	
 		PR_Expect (")");
 	}
 	
-	return PR_FindType (&new);
+	return PR_FindType (&t_new);
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

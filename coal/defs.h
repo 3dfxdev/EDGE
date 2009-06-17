@@ -202,3 +202,6 @@ typedef struct
 dprograms_t;
 
 #endif
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

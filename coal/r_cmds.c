@@ -40,3 +40,6 @@ builtin_t pr_builtin[] =
 builtin_t *pr_builtins = pr_builtin;
 int pr_numbuiltins = sizeof(pr_builtin) / sizeof(pr_builtin[0]);
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

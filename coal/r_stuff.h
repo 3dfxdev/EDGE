@@ -131,3 +131,6 @@ int PR_SetString(char *s);
 
 
 #endif /* PROGS_H */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab
