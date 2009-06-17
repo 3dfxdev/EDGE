@@ -78,7 +78,6 @@ bool display_disk = false;
 int  display_desync = 0;
 
 static const image_c *disk_image = NULL;
-static const image_c *desynch_image = NULL;
 static const image_c *air_images[21] = { NULL };
 
 bool force_directx = false;
@@ -100,12 +99,6 @@ static default_t defaults[] =
     {CFGT_Int,      "telept_reverse",    &telept_reverse, CFGDEF_TELEPT_REVERSE},
     {CFGT_Int,      "telept_flash",      &telept_flash,   CFGDEF_TELEPT_FLASH},
     {CFGT_Enum,     "crosshair",         &crosshair,      CFGDEF_CROSSHAIR},
-
-    // -ACB- 1998/09/06 Two-stage turning & Speed controls added
-    {CFGT_Boolean,  "twostage_turning",  &stageturn,      CFGDEF_STAGETURN},
-    {CFGT_Int,      "forwardmove_speed", &forwardmovespeed, CFGDEF_FORWARDMOVESPEED},
-    {CFGT_Int,      "angleturn_speed",   &angleturnspeed, CFGDEF_ANGLETURNSPEED},
-    {CFGT_Int,      "sidemove_speed",    &sidemovespeed,  CFGDEF_SIDEMOVESPEED},
 
     {CFGT_Int,      "save_page",         &save_page, 0},
 
@@ -402,22 +395,6 @@ void M_DisplayAir(void)
 	}
   
 	RGL_ImageEasy320(0, 0, air_images[i - 1]);
-}
-
-void M_DisplayDesynch(void)
-{
-	if (display_desync > 0)
-	{
-		display_desync--;
-
-		if (!desynch_image)
-			desynch_image = W_ImageLookup("STDESYNC");
-
-		float w = IM_WIDTH(desynch_image);
-		float h = IM_HEIGHT(desynch_image);
-
-		RGL_Image320(160 - w/2, 140 - h/2, w, h, desynch_image);
-	}
 }
 
 

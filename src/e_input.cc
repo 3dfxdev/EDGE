@@ -118,6 +118,7 @@ static int mlookheld;  // for accelerative mlooking
 
 // toggled by autorun button.
 cvar_c in_autorun;
+cvar_c in_stageturn;
 
 //-------------------------------------------
 // -KM-  1998/09/01 Analogue binding
@@ -126,12 +127,6 @@ cvar_c in_autorun;
 
 // The last one is ignored (AXIS_DISABLE)
 static float analogue[6] = {0, 0, 0, 0, 0, 0};
-
-bool stageturn;  // Stage Turn Control
-
-int forwardmovespeed;  // Speed controls
-int angleturnspeed;
-int sidemovespeed;
 
 
 bool E_InputCheckKey(int keynum)
@@ -171,11 +166,7 @@ static int CmdChecksum(ticcmd_t * cmd)
 //
 // -ACB- 1998/07/02 Added Vertical angle checking for mlook.
 // -ACB- 1998/07/10 Reformatted: I can read the code! :)
-// -ACB- 1998/09/06 Apply speed controls to -KM-'s analogue controls
-// -AJA- 1999/08/10: Reworked the GetSpeedDivisor macro.
 //
-#define GetSpeedDivisor(speed) \
-	(((speed) == 8) ? 6 : ((8 - (speed)) << 4))
 
 static bool allow180 = true;
 static bool allowzoom = true;
@@ -195,34 +186,29 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	float upward = 0;  // -MH- 1998/08/18 Fly Up/Down movement
 	float side = 0;
 
-	//
-	// -KM- 1998/09/01 use two stage accelerative turning on all devices
-	//
-	// -ACB- 1998/09/06 Allow stage turning to be switched off for
-	//                  analogue devices...
-	//
-	int t_speed = speed;
-
-	if (E_InputCheckKey(key_right) || E_InputCheckKey(key_left) ||
-		(analogue[AXIS_TURN] != 0 && stageturn))
+	if (E_InputCheckKey(key_right) || E_InputCheckKey(key_left))
 		turnheld++;
 	else
 		turnheld = 0;
-
-	// slow turn ?
-	if (turnheld < SLOWTURNTICS)
-		t_speed = 2;
-
-	int m_speed = speed;
 
 	if (E_InputCheckKey(key_lookup) || E_InputCheckKey(key_lookdown))
 		mlookheld++;
 	else
 		mlookheld = 0;
 
-	// slow turn ?
-	if (mlookheld < SLOWTURNTICS)
-		m_speed = 2;
+	int t_speed = speed;
+	int m_speed = speed;
+
+	if (in_stageturn.d)
+	{
+		// slow turn ?
+		if (turnheld < SLOWTURNTICS)
+			t_speed = 2;
+
+		// slow turn ?
+		if (mlookheld < SLOWTURNTICS)
+			m_speed = 2;
+	}
 
 	// -ES- 1999/03/28 Zoom Key
 	if (E_InputCheckKey(key_zoom))
@@ -272,8 +258,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 
 		// -KM- 1998/09/01 Analogue binding
 		// -ACB- 1998/09/06 Side Move Speed Control
-		int i = GetSpeedDivisor(sidemovespeed);
-		side += analogue[AXIS_TURN] * sidemove[speed] / i;
+		side += analogue[AXIS_TURN] * sidemove[speed] / 64.0;
 	}
 	else
 	{
@@ -290,8 +275,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 
 		// -KM- 1998/09/01 Analogue binding
 		// -ACB- 1998/09/06 Angle Turn Speed Control
-		int i = GetSpeedDivisor(angleturnspeed);
-		cmd->angleturn -= analogue[AXIS_TURN] * angle_rate / i;
+		cmd->angleturn -= analogue[AXIS_TURN] * angle_rate / 64.0;
 	}
 
 	cmd->mlookturn = 0;
@@ -329,8 +313,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 		if ((E_InputCheckKey(key_flydown)))
 			upward -= upwardmove[speed];
 
-		int i = GetSpeedDivisor(forwardmovespeed);
-		upward += analogue[AXIS_FLY] * upwardmove[speed] / i;
+		upward += analogue[AXIS_FLY] * upwardmove[speed] / 64.0;
 	}
 
 	if (E_InputCheckKey(key_up))
@@ -341,12 +324,10 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 
 	// -KM- 1998/09/01 Analogue binding
 	// -ACB- 1998/09/06 Forward Move Speed Control
-	int i = GetSpeedDivisor(forwardmovespeed);
-	forward += analogue[AXIS_FORWARD] * forwardmove[speed] / i;
+	forward += analogue[AXIS_FORWARD] * forwardmove[speed] / 64.0;
 
 	// -ACB- 1998/09/06 Side Move Speed Control
-	int j = GetSpeedDivisor(sidemovespeed);
-	side += analogue[AXIS_STRAFE] * sidemove[speed] / j;
+	side += analogue[AXIS_STRAFE] * sidemove[speed] / 64.0;
 
 	if (E_InputCheckKey(key_straferight))
 		side += sidemove[speed];
@@ -392,20 +373,9 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	}
 
 	// -MH- 1998/08/18 Yep. More flying controls...
-	if (upward > MAXPLMOVE)
-		upward = MAXPLMOVE;
-	else if (upward < -MAXPLMOVE)
-		upward = -MAXPLMOVE;
-
-	if (forward > MAXPLMOVE)
-		forward = MAXPLMOVE;
-	else if (forward < -MAXPLMOVE)
-		forward = -MAXPLMOVE;
-
-	if (side > MAXPLMOVE)
-		side = MAXPLMOVE;
-	else if (side < -MAXPLMOVE)
-		side = -MAXPLMOVE;
+	forward = CLAMP(-MAXPLMOVE, forward, MAXPLMOVE);
+	 upward = CLAMP(-MAXPLMOVE,  upward, MAXPLMOVE);
+	   side = CLAMP(-MAXPLMOVE,    side, MAXPLMOVE);
 
 	cmd->forwardmove += I_ROUND(forward);
 	cmd->sidemove    += I_ROUND(side);

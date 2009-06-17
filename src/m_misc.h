@@ -73,7 +73,6 @@ extern unsigned short save_screenshot[160][100];
 extern bool save_screenshot_valid;
 
 extern bool display_disk;
-extern int  display_desync;
 extern bool force_directx;
 extern bool force_waveout;
 

@@ -42,6 +42,7 @@ void E_PostEvent(event_t * ev);
 bool INP_Responder(event_t * ev);
 
 extern cvar_c in_autorun;
+extern cvar_c in_stageturn;
 
 /* keyboard stuff */
 
