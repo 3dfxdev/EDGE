@@ -435,3 +435,6 @@ extern	char	pr_immediate_string[2048];
 int	CopyString (char *str);
 
 #endif
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

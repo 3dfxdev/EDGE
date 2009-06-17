@@ -1,8 +1,8 @@
 
 EXES = coal
 
-CC=gcc
-CFLAGS=-Wall -O0 -g3
+CC=g++
+CFLAGS=-Wall -O0 -g3 -fpermissive
 
 #==============================================================================
 

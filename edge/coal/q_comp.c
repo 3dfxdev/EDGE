@@ -886,3 +886,6 @@ qboolean	PR_CompileFile (char *string, char *filename)
 	return (pr_error_count == 0);
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

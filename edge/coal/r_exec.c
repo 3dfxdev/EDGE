@@ -668,3 +668,6 @@ return 0;
     return (int)(s - pr_strings);
 */
 }
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

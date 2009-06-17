@@ -30,14 +30,10 @@
 #include <time.h>
 #include <stdarg.h>
 
-#ifndef __BYTEBOOL__
-#define __BYTEBOOL__
-typedef enum {false, true} qboolean;
-typedef unsigned char byte;
-#endif
+#define qboolean  bool
 
-// the dec offsetof macro doesn't work very well...
-#define myoffsetof(type,identifier) ((size_t)&((type *)0)->identifier)
+
+typedef unsigned char byte;
 
 
 // set these before calling CheckParm
@@ -114,3 +110,6 @@ extern	char			archivedir[1024];
 
 
 #endif
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

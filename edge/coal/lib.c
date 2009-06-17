@@ -629,3 +629,6 @@ void CopyFile (char *from, char *to)
 	SaveFile (to, buffer, length);
 	free (buffer);
 }
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab
