@@ -211,9 +211,7 @@ void R_AddTextureAnim(animdef_c *anim)
 	delete[] texs;
 }
 
-//
-// R_AddGraphicAnim
-// 
+
 void R_AddGraphicAnim(animdef_c *anim)
 {
 	int total = anim->pics.GetSize();
@@ -234,37 +232,38 @@ void R_AddGraphicAnim(animdef_c *anim)
 	delete[] users;
 }
 
-//
-// W_InitFlats
-// 
+
 void W_InitFlats(void)
 {
 	int max_file = W_GetNumFiles();
 	int j, file;
 
-	int *F_lumps = NULL;
-	int numflats = 0;
-
 	I_Printf("W_InitFlats...\n");
 
 	// iterate over each file, creating our big array of flats
+
+	int total = 0;
+
+	for (file=0; file < max_file; file++)
+	{
+		epi::u32array_c& lumps = W_GetListLumps(file, LMPLST_Flats);
+		total += lumps.GetSize();
+	}
+
+	if (total == 0)
+		I_Error("No flats found !  Make sure the chosen IWAD is valid.\n");
+
+	int *F_lumps = new int[total];
+	int numflats = 0;
 
 	for (file=0; file < max_file; file++)
 	{
 		epi::u32array_c& lumps = W_GetListLumps(file, LMPLST_Flats);
 		int lumpnum = lumps.GetSize();
 
-		if (lumpnum == 0)
-			continue;
-
-		Z_Resize(F_lumps, int, numflats + lumpnum);
-
-		for (j=0; j < lumpnum; j++, numflats++)
-			F_lumps[numflats] = lumps[j];
+		for (j=0; j < lumpnum; j++)
+			F_lumps[numflats++] = lumps[j];
 	}
-
-	if (numflats == 0)
-		I_Error("No flats found !  Make sure the chosen IWAD is valid.\n");
 
 	// now sort the flats, primarily by increasing name, secondarily by
 	// increasing lump number (a measure of newness).
@@ -298,12 +297,11 @@ void W_InitFlats(void)
 #endif
 
 	W_ImageCreateFlats(F_lumps, numflats); 
-	Z_Free(F_lumps);
+
+	delete[] F_lumps;
 }
 
-//
-// W_InitPicAnims
-//
+
 void W_InitPicAnims(void)
 {
 	epi::array_iterator_c it;
@@ -336,8 +334,6 @@ void W_InitPicAnims(void)
 
 
 
-//
-// W_PrecacheLevel
 //
 // Preloads all relevant graphics for the level.
 //

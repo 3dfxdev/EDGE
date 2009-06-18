@@ -301,7 +301,10 @@ static void LoadColourmap(const colourmap_c * colm)
 
 	data_in = data + (colm->start * 256);
 
-	Z_Resize(cache->data, byte, colm->length * 256);
+	if (cache->data)
+		delete[] cache->data;
+
+	cache->data = new byte[colm->length * 256];
 
 	for (int j = 0; j < colm->length * 256; j++)
 		cache->data[j] = data_in[j];
