@@ -892,7 +892,6 @@ int RGL_UpdateSkyBoxTextures(void)
 
 	// get correct palette
 	const byte *what_pal = (const byte *) &playpal_data[0];
-	bool what_pal_cached = false;
 
 	static byte trans_pal[256*3];
 
@@ -903,8 +902,7 @@ int RGL_UpdateSkyBoxTextures(void)
 	}
 	else if (sky_image->source_palette >= 0)
 	{
-		what_pal = (const byte *) W_CacheLumpNum(sky_image->source_palette);
-		what_pal_cached = true;
+		what_pal = W_GetPaletteData(sky_image->source_palette);
 	}
 
 	if (info->tex[0])
@@ -926,9 +924,6 @@ int RGL_UpdateSkyBoxTextures(void)
 						 BuildFace(block, WSKY_West, info, what_pal );
 
 	delete block;
-
-	if (what_pal_cached)
-		W_DoneWithLump(what_pal);
 
 	return SK;
 }

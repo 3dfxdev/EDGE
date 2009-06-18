@@ -112,7 +112,7 @@ public:
 	}
 	source;
 
-	// palette lump, or -1 to use the "GLOBAL" palette
+	// palette file, or -1 to use the "GLOBAL" palette
 	int source_palette;
 
 	// --- information about caching ---

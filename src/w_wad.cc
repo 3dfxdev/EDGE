@@ -158,6 +158,10 @@ public:
 	// This is used to disambiguate cached GWA/HWA filenames.
 	epi::md5hash_c dir_hash;
 
+	// if this WAD contains a palette, then this will hold a
+	// copy of it (as soon as something requests it).
+	byte *palette_data;
+
 public:
 	data_file_c(const char *_fname, int _kind, epi::file_c* _file) :
 		file_name(_fname), kind(_kind), file(_file),
@@ -165,7 +169,8 @@ public:
 		colmap_lumps(), tx_lumps(),
 		level_markers(), skin_markers(),
 		wadtex(), deh_lump(-1), animated(-1), switches(-1),
-		companion_gwa(-1), dir_hash()
+		companion_gwa(-1), dir_hash(),
+		palette_data(NULL)
 	{
 		file_name = strdup(_fname);
 
@@ -1389,13 +1394,17 @@ const char *W_GetFileName(int lump)
 // NOTE 2: the palette_datafile stuff is there so we always return -1
 // for the "GLOBAL" palette.
 // 
-int W_GetPaletteForLump(int lump)
+const byte * W_GetPaletteData(int f)
 {
-	SYS_ASSERT(0 <= lump && lump < numlumps);
+	SYS_ASSERT(0 <= f && f < (int)data_files.size());
 
-	int f = lumpinfo[lump].file;
+	if (palette_datafile < 0)
+		I_Error("No palettes??\n");
 
-	for (; f > palette_datafile; f--)
+	if (f < palette_datafile)
+		f = palette_datafile;
+
+	for (; f >= palette_datafile; f--)
 	{
 		data_file_c *df = data_files[f];
 
@@ -1403,11 +1412,16 @@ int W_GetPaletteForLump(int lump)
 			continue;
 
 		if (df->wadtex.palette >= 0)
-			return df->wadtex.palette;
+		{
+			if (! df->palette_data)
+				df->palette_data = (byte *) W_LoadLumpNum(df->wadtex.palette);
+
+			return df->palette_data;
+		}
 	}
 
-	// none found
-	return -1;
+	I_Error("W_GetPaletteData INTERNAL ERROR.\n");
+	return NULL; /* NOT REACHED */
 }
 
 //
@@ -1783,6 +1797,25 @@ int W_CacheInfo(int level)
 	return value;
 }
 
+//
+// Returns a copy of the lump (it is your responsibility to free it)
+//
+void *W_LoadLumpNum(int lump)
+{
+	void *p;
+	const void *cached;
+	int length = W_LumpLength(lump);
+	p = (void *) Z_Malloc(length);
+	cached = W_CacheLumpNum2(lump);
+	memcpy(p, cached, length);
+	W_DoneWithLump(cached);
+	return p;
+}
+
+void *W_LoadLumpName(const char *name)
+{
+	return W_LoadLumpNum(W_GetNumForName2(name));
+}
 
 const char *W_GetLumpName(int lump)
 {

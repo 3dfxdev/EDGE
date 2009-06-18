@@ -85,6 +85,8 @@ int W_LumpLength(int lump);
 void W_DoneWithLump(const void *ptr);
 const void *W_CacheLumpNum2(int lump);
 const void *W_CacheLumpName2(const char *name);
+void *W_LoadLumpNum(int lump);
+void *W_LoadLumpName(const char *name);
 bool W_VerifyLumpName(int lump, const char *name);
 const char *W_GetLumpName(int lump);
 int W_CacheInfo(int level);
@@ -93,7 +95,7 @@ epi::file_c *W_OpenLump(int lump);
 epi::file_c *W_OpenLump(const char *name);
 
 const char *W_GetFileName(int lump);
-int W_GetPaletteForLump(int lump);
+const byte *W_GetPaletteData(int file);
 int W_FindFlatSequence(const char *start, const char *end, 
     int *s_offset, int *e_offset);
 epi::u32array_c& W_GetListLumps(int file, lumplist_e which);

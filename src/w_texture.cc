@@ -170,7 +170,7 @@ static void InstallTextureLumps(int file, const wadtex_resource_c *WT)
 		texture->width = width;
 		texture->height = EPI_LE_S16(mtexture->height);
 		texture->file = file;
-		texture->palette_lump = WT->palette;
+		texture->palette_lump = WT->palette;  // NOTE: unused
 		texture->patchcount = patchcount;
 
 		Z_StrNCpy(texture->name, mtexture->name, 8);
