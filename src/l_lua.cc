@@ -304,12 +304,12 @@ void LU_LoadScripts()
 	
 		I_Printf("Loading LUA lump: %s...\n", script_lumps[i]);
 
-		char *buffer = (char *)W_LoadLumpNum(lump);
+		char *buffer = (char *)W_CacheLumpNum(lump);
 		int length   = W_LumpLength(lump);
 
 		vm->LoadBuffer(script_lumps[i], buffer, length);
 
-		Z_Free(buffer);
+		W_DoneWithLump(buffer);
 
 		has_loaded = true;
 	}

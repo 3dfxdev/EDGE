@@ -83,13 +83,8 @@ int W_CheckNumForTexPatch(const char *name);
 int W_LumpLength(int lump);
 
 void W_DoneWithLump(const void *ptr);
-void W_DoneWithLump_Flushable(const void *ptr);
 const void *W_CacheLumpNum2(int lump);
 const void *W_CacheLumpName2(const char *name);
-void W_PreCacheLumpNum(int lump);
-void W_PreCacheLumpName(const char *name);
-void *W_LoadLumpNum(int lump);
-void *W_LoadLumpName(const char *name);
 bool W_VerifyLumpName(int lump, const char *name);
 const char *W_GetLumpName(int lump);
 int W_CacheInfo(int level);

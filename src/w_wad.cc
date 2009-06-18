@@ -1722,39 +1722,6 @@ void W_DoneWithLump(const void *ptr)
 	}
 }
 
-//
-// Call this if the lump probably won't be used for a while, to hint the
-// system to flush it early.
-//
-// Useful if you are creating a cache for e.g. some kind of lump
-// conversions (like the sound cache).
-//
-void W_DoneWithLump_Flushable(const void *ptr)
-{
-	lumpheader_t *h = ((lumpheader_t *)ptr); // Intentional Const Override
-
-#ifdef DEVELOPERS
-	if (h == NULL)
-		I_Error("W_DoneWithLump: NULL pointer");
-	h--;
-	if (h->id != lumpheader_s::LUMPID)
-		I_Error("W_DoneWithLump: id != LUMPID");
-	if (h->users == 0)
-		I_Error("W_DoneWithLump: lump %d has no users!", h->lumpindex);
-#endif
-	h->users--;
-	if (h->users == 0)
-	{
-		// Move the item to the head of the list.
-		h->prev->next = h->next;
-		h->next->prev = h->prev;
-		h->next = lumphead.next;
-		h->prev = &lumphead;
-		h->prev->next = h;
-		h->next->prev = h;
-		MarkAsCached(h);
-	}
-}
 
 const void *W_CacheLumpNum2 (int lump)
 {
@@ -1800,18 +1767,6 @@ const void *W_CacheLumpName2(const char *name)
 	return W_CacheLumpNum2(W_GetNumForName2(name));
 }
 
-//
-// Attempts to load lump into the cache, if it isn't already there
-//
-void W_PreCacheLumpNum(int lump)
-{
-	W_DoneWithLump(W_CacheLumpNum(lump));
-}
-
-void W_PreCacheLumpName(const char *name)
-{
-	W_DoneWithLump(W_CacheLumpName(name));
-}
 
 int W_CacheInfo(int level)
 {
@@ -1828,25 +1783,6 @@ int W_CacheInfo(int level)
 	return value;
 }
 
-//
-// Returns a copy of the lump (it is your responsibility to free it)
-//
-void *W_LoadLumpNum(int lump)
-{
-	void *p;
-	const void *cached;
-	int length = W_LumpLength(lump);
-	p = (void *) Z_Malloc(length);
-	cached = W_CacheLumpNum2(lump);
-	memcpy(p, cached, length);
-	W_DoneWithLump(cached);
-	return p;
-}
-
-void *W_LoadLumpName(const char *name)
-{
-	return W_LoadLumpNum(W_GetNumForName2(name));
-}
 
 const char *W_GetLumpName(int lump)
 {
