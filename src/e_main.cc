@@ -391,14 +391,13 @@ static void SpecialWadVerify(void)
 
 	// The sub-version of the WAD (100% compatible with other WADs within the same wad_version)
 	int wad_sub_ver;
-	const void *data;
 	const char *s;
 
 	lump = W_CheckNumForName("EDGEVER");
 	if (lump < 0)
 		I_Error("EDGEVER lump not found. Get EDGE.WAD at http://edge.sourceforge.net/");
 
-	data = W_CacheLumpNum(lump);
+	const void *data = W_LoadLumpNum(lump);
 	s = (const char*)data;
 
 	wad_ver = atoi(s);
@@ -425,7 +424,7 @@ static void SpecialWadVerify(void)
 	s++;
 	wad_bc_frac = atoi(s);
 
-	W_DoneWithLump(data);
+	Z_Free((void*)data);
 
 	if (wad_ver * 1024 + wad_ver_frac < EDGE_WAD_VERSION * 1024 + EDGE_WAD_VERSION_FRAC)
 	{

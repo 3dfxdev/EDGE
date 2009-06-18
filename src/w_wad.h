@@ -83,10 +83,8 @@ int W_CheckNumForTexPatch(const char *name);
 int W_LumpLength(int lump);
 
 void W_DoneWithLump(const void *ptr);
-const void *W_CacheLumpNum2(int lump);
-const void *W_CacheLumpName2(const char *name);
-void *W_LoadLumpNum(int lump);
-void *W_LoadLumpName(const char *name);
+void *W_LoadLumpNum(int lump, int *length = NULL);
+void *W_LoadLumpName(const char *name, int *length = NULL);
 bool W_VerifyLumpName(int lump, const char *name);
 const char *W_GetLumpName(int lump);
 int W_CacheInfo(int level);
@@ -120,28 +118,12 @@ static int W_GetNumForName3(const char *x, const char *file, int line)
 	return W_GetNumForName2(x);
 }
 
-static void *W_CacheLumpNum3(int lump, const char *file, int line)
-{
-	Debug_Printf("Cache '%d' @ %s:%d\n", lump, file, line);
-	return W_CacheLumpNum2(lump, tag);
-}
-
-static void *W_CacheLumpName3(const char *name, const char *file, int line)
-{
-	Debug_Printf("Cache '%s' @ %s:%d\n", name, file, line);
-	return W_CacheLumpName2(name, tag);
-}
-
 #define W_CheckNumForName(x) W_CheckNumForName3(x, __FILE__, __LINE__)
 #define W_GetNumForName(x) W_GetNumForName3(x, __FILE__, __LINE__)
-#define W_CacheLumpNum(x) W_CacheLumpNum3(x, __FILE__, __LINE__)
-#define W_CacheLumpName(x) W_CacheLumpName3(x, __FILE__, __LINE__)
 
 #else
 #define W_CheckNumForName(x) W_CheckNumForName2(x)
 #define W_GetNumForName(x) W_GetNumForName2(x)
-#define W_CacheLumpNum(x) W_CacheLumpNum2(x)
-#define W_CacheLumpName(x) W_CacheLumpName2(x)
 #endif
 
 #endif // __W_WAD__

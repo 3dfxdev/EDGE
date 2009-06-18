@@ -206,7 +206,7 @@ static epi::image_data_c *ReadFlatAsEpiBlock(image_c *rim)
 	img->Clear(pal_black);
 
 	// read in pixels
-	const byte *src = (const byte*)W_CacheLumpNum(rim->source.flat.lump);
+	const byte *src = (const byte*)W_LoadLumpNum(rim->source.flat.lump);
 
 	for (int y=0; y < h; y++)
 	for (int x=0; x < w; x++)
@@ -223,7 +223,7 @@ static epi::image_data_c *ReadFlatAsEpiBlock(image_c *rim)
 			dest_pix[0] = src_pix;
 	}
 
-	W_DoneWithLump(src);
+	Z_Free((void*)src);
 
 	return img;
 }
@@ -272,7 +272,7 @@ static epi::image_data_c *ReadTextureAsEpiBlock(image_c *rim)
 	// Composite the columns into the block.
 	for (i=0, patch=tdef->patches; i < tdef->patchcount; i++, patch++)
 	{
-		const patch_t *realpatch = (const patch_t*)W_CacheLumpNum(patch->patch);
+		const patch_t *realpatch = (const patch_t*)W_LoadLumpNum(patch->patch);
 
 		int realsize = W_LumpLength(patch->patch);
 
@@ -297,7 +297,7 @@ static epi::image_data_c *ReadTextureAsEpiBlock(image_c *rim)
 			DrawColumnIntoEpiBlock(rim, img, patchcol, x, y1);
 		}
 
-		W_DoneWithLump(realpatch);
+		Z_Free((void*)realpatch);
 	}
 
 	return img;
@@ -336,7 +336,7 @@ static epi::image_data_c *ReadPatchAsEpiBlock(image_c *rim)
 		img->Clear(TRANS_PIXEL);
 
 	// Composite the columns into the block.
-	const patch_t *realpatch = (const patch_t*)W_CacheLumpNum(rim->source.graphic.lump);
+	const patch_t *realpatch = (const patch_t*)W_LoadLumpNum(rim->source.graphic.lump);
 
 	int realsize = W_LumpLength(rim->source.graphic.lump);
 
@@ -356,7 +356,7 @@ static epi::image_data_c *ReadPatchAsEpiBlock(image_c *rim)
 		DrawColumnIntoEpiBlock(rim, img, patchcol, x, 0);
 	}
 
-	W_DoneWithLump(realpatch);
+	Z_Free((void*)realpatch);
 
 	return img;
 }

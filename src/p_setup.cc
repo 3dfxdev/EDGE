@@ -155,7 +155,6 @@ static void CheckEvilutionBug(byte *data, int length)
 
 static void LoadVertexes(int lump)
 {
-	const void *data;
 	int i;
 	const raw_vertex_t *ml;
 	vec2_t *li;
@@ -175,7 +174,7 @@ static void LoadVertexes(int lump)
 	vertexes = new vec2_t[numvertexes];
 
 	// Load data into cache.
-	data = W_CacheLumpNum(lump);
+	const void *data = W_LoadLumpNum(lump);
 
 	ml = (const raw_vertex_t *) data;
 	li = vertexes;
@@ -189,7 +188,7 @@ static void LoadVertexes(int lump)
 	}
 
 	// Free buffer memory.
-	W_DoneWithLump(data);
+	Z_Free((void*)data);
 }
 
 static void LoadV2Vertexes(const byte *data, int length)
@@ -225,7 +224,7 @@ static void LoadGLVertexes(int lump)
 		I_Error("Bad WAD: level %s missing GL_VERT.\n", currmap->lump.c_str());
 
 	// Load data into cache.
-	data = (byte *) W_CacheLumpNum(lump);
+	data = (byte *) W_LoadLumpNum(lump);
 
 	length = W_LumpLength(lump);
 
@@ -238,7 +237,7 @@ static void LoadGLVertexes(int lump)
 			v5_nodes = true;
 
 		LoadV2Vertexes(data + 4, length - 4);
-		W_DoneWithLump(data);
+		Z_Free((void*)data);
 		return;
 	}
 
@@ -268,7 +267,7 @@ static void LoadGLVertexes(int lump)
 	}
 
 	// Free buffer memory.
-	W_DoneWithLump(data);
+	Z_Free((void*)data);
 }
 
 
@@ -381,7 +380,7 @@ static void LoadGLSegs(int lump)
 	if (! W_VerifyLumpName(lump, "GL_SEGS"))
 		I_Error("Bad WAD: level %s missing GL_SEGS.\n", currmap->lump.c_str());
 
-	const byte *data = (byte *) W_CacheLumpNum(lump);
+	const byte *data = (byte *) W_LoadLumpNum(lump);
 
 	int length = W_LumpLength(lump);
 
@@ -391,14 +390,14 @@ static void LoadGLSegs(int lump)
 		data[2] == 'd' && data[3] == '3')
 	{
 		LoadV3Segs(data + 4, length - 4);
-		W_DoneWithLump(data);
+		Z_Free((void*)data);
 		return;
 	}
 
 	if (v5_nodes)
 	{
 		LoadV3Segs(data, length);
-		W_DoneWithLump(data);
+		Z_Free((void*)data);
 		return;
 	}
 
@@ -472,7 +471,7 @@ static void LoadGLSegs(int lump)
 		seg->front_sub = seg->back_sub = SUB_INVALID;
 	}
 
-	W_DoneWithLump(data);
+	Z_Free((void*)data);
 }
 
 
@@ -552,7 +551,7 @@ static void LoadSubsectors(int lump, const char *name)
 		I_Error("Bad WAD: level %s missing %s.\n", currmap->lump.c_str(), name);
 
 	// Load data into cache.
-	data = (byte *) W_CacheLumpNum(lump);
+	data = (byte *) W_LoadLumpNum(lump);
 
 	length = W_LumpLength(lump);
 
@@ -562,14 +561,14 @@ static void LoadSubsectors(int lump, const char *name)
 		data[2] == 'd' && data[3] == '3')
 	{
 		LoadV3Subsectors(data + 4, length - 4);
-		W_DoneWithLump(data);
+		Z_Free((void*)data);
 		return;
 	}
 
 	if (v5_nodes)
 	{
 		LoadV3Subsectors(data, length);
-		W_DoneWithLump(data);
+		Z_Free((void*)data);
 		return;
 	}
 
@@ -628,7 +627,7 @@ static void LoadSubsectors(int lump, const char *name)
 		ss->sector->subsectors = ss;
 	}
 
-	W_DoneWithLump(data);
+	Z_Free((void*)data);
 }
 
 //
@@ -681,7 +680,7 @@ static void LoadSectors(int lump)
 		
 	Z_Clear(sectors, sector_t, numsectors);
 
-	data = W_CacheLumpNum(lump);
+	data = W_LoadLumpNum(lump);
 	mapsector_CRC.AddBlock((const byte*)data, W_LumpLength(lump));
 
 	ms = (const raw_sector_t *) data;
@@ -743,7 +742,7 @@ static void LoadSectors(int lump)
 		GroupSectorTags(ss, sectors, i);
 	}
 
-	W_DoneWithLump(data);
+	Z_Free((void*)data);
 }
 
 
@@ -874,7 +873,7 @@ static void LoadThings(int lump)
 		I_Error("Bad WAD: level %s contains 0 things.\n", 
 				currmap->lump.c_str());
 
-	data = W_CacheLumpNum(lump);
+	data = W_LoadLumpNum(lump);
 	mapthing_CRC.AddBlock((const byte*)data, W_LumpLength(lump));
 	mapthing_NUM = numthings;
 
@@ -951,7 +950,7 @@ static void LoadThings(int lump)
 		SpawnMapThing(objtype, x, y, z, angle, options, 0);
 	}
 
-	W_DoneWithLump(data);
+	Z_Free((void*)data);
 }
 
 static void LoadHexenThings(int lump)
@@ -979,7 +978,7 @@ static void LoadHexenThings(int lump)
 		I_Error("Bad WAD: level %s contains 0 things.\n", 
 				currmap->lump.c_str());
 
-	data = W_CacheLumpNum(lump);
+	data = W_LoadLumpNum(lump);
 	mapthing_CRC.AddBlock((const byte*)data, W_LumpLength(lump));
 	mapthing_NUM = numthings;
 
@@ -1015,7 +1014,7 @@ static void LoadHexenThings(int lump)
 		SpawnMapThing(objtype, x, y, z, angle, options, tag);
 	}
 
-	W_DoneWithLump(data);
+	Z_Free((void*)data);
 }
 
 
@@ -1110,7 +1109,7 @@ static void LoadLineDefs(int lump)
 
 	temp_line_sides = new int[numlines * 2];
 
-	const void *data = W_CacheLumpNum(lump);
+	const void *data = W_LoadLumpNum(lump);
 	mapline_CRC.AddBlock((const byte*)data, W_LumpLength(lump));
 
 	line_t *ld = lines;
@@ -1146,7 +1145,7 @@ static void LoadLineDefs(int lump)
 		}
 	}
 
-	W_DoneWithLump(data);
+	Z_Free((void*)data);
 }
 
 static void LoadHexenLineDefs(int lump)
@@ -1169,7 +1168,7 @@ static void LoadHexenLineDefs(int lump)
 
 	temp_line_sides = new int[numlines * 2];
 
-	const void *data = W_CacheLumpNum(lump);
+	const void *data = W_LoadLumpNum(lump);
 	mapline_CRC.AddBlock((const byte*)data, W_LumpLength(lump));
 
 	line_t *ld = lines;
@@ -1192,7 +1191,7 @@ static void LoadHexenLineDefs(int lump)
 		ComputeLinedefData(ld, side0, side1);
 	}
 
-	W_DoneWithLump(data);
+	Z_Free((void*)data);
 }
 
 
@@ -1272,7 +1271,6 @@ static void TransferMapSideDef(const raw_sidedef_t *msd, side_t *sd,
 static void LoadSideDefs(int lump)
 {
 	int i;
-	const void *data;
 	const raw_sidedef_t *msd;
 	side_t *sd;
 
@@ -1292,7 +1290,8 @@ static void LoadSideDefs(int lump)
 
 	Z_Clear(sides, side_t, numsides);
 
-	data = W_CacheLumpNum(lump);
+	const void *data;
+	data = W_LoadLumpNum(lump);
 	msd = (const raw_sidedef_t *) data;
 
 	sd = sides;
@@ -1341,7 +1340,7 @@ static void LoadSideDefs(int lump)
 
 	SYS_ASSERT(sd == sides + numsides);
 
-	W_DoneWithLump(data);
+	Z_Free((void*)data);
 
 }
 
