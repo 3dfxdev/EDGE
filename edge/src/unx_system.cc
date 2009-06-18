@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Linux Misc System Code
+//  EDGE UNIX Misc System Code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -43,24 +43,8 @@
 
 #include "unx_sysinc.h"
 
-// FIXME: Use file_c handles
-extern FILE *logfile;
-extern FILE *debugfile;
-
-#ifdef USE_FLTK
-
-// remove some problematic #defines
-#undef VISIBLE
-#undef INVISIBLE
-
-#include <FL/Fl.H>
-#include <FL/Fl_Window.H>
-#include <FL/fl_ask.H>
-
-#endif // USE_FLTK
-
-#ifndef USE_FLTK
-
+#ifndef NO_CONSOLE_ECHO
+// Convertion for console output
 static char cp437_to_ascii[160] =
 { 
 	'.', '.', '.', '.', '.', '.', '.', '.',   // 0x00 - 0x07
@@ -88,6 +72,10 @@ static char cp437_to_ascii[160] =
 	'.', '.', '.', '.', '.', '.', '.', '.'    // 0xF8 - 0xFF
 };
 #endif
+
+// FIXME: Use file_c handles
+extern FILE *logfile;
+extern FILE *debugfile;
 
 // cleanup handling -- killough:
 
@@ -261,18 +249,22 @@ void I_Error(const char *error, ...)
 
 	I_SystemShutdown();
 
-	I_MessageBox(errmsg, "EDGE Error");
+	I_MessageBox(errmsg, "Error");
 
 	I_CloseProgram(-1);
 }
 
+#ifndef NO_CONSOLE_ECHO
+//
+// PrintOutput
+//
 // -AJA- Routine which emulates IBM charset.
-#ifndef USE_FLTK
-static void PrintString(char *str)
+//
+static void PrintOutput(const char *_msg) 
 {
-	for (; *str; str++)
+	for (; *_msg; _msg++)
 	{
-		int ch = (unsigned char) *str;
+		int ch = (unsigned char) *_msg;
 
 		if (ch == 0x7F || ch == '\r')
 			continue;
@@ -293,6 +285,7 @@ static void PrintString(char *str)
 	fflush(stdout);
 }
 #endif
+
 
 void I_Printf(const char *message,...)
 {
@@ -326,8 +319,8 @@ void I_Printf(const char *message,...)
 	CON_Printf("%s", printbuf);
 
 	// And the text screen if in text mode
-#ifndef USE_FLTK
-	PrintString(printbuf);
+#ifndef NO_CONSOLE_ECHO
+	PrintOutput(printbuf);
 #endif
 
 	va_end(argptr);
@@ -452,21 +445,6 @@ void I_Sleep(int millisecs)
 {
 	//!!!! FIXME: use nanosleep ?
 	usleep(millisecs * 1000);
-}
-
-//
-// I_MessageBox
-//
-void I_MessageBox(const char *message, const char *title)
-{
-#ifdef USE_FLTK
-	Fl::scheme(NULL);
-	fl_message_font(FL_HELVETICA /*_BOLD*/, 18);	
-	fl_message("%s", message);
-
-#else // USE_FLTK
-	fprintf(stderr, "\n%s\n", message);
-#endif // USE_FLTK
 }
 
 class abstract_music_c;

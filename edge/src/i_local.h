@@ -2,7 +2,7 @@
 //  EDGE System Local definitions
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 2005-2008  The EDGE Team.
+//  Copyright (c) 2005-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -19,13 +19,17 @@
 #ifndef __SYSTEM_LOCAL_H__
 #define __SYSTEM_LOCAL_H__
 
-
 // I_CTRL
 void I_CentreMouse();
 
 // I_MUSIC
 extern bool musicpaused;
 void I_PostMusicError(const char *message);
+
+// UI
+
+void I_MessageBox(const char* _msg, const char * _title);
+// Used for outputing error messages/alerts on exit.
 
 extern bool use_grab;
 extern bool use_warp_mouse;

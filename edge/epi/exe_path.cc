@@ -42,12 +42,13 @@
 namespace epi
 {
 
-const char *GetExecutablePath(const char *argv0)
+//
+// Get path to self 
+//
+std::string GetExecutablePath(const char *argv0)
 {
-	// NOTE: there are a few memory leaks here.  Because this
-	//       function is only called once, I don't care.
-
 	char *dir;
+	std::string result;
 
 #ifdef WIN32
 	dir = new char[PATH_MAX+2];
@@ -57,14 +58,8 @@ const char *GetExecutablePath(const char *argv0)
 	if (length > 0 && length < PATH_MAX)
 	{
 		if (access(dir, 0) == 0)  // sanity check
-		{
-			std::string result = PATH_GetDir(dir);
-			delete[] dir;
-			return strdup(result.c_str());
-		}
+			result = PATH_GetDir(dir); 
 	}
-
-	delete[] dir;
 #endif
 
 
@@ -78,14 +73,8 @@ const char *GetExecutablePath(const char *argv0)
 		dir[length] = 0; // add the missing NUL
 
 		if (access(dir, 0) == 0)  // sanity check
-		{
-			std::string result = PATH_GetDir(dir);
-			delete[] dir;
-			return strdup(result.c_str());
-		}
+			result = PATH_GetDir(dir); 
 	}
-
-	delete[] dir;
 #endif
 
 
@@ -104,28 +93,67 @@ const char *GetExecutablePath(const char *argv0)
 	u32_t pathlen = PATH_MAX * 2;
 
 	dir = new char [pathlen+2];
-
 	if (0 == _NSGetExecutablePath(dir, &pathlen))
-	{
-		// FIXME: will this be _inside_ the .app folder???
-
-		std::string result = PATH_GetDir(dir);
-		delete[] dir;
-		return strdup(result.c_str());
-	}
-
-	delete[] dir;
+		result = PATH_GetDir(dir); 
 #endif
 
+	delete [] dir;
 
 	// --- fallback method: use argv[0] ---
+	if (result.size() < 1 && argv0) 
+		result = PATH_GetDir(argv0);
+
+	return result;
+}
+
+//
+// Get default path to resources
+//
+std::string GetResourcePath() 
+{
+	std::string path = ".";
 
 #ifdef MACOSX
-	// FIXME: check if _inside_ the .app folder
+	// Used infrequently, hence the code is not as brutally 
+	// efficiently as it could. Clarity came first here.
+	const std::string appdir_suffix = ".app";
+	const std::string contents_subdir = "Contents";
+	const std::string exe_subdir = "MacOS";
+	const std::string res_subdir = "Resources";
+
+	std::string dir_match = appdir_suffix;
+	dir_match += DIRSEPARATOR;
+	dir_match += contents_subdir;
+	dir_match += DIRSEPARATOR;
+	dir_match += exe_subdir; 
+
+	std::string exe_path = GetExecutablePath(NULL);
+	if (exe_path.size() > 0)
+	{
+		std::string::size_type pos = exe_path.rfind(dir_match);
+		if (pos != std::string::npos) // Found it 
+		{
+			// Only alter if it is where it should be (i.e. at the end)
+			std::string::size_type expected_pos = 
+					exe_path.size() - dir_match.size();
+			if (pos == expected_pos)
+			{
+				// Set path
+				path = exe_path;
+
+				// Replace the executable sub directory with
+				// the resource sub directory
+				pos = exe_path.rfind(exe_subdir);
+
+				path.replace(exe_path.find(exe_subdir), 
+							 exe_subdir.size(), 
+							 res_subdir);
+			}
+		}
+	}
 #endif
 
-	std::string result = PATH_GetDir(argv0);
-	return strdup(result.c_str());
+	return path;
 }
 
 } // namespace epi

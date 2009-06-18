@@ -1,5 +1,66 @@
 ANDY BAKER'S LOG
 
+DATE: 2009/06/18
+
+Threw together a working Mac OS X version of EDGE. This works in some much 
+in runs, however there are no scripts to create an Edge.App directory etc...
+
+The following setup is used:
+=> Frameworks used: Cocoa, OpenGL and SDL.
+=> External libraries installed: Zlib 
+=> External libraries compiled in macosx_lib: Ogg, Vorbis, GLEW, glBSP, jpeg, lua and png. 
+
+The decision to use the SDL Framework was given since this is the "standard" 
+way to do things on MacOS X. For some reason, libSDLMain is not supplied within 
+the framework and therefore an SDLmain.m (objective-C) and SDLmain.h (header) 
+have to be added to the source tree in macosx_lib/SDL.
+
+Modified SConstruct to detect installed versions of libraries and internally
+used ones, the latter include those in the <platform>_lib directory and the
+project root.
+
+Got my first attempt at writting objective-C. It was necessary to create a popup window
+for user error messages as the Mac is very UI orientated. However, all the easy 
+to find libraries are objective-C based. The code works and is actually more efficent
+than its needs to be: it will free the strings on exit, however Mac OS X does has
+gargage collection, so this is just been extra tidy.
+
+Requirements: XCode 3.1.2 (for GCC) and SCons (http://www.scons.org)*.
+
+* The version of 'scons' currently employed by this developer came from
+macports (http://www.macports.org). Although given that 'scons' is python based,
+this may not be a requirement.
+
+Remove unused typedef in style.h - was throwing up warning in GCC 4.3.2
+on Gentoo. 
+
+Hit an obscure bug to do with casting. In the arctan function (M_ATan), there
+is a conversion from a float to an angle_t. An angle_t is an unsigned int. The
+emphasis here is on the 'unsigned' bit. The result of the atan() call is 
+negative, as is the case when a thing launches a projectile at a downward
+(hence negative) vertical angle. GCC has typically always not bothered
+about the sign bit and just treats it as a signed integer. The result is
+a large integer which happens to fit how angle_t works anyway. Apple's GCC
+does seem to care and any negative value will become zero as a result of
+cast. I cannot be too critical of Apple here since the treatment of the
+casting makes sense, even though most C/C++ programmers would prefer the
+compiler to 'just do it'. 
+
+This is one minor pending issue (Apple Key)+Tab to switch out of EDGE is fine, 
+however attempting to move the window results in lose of the mouse and the 
+window jumping to an apparently random location on screen.
+
+Created NO_CONSOLE_ECHO. Removed link to USE_FTLK as this is a platform dependent define.
+
+Moved I_MessageBox() to its own source file. This is needed as the method needs to be written in Objective-C++ on Mac OS X as it will use the Cocoa libraries. For consistency, win32 and traditional Unix will have an extra C++ containing the method. It is not desirable to create more and more sources files, but this is the trade off with being consistent.
+
+Removed 'exe_path'. This is satisfying since its one of those vague globals that only ever get used. Implemented GetResourcePath()
+to handle default directories for data. This typically returns the
+current directory, but on Mac it will give the Resources directory in
+the app install if running from an '.App' directory. Its a fudge, but this is always going to be case whilst separating platform specifics and engine code.
+
+Corrected Path_GetDir() so that it did not return the slash. This conforms to both the comment in the code and allows GetExecutablePath() to fulfil its contract of 'no leading slash' which GetResourcePath() depends on.
+
 DATE: 2008/09/25
 Performed basic testing of the LUA Console development. 
 
@@ -181,14 +242,81 @@ to use LUA to either replace or augment RTS. However, it would be
 first necessary to learn how LUA works and knock down the size the 
 development to something that could be done in the available time.
 
-DATE: 2006/02/15
+DATE: 2009/06/11
 
-Patched the configure.ac to look for glbsp in the detect the header
-in the root include directory (glbsp.h instead of glbsp/glbsp.h).
+Threw together a working Mac OS X version of EDGE. This works in some much 
+in runs, however there are no scripts to create an Edge.App directory etc...
 
-Implemented two patches from Darren Salt to make FLTK optional (plus
-a bugfix that stopped linux/i_system.cpp compiling) and detection of
-an external lzo lib.
+The following setup is used:
+=> Frameworks used: Cocoa, OpenGL and SDL.
+=> External libraries installed: Ogg, Vorbis, GLEW and Z.
+=> External libraries compiled in macosx_lib: glBSP, jpeg, lua and png. 
+
+The decision to use the SDL Framework was given since this is the "standard" 
+way to do things on MacOS X. For some reason, libSDLMain is not supplied within 
+the framework and therefore an SDLmain.m (objective-C) and SDLmain.h (header) 
+have to be added to the source tree in macosx_lib/SDL.
+
+Initially, I choose to treat glBSP as an external library. Even though its
+development has been strongly linked with that of EDGE. Therefore it has
+been assumed to be in macosx_lib and the name of the directory name remains
+unaltered. Users building from source will need to remove the '--strip-unneeded'
+flag from the strip command in 'Makefile.unx' as the source.
+
+<=== COMPILING ON Mac OS X ====>
+Requirements: XCode 3.1.2 (for GCC) and SCons (http://www.scons.org)*.
+
+1. Ensure that Ogg 1.1.3 and Vorbis 1.2.0 (http://www.xiph.org/downloads/) have 
+been installed used the standard './configure --prefix=/usr && make && make install' 
+method.
+2. Check that GLEW 1.4 or later has been installed using the standard 
+'./configure --prefix=/usr && make && make install' method. 
+3. Verify that SDL 1.2 (http://www.libsdl.org/download-1.2.php) has been downloaded 
+and installed as a framework.
+4. Decompress EDGE archive.
+5. Change into the 'macosx_lib' in EDGE directory.
+6. Fetch and decompress:
+   a) glBSP source code (http://glbsp.sf.net/download.php). 
+   b) libjpeg (http://www.ijg.org/files/jpegsrc.v6b.tar.gz).
+   c) libpng (http://www.libpng.org/pub/png/libpng.html).
+   d) lua 5.1 (http://www.lua.org/ftp).
+7. In the glbsp-2.24-source directory, Remove the '--strip-unneeded' 
+   from the Makefile.unx file and 'make -f Makefile.unx' to compile.
+8. Modify the SConstruct file to the correct libpng directory name. Search
+   for 'macosx_lib/libpng'. If the change is required, the CPPPATH and
+   LIBS entries will need to be amended. Change into the libpng directory
+   and './configure && make'.
+9. Change into the 'jpeg-6b' directory and run 'make'.
+10. As with the PNG library (step 8). Verify the SConstruct file refers
+    to the correct directory for LUA. Change into the directory and
+    run 'make macosx'.
+11. In the root of the EDGE source directory, run 'scons'.
+12. Name of the executable should be 'gledge32'. Have fun ;).
+
+* The version of 'scons' currently employed by this developer came from
+macports (http://www.macports.org). Although given that 'scons' is python based,
+this may not be a requirement.
+
+<==============================>
+
+Remove unused typedef in style.h - was throwing up warning in GCC 4.3.2
+on Gentoo. 
+
+Hit an obscure bug to do with casting. In the arctan function (M_ATan), there
+is a conversion from a float to an angle_t. An angle_t is an unsigned int. The
+emphasis here is on the 'unsigned' bit. The result of the atan() call is 
+negative, as is the case when a thing launches a projectile at a downward
+(hence negative) vertical angle. GCC has typically always not bothered
+about the sign bit and just treats it as a signed integer. The result is
+a large integer which happens to fit how angle_t works anyway. Apple's GCC
+does seem to care and any negative value will become zero as a result of
+cast. I cannot be too critical of Apple here since the treatment of the
+casting makes sense, even though most C/C++ programmers would prefer the
+compiler to 'just do it'. 
+
+This is one minor pending issue (Apple Key)+Tab to switch out of EDGE is fine, 
+however attempting to move the window results in lose of the mouse and the 
+window jumping to an apparently random location on screen.
 
 DATE: 2005/12/28
 

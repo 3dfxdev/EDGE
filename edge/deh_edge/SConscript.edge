@@ -4,9 +4,7 @@
 import os
 
 Import('build_info')
-Import('base_env')
-
-env = base_env.Clone()
+Import('env')
 
 env.Append(CCFLAGS = ['-DDEH_EDGE_PLUGIN'])
 

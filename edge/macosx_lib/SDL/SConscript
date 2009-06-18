@@ -1,0 +1,13 @@
+#
+# SConscript (sub) file for SDL Main for Mac OS X
+#
+Import('env')
+
+#------- OBJECTS -----------------------------------
+
+sdlmain_sources = ['sdlmain.m'] 
+
+env.StaticLibrary('SDLmain', sdlmain_sources)
+
+##--- editor settings ---
+## vi:ts=4:sw=4:expandtab
