@@ -303,18 +303,18 @@ void DDF_AttackCleanUp(void)
 
 		// lookup thing references
 
-		a->puff = a->puff_ref.empty() ? 
-				NULL : mobjtypes.Lookup(a->puff_ref);
+		a->puff = a->puff_ref.empty() ?  NULL :
+			mobjtypes.Lookup(a->puff_ref.c_str());
 
-		a->spawnedobj = a->spawnedobj_ref.empty() ? 
-						NULL : mobjtypes.Lookup(a->spawnedobj_ref);
+		a->spawnedobj = a->spawnedobj_ref.empty() ?  NULL :
+			mobjtypes.Lookup(a->spawnedobj_ref.c_str());
       
 		if (a->spawnedobj)
 		{
 			if (a->objinitstate_ref.empty())
 				a->objinitstate = a->spawnedobj->spawn_state;
 			else
-				a->objinitstate = DDF_MainLookupDirector(a->spawnedobj, a->objinitstate_ref);
+				a->objinitstate = DDF_MainLookupDirector(a->spawnedobj, a->objinitstate_ref.c_str());
 		}
 
 		cur_ddf_entryname.clear();

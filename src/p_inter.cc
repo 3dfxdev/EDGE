@@ -866,9 +866,9 @@ void P_KillMobj(mobj_t * source, mobj_t * target, const damage_c *damtype,
 			overkill = true;
 	}
 
-	if (state == S_NULL && overkill && damtype && damtype->overkill.label)
+	if (state == S_NULL && overkill && damtype && !damtype->overkill.label.empty())
 	{
-		state = P_MobjFindLabel(target, damtype->overkill.label);
+		state = P_MobjFindLabel(target, damtype->overkill.label.c_str());
 		if (state != S_NULL)
 			state += damtype->overkill.offset;
 	}
@@ -876,9 +876,9 @@ void P_KillMobj(mobj_t * source, mobj_t * target, const damage_c *damtype,
 	if (state == S_NULL && overkill && target->info->overkill_state)
 		state = target->info->overkill_state;
 
-	if (state == S_NULL && damtype && damtype->death.label)
+	if (state == S_NULL && damtype && !damtype->death.label.empty())
 	{
-		state = P_MobjFindLabel(target, damtype->death.label);
+		state = P_MobjFindLabel(target, damtype->death.label.c_str());
 		if (state != S_NULL)
 			state += damtype->death.offset;
 	}
@@ -1200,9 +1200,9 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor, mobj_t * source,
 		if (weak_spot)
 			state = P_MobjFindLabel(target, "WEAKPAIN");
 
-		if (state == S_NULL && damtype && damtype->pain.label)
+		if (state == S_NULL && damtype && !damtype->pain.label.empty())
 		{
-			state = P_MobjFindLabel(target, damtype->pain.label);
+			state = P_MobjFindLabel(target, damtype->pain.label.c_str());
 			if (state != S_NULL)
 				state += damtype->pain.offset;
 		}

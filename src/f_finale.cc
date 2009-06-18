@@ -111,7 +111,7 @@ static bool HasFinale(const map_finaledef_c *F, finalestage_e cur)
 	switch (cur)
 	{
 		case f_text:
-			return F->text ? true:false;
+			return ! F->text.empty();
 
 		case f_pic:
 			return (F->pics.GetSize() > 0);
@@ -150,7 +150,7 @@ static void DoStartFinale(void)
 	switch (finalestage)
 	{
 		case f_text:
-			finaletext = language[finale->text];
+			finaletext = language[finale->text.c_str()];
 			S_ChangeMusic(finale->music, true);
 			break;
 
@@ -546,8 +546,9 @@ static void CastInitNew(int num)
 	if (!cast_info)
 		cast_info = mobjtypes[0];
 
-	cast_title = cast_info->cast_title ?
-		language[cast_info->cast_title] : cast_info->ddf.name.c_str();
+	cast_title = cast_info->cast_title.empty() ?
+		cast_info->ddf.name.c_str() :
+		language[cast_info->cast_title.c_str()];
 
 	cast_death = false;
 	cast_frames = 0;

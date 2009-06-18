@@ -127,8 +127,7 @@ static void SoundParseField(const char *field, const char *contents,
 
 static void SoundFinishEntry(void)
 {
-	if (!buffer_sfx.lump_name[0] &&
-		!(buffer_sfx.file_name && buffer_sfx.file_name[0]))
+	if (buffer_sfx.lump_name.empty() && buffer_sfx.file_name.empty())
 		DDF_Error("Missing LUMP_NAME or FILE_NAME for sound.\n");
 
 	// transfer static entry to dynamic entry.

@@ -1042,8 +1042,9 @@ static bool P_ActivateSpecialLine(line_t * line,
 
 			if (failedsecurity)
 			{
-				if (special->failedmessage)
-					CON_PlayerMessageLDF(thing->player->pnum, special->failedmessage);
+				if (! special->failedmessage.empty())
+					CON_PlayerMessageLDF(thing->player->pnum,
+						special->failedmessage.c_str());
 
 				return false;
 			}

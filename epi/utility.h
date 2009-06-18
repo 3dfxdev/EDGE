@@ -117,11 +117,13 @@ namespace epi
 				 
 			return *this; 
 		}
+
+		strent_c& operator= (const char *s)
+		{ 
+			Set(s); return *this; 
+		}
 		
 		char operator[](int idx) const { return data[idx]; }
-
-		// FIXME: -AJA- not sure about this auto-conversion
-		operator const char* () const { return data; }
     };
 
     // String list

@@ -508,11 +508,11 @@ void DDF_LinedefCleanUp(void)
 
 		cur_ddf_entryname = epi::STR_Format("[%d]  (lines.ddf)", l->ddf.number);
 
-		l->t.inspawnobj = l->t.inspawnobj_ref ?
-			mobjtypes.Lookup(l->t.inspawnobj_ref) : NULL;
+		l->t.inspawnobj = l->t.inspawnobj_ref.empty() ? NULL :
+			mobjtypes.Lookup(l->t.inspawnobj_ref.c_str());
 
-		l->t.outspawnobj = l->t.outspawnobj_ref ?
-			mobjtypes.Lookup(l->t.outspawnobj_ref) : NULL;
+		l->t.outspawnobj = l->t.outspawnobj_ref.empty() ? NULL :
+			mobjtypes.Lookup(l->t.outspawnobj_ref.c_str());
 
 		cur_ddf_entryname.clear();
 	}

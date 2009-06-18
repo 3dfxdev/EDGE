@@ -165,7 +165,7 @@ static void LevelParseField(const char *field, const char *contents,
 static void LevelFinishEntry(void)
 {
 	// check stuff
-	if (buffer_map.episode_name == NULL)
+	if (buffer_map.episode_name.empty())
 		DDF_Error("Level entry must have an EPISODE name !\n");
 
 	// FIXME: check more stuff here...
@@ -236,7 +236,7 @@ void DDF_LevelCleanUp(void)
 		
 		m->episode = gamedefs.Lookup(m->episode_name.c_str());
 
-		if (! m->episode_name)
+		if (m->episode_name.empty())
 			I_Printf("WARNING: Cannot find episode '%s' for map entry [%s]\n",
 					 m->episode_name.c_str(), m->ddf.name.c_str());
 	}
