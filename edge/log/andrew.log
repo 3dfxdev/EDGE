@@ -1,5 +1,18 @@
 Andrew Apted's Log
 
+2009/06/18:
+
+Did a review of all code using W_CacheLumpXXX().  Every
+case the pattern was: Cache / Use / Done.  There were only
+two cases where caching would give a benefit: patches that
+are used in multiple textures, and any image which uses a
+non-global palette.
+
+Hence the wad caching system has definitely outlived its
+usefulness, and can be removed with one proviso: palettes
+(at least the first 768 bytes) in each file should be
+loaded and kept in memory.
+
 2009/06/14:
 
 Worked on new splash screen.
