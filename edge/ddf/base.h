@@ -38,7 +38,7 @@ public:
 	
 	ddf_base_c& operator= (const ddf_base_c &rhs);
 
-	std::string name;
+	epi::strent_c name;
 
 	int number;	
 
