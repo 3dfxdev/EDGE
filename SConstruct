@@ -13,16 +13,16 @@ EnsureSConsVersion(0, 96, 93)
 
 class LibraryConfig():
 	def __init__(self, name, header, 
-				  dir=None, 
-				  libs=None,
-				  defines=None, 
-				  scons_script=None, 
-				  required=1,
-				  no_include_dir=0,
-				  search_order=['system', 'internal', 'root'],
-				  subdirs={},
-				  syslib_script=None,
-				  deps=None):
+					dir=None, 
+					libs=None,
+					defines=None, 
+					scons_script=None, 
+					required=1,
+					no_include_dir=0,
+					search_order=['system', 'internal', 'root'],
+					subdirs={},
+					syslib_script=None,
+					deps=None):
 		# Setup member vars
 		self.name = name		# Name of library
 		self.header = header	# Header to check
@@ -171,7 +171,7 @@ class LibraryConfig():
 		else:
 			if config.has_key('defines'):
 				for define in config['defines']:
-				  config_str = config_str + " -D" + define
+					config_str = config_str + " -D" + define
 			if config.has_key('cpppath') and not self.no_include_dir:
 				config_str = config_str + " -I"+config['cpppath']
 			if config.has_key('libpath'):
@@ -259,12 +259,12 @@ lib_configs = []
 
 # The Engine itself
 lib_configs.append(LibraryConfig(name='edge1', 
-								header='dm_defs.h',       
-								search_order=['root'],
-                                dir='src', 
-								no_include_dir=1,
-								scons_script='SConscript',
-								deps=['__ALL__']))
+									header='dm_defs.h',       
+									search_order=['root'],
+									dir='src', 
+									no_include_dir=1,
+									scons_script='SConscript',
+									deps=['__ALL__']))
 # OpenGL
 if build_info['platform'] != 'macosx':
 	lib_name = 'GL'
@@ -282,11 +282,11 @@ lib_configs.append(LibraryConfig(name='glew',
 del glew_libname # No more use at global level for this 
 # glBSP
 lib_configs.append(LibraryConfig(name='glbsp', 
-				  header='glbsp.h',         
-				  defines={ 'sys' : ['HAVE_GLBSP_H'] }, # Include HAVE_GLBSP_H if system wide lib used
-				  subdirs={ 'src':'src' },
-				  scons_script='SConscript.edge',
-				  deps=['z']))
+					header='glbsp.h',         
+					defines={ 'sys' : ['HAVE_GLBSP_H'] }, # Include HAVE_GLBSP_H if system wide lib used
+					subdirs={ 'src':'src' },
+					scons_script='SConscript.edge',
+					deps=['z']))
 # SDL
 if build_info['platform'] == 'win32':
 	lib_configs.append(LibraryConfig(name='SDL',
@@ -412,16 +412,16 @@ for lib in libs:
 #------------------------------------------------
 
 if build_info['cross']:
-    base_env.Tool('crossmingw', toolpath=['build'])
+	base_env.Tool('crossmingw', toolpath=['build'])
 
 # warnings
 base_env.Append(CCFLAGS = ['-Wall'])
 
 # optimisation
 if build_info['release']:
-    base_env.Append(CCFLAGS = ['-O2'])
+	base_env.Append(CCFLAGS = ['-O2'])
 else:
-    base_env.Append(CCFLAGS = ['-O', '-g3'])
+	base_env.Append(CCFLAGS = ['-O', '-g3'])
 
 # platform
 base_env.Append(CCFLAGS = ['-D' + build_info['platform'].upper()])
@@ -431,12 +431,12 @@ base_env.Append(CCFLAGS = ['-D' + build_info['platform'].upper()])
 #------------------------------------------------
 
 for lib in libs:
-  # If library has a script for scons, run it.
+	# If library has a script for scons, run it.
 	if lib.scons_script != None:
 		env = base_env.Clone()
 		# Handle library dependencies
 		if lib.deps != None:
-			lib_deps = []			
+			lib_deps = []
 			if lib.deps[0] == '__ALL__':
 				for other_lib in libs:
 					if other_lib != lib:
@@ -446,7 +446,7 @@ for lib in libs:
 					if other_lib != lib and other_lib.name in lib.deps:
 						lib_deps.append(other_lib)
 			for other_lib in lib_deps:
-				other_lib.configEnv(env)			
+				other_lib.configEnv(env)
 		# Setup to build the library
 		SConscript(lib.scons_script, exports='env')
 
@@ -466,9 +466,9 @@ for lib in libs:
 
 # platform specifics for the linker
 if build_info['platform'] == 'win32':
-    engine_env.Append(LIBS = ['wsock32', 'winmm', 'gdi32', 'dxguid', 'dinput'])
-    engine_env.Append(LINKFLAGS = ['-mwindows','-lmingw32'])
-    engine_env.Append(LINKFLAGS = ['edge32_res.o'])
+	engine_env.Append(LIBS = ['wsock32', 'winmm', 'gdi32', 'dxguid', 'dinput'])
+	engine_env.Append(LINKFLAGS = ['-mwindows','-lmingw32'])
+	engine_env.Append(LINKFLAGS = ['edge32_res.o'])
 
 if build_info['platform'] == 'macosx':
 	engine_env.Append(LINKFLAGS = ['-Wl,-framework,Cocoa'])
@@ -482,4 +482,4 @@ if build_info['platform'] == 'linux':
 engine_env.Program(EXECUTABLE_NAME, dep_files)
 
 ##--- editor settings ---
-## vi:ts=4:sw=4:expandtab:filetype=python
+## vi:ts=4:sw=4:noexpandtab:filetype=python
