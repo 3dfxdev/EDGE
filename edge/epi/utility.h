@@ -122,6 +122,11 @@ namespace epi
 		{ 
 			Set(s); return *this; 
 		}
+
+		strent_c& operator= (std::string s)
+		{ 
+			Set(s.c_str()); return *this; 
+		}
 		
 		char operator[](int idx) const { return data[idx]; }
     };
