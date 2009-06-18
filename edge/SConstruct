@@ -37,7 +37,6 @@ class LibraryConfig():
 		# Dictionary of defines to feed preprocessor if used.
 		# Two entries:
 		#   'sys' => Defines to include if system wide library is used
-		#   'int' => Defines to include if internal library is used
 		#   'all' => Defines to include in all cases
 		if defines != None:
 			defines = dict(defines) # Create a copy of the dict
@@ -77,19 +76,19 @@ class LibraryConfig():
 			if type != 'internal':
 				self.search_order.remove(type)
 	# Get list of defines used for this library
-	def __getDefines(self, libtype=0):
+	def __getDefines(self, system_include=0):
 		if self.defines == None:
 			return None
 		def_list = [];
-		if libtype and self.defines.has_key(libtype):
-			def_list.extend(self.defines[libtype])
+		if system_include and self.defines.has_key('sys'):
+			def_list.extend(self.defines['sys'])
 		if self.defines.has_key('all'):
 			def_list.extend(self.defines['all'])
 		if len(def_list) < 1:
 			return None
 		return def_list
 	# Test this node for existence of library
-	def __testNode(self, path, libtype):
+	def __testNode(self, path):
 		config = {}
 		if self.subdirs.has_key('src'):
 			test_path = os.path.join(path, self.subdirs['src'])
@@ -109,9 +108,9 @@ class LibraryConfig():
 					if os.path.isfile(scons_script):
 						config['scons_script'] = scons_script
 			# Defines
-			def_list = self.__getDefines(libtype)
+			def_list = self.__getDefines()
 			if def_list != None:
-			  	config['defines'] = def_list
+				config['defines'] = def_list
 			# Setup the library path
 			libpath = path
 			if self.subdirs.has_key('lib'):
@@ -132,7 +131,7 @@ class LibraryConfig():
 		if 'system' in self.search_order:
 			if self.syslib_script != None:
 				proc = subprocess.Popen(self.syslib_script, 
-				                        shell=True, 
+										shell=True, 
 										stdout=subprocess.PIPE, 
 										stderr=subprocess.PIPE, 
 										close_fds=True)
@@ -141,7 +140,7 @@ class LibraryConfig():
 					config['type'] = 'system'
 			if len(config) == 0 and conf.CheckCHeader(self.header):
 				config['libs'] = self.libs
-				def_list = self.__getDefines(libtype='sys')
+				def_list = self.__getDefines(system_include=1)
 				if def_list != None:
 					config['defines'] = def_list
 				config['type'] = 'system'
@@ -150,7 +149,7 @@ class LibraryConfig():
 			test_pattern = os.path.join(platform+"_lib", self.dir+"*")
 			dir_list = glob.glob(test_pattern)
 			for dir_entry in dir_list:
-				config = self.__testNode(os.path.abspath(dir_entry), libtype='int')
+				config = self.__testNode(os.path.abspath(dir_entry))
 				if len(config) > 0:
 					config['type'] = 'internal'
 					break
@@ -158,7 +157,7 @@ class LibraryConfig():
 		if len(config) == 0 and 'root' in self.search_order:
 			dir_list = glob.glob(self.dir+"*")
 			for dir_entry in dir_list:
-				config = self.__testNode(os.path.abspath(dir_entry), libtype='root')
+				config = self.__testNode(os.path.abspath(dir_entry))
 				if len(config) > 0:
 					config['type'] = 'root'
 					break
@@ -207,10 +206,13 @@ class Library():
 		output_files = []
 		cwd = os.getcwd()
 		for cfg_str in self.config_str.split(' '):
-			if len(cfg_str) > 0 and not cfg_str.startswith('-'):
-				output_files.append(cfg_str)
-			else:
-				env.MergeFlags(env.ParseFlags(cfg_str))
+			if len(cfg_str) > 0: 
+				if not cfg_str.startswith('-'):
+					output_files.append(cfg_str)
+				elif cfg_str.startswith('-I'):
+					env.Append(CCFLAGS = cfg_str) # Needed as scons under win32 breaks directory names 
+				else:
+					env.MergeFlags(env.ParseFlags(cfg_str))
 		return output_files
 
 def getPlatform(win32_cross_compile="no"):
@@ -219,10 +221,10 @@ def getPlatform(win32_cross_compile="no"):
 	if (os.name == "nt") or win32_cross_compile:
 		platform = 'win32'
 	elif os.name == "posix":
-    	# Determine the type of POSIX variant -ACB- 2009/06/08
+		# Determine the type of POSIX variant -ACB- 2009/06/08
 		uname_info = os.uname()
 		if (uname_info[0] == "Darwin"):
- 			platform = 'macosx'
+			platform = 'macosx'
 		else:
 			platform = 'linux'
 	return platform
@@ -281,7 +283,7 @@ del glew_libname # No more use at global level for this
 # glBSP
 lib_configs.append(LibraryConfig(name='glbsp', 
 				  header='glbsp.h',         
-				  defines={ 'sys' : ['HAVE_GLBSP_H'], 'int':['HAVE_GLBSP_H'] }, # Include HAVE_GLBSP_H if system wide or internal (but not root) lib used
+				  defines={ 'sys' : ['HAVE_GLBSP_H'] }, # Include HAVE_GLBSP_H if system wide lib used
 				  subdirs={ 'src':'src' },
 				  scons_script='SConscript.edge',
 				  deps=['z']))
