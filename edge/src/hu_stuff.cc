@@ -151,15 +151,15 @@ void HU_Start(void)
 		0, 5 * (1 + FONT_HEIGHT), message_style, 0);
 
 	// -ACB- 1998/08/09 Use currmap settings
-	if (currmap->description &&
-		language.IsValidRef(currmap->description))
+	if (!currmap->description.empty() &&
+		language.IsValidRef(currmap->description.c_str()))
 	{
 		I_Printf("\n");
 		I_Printf("--------------------------------------------------\n");
 
 		CON_MessageColor(RGB_MAKE(0,255,0));
 
-		string = language[currmap->description];
+		string = language[currmap->description.c_str()];
 		I_Printf("Entering %s\n", string);
 
 		w_map_title = std::string(string);

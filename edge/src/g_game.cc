@@ -797,7 +797,7 @@ static void G_DoSaveGame(void)
 
 	// --- fill in global structure ---
 
-	globs->game  = SV_DupString(currmap->episode_name);
+	globs->game  = SV_DupString(currmap->episode_name.c_str());
 	globs->level = SV_DupString(currmap->ddf.name.c_str());
 
 	globs->skill = gameskill;

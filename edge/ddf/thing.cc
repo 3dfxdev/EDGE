@@ -652,15 +652,21 @@ void DDF_MobjCleanUp(void)
 
 		cur_ddf_entryname = epi::STR_Format("[%s]  (things.ddf)", m->ddf.name.c_str());
 
-		m->dropitem = m->dropitem_ref ? mobjtypes.Lookup(m->dropitem_ref) : NULL;
-		m->blood = m->blood_ref ? mobjtypes.Lookup(m->blood_ref) : mobjtypes.Lookup("BLOOD");
+		m->dropitem = m->dropitem_ref.empty() ? NULL :
+			mobjtypes.Lookup(m->dropitem_ref.c_str());
 
-		m->respawneffect = m->respawneffect_ref ? 
-			mobjtypes.Lookup(m->respawneffect_ref) :
-			(m->flags & MF_SPECIAL) ? mobjtypes.Lookup("ITEM_RESPAWN") 
-				                    : mobjtypes.Lookup("RESPAWN_FLASH");
+		m->blood = m->blood_ref.empty() ?
+			mobjtypes.Lookup("BLOOD") : mobjtypes.Lookup(m->blood_ref.c_str());
 
-		m->spitspot = m->spitspot_ref ? mobjtypes.Lookup(m->spitspot_ref) : NULL;
+		if (m->respawneffect_ref.empty())
+			m->respawneffect = (m->flags & MF_SPECIAL) ?
+				mobjtypes.Lookup("ITEM_RESPAWN") :
+				mobjtypes.Lookup("RESPAWN_FLASH");
+		else
+			m->respawneffect = mobjtypes.Lookup(m->respawneffect_ref.c_str());
+
+		m->spitspot = m->spitspot_ref.empty() ? NULL :
+			mobjtypes.Lookup(m->spitspot_ref.c_str());
 
 		cur_ddf_entryname.clear();
 	}

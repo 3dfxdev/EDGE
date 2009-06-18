@@ -1467,22 +1467,17 @@ static void M_BumpGamma(void)
 	else
 		r_gamma = (float)(1.0 / (1.0 - new_lev/8.0));
 
-	const char *msg = NULL;
-
 	switch (new_lev)
 	{
-		case 0: { msg = language["GammaOff"];  break; }
-		case 1: { msg = language["GammaLevelOne"];  break; }
-		case 2: { msg = language["GammaLevelTwo"];  break; }
-		case 3: { msg = language["GammaLevelThree"];  break; }
-		case 4: { msg = language["GammaLevelFour"];  break; }
-		case 5: { msg = language["GammaLevelFive"];  break; }
+		case 0: CON_PlayerMessageLDF(consoleplayer, "GammaOff");        break;
+		case 1: CON_PlayerMessageLDF(consoleplayer, "GammaLevelOne");   break;
+		case 2: CON_PlayerMessageLDF(consoleplayer, "GammaLevelTwo");   break;
+		case 3: CON_PlayerMessageLDF(consoleplayer, "GammaLevelThree"); break;
+		case 4: CON_PlayerMessageLDF(consoleplayer, "GammaLevelFour");  break;
+		case 5: CON_PlayerMessageLDF(consoleplayer, "GammaLevelFive");  break;
 
-		default: { msg = NULL; break; }
+		default: break;
 	}
-
-	if (msg)	
-		CON_Printf("%s\n", msg);
 }
 
 //
