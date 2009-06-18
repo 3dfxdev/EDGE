@@ -35,9 +35,6 @@
 
 #define BMAP_END  ((unsigned short) 0xFFFF)
 
-extern unsigned short *bmap_lines;
-extern unsigned short ** bmap_pointers;
-
 extern int bmap_width;   // in mapblocks
 extern int bmap_height;
 
