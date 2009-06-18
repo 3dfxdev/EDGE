@@ -38,6 +38,7 @@
 #include <sys/types.h>
 #include <time.h>
 
+#include "epi/exe_path.h"
 #include "epi/file.h"
 #include "epi/filesystem.h"
 #include "epi/path.h"
@@ -771,7 +772,7 @@ void InitDirectories(void)
         home_dir = "."; // Default to current directory
 
 	// Get the Game Directory from parameter.
-	game_dir = ".";
+	game_dir = epi::GetResourcePath();
 
 	s = M_GetParm("-game");
 	if (s)
@@ -1042,7 +1043,8 @@ static void ShowDateAndVersion(void)
 	I_Printf("EDGE homepage is at http://edge.sourceforge.net/\n");
 	I_Printf("EDGE is based on DOOM by id Software http://www.idsoftware.com/\n");
 
-	I_Printf("Executable path: '%s'\n", exe_path);
+	I_Printf("Executable path: '%s'\n", 
+		epi::GetExecutablePath(M_GetArgument(0)).c_str());
 
 	M_DebugDumpArgs();
 }

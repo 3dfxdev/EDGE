@@ -26,8 +26,6 @@
 #include "e_main.h"
 #include "version.h"
 
-const char *exe_path;
-
 extern "C" {
 
 int I_Main(int argc, char *argv[])
@@ -47,11 +45,9 @@ int I_Main(int argc, char *argv[])
 
     I_CheckAlreadyRunning();
 
-    // -AJA- change current dir to match executable
-	exe_path = epi::GetExecutablePath(argv[0]);
-
 #ifdef WIN32
-    ::SetCurrentDirectory(exe_path);
+    // -AJA- change current dir to match executable
+    ::SetCurrentDirectory(epi::GetExecutablePath(argv[0]).c_str());
 #else
     // -ACB- 2005/11/26 We don't do on LINUX since we assume the 
     //                  executable is globally installed

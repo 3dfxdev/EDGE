@@ -22,11 +22,16 @@
 namespace epi
 {
 
-const char *GetExecutablePath(const char *argv0);
+std::string GetExecutablePath(const char *argv0);
 // returns the path containing the running executable.
 // You must pass in argv[0], which is used as a last resort
 // when better methods fail.  The returned path never has a
-// trailing directory separator (and is never NULL).
+// trailing directory separator.
+
+std::string GetResourcePath();
+// Attempts to determine an appropriate directory to find resources
+// for an application. Useful only on platforms with formalised
+// organisation of application directories. (e.g. MacOS X)
 
 } // namespace epi
 

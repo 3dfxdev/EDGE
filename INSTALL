@@ -4,6 +4,7 @@ EDGE 1.31 COMPILATION NOTES
 
 by Andrew Apted, July 2008.
 
+(Mac OS X notes added by Andy Baker, June 2009.)
 
 Note 1
 ------
@@ -37,20 +38,31 @@ EDGE uses the _SCons_ build tool to compile binaries.
  I tried really hard to get to grips with them but in the
  end found them extremely complex and frustrating to use.)
 
-There are three basic configurations:
+Building EDGE on a Linux system:
 
- 1. Build Linux debugging + shared-lib binary:
+	There are three basic configurations:
 
-    > scons
+ 	1. Build Linux debugging + shared-lib binary:
 
- 2. Build Linux statically-linked binary:
+    	> scons
 
-    > scons release=true
+ 	2. Build Linux statically-linked binary:
 
- 3. Build Win32 statically-linked binary:
+    	> scons release=true
 
-    > scons cross=true release=true
+ 	3. Build Win32 statically-linked binary:
 
+    	> scons cross=true release=true
+
+Building EDGE on a Mac OS X:
+
+	Single configuration:
+
+		> scons
+
+	This will build against the system Cocoa, OpenGL and SDL frameworks. The
+	Ogg, Vorbis, GLEW, zlib, jpeg, lua and png can either be installed
+	globally or placed in the macosx_lib directory.
 
 Libraries
 ---------

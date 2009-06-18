@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE SDL System Internal header
+//  EDGE Win32 UI System Code (Error messages etc...)
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 2005-2009  The EDGE Team.
+//  Copyright (c) 2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -15,27 +15,18 @@
 //  GNU General Public License for more details.
 //
 //----------------------------------------------------------------------------
+#include "w32_sysinc.h"
 
-#ifndef __SDL_SYSTEM_INTERNAL_H__
-#define __SDL_SYSTEM_INTERNAL_H__
+//
+// I_MessageBox
+//
+// Generate a message box displaying a notice and 'OK' button.
+//
+void I_MessageBox(const char *_msg, const char *_title)
+{
+	MessageBox(NULL, _msg, _title,
+			   MB_ICONEXCLAMATION | MB_OK |
+			   MB_SYSTEMMODAL | MB_SETFOREGROUND);
+}
 
-#ifdef HAVE_SDL_H
-#include <SDL/SDL.h>
-#else
-#include <SDL.h>
-#endif 
 
-
-// workaround for old SDL version (< 1.2.10)
-#if (SDL_PATCHLEVEL < 10)
-#include <stdlib.h>
-#define SDL_getenv  getenv
-#define SDL_putenv  putenv
-#endif
-
-#include "i_local.h"  // FIXME: remove
-
-#endif /* __SDL_SYSTEM_INTERNAL_H__ */
-
-//--- editor settings ---
-// vi:ts=4:sw=4:noexpandtab
