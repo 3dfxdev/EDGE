@@ -223,6 +223,7 @@ lump_kind_e;
 typedef struct
 {
 	char name[10];
+
 	int position;
 	int size;
 
@@ -248,7 +249,7 @@ lumpinfo_t;
 //
 
 // Location of each lump on disk.
-lumpinfo_t *lumpinfo;
+static std::vector<lumpinfo_t> lumpinfo;
 static int *lumpmap = NULL;
 int numlumps;
 
@@ -536,7 +537,7 @@ static void AddLump(data_file_c *df, int lump, int pos, int size, int file,
 					int sort_index, const char *name, bool allow_ddf)
 {
 	int j;
-	lumpinfo_t *lump_p = lumpinfo + lump;
+	lumpinfo_t *lump_p = &lumpinfo[lump];
   
 	lump_p->position = pos;
 	lump_p->size = size;
@@ -984,7 +985,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 
 		// Fill in lumpinfo
 		numlumps += header.num_entries;
-		Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+		lumpinfo.resize(numlumps);
 
 		for (j=startlump, curinfo=fileinfo; j < numlumps; j++,curinfo++)
 		{
@@ -1026,7 +1027,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 
 		// Fill in lumpinfo
 		numlumps++;
-		Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+		lumpinfo.resize(numlumps);
 
 		AddLump(df, startlump, 0, 
                 file->GetLength(), datafile, datafile, 
@@ -1154,7 +1155,7 @@ void W_InitMultipleFiles(void)
 	numlumps = 0;
 
 	// will be realloced as lumps are added
-	lumpinfo = NULL;
+	lumpinfo.clear();
 
 	std::list<raw_filename_c *>::iterator it;
 
@@ -1300,7 +1301,7 @@ epi::file_c *W_OpenLump(int lump)
 {
 	SYS_ASSERT(0 <= lump && lump < numlumps);
 
-	lumpinfo_t *l = lumpinfo + lump;
+	lumpinfo_t *l = &lumpinfo[lump];
 
 	data_file_c *df = data_files[l->file];
 
@@ -1322,7 +1323,7 @@ const char *W_GetFileName(int lump)
 {
 	SYS_ASSERT(0 <= lump && lump < numlumps);
 
-	lumpinfo_t *l = lumpinfo + lump;
+	lumpinfo_t *l = &lumpinfo[lump];
 
 	data_file_c *df = data_files[l->file];
 
@@ -1505,7 +1506,7 @@ int W_CheckNumForTexPatch(const char *name)
 	
 	for (; i >= 0 && STR_CMP(i) == 0; i--)
 	{
-		lumpinfo_t *L = lumpinfo + lumpmap[i];
+		lumpinfo_t *L = &lumpinfo[lumpmap[i]];
 
 		if (L->kind == LMKIND_Patch || L->kind == LMKIND_Sprite ||
 			L->kind == LMKIND_Normal)
@@ -1633,7 +1634,7 @@ static void W_ReadLump(int lump, void *dest)
 	if (lump >= numlumps)
 		I_Error("W_ReadLump: %i >= numlumps", lump);
 
-	lumpinfo_t *L = lumpinfo + lump;
+	lumpinfo_t *L = &lumpinfo[lump];
 	data_file_c *df = data_files[L->file];
 
 	// -KM- 1998/07/31 This puts the loading icon in the corner of the screen :-)
