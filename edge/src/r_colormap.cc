@@ -81,7 +81,7 @@ static int V_FindPureColour(int which);
 
 void V_InitPalette(void)
 {
-	int t, i, r, g, b, max_file, pal_lump;
+	int t, i, max_file, pal_lump;
 	wadtex_resource_c WT;
 
 	max_file = W_GetNumFiles();
@@ -102,7 +102,7 @@ void V_InitPalette(void)
 	if (pal_lump == -1)
 		I_Error("Missing PLAYPAL palette lump !\n");
 
-	pal = (const byte*)W_CacheLumpNum(pal_lump);
+	const byte *pal = (const byte*)W_CacheLumpNum(pal_lump);
 
 	// read in palette colours
 	for (t = 0; t < 14; t++)

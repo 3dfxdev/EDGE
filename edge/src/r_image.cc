@@ -303,7 +303,7 @@ static image_c *AddImageGraphic(const char *name,
 
 			rim->source_type = IMSRC_Raw320x200;
 			rim->source.flat.lump = lump;
-			rim->source_palette = W_GetPaletteForLump(lump);
+			rim->source_palette = W_GetFileForLump(lump);
 			return rim;
 		}
 
@@ -325,7 +325,7 @@ static image_c *AddImageGraphic(const char *name,
 
 	rim->source_type = type;
 	rim->source.graphic.lump = lump;
-	rim->source_palette = W_GetPaletteForLump(lump);
+	rim->source_palette = W_GetFileForLump(lump);
 
 	if (type == IMSRC_Sprite)
 		real_sprites.push_back(rim);
@@ -345,7 +345,7 @@ static image_c *AddImageTexture(const char *name, texturedef_t *tdef)
 
 	rim->source_type = IMSRC_Texture;
 	rim->source.texture.tdef = tdef;
-	rim->source_palette = tdef->palette_lump;
+	rim->source_palette = tdef->file;
 
 	real_textures.push_back(rim);
 
@@ -385,7 +385,7 @@ static image_c *AddImageFlat(const char *name, int lump)
 
 	rim->source_type = IMSRC_Flat;
 	rim->source.flat.lump = lump;
-	rim->source_palette = W_GetPaletteForLump(lump);
+	rim->source_palette = W_GetFileForLump(lump);
 
 	real_flats.push_back(rim);
 
@@ -801,7 +801,6 @@ static GLuint LoadImageOGL(image_c *rim, const colourmap_c *trans)
 
 
 	const byte *what_palette = (const byte *) &playpal_data[0];
-	bool what_pal_cached = false;
 
 	static byte trans_pal[256 * 3];
 
@@ -816,8 +815,7 @@ static GLuint LoadImageOGL(image_c *rim, const colourmap_c *trans)
 	}
 	else if (rim->source_palette >= 0)
 	{
-		what_palette = (const byte *) W_CacheLumpNum(rim->source_palette);
-		what_pal_cached = true;
+		what_palette = W_GetPaletteData(rim->source_palette);
 	}
 
 
@@ -863,9 +861,6 @@ static GLuint LoadImageOGL(image_c *rim, const colourmap_c *trans)
 
 	delete tmp_img;
 
-	if (what_pal_cached)
-		W_DoneWithLump(what_palette);
-	
 	return tex_id;
 }
 
