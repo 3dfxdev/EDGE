@@ -62,15 +62,13 @@ extern abstract_shader_c *MakePlaneGlow(mobj_t *mo);
 int bmap_width;
 int bmap_height;  // size in mapblocks
 
-unsigned short *  bmap_lines = NULL; 
-unsigned short ** bmap_pointers = NULL;
-
-// offsets in blockmap are from here
-int *blockmaplump = NULL;
-
 // origin of block map
 float bmap_orgx;
 float bmap_orgy;
+
+typedef std::list<line_t *> linedef_set_t;
+
+static linedef_set_t **bmap_lines = NULL;
 
 // for thing chains
 mobj_t **bmap_things = NULL;
@@ -102,8 +100,10 @@ void P_CreateThingBlockMap(void)
 
 void P_DestroyBlockMap(void)
 {
-	delete[] bmap_lines;    bmap_lines  = NULL;
-	delete[] bmap_pointers; bmap_pointers = NULL;
+	// FIXME subsector ETC
+	
+	delete[] bmap_lines;    bmap_lines = NULL;
+
 	delete[] bmap_things;   bmap_things = NULL;
 
 	delete[] dlmap_things;  dlmap_things = NULL;
@@ -656,11 +656,15 @@ bool P_BlockLinesIterator(float x1, float y1, float x2, float y2,
 	for (int by = ly; by <= hy; by++)
 	for (int bx = lx; bx <= hx; bx++)
 	{
-		unsigned short *list = bmap_pointers[by * bmap_width + bx];
+		linedef_set_t *lset = bmap_lines[by * bmap_width + bx];
 
-		for (; *list != BMAP_END; list++)
+		if (! lset)
+			continue;
+
+		linedef_set_t::iterator LI;
+		for (LI = lset->begin(); LI != lset->end(); LI++)
 		{
-			line_t *ld = &lines[*list];
+			line_t *ld = *LI;
 
 			// has line already been checked ?
 			if (ld->validcount == validcount)
@@ -1061,11 +1065,15 @@ bool P_PathTraverse(float x1, float y1, float x2, float y2, int flags,
 		{
 			if (flags & PT_ADDLINES)
 			{
-				unsigned short *list = bmap_pointers[by * bmap_width + bx];
+				linedef_set_t *lset = bmap_lines[by * bmap_width + bx];
 
-				for (; *list != BMAP_END; list++)
+				if (lset)
 				{
-					PIT_AddLineIntercept(&lines[*list]);
+					linedef_set_t::iterator LI;
+					for (LI = lset->begin(); LI != lset->end(); LI++)
+					{
+						PIT_AddLineIntercept(*LI);
+					}
 				}
 			}
 
@@ -1122,49 +1130,14 @@ bool P_PathTraverse(float x1, float y1, float x2, float y2, int flags,
 //  BLOCKMAP GENERATION
 //
 
-//  Variables for GenerateBlockMap
+static int blk_total_lines = 0;
 
-// fixed array of dynamic array
-static unsigned short ** blk_cur_lines = NULL;
-static int blk_total_lines;
-
-#define BCUR_SIZE   0
-#define BCUR_MAX    1
-#define BCUR_FIRST  2
-
-static void BlockAdd(int bnum, unsigned short line_num)
+static void BlockAdd(int bnum, line_t *ld)
 {
-	unsigned short *cur = blk_cur_lines[bnum];
+	if (! bmap_lines[bnum])
+		bmap_lines[bnum] = new linedef_set_t;
 
-	SYS_ASSERT(bnum >= 0);
-	SYS_ASSERT(bnum < (bmap_width * bmap_height));
-
-	if (! cur)
-	{
-		// create initial block
-
-		blk_cur_lines[bnum] = cur = Z_New(unsigned short, BCUR_FIRST + 16);
-		cur[BCUR_SIZE] = 0;
-		cur[BCUR_MAX]  = 16;
-	}
-
-	if (cur[BCUR_SIZE] == cur[BCUR_MAX])
-	{
-		// need to grow this block
-
-		cur = blk_cur_lines[bnum];
-		cur[BCUR_MAX] += 16;
-		Z_Resize(blk_cur_lines[bnum], unsigned short,
-			BCUR_FIRST + cur[BCUR_MAX]);
-		cur = blk_cur_lines[bnum];
-	}
-
-	SYS_ASSERT(cur);
-	SYS_ASSERT(cur[BCUR_SIZE] < cur[BCUR_MAX]);
-
-	cur[BCUR_FIRST + cur[BCUR_SIZE]] = line_num;
-	cur[BCUR_SIZE] += 1;
-
+	bmap_lines[bnum]->push_back(ld);
 	blk_total_lines++;
 }
 
@@ -1216,7 +1189,7 @@ static void BlockAddLine(int line_num)
 	if (y_dist == 0)
 	{
 		for (i=0; i <= x_dist; i++, blocknum++)
-			BlockAdd(blocknum, line_num);
+			BlockAdd(blocknum, ld);
 
 		return;
 	}
@@ -1224,7 +1197,7 @@ static void BlockAddLine(int line_num)
 	if (x_dist == 0)
 	{
 		for (i=0; i <= y_dist; i++, blocknum += y_sign * bmap_width)
-			BlockAdd(blocknum, line_num);
+			BlockAdd(blocknum, ld);
 
 		return;
 	}
@@ -1253,7 +1226,7 @@ static void BlockAddLine(int line_num)
 		{
 			blocknum = (sy / 128 + j * y_sign) * bmap_width + (sx / 128);
 
-			BlockAdd(blocknum, line_num);
+			BlockAdd(blocknum, ld);
 		}
 	}
 }
@@ -1261,16 +1234,12 @@ static void BlockAddLine(int line_num)
 
 void P_GenerateBlockMap(int min_x, int min_y, int max_x, int max_y)
 {
-	int i;
-	int bnum, btotal;
-	unsigned short *b_pos;
-
 	bmap_orgx = min_x - 8;
 	bmap_orgy = min_y - 8;
 	bmap_width  = BLOCKMAP_GET_X(max_x) + 1;
 	bmap_height = BLOCKMAP_GET_Y(max_y) + 1;
 
-	btotal = bmap_width * bmap_height;
+	int btotal = bmap_width * bmap_height;
 
 	L_WriteDebug("GenerateBlockmap: MAP (%d,%d) -> (%d,%d)\n",
 		min_x, min_y, max_x, max_y);
@@ -1280,51 +1249,16 @@ void P_GenerateBlockMap(int min_x, int min_y, int max_x, int max_y)
 	// setup blk_cur_lines array.  Initially all pointers are NULL, when
 	// any lines get added then the dynamic array is created.
 
-	blk_cur_lines = Z_New(unsigned short *, btotal);
+	bmap_lines = new linedef_set_t* [btotal];
+	blk_total_lines = 0;
 
-	Z_Clear(blk_cur_lines, unsigned short *, btotal);
-
-	// initial # of line values ("0, -1" for each block)
-	blk_total_lines = 2 * btotal;
+	Z_Clear(bmap_lines, linedef_set_t *, btotal);
 
 	// process each linedef of the map
-	for (i=0; i < numlines; i++)
+	for (int i=0; i < numlines; i++)
 		BlockAddLine(i);
 
 	L_WriteDebug("GenerateBlockmap: TOTAL DATA=%d\n", blk_total_lines);
-
-	// convert dynamic arrays to single array and free memory
-
-	bmap_pointers = new unsigned short * [btotal];
-	bmap_lines    = new unsigned short   [blk_total_lines];
-
-	b_pos = bmap_lines;
-
-	for (bnum=0; bnum < btotal; bnum++)
-	{
-		SYS_ASSERT(b_pos - bmap_lines < blk_total_lines);
-
-		bmap_pointers[bnum] = b_pos;
-
-		*b_pos++ = 0;
-
-		if (blk_cur_lines[bnum])
-		{
-			// transfer the line values
-			for (i=blk_cur_lines[bnum][BCUR_SIZE] - 1; i >= 0; i--)
-				*b_pos++ = blk_cur_lines[bnum][BCUR_FIRST + i];
-
-			Z_Free(blk_cur_lines[bnum]);
-		}
-
-		*b_pos++ = BMAP_END;
-	}
-
-	if (b_pos - bmap_lines != blk_total_lines)
-		I_Error("GenerateBlockMap: miscounted !\n");
-
-	Z_Free(blk_cur_lines);
-	blk_cur_lines = NULL;
 }
 
 
@@ -1422,7 +1356,7 @@ void P_GenerateSubsecMap(void)
 	for (int i = 0; i < numsubsectors; i++)
 		SubsecAdd(&subsectors[i]);
 
-	if (subsec_map_total < 1)
+	if (subsec_map_total == 0)
 		I_Error("No subsectors ????\n");
 
 	while (SubsecFillHoles() > 0)
