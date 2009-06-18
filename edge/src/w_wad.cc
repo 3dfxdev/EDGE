@@ -472,9 +472,12 @@ void W_GetTextureLumps(int file, wadtex_resource_c *res)
 //
 static void SortLumps(void)
 {
-	int i;
+	if (lumpmap)
+		delete[] lumpmap;
 
-	Z_Resize(lumpmap, int, numlumps);
+	lumpmap = new int[numlumps+1];
+
+	int i;
 
 	for (i = 0; i < numlumps; i++)
 		lumpmap[i] = i;
