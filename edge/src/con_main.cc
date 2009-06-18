@@ -155,15 +155,14 @@ int CMD_Crc(char **argv, int argc)
 		}
 		else
 		{
-			data = (const byte*)W_CacheLumpNum(lump);
-			length = W_LumpLength(lump);
+			data = (const byte*)W_LoadLumpNum(lump, &length);
 
 			epi::crc32_c result;
 
 			result.Reset();
 			result.AddBlock(data, length);
 
-			W_DoneWithLump(data);
+			Z_Free((void*)data);
 
 			CON_Printf("  %s  %d bytes  crc = %08x\n", argv[i], length, result.crc);
 		}

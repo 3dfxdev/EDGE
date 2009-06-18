@@ -288,6 +288,8 @@ bool within_tex_list;
 
 static byte *W_ReadLumpAlloc(int lump, int *length);
 
+static const void *W_CacheLumpNum2 (int lump);
+
 //
 // Is the name a sprite list start flag?
 // If lax syntax match, fix up to standard syntax.
@@ -1160,7 +1162,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 
 				I_Printf("Converting [%s] lump in: %s\n", lump_name, filename);
 
-				const byte *data = (const byte *)W_CacheLumpNum(df->deh_lump);
+				const byte *data = (const byte *)W_CacheLumpNum2(df->deh_lump);
 				int length = W_LumpLength(df->deh_lump);
 
 				if (! DH_ConvertLump(data, length, lump_name, hwa_filename.c_str()))
@@ -1800,21 +1802,22 @@ int W_CacheInfo(int level)
 //
 // Returns a copy of the lump (it is your responsibility to free it)
 //
-void *W_LoadLumpNum(int lump)
+void *W_LoadLumpNum(int lump, int *length)
 {
 	void *p;
 	const void *cached;
-	int length = W_LumpLength(lump);
-	p = (void *) Z_Malloc(length);
+	int len = W_LumpLength(lump);
+	if (length) *length = len;
+	p = (void *) Z_Malloc(len);
 	cached = W_CacheLumpNum2(lump);
-	memcpy(p, cached, length);
+	memcpy(p, cached, len);
 	W_DoneWithLump(cached);
 	return p;
 }
 
-void *W_LoadLumpName(const char *name)
+void *W_LoadLumpName(const char *name, int *length)
 {
-	return W_LoadLumpNum(W_GetNumForName2(name));
+	return W_LoadLumpNum(W_GetNumForName2(name), length);
 }
 
 const char *W_GetLumpName(int lump)

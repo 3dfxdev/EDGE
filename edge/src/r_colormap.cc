@@ -102,7 +102,7 @@ void V_InitPalette(void)
 	if (pal_lump == -1)
 		I_Error("Missing PLAYPAL palette lump !\n");
 
-	const byte *pal = (const byte*)W_CacheLumpNum(pal_lump);
+	const byte *pal = (const byte*)W_LoadLumpNum(pal_lump);
 
 	// read in palette colours
 	for (t = 0; t < 14; t++)
@@ -115,7 +115,8 @@ void V_InitPalette(void)
 		}
 	}
 
-	W_DoneWithLump(pal);
+	Z_Free((void*)pal);
+
 	loaded_playpal = true;
 
 	// lookup useful colours
@@ -284,7 +285,7 @@ static void LoadColourmap(const colourmap_c * colm)
 
 	lump = W_GetNumForName(colm->lump_name);
 	size = W_LumpLength(lump);
-	data = (const byte*)W_CacheLumpNum(lump);
+	data = (const byte*)W_LoadLumpNum(lump);
 
 	if ((colm->start + colm->length) * 256 > size)
 		I_Error("Colourmap [%s] is too small ! (LENGTH too big)\n", 
@@ -300,7 +301,7 @@ static void LoadColourmap(const colourmap_c * colm)
 	for (int j = 0; j < colm->length * 256; j++)
 		cache->data[j] = data_in[j];
 
-	W_DoneWithLump(data);
+	Z_Free((void*)data);
 }
 
 
