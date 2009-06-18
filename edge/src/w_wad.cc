@@ -252,29 +252,6 @@ lumpinfo_t *lumpinfo;
 static int *lumpmap = NULL;
 int numlumps;
 
-typedef struct lumpheader_s
-{
-#ifdef DEVELOPERS
-	static const int LUMPID = (int)0xAC45197e;
-
-	int id;  // Should be LUMPID
-#endif
-
-	// number of users.
-	int users;
-
-	// index in lumplookup
-	int lumpindex;
-	struct lumpheader_s *next, *prev;
-}
-lumpheader_t;
-
-static lumpheader_t **lumplookup;
-static lumpheader_t lumphead;
-
-// number of freeable bytes in cache (excluding headers).
-// Used to decide how many bytes we should flush.
-static int cache_size = 0;
 
 // the first datafile which contains a PLAYPAL lump
 static int palette_datafile = -1;
@@ -288,7 +265,6 @@ bool within_tex_list;
 
 static byte *W_ReadLumpAlloc(int lump, int *length);
 
-static const void *W_CacheLumpNum2 (int lump);
 
 //
 // Is the name a sprite list start flag?
@@ -555,21 +531,6 @@ static void SortSpriteLumps(data_file_c *df)
 //  for the lump name.
 //
 
-static void MarkAsCached(lumpheader_t *item)
-{
-#ifdef DEVELOPERS
-	if (item->id != lumpheader_s::LUMPID)
-		I_Error("MarkAsCached: id != LUMPID");
-	if (!item)
-		I_Error("MarkAsCached: lump %d is NULL", item->lumpindex);
-	if (item->users)
-		I_Error("MarkAsCached: lump %d has %d users!", item->lumpindex, item->users);
-	if (lumplookup[item->lumpindex] != item)
-		I_Error("MarkAsCached: Internal error, lump %d", item->lumpindex);
-#endif
-
-	cache_size += W_LumpLength(item->lumpindex);
-}
 
 static void AddLump(data_file_c *df, int lump, int pos, int size, int file, 
 					int sort_index, const char *name, bool allow_ddf)
@@ -1081,12 +1042,6 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 	SortLumps();
 	SortSpriteLumps(df);
 
-	// set up caching
-	Z_Resize(lumplookup, lumpheader_t *, numlumps);
-
-	for (j=startlump; j < numlumps; j++)
-		lumplookup[j] = NULL;
-
 	// check for unclosed sprite/flat/patch lists
 	if (within_sprite_list)
 		I_Warning("Missing S_END marker in %s.\n", filename);
@@ -1162,13 +1117,13 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 
 				I_Printf("Converting [%s] lump in: %s\n", lump_name, filename);
 
-				const byte *data = (const byte *)W_CacheLumpNum2(df->deh_lump);
+				const byte *data = (const byte *)W_LoadLumpNum(df->deh_lump);
 				int length = W_LumpLength(df->deh_lump);
 
 				if (! DH_ConvertLump(data, length, lump_name, hwa_filename.c_str()))
 					I_Error("Failed to convert DeHackEd LUMP in: %s\n", filename);
 
-				W_DoneWithLump(data);
+				Z_Free((void*)data);
 			}
         }
 
@@ -1177,10 +1132,6 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 	}
 }
 
-static void InitCaches(void)
-{
-	lumphead.next = lumphead.prev = &lumphead;
-}
 
 void W_AddRawFilename(const char *file, int kind)
 {
@@ -1199,8 +1150,6 @@ void W_AddRawFilename(const char *file, int kind)
 //
 void W_InitMultipleFiles(void)
 {
-	InitCaches();
-
 	// open all the files, load headers, and count lumps
 	numlumps = 0;
 
@@ -1711,92 +1660,10 @@ static byte *W_ReadLumpAlloc(int lump, int *length)
 	return data;
 }
 
-void W_DoneWithLump(const void *ptr)
-{
-	lumpheader_t *h = ((lumpheader_t *)ptr); // Intentional Const Override
-
-#ifdef DEVELOPERS
-	if (h == NULL)
-		I_Error("W_DoneWithLump: NULL pointer");
-	if (h[-1].id != lumpheader_s::LUMPID)
-		I_Error("W_DoneWithLump: id != LUMPID");
-	if (h[-1].users == 0)
-		I_Error("W_DoneWithLump: lump %d has no users!", h[-1].lumpindex);
-#endif
-	h--;
-	h->users--;
-	if (h->users == 0)
-	{
-		// Move the item to the tail.
-		h->prev->next = h->next;
-		h->next->prev = h->prev;
-		h->prev = lumphead.prev;
-		h->next = &lumphead;
-		h->prev->next = h;
-		h->next->prev = h;
-		MarkAsCached(h);
-	}
-}
-
-
-const void *W_CacheLumpNum2 (int lump)
-{
-	lumpheader_t *h;
-
-#ifdef DEVELOPERS
-	if ((unsigned int)lump >= (unsigned int)numlumps)
-		I_Error("W_CacheLumpNum: %i >= numlumps", lump);
-#endif
-
-	h = lumplookup[lump];
-
-	if (h)
-	{
-		// cache hit
-		if (h->users == 0)
-			cache_size -= W_LumpLength(h->lumpindex);
-		h->users++;
-	}
-	else
-	{
-		// cache miss. load the new item.
-		h = (lumpheader_t *) Z_Malloc(sizeof(lumpheader_t) + W_LumpLength(lump));
-		lumplookup[lump] = h;
-#ifdef DEVELOPERS
-		h->id = lumpheader_s::LUMPID;
-#endif
-		h->lumpindex = lump;
-		h->users = 1;
-		h->prev = lumphead.prev;
-		h->next = &lumphead;
-		h->prev->next = h;
-		lumphead.prev = h;
-
-		W_ReadLump(lump, (void *)(h + 1));
-	}
-
-	return (void *)(h + 1);
-}
-
-const void *W_CacheLumpName2(const char *name)
-{
-	return W_CacheLumpNum2(W_GetNumForName2(name));
-}
-
 
 int W_CacheInfo(int level)
 {
-	lumpheader_t *h;
-	int value = 0;
-
-	for (h = lumphead.next; h != &lumphead; h = h->next)
-	{
-		if ((level & 1) && h->users)
-			value += W_LumpLength(h->lumpindex);
-		if ((level & 2) && !h->users)
-			value += W_LumpLength(h->lumpindex);
-	}
-	return value;
+	return 0;
 }
 
 //
@@ -1804,14 +1671,14 @@ int W_CacheInfo(int level)
 //
 void *W_LoadLumpNum(int lump, int *length)
 {
-	void *p;
-	const void *cached;
 	int len = W_LumpLength(lump);
+
 	if (length) *length = len;
-	p = (void *) Z_Malloc(len);
-	cached = W_CacheLumpNum2(lump);
-	memcpy(p, cached, len);
-	W_DoneWithLump(cached);
+
+	void *p = (void *) Z_Malloc(len);
+
+	W_ReadLump(lump, p);
+
 	return p;
 }
 
