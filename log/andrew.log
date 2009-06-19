@@ -6,6 +6,11 @@ Worked on improving the standard crosshairs, which are now
 images in EDGE.WAD instead of drawn directly.  Also added
 support for controlling the size and color (via cvars).
 
+Dehacked: simplified handling of DEH->DDF conversion, there is
+little need to cache the conversion (since it is very fast),
+hence we now always run DEH_EDGE and the HWA file can have a
+simple name (without the checksum stuff).
+
 2009/06/18:
 
 Did a review of all code using W_CacheLumpXXX().  Every
