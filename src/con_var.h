@@ -102,8 +102,9 @@ cvar_link_t;
 extern cvar_link_t all_cvars[];
 
 
-void CON_ResetAllVars(void);
+void CON_ResetAllVars(bool initial = false);
 // sets all cvars to their default value.
+// When 'initial' is true, the modified counts are set to 0.
 
 cvar_link_t * CON_FindVar(const char *name);
 // look for a CVAR with the given name.

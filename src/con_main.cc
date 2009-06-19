@@ -194,6 +194,12 @@ int CMD_PlaySound(char **argv, int argc)
 	return 0;
 }
 
+int CMD_ResetVars(char **argv, int argc)
+{
+	CON_ResetAllVars();
+	return 0;
+}
+
 int CMD_ShowFiles(char **argv, int argc)
 {
 	W_ShowFiles();
@@ -390,7 +396,10 @@ const con_cmd_t builtin_commands[] =
 	{ "playsound",      CMD_PlaySound },
 	{ "exec",           CMD_Exec },
 	{ "help",           CMD_Help },
+//	{ "resetkeys",      CMD_ResetKeys },
+	{ "resetvars",      CMD_ResetVars },
 	{ "showfiles",      CMD_ShowFiles },
+//	{ "showkeys",       CMD_ShowKeys },
 	{ "showlumps",      CMD_ShowLumps },
 	{ "showcmds",       CMD_ShowCmds },
 	{ "showvars",       CMD_ShowVars },

@@ -174,7 +174,7 @@ static bool CON_MatchFlags(const char *var_f, const char *want_f)
 }
 
 
-void CON_ResetAllVars(void)
+void CON_ResetAllVars(bool initial)
 {
 	for (int i = 0; all_cvars[i].var; i++)
 	{
@@ -182,7 +182,8 @@ void CON_ResetAllVars(void)
 
 		// this function is equivalent to construction,
 		// hence ensure the modified count is zero.
-		all_cvars[i].var->modified = 0;
+		if (initial)
+			all_cvars[i].var->modified = 0;
 	}
 }
 
