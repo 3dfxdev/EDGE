@@ -112,10 +112,10 @@ cvar_link_t  all_cvars[] =
 	{ "m_obituaries",   &m_obituaries,   "c",   "1"  },
 	{ "m_screenhud",    &m_screenhud,    "c",   "0"  },
                                         
-	{ "r_width",        &r_width,        "rc",  "640"   },
-	{ "r_height",       &r_height,       "rc",  "480"   },
-    { "r_depth",        &r_depth,        "rc",  "32"    },
-    { "r_fullscreen",   &r_fullscreen,   "rc",  "1"     },
+	{ "r_width",        &r_width,        "c",   "640"   },
+	{ "r_height",       &r_height,       "c",   "480"   },
+    { "r_depth",        &r_depth,        "c",   "32"    },
+    { "r_fullscreen",   &r_fullscreen,   "c",   "1"     },
 												
 	{ "r_gamma",        &r_gamma,        "c",   "1"  },
 	{ "r_nearclip",     &r_nearclip,     "c",   "4"  },
