@@ -404,7 +404,7 @@ static void DrawStdCrossHair(void)
 		crosshair_which = r_crosshair.d;
 
 		char name[32];
-		sprintf(name, "CROSSHAIR%d", crosshair_which);
+		sprintf(name, "STDCROSS%d", crosshair_which);
 
 		crosshair_image = W_ImageLookup(name);
 	}
