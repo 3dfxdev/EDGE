@@ -119,6 +119,7 @@ static int mlookheld;  // for accelerative mlooking
 // toggled by autorun button.
 cvar_c in_autorun;
 cvar_c in_stageturn;
+cvar_c in_shiftlook;
 
 //-------------------------------------------
 // -KM-  1998/09/01 Analogue binding
@@ -197,7 +198,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 		mlookheld = 0;
 
 	int t_speed = speed;
-	int m_speed = speed;
+	int u_speed = speed;
 
 	if (in_stageturn.d)
 	{
@@ -207,8 +208,10 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 
 		// slow turn ?
 		if (mlookheld < SLOWTURNTICS)
-			m_speed = 2;
+			u_speed = 2;
 	}
+
+	int m_speed = in_shiftlook.d ? speed : 0;
 
 	// -ES- 1999/03/28 Zoom Key
 	if (E_InputCheckKey(key_zoom))
@@ -275,14 +278,14 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 
 		// -KM- 1998/09/01 Analogue binding
 		// -ACB- 1998/09/06 Angle Turn Speed Control
-		cmd->angleturn -= analogue[AXIS_TURN] * angle_rate / 64.0;
+		cmd->angleturn -= analogue[AXIS_TURN] * angleturn[m_speed] / 64.0;
 	}
 
 	cmd->mlookturn = 0;
 
 	if (g_mlook.d && !(map_features & MPF_NoMLook))
 	{
-		int mlook_rate = angleturn[m_speed] / 2;
+		int mlook_rate = angleturn[u_speed] / 2;
 
 		if (view_zoom > 0)
 			mlook_rate /= ZOOM_ANGLE_DIV;
@@ -295,12 +298,12 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 		if (E_InputCheckKey(key_lookdown))
 			cmd->mlookturn -= mlook_rate;
 
-		// -KM- 1998/09/01 More analogue binding
-		cmd->mlookturn += analogue[AXIS_MLOOK] * mlook_rate / 30.0f;
-
 		// -ACB- 1998/07/02 Use CENTER flag to center the vertical look.
 		if (E_InputCheckKey(key_lookcenter))
 			cmd->extbuttons |= EBT_CENTER;
+
+		// -KM- 1998/09/01 More analogue binding
+		cmd->mlookturn += analogue[AXIS_MLOOK] * angleturn[m_speed] / 64.0f;
 	}
 
 	// -MH- 1998/08/18 Fly up
