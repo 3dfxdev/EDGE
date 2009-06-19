@@ -53,9 +53,10 @@
 #include "m_misc.h"  // !!!! model test
 
 
-cvar_c r_crosshair;   // shape
-cvar_c r_crosscolor;  // 0 .. 7
-cvar_c r_crosssize;   // pixels on a 320x200 screen
+cvar_c r_crosshair;    // shape
+cvar_c r_crosscolor;   // 0 .. 7
+cvar_c r_crosssize;    // pixels on a 320x200 screen
+cvar_c r_crossbright;  // 1.0 is normal
 
 
 #define DEBUG  0
@@ -387,8 +388,8 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 
 static const rgbcol_t crosshair_colors[8] =
 {
-	0xFFFFFF, 0x0000FF, 0x00FF00, 0x00FFFF,
-	0xFF0000, 0xFF00FF, 0xFFFF00, 0xFFAA22,
+	0xCCCCCC, 0x0000FF, 0x00DD00, 0x00DDDD,
+	0xFF0000, 0xFF00FF, 0xDDDD00, 0xFF9922,
 };
 
 static void DrawStdCrossHair(void)
@@ -396,7 +397,7 @@ static void DrawStdCrossHair(void)
 	if (r_crosshair.d <= 0 || r_crosshair.d > 9)
 		return;
 
-	if (r_crosssize.d < 1.0)
+	if (r_crosssize.f < 0.1 || r_crossbright.f < 0.1)
 		return;
 
 	if (! crosshair_image || crosshair_which != r_crosshair.d)
@@ -426,6 +427,8 @@ static void DrawStdCrossHair(void)
 
 	rgbcol_t color = crosshair_colors[r_crosscolor.d & 7];
 	float intensity = 1.0f - xh_count / 100.0f;
+
+	intensity *= r_crossbright.f;
 
 	float r = RGB_RED(color) * intensity / 255.0f;
 	float g = RGB_GRN(color) * intensity / 255.0f;
