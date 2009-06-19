@@ -86,18 +86,16 @@ public:
 
 		d *= (float)LIM_CURVE_SIZE;
 
-		if (d >= LIM_CURVE_SIZE-1)
+		if (d >= LIM_CURVE_SIZE-1.01)
 			return curve[LIM_CURVE_SIZE-1];
 
 		// linearly interpolate between curve points
 
 		int p1 = (int)floor(d);
-
-		SYS_ASSERT(p1+1 < LIM_CURVE_SIZE);
-
 		int dd = (int)(256 * (d - p1));
 
-		SYS_ASSERT(0 <= dd && dd <= 256);
+		// SYS_ASSERT(p1+1 < LIM_CURVE_SIZE);
+		// SYS_ASSERT(0 <= dd && dd <= 256);
 
 		int r1 = RGB_RED(curve[p1]);
 		int g1 = RGB_GRN(curve[p1]);
