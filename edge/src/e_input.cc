@@ -106,12 +106,10 @@ static int angleturn[3]   = {640, 1280, 320};  // + slow turn
 
 #define SLOWTURNTICS    6
 
-#define NUMKEYS         512
-
 #define GK_DOWN  0x01
 #define GK_UP    0x02
 
-static byte gamekeydown[NUMKEYS];
+byte gamekeydown[NUMKEYS];
 
 static int turnheld;   // for accelerative turning 
 static int mlookheld;  // for accelerative mlooking 

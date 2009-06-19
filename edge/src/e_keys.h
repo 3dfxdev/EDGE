@@ -45,9 +45,12 @@ public:
 
 	void Clear();
 
-	bool AddBind(short keyd);
+	bool Add(short keyd);
+	bool Remove(short keyd);
 
 	bool HasKey(short keyd);
+
+	bool IsPressed() const;
 };
 
 
@@ -110,6 +113,8 @@ public:
 #define KEYD_MWHEEL_DN  0x105
 
 #define KEYD_JOYBASE    0x110
+
+#define NUMKEYS  0x140
 
 #endif  /* __E_KEYS_H__ */
 
