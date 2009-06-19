@@ -1,5 +1,11 @@
 Andrew Apted's Log
 
+2009/06/19:
+
+Worked on improving the standard crosshairs, which are now
+images in EDGE.WAD instead of drawn directly.  Also added
+support for controlling the size and color (via cvars).
+
 2009/06/18:
 
 Did a review of all code using W_CacheLumpXXX().  Every
@@ -12,6 +18,8 @@ Hence the wad caching system has definitely outlived its
 usefulness, and can be removed with one proviso: palettes
 (at least the first 768 bytes) in each file should be
 loaded and kept in memory.
+
+The last Z_Resize() in the code has finally been removed.
 
 2009/06/14:
 

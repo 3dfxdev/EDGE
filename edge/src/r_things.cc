@@ -53,6 +53,11 @@
 #include "m_misc.h"  // !!!! model test
 
 
+cvar_c r_crosshair;   // shape
+cvar_c r_crosscolor;  // 0 .. 7
+cvar_c r_crosssize;   // pixels on a 320x200 screen
+
+
 #define DEBUG  0
 
 
@@ -67,6 +72,10 @@ int rgl_weapon_b;
 
 
 extern mobj_t * view_cam_mo;
+
+
+static const image_c *crosshair_image;
+static int crosshair_which;
 
 
 // The minimum distance between player and a visible sprite.
@@ -376,46 +385,82 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	glDisable(GL_SCISSOR_TEST);
 }
 
+static const rgbcol_t crosshair_colors[8] =
+{
+	0xFFFFFF, 0x0000FF, 0x00FF00, 0x00FFFF,
+	0xFF0000, 0xFF00FF, 0xFFFF00, 0xFFAA22,
+};
+
 static void DrawStdCrossHair(void)
 {
-	static int crhcount = 0;
-	static int crhdir = 1;   // -ACB- 1999/09/19 change from ch * to crh *. chdir is a function.
+	if (r_crosshair.d <= 0 || r_crosshair.d > 9)
+		return;
+
+	if (r_crosssize.d < 1.0)
+		return;
+
+	if (! crosshair_image || crosshair_which != r_crosshair.d)
+	{
+		crosshair_which = r_crosshair.d;
+
+		char name[32];
+		sprintf(name, "CROSSHAIR%d", crosshair_which);
+
+		crosshair_image = W_ImageLookup(name);
+	}
+
+	GLuint tex_id = W_ImageCache(crosshair_image);
+
+
+	static int xh_count = 0;
+	static int xh_dir = 1;
 
 	// -jc- Pulsating
-	if (crhcount == 31)
-		crhdir = -1;
-	else if (crhcount == 0)
-		crhdir = 1;
+	if (xh_count == 31)
+		xh_dir = -1;
+	else if (xh_count == 0)
+		xh_dir = 1;
 
-	crhcount += crhdir;
+	xh_count += xh_dir;
 
-	int col = RED + crhcount / 4;  /* FIXME: configurable colour ? */
-	int mul = 1 + (viewwindow_w / 300);
+
+	rgbcol_t color = crosshair_colors[r_crosscolor.d & 7];
+	float intensity = 1.0f - xh_count / 100.0f;
+
+	float r = RGB_RED(color) * intensity / 255.0f;
+	float g = RGB_GRN(color) * intensity / 255.0f;
+	float b = RGB_BLU(color) * intensity / 255.0f;
+
 
 	int x = viewwindow_x + viewwindow_w / 2;
 	int y = viewwindow_y + viewwindow_h / 2;
 
-	switch (crosshair)
-	{
-		case 1:
-			RGL_SolidLine(x - 3*mul, y, x - 2*mul, y, col);
-			RGL_SolidLine(x + 2*mul, y, x + 3*mul, y, col);
-			RGL_SolidLine(x, y - 3*mul, x, y - 2*mul, col);
-			RGL_SolidLine(x, y + 2*mul, x, y + 3*mul, col);
-			break;
-	
-		case 2:
-			RGL_SolidLine(x, y, x + 1, y, col);
-			break;
-	
-		case 3:
-			RGL_SolidLine(x, y, x + 2*mul, y, col);
-			RGL_SolidLine(x, y + 1, x, y + 2*mul, col);
-			break;
-	
-		default:
-			break;
-	}
+	int w = I_ROUND(SCREENWIDTH * r_crosssize.f / 640.0f);
+
+
+	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_BLEND);
+
+	glBindTexture(GL_TEXTURE_2D, tex_id);
+
+	// additive blending
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+
+	glColor3f(r, g, b);
+
+	glBegin(GL_POLYGON);
+  
+	glTexCoord2f(0.0f, 0.0f); glVertex2f(x-w, y-w);
+	glTexCoord2f(0.0f, 1.0f); glVertex2f(x-w, y+w);
+	glTexCoord2f(1.0f, 1.0f); glVertex2f(x+w, y+w);
+	glTexCoord2f(1.0f, 0.0f); glVertex2f(x+w, y-w);
+  
+	glEnd();
+
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glDisable(GL_TEXTURE_2D);
+	glDisable(GL_BLEND);
 }
 
 

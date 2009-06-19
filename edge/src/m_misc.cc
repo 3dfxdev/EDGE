@@ -94,9 +94,6 @@ static default_t defaults[] =
     {CFGT_Boolean,	"directx",			 &force_directx,  0},
     {CFGT_Boolean,	"waveout",			 &force_waveout,  0},
  
-    // -ES- 1998/11/28 Save fade settings
-    {CFGT_Enum,     "crosshair",         &crosshair,      CFGDEF_CROSSHAIR},
-
     {CFGT_Int,      "save_page",         &save_page, 0},
 
 	// -------------------- KEYS --------------------

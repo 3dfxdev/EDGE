@@ -134,8 +134,6 @@ std::string save_dir;
 std::string hub_dir;
 std::string shot_dir;
 
-int crosshair = 0;
-
 static void E_TitleDrawer(void);
 
 extern cvar_c r_width;

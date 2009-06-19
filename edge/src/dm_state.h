@@ -185,7 +185,6 @@ extern bool infight;
 
 #define NUMHUD  120
 
-extern int crosshair;
 extern cvar_c m_screenhud;
 extern cvar_c r_teleportflash;
 
