@@ -31,22 +31,103 @@
 #include "e_main.h"
 
 
+extern byte gamekeydown[];
+
+
+typedef struct
+{
+	int keycode; char name[24];
+}
+specialkey_t;
+
+static specialkey_t keynames[] =
+{
+    { KEYD_RIGHTARROW, "RightArrow" },
+    { KEYD_LEFTARROW,  "LeftArrow" },
+    { KEYD_UPARROW,    "UpArrow" },
+    { KEYD_DOWNARROW,  "DownArrow" },
+    { KEYD_BACKSPACE,  "Backspace" },
+    { KEYD_ESCAPE,     "Escape" },
+    { KEYD_ENTER,      "Enter" },
+
+    { KEYD_EQUALS, "Equals" },
+    { KEYD_MINUS,  "Minus" },
+    { KEYD_INSERT, "Insert" },
+    { KEYD_DELETE, "Delete" },
+    { KEYD_PGDN,   "PageDown" },
+    { KEYD_PGUP,   "PageUp" },
+    { KEYD_HOME,   "Home" },
+    { KEYD_END,    "End" },
+    { KEYD_SPACE,  "Space" },
+    { KEYD_TILDE,  "Tilde" },
+
+    { KEYD_TAB, "Tab" },
+    { KEYD_F1,  "F1" },
+    { KEYD_F2,  "F2" },
+    { KEYD_F3,  "F3" },
+    { KEYD_F4,  "F4" },
+    { KEYD_F5,  "F5" },
+    { KEYD_F6,  "F6" },
+    { KEYD_F7,  "F7" },
+    { KEYD_F8,  "F8" },
+    { KEYD_F9,  "F9" },
+    { KEYD_F10, "F10" },
+    { KEYD_F11, "F11" },
+    { KEYD_F12, "F12" },
+
+    { KEYD_SHIFT,  "Shift" },
+    { KEYD_CTRL,   "Ctrl" },
+    { KEYD_ALT,    "Alt" },
+    { KEYD_SCRLOCK,  "ScrollLock" },
+    { KEYD_NUMLOCK,  "NumLock" },
+    { KEYD_CAPSLOCK, "CapsLock" },
+
+	// mouse and joystick buttons
+    { KEYD_MOUSE1, "Mouse1" },
+    { KEYD_MOUSE2, "Mouse2" },
+    { KEYD_MOUSE3, "Mouse3" },
+    { KEYD_MOUSE4, "Mouse4" },
+    { KEYD_MWHEEL_UP, "Wheel Up" },
+    { KEYD_MWHEEL_DN, "Wheel Down" },
+
+	// the end
+    { 0, "" }
+};
+
+
 void key_binding_c::Clear()
 {
 	keys[0] = keys[1] = keys[2] = keys[3];
 }
 
-bool key_binding_c::AddBind(short keyd)
+bool key_binding_c::Add(short keyd)
 {
+	SYS_ASSERT(0 < keyd && keyd < NUMKEYS);
+
 	if (HasKey(keyd))
 		return true;
 
-	int i;
-
-	for (i = 0; i < 4; i++)
+	for (int i = 0; i < 4; i++)
 		if (keys[i] == 0)
 		{
 			keys[i] = keyd;
+			return true;
+		}
+
+	return false; // failed
+}
+
+bool key_binding_c::Remove(short keyd)
+{
+	SYS_ASSERT(0 < keyd && keyd < NUMKEYS);
+
+	if (! HasKey(keyd))
+		return true;
+
+	for (int i = 0; i < 4; i++)
+		if (keys[i] == keyd)
+		{
+			keys[i] = 0;
 			return true;
 		}
 
@@ -59,6 +140,15 @@ bool key_binding_c::HasKey(short keyd)
 	       (keys[2] == keyd) || (keys[3] == keyd);
 }
 
+bool key_binding_c::IsPressed() const
+{
+	for (int i = 0; i < 4; i++)
+		if (keys[i] > 0)
+			if (gamekeydown[keys[i]])
+				return true;
+
+	return false;
+}
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
