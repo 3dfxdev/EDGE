@@ -1292,7 +1292,7 @@ static void E_Startup(void)
 	SetupLogAndDebugFiles();
 
 	CON_InitConsole();
-	CON_ResetAllVars();
+	CON_ResetAllVars(true);
 
 	ShowDateAndVersion();
 
