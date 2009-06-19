@@ -198,9 +198,7 @@ enum
 };
 unsigned int endoom_mode;
 
-//
-// I_Warning
-//
+
 void I_Warning(const char *warning,...)
 {
 	va_list argptr;
@@ -212,9 +210,6 @@ void I_Warning(const char *warning,...)
 	I_Printf ("WARNING: %s", errmsg);
 }
 
-//
-// I_Error
-//
 void I_Error(const char *error, ...)
 {
 	va_list argptr;
@@ -247,16 +242,20 @@ void I_Error(const char *error, ...)
 		/* NOTREACHED */
 	}
 
+#if defined(LINUX) && !defined(USE_FLTK)
+	CON_ErrorDialog(errmsg);
+#endif
+
 	I_SystemShutdown();
 
+#if defined(MACOSX) || defined(USE_FLTK)
 	I_MessageBox(errmsg, "Error");
+#endif
 
 	I_CloseProgram(-1);
 }
 
 #ifndef NO_CONSOLE_ECHO
-//
-// PrintOutput
 //
 // -AJA- Routine which emulates IBM charset.
 //
@@ -338,25 +337,17 @@ void ClearScreen (void)
 	I_Printf("\n");
 }
 
-//
-// I_DisplayExitScreen
-//
 void I_DisplayExitScreen(void)
 {
 	/* not implemented */
 }
 
-//
-// I_CloseProgram
-//
 void I_CloseProgram(int exitnum)
 {
 	exit(exitnum);
 }
 
-//
-// I_TraceBack
-//
+
 // Like I_CloseProgram, but may display some sort of debugging information
 // on some systems (typically the function call stack).
 void I_TraceBack(void)
@@ -364,8 +355,6 @@ void I_TraceBack(void)
 	I_CloseProgram(-1);
 }
 
-//
-// I_SystemStartup
 //
 // -ACB- 1998/07/11 Reformatted the code.
 //
@@ -386,8 +375,6 @@ void I_SystemStartup(void)
 	I_StartupNetwork();
 }
 
-//
-// I_SystemShutdown
 //
 // -ACB- 1998/07/11 Tidying the code
 //
@@ -417,8 +404,6 @@ void I_SystemShutdown(void)
 }
 
 //
-// I_PureRandom
-//
 // Returns as-random-as-possible 32 bit values.
 //
 int I_PureRandom(void)
@@ -426,9 +411,6 @@ int I_PureRandom(void)
 	return ((int)time(NULL) ^ (int)I_ReadMicroSeconds()) & 0x7FFFFFFF;
 }
 
-//
-// I_ReadMicroSeconds
-//
 u32_t I_ReadMicroSeconds(void)
 {
 	struct timeval tv;
@@ -438,9 +420,6 @@ u32_t I_ReadMicroSeconds(void)
 	return (u32_t)tv.tv_sec * 1000000 + (u32_t)tv.tv_usec;
 }
 
-//
-// I_Sleep
-//
 void I_Sleep(int millisecs)
 {
 	//!!!! FIXME: use nanosleep ?

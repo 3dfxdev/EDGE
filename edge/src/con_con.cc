@@ -41,10 +41,6 @@
 #include "z_zone.h"
 
 
-// TEMP !!!
-void CON_ErrorDialog(const char *msg);
-
-
 #define CON_WIPE_TICS  12
 
 
@@ -54,8 +50,9 @@ static visible_t con_visible;
 static int conwipeactive = 0;
 static int conwipepos = 0;
 
+static bool conerroractive;
 
-const image_c *con_font;
+extern GLuint con_font_tex;
 
 
 #define T_WHITE   RGB_MAKE(208,208,208)
@@ -64,6 +61,7 @@ const image_c *con_font;
 #define T_BLUE    RGB_MAKE(128,128,255)
 #define T_ORANGE  RGB_MAKE(255,72,0)
 #define T_GREEN   RGB_MAKE(0,208,72)
+#define T_RED     RGB_MAKE(255,0,0)
 
 static rgbcol_t current_color;
 
@@ -364,19 +362,10 @@ static void HorizontalLine(int y, rgbcol_t col)
 	RGL_SolidBox(0, y, SCREENWIDTH-1, 1, col, alpha);
 }
 
-void CON_WriteChar(int x, int y, char ch, rgbcol_t col)
+static void WriteChar(int x, int y, char ch, rgbcol_t col)
 {
 	if (x + FNSZ < 0)
 		return;
-
-	GLuint tex_id = W_ImageCache(con_font);
-
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, tex_id);
- 
-	glEnable(GL_BLEND);
-	glEnable(GL_ALPHA_TEST);
-	glAlphaFunc(GL_GREATER, 0);
 
 	float alpha = 1.0f;
 
@@ -408,40 +397,38 @@ void CON_WriteChar(int x, int y, char ch, rgbcol_t col)
 	glVertex2i(x + FNSZ, y);
   
 	glEnd();
+}
 
+// writes the text on coords (x,y) of the console
+void CON_WriteText(int x, int y, const char *s, rgbcol_t col)
+{
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, con_font_tex);
+ 
+	glEnable(GL_BLEND);
+	glEnable(GL_ALPHA_TEST);
+	glAlphaFunc(GL_GREATER, 0);
+
+	for (; *s; s++)
+	{
+		WriteChar(x, y, *s, col);
+
+		x += XMUL;
+
+		if (x >= SCREENWIDTH)
+			break;
+	}
 
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_ALPHA_TEST);
 	glDisable(GL_BLEND);
 }
 
-// writes the text on coords (x,y) of the console
-void CON_WriteText(int x, int y, const char *s, rgbcol_t col)
-{
-	for (; *s; s++)
-	{
-		CON_WriteChar(x, y, *s, col);
-
-		x += XMUL;
-
-		if (x >= SCREENWIDTH)
-			return;
-	}
-}
-
 
 void CON_Drawer(void)
 {
-	if (! con_font)
-	{
-		con_font = W_ImageLookup("CON_FONT_2", INS_Graphic, ILF_Exact|ILF_Null);
-		if (! con_font)
-			I_Error("Cannot find essential image: CON_FONT_2\n");
-	}
-
 	if (con_visible == vs_notvisible && !conwipeactive)
 		return;
-
 
 	// determine font sizing and spacing
 
@@ -457,11 +444,6 @@ void CON_Drawer(void)
 	{
 		FNSZ = 16;  XMUL = 11;  YMUL = 19;
 	}
-
-
-/// CON_ErrorDialog("CON_ClearInputLine: unknown keyword 'FOOBIE_BLETCH' -- check DDF.\n");
-/// return;
-
 
 
 	// -- background --
@@ -484,7 +466,7 @@ void CON_Drawer(void)
 
 	// -- input line --
 
-	if (bottomrow == -1)
+	if (bottomrow == -1 && !conerroractive)
 	{
 		CON_WriteText(0, y, ">", T_PURPLE);
 
@@ -1032,7 +1014,7 @@ void CON_Ticker(void)
 
 
 //
-// Initialises the console with the given dimensions, in characters.
+// Initialises the console
 //
 void CON_InitConsole(void)
 {
@@ -1057,11 +1039,68 @@ void CON_Start(void)
 }
 
 
+static void CON_ErrorDrawFrame(void)
+{
+	I_StartFrame();
+
+	glClearColor(0.4f, 0.4f, 0.4f, 0.4f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	CON_Drawer();
+
+	I_FinishFrame();
+}
+
+void CON_ErrorDialog(const char *msg)
+{
+	if (! con_font_tex || conerroractive)
+		return;
+
+	con_visible = vs_maximal;
+
+	conwipeactive = false;
+	conerroractive = true;
+
+	CON_Printf("\n\n\n");
+
+	CON_MessageColor(T_RED);
+	CON_Printf("---------------------------------------------\n");
+
+	CON_MessageColor(T_RED);
+	CON_Printf("FATAL ERROR OCCURRED\n\n");
+
+	CON_MessageColor(T_RED);
+	CON_Printf("%s", msg);
+
+	if (strchr(msg, '\n') == NULL)
+		CON_Printf("\n");
+
+	CON_MessageColor(T_RED);
+	CON_Printf("---------------------------------------------\n");
+	CON_Printf("\n");
+
+	CON_MessageColor(RGB_MAKE(108,108,108));
+	CON_Printf("Press any key to exit\n");
+
+
+	for (int i = 0; i < 500; i++)
+		CON_ErrorDrawFrame();
+}
+
+
 //----------------------------------------------------------------------------
 
+// Prototype code which displays a fake window containing
+// the error message, not unlike normal error dialogs but
+// much more primitive right now.
+//
+// Not deleting this just yet, it may turn out to be a
+// better option that the 'red text on console' system.
+//
+
+#if 0
 
 static std::vector<std::string> error_lines;
-
 
 static void FormatMessage(const char *msg, int width)
 {
@@ -1077,15 +1116,15 @@ static void FormatMessage(const char *msg, int width)
 	error_lines.push_back(std::string(msg));
 }
 
-
 static void Rectangle(int x1, int y1, int x2, int y2, rgbcol_t col)
 {
 	RGL_SolidBox(x1, y1, x2-x1, y2-y1, col);
 }
 
-
 static void DrawErrorDialog(void)
 {
+	I_StartFrame();
+
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
@@ -1118,16 +1157,34 @@ static void DrawErrorDialog(void)
 
 		ty -= YMUL;
 	}
-}
 
+	I_FinishFrame();
+}
 
 void CON_ErrorDialog(const char *msg)
 {
+	if (! con_font_tex || conerroractive)
+		return;
+
+	if (SCREENWIDTH < 400)
+	{
+		FNSZ = 10; XMUL = 7; YMUL = 12;
+	}
+	else if (SCREENWIDTH < 700)
+	{
+		FNSZ = 13;  XMUL = 9;  YMUL = 15;
+	}
+	else
+	{
+		FNSZ = 16;  XMUL = 11;  YMUL = 19;
+	}
+
 	FormatMessage(msg, 24);
 
-	DrawErrorDialog();
+	for (int i = 0; i < 500; i++)
+		DrawErrorDialog();
 }
-
+#endif
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

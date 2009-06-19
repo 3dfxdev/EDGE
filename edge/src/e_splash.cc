@@ -53,7 +53,7 @@ static GLuint star_tex;
 static GLuint logo_tex;
 
 
-static byte edge_logo_data[] =
+static const byte edge_logo_data[] =
 {
 	200,0, 200,0, 200,0, 200,0, 200,0, 200,0, 200,0, 200,0,
 	200,0, 200,0, 200,0, 118,0, 1,255, 39,0, 1,255, 48,0,
@@ -246,7 +246,7 @@ static void CreateLogoTex(void)
 {
 	epi::image_data_c *img = new epi::image_data_c(256, 32);
 
-	byte *src  = edge_logo_data;
+	const byte *src = edge_logo_data;
 	byte *dest = img->PixelAt(0, 0);
 
 	for (; *src; src += 2)
