@@ -20,7 +20,7 @@ sources = [
     'i_main.cc',  'i_ctrl.cc', 'i_video.cc',
     'i_sound.cc', 'i_net.cc',
     'am_map.cc',
-    'con_con.cc',  'con_main.cc',
+    'con_con.cc',  'con_main.cc', 'con_font.cc',
     'con_link.cc', 'con_var.cc',
     'e_input.cc', 'e_main.cc', 'e_player.cc',
     'e_splash.cc', 'e_keys.cc',

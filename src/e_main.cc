@@ -343,9 +343,7 @@ static void SetGlobalVars(void)
 	M_CheckBooleanParm("lax", &lax_errors, false);
 }
 
-//
-// SetLanguage
-//
+
 void SetLanguage(void)
 {
 	const char *want_lang = M_GetParm("-lang");
@@ -373,9 +371,7 @@ void SetLanguage(void)
 	I_Error("Unable to select any language!");
 }
 
-//
-// SpecialWadVerify
-//
+
 static void SpecialWadVerify(void)
 {
 	int lump;
@@ -451,9 +447,7 @@ static void SpecialWadVerify(void)
 	I_Printf("EDGE.WAD version %d.%d.%d found.\n", wad_ver, wad_ver_frac, wad_sub_ver);
 }
 
-//
-// ShowNotice
-//
+
 static void ShowNotice(void)
 {
 	CON_MessageColor(RGB_MAKE(64,192,255));
@@ -1307,6 +1301,8 @@ static void E_Startup(void)
 	SetGlobalVars();
 
 	DoSystemStartup();
+
+	CON_CreateFont();
 
 	E_SplashScreen();
 
