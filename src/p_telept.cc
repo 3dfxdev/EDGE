@@ -35,6 +35,9 @@
 #include "s_sound.h"
 
 
+cvar_c r_teleportflash;
+
+
 #define TELE_FUDGE  0.1f
 
 static mobj_t *FindTeleportMan(int tag, const mobjtype_c *info)
@@ -287,8 +290,9 @@ bool EV_Teleport(line_t* line, int tag, mobj_t* thing,
         thing->reactiontime = def->delay;
 
         // -ES- 1998/10/29 Start the fading
-        if (telept_effect && player == players[displayplayer])
-            R_StartFading(0, (def->delay * 5) / 2);
+		// FIXME: broken
+        // if (telept_effect && player == players[displayplayer])
+        //    R_StartFading(0, (def->delay * 5) / 2);
 
         thing->mom.x = thing->mom.y = thing->mom.z = 0;
 
@@ -332,7 +336,7 @@ bool EV_Teleport(line_t* line, int tag, mobj_t* thing,
             if (fog->info->chase_state)
                 P_SetMobjStateDeferred(fog, fog->info->chase_state, 0);
 
-            if (player == players[displayplayer] && !telept_flash)
+            if (player == players[displayplayer] && !r_teleportflash.d)
                 fog->vis_target = fog->visibility = INVISIBLE;
         }
     }

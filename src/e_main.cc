@@ -509,7 +509,7 @@ static void M_DisplayPause(void)
 			      0, 0, IM_RIGHT(pause_image), IM_TOP(pause_image));
 }
 
-static bool need_wipe = false;
+static int need_wipe = 0;  // method kind
 
 void E_ForceWipe(void)
 {
@@ -519,7 +519,7 @@ void E_ForceWipe(void)
 	if (r_wipemethod.d > (int)WIPE_None &&
 	    r_wipemethod.d < (int)WIPE_NUMWIPES)
 	{
-		need_wipe = true;
+		need_wipe = r_wipemethod.d;
 
 		// capture screen now (before new level is loaded etc..)
 		E_Display();
@@ -594,13 +594,11 @@ void E_Display(void)
 	}
 
 	// save the current screen if about to wipe
-	if (need_wipe)
+	if (need_wipe > 0)
 	{
-		need_wipe = false;
+		RGL_StartWipe((wipetype_e)need_wipe, r_wipereverse.d);
 		wipe_gl_active = true;
-
-		// r_wipemethod cvar was validated in E_ForceWipe
-		RGL_StartWipe((wipetype_e)r_wipemethod.d, r_wipereverse.d);
+		need_wipe = 0;
 	}
 
 	if (paused)

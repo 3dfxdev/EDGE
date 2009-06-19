@@ -187,11 +187,7 @@ extern bool infight;
 
 extern int crosshair;
 extern cvar_c m_screenhud;
-
-// -ES- 1999/08/15 Added teleport effects
-extern int telept_effect;
-extern int telept_flash;
-extern int telept_reverse;
+extern cvar_c r_teleportflash;
 
 typedef enum
 {
