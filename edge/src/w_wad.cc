@@ -1099,33 +1099,33 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 	{
 		std::string hwa_filename;
 
-		bool exists = FindCacheFilename(hwa_filename, filename, df, EDGEHWAEXT);
+		char base_name[64];
+		sprintf(base_name, "DEH_%04d.%s", datafile, EDGEHWAEXT);
+
+		hwa_filename = epi::PATH_Join(cache_dir.c_str(), base_name);
 
 		I_Debugf("Actual_HWA_filename: %s\n", hwa_filename.c_str());
 
-		if (! exists)
+		if (kind == FLKIND_Deh)
 		{
-			if (kind == FLKIND_Deh)
-			{
-                I_Printf("Converting DEH file: %s\n", filename);
+			I_Printf("Converting DEH file: %s\n", filename);
 
-				if (! DH_ConvertFile(filename, hwa_filename.c_str()))
-					I_Error("Failed to convert DeHackEd patch: %s\n", filename);
-			}
-			else
-			{
-				const char *lump_name = lumpinfo[df->deh_lump].name;
+			if (! DH_ConvertFile(filename, hwa_filename.c_str()))
+				I_Error("Failed to convert DeHackEd patch: %s\n", filename);
+		}
+		else
+		{
+			const char *lump_name = lumpinfo[df->deh_lump].name;
 
-				I_Printf("Converting [%s] lump in: %s\n", lump_name, filename);
+			I_Printf("Converting [%s] lump in: %s\n", lump_name, filename);
 
-				const byte *data = (const byte *)W_LoadLumpNum(df->deh_lump);
-				int length = W_LumpLength(df->deh_lump);
+			const byte *data = (const byte *)W_LoadLumpNum(df->deh_lump);
+			int length = W_LumpLength(df->deh_lump);
 
-				if (! DH_ConvertLump(data, length, lump_name, hwa_filename.c_str()))
-					I_Error("Failed to convert DeHackEd LUMP in: %s\n", filename);
+			if (! DH_ConvertLump(data, length, lump_name, hwa_filename.c_str()))
+				I_Error("Failed to convert DeHackEd LUMP in: %s\n", filename);
 
-				Z_Free((void*)data);
-			}
+			Z_Free((void*)data);
         }
 
 		// Load it (using good ol' recursion again).
