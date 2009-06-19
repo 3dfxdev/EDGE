@@ -95,9 +95,6 @@ static default_t defaults[] =
     {CFGT_Boolean,	"waveout",			 &force_waveout,  0},
  
     // -ES- 1998/11/28 Save fade settings
-    {CFGT_Enum,     "telept_effect",     &telept_effect,  CFGDEF_TELEPT_EFFECT},
-    {CFGT_Int,      "telept_reverse",    &telept_reverse, CFGDEF_TELEPT_REVERSE},
-    {CFGT_Int,      "telept_flash",      &telept_flash,   CFGDEF_TELEPT_FLASH},
     {CFGT_Enum,     "crosshair",         &crosshair,      CFGDEF_CROSSHAIR},
 
     {CFGT_Int,      "save_page",         &save_page, 0},
@@ -141,11 +138,6 @@ static default_t defaults[] =
 
 void M_SaveDefaults(void)
 {
-///---	// Don't want to save settings in a network game: might not
-///---	// be ours.
-///---	if (netgame)
-///---		return;
-
     // Set the number of defaults
 	int numdefaults = sizeof(defaults) / sizeof(defaults[0]);
 

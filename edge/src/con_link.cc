@@ -52,6 +52,7 @@ extern cvar_c r_dithering, r_hq2x;
 extern cvar_c r_dynamiclight, r_invultex;
 extern cvar_c r_gamma, r_detaillevel;
 extern cvar_c r_wipemethod, r_wipereverse;
+extern cvar_c r_teleportflash;
 
 extern cvar_c s_volume, s_mixchan, s_quietfactor;
 extern cvar_c s_rate, s_bits, s_stereo;
@@ -131,6 +132,7 @@ cvar_link_t  all_cvars[] =
 	{ "r_invultex",     &r_invultex,     "c",   "1"  },
 	{ "r_wipemethod",   &r_wipemethod,   "c",   "1" /* Melt */ },
 	{ "r_wipereverse",  &r_wipereverse,  "c",   "0"  },
+	{ "r_teleportflash",&r_teleportflash,"c",   "1"  },
 
 	{ "r_colormaterial",&r_colormaterial,"",    "1"  },
 	{ "r_colorlighting",&r_colorlighting,"",    "1"  },
