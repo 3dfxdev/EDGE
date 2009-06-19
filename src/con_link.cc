@@ -53,7 +53,8 @@ extern cvar_c r_dynamiclight, r_invultex;
 extern cvar_c r_gamma, r_detaillevel;
 extern cvar_c r_wipemethod, r_wipereverse;
 extern cvar_c r_teleportflash;
-extern cvar_c r_crosshair, r_crosscolor, r_crosssize;
+extern cvar_c r_crosshair, r_crosscolor;
+extern cvar_c r_crosssize, r_crossbright;
 
 extern cvar_c s_volume, s_mixchan, s_quietfactor;
 extern cvar_c s_rate, s_bits, s_stereo;
@@ -127,6 +128,7 @@ cvar_link_t  all_cvars[] =
 	{ "r_crosshair",    &r_crosshair,    "c",   "0"  },
 	{ "r_crosscolor",   &r_crosscolor,   "c",   "7"  },
 	{ "r_crosssize",    &r_crosssize,    "c",   "16" },
+	{ "r_crossbright",  &r_crossbright,  "c",   "1.0" },
 
 	{ "r_mipmapping",   &r_mipmapping,   "c",   "0"  },
 	{ "r_smoothing",    &r_smoothing,    "c",   "0"  },
