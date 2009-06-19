@@ -87,7 +87,7 @@ public:
 		d *= (float)LIM_CURVE_SIZE;
 
 		if (d >= LIM_CURVE_SIZE-1.01)
-			return curve[LIM_CURVE_SIZE-1];
+			return RGB_MAKE(0, 0, 0);
 
 		// linearly interpolate between curve points
 
