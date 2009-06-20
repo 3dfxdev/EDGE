@@ -163,6 +163,11 @@ bool key_binding_c::IsPressed() const
 
 //----------------------------------------------------------------------------
 
+extern key_binding_c key_map;
+extern key_binding_c key_am_left, key_am_right, key_am_up, key_am_down;
+extern key_binding_c key_am_zoomin, key_am_zoomout, key_am_big;
+extern key_binding_c key_am_follow, key_am_grid, key_am_mark, key_am_clear;
+
 
 key_link_t  all_binds[] =
 {
@@ -180,13 +185,11 @@ key_link_t  all_binds[] =
     { "lookcenter",    &key_lookcenter,  KEYD_HOME, KEYD_END },
 
     { "fire",          &key_fire,        KEYD_CTRL, KEYD_MOUSE1 },
-    { "secondatk",     &key_secondatk,   'E', KEYD_MOUSE2 },
+    { "secondatk",     &key_secondatk,   'E', 0 },
     { "use",           &key_use,         KEYD_SPACE, 0 },
     { "strafe",        &key_strafe,      KEYD_ALT,   KEYD_MOUSE3 },
     { "speed",         &key_speed,       KEYD_SHIFT, 0 },
     { "autorun",       &key_autorun,     KEYD_CAPSLOCK,  0 },
-    { "nextweapon",    &key_nextweapon,  KEYD_MWHEEL_UP, 0 },
-    { "prevweapon",    &key_prevweapon,  KEYD_MWHEEL_DN, 0 },
 
     { "map",           &key_map,         KEYD_TAB, 0 },
     { "zoom",          &key_zoom,        '\\', 0 },
@@ -195,6 +198,25 @@ key_link_t  all_binds[] =
     { "talk",          &key_talk,        'T', 0 },
     { "console",       &key_console,     KEYD_TILDE, 0 },
     { "mlook",         &key_mlook,       'M', 0 },
+
+	// Weapons
+    { "nextweapon",    &key_nextweapon,  KEYD_MWHEEL_UP, 0 },
+    { "prevweapon",    &key_prevweapon,  KEYD_MWHEEL_DN, 0 },
+
+	// Automap
+	{ "am_left",       &key_am_left,     KEYD_LEFTARROW,  0 },
+	{ "am_right",      &key_am_right,    KEYD_RIGHTARROW, 0 },
+	{ "am_up",         &key_am_up,       KEYD_UPARROW,    0 },
+	{ "am_down",       &key_am_down,     KEYD_DOWNARROW,  0 },
+
+	{ "am_zoomin",     &key_am_zoomin,   '=', 0 },
+	{ "am_zoomout",    &key_am_zoomout,  '-', 0 },
+	{ "am_big",        &key_am_big,      '0', 0 },
+
+    { "am_follow",     &key_am_follow,   'F', 0 },
+    { "am_grid",       &key_am_grid,     'G', 0 },
+    { "am_mark",       &key_am_mark,     'M', 0 },
+    { "am_clear",      &key_am_clear,    'C', 0 },
 
 	// the end
 	{ NULL, NULL, 0, 0 }
