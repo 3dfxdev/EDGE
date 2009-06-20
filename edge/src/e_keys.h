@@ -72,7 +72,9 @@ key_link_t;
 
 extern key_link_t  all_binds[];
 
+void E_UnbindAll(void);
 void E_ResetAllBinds(void);
+
 key_link_t *E_FindKeyBinding(const char *func_name);
 std::string E_FormatConfig(key_link_t *link);
 
