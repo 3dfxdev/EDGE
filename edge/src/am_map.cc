@@ -72,19 +72,22 @@ static rgbcol_t am_colors[AM_NUM_COLORS] =
 
 
 // Automap keys
-// Ideally these would be configurable...
 
-#define AM_PANDOWNKEY KEYD_DOWNARROW
-#define AM_PANUPKEY   KEYD_UPARROW
-#define AM_PANRIGHTKEY    KEYD_RIGHTARROW
-#define AM_PANLEFTKEY     KEYD_LEFTARROW
-#define AM_ZOOMINKEY  '='
-#define AM_ZOOMOUTKEY '-'
-#define AM_GOBIGKEY   '0'
-#define AM_FOLLOWKEY  'f'
-#define AM_GRIDKEY    'g'
-#define AM_MARKKEY    'm'
-#define AM_CLEARMARKKEY    'c'
+key_binding_c key_map;
+
+key_binding_c key_am_left;
+key_binding_c key_am_right;
+key_binding_c key_am_up;
+key_binding_c key_am_down;
+
+key_binding_c key_am_zoomin;
+key_binding_c key_am_zoomout;
+key_binding_c key_am_big;
+
+key_binding_c key_am_follow;
+key_binding_c key_am_grid;
+key_binding_c key_am_mark;
+key_binding_c key_am_clear;
 
 #define AM_NUMMARKPOINTS  9
 
@@ -332,23 +335,14 @@ bool AM_Responder(event_t * ev)
 
 	if (ev->type == ev_keyup)
 	{
-		switch (ev->value.key.sym)
-		{
-		case AM_PANRIGHTKEY:
-		case AM_PANLEFTKEY:
+		if (key_am_left.HasKey(ev) || key_am_right.HasKey(ev))
 			panning_x = 0;
-			break;
 
-		case AM_PANUPKEY:
-		case AM_PANDOWNKEY:
+		if (key_am_up.HasKey(ev) || key_am_down.HasKey(ev))
 			panning_y = 0;
-			break;
 
-		case AM_ZOOMOUTKEY:
-		case AM_ZOOMINKEY:
+		if (key_am_zoomin.HasKey(ev) || key_am_zoomout.HasKey(ev))
 			zooming = -1;
-			break;
-		}
 
 		return false;
 	}
@@ -356,123 +350,131 @@ bool AM_Responder(event_t * ev)
 
 	// handle key presses
 
-	bool rc = false;
+	if (ev->type != ev_keydown)
+		return false;
 
-	if (ev->type == ev_keydown)
+	// -ACB- 1999/09/28 Proper casting
+	if (!DEATHMATCH() && M_CheckCheat(&cheat_amap, (char)ev->value.key.sym))
 	{
-		rc = true;
-		switch (ev->value.key.sym)
-		{
-		case AM_PANRIGHTKEY:
-			// pan right
-			if (!followplayer)
-				panning_x = FTOM(F_PANINC);
-			else
-				rc = false;
-			break;
+		cheating = (cheating + 1) % 3;
 
-		case AM_PANLEFTKEY:
-			// pan left
-			if (!followplayer)
-				panning_x = -FTOM(F_PANINC);
-			else
-				rc = false;
-			break;
-
-		case AM_PANUPKEY:
-			// pan up
-			if (!followplayer)
-				panning_y = FTOM(F_PANINC);
-			else
-				rc = false;
-			break;
-
-		case AM_PANDOWNKEY:
-			// pan down
-			if (!followplayer)
-				panning_y = -FTOM(F_PANINC);
-			else
-				rc = false;
-			break;
-
-		case AM_ZOOMOUTKEY:
-			// zoom out
-			zooming = 1.0 / M_ZOOMIN;
-			break;
-
-		case AM_ZOOMINKEY:
-			// zoom in
-			zooming = M_ZOOMIN;
-			break;
-
-		// -AJA- 2007/04/18: mouse-wheel support
-		case KEYD_MWHEEL_DN:
-			ChangeWindowScale(1.0 / WHEEL_ZOOMIN);
-			break;
-
-		case KEYD_MWHEEL_UP:
-			ChangeWindowScale(WHEEL_ZOOMIN);
-			break;
-
-		case AM_GOBIGKEY:
-			bigstate = !bigstate;
-			break;
-
-		case AM_FOLLOWKEY:
-			followplayer = !followplayer;
-
-			// -ACB- 1998/08/10 Use DDF Lang Reference
-			if (followplayer)
-				CON_PlayerMessageLDF(consoleplayer, "AutoMapFollowOn");
-			else
-				CON_PlayerMessageLDF(consoleplayer, "AutoMapFollowOff");
-			break;
-
-		case AM_GRIDKEY:
-			grid = !grid;
-			// -ACB- 1998/08/10 Use DDF Lang Reference
-			if (grid)
-				CON_PlayerMessageLDF(consoleplayer, "AutoMapGridOn");
-			else
-				CON_PlayerMessageLDF(consoleplayer, "AutoMapGridOff");
-			break;
-
-		case AM_MARKKEY:
-			// -ACB- 1998/08/10 Use DDF Lang Reference
-			CON_PlayerMessage(consoleplayer, "%s %d",
-				language["AutoMapMarkedSpot"], markpointnum);
-			AddMark();
-			break;
-
-		case AM_CLEARMARKKEY:
-			ClearMarks();
-			// -ACB- 1998/08/10 Use DDF Lang Reference
-			CON_PlayerMessageLDF(consoleplayer, "AutoMapMarksClear");
-			break;
-
-		default:
-			if (key_map.HasKey(ev))
-			{
-				AM_Hide();
-			}
-			else
-			{
-				rc = false;
-			}
-		}
-		// -ACB- 1999/09/28 Proper casting
-		if (!DEATHMATCH() && M_CheckCheat(&cheat_amap, (char)ev->value.key.sym))
-		{
-			rc = false;
-
-			cheating = (cheating + 1) % 3;
-
-			show_things = (cheating == 2) ? true : false;
-			show_walls  = (cheating >= 1) ? true : false;
-		}
+		show_things = (cheating == 2) ? true : false;
+		show_walls  = (cheating >= 1) ? true : false;
 	}
 
-	return rc;
+
+	if (key_map.HasKey(ev))
+	{
+		AM_Hide();
+		return true;
+	}
+
+	if (key_am_right.HasKey(ev))
+	{
+		if (followplayer)
+			return false;
+
+		panning_x = FTOM(F_PANINC);
+		return true;
+	}
+
+	if (key_am_left.HasKey(ev))
+	{
+		if (followplayer)
+			return false;
+		
+		panning_x = -FTOM(F_PANINC);
+		return true;
+	}
+
+	if (key_am_up.HasKey(ev))
+	{
+		if (followplayer)
+			return false;
+
+		panning_y = FTOM(F_PANINC);
+		return true;
+	}
+
+	if (key_am_down.HasKey(ev))
+	{
+		if (followplayer)
+			return false;
+
+		panning_y = -FTOM(F_PANINC);
+		return true;
+	}
+
+	if (key_am_zoomin.HasKey(ev))
+	{
+		zooming = M_ZOOMIN;
+		return true;
+	}
+
+	if (key_am_zoomout.HasKey(ev))
+	{
+		zooming = 1.0 / M_ZOOMIN;
+		return true;
+	}
+
+	if (key_am_big.HasKey(ev))
+	{
+		bigstate = !bigstate;
+		return true;
+	}
+
+	if (key_am_follow.HasKey(ev))
+	{
+		followplayer = !followplayer;
+		// -ACB- 1998/08/10 Use DDF Lang Reference
+		if (followplayer)
+			CON_PlayerMessageLDF(consoleplayer, "AutoMapFollowOn");
+		else
+			CON_PlayerMessageLDF(consoleplayer, "AutoMapFollowOff");
+		return true;
+	}
+
+	if (key_am_grid.HasKey(ev))
+	{
+		grid = !grid;
+		// -ACB- 1998/08/10 Use DDF Lang Reference
+		if (grid)
+			CON_PlayerMessageLDF(consoleplayer, "AutoMapGridOn");
+		else
+			CON_PlayerMessageLDF(consoleplayer, "AutoMapGridOff");
+		return true;
+	}
+
+	if (key_am_mark.HasKey(ev))
+	{
+		// -ACB- 1998/08/10 Use DDF Lang Reference
+		CON_PlayerMessage(consoleplayer, "%s %d",
+			language["AutoMapMarkedSpot"], markpointnum);
+		AddMark();
+		return true;
+	}
+
+	if (key_am_clear.HasKey(ev))
+	{
+		ClearMarks();
+		// -ACB- 1998/08/10 Use DDF Lang Reference
+		CON_PlayerMessageLDF(consoleplayer, "AutoMapMarksClear");
+		return true;
+	}
+
+	// -AJA- 2007/04/18: mouse-wheel support
+	if (ev->value.key.sym == KEYD_MWHEEL_UP)
+	{
+		ChangeWindowScale(WHEEL_ZOOMIN);
+		return true;
+	}
+	else if (ev->value.key.sym == KEYD_MWHEEL_DN)
+	{
+		ChangeWindowScale(1.0 / WHEEL_ZOOMIN);
+		return true;
+	}
+
+	return false;
 }
 
 
