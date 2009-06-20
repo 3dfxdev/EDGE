@@ -48,12 +48,12 @@ extern cvar_c in_stageturn;
 /* keyboard stuff */
 
 extern key_binding_c key_forward;
-extern key_binding_c key_backward;
-extern key_binding_c key_strafeleft;
-extern key_binding_c key_straferight;
-
-extern key_binding_c key_right;
+extern key_binding_c key_back;
 extern key_binding_c key_left;
+extern key_binding_c key_right;
+
+extern key_binding_c key_turnright;
+extern key_binding_c key_turnleft;
 extern key_binding_c key_lookup;
 extern key_binding_c key_lookdown;
 extern key_binding_c key_lookcenter;
@@ -62,8 +62,8 @@ extern key_binding_c key_lookcenter;
 extern key_binding_c key_zoom;
 
 // -ACB- for -MH- 1998/07/19 Flying keys
-extern key_binding_c key_flyup;
-extern key_binding_c key_flydown;
+extern key_binding_c key_up;
+extern key_binding_c key_down;
 
 extern key_binding_c key_fire;
 extern key_binding_c key_secondatk;

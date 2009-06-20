@@ -64,12 +64,12 @@ static int eventtail;
 // controls (have defaults) 
 // 
 key_binding_c key_forward;
-key_binding_c key_backward;
-key_binding_c key_strafeleft;
-key_binding_c key_straferight;
-
-key_binding_c key_right;
+key_binding_c key_back;
 key_binding_c key_left;
+key_binding_c key_right;
+
+key_binding_c key_turnright;
+key_binding_c key_turnleft;
 key_binding_c key_lookup;
 key_binding_c key_lookdown;
 key_binding_c key_lookcenter;
@@ -88,8 +88,8 @@ key_binding_c key_mlook;
 key_binding_c key_reload;
 
 // -MH- 1998/07/10 Flying keys
-key_binding_c key_flyup;
-key_binding_c key_flydown;
+key_binding_c key_up;
+key_binding_c key_down;
 
 key_binding_c key_weapons[10]; // -AJA- 2009/06/20.
 key_binding_c key_nextweapon;
@@ -234,10 +234,10 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	//let movement keys cancel each other out
 	if (strafe)
 	{
-		if (key_right.IsPressed())
+		if (key_turnright.IsPressed())
 			side += sidemove[speed];
 
-		if (key_left.IsPressed())
+		if (key_turnleft.IsPressed())
 			side -= sidemove[speed];
 
 		// -KM- 1998/09/01 Analogue binding
@@ -251,10 +251,10 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 		if (view_zoom > 0)
 			angle_rate /= ZOOM_ANGLE_DIV;
 
-		if (key_right.IsPressed())
+		if (key_turnright.IsPressed())
 			cmd->angleturn -= angle_rate;
 
-		if (key_left.IsPressed())
+		if (key_turnleft.IsPressed())
 			cmd->angleturn += angle_rate;
 
 		// -KM- 1998/09/01 Analogue binding
@@ -290,11 +290,11 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	// -MH- 1998/08/18 Fly up
 	if (g_true3d.d && !(map_features & MPF_NoTrue3D))
 	{
-		if ((key_flyup.IsPressed()))
+		if ((key_up.IsPressed()))
 			upward += upwardmove[speed];
 
 		// -MH- 1998/08/18 Fly down
-		if ((key_flydown.IsPressed()))
+		if ((key_down.IsPressed()))
 			upward -= upwardmove[speed];
 
 		upward += analogue[AXIS_FLY] * upwardmove[speed] / 64.0;
@@ -303,7 +303,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	if (key_forward.IsPressed())
 		forward += forwardmove[speed];
 
-	if (key_backward.IsPressed())
+	if (key_back.IsPressed())
 		forward -= forwardmove[speed];
 
 	// -KM- 1998/09/01 Analogue binding
@@ -313,10 +313,10 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	// -ACB- 1998/09/06 Side Move Speed Control
 	side += analogue[AXIS_STRAFE] * sidemove[speed] / 64.0;
 
-	if (key_straferight.IsPressed())
+	if (key_right.IsPressed())
 		side += sidemove[speed];
 
-	if (key_strafeleft.IsPressed())
+	if (key_left.IsPressed())
 		side -= sidemove[speed];
 
 	// buttons
