@@ -74,6 +74,7 @@ extern key_link_t  all_binds[];
 
 void E_ResetAllBinds(void);
 key_link_t *E_FindKeyBinding(const char *func_name);
+std::string E_FormatConfig(key_link_t *link);
 
 const char *E_GetKeyName(int keyd);
 int E_KeyFromName(const char *name);
