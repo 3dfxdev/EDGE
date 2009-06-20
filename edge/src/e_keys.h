@@ -53,6 +53,8 @@ public:
 	bool HasKey(const event_t *ev) const;
 
 	bool IsPressed() const;
+
+	std::string FormatKeyList() const;
 };
 
 
@@ -71,6 +73,9 @@ key_link_t;
 extern key_link_t  all_binds[];
 
 void E_ResetAllBinds(void);
+
+const char *E_GetKeyName(int keyd);
+int E_KeyFromName(const char *name);
 
 
 //----------------------------------------------------------------------------
