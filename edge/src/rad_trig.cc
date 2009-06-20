@@ -500,11 +500,14 @@ static void DoRemoveTrigger(rad_trigger_t *trig)
     Z_Free(trig);
 }
 
-// Called by P_PlayerThink
+//
 // Radius Trigger Event handler.
 //
-void RAD_DoRadiTrigger(player_t * p)
+static void RAD_DoRadiTrigger(player_t * p)
 {
+	if (p->playerstate == PST_DEAD)
+		return;
+
 	rad_trigger_t *trig, *next;
 
 	// Start looking through the trigger list.
@@ -634,6 +637,14 @@ void RAD_DoRadiTrigger(player_t * p)
 
 		DoRemoveTrigger(trig);
 	}
+}
+
+void RAD_RunTriggers(void)
+{
+	// FIXME: this is incorrect !!!!
+	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
+		if (players[pnum])
+			RAD_DoRadiTrigger(players[pnum]);
 }
 
 
