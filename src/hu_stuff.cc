@@ -53,7 +53,6 @@
 #define HU_TITLEX	0
 #define HU_TITLEY	(200 - 32 - 10) 
 
-#define HU_INPUTTOGGLE	key_talk
 #define HU_INPUTX	HU_MSGX
 #define HU_INPUTY	(HU_MSGY + HU_MSGHEIGHT * (FONT_HEIGHT+1))
 #define HU_INPUTWIDTH	64
@@ -394,7 +393,7 @@ bool HU_Responder(event_t * ev)
 			message_counter = HU_MSGTIMEOUT;
 			return false;
 		}
-		else if (netgame && sym && ((sym == (HU_INPUTTOGGLE >> 16)) || (sym == (HU_INPUTTOGGLE & 0xffff))))
+		else if (netgame && key_talk.HasKey(ev))
 		{
 			chat_on = true;
 			HL_ResetIText(&w_chat);

@@ -148,11 +148,13 @@ bool key_binding_c::HasKey(const event_t *ev) const
 	return HasKey(ev->value.key.sym);
 }
 
+#define GK_DOWN  0x01
+
 bool key_binding_c::IsPressed() const
 {
 	for (int i = 0; i < 4; i++)
 		if (keys[i] > 0)
-			if (gamekeydown[keys[i]])
+			if (gamekeydown[keys[i]] & GK_DOWN)
 				return true;
 
 	return false;
@@ -180,7 +182,7 @@ key_link_t  all_binds[] =
     { "fire",          &key_fire,        KEYD_CTRL, KEYD_MOUSE1 },
     { "secondatk",     &key_secondatk,   'E', KEYD_MOUSE2 },
     { "use",           &key_use,         KEYD_SPACE, 0 },
-    { "strafe",        &key_strafe,      KEYD_ALT,   0 },
+    { "strafe",        &key_strafe,      KEYD_ALT,   KEYD_MOUSE3 },
     { "speed",         &key_speed,       KEYD_SHIFT, 0 },
     { "autorun",       &key_autorun,     KEYD_CAPSLOCK,  0 },
     { "nextweapon",    &key_nextweapon,  KEYD_MWHEEL_UP, 0 },

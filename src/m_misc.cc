@@ -98,38 +98,6 @@ static default_t defaults[] =
 
 	// -------------------- KEYS --------------------
 
-    {CFGT_Key,      "key_right",         &key_right,      0},
-    {CFGT_Key,      "key_left",          &key_left,       0},
-    {CFGT_Key,      "key_up",            &key_up,         0},
-    {CFGT_Key,      "key_down",          &key_down,       0},
-    {CFGT_Key,      "key_lookup",        &key_lookup,     0},
-    {CFGT_Key,      "key_lookdown",      &key_lookdown,   0},
-    {CFGT_Key,      "key_lookcenter",    &key_lookcenter, 0},
-
-    // -ES- 1999/03/28 Zoom Key
-    {CFGT_Key,      "key_zoom",          &key_zoom,       0},
-    {CFGT_Key,      "key_strafeleft",    &key_strafeleft, 0},
-    {CFGT_Key,      "key_straferight",   &key_straferight, 0},
-
-    // -ACB- for -MH- 1998/07/02 Flying Keys
-    {CFGT_Key,      "key_flyup",         &key_flyup,      0},
-    {CFGT_Key,      "key_flydown",       &key_flydown,    0},
-
-    {CFGT_Key,      "key_fire",          &key_fire,       0},
-    {CFGT_Key,      "key_use",           &key_use,        0},
-    {CFGT_Key,      "key_strafe",        &key_strafe,     0},
-    {CFGT_Key,      "key_speed",         &key_speed,      0},
-    {CFGT_Key,      "key_autorun",       &key_autorun,    0},
-    {CFGT_Key,      "key_nextweapon",    &key_nextweapon, 0},
-    {CFGT_Key,      "key_prevweapon",    &key_prevweapon, 0},
-
-    {CFGT_Key,      "key_180",           &key_180,        0},
-    {CFGT_Key,      "key_map",           &key_map,        0},
-    {CFGT_Key,      "key_talk",          &key_talk,       0},
-    {CFGT_Key,      "key_console",       &key_console,    0},  // -AJA- 2007/08/15.
-    {CFGT_Key,      "key_mlook",         &key_mlook,      0},  // -AJA- 1999/07/27.
-    {CFGT_Key,      "key_secondatk",     &key_secondatk,  0},  // -AJA- 2000/02/08.
-    {CFGT_Key,      "key_reload",        &key_reload,     0},  // -AJA- 2004/11/11.
 };
 
 

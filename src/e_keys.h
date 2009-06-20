@@ -26,6 +26,7 @@
 #ifndef __E_KEYS_H__
 #define __E_KEYS_H__
 
+#include "e_event.h"
 
 class key_binding_c
 {
