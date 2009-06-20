@@ -1,5 +1,14 @@
 Andrew Apted's Log
 
+2009/06/20:
+
+Worked on a simple key binding system.  The guts of it are
+the same as before, e.g. 'key_forward' can have a couple
+of keys bound it (or none) and 'key_forward.IsPressed()'
+is equivalent to the old E_InputCheckKey() call.  The new
+part is mainly storing them in an all_binds[] table, with
+new console commands for binding and unbinding keys.
+
 2009/06/19:
 
 Worked on improving the standard crosshairs, which are now
