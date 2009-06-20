@@ -87,8 +87,8 @@ static specialkey_t keynames[] =
     { KEYD_MOUSE2, "Mouse2" },
     { KEYD_MOUSE3, "Mouse3" },
     { KEYD_MOUSE4, "Mouse4" },
-    { KEYD_MWHEEL_UP, "Wheel Up" },
-    { KEYD_MWHEEL_DN, "Wheel Down" },
+    { KEYD_MWHEEL_UP, "WheelUp" },
+    { KEYD_MWHEEL_DN, "WheelDown" },
 
 	// the end
     { 0, "" }
@@ -120,15 +120,15 @@ const char *E_GetKeyName(int keyd)
 
 int E_KeyFromName(const char *name)
 {
+	if (strlen(name) == 1 && 33 <= name[0] && name[0] <= 126)
+		return (int)name[0];
+
 	for (int i = 0; keynames[i].keycode > 0; i++)
 		if (DDF_CompareName(keynames[i].name, name) == 0)
 			return keynames[i].keycode;
 
 	if (name[0] == '0' && tolower(name[1]) == 'x')
 		return strtol(name+2, NULL, 16);
-
-	if (strlen(name) == 1 && 33 <= name[0] && name[0] <= 126)
-		return (int)name[0];
 
 	//??? not sure whether to handle "NONE" or not
 
@@ -212,7 +212,7 @@ std::string key_binding_c::FormatKeyList() const
 		if (keys[i] > 0)
 		{
 			if (! result.empty())
-				result += ' ';
+				result += "  ";
 
 			result += E_GetKeyName(keys[i]);
 		}
@@ -225,7 +225,7 @@ std::string key_binding_c::FormatKeyList() const
 
 extern key_binding_c key_map;
 extern key_binding_c key_am_left, key_am_right, key_am_up, key_am_down;
-extern key_binding_c key_am_zoomin, key_am_zoomout, key_am_big;
+extern key_binding_c key_am_zoomin, key_am_zoomout;
 extern key_binding_c key_am_follow, key_am_grid, key_am_mark, key_am_clear;
 
 extern key_binding_c key_console, key_talk;
@@ -283,7 +283,6 @@ key_link_t  all_binds[] =
 
 	{ "am_zoomin",     &key_am_zoomin,   '=', 0 },
 	{ "am_zoomout",    &key_am_zoomout,  '-', 0 },
-	{ "am_big",        &key_am_big,      'B', 0 },
 
     { "am_follow",     &key_am_follow,   'F', 0 },
     { "am_grid",       &key_am_grid,     'G', 0 },
