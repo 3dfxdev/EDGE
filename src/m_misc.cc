@@ -45,6 +45,7 @@
 
 #include "dm_defs.h"
 #include "dm_state.h"
+#include "con_main.h"
 #include "e_input.h"
 #include "e_player.h"
 #include "hu_stuff.h"  // only for showMessages
@@ -151,6 +152,8 @@ void M_SaveDefaults(void)
 		}
 	}
 
+	fprintf(f, "unbind all\n");
+
 	for (int n = 0; all_binds[n].name; n++)
 	{
 		std::string kconf = E_FormatConfig(&all_binds[n]);
@@ -211,6 +214,23 @@ void M_LoadDefaults(void)
 
 		if (fscanf(f, "%79s %[^\n]\n", def, strparm) != 2)
 			continue;
+
+		if (strcmp(def, "bind") == 0)
+		{
+			// yuck!
+			memmove(strparm+5, strparm, 95);
+			memmove(strparm, "bind ", 5);
+			strparm[99] = 0;
+
+			CON_TryCommand(strparm);
+			continue;
+		}
+
+		if (strcmp(def, "unbind") == 0)
+		{
+			E_UnbindAll();
+			continue;
+		}
 
 		std::string newstr(strparm);
 		bool isstring = false;

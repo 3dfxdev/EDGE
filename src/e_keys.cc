@@ -121,7 +121,7 @@ const char *E_GetKeyName(int keyd)
 int E_KeyFromName(const char *name)
 {
 	if (strlen(name) == 1 && 33 <= name[0] && name[0] <= 126)
-		return (int)name[0];
+		return (int)toupper(name[0]);
 
 	for (int i = 0; keynames[i].keycode > 0; i++)
 		if (DDF_CompareName(keynames[i].name, name) == 0)
@@ -158,15 +158,22 @@ bool key_binding_c::Add(short keyd)
 			return true;
 		}
 
+#if 1
+	// all slots are full, so drop one of them
+	keys[0] = keys[1];
+	keys[1] = keys[2];
+	keys[2] = keys[3];
+
+	keys[3] = keyd;
+	return true;
+#else
 	return false; // failed (no change)
+#endif
 }
 
 bool key_binding_c::Remove(short keyd)
 {
 	SYS_ASSERT(0 < keyd && keyd < NUMKEYS);
-
-	if (! HasKey(keyd))
-		return false; // no change
 
 	for (int i = 0; i < 4; i++)
 		if (keys[i] == keyd)
@@ -175,7 +182,7 @@ bool key_binding_c::Remove(short keyd)
 			return true;
 		}
 
-	return false; // failed (no change)
+	return false; // no change
 }
 
 bool key_binding_c::HasKey(short keyd) const
@@ -296,6 +303,14 @@ key_link_t  all_binds[] =
 	{ NULL, NULL, 0, 0 }
 };
 
+
+void E_UnbindAll(void)
+{
+	for (int i = 0; all_binds[i].name; i++)
+	{
+		all_binds[i].bind->Clear();
+	}
+}
 
 void E_ResetAllBinds(void)
 {

@@ -417,6 +417,13 @@ int CMD_Unbind(char **argv, int argc)
 		return 0;
 	}
 
+	if (DDF_CompareName(argv[1], "all") == 0)
+	{
+		E_UnbindAll();
+		CON_Printf("Unbound all keys.\n");
+		return 0;
+	}
+
 	int keyd = E_KeyFromName(argv[1]);
 
 	if (! keyd)
@@ -581,7 +588,7 @@ void CON_TryCommand(const char *cmd)
 		cvar_link_t *link = CON_FindVar(argv[0]);
 
 		if (! link)
-			I_Printf("Unknown Command or Variable.\n");
+			I_Printf("Unknown Command or Variable: %s\n", argv[0]);
 		else if (argc <= 1)
 			I_Printf("%s \"%s\"\n", argv[0], link->var->str);
 		else if (argc >= 3)
