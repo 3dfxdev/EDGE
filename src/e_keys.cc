@@ -309,5 +309,18 @@ void E_ResetAllBinds(void)
 	key_fire.Add(KEYD_JOYBASE);
 }
 
+key_link_t *E_FindKeyBinding(const char *func_name)
+{
+	for (int i = 0; all_binds[i].name; i++)
+	{
+		key_link_t *link = &all_binds[i];
+
+		if (DDF_CompareName(link->name, func_name) == 0)
+			return link;
+	}
+
+	return NULL; // not found
+}
+
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
