@@ -345,6 +345,58 @@ bool RAD_WithinRadius(mobj_t * mo, rad_script_t * r)
 }
 
 
+static int RAD_AllPlayersInRadius(rad_script_t * r)
+{
+	int result = 0;
+
+	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
+	{
+		player_t *p = players[pnum];
+
+		if (p && p->playerstate != PST_DEAD &&
+			RAD_WithinRadius(p->mo, r))
+		{
+			result |= (1 << pnum);
+		}
+	}
+
+	return result;
+}
+
+static int RAD_AllPlayersUsing(void)
+{
+	int result = 0;
+
+	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
+	{
+		player_t *p = players[pnum];
+
+		if (p && p->usedown)
+			result |= (1 << pnum);
+	}
+
+	return result;
+}
+
+static int RAD_AllPlayersCheckCond(rad_script_t * r, int mask)
+{
+	int result = 0;
+
+	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
+	{
+		player_t *p = players[pnum];
+
+		if (p && (mask & (1 << pnum)) &&
+			G_CheckConditions(p->mo, r->cond_trig))
+		{
+			result |= (1 << pnum);
+		}
+	}
+
+	return result;
+}
+
+
 static bool RAD_CheckBossTrig(rad_trigger_t *trig, s_ondeath_t *cond)
 {
 	mobj_t *mo;
@@ -503,11 +555,8 @@ static void DoRemoveTrigger(rad_trigger_t *trig)
 //
 // Radius Trigger Event handler.
 //
-static void RAD_DoRadiTrigger(player_t * p)
+void RAD_RunTriggers(void)
 {
-	if (p->playerstate == PST_DEAD)
-		return;
-
 	rad_trigger_t *trig, *next;
 
 	// Start looking through the trigger list.
@@ -538,16 +587,27 @@ static void RAD_DoRadiTrigger(player_t * p)
 
 		if (! (trig->info->tagged_independent && trig->activated))
 		{
+			int mask = 0x7FFFFFFF;
+
 			// Immediate triggers are just that. Immediate.
 			// Not within range so skip it.
-			//
-			if (!trig->info->tagged_immediate && 
-					!RAD_WithinRadius(p->mo, trig->info))
-				continue;
+
+			if (!trig->info->tagged_immediate)
+			{
+				mask &= RAD_AllPlayersInRadius(trig->info);
+
+				if (mask == 0)
+					continue;
+			}
 
 			// Check for use key trigger.
-			if (trig->info->tagged_use && !p->usedown)
-				continue;
+			if (trig->info->tagged_use)
+			{
+				mask &= RAD_AllPlayersUsing();
+
+				if (mask == 0)
+					continue;
+			}
 
 			// height check...
 			if (trig->info->height_trig)
@@ -580,7 +640,9 @@ static void RAD_DoRadiTrigger(player_t * p)
 			// condition check...
 			if (trig->info->cond_trig)
 			{
-				if (! G_CheckConditions(p->mo, trig->info->cond_trig))
+				mask &= RAD_AllPlayersCheckCond(trig->info, mask);
+
+				if (mask == 0)
 					continue;
 			}
 
@@ -606,6 +668,9 @@ static void RAD_DoRadiTrigger(player_t * p)
 			// actions and other possibilities).
 			//
 			trig->state = trig->state->next;
+
+			// FIXME !!!!!!  RUBBISH
+			player_t *p = players[consoleplayer];
 
 			(*state->action)(trig, p->mo, state->param);
 
@@ -637,14 +702,6 @@ static void RAD_DoRadiTrigger(player_t * p)
 
 		DoRemoveTrigger(trig);
 	}
-}
-
-void RAD_RunTriggers(void)
-{
-	// FIXME: this is incorrect !!!!
-	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
-		if (players[pnum])
-			RAD_DoRadiTrigger(players[pnum]);
 }
 
 
