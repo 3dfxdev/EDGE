@@ -82,7 +82,6 @@ key_binding_c key_am_down;
 
 key_binding_c key_am_zoomin;
 key_binding_c key_am_zoomout;
-key_binding_c key_am_big;
 
 key_binding_c key_am_follow;
 key_binding_c key_am_grid;
@@ -191,8 +190,6 @@ cheatseq_t cheat_amap = {0, 0};
 
 static bool stopped = true;
 
-static bool bigstate = false;
-
 extern style_c *automap_style;  // FIXME: put in header
 
 
@@ -272,7 +269,6 @@ void AM_Stop(void)
 	panning_x = 0;
 	panning_y = 0;
 	zooming   = -1;
-	bigstate  = false;
 }
 
 static void AM_Hide(void)
@@ -281,7 +277,6 @@ static void AM_Hide(void)
 	panning_y = 0;
 	zooming   = -1;
 	automapactive = false;
-	bigstate = false;
 }
 
 static void AM_Show(void)
@@ -299,7 +294,6 @@ static void AM_Show(void)
 	panning_x = 0;
 	panning_y = 0;
 	zooming   = -1;
-	bigstate  = false;
 }
 
 
@@ -414,12 +408,6 @@ bool AM_Responder(event_t * ev)
 	if (key_am_zoomout.HasKey(ev))
 	{
 		zooming = 1.0 / M_ZOOMIN;
-		return true;
-	}
-
-	if (key_am_big.HasKey(ev))
-	{
-		bigstate = !bigstate;
 		return true;
 	}
 
