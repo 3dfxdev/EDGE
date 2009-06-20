@@ -134,10 +134,18 @@ bool key_binding_c::Remove(short keyd)
 	return false; // failed
 }
 
-bool key_binding_c::HasKey(short keyd)
+bool key_binding_c::HasKey(short keyd) const
 {
 	return (keys[0] == keyd) || (keys[1] == keyd) ||
 	       (keys[2] == keyd) || (keys[3] == keyd);
+}
+
+bool key_binding_c::HasKey(const event_t *ev) const
+{
+	if (ev->value.key.sym <= 0) return false;
+	if (ev->value.key.sym >= NUMKEYS) return false;
+
+	return HasKey(ev->value.key.sym);
 }
 
 bool key_binding_c::IsPressed() const
@@ -148,6 +156,62 @@ bool key_binding_c::IsPressed() const
 				return true;
 
 	return false;
+}
+
+
+//----------------------------------------------------------------------------
+
+
+key_link_t  all_binds[] =
+{
+    { "forward",       &key_forward,     KEYD_UPARROW,   'W' },
+    { "back",          &key_backward,    KEYD_DOWNARROW, 'S' },
+    { "strafeleft",    &key_strafeleft,  ',', 'A' },
+    { "straferight",   &key_straferight, '.', 'D' },
+    { "up",            &key_flyup,       KEYD_INSERT, '/' },
+    { "down",          &key_flydown,     KEYD_DELETE, 'V' },
+
+    { "left",          &key_left,        KEYD_LEFTARROW,  0 },
+    { "right",         &key_right,       KEYD_RIGHTARROW, 0 },
+    { "lookup",        &key_lookup,      KEYD_PGUP, 0 },
+    { "lookdown",      &key_lookdown,    KEYD_PGDN, 0 },
+    { "lookcenter",    &key_lookcenter,  KEYD_HOME, KEYD_END },
+
+    { "fire",          &key_fire,        KEYD_CTRL, KEYD_MOUSE1 },
+    { "secondatk",     &key_secondatk,   'E', KEYD_MOUSE2 },
+    { "use",           &key_use,         KEYD_SPACE, 0 },
+    { "strafe",        &key_strafe,      KEYD_ALT,   0 },
+    { "speed",         &key_speed,       KEYD_SHIFT, 0 },
+    { "autorun",       &key_autorun,     KEYD_CAPSLOCK,  0 },
+    { "nextweapon",    &key_nextweapon,  KEYD_MWHEEL_UP, 0 },
+    { "prevweapon",    &key_prevweapon,  KEYD_MWHEEL_DN, 0 },
+
+    { "map",           &key_map,         KEYD_TAB, 0 },
+    { "zoom",          &key_zoom,        '\\', 0 },
+    { "turn180",       &key_180,         0, 0 },
+    { "reload",        &key_reload,      'R', 0 },
+    { "talk",          &key_talk,        'T', 0 },
+    { "console",       &key_console,     KEYD_TILDE, 0 },
+    { "mlook",         &key_mlook,       'M', 0 },
+
+	// the end
+	{ NULL, NULL, 0, 0 }
+};
+
+
+void E_ResetAllBinds(void)
+{
+	for (int i = 0; all_binds[i].name; i++)
+	{
+		key_link_t *link = &all_binds[i];
+
+		link->bind->Clear();
+
+		if (link->def_key1) link->bind->Add(link->def_key1);
+		if (link->def_key2) link->bind->Add(link->def_key2);
+	}
+
+	key_fire.Add(KEYD_JOYBASE);
 }
 
 //--- editor settings ---

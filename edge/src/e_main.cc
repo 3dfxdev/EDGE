@@ -54,6 +54,7 @@
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "dstrings.h"
+#include "e_keys.h"
 #include "e_input.h"
 #include "f_finale.h"
 #include "f_interm.h"
@@ -1293,6 +1294,7 @@ static void E_Startup(void)
 
 	CON_InitConsole();
 	CON_ResetAllVars(true);
+	E_ResetAllBinds();
 
 	ShowDateAndVersion();
 

@@ -48,10 +48,28 @@ public:
 	bool Add(short keyd);
 	bool Remove(short keyd);
 
-	bool HasKey(short keyd);
+	bool HasKey(short keyd) const;
+	bool HasKey(const event_t *ev) const;
 
 	bool IsPressed() const;
 };
+
+
+typedef struct
+{
+	const char *name;
+
+	key_binding_c *bind;
+
+	short def_key1;
+	short def_key2;
+}
+key_link_t;
+
+
+extern key_link_t  all_binds[];
+
+void E_ResetAllBinds(void);
 
 
 //----------------------------------------------------------------------------
