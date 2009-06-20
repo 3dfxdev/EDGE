@@ -94,6 +94,50 @@ static specialkey_t keynames[] =
     { 0, "" }
 };
 
+const char *E_GetKeyName(int keyd)
+{
+	if (keyd == 0)
+		return "NONE";
+
+	for (int i = 0; keynames[i].keycode > 0; i++)
+		if (keynames[i].keycode == keyd)
+			return keynames[i].name;
+
+	static char buffer[16];
+
+	if (33 <= keyd && keyd <= 126)
+	{
+		buffer[0] = keyd;
+		buffer[1] = 0;
+
+		return buffer;
+	}
+
+	sprintf(buffer, "0x%03x", keyd);
+
+	return buffer;
+}
+
+int E_KeyFromName(const char *name)
+{
+	for (int i = 0; keynames[i].keycode > 0; i++)
+		if (DDF_CompareName(keynames[i].name, name) == 0)
+			return keynames[i].keycode;
+
+	if (name[0] == '0' && tolower(name[1]) == 'x')
+		return strtol(name+2, NULL, 16);
+
+	if (strlen(name) == 1 && 33 <= name[0] && name[0] <= 126)
+		return (int)name[0];
+
+	//??? not sure whether to handle "NONE" or not
+
+	// unknown!
+	return 0;
+}
+
+
+//----------------------------------------------------------------------------
 
 void key_binding_c::Clear()
 {
@@ -158,6 +202,22 @@ bool key_binding_c::IsPressed() const
 				return true;
 
 	return false;
+}
+
+std::string key_binding_c::FormatKeyList() const
+{
+	std::string result;
+
+	for (int i = 0; i < 4; i++)
+		if (keys[i] > 0)
+		{
+			if (! result.empty())
+				result += ' ';
+
+			result += E_GetKeyName(keys[i]);
+		}
+
+	return result;
 }
 
 
