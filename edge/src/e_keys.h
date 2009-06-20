@@ -73,6 +73,7 @@ key_link_t;
 extern key_link_t  all_binds[];
 
 void E_ResetAllBinds(void);
+key_link_t *E_FindKeyBinding(const char *func_name);
 
 const char *E_GetKeyName(int keyd);
 int E_KeyFromName(const char *name);

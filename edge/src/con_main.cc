@@ -324,7 +324,7 @@ int CMD_ShowKeys(char **argv, int argc)
 
 		std::string keylist = all_binds[i].bind->FormatKeyList();
 
-		I_Printf("  %s: %s\n", all_binds[i].name, keylist.c_str());
+		I_Printf("  %-15s %s\n", all_binds[i].name, keylist.c_str());
 		total++;
 	}
 
@@ -358,6 +358,101 @@ int CMD_Help(char **argv, int argc)
 int CMD_Version(char **argv, int argc)
 {
 	I_Printf("EDGE v" EDGEVERSTR "\n");
+	return 0;
+}
+
+
+int CMD_Bind(char **argv, int argc)
+{
+	if (argc <= 1)
+	{
+		CON_Printf("Usage: bind <key> <function>\n");
+		return 0;
+	}
+
+	int keyd = E_KeyFromName(argv[1]);
+
+	if (! keyd)
+	{
+		CON_Printf("Invalid key name: %s\n", argv[1]);
+		return 0;
+	}
+
+	int total = 0;
+
+	if (argc <= 2)
+	{
+		for (int i = 0; all_binds[i].name; i++)
+		{
+			if (all_binds[i].bind->HasKey(keyd))
+			{
+				I_Printf("  %s", all_binds[i].name);
+				total++;
+			}
+		}
+
+		if (total == 0)
+			I_Printf("No bindings for %s\n", argv[1]);
+
+		return 0;
+	}
+
+	key_link_t *link = E_FindKeyBinding(argv[2]);
+
+	if (! link)
+	{
+		I_Printf("Unknown function name: %s\n", argv[2]);
+		return 0;
+	}
+
+	link->bind->Add(keyd);
+	return 0;
+}
+
+int CMD_Unbind(char **argv, int argc)
+{
+	if (argc <= 1)
+	{
+		CON_Printf("Usage: unbind <key> [<function>]\n");
+		return 0;
+	}
+
+	int keyd = E_KeyFromName(argv[1]);
+
+	if (! keyd)
+	{
+		CON_Printf("Invalid key name: %s\n", argv[1]);
+		return 0;
+	}
+
+	int total = 0;
+
+	if (argc <= 2)
+	{
+		for (int i = 0; all_binds[i].name; i++)
+		{
+			if (all_binds[i].bind->Remove(keyd))
+			{
+				I_Printf("Unbound from %s\n", all_binds[i].name);
+				total++;
+			}
+		}
+
+		if (total == 0)
+			I_Printf("No bindings for %s\n", argv[1]);
+
+		return 0;
+	}
+
+	key_link_t *link = E_FindKeyBinding(argv[2]);
+
+	if (! link)
+	{
+		I_Printf("Unknown function name: %s\n", argv[2]);
+		return 0;
+	}
+
+	link->bind->Remove(keyd);
 	return 0;
 }
 
@@ -433,9 +528,10 @@ const con_cmd_t builtin_commands[] =
 {
 	{ "args",           CMD_ArgList },
 	{ "crc",            CMD_Crc },
-	{ "playsound",      CMD_PlaySound },
+	{ "bind",           CMD_Bind },
 	{ "exec",           CMD_Exec },
 	{ "help",           CMD_Help },
+	{ "playsound",      CMD_PlaySound },
   	{ "resetkeys",      CMD_ResetKeys },
 	{ "resetvars",      CMD_ResetVars },
 	{ "showfiles",      CMD_ShowFiles },
@@ -445,6 +541,7 @@ const con_cmd_t builtin_commands[] =
 	{ "showvars",       CMD_ShowVars },
 	{ "screenshot",     CMD_ScreenShot },
 	{ "type",           CMD_Type },
+	{ "unbind",         CMD_Unbind },
 	{ "version",        CMD_Version },
 	{ "quit",           CMD_QuitEDGE },
 	{ "exit",           CMD_QuitEDGE },
