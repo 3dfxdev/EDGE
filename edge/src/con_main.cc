@@ -26,6 +26,7 @@
 #include "con_main.h"
 #include "con_var.h"
 
+#include "e_keys.h"
 #include "g_game.h"
 #include "m_menu.h"
 #include "s_sound.h"
@@ -194,8 +195,18 @@ int CMD_PlaySound(char **argv, int argc)
 	return 0;
 }
 
+int CMD_ResetKeys(char **argv, int argc)
+{
+	// TODO; first param is a name match
+	
+	E_ResetAllBinds();
+	return 0;
+}
+
 int CMD_ResetVars(char **argv, int argc)
 {
+	// TODO; first param is a name match
+
 	CON_ResetAllVars();
 	return 0;
 }
@@ -285,6 +296,35 @@ int CMD_ShowCmds(char **argv, int argc)
 				continue;
 
 		I_Printf("  %-15s\n", builtin_commands[i].name);
+		total++;
+	}
+
+	if (total == 0)
+		I_Printf("Nothing matched.\n");
+
+	return 0;
+}
+
+int CMD_ShowKeys(char **argv, int argc)
+{
+	char *match = NULL;
+
+	if (argc >= 2)
+		match = argv[1];
+
+	I_Printf("Key Bindings:\n");
+
+	int total = 0;
+
+	for (int i = 0; all_binds[i].name; i++)
+	{
+		if (match && *match)
+			if (! strstr(all_binds[i].name, match))
+				continue;
+
+		std::string keylist = all_binds[i].bind->FormatKeyList();
+
+		I_Printf("  %s: %s\n", all_binds[i].name, keylist.c_str());
 		total++;
 	}
 
@@ -396,10 +436,10 @@ const con_cmd_t builtin_commands[] =
 	{ "playsound",      CMD_PlaySound },
 	{ "exec",           CMD_Exec },
 	{ "help",           CMD_Help },
-//	{ "resetkeys",      CMD_ResetKeys },
+  	{ "resetkeys",      CMD_ResetKeys },
 	{ "resetvars",      CMD_ResetVars },
 	{ "showfiles",      CMD_ShowFiles },
-//	{ "showkeys",       CMD_ShowKeys },
+  	{ "showkeys",       CMD_ShowKeys },
 	{ "showlumps",      CMD_ShowLumps },
 	{ "showcmds",       CMD_ShowCmds },
 	{ "showvars",       CMD_ShowVars },
