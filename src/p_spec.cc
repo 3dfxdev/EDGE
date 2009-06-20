@@ -1290,8 +1290,7 @@ static bool P_ActivateSpecialLine(line_t * line,
         else if (thing)
         {
             S_StartFX(special->activate_sfx, 
-                           P_MobjGetSfxCategory(thing),
-                           thing);
+                           P_MobjGetSfxCategory(thing), thing);
         }
 
 		playedSound = true;

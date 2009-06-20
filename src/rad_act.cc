@@ -940,7 +940,7 @@ void RAD_ActEnableScript(rad_trigger_t *R, mobj_t *actor, void *param)
 	}
 	else
 	{
-		RAD_EnableByTag(actor, t->tag, t->new_disabled);
+		RAD_EnableByTag(NULL, t->tag, t->new_disabled);
 	}
 }
 
