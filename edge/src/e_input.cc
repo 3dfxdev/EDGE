@@ -63,37 +63,38 @@ static int eventtail;
 //
 // controls (have defaults) 
 // 
-int key_right;
-int key_left;
-int key_lookup;
-int key_lookdown;
-int key_lookcenter;
+key_binding_c key_forward;
+key_binding_c key_backward;
+key_binding_c key_strafeleft;
+key_binding_c key_straferight;
+
+key_binding_c key_right;
+key_binding_c key_left;
+key_binding_c key_lookup;
+key_binding_c key_lookdown;
+key_binding_c key_lookcenter;
 
 // -ES- 1999/03/28 Zoom Key
-int key_zoom;
+key_binding_c key_zoom;
 
-int key_up;
-int key_down;
-int key_strafeleft;
-int key_straferight;
-int key_fire;
-int key_use;
-int key_strafe;
-int key_speed;
-int key_autorun;
-int key_nextweapon;
-int key_prevweapon;
-int key_map;
-int key_180;
-int key_talk;
-int key_console;
-int key_mlook;
-int key_secondatk;
-int key_reload;
+key_binding_c key_fire;
+key_binding_c key_secondatk;
+key_binding_c key_use;
+key_binding_c key_strafe;
+key_binding_c key_speed;
+key_binding_c key_autorun;
+key_binding_c key_nextweapon;
+key_binding_c key_prevweapon;
+key_binding_c key_map;
+key_binding_c key_180;
+key_binding_c key_talk;
+key_binding_c key_console;
+key_binding_c key_mlook;
+key_binding_c key_reload;
 
 // -MH- 1998/07/10 Flying keys
-int key_flyup;
-int key_flydown;
+key_binding_c key_flyup;
+key_binding_c key_flydown;
 
 #define MAXPLMOVE  (forwardmove[1])
 
@@ -175,8 +176,8 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 {
 	Z_Clear(cmd, ticcmd_t, 1);
 
-	bool strafe = E_InputCheckKey(key_strafe);
-	int speed = E_InputCheckKey(key_speed) ? 1 : 0;
+	bool strafe = key_strafe.IsPressed();
+	int speed   = key_speed.IsPressed() ? 1 : 0;
 
 	if (in_autorun.d)
 		speed = !speed;
@@ -185,12 +186,12 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	float upward = 0;  // -MH- 1998/08/18 Fly Up/Down movement
 	float side = 0;
 
-	if (E_InputCheckKey(key_right) || E_InputCheckKey(key_left))
+	if (key_right.IsPressed() || key_left.IsPressed())
 		turnheld++;
 	else
 		turnheld = 0;
 
-	if (E_InputCheckKey(key_lookup) || E_InputCheckKey(key_lookdown))
+	if (key_lookup.IsPressed() || key_lookdown.IsPressed())
 		mlookheld++;
 	else
 		mlookheld = 0;
@@ -212,7 +213,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	int m_speed = in_shiftlook.d ? speed : 0;
 
 	// -ES- 1999/03/28 Zoom Key
-	if (E_InputCheckKey(key_zoom))
+	if (key_zoom.IsPressed())
 	{
 		if (allowzoom)
 		{
@@ -224,7 +225,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 		allowzoom = true;
 
 	// -AJA- 2000/04/14: Autorun toggle
-	if (E_InputCheckKey(key_autorun))
+	if (key_autorun.IsPressed())
 	{
 		if (allowautorun)
 		{
@@ -236,7 +237,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 		allowautorun = true;
 
 	// You have to release the 180 deg turn key before you can press it again
-	if (E_InputCheckKey(key_180))
+	if (key_180.IsPressed())
 	{
 		if (allow180)
 			cmd->angleturn = ANG180 >> 16;
@@ -251,10 +252,10 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	//let movement keys cancel each other out
 	if (strafe)
 	{
-		if (E_InputCheckKey(key_right))
+		if (key_right.IsPressed())
 			side += sidemove[speed];
 
-		if (E_InputCheckKey(key_left))
+		if (key_left.IsPressed())
 			side -= sidemove[speed];
 
 		// -KM- 1998/09/01 Analogue binding
@@ -268,10 +269,10 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 		if (view_zoom > 0)
 			angle_rate /= ZOOM_ANGLE_DIV;
 
-		if (E_InputCheckKey(key_right))
+		if (key_right.IsPressed())
 			cmd->angleturn -= angle_rate;
 
-		if (E_InputCheckKey(key_left))
+		if (key_left.IsPressed())
 			cmd->angleturn += angle_rate;
 
 		// -KM- 1998/09/01 Analogue binding
@@ -289,15 +290,15 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 			mlook_rate /= ZOOM_ANGLE_DIV;
 
 		// -ACB- 1998/07/02 Use VertAngle for Look/up down.
-		if (E_InputCheckKey(key_lookup))
+		if (key_lookup.IsPressed())
 			cmd->mlookturn += mlook_rate;
 
 		// -ACB- 1998/07/02 Use VertAngle for Look/up down.
-		if (E_InputCheckKey(key_lookdown))
+		if (key_lookdown.IsPressed())
 			cmd->mlookturn -= mlook_rate;
 
 		// -ACB- 1998/07/02 Use CENTER flag to center the vertical look.
-		if (E_InputCheckKey(key_lookcenter))
+		if (key_lookcenter.IsPressed())
 			cmd->extbuttons |= EBT_CENTER;
 
 		// -KM- 1998/09/01 More analogue binding
@@ -307,20 +308,20 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	// -MH- 1998/08/18 Fly up
 	if (g_true3d.d && !(map_features & MPF_NoTrue3D))
 	{
-		if ((E_InputCheckKey(key_flyup)))
+		if ((key_flyup.IsPressed()))
 			upward += upwardmove[speed];
 
 		// -MH- 1998/08/18 Fly down
-		if ((E_InputCheckKey(key_flydown)))
+		if ((key_flydown.IsPressed()))
 			upward -= upwardmove[speed];
 
 		upward += analogue[AXIS_FLY] * upwardmove[speed] / 64.0;
 	}
 
-	if (E_InputCheckKey(key_up))
+	if (key_forward.IsPressed())
 		forward += forwardmove[speed];
 
-	if (E_InputCheckKey(key_down))
+	if (key_backward.IsPressed())
 		forward -= forwardmove[speed];
 
 	// -KM- 1998/09/01 Analogue binding
@@ -330,25 +331,25 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	// -ACB- 1998/09/06 Side Move Speed Control
 	side += analogue[AXIS_STRAFE] * sidemove[speed] / 64.0;
 
-	if (E_InputCheckKey(key_straferight))
+	if (key_straferight.IsPressed())
 		side += sidemove[speed];
 
-	if (E_InputCheckKey(key_strafeleft))
+	if (key_strafeleft.IsPressed())
 		side -= sidemove[speed];
 
 	// buttons
 	cmd->chatchar = HU_DequeueChatChar();
 
-	if (E_InputCheckKey(key_fire))
+	if (key_fire.IsPressed())
 		cmd->buttons |= BT_ATTACK;
 
-	if (E_InputCheckKey(key_use))
+	if (key_use.IsPressed())
 		cmd->buttons |= BT_USE;
 
-	if (E_InputCheckKey(key_secondatk))
+	if (key_secondatk.IsPressed())
 		cmd->extbuttons |= EBT_SECONDATK;
 
-	if (E_InputCheckKey(key_reload))
+	if (key_reload.IsPressed())
 		cmd->extbuttons |= EBT_RELOAD;
 
 	// -KM- 1998/11/25 Weapon change key
@@ -362,12 +363,12 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 		}
 	}
 
-	if (E_InputCheckKey(key_nextweapon))
+	if (key_nextweapon.IsPressed())
 	{
 		cmd->buttons |= BT_CHANGE;
 		cmd->buttons |= (BT_NEXT_WEAPON << BT_WEAPONSHIFT);
 	}
-	else if (E_InputCheckKey(key_prevweapon))
+	else if (key_prevweapon.IsPressed())
 	{
 		cmd->buttons |= BT_CHANGE;
 		cmd->buttons |= (BT_PREV_WEAPON << BT_WEAPONSHIFT);
@@ -420,7 +421,7 @@ bool INP_Responder(event_t * ev)
 			{
 				// -AJA- 1999/07/27: Mlook key like quake's.
 				if ((g_mlook.d && !(map_features & MPF_NoMLook)) &&
-				    E_InputCheckKey(key_mlook))
+				    key_mlook.IsPressed())
 				{
 					if (ev->value.analogue.axis == mouse_xaxis.d)
 					{

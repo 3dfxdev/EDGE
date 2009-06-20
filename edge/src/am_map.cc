@@ -80,8 +80,6 @@ static rgbcol_t am_colors[AM_NUM_COLORS] =
 #define AM_PANLEFTKEY     KEYD_LEFTARROW
 #define AM_ZOOMINKEY  '='
 #define AM_ZOOMOUTKEY '-'
-#define AM_STARTKEY   key_map
-#define AM_ENDKEY     key_map
 #define AM_GOBIGKEY   '0'
 #define AM_FOLLOWKEY  'f'
 #define AM_GRIDKEY    'g'
@@ -321,9 +319,7 @@ bool AM_Responder(event_t * ev)
 {
 	if (! automapactive)
 	{
-		if (ev->type == ev_keydown &&
-			(ev->value.key.sym == (AM_STARTKEY >> 16) ||
-			 ev->value.key.sym == (AM_STARTKEY & 0xffff)))
+		if (ev->type == ev_keydown && key_map.HasKey(ev))
 		{
 			AM_Show();
 			return true;
@@ -455,8 +451,7 @@ bool AM_Responder(event_t * ev)
 			break;
 
 		default:
-			if (ev->value.key.sym == (AM_ENDKEY >> 16) || 
-				ev->value.key.sym == (AM_ENDKEY & 0xffff))
+			if (key_map.HasKey(ev))
 			{
 				AM_Hide();
 			}

@@ -389,7 +389,7 @@ int TranslateSDLKey(int key)
 	}
 
 	if (key <= 0x7f)
-		return tolower(key);
+		return toupper(key);
 
 	return KEYD_IGNORE;
 }

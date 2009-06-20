@@ -27,6 +27,7 @@
 #define __E_INPUT_H__
 
 #include "e_event.h"
+#include "e_keys.h"
 #include "e_ticcmd.h"
 
 void E_ClearInput(void);
@@ -46,38 +47,38 @@ extern cvar_c in_stageturn;
 
 /* keyboard stuff */
 
-extern int key_right;
-extern int key_left;
-extern int key_lookup;
-extern int key_lookdown;
-extern int key_lookcenter;
+extern key_binding_c key_forward;
+extern key_binding_c key_backward;
+extern key_binding_c key_strafeleft;
+extern key_binding_c key_straferight;
+
+extern key_binding_c key_right;
+extern key_binding_c key_left;
+extern key_binding_c key_lookup;
+extern key_binding_c key_lookdown;
+extern key_binding_c key_lookcenter;
 
 // -ES- 1999/03/28 Zoom Key
-extern int key_zoom;
-extern int key_up;
-extern int key_down;
-
-extern int key_strafeleft;
-extern int key_straferight;
+extern key_binding_c key_zoom;
 
 // -ACB- for -MH- 1998/07/19 Flying keys
-extern int key_flyup;
-extern int key_flydown;
+extern key_binding_c key_flyup;
+extern key_binding_c key_flydown;
 
-extern int key_fire;
-extern int key_use;
-extern int key_strafe;
-extern int key_speed;
-extern int key_autorun;
-extern int key_nextweapon;
-extern int key_prevweapon;
-extern int key_map;
-extern int key_180;
-extern int key_talk;
-extern int key_console;
-extern int key_mlook;  // -AJA- 1999/07/27.
-extern int key_secondatk;
-extern int key_reload;  // -AJA- 2004/11/10.
+extern key_binding_c key_fire;
+extern key_binding_c key_secondatk;
+extern key_binding_c key_use;
+extern key_binding_c key_strafe;
+extern key_binding_c key_speed;
+extern key_binding_c key_autorun;
+extern key_binding_c key_nextweapon;
+extern key_binding_c key_prevweapon;
+extern key_binding_c key_map;
+extern key_binding_c key_180;
+extern key_binding_c key_talk;
+extern key_binding_c key_console;
+extern key_binding_c key_mlook;  // -AJA- 1999/07/27.
+extern key_binding_c key_reload;  // -AJA- 2004/11/10.
 
 #endif  /* __E_INPUT_H__ */
 

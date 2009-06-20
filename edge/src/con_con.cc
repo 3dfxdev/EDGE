@@ -897,7 +897,7 @@ int GetKeycode(event_t *ev)
 
 bool CON_Responder(event_t * ev)
 {
-	if (ev->type == ev_keydown && ev->value.key.sym == key_console)
+	if (ev->type == ev_keydown && key_console.HasKey(ev))
 	{
 		CON_SetVisible(vs_toggle);
 		return true;
