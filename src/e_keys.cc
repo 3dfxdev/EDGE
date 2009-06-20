@@ -149,7 +149,7 @@ bool key_binding_c::Add(short keyd)
 	SYS_ASSERT(0 < keyd && keyd < NUMKEYS);
 
 	if (HasKey(keyd))
-		return true;
+		return false;  // no change
 
 	for (int i = 0; i < 4; i++)
 		if (keys[i] == 0)
@@ -158,7 +158,7 @@ bool key_binding_c::Add(short keyd)
 			return true;
 		}
 
-	return false; // failed
+	return false; // failed (no change)
 }
 
 bool key_binding_c::Remove(short keyd)
@@ -166,7 +166,7 @@ bool key_binding_c::Remove(short keyd)
 	SYS_ASSERT(0 < keyd && keyd < NUMKEYS);
 
 	if (! HasKey(keyd))
-		return true;
+		return false; // no change
 
 	for (int i = 0; i < 4; i++)
 		if (keys[i] == keyd)
@@ -175,7 +175,7 @@ bool key_binding_c::Remove(short keyd)
 			return true;
 		}
 
-	return false; // failed
+	return false; // failed (no change)
 }
 
 bool key_binding_c::HasKey(short keyd) const
@@ -233,33 +233,19 @@ extern key_binding_c key_console, key_talk;
 
 key_link_t  all_binds[] =
 {
-    { "forward",       &key_forward,     KEYD_UPARROW,   'W' },
-    { "back",          &key_backward,    KEYD_DOWNARROW, 'S' },
-    { "strafeleft",    &key_strafeleft,  ',', 'A' },
-    { "straferight",   &key_straferight, '.', 'D' },
-    { "up",            &key_flyup,       KEYD_INSERT, '/' },
-    { "down",          &key_flydown,     KEYD_DELETE, 'V' },
+	// Automap
+	{ "am_left",       &key_am_left,     KEYD_LEFTARROW,  0 },
+	{ "am_right",      &key_am_right,    KEYD_RIGHTARROW, 0 },
+	{ "am_up",         &key_am_up,       KEYD_UPARROW,    0 },
+	{ "am_down",       &key_am_down,     KEYD_DOWNARROW,  0 },
 
-    { "left",          &key_left,        KEYD_LEFTARROW,  0 },
-    { "right",         &key_right,       KEYD_RIGHTARROW, 0 },
-    { "lookup",        &key_lookup,      KEYD_PGUP, 0 },
-    { "lookdown",      &key_lookdown,    KEYD_PGDN, 0 },
-    { "lookcenter",    &key_lookcenter,  KEYD_HOME, KEYD_END },
+	{ "am_zoomin",     &key_am_zoomin,   '=', 0 },
+	{ "am_zoomout",    &key_am_zoomout,  '-', 0 },
 
-    { "fire",          &key_fire,        KEYD_CTRL, KEYD_MOUSE1 },
-    { "secondatk",     &key_secondatk,   'E', 0 },
-    { "use",           &key_use,         KEYD_SPACE, 0 },
-    { "strafe",        &key_strafe,      KEYD_ALT,   KEYD_MOUSE3 },
-    { "speed",         &key_speed,       KEYD_SHIFT, 0 },
-    { "autorun",       &key_autorun,     KEYD_CAPSLOCK,  0 },
-
-    { "map",           &key_map,         KEYD_TAB, 0 },
-    { "zoom",          &key_zoom,        '\\', 0 },
-    { "turn180",       &key_180,         0, 0 },
-    { "reload",        &key_reload,      'R', 0 },
-    { "talk",          &key_talk,        'T', 0 },
-    { "console",       &key_console,     KEYD_TILDE, 0 },
-    { "mlook",         &key_mlook,       'M', 0 },
+    { "am_follow",     &key_am_follow,   'F', 0 },
+    { "am_grid",       &key_am_grid,     'G', 0 },
+    { "am_mark",       &key_am_mark,     'M', 0 },
+    { "am_clear",      &key_am_clear,    'C', 0 },
 
 	// Weapons
     { "weapon1",       &key_weapons[1],  '1', 0 },
@@ -275,19 +261,36 @@ key_link_t  all_binds[] =
     { "nextweapon",    &key_nextweapon,  KEYD_MWHEEL_UP, 0 },
     { "prevweapon",    &key_prevweapon,  KEYD_MWHEEL_DN, 0 },
 
-	// Automap
-	{ "am_left",       &key_am_left,     KEYD_LEFTARROW,  0 },
-	{ "am_right",      &key_am_right,    KEYD_RIGHTARROW, 0 },
-	{ "am_up",         &key_am_up,       KEYD_UPARROW,    0 },
-	{ "am_down",       &key_am_down,     KEYD_DOWNARROW,  0 },
+	// Movement
+    { "forward",       &key_forward,     KEYD_UPARROW,   'W' },
+    { "back",          &key_backward,    KEYD_DOWNARROW, 'S' },
+    { "strafeleft",    &key_strafeleft,  ',', 'A' },
+    { "straferight",   &key_straferight, '.', 'D' },
+    { "up",            &key_flyup,       KEYD_INSERT, '/' },
+    { "down",          &key_flydown,     KEYD_DELETE, 'V' },
 
-	{ "am_zoomin",     &key_am_zoomin,   '=', 0 },
-	{ "am_zoomout",    &key_am_zoomout,  '-', 0 },
+    { "left",          &key_left,        KEYD_LEFTARROW,  0 },
+    { "right",         &key_right,       KEYD_RIGHTARROW, 0 },
+    { "lookup",        &key_lookup,      KEYD_PGUP, 0 },
+    { "lookdown",      &key_lookdown,    KEYD_PGDN, 0 },
+    { "lookcenter",    &key_lookcenter,  KEYD_HOME, KEYD_END },
 
-    { "am_follow",     &key_am_follow,   'F', 0 },
-    { "am_grid",       &key_am_grid,     'G', 0 },
-    { "am_mark",       &key_am_mark,     'M', 0 },
-    { "am_clear",      &key_am_clear,    'C', 0 },
+	// Firing etc
+    { "fire",          &key_fire,        KEYD_CTRL, KEYD_MOUSE1 },
+    { "secondatk",     &key_secondatk,   'E', 0 },
+    { "use",           &key_use,         KEYD_SPACE, 0 },
+    { "strafe",        &key_strafe,      KEYD_ALT,   KEYD_MOUSE3 },
+    { "speed",         &key_speed,       KEYD_SHIFT, 0 },
+    { "autorun",       &key_autorun,     KEYD_CAPSLOCK,  0 },
+
+	// Miscellaneous
+    { "map",           &key_map,         KEYD_TAB, 0 },
+    { "zoom",          &key_zoom,        '\\', 0 },
+    { "turn180",       &key_180,         0, 0 },
+    { "reload",        &key_reload,      'R', 0 },
+    { "talk",          &key_talk,        'T', 0 },
+    { "console",       &key_console,     KEYD_TILDE, 0 },
+    { "mlook",         &key_mlook,       'M', 0 },
 
 	// the end
 	{ NULL, NULL, 0, 0 }
@@ -320,6 +323,23 @@ key_link_t *E_FindKeyBinding(const char *func_name)
 	}
 
 	return NULL; // not found
+}
+
+std::string E_FormatConfig(key_link_t *link)
+{
+	std::string result;
+
+	for (int i = 0; i < 4; i++)
+		if (link->bind->keys[i] > 0)
+		{
+			result += "bind ";
+			result += E_GetKeyName(link->bind->keys[i]);
+			result += " ";
+			result += link->name;
+			result += "\n";
+		}
+
+	return result;
 }
 
 //--- editor settings ---

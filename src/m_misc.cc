@@ -151,6 +151,14 @@ void M_SaveDefaults(void)
 		}
 	}
 
+	for (int n = 0; all_binds[n].name; n++)
+	{
+		std::string kconf = E_FormatConfig(&all_binds[n]);
+
+		if (! kconf.empty())
+			fprintf(f, "%s", kconf.c_str());
+	}
+
 	fclose(f);
 }
 

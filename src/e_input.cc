@@ -242,7 +242,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 
 		// -KM- 1998/09/01 Analogue binding
 		// -ACB- 1998/09/06 Side Move Speed Control
-		side += analogue[AXIS_TURN] * sidemove[speed] / 64.0;
+		side += analogue[AXIS_TURN] * sidemove[speed] / 100.0;
 	}
 	else
 	{
@@ -259,7 +259,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 
 		// -KM- 1998/09/01 Analogue binding
 		// -ACB- 1998/09/06 Angle Turn Speed Control
-		cmd->angleturn -= analogue[AXIS_TURN] * angleturn[m_speed] / 64.0;
+		cmd->angleturn -= analogue[AXIS_TURN] * angleturn[m_speed] / 128.0;
 	}
 
 	cmd->mlookturn = 0;
@@ -284,7 +284,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 			cmd->extbuttons |= EBT_CENTER;
 
 		// -KM- 1998/09/01 More analogue binding
-		cmd->mlookturn += analogue[AXIS_MLOOK] * angleturn[m_speed] / 64.0f;
+		cmd->mlookturn += analogue[AXIS_MLOOK] * angleturn[m_speed] / 128.0f;
 	}
 
 	// -MH- 1998/08/18 Fly up

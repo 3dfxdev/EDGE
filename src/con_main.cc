@@ -195,7 +195,7 @@ int CMD_PlaySound(char **argv, int argc)
 	return 0;
 }
 
-int CMD_ResetKeys(char **argv, int argc)
+int CMD_ResetBinds(char **argv, int argc)
 {
 	// TODO; first param is a name match
 	
@@ -305,7 +305,7 @@ int CMD_ShowCmds(char **argv, int argc)
 	return 0;
 }
 
-int CMD_ShowKeys(char **argv, int argc)
+int CMD_ShowBinds(char **argv, int argc)
 {
 	char *match = NULL;
 
@@ -386,7 +386,7 @@ int CMD_Bind(char **argv, int argc)
 		{
 			if (all_binds[i].bind->HasKey(keyd))
 			{
-				I_Printf("  %s", all_binds[i].name);
+				I_Printf("  %s\n", all_binds[i].name);
 				total++;
 			}
 		}
@@ -532,10 +532,10 @@ const con_cmd_t builtin_commands[] =
 	{ "exec",           CMD_Exec },
 	{ "help",           CMD_Help },
 	{ "playsound",      CMD_PlaySound },
-  	{ "resetkeys",      CMD_ResetKeys },
+  	{ "resetbinds",     CMD_ResetBinds },
 	{ "resetvars",      CMD_ResetVars },
+  	{ "showbinds",      CMD_ShowBinds },
 	{ "showfiles",      CMD_ShowFiles },
-  	{ "showkeys",       CMD_ShowKeys },
 	{ "showlumps",      CMD_ShowLumps },
 	{ "showcmds",       CMD_ShowCmds },
 	{ "showvars",       CMD_ShowVars },
