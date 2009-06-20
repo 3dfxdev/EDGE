@@ -133,14 +133,25 @@ int E_KeyFromName(const char *name);
 // joystick/mice.
 #define KEYD_NONKBKEY   0x100
 
-#define KEYD_MOUSE1     0x100
-#define KEYD_MOUSE2     0x101
-#define KEYD_MOUSE3     0x102
-#define KEYD_MOUSE4     0x103 // -ACB- 1999/09/30 Fourth Mouse Button Added 
-#define KEYD_MWHEEL_UP  0x104
-#define KEYD_MWHEEL_DN  0x105
+#define KEYD_MOUSE1     0x101
+#define KEYD_MOUSE2     0x102
+#define KEYD_MOUSE3     0x103
+#define KEYD_MOUSE4     0x104 // -ACB- 1999/09/30 Fourth Mouse Button Added 
+#define KEYD_MOUSE5     0x105
+#define KEYD_MOUSE6     0x106
+#define KEYD_MOUSE7     0x107
+#define KEYD_MWHEEL_UP  0x108
+#define KEYD_MWHEEL_DN  0x109
 
-#define KEYD_JOYBASE    0x110
+#define KEYD_JOYBUT1    0x111
+#define KEYD_JOYBUT2    0x112
+#define KEYD_JOYBUT3    0x113
+#define KEYD_JOYBUT4    0x114
+#define KEYD_JOYBUT5    0x115
+#define KEYD_JOYBUT6    0x116
+#define KEYD_JOYBUT7    0x117
+#define KEYD_JOYBUT8    0x118
+#define KEYD_JOYBUT9    0x119
 
 #define NUMKEYS  0x140
 

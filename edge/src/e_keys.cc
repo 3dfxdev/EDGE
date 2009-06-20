@@ -42,26 +42,30 @@ specialkey_t;
 
 static specialkey_t keynames[] =
 {
-    { KEYD_RIGHTARROW, "RightArrow" },
-    { KEYD_LEFTARROW,  "LeftArrow" },
-    { KEYD_UPARROW,    "UpArrow" },
-    { KEYD_DOWNARROW,  "DownArrow" },
-    { KEYD_BACKSPACE,  "Backspace" },
-    { KEYD_ESCAPE,     "Escape" },
-    { KEYD_ENTER,      "Enter" },
+    { KEYD_RIGHTARROW, "RIGHTARROW" },
+    { KEYD_LEFTARROW,  "LEFTARROW" },
+    { KEYD_UPARROW,    "UPARROW" },
+    { KEYD_DOWNARROW,  "DOWNARROW" },
+    { KEYD_BACKSPACE,  "BACKSPACE" },
+    { KEYD_SCRLOCK,    "SCROLLLOCK" },
+    { KEYD_NUMLOCK,    "NUMLOCK" },
+    { KEYD_CAPSLOCK,   "CAPSLOCK" },
 
-    { KEYD_EQUALS, "Equals" },
-    { KEYD_MINUS,  "Minus" },
-    { KEYD_INSERT, "Insert" },
-    { KEYD_DELETE, "Delete" },
-    { KEYD_PGDN,   "PageDown" },
-    { KEYD_PGUP,   "PageUp" },
-    { KEYD_HOME,   "Home" },
-    { KEYD_END,    "End" },
-    { KEYD_SPACE,  "Space" },
-    { KEYD_TILDE,  "Tilde" },
+    { KEYD_ESCAPE,  "ESCAPE" },
+    { KEYD_ENTER,   "ENTER" },
+    { KEYD_INSERT,  "INSERT" },
+    { KEYD_DELETE,  "DELETE" },
+    { KEYD_PGDN,    "PAGEDOWN" },
+    { KEYD_PGUP,    "PAGEUP" },
+    { KEYD_HOME,    "HOME" },
+    { KEYD_END,     "END" },
+    { KEYD_SPACE,   "SPACE" },
+    { KEYD_TILDE,   "TILDE" },
+    { KEYD_SHIFT,   "SHIFT" },
+    { KEYD_CTRL,    "CTRL" },
+    { KEYD_ALT,     "ALT" },
+    { KEYD_TAB,     "TAB" },
 
-    { KEYD_TAB, "Tab" },
     { KEYD_F1,  "F1" },
     { KEYD_F2,  "F2" },
     { KEYD_F3,  "F3" },
@@ -75,20 +79,27 @@ static specialkey_t keynames[] =
     { KEYD_F11, "F11" },
     { KEYD_F12, "F12" },
 
-    { KEYD_SHIFT,  "Shift" },
-    { KEYD_CTRL,   "Ctrl" },
-    { KEYD_ALT,    "Alt" },
-    { KEYD_SCRLOCK,  "ScrollLock" },
-    { KEYD_NUMLOCK,  "NumLock" },
-    { KEYD_CAPSLOCK, "CapsLock" },
-
 	// mouse and joystick buttons
-    { KEYD_MOUSE1, "Mouse1" },
-    { KEYD_MOUSE2, "Mouse2" },
-    { KEYD_MOUSE3, "Mouse3" },
-    { KEYD_MOUSE4, "Mouse4" },
-    { KEYD_MWHEEL_UP, "WheelUp" },
-    { KEYD_MWHEEL_DN, "WheelDown" },
+    { KEYD_MOUSE1, "MOUSE1" },
+    { KEYD_MOUSE2, "MOUSE2" },
+    { KEYD_MOUSE3, "MOUSE3" },
+    { KEYD_MOUSE4, "MOUSE4" },
+    { KEYD_MOUSE5, "MOUSE5" },
+    { KEYD_MOUSE6, "MOUSE6" },
+    { KEYD_MOUSE7, "MOUSE7" },
+
+    { KEYD_MWHEEL_UP, "WHEELUP"   },
+    { KEYD_MWHEEL_DN, "WHEELDOWN" },
+
+    { KEYD_JOYBUT1, "JOYBUT1" },
+    { KEYD_JOYBUT2, "JOYBUT2" },
+    { KEYD_JOYBUT3, "JOYBUT3" },
+    { KEYD_JOYBUT4, "JOYBUT4" },
+    { KEYD_JOYBUT5, "JOYBUT5" },
+    { KEYD_JOYBUT6, "JOYBUT6" },
+    { KEYD_JOYBUT7, "JOYBUT7" },
+    { KEYD_JOYBUT8, "JOYBUT8" },
+    { KEYD_JOYBUT9, "JOYBUT9" },
 
 	// the end
     { 0, "" }
@@ -270,14 +281,14 @@ key_link_t  all_binds[] =
 
 	// Movement
     { "forward",       &key_forward,     KEYD_UPARROW,   'W' },
-    { "back",          &key_backward,    KEYD_DOWNARROW, 'S' },
-    { "strafeleft",    &key_strafeleft,  ',', 'A' },
-    { "straferight",   &key_straferight, '.', 'D' },
-    { "up",            &key_flyup,       KEYD_INSERT, '/' },
-    { "down",          &key_flydown,     KEYD_DELETE, 'V' },
+    { "back",          &key_back,        KEYD_DOWNARROW, 'S' },
+    { "left",          &key_left,        ',', 'A' },
+    { "right",         &key_right,       '.', 'D' },
+    { "up",            &key_up,          KEYD_INSERT, '/' },
+    { "down",          &key_down,        KEYD_DELETE, 'V' },
 
-    { "left",          &key_left,        KEYD_LEFTARROW,  0 },
-    { "right",         &key_right,       KEYD_RIGHTARROW, 0 },
+    { "turnleft",      &key_turnleft,    KEYD_LEFTARROW,  0 },
+    { "turnright",     &key_turnright,   KEYD_RIGHTARROW, 0 },
     { "lookup",        &key_lookup,      KEYD_PGUP, 0 },
     { "lookdown",      &key_lookdown,    KEYD_PGDN, 0 },
     { "lookcenter",    &key_lookcenter,  KEYD_HOME, KEYD_END },
@@ -324,7 +335,7 @@ void E_ResetAllBinds(void)
 		if (link->def_key2) link->bind->Add(link->def_key2);
 	}
 
-	key_fire.Add(KEYD_JOYBASE);
+	key_fire.Add(KEYD_JOYBUT1);
 }
 
 key_link_t *E_FindKeyBinding(const char *func_name)
@@ -349,9 +360,9 @@ std::string E_FormatConfig(key_link_t *link)
 		{
 			result += "bind ";
 			result += E_GetKeyName(link->bind->keys[i]);
-			result += " ";
+			result += " \"";
 			result += link->name;
-			result += "\n";
+			result += "\"\n";
 		}
 
 	return result;
