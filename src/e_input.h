@@ -71,14 +71,13 @@ extern key_binding_c key_use;
 extern key_binding_c key_strafe;
 extern key_binding_c key_speed;
 extern key_binding_c key_autorun;
-extern key_binding_c key_nextweapon;
-extern key_binding_c key_prevweapon;
-extern key_binding_c key_map;
 extern key_binding_c key_180;
-extern key_binding_c key_talk;
-extern key_binding_c key_console;
 extern key_binding_c key_mlook;  // -AJA- 1999/07/27.
 extern key_binding_c key_reload;  // -AJA- 2004/11/10.
+
+extern key_binding_c key_weapons[10]; // -AJA- 2009/06/20.
+extern key_binding_c key_nextweapon;
+extern key_binding_c key_prevweapon;
 
 #endif  /* __E_INPUT_H__ */
 

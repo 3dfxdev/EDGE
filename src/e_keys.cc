@@ -168,6 +168,8 @@ extern key_binding_c key_am_left, key_am_right, key_am_up, key_am_down;
 extern key_binding_c key_am_zoomin, key_am_zoomout, key_am_big;
 extern key_binding_c key_am_follow, key_am_grid, key_am_mark, key_am_clear;
 
+extern key_binding_c key_console, key_talk;
+
 
 key_link_t  all_binds[] =
 {
@@ -200,6 +202,16 @@ key_link_t  all_binds[] =
     { "mlook",         &key_mlook,       'M', 0 },
 
 	// Weapons
+    { "weapon1",       &key_weapons[1],  '1', 0 },
+    { "weapon2",       &key_weapons[2],  '2', 0 },
+    { "weapon3",       &key_weapons[3],  '3', 0 },
+    { "weapon4",       &key_weapons[4],  '4', 0 },
+    { "weapon5",       &key_weapons[5],  '5', 0 },
+    { "weapon6",       &key_weapons[6],  '6', 0 },
+    { "weapon7",       &key_weapons[7],  '7', 0 },
+    { "weapon8",       &key_weapons[8],  '8', 0 },
+    { "weapon9",       &key_weapons[9],  '9', 0 },
+    { "weapon0",       &key_weapons[0],  '0', 0 },
     { "nextweapon",    &key_nextweapon,  KEYD_MWHEEL_UP, 0 },
     { "prevweapon",    &key_prevweapon,  KEYD_MWHEEL_DN, 0 },
 
@@ -211,7 +223,7 @@ key_link_t  all_binds[] =
 
 	{ "am_zoomin",     &key_am_zoomin,   '=', 0 },
 	{ "am_zoomout",    &key_am_zoomout,  '-', 0 },
-	{ "am_big",        &key_am_big,      '0', 0 },
+	{ "am_big",        &key_am_big,      'B', 0 },
 
     { "am_follow",     &key_am_follow,   'F', 0 },
     { "am_grid",       &key_am_grid,     'G', 0 },

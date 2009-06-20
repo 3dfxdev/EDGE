@@ -44,6 +44,9 @@
 #define CON_WIPE_TICS  12
 
 
+key_binding_c key_console;
+
+
 static visible_t con_visible;
 
 // stores the console toggle effect
