@@ -83,18 +83,17 @@ key_binding_c key_use;
 key_binding_c key_strafe;
 key_binding_c key_speed;
 key_binding_c key_autorun;
-key_binding_c key_nextweapon;
-key_binding_c key_prevweapon;
-key_binding_c key_map;
 key_binding_c key_180;
-key_binding_c key_talk;
-key_binding_c key_console;
 key_binding_c key_mlook;
 key_binding_c key_reload;
 
 // -MH- 1998/07/10 Flying keys
 key_binding_c key_flyup;
 key_binding_c key_flydown;
+
+key_binding_c key_weapons[10]; // -AJA- 2009/06/20.
+key_binding_c key_nextweapon;
+key_binding_c key_prevweapon;
 
 #define MAXPLMOVE  (forwardmove[1])
 
@@ -128,23 +127,6 @@ cvar_c in_shiftlook;
 // The last one is ignored (AXIS_DISABLE)
 static float analogue[6] = {0, 0, 0, 0, 0, 0};
 
-
-bool E_InputCheckKey(int keynum)
-{
-#ifdef DEVELOPERS
-	if ((keynum >> 16) > NUMKEYS)
-		I_Error("Invalid key!");
-	else if ((keynum & 0xffff) > NUMKEYS)
-		I_Error("Invalid key!");
-#endif
-
-	if (gamekeydown[keynum >> 16] & GK_DOWN)
-		return true;
-	else if (gamekeydown[keynum & 0xffff] & GK_DOWN)
-		return true;
-	else
-		return false;
-}
 
 #if 0  // UNUSED ???
 static int CmdChecksum(ticcmd_t * cmd)
@@ -353,9 +335,9 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 		cmd->extbuttons |= EBT_RELOAD;
 
 	// -KM- 1998/11/25 Weapon change key
-	for (int w = 0; w < WEAPON_KEYS; w++)
+	for (int w = 0; w < 10; w++)
 	{
-		if (E_InputCheckKey('0' + w))
+		if (key_weapons[w].IsPressed())
 		{
 			cmd->buttons |= BT_CHANGE;
 			cmd->buttons |= w << BT_WEAPONSHIFT;

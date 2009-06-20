@@ -61,6 +61,8 @@
 bool chat_on;
 static hu_itext_t w_chat;
 
+key_binding_c key_talk;
+
 std::string w_map_title;
 
 static char *chat_dest;
