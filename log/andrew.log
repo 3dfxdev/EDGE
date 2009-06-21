@@ -1,5 +1,15 @@
 Andrew Apted's Log
 
+2009/06/21:
+
+RTS Scripts: reworked the logic for multiplayer games,
+making it sane.  RAD_RunTriggers() is called from P_Ticker
+instead of the previous hack of calling RAD_DoRadiTrigger
+from inside the player thinker.  It also maintains a mask
+of players who activated the script (trig->acti_players).
+The NETMODE and TAGGED_PLAYER_SPECIFIC crap can go away
+(silently ignored for compatibility).
+
 2009/06/20:
 
 Worked on a simple key binding system.  The guts of it are

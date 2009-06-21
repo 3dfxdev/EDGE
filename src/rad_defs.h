@@ -401,7 +401,7 @@ typedef struct rts_state_s
 	int tics;
 
 	// routine to be performed
-	void (*action)(struct rad_trigger_s *trig, mobj_t *actor, void *param);
+	void (*action)(struct rad_trigger_s *trig, void *param);
 
 	// parameter for routine, or NULL
 	void *param;
@@ -534,9 +534,6 @@ typedef struct rad_script_s
 
 	// Requires no player intervention ?
 	bool tagged_immediate;
-
-	// Should external enables/disables be player specific ?
-	bool tagged_player_specific;
 
 	// Tagged_Repeat info (normal if repeat_count < 0)
 	int repeat_count;
