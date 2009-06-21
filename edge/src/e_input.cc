@@ -168,7 +168,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	float upward = 0;  // -MH- 1998/08/18 Fly Up/Down movement
 	float side = 0;
 
-	if (key_right.IsPressed() || key_left.IsPressed())
+	if (key_turnright.IsPressed() || key_turnleft.IsPressed())
 		turnheld++;
 	else
 		turnheld = 0;
