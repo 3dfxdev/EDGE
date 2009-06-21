@@ -24,7 +24,6 @@ CFN000_P cfn000_p.png
 CFN132_P cfn132_p.png
 CFN134_P cfn134_p.png
 CFN148_P cfn148_p.png
-CONFONT2 confont2.png
 CONTRL_P contrl_p.png
 CROSSHR1 crosshr1.png
 CROSSHR2 crosshr2.png
