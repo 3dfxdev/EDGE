@@ -97,7 +97,7 @@ static specialkey_t keynames[] =
 	{ KEYD_KP_MINUS, "KP_MINUS" },
 	{ KEYD_KP_STAR,  "KP_STAR" },
 	{ KEYD_KP_SLASH, "KP_SLASH" },
-	{ KEYD_KP_EQUAL, "KP_EQUAL" },
+	{ KEYD_KP_EQUAL, "KP_EQUALS" },
 	{ KEYD_KP_ENTER, "KP_ENTER" },
 
 	// mouse and joystick buttons

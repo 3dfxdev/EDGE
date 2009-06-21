@@ -1,5 +1,13 @@
 Andrew Apted's Log
 
+2009/06/22:
+
+Added basic support for keys on the keypad (numberpad).
+The 'in_keypad' cvar must be set to 1 (default is zero).
+The names (for bind) are: KP_0, KP_1 .. KP_9, KP_DOT,
+KP_PLUS, KP_MINUS, KP_STAR, KP_SLASH, KP_EQUALS and
+KP_ENTER.
+
 2009/06/21:
 
 RTS Scripts: reworked the logic for multiplayer games,
