@@ -473,20 +473,6 @@ s_onheight_t;
 // Trigger Definition (Made up of actions)
 // Start_Map & Radius_Trigger Declaration
 
-// Multiplayer info
-typedef enum
-{
-	// spawn a separate trigger for each player
-	RNET_Separate,
-
-	// spawn only a single trigger, "absolute" semantics
-	RNET_Absolute,
-
-	// not specified -- try to automatically detect it
-	RNET_Auto
-}
-rad_script_netmode_e;
-
 typedef struct rad_script_s
 {
 	// link in list
@@ -501,9 +487,6 @@ typedef struct rad_script_s
 
 	int min_players;
 	int max_players;
-
-	// Handling for multiple players
-	rad_script_netmode_e netmode;
 
 	// Map Coordinates
 	float x, y, z;
