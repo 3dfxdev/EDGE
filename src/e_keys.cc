@@ -53,19 +53,20 @@ static specialkey_t keynames[] =
 
     { KEYD_ESCAPE,  "ESCAPE" },
     { KEYD_ENTER,   "ENTER" },
+    { KEYD_SPACE,   "SPACE" },
+    { KEYD_TILDE,   "TILDE" },
     { KEYD_INSERT,  "INSERT" },
     { KEYD_DELETE,  "DELETE" },
     { KEYD_PGDN,    "PAGEDOWN" },
     { KEYD_PGUP,    "PAGEUP" },
     { KEYD_HOME,    "HOME" },
     { KEYD_END,     "END" },
-    { KEYD_SPACE,   "SPACE" },
-    { KEYD_TILDE,   "TILDE" },
     { KEYD_SHIFT,   "SHIFT" },
     { KEYD_CTRL,    "CTRL" },
     { KEYD_ALT,     "ALT" },
     { KEYD_TAB,     "TAB" },
 
+	// function keys
     { KEYD_F1,  "F1" },
     { KEYD_F2,  "F2" },
     { KEYD_F3,  "F3" },
@@ -78,6 +79,26 @@ static specialkey_t keynames[] =
     { KEYD_F10, "F10" },
     { KEYD_F11, "F11" },
     { KEYD_F12, "F12" },
+
+	// keypad
+	{ KEYD_KP0, "KP_0" },
+	{ KEYD_KP1, "KP_1" },
+	{ KEYD_KP2, "KP_2" },
+	{ KEYD_KP3, "KP_3" },
+	{ KEYD_KP4, "KP_4" },
+	{ KEYD_KP5, "KP_5" },
+	{ KEYD_KP6, "KP_6" },
+	{ KEYD_KP7, "KP_7" },
+	{ KEYD_KP8, "KP_8" },
+	{ KEYD_KP9, "KP_9" },
+
+	{ KEYD_KP_DOT,   "KP_DOT" },
+	{ KEYD_KP_PLUS,  "KP_PLUS" },
+	{ KEYD_KP_MINUS, "KP_MINUS" },
+	{ KEYD_KP_STAR,  "KP_STAR" },
+	{ KEYD_KP_SLASH, "KP_SLASH" },
+	{ KEYD_KP_EQUAL, "KP_EQUAL" },
+	{ KEYD_KP_ENTER, "KP_ENTER" },
 
 	// mouse and joystick buttons
     { KEYD_MOUSE1, "MOUSE1" },
