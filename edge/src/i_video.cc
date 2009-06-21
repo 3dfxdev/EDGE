@@ -106,7 +106,6 @@ void I_StartupGraphics(void)
 	if (SDL_InitSubSystem(SDL_INIT_VIDEO) != 0)
 		I_Error("Couldn't init SDL VIDEO!\n%s\n", SDL_GetError());
 
-	M_CheckBooleanParm("warpmouse", &use_warp_mouse, false);
 	M_CheckBooleanParm("grab", &use_grab, false);
 
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE,     5);
@@ -116,7 +115,7 @@ void I_StartupGraphics(void)
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,   16);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 0);
 
-	
+
     // -DS- 2005/06/27 Detect SDL Resolutions
 	const SDL_VideoInfo *info = SDL_GetVideoInfo ();
 
