@@ -372,82 +372,6 @@ void SetLanguage(void)
 }
 
 
-static void SpecialWadVerify(void)
-{
-	int lump;
-
-	// the WAD version
-	int wad_ver;
-	int wad_ver_frac;
-
-	// the backward compatibility of the WAD
-	int wad_bc;
-	int wad_bc_frac;
-
-	// The sub-version of the WAD (100% compatible with other WADs within the same wad_version)
-	int wad_sub_ver;
-	const char *s;
-
-	lump = W_CheckNumForName("EDGEVER");
-	if (lump < 0)
-		I_Error("EDGEVER lump not found. Get EDGE.WAD at http://edge.sourceforge.net/");
-
-	const void *data = W_LoadLumpNum(lump);
-	s = (const char*)data;
-
-	wad_ver = atoi(s);
-	while (isdigit(*s))
-		s++;
-
-	s++;
-	wad_ver_frac = atoi(s);
-	while (isdigit(*s))
-		s++;
-
-	s++;
-	wad_sub_ver = atoi(s);
-	while (*s != '\n')
-		s++;
-
-	while (!isdigit(*s))
-		s++;
-
-	wad_bc = atoi(s);
-	while (isdigit(*s))
-		s++;
-
-	s++;
-	wad_bc_frac = atoi(s);
-
-	Z_Free((void*)data);
-
-	if (wad_ver * 1024 + wad_ver_frac < EDGE_WAD_VERSION * 1024 + EDGE_WAD_VERSION_FRAC)
-	{
-		I_Error("EDGE.WAD version %d.%d found, version %d.%d is required.\n"
-				"Get it at http://edge.sourceforge.net/", wad_ver, wad_ver_frac,
-				EDGE_WAD_VERSION, EDGE_WAD_VERSION_FRAC);
-	}
-
-	if (wad_bc * 1024 + wad_bc_frac > EDGE_WAD_VERSION * 1024 + EDGE_WAD_VERSION_FRAC)
-	{
-		I_Error("EDGE.WAD version %d.%d required, found too new version %d.%d\n"
-				"which is not backward compatible enough. Get an older EDGE.WAD or\n"
-				"a newer EDGE version at http://edge.sourceforge.net/",
-				EDGE_WAD_VERSION, EDGE_WAD_VERSION_FRAC, wad_ver, wad_ver_frac);
-	}
-
-	if (wad_ver > EDGE_WAD_VERSION)
-	{
-		I_Warning("EDGE.WAD version %d.%d required, found newer version %d.%d.\n"
-				  "This version of EDGE is probably out-of-date, newer versions are\n"
-				  "available at http://edge.sourceforge.net/",
-				  EDGE_WAD_VERSION, EDGE_WAD_VERSION_FRAC, wad_ver, wad_ver_frac);
-	}
-
-	I_Printf("EDGE.WAD version %d.%d.%d found.\n", wad_ver, wad_ver_frac, wad_sub_ver);
-}
-
-
 static void ShowNotice(void)
 {
 	CON_MessageColor(RGB_MAKE(64,192,255));
@@ -1225,7 +1149,6 @@ startuporder_t startcode[] =
 	{  3, W_InitFlats          },
 	{ 10, W_InitTextures       },
 	{  1, CON_Start            },
-	{  1, SpecialWadVerify     },
 	{  1, M_InitMiscConVars    },
 	{ 20, W_ReadDDF            },
 	{  1, DDF_CleanUp          },
