@@ -49,6 +49,8 @@ JPIDL_WV jpidl_wv.wav
 JPMOV_WV jpmov_wv.wav
 JPRIS_WV jpris_wv.wav
 LAVAMAP lavamap.raw
+LUAHUD0 ../doom_ddf/huds.lua
+LUAUTIL0 ../doom_ddf/util.lua
 MSETTL_P msettl_p.png
 NITEVMAP nitevmap.raw
 NVSCA0_P nvsca0_p.png
