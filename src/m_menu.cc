@@ -1497,7 +1497,7 @@ bool M_Responder(event_t * ev)
 	int ch = ev->value.key.sym;
 
 	// -ACB- 1999/10/11 F1 is responsible for print screen at any time
-	if (ch == KEYD_F1 || ch == KEYD_PRTSCR)
+	if (ch == KEYD_F1 || ch == KEYD_PRINT)
 	{
 		G_DeferredScreenShot();
 		return true;
@@ -1639,7 +1639,7 @@ bool M_Responder(event_t * ev)
 	{
 		switch (ch)
 		{
-			case KEYD_MINUS:  // Screen size down
+			case '-':  // Screen size down
 
 				if (automapactive || chat_on)
 					return false;
@@ -1649,7 +1649,8 @@ bool M_Responder(event_t * ev)
 				S_StartFX(sfx_stnmov);
 				return true;
 
-			case KEYD_EQUALS:  // Screen size up
+			case '+':
+			case '=':  // Screen size up
 
 				if (automapactive || chat_on)
 					return false;

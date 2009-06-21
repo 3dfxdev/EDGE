@@ -40,7 +40,9 @@ extern cvar_c debug_fullbright, debug_subsector;
 extern cvar_c sys_directx, sys_waveout;
 
 extern cvar_c in_autorun, in_stageturn, in_shiftlook;
-extern cvar_c in_warpmouse;
+extern cvar_c in_warpmouse;  // in_grabmouse
+extern cvar_c in_keypad;
+
 extern cvar_c mouse_xaxis, mouse_yaxis;
 extern cvar_c mouse_xsens, mouse_ysens;
 extern cvar_c mouse_invert;
@@ -104,9 +106,11 @@ cvar_link_t  all_cvars[] =
 	{ "am_smoothing",   &am_smoothing,   "c",   "1"  },
                                         
 	{ "in_autorun",     &in_autorun,     "c",   "0"  },
+	{ "in_keypad",      &in_keypad,      "c",   "0"  },
 	{ "in_stageturn",   &in_stageturn,   "c",   "1"  },
 	{ "in_shiftlook",   &in_shiftlook,   "c",   "1"  },
 	{ "in_warpmouse",   &in_warpmouse,   "",    "0"  },
+//	{ "in_grabmouse",   &in_grabmouse,   "",    "1"  },
 
 	{ "mouse_xaxis",    &mouse_xaxis,    "c",   "0" /* AXIS_TURN */  },
 	{ "mouse_yaxis",    &mouse_yaxis,    "c",   "3" /* AXIS_MLOOK */ },
