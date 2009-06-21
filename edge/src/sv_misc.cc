@@ -227,6 +227,7 @@ static savefield_t sv_fields_trigger[] =
 
 	SF(disabled, "disabled", 1, SVT_BOOLEAN, SR_GetBoolean, SR_PutBoolean),
 	SF(activated, "activated", 1, SVT_BOOLEAN, SR_GetBoolean, SR_PutBoolean),
+	SF(acti_players, "acti_players", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(repeats_left, "repeats_left", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(repeat_delay, "repeat_delay", 1, SVT_INT, SR_GetInt, SR_PutInt),
 

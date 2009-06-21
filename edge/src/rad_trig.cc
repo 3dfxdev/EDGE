@@ -345,7 +345,7 @@ bool RAD_WithinRadius(mobj_t * mo, rad_script_t * r)
 }
 
 
-static int RAD_AllPlayersInRadius(rad_script_t * r)
+static int RAD_AlivePlayers(void)
 {
 	int result = 0;
 
@@ -353,17 +353,29 @@ static int RAD_AllPlayersInRadius(rad_script_t * r)
 	{
 		player_t *p = players[pnum];
 
-		if (p && p->playerstate != PST_DEAD &&
-			RAD_WithinRadius(p->mo, r))
-		{
+		if (p && p->playerstate != PST_DEAD)
 			result |= (1 << pnum);
-		}
 	}
 
 	return result;
 }
 
-static int RAD_AllPlayersUsing(void)
+static int RAD_AllPlayersInRadius(rad_script_t * r, int mask)
+{
+	int result = 0;
+
+	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
+	{
+		player_t *p = players[pnum];
+
+		if (p && (mask & (1 << pnum)) && RAD_WithinRadius(p->mo, r))
+			result |= (1 << pnum);
+	}
+
+	return result;
+}
+
+static int RAD_AllPlayersUsing(int mask)
 {
 	int result = 0;
 
@@ -375,7 +387,7 @@ static int RAD_AllPlayersUsing(void)
 			result |= (1 << pnum);
 	}
 
-	return result;
+	return result & mask;
 }
 
 static int RAD_AllPlayersCheckCond(rad_script_t * r, int mask)
@@ -386,11 +398,8 @@ static int RAD_AllPlayersCheckCond(rad_script_t * r, int mask)
 	{
 		player_t *p = players[pnum];
 
-		if (p && (mask & (1 << pnum)) &&
-			G_CheckConditions(p->mo, r->cond_trig))
-		{
+		if (p && (mask & (1 << pnum)) && G_CheckConditions(p->mo, r->cond_trig))
 			result |= (1 << pnum);
-		}
 	}
 
 	return result;
@@ -587,15 +596,14 @@ void RAD_RunTriggers(void)
 
 		if (! (trig->info->tagged_independent && trig->activated))
 		{
-			int mask = 0x7FFFFFFF;
+			int mask = RAD_AlivePlayers();
 
 			// Immediate triggers are just that. Immediate.
 			// Not within range so skip it.
 
 			if (!trig->info->tagged_immediate)
 			{
-				mask &= RAD_AllPlayersInRadius(trig->info);
-
+				mask = RAD_AllPlayersInRadius(trig->info, mask);
 				if (mask == 0)
 					continue;
 			}
@@ -603,8 +611,7 @@ void RAD_RunTriggers(void)
 			// Check for use key trigger.
 			if (trig->info->tagged_use)
 			{
-				mask &= RAD_AllPlayersUsing();
-
+				mask = RAD_AllPlayersUsing(mask);
 				if (mask == 0)
 					continue;
 			}
@@ -640,13 +647,13 @@ void RAD_RunTriggers(void)
 			// condition check...
 			if (trig->info->cond_trig)
 			{
-				mask &= RAD_AllPlayersCheckCond(trig->info, mask);
-
+				mask = RAD_AllPlayersCheckCond(trig->info, mask);
 				if (mask == 0)
 					continue;
 			}
 
 			trig->activated = true;
+			trig->acti_players = mask;
 		}
 
 		// If we are waiting, decrement count and skip it.
