@@ -354,30 +354,53 @@ void RAD_Ticker(void)
 
 // --- Radius Trigger Actions -----------------------------------------------
 
-void RAD_ActNOP(rad_trigger_t *R, mobj_t *actor, void *param)
+
+static player_t *GetWhoDunnit(rad_trigger_t *R)
+{
+	// this IS NOT CORRECT, but matches old behavior
+	if (numplayers == 1)
+		return players[consoleplayer];
+
+	if (R->acti_players == 0)
+		return NULL;
+
+	// does the activator list have only one player?
+	// if so, return that one.
+	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
+		if (R->acti_players == (1 << pnum))
+			return players[pnum];
+
+	// there are multiple players who triggered the script.
+	// one option: select one of them (round robin style).
+	// However the following is probably more correct.
+	return NULL;
+}
+
+
+void RAD_ActNOP(rad_trigger_t *R, void *param)
 {
 	// No Operation
 }
 
-void RAD_ActTip(rad_trigger_t *R, mobj_t *actor, void *param)
+void RAD_ActTip(rad_trigger_t *R, void *param)
 {
 	s_tip_t *tip = (s_tip_t *) param;
 
 	// Only display the tip to the player that stepped into the radius
 	// trigger.
 
-	if (actor->player != players[consoleplayer])
+	if (numplayers > 1 && (R->acti_players & (1 << consoleplayer)) == 0)
 		return;
 
 	SendTip(R, tip, R->tip_slot);
 }
 
-void RAD_ActTipProps(rad_trigger_t *R, mobj_t *actor, void *param)
+void RAD_ActTipProps(rad_trigger_t *R, void *param)
 {
 	s_tip_prop_t *tp = (s_tip_prop_t *) param;
 	drawtip_t *current;
 
-	if (actor->player != players[consoleplayer])
+	if (numplayers > 1 && (R->acti_players & (1 << consoleplayer)) == 0)
 		return;
 
 	if (tp->slot_num >= 0)
@@ -414,7 +437,7 @@ void RAD_ActTipProps(rad_trigger_t *R, mobj_t *actor, void *param)
 	current->dirty = true;
 }
 
-void RAD_ActSpawnThing(rad_trigger_t *R, mobj_t *actor, void *param)
+void RAD_ActSpawnThing(rad_trigger_t *R, void *param)
 {
 	s_thing_t *t = (s_thing_t *) param;
 
@@ -491,7 +514,7 @@ void RAD_ActSpawnThing(rad_trigger_t *R, mobj_t *actor, void *param)
 		mo->path_trigger = R->info;
 }
 
-void RAD_ActDamagePlayers(rad_trigger_t *R, mobj_t *actor, void *param)
+void RAD_ActDamagePlayers(rad_trigger_t *R, void *param)
 {
 	s_damagep_t *damage = (s_damagep_t *) param;
 
@@ -509,7 +532,7 @@ void RAD_ActDamagePlayers(rad_trigger_t *R, mobj_t *actor, void *param)
 	}
 }
 
-void RAD_ActHealPlayers(rad_trigger_t *R, mobj_t *actor, void *param)
+void RAD_ActHealPlayers(rad_trigger_t *R, void *param)
 {
 	s_healp_t *heal = (s_healp_t *) param;
 
@@ -534,7 +557,7 @@ void RAD_ActHealPlayers(rad_trigger_t *R, mobj_t *actor, void *param)
 	}
 }
 
-void RAD_ActArmourPlayers(rad_trigger_t *R, mobj_t *actor, void *param)
+void RAD_ActArmourPlayers(rad_trigger_t *R, void *param)
 {
 	s_armour_t *armour = (s_armour_t *) param;
 
@@ -561,7 +584,7 @@ void RAD_ActArmourPlayers(rad_trigger_t *R, mobj_t *actor, void *param)
 	}
 }
 
-void RAD_ActBenefitPlayers(rad_trigger_t *R, mobj_t *actor, void *param)
+void RAD_ActBenefitPlayers(rad_trigger_t *R, void *param)
 {
 	s_benefit_t *be = (s_benefit_t *) param;
 
@@ -577,7 +600,7 @@ void RAD_ActBenefitPlayers(rad_trigger_t *R, mobj_t *actor, void *param)
 	}
 }
 
-void RAD_ActDamageMonsters(rad_trigger_t *R, mobj_t *actor, void *param)
+void RAD_ActDamageMonsters(rad_trigger_t *R, void *param)
 {
 	s_damage_monsters_t *mon = (s_damage_monsters_t *) param;
 
@@ -602,6 +625,8 @@ void RAD_ActDamageMonsters(rad_trigger_t *R, mobj_t *actor, void *param)
 	mobj_t *mo;
 	mobj_t *next;
 
+	player_t *player = GetWhoDunnit(R);
+
 	for (mo = mobjlisthead; mo != NULL; mo = next)
 	{
 		next = mo->next;
@@ -618,11 +643,12 @@ void RAD_ActDamageMonsters(rad_trigger_t *R, mobj_t *actor, void *param)
 		if (! RAD_WithinRadius(mo, R->info))
 			continue;
 
-		P_DamageMobj(mo, NULL, actor, mon->damage_amount, NULL);
+		P_DamageMobj(mo, NULL, player ? player->mo : NULL,
+		             mon->damage_amount, NULL);
 	}
 }
 
-void RAD_ActThingEvent(rad_trigger_t *R, mobj_t *actor, void *param)
+void RAD_ActThingEvent(rad_trigger_t *R, void *param)
 {
 	s_thing_event_t *tev = (s_thing_event_t *) param;
 
@@ -682,7 +708,7 @@ void RAD_ActThingEvent(rad_trigger_t *R, mobj_t *actor, void *param)
 	}
 }
 
-void RAD_ActGotoMap(rad_trigger_t *R, mobj_t *actor, void *param)
+void RAD_ActGotoMap(rad_trigger_t *R, void *param)
 {
 	s_gotomap_t *go = (s_gotomap_t *) param;
 
@@ -693,7 +719,7 @@ void RAD_ActGotoMap(rad_trigger_t *R, mobj_t *actor, void *param)
 		G_ExitToLevel(go->map_name, 5, go->skip_all);
 }
 
-void RAD_ActExitLevel(rad_trigger_t *R, mobj_t *actor, void *param)
+void RAD_ActExitLevel(rad_trigger_t *R, void *param)
 {
 	s_exit_t *exit = (s_exit_t *) param;
 
@@ -703,7 +729,7 @@ void RAD_ActExitLevel(rad_trigger_t *R, mobj_t *actor, void *param)
 		G_ExitLevel(exit->exittime);
 }
 
-void RAD_ActPlaySound(rad_trigger_t *R, mobj_t *actor, void *param)
+void RAD_ActPlaySound(rad_trigger_t *R, void *param)
 {
 	s_sound_t *ambient = (s_sound_t *) param;
 
@@ -724,19 +750,19 @@ void RAD_ActPlaySound(rad_trigger_t *R, mobj_t *actor, void *param)
 	S_StartFX(ambient->sfx, SNCAT_Level, &R->sfx_origin, flags);
 }
 
-void RAD_ActKillSound(rad_trigger_t *R, mobj_t *actor, void *param)
+void RAD_ActKillSound(rad_trigger_t *R, void *param)
 {
  	S_StopFX(&R->sfx_origin);
 }
 
-void RAD_ActChangeMusic(rad_trigger_t *R, mobj_t *actor, void *param)
+void RAD_ActChangeMusic(rad_trigger_t *R, void *param)
 {
 	s_music_t *music = (s_music_t *) param;
 
 	S_ChangeMusic(music->playnum, music->looping);
 }
 
-void RAD_ActChangeTex(rad_trigger_t *R, mobj_t *actor, void *param)
+void RAD_ActChangeTex(rad_trigger_t *R, void *param)
 {
 	s_changetex_t *ctex = (s_changetex_t *) param;
 
@@ -835,7 +861,7 @@ void RAD_ActChangeTex(rad_trigger_t *R, mobj_t *actor, void *param)
 	}
 }
 
-void RAD_ActSkill(rad_trigger_t *R, mobj_t *actor, void *param)
+void RAD_ActSkill(rad_trigger_t *R, void *param)
 {
 	s_skill_t *skill = (s_skill_t *) param;
 
@@ -869,7 +895,7 @@ static void MoveOneSector(sector_t *sec, s_movesector_t *t)
 	P_SolidSectorMove(sec, t->is_ceiling, dh);
 }
 
-void RAD_ActMoveSector(rad_trigger_t *R, mobj_t *actor, void *param)
+void RAD_ActMoveSector(rad_trigger_t *R, void *param)
 {
 	s_movesector_t *t = (s_movesector_t *) param;
 	int i;
@@ -900,7 +926,7 @@ static void LightOneSector(sector_t *sec, s_lightsector_t *t)
 		sec->props.lightlevel = I_ROUND(t->value);
 }
 
-void RAD_ActLightSector(rad_trigger_t *R, mobj_t *actor, void *param)
+void RAD_ActLightSector(rad_trigger_t *R, void *param)
 {
 	s_lightsector_t *t = (s_lightsector_t *) param;
 	int i;
@@ -923,7 +949,7 @@ void RAD_ActLightSector(rad_trigger_t *R, mobj_t *actor, void *param)
 	}
 }
 
-void RAD_ActEnableScript(rad_trigger_t *R, mobj_t *actor, void *param)
+void RAD_ActEnableScript(rad_trigger_t *R, void *param)
 {
 	s_enabler_t *t = (s_enabler_t *) param;
 	rad_trigger_t *other;
@@ -944,14 +970,17 @@ void RAD_ActEnableScript(rad_trigger_t *R, mobj_t *actor, void *param)
 	}
 }
 
-void RAD_ActActivateLinetype(rad_trigger_t *R, mobj_t *actor, void *param)
+void RAD_ActActivateLinetype(rad_trigger_t *R, void *param)
 {
 	s_lineactivator_t *t = (s_lineactivator_t *) param;
 
-	P_RemoteActivation(actor, t->typenum, t->tag, 0, line_Any);
+	player_t *player = GetWhoDunnit(R);
+
+	P_RemoteActivation(player ? player->mo : NULL,
+	                   t->typenum, t->tag, 0, line_Any);
 }
 
-void RAD_ActUnblockLines(rad_trigger_t *R, mobj_t *actor, void *param)
+void RAD_ActUnblockLines(rad_trigger_t *R, void *param)
 {
 	s_lineunblocker_t *ub = (s_lineunblocker_t *) param;
 
@@ -975,7 +1004,7 @@ void RAD_ActUnblockLines(rad_trigger_t *R, mobj_t *actor, void *param)
 	}
 }
 
-void RAD_ActBlockLines(rad_trigger_t *R, mobj_t *actor, void *param)
+void RAD_ActBlockLines(rad_trigger_t *R, void *param)
 {
 	s_lineunblocker_t *ub = (s_lineunblocker_t *) param;
 
@@ -993,7 +1022,7 @@ void RAD_ActBlockLines(rad_trigger_t *R, mobj_t *actor, void *param)
 	}
 }
 
-void RAD_ActJump(rad_trigger_t *R, mobj_t *actor, void *param)
+void RAD_ActJump(rad_trigger_t *R, void *param)
 {
 	s_jump_t *t = (s_jump_t *) param;
 
@@ -1016,20 +1045,23 @@ void RAD_ActJump(rad_trigger_t *R, mobj_t *actor, void *param)
 	R->wait_tics += 1;
 }
 
-void RAD_ActSleep(rad_trigger_t *R, mobj_t *actor, void *param)
+void RAD_ActSleep(rad_trigger_t *R, void *param)
 {
 	R->disabled = true;
 }
 
-void RAD_ActRetrigger(rad_trigger_t *R, mobj_t *actor, void *param)
+void RAD_ActRetrigger(rad_trigger_t *R, void *param)
 {
 	R->activated = false;
 	R->acti_players = 0;
 }
 
-void RAD_ActShowMenu(rad_trigger_t *R, mobj_t *actor, void *param)
+void RAD_ActShowMenu(rad_trigger_t *R, void *param)
 {
 	s_show_menu_t *menu = (s_show_menu_t *) param;
+
+	if (numplayers > 1 && (R->acti_players & (1 << consoleplayer)) == 0)
+		return;
 
 	if (rts_menuactive)
 	{
@@ -1042,7 +1074,7 @@ void RAD_ActShowMenu(rad_trigger_t *R, mobj_t *actor, void *param)
 	RAD_StartMenu(R, menu);
 }
 
-void RAD_ActMenuStyle(rad_trigger_t *R, mobj_t *actor, void *param)
+void RAD_ActMenuStyle(rad_trigger_t *R, void *param)
 {
 	s_menu_style_t *mm = (s_menu_style_t *) param;
 
@@ -1051,7 +1083,7 @@ void RAD_ActMenuStyle(rad_trigger_t *R, mobj_t *actor, void *param)
 	R->menu_style_name = SV_DupString(mm->style);
 }
 
-void RAD_ActJumpOn(rad_trigger_t *R, mobj_t *actor, void *param)
+void RAD_ActJumpOn(rad_trigger_t *R, void *param)
 {
 	s_jump_on_t *jm = (s_jump_on_t *) param;
 

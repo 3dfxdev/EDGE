@@ -676,10 +676,7 @@ void RAD_RunTriggers(void)
 			//
 			trig->state = trig->state->next;
 
-			// FIXME !!!!!!  RUBBISH
-			player_t *p = players[consoleplayer];
-
-			(*state->action)(trig, p->mo, state->param);
+			(*state->action)(trig, state->param);
 
 			if (trig->state == NULL)
 				break;

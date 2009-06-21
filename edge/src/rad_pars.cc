@@ -451,7 +451,7 @@ static bool CheckForBoolean(const char *s)
 	return false;
 }
 
-static void DoParsePlayerSet(const char *info, u32_t *set)
+void RAD_ParsePlayerSet(const char *info, u32_t *set)
 {
 	const char *p = info;
 	const char *next;
@@ -491,7 +491,7 @@ static void DoParsePlayerSet(const char *info, u32_t *set)
 // for the given radius trigger.
 //
 static void AddStateToScript(rad_script_t *R, int tics,
-							 void (* action)(struct rad_trigger_s *R, mobj_t *actor, void *param), 
+							 void (* action)(struct rad_trigger_s *R, void *param), 
 							 void *param)
 {
 	rts_state_t *state = Z_New(rts_state_t, 1);
@@ -1054,37 +1054,9 @@ static void RAD_ParseWhenPlayerNum(int pnum, const char **pars)
 static void RAD_ParseNetMode(int pnum, const char **pars)
 {
 	// Net_Mode SEPARATE
-	// Net_Mode SEPARATE <player set>
-	//
 	// Net_Mode ABSOLUTE
-	// Net_Mode ABSOLUTE <min players>
-
-	if (DDF_CompareName(pars[1], "SEPARATE") == 0)
-	{
-		this_rad->netmode = RNET_Separate;
-
-		if (pnum >= 3)
-			DoParsePlayerSet(pars[2], &this_rad->what_players);
-
-		return;
-	}
-
-	if (DDF_CompareName(pars[1], "ABSOLUTE") == 0)
-	{
-		this_rad->netmode = RNET_Absolute;
-
-		if (pnum >= 3)
-		{
-			if (DDF_CompareName(pars[2], "ALL") == 0)
-				this_rad->absolute_req_players = -1;
-			else
-				RAD_CheckForInt(pars[2], &this_rad->absolute_req_players);
-		}
-
-		return;
-	}
-
-	RAD_Error("%s: unknown mode '%s'\n", pars[0], pars[1]);
+	//
+	// NOTE: IGNORED FOR BACKWARDS COMPATIBILITY
 }
 
 static void RAD_ParseTaggedRepeatable(int pnum, const char **pars)
@@ -1133,10 +1105,7 @@ static void RAD_ParseTaggedPlayerSpecific(int pnum, const char **pars)
 {
 	// Tagged_Player_Specific
 
-	if (this_rad->netmode != RNET_Separate)
-		RAD_Error("%s can only be used with NET_MODE SEPARATE\n", pars[0]);
-
-	this_rad->tagged_player_specific = true;
+	// NOTE: IGNORED FOR BACKWARDS COMPATIBILITY
 }
 
 static void RAD_ParseTaggedDisabled(int pnum, const char **pars)
