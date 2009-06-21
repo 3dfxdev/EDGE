@@ -6,9 +6,16 @@ RTS Scripts: reworked the logic for multiplayer games,
 making it sane.  RAD_RunTriggers() is called from P_Ticker
 instead of the previous hack of calling RAD_DoRadiTrigger
 from inside the player thinker.  It also maintains a mask
-of players who activated the script (trig->acti_players).
-The NETMODE and TAGGED_PLAYER_SPECIFIC crap can go away
-(silently ignored for compatibility).
+of players who activated the script.  My NETMODE and
+TAGGED_PLAYER_SPECIFIC crap can go away (silently
+ignored for compatibility).
+
+The base DDF/RTS files are no longer loaded from EDGE.WAD,
+instead they are loaded from the "doom_ddf" directory.
+This will help when other games (Heretic) are supported,
+since they will require different DDF data.  Plus I just
+like the immediacy of being able to directly edit those
+files -- yes what's old is new again!
 
 2009/06/20:
 

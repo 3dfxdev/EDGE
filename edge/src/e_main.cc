@@ -119,7 +119,6 @@ bool swapstereo = false;
 bool mus_pause_stop = false;
 bool infight = false;
 
-bool external_ddf = false;
 bool hom_detect = false;
 bool autoquickload = false;
 
@@ -778,14 +777,15 @@ void InitDirectories(void)
 		M_ApplyResponseFile(parms.c_str(), M_CheckParm("-game") + 2);
 	}
 
-	ddf_dir = game_dir;
-
 	s = M_GetParm("-ddf");
 	if (s)
 	{
 		ddf_dir = std::string(s);
-		external_ddf = true;
 	} 
+	else
+	{
+		ddf_dir = epi::PATH_Join(game_dir.c_str(), "doom_ddf");
+	}
 
 	DDF_SetWhere(ddf_dir);
 
@@ -834,26 +834,6 @@ void InitDirectories(void)
 
     if (!epi::FS_IsDir(shot_dir.c_str()))
         epi::FS_MakeDir(shot_dir.c_str());
-}
-
-
-//
-// Checks if DDF files exist in the DDF directory, and if so then
-// enables "external-ddf mode", which prevents the DDF lumps within
-// EDGE.WAD from being parsed.
-//
-// -AJA- 2000/05/23: written.
-//
-#define EXTERN_FILE  "things.ddf"
-
-void CheckExternal(void)
-{
-	// too simplistic ?
-
-    std::string test_filename(epi::PATH_Join(game_dir.c_str(), EXTERN_FILE));
-
-	if (epi::FS_Access(test_filename.c_str(), epi::file_c::ACCESS_READ))
-		external_ddf = true;
 }
 
 
@@ -1234,7 +1214,6 @@ startuporder_t;
 
 startuporder_t startcode[] =
 {
-	{  1, CheckExternal        },
 	{  1, InitDDF              },
 	{  1, IdentifyVersion      },
 	{  1, AddCommandLineFiles  },
