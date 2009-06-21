@@ -147,9 +147,6 @@ extern std::string save_dir;
 extern std::string shot_dir;
 extern std::string hub_dir;
 
-// if true, load DDF/RTS as external files (instead of from EDGE.WAD)
-extern bool external_ddf;
-
 // if true, load all graphics at level load
 extern bool precache;
 
