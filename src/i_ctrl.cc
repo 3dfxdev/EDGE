@@ -37,17 +37,12 @@ cvar_c mouse_invert;
 #undef DEBUG_KB
 
 
-// FIXME: Combine all these SDL bool vars into an int/enum'd flags structure
-
 // Work around for alt-tabbing
 bool alt_is_down;
 bool eat_mouse_motion = true;
 
-#if defined(MACOSX) || defined(BeOS) || defined(WIN32)
-bool use_warp_mouse = true;
-#else
-bool use_warp_mouse = false;
-#endif
+cvar_c in_warpmouse;
+
 
 int TranslateSDLKey(int key);
 
@@ -188,7 +183,7 @@ void HandleMouseMotionEvent(SDL_Event * ev)
 {
 	int dx, dy;
 
-	if (use_warp_mouse)
+	if (in_warpmouse.d)
 	{
 		// -DEL- 2001/01/29 SDL_WarpMouse doesn't work properly on beos so
 		// calculate relative movement manually.
@@ -409,6 +404,13 @@ void I_StartupControl(void)
 	// -ACB- 2008/09/20: No longer an option as we need to
 	//                   value for console.
 	SDL_EnableUNICODE(1);
+
+	if (M_CheckParm("-warpmouse"))
+		in_warpmouse = 1;
+
+#ifndef LINUX
+	in_warpmouse = 1;
+#endif
 }
 
 void I_ControlGetEvents(void)
