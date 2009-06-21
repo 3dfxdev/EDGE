@@ -29,31 +29,9 @@
 #ifndef __M_MISC__
 #define __M_MISC__
 
-
 #include "epi/file.h"
 #include "epi/utility.h"
 
-//
-// MISC
-//
-typedef enum
-{
-	CFGT_Int = 0,
-	CFGT_Boolean = 1,
-	CFGT_Key = 2,
-}
-cfg_type_e;
-
-#define CFGT_Enum  CFGT_Int
-
-typedef struct
-{
-	int type;
-	const char *name;
-	void *location;
-	int defaultvalue;
-}
-default_t;
 
 void M_LoadDefaults(void);
 void M_SaveDefaults(void);
@@ -73,8 +51,6 @@ extern unsigned short save_screenshot[160][100];
 extern bool save_screenshot_valid;
 
 extern bool display_disk;
-extern bool force_directx;
-extern bool force_waveout;
 
 extern cvar_c r_fadepower;
 extern cvar_c m_obituaries;

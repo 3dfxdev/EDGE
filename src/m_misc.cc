@@ -65,7 +65,6 @@
 #include "r_wipe.h"
 #include "version.h"
 
-#include "defaults.h"
 
 //
 // DEFAULTS
@@ -81,32 +80,17 @@ int  display_desync = 0;
 static const image_c *disk_image = NULL;
 static const image_c *air_images[21] = { NULL };
 
-bool force_directx = false;
-bool force_waveout = false;
-
 unsigned short save_screenshot[160][100];
 bool save_screenshot_valid = false;
 
 extern cvar_c r_hq2x;
 
 
-static default_t defaults[] =
-{
-    {CFGT_Boolean,	"directx",			 &force_directx,  0},
-    {CFGT_Boolean,	"waveout",			 &force_waveout,  0},
- 
-    {CFGT_Int,      "save_page",         &save_page, 0},
-
-	// -------------------- KEYS --------------------
-
-};
+//FIXME !!!    {CFGT_Int,      "save_page",         &save_page, 0},
 
 
 void M_SaveDefaults(void)
 {
-    // Set the number of defaults
-	int numdefaults = sizeof(defaults) / sizeof(defaults[0]);
-
 	// -ACB- 1999/09/24 idiot proof checking as required by MSVC
 	SYS_ASSERT(! cfgfile.empty());
 
@@ -130,28 +114,6 @@ void M_SaveDefaults(void)
 			fprintf(f, "%s\t\"%s\"\n", all_cvars[k].name, var->str);
 	}
 
-	for (int i = 0; i < numdefaults; i++)
-	{
-		int v;
-
-		switch (defaults[i].type)
-		{
-			case CFGT_Int:
-				fprintf(f, "%s\t\t%i\n", defaults[i].name, *(int*)defaults[i].location);
-				break;
-
-			case CFGT_Boolean:
-				fprintf(f, "%s\t\t%i\n", defaults[i].name, *(bool*)defaults[i].location ?1:0);
-				break;
-
-			case CFGT_Key:
-				v = *(int*)defaults[i].location;
-				fprintf(f,  "%s\t\t0x%X\n", defaults[i].name, v);
-				break;
-				
-		}
-	}
-
 	fprintf(f, "unbind all\n");
 
 	for (int n = 0; all_binds[n].name; n++)
@@ -165,43 +127,16 @@ void M_SaveDefaults(void)
 	fclose(f);
 }
 
-static void SetToBaseValue(default_t *def)
-{
-	switch (def->type)
-	{
-		case CFGT_Int:
-		case CFGT_Key:
-			*(int*)(def->location) = def->defaultvalue;
-			break;
-
-		case CFGT_Boolean:
-			*(bool*)(def->location) = def->defaultvalue?true:false;
-			break;
-	}
-}
-
 
 void M_LoadDefaults(void)
 {
-	int i;
-
-	// set everything to base values
-	int numdefaults = sizeof(defaults) / sizeof(defaults[0]);
-
-	for (i = 0; i < numdefaults; i++)
-		SetToBaseValue(defaults + i);
-
 	I_Printf("M_LoadDefaults from %s\n", cfgfile.c_str());
 
 	// read the file in, overriding any set defaults
 	FILE *f = fopen(cfgfile.c_str(), "r");
-
 	if (! f)
 	{
 		I_Warning("Couldn't open config file %s for reading.\n", cfgfile.c_str());
-		I_Warning("Resetting config to RECOMMENDED values...\n");
-
-///???		M_ResetToDefaults(0);
 		return;
 	}
 
@@ -278,22 +213,6 @@ void M_LoadDefaults(void)
 			if (strchr(link->flags, 'c'))
 				*link->var = newstr.c_str();
 			continue;
-		}
-
-		for (i = 0; i < numdefaults; i++)
-		{
-			if (0 == strcmp(def, defaults[i].name))
-			{
-				if (defaults[i].type == CFGT_Boolean)
-				{
-					*(bool*)defaults[i].location = parm?true:false;
-				}
-				else /* CFGT_Int and CFGT_Key */
-				{
-					*(int*)defaults[i].location = parm;
-				}
-				break;
-			}
 		}
 	}
 
