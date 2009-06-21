@@ -370,18 +370,32 @@ int CMD_Bind(char **argv, int argc)
 		return 0;
 	}
 
-	int keyd = E_KeyFromName(argv[1]);
+	int keyd;
+	key_link_t *link;
 
-	if (! keyd)
+	// bind <function>
+	if (argc == 2)
+	{
+		key_link_t *link = E_FindKeyBinding(argv[1]);
+		if (link)
+		{
+			std::string keylist = link->bind->FormatKeyList();
+			I_Printf("  %-15s %s\n", link->name, keylist.c_str());
+			return 0;
+		}
+	}
+
+	keyd = E_KeyFromName(argv[1]);
+	if (keyd == 0)
 	{
 		CON_Printf("Invalid key name: %s\n", argv[1]);
 		return 0;
 	}
 
-	int total = 0;
-
 	if (argc <= 2)
 	{
+		int total = 0;
+
 		for (int i = 0; all_binds[i].name; i++)
 		{
 			if (all_binds[i].bind->HasKey(keyd))
@@ -397,8 +411,7 @@ int CMD_Bind(char **argv, int argc)
 		return 0;
 	}
 
-	key_link_t *link = E_FindKeyBinding(argv[2]);
-
+	link = E_FindKeyBinding(argv[2]);
 	if (! link)
 	{
 		I_Printf("Unknown function name: %s\n", argv[2]);
@@ -424,18 +437,32 @@ int CMD_Unbind(char **argv, int argc)
 		return 0;
 	}
 
-	int keyd = E_KeyFromName(argv[1]);
+	int keyd;
+	key_link_t *link;
 
-	if (! keyd)
+	// unbind <function>
+	if (argc == 2)
+	{
+		link = E_FindKeyBinding(argv[1]);
+		if (link)
+		{
+			link->bind->Clear();
+			return 0;
+		}
+	}
+
+	keyd = E_KeyFromName(argv[1]);
+	if (keyd == 0)
 	{
 		CON_Printf("Invalid key name: %s\n", argv[1]);
 		return 0;
 	}
 
-	int total = 0;
-
+	// unbind <key>
 	if (argc <= 2)
 	{
+		int total = 0;
+
 		for (int i = 0; all_binds[i].name; i++)
 		{
 			if (all_binds[i].bind->Remove(keyd))
@@ -451,8 +478,7 @@ int CMD_Unbind(char **argv, int argc)
 		return 0;
 	}
 
-	key_link_t *link = E_FindKeyBinding(argv[2]);
-
+	link = E_FindKeyBinding(argv[2]);
 	if (! link)
 	{
 		I_Printf("Unknown function name: %s\n", argv[2]);
