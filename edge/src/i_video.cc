@@ -31,7 +31,9 @@ SDL_Surface *my_vis;
 
 int graphics_shutdown = 0;
 
-bool use_grab = true;
+bool use_grab = true;  // FIXME: cvar
+
+cvar_c sys_directx;
 
 
 // Possible Screen Modes
@@ -73,10 +75,10 @@ void I_GrabCursor(bool enable)
 void I_StartupGraphics(void)
 {
 	if (M_CheckParm("-directx"))
-		force_directx = true;
+		sys_directx = 1;
 
 	if (M_CheckParm("-gdi") || M_CheckParm("-nodirectx"))
-		force_directx = false;
+		sys_directx = 0;
 
 	const char *driver = M_GetParm("-videodriver");
 
@@ -88,7 +90,7 @@ void I_StartupGraphics(void)
 		driver = "default";
 
 #ifdef WIN32
-		if (force_directx)
+		if (sys_directx.d)
 			driver = "directx";
 #endif
 	}

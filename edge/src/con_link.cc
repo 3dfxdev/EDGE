@@ -37,6 +37,8 @@ extern cvar_c m_messages, m_obituaries;
 extern cvar_c debug_nomonsters;
 extern cvar_c debug_fullbright, debug_subsector;
 
+extern cvar_c sys_directx, sys_waveout;
+
 extern cvar_c in_autorun, in_stageturn, in_shiftlook;
 extern cvar_c in_warpmouse;
 extern cvar_c mouse_xaxis, mouse_yaxis;
@@ -82,6 +84,9 @@ extern cvar_c tim_quietfactor;
 cvar_link_t  all_cvars[] =
 {
     { "edge_compat",    &edge_compat,    "",    "0"  },
+
+    { "sys_directx",    &sys_directx,    "c",   "0"  },
+    { "sys_waveout",    &sys_waveout,    "c",   "0"  },
 
     { "g_mlook",        &g_mlook,        "c",   "1"  },
     { "g_autoaim",      &g_autoaim,      "c",   "1"  },

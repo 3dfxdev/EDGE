@@ -41,6 +41,8 @@ bool nosound = false;
 static const int sample_rates[5] = { 11025, 16000, 22050, 32000, 44100 };
 static const int sample_bits[2]  = { 8, 16 };
 
+cvar_c sys_waveout;
+
 
 static SDL_AudioSpec mydev;
 
@@ -162,10 +164,10 @@ void I_StartupSound(void)
 	if (nosound) return;
 
 	if (M_CheckParm("-waveout"))
-		force_waveout = true;
+		sys_waveout = 1;
 
 	if (M_CheckParm("-dsound") || M_CheckParm("-nowaveout"))
-		force_waveout = false;
+		sys_waveout = 0;
 
 	const char *driver = M_GetParm("-audiodriver");
 
@@ -177,7 +179,7 @@ void I_StartupSound(void)
 		driver = "default";
 
 #ifdef WIN32
-		if (force_waveout)
+		if (sys_waveout.d)
 			driver = "waveout";
 #endif
 	}
