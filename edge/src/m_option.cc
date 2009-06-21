@@ -102,8 +102,6 @@
 #include "w_wad.h"
 #include "r_wipe.h"
 
-#include "defaults.h"
-
 
 int option_menuon = 0;
 
