@@ -108,13 +108,13 @@ static cheatseq_t cheat_giveweapon[11] =
 };
 
 //
-// M_CheckCheat
-//
 // Called in M_CheatResponder module, which handles the input.
 // Returns a 1 if the cheat was successful, 0 if failed.
 //
 int M_CheckCheat(cheatseq_t * cht, char key)
 {
+	key = tolower(key);
+
 	int i;
 	int rc = 0;
 
