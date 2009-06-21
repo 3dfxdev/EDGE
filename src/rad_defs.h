@@ -588,7 +588,7 @@ typedef struct rad_trigger_s
 	bool activated;
 
 	// players who activated it (bit field)
-	u32_t acti_players;
+	int acti_players;
 
 	// repeat info
 	int repeats_left;

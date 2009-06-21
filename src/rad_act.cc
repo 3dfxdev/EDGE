@@ -1024,6 +1024,7 @@ void RAD_ActSleep(rad_trigger_t *R, mobj_t *actor, void *param)
 void RAD_ActRetrigger(rad_trigger_t *R, mobj_t *actor, void *param)
 {
 	R->activated = false;
+	R->acti_players = 0;
 }
 
 void RAD_ActShowMenu(rad_trigger_t *R, mobj_t *actor, void *param)
