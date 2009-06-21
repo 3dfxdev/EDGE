@@ -1082,12 +1082,39 @@ void CON_ErrorDialog(const char *msg)
 	CON_Printf("---------------------------------------------\n");
 	CON_Printf("\n");
 
-	CON_MessageColor(RGB_MAKE(108,108,108));
-	CON_Printf("Press any key to exit\n");
+	bool key_msg = false;
 
+	int start = I_GetMillies();
 
-	for (int i = 0; i < 500; i++)
+	for (;;)
+	{
 		CON_ErrorDrawFrame();
+
+		int elapsed = I_GetMillies() - start;
+
+		// handle overflow
+		if (elapsed < 0)
+		{
+			start = I_GetMillies();
+			continue;
+		}
+
+		int key = I_EmergencyGetKey();
+
+		if (elapsed < 1500)
+			continue;
+
+		if (! key_msg)
+		{
+			key_msg = true;
+
+			CON_MessageColor(RGB_MAKE(108,108,108));
+			CON_Printf("Press any key to exit\n");
+		}
+
+		if (key || elapsed > 20000)
+			break;
+	}
 }
 
 

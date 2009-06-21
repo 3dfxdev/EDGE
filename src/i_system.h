@@ -138,6 +138,8 @@ int I_GetTime(void);
 // should increase by TICRATE every second (TICRATE is currently 35).
 // The starting value should be close to zero.
 
+int I_GetMillies(void);
+
 u32_t I_ReadMicroSeconds(void);
 // Like I_GetTime(), this function returns a value that increases
 // monotonically over time, but in this case the value increases by

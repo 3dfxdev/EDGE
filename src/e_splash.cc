@@ -27,8 +27,6 @@
 #include "r_texgl.h"
 
 
-extern int I_GetMillies(void);
-
 extern unsigned char rndtable[256];
 
 
