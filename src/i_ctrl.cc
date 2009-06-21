@@ -43,6 +43,8 @@ bool eat_mouse_motion = true;
 
 cvar_c in_warpmouse;
 
+cvar_c in_keypad;
+
 
 int TranslateSDLKey(int key);
 
@@ -71,7 +73,7 @@ void HandleFocusLost(void)
 }
 
 
-void HandleKeyEvent(SDL_Event* ev)
+void HandleKeyEvent(SDL_Event * ev)
 {
 	if (ev->type != SDL_KEYDOWN && ev->type != SDL_KEYUP) 
 		return;
@@ -408,7 +410,7 @@ void I_StartupControl(void)
 	if (M_CheckParm("-warpmouse"))
 		in_warpmouse = 1;
 
-#ifndef LINUX
+#ifdef LINUX
 	in_warpmouse = 1;
 #endif
 }
@@ -449,6 +451,37 @@ int I_GetTime(void)
 int I_GetMillies(void)
 {
     return SDL_GetTicks();
+}
+
+
+int I_EmergencyGetKey(void)
+{
+	// this is only used in emergency situations, e.g. for
+	// the fallback error dialog.  It returns the unicode
+	// key value (or as close as possible), zero if none,
+	// and -1 for the system Quit signal.
+
+	SDL_Event sdl_ev;
+
+	while (SDL_PollEvent(&sdl_ev))
+	{
+		if (sdl_ev.type == SDL_QUIT)
+			return -1;
+
+		if (sdl_ev.type == SDL_KEYDOWN)
+		{
+			int sym = sdl_ev.key.keysym.sym;
+			int uni = sdl_ev.key.keysym.unicode;
+
+			if (uni > 0)
+				return uni;
+
+			if (sym > 0 && sym <= 127)
+				return sym;
+		}
+	}
+
+	return 0;
 }
 
 
