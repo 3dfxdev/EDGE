@@ -91,8 +91,6 @@
 #include "z_zone.h"
 
 
-#define DEFAULT_LANGUAGE  "ENGLISH"
-
 #define E_TITLE  "EDGE v" EDGEVERSTR
 
 // Application active?
@@ -141,6 +139,7 @@ extern cvar_c r_height;
 extern cvar_c r_depth;
 extern cvar_c r_fullscreen;
 
+extern cvar_c m_language;
 extern cvar_c debug_fullbright;
 
 
@@ -347,28 +346,22 @@ static void SetGlobalVars(void)
 void SetLanguage(void)
 {
 	const char *want_lang = M_GetParm("-lang");
-
 	if (! want_lang)
-		want_lang = config_language.c_str();  // m_misc
+		want_lang = M_GetParm("-language");
 
-	if (want_lang && want_lang[0])
-	{
-		if (language.Select(want_lang))
-			return;
+	if (want_lang)
+		m_language = want_lang;
 
-		I_Error("Invalid language: '%s'\n", want_lang);
-	}
-
-	if (language.IsValid())
+	if (language.Select(m_language.str))
 		return;
 
-	if (language.Select(DEFAULT_LANGUAGE))
-		return;
+	I_Warning("Invalid language: '%s'\n", m_language.str);
 
-	if (language.Select(0))
-		return;
+	if (! language.IsValid())
+		if (! language.Select(0))
+			I_Error("Unable to select any language!");
 
-	I_Error("Unable to select any language!");
+	m_language = language.GetName();
 }
 
 

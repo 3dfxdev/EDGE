@@ -31,9 +31,8 @@ SDL_Surface *my_vis;
 
 int graphics_shutdown = 0;
 
-bool use_grab = true;  // FIXME: cvar
-
 cvar_c sys_directx;
+cvar_c sys_grabfocus;
 
 
 // Possible Screen Modes
@@ -56,7 +55,7 @@ static struct { int w, h; } possible_modes[] =
 
 void I_GrabCursor(bool enable)
 {
-	if (my_vis && use_grab && ! graphics_shutdown)
+	if (my_vis && sys_grabfocus.d && ! graphics_shutdown)
 	{
 		if (enable)
 		{
@@ -108,7 +107,7 @@ void I_StartupGraphics(void)
 	if (SDL_InitSubSystem(SDL_INIT_VIDEO) != 0)
 		I_Error("Couldn't init SDL VIDEO!\n%s\n", SDL_GetError());
 
-	M_CheckBooleanParm("grab", &use_grab, false);
+	M_CheckBooleanCVar("grab", &sys_grabfocus);
 
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE,     5);
 	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,   5);

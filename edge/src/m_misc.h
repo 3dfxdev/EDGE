@@ -55,8 +55,6 @@ extern bool display_disk;
 extern cvar_c r_fadepower;
 extern cvar_c m_obituaries;
 
-extern std::string config_language;
-
 #endif  /* __M_MISC__ */
 
 //--- editor settings ---

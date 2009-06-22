@@ -69,8 +69,6 @@
 //
 // DEFAULTS
 //
-std::string config_language;
-
 cvar_c m_diskicon;
 cvar_c r_fadepower;
 
@@ -102,9 +100,6 @@ void M_SaveDefaults(void)
 	}
 
 	fprintf(f, "edge_version\t\t\"%d\"\n", EDGEVER);
-
-	// -AJA- 2004/01/10: this doesn't fit in yet...
-	fprintf(f, "language\t\t\"%s\"\n", language.GetName());
 
 	for (int k = 0; all_cvars[k].name; k++)
 	{
@@ -194,16 +189,6 @@ void M_LoadDefaults(void)
 
 			I_Printf("Config file version: %d.%02d\n",
 			         edge_version/100, edge_version%100);
-			continue;
-		}
-
-		// -AJA- 2004/01/10: this doesn't fit in yet...
-		if (strcmp(def, "language") == 0)
-		{
-			if (!isstring)
-				continue;  // FIXME: show warning
-			
-			config_language = newstr;
 			continue;
 		}
 
