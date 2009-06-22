@@ -98,7 +98,8 @@ static void GiveAmmo(pickup_info_t *pu, benefit_t *be)
 	int num   = I_ROUND(be->amount);
 
 	// -AJA- in old deathmatch, weapons give 2.5 times more ammo
-	if (deathmatch == 1 && P_CheckForBenefit(pu->list, BENEFIT_Weapon) &&
+	if (g_gametype.d == GT_DeathMatch &&
+	    P_CheckForBenefit(pu->list, BENEFIT_Weapon) &&
 		pu->special && !pu->dropped)
 	{
 		num = I_ROUND(be->amount * 2.5);
@@ -127,7 +128,7 @@ static void GiveAmmo(pickup_info_t *pu, benefit_t *be)
 	// In Nightmare you need the extra ammo, in "baby" you are given double
 	if (pu->special)
 	{
-		if ((gameskill == sk_baby) || (gameskill == sk_nightmare))
+		if ((g_skill.d == sk_baby) || (g_skill.d == sk_nightmare))
 			num <<= 1;
 	}
 
@@ -222,7 +223,7 @@ static void GiveWeapon(pickup_info_t *pu, benefit_t *be)
 	}
 
 	// special handling for CO-OP and OLD DeathMatch
-	if (numplayers > 1 && deathmatch != 2 &&
+	if (numplayers > 1 && g_gametype.d != GT_AltDeath &&
 		pu->special && ! pu->dropped)
 	{
 		if (! P_AddWeapon(pu->player, info, &pw_index))
@@ -1043,7 +1044,7 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor, mobj_t * source,
 			return;
 
 		// take half damage in trainer mode
-		if (gameskill == sk_baby)
+		if (g_skill.d == sk_baby)
 			damage /= 2.0f;
 
 		// preliminary check: immunity and resistance

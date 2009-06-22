@@ -869,12 +869,12 @@ void RAD_ActSkill(rad_trigger_t *R, void *param)
 	// -ACB- 1998/07/30 replaced respawnmonsters with respawnsetting.
 	// -ACB- 1998/08/27 removed fastparm temporaryly.
 
-	gameskill = skill->skill;
+	g_skill = skill->skill;
 
 	if (skill->fastmonsters)
 		map_features |= MPF_FastMon;
 	
-	if (gameskill == sk_nightmare)
+	if (g_skill.d == sk_nightmare)
 		map_features |= MPF_MonRespawn;
 }
 

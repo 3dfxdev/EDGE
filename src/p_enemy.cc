@@ -609,7 +609,7 @@ void A_BrainSpit(mobj_t * shooter, void *data)
 
 	easy ^= 1;
 
-	if (gameskill <= sk_easy && (!easy))
+	if (g_skill.d <= sk_easy && (!easy))
 		return;
 
 	// shoot out a cube

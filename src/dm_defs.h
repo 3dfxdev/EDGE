@@ -73,17 +73,34 @@ gamestate_e;
 #define MTF_EXFLOOR_MASK    0x3C00
 #define MTF_EXFLOOR_SHIFT   10
 
+
 typedef enum
 {
-	sk_invalid   = -1,
-	sk_baby      = 0,
-	sk_easy      = 1,
-	sk_medium    = 2,
-	sk_hard      = 3,
-	sk_nightmare = 4,
-	sk_numtypes  = 5
+	sk_baby = 1,
+	sk_easy,
+	sk_medium,
+	sk_hard,
+	sk_nightmare,
+
+	NUMGAMESKILLS,
 }
-skill_t;
+gameskill_e;
+
+
+typedef enum
+{
+	GT_Single = 0,   // single player or coop
+	GT_DeathMatch,   // normal deathmatch
+	GT_AltDeath,
+
+	NUMGAMETYPES
+}
+gametype_e;
+
+#define DEATHMATCH()  (g_gametype.d > 0)
+#define COOP_MATCH()  (g_gametype.d == 0 && numplayers > 1)
+#define SP_MATCH()    (g_gametype.d == 0 && numplayers <= 1)
+
 
 
 #define  VISIBLE (1.0f)

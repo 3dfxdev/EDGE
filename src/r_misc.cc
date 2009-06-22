@@ -98,12 +98,6 @@ player_t *viewplayer;
 
 mobj_t *background_camera_mo = NULL;
 
-//
-// precalculated math tables
-//
-
-angle_t viewanglebaseoffset;
-angle_t viewangleoffset;
 
 //
 // To get a global angle from cartesian coordinates,

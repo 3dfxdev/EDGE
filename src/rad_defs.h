@@ -181,7 +181,7 @@ s_damage_monsters_t;
 // Set Skill
 typedef struct
 {
-	skill_t skill;
+	int  skill;
 	bool respawn;
 	bool fastmonsters;
 }

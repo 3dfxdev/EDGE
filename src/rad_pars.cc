@@ -1834,7 +1834,7 @@ static void RAD_ParseSkill(int pnum, const char **pars)
 
 	RAD_CheckForInt(pars[1], &val);
 
-	skill->skill = (skill_t) (val - 1);
+	skill->skill = CLAMP(1, val, 5);
 	skill->respawn = CheckForBoolean(pars[2]);
 	skill->fastmonsters = CheckForBoolean(pars[3]);
 

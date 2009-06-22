@@ -164,20 +164,20 @@ static bool ParseWelcomePacket(newgame_params_c *par, welcome_proto_t *we)
 		return false;
 	}
 
-	par->skill = (skill_t)we->skill;
+	par->skill = we->skill;
 
 	switch (we->mode)
 	{
 		case welcome_proto_t::MODE_Coop:
-			par->deathmatch = 0;
+			par->gametype = GT_Single;
 			break;
 	
 		case welcome_proto_t::MODE_Old_DM:
-			par->deathmatch = 1;
+			par->gametype = GT_DeathMatch;
 			break;
 	
 		case welcome_proto_t::MODE_New_DM:
-			par->deathmatch = 2;
+			par->gametype = GT_AltDeath;
 			break;
 	
 		default:
@@ -239,7 +239,7 @@ static const char *GetModeName(char mode)
 	}
 }
 
-static const char *GetSkillName(skill_t skill)
+static const char *GetSkillName(int skill)
 {
 	// FIXME: LDF these up, OR BETTER: use shrunken images
 	switch (skill)
@@ -417,18 +417,18 @@ static void HostChangeOption(int opt, int key)
 
 		case 2: // Mode
 		{
-			ng_params->deathmatch += dir;
+			ng_params->gametype += dir;
 
-			if (ng_params->deathmatch < 0)
-				ng_params->deathmatch = 2;
-			else if (ng_params->deathmatch > 2)
-				ng_params->deathmatch = 0;
+			if (ng_params->gametype < 0)
+				ng_params->gametype = 2;
+			else if (ng_params->gametype > 2)
+				ng_params->gametype = 0;
 
 			break;
 		}
 
 		case 3: // Skill
-			ng_params->skill = (skill_t)( (int)ng_params->skill + dir );
+			ng_params->skill += dir;
 			if ((int)ng_params->skill < (int)sk_baby || (int)ng_params->skill > 250)
 				ng_params->skill = sk_nightmare;
 			else if ((int)ng_params->skill > (int)sk_nightmare)
@@ -507,7 +507,7 @@ void M_DrawHostMenu(void)
 	y += 18; idx++;
 
 
-	DrawKeyword(idx, ng_host_style, y, "MODE", GetModeName(ng_params->deathmatch));
+	DrawKeyword(idx, ng_host_style, y, "MODE", GetModeName(ng_params->gametype));
 	y += 10; idx++;
 
 	DrawKeyword(idx, ng_host_style, y, "SKILL", GetSkillName(ng_params->skill));
