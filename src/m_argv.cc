@@ -241,7 +241,7 @@ void M_InitArguments(int argc, const char **argv)
 // present, sets it to false if parm prefixed with `-no' is present,
 // otherwise leaves it unchanged.
 //
-void M_CheckBooleanParm(const char *parm, bool *boolval, bool reverse)
+void M_CheckBooleanParm(const char *parm, bool *var, bool reverse)
 {
 	char parmbuf[100];
 
@@ -249,7 +249,7 @@ void M_CheckBooleanParm(const char *parm, bool *boolval, bool reverse)
 
 	if (M_CheckParm(parmbuf) > 0)
 	{
-		*boolval = ! reverse;
+		*var = ! reverse;
 		return;
 	}
 
@@ -257,7 +257,28 @@ void M_CheckBooleanParm(const char *parm, bool *boolval, bool reverse)
 
 	if (M_CheckParm(parmbuf) > 0)
 	{
-		*boolval = reverse;
+		*var = reverse;
+		return;
+	}
+}
+
+void M_CheckBooleanCVar(const char *parm, cvar_c *var, bool reverse)
+{
+	char parmbuf[100];
+
+	sprintf(parmbuf, "-%s", parm);
+
+	if (M_CheckParm(parmbuf) > 0)
+	{
+		*var = (reverse ? 0 : 1);
+		return;
+	}
+
+	sprintf(parmbuf, "-no%s", parm);
+
+	if (M_CheckParm(parmbuf) > 0)
+	{
+		*var = (reverse ? 1 : 0);
 		return;
 	}
 }
