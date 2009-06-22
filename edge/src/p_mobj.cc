@@ -1514,7 +1514,7 @@ void P_RemoveMobj(mobj_t *mo)
 	}
 
 	if (! (mo->flags & MF_MISSILE) &&
-		(deathmatch >= 2 || g_itemrespawn.d) &&
+		(g_gametype.d == GT_AltDeath || g_itemrespawn.d) &&
 		(mo->info->flags & MF_SPECIAL) && 
 		!(mo->extendedflags & EF_NORESPAWN) &&
 		!(mo->flags & MF_DROPPED))
@@ -1683,7 +1683,7 @@ void P_MobjItemRespawn(void)
 	iteminque_t *cur, *next;
 
 	// only respawn items in deathmatch or if itemrespawn
-	if (! (deathmatch >= 2 || g_itemrespawn.d))
+	if (! (g_gametype.d == GT_AltDeath || g_itemrespawn.d))
 		return;
 
 	// No item-respawn-que exists, so nothing to process.
@@ -1810,7 +1810,7 @@ mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c *info)
 	mo->currentattack = NULL;
 	mo->on_ladder = -1;
 
-	if (gameskill != sk_nightmare)
+	if (g_skill.d != sk_nightmare)
 		mo->reactiontime = info->reactiontime;
 
 	mo->lastlook = P_Random() % MAXPLAYERS;

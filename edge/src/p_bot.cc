@@ -216,7 +216,7 @@ static int BOT_EvaluateItem(bot_t *bot, mobj_t *mo)
 			case BENEFIT_Weapon:
 				if (! BOT_HasWeapon(bot, list))
 					score = score + 50;
-				else if (numplayers > 1 && deathmatch != 2 && !(mo->flags & MF_DROPPED))
+				else if (numplayers > 1 && g_gametype.d != GT_AltDeath && !(mo->flags & MF_DROPPED))
 					// cannot pick up in CO-OP or OLD DeathMatch
 					score = -999;
 				break;

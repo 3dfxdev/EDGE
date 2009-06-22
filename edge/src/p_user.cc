@@ -453,9 +453,6 @@ static void DeathThink(player_t * player)
 	if (view_zoom > 0 && player == players[displayplayer])
 		view_zoom = 0;
 
-	if (deathmatch >= 3 && player->mo->movecount > player->mo->info->respawntime)
-		return;
-
 	if (player->cmd.buttons & BT_USE)
 		player->playerstate = PST_REBORN;
 }

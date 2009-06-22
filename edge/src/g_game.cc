@@ -99,18 +99,8 @@ int exittime = INT_MAX;
 bool exit_skipall = false;  // -AJA- temporary (maybe become "exit_mode")
 
 
-// GAMEPLAY MODES:
-//
-//   numplayers  deathmatch   mode
-//   --------------------------------------
-//     <= 1         0         single player
-//     >  1         0         coop
-//     -            1         deathmatch
-//     -            2         altdeath
-
-int deathmatch;
-
-skill_t gameskill = sk_invalid;
+cvar_c g_skill;
+cvar_c g_gametype;
 
 // -ACB- 2004/05/25 We need to store our current/next mapdefs
 const mapdef_c *currmap = NULL;
@@ -156,7 +146,7 @@ cvar_c g_teamdamage;
 // REQUIRED STATE:
 //   (a) currmap, map_features
 //   (b) players[], numplayers (etc)
-//   (c) gameskill + deathmatch
+//   (c) gameskill + gametype
 //
 //   ??  exittime
 //
@@ -463,8 +453,6 @@ static void G_DoReborn(player_t *p)
 
 void G_SpawnInitialPlayers(void)
 {
-	L_WriteDebug("Deathmatch %d\n", deathmatch);
-
 	// spawn the active players
 	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
 	{
@@ -687,8 +675,8 @@ static void G_DoLoadGame(void)
 
 	SYS_ASSERT(params.map->episode);
 
-	params.skill      = (skill_t) globs->skill;
-	params.deathmatch = (globs->netgame >= 2) ? (globs->netgame - 1) : 0;
+	params.skill    = globs->skill + 1;
+	params.gametype = 0;  //??? (globs->netgame >= 2) ? (globs->netgame - 1) : 0;
 
 	params.random_seed = globs->p_random;
 
@@ -800,8 +788,8 @@ static void G_DoSaveGame(void)
 	globs->game  = SV_DupString(currmap->episode_name.c_str());
 	globs->level = SV_DupString(currmap->ddf.name.c_str());
 
-	globs->skill = gameskill;
-	globs->netgame = netgame ? (1+deathmatch) : 0;
+	globs->skill = g_skill.d - 1;
+	globs->netgame = netgame ? (g_gametype.d + 1) : 0;
 	globs->map_features = map_features;
 	globs->edge_compat = edge_compat.d;
 
@@ -865,7 +853,7 @@ static void G_DoSaveGame(void)
 //---> newgame_params_c class
 
 newgame_params_c::newgame_params_c() :
-	skill(sk_medium), deathmatch(0),
+	skill(sk_medium), gametype(GT_Single),
 	map(NULL), random_seed(0),
 	total_players(0)
 {
@@ -879,7 +867,7 @@ newgame_params_c::newgame_params_c() :
 newgame_params_c::newgame_params_c(const newgame_params_c& src)
 {
 	skill = src.skill;
-	deathmatch = src.deathmatch;
+	gametype = src.gametype;
 
 	map = src.map;
 
@@ -1029,8 +1017,8 @@ void G_InitNew(newgame_params_c& params)
 
 	automapactive = false;
 
-	gameskill = params.skill;
-	deathmatch = params.deathmatch;
+	g_skill    = params.skill;
+	g_gametype = params.gametype;
 
 // L_WriteDebug("G_InitNew: Deathmatch %d Skill %d\n", params.deathmatch, (int)params.skill);
 
@@ -1080,7 +1068,9 @@ static void G_DoEndGame(void)
 
 bool G_CheckWhenAppear(when_appear_e appear)
 {
-	if (! (appear & (1 << gameskill)))
+	int use_skill = CLAMP(1,g_skill.d,5) - 1;
+
+	if (! (appear & (1 << use_skill)))
 		return false;
 
 	if (SP_MATCH() && !(appear & WNAP_Single))

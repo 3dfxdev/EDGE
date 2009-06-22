@@ -801,14 +801,7 @@ static void SpawnMapThing(const mobjtype_c *info,
 	if (DEATHMATCH() && (options & MTF_NOT_DM))
 		return;
 
-	int bit;
-
-	if (gameskill == sk_baby)
-		bit = 1;
-	else if (gameskill == sk_nightmare)
-		bit = 4;
-	else
-		bit = 1 << (gameskill - 1);
+	int bit = 1 << (CLAMP(2, g_skill.d, 4) - 2);
 
 	if ((options & bit) == 0)
 		return;

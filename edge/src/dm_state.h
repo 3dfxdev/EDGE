@@ -65,11 +65,10 @@ extern cvar_c g_teamdamage;
 
 
 // Selected by user. 
-extern skill_t gameskill;
+extern cvar_c g_skill;
 
-// Flag: true only if started as net deathmatch.
-// An enum might handle altdeath/cooperative better.
-extern int deathmatch;
+// SP/Deathmatch/AltDeath
+extern cvar_c g_gametype;
 
 // -------------------------
 // Status flags for refresh.
@@ -85,10 +84,6 @@ extern bool paused;  // Game Pause?
 extern bool viewactive;
 extern bool nodrawers;
 extern bool noblit;
-
-// This one is related to the 3-screen display mode.
-// ANG90 = left side, ANG270 = right
-extern angle_t viewanglebaseoffset;
 
 
 // Timer, for scores.
@@ -117,10 +112,6 @@ extern gamestate_e gamestate;
 //  WAD, partly set at startup time.
 
 extern int gametic;
-
-#define DEATHMATCH()  (deathmatch > 0)
-#define COOP_MATCH()  (deathmatch == 0 && numplayers > 1)
-#define SP_MATCH()    (deathmatch == 0 && numplayers <= 1)
 
 #define MAXHEALTH 200
 #define MAXARMOUR 200

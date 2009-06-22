@@ -69,8 +69,8 @@ extern gameaction_e gameaction;
 class newgame_params_c
 {
 public:
-	skill_t skill;
-	int deathmatch;
+	int skill;    // sk_xxxx (or 1..5)
+	int gametype; // GT_xxxx
 
 	const mapdef_c *map;
 	// gamedef_c is implied (== map->episode)

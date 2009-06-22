@@ -1261,8 +1261,8 @@ static void E_InitialState(void)
 
 	// get skill / episode / map from parms
 	std::string warp_map;
-	skill_t     warp_skill = sk_medium;
-	int         warp_deathmatch = 0;
+	int warp_skill = sk_medium;
+	int warp_gametype = GT_Single;
 
 	int bots = 0;
 
@@ -1282,21 +1282,21 @@ static void E_InitialState(void)
 	if (ps)
 	{
 		warp = true;
-		warp_skill = (skill_t)(atoi(ps) - 1);
+		warp_skill = atoi(ps);
 	}
 
 	// deathmatch check...
 	int pp = M_CheckParm("-deathmatch");
 	if (pp)
 	{
-		warp_deathmatch = 1;
+		warp_gametype = GT_DeathMatch;
 
 		if (pp + 1 < M_GetArgCount())
-			warp_deathmatch = MAX(1, atoi(M_GetArgument(pp + 1)));
+			warp_gametype = MAX(1, atoi(M_GetArgument(pp + 1)));
 	}
 	else if (M_CheckParm("-altdeath") > 0)
 	{
-		warp_deathmatch = 2;
+		warp_gametype = GT_AltDeath;
 	}
 
 
@@ -1314,7 +1314,7 @@ static void E_InitialState(void)
 	newgame_params_c params;
 
 	params.skill = warp_skill;	
-	params.deathmatch = warp_deathmatch;	
+	params.gametype = warp_gametype;	
 
 	if (warp_map.length() > 0)
 		params.map = G_LookupMap(warp_map.c_str());

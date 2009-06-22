@@ -349,7 +349,7 @@ static menuitem_t SkillMenu[] =
 
 static menu_t SkillDef =
 {
-	sk_numtypes,  // # of menu items
+	5,    // # of menu items
 	&EpiDef,  // previous menu
 	SkillMenu,  // menuitem_t ->
 	&skill_style,
@@ -666,10 +666,10 @@ static void M_DrawSaveLoadCommon(int row, int row2, style_c *style)
 	// FIXME: use the patches (but shrink them)
 	switch (info->skill)
 	{
-		case 0: strcat(mbuffer, "Too Young To Die"); break;
-		case 1: strcat(mbuffer, "Not Too Rough"); break;
-		case 2: strcat(mbuffer, "Hurt Me Plenty"); break;
-		case 3: strcat(mbuffer, "Ultra Violence"); break;
+		case 1: strcat(mbuffer, "Too Young To Die"); break;
+		case 2: strcat(mbuffer, "Not Too Rough"); break;
+		case 3: strcat(mbuffer, "Hurt Me Plenty"); break;
+		case 4: strcat(mbuffer, "Ultra Violence"); break;
 		default: strcat(mbuffer, "NIGHTMARE"); break;
 	}
 
@@ -1096,12 +1096,12 @@ void M_DrawEpisode(void)
 	RGL_ImageEasy320(54, 38, menu_episode);
 }
 
-static void ReallyDoStartLevel(skill_t skill, gamedef_c *g)
+static void ReallyDoStartLevel(int skill, gamedef_c *g)
 {
 	newgame_params_c params;
 
 	params.skill = skill;
-	params.deathmatch = 0;
+	params.gametype = GT_Single;
 
 	params.random_seed = I_PureRandom();
 
@@ -1125,7 +1125,7 @@ static void ReallyDoStartLevel(skill_t skill, gamedef_c *g)
 	M_ClearMenus();
 }
 
-static void DoStartLevel(skill_t skill)
+static void DoStartLevel(int skill)
 {
 	// -KM- 1998/12/17 Clear the intermission.
 	WI_Clear();
@@ -1182,7 +1182,7 @@ void M_ChooseSkill(int choice)
 		return;
 	}
 	
-	DoStartLevel((skill_t)choice);
+	DoStartLevel(choice+1);
 }
 
 void M_Episode(int choice)
