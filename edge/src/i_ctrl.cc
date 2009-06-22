@@ -37,16 +37,97 @@ cvar_c mouse_invert;
 #undef DEBUG_KB
 
 
-// Work around for alt-tabbing
-bool alt_is_down;
-bool eat_mouse_motion = true;
-
 cvar_c in_warpmouse;
-
 cvar_c in_keypad;
 
 
-int TranslateSDLKey(int key);
+// Work around for alt-tabbing
+static bool alt_is_down;
+static bool eat_mouse_motion = true;
+
+
+//
+// Translates a key from SDL -> EDGE
+// Returns KEYD_IGNORE if no suitable translation exists.
+//
+int TranslateSDLKey(int key)
+{
+	// if keypad is not wanted, convert to normal keys
+	if (! in_keypad.d)
+	{
+		if (SDLK_KP0 <= key && key <= SDLK_KP9)
+			return '0' + (key - SDLK_KP0);
+
+		switch (key)
+		{
+			case SDLK_KP_PLUS:   return '+';
+			case SDLK_KP_MINUS:  return '-';
+			case SDLK_KP_PERIOD: return '.';
+			case SDLK_KP_MULTIPLY: return '*';
+			case SDLK_KP_DIVIDE: return '/';
+			case SDLK_KP_EQUALS: return '=';
+			case SDLK_KP_ENTER:  return KEYD_ENTER;
+
+			default: break;
+		}
+	}
+
+	if (SDLK_F1 <= key && key <= SDLK_F12)
+		return KEYD_F1 + (key - SDLK_F1);
+
+	if (SDLK_KP0 <= key && key <= SDLK_KP9)
+		return KEYD_KP0 + (key - SDLK_KP0);
+
+	switch (key) 
+	{
+		case SDLK_TAB:    return KEYD_TAB;
+		case SDLK_RETURN: return KEYD_ENTER;
+		case SDLK_ESCAPE: return KEYD_ESCAPE;
+		case SDLK_BACKSPACE: return KEYD_BACKSPACE;
+
+		case SDLK_UP:    return KEYD_UPARROW;
+		case SDLK_DOWN:  return KEYD_DOWNARROW;
+		case SDLK_LEFT:  return KEYD_LEFTARROW;
+		case SDLK_RIGHT: return KEYD_RIGHTARROW;
+
+		case SDLK_HOME:     return KEYD_HOME;
+		case SDLK_END:      return KEYD_END;
+		case SDLK_INSERT:   return KEYD_INSERT;
+		case SDLK_DELETE:   return KEYD_DELETE;
+		case SDLK_PAGEUP:   return KEYD_PGUP;
+		case SDLK_PAGEDOWN: return KEYD_PGDN;
+
+		case SDLK_KP_PERIOD:   return KEYD_KP_DOT;
+		case SDLK_KP_PLUS:     return KEYD_KP_PLUS;
+		case SDLK_KP_MINUS:    return KEYD_KP_MINUS;
+		case SDLK_KP_MULTIPLY: return KEYD_KP_STAR;
+		case SDLK_KP_DIVIDE:   return KEYD_KP_SLASH;
+		case SDLK_KP_EQUALS:   return KEYD_KP_EQUAL;
+		case SDLK_KP_ENTER:    return KEYD_KP_ENTER;
+
+		case SDLK_PRINT:     return KEYD_PRINT;
+		case SDLK_CAPSLOCK:  return KEYD_CAPSLOCK;
+		case SDLK_NUMLOCK:   return KEYD_NUMLOCK;
+		case SDLK_SCROLLOCK: return KEYD_SCRLOCK;
+		case SDLK_PAUSE:     return KEYD_PAUSE;
+
+		case SDLK_LSHIFT:
+		case SDLK_RSHIFT: return KEYD_SHIFT;
+		case SDLK_LCTRL:
+		case SDLK_RCTRL:  return KEYD_CTRL;
+		case SDLK_LALT:
+		case SDLK_RALT:   return KEYD_ALT;
+		case SDLK_LMETA:
+		case SDLK_RMETA:  return KEYD_ALT;
+
+		default: break;
+	}
+
+	if (key <= 0x7f)
+		return toupper(key);
+
+	return KEYD_IGNORE;
+}
 
 
 void HandleFocusGain(void)
@@ -310,89 +391,6 @@ void InactiveEventProcess(SDL_Event *sdl_ev)
 }
 
 
-//
-// Translates a key from SDL -> EDGE
-// Returns KEYD_IGNORE if no suitable translation exists.
-//
-int TranslateSDLKey(int key)
-{
-	// if keypad is not wanted, convert to normal keys
-	if (! in_keypad.d)
-	{
-		if (SDLK_KP0 <= key && key <= SDLK_KP9)
-			return '0' + (key - SDLK_KP0);
-
-		switch (key)
-		{
-			case SDLK_KP_PLUS:   return '+';
-			case SDLK_KP_MINUS:  return '-';
-			case SDLK_KP_PERIOD: return '.';
-			case SDLK_KP_MULTIPLY: return '*';
-			case SDLK_KP_DIVIDE: return '/';
-			case SDLK_KP_EQUALS: return '=';
-			case SDLK_KP_ENTER:  return KEYD_ENTER;
-
-			default: break;
-		}
-	}
-
-	if (SDLK_F1 <= key && key <= SDLK_F12)
-		return KEYD_F1 + (key - SDLK_F1);
-
-	if (SDLK_KP0 <= key && key <= SDLK_KP9)
-		return KEYD_KP0 + (key - SDLK_KP0);
-
-	switch (key) 
-	{
-		case SDLK_TAB:    return KEYD_TAB;
-		case SDLK_RETURN: return KEYD_ENTER;
-		case SDLK_ESCAPE: return KEYD_ESCAPE;
-		case SDLK_BACKSPACE: return KEYD_BACKSPACE;
-
-		case SDLK_UP:    return KEYD_UPARROW;
-		case SDLK_DOWN:  return KEYD_DOWNARROW;
-		case SDLK_LEFT:  return KEYD_LEFTARROW;
-		case SDLK_RIGHT: return KEYD_RIGHTARROW;
-
-		case SDLK_HOME:     return KEYD_HOME;
-		case SDLK_END:      return KEYD_END;
-		case SDLK_INSERT:   return KEYD_INSERT;
-		case SDLK_DELETE:   return KEYD_DELETE;
-		case SDLK_PAGEUP:   return KEYD_PGUP;
-		case SDLK_PAGEDOWN: return KEYD_PGDN;
-
-		case SDLK_KP_PERIOD:   return KEYD_KP_DOT;
-		case SDLK_KP_PLUS:     return KEYD_KP_PLUS;
-		case SDLK_KP_MINUS:    return KEYD_KP_MINUS;
-		case SDLK_KP_MULTIPLY: return KEYD_KP_STAR;
-		case SDLK_KP_DIVIDE:   return KEYD_KP_SLASH;
-		case SDLK_KP_EQUALS:   return KEYD_KP_EQUAL;
-		case SDLK_KP_ENTER:    return KEYD_KP_ENTER;
-
-		case SDLK_PRINT:     return KEYD_PRINT;
-		case SDLK_CAPSLOCK:  return KEYD_CAPSLOCK;
-		case SDLK_NUMLOCK:   return KEYD_NUMLOCK;
-		case SDLK_SCROLLOCK: return KEYD_SCRLOCK;
-		case SDLK_PAUSE:     return KEYD_PAUSE;
-
-		case SDLK_LSHIFT:
-		case SDLK_RSHIFT: return KEYD_SHIFT;
-		case SDLK_LCTRL:
-		case SDLK_RCTRL:  return KEYD_CTRL;
-		case SDLK_LALT:
-		case SDLK_RALT:   return KEYD_ALT;
-		case SDLK_LMETA:
-		case SDLK_RMETA:  return KEYD_ALT;
-
-		default: break;
-	}
-
-	if (key <= 0x7f)
-		return toupper(key);
-
-	return KEYD_IGNORE;
-}
-
 void I_CentreMouse(void)
 {
 	SDL_WarpMouse(SCREENWIDTH/2, SCREENHEIGHT/2);
@@ -409,12 +407,12 @@ void I_StartupControl(void)
 	//                   value for console.
 	SDL_EnableUNICODE(1);
 
-	if (M_CheckParm("-warpmouse"))
-		in_warpmouse = 1;
-
-#ifdef LINUX
+#ifndef LINUX
 	in_warpmouse = 1;
 #endif
+
+	if (M_CheckParm("-warpmouse"))
+		in_warpmouse = 1;
 }
 
 void I_ControlGetEvents(void)
