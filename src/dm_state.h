@@ -64,7 +64,6 @@ extern cvar_c g_itemrespawn;
 extern cvar_c g_teamdamage;
 
 
-
 // Selected by user. 
 extern skill_t gameskill;
 

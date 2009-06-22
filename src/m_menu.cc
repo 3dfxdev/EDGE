@@ -74,7 +74,7 @@ int mouseSensitivity;  // has default.  Note: used only in platform code
 
 // Show messages has default, 0 = off, 1 = on
 cvar_c m_messages;
-
+cvar_c m_language;
 cvar_c m_screenhud;
 
 static std::string msg_string;
@@ -2050,6 +2050,11 @@ void M_SetupNextMenu(menu_t * menudef)
 
 void M_Ticker(void)
 {
+	// update language if it changed
+	if (m_language.CheckModified())
+		if (! language.Select(m_language.str))
+			I_Printf("Unknown language: %s\n", m_language.str);
+
 	if (option_menuon)
 	{
 //!!!!!		M_OptTicker();

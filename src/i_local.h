@@ -27,12 +27,8 @@ extern bool musicpaused;
 void I_PostMusicError(const char *message);
 
 // UI
-
 void I_MessageBox(const char* _msg, const char * _title);
 // Used for outputing error messages/alerts on exit.
-
-extern bool use_grab;
-extern bool use_warp_mouse;
 
 #endif /* __SYSTEM_LOCAL_H__ */
 

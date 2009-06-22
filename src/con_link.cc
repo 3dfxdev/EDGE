@@ -31,6 +31,8 @@ extern cvar_c g_fastmon, g_passmissile;
 extern cvar_c g_weaponkick, g_weaponswitch;
 
 extern cvar_c am_rotate, am_smoothing;
+
+extern cvar_c m_language;
 extern cvar_c m_diskicon, m_busywait, m_screenhud;
 extern cvar_c m_messages, m_obituaries;
 
@@ -38,9 +40,10 @@ extern cvar_c debug_nomonsters;
 extern cvar_c debug_fullbright, debug_subsector;
 
 extern cvar_c sys_directx, sys_waveout;
+extern cvar_c sys_grabfocus;
 
 extern cvar_c in_autorun, in_stageturn, in_shiftlook;
-extern cvar_c in_warpmouse;  // in_grabmouse
+extern cvar_c in_warpmouse;
 extern cvar_c in_keypad;
 
 extern cvar_c mouse_xaxis, mouse_yaxis;
@@ -87,8 +90,11 @@ cvar_link_t  all_cvars[] =
 {
     { "edge_compat",    &edge_compat,    "",    "0"  },
 
+    { "language",       &m_language,     "c",   "ENGLISH" },
+
     { "sys_directx",    &sys_directx,    "c",   "0"  },
     { "sys_waveout",    &sys_waveout,    "c",   "0"  },
+    { "sys_grabfocus",  &sys_grabfocus,  "c",   "1"  },
 
     { "g_mlook",        &g_mlook,        "c",   "1"  },
     { "g_autoaim",      &g_autoaim,      "c",   "1"  },
