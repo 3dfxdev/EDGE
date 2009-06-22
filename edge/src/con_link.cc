@@ -23,7 +23,7 @@
 
 extern cvar_c edge_compat;
 
-extern cvar_c g_skill;
+extern cvar_c g_skill, g_gametype;
 extern cvar_c g_mlook, g_autoaim;
 extern cvar_c g_jumping, g_crouching;
 extern cvar_c g_true3d;
@@ -98,6 +98,7 @@ cvar_link_t  all_cvars[] =
     { "sys_grabfocus",  &sys_grabfocus,  "c",   "1"  },
 
     { "g_skill",        &g_skill,        "c",   "3"  },
+    { "g_gametype",     &g_gametype,     "",    "0"  },
     { "g_mlook",        &g_mlook,        "c",   "1"  },
     { "g_autoaim",      &g_autoaim,      "c",   "1"  },
     { "g_jumping",      &g_jumping,      "c",   "0"  },
