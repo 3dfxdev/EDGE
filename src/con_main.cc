@@ -55,6 +55,7 @@ con_cmd_t;
 // forward decl.
 extern const con_cmd_t builtin_commands[];
 
+extern void M_ChangeLevelCheat(const char *string);
 
 
 int CMD_Exec(char **argv, int argc)
@@ -64,7 +65,7 @@ int CMD_Exec(char **argv, int argc)
 
 	if (argc != 2)
 	{
-		CON_Printf("Usage: exec <script name.cfg>\n");
+		CON_Printf("Usage: exec <script.cfg>\n");
 		return 1;
 	}
 
@@ -489,6 +490,18 @@ int CMD_Unbind(char **argv, int argc)
 	return 0;
 }
 
+int CMD_Map(char **argv, int argc)
+{
+	if (argc <= 1)
+	{
+		CON_Printf("Usage: map <level>\n");
+		return 0;
+	}
+
+	M_ChangeLevelCheat(argv[1]);
+	return 0;
+}
+
 
 //----------------------------------------------------------------------------
 
@@ -564,6 +577,7 @@ const con_cmd_t builtin_commands[] =
 	{ "bind",           CMD_Bind },
 	{ "exec",           CMD_Exec },
 	{ "help",           CMD_Help },
+	{ "map",            CMD_Map },
 	{ "playsound",      CMD_PlaySound },
   	{ "resetbinds",     CMD_ResetBinds },
 	{ "resetvars",      CMD_ResetVars },
