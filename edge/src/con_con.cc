@@ -44,7 +44,7 @@
 #define CON_WIPE_TICS  12
 
 
-key_binding_c key_console;
+key_binding_c k_console;
 
 
 static visible_t con_visible;
@@ -900,7 +900,7 @@ int GetKeycode(event_t *ev)
 
 bool CON_Responder(event_t * ev)
 {
-	if (ev->type == ev_keydown && key_console.HasKey(ev))
+	if (ev->type == ev_keydown && k_console.HasKey(ev))
 	{
 		CON_SetVisible(vs_toggle);
 		return true;
