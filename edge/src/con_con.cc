@@ -626,16 +626,19 @@ static void TabComplete(void)
 
 	std::vector<const char *> match_cmds;
 	std::vector<const char *> match_vars;
+	std::vector<const char *> match_keys;
 
 	int num_cmd = CON_MatchAllCmds(match_cmds, input_line);
 	int num_var = CON_MatchAllVars(match_vars, input_line);
+	int num_key =   E_MatchAllKeys(match_keys, input_line);
 
 	// we have an unambiguous match, no need to print anything
-	if (num_cmd + num_var == 1)
+	if (num_cmd + num_var + num_key == 1)
 	{
 		input_line[input_pos] = save_ch;
 
-		const char *name = (num_var > 0) ? match_vars[0] : match_cmds[0];
+		const char *name = (num_var > 0) ? match_vars[0] :
+		                   (num_key > 0) ? match_keys[0] : match_cmds[0];
 
 		SYS_ASSERT((int)strlen(name) >= input_pos);
 
@@ -655,7 +658,7 @@ static void TabComplete(void)
 
 	input_line[input_pos] = save_ch;
 
-	if (num_cmd + num_var == 0)
+	if (num_cmd + num_var + num_key == 0)
 	{
 		CON_Printf("No matches.\n");
 		return;
@@ -666,6 +669,13 @@ static void TabComplete(void)
 		CON_Printf("%u Possible variables:\n", match_vars.size());
 
 		ListCompletions(match_vars, 7, T_GREEN);
+	}
+
+	if (match_keys.size() > 0)
+	{
+		CON_Printf("%u Possible keys:\n", match_keys.size());
+
+		ListCompletions(match_keys, 4, T_GREEN);
 	}
 
 	if (match_cmds.size() > 0)
