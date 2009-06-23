@@ -109,6 +109,8 @@ void CON_ResetAllVars(bool initial = false);
 cvar_link_t * CON_FindVar(const char *name);
 // look for a CVAR with the given name.
 
+bool CON_MatchPattern(const char *name, const char *pat);
+
 int CON_MatchAllVars(std::vector<const char *>& list,
                      const char *pattern, const char *flags = "");
 // find all cvars which match the pattern, and copy pointers to

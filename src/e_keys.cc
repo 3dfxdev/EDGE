@@ -173,7 +173,7 @@ int E_KeyFromName(const char *name)
 
 void key_binding_c::Clear()
 {
-	keys[0] = keys[1] = keys[2] = keys[3];
+	keys[0] = keys[1] = keys[2] = keys[3] = 0;
 }
 
 bool key_binding_c::Add(short keyd)
@@ -362,6 +362,7 @@ void E_ResetAllBinds(void)
 	k_fire.Add(KEYD_JOYBUT1);
 }
 
+
 key_link_t *E_FindKeyBinding(const char *func_name)
 {
 	for (int i = 0; all_binds[i].name; i++)
@@ -378,6 +379,21 @@ key_link_t *E_FindKeyBinding(const char *func_name)
 
 	return NULL; // not found
 }
+
+
+int E_MatchAllKeys(std::vector<const char *>& list, const char *pattern)
+{
+	list.clear();
+
+	for (int i = 0; all_binds[i].name; i++)
+	{
+		if (CON_MatchPattern(all_binds[i].name, pattern))
+			list.push_back(all_binds[i].name);
+	}
+
+	return (int)list.size();
+}
+
 
 std::string E_FormatConfig(key_link_t *link)
 {

@@ -493,7 +493,7 @@ static void ProcessBind(key_link_t *link, char **argv, int argc)
 		int keyd = E_KeyFromName(argv[i]);
 		if (keyd == 0)
 		{
-			CON_Printf("Invalid key name: %s\n", argv[1]);
+			CON_Printf("Invalid key name: %s\n", argv[i]);
 			continue;
 		}
 
@@ -534,19 +534,19 @@ void CON_TryCommand(const char *cmd)
 		return;
 	}
 
-	key_link_t *koke = E_FindKeyBinding(argv[0]);
-
-	if (koke)
+	// hmmm I like it kinky...
+	key_link_t *kink = E_FindKeyBinding(argv[0]);
+	if (kink)
 	{
 		if (argc <= 1)
 		{
-			std::string keylist = koke->bind->FormatKeyList();
+			std::string keylist = kink->bind->FormatKeyList();
 
 			I_Printf("%s %s\n", argv[0], keylist.c_str());
 		}
 		else
 		{
-			ProcessBind(koke, argv, argc);
+			ProcessBind(kink, argv, argc);
 		}
 
 		KillArgs(argv, argc);
@@ -558,9 +558,6 @@ void CON_TryCommand(const char *cmd)
 	KillArgs(argv, argc);
 	return;
 }
-
-
-extern bool CON_MatchPattern(const char *name, const char *pat);
 
 
 int CON_MatchAllCmds(std::vector<const char *>& list,

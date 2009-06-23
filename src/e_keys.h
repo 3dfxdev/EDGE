@@ -38,7 +38,7 @@ public:
 public:
 	key_binding_c()
 	{
-		keys[0] = keys[1] = keys[2] = keys[3];
+		keys[0] = keys[1] = keys[2] = keys[3] = 0;
 	}
 
 	~key_binding_c()
@@ -77,6 +77,8 @@ void E_UnbindAll(void);
 void E_ResetAllBinds(void);
 
 key_link_t *E_FindKeyBinding(const char *func_name);
+int E_MatchAllKeys(std::vector<const char *>& list, const char *pattern);
+
 std::string E_FormatConfig(key_link_t *link);
 
 const char *E_GetKeyName(int keyd);
