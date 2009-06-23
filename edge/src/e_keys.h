@@ -48,6 +48,7 @@ public:
 
 	bool Add(short keyd);
 	bool Remove(short keyd);
+	void Toggle(short keyd);
 
 	bool HasKey(short keyd) const;
 	bool HasKey(const event_t *ev) const;
