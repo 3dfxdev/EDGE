@@ -262,74 +262,69 @@ std::string key_binding_c::FormatKeyList() const
 
 //----------------------------------------------------------------------------
 
-extern key_binding_c key_map;
-extern key_binding_c key_am_left, key_am_right, key_am_up, key_am_down;
-extern key_binding_c key_am_zoomin, key_am_zoomout;
-extern key_binding_c key_am_follow, key_am_grid, key_am_mark, key_am_clear;
+extern key_binding_c k_automap;
+extern key_binding_c k_am_zoomin, k_am_zoomout;
+extern key_binding_c k_am_follow, k_am_grid;
+extern key_binding_c k_am_mark, k_am_clear;
 
-extern key_binding_c key_console, key_talk;
+extern key_binding_c k_console, k_talk;
 
 
 key_link_t  all_binds[] =
 {
 	// Automap
-	{ "am_left",       &key_am_left,     KEYD_LEFTARROW,  0 },
-	{ "am_right",      &key_am_right,    KEYD_RIGHTARROW, 0 },
-	{ "am_up",         &key_am_up,       KEYD_UPARROW,    0 },
-	{ "am_down",       &key_am_down,     KEYD_DOWNARROW,  0 },
+    { "k_automap",       &k_automap,     KEYD_TAB, 0 },
+	{ "k_am_zoomin",     &k_am_zoomin,   '=', 0 },
+	{ "k_am_zoomout",    &k_am_zoomout,  '-', 0 },
 
-	{ "am_zoomin",     &key_am_zoomin,   '=', 0 },
-	{ "am_zoomout",    &key_am_zoomout,  '-', 0 },
-
-    { "am_follow",     &key_am_follow,   'F', 0 },
-    { "am_grid",       &key_am_grid,     'G', 0 },
-    { "am_mark",       &key_am_mark,     'M', 0 },
-    { "am_clear",      &key_am_clear,    'C', 0 },
+    { "k_am_follow",     &k_am_follow,   'F', 0 },
+    { "k_am_grid",       &k_am_grid,     'G', 0 },
+    { "k_am_mark",       &k_am_mark,     'M', 0 },
+    { "k_am_clear",      &k_am_clear,    'C', 0 },
 
 	// Weapons
-    { "weapon1",       &key_weapons[1],  '1', 0 },
-    { "weapon2",       &key_weapons[2],  '2', 0 },
-    { "weapon3",       &key_weapons[3],  '3', 0 },
-    { "weapon4",       &key_weapons[4],  '4', 0 },
-    { "weapon5",       &key_weapons[5],  '5', 0 },
-    { "weapon6",       &key_weapons[6],  '6', 0 },
-    { "weapon7",       &key_weapons[7],  '7', 0 },
-    { "weapon8",       &key_weapons[8],  '8', 0 },
-    { "weapon9",       &key_weapons[9],  '9', 0 },
-    { "weapon0",       &key_weapons[0],  '0', 0 },
-    { "nextweapon",    &key_nextweapon,  KEYD_MWHEEL_UP, 0 },
-    { "prevweapon",    &key_prevweapon,  KEYD_MWHEEL_DN, 0 },
+    { "k_weapon1",       &k_weapons[1],  '1', 0 },
+    { "k_weapon2",       &k_weapons[2],  '2', 0 },
+    { "k_weapon3",       &k_weapons[3],  '3', 0 },
+    { "k_weapon4",       &k_weapons[4],  '4', 0 },
+    { "k_weapon5",       &k_weapons[5],  '5', 0 },
+    { "k_weapon6",       &k_weapons[6],  '6', 0 },
+    { "k_weapon7",       &k_weapons[7],  '7', 0 },
+    { "k_weapon8",       &k_weapons[8],  '8', 0 },
+    { "k_weapon9",       &k_weapons[9],  '9', 0 },
+    { "k_weapon0",       &k_weapons[0],  '0', 0 },
+    { "k_nextweapon",    &k_nextweapon,  KEYD_MWHEEL_UP, 0 },
+    { "k_prevweapon",    &k_prevweapon,  KEYD_MWHEEL_DN, 0 },
 
 	// Movement
-    { "forward",       &key_forward,     KEYD_UPARROW,   'W' },
-    { "back",          &key_back,        KEYD_DOWNARROW, 'S' },
-    { "left",          &key_left,        ',', 'A' },
-    { "right",         &key_right,       '.', 'D' },
-    { "up",            &key_up,          KEYD_INSERT, '/' },
-    { "down",          &key_down,        KEYD_DELETE, 'V' },
+    { "k_forward",       &k_forward,     KEYD_UPARROW,   'W' },
+    { "k_back",          &k_back,        KEYD_DOWNARROW, 'S' },
+    { "k_left",          &k_left,        ',', 'A' },
+    { "k_right",         &k_right,       '.', 'D' },
+    { "k_up",            &k_up,          KEYD_INSERT, '/' },
+    { "k_down",          &k_down,        KEYD_DELETE, 'V' },
 
-    { "turnleft",      &key_turnleft,    KEYD_LEFTARROW,  0 },
-    { "turnright",     &key_turnright,   KEYD_RIGHTARROW, 0 },
-    { "lookup",        &key_lookup,      KEYD_PGUP, 0 },
-    { "lookdown",      &key_lookdown,    KEYD_PGDN, 0 },
-    { "lookcenter",    &key_lookcenter,  KEYD_HOME, KEYD_END },
+    { "k_turnleft",      &k_turnleft,    KEYD_LEFTARROW,  0 },
+    { "k_turnright",     &k_turnright,   KEYD_RIGHTARROW, 0 },
+    { "k_turn180",       &k_turn180,     0, 0 },
+    { "k_lookup",        &k_lookup,      KEYD_PGUP, 0 },
+    { "k_lookdown",      &k_lookdown,    KEYD_PGDN, 0 },
+    { "k_lookcenter",    &k_lookcenter,  KEYD_HOME, KEYD_END },
 
 	// Firing etc
-    { "fire",          &key_fire,        KEYD_CTRL, KEYD_MOUSE1 },
-    { "secondatk",     &key_secondatk,   'E', 0 },
-    { "use",           &key_use,         KEYD_SPACE, 0 },
-    { "strafe",        &key_strafe,      KEYD_ALT,   KEYD_MOUSE3 },
-    { "speed",         &key_speed,       KEYD_SHIFT, 0 },
-    { "autorun",       &key_autorun,     KEYD_CAPSLOCK,  0 },
+    { "k_fire",          &k_fire,        KEYD_CTRL, KEYD_MOUSE1 },
+    { "k_secondatk",     &k_secondatk,   'E', 0 },
+    { "k_use",           &k_use,         KEYD_SPACE, 0 },
+    { "k_strafe",        &k_strafe,      KEYD_ALT,   KEYD_MOUSE3 },
+    { "k_speed",         &k_speed,       KEYD_SHIFT, 0 },
+    { "k_autorun",       &k_autorun,     KEYD_CAPSLOCK,  0 },
 
 	// Miscellaneous
-    { "map",           &key_map,         KEYD_TAB, 0 },
-    { "zoom",          &key_zoom,        '\\', 0 },
-    { "turn180",       &key_180,         0, 0 },
-    { "reload",        &key_reload,      'R', 0 },
-    { "talk",          &key_talk,        'T', 0 },
-    { "console",       &key_console,     KEYD_TILDE, 0 },
-    { "mlook",         &key_mlook,       'M', 0 },
+    { "k_zoom",          &k_zoom,        '\\', 0 },
+    { "k_reload",        &k_reload,      'R', 0 },
+    { "k_console",       &k_console,     KEYD_TILDE, 0 },
+    { "k_mlook",         &k_mlook,       'M', 0 },
+    { "k_talk",          &k_talk,        'T', 0 },
 
 	// the end
 	{ NULL, NULL, 0, 0 }
@@ -356,7 +351,7 @@ void E_ResetAllBinds(void)
 		if (link->def_key2) link->bind->Add(link->def_key2);
 	}
 
-	key_fire.Add(KEYD_JOYBUT1);
+	k_fire.Add(KEYD_JOYBUT1);
 }
 
 key_link_t *E_FindKeyBinding(const char *func_name)
@@ -369,22 +364,27 @@ key_link_t *E_FindKeyBinding(const char *func_name)
 			return link;
 	}
 
+	// user convenience: allow k_jump as an alias
+	if (DDF_CompareName(func_name, "k_jump"))
+		return E_FindKeyBinding("k_up");
+
 	return NULL; // not found
 }
 
 std::string E_FormatConfig(key_link_t *link)
 {
-	std::string result;
+	std::string result = link->name;
+
+	result += " -c";
 
 	for (int i = 0; i < 4; i++)
 		if (link->bind->keys[i] > 0)
 		{
-			result += "bind ";
+			result += " ";
 			result += E_GetKeyName(link->bind->keys[i]);
-			result += " \"";
-			result += link->name;
-			result += "\"\n";
 		}
+
+	result += "\n";
 
 	return result;
 }

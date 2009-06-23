@@ -73,15 +73,15 @@ static rgbcol_t am_colors[AM_NUM_COLORS] =
 
 // Automap keys
 
-key_binding_c key_map;
+key_binding_c k_automap;
 
-key_binding_c key_am_zoomin;
-key_binding_c key_am_zoomout;
+key_binding_c k_am_zoomin;
+key_binding_c k_am_zoomout;
 
-key_binding_c key_am_follow;
-key_binding_c key_am_grid;
-key_binding_c key_am_mark;
-key_binding_c key_am_clear;
+key_binding_c k_am_follow;
+key_binding_c k_am_grid;
+key_binding_c k_am_mark;
+key_binding_c k_am_clear;
 
 #define AM_NUMMARKPOINTS  9
 
@@ -311,7 +311,7 @@ bool AM_Responder(event_t * ev)
 {
 	if (! automapactive)
 	{
-		if (ev->type == ev_keydown && key_map.HasKey(ev))
+		if (ev->type == ev_keydown && k_automap.HasKey(ev))
 		{
 			AM_Show();
 			return true;
@@ -324,15 +324,15 @@ bool AM_Responder(event_t * ev)
 
 	if (ev->type == ev_keyup)
 	{
-		if (key_left.HasKey(ev)  || key_turnleft.HasKey(ev) ||
-		    key_right.HasKey(ev) || key_turnright.HasKey(ev))
+		if (k_left.HasKey(ev)  || k_turnleft.HasKey(ev) ||
+		    k_right.HasKey(ev) || k_turnright.HasKey(ev))
 			panning_x = 0;
 
-		if (key_up.HasKey(ev)   || key_lookup.HasKey(ev) ||
-		    key_down.HasKey(ev) || key_lookdown.HasKey(ev))
+		if (k_up.HasKey(ev)   || k_lookup.HasKey(ev) ||
+		    k_down.HasKey(ev) || k_lookdown.HasKey(ev))
 			panning_y = 0;
 
-		if (key_am_zoomin.HasKey(ev) || key_am_zoomout.HasKey(ev))
+		if (k_am_zoomin.HasKey(ev) || k_am_zoomout.HasKey(ev))
 			zooming = -1;
 
 		return false;
@@ -354,13 +354,13 @@ bool AM_Responder(event_t * ev)
 	}
 
 
-	if (key_map.HasKey(ev))
+	if (k_automap.HasKey(ev))
 	{
 		AM_Hide();
 		return true;
 	}
 
-	if (key_right.HasKey(ev) || key_turnright.HasKey(ev))
+	if (k_right.HasKey(ev) || k_turnright.HasKey(ev))
 	{
 		if (followplayer)
 			return false;
@@ -369,7 +369,7 @@ bool AM_Responder(event_t * ev)
 		return true;
 	}
 
-	if (key_left.HasKey(ev) || key_turnleft.HasKey(ev))
+	if (k_left.HasKey(ev) || k_turnleft.HasKey(ev))
 	{
 		if (followplayer)
 			return false;
@@ -378,7 +378,7 @@ bool AM_Responder(event_t * ev)
 		return true;
 	}
 
-	if (key_up.HasKey(ev) || key_lookup.HasKey(ev))
+	if (k_up.HasKey(ev) || k_lookup.HasKey(ev))
 	{
 		if (followplayer)
 			return false;
@@ -387,7 +387,7 @@ bool AM_Responder(event_t * ev)
 		return true;
 	}
 
-	if (key_down.HasKey(ev) || key_lookdown.HasKey(ev))
+	if (k_down.HasKey(ev) || k_lookdown.HasKey(ev))
 	{
 		if (followplayer)
 			return false;
@@ -396,19 +396,19 @@ bool AM_Responder(event_t * ev)
 		return true;
 	}
 
-	if (key_am_zoomin.HasKey(ev))
+	if (k_am_zoomin.HasKey(ev))
 	{
 		zooming = M_ZOOMIN;
 		return true;
 	}
 
-	if (key_am_zoomout.HasKey(ev))
+	if (k_am_zoomout.HasKey(ev))
 	{
 		zooming = 1.0 / M_ZOOMIN;
 		return true;
 	}
 
-	if (key_am_follow.HasKey(ev))
+	if (k_am_follow.HasKey(ev))
 	{
 		followplayer = !followplayer;
 		// -ACB- 1998/08/10 Use DDF Lang Reference
@@ -419,7 +419,7 @@ bool AM_Responder(event_t * ev)
 		return true;
 	}
 
-	if (key_am_grid.HasKey(ev))
+	if (k_am_grid.HasKey(ev))
 	{
 		grid = !grid;
 		// -ACB- 1998/08/10 Use DDF Lang Reference
@@ -430,7 +430,7 @@ bool AM_Responder(event_t * ev)
 		return true;
 	}
 
-	if (key_am_mark.HasKey(ev))
+	if (k_am_mark.HasKey(ev))
 	{
 		// -ACB- 1998/08/10 Use DDF Lang Reference
 		CON_PlayerMessage(consoleplayer, "%s %d",
@@ -439,7 +439,7 @@ bool AM_Responder(event_t * ev)
 		return true;
 	}
 
-	if (key_am_clear.HasKey(ev))
+	if (k_am_clear.HasKey(ev))
 	{
 		ClearMarks();
 		// -ACB- 1998/08/10 Use DDF Lang Reference

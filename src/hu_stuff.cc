@@ -61,7 +61,7 @@
 bool chat_on;
 static hu_itext_t w_chat;
 
-key_binding_c key_talk;
+key_binding_c k_talk;
 
 std::string w_map_title;
 
@@ -395,7 +395,7 @@ bool HU_Responder(event_t * ev)
 			message_counter = HU_MSGTIMEOUT;
 			return false;
 		}
-		else if (netgame && key_talk.HasKey(ev))
+		else if (netgame && k_talk.HasKey(ev))
 		{
 			chat_on = true;
 			HL_ResetIText(&w_chat);

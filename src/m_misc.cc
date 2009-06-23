@@ -109,8 +109,6 @@ void M_SaveDefaults(void)
 			fprintf(f, "%s\t\"%s\"\n", all_cvars[k].name, var->str);
 	}
 
-	fprintf(f, "unbind all\n");
-
 	for (int n = 0; all_binds[n].name; n++)
 	{
 		std::string kconf = E_FormatConfig(&all_binds[n]);

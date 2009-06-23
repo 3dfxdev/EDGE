@@ -47,37 +47,37 @@ extern cvar_c in_stageturn;
 
 /* keyboard stuff */
 
-extern key_binding_c key_forward;
-extern key_binding_c key_back;
-extern key_binding_c key_left;
-extern key_binding_c key_right;
+extern key_binding_c k_forward;
+extern key_binding_c k_back;
+extern key_binding_c k_left;
+extern key_binding_c k_right;
 
-extern key_binding_c key_turnright;
-extern key_binding_c key_turnleft;
-extern key_binding_c key_lookup;
-extern key_binding_c key_lookdown;
-extern key_binding_c key_lookcenter;
+extern key_binding_c k_turnright;
+extern key_binding_c k_turnleft;
+extern key_binding_c k_lookup;
+extern key_binding_c k_lookdown;
+extern key_binding_c k_lookcenter;
 
 // -ES- 1999/03/28 Zoom Key
-extern key_binding_c key_zoom;
+extern key_binding_c k_zoom;
 
 // -ACB- for -MH- 1998/07/19 Flying keys
-extern key_binding_c key_up;
-extern key_binding_c key_down;
+extern key_binding_c k_up;
+extern key_binding_c k_down;
 
-extern key_binding_c key_fire;
-extern key_binding_c key_secondatk;
-extern key_binding_c key_use;
-extern key_binding_c key_strafe;
-extern key_binding_c key_speed;
-extern key_binding_c key_autorun;
-extern key_binding_c key_180;
-extern key_binding_c key_mlook;  // -AJA- 1999/07/27.
-extern key_binding_c key_reload;  // -AJA- 2004/11/10.
+extern key_binding_c k_fire;
+extern key_binding_c k_secondatk;
+extern key_binding_c k_use;
+extern key_binding_c k_strafe;
+extern key_binding_c k_speed;
+extern key_binding_c k_autorun;
+extern key_binding_c k_turn180;
+extern key_binding_c k_mlook;  // -AJA- 1999/07/27.
+extern key_binding_c k_reload;  // -AJA- 2004/11/10.
 
-extern key_binding_c key_weapons[10]; // -AJA- 2009/06/20.
-extern key_binding_c key_nextweapon;
-extern key_binding_c key_prevweapon;
+extern key_binding_c k_weapons[10]; // -AJA- 2009/06/20.
+extern key_binding_c k_nextweapon;
+extern key_binding_c k_prevweapon;
 
 #endif  /* __E_INPUT_H__ */
 
