@@ -1,5 +1,31 @@
 Andrew Apted's Log
 
+2009/06/24:
+
+Plans for improved directory handling (after discussions
+with Andrew Baker) :-
+
+  1. there is a path list (similar to the PATH used by
+     unix shells) for finding WAD files (etc).  This
+     can be setup with system-specific places (e.g.
+     Resources/Contents in the App folder in MacOSX)
+     and modified by the user.
+
+     Replaces: game_dir, iwad_dir
+
+  2. there is a single place for writable data, and
+     this is where the config file, log file, savegames
+     and screenshots go.  Essentially the same as now,
+     but the purpose behind it is clearer.
+
+     Replaces: home_dir, cache_dir, shot_dir, save_dir
+
+  3. place all the DDF files into one big file ("doom.ddf")
+     and load that instead of all the separate files.
+
+     Replaces: ddf_dir
+
+
 2009/06/23:
 
 I wasn't happy with the "bind <key> <func>" paradigm for
@@ -11,7 +37,7 @@ one function (e.g. game stuff and automap stuff).
 Hence I plan to migrate towards a system where each
 function (e.g. "k_forward") acts like a cvar that can
 be directly modified, albeit with somewhat different
-semantics: the ability to assign multiple keys.
+semantics: the ability to assign multiple keys etc.
 
 2009/06/22:
 
