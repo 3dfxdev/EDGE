@@ -75,11 +75,6 @@ static rgbcol_t am_colors[AM_NUM_COLORS] =
 
 key_binding_c key_map;
 
-key_binding_c key_am_left;
-key_binding_c key_am_right;
-key_binding_c key_am_up;
-key_binding_c key_am_down;
-
 key_binding_c key_am_zoomin;
 key_binding_c key_am_zoomout;
 
@@ -325,14 +320,16 @@ bool AM_Responder(event_t * ev)
 		return false;
 	}
 
-	// handle key releases
+	// --- handle key releases ---
 
 	if (ev->type == ev_keyup)
 	{
-		if (key_am_left.HasKey(ev) || key_am_right.HasKey(ev))
+		if (key_left.HasKey(ev)  || key_turnleft.HasKey(ev) ||
+		    key_right.HasKey(ev) || key_turnright.HasKey(ev))
 			panning_x = 0;
 
-		if (key_am_up.HasKey(ev) || key_am_down.HasKey(ev))
+		if (key_up.HasKey(ev)   || key_lookup.HasKey(ev) ||
+		    key_down.HasKey(ev) || key_lookdown.HasKey(ev))
 			panning_y = 0;
 
 		if (key_am_zoomin.HasKey(ev) || key_am_zoomout.HasKey(ev))
@@ -342,7 +339,7 @@ bool AM_Responder(event_t * ev)
 	}
 
 
-	// handle key presses
+	// --- handle key presses ---
 
 	if (ev->type != ev_keydown)
 		return false;
@@ -363,7 +360,7 @@ bool AM_Responder(event_t * ev)
 		return true;
 	}
 
-	if (key_am_right.HasKey(ev))
+	if (key_right.HasKey(ev) || key_turnright.HasKey(ev))
 	{
 		if (followplayer)
 			return false;
@@ -372,7 +369,7 @@ bool AM_Responder(event_t * ev)
 		return true;
 	}
 
-	if (key_am_left.HasKey(ev))
+	if (key_left.HasKey(ev) || key_turnleft.HasKey(ev))
 	{
 		if (followplayer)
 			return false;
@@ -381,7 +378,7 @@ bool AM_Responder(event_t * ev)
 		return true;
 	}
 
-	if (key_am_up.HasKey(ev))
+	if (key_up.HasKey(ev) || key_lookup.HasKey(ev))
 	{
 		if (followplayer)
 			return false;
@@ -390,7 +387,7 @@ bool AM_Responder(event_t * ev)
 		return true;
 	}
 
-	if (key_am_down.HasKey(ev))
+	if (key_down.HasKey(ev) || key_lookdown.HasKey(ev))
 	{
 		if (followplayer)
 			return false;
