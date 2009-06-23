@@ -217,6 +217,14 @@ bool key_binding_c::Remove(short keyd)
 	return false; // no change
 }
 
+void key_binding_c::Toggle(short keyd)
+{
+	if (HasKey(keyd))
+		Remove(keyd);
+	else
+		Add(keyd);
+}
+
 bool key_binding_c::HasKey(short keyd) const
 {
 	return (keys[0] == keyd) || (keys[1] == keyd) ||
@@ -360,12 +368,12 @@ key_link_t *E_FindKeyBinding(const char *func_name)
 	{
 		key_link_t *link = &all_binds[i];
 
-		if (DDF_CompareName(link->name, func_name) == 0)
+		if (stricmp(link->name, func_name) == 0)
 			return link;
 	}
 
 	// user convenience: allow k_jump as an alias
-	if (DDF_CompareName(func_name, "k_jump"))
+	if (stricmp(func_name, "k_jump") == 0)
 		return E_FindKeyBinding("k_up");
 
 	return NULL; // not found

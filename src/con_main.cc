@@ -196,7 +196,7 @@ int CMD_PlaySound(char **argv, int argc)
 	return 0;
 }
 
-int CMD_ResetBinds(char **argv, int argc)
+int CMD_ResetKeys(char **argv, int argc)
 {
 	// TODO; first param is a name match
 	
@@ -244,7 +244,7 @@ int CMD_ShowVars(char **argv, int argc)
 
 	char *match = NULL;
 
-	if (argc >= 2 && strcmp(argv[1], "-l") == 0)
+	if (argc >= 2 && stricmp(argv[1], "-l") == 0)
 	{
 		show_defaults = true;
 		argv++; argc--;
@@ -306,7 +306,7 @@ int CMD_ShowCmds(char **argv, int argc)
 	return 0;
 }
 
-int CMD_ShowBinds(char **argv, int argc)
+int CMD_ShowKeys(char **argv, int argc)
 {
 	char *match = NULL;
 
@@ -362,133 +362,6 @@ int CMD_Version(char **argv, int argc)
 	return 0;
 }
 
-
-int CMD_Bind(char **argv, int argc)
-{
-	if (argc <= 1)
-	{
-		CON_Printf("Usage: bind <key> <function>\n");
-		return 0;
-	}
-
-	int keyd;
-	key_link_t *link;
-
-	// bind <function>
-	if (argc == 2)
-	{
-		key_link_t *link = E_FindKeyBinding(argv[1]);
-		if (link)
-		{
-			std::string keylist = link->bind->FormatKeyList();
-			I_Printf("  %-15s %s\n", link->name, keylist.c_str());
-			return 0;
-		}
-	}
-
-	keyd = E_KeyFromName(argv[1]);
-	if (keyd == 0)
-	{
-		CON_Printf("Invalid key name: %s\n", argv[1]);
-		return 0;
-	}
-
-	if (argc <= 2)
-	{
-		int total = 0;
-
-		for (int i = 0; all_binds[i].name; i++)
-		{
-			if (all_binds[i].bind->HasKey(keyd))
-			{
-				I_Printf("  %s\n", all_binds[i].name);
-				total++;
-			}
-		}
-
-		if (total == 0)
-			I_Printf("No bindings for %s\n", argv[1]);
-
-		return 0;
-	}
-
-	link = E_FindKeyBinding(argv[2]);
-	if (! link)
-	{
-		I_Printf("Unknown function name: %s\n", argv[2]);
-		return 0;
-	}
-
-	link->bind->Add(keyd);
-	return 0;
-}
-
-int CMD_Unbind(char **argv, int argc)
-{
-	if (argc <= 1)
-	{
-		CON_Printf("Usage: unbind <key> [<function>]\n");
-		return 0;
-	}
-
-	if (DDF_CompareName(argv[1], "all") == 0)
-	{
-		E_UnbindAll();
-		CON_Printf("Unbound all keys.\n");
-		return 0;
-	}
-
-	int keyd;
-	key_link_t *link;
-
-	// unbind <function>
-	if (argc == 2)
-	{
-		link = E_FindKeyBinding(argv[1]);
-		if (link)
-		{
-			link->bind->Clear();
-			return 0;
-		}
-	}
-
-	keyd = E_KeyFromName(argv[1]);
-	if (keyd == 0)
-	{
-		CON_Printf("Invalid key name: %s\n", argv[1]);
-		return 0;
-	}
-
-	// unbind <key>
-	if (argc <= 2)
-	{
-		int total = 0;
-
-		for (int i = 0; all_binds[i].name; i++)
-		{
-			if (all_binds[i].bind->Remove(keyd))
-			{
-				I_Printf("Unbound from %s\n", all_binds[i].name);
-				total++;
-			}
-		}
-
-		if (total == 0)
-			I_Printf("No bindings for %s\n", argv[1]);
-
-		return 0;
-	}
-
-	link = E_FindKeyBinding(argv[2]);
-	if (! link)
-	{
-		I_Printf("Unknown function name: %s\n", argv[2]);
-		return 0;
-	}
-
-	link->bind->Remove(keyd);
-	return 0;
-}
 
 int CMD_Map(char **argv, int argc)
 {
@@ -574,21 +447,19 @@ const con_cmd_t builtin_commands[] =
 {
 	{ "args",           CMD_ArgList },
 	{ "crc",            CMD_Crc },
-	{ "bind",           CMD_Bind },
 	{ "exec",           CMD_Exec },
 	{ "help",           CMD_Help },
 	{ "map",            CMD_Map },
 	{ "playsound",      CMD_PlaySound },
-  	{ "resetbinds",     CMD_ResetBinds },
+  	{ "resetkeys",      CMD_ResetKeys },
 	{ "resetvars",      CMD_ResetVars },
-  	{ "showbinds",      CMD_ShowBinds },
 	{ "showfiles",      CMD_ShowFiles },
+  	{ "showkeys",       CMD_ShowKeys },
 	{ "showlumps",      CMD_ShowLumps },
 	{ "showcmds",       CMD_ShowCmds },
 	{ "showvars",       CMD_ShowVars },
 	{ "screenshot",     CMD_ScreenShot },
 	{ "type",           CMD_Type },
-	{ "unbind",         CMD_Unbind },
 	{ "version",        CMD_Version },
 	{ "quit",           CMD_QuitEDGE },
 	{ "exit",           CMD_QuitEDGE },
@@ -602,11 +473,32 @@ static int FindCommand(const char *name)
 {
 	for (int i = 0; builtin_commands[i].name; i++)
 	{
-		if (strcmp(name, builtin_commands[i].name) == 0)
+		if (stricmp(name, builtin_commands[i].name) == 0)
 			return i;
 	}
 
 	return -1;  // not found
+}
+
+static void ProcessBind(key_link_t *link, char **argv, int argc)
+{
+	for (int i = 1; i < argc; i++)
+	{
+		if (stricmp(argv[i], "-c") == 0)
+		{
+			link->bind->Clear();
+			continue;
+		}
+
+		int keyd = E_KeyFromName(argv[i]);
+		if (keyd == 0)
+		{
+			CON_Printf("Invalid key name: %s\n", argv[1]);
+			continue;
+		}
+
+		link->bind->Toggle(keyd);
+	}
 }
 
 void CON_TryCommand(const char *cmd)
@@ -618,18 +510,18 @@ void CON_TryCommand(const char *cmd)
 		return;
 
 	int index = FindCommand(argv[0]);
-
 	if (index >= 0)
 	{
 		(* builtin_commands[index].func)(argv, argc);
-	}
-	else
-	{
-		cvar_link_t *link = CON_FindVar(argv[0]);
 
-		if (! link)
-			I_Printf("Unknown Command or Variable: %s\n", argv[0]);
-		else if (argc <= 1)
+		KillArgs(argv, argc);
+		return;
+	}
+
+	cvar_link_t *link = CON_FindVar(argv[0]);
+	if (link)
+	{
+		if (argc <= 1)
 			I_Printf("%s \"%s\"\n", argv[0], link->var->str);
 		else if (argc >= 3)
 			I_Printf("Can only assign one value (%d given).\n", argc-1);
@@ -637,9 +529,34 @@ void CON_TryCommand(const char *cmd)
 			I_Printf("That cvar is read only.\n");
 		else
 			*link->var = argv[1];
+
+		KillArgs(argv, argc);
+		return;
 	}
 
+	key_link_t *koke = E_FindKeyBinding(argv[0]);
+
+	if (koke)
+	{
+		if (argc <= 1)
+		{
+			std::string keylist = koke->bind->FormatKeyList();
+
+			I_Printf("%s %s\n", argv[0], keylist.c_str());
+		}
+		else
+		{
+			ProcessBind(koke, argv, argc);
+		}
+
+		KillArgs(argv, argc);
+		return;
+	}
+
+	I_Printf("Unknown Command or Variable: %s\n", argv[0]);
+
 	KillArgs(argv, argc);
+	return;
 }
 
 

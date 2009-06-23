@@ -1,12 +1,24 @@
 Andrew Apted's Log
 
+2009/06/23:
+
+I wasn't happy with the "bind <key> <func>" paradigm for
+key bindings, particularly because we don't support
+executing any function, and also because such a system
+doesn't work well when keys can be bound to more than
+one function (e.g. game stuff and automap stuff).
+
+Hence I plan to migrate towards a system where each
+function (e.g. "k_forward") acts like a cvar that can
+be directly modified, albeit with somewhat different
+semantics: the ability to assign multiple keys.
+
 2009/06/22:
 
 Added basic support for keys on the keypad (numberpad).
 The 'in_keypad' cvar must be set to 1 (default is zero).
-The names (for bind) are: KP_0, KP_1 .. KP_9, KP_DOT,
-KP_PLUS, KP_MINUS, KP_STAR, KP_SLASH, KP_EQUALS and
-KP_ENTER.
+The names (for bind) are: KP_0 .. KP_9, KP_DOT, KP_PLUS,
+KP_MINUS, KP_STAR, KP_SLASH, KP_EQUALS and KP_ENTER.
 
 2009/06/21:
 
