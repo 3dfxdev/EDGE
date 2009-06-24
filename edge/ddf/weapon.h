@@ -235,7 +235,6 @@ public:
 
 extern weapondef_container_c weapondefs;	// -ACB- 2004/07/14 Implemented
 
-bool DDF_ReadWeapons(void *data, int size);
 
 #endif // __DDF_WEAPON_H__
 

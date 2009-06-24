@@ -239,7 +239,6 @@ public:
 
 extern gamedef_container_c gamedefs;		// -ACB- 2004/06/21 Implemented
 
-bool DDF_ReadGames(void *data, int size);
 
 #endif // __DDF_GAME_H__
 

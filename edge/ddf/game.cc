@@ -146,35 +146,17 @@ static void GameClearAll (void)
 }
 
 
-bool DDF_ReadGames (void *data, int size)
+readinfo_t game_readinfo =
 {
-	readinfo_t games;
+	"DDF_InitGames",  // message
+	"GAMES",  // tag
 
-	games.memfile = (char *) data;
-	games.memsize = size;
-	games.tag = "GAMES";
-	games.entries_per_dot = 1;
+	GameStartEntry,
+	GameParseField,
+	GameFinishEntry,
+	GameClearAll 
+};
 
-	if (games.memfile)
-	{
-		games.message = NULL;
-		games.filename = NULL;
-		games.lumpname = "DDFGAME";
-	}
-	else
-	{
-		games.message = "DDF_InitGames";
-		games.filename = "games.ddf";
-		games.lumpname = NULL;
-	}
-
-	games.start_entry = GameStartEntry;
-	games.parse_field = GameParseField;
-	games.finish_entry = GameFinishEntry;
-	games.clear_all = GameClearAll;
-
-	return DDF_MainReadFile (&games);
-}
 
 void DDF_GameInit(void)
 {

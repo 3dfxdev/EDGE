@@ -118,6 +118,8 @@ void DDF_BoomClearGenTypes(void);
 linetype_c *DDF_BoomGetGenLine(int number);
 sectortype_c *DDF_BoomGetGenSector(int number);
 
+void DDF_Parse(void *data, int length);
+
 #endif /* __DDF_MAIN_H__ */
 
 //--- editor settings ---

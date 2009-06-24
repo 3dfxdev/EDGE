@@ -157,7 +157,6 @@ public:
 extern styledef_container_c styledefs;
 extern styledef_c *default_style;
 
-bool DDF_ReadStyles(void *data, int size);
 
 #endif  /*__DDF_STYLE_H__*/
 

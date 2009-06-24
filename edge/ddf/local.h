@@ -106,16 +106,8 @@ commandlist_t;
 typedef struct readinfo_s
 {
 	const char *message;	// message displayed
-	const char *filename;	// filename (when memfile == NULL)
-	const char *lumpname;	// lumpnume (when memfile != NULL)
 
 	const char *tag;	// the file has to start with <tag>
-
-	char *memfile;
-	unsigned int memsize;
-
-	// number of entries per displayed `.'
-	int entries_per_dot;
 
 	// NOTES
 	// -----
@@ -156,7 +148,7 @@ typedef struct readinfo_s
 	// used to indicate which element (starting at 0).
 	//
 	void (*parse_field) (const char *field, const char *contents,
-			     int index, bool is_last);
+					     int index, bool is_last);
 
 	// when the entry has finished, this routine can perform any
 	// necessary operations here (such as updating a number -> entry

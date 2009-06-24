@@ -915,9 +915,6 @@ public:
 extern linetype_container_c linetypes;		// -ACB- 2004/07/05 Implemented
 extern sectortype_container_c sectortypes;	// -ACB- 2004/07/05 Implemented
 
-bool DDF_ReadLines(void *data, int size);
-bool DDF_ReadSectors(void *data, int size);
-
 #endif // __DDF_LINE_H__
 
 //--- editor settings ---

@@ -175,7 +175,6 @@ public:
 
 extern mapdef_container_c mapdefs;			// -ACB- 2004/06/29 Implemented
 
-bool DDF_ReadLevels(void *data, int size);
 
 #endif // __DDF_LEVEL_H__
 
