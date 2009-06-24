@@ -172,51 +172,24 @@ static void PlaylistClearAll(void)
 }
 
 
-//
-// DDF_ReadMusicPlaylist
-//
-bool DDF_ReadMusicPlaylist(void *data, int size)
+readinfo_t playlist_readinfo =
 {
-	readinfo_t playlistinfo;
+	"DDF_InitMusicPlaylist",  // message
+	"PLAYLISTS",  // tag
 
-	playlistinfo.memfile = (char*)data;
-	playlistinfo.memsize = size;
-	playlistinfo.tag = "PLAYLISTS";
-	playlistinfo.entries_per_dot = 3;
+	PlaylistStartEntry,
+	PlaylistParseField,
+	PlaylistFinishEntry,
+	PlaylistClearAll 
+};
 
-	if (playlistinfo.memfile)
-	{
-		playlistinfo.message  = NULL;
-		playlistinfo.filename = NULL;
-		playlistinfo.lumpname = "DDFPLAY";
-	}
-	else
-	{
-		playlistinfo.message  = "DDF_InitMusicPlaylist";
-		playlistinfo.filename = "playlist.ddf";
-		playlistinfo.lumpname = NULL;
-	}
 
-	playlistinfo.start_entry  = PlaylistStartEntry;
-	playlistinfo.parse_field  = PlaylistParseField;
-	playlistinfo.finish_entry = PlaylistFinishEntry;
-	playlistinfo.clear_all    = PlaylistClearAll;
-
-	return DDF_MainReadFile(&playlistinfo);
-}
-
-//
-// DDF_MusicPlaylistInit
-//
 void DDF_MusicPlaylistInit(void)
 {
 	// -ACB- 2004/05/04 Use container 
 	playlist.Clear();
 }
 
-//
-// DDF_MusicPlaylistCleanUp
-//
 void DDF_MusicPlaylistCleanUp(void)
 {
 	// -ACB- 2004/05/04 Cut our playlist down to size

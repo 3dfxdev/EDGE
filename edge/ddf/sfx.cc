@@ -148,35 +148,18 @@ static void SoundClearAll(void)
 	sfxdefs.SetDisabledCount(sfxdefs.GetDisabledCount());
 }
 
-bool DDF_ReadSFX(void *data, int size)
+
+readinfo_t sound_readinfo =
 {
-	readinfo_t sfx_r;
+	"DDF_InitSounds",  // message
+	"SOUNDS",  // tag
 
-	sfx_r.memfile = (char*)data;
-	sfx_r.memsize = size;
-	sfx_r.tag = "SOUNDS";
-	sfx_r.entries_per_dot = 8;
+	SoundStartEntry,
+	SoundParseField,
+	SoundFinishEntry,
+	SoundClearAll
+};
 
-	if (sfx_r.memfile)
-	{
-		sfx_r.message = NULL;
-		sfx_r.filename = NULL;
-		sfx_r.lumpname = "DDFSFX";
-	}
-	else
-	{
-		sfx_r.message = "DDF_InitSounds";
-		sfx_r.filename = "sounds.ddf";
-		sfx_r.lumpname = NULL;
-	}
-
-	sfx_r.start_entry  = SoundStartEntry;
-	sfx_r.parse_field  = SoundParseField;
-	sfx_r.finish_entry = SoundFinishEntry;
-	sfx_r.clear_all    = SoundClearAll;
-
-	return DDF_MainReadFile(&sfx_r);
-}
 
 void DDF_SFXInit(void)
 {

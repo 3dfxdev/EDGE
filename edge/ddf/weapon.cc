@@ -414,38 +414,17 @@ static void WeaponClearAll(void)
 }
 
 
-//
-// DDF_ReadWeapons
-//
-bool DDF_ReadWeapons(void *data, int size)
+readinfo_t weapon_readinfo =
 {
-	readinfo_t weapons;
+	"DDF_InitWeapons",  // message
+	"WEAPONS",  // tag
 
-	weapons.memfile = (char*)data;
-	weapons.memsize = size;
-	weapons.tag = "WEAPONS";
-	weapons.entries_per_dot = 1;
+	WeaponStartEntry,
+	WeaponParseField,
+	WeaponFinishEntry,
+	WeaponClearAll 
+};
 
-	if (weapons.memfile)
-	{
-		weapons.message = NULL;
-		weapons.filename = NULL;
-		weapons.lumpname = "DDFWEAP";
-	}
-	else
-	{
-		weapons.message = "DDF_InitWeapons";
-		weapons.filename = "weapons.ddf";
-		weapons.lumpname = NULL;
-	}
-
-	weapons.start_entry  = WeaponStartEntry;
-	weapons.parse_field  = WeaponParseField;
-	weapons.finish_entry = WeaponFinishEntry;
-	weapons.clear_all    = WeaponClearAll;
-
-	return DDF_MainReadFile(&weapons);
-}
 
 void DDF_WeaponInit(void)
 {
