@@ -95,7 +95,7 @@ static ddf_reader_t DDF_Readers[] =
 	{ "DDFFONT", "Fonts",      "fonts.ddf"     },       // -AJA- 2004/11/13
 	{ "DDFSTYLE","Styles",     "styles.ddf"    },      // -AJA- 2004/11/14
 	{ "DDFATK",  "Attacks",    "attacks.ddf"   },
-	{ "DDFWEAP", "Weapons",    "Weapons.ddf"   },
+	{ "DDFWEAP", "Weapons",    "weapons.ddf"   },
 	{ "DDFTHING","Things",     "things.ddf"    },
 	{ "DDFPLAY", "Playlists",  "playlist.ddf"  },
 	{ "DDFLINE", "Lines",      "lines.ddf"     },
@@ -1010,7 +1010,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 
 		if (kind == FLKIND_DDF)
         {
-			DDF_GetLumpNameForFile(filename, lump_name);
+			sprintf(lump_name, "DDF%04d", datafile);
         }
         else
         {

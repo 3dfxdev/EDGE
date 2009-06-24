@@ -290,152 +290,6 @@ void DDF_CleanUp(void)
 	DDF_MusicPlaylistCleanUp();
 }
 
-static const char *tag_conversion_table[] =
-{
-    "ANIMATIONS",  "DDFANIM",
-    "ATTACKS",     "DDFATK",
-    "COLOURMAPS",  "DDFCOLM",
-    "FONTS",       "DDFFONT",
-    "GAMES",       "DDFGAME",
-    "IMAGES",      "DDFIMAGE",
-    "LANGUAGES",   "DDFLANG",
-    "LEVELS",      "DDFLEVL",
-    "LINES",       "DDFLINE",
-    "PLAYLISTS",   "DDFPLAY",
-    "SECTORS",     "DDFSECT",
-    "SOUNDS",      "DDFSFX",
-    "STYLES",      "DDFSTYLE",
-    "SWITCHES",    "DDFSWTH",
-    "THINGS",      "DDFTHING",
-    "WEAPONS",     "DDFWEAP",
-
-	NULL, NULL
-};
-
-void DDF_GetLumpNameForFile(const char *filename, char *lumpname)
-{
-	FILE *fp = fopen(filename, "r");
-	
-	if (!fp)
-		I_Error("Couldn't open DDF file: %s\n", filename);
-
-	bool in_comment = false;
-
-	for (;;)
-	{
-		int ch = fgetc(fp);
-
-		if (ch == EOF || ferror(fp))
-			break;
-
-		if (ch == '/' || ch == '#')  // skip directives too
-		{
-			in_comment = true;
-			continue;
-		}
-
-		if (in_comment)
-		{
-			if (ch == '\n' || ch == '\r')
-				in_comment = false;
-			continue;
-		}
-		
-		if (ch == '[')
-			break;
-
-		if (ch != '<')
-			continue;
-
-		// found start of <XYZ> tag, read it in
-
-		char tag_buf[40];
-		int len = 0;
-
-		for (;;)
-		{
-			ch = fgetc(fp);
-
-			if (ch == EOF || ferror(fp) || ch == '>')
-				break;
-
-			tag_buf[len++] = toupper(ch);
-
-			if (len+2 >= (int)sizeof(tag_buf))
-				break;
-		}
-
-		tag_buf[len] = 0;
-
-		if (len > 0)
-		{
-			for (int i = 0; tag_conversion_table[i]; i += 2)
-			{
-				if (strcmp(tag_buf, tag_conversion_table[i]) == 0)
-				{
-					strcpy(lumpname, tag_conversion_table[i+1]);
-					fclose(fp);
-
-					return;  // SUCCESS!
-				}
-			}
-
-			fclose(fp);
-			I_Error("Unknown marker <%s> in DDF file: %s\n", tag_buf, filename);
-		}
-		break;
-	}
-
-	fclose(fp);
-	I_Error("Missing <..> marker in DDF file: %s\n", filename);
-}
-
-///---// -KM- 1998/12/16 This loads the ddf file into memory for parsing.
-///---// -AJA- Returns NULL if no such file exists (with a warning).
-///---
-///---static void *DDF_MainCacheFile(readinfo_t * readinfo)
-///---{
-///---	FILE *file;
-///---	char *memfile;
-///---	size_t size;
-///---
-///---	if (!readinfo->filename)
-///---		I_Error("DDF_MainReadFile: No file to read\n");
-///---
-///---	std::string filename(epi::PATH_Join(ddf_where.c_str(), readinfo->filename));
-///---
-///---	file = fopen(filename.c_str(), "rb");
-///---	if (file == NULL)
-///---	{
-///---		I_Warning("DDF_MainReadFile: Unable to open: '%s'\n", filename.c_str());
-///---		return NULL;
-///---	}
-///---
-///---#if (DEBUG_DDFREAD)
-///---	I_Debugf("\nDDF Parser Output:\n");
-///---#endif
-///---
-///---	// get to the end of the file
-///---	fseek(file, 0, SEEK_END);
-///---
-///---	// get the size
-///---	size = ftell(file);
-///---
-///---	// reset to beginning
-///---	fseek(file, 0, SEEK_SET);
-///---
-///---	// malloc the size
-///---	memfile = new char[size + 1];
-///---
-///---	fread(memfile, sizeof(char), size, file);
-///---	memfile[size] = 0;
-///---
-///---	// close the file
-///---	fclose(file);
-///---
-///---	readinfo->memsize = size;
-///---	return (void *)memfile;
-///---}
 
 static void DDF_ParseVersion(const char *str, int len)
 {
@@ -590,23 +444,6 @@ static readchar_t DDF_MainProcessChar(char character, std::string& token, int st
 		case reading_remark:
 			return nothing;
 
-			// -ES- 2000/02/29 Added tag check.
-		case waiting_tag:
-			if (character == '<')
-				return tag_start;
-			else
-				DDF_Error("DDF: File must start with a tag!\n");
-			break;
-
-		case reading_tag:
-			if (character == '>')
-				return tag_stop;
-			else
-			{
-				token += (character);
-				return ok_char;
-			}
-
 		case waiting_newdef:
 			if (character == '[')
 				return def_start;
@@ -755,57 +592,30 @@ static readchar_t DDF_MainProcessChar(char character, std::string& token, int st
 // -AJA- 1999/10/02 Recursive { } comments.
 // -ES- 2000/02/29 Added
 //
-bool DDF_MainReadFile(readinfo_t * readinfo, char *memfileptr)
+void DDF_MainReadFile(readinfo_t * readinfo, char *memfileptr)
 {
 	std::string token;
 	std::string current_cmd;
 
 	char *name;
 	char *value = NULL;
-	char character;
 
-
-	int status, formerstatus;
-	int response;
-
-	int comment_level;
-	int bracket_level;
-	bool firstgo;
-	
 	int current_index = 0;
 	int entry_count = 0;
-  
+
 #if (DEBUG_DDFREAD)
 	char charcount = 0;
 #endif
 
 	ddf_version = 127;
 
-	status = waiting_tag;
-	formerstatus = readstatus_invalid;
-	comment_level = 0;
-	bracket_level = 0;
-	firstgo = true;
+	int status = waiting_newdef;
+	int formerstatus = readstatus_invalid;
+	int comment_level = 0;
+	int bracket_level = 0;
+	bool firstgo = true;
 
-	cur_ddf_line_num = 1;
-
-///---	if (!readinfo->memfile && !readinfo->filename)
-///---		I_Error("DDF_MainReadFile: No file to read\n");
-///---
-///---	if (!readinfo->memfile)
-///---	{
-///---		readinfo->memfile = (char*)DDF_MainCacheFile(readinfo);
-///---
-///---		// no file ?  No worries, we'll get it from edge.wad...
-///---		if (!readinfo->memfile)
-///---			return false;
-///---      
-///---		cur_ddf_filename = std::string(readinfo->filename);
-///---	}
-///---	else
-///---	{
-///---		cur_ddf_filename = std::string(readinfo->lumpname);
-///---	}
+	cur_ddf_line_num = 1;  // FIXME !!!!!!
 
 	while (* memfileptr)
 	{
@@ -865,7 +675,7 @@ bool DDF_MainReadFile(readinfo_t * readinfo, char *memfileptr)
 			continue;
 		}
     
-		character = *memfileptr++;
+		char character = *memfileptr++;
 
 		if (character == '\n')
 		{
@@ -909,7 +719,7 @@ bool DDF_MainReadFile(readinfo_t * readinfo, char *memfileptr)
 			}
 		}
 
-		response = DDF_MainProcessChar(character, token, status);
+		int response = DDF_MainProcessChar(character, token, status);
 
 		switch (response)
 		{
@@ -940,19 +750,6 @@ bool DDF_MainReadFile(readinfo_t * readinfo, char *memfileptr)
 
 				token.clear();
 				status = reading_data;
-				break;
-
-			case tag_start:
-				status = reading_tag;
-				break;
-
-			case tag_stop:
-				if (stricmp(token.c_str(), readinfo->tag) != 0)
-					DDF_Error("Start tag <%s> expected, found <%s>!\n", 
-							  readinfo->tag, token.c_str());
-
-				status = waiting_newdef;
-				token.clear();
 				break;
 
 			case def_start:
@@ -1087,9 +884,6 @@ bool DDF_MainReadFile(readinfo_t * readinfo, char *memfileptr)
 	if (bracket_level > 0)
 		DDF_Error("Unclosed () brackets detected.\n");
 
-	if (status == reading_tag)
-		DDF_Error("Unclosed <> brackets detected.\n");
-
 	if (status == reading_newdef)
 		DDF_Error("Unclosed [] brackets detected.\n");
 	
@@ -1104,8 +898,6 @@ bool DDF_MainReadFile(readinfo_t * readinfo, char *memfileptr)
 	cur_ddf_filename.clear();
 
 	defines.clear();
-
-	return true;
 }
 
 #if 0
@@ -2352,9 +2144,36 @@ static readinfo_t * all_readinfos[] =
 
 void DDF_ParseSection(char *buffer)
 {
-	I_Printf("DDF_ParseSection : %20.20s\n", buffer);
+	SYS_ASSERT(*buffer == '<');
+	buffer++;
 
-	// FIXME
+	char *memfileptr = strchr(buffer, '>');
+	*memfileptr++ = 0;
+
+	I_Debugf("DDF_ParseSection : <%s>\n", buffer);
+
+	while (*memfileptr && *memfileptr != '\n')
+		memfileptr++;
+	while (*memfileptr == '\n' || *memfileptr == '\r')
+		memfileptr++;
+	
+	// find the readinfo for the tag
+	readinfo_t *info = NULL;
+
+	for (int i = 0; all_readinfos[i]; i++)
+	{
+		info = all_readinfos[i];
+
+		if (stricmp(buffer, info->tag) == 0)
+			break;
+
+		info = NULL;
+	}
+
+	if (info)
+		DDF_MainReadFile(info, memfileptr);
+	else
+		DDF_Error("Unknown DDF tag: <%s>\n", buffer);
 }
 
 
@@ -2365,7 +2184,10 @@ static char *FindTag(char *pos, bool skip_to_eol = false)
 		if (skip_to_eol)
 		{
 			skip_to_eol = false;
+
 			while (*pos && *pos != '\n')
+				pos++;
+			while (*pos == '\n' || *pos == '\r')
 				pos++;
 		}
 
@@ -2411,11 +2233,14 @@ void DDF_Parse(void *data, int length)
 {
 	// NOTE WELL: we assume buffer is NUL terminated !
 	
+	// this function chops the text buffer into sections, where
+	// each section begins with a tag of the form: <XXXX>.
+
 	char *pos = FindTag((char *) data);
 	if (! pos)
 		return;
 
-// FIXME
+// FIXME !!!!!!
 cur_ddf_filename = std::string("WAZOO");
 
 	for (;;)
