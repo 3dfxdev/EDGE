@@ -1,0 +1,85 @@
+#
+# SConstruct file for EDGE
+#
+import os
+
+EnsureSConsVersion(0, 96, 93)
+
+def getPlatform(win32_cross_compile="no"):
+	platform = 'linux'
+	# check platform
+	if (os.name == "nt") or win32_cross_compile:
+		platform = 'win32'
+	elif os.name == "posix":
+		# Determine the type of POSIX variant -ACB- 2009/06/08
+		uname_info = os.uname()
+		if (uname_info[0] == "Darwin"):
+			platform = 'macosx'
+	return platform
+
+#------------------------------------------------
+# Init base environment
+#------------------------------------------------
+
+base_env = Environment()
+
+#------------------------------------------------
+# Determine Build Setup
+#------------------------------------------------
+
+build_info = {}
+
+build_info['cross'] = ('cross' in ARGUMENTS) and ARGUMENTS['cross']
+build_info['release'] = ('release' in ARGUMENTS) and ARGUMENTS['release']
+build_info['platform'] = getPlatform(build_info['cross'])
+
+if build_info['platform'] == None:
+	print "Unable to detect platform type."
+	Exit(1)
+
+Export('build_info')
+
+#------------------------------------------------
+# Load any special setings from cross-compiling
+#------------------------------------------------
+
+if build_info['cross']:
+    base_env.Tool('crossmingw', toolpath=['build'])
+
+# warnings
+base_env.Append(CCFLAGS = ['-Wall'])
+
+# optimisation
+if build_info['release']:
+    base_env.Append(CCFLAGS = ['-O2'])
+else:
+    base_env.Append(CCFLAGS = ['-O', '-g3'])
+
+# platform
+base_env.Append(CCFLAGS = ['-D' + build_info['platform'].upper()])
+
+#------------------------------------------------
+# Overall final settings compile
+#------------------------------------------------
+
+EXECUTABLE_NAME = 'wadcc'
+dep_files = ['main.c','wad_io.c']
+
+# platform specifics for the linker
+if build_info['platform'] == 'win32':
+    #base_env.Append(LIBS = ['wsock32', 'winmm', 'gdi32', 'dxguid', 'dinput'])
+    base_env.Append(LINKFLAGS = ['-mwindows','-lmingw32'])
+    #base_env.Append(LINKFLAGS = ['edge32_res.o'])
+
+if build_info['platform'] == 'macosx':
+	#base_env.Append(LINKFLAGS = ['-Wl,-framework,Cocoa'])
+    pass
+
+if build_info['platform'] == 'linux':
+	base_env.Append(LINKFLAGS = ['-Wl,--warn-common'])
+
+# Overall executable
+base_env.Program(EXECUTABLE_NAME, dep_files)
+
+##--- editor settings ---
+## vi:ts=4:sw=4:expandtab:filetype=python
