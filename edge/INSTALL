@@ -2,9 +2,10 @@
 EDGE 1.31 COMPILATION NOTES
 ===========================
 
-by Andrew Apted, July 2008.
+by Andrew Apted, June 2009.
 
 (Mac OS X notes added by Andy Baker, June 2009.)
+
 
 Note 1
 ------
@@ -64,6 +65,7 @@ Building EDGE on a Mac OS X:
 	Ogg, Vorbis, GLEW, zlib, jpeg, lua and png can either be installed
 	globally or placed in the macosx_lib directory.
 
+
 Libraries
 ---------
 
@@ -104,6 +106,22 @@ before running the scons build, like this:
 (The resource file is not essential, so if this step gives
  you big problems then simply remove the edge32_res.o line
  from the SConstruct file).
+
+
+EDGE.WAD
+--------
+
+First you need to build the 'wadcc' program, the code
+for which is in the directory of the same name.  Then
+copy the binary into the 'wad' directory.
+
+To create EDGE.WAD, open a terminal, cd into the 'wad'
+directory and run the following command:
+
+   > cat Lumps.txt | xargs wadcc -o edge.wad
+
+(I don't know if this works under Windows, but should
+work fine under Linux and MacOS X).
 
 
 LINKS
