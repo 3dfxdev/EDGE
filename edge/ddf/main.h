@@ -106,7 +106,6 @@ void DDF_MainGetWhenAppear(const char *info, void *storage);
 void DDF_MainGetRGB(const char *info, void *storage);
 bool DDF_MainDecodeBrackets(const char *info, char *outer, char *inner, int buf_len);
 const char *DDF_MainDecodeList(const char *info, char divider, bool simple);
-void DDF_GetLumpNameForFile(const char *filename, char *lumpname);
 
 int DDF_CompareName(const char *A, const char *B);
 

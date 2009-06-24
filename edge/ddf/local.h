@@ -33,8 +33,6 @@
 typedef enum
 {
 	readstatus_invalid = 0,
-	waiting_tag,
-	reading_tag,
 	waiting_newdef,
 	reading_newdef,
 	reading_command,
@@ -59,8 +57,6 @@ typedef enum
 	string_stop,
 	group_start,
 	group_stop,
-	tag_start,
-	tag_stop,
 	terminator,
 	ok_char
 }
@@ -228,9 +224,6 @@ typedef struct
 	int *state_num;
 }
 state_starter_t;
-
-// DDF_MAIN Code (Reading all files, main init & generic functions).
-bool DDF_MainReadFile (readinfo_t * readinfo);
 
 extern int ddf_version;  // decimal e.g. 128
 
