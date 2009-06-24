@@ -605,35 +605,18 @@ static void ThingClearAll(void)
 	mobjtypes.SetDisabledCount(mobjtypes.GetSize());
 }
 
-bool DDF_ReadThings(void *data, int size)
+
+readinfo_t thing_readinfo =
 {
-	readinfo_t things;
+	"DDF_InitThings",  // message
+	"THINGS",  // tag
 
-	things.memfile = (char*)data;
-	things.memsize = size;
-	things.tag = "THINGS";
-	things.entries_per_dot = 6;
+	ThingStartEntry,
+	ThingParseField,
+	ThingFinishEntry,
+	ThingClearAll 
+};
 
-	if (things.memfile)
-	{
-		things.message = NULL;
-		things.filename = NULL;
-		things.lumpname = "DDFTHING";
-	}
-	else
-	{
-		things.message = "DDF_InitThings";
-		things.filename = "things.ddf";
-		things.lumpname = NULL;
-	}
-
-	things.start_entry  = ThingStartEntry;
-	things.parse_field  = ThingParseField;
-	things.finish_entry = ThingFinishEntry;
-	things.clear_all    = ThingClearAll;
-
-	return DDF_MainReadFile(&things);
-}
 
 void DDF_MobjInit(void)
 {

@@ -89,9 +89,6 @@ static const commandlist_t sect_commands[] =
 //  DDF PARSE ROUTINES
 //
 
-//
-// SectorStartEntry
-//
 static bool SectorStartEntry(const char *name)
 {
 	int number = MAX(0, atoi(name));
@@ -120,9 +117,7 @@ static bool SectorStartEntry(const char *name)
 	return (existing != NULL);
 }
 
-//
-// SectorParseField
-//
+
 static void SectorParseField(const char *field, const char *contents,
 							 int index, bool is_last)
 {
@@ -136,9 +131,7 @@ static void SectorParseField(const char *field, const char *contents,
 	DDF_WarnError2(128, "Unknown sectors.ddf command: %s\n", field);
 }
 
-//
-// SectorFinishEntry
-//
+
 static void SectorFinishEntry(void)
 {
 	// FIXME!! Check stuff
@@ -148,51 +141,26 @@ static void SectorFinishEntry(void)
 	// FIXME: add stuff...
 }
 
-//
-// SectorClearAll
-//
+
 static void SectorClearAll(void)
 {
 	// it is safe to just delete all sector types
 	sectortypes.Reset();
 }
 
-//
-// DDF_ReadSectors
-//
-bool DDF_ReadSectors(void *data, int size)
+
+readinfo_t sector_readinfo =
 {
-	readinfo_t sects;
+	"DDF_InitSectors",  // message
+	"SECTORS",  // tag
 
-	sects.memfile = (char*)data;
-	sects.memsize = size;
-	sects.tag = "SECTORS";
-	sects.entries_per_dot = 1;
+	SectorStartEntry,
+	SectorParseField,
+	SectorFinishEntry,
+	SectorClearAll
+};
 
-	if (sects.memfile)
-	{
-		sects.message = NULL;
-		sects.filename = NULL;
-		sects.lumpname = "DDFSECT";
-	}
-	else
-	{
-		sects.message = "DDF_InitSectors";
-		sects.filename = "sectors.ddf";
-		sects.lumpname = NULL;
-	}
 
-	sects.start_entry  = SectorStartEntry;
-	sects.parse_field  = SectorParseField;
-	sects.finish_entry = SectorFinishEntry;
-	sects.clear_all    = SectorClearAll;
-
-	return DDF_MainReadFile(&sects);
-}
-
-//
-// DDF_SectorInit
-//
 void DDF_SectorInit(void)
 {
 	sectortypes.Reset();
@@ -206,9 +174,6 @@ void DDF_SectorInit(void)
 	sectortypes.Insert(s);
 }
 
-//
-// DDF_SectorCleanUp
-//
 void DDF_SectorCleanUp(void)
 {
 	sectortypes.Trim();

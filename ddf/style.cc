@@ -174,35 +174,17 @@ static void StyleClearAll(void)
 }
 
 
-bool DDF_ReadStyles(void *data, int size)
+readinfo_t style_readinfo =
 {
-	readinfo_t styles;
+	"DDF_InitStyles",  // message
+	"STYLES",  // tag
 
-	styles.memfile = (char*)data;
-	styles.memsize = size;
-	styles.tag = "STYLES";
-	styles.entries_per_dot = 2;
+	StyleStartEntry,
+	StyleParseField,
+	StyleFinishEntry,
+	StyleClearAll 
+};
 
-	if (styles.memfile)
-	{
-		styles.message = NULL;
-		styles.filename = NULL;
-		styles.lumpname = "DDFSTYLE";
-	}
-	else
-	{
-		styles.message = "DDF_InitStyles";
-		styles.filename = "styles.ddf";
-		styles.lumpname = NULL;
-	}
-
-	styles.start_entry  = StyleStartEntry;
-	styles.parse_field  = StyleParseField;
-	styles.finish_entry = StyleFinishEntry;
-	styles.clear_all    = StyleClearAll;
-
-	return DDF_MainReadFile(&styles);
-}
 
 void DDF_StyleInit(void)
 {

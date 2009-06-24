@@ -453,35 +453,18 @@ static void LinedefClearAll(void)
 	linetypes.Reset();
 }
 
-bool DDF_ReadLines(void *data, int size)
+
+readinfo_t line_readinfo =
 {
-	readinfo_t lines;
+	"DDF_InitLinedefs",  // message
+	"LINES",  // tag
 
-	lines.memfile = (char*)data;
-	lines.memsize = size;
-	lines.tag = "LINES";
-	lines.entries_per_dot = 6;
+	LinedefStartEntry,
+	LinedefParseField,
+	LinedefFinishEntry,
+	LinedefClearAll 
+};
 
-	if (lines.memfile)
-	{
-		lines.message = NULL;
-		lines.filename = NULL;
-		lines.lumpname = "DDFLINE";
-	}
-	else
-	{
-		lines.message = "DDF_InitLinedefs";
-		lines.filename = "lines.ddf";
-		lines.lumpname = NULL;
-	}
-
-	lines.start_entry  = LinedefStartEntry;
-	lines.parse_field  = LinedefParseField;
-	lines.finish_entry = LinedefFinishEntry;
-	lines.clear_all    = LinedefClearAll;
-
-	return DDF_MainReadFile(&lines);
-}
 
 void DDF_LinedefInit(void)
 {

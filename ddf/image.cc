@@ -188,35 +188,16 @@ static void ImageClearAll(void)
 }
 
 
-bool DDF_ReadImages(void *data, int size)
+readinfo_t image_readinfo =
 {
-	readinfo_t images;
+	"DDF_InitImages",  // message
+	"IMAGES",  // tag
 
-	images.memfile = (char*)data;
-	images.memsize = size;
-	images.tag = "IMAGES";
-	images.entries_per_dot = 2;
-
-	if (images.memfile)
-	{
-		images.message = NULL;
-		images.filename = NULL;
-		images.lumpname = "DDFIMAGE";
-	}
-	else
-	{
-		images.message = "DDF_InitImages";
-		images.filename = "images.ddf";
-		images.lumpname = NULL;
-	}
-
-	images.start_entry  = ImageStartEntry;
-	images.parse_field  = ImageParseField;
-	images.finish_entry = ImageFinishEntry;
-	images.clear_all    = ImageClearAll;
-
-	return DDF_MainReadFile(&images);
-}
+	ImageStartEntry,
+	ImageParseField,
+	ImageFinishEntry,
+	ImageClearAll 
+};
 
 
 void DDF_ImageInit(void)
