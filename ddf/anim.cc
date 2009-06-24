@@ -148,55 +148,28 @@ static void AnimClearAll(void)
 }
 
 
-bool DDF_ReadAnims(void *data, int size)
+readinfo_t anim_readinfo =
 {
-	readinfo_t anims;
+	"DDF_InitAnimations",  // message
+	"ANIMATIONS",  // tag
 
-	anims.memfile = (char*)data;
-	anims.memsize = size;
-	anims.tag = "ANIMATIONS";
-	anims.entries_per_dot = 2;
+	AnimStartEntry,
+	AnimParseField,
+	AnimFinishEntry,
+	AnimClearAll
+};
 
-	if (anims.memfile)
-	{
-		anims.message = NULL;
-		anims.filename = NULL;
-		anims.lumpname = "DDFANIM";
-	}
-	else
-	{
-		anims.message = "DDF_InitAnimations";
-		anims.filename = "anims.ddf";
-		anims.lumpname = NULL;
-	}
 
-	anims.start_entry  = AnimStartEntry;
-	anims.parse_field  = AnimParseField;
-	anims.finish_entry = AnimFinishEntry;
-	anims.clear_all    = AnimClearAll;
-
-	return DDF_MainReadFile(&anims);
-}
-
-//
-// DDF_AnimInit
-//
 void DDF_AnimInit(void)
 {
 	animdefs.Clear();			// <-- Consistent with existing behaviour (-ACB- 2004/05/04)
 }
 
-//
-// DDF_AnimCleanUp
-//
 void DDF_AnimCleanUp(void)
 {
 	animdefs.Trim();			// <-- Reduce to allocated size
 }
 
-//
-// DDF_AnimGetType
-//
 static void DDF_AnimGetType(const char *info, void *storage)
 {
 	SYS_ASSERT(storage);
@@ -216,9 +189,6 @@ static void DDF_AnimGetType(const char *info, void *storage)
 	}
 }
 
-//
-// DDF_AnimGetPic
-//
 static void DDF_AnimGetPic (const char *info, void *storage)
 {
 	buffer_anim.pics.Insert(info);

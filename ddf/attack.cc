@@ -255,35 +255,17 @@ return; //!!!! -AJA- FIXME: temp hack to get castle.wad working
 }
 
 
-bool DDF_ReadAtks(void *data, int size)
+readinfo_t attack_readinfo =
 {
-	readinfo_t attacks;
+	"DDF_InitAttacks",  // message
+	"ATTACKS",  // tag
 
-	attacks.memfile = (char*)data;
-	attacks.memsize = size;
-	attacks.tag = "ATTACKS";
-	attacks.entries_per_dot = 2;
+	AttackStartEntry,
+	AttackParseField,
+	AttackFinishEntry,
+	AttackClearAll
+};
 
-	if (attacks.memfile)
-	{
-		attacks.message = NULL;
-		attacks.filename = NULL;
-		attacks.lumpname = "DDFATK";
-	}
-	else
-	{
-		attacks.message = "DDF_InitAttacks";
-		attacks.filename = "attacks.ddf";
-		attacks.lumpname = NULL;
-	}
-
-	attacks.start_entry  = AttackStartEntry;
-	attacks.parse_field  = AttackParseField;
-	attacks.finish_entry = AttackFinishEntry;
-	attacks.clear_all    = AttackClearAll;
-
-	return DDF_MainReadFile(&attacks);
-}
 
 void DDF_AttackInit(void)
 {

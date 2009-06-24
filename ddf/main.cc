@@ -390,52 +390,52 @@ void DDF_GetLumpNameForFile(const char *filename, char *lumpname)
 	I_Error("Missing <..> marker in DDF file: %s\n", filename);
 }
 
-// -KM- 1998/12/16 This loads the ddf file into memory for parsing.
-// -AJA- Returns NULL if no such file exists (with a warning).
-
-static void *DDF_MainCacheFile(readinfo_t * readinfo)
-{
-	FILE *file;
-	char *memfile;
-	size_t size;
-
-	if (!readinfo->filename)
-		I_Error("DDF_MainReadFile: No file to read\n");
-
-	std::string filename(epi::PATH_Join(ddf_where.c_str(), readinfo->filename));
-
-	file = fopen(filename.c_str(), "rb");
-	if (file == NULL)
-	{
-		I_Warning("DDF_MainReadFile: Unable to open: '%s'\n", filename.c_str());
-		return NULL;
-	}
-
-#if (DEBUG_DDFREAD)
-	I_Debugf("\nDDF Parser Output:\n");
-#endif
-
-	// get to the end of the file
-	fseek(file, 0, SEEK_END);
-
-	// get the size
-	size = ftell(file);
-
-	// reset to beginning
-	fseek(file, 0, SEEK_SET);
-
-	// malloc the size
-	memfile = new char[size + 1];
-
-	fread(memfile, sizeof(char), size, file);
-	memfile[size] = 0;
-
-	// close the file
-	fclose(file);
-
-	readinfo->memsize = size;
-	return (void *)memfile;
-}
+///---// -KM- 1998/12/16 This loads the ddf file into memory for parsing.
+///---// -AJA- Returns NULL if no such file exists (with a warning).
+///---
+///---static void *DDF_MainCacheFile(readinfo_t * readinfo)
+///---{
+///---	FILE *file;
+///---	char *memfile;
+///---	size_t size;
+///---
+///---	if (!readinfo->filename)
+///---		I_Error("DDF_MainReadFile: No file to read\n");
+///---
+///---	std::string filename(epi::PATH_Join(ddf_where.c_str(), readinfo->filename));
+///---
+///---	file = fopen(filename.c_str(), "rb");
+///---	if (file == NULL)
+///---	{
+///---		I_Warning("DDF_MainReadFile: Unable to open: '%s'\n", filename.c_str());
+///---		return NULL;
+///---	}
+///---
+///---#if (DEBUG_DDFREAD)
+///---	I_Debugf("\nDDF Parser Output:\n");
+///---#endif
+///---
+///---	// get to the end of the file
+///---	fseek(file, 0, SEEK_END);
+///---
+///---	// get the size
+///---	size = ftell(file);
+///---
+///---	// reset to beginning
+///---	fseek(file, 0, SEEK_SET);
+///---
+///---	// malloc the size
+///---	memfile = new char[size + 1];
+///---
+///---	fread(memfile, sizeof(char), size, file);
+///---	memfile[size] = 0;
+///---
+///---	// close the file
+///---	fclose(file);
+///---
+///---	readinfo->memsize = size;
+///---	return (void *)memfile;
+///---}
 
 static void DDF_ParseVersion(const char *str, int len)
 {
@@ -755,7 +755,7 @@ static readchar_t DDF_MainProcessChar(char character, std::string& token, int st
 // -AJA- 1999/10/02 Recursive { } comments.
 // -ES- 2000/02/29 Added
 //
-bool DDF_MainReadFile(readinfo_t * readinfo)
+bool DDF_MainReadFile(readinfo_t * readinfo, char *memfileptr)
 {
 	std::string token;
 	std::string current_cmd;
@@ -763,11 +763,11 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 	char *name;
 	char *value = NULL;
 	char character;
-	char *memfile;
-	char *memfileptr;
+
+
 	int status, formerstatus;
 	int response;
-	int size;
+
 	int comment_level;
 	int bracket_level;
 	bool firstgo;
@@ -789,29 +789,25 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 
 	cur_ddf_line_num = 1;
 
-	if (!readinfo->memfile && !readinfo->filename)
-		I_Error("DDF_MainReadFile: No file to read\n");
+///---	if (!readinfo->memfile && !readinfo->filename)
+///---		I_Error("DDF_MainReadFile: No file to read\n");
+///---
+///---	if (!readinfo->memfile)
+///---	{
+///---		readinfo->memfile = (char*)DDF_MainCacheFile(readinfo);
+///---
+///---		// no file ?  No worries, we'll get it from edge.wad...
+///---		if (!readinfo->memfile)
+///---			return false;
+///---      
+///---		cur_ddf_filename = std::string(readinfo->filename);
+///---	}
+///---	else
+///---	{
+///---		cur_ddf_filename = std::string(readinfo->lumpname);
+///---	}
 
-	if (!readinfo->memfile)
-	{
-		readinfo->memfile = (char*)DDF_MainCacheFile(readinfo);
-
-		// no file ?  No worries, we'll get it from edge.wad...
-		if (!readinfo->memfile)
-			return false;
-      
-		cur_ddf_filename = std::string(readinfo->filename);
-	}
-	else
-	{
-		cur_ddf_filename = std::string(readinfo->lumpname);
-	}
-
-	memfileptr = memfile = readinfo->memfile;
-	size = readinfo->memsize;
-
-	// -ACB- 1998/09/12 Copy file to memory: Read until end. Speed optimisation.
-	while (memfileptr < &memfile[size])
+	while (* memfileptr)
 	{
 		// -KM- 1998/12/16 Added #define command to ddf files.
 		if (!strnicmp(memfileptr, "#DEFINE", 7))
@@ -821,10 +817,10 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 			memfileptr += 8;
 			name = memfileptr;
 
-			while (*memfileptr != ' ' && memfileptr < &memfile[size])
+			while (*memfileptr && *memfileptr != ' ')
 				memfileptr++;
 
-			if (memfileptr < &memfile[size])
+			if (*memfileptr)
 			{
 				*memfileptr++ = 0;
 				value = memfileptr;
@@ -834,7 +830,7 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 				DDF_Error("#DEFINE '%s' as what?!\n", name);
 			}
 
-			while (memfileptr < &memfile[size])
+			while (*memfileptr)
 			{
 				if (*memfileptr == '\r')
 					*memfileptr = ' ';
@@ -861,14 +857,12 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 		//       identifier names...  Ow the pain of &memfile[size] :-)
     
 		if (comment_level == 0 && status != reading_string &&
-			memfileptr+1 < &memfile[size] &&
 			memfileptr[0] == '/' && memfileptr[1] == '/')
 		{
-			while (memfileptr < &memfile[size] && *memfileptr != '\n')
+			while (*memfileptr && *memfileptr != '\n')
 				memfileptr++;
 
-			if (memfileptr >= &memfile[size])
-				break;
+			continue;
 		}
     
 		character = *memfileptr++;
@@ -880,8 +874,9 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 			cur_ddf_line_num++;
 
 			// -AJA- 2000/03/21: determine linedata.  Ouch.
-			for (l_len=0; &memfileptr[l_len] < &memfile[size] &&
-					 memfileptr[l_len] != '\n' && memfileptr[l_len] != '\r'; l_len++)
+			for (l_len=0;
+			     memfileptr[l_len] && memfileptr[l_len] != '\n' && memfileptr[l_len] != '\r';
+			     l_len++)
 			{ }
 
 
@@ -1109,9 +1104,6 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 	cur_ddf_filename.clear();
 
 	defines.clear();
-
-	if (readinfo->filename)
-		delete[] memfile;
 
 	return true;
 }
@@ -2314,6 +2306,133 @@ float DDF_Tan(float degrees)
 	degrees = CLAMP(-89.5f, degrees, 89.5f);
 
 	return (float) tan(degrees * M_PI / 180.0f);
+}
+
+
+extern readinfo_t anim_readinfo;
+extern readinfo_t attack_readinfo;
+extern readinfo_t colormap_readinfo;
+extern readinfo_t font_readinfo;
+extern readinfo_t game_readinfo;
+extern readinfo_t image_readinfo;
+extern readinfo_t language_readinfo;
+extern readinfo_t level_readinfo;
+extern readinfo_t line_readinfo;
+extern readinfo_t playlist_readinfo;
+extern readinfo_t sector_readinfo;
+extern readinfo_t sound_readinfo;
+extern readinfo_t style_readinfo;
+extern readinfo_t switch_readinfo;
+extern readinfo_t thing_readinfo;
+extern readinfo_t weapon_readinfo;
+
+
+static readinfo_t * all_readinfos[] =
+{
+	&anim_readinfo,
+	&attack_readinfo,
+	&colormap_readinfo,
+	&font_readinfo,
+	&game_readinfo,
+	&image_readinfo,
+	&language_readinfo,
+	&level_readinfo,
+	&line_readinfo,
+	&playlist_readinfo,
+	&sector_readinfo,
+	&sound_readinfo,
+	&style_readinfo,
+	&switch_readinfo,
+	&thing_readinfo,
+	&weapon_readinfo,
+
+	NULL  // end of list
+};
+
+
+void DDF_ParseSection(char *buffer)
+{
+	I_Printf("DDF_ParseSection : %20.20s\n", buffer);
+
+	// FIXME
+}
+
+
+static char *FindTag(char *pos, bool skip_to_eol = false)
+{
+	while (*pos)
+	{
+		if (skip_to_eol)
+		{
+			skip_to_eol = false;
+			while (*pos && *pos != '\n')
+				pos++;
+		}
+
+		// the opening '<' must be at start of line
+		if (*pos != '<')
+		{
+			skip_to_eol = true;
+			continue;
+		}
+
+		// the format must be <LETTERS> and then end-of-line
+		// (allowing whitespace after the '>')
+
+		char *found = pos;
+
+		pos++;
+		while (*pos && isalpha(*pos))
+			pos++;
+
+		if (*pos != '>')
+		{
+			// no match
+			skip_to_eol = true;
+			continue;
+		}
+
+		pos++;
+		while (*pos && isspace(*pos))
+		{
+			if (*pos == '\n' || *pos == '\r')
+				return found;
+
+			pos++;
+		}
+
+		skip_to_eol = true;
+	}
+
+	return NULL;
+}
+
+void DDF_Parse(void *data, int length)
+{
+	// NOTE WELL: we assume buffer is NUL terminated !
+	
+	char *pos = FindTag((char *) data);
+	if (! pos)
+		return;
+
+// FIXME
+cur_ddf_filename = std::string("WAZOO");
+
+	for (;;)
+	{
+		char *p_next = FindTag(pos+1, true);
+
+		// NUL terminate the section beginning at 'pos'
+		if (p_next)
+			p_next[-1] = 0;
+
+		DDF_ParseSection(pos);
+
+		if (! p_next)
+			break;
+
+		pos = p_next;
+	}
 }
 
 

@@ -105,7 +105,6 @@ public:
 
 extern colourmap_container_c colourmaps;	// -ACB- 2004/06/10 Implemented
 
-bool DDF_ReadColourMaps(void *data, int size);
 
 void DDF_ColourmapAddRaw(const char *lump_name, int size);
 

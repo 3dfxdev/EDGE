@@ -128,47 +128,23 @@ static void FontClearAll(void)
 }
 
 
-bool DDF_ReadFonts(void *data, int size)
+readinfo_t font_readinfo =
 {
-	readinfo_t fonts;
+	"DDF_InitFonts", // message
+	"FONTS", // tag
 
-	fonts.memfile = (char*)data;
-	fonts.memsize = size;
-	fonts.tag = "FONTS";
-	fonts.entries_per_dot = 2;
+	FontStartEntry,
+	FontParseField,
+	FontFinishEntry,
+	FontClearAll 
+};
 
-	if (fonts.memfile)
-	{
-		fonts.message  = NULL;
-		fonts.filename = NULL;
-		fonts.lumpname = "DDFFONT";
-	}
-	else
-	{
-		fonts.message  = "DDF_InitFonts";
-		fonts.filename = "fonts.ddf";
-		fonts.lumpname = NULL;
-	}
 
-	fonts.start_entry  = FontStartEntry;
-	fonts.parse_field  = FontParseField;
-	fonts.finish_entry = FontFinishEntry;
-	fonts.clear_all    = FontClearAll;
-
-	return DDF_MainReadFile(&fonts);
-}
-
-//
-// DDF_FontInit
-//
 void DDF_FontInit(void)
 {
 	fontdefs.Clear();		// <-- Consistent with existing behaviour (-ACB- 2004/05/04)
 }
 
-//
-// DDF_FontCleanUp
-//
 void DDF_FontCleanUp(void)
 {
 	if (fontdefs.GetSize() == 0)
@@ -177,9 +153,7 @@ void DDF_FontCleanUp(void)
 	fontdefs.Trim();		// <-- Reduce to allocated size
 }
 
-//
-// DDF_FontGetType
-//
+
 static void DDF_FontGetType(const char *info, void *storage)
 {
 	SYS_ASSERT(storage);

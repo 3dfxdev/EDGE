@@ -82,30 +82,31 @@ typedef struct ddf_reader_s
 {
 	const char *name;
 	const char *print_name;
-	bool (* func)(void *data, int size);
+	const char *ext_name;
 }
 ddf_reader_t;
 
 static ddf_reader_t DDF_Readers[] =
 {
-	{ "DDFLANG", "Languages",  DDF_ReadLangs },
-	{ "DDFSFX",  "Sounds",     DDF_ReadSFX },
-	{ "DDFCOLM", "ColourMaps", DDF_ReadColourMaps },  // -AJA- 1999/07/09.
-	{ "DDFIMAGE","Images",     DDF_ReadImages },      // -AJA- 2004/11/18
-	{ "DDFFONT", "Fonts",      DDF_ReadFonts },       // -AJA- 2004/11/13
-	{ "DDFSTYLE","Styles",     DDF_ReadStyles },      // -AJA- 2004/11/14
-	{ "DDFATK",  "Attacks",    DDF_ReadAtks },
-	{ "DDFWEAP", "Weapons",    DDF_ReadWeapons },
-	{ "DDFTHING","Things",     DDF_ReadThings },
-	{ "DDFPLAY", "Playlists",  DDF_ReadMusicPlaylist },
-	{ "DDFLINE", "Lines",      DDF_ReadLines },
-	{ "DDFSECT", "Sectors",    DDF_ReadSectors },
-	{ "DDFSWTH", "Switches",   DDF_ReadSwitch },
-	{ "DDFANIM", "Anims",      DDF_ReadAnims },
-	{ "DDFGAME", "Games",      DDF_ReadGames },
-	{ "DDFLEVL", "Levels",     DDF_ReadLevels },
-	{ "RSCRIPT", "Scripts",    RAD_ReadScript }       // -AJA- 2000/04/21.
+	{ "DDFLANG", "Languages",  "language.ldf"  },
+	{ "DDFSFX",  "Sounds",     "sounds.ddf"    },
+	{ "DDFCOLM", "ColourMaps", "colmap.ddf"    },  // -AJA- 1999/07/09.
+	{ "DDFIMAGE","Images",     "images.ddf"    },      // -AJA- 2004/11/18
+	{ "DDFFONT", "Fonts",      "fonts.ddf"     },       // -AJA- 2004/11/13
+	{ "DDFSTYLE","Styles",     "styles.ddf"    },      // -AJA- 2004/11/14
+	{ "DDFATK",  "Attacks",    "attacks.ddf"   },
+	{ "DDFWEAP", "Weapons",    "Weapons.ddf"   },
+	{ "DDFTHING","Things",     "things.ddf"    },
+	{ "DDFPLAY", "Playlists",  "playlist.ddf"  },
+	{ "DDFLINE", "Lines",      "lines.ddf"     },
+	{ "DDFSECT", "Sectors",    "sectors.ddf"   },
+	{ "DDFSWTH", "Switches",   "switch.ddf"    },
+	{ "DDFANIM", "Anims",      "anims.ddf"     },
+	{ "DDFGAME", "Games",      "games.ddf"     },
+	{ "DDFLEVL", "Levels",     "levels.ddf"    },
 };
+
+//!!!!!	{ "RSCRIPT", "Scripts",    "edge.scr",      RAD_ReadScript }       // -AJA- 2000/04/21.
 
 #define NUM_DDF_READERS  (int)(sizeof(DDF_Readers) / sizeof(ddf_reader_t))
 
@@ -1178,7 +1179,7 @@ static bool TryLoadExtraLanguage(const char *name)
 	int length;
 	char *data = (char *) W_ReadLumpAlloc(lumpnum, &length);
 
-	DDF_ReadLangs(data, length);
+	DDF_Parse(data, length);
 	delete[] data;
 
 	return true;
@@ -1208,8 +1209,25 @@ void W_ReadDDF(void)
 		{
 			I_Debugf("- Loading external %s\n", DDF_Readers[d].name);
 
+			std::string fn = game_dir;
+			fn += "/doom_ddf/";  // FIXME
+			fn += DDF_Readers[d].ext_name;
+
+			I_Debugf("    %s\n", fn.c_str());
+
+			epi::file_c *F = epi::FS_Open(fn.c_str(), epi::file_c::ACCESS_READ | epi::file_c::ACCESS_BINARY);
+
+			if (! F)
+				continue;
+
+			int length = F->GetLength();
+			byte *data = F->LoadIntoMemory();
+
+			delete F;
+
 			// call read function
-			(* DDF_Readers[d].func)(NULL, 0);
+			DDF_Parse(data, length);
+			delete[] data;
 		}
 
 		for (int f = 0; f < (int)data_files.size(); f++)
@@ -1240,12 +1258,12 @@ void W_ReadDDF(void)
 				char *data = (char *) W_ReadLumpAlloc(lump, &length);
 
 				// call read function
-				(* DDF_Readers[d].func)(data, length);
+				DDF_Parse(data, length);
 				delete[] data;
 
 				// special handling for TNT and Plutonia
-				if (d == LANG_READER && df->kind == FLKIND_EWad)
-					LoadTntPlutStrings();
+//!!!!!!				if (d == LANG_READER && df->kind == FLKIND_EWad)
+//!!!!!!					LoadTntPlutStrings();
 			}
 
 			// handle Boom's ANIMATED and SWITCHES lumps

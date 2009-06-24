@@ -68,7 +68,6 @@ public:
 
 extern language_c language;   // -ACB- 2004/06/27 Implemented
 
-bool DDF_ReadLangs(void *data, int size);
 
 #endif /* __DDF_LANG_H__ */
 

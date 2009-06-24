@@ -803,7 +803,6 @@ extern mobjtype_container_c mobjtypes;
 
 void DDF_MobjGetBenefit(const char *info, void *storage);
 
-bool DDF_ReadThings(void *data, int size);
 
 #endif /*__DDF_MOBJ_H__*/
 

@@ -135,35 +135,17 @@ static void ColmapClearAll(void)
 }
 
 
-bool DDF_ReadColourMaps(void *data, int size)
+readinfo_t colormap_readinfo =
 {
-	readinfo_t colm_r;
+	"DDF_InitColourMaps",  // message
+	"COLOURMAPS", // tag
 
-	colm_r.memfile = (char*)data;
-	colm_r.memsize = size;
-	colm_r.tag = "COLOURMAPS";
-	colm_r.entries_per_dot = 2;
+	ColmapStartEntry,
+	ColmapParseField,
+	ColmapFinishEntry,
+	ColmapClearAll 
+};
 
-	if (colm_r.memfile)
-	{
-		colm_r.message = NULL;
-		colm_r.filename = NULL;
-		colm_r.lumpname = "DDFCOLM";
-	}
-	else
-	{
-		colm_r.message = "DDF_InitColourMaps";
-		colm_r.filename = "colmap.ddf";
-		colm_r.lumpname = NULL;
-	}
-
-	colm_r.start_entry  = ColmapStartEntry;
-	colm_r.parse_field  = ColmapParseField;
-	colm_r.finish_entry = ColmapFinishEntry;
-	colm_r.clear_all    = ColmapClearAll;
-
-	return DDF_MainReadFile(&colm_r);
-}
 
 void DDF_ColmapInit(void)
 {
