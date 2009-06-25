@@ -21,6 +21,23 @@ id software.
 <h2 class="page_title"> Latest News </h2>
 
 
+<use BeginNews title="EDGE for MacOS X!" date="25-Jun-2009">
+
+Andrew Baker, former EDGE developer, has put his nose to
+the grindstone once again, and has produced a high quality
+release of EDGE 1.31 for Intel Macs.  
+It comes with a helpful installer,
+and supports native music playback via QuickTime.
+
+<p>
+Download Link:
+<a href="http://downloads.sourceforge.net/edge/Edge-1.31.dmg">
+Edge-1.31.dmg
+</a> (4.0 MB)
+
+<use EndNews>
+
+
 <use BigNews title="EDGE 1.31 RELEASED" date="24-Aug-2008">
 
 The full release of EDGE 1.31 is now available for download.
