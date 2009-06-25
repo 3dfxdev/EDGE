@@ -91,9 +91,9 @@ static ddf_reader_t DDF_Readers[] =
 	{ "DDFLANG", "Languages",  "language.ldf"  },
 	{ "DDFSFX",  "Sounds",     "sounds.ddf"    },
 	{ "DDFCOLM", "ColourMaps", "colmap.ddf"    },  // -AJA- 1999/07/09.
-	{ "DDFIMAGE","Images",     "images.ddf"    },      // -AJA- 2004/11/18
-	{ "DDFFONT", "Fonts",      "fonts.ddf"     },       // -AJA- 2004/11/13
-	{ "DDFSTYLE","Styles",     "styles.ddf"    },      // -AJA- 2004/11/14
+	{ "DDFIMAGE","Images",     "images.ddf"    },  // -AJA- 2004/11/18
+	{ "DDFFONT", "Fonts",      "fonts.ddf"     },  // -AJA- 2004/11/13
+	{ "DDFSTYLE","Styles",     "styles.ddf"    },  // -AJA- 2004/11/14
 	{ "DDFATK",  "Attacks",    "attacks.ddf"   },
 	{ "DDFWEAP", "Weapons",    "weapons.ddf"   },
 	{ "DDFTHING","Things",     "things.ddf"    },
@@ -1179,7 +1179,7 @@ static bool TryLoadExtraLanguage(const char *name)
 	int length;
 	char *data = (char *) W_ReadLumpAlloc(lumpnum, &length);
 
-	DDF_Parse(data, length);
+	DDF_Parse(data, length, name);
 	delete[] data;
 
 	return true;
@@ -1226,7 +1226,7 @@ void W_ReadDDF(void)
 			delete F;
 
 			// call read function
-			DDF_Parse(data, length);
+			DDF_Parse(data, length, DDF_Readers[d].ext_name);
 			delete[] data;
 		}
 
@@ -1258,7 +1258,7 @@ void W_ReadDDF(void)
 				char *data = (char *) W_ReadLumpAlloc(lump, &length);
 
 				// call read function
-				DDF_Parse(data, length);
+				DDF_Parse(data, length, W_GetLumpName(lump));
 				delete[] data;
 
 				// special handling for TNT and Plutonia
