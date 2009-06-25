@@ -685,6 +685,9 @@ void InitDirectories(void)
 	if (s)
 		game_dir = s;
 
+#if 0  // -AJA- the feature is not documented anywhere,
+       //       hence nobody should miss it :-)
+
 	// add parameter file "gamedir/parms" if it exists.
 	std::string parms = epi::PATH_Join(game_dir.c_str(), "parms");
 
@@ -693,6 +696,7 @@ void InitDirectories(void)
 		// Insert it right after the game parameter
 		M_ApplyResponseFile(parms.c_str(), M_CheckParm("-game") + 2);
 	}
+#endif
 
 	s = M_GetParm("-ddf");
 	if (s)
