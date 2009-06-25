@@ -99,8 +99,6 @@ void DDF_Init(int _engine_ver);
 void DDF_CleanUp(void);
 void DDF_SetWhere(const std::string& dir);
 
-void DDF_Load(epi::file_c *f);
-
 bool DDF_MainParseCondition(const char *str, struct condition_check_s *cond);
 void DDF_MainGetWhenAppear(const char *info, void *storage);
 void DDF_MainGetRGB(const char *info, void *storage);
@@ -117,7 +115,7 @@ void DDF_BoomClearGenTypes(void);
 linetype_c *DDF_BoomGetGenLine(int number);
 sectortype_c *DDF_BoomGetGenSector(int number);
 
-void DDF_Parse(void *data, int length);
+void DDF_Parse(void *data, int length, const char *name);
 
 #endif /* __DDF_MAIN_H__ */
 

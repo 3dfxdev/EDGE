@@ -898,36 +898,6 @@ void DDF_MainReadFile(readinfo_t * readinfo, char *memfileptr)
 	defines.clear();
 }
 
-#if 0
-static XXX *parse_type;
-
-bool DDF_Load(epi::file_c *f)
-{
-	byte *data = f->LoadIntoMemory();
-	if (! data)
-		return false;
-
-	for (;;)
-	{
-		get token;
-
-		if (token == EOF) break;
-
-		if (token == WHITESPACE | COMMENTS) continue;
-
-		if (token == DIRECTIVE && entries == 0) handle directive;
-
-		if (token == TAG) set type
-
-		if (token == ENTRY) begin entry
-
-		else parse command to current entry
-	}
-
-	return true;
-}
-#endif
-
 
 //
 // DDF_MainGetNumeric
@@ -2231,7 +2201,7 @@ static char *FindTag(char *pos, bool skip_to_eol, int *line_num)
 	return NULL;
 }
 
-void DDF_Parse(void *data, int length)
+void DDF_Parse(void *data, int length, const char *name)
 {
 	// NOTE WELL: we assume buffer is NUL terminated !
 	
@@ -2239,9 +2209,7 @@ void DDF_Parse(void *data, int length)
 	// each section begins with a tag of the form: <XXXX>.
 
 	cur_ddf_line_num = 1;
-
-// FIXME !!!!!!
-cur_ddf_filename = std::string("WAZOO");
+	cur_ddf_filename = std::string(name);
 
 	char *pos = FindTag((char *) data, false, &cur_ddf_line_num);
 	if (! pos)
