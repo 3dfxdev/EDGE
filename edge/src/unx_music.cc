@@ -98,5 +98,16 @@ char *I_MusicReturnError(void)
 }
 
 
+#ifndef MACOSX
+class abstract_music_c;
+
+abstract_music_c * I_PlayHWMusic(const byte *data, int length,
+			float volume, bool loop)
+{
+	// Linux has no built-in MIDI synthesizer
+	return NULL;
+}
+#endif
+
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
