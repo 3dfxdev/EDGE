@@ -49,6 +49,7 @@ net_address_c n_broadcast_send;
 net_address_c n_broadcast_listen;
 
 
+#ifdef ENABLE_NETWORK
 static bool GetLocalAddress(void)
 {
 	if (M_CheckParm("-nohostname"))
@@ -258,10 +259,11 @@ static bool SetupAddresses(void)
 
 	return true; // OK
 }
-
+#endif
 
 void I_StartupNetwork(void)
 {
+#ifdef ENABLE_NETWORK
 	if (M_CheckParm("-nonet"))
 		return;
 
@@ -283,11 +285,13 @@ void I_StartupNetwork(void)
 	nonet = false;
 
 	I_Printf("I_StartupNetwork: Initialised OK.\n");
+#endif
 }
 
 
 void I_ShutdownNetwork(void)
 {
+#ifdef ENABLE_NETWORK
 	if (! nonet)
 	{
 		nonet = true;
@@ -304,6 +308,7 @@ void I_ShutdownNetwork(void)
 		}
 #endif
 	}
+#endif
 }
 
 

@@ -47,10 +47,11 @@ void I_StartupMusic(void)
 
 	if (nomusic) return;
 
-#if 1
+
 	if (! nosound)
 	{
-		if (S_StartupTimidity())
+//#ifdef USE_TIMIDITY		
+        if (S_StartupTimidity())
 		{
 			I_Printf("I_StartupMusic: Timidity Init OK\n");
 		}
@@ -58,11 +59,11 @@ void I_StartupMusic(void)
 		{
 			I_Printf("I_StartupMusic: Timidity Init FAILED\n");
 		}
-	}
+//#endif	
+    }
 	else
-#endif
     {
-		I_Printf("I_StartupMusic: Timidity Disabled\n");
+		I_Printf("I_StartupMusic: Sound Disabled\n");
     }
 
 	// Music is not paused by default

@@ -256,7 +256,11 @@ void I_ShutdownGraphics(void)
 	graphics_shutdown = 1;
 
 	if (SDL_WasInit(SDL_INIT_EVERYTHING))
+    {
+        // reset gamma to default
+        I_SetGamma(1.0f);
 		SDL_Quit ();
+    }
 }
 
 //--- editor settings ---
