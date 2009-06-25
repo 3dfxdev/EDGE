@@ -615,8 +615,6 @@ void DDF_MainReadFile(readinfo_t * readinfo, char *memfileptr)
 	int bracket_level = 0;
 	bool firstgo = true;
 
-	cur_ddf_line_num = 1;  // FIXME !!!!!!
-
 	while (* memfileptr)
 	{
 		// -KM- 1998/12/16 Added #define command to ddf files.
@@ -2177,7 +2175,7 @@ void DDF_ParseSection(char *buffer)
 }
 
 
-static char *FindTag(char *pos, bool skip_to_eol = false)
+static char *FindTag(char *pos, bool skip_to_eol, int *line_num)
 {
 	while (*pos)
 	{
@@ -2187,8 +2185,11 @@ static char *FindTag(char *pos, bool skip_to_eol = false)
 
 			while (*pos && *pos != '\n')
 				pos++;
-			while (*pos == '\n' || *pos == '\r')
-				pos++;
+
+			if (*pos)
+			{
+				pos++; *line_num += 1;
+			}
 		}
 
 		// the opening '<' must be at start of line
@@ -2198,7 +2199,7 @@ static char *FindTag(char *pos, bool skip_to_eol = false)
 			continue;
 		}
 
-		// the format must be <LETTERS> and then end-of-line
+		// the format must be <LETTERS> followed by EOL
 		// (allowing whitespace after the '>')
 
 		char *found = pos;
@@ -2217,6 +2218,7 @@ static char *FindTag(char *pos, bool skip_to_eol = false)
 		pos++;
 		while (*pos && isspace(*pos))
 		{
+			// no need to update 'line_num' here (purely checking)
 			if (*pos == '\n' || *pos == '\r')
 				return found;
 
@@ -2236,16 +2238,19 @@ void DDF_Parse(void *data, int length)
 	// this function chops the text buffer into sections, where
 	// each section begins with a tag of the form: <XXXX>.
 
-	char *pos = FindTag((char *) data);
-	if (! pos)
-		return;
+	cur_ddf_line_num = 1;
 
 // FIXME !!!!!!
 cur_ddf_filename = std::string("WAZOO");
 
+	char *pos = FindTag((char *) data, false, &cur_ddf_line_num);
+	if (! pos)
+		return;
+
 	for (;;)
 	{
-		char *p_next = FindTag(pos+1, true);
+		int ln_next = cur_ddf_line_num;
+		char *p_next = FindTag(pos+1, true, &ln_next);
 
 		// NUL terminate the section beginning at 'pos'
 		if (p_next)
@@ -2257,6 +2262,7 @@ cur_ddf_filename = std::string("WAZOO");
 			break;
 
 		pos = p_next;
+		cur_ddf_line_num = ln_next;
 	}
 }
 
