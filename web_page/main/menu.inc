@@ -24,7 +24,7 @@
     <li><a href="edit_guide/overview.htm">Editing Guide</a>
     <li><a href="logs/131.htm">Changelogs</a>
     <li><a href="roadmap.htm">Road Map</a>
-    <li><span class="notdone" hhref="faq.htm">F.A.Q</span>
+    <li><span class="notdone" hhref="wiki.htm">Wiki</span>
   </ul>
 </li>
 
@@ -36,7 +36,6 @@
     <li><a href="http://sourceforge.net/tracker/?group_id=2232&amp;atid=352232">Requests</a>
   </ul>
 
-<li><span class="notdone" hhref="projects.htm">Projects</span>
 <li><a href="credits.htm">Credits</a>
 <li><a href="contact.htm">Contact</a>
 
