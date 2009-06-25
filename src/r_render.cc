@@ -3064,6 +3064,9 @@ static void RGL_WalkSeg2(drawseg2_c *dseg)
 	if (back)
 		backsector = back->sector;
 
+	if (backsector == frontsector || seg->miniseg)
+		return;
+
 	if (backsector && IS_SKY(frontsector->floor) && IS_SKY(backsector->floor))
 		lower_sky = true;
 
