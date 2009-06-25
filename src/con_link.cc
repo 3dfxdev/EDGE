@@ -71,8 +71,8 @@ extern cvar_c s_musicvol, s_musicdevice;
 extern cvar_c tim_quietfactor;
 
 
-#ifdef WIN32
-#define S_MUSICDEV_CFG  "0"  // hardware
+#ifndef LINUX
+#define S_MUSICDEV_CFG  "0"  // native
 #else
 #define S_MUSICDEV_CFG  "1"  // timidity
 #endif

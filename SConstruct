@@ -12,11 +12,11 @@ EnsureSConsVersion(0, 96, 93)
 #------------------------------------------------
 
 class LibraryConfig():
-	def __init__(self, name, header, 
-					dir=None, 
+	def __init__(self, name, header,
+					dir=None,
 					libs=None,
-					defines=None, 
-					scons_script=None, 
+					defines=None,
+					scons_script=None,
 					required=1,
 					no_include_dir=0,
 					search_order=['system', 'internal', 'root'],
@@ -27,7 +27,7 @@ class LibraryConfig():
 		self.name = name		# Name of library
 		self.header = header	# Header to check
 		# Directory name of library
-		if dir == None:         
+		if dir == None:
 			dir = name # Default to library name
 		self.dir = dir
 		# Libraries to include in the linker line
@@ -36,7 +36,7 @@ class LibraryConfig():
 		self.libs = libs
 		# Dictionary of defines to feed preprocessor if used.
 		# Two entries:
-		#   'sys' => Defines to include if system wide library is used
+		#   '<libtype>' => Defines to include if <libtype> library is used
 		#   'all' => Defines to include in all cases
 		if defines != None:
 			defines = dict(defines) # Create a copy of the dict
@@ -76,19 +76,19 @@ class LibraryConfig():
 			if type != 'internal':
 				self.search_order.remove(type)
 	# Get list of defines used for this library
-	def __getDefines(self, system_include=0):
+	def __getDefines(self, libtype=None):
 		if self.defines == None:
 			return None
 		def_list = [];
-		if system_include and self.defines.has_key('sys'):
-			def_list.extend(self.defines['sys'])
+		if libtype != None and self.defines.has_key(libtype):
+			def_list.extend(self.defines[libtype])
 		if self.defines.has_key('all'):
 			def_list.extend(self.defines['all'])
 		if len(def_list) < 1:
 			return None
 		return def_list
 	# Test this node for existence of library
-	def __testNode(self, path):
+	def __testNode(self, path, libtype):
 		config = {}
 		if self.subdirs.has_key('src'):
 			test_path = os.path.join(path, self.subdirs['src'])
@@ -108,7 +108,7 @@ class LibraryConfig():
 					if os.path.isfile(scons_script):
 						config['scons_script'] = scons_script
 			# Defines
-			def_list = self.__getDefines()
+			def_list = self.__getDefines(libtype)
 			if def_list != None:
 				config['defines'] = def_list
 			# Setup the library path
@@ -130,36 +130,39 @@ class LibraryConfig():
 		config = {}
 		if 'system' in self.search_order:
 			if self.syslib_script != None:
-				proc = subprocess.Popen(self.syslib_script, 
-										shell=True, 
-										stdout=subprocess.PIPE, 
-										stderr=subprocess.PIPE, 
+				proc = subprocess.Popen(self.syslib_script,
+										shell=True,
+										stdout=subprocess.PIPE,
+										stderr=subprocess.PIPE,
 										close_fds=True)
 				if proc.wait() == 0:
 					config['raw'] = proc.stdout.read().strip()
 					config['type'] = 'system'
 			if len(config) == 0 and conf.CheckCHeader(self.header):
+				libtype = 'system'
 				config['libs'] = self.libs
-				def_list = self.__getDefines(system_include=1)
+				def_list = self.__getDefines(libtype)
 				if def_list != None:
 					config['defines'] = def_list
-				config['type'] = 'system'
+				config['type'] = libtype
 		# Check interal
 		if len(config) == 0 and 'internal' in self.search_order:
+			libtype = 'system'
 			test_pattern = os.path.join(platform+"_lib", self.dir+"*")
 			dir_list = glob.glob(test_pattern)
 			for dir_entry in dir_list:
-				config = self.__testNode(os.path.abspath(dir_entry))
+				config = self.__testNode(os.path.abspath(dir_entry), libtype)
 				if len(config) > 0:
-					config['type'] = 'internal'
+					config['type'] = libtype
 					break
 		# Check root
 		if len(config) == 0 and 'root' in self.search_order:
+			libtype = 'root'
 			dir_list = glob.glob(self.dir+"*")
 			for dir_entry in dir_list:
-				config = self.__testNode(os.path.abspath(dir_entry))
+				config = self.__testNode(os.path.abspath(dir_entry), libtype)
 				if len(config) > 0:
-					config['type'] = 'root'
+					config['type'] = libtype
 					break
 		# Check for nothing found
 		if len(config) == 0:
@@ -169,6 +172,7 @@ class LibraryConfig():
 		if config.has_key('raw'):
 			config_str = config['raw']
 		else:
+			cwd = os.getcwd()
 			if config.has_key('defines'):
 				for define in config['defines']:
 					config_str = config_str + " -D" + define
@@ -177,7 +181,6 @@ class LibraryConfig():
 			if config.has_key('libpath'):
 				config_str = config_str + " -L"+config['libpath']
 			if config.has_key('libs'):
-				cwd = os.getcwd()
 				for lib in config['libs']:
 					if len(os.path.dirname(lib)) == 0:
 						config_str += " -l"+lib
@@ -185,7 +188,7 @@ class LibraryConfig():
 						(name,ext) = os.path.splitext(lib)
 						if len(ext) > 1:
 							if os.path.isabs(name) and name.startswith(cwd):
-								# Strip off absolute path if in current 
+								# Strip off absolute path if in current
 								# dir and leading directory separator (visually pleasing)
 								name = name[len(cwd)+1:]
 						config_str = config_str + " " + (name+ext)
@@ -206,11 +209,11 @@ class Library():
 		output_files = []
 		cwd = os.getcwd()
 		for cfg_str in self.config_str.split(' '):
-			if len(cfg_str) > 0: 
+			if len(cfg_str) > 0:
 				if not cfg_str.startswith('-'):
 					output_files.append(cfg_str)
 				elif cfg_str.startswith('-I'):
-					env.Append(CCFLAGS = cfg_str) # Needed as scons under win32 breaks directory names 
+					env.Append(CCFLAGS = cfg_str) # Needed as scons under win32 breaks directory names
 				else:
 					env.MergeFlags(env.ParseFlags(cfg_str))
 		return output_files
@@ -258,13 +261,13 @@ Export('build_info')
 lib_configs = []
 
 # The Engine itself
-lib_configs.append(LibraryConfig(name='edge1', 
-									header='dm_defs.h',       
-									search_order=['root'],
-									dir='src', 
-									no_include_dir=1,
-									scons_script='SConscript',
-									deps=['__ALL__']))
+lib_configs.append(LibraryConfig(name='edge1',
+								header='dm_defs.h',
+								search_order=['root'],
+								dir='src',
+								no_include_dir=1,
+								scons_script='SConscript',
+								deps=['__ALL__']))
 # OpenGL
 if build_info['platform'] != 'macosx':
 	lib_name = 'GL'
@@ -275,62 +278,63 @@ if build_info['platform'] != 'macosx':
 glew_libname = "GLEW"
 if build_info['platform'] == 'win32':
 	glew_libname = "glew32"
-lib_configs.append(LibraryConfig(name='glew', 
+lib_configs.append(LibraryConfig(name='glew',
 								header='GL/glew.h',
-								subdirs={ 'src':'include', 'lib':'lib' }, 
+								subdirs={ 'src':'include', 'lib':'lib' },
 								libs=[glew_libname]))
-del glew_libname # No more use at global level for this 
+del glew_libname # No more use at global level for this
 # glBSP
-lib_configs.append(LibraryConfig(name='glbsp', 
-					header='glbsp.h',         
-					defines={ 'sys' : ['HAVE_GLBSP_H'] }, # Include HAVE_GLBSP_H if system wide lib used
-					subdirs={ 'src':'src' },
-					scons_script='SConscript.edge',
-					deps=['z']))
+lib_configs.append(LibraryConfig(name='glbsp',
+				  header='glbsp.h',
+				  defines={ 'system' : ['HAVE_GLBSP_H'],
+				            'internal' : ['HAVE_GLBSP_H']}, # Include HAVE_GLBSP_H if system wide lib used
+				  subdirs={ 'src':'src' },
+				  scons_script='SConscript.edge',
+				  deps=['z']))
 # SDL
 if build_info['platform'] == 'win32':
 	lib_configs.append(LibraryConfig(name='SDL',
 									header='SDL.h',
-									defines={'sys': ['HAVE_SDL_H']},
+									defines={'system': ['HAVE_SDL_H']},
 									subdirs={ 'src' : 'include', 'lib':'build' },
 									libs=['SDLmain', '.libs/SDL.dll']))
 elif build_info['platform'] == 'macosx':
-	lib_configs.append(LibraryConfig(name='SDLmain', 
+	lib_configs.append(LibraryConfig(name='SDLmain',
 									header='SDLmain.h',
-									search_order=['internal'], 
+									search_order=['internal'],
 									defines={'all': ['HAVE_SDL_H']},
-									dir='SDL', 
+									dir='SDL',
 									no_include_dir=1,
 									scons_script='SConscript'))
 elif build_info['platform'] == 'linux':
-	lib_configs.append(LibraryConfig(name='SDLmain', 
+	lib_configs.append(LibraryConfig(name='SDLmain',
 									header='SDLmain.h',
-									defines={'sys': ['HAVE_SDL_H']},
-									dir='SDL', 
+									defines={'system': ['HAVE_SDL_H']},
+									dir='SDL',
 									syslib_script='sdl-config --cflags --libs'))
 
 # LUA Scripting
-lib_configs.append(LibraryConfig(name='lua',         
-								header='lua.h',           
+lib_configs.append(LibraryConfig(name='lua',
+								header='lua.h',
 								search_order=['internal'], # Do not use system LUA
 								subdirs={ 'src':'src', 'lib':'src'}))
 # OGG Vorbis Support
-lib_configs.append(LibraryConfig(name='vorbis', 
-								dir='libvorbis', 
+lib_configs.append(LibraryConfig(name='vorbis',
+								dir='libvorbis',
 								header='vorbis/vorbisfile.h',
-								subdirs={'src':'include', 'lib':'lib/.libs'}, 
+								subdirs={'src':'include', 'lib':'lib/.libs'},
 								libs=['vorbisfile', 'vorbis']))
-lib_configs.append(LibraryConfig(name='ogg', 
-								dir='libogg', 
+lib_configs.append(LibraryConfig(name='ogg',
+								dir='libogg',
 								header='ogg/ogg.h',
 								subdirs={'src':'include', 'lib':'src/.libs'}))
 # Zlib
 lib_configs.append(LibraryConfig(name='z', dir='zlib', header='zlib.h'))
 # FLTK
-lib_configs.append(LibraryConfig(name='fltk', 
+lib_configs.append(LibraryConfig(name='fltk',
 								header='FL/Fl_Window.H',
 								defines={'all': ['NO_CONSOLE_ECHO', 'USE_FLTK']},
-								required=0, 
+								required=0,
 								libs=['fltk', 'fltk_images'],
 								subdirs={ 'lib':'lib' }))
 # DDF Support for EDGE
@@ -341,16 +345,16 @@ lib_configs.append(LibraryConfig(name='ddf',
 								no_include_dir=1,
 								scons_script='SConscript'))
 # Dehacked support for EDGE
-lib_configs.append(LibraryConfig(name='dehedge',     
-								header='dh_plugin.h',     
-								search_order=['root'], 
-								dir='deh_edge', 
+lib_configs.append(LibraryConfig(name='dehedge',
+								header='dh_plugin.h',
+								search_order=['root'],
+								dir='deh_edge',
 								no_include_dir=1,
 								scons_script='SConscript.edge'))
 # EDGE Programmer Interface
-lib_configs.append(LibraryConfig(name='epi',         
-								header='epi.h',           
-								search_order=['root'], 
+lib_configs.append(LibraryConfig(name='epi',
+								header='epi.h',
+								search_order=['root'],
 								no_include_dir=1,
 								scons_script='SConscript',
 								deps=['png','jpeg','z']))
@@ -359,9 +363,9 @@ lib_configs.append(LibraryConfig(name='png', header='png.h', dir='libpng'))
 # JPEG Support
 lib_configs.append(LibraryConfig(name='jpeg', header='jconfig.h'))
 # Timidity
-lib_configs.append(LibraryConfig(name='timidity',    
-								header='timidity.h',      
-								search_order=['root'], 
+lib_configs.append(LibraryConfig(name='timidity',
+								header='timidity.h',
+								search_order=['root'],
 								no_include_dir=1,
 								scons_script='SConscript'))
 
@@ -387,12 +391,12 @@ for lib_config in lib_configs:
 		print "Unable to find library: "+lib_config.name
 		Exit(1)
 	if lib != None:
-		libs.append(lib) 
+		libs.append(lib)
 base_env = conf.Finish()
 
 # Output libraries and their setup
 tbl_format = " %-12s %-12s %s"
-print 
+print
 print tbl_format % ("Library", "Type", "Config")
 print tbl_format % ("=======", "====", "======")
 for lib in libs:
@@ -473,6 +477,7 @@ if build_info['platform'] == 'win32':
 if build_info['platform'] == 'macosx':
 	engine_env.Append(LINKFLAGS = ['-Wl,-framework,Cocoa'])
 	engine_env.Append(LINKFLAGS = ['-Wl,-framework,OpenGL'])
+	engine_env.Append(LINKFLAGS = ['-Wl,-framework,QTKit'])
 	engine_env.Append(LINKFLAGS = ['-Wl,-framework,SDL'])
 
 if build_info['platform'] == 'linux':

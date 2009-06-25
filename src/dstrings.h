@@ -48,6 +48,8 @@
 
 #ifdef WIN32
 #define EDGEHOMESUBDIR  "Application Data\\Edge"
+#elif defined(MACOSX)
+#define EDGEHOMESUBDIR  "Library/Application Support/EDGE"
 #else // Linux
 #define EDGEHOMESUBDIR  ".edge"
 #endif

@@ -61,7 +61,7 @@ if build_info['platform'] == "win32":
 else: # linux
         sources = sources + ['unx_music.cc', 'unx_net.cc', 'unx_system.cc']
         if build_info['platform'] == "macosx":
-                sources = sources + ['mac_ui.mm']
+                sources = sources + ['mac_mus.mm','mac_ui.mm']
         else:
                 sources = sources + ['unx_ui.cc']
 
