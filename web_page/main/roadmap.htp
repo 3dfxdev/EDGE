@@ -17,18 +17,12 @@ features from being implemented.
 
 <hr>
 
-<h3 class="sub_title">RELEASE 1.32</h3>
+<h3 class="sub_title">RELEASE 1.33</h3>
   <ul>
+    <li type="disc">Better console
+    <li type="disc">Inheritance for DDF
+    <li type="disc">New scripting language
     <li type="disc">Good documentation (DDF Online)
-    <li type="disc">Lua for Intermissions / Finales
-    <li type="disc">Bullet holes / Blood splats
-  </ul>
-
-  <ul>
-    <li type="circle">Inheritance for DDF
-    <li type="circle">Better console
-    <li type="circle">Improved bots
-
   </ul>
 
 <hr>
@@ -45,12 +39,9 @@ features from being implemented.
     It will be done when it's done.
 
   <li>
-    A notable absence here is Multiplayer support.
-    This never seems to be a high priority amongst EDGE
-    developers and EDGE modders.
-    If it ever gets done, then it will be designed for
-    LAN-based play
-    (like the original DOOM networking).
+    Version numbers are odd for full releases, and
+    even for development releases.  Hence the next
+    full release after 1.31 will be 1.33.
 
   <li>
     Some things we <b>don't plan</b> on adding
