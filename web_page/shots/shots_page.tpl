@@ -12,7 +12,7 @@
 <body>
 
 <file include="../common/banner.inc" logo="EDGE"
- text="Enhanced Doom Gaming Engine">
+ text="Enhanced Doom Game Engine">
 
 <div class="content">
   <file include="shots_menu.inc">
