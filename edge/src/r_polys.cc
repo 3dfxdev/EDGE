@@ -183,6 +183,25 @@ static seg_t * CreateOneSeg(line_t *ld, sector_t *sec, int side,
 	return g;
 }
 
+static seg_t * CreateMiniSeg(vertex_t *v1, vertex_t *v2)
+{
+	seg_t *g = NewSeg();
+
+	g->v1 = v1;
+	g->v2 = v2;
+	g->angle = R_PointToAngle(v1->x, v1->y, v2->x, v2->y);
+	g->length = R_PointToDist(v1->x, v1->y, v2->x, v2->y);
+
+	// Note: these fields are setup by GroupLines:
+	//          front_sub,
+	//          back_sub
+	//          backsector
+
+	g->miniseg = true;
+
+	return g;
+}
+
 
 static inline void ComputeIntersection(seg_t *cur, divline_t& party,
   float perp_c, float perp_d, float *x, float *y)
@@ -345,9 +364,7 @@ static void ClockwiseOrder(subsector_t *sub)
 
 	int i;
 	int total = 0;
-
 	int first = 0;
-	int score = -1;
 
 #if DEBUG_SUBSEC
 	PrintDebug("Subsec: Clockwising %d\n", sub->index);
@@ -521,6 +538,7 @@ static float EvaluateParty(seg_t *seg_list, divline_t& party)
 
 	return (diff * 100.0f + split * split * 365.0f) / (float)total;
 }
+
 
 static void DivideOneSeg(seg_t *cur, divline_t& party,
 	subsector_t *left, subsector_t *right,
@@ -703,14 +721,14 @@ static void AddMinisegs(sector_t *sec, divline_t& party,
 
 		// found a viable miniseg!
 
-		seg_t *seg_L = ...
-		seg_t *seg_R = ...
+		seg_t *seg_R = CreateMiniSeg(A->v, B->v);
+		seg_t *seg_L = CreateMiniSeg(B->v, A->v);
 		
-		seg_L->partner = seg_R;
 		seg_R->partner = seg_L;
+		seg_L->partner = seg_R;
 
-		AddSeg(left,  seg_L);
 		AddSeg(right, seg_R);
+		AddSeg(left,  seg_L);
 
 		B++; A = B; continue;
 	}
@@ -723,6 +741,7 @@ static void TrySplitSubsector(subsector_t *sub)
 
 	if (! ChoosePartition(sub, &party))
 	{
+		ClockwiseOrder(sub);
 		sub->convex = true;
 		return;
 	}
