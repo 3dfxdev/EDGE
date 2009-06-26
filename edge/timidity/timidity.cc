@@ -83,10 +83,13 @@ static int read_config_file(const char *name)
 				break;
 		}
 
-		if (0 == strcmp(w[0], "map"))
+		if (strcmp(w[0], "map") == 0)
 			continue;
 
-		if (0 == strcmp(w[0], "dir"))
+		if (strcmp(w[0], "opt") == 0)
+			continue;
+
+		if (strcmp(w[0], "dir") == 0)
 		{
 			if (words < 2)
 			{
