@@ -1,5 +1,21 @@
 Andrew Apted's Log
 
+2009/06/26:
+
+Decided to go back to using a BSP-based renderer.  The new
+linedef based renderer has proven itself to work, and with
+more work I'm sure it could become as fast and the glitches
+could be fixed and mirrors/portals reimplemented -- but I
+just can't be bothered :-/
+
+2009/06/25:
+
+Worked on making the DDF loading code able to handle
+multiple different types of DDF in each file.  The engine
+now calls a single DDF_Parse() function, and this function
+breaks the text buffer into different sections, determines
+the DDF type from the <TAG>, and invokes the DDF parser.
+
 2009/06/24:
 
 Plans for improved directory handling (after discussions
