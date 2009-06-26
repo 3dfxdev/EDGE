@@ -40,13 +40,13 @@ static void Poly_Setup(void)
 	max_subsecs = numlines * 2;
 	max_glvert  = numsides * 3;
 
-	segs = new seg_t[numsegs];
-	subsectors = new subsector_t[numsubsectors];
-	gl_vertexes = new vertex_t[num_gl_vertexes];
+	segs = new seg_t[max_segs];
+	subsectors = new subsector_t[max_subsecs];
+	gl_vertexes = new vertex_t[max_glvert];
 
-	Z_Clear(segs, seg_t, numsegs);
-	Z_Clear(subsectors, subsector_t, numsubsectors);
-	Z_Clear(gl_vertexes, vertex_t, num_gl_vertexes);
+	Z_Clear(segs, seg_t, max_segs);
+	Z_Clear(subsectors, subsector_t, max_subsecs);
+	Z_Clear(gl_vertexes, vertex_t, max_glvert);
 }
 
 // Nasty allocation shit....  Fixme
@@ -160,8 +160,7 @@ static seg_t * CreateOneSeg(line_t *ld, sector_t *sec, int side,
 	g->length = R_PointToDist(v1->x, v1->y, v2->x, v2->y);
 
 	// Note: these fields are setup by GroupLines:
-	//          front_sub,
-	//          back_sub
+	//          back_sub,
 	//          backsector
 
 	g->miniseg = false;
@@ -427,6 +426,9 @@ static void ClockwiseOrder(subsector_t *sub)
 
 		array[j]->sub_next = sub->segs;
 		sub->segs = array[j];
+
+		// assign 'front_sub' here
+		array[j]->front_sub = sub;
 	}
 
 	if (total > 32)
