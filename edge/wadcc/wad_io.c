@@ -316,20 +316,23 @@ boolean_t WAD_Close(int wad_id)
         return false;
 
     wad_file_t *wf = wad_files + wad_id;
+
     if (wf->status == WRITE_IN_PROGRESS)
     {
-        if (!FinishWADWrite(wf->fp, wf->head))
-            return false;
+        FinishWADWrite(wf->fp, wf->head);
     }
 
     if (wf->fp)
     {
         fclose(wf->fp);
-        wf->filename = NULL;
+        wf->fp = NULL;
     }
         
     if (wf->filename)
+	{
         free(wf->filename);
+		wf->filename = NULL;
+	}
 
     wf->status = ALLOCATED;
     return true;
