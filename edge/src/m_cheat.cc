@@ -42,7 +42,7 @@
 #include "ddf/level.h"
 
 #include "con_main.h"
-#include "dstrings.h"
+#include "m_strings.h"
 #include "g_game.h"
 #include "m_menu.h"
 #include "s_sound.h"

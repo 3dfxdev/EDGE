@@ -34,7 +34,7 @@
 #include "dm_state.h"
 #include "e_input.h"
 #include "g_game.h"
-#include "dstrings.h"
+#include "m_strings.h"
 #include "m_random.h"
 #include "p_local.h"
 #include "s_sound.h"

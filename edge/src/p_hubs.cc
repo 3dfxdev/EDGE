@@ -25,7 +25,7 @@
 #include "epi/path.h"
 
 #include "dm_state.h"
-#include "dstrings.h"
+#include "m_strings.h"
 #include "n_network.h"
 #include "p_local.h"
 #include "p_spec.h"
