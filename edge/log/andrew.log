@@ -8,6 +8,14 @@ more work I'm sure it could become as fast and the glitches
 could be fixed and mirrors/portals reimplemented -- but I
 just can't be bothered :-/
 
+There was a bug with teleporters where players or monsters
+could get stuck in walls, since teleport flashes could act
+as valid destination points.  (It's also interesting to
+note that a player which hits a teleporter corner at speed
+can actually teleport _twice_ to the same place).  I have
+fixed the bug by setting the EF_NEVERTARGET flag on the
+created flashes, and ignoring them as destination points.
+
 2009/06/25:
 
 Worked on making the DDF loading code able to handle
