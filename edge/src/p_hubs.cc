@@ -24,7 +24,7 @@
 #include "epi/str_format.h"
 #include "epi/path.h"
 
-#include "dm_state.h"
+#include "g_state.h"
 #include "m_strings.h"
 #include "n_network.h"
 #include "p_local.h"

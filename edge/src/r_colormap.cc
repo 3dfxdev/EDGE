@@ -31,8 +31,7 @@
 #include "ddf/level.h"
 
 #include "r_colormap.h"
-#include "dm_defs.h"
-#include "dm_state.h"
+#include "g_state.h"
 #include "e_main.h"
 #include "g_game.h"  // currmap
 #include "e_player.h"

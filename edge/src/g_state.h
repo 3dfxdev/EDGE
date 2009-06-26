@@ -28,17 +28,15 @@
 // -ACB- 1999/10/07 Removed Sound Parameters - New Sound API
 //
 
-#ifndef __D_STATE_H__
-#define __D_STATE_H__
-
+#ifndef __G_STATE_H__
+#define __G_STATE_H__
 
 #include "ddf/types.h"
 
 #include "epi/utility.h"
 
-// We need globally shared data structures,
-//  for defining the global state variables.
-#include "dm_data.h"
+#include "dm_structs.h"
+
 
 class image_c;
 
@@ -102,8 +100,6 @@ extern bool autoquickload;
 // Quit after playing a demo from cmdline.
 extern bool singledemo;
 
-//?
-extern gamestate_e gamestate;
 
 //-----------------------------
 // Internal parameters, fixed.
@@ -187,7 +183,7 @@ invulfx_type_e;
 extern cvar_c r_invultex;  // "TEXTURED" mode of invulnerability
 
 
-#endif /*__D_STATE_H__*/
+#endif /*__G_STATE_H__*/
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

@@ -78,7 +78,7 @@
 #include "epi/str_format.h"
 
 
-#include "dm_state.h"
+#include "g_state.h"
 #include "e_input.h"
 #include "g_game.h"
 #include "hu_stuff.h"

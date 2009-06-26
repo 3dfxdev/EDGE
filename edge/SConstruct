@@ -262,7 +262,7 @@ lib_configs = []
 
 # The Engine itself
 lib_configs.append(LibraryConfig(name='edge1',
-								header='dm_defs.h',
+								header='dm_structs.h',
 								search_order=['root'],
 								dir='src',
 								no_include_dir=1,

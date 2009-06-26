@@ -28,7 +28,6 @@
 
 #include "ddf/types.h"
 
-#include "dm_defs.h"
 #include "e_event.h"
 #include "p_mobj.h"
 

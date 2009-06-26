@@ -29,7 +29,7 @@
 #include "ddf/playlist.h"
 #include "ddf/sfx.h"
 
-#include "dm_state.h"
+#include "g_state.h"
 #include "s_sound.h"
 #include "s_music.h"
 #include "s_ogg.h"

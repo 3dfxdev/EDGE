@@ -31,9 +31,7 @@
 #include "epi/image_data.h"
 #include "epi/image_jpeg.h"
 
-#include "dm_data.h"
-#include "dm_defs.h"
-#include "dm_state.h"
+#include "g_state.h"
 #include "p_local.h"
 #include "r_colormap.h"
 #include "r_defs.h"

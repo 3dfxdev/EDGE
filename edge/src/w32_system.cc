@@ -28,7 +28,6 @@
 #include "epi/timestamp.h"
 
 #include "con_main.h"
-#include "dm_defs.h"
 #include "e_main.h"
 #include "g_game.h"
 #include "m_argv.h"

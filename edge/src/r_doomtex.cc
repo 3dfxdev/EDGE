@@ -46,7 +46,7 @@
 #include "epi/image_jpeg.h"
 #include "epi/image_tga.h"
 
-#include "dm_state.h"
+#include "g_state.h"
 #include "e_search.h"
 #include "e_main.h"
 #include "m_argv.h"

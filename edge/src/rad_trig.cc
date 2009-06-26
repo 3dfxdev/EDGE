@@ -40,9 +40,9 @@
 #include "ddf/language.h"
 
 #include "am_map.h"
-#include "dm_defs.h"
-#include "dm_state.h"
+#include "e_keys.h"
 #include "e_main.h"
+#include "g_state.h"
 #include "hu_lib.h"
 #include "hu_style.h"
 #include "hu_stuff.h"

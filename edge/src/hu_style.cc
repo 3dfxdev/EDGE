@@ -21,8 +21,7 @@
 #include <map>
 
 #include "hu_style.h"
-#include "dm_defs.h"
-#include "dm_state.h"
+#include "g_state.h"
 #include "r_local.h"
 #include "r_colormap.h"
 #include "r_draw.h"

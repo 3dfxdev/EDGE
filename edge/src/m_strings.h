@@ -23,8 +23,8 @@
 //
 //----------------------------------------------------------------------------
 
-#ifndef __DOOM_STRINGS__
-#define __DOOM_STRINGS__
+#ifndef __M_STRINGS__
+#define __M_STRINGS__
 
 // Misc. other strings.
 #define REQUIREDWAD    "edge"
@@ -54,7 +54,7 @@
 #define EDGEHOMESUBDIR  ".edge"
 #endif
 
-#endif // __DOOM_STRINGS__
+#endif // __M_STRINGS__
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

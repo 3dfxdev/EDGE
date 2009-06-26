@@ -30,8 +30,7 @@
 #include "i_defs.h"
 
 #include "e_search.h"
-#include "dm_state.h"
-#include "dm_defs.h"
+#include "g_state.h"
 #include "m_argv.h"
 #include "m_misc.h"
 #include "p_local.h"

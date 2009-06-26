@@ -30,7 +30,7 @@
 #include "s_music.h"
 #include "s_timid.h"
 
-#include "dm_state.h"
+#include "g_state.h"
 
 
 #define TIMV_NUM_SAMPLES  4096

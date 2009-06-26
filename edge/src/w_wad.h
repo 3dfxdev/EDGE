@@ -26,7 +26,6 @@
 #ifndef __W_WAD__
 #define __W_WAD__
 
-#include "dm_defs.h"
 
 #include "epi/file.h"
 #include "epi/utility.h"

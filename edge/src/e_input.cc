@@ -31,8 +31,7 @@
 
 #include "ddf/level.h"
 
-#include "dm_defs.h"
-#include "dm_state.h"
+#include "g_state.h"
 #include "e_event.h"
 #include "e_input.h"
 #include "e_main.h"

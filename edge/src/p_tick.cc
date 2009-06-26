@@ -32,7 +32,7 @@
 #include "i_defs.h"
 #include "p_tick.h"
 
-#include "dm_state.h"
+#include "g_state.h"
 #include "g_game.h"
 #include "n_network.h"
 #include "p_local.h"

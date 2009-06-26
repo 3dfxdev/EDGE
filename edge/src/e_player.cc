@@ -31,8 +31,7 @@
 
 #include "epi/endianess.h"
 
-#include "dm_defs.h"
-#include "dm_state.h"
+#include "g_state.h"
 #include "e_player.h"
 #include "g_game.h"
 #include "hu_stuff.h"

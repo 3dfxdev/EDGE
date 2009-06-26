@@ -28,8 +28,7 @@
 #include <algorithm>
 
 #include "z_zone.h"
-#include "dm_defs.h"
-#include "dm_state.h"
+#include "g_state.h"
 #include "m_random.h"
 #include "p_local.h"
 #include "r_sky.h"

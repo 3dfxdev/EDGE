@@ -43,8 +43,7 @@
 
 #include "ddf/language.h"
 
-#include "dm_defs.h"
-#include "dm_state.h"
+#include "g_state.h"
 #include "con_main.h"
 #include "e_input.h"
 #include "e_player.h"

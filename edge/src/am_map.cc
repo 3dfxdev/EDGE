@@ -29,6 +29,8 @@
 #include "ddf/language.h"
 
 #include "con_main.h"
+#include "g_state.h"
+#include "g_game.h"
 #include "e_input.h"
 #include "hu_lib.h"
 #include "m_argv.h"

@@ -26,7 +26,6 @@
 #ifndef __P_SETUP__
 #define __P_SETUP__
 
-#include "dm_defs.h"
 
 #include "epi/math_crc.h"
 

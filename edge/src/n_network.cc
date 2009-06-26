@@ -31,7 +31,7 @@
 #include "n_reliable.h"
 #include "n_network.h"
 
-#include "dm_state.h"
+#include "g_state.h"
 #include "e_input.h"
 #include "e_main.h"
 #include "g_game.h"

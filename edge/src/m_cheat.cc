@@ -42,9 +42,11 @@
 #include "ddf/level.h"
 
 #include "con_main.h"
-#include "m_strings.h"
+#include "e_keys.h"
 #include "g_game.h"
+#include "g_state.h"
 #include "m_menu.h"
+#include "m_strings.h"
 #include "s_sound.h"
 #include "s_music.h"
 #include "p_local.h"
