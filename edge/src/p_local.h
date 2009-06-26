@@ -54,6 +54,10 @@
 
 #define RESPAWN_DELAY  (TICRATE / 2)
 
+#define VISIBLE   (1.0f)
+#define INVISIBLE (0.0f)
+
+
 // Weapon sprite speeds
 #define LOWERSPEED (6.0f)
 #define RAISESPEED (6.0f)

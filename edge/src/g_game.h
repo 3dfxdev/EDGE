@@ -31,6 +31,51 @@
 #include "e_player.h"
 
 
+// The current state of the game: whether we are
+// playing, gazing at the intermission screen,
+// the game final animation, or a demo. 
+typedef enum
+{
+	GS_NOTHING = 0,
+	GS_TITLESCREEN,
+	GS_LEVEL,
+	GS_INTERMISSION,
+	GS_FINALE,
+}
+gamestate_e;
+
+//
+// Difficulty/skill settings/filters.
+//
+
+typedef enum
+{
+	sk_baby = 1,
+	sk_easy,
+	sk_medium,
+	sk_hard,
+	sk_nightmare,
+
+	NUMGAMESKILLS,
+}
+gameskill_e;
+
+
+typedef enum
+{
+	GT_Single = 0,   // single player or coop
+	GT_DeathMatch,   // normal deathmatch
+	GT_AltDeath,
+
+	NUMGAMETYPES
+}
+gametype_e;
+
+#define DEATHMATCH()  (g_gametype.d > 0)
+#define COOP_MATCH()  (g_gametype.d == 0 && numplayers > 1)
+#define SP_MATCH()    (g_gametype.d == 0 && numplayers <= 1)
+
+
 extern int random_seed;  // for demo code
 extern int starttime;    //
 

@@ -31,88 +31,8 @@
 // Global parameters/defines.
 //
 
-// The current state of the game: whether we are
-// playing, gazing at the intermission screen,
-// the game final animation, or a demo. 
-typedef enum
-{
-	GS_NOTHING = 0,
-	GS_TITLESCREEN,
-	GS_LEVEL,
-	GS_INTERMISSION,
-	GS_FINALE,
-}
-gamestate_e;
-
-//
-// Difficulty/skill settings/filters.
-//
-
-// Skill flags.
-#define MTF_EASY         1
-#define MTF_NORMAL       2
-#define MTF_HARD         4
-
-// Deaf monsters/do not react to sound.
-#define MTF_AMBUSH       8
-
-// Multiplayer only.
-#define MTF_NOT_SINGLE  16
-
-// -AJA- 1999/09/22: Boom compatibility.
-#define MTF_NOT_DM      32
-#define MTF_NOT_COOP    64
-
-// -AJA- 2000/07/31: Friend flag, from MBF
-#define MTF_FRIEND      128 
-
-// -AJA- 2004/11/04: This bit should be zero (otherwise old WAD).
-#define MTF_RESERVED    256
-
-// -AJA- 2008/03/08: Extrafloor placement
-#define MTF_EXFLOOR_MASK    0x3C00
-#define MTF_EXFLOOR_SHIFT   10
-
-
-typedef enum
-{
-	sk_baby = 1,
-	sk_easy,
-	sk_medium,
-	sk_hard,
-	sk_nightmare,
-
-	NUMGAMESKILLS,
-}
-gameskill_e;
-
-
-typedef enum
-{
-	GT_Single = 0,   // single player or coop
-	GT_DeathMatch,   // normal deathmatch
-	GT_AltDeath,
-
-	NUMGAMETYPES
-}
-gametype_e;
-
-#define DEATHMATCH()  (g_gametype.d > 0)
-#define COOP_MATCH()  (g_gametype.d == 0 && numplayers > 1)
-#define SP_MATCH()    (g_gametype.d == 0 && numplayers <= 1)
-
-
-
-#define  VISIBLE (1.0f)
-#define  VISSTEP (1.0f/256.0f)
-#define  INVISIBLE (0.0f)
-
-
-#include "e_keys.h"  //!!! FIXME TEMP SHITE
-
 
 #endif // __DEFINITIONS__
-
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
