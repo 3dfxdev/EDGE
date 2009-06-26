@@ -1356,9 +1356,6 @@ void E_Main(int argc, const char **argv)
 	// Start the EPI Interface 
 	epi::Init();
 
-	// Start memory allocation system at the very start (SCHEDULED FOR REMOVAL)
-	Z_Init();
-
 	// Implemented here - since we need to bring the memory manager up first
 	// -ACB- 2004/05/31
 	M_InitArguments(argc, argv);
