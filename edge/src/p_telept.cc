@@ -51,7 +51,8 @@ static mobj_t *FindTeleportMan(int tag, const mobjtype_c *info)
 		for (touch_node_t *tn = sec->touch_things; tn; tn = tn->sec_next)
 		{
 			if (tn->mo && tn->mo->info == info &&
-				tn->mo->subsector->sector == sec)
+				tn->mo->subsector->sector == sec &&
+				(tn->mo->extendedflags & EF_NEVERTARGET) == 0)
 			{
 				return tn->mo;
 			}
@@ -316,6 +317,9 @@ bool EV_Teleport(line_t* line, int tag, mobj_t* thing,
         {
             fog = P_MobjCreateObject(oldx, oldy, oldz, def->inspawnobj);
 
+			// never use this object as a teleport destination
+			fog->extendedflags |= EF_NEVERTARGET;
+
             if (fog->info->chase_state)
                 P_SetMobjStateDeferred(fog, fog->info->chase_state, 0);
         }
@@ -331,6 +335,9 @@ bool EV_Teleport(line_t* line, int tag, mobj_t* thing,
             fog = P_MobjCreateObject(new_x + 20.0f * M_Cos(thing->angle),
                                      new_y + 20.0f * M_Sin(thing->angle),
                                      new_z, def->outspawnobj);
+
+			// never use this object as a teleport destination
+			fog->extendedflags |= EF_NEVERTARGET;
 
             if (fog->info->chase_state)
                 P_SetMobjStateDeferred(fog, fog->info->chase_state, 0);
