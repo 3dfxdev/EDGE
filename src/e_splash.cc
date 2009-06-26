@@ -43,10 +43,6 @@ star_info_t;
 
 static std::list<star_info_t> star_field;
 
-#define STAR_ALPHA(t_diff)  (0.99 - (t_diff) /  7000.0)
-
-#define STAR_Z(t_diff)  (0.3 + (t_diff) /  100.0)
-
 static GLuint star_tex;
 static GLuint logo_tex;
 
@@ -214,6 +210,44 @@ static const byte edge_logo_data[] =
 };
 
 
+static inline int FudgeDist(int x, int y)
+{
+	if (x < 0) x = -x;
+	if (y < 0) y = -y;
+
+	if (x < y) { int tmp = x; x = y; y = tmp; }
+
+	if (x == 0) return 0;
+
+	int div = x * 23 / 10;
+
+	return x + y * y / div;
+}
+
+
+static inline int FudgeAngle(int x, int y)
+{
+	if (abs(x) < abs(y))
+	{
+		return 64 - FudgeAngle(y, x);
+	}
+
+	if (x == 0)
+		return 0;
+	
+	if (x > 0)
+		return 32 * y / x;
+	else
+		return 128 + 32 * y / x;
+}
+
+
+
+#define STAR_ALPHA(t_diff)  (0.99 - (t_diff) /  7000.0)
+
+#define STAR_Z(t_diff)  (0.3 + (t_diff) /  100.0)
+
+
 static void CreateStarTex(void)
 {
 	epi::image_data_c *img = new epi::image_data_c(128, 128);
@@ -223,14 +257,16 @@ static void CreateStarTex(void)
 	{
 		u8_t *pix = img->PixelAt(x, y);
 
-		// FIXME: use a fast fudge for dist and angle
-		float dist = sqrtf((x-64)*(x-64) + (y-64)*(y-64));
+		int dist = FudgeDist (x-64, y-64);
+		int ang  = FudgeAngle(x-64, y-64) & 0xFF;
 
-		angle_t ang = R_PointToAngle(64.5, 64.5, x, y);
+		int rnd = rndtable[ang / 4];
+		int val = 250 - dist * 4;
 
-		int rnd = rndtable[(u32_t)ang >> 24];
+		rnd = rnd + ((val * val) >> 8);
+		val = val * (rnd + 16) / 384;
 
-		*pix = CLAMP(0, 255 - dist * 4.2, 255) * (rnd / 512.0 + 0.5);
+		*pix = CLAMP(0, val, 255);
 
 		pix[1] = pix[2] = pix[0];
 	}
@@ -600,8 +636,6 @@ void E_SplashScreen(void)
 
 		if (E_DrawSplash(millies))
 			break;
-
-		// FIXME: abort on keyboard press
 	}
 
 	glDeleteTextures(1, &star_tex);
