@@ -1365,6 +1365,16 @@ void P_GenerateSubsecMap(void)
 	}
 }
 
+static inline float ApproxPerpD2(divline_t& party, float x, float y)
+{
+	x -= party.x;
+	y -= party.y;
+
+	float len = MAX(fabs(party.dx), fabs(party.dy));
+
+	return (x * party.dy - y * party.dx) / len;
+}
+
 bool R_SubsectorContainsPoint(subsector_t *sub, float x, float y)
 {
 	for (seg_t *seg = sub->segs; seg; seg = seg->sub_next)
@@ -1376,7 +1386,7 @@ bool R_SubsectorContainsPoint(subsector_t *sub, float x, float y)
 		div.dx = seg->v2->x - div.x;
 		div.dy = seg->v2->y - div.y;
 
-		if (P_PointOnDivlineSide(x, y, &div) == 1)
+		if (ApproxPerpD2(div, x, y) < -0.01)
 			return false;
 	}
 
