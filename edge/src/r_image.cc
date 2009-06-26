@@ -203,7 +203,7 @@ static const image_c *dummy_sprite;
 static const image_c *dummy_skin;
 
 
-// image cache (actually a ring structure)
+// image cache
 static std::list<cached_image_t *> image_cache;
 
 int image_reset_counter = 0;
