@@ -125,11 +125,7 @@ static inline int PointOnLineSide(float x, float y, line_t *ld)
 	return P_PointOnDivlineSide(x, y, &div);
 }
 
-//
-// EnterBounceStates
-//
-// -AJA- 1999/10/18: written.
-//
+
 static void EnterBounceStates(mobj_t * mo)
 {
 	if (! mo->info->bounce_state)
@@ -152,11 +148,7 @@ static void EnterBounceStates(mobj_t * mo)
 	P_SetMobjState(mo, mo->info->bounce_state);
 }
 
-//
-// BounceOffWall
-//
-// -AJA- 1999/08/22: written.
-//
+
 static void BounceOffWall(mobj_t * mo, line_t * wall)
 {
 	angle_t angle;
@@ -209,11 +201,7 @@ static void BounceOffWall(mobj_t * mo, line_t * wall)
 	EnterBounceStates(mo);
 }
 
-//
-// BounceOffPlane
-//
-// -AJA- 1999/10/18: written.
-//
+
 static void BounceOffPlane(mobj_t * mo, float dir)
 {
 	// calculate new momentum
@@ -227,11 +215,7 @@ static void BounceOffPlane(mobj_t * mo, float dir)
 	EnterBounceStates(mo);
 }
 
-//
-// CorpseShouldSlide
-//
-// -AJA- 1999/09/25: written.
-//
+
 static bool CorpseShouldSlide(mobj_t * mo)
 {
 	float floor, ceil;
@@ -247,9 +231,7 @@ static bool CorpseShouldSlide(mobj_t * mo)
 	return (mo->floorz != floor);
 }
 
-//
-// TeleportRespawn
-//
+
 static void TeleportRespawn(mobj_t * mo)
 {
 	float x, y, z, oldradius, oldheight;
@@ -702,9 +684,7 @@ void P_CalcFullProperties(const mobj_t *mo, region_properties_t *new_p)
 	AddRegionProperties(mo, bz, tz, new_p, floor_h, sector->c_h, sector->p);
 }
 
-//
-// P_XYMovement  
-//
+
 static void P_XYMovement(mobj_t * mo, const region_properties_t *props)
 {
 	float orig_x = mo->x;
@@ -978,9 +958,7 @@ static void P_XYMovement(mobj_t * mo, const region_properties_t *props)
 	}
 }
 
-//
-// P_ZMovement
-//
+
 static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 {
 	float dist;
