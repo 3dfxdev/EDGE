@@ -53,7 +53,7 @@
 #include "con_var.h"
 #include "dm_defs.h"
 #include "dm_state.h"
-#include "dstrings.h"
+#include "m_strings.h"
 #include "e_keys.h"
 #include "e_input.h"
 #include "f_finale.h"

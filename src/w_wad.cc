@@ -67,7 +67,7 @@
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "dm_structs.h"
-#include "dstrings.h"
+#include "m_strings.h"
 #include "e_main.h"
 #include "e_search.h"
 #include "l_deh.h"

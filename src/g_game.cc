@@ -38,7 +38,7 @@
 #include "ddf/sfx.h"
 
 #include "con_main.h"
-#include "dstrings.h"
+#include "m_strings.h"
 #include "e_input.h"
 #include "e_main.h"
 #include "f_finale.h"
