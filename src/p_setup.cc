@@ -35,8 +35,7 @@
 #include "ddf/level.h"
 #include "ddf/language.h"
 
-#include "dm_defs.h"
-#include "dm_state.h"
+#include "g_state.h"
 #include "dm_structs.h"
 #include "e_main.h"
 #include "g_game.h"

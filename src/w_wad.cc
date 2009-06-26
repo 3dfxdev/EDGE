@@ -63,9 +63,7 @@
 #include "ddf/thing.h"
 #include "ddf/weapon.h"
 
-#include "dm_data.h"
-#include "dm_defs.h"
-#include "dm_state.h"
+#include "g_state.h"
 #include "dm_structs.h"
 #include "m_strings.h"
 #include "e_main.h"

@@ -43,8 +43,7 @@
 #include "ddf/game.h"
 #include "ddf/level.h"
 
-#include "dm_defs.h"
-#include "dm_state.h"
+#include "g_state.h"
 #include "g_game.h"
 #include "m_bbox.h"
 #include "m_random.h"

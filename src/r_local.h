@@ -35,7 +35,6 @@
 #include "m_math.h"
 
 // Screen size related parameters.
-#include "dm_defs.h"
 
 // Include the refresh/render data structs.
 #include "w_flat.h"

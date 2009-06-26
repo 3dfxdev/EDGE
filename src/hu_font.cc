@@ -22,8 +22,7 @@
 
 #include "ddf/font.h"
 
-#include "dm_defs.h"
-#include "dm_state.h"
+#include "g_state.h"
 #include "hu_font.h"
 #include "r_local.h"
 #include "r_colormap.h"

@@ -31,8 +31,7 @@
 
 #include "i_defs.h"
 
-#include "dm_defs.h"
-#include "dm_state.h"
+#include "g_state.h"
 #include "e_main.h"
 #include "f_finale.h"
 #include "f_interm.h"

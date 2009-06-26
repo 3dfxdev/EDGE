@@ -23,7 +23,7 @@
 #include "i_defs.h"
 #include "sv_chunk.h"
 
-#include "dm_state.h"
+#include "g_state.h"
 #include "e_main.h"
 #include "g_game.h"
 #include "m_math.h"

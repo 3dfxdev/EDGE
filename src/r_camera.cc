@@ -19,8 +19,7 @@
 #include "i_defs.h"
 #include "r_camera.h"
 
-#include "dm_defs.h"
-#include "dm_state.h"
+#include "g_state.h"
 #include "con_main.h"
 #include "m_bbox.h"
 #include "p_local.h"

@@ -19,7 +19,8 @@
 #include "i_defs.h"
 #include "i_sdlinc.h"
 
-#include "dm_state.h"
+#include "g_game.h"
+#include "g_state.h"
 #include "m_argv.h"
 #include "m_misc.h"
 #include "m_random.h"

@@ -30,8 +30,7 @@
 
 #include "am_map.h"
 #include "con_main.h"
-#include "dm_defs.h"
-#include "dm_state.h"
+#include "g_state.h"
 #include "e_input.h"
 #include "g_game.h"
 #include "m_strings.h"

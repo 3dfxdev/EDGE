@@ -20,8 +20,7 @@
 
 #include <limits.h>
 
-#include "dm_defs.h"
-#include "dm_state.h"
+#include "g_state.h"
 #include "g_game.h"
 #include "m_argv.h"
 #include "m_math.h"

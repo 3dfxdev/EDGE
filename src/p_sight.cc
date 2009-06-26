@@ -41,8 +41,6 @@
 
 #include <vector>
 
-#include "dm_data.h"
-#include "dm_defs.h"
 #include "dm_structs.h"
 #include "m_bbox.h"
 #include "p_local.h"

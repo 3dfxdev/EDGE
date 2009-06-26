@@ -38,8 +38,8 @@
 #include "ddf/sfx.h"
 
 #include "con_main.h"
-#include "dm_defs.h"
-#include "dm_state.h"
+#include "e_keys.h"
+#include "g_state.h"
 #include "m_strings.h"
 #include "e_main.h"
 #include "g_game.h"

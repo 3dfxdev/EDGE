@@ -27,7 +27,7 @@
 #include "hu_vm.h"
 #include "p_vm.h"
 
-#include "dm_state.h"
+#include "g_state.h"
 #include "e_main.h"
 #include "g_game.h"
 #include "w_wad.h"

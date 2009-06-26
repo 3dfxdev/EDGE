@@ -26,7 +26,6 @@
 #ifndef __G_GAME__
 #define __G_GAME__
 
-#include "dm_defs.h"
 #include "e_event.h"
 #include "e_player.h"
 
@@ -43,6 +42,8 @@ typedef enum
 	GS_FINALE,
 }
 gamestate_e;
+
+extern gamestate_e gamestate;
 
 //
 // Difficulty/skill settings/filters.

@@ -27,7 +27,6 @@
 #define __R_DEFS_H__
 
 // Screenwidth.
-#include "dm_defs.h"
 
 // Some more or less basic data types
 // we depend on.

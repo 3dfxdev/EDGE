@@ -33,8 +33,7 @@
 
 #include "ddf/language.h"
 
-#include "dm_defs.h"
-#include "dm_state.h"
+#include "g_state.h"
 #include "e_main.h"
 #include "m_misc.h"
 #include "n_network.h"

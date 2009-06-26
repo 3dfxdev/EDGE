@@ -21,7 +21,6 @@
 
 #include "epi/exe_path.h"
 
-#include "dm_defs.h"
 #include "m_argv.h"
 #include "e_main.h"
 #include "version.h"

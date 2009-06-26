@@ -26,8 +26,7 @@
 #include "ddf/language.h"
 #include "ddf/level.h"
 
-#include "dm_defs.h"
-#include "dm_state.h"
+#include "g_state.h"
 #include "con_main.h"
 #include "hu_lib.h"
 #include "hu_stuff.h"

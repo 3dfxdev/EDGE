@@ -31,7 +31,7 @@
 
 #include "version.h"
 #include "con_main.h"
-#include "dm_state.h"
+#include "g_state.h"
 #include "e_main.h"
 #include "g_game.h"
 #include "m_argv.h"

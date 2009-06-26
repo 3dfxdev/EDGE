@@ -43,6 +43,7 @@
 #include "e_main.h"
 #include "f_finale.h"
 #include "g_game.h"
+#include "g_state.h"
 #include "hu_vm.h"
 #include "l_lua.h"
 #include "m_cheat.h"
