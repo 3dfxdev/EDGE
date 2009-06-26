@@ -125,6 +125,11 @@ typedef enum
 }
 lineflag_e;
 
+
+//
+// Sector attributes.
+//
+
 typedef enum
 {
 	MSF_DamageMask = 0x0060,
@@ -137,6 +142,36 @@ typedef enum
 sectorflag_e;
 
 #define MSF_BoomFlags  0x0FE0
+
+
+//
+// Thing attributes.
+//
+
+// Skill flags.
+#define MTF_EASY         1
+#define MTF_NORMAL       2
+#define MTF_HARD         4
+
+// Deaf monsters/do not react to sound.
+#define MTF_AMBUSH       8
+
+// Multiplayer only.
+#define MTF_NOT_SINGLE  16
+
+// -AJA- 1999/09/22: Boom compatibility.
+#define MTF_NOT_DM      32
+#define MTF_NOT_COOP    64
+
+// -AJA- 2000/07/31: Friend flag, from MBF
+#define MTF_FRIEND      128 
+
+// -AJA- 2004/11/04: This bit should be zero (otherwise old WAD).
+#define MTF_RESERVED    256
+
+// -AJA- 2008/03/08: Extrafloor placement
+#define MTF_EXFLOOR_MASK    0x3C00
+#define MTF_EXFLOOR_SHIFT   10
 
 
 // Patches.
