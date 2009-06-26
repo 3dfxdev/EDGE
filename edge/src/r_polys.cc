@@ -79,7 +79,7 @@ static subsector_t *NewSubsector(void)
 	return sub;
 }
 
-static vertex_t *NewVertex(void)
+static vertex_t *NewVertex(float x, float y)
 {
 	if (num_gl_vertexes >= max_glvert)
 		I_Error("R_PolygonizeMap: ran out of vertices !\n");
@@ -87,6 +87,8 @@ static vertex_t *NewVertex(void)
 	vertex_t *vert = gl_vertexes + num_gl_vertexes;
 
 	memset(vert, 0, sizeof(vertex_t));
+	vert->x = x;
+	vert->y = y;
 
 	num_gl_vertexes++;
 
@@ -204,15 +206,8 @@ static inline void ComputeIntersection(seg_t *cur, divline_t& party,
 	// 0 = start, 1 = end
 	double ds = perp_c / (perp_c - perp_d);
 
-	if (cur->pdx == 0)
-		*x = cur->psx;
-	else
-		*x = cur->psx + (cur->pdx * ds);
-
-	if (cur->pdy == 0)
-		*y = cur->psy;
-	else
-		*y = cur->psy + (cur->pdy * ds);
+	*x = cur->v1->x + ds * (cur->v2->x - cur->v1->x);
+	*y = cur->v1->y + ds * (cur->v2->y - cur->v1->y);
 }
 
 //
@@ -245,7 +240,7 @@ static seg_t *SplitSeg(seg_t *old_seg, float x, float y)
 
 	// copy seg info
 	new_seg[0] = old_seg[0];
-	new_seg->next = NULL;
+	new_seg->sub_next = NULL;
 
 	old_seg->v2 = new_vert;
 	new_seg->v1 = new_vert;
@@ -281,7 +276,7 @@ static seg_t *SplitSeg(seg_t *old_seg, float x, float y)
 		new_seg->partner->length = new_seg->length;
 
 		// link it into list
-		old_seg->partner->next = new_seg->partner;
+		old_seg->partner->sub_next = new_seg->partner;
 	}
 
 	return new_seg;
@@ -359,20 +354,20 @@ static void ClockwiseOrder(subsector_t *sub)
 #endif
 
 	// count segs and create an array to manipulate them
-	for (cur=sub->seg_list; cur; cur=cur->next)
+	for (cur=sub->segs; cur; cur=cur->sub_next)
 		total++;
 
 	// use local array if small enough
 	if (total <= 32)
 		array = seg_buffer;
 	else
-		array = UtilCalloc(total * sizeof(seg_t *));
+		array = new seg_t* [total];
 
-	for (cur=sub->seg_list, i=0; cur; cur=cur->next, i++)
+	for (cur=sub->segs, i=0; cur; cur=cur->sub_next, i++)
 		array[i] = cur;
 
 	if (i != total)
-		InternalError("ClockwiseOrder miscounted.");
+		I_Error("ClockwiseOrder miscounted.");
 
 	// sort segs by angle (from the middle point to the start vertex).
 	// The desired order (clockwise) means descending angles.
@@ -386,8 +381,8 @@ static void ClockwiseOrder(subsector_t *sub)
 
 		angle_t angle1, angle2;
 
-		angle1 = UtilComputeAngle(A->start->x - sub->mid_x, A->start->y - sub->mid_y);
-		angle2 = UtilComputeAngle(B->start->x - sub->mid_x, B->start->y - sub->mid_y);
+		angle1 = R_PointToAngle(0,0, A->v1->x - mid_x, A->v1->y - mid_y);
+		angle2 = R_PointToAngle(0,0, B->v1->x - mid_x, B->v1->y - mid_y);
 
 		if (angle1 < angle2)
 		{
@@ -407,23 +402,23 @@ static void ClockwiseOrder(subsector_t *sub)
 	}
 
 	// transfer sorted array back into sub
-	sub->seg_list = NULL;
+	sub->segs = NULL;
 
 	for (i=total-1; i >= 0; i--)
 	{
 		int j = (i + first) % total;
 
-		array[j]->next = sub->seg_list;
-		sub->seg_list  = array[j];
+		array[j]->sub_next = sub->segs;
+		sub->segs = array[j];
 	}
 
 	if (total > 32)
-		UtilFree(array);
+		delete[] array;
 
 #if DEBUG_SORTER
 	PrintDebug("Sorted SEGS around (%1.1f,%1.1f)\n", sub->mid_x, sub->mid_y);
 
-	for (cur=sub->seg_list; cur; cur=cur->next)
+	for (cur=sub->segs; cur; cur=cur->next)
 	{
 		angle_g angle = UtilComputeAngle(cur->start->x - sub->mid_x,
 				cur->start->y - sub->mid_y);
@@ -465,7 +460,7 @@ static inline float AlongDist(divline_t& party, float x, float y)
 
 
 static void AddIntersection(std::vector<intersect_t> & cut_list,
-                               divline_t & party, vertex_t *v, int dir);
+                               divline_t & party, vertex_t *v, int dir)
 {
 	float along = AlongDist(party, v->x, v->y);
 
@@ -626,7 +621,42 @@ static bool ChoosePartition(subsector_t *sub, divline_t *div)
 
 	// FIXME: if total > ### median shit
 
-	return false;
+	seg_t *best = NULL;
+	float best_cost = 1e30;
+
+	for (seg_t *P = sub->segs; P; P=P->sub_next)
+	{
+		if (P->miniseg)
+			continue;
+
+		divline_t party;
+
+		party.x  = P->v1->x;
+		party.y  = P->v1->y;
+		party.dx = P->v2->x - party.x;
+		party.dy = P->v2->y - party.y;
+
+		float cost = EvaluateParty(sub->segs, party);
+
+		if (cost < 0)
+			continue;
+
+		if (cost < best_cost)
+		{
+			best = P;
+			best_cost = cost;
+		}
+	}
+
+	if (! best)
+		return false;
+
+	div->x  = best->v1->x;
+	div->y  = best->v1->y;
+	div->dx = best->v2->x - div->x;
+	div->dy = best->v2->y - div->y;
+	
+	return true;
 }
 
 
@@ -647,7 +677,7 @@ static void AddMinisegs(sector_t *sec, divline_t& party,
 
 	while (A != cut_list.end())
 	{
-		if (A.dir != +1)
+		if (A->dir != +1)
 		{
 			A++; continue;
 		}
@@ -659,12 +689,12 @@ static void AddMinisegs(sector_t *sec, divline_t& party,
 
 		// this handles multiple +1 entries and also ensures
 		// that the +2 "remove" entry kills a +1 entry.
-		if (A.along == B.along)
+		if (A->along == B->along)
 		{
 			A++; continue;
 		}
 
-		if (B.dir != -1)
+		if (B->dir != -1)
 		{
 			I_Debugf("WARNING: bad pair in intersection list\n");
 
@@ -711,7 +741,7 @@ static void TrySplitSubsector(subsector_t *sub)
 	while (seg_list)
 	{
 		seg_t *cur = seg_list;
-		seg_list = seg_list->next;
+		seg_list = seg_list->sub_next;
 
 		DivideOneSeg(cur, party, left, sub, cut_list);
 	}
