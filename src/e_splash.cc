@@ -556,7 +556,7 @@ static void InsertNewStars(int millies)
 		total = millies + int(millies * f);
 	}
 
-	total = total * 4 / 4;
+	total = total * 5 / 4;
 
 	for (; all_count < total; all_count++)
 	{
