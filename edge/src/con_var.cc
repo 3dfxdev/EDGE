@@ -21,6 +21,8 @@
 #include "con_var.h"
 #include "con_main.h"
 
+#include "z_zone.h"  // Noooooooooooooo!
+
 
 cvar_c::cvar_c(int value) : d(value), f(value), str(buffer), modified(0)
 {
@@ -46,7 +48,7 @@ cvar_c::~cvar_c()
 {
 	if (Allocd())
 	{
-		free((void *) str);
+		Z_Free((void *) str);
 	}
 }
 
@@ -55,7 +57,7 @@ cvar_c& cvar_c::operator= (int value)
 {
 	if (Allocd())
 	{
-		free((void *) str);
+		Z_Free((void *) str);
 	}
 
 	d = value;
@@ -72,7 +74,7 @@ cvar_c& cvar_c::operator= (float value)
 {
 	if (Allocd())
 	{
-		free((void *) str);
+		Z_Free((void *) str);
 	}
 
 	d = I_ROUND(value);
@@ -134,7 +136,7 @@ void cvar_c::DoStr(const char *value)
 {
 	if (Allocd())
 	{
-		free((void *) str);
+		Z_Free((void *) str);
 	}
 
 	if (strlen(value)+1 <= BUFSIZE)
@@ -144,7 +146,7 @@ void cvar_c::DoStr(const char *value)
 	}
 	else
 	{
-		str = strdup(value);
+		str = Z_StrDup(value);
 	}
 
 	d = atoi(str);

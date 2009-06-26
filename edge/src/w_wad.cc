@@ -171,7 +171,7 @@ public:
 		companion_gwa(-1), dir_hash(),
 		palette_data(NULL)
 	{
-		file_name = strdup(_fname);
+		file_name = Z_StrDup(_fname);
 
 		for (int d = 0; d < NUM_DDF_READERS; d++)
 			ddf_lumps[d] = -1;
@@ -179,7 +179,7 @@ public:
 
 	~data_file_c()
 	{
-		free((void*)file_name);
+		Z_Free((void*)file_name);
 	}
 };
 

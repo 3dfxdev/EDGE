@@ -59,12 +59,9 @@ typedef struct mallocheader_s
 #define CHECK_PTR(h) SYS_ASSERT_MSG((*(int *)((char *)(h) + (h)->size + sizeof(mallocheader_t)) == ZONEID), ("Block without ZONEID"))
 #endif
 
-//
-// Z_Free
-//
+
 void Z_Free(void *ptr)
 {
-	// -ES- FIXME: Decide whether we should allow Z_Free(NULL) and Z_Malloc(0)
 	if (ptr == NULL)
 		return;
 #ifdef DEVELOPERS
@@ -84,12 +81,7 @@ void Z_Free(void *ptr)
 
 
 
-//
-// Z_Malloc
-//
-// Zone allocation.
-
-void *Z_Malloc2(int size)
+void *Z_Malloc(int size)
 {
 #ifdef DEVELOPERS
 	mallocheader_t *p;

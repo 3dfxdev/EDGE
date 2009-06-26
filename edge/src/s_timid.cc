@@ -319,7 +319,7 @@ static const char * FindTimidityConfig(void)
 				{
 					I_Debugf("  ^___ EXISTS\n");
 
-					return strdup(fn.c_str());
+					return strdup(fn.c_str()); // FIXME
 				}
 			}
 		}
