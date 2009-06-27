@@ -120,7 +120,6 @@ cvar_link_t  all_cvars[] =
 	{ "in_stageturn",   &in_stageturn,   "c",   "1"  },
 	{ "in_shiftlook",   &in_shiftlook,   "c",   "1"  },
 	{ "in_warpmouse",   &in_warpmouse,   "",    "0"  },
-//	{ "in_grabmouse",   &in_grabmouse,   "",    "1"  },
 
 	{ "mouse_xaxis",    &mouse_xaxis,    "c",   "0" /* AXIS_TURN */  },
 	{ "mouse_yaxis",    &mouse_yaxis,    "c",   "3" /* AXIS_MLOOK */ },
