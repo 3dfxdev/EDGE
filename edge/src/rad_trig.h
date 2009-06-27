@@ -34,8 +34,7 @@ void RAD_DisplayTips(void);
 
 // RadiusTrigger & Scripting Prototypes
 void RAD_Init(void);
-bool RAD_ReadScript(void *data, int size);
-void RAD_LoadFile(const char *name);
+void RAD_Parse(void *data, int size, const char *name);
 void RAD_SpawnTriggers(const char *map_name);
 void RAD_ClearTriggers(void);
 void RAD_GroupTriggerTags(rad_trigger_t *trig);

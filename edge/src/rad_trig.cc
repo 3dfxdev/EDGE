@@ -841,45 +841,6 @@ void RAD_ClearTriggers(void)
 	RAD_ResetTips();
 }
 
-//
-// Loads the script file into memory for parsing.
-//
-// -AJA- 2000/01/04: written, based on DDF_MainCacheFile
-// -AJA- FIXME: merge them both into a single utility routine.
-//       (BETTER: a single utility parsing module).
-//
-static void RAD_MainCacheFile(const char *filename)
-{
-	FILE *file;
-
-	// open the file
-	file = fopen(filename, "rb");
-
-	if (file == NULL)
-		I_Error("\nRAD_MainReadFile: Unable to open: '%s'", filename);
-
-	// get to the end of the file
-	fseek(file, 0, SEEK_END);
-
-	// get the size
-	rad_memfile_size = ftell(file);
-
-	// reset to beginning
-	fseek(file, 0, SEEK_SET);
-
-	// malloc the size
-	rad_memfile = Z_New(byte, rad_memfile_size + 1);
-	rad_memfile_end = &rad_memfile[rad_memfile_size];
-
-	// read the goodies
-	fread(rad_memfile, 1, rad_memfile_size, file);
-
-	// null Terminated string.
-	rad_memfile[rad_memfile_size] = 0;
-
-	// close the file
-	fclose(file);
-}
 
 static int ReadScriptLine(char *buf, int max)
 {
@@ -925,15 +886,23 @@ static int ReadScriptLine(char *buf, int max)
 }
 
 
-//
-// -ACB- 1998/07/10 Renamed function and used I_Print for functions,
-//                  Version displayed at all times.
-//
-static void RAD_ParseScript(void)
+void RAD_Parse(void *data, int size, const char *name)
 {
+	// NOTE WELL: we assume buffer is NUL terminated !
+	SYS_ASSERT(data);
+
+	L_WriteDebug("RTS: Loading %s (size=%d)\n", name, size);
+
+	rad_cur_filename = name;
+	rad_cur_linenum = 1;
+
+	rad_memfile_size = size;
+	rad_memfile = (byte *)data;
+	rad_memfile_end = &rad_memfile[size];
+
+	// OK we have the file in memory.  Parse it to death :-)
 	RAD_ParserBegin();
 
-	rad_cur_linenum = 1;
 	rad_memptr = rad_memfile;
 
 	char linebuf[MAXRTSLINE];
@@ -952,58 +921,6 @@ static void RAD_ParseScript(void)
 	}
 
 	RAD_ParserDone();
-}
-
-
-void RAD_LoadFile(const char *name)
-{
-	SYS_ASSERT(name);
-
-	L_WriteDebug("RTS: Loading File %s\n", name);
-
-	rad_cur_filename = name;
-
-	RAD_MainCacheFile(name);
-
-	// OK we have the file in memory.  Parse it to death :-)
-	RAD_ParseScript();
-
-	Z_Free(rad_memfile);
-}
-
-
-bool RAD_ReadScript(void *data, int size)
-{
-	if (data == NULL)
-	{
-		std::string fn = M_ComposeFileName(ddf_dir.c_str(), "edge.scr");
-
-		if (! epi::FS_Access(fn.c_str(), epi::file_c::ACCESS_READ))
-			return false;
-
-		RAD_LoadFile(fn.c_str());
-		return true;
-	}
-
-	L_WriteDebug("RTS: Loading LUMP (size=%d)\n", size);
-
-	rad_cur_filename = "RSCRIPT LUMP";
-
-	rad_memfile_size = size;
-	rad_memfile = Z_New(byte, size + 1);
-	rad_memfile_end = &rad_memfile[size];
-
-	Z_MoveData(rad_memfile, (byte *)data, byte, size);
-
-	// Null Terminated string.
-	rad_memfile[size] = 0;
-
-	// OK we have the file in memory.  Parse it to death :-)
-	RAD_ParseScript();
-
-	Z_Free(rad_memfile);
-
-	return true;
 }
 
 
