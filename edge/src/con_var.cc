@@ -21,6 +21,8 @@
 #include "con_var.h"
 #include "con_main.h"
 
+#include "m_argv.h"
+
 #include "z_zone.h"  // Noooooooooooooo!
 
 
@@ -269,7 +271,28 @@ bool CON_SetVar(const char *name, const char *flags, const char *value)
 
 void CON_HandleProgramArgs(void)
 {
-	// FIXME !!!!!!
+	for (int p = 1; p < M_GetArgCount(); p++)
+	{
+		const char *s = M_GetArgument(p);
+
+		if (s[0] != '-')
+			continue;
+
+		cvar_link_t *link = CON_FindVar(s+1);
+
+		if (! link)
+			continue;
+
+		p++;
+
+		if (p >= M_GetArgCount() || M_GetArgument(p)[0] == '-')
+		{
+			I_Error("Missing value for option: %s\n", s);
+			continue;
+		}
+
+		*link->var = M_GetArgument(p);
+	}
 }
 
 
