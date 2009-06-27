@@ -24,7 +24,7 @@
 #include "epi/mus_2_midi.h"
 #include "epi/path.h"
 
-#include "dm_state.h"
+#include "g_state.h"
 #include "s_music.h"
 
 #import <Cocoa/Cocoa.h>
