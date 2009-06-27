@@ -2080,19 +2080,21 @@ void P_SetupLevel(void)
 
 	SYS_ASSERT(gl_lumpnum >= 0);
 
+#if 1
 	LoadGLVertexes(gl_lumpnum + ML_GL_VERT);
 	LoadGLSegs(gl_lumpnum + ML_GL_SEGS);
 	LoadSubsectors(gl_lumpnum + ML_GL_SSECT, "GL_SSECT");
-
-	// REJECT is ignored
+#else
+	R_PolygonizeMap();
+#endif
 
 	FindSubsecExtents();
 
-//!!!	R_PolygonizeMap();
-
-	DoBlockMap(lumpnum + ML_BLOCKMAP);
+	// REJECT is ignored
 
 	GroupLines();
+
+	DoBlockMap(lumpnum + ML_BLOCKMAP);
 
 	DetectDeepWaterTrick();
 
