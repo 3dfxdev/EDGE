@@ -291,13 +291,13 @@ main_e;
 
 static menuitem_t MainMenu[] =
 {
-	{1, "M_NGAME",   NULL, M_NewGame, 'n'},
-	{1, "M_OPTION",  NULL, M_Options, 'o'},
-	{1, "M_LOADG",   NULL, M_LoadGame, 'l'},
-	{1, "M_SAVEG",   NULL, M_SaveGame, 's'},
+	{1, "M_NGAME",   NULL, M_NewGame,  'N'},
+	{1, "M_OPTION",  NULL, M_Options,  'O'},
+	{1, "M_LOADG",   NULL, M_LoadGame, 'L'},
+	{1, "M_SAVEG",   NULL, M_SaveGame, 'S'},
 	// Another hickup with Special edition.
-	{1, "M_RDTHIS",  NULL, M_ReadThis, 'r'},
-	{1, "M_QUITG",   NULL, M_QuitEDGE, 'q'}
+	{1, "M_RDTHIS",  NULL, M_ReadThis, 'R'},
+	{1, "M_QUITG",   NULL, M_QuitEDGE, 'Q'}
 };
 
 static menu_t MainDef =
@@ -340,11 +340,11 @@ static menu_t EpiDef =
 
 static menuitem_t SkillMenu[] =
 {
-	{1, "M_JKILL", NULL, M_ChooseSkill, 'p'},
-	{1, "M_ROUGH", NULL, M_ChooseSkill, 'r'},
-	{1, "M_HURT",  NULL, M_ChooseSkill, 'h'},
-	{1, "M_ULTRA", NULL, M_ChooseSkill, 'u'},
-	{1, "M_NMARE", NULL, M_ChooseSkill, 'n'}
+	{1, "M_JKILL", NULL, M_ChooseSkill, 'P'},
+	{1, "M_ROUGH", NULL, M_ChooseSkill, 'R'},
+	{1, "M_HURT",  NULL, M_ChooseSkill, 'H'},
+	{1, "M_ULTRA", NULL, M_ChooseSkill, 'U'},
+	{1, "M_NMARE", NULL, M_ChooseSkill, 'N'}
 };
 
 static menu_t SkillDef =
@@ -416,9 +416,9 @@ static menu_t ReadDef2 =
 
 static menuitem_t SoundMenu[4] =
 {
-	{  2, "M_SFXVOL", NULL, M_SfxVol, 's' },
+	{  2, "M_SFXVOL", NULL, M_SfxVol,   'S' },
 	{ -1, "", NULL, 0 },
-	{  2, "M_MUSVOL", NULL, M_MusicVol, 'm' },
+	{  2, "M_MUSVOL", NULL, M_MusicVol, 'M' },
 	{ -1, "", NULL, 0 }
 };
 
