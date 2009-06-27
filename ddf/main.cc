@@ -2162,15 +2162,14 @@ static char *FindTag(char *pos, bool skip_to_eol, int *line_num)
 			}
 		}
 
-		// the opening '<' must be at start of line
+		// the format must be <LETTERS> with the '<' at the
+		// start of the line, and containing no spaces.
+
 		if (*pos != '<')
 		{
 			skip_to_eol = true;
 			continue;
 		}
-
-		// the format must be <LETTERS> followed by EOL
-		// (allowing whitespace after the '>')
 
 		char *found = pos;
 
@@ -2185,21 +2184,12 @@ static char *FindTag(char *pos, bool skip_to_eol, int *line_num)
 			continue;
 		}
 
-		pos++;
-		while (*pos && isspace(*pos))
-		{
-			// no need to update 'line_num' here (purely checking)
-			if (*pos == '\n' || *pos == '\r')
-				return found;
-
-			pos++;
-		}
-
-		skip_to_eol = true;
+		return found;
 	}
 
 	return NULL;
 }
+
 
 void DDF_Parse(void *data, int length, const char *name)
 {
