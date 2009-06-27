@@ -1094,7 +1094,6 @@ startuporder_t startcode[] =
 	{  3, W_InitFlats          },
 	{ 10, W_InitTextures       },
 	{  1, CON_Start            },
-	{  1, M_InitMiscConVars    },
 	{ 20, W_ReadDDF            },
 	{  1, DDF_CleanUp          },
 	{  1, SetLanguage          },

@@ -35,11 +35,6 @@
 #include "z_zone.h"
 
 
-#define SCREENROWS 100
-#define SCREENCOLS 80
-#define BACKBUFFER 10
-
-
 #define MAX_CON_ARGS  64
 
 
@@ -60,23 +55,22 @@ extern void M_ChangeLevelCheat(const char *string);
 
 int CMD_Exec(char **argv, int argc)
 {
-	FILE *script;
-	char buffer[SCREENCOLS];
-
 	if (argc != 2)
 	{
 		CON_Printf("Usage: exec <script.cfg>\n");
 		return 1;
 	}
 
-	script = fopen(argv[1], "rb");
+	FILE *script = fopen(argv[1], "rb");
 	if (!script)
 	{
-		CON_Printf("Unable to open \'%s\'!\n", argv[1]);
+		CON_Printf("Unable to open file: %s\n", argv[1]);
 		return 1;
 	}
 
-	while (fgets(buffer, SCREENCOLS - 1, script))
+	char buffer[200];
+
+	while (fgets(buffer, sizeof(buffer)-1, script))
 	{
 		CON_TryCommand(buffer);
 	}
@@ -88,7 +82,7 @@ int CMD_Exec(char **argv, int argc)
 int CMD_Type(char **argv, int argc)
 {
 	FILE *script;
-	char buffer[SCREENCOLS];
+	char buffer[200];
 
 	if (argc != 2)
 	{
@@ -102,7 +96,7 @@ int CMD_Type(char **argv, int argc)
 		CON_Printf("Unable to open \'%s\'!\n", argv[1]);
 		return 3;
 	}
-	while (fgets(buffer, SCREENCOLS - 1, script))
+	while (fgets(buffer, sizeof(buffer)-1, script))
 	{
 		CON_Printf("%s", buffer);
 	}

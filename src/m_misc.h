@@ -35,7 +35,7 @@
 
 void M_LoadDefaults(void);
 void M_SaveDefaults(void);
-void M_InitMiscConVars(void);
+
 void M_DisplayDisk(void);
 void M_DisplayDesynch(void);
 void M_DisplayAir(void);

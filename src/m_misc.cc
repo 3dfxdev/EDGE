@@ -65,9 +65,6 @@
 #include "version.h"
 
 
-//
-// DEFAULTS
-//
 cvar_c m_diskicon;
 cvar_c r_fadepower;
 
@@ -95,7 +92,7 @@ void M_SaveDefaults(void)
 	if (!f)
 	{
 		I_Warning("Couldn't open config file %s for writing.", cfgfile.c_str());
-		return;  // can't write the file, but don't complain
+		return;
 	}
 
 	fprintf(f, "edge_version\t\t\"%d\"\n", EDGEVER);
@@ -122,7 +119,7 @@ void M_SaveDefaults(void)
 
 void M_LoadDefaults(void)
 {
-	I_Printf("M_LoadDefaults from %s\n", cfgfile.c_str());
+	I_Printf("Loading defaults from: %s\n", cfgfile.c_str());
 
 	// read the file in, overriding any set defaults
 	FILE *f = fopen(cfgfile.c_str(), "r");
@@ -134,78 +131,28 @@ void M_LoadDefaults(void)
 
 	int edge_version = 0;
 
-	while (!feof(f))
+	char buffer[200];
+
+	while (fgets(buffer, sizeof(buffer)-1, f))
 	{
-		char def[80];
-		char strparm[100];
-
-		if (fscanf(f, "%79s %[^\n]\n", def, strparm) != 2)
-			continue;
-
-		if (strcmp(def, "bind") == 0)
+		if (strncmp(buffer, "edge_vers", 9) == 0)
 		{
-			// yuck!
-			memmove(strparm+5, strparm, 95);
-			memmove(strparm, "bind ", 5);
-			strparm[99] = 0;
-
-			CON_TryCommand(strparm);
+			char *p = buffer+9;
+			while (*p && isdigit(*p)) p++;
+			
+			if (*p)
+			{
+				edge_version = atoi(p);
+				I_Printf("Config file version: %d.%02d\n",
+						 edge_version/100, edge_version%100);
+			}
 			continue;
 		}
-
-		if (strcmp(def, "unbind") == 0)
-		{
-			E_UnbindAll();
-			continue;
-		}
-
-		std::string newstr(strparm);
-		bool isstring = false;
-		int parm = 0;
-
-		if (strparm[0] == '"')
-		{
-			// get a string default
-			isstring = true;
-			// overwrite the last "
-			strparm[strlen(strparm) - 1] = 0;
-			// skip the first "
-			newstr = std::string(strparm + 1);
-		}
-		else if (strparm[0] == '0' && strparm[1] == 'x')
-			sscanf(strparm + 2, "%x", &parm);
-		else
-			sscanf(strparm, "%i", &parm);
-
-		if (strcmp(def, "edge_version") == 0)
-		{
-			if (isstring)
-				edge_version = atoi(strparm+1);
-			else
-				edge_version = parm;
-
-			I_Printf("Config file version: %d.%02d\n",
-			         edge_version/100, edge_version%100);
-			continue;
-		}
-
-		cvar_link_t *link = CON_FindVar(def);
-		if (link)
-		{
-			if (strchr(link->flags, 'c'))
-				*link->var = newstr.c_str();
-			continue;
-		}
+		
+		CON_TryCommand(buffer);
 	}
 
 	fclose(f);
-
-	return;
-}
-
-
-void M_InitMiscConVars(void)
-{
 }
 
 
