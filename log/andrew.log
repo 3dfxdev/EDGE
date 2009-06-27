@@ -9,8 +9,19 @@ cvars (e.g. -g_weaponkick 1 instead of -kick).
 Implemented setting cvars via command line options.
 
 Simplified M_LoadDefaults(), pass nearly every line to
-the console command processor.  Keybindings are now saved
+the console command processor.  Key bindings are now saved
 and restored properly.
+
+Noticed that g_infight is broken.  The SelectTarget() and
+CreateAggressor() functions attempt to iterate over a
+small section of the mobjlist each time they are called,
+remembering their last position via a static variable.
+A big potential problem is that the mobj reference in the
+static variable may get removed _and_ deleted in between
+any two calls.  The obvious solution is to move the mobj
+reference into the mobj_t structure (as a new field).
+Though I'm thinking a nicer solution could involve using
+the blockmap is some way.
 
 2009/06/26:
 
