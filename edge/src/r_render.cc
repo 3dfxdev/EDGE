@@ -70,8 +70,10 @@
 // #define DEBUG_GREET_NEIGHBOUR
 
 
-cvar_c r_dynamiclight;
+cvar_c r_dynlight;
 cvar_c r_detaillevel;
+
+cvar_c debug_hom;
 
 
 // -ES- 1999/03/20 Different right & left side clip angles, for asymmetric FOVs.
@@ -1430,7 +1432,7 @@ static void DrawWallPart(seg_t *wseg,
 			trans, &data.pass, data.blending, data.mid_masked,
 			&data, WallCoordFunc);
 
-	if (r_dynamiclight.d && ren_extralight < 250)
+	if (r_dynlight.d && ren_extralight < 250)
 	{
 		float bottom = MIN(lz1, rz1);
 		float top    = MAX(lz2, rz2);
@@ -1780,7 +1782,7 @@ static void EmulateFloodPlane(seg_t *seg, const drawfloor_t *dfloor,
 				&data, FloodCoordFunc);
 	}
 
-	if (r_dynamiclight.d && solid_mode && ren_extralight < 250)
+	if (r_dynlight.d && solid_mode && ren_extralight < 250)
 	{
 		// Note: dynamic lights could have been handled in the row-by-row
 		//       loop above (after the cmap_shader).  However it is more
@@ -1906,7 +1908,7 @@ static void RGL_DrawSeg(drawfloor_t *dfloor, seg_t *seg)
 	}
 
 	// -AJA- 2004/04/21: Emulate Flat-Flooding TRICK
-	if (! hom_detect && solid_mode && dfloor->is_lowest &&
+	if (! debug_hom.d && solid_mode && dfloor->is_lowest &&
 		sd->bottom.image == NULL && seg->back_sub &&
 		seg->back_sub->sector->f_h > seg->front_sub->sector->f_h &&
 		seg->back_sub->sector->f_h < viewz)
@@ -1916,7 +1918,7 @@ static void RGL_DrawSeg(drawfloor_t *dfloor, seg_t *seg)
 			seg->back_sub->sector->f_h);
 	}
 
-	if (! hom_detect && solid_mode && dfloor->is_highest &&
+	if (! debug_hom.d && solid_mode && dfloor->is_highest &&
 		sd->top.image == NULL && seg->back_sub &&
 		seg->back_sub->sector->c_h < seg->front_sub->sector->c_h &&
 		seg->back_sub->sector->c_h > viewz)
@@ -2291,7 +2293,7 @@ static void RGL_DrawPlane(subsector_t *sub, drawfloor_t *dfloor, float h,
 			trans, &data.pass, data.blending, false /* masked */,
 			&data, PlaneCoordFunc);
 
-	if (r_dynamiclight.d && ren_extralight < 250)
+	if (r_dynlight.d && ren_extralight < 250)
 	{
 		P_DynamicLightIterator(v_bbox[BOXLEFT],  v_bbox[BOXBOTTOM], h,
 				               v_bbox[BOXRIGHT], v_bbox[BOXTOP],    h,
@@ -3095,7 +3097,7 @@ static void RGL_WalkSeg2(drawseg2_c *dseg)
 		}
 	}
 	// -AJA- 2004/08/29: Emulate Sky-Flooding TRICK
-	else if (! hom_detect && backsector && IS_SKY(backsector->ceil) &&
+	else if (! debug_hom.d && backsector && IS_SKY(backsector->ceil) &&
 			 seg->sidedef->top.image == NULL &&
 			 backsector->c_h < frontsector->c_h)
 	{
@@ -3256,12 +3258,6 @@ static void RGL_RenderNEW(void)
 	// handle powerup effects
 	RGL_RainbowEffect(v_player);
 
-
-	if (hom_detect)
-	{
-		glClearColor(0.0f, 1.0f, 0.0f, 0.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
-	}
 
 	RGL_SetupMatrices3D();
 

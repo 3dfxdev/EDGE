@@ -267,5 +267,11 @@ bool CON_SetVar(const char *name, const char *flags, const char *value)
 }
 
 
+void CON_HandleProgramArgs(void)
+{
+	// FIXME !!!!!!
+}
+
+
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

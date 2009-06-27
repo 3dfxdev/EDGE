@@ -368,9 +368,9 @@ bool M_CheatResponder(event_t * ev)
 	}
 	else if (M_CheckCheat(&cheat_hom, key))
 	{
-		hom_detect = ! hom_detect;
+		debug_hom = ! debug_hom.d;
 
-		if (hom_detect)
+		if (debug_hom.d)
 			CON_MessageLDF("HomDetectOn");
 		else
 			CON_MessageLDF("HomDetectOff");

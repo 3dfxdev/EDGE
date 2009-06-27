@@ -26,7 +26,7 @@ extern cvar_c edge_compat;
 extern cvar_c g_skill, g_gametype;
 extern cvar_c g_mlook, g_autoaim;
 extern cvar_c g_jumping, g_crouching;
-extern cvar_c g_true3d;
+extern cvar_c g_true3d, g_infight;
 extern cvar_c g_moreblood, g_noextra;
 extern cvar_c g_fastmon, g_passmissile;
 extern cvar_c g_weaponkick, g_weaponswitch;
@@ -37,7 +37,7 @@ extern cvar_c m_language;
 extern cvar_c m_diskicon, m_busywait, m_screenhud;
 extern cvar_c m_messages, m_obituaries;
 
-extern cvar_c debug_nomonsters;
+extern cvar_c debug_nomonsters, debug_hom;
 extern cvar_c debug_fullbright, debug_subsector;
 
 extern cvar_c sys_directx, sys_waveout;
@@ -58,7 +58,7 @@ extern cvar_c r_nearclip, r_farclip, r_fadepower;
 extern cvar_c r_fov, r_zoomedfov;
 extern cvar_c r_mipmapping, r_smoothing;
 extern cvar_c r_dithering, r_hq2x;
-extern cvar_c r_dynamiclight, r_invultex;
+extern cvar_c r_dynlight, r_invultex;
 extern cvar_c r_gamma, r_detaillevel;
 extern cvar_c r_wipemethod, r_wipereverse;
 extern cvar_c r_teleportflash;
@@ -103,6 +103,7 @@ cvar_link_t  all_cvars[] =
     { "g_autoaim",      &g_autoaim,      "c",   "1"  },
     { "g_jumping",      &g_jumping,      "c",   "0"  },
     { "g_crouching",    &g_crouching,    "c",   "0"  },
+    { "g_infight",      &g_infight,      "c",   "0"  },
     { "g_true3d",       &g_true3d,       "c",   "1"  },
     { "g_noextra",      &g_noextra,      "c",   "0"  },
     { "g_moreblood",    &g_moreblood,    "c",   "0"  },
@@ -155,7 +156,7 @@ cvar_link_t  all_cvars[] =
 	{ "r_dithering",    &r_dithering,    "c",   "0"  },
 	{ "r_hq2x",         &r_hq2x,         "c",   "1"  },
 
-	{ "r_dynamiclight", &r_dynamiclight, "c",   "1"  },
+	{ "r_dynlight",     &r_dynlight,     "c",   "1"  },
 	{ "r_detaillevel",  &r_detaillevel,  "c",   "1"  },
 	{ "r_invultex",     &r_invultex,     "c",   "1"  },
 	{ "r_wipemethod",   &r_wipemethod,   "c",   "1" /* Melt */ },
@@ -182,6 +183,7 @@ cvar_link_t  all_cvars[] =
 
 	{ "debug_nomonsters", &debug_nomonsters, "h", "0" },
 	{ "debug_fullbright", &debug_fullbright, "h", "0" },
+	{ "debug_hom",        &debug_hom,        "h", "0" },
 	{ "debug_subsector",  &debug_subsector,  "h", "0" },
 
 //---- END OF LIST -----------------------------------------------------------

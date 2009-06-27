@@ -126,6 +126,9 @@ bool CON_SetVar(const char *name, const char *flags, const char *value);
 // must begin with an 'A' to prevent matching aliases.
 // Returns true if the cvar was found.
 
+void CON_HandleProgramArgs(void);
+// scan the program arguments and set matching cvars
+
 #endif // __CON_VAR_H__
 
 //--- editor settings ---

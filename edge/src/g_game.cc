@@ -46,6 +46,7 @@
 #include "g_state.h"
 #include "hu_vm.h"
 #include "l_lua.h"
+#include "m_argv.h"
 #include "m_cheat.h"
 #include "m_menu.h"
 #include "m_random.h"
@@ -185,6 +186,9 @@ void G_DoLoadLevel(void)
 	}
 
 	//???  level_flags.item_respawn
+
+	if (M_CheckParm("-respawn"))
+		map_features |= MPF_MonRespawn;
 
 	//
 	// Note: It should be noted that only the gameskill is

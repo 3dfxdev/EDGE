@@ -970,7 +970,7 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 
 		ShadeNormals(shader, &data);
 
-		if (r_dynamiclight.d && ren_extralight < 250)
+		if (r_dynlight.d && ren_extralight < 250)
 		{
 			float r = mo->radius;
 			
