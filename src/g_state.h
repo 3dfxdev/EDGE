@@ -137,7 +137,7 @@ extern std::string hub_dir;
 extern bool precache;
 
 // if true, enable HOM detection (hall of mirrors effect)
-extern bool hom_detect;
+extern cvar_c debug_hom;
 
 extern int save_page;
 
@@ -164,7 +164,6 @@ extern int maketic;
 //misc stuff
 extern bool showstats;
 extern bool swapstereo;
-extern bool infight;
 
 #define NUMHUD  120
 

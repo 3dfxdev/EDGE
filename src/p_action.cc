@@ -60,6 +60,9 @@
 #include "z_zone.h"
 
 
+cvar_c g_infight;
+
+
 static int AttackSfxCat(const mobj_t *mo)
 {
 	int category = P_MobjGetSfxCategory(mo);
@@ -2970,11 +2973,9 @@ void A_StandardLook(mobj_t * mo, void *data)
 	if (mo->flags & MF_STEALTH)
 		mo->vis_target = VISIBLE;
 
-	if (infight)
-	{
+	if (g_infight.d)
 		if (CreateAggression(mo))
 			return;
-	}
 
 	if (targ && (targ->flags & MF_SHOOTABLE))
 	{

@@ -1337,24 +1337,6 @@ static void W_CreateDummyImages(void)
 //
 bool W_InitImages(void)
 {
-    // check options
-	if (M_CheckParm("-nosmoothing"))
-		r_smoothing = 0;
-	else if (M_CheckParm("-smoothing"))
-		r_smoothing = 1;
-
-	if (M_CheckParm("-nomipmap"))
-		r_mipmapping = 0;
-	else if (M_CheckParm("-mipmap"))
-		r_mipmapping = 1;
-	else if (M_CheckParm("-trilinear"))
-		r_mipmapping = 2;
-
-	if (M_CheckParm("-nodither"))
-		r_dithering = 0;
-	else if (M_CheckParm("-dither"))
-		r_dithering = 1;
-
 	W_CreateDummyImages();
 
 	return true;

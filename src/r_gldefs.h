@@ -314,8 +314,7 @@ public:
 };
 
 
-extern cvar_c r_dynamiclight;
-
+extern cvar_c r_dynlight;
 extern cvar_c r_detaillevel;
 
 extern int sprite_kludge;

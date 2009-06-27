@@ -114,10 +114,6 @@ int newnmrespawn = 0;
 bool showstats = false;
 bool swapstereo = false;
 bool mus_pause_stop = false;
-bool infight = false;
-
-bool hom_detect = false;
-bool autoquickload = false;
 
 std::string cfgfile;
 std::string ewadfile;
@@ -249,6 +245,8 @@ static void SetGlobalVars(void)
 
 	// Bits per pixel check....
 	s = M_GetParm("-bpp");
+	if (! s)
+		s = M_GetParm("-depth");
 	if (s)
 	{
 		r_depth = atoi(s);
@@ -257,30 +255,8 @@ static void SetGlobalVars(void)
 			r_depth = r_depth.d * 8;
 	}
 
-	bool fullscreen = r_fullscreen.d;
-	M_CheckBooleanParm("windowed",   &fullscreen, true);
-	M_CheckBooleanParm("fullscreen", &fullscreen, false);
-	r_fullscreen = fullscreen ? 1 : 0;
-
-	// sprite kludge (TrueBSP)
-	p = M_CheckParm("-spritekludge");
-	if (p)
-	{
-		if (p + 1 < M_GetArgCount())
-			sprite_kludge = atoi(M_GetArgument(p + 1));
-
-		if (!sprite_kludge)
-			sprite_kludge = 1;
-	}
-
-	// speed for mouse look
-///???	s = M_GetParm("-vspeed");
-///???	if (s)
-///???	{
-///???		mlookspeed = atoi(s) / 64;
-///???		if (mlookspeed >= 20)
-///???			mlookspeed = 19;
-///???	}
+	M_CheckBooleanCVar("fullscreen", &r_fullscreen, false);
+	M_CheckBooleanCVar("windowed",   &r_fullscreen, true);
 
 	s = M_GetParm("-screenshot");
 	if (s)
@@ -290,49 +266,23 @@ static void SetGlobalVars(void)
 	}
 
 	// -AJA- 1999/10/18: Reworked these with M_CheckBooleanParm
-///???	M_CheckBooleanParm("invertmouse", &invertmouse, false);
-	M_CheckBooleanParm("showstats", &showstats, false);
-	M_CheckBooleanParm("hom", &hom_detect, false);
 	M_CheckBooleanParm("sound", &nosound, true);
 	M_CheckBooleanParm("music", &nomusic, true);
-	M_CheckBooleanParm("cdmusic", &nocdmusic, true);
 
 	if (M_CheckParm("-nomonsters"))
 		debug_nomonsters = 1;
-#if 0
-	M_CheckBooleanParm("itemrespawn", &global_flags.itemrespawn, false);
-	M_CheckBooleanParm("mlook", &global_flags.mlook, false);
-	M_CheckBooleanParm("monsters", &global_flags.nomonsters, true);
-	M_CheckBooleanParm("fast", &global_flags.fastparm, false);
-	M_CheckBooleanParm("extras", &global_flags.have_extra, false);
-	M_CheckBooleanParm("kick", &global_flags.kicking, false);
-	M_CheckBooleanParm("singletics", &singletics, false);
-	M_CheckBooleanParm("infight", &infight, false);
-	M_CheckBooleanParm("true3d", &global_flags.true3dgameplay, false);
-	M_CheckBooleanParm("blood", &global_flags.more_blood, false);
-	M_CheckBooleanParm("cheats", &global_flags.cheats, false);
-	M_CheckBooleanParm("jumping", &global_flags.jump, false);
-	M_CheckBooleanParm("crouching", &global_flags.crouch, false);
-	M_CheckBooleanParm("weaponswitch", &global_flags.weapon_switch, false);
-
-	if (M_CheckParm("-respawn"))
-		global_flags.respawn = true;
-#endif
-	M_CheckBooleanParm("autoload", &autoquickload, false);
-
-	if (M_CheckParm("-rotatemap"))
-		am_rotate = 1;
-
-	if (M_CheckParm("-dlights"))
-		r_dynamiclight = 1;
-	else if (M_CheckParm("-nodlights"))
-		r_dynamiclight = 0;
 
 	if (M_CheckParm("-fullbright"))
 		debug_fullbright = 1;
 
 	if (M_CheckParm("-ecompat") || M_CheckParm("-edgecompat"))
 		edge_compat = 1;
+
+	if (M_CheckParm("-singletics"))
+		singletics = true;
+
+///???	M_CheckBooleanParm("showstats", &showstats, false);
+///???	M_CheckBooleanParm("itemrespawn", &global_flags.itemrespawn, false);
 
 	// check for strict and no-warning options
 	M_CheckBooleanParm("strict", &strict_errors, false);
@@ -953,7 +903,6 @@ static void SetupLogAndDebugFiles(void)
 
 	if (! M_CheckParm("-nolog"))
 	{
-
 		logfile = fopen(log_fn.c_str(), "w");
 
 		if (!logfile)
@@ -1191,20 +1140,23 @@ static void E_Startup(void)
 	SetupLogAndDebugFiles();
 
 	CON_InitConsole();
-	CON_ResetAllVars(true);
-	E_ResetAllBinds();
 
 	ShowDateAndVersion();
 
+	CON_ResetAllVars(true);
+	E_ResetAllBinds();
+
 	M_LoadDefaults();
 
+	CON_HandleProgramArgs();
 	SetGlobalVars();
 
 	DoSystemStartup();
 
 	CON_CreateFont();
 
-	E_SplashScreen();
+	if (! M_CheckParm("-nosplash"))
+		E_SplashScreen();
 
 	I_PutTitle(E_TITLE); // Needs to be done once the system is up and running
 

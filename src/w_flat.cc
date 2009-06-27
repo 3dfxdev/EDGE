@@ -347,7 +347,7 @@ void W_PrecacheLevel(void)
 	// do sprites first -- when memory is tight, they'll be the first
 	// images to be removed from the cache(s).
 
-	if (M_CheckParm("-fastsprite") || M_CheckParm("-fastsprites"))
+	if (true) /// M_CheckParm("-fastsprite") || M_CheckParm("-fastsprites"))
 	{
 		W_PrecacheSprites();
 	}

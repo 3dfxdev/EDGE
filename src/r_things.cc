@@ -253,7 +253,7 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 
 		shader->Sample(data.col + 0, data.lit_pos.x, data.lit_pos.y, data.lit_pos.z);
 
-		if (r_dynamiclight.d && ren_extralight < 250)
+		if (r_dynlight.d && ren_extralight < 250)
 		{
 			data.lit_pos.x = player->mo->x + viewcos * 24;
 			data.lit_pos.y = player->mo->y + viewsin * 24;
@@ -1317,7 +1317,7 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 			shader->Sample(data.col + v, data.vert[v].x, data.vert[v].y, data.vert[v].z);
 		}
 
-		if (r_dynamiclight.d && ren_extralight < 250)
+		if (r_dynlight.d && ren_extralight < 250)
 		{
 			float r = mo->radius + 32;
 

@@ -206,18 +206,6 @@ void M_LoadDefaults(void)
 
 void M_InitMiscConVars(void)
 {
-	const char *s = M_GetParm("-nearclip");
-	if (s)
-		r_nearclip = atoi(s);
-
-	s = M_GetParm("-farclip");
-	if (s)
-		r_farclip = atoi(s);
-
-	if (M_CheckParm("-hqscale") || M_CheckParm("-hqall"))
-		r_hq2x = 3;
-	else if (M_CheckParm("-nohqscale"))
-		r_hq2x = 0;
 }
 
 

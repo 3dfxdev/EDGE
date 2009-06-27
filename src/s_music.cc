@@ -37,9 +37,8 @@
 #include "m_misc.h"
 #include "w_wad.h"
 
-bool nomusic = false;
-bool nocdmusic = false;
 
+bool nomusic = false;
 
 // music slider value
 cvar_c s_musicvol;
