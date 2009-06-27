@@ -1,5 +1,17 @@
 Andrew Apted's Log
 
+2009/06/27:
+
+Reworked some command-line option checks, removing some
+lesser important ones which can be handled implicitly as
+cvars (e.g. -g_weaponkick 1 instead of -kick).
+
+Implemented setting cvars via command line options.
+
+Simplified M_LoadDefaults(), pass nearly every line to
+the console command processor.  Keybindings are now saved
+and restored properly.
+
 2009/06/26:
 
 Decided to go back to using a BSP-based renderer.  The new

@@ -1307,7 +1307,8 @@ static void QuitResponse(int ch)
 
 	// -ACB- 1999/09/20 New exit code order
 	// Write the default config file first
-	I_Printf("Saving system defaults...\n");
+	I_Printf("Saving defaults to: %s\n", cfgfile.c_str());
+
 	M_SaveDefaults();
 
 	I_Printf("Exiting...\n");
