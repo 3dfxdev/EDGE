@@ -2120,10 +2120,10 @@ void DDF_ParseSection(char *buffer)
 
 	I_Debugf("DDF_ParseSection : <%s>\n", buffer);
 
-	while (*memfileptr && *memfileptr != '\n')
-		memfileptr++;
-	while (*memfileptr == '\n' || *memfileptr == '\r')
-		memfileptr++;
+///	while (*memfileptr && *memfileptr != '\n')
+///		memfileptr++;
+///	while (*memfileptr == '\n' || *memfileptr == '\r')
+///		memfileptr++;
 	
 	// find the readinfo for the tag
 	readinfo_t *info = NULL;
