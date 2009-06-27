@@ -138,12 +138,12 @@ void M_LoadDefaults(void)
 		if (strncmp(buffer, "edge_vers", 9) == 0)
 		{
 			char *p = buffer+9;
-			while (*p && isdigit(*p)) p++;
+			while (*p && !isdigit(*p)) p++;
 			
 			if (*p)
 			{
 				edge_version = atoi(p);
-				I_Printf("Config file version: %d.%02d\n",
+				I_Printf("Config file from version: %d.%02d\n",
 						 edge_version/100, edge_version%100);
 			}
 			continue;
@@ -153,6 +153,9 @@ void M_LoadDefaults(void)
 	}
 
 	fclose(f);
+
+	// do any backwards compatibility stuff here
+	// (if edge_version < XXX then ...)
 }
 
 
