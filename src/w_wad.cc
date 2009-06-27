@@ -102,9 +102,9 @@ static ddf_reader_t DDF_Readers[] =
 	{ "DDFANIM", "Anims",      "anims.ddf"     },
 	{ "DDFGAME", "Games",      "games.ddf"     },
 	{ "DDFLEVL", "Levels",     "levels.ddf"    },
-};
 
-//!!!!!	{ "RSCRIPT", "Scripts",    "edge.scr",      RAD_ReadScript }       // -AJA- 2000/04/21.
+	{ "RSCRIPT", "Scripts",    "edge.scr"      }   // -AJA- 2000/04/21.
+};
 
 #define NUM_DDF_READERS  (int)(sizeof(DDF_Readers) / sizeof(ddf_reader_t))
 
@@ -1224,7 +1224,11 @@ void W_ReadDDF(void)
 			delete F;
 
 			// call read function
-			DDF_Parse(data, length, DDF_Readers[d].ext_name);
+			if (d == RTS_READER)
+				RAD_Parse(data, length, DDF_Readers[d].ext_name);
+			else
+				DDF_Parse(data, length, DDF_Readers[d].ext_name);
+
 			delete[] data;
 		}
 
@@ -1237,11 +1241,21 @@ void W_ReadDDF(void)
 			{
 				I_Debugf("- Loading RTS script: %s\n", df->file_name);
 
-				RAD_LoadFile(df->file_name);
+				epi::file_c *F = epi::FS_Open(df->file_name, epi::file_c::ACCESS_READ | epi::file_c::ACCESS_BINARY);
+				if (! F) I_Error("No such script\n");
+
+				int length = F->GetLength();
+				byte *data = F->LoadIntoMemory();
+
+				delete F;
+
+				RAD_Parse(data, length, df->file_name);
+				delete[] data;
+
 				continue;
 			}
 
-			if (df->kind >= FLKIND_Demo)
+			if (df->kind >= FLKIND_Demo)  // skips scripts
 				continue;
 			if (df->kind == FLKIND_EWad)
 				continue;
@@ -1256,7 +1270,11 @@ void W_ReadDDF(void)
 				char *data = (char *) W_ReadLumpAlloc(lump, &length);
 
 				// call read function
-				DDF_Parse(data, length, W_GetLumpName(lump));
+				if (d == RTS_READER)
+					RAD_Parse(data, length, W_GetLumpName(lump));
+				else
+					DDF_Parse(data, length, W_GetLumpName(lump));
+
 				delete[] data;
 
 				// special handling for TNT and Plutonia
