@@ -5,53 +5,53 @@ float hud_which;
 float hud_passed_time;
 float hud_automap;
 
-string() hud_map_title = { return "Entryway"; };
-string() hud_game_mode = { return "sp"; };
+function hud_map_title() : string = { return "Entryway"; }
+function hud_game_mode() : string = { return "sp"; }
 
-void(string color) hud_text_color =
+function hud_text_color(color : string) =
 {
   sprint("HUD_TEXT_COLOR");
   sprint(color);
-};
+}
 
-void(string font) hud_text_font =
+function hud_text_font(font : string) =
 { 
   sprint("HUD_TEXT_FONT");
   sprint(font);
-};
+}
 
-void(float x, float y, float w, float num) hud_draw_num2 =
+function hud_draw_num2(x, y, w, num) =
 {
   sprint("HUD_DRAW_NUM2");
   nprint(num);
-};
+}
 
-void (float x, float y, string image) hud_draw_image =
+function hud_draw_image(x, y, image : string) =
 {
   sprint("HUD_DRAW_IMAGE");
   sprint(image);
-};
+}
 
-void (float x, float y, string text) hud_draw_text =
+function hud_draw_text(x, y, text : string) =
 {
   sprint("HUD_DRAW_TEXT");
   sprint(text);
-};
+}
 
-void(float x, float y, float w, float h) hud_render_world =
+function hud_render_world(x, y, w, h) =
 {
   sprint("HUD_RENDER_WORLD");
-};
+}
 
-void(float x, float y, float w, float h) hud_render_automap =
+function hud_render_automap(x, y, w, h) =
 {
   sprint("HUD_RENDER_AUTOMAP");
-};
+}
 
-void(float w, float h) hud_coord_sys =
+function hud_coord_sys(w, h) =
 {
   sprint("HUD_COORD_SYS:");
   nprint(w);
   nprint(h);
-};
+}
 

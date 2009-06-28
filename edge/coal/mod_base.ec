@@ -1,19 +1,20 @@
 
 // BASICS
 
-void(string s) sprint = #1;
-void(float v) nprint = #2;
+function sprint(s : string) = #1
+function nprint(n : float)  = #2
+function vprint(v : vector) = #3
 
-void(float v) sys_assert = { };
+function sys_assert(n : float) = { }
 
 // MATH
 
-float(float v) math_floor = { return v; };
-float() math_random = { return 1; };
+function math_floor(n : float) : float = { return n; }
+function math_random() : float = { return 1; }
 
 // STRING
 
-string(string fmt, float val) string_format = { return fmt; };
-string(string a, string b) string_concat = { return a; };
-string(string a, string b, string c) string_concat3 = { return a; };
+function string_format  (fmt : string, n : float) : string = { return fmt; }
+function string_concat  (a:string, b:string) : string = { return a; }
+function string_concat3 (a:string, b:string, c:string) : string = { return a; }
 

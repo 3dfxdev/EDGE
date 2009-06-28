@@ -4,7 +4,7 @@ function sprint(s : string) = #1
 function nprint(v : float ) = #2
 function vprint(v : vector) = #3
 
-function foo(a : float) =
+function foo(a) =
 {
     nprint(a);
 }
