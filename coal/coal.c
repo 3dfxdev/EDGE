@@ -29,10 +29,34 @@
 // #define true    1
 
 
-#include "lib.h"
-#include "lib.c"
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdarg.h>
+#include <string.h>
+#include <ctype.h>
+#include <math.h>
+#include <errno.h>
 
+
+#include "defs.h"
+#include "r_stuff.h"
 #include "coal.h"
+
+
+void Error (char *error, ...)
+{
+	va_list argptr;
+
+	printf ("************ ERROR ************\n");
+
+	va_start (argptr,error);
+	vprintf (error,argptr);
+	va_end (argptr);
+	printf ("\n");
+	exit (1);
+}
+
+
 
 #include "q_lex.c"
 #include "q_comp.c"
@@ -61,6 +85,7 @@ int			numglobaldefs;
 
 ddef_t		fields[MAX_FIELDS];
 int			numfielddefs;
+
 
 
 // CopyString returns an offset from the string heap
@@ -620,6 +645,46 @@ void PrintFunction (char *name)
 
 //============================================================================
 
+
+
+static int filelength (FILE *f)
+{
+	int pos = ftell (f);
+
+	fseek (f, 0, SEEK_END);
+
+	int end = ftell (f);
+
+	fseek (f, pos, SEEK_SET);
+
+	return end;
+}
+
+
+int LoadFile (char *filename, void **bufferptr)
+{
+	FILE *f = fopen(filename, "rb");
+
+	if (!f)
+		Error ("Error opening %s: %s", filename, strerror(errno));
+
+	int length = filelength (f);
+	void *buffer = malloc (length+1);
+
+	if ( fread (buffer, 1, length, f) != (size_t)length)
+		Error ("File read failure");
+
+	fclose (f);
+
+	((char *)buffer)[length] = 0;
+	
+	*bufferptr = buffer;
+	return length;
+}
+
+
+//============================================================================
+
 /*
 ============
 main
@@ -631,7 +696,6 @@ int main (int argc, char **argv)
 	char	filename[1024];
 
 	int   k;
-	double	start, stop;
 
 	if (argc <= 1 ||
 	    (strcmp(argv[1], "-?") == 0) || (strcmp(argv[1], "-h") == 0) ||

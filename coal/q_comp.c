@@ -33,7 +33,6 @@ string_t	s_file;			// filename for function definition
 
 int			locals_end;		// for tracking local variables vs temps
 
-jmp_buf		pr_parse_abort;		// longjump with this on parse error
 
 void PR_ParseDefs (void);
 
@@ -283,7 +282,7 @@ def_t *PR_ParseFunctionCall (def_t *func)
 
 	if (t->type != ev_function)
 		PR_ParseError ("not a function");
-	
+
 // copy the arguments to the global parameter variables
 	arg = 0;
 	if (!PR_Check(")"))
