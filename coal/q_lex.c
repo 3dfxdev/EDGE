@@ -100,7 +100,7 @@ Call at start of file and when *pr_file_p == '\n'
 void PR_NewLine (void)
 {
 	bool	m;
-	
+
 	if (*pr_file_p == '\n')
 	{
 		pr_file_p++;
@@ -129,7 +129,7 @@ void PR_LexString (void)
 {
 	int		c;
 	int		len;
-	
+
 	len = 0;
 	pr_file_p++;
 	do
@@ -173,7 +173,7 @@ float PR_LexNumber (void)
 {
 	int		c;
 	int		len;
-	
+
 	len = 0;
 	c = *pr_file_p;
 	do
@@ -197,7 +197,7 @@ Parses a single quoted vector
 void PR_LexVector (void)
 {
 	int		i;
-	
+
 	pr_file_p++;
 	pr_token_type = tt_immediate;
 	pr_immediate_type = &type_vector;
@@ -222,7 +222,7 @@ void PR_LexName (void)
 {
 	int		c;
 	int		len;
-	
+
 	len = 0;
 	c = *pr_file_p;
 	do
@@ -231,7 +231,7 @@ void PR_LexName (void)
 		len++;
 		pr_file_p++;
 		c = *pr_file_p;
-	} while ( (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_' 
+	} while ( (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_'
 	|| (c >= '0' && c <= '9'));
 	pr_token[len] = 0;
 	pr_token_type = tt_name;
@@ -247,9 +247,9 @@ void PR_LexPunctuation (void)
 	int		i;
 	int		len;
 	char	*p;
-	
+
 	pr_token_type = tt_punct;
-	
+
 	for (i=0 ; (p = pr_punctuation[i]) != NULL ; i++)
 	{
 		len = strlen(p);
@@ -264,11 +264,11 @@ void PR_LexPunctuation (void)
 			return;
 		}
 	}
-	
+
 	PR_ParseError ("Unknown punctuation");
 }
 
-		
+
 /*
 ==============
 PR_LexWhitespace
@@ -277,7 +277,7 @@ PR_LexWhitespace
 void PR_LexWhitespace (void)
 {
 	int		c;
-	
+
 	while (1)
 	{
 	// skip whitespace
@@ -289,7 +289,7 @@ void PR_LexWhitespace (void)
 				return;		// end of file
 			pr_file_p++;
 		}
-		
+
 	// skip // comments
 		if (c=='/' && pr_file_p[1] == '/')
 		{
@@ -299,7 +299,7 @@ void PR_LexWhitespace (void)
 			pr_file_p++;
 			continue;
 		}
-		
+
 	// skip /* */ comments
 		if (c=='/' && pr_file_p[1] == '*')
 		{
@@ -314,7 +314,7 @@ void PR_LexWhitespace (void)
 			pr_file_p++;
 			continue;
 		}
-		
+
 		break;		// a real character has been found
 	}
 }
@@ -334,7 +334,7 @@ void PR_ClearGrabMacros (void)
 void PR_FindMacro (void)
 {
 	int		i;
-	
+
 	for (i=0 ; i<pr_nummacros ; i++)
 		if (!strcmp (pr_token, pr_framemacros[i]))
 		{
@@ -352,7 +352,7 @@ bool PR_SimpleGetToken (void)
 {
 	int		c;
 	int		i;
-	
+
 // skip whitespace
 	while ( (c = *pr_file_p) <= ' ')
 	{
@@ -360,7 +360,7 @@ bool PR_SimpleGetToken (void)
 			return false;
 		pr_file_p++;
 	}
-	
+
 	i = 0;
 	while ( (c = *pr_file_p) > ' ' && c != ',' && c != ';')
 	{
@@ -389,11 +389,11 @@ Deals with counting sequence numbers and replacing frame macros
 ==============
 */
 void PR_LexGrab (void)
-{	
+{
 	pr_file_p++;	// skip the $
 	if (!PR_SimpleGetToken ())
 		PR_ParseError ("hanging $");
-	
+
 // check for $frame
 	if (!strcmp (pr_token, "frame"))
 	{
@@ -431,7 +431,7 @@ void PR_Lex (void)
 	int		c;
 
 	pr_token[0] = 0;
-	
+
 	if (!pr_file_p)
 	{
 		pr_token_type = tt_eof;
@@ -441,7 +441,7 @@ void PR_Lex (void)
 	PR_LexWhitespace ();
 
 	c = *pr_file_p;
-		
+
 	if (!c)
 	{
 		pr_token_type = tt_eof;
@@ -471,19 +471,19 @@ void PR_Lex (void)
 		pr_immediate._float = PR_LexNumber ();
 		return;
 	}
-	
+
 	if ( (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_' )
 	{
 		PR_LexName ();
 		return;
 	}
-	
+
 	if (c == '$')
 	{
 		PR_LexGrab ();
 		return;
 	}
-	
+
 // parse symbol strings until a non-symbol is found
 	PR_LexPunctuation ();
 }
@@ -507,7 +507,7 @@ void PR_ParseError (char *error, ...)
 	va_end (argptr);
 
 	printf ("%s:%i:%s\n", strings + s_file, pr_source_line, string);
-	
+
 	throw parse_error_x();
 }
 
@@ -540,7 +540,7 @@ bool PR_Check (char *string)
 {
 	if (strcmp (string, pr_token))
 		return false;
-		
+
 	PR_Lex ();
 	return true;
 }
@@ -555,14 +555,14 @@ Checks to see if the current token is a valid name
 char *PR_ParseName (void)
 {
 	static char	ident[MAX_NAME];
-	
+
 	if (pr_token_type != tt_name)
 		PR_ParseError ("not a name");
 	if (strlen(pr_token) >= MAX_NAME-1)
 		PR_ParseError ("name too long");
 	strcpy (ident, pr_token);
 	PR_Lex ();
-	
+
 	return ident;
 }
 
@@ -579,28 +579,28 @@ type_t *PR_FindType (type_t *type)
 	def_t	*def;
 	type_t	*check;
 	int		i;
-	
+
 	for (check = pr.types ; check ; check = check->next)
 	{
 		if (check->type != type->type
 		|| check->aux_type != type->aux_type
 		|| check->num_parms != type->num_parms)
 			continue;
-	
+
 		for (i=0 ; i< type->num_parms ; i++)
 			if (check->parm_types[i] != type->parm_types[i])
 				break;
-			
+
 		if (i == type->num_parms)
-			return check;	
+			return check;
 	}
-	
+
 // allocate a new one
 	check = malloc (sizeof (*check));
 	*check = *type;
 	check->next = pr.types;
 	pr.types = check;
-	
+
 // allocate a generic def for the type, so fields can reference it
 	def = malloc (sizeof(def_t));
 	def->name = "COMPLEX TYPE";
@@ -642,7 +642,7 @@ type_t *PR_ParseType (void)
 	type_t	t_new;
 	type_t	*type;
 	char	*name;
-	
+
 	if (PR_Check ("."))
 	{
 		memset (&t_new, 0, sizeof(t_new));
@@ -650,7 +650,7 @@ type_t *PR_ParseType (void)
 		t_new.aux_type = PR_ParseType ();
 		return PR_FindType (&t_new);
 	}
-	
+
 	if (!strcmp (pr_token, "float") )
 		type = &type_float;
 	else if (!strcmp (pr_token, "vector") )
@@ -669,10 +669,10 @@ type_t *PR_ParseType (void)
 		type = &type_float;	// shut up compiler warning
 	}
 	PR_Lex ();
-	
+
 	if (!PR_Check ("("))
 		return type;
-	
+
 // function type
 	memset (&t_new, 0, sizeof(t_new));
 	t_new.type = ev_function;
@@ -691,10 +691,10 @@ type_t *PR_ParseType (void)
 				t_new.parm_types[t_new.num_parms] = type;
 				t_new.num_parms++;
 			} while (PR_Check (","));
-	
+
 		PR_Expect (")");
 	}
-	
+
 	return PR_FindType (&t_new);
 }
 

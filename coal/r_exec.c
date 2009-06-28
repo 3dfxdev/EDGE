@@ -18,10 +18,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-typedef struct {
+typedef struct
+{
     int s;
     dfunction_t *f;
-} prstack_t;
+}
+prstack_t;
 
 #define	MAX_STACK_DEPTH		32
 prstack_t pr_stack[MAX_STACK_DEPTH];
@@ -36,7 +38,8 @@ dfunction_t *pr_xfunction;
 int pr_xstatement;
 int pr_argc;
 
-char *pr_opnames[] = {
+char *pr_opnames[] =
+{
     "DONE",
 
     "MUL_F",
