@@ -163,6 +163,7 @@ def_t *PR_Statement ( opcode_t *op, def_t *var_a, def_t *var_b)
 	statement->op = op - pr_opcodes;
 	statement->a = var_a ? var_a->ofs : 0;
 	statement->b = var_b ? var_b->ofs : 0;
+
 	if (op->type_c == &def_void || op->right_associative)
 	{
 		var_c = NULL;
@@ -617,10 +618,8 @@ Parse a function body
 function_t *PR_ParseImmediateStatements (type_t *type)
 {
 	int			i;
-	function_t	*f;
-	def_t		*defs[MAX_PARMS];
 
-	f = malloc (sizeof(function_t));
+	function_t *f = malloc (sizeof(function_t));
 
 //
 // check for builtin function definition #1, #2, etc
@@ -628,9 +627,11 @@ function_t *PR_ParseImmediateStatements (type_t *type)
 	if (PR_Check ("#"))
 	{
 		if (pr_token_type != tt_immediate
-		|| pr_immediate_type != &type_float
-		|| pr_immediate._float != (int)pr_immediate._float)
+			|| pr_immediate_type != &type_float
+			|| pr_immediate._float != (int)pr_immediate._float)
+		{
 			PR_ParseError ("Bad builtin immediate");
+		}
 		f->builtin = (int)pr_immediate._float;
 		PR_Lex ();
 		return f;
@@ -640,10 +641,14 @@ function_t *PR_ParseImmediateStatements (type_t *type)
 //
 // define the parms
 //
+	def_t *defs[MAX_PARMS];
+
 	for (i=0 ; i<type->num_parms ; i++)
 	{
 		defs[i] = PR_GetDef (type->parm_types[i], pr_parm_names[i], pr_scope, true);
+
 		f->parm_ofs[i] = defs[i]->ofs;
+
 		if (i > 0 && f->parm_ofs[i] < f->parm_ofs[i-1])
 			Error ("bad parm order");
 	}
@@ -681,7 +686,7 @@ If allocate is true, a new def will be allocated if it can't be found
 */
 def_t *PR_GetDef (type_t *type, char *name, def_t *scope, bool allocate)
 {
-	def_t		*def, **old;
+	def_t *def, **old;
 	char element[MAX_NAME];
 
 // see if the name is already in use
@@ -771,14 +776,16 @@ def_t *PR_GetDef (type_t *type, char *name, def_t *scope, bool allocate)
 
 void PR_ParseFunction(void)
 {
-	char *func_name = PR_ParseName ();
+	char *func_name = strdup(PR_ParseName());
 
 	PR_Expect("(");
 
 	type_t t_new;
 
+	memset (&t_new, 0, sizeof(t_new));
 	t_new.type = ev_function;
 	t_new.num_parms = 0;
+	t_new.aux_type = &type_void;
 
 	if (! PR_Check(")"))
 	{
@@ -791,6 +798,7 @@ void PR_ParseFunction(void)
 			PR_Expect(":");
 
 			t_new.parm_types[t_new.num_parms] = PR_ParseType();
+
 			t_new.num_parms++;
 		}
 		while (PR_Check(","));
@@ -798,9 +806,11 @@ void PR_ParseFunction(void)
 		PR_Expect(")");
 	}
 
-	// return type
-	PR_Expect(":");
-	t_new.aux_type = PR_ParseType();
+	// return type (defaults to void)
+	if (PR_Check(":"))
+	{
+		t_new.aux_type = PR_ParseType();
+	}
 
 	type_t *func_type = PR_FindType(&t_new);
 
@@ -863,6 +873,10 @@ void PR_ParseDefs (void)
 
 	if (PR_Check("function"))
 	{
+		// NOTE: this check doesn't seem to kick in
+		if (pr_scope)
+			PR_ParseError ("Functions must be global");
+
 		PR_ParseFunction();
 		return;
 	}
@@ -882,52 +896,19 @@ void PR_ParseDefs (void)
 // check for an initialization
 		if ( PR_Check ("=") )
 		{
-//			Error("Go to hell fucker!");
-
 			if (def->initialized)
 				PR_ParseError ("%s redeclared", name);
 
 			if (type->type == ev_function)
-			{
-#if 1
-				int locals_start;
-				locals_start = locals_end = numpr_globals;
-				pr_scope = def;
-				f = PR_ParseImmediateStatements (type);
-				pr_scope = NULL;
-				def->initialized = 1;
-				G_FUNCTION(def->ofs) = numfunctions;
-				f->def = def;
-//				if (pr_dumpasm)
-//					PR_PrintFunction (def);
+				PR_ParseError("Cannot initialise function");
 
-		// fill in the dfunction
-				df = &functions[numfunctions];
-				numfunctions++;
-				if (f->builtin)
-					df->first_statement = -f->builtin;
-				else
-					df->first_statement = f->code;
-
-				df->s_name = CopyString (f->def->name);
-				df->s_file = s_file;
-				df->numparms =  f->def->type->num_parms;
-				df->locals = locals_end - locals_start;
-				df->parm_start = locals_start;
-
-				for (i=0 ; i<df->numparms ; i++)
-					df->parm_size[i] = type_size[f->def->type->parm_types[i]->type];
-#endif
-				continue;
-			}
-			else if (pr_immediate_type != type)
+			if (pr_immediate_type != type)
 				PR_ParseError ("wrong immediate type for %s", name);
 
 			def->initialized = 1;
 			memcpy (pr_globals + def->ofs, &pr_immediate, 4*type_size[pr_immediate_type->type]);
 			PR_Lex ();
 		}
-
 	}
 	while (PR_Check (","));
 
