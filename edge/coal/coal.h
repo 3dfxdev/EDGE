@@ -359,7 +359,16 @@ void PR_Expect (char *string);
 void PR_ParseError (char *error, ...);
 
 
-extern	jmp_buf		pr_parse_abort;		// longjump with this on parse error
+class parse_error_x
+{
+public:
+	int foo;
+
+	 parse_error_x() { }
+	~parse_error_x() { }
+};
+
+///---  extern	jmp_buf		pr_parse_abort;		// longjump with this on parse error
 extern	int			pr_source_line;
 extern	char		*pr_file_p;
 
