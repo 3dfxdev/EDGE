@@ -38,7 +38,7 @@ int		pr_error_count;
 
 char	*pr_punctuation[] =
 // longer symbols must be before a shorter partial match
-{"&&", "||", "<=", ">=","==", "!=", ";", ",", "!",
+{"&&", "||", "<=", ">=","==", "!=", ":", ";", ",", "!",
  "*", "/", "%", "^","(", ")", "-", "+", "=",
  "[", "]", "{", "}", "...", ".", "<", ">", "#", "&", "|",
  NULL
@@ -250,6 +250,8 @@ void PR_LexPunctuation (void)
 
 	pr_token_type = tt_punct;
 
+char ch = *pr_file_p;
+
 	for (i=0 ; (p = pr_punctuation[i]) != NULL ; i++)
 	{
 		len = strlen(p);
@@ -265,7 +267,7 @@ void PR_LexPunctuation (void)
 		}
 	}
 
-	PR_ParseError ("Unknown punctuation");
+	PR_ParseError ("Unknown punctuation: %c", ch);
 }
 
 
@@ -321,31 +323,6 @@ void PR_LexWhitespace (void)
 
 //============================================================================
 
-#define	MAX_FRAMES	256
-
-char	pr_framemacros[MAX_FRAMES][16];
-int		pr_nummacros;
-
-void PR_ClearGrabMacros (void)
-{
-	pr_nummacros = 0;
-}
-
-void PR_FindMacro (void)
-{
-	int		i;
-
-	for (i=0 ; i<pr_nummacros ; i++)
-		if (!strcmp (pr_token, pr_framemacros[i]))
-		{
-			sprintf (pr_token,"%d", i);
-			pr_token_type = tt_immediate;
-			pr_immediate_type = &type_float;
-			pr_immediate._float = i;
-			return;
-		}
-	PR_ParseError ("Unknown frame macro $%s", pr_token);
-}
 
 // just parses text, returning false if an eol is reached
 bool PR_SimpleGetToken (void)
@@ -372,50 +349,6 @@ bool PR_SimpleGetToken (void)
 	return true;
 }
 
-void PR_ParseFrame (void)
-{
-	while (PR_SimpleGetToken ())
-	{
-		strcpy (pr_framemacros[pr_nummacros], pr_token);
-		pr_nummacros++;
-	}
-}
-
-/*
-==============
-PR_LexGrab
-
-Deals with counting sequence numbers and replacing frame macros
-==============
-*/
-void PR_LexGrab (void)
-{
-	pr_file_p++;	// skip the $
-	if (!PR_SimpleGetToken ())
-		PR_ParseError ("hanging $");
-
-// check for $frame
-	if (!strcmp (pr_token, "frame"))
-	{
-		PR_ParseFrame ();
-		PR_Lex ();
-	}
-// ignore other known $commands
-	else if (!strcmp (pr_token, "cd")
-	|| !strcmp (pr_token, "origin")
-	|| !strcmp (pr_token, "base")
-	|| !strcmp (pr_token, "flags")
-	|| !strcmp (pr_token, "scale")
-	|| !strcmp (pr_token, "skin") )
-	{	// skip to end of line
-		while (PR_SimpleGetToken ())
-		;
-		PR_Lex ();
-	}
-// look for a frame name macro
-	else
-		PR_FindMacro ();
-}
 
 //============================================================================
 
@@ -478,12 +411,6 @@ void PR_Lex (void)
 		return;
 	}
 
-	if (c == '$')
-	{
-		PR_LexGrab ();
-		return;
-	}
-
 // parse symbol strings until a non-symbol is found
 	PR_LexPunctuation ();
 }
@@ -508,6 +435,7 @@ void PR_ParseError (char *error, ...)
 
 	printf ("%s:%i:%s\n", strings + s_file, pr_source_line, string);
 
+raise(11);
 	throw parse_error_x();
 }
 
@@ -624,7 +552,8 @@ void PR_SkipToSemicolon (void)
 		if (!pr_bracelevel && PR_Check (";"))
 			return;
 		PR_Lex ();
-	} while (pr_token[0]);	// eof will return a null token
+	}
+	while (pr_token[0]);	// eof will return a null token
 }
 
 
@@ -678,6 +607,7 @@ type_t *PR_ParseType (void)
 	t_new.type = ev_function;
 	t_new.aux_type = type;	// return type
 	t_new.num_parms = 0;
+
 	if (!PR_Check (")"))
 	{
 		if (PR_Check ("..."))
