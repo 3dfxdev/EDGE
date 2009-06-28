@@ -172,7 +172,7 @@ def_t *PR_Statement ( opcode_t *op, def_t *var_a, def_t *var_b)
 	}
 	else
 	{	// allocate result space
-		var_c = malloc (sizeof(def_t));
+		var_c = new def_t;
 		memset (var_c, 0, sizeof(def_t));
 		var_c->ofs = numpr_globals;
 		var_c->type = op->type_c->type;
@@ -237,7 +237,7 @@ def_t	*PR_ParseImmediate (void)
 	}
 
 // allocate a new one
-	cn = malloc (sizeof(def_t));
+	cn = new def_t;
 	cn->next = NULL;
 
 	pr.def_tail->next = cn;
@@ -435,15 +435,15 @@ def_t *PR_Expression (int priority)
 				if (e2->type->aux_type)
 					type_c = e2->type->aux_type->type;
 				else
-					type_c = -1;	// not a field
+					type_c = ev_INVALID;	// not a field
 			}
 			else
 				type_c = ev_void;
 
 			oldop = op;
 			while (type_a != op->type_a->type->type
-			|| type_b != op->type_b->type->type
-			|| (type_c != ev_void && type_c != op->type_c->type->type) )
+					|| type_b != op->type_b->type->type
+					|| (type_c != ev_void && type_c != op->type_c->type->type) )
 			{
 				op++;
 				if (!op->name || strcmp (op->name , oldop->name))
@@ -619,7 +619,7 @@ function_t *PR_ParseImmediateStatements (type_t *type)
 {
 	int			i;
 
-	function_t *f = malloc (sizeof(function_t));
+	function_t *f = new function_t;
 
 //
 // check for builtin function definition #1, #2, etc
@@ -711,7 +711,7 @@ def_t *PR_GetDef (type_t *type, char *name, def_t *scope, bool allocate)
 		return NULL;
 
 // allocate a new def
-	def = malloc (sizeof(def_t));
+	def = new def_t;
 	memset (def, 0, sizeof(*def));
 	def->next = NULL;
 
@@ -721,8 +721,7 @@ def_t *PR_GetDef (type_t *type, char *name, def_t *scope, bool allocate)
 	def->search_next = pr.search;
 	pr.search = def;
 
-	def->name = malloc (strlen(name)+1);
-	strcpy (def->name, name);
+	def->name = strdup(name);
 	def->type = type;
 
 	def->scope = scope;
@@ -866,10 +865,6 @@ Called at the outer layer and when a local statement is hit
 */
 void PR_ParseDefs (void)
 {
-	function_t	*f;
-	dfunction_t	*df;
-	int			i;
-
 
 	if (PR_Check("function"))
 	{
