@@ -49,13 +49,6 @@ void	SafeWrite (FILE *f, void *buffer, int count);
 int		LoadFile (char *filename, void **bufferptr);
 void	SaveFile (char *filename, void *buffer, int count);
 
-short	BigShort (short l);
-short	LittleShort (short l);
-int		BigLong (int l);
-int		LittleLong (int l);
-float	BigFloat (float l);
-float	LittleFloat (float l);
-
 
 #endif
 
