@@ -8,17 +8,17 @@ float  face_time;
 string face_image;
 
 
-void (float slot, float x, float y, string off_pic, string on_pic) doom_weapon_icon =
+function doom_weapon_icon (slot, x, y, off_pic : string, on_pic : string) =
 {
   if (player_has_weapon_slot(slot))
     hud_draw_image(x, y, on_pic);
   else
     hud_draw_image(x, y, off_pic);
-};
+}
 
 
-void(float x, float y, float card, float skull,
-     string card_pic, string skull_pic, string both_pic) doom_key =
+function doom_key (x, y, card, skull,
+     card_pic : string, skull_pic : string, both_pic : string) =
 {
   local float has_cd ; has_cd = player_has_key(card);
   local float has_sk ; has_cd = player_has_key(skull);
@@ -35,10 +35,10 @@ void(float x, float y, float card, float skull,
   {
     hud_draw_image(x, y, skull_pic);
   }
-};
+}
 
 
-  string() pain_digit =
+  function pain_digit() : string =
   {
     local float health; health = player_health();
     if (health > 100)
@@ -50,16 +50,16 @@ void(float x, float y, float card, float skull,
     sys_assert(index <= 4);
 
     return string_format("%d", index);
-  };
+  }
 
-  string() turn_digit =
+  function turn_digit() : string =
   {
     local float r; r = math_random() * 2.99;
     r = math_floor(r);
     return string_format("%d", r);
-  };
+  }
 
-  void() select_new_face =
+  function select_new_face() =
   {
     // dead ?
     if (player_health() <= 0)
@@ -125,9 +125,9 @@ void(float x, float y, float card, float skull,
     // default: look about the place...
     face_image = string_concat3("STFST", pain_digit(), turn_digit());
     face_time  = 17;
-  };
+  }
 
-void(float x, float y) doomguy_face =
+function doomguy_face (x, y) =
 {
   // This routine handles the face states and their timing.
   // The precedence of expressions is:
@@ -148,10 +148,10 @@ void(float x, float y) doomguy_face =
   // FIXME faceback
 
   hud_draw_image(x - 1, y - 1, face_image);
-};
+}
 
 
-void() doom_little_ammo =
+function doom_little_ammo() =
 {
   hud_text_font("YELLOW_DIGIT");
   hud_text_color("");
@@ -167,10 +167,10 @@ void() doom_little_ammo =
   a = player_ammomax(2); hud_draw_num2(314, 179, 3, a);
   a = player_ammomax(3); hud_draw_num2(314, 185, 3, a);
   a = player_ammomax(4); hud_draw_num2(314, 191, 3, a);
-};
+}
 
 
-void() doom_status_bar =
+function doom_status_bar() =
 {
   local float a;
 
@@ -209,10 +209,10 @@ void() doom_status_bar =
   doom_key(239, 191, 3, 7, "STKEYS2", "STKEYS5", "STKEYS8");
 
   doom_little_ammo();
-};
+}
 
 
-void() doom_overlay_status =
+function doom_overlay_status() = 
 {
   local float a;
 
@@ -238,10 +238,10 @@ void() doom_overlay_status =
   doom_key(256, 191, 3, 7, "STKEYS2", "STKEYS5", "STKEYS8");
 
   doom_little_ammo();
-};
+}
 
 
-void() doom_automap =
+function doom_automap() =
 {
   // Background is already black, only need to use 'solid_box'
   // when we want a different color.
@@ -256,10 +256,10 @@ void() doom_automap =
 
   hud_text_font("DOOM");
   hud_draw_text(0, 200 - 32 - 10, title);
-};
+}
 
 
-void() edge_air_bar =
+function edge_air_bar() =
 {
   if (player_health() <= 0)
     return;
@@ -274,10 +274,10 @@ void() edge_air_bar =
   local string barname; barname = string_format("AIRBAR%02d", air);
 
   hud_draw_image(0, 0, barname);
-};
+}
 
 
-void() draw_all =
+function draw_all() =
 {
   hud_coord_sys(320, 200);
 
@@ -301,14 +301,14 @@ void() draw_all =
     doom_overlay_status();
 
   edge_air_bar();
-};
+}
 
 
-void() main =
+function main() =
 {
   hud_which = 0;
   hud_automap = 0;
 
   draw_all();
-};
+}
 
