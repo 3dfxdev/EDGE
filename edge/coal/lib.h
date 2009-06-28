@@ -34,20 +34,9 @@
 typedef unsigned char byte;
 
 
-int filelength (FILE *f);
-
-
-double I_FloatTime (void);
-
 void	Error (char *error, ...);
 
-FILE	*SafeOpenWrite (char *filename);
-FILE	*SafeOpenRead (char *filename);
-void	SafeRead (FILE *f, void *buffer, int count);
-void	SafeWrite (FILE *f, void *buffer, int count);
-
 int		LoadFile (char *filename, void **bufferptr);
-void	SaveFile (char *filename, void *buffer, int count);
 
 
 #endif
