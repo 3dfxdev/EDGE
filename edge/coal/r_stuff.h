@@ -21,7 +21,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef PROGS_H
 #define PROGS_H
 
-
 typedef union eval_s
 {
     string_t string;
@@ -31,7 +30,8 @@ typedef union eval_s
     int _int;
     int edict;
     union eval_s	*ptr;
-} eval_t;
+}
+eval_t;
 
 #define	MAX_ENT_LEAFS	16
 //??  typedef struct edict_s {
@@ -95,7 +95,6 @@ int NUM_FOR_EDICT(edict_t *e);
 #define	G_EDICT(o) ((edict_t *)((byte *)sv.edicts+ *(int *)&pr_globals[o]))
 #define G_EDICTNUM(o) NUM_FOR_EDICT(G_EDICT(o))
 #define	G_VECTOR(o) (&pr_globals[o])
-// #define	G_STRING(o) (PR_GetString(*(string_t *)&pr_globals[o]))
 #define	G_FUNCTION(o) (*(func_t *)&pr_globals[o])
 
 #define	E_FLOAT(e,o) (((float*)&e->v)[o])

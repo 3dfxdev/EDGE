@@ -68,10 +68,10 @@ simple types: void, float, vector, string, or entity
 
 vector types:
 	vector		org;	// also creates org_x, org_y, and org_z float defs
-	
-	
+
+
 A function type is specified as: 	simpletype ( type name {,type name} )
-The names are ignored except when the function is initialized.	
+The names are ignored except when the function is initialized.
 	void()		think;
 	entity()	FindTarget;
 	void(vector destination, float speed, void() callback)	SUB_CalcMove;
@@ -81,19 +81,19 @@ A field type is specified as:  .type
 	.vector		origin;
 	.string		netname;
 	.void()		think, touch, use;
-	
+
 
 names
 -----
 Names are a maximum of 64 characters, must begin with A-Z,a-z, or _, and can continue with those characters or 0-9.
 
-There are two levels of scoping: global, and function.  The parameter list of a function and any vars declared inside a function with the "local" statement are only visible within that function, 
+There are two levels of scoping: global, and function.  The parameter list of a function and any vars declared inside a function with the "local" statement are only visible within that function,
 
 
 immediates
 ----------
 Float immediates must begin with 0-9 or minus sign.  .5 is illegal.
-	
+
 A parsing ambiguity is present with negative constants. "a-5" will be parsed as "a", then "-5", causing an error.  Seperate the - from the digits with a space "a - 5" to get the proper behavior.
 	12
 	1.6
@@ -103,7 +103,7 @@ A parsing ambiguity is present with negative constants. "a-5" will be parsed as 
 Vector immediates are three float immediates enclosed in single quotes.
 	'0 0 0'
 	'20.5 -10 0.00001'
-	
+
 String immediates are characters enclosed in double quotes.  The string cannot contain explicit newlines, but the escape character \n can embed one.  The \" escape can be used to include a quote in the string.
 	"maps/jrwiz1.bsp"
 	"sound/nin/pain.wav"
@@ -119,13 +119,13 @@ statement:
 	while ( <expression> ) <statement>;
 	do <statement> while ( <expression> );
 	<function name> ( <function parms> );
-	
+
 expression:
 	combiations of names and these operators with standard C precedence:
 	"&&", "||", "<=", ">=","==", "!=", "!", "*", "/", "-", "+", "=", ".", "<", ">", "&", "|"
 	Parenthesis can be used to alter order of operation.
 	The & and | operations perform integral bit ops on floats
-	
+
 A built in function immediate is a number sign followed by an integer.
 	#1
 	#12
@@ -171,10 +171,10 @@ There are three global variables that are set before beginning code execution:
 						// entities in the world are simulated sequentially,
 						// time is NOT strictly increasing.  An impact late
 						// in one entity's time slice may set time higher
-						// than the think function of the next entity. 
+						// than the think function of the next entity.
 						// The difference is limited to 0.1 seconds.
 Execution is also caused by a few uncommon events, like the addition of a new client to an existing server.
-	
+
 There is a runnaway counter that stops a program if 100000 statements are executed, assuming it is in an infinite loop.
 
 It is acceptable to change the system set global variables.  This is usually done to pose as another entity by changing self and calling a function.
@@ -298,7 +298,7 @@ typedef struct
 	int			max_memory;
 	int			current_memory;
 	type_t		*types;
-	
+
 	def_t		def_head;		// unused head of linked list
 	def_t		*def_tail;		// add new defs after this and move it
 	def_t		*search;		// search chain through defs

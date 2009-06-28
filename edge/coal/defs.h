@@ -68,19 +68,19 @@ enum
 	OP_ADD_V,
 	OP_SUB_F,
 	OP_SUB_V,
-	
+
 	OP_EQ_F,
 	OP_EQ_V,
 	OP_EQ_S,
 	OP_EQ_E,
 	OP_EQ_FNC,
-	
+
 	OP_NE_F,
 	OP_NE_V,
 	OP_NE_S,
 	OP_NE_E,
 	OP_NE_FNC,
-	
+
 	OP_LE,
 	OP_GE,
 	OP_LT,
@@ -133,7 +133,7 @@ enum
 	OP_GOTO,
 	OP_AND,
 	OP_OR,
-	
+
 	OP_BITAND,
 	OP_BITOR
 };
@@ -166,12 +166,12 @@ typedef struct
 	int		first_statement;	// negative numbers are builtins
 	int		parm_start;
 	int		locals;				// total ints of parms + locals
-	
+
 	int		profile;		// runtime
-	
+
 	int		s_name;
 	int		s_file;			// source file defined in
-	
+
 	int		numparms;
 
 	byte	parm_size[MAX_PARMS];

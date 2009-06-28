@@ -3,7 +3,7 @@ char *PF_VarString (int	first)
 {
 	int		i;
 	static char out[256];
-	
+
 	out[0] = 0;
 	for (i=first ; i<pr_argc ; i++)
 	{
@@ -32,7 +32,7 @@ static void PF_PrintNum(void)
 builtin_t pr_builtin[] =
 {
   PF_Dummy,
-  
+
   PF_Print,
   PF_PrintNum,
 };
