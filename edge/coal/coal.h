@@ -21,15 +21,6 @@
 #define __QCC_H__
 
 
-#include "lib.h"
-
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
-#include <setjmp.h>
-
-#include "defs.h"
-#include "r_stuff.h"
 
 /*
 
@@ -239,6 +230,7 @@ There are no ++ / -- operators, or operate/assign operators.
 
 //=============================================================================
 
+
 // offsets are allways multiplied by 4 before using
 typedef int	gofs_t;				// offset in global data block
 typedef struct function_s function_t;
@@ -323,7 +315,8 @@ typedef struct
 	float		priority;
 	bool	right_associative;
 	def_t		*type_a, *type_b, *type_c;
-} opcode_t;
+}
+opcode_t;
 
 //============================================================================
 
@@ -334,12 +327,14 @@ extern	bool	pr_dumpasm;
 
 extern	def_t		*pr_global_defs[MAX_REGS];	// to find def for a global variable
 
-typedef enum {
-tt_eof,			// end of file reached
-tt_name, 		// an alphanumeric name token
-tt_punct, 		// code punctuation
-tt_immediate,	// string, float, vector
-} token_type_t;
+typedef enum
+{
+	tt_eof,			// end of file reached
+	tt_name, 		// an alphanumeric name token
+	tt_punct, 		// code punctuation
+	tt_immediate,	// string, float, vector
+}
+token_type_t;
 
 extern	char		pr_token[2048];
 extern	token_type_t	pr_token_type;

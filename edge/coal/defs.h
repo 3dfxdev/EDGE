@@ -21,6 +21,7 @@
 #ifndef __DEFS_CC_H__
 #define __DEFS_CC_H__
 
+typedef unsigned char byte;
 
 typedef int	func_t;
 typedef int	string_t;
@@ -109,13 +110,16 @@ enum
 	OP_STOREP_FNC,
 
 	OP_RETURN,
+
 	OP_NOT_F,
 	OP_NOT_V,
 	OP_NOT_S,
 	OP_NOT_ENT,
 	OP_NOT_FNC,
+
 	OP_IF,
 	OP_IFNOT,
+
 	OP_CALL0,
 	OP_CALL1,
 	OP_CALL2,
@@ -139,9 +143,9 @@ enum
 
 typedef struct statement_s
 {
-	unsigned short op;
+	int op;
 
-	short a,b,c;
+	int a, b, c;
 }
 dstatement_t;
 
@@ -169,6 +173,7 @@ typedef struct
 	int		s_file;			// source file defined in
 	
 	int		numparms;
+
 	byte	parm_size[MAX_PARMS];
 }
 dfunction_t;
