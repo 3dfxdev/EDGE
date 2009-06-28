@@ -1,22 +1,27 @@
-.float foo;
+.float bar;
 
-void(string s) sprint = #1;
-void(float v) nprint = #2;
+function sprint(s : string) = #1
+function nprint(v : float ) = #2
 
-void() main =
+function foo(a : float) =
+{
+    nprint(a);
+}
+
+function main() =
 {
     sprint("Hello World!");
 
 //    local entity y;
-//    y.foo = 128;
-//    nprint(y.foo);
+//    y.bar = 128;
+//    nprint(y.bar);
   
     local float x; x = 1;
     
     do {
-      nprint(x);
+      foo(x);
       x = x + 1;
     }
     while (x <= 5);
-};
+}
 
