@@ -41,97 +41,97 @@ void PR_ParseDefs (void);
 
 opcode_t pr_opcodes[] =
 {
- {"<DONE>", "DONE", -1, false, &def_entity, &def_field, &def_void},
+	{"<DONE>", "DONE", -1, false, &def_entity, &def_field, &def_void},
 
- {"^", "POWER", 1, false, &def_float, &def_float, &def_float},
+	{"^", "POWER", 1, false, &def_float, &def_float, &def_float},
 
- {"*", "MUL_F", 2, false, &def_float, &def_float, &def_float},
- {"*", "MUL_V", 2, false, &def_vector, &def_vector, &def_float},
- {"*", "MUL_FV", 2, false, &def_float, &def_vector, &def_vector},
- {"*", "MUL_VF", 2, false, &def_vector, &def_float, &def_vector},
+	{"*", "MUL_F", 2, false, &def_float, &def_float, &def_float},
+	{"*", "MUL_V", 2, false, &def_vector, &def_vector, &def_float},
+	{"*", "MUL_FV", 2, false, &def_float, &def_vector, &def_vector},
+	{"*", "MUL_VF", 2, false, &def_vector, &def_float, &def_vector},
 
- {"/", "DIV", 2, false, &def_float, &def_float, &def_float},
- {"%", "MOD", 2, false, &def_float, &def_float, &def_float},
+	{"/", "DIV", 2, false, &def_float, &def_float, &def_float},
+	{"%", "MOD", 2, false, &def_float, &def_float, &def_float},
 
- {"+", "ADD_F", 3, false, &def_float, &def_float, &def_float},
- {"+", "ADD_V", 3, false, &def_vector, &def_vector, &def_vector},
+	{"+", "ADD_F", 3, false, &def_float, &def_float, &def_float},
+	{"+", "ADD_V", 3, false, &def_vector, &def_vector, &def_vector},
 
- {"-", "SUB_F", 3, false, &def_float, &def_float, &def_float},
- {"-", "SUB_V", 3, false, &def_vector, &def_vector, &def_vector},
+	{"-", "SUB_F", 3, false, &def_float, &def_float, &def_float},
+	{"-", "SUB_V", 3, false, &def_vector, &def_vector, &def_vector},
 
- {"==", "EQ_F", 4, false, &def_float, &def_float, &def_float},
- {"==", "EQ_V", 4, false, &def_vector, &def_vector, &def_float},
- {"==", "EQ_S", 4, false, &def_string, &def_string, &def_float},
- {"==", "EQ_E", 4, false, &def_entity, &def_entity, &def_float},
- {"==", "EQ_FNC", 4, false, &def_function, &def_function, &def_float},
+	{"==", "EQ_F", 4, false, &def_float, &def_float, &def_float},
+	{"==", "EQ_V", 4, false, &def_vector, &def_vector, &def_float},
+	{"==", "EQ_S", 4, false, &def_string, &def_string, &def_float},
+	{"==", "EQ_E", 4, false, &def_entity, &def_entity, &def_float},
+	{"==", "EQ_FNC", 4, false, &def_function, &def_function, &def_float},
 
- {"!=", "NE_F", 4, false, &def_float, &def_float, &def_float},
- {"!=", "NE_V", 4, false, &def_vector, &def_vector, &def_float},
- {"!=", "NE_S", 4, false, &def_string, &def_string, &def_float},
- {"!=", "NE_E", 4, false, &def_entity, &def_entity, &def_float},
- {"!=", "NE_FNC", 4, false, &def_function, &def_function, &def_float},
+	{"!=", "NE_F", 4, false, &def_float, &def_float, &def_float},
+	{"!=", "NE_V", 4, false, &def_vector, &def_vector, &def_float},
+	{"!=", "NE_S", 4, false, &def_string, &def_string, &def_float},
+	{"!=", "NE_E", 4, false, &def_entity, &def_entity, &def_float},
+	{"!=", "NE_FNC", 4, false, &def_function, &def_function, &def_float},
 
- {"<=", "LE", 4, false, &def_float, &def_float, &def_float},
- {">=", "GE", 4, false, &def_float, &def_float, &def_float},
- {"<", "LT", 4, false, &def_float, &def_float, &def_float},
- {">", "GT", 4, false, &def_float, &def_float, &def_float},
+	{"<=", "LE", 4, false, &def_float, &def_float, &def_float},
+	{">=", "GE", 4, false, &def_float, &def_float, &def_float},
+	{"<", "LT", 4, false, &def_float, &def_float, &def_float},
+	{">", "GT", 4, false, &def_float, &def_float, &def_float},
 
- {".", "INDIRECT", 1, false, &def_entity, &def_field, &def_float},
- {".", "INDIRECT", 1, false, &def_entity, &def_field, &def_vector},
- {".", "INDIRECT", 1, false, &def_entity, &def_field, &def_string},
- {".", "INDIRECT", 1, false, &def_entity, &def_field, &def_entity},
- {".", "INDIRECT", 1, false, &def_entity, &def_field, &def_field},
- {".", "INDIRECT", 1, false, &def_entity, &def_field, &def_function},
+	{".", "INDIRECT", 1, false, &def_entity, &def_field, &def_float},
+	{".", "INDIRECT", 1, false, &def_entity, &def_field, &def_vector},
+	{".", "INDIRECT", 1, false, &def_entity, &def_field, &def_string},
+	{".", "INDIRECT", 1, false, &def_entity, &def_field, &def_entity},
+	{".", "INDIRECT", 1, false, &def_entity, &def_field, &def_field},
+	{".", "INDIRECT", 1, false, &def_entity, &def_field, &def_function},
 
- {".", "ADDRESS", 1, false, &def_entity, &def_field, &def_pointer},
+	{".", "ADDRESS", 1, false, &def_entity, &def_field, &def_pointer},
 
- {"=", "STORE_F", 5, true, &def_float, &def_float, &def_float},
- {"=", "STORE_V", 5, true, &def_vector, &def_vector, &def_vector},
- {"=", "STORE_S", 5, true, &def_string, &def_string, &def_string},
- {"=", "STORE_ENT", 5, true, &def_entity, &def_entity, &def_entity},
- {"=", "STORE_FLD", 5, true, &def_field, &def_field, &def_field},
- {"=", "STORE_FNC", 5, true, &def_function, &def_function, &def_function},
+	{"=", "STORE_F", 5, true, &def_float, &def_float, &def_float},
+	{"=", "STORE_V", 5, true, &def_vector, &def_vector, &def_vector},
+	{"=", "STORE_S", 5, true, &def_string, &def_string, &def_string},
+	{"=", "STORE_ENT", 5, true, &def_entity, &def_entity, &def_entity},
+	{"=", "STORE_FLD", 5, true, &def_field, &def_field, &def_field},
+	{"=", "STORE_FNC", 5, true, &def_function, &def_function, &def_function},
 
- {"=", "STOREP_F", 5, true, &def_pointer, &def_float, &def_float},
- {"=", "STOREP_V", 5, true, &def_pointer, &def_vector, &def_vector},
- {"=", "STOREP_S", 5, true, &def_pointer, &def_string, &def_string},
- {"=", "STOREP_ENT", 5, true, &def_pointer, &def_entity, &def_entity},
- {"=", "STOREP_FLD", 5, true, &def_pointer, &def_field, &def_field},
- {"=", "STOREP_FNC", 5, true, &def_pointer, &def_function, &def_function},
+	{"=", "STOREP_F", 5, true, &def_pointer, &def_float, &def_float},
+	{"=", "STOREP_V", 5, true, &def_pointer, &def_vector, &def_vector},
+	{"=", "STOREP_S", 5, true, &def_pointer, &def_string, &def_string},
+	{"=", "STOREP_ENT", 5, true, &def_pointer, &def_entity, &def_entity},
+	{"=", "STOREP_FLD", 5, true, &def_pointer, &def_field, &def_field},
+	{"=", "STOREP_FNC", 5, true, &def_pointer, &def_function, &def_function},
 
- {"<RETURN>", "RETURN", -1, false, &def_void, &def_void, &def_void},
+	{"<RETURN>", "RETURN", -1, false, &def_void, &def_void, &def_void},
 
- {"!", "NOT_F", -1, false, &def_float, &def_void, &def_float},
- {"!", "NOT_V", -1, false, &def_vector, &def_void, &def_float},
- {"!", "NOT_S", -1, false, &def_vector, &def_void, &def_float},
- {"!", "NOT_ENT", -1, false, &def_entity, &def_void, &def_float},
- {"!", "NOT_FNC", -1, false, &def_function, &def_void, &def_float},
+	{"!", "NOT_F", -1, false, &def_float, &def_void, &def_float},
+	{"!", "NOT_V", -1, false, &def_vector, &def_void, &def_float},
+	{"!", "NOT_S", -1, false, &def_vector, &def_void, &def_float},
+	{"!", "NOT_ENT", -1, false, &def_entity, &def_void, &def_float},
+	{"!", "NOT_FNC", -1, false, &def_function, &def_void, &def_float},
 
-  {"<IF>", "IF", -1, false, &def_float, &def_float, &def_void},
-  {"<IFNOT>", "IFNOT", -1, false, &def_float, &def_float, &def_void},
+	{"<IF>", "IF", -1, false, &def_float, &def_float, &def_void},
+	{"<IFNOT>", "IFNOT", -1, false, &def_float, &def_float, &def_void},
 
 // calls returns REG_RETURN
- {"<CALL0>", "CALL0", -1, false, &def_function, &def_void, &def_void},
- {"<CALL1>", "CALL1", -1, false, &def_function, &def_void, &def_void},
- {"<CALL2>", "CALL2", -1, false, &def_function, &def_void, &def_void},
- {"<CALL3>", "CALL3", -1, false, &def_function, &def_void, &def_void},
- {"<CALL4>", "CALL4", -1, false, &def_function, &def_void, &def_void},
- {"<CALL5>", "CALL5", -1, false, &def_function, &def_void, &def_void},
- {"<CALL6>", "CALL6", -1, false, &def_function, &def_void, &def_void},
- {"<CALL7>", "CALL7", -1, false, &def_function, &def_void, &def_void},
- {"<CALL8>", "CALL8", -1, false, &def_function, &def_void, &def_void},
+	{"<CALL0>", "CALL0", -1, false, &def_function, &def_void, &def_void},
+	{"<CALL1>", "CALL1", -1, false, &def_function, &def_void, &def_void},
+	{"<CALL2>", "CALL2", -1, false, &def_function, &def_void, &def_void},
+	{"<CALL3>", "CALL3", -1, false, &def_function, &def_void, &def_void},
+	{"<CALL4>", "CALL4", -1, false, &def_function, &def_void, &def_void},
+	{"<CALL5>", "CALL5", -1, false, &def_function, &def_void, &def_void},
+	{"<CALL6>", "CALL6", -1, false, &def_function, &def_void, &def_void},
+	{"<CALL7>", "CALL7", -1, false, &def_function, &def_void, &def_void},
+	{"<CALL8>", "CALL8", -1, false, &def_function, &def_void, &def_void},
 
- {"<STATE>", "STATE", -1, false, &def_float, &def_float, &def_void},
+	{"<STATE>", "STATE", -1, false, &def_float, &def_float, &def_void},
 
- {"<GOTO>", "GOTO", -1, false, &def_float, &def_void, &def_void},
+	{"<GOTO>", "GOTO", -1, false, &def_float, &def_void, &def_void},
 
- {"&&", "AND", 6, false, &def_float, &def_float, &def_float},
- {"||", "OR", 6, false, &def_float, &def_float, &def_float},
+	{"&&", "AND", 6, false, &def_float, &def_float, &def_float},
+	{"||", "OR", 6, false, &def_float, &def_float, &def_float},
 
- {"&", "BITAND", 2, false, &def_float, &def_float, &def_float},
- {"|", "BITOR", 2, false, &def_float, &def_float, &def_float},
+	{"&", "BITAND", 2, false, &def_float, &def_float, &def_float},
+	{"|", "BITOR", 2, false, &def_float, &def_float, &def_float},
 
- {NULL}
+	{NULL}
 };
 
 #define	TOP_PRIORITY	6
@@ -709,6 +709,7 @@ def_t *PR_GetDef (type_t *type, char *name, def_t *scope, bool allocate)
 	def = malloc (sizeof(def_t));
 	memset (def, 0, sizeof(*def));
 	def->next = NULL;
+
 	pr.def_tail->next = def;
 	pr.def_tail = def;
 
@@ -767,6 +768,85 @@ def_t *PR_GetDef (type_t *type, char *name, def_t *scope, bool allocate)
 	return def;
 }
 
+
+void PR_ParseFunction(void)
+{
+	char *func_name = PR_ParseName ();
+
+	PR_Expect("(");
+
+	type_t t_new;
+
+	t_new.type = ev_function;
+	t_new.num_parms = 0;
+
+	if (! PR_Check(")"))
+	{
+		do
+		{
+			char *name = PR_ParseName();
+
+			strcpy(pr_parm_names[t_new.num_parms], name);
+
+			PR_Expect(":");
+
+			t_new.parm_types[t_new.num_parms] = PR_ParseType();
+			t_new.num_parms++;
+		}
+		while (PR_Check(","));
+
+		PR_Expect(")");
+	}
+
+	// return type
+	PR_Expect(":");
+	t_new.aux_type = PR_ParseType();
+
+	type_t *func_type = PR_FindType(&t_new);
+
+	def_t *def = PR_GetDef (func_type, func_name, pr_scope, true);
+
+	if (def->initialized)
+		PR_ParseError ("%s redeclared", func_name);
+
+
+	PR_Expect("=");
+
+	assert(func_type->type == ev_function);
+
+	int locals_start;
+	locals_start = locals_end = numpr_globals;
+
+	pr_scope = def;
+	//  { 
+		function_t	*f = PR_ParseImmediateStatements (func_type);
+	//  }
+	pr_scope = NULL;
+
+	def->initialized = 1;
+	G_FUNCTION(def->ofs) = numfunctions;
+	f->def = def;
+
+
+	// fill in the dfunction
+	dfunction_t	*df = &functions[numfunctions++];
+
+	if (f->builtin)
+		df->first_statement = -f->builtin;
+	else
+		df->first_statement = f->code;
+
+	df->s_name = CopyString (f->def->name);
+	df->s_file = s_file;
+	df->numparms =  f->def->type->num_parms;
+	df->locals = locals_end - locals_start;
+	df->parm_start = locals_start;
+
+	for (int i=0 ; i<df->numparms ; i++)
+		df->parm_size[i] = type_size[f->def->type->parm_types[i]->type];
+}
+
+
 /*
 ================
 PR_ParseDefs
@@ -776,12 +856,17 @@ Called at the outer layer and when a local statement is hit
 */
 void PR_ParseDefs (void)
 {
-	char		*name;
-	def_t		*def;
 	function_t	*f;
 	dfunction_t	*df;
 	int			i;
-	int			locals_start;
+
+
+	if (PR_Check("function"))
+	{
+		PR_ParseFunction();
+		return;
+	}
+
 
 	type_t *type = PR_ParseType ();
 
@@ -790,18 +875,22 @@ void PR_ParseDefs (void)
 
 	do
 	{
-		name = PR_ParseName ();
+		char *name = PR_ParseName ();
 
-		def = PR_GetDef (type, name, pr_scope, true);
+		def_t *def = PR_GetDef (type, name, pr_scope, true);
 
 // check for an initialization
 		if ( PR_Check ("=") )
 		{
+//			Error("Go to hell fucker!");
+
 			if (def->initialized)
 				PR_ParseError ("%s redeclared", name);
 
 			if (type->type == ev_function)
 			{
+#if 1
+				int locals_start;
 				locals_start = locals_end = numpr_globals;
 				pr_scope = def;
 				f = PR_ParseImmediateStatements (type);
@@ -819,14 +908,16 @@ void PR_ParseDefs (void)
 					df->first_statement = -f->builtin;
 				else
 					df->first_statement = f->code;
+
 				df->s_name = CopyString (f->def->name);
 				df->s_file = s_file;
 				df->numparms =  f->def->type->num_parms;
 				df->locals = locals_end - locals_start;
 				df->parm_start = locals_start;
+
 				for (i=0 ; i<df->numparms ; i++)
 					df->parm_size[i] = type_size[f->def->type->parm_types[i]->type];
-
+#endif
 				continue;
 			}
 			else if (pr_immediate_type != type)
@@ -837,7 +928,8 @@ void PR_ParseDefs (void)
 			PR_Lex ();
 		}
 
-	} while (PR_Check (","));
+	}
+	while (PR_Check (","));
 
 	PR_Expect (";");
 }
@@ -853,8 +945,6 @@ bool PR_CompileFile (char *string, char *filename)
 {
 	if (!pr.memory)
 		Error ("PR_CompileFile: Didn't clear");
-
-	PR_ClearGrabMacros ();	// clear the frame macros
 
 	pr_file_p = string;
 	s_file = CopyString (filename);
