@@ -109,8 +109,6 @@ extern int pr_numbuiltins;
 extern int pr_argc;
 
 extern bool pr_trace;
-extern dfunction_t *pr_xfunction;
-extern int pr_xstatement;
 
 void PR_RunError(const char *error, ...) __attribute__((format(printf,1,2)));
 
