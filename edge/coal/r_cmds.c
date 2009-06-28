@@ -18,7 +18,7 @@ static void PF_Dummy(void)
     Error("unimplemented builtin");
 }
 
-static void PF_Print(void)
+static void PF_PrintStr(void)
 {
     printf("%s\n", PF_VarString(0));
 }
@@ -28,13 +28,21 @@ static void PF_PrintNum(void)
     printf("%1.5f\n", G_FLOAT(OFS_PARM0+0));
 }
 
+static void PF_PrintVector(void)
+{
+	float *vec = G_VECTOR(OFS_PARM0);
+
+    printf("'%1.3f %1.3f %1.3f'\n", vec[0], vec[1], vec[2]);
+}
+
 
 builtin_t pr_builtin[] =
 {
   PF_Dummy,
 
-  PF_Print,
+  PF_PrintStr,
   PF_PrintNum,
+  PF_PrintVector,
 };
 
 builtin_t *pr_builtins = pr_builtin;
