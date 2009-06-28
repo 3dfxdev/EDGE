@@ -315,7 +315,7 @@ PR_ExecuteProgram(func_t fnum)
 	    Con_DPrintf("%s: progs execution running away (%i left)\n",
 			__func__, runaway);
 
-	pr_xfunction->profile++;
+	// pr_xfunction->profile++;
 	pr_xstatement = s;
 
 	if (pr_trace)

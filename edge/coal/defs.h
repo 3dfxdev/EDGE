@@ -156,8 +156,6 @@ typedef struct
 	int		parm_start;
 	int		locals;				// total ints of parms + locals
 
-	int		profile;		// runtime
-
 	int		s_name;
 	int		s_file;			// source file defined in
 
