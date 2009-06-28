@@ -24,6 +24,11 @@
 #define Con_DPrintf  printf
 
 
+// typedef int  bool;
+// #define false   0
+// #define true    1
+
+
 #include "lib.h"
 #include "lib.c"
 
@@ -622,11 +627,10 @@ main
 */
 int main (int argc, char **argv)
 {
-	char	*src;
 	char	*src2;
 	char	filename[1024];
-	int		p;
-  int   k;
+
+	int   k;
 	double	start, stop;
 
 	start = I_FloatTime ();
