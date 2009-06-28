@@ -152,17 +152,6 @@ dstatement_t;
 
 typedef struct
 {
-	unsigned short	type;		// if DEF_SAVEGLOBGAL bit is set
-								// the variable needs to be saved in savegames
-	unsigned short	ofs;
-	int			s_name;
-}
-ddef_t;
-
-#define	DEF_SAVEGLOBAL	(1<<15)
-
-typedef struct
-{
 	int		first_statement;	// negative numbers are builtins
 	int		parm_start;
 	int		locals;				// total ints of parms + locals

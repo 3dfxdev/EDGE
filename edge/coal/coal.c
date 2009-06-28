@@ -36,6 +36,9 @@
 #include <ctype.h>
 #include <math.h>
 #include <errno.h>
+#include <assert.h>
+
+#include <sys/signal.h>
 
 
 #include "defs.h"
@@ -79,12 +82,6 @@ int			statement_linenums[MAX_STATEMENTS];
 
 dfunction_t	functions[MAX_FUNCTIONS];
 int			numfunctions;
-
-ddef_t		globals[MAX_GLOBALS];
-int			numglobaldefs;
-
-ddef_t		fields[MAX_FIELDS];
-int			numfielddefs;
 
 
 
@@ -137,30 +134,6 @@ void PrintFunctions (void)
 	}
 }
 
-void PrintFields (void)
-{
-	int		i;
-	ddef_t	*d;
-
-	for (i=0 ; i<numfielddefs ; i++)
-	{
-		d = &fields[i];
-		printf ("%5i : (%i) %s\n", d->ofs, d->type, strings + d->s_name);
-	}
-}
-
-void PrintGlobals (void)
-{
-	int		i;
-	ddef_t	*d;
-
-	for (i=0 ; i<numglobaldefs ; i++)
-	{
-		d = &globals[i];
-		printf ("%5i : (%i) %s\n", d->ofs, d->type, strings + d->s_name);
-	}
-}
-
 
 void InitData (void)
 {
@@ -169,8 +142,6 @@ void InitData (void)
 	numstatements = 1;
 	strofs = 1;
 	numfunctions = 1;
-	numglobaldefs = 1;
-	numfielddefs = 1;
 
 	def_ret.ofs = OFS_RETURN;
 	for (i=0 ; i<MAX_PARMS ; i++)
@@ -181,49 +152,28 @@ void InitData (void)
 static void WriteData (void)
 {
 	def_t		*def;
-	ddef_t		*dd;
+	
 	int			i;
 
 	for (def = pr.def_head.next ; def ; def = def->next)
 	{
 		if (def->type->type == ev_function)
 		{
-//			df = &functions[numfunctions];
-//			numfunctions++;
 
 		}
     else if (def->type->type == ev_field)
     {
-      dd = &fields[numfielddefs];
-      numfielddefs++;
-      dd->type = def->type->aux_type->type;
-      dd->s_name = CopyString (def->name);
-      dd->ofs = G_INT(def->ofs);
     }
-    dd = &globals[numglobaldefs];
-    numglobaldefs++;
-    dd->type = def->type->type;
-    if ( !def->initialized
-        && def->type->type != ev_function
-        && def->type->type != ev_field
-        && def->scope == NULL)
-      dd->type |= DEF_SAVEGLOBAL;
-    dd->s_name = CopyString (def->name);
-    dd->ofs = def->ofs;
 	}
 
 //PrintStrings ();
 //PrintFunctions ();
-//PrintFields ();
-//PrintGlobals ();
 
 strofs = (strofs+3)&~3;
 
 	printf ("%6i strofs\n", strofs);
 	printf ("%6i numstatements\n", numstatements);
 	printf ("%6i numfunctions\n", numfunctions);
-	printf ("%6i numglobaldefs\n", numglobaldefs);
-	printf ("%6i numfielddefs\n", numfielddefs);
 	printf ("%6i numpr_globals\n", numpr_globals);
 
 }
