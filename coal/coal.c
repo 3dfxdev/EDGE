@@ -633,8 +633,6 @@ int main (int argc, char **argv)
 	int   k;
 	double	start, stop;
 
-	start = I_FloatTime ();
-
 	if (argc <= 1 ||
 	    (strcmp(argv[1], "-?") == 0) || (strcmp(argv[1], "-h") == 0) ||
 		(strcmp(argv[1], "-help") == 0) || (strcmp(argv[1], "--help") == 0))
@@ -674,11 +672,6 @@ int main (int argc, char **argv)
 		Error ("compilation errors");
 
   WriteData();
-
-
-	stop = I_FloatTime ();
-	printf ("%i seconds elapsed.\n", (int)(stop-start));
-  printf("\n\n");
 
 
   // find 'main' function

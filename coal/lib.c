@@ -54,21 +54,6 @@ void Error (char *error, ...)
 }
 
 
-/*
-================
-I_FloatTime
-================
-*/
-double I_FloatTime (void)
-{
-	time_t	t;
-	
-	time (&t);
-	
-	return t;
-}
-
-
 
 /*
 =============================================================================
@@ -79,100 +64,39 @@ double I_FloatTime (void)
 */
 
 
-/*
-================
-filelength
-================
-*/
-int filelength (FILE *f)
+static int filelength (FILE *f)
 {
-	int		pos;
-	int		end;
+	int pos = ftell (f);
 
-	pos = ftell (f);
 	fseek (f, 0, SEEK_END);
-	end = ftell (f);
+
+	int end = ftell (f);
+
 	fseek (f, pos, SEEK_SET);
 
 	return end;
 }
 
 
-FILE *SafeOpenWrite (char *filename)
+int LoadFile (char *filename, void **bufferptr)
 {
-	FILE	*f;
-
-	f = fopen(filename, "wb");
+	FILE *f = fopen(filename, "rb");
 
 	if (!f)
-		Error ("Error opening %s: %s",filename,strerror(errno));
+		Error ("Error opening %s: %s", filename, strerror(errno));
 
-	return f;
-}
+	int length = filelength (f);
+	void *buffer = malloc (length+1);
 
-FILE *SafeOpenRead (char *filename)
-{
-	FILE	*f;
-
-	f = fopen(filename, "rb");
-
-	if (!f)
-		Error ("Error opening %s: %s",filename,strerror(errno));
-
-	return f;
-}
-
-
-void SafeRead (FILE *f, void *buffer, int count)
-{
-	if ( fread (buffer, 1, count, f) != (size_t)count)
+	if ( fread (buffer, 1, length, f) != (size_t)length)
 		Error ("File read failure");
-}
 
-
-void SafeWrite (FILE *f, void *buffer, int count)
-{
-	if (fwrite (buffer, 1, count, f) != (size_t)count)
-		Error ("File read failure");
-}
-
-
-
-/*
-==============
-LoadFile
-==============
-*/
-int    LoadFile (char *filename, void **bufferptr)
-{
-	FILE	*f;
-	int    length;
-	void    *buffer;
-
-	f = SafeOpenRead (filename);
-	length = filelength (f);
-	buffer = malloc (length+1);
-	((char *)buffer)[length] = 0;
-	SafeRead (f, buffer, length);
 	fclose (f);
 
+	((char *)buffer)[length] = 0;
+	
 	*bufferptr = buffer;
 	return length;
-}
-
-
-/*
-==============
-SaveFile
-==============
-*/
-void    SaveFile (char *filename, void *buffer, int count)
-{
-	FILE	*f;
-
-	f = SafeOpenWrite (filename);
-	SafeWrite (f, buffer, count);
-	fclose (f);
 }
 
 
