@@ -435,7 +435,7 @@ void PR_ParseError (char *error, ...)
 
 	printf ("%s:%i:%s\n", strings + s_file, pr_source_line, string);
 
-raise(11);
+//raise(11);
 	throw parse_error_x();
 }
 

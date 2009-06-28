@@ -794,9 +794,11 @@ void PR_ParseFunction(void)
 
 			strcpy(pr_parm_names[t_new.num_parms], name);
 
-			PR_Expect(":");
-
-			t_new.parm_types[t_new.num_parms] = PR_ParseType();
+			// parameter type (defaults to float)
+			if (PR_Check(":"))
+				t_new.parm_types[t_new.num_parms] = PR_ParseType();
+			else
+				t_new.parm_types[t_new.num_parms] = &type_float;
 
 			t_new.num_parms++;
 		}
