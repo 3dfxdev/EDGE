@@ -869,18 +869,22 @@ bool	PR_CompileFile (char *string, char *filename)
 
 	while (pr_token_type != tt_eof)
 	{
-		if (setjmp(pr_parse_abort))
+		try
+		{
+			pr_scope = NULL;	// outside all functions
+			
+			PR_ParseDefs ();
+		}
+		catch (parse_error_x err)
 		{
 			if (++pr_error_count > MAX_ERRORS)
 				return false;
+
 			PR_SkipToSemicolon ();
+
 			if (pr_token_type == tt_eof)
 				return false;		
 		}
-
-		pr_scope = NULL;	// outside all functions
-		
-		PR_ParseDefs ();
 	}
 	
 	return (pr_error_count == 0);

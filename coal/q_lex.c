@@ -508,7 +508,7 @@ void PR_ParseError (char *error, ...)
 
 	printf ("%s:%i:%s\n", strings + s_file, pr_source_line, string);
 	
-	longjmp (pr_parse_abort, 1);
+	throw parse_error_x();
 }
 
 
