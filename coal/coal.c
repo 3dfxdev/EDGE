@@ -151,20 +151,6 @@ void InitData (void)
 
 static void WriteData (void)
 {
-	def_t		*def;
-	
-	int			i;
-
-	for (def = pr.def_head.next ; def ; def = def->next)
-	{
-		if (def->type->type == ev_function)
-		{
-
-		}
-    else if (def->type->type == ev_field)
-    {
-    }
-	}
 
 //PrintStrings ();
 //PrintFunctions ();
@@ -421,11 +407,11 @@ PR_BeginCompilation
 called before compiling a batch of files, clears the pr struct
 ==============
 */
-void	PR_BeginCompilation (void *memory, int memsize)
+void	PR_BeginCompilation (int memsize)
 {
-	int		i;
+	int i;
 
-	pr.memory = memory;
+	pr.memory = new char [memsize];
 	pr.max_memory = memsize;
 
 	numpr_globals = RESERVED_OFS;
@@ -486,8 +472,6 @@ int	PR_WriteProgdefs (char *filename)
 {
 	def_t	*d;
 	FILE	*f;
-	unsigned short		crc;
-	int		c;
 
 	printf ("writing %s\n", filename);
 	f = fopen (filename, "w");
@@ -561,10 +545,7 @@ int	PR_WriteProgdefs (char *filename)
 
 	fclose (f);
 
-// do a crc of the file
-  crc = 0;
-
-	return crc;
+	return 0;
 }
 
 
@@ -611,7 +592,7 @@ static int filelength (FILE *f)
 }
 
 
-int LoadFile (char *filename, void **bufferptr)
+int LoadFile (char *filename, char **bufptr)
 {
 	FILE *f = fopen(filename, "rb");
 
@@ -619,16 +600,15 @@ int LoadFile (char *filename, void **bufferptr)
 		Error ("Error opening %s: %s", filename, strerror(errno));
 
 	int length = filelength (f);
-	void *buffer = malloc (length+1);
+	*bufptr = (char *) malloc (length+1);
 
-	if ( fread (buffer, 1, length, f) != (size_t)length)
+	if ( fread (*bufptr, 1, length, f) != (size_t)length)
 		Error ("File read failure");
 
 	fclose (f);
 
-	((char *)buffer)[length] = 0;
+	(*bufptr)[length] = 0;
 
-	*bufferptr = buffer;
 	return length;
 }
 
@@ -662,7 +642,7 @@ int main (int argc, char **argv)
 	pr_dumpasm = false;
 
 
-	PR_BeginCompilation (malloc (0x100000), 0x100000);
+	PR_BeginCompilation(0x1000000);
 
 // compile all the files
   for (k = 1; k < argc; k++)
@@ -673,7 +653,7 @@ int main (int argc, char **argv)
 		sprintf (filename, "%s%s", sourcedir, argv[k]);
 		printf ("compiling %s\n", filename);
 
-		LoadFile (filename, (void *)&src2);
+		LoadFile (filename, &src2);
 
 		if (!PR_CompileFile (src2, filename) )
 			exit (1);

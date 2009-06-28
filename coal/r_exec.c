@@ -280,9 +280,9 @@ PR_ExecuteProgram(func_t fnum)
     dfunction_t *f, *newf;
     int runaway;
     int i;
-    edict_t *ed;
+//   edict_t *ed;
     int exitdepth;
-    eval_t *ptr;
+//    eval_t *ptr;
 
     if (!fnum || fnum >= numfunctions)
     {

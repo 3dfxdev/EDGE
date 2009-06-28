@@ -28,7 +28,9 @@ typedef int	string_t;
 
 typedef enum
 {
-	ev_void,
+	ev_INVALID = -1,
+
+	ev_void = 0,
 	ev_string,
 	ev_float,
 	ev_vector,
