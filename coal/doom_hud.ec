@@ -20,8 +20,8 @@ function doom_weapon_icon (slot, x, y, off_pic : string, on_pic : string) =
 function doom_key (x, y, card, skull,
      card_pic : string, skull_pic : string, both_pic : string) =
 {
-  local var has_cd ; has_cd = player_has_key(card);
-  local var has_sk ; has_cd = player_has_key(skull);
+  var has_cd ; has_cd = player_has_key(card);
+  var has_sk ; has_cd = player_has_key(skull);
 
   if (has_cd && has_sk)
   {
@@ -40,11 +40,11 @@ function doom_key (x, y, card, skull,
 
   function pain_digit() : string =
   {
-    local var health; health = player_health();
+    var health; health = player_health();
     if (health > 100)
       health = 100;
 
-    local var index; index = math_floor(4.99 * (100 - health) / 100);
+    var index; index = math_floor(4.99 * (100 - health) / 100);
 
     sys_assert(index >= 0);
     sys_assert(index <= 4);
@@ -54,7 +54,7 @@ function doom_key (x, y, card, skull,
 
   function turn_digit() : string =
   {
-    local var r; r = math_random() * 2.99;
+    var r; r = math_random() * 2.99;
     r = math_floor(r);
     return string_format("%d", r);
   }
@@ -87,7 +87,7 @@ function doom_key (x, y, card, skull,
         return;
       }
 
-      local var dir; dir = 0;
+      var dir; dir = 0;
 
       if (player_hurt_by() == "enemy" ||
           player_hurt_by() == "friend")
@@ -156,7 +156,7 @@ function doom_little_ammo() =
   hud_text_font("YELLOW_DIGIT");
   hud_text_color("");
 
-  local var a;
+  var a;
 
   a = player_ammo(1); hud_draw_num2(288, 173, 3, a);
   a = player_ammo(2); hud_draw_num2(288, 179, 3, a);
@@ -172,7 +172,7 @@ function doom_little_ammo() =
 
 function doom_status_bar() =
 {
-  local var a;
+  var a;
 
   hud_draw_image(  0, 168, "STBAR");
   hud_draw_image( 90, 171, "STTPRCNT");
@@ -214,7 +214,7 @@ function doom_status_bar() =
 
 function doom_overlay_status() = 
 {
-  local var a;
+  var a;
 
   hud_text_font("BIG_DIGIT");
 
@@ -252,7 +252,7 @@ function doom_automap() =
 
   doom_status_bar();
 
-  local var title : string; title = hud_map_title();
+  var title : string; title = hud_map_title();
 
   hud_text_font("DOOM");
   hud_draw_text(0, 200 - 32 - 10, title);
@@ -267,11 +267,11 @@ function edge_air_bar() =
   if (! player_under_water())
     return;
 
-  local var air; air = player_air_in_lungs();
+  var air; air = player_air_in_lungs();
 
   air = math_floor(1 + 21 * ((100 - air) / 100.1));
 
-  local var barname : string; barname = string_format("AIRBAR%02d", air);
+  var barname : string; barname = string_format("AIRBAR%02d", air);
 
   hud_draw_image(0, 0, barname);
 }
