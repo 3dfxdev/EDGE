@@ -858,6 +858,55 @@ void PR_ParseFunction(void)
 }
 
 
+void PR_ParseVariable(void)
+{
+	// FIXME
+
+	char *var_name = strdup(PR_ParseName());
+
+	type_t *type = &type_float;
+
+	if (PR_Check(":"))
+	{
+		type = PR_ParseType();
+	}
+
+	// TODO
+	// if (PR_Check("="))
+	// 	 get default value
+
+	def_t *def = PR_GetDef (type, var_name, pr_scope, true);
+
+	PR_Expect(";");  // FIXME: allow EOL as well
+}
+
+
+void PR_ParseField(void)
+{
+	char *field_name = strdup(PR_ParseName());
+
+	type_t *type = &type_float;
+
+	if (PR_Check(":"))
+	{
+		type = PR_ParseType();
+	}
+
+	type_t t_new;
+	memset (&t_new, 0, sizeof(t_new));
+
+	t_new.type = ev_field;
+	t_new.aux_type = type;
+
+
+	type_t *field_type = PR_FindType (&t_new);
+
+	def_t *def = PR_GetDef (field_type, field_name, pr_scope, true);
+
+	PR_Expect(";");  // FIXME: allow EOL as well
+}
+
+
 /*
 ================
 PR_ParseDefs
@@ -877,6 +926,22 @@ void PR_ParseDefs (void)
 		PR_ParseFunction();
 		return;
 	}
+
+	if (PR_Check("var"))
+	{
+		PR_ParseVariable();
+		return;
+	}
+
+	if (PR_Check ("field"))
+	{
+		PR_ParseField();
+		return;
+	}
+
+
+	PR_ParseError("Syntax error");
+	{ return; }
 
 
 	type_t *type = PR_ParseType ();
