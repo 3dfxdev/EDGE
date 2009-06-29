@@ -155,7 +155,7 @@ Emits a primitive statement, returning the var it places it's value in
 */
 def_t *PR_Statement ( opcode_t *op, def_t *var_a, def_t *var_b)
 {
-	dstatement_t	*statement;
+	statement_t	*statement;
 	def_t			*var_c;
 
 	statement = &statements[numstatements];
@@ -479,7 +479,7 @@ PR_ParseStatement
 void PR_ParseStatement (void)
 {
 	def_t				*e;
-	dstatement_t		*patch1, *patch2;
+	statement_t		*patch1, *patch2;
 
 	if (PR_Check ("{"))
 	{
@@ -582,55 +582,10 @@ void PR_ParseStatement (void)
 }
 
 
-/*
-==============
-PR_ParseState
 
-States are special functions made for convenience.  They automatically
-set frame, nextthink (implicitly), and think (allowing forward definitions).
-
-// void() name = [framenum, nextthink] {code}
-// expands to:
-// function void name ()
-// {
-//		self.frame=framenum;
-//		self.nextthink = time + 0.1;
-//		self.think = nextthink
-//		<code>
-// };
-==============
-*/
-void PR_ParseState (void)
+int PR_ParseFunctionBody (type_t *type)
 {
-	char	*name;
-	def_t	*s1, *def;
-
-	if (pr_token_type != tt_immediate || pr_immediate_type != &type_float)
-		PR_ParseError ("state frame must be a number");
-	s1 = PR_ParseImmediate ();
-
-	PR_Expect (",");
-
-	name = PR_ParseName ();
-	def = PR_GetDef (&type_function, name,0, true);
-
-	PR_Expect ("]");
-
-	PR_Statement (&pr_opcodes[OP_STATE], s1, def);
-}
-
-/*
-============
-PR_ParseImmediateStatements
-
-Parse a function body
-============
-*/
-function_t *PR_ParseImmediateStatements (type_t *type)
-{
-	int			i;
-
-	function_t *f = new function_t;
+	int i;
 
 //
 // check for builtin function definition #1, #2, etc
@@ -643,48 +598,42 @@ function_t *PR_ParseImmediateStatements (type_t *type)
 		{
 			PR_ParseError ("Bad builtin immediate");
 		}
-		f->builtin = (int)pr_immediate._float;
+		int builtin = (int)pr_immediate._float;
 		PR_Lex ();
-		return f;
+		return -builtin;
 	}
 
-	f->builtin = 0;
 //
 // define the parms
 //
 	def_t *defs[MAX_PARMS];
 
+	int parm_ofs[MAX_PARMS];
+
 	for (i=0 ; i<type->parm_num ; i++)
 	{
 		defs[i] = PR_GetDef (type->parm_types[i], pr_parm_names[i], pr_scope, true);
 
-		f->parm_ofs[i] = defs[i]->ofs;
+		parm_ofs[i] = defs[i]->ofs;
 
-		if (i > 0 && f->parm_ofs[i] < f->parm_ofs[i-1])
+		if (i > 0 && parm_ofs[i] < parm_ofs[i-1])
 			Error ("bad parm order");
 	}
 
-	f->code = numstatements;
-
-//
-// check for a state opcode
-//
-	if (PR_Check ("["))
-		PR_ParseState ();
+	int code = numstatements;
 
 //
 // parse regular statements
 //
 	PR_Expect ("{");
 
-	while (!PR_Check("}"))
-		PR_ParseStatement ();
+	while (! PR_Check("}"))
+		PR_ParseStatement();
 
 // emit an end of statements opcode
-	PR_Statement (pr_opcodes, 0,0);
+	PR_Statement (&pr_opcodes[OP_DONE], NULL, NULL);
 
-
-	return f;
+	return code;
 }
 
 /*
@@ -832,31 +781,27 @@ void PR_ParseFunction(void)
 
 	pr_scope = def;
 	//  { 
-		function_t	*f = PR_ParseImmediateStatements (func_type);
+		int code = PR_ParseFunctionBody(func_type);
 	//  }
 	pr_scope = NULL;
 
 	def->initialized = 1;
 	G_FUNCTION(def->ofs) = numfunctions;
-	f->def = def;
 
 
 	// fill in the dfunction
-	dfunction_t	*df = &functions[numfunctions++];
+	function_t	*df = &functions[numfunctions++];
 
-	if (f->builtin)
-		df->first_statement = -f->builtin;
-	else
-		df->first_statement = f->code;
+	df->first_statement = code;
 
-	df->s_name = CopyString (f->def->name);
+	df->s_name = CopyString (def->name);
 	df->s_file = s_file;
-	df->parm_num =  f->def->type->parm_num;
+	df->parm_num =  def->type->parm_num;
 	df->locals = locals_end - locals_start;
 	df->parm_start = locals_start;
 
 	for (int i=0 ; i<df->parm_num ; i++)
-		df->parm_size[i] = type_size[f->def->type->parm_types[i]->type];
+		df->parm_size[i] = type_size[def->type->parm_types[i]->type];
 }
 
 

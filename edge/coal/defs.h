@@ -143,12 +143,12 @@ enum
 
 #define	MAX_PARMS	8
 
-typedef struct statement_s
+typedef struct
 {
 	short op;
 	short a, b, c;
 }
-dstatement_t;
+statement_t;
 
 
 typedef struct
@@ -165,7 +165,7 @@ typedef struct
 
 	int		first_statement;	// negative numbers are builtins
 }
-dfunction_t;
+function_t;
 
 #endif // __DEFS_CC_H__
 

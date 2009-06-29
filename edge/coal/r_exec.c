@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 typedef struct
 {
     int s;
-    dfunction_t *f;
+    function_t *f;
 }
 prstack_t;
 
@@ -34,7 +34,7 @@ int localstack[LOCALSTACK_SIZE];
 int localstack_used;
 
 bool pr_trace;
-dfunction_t *pr_xfunction;
+function_t *pr_xfunction;
 int pr_xstatement;
 int pr_argc;
 
@@ -138,7 +138,7 @@ PR_StackTrace
 void
 PR_StackTrace(void)
 {
-    dfunction_t *f;
+    function_t *f;
     int i;
 
     if (pr_depth == 0) {
@@ -202,7 +202,7 @@ Returns the new program statement counter
 ====================
 */
 int
-PR_EnterFunction(dfunction_t *f)
+PR_EnterFunction(function_t *f)
 {
     int i, j, c, o;
 
@@ -278,8 +278,8 @@ PR_ExecuteProgram(func_t fnum)
 {
     eval_t *a, *b, *c;
     int s;
-    dstatement_t *st;
-    dfunction_t *f, *newf;
+    statement_t *st;
+    function_t *f, *newf;
     int runaway;
     int i;
 //   edict_t *ed;
@@ -571,12 +571,13 @@ PR_ExecuteProgram(func_t fnum)
 	    newf = &functions[a->function];
 
 	    /* negative statements are built in functions */
-	    if (newf->first_statement < 0) {
-		i = -newf->first_statement;
-		if (i >= pr_numbuiltins)
-		    PR_RunError("Bad builtin call number");
-		pr_builtins[i] ();
-		break;
+	    if (newf->first_statement < 0)
+		{
+			i = -newf->first_statement;
+			if (i >= pr_numbuiltins)
+				PR_RunError("Bad builtin call number");
+			pr_builtins[i] ();
+			break;
 	    }
 
 	    s = PR_EnterFunction(newf);

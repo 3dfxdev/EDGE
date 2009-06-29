@@ -511,8 +511,8 @@ type_t *PR_FindType (type_t *type)
 	for (check = pr.types ; check ; check = check->next)
 	{
 		if (check->type != type->type
-		|| check->aux_type != type->aux_type
-		|| check->parm_num != type->parm_num)
+			|| check->aux_type != type->aux_type
+			|| check->parm_num != type->parm_num)
 			continue;
 
 		for (i=0 ; i< type->parm_num ; i++)

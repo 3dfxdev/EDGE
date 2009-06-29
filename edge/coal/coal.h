@@ -231,7 +231,6 @@ There are no ++ / -- operators, or operate/assign operators.
 
 // offsets are allways multiplied by 4 before using
 typedef int	gofs_t;				// offset in global data block
-typedef struct function_s function_t;
 
 #define	MAX_PARMS	8
 
@@ -241,6 +240,7 @@ typedef struct type_s
 	struct def_s	*def;		// a def that points to this type
 // function types are more complex
 	struct type_s	*aux_type;	// return type or field type
+
 	int				parm_num;	// -1 = variable args
 	struct type_s	*parm_types[MAX_PARMS];	// only [parm_num] allocated
 
@@ -280,17 +280,6 @@ extern	def_t	*def_for_type[8];
 extern	type_t	type_void, type_string, type_float, type_vector, type_entity, type_field, type_function, type_pointer, type_floatfield;
 
 extern	def_t	def_void, def_string, def_float, def_vector, def_entity, def_field, def_function, def_pointer;
-
-struct function_s
-{
-	struct def_s *def;
-
-	int					builtin;	// if non 0, call an internal function
-	int					code;		// first statement
-	char				*file;		// source file with definition
-	int					file_line;
-	int					parm_ofs[MAX_PARMS];	// allways contiguous, right?
-};
 
 
 //
@@ -346,7 +335,7 @@ extern	token_type_t	pr_token_type;
 extern	type_t		*pr_immediate_type;
 extern	eval_t		pr_immediate;
 
-void PR_PrintStatement (dstatement_t *s);
+void PR_PrintStatement (statement_t *s);
 
 void PR_Lex (void);
 // reads the next token into pr_token and classifies its type
@@ -368,11 +357,9 @@ public:
 	~parse_error_x() { }
 };
 
-///---  extern	jmp_buf		pr_parse_abort;		// longjump with this on parse error
+
 extern	int			pr_source_line;
 extern	char		*pr_file_p;
-
-void *PR_Malloc (int size);
 
 
 #define	OFS_NULL		0
@@ -429,11 +416,11 @@ extern	def_t	def_ret, def_parms[MAX_PARMS];
 extern	char	strings[MAX_STRINGS];
 extern	int		strofs;
 
-extern	dstatement_t	statements[MAX_STATEMENTS];
+extern	statement_t	statements[MAX_STATEMENTS];
 extern	int			numstatements;
 extern	int			statement_linenums[MAX_STATEMENTS];
 
-extern	dfunction_t	functions[MAX_FUNCTIONS];
+extern	function_t  functions[MAX_FUNCTIONS];
 extern	int			numfunctions;
 
 extern	float		pr_globals[MAX_REGS];
