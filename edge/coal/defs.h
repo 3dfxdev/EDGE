@@ -145,9 +145,8 @@ enum
 
 typedef struct statement_s
 {
-	int op;
-
-	int a, b, c;
+	short op;
+	short a, b, c;
 }
 dstatement_t;
 
