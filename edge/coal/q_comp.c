@@ -34,7 +34,8 @@ string_t	s_file;			// filename for function definition
 int			locals_end;		// for tracking local variables vs temps
 
 
-void PR_ParseDefs (void);
+void PR_ParseFunction (void);
+void PR_ParseVariable (void);
 
 //========================================
 
@@ -534,9 +535,15 @@ void PR_ParseStatement (void)
 		return;
 	}
 
-	if (PR_Check("local"))
+	if (PR_Check("function"))
 	{
-		PR_ParseDefs ();
+		PR_ParseError ("Functions must be global");
+		return;
+	}
+
+	if (PR_Check("var"))
+	{
+		PR_ParseVariable ();
 		locals_end = numpr_globals;
 		return;
 	}
@@ -907,22 +914,26 @@ void PR_ParseField(void)
 }
 
 
-/*
-================
-PR_ParseDefs
-
-Called at the outer layer and when a local statement is hit
-================
-*/
-void PR_ParseDefs (void)
+void PR_ParseConstant(void)
 {
+	char *const_name = strdup(PR_ParseName());
 
+	PR_Expect("=");
+
+	if (pr_token_type != tt_immediate)
+		PR_ParseError("Expected value for constant");
+
+	// FIXME: create constant
+	
+	PR_Lex();
+	PR_Expect(";");  // FIXME: allow EOL as well
+}
+
+
+void PR_ParseGlobals (void)
+{
 	if (PR_Check("function"))
 	{
-		// NOTE: this check doesn't seem to kick in
-		if (pr_scope)
-			PR_ParseError ("Functions must be global");
-
 		PR_ParseFunction();
 		return;
 	}
@@ -930,6 +941,12 @@ void PR_ParseDefs (void)
 	if (PR_Check("var"))
 	{
 		PR_ParseVariable();
+		return;
+	}
+
+	if (PR_Check ("constant"))
+	{
+		PR_ParseConstant();
 		return;
 	}
 
@@ -1004,7 +1021,7 @@ bool PR_CompileFile (char *string, char *filename)
 		{
 			pr_scope = NULL;	// outside all functions
 
-			PR_ParseDefs ();
+			PR_ParseGlobals ();
 		}
 		catch (parse_error_x err)
 		{
