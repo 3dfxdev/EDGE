@@ -36,6 +36,7 @@ int			locals_end;		// for tracking local variables vs temps
 
 void PR_ParseFunction (void);
 void PR_ParseVariable (void);
+void PR_ParseConstant (void);
 
 //========================================
 
@@ -548,6 +549,13 @@ void PR_ParseStatement (void)
 		return;
 	}
 
+	if (PR_Check("constant"))
+	{
+		PR_ParseConstant ();
+		locals_end = numpr_globals;
+		return;
+	}
+
 	if (PR_Check("if"))
 	{
 		PR_Expect ("(");
@@ -924,6 +932,7 @@ void PR_ParseConstant(void)
 		PR_ParseError("Expected value for constant");
 
 	// FIXME: create constant
+	  PR_ParseError("Constants not yet implemented");
 	
 	PR_Lex();
 	PR_Expect(";");  // FIXME: allow EOL as well
