@@ -11,7 +11,9 @@ function foo(a) =
 
 function main() =
 {
+    sprint("------------");
     sprint("Hello World!");
+    sprint("------------");
     
     vprint('1 2 3' + '4 5 6');
 
@@ -19,10 +21,8 @@ function main() =
 //    y.bar = 128;
 //    nprint(y.bar);
   
-    local var x : float;
+    var x; x = 1;
 
-    x = 1;
-    
     do {
       foo(x);
       x = x + 1;
