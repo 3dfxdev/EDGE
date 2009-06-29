@@ -822,7 +822,7 @@ void PR_ParseVariable(void)
 	// if (PR_Check("="))
 	// 	 get default value
 
-	def_t *def = PR_GetDef (type, var_name, pr_scope, true);
+	PR_GetDef (type, var_name, pr_scope, true);
 
 	PR_Expect(";");  // FIXME: allow EOL as well
 }
@@ -944,9 +944,6 @@ compiles the 0 terminated text, adding defintions to the pr structure
 */
 bool PR_CompileFile (char *string, char *filename)
 {
-	if (!pr.memory)
-		Error ("PR_CompileFile: Didn't clear");
-
 	pr_file_p = string;
 	s_file = CopyString (filename);
 

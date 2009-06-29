@@ -30,7 +30,7 @@ TODO:
 
 always initialize all variables to something safe
 
-the def->type->type arrangement is really silly.
+the def->type->def arrangement is really silly.
 
 return type checking
 
@@ -287,10 +287,6 @@ extern	def_t	def_void, def_string, def_float, def_vector, def_entity, def_field,
 //
 typedef struct
 {
-	char		*memory;
-	int			max_memory;
-	int			current_memory;
-
 	type_t		*types;
 	def_t       *defs;
 
