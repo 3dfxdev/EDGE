@@ -76,11 +76,11 @@ int			numpr_globals;
 char		strings[MAX_STRINGS];
 int			strofs;
 
-dstatement_t	statements[MAX_STATEMENTS];
+statement_t	statements[MAX_STATEMENTS];
 int			numstatements;
 int			statement_linenums[MAX_STATEMENTS];
 
-dfunction_t	functions[MAX_FUNCTIONS];
+function_t	functions[MAX_FUNCTIONS];
 int			numfunctions;
 
 
@@ -122,7 +122,7 @@ void PrintStrings (void)
 void PrintFunctions (void)
 {
 	int		i,j;
-	dfunction_t	*d;
+	function_t	*d;
 
 	for (i=0 ; i<numfunctions ; i++)
 	{
@@ -238,7 +238,7 @@ char *PR_ValueString (etype_t type, eval_t *val)
 {
 	static char	line[256];
 	def_t		*def;
-	dfunction_t	*f;
+	function_t	*f;
 
 	switch (type)
 	{
@@ -353,7 +353,7 @@ void PR_PrintOfs (gofs_t ofs)
 PR_PrintStatement
 =================
 */
-void PR_PrintStatement (dstatement_t *s)
+void PR_PrintStatement (statement_t *s)
 {
 	int		i;
 
@@ -553,8 +553,8 @@ int	PR_WriteProgdefs (char *filename)
 void PrintFunction (char *name)
 {
 	int		i;
-	dstatement_t	*ds;
-	dfunction_t		*df;
+	statement_t	*ds;
+	function_t		*df;
 
 	for (i=0 ; i<numfunctions ; i++)
 		if (!strcmp (name, strings + functions[i].s_name))
@@ -675,7 +675,7 @@ int main (int argc, char **argv)
     int i;
     for (i = 0; i < numfunctions; i++)
     {
-      dfunction_t *f = &functions[i];
+      function_t *f = &functions[i];
 
       const char *name = strings + f->s_name;
 
