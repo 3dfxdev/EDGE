@@ -1,4 +1,4 @@
-.float bar;
+field bar;
 
 function sprint(s : string) = #1
 function nprint(v : float ) = #2
@@ -19,7 +19,9 @@ function main() =
 //    y.bar = 128;
 //    nprint(y.bar);
   
-    local float x; x = 1;
+    local var x : float;
+
+    x = 1;
     
     do {
       foo(x);
