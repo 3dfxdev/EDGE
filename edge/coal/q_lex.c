@@ -51,11 +51,11 @@ type_t	type_float = {ev_float, &def_float};
 type_t	type_vector = {ev_vector, &def_vector};
 type_t	type_entity = {ev_entity, &def_entity};
 type_t	type_field = {ev_field, &def_field};
-type_t	type_function = {ev_function, &def_function,NULL,&type_void};
+type_t	type_function = {ev_function, &def_function,&type_void};
 // type_function is a void() function used for state defs
 type_t	type_pointer = {ev_pointer, &def_pointer};
 
-type_t	type_floatfield = {ev_field, &def_field, NULL, &type_float};
+type_t	type_floatfield = {ev_field, &def_field, &type_float};
 
 int		type_size[8] = {1,1,1,3,1,1,1,1};
 

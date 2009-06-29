@@ -202,7 +202,7 @@ def_t	*PR_ParseImmediate (void)
   char im_name[32];
 
 // check for a constant with the same value
-	for (cn=pr.def_head.next ; cn ; cn=cn->next)
+	for (cn=pr.defs ; cn ; cn=cn->next)
 	{
 		if (!cn->initialized)
 			continue;
@@ -240,13 +240,9 @@ def_t	*PR_ParseImmediate (void)
 
 // allocate a new one
 	cn = new def_t;
-	cn->next = NULL;
 
-	pr.def_tail->next = cn;
-	pr.def_tail = cn;
-
-	cn->search_next = pr.search;
-	pr.search = cn;
+	cn->next = pr.defs;
+	pr.defs  = cn;
 
   sprintf(im_name, "IMMED_%p", cn);
 
@@ -701,12 +697,11 @@ If allocate is true, a new def will be allocated if it can't be found
 */
 def_t *PR_GetDef (type_t *type, char *name, def_t *scope, bool allocate)
 {
-	def_t *def, **old;
+	def_t *def;
 	char element[MAX_NAME];
 
 // see if the name is already in use
-	old = &pr.search;
-	for (def = *old ; def ; old=&def->search_next,def = *old)
+	for (def = pr.defs ; def ; def=def->next)
 		if (!strcmp(def->name,name) )
 		{
 			if ( def->scope && def->scope != scope)
@@ -715,10 +710,6 @@ def_t *PR_GetDef (type_t *type, char *name, def_t *scope, bool allocate)
 			if (type && def->type != type)
 				PR_ParseError ("Type mismatch on redeclaration of %s",name);
 
-			// move to head of list to find fast next time
-			*old = def->search_next;
-			def->search_next = pr.search;
-			pr.search = def;
 			return def;
 		}
 
@@ -728,13 +719,9 @@ def_t *PR_GetDef (type_t *type, char *name, def_t *scope, bool allocate)
 // allocate a new def
 	def = new def_t;
 	memset (def, 0, sizeof(*def));
-	def->next = NULL;
 
-	pr.def_tail->next = def;
-	pr.def_tail = def;
-
-	def->search_next = pr.search;
-	pr.search = def;
+	def->next = pr.defs;
+	pr.defs = def;
 
 	def->name = strdup(name);
 	def->type = type;
