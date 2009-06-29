@@ -224,8 +224,10 @@ PR_EnterFunction(dfunction_t *f)
 
 // copy parameters
     o = f->parm_start;
-    for (i = 0; i < f->numparms; i++) {
-	for (j = 0; j < f->parm_size[i]; j++) {
+    for (i = 0; i < f->parm_num; i++)
+	{
+	for (j = 0; j < f->parm_size[i]; j++)
+	{
 	    ((int *)pr_globals)[o] =
 		((int *)pr_globals)[OFS_PARM0 + i * 3 + j];
 	    o++;

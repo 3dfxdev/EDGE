@@ -128,7 +128,7 @@ void PrintFunctions (void)
 	{
 		d = &functions[i];
 		printf ("%s : %s : %i %i (", strings + d->s_file, strings + d->s_name, d->first_statement, d->parm_start);
-		for (j=0 ; j<d->numparms ; j++)
+		for (j=0 ; j<d->parm_num ; j++)
 			printf ("%i ",d->parm_size[j]);
 		printf (")\n");
 	}

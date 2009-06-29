@@ -292,11 +292,11 @@ def_t *PR_ParseFunctionCall (def_t *func)
 	{
 		do
 		{
-			if (t->num_parms != -1 && arg >= t->num_parms)
+			if (t->parm_num != -1 && arg >= t->parm_num)
 				PR_ParseError ("too many parameters");
 			e = PR_Expression (TOP_PRIORITY);
 
-			if (t->num_parms != -1 && ( e->type != t->parm_types[arg] ) )
+			if (t->parm_num != -1 && ( e->type != t->parm_types[arg] ) )
 				PR_ParseError ("type mismatch on parm %i", arg+1);
 		// a vector copy will copy everything
 			def_parms[arg].type = t->parm_types[arg];
@@ -304,7 +304,7 @@ def_t *PR_ParseFunctionCall (def_t *func)
 			arg++;
 		} while (PR_Check (","));
 
-		if (t->num_parms != -1 && arg != t->num_parms)
+		if (t->parm_num != -1 && arg != t->parm_num)
 			PR_ParseError ("too few parameters");
 		PR_Expect (")");
 	}
@@ -658,7 +658,7 @@ function_t *PR_ParseImmediateStatements (type_t *type)
 //
 	def_t *defs[MAX_PARMS];
 
-	for (i=0 ; i<type->num_parms ; i++)
+	for (i=0 ; i<type->parm_num ; i++)
 	{
 		defs[i] = PR_GetDef (type->parm_types[i], pr_parm_names[i], pr_scope, true);
 
@@ -798,7 +798,7 @@ void PR_ParseFunction(void)
 
 	memset (&t_new, 0, sizeof(t_new));
 	t_new.type = ev_function;
-	t_new.num_parms = 0;
+	t_new.parm_num = 0;
 	t_new.aux_type = &type_void;
 
 	if (! PR_Check(")"))
@@ -807,15 +807,15 @@ void PR_ParseFunction(void)
 		{
 			char *name = PR_ParseName();
 
-			strcpy(pr_parm_names[t_new.num_parms], name);
+			strcpy(pr_parm_names[t_new.parm_num], name);
 
 			// parameter type (defaults to float)
 			if (PR_Check(":"))
-				t_new.parm_types[t_new.num_parms] = PR_ParseType();
+				t_new.parm_types[t_new.parm_num] = PR_ParseType();
 			else
-				t_new.parm_types[t_new.num_parms] = &type_float;
+				t_new.parm_types[t_new.parm_num] = &type_float;
 
-			t_new.num_parms++;
+			t_new.parm_num++;
 		}
 		while (PR_Check(","));
 
@@ -864,11 +864,11 @@ void PR_ParseFunction(void)
 
 	df->s_name = CopyString (f->def->name);
 	df->s_file = s_file;
-	df->numparms =  f->def->type->num_parms;
+	df->parm_num =  f->def->type->parm_num;
 	df->locals = locals_end - locals_start;
 	df->parm_start = locals_start;
 
-	for (int i=0 ; i<df->numparms ; i++)
+	for (int i=0 ; i<df->parm_num ; i++)
 		df->parm_size[i] = type_size[f->def->type->parm_types[i]->type];
 }
 

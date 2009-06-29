@@ -153,16 +153,17 @@ dstatement_t;
 
 typedef struct
 {
-	int		first_statement;	// negative numbers are builtins
-	int		parm_start;
-	int		locals;				// total ints of parms + locals
-
+	// these two are offsets into the strings[] buffer
 	int		s_name;
 	int		s_file;			// source file defined in
 
-	int		numparms;
-
+	int		parm_start;
+	int		parm_num;
 	byte	parm_size[MAX_PARMS];
+
+	int		locals;				// total ints of parms + locals
+
+	int		first_statement;	// negative numbers are builtins
 }
 dfunction_t;
 
