@@ -1,9 +1,9 @@
 
 // HUD LIBRARY
 
-float hud_which;
-float hud_passed_time;
-float hud_automap;
+var hud_which;
+var hud_passed_time;
+var hud_automap;
 
 function hud_map_title() : string = { return "Entryway"; }
 function hud_game_mode() : string = { return "sp"; }
