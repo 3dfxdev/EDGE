@@ -28,11 +28,7 @@ TODO:
 
 "stopped at 10 errors"
 
-other pointer types for models and clients?
-
-compact string heap?
-
-allways initialize all variables to something safe
+always initialize all variables to something safe
 
 the def->type->type arrangement is really silly.
 
@@ -41,8 +37,6 @@ return type checking
 parm count type checking
 
 immediate overflow checking
-
-pass the first two parms in call->b and call->c
 
 */
 
@@ -173,15 +167,20 @@ There are three global variables that are set before beginning code execution:
 						// in one entity's time slice may set time higher
 						// than the think function of the next entity.
 						// The difference is limited to 0.1 seconds.
-Execution is also caused by a few uncommon events, like the addition of a new client to an existing server.
 
-There is a runnaway counter that stops a program if 100000 statements are executed, assuming it is in an infinite loop.
+Execution is also caused by a few uncommon events, like the addition
+of a new client to an existing server.
 
-It is acceptable to change the system set global variables.  This is usually done to pose as another entity by changing self and calling a function.
+There is a runnaway counter that stops a program if 100000
+statements are executed, assuming it is in an infinite loop.
 
-The interpretation is fairly efficient, but it is still over an order of magnitude slower than compiled C code.  All time consuming operations should be made into built in functions.
+It is acceptable to change the system set global variables.  This is
+usually done to pose as another entity by changing self and calling
+a function.
 
-A profile counter is kept for each function, and incremented for each interpreted instruction inside that function.  The "profile" console command in Quake will dump out the top 10 functions, then clear all the counters.  The "profile all" command will dump sorted stats for every function that has been executed.
+The interpretation is fairly efficient, but it is still over an
+order of magnitude slower than compiled C code.  All time consuming
+operations should be made into built in functions.
 
 
 afunc ( 4, bfunc(1,2,3));
@@ -203,10 +202,15 @@ void(string text)	bprint;
 Broadcast prints a message to all clients on the current server.
 
 entity()	spawn;
-Returns a totally empty entity.  You can manually set everything up, or just set the origin and call one of the existing entity setup functions.
+Returns a totally empty entity.  You can manually set everything up,
+or just set the origin and call one of the existing entity setup
+functions.
 
 entity(entity start, .string field, string match) find;
-Searches the server entity list beginning at start, looking for an entity that has entity.field = match.  To start at the beginning of the list, pass world.  World is returned when the end of the list is reached.
+Searches the server entity list beginning at start, looking for an
+entity that has entity.field = match.  To start at the beginning of
+the list, pass world.  World is returned when the end of the list is
+reached.
 
 <FIXME: define all the other functions...>
 
@@ -217,12 +221,6 @@ gotchas
 The && and || operators DO NOT EARLY OUT like C!
 
 Don't confuse single quoted vectors with double quoted strings
-
-The function declaration syntax takes a little getting used to.
-
-Don't forget the ; after the trailing brace of a function initialization.
-
-Don't forget the "local" before defining local variables.
 
 There are no ++ / -- operators, or operate/assign operators.
 
@@ -244,9 +242,10 @@ typedef struct type_s
 	struct type_s	*next;
 // function types are more complex
 	struct type_s	*aux_type;	// return type or field type
-	int				num_parms;	// -1 = variable args
-	struct type_s	*parm_types[MAX_PARMS];	// only [num_parms] allocated
-} type_t;
+	int				parm_num;	// -1 = variable args
+	struct type_s	*parm_types[MAX_PARMS];	// only [parm_num] allocated
+}
+type_t;
 
 typedef struct def_s
 {
@@ -257,7 +256,9 @@ typedef struct def_s
 	gofs_t		ofs;
 	struct def_s	*scope;		// function the var was defined in, or NULL
 	int			initialized;	// 1 when a declaration included "= immediate"
-} def_t;
+}
+def_t;
+
 
 //============================================================================
 
@@ -280,11 +281,12 @@ extern	def_t	def_void, def_string, def_float, def_vector, def_entity, def_field,
 
 struct function_s
 {
+	struct def_s *def;
+
 	int					builtin;	// if non 0, call an internal function
 	int					code;		// first statement
 	char				*file;		// source file with definition
 	int					file_line;
-	struct def_s		*def;
 	int					parm_ofs[MAX_PARMS];	// allways contiguous, right?
 };
 
@@ -304,19 +306,22 @@ typedef struct
 	def_t		*search;		// search chain through defs
 
 	int			size_fields;
-} pr_info_t;
+}
+pr_info_t;
+
 
 extern	pr_info_t	pr;
 
 typedef struct
 {
-	char		*name;
-	char		*opname;
-	float		priority;
-	bool	right_associative;
-	def_t		*type_a, *type_b, *type_c;
+	char *name;
+	char *opname;
+	float priority;
+	bool right_associative;
+	def_t *type_a, *type_b, *type_c;
 }
 opcode_t;
+
 
 //============================================================================
 

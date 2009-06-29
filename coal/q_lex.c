@@ -512,14 +512,14 @@ type_t *PR_FindType (type_t *type)
 	{
 		if (check->type != type->type
 		|| check->aux_type != type->aux_type
-		|| check->num_parms != type->num_parms)
+		|| check->parm_num != type->parm_num)
 			continue;
 
-		for (i=0 ; i< type->num_parms ; i++)
+		for (i=0 ; i< type->parm_num ; i++)
 			if (check->parm_types[i] != type->parm_types[i])
 				break;
 
-		if (i == type->num_parms)
+		if (i == type->parm_num)
 			return check;
 	}
 
@@ -598,20 +598,20 @@ type_t *PR_ParseType (void)
 	memset (&t_new, 0, sizeof(t_new));
 	t_new.type = ev_function;
 	t_new.aux_type = type;	// return type
-	t_new.num_parms = 0;
+	t_new.parm_num = 0;
 
 	if (!PR_Check (")"))
 	{
 		if (PR_Check ("..."))
-			t_new.num_parms = -1;	// variable args
+			t_new.parm_num = -1;	// variable args
 		else
 			do
 			{
 				type = PR_ParseType ();
 				name = PR_ParseName ();
-				strcpy (pr_parm_names[t_new.num_parms], name);
-				t_new.parm_types[t_new.num_parms] = type;
-				t_new.num_parms++;
+				strcpy (pr_parm_names[t_new.parm_num], name);
+				t_new.parm_types[t_new.parm_num] = type;
+				t_new.parm_num++;
 			} while (PR_Check (","));
 
 		PR_Expect (")");
