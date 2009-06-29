@@ -239,11 +239,12 @@ typedef struct type_s
 {
 	etype_t			type;
 	struct def_s	*def;		// a def that points to this type
-	struct type_s	*next;
 // function types are more complex
 	struct type_s	*aux_type;	// return type or field type
 	int				parm_num;	// -1 = variable args
 	struct type_s	*parm_types[MAX_PARMS];	// only [parm_num] allocated
+
+	struct type_s	*next;
 }
 type_t;
 
@@ -251,11 +252,12 @@ typedef struct def_s
 {
 	type_t		*type;
 	char		*name;
-	struct def_s	*next;
-	struct def_s	*search_next;	// for finding faster
+
 	gofs_t		ofs;
 	struct def_s	*scope;		// function the var was defined in, or NULL
 	int			initialized;	// 1 when a declaration included "= immediate"
+
+	struct def_s	*next;
 }
 def_t;
 
@@ -299,11 +301,9 @@ typedef struct
 	char		*memory;
 	int			max_memory;
 	int			current_memory;
-	type_t		*types;
 
-	def_t		def_head;		// unused head of linked list
-	def_t		*def_tail;		// add new defs after this and move it
-	def_t		*search;		// search chain through defs
+	type_t		*types;
+	def_t       *defs;
 
 	int			size_fields;
 }
