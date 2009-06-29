@@ -572,14 +572,6 @@ type_t *PR_ParseType (void)
 	type_t	*type;
 	char	*name;
 
-	if (PR_Check ("."))
-	{
-		memset (&t_new, 0, sizeof(t_new));
-		t_new.type = ev_field;
-		t_new.aux_type = PR_ParseType ();
-		return PR_FindType (&t_new);
-	}
-
 	if (!strcmp (pr_token, "float") )
 		type = &type_float;
 	else if (!strcmp (pr_token, "vector") )
