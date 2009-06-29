@@ -407,12 +407,9 @@ PR_BeginCompilation
 called before compiling a batch of files, clears the pr struct
 ==============
 */
-void PR_BeginCompilation (int memsize)
+void PR_BeginCompilation (void)
 {
 	int i;
-
-	pr.memory = new char [memsize];
-	pr.max_memory = memsize;
 
 	numpr_globals = RESERVED_OFS;
 	pr.defs = NULL;
@@ -643,7 +640,7 @@ int main (int argc, char **argv)
 	pr_dumpasm = false;
 
 
-	PR_BeginCompilation(0x1000000);
+	PR_BeginCompilation();
 
 // compile all the files
   for (k = 1; k < argc; k++)
