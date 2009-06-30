@@ -622,16 +622,6 @@ def_t *PR_GetDef (type_t *type, char *name, def_t *scope, bool allocate)
 
 	numpr_globals += type_size[type->type];
 
-	if (type->type == ev_field)
-	{
-		*(int *)&pr_globals[def->ofs] = pr.size_fields;
-
-		pr.size_fields += type_size[type->aux_type->type];
-	}
-
-	//	if (pr_dumpasm)
-	//		PR_PrintOfs (def->ofs);
-
 	return def;
 }
 
@@ -740,32 +730,6 @@ void PR_ParseVariable(void)
 }
 
 
-void PR_ParseField(void)
-{
-	char *field_name = strdup(PR_ParseName());
-
-	type_t *type = &type_float;
-
-	if (PR_Check(":"))
-	{
-		type = PR_ParseType();
-	}
-
-	type_t t_new;
-	memset (&t_new, 0, sizeof(t_new));
-
-	t_new.type = ev_field;
-	t_new.aux_type = type;
-
-
-	type_t *field_type = PR_FindType (&t_new);
-
-	def_t *def = PR_GetDef (field_type, field_name, pr_scope, true);
-
-	PR_Expect(";");  // FIXME: allow EOL as well
-}
-
-
 void PR_ParseConstant(void)
 {
 	char *const_name = strdup(PR_ParseName());
@@ -803,21 +767,12 @@ void PR_ParseGlobals (void)
 		return;
 	}
 
-	if (PR_Check ("field"))
-	{
-		PR_ParseField();
-		return;
-	}
-
 
 	PR_ParseError("Syntax error");
 	{ return; }
 
 
 	type_t *type = PR_ParseType ();
-
-	if (pr_scope && (type->type == ev_field || type->type == ev_function) )
-		PR_ParseError ("Fields and functions must be global");
 
 	do
 	{
