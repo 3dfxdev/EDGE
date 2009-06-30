@@ -75,8 +75,8 @@ opcode_t pr_opcodes[] =
 
 	{"<=", "LE", 4, false, &type_float, &type_float, &type_float},
 	{">=", "GE", 4, false, &type_float, &type_float, &type_float},
-	{"<", "LT", 4, false, &type_float, &type_float, &type_float},
-	{">", "GT", 4, false, &type_float, &type_float, &type_float},
+	{"<",  "LT", 4, false, &type_float, &type_float, &type_float},
+	{">",  "GT", 4, false, &type_float, &type_float, &type_float},
 
 	{".", "INDIRECT", 1, false, &type_entity, &type_field, &type_float},
 	{".", "INDIRECT", 1, false, &type_entity, &type_field, &type_vector},
@@ -189,7 +189,7 @@ def_t * PR_Statement(opcode_t *op, def_t *var_a, def_t *var_b)
 }
 
 
-def_t * PR_ParseImmediate (void)
+def_t * PR_ParseImmediate(void)
 {
 	// Looks for a preexisting constant
 
@@ -204,6 +204,7 @@ def_t * PR_ParseImmediate (void)
 			continue;
 		if (cn->type != pr_immediate_type)
 			continue;
+
 		if (pr_immediate_type == &type_string)
 		{
 			if (!strcmp(G_STRING(cn->ofs), pr_immediate_string) )
@@ -223,8 +224,8 @@ def_t * PR_ParseImmediate (void)
 		else if	(pr_immediate_type == &type_vector)
 		{
 			if ( ( G_FLOAT(cn->ofs) == pr_immediate.vector[0] )
-					&& ( G_FLOAT(cn->ofs+1) == pr_immediate.vector[1] )
-					&& ( G_FLOAT(cn->ofs+2) == pr_immediate.vector[2] ) )
+				&& ( G_FLOAT(cn->ofs+1) == pr_immediate.vector[1] )
+				&& ( G_FLOAT(cn->ofs+2) == pr_immediate.vector[2] ) )
 			{
 				PR_Lex ();
 				return cn;
