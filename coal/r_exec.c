@@ -179,14 +179,11 @@ void PR_ExecuteProgram(func_t fnum)
     function_t *f, *newf;
     int runaway;
     int i;
-//   edict_t *ed;
     int exitdepth;
 //    eval_t *ptr;
 
 	if (!fnum || fnum >= numfunctions)
 	{
-//??	if (pr_global_struct->self)
-//??	    ED_Print(PROG_TO_EDICT(pr_global_struct->self));
 		Error("PR_ExecuteProgram: NULL function");
 	}
 
@@ -315,9 +312,6 @@ void PR_ExecuteProgram(func_t fnum)
 				break;
 			case OP_NOT_FNC:
 				c->_float = !a->function;
-				break;
-			case OP_NOT_ENT:
-				c->_float = 1; //FIXME   (PROG_TO_EDICT(a->edict) == sv.edicts);
 				break;
 
 			case OP_EQ_F:
