@@ -29,7 +29,6 @@ typedef union eval_s
     func_t function;
     int _int;
     int edict;
-    union eval_s	*ptr;
 }
 eval_t;
 
@@ -81,9 +80,6 @@ int NUM_FOR_EDICT(edict_t *e);
 #define PROG_TO_EDICT(e) ((edict_t *)((byte *)sv.edicts + e))
 
 //============================================================================
-
-#define	G_EDICT(o) ((edict_t *)((byte *)sv.edicts+ *(int *)&pr_globals[o]))
-#define G_EDICTNUM(o) NUM_FOR_EDICT(G_EDICT(o))
 
 #define	E_FLOAT(e,o) (((float*)&e->v)[o])
 #define	E_INT(e,o) (*(int *)&((float*)&e->v)[o])

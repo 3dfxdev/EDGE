@@ -43,7 +43,7 @@ void PR_ParseConstant (void);
 
 opcode_t pr_opcodes[] =
 {
-	{"<DONE>", "DONE", -1, false, &type_entity, &type_field, &type_void},
+	{"<DONE>", "DONE", -1, false, &type_void, &type_void, &type_void},
 
 	{"^", "POWER", 1, false, &type_float, &type_float, &type_float},
 
@@ -64,13 +64,11 @@ opcode_t pr_opcodes[] =
 	{"==", "EQ_F", 4, false, &type_float, &type_float, &type_float},
 	{"==", "EQ_V", 4, false, &type_vector, &type_vector, &type_float},
 	{"==", "EQ_S", 4, false, &type_string, &type_string, &type_float},
-	{"==", "EQ_E", 4, false, &type_entity, &type_entity, &type_float},
 	{"==", "EQ_FNC", 4, false, &type_function, &type_function, &type_float},
 
 	{"!=", "NE_F", 4, false, &type_float, &type_float, &type_float},
 	{"!=", "NE_V", 4, false, &type_vector, &type_vector, &type_float},
 	{"!=", "NE_S", 4, false, &type_string, &type_string, &type_float},
-	{"!=", "NE_E", 4, false, &type_entity, &type_entity, &type_float},
 	{"!=", "NE_FNC", 4, false, &type_function, &type_function, &type_float},
 
 	{"<=", "LE", 4, false, &type_float, &type_float, &type_float},
@@ -78,35 +76,16 @@ opcode_t pr_opcodes[] =
 	{"<",  "LT", 4, false, &type_float, &type_float, &type_float},
 	{">",  "GT", 4, false, &type_float, &type_float, &type_float},
 
-	{".", "INDIRECT", 1, false, &type_entity, &type_field, &type_float},
-	{".", "INDIRECT", 1, false, &type_entity, &type_field, &type_vector},
-	{".", "INDIRECT", 1, false, &type_entity, &type_field, &type_string},
-	{".", "INDIRECT", 1, false, &type_entity, &type_field, &type_entity},
-	{".", "INDIRECT", 1, false, &type_entity, &type_field, &type_field},
-	{".", "INDIRECT", 1, false, &type_entity, &type_field, &type_function},
-
-	{".", "ADDRESS", 1, false, &type_entity, &type_field, &type_pointer},
-
-	{"=", "STORE_F", 5, true, &type_float, &type_float, &type_float},
-	{"=", "STORE_V", 5, true, &type_vector, &type_vector, &type_vector},
-	{"=", "STORE_S", 5, true, &type_string, &type_string, &type_string},
-	{"=", "STORE_ENT", 5, true, &type_entity, &type_entity, &type_entity},
-	{"=", "STORE_FLD", 5, true, &type_field, &type_field, &type_field},
-	{"=", "STORE_FNC", 5, true, &type_function, &type_function, &type_function},
-
-	{"=", "STOREP_F", 5, true, &type_pointer, &type_float, &type_float},
-	{"=", "STOREP_V", 5, true, &type_pointer, &type_vector, &type_vector},
-	{"=", "STOREP_S", 5, true, &type_pointer, &type_string, &type_string},
-	{"=", "STOREP_ENT", 5, true, &type_pointer, &type_entity, &type_entity},
-	{"=", "STOREP_FLD", 5, true, &type_pointer, &type_field, &type_field},
-	{"=", "STOREP_FNC", 5, true, &type_pointer, &type_function, &type_function},
+	{"=", "ASSIGN_F", 5, true, &type_float, &type_float, &type_float},
+	{"=", "ASSIGN_V", 5, true, &type_vector, &type_vector, &type_vector},
+	{"=", "ASSIGN_S", 5, true, &type_string, &type_string, &type_string},
+	{"=", "ASSIGN_FNC", 5, true, &type_function, &type_function, &type_function},
 
 	{"<RETURN>", "RETURN", -1, false, &type_void, &type_void, &type_void},
 
 	{"!", "NOT_F", -1, false, &type_float, &type_void, &type_float},
 	{"!", "NOT_V", -1, false, &type_vector, &type_void, &type_float},
 	{"!", "NOT_S", -1, false, &type_vector, &type_void, &type_float},
-	{"!", "NOT_ENT", -1, false, &type_entity, &type_void, &type_float},
 	{"!", "NOT_FNC", -1, false, &type_function, &type_void, &type_float},
 
 	{"<IF>", "IF", -1, false, &type_float, &type_float, &type_void},
@@ -122,8 +101,6 @@ opcode_t pr_opcodes[] =
 	{"<CALL6>", "CALL6", -1, false, &type_function, &type_void, &type_void},
 	{"<CALL7>", "CALL7", -1, false, &type_function, &type_void, &type_void},
 	{"<CALL8>", "CALL8", -1, false, &type_function, &type_void, &type_void},
-
-	{"<STATE>", "STATE", -1, false, &type_float, &type_float, &type_void},
 
 	{"<GOTO>", "GOTO", -1, false, &type_float, &type_void, &type_void},
 
@@ -146,6 +123,19 @@ def_t	junkdef;
 //===========================================================================
 
 
+void PR_EmitCode(short op, short a, short b, short c)
+{
+	statement_linenums[numstatements] = pr_source_line;
+
+	statement_t *st = &statements[numstatements++];
+
+	st->op = op;
+	st->a  = a;
+	st->b  = b;
+	st->c  = c;
+}
+
+
 /*
 ============
 PR_Statement
@@ -153,38 +143,33 @@ PR_Statement
 Emits a primitive statement, returning the var it places it's value in
 ============
 */
-def_t * PR_Statement(opcode_t *op, def_t *var_a, def_t *var_b)
+def_t * PR_Statement(opcode_t *op, def_t *var_a = NULL, def_t *var_b = NULL)
 {
-	statement_t	*statement;
-	def_t			*var_c;
-
-	statement = &statements[numstatements];
-	numstatements++;
-
-	statement_linenums[statement-statements] = pr_source_line;
-	statement->op = op - pr_opcodes;
-	statement->a = var_a ? var_a->ofs : 0;
-	statement->b = var_b ? var_b->ofs : 0;
+	def_t *var_c = NULL;
 
 	if (op->type_c == &type_void || op->right_associative)
 	{
-		var_c = NULL;
-		statement->c = 0;			// ifs, gotos, and assignments
-									// don't need vars allocated
+		// ifs, gotos, and assignments don't need vars allocated
 	}
 	else
 	{	// allocate result space
 		var_c = new def_t;
 		memset (var_c, 0, sizeof(def_t));
+
 		var_c->ofs = numpr_globals;
 		var_c->type = op->type_c;
 
-		statement->c = numpr_globals;
 		numpr_globals += type_size[op->type_c->type];
 	}
 
+	PR_EmitCode(op - pr_opcodes,
+    			var_a ? var_a->ofs : 0,
+    			var_b ? var_b->ofs : 0,
+    			var_c ? var_c->ofs : 0);
+
 	if (op->right_associative)
 		return var_a;
+
 	return var_c;
 }
 
@@ -289,7 +274,7 @@ def_t * PR_ParseFunctionCall(def_t *func)
 				PR_ParseError ("type mismatch on parm %i", arg+1);
 			// a vector copy will copy everything
 			def_parms[arg].type = t->parm_types[arg];
-			PR_Statement (&pr_opcodes[OP_STORE_V], e, &def_parms[arg]);
+			PR_Statement (&pr_opcodes[OP_ASSIGN_V], e, &def_parms[arg]);
 			arg++;
 		} while (PR_Check (","));
 
@@ -334,15 +319,13 @@ def_t * PR_Term(void)
 		def_t *e2 = NULL;
 
 		if (t == ev_float)
-			e2 = PR_Statement (&pr_opcodes[OP_NOT_F], e, 0);
+			e2 = PR_Statement (&pr_opcodes[OP_NOT_F], e);
 		else if (t == ev_string)
-			e2 = PR_Statement (&pr_opcodes[OP_NOT_S], e, 0);
-		else if (t == ev_entity)
-			e2 = PR_Statement (&pr_opcodes[OP_NOT_ENT], e, 0);
+			e2 = PR_Statement (&pr_opcodes[OP_NOT_S], e);
 		else if (t == ev_vector)
-			e2 = PR_Statement (&pr_opcodes[OP_NOT_V], e, 0);
+			e2 = PR_Statement (&pr_opcodes[OP_NOT_V], e);
 		else if (t == ev_function)
-			e2 = PR_Statement (&pr_opcodes[OP_NOT_FNC], e, 0);
+			e2 = PR_Statement (&pr_opcodes[OP_NOT_FNC], e);
 		else
 			PR_ParseError ("type mismatch for '!' operator");
 
@@ -384,16 +367,7 @@ def_t * PR_Expression(int priority)
 				continue;
 
 			if ( op->right_associative )
-			{
-				// if last statement is an indirect, change it to an address of
-				if ( (unsigned)(statements[numstatements-1].op - OP_LOAD_F) < 6 )
-				{
-					statements[numstatements-1].op = OP_ADDRESS;
-					type_pointer.aux_type = e->type;  // FIXME ugh!
-					e->type = &type_pointer;
-				}
 				e2 = PR_Expression (priority);
-			}
 			else
 				e2 = PR_Expression (priority-1);
 
@@ -482,12 +456,12 @@ void PR_ParseStatement(void)
 	{
 		if (PR_Check (";"))
 		{
-			PR_Statement (&pr_opcodes[OP_RETURN], 0, 0);
+			PR_Statement(&pr_opcodes[OP_RETURN]);
 			return;
 		}
-		e = PR_Expression (TOP_PRIORITY);
+		e = PR_Expression(TOP_PRIORITY);
 		PR_Expect (";");
-		PR_Statement (&pr_opcodes[OP_RETURN], e, 0);
+		PR_Statement(&pr_opcodes[OP_RETURN], e);
 		return;
 	}
 
@@ -498,10 +472,10 @@ void PR_ParseStatement(void)
 		e = PR_Expression (TOP_PRIORITY);
 		PR_Expect (")");
 		patch1 = &statements[numstatements];
-		PR_Statement (&pr_opcodes[OP_IFNOT], e, 0);
+		PR_Statement (&pr_opcodes[OP_IFNOT], e);
 		PR_ParseStatement ();
 		junkdef.ofs = patch2 - &statements[numstatements];
-		PR_Statement (&pr_opcodes[OP_GOTO], &junkdef, 0);
+		PR_Statement (&pr_opcodes[OP_GOTO], &junkdef);
 		patch1->b = &statements[numstatements] - patch1;
 		return;
 	}
@@ -512,9 +486,10 @@ void PR_ParseStatement(void)
 		PR_ParseStatement ();
 		PR_Expect ("while");
 		PR_Expect ("(");
-		e = PR_Expression (TOP_PRIORITY);
+		e = PR_Expression(TOP_PRIORITY);
 		PR_Expect (")");
 		PR_Expect (";");
+
 		junkdef.ofs = patch1 - &statements[numstatements];
 		PR_Statement (&pr_opcodes[OP_IF], e, &junkdef);
 		return;
@@ -522,19 +497,19 @@ void PR_ParseStatement(void)
 
 	if (PR_Check("if"))
 	{
-		PR_Expect ("(");
+		PR_Expect("(");
 		e = PR_Expression (TOP_PRIORITY);
-		PR_Expect (")");
+		PR_Expect(")");
 
 		patch1 = &statements[numstatements];
-		PR_Statement (&pr_opcodes[OP_IFNOT], e, 0);
+		PR_Statement (&pr_opcodes[OP_IFNOT], e);
 
-		PR_ParseStatement ();
+		PR_ParseStatement();
 
-		if (PR_Check ("else"))
+		if (PR_Check("else"))
 		{
 			patch2 = &statements[numstatements];
-			PR_Statement (&pr_opcodes[OP_GOTO], 0, 0);
+			PR_Statement (&pr_opcodes[OP_GOTO]);
 			patch1->b = &statements[numstatements] - patch1;
 			PR_ParseStatement ();
 			patch2->a = &statements[numstatements] - patch2;
@@ -545,23 +520,21 @@ void PR_ParseStatement(void)
 		return;
 	}
 
-	PR_Expression (TOP_PRIORITY);
+	PR_Expression(TOP_PRIORITY);
 	PR_Expect (";");
 }
 
 
-int PR_ParseFunctionBody (type_t *type)
+int PR_ParseFunctionBody(type_t *type)
 {
-	int i;
-
 	//
 	// check for builtin function definition #1, #2, etc
 	//
 	if (PR_Check ("#"))
 	{
 		if (pr_token_type != tt_immediate
-				|| pr_immediate_type != &type_float
-				|| pr_immediate._float != (int)pr_immediate._float)
+			|| pr_immediate_type != &type_float
+			|| pr_immediate._float != (int)pr_immediate._float)
 		{
 			PR_ParseError ("Bad builtin immediate");
 		}
@@ -577,7 +550,7 @@ int PR_ParseFunctionBody (type_t *type)
 
 	int parm_ofs[MAX_PARMS];
 
-	for (i=0 ; i<type->parm_num ; i++)
+	for (int i=0 ; i<type->parm_num ; i++)
 	{
 		defs[i] = PR_GetDef (type->parm_types[i], pr_parm_names[i], pr_scope, true);
 
@@ -598,7 +571,7 @@ int PR_ParseFunctionBody (type_t *type)
 		PR_ParseStatement();
 
 	// emit an end of statements opcode
-	PR_Statement (&pr_opcodes[OP_DONE], NULL, NULL);
+	PR_Statement(&pr_opcodes[OP_DONE]);
 
 	return code;
 }

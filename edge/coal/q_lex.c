@@ -50,13 +50,7 @@ type_t	type_void = {ev_void};
 type_t	type_string = {ev_string};
 type_t	type_float = {ev_float};
 type_t	type_vector = {ev_vector};
-type_t	type_entity = {ev_entity};
-type_t	type_field = {ev_field};
 type_t	type_function = {ev_function, &type_void};
-// type_function is a void() function used for state defs
-type_t	type_pointer = {ev_pointer};
-
-type_t	type_floatfield = {ev_field, &type_float};
 
 int		type_size[8] = {1,1,1,3,1,1,1,1};
 
@@ -569,8 +563,8 @@ type_t *PR_ParseType (void)
 		type = &type_vector;
 	else if (!strcmp (pr_token, "float") )
 		type = &type_float;
-	else if (!strcmp (pr_token, "entity") )
-		type = &type_entity;
+//	else if (!strcmp (pr_token, "entity") )
+//		type = &type_entity;
 	else if (!strcmp (pr_token, "string") )
 		type = &type_string;
 	else if (!strcmp (pr_token, "void") )
