@@ -1,5 +1,3 @@
-field bar;
-
 function sprint(s : string) = #1
 function nprint(v : float ) = #2
 function vprint(v : vector) = #3
@@ -17,10 +15,6 @@ function main() =
     
     vprint('1 2 3' + '4 5 6');
 
-//    local entity y;
-//    y.bar = 128;
-//    nprint(y.bar);
-  
     var x; x = 1;
 
     do {
