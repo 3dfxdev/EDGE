@@ -199,7 +199,7 @@ def_t * PR_ParseImmediate(void)
 		}
 		else if (pr_immediate_type == &type_float)
 		{
-			if ( G_FLOAT(cn->ofs) == pr_immediate._float )
+			if ( G_FLOAT(cn->ofs) == pr_immediate[0] )
 			{
 				PR_Lex ();
 				return cn;
@@ -207,9 +207,9 @@ def_t * PR_ParseImmediate(void)
 		}
 		else if	(pr_immediate_type == &type_vector)
 		{
-			if ( ( G_FLOAT(cn->ofs) == pr_immediate.vector[0] )
-				&& ( G_FLOAT(cn->ofs+1) == pr_immediate.vector[1] )
-				&& ( G_FLOAT(cn->ofs+2) == pr_immediate.vector[2] ) )
+			if ( ( G_FLOAT(cn->ofs)     == pr_immediate[0] )
+				&& ( G_FLOAT(cn->ofs+1) == pr_immediate[1] )
+				&& ( G_FLOAT(cn->ofs+2) == pr_immediate[2] ) )
 			{
 				PR_Lex ();
 				return cn;
@@ -238,9 +238,9 @@ def_t * PR_ParseImmediate(void)
 	numpr_globals += type_size[pr_immediate_type->type];
 
 	if (pr_immediate_type == &type_string)
-		pr_immediate.string = CopyString (pr_immediate_string);
+		pr_immediate[0] = CopyString (pr_immediate_string);
 
-	memcpy (pr_globals + cn->ofs, &pr_immediate, 4*type_size[pr_immediate_type->type]);
+	memcpy (pr_globals + cn->ofs, pr_immediate, sizeof(double) * type_size[pr_immediate_type->type]);
 
 	PR_Lex ();
 
@@ -533,11 +533,11 @@ int PR_ParseFunctionBody(type_t *type)
 	{
 		if (pr_token_type != tt_immediate
 			|| pr_immediate_type != &type_float
-			|| pr_immediate._float != (int)pr_immediate._float)
+			|| pr_immediate[0] != (int)pr_immediate[0])
 		{
 			PR_ParseError ("Bad builtin immediate");
 		}
-		int builtin = (int)pr_immediate._float;
+		int builtin = (int)pr_immediate[0];
 		PR_Lex ();
 		return -builtin;
 	}
@@ -687,7 +687,7 @@ void PR_ParseFunction(void)
 	pr_scope = NULL;
 
 	def->initialized = 1;
-	G_FUNCTION(def->ofs) = numfunctions;
+	G_FUNCTION(def->ofs) = (func_t)numfunctions;
 
 
 	// fill in the dfunction
@@ -792,7 +792,7 @@ void PR_ParseGlobals (void)
 				PR_ParseError ("wrong immediate type for %s", name);
 
 			def->initialized = 1;
-			memcpy (pr_globals + def->ofs, &pr_immediate, 4*type_size[pr_immediate_type->type]);
+			memcpy (pr_globals + def->ofs, pr_immediate, sizeof(double) * type_size[pr_immediate_type->type]);
 			PR_Lex ();
 		}
 	}

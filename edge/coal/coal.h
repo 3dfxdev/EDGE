@@ -325,7 +325,7 @@ token_type_t;
 extern	char		pr_token[2048];
 extern	token_type_t	pr_token_type;
 extern	type_t		*pr_immediate_type;
-extern	eval_t		pr_immediate;
+extern	double		pr_immediate[3];
 
 void PR_PrintStatement (statement_t *s);
 
@@ -378,14 +378,10 @@ extern	char		pr_parm_names[MAX_PARMS][MAX_NAME];
 extern	bool	pr_trace;
 
 #define	G_FLOAT(o) (pr_globals[o])
-#define	G_INT(o) (*(int *)&pr_globals[o])
 #define	G_VECTOR(o) (&pr_globals[o])
-#define	G_STRING(o) (strings + *(string_t *)&pr_globals[o])
-#define	G_FUNCTION(o) (*(func_t *)&pr_globals[o])
+#define	G_STRING(o) (strings + (int)pr_globals[o])
+#define	G_FUNCTION(o) (pr_globals[o])
 
-char *PR_ValueString (etype_t type, eval_t *val);
-
-void PR_ClearGrabMacros (void);
 
 bool	PR_CompileFile (char *string, char *filename);
 
@@ -415,7 +411,7 @@ extern	int			statement_linenums[MAX_STATEMENTS];
 extern	function_t  functions[MAX_FUNCTIONS];
 extern	int			numfunctions;
 
-extern	float		pr_globals[MAX_REGS];
+extern	double		pr_globals[MAX_REGS];
 extern	int			numpr_globals;
 
 extern	char	pr_immediate_string[2048];
