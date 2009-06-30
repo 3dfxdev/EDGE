@@ -23,7 +23,6 @@
 
 pr_info_t	pr;
 def_t		*pr_global_defs[MAX_REGS];	// to find def for a global variable
-int			pr_edict_size;
 
 //========================================
 

@@ -96,7 +96,6 @@ enum
 	OP_NOT_F,
 	OP_NOT_V,
 	OP_NOT_S,
-	OP_NOT_ENT,
 	OP_NOT_FNC,
 
 	OP_IF,

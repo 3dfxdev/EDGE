@@ -28,30 +28,13 @@ typedef union eval_s
     float vector[3];
     func_t function;
     int _int;
-    int edict;
 }
 eval_t;
 
 #define	MAX_ENT_LEAFS	16
-//??  typedef struct edict_s {
-//??      bool free;
-//??      link_t area;		// linked to a division node or leaf
-//??  
-//??      int num_leafs;
-//??      short leafnums[MAX_ENT_LEAFS];
-//??  
-//??      entity_state_t baseline;
-//??  
-//??      float freetime;		// sv.time when the object was freed
-//??      vars_t v;		// C exported fields from progs
-//??  // other fields from progs come immediately after
-//??  } edict_t;
 
-typedef int edict_t;  //!!!! TEMP
 
-#define	EDICT_FROM_AREA(l) STRUCT_FROM_LINK(l,edict_t,area)
 
-extern int pr_edict_size;	// in bytes
 
 //============================================================================
 
@@ -64,20 +47,7 @@ void PR_Profile_f(void);
 
 // returns a copy of the string allocated from the server's string heap
 
-void ED_Print(edict_t *ed);
 
-
-
-//define EDICT_NUM(n) ((edict_t *)(sv.edicts+ (n)*pr_edict_size))
-//define NUM_FOR_EDICT(e) (((byte *)(e) - sv.edicts)/pr_edict_size)
-
-edict_t *EDICT_NUM(int n);
-int NUM_FOR_EDICT(edict_t *e);
-
-#define	NEXT_EDICT(e) ((edict_t *)( (byte *)e + pr_edict_size))
-
-#define	EDICT_TO_PROG(e) ((byte *)e - (byte *)sv.edicts)
-#define PROG_TO_EDICT(e) ((edict_t *)((byte *)sv.edicts + e))
 
 //============================================================================
 
@@ -96,8 +66,6 @@ extern bool pr_trace;
 
 void PR_RunError(const char *error, ...) __attribute__((format(printf,1,2)));
 
-void ED_PrintEdicts(void);
-void ED_PrintNum(int ent);
 
 
 /*
