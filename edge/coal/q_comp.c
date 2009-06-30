@@ -80,6 +80,8 @@ opcode_t pr_opcodes[] =
 	{"=", "ASSIGN_S", 5, true, &type_string, &type_string, &type_string},
 	{"=", "ASSIGN_FNC", 5, true, &type_function, &type_function, &type_function},
 
+// calls returns REG_RETURN
+	{"<CALL>",  "CALL", -1, false, &type_function, &type_void, &type_void},
 	{"<RETURN>", "RETURN", -1, false, &type_void, &type_void, &type_void},
 
 	{"!", "NOT_F", -1, false, &type_float, &type_void, &type_float},
@@ -89,17 +91,6 @@ opcode_t pr_opcodes[] =
 
 	{"<IF>", "IF", -1, false, &type_float, &type_float, &type_void},
 	{"<IFNOT>", "IFNOT", -1, false, &type_float, &type_float, &type_void},
-
-// calls returns REG_RETURN
-	{"<CALL0>", "CALL0", -1, false, &type_function, &type_void, &type_void},
-	{"<CALL1>", "CALL1", -1, false, &type_function, &type_void, &type_void},
-	{"<CALL2>", "CALL2", -1, false, &type_function, &type_void, &type_void},
-	{"<CALL3>", "CALL3", -1, false, &type_function, &type_void, &type_void},
-	{"<CALL4>", "CALL4", -1, false, &type_function, &type_void, &type_void},
-	{"<CALL5>", "CALL5", -1, false, &type_function, &type_void, &type_void},
-	{"<CALL6>", "CALL6", -1, false, &type_function, &type_void, &type_void},
-	{"<CALL7>", "CALL7", -1, false, &type_function, &type_void, &type_void},
-	{"<CALL8>", "CALL8", -1, false, &type_function, &type_void, &type_void},
 
 	{"<GOTO>", "GOTO", -1, false, &type_float, &type_void, &type_void},
 
@@ -275,17 +266,17 @@ def_t * PR_ParseFunctionCall(def_t *func)
 			def_parms[arg].type = t->parm_types[arg];
 			PR_Statement (&pr_opcodes[OP_ASSIGN_V], e, &def_parms[arg]);
 			arg++;
-		} while (PR_Check (","));
+		} while (PR_Check(","));
 
 		if (t->parm_num != -1 && arg != t->parm_num)
-			PR_ParseError ("too few parameters");
-		PR_Expect (")");
+			PR_ParseError("too few parameters");
+		PR_Expect(")");
 	}
+
 	if (arg >8)
 		PR_ParseError ("More than eight parameters");
 
-
-	PR_Statement (&pr_opcodes[OP_CALL0+arg], func, 0);
+	PR_EmitCode(OP_CALL, func->ofs, arg, 0);
 
 	def_ret.type = t->aux_type;
 	return &def_ret;
