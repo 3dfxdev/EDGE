@@ -30,7 +30,7 @@ static void PF_PrintNum(void)
 
 static void PF_PrintVector(void)
 {
-	float *vec = G_VECTOR(OFS_PARM0);
+	double *vec = G_VECTOR(OFS_PARM0);
 
     printf("'%1.3f %1.3f %1.3f'\n", vec[0], vec[1], vec[2]);
 }

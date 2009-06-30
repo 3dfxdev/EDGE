@@ -30,7 +30,7 @@ int			pr_bracelevel;
 char		pr_token[2048];
 token_type_t	pr_token_type;
 type_t		*pr_immediate_type;
-eval_t		pr_immediate;
+double		pr_immediate[3];
 
 char	pr_immediate_string[2048];
 
@@ -187,7 +187,7 @@ void PR_LexVector (void)
 	pr_immediate_type = &type_vector;
 	for (i=0 ; i<3 ; i++)
 	{
-		pr_immediate.vector[i] = PR_LexNumber ();
+		pr_immediate[i] = PR_LexNumber ();
 		PR_LexWhitespace ();
 	}
 	if (*pr_file_p != '\'')
@@ -385,7 +385,7 @@ void PR_Lex (void)
 	{
 		pr_token_type = tt_immediate;
 		pr_immediate_type = &type_float;
-		pr_immediate._float = PR_LexNumber ();
+		pr_immediate[0] = PR_LexNumber ();
 		return;
 	}
 

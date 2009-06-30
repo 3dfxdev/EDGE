@@ -21,17 +21,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef PROGS_H
 #define PROGS_H
 
-typedef union eval_s
-{
-    string_t string;
-    float _float;
-    float vector[3];
-    func_t function;
-    int _int;
-}
-eval_t;
-
-
 
 typedef void (*builtin_t) (void);
 extern builtin_t *pr_builtins;

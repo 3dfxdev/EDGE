@@ -70,7 +70,7 @@ void Error (char *error, ...)
 
 char		sourcedir[1024];
 
-float		pr_globals[MAX_REGS];
+double		pr_globals[MAX_REGS];
 int			numpr_globals;
 
 char		strings[MAX_STRINGS];
@@ -95,6 +95,7 @@ int	CopyString (char *str)
 	strofs += strlen(str)+1;
 	return old;
 }
+
 
 void PrintStrings (void)
 {
@@ -137,14 +138,13 @@ void PrintFunctions (void)
 
 void InitData (void)
 {
-	int		i;
-
 	numstatements = 1;
 	strofs = 1;
 	numfunctions = 1;
 
 	def_ret.ofs = OFS_RETURN;
-	for (i=0 ; i<MAX_PARMS ; i++)
+
+	for (int i=0 ; i<MAX_PARMS ; i++)
 		def_parms[i].ofs = OFS_PARM0 + 3*i;
 }
 
@@ -218,7 +218,7 @@ PR_ValueString
 Returns a string describing *data in a type specific manner
 =============
 */
-char *PR_ValueString (etype_t type, eval_t *val)
+char *PR_ValueString (etype_t type, double *val)
 {
 	static char	line[256];
 	def_t		*def;
@@ -227,13 +227,13 @@ char *PR_ValueString (etype_t type, eval_t *val)
 	switch (type)
 	{
 	case ev_string:
-		sprintf (line, "%s", PR_String(strings + *(int *)val));
+		sprintf (line, "%s", PR_String(strings + (int)*val));
 		break;
 //	case ev_entity:
 //		sprintf (line, "entity %i", *(int *)val);
 //		break;
 	case ev_function:
-		f = functions + *(int *)val;
+		f = functions + (int)*val;
 		if (!f)
 			sprintf (line, "undefined function");
 		else
@@ -247,10 +247,10 @@ char *PR_ValueString (etype_t type, eval_t *val)
 		sprintf (line, "void");
 		break;
 	case ev_float:
-		sprintf (line, "%5.1f", *(float *)val);
+		sprintf (line, "%5.1f", (float) *val);
 		break;
 	case ev_vector:
-		sprintf (line, "'%5.1f %5.1f %5.1f'", ((float *)val)[0], ((float *)val)[1], ((float *)val)[2]);
+		sprintf (line, "'%5.1f %5.1f %5.1f'", val[0], val[1], val[2]);
 		break;
 	case ev_pointer:
 		sprintf (line, "pointer");
@@ -273,20 +273,16 @@ padded to 20 field width
 */
 char *PR_GlobalStringNoContents (gofs_t ofs)
 {
-	int		i;
-	def_t	*def;
-	void	*val;
 	static char	line[128];
 
-	val = (void *)&pr_globals[ofs];
-	def = pr_global_defs[ofs];
+	def_t * def = pr_global_defs[ofs];
 	if (!def)
 //		Error ("PR_GlobalString: no def for %i", ofs);
 		sprintf (line,"%i(?!?)", ofs);
 	else
 		sprintf (line,"%i(%s)", ofs, def->name);
 
-	i = strlen(line);
+	int i = strlen(line);
 	for ( ; i<16 ; i++)
 		strcat (line," ");
 	strcat (line," ");
@@ -296,25 +292,21 @@ char *PR_GlobalStringNoContents (gofs_t ofs)
 
 char *PR_GlobalString (gofs_t ofs)
 {
-	char	*s;
-	int		i;
-	def_t	*def;
-	void	*val;
 	static char	line[128];
 
-	val = (void *)&pr_globals[ofs];
-	def = pr_global_defs[ofs];
+	def_t *def = pr_global_defs[ofs];
 	if (!def)
 		return PR_GlobalStringNoContents(ofs);
+
 	if (def->initialized && def->type->type != ev_function)
 	{
-		s = PR_ValueString (def->type->type, (eval_t*)&pr_globals[ofs]);
+		char *s = PR_ValueString (def->type->type, &pr_globals[ofs]);
 		sprintf (line,"%i(%s)", ofs, s);
 	}
 	else
 		sprintf (line,"%i(%s)", ofs, def->name);
 
-	i = strlen(line);
+	int i = strlen(line);
 	for ( ; i<16 ; i++)
 		strcat (line," ");
 	strcat (line," ");
@@ -322,21 +314,13 @@ char *PR_GlobalString (gofs_t ofs)
 	return line;
 }
 
-/*
-============
-PR_PrintOfs
-============
-*/
+
 void PR_PrintOfs (gofs_t ofs)
 {
 	printf ("%s\n",PR_GlobalString(ofs));
 }
 
-/*
-=================
-PR_PrintStatement
-=================
-*/
+
 void PR_PrintStatement (statement_t *s)
 {
 	int		i;
@@ -370,11 +354,6 @@ void PR_PrintStatement (statement_t *s)
 }
 
 
-/*
-============
-PR_PrintDefs
-============
-*/
 void PR_PrintDefs (void)
 {
 	def_t *d;
@@ -382,6 +361,35 @@ void PR_PrintDefs (void)
 	for (d=pr.defs ; d ; d=d->next)
 		PR_PrintOfs (d->ofs);
 }
+
+
+void PrintFunction (char *name)
+{
+	int		i;
+	statement_t	*ds;
+	function_t		*df;
+
+	for (i=0 ; i<numfunctions ; i++)
+		if (!strcmp (name, strings + functions[i].s_name))
+			break;
+
+	if (i==numfunctions)
+		Error ("No function names \"%s\"", name);
+
+	df = functions + i;
+
+	printf ("Statements for %s:\n", name);
+	ds = statements + df->first_statement;
+
+	while (1)
+	{
+		PR_PrintStatement (ds);
+		if (!ds->op)
+			break;
+		ds++;
+	}
+}
+
 
 
 /*
@@ -439,33 +447,6 @@ bool PR_FinishCompilation (void)
 	}
 
 	return !errors;
-}
-
-//=============================================================================
-
-
-void PrintFunction (char *name)
-{
-	int		i;
-	statement_t	*ds;
-	function_t		*df;
-
-	for (i=0 ; i<numfunctions ; i++)
-		if (!strcmp (name, strings + functions[i].s_name))
-			break;
-	if (i==numfunctions)
-		Error ("No function names \"%s\"", name);
-	df = functions + i;
-
-	printf ("Statements for %s:\n", name);
-	ds = statements + df->first_statement;
-	while (1)
-	{
-		PR_PrintStatement (ds);
-		if (!ds->op)
-			break;
-		ds++;
-	}
 }
 
 
