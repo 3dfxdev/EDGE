@@ -43,95 +43,95 @@ void PR_ParseConstant (void);
 
 opcode_t pr_opcodes[] =
 {
-	{"<DONE>", "DONE", -1, false, &def_entity, &def_field, &def_void},
+	{"<DONE>", "DONE", -1, false, &type_entity, &type_field, &type_void},
 
-	{"^", "POWER", 1, false, &def_float, &def_float, &def_float},
+	{"^", "POWER", 1, false, &type_float, &type_float, &type_float},
 
-	{"*", "MUL_F", 2, false, &def_float, &def_float, &def_float},
-	{"*", "MUL_V", 2, false, &def_vector, &def_vector, &def_float},
-	{"*", "MUL_FV", 2, false, &def_float, &def_vector, &def_vector},
-	{"*", "MUL_VF", 2, false, &def_vector, &def_float, &def_vector},
+	{"*", "MUL_F", 2, false, &type_float, &type_float, &type_float},
+	{"*", "MUL_V", 2, false, &type_vector, &type_vector, &type_float},
+	{"*", "MUL_FV", 2, false, &type_float, &type_vector, &type_vector},
+	{"*", "MUL_VF", 2, false, &type_vector, &type_float, &type_vector},
 
-	{"/", "DIV", 2, false, &def_float, &def_float, &def_float},
-	{"%", "MOD", 2, false, &def_float, &def_float, &def_float},
+	{"/", "DIV", 2, false, &type_float, &type_float, &type_float},
+	{"%", "MOD", 2, false, &type_float, &type_float, &type_float},
 
-	{"+", "ADD_F", 3, false, &def_float, &def_float, &def_float},
-	{"+", "ADD_V", 3, false, &def_vector, &def_vector, &def_vector},
+	{"+", "ADD_F", 3, false, &type_float, &type_float, &type_float},
+	{"+", "ADD_V", 3, false, &type_vector, &type_vector, &type_vector},
 
-	{"-", "SUB_F", 3, false, &def_float, &def_float, &def_float},
-	{"-", "SUB_V", 3, false, &def_vector, &def_vector, &def_vector},
+	{"-", "SUB_F", 3, false, &type_float, &type_float, &type_float},
+	{"-", "SUB_V", 3, false, &type_vector, &type_vector, &type_vector},
 
-	{"==", "EQ_F", 4, false, &def_float, &def_float, &def_float},
-	{"==", "EQ_V", 4, false, &def_vector, &def_vector, &def_float},
-	{"==", "EQ_S", 4, false, &def_string, &def_string, &def_float},
-	{"==", "EQ_E", 4, false, &def_entity, &def_entity, &def_float},
-	{"==", "EQ_FNC", 4, false, &def_function, &def_function, &def_float},
+	{"==", "EQ_F", 4, false, &type_float, &type_float, &type_float},
+	{"==", "EQ_V", 4, false, &type_vector, &type_vector, &type_float},
+	{"==", "EQ_S", 4, false, &type_string, &type_string, &type_float},
+	{"==", "EQ_E", 4, false, &type_entity, &type_entity, &type_float},
+	{"==", "EQ_FNC", 4, false, &type_function, &type_function, &type_float},
 
-	{"!=", "NE_F", 4, false, &def_float, &def_float, &def_float},
-	{"!=", "NE_V", 4, false, &def_vector, &def_vector, &def_float},
-	{"!=", "NE_S", 4, false, &def_string, &def_string, &def_float},
-	{"!=", "NE_E", 4, false, &def_entity, &def_entity, &def_float},
-	{"!=", "NE_FNC", 4, false, &def_function, &def_function, &def_float},
+	{"!=", "NE_F", 4, false, &type_float, &type_float, &type_float},
+	{"!=", "NE_V", 4, false, &type_vector, &type_vector, &type_float},
+	{"!=", "NE_S", 4, false, &type_string, &type_string, &type_float},
+	{"!=", "NE_E", 4, false, &type_entity, &type_entity, &type_float},
+	{"!=", "NE_FNC", 4, false, &type_function, &type_function, &type_float},
 
-	{"<=", "LE", 4, false, &def_float, &def_float, &def_float},
-	{">=", "GE", 4, false, &def_float, &def_float, &def_float},
-	{"<", "LT", 4, false, &def_float, &def_float, &def_float},
-	{">", "GT", 4, false, &def_float, &def_float, &def_float},
+	{"<=", "LE", 4, false, &type_float, &type_float, &type_float},
+	{">=", "GE", 4, false, &type_float, &type_float, &type_float},
+	{"<", "LT", 4, false, &type_float, &type_float, &type_float},
+	{">", "GT", 4, false, &type_float, &type_float, &type_float},
 
-	{".", "INDIRECT", 1, false, &def_entity, &def_field, &def_float},
-	{".", "INDIRECT", 1, false, &def_entity, &def_field, &def_vector},
-	{".", "INDIRECT", 1, false, &def_entity, &def_field, &def_string},
-	{".", "INDIRECT", 1, false, &def_entity, &def_field, &def_entity},
-	{".", "INDIRECT", 1, false, &def_entity, &def_field, &def_field},
-	{".", "INDIRECT", 1, false, &def_entity, &def_field, &def_function},
+	{".", "INDIRECT", 1, false, &type_entity, &type_field, &type_float},
+	{".", "INDIRECT", 1, false, &type_entity, &type_field, &type_vector},
+	{".", "INDIRECT", 1, false, &type_entity, &type_field, &type_string},
+	{".", "INDIRECT", 1, false, &type_entity, &type_field, &type_entity},
+	{".", "INDIRECT", 1, false, &type_entity, &type_field, &type_field},
+	{".", "INDIRECT", 1, false, &type_entity, &type_field, &type_function},
 
-	{".", "ADDRESS", 1, false, &def_entity, &def_field, &def_pointer},
+	{".", "ADDRESS", 1, false, &type_entity, &type_field, &type_pointer},
 
-	{"=", "STORE_F", 5, true, &def_float, &def_float, &def_float},
-	{"=", "STORE_V", 5, true, &def_vector, &def_vector, &def_vector},
-	{"=", "STORE_S", 5, true, &def_string, &def_string, &def_string},
-	{"=", "STORE_ENT", 5, true, &def_entity, &def_entity, &def_entity},
-	{"=", "STORE_FLD", 5, true, &def_field, &def_field, &def_field},
-	{"=", "STORE_FNC", 5, true, &def_function, &def_function, &def_function},
+	{"=", "STORE_F", 5, true, &type_float, &type_float, &type_float},
+	{"=", "STORE_V", 5, true, &type_vector, &type_vector, &type_vector},
+	{"=", "STORE_S", 5, true, &type_string, &type_string, &type_string},
+	{"=", "STORE_ENT", 5, true, &type_entity, &type_entity, &type_entity},
+	{"=", "STORE_FLD", 5, true, &type_field, &type_field, &type_field},
+	{"=", "STORE_FNC", 5, true, &type_function, &type_function, &type_function},
 
-	{"=", "STOREP_F", 5, true, &def_pointer, &def_float, &def_float},
-	{"=", "STOREP_V", 5, true, &def_pointer, &def_vector, &def_vector},
-	{"=", "STOREP_S", 5, true, &def_pointer, &def_string, &def_string},
-	{"=", "STOREP_ENT", 5, true, &def_pointer, &def_entity, &def_entity},
-	{"=", "STOREP_FLD", 5, true, &def_pointer, &def_field, &def_field},
-	{"=", "STOREP_FNC", 5, true, &def_pointer, &def_function, &def_function},
+	{"=", "STOREP_F", 5, true, &type_pointer, &type_float, &type_float},
+	{"=", "STOREP_V", 5, true, &type_pointer, &type_vector, &type_vector},
+	{"=", "STOREP_S", 5, true, &type_pointer, &type_string, &type_string},
+	{"=", "STOREP_ENT", 5, true, &type_pointer, &type_entity, &type_entity},
+	{"=", "STOREP_FLD", 5, true, &type_pointer, &type_field, &type_field},
+	{"=", "STOREP_FNC", 5, true, &type_pointer, &type_function, &type_function},
 
-	{"<RETURN>", "RETURN", -1, false, &def_void, &def_void, &def_void},
+	{"<RETURN>", "RETURN", -1, false, &type_void, &type_void, &type_void},
 
-	{"!", "NOT_F", -1, false, &def_float, &def_void, &def_float},
-	{"!", "NOT_V", -1, false, &def_vector, &def_void, &def_float},
-	{"!", "NOT_S", -1, false, &def_vector, &def_void, &def_float},
-	{"!", "NOT_ENT", -1, false, &def_entity, &def_void, &def_float},
-	{"!", "NOT_FNC", -1, false, &def_function, &def_void, &def_float},
+	{"!", "NOT_F", -1, false, &type_float, &type_void, &type_float},
+	{"!", "NOT_V", -1, false, &type_vector, &type_void, &type_float},
+	{"!", "NOT_S", -1, false, &type_vector, &type_void, &type_float},
+	{"!", "NOT_ENT", -1, false, &type_entity, &type_void, &type_float},
+	{"!", "NOT_FNC", -1, false, &type_function, &type_void, &type_float},
 
-	{"<IF>", "IF", -1, false, &def_float, &def_float, &def_void},
-	{"<IFNOT>", "IFNOT", -1, false, &def_float, &def_float, &def_void},
+	{"<IF>", "IF", -1, false, &type_float, &type_float, &type_void},
+	{"<IFNOT>", "IFNOT", -1, false, &type_float, &type_float, &type_void},
 
 // calls returns REG_RETURN
-	{"<CALL0>", "CALL0", -1, false, &def_function, &def_void, &def_void},
-	{"<CALL1>", "CALL1", -1, false, &def_function, &def_void, &def_void},
-	{"<CALL2>", "CALL2", -1, false, &def_function, &def_void, &def_void},
-	{"<CALL3>", "CALL3", -1, false, &def_function, &def_void, &def_void},
-	{"<CALL4>", "CALL4", -1, false, &def_function, &def_void, &def_void},
-	{"<CALL5>", "CALL5", -1, false, &def_function, &def_void, &def_void},
-	{"<CALL6>", "CALL6", -1, false, &def_function, &def_void, &def_void},
-	{"<CALL7>", "CALL7", -1, false, &def_function, &def_void, &def_void},
-	{"<CALL8>", "CALL8", -1, false, &def_function, &def_void, &def_void},
+	{"<CALL0>", "CALL0", -1, false, &type_function, &type_void, &type_void},
+	{"<CALL1>", "CALL1", -1, false, &type_function, &type_void, &type_void},
+	{"<CALL2>", "CALL2", -1, false, &type_function, &type_void, &type_void},
+	{"<CALL3>", "CALL3", -1, false, &type_function, &type_void, &type_void},
+	{"<CALL4>", "CALL4", -1, false, &type_function, &type_void, &type_void},
+	{"<CALL5>", "CALL5", -1, false, &type_function, &type_void, &type_void},
+	{"<CALL6>", "CALL6", -1, false, &type_function, &type_void, &type_void},
+	{"<CALL7>", "CALL7", -1, false, &type_function, &type_void, &type_void},
+	{"<CALL8>", "CALL8", -1, false, &type_function, &type_void, &type_void},
 
-	{"<STATE>", "STATE", -1, false, &def_float, &def_float, &def_void},
+	{"<STATE>", "STATE", -1, false, &type_float, &type_float, &type_void},
 
-	{"<GOTO>", "GOTO", -1, false, &def_float, &def_void, &def_void},
+	{"<GOTO>", "GOTO", -1, false, &type_float, &type_void, &type_void},
 
-	{"&&", "AND", 6, false, &def_float, &def_float, &def_float},
-	{"||", "OR", 6, false, &def_float, &def_float, &def_float},
+	{"&&", "AND", 6, false, &type_float, &type_float, &type_float},
+	{"||", "OR", 6, false, &type_float, &type_float, &type_float},
 
-	{"&", "BITAND", 2, false, &def_float, &def_float, &def_float},
-	{"|", "BITOR", 2, false, &def_float, &def_float, &def_float},
+	{"&", "BITAND", 2, false, &type_float, &type_float, &type_float},
+	{"|", "BITOR", 2, false, &type_float, &type_float, &type_float},
 
 	{NULL}
 };
@@ -166,7 +166,7 @@ def_t *PR_Statement ( opcode_t *op, def_t *var_a, def_t *var_b)
 	statement->a = var_a ? var_a->ofs : 0;
 	statement->b = var_b ? var_b->ofs : 0;
 
-	if (op->type_c == &def_void || op->right_associative)
+	if (op->type_c == &type_void || op->right_associative)
 	{
 		var_c = NULL;
 		statement->c = 0;			// ifs, gotos, and assignments
@@ -177,10 +177,10 @@ def_t *PR_Statement ( opcode_t *op, def_t *var_a, def_t *var_b)
 		var_c = new def_t;
 		memset (var_c, 0, sizeof(def_t));
 		var_c->ofs = numpr_globals;
-		var_c->type = op->type_c->type;
+		var_c->type = op->type_c;
 
 		statement->c = numpr_globals;
-		numpr_globals += type_size[op->type_c->type->type];
+		numpr_globals += type_size[op->type_c->type];
 	}
 
 	if (op->right_associative)
@@ -416,8 +416,8 @@ def_t *PR_Expression (int priority)
 				if ( (unsigned)(statements[numstatements-1].op - OP_LOAD_F) < 6 )
 				{
 					statements[numstatements-1].op = OP_ADDRESS;
-					def_pointer.type->aux_type = e->type;
-					e->type = def_pointer.type;
+					type_pointer.aux_type = e->type;  // FIXME ugh!
+					e->type = &type_pointer;
 				}
 				e2 = PR_Expression (priority);
 			}
@@ -439,9 +439,9 @@ def_t *PR_Expression (int priority)
 				type_c = ev_void;
 
 			oldop = op;
-			while (type_a != op->type_a->type->type
-					|| type_b != op->type_b->type->type
-					|| (type_c != ev_void && type_c != op->type_c->type->type) )
+			while (type_a != op->type_a->type
+					|| type_b != op->type_b->type
+					|| (type_c != ev_void && type_c != op->type_c->type) )
 			{
 				op++;
 				if (!op->name || strcmp (op->name , oldop->name))

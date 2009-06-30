@@ -30,8 +30,6 @@ TODO:
 
 always initialize all variables to something safe
 
-the def->type->def arrangement is really silly.
-
 return type checking
 
 parm count type checking
@@ -237,7 +235,7 @@ typedef int	gofs_t;				// offset in global data block
 typedef struct type_s
 {
 	etype_t			type;
-	struct def_s	*def;		// a def that points to this type
+
 // function types are more complex
 	struct type_s	*aux_type;	// return type or field type
 
@@ -275,11 +273,8 @@ def_t;
 //=============================================================================
 
 extern	int		type_size[8];
-extern	def_t	*def_for_type[8];
 
 extern	type_t	type_void, type_string, type_float, type_vector, type_entity, type_field, type_function, type_pointer, type_floatfield;
-
-extern	def_t	def_void, def_string, def_float, def_vector, def_entity, def_field, def_function, def_pointer;
 
 
 //
@@ -303,7 +298,7 @@ typedef struct
 	char *opname;
 	float priority;
 	bool right_associative;
-	def_t *type_a, *type_b, *type_c;
+	type_t *type_a, *type_b, *type_c;
 }
 opcode_t;
 

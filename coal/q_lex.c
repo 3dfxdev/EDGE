@@ -45,32 +45,21 @@ char	*pr_punctuation[] =
 };
 
 // simple types.  function types are dynamically allocated
-type_t	type_void = {ev_void, &def_void};
-type_t	type_string = {ev_string, &def_string};
-type_t	type_float = {ev_float, &def_float};
-type_t	type_vector = {ev_vector, &def_vector};
-type_t	type_entity = {ev_entity, &def_entity};
-type_t	type_field = {ev_field, &def_field};
-type_t	type_function = {ev_function, &def_function,&type_void};
+type_t	type_void = {ev_void};
+type_t	type_string = {ev_string};
+type_t	type_float = {ev_float};
+type_t	type_vector = {ev_vector};
+type_t	type_entity = {ev_entity};
+type_t	type_field = {ev_field};
+type_t	type_function = {ev_function, &type_void};
 // type_function is a void() function used for state defs
-type_t	type_pointer = {ev_pointer, &def_pointer};
+type_t	type_pointer = {ev_pointer};
 
-type_t	type_floatfield = {ev_field, &def_field, &type_float};
+type_t	type_floatfield = {ev_field, &type_float};
 
 int		type_size[8] = {1,1,1,3,1,1,1,1};
 
-def_t	def_void = {&type_void, "temp"};
-def_t	def_string = {&type_string, "temp"};
-def_t	def_float = {&type_float, "temp"};
-def_t	def_vector = {&type_vector, "temp"};
-def_t	def_entity = {&type_entity, "temp"};
-def_t	def_field = {&type_field, "temp"};
-def_t	def_function = {&type_function, "temp"};
-def_t	def_pointer = {&type_pointer, "temp"};
-
 def_t	def_ret, def_parms[MAX_PARMS];
-
-def_t	*def_for_type[8] = {&def_void, &def_string, &def_float, &def_vector, &def_entity, &def_field, &def_function, &def_pointer};
 
 void PR_LexWhitespace (void);
 
@@ -524,17 +513,18 @@ type_t *PR_FindType (type_t *type)
 	}
 
 // allocate a new one
-	check = new type_t;
-	*check = *type;
-	check->next = pr.types;
-	pr.types = check;
+	type_t *t_new = new type_t;
+	*t_new = *type;
+
+	t_new->next = pr.types;
+	pr.types = t_new;
 
 // allocate a generic def for the type, so fields can reference it
 	def = new def_t;
 	def->name = "COMPLEX TYPE";
-	def->type = check;
-	check->def = def;
-	return check;
+	def->type = t_new;
+	
+	return t_new;
 }
 
 
