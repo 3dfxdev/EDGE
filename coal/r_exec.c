@@ -419,68 +419,17 @@ void PR_ExecuteProgram(func_t fnum)
 	}
 }
 
-/*----------------------*/
 
-#define PR_STRTBL_CHUNK 256
-static char **pr_strtbl = NULL;
-static int pr_strtbl_size;
-static int num_prstr;
-
-void
-PR_InitStringTable(void)
+char * PR_GetString(int num)
 {
-    if (pr_strtbl) {
-/// 	Z_Free(pr_strtbl);
-	pr_strtbl = NULL;
-    }
-    pr_strtbl_size = 0;
-    num_prstr = 0;
+	if (num >= 0)
+		return strings + num;
+	else
+		Error("invalid string offset %d\n", num);
+
+	return "";
 }
 
-char *
-PR_GetString(int num)
-{
-    char *s = "";
-
-int pr_strings_size = 99999; // FIXME
-
-    if (num >= 0 && num < pr_strings_size - 1)
-	s = strings + num;
-    else if (num < 0 && num >= -num_prstr)
-	s = pr_strtbl[-num - 1];
-    else
-      Error("invalid string offset %d\n", num);
-
-    return s;
-}
-
-int
-PR_SetString(char *s)
-{
-fprintf(stderr, "PR_SetString : IGNORED\n");
-return 0;
-/*
-    int i;
-
-    if (s - pr_strings < 0 || s - pr_strings > pr_strings_size - 2) {
-	for (i = 0; i < num_prstr; i++)
-	    if (pr_strtbl[i] == s)
-		break;
-	if (i < num_prstr)
-	    return -i - 1;
-	if (num_prstr == pr_strtbl_size) {
-	    pr_strtbl_size += PR_STRTBL_CHUNK;
-	    pr_strtbl = Z_Realloc(pr_strtbl, pr_strtbl_size * sizeof(char *));
-	    Con_DPrintf("%s: Progs string table grew to %d entries.\n",
-			__func__, pr_strtbl_size);
-	}
-	pr_strtbl[num_prstr] = s;
-	num_prstr++;
-	return -num_prstr;
-    }
-    return (int)(s - pr_strings);
-*/
-}
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
