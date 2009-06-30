@@ -76,10 +76,10 @@ opcode_t pr_opcodes[] =
 	{"<",  "LT", 4, false, &type_float, &type_float, &type_float},
 	{">",  "GT", 4, false, &type_float, &type_float, &type_float},
 
-	{"=", "MOVE_F", 5, true, &type_float, &type_float, &type_float},
-	{"=", "MOVE_V", 5, true, &type_vector, &type_vector, &type_vector},
-	{"=", "MOVE_S", 5, true, &type_string, &type_string, &type_string},
-	{"=", "MOVE_FNC", 5, true, &type_function, &type_function, &type_function},
+	{"=", "MOVE_F", 6, true, &type_float, &type_float, &type_float},
+	{"=", "MOVE_V", 6, true, &type_vector, &type_vector, &type_vector},
+	{"=", "MOVE_S", 6, true, &type_string, &type_string, &type_string},
+	{"=", "MOVE_FNC", 6, true, &type_function, &type_function, &type_function},
 
 // calls returns REG_RETURN
 	{"<CALL>",  "CALL", -1, false, &type_function, &type_void, &type_void},
@@ -95,8 +95,8 @@ opcode_t pr_opcodes[] =
 
 	{"<GOTO>", "GOTO", -1, false, &type_float, &type_void, &type_void},
 
-	{"&&", "AND", 6, false, &type_float, &type_float, &type_float},
-	{"||", "OR", 6, false, &type_float, &type_float, &type_float},
+	{"&&", "AND", 5, false, &type_float, &type_float, &type_float},
+	{"||", "OR",  5, false, &type_float, &type_float, &type_float},
 
 	{"&", "BITAND", 2, false, &type_float, &type_float, &type_float},
 	{"|", "BITOR", 2, false, &type_float, &type_float, &type_float},
@@ -114,7 +114,7 @@ def_t	junkdef;
 //===========================================================================
 
 
-void PR_EmitCode(short op, short a, short b, short c)
+void PR_EmitCode(short op, short a=0, short b=0, short c=0)
 {
 	statement_linenums[numstatements] = pr_source_line;
 
@@ -242,32 +242,32 @@ def_t * PR_ParseImmediate(void)
 
 def_t * PR_ParseFunctionCall(def_t *func)
 {
-	def_t		*e;
-	int			arg;
-	type_t		*t;
-
-	t = func->type;
+	type_t * t = func->type;
 
 	if (t->type != ev_function)
 		PR_ParseError ("not a function");
 
 	// copy the arguments to the global parameter variables
-	arg = 0;
-	if (!PR_Check(")"))
+	int arg = 0;
+
+	if (! PR_Check(")"))
 	{
 		do
 		{
 			if (t->parm_num != -1 && arg >= t->parm_num)
 				PR_ParseError ("too many parameters");
-			e = PR_Expression (TOP_PRIORITY);
+
+			def_t * e = PR_Expression(TOP_PRIORITY);
 
 			if (t->parm_num != -1 && ( e->type != t->parm_types[arg] ) )
 				PR_ParseError ("type mismatch on parm %i", arg+1);
-			// a vector copy will copy everything
+
+			// FIXME HACK : a vector copy will copy everything
 			def_parms[arg].type = t->parm_types[arg];
 			PR_Statement (&pr_opcodes[OP_MOVE_V], e, &def_parms[arg]);
 			arg++;
-		} while (PR_Check(","));
+		}
+		while (PR_Check(","));
 
 		if (t->parm_num != -1 && arg != t->parm_num)
 			PR_ParseError("too few parameters");
@@ -277,7 +277,7 @@ def_t * PR_ParseFunctionCall(def_t *func)
 	if (arg >8)
 		PR_ParseError ("More than eight parameters");
 
-	PR_EmitCode(OP_CALL, func->ofs, arg, 0);
+	PR_EmitCode(OP_CALL, func->ofs, arg);
 
 	def_ret.type = t->aux_type;
 	return &def_ret;
@@ -304,7 +304,7 @@ def_t * PR_Term(void)
 {
 	if (PR_Check("!"))
 	{
-		def_t *e  = PR_Expression(NOT_PRIORITY);
+		def_t * e = PR_Expression(NOT_PRIORITY);
 		etype_t t = e->type->type;
 
 		def_t *e2 = NULL;
@@ -336,35 +336,38 @@ def_t * PR_Term(void)
 
 def_t * PR_Expression(int priority)
 {
-	opcode_t	*op, *oldop;
-	def_t		*e, *e2;
-	etype_t		type_a, type_b, type_c;
-
 	if (priority == 0)
-		return PR_Term ();
+		return PR_Term();
 
-	e = PR_Expression (priority-1);
+	def_t * e = PR_Expression(priority-1);
 
 	while (1)
 	{
-		if (priority == 1 && PR_Check ("(") )
+		if (priority == 1 && PR_Check("("))
 			return PR_ParseFunctionCall(e);
+
+		opcode_t *op;
 
 		for (op=pr_opcodes ; op->name ; op++)
 		{
 			if (op->priority != priority)
 				continue;
+
 			if (! PR_Check(op->name))
 				continue;
 
-			if ( op->right_associative )
-				e2 = PR_Expression (priority);
+			def_t * e2;
+
+			if (op->right_associative)
+				e2 = PR_Expression(priority);
 			else
-				e2 = PR_Expression (priority-1);
+				e2 = PR_Expression(priority-1);
 
 			// type check
-			type_a = e->type->type;
-			type_b = e2->type->type;
+
+			etype_t type_a = e->type->type;
+			etype_t type_b = e2->type->type;
+			etype_t type_c = ev_void;
 
 			if (op->name[0] == '.')// field access gets type from field
 			{
@@ -373,10 +376,10 @@ def_t * PR_Expression(int priority)
 				else
 					type_c = ev_INVALID;	// not a field
 			}
-			else
-				type_c = ev_void;
 
-			oldop = op;
+
+			opcode_t * oldop = op;
+
 			while (type_a != op->type_a->type
 					|| type_b != op->type_b->type
 					|| (type_c != ev_void && type_c != op->type_c->type) )
@@ -400,6 +403,7 @@ def_t * PR_Expression(int priority)
 
 			break;
 		}
+
 		if (!op->name)
 			break;	// next token isn't at this priority level
 	}
@@ -410,9 +414,6 @@ def_t * PR_Expression(int priority)
 
 void PR_ParseStatement(void)
 {
-	def_t *e;
-	statement_t *patch1, *patch2;
-
 	if (PR_Check("function"))
 	{
 		PR_ParseError ("Functions must be global");
@@ -450,64 +451,73 @@ void PR_ParseStatement(void)
 			PR_Statement(&pr_opcodes[OP_RETURN]);
 			return;
 		}
-		e = PR_Expression(TOP_PRIORITY);
+		def_t * e = PR_Expression(TOP_PRIORITY);
 		PR_Expect (";");
+
 		PR_Statement(&pr_opcodes[OP_RETURN], e);
-		return;
-	}
-
-	if (PR_Check("while"))
-	{
-		PR_Expect ("(");
-		patch2 = &statements[numstatements];
-		e = PR_Expression (TOP_PRIORITY);
-		PR_Expect (")");
-		patch1 = &statements[numstatements];
-		PR_Statement (&pr_opcodes[OP_IFNOT], e);
-		PR_ParseStatement ();
-		junkdef.ofs = patch2 - &statements[numstatements];
-		PR_Statement (&pr_opcodes[OP_GOTO], &junkdef);
-		patch1->b = &statements[numstatements] - patch1;
-		return;
-	}
-
-	if (PR_Check("do"))
-	{
-		patch1 = &statements[numstatements];
-		PR_ParseStatement ();
-		PR_Expect ("while");
-		PR_Expect ("(");
-		e = PR_Expression(TOP_PRIORITY);
-		PR_Expect (")");
-		PR_Expect (";");
-
-		junkdef.ofs = patch1 - &statements[numstatements];
-		PR_Statement (&pr_opcodes[OP_IF], e, &junkdef);
 		return;
 	}
 
 	if (PR_Check("if"))
 	{
 		PR_Expect("(");
-		e = PR_Expression (TOP_PRIORITY);
+		def_t * e = PR_Expression(TOP_PRIORITY);
 		PR_Expect(")");
 
-		patch1 = &statements[numstatements];
-		PR_Statement (&pr_opcodes[OP_IFNOT], e);
+		int patch = numstatements;
+		PR_EmitCode(OP_IFNOT, e->ofs);
 
 		PR_ParseStatement();
 
 		if (PR_Check("else"))
 		{
-			patch2 = &statements[numstatements];
-			PR_Statement (&pr_opcodes[OP_GOTO]);
-			patch1->b = &statements[numstatements] - patch1;
-			PR_ParseStatement ();
-			patch2->a = &statements[numstatements] - patch2;
-		}
-		else
-			patch1->b = &statements[numstatements] - patch1;
+			// use GOTO to skip over the else statements
+			int patch2 = numstatements;
+			PR_EmitCode(OP_GOTO);
 
+			statements[patch].b = numstatements;
+
+			PR_ParseStatement ();
+
+			patch = patch2;
+		}
+		
+		statements[patch].b = numstatements;
+		return;
+	}
+
+	if (PR_Check("while"))
+	{
+		int begin = numstatements;
+
+		PR_Expect ("(");
+		def_t * e = PR_Expression(TOP_PRIORITY);
+		PR_Expect (")");
+
+		int patch = numstatements;
+		PR_EmitCode(OP_IFNOT, e->ofs);
+
+		PR_ParseStatement ();
+
+		PR_EmitCode(OP_GOTO, 0, begin);
+
+		statements[patch].b = numstatements;
+		return;
+	}
+
+	if (PR_Check("do"))
+	{
+		int begin = numstatements;
+
+		PR_ParseStatement ();
+
+		PR_Expect ("while");
+		PR_Expect ("(");
+		def_t * e = PR_Expression(TOP_PRIORITY);
+		PR_Expect (")");
+		PR_Expect (";");
+
+		PR_EmitCode(OP_IF, e->ofs, begin);
 		return;
 	}
 

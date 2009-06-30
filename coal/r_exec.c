@@ -347,16 +347,16 @@ void PR_ExecuteProgram(func_t fnum)
 
 			case OP_IFNOT:
 				if (!*a)
-					s += st->b - 1;	// offset the s++
+					s = st->b - 1;	// offset the s++
 				break;
 
 			case OP_IF:
 				if (*a)
-					s += st->b - 1;	// offset the s++
+					s = st->b - 1;	// offset the s++
 				break;
 
 			case OP_GOTO:
-				s += st->a - 1;	// offset the s++
+				s = st->b - 1;	// offset the s++
 				break;
 
 			case OP_CALL:
