@@ -247,6 +247,14 @@ void PR_ExecuteProgram(func_t fnum)
 				*c = *a / *b;
 				break;
 
+			case OP_DIV_V:
+				if (*b == 0)
+					Error("Division by zero");
+				c[0] = a[0] / *b;
+				c[1] = a[1] / *b;
+				c[2] = a[2] / *b;
+				break;
+
 			case OP_MOD_F:
 				if (*b == 0)
 					Error("Division by zero");

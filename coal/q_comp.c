@@ -51,8 +51,9 @@ opcode_t pr_opcodes[] =
 	{"*", "MUL_FV", 2, false, &type_float, &type_vector, &type_vector},
 	{"*", "MUL_VF", 2, false, &type_vector, &type_float, &type_vector},
 
-	{"/", "DIV", 2, false, &type_float, &type_float, &type_float},
-	{"%", "MOD", 2, false, &type_float, &type_float, &type_float},
+	{"/", "DIV_F", 2, false, &type_float, &type_float, &type_float},
+	{"/", "DIV_V", 2, false, &type_vector, &type_float, &type_vector},
+	{"%", "MOD_F", 2, false, &type_float, &type_float, &type_float},
 
 	{"+", "ADD_F", 3, false, &type_float, &type_float, &type_float},
 	{"+", "ADD_V", 3, false, &type_vector, &type_vector, &type_vector},
