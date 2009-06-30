@@ -31,30 +31,7 @@ typedef union eval_s
 }
 eval_t;
 
-#define	MAX_ENT_LEAFS	16
 
-
-
-
-//============================================================================
-
-void PR_Init(void);
-
-void PR_ExecuteProgram(func_t fnum);
-void PR_LoadProgs(void);
-
-void PR_Profile_f(void);
-
-// returns a copy of the string allocated from the server's string heap
-
-
-
-//============================================================================
-
-#define	E_FLOAT(e,o) (((float*)&e->v)[o])
-#define	E_INT(e,o) (*(int *)&((float*)&e->v)[o])
-#define	E_VECTOR(e,o) (&((float*)&e->v)[o])
-#define	E_STRING(e,o) (PR_GetString(*(string_t *)&((float*)&e->v)[o]))
 
 typedef void (*builtin_t) (void);
 extern builtin_t *pr_builtins;
@@ -64,16 +41,12 @@ extern int pr_argc;
 
 extern bool pr_trace;
 
+
+void PR_ExecuteProgram(func_t fnum);
+
 void PR_RunError(const char *error, ...) __attribute__((format(printf,1,2)));
 
-
-
-/*
- * PR Strings stuff
- */
-void PR_InitStringTable(void);
 char *PR_GetString(int num);
-int PR_SetString(char *s);
 
 
 #endif /* PROGS_H */
