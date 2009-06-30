@@ -15,7 +15,12 @@ function bar(b) =
 {
     var y; y = 1 | 4 | 16;
     b = b & y;
+
     nprint(b);
+    if (b <= 4)
+        b = 1;
+    else
+        sprint("JACKPOT!");
 }
 
 function main() =
@@ -25,6 +30,7 @@ function main() =
     sprint("------------");
     
     vprint('1 2 3' + '4 5 6');
+    vprint('1 2 3' / 4  );
 
     var x;
     
@@ -32,6 +38,6 @@ function main() =
 
     sprint("");
 
-    x = 1; do { bar(x); x = x + 1; } while (x <= 6);
+    x = 1; while (x <= 6) { bar(x); x = x + 1; }
 }
 
