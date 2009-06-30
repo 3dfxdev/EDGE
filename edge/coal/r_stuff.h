@@ -107,7 +107,6 @@ void PR_RunError(const char *error, ...) __attribute__((format(printf,1,2)));
 void ED_PrintEdicts(void);
 void ED_PrintNum(int ent);
 
-eval_t *GetEdictFieldValue(edict_t *ed, char *field);
 
 /*
  * PR Strings stuff

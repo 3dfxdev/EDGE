@@ -153,7 +153,7 @@ PR_Statement
 Emits a primitive statement, returning the var it places it's value in
 ============
 */
-def_t *PR_Statement ( opcode_t *op, def_t *var_a, def_t *var_b)
+def_t * PR_Statement(opcode_t *op, def_t *var_a, def_t *var_b)
 {
 	statement_t	*statement;
 	def_t			*var_c;
@@ -188,20 +188,16 @@ def_t *PR_Statement ( opcode_t *op, def_t *var_a, def_t *var_b)
 	return var_c;
 }
 
-/*
-============
-PR_ParseImmediate
 
-Looks for a preexisting constant
-============
-*/
-def_t	*PR_ParseImmediate (void)
+def_t * PR_ParseImmediate (void)
 {
-	def_t	*cn;
+	// Looks for a preexisting constant
 
-  char im_name[32];
+	def_t *cn;
 
-// check for a constant with the same value
+	char im_name[32];
+
+	// check for a constant with the same value
 	for (cn=pr.defs ; cn ; cn=cn->next)
 	{
 		if (!cn->initialized)
@@ -227,8 +223,8 @@ def_t	*PR_ParseImmediate (void)
 		else if	(pr_immediate_type == &type_vector)
 		{
 			if ( ( G_FLOAT(cn->ofs) == pr_immediate.vector[0] )
-			&& ( G_FLOAT(cn->ofs+1) == pr_immediate.vector[1] )
-			&& ( G_FLOAT(cn->ofs+2) == pr_immediate.vector[2] ) )
+					&& ( G_FLOAT(cn->ofs+1) == pr_immediate.vector[1] )
+					&& ( G_FLOAT(cn->ofs+2) == pr_immediate.vector[2] ) )
 			{
 				PR_Lex ();
 				return cn;
@@ -238,23 +234,24 @@ def_t	*PR_ParseImmediate (void)
 			PR_ParseError ("weird immediate type");
 	}
 
-// allocate a new one
+	// allocate a new one
 	cn = new def_t;
 
 	cn->next = pr.defs;
 	pr.defs  = cn;
 
-  sprintf(im_name, "IMMED_%p", cn);
+	sprintf(im_name, "IMMED_%p", cn);
 
 	cn->type = pr_immediate_type;
 	cn->name = strdup(im_name);
 	cn->initialized = 1;
 	cn->scope = NULL;		// always share immediates
 
-// copy the immediate to the global area
+	// copy the immediate to the global area
 	cn->ofs = numpr_globals;
 	pr_global_defs[cn->ofs] = cn;
 	numpr_globals += type_size[pr_immediate_type->type];
+
 	if (pr_immediate_type == &type_string)
 		pr_immediate.string = CopyString (pr_immediate_string);
 
@@ -266,12 +263,7 @@ def_t	*PR_ParseImmediate (void)
 }
 
 
-/*
-============
-PR_ParseFunctionCall
-============
-*/
-def_t *PR_ParseFunctionCall (def_t *func)
+def_t * PR_ParseFunctionCall(def_t *func)
 {
 	def_t		*e;
 	int			arg;
@@ -282,7 +274,7 @@ def_t *PR_ParseFunctionCall (def_t *func)
 	if (t->type != ev_function)
 		PR_ParseError ("not a function");
 
-// copy the arguments to the global parameter variables
+	// copy the arguments to the global parameter variables
 	arg = 0;
 	if (!PR_Check(")"))
 	{
@@ -294,7 +286,7 @@ def_t *PR_ParseFunctionCall (def_t *func)
 
 			if (t->parm_num != -1 && ( e->type != t->parm_types[arg] ) )
 				PR_ParseError ("type mismatch on parm %i", arg+1);
-		// a vector copy will copy everything
+			// a vector copy will copy everything
 			def_parms[arg].type = t->parm_types[arg];
 			PR_Statement (&pr_opcodes[OP_STORE_V], e, &def_parms[arg]);
 			arg++;
@@ -314,46 +306,32 @@ def_t *PR_ParseFunctionCall (def_t *func)
 	return &def_ret;
 }
 
-/*
-============
-PR_ParseValue
 
-Returns the global ofs for the current token
-============
-*/
-def_t	*PR_ParseValue (void)
+def_t * PR_ParseValue(void)
 {
-	def_t		*d;
-	char		*name;
-
-// if the token is an immediate, allocate a constant for it
+	// if the token is an immediate, allocate a constant for it
 	if (pr_token_type == tt_immediate)
-		return PR_ParseImmediate ();
+		return PR_ParseImmediate();
 
-	name = PR_ParseName ();
+	char *name = PR_ParseName();
 
-// look through the defs
-	d = PR_GetDef (NULL, name, pr_scope, false);
+	// look through the defs
+	def_t *d = PR_GetDef (NULL, name, pr_scope, false);
 	if (!d)
 		PR_ParseError ("Unknown value \"%s\"", name);
 	return d;
 }
 
 
-/*
-============
-PR_Term
-============
-*/
-def_t *PR_Term (void)
+def_t * PR_Term(void)
 {
-	def_t	*e, *e2;
-	etype_t	t;
-
-	if (PR_Check ("!"))
+	if (PR_Check("!"))
 	{
-		e = PR_Expression (NOT_PRIORITY);
-		t = e->type->type;
+		def_t *e  = PR_Expression(NOT_PRIORITY);
+		etype_t t = e->type->type;
+
+		def_t *e2 = NULL;
+
 		if (t == ev_float)
 			e2 = PR_Statement (&pr_opcodes[OP_NOT_F], e, 0);
 		else if (t == ev_string)
@@ -365,16 +343,14 @@ def_t *PR_Term (void)
 		else if (t == ev_function)
 			e2 = PR_Statement (&pr_opcodes[OP_NOT_FNC], e, 0);
 		else
-		{
-			e2 = NULL;		// shut up compiler warning;
-			PR_ParseError ("type mismatch for !");
-		}
+			PR_ParseError ("type mismatch for '!' operator");
+
 		return e2;
 	}
 
 	if (PR_Check ("("))
 	{
-		e = PR_Expression (TOP_PRIORITY);
+		def_t *e = PR_Expression (TOP_PRIORITY);
 		PR_Expect (")");
 		return e;
 	}
@@ -382,13 +358,8 @@ def_t *PR_Term (void)
 	return PR_ParseValue ();
 }
 
-/*
-==============
-PR_Expression
-==============
-*/
 
-def_t *PR_Expression (int priority)
+def_t * PR_Expression(int priority)
 {
 	opcode_t	*op, *oldop;
 	def_t		*e, *e2;
@@ -402,17 +373,18 @@ def_t *PR_Expression (int priority)
 	while (1)
 	{
 		if (priority == 1 && PR_Check ("(") )
-			return PR_ParseFunctionCall (e);
+			return PR_ParseFunctionCall(e);
 
 		for (op=pr_opcodes ; op->name ; op++)
 		{
 			if (op->priority != priority)
 				continue;
-			if (!PR_Check (op->name))
+			if (! PR_Check(op->name))
 				continue;
+
 			if ( op->right_associative )
 			{
-			// if last statement is an indirect, change it to an address of
+				// if last statement is an indirect, change it to an address of
 				if ( (unsigned)(statements[numstatements-1].op - OP_LOAD_F) < 6 )
 				{
 					statements[numstatements-1].op = OP_ADDRESS;
@@ -424,7 +396,7 @@ def_t *PR_Expression (int priority)
 			else
 				e2 = PR_Expression (priority-1);
 
-		// type check
+			// type check
 			type_a = e->type->type;
 			type_b = e2->type->type;
 
@@ -470,23 +442,38 @@ def_t *PR_Expression (int priority)
 }
 
 
-/*
-============
-PR_ParseStatement
-
-============
-*/
-void PR_ParseStatement (void)
+void PR_ParseStatement(void)
 {
-	def_t				*e;
-	statement_t		*patch1, *patch2;
+	def_t *e;
+	statement_t *patch1, *patch2;
+
+	if (PR_Check("function"))
+	{
+		PR_ParseError ("Functions must be global");
+		return;
+	}
+
+	if (PR_Check("var"))
+	{
+		PR_ParseVariable ();
+		locals_end = numpr_globals;
+		return;
+	}
+
+	if (PR_Check("constant"))
+	{
+		PR_ParseConstant ();
+		locals_end = numpr_globals;
+		return;
+	}
 
 	if (PR_Check ("{"))
 	{
-		do
-		{
-			PR_ParseStatement ();
-		} while (!PR_Check ("}"));
+		do {
+			PR_ParseStatement();
+		}
+		while (! PR_Check("}"));
+
 		return;
 	}
 
@@ -532,26 +519,6 @@ void PR_ParseStatement (void)
 		return;
 	}
 
-	if (PR_Check("function"))
-	{
-		PR_ParseError ("Functions must be global");
-		return;
-	}
-
-	if (PR_Check("var"))
-	{
-		PR_ParseVariable ();
-		locals_end = numpr_globals;
-		return;
-	}
-
-	if (PR_Check("constant"))
-	{
-		PR_ParseConstant ();
-		locals_end = numpr_globals;
-		return;
-	}
-
 	if (PR_Check("if"))
 	{
 		PR_Expect ("(");
@@ -582,19 +549,18 @@ void PR_ParseStatement (void)
 }
 
 
-
 int PR_ParseFunctionBody (type_t *type)
 {
 	int i;
 
-//
-// check for builtin function definition #1, #2, etc
-//
+	//
+	// check for builtin function definition #1, #2, etc
+	//
 	if (PR_Check ("#"))
 	{
 		if (pr_token_type != tt_immediate
-			|| pr_immediate_type != &type_float
-			|| pr_immediate._float != (int)pr_immediate._float)
+				|| pr_immediate_type != &type_float
+				|| pr_immediate._float != (int)pr_immediate._float)
 		{
 			PR_ParseError ("Bad builtin immediate");
 		}
@@ -603,9 +569,9 @@ int PR_ParseFunctionBody (type_t *type)
 		return -builtin;
 	}
 
-//
-// define the parms
-//
+	//
+	// define the parms
+	//
 	def_t *defs[MAX_PARMS];
 
 	int parm_ofs[MAX_PARMS];
@@ -622,15 +588,15 @@ int PR_ParseFunctionBody (type_t *type)
 
 	int code = numstatements;
 
-//
-// parse regular statements
-//
+	//
+	// parse regular statements
+	//
 	PR_Expect ("{");
 
 	while (! PR_Check("}"))
 		PR_ParseStatement();
 
-// emit an end of statements opcode
+	// emit an end of statements opcode
 	PR_Statement (&pr_opcodes[OP_DONE], NULL, NULL);
 
 	return code;
@@ -649,7 +615,7 @@ def_t *PR_GetDef (type_t *type, char *name, def_t *scope, bool allocate)
 	def_t *def;
 	char element[MAX_NAME];
 
-// see if the name is already in use
+	// see if the name is already in use
 	for (def = pr.defs ; def ; def=def->next)
 		if (!strcmp(def->name,name) )
 		{
@@ -665,7 +631,7 @@ def_t *PR_GetDef (type_t *type, char *name, def_t *scope, bool allocate)
 	if (!allocate)
 		return NULL;
 
-// allocate a new def
+	// allocate a new def
 	def = new def_t;
 	memset (def, 0, sizeof(*def));
 
@@ -680,45 +646,17 @@ def_t *PR_GetDef (type_t *type, char *name, def_t *scope, bool allocate)
 	def->ofs = numpr_globals;
 	pr_global_defs[numpr_globals] = def;
 
-//
-// make automatic defs for the vectors elements
-// .origin can be accessed as .origin_x, .origin_y, and .origin_z
-//
-	if (type->type == ev_vector)
-	{
-		sprintf (element, "%s_x",name);
-		PR_GetDef (&type_float, element, scope, true);
-
-		sprintf (element, "%s_y",name);
-		PR_GetDef (&type_float, element, scope, true);
-
-		sprintf (element, "%s_z",name);
-		PR_GetDef (&type_float, element, scope, true);
-	}
-	else
-		numpr_globals += type_size[type->type];
+	numpr_globals += type_size[type->type];
 
 	if (type->type == ev_field)
 	{
 		*(int *)&pr_globals[def->ofs] = pr.size_fields;
 
-		if (type->aux_type->type == ev_vector)
-		{
-			sprintf (element, "%s_x",name);
-			PR_GetDef (&type_floatfield, element, scope, true);
-
-			sprintf (element, "%s_y",name);
-			PR_GetDef (&type_floatfield, element, scope, true);
-
-			sprintf (element, "%s_z",name);
-			PR_GetDef (&type_floatfield, element, scope, true);
-		}
-		else
-			pr.size_fields += type_size[type->aux_type->type];
+		pr.size_fields += type_size[type->aux_type->type];
 	}
 
-//	if (pr_dumpasm)
-//		PR_PrintOfs (def->ofs);
+	//	if (pr_dumpasm)
+	//		PR_PrintOfs (def->ofs);
 
 	return def;
 }
