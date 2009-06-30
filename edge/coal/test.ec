@@ -1,3 +1,7 @@
+// 
+// Test script for Coal
+//
+
 function sprint(s : string) = #1
 function nprint(v : float ) = #2
 function vprint(v : vector) = #3
@@ -24,10 +28,10 @@ function main() =
 
     var x;
     
-    x = 1; do { foo(x); x = x + 1; } while (x <= 7);
+    x = 1; do { foo(x); x = x + 1; } while (x <= 6);
 
     sprint("");
 
-    x = 1; do { bar(x); x = x + 1; } while (x <= 7);
+    x = 1; do { bar(x); x = x + 1; } while (x <= 6);
 }
 
