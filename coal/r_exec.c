@@ -351,15 +351,7 @@ void PR_ExecuteProgram(func_t fnum)
 				s += st->a - 1;	// offset the s++
 				break;
 
-			case OP_CALL0:
-			case OP_CALL1:
-			case OP_CALL2:
-			case OP_CALL3:
-			case OP_CALL4:
-			case OP_CALL5:
-			case OP_CALL6:
-			case OP_CALL7:
-			case OP_CALL8:
+			case OP_CALL:
 			{
 				int fnum = (int)*a;
 
@@ -368,7 +360,7 @@ void PR_ExecuteProgram(func_t fnum)
 
 				newf = &functions[fnum];
 
-				pr_argc = st->op - OP_CALL0;
+				pr_argc = st->b;
 
 				/* negative statements are built in functions */
 				if (newf->first_statement < 0)
