@@ -75,10 +75,10 @@ opcode_t pr_opcodes[] =
 	{"<",  "LT", 4, false, &type_float, &type_float, &type_float},
 	{">",  "GT", 4, false, &type_float, &type_float, &type_float},
 
-	{"=", "ASSIGN_F", 5, true, &type_float, &type_float, &type_float},
-	{"=", "ASSIGN_V", 5, true, &type_vector, &type_vector, &type_vector},
-	{"=", "ASSIGN_S", 5, true, &type_string, &type_string, &type_string},
-	{"=", "ASSIGN_FNC", 5, true, &type_function, &type_function, &type_function},
+	{"=", "MOVE_F", 5, true, &type_float, &type_float, &type_float},
+	{"=", "MOVE_V", 5, true, &type_vector, &type_vector, &type_vector},
+	{"=", "MOVE_S", 5, true, &type_string, &type_string, &type_string},
+	{"=", "MOVE_FNC", 5, true, &type_function, &type_function, &type_function},
 
 // calls returns REG_RETURN
 	{"<CALL>",  "CALL", -1, false, &type_function, &type_void, &type_void},
@@ -264,7 +264,7 @@ def_t * PR_ParseFunctionCall(def_t *func)
 				PR_ParseError ("type mismatch on parm %i", arg+1);
 			// a vector copy will copy everything
 			def_parms[arg].type = t->parm_types[arg];
-			PR_Statement (&pr_opcodes[OP_ASSIGN_V], e, &def_parms[arg]);
+			PR_Statement (&pr_opcodes[OP_MOVE_V], e, &def_parms[arg]);
 			arg++;
 		} while (PR_Check(","));
 

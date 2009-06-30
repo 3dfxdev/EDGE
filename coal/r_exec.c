@@ -324,12 +324,12 @@ void PR_ExecuteProgram(func_t fnum)
 				break;
 
 				//==================
-			case OP_ASSIGN_F:
-			case OP_ASSIGN_S:
-			case OP_ASSIGN_FNC:	// pointers
+			case OP_MOVE_F:
+			case OP_MOVE_S:
+			case OP_MOVE_FNC:	// pointers
 				*b = *a;
 				break;
-			case OP_ASSIGN_V:
+			case OP_MOVE_V:
 				b[0] = a[0];
 				b[1] = a[1];
 				b[2] = a[2];
