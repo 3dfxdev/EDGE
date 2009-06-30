@@ -368,7 +368,7 @@ void PR_PrintStatement (statement_t *s)
 	{
 		printf ("branch %i",s->a);
 	}
-	else if ( (unsigned)(s->op - OP_STORE_F) < 6)
+	else if ( (unsigned)(s->op - OP_ASSIGN_F) < 6)
 	{
 		printf ("%s",PR_GlobalString(s->a));
 		printf ("%s", PR_GlobalStringNoContents(s->b));

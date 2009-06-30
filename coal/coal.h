@@ -274,7 +274,8 @@ def_t;
 
 extern	int		type_size[8];
 
-extern	type_t	type_void, type_string, type_float, type_vector, type_entity, type_field, type_function, type_pointer, type_floatfield;
+extern	type_t	type_void, type_string, type_float, type_vector,
+                type_entity, type_function;
 
 
 //

@@ -332,9 +332,6 @@ void PR_ExecuteProgram(func_t fnum)
 				c->_float =
 					!strcmp(PR_GetString(a->string), PR_GetString(b->string));
 				break;
-			case OP_EQ_E:
-				c->_float = a->_int == b->_int;
-				break;
 			case OP_EQ_FNC:
 				c->_float = a->function == b->function;
 				break;
@@ -351,88 +348,20 @@ void PR_ExecuteProgram(func_t fnum)
 				c->_float =
 					strcmp(PR_GetString(a->string), PR_GetString(b->string));
 				break;
-			case OP_NE_E:
-				c->_float = a->_int != b->_int;
-				break;
 			case OP_NE_FNC:
 				c->_float = a->function != b->function;
 				break;
 
 				//==================
-			case OP_STORE_F:
-			case OP_STORE_ENT:
-			case OP_STORE_FLD:	// integers
-			case OP_STORE_S:
-			case OP_STORE_FNC:	// pointers
+			case OP_ASSIGN_F:
+			case OP_ASSIGN_S:
+			case OP_ASSIGN_FNC:	// pointers
 				b->_int = a->_int;
 				break;
-			case OP_STORE_V:
+			case OP_ASSIGN_V:
 				b->vector[0] = a->vector[0];
 				b->vector[1] = a->vector[1];
 				b->vector[2] = a->vector[2];
-				break;
-
-			case OP_STOREP_F:
-			case OP_STOREP_ENT:
-			case OP_STOREP_FLD:	// integers
-			case OP_STOREP_S:
-			case OP_STOREP_FNC:	// pointers
-				fprintf(stderr, "ignoring OP_STOREP_F/ENT/FLD/S/FNC\n");
-				/*
-				   ptr = (eval_t *)((byte *)sv.edicts + b->_int);
-				   ptr->_int = a->_int;
-				   */
-				break;
-			case OP_STOREP_V:
-				fprintf(stderr, "ignoring OP_STOREP_V\n");
-				/*
-				   ptr = (eval_t *)((byte *)sv.edicts + b->_int);
-				   ptr->vector[0] = a->vector[0];
-				   ptr->vector[1] = a->vector[1];
-				   ptr->vector[2] = a->vector[2];
-				   */
-				break;
-
-			case OP_ADDRESS:
-				fprintf(stderr, "ignoring OP_ADDRESS\n");
-				/*
-				   ed = PROG_TO_EDICT(a->edict);
-#ifdef PARANOID
-NUM_FOR_EDICT(ed);	// make sure it's in range
-#endif
-if (ed == (edict_t *)sv.edicts && sv.state == ss_active)
-Error("assignment to world entity");
-c->_int = (byte *)((int *)&ed->v + b->_int) - (byte *)sv.edicts;
-*/
-				break;
-
-			case OP_LOAD_F:
-			case OP_LOAD_FLD:
-			case OP_LOAD_ENT:
-			case OP_LOAD_S:
-			case OP_LOAD_FNC:
-				fprintf(stderr, "ignoring OP_LOAD_F/FLD/ENT/S/FNC\n");
-				/*
-				   ed = PROG_TO_EDICT(a->edict);
-#ifdef PARANOID
-NUM_FOR_EDICT(ed);	// make sure it's in range
-#endif
-a = (eval_t *)((int *)&ed->v + b->_int);
-c->_int = a->_int; */
-				break;
-
-			case OP_LOAD_V:
-				fprintf(stderr, "ignoring OP_LOAD_V\n");
-				/*
-				   ed = PROG_TO_EDICT(a->edict);
-#ifdef PARANOID
-NUM_FOR_EDICT(ed);	// make sure it's in range
-#endif
-a = (eval_t *)((int *)&ed->v + b->_int);
-c->vector[0] = a->vector[0];
-c->vector[1] = a->vector[1];
-c->vector[2] = a->vector[2];
-*/
 				break;
 
 				//==================
@@ -488,18 +417,6 @@ c->vector[2] = a->vector[2];
 				s = PR_LeaveFunction();
 				if (pr_depth == exitdepth)
 					return;		// all done
-				break;
-
-			case OP_STATE:
-				fprintf(stderr, "ignoring OP_STATE\n");
-				/*
-				   ed = PROG_TO_EDICT(pr_global_struct->self);
-				   ed->v.nextthink = pr_global_struct->time + 0.1;
-				   if (a->_float != ed->v.frame) {
-				   ed->v.frame = a->_float;
-				   }
-				   ed->v.think = b->function;
-				   */
 				break;
 
 			default:
