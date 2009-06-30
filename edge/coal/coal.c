@@ -411,6 +411,8 @@ void PR_BeginCompilation (void)
 {
 	int i;
 
+	static def_t  def_void = {&type_void, "VOID_CRUD"};
+
 	numpr_globals = RESERVED_OFS;
 	pr.defs = NULL;
 
