@@ -49,7 +49,9 @@ opcode_t pr_opcodes[] =
 	{"!", "NOT_S", -1, false, &type_vector, &type_void, &type_float},
 	{"!", "NOT_FNC", -1, false, &type_function, &type_void, &type_float},
 
-	{"^", "POWER", 1, false, &type_float, &type_float, &type_float},
+	/* priority 1 is for function calls */
+
+	{"^", "POWER", 2, false, &type_float, &type_float, &type_float},
 
 	{"*", "MUL_F", 2, false, &type_float, &type_float, &type_float},
 	{"*", "MUL_V", 2, false, &type_vector, &type_vector, &type_float},
@@ -105,7 +107,7 @@ opcode_t pr_opcodes[] =
 };
 
 #define	TOP_PRIORITY	6
-#define	NOT_PRIORITY	4
+#define	NOT_PRIORITY	1
 
 def_t *PR_Expression (int priority);
 
@@ -127,6 +129,20 @@ void PR_EmitCode(short op, short a=0, short b=0, short c=0)
 }
 
 
+def_t *PR_NewVar(type_t *type)
+{
+	def_t * var_c = new def_t;
+	memset (var_c, 0, sizeof(def_t));
+
+	var_c->ofs = numpr_globals;
+	var_c->type = type;
+
+	numpr_globals += type_size[type->type];
+
+	return var_c;
+}
+
+
 /*
 ============
 PR_Statement
@@ -144,13 +160,7 @@ def_t * PR_Statement(opcode_t *op, def_t *var_a = NULL, def_t *var_b = NULL)
 	}
 	else
 	{	// allocate result space
-		var_c = new def_t;
-		memset (var_c, 0, sizeof(def_t));
-
-		var_c->ofs = numpr_globals;
-		var_c->type = op->type_c;
-
-		numpr_globals += type_size[op->type_c->type];
+		var_c = PR_NewVar(op->type_c);
 	}
 
 	PR_EmitCode(op - pr_opcodes,
@@ -318,19 +328,56 @@ def_t * PR_Term(void)
 		else if (t == ev_function)
 			e2 = PR_Statement (&pr_opcodes[OP_NOT_FNC], e);
 		else
-			PR_ParseError ("type mismatch for '!' operator");
+			PR_ParseError("type mismatch for !");
 
 		return e2;
 	}
 
-	if (PR_Check ("("))
+	if (PR_Check("("))
 	{
-		def_t *e = PR_Expression (TOP_PRIORITY);
-		PR_Expect (")");
+		def_t *e = PR_Expression(TOP_PRIORITY);
+		PR_Expect(")");
 		return e;
 	}
 
-	return PR_ParseValue ();
+	return PR_ParseValue();
+}
+
+
+def_t * PR_ShortCircuitExp(def_t *e, opcode_t *op)
+{
+	if (e->type->type != ev_float)
+		PR_ParseError("type mismatch for %s", op->name);
+
+	// Instruction stream for &&
+	//
+	//		... calc a ...
+	//		MOVE a --> c
+	//		IF c == 0 GOTO label
+	//		... calc b ...
+	//		MOVE b --> c
+	//		label:
+
+	def_t *result = PR_NewVar(op->type_c);
+
+	PR_EmitCode(OP_MOVE_F, e->ofs, result->ofs);
+
+	int patch = numstatements;
+
+	if (op->name[0] == '&')
+		PR_EmitCode(OP_IFNOT, result->ofs);
+	else
+		PR_EmitCode(OP_IF, result->ofs);
+
+	def_t *e2 = PR_Expression(op->priority - 1);
+	if (e2->type->type != ev_float)
+		PR_ParseError("type mismatch for %s", op->name);
+
+	PR_EmitCode(OP_MOVE_F, e2->ofs, result->ofs);
+
+	statements[patch].b = numstatements;
+
+	return result;
 }
 
 
@@ -355,6 +402,13 @@ def_t * PR_Expression(int priority)
 
 			if (! PR_Check(op->name))
 				continue;
+
+			if (strcmp(op->name, "&&") == 0 ||
+			    strcmp(op->name, "||") == 0)
+			{
+				e = PR_ShortCircuitExp(e, op);
+				break;
+			}
 
 			def_t * e2;
 
@@ -385,12 +439,12 @@ def_t * PR_Expression(int priority)
 					|| (type_c != ev_void && type_c != op->type_c->type) )
 			{
 				op++;
-				if (!op->name || strcmp (op->name , oldop->name))
-					PR_ParseError ("type mismatch for %s", oldop->name);
+				if (!op->name || strcmp(op->name , oldop->name) != 0)
+					PR_ParseError("type mismatch for %s", oldop->name);
 			}
 
 			if (type_a == ev_pointer && type_b != e->type->aux_type->type)
-				PR_ParseError ("type mismatch for %s", op->name);
+				PR_ParseError("type mismatch for %s", op->name);
 
 
 			if (op->right_associative)
