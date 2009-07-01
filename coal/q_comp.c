@@ -502,13 +502,20 @@ void PR_ParseStatement(void)
 	{
 		if (PR_Check (";"))
 		{
-			PR_Statement(&pr_opcodes[OP_RETURN]);
+			if (pr_scope->type->aux_type->type != ev_void)
+				PR_ParseError("missing value for return");
+
+			PR_EmitCode(OP_RETURN);
 			return;
 		}
+
 		def_t * e = PR_Expression(TOP_PRIORITY);
 		PR_Expect (";");
 
-		PR_Statement(&pr_opcodes[OP_RETURN], e);
+		if (pr_scope->type->aux_type != e->type)
+			PR_ParseError("mismatch types for return");
+
+		PR_EmitCode(OP_RETURN, e->ofs);
 		return;
 	}
 
