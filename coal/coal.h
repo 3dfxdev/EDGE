@@ -298,7 +298,7 @@ typedef struct
 {
 	char *name;
 	char *opname;
-	float priority;
+	int priority;
 	bool right_associative;
 	type_t *type_a, *type_b, *type_c;
 }
