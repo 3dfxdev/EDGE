@@ -227,8 +227,9 @@ There are no ++ / -- operators, or operate/assign operators.
 //=============================================================================
 
 
-// offsets are allways multiplied by 4 before using
-typedef int	gofs_t;				// offset in global data block
+// offset in global data block (if > 0)
+// when < 0, it is offset into local stack frame
+typedef int	gofs_t;
 
 #define	MAX_PARMS	8
 
