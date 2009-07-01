@@ -58,6 +58,12 @@ etype_t;
 enum
 {
 	OP_DONE,
+
+	OP_NOT_F,
+	OP_NOT_V,
+	OP_NOT_S,
+	OP_NOT_FNC,
+
 	OP_POWER_F,
 	OP_MUL_F,
 	OP_MUL_V,
@@ -95,11 +101,6 @@ enum
 
 	OP_CALL,
 	OP_RETURN,
-
-	OP_NOT_F,
-	OP_NOT_V,
-	OP_NOT_S,
-	OP_NOT_FNC,
 
 	OP_IF,
 	OP_IFNOT,

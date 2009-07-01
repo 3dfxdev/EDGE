@@ -435,7 +435,7 @@ Gets the next token
 void PR_Expect (char *string)
 {
 	if (strcmp (string, pr_token))
-		PR_ParseError ("expected %s, found %s",string, pr_token);
+		PR_ParseError ("expected %s found %s",string, pr_token);
 	PR_Lex ();
 }
 
