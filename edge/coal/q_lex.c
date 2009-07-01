@@ -54,6 +54,8 @@ type_t	type_function = {ev_function, &type_void};
 
 int		type_size[8] = {1,1,1,3,1,1,1,1};
 
+def_t	def_void = {&type_void, "VOID_SPACE", 0};
+
 def_t	def_ret, def_parms[MAX_PARMS];
 
 void PR_LexWhitespace (void);
