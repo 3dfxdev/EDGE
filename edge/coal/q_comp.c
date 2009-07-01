@@ -44,6 +44,11 @@ opcode_t pr_opcodes[] =
 {
 	{"<DONE>", "DONE", -1, false, &type_void, &type_void, &type_void},
 
+	{"!", "NOT_F", -1, false, &type_float, &type_void, &type_float},
+	{"!", "NOT_V", -1, false, &type_vector, &type_void, &type_float},
+	{"!", "NOT_S", -1, false, &type_vector, &type_void, &type_float},
+	{"!", "NOT_FNC", -1, false, &type_function, &type_void, &type_float},
+
 	{"^", "POWER", 1, false, &type_float, &type_float, &type_float},
 
 	{"*", "MUL_F", 2, false, &type_float, &type_float, &type_float},
@@ -84,11 +89,6 @@ opcode_t pr_opcodes[] =
 // calls returns REG_RETURN
 	{"<CALL>",  "CALL", -1, false, &type_function, &type_void, &type_void},
 	{"<RETURN>", "RETURN", -1, false, &type_void, &type_void, &type_void},
-
-	{"!", "NOT_F", -1, false, &type_float, &type_void, &type_float},
-	{"!", "NOT_V", -1, false, &type_vector, &type_void, &type_float},
-	{"!", "NOT_S", -1, false, &type_vector, &type_void, &type_float},
-	{"!", "NOT_FNC", -1, false, &type_function, &type_void, &type_float},
 
 	{"<IF>", "IF", -1, false, &type_float, &type_float, &type_void},
 	{"<IFNOT>", "IFNOT", -1, false, &type_float, &type_float, &type_void},
