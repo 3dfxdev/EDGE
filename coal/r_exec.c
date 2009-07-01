@@ -130,7 +130,7 @@ int PR_EnterFunction(function_t *f)
 			pr_globals[o++] = pr_globals[OFS_PARM0 + i * 3 + j];
 
 	pr_xfunction = f;
-	return f->first_statement - 1;	// offset the s++
+	return f->first_statement;
 }
 
 
@@ -154,7 +154,7 @@ int PR_LeaveFunction(void)
 	pr_depth--;
 	pr_xfunction = pr_stack[pr_depth].f;
 
-	return pr_stack[pr_depth].s;
+	return pr_stack[pr_depth].s + 1;  // skip calling op
 }
 
 
@@ -186,8 +186,6 @@ void PR_ExecuteProgram(func_t fnum)
 
 	while (1)
 	{
-		s++;			// next statement
-
 		statement_t *st = &statements[s];
 
 		double * a = &pr_globals[st->a];
@@ -202,6 +200,8 @@ void PR_ExecuteProgram(func_t fnum)
 
 		if (pr_trace)
 			PR_PrintStatement(st);
+
+		s++;  // next statement
 
 		switch (st->op)
 		{
@@ -347,16 +347,16 @@ void PR_ExecuteProgram(func_t fnum)
 
 			case OP_IFNOT:
 				if (!*a)
-					s = st->b - 1;	// offset the s++
+					s = st->b;
 				break;
 
 			case OP_IF:
 				if (*a)
-					s = st->b - 1;	// offset the s++
+					s = st->b;
 				break;
 
 			case OP_GOTO:
-				s = st->b - 1;	// offset the s++
+				s = st->b;
 				break;
 
 			case OP_CALL:
