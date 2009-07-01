@@ -289,6 +289,9 @@ def_t * PR_ParseFunctionCall(def_t *func)
 
 	PR_EmitCode(OP_CALL, func->ofs, arg);
 
+	if (t->aux_type->type == ev_void)
+		return &def_void;
+
 	def_ret.type = t->aux_type;
 	return &def_ret;
 }
@@ -511,6 +514,9 @@ void PR_ParseStatement(void)
 
 		def_t * e = PR_Expression(TOP_PRIORITY);
 		PR_Expect (";");
+
+		if (pr_scope->type->aux_type->type == ev_void)
+			PR_ParseError("return with value in void function");
 
 		if (pr_scope->type->aux_type != e->type)
 			PR_ParseError("mismatch types for return");
