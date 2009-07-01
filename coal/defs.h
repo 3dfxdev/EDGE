@@ -55,6 +55,14 @@ etype_t;
 #define	RESERVED_OFS	28
 
 
+typedef struct
+{
+	int op;
+	int a, b, c;
+}
+statement_t;
+
+
 enum
 {
 	OP_DONE,
@@ -115,14 +123,6 @@ enum
 
 
 #define	MAX_PARMS	8
-
-typedef struct
-{
-	short op;
-	short a, b, c;
-}
-statement_t;
-
 
 typedef struct
 {
