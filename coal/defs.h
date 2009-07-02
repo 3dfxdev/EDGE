@@ -66,6 +66,7 @@ statement_t;
 enum
 {
 	OP_DONE,
+	OP_DONE_V,
 
 	OP_NOT_F,
 	OP_NOT_V,
@@ -108,7 +109,6 @@ enum
 	OP_MOVE_FNC,
 
 	OP_CALL,
-	OP_RETURN,
 
 	OP_IF,
 	OP_IFNOT,
@@ -118,7 +118,10 @@ enum
 	OP_OR,
 
 	OP_BITAND,
-	OP_BITOR
+	OP_BITOR,
+
+	OP_PARM_F,
+	OP_PARM_V
 };
 
 
@@ -130,11 +133,15 @@ typedef struct
 	int		s_name;
 	int		s_file;			// source file defined in
 
-	int		parm_start;
-	int		parm_num;
-	byte	parm_size[MAX_PARMS];
+	int		return_size;
 
-	int		locals;				// total ints of parms + locals
+	int		parm_num;
+	short	parm_ofs[MAX_PARMS];
+	short	parm_size[MAX_PARMS];
+
+	int		locals_ofs;
+	int		locals_size;
+	int		locals_end;
 
 	int		first_statement;	// negative numbers are builtins
 }

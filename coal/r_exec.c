@@ -22,6 +22,7 @@ typedef struct
 {
     int s;
     function_t *f;
+	int result;
 }
 prstack_t;
 
@@ -31,7 +32,7 @@ int pr_depth;
 
 #define	LOCALSTACK_SIZE		2048
 double localstack[LOCALSTACK_SIZE];
-int localstack_used;
+int stack_base;
 
 bool pr_trace;
 function_t *pr_xfunction;
@@ -104,59 +105,60 @@ The interpretation main loop
 ============================================================================
 */
 
-int PR_EnterFunction(function_t *f)
+int PR_EnterFunction(function_t *f, int result = 0)
 {
 	// Returns the new program statement counter
 
     pr_stack[pr_depth].s = pr_xstatement;
     pr_stack[pr_depth].f = pr_xfunction;
+    pr_stack[pr_depth].result = result;
 
     pr_depth++;
 	if (pr_depth >= MAX_STACK_DEPTH)
 		PR_RunError("stack overflow");
 
-	// save off any locals that the new function steps on
-	int c = f->locals;
-	if (localstack_used + c > LOCALSTACK_SIZE)
+	if (pr_xfunction)
+		stack_base += pr_xfunction->locals_end;
+
+printf("stack_base up to : %d\n", stack_base);
+	if (stack_base + f->locals_end >= LOCALSTACK_SIZE)
 		PR_RunError("PR_ExecuteProgram: locals stack overflow\n");
 
-	for (int i = 0; i < c; i++)
-		localstack[localstack_used++] = pr_globals[f->parm_start + i];
-
-	// copy parameters
-	int o = f->parm_start;
-	for (int i = 0; i < f->parm_num; i++)
-		for (int j = 0; j < f->parm_size[i]; j++)
-			pr_globals[o++] = pr_globals[OFS_PARM0 + i * 3 + j];
-
 	pr_xfunction = f;
+
 	return f->first_statement;
 }
 
 
-int PR_LeaveFunction(void)
+int PR_LeaveFunction(int *result)
 {
 	if (pr_depth <= 0)
 		Error("prog stack underflow");
 
-	// restore locals from the stack
-	int c = pr_xfunction->locals;
-	localstack_used -= c;
-	if (localstack_used < 0)
-		PR_RunError("PR_ExecuteProgram: locals stack underflow\n");
-
-	for (int i = 0; i < c; i++)
-	{
-		pr_globals[pr_xfunction->parm_start + i] = localstack[localstack_used + i];
-	}
-
 	// up stack
 	pr_depth--;
 	pr_xfunction = pr_stack[pr_depth].f;
+	*result      = pr_stack[pr_depth].result;
 
-	return pr_stack[pr_depth].s + 1;  // skip calling op
+	if (pr_xfunction)
+		stack_base -= pr_xfunction->locals_end;
+printf("stack_base returned : %d\n", stack_base);
+
+	return pr_stack[pr_depth].s + 1;  // skip the calling op
 }
 
+
+void PR_EnterBuiltin(function_t *newf, int result)
+{
+	int i = -newf->first_statement;
+
+	if (i >= pr_numbuiltins)
+		PR_RunError("Bad builtin call number");
+
+	// FIXME: mechanism for finding parameters!
+
+	pr_builtins[i] ();
+}
 
 /*
 ====================
@@ -166,7 +168,6 @@ PR_ExecuteProgram
 void PR_ExecuteProgram(func_t fnum)
 {
     function_t *newf;
-    int i;
 
 	if (!fnum || fnum >= numfunctions)
 	{
@@ -174,8 +175,6 @@ void PR_ExecuteProgram(func_t fnum)
 	}
 
 	function_t *f = &functions[fnum];
-
-	pr_trace = false;
 
 	int runaway = 100000;
 
@@ -188,9 +187,9 @@ void PR_ExecuteProgram(func_t fnum)
 	{
 		statement_t *st = &statements[s];
 
-		double * a = &pr_globals[st->a];
-		double * b = &pr_globals[st->b];
-		double * c = &pr_globals[st->c];
+		double * a = (st->a >= 0) ? &pr_globals[st->a] : &localstack[stack_base - st->a - 1];
+		double * b = (st->b >= 0) ? &pr_globals[st->b] : &localstack[stack_base - st->b - 1];
+		double * c = (st->c >= 0) ? &pr_globals[st->c] : &localstack[stack_base - st->c - 1];
 
 		if (!--runaway)
 			PR_RunError("runaway loop error");
@@ -362,10 +361,8 @@ void PR_ExecuteProgram(func_t fnum)
 			case OP_CALL:
 			{
 				int fnum = (int)*a;
-
 				if (!fnum)
 					PR_RunError("NULL function");
-
 				newf = &functions[fnum];
 
 				pr_argc = st->b;
@@ -373,26 +370,61 @@ void PR_ExecuteProgram(func_t fnum)
 				/* negative statements are built in functions */
 				if (newf->first_statement < 0)
 				{
-					i = -newf->first_statement;
-					if (i >= pr_numbuiltins)
-						PR_RunError("Bad builtin call number");
-					pr_builtins[i] ();
+					PR_EnterBuiltin(newf, st->c);
 					break;
 				}
 
-				s = PR_EnterFunction(newf);
+				s = PR_EnterFunction(newf, st->c);
 			}
 			break;
 
 			case OP_DONE:
-			case OP_RETURN:
-				pr_globals[OFS_RETURN]     = pr_globals[st->a];
-				pr_globals[OFS_RETURN + 1] = pr_globals[st->a + 1];
-				pr_globals[OFS_RETURN + 2] = pr_globals[st->a + 2];
+			{
+				int result;
+				s = PR_LeaveFunction(&result);
 
-				s = PR_LeaveFunction();
 				if (pr_depth == exitdepth)
 					return;		// all done
+
+				if (result)
+				{
+					double * c = (result >= 0) ? &pr_globals[result] : &localstack[stack_base - result - 1];
+					*c = pr_globals[OFS_RETURN];
+				}
+			}
+				break;
+
+			case OP_DONE_V:
+			{
+				int result;
+				s = PR_LeaveFunction(&result);
+
+				if (pr_depth == exitdepth)
+					return;		// all done
+
+				assert(result);
+				{
+					double * c = (result >= 0) ? &pr_globals[result] : &localstack[stack_base - result - 1];
+
+					c[0] = pr_globals[OFS_RETURN+0];
+					c[1] = pr_globals[OFS_RETURN+1];
+					c[2] = pr_globals[OFS_RETURN+2];
+				}
+			}
+				break;
+
+			case OP_PARM_F:
+				c = &localstack[stack_base + pr_xfunction->locals_end + st->b];
+
+				*c = *a;
+				break;
+
+			case OP_PARM_V:
+				c = &localstack[stack_base + pr_xfunction->locals_end + st->b];
+
+				c[0] = a[0];
+				c[1] = a[1];
+				c[2] = a[2];
 				break;
 
 			default:
