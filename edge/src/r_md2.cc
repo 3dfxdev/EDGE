@@ -458,7 +458,7 @@ public:
 };
 
 
-/*============== LOADING CODE ====================*/
+/*============== MD2 LOADING CODE ====================*/
 
 static const char *CopyFrameName(raw_md2_frame_t *frm)
 {
@@ -692,6 +692,127 @@ short MD2_FindFrame(md2_model_c *md, const char *name)
 	}
 
 	return -1; // NOT FOUND
+}
+
+
+/*============== MD3 LOADING CODE ====================*/
+
+md2_model_c *MD3_LoadModel(epi::file_c *f)
+{
+	int i;
+	float *ff;
+
+	raw_md3_header_t header;
+
+	/* read header */
+	f->Read(&header, sizeof (raw_md3_header_t));
+
+	int version = EPI_LE_S32(header.version);
+
+	I_Debugf("MODEL IDENT: [%c%c%c%c] VERSION: %d",
+			 header.ident[0], header.ident[1],
+			 header.ident[2], header.ident[3], version);
+
+	if (strncmp(header.ident, MD3_IDENTIFIER, 4) != 0)
+	{
+		I_Error("MD3_LoadModel: lump is not an MD3 model!");
+		return NULL; /* NOT REACHED */
+	}
+			
+	if (version != MD3_VERSION)
+	{
+		I_Error("MD3_LoadModel: strange version!");
+		return NULL; /* NOT REACHED */
+	}
+
+	if (EPI_LE_S32(header.num_meshes) > 1)
+		I_Warning("Ignoring extra meshes in MD3 model.\n");
+
+
+	/* LOAD MESH #1 */
+	
+	int mesh_base = EPI_LE_S32(header.ofs_meshes);
+
+	f->Seek(mesh_base, epi::file_c::SEEKPOINT_START);
+
+	raw_md3_mesh_t mesh;
+
+	f->Read(&mesh, sizeof (raw_md3_mesh_t));
+
+	int num_frames = EPI_LE_S32(mesh.num_frames);
+	int num_verts  = EPI_LE_S32(mesh.num_verts);
+	int num_strips = EPI_LE_S32(mesh.num_tris);
+
+	I_Debugf("  frames:%d  verts:%d  strips: %d\n",
+			num_frames, num_verts, num_strips);
+
+	md2_model_c *md = new md2_model_c(num_frames, num_verts*3, num_strips);
+
+
+	/* PARSE TRIANGLES */
+
+	f->Seek(mesh_base + EPI_LE_S32(mesh.ofs_tris), epi::file_c::SEEKPOINT_START);
+
+	for (i = 0; i < num_strips; i++)
+	{
+		raw_md3_triangle_t tri;
+
+		f->Read(&tri, sizeof (raw_md3_triangle_t));
+
+		md->strips[i].mode  = GL_TRIANGLE_STRIP;
+		md->strips[i].first = i * 3;
+		md->strips[i].count = 3;
+	}
+
+
+	/* PARSE TEXCOORD */
+
+	f->Seek(mesh_base + EPI_LE_S32(mesh.ofs_texcoords), epi::file_c::SEEKPOINT_START);
+
+	for (i = 0; i < num_verts; i++)
+	{
+		raw_md3_texcoord_t texc;
+
+		f->Read(&texc, sizeof (raw_md3_texcoord_t));
+
+		texc.s = EPI_LE_U32(texc.s);
+		texc.y = EPI_LE_U32(texc.t);
+
+		ff = (float *) &texc.s;  md->points[i].s = *ff;
+		ff = (float *) &texc.t;  md->points[i].t = *ff;
+
+		md->points[i].vert_idx = i;
+	}
+
+
+	/* PARSE VERTEX FRAMES */
+
+	f->Seek(mesh_base + EPI_LE_S32(mesh.ofs_verts), epi::file_c::SEEKPOINT_START);
+
+	byte which_normals[MD2_NUM_NORMALS];
+
+	for (i = 0; i < num_frames; i++)
+	{
+		md->frames[i].name = "FOO";  // FIXME
+		md->frames[i].vertices = new mod_vertex_c[num_verts];
+
+		memset(which_normals, 1, sizeof(which_normals));
+
+		for (int j = 0; j < num_verts; j++)
+		{
+			raw_md3_vertex_t vert;
+
+			f->Read(&vert, sizeof (raw_md3_vertex_t));
+
+			@@@
+		}
+
+		md->frames[i].used_normals = CreateNormalList(which_normals);
+	}
+
+	// TODO: PARSE FRAME BBOXES
+
+	return md2;
 }
 
 
