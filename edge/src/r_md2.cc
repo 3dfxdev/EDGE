@@ -753,7 +753,7 @@ md2_model_c *MD3_LoadModel(epi::file_c *f)
 
 	/* PARSE TEXCOORD */
 
-static mod_point_c * temp_TEXC = new mod_point_c[num_verts];
+	mod_point_c * temp_TEXC = new mod_point_c[num_verts];
 
 	f->Seek(mesh_base + EPI_LE_S32(mesh.ofs_texcoords), epi::file_c::SEEKPOINT_START);
 
@@ -787,7 +787,6 @@ static mod_point_c * temp_TEXC = new mod_point_c[num_verts];
 		int b = EPI_LE_U32(tri.index_xyz[1]);
 		int c = EPI_LE_U32(tri.index_xyz[2]);
 
-I_Debugf("Triangle %d  : vertexes: (%d %d %d)\n", i, a, b, c);
 		SYS_ASSERT(a < num_verts);
 		SYS_ASSERT(b < num_verts);
 		SYS_ASSERT(c < num_verts);
@@ -802,6 +801,8 @@ I_Debugf("Triangle %d  : vertexes: (%d %d %d)\n", i, a, b, c);
 		point[1] = temp_TEXC[b];
 		point[2] = temp_TEXC[c];
 	}
+
+	delete[] temp_TEXC;
 
 
 	/* PARSE VERTEX FRAMES */
@@ -825,11 +826,10 @@ I_Debugf("Triangle %d  : vertexes: (%d %d %d)\n", i, a, b, c);
 
 			f->Read(&vert, sizeof (raw_md3_vertex_t));
 
-			good_V->x = EPI_LE_S16(vert.x) / 256.0;
-			good_V->y = EPI_LE_S16(vert.y) / 256.0;
-			good_V->z = EPI_LE_S16(vert.z) / 256.0;
+			good_V->x = EPI_LE_S16(vert.x) / 64.0;
+			good_V->y = EPI_LE_S16(vert.y) / 64.0;
+			good_V->z = EPI_LE_S16(vert.z) / 64.0;
 
-I_Debugf("Frame %d  Vert %d  =  (%1.2f %1.2f %1.2f)\n", i, v, good_V->x, good_V->y, good_V->z);
 			good_V->normal_idx = 5;  // FIXME !!!
 
 			which_normals[good_V->normal_idx] = 1;
