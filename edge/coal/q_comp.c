@@ -43,6 +43,7 @@ void PR_ParseConstant (void);
 opcode_t pr_opcodes[] =
 {
 	{"<DONE>", "DONE", -1, false, &type_void, &type_void, &type_void},
+	{"<DONE_V>", "DONE_V", -1, false, &type_void, &type_void, &type_void},
 
 	{"!", "NOT_F", -1, false, &type_float, &type_void, &type_float},
 	{"!", "NOT_V", -1, false, &type_vector, &type_void, &type_float},
@@ -88,9 +89,7 @@ opcode_t pr_opcodes[] =
 	{"=", "MOVE_S", 6, true, &type_string, &type_string, &type_string},
 	{"=", "MOVE_FNC", 6, true, &type_function, &type_function, &type_function},
 
-// calls returns REG_RETURN
 	{"<CALL>",  "CALL", -1, false, &type_function, &type_void, &type_void},
-	{"<RETURN>", "RETURN", -1, false, &type_void, &type_void, &type_void},
 
 	{"<IF>", "IF", -1, false, &type_float, &type_float, &type_void},
 	{"<IFNOT>", "IFNOT", -1, false, &type_float, &type_float, &type_void},
@@ -102,6 +101,9 @@ opcode_t pr_opcodes[] =
 
 	{"&", "BITAND", 2, false, &type_float, &type_float, &type_float},
 	{"|", "BITOR", 2, false, &type_float, &type_float, &type_float},
+
+	{"<PARM_F>", "PARM_F", -1, false, &type_void, &type_void, &type_void},
+	{"<PARM_V>", "PARM_V", -1, false, &type_void, &type_void, &type_void},
 
 	{NULL}
 };
@@ -129,7 +131,7 @@ void PR_EmitCode(short op, short a=0, short b=0, short c=0)
 }
 
 
-def_t *PR_NewVar(type_t *type)
+def_t *PR_NewGlobal(type_t *type)
 {
 	def_t * var_c = new def_t;
 	memset (var_c, 0, sizeof(def_t));
@@ -138,6 +140,20 @@ def_t *PR_NewVar(type_t *type)
 	var_c->type = type;
 
 	numpr_globals += type_size[type->type];
+
+	return var_c;
+}
+
+
+def_t *PR_NewLocal(type_t *type)
+{
+	def_t * var_c = new def_t;
+	memset (var_c, 0, sizeof(def_t));
+
+	var_c->ofs = -locals_end;
+	var_c->type = type;
+
+	locals_end += type_size[type->type];
 
 	return var_c;
 }
@@ -159,8 +175,8 @@ def_t * PR_Statement(opcode_t *op, def_t *var_a = NULL, def_t *var_b = NULL)
 		// ifs, gotos, and assignments don't need vars allocated
 	}
 	else
-	{	// allocate result space
-		var_c = PR_NewVar(op->type_c);
+	{	// allocate return space
+		var_c = PR_NewLocal(op->type_c);
 	}
 
 	PR_EmitCode(op - pr_opcodes,
@@ -256,44 +272,184 @@ def_t * PR_ParseFunctionCall(def_t *func)
 
 	if (t->type != ev_function)
 		PR_ParseError ("not a function");
+	
+	function_t *df = &functions[func->ofs];
 
-	// copy the arguments to the global parameter variables
+	
+	// evaluate all parameters
+	def_t * exprs[8];
+
 	int arg = 0;
 
 	if (! PR_Check(")"))
 	{
 		do
 		{
-			if (t->parm_num != -1 && arg >= t->parm_num)
+			if (arg >= t->parm_num || arg >= 8)
 				PR_ParseError ("too many parameters");
 
 			def_t * e = PR_Expression(TOP_PRIORITY);
 
-			if (t->parm_num != -1 && ( e->type != t->parm_types[arg] ) )
+			if (e->type != t->parm_types[arg])
 				PR_ParseError ("type mismatch on parm %i", arg+1);
 
-			// FIXME HACK : a vector copy will copy everything
-			def_parms[arg].type = t->parm_types[arg];
-			PR_Statement (&pr_opcodes[OP_MOVE_V], e, &def_parms[arg]);
-			arg++;
+			assert (e->type->type != ev_void);
+
+			exprs[arg++] = e;
 		}
 		while (PR_Check(","));
 
-		if (t->parm_num != -1 && arg != t->parm_num)
+		if (arg != t->parm_num)
 			PR_ParseError("too few parameters");
+
 		PR_Expect(")");
 	}
 
-	if (arg >8)
-		PR_ParseError ("More than eight parameters");
 
-	PR_EmitCode(OP_CALL, func->ofs, arg);
+	def_t *result = NULL;
 
-	if (t->aux_type->type == ev_void)
-		return &def_void;
+	if (t->aux_type->type != ev_void)
+	{
+		result = PR_NewLocal(t->aux_type);
 
-	def_ret.type = t->aux_type;
-	return &def_ret;
+		// FIXME: set result to default value
+		// PR_EmitCode(OP_MOVE_F, default_value, result->ofs)
+	}
+
+
+	int parm_ofs = 0;
+
+
+	// copy parameters
+	for (int k = 0; k < arg; k++)
+	{
+		if (exprs[k]->type->type == ev_vector)
+		{
+			PR_EmitCode(OP_PARM_V, exprs[k]->ofs, parm_ofs);
+			parm_ofs += 3;
+		}
+		else
+		{
+			PR_EmitCode(OP_PARM_F, exprs[k]->ofs, parm_ofs);
+			parm_ofs++;
+		}
+	}
+
+
+	// FIXME: setup locals
+	// for (int j = 0; j < df->local_size; j++)
+	// 	  PR_EmitCode(OP_PARM_F, default_value, parm_ofs)
+	// 	  parm_ofs++;
+
+	if (result)
+	{
+		PR_EmitCode(OP_CALL, func->ofs, arg, result->ofs);
+		return result;
+	}
+
+	PR_EmitCode(OP_CALL, func->ofs, arg, 0);
+
+	return &def_void;
+}
+
+
+void PR_ParseReturn(void)
+{
+	if (PR_Check(";"))
+	{
+		if (pr_scope->type->aux_type->type != ev_void)
+			PR_ParseError("missing value for return");
+
+		PR_EmitCode(OP_DONE);
+		return;
+	}
+
+	def_t * e = PR_Expression(TOP_PRIORITY);
+	PR_Expect(";");
+
+	if (pr_scope->type->aux_type->type == ev_void)
+		PR_ParseError("return with value in void function");
+
+	if (pr_scope->type->aux_type != e->type)
+		PR_ParseError("mismatch types for return");
+
+	if (pr_scope->type->aux_type->type == ev_vector)
+	{
+		PR_EmitCode(OP_MOVE_V, e->ofs, OFS_RETURN);
+		PR_EmitCode(OP_DONE_V);
+	}
+	else
+	{
+		PR_EmitCode(OP_MOVE_F, e->ofs, OFS_RETURN);
+		PR_EmitCode(OP_DONE);
+	}
+}
+
+
+def_t *PR_FindDef(type_t *type, char *name, def_t *scope)
+{
+	def_t *def;
+
+	for (def = pr.defs ; def ; def=def->next)
+	{
+		if (strcmp(def->name,name) != 0)
+			continue;
+
+		if ( def->scope && def->scope != scope)
+			continue;		// in a different function
+
+		if (type && def->type != type)
+			PR_ParseError ("Type mismatch on redeclaration of %s", name);
+
+		return def;
+	}
+
+	return NULL;
+}
+
+
+/*
+============
+PR_GetDef
+
+a new def will be allocated if it can't be found
+============
+*/
+def_t *PR_GetDef(type_t *type, char *name, def_t *scope)
+{
+	assert(type);
+
+	def_t *def = PR_FindDef(type, name, scope);
+
+	// allocate a new def
+	def = new def_t;
+	memset(def, 0, sizeof(*def));
+
+	def->next = pr.defs;
+	pr.defs = def;
+
+	def->name = strdup(name);
+	def->type = type;
+
+	def->scope = scope;
+
+	if (! scope)
+	{
+printf("GetDef scope:%p --> %d\n", scope, numpr_globals);
+		def->ofs = numpr_globals;
+		pr_global_defs[numpr_globals] = def;
+
+		numpr_globals += type_size[type->type];
+	}
+	else
+	{
+printf("GetDef scope:%p --> %d\n", scope, -locals_end);
+		def->ofs = -locals_end;
+
+		locals_end += type_size[type->type];
+	}
+
+	return def;
 }
 
 
@@ -306,9 +462,10 @@ def_t * PR_ParseValue(void)
 	char *name = PR_ParseName();
 
 	// look through the defs
-	def_t *d = PR_GetDef (NULL, name, pr_scope, false);
+	def_t *d = PR_FindDef(NULL, name, pr_scope);
 	if (!d)
-		PR_ParseError ("Unknown value \"%s\"", name);
+		PR_ParseError ("Unknown identifier '%s'", name);
+
 	return d;
 }
 
@@ -361,7 +518,7 @@ def_t * PR_ShortCircuitExp(def_t *e, opcode_t *op)
 	//		MOVE b --> c
 	//		label:
 
-	def_t *result = PR_NewVar(op->type_c);
+	def_t *result = PR_NewLocal(op->type_c);
 
 	PR_EmitCode(OP_MOVE_F, e->ofs, result->ofs);
 
@@ -473,25 +630,23 @@ void PR_ParseStatement(void)
 {
 	if (PR_Check("function"))
 	{
-		PR_ParseError ("Functions must be global");
+		PR_ParseError("Functions must be global");
 		return;
 	}
 
 	if (PR_Check("var"))
 	{
-		PR_ParseVariable ();
-		locals_end = numpr_globals;
+		PR_ParseVariable();
 		return;
 	}
 
 	if (PR_Check("constant"))
 	{
-		PR_ParseConstant ();
-		locals_end = numpr_globals;
+		PR_ParseConstant();
 		return;
 	}
 
-	if (PR_Check ("{"))
+	if (PR_Check("{"))
 	{
 		do {
 			PR_ParseStatement();
@@ -503,25 +658,7 @@ void PR_ParseStatement(void)
 
 	if (PR_Check("return"))
 	{
-		if (PR_Check (";"))
-		{
-			if (pr_scope->type->aux_type->type != ev_void)
-				PR_ParseError("missing value for return");
-
-			PR_EmitCode(OP_RETURN);
-			return;
-		}
-
-		def_t * e = PR_Expression(TOP_PRIORITY);
-		PR_Expect (";");
-
-		if (pr_scope->type->aux_type->type == ev_void)
-			PR_ParseError("return with value in void function");
-
-		if (pr_scope->type->aux_type != e->type)
-			PR_ParseError("mismatch types for return");
-
-		PR_EmitCode(OP_RETURN, e->ofs);
+		PR_ParseReturn();
 		return;
 	}
 
@@ -616,16 +753,9 @@ int PR_ParseFunctionBody(type_t *type)
 	//
 	def_t *defs[MAX_PARMS];
 
-	int parm_ofs[MAX_PARMS];
-
 	for (int i=0 ; i<type->parm_num ; i++)
 	{
-		defs[i] = PR_GetDef (type->parm_types[i], pr_parm_names[i], pr_scope, true);
-
-		parm_ofs[i] = defs[i]->ofs;
-
-		if (i > 0 && parm_ofs[i] < parm_ofs[i-1])
-			Error ("bad parm order");
+		defs[i] = PR_GetDef (type->parm_types[i], pr_parm_names[i], pr_scope);
 	}
 
 	int code = numstatements;
@@ -636,61 +766,13 @@ int PR_ParseFunctionBody(type_t *type)
 	PR_Expect ("{");
 
 	while (! PR_Check("}"))
+	{
 		PR_ParseStatement();
+	}
 
-	// emit an end of statements opcode
-	PR_Statement(&pr_opcodes[OP_DONE]);
+	PR_EmitCode(OP_DONE);
 
 	return code;
-}
-
-/*
-============
-PR_GetDef
-
-If type is NULL, it will match any type
-If allocate is true, a new def will be allocated if it can't be found
-============
-*/
-def_t *PR_GetDef (type_t *type, char *name, def_t *scope, bool allocate)
-{
-	def_t *def;
-	char element[MAX_NAME];
-
-	// see if the name is already in use
-	for (def = pr.defs ; def ; def=def->next)
-		if (!strcmp(def->name,name) )
-		{
-			if ( def->scope && def->scope != scope)
-				continue;		// in a different function
-
-			if (type && def->type != type)
-				PR_ParseError ("Type mismatch on redeclaration of %s",name);
-
-			return def;
-		}
-
-	if (!allocate)
-		return NULL;
-
-	// allocate a new def
-	def = new def_t;
-	memset (def, 0, sizeof(*def));
-
-	def->next = pr.defs;
-	pr.defs = def;
-
-	def->name = strdup(name);
-	def->type = type;
-
-	def->scope = scope;
-
-	def->ofs = numpr_globals;
-	pr_global_defs[numpr_globals] = def;
-
-	numpr_globals += type_size[type->type];
-
-	return def;
 }
 
 
@@ -736,7 +818,7 @@ void PR_ParseFunction(void)
 
 	type_t *func_type = PR_FindType(&t_new);
 
-	def_t *def = PR_GetDef (func_type, func_name, pr_scope, true);
+	def_t *def = PR_GetDef(func_type, func_name, pr_scope);
 
 	if (def->initialized)
 		PR_ParseError ("%s redeclared", func_name);
@@ -746,32 +828,52 @@ void PR_ParseFunction(void)
 
 	assert(func_type->type == ev_function);
 
-	int locals_start;
-	locals_start = locals_end = numpr_globals;
+
+	G_FUNCTION(def->ofs) = (func_t)numfunctions;
+printf("Setting func '%s' ofs:%d --> %d\n", func_name, def->ofs, numfunctions);
+	numfunctions++;
+
+
+	// fill in the dfunction
+	function_t *df = &functions[(int)G_FUNCTION(def->ofs)];
+	memset(df, 0, sizeof(function_t));
+
+	df->s_name = CopyString (func_name);
+	df->s_file = s_file;
+
+	int stack_ofs = 1;
+
+	df->return_size = type_size[def->type->aux_type->type];
+	if (def->type->aux_type->type == ev_void) df->return_size = 0;
+	stack_ofs += df->return_size;
+
+	df->parm_num = def->type->parm_num;
+
+	for (int i=0 ; i < df->parm_num ; i++)
+	{
+		df->parm_ofs[i]  = stack_ofs;
+		df->parm_size[i] = type_size[def->type->parm_types[i]->type];
+		if (def->type->parm_types[i]->type == ev_void) df->parm_size[i] = 0;
+
+		stack_ofs += df->parm_size[i];
+	}
+
+
+	df->locals_ofs = stack_ofs;
+
+	locals_end = df->locals_ofs;
+
 
 	pr_scope = def;
 	//  { 
-		int code = PR_ParseFunctionBody(func_type);
+		df->first_statement = PR_ParseFunctionBody(func_type);
 	//  }
 	pr_scope = NULL;
 
 	def->initialized = 1;
-	G_FUNCTION(def->ofs) = (func_t)numfunctions;
 
-
-	// fill in the dfunction
-	function_t	*df = &functions[numfunctions++];
-
-	df->first_statement = code;
-
-	df->s_name = CopyString (def->name);
-	df->s_file = s_file;
-	df->parm_num =  def->type->parm_num;
-	df->locals = locals_end - locals_start;
-	df->parm_start = locals_start;
-
-	for (int i=0 ; i<df->parm_num ; i++)
-		df->parm_size[i] = type_size[def->type->parm_types[i]->type];
+	df->locals_size = locals_end - df->locals_ofs;
+	df->locals_end  = locals_end;
 }
 
 
@@ -792,7 +894,7 @@ void PR_ParseVariable(void)
 	// if (PR_Check("="))
 	// 	 get default value
 
-	PR_GetDef (type, var_name, pr_scope, true);
+	PR_GetDef(type, var_name, pr_scope);
 
 	PR_Expect(";");  // FIXME: allow EOL as well
 }
@@ -839,36 +941,8 @@ void PR_ParseGlobals (void)
 	PR_ParseError("Syntax error");
 	{ return; }
 
-
-	type_t *type = PR_ParseType ();
-
-	do
-	{
-		char *name = PR_ParseName ();
-
-		def_t *def = PR_GetDef (type, name, pr_scope, true);
-
-// check for an initialization
-		if ( PR_Check ("=") )
-		{
-			if (def->initialized)
-				PR_ParseError ("%s redeclared", name);
-
-			if (type->type == ev_function)
-				PR_ParseError("Cannot initialise function");
-
-			if (pr_immediate_type != type)
-				PR_ParseError ("wrong immediate type for %s", name);
-
-			def->initialized = 1;
-			memcpy (pr_globals + def->ofs, pr_immediate, sizeof(double) * type_size[pr_immediate_type->type]);
-			PR_Lex ();
-		}
-	}
-	while (PR_Check (","));
-
-	PR_Expect (";");
 }
+
 
 /*
 ============

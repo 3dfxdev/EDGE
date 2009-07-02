@@ -20,29 +20,32 @@ static void PF_Dummy(void)
 
 static void PF_PrintStr(void)
 {
-    printf("%s\n", PF_VarString(0));
+printf("STRING\n");
+//    printf("%s\n", strings + (int)localstack[stack_base]);
 }
 
 static void PF_PrintNum(void)
 {
-    printf("%1.5f\n", G_FLOAT(OFS_PARM0+0));
+printf("NUMBER\n");
+//    printf("%1.5f\n", localstack[stack_base]); // FIXME
 }
 
 static void PF_PrintVector(void)
 {
-	double *vec = G_VECTOR(OFS_PARM0);
+	printf("VECTOR\n");
+//	double *vec = G_VECTOR(OFS_PARM0);
 
-    printf("'%1.3f %1.3f %1.3f'\n", vec[0], vec[1], vec[2]);
+//   printf("'%1.3f %1.3f %1.3f'\n", vec[0], vec[1], vec[2]);
 }
 
 
 builtin_t pr_builtin[] =
 {
-  PF_Dummy,
+	PF_Dummy,
 
-  PF_PrintStr,
-  PF_PrintNum,
-  PF_PrintVector,
+	PF_PrintStr,
+	PF_PrintNum,
+	PF_PrintVector,
 };
 
 builtin_t *pr_builtins = pr_builtin;

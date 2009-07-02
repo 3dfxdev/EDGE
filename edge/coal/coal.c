@@ -64,8 +64,8 @@ void Error (char *error, ...)
 #include "q_lex.c"
 #include "q_comp.c"
 
-#include "r_cmds.c"
 #include "r_exec.c"
+#include "r_cmds.c"
 
 
 char		sourcedir[1024];
@@ -128,7 +128,7 @@ void PrintFunctions (void)
 	for (i=0 ; i<numfunctions ; i++)
 	{
 		d = &functions[i];
-		printf ("%s : %s : %i %i (", strings + d->s_file, strings + d->s_name, d->first_statement, d->parm_start);
+		printf ("%s : %s : %i %i (", strings + d->s_file, strings + d->s_name, d->first_statement, d->parm_ofs[0]);
 		for (j=0 ; j<d->parm_num ; j++)
 			printf ("%i ",d->parm_size[j]);
 		printf (")\n");
@@ -271,6 +271,9 @@ Returns a string with a description and the contents of a global,
 padded to 20 field width
 ============
 */
+
+#define GVAL(o)  ((o < 0) ? o : pr_globals[o])
+
 char *PR_GlobalStringNoContents (gofs_t ofs)
 {
 	static char	line[128];
@@ -278,9 +281,9 @@ char *PR_GlobalStringNoContents (gofs_t ofs)
 	def_t * def = pr_global_defs[ofs];
 	if (!def)
 //		Error ("PR_GlobalString: no def for %i", ofs);
-		sprintf (line,"%i(?!?)", ofs);
+		sprintf (line,"%i(?? =%1.2f)", ofs, GVAL(ofs));
 	else
-		sprintf (line,"%i(%s)", ofs, def->name);
+		sprintf (line,"%i(%s =%1.2f)", ofs, def->name, GVAL(ofs));
 
 	int i = strlen(line);
 	for ( ; i<16 ; i++)
@@ -301,10 +304,10 @@ char *PR_GlobalString (gofs_t ofs)
 	if (def->initialized && def->type->type != ev_function)
 	{
 		char *s = PR_ValueString (def->type->type, &pr_globals[ofs]);
-		sprintf (line,"%i(%s)", ofs, s);
+		sprintf (line,"%i(%s =%1.2f)", ofs, s, GVAL(ofs));
 	}
 	else
-		sprintf (line,"%i(%s)", ofs, def->name);
+		sprintf (line,"%i(%s =%1.2f)", ofs, def->name, GVAL(ofs));
 
 	int i = strlen(line);
 	for ( ; i<16 ; i++)
@@ -336,19 +339,30 @@ void PR_PrintStatement (statement_t *s)
 	{
 		printf ("branch %i",s->a);
 	}
-	else if ( (unsigned)(s->op - OP_MOVE_F) < 6)
+	else if ( (unsigned)(s->op - OP_MOVE_F) < 4)
 	{
 		printf ("%s",PR_GlobalString(s->a));
 		printf ("%s", PR_GlobalStringNoContents(s->b));
 	}
+	else if (s->op == OP_CALL)
+	{
+		function_t *f = &functions[(int)G_FUNCTION(s->a)];
+
+		printf("a:%d(%s) ", s->a, strings + f->s_name);
+
+		if (s->b)
+			printf ("b:%s",PR_GlobalString(s->b));
+		if (s->c)
+			printf ("c:%s", PR_GlobalStringNoContents(s->c));
+	}
 	else
 	{
 		if (s->a)
-			printf ("%s",PR_GlobalString(s->a));
+			printf ("a:%s",PR_GlobalString(s->a));
 		if (s->b)
-			printf ("%s",PR_GlobalString(s->b));
+			printf ("b:%s",PR_GlobalString(s->b));
 		if (s->c)
-			printf ("%s", PR_GlobalStringNoContents(s->c));
+			printf ("c:%s", PR_GlobalStringNoContents(s->c));
 	}
 	printf ("\n");
 }
@@ -509,11 +523,17 @@ int main (int argc, char **argv)
 		return 0;
 	}
 
-  strcpy (sourcedir, "");
+	strcpy (sourcedir, "");
 
 	InitData ();
 
 	pr_dumpasm = false;
+
+	if (strcmp(argv[1], "-t") == 0)
+	{
+		pr_trace = true;
+		argv++; argc--;
+	}
 
 
 	PR_BeginCompilation();
@@ -552,6 +572,7 @@ int main (int argc, char **argv)
 
       const char *name = strings + f->s_name;
 
+printf("  %d '%s'\n", f->s_name, name);
       if (strcmp(name, "main") == 0)
       {
         main_func = (func_t)i;
