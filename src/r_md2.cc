@@ -361,7 +361,7 @@ raw_md3_texcoord_t;
 
 typedef struct 
 {
-	u16_t index_xyz[3];
+	u32_t index_xyz[3];
 } 
 raw_md3_triangle_t;
 
@@ -746,7 +746,31 @@ md2_model_c *MD3_LoadModel(epi::file_c *f)
 	I_Debugf("  frames:%d  verts:%d  strips: %d\n",
 			num_frames, num_verts, num_strips);
 
-	md2_model_c *md = new md2_model_c(num_frames, num_verts*3, num_strips);
+	md2_model_c *md = new md2_model_c(num_frames, num_strips*3, num_strips);
+
+	md->verts_per_frame = num_verts;
+
+
+	/* PARSE TEXCOORD */
+
+static mod_point_c * temp_TEXC = new mod_point_c[num_verts];
+
+	f->Seek(mesh_base + EPI_LE_S32(mesh.ofs_texcoords), epi::file_c::SEEKPOINT_START);
+
+	for (i = 0; i < num_verts; i++)
+	{
+		raw_md3_texcoord_t texc;
+
+		f->Read(&texc, sizeof (raw_md3_texcoord_t));
+
+		texc.s = EPI_LE_U32(texc.s);
+		texc.t = EPI_LE_U32(texc.t);
+
+		ff = (float *) &texc.s;  temp_TEXC[i].skin_s = *ff;
+		ff = (float *) &texc.t;  temp_TEXC[i].skin_t = 1.0f - *ff;
+
+		temp_TEXC[i].vert_idx = i;
+	}
 
 
 	/* PARSE TRIANGLES */
@@ -759,29 +783,24 @@ md2_model_c *MD3_LoadModel(epi::file_c *f)
 
 		f->Read(&tri, sizeof (raw_md3_triangle_t));
 
+		int a = EPI_LE_U32(tri.index_xyz[0]);
+		int b = EPI_LE_U32(tri.index_xyz[1]);
+		int c = EPI_LE_U32(tri.index_xyz[2]);
+
+I_Debugf("Triangle %d  : vertexes: (%d %d %d)\n", i, a, b, c);
+		SYS_ASSERT(a < num_verts);
+		SYS_ASSERT(b < num_verts);
+		SYS_ASSERT(c < num_verts);
+
 		md->strips[i].mode  = GL_TRIANGLE_STRIP;
 		md->strips[i].first = i * 3;
 		md->strips[i].count = 3;
-	}
 
+		mod_point_c *point = md->points + i * 3;
 
-	/* PARSE TEXCOORD */
-
-	f->Seek(mesh_base + EPI_LE_S32(mesh.ofs_texcoords), epi::file_c::SEEKPOINT_START);
-
-	for (i = 0; i < num_verts; i++)
-	{
-		raw_md3_texcoord_t texc;
-
-		f->Read(&texc, sizeof (raw_md3_texcoord_t));
-
-		texc.s = EPI_LE_U32(texc.s);
-		texc.y = EPI_LE_U32(texc.t);
-
-		ff = (float *) &texc.s;  md->points[i].s = *ff;
-		ff = (float *) &texc.t;  md->points[i].t = *ff;
-
-		md->points[i].vert_idx = i;
+		point[0] = temp_TEXC[a];
+		point[1] = temp_TEXC[b];
+		point[2] = temp_TEXC[c];
 	}
 
 
@@ -796,15 +815,24 @@ md2_model_c *MD3_LoadModel(epi::file_c *f)
 		md->frames[i].name = "FOO";  // FIXME
 		md->frames[i].vertices = new mod_vertex_c[num_verts];
 
-		memset(which_normals, 1, sizeof(which_normals));
+		memset(which_normals, 0, sizeof(which_normals));
 
-		for (int j = 0; j < num_verts; j++)
+		mod_vertex_c *good_V = md->frames[i].vertices;
+
+		for (int v = 0; v < num_verts; v++, good_V++)
 		{
 			raw_md3_vertex_t vert;
 
 			f->Read(&vert, sizeof (raw_md3_vertex_t));
 
-			@@@
+			good_V->x = EPI_LE_S16(vert.x) / 256.0;
+			good_V->y = EPI_LE_S16(vert.y) / 256.0;
+			good_V->z = EPI_LE_S16(vert.z) / 256.0;
+
+I_Debugf("Frame %d  Vert %d  =  (%1.2f %1.2f %1.2f)\n", i, v, good_V->x, good_V->y, good_V->z);
+			good_V->normal_idx = 5;  // FIXME !!!
+
+			which_normals[good_V->normal_idx] = 1;
 		}
 
 		md->frames[i].used_normals = CreateNormalList(which_normals);
@@ -812,7 +840,7 @@ md2_model_c *MD3_LoadModel(epi::file_c *f)
 
 	// TODO: PARSE FRAME BBOXES
 
-	return md2;
+	return md;
 }
 
 
@@ -1002,6 +1030,9 @@ static inline void ModelCoordFunc(model_coord_data_t *data,
 	SYS_ASSERT(strip->first + v_idx < md->num_points);
 
 	const mod_point_c *point = &md->points[strip->first + v_idx];
+
+SYS_ASSERT(point->vert_idx >= 0);
+SYS_ASSERT(point->vert_idx < md->verts_per_frame);
 
 	const mod_vertex_c *vert1 = &frame1->vertices[point->vert_idx];
 	const mod_vertex_c *vert2 = &frame2->vertices[point->vert_idx];
