@@ -50,7 +50,7 @@ extern float P_ApproxDistance(float dx, float dy, float dz);
 // #define DEBUG_MD2_LOAD  1
 
 
-/*============== FORMAT DEFINITIONS ====================*/
+/*============== MD2 FORMAT DEFINITIONS ====================*/
 
 
 // format uses float pointing values, but to allow for endianness
@@ -303,18 +303,101 @@ static vec3_t md2_normals[MD2_NUM_NORMALS] =
 };
 
 
+/*============== MD3 FORMAT DEFINITIONS ====================*/
+
+
+// format uses float pointing values, but to allow for endianness
+// conversions they are represented here as unsigned integers.
+typedef u32_t f32_t;
+
+#define MD3_IDENTIFIER  "IDP3"
+#define MD3_VERSION     15
+
+typedef struct
+{
+	char ident[4];
+	s32_t version;
+
+	char name[64];
+	u32_t flags;
+
+	s32_t num_frames;
+	s32_t num_tags;
+	s32_t num_meshes;
+	s32_t num_skins;
+
+	s32_t ofs_frames;
+	s32_t ofs_tags;
+	s32_t ofs_meshes;
+	s32_t ofs_end;
+} 
+raw_md3_header_t;
+
+typedef struct
+{
+	char ident[4];
+	char name[64];
+	
+	u32_t flags;
+
+	s32_t num_frames;
+	s32_t num_shaders;
+	s32_t num_verts;
+	s32_t num_tris;
+
+	s32_t ofs_tris;
+	s32_t ofs_shaders;
+	s32_t ofs_texcoords;  // one texcoord per vertex
+	s32_t ofs_verts;
+	s32_t ofs_next_mesh;
+}
+raw_md3_mesh_t;
+
+typedef struct
+{
+	f32_t s, t;
+} 
+raw_md3_texcoord_t;
+
+typedef struct 
+{
+	u16_t index_xyz[3];
+} 
+raw_md3_triangle_t;
+
+typedef struct
+{
+	s16_t x, y, z;
+
+	u8_t pitch, yaw;
+} 
+raw_md3_vertex_t;
+
+typedef struct
+{
+	f32_t mins[3];
+	f32_t maxs[3];
+	f32_t origin[3];
+	f32_t radius;
+
+	char name[16];
+} 
+raw_md3_frame_t;
+
+
+
 /*============== EDGE REPRESENTATION ====================*/
 
-struct md2_vertex_c
+struct mod_vertex_c
 {
 	float x, y, z;
 
 	short normal_idx;
 };
 
-struct md2_frame_c
+struct mod_frame_c
 {
-	md2_vertex_c *vertices;
+	mod_vertex_c *vertices;
 
 	const char *name;
 
@@ -322,15 +405,15 @@ struct md2_frame_c
 	short *used_normals;
 };
 
-struct md2_point_c
+struct mod_point_c
 {
 	float skin_s, skin_t;
 
-	// index into frame's vertex array (md2_frame_c::verts)
+	// index into frame's vertex array (mod_frame_c::verts)
 	int vert_idx;
 };
 
-struct md2_strip_c
+struct mod_strip_c
 {
 	// either GL_TRIANGLE_STRIP or GL_TRIANGLE_FAN
 	GLenum mode;
@@ -350,9 +433,9 @@ public:
 	int num_points;
 	int num_strips;
 
-	md2_frame_c *frames;
-	md2_point_c *points;
-	md2_strip_c *strips;
+	mod_frame_c *frames;
+	mod_point_c *points;
+	mod_strip_c *strips;
 
 	int verts_per_frame;
 
@@ -361,9 +444,9 @@ public:
 		num_frames(_nframe), num_points(_npoint),
 		num_strips(_nstrip), verts_per_frame(0)
 	{
-		frames = new md2_frame_c[num_frames];
-		points = new md2_point_c[num_points];
-		strips = new md2_strip_c[num_strips];
+		frames = new mod_frame_c[num_frames];
+		points = new mod_point_c[num_points];
+		strips = new mod_strip_c[num_strips];
 	}
 
 	~md2_model_c()
@@ -479,8 +562,8 @@ md2_model_c *MD2_LoadModel(epi::file_c *f)
 	I_Debugf("  verts_per_frame:%d  glcmds:%d\n", md->verts_per_frame, num_glcmds);
 
 	// convert glcmds into strips and points
-	md2_strip_c *strip = md->strips;
-	md2_point_c *point = md->points;
+	mod_strip_c *strip = md->strips;
+	mod_point_c *point = md->points;
 
 	for (i = 0; i < num_glcmds && glcmds[i] != 0; )
 	{
@@ -561,14 +644,14 @@ md2_model_c *MD2_LoadModel(epi::file_c *f)
 
 		f->Read(raw_verts, md->verts_per_frame * sizeof(raw_md2_vertex_t));
 
-		md->frames[i].vertices = new md2_vertex_c[md->verts_per_frame];
+		md->frames[i].vertices = new mod_vertex_c[md->verts_per_frame];
 
 		memset(which_normals, 0, sizeof(which_normals));
 
 		for (int v = 0; v < md->verts_per_frame; v++)
 		{
 			raw_md2_vertex_t *raw_V  = raw_verts + v;
-			md2_vertex_c     *good_V = md->frames[i].vertices + v;
+			mod_vertex_c     *good_V = md->frames[i].vertices + v;
 
 			good_V->x = (int)raw_V->x * scale[0] + translate[0];
 			good_V->y = (int)raw_V->y * scale[1] + translate[1];
@@ -602,7 +685,7 @@ short MD2_FindFrame(md2_model_c *md, const char *name)
 
  	for (int f = 0; f < md->num_frames; f++)
 	{
-		md2_frame_c *frame = &md->frames[f];
+		mod_frame_c *frame = &md->frames[f];
 
 		if (DDF_CompareName(name, frame->name) == 0)
 			return f;
@@ -621,9 +704,9 @@ typedef struct
 
 	md2_model_c *model;
 
-	const md2_frame_c *frame1;
-	const md2_frame_c *frame2;
-	const md2_strip_c *strip;
+	const mod_frame_c *frame1;
+	const mod_frame_c *frame2;
+	const mod_strip_c *strip;
 
 	float lerp;
 	float x, y, z;
@@ -674,7 +757,7 @@ public:
 		pos->z = z + z2;
 	}
 
-	void CalcNormal(vec3_t *normal, const md2_vertex_c *vert) const
+	void CalcNormal(vec3_t *normal, const mod_vertex_c *vert) const
 	{
 		short n = vert->normal_idx;
 
@@ -790,17 +873,17 @@ static inline void ModelCoordFunc(model_coord_data_t *data,
 {
 	const md2_model_c *md = data->model;
 
-	const md2_frame_c *frame1 = data->frame1;
-	const md2_frame_c *frame2 = data->frame2;
-	const md2_strip_c *strip  = data->strip;
+	const mod_frame_c *frame1 = data->frame1;
+	const mod_frame_c *frame2 = data->frame2;
+	const mod_strip_c *strip  = data->strip;
 
 	SYS_ASSERT(strip->first + v_idx >= 0);
 	SYS_ASSERT(strip->first + v_idx < md->num_points);
 
-	const md2_point_c *point = &md->points[strip->first + v_idx];
+	const mod_point_c *point = &md->points[strip->first + v_idx];
 
-	const md2_vertex_c *vert1 = &frame1->vertices[point->vert_idx];
-	const md2_vertex_c *vert2 = &frame2->vertices[point->vert_idx];
+	const mod_vertex_c *vert1 = &frame1->vertices[point->vert_idx];
+	const mod_vertex_c *vert2 = &frame2->vertices[point->vert_idx];
 
 	
 	float x1 = LerpIt(vert1->x, vert2->x, data->lerp);
@@ -813,7 +896,7 @@ static inline void ModelCoordFunc(model_coord_data_t *data,
 	data->CalcPos(pos, x1, y1, z1);
 
 
-	const md2_vertex_c *n_vert = (data->lerp < 0.5) ? vert1 : vert2;
+	const mod_vertex_c *n_vert = (data->lerp < 0.5) ? vert1 : vert2;
 
 	data->CalcNormal(normal, n_vert);
 
@@ -1069,19 +1152,19 @@ void MD2_RenderModel_2D(md2_model_c *md, const image_c *skin_img, int frame,
 
 	for (int i = 0; i < md->num_strips; i++)
 	{
-		const md2_strip_c *strip = & md->strips[i];
+		const mod_strip_c *strip = & md->strips[i];
 
 		glBegin(strip->mode);
 
 		for (int v_idx=0; v_idx < md->strips[i].count; v_idx++)
 		{
-			const md2_frame_c *frame_ptr = & md->frames[frame];
+			const mod_frame_c *frame_ptr = & md->frames[frame];
 
 			SYS_ASSERT(strip->first + v_idx >= 0);
 			SYS_ASSERT(strip->first + v_idx < md->num_points);
 
-			const md2_point_c *point = &md->points[strip->first + v_idx];
-			const md2_vertex_c *vert = &frame_ptr->vertices[point->vert_idx];
+			const mod_point_c *point = &md->points[strip->first + v_idx];
+			const mod_vertex_c *vert = &frame_ptr->vertices[point->vert_idx];
 
 			glTexCoord2f(point->skin_s * im_right, point->skin_t * im_top);
 
