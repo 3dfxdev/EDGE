@@ -87,7 +87,7 @@ static void FindModelFrameNames(std::vector<state_t> & states,
 	}
 
 	if (missing > 0)
-		I_Error("Failed to find %d frames for model '%sMD2' (see EDGE.LOG)\n",
+		I_Error("Failed to find %d frames for model '%sMDx' (see EDGE.LOG)\n",
 				missing, ddf_model_names[model_num].c_str());
 }
 
@@ -100,15 +100,29 @@ modeldef_c *LoadModelFromLump(int model_num)
 	char lumpname[16];
 	char skinname[16];
 
-	sprintf(lumpname, "%sMD2", basename);
+	epi::file_c *f;
+
+	// try MD3 first, then MD2
+	sprintf(lumpname, "%sMD3", basename);
+	f = W_OpenLump(lumpname);
 
 	I_Debugf("Loading model from lump : %s\n", lumpname);
 
-	epi::file_c *f = W_OpenLump(lumpname);
-	if (! f)
-		I_Error("Missing model lump: %s\n", lumpname);
+	if (f)
+	{
+		def->model = MD3_LoadModel(f);
+	}
+	else
+	{
+		sprintf(lumpname, "%sMD2", basename);
+		f = W_OpenLump(lumpname);
 
-	def->model = MD2_LoadModel(f);
+		if (! f)
+			I_Error("Missing model lump: %s\n", lumpname);
+
+		def->model = MD2_LoadModel(f);
+	}
+
 	SYS_ASSERT(def->model);
 
 	// close the lump
