@@ -30,6 +30,9 @@ CROSSHR2 crosshr2.png
 CROSSHR3 crosshr3.png
 CROSSHR4 crosshr4.png
 CROSSHR5 crosshr5.png
+CROSSHR6 crosshr6.png
+CROSSHR7 crosshr7.png
+CROSSHR8 crosshr8.png
 CROSSHR9 crosshr9.png
 CRUSH_WV crush_wv.wav
 DLITEXPN dlitexpn.png
