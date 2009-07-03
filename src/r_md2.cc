@@ -943,7 +943,7 @@ md2_model_c *MD3_LoadModel(epi::file_c *f)
 			good_V->y = EPI_LE_S16(vert.y) / 64.0;
 			good_V->z = EPI_LE_S16(vert.z) / 64.0;
 
-			good_V->normal_idx = 5;  // FIXME !!!
+			good_V->normal_idx = md3_normal_to_md2[vert.pitch >> 1][vert.yaw >> 1];
 
 			which_normals[good_V->normal_idx] = 1;
 		}
