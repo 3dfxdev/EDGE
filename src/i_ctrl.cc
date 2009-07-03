@@ -274,6 +274,30 @@ void HandleMouseButtonEvent(SDL_Event * ev)
 }
 
 
+void HandleJoystickButtonEvent(SDL_Event * ev)
+{
+	// ignore other joysticks;
+	if ((int)ev->jbutton.which != cur_joy-1)
+		return;
+
+	event_t event;
+	
+	if (ev->type == SDL_JOYBUTTONDOWN) 
+		event.type = ev_keydown;
+	else if (ev->type == SDL_JOYBUTTONUP) 
+		event.type = ev_keyup;
+	else 
+		return;
+	
+	if (ev->jbutton.button >= 15)
+		return;
+
+	event.value.key.sym = KEYD_JOY1 + ev->jbutton.button;
+
+	E_PostEvent(&event);
+}
+
+
 void HandleMouseMotionEvent(SDL_Event * ev)
 {
 	int dx, dy;
@@ -323,6 +347,25 @@ void HandleMouseMotionEvent(SDL_Event * ev)
 }
 
 
+void HandleJoystickAxisEvent(SDL_Event * ev)
+{
+	// ignore other joysticks;
+	if ((int)ev->jaxis.which != cur_joy-1)
+		return;
+
+	event_t event;
+
+	event.type = ev_analogue;
+	event.value.analogue.axis = ev->jaxis.axis;
+	event.value.analogue.amount = ev->jaxis.value / 1000.0;
+
+	E_PostEvent(&event);
+
+	I_Printf("JOYSTICK AXIS %d = %d\n", (int)ev->jaxis.axis,
+	         (int)ev->jaxis.value);
+}
+
+
 //
 // Event handling while the application is active
 //
@@ -350,6 +393,11 @@ void ActiveEventProcess(SDL_Event *sdl_ev)
 		case SDL_MOUSEBUTTONUP:
 			HandleMouseButtonEvent(sdl_ev);
 			break;
+
+		case SDL_JOYBUTTONDOWN:
+		case SDL_JOYBUTTONUP:
+			HandleJoystickButtonEvent(sdl_ev);
+			break;
 			
 		case SDL_MOUSEMOTION:
 			if (eat_mouse_motion) 
@@ -360,7 +408,16 @@ void ActiveEventProcess(SDL_Event *sdl_ev)
 
 			HandleMouseMotionEvent(sdl_ev);
 			break;
-		
+
+		case SDL_JOYAXISMOTION:
+			HandleJoystickAxisEvent(sdl_ev);
+			break;
+
+		case SDL_JOYBALLMOTION:  // TODO
+			break;
+		case SDL_JOYHATMOTION:   // TODO
+			break;
+
 		case SDL_QUIT:
 			// Note we deliberate clear all other flags here. Its our method of 
 			// ensuring nothing more is done with events.
