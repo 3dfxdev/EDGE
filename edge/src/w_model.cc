@@ -104,19 +104,22 @@ modeldef_c *LoadModelFromLump(int model_num)
 
 	// try MD3 first, then MD2
 	sprintf(lumpname, "%sMD3", basename);
-	f = W_OpenLump(lumpname);
 
-	I_Debugf("Loading model from lump : %s\n", lumpname);
-
-	if (f)
+	if (W_CheckNumForName(lumpname) >= 0)
 	{
+		I_Debugf("Loading model from lump : %s\n", lumpname);
+
+		f = W_OpenLump(lumpname);
+		SYS_ASSERT(f);
+
 		def->model = MD3_LoadModel(f);
 	}
 	else
 	{
 		sprintf(lumpname, "%sMD2", basename);
-		f = W_OpenLump(lumpname);
+		I_Debugf("Loading model from lump : %s\n", lumpname);
 
+		f = W_OpenLump(lumpname);
 		if (! f)
 			I_Error("Missing model lump: %s\n", lumpname);
 
