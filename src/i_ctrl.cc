@@ -36,6 +36,8 @@ cvar_c mouse_invert;
 bool nojoy;  // what a wowser, joysticks completely disabled
 
 static int num_joys;
+static int cur_joy;
+static SDL_Joystick *joy_info;
 
 cvar_c joy_enable;  // 0 = disabled, 1/2/3/etc selects a joystick
 
@@ -407,19 +409,56 @@ void I_CentreMouse(void)
 }
 
 
-void I_OpenJoystick(void)
+void I_OpenJoystick(int index)
 {
-	// TODO
+	SYS_ASSERT(1 <= index && index <= num_joys);
+
+	joy_info = SDL_JoystickOpen(index-1);
+	if (! joy_info)
+	{
+		I_Printf("Unable to open joystick %d (SDL error)\n", index);
+		return;
+	}
+
+	cur_joy = index;
+
+	const char *name = SDL_JoystickName(index-1);
+	if (! name)
+		name = "(UNKNOWN)";
+
+	I_Printf("Joystick name   : %s\n", name);
+	I_Printf("Joystick axes   : %d\n", SDL_JoystickNumAxes(joy_info));
+	I_Printf("Joystick buttons: %d\n", SDL_JoystickNumButtons(joy_info));
+	I_Printf("Joystick hats   : %d\n", SDL_JoystickNumHats(joy_info));
+	I_Printf("Joystick balls  : %d\n", SDL_JoystickNumBalls(joy_info));
 }
 
-void I_ChangeJoystick(void)
+void I_ChangeJoystick(int index)
 {
-	// TODO
+	if (joy_info)
+	{
+		SDL_JoystickClose(joy_info);
+		joy_info = NULL;
+		cur_joy = 0;
+	}
+
+	if (index <= 0)
+		return;
+
+	if (index > num_joys)
+	{
+		I_Printf("Invalid joystick number: %d\n", cur_joy);
+		return;
+	}
+
+	I_OpenJoystick(index);
 }
 
 
 void I_StartupJoystick(void)
 {
+	cur_joy = 0;
+
 	if (M_CheckParm("-nojoy"))
 	{
 		I_Printf("I_StartupControl: Joystick system disabled.\n");
@@ -434,6 +473,8 @@ void I_StartupJoystick(void)
 		return;
 	}
 
+	SDL_JoystickEventState(SDL_ENABLE);
+
 	num_joys = SDL_NumJoysticks();
 
 	I_Printf("I_StartupControl: %d joysticks found.\n", num_joys);
@@ -447,7 +488,7 @@ void I_StartupJoystick(void)
 	}
 
 	if (joy_enable.d > 0)
-		I_OpenJoystick();
+		I_OpenJoystick(joy_enable.d);
 }
 
 
@@ -474,7 +515,7 @@ void I_StartupControl(void)
 void I_ControlGetEvents(void)
 {
 	if (joy_enable.CheckModified())
-		I_ChangeJoystick();
+		I_ChangeJoystick(joy_enable.d);
 
 	SDL_Event sdl_ev;
 

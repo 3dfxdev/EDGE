@@ -51,6 +51,10 @@ extern cvar_c mouse_xaxis, mouse_yaxis;
 extern cvar_c mouse_xsens, mouse_ysens;
 extern cvar_c mouse_invert;
 
+extern cvar_c joy_enable;
+extern cvar_c joy_xaxis, joy_xsens, joy_xdead;
+extern cvar_c joy_yaxis, joy_ysens, joy_ydead;
+
 extern cvar_c r_width, r_height, r_depth, r_fullscreen;
 extern cvar_c r_colormaterial, r_colorlighting;
 extern cvar_c r_dumbsky, r_dumbmulti, r_dumbcombine, r_dumbclamp;
@@ -122,11 +126,19 @@ cvar_link_t  all_cvars[] =
 	{ "in_warpmouse",   &in_warpmouse,   "",    "0"  },
 
 	{ "mouse_xaxis",    &mouse_xaxis,    "c",   "0" /* AXIS_TURN */  },
-	{ "mouse_yaxis",    &mouse_yaxis,    "c",   "3" /* AXIS_MLOOK */ },
 	{ "mouse_xsens",    &mouse_xsens,    "c",   "10"  },
+	{ "mouse_yaxis",    &mouse_yaxis,    "c",   "3" /* AXIS_MLOOK */ },
 	{ "mouse_ysens",    &mouse_ysens,    "c",   "10"  },
 	{ "mouse_invert",   &mouse_invert,   "c",   "0"  },
-                                        
+
+	{ "joy_enable",     &joy_enable,     "c",   "0"  },
+	{ "joy_xaxis",      &joy_xaxis,      "c",   "0"  },
+	{ "joy_xsens",      &joy_xsens,      "c",   "10"  },
+	{ "joy_xdead",      &joy_xdead,      "c",   "0.2" },
+	{ "joy_ysens",      &joy_ysens,      "c",   "10"  },
+	{ "joy_yaxis",      &joy_yaxis,      "c",   "3"  },
+	{ "joy_ydead",      &joy_ydead,      "c",   "0.2" },
+
 	{ "m_diskicon",     &m_diskicon,     "c",   "1"  },
 	{ "m_busywait",     &m_busywait,     "c",   "1"  },
 	{ "m_messages",     &m_messages,     "c",   "1"  },

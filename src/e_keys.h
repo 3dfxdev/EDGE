@@ -166,15 +166,21 @@ int E_KeyFromName(const char *name);
 #define KEYD_MWHEEL_UP  0x108
 #define KEYD_MWHEEL_DN  0x109
 
-#define KEYD_JOYBUT1    0x111
-#define KEYD_JOYBUT2    0x112
-#define KEYD_JOYBUT3    0x113
-#define KEYD_JOYBUT4    0x114
-#define KEYD_JOYBUT5    0x115
-#define KEYD_JOYBUT6    0x116
-#define KEYD_JOYBUT7    0x117
-#define KEYD_JOYBUT8    0x118
-#define KEYD_JOYBUT9    0x119
+#define KEYD_JOY1       0x111
+#define KEYD_JOY2       0x112
+#define KEYD_JOY3       0x113
+#define KEYD_JOY4       0x114
+#define KEYD_JOY5       0x115
+#define KEYD_JOY6       0x116
+#define KEYD_JOY7       0x117
+#define KEYD_JOY8       0x118
+#define KEYD_JOY9       0x119
+#define KEYD_JOY10      0x11a
+#define KEYD_JOY11      0x11b
+#define KEYD_JOY12      0x11c
+#define KEYD_JOY13      0x11d
+#define KEYD_JOY14      0x11e
+#define KEYD_JOY15      0x11f
 
 #define NUMKEYS  0x140
 
