@@ -39,6 +39,7 @@ extern cvar_c m_messages, m_obituaries;
 
 extern cvar_c debug_nomonsters, debug_hom;
 extern cvar_c debug_fullbright, debug_subsector;
+extern cvar_c debug_normals;
 
 extern cvar_c sys_directx, sys_waveout;
 extern cvar_c sys_grabfocus;
@@ -196,6 +197,7 @@ cvar_link_t  all_cvars[] =
 	{ "debug_fullbright", &debug_fullbright, "h", "0" },
 	{ "debug_hom",        &debug_hom,        "h", "0" },
 	{ "debug_subsector",  &debug_subsector,  "h", "0" },
+	{ "debug_normals",    &debug_normals,    "h", "0" },
 
 //---- END OF LIST -----------------------------------------------------------
 
