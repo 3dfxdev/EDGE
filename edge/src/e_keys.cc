@@ -112,15 +112,21 @@ static specialkey_t keynames[] =
     { KEYD_MWHEEL_UP, "WHEELUP"   },
     { KEYD_MWHEEL_DN, "WHEELDOWN" },
 
-    { KEYD_JOYBUT1, "JOYBUT1" },
-    { KEYD_JOYBUT2, "JOYBUT2" },
-    { KEYD_JOYBUT3, "JOYBUT3" },
-    { KEYD_JOYBUT4, "JOYBUT4" },
-    { KEYD_JOYBUT5, "JOYBUT5" },
-    { KEYD_JOYBUT6, "JOYBUT6" },
-    { KEYD_JOYBUT7, "JOYBUT7" },
-    { KEYD_JOYBUT8, "JOYBUT8" },
-    { KEYD_JOYBUT9, "JOYBUT9" },
+    { KEYD_JOY1,  "JOY1"  },
+    { KEYD_JOY2,  "JOY2"  },
+    { KEYD_JOY3,  "JOY3"  },
+    { KEYD_JOY4,  "JOY4"  },
+    { KEYD_JOY5,  "JOY5"  },
+    { KEYD_JOY6,  "JOY6"  },
+    { KEYD_JOY7,  "JOY7"  },
+    { KEYD_JOY8,  "JOY8"  },
+    { KEYD_JOY9,  "JOY9"  },
+    { KEYD_JOY10, "JOY10" },
+    { KEYD_JOY11, "JOY11" },
+    { KEYD_JOY12, "JOY12" },
+    { KEYD_JOY13, "JOY13" },
+    { KEYD_JOY14, "JOY14" },
+    { KEYD_JOY15, "JOY15" },
 
 	// the end
     { 0, "" }
@@ -359,7 +365,7 @@ void E_ResetAllBinds(void)
 		if (link->def_key2) link->bind->Add(link->def_key2);
 	}
 
-	k_fire.Add(KEYD_JOYBUT1);
+	k_fire.Add(KEYD_JOY1);
 }
 
 
