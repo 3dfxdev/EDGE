@@ -466,6 +466,32 @@ void I_CentreMouse(void)
 }
 
 
+void I_ShowJoysticks(void)
+{
+	if (nojoy)
+	{
+		I_Printf("Joystick system is disabled.\n");
+		return;
+	}
+
+	if (num_joys == 0)
+	{
+		I_Printf("No joysticks found.\n");
+		return;
+	}
+
+	I_Printf("Joysticks:\n");
+
+	for (int i = 0; i < num_joys; i++)
+	{
+		const char *name = SDL_JoystickName(i);
+		if (! name)
+			name = "(UNKNOWN)";
+
+		I_Printf("  %2d : %s\n", i+1, name);
+	}
+}
+
 void I_OpenJoystick(int index)
 {
 	SYS_ASSERT(1 <= index && index <= num_joys);
