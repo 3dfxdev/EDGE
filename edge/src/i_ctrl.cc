@@ -33,7 +33,18 @@ cvar_c mouse_yaxis, mouse_ysens;
 cvar_c mouse_invert;
 
 
+bool nojoy;  // what a wowser, joysticks completely disabled
+
+static int num_joys;
+
+cvar_c joy_enable;  // 0 = disabled, 1/2/3/etc selects a joystick
+
+cvar_c joy_xaxis, joy_xsens, joy_xdead;
+cvar_c joy_yaxis, joy_ysens, joy_ydead;
+
+
 #undef DEBUG_KB
+#undef DEBUG_JOY
 
 
 cvar_c in_warpmouse;
@@ -396,6 +407,50 @@ void I_CentreMouse(void)
 }
 
 
+void I_OpenJoystick(void)
+{
+	// TODO
+}
+
+void I_ChangeJoystick(void)
+{
+	// TODO
+}
+
+
+void I_StartupJoystick(void)
+{
+	if (M_CheckParm("-nojoy"))
+	{
+		I_Printf("I_StartupControl: Joystick system disabled.\n");
+		nojoy = true;
+		return;
+	}
+
+	if (SDL_InitSubSystem(SDL_INIT_JOYSTICK) < 0)
+	{
+		I_Printf("I_StartupControl: Couldn't init SDL JOYSTICK!\n");
+		nojoy = true;
+		return;
+	}
+
+	num_joys = SDL_NumJoysticks();
+
+	I_Printf("I_StartupControl: %d joysticks found.\n", num_joys);
+
+	if (num_joys == 0)
+		return;
+
+	if (joy_enable.d > num_joys)
+	{
+		joy_enable = 1;
+	}
+
+	if (joy_enable.d > 0)
+		I_OpenJoystick();
+}
+
+
 /****** Input Event Generation ******/
 
 void I_StartupControl(void)
@@ -412,10 +467,15 @@ void I_StartupControl(void)
 
 	if (M_CheckParm("-warpmouse"))
 		in_warpmouse = 1;
+	
+	I_StartupJoystick();
 }
 
 void I_ControlGetEvents(void)
 {
+	if (joy_enable.CheckModified())
+		I_ChangeJoystick();
+
 	SDL_Event sdl_ev;
 
 	while (SDL_PollEvent(&sdl_ev))
