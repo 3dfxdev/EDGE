@@ -1,6 +1,6 @@
 Andrew Apted's Log
 
-2009/07/04:
+2009/07/03:
 
 Joystick support begun.  If multiple joysticks exist, then
 the 'joy_enable' cvar can select between them.  A couple
@@ -15,7 +15,19 @@ degree (e.g. holding the joystick 50% to the left is akin
 to pressing a move-left key 50% down).  EDGE's event based
 input handling seems rather inimical to this.
 
-2009/07/03:
+Coal: been thinking about string handling.  A WIP concept
+is that of "temp strings" are strings with a negative int
+value (whereas positive int = forever strings).  Basic idea
+here is that once the interpreter returns from the VM, all
+temp strings are removed (the space can be re-used for temp
+strings in the next VM run).  The trick is: any temp string
+which is stored in a global (or returned from the VM) gets
+internalised as a forever string.  So for the common case
+where a string is created just to be displayed or printed,
+there is no long-term memory gobbling [and less stuff that
+needs to be written into savegames].
+
+2009/07/02:
 
 Worked on loading MD3 models.  I had to create a mapping
 table to convert the 2-byte MD3 normals into the 1-byte MD2
