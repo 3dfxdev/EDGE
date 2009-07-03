@@ -16,11 +16,11 @@
 //
 //----------------------------------------------------------------------------
 //
-// Partially based on the ZDoom console code, by Randy Heit
+// Originally based on the ZDoom console code, by Randy Heit
 // (rheit@iastate.edu).  Randy Heit has given his permission to
 // release this code under the GPL, for which the EDGE Team is very
-// grateful.  The original GPL'd version `c_consol.c' can be found in
-// the docs/contrib/ directory.
+// grateful.  The original GPL'd version `c_consol.c' can be found
+// in the docs/contrib/ directory.
 //
 
 #include "i_defs.h"
@@ -34,11 +34,12 @@
 #include "hu_stuff.h"
 #include "hu_style.h"
 #include "m_argv.h"
+
+#include "r_gldefs.h"
 #include "r_draw.h"
 #include "r_image.h"
 #include "r_modes.h"
 #include "r_wipe.h"
-#include "z_zone.h"
 
 
 #define CON_WIPE_TICS  12
@@ -1056,7 +1057,12 @@ static void CON_ErrorDrawFrame(void)
 {
 	I_StartFrame();
 
-	glClearColor(0.4f, 0.4f, 0.4f, 0.4f);
+	// if the error occurred while rendering, need to switch
+	// back to a 2D viewport.
+	RGL_SetupMatrices2D();
+
+	// TODO: improve background for error screen
+	glClearColor(0.3f, 0.3f, 0.3f, 0.3f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	CON_Drawer();
