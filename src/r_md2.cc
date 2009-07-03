@@ -46,6 +46,9 @@
 
 extern float P_ApproxDistance(float dx, float dy, float dz);
 
+static byte md3_normal_to_md2[128][128];
+static bool md3_normal_map_built = false;
+
 
 // #define DEBUG_MD2_LOAD  1
 
@@ -300,6 +303,45 @@ static vec3_t md2_normals[MD2_NUM_NORMALS] =
 	{ -0.425325f, -0.688191f, -0.587785f },
 	{ -0.587785f, -0.425325f, -0.688191f },
 	{ -0.688191f, -0.587785f, -0.425325f }  
+};
+
+//
+// -AJA- This mapping table is used to speed up finding normals.
+//       The 162 MD2 normals are not arbitrary, but are mirrored
+//       in every quadrant.  The first number in a group is a
+//       normal in the first quadrant (x >= 0, y >= 0, z >= 0),
+//       and the other numbers are the same normal mirrored in
+//       the other quadrants (+++ ++- +-+ +-- -++ -+- --+ ---).
+//
+static int md2_normal_groups[27][8] =
+{
+	{   5,  84,   5,  84,   5,  84,   5,  84  },
+	{   6,  28, 106,  90,   6,  28, 106,  90  },
+	{   8,  71, 136,  92,   7,  77, 130,  91  },
+	{   9,  79, 137,  93,   9,  79, 137,  93  },
+	{  10,  72, 135,  94,   3,  78, 129,  88  },
+	{  11,  64,  11,  64,   0,  80,   0,  80  },
+	{  12,  85,  12,  85,   2,  82,   2,  82  },
+	{  13,  74, 133,  95,   1,  81, 127,  87  },
+	{  14,  86, 134,  96,   4,  83, 132,  89  },
+	{  32,  32, 104, 104,  32,  32, 104, 104  },
+	{  33,  30, 107, 103,  33,  30, 107, 103  },
+	{  35,  38, 108,  97,  23,  29, 121, 113  },
+	{  36,  39, 109, 105,  34,  31, 122, 115  },
+	{  37,  40, 110,  98,  22,  26, 120, 114  },
+	{  41,  41,  54,  54,  18,  18, 116, 116  },
+	{  42,  43, 111, 100,  20,  25, 118, 117  },
+	{  44,  44, 112, 112,  27,  27, 119, 119  },
+	{  45,  73, 138,  99,  24, 158, 131, 159  },
+	{  46,  61,  56,  69,  19, 147, 123, 150  },
+	{  47,  76, 140, 101,  21, 156, 125, 161  },
+	{  48,  62,  58,  68,  16, 149, 124, 152  },
+	{  49,  65,  59,  66,  15, 153, 126, 154  },
+	{  50,  75, 139, 102,  17, 157, 128, 160  },
+	{  51,  51,  55,  55, 141, 141, 145, 145  },
+	{  52,  52,  52,  52, 143, 143, 143, 143  },
+	{  53,  63,  57,  70, 142, 148, 146, 151  },
+	{  60,  67,  60,  67, 144, 155, 144, 155  },
 };
 
 
@@ -697,10 +739,81 @@ short MD2_FindFrame(md2_model_c *md, const char *name)
 
 /*============== MD3 LOADING CODE ====================*/
 
+
+static byte MD2_FindNormal(float x, float y, float z)
+{
+	// -AJA- we make the search around SIX times faster by only
+	// considering the first quadrant (where x, y, z are >= 0).
+
+	int quadrant = 0;
+
+	if (x < 0) { x = -x; quadrant |= 4; }
+	if (y < 0) { y = -y; quadrant |= 2; }
+	if (z < 0) { z = -z; quadrant |= 1; }
+
+	int   best_g = 0;
+	float best_dot = -1;
+
+	for (int i = 0; i < 27; i++)
+	{
+		int n = md2_normal_groups[i][0];
+
+		float nx = md2_normals[n].x;
+		float ny = md2_normals[n].y;
+		float nz = md2_normals[n].z;
+
+		float dot = (x*nx + y*ny + z*nz);
+
+		if (dot > best_dot)
+		{
+			best_g   = i;
+			best_dot = dot;
+		}
+	}
+
+	return md2_normal_groups[best_g][quadrant];
+}
+
+static void MD3_CreateNormalMap(void)
+{
+	// Create a table mapping MD3 normals to MD2 normals.
+	// We discard the least significant bit of pitch and yaw
+	// (for speed and memory saving).
+
+
+	// build a sine table for even faster calcs
+	float sintab[160];
+
+	for (int i = 0; i < 160; i++)
+		sintab[i] = sin(i * M_PI / 64.0);
+
+	for (int pitch = 0; pitch < 128; pitch++)
+	{
+		byte *dest = &md3_normal_to_md2[pitch][0];
+
+		for (int yaw = 0; yaw < 128; yaw++)
+		{
+			float z = sintab[pitch+32];
+			float w = sintab[pitch];
+
+			float x = w * sintab[yaw+32];
+			float y = w * sintab[yaw];
+
+			*dest++ = MD2_FindNormal(x, y, z);
+		}
+	}
+
+	md3_normal_map_built = true;
+}
+
+
 md2_model_c *MD3_LoadModel(epi::file_c *f)
 {
 	int i;
 	float *ff;
+
+	if (! md3_normal_map_built)
+		MD3_CreateNormalMap();
 
 	raw_md3_header_t header;
 
