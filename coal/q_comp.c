@@ -84,10 +84,10 @@ opcode_t pr_opcodes[] =
 	{"<",  "LT", 4, false, &type_float, &type_float, &type_float},
 	{">",  "GT", 4, false, &type_float, &type_float, &type_float},
 
-	{"=", "MOVE_F", 6, true, &type_float, &type_float, &type_float},
-	{"=", "MOVE_V", 6, true, &type_vector, &type_vector, &type_vector},
-	{"=", "MOVE_S", 6, true, &type_string, &type_string, &type_string},
-	{"=", "MOVE_FNC", 6, true, &type_function, &type_function, &type_function},
+	{"<MOVE_F>", "MOVE_F", 6, true, &type_float, &type_float, &type_float},
+	{"<MOVE_V>", "MOVE_V", 6, true, &type_vector, &type_vector, &type_vector},
+	{"<MOVE_S>", "MOVE_S", 6, true, &type_string, &type_string, &type_string},
+	{"<MOVE_C>", "MOVE_FNC", 6, true, &type_function, &type_function, &type_function},
 
 	{"<CALL>",  "CALL", -1, false, &type_function, &type_void, &type_void},
 
@@ -111,7 +111,7 @@ opcode_t pr_opcodes[] =
 #define	TOP_PRIORITY	6
 #define	NOT_PRIORITY	1
 
-def_t *PR_Expression (int priority);
+def_t *PR_Expression(int priority, bool *lvalue = NULL);
 
 def_t	junkdef;
 
@@ -541,17 +541,35 @@ def_t * PR_ShortCircuitExp(def_t *e, opcode_t *op)
 }
 
 
-def_t * PR_Expression(int priority)
+def_t * PR_ParseFieldQuery(def_t *e, bool lvalue)
+{
+	// TODO
+	PR_ParseError("Operator . not yet implemented\n");
+	return NULL;
+}
+
+
+def_t * PR_Expression(int priority, bool *lvalue)
 {
 	if (priority == 0)
 		return PR_Term();
 
-	def_t * e = PR_Expression(priority-1);
+	def_t * e = PR_Expression(priority-1, lvalue);
 
 	while (1)
 	{
 		if (priority == 1 && PR_Check("("))
+		{
+			if (lvalue)
+				*lvalue = false;
 			return PR_ParseFunctionCall(e);
+		}
+
+		if (priority == 1 && PR_Check("."))
+			return PR_ParseFieldQuery(e, lvalue);
+
+		if (lvalue)
+			return e;
 
 		opcode_t *op;
 
@@ -582,7 +600,7 @@ def_t * PR_Expression(int priority)
 			etype_t type_a = e->type->type;
 			etype_t type_b = e2->type->type;
 			etype_t type_c = ev_void;
-
+#if 0
 			if (op->name[0] == '.')// field access gets type from field
 			{
 				if (e2->type->aux_type)
@@ -590,7 +608,7 @@ def_t * PR_Expression(int priority)
 				else
 					type_c = ev_INVALID;	// not a field
 			}
-
+#endif
 
 			opcode_t * oldop = op;
 
@@ -607,14 +625,17 @@ def_t * PR_Expression(int priority)
 				PR_ParseError("type mismatch for %s", op->name);
 
 
+			assert(! op->right_associative);
+
 			if (op->right_associative)
 				e = PR_Statement (op, e2, e);
 			else
 				e = PR_Statement (op, e, e2);
 
+#if 0
 			if (type_c != ev_void)	// field access gets type from field
 				e->type = e2->type->aux_type;
-
+#endif
 			break;
 		}
 
@@ -725,7 +746,42 @@ void PR_ParseStatement(void)
 		return;
 	}
 
-	PR_Expression(TOP_PRIORITY);
+	bool lvalue = true;
+	def_t * e = PR_Expression(TOP_PRIORITY, &lvalue);
+
+	// lvalue is false for a plain function call
+
+	if (lvalue)
+	{
+		// FIXME: proper constant check
+		if (strncmp(e->name, "IMMED_", 6) == 0)
+			PR_ParseError("assignment to a constant.\n");
+
+		PR_Expect("=");
+
+		def_t *e2 = PR_Expression(TOP_PRIORITY);
+
+		if (e2->type != e->type)
+			PR_ParseError("type mismatch in assignment.\n");
+
+		switch (e->type->type)
+		{
+			case ev_float:
+			case ev_string:
+			case ev_function:
+				PR_EmitCode(OP_MOVE_F, e2->ofs, e->ofs);
+				break;
+
+			case ev_vector:
+				PR_EmitCode(OP_MOVE_V, e2->ofs, e->ofs);
+				break;
+
+			default:
+				PR_ParseError("weird type for assignment.\n");
+				break;
+		}
+	}
+
 	PR_Expect (";");
 }
 
