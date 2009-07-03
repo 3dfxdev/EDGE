@@ -540,7 +540,7 @@ void PR_SkipToSemicolon (void)
 			return;
 		PR_Lex ();
 	}
-	while (pr_token[0]);	// eof will return a null token
+	while (pr_token_type != tt_eof);
 }
 
 
