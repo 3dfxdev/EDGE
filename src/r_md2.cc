@@ -43,6 +43,8 @@
 #include "m_math.h"
 
 
+cvar_c debug_normals;
+
 
 extern float P_ApproxDistance(float dx, float dy, float dz);
 
@@ -502,11 +504,11 @@ public:
 
 /*============== MD2 LOADING CODE ====================*/
 
-static const char *CopyFrameName(raw_md2_frame_t *frm)
+static const char *CopyFrameName16(char *name16)
 {
 	char *str = new char[20];
 
-	memcpy(str, frm->name, 16);
+	memcpy(str, name16, 16);
 
 	// ensure it is NUL terminated
 	str[16] = 0;
@@ -676,10 +678,11 @@ md2_model_c *MD2_LoadModel(epi::file_c *f)
 		translate[1] = f_ptr[4];
 		translate[2] = f_ptr[5];
 
-		md->frames[i].name = CopyFrameName(&raw_frame);
+		md->frames[i].name = CopyFrameName16(raw_frame.name);
+
+		I_Debugf("Frame %d = '%s'\n", i+1, md->frames[i].name);
 
 #ifdef DEBUG_MD2_LOAD
-		I_Debugf("  __FRAME_%d__[%s]\n", i+1, md->frames[i].name);
 		I_Debugf("    scale: %1.2f, %1.2f, %1.2f\n", scale[0], scale[1], scale[2]);
 		I_Debugf("    translate: %1.2f, %1.2f, %1.2f\n", translate[0], translate[1], translate[2]);
 #endif
@@ -926,7 +929,6 @@ md2_model_c *MD3_LoadModel(epi::file_c *f)
 
 	for (i = 0; i < num_frames; i++)
 	{
-		md->frames[i].name = "FOO";  // FIXME
 		md->frames[i].vertices = new mod_vertex_c[num_verts];
 
 		memset(which_normals, 0, sizeof(which_normals));
@@ -937,7 +939,7 @@ md2_model_c *MD3_LoadModel(epi::file_c *f)
 		{
 			raw_md3_vertex_t vert;
 
-			f->Read(&vert, sizeof (raw_md3_vertex_t));
+			f->Read(&vert, sizeof(raw_md3_vertex_t));
 
 			good_V->x = EPI_LE_S16(vert.x) / 64.0;
 			good_V->y = EPI_LE_S16(vert.y) / 64.0;
@@ -951,7 +953,23 @@ md2_model_c *MD3_LoadModel(epi::file_c *f)
 		md->frames[i].used_normals = CreateNormalList(which_normals);
 	}
 
-	// TODO: PARSE FRAME BBOXES
+
+	/* PARSE FRAME INFO */
+
+	f->Seek(EPI_LE_S32(header.ofs_frames), epi::file_c::SEEKPOINT_START);
+
+	for (i = 0; i < num_frames; i++)
+	{
+		raw_md3_frame_t frame;
+
+		f->Read(&frame, sizeof(raw_md3_frame_t));
+
+		md->frames[i].name = CopyFrameName16(frame.name);
+
+		I_Debugf("Frame %d = '%s'\n", i+1, md->frames[i].name);
+
+		// TODO: load in bbox (for visibility checking)
+	}
 
 	return md;
 }
@@ -1380,6 +1398,17 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 						&dest->texc[0], &dest->normal);
 
 				dest->rgba[3] = trans;
+
+				if (debug_normals.d)
+				{
+					glColor3f(1,1,0);
+					glBegin(GL_LINES);
+					glVertex3f(dest->pos.x, dest->pos.y, dest->pos.z);
+					glVertex3f(dest->pos.x + dest->normal.x * 5,
+							   dest->pos.y + dest->normal.y * 5,
+							   dest->pos.z + dest->normal.z * 5);
+					glEnd();
+				}
 			}
 
 			RGL_EndUnit(md->strips[i].count);
