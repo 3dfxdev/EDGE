@@ -26,8 +26,9 @@
 #ifndef __G_GAME__
 #define __G_GAME__
 
-#include "e_event.h"
 #include "e_player.h"
+
+struct event_s;
 
 
 // The current state of the game: whether we are
@@ -171,7 +172,7 @@ void G_ExitToHub(int map_number, int tag);
 
 void G_BigStuff(void);
 void G_Ticker(void);
-bool G_Responder(event_t * ev);
+bool G_Responder(struct event_s * ev);
 
 bool G_CheckWhenAppear(when_appear_e appear);
 std::string G_FileNameFromSlot(int slot);

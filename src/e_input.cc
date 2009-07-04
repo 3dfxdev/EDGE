@@ -32,7 +32,6 @@
 #include "ddf/level.h"
 
 #include "g_state.h"
-#include "e_event.h"
 #include "e_input.h"
 #include "e_main.h"
 #include "g_game.h"
@@ -479,7 +478,15 @@ bool INP_Responder(event_t * ev)
 			return false;
 
 			// -KM- 1998/09/01 Change mouse/joystick to analogue
-		case ev_analogue:
+		case ev_mouse:
+//FIXME !!!!
+#if 0
+		if (mouse_xaxis.d < 0) dx = -dx;
+		if (mouse_yaxis.d < 0) dy = -dy;
+
+		dx *= mouse_xsens.f;
+		dy *= mouse_ysens.f;
+
 			{
 				// -AJA- 1999/07/27: Mlook key like quake's.
 				if ((g_mlook.d && !(map_features & MPF_NoMLook)) &&
@@ -500,6 +507,7 @@ bool INP_Responder(event_t * ev)
 				analogue[ev->value.analogue.axis] += ev->value.analogue.amount;
 				return true;  // eat events
 			}
+#endif
 
 		default:
 			break;

@@ -22,6 +22,7 @@
 
 #include "r_defs.h"
 #include "hu_stuff.h"
+#include "hu_lib.h"
 
 #include "epi/math_crc.h"
 

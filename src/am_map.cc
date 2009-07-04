@@ -450,12 +450,12 @@ bool AM_Responder(event_t * ev)
 	}
 
 	// -AJA- 2007/04/18: mouse-wheel support
-	if (ev->value.key.sym == KEYD_MWHEEL_UP)
+	if (ev->value.key.sym == KEYD_WHEEL_UP)
 	{
 		ChangeWindowScale(WHEEL_ZOOMIN);
 		return true;
 	}
-	else if (ev->value.key.sym == KEYD_MWHEEL_DN)
+	else if (ev->value.key.sym == KEYD_WHEEL_DN)
 	{
 		ChangeWindowScale(1.0 / WHEEL_ZOOMIN);
 		return true;

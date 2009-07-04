@@ -26,9 +26,51 @@
 #ifndef __E_INPUT_H__
 #define __E_INPUT_H__
 
-#include "e_event.h"
 #include "e_keys.h"
 #include "e_ticcmd.h"
+
+// Input event types.
+
+typedef enum
+{
+	ev_keydown,
+	ev_keyup,
+	ev_mouse,
+}
+evtype_t;
+
+// Event structure.
+typedef struct event_s
+{
+	evtype_t type;
+
+	union
+	{
+		struct 
+	    {
+	        int sym;
+	    	int unicode;
+	    }
+	    key;
+	
+		struct
+		{
+			float dx;
+			float dy;
+		} 
+		mouse;
+	} 
+	value;
+}
+event_t;
+
+// -KM- 1998/09/27 Analogue binding, added a fly axis
+#define AXIS_DISABLE     0
+#define AXIS_TURN        1
+#define AXIS_FORWARD     2
+#define AXIS_STRAFE      3
+#define AXIS_MLOOK       4
+#define AXIS_FLY         5  // includes JUMP/CROUCH and SWIM
 
 void E_ClearInput(void);
 void E_BuildTiccmd(ticcmd_t * cmd);

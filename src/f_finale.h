@@ -26,15 +26,16 @@
 #ifndef __F_FINALE__
 #define __F_FINALE__
 
-#include "e_event.h"
 #include "g_game.h"
 #include "p_mobj.h"
 
 #include "ddf/game.h"
 #include "ddf/level.h"
 
+struct event_s;
+
 // Called by main loop.
-bool F_Responder(event_t * ev);
+bool F_Responder(struct event_s * ev);
 
 // Called by main loop.
 void F_Ticker(void);

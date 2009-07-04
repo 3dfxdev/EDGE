@@ -26,7 +26,7 @@
 #ifndef __M_NETGAME_H__
 #define __M_NETGAME_H__
 
-#include "e_event.h"
+struct event_s;
 
 extern int netgame_menuon;  // 1 = HOST, 2 = JOIN, 3 = PLAYERS
 
@@ -35,7 +35,7 @@ extern int netgame_menuon;  // 1 = HOST, 2 = JOIN, 3 = PLAYERS
 void M_NetGameInit(void);
 void M_NetGameDrawer(void);
 void M_NetGameTicker(void);
-bool M_NetGameResponder(event_t * ev, int ch);
+bool M_NetGameResponder(struct event_s * ev, int ch);
 
 #endif
 

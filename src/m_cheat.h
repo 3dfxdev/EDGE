@@ -27,7 +27,8 @@
 #define __M_CHEAT__
 
 // -MH- 1998/06/17 for cheat to give jetpack
-#include "e_event.h"
+
+struct event_s;
 
 //
 // CHEAT SEQUENCE PACKAGE
@@ -41,7 +42,7 @@ typedef struct
 cheatseq_t;
 
 int M_CheckCheat(cheatseq_t * cht, char key);
-bool M_CheatResponder(event_t * ev);
+bool M_CheatResponder(struct event_s * ev);
 void M_CheatInit(void);
 
 #endif // __M_CHEAT__

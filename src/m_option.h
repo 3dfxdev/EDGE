@@ -26,7 +26,7 @@
 #ifndef __M_OPTION__
 #define __M_OPTION__
 
-#include "e_event.h"
+struct event_s;
 
 extern int option_menuon;
 
@@ -35,7 +35,7 @@ extern int option_menuon;
 void M_OptMenuInit(void);
 void M_OptDrawer(void);
 void M_OptTicker(void);
-bool M_OptResponder(event_t * ev, int ch);
+bool M_OptResponder(struct event_s * ev, int ch);
 void M_ResetToDefaults(int keypressed);
 void M_OptCheckNetgame(void);
 
