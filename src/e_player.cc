@@ -345,6 +345,7 @@ static void P_SpawnPlayer(player_t *p, const spawnpoint_t *point)
 	p->effect_colourmap = NULL;
 	p->std_viewheight = mobj->height * PERCENT_2_FLOAT(info->viewheight);
 	p->viewheight = p->std_viewheight;
+	p->zoom_fov = 0;
 	p->jumpwait = 0;
 
 	// don't do anything immediately 

@@ -56,7 +56,7 @@ extern int validcount;
 extern int linecount;
 
 // -ES- 1999/03/29 Added these
-extern float view_zoom;
+extern bool view_zoomed;
 
 extern cvar_c r_fov;
 extern cvar_c r_zoomedfov;
