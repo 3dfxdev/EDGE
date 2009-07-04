@@ -126,9 +126,9 @@ cvar_link_t  all_cvars[] =
 	{ "in_shiftlook",   &in_shiftlook,   "c",   "1"  },
 	{ "in_warpmouse",   &in_warpmouse,   "",    "0"  },
 
-	{ "mouse_xaxis",    &mouse_xaxis,    "c",   "0" /* AXIS_TURN */  },
+	{ "mouse_xaxis",    &mouse_xaxis,    "c",   "1" /* AXIS_TURN */  },
 	{ "mouse_xsens",    &mouse_xsens,    "c",   "10"  },
-	{ "mouse_yaxis",    &mouse_yaxis,    "c",   "3" /* AXIS_MLOOK */ },
+	{ "mouse_yaxis",    &mouse_yaxis,    "c",   "4" /* AXIS_MLOOK */ },
 	{ "mouse_ysens",    &mouse_ysens,    "c",   "10"  },
 	{ "mouse_invert",   &mouse_invert,   "c",   "0"  },
 
