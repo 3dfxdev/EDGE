@@ -1308,7 +1308,7 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 		data.im_right = 1.0;
 		data.im_top   = 1.0;
 
-		if (! data.is_weapon && view_zoom <= 0)
+		if (! data.is_weapon && ! view_zoomed)
 		{
 			float dist = P_ApproxDistance(mo->x - viewx, mo->y - viewy, mo->z - viewz);
 

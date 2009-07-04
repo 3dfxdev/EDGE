@@ -182,6 +182,9 @@ typedef struct player_s
 	// bounded/scaled total momentum.
 	float bob;
 
+	// when > 0, the player has activated zoom 
+	int zoom_fov;
+
 	// Kick offset for vertangle (in mobj_t)
 	float kick_offset;
 

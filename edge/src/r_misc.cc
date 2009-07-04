@@ -57,8 +57,7 @@ int viewwindow_h;
 cvar_c r_fov;
 cvar_c r_zoomedfov;
 
-// this is > 0 when zooming
-float view_zoom;
+bool view_zoomed;
 
 angle_t rightangle;
 angle_t leftangle;
@@ -228,8 +227,6 @@ float R_PointToDist(float x1, float y1, float x2, float y2)
 void R_Init(void)
 {
 	E_ProgressMessage(language["RefreshDaemon"]);
-
-	view_zoom = 0;
 
 	framecount = 0;
 

@@ -470,7 +470,7 @@ void RGL_DrawWeaponSprites(player_t * p)
 	bool got_cross = false;
 
 	// special handling for zoom: show viewfinder
-	if (view_zoom > 0)
+	if (view_zoomed)
 	{
 		pspdef_t *psp = &p->psprites[ps_weapon];
 
@@ -482,6 +482,7 @@ void RGL_DrawWeaponSprites(player_t * p)
 		if (w->zoom_state <= 0)
 			return;
 
+I_Printf("  zoom_state:%d\n", w->zoom_state);
 		RGL_DrawPSprite(psp, ps_weapon, p, view_props,
 						&w->states[w->zoom_state]);
 	}
@@ -515,7 +516,7 @@ void RGL_DrawWeaponSprites(player_t * p)
 
 void RGL_DrawWeaponModel(player_t * p)
 {
-	if (view_zoom > 0)
+	if (view_zoomed)
 		return;
 
 	pspdef_t *psp = &p->psprites[ps_weapon];

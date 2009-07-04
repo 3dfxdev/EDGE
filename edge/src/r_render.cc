@@ -3126,8 +3126,18 @@ static void RGL_WalkLevel(void)
 }
 
 
-void InitCamera(mobj_t *mo, float fov)
+void InitCamera(mobj_t *mo)
 {
+	float fov = r_fov.f;
+	
+	view_zoomed = false;
+
+	if (mo->player && mo->player->zoom_fov > 0)
+	{
+		fov = mo->player->zoom_fov;
+		view_zoomed = true;
+	}
+
 	if (fov < MIN_FOV) fov = MIN_FOV;
 	if (fov > MAX_FOV) fov = MAX_FOV;
 
@@ -3308,9 +3318,8 @@ void R_Render(int x, int y, int w, int h, mobj_t *camera)
 
 
 	// Load the details for the camera
-	float fov = (view_zoom > 0) ? view_zoom : r_fov.f;
 
-	InitCamera(camera, fov);
+	InitCamera(camera);
 
 	// Profiling
 	framecount++;
