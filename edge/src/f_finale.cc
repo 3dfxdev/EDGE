@@ -35,6 +35,7 @@
 #include "ddf/attack.h"
 #include "ddf/language.h"
 
+#include "e_input.h"
 #include "g_state.h"
 #include "g_game.h"
 #include "m_strings.h"
