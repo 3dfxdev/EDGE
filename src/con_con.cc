@@ -719,6 +719,18 @@ bool CON_HandleKey(int key)
 			// Start scrolling console buffer down
 			scroll_dir = -1;
 		break;
+
+	case KEYD_MWHEEL_UP:
+		bottomrow += 4;
+		if (bottomrow >= MAX_CON_LINES-10)
+		    bottomrow  = MAX_CON_LINES-10;
+		break;
+	
+	case KEYD_MWHEEL_DN:
+		bottomrow -= 4;
+		if (bottomrow < -1)
+			bottomrow = -1;
+		break;
 	
 	case KEYD_HOME:
 		// Move cursor to start of line
@@ -868,7 +880,6 @@ bool CON_HandleKey(int key)
 		TabbedLast = false;
 		con_cursor = 0;
 		break;
-
 	}
 
 	return true;
@@ -891,6 +902,8 @@ int GetKeycode(event_t *ev)
 		case KEYD_DELETE:
 		case KEYD_UPARROW:
 		case KEYD_DOWNARROW:
+		case KEYD_MWHEEL_UP:
+		case KEYD_MWHEEL_DN:
 		case KEYD_ENTER:
 		case KEYD_ESCAPE:
 			return sym;
@@ -969,7 +982,7 @@ bool CON_Responder(event_t * ev)
 
 		repeat_key = key;
 
-		return CON_HandleKey(repeat_key);
+		return CON_HandleKey(key);
 	}
 
 	return false;
