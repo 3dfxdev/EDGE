@@ -167,6 +167,34 @@ static jaxis_group_c * joy_axis_groups[8] =
 };
 
 
+extern int I_JoyGetAxis(int n);
+
+static void UpdateJoyAxes(void)
+{
+	// TESTING CRUD !!!!
+	joyaxis1.axis =  AXIS_STRAFE;
+	joyaxis2.axis = -AXIS_FORWARD;
+	joyaxis4.axis =  AXIS_TURN;
+	joyaxis5.axis = -AXIS_MLOOK;
+
+	joyaxis1.tune = 1.0f;
+	joyaxis2.tune = 1.0f;
+	joyaxis4.tune = 1.0f;
+	joyaxis5.tune = 1.0f;
+
+	for (int ja = 0; ja < 8; ja++)
+	{
+		jaxis_group_c *jg = joy_axis_groups[ja];
+	
+		for (int k = MAX_JAXIS_HIST-1; k > 0; k--)
+		{
+			jg->values[k] = jg->values[k-1];
+		}
+
+		jg->values[0] = I_JoyGetAxis(ja);
+	}
+}
+
 static float MergeKeyJoy(int axis, key_binding_c *pos, key_binding_c *neg)
 {
 	float result = 0.0f;
@@ -189,6 +217,8 @@ static float MergeKeyJoy(int axis, key_binding_c *pos, key_binding_c *neg)
 			continue;
 
 		float amount = jg->values[0] / 32768.0;
+
+		SYS_ASSERT(fabs(amount) < 1.001);
 
 		// in the dead zone ?
 		if (fabs(amount) < jg->dead.f)
@@ -231,6 +261,8 @@ static bool allowautorun = true;
 
 void E_BuildTiccmd(ticcmd_t * cmd)
 {
+	UpdateJoyAxes();
+
 	Z_Clear(cmd, ticcmd_t, 1);
 
 	bool strafe = k_strafe.IsPressed();
@@ -243,12 +275,15 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	float upward = 0;  // -MH- 1998/08/18 Fly Up/Down movement
 	float side = 0;
 
-	if (k_turnright.IsPressed() || k_turnleft.IsPressed())
+	float turn_f = MergeKeyJoy(AXIS_TURN,  &k_turnright, &k_turnleft);
+	float look_f = MergeKeyJoy(AXIS_MLOOK, &k_lookup,    &k_lookdown);
+
+	if (fabs(turn_f) > 0.20f)
 		turnheld++;
 	else
 		turnheld = 0;
 
-	if (k_lookup.IsPressed() || k_lookdown.IsPressed())
+	if (fabs(look_f) > 0.20f)
 		mlookheld++;
 	else
 		mlookheld = 0;
@@ -308,18 +343,14 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 
 	if (strafe)
 	{
-		float s = MergeKeyJoy(AXIS_TURN, &k_turnright, &k_turnleft);
-
-		side += I_ROUND(s * sidemove[speed]);
+		side += I_ROUND(turn_f * sidemove[speed]);
 
 		// mouse
 		side += analogue[AXIS_TURN] * sidemove[speed] / 100.0;
 	}
 	else
 	{
-		float s = MergeKeyJoy(AXIS_TURN, &k_turnright, &k_turnleft);
-
-		cmd->angleturn -= s * angleturn[t_speed];
+		cmd->angleturn -= turn_f * angleturn[t_speed];
 
 		// mouse
 		cmd->angleturn -= I_ROUND(analogue[AXIS_TURN] * angleturn[m_speed] / 128.0);
@@ -329,9 +360,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 
 	if (g_mlook.d && !(map_features & MPF_NoMLook))
 	{
-		float s = MergeKeyJoy(AXIS_MLOOK, &k_lookup, &k_lookdown);
-
-		cmd->mlookturn += s * angleturn[u_speed] / 2.0f;
+		cmd->mlookturn += look_f * angleturn[u_speed] / 1.5f;
 
 		// -ACB- 1998/07/02 Use CENTER flag to center the vertical look.
 		if (k_lookcenter.IsPressed())

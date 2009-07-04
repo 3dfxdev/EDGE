@@ -348,8 +348,17 @@ void HandleMouseMotionEvent(SDL_Event * ev)
 }
 
 
+int I_JoyGetAxis(int n)  // n begins at 0
+{
+	if (nojoy || !joy_info)
+		return 0;
+	
+	return SDL_JoystickGetAxis(joy_info, n);
+}
+
 void HandleJoystickAxisEvent(SDL_Event * ev)
 {
+/*
 	// ignore other joysticks;
 	if ((int)ev->jaxis.which != cur_joy-1)
 		return;
@@ -364,6 +373,7 @@ void HandleJoystickAxisEvent(SDL_Event * ev)
 
 	I_Printf("JOYSTICK AXIS %d = %d\n", (int)ev->jaxis.axis,
 	         (int)ev->jaxis.value);
+*/
 }
 
 
