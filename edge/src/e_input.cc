@@ -121,7 +121,7 @@ cvar_c in_shiftlook;
 // -ACB- 1998/09/06 Two-stage turning switch
 //
 
-// The last one is ignored (AXIS_DISABLE)
+// The first one is ignored (AXIS_DISABLE)
 static float analogue[6] = {0, 0, 0, 0, 0, 0};
 
 
@@ -138,6 +138,85 @@ static int CmdChecksum(ticcmd_t * cmd)
 }
 #endif
 
+#define MAX_JAXIS_HIST  10
+
+class jaxis_group_c
+{
+public:
+	cvar_c axis;
+	cvar_c dead;
+	cvar_c tune;
+
+	int values[MAX_JAXIS_HIST];
+
+public:
+	jaxis_group_c() : axis(), dead(), tune()
+	{ }
+
+	~jaxis_group_c()
+	{ }
+};
+
+jaxis_group_c joyaxis1, joyaxis2, joyaxis3, joyaxis4;
+jaxis_group_c joyaxis5, joyaxis6, joyaxis7, joyaxis8;
+
+static jaxis_group_c * joy_axis_groups[8] =
+{
+	&joyaxis1, &joyaxis2, &joyaxis3, &joyaxis4,
+	&joyaxis5, &joyaxis6, &joyaxis7, &joyaxis8
+};
+
+
+static float MergeKeyJoy(int axis, key_binding_c *pos, key_binding_c *neg)
+{
+	float result = 0.0f;
+
+	//let movement keys cancel each other out
+	if (pos && pos->IsPressed())
+		result += 1.0f;
+
+	if (neg && neg->IsPressed())
+		result -= 1.0f;
+	
+	for (int ja = 0; ja < 8; ja++)
+	{
+		jaxis_group_c *jg = joy_axis_groups[ja];
+
+		if (abs(jg->axis.d) != axis)
+			continue;
+
+		if (jg->dead.f >= 1 || jg->tune.f <= 0)
+			continue;
+
+		float amount = jg->values[0] / 32768.0;
+
+		// in the dead zone ?
+		if (fabs(amount) < jg->dead.f)
+			continue;
+
+		if (amount >= 0)
+		{
+			amount -= jg->dead.f;
+			amount /= (1 - jg->dead.f);
+		}
+		else
+		{
+			amount += jg->dead.f;
+			amount /= (1 - jg->dead.f);
+		}
+
+		if (jg->axis.d < 0)
+			amount = -amount;
+
+		amount = pow(amount, jg->tune.f);
+
+		result += amount;
+	}
+
+	return CLAMP(-1.0f, result, +1.0f);
+}
+
+
 //
 // E_BuildTiccmd
 //
@@ -146,7 +225,6 @@ static int CmdChecksum(ticcmd_t * cmd)
 // -ACB- 1998/07/02 Added Vertical angle checking for mlook.
 // -ACB- 1998/07/10 Reformatted: I can read the code! :)
 //
-
 static bool allow180 = true;
 static bool allowzoom = true;
 static bool allowautorun = true;
@@ -228,31 +306,22 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 		cmd->angleturn = 0;
 	}
 
-	//let movement keys cancel each other out
 	if (strafe)
 	{
-		if (k_turnright.IsPressed())
-			side += sidemove[speed];
+		float s = MergeKeyJoy(AXIS_TURN, &k_turnright, &k_turnleft);
 
-		if (k_turnleft.IsPressed())
-			side -= sidemove[speed];
+		side += I_ROUND(s * sidemove[speed]);
 
-		// -KM- 1998/09/01 Analogue binding
-		// -ACB- 1998/09/06 Side Move Speed Control
+		// mouse
 		side += analogue[AXIS_TURN] * sidemove[speed] / 100.0;
 	}
 	else
 	{
-		int angle_rate = angleturn[t_speed];
+		float s = MergeKeyJoy(AXIS_TURN, &k_turnright, &k_turnleft);
 
-		if (k_turnright.IsPressed())
-			cmd->angleturn -= angle_rate;
+		cmd->angleturn -= s * angleturn[t_speed];
 
-		if (k_turnleft.IsPressed())
-			cmd->angleturn += angle_rate;
-
-		// -KM- 1998/09/01 Analogue binding
-		// -ACB- 1998/09/06 Angle Turn Speed Control
+		// mouse
 		cmd->angleturn -= I_ROUND(analogue[AXIS_TURN] * angleturn[m_speed] / 128.0);
 	}
 
@@ -260,57 +329,49 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 
 	if (g_mlook.d && !(map_features & MPF_NoMLook))
 	{
-		int mlook_rate = angleturn[u_speed] / 2;
+		float s = MergeKeyJoy(AXIS_MLOOK, &k_lookup, &k_lookdown);
 
-		// -ACB- 1998/07/02 Use VertAngle for Look/up down.
-		if (k_lookup.IsPressed())
-			cmd->mlookturn += mlook_rate;
-
-		// -ACB- 1998/07/02 Use VertAngle for Look/up down.
-		if (k_lookdown.IsPressed())
-			cmd->mlookturn -= mlook_rate;
+		cmd->mlookturn += s * angleturn[u_speed] / 2.0f;
 
 		// -ACB- 1998/07/02 Use CENTER flag to center the vertical look.
 		if (k_lookcenter.IsPressed())
 			cmd->extbuttons |= EBT_CENTER;
 
-		// -KM- 1998/09/01 More analogue binding
+		// mouse
 		cmd->mlookturn += I_ROUND(analogue[AXIS_MLOOK] * angleturn[m_speed] / 128.0f);
 	}
 
 	// -MH- 1998/08/18 Fly up
 	if (g_true3d.d && !(map_features & MPF_NoTrue3D))
 	{
-		if ((k_up.IsPressed()))
-			upward += upwardmove[speed];
+		float s = MergeKeyJoy(AXIS_FLY, &k_up, &k_down);
 
-		// -MH- 1998/08/18 Fly down
-		if ((k_down.IsPressed()))
-			upward -= upwardmove[speed];
+		upward += s * upwardmove[speed];
 
+		// mouse
 		upward += analogue[AXIS_FLY] * upwardmove[speed] / 64.0;
 	}
 
-	if (k_forward.IsPressed())
-		forward += forwardmove[speed];
+	{
+		float s = MergeKeyJoy(AXIS_FORWARD, &k_forward, &k_back);
 
-	if (k_back.IsPressed())
-		forward -= forwardmove[speed];
+		forward += s * forwardmove[speed];
 
-	// -KM- 1998/09/01 Analogue binding
-	// -ACB- 1998/09/06 Forward Move Speed Control
-	forward += analogue[AXIS_FORWARD] * forwardmove[speed] / 64.0;
+		// mouse
+		forward += analogue[AXIS_FORWARD] * forwardmove[speed] / 64.0;
+	}
 
-	// -ACB- 1998/09/06 Side Move Speed Control
-	side += analogue[AXIS_STRAFE] * sidemove[speed] / 64.0;
+	{
+		float s = MergeKeyJoy(AXIS_STRAFE, &k_right, &k_left);
 
-	if (k_right.IsPressed())
-		side += sidemove[speed];
+		side += s * sidemove[speed];
+		
+		// mouse
+		side += analogue[AXIS_STRAFE] * sidemove[speed] / 64.0;
+	}
 
-	if (k_left.IsPressed())
-		side -= sidemove[speed];
+	/* HANDLE BUTTONS */
 
-	// buttons
 	cmd->chatchar = HU_DequeueChatChar();
 
 	if (k_fire.IsPressed())
@@ -347,7 +408,6 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 		cmd->buttons |= (BT_PREV_WEAPON << BT_WEAPONSHIFT);
 	}
 
-	// -MH- 1998/08/18 Yep. More flying controls...
 	forward = CLAMP(-MAXPLMOVE, forward, MAXPLMOVE);
 	 upward = CLAMP(-MAXPLMOVE,  upward, MAXPLMOVE);
 	   side = CLAMP(-MAXPLMOVE,    side, MAXPLMOVE);
@@ -356,7 +416,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	cmd->sidemove    += I_ROUND(side);
 	cmd->upwardmove  += I_ROUND(upward);
 
-	// -KM- 1998/09/01 Analogue binding
+	// mouse
 	for (int k = 0; k < 6; k++)
 		analogue[k] = 0;
 }
@@ -396,12 +456,12 @@ bool INP_Responder(event_t * ev)
 				if ((g_mlook.d && !(map_features & MPF_NoMLook)) &&
 				    k_mlook.IsPressed())
 				{
-					if (ev->value.analogue.axis == mouse_xaxis.d)
+					if (ev->value.analogue.axis == fabs(mouse_xaxis.d))
 					{
 						analogue[AXIS_TURN] += ev->value.analogue.amount;
 						return true;
 					}
-					if (ev->value.analogue.axis == mouse_yaxis.d)
+					if (ev->value.analogue.axis == fabs(mouse_yaxis.d))
 					{
 						analogue[AXIS_MLOOK] += ev->value.analogue.amount;
 						return true;
