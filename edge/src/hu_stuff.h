@@ -26,11 +26,7 @@
 #ifndef __HU_STUFF_H__
 #define __HU_STUFF_H__
 
-#include "e_event.h"
-#include "hu_lib.h"
-#include "r_defs.h"
-
-extern cvar_c m_messages;
+struct event_s;
 
 //
 // Globally visible constants.
@@ -47,6 +43,8 @@ extern cvar_c m_messages;
 
 #define HU_IS_PRINTABLE(c) ((c) >= 32 && (c) <= 126)
 
+extern cvar_c m_messages;
+
 extern bool chat_on;
 
 //
@@ -56,7 +54,7 @@ extern bool chat_on;
 void HU_Init(void);
 void HU_Start(void);
 
-bool HU_Responder(event_t * ev);
+bool HU_Responder(struct event_s * ev);
 
 void HU_StartMessage(const char *msg);
 

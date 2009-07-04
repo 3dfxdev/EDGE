@@ -20,7 +20,6 @@
 #include "i_sdlinc.h"
 
 #include "g_state.h"
-#include "e_event.h"
 #include "e_input.h"
 #include "e_main.h"
 #include "m_argv.h"
@@ -250,21 +249,18 @@ void HandleMouseButtonEvent(SDL_Event * ev)
 
 	switch (ev->button.button)
 	{
-		case 1:
-			event.value.key.sym = KEYD_MOUSE1; break;
-
-		case 2:
-			event.value.key.sym = KEYD_MOUSE2; break;
-
-		case 3:
-			event.value.key.sym = KEYD_MOUSE3; break;
+		case 1: event.value.key.sym = KEYD_MOUSE1; break;
+		case 2: event.value.key.sym = KEYD_MOUSE2; break;
+		case 3: event.value.key.sym = KEYD_MOUSE3; break;
 
 		// handle the mouse wheel
-		case 4: 
-			event.value.key.sym = KEYD_MWHEEL_UP; break; 
+		case 4: event.value.key.sym = KEYD_WHEEL_UP; break; 
+		case 5: event.value.key.sym = KEYD_WHEEL_DN; break; 
 
-		case 5: 
-			event.value.key.sym = KEYD_MWHEEL_DN; break; 
+		case 6: event.value.key.sym = KEYD_MOUSE4; break;
+		case 7: event.value.key.sym = KEYD_MOUSE5; break;
+		case 8: event.value.key.sym = KEYD_MOUSE6; break;
+		case 9: event.value.key.sym = KEYD_MOUSE7; break;
 
 		default:
 			return;
@@ -320,28 +316,13 @@ void HandleMouseMotionEvent(SDL_Event * ev)
 		dy = ev->motion.yrel;
 	}
 
-	event_t event;
-
-	if (dx)
+	if (dx || dy)
 	{
-		if (mouse_xaxis.d < 0)
-			dx = -dx;
+		event_t event;
 
-		event.type = ev_analogue;
-		event.value.analogue.axis = abs(mouse_xaxis.d);
-		event.value.analogue.amount = dx * mouse_xsens.f;
-
-		E_PostEvent(&event);
-	}
-
-	if (dy)
-	{
-		if (mouse_yaxis.d < 0)
-			dy = -dy;
-
-		event.type = ev_analogue;
-		event.value.analogue.axis = abs(mouse_yaxis.d);
-		event.value.analogue.amount = dy * mouse_ysens.f;
+		event.type = ev_mouse;
+		event.value.mouse.dx = dx;
+		event.value.mouse.dy = dy;
 
 		E_PostEvent(&event);
 	}

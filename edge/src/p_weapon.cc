@@ -32,7 +32,7 @@
 #include "ddf/level.h"
 #include "ddf/weapon.h"
 
-#include "e_event.h"
+#include "e_input.h"
 #include "g_state.h"
 #include "g_game.h"
 #include "m_misc.h"

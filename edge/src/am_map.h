@@ -28,8 +28,8 @@
 
 #include "ddf/types.h"
 
-#include "e_event.h"
-#include "p_mobj.h"
+struct mobj_s;
+struct event_s;
 
 extern bool automapactive;
 
@@ -54,14 +54,14 @@ mline_t;
 void AM_InitLevel(void);
 
 // Called by main loop.
-bool AM_Responder(event_t * ev);
+bool AM_Responder(struct event_s * ev);
 
 // Called by main loop.
 void AM_Ticker(void);
 
 // Called by main loop,
 // called instead of view drawer if automap active.
-void AM_Drawer(int x, int y, int w, int h, mobj_t *focus);
+void AM_Drawer(int x, int y, int w, int h, struct mobj_s *focus);
 
 // Called to force the automap to quit
 // if the level is completed while it is up.

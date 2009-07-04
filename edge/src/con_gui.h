@@ -19,6 +19,7 @@
 #ifndef __CON_MAIN_GUI_H
 #define __CON_MAIN_GUI_H
 
+struct event_s;
 
 // The console 'application' functions.
 // Adds the console to the gui.
@@ -28,7 +29,7 @@ void CON_Start(void);
 void CON_Ticker(void);
 
 // Responder obeys events.
-bool CON_Responder(event_t * ev);
+bool CON_Responder(struct event_s * ev);
 
 // Drawer. Draws the console.
 void CON_Drawer(void);

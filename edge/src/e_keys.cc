@@ -25,9 +25,8 @@
 
 #include "i_defs.h"
 
-#include "e_event.h"
-#include "e_keys.h"
 #include "e_input.h"
+#include "e_keys.h"
 #include "e_main.h"
 
 
@@ -109,8 +108,8 @@ static specialkey_t keynames[] =
     { KEYD_MOUSE6, "MOUSE6" },
     { KEYD_MOUSE7, "MOUSE7" },
 
-    { KEYD_MWHEEL_UP, "WHEELUP"   },
-    { KEYD_MWHEEL_DN, "WHEELDOWN" },
+    { KEYD_WHEEL_UP, "WHEELUP"   },
+    { KEYD_WHEEL_DN, "WHEELDOWN" },
 
     { KEYD_JOY1,  "JOY1"  },
     { KEYD_JOY2,  "JOY2"  },
@@ -307,8 +306,8 @@ key_link_t  all_binds[] =
     { "k_weapon8",       &k_weapons[8],  '8', 0 },
     { "k_weapon9",       &k_weapons[9],  '9', 0 },
     { "k_weapon0",       &k_weapons[0],  '0', 0 },
-    { "k_nextweapon",    &k_nextweapon,  KEYD_MWHEEL_UP, 0 },
-    { "k_prevweapon",    &k_prevweapon,  KEYD_MWHEEL_DN, 0 },
+    { "k_nextweapon",    &k_nextweapon,  KEYD_WHEEL_UP, 0 },
+    { "k_prevweapon",    &k_prevweapon,  KEYD_WHEEL_DN, 0 },
 
 	// Movement
     { "k_forward",       &k_forward,     KEYD_UPARROW,   'W' },

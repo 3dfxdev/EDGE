@@ -19,8 +19,9 @@
 #ifndef __RAD_TRIG__
 #define __RAD_TRIG__
 
-#include "e_event.h"
 #include "rad_defs.h"
+
+struct event_s;
 
 #define DEBUG_RTS  0
 
@@ -42,7 +43,7 @@ void RAD_GroupTriggerTags(rad_trigger_t *trig);
 void RAD_RunTriggers(void);
 void RAD_Ticker(void);
 void RAD_Drawer(void);
-bool RAD_Responder(event_t * ev);
+bool RAD_Responder(struct event_s * ev);
 bool RAD_WithinRadius(mobj_t * mo, rad_script_t * r);
 rad_script_t *RAD_FindScriptByName(const char *map_name, const char *name);
 rad_trigger_t *RAD_FindTriggerByName(const char *name);

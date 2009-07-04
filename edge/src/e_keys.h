@@ -26,7 +26,7 @@
 #ifndef __E_KEYS_H__
 #define __E_KEYS_H__
 
-#include "e_event.h"
+struct event_s;
 
 class key_binding_c
 {
@@ -51,7 +51,7 @@ public:
 	void Toggle(short keyd);
 
 	bool HasKey(short keyd) const;
-	bool HasKey(const event_t *ev) const;
+	bool HasKey(const struct event_s *ev) const;
 
 	bool IsPressed() const;
 
@@ -163,8 +163,8 @@ int E_KeyFromName(const char *name);
 #define KEYD_MOUSE5     0x105
 #define KEYD_MOUSE6     0x106
 #define KEYD_MOUSE7     0x107
-#define KEYD_MWHEEL_UP  0x108
-#define KEYD_MWHEEL_DN  0x109
+#define KEYD_WHEEL_UP   0x108
+#define KEYD_WHEEL_DN   0x109
 
 #define KEYD_JOY1       0x111
 #define KEYD_JOY2       0x112
