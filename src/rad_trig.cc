@@ -40,6 +40,7 @@
 #include "ddf/language.h"
 
 #include "am_map.h"
+#include "e_input.h"
 #include "e_keys.h"
 #include "e_main.h"
 #include "g_state.h"

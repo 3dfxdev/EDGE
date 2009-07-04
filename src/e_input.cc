@@ -479,15 +479,22 @@ bool INP_Responder(event_t * ev)
 
 			// -KM- 1998/09/01 Change mouse/joystick to analogue
 		case ev_mouse:
-//FIXME !!!!
-#if 0
-		if (mouse_xaxis.d < 0) dx = -dx;
-		if (mouse_yaxis.d < 0) dy = -dy;
+		{
+			float dx = ev->value.mouse.dx;
+			float dy = ev->value.mouse.dy;
 
-		dx *= mouse_xsens.f;
-		dy *= mouse_ysens.f;
+			if (mouse_xaxis.d < 0) dx = -dx;
+			if (mouse_yaxis.d < 0) dy = -dy;
 
-			{
+			dx *= mouse_xsens.f;
+			dy *= mouse_ysens.f;
+
+			if (abs(mouse_xaxis.d) <= AXIS_FLY)
+				analogue[abs(mouse_xaxis.d)] += dx;
+
+			if (abs(mouse_yaxis.d) <= AXIS_FLY)
+				analogue[abs(mouse_yaxis.d)] += dy;
+#if 0  // FIXME !!!!
 				// -AJA- 1999/07/27: Mlook key like quake's.
 				if ((g_mlook.d && !(map_features & MPF_NoMLook)) &&
 				    k_mlook.IsPressed())
@@ -503,11 +510,9 @@ bool INP_Responder(event_t * ev)
 						return true;
 					}
 				}
-
-				analogue[ev->value.analogue.axis] += ev->value.analogue.amount;
+#endif
 				return true;  // eat events
 			}
-#endif
 
 		default:
 			break;

@@ -24,7 +24,6 @@
 //----------------------------------------------------------------------------
 
 #include "i_defs.h"
-#include "hu_stuff.h"
 
 #include "ddf/language.h"
 #include "ddf/level.h"
@@ -33,8 +32,10 @@
 #include "g_state.h"
 #include "e_input.h"
 #include "e_main.h"
-#include "g_game.h"
 #include "f_interm.h"
+#include "g_game.h"
+#include "hu_stuff.h"
+#include "hu_lib.h"
 #include "n_network.h"
 #include "s_sound.h"
 #include "w_wad.h"
