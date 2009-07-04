@@ -101,8 +101,6 @@ static int sidemove[2]    = {0x18, 0x28};
 static int upwardmove[2]  = {0x19, 0x32};  // -MH- 1998/08/18 Up/Down movement
 static int angleturn[3]   = {640, 1280, 320};  // + slow turn 
 
-#define ZOOM_ANGLE_DIV  3
-
 #define SLOWTURNTICS    6
 
 #define GK_DOWN  0x01
@@ -247,9 +245,6 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	{
 		int angle_rate = angleturn[t_speed];
 
-		if (view_zoom > 0)
-			angle_rate /= ZOOM_ANGLE_DIV;
-
 		if (k_turnright.IsPressed())
 			cmd->angleturn -= angle_rate;
 
@@ -266,9 +261,6 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	if (g_mlook.d && !(map_features & MPF_NoMLook))
 	{
 		int mlook_rate = angleturn[u_speed] / 2;
-
-		if (view_zoom > 0)
-			mlook_rate /= ZOOM_ANGLE_DIV;
 
 		// -ACB- 1998/07/02 Use VertAngle for Look/up down.
 		if (k_lookup.IsPressed())
