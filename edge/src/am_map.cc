@@ -362,6 +362,28 @@ bool AM_Responder(event_t * ev)
 		return true;
 	}
 
+	if (k_am_follow.HasKey(ev))
+	{
+		followplayer = !followplayer;
+		// -ACB- 1998/08/10 Use DDF Lang Reference
+		if (followplayer)
+			CON_PlayerMessageLDF(consoleplayer, "AutoMapFollowOn");
+		else
+			CON_PlayerMessageLDF(consoleplayer, "AutoMapFollowOff");
+		return true;
+	}
+
+	if (k_am_grid.HasKey(ev))
+	{
+		grid = !grid;
+		// -ACB- 1998/08/10 Use DDF Lang Reference
+		if (grid)
+			CON_PlayerMessageLDF(consoleplayer, "AutoMapGridOn");
+		else
+			CON_PlayerMessageLDF(consoleplayer, "AutoMapGridOff");
+		return true;
+	}
+
 	if (k_right.HasKey(ev) || k_turnright.HasKey(ev))
 	{
 		if (followplayer)
@@ -407,28 +429,6 @@ bool AM_Responder(event_t * ev)
 	if (k_am_zoomout.HasKey(ev))
 	{
 		zooming = 1.0 / M_ZOOMIN;
-		return true;
-	}
-
-	if (k_am_follow.HasKey(ev))
-	{
-		followplayer = !followplayer;
-		// -ACB- 1998/08/10 Use DDF Lang Reference
-		if (followplayer)
-			CON_PlayerMessageLDF(consoleplayer, "AutoMapFollowOn");
-		else
-			CON_PlayerMessageLDF(consoleplayer, "AutoMapFollowOff");
-		return true;
-	}
-
-	if (k_am_grid.HasKey(ev))
-	{
-		grid = !grid;
-		// -ACB- 1998/08/10 Use DDF Lang Reference
-		if (grid)
-			CON_PlayerMessageLDF(consoleplayer, "AutoMapGridOn");
-		else
-			CON_PlayerMessageLDF(consoleplayer, "AutoMapGridOff");
 		return true;
 	}
 
