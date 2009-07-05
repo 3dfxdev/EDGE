@@ -55,8 +55,8 @@ typedef struct event_s
 	
 		struct
 		{
-			float dx;
-			float dy;
+			int dx;
+			int dy;
 		} 
 		mouse;
 	} 
@@ -71,6 +71,8 @@ event_t;
 #define AXIS_STRAFE      3
 #define AXIS_MLOOK       4
 #define AXIS_FLY         5  // includes JUMP/CROUCH and SWIM
+
+#define JAXIS_HISTORY  10
 
 class jaxis_group_c
 {
@@ -88,22 +90,11 @@ public:
 	// and with tuning applied.  Sensitivity is _NOT_ applied.
 	float value;
 
-	int history[5];
+	int history[JAXIS_HISTORY];
 
 public:
-	jaxis_group_c() : axis(), sens(), dead(), peak(),
-	                  tune(), filter(), value(0.0f)
-	{
-///		sens = 1.0f;
-///		dead = 0.2f;
-///		peak = 0.9f;
-///		tune = 1.0f;
-
-		history[0] = history[1] = history[2] = history[3] = history[4] = 0;
-	}
-
-	~jaxis_group_c()
-	{ }
+	 jaxis_group_c();
+	~jaxis_group_c();
 
 	void NewTic(int v);
 

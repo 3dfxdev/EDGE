@@ -26,12 +26,6 @@
 #include "r_modes.h"
 
 
-cvar_c mouse_xaxis, mouse_xsens;
-cvar_c mouse_yaxis, mouse_ysens;
-
-cvar_c mouse_invert;
-
-
 bool nojoy;  // what a wowser, joysticks completely disabled
 
 static int num_joys;
@@ -39,9 +33,6 @@ static int cur_joy;
 static SDL_Joystick *joy_info;
 
 cvar_c joy_enable;  // 0 = disabled, 1/2/3/etc selects a joystick
-
-cvar_c joy_xaxis, joy_xsens, joy_xdead;
-cvar_c joy_yaxis, joy_ysens, joy_ydead;
 
 
 #undef DEBUG_KB

@@ -556,7 +556,7 @@ void CON_TryCommand(const char *cmd)
 		return;
 	}
 
-	I_Printf("Unknown Command or Variable: %s\n", argv[0]);
+	I_Printf("Unknown console command: %s\n", argv[0]);
 
 	KillArgs(argv, argc);
 	return;
