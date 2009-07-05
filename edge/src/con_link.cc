@@ -20,6 +20,8 @@
 
 #include "con_var.h"
 
+#include "e_input.h"  // jaxis_group_c
+
 
 extern cvar_c edge_compat;
 
@@ -53,8 +55,10 @@ extern cvar_c mouse_xsens, mouse_ysens;
 extern cvar_c mouse_invert;
 
 extern cvar_c joy_enable;
-extern cvar_c joy_xaxis, joy_xsens, joy_xdead;
-extern cvar_c joy_yaxis, joy_ysens, joy_ydead;
+
+extern jaxis_group_c joyaxis1, joyaxis2, joyaxis3;
+extern jaxis_group_c joyaxis4, joyaxis5, joyaxis6;
+extern jaxis_group_c joyaxis7, joyaxis8, joyaxis9;
 
 extern cvar_c r_width, r_height, r_depth, r_fullscreen;
 extern cvar_c r_colormaterial, r_colorlighting;
@@ -133,12 +137,20 @@ cvar_link_t  all_cvars[] =
 	{ "mouse_invert",   &mouse_invert,   "c",   "0"  },
 
 	{ "joy_enable",     &joy_enable,     "c",   "0"  },
-	{ "joy_xaxis",      &joy_xaxis,      "c",   "0"  },
-	{ "joy_xsens",      &joy_xsens,      "c",   "10"  },
-	{ "joy_xdead",      &joy_xdead,      "c",   "0.2" },
-	{ "joy_ysens",      &joy_ysens,      "c",   "10"  },
-	{ "joy_yaxis",      &joy_yaxis,      "c",   "3"  },
-	{ "joy_ydead",      &joy_ydead,      "c",   "0.2" },
+
+	{ "joy_1.axis",     &joyaxis1.axis,  "c",   "0"  },
+	{ "joy_1.sens",     &joyaxis1.sens,  "c",   "10"  },
+	{ "joy_1.dead",     &joyaxis1.dead,  "c",   "0.2" },
+	{ "joy_1.peak",     &joyaxis1.peak,  "c",   "0.9" },
+	{ "joy_1.tune",     &joyaxis1.tune,  "c",   "1.0" },
+	{ "joy_1.filter",   &joyaxis1.filter,"c",   "1"   },
+
+	{ "joy_2.axis",     &joyaxis2.axis,  "c",   "0"  },
+	{ "joy_2.sens",     &joyaxis2.sens,  "c",   "10"  },
+	{ "joy_2.dead",     &joyaxis2.dead,  "c",   "0.2" },
+	{ "joy_2.peak",     &joyaxis2.peak,  "c",   "0.9" },
+	{ "joy_2.tune",     &joyaxis2.tune,  "c",   "2.0" },
+	{ "joy_2.filter",   &joyaxis2.filter,"c",   "1"   },
 
 	{ "m_diskicon",     &m_diskicon,     "c",   "1"  },
 	{ "m_busywait",     &m_busywait,     "c",   "1"  },

@@ -72,6 +72,45 @@ event_t;
 #define AXIS_MLOOK       4
 #define AXIS_FLY         5  // includes JUMP/CROUCH and SWIM
 
+class jaxis_group_c
+{
+public:
+	cvar_c axis;
+	cvar_c sens;
+
+	cvar_c dead;  // values below this become zero
+	cvar_c peak;  // values above this become one
+	cvar_c tune;  // apply a power function
+
+	cvar_c filter;  // tics to filter 0..4
+
+	// current value, possibly filtered, adjusted for deadzone / peak
+	// and with tuning applied.  Sensitivity is _NOT_ applied.
+	float value;
+
+	int history[5];
+
+public:
+	jaxis_group_c() : axis(), sens(), dead(), peak(),
+	                  tune(), filter(), value(0.0f)
+	{
+///		sens = 1.0f;
+///		dead = 0.2f;
+///		peak = 0.9f;
+///		tune = 1.0f;
+
+		history[0] = history[1] = history[2] = history[3] = history[4] = 0;
+	}
+
+	~jaxis_group_c()
+	{ }
+
+	void NewTic(int v);
+
+private:
+	void SetFromRaw(int raw);
+};
+
 void E_ClearInput(void);
 void E_BuildTiccmd(ticcmd_t * cmd);
 bool E_InputCheckKey(int keynum);
