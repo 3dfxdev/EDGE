@@ -46,6 +46,9 @@ extern bool CON_Responder(event_t *ev);
 extern bool   M_Responder(event_t *ev);
 extern bool   G_Responder(event_t *ev);
 
+extern int I_JoyGetAxis(int n);
+
+
 //
 // EVENT HANDLING
 //
@@ -137,36 +140,76 @@ static int CmdChecksum(ticcmd_t * cmd)
 }
 #endif
 
-#define MAX_JAXIS_HIST  10
 
-class jaxis_group_c
+#define NUM_JAXIS_GROUP  9
+
+jaxis_group_c joyaxis1, joyaxis2, joyaxis3;
+jaxis_group_c joyaxis4, joyaxis5, joyaxis6;
+jaxis_group_c joyaxis7, joyaxis8, joyaxis9;
+
+static jaxis_group_c * joy_axis_groups[NUM_JAXIS_GROUP] =
 {
-public:
-	cvar_c axis;
-	cvar_c dead;
-	cvar_c tune;
-
-	int values[MAX_JAXIS_HIST];
-
-public:
-	jaxis_group_c() : axis(), dead(), tune()
-	{ }
-
-	~jaxis_group_c()
-	{ }
-};
-
-jaxis_group_c joyaxis1, joyaxis2, joyaxis3, joyaxis4;
-jaxis_group_c joyaxis5, joyaxis6, joyaxis7, joyaxis8;
-
-static jaxis_group_c * joy_axis_groups[8] =
-{
-	&joyaxis1, &joyaxis2, &joyaxis3, &joyaxis4,
-	&joyaxis5, &joyaxis6, &joyaxis7, &joyaxis8
+	&joyaxis1, &joyaxis2, &joyaxis3,
+	&joyaxis4, &joyaxis5, &joyaxis6,
+	&joyaxis7, &joyaxis8, &joyaxis9
 };
 
 
-extern int I_JoyGetAxis(int n);
+// this must be called as regularly as possible, the actual
+// frequency is less important (35 times per sec is OK).
+void jaxis_group_c::NewTic(int v)
+{
+	SYS_ASSERT(abs(v) <= 32768);
+
+	history[4] = history[3];
+	history[3] = history[2];
+	history[2] = history[1];
+	history[1] = history[0];
+	history[0] = v;
+
+	int raw = 0;
+	int filt_num = 1 + CLAMP(0, filter.d, 4);
+
+	for (int i = 0; i < filt_num; i++)
+		raw += history[i];
+
+	SetFromRaw(raw / filt_num);
+}
+
+void jaxis_group_c::SetFromRaw(int raw)
+{
+	SYS_ASSERT(abs(raw) <= 32768);
+
+	float v = raw / 32768.0f;
+	
+	if (fabs(v) < dead.f)
+	{
+		value = 0.0f;
+		return;
+	}
+
+	if (fabs(v) >= peak.f)
+	{
+		value = (v < 0) ? -1.0f : +1.0f;
+		return;
+	}
+
+	SYS_ASSERT(peak.f > dead.f);
+
+	float t = CLAMP(0.2f, tune.f, 5.0f);
+
+	if (v >= 0)
+	{
+		v = (v - dead.f) / (peak.f - dead.f);
+		value = pow(v, 1.0f / t);
+	}
+	else
+	{
+		v = (-v - dead.f) / (peak.f - dead.f);
+		value = - pow(v, 1.0f / t);
+	}
+}
+
 
 static void UpdateJoyAxes(void)
 {
@@ -176,21 +219,11 @@ static void UpdateJoyAxes(void)
 	joyaxis4.axis =  AXIS_TURN;
 	joyaxis5.axis = -AXIS_MLOOK;
 
-	joyaxis1.tune = 1.0f;
-	joyaxis2.tune = 1.0f;
-	joyaxis4.tune = 1.0f;
-	joyaxis5.tune = 1.0f;
-
-	for (int ja = 0; ja < 8; ja++)
+	for (int ja = 0; ja < NUM_JAXIS_GROUP; ja++)
 	{
 		jaxis_group_c *jg = joy_axis_groups[ja];
 	
-		for (int k = MAX_JAXIS_HIST-1; k > 0; k--)
-		{
-			jg->values[k] = jg->values[k-1];
-		}
-
-		jg->values[0] = I_JoyGetAxis(ja);
+		jg->NewTic(I_JoyGetAxis(ja));
 	}
 }
 
@@ -205,44 +238,17 @@ static float MergeKeyJoy(int axis, key_binding_c *pos, key_binding_c *neg)
 	if (neg && neg->IsPressed())
 		result -= 1.0f;
 	
-	for (int ja = 0; ja < 8; ja++)
+	for (int ja = 0; ja < NUM_JAXIS_GROUP; ja++)
 	{
 		jaxis_group_c *jg = joy_axis_groups[ja];
 
 		if (abs(jg->axis.d) != axis)
 			continue;
 
-		if (jg->dead.f >= 1 || jg->tune.f <= 0)
-			continue;
-
-		float amount = jg->values[0] / 32768.0;
-
-		SYS_ASSERT(fabs(amount) < 1.001);
-
-		// in the dead zone ?
-		if (fabs(amount) < jg->dead.f)
-			continue;
-
-		if (amount >= 0)
-		{
-			amount -= jg->dead.f;
-			amount /= (1 - jg->dead.f);
-		}
-		else
-		{
-			amount += jg->dead.f;
-			amount /= (1 - jg->dead.f);
-		}
-
-		if (jg->axis.d < 0)
-			amount = -amount;
-
-		amount = pow(amount, jg->tune.f);
-
-		result += amount;
+		result += jg->value * jg->sens.f / 10.0;
 	}
 
-	return CLAMP(-1.0f, result, +1.0f);
+	return result; //??? CLAMP(-2.0f, result, +2.0f);
 }
 
 
