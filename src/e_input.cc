@@ -245,7 +245,7 @@ static void UpdateJoyAxes(void)
 
 		if (debug_joyaxis.d == ja+1)
 		{
-			I_Printf("Axis%d : raw:%+05d --> %+7.3f\n", ja+1, raw, jg->value * jg->sens.f);
+			I_Printf("Axis%d : raw %+05d --> %+7.3f\n", ja+1, raw, jg->value * jg->sens.f);
 		}
 	}
 }
