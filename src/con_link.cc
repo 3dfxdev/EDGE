@@ -28,7 +28,7 @@ extern cvar_c edge_compat;
 extern cvar_c g_skill, g_gametype;
 extern cvar_c g_mlook, g_autoaim;
 extern cvar_c g_jumping, g_crouching;
-extern cvar_c g_true3d, g_infight;
+extern cvar_c g_true3d, g_aggression;
 extern cvar_c g_moreblood, g_noextra;
 extern cvar_c g_fastmon, g_passmissile;
 extern cvar_c g_weaponkick, g_weaponswitch;
@@ -115,11 +115,11 @@ cvar_link_t  all_cvars[] =
     { "g_autoaim",      &g_autoaim,      "c",   "1"  },
     { "g_jumping",      &g_jumping,      "c",   "0"  },
     { "g_crouching",    &g_crouching,    "c",   "0"  },
-    { "g_infight",      &g_infight,      "c",   "0"  },
     { "g_true3d",       &g_true3d,       "c",   "1"  },
     { "g_noextra",      &g_noextra,      "c",   "0"  },
     { "g_moreblood",    &g_moreblood,    "c",   "0"  },
     { "g_fastmon",      &g_fastmon,      "c",   "0"  },
+    { "g_aggression",   &g_aggression,   "c",   "0"  },
     { "g_passmissile",  &g_passmissile,  "c",   "1"  },
     { "g_weaponkick",   &g_weaponkick,   "c",   "0"  },
     { "g_weaponswitch", &g_weaponswitch, "c",   "1"  },
