@@ -118,10 +118,20 @@ cvar_c in_autorun;
 cvar_c in_stageturn;
 cvar_c in_shiftlook;
 
+cvar_c debug_mouse;
+cvar_c debug_joyaxis;
+
 //-------------------------------------------
 // -KM-  1998/09/01 Analogue binding
 // -ACB- 1998/09/06 Two-stage turning switch
 //
+
+cvar_c mouse_x_axis, mouse_x_sens;
+cvar_c mouse_y_axis, mouse_y_sens;
+
+cvar_c mouse_filter;  // FIXME: nyi
+cvar_c mouse_accel;  // FIXME: not implemented yet
+
 
 // The first one is ignored (AXIS_DISABLE)
 static float analogue[6] = {0, 0, 0, 0, 0, 0};
@@ -155,24 +165,36 @@ static jaxis_group_c * joy_axis_groups[NUM_JAXIS_GROUP] =
 };
 
 
+jaxis_group_c::jaxis_group_c() : axis(), sens(), dead(), peak(),
+                                 tune(), filter(), value(0.0f)
+{
+	for (int k = 0; k < JAXIS_HISTORY; k++)
+		history[k] = 0;
+}
+
+jaxis_group_c::~jaxis_group_c()
+{ }
+
 // this must be called as regularly as possible, the actual
 // frequency is less important (35 times per sec is OK).
 void jaxis_group_c::NewTic(int v)
 {
 	SYS_ASSERT(abs(v) <= 32768);
 
-	history[4] = history[3];
-	history[3] = history[2];
-	history[2] = history[1];
-	history[1] = history[0];
+	for (int k = JAXIS_HISTORY-1; k > 0; k--)
+		history[k] = history[k-1];
+
 	history[0] = v;
 
 	int raw = 0;
-	int filt_num = 1 + CLAMP(0, filter.d, 4);
+	int filt_num = 1 + CLAMP(0, filter.d, JAXIS_HISTORY-1);
 
 	for (int i = 0; i < filt_num; i++)
 		raw += history[i];
 
+///I_Printf("raw:%+05d filt:%+05d num:%d  hist:%+05d %+05d +%05d %+05d\n",
+//		 v, raw / filt_num, filt_num,
+//		 history[1], history[2], history[3], history[4]);
 	SetFromRaw(raw / filt_num);
 }
 
@@ -223,7 +245,14 @@ static void UpdateJoyAxes(void)
 	{
 		jaxis_group_c *jg = joy_axis_groups[ja];
 	
-		jg->NewTic(I_JoyGetAxis(ja));
+		int raw = I_JoyGetAxis(ja);
+
+		jg->NewTic(raw);
+
+		if (debug_joyaxis.d == ja+1)
+		{
+			I_Printf("Axis%d : raw:%+05d --> %+1.3f\n", ja+1, raw, jg->value);
+		}
 	}
 }
 
@@ -486,20 +515,23 @@ bool INP_Responder(event_t * ev)
 			// -KM- 1998/09/01 Change mouse/joystick to analogue
 		case ev_mouse:
 		{
+			int x_axis = CLAMP(0, mouse_x_axis.d, AXIS_FLY);
+			int y_axis = CLAMP(0, mouse_y_axis.d, AXIS_FLY);
+
 			float dx = ev->value.mouse.dx;
 			float dy = ev->value.mouse.dy;
 
-			if (mouse_xaxis.d < 0) dx = -dx;
-			if (mouse_yaxis.d < 0) dy = -dy;
+			// inverting can happen here (negative sens)
+			dx *= mouse_x_sens.f;
+			dy *= mouse_y_sens.f;
 
-			dx *= mouse_xsens.f;
-			dy *= mouse_ysens.f;
+			if (debug_mouse.d)
+				I_Printf("Mouse %+04d %+04d --> %+7.2f %+7.2f\n",
+				         ev->value.mouse.dx, ev->value.mouse.dy, dx, dy);
 
-			if (abs(mouse_xaxis.d) <= AXIS_FLY)
-				analogue[abs(mouse_xaxis.d)] += dx;
+			analogue[x_axis] += dx;
+			analogue[y_axis] += dy;
 
-			if (abs(mouse_yaxis.d) <= AXIS_FLY)
-				analogue[abs(mouse_yaxis.d)] += dy;
 #if 0  // FIXME !!!!
 				// -AJA- 1999/07/27: Mlook key like quake's.
 				if ((g_mlook.d && !(map_features & MPF_NoMLook)) &&
