@@ -235,12 +235,6 @@ void jaxis_group_c::SetFromRaw(int raw)
 
 static void UpdateJoyAxes(void)
 {
-	// TESTING CRUD !!!!
-	joyaxis1.axis =  AXIS_STRAFE;
-	joyaxis2.axis = -AXIS_FORWARD;
-	joyaxis4.axis =  AXIS_TURN;
-	joyaxis5.axis = -AXIS_MLOOK;
-
 	for (int ja = 0; ja < NUM_JAXIS_GROUP; ja++)
 	{
 		jaxis_group_c *jg = joy_axis_groups[ja];
@@ -251,7 +245,7 @@ static void UpdateJoyAxes(void)
 
 		if (debug_joyaxis.d == ja+1)
 		{
-			I_Printf("Axis%d : raw:%+05d --> %+1.3f\n", ja+1, raw, jg->value);
+			I_Printf("Axis%d : raw:%+05d --> %+7.3f\n", ja+1, raw, jg->value * jg->sens.f);
 		}
 	}
 }
