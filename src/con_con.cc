@@ -546,7 +546,8 @@ static void InsertChar(char ch)
 	input_line[input_pos++] = ch;
 }
 
-static void ListCompletions(std::vector<const char *> & list, int max_row, rgbcol_t color)
+static void ListCompletions(std::vector<const char *> & list,
+                            int word_len, int max_row, rgbcol_t color)
 {
 	int max_col = SCREENWIDTH / XMUL - 4;
 	max_col = CLAMP(24, max_col, 78);
@@ -556,10 +557,32 @@ static void ListCompletions(std::vector<const char *> & list, int max_row, rgbco
 
 	buffer[buf_len] = 0;
 
+	char temp[200];
+	char last_ja = 0;
+
 	for (int i = 0; i < (int)list.size(); i++)
 	{
 		const char *name = list[i];
 		int n_len = (int)strlen(name);
+
+		// support for names with a '.' in them
+		const char *dotpos = strchr(name, '.');
+		if (dotpos && dotpos > name + word_len)
+		{
+			if (last_ja == dotpos[-1])
+				continue;
+
+			last_ja = dotpos[-1];
+
+			n_len = (int)(dotpos - name);
+
+			strcpy(temp, name);
+			temp[n_len] = 0;
+
+			name = temp;
+		}
+		else
+			last_ja = 0;
 
 		if (n_len >= max_col * 2 / 3)
 		{
@@ -617,8 +640,8 @@ static void TabComplete(void)
 		{
 			char ch = input_line[i];
 
-			if (! (isalnum(ch) || ch == '_'))
-				return ;
+			if (! (isalnum(ch) || ch == '_' || ch == '.'))
+				return;
 		}
 	}
 
@@ -669,21 +692,50 @@ static void TabComplete(void)
 	{
 		CON_Printf("%u Possible variables:\n", match_vars.size());
 
-		ListCompletions(match_vars, 7, T_GREEN);
+		ListCompletions(match_vars, input_pos, 7, T_GREEN);
 	}
 
 	if (match_keys.size() > 0)
 	{
 		CON_Printf("%u Possible keys:\n", match_keys.size());
 
-		ListCompletions(match_keys, 4, T_GREEN);
+		ListCompletions(match_keys, input_pos, 4, T_GREEN);
 	}
 
 	if (match_cmds.size() > 0)
 	{
 		CON_Printf("%u Possible commands:\n", match_cmds.size());
 
-		ListCompletions(match_cmds, 3, T_ORANGE);
+		ListCompletions(match_cmds, input_pos, 3, T_ORANGE);
+	}
+
+	// Add as many common characters as possible
+	// (e.g. "mou <TAB>" should add the s, e and _).
+
+	// begin by lumping all completions into one list
+	unsigned int i;
+
+	for (i = 0; i < match_keys.size(); i++)
+		match_vars.push_back(match_keys[i]);
+
+	for (i = 0; i < match_cmds.size(); i++)
+		match_vars.push_back(match_cmds[i]);
+
+	int pos = input_pos;
+
+	for (;;)
+	{
+		char ch = match_vars[0][pos];
+		if (! ch)
+			return;
+
+		for (i = 1; i < match_vars.size(); i++)
+			if (match_vars[i][pos] != ch)
+				return;
+
+		InsertChar(ch);
+
+		pos++;
 	}
 }
 
