@@ -2832,7 +2832,7 @@ extern mobj_t ** bmap_things;
 //
 // -ACB- 2000/06/20 Re-written and Simplified
 //
-// -AJA- 2009/07/05 Rewritten again, use the blockmap
+// -AJA- 2009/07/05 Rewritten again, using the blockmap
 //
 static bool CreateAggression(mobj_t * mo)
 {
@@ -2883,17 +2883,17 @@ static bool CreateAggression(mobj_t * mo)
 
 		// fairly low chance of trying it, in case this block
 		// contains many monsters (spread the love)
-		if (P_Random() > 31)
+		if (P_Random() > 99)
 			continue;
 
-		// sight check is expensive, do it now
+		// sight check is expensive, do it last
 		if (! P_CheckSight(mo, other))
 			continue;
 
 		// OK, you got me
 		mo->SetTarget(other);
 
-		I_Printf("Created aggression : %s --> %s\n",
+		I_Debugf("Created aggression : %s --> %s\n",
 				 mo->info->ddf.name.c_str(),
 				 other->info->ddf.name.c_str());
 
