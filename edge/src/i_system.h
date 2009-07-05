@@ -149,10 +149,6 @@ u32_t I_ReadMicroSeconds(void);
 
 int I_EmergencyGetKey(void);
 
-extern cvar_c mouse_xaxis, mouse_xsens;
-extern cvar_c mouse_yaxis, mouse_ysens;
-extern cvar_c mouse_invert;
-
 
 //--------------------------------------------------------
 //  MUSIC functions.
