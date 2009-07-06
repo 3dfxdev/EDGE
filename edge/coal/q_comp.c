@@ -1048,6 +1048,62 @@ bool PR_CompileFile (char *string, char *filename)
 	return (pr_error_count == 0);
 }
 
+/*
+==============
+PR_BeginCompilation
+
+called before compiling a batch of files, clears the pr struct
+==============
+*/
+void PR_BeginCompilation (void)
+{
+	int i;
+
+	numpr_globals = RESERVED_OFS;
+	all_defs = NULL;
+
+	for (i=0 ; i<RESERVED_OFS ; i++)
+		pr_global_defs[i] = &def_void;
+
+// link the function type in so state forward declarations match proper type
+	all_types = &type_function;
+	type_function.next = NULL;
+
+	pr_error_count = 0;
+}
+
+/*
+==============
+PR_FinishCompilation
+
+called after all files are compiled to check for errors
+Returns false if errors were detected.
+==============
+*/
+bool PR_FinishCompilation (void)
+{
+	def_t *d;
+	bool errors = false;
+
+// check to make sure all functions prototyped have code
+	for (d=all_defs ; d ; d=d->next)
+	{
+		if (d->type->type == ev_function && !d->scope)// function parms are ok
+		{
+//			f = G_FUNCTION(d->ofs);
+//			if (!f || (!f->code && !f->builtin) )
+			if (!d->initialized)
+			{
+				printf ("function %s was not defined\n",d->name);
+				errors = true;
+			}
+		}
+	}
+
+	return !errors;
+}
+
+
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
