@@ -102,6 +102,7 @@ static ddf_reader_t DDF_Readers[] =
 	{ "DDFANIM", "Anims",      "anims.ddf"     },
 	{ "DDFGAME", "Games",      "games.ddf"     },
 	{ "DDFLEVL", "Levels",     "levels.ddf"    },
+	{ "DDFALL",  "Any/All",    "all.ddf"       },  // -AJA- 2009/07/06
 
 	{ "RSCRIPT", "Scripts",    "edge.scr"      }   // -AJA- 2000/04/21.
 };
@@ -112,7 +113,7 @@ static ddf_reader_t DDF_Readers[] =
 #define COLM_READER  2
 #define SWTH_READER  12
 #define ANIM_READER  13
-#define RTS_READER   16
+#define RTS_READER   17
 
 class data_file_c
 {
