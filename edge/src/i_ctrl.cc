@@ -29,8 +29,13 @@
 bool nojoy;  // what a wowser, joysticks completely disabled
 
 static int num_joys;
-static int cur_joy;
+static int cur_joy;  // 0 for none
 static SDL_Joystick *joy_info;
+
+static int joy_num_axes;
+static int joy_num_buttons;
+static int joy_num_hats;
+static int joy_num_balls;
 
 cvar_c joy_enable;  // 0 = disabled, 1/2/3/etc selects a joystick
 
@@ -324,8 +329,30 @@ int I_JoyGetAxis(int n)  // n begins at 0
 {
 	if (nojoy || !joy_info)
 		return 0;
+
+	if (n < joy_num_axes)
+		return SDL_JoystickGetAxis(joy_info, n);
 	
-	return SDL_JoystickGetAxis(joy_info, n);
+	n -= joy_num_axes;
+
+	// -AJA- handle joystick HATS by mapping it to axes
+	if (n/2 < joy_num_hats)
+	{
+		Uint8 hat = SDL_JoystickGetHat(joy_info, n/2);
+
+		if (n & 1)
+		{
+			return (hat & SDL_HAT_DOWN) ? -32767 :
+				   (hat & SDL_HAT_UP)   ? +32767 : 0;
+		}
+		else
+		{
+			return (hat & SDL_HAT_LEFT)  ? -32767 :
+				   (hat & SDL_HAT_RIGHT) ? +32767 : 0;
+		}
+	}
+
+	return 0;
 }
 
 
@@ -486,15 +513,18 @@ void I_OpenJoystick(int index)
 
 	cur_joy = index;
 
-	const char *name = SDL_JoystickName(index-1);
+	const char *name = SDL_JoystickName(cur_joy-1);
 	if (! name)
 		name = "(UNKNOWN)";
 
-	I_Printf("Joystick name   : %s\n", name);
-	I_Printf("Joystick axes   : %d\n", SDL_JoystickNumAxes(joy_info));
-	I_Printf("Joystick buttons: %d\n", SDL_JoystickNumButtons(joy_info));
-	I_Printf("Joystick hats   : %d\n", SDL_JoystickNumHats(joy_info));
-	I_Printf("Joystick balls  : %d\n", SDL_JoystickNumBalls(joy_info));
+	joy_num_axes    = SDL_JoystickNumAxes(joy_info);
+	joy_num_buttons = SDL_JoystickNumBalls(joy_info);
+	joy_num_hats    = SDL_JoystickNumHats(joy_info);
+	joy_num_balls   = SDL_JoystickNumBalls(joy_info);
+
+	I_Printf("Opened Joystick %d : %s\n", cur_joy, name);
+	I_Printf("  axes:%d buttons:%d hats:%d balls:%d\n",
+			 joy_num_buttons, joy_num_axes, joy_num_hats, joy_num_balls);
 }
 
 void I_ChangeJoystick(int index)
