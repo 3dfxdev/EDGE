@@ -494,7 +494,7 @@ type_t *PR_FindType (type_t *type)
 	type_t	*check;
 	int		i;
 
-	for (check = pr.types ; check ; check = check->next)
+	for (check = all_types ; check ; check = check->next)
 	{
 		if (check->type != type->type
 			|| check->aux_type != type->aux_type
@@ -513,8 +513,8 @@ type_t *PR_FindType (type_t *type)
 	type_t *t_new = new type_t;
 	*t_new = *type;
 
-	t_new->next = pr.types;
-	pr.types = t_new;
+	t_new->next = all_types;
+	all_types = t_new;
 
 // allocate a generic def for the type, so fields can reference it
 	def = new def_t;
