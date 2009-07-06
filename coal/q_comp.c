@@ -21,10 +21,10 @@
 #include "coal.h"
 
 
-pr_info_t	pr;
-def_t		*pr_global_defs[MAX_REGS];	// to find def for a global variable
+type_t * all_types;
+def_t  * all_defs;
 
-//========================================
+def_t * pr_global_defs[MAX_REGS];	// to find def for a global variable
 
 def_t		*pr_scope;		// the function being parsed, or NULL
 bool	pr_dumpasm;
@@ -40,70 +40,77 @@ void PR_ParseConstant (void);
 //========================================
 
 
-opcode_t pr_opcodes[] =
+const char * opcode_names[] =
 {
-	{"<DONE>", "DONE", -1, false, &type_void, &type_void, &type_void},
-	{"<DONE_V>", "DONE_V", -1, false, &type_void, &type_void, &type_void},
+	"DONE", "DONE_V",
+	"NOT_F", "NOT_V", "NOT_S", "NOT_FNC",
+	"POWER", 
+	"MUL_F", "MUL_V", "MUL_FV", "MUL_VF",
+	"DIV_F", "DIV_V", "MOD_F",
+	"ADD_F", "ADD_V",
+	"SUB_F", "SUB_V",
+	"EQ_F", "EQ_V", "EQ_S", "EQ_FNC",
+	"NE_F", "NE_V", "NE_S", "NE_FNC",
+	"LE", "GE", "LT", "GT",
+	"MOVE_F", "MOVE_V", "MOVE_S", "MOVE_FNC",
+	"CALL",
+	"IF", "IFNOT", "GOTO",
+	"AND", "OR", "BITAND", "BITOR",
+	"PARM_F", "PARM_V",
 
-	{"!", "NOT_F", -1, false, &type_float, &type_void, &type_float},
-	{"!", "NOT_V", -1, false, &type_vector, &type_void, &type_float},
-	{"!", "NOT_S", -1, false, &type_vector, &type_void, &type_float},
-	{"!", "NOT_FNC", -1, false, &type_function, &type_void, &type_float},
+	"???", "???", "???", "???", "???", "???",
+	"???", "???", "???", "???", "???", "???",
+	"???", "???", "???", "???", "???", "???",
+	"???", "???", "???", "???", "???", "???"
+};
+
+
+static opcode_t pr_operators[] =
+{
+	{"!", OP_NOT_F, -1, false, &type_float, &type_void, &type_float},
+	{"!", OP_NOT_V, -1, false, &type_vector, &type_void, &type_float},
+	{"!", OP_NOT_S, -1, false, &type_vector, &type_void, &type_float},
+	{"!", OP_NOT_FNC, -1, false, &type_function, &type_void, &type_float},
 
 	/* priority 1 is for function calls */
 
-	{"^", "POWER", 2, false, &type_float, &type_float, &type_float},
+	{"^", OP_POWER_F, 2, false, &type_float, &type_float, &type_float},
 
-	{"*", "MUL_F", 2, false, &type_float, &type_float, &type_float},
-	{"*", "MUL_V", 2, false, &type_vector, &type_vector, &type_float},
-	{"*", "MUL_FV", 2, false, &type_float, &type_vector, &type_vector},
-	{"*", "MUL_VF", 2, false, &type_vector, &type_float, &type_vector},
+	{"*", OP_MUL_F, 2, false, &type_float, &type_float, &type_float},
+	{"*", OP_MUL_V, 2, false, &type_vector, &type_vector, &type_float},
+	{"*", OP_MUL_FV, 2, false, &type_float, &type_vector, &type_vector},
+	{"*", OP_MUL_VF, 2, false, &type_vector, &type_float, &type_vector},
 
-	{"/", "DIV_F", 2, false, &type_float, &type_float, &type_float},
-	{"/", "DIV_V", 2, false, &type_vector, &type_float, &type_vector},
-	{"%", "MOD_F", 2, false, &type_float, &type_float, &type_float},
+	{"/", OP_DIV_F, 2, false, &type_float, &type_float, &type_float},
+	{"/", OP_DIV_V, 2, false, &type_vector, &type_float, &type_vector},
+	{"%", OP_MOD_F, 2, false, &type_float, &type_float, &type_float},
 
-	{"+", "ADD_F", 3, false, &type_float, &type_float, &type_float},
-	{"+", "ADD_V", 3, false, &type_vector, &type_vector, &type_vector},
+	{"+", OP_ADD_F, 3, false, &type_float, &type_float, &type_float},
+	{"+", OP_ADD_V, 3, false, &type_vector, &type_vector, &type_vector},
 
-	{"-", "SUB_F", 3, false, &type_float, &type_float, &type_float},
-	{"-", "SUB_V", 3, false, &type_vector, &type_vector, &type_vector},
+	{"-", OP_SUB_F, 3, false, &type_float, &type_float, &type_float},
+	{"-", OP_SUB_V, 3, false, &type_vector, &type_vector, &type_vector},
 
-	{"==", "EQ_F", 4, false, &type_float, &type_float, &type_float},
-	{"==", "EQ_V", 4, false, &type_vector, &type_vector, &type_float},
-	{"==", "EQ_S", 4, false, &type_string, &type_string, &type_float},
-	{"==", "EQ_FNC", 4, false, &type_function, &type_function, &type_float},
+	{"==", OP_EQ_F, 4, false, &type_float, &type_float, &type_float},
+	{"==", OP_EQ_V, 4, false, &type_vector, &type_vector, &type_float},
+	{"==", OP_EQ_S, 4, false, &type_string, &type_string, &type_float},
+	{"==", OP_EQ_FNC, 4, false, &type_function, &type_function, &type_float},
 
-	{"!=", "NE_F", 4, false, &type_float, &type_float, &type_float},
-	{"!=", "NE_V", 4, false, &type_vector, &type_vector, &type_float},
-	{"!=", "NE_S", 4, false, &type_string, &type_string, &type_float},
-	{"!=", "NE_FNC", 4, false, &type_function, &type_function, &type_float},
+	{"!=", OP_NE_F, 4, false, &type_float, &type_float, &type_float},
+	{"!=", OP_NE_V, 4, false, &type_vector, &type_vector, &type_float},
+	{"!=", OP_NE_S, 4, false, &type_string, &type_string, &type_float},
+	{"!=", OP_NE_FNC, 4, false, &type_function, &type_function, &type_float},
 
-	{"<=", "LE", 4, false, &type_float, &type_float, &type_float},
-	{">=", "GE", 4, false, &type_float, &type_float, &type_float},
-	{"<",  "LT", 4, false, &type_float, &type_float, &type_float},
-	{">",  "GT", 4, false, &type_float, &type_float, &type_float},
+	{"<=", OP_LE, 4, false, &type_float, &type_float, &type_float},
+	{">=", OP_GE, 4, false, &type_float, &type_float, &type_float},
+	{"<", OP_LT, 4, false, &type_float, &type_float, &type_float},
+	{">", OP_GT, 4, false, &type_float, &type_float, &type_float},
 
-	{"<MOVE_F>", "MOVE_F", 6, true, &type_float, &type_float, &type_float},
-	{"<MOVE_V>", "MOVE_V", 6, true, &type_vector, &type_vector, &type_vector},
-	{"<MOVE_S>", "MOVE_S", 6, true, &type_string, &type_string, &type_string},
-	{"<MOVE_C>", "MOVE_FNC", 6, true, &type_function, &type_function, &type_function},
+	{"&&", OP_AND, 5, false, &type_float, &type_float, &type_float},
+	{"||", OP_OR, 5, false, &type_float, &type_float, &type_float},
 
-	{"<CALL>",  "CALL", -1, false, &type_function, &type_void, &type_void},
-
-	{"<IF>", "IF", -1, false, &type_float, &type_float, &type_void},
-	{"<IFNOT>", "IFNOT", -1, false, &type_float, &type_float, &type_void},
-
-	{"<GOTO>", "GOTO", -1, false, &type_float, &type_void, &type_void},
-
-	{"&&", "AND", 5, false, &type_float, &type_float, &type_float},
-	{"||", "OR",  5, false, &type_float, &type_float, &type_float},
-
-	{"&", "BITAND", 2, false, &type_float, &type_float, &type_float},
-	{"|", "BITOR", 2, false, &type_float, &type_float, &type_float},
-
-	{"<PARM_F>", "PARM_F", -1, false, &type_void, &type_void, &type_void},
-	{"<PARM_V>", "PARM_V", -1, false, &type_void, &type_void, &type_void},
+	{"&", OP_BITAND, 2, false, &type_float, &type_float, &type_float},
+	{"|", OP_BITOR, 2, false, &type_float, &type_float, &type_float},
 
 	{NULL}
 };
@@ -179,7 +186,7 @@ def_t * PR_Statement(opcode_t *op, def_t *var_a = NULL, def_t *var_b = NULL)
 		var_c = PR_NewLocal(op->type_c);
 	}
 
-	PR_EmitCode(op - pr_opcodes,
+	PR_EmitCode(op->op,
     			var_a ? var_a->ofs : 0,
     			var_b ? var_b->ofs : 0,
     			var_c ? var_c->ofs : 0);
@@ -200,7 +207,7 @@ def_t * PR_ParseImmediate(void)
 	char im_name[32];
 
 	// check for a constant with the same value
-	for (cn=pr.defs ; cn ; cn=cn->next)
+	for (cn=all_defs ; cn ; cn=cn->next)
 	{
 		if (!cn->initialized)
 			continue;
@@ -240,8 +247,8 @@ def_t * PR_ParseImmediate(void)
 	// allocate a new one
 	cn = new def_t;
 
-	cn->next = pr.defs;
-	pr.defs  = cn;
+	cn->next = all_defs;
+	all_defs  = cn;
 
 	sprintf(im_name, "IMMED_%p", cn);
 
@@ -390,7 +397,7 @@ def_t *PR_FindDef(type_t *type, char *name, def_t *scope)
 {
 	def_t *def;
 
-	for (def = pr.defs ; def ; def=def->next)
+	for (def = all_defs ; def ; def=def->next)
 	{
 		if (strcmp(def->name,name) != 0)
 			continue;
@@ -425,8 +432,8 @@ def_t *PR_GetDef(type_t *type, char *name, def_t *scope)
 	def = new def_t;
 	memset(def, 0, sizeof(*def));
 
-	def->next = pr.defs;
-	pr.defs = def;
+	def->next = all_defs;
+	all_defs = def;
 
 	def->name = strdup(name);
 	def->type = type;
@@ -480,13 +487,13 @@ def_t * PR_Term(void)
 		def_t *e2 = NULL;
 
 		if (t == ev_float)
-			e2 = PR_Statement (&pr_opcodes[OP_NOT_F], e);
+			e2 = PR_Statement (&pr_operators[OP_NOT_F], e);
 		else if (t == ev_string)
-			e2 = PR_Statement (&pr_opcodes[OP_NOT_S], e);
+			e2 = PR_Statement (&pr_operators[OP_NOT_S], e);
 		else if (t == ev_vector)
-			e2 = PR_Statement (&pr_opcodes[OP_NOT_V], e);
+			e2 = PR_Statement (&pr_operators[OP_NOT_V], e);
 		else if (t == ev_function)
-			e2 = PR_Statement (&pr_opcodes[OP_NOT_FNC], e);
+			e2 = PR_Statement (&pr_operators[OP_NOT_FNC], e);
 		else
 			PR_ParseError("type mismatch for !");
 
@@ -573,7 +580,7 @@ def_t * PR_Expression(int priority, bool *lvalue)
 
 		opcode_t *op;
 
-		for (op=pr_opcodes ; op->name ; op++)
+		for (op=pr_operators ; op->name ; op++)
 		{
 			if (op->priority != priority)
 				continue;
@@ -1004,7 +1011,7 @@ void PR_ParseGlobals (void)
 ============
 PR_CompileFile
 
-compiles the 0 terminated text, adding defintions to the pr structure
+compiles the 0 terminated text, adding definitions to the pr structure
 ============
 */
 bool PR_CompileFile (char *string, char *filename)

@@ -326,10 +326,12 @@ void PR_PrintOfs (gofs_t ofs)
 
 void PR_PrintStatement (statement_t *s)
 {
-	int		i;
+	int i;
 
-	printf ("%4i : %4i : %s ", (int)(s - statements), statement_linenums[s-statements], pr_opcodes[s->op].opname);
-	i = strlen(pr_opcodes[s->op].opname);
+	const char *opname = opcode_names[s->op];
+	printf ("%4i : %4i : %s ", (int)(s - statements),
+	        statement_linenums[s-statements], opname);
+	i = strlen(opname);
 	for ( ; i<10 ; i++)
 		printf (" ");
 
@@ -372,7 +374,7 @@ void PR_PrintDefs (void)
 {
 	def_t *d;
 
-	for (d=pr.defs ; d ; d=d->next)
+	for (d=all_defs ; d ; d=d->next)
 		PR_PrintOfs (d->ofs);
 }
 
@@ -418,13 +420,13 @@ void PR_BeginCompilation (void)
 	int i;
 
 	numpr_globals = RESERVED_OFS;
-	pr.defs = NULL;
+	all_defs = NULL;
 
 	for (i=0 ; i<RESERVED_OFS ; i++)
 		pr_global_defs[i] = &def_void;
 
 // link the function type in so state forward declarations match proper type
-	pr.types = &type_function;
+	all_types = &type_function;
 	type_function.next = NULL;
 
 	pr_error_count = 0;
@@ -444,7 +446,7 @@ bool PR_FinishCompilation (void)
 	bool errors = false;
 
 // check to make sure all functions prototyped have code
-	for (d=pr.defs ; d ; d=d->next)
+	for (d=all_defs ; d ; d=d->next)
 	{
 		if (d->type->type == ev_function && !d->scope)// function parms are ok
 		{
