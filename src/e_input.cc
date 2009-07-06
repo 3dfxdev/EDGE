@@ -136,6 +136,29 @@ cvar_c mouse_accel;  // FIXME: not implemented yet
 // The first one is ignored (AXIS_DISABLE)
 static float analogue[6] = {0, 0, 0, 0, 0, 0};
 
+static float MergeMouseBall(int axis)
+{
+	return analogue[axis];
+
+#if 0  // TODO
+	float result = 0;
+
+	if (mouse_data.x_axis.d == axis)
+		result += mouse_data.x_value * mouse_data.x_sens.f;
+
+	if (mouse_data.y_axis.d == axis)
+		result += mouse_data.y_value * mouse_data.y_sens.f;
+
+	if (ball_data.x_axis.d == axis)
+		result += ball_data.x_value * ball_data.x_sens.f;
+
+	if (ball_data.y_axis.d == axis)
+		result += ball_data.y_value * ball_data.y_sens.f;
+
+	return result;
+#endif
+}
+
 
 #if 0  // UNUSED ???
 static int CmdChecksum(ticcmd_t * cmd)
@@ -276,8 +299,6 @@ static float MergeKeyJoy(int axis, key_binding_c *pos, key_binding_c *neg)
 
 
 //
-// E_BuildTiccmd
-//
 // Builds a ticcmd from all of the available inputs
 //
 // -ACB- 1998/07/02 Added Vertical angle checking for mlook.
@@ -295,55 +316,61 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	if (in_autorun.d)
 		speed = !speed;
 
-	float turn_f = MergeKeyJoy(AXIS_TURN,  &k_turnright, &k_turnleft);
-	float look_f = MergeKeyJoy(AXIS_MLOOK, &k_lookup,    &k_lookdown);
-
-	if (fabs(turn_f) > 0.20f)
-		turnheld++;
-	else
-		turnheld = 0;
-
-	if (fabs(look_f) > 0.20f)
-		mlookheld++;
-	else
-		mlookheld = 0;
-
-	int t_speed = speed;
-	int u_speed = speed;
-
-	if (in_stageturn.d)
-	{
-		// slow turn ?
-		if (turnheld < SLOWTURNTICS)
-			t_speed = 2;
-
-		// slow turn ?
-		if (mlookheld < SLOWTURNTICS)
-			u_speed = 2;
-	}
-
 	int m_speed = in_shiftlook.d ? speed : 0;
 
 	// Turning
 	if (! strafe)
 	{
-		cmd->angleturn -= turn_f * angleturn[t_speed];
-		cmd->angleturn -= I_ROUND(analogue[AXIS_TURN] * angleturn[m_speed] / 128.0);
+		float s = MergeKeyJoy(AXIS_TURN,  &k_turnright, &k_turnleft);
+		float t = MergeMouseBall(AXIS_TURN);
+		float turn = 0;
+
+		if (fabs(s) > 0.20f)
+			turnheld++;
+		else
+			turnheld = 0;
+
+		// slow turn ?
+		int t_speed = speed;
+		if (in_stageturn.d && turnheld < SLOWTURNTICS)
+			t_speed = 2;
+
+		turn -= s * angleturn[t_speed];
+		turn -= t * angleturn[m_speed] / 128.0;
+
+		cmd->angleturn = I_ROUND(turn);
 	}
 
 	// MLook
 	{
-		cmd->mlookturn += look_f * angleturn[u_speed] / 1.5f;
-		cmd->mlookturn += I_ROUND(analogue[AXIS_MLOOK] * angleturn[m_speed] / 128.0f);
+		float s = MergeKeyJoy(AXIS_MLOOK, &k_lookup,    &k_lookdown);
+		float t = MergeMouseBall(AXIS_MLOOK);
+		float mlook = 0;
+
+		if (fabs(s) > 0.20f)
+			mlookheld++;
+		else
+			mlookheld = 0;
+
+		// slow turn ?
+		int u_speed = speed;
+		if (in_stageturn.d && mlookheld < SLOWTURNTICS)
+			u_speed = 2;
+
+		mlook += s * angleturn[u_speed] / 1.5f;
+		mlook += t * angleturn[m_speed] / 128.0f;
+
+		cmd->mlookturn = I_ROUND(mlook);
 	}
 
 	// Forward
 	{
 		float s = MergeKeyJoy(AXIS_FORWARD, &k_forward, &k_back);
+		float t = MergeMouseBall(AXIS_FORWARD);
 		float forward = 0;
 
 		forward += s * forwardmove[speed];
-		forward += analogue[AXIS_FORWARD] * forwardmove[speed] / 64.0;
+		forward += t * forwardmove[speed] / 64.0;
 
 		forward = CLAMP(-MAXPLMOVE, forward, MAXPLMOVE);
 
@@ -353,15 +380,19 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	// Sideways
 	{
 		float s = MergeKeyJoy(AXIS_STRAFE, &k_right, &k_left);
+		float t = MergeMouseBall(AXIS_STRAFE);
 		float side = 0;
 
 		side += s * sidemove[speed];
-		side += analogue[AXIS_STRAFE] * sidemove[speed] / 64.0;
+		side += t * sidemove[speed] / 64.0;
 
-		if (! strafe)
+		if (strafe)
 		{
-			side += I_ROUND(turn_f * sidemove[speed]);
-			side += analogue[AXIS_TURN] * sidemove[speed] / 128.0;
+			float s = MergeKeyJoy(AXIS_TURN, &k_turnright, &k_turnleft);
+			float t = MergeMouseBall(AXIS_TURN);
+
+			side += s * sidemove[speed];
+			side += t * sidemove[speed] / 128.0;
 		}
 
 		side = CLAMP(-MAXPLMOVE, side, MAXPLMOVE);
@@ -372,28 +403,27 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	// Upwards  -MH- 1998/08/18 Fly up
 	{
 		float s = MergeKeyJoy(AXIS_FLY, &k_up, &k_down);
+		float t = MergeMouseBall(AXIS_FLY);
 		float upward = 0;
 
 		upward += s * upwardmove[speed];
-		upward += analogue[AXIS_FLY] * upwardmove[speed] / 64.0;
+		upward += t * upwardmove[speed] / 64.0;
 
 		upward = CLAMP(-MAXPLMOVE, upward, MAXPLMOVE);
 
 		cmd->upwardmove = I_ROUND(upward);
 	}
 
-	/* HANDLE BUTTONS */
-
-	cmd->chatchar = HU_DequeueChatChar();
+	// Buttons...
 
 	if (k_fire.IsPressed())
 		cmd->buttons |= BT_ATTACK;
 
-	if (k_use.IsPressed())
-		cmd->buttons |= BT_USE;
-
 	if (k_secondatk.IsPressed())
 		cmd->extbuttons |= EBT_SECONDATK;
+
+	if (k_use.IsPressed())
+		cmd->buttons |= BT_USE;
 
 	if (k_reload.IsPressed())
 		cmd->extbuttons |= EBT_RELOAD;
@@ -436,7 +466,8 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	if (k_autorun.WasJustPressed())
 		in_autorun = in_autorun.d ? 0 : 1;
 
-	// mouse
+	cmd->chatchar = HU_DequeueChatChar();
+
 	for (int k = 0; k < 6; k++)
 		analogue[k] = 0;
 }
@@ -605,6 +636,8 @@ if (ev->type == ev_keydown || ev->type == ev_keyup)
 //
 void E_ProcessEvents(void)
 {
+	I_ControlGetEvents();
+
 	event_t *ev;
 
 	for (; eventtail != eventhead; eventtail = (eventtail + 1) % MAXEVENTS)

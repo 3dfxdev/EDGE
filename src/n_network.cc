@@ -221,7 +221,6 @@ static void DoSendTiccmds(int tic)
 
 bool N_BuildTiccmds(void)
 {
-	I_ControlGetEvents();
 	E_ProcessEvents();
 
 	if (numplayers == 0)
