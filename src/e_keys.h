@@ -31,12 +31,12 @@ struct event_s;
 class key_binding_c
 {
 public:
-	/* this is very primitive right now */
-
 	short keys[4];
 
+	bool was_down;
+
 public:
-	key_binding_c()
+	key_binding_c() : was_down(false)
 	{
 		keys[0] = keys[1] = keys[2] = keys[3] = 0;
 	}
@@ -54,6 +54,10 @@ public:
 	bool HasKey(const struct event_s *ev) const;
 
 	bool IsPressed() const;
+
+	// this only returns true if key was just pressed down
+	// (i.e. was not pressed previously).
+	bool WasJustPressed();
 
 	std::string FormatKeyList() const;
 };
