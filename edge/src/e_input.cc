@@ -283,10 +283,6 @@ static float MergeKeyJoy(int axis, key_binding_c *pos, key_binding_c *neg)
 // -ACB- 1998/07/02 Added Vertical angle checking for mlook.
 // -ACB- 1998/07/10 Reformatted: I can read the code! :)
 //
-static bool allow180 = true;
-static bool allowzoom = true;
-static bool allowautorun = true;
-
 void E_BuildTiccmd(ticcmd_t * cmd)
 {
 	UpdateJoyAxes();
@@ -294,14 +290,10 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	Z_Clear(cmd, ticcmd_t, 1);
 
 	bool strafe = k_strafe.IsPressed();
-	int speed   = k_speed.IsPressed() ? 1 : 0;
+	int  speed  = k_speed.IsPressed() ? 1 : 0;
 
 	if (in_autorun.d)
 		speed = !speed;
-
-	float forward = 0;
-	float upward = 0;  // -MH- 1998/08/18 Fly Up/Down movement
-	float side = 0;
 
 	float turn_f = MergeKeyJoy(AXIS_TURN,  &k_turnright, &k_turnleft);
 	float look_f = MergeKeyJoy(AXIS_MLOOK, &k_lookup,    &k_lookdown);
@@ -332,99 +324,62 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 
 	int m_speed = in_shiftlook.d ? speed : 0;
 
-	// -ES- 1999/03/28 Zoom Key
-	if (k_zoom.IsPressed())
-	{
-		if (allowzoom)
-		{
-			cmd->extbuttons |= EBT_ZOOM;
-			allowzoom = false;
-		}
-	}
-	else
-		allowzoom = true;
-
-	// -AJA- 2000/04/14: Autorun toggle
-	if (k_autorun.IsPressed())
-	{
-		if (allowautorun)
-		{
-			in_autorun = in_autorun.d ? 0 : 1;
-			allowautorun = false;
-		}
-	}
-	else
-		allowautorun = true;
-
-	// You have to release the 180 deg turn key before you can press it again
-	if (k_turn180.IsPressed())
-	{
-		if (allow180)
-			cmd->angleturn = ANG180 >> 16;
-		allow180 = false;
-	}
-	else
-	{
-		allow180 = true;
-		cmd->angleturn = 0;
-	}
-
-	if (strafe)
-	{
-		side += I_ROUND(turn_f * sidemove[speed]);
-
-		// mouse
-		side += analogue[AXIS_TURN] * sidemove[speed] / 100.0;
-	}
-	else
+	// Turning
+	if (! strafe)
 	{
 		cmd->angleturn -= turn_f * angleturn[t_speed];
-
-		// mouse
 		cmd->angleturn -= I_ROUND(analogue[AXIS_TURN] * angleturn[m_speed] / 128.0);
 	}
 
-	cmd->mlookturn = 0;
-
-	if (g_mlook.d && !(map_features & MPF_NoMLook))
+	// MLook
 	{
 		cmd->mlookturn += look_f * angleturn[u_speed] / 1.5f;
-
-		// -ACB- 1998/07/02 Use CENTER flag to center the vertical look.
-		if (k_lookcenter.IsPressed())
-			cmd->extbuttons |= EBT_CENTER;
-
-		// mouse
 		cmd->mlookturn += I_ROUND(analogue[AXIS_MLOOK] * angleturn[m_speed] / 128.0f);
 	}
 
-	// -MH- 1998/08/18 Fly up
-	if (g_true3d.d && !(map_features & MPF_NoTrue3D))
-	{
-		float s = MergeKeyJoy(AXIS_FLY, &k_up, &k_down);
-
-		upward += s * upwardmove[speed];
-
-		// mouse
-		upward += analogue[AXIS_FLY] * upwardmove[speed] / 64.0;
-	}
-
+	// Forward
 	{
 		float s = MergeKeyJoy(AXIS_FORWARD, &k_forward, &k_back);
+		float forward = 0;
 
 		forward += s * forwardmove[speed];
-
-		// mouse
 		forward += analogue[AXIS_FORWARD] * forwardmove[speed] / 64.0;
+
+		forward = CLAMP(-MAXPLMOVE, forward, MAXPLMOVE);
+
+		cmd->forwardmove = I_ROUND(forward);
 	}
 
+	// Sideways
 	{
 		float s = MergeKeyJoy(AXIS_STRAFE, &k_right, &k_left);
+		float side = 0;
 
 		side += s * sidemove[speed];
-		
-		// mouse
 		side += analogue[AXIS_STRAFE] * sidemove[speed] / 64.0;
+
+		if (! strafe)
+		{
+			side += I_ROUND(turn_f * sidemove[speed]);
+			side += analogue[AXIS_TURN] * sidemove[speed] / 128.0;
+		}
+
+		side = CLAMP(-MAXPLMOVE, side, MAXPLMOVE);
+
+		cmd->sidemove = I_ROUND(side);
+	}
+
+	// Upwards  -MH- 1998/08/18 Fly up
+	{
+		float s = MergeKeyJoy(AXIS_FLY, &k_up, &k_down);
+		float upward = 0;
+
+		upward += s * upwardmove[speed];
+		upward += analogue[AXIS_FLY] * upwardmove[speed] / 64.0;
+
+		upward = CLAMP(-MAXPLMOVE, upward, MAXPLMOVE);
+
+		cmd->upwardmove = I_ROUND(upward);
 	}
 
 	/* HANDLE BUTTONS */
@@ -443,6 +398,10 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	if (k_reload.IsPressed())
 		cmd->extbuttons |= EBT_RELOAD;
 
+	// -ACB- 1998/07/02 Use CENTER flag to center the vertical look.
+	if (k_lookcenter.IsPressed())
+		cmd->extbuttons |= EBT_CENTER;
+
 	// -KM- 1998/11/25 Weapon change key
 	for (int w = 0; w < 10; w++)
 	{
@@ -454,24 +413,28 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 		}
 	}
 
-	if (k_nextweapon.IsPressed())
+	if (k_nextweapon.WasJustPressed())
 	{
 		cmd->buttons |= BT_CHANGE;
 		cmd->buttons |= (BT_NEXT_WEAPON << BT_WEAPONSHIFT);
 	}
-	else if (k_prevweapon.IsPressed())
+	else if (k_prevweapon.WasJustPressed())
 	{
 		cmd->buttons |= BT_CHANGE;
 		cmd->buttons |= (BT_PREV_WEAPON << BT_WEAPONSHIFT);
 	}
 
-	forward = CLAMP(-MAXPLMOVE, forward, MAXPLMOVE);
-	 upward = CLAMP(-MAXPLMOVE,  upward, MAXPLMOVE);
-	   side = CLAMP(-MAXPLMOVE,    side, MAXPLMOVE);
+	// You have to release the 180 deg turn key before you can press it again
+	if (k_turn180.WasJustPressed())
+		cmd->angleturn ^= (s16_t)0x8000;
 
-	cmd->forwardmove += I_ROUND(forward);
-	cmd->sidemove    += I_ROUND(side);
-	cmd->upwardmove  += I_ROUND(upward);
+	// -ES- 1999/03/28 Zoom Key
+	if (k_zoom.WasJustPressed())
+		cmd->extbuttons |= EBT_ZOOM;
+
+	// -AJA- 2000/04/14: Autorun toggle
+	if (k_autorun.WasJustPressed())
+		in_autorun = in_autorun.d ? 0 : 1;
 
 	// mouse
 	for (int k = 0; k < 6; k++)

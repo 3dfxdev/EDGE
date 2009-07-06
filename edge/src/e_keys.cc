@@ -256,6 +256,16 @@ bool key_binding_c::IsPressed() const
 	return false;
 }
 
+bool key_binding_c::WasJustPressed()
+{
+	bool is_down = IsPressed();
+	bool result  = is_down && !was_down;
+
+	was_down = is_down;
+
+	return result;
+}
+
 std::string key_binding_c::FormatKeyList() const
 {
 	std::string result;
