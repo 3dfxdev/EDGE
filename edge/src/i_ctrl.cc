@@ -328,24 +328,27 @@ int I_JoyGetAxis(int n)  // n begins at 0
 	return SDL_JoystickGetAxis(joy_info, n);
 }
 
-void HandleJoystickAxisEvent(SDL_Event * ev)
+
+void HandleJoystickBallEvent(SDL_Event * ev)
 {
-/*
-	// ignore other joysticks;
-	if ((int)ev->jaxis.which != cur_joy-1)
+	if ((int)ev->jbutton.which != cur_joy-1)
 		return;
 
-	event_t event;
+	// NOTE: we do not distinguish between multiple balls.
 
-	event.type = ev_analogue;
-	event.value.analogue.axis = ev->jaxis.axis;
-	event.value.analogue.amount = ev->jaxis.value / 1000.0;
+	int dx = ev->jball.xrel;
+	int dy = ev->jball.yrel;
 
-	E_PostEvent(&event);
+	if (dx || dy)
+	{
+		event_t event;
 
-	I_Printf("JOYSTICK AXIS %d = %d\n", (int)ev->jaxis.axis,
-	         (int)ev->jaxis.value);
-*/
+		event.type = ev_mouse;  // FIXME: ev_ball ??
+		event.value.mouse.dx = dx;
+		event.value.mouse.dy = dy;
+
+		E_PostEvent(&event);
+	}
 }
 
 
@@ -392,13 +395,8 @@ void ActiveEventProcess(SDL_Event *sdl_ev)
 			HandleMouseMotionEvent(sdl_ev);
 			break;
 
-		case SDL_JOYAXISMOTION:
-			HandleJoystickAxisEvent(sdl_ev);
-			break;
-
-		case SDL_JOYBALLMOTION:  // TODO
-			break;
-		case SDL_JOYHATMOTION:   // TODO
+		case SDL_JOYBALLMOTION:
+			HandleJoystickBallEvent(sdl_ev);
 			break;
 
 		case SDL_QUIT:
