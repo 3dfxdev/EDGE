@@ -147,6 +147,25 @@ typedef struct
 }
 function_t;
 
+
+//============================================================//
+
+
+typedef void (*builtin_t) (void);
+extern builtin_t *pr_builtins;
+extern int pr_numbuiltins;
+
+extern int pr_argc;
+
+extern bool pr_trace;
+
+
+void PR_ExecuteProgram(func_t fnum);
+
+void PR_RunError(const char *error, ...) __attribute__((format(printf,1,2)));
+
+char *PR_GetString(int num);
+
 #endif // __DEFS_CC_H__
 
 //--- editor settings ---
