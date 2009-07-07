@@ -1,4 +1,31 @@
-/*
+
+Coal Language
+~~~~~~~~~~~~~
+
+
+SYNTAX:
+=======
+
+Comments:
+  // ignores text until the end of the line
+  /* ... */ ignores all enclosed text
+
+Types:
+  float    : number (floating point) e.g. -123.45
+  vector   : a float triple, e.g. '0.5 -0.25 1.0'
+  string   : e.g. "hello world"
+
+Names:
+  maximum of 64 characters, must begin with A-Z,a-z, or _, and can
+  continue with those characters or 0-9.
+  
+
+
+
+=========================================================
+OLD STUFF   OLD STUFF   OLD STUFF   OLD STUFF   OLD STUFF   
+=========================================================
+
 
 comments
 --------
@@ -186,4 +213,4 @@ Don't confuse single quoted vectors with double quoted strings
 
 There are no ++ / -- operators, or operate/assign operators.
 
-*/
+
