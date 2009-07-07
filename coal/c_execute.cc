@@ -77,8 +77,6 @@ int pr_xstatement;
 int pr_argc;
 
 
-#include "r_cmds.c"  // FIXME
-
 
 /*
 ============
@@ -160,7 +158,6 @@ int PR_EnterFunction(function_t *f, int result = 0)
 	if (pr_xfunction)
 		stack_base += pr_xfunction->locals_end;
 
-printf("stack_base up to : %d\n", stack_base);
 	if (stack_base + f->locals_end >= LOCALSTACK_SIZE)
 		PR_RunError("PR_ExecuteProgram: locals stack overflow\n");
 
@@ -177,12 +174,12 @@ int PR_LeaveFunction(int *result)
 
 	// up stack
 	pr_depth--;
+
 	pr_xfunction = pr_stack[pr_depth].f;
 	*result      = pr_stack[pr_depth].result;
 
 	if (pr_xfunction)
 		stack_base -= pr_xfunction->locals_end;
-printf("stack_base returned : %d\n", stack_base);
 
 	return pr_stack[pr_depth].s + 1;  // skip the calling op
 }
@@ -195,9 +192,15 @@ void PR_EnterBuiltin(function_t *newf, int result)
 	if (i >= pr_numbuiltins)
 		PR_RunError("Bad builtin call number");
 
-	// FIXME: mechanism for finding parameters!
+	function_t *old_prx = pr_xfunction;
+
+	stack_base += pr_xfunction->locals_end;
+	pr_xfunction = newf;
 
 	pr_builtins[i] ();
+
+	pr_xfunction = old_prx;
+	stack_base -= pr_xfunction->locals_end;
 }
 
 /*
@@ -451,7 +454,7 @@ void PR_ExecuteProgram(func_t fnum)
 					c[2] = pr_globals[OFS_RETURN+2];
 				}
 			}
-				break;
+			break;
 
 			case OP_PARM_F:
 				c = &localstack[stack_base + pr_xfunction->locals_end + st->b];
@@ -489,11 +492,12 @@ char * PR_GetString(int num)
 // CopyString returns an offset from the string heap
 int	CopyString (char *str)
 {
-	int		old;
+	int old;
 
 	old = strofs;
 	strcpy (strings+strofs, str);
 	strofs += strlen(str)+1;
+
 	return old;
 }
 
@@ -776,6 +780,20 @@ void PrintFunctions (void)
 		printf (")\n");
 	}
 }
+
+
+double * PR_Parameter(int p)
+{
+	assert(pr_xfunction);
+
+	if (p >= pr_xfunction->parm_num)
+		PR_RunError("PR_Parameter: p=%d out of range\n", p);
+	
+	return &localstack[stack_base + pr_xfunction->parm_ofs[p]];
+}
+
+
+#include "r_cmds.c"  // FIXME
 
 
 //--- editor settings ---
