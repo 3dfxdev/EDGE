@@ -18,6 +18,20 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdarg.h>
+#include <string.h>
+#include <ctype.h>
+#include <math.h>
+#include <errno.h>
+#include <assert.h>
+
+#include "c_local.h"
+#include "r_stuff.h"  // REMOVE
+
+#include "coal.h"
+
 
 double		pr_globals[MAX_REGS];
 int			numpr_globals;
@@ -53,6 +67,9 @@ bool pr_trace;
 function_t *pr_xfunction;
 int pr_xstatement;
 int pr_argc;
+
+
+#include "r_cmds.c"  // FIXME
 
 
 /*

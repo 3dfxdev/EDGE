@@ -33,7 +33,8 @@ function main() =
     vprint('1 2 3' / 4  );
 
     var x;
-    
+    var y;
+
     x = 1; do { foo(x); x = x + 1; } while (x <= 6);
 
     sprint("");
