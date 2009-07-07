@@ -41,7 +41,7 @@
 #include <sys/signal.h>
 
 
-#include "defs.h"
+#include "c_local.h"
 #include "r_stuff.h"
 #include "coal.h"
 
