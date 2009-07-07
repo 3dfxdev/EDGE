@@ -62,11 +62,6 @@ void InitData (void)
 	numstatements = 1;
 	strofs = 1;
 	numfunctions = 1;
-
-	def_ret.ofs = OFS_RETURN;
-
-	for (int i=0 ; i<MAX_PARMS ; i++)
-		def_parms[i].ofs = OFS_PARM0 + 3*i;
 }
 
 
