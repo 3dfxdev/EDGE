@@ -21,6 +21,12 @@
 #define __QCC_H__
 
 
+void PR_BeginCompilation(void);
+bool PR_FinishCompilation(void);
+
+void PR_ExecuteProgram(func_t fnum);
+
+
 // offset in global data block (if > 0)
 // when < 0, it is offset into local stack frame
 typedef int	gofs_t;

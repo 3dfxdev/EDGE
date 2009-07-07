@@ -17,8 +17,22 @@
     See file, 'COPYING', for details.
 */
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdarg.h>
+#include <string.h>
+#include <ctype.h>
+#include <math.h>
+#include <errno.h>
+#include <assert.h>
+
+
+#include "c_local.h"
 
 #include "coal.h"
+
+
+#include "q_lex.c"  // FIXME
 
 
 type_t * all_types;

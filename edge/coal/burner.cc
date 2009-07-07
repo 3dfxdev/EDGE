@@ -20,9 +20,6 @@
 
 #define MAX_PRINTMSG  1024
 
-#define Con_Printf   printf
-#define Con_DPrintf  printf
-
 
 // typedef int  bool;
 // #define false   0
@@ -41,8 +38,8 @@
 #include <sys/signal.h>
 
 
-#include "c_local.h"
-#include "r_stuff.h"
+#include "c_local.h"  // FIXME FIXME : INTERNAL !!!
+
 #include "coal.h"
 
 
@@ -58,14 +55,6 @@ void Error (char *error, ...)
 	printf ("\n");
 	exit (1);
 }
-
-
-
-#include "q_lex.c"
-#include "q_comp.c"
-
-#include "r_exec.c"
-#include "r_cmds.c"
 
 
 void InitData (void)
