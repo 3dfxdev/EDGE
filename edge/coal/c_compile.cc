@@ -68,8 +68,6 @@ int		type_size[8] = {1,1,1,3,1,1,1,1};
 
 def_t	def_void = {&type_void, "VOID_SPACE", 0};
 
-def_t	def_ret, def_parms[MAX_PARMS];
-
 void PR_LexWhitespace (void);
 
 
@@ -359,7 +357,7 @@ Sets pr_token, pr_token_type, and possibly pr_immediate and pr_immediate_type
 */
 void PR_Lex (void)
 {
-	int		c;
+	int c;
 
 	pr_token[0] = 0;
 
@@ -813,6 +811,7 @@ def_t * PR_ParseImmediate(void)
 	{
 		if (!cn->initialized)
 			continue;
+
 		if (cn->type != pr_immediate_type)
 			continue;
 
@@ -865,9 +864,13 @@ def_t * PR_ParseImmediate(void)
 	numpr_globals += type_size[pr_immediate_type->type];
 
 	if (pr_immediate_type == &type_string)
-		pr_immediate[0] = CopyString (pr_immediate_string);
+		pr_globals[cn->ofs] = (double) CopyString (pr_immediate_string);
+	else if (pr_immediate_type == &type_vector)
+		memcpy (pr_globals + cn->ofs, pr_immediate, 3 * sizeof(double));
+	else
+		pr_globals[cn->ofs] = pr_immediate[0];
 
-	memcpy (pr_globals + cn->ofs, pr_immediate, sizeof(double) * type_size[pr_immediate_type->type]);
+printf("---IMMEDIATE @ %d = %1.3f\n", cn->ofs, pr_globals[cn->ofs]);
 
 	PR_Lex ();
 
@@ -1506,11 +1509,11 @@ printf("Setting func '%s' ofs:%d --> %d\n", func_name, def->ofs, numfunctions);
 	df->s_name = CopyString (func_name);
 	df->s_file = s_file;
 
-	int stack_ofs = 1;
+	int stack_ofs = 0;
 
 	df->return_size = type_size[def->type->aux_type->type];
 	if (def->type->aux_type->type == ev_void) df->return_size = 0;
-	stack_ofs += df->return_size;
+///---	stack_ofs += df->return_size;
 
 	df->parm_num = def->type->parm_num;
 
