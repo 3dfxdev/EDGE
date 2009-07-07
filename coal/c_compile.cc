@@ -757,7 +757,7 @@ def_t *PR_NewLocal(type_t *type)
 	def_t * var_c = new def_t;
 	memset (var_c, 0, sizeof(def_t));
 
-	var_c->ofs = -locals_end;
+	var_c->ofs = -(locals_end+1);
 	var_c->type = type;
 
 	locals_end += type_size[type->type];
@@ -869,8 +869,6 @@ def_t * PR_ParseImmediate(void)
 		memcpy (pr_globals + cn->ofs, pr_immediate, 3 * sizeof(double));
 	else
 		pr_globals[cn->ofs] = pr_immediate[0];
-
-printf("---IMMEDIATE @ %d = %1.3f\n", cn->ofs, pr_globals[cn->ofs]);
 
 	PR_Lex ();
 
@@ -1047,7 +1045,6 @@ def_t *PR_GetDef(type_t *type, char *name, def_t *scope)
 
 	if (! scope)
 	{
-printf("GetDef scope:%p --> %d\n", scope, numpr_globals);
 		def->ofs = numpr_globals;
 		pr_global_defs[numpr_globals] = def;
 
@@ -1055,8 +1052,7 @@ printf("GetDef scope:%p --> %d\n", scope, numpr_globals);
 	}
 	else
 	{
-printf("GetDef scope:%p --> %d\n", scope, -locals_end);
-		def->ofs = -locals_end;
+		def->ofs = -(locals_end+1);
 
 		locals_end += type_size[type->type];
 	}
@@ -1417,11 +1413,11 @@ int PR_ParseFunctionBody(type_t *type)
 	}
 
 	//
-	// define the parms
+	// create the parmeters as locals
 	//
 	def_t *defs[MAX_PARMS];
 
-	for (int i=0 ; i<type->parm_num ; i++)
+	for (int i=0 ; i < type->parm_num ; i++)
 	{
 		defs[i] = PR_GetDef (type->parm_types[i], pr_parm_names[i], pr_scope);
 	}
@@ -1498,7 +1494,6 @@ void PR_ParseFunction(void)
 
 
 	G_FUNCTION(def->ofs) = (func_t)numfunctions;
-printf("Setting func '%s' ofs:%d --> %d\n", func_name, def->ofs, numfunctions);
 	numfunctions++;
 
 
@@ -1529,7 +1524,8 @@ printf("Setting func '%s' ofs:%d --> %d\n", func_name, def->ofs, numfunctions);
 
 	df->locals_ofs = stack_ofs;
 
-	locals_end = df->locals_ofs;
+	// parms are "realloc'd" by GetDef in PR_ParseFunctionBody (FIXME)
+	locals_end = 0;
 
 
 	pr_scope = def;
