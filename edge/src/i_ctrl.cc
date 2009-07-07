@@ -522,8 +522,8 @@ void I_OpenJoystick(int index)
 	joy_num_hats    = SDL_JoystickNumHats(joy_info);
 	joy_num_balls   = SDL_JoystickNumBalls(joy_info);
 
-	I_Printf("Opened Joystick %d : %s\n", cur_joy, name);
-	I_Printf("Axes:%d Buttons:%d Hats:%d Balls:%d\n",
+	I_Printf("Opened joystick %d : %s\n", cur_joy, name);
+	I_Printf("Axes:%d buttons:%d hats:%d balls:%d\n",
 			 joy_num_axes, joy_num_buttons, joy_num_hats, joy_num_balls);
 }
 
@@ -533,6 +533,8 @@ void I_ChangeJoystick(int index)
 	{
 		SDL_JoystickClose(joy_info);
 		joy_info = NULL;
+
+		I_Printf("Closed joystick %d\n", cur_joy);
 		cur_joy = 0;
 	}
 
