@@ -230,9 +230,9 @@ void PR_ExecuteProgram(func_t fnum)
 	{
 		statement_t *st = &statements[s];
 
-		double * a = (st->a >= 0) ? &pr_globals[st->a] : &localstack[stack_base - st->a - 1];
-		double * b = (st->b >= 0) ? &pr_globals[st->b] : &localstack[stack_base - st->b - 1];
-		double * c = (st->c >= 0) ? &pr_globals[st->c] : &localstack[stack_base - st->c - 1];
+		double * a = (st->a >= 0) ? &pr_globals[st->a] : &localstack[stack_base - (st->a + 1)];
+		double * b = (st->b >= 0) ? &pr_globals[st->b] : &localstack[stack_base - (st->b + 1)];
+		double * c = (st->c >= 0) ? &pr_globals[st->c] : &localstack[stack_base - (st->c + 1)];
 
 		if (!--runaway)
 			PR_RunError("runaway loop error");
@@ -431,11 +431,11 @@ void PR_ExecuteProgram(func_t fnum)
 
 				if (result)
 				{
-					double * c = (result >= 0) ? &pr_globals[result] : &localstack[stack_base - result - 1];
+					double * c = (result >= 0) ? &pr_globals[result] : &localstack[stack_base - (result + 1)];
 					*c = pr_globals[OFS_RETURN];
 				}
 			}
-				break;
+			break;
 
 			case OP_DONE_V:
 			{
@@ -447,7 +447,7 @@ void PR_ExecuteProgram(func_t fnum)
 
 				assert(result);
 				{
-					double * c = (result >= 0) ? &pr_globals[result] : &localstack[stack_base - result - 1];
+					double * c = (result >= 0) ? &pr_globals[result] : &localstack[stack_base - (result + 1)];
 
 					c[0] = pr_globals[OFS_RETURN+0];
 					c[1] = pr_globals[OFS_RETURN+1];
@@ -457,6 +457,7 @@ void PR_ExecuteProgram(func_t fnum)
 			break;
 
 			case OP_PARM_F:
+// printf("OP_PARM_F: %d=%1.2f --> %d+%d+%d\n", st->a, *a, stack_base, pr_xfunction->locals_end, st->b);
 				c = &localstack[stack_base + pr_xfunction->locals_end + st->b];
 
 				*c = *a;
