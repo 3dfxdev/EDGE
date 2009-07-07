@@ -145,12 +145,8 @@ extern	char		*pr_file_p;
 
 #define	OFS_NULL		0
 #define	OFS_RETURN		1
-#define	OFS_PARM0		4		// leave 3 ofs for each parm to hold vectors
-#define	OFS_PARM1		7
-#define	OFS_PARM2		10
-#define	OFS_PARM3		13
-#define	OFS_PARM4		16
-#define	RESERVED_OFS	28
+
+#define	RESERVED_OFS	10
 
 
 extern	def_t	*pr_scope;
@@ -178,7 +174,6 @@ extern	bool	pr_dumpasm;
 
 extern	string_t	s_file;			// filename for function definition
 
-extern	def_t	def_ret, def_parms[MAX_PARMS];
 
 //=============================================================================
 
@@ -206,6 +201,8 @@ extern	int			numpr_globals;
 extern	char	pr_immediate_string[2048];
 
 int	CopyString (char *str);
+
+double * PR_Parameter(int p);
 
 #endif
 
