@@ -138,7 +138,7 @@ static float analogue[6] = {0, 0, 0, 0, 0, 0};
 
 static float MergeMouseBall(int axis)
 {
-	return analogue[axis];
+	return analogue[axis] / 100.0;
 
 #if 0  // TODO
 	float result = 0;
@@ -294,7 +294,7 @@ static float MergeKeyJoy(int axis, key_binding_c *pos, key_binding_c *neg)
 		result += jg->value * jg->sens.f / 10.0;
 	}
 
-	return result; //??? CLAMP(-2.0f, result, +2.0f);
+	return result;
 }
 
 
@@ -336,7 +336,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 			t_speed = 2;
 
 		turn -= s * angleturn[t_speed];
-		turn -= t * angleturn[m_speed] / 128.0;
+		turn -= t * angleturn[m_speed];
 
 		cmd->angleturn = I_ROUND(turn);
 	}
@@ -358,7 +358,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 			u_speed = 2;
 
 		mlook += s * angleturn[u_speed] / 1.5f;
-		mlook += t * angleturn[m_speed] / 128.0f;
+		mlook += t * angleturn[m_speed] / 1.5f;
 
 		cmd->mlookturn = I_ROUND(mlook);
 	}
@@ -370,7 +370,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 		float forward = 0;
 
 		forward += s * forwardmove[speed];
-		forward += t * forwardmove[speed] / 64.0;
+		forward += t * forwardmove[speed];
 
 		forward = CLAMP(-MAXPLMOVE, forward, MAXPLMOVE);
 
@@ -384,7 +384,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 		float side = 0;
 
 		side += s * sidemove[speed];
-		side += t * sidemove[speed] / 64.0;
+		side += t * sidemove[speed];
 
 		if (strafe)
 		{
@@ -392,7 +392,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 			float t = MergeMouseBall(AXIS_TURN);
 
 			side += s * sidemove[speed];
-			side += t * sidemove[speed] / 128.0;
+			side += t * sidemove[speed];
 		}
 
 		side = CLAMP(-MAXPLMOVE, side, MAXPLMOVE);
@@ -407,7 +407,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 		float upward = 0;
 
 		upward += s * upwardmove[speed];
-		upward += t * upwardmove[speed] / 64.0;
+		upward += t * upwardmove[speed];
 
 		upward = CLAMP(-MAXPLMOVE, upward, MAXPLMOVE);
 
@@ -509,7 +509,10 @@ bool INP_Responder(event_t * ev)
 			float dx = ev->value.mouse.dx;
 			float dy = ev->value.mouse.dy;
 
-			// inverting can happen here (negative sens)
+			// mouse Y usually needs inverting, but this can be
+			// changed by using a negative mouse_y.sens
+			dy = -dy;
+
 			dx *= mouse_x_sens.f;
 			dy *= mouse_y_sens.f;
 
