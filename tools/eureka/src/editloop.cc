@@ -1885,7 +1885,7 @@ edit.RedrawMap = 1;
 
 while (main_win->action != UI_MainWin::QUIT)
 {
-  Fl::check();
+  Fl::wait(0.2);
 
   if (edit.RedrawMap)
   {
