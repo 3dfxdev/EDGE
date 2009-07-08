@@ -128,8 +128,6 @@ int main (int argc, char **argv)
 
 	InitData ();
 
-	pr_dumpasm = false;
-
 	if (strcmp(argv[1], "-t") == 0)
 	{
 		pr_trace = true;
