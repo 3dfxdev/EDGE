@@ -35,7 +35,6 @@
 typedef enum
 {
 	tt_eof,			// end of file reached
-	tt_lf,          // line-feed (end of line)
 	tt_name, 		// an alphanumeric name token
 	tt_punct, 		// code punctuation
 	tt_immediate,	// string, float, vector
@@ -49,6 +48,7 @@ char		*pr_file_p;
 char		*pr_line_start;		// start of current source line
 
 int			pr_bracelevel;
+int			pr_parentheses;
 
 char		pr_token[2048];
 token_type_t	pr_token_type;
@@ -343,15 +343,6 @@ void PR_Lex (void)
 		return;
 	}
 
-assert(c != '\n');
-
-///??	if (c == '\n')
-///??	{
-///??		pr_token_type = tt_lf;
-///??		pr_file_p++;
-///??		return;
-///??	}
-
 // handle quoted strings as a unit
 	if (c == '\"')
 	{
@@ -431,9 +422,6 @@ void PR_Expect(char *string)
 ///??		return;
 ///??	}
 
-///??	while (pr_token_type == tt_lf)
-///??		PR_Lex();
-
 	if (strcmp(string, pr_token) != 0)
 		PR_ParseError("expected %s found %s", string, pr_token);
 
@@ -451,9 +439,6 @@ Returns false and does nothing otherwise
 */
 bool PR_Check(char *string)
 {
-///??	while (pr_token_type == tt_lf)
-///??		PR_Lex();
-
 	if (strcmp(string, pr_token) != 0)
 		return false;
 
@@ -957,7 +942,7 @@ def_t * PR_ParseFunctionCall(def_t *func)
 
 void PR_ParseReturn(void)
 {
-	if (pr_token_type == tt_lf || PR_Check(";"))
+	if (PR_Check(";"))
 	{
 		if (pr_scope->type->aux_type->type != ev_void)
 			PR_ParseError("missing value for return");
@@ -1247,21 +1232,21 @@ def_t * PR_Expression(int priority, bool *lvalue)
 }
 
 
-void PR_ParseStatement(void)
+void PR_ParseStatement(bool allow_def)
 {
-	if (PR_Check("function"))
+	if (allow_def && PR_Check("function"))
 	{
 		PR_ParseError("Functions must be global");
 		return;
 	}
 
-	if (PR_Check("var"))
+	if (allow_def && PR_Check("var"))
 	{
 		PR_ParseVariable();
 		return;
 	}
 
-	if (PR_Check("constant"))
+	if (allow_def && PR_Check("constant"))
 	{
 		PR_ParseConstant();
 		return;
@@ -1270,7 +1255,7 @@ void PR_ParseStatement(void)
 	if (PR_Check("{"))
 	{
 		do {
-			PR_ParseStatement();
+			PR_ParseStatement(true);
 		}
 		while (! PR_Check("}"));
 
@@ -1292,7 +1277,7 @@ void PR_ParseStatement(void)
 		int patch = numstatements;
 		PR_EmitCode(OP_IFNOT, e->ofs);
 
-		PR_ParseStatement();
+		PR_ParseStatement(false);
 
 		if (PR_Check("else"))
 		{
@@ -1302,7 +1287,7 @@ void PR_ParseStatement(void)
 
 			statements[patch].b = numstatements;
 
-			PR_ParseStatement ();
+			PR_ParseStatement(false);
 
 			patch = patch2;
 		}
@@ -1322,7 +1307,7 @@ void PR_ParseStatement(void)
 		int patch = numstatements;
 		PR_EmitCode(OP_IFNOT, e->ofs);
 
-		PR_ParseStatement ();
+		PR_ParseStatement(false);
 
 		PR_EmitCode(OP_GOTO, 0, begin);
 
@@ -1334,7 +1319,7 @@ void PR_ParseStatement(void)
 	{
 		int begin = numstatements;
 
-		PR_ParseStatement ();
+		PR_ParseStatement(false);
 
 		PR_Expect ("while");
 		PR_Expect ("(");
@@ -1423,7 +1408,7 @@ int PR_ParseFunctionBody(type_t *type)
 
 	while (! PR_Check("}"))
 	{
-		PR_ParseStatement();
+		PR_ParseStatement(true);
 	}
 
 	PR_EmitCode(OP_DONE);
@@ -1575,12 +1560,6 @@ void PR_ParseConstant(void)
 
 void PR_ParseGlobals (void)
 {
-	if (pr_token_type == tt_lf)
-	{
-		PR_Lex();
-		return;
-	}
-
 	if (PR_Check("function"))
 	{
 		PR_ParseFunction();
@@ -1600,9 +1579,7 @@ void PR_ParseGlobals (void)
 	}
 
 
-	PR_ParseError("Syntax error");
-	{ return; }
-
+	PR_ParseError("Syntax error (expected global definition)");
 }
 
 
