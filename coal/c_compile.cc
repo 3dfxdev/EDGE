@@ -26,6 +26,8 @@
 #include <errno.h>
 #include <assert.h>
 
+// #include <sys/signal.h>
+
 
 #include "c_local.h"
 
@@ -80,12 +82,38 @@ int		type_size[8] = {1,1,1,3,1,1,1,1};
 def_t	def_void = {&type_void, "VOID_SPACE", 0};
 
 
+void PR_ParseStatement(bool allow_def);
+
+
 void PR_NewLine (void)
 {
 	// Called when *pr_file_p == '\n'
 
 	pr_source_line++;
 	pr_line_start = pr_file_p + 1;
+}
+
+
+/*
+============
+PR_ParseError
+
+Aborts the current file load
+============
+*/
+void PR_ParseError (char *error, ...)
+{
+	va_list		argptr;
+	char		string[1024];
+
+	va_start (argptr,error);
+	vsprintf (string,error,argptr);
+	va_end (argptr);
+
+	printf ("%s:%i:%s\n", strings + s_file, pr_source_line, string);
+
+//  raise(11);
+	throw parse_error_x();
 }
 
 
@@ -380,29 +408,6 @@ void PR_Lex (void)
 //=============================================================================
 
 /*
-============
-PR_ParseError
-
-Aborts the current file load
-============
-*/
-void PR_ParseError (char *error, ...)
-{
-	va_list		argptr;
-	char		string[1024];
-
-	va_start (argptr,error);
-	vsprintf (string,error,argptr);
-	va_end (argptr);
-
-	printf ("%s:%i:%s\n", strings + s_file, pr_source_line, string);
-
-//raise(11);
-	throw parse_error_x();
-}
-
-
-/*
 =============
 PR_Expect
 
@@ -412,16 +417,6 @@ Gets the next token
 */
 void PR_Expect(char *string)
 {
-///??	// allow EOL to satisfy requirement for semicolon
-///??	if (strcmp(string, ";") == 0 && pr_token_type == tt_lf)
-///??	{
-///??		do {
-///??			PR_Lex();
-///??		} while (pr_token_type == tt_lf);
-///??
-///??		return;
-///??	}
-
 	if (strcmp(string, pr_token) != 0)
 		PR_ParseError("expected %s found %s", string, pr_token);
 
@@ -523,7 +518,7 @@ void PR_SkipToSemicolon (void)
 {
 	do
 	{
-		if (!pr_bracelevel && PR_Check (";"))
+		if (!pr_bracelevel && PR_Check(";"))
 			return;
 		PR_Lex();
 	}
@@ -940,9 +935,9 @@ def_t * PR_ParseFunctionCall(def_t *func)
 }
 
 
-void PR_ParseReturn(void)
+void PR_ParseReturn(bool new_line)
 {
-	if (PR_Check(";"))
+	if (new_line || pr_token[0] == '}' || PR_Check(";"))
 	{
 		if (pr_scope->type->aux_type->type != ev_void)
 			PR_ParseError("missing value for return");
@@ -951,8 +946,9 @@ void PR_ParseReturn(void)
 		return;
 	}
 
+	int prev_line = pr_source_line;
+
 	def_t * e = PR_Expression(TOP_PRIORITY);
-	PR_Expect(";");
 
 	if (pr_scope->type->aux_type->type == ev_void)
 		PR_ParseError("return with value in void function");
@@ -970,6 +966,10 @@ void PR_ParseReturn(void)
 		PR_EmitCode(OP_MOVE_F, e->ofs, OFS_RETURN);
 		PR_EmitCode(OP_DONE);
 	}
+
+	// -AJA- optional semicolons
+	if (prev_line == pr_source_line && pr_token[0] != '}')
+		PR_Expect(";");
 }
 
 
@@ -1232,6 +1232,105 @@ def_t * PR_Expression(int priority, bool *lvalue)
 }
 
 
+void PR_If_Else(void)
+{
+	PR_Expect("(");
+	def_t * e = PR_Expression(TOP_PRIORITY);
+	PR_Expect(")");
+
+	int patch = numstatements;
+	PR_EmitCode(OP_IFNOT, e->ofs);
+
+	PR_ParseStatement(false);
+
+	if (PR_Check("else"))
+	{
+		// use GOTO to skip over the else statements
+		int patch2 = numstatements;
+		PR_EmitCode(OP_GOTO);
+
+		statements[patch].b = numstatements;
+
+		PR_ParseStatement(false);
+
+		patch = patch2;
+	}
+	
+	statements[patch].b = numstatements;
+}
+
+
+void PR_WhileLoop(void)
+{
+	int begin = numstatements;
+
+	PR_Expect ("(");
+	def_t * e = PR_Expression(TOP_PRIORITY);
+	PR_Expect (")");
+
+	int patch = numstatements;
+	PR_EmitCode(OP_IFNOT, e->ofs);
+
+	PR_ParseStatement(false);
+
+	PR_EmitCode(OP_GOTO, 0, begin);
+
+	statements[patch].b = numstatements;
+}
+
+
+void PR_DoLoop(void)
+{
+	int begin = numstatements;
+
+	PR_ParseStatement(false);
+
+	PR_Expect ("while");
+	PR_Expect ("(");
+
+	def_t * e = PR_Expression(TOP_PRIORITY);
+
+	PR_EmitCode(OP_IF, e->ofs, begin);
+
+	int prev_line = pr_source_line;
+	PR_Expect(")");
+
+	// -AJA- optional semicolons
+	if (prev_line == pr_source_line && pr_token[0] != '}')
+		PR_Expect(";");
+}
+		
+
+void PR_Assignment(def_t *e)
+{
+	// FIXME: proper constant check
+	if (strncmp(e->name, "IMMED_", 6) == 0)
+		PR_ParseError("assignment to a constant.\n");
+
+	def_t *e2 = PR_Expression(TOP_PRIORITY);
+
+	if (e2->type != e->type)
+		PR_ParseError("type mismatch in assignment.\n");
+
+	switch (e->type->type)
+	{
+		case ev_float:
+		case ev_string:
+		case ev_function:
+			PR_EmitCode(OP_MOVE_F, e2->ofs, e->ofs);
+			break;
+
+		case ev_vector:
+			PR_EmitCode(OP_MOVE_V, e2->ofs, e->ofs);
+			break;
+
+		default:
+			PR_ParseError("weird type for assignment.\n");
+			break;
+	}
+}
+
+
 void PR_ParseStatement(bool allow_def)
 {
 	if (allow_def && PR_Check("function"))
@@ -1262,74 +1361,33 @@ void PR_ParseStatement(bool allow_def)
 		return;
 	}
 
+	int prev_line = pr_source_line;
+
 	if (PR_Check("return"))
 	{
-		PR_ParseReturn();
+		PR_ParseReturn(prev_line);
 		return;
 	}
 
 	if (PR_Check("if"))
 	{
-		PR_Expect("(");
-		def_t * e = PR_Expression(TOP_PRIORITY);
-		PR_Expect(")");
-
-		int patch = numstatements;
-		PR_EmitCode(OP_IFNOT, e->ofs);
-
-		PR_ParseStatement(false);
-
-		if (PR_Check("else"))
-		{
-			// use GOTO to skip over the else statements
-			int patch2 = numstatements;
-			PR_EmitCode(OP_GOTO);
-
-			statements[patch].b = numstatements;
-
-			PR_ParseStatement(false);
-
-			patch = patch2;
-		}
-		
-		statements[patch].b = numstatements;
+		PR_If_Else();
 		return;
 	}
 
 	if (PR_Check("while"))
 	{
-		int begin = numstatements;
-
-		PR_Expect ("(");
-		def_t * e = PR_Expression(TOP_PRIORITY);
-		PR_Expect (")");
-
-		int patch = numstatements;
-		PR_EmitCode(OP_IFNOT, e->ofs);
-
-		PR_ParseStatement(false);
-
-		PR_EmitCode(OP_GOTO, 0, begin);
-
-		statements[patch].b = numstatements;
+		PR_WhileLoop();
 		return;
 	}
 
 	if (PR_Check("do"))
 	{
-		int begin = numstatements;
-
-		PR_ParseStatement(false);
-
-		PR_Expect ("while");
-		PR_Expect ("(");
-		def_t * e = PR_Expression(TOP_PRIORITY);
-		PR_Expect (")");
-		PR_Expect (";");
-
-		PR_EmitCode(OP_IF, e->ofs, begin);
+		PR_DoLoop();
 		return;
 	}
+
+	prev_line = pr_source_line;
 
 	bool lvalue = true;
 	def_t * e = PR_Expression(TOP_PRIORITY, &lvalue);
@@ -1338,36 +1396,16 @@ void PR_ParseStatement(bool allow_def)
 
 	if (lvalue)
 	{
-		// FIXME: proper constant check
-		if (strncmp(e->name, "IMMED_", 6) == 0)
-			PR_ParseError("assignment to a constant.\n");
-
 		PR_Expect("=");
 
-		def_t *e2 = PR_Expression(TOP_PRIORITY);
+		prev_line = pr_source_line;
 
-		if (e2->type != e->type)
-			PR_ParseError("type mismatch in assignment.\n");
-
-		switch (e->type->type)
-		{
-			case ev_float:
-			case ev_string:
-			case ev_function:
-				PR_EmitCode(OP_MOVE_F, e2->ofs, e->ofs);
-				break;
-
-			case ev_vector:
-				PR_EmitCode(OP_MOVE_V, e2->ofs, e->ofs);
-				break;
-
-			default:
-				PR_ParseError("weird type for assignment.\n");
-				break;
-		}
+		PR_Assignment(e);
 	}
 
-	PR_Expect (";");
+	// -AJA- optional semicolons
+	if (prev_line == pr_source_line && pr_token[0] != '}')
+		PR_Expect (";");
 }
 
 
@@ -1520,7 +1558,7 @@ void PR_ParseFunction(void)
 
 void PR_ParseVariable(void)
 {
-	// FIXME
+	int prev_line = pr_source_line;
 
 	char *var_name = strdup(PR_ParseName());
 
@@ -1528,6 +1566,8 @@ void PR_ParseVariable(void)
 
 	if (PR_Check(":"))
 	{
+		prev_line = pr_source_line;
+
 		type = PR_ParseType();
 	}
 
@@ -1537,7 +1577,9 @@ void PR_ParseVariable(void)
 
 	PR_GetDef(type, var_name, pr_scope);
 
-	PR_Expect(";");  // FIXME: allow EOL as well
+	// -AJA- optional semicolons
+	if (prev_line == pr_source_line && pr_token[0] != '}')
+		PR_Expect(";");
 }
 
 
@@ -1553,8 +1595,12 @@ void PR_ParseConstant(void)
 	// FIXME: create constant
 	  PR_ParseError("Constants not yet implemented");
 	
+	int prev_line = pr_source_line;
 	PR_Lex();
-	PR_Expect(";");  // FIXME: allow EOL as well
+
+	// -AJA- optional semicolons
+	if (prev_line == pr_source_line && pr_token[0] != '}')
+		PR_Expect(";");
 }
 
 
