@@ -32,6 +32,17 @@
 #include "coal.h"
 
 
+typedef enum
+{
+	tt_eof,			// end of file reached
+	tt_lf,          // line-feed (end of line)
+	tt_name, 		// an alphanumeric name token
+	tt_punct, 		// code punctuation
+	tt_immediate,	// string, float, vector
+}
+token_type_t;
+
+
 int			pr_source_line;
 
 char		*pr_file_p;
@@ -68,51 +79,15 @@ int		type_size[8] = {1,1,1,3,1,1,1,1};
 
 def_t	def_void = {&type_void, "VOID_SPACE", 0};
 
-void PR_LexWhitespace (void);
 
-
-/*
-==============
-PR_PrintNextLine
-==============
-*/
-void PR_PrintNextLine (void)
-{
-	char	*t;
-
-	printf ("%3i:",pr_source_line);
-	for (t=pr_line_start ; *t && *t != '\n' ; t++)
-		printf ("%c",*t);
-	printf ("\n");
-}
-
-/*
-==============
-PR_NewLine
-
-Call at start of file and when *pr_file_p == '\n'
-==============
-*/
 void PR_NewLine (void)
 {
-	bool	m;
-
-	if (*pr_file_p == '\n')
-	{
-		pr_file_p++;
-		m = true;
-	}
-	else
-		m = false;
+	// Called when *pr_file_p == '\n'
 
 	pr_source_line++;
-	pr_line_start = pr_file_p;
-
-//	if (pr_dumpasm)
-//		PR_PrintNextLine ();
-	if (m)
-		pr_file_p--;
+	pr_line_start = pr_file_p + 1;
 }
+
 
 /*
 ==============
@@ -121,7 +96,7 @@ PR_LexString
 Parses a quoted string
 ==============
 */
-void PR_LexString (void)
+void PR_LexString(void)
 {
 	int		c;
 	int		len;
@@ -160,12 +135,8 @@ void PR_LexString (void)
 	} while (1);
 }
 
-/*
-==============
-PR_LexNumber
-==============
-*/
-float PR_LexNumber (void)
+
+float PR_LexNumber(void)
 {
 	int		c;
 	int		len;
@@ -183,39 +154,36 @@ float PR_LexNumber (void)
 	return atof (pr_token);
 }
 
-/*
-==============
-PR_LexVector
 
-Parses a single quoted vector
-==============
-*/
-void PR_LexVector (void)
+void PR_LexVector(void)
 {
+	// Parses a single quoted vector
+
 	int		i;
 
 	pr_file_p++;
 	pr_token_type = tt_immediate;
 	pr_immediate_type = &type_vector;
+
 	for (i=0 ; i<3 ; i++)
 	{
-		pr_immediate[i] = PR_LexNumber ();
-		PR_LexWhitespace ();
+		// FIXME: check for digits etc!
+
+		pr_immediate[i] = PR_LexNumber();
+
+		while (isspace(*pr_file_p) && *pr_file_p != '\n')
+			pr_file_p++;
 	}
 	if (*pr_file_p != '\'')
 		PR_ParseError ("Bad vector");
 	pr_file_p++;
 }
 
-/*
-==============
-PR_LexName
 
-Parses an identifier
-==============
-*/
-void PR_LexName (void)
+void PR_LexName(void)
 {
+	// Parses an identifier
+
 	int		c;
 	int		len;
 
@@ -227,17 +195,14 @@ void PR_LexName (void)
 		len++;
 		pr_file_p++;
 		c = *pr_file_p;
-	} while ( (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_'
-	|| (c >= '0' && c <= '9'));
+	} while (   (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_'
+			 || (c >= '0' && c <= '9'));
+
 	pr_token[len] = 0;
 	pr_token_type = tt_name;
 }
 
-/*
-==============
-PR_LexPunctuation
-==============
-*/
+
 void PR_LexPunctuation (void)
 {
 	int		i;
@@ -246,7 +211,7 @@ void PR_LexPunctuation (void)
 
 	pr_token_type = tt_punct;
 
-char ch = *pr_file_p;
+	char ch = *pr_file_p;
 
 	for (i=0 ; (p = pr_punctuation[i]) != NULL ; i++)
 	{
@@ -267,18 +232,13 @@ char ch = *pr_file_p;
 }
 
 
-/*
-==============
-PR_LexWhitespace
-==============
-*/
-void PR_LexWhitespace (void)
+void PR_LexWhitespace(void)
 {
-	int		c;
+	int c;
 
 	while (1)
 	{
-	// skip whitespace
+		// skip whitespace
 		while ( (c = *pr_file_p) <= ' ')
 		{
 			if (c=='\n')
@@ -288,27 +248,33 @@ void PR_LexWhitespace (void)
 			pr_file_p++;
 		}
 
-	// skip // comments
+		// skip // comments
 		if (c=='/' && pr_file_p[1] == '/')
 		{
 			while (*pr_file_p && *pr_file_p != '\n')
 				pr_file_p++;
+
 			PR_NewLine();
+
 			pr_file_p++;
 			continue;
 		}
 
-	// skip /* */ comments
+		// skip /* */ comments
 		if (c=='/' && pr_file_p[1] == '*')
 		{
 			do
 			{
 				pr_file_p++;
+				
 				if (pr_file_p[0]=='\n')
 					PR_NewLine();
+
 				if (pr_file_p[1] == 0)
 					return;
+
 			} while (pr_file_p[-1] != '*' || pr_file_p[0] != '/');
+
 			pr_file_p++;
 			continue;
 		}
@@ -377,6 +343,15 @@ void PR_Lex (void)
 		return;
 	}
 
+assert(c != '\n');
+
+///??	if (c == '\n')
+///??	{
+///??		pr_token_type = tt_lf;
+///??		pr_file_p++;
+///??		return;
+///??	}
+
 // handle quoted strings as a unit
 	if (c == '\"')
 	{
@@ -444,11 +419,25 @@ Issues an error if the current token isn't equal to string
 Gets the next token
 =============
 */
-void PR_Expect (char *string)
+void PR_Expect(char *string)
 {
-	if (strcmp (string, pr_token))
-		PR_ParseError ("expected %s found %s",string, pr_token);
-	PR_Lex ();
+///??	// allow EOL to satisfy requirement for semicolon
+///??	if (strcmp(string, ";") == 0 && pr_token_type == tt_lf)
+///??	{
+///??		do {
+///??			PR_Lex();
+///??		} while (pr_token_type == tt_lf);
+///??
+///??		return;
+///??	}
+
+///??	while (pr_token_type == tt_lf)
+///??		PR_Lex();
+
+	if (strcmp(string, pr_token) != 0)
+		PR_ParseError("expected %s found %s", string, pr_token);
+
+	PR_Lex();
 }
 
 
@@ -460,12 +449,15 @@ Returns true and gets the next token if the current token equals string
 Returns false and does nothing otherwise
 =============
 */
-bool PR_Check (char *string)
+bool PR_Check(char *string)
 {
-	if (strcmp (string, pr_token))
+///??	while (pr_token_type == tt_lf)
+///??		PR_Lex();
+
+	if (strcmp(string, pr_token) != 0)
 		return false;
 
-	PR_Lex ();
+	PR_Lex();
 	return true;
 }
 
@@ -548,7 +540,7 @@ void PR_SkipToSemicolon (void)
 	{
 		if (!pr_bracelevel && PR_Check (";"))
 			return;
-		PR_Lex ();
+		PR_Lex();
 	}
 	while (pr_token_type != tt_eof);
 }
@@ -586,7 +578,7 @@ type_t *PR_ParseType (void)
 		PR_ParseError ("\"%s\" is not a type", pr_token);
 		type = &type_float;	// shut up compiler warning
 	}
-	PR_Lex ();
+	PR_Lex();
 
 	if (!PR_Check ("("))
 		return type;
@@ -627,7 +619,7 @@ def_t  * all_defs;
 def_t * pr_global_defs[MAX_REGS];	// to find def for a global variable
 
 def_t		*pr_scope;		// the function being parsed, or NULL
-bool	pr_dumpasm;
+
 string_t	s_file;			// filename for function definition
 
 int			locals_end;		// for tracking local variables vs temps
@@ -819,7 +811,7 @@ def_t * PR_ParseImmediate(void)
 		{
 			if (!strcmp(G_STRING(cn->ofs), pr_immediate_string) )
 			{
-				PR_Lex ();
+				PR_Lex();
 				return cn;
 			}
 		}
@@ -827,7 +819,7 @@ def_t * PR_ParseImmediate(void)
 		{
 			if ( G_FLOAT(cn->ofs) == pr_immediate[0] )
 			{
-				PR_Lex ();
+				PR_Lex();
 				return cn;
 			}
 		}
@@ -837,7 +829,7 @@ def_t * PR_ParseImmediate(void)
 				&& ( G_FLOAT(cn->ofs+1) == pr_immediate[1] )
 				&& ( G_FLOAT(cn->ofs+2) == pr_immediate[2] ) )
 			{
-				PR_Lex ();
+				PR_Lex();
 				return cn;
 			}
 		}
@@ -870,7 +862,7 @@ def_t * PR_ParseImmediate(void)
 	else
 		pr_globals[cn->ofs] = pr_immediate[0];
 
-	PR_Lex ();
+	PR_Lex();
 
 	return cn;
 }
@@ -965,7 +957,7 @@ def_t * PR_ParseFunctionCall(def_t *func)
 
 void PR_ParseReturn(void)
 {
-	if (PR_Check(";"))
+	if (pr_token_type == tt_lf || PR_Check(";"))
 	{
 		if (pr_scope->type->aux_type->type != ev_void)
 			PR_ParseError("missing value for return");
@@ -1408,7 +1400,7 @@ int PR_ParseFunctionBody(type_t *type)
 			PR_ParseError ("Bad builtin immediate");
 		}
 		int builtin = (int)pr_immediate[0];
-		PR_Lex ();
+		PR_Lex();
 		return -builtin;
 	}
 
@@ -1583,6 +1575,12 @@ void PR_ParseConstant(void)
 
 void PR_ParseGlobals (void)
 {
+	if (pr_token_type == tt_lf)
+	{
+		PR_Lex();
+		return;
+	}
+
 	if (PR_Check("function"))
 	{
 		PR_ParseFunction();
@@ -1617,14 +1615,13 @@ compiles the 0 terminated text, adding definitions to the pr structure
 */
 bool PR_CompileFile (char *string, char *filename)
 {
-	pr_file_p = string;
-	s_file = CopyString (filename);
+	s_file = CopyString(filename);
 
+	pr_file_p = string;
+	pr_line_start = string;
 	pr_source_line = 0;
 
-	PR_NewLine ();
-
-	PR_Lex ();	// read first token
+	PR_Lex();	// read first token
 
 	while (pr_token_type != tt_eof)
 	{

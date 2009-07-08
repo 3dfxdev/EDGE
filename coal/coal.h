@@ -98,23 +98,7 @@ opcode_t;
 
 extern const char *opcode_names[];
 
-extern bool pr_dumpasm;
-
 extern def_t *pr_global_defs[MAX_REGS];	// to find def for a global variable
-
-typedef enum
-{
-	tt_eof,			// end of file reached
-	tt_name, 		// an alphanumeric name token
-	tt_punct, 		// code punctuation
-	tt_immediate,	// string, float, vector
-}
-token_type_t;
-
-extern	char		pr_token[2048];
-extern	token_type_t	pr_token_type;
-extern	type_t		*pr_immediate_type;
-extern	double		pr_immediate[3];
 
 void PR_PrintStatement (statement_t *s);
 
@@ -169,8 +153,6 @@ extern	bool	pr_trace;
 
 
 bool	PR_CompileFile (char *string, char *filename);
-
-extern	bool	pr_dumpasm;
 
 extern	string_t	s_file;			// filename for function definition
 
