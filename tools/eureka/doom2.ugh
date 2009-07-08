@@ -1,0 +1,551 @@
+#
+#	doom2.ugh
+#	Eureka Game Definitions for Doom II
+#
+#   (based on doom2.ygd from Yadex)
+#
+
+level_format    doom
+level_name      map01
+picture_format  normal
+sky_flat        f_sky1
+texture_format  normal
+texture_lumps   normal
+
+#
+#	Definition of linedef type groups
+#	Format is : ldtgroup <ldtgroup> <description>
+#
+
+ldtgroup d "Door"
+ldtgroup r "Door (red key)"
+ldtgroup y "Door (yellow key)"
+ldtgroup b "Door (blue key)"
+ldtgroup D "Door (turbo)"
+ldtgroup l "Lift"
+ldtgroup v "Elevator"
+ldtgroup F "Floor (raise)"
+ldtgroup f "Floor (lower)"
+ldtgroup c "Ceiling"
+ldtgroup C "Crushing ceiling"
+ldtgroup t "Teleport"
+ldtgroup L "Light"
+ldtgroup e "End level"
+ldtgroup m "Moving floor"
+ldtgroup s "Raising stairs"
+ldtgroup A "Animated"
+ldtgroup E "Extrafloor"
+ldtgroup x "Misc."
+
+#
+#	Definition of linedef types
+#	Format is : ldt <number> <ldtgroup> <shortdesc> <longdesc>
+#	<shortdesc> must not exceed 16 characters.
+#
+
+ldt   0 x "-- Normal"        "--  Normal"
+ldt   1 d "DR Open door"     "DR  Open  door"
+ldt   2 d "W1 Open door (O)" "W1  Open  door (stays open)"
+ldt   3 d "W1 Close door"    "W1  Close door"
+ldt   4 d "W1 Open door"     "W1  Open  door"
+ldt   5 F "W1 Floor up LIC"  "W1  Raise floor to LIC"
+ldt   6 C "W1 Crush FF"      "W1  Start fast crushing, fast hurt"
+ldt   7 s "S1 Raise stairs"  "S1  Raise stairs (several sectors 0/999)"
+ldt   8 s "W1 Raise stairs"  "W1  Raise stairs (several sectors 0/999)"
+ldt   9 x "S1 Donut"         "S1  Lower floor, raise Ne. floor (NXP) 'Donut'"
+ldt  10 l "W1 Lower lift"    "W1  Lower lift"
+ldt  11 e "S- End level"     "S-  End level, go to next level"
+ldt  12 L "W1 Light to HE"   "W1  Light level goes to HE"
+ldt  13 L "W1 Light to 255"  "W1  Light level goes to 255"
+ldt  14 F "S1& F. up 32 TX"  "S1& Raise floor by 32 (TX)"
+ldt  15 F "S1& F. up 24 TX"  "S1& Raise floor by 24 (TX)"
+ldt  16 d "W1 Close for 30s" "W1  Close door for 30 seconds"
+ldt  17 L "W1 Start blink"   "W1  Start blinking lights"
+ldt  18 F "S1 Floor up nhEF" "S1  Raise floor to nhEF"
+ldt  19 f "W1 Floor dn HEF"  "W1  Lower floor to HEF"
+ldt  20 F "S1& F up nhEF TX" "S1& Raise floor to nhEF (TX)"
+ldt  21 l "S1 Lower lift"    "S1  Lower lift"
+ldt  22 F "W1& F up nhEF TX" "W1& Raise floor to nhEF (TX)"
+ldt  23 f "S1 Floor dn LEF"  "S1  Lower floor to LEF"
+ldt  24 F "G1 Floor up LIC"  "G1  Raise floor to LIC"
+ldt  25 C "W1 Crush FS"      "W1  Start fast crushing, slow hurt"
+ldt  26 b "DR Open blue dr"  "DR  Open  door, blue key"
+ldt  27 y "DR Open yel dr"   "DR  Open  door, yellow key"
+ldt  28 r "DR Open red dr"   "DR  Open  door, red key"
+ldt  29 d "S1 Open door"     "S1  Open  door"
+ldt  30 F "W1 Floor up SLT"  "W1  Raise floor by ShortestLowerTexture"
+ldt  31 d "D1 Open door (O)" "D1  Open  door (stays open)"
+ldt  32 b "D1 Open blu (O)"  "D1  Open  door (stays open), blue key"
+ldt  33 r "D1 Open red (O)"  "D1  Open  door (stays open), red key"
+ldt  34 y "D1 Open yel (O)"  "D1  Open  door (stays open), yellow key"
+ldt  35 L "W1 Light to 35"   "W1  Light level goes to 35"
+ldt  36 f "W1 F. DN HEF+8"   "W1  Lower turbo floor to HEF + 8"
+ldt  37 f "W1 F. dn LEF NXP" "W1  Lower floor to LEF (NXP)"
+ldt  38 f "W1 Floor dn LEF"  "W1  Lower floor to LEF"
+ldt  39 t "W1 Teleport"      "W1  Teleport to another sector"
+ldt  40 c "W1 Ceil up HEC"   "W1  Raise ceiling to HEC"
+ldt  41 c "S1 Ceil dn floor" "S1  Lower ceiling to floor"
+ldt  42 d "SR Close door"    "SR  Close door"
+ldt  43 c "SR Ceil dn floor" "SR  Lower ceiling to floor"
+ldt  44 c "W1 Ceil dn flr+8" "W1  Lower ceiling to floor + 8"
+ldt  45 f "SR Floor dn HEF"  "SR  Lower floor to HEF"
+ldt  46 d "GR Open door (O)" "GR  Open  door (stays open)"
+ldt  47 F "G1 F. up nhEF TX" "G1  Raise floor to nhEF (TX)"
+ldt  48 A "-- Scroll left"   "--  Scrolling wall, left"
+ldt  49 c "S1 Ceil dn flr+8" "S1  Lower ceiling to floor + 8"
+ldt  50 d "S1 Close door"    "S1  Close door"
+ldt  51 e "S- Secret level"  "S-  End level, go to secret level"
+ldt  52 e "W- End level"     "W-  End level, go to next level"
+ldt  53 m "W1 Start moving"  "W1  Start moving floor"
+ldt  54 m "W1 Stop moving f" "W1  Stop  moving floor"
+ldt  55 F "S1 F. up LIC-8"   "S1  Raise floor to LIC - 8, crush"
+ldt  56 F "W1& F. up LIC-8"  "W1& Raise floor to LIC - 8, crush"
+ldt  57 C "W1& Stop crush"   "W1& Stop  crushing"
+ldt  58 F "W1 Floor up 24"   "W1  Raise floor by 24"
+ldt  59 F "W1 F. up 24 TXP"  "W1  Raise floor by 24 (TXP)"
+ldt  60 f "SR Floor dn LEF"  "SR  Lower floor to LEF"
+ldt  61 d "SR Open door (O)" "SR  Open  door (stays open)"
+ldt  62 l "SR Lower lift"    "SR  Lower lift"
+ldt  63 d "SR Open door"     "SR  Open  door"
+ldt  64 F "SR Floor up LIC"  "SR  Raise floor to LIC"
+ldt  65 F "SR F. up LIC-8"   "SR  Raise floor to LIC - 8, crush"
+ldt  66 F "SR& F. up 24 TX"  "SR& Raise floor by 24 (TX)"
+ldt  67 F "SR& F. up 32 TX"  "SR& Raise floor by 32 (TX)"
+ldt  68 f "SR& F up nhEF TX" "SR& Raise floor to nhEF (TX)"
+ldt  69 F "SR F. up nhEF"    "SR  Raise floor to nhEF"
+ldt  70 f "SR F. DN HEF+8"   "SR  Lower turbo floor to HEF + 8"
+ldt  71 f "S1 F. DN HEF+8"   "S1  Lower turbo floor to HEF + 8"
+ldt  72 c "WR Ceil dn flr+8" "WR  Lower ceiling to floor + 8"
+ldt  73 C "WR& Crush SS"     "WR& Start slow crushing, slow hurt"
+ldt  74 C "WR& Stop crush"   "WR& Stop  crushing"
+ldt  75 d "WR Close door"    "WR  Close door"
+ldt  76 d "WR Close for 30s" "WR  Close door for 30 seconds"
+ldt  77 C "WR& Crush FF"     "WR& Start fast crushing, fast hurt"
+
+ldt  78 x "SR Floor -- NXP"  "SR  Floor transfer (NXP) [Boom]"
+
+ldt  79 L "WR Light to 35"   "WR  Light level goes to 35"
+ldt  80 L "WR Light to HE"   "WR  Light level goes to HE"
+ldt  81 L "WR Light to 255"  "WR  Light level goes to 255"
+ldt  82 f "WR Floor dn LEF"  "WR  Lower floor to LEF"
+ldt  83 f "WR Floor dn HEF"  "WR  Lower floor to HEF"
+ldt  84 f "WR F. dn LEF NXP" "WR  Lower floor to LEF (NXP)"
+
+ldt  85 A "-- Scroll right"  "--  Scrolling wall, right [Boom]"
+
+ldt  86 d "WR Open door (O)" "WR  Open  door (stays open)"
+ldt  87 m "WR& Start moving" "WR& Start moving floor"
+ldt  88 l "WR Lower lift"    "WR  Lower lift"
+ldt  89 m "WR& Stop moving"  "WR& Stop  moving floor"
+ldt  90 d "WR Open door"     "WR  Open  door"
+ldt  91 F "WR Floor up LIC"  "WR  Raise floor to LIC"
+ldt  92 F "WR Floor up 24"   "WR  Raise floor by 24"
+ldt  93 F "WR F. up 24 TXP"  "WR  Raise floor by 24 (TXP)"
+ldt  94 F "WR F. up LIC-8"   "WR  Raise floor to LIC - 8, crush"
+ldt  95 F "WR F. up nhEF TX" "WR  Raise floor to nhEF (TX)"
+ldt  96 F "WR Floor up SLT"  "WR  Raise floor by ShortestLowerTexture"
+ldt  97 t "WR Teleport"      "WR  Teleport to another sector"
+ldt  98 f "WR F. DN HEF+8"   "WR  Lower turbo floor to HEF + 8"
+ldt  99 b "SR OPEN blu door" "SR  Open  turbo door, blue key [v1.6]"
+ldt 100 s "W1 RaiseStairs16" "W1  Raise stairs (step=16), crush [v1.6]"
+ldt 101 F "S1 Floor up LIC"  "S1  Raise floor to LIC"
+ldt 102 f "S1 Floor dn HEF"  "S1  Lower floor to HEF"
+ldt 103 d "S1 Open door (O)" "S1  Open  door (stays open)"
+ldt 104 L "W1 Light to LE"   "W1  Light level goes to LE"
+ldt 105 D "WR OPEN door"     "WR  Open  turbo door [v1.6]"
+ldt 106 D "WR OPEN door (O)" "WR  Open  turbo door (stays open) [v1.6]"
+ldt 107 D "WR CLOSE door"    "WR  Close turbo door [v1.6]"
+ldt 108 D "W1 OPEN door"     "W1  Open  turbo door [v1.6]"
+ldt 109 D "W1 OPEN door (O)" "W1  Open  turbo door (stays open) [v1.6]"
+ldt 110 D "W1 CLOSE door"    "W1  Close turbo door [v1.6]"
+ldt 111 D "S1 OPEN door"     "S1  Open  turbo door [v1.6]"
+ldt 112 D "S1 OPEN door (O)" "S1  Open  turbo door (stays open) [v1.6]"
+ldt 113 D "S1 CLOSE door"    "S1  Close turbo door [v1.6]"
+ldt 114 D "SR OPEN door"     "SR  Open  turbo door [v1.6]"
+ldt 115 D "SR OPEN door (O)" "SR  Open  turbo door (stays open) [v1.6]"
+ldt 116 D "SR CLOSE door"    "SR  Close turbo door [v1.6]"
+ldt 117 D "DR OPEN door"     "DR  Open  turbo door [v1.6]"
+ldt 118 D "D1 OPEN door (O)" "D1  Open  turbo door (stays open) [v1.6]"
+ldt 119 F "W1 Floor up nhEF" "W1  Raise floor to nhEF [v1.6]"
+ldt 120 l "WR LOWER lift"    "WR  Lower turbo lift [v1.6]"
+ldt 121 l "W1 LOWER lift"    "W1  Lower turbo lift [v1.6]"
+ldt 122 l "S1 LOWER lift"    "S1  Lower turbo lift [v1.6]"
+ldt 123 l "SR LOWER lift"    "SR  Lower turbo lift [v1.6]"
+ldt 124 e "W- Secret level"  "W-  End level, go to secret level [v1.6]"
+ldt 125 t "W1 Teleport mons" "W1  Teleport monsters only [v1.6]"
+ldt 126 t "WR Teleport mons" "WR  Teleport monsters only [v1.6]"
+ldt 127 s "S1 RaiseStairs16" "S1  Raise stairs (step=16), crush [v1.6]"
+ldt 128 F "WR Floor up nhEF" "WR  Raise floor to nhEF [v1.6]"
+ldt 129 F "WR Floor UP nhEF" "WR  Raise turbo floor to nhEF [v1.6]"
+ldt 130 F "W1 Floor UP nhEF" "W1  Raise turbo floor to nhEF [v1.6]"
+ldt 131 F "S1 Floor UP nhEF" "S1  Raise turbo floor to nhEF [v1.6]"
+ldt 132 F "SR Floor UP nhEF" "SR  Raise turbo floor to nhEF [v1.6]"
+ldt 133 b "S1 OPEN blu door" "S1  Open  turbo door, blue key [v1.6]"
+ldt 134 r "SR OPEN red door" "SR  Open  turbo door, red key [v1.6]"
+ldt 135 r "S1 OPEN red door" "S1  Open  turbo door, red key [v1.6]"
+ldt 136 y "SR OPEN yel door" "SR  Open  turbo door, yellow key [v1.6]"
+ldt 137 y "S1 OPEN yel door" "S1  Open  turbo door, yellow key [v1.6]"
+ldt 138 L "SR Light to 255"  "SR  Light level goes to 255 [v1.6]"
+ldt 139 L "SR Light to 0"    "SR  Light level goes to 0 [v1.6]"
+ldt 140 F "S1 Floor up 512"  "S1  Raise floor by 512, medium speed [v1.6]"
+ldt 141 C "W1& Crush SS sil" "W1& Start slow crushing, slow hurt, silent [v1.6]"
+
+ldt 142 F "W1 Floor up 512"  "W1  Raise floor by 512 [Boom]"
+ldt 143 l "W1& F. up 24 TX"  "W1& Raise floor by 24 (TX) [Boom]"
+ldt 144 l "W1& F. up 32 TX"  "W1& Raise floor by 32 (TX) [Boom]"
+ldt 145 c "W1 Ceil dn floor" "W1  Lower ceiling to floor [Boom]"
+ldt 146 x "W1 Donut"         "W1  Lower floor, raise NE floor (NXP) [Boom]"
+ldt 147 F "WR Floor up 512"  "WR  Raise floor by 512 [Boom]"
+ldt 148 l "WR& F. up 24 TX"  "WR& Raise floor by 24 (TX) [Boom]"
+ldt 149 l "WR& F. up 32 TX"  "WR& Raise floor by 32 (TX) [Boom]"
+ldt 150 C "WR& Crush SS sil" "WR& Start slow crushing, silent [Boom]"
+ldt 151 c "WR Ceil up HEC"   "WR  Raise ceiling to HEC [Boom]"
+ldt 152 c "WR Ceil dn floor" "WR  Lower ceiling to floor [Boom]"
+ldt 153 x "W1 Floor -- TXP"  "W1  Floor transfer (TXP) [Boom]"
+ldt 154 x "WR Floor -- TXP"  "WR  Floor transfer (TXP) [Boom]"
+ldt 155 x "WR Donut"         "WR  Lower floor, raise NE floor (NXP) [Boom]"
+ldt 156 L "WR Start blink"   "WR  Start blinking lights [Boom]"
+ldt 157 L "WR Light to LE"   "WR  Light level goes to LE [Boom]"
+ldt 158 F "S1 Floor up SLT"  "S1  Raise floor by ShortestLowerTex [Boom]"
+ldt 159 f "S1 F. dn LEF NX"  "S1  Lower floor to LEF (NXP) [Boom]"
+ldt 160 F "S1 F. up 24 TXP"  "S1  Raise floor by 24 (TXP) [Boom]"
+ldt 161 F "S1 Floor up 24"   "S1  Raise floor by 24 [Boom]"
+ldt 162 m "S1 Start moving"  "S1  Start moving floor [Boom]"
+ldt 163 m "S1 Stop moving f" "S1  Stop  moving floor [Boom]"
+ldt 164 C "S1 Crush FF"      "S1  Start fast crushing [Boom]"
+ldt 165 C "S1& Crush SS sil" "S1& Start slow crushing, silent [Boom]"
+ldt 166 c "S1 Ceil up HEC"   "S1  Raise ceiling to HEC [Boom]"
+ldt 167 c "S1 Ceil dn flr+8" "S1  Lower ceiling to floor + 8 [Boom]"
+ldt 168 C "S1& Stop crush"   "S1& Stop  crushing [Boom]"
+ldt 169 L "S1 Light to HE"   "S1  Light level goes to HE [Boom]"
+ldt 170 L "S1 Light to 0"    "S1  Light level goes to 0 [Boom]"
+ldt 171 L "S1 Light to 255"  "S1  Light level goes to 255 [Boom]"
+ldt 172 L "S1 Start blink"   "S1  Start blinking lights [Boom]"
+ldt 173 L "S1 Light to LE"   "S1  Light level goes to LE [Boom]"
+ldt 174 t "S1 Teleport"      "S1  Teleport to another sector [Boom]"
+ldt 175 d "S1 Close for 30s" "S1  Close door for 30 seconds [Boom]"
+ldt 176 F "SR Floor up SLT"  "SR  Raise floor by ShortestLowerTex [Boom]"
+ldt 177 f "SR F. dn LEF NX"  "SR  Lower floor to LEF (NXP) [Boom]"
+ldt 178 F "SR Floor up 512"  "SR  Raise floor by 512 [Boom]"
+ldt 179 F "SR F. up 24 TXP"  "SR  Raise floor by 24 (TXP) [Boom]"
+ldt 180 F "SR Floor up 24"   "SR  Raise floor by 24 [Boom]"
+ldt 181 m "SR Start moving"  "SR  Start moving floor [Boom]"
+ldt 182 m "SR Stop moving f" "SR  Stop  moving floor [Boom]"
+ldt 183 C "SR Crush FF"      "SR  Start fast crushing [Boom]"
+ldt 184 C "SR& Crush SS"     "SR& Start slow crushing [Boom]"
+ldt 185 C "SR& Crush SS sil" "SR& Start slow crushing, silent [Boom]"
+ldt 186 c "SR Ceil up HEC"   "SR  Raise ceiling to HEC [Boom]"
+ldt 187 c "SR Ceil dn flr+8" "SR  Lower ceiling to floor + 8 [Boom]"
+ldt 188 C "SR& Stop crush"   "SR& Stop  crushing [Boom]"
+ldt 189 x "S1 Floor -- TXP"  "S1  Floor transfer (TXP) [Boom]"
+ldt 190 x "SR Floor -- TXP"  "SR  Floor transfer (TXP) [Boom]"
+ldt 191 x "SR Donut"         "SR  Lower floor, raise NE floor (NXP) [Boom]"
+ldt 192 L "SR Light to HE"   "SR  Light level goes to HE [Boom]"
+ldt 193 L "SR Start blink"   "SR  Start blinking lights [Boom]"
+ldt 194 L "SR Light to LE"   "SR  Light level goes to LE [Boom]"
+ldt 195 t "SR Teleport"      "SR  Teleport to another sector [Boom]"
+ldt 196 d "SR Close for 30s" "SR  Close door for 30 seconds [Boom]"
+ldt 197 e "G- End level"     "G-  End level, go to next level [Boom]"
+ldt 198 e "G- End level"     "G-  End level, go to secret level [Boom]"
+ldt 199 c "W1 Ceil dn LEC"   "W1  Lower ceiling to LEC [Boom]"
+ldt 200 c "W1 Ceil dn HEF"   "W1  Lower ceiling to HEF [Boom]"
+ldt 201 c "WR Ceil dn LEC"   "WR  Lower ceiling to LEC [Boom]"
+ldt 202 c "WR Ceil dn HEF"   "WR  Lower ceiling to HEF [Boom]"
+ldt 203 c "S1 Ceil dn LEC"   "S1  Lower ceiling to LEC [Boom]"
+ldt 204 c "S1 Ceil dn HEF"   "S1  Lower ceiling to HEF [Boom]"
+ldt 205 c "SR Ceil dn LEC"   "SR  Lower ceiling to LEC [Boom]"
+ldt 206 c "SR Ceil dn HEF"   "SR  Lower ceiling to HEF [Boom]"
+ldt 207 t "W1 Teleport pres" "W1  Teleport preserving dir [Boom]"
+ldt 208 t "WR Teleport pres" "WR  Teleport preserving dir [Boom]"
+ldt 209 t "S1 Teleport pres" "S1  Teleport preserving dir [Boom]"
+ldt 210 t "SR Teleport pres" "SR  Teleport preserving dir [Boom]"
+ldt 211 m "SR Floor toggle"  "SR  Floor toggle to ceil [Boom]"
+ldt 212 m "WR Floor toggle"  "WR  Floor toggle to ceil [Boom]"
+ldt 213 L "-- Xfer F. light" "--  Transfer floor lighting [Boom]"
+ldt 214 A "-- Scrl C. accel" "--  Scroll ceiling with accel [Boom]"
+ldt 215 A "-- Scrl F. accel" "--  Scroll floor with accel [Boom]"
+ldt 216 A "-- Push F. accel" "--  Push objects with accel [Boom]"
+ldt 217 A "-- Sc/Pu F. accl" "--  Scroll & push with accel [Boom]"
+ldt 218 A "-- Scrl wall acc" "--  Scroll wall with accel [Boom]"
+ldt 219 f "W1 F. dn nlEF"    "W1  Lower floor to nlEF [Boom]"
+ldt 220 f "WR F. dn nlEF"    "WR  Lower floor to nlEF [Boom]"
+ldt 221 f "S1 F. dn nlEF"    "S1  Lower floor to nlEF [Boom]"
+ldt 222 f "SR F. dn nlEF"    "SR  Lower floor to nlEF [Boom]"
+ldt 223 x "-- Friction"      "--  Set friction in tagged sectors [Boom]"
+ldt 224 x "-- Wind force"    "--  Set wind in tagged sectors [Boom]"
+ldt 225 x "-- Current force" "--  Set current in tagged sectors [Boom]"
+ldt 226 x "-- Point force"   "--  Set point force in sectors [Boom]"
+ldt 227 v "W1 Elevator nhEF" "W1  Raise elevator to nhEF [Boom]"
+ldt 228 v "WR Elevator nhEF" "WR  Raise elevator to nhEF [Boom]"
+ldt 229 v "S1 Elevator nhEF" "S1  Raise elevator to nhEF [Boom]"
+ldt 230 v "SR Elevator nhEF" "SR  Raise elevator to nhEF [Boom]"
+ldt 231 v "W1 Elevator nlEF" "W1  Lower elevator to nlEF [Boom]"
+ldt 232 v "WR Elevator nlEF" "WR  Lower elevator to nlEF [Boom]"
+ldt 233 v "S1 Elevator nlEF" "S1  Lower elevator to nlEF [Boom]"
+ldt 234 v "SR Elevator nlEF" "SR  Lower elevator to nlEF [Boom]"
+ldt 235 v "W1 Elevator curr" "W1  Move elevator to Current [Boom]"
+ldt 236 v "WR Elevator curr" "WR  Move elevator to Current [Boom]"
+ldt 237 v "S1 Elevator curr" "S1  Move elevator to Current [Boom]"
+ldt 238 v "SR Elevator curr" "SR  Move elevator to Current [Boom]"
+ldt 239 x "W1 Floor -- NXP"  "W1  Floor transfer (NXP) [Boom]"
+ldt 240 x "WR Floor -- NXP"  "WR  Floor transfer (NXP) [Boom]"
+ldt 241 x "S1 Floor -- NXP"  "S1  Floor transfer (NXP) [Boom]"
+ldt 242 x "-- Deep water"    "--  Deep water effect [Boom]"
+ldt 243 t "W1 Telept line"   "W1  Teleport to tagged line [Boom]"
+ldt 244 t "WR Telept line"   "WR  Teleport to tagged line [Boom]"
+ldt 245 A "-- Scrl C. disp"  "--  Scroll ceiling by displacement [Boom]"
+ldt 246 A "-- Scrl F. disp"  "--  Scroll floor by displacement [Boom]"
+ldt 247 A "-- Push F. disp"  "--  Push objects by displacement [Boom]"
+ldt 248 A "-- Sc/Pu F. disp" "--  Scroll & push by displacement [Boom]"
+ldt 249 A "-- Scrl wall dis" "--  Scroll wall by displacement [Boom]"
+ldt 250 A "-- Scroll ceil"   "--  Scroll tagged ceiling [Boom]"
+ldt 251 A "-- Scroll floor"  "--  Scroll tagged floor [Boom]"
+ldt 252 A "-- Push on floor" "--  Push objects on tagged floor [Boom]"
+ldt 253 A "-- Scroll,push f" "--  Scroll & push tagged floor [Boom]"
+ldt 254 A "-- Scrl wal with" "--  Scroll tagged wall with F/C [Boom]"
+ldt 255 A "-- Scrl wal side" "--  Scroll wall using sidedef [Boom]"
+ldt 256 s "WR Raise stairs"  "WR  Raise stairs (several sectors) [Boom]"
+ldt 257 s "WR RaiseStairs16" "WR  Raise stairs (step=16), crush [Boom]"
+ldt 258 s "SR Raise stairs"  "SR  Raise stairs (several sectors) [Boom]"
+ldt 259 s "SR RaiseStairs16" "SR  Raise stairs (step=16), crush [Boom]"
+ldt 260 A "-- Translucency"  "--  Make tagged lines translucent [Boom]"
+ldt 261 L "-- Xfer C. light" "--  Transfer ceiling lighting [Boom]"
+ldt 262 t "W1 Telept line R" "W1  Teleport to line, reverse [Boom]"
+ldt 263 t "WR Telept line R" "WR  Teleport to line, reverse [Boom]"
+ldt 264 t "W1 Tpt line mons" "W1  Teleport monsters to line [Boom]"
+ldt 265 t "WR Tpt line mons" "WR  Teleport monsters to line [Boom]"
+ldt 266 t "W1 Tpt L. mons R" "W1  Teleport monsters to line, rev [Boom]"
+ldt 267 t "WR Tpt L. mons R" "WR  Teleport monsters to line, rev [Boom]"
+ldt 268 t "W1 Teleport mons" "W1  Teleport monsters only [Boom]"
+ldt 269 t "WR Teleport mons" "WR  Teleport monsters only [Boom]"
+
+ldt 271 x "-- Xfer sky"      "--  Xfer straight upper to sky tex. [MBF]"
+ldt 272 x "-- Xfer mir. sky" "--  Xfer mirrored upper to sky tex. [MBF]"
+
+ldt 300 x "SR Sliding door"  "SR  Sliding door [XDoom]"
+ldt 320 x "-- Laser barrier" "--  Laser barrier [XDoom]"
+ldt 321 x "SR Laser off mom" "SR  Switch laser barrier off momentarily [XDoom]"
+ldt 322 x "G1 Laser off per" "G1  Switch laser barrier off permanently [XDoom]"
+ldt 330 x "WR Trigger messg" "WR  Trigger communication device message [XDoom]"
+ldt 331 x "W1 Trigger messg" "W1  Trigger communication device message [XDoom]"
+ldt 332 x "S1 Activate tele" "S1  Activate teleporter with message [XDoom]"
+ldt 333 x "S1 Deact. laser"  "S1  Deactivate laser with message [XDoom]"
+ldt 334 x "M1 Trigger messg" "M1  Trigger communication device message [XDoom]"
+ldt 350 d "W1 Silent door O" "W1  Open silent door by player (stays open) [XDoom]"
+ldt 351 d "S1 Silent door O" "S1  Open silent door by player (stays open) [XDoom]"
+ldt 352 d "M1 Silent door O" "M1  Open silent door by monster (stays open) [XDoom]"
+
+ldt 400 E "-- Thick EF"      "--  Thick extrafloor [EDGE]"
+ldt 401 E "-- Thick EF upr"  "--  Thick extrafloor, side upper [EDGE]"
+ldt 402 E "-- Thick EF lwr"  "--  Thick extrafloor, side lower [EDGE]"
+ldt 403 E "-- Liq EF opaque" "--  Liquid extrafloor, opaque [EDGE]"
+ldt 404 E "-- Liquid EF 20%" "--  Liquid extrafloor, 20% translucent [EDGE]"
+ldt 405 E "-- Liquid EF 40%" "--  Liquid extrafloor, 40% translucent [EDGE]"
+ldt 406 E "-- Liquid EF 60%" "--  Liquid extrafloor, 60% translucent [EDGE]"
+ldt 407 E "-- Liquid EF 80%" "--  Liquid extrafloor, 80% translucent [EDGE]"
+ldt 408 E "-- Liq EF invis"  "--  Liquid extrafloor, invisible [EDGE]"
+
+ldt 9000 A "-- Scroll right" "--  Scrolling wall, right [EDGE]"
+ldt 9001 A "-- Scroll up"    "--  Scrolling wall, up [EDGE]"
+ldt 9002 A "-- Scroll down"  "--  Scrolling wall, down [EDGE]"
+ldt 9003 A "-- Scroll L+U"   "--  Scrolling wall, left and up [EDGE]"
+ldt 9004 A "-- Scroll L+D"   "--  Scrolling wall, left and down [EDGE]"
+ldt 9005 A "-- Scroll R+U"   "--  Scrolling wall, right and up [EDGE]"
+ldt 9006 A "-- Scroll R+D"   "--  Scrolling wall, right and down [EDGE]"
+ldt 9097 t "WR Teleport prv" "WR  Teleport, preserving direction [EDGE]"
+
+#
+#	Definition of sector types
+#	Format is : st <number> <shortdesc> <longdesc>
+#	<shortdesc> must not exceed 14 characters.
+#
+
+st  0 "X Normal"       "X Normal"
+st  1 "  Blinks rand"  "  Light blinks randomly"
+st  2 "  Flashes 2 Hz" "  Light flashes 2 Hz"
+st  3 "  Flashes 1 Hz" "  Light flashes 1 Hz"
+st  4 "P -20% & 2Hz"   "P -10/20% health, flashes 2 Hz"
+st  5 "P -10% health"  "P -5/10% health"
+st  7 "P -5% health"   "P -2/5% health"
+st  8 "  Oscillates"   "  Light oscillates"
+st  9 "P Secret"       "P Secret"
+st 10 "  Closes 30 s"  "  30 s after level start, ceiling closes like a door"
+st 11 "P -20% & end"   "P -10/20% health and end level when health <= 10%"
+st 12 "  Flash1Hz syn" "  Light flashes 1 Hz, synchronized"
+st 13 "  Flash2Hz syn" "  Light flashes 2 Hz, synchronized"
+st 14 "  Opens 300 s"  "  300 s after level start, ceiling opens like a door"
+st 16 "P -20% health"  "P -10/20% health"
+st 17 "  Flicker rand" "  Light flickers on and off randomly [v1.6]"
+
+#
+#	Definition of thing groups
+#	Format is : thinggroup <thinggroup> <colour> <description>
+#
+
+thinggroup p rgb:4/f/4 "Player"
+thinggroup m rgb:f/0/0 "Monster"
+thinggroup w rgb:f/a/0 "Weapon"
+thinggroup a rgb:8/5/0 "Ammunition"
+thinggroup h rgb:2/8/0 "Health & armour"
+thinggroup b rgb:2/8/0 "Misc. bonus"
+thinggroup k rgb:f/0/f "Key"
+thinggroup d rgb:6/6/c "Misc. decoration"
+thinggroup l rgb:6/6/c "Light source"
+thinggroup g rgb:6/6/c "Gory decoration"
+thinggroup c rgb:6/6/c "Corpse"
+thinggroup s rgb:0/b/d "Special"
+
+#
+#	Definition of things
+#	Format is :
+#	thing <number> <thinggroup> <flags> <radius> <desc> [<sprite>]
+#	<desc> must not exceed 19 characters.
+#
+
+thing 2007 a -  20 "Clip"			CLIP
+thing 2048 a -  20 "Box of bullets"		AMMO
+thing 2008 a -  20 "4 shotgun shells"		SHEL
+thing 2049 a -  20 "Box shotgun shells"		SBOX
+thing 2010 a -  20 "Rocket"			ROCK
+thing 2046 a -  20 "Box of rockets"		BROK
+thing 2047 a -  20 "Energy cell"		CELL
+thing   17 a -  20 "Energy cell pack"		CELP
+thing    8 a -  20 "Backpack full ammo"		BPAK
+
+thing 2025 b -  20 "Rad. shielding suit"	SUIT
+thing 2026 b -  20 "Computer area map"		PMAP
+thing 2024 b -  20 "Partial invis."		PINS
+thing 2023 b -  20 "Berserk"			PSTR
+thing 2022 b -  20 "Invulnerability"		PINV
+thing 2045 b -  20 "Light amp. visor"		PVIS
+thing 7000 b -  20 "Night vision [EDGE]"	NVSC
+thing 2016 b -  16 "Evil sceptre [PR]"		BON3
+thing 2017 b -  16 "Unholy bible [PR]"		BON4
+
+thing   15 c -  16 "Dead player (green)"	PLAYN
+thing   18 c -  20 "Dead trooper"		POSSL
+thing   19 c -  20 "Dead sergeant"		SPOSL
+thing   20 c -  20 "Dead imp"			TROOM
+thing   21 c -  16 "Dead demon"			SARGN
+thing   22 c -  16 "Dead cacodemon"		HEADL
+thing   23 c -  16 "Dead lost soul"		SKULK
+
+thing 2035 d -  10 "Barrel"			BAR1
+thing 7011 d -  10 "Unstable barrel [EDGE]"	BEXP	# FIXME cut off
+thing   72 d -  16 "Commander Keen"		KEEN
+thing   48 d -  16 "Technical column"		ELEC
+thing   30 d -  16 "Tall green pillar"		COL1
+thing   32 d -  16 "Tall red pillar"		COL3
+thing   31 d -  16 "Short green pillar"		COL2
+thing   33 d -  16 "Short red pillar"		COL4
+thing   36 d -  16 "Pillar w/heart"		COL5
+thing   37 d -  16 "Red pillar w/skull"		COL6
+thing   41 d -  16 "Evil eye"			CEYE
+thing   42 g -  16 "Floating skulls"		FSKU
+thing   47 d -  16 "Brown stub"			SMIT
+thing 7010 d -  16 "Grey stub [EDGE]"		SMT2
+thing   54 d -  32 "Brown tree"			TRE2
+thing   43 d -  16 "Grey tree"			TRE1
+
+thing   10 g -  16 "Mushed player"		PLAYW
+thing   12 g -  16 "Mushed player 2"		PLAYW
+thing   24 g -  16 "Pool of blood"		POL5
+thing   79 g -  16 "Pool of blood 2"		POB1
+thing   80 g -  16 "Pool of blood 3"		POB2
+thing   81 g -  16 "Pool of brains"		BRS1
+thing   27 g -  16 "Pole with skull"		POL4
+thing   28 g -  16 "Skewer with heads"		POL2
+thing   29 g -  16 "Pile of skulls"		POL3
+thing   25 g -  16 "Impaled body"		POL1
+thing   26 g -  16 "Impaled twitching"		POL6
+thing   49 g -  16 "Swaying body O"		GOR1
+thing   63 g -  16 "Swaying body"		GOR1
+thing   50 g -  16 "Hanging arms out O"		GOR2
+thing   59 g -  16 "Hanging arms out"		GOR2
+thing   53 g -  16 "Hanging leg O"		GOR5
+thing   62 g -  16 "Hanging leg"		GOR5
+thing   51 g -  16 "Hanging one-legged O"	GOR3	# FIXME cut off
+thing   61 g -  16 "Hanging one-legged"		GOR3
+thing   52 g -  16 "Hanging torso O"		GOR4
+thing   60 g -  16 "Hanging torso"		GOR4
+thing   73 g -  16 "Hanging no guts"		HDB1
+thing   74 g -  16 "Hanging no brain"		HDB2
+thing   75 g -  16 "H. torso looking down"	HDB3
+thing   76 g -  16 "H. torso open skull"	HDB4
+thing   77 g -  16 "H. torso looking up"	HDB5
+thing   78 g -  16 "H. torso w/o brain"		HDB6
+
+thing 2014 h -  20 "Health bonus"		BON1
+thing 2011 h -  20 "Stimpack"			STIM
+thing 2012 h -  20 "Medikit"			MEDI
+thing 2013 h -  20 "Supercharge"		SOUL
+thing 2015 h -  20 "Armor bonus"		BON2
+thing 2018 h -  20 "Armor"			ARM1
+thing 2019 h -  20 "Megaarmor"			ARM2
+thing   83 h -  20 "Megasphere"			MEGA
+
+thing    5 k -  20 "Blue keycard"		BKEY
+thing    6 k -  20 "Yellow keycard"		YKEY
+thing   13 k -  20 "Red keycard"		RKEY
+thing   40 k -  20 "Blue skull key"		BSKU
+thing   39 k -  20 "Yellow skull key"		YSKU
+thing   38 k -  20 "Red skull key"		RSKU
+
+thing 2028 l -  16 "Lamp"			COLU
+thing   85 l -  16 "Tall mercury lamp"		TLMP
+thing   86 l -  16 "Short mercury lamp"		TLP2
+thing   34 l -  16 "Candle"			CAND
+thing   35 l -  16 "Candelabra"			CBRA
+thing   44 l -  16 "Tall blue torch"		TBLU
+thing   45 l -  16 "Tall green torch"		TGRN
+thing   46 l -  16 "Tall red torch"		TRED
+thing   55 l -  16 "Short blue torch"		SMBT
+thing   56 l -  16 "Short green torch"		SMGT
+thing   57 l -  16 "Short red torch"		SMRT
+thing   70 l -  16 "Burning barrel"		FCAN
+
+thing 3004 m -  20 "Trooper"			POSS
+thing    9 m -  20 "Sergeant"			SPOS
+thing 3001 m -  20 "Imp"			TROO
+thing 3002 m -  30 "Demon"			SARG
+thing 3003 m -  24 "Baron of hell"		BOSS
+thing   58 m s  30 "Spectre"			SARG
+thing 3006 m -  16 "Lost soul"			SKUL
+thing 3005 m -  31 "Cacodemon"			HEAD
+thing    7 m - 128 "Spider mastermind"		SPID
+thing   16 m -  40 "Cyberdemon"			CYBR
+thing   84 m -  20 "Wolfenstein SS"		SSWV
+thing   65 m -  20 "Heavy weapon dude"		CPOS
+thing   69 m -  24 "Hell knight"		BOS2
+thing   68 m -  64 "Arachnotron"		BSPI
+thing 7102 m -  64 "Arachnotron mkII [EDGE]"	BSPIH
+thing   71 m -  31 "Pain elemental"		PAIN
+thing   66 m -  20 "Revenant"			SKEL
+thing 7100 m -  20 "Revenant mkII [EDGE]"	SKELJ
+thing   67 m -  48 "Mancubus"			FATT
+thing 7103 m -  48 "Mancubus mkII [EDGE]"	FATTH
+thing   64 m -  20 "Arch vile"			VILE
+thing   88 m -  16 "Boss brain"			BBRN
+thing   89 m -  16 "Boss shooter"		BOSFB
+thing   87 m -  16 "Spawn spot"			FIREF
+thing 7101 m -  64 "Imp spawner [EDGE]"		TFOGB
+
+thing    1 p -  16 "Player 1 start"		PLAY
+thing    2 p -  16 "Player 2 start"		PLAY
+thing    3 p -  16 "Player 3 start"		PLAY
+thing    4 p -  16 "Player 4 start"		PLAY
+thing  888 p -  12 "Dog [MBF]"
+thing   11 p -  16 "Deathmatch start"		PLAYF1
+thing   14 p -  16 "Teleport exit"		TFOG
+
+thing 2005 w -  20 "Chainsaw"			CSAW
+thing 2001 w -  20 "Shotgun"			SHOT
+thing   82 w -  20 "Super shotgun"		SGN2
+thing 2002 w -  20 "Chaingun"			MGUN
+thing 2003 w -  20 "Rocket launcher"		LAUN
+thing 2004 w -  20 "Plasma gun"			PLAS
+thing 2006 w -  20 "BFG9000"			BFUG
+
+thing 5001 s -  20 "Point pusher [Boom]"
+thing 5002 s -  20 "Point puller [Boom]"
+
