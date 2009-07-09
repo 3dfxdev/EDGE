@@ -21,9 +21,12 @@
 #define __QCC_H__
 
 
+void PR_InitData(void);
 void PR_BeginCompilation(void);
 bool PR_FinishCompilation(void);
+void PR_ShowStats(void);
 
+void PR_SetTrace(bool enable);
 void PR_ExecuteProgram(func_t fnum);
 
 
@@ -88,7 +91,6 @@ void PR_PrintDefs(void);
 void PR_SkipToSemicolon(void);
 
 extern	char		pr_parm_names[MAX_PARMS][MAX_NAME];
-extern	bool	pr_trace;
 
 #define	G_FLOAT(o) (pr_globals[o])
 #define	G_VECTOR(o) (&pr_globals[o])

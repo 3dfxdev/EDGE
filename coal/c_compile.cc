@@ -99,6 +99,22 @@ int			locals_end;		// for tracking local variables vs temps
 void PR_ParseStatement(bool allow_def);
 
 
+void PR_InitData(void)
+{
+	numstatements = 1;
+	strofs = 1;
+	numfunctions = 1;
+}
+
+void PR_ShowStats(void)
+{
+	printf("%6i strofs\n", strofs);
+	printf("%6i numstatements\n", numstatements);
+	printf("%6i numfunctions\n", numfunctions);
+	printf("%6i numpr_globals\n", numpr_globals);
+}
+
+
 void PR_NewLine(void)
 {
 	// Called when *pr_file_p == '\n'
