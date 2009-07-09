@@ -20,12 +20,14 @@
 #ifndef __COAL_API_H__
 #define __COAL_API_H__
 
+namespace coal
+{
 
 // === COMPILER ==================================
 
 void PR_InitData(void);
 void PR_BeginCompilation(void);
-bool PR_CompileFile(char *string, char *filename);
+bool PR_CompileFile(char *buffer, char *filename);
 bool PR_FinishCompilation(void);
 void PR_ShowStats(void);
 
@@ -33,10 +35,11 @@ void PR_ShowStats(void);
 // === VM ========================================
 
 void PR_SetTrace(bool enable);
-func_t PR_FindFunction(const char *func_name);
-int PR_ExecuteProgram(func_t fnum);
+int PR_FindFunction(const char *func_name);
+int PR_ExecuteProgram(int fnum);
 double * PR_Parameter(int p);
 
+} // namespace coal
 
 #endif /* __COAL_API_H__ */
 

@@ -27,9 +27,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <errno.h>
 #include <assert.h>
 
-#include "c_local.h"
-
 #include "coal.h"
+
+
+namespace coal
+{
+
+#include "c_local.h"
 
 
 // FIXME
@@ -81,7 +85,7 @@ void PR_SetTrace(bool enable)
 }
 
 
-func_t PR_FindFunction(const char *func_name)
+int PR_FindFunction(const char *func_name)
 {
 	for (int i = 0; i < numfunctions; i++)
 	{
@@ -92,7 +96,7 @@ func_t PR_FindFunction(const char *func_name)
 		// printf("  %d '%s'\n", f->s_name, name);
 
 		if (strcmp(name, func_name) == 0)
-			return (func_t)i;
+			return i;
 	}
 
 	return 0;  // NOT FOUND
@@ -222,7 +226,7 @@ void PR_EnterBuiltin(function_t *newf, int result)
 }
 
 
-static void DoExecuteProgram(func_t fnum)
+static void DoExecuteProgram(int fnum)
 {
     function_t *newf;
 
@@ -491,7 +495,7 @@ static void DoExecuteProgram(func_t fnum)
 	}
 }
 
-int PR_ExecuteProgram(func_t fnum)
+int PR_ExecuteProgram(int fnum)
 {
 	try
 	{
@@ -824,6 +828,7 @@ double * PR_Parameter(int p)
 
 #include "r_cmds.c"  // FIXME
 
+}  // namespace coal
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

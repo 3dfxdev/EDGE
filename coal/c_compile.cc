@@ -28,11 +28,13 @@
 
 // #include <sys/signal.h>
 
-
-#include "c_local.h"
-
 #include "coal.h"
 
+
+namespace coal
+{
+
+#include "c_local.h"
 
 #define MAX_ERRORS  1000
 
@@ -1745,6 +1747,7 @@ bool PR_FinishCompilation(void)
 	return !errors;
 }
 
+}  // namespace coal
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
