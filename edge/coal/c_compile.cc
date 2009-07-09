@@ -34,6 +34,9 @@
 #include "coal.h"
 
 
+#define MAX_ERRORS  1000
+
+
 typedef enum
 {
 	tt_eof,			// end of file reached

@@ -17,9 +17,8 @@
     See file, 'COPYING', for details.
 */
 
-
-#ifndef __DEFS_CC_H__
-#define __DEFS_CC_H__
+#ifndef __COAL_LOCAL_DEFS_H__
+#define __COAL_LOCAL_DEFS_H__
 
 typedef unsigned char byte;
 
@@ -172,6 +171,35 @@ def_t;
 
 //=============================================================================
 
+#define	MAX_DATA_PATH	64
+
+#define	MAX_REGS		16384
+#define	MAX_STRINGS		500000
+#define	MAX_GLOBALS		16384
+#define	MAX_FIELDS		1024
+#define	MAX_STATEMENTS	65536
+#define	MAX_FUNCTIONS	8192
+
+extern	char	strings[MAX_STRINGS];
+extern	int		strofs;
+
+extern	statement_t	statements[MAX_STATEMENTS];
+extern	int			numstatements;
+extern	int			statement_linenums[MAX_STATEMENTS];
+
+extern	function_t  functions[MAX_FUNCTIONS];
+extern	int			numfunctions;
+
+extern	double		pr_globals[MAX_REGS];
+extern	int			numpr_globals;
+
+extern def_t *pr_global_defs[MAX_REGS];	// to find def for a global variable
+
+int	CopyString(char *str);
+
+
+//=== COMPILER STUFF =========================================//
+
 extern	int		type_size[8];
 
 extern	type_t	type_void, type_string, type_float, type_vector,
@@ -190,9 +218,6 @@ typedef struct
 	type_t *type_a, *type_b, *type_c;
 }
 opcode_t;
-
-
-//=== COMPILER STUFF =========================================//
 
 extern const char *opcode_names[];
 
@@ -261,7 +286,10 @@ void PR_RunError(const char *error, ...) __attribute__((format(printf,1,2)));
 
 char *PR_GetString(int num);
 
-#endif // __DEFS_CC_H__
+void PR_PrintStatement(statement_t *s);
+void PR_PrintDefs(void);
+
+#endif /* __COAL_LOCAL_DEFS_H__ */
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
