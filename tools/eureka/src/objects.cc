@@ -112,7 +112,7 @@ switch (objtype)
       }
    else
       {
-      FreeFarMemory (Things);
+      FreeMemory (Things);
       Things = 0;
       }
    for (cur = (*list)->next; cur; cur = cur->next)
@@ -158,7 +158,7 @@ switch (objtype)
       }
    else
       {
-      FreeFarMemory (Vertices);
+      FreeMemory (Vertices);
       Vertices = 0;
       }
    for (cur = (*list)->next; cur; cur = cur->next)
@@ -196,12 +196,12 @@ switch (objtype)
       {
       for (n = objnum; n < NumLineDefs; n++)
          LineDefs[n] = LineDefs[n + 1];
-      LineDefs = (LDPtr) ResizeFarMemory (LineDefs,
+      LineDefs = (LDPtr) ResizeMemory (LineDefs,
         NumLineDefs * sizeof (struct LineDef));
       }
    else
       {
-      FreeFarMemory (LineDefs);
+      FreeMemory (LineDefs);
       LineDefs = 0;
       }
    for (cur = (*list)->next; cur; cur = cur->next)
@@ -246,7 +246,7 @@ switch (objtype)
       }
    else
       {
-      FreeFarMemory (SideDefs);
+      FreeMemory (SideDefs);
       SideDefs = 0;
       }
    for (cur = (*list)->next; cur; cur = cur->next)
@@ -283,7 +283,7 @@ switch (objtype)
      }
   else
      {
-     FreeFarMemory (Sectors);
+     FreeMemory (Sectors);
      Sectors = 0;
      }
   for (cur = (*list)->next; cur; cur = cur->next)
@@ -325,10 +325,10 @@ switch (objtype)
    case OBJ_THINGS:
       last = NumThings++;
       if (last > 0)
-   Things = (TPtr) ResizeFarMemory (Things,
+   Things = (TPtr) ResizeMemory (Things,
      (unsigned long) NumThings * sizeof (struct Thing));
       else
-   Things = (TPtr) GetFarMemory (sizeof (struct Thing));
+   Things = (TPtr) GetMemory (sizeof (struct Thing));
       Things[last].x = xpos;
       Things[last].y = ypos;
       things_angles++;
@@ -350,10 +350,10 @@ switch (objtype)
    case OBJ_VERTICES:
       last = NumVertices++;
       if (last > 0)
-   Vertices = (VPtr) ResizeFarMemory (Vertices,
+   Vertices = (VPtr) ResizeMemory (Vertices,
      (unsigned long) NumVertices * sizeof (struct Vertex));
       else
-   Vertices = (VPtr) GetFarMemory (sizeof (struct Vertex));
+   Vertices = (VPtr) GetMemory (sizeof (struct Vertex));
       Vertices[last].x = xpos;
       Vertices[last].y = ypos;
       if (Vertices[last].x < MapMinX)
@@ -370,10 +370,10 @@ switch (objtype)
    case OBJ_LINEDEFS:
       last = NumLineDefs++;
       if (last > 0)
-   LineDefs = (LDPtr) ResizeFarMemory (LineDefs,
+   LineDefs = (LDPtr) ResizeMemory (LineDefs,
      (unsigned long) NumLineDefs * sizeof (struct LineDef));
       else
-   LineDefs = (LDPtr) GetFarMemory (sizeof (struct LineDef));
+   LineDefs = (LDPtr) GetMemory (sizeof (struct LineDef));
       if (is_obj (copyfrom))
    {
    LineDefs[last].start = LineDefs[copyfrom].start;
@@ -397,10 +397,10 @@ switch (objtype)
    case OBJ_SIDEDEFS:
       last = NumSideDefs++;
       if (last > 0)
-   SideDefs = (SDPtr) ResizeFarMemory (SideDefs,
+   SideDefs = (SDPtr) ResizeMemory (SideDefs,
      (unsigned long) NumSideDefs * sizeof (struct SideDef));
       else
-   SideDefs = (SDPtr) GetFarMemory (sizeof (struct SideDef));
+   SideDefs = (SDPtr) GetMemory (sizeof (struct SideDef));
       if (is_obj (copyfrom))
    {
    SideDefs[last].xoff = SideDefs[copyfrom].xoff;
@@ -425,10 +425,10 @@ switch (objtype)
    case OBJ_SECTORS:
       last = NumSectors++;
       if (last > 0)
-   Sectors = (SPtr) ResizeFarMemory (Sectors,
+   Sectors = (SPtr) ResizeMemory (Sectors,
         (unsigned long) NumSectors * sizeof (struct Sector));
       else
-   Sectors = (SPtr) GetFarMemory (sizeof (struct Sector));
+   Sectors = (SPtr) GetMemory (sizeof (struct Sector));
       if (is_obj (copyfrom))
    {
    Sectors[last].floorh  = Sectors[copyfrom].floorh;

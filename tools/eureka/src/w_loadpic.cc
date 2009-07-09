@@ -261,12 +261,12 @@ int LoadPicture (
       Column = ColumnData + CurrentOffset - NeededOffsets[0];
     else
     {
-      Column = (byte *) GetFarMemory (TEX_COLUMNSIZE);
+      Column = (byte *) GetMemory (TEX_COLUMNSIZE);
       dir->wadfile->seek (dir->dir.start + CurrentOffset);
       if (dir->wadfile->error ())
       {
         int too_many = add_msg (_MT_BADOFS, (short) pic_x);
-        FreeFarMemory (Column);
+        FreeMemory (Column);
         if (too_many)    // This picture has too many errors. Give up.
           goto pic_end;
         continue;      // Give up on this column
@@ -296,7 +296,7 @@ int LoadPicture (
           if (too_many)    // This picture has too many errors. Give up.
           {
             if (! ColumnInMemory)
-              FreeFarMemory (Column);
+              FreeMemory (Column);
             goto pic_end;
           }
           break;       // Give up on this column
@@ -351,7 +351,7 @@ int LoadPicture (
 next_column :
 #endif
     if (!ColumnInMemory)
-      FreeFarMemory (Column);
+      FreeMemory (Column);
   }  // Column loop
 
 pic_end:

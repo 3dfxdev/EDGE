@@ -234,7 +234,7 @@ int copy_bytes (FILE *dest, FILE *source, long size)
   void        *data    = 0;
   const size_t chunksz = 0x4000;
 
-  data = GetFarMemory (chunksz + 2);
+  data = GetMemory (chunksz + 2);
   while (size > chunksz)
   {
     if (fread (data, 1, chunksz, source) != chunksz)
@@ -262,7 +262,7 @@ int copy_bytes (FILE *dest, FILE *source, long size)
 
 byebye:
   if (data != 0)
-    FreeFarMemory (data);
+    FreeMemory (data);
   return rc;
 }
 

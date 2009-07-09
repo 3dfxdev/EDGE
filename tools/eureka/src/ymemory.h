@@ -9,8 +9,4 @@ void *GetMemory (unsigned long size);
 void *ResizeMemory (void *, unsigned long size);
 void  FreeMemory (void *);
 
-#define GetFarMemory     GetMemory
-#define ResizeFarMemory  ResizeMemory
-#define FreeFarMemory    FreeMemory
-
 
