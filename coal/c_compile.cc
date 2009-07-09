@@ -894,7 +894,7 @@ def_t * PR_ParseFunctionCall(def_t *func)
 		while (PR_Check(","));
 
 		if (arg != t->parm_num)
-			PR_ParseError("too few parameters");
+			PR_ParseError("too few parameters (needed %d)", t->parm_num);
 
 		PR_Expect(")");
 	}
