@@ -51,9 +51,11 @@ char		*pr_line_start;		// start of current source line
 
 int			pr_bracelevel;
 int			pr_parentheses;
+int			pr_fol_level;    // first on line level
 
 char		pr_token[2048];
 token_type_t	pr_token_type;
+bool		pr_token_is_first;
 type_t		*pr_immediate_type;
 double		pr_immediate[3];
 
@@ -91,6 +93,7 @@ void PR_NewLine (void)
 
 	pr_source_line++;
 	pr_line_start = pr_file_p + 1;
+	pr_fol_level = 0;
 }
 
 
@@ -269,10 +272,12 @@ void PR_LexWhitespace(void)
 		// skip whitespace
 		while ( (c = *pr_file_p) <= ' ')
 		{
+			if (c == 0) // end of file?
+				return;
+
 			if (c=='\n')
 				PR_NewLine ();
-			if (c == 0)
-				return;		// end of file
+
 			pr_file_p++;
 		}
 
@@ -349,21 +354,18 @@ PR_Lex
 Sets pr_token, pr_token_type, and possibly pr_immediate and pr_immediate_type
 ==============
 */
-void PR_Lex (void)
+void PR_Lex(void)
 {
-	int c;
+	assert(pr_file_p);
+
+	PR_LexWhitespace();
 
 	pr_token[0] = 0;
+	pr_token_is_first = (pr_fol_level == 0);
 
-	if (!pr_file_p)
-	{
-		pr_token_type = tt_eof;
-		return;
-	}
+	pr_fol_level++;
 
-	PR_LexWhitespace ();
-
-	c = *pr_file_p;
+	int c = *pr_file_p;
 
 	if (!c)
 	{
@@ -374,14 +376,14 @@ void PR_Lex (void)
 // handle quoted strings as a unit
 	if (c == '\"')
 	{
-		PR_LexString ();
+		PR_LexString();
 		return;
 	}
 
 // handle quoted vectors as a unit
 	if (c == '\'')
 	{
-		PR_LexVector ();
+		PR_LexVector();
 		return;
 	}
 
@@ -391,18 +393,18 @@ void PR_Lex (void)
 	{
 		pr_token_type = tt_immediate;
 		pr_immediate_type = &type_float;
-		pr_immediate[0] = PR_LexNumber ();
+		pr_immediate[0] = PR_LexNumber();
 		return;
 	}
 
 	if ( (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_' )
 	{
-		PR_LexName ();
+		PR_LexName();
 		return;
 	}
 
 // parse symbol strings until a non-symbol is found
-	PR_LexPunctuation ();
+	PR_LexPunctuation();
 }
 
 //=============================================================================
@@ -415,10 +417,10 @@ Issues an error if the current token isn't equal to string
 Gets the next token
 =============
 */
-void PR_Expect(char *string)
+void PR_Expect(const char *str)
 {
-	if (strcmp(string, pr_token) != 0)
-		PR_ParseError("expected %s found %s", string, pr_token);
+	if (strcmp(pr_token, str) != 0)
+		PR_ParseError("expected %s found %s", str, pr_token);
 
 	PR_Lex();
 }
@@ -432,12 +434,13 @@ Returns true and gets the next token if the current token equals string
 Returns false and does nothing otherwise
 =============
 */
-bool PR_Check(char *string)
+bool PR_Check(const char *str)
 {
-	if (strcmp(string, pr_token) != 0)
+	if (strcmp(pr_token, str) != 0)
 		return false;
 
 	PR_Lex();
+
 	return true;
 }
 
@@ -456,7 +459,9 @@ char *PR_ParseName (void)
 		PR_ParseError ("not a name");
 	if (strlen(pr_token) >= MAX_NAME-1)
 		PR_ParseError ("name too long");
+	
 	strcpy (ident, pr_token);
+
 	PR_Lex ();
 
 	return ident;
@@ -560,7 +565,7 @@ type_t *PR_ParseType (void)
 	}
 	PR_Lex();
 
-	if (!PR_Check ("("))
+	if (! PR_Check("("))
 		return type;
 
 // function type
@@ -569,9 +574,9 @@ type_t *PR_ParseType (void)
 	t_new.aux_type = type;	// return type
 	t_new.parm_num = 0;
 
-	if (!PR_Check (")"))
+	if (! PR_Check(")"))
 	{
-		if (PR_Check ("..."))
+		if (PR_Check("..."))
 			t_new.parm_num = -1;	// variable args
 		else
 			do
@@ -581,7 +586,7 @@ type_t *PR_ParseType (void)
 				strcpy (pr_parm_names[t_new.parm_num], name);
 				t_new.parm_types[t_new.parm_num] = type;
 				t_new.parm_num++;
-			} while (PR_Check (","));
+			} while (PR_Check(","));
 
 		PR_Expect (")");
 	}
@@ -935,9 +940,9 @@ def_t * PR_ParseFunctionCall(def_t *func)
 }
 
 
-void PR_ParseReturn(bool new_line)
+void PR_ParseReturn(void)
 {
-	if (new_line || pr_token[0] == '}' || PR_Check(";"))
+	if (pr_token_is_first || pr_token[0] == '}' || PR_Check(";"))
 	{
 		if (pr_scope->type->aux_type->type != ev_void)
 			PR_ParseError("missing value for return");
@@ -945,8 +950,6 @@ void PR_ParseReturn(bool new_line)
 		PR_EmitCode(OP_DONE);
 		return;
 	}
-
-	int prev_line = pr_source_line;
 
 	def_t * e = PR_Expression(TOP_PRIORITY);
 
@@ -968,7 +971,7 @@ void PR_ParseReturn(bool new_line)
 	}
 
 	// -AJA- optional semicolons
-	if (prev_line == pr_source_line && pr_token[0] != '}')
+	if (! (pr_token_is_first || pr_token[0] == '}'))
 		PR_Expect(";");
 }
 
@@ -1292,11 +1295,10 @@ void PR_DoLoop(void)
 
 	PR_EmitCode(OP_IF, e->ofs, begin);
 
-	int prev_line = pr_source_line;
 	PR_Expect(")");
 
 	// -AJA- optional semicolons
-	if (prev_line == pr_source_line && pr_token[0] != '}')
+	if (! (pr_token_is_first || pr_token[0] == '}'))
 		PR_Expect(";");
 }
 		
@@ -1361,11 +1363,9 @@ void PR_ParseStatement(bool allow_def)
 		return;
 	}
 
-	int prev_line = pr_source_line;
-
 	if (PR_Check("return"))
 	{
-		PR_ParseReturn(prev_line);
+		PR_ParseReturn();
 		return;
 	}
 
@@ -1387,8 +1387,6 @@ void PR_ParseStatement(bool allow_def)
 		return;
 	}
 
-	prev_line = pr_source_line;
-
 	bool lvalue = true;
 	def_t * e = PR_Expression(TOP_PRIORITY, &lvalue);
 
@@ -1398,14 +1396,12 @@ void PR_ParseStatement(bool allow_def)
 	{
 		PR_Expect("=");
 
-		prev_line = pr_source_line;
-
 		PR_Assignment(e);
 	}
 
 	// -AJA- optional semicolons
-	if (prev_line == pr_source_line && pr_token[0] != '}')
-		PR_Expect (";");
+	if (! (pr_token_is_first || pr_token[0] == '}'))
+		PR_Expect(";");
 }
 
 
@@ -1414,7 +1410,7 @@ int PR_ParseFunctionBody(type_t *type)
 	//
 	// check for builtin function definition #1, #2, etc
 	//
-	if (PR_Check ("#"))
+	if (PR_Check("#"))
 	{
 		if (pr_token_type != tt_immediate
 			|| pr_immediate_type != &type_float
@@ -1558,16 +1554,12 @@ void PR_ParseFunction(void)
 
 void PR_ParseVariable(void)
 {
-	int prev_line = pr_source_line;
-
 	char *var_name = strdup(PR_ParseName());
 
 	type_t *type = &type_float;
 
 	if (PR_Check(":"))
 	{
-		prev_line = pr_source_line;
-
 		type = PR_ParseType();
 	}
 
@@ -1578,7 +1570,7 @@ void PR_ParseVariable(void)
 	PR_GetDef(type, var_name, pr_scope);
 
 	// -AJA- optional semicolons
-	if (prev_line == pr_source_line && pr_token[0] != '}')
+	if (! (pr_token_is_first || pr_token[0] == '}'))
 		PR_Expect(";");
 }
 
@@ -1595,11 +1587,10 @@ void PR_ParseConstant(void)
 	// FIXME: create constant
 	  PR_ParseError("Constants not yet implemented");
 	
-	int prev_line = pr_source_line;
 	PR_Lex();
 
 	// -AJA- optional semicolons
-	if (prev_line == pr_source_line && pr_token[0] != '}')
+	if (! (pr_token_is_first || pr_token[0] == '}'))
 		PR_Expect(";");
 }
 
@@ -1643,6 +1634,7 @@ bool PR_CompileFile (char *string, char *filename)
 	pr_file_p = string;
 	pr_line_start = string;
 	pr_source_line = 0;
+	pr_fol_level = 0;
 
 	PR_Lex();	// read first token
 
