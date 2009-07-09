@@ -38,8 +38,6 @@
 #include <sys/signal.h>
 
 
-#include "c_local.h"  // FIXME FIXME : INTERNAL !!!
-
 #include "coal.h"
 
 
@@ -59,8 +57,7 @@ void Error(char *error, ...)
 }
 
 
-//============================================================================
-
+//================================================================//
 
 
 static int filelength(FILE *f)
@@ -98,13 +95,9 @@ int LoadFile(char *filename, char **bufptr)
 }
 
 
-//============================================================================
+//==================================================================//
 
-/*
-============
-main
-============
-*/
+
 int main(int argc, char **argv)
 {
 	char	*src2;
@@ -120,22 +113,22 @@ int main(int argc, char **argv)
 		return 0;
 	}
 
-	PR_InitData();
+	coal::PR_InitData();
 
 	if (strcmp(argv[1], "-t") == 0)
 	{
-		PR_SetTrace(true);
+		coal::PR_SetTrace(true);
 		argv++; argc--;
 	}
 
 
-	PR_BeginCompilation();
+	coal::PR_BeginCompilation();
 
-// compile all the files
-  for (k = 1; k < argc; k++)
+	// compile all the files
+	for (k = 1; k < argc; k++)
 	{
-    if (argv[k][0] == '-')
-      Error("Bad filename: %s\n", argv[k]);
+		if (argv[k][0] == '-')
+			Error("Bad filename: %s\n", argv[k]);
 
 		sprintf(filename, "%s", argv[k]);
 
@@ -143,35 +136,32 @@ int main(int argc, char **argv)
 
 		LoadFile(filename, &src2);
 
-		if (!PR_CompileFile(src2, filename) )
+		if (! coal::PR_CompileFile(src2, filename))
 			exit(1);
 
-    // FIXME: FreeFile(src2);
-
+		// FIXME: FreeFile(src2);
 	}
 
-	if (! PR_FinishCompilation())
+	if (! coal::PR_FinishCompilation())
 		Error("compilation errors");
 
-	PR_ShowStats();
+	coal::PR_ShowStats();
 
 
-  // find 'main' function
+	// find 'main' function
 
-  func_t main_func = PR_FindFunction("main");
+	int main_func = coal::PR_FindFunction("main");
 
-  if (! (int)main_func)
-    Error("No main function!\n");
+	if (! main_func)
+		Error("No main function!\n");
 
-//  fprintf(stderr, "numfunctions = %d  main = %d\n", numfunctions, (int)main_func);
+	if (coal::PR_ExecuteProgram(main_func) != 0)
+	{
+		fprintf(stderr, "\n*** script terminated by error\n");
+		return 1;
+	}
 
-  if (0 != PR_ExecuteProgram(main_func))
-  {
-  	fprintf(stderr, "\n*** script terminated by error\n");
-	return 1;
-  }
-
-  return 0;
+	return 0;
 }
 
 //--- editor settings ---
