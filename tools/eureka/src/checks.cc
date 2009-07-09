@@ -249,7 +249,7 @@ bool       first_time = true;
 CheckingObjects ();
 LogMessage ("\nVerifying Sectors...\n");
 
-ends = (char *) GetFarMemory (NumVertices);
+ends = (char *) GetMemory (NumVertices);
 for (s = 0; s < NumSectors; s++)
    {
    /* clear the "ends" array */
@@ -297,7 +297,7 @@ for (s = 0; s < NumSectors; s++)
    }
       }
    }
-FreeFarMemory (ends);
+FreeMemory (ends);
 
 /*
    Note from RQ:

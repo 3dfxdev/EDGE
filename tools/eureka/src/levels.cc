@@ -222,7 +222,7 @@ things_angles++;
 things_types++;
 if (NumThings > 0)
    {
-   Things = (TPtr) GetFarMemory ((unsigned long) NumThings
+   Things = (TPtr) GetMemory ((unsigned long) NumThings
       * sizeof (struct Thing));
    const Wad_file *wf = dir->wadfile;
    wf->seek (offset);
@@ -298,7 +298,7 @@ if (yg_level_format != YGLF_ALPHA)
       }
    if (NumLineDefs > 0)
       {
-      LineDefs = (LDPtr) GetFarMemory ((unsigned long) NumLineDefs
+      LineDefs = (LDPtr) GetMemory ((unsigned long) NumLineDefs
    * sizeof (struct LineDef));
       const Wad_file *wf = dir->wadfile;
       wf->seek (dir->dir.start);
@@ -363,7 +363,7 @@ else
    NumSideDefs = 0;
 if (NumSideDefs > 0)
    {
-   SideDefs = (SDPtr) GetFarMemory ((unsigned long) NumSideDefs
+   SideDefs = (SDPtr) GetMemory ((unsigned long) NumSideDefs
       * sizeof (struct SideDef));
    const Wad_file *wf = dir->wadfile;
    wf->seek (dir->dir.start);
@@ -500,7 +500,7 @@ NumVertices = last_used_vertex + 1;
 if (NumVertices > 0)
    {
    const char *lump_name = "BUG";
-   Vertices = (VPtr) GetFarMemory ((unsigned long) NumVertices
+   Vertices = (VPtr) GetMemory ((unsigned long) NumVertices
       * sizeof (struct Vertex));
    if (yg_level_format == YGLF_ALPHA)  // Doom alpha
       lump_name = "POINTS";
@@ -570,7 +570,7 @@ if (yg_level_format != YGLF_ALPHA)
       NumSectors = 0;
    if (NumSectors > 0)
       {
-      Sectors = (SPtr) GetFarMemory ((unsigned long) NumSectors
+      Sectors = (SPtr) GetMemory ((unsigned long) NumSectors
    * sizeof (struct Sector));
       const Wad_file *wf = dir->wadfile;
       wf->seek (dir->dir.start);
@@ -631,7 +631,7 @@ else  // Doom alpha--a wholly different SECTORS format
       nsectors = 0;
       }
    NumSectors = nsectors;
-   Sectors = (SPtr) GetFarMemory ((unsigned long) NumSectors
+   Sectors = (SPtr) GetMemory ((unsigned long) NumSectors
       * sizeof (struct Sector));
    offset_table = new s32_t[nsectors];
    for (size_t n = 0; n < (size_t) nsectors; n++)
@@ -776,7 +776,7 @@ void ForgetLevelData ()
 
 NumThings = 0;
 if (Things != 0)
-   FreeFarMemory (Things);
+   FreeMemory (Things);
 Things = 0;
 things_angles++;
 things_types++;
@@ -785,28 +785,28 @@ things_types++;
 
 NumVertices = 0;
 if (Vertices != 0)
-   FreeFarMemory (Vertices);
+   FreeMemory (Vertices);
 Vertices = 0;
 
 /* forget the linedefs */
 
 NumLineDefs = 0;
 if (LineDefs != 0)
-   FreeFarMemory (LineDefs);
+   FreeMemory (LineDefs);
 LineDefs = 0;
 
 /* forget the sidedefs */
 
 NumSideDefs = 0;
 if (SideDefs != 0)
-   FreeFarMemory (SideDefs);
+   FreeMemory (SideDefs);
 SideDefs = 0;
 
 /* forget the sectors */
 
 NumSectors = 0;
 if (Sectors != 0)
-   FreeFarMemory (Sectors);
+   FreeMemory (Sectors);
 Sectors = 0;
 
 }
