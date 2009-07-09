@@ -1616,7 +1616,7 @@ void PR_ParseGlobals (void)
 	}
 
 
-	PR_ParseError("Syntax error (expected global definition)");
+	PR_ParseError("Expected global definition, found %s", pr_token);
 }
 
 
