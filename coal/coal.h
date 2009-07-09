@@ -44,17 +44,17 @@ extern const char *opcode_names[];
 
 extern def_t *pr_global_defs[MAX_REGS];	// to find def for a global variable
 
-void PR_PrintStatement (statement_t *s);
+void PR_PrintStatement(statement_t *s);
 
-void PR_Lex (void);
+void PR_Lex(void);
 // reads the next token into pr_token and classifies its type
 
-type_t *PR_ParseType (void);
-char *PR_ParseName (void);
+type_t *PR_ParseType(void);
+char *PR_ParseName(void);
 
-bool PR_Check (char *string);
-void PR_Expect (char *string);
-void PR_ParseError (char *error, ...);
+bool PR_Check(char *string);
+void PR_Expect(char *string);
+void PR_ParseError(char *error, ...);
 
 
 class parse_error_x
@@ -80,12 +80,12 @@ extern	char		*pr_file_p;
 extern	def_t	*pr_scope;
 extern	int		pr_error_count;
 
-void PR_NewLine (void);
-def_t *PR_GetDef (type_t *type, char *name, def_t *scope, bool allocate);
+void PR_NewLine(void);
+def_t *PR_GetDef(type_t *type, char *name, def_t *scope, bool allocate);
 
-void PR_PrintDefs (void);
+void PR_PrintDefs(void);
 
-void PR_SkipToSemicolon (void);
+void PR_SkipToSemicolon(void);
 
 extern	char		pr_parm_names[MAX_PARMS][MAX_NAME];
 extern	bool	pr_trace;
@@ -96,7 +96,7 @@ extern	bool	pr_trace;
 #define	G_FUNCTION(o) (pr_globals[o])
 
 
-bool	PR_CompileFile (char *string, char *filename);
+bool	PR_CompileFile(char *string, char *filename);
 
 extern	string_t	s_file;			// filename for function definition
 
@@ -126,7 +126,7 @@ extern	int			numpr_globals;
 
 extern	char	pr_immediate_string[2048];
 
-int	CopyString (char *str);
+int	CopyString(char *str);
 
 double * PR_Parameter(int p);
 

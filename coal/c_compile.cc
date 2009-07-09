@@ -87,7 +87,7 @@ def_t	def_void = {&type_void, "VOID_SPACE", 0};
 void PR_ParseStatement(bool allow_def);
 
 
-void PR_NewLine (void)
+void PR_NewLine(void)
 {
 	// Called when *pr_file_p == '\n'
 
@@ -104,16 +104,16 @@ PR_ParseError
 Aborts the current file load
 ============
 */
-void PR_ParseError (char *error, ...)
+void PR_ParseError(char *error, ...)
 {
 	va_list		argptr;
 	char		string[1024];
 
-	va_start (argptr,error);
-	vsprintf (string,error,argptr);
-	va_end (argptr);
+	va_start(argptr,error);
+	vsprintf(string,error,argptr);
+	va_end(argptr);
 
-	printf ("%s:%i:%s\n", strings + s_file, pr_source_line, string);
+	printf("%s:%i:%s\n", strings + s_file, pr_source_line, string);
 
 //  raise(11);
 	throw parse_error_x();
@@ -134,36 +134,37 @@ void PR_LexString(void)
 
 	len = 0;
 	pr_file_p++;
-	do
+
+	for (;;)
 	{
 		c = *pr_file_p++;
 		if (!c)
-			PR_ParseError ("EOF inside quote");
+			PR_ParseError("EOF inside quote");
 		if (c=='\n')
-			PR_ParseError ("newline inside quote");
+			PR_ParseError("newline inside quote");
 		if (c=='\\')
 		{	// escape char
 			c = *pr_file_p++;
 			if (!c)
-				PR_ParseError ("EOF inside quote");
+				PR_ParseError("EOF inside quote");
 			if (c == 'n')
 				c = '\n';
 			else if (c == '"')
 				c = '"';
 			else
-				PR_ParseError ("Unknown escape char");
+				PR_ParseError("Unknown escape char");
 		}
 		else if (c=='\"')
 		{
 			pr_token[len] = 0;
 			pr_token_type = tt_immediate;
 			pr_immediate_type = &type_string;
-			strcpy (pr_immediate_string, pr_token);
+			strcpy(pr_immediate_string, pr_token);
 			return;
 		}
 		pr_token[len] = c;
 		len++;
-	} while (1);
+	}
 }
 
 
@@ -181,8 +182,10 @@ float PR_LexNumber(void)
 		pr_file_p++;
 		c = *pr_file_p;
 	} while ((c >= '0' && c<= '9') || c == '.');
+
 	pr_token[len] = 0;
-	return atof (pr_token);
+
+	return atof(pr_token);
 }
 
 
@@ -206,7 +209,7 @@ void PR_LexVector(void)
 			pr_file_p++;
 	}
 	if (*pr_file_p != '\'')
-		PR_ParseError ("Bad vector");
+		PR_ParseError("Bad vector");
 	pr_file_p++;
 }
 
@@ -234,7 +237,7 @@ void PR_LexName(void)
 }
 
 
-void PR_LexPunctuation (void)
+void PR_LexPunctuation(void)
 {
 	int		i;
 	int		len;
@@ -249,7 +252,7 @@ void PR_LexPunctuation (void)
 		len = strlen(p);
 		if (!strncmp(p, pr_file_p, len) )
 		{
-			strcpy (pr_token, p);
+			strcpy(pr_token, p);
 			if (p[0] == '{')
 				pr_bracelevel++;
 			else if (p[0] == '}')
@@ -259,7 +262,7 @@ void PR_LexPunctuation (void)
 		}
 	}
 
-	PR_ParseError ("Unknown punctuation: %c", ch);
+	PR_ParseError("Unknown punctuation: %c", ch);
 }
 
 
@@ -267,7 +270,7 @@ void PR_LexWhitespace(void)
 {
 	int c;
 
-	while (1)
+	for (;;)
 	{
 		// skip whitespace
 		while ( (c = *pr_file_p) <= ' ')
@@ -276,7 +279,7 @@ void PR_LexWhitespace(void)
 				return;
 
 			if (c=='\n')
-				PR_NewLine ();
+				PR_NewLine();
 
 			pr_file_p++;
 		}
@@ -320,7 +323,7 @@ void PR_LexWhitespace(void)
 
 
 // just parses text, returning false if an eol is reached
-bool PR_SimpleGetToken (void)
+bool PR_SimpleGetToken(void)
 {
 	int		c;
 	int		i;
@@ -340,7 +343,9 @@ bool PR_SimpleGetToken (void)
 		i++;
 		pr_file_p++;
 	}
+	
 	pr_token[i] = 0;
+
 	return true;
 }
 
@@ -456,13 +461,13 @@ char *PR_ParseName (void)
 	static char	ident[MAX_NAME];
 
 	if (pr_token_type != tt_name)
-		PR_ParseError ("not a name");
+		PR_ParseError("expected identifier");
 	if (strlen(pr_token) >= MAX_NAME-1)
-		PR_ParseError ("name too long");
+		PR_ParseError("identifier too long");
 	
-	strcpy (ident, pr_token);
+	strcpy(ident, pr_token);
 
-	PR_Lex ();
+	PR_Lex();
 
 	return ident;
 }
@@ -475,7 +480,7 @@ Returns a preexisting complex type that matches the parm, or allocates
 a new one and copies it out.
 ============
 */
-type_t *PR_FindType (type_t *type)
+type_t *PR_FindType(type_t *type)
 {
 	def_t	*def;
 	type_t	*check;
@@ -519,7 +524,7 @@ PR_SkipToSemicolon
 For error recovery, also pops out of nested braces
 ============
 */
-void PR_SkipToSemicolon (void)
+void PR_SkipToSemicolon(void)
 {
 	do
 	{
@@ -540,27 +545,27 @@ Parses a variable type, including field and functions types
 */
 char	pr_parm_names[MAX_PARMS][MAX_NAME];
 
-type_t *PR_ParseType (void)
+type_t *PR_ParseType(void)
 {
 	type_t	t_new;
 	type_t	*type;
 	char	*name;
 
-	if (!strcmp (pr_token, "float") )
+	if (!strcmp(pr_token, "float") )
 		type = &type_float;
-	else if (!strcmp (pr_token, "vector") )
+	else if (!strcmp(pr_token, "vector") )
 		type = &type_vector;
-	else if (!strcmp (pr_token, "float") )
+	else if (!strcmp(pr_token, "float") )
 		type = &type_float;
-//	else if (!strcmp (pr_token, "entity") )
+//	else if (!strcmp(pr_token, "entity") )
 //		type = &type_entity;
-	else if (!strcmp (pr_token, "string") )
+	else if (!strcmp(pr_token, "string") )
 		type = &type_string;
-	else if (!strcmp (pr_token, "void") )
+	else if (!strcmp(pr_token, "void") )
 		type = &type_void;
 	else
 	{
-		PR_ParseError ("\"%s\" is not a type", pr_token);
+		PR_ParseError("\"%s\" is not a type", pr_token);
 		type = &type_float;	// shut up compiler warning
 	}
 	PR_Lex();
@@ -569,7 +574,7 @@ type_t *PR_ParseType (void)
 		return type;
 
 // function type
-	memset (&t_new, 0, sizeof(t_new));
+	memset(&t_new, 0, sizeof(t_new));
 	t_new.type = ev_function;
 	t_new.aux_type = type;	// return type
 	t_new.parm_num = 0;
@@ -581,17 +586,17 @@ type_t *PR_ParseType (void)
 		else
 			do
 			{
-				type = PR_ParseType ();
-				name = PR_ParseName ();
-				strcpy (pr_parm_names[t_new.parm_num], name);
+				type = PR_ParseType();
+				name = PR_ParseName();
+				strcpy(pr_parm_names[t_new.parm_num], name);
 				t_new.parm_types[t_new.parm_num] = type;
 				t_new.parm_num++;
 			} while (PR_Check(","));
 
-		PR_Expect (")");
+		PR_Expect(")");
 	}
 
-	return PR_FindType (&t_new);
+	return PR_FindType(&t_new);
 }
 
 
@@ -610,9 +615,9 @@ string_t	s_file;			// filename for function definition
 int			locals_end;		// for tracking local variables vs temps
 
 
-void PR_ParseFunction (void);
-void PR_ParseVariable (void);
-void PR_ParseConstant (void);
+void PR_ParseFunction(void);
+void PR_ParseVariable(void);
+void PR_ParseConstant(void);
 
 //========================================
 
@@ -718,7 +723,7 @@ void PR_EmitCode(short op, short a=0, short b=0, short c=0)
 def_t *PR_NewGlobal(type_t *type)
 {
 	def_t * var_c = new def_t;
-	memset (var_c, 0, sizeof(def_t));
+	memset(var_c, 0, sizeof(def_t));
 
 	var_c->ofs = numpr_globals;
 	var_c->type = type;
@@ -732,7 +737,7 @@ def_t *PR_NewGlobal(type_t *type)
 def_t *PR_NewLocal(type_t *type)
 {
 	def_t * var_c = new def_t;
-	memset (var_c, 0, sizeof(def_t));
+	memset(var_c, 0, sizeof(def_t));
 
 	var_c->ofs = -(locals_end+1);
 	var_c->type = type;
@@ -819,7 +824,7 @@ def_t * PR_ParseImmediate(void)
 			}
 		}
 		else
-			PR_ParseError ("weird immediate type");
+			PR_ParseError("weird immediate type");
 	}
 
 	// allocate a new one
@@ -841,7 +846,7 @@ def_t * PR_ParseImmediate(void)
 	numpr_globals += type_size[pr_immediate_type->type];
 
 	if (pr_immediate_type == &type_string)
-		pr_globals[cn->ofs] = (double) CopyString (pr_immediate_string);
+		pr_globals[cn->ofs] = (double) CopyString(pr_immediate_string);
 	else if (pr_immediate_type == &type_vector)
 		memcpy (pr_globals + cn->ofs, pr_immediate, 3 * sizeof(double));
 	else
@@ -858,7 +863,7 @@ def_t * PR_ParseFunctionCall(def_t *func)
 	type_t * t = func->type;
 
 	if (t->type != ev_function)
-		PR_ParseError ("not a function");
+		PR_ParseError("not a function");
 	
 	function_t *df = &functions[func->ofs];
 
@@ -873,12 +878,12 @@ def_t * PR_ParseFunctionCall(def_t *func)
 		do
 		{
 			if (arg >= t->parm_num || arg >= 8)
-				PR_ParseError ("too many parameters");
+				PR_ParseError("too many parameters");
 
 			def_t * e = PR_Expression(TOP_PRIORITY);
 
 			if (e->type != t->parm_types[arg])
-				PR_ParseError ("type mismatch on parm %i", arg+1);
+				PR_ParseError("type mismatch on parm %i", arg+1);
 
 			assert (e->type->type != ev_void);
 
@@ -989,7 +994,7 @@ def_t *PR_FindDef(type_t *type, char *name, def_t *scope)
 			continue;		// in a different function
 
 		if (type && def->type != type)
-			PR_ParseError ("Type mismatch on redeclaration of %s", name);
+			PR_ParseError("Type mismatch on redeclaration of %s", name);
 
 		return def;
 	}
@@ -1052,7 +1057,7 @@ def_t * PR_ParseValue(void)
 	// look through the defs
 	def_t *d = PR_FindDef(NULL, name, pr_scope);
 	if (!d)
-		PR_ParseError ("Unknown identifier '%s'", name);
+		PR_ParseError("Unknown identifier '%s'", name);
 
 	return d;
 }
@@ -1068,13 +1073,13 @@ def_t * PR_Term(void)
 		def_t *e2 = NULL;
 
 		if (t == ev_float)
-			e2 = PR_Statement (&pr_operators[OP_NOT_F], e);
+			e2 = PR_Statement(&pr_operators[OP_NOT_F], e);
 		else if (t == ev_string)
-			e2 = PR_Statement (&pr_operators[OP_NOT_S], e);
+			e2 = PR_Statement(&pr_operators[OP_NOT_S], e);
 		else if (t == ev_vector)
-			e2 = PR_Statement (&pr_operators[OP_NOT_V], e);
+			e2 = PR_Statement(&pr_operators[OP_NOT_V], e);
 		else if (t == ev_function)
-			e2 = PR_Statement (&pr_operators[OP_NOT_FNC], e);
+			e2 = PR_Statement(&pr_operators[OP_NOT_FNC], e);
 		else
 			PR_ParseError("type mismatch for !");
 
@@ -1144,7 +1149,7 @@ def_t * PR_Expression(int priority, bool *lvalue)
 
 	def_t * e = PR_Expression(priority-1, lvalue);
 
-	while (1)
+	for (;;)
 	{
 		if (priority == 1 && PR_Check("("))
 		{
@@ -1216,9 +1221,9 @@ def_t * PR_Expression(int priority, bool *lvalue)
 			assert(! op->right_associative);
 
 			if (op->right_associative)
-				e = PR_Statement (op, e2, e);
+				e = PR_Statement(op, e2, e);
 			else
-				e = PR_Statement (op, e, e2);
+				e = PR_Statement(op, e, e2);
 
 #if 0
 			if (type_c != ev_void)	// field access gets type from field
@@ -1267,9 +1272,9 @@ void PR_WhileLoop(void)
 {
 	int begin = numstatements;
 
-	PR_Expect ("(");
+	PR_Expect("(");
 	def_t * e = PR_Expression(TOP_PRIORITY);
-	PR_Expect (")");
+	PR_Expect(")");
 
 	int patch = numstatements;
 	PR_EmitCode(OP_IFNOT, e->ofs);
@@ -1288,8 +1293,8 @@ void PR_RepeatLoop(void)
 
 	PR_ParseStatement(false);
 
-	PR_Expect ("until");
-	PR_Expect ("(");
+	PR_Expect("until");
+	PR_Expect("(");
 
 	def_t * e = PR_Expression(TOP_PRIORITY);
 
@@ -1416,7 +1421,7 @@ int PR_ParseFunctionBody(type_t *type)
 			|| pr_immediate_type != &type_float
 			|| pr_immediate[0] != (int)pr_immediate[0])
 		{
-			PR_ParseError ("Bad builtin immediate");
+			PR_ParseError("Bad builtin immediate");
 		}
 		int builtin = (int)pr_immediate[0];
 		PR_Lex();
@@ -1430,7 +1435,7 @@ int PR_ParseFunctionBody(type_t *type)
 
 	for (int i=0 ; i < type->parm_num ; i++)
 	{
-		defs[i] = PR_GetDef (type->parm_types[i], pr_parm_names[i], pr_scope);
+		defs[i] = PR_GetDef(type->parm_types[i], pr_parm_names[i], pr_scope);
 	}
 
 	int code = numstatements;
@@ -1438,7 +1443,7 @@ int PR_ParseFunctionBody(type_t *type)
 	//
 	// parse regular statements
 	//
-	PR_Expect ("{");
+	PR_Expect("{");
 
 	while (! PR_Check("}"))
 	{
@@ -1459,7 +1464,7 @@ void PR_ParseFunction(void)
 
 	type_t t_new;
 
-	memset (&t_new, 0, sizeof(t_new));
+	memset(&t_new, 0, sizeof(t_new));
 	t_new.type = ev_function;
 	t_new.parm_num = 0;
 	t_new.aux_type = &type_void;
@@ -1496,7 +1501,7 @@ void PR_ParseFunction(void)
 	def_t *def = PR_GetDef(func_type, func_name, pr_scope);
 
 	if (def->initialized)
-		PR_ParseError ("%s redeclared", func_name);
+		PR_ParseError("%s redeclared", func_name);
 
 
 	PR_Expect("=");
@@ -1512,7 +1517,7 @@ void PR_ParseFunction(void)
 	function_t *df = &functions[(int)G_FUNCTION(def->ofs)];
 	memset(df, 0, sizeof(function_t));
 
-	df->s_name = CopyString (func_name);
+	df->s_name = CopyString(func_name);
 	df->s_file = s_file;
 
 	int stack_ofs = 0;
@@ -1595,7 +1600,7 @@ void PR_ParseConstant(void)
 }
 
 
-void PR_ParseGlobals (void)
+void PR_ParseGlobals(void)
 {
 	if (PR_Check("function"))
 	{
@@ -1609,7 +1614,7 @@ void PR_ParseGlobals (void)
 		return;
 	}
 
-	if (PR_Check ("constant"))
+	if (PR_Check("constant"))
 	{
 		PR_ParseConstant();
 		return;
@@ -1627,7 +1632,7 @@ PR_CompileFile
 compiles the 0 terminated text, adding definitions to the pr structure
 ============
 */
-bool PR_CompileFile (char *string, char *filename)
+bool PR_CompileFile(char *string, char *filename)
 {
 	s_file = CopyString(filename);
 
@@ -1644,14 +1649,14 @@ bool PR_CompileFile (char *string, char *filename)
 		{
 			pr_scope = NULL;	// outside all functions
 
-			PR_ParseGlobals ();
+			PR_ParseGlobals();
 		}
 		catch (parse_error_x err)
 		{
 			if (++pr_error_count > MAX_ERRORS)
 				return false;
 
-			PR_SkipToSemicolon ();
+			PR_SkipToSemicolon();
 
 			if (pr_token_type == tt_eof)
 				return false;
@@ -1668,7 +1673,7 @@ PR_BeginCompilation
 called before compiling a batch of files, clears the pr struct
 ==============
 */
-void PR_BeginCompilation (void)
+void PR_BeginCompilation(void)
 {
 	int i;
 
@@ -1693,7 +1698,7 @@ called after all files are compiled to check for errors
 Returns false if errors were detected.
 ==============
 */
-bool PR_FinishCompilation (void)
+bool PR_FinishCompilation(void)
 {
 	def_t *d;
 	bool errors = false;
@@ -1707,7 +1712,7 @@ bool PR_FinishCompilation (void)
 //			if (!f || (!f->code && !f->builtin) )
 			if (!d->initialized)
 			{
-				printf ("function %s was not defined\n",d->name);
+				printf("function %s was not defined\n",d->name);
 				errors = true;
 			}
 		}

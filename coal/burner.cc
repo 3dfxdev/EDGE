@@ -43,21 +43,23 @@
 #include "coal.h"
 
 
-void Error (char *error, ...)
+void Error(char *error, ...)
 {
 	va_list argptr;
 
-	printf ("************ ERROR ************\n");
+	printf("************ ERROR ************\n");
 
-	va_start (argptr,error);
-	vprintf (error,argptr);
-	va_end (argptr);
-	printf ("\n");
-	exit (1);
+	va_start(argptr,error);
+	vprintf(error,argptr);
+	va_end(argptr);
+	
+	printf("\n");
+
+	exit(1);
 }
 
 
-void InitData (void)
+void InitData(void)
 {
 	numstatements = 1;
 	strofs = 1;
@@ -69,34 +71,34 @@ void InitData (void)
 
 
 
-static int filelength (FILE *f)
+static int filelength(FILE *f)
 {
-	int pos = ftell (f);
+	int pos = ftell(f);
 
-	fseek (f, 0, SEEK_END);
+	fseek(f, 0, SEEK_END);
 
-	int end = ftell (f);
+	int end = ftell(f);
 
-	fseek (f, pos, SEEK_SET);
+	fseek(f, pos, SEEK_SET);
 
 	return end;
 }
 
 
-int LoadFile (char *filename, char **bufptr)
+int LoadFile(char *filename, char **bufptr)
 {
 	FILE *f = fopen(filename, "rb");
 
 	if (!f)
-		Error ("Error opening %s: %s", filename, strerror(errno));
+		Error("Error opening %s: %s", filename, strerror(errno));
 
-	int length = filelength (f);
-	*bufptr = (char *) malloc (length+1);
+	int length = filelength(f);
+	*bufptr = (char *) malloc(length+1);
 
-	if ( fread (*bufptr, 1, length, f) != (size_t)length)
-		Error ("File read failure");
+	if ( fread(*bufptr, 1, length, f) != (size_t)length)
+		Error("File read failure");
 
-	fclose (f);
+	fclose(f);
 
 	(*bufptr)[length] = 0;
 
@@ -111,7 +113,7 @@ int LoadFile (char *filename, char **bufptr)
 main
 ============
 */
-int main (int argc, char **argv)
+int main(int argc, char **argv)
 {
 	char	*src2;
 	char	filename[1024];
@@ -122,11 +124,11 @@ int main (int argc, char **argv)
 	    (strcmp(argv[1], "-?") == 0) || (strcmp(argv[1], "-h") == 0) ||
 		(strcmp(argv[1], "-help") == 0) || (strcmp(argv[1], "--help") == 0))
 	{
-		printf ("USAGE: coal [OPTIONS] filename.qc ...\n");
+		printf("USAGE: coal [OPTIONS] filename.qc ...\n");
 		return 0;
 	}
 
-	InitData ();
+	InitData();
 
 	if (strcmp(argv[1], "-t") == 0)
 	{
@@ -143,26 +145,26 @@ int main (int argc, char **argv)
     if (argv[k][0] == '-')
       Error("Bad filename: %s\n", argv[k]);
 
-		sprintf (filename, "%s", argv[k]);
+		sprintf(filename, "%s", argv[k]);
 
-		printf ("compiling %s\n", filename);
+		printf("compiling %s\n", filename);
 
-		LoadFile (filename, &src2);
+		LoadFile(filename, &src2);
 
-		if (!PR_CompileFile (src2, filename) )
-			exit (1);
+		if (!PR_CompileFile(src2, filename) )
+			exit(1);
 
     // FIXME: FreeFile(src2);
 
 	}
 
-	if (!PR_FinishCompilation ())
-		Error ("compilation errors");
+	if (!PR_FinishCompilation())
+		Error("compilation errors");
 
-	printf ("%6i strofs\n", strofs);
-	printf ("%6i numstatements\n", numstatements);
-	printf ("%6i numfunctions\n", numfunctions);
-	printf ("%6i numpr_globals\n", numpr_globals);
+	printf("%6i strofs\n", strofs);
+	printf("%6i numstatements\n", numstatements);
+	printf("%6i numfunctions\n", numfunctions);
+	printf("%6i numpr_globals\n", numpr_globals);
 
 
   // find 'main' function
