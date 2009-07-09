@@ -103,6 +103,321 @@ int PR_FindFunction(const char *func_name)
 }
 
 
+// CopyString returns an offset from the string heap
+int	CopyString(char *str)
+{
+	int old;
+
+	old = strofs;
+	strcpy(strings+strofs, str);
+	strofs += strlen(str)+1;
+
+	return old;
+}
+
+
+char * PR_GetString(int num)
+{
+	if (num >= 0)
+		return strings + num;
+	else
+		PR_RunError("invalid string offset %d\n", num);
+
+	return "";
+}
+
+
+/*
+===============
+PR_String
+
+Returns a string suitable for printing (no newlines, max 60 chars length)
+===============
+*/
+char *PR_String(char *string)
+{
+	static char buf[80];
+	char	*s;
+
+	s = buf;
+	*s++ = '"';
+	while (string && *string)
+	{
+		if (s == buf + sizeof(buf) - 2)
+			break;
+		if (*string == '\n')
+		{
+			*s++ = '\\';
+			*s++ = 'n';
+		}
+		else if (*string == '"')
+		{
+			*s++ = '\\';
+			*s++ = '"';
+		}
+		else
+			*s++ = *string;
+		string++;
+		if (s - buf > 60)
+		{
+			*s++ = '.';
+			*s++ = '.';
+			*s++ = '.';
+			break;
+		}
+	}
+	*s++ = '"';
+	*s++ = 0;
+	return buf;
+}
+
+
+/*
+============
+PR_ValueString
+
+Returns a string describing *data in a type specific manner
+=============
+*/
+char *PR_ValueString(etype_t type, double *val)
+{
+	static char	line[256];
+	def_t		*def;
+	function_t	*f;
+
+	switch (type)
+	{
+	case ev_string:
+		sprintf(line, "%s", PR_String(strings + (int)*val));
+		break;
+//	case ev_entity:
+//		sprintf (line, "entity %i", *(int *)val);
+//		break;
+	case ev_function:
+		f = functions + (int)*val;
+		if (!f)
+			sprintf(line, "undefined function");
+		else
+			sprintf(line, "%s()", strings + f->s_name);
+		break;
+//	case ev_field:
+//		def = PR_DefForFieldOfs ( *(int *)val );
+//		sprintf (line, ".%s", def->name);
+//		break;
+	case ev_void:
+		sprintf(line, "void");
+		break;
+	case ev_float:
+		sprintf(line, "%5.1f", (float) *val);
+		break;
+	case ev_vector:
+		sprintf(line, "'%5.1f %5.1f %5.1f'", val[0], val[1], val[2]);
+		break;
+	case ev_pointer:
+		sprintf(line, "pointer");
+		break;
+	default:
+		sprintf(line, "bad type %i", type);
+		break;
+	}
+
+	return line;
+}
+
+/*
+============
+PR_GlobalString
+
+Returns a string with a description and the contents of a global,
+padded to 20 field width
+============
+*/
+
+#define GVAL(o)  ((o < 0) ? o : pr_globals[o])
+
+char *PR_GlobalStringNoContents(gofs_t ofs)
+{
+	static char	line[128];
+
+	def_t * def = pr_global_defs[ofs];
+	if (!def)
+//		Error ("PR_GlobalString: no def for %i", ofs);
+		sprintf(line,"%i(?? =%1.2f)", ofs, GVAL(ofs));
+	else
+		sprintf(line,"%i(%s =%1.2f)", ofs, def->name, GVAL(ofs));
+
+	int i = strlen(line);
+	for ( ; i<16 ; i++)
+		strcat(line," ");
+	strcat(line," ");
+
+	return line;
+}
+
+char *PR_GlobalString(gofs_t ofs)
+{
+	static char	line[128];
+
+	def_t *def = pr_global_defs[ofs];
+	if (!def)
+		return PR_GlobalStringNoContents(ofs);
+
+	if (def->initialized && def->type->type != ev_function)
+	{
+		char *s = PR_ValueString(def->type->type, &pr_globals[ofs]);
+		sprintf(line,"%i(%s =%1.2f)", ofs, s, GVAL(ofs));
+	}
+	else
+		sprintf(line,"%i(%s =%1.2f)", ofs, def->name, GVAL(ofs));
+
+	int i = strlen(line);
+	for ( ; i<16 ; i++)
+		strcat(line," ");
+	strcat(line," ");
+
+	return line;
+}
+
+
+void PR_PrintOfs(gofs_t ofs)
+{
+	printf("%s\n",PR_GlobalString(ofs));
+}
+
+
+void PR_PrintStatement(statement_t *s)
+{
+	int i;
+
+	const char *opname = opcode_names[s->op];
+	printf("%4i : %4i : %s ", (int)(s - statements),
+	        statement_linenums[s-statements], opname);
+	i = strlen(opname);
+	for ( ; i<10 ; i++)
+		printf(" ");
+
+	if (s->op == OP_IF || s->op == OP_IFNOT)
+		printf("%sbranch %i",PR_GlobalString(s->a),s->b);
+	else if (s->op == OP_GOTO)
+	{
+		printf("branch %i",s->a);
+	}
+	else if ( (unsigned)(s->op - OP_MOVE_F) < 4)
+	{
+		printf("%s",PR_GlobalString(s->a));
+		printf("%s", PR_GlobalStringNoContents(s->b));
+	}
+	else if (s->op == OP_CALL)
+	{
+		function_t *f = &functions[(int)G_FUNCTION(s->a)];
+
+		printf("a:%d(%s) ", s->a, strings + f->s_name);
+
+		if (s->b)
+			printf("b:%s",PR_GlobalString(s->b));
+		if (s->c)
+			printf("c:%s", PR_GlobalStringNoContents(s->c));
+	}
+	else
+	{
+		if (s->a)
+			printf("a:%s",PR_GlobalString(s->a));
+		if (s->b)
+			printf("b:%s",PR_GlobalString(s->b));
+		if (s->c)
+			printf("c:%s", PR_GlobalStringNoContents(s->c));
+	}
+	printf("\n");
+}
+
+
+void PR_PrintDefs(void)
+{
+	def_t *d;
+
+	for (d=all_defs ; d ; d=d->next)
+		PR_PrintOfs(d->ofs);
+}
+
+
+void PrintStrings(void)
+{
+	int		i, l, j;
+
+	for (i=0 ; i<strofs ; i += l)
+	{
+		l = strlen(strings+i) + 1;
+		printf("%5i : ",i);
+
+		for (j=0 ; j<l ; j++)
+		{
+			if (strings[i+j] == '\n')
+			{
+				putchar('\\');
+				putchar('n');
+			}
+			else
+				putchar(strings[i+j]);
+		}
+		printf("\n");
+	}
+}
+
+
+void PrintFunction(char *name)
+{
+	int		i;
+	statement_t	*ds;
+	function_t		*df;
+
+	for (i=0 ; i<numfunctions ; i++)
+		if (!strcmp(name, strings + functions[i].s_name))
+			break;
+
+	if (i==numfunctions)
+		PR_RunError("No function names \"%s\"", name);
+
+	df = functions + i;
+
+	printf("Statements for %s:\n", name);
+	ds = statements + df->first_statement;
+
+	for (;;)
+	{
+		PR_PrintStatement(ds);
+		if (!ds->op)
+			break;
+		ds++;
+	}
+}
+
+void PrintFunctions(void)
+{
+	int		i,j;
+	function_t	*d;
+
+	for (i=0 ; i<numfunctions ; i++)
+	{
+		d = &functions[i];
+		printf("%s : %s : %i %i (", strings + d->s_file, strings + d->s_name, d->first_statement, d->parm_ofs[0]);
+		for (j=0 ; j<d->parm_num ; j++)
+			printf("%i ",d->parm_size[j]);
+		printf(")\n");
+	}
+}
+
+
+double * PR_Parameter(int p)
+{
+	assert(pr_xfunction);
+
+	if (p >= pr_xfunction->parm_num)
+		PR_RunError("PR_Parameter: p=%d out of range\n", p);
+	
+	return &localstack[stack_base + pr_xfunction->parm_ofs[p]];
+}
+
+
 void PR_StackTrace(void)
 {
     function_t *f;
@@ -508,322 +823,6 @@ int PR_ExecuteProgram(int fnum)
 	}
 }
 
-
-char * PR_GetString(int num)
-{
-	if (num >= 0)
-		return strings + num;
-	else
-		PR_RunError("invalid string offset %d\n", num);
-
-	return "";
-}
-
-
-
-// CopyString returns an offset from the string heap
-int	CopyString(char *str)
-{
-	int old;
-
-	old = strofs;
-	strcpy(strings+strofs, str);
-	strofs += strlen(str)+1;
-
-	return old;
-}
-
-
-
-/*
-===============
-PR_String
-
-Returns a string suitable for printing (no newlines, max 60 chars length)
-===============
-*/
-char *PR_String(char *string)
-{
-	static char buf[80];
-	char	*s;
-
-	s = buf;
-	*s++ = '"';
-	while (string && *string)
-	{
-		if (s == buf + sizeof(buf) - 2)
-			break;
-		if (*string == '\n')
-		{
-			*s++ = '\\';
-			*s++ = 'n';
-		}
-		else if (*string == '"')
-		{
-			*s++ = '\\';
-			*s++ = '"';
-		}
-		else
-			*s++ = *string;
-		string++;
-		if (s - buf > 60)
-		{
-			*s++ = '.';
-			*s++ = '.';
-			*s++ = '.';
-			break;
-		}
-	}
-	*s++ = '"';
-	*s++ = 0;
-	return buf;
-}
-
-
-/*
-============
-PR_ValueString
-
-Returns a string describing *data in a type specific manner
-=============
-*/
-char *PR_ValueString(etype_t type, double *val)
-{
-	static char	line[256];
-	def_t		*def;
-	function_t	*f;
-
-	switch (type)
-	{
-	case ev_string:
-		sprintf(line, "%s", PR_String(strings + (int)*val));
-		break;
-//	case ev_entity:
-//		sprintf (line, "entity %i", *(int *)val);
-//		break;
-	case ev_function:
-		f = functions + (int)*val;
-		if (!f)
-			sprintf(line, "undefined function");
-		else
-			sprintf(line, "%s()", strings + f->s_name);
-		break;
-//	case ev_field:
-//		def = PR_DefForFieldOfs ( *(int *)val );
-//		sprintf (line, ".%s", def->name);
-//		break;
-	case ev_void:
-		sprintf(line, "void");
-		break;
-	case ev_float:
-		sprintf(line, "%5.1f", (float) *val);
-		break;
-	case ev_vector:
-		sprintf(line, "'%5.1f %5.1f %5.1f'", val[0], val[1], val[2]);
-		break;
-	case ev_pointer:
-		sprintf(line, "pointer");
-		break;
-	default:
-		sprintf(line, "bad type %i", type);
-		break;
-	}
-
-	return line;
-}
-
-/*
-============
-PR_GlobalString
-
-Returns a string with a description and the contents of a global,
-padded to 20 field width
-============
-*/
-
-#define GVAL(o)  ((o < 0) ? o : pr_globals[o])
-
-char *PR_GlobalStringNoContents(gofs_t ofs)
-{
-	static char	line[128];
-
-	def_t * def = pr_global_defs[ofs];
-	if (!def)
-//		Error ("PR_GlobalString: no def for %i", ofs);
-		sprintf(line,"%i(?? =%1.2f)", ofs, GVAL(ofs));
-	else
-		sprintf(line,"%i(%s =%1.2f)", ofs, def->name, GVAL(ofs));
-
-	int i = strlen(line);
-	for ( ; i<16 ; i++)
-		strcat(line," ");
-	strcat(line," ");
-
-	return line;
-}
-
-char *PR_GlobalString(gofs_t ofs)
-{
-	static char	line[128];
-
-	def_t *def = pr_global_defs[ofs];
-	if (!def)
-		return PR_GlobalStringNoContents(ofs);
-
-	if (def->initialized && def->type->type != ev_function)
-	{
-		char *s = PR_ValueString(def->type->type, &pr_globals[ofs]);
-		sprintf(line,"%i(%s =%1.2f)", ofs, s, GVAL(ofs));
-	}
-	else
-		sprintf(line,"%i(%s =%1.2f)", ofs, def->name, GVAL(ofs));
-
-	int i = strlen(line);
-	for ( ; i<16 ; i++)
-		strcat(line," ");
-	strcat(line," ");
-
-	return line;
-}
-
-
-void PR_PrintOfs(gofs_t ofs)
-{
-	printf("%s\n",PR_GlobalString(ofs));
-}
-
-
-void PR_PrintStatement(statement_t *s)
-{
-	int i;
-
-	const char *opname = opcode_names[s->op];
-	printf("%4i : %4i : %s ", (int)(s - statements),
-	        statement_linenums[s-statements], opname);
-	i = strlen(opname);
-	for ( ; i<10 ; i++)
-		printf(" ");
-
-	if (s->op == OP_IF || s->op == OP_IFNOT)
-		printf("%sbranch %i",PR_GlobalString(s->a),s->b);
-	else if (s->op == OP_GOTO)
-	{
-		printf("branch %i",s->a);
-	}
-	else if ( (unsigned)(s->op - OP_MOVE_F) < 4)
-	{
-		printf("%s",PR_GlobalString(s->a));
-		printf("%s", PR_GlobalStringNoContents(s->b));
-	}
-	else if (s->op == OP_CALL)
-	{
-		function_t *f = &functions[(int)G_FUNCTION(s->a)];
-
-		printf("a:%d(%s) ", s->a, strings + f->s_name);
-
-		if (s->b)
-			printf("b:%s",PR_GlobalString(s->b));
-		if (s->c)
-			printf("c:%s", PR_GlobalStringNoContents(s->c));
-	}
-	else
-	{
-		if (s->a)
-			printf("a:%s",PR_GlobalString(s->a));
-		if (s->b)
-			printf("b:%s",PR_GlobalString(s->b));
-		if (s->c)
-			printf("c:%s", PR_GlobalStringNoContents(s->c));
-	}
-	printf("\n");
-}
-
-
-void PR_PrintDefs(void)
-{
-	def_t *d;
-
-	for (d=all_defs ; d ; d=d->next)
-		PR_PrintOfs(d->ofs);
-}
-
-
-void PrintStrings(void)
-{
-	int		i, l, j;
-
-	for (i=0 ; i<strofs ; i += l)
-	{
-		l = strlen(strings+i) + 1;
-		printf("%5i : ",i);
-
-		for (j=0 ; j<l ; j++)
-		{
-			if (strings[i+j] == '\n')
-			{
-				putchar('\\');
-				putchar('n');
-			}
-			else
-				putchar(strings[i+j]);
-		}
-		printf("\n");
-	}
-}
-
-
-void PrintFunction(char *name)
-{
-	int		i;
-	statement_t	*ds;
-	function_t		*df;
-
-	for (i=0 ; i<numfunctions ; i++)
-		if (!strcmp(name, strings + functions[i].s_name))
-			break;
-
-	if (i==numfunctions)
-		PR_RunError("No function names \"%s\"", name);
-
-	df = functions + i;
-
-	printf("Statements for %s:\n", name);
-	ds = statements + df->first_statement;
-
-	for (;;)
-	{
-		PR_PrintStatement(ds);
-		if (!ds->op)
-			break;
-		ds++;
-	}
-}
-
-void PrintFunctions(void)
-{
-	int		i,j;
-	function_t	*d;
-
-	for (i=0 ; i<numfunctions ; i++)
-	{
-		d = &functions[i];
-		printf("%s : %s : %i %i (", strings + d->s_file, strings + d->s_name, d->first_statement, d->parm_ofs[0]);
-		for (j=0 ; j<d->parm_num ; j++)
-			printf("%i ",d->parm_size[j]);
-		printf(")\n");
-	}
-}
-
-
-double * PR_Parameter(int p)
-{
-	assert(pr_xfunction);
-
-	if (p >= pr_xfunction->parm_num)
-		PR_RunError("PR_Parameter: p=%d out of range\n", p);
-	
-	return &localstack[stack_base + pr_xfunction->parm_ofs[p]];
-}
 
 
 #include "r_cmds.c"  // FIXME
