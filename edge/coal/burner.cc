@@ -157,28 +157,13 @@ int main(int argc, char **argv)
 
 
   // find 'main' function
-  func_t main_func = 0;
-  {
-    int i;
-    for (i = 0; i < numfunctions; i++)
-    {
-      function_t *f = &functions[i];
 
-      const char *name = strings + f->s_name;
-
-printf("  %d '%s'\n", f->s_name, name);
-      if (strcmp(name, "main") == 0)
-      {
-        main_func = (func_t)i;
-        break;
-      }
-    }
-  }
+  func_t main_func = PR_FindFunction("main");
 
   if (! (int)main_func)
     Error("No main function!\n");
 
-  fprintf(stderr, "numfunctions = %d  main = %d\n", numfunctions, (int)main_func);
+//  fprintf(stderr, "numfunctions = %d  main = %d\n", numfunctions, (int)main_func);
 
   PR_ExecuteProgram(main_func);
 
