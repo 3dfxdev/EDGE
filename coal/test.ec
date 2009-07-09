@@ -8,37 +8,49 @@ function vprint(v : vector) = #3
 
 function foo(a) =
 {
-    nprint(a);
+    nprint(a)
 }
 
 function bar(b) =
 {
-    var y; y = 1 | 4 | 16;
-    b = b & y;
+    var y; y = 1 | 4 | 16
+    b = b & y
 
-    nprint(b);
+    nprint(b)
     if (b <= 4)
-        b = 1;
+        b = 1
     else
-        sprint("JACKPOT!");
+        sprint("JACKPOT!")
+}
+
+function factorial(n) : float =
+{
+    if (n <= 1)
+        return n
+
+    return factorial(n - 1) * n
 }
 
 function main() =
 {
-    sprint("------------");
-    sprint("Hello World!");
-    sprint("------------");
+    sprint("------------")
+    sprint("Hello World!")
+    sprint("------------")
     
-    vprint('1 2 3' + '4 5 6');
-    vprint('1 2 3' / 4  );
+    nprint(factorial(5))
+    nprint(factorial(4) + factorial(3) + factorial(2))
 
-    var x;
-    var y;
+    vprint('1 2 3' + '4 5 6')
+    vprint('1 2 3' / 4  )
 
-    x = 1; do { foo(x); x = x + 1; } while (x <= 6);
+    sprint("")
 
-    sprint("");
+    var x
 
-    x = 1; while (x <= 6) { bar(x); x = x + 1; }
+    x = 1; do { foo(x); x = x + 1; } while (x <= 6)
+
+    sprint("")
+
+    x = 1; while (x <= 6) { bar(x); x = x + 1 }
 }
 
