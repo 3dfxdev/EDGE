@@ -25,32 +25,18 @@
 
 void PR_InitData(void);
 void PR_BeginCompilation(void);
+bool PR_CompileFile(char *string, char *filename);
 bool PR_FinishCompilation(void);
 void PR_ShowStats(void);
+
 
 // === VM ========================================
 
 void PR_SetTrace(bool enable);
 func_t PR_FindFunction(const char *func_name);
 int PR_ExecuteProgram(func_t fnum);
-
-
-//============================================================================
-
-#define	OFS_NULL		0
-#define	OFS_RETURN		1
-
-#define	RESERVED_OFS	10
-
-
-#define	G_FLOAT(o) (pr_globals[o])
-#define	G_VECTOR(o) (&pr_globals[o])
-#define	G_STRING(o) (strings + (int)pr_globals[o])
-#define	G_FUNCTION(o) (pr_globals[o])
-
-bool PR_CompileFile(char *string, char *filename);
-
 double * PR_Parameter(int p);
+
 
 #endif /* __COAL_API_H__ */
 
