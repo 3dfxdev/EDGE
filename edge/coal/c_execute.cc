@@ -38,7 +38,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define MAX_PRINTMSG  1024
 
-extern void Error (char *error, ...);  // FIXME
+extern void Error(char *error, ...);  // FIXME
 
 
 double		pr_globals[MAX_REGS];
@@ -226,7 +226,7 @@ void PR_ExecuteProgram(func_t fnum)
 
 	int s = PR_EnterFunction(f);
 
-	while (1)
+	for (;;)
 	{
 		statement_t *st = &statements[s];
 
@@ -491,12 +491,12 @@ char * PR_GetString(int num)
 
 
 // CopyString returns an offset from the string heap
-int	CopyString (char *str)
+int	CopyString(char *str)
 {
 	int old;
 
 	old = strofs;
-	strcpy (strings+strofs, str);
+	strcpy(strings+strofs, str);
 	strofs += strlen(str)+1;
 
 	return old;
@@ -511,7 +511,7 @@ PR_String
 Returns a string suitable for printing (no newlines, max 60 chars length)
 ===============
 */
-char *PR_String (char *string)
+char *PR_String(char *string)
 {
 	static char buf[80];
 	char	*s;
@@ -556,7 +556,7 @@ PR_ValueString
 Returns a string describing *data in a type specific manner
 =============
 */
-char *PR_ValueString (etype_t type, double *val)
+char *PR_ValueString(etype_t type, double *val)
 {
 	static char	line[256];
 	def_t		*def;
@@ -565,7 +565,7 @@ char *PR_ValueString (etype_t type, double *val)
 	switch (type)
 	{
 	case ev_string:
-		sprintf (line, "%s", PR_String(strings + (int)*val));
+		sprintf(line, "%s", PR_String(strings + (int)*val));
 		break;
 //	case ev_entity:
 //		sprintf (line, "entity %i", *(int *)val);
@@ -573,28 +573,28 @@ char *PR_ValueString (etype_t type, double *val)
 	case ev_function:
 		f = functions + (int)*val;
 		if (!f)
-			sprintf (line, "undefined function");
+			sprintf(line, "undefined function");
 		else
-			sprintf (line, "%s()", strings + f->s_name);
+			sprintf(line, "%s()", strings + f->s_name);
 		break;
 //	case ev_field:
 //		def = PR_DefForFieldOfs ( *(int *)val );
 //		sprintf (line, ".%s", def->name);
 //		break;
 	case ev_void:
-		sprintf (line, "void");
+		sprintf(line, "void");
 		break;
 	case ev_float:
-		sprintf (line, "%5.1f", (float) *val);
+		sprintf(line, "%5.1f", (float) *val);
 		break;
 	case ev_vector:
-		sprintf (line, "'%5.1f %5.1f %5.1f'", val[0], val[1], val[2]);
+		sprintf(line, "'%5.1f %5.1f %5.1f'", val[0], val[1], val[2]);
 		break;
 	case ev_pointer:
-		sprintf (line, "pointer");
+		sprintf(line, "pointer");
 		break;
 	default:
-		sprintf (line, "bad type %i", type);
+		sprintf(line, "bad type %i", type);
 		break;
 	}
 
@@ -612,26 +612,26 @@ padded to 20 field width
 
 #define GVAL(o)  ((o < 0) ? o : pr_globals[o])
 
-char *PR_GlobalStringNoContents (gofs_t ofs)
+char *PR_GlobalStringNoContents(gofs_t ofs)
 {
 	static char	line[128];
 
 	def_t * def = pr_global_defs[ofs];
 	if (!def)
 //		Error ("PR_GlobalString: no def for %i", ofs);
-		sprintf (line,"%i(?? =%1.2f)", ofs, GVAL(ofs));
+		sprintf(line,"%i(?? =%1.2f)", ofs, GVAL(ofs));
 	else
-		sprintf (line,"%i(%s =%1.2f)", ofs, def->name, GVAL(ofs));
+		sprintf(line,"%i(%s =%1.2f)", ofs, def->name, GVAL(ofs));
 
 	int i = strlen(line);
 	for ( ; i<16 ; i++)
-		strcat (line," ");
-	strcat (line," ");
+		strcat(line," ");
+	strcat(line," ");
 
 	return line;
 }
 
-char *PR_GlobalString (gofs_t ofs)
+char *PR_GlobalString(gofs_t ofs)
 {
 	static char	line[128];
 
@@ -641,48 +641,48 @@ char *PR_GlobalString (gofs_t ofs)
 
 	if (def->initialized && def->type->type != ev_function)
 	{
-		char *s = PR_ValueString (def->type->type, &pr_globals[ofs]);
-		sprintf (line,"%i(%s =%1.2f)", ofs, s, GVAL(ofs));
+		char *s = PR_ValueString(def->type->type, &pr_globals[ofs]);
+		sprintf(line,"%i(%s =%1.2f)", ofs, s, GVAL(ofs));
 	}
 	else
-		sprintf (line,"%i(%s =%1.2f)", ofs, def->name, GVAL(ofs));
+		sprintf(line,"%i(%s =%1.2f)", ofs, def->name, GVAL(ofs));
 
 	int i = strlen(line);
 	for ( ; i<16 ; i++)
-		strcat (line," ");
-	strcat (line," ");
+		strcat(line," ");
+	strcat(line," ");
 
 	return line;
 }
 
 
-void PR_PrintOfs (gofs_t ofs)
+void PR_PrintOfs(gofs_t ofs)
 {
-	printf ("%s\n",PR_GlobalString(ofs));
+	printf("%s\n",PR_GlobalString(ofs));
 }
 
 
-void PR_PrintStatement (statement_t *s)
+void PR_PrintStatement(statement_t *s)
 {
 	int i;
 
 	const char *opname = opcode_names[s->op];
-	printf ("%4i : %4i : %s ", (int)(s - statements),
+	printf("%4i : %4i : %s ", (int)(s - statements),
 	        statement_linenums[s-statements], opname);
 	i = strlen(opname);
 	for ( ; i<10 ; i++)
-		printf (" ");
+		printf(" ");
 
 	if (s->op == OP_IF || s->op == OP_IFNOT)
-		printf ("%sbranch %i",PR_GlobalString(s->a),s->b);
+		printf("%sbranch %i",PR_GlobalString(s->a),s->b);
 	else if (s->op == OP_GOTO)
 	{
-		printf ("branch %i",s->a);
+		printf("branch %i",s->a);
 	}
 	else if ( (unsigned)(s->op - OP_MOVE_F) < 4)
 	{
-		printf ("%s",PR_GlobalString(s->a));
-		printf ("%s", PR_GlobalStringNoContents(s->b));
+		printf("%s",PR_GlobalString(s->a));
+		printf("%s", PR_GlobalStringNoContents(s->b));
 	}
 	else if (s->op == OP_CALL)
 	{
@@ -691,83 +691,84 @@ void PR_PrintStatement (statement_t *s)
 		printf("a:%d(%s) ", s->a, strings + f->s_name);
 
 		if (s->b)
-			printf ("b:%s",PR_GlobalString(s->b));
+			printf("b:%s",PR_GlobalString(s->b));
 		if (s->c)
-			printf ("c:%s", PR_GlobalStringNoContents(s->c));
+			printf("c:%s", PR_GlobalStringNoContents(s->c));
 	}
 	else
 	{
 		if (s->a)
-			printf ("a:%s",PR_GlobalString(s->a));
+			printf("a:%s",PR_GlobalString(s->a));
 		if (s->b)
-			printf ("b:%s",PR_GlobalString(s->b));
+			printf("b:%s",PR_GlobalString(s->b));
 		if (s->c)
-			printf ("c:%s", PR_GlobalStringNoContents(s->c));
+			printf("c:%s", PR_GlobalStringNoContents(s->c));
 	}
-	printf ("\n");
+	printf("\n");
 }
 
 
-void PR_PrintDefs (void)
+void PR_PrintDefs(void)
 {
 	def_t *d;
 
 	for (d=all_defs ; d ; d=d->next)
-		PR_PrintOfs (d->ofs);
+		PR_PrintOfs(d->ofs);
 }
 
 
-void PrintStrings (void)
+void PrintStrings(void)
 {
 	int		i, l, j;
 
 	for (i=0 ; i<strofs ; i += l)
 	{
 		l = strlen(strings+i) + 1;
-		printf ("%5i : ",i);
+		printf("%5i : ",i);
+
 		for (j=0 ; j<l ; j++)
 		{
 			if (strings[i+j] == '\n')
 			{
-				putchar ('\\');
-				putchar ('n');
+				putchar('\\');
+				putchar('n');
 			}
 			else
-				putchar (strings[i+j]);
+				putchar(strings[i+j]);
 		}
-		printf ("\n");
+		printf("\n");
 	}
 }
 
 
-void PrintFunction (char *name)
+void PrintFunction(char *name)
 {
 	int		i;
 	statement_t	*ds;
 	function_t		*df;
 
 	for (i=0 ; i<numfunctions ; i++)
-		if (!strcmp (name, strings + functions[i].s_name))
+		if (!strcmp(name, strings + functions[i].s_name))
 			break;
 
 	if (i==numfunctions)
-		Error ("No function names \"%s\"", name);
+		Error("No function names \"%s\"", name);
 
 	df = functions + i;
 
-	printf ("Statements for %s:\n", name);
+	printf("Statements for %s:\n", name);
 	ds = statements + df->first_statement;
 
-	while (1)
+	for (;;)
 	{
-		PR_PrintStatement (ds);
+		PR_PrintStatement(ds);
 		if (!ds->op)
 			break;
 		ds++;
 	}
 }
 
-void PrintFunctions (void)
+void PrintFunctions(void)
 {
 	int		i,j;
 	function_t	*d;
@@ -775,10 +776,10 @@ void PrintFunctions (void)
 	for (i=0 ; i<numfunctions ; i++)
 	{
 		d = &functions[i];
-		printf ("%s : %s : %i %i (", strings + d->s_file, strings + d->s_name, d->first_statement, d->parm_ofs[0]);
+		printf("%s : %s : %i %i (", strings + d->s_file, strings + d->s_name, d->first_statement, d->parm_ofs[0]);
 		for (j=0 ; j<d->parm_num ; j++)
-			printf ("%i ",d->parm_size[j]);
-		printf (")\n");
+			printf("%i ",d->parm_size[j]);
+		printf(")\n");
 	}
 }
 
