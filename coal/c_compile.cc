@@ -670,50 +670,50 @@ const char * opcode_names[] =
 
 static opcode_t pr_operators[] =
 {
-	{"!", OP_NOT_F, -1, false, &type_float, &type_void, &type_float},
-	{"!", OP_NOT_V, -1, false, &type_vector, &type_void, &type_float},
-	{"!", OP_NOT_S, -1, false, &type_vector, &type_void, &type_float},
-	{"!", OP_NOT_FNC, -1, false, &type_function, &type_void, &type_float},
+	{"!", OP_NOT_F, -1, &type_float, &type_void, &type_float},
+	{"!", OP_NOT_V, -1, &type_vector, &type_void, &type_float},
+	{"!", OP_NOT_S, -1, &type_vector, &type_void, &type_float},
+	{"!", OP_NOT_FNC, -1, &type_function, &type_void, &type_float},
 
 	/* priority 1 is for function calls */
 
-	{"^", OP_POWER_F, 2, false, &type_float, &type_float, &type_float},
+	{"^", OP_POWER_F, 2, &type_float, &type_float, &type_float},
 
-	{"*", OP_MUL_F, 2, false, &type_float, &type_float, &type_float},
-	{"*", OP_MUL_V, 2, false, &type_vector, &type_vector, &type_float},
-	{"*", OP_MUL_FV, 2, false, &type_float, &type_vector, &type_vector},
-	{"*", OP_MUL_VF, 2, false, &type_vector, &type_float, &type_vector},
+	{"*", OP_MUL_F,  2, &type_float, &type_float, &type_float},
+	{"*", OP_MUL_V,  2, &type_vector, &type_vector, &type_float},
+	{"*", OP_MUL_FV, 2, &type_float, &type_vector, &type_vector},
+	{"*", OP_MUL_VF, 2, &type_vector, &type_float, &type_vector},
 
-	{"/", OP_DIV_F, 2, false, &type_float, &type_float, &type_float},
-	{"/", OP_DIV_V, 2, false, &type_vector, &type_float, &type_vector},
-	{"%", OP_MOD_F, 2, false, &type_float, &type_float, &type_float},
+	{"/", OP_DIV_F, 2, &type_float, &type_float, &type_float},
+	{"/", OP_DIV_V, 2, &type_vector, &type_float, &type_vector},
+	{"%", OP_MOD_F, 2, &type_float, &type_float, &type_float},
 
-	{"+", OP_ADD_F, 3, false, &type_float, &type_float, &type_float},
-	{"+", OP_ADD_V, 3, false, &type_vector, &type_vector, &type_vector},
+	{"+", OP_ADD_F, 3, &type_float, &type_float, &type_float},
+	{"+", OP_ADD_V, 3, &type_vector, &type_vector, &type_vector},
 
-	{"-", OP_SUB_F, 3, false, &type_float, &type_float, &type_float},
-	{"-", OP_SUB_V, 3, false, &type_vector, &type_vector, &type_vector},
+	{"-", OP_SUB_F, 3, &type_float, &type_float, &type_float},
+	{"-", OP_SUB_V, 3, &type_vector, &type_vector, &type_vector},
 
-	{"==", OP_EQ_F, 4, false, &type_float, &type_float, &type_float},
-	{"==", OP_EQ_V, 4, false, &type_vector, &type_vector, &type_float},
-	{"==", OP_EQ_S, 4, false, &type_string, &type_string, &type_float},
-	{"==", OP_EQ_FNC, 4, false, &type_function, &type_function, &type_float},
+	{"==", OP_EQ_F, 4, &type_float, &type_float, &type_float},
+	{"==", OP_EQ_V, 4, &type_vector, &type_vector, &type_float},
+	{"==", OP_EQ_S, 4, &type_string, &type_string, &type_float},
+	{"==", OP_EQ_FNC, 4, &type_function, &type_function, &type_float},
 
-	{"!=", OP_NE_F, 4, false, &type_float, &type_float, &type_float},
-	{"!=", OP_NE_V, 4, false, &type_vector, &type_vector, &type_float},
-	{"!=", OP_NE_S, 4, false, &type_string, &type_string, &type_float},
-	{"!=", OP_NE_FNC, 4, false, &type_function, &type_function, &type_float},
+	{"!=", OP_NE_F, 4, &type_float, &type_float, &type_float},
+	{"!=", OP_NE_V, 4, &type_vector, &type_vector, &type_float},
+	{"!=", OP_NE_S, 4, &type_string, &type_string, &type_float},
+	{"!=", OP_NE_FNC, 4, &type_function, &type_function, &type_float},
 
-	{"<=", OP_LE, 4, false, &type_float, &type_float, &type_float},
-	{">=", OP_GE, 4, false, &type_float, &type_float, &type_float},
-	{"<", OP_LT, 4, false, &type_float, &type_float, &type_float},
-	{">", OP_GT, 4, false, &type_float, &type_float, &type_float},
+	{"<=", OP_LE, 4, &type_float, &type_float, &type_float},
+	{">=", OP_GE, 4, &type_float, &type_float, &type_float},
+	{"<",  OP_LT, 4, &type_float, &type_float, &type_float},
+	{">",  OP_GT, 4, &type_float, &type_float, &type_float},
 
-	{"&&", OP_AND, 5, false, &type_float, &type_float, &type_float},
-	{"||", OP_OR, 5, false, &type_float, &type_float, &type_float},
+	{"&&", OP_AND, 5, &type_float, &type_float, &type_float},
+	{"||", OP_OR,  5, &type_float, &type_float, &type_float},
 
-	{"&", OP_BITAND, 2, false, &type_float, &type_float, &type_float},
-	{"|", OP_BITOR, 2, false, &type_float, &type_float, &type_float},
+	{"&", OP_BITAND, 2, &type_float, &type_float, &type_float},
+	{"|", OP_BITOR,  2, &type_float, &type_float, &type_float},
 
 	{NULL}
 };
@@ -723,7 +723,6 @@ static opcode_t pr_operators[] =
 
 def_t *PR_Expression(int priority, bool *lvalue = NULL);
 
-def_t	junkdef;
 
 //===========================================================================
 
@@ -778,24 +777,12 @@ Emits a primitive statement, returning the var it places it's value in
 */
 def_t * PR_Statement(opcode_t *op, def_t *var_a = NULL, def_t *var_b = NULL)
 {
-	def_t *var_c = NULL;
-
-	if (op->type_c == &type_void || op->right_associative)
-	{
-		// ifs, gotos, and assignments don't need vars allocated
-	}
-	else
-	{	// allocate return space
-		var_c = PR_NewLocal(op->type_c);
-	}
+	def_t *var_c = PR_NewLocal(op->type_c);
 
 	PR_EmitCode(op->op,
     			var_a ? var_a->ofs : 0,
     			var_b ? var_b->ofs : 0,
     			var_c ? var_c->ofs : 0);
-
-	if (op->right_associative)
-		return var_a;
 
 	return var_c;
 }
@@ -1026,15 +1013,10 @@ def_t *PR_FindDef(type_t *type, char *name, def_t *scope)
 }
 
 
-/*
-============
-PR_GetDef
-
-a new def will be allocated if it can't be found
-============
-*/
 def_t *PR_GetDef(type_t *type, char *name, def_t *scope)
 {
+	// A new def will be allocated if it can't be found
+
 	assert(type);
 
 	def_t *def = PR_FindDef(type, name, scope);
@@ -1204,12 +1186,7 @@ def_t * PR_Expression(int priority, bool *lvalue)
 				break;
 			}
 
-			def_t * e2;
-
-			if (op->right_associative)
-				e2 = PR_Expression(priority);
-			else
-				e2 = PR_Expression(priority-1);
+			def_t * e2 = PR_Expression(priority-1);
 
 			// type check
 
@@ -1240,13 +1217,7 @@ def_t * PR_Expression(int priority, bool *lvalue)
 			if (type_a == ev_pointer && type_b != e->type->aux_type->type)
 				PR_ParseError("type mismatch for %s", op->name);
 
-
-			assert(! op->right_associative);
-
-			if (op->right_associative)
-				e = PR_Statement(op, e2, e);
-			else
-				e = PR_Statement(op, e, e2);
+			e = PR_Statement(op, e, e2);
 
 #if 0
 			if (type_c != ev_void)	// field access gets type from field

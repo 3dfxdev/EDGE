@@ -224,7 +224,6 @@ typedef struct
 	const char *name;
 	int op;  // OP_XXX
 	int priority;
-	bool right_associative;
 	type_t *type_a, *type_b, *type_c;
 }
 opcode_t;
