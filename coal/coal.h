@@ -32,7 +32,7 @@ void PR_ShowStats(void);
 
 void PR_SetTrace(bool enable);
 func_t PR_FindFunction(const char *func_name);
-void PR_ExecuteProgram(func_t fnum);
+int PR_ExecuteProgram(func_t fnum);
 
 
 //============================================================================

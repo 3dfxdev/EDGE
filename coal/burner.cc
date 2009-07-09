@@ -165,8 +165,11 @@ int main(int argc, char **argv)
 
 //  fprintf(stderr, "numfunctions = %d  main = %d\n", numfunctions, (int)main_func);
 
-  PR_ExecuteProgram(main_func);
-
+  if (0 != PR_ExecuteProgram(main_func))
+  {
+  	fprintf(stderr, "\n*** script terminated by error\n");
+	return 1;
+  }
 
   return 0;
 }

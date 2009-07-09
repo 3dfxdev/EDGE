@@ -38,8 +38,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define MAX_PRINTMSG  1024
 
-extern void Error(char *error, ...);  // FIXME
-
 
 double		pr_globals[MAX_REGS];
 int			numpr_globals;
@@ -144,12 +142,14 @@ void PR_RunError(const char *error, ...)
 
     PR_PrintStatement(statements + pr_xstatement);
     PR_StackTrace();
+
     Con_Printf("%s\n", string);
 
-    /* dump the stack so SV/Host_Error can shutdown functions */
+    /* clear the stack so SV/Host_Error can shutdown functions */
     pr_depth = 0;
 
-    Error("Program error");
+//  raise(11);
+    throw exec_error_x();
 }
 
 
@@ -188,7 +188,7 @@ int PR_EnterFunction(function_t *f, int result = 0)
 int PR_LeaveFunction(int *result)
 {
 	if (pr_depth <= 0)
-		Error("prog stack underflow");
+		PR_RunError("stack underflow");
 
 	// up stack
 	pr_depth--;
@@ -221,18 +221,14 @@ void PR_EnterBuiltin(function_t *newf, int result)
 	stack_base -= pr_xfunction->locals_end;
 }
 
-/*
-====================
-PR_ExecuteProgram
-====================
-*/
-void PR_ExecuteProgram(func_t fnum)
+
+static void DoExecuteProgram(func_t fnum)
 {
     function_t *newf;
 
 	if (!fnum || fnum >= numfunctions)
 	{
-		Error("PR_ExecuteProgram: NULL function");
+		PR_RunError("PR_ExecuteProgram: NULL function");
 	}
 
 	function_t *f = &functions[fnum];
@@ -303,13 +299,13 @@ void PR_ExecuteProgram(func_t fnum)
 
 			case OP_DIV_F:
 				if (*b == 0)
-					Error("Division by zero");
+					PR_RunError("Division by zero");
 				*c = *a / *b;
 				break;
 
 			case OP_DIV_V:
 				if (*b == 0)
-					Error("Division by zero");
+					PR_RunError("Division by zero");
 				c[0] = a[0] / *b;
 				c[1] = a[1] / *b;
 				c[2] = a[2] / *b;
@@ -317,7 +313,7 @@ void PR_ExecuteProgram(func_t fnum)
 
 			case OP_MOD_F:
 				if (*b == 0)
-					Error("Division by zero");
+					PR_RunError("Division by zero");
 				{
 					float d = floorf(*a / *b);
 					*c = *a - d * (*b);
@@ -495,13 +491,26 @@ void PR_ExecuteProgram(func_t fnum)
 	}
 }
 
+int PR_ExecuteProgram(func_t fnum)
+{
+	try
+	{
+		DoExecuteProgram(fnum);
+		return 0;
+	}
+	catch (exec_error_x err)
+	{
+		return 9;
+	}
+}
+
 
 char * PR_GetString(int num)
 {
 	if (num >= 0)
 		return strings + num;
 	else
-		Error("invalid string offset %d\n", num);
+		PR_RunError("invalid string offset %d\n", num);
 
 	return "";
 }
@@ -770,7 +779,7 @@ void PrintFunction(char *name)
 			break;
 
 	if (i==numfunctions)
-		Error("No function names \"%s\"", name);
+		PR_RunError("No function names \"%s\"", name);
 
 	df = functions + i;
 

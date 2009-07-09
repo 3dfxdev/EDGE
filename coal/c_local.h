@@ -247,7 +247,15 @@ extern int pr_argc;
 extern bool pr_trace;
 
 
-void PR_ExecuteProgram(func_t fnum);
+class exec_error_x
+{
+public:
+	int foo;
+
+	 exec_error_x() { }
+	~exec_error_x() { }
+};
+
 
 void PR_RunError(const char *error, ...) __attribute__((format(printf,1,2)));
 
