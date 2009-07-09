@@ -83,11 +83,24 @@ void PR_SetTrace(bool enable)
 }
 
 
-/*
-============
-PR_StackTrace
-============
-*/
+func_t PR_FindFunction(const char *func_name)
+{
+	for (int i = 0; i < numfunctions; i++)
+	{
+		function_t *f = &functions[i];
+
+		const char *name = strings + f->s_name;
+
+		// printf("  %d '%s'\n", f->s_name, name);
+
+		if (strcmp(name, func_name) == 0)
+			return (func_t)i;
+	}
+
+	return 0;  // NOT FOUND
+}
+
+
 void PR_StackTrace(void)
 {
     function_t *f;

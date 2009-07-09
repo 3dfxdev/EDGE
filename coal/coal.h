@@ -21,57 +21,32 @@
 #define __QCC_H__
 
 
+// COMPILER:
+
 void PR_InitData(void);
 void PR_BeginCompilation(void);
 bool PR_FinishCompilation(void);
 void PR_ShowStats(void);
 
+// EXECUTOR:
+
 void PR_SetTrace(bool enable);
+func_t PR_FindFunction(const char *func_name);
 void PR_ExecuteProgram(func_t fnum);
 
 
 //============================================================================
 
-// pr_loc.h -- program local defs
-
 #define	MAX_ERRORS		20
-
-#define	MAX_NAME		64		// chars long
 
 #define	MAX_REGS		16384
 
 //============================================================================
 
 
-extern const char *opcode_names[];
-
 extern def_t *pr_global_defs[MAX_REGS];	// to find def for a global variable
 
 void PR_PrintStatement(statement_t *s);
-
-void PR_Lex(void);
-// reads the next token into pr_token and classifies its type
-
-type_t *PR_ParseType(void);
-char *PR_ParseName(void);
-
-bool PR_Check(char *string);
-void PR_Expect(char *string);
-void PR_ParseError(char *error, ...);
-
-
-class parse_error_x
-{
-public:
-	int foo;
-
-	 parse_error_x() { }
-	~parse_error_x() { }
-};
-
-
-extern	int			pr_source_line;
-extern	char		*pr_file_p;
 
 
 #define	OFS_NULL		0
@@ -80,17 +55,8 @@ extern	char		*pr_file_p;
 #define	RESERVED_OFS	10
 
 
-extern	def_t	*pr_scope;
-extern	int		pr_error_count;
-
-void PR_NewLine(void);
-def_t *PR_GetDef(type_t *type, char *name, def_t *scope, bool allocate);
-
 void PR_PrintDefs(void);
 
-void PR_SkipToSemicolon(void);
-
-extern	char		pr_parm_names[MAX_PARMS][MAX_NAME];
 
 #define	G_FLOAT(o) (pr_globals[o])
 #define	G_VECTOR(o) (&pr_globals[o])
@@ -98,9 +64,7 @@ extern	char		pr_parm_names[MAX_PARMS][MAX_NAME];
 #define	G_FUNCTION(o) (pr_globals[o])
 
 
-bool	PR_CompileFile(char *string, char *filename);
-
-extern	string_t	s_file;			// filename for function definition
+bool PR_CompileFile(char *string, char *filename);
 
 
 //=============================================================================
@@ -125,8 +89,6 @@ extern	int			numfunctions;
 
 extern	double		pr_globals[MAX_REGS];
 extern	int			numpr_globals;
-
-extern	char	pr_immediate_string[2048];
 
 int	CopyString(char *str);
 
