@@ -59,14 +59,6 @@ void Error(char *error, ...)
 }
 
 
-void InitData(void)
-{
-	numstatements = 1;
-	strofs = 1;
-	numfunctions = 1;
-}
-
-
 //============================================================================
 
 
@@ -128,11 +120,11 @@ int main(int argc, char **argv)
 		return 0;
 	}
 
-	InitData();
+	PR_InitData();
 
 	if (strcmp(argv[1], "-t") == 0)
 	{
-		pr_trace = true;
+		PR_SetTrace(true);
 		argv++; argc--;
 	}
 
@@ -158,13 +150,10 @@ int main(int argc, char **argv)
 
 	}
 
-	if (!PR_FinishCompilation())
+	if (! PR_FinishCompilation())
 		Error("compilation errors");
 
-	printf("%6i strofs\n", strofs);
-	printf("%6i numstatements\n", numstatements);
-	printf("%6i numfunctions\n", numfunctions);
-	printf("%6i numpr_globals\n", numpr_globals);
+	PR_ShowStats();
 
 
   // find 'main' function

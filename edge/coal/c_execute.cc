@@ -77,6 +77,11 @@ int pr_xstatement;
 int pr_argc;
 
 
+void PR_SetTrace(bool enable)
+{
+	pr_trace = enable;
+}
+
 
 /*
 ============
