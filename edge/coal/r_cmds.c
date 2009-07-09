@@ -1,7 +1,7 @@
 
 static void PF_Dummy(void)
 {
-    Error("unimplemented builtin");
+    PR_RunError("unimplemented builtin");
 }
 
 static void PF_PrintStr(void)
