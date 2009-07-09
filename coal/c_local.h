@@ -134,6 +134,61 @@ typedef struct
 }
 function_t;
 
+// offset in global data block (if > 0)
+// when < 0, it is offset into local stack frame
+typedef int	gofs_t;
+
+#define	MAX_PARMS	8
+
+typedef struct type_s
+{
+	etype_t			type;
+
+// function types are more complex
+	struct type_s	*aux_type;	// return type or field type
+
+	int				parm_num;	// -1 = variable args
+	struct type_s	*parm_types[MAX_PARMS];	// only [parm_num] allocated
+
+	struct type_s	*next;
+}
+type_t;
+
+typedef struct def_s
+{
+	type_t		*type;
+	char		*name;
+
+	gofs_t		ofs;
+	struct def_s	*scope;		// function the var was defined in, or NULL
+	int			initialized;	// 1 when a declaration included "= immediate"
+
+	struct def_s	*next;
+}
+def_t;
+
+
+//=============================================================================
+
+extern	int		type_size[8];
+
+extern	type_t	type_void, type_string, type_float, type_vector,
+                type_entity, type_function;
+
+
+extern type_t * all_types;  // except built-in types
+extern def_t  * all_defs;
+
+typedef struct
+{
+	const char *name;
+	int op;  // OP_XXX
+	int priority;
+	bool right_associative;
+	type_t *type_a, *type_b, *type_c;
+}
+opcode_t;
+
 
 //============================================================//
 
