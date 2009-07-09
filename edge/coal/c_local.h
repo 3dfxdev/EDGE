@@ -112,7 +112,7 @@ enum
 };
 
 
-#define	MAX_PARMS	8
+#define	MAX_PARMS	16
 
 typedef struct
 {
@@ -138,7 +138,6 @@ function_t;
 // when < 0, it is offset into local stack frame
 typedef int	gofs_t;
 
-#define	MAX_PARMS	8
 
 typedef struct type_s
 {
