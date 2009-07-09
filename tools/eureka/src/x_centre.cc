@@ -32,7 +32,6 @@ Place, Suite 330, Boston, MA 02111-1307, USA.
 #include "l_centre.h"
 #include "levels.h"
 #include "s_centre.h"
-#include "t_centre.h"
 #include "v_centre.h"
 #include "x_centre.h"
 

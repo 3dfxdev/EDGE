@@ -40,7 +40,6 @@ Place, Suite 330, Boston, MA 02111-1307, USA.
 #include "s_slice.h"
 #include "s_swapf.h"
 #include "selectn.h"
-#include "t_spin.h"
 #include "x_mirror.h"
 #include "x_rotate.h"
 

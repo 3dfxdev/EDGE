@@ -35,7 +35,6 @@ Place, Suite 330, Boston, MA 02111-1307, USA.
 #include "objid.h"
 #include "s_vertices.h"
 #include "selectn.h"
-#include "t_centre.h"
 #include "v_centre.h"
 #include "x_mirror.h"
 

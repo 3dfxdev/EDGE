@@ -51,8 +51,6 @@ Place, Suite 330, Boston, MA 02111-1307, USA.
 #include "selectn.h"
 #include "selpath.h"
 #include "spot.h"
-#include "t_flags.h"
-#include "t_spin.h"
 #include "x_centre.h"
 #include "x_exchng.h"
 #include "x_hover.h"
