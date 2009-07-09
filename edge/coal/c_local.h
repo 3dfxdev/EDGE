@@ -180,6 +180,11 @@ def_t;
 #define	MAX_STATEMENTS	65536
 #define	MAX_FUNCTIONS	8192
 
+#define	OFS_NULL		0
+#define	OFS_RETURN		1
+
+#define	RESERVED_OFS	10
+
 extern	char	strings[MAX_STRINGS];
 extern	int		strofs;
 
@@ -194,6 +199,11 @@ extern	double		pr_globals[MAX_REGS];
 extern	int			numpr_globals;
 
 extern def_t *pr_global_defs[MAX_REGS];	// to find def for a global variable
+
+#define	G_FLOAT(o) (pr_globals[o])
+#define	G_VECTOR(o) (&pr_globals[o])
+#define	G_STRING(o) (strings + (int)pr_globals[o])
+#define	G_FUNCTION(o) (pr_globals[o])
 
 int	CopyString(char *str);
 
