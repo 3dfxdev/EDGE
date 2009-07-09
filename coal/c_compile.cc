@@ -84,6 +84,18 @@ int		type_size[8] = {1,1,1,3,1,1,1,1};
 def_t	def_void = {&type_void, "VOID_SPACE", 0};
 
 
+type_t * all_types;
+def_t  * all_defs;
+
+def_t * pr_global_defs[MAX_REGS];	// to find def for a global variable
+
+def_t		*pr_scope;		// the function being parsed, or NULL
+
+string_t	s_file;			// filename for function definition
+
+int			locals_end;		// for tracking local variables vs temps
+
+
 void PR_ParseStatement(bool allow_def);
 
 
@@ -603,18 +615,6 @@ type_t *PR_ParseType(void)
 //=================================================================//
 
 
-type_t * all_types;
-def_t  * all_defs;
-
-def_t * pr_global_defs[MAX_REGS];	// to find def for a global variable
-
-def_t		*pr_scope;		// the function being parsed, or NULL
-
-string_t	s_file;			// filename for function definition
-
-int			locals_end;		// for tracking local variables vs temps
-
-
 void PR_ParseFunction(void);
 void PR_ParseVariable(void);
 void PR_ParseConstant(void);
@@ -869,7 +869,7 @@ def_t * PR_ParseFunctionCall(def_t *func)
 
 	
 	// evaluate all parameters
-	def_t * exprs[8];
+	def_t * exprs[MAX_PARMS];
 
 	int arg = 0;
 
@@ -877,8 +877,10 @@ def_t * PR_ParseFunctionCall(def_t *func)
 	{
 		do
 		{
-			if (arg >= t->parm_num || arg >= 8)
-				PR_ParseError("too many parameters");
+			if (arg >= t->parm_num)
+				PR_ParseError("too many parameters (expected %d)", t->parm_num);
+
+			assert(arg < MAX_PARMS);
 
 			def_t * e = PR_Expression(TOP_PRIORITY);
 
@@ -1473,6 +1475,9 @@ void PR_ParseFunction(void)
 	{
 		do
 		{
+			if (t_new.parm_num >= MAX_PARMS)
+				PR_ParseError("too many parameters (over %d)", MAX_PARMS);
+
 			char *name = PR_ParseName();
 
 			strcpy(pr_parm_names[t_new.parm_num], name);
