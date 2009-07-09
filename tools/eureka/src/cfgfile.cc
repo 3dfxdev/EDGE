@@ -35,7 +35,6 @@ Place, Suite 330, Boston, MA 02111-1307, USA.
 #include "gfx.h"
 #include "help2.h"
 #include "levels.h"
-#include "locate.h"
 
 
 
@@ -508,19 +507,20 @@ int parse_config_file_default ()
 {
   int rc = 0;
   int matches;
-  const char *pathname;
-  const char *name = "eureka.cfg";
-  Locate locate (yadex_etc_path, name, true);
+  const char *pathname = "eureka.cfg";
 
-  for (matches = 0; (pathname = locate.get_next ()) != NULL; matches++)
+//--   const char *name = "./eureka.cfg";
+//--   Locate locate (yadex_etc_path, name, true);
+
+//--   for (matches = 0; (pathname = locate.get_next ()) != NULL; matches++)
   {
     printf ("Reading config file \"%s\".\n", pathname);
     int r = parse_config_file (pathname);
     if (r != 0)
       rc = 1;
   }
-  if (matches == 0)
-    warn ("%s: not found\n", name);
+//--  if (matches == 0)
+//--    warn ("%s: not found\n", name);
   return rc;
 }
 
@@ -534,17 +534,17 @@ int parse_config_file_default ()
  */
 int parse_config_file_user (const char *name)
 {
-  const char *pathname;
-  Locate locate (yadex_etc_path, name, false);
-  
-  pathname = locate.get_next ();
-  if (pathname == NULL)
-  {
-    err ("%s: not found", name);
+//--  const char *pathname;
+//--  Locate locate (yadex_etc_path, name, false);
+//--  
+//--  pathname = locate.get_next ();
+//--  if (pathname == NULL)
+//--  {
+//--    err ("%s: not found", name);
     return 1;
-  }
-  printf ("Reading config file \"%s\".\n", pathname);
-  return parse_config_file (pathname);
+//--  }
+//--  printf ("Reading config file \"%s\".\n", pathname);
+//--  return parse_config_file (pathname);
 }
 
 
