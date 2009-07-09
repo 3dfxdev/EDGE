@@ -1633,7 +1633,7 @@ bool PR_CompileFile (char *string, char *filename)
 
 	pr_file_p = string;
 	pr_line_start = string;
-	pr_source_line = 0;
+	pr_source_line = 1;
 	pr_fol_level = 0;
 
 	PR_Lex();	// read first token
