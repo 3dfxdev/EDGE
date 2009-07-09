@@ -31,7 +31,6 @@ Place, Suite 330, Boston, MA 02111-1307, USA.
 #include "yadex.h"
 #include "im_appcol.h"
 #include "game.h"
-#include "locate.h"
 #include "levels.h"
 #include "things.h"
 
@@ -76,17 +75,19 @@ char basename[256];
 strcpy (basename, game  );
 strcat (basename, ".ugh");
 
-/* Locate the game definition file. */
-{
-   Locate locate (yadex_share_path, basename, false);
-   const char *pathname = locate.get_next ();
-   if (pathname == NULL)
-      fatal_error ("Game definition file \"%s\" not found", basename);
-   if (strlen (pathname) > sizeof filename - 1)
-      fatal_error ("%s: file name too long");
-   strcpy (filename, pathname);
-   printf ("Reading game definition file \"%s\".\n", filename);
-}
+strcpy (filename, basename);
+
+///?? /* Locate the game definition file. */
+///?? {
+///??   Locate locate (yadex_share_path, basename, false);
+///??   const char *pathname = locate.get_next ();
+///??   if (pathname == NULL)
+///??      fatal_error ("Game definition file \"%s\" not found", basename);
+///??   if (strlen (pathname) > sizeof filename - 1)
+///??      fatal_error ("%s: file name too long");
+///??   strcpy (filename, pathname);
+///??   printf ("Reading game definition file \"%s\".\n", filename);
+///?? }
 
 ygdfile = fopen (filename, "r");
 if (ygdfile == NULL)

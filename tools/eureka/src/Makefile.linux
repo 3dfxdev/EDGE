@@ -21,7 +21,7 @@ FLTK_LIBS=$(FLTK_DIR)/lib/libfltk_images.a \
           $(FLTK_DIR)/lib/libfltk.a \
           -lX11 -lXext -lpng -ljpeg
 
-CXXFLAGS=$(OPTIMISE) -Wall -D$(OS) $(FLTK_FLAGS) -I.
+CXXFLAGS=$(OPTIMISE) -Wall -D$(OS) $(FLTK_FLAGS)
 LDFLAGS=-L/usr/X11R6/lib 
 LIBS=-lm -lz $(FLTK_LIBS)
 
@@ -38,8 +38,8 @@ OBJS = \
 	im_img.o  \
 	l_align.o  l_centre.o  l_flags.o  \
 	l_misc.o  l_unlink.o  l_vertices.o  \
-	levels.o  locate.o  \
-	macro.o  memory.o  e_names.o  \
+	levels.o  \
+	memory.o  e_names.o  \
 	objects.o  \
 	patchdir.o  w_loadpic.o  s_centre.o  \
 	s_door.o  s_lift.o  s_linedefs.o  s_merge.o  \
