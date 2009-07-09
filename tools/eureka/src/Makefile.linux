@@ -39,7 +39,7 @@ OBJS = \
 	l_align.o  l_centre.o  l_flags.o  \
 	l_misc.o  l_unlink.o  l_vertices.o  \
 	levels.o  \
-	memory.o  e_names.o  \
+	ymemory.o  e_names.o  \
 	objects.o  \
 	patchdir.o  w_loadpic.o  s_centre.o  \
 	s_door.o  s_lift.o  s_linedefs.o  s_merge.o  \
