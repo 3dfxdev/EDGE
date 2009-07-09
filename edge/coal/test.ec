@@ -47,7 +47,7 @@ function main() =
 
     var x
 
-    x = 1; do { foo(x); x = x + 1; } while (x <= 6)
+    x = 1; repeat { foo(x); x = x + 1; } until (x > 6)
 
     sprint("")
 

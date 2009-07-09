@@ -1282,18 +1282,18 @@ void PR_WhileLoop(void)
 }
 
 
-void PR_DoLoop(void)
+void PR_RepeatLoop(void)
 {
 	int begin = numstatements;
 
 	PR_ParseStatement(false);
 
-	PR_Expect ("while");
+	PR_Expect ("until");
 	PR_Expect ("(");
 
 	def_t * e = PR_Expression(TOP_PRIORITY);
 
-	PR_EmitCode(OP_IF, e->ofs, begin);
+	PR_EmitCode(OP_IFNOT, e->ofs, begin);
 
 	PR_Expect(")");
 
@@ -1381,9 +1381,9 @@ void PR_ParseStatement(bool allow_def)
 		return;
 	}
 
-	if (PR_Check("do"))
+	if (PR_Check("repeat"))
 	{
-		PR_DoLoop();
+		PR_RepeatLoop();
 		return;
 	}
 
