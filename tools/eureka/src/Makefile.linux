@@ -48,7 +48,6 @@ OBJS = \
 	selbox.o  selectn.o  selpath.o  selrect.o  \
 	spritdir.o  im_sticker.o  \
  	r_render.o  r_images.o  \
-	t_centre.o  t_flags.o  t_spin.o  \
 	things.o  v_centre.o  \
 	ui_canvas.o  ui_pic.o  ui_window.o  ui_sidedef.o  \
 	ui_infobar.o  ui_menu.o  ui_nombre.o  ui_radius.o  \

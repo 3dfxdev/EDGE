@@ -51,6 +51,12 @@ inline int angle_to_direction (wad_tangle_t angle)
 }
 
 
-#endif  /* Prevent multiple inclusion */
+void spin_things (SelPtr obj, int degrees);
 
+void centre_of_things (SelPtr list, int *x, int *y);
+
+void frob_things_flags (SelPtr list, int op, int operand);
+
+
+#endif  /* Prevent multiple inclusion */
 

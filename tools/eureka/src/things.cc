@@ -34,6 +34,10 @@ Place, Suite 330, Boston, MA 02111-1307, USA.
 #include "yadex.h"
 #include "game.h"
 #include "things.h"
+#include "levels.h"
+#include "selectn.h"
+#include "m_bitvec.h"
+#include "w_structs.h"
 
 
 // This is the structure of a table of things attributes.
@@ -395,4 +399,90 @@ return buf;
 }
 
 
+/*
+ *  spin_thing - change the angle of things
+ */
+void spin_things (SelPtr obj, int degrees)
+{
+  SelPtr cur;
+
+  if (! obj)
+    return;
+  for (cur = obj; cur; cur = cur->next)
+  {
+    Things[cur->objnum].angle += degrees;
+    while (Things[cur->objnum].angle >= 360)  // No we can't use %
+      Things[cur->objnum].angle -= 360;
+    while (Things[cur->objnum].angle < 0) // (negatives...)
+      Things[cur->objnum].angle += 360;
+  }
+  things_angles++;
+  MadeChanges = 1;
+}
+
+
+/*
+ *  frob_things_flags - set/reset/toggle things flags
+ *
+ *  For all the things in <list>, apply the operator <op>
+ *  with the operand <operand> on the flags field.
+ */
+void frob_things_flags (SelPtr list, int op, int operand)
+{
+  SelPtr cur;
+  s16_t mask;
+
+  if (op == YO_CLEAR || op == YO_SET || op == YO_TOGGLE)
+    mask = 1 << operand;
+  else
+    mask = operand;
+
+  for (cur = list; cur; cur = cur->next)
+  {
+    if (op == YO_CLEAR)
+      Things[cur->objnum].when &= ~mask;
+    else if (op == YO_SET)
+      Things[cur->objnum].when |= mask;
+    else if (op == YO_TOGGLE)
+      Things[cur->objnum].when ^= mask;
+    else
+    {
+      nf_bug ("frob_things_flags: op=%02X", op);
+      return;
+    }
+  }
+  MadeChanges = 1;
+}
+
+
+
+/*
+ *  centre_of_things
+ *  Return the coordinates of the centre of a group of things.
+ */
+void centre_of_things (SelPtr list, int *x, int *y)
+{
+SelPtr cur;
+int nitems;
+long x_sum;
+long y_sum;
+
+x_sum = 0;
+y_sum = 0;
+for (nitems = 0, cur = list; cur; cur = cur->next, nitems++)
+   {
+   x_sum += Things[cur->objnum].x;
+   y_sum += Things[cur->objnum].y;
+   }
+if (nitems == 0)
+   {
+   *x = 0;
+   *y = 0;
+   }
+else
+   {
+   *x = (int) (x_sum / nitems);
+   *y = (int) (y_sum / nitems);
+   }
+}
 
