@@ -28,7 +28,7 @@ Place, Suite 330, Boston, MA 02111-1307, USA.
 */
 
 
-#include "yadex.h"
+#include "main.h"
 #include <assert.h>
 #include "edit2.h"
 #include "checks.h"
@@ -43,7 +43,6 @@ Place, Suite 330, Boston, MA 02111-1307, USA.
 #include "linedefs.h"
 #include "levels.h"
 #include "objects.h"
-#include "objid.h"
 #include "s_misc.h"
 #include "selbox.h"
 #include "selectn.h"

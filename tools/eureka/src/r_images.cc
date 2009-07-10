@@ -27,7 +27,7 @@ Place, Suite 330, Boston, MA 02111-1307, USA.
 */
 
 
-#include "yadex.h"
+#include "main.h"
 #include "dialog.h"
 #include "game.h"      /* yg_picture_format */
 #include "gfx.h"

@@ -31,7 +31,7 @@ Place, Suite 330, Boston, MA 02111-1307, USA.
 #define YC_THINGS
 
 
-#include "yadex.h"
+#include "main.h"
 #include "game.h"
 #include "things.h"
 #include "levels.h"

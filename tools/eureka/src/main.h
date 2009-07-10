@@ -1,5 +1,4 @@
 /*
- *  yadex.h
  *  The header that all modules include.
  *  BW & RQ sometime in 1993 or 1994.
  */
@@ -81,7 +80,6 @@ Place, Suite 330, Boston, MA 02111-1307, USA.
 
 
 
-#include "objects.h"
 #include "m_bitvec.h"  /* bv_set, bv_clear, bv_toggle */
 #include "yerror.h"
 #include "yutil.h"
@@ -186,6 +184,10 @@ typedef enum
   YS_REMOVE = BV_CLEAR, // Remove from selection
   YS_TOGGLE = BV_TOGGLE // If not in selection, add; else, remove
 } sel_op_t;
+
+
+#include "objects.h"
+
 
 // Confirmation options are stored internally this way :
 typedef enum

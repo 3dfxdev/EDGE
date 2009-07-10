@@ -28,7 +28,7 @@ Place, Suite 330, Boston, MA 02111-1307, USA.
 */
 
 
-#include "yadex.h"
+#include "main.h"
 
 #include <math.h>
 
@@ -36,7 +36,6 @@ Place, Suite 330, Boston, MA 02111-1307, USA.
 #include "grid2.h"
 #include "levels.h"
 #include "objects.h"
-#include "objid.h"
 #include "selectn.h"
 #include "m_bitvec.h"
 #include "vertices.h"

@@ -28,7 +28,6 @@ Place, Suite 330, Boston, MA 02111-1307, USA.
 
 
 #include "edwidget.h"
-#include "objid.h"
 
 
 class highlight_c : public edwidget_c

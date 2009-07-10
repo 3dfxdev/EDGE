@@ -28,7 +28,7 @@ Place, Suite 330, Boston, MA 02111-1307, USA.
 */
 
 
-#include "yadex.h"
+#include "main.h"
 #include "game.h"
 
 #include <math.h>
