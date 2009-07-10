@@ -53,7 +53,7 @@ OBJS = \
 	w_io.o  w_wads.o  \
 	x_hover.o  \
 	x_mirror.o  xref.o  \
-	yadex.o  ytime.o
+	main.o  ytime.o
 
 #--- Targets and Rules ------------------------------------------
 

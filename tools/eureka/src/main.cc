@@ -28,7 +28,7 @@ Place, Suite 330, Boston, MA 02111-1307, USA.
 */
 
 
-#include "yadex.h"
+#include "main.h"
 #include <time.h>
 
 #include "im_color.h"
@@ -46,9 +46,9 @@ Place, Suite 330, Boston, MA 02111-1307, USA.
 
 
 /*
- *  Constants (declared in yadex.h)
+ *  Constants (declared in main.h)
  */
-const char *const log_file       = "yadex.log";
+const char *const log_file       = "eureka.log";
 const char *const msg_unexpected = "unexpected error";
 const char *const msg_nomem      = "Not enough memory";
 

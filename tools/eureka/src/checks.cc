@@ -28,14 +28,13 @@ Place, Suite 330, Boston, MA 02111-1307, USA.
 */
 
 
-#include "yadex.h"
+#include "main.h"
 #include "checks.h"
 #include "dialog.h"
 #include "gfx.h"
 #include "gotoobj.h"
 #include "levels.h"
 #include "objects.h"
-#include "objid.h"
 #include "selectn.h"
 
 

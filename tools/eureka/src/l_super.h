@@ -24,7 +24,6 @@ Place, Suite 330, Boston, MA 02111-1307, USA.
 #define YH_L_SUPER
 
 #include "levels.h"
-#include "objid.h"
 
 
 /* The Superimposed_ld class is used to find all the linedefs that are

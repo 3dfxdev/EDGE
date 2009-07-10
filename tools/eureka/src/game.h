@@ -70,7 +70,7 @@ typedef struct
 
 typedef enum { YGLF__, YGLF_ALPHA, YGLF_DOOM, YGLF_HEXEN } yglf_t;
 typedef enum { YGLN__, YGLN_E1M10, YGLN_E1M1, YGLN_MAP01 } ygln_t;
-// ygpf_t and ygtf_t are defined in yadex.h
+// ygpf_t and ygtf_t are defined in main.h
 extern yglf_t yg_level_format;
 extern ygln_t yg_level_name;
 extern ygpf_t yg_picture_format;

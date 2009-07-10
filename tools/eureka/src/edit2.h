@@ -31,7 +31,6 @@ Place, Suite 330, Boston, MA 02111-1307, USA.
 #define YH__EDIT
 
 
-#include "objid.h"
 
 
 class menubar_c;

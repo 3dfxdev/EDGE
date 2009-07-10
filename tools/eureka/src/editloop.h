@@ -3,7 +3,6 @@
  *  AYM 1998-09-06
  */
 
-#include "objid.h"
 
 void EditorLoop (const char *);
 const char *SelectLevel (int levelno);

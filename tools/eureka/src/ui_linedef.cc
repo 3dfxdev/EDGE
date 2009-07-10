@@ -16,13 +16,12 @@
 //
 //------------------------------------------------------------------------
 
-#include "yadex.h"
+#include "main.h"
 #include "ui_window.h"
 
 #include <math.h>  // FIXME: standard header
 
 #include "levels.h"
-#include "objid.h"
 #include "things.h"
 #include "w_structs.h"
 

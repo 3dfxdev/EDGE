@@ -4,7 +4,7 @@
  *  BW & RQ sometime in 1993 or 1994.
  *  FIXME this file should also contain the definitions for
  *  the wad header and directory entry which are currently
- *  in yadex.h.
+ *  in main.h.
  */
 
 
