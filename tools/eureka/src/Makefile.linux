@@ -36,8 +36,7 @@ OBJS = \
 	m_geom.o  gfx.o  \
 	gotoobj.o  grid2.o  help2.o  highlt.o  \
 	im_img.o  \
-	l_align.o  l_centre.o  l_flags.o  \
-	l_misc.o  l_unlink.o  l_vertices.o  \
+	linedefs.o  \
 	levels.o  \
 	ymemory.o  e_names.o  \
 	objects.o  \
