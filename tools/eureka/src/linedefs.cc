@@ -30,12 +30,18 @@ Place, Suite 330, Boston, MA 02111-1307, USA.
 
 #include "yadex.h"
 #include "dialog.h"
-/// #include "entry.h"
 #include "gfx.h"
 #include "levels.h"
 #include "objid.h"
 #include "selectn.h"
 #include "r_images.h"
+
+#include "m_bitvec.h"
+#include "objects.h"
+#include "objid.h"
+#include "w_structs.h"
+
+#include <math.h>
 
 
 /*
@@ -394,6 +400,416 @@ while (*sdlist)  /* main processing loop */
 MadeChanges = 1;
 
 #endif
+}
+
+
+/*
+ *  centre_of_linedefs
+ *  Return the coordinates of the centre of a group of linedefs.
+ */
+void centre_of_linedefs (SelPtr list, int *x, int *y)
+{
+bitvec_c *vertices;
+int nitems;
+long x_sum;
+long y_sum;
+int n;
+
+vertices = bv_vertices_of_linedefs (list);
+x_sum = 0;
+y_sum = 0;
+nitems = 0;
+for (n = 0; n < NumVertices; n++)
+   if (vertices->get (n))
+      {
+      x_sum += Vertices[n].x;
+      y_sum += Vertices[n].y;
+      nitems++;
+      }
+if (nitems == 0)
+   {
+   *x = 0;
+   *y = 0;
+   }
+else
+   {
+   *x = (int) (x_sum / nitems);
+   *y = (int) (y_sum / nitems);
+   }
+delete vertices;
+}
+
+
+
+/*
+ *  frob_linedefs_flags
+ *  For all the linedefs in <list>, apply the operator <op>
+ *  with the operand <operand> on the flags field.
+ */
+void frob_linedefs_flags (SelPtr list, int op, int operand)
+{
+  SelPtr cur;
+  s16_t mask;
+
+  if (op == YO_CLEAR || op == YO_SET || op == YO_TOGGLE)
+    mask = 1 << operand;
+  else
+    mask = operand;
+
+  for (cur = list; cur; cur = cur->next)
+  {
+    if (op == YO_CLEAR)
+      LineDefs[cur->objnum].flags &= ~mask;
+    else if (op == YO_SET)
+      LineDefs[cur->objnum].flags |= mask;
+    else if (op == YO_TOGGLE)
+      LineDefs[cur->objnum].flags ^= mask;
+    else
+    {
+      nf_bug ("frob_linedef_flags: op=%02X", op);
+      return;
+    }
+  }
+  MadeChanges = 1;
+}
+
+
+
+static void SliceLinedef (int linedefno, int times);
+
+
+/*
+   flip one or several LineDefs
+*/
+
+void FlipLineDefs ( SelPtr obj, bool swapvertices)
+{
+SelPtr cur;
+int    tmp;
+
+
+for (cur = obj; cur; cur = cur->next)
+{
+   if (swapvertices)
+   {
+      /* swap starting and ending Vertices */
+      tmp = LineDefs[ cur->objnum].end;
+      LineDefs[ cur->objnum].end = LineDefs[ cur->objnum].start;
+      LineDefs[ cur->objnum].start = tmp;
+   }
+   /* swap first and second SideDefs */
+   tmp = LineDefs[ cur->objnum].sidedef1;
+   LineDefs[ cur->objnum].sidedef1 = LineDefs[ cur->objnum].sidedef2;
+   LineDefs[ cur->objnum].sidedef2 = tmp;
+}
+MadeChanges = 1;
+MadeMapChanges = 1;
+}
+
+
+/*
+   split one or more LineDefs in two, adding new Vertices in the middle
+*/
+
+void SplitLineDefs ( SelPtr obj)
+{
+SelPtr cur;
+int    vstart, vend;
+
+
+for (cur = obj; cur; cur = cur->next)
+  {
+  vstart = LineDefs[cur->objnum].start;
+  vend   = LineDefs[cur->objnum].end;
+  SliceLinedef (cur->objnum, 1);
+  Vertices[NumVertices-1].x = (Vertices[vstart].x + Vertices[vend].x) / 2;
+  Vertices[NumVertices-1].y = (Vertices[vstart].y + Vertices[vend].y) / 2;
+  }
+MadeChanges = 1;
+MadeMapChanges = 1;
+}
+
+
+/*
+ *  MakeRectangularNook - Make a nook or boss in a wall
+ *  
+ *  Before :    After :
+ *          ^-->
+ *          |  |
+ *  +----------------->     +------->  v------->
+ *      1st sidedef             1st sidedef
+ *
+ *  The length of the sides of the nook is sidelen.
+ *  This is true when convex is false. If convex is true, the nook
+ *  is actually a bump when viewed from the 1st sidedef.
+ */
+void MakeRectangularNook (SelPtr obj, int width, int depth, int convex)
+{
+SelPtr cur;
+
+
+for (cur = obj; cur; cur = cur->next)
+  {
+  int vstart, vend;
+  int x0;
+  int y0;
+  int dx0, dx1, dx2;
+  int dy0, dy1, dy2;
+  int line_len;
+  double real_width;
+  double angle;
+
+  vstart = LineDefs[cur->objnum].start;
+  vend   = LineDefs[cur->objnum].end;
+  x0     = Vertices[vstart].x;
+  y0     = Vertices[vstart].y;
+  dx0    = Vertices[vend].x - x0;
+  dy0    = Vertices[vend].y - y0;
+
+  /* First split the line 4 times */
+  SliceLinedef (cur->objnum, 4);
+
+  /* Then position the vertices */
+  angle  = atan2 (dy0, dx0);
+ 
+  /* If line to split is not longer than sidelen,
+     force sidelen to 1/3 of length */
+  line_len   = ComputeDist (dx0, dy0);
+  real_width = line_len > width ? width : line_len / 3;
+    
+  dx2 = (int) (real_width * cos (angle));
+  dy2 = (int) (real_width * sin (angle));
+
+  dx1 = (dx0 - dx2) / 2;
+  dy1 = (dy0 - dy2) / 2;
+
+  {
+  double normal = convex ? angle-HALFPI : angle+HALFPI;
+  Vertices[NumVertices-1-3].x = x0 + dx1;
+  Vertices[NumVertices-1-3].y = y0 + dy1;
+  Vertices[NumVertices-1-2].x = x0 + dx1 + (int) (depth * cos (normal));
+  Vertices[NumVertices-1-2].y = y0 + dy1 + (int) (depth * sin (normal));
+  Vertices[NumVertices-1-1].x = x0 + dx1 + dx2 + (int) (depth * cos (normal));
+  Vertices[NumVertices-1-1].y = y0 + dy1 + dy2 + (int) (depth * sin (normal));
+  Vertices[NumVertices-1  ].x = x0 + dx1 + dx2;
+  Vertices[NumVertices-1  ].y = y0 + dy1 + dy2;
+  }
+
+  MadeChanges = 1;
+  MadeMapChanges = 1;
+  }
+}
+
+
+/*
+ *  SliceLinedef - Split a linedef several times
+ *
+ *  Splits linedef no. <linedefno> <times> times.
+ *  Side-effects : creates <times> new vertices, <times> new
+ *  linedefs and 0, <times> or 2*<times> new sidedefs.
+ *  The new vertices are put at (0,0).
+ *  See SplitLineDefs() and MakeRectangularNook() for example of use.
+ */
+static void SliceLinedef (int linedefno, int times)
+{
+int prev_ld_no;
+for (prev_ld_no = linedefno; times > 0; times--, prev_ld_no = NumLineDefs-1)
+  {
+  int sd;
+
+  InsertObject (OBJ_VERTICES, -1, 0, 0);
+  InsertObject (OBJ_LINEDEFS, linedefno, 0, 0);
+  LineDefs[NumLineDefs-1].start = NumVertices - 1;
+  LineDefs[NumLineDefs-1].end   = LineDefs[prev_ld_no].end;
+  LineDefs[prev_ld_no   ].end   = NumVertices - 1;
+  
+  sd = LineDefs[linedefno].sidedef1;
+  if (sd >= 0)
+    {
+    InsertObject (OBJ_SIDEDEFS, sd, 0, 0);
+    
+    LineDefs[NumLineDefs-1].sidedef1 = NumSideDefs - 1;
+    }
+  sd = LineDefs[linedefno].sidedef2;
+  if (sd >= 0)
+    {
+    InsertObject (OBJ_SIDEDEFS, sd, 0, 0);
+    
+    LineDefs[NumLineDefs-1].sidedef2 = NumSideDefs - 1;
+    }
+  }
+}
+
+
+/*
+ *  SetLinedefLength
+ *  Move either vertex to set length of linedef to desired value
+ */
+void SetLinedefLength (SelPtr obj, int length, int move_2nd_vertex)
+{
+SelPtr cur;
+
+
+for (cur = obj; cur; cur = cur->next)
+  {
+  VPtr vertex1 = Vertices + LineDefs[cur->objnum].start;
+  VPtr vertex2 = Vertices + LineDefs[cur->objnum].end;
+  double angle = atan2 (vertex2->y - vertex1->y, vertex2->x - vertex1->x);
+  int dx       = (int) (length * cos (angle));
+  int dy       = (int) (length * sin (angle));
+
+  if (move_2nd_vertex)
+    {
+    vertex2->x = vertex1->x + dx;
+    vertex2->y = vertex1->y + dy;
+    }
+  else
+    {
+    vertex1->x = vertex2->x - dx;
+    vertex1->y = vertex2->y - dy;
+    }
+
+  MadeChanges = 1;
+  MadeMapChanges = 1;
+  }
+}
+
+
+
+/*
+ *  unlink_sidedef
+ *
+ *  For all linedefs in the <linedefs>, see whether the sidedefs
+ *  are used by any other linedef _not_in_<linedefs>_. If they
+ *  are, duplicate the sidedefs and assign the new duplicate to
+ *  the linedef.
+ *  If <side1> is set, take care of the first sidedef.
+ *  If <side2> is set, take care of the second sidedef.
+ *  Both can be set, of course.
+ *
+ *  This function is intended to "unlink" duplicated linedefs.
+ */
+void unlink_sidedef (SelPtr linedefs, int side1, int side2)
+{
+// Array of NumSideDefs bits that tell whether the
+// sidedef is used by the linedefs in <linedefs>.
+bitvec_c sd_used_in (NumSideDefs);
+
+// Array of NumSideDefs bits that tell whether the
+// sidedef is used by the linedefs _not_ in <linedefs>.
+bitvec_c sd_used_out (NumSideDefs);
+
+SelPtr cur;
+int n;
+
+
+
+// Put in sd_used_in a list of all sidedefs
+// that are used by linedefs in <linedefs>.
+// and in sd_used_out a list of all sidedefs
+// that are used by linedefs not in <linedefs>
+
+for (n = 0; n < NumLineDefs; n++)
+   {
+   if (IsSelected (linedefs, n))
+      {
+      if (side1 && is_sidedef (LineDefs[n].sidedef1))
+         sd_used_in.set (LineDefs[n].sidedef1);
+      if (side2 && is_sidedef (LineDefs[n].sidedef2))
+         sd_used_in.set (LineDefs[n].sidedef2);
+      }
+   else
+      {
+      if (is_sidedef (LineDefs[n].sidedef1))
+   sd_used_out.set (LineDefs[n].sidedef1);
+      if (is_sidedef (LineDefs[n].sidedef2))
+   sd_used_out.set (LineDefs[n].sidedef2);
+      }
+   }
+
+// For all sidedefs that are used both by a linedef
+// in <linedefs> and a linedef _not_ in <linedefs>,
+// duplicate the sidedef and make all the linedefs
+// in <linedefs> use the copy instead.
+
+for (n = 0; n < NumSideDefs; n++)
+   {
+   if (sd_used_in.get (n) && sd_used_out.get (n))
+      {
+      InsertObject (OBJ_SIDEDEFS, n, 0, 0);
+      for (cur = linedefs; cur; cur = cur->next)
+         {
+         if (side1 && LineDefs[cur->objnum].sidedef1 == n)
+            LineDefs[cur->objnum].sidedef1 = NumSideDefs - 1;
+         if (side2 && LineDefs[cur->objnum].sidedef2 == n)
+            LineDefs[cur->objnum].sidedef2 = NumSideDefs - 1;
+         }
+      }
+   }
+}
+
+
+
+/*
+ *  bv_vertices_of_linedefs
+ *  Return a bit vector of all vertices used by the linedefs.
+ *  It's up to the caller to delete the bit vector after use.
+ */
+bitvec_c *bv_vertices_of_linedefs (bitvec_c *linedefs)
+{
+bitvec_c *vertices;
+int n;
+
+vertices = new bitvec_c (NumVertices);
+for (n = 0; n < NumLineDefs; n++)
+   if (linedefs->get (n))
+      {
+      vertices->set (LineDefs[n].start);
+      vertices->set (LineDefs[n].end);
+      }
+return vertices;
+}
+
+
+/*
+ *  bv_vertices_of_linedefs
+ *  Return a bit vector of all vertices used by the linedefs.
+ *  It's up to the caller to delete the bit vector after use.
+ */
+bitvec_c *bv_vertices_of_linedefs (SelPtr list)
+{
+bitvec_c *vertices;
+SelPtr cur;
+
+vertices = new bitvec_c (NumVertices);
+for (cur = list; cur; cur = cur->next)
+   {
+   vertices->set (LineDefs[cur->objnum].start);
+   vertices->set (LineDefs[cur->objnum].end);
+   }
+return vertices;
+}
+
+
+/*
+ *  list_vertices_of_linedefs
+ *  Return a list of all vertices used by the linedefs
+ *  It's up to the caller to delete the list after use.
+ */
+SelPtr list_vertices_of_linedefs (SelPtr list)
+{
+bitvec_c *vertices_bitvec;
+SelPtr vertices_list = 0;
+size_t n;
+
+vertices_bitvec = bv_vertices_of_linedefs (list);
+for (n = 0; n < vertices_bitvec->nelements (); n++)
+   {
+   if (vertices_bitvec->get (n))
+      SelectObject (&vertices_list, n);
+   }
+delete vertices_bitvec;
+return vertices_list;
 }
 
 
