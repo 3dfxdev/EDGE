@@ -30,7 +30,7 @@ Place, Suite 330, Boston, MA 02111-1307, USA.
 
 #include "yadex.h"
 #include "gfx.h"
-#include "l_vertices.h"
+#include "linedefs.h"
 #include "levels.h"
 #include "objects.h"
 #include "objid.h"

@@ -42,7 +42,7 @@ Place, Suite 330, Boston, MA 02111-1307, USA.
 #include "grid2.h"
 #include "help2.h"
 #include "highlt.h"
-#include "l_flags.h"
+#include "linedefs.h"
 #include "levels.h"
 #include "objects.h"
 #include "objid.h"
