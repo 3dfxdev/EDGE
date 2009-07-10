@@ -46,11 +46,11 @@ OBJS = \
 	selbox.o  selectn.o  selpath.o  selrect.o  \
 	spritdir.o  im_sticker.o  \
  	r_render.o  r_images.o  \
-	things.o  v_centre.o  \
+	things.o  \
 	ui_canvas.o  ui_pic.o  ui_window.o  ui_sidedef.o  \
 	ui_infobar.o  ui_menu.o  ui_nombre.o  ui_radius.o  \
 	ui_linedef.o  ui_thing.o  ui_sector.o  ui_vertex.o  \
-	v_merge.o  v_polyg.o  \
+	vertices.o  \
 	version.o  w_file.o  w_list.o  \
 	w_io.o  w_wads.o  \
 	x_centre.o  x_exchng.o  x_hover.o  \

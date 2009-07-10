@@ -29,12 +29,17 @@ Place, Suite 330, Boston, MA 02111-1307, USA.
 
 
 #include "yadex.h"
+
+#include <math.h>
+
 #include "dialog.h"
 #include "grid2.h"
 #include "levels.h"
 #include "objects.h"
 #include "objid.h"
 #include "selectn.h"
+#include "m_bitvec.h"
+#include "vertices.h"
 
 
 typedef struct  /* Used only by AutoMergeVertices() and SortLinedefs() */
@@ -410,6 +415,88 @@ if (ld1->vertexl != ld2->vertexl)
 if (ld1->vertexh != ld2->vertexh)
   return ld1->vertexh - ld2->vertexh;
 return 0;
+}
+
+
+
+/*
+ *  centre_of_vertices
+ *  Return the coordinates of the centre of a group of vertices.
+ */
+void centre_of_vertices (SelPtr list, int *x, int *y)
+{
+SelPtr cur;
+int nitems;
+long x_sum;
+long y_sum;
+
+x_sum = 0;
+y_sum = 0;
+for (nitems = 0, cur = list; cur; cur = cur->next, nitems++)
+   {
+   x_sum += Vertices[cur->objnum].x;
+   y_sum += Vertices[cur->objnum].y;
+   }
+if (nitems == 0)
+   {
+   *x = 0;
+   *y = 0;
+   }
+else
+   {
+   *x = (int) (x_sum / nitems);
+   *y = (int) (y_sum / nitems);
+   }
+}
+
+
+/*
+ *  centre_of_vertices
+ *  Return the coordinates of the centre of a group of vertices.
+ */
+void centre_of_vertices (const bitvec_c &bv, int &x, int &y)
+{
+long x_sum = 0;
+long y_sum = 0;
+int nmax = bv.nelements ();
+int nvertices = 0;
+for (int n = 0; n < nmax; n++)
+   {
+   if (bv.get (n))
+      {
+      x_sum += Vertices[n].x;
+      y_sum += Vertices[n].y;
+      nvertices++;
+      }
+   }
+if (nvertices == 0)
+   {
+   x = 0;
+   y = 0;
+   }
+else
+   {
+   x = (int) (x_sum / nvertices);
+   y = (int) (y_sum / nvertices);
+   }
+}
+
+
+
+/*
+   insert the vertices of a new polygon
+*/
+
+void InsertPolygonVertices (int centerx, int centery, int sides, int radius)
+{
+int n;
+
+for (n = 0; n < sides; n++)
+  InsertObject (OBJ_VERTICES, -1,
+    centerx
+    + (int) ((double)radius * cos (TWOPI * (double)n / (double)sides)),
+    centery
+    + (int) ((double)radius * sin (TWOPI * (double)n / (double)sides)));
 }
 
 
