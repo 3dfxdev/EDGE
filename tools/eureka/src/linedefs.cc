@@ -36,6 +36,7 @@ Place, Suite 330, Boston, MA 02111-1307, USA.
 #include "selectn.h"
 #include "r_images.h"
 
+#include "linedefs.h"
 #include "m_bitvec.h"
 #include "objects.h"
 #include "objid.h"
