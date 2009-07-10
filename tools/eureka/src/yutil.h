@@ -45,6 +45,8 @@ void y_strupr (char *string);
 bool file_exists (const char *);
 void y_filename (char *buf, size_t size, const char *path);
 
+void check_types ();
+
 
 /*
  *  within

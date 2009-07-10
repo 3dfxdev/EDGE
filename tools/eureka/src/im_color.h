@@ -60,6 +60,9 @@ void free_colours (pcolour_t *pc, size_t count);
 pcolour_t *alloc_game_colours (int playpalnum);
 void free_game_colours (pcolour_t *game_colours);
 
+void irgb2rgb (int c, rgb_c *rgb);
+int getcolour (const char *s, rgb_c *rgb);
+
 
 extern pcolour_t *game_colour;  // Pixel values for the DOOM_COLOURS game clrs.
 extern int colour0;   // Game colour to which g. colour 0 is remapped

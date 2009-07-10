@@ -230,6 +230,30 @@ void Game_colour_24::refresh (const pcolour_t *game_colour, bool big_endian)
 
 
 /*
+ *  irgb2rgb
+ *  Convert an IRGB colour (16-colour VGA) to an 8-bit-per-component
+ *  RGB colour.
+ */
+void irgb2rgb (int c, rgb_c *rgb)
+{
+  if (c == 8)  // Special case for DARKGREY
+    rgb->r = rgb->g = rgb->b = 0x40;
+  else if (c == 6)
+  {
+    rgb->r = 0xff;  // ORANGE
+    rgb->g = 0xaa;
+    rgb->b = 0x00;
+  }
+  else
+  {
+    rgb->r = (c & 4) ? ((c & 8) ? 0xff : 0x80) : 0;
+    rgb->g = (c & 2) ? ((c & 8) ? 0xff : 0x80) : 0;
+    rgb->b = (c & 1) ? ((c & 8) ? 0xff : 0x80) : 0;
+  }
+}
+
+
+/*
  *  getcolour
  *  Decode an "rgb:<r>/<g>/<b>" colour specification
  *  Returns :

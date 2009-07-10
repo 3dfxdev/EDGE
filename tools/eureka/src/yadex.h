@@ -315,14 +315,6 @@ extern bool InfoShown;          // Is the bottom line displayed?
 void CheckLevel (int, int, int pulldown);
 bool CheckStartingPos (void);
 
-// colour1.cc
-int getcolour (const char *s, rgb_c *rgb);
-
-// colour2.cc
-int rgb2irgb (int r, int g, int b);
-
-// colour3.cc
-void irgb2rgb (int c, rgb_c *rgb);
 
 // editobj.cc
 int InputObjectNumber (int, int, int, int);

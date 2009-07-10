@@ -354,3 +354,46 @@ void y_filename (char *buf, size_t size, const char *filename)
 }
  
 
+/*
+ *  check_types
+ *
+ *  Sanity checks about the sizes and properties of certain types.
+ *  Useful when porting.
+ */
+
+#define assert_size(type,size)            \
+  do                  \
+  {                 \
+    if (sizeof (type) != size)            \
+      fatal_error ("sizeof " #type " is %d (should be " #size ")",  \
+  (int) sizeof (type));           \
+  }                 \
+  while (0)
+   
+#define assert_wrap(type,high,low)          \
+  do                  \
+  {                 \
+    type n = high;              \
+    if (++n != low)             \
+      fatal_error ("Type " #type " wraps around to %lu (should be " #low ")",\
+  (unsigned long) n);           \
+  }                 \
+  while (0)
+
+void check_types ()
+{
+  assert_size (u8_t,  1);
+  assert_size (s8_t,  1);
+  assert_size (u16_t, 2);
+  assert_size (s16_t, 2);
+  assert_size (u32_t, 4);
+  assert_size (s32_t, 4);
+
+  assert_size (struct LineDef, 14);
+  assert_size (struct Sector,  26);
+  assert_size (struct SideDef, 30);
+  assert_size (struct Thing,   10);
+  assert_size (struct Vertex,   4);
+}
+
+
