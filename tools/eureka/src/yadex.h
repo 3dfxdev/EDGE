@@ -70,12 +70,6 @@ Place, Suite 330, Boston, MA 02111-1307, USA.
 
 #include "hdr_fltk.h"
 
-#include "m_bitvec.h"  /* bv_set, bv_clear, bv_toggle */
-#include "yerror.h"
-#include "yutil.h"
-#include "ymemory.h"
-
-
 
 /*
  *  Platform-independant types and formats.
@@ -84,6 +78,15 @@ Place, Suite 330, Boston, MA 02111-1307, USA.
 #include "sys_macro.h"
 #include "sys_endian.h"
 #include "sys_assert.h"
+
+
+
+#include "objects.h"
+#include "m_bitvec.h"  /* bv_set, bv_clear, bv_toggle */
+#include "yerror.h"
+#include "yutil.h"
+#include "ymemory.h"
+
 
 
 /*
