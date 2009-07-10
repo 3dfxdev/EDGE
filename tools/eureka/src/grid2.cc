@@ -285,4 +285,4 @@ void Grid_State_c::ScaleFromDigit(int digit)
 
 
 //--- editor settings ---
-// vi:ts=2:sw=2:expandtab
+// vi:ts=4:sw=4:noexpandtab

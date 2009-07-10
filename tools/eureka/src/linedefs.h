@@ -14,3 +14,5 @@ void centre_of_linedefs (SelPtr list, int *x, int *y);
 
 void frob_linedefs_flags (SelPtr list, int op, int operand);
 
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

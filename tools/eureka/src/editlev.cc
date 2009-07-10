@@ -142,100 +142,64 @@ return error_invalid;
 
 void EditLevel (const char *levelname, bool newlevel)
 {
-  ReadWTextureNames ();
-  ReadFTextureNames ();
-  patch_dir.refresh (MasterDir);
-  if (InitGfx ())
-    return;
+    ReadWTextureNames ();
+    ReadFTextureNames ();
 
-  if (newlevel && ! levelname)  // "create"
-  {
-    EmptyLevelData (levelname);
-    MapMinX = -2000;
-    MapMinY = -2000;
-    MapMaxX = 2000;
-    MapMaxY = 2000;
-    Level = 0;
-  }
-  else if (newlevel && levelname)  // "create <level_name>"
-  {
-    printf ("Sorry, \"create <level_name>\" is not implemented."
-        " Try \"create\" without argument.\n");
-    TermGfx ();
-    return;
-  }
-  else  // "edit <level_name>" or "edit"
-  {
-#if 0
-    if (levelname == 0 || ! levelname2levelno (levelname)
-        || ! FindMasterDir (MasterDir, levelname))
-      levelname = SelectLevel (atoi (levelname)); /* returns "" on Esc */
-    if (levelname2levelno (levelname))
+    patch_dir.refresh (MasterDir);
+
+    if (InitGfx ())
+        return;
+
+    if (newlevel)
     {
-#endif
-      ClearScreen ();
-      if (ReadLevelData (levelname))
-      {
-        goto done;  // Failure!
-      }
-#if 0
+        EmptyLevelData (levelname);
+
+        MapMinX = -2000;
+        MapMinY = -2000;
+        MapMaxX = 2000;
+        MapMaxY = 2000;
+
+        Level = 0;
     }
-#endif
-  }
-  LogMessage (": Editing %s...\n", levelname ? levelname : "new level");
-
-///---   // Set the name of the window
-///---   {
-///--- #define BUFSZ 100
-///---     char buf[BUFSZ + 1];
-///--- 
-///--- #ifdef OLD_TITLE
-///---     al_scps (buf, "Yadex - ", BUFSZ);
-///---     if (Level && Level->wadfile)
-///---       al_saps (buf, Level->wadfile->filename, BUFSZ);
-///---     else
-///---       al_saps (buf, "New level", BUFSZ);
-///---     if (Level)
-///---     {
-///---       al_saps (buf, " - ",           BUFSZ);
-///---       al_saps (buf, Level->dir.name, BUFSZ);
-///---     }
-///---     else if (levelname)
-///---     {
-///---       al_saps (buf, " - ",     BUFSZ);
-///---       al_saps (buf, levelname, BUFSZ);
-///---     }
-///--- #else
-///---     al_scps (buf, "Yadex: ", BUFSZ);
-///---     al_saps (buf, (levelname) ? levelname : "(null)", BUFSZ);
-///--- #endif
-///---     ///!!!!! XStoreName (dpy, win, buf);
-///--- #undef BUFSZ
-///---   }
-
-  {
-    time_t t0, t1;
-    time (&t0);
-    EditorLoop (levelname);
-    time (&t1);
-    LogMessage (": Finished editing %s...\n", levelname ? levelname : "new level");
-    if (Level && Level->wadfile)
+    else
     {
-      const char *const file_name =
-        Level->wadfile ? Level->wadfile->pathname () : "(New level)";
+        ClearScreen ();
+
+        if (ReadLevelData (levelname))
+        {
+            goto done;  // Failure!
+        }
     }
-  }
+
+    LogMessage (": Editing %s...\n", levelname ? levelname : "new level");
+
+
+    {
+
+        EditorLoop (levelname);
+
+
+        LogMessage (": Finished editing %s...\n", levelname ? levelname : "new level");
+
+        if (Level && Level->wadfile)
+        {
+            const char *const file_name =
+                Level->wadfile ? Level->wadfile->pathname () : "(New level)";
+        }
+    }
+
 done :
-  TermGfx ();
-  if (! Registered)
-    printf ("Please register the game"
-        " if you want to be able to save your changes.\n");
+    TermGfx ();
 
-  ForgetLevelData ();
-  /* forget the level pointer */
-  Level = 0;
-  ForgetWTextureNames ();
-  ForgetFTextureNames ();
+    ForgetLevelData ();
+
+    /* forget the level pointer */
+    Level = 0;
+
+    ForgetWTextureNames ();
+    ForgetFTextureNames ();
 }
 
 
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

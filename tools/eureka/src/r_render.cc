@@ -1353,3 +1353,5 @@ void Render3D_Close()
   view.thing_floors = NULL;
 }
 
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -46,3 +46,5 @@ class selbox_c : public edwidget_c
 };
 
 
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

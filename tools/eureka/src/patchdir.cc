@@ -363,3 +363,5 @@ bool Pllik_less::operator () (const Pllik &p1, const Pllik &p2) const
 }
 
 
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

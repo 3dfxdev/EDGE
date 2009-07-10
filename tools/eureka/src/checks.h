@@ -12,3 +12,5 @@ void CheckTextures ();
 void CheckTextureNames ();
 
 
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

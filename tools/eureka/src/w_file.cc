@@ -123,3 +123,5 @@ long Wad_file::read_vbytes (void *buf, long count) const
 }
 
 
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

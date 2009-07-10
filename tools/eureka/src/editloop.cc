@@ -64,10 +64,14 @@ bool is_butl = false; //FIXME !!!!!
 static int zoom_fit ();
 
 
-extern bool InfoShown;    /* should we display the info bar? */
-
-
 Editor_State_c edit;
+
+
+static Objid object;      // The object under the pointer
+
+static const char *levelname;
+
+static const Objid CANVAS (OBJ_NONE, OBJ_NO_CANVAS);
 
 
 Editor_State_c::Editor_State_c()
@@ -342,19 +346,12 @@ static void HighlightObj(Objid& obj)
 }
 
 
-static Objid object;      // The object under the pointer
-
-static const char *levelname;
-
-static const Objid CANVAS (OBJ_NONE, OBJ_NO_CANVAS);
-
-
 void EditorWheel(int delta)
 {
-  float S1 = grid.Scale;
+    float S1 = grid.Scale;
 
-  grid.AdjustScale((delta > 0) ? +1 : -1);
-  grid.RefocusZoom(edit.map_x, edit.map_y, S1);
+    grid.AdjustScale((delta > 0) ? +1 : -1);
+    grid.RefocusZoom(edit.map_x, edit.map_y, S1);
 }
 
 
@@ -1635,260 +1632,58 @@ void EditorAutoScroll()
 
 void EditorLoop (const char *_levelname)
 {
-levelname = _levelname;
+    levelname = _levelname;
 
-memset (&edit, 0, sizeof(edit));  /* Catch-all */
+    memset (&edit, 0, sizeof(edit));  /* Catch-all */
 
-edit.move_speed          = 20;
-edit.extra_zoom          = 0;
-// If you change this, don't forget to change
-// the initialisation of the menu bar below.
-edit.obj_type            = OBJ_THINGS;
+    edit.move_speed          = 20;
+    edit.extra_zoom          = 0;
+    // If you change this, don't forget to change
+    // the initialisation of the menu bar below.
+    edit.obj_type            = OBJ_THINGS;
 
-edit.show_object_numbers = false;
-edit.show_things_squares = false;
-edit.show_things_sprites = true;
-edit.rulers_shown        = 0;
-edit.clicked.nil ();
-//edit.click_obj_no        = OBJ_NO_NONE;
-//edit.click_obj_type      = -1;
-edit.click_ctrl          = 0;
-edit.highlighted.nil ();
-//edit.highlight_obj_no    = OBJ_NO_NONE;
-//edit.highlight_obj_type  = -1;
-edit.Selected            = 0;
+    edit.show_object_numbers = false;
+    edit.show_things_squares = false;
+    edit.show_things_sprites = true;
+    edit.rulers_shown        = 0;
+    edit.clicked.nil ();
+    //edit.click_obj_no        = OBJ_NO_NONE;
+    //edit.click_obj_type      = -1;
+    edit.click_ctrl          = 0;
+    edit.highlighted.nil ();
+    //edit.highlight_obj_no    = OBJ_NO_NONE;
+    //edit.highlight_obj_type  = -1;
+    edit.Selected            = 0;
 
-edit.selbox              = new selbox_c;
-edit.spot                = new spot_c;
-edit.highlight           = new highlight_c;
+    edit.selbox              = new selbox_c;
+    edit.spot                = new spot_c;
+    edit.highlight           = new highlight_c;
 
-MadeChanges = 0;
-MadeMapChanges = 0;
-
-
-  zoom_fit ();
-
-  Render3D_Setup(main_win->canvas->w(), main_win->canvas->h());
+    MadeChanges = 0;
+    MadeMapChanges = 0;
 
 
+    zoom_fit ();
 
-/* Create the menu bar */
-#if 0
-
-
-edit.mb_menu[MBM_FILE] = new Menu (NULL,
-   "~Save",       FL_F+2, 0,
-   "Save ~as...", FL_F+3, 0,
-// "~Print",      YK_,   MIF_SACTIVE, false, 0,
-   "~Quit",       'q',   0,
-   NULL);
-
-edit.mb_menu[MBM_EDIT] = new Menu (NULL,
-   "~Copy object(s)",          'o',    0,
-   "~Add object",              'I', 0,
-   "~Delete object(s)",        '\b', 0,
-   "~Exchange object numbers", 24,     0,
-   "~Preferences...",          FL_F+5,  0,
-   "~Snap to grid",            'y',    MIF_VTICK, 0,         0,
-   "~Lock grid step",          'z',    MIF_VTICK, 0,       0,
-   NULL);
-
-// If you change the order of modes here, don't forget
-// to modify the <modes> array.
-edit.mb_menu[MBM_VIEW] = new Menu (NULL,
-   "~Next mode",           YK_TAB,     0,
-   "~Prev mode",           YK_BACKTAB, 0,
-   MI_SEPARATION,
-   "Zoom ~in",             '+',        0,
-   "Zoom ~out",            '-',        0,
-   "Extra ~zoom",          ' ',        MIF_VTICK,   &edit.extra_zoom,           0,
-   "~Whole level",         '`',        0,
-   MI_SEPARATION,
-   "Show object numbers",  '&',        MIF_VTICK,   &edit.show_object_numbers,  0,
-   "Show sprites",         '%',        MIF_VTICK,   &edit.show_things_sprites,  0,
-   "Show ~grid",           'h',        MIF_VTICK,   0,           0,
-   "Info bar",             YK_ALT+'i', MIF_VTICK,   &edit.infobar_shown,        0,
-   "Object info boxes",    'i',        MIF_VTICK,   &edit.objinfo_shown,        0,
-// "3D preview",           '3',        MIF_SACTIVE, false,                   0,
-   NULL);
-
-edit.mb_menu[MBM_SEARCH] = new Menu (NULL,
-// "~Find/change",       FL_F+4, MIF_SACTIVE, false, 0,
-// "~Repeat last find",  -1,    MIF_SACTIVE, false, 0,
-   "~Next object",       'n',   0,
-   "~Prev object",       'p',   0,
-   "~Jump to object...", 'j',   0,
-   "~Find by type",  'f', 0,
-   NULL);
-
-edit.mb_menu[MBM_MISC_L] = new Menu ("Misc. operations",
-   "Find first free ~tag number",   YK_, 0,
-   "~Rotate and scale linedefs...",   YK_, 0,
-   "Split linedefs (add new ~vertex)",    YK_, 0,
-   "~Split linedefs and sector",    YK_, 0,
-   "~Delete linedefs and join sectors",   YK_, 0,
-   "~Flip linedefs",        YK_, 0,
-   "S~wap sidedefs",        YK_, 0,
-   "Align textures (~Y offset)",    YK_, 0,
-   "Align textures (~X offset)...",   YK_, 0,
-   "Remove ~2nd sidedef (make single-sided)", YK_, 0,
-   "Make rectangular ~nook (32x16)",    YK_, 0,
-   "Make rectangular ~boss (32x16)",    YK_, 0,
-   "Set ~length (move 1st vertex)...",    YK_, 0,
-   "Set length (move 2nd vertex)...",   YK_, 0,
-   "~Unlink 1st sidedef",     YK_, 0,
-   "Unlink 2nd sidedef",      YK_, 0,
-   "~Mirror horizontally",      YK_, 0,
-   "Mirror v~ertically",      YK_, 0,
-   "~Cut a slice out of a sector",    YK_, 0,
-   NULL);
-
-edit.mb_menu[MBM_MISC_S] = new Menu ("Misc. operations",
-   "Find first free ~tag number", YK_, 0,
-   "~Rotate and scale sectors...",  YK_, 0,
-   "Make ~door from sector",    YK_, 0,
-   "Make ~lift from sector",    YK_, 0,
-   "Distribute sector ~floor heights",  YK_, 0,
-   "Distribute sector ~ceiling heights",YK_, 0,
-   "R~aise or lower sectors...",  YK_, 0,
-   "~Brighten or darken sectors...",  YK_, 0,
-   "~Unlink room",      YK_, 0,
-   "~Mirror horizontally",    YK_, 0,
-   "Mirror ~vertically",    YK_, 0,
-   "~Swap flats",     YK_, 0,
-   NULL);
-
-edit.mb_menu[MBM_MISC_T] = new Menu ("Misc. operations",
-   "Find first free ~tag number",  YK_, 0,
-   "~Rotate and scale things...",  YK_, 0,
-   "~Spin things 45° clockwise",   'x', 0,
-   "Spin things 45° ~counter-clockwise", 'w', 0,
-   "~Mirror horizontally",     YK_, 0,
-   "Mirror ~vertically",     YK_, 0,
-   NULL);
-
-edit.mb_menu[MBM_MISC_V] = new Menu ("Misc. operations",
-   "Find first free ~tag number", YK_, 0,
-   "~Rotate and scale vertices...", YK_, 0,
-   "~Delete vertex and join linedefs",  YK_, 0,
-   "~Merge several vertices into one",  YK_, 0,
-   "Add a linedef and ~split sector", YK_, 0,
-   "Mirror ~horizontally",    YK_, 0,
-   "Mirror ~vertically",    YK_, 0,
-   NULL);
-
-edit.mb_menu[MBM_OBJECTS] = new Menu ("Insert a pre-defined object",
-   "~Rectangle...",         YK_, 0,
-   "~Polygon (N sides)...", YK_, 0,
-   NULL);
-
-edit.mb_menu[MBM_CHECK] = new Menu ("Check level consistency",
-   "~Number of objects",    YK_, 0,
-   "Check if all ~sectors are closed",  YK_, 0,
-   "Check all ~cross-references", YK_, 0,
-   "Check for ~missing textures", YK_, 0,
-   "Check ~texture names",    YK_, 0,
-   NULL);
-
-edit.mb_menu[MBM_HELP] = new Menu (NULL,
-   "~Keyboard & mouse...", FL_F+1,        0,
-   "~About Yadex...",      YK_ALT + 'a', 0,
-   NULL);
-
-edit.mb_ino[MBI_FILE] =
-   edit.menubar->add_item ("File",    0, 0, edit.mb_menu[MBM_FILE]   );
-edit.mb_ino[MBI_EDIT] =
-   edit.menubar->add_item ("Edit",    0, 0, edit.mb_menu[MBM_EDIT]   );
-edit.mb_ino[MBI_VIEW] =
-   edit.menubar->add_item ("View",    0, 0, edit.mb_menu[MBM_VIEW]  );
-edit.mb_ino[MBI_SEARCH] =
-   edit.menubar->add_item ("Search",  0, 0, edit.mb_menu[MBM_SEARCH] );
-edit.mb_ino[MBI_MISC] =
-   edit.menubar->add_item ("Misc",    0, 0, edit.mb_menu[MBM_MISC_T] );
-edit.mb_ino[MBI_OBJECTS] =
-   edit.menubar->add_item ("Objects", 0, 0, edit.mb_menu[MBM_OBJECTS]);
-edit.mb_ino[MBI_CHECK] =
-   edit.menubar->add_item ("Check",   0, 0, edit.mb_menu[MBM_CHECK]  );
-edit.mb_ino[MBI_HELP] =
-   edit.menubar->add_item ("Help",    0, 1, edit.mb_menu[MBM_HELP]   );
-
-menubar_out_y1 = 2 * BOX_BORDER + 2 * NARROW_VSPACING + FONTH - 1;  // FIXME
+    Render3D_Setup(main_win->canvas->w(), main_win->canvas->h());
 
 
-// FIXME this should come from the .ygd
-// instead of being hard-coded.
-Menu *menu_linedef_flags = new Menu (NULL,
-   "~Impassable",   YK_, 0,
-   "~Monsters cannot cross",  YK_, 0,
-   "~Double-sided",   YK_, 0,
-   "~Upper texture unpegged", YK_, 0,
-   "~Lower texture unpegged", YK_, 0,
-   "~Secret (shown as normal)", YK_, 0,
-   "~Blocks sound",   YK_, 0,
-   "~Never shown on the map", YK_, 0,
-   "~Always shown on the map",  YK_, 0,
-   "~Pass through [Boom]",  YK_, 0,  // Boom extension
-   "b1~0 0400h",    YK_, 0,  // Undefined
-   "b1~1 0800h",    YK_, 0,  // Undefined
-   "~Translucent [Strife]", YK_, 0,  // Strife
-   "b1~3 2000h",    YK_, 0,  // Undefined
-   "b1~4 4000h",    YK_, 0,  // Undefined
-   "b1~5 8000h",    YK_, 0,  // Undefined
-   NULL);
+    main_win->canvas->set_edit_info(&edit);
 
-Menu *menu_thing_flags = new Menu (NULL,
-   "~Easy",     YK_, 0,
-   "Medi~um",     YK_, 0,
-   "~Hard",     YK_, 0,
-   "~Deaf",     YK_, 0,
-   "~Multiplayer",    YK_, 0,
-   "~Not in DM [Boom]",   YK_, 0,  // Boom extension
-   "Not in ~coop [Boom]",   YK_, 0,  // Boom extension
-   "F~riendly [MBF]",   YK_, 0,  // MBF extension
-   "b~8  0100h",    YK_, 0,  // Undefined
-   "b~9  0200h",    YK_, 0,  // Undefined
-   "b1~0 0400h",    YK_, 0,  // Undefined
-   "b1~1 0800h",    YK_, 0,  // Undefined
-   "b1~2 1000h",    YK_, 0,  // Undefined
-   "b1~3 2000h",    YK_, 0,  // Undefined
-   "b1~4 4000h",    YK_, 0,  // Undefined
-   "b1~5 8000h",    YK_, 0,  // Undefined
-   NULL);
+    edit.RedrawMap = 1;
 
-#endif
+    while (main_win->action != UI_MainWin::QUIT)
+    {
+        Fl::wait(0.2);
 
+        if (edit.RedrawMap)
+        {
+            main_win->canvas->redraw();
 
-
-/* AYM 1998-06-22
-   This is the big mean loop. I organized it in three main steps :
-
-   1. Update the display according to the current state of affairs.
-   2. Wait for the next event (key press, mouse click/motion, etc.).
-   3. Process this event and change states as appropriate.
-
-   This piece of code remembers a lot of state in various variables and
-   flags. Hope you can work your way through it. If you don't, don't
-   hesitate to ask me. You never know, I might help you to be even more
-   confused. ;-) */
-
-main_win->canvas->set_edit_info(&edit);
-
-
-edit.RedrawMap = 1;
-
-while (main_win->action != UI_MainWin::QUIT)
-{
-  Fl::wait(0.2);
-
-  if (edit.RedrawMap)
-  {
-    main_win->canvas->redraw();
-
-    edit.RedrawMap = 0;
-  }
+            edit.RedrawMap = 0;
+        }
+    }
 }
 
-}
-
-
-
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

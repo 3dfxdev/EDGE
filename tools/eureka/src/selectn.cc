@@ -212,3 +212,5 @@ SelPtr bitvec_to_list (const bitvec_c &b)
   return list;
 }
 
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

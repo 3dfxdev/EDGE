@@ -164,3 +164,5 @@ inline bool Wad_name::less (const Wad_name& other) const
 
 
 #endif
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

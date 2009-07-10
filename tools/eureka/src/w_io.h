@@ -51,3 +51,5 @@ inline int sprite_name_cmp (const char *name1, const char *name2)
 
 
 #endif  /* DO NOT ADD ANYTHING AFTER THIS LINE */
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

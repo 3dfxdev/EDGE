@@ -84,3 +84,5 @@ void Sprite_loc_by_root (const char *name, Lump_loc& loc)
   loc.len = m->dir.size;
 }
 
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -23,3 +23,5 @@ SelPtr list_vertices_of_sectors (SelPtr list);
 
 void swap_flats (SelPtr list);
 
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

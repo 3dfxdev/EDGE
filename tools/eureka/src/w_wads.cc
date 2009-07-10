@@ -887,3 +887,5 @@ static char *locate_pwad (const char *filename)
 
 /* end of file */
 
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

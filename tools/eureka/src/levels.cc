@@ -1537,3 +1537,5 @@ for (obj_no_t n = 0; n < NumVertices; n++)
    }
 }
 
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

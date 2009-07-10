@@ -690,3 +690,5 @@ void TransferLinedefProperties (int src_linedef, SelPtr linedefs)
    }
 }
 
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

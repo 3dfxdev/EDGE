@@ -21,3 +21,5 @@ void EditorMouseMotion(int x, int y, int map_x, int map_y, bool drag);
 void ed_draw_all();
 void ed_highlight_object (Objid& obj);
 void ed_forget_highlight ();
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

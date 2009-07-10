@@ -90,3 +90,5 @@ class spot_c : public edwidget_c
     int y_disp;
 };
 
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

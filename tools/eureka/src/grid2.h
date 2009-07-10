@@ -102,4 +102,4 @@ extern Grid_State_c grid;
 #endif // __GRID_2_H__
 
 //--- editor settings ---
-// vi:ts=2:sw=2:expandtab
+// vi:ts=4:sw=4:noexpandtab

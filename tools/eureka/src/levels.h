@@ -104,3 +104,5 @@ inline bool is_sky (Wad_name flat)
 
 
 #endif  /* DO NOT ADD ANYTHING AFTER THIS LINE */
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

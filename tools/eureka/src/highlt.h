@@ -49,3 +49,5 @@ class highlight_c : public edwidget_c
       Objid obj_disp; // The object that is really highlighted
    };
 
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

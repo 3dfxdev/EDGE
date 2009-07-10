@@ -314,3 +314,5 @@ const wad_level_lump_def_t wad_level_lump[WAD_LL__] =
 
 
 #endif  /* DO NOT ADD ANYTHING AFTER THIS LINE */
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

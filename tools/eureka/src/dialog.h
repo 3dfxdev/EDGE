@@ -12,3 +12,5 @@ void Notify (int, int, const char *, const char *);
 void NotImplemented (void);
 
 
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

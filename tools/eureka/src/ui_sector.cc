@@ -496,4 +496,4 @@ void UI_SectorBox::FlatToWidget(Fl_Input *w, const wad_flat_name_t& fname)
 
 
 //--- editor settings ---
-// vi:ts=2:sw=2:expandtab
+// vi:ts=4:sw=4:noexpandtab

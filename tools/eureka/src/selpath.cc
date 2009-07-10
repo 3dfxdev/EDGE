@@ -224,3 +224,5 @@ static void select_1s_linedefs_in_half_path (bitvec_c &ldsel,
 }
 
 
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab
