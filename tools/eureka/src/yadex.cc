@@ -354,7 +354,6 @@ if (Quieter)
 
 // Sanity checks (useful when porting).
 check_types ();
-check_charset ();
 
 // Load game definitions (*.ygd).
 InitGameDefs ();
@@ -606,28 +605,5 @@ void LogMessage (const char *logstr, ...)
 }
 
 
-
-/*
- *  irgb2rgb
- *  Convert an IRGB colour (16-colour VGA) to an 8-bit-per-component
- *  RGB colour.
- */
-void irgb2rgb (int c, rgb_c *rgb)
-{
-  if (c == 8)  // Special case for DARKGREY
-    rgb->r = rgb->g = rgb->b = 0x40;
-  else if (c == 6)
-  {
-    rgb->r = 0xff;  // ORANGE
-    rgb->g = 0xaa;
-    rgb->b = 0x00;
-  }
-  else
-  {
-    rgb->r = (c & 4) ? ((c & 8) ? 0xff : 0x80) : 0;
-    rgb->g = (c & 2) ? ((c & 8) ? 0xff : 0x80) : 0;
-    rgb->b = (c & 1) ? ((c & 8) ? 0xff : 0x80) : 0;
-  }
-}
 
 
