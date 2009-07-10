@@ -31,6 +31,8 @@ Place, Suite 330, Boston, MA 02111-1307, USA.
 #include "yadex.h"
 #include "game.h"
 
+#include <math.h>
+
 
 /*
  *  levelname2levelno
@@ -394,6 +396,27 @@ void check_types ()
   assert_size (struct SideDef, 30);
   assert_size (struct Thing,   10);
   assert_size (struct Vertex,   4);
+}
+
+
+/*
+   translate (dx, dy) into an integer angle value (0-65535)
+*/
+
+unsigned ComputeAngle (int dx, int dy)
+{
+return (unsigned) (atan2 ((double) dy, (double) dx) * 10430.37835 + 0.5);
+}
+
+
+
+/*
+   compute the distance from (0, 0) to (dx, dy)
+*/
+
+unsigned ComputeDist (int dx, int dy)
+{
+return (unsigned) (hypot ((double) dx, (double) dy) + 0.5);
 }
 
 
