@@ -354,3 +354,5 @@ int exchange_objects_numbers (int obj_type, SelPtr list, bool adjust)
 }
 
 
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

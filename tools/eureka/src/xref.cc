@@ -131,3 +131,5 @@ void list_tagged_linedefs (int tag)
   printf (" (total %d)\n", count);
 }
 
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -114,3 +114,5 @@ if (objid.type == OBJ_SECTORS && sector_under_pointer () != objid.num)
 
 
 
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

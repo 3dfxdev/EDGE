@@ -87,4 +87,4 @@ void UI_Nombre::SetTotal(int _tot)
 
 
 //--- editor settings ---
-// vi:ts=2:sw=2:expandtab
+// vi:ts=4:sw=4:noexpandtab

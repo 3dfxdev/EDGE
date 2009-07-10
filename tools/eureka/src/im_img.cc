@@ -453,3 +453,5 @@ void scale_img (const Img& img, double scale, Img& omg)
     delete[] ix;
   }
 }
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -117,3 +117,5 @@ void selbox_c::clear (void)
   flags &= ~ flags_displayed;
 }
 
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

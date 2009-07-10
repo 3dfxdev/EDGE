@@ -1254,3 +1254,5 @@ int word_splitting (std::vector<std::string>& tokens, const char *string)
 }
 
 
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -75,3 +75,5 @@ void FreeMemory (void *ptr)
 
 
 /* end of file */
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

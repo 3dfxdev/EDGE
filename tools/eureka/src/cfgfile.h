@@ -12,3 +12,5 @@ void dump_command_line_options (FILE *fd);
 extern const char config_file_magic[];
 
 
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

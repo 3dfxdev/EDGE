@@ -420,3 +420,5 @@ return (unsigned) (hypot ((double) dx, (double) dy) + 0.5);
 }
 
 
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -10,3 +10,5 @@ void nf_bug (const char *fmt, ...);
 
 
 
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

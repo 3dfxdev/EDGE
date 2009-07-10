@@ -14,3 +14,5 @@ void list_tagged_sectors (int tag);
 void list_tagged_linedefs (int tag);
 
 
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

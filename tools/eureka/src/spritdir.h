@@ -46,3 +46,5 @@ void Sprite_loc_by_root (const char *name, Lump_loc& loc);
 
 
 #endif  /* DO NOT ADD ANYTHING AFTER THIS LINE */
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

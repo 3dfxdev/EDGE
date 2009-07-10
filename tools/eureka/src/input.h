@@ -38,3 +38,5 @@ const inpev_t YK_SHIFT  = FL_SHIFT;
 const inpev_t YK_CTRL   = FL_CTRL; 
 const inpev_t YK_ALT    = FL_ALT;
 
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

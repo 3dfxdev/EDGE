@@ -27,3 +27,5 @@ inline void RotateAndScaleCoords (int *x, int *y, double angle, double scale)
 void RotateAndScaleObjects (int, SelPtr, double, double);
 
 
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

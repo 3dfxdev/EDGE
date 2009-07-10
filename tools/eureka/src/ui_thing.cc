@@ -497,4 +497,4 @@ void UI_ThingBox::LoadData(thing_spawn_c *th)
 
 
 //--- editor settings ---
-// vi:ts=2:sw=2:expandtab
+// vi:ts=4:sw=4:noexpandtab

@@ -437,3 +437,5 @@ static const Close_obj& get_cur_rts (int x, int y)
   return object;
 }
 
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

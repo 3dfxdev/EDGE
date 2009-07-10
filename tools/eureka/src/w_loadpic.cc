@@ -484,3 +484,5 @@ static void flush_msg (const char *picname)
 
 
 
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

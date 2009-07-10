@@ -127,3 +127,5 @@ extern Patch_dir patch_dir;   // Only one instance and it's global
 
 
 #endif  /* DO NOT ADD ANYTHING AFTER THIS LINE */
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -899,4 +899,4 @@ void UI_Canvas::DrawMapArrow (int mapx1, int mapy1, unsigned angle)
 
 
 //--- editor settings ---
-// vi:ts=2:sw=2:expandtab
+// vi:ts=4:sw=4:noexpandtab

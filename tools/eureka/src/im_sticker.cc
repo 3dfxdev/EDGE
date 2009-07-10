@@ -182,3 +182,5 @@ void Sticker_priv::load (const Img& img, bool opaque)
   //??? delete buf;
 }
 
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

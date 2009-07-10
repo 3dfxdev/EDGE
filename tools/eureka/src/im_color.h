@@ -169,3 +169,5 @@ extern Game_colour_24 game_colour_24;
 
 #endif  // Prevent multiple inclusions
 
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

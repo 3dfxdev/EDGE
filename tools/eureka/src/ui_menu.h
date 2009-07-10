@@ -31,4 +31,4 @@ void Menu_SetMode(char mode);
 #endif // __UI_MENU_H__
 
 //--- editor settings ---
-// vi:ts=2:sw=2:expandtab
+// vi:ts=4:sw=4:noexpandtab

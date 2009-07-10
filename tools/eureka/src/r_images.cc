@@ -504,3 +504,5 @@ void GetWallTextureSize (s16_t *width, s16_t *height, const char *texname)
     *height = -1;
   }
 }
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

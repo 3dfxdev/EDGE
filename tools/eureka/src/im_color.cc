@@ -366,3 +366,5 @@ void free_colours (pcolour_t *pcn_table, size_t count)
 
 
 
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

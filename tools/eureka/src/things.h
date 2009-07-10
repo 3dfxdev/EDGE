@@ -60,3 +60,5 @@ void frob_things_flags (SelPtr list, int op, int operand);
 
 #endif  /* Prevent multiple inclusion */
 
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

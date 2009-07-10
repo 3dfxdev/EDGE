@@ -145,3 +145,5 @@ inline void Superimposed_ld::rewind ()
 
 
 #endif  /* DO NOT ADD ANYTHING AFTER THIS LINE */
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

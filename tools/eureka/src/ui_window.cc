@@ -172,4 +172,4 @@ const char *Int_TmpStr(int value)
 
 
 //--- editor settings ---
-// vi:ts=2:sw=2:expandtab
+// vi:ts=4:sw=4:noexpandtab

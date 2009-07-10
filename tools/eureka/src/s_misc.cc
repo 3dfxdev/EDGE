@@ -981,3 +981,5 @@ void sector_slice (obj_no_t linedef1, obj_no_t linedef2)
   MadeMapChanges = 1;
 }
 
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

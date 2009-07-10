@@ -123,4 +123,4 @@ static inline u32_t UT_Swap32(u32_t x) {
 #endif // __UTIL_ENDIAN_H__
 
 //--- editor settings ---
-// vi:ts=2:sw=2:expandtab
+// vi:ts=4:sw=4:noexpandtab

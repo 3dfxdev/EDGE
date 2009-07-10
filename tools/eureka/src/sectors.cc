@@ -634,3 +634,5 @@ SelPtr list_vertices_of_sectors (SelPtr list)
 }
 
 
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

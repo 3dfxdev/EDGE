@@ -96,3 +96,5 @@ extern std::vector<thinggroup_t *> thinggroup;
 #define THING_FREE  '\0'  /* KLUDGE: bogus thing group (see game.c) */
 
 
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab
