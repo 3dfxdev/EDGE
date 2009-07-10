@@ -150,264 +150,265 @@ static void print_error_message (const char *fmt, va_list args);
  */
 int main (int argc, char *argv[])
 {
-int r;
+	int r;
 
-// Set <screen_lines>
-if (getenv ("LINES") != NULL)
-   screen_lines = atoi (getenv ("LINES"));
-else
-   screen_lines = 0;
-if (screen_lines == 0)
-   screen_lines = 24;
-
-
-// First detect manually --help and --version
-// because parse_command_line_options() cannot.
-if (argc == 2 && strcmp (argv[1], "--help") == 0)
-   {
-//   print_usage (stdout);
-   if (fflush (stdout) != 0)
-     fatal_error ("stdout: %s", strerror (errno));
-   exit (0);
-   }
-if (argc == 2 && strcmp (argv[1], "--version") == 0)
-   {
-//   puts (what ());
-   puts ("# Eureka fluff\n");
-   if (fflush (stdout) != 0)
-     fatal_error ("stdout: %s", strerror (errno));
-   exit (0);
-   }
-
-// Second a quick pass through the command line
-// arguments to detect -?, -f and -help.
-r = parse_command_line_options (argc - 1, argv + 1, 1);
-if (r)
-   goto syntax_error;
-
-if (show_help)
-   {
-//   print_usage (stdout);
-   exit (1);
-   }
-
-//printf ("%s\n", what ());
+	// Set <screen_lines>
+	if (getenv ("LINES") != NULL)
+		screen_lines = atoi (getenv ("LINES"));
+	else
+		screen_lines = 0;
+	if (screen_lines == 0)
+		screen_lines = 24;
 
 
-// The config file provides some values.
-if (config_file != NULL)
-  r = parse_config_file_user (config_file);
-else
-  r = parse_config_file_default ();
-if (r == 0)
-   {
-   // Environment variables can override them.
-   r = parse_environment_vars ();
-   if (r == 0)
-      {
-      // And the command line argument can override both.
-      r = parse_command_line_options (argc - 1, argv + 1, 2);
-      }
-   }
-if (r != 0)
-   {
-   syntax_error :
-   fprintf (stderr, "Try \"yadex --help\" or \"man yadex\".\n");
-   exit (1);
-   }
+	// First detect manually --help and --version
+	// because parse_command_line_options() cannot.
+	if (argc == 2 && strcmp (argv[1], "--help") == 0)
+	{
+		//   print_usage (stdout);
+		if (fflush (stdout) != 0)
+			fatal_error ("stdout: %s", strerror (errno));
+		exit (0);
+	}
+	if (argc == 2 && strcmp (argv[1], "--version") == 0)
+	{
+		//   puts (what ());
+		puts ("# Eureka fluff\n");
+		if (fflush (stdout) != 0)
+			fatal_error ("stdout: %s", strerror (errno));
+		exit (0);
+	}
 
-if (Game != NULL && strcmp (Game, "doom") == 0)
-   {
-   if (Iwad1 == NULL)
-      {
-      err ("You have to tell me where doom.wad is.");
-      fprintf (stderr,
-         "Use \"-i1 <file>\" or put \"iwad1=<file>\" in yadex.cfg.\n");
-      exit (1);
-      }
-   MainWad = Iwad1;
-   }
-else if (Game != NULL && strcmp (Game, "doom2") == 0)
-   {
-   if (Iwad2 == NULL)
-      {
-      err ("You have to tell me where doom2.wad is.");
-      fprintf (stderr,
-         "Use \"-i2 <file>\" or put \"iwad2=<file>\" in yadex.cfg.\n");
-      exit (1);
-      }
-   MainWad = Iwad2;
-   }
-else if (Game != NULL && strcmp (Game, "heretic") == 0)
-   {
-   if (Iwad3 == NULL)
-      {
-      err ("You have to tell me where heretic.wad is.");
-      fprintf (stderr,
-         "Use \"-i3 <file>\" or put \"iwad3=<file>\" in yadex.cfg.\n");
-      exit (1);
-      }
-   MainWad = Iwad3;
-   }
-else if (Game != NULL && strcmp (Game, "hexen") == 0)
-   {
-   if (Iwad4 == NULL)
-      {
-      err ("You have to tell me where hexen.wad is.");
-      fprintf (stderr,
-         "Use \"-i4 <file>\" or put \"iwad4=<file>\" in yadex.cfg.\n");
-      exit (1);
-      }
-   MainWad = Iwad4;
-   }
-else if (Game != NULL && strcmp (Game, "strife") == 0)
-   {
-   if (Iwad5 == NULL)
-      {
-      err ("You have to tell me where strife1.wad is.");
-      fprintf (stderr,
-         "Use \"-i5 <file>\" or put \"iwad5=<file>\" in yadex.cfg.\n");
-      exit (1);
-      }
-   MainWad = Iwad5;
-   }
-else if (Game != NULL && strcmp (Game, "doom02") == 0)
-   {
-   if (Iwad6 == NULL)
-      {
-      err ("You have to tell me where the Doom alpha 0.2 iwad is.");
-      fprintf (stderr,
-         "Use \"-i6 <file>\" or put \"iwad6=<file>\" in yadex.cfg.\n");
-      exit (1);
-      }
-   MainWad = Iwad6;
-   }
-else if (Game != NULL && strcmp (Game, "doom04") == 0)
-   {
-   if (Iwad7 == NULL)
-      {
-      err ("You have to tell me where the Doom alpha 0.4 iwad is.");
-      fprintf (stderr,
-         "Use \"-i7 <file>\" or put \"iwad7=<file>\" in yadex.cfg.\n");
-      exit (1);
-      }
-   MainWad = Iwad7;
-   }
-else if (Game != NULL && strcmp (Game, "doom05") == 0)
-   {
-   if (Iwad8 == NULL)
-      {
-      err ("You have to tell me where the Doom alpha 0.5 iwad is.");
-      fprintf (stderr,
-         "Use \"-i8 <file>\" or put \"iwad8=<file>\" in yadex.cfg.\n");
-      exit (1);
-      }
-   MainWad = Iwad8;
-   }
-else if (Game != NULL && strcmp (Game, "doompr") == 0)
-   {
-   if (Iwad9 == NULL)
-      {
-      err ("You have to tell me where the Doom press release iwad is.");
-      fprintf (stderr,
-         "Use \"-i9 <file>\" or put \"iwad9=<file>\" in yadex.cfg.\n");
-      exit (1);
-      }
-   MainWad = Iwad9;
-   }
-else if (Game != NULL && strcmp (Game, "strife10") == 0)
-   {
-   if (Iwad10 == NULL)
-      {
-      err ("You have to tell me where strife1.wad is.");
-      fprintf (stderr,
-         "Use \"-i10 <file>\" or put \"iwad10=<file>\" in yadex.cfg.\n");
-      exit (1);
-      }
-   MainWad = Iwad10;
-   }
-else
-   {
-   if (Game == NULL)
-      err ("You didn't say for which game you want to edit.");
-   else
-      err ("Unknown game \"%s\"", Game);
-   fprintf (stderr,
-  "Use \"-g <game>\" on the command line or put \"game=<game>\" in yadex.cfg\n"
-  "where <game> is one of \"doom\", \"doom02\", \"doom04\", \"doom05\","
-  " \"doom2\",\n\"doompr\", \"heretic\", \"hexen\", \"strife\" and "
-  "\"strife10\".\n");
-   exit (1);
-   }
-if (Debug)
-   {
-   logfile = fopen (log_file, "a");
-   if (logfile == NULL)
-      warn ("can't open log file \"%s\" (%s)", log_file, strerror (errno));
-   LogMessage (": Welcome to Yadex!\n");
-   }
-if (Quieter)
-   Quiet = true;
+	// Second a quick pass through the command line
+	// arguments to detect -?, -f and -help.
+	r = parse_command_line_options (argc - 1, argv + 1, 1);
+	if (r)
+		goto syntax_error;
 
-// Sanity checks (useful when porting).
-check_types ();
+	if (show_help)
+	{
+		//   print_usage (stdout);
+		exit (1);
+	}
 
-// Load game definitions (*.ygd).
-InitGameDefs ();
-LoadGameDefs (Game);
+	//printf ("%s\n", what ());
 
-// Load the iwad and the pwads.
-if (OpenMainWad (MainWad))
-   fatal_error ("If you don't give me an iwad, I'll quit. I'm serious.");
-if (PatchWads)
-   {
-   const char * const *pwad_name;
-   for (pwad_name = PatchWads; *pwad_name; pwad_name++)
-      OpenPatchWad (*pwad_name);
-   }
-/* sanity check */
-CloseUnusedWadFiles ();
 
-// BRANCH 1 : benchmarking (-b)
-if (false)
-   {
-   return 0;  // Exit successfully
-   }
+	// The config file provides some values.
+	if (config_file != NULL)
+		r = parse_config_file_user (config_file);
+	else
+		r = parse_config_file_default ();
+	if (r == 0)
+	{
+		// Environment variables can override them.
+		r = parse_environment_vars ();
+		if (r == 0)
+		{
+			// And the command line argument can override both.
+			r = parse_command_line_options (argc - 1, argv + 1, 2);
+		}
+	}
+	if (r != 0)
+	{
+syntax_error :
+		fprintf (stderr, "Try \"yadex --help\" or \"man yadex\".\n");
+		exit (1);
+	}
 
-// BRANCH 2 : normal use ("yadex:" prompt)
-else
-   {
+	if (Game != NULL && strcmp (Game, "doom") == 0)
+	{
+		if (Iwad1 == NULL)
+		{
+			err ("You have to tell me where doom.wad is.");
+			fprintf (stderr,
+					"Use \"-i1 <file>\" or put \"iwad1=<file>\" in yadex.cfg.\n");
+			exit (1);
+		}
+		MainWad = Iwad1;
+	}
+	else if (Game != NULL && strcmp (Game, "doom2") == 0)
+	{
+		if (Iwad2 == NULL)
+		{
+			err ("You have to tell me where doom2.wad is.");
+			fprintf (stderr,
+					"Use \"-i2 <file>\" or put \"iwad2=<file>\" in yadex.cfg.\n");
+			exit (1);
+		}
+		MainWad = Iwad2;
+	}
+	else if (Game != NULL && strcmp (Game, "heretic") == 0)
+	{
+		if (Iwad3 == NULL)
+		{
+			err ("You have to tell me where heretic.wad is.");
+			fprintf (stderr,
+					"Use \"-i3 <file>\" or put \"iwad3=<file>\" in yadex.cfg.\n");
+			exit (1);
+		}
+		MainWad = Iwad3;
+	}
+	else if (Game != NULL && strcmp (Game, "hexen") == 0)
+	{
+		if (Iwad4 == NULL)
+		{
+			err ("You have to tell me where hexen.wad is.");
+			fprintf (stderr,
+					"Use \"-i4 <file>\" or put \"iwad4=<file>\" in yadex.cfg.\n");
+			exit (1);
+		}
+		MainWad = Iwad4;
+	}
+	else if (Game != NULL && strcmp (Game, "strife") == 0)
+	{
+		if (Iwad5 == NULL)
+		{
+			err ("You have to tell me where strife1.wad is.");
+			fprintf (stderr,
+					"Use \"-i5 <file>\" or put \"iwad5=<file>\" in yadex.cfg.\n");
+			exit (1);
+		}
+		MainWad = Iwad5;
+	}
+	else if (Game != NULL && strcmp (Game, "doom02") == 0)
+	{
+		if (Iwad6 == NULL)
+		{
+			err ("You have to tell me where the Doom alpha 0.2 iwad is.");
+			fprintf (stderr,
+					"Use \"-i6 <file>\" or put \"iwad6=<file>\" in yadex.cfg.\n");
+			exit (1);
+		}
+		MainWad = Iwad6;
+	}
+	else if (Game != NULL && strcmp (Game, "doom04") == 0)
+	{
+		if (Iwad7 == NULL)
+		{
+			err ("You have to tell me where the Doom alpha 0.4 iwad is.");
+			fprintf (stderr,
+					"Use \"-i7 <file>\" or put \"iwad7=<file>\" in yadex.cfg.\n");
+			exit (1);
+		}
+		MainWad = Iwad7;
+	}
+	else if (Game != NULL && strcmp (Game, "doom05") == 0)
+	{
+		if (Iwad8 == NULL)
+		{
+			err ("You have to tell me where the Doom alpha 0.5 iwad is.");
+			fprintf (stderr,
+					"Use \"-i8 <file>\" or put \"iwad8=<file>\" in yadex.cfg.\n");
+			exit (1);
+		}
+		MainWad = Iwad8;
+	}
+	else if (Game != NULL && strcmp (Game, "doompr") == 0)
+	{
+		if (Iwad9 == NULL)
+		{
+			err ("You have to tell me where the Doom press release iwad is.");
+			fprintf (stderr,
+					"Use \"-i9 <file>\" or put \"iwad9=<file>\" in yadex.cfg.\n");
+			exit (1);
+		}
+		MainWad = Iwad9;
+	}
+	else if (Game != NULL && strcmp (Game, "strife10") == 0)
+	{
+		if (Iwad10 == NULL)
+		{
+			err ("You have to tell me where strife1.wad is.");
+			fprintf (stderr,
+					"Use \"-i10 <file>\" or put \"iwad10=<file>\" in yadex.cfg.\n");
+			exit (1);
+		}
+		MainWad = Iwad10;
+	}
+	else
+	{
+		if (Game == NULL)
+			err ("You didn't say for which game you want to edit.");
+		else
+			err ("Unknown game \"%s\"", Game);
+		fprintf (stderr,
+				"Use \"-g <game>\" on the command line or put \"game=<game>\" in yadex.cfg\n"
+				"where <game> is one of \"doom\", \"doom02\", \"doom04\", \"doom05\","
+				" \"doom2\",\n\"doompr\", \"heretic\", \"hexen\", \"strife\" and "
+				"\"strife10\".\n");
+		exit (1);
+	}
+	if (Debug)
+	{
+		logfile = fopen (log_file, "a");
+		if (logfile == NULL)
+			warn ("can't open log file \"%s\" (%s)", log_file, strerror (errno));
+		LogMessage (": Welcome to Yadex!\n");
+	}
+	if (Quieter)
+		Quiet = true;
 
-   if (strcmp (Game, "hexen") == 0)
-      printf (
-   "WARNING: Hexen mode is experimental. Don't expect to be able to do any\n"
-   "real Hexen editing with it. You can edit levels but you can't save them.\n"
-   "And there might be other bugs... BE CAREFUL !\n\n");
+	// Sanity checks (useful when porting).
+	check_types ();
 
-   if (strcmp (Game, "strife") == 0)
-      printf (
-   "WARNING: Strife mode is experimental. Many thing types, linedef types,\n"
-   "etc. are missing or wrong. And be careful, there might be bugs.\n\n");
+	// Load game definitions (*.ygd).
+	InitGameDefs ();
+	LoadGameDefs (Game);
 
-   /* all systems go! */
-    if (! Warp || ! Warp[0])
-        Warp = "MAP01";
+	// Load the iwad and the pwads.
+	if (OpenMainWad (MainWad))
+		fatal_error ("If you don't give me an iwad, I'll quit. I'm serious.");
+	if (PatchWads)
+	{
+		const char * const *pwad_name;
+		for (pwad_name = PatchWads; *pwad_name; pwad_name++)
+			OpenPatchWad (*pwad_name);
+	}
+	/* sanity check */
+	CloseUnusedWadFiles ();
 
-   EditLevel (Warp, 0);
-   }
+	// BRANCH 1 : benchmarking (-b)
+	if (false)
+	{
+		return 0;  // Exit successfully
+	}
 
-/* that's all, folks! */
-CloseWadFiles ();
-FreeGameDefs ();
-LogMessage (": The end!\n\n\n");
-if (logfile != NULL)
-   fclose (logfile);
-if (remind_to_build_nodes)
-   printf ("\n"
-      "** You have made changes to one or more wads. Don't forget to pass\n"
-      "** them through a nodes builder (E.G. BSP) before running them.\n"
-      "** Like this: \"ybsp foo.wad -o tmp.wad; doom -file tmp.wad\"\n\n");
-return 0;
+	// BRANCH 2 : normal use ("yadex:" prompt)
+	else
+	{
+
+		if (strcmp (Game, "hexen") == 0)
+			printf (
+					"WARNING: Hexen mode is experimental. Don't expect to be able to do any\n"
+					"real Hexen editing with it. You can edit levels but you can't save them.\n"
+					"And there might be other bugs... BE CAREFUL !\n\n");
+
+		if (strcmp (Game, "strife") == 0)
+			printf (
+					"WARNING: Strife mode is experimental. Many thing types, linedef types,\n"
+					"etc. are missing or wrong. And be careful, there might be bugs.\n\n");
+
+		/* all systems go! */
+		if (! Warp || ! Warp[0])
+			Warp = "MAP01";
+
+		EditLevel (Warp, 0);
+	}
+
+	/* that's all, folks! */
+	CloseWadFiles ();
+	FreeGameDefs ();
+	LogMessage (": The end!\n\n\n");
+
+	if (logfile != NULL)
+		fclose (logfile);
+	if (remind_to_build_nodes)
+		printf ("\n"
+				"** You have made changes to one or more wads. Don't forget to pass\n"
+				"** them through a nodes builder (E.G. BSP) before running them.\n"
+				"** Like this: \"ybsp foo.wad -o tmp.wad; doom -file tmp.wad\"\n\n");
+	return 0;
 }
 
 
