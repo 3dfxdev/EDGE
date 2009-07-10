@@ -65,7 +65,6 @@ typedef struct
 
 /*
  *  Global variables that contain game definition data
- *  Those variables are defined in yadex.cc
  */
 
 typedef enum { YGLF__, YGLF_ALPHA, YGLF_DOOM, YGLF_HEXEN } yglf_t;

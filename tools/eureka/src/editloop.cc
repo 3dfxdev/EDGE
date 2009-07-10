@@ -380,7 +380,7 @@ void EditorKey(int is_key, bool is_shift)
     }
   }
 
-  // [Shift][F1]: save a screen shot into yadex.gif.
+  // [Shift][F1]: save a screen shot.
   // FIXME doesn't work in the Unix port
   else if (is_key == FL_F+1 + YK_SHIFT)
   {

@@ -61,10 +61,7 @@ int InitGfx (void);
 void TermGfx (void);
 void SetWindowSize (int width, int height);
 
-void ClearScreen (void); // [DEAD]
-
 void update_display ();
-void force_window_not_pixmap ();
 void SetLineThickness (int thick);
 void SetDrawingMode (int _xor);
 

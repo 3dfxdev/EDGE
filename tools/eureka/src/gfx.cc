@@ -184,17 +184,6 @@ void update_display ()
 }
 
 
-/*
- *  force_window_not_pixmap - force graphic ops to use window
- *
- *  Redirect graphic output to window, not pixmap. Used only
- *  in yadex.cc, before calling the sprite viewer.
- *
- *  FIXME this is not a clean way to do things.
- */
-void force_window_not_pixmap ()
-{
-}
 
 
 /*

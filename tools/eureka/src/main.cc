@@ -212,7 +212,6 @@ int main (int argc, char *argv[])
 	if (r != 0)
 	{
 syntax_error :
-		fprintf (stderr, "Try \"yadex --help\" or \"man yadex\".\n");
 		exit (1);
 	}
 
@@ -221,8 +220,6 @@ syntax_error :
 		if (Iwad1 == NULL)
 		{
 			err ("You have to tell me where doom.wad is.");
-			fprintf (stderr,
-					"Use \"-i1 <file>\" or put \"iwad1=<file>\" in yadex.cfg.\n");
 			exit (1);
 		}
 		MainWad = Iwad1;
@@ -232,8 +229,6 @@ syntax_error :
 		if (Iwad2 == NULL)
 		{
 			err ("You have to tell me where doom2.wad is.");
-			fprintf (stderr,
-					"Use \"-i2 <file>\" or put \"iwad2=<file>\" in yadex.cfg.\n");
 			exit (1);
 		}
 		MainWad = Iwad2;
@@ -243,8 +238,6 @@ syntax_error :
 		if (Iwad3 == NULL)
 		{
 			err ("You have to tell me where heretic.wad is.");
-			fprintf (stderr,
-					"Use \"-i3 <file>\" or put \"iwad3=<file>\" in yadex.cfg.\n");
 			exit (1);
 		}
 		MainWad = Iwad3;
@@ -254,8 +247,6 @@ syntax_error :
 		if (Iwad4 == NULL)
 		{
 			err ("You have to tell me where hexen.wad is.");
-			fprintf (stderr,
-					"Use \"-i4 <file>\" or put \"iwad4=<file>\" in yadex.cfg.\n");
 			exit (1);
 		}
 		MainWad = Iwad4;
@@ -265,8 +256,6 @@ syntax_error :
 		if (Iwad5 == NULL)
 		{
 			err ("You have to tell me where strife1.wad is.");
-			fprintf (stderr,
-					"Use \"-i5 <file>\" or put \"iwad5=<file>\" in yadex.cfg.\n");
 			exit (1);
 		}
 		MainWad = Iwad5;
@@ -276,8 +265,6 @@ syntax_error :
 		if (Iwad6 == NULL)
 		{
 			err ("You have to tell me where the Doom alpha 0.2 iwad is.");
-			fprintf (stderr,
-					"Use \"-i6 <file>\" or put \"iwad6=<file>\" in yadex.cfg.\n");
 			exit (1);
 		}
 		MainWad = Iwad6;
@@ -287,8 +274,6 @@ syntax_error :
 		if (Iwad7 == NULL)
 		{
 			err ("You have to tell me where the Doom alpha 0.4 iwad is.");
-			fprintf (stderr,
-					"Use \"-i7 <file>\" or put \"iwad7=<file>\" in yadex.cfg.\n");
 			exit (1);
 		}
 		MainWad = Iwad7;
@@ -298,8 +283,6 @@ syntax_error :
 		if (Iwad8 == NULL)
 		{
 			err ("You have to tell me where the Doom alpha 0.5 iwad is.");
-			fprintf (stderr,
-					"Use \"-i8 <file>\" or put \"iwad8=<file>\" in yadex.cfg.\n");
 			exit (1);
 		}
 		MainWad = Iwad8;
@@ -309,8 +292,6 @@ syntax_error :
 		if (Iwad9 == NULL)
 		{
 			err ("You have to tell me where the Doom press release iwad is.");
-			fprintf (stderr,
-					"Use \"-i9 <file>\" or put \"iwad9=<file>\" in yadex.cfg.\n");
 			exit (1);
 		}
 		MainWad = Iwad9;
@@ -320,8 +301,6 @@ syntax_error :
 		if (Iwad10 == NULL)
 		{
 			err ("You have to tell me where strife1.wad is.");
-			fprintf (stderr,
-					"Use \"-i10 <file>\" or put \"iwad10=<file>\" in yadex.cfg.\n");
 			exit (1);
 		}
 		MainWad = Iwad10;
@@ -333,7 +312,7 @@ syntax_error :
 		else
 			err ("Unknown game \"%s\"", Game);
 		fprintf (stderr,
-				"Use \"-g <game>\" on the command line or put \"game=<game>\" in yadex.cfg\n"
+				"Use \"-g <game>\" on the command line or put \"game=<game>\" in config file\n"
 				"where <game> is one of \"doom\", \"doom02\", \"doom04\", \"doom05\","
 				" \"doom2\",\n\"doompr\", \"heretic\", \"hexen\", \"strife\" and "
 				"\"strife10\".\n");
@@ -344,7 +323,6 @@ syntax_error :
 		logfile = fopen (log_file, "a");
 		if (logfile == NULL)
 			warn ("can't open log file \"%s\" (%s)", log_file, strerror (errno));
-		LogMessage (": Welcome to Yadex!\n");
 	}
 	if (Quieter)
 		Quiet = true;
@@ -368,14 +346,6 @@ syntax_error :
 	/* sanity check */
 	CloseUnusedWadFiles ();
 
-	// BRANCH 1 : benchmarking (-b)
-	if (false)
-	{
-		return 0;  // Exit successfully
-	}
-
-	// BRANCH 2 : normal use ("yadex:" prompt)
-	else
 	{
 
 		if (strcmp (Game, "hexen") == 0)

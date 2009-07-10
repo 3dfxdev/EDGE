@@ -170,8 +170,8 @@ switch (objtype)
 
    case OBJ_LINEDEFS:
       /* In DEU, deleting a linedef was not considered to be a
-   map change. Deleting a _sidedef_ was. In Yadex,
-   sidedefs are not automatically deleted when the linedef
+   map change. Deleting a _sidedef_ was.  Sidedefs
+   are not automatically deleted when the linedef
    is because some sidedefs are shared by more than one
    linedef. So we need to set MadeMapChanges here. */
       if (*list)

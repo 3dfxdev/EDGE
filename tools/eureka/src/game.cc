@@ -1,6 +1,5 @@
 /*
  *  game.cc
- *  Load .ygd file (Yadex Game Definitions)
  *  AYM 1998-01-04
  */
 
@@ -77,32 +76,10 @@ strcat (basename, ".ugh");
 
 strcpy (filename, basename);
 
-///?? /* Locate the game definition file. */
-///?? {
-///??   Locate locate (yadex_share_path, basename, false);
-///??   const char *pathname = locate.get_next ();
-///??   if (pathname == NULL)
-///??      fatal_error ("Game definition file \"%s\" not found", basename);
-///??   if (strlen (pathname) > sizeof filename - 1)
-///??      fatal_error ("%s: file name too long");
-///??   strcpy (filename, pathname);
-///??   printf ("Reading game definition file \"%s\".\n", filename);
-///?? }
 
 ygdfile = fopen (filename, "r");
 if (ygdfile == NULL)
    fatal_error ("%s: %s", filename, strerror (errno));
-
-///---/* The first line of the ygd file must
-///---   contain exactly ygd_file_magic. */
-///---if (fgets (readbuf, sizeof readbuf, ygdfile) == NULL
-///---   || memcmp (readbuf, ygd_file_magic, sizeof ygd_file_magic - 1)
-///---   || readbuf[sizeof ygd_file_magic - 1] != '\n'
-///---   || readbuf[sizeof ygd_file_magic] != '\0')
-///---   {
-///---   err ("%s is not a valid Yadex game definition file", filename);
-///---   fatal_error ("Perhaps a leftover from a previous version of Yadex ?");
-///---   }
 
 /* Read the game definition
    file, line by line. */
