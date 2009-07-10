@@ -43,6 +43,8 @@ Place, Suite 330, Boston, MA 02111-1307, USA.
 extern bool DRAWING_MAP;  // FIXME !!!! HACK
 
 
+int QF;
+int QF_F;
 
 
 const char *font_name = NULL; // X: the name of the font to load
@@ -107,6 +109,18 @@ int InitGfx (void)
 
   Fl::scheme("plastic");
 
+  int screen_w = Fl::w();
+  int screen_h = Fl::h();
+
+  fprintf(stderr, "-- SCREEN SIZE %dx%d\n", screen_w, screen_h);
+
+  QF = 0;
+  if (screen_w >= 1024) QF++;
+  if (screen_w >= 1280) QF++;
+  if (screen_w >= 1600) QF++;
+
+  QF_F = (14 + QF * 3);  if (QF_F & 1) QF_F++;
+
 
   main_win = new UI_MainWin("EUREKA FTW!");
 
@@ -151,16 +165,6 @@ void SetWindowSize (int width, int height)
   ScrMaxY = height - 1;
 }
 
-
-
-
-/*
- *  ClearScreen - clear the screen
- */
-void ClearScreen ()
-{
-  // [DEAD]
-}
 
 
 /*

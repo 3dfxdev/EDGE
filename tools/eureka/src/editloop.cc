@@ -1542,12 +1542,12 @@ fprintf(stderr, "DRAGGING OBJECT: %d\n", edit.clicked.num);
   }
 }
 
+
 void EditorResize(int is_width, int is_height)
 {
-  SetWindowSize (is_width, is_height);
-
   edit.RedrawMap = 1;
 }
+
 
 void EditorAutoScroll()
 {

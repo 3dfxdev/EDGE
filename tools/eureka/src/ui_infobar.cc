@@ -28,74 +28,88 @@
 UI_InfoBar::UI_InfoBar(int X, int Y, int W, int H, const char *label) : 
     Fl_Group(X, Y, W, H, label)
 {
-  end();  // cancel begin() in Fl_Group constructor
+	end();  // cancel begin() in Fl_Group constructor
 
-  box(FL_FLAT_BOX);
-
-
-  mode = new Fl_Choice(X+50, Y+4, 88, H-4, "Mode:");
-  mode->align(FL_ALIGN_LEFT);
-  mode->add("Things|Linedefs|Sectors|Vertices|RTS");
-  mode->value(0);
-  mode->callback(mode_callback, this);
-
-  add(mode);
-
-  X = mode->x() + mode->w() + 8;
+	box(FL_FLAT_BOX);
 
 
-  scale = new Fl_Choice(X+50, Y+4, 78, H-4, "Scale:");
-  scale->align(FL_ALIGN_LEFT);
-  scale->add(Grid_State_c::scale_options());
-  scale->value(8);
-  scale->callback(scale_callback, this);
-  add(scale);
+	mode = new Fl_Choice(X+50, Y+4, 88, H-4, "Mode:");
+	mode->align(FL_ALIGN_LEFT);
+	mode->add("Things|Linedefs|Sectors|Vertices|RTS");
+	mode->value(0);
+	mode->callback(mode_callback, this);
+	mode->labelsize(QF_F);
+	mode->textsize(QF_F);
 
-  X = scale->x() + scale->w() + 4;
+	add(mode);
 
-
-  grid_size = new Fl_Choice(X+50, Y+4, 56, H-4, "Grid:");
-
-  grid_size->align(FL_ALIGN_LEFT);
-  grid_size->add(Grid_State_c::grid_options());
-  grid_size->value(1);
-  grid_size->callback(grid_callback, this);
-  add(grid_size);
-
-  X = grid_size->x() + grid_size->w() + 6;
+	X = mode->x() + mode->w() + 8;
 
 
-  grid_lock = new Fl_Choice(X, Y+4, 72, H-4);
-  grid_lock->add("LOCK|Snap|FREE");
-  grid_lock->value(1);
-  grid_lock->callback(lock_callback, this);
-  add(grid_lock);
+	scale = new Fl_Choice(X+50, Y+4, 78, H-4, "Scale:");
+	scale->align(FL_ALIGN_LEFT);
+	scale->add(Grid_State_c::scale_options());
+	scale->value(8);
+	scale->callback(scale_callback, this);
+	scale->labelsize(QF_F);
+	scale->textsize(QF_F);
 
-  X = grid_lock->x() + grid_lock->w() + 10;
+	add(scale);
 
-
-  mouse_x = new Fl_Output(X+28,       Y+4, 64, H-4, "x");
-  mouse_y = new Fl_Output(X+28+72+10, Y+4, 64, H-4, "y");
-
-  mouse_x->align(FL_ALIGN_LEFT);
-  mouse_y->align(FL_ALIGN_LEFT);
-
-  add(mouse_x);
-  add(mouse_y);
-
-  X = mouse_y->x() + mouse_y->w() + 12;
+	X = scale->x() + scale->w() + 4;
 
 
-  map_name = new Fl_Box(FL_FLAT_BOX, X, Y+4, 80, H-4, "");
-  map_name->align(FL_ALIGN_INSIDE | FL_ALIGN_LEFT);
-  map_name->label("MAP01  foobar.wad");
+	grid_size = new Fl_Choice(X+50, Y+4, 56, H-4, "Grid:");
 
-  add(map_name);
+	grid_size->align(FL_ALIGN_LEFT);
+	grid_size->add(Grid_State_c::grid_options());
+	grid_size->value(1);
+	grid_size->callback(grid_callback, this);
+	grid_size->labelsize(QF_F);
+	grid_size->textsize(QF_F);
+
+	add(grid_size);
+
+	X = grid_size->x() + grid_size->w() + 6;
 
 
-  // ---- resizable ----
+	grid_lock = new Fl_Choice(X, Y+4, 72, H-4);
+	grid_lock->add("LOCK|Snap|FREE");
+	grid_lock->value(1);
+	grid_lock->callback(lock_callback, this);
+	grid_lock->labelsize(QF_F);
+	grid_lock->textsize(QF_F);
+
+	add(grid_lock);
+
+	X = grid_lock->x() + grid_lock->w() + 10;
+
+
+	mouse_x = new Fl_Output(X+28,       Y+4, 64, H-4, "x");
+	mouse_y = new Fl_Output(X+28+72+10, Y+4, 64, H-4, "y");
+
+	mouse_x->align(FL_ALIGN_LEFT);
+	mouse_y->align(FL_ALIGN_LEFT);
+
+	mouse_x->labelsize(QF_F); mouse_y->labelsize(QF_F);
+	mouse_x->textsize(QF_F);  mouse_y->textsize(QF_F);
+
+	add(mouse_x);
+	add(mouse_y);
+
+	X = mouse_y->x() + mouse_y->w() + 12;
+
+
+	map_name = new Fl_Box(FL_FLAT_BOX, X, Y+4, 80, H-4, "");
+	map_name->align(FL_ALIGN_INSIDE | FL_ALIGN_LEFT);
+	map_name->label("MAP01");
+	map_name->labelsize(QF_F);
+
+	add(map_name);
+
+
+	// ---- resizable ----
  
-
 }
 
 //

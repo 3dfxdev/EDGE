@@ -163,8 +163,6 @@ void EditLevel (const char *levelname, bool newlevel)
     }
     else
     {
-        ClearScreen ();
-
         if (ReadLevelData (levelname))
         {
             goto done;  // Failure!
