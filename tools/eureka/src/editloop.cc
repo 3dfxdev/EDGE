@@ -46,7 +46,7 @@ Place, Suite 330, Boston, MA 02111-1307, USA.
 #include "levels.h"
 #include "objects.h"
 #include "objid.h"
-#include "s_slice.h"
+#include "s_misc.h"
 #include "selbox.h"
 #include "selectn.h"
 #include "selpath.h"

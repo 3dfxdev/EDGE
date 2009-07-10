@@ -28,7 +28,7 @@
 #include "levels.h"
 #include "objects.h"
 #include "r_render.h"
-#include "s_centre.h"
+#include "sectors.h"
 #include "selectn.h"
 #include "things.h"
 
