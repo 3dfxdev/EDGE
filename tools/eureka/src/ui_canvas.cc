@@ -24,7 +24,7 @@
 #include "editloop.h"
 #include "gfx.h"
 #include "grid2.h"
-#include "im_appcol.h"
+#include "im_color.h"
 #include "levels.h"
 #include "objects.h"
 #include "r_render.h"

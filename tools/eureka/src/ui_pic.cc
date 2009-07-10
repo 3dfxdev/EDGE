@@ -21,7 +21,7 @@
 #include "ui_window.h"
 
 #include "im_img.h"
-#include "im_gamecol.h"
+#include "im_color.h"
 #include "game.h"
 #include "things.h"
 #include "w_structs.h"

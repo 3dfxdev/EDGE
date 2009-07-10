@@ -31,7 +31,7 @@ Place, Suite 330, Boston, MA 02111-1307, USA.
 #include "yadex.h"
 #include <time.h>
 
-#include "im_appcol.h"
+#include "im_color.h"
 #include "cfgfile.h"
 #include "editlev.h"
 #include "game.h"
@@ -39,7 +39,6 @@ Place, Suite 330, Boston, MA 02111-1307, USA.
 #include "help2.h"
 #include "levels.h"    /* Because of "viewtex" */
 #include "patchdir.h"  /* Because of "p" */
-#include "im_rgb.h"
 #include "sanity.h"
 #include "w_file.h"
 #include "w_list.h"
