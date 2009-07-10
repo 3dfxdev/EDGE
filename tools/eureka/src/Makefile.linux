@@ -53,8 +53,8 @@ OBJS = \
 	vertices.o  \
 	version.o  w_file.o  w_list.o  \
 	w_io.o  w_wads.o  \
-	x_centre.o  x_exchng.o  x_hover.o  \
-	x_mirror.o  x_rotate.o  xref.o  \
+	x_hover.o  \
+	x_mirror.o  xref.o  \
 	yadex.o  ytime.o
 
 #--- Targets and Rules ------------------------------------------
