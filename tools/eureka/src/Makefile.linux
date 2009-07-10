@@ -40,10 +40,9 @@ OBJS = \
 	levels.o  \
 	ymemory.o  e_names.o  \
 	objects.o  \
-	patchdir.o  w_loadpic.o  s_centre.o  \
-	s_door.o  s_lift.o  s_linedefs.o  s_merge.o  \
-	s_misc.o  \
-	s_swapf.o  s_vertices.o  sanity.o  \
+	patchdir.o  w_loadpic.o  \
+	sectors.o  s_misc.o  \
+	sanity.o  \
 	selbox.o  selectn.o  selpath.o  selrect.o  \
 	spritdir.o  im_sticker.o  \
  	r_render.o  r_images.o  \

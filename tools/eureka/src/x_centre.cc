@@ -31,7 +31,7 @@ Place, Suite 330, Boston, MA 02111-1307, USA.
 #include "m_bitvec.h"
 #include "linedefs.h"
 #include "levels.h"
-#include "s_centre.h"
+#include "sectors.h"
 #include "v_centre.h"
 #include "x_centre.h"
 
