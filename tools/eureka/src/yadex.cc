@@ -36,10 +36,8 @@ Place, Suite 330, Boston, MA 02111-1307, USA.
 #include "editlev.h"
 #include "game.h"
 #include "gfx.h"
-#include "help2.h"
 #include "levels.h"    /* Because of "viewtex" */
 #include "patchdir.h"  /* Because of "p" */
-#include "sanity.h"
 #include "w_file.h"
 #include "w_list.h"
 #include "w_name.h"
@@ -149,7 +147,6 @@ static void print_error_message (const char *fmt, va_list args);
 
 /*
  *  main
- *  Guess what.
  */
 int main (int argc, char *argv[])
 {
@@ -168,14 +165,14 @@ if (screen_lines == 0)
 // because parse_command_line_options() cannot.
 if (argc == 2 && strcmp (argv[1], "--help") == 0)
    {
-   print_usage (stdout);
+//   print_usage (stdout);
    if (fflush (stdout) != 0)
      fatal_error ("stdout: %s", strerror (errno));
    exit (0);
    }
 if (argc == 2 && strcmp (argv[1], "--version") == 0)
    {
-   puts (what ());
+//   puts (what ());
    puts ("# Eureka fluff\n");
    if (fflush (stdout) != 0)
      fatal_error ("stdout: %s", strerror (errno));
@@ -190,11 +187,11 @@ if (r)
 
 if (show_help)
    {
-   print_usage (stdout);
+//   print_usage (stdout);
    exit (1);
    }
 
-printf ("%s\n", what ());
+//printf ("%s\n", what ());
 
 
 // The config file provides some values.
@@ -380,8 +377,6 @@ if (false)
 // BRANCH 2 : normal use ("yadex:" prompt)
 else
    {
-   if (welcome_message)
-      print_welcome (stdout);
 
    if (strcmp (Game, "hexen") == 0)
       printf (

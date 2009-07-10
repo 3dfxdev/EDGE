@@ -68,7 +68,7 @@ Place, Suite 330, Boston, MA 02111-1307, USA.
 
 #include "m_bitvec.h"  /* bv_set, bv_clear, bv_toggle */
 #include "yerror.h"
-#include "m_aym.h"     /* Needs yerror.h */
+#include "yutil.h"
 #include "ymemory.h"
 
 

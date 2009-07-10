@@ -28,7 +28,6 @@ Place, Suite 330, Boston, MA 02111-1307, USA.
 
 
 #include "yadex.h"
-#include "help2.h"
 #include "im_img.h"
 #include "w_file.h"
 #include "w_io.h"
@@ -330,7 +329,7 @@ int Img::save (const char *filename) const
     goto byebye;
   }
   fputs ("P6\n", fp);
-  fprintf (fp, "# %s\n", what ());
+//  fprintf (fp, "# %s\n", what ());
   fprintf (fp, "%d %d 255\n", p->width, p->height);
   {
     const img_pixel_t *pix    = p->buf;

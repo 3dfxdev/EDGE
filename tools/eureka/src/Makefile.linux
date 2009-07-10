@@ -26,15 +26,15 @@ LDFLAGS=-L/usr/X11R6/lib
 LIBS=-lm -lz $(FLTK_LIBS)
 
 OBJS = \
-	m_aym.o  m_bitvec.o  \
+	yutil.o  m_bitvec.o  \
 	cfgfile.o  checks.o  im_color.o  \
-	config.o  credits.o  \
+	config.o  \
 	dialog.o  edit2.o  \
 	editlev.o  editloop.o  \
 	editobj.o  editsave.o  \
 	game.o  \
 	m_geom.o  gfx.o  \
-	gotoobj.o  grid2.o  help2.o  highlt.o  \
+	gotoobj.o  grid2.o  highlt.o  \
 	im_img.o  \
 	linedefs.o  \
 	levels.o  \
@@ -42,7 +42,6 @@ OBJS = \
 	objects.o  \
 	patchdir.o  w_loadpic.o  \
 	sectors.o  s_misc.o  \
-	sanity.o  \
 	selbox.o  selectn.o  selpath.o  selrect.o  \
 	spritdir.o  im_sticker.o  \
  	r_render.o  r_images.o  \
@@ -51,7 +50,7 @@ OBJS = \
 	ui_infobar.o  ui_menu.o  ui_nombre.o  ui_radius.o  \
 	ui_linedef.o  ui_thing.o  ui_sector.o  ui_vertex.o  \
 	vertices.o  \
-	version.o  w_file.o  w_list.o  \
+	w_file.o  w_list.o  \
 	w_io.o  w_wads.o  \
 	x_hover.o  \
 	x_mirror.o  xref.o  \

@@ -36,11 +36,9 @@ Place, Suite 330, Boston, MA 02111-1307, USA.
 #include "editloop.h"
 #include "editobj.h"
 #include "editsave.h"
-/// #include "entry.h"
 #include "gfx.h"
 #include "gotoobj.h"
 #include "grid2.h"
-#include "help2.h"
 #include "highlt.h"
 #include "linedefs.h"
 #include "levels.h"
@@ -371,20 +369,6 @@ void EditorKey(int is_key, bool is_shift)
         }
       edit.RedrawMap = 1;
     }
-  }
-
-  // [F1]: pop up "Help" window
-  else if (is_key == FL_F+1) /* 'F1' */
-  {
-    DisplayHelp ();
-    edit.RedrawMap = 1;
-  }
-
-  // [Alt][a]: pop up the "About..." window
-  else if (is_key == YK_ALT + 'a')
-  {
-    about_yadex ();
-    edit.RedrawMap = 1;
   }
 
   // [Shift][F1]: save a screen shot into yadex.gif.
