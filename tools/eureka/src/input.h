@@ -30,8 +30,6 @@ Place, Suite 330, Boston, MA 02111-1307, USA.
 
 typedef int inpev_t;
 
-/* Events and key codes */
-const inpev_t YK_   = 256;
 
 // Those are ORed with the other key numbers :
 const inpev_t YK_SHIFT  = FL_SHIFT;

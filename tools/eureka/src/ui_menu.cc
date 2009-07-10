@@ -360,6 +360,7 @@ Fl_Sys_Menu_Bar * Menu_Create(int x, int y, int w, int h)
 Fl_Menu_Bar * Menu_Create(int x, int y, int w, int h)
 {
   Fl_Menu_Bar *bar = new Fl_Menu_Bar(x, y, w, h);
+  bar->textsize(QF_F);
   bar->menu(menu_items);
   return bar;
 }

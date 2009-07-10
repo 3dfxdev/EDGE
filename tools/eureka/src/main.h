@@ -311,6 +311,11 @@ extern MDirPtr   MasterDir; // The master directory
 extern bool InfoShown;          // Is the bottom line displayed?
 
 
+extern int QF;  // widget scale Factor
+
+extern int QF_F;  // default font size
+
+
 /*
  *  Prototypes
  *  AYM 1998-10-16: DEU used to have _all_ prototypes here. Thus
