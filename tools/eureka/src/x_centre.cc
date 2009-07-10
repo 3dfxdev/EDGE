@@ -32,7 +32,7 @@ Place, Suite 330, Boston, MA 02111-1307, USA.
 #include "linedefs.h"
 #include "levels.h"
 #include "sectors.h"
-#include "v_centre.h"
+#include "vertices.h"
 #include "x_centre.h"
 
 
