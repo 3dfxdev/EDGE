@@ -5,7 +5,7 @@
  */
 
 
-#include "im_rgb.h"
+#include "im_color.h"
 
 
 extern const char ygd_file_magic[];

@@ -29,7 +29,7 @@ Place, Suite 330, Boston, MA 02111-1307, USA.
 
 
 #include "yadex.h"
-#include "im_appcol.h"
+#include "im_color.h"
 #include "game.h"
 #include "levels.h"
 #include "things.h"

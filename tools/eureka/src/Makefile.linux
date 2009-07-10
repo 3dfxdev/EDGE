@@ -26,13 +26,13 @@ LDFLAGS=-L/usr/X11R6/lib
 LIBS=-lm -lz $(FLTK_LIBS)
 
 OBJS = \
-	im_appcol.o  m_aym.o  m_bitvec.o  \
+	m_aym.o  m_bitvec.o  \
 	cfgfile.o  checks.o  im_color.o  \
 	config.o  credits.o  \
 	dialog.o  edit2.o  \
 	editlev.o  editloop.o  \
 	editobj.o  editsave.o  \
-	game.o  im_gamecol.o  \
+	game.o  \
 	m_geom.o  gfx.o  \
 	gotoobj.o  grid2.o  help2.o  highlt.o  \
 	im_img.o  \
