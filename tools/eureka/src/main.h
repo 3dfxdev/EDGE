@@ -212,7 +212,7 @@ const int YO_XOR    = 'x';  // Argument = mask
  *  Even more stuff ("the macros and constants")
  */
 
-extern const char *const log_file;        // "yadex.log"
+extern const char *const log_file;
 extern const char *const msg_unexpected;  // "unexpected error"
 extern const char *const msg_nomem;       // "Not enough memory"
 
@@ -235,14 +235,12 @@ extern char error_invalid[1];     // Invalid parameter
  *  Interfile global variables
  */
 
-// Defined in yadex.cc
 extern FILE *logfile;     // Filepointer to the error log
 extern bool  Registered;    // Registered or shareware iwad ?
 extern int screen_lines;    // Lines that our TTY can display
 extern int remind_to_build_nodes; // Remind the user to build nodes
 
-// Defined in yadex.c and set from
-// command line and/or config file
+// Set from command line and/or config file
 extern bool  autoscroll;  // Autoscrolling enabled.
 extern unsigned long autoscroll_amp;// Amplitude in percents of screen/window size.
 extern unsigned long autoscroll_edge; // Max. dist. in pixels to edge.

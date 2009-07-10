@@ -567,24 +567,6 @@ static int parse_config_file (const char *filename)
     RETURN_FAILURE;
   }
 
-///---  /* The first line of the configuration file must
-///---     contain exactly config_file_magic. */
-///---  if (fgets (line, sizeof line, cfgfile) == NULL
-///---      || memcmp (line, config_file_magic, sizeof config_file_magic - 1)
-///---      || line[sizeof config_file_magic - 1] != '\n'
-///---      || line[sizeof config_file_magic] != '\0')
-///---  {
-///---    if (flags & CFG_PARSE_MAGIC_ERROR)
-///---    {
-///---      err ("%s(1): bad magic, not a valid Yadex configuration file", filename);
-///---      err ("Perhaps a leftover from a previous version of Yadex ?");
-///---      RETURN_FAILURE;
-///---    }
-///---    if (flags & CFG_PARSE_MAGIC_WARN)
-///---      warn ("%s(1): bad magic, perhaps from a different version of Yadex\n",
-///---          filename);
-///---    rewind (cfgfile);
-///---  }
 
   // Execute one line on each iteration
   for (unsigned lnum = 1; fgets (line, sizeof line, cfgfile) != NULL; lnum++)
