@@ -68,6 +68,19 @@ static int zoom_fit ();
 extern bool InfoShown;    /* should we display the info bar? */
 
 
+Editor_State_c edit;
+
+
+Editor_State_c::Editor_State_c()
+    // FIXME !!!!
+{
+}
+
+Editor_State_c::~Editor_State_c()
+{
+}
+
+
 
 /* prototypes of private functions */
 static int SortLevels (const void *item1, const void *item2);

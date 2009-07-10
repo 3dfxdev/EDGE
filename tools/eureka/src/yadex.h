@@ -32,7 +32,11 @@ Place, Suite 330, Boston, MA 02111-1307, USA.
 #define YH_YADEX
 
 
-#include "config.h"
+#define Y_UNIX
+#define Y_GETTIMEOFDAY
+#define Y_NANOSLEEP
+#define Y_SNPRINTF
+#define Y_USLEEP
 
 
 /*
