@@ -376,7 +376,7 @@ void EditorKey(int is_key, bool is_shift)
 
   // [Shift][F1]: save a screen shot.
   // FIXME doesn't work in the Unix port
-  else if (is_key == FL_F+1 + YK_SHIFT)
+  else if (is_key == FL_F+1 + FL_SHIFT)
   {
     Beep();
   }
@@ -1033,7 +1033,7 @@ cancel_save_as:
   }
 
   // [Ins]: insert a new object
-  else if (is_key == 'I' || is_key == FL_Insert + YK_SHIFT) /* 'Ins' */
+  else if (is_key == 'I' || is_key == FL_Insert + FL_SHIFT) /* 'Ins' */
   {
     SelPtr cur;
     int prev_obj_type = edit.obj_type;

@@ -341,9 +341,6 @@ void FreeGameDefs (void);
 unsigned ComputeAngle (int, int);
 unsigned ComputeDist (int, int);
 
-// input.cc
-#include "input.h"
-
 // l_align.cc (previously in objects.cc)
 void AlignTexturesY (SelPtr *);
 void AlignTexturesX (SelPtr *);

@@ -1262,26 +1262,26 @@ bool Render3D_Key(int key)
 ///###  if (key == YK_ESC || key == 'q')
 ///###    return false; // FIXME: close window
 
-  if ((key & ~YK_SHIFT) == FL_Left)
+  if ((key & ~FL_SHIFT) == FL_Left)
   {
-    view.SetAngle (view.angle + ONEPI / ((key & YK_SHIFT) ? 4 : 8));
+    view.SetAngle (view.angle + ONEPI / ((key & FL_SHIFT) ? 4 : 8));
     Redraw = true;
   }
-  else if ((key & ~YK_SHIFT) == FL_Right)
+  else if ((key & ~FL_SHIFT) == FL_Right)
   {
-    view.SetAngle (view.angle -ONEPI / ((key & YK_SHIFT) ? 4 : 8));
+    view.SetAngle (view.angle -ONEPI / ((key & FL_SHIFT) ? 4 : 8));
     Redraw = true;
   }
-  else if ((key & ~YK_SHIFT) == FL_Up)
+  else if ((key & ~FL_SHIFT) == FL_Up)
   {
-    view.x += view.Cos * ((key & YK_SHIFT) ? 192 : 32);
-    view.y += view.Sin * ((key & YK_SHIFT) ? 192 : 32);
+    view.x += view.Cos * ((key & FL_SHIFT) ? 192 : 32);
+    view.y += view.Sin * ((key & FL_SHIFT) ? 192 : 32);
     Redraw = true;
   }
-  else if ((key & ~YK_SHIFT) == FL_Down)
+  else if ((key & ~FL_SHIFT) == FL_Down)
   {
-    view.x -= view.Cos * ((key & YK_SHIFT) ? 192 : 32);
-    view.y -= view.Sin * ((key & YK_SHIFT) ? 192 : 32);
+    view.x -= view.Cos * ((key & FL_SHIFT) ? 192 : 32);
+    view.y -= view.Sin * ((key & FL_SHIFT) ? 192 : 32);
     Redraw = true;
   }
   else if (key == 'n' || key == 'N')
