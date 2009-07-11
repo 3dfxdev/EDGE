@@ -118,6 +118,7 @@ UI_FlatTexList::UI_FlatTexList(int X, int Y, int W, int H, const char *label) :
 	sbar = new Fl_Scrollbar(X, my, Fl::scrollbar_size(), mh);
   	sbar->callback(callback_Scroll, this);
 	sbar->color(FL_DARK2, FL_DARK2);
+	sbar->selection_color(FL_GRAY0);
 
 	add(sbar);
 
