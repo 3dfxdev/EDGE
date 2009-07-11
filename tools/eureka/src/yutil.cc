@@ -24,9 +24,11 @@
 
 #include "main.h"
 
-#include <math.h>
-
 #include "game.h"
+
+#include <math.h>
+#include <sys/time.h>
+#include <time.h>
 
 
 /*
@@ -351,6 +353,21 @@ void y_filename (char *buf, size_t size, const char *filename)
 }
  
 
+unsigned long y_milliseconds()
+{
+#ifdef WIN32
+	return GetTickCount();
+#else
+	struct timeval tv;
+	struct timezone tz;
+
+	gettimeofday (&tv, &tz);
+
+	return (tv.tv_sec * 1000 + tv.tv_usec / 1000);
+#endif
+}
+
+
 /*
  *  check_types
  *
@@ -400,7 +417,7 @@ void check_types ()
 
 unsigned ComputeAngle (int dx, int dy)
 {
-return (unsigned) (atan2 ((double) dy, (double) dx) * 10430.37835 + 0.5);
+	return (unsigned) (atan2 ((double) dy, (double) dx) * 10430.37835 + 0.5);
 }
 
 
@@ -411,7 +428,7 @@ return (unsigned) (atan2 ((double) dy, (double) dx) * 10430.37835 + 0.5);
 
 unsigned ComputeDist (int dx, int dy)
 {
-return (unsigned) (hypot ((double) dx, (double) dy) + 0.5);
+	return (unsigned) (hypot ((double) dx, (double) dy) + 0.5);
 }
 
 

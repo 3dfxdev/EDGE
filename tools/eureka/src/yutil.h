@@ -42,6 +42,8 @@ void y_filename (char *buf, size_t size, const char *path);
 
 void check_types ();
 
+unsigned long y_milliseconds ();
+
 
 /*
  *  within
