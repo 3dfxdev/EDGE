@@ -57,6 +57,7 @@ OBJS = \
 	s_misc.o  \
 	things.o  \
 	ui_canvas.o  \
+	ui_flattex.o  \
 	ui_infobar.o  \
 	ui_linedef.o  \
 	ui_menu.o  \

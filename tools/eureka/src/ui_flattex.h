@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------
-//  Information Bar (bottom of window)
+//  Flat/Texture List
 //------------------------------------------------------------------------
 //
 //  RTS Layout Tool (C) 2007 Andrew Apted
@@ -16,90 +16,67 @@
 //
 //------------------------------------------------------------------------
 
-#ifndef __UI_FILTER_H__
-#define __UI_FILTER_H__
+#ifndef __UI_FLATTEX_H__
+#define __UI_FLATTEX_H__
+
+#include <string>
 
 
-class UI_FChoice : public Fl_Box
+class FlatTex_Choice : public Fl_Box
 {
 private:
-  bool filtered;  // won't be shown
-  bool pic_mode;  // show as picture
+	bool filtered;  // won't be shown
+	bool pic_mode;  // show as picture
 
-  std::string name;
-  std::string size;
+	std::string name;
+	std::string size;
 
-  int type_id;
-  int category;
+	int type_id;
+	int category;
 
-  UI_Pic *pic;
+	UI_Pic *pic;
 
-  int pic_size;
-  int name_w;
+	int pic_size;
+	int name_w;
 
 public:
-  UI_FChoice(int X, int Y, int W, int H);
-  virtual ~UI_FChoice();
+	FlatTex_Choice(int X, int Y, int W, int H);
+	virtual ~FlatTex_Choice();
 
 public:
 
 
 private:
-  // FLTK method for drawing this widget
-  void draw();
+	// FLTK method for drawing this widget
+	void draw();
 
 };
 
 
-class UI_FPanel : public Fl_Group
+class UI_FlatTexList : public Fl_Group
 {
 private:
-  Fl_Box *title_lab;
+	Fl_Box *title_lab;
 
-  FL_Choice *mode;  // Names vs Images
-  Fl_Choice *category;
+	Fl_Choice *mode;  // Names vs Images
+	Fl_Choice *category;
 
-  Fl_Box *show_lab;
-
-  UI_Pic *pic;
-
-  FL_Button *cancel_btn;
+	Fl_Group *pack;
+	Fl_Scrollbar *sbar;
 
 public:
-  UI_FPanel(int X, int Y, int W, int H, const char *);
-  virtual ~UI_FPanel();
+	UI_FlatTexList(int X, int Y, int W, int H, const char *label = NULL);
+	virtual ~UI_FlatTexList();
 
 public:
-  void SetCategories(const char *cats);
+	void SetCategories(const char *cats);
 
 
 private:
 
 };
 
-
-class UI_Filter : public Fl_Double_Window
-{
-private:
-  UI_FPanel *panel;
-
-  std::vector<UI_FChoice *> choices;
-
-public:
-  UI_Filter(int X, int Y, int W, int H, const char *title, const char *flags = "");
-  virtual ~UI_Filter();
-
-public:
-  void SetCategories(const char *cats);
-
-
-private:
-
-
-};
-
-
-#endif // __UI_FILTER_H__
+#endif /* __UI_FLATTEX_H__ */
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

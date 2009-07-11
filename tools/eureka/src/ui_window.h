@@ -24,6 +24,7 @@
 #include "ui_infobar.h"
 #include "ui_nombre.h"
 #include "ui_pic.h"
+#include "ui_flattex.h"
 
 #include "ui_thing.h"
 #include "ui_sector.h"
@@ -49,9 +50,11 @@ public:
   Fl_Menu_Bar *menu_bar;
 #endif
 
-  UI_Canvas *canvas;
+	UI_Canvas *canvas;
 
-  UI_InfoBar *info_bar;
+	UI_FlatTexList *tex_list;
+
+	UI_InfoBar *info_bar;
 
   UI_ThingBox  *thing_box;
   UI_LineBox   *line_box;
