@@ -26,34 +26,62 @@ LDFLAGS=-L/usr/X11R6/lib
 LIBS=-lm -lz $(FLTK_LIBS)
 
 OBJS = \
-	yutil.o  m_bitvec.o  \
-	cfgfile.o  checks.o  im_color.o  \
+	cfgfile.o  \
+	checks.o   \
 	dialog.o  \
-	editlev.o  editloop.o  \
-	editobj.o  editsave.o  \
+	editlev.o  \
+	editloop.o  \
+	editobj.o  \
+	editsave.o  \
+	e_names.o  \
 	game.o  \
 	gfx.o  \
-	gotoobj.o  grid2.o  highlt.o  \
+	gotoobj.o  \
+	grid2.o  \
+	highlt.o  \
+	im_color.o  \
 	im_img.o  \
-	linedefs.o  \
+	im_sticker.o  \
 	levels.o  \
-	ymemory.o  e_names.o  \
+	linedefs.o  \
+	main.o  \
+	m_bitvec.o  \
 	objects.o  \
-	patchdir.o  w_loadpic.o  \
-	sectors.o  s_misc.o  \
-	selbox.o  selectn.o  selpath.o  selrect.o  \
-	spritdir.o  im_sticker.o  \
- 	r_render.o  r_images.o  \
+	r_images.o  \
+ 	r_render.o  \
+	sectors.o  \
+	selbox.o  \
+	selectn.o  \
+	selpath.o  \
+	selrect.o  \
+	s_misc.o  \
 	things.o  \
-	ui_canvas.o  ui_pic.o  ui_window.o  ui_sidedef.o  \
-	ui_infobar.o  ui_menu.o  ui_nombre.o  ui_radius.o  \
-	ui_linedef.o  ui_thing.o  ui_sector.o  ui_vertex.o  \
+	ui_canvas.o  \
+	ui_infobar.o  \
+	ui_linedef.o  \
+	ui_menu.o  \
+	ui_nombre.o  \
+	ui_pic.o  \
+	ui_radius.o  \
+	ui_sector.o  \
+	ui_sidedef.o  \
+	ui_thing.o  \
+	ui_vertex.o  \
+	ui_window.o  \
 	vertices.o  \
-	w_file.o  w_list.o  \
-	w_io.o  w_wads.o  \
+	w_file.o  \
+	w_io.o  \
+	w_list.o  \
+	w_loadpic.o  \
+	w_patches.o  \
+	w_sprites.o  \
+	w_wads.o  \
 	x_hover.o  \
-	x_mirror.o  xref.o  \
-	main.o  ytime.o
+	x_mirror.o  \
+	xref.o  \
+	ymemory.o  \
+	ytime.o  \
+	yutil.o
 
 #--- Targets and Rules ------------------------------------------
 

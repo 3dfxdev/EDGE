@@ -32,9 +32,9 @@ Place, Suite 330, Boston, MA 02111-1307, USA.
 #include "game.h"      /* yg_picture_format */
 #include "gfx.h"
 #include "levels.h"
-#include "patchdir.h"
+#include "w_patches.h"
 #include "w_loadpic.h"
-#include "spritdir.h"
+#include "w_sprites.h"
 ///--- #include "sticker.h"
 #include "w_file.h"
 #include "w_io.h"

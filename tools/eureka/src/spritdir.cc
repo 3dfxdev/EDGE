@@ -29,7 +29,7 @@ Place, Suite 330, Boston, MA 02111-1307, USA.
 
 #include "main.h"
 #include <functional>
-#include "spritdir.h"
+#include "w_sprites.h"
 #include "w_name.h"
 
 

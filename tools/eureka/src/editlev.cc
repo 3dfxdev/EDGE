@@ -34,7 +34,7 @@ Place, Suite 330, Boston, MA 02111-1307, USA.
 #include "game.h"
 #include "gfx.h"
 #include "levels.h"
-#include "patchdir.h"
+#include "w_patches.h"
 #include "w_file.h"
 
 
