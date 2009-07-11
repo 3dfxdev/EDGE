@@ -16,8 +16,6 @@
 //
 //----------------------------------------------------------------------------
 
-#include "headers.h"
-
 #include "main.h"
 
 
@@ -48,21 +46,22 @@ assert_fail_c& assert_fail_c::operator=(const assert_fail_c &other)
 
 //----------------------------------------------------------------------------
 
+#define MSG_BUF_LEN  1024
+
 void AssertFail(const char *msg, ...)
 {
-  static char buffer[MSG_BUF_LEN];
+	static char buffer[MSG_BUF_LEN];
 
-  va_list argptr;
+	va_list argptr;
 
-  va_start(argptr, msg);
-  vsnprintf(buffer, MSG_BUF_LEN-1, msg, argptr);
-  va_end(argptr);
+	va_start(argptr, msg);
+	vsnprintf(buffer, MSG_BUF_LEN-1, msg, argptr);
+	va_end(argptr);
 
-  buffer[MSG_BUF_LEN-2] = 0;
+	buffer[MSG_BUF_LEN-2] = 0;
 
-// NO WORKY WITH LUA :( ---> throw assert_fail_c(buffer);
-
-  Main_FatalError("Sorry, an internal error occurred.\n%s", buffer);
+	fprintf(stderr, "Sorry, an internal error occurred.\n%s", buffer);
+	exit(9);
 }
 
 

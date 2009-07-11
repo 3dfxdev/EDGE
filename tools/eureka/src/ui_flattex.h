@@ -24,7 +24,9 @@
 
 class FlatTex_Choice : public Fl_Box
 {
-private:
+private
+:
+public:
 	bool filtered;  // won't be shown
 	bool pic_mode;  // show as picture
 
@@ -44,7 +46,7 @@ public:
 	virtual ~FlatTex_Choice();
 
 public:
-
+	int CalcHeight() const;
 
 private:
 	// FLTK method for drawing this widget
@@ -64,16 +66,28 @@ private:
 	Fl_Group *pack;
 	Fl_Scrollbar *sbar;
 
+	int mx, my, mw, mh;
+
+	// number of pixels "lost" above the top of the texture area
+	int offset_y;
+
+	// total height of all shown texture
+	int total_h;
+
 public:
 	UI_FlatTexList(int X, int Y, int W, int H, const char *label = NULL);
 	virtual ~UI_FlatTexList();
 
 public:
+	void Populate();
+
 	void SetCategories(const char *cats);
 
 
 private:
+	void PositionAll(FlatTex_Choice *focus = NULL);
 
+	static void callback_Scroll(Fl_Widget *w, void *data);
 };
 
 #endif /* __UI_FLATTEX_H__ */

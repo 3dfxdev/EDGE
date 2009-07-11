@@ -55,6 +55,7 @@ OBJS = \
 	selpath.o  \
 	selrect.o  \
 	s_misc.o  \
+	sys_assert.o \
 	things.o  \
 	ui_canvas.o  \
 	ui_flattex.o  \
