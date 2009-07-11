@@ -29,7 +29,6 @@ OBJS = \
 	cfgfile.o  \
 	checks.o   \
 	dialog.o  \
-	editlev.o  \
 	editloop.o  \
 	editobj.o  \
 	editsave.o  \

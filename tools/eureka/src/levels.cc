@@ -147,7 +147,7 @@ int OldNumVertices;
 //DisplayMessage (-1, -1, "Reading data for level %s...", levelname);
 Level = FindMasterDir (MasterDir, levelname);
 if (!Level)
-   fatal_error ("level data not found");
+   FatalError("level data not found");
 
 /* Get the number of vertices */
 s32_t v_offset = 42;

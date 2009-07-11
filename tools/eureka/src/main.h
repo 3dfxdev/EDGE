@@ -75,9 +75,16 @@
 #include "sys_assert.h"
 
 
+typedef enum
+{
+  BOP_ADD = 0,   // Add to selection
+  BOP_REMOVE,    // Remove from selection
+  BOP_TOGGLE     // If not in selection, add; else, remove
+}
+sel_op_e;
+
 
 #include "m_bitvec.h"  /* bv_set, bv_clear, bv_toggle */
-#include "yerror.h"
 #include "yutil.h"
 #include "ymemory.h"
 
@@ -174,13 +181,6 @@ struct Lump_loc
 // The actual definition is in selectn.h
 typedef struct SelectionList *SelPtr;
 // Operations on the selection :
-typedef enum
-{
-  YS_ADD    = BV_SET, // Add to selection
-  YS_REMOVE = BV_CLEAR, // Remove from selection
-  YS_TOGGLE = BV_TOGGLE // If not in selection, add; else, remove
-} sel_op_t;
-
 
 #include "objects.h"
 
@@ -233,7 +233,6 @@ extern char error_invalid[1];     // Invalid parameter
 
 extern FILE *logfile;     // Filepointer to the error log
 extern bool  Registered;    // Registered or shareware iwad ?
-extern int screen_lines;    // Lines that our TTY can display
 extern int remind_to_build_nodes; // Remind the user to build nodes
 
 // Set from command line and/or config file
@@ -442,6 +441,11 @@ void LogMessage (const char *, ...);
 // OTHER
 
 int vertex_radius (double scale);
+
+
+void FatalError (const char *fmt, ...);
+void err (const char *fmt, ...);
+void nf_bug (const char *fmt, ...);
 
 
 #endif  /* DO NOT ADD ANYTHING AFTER THIS LINE */

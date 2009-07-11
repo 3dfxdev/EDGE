@@ -335,7 +335,7 @@ pcolour_t *alloc_colours (rgb_c rgb_values[], size_t count)
 
   pcolour_t *pcn_table = (pcolour_t *) malloc (count * sizeof *pcn_table);
   if (pcn_table == NULL)
-    fatal_error (msg_nomem);
+    FatalError(msg_nomem);
 
   /* Allocate the physical colours if necessary. Should not do
      it for static visuals (StaticColor, TrueColor). It does no

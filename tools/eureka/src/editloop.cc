@@ -655,7 +655,7 @@ cancel_save_as:
       case 'r': edit.obj_type = OBJ_RSCRIPT;  break;
 
       default:
-        fatal_error ("changing mode with %04X", is_key);
+        FatalError ("changing mode with %04X", is_key);
     }
 
     ConvertSelection(prev_obj_type);
@@ -675,14 +675,14 @@ cancel_save_as:
   else if (is_key == 'e' && edit.highlighted._is_linedef ())
   {
     ForgetSelection (&edit.Selected);
-    select_linedefs_path (&edit.Selected, edit.highlighted.num, YS_ADD);
+    select_linedefs_path (&edit.Selected, edit.highlighted.num, BOP_ADD);
     edit.RedrawMap = 1;
   }
 
   // [Ctrl][e] Select/unselect all linedefs in path
   else if (is_key == '\5' && ! is_shift && edit.highlighted._is_linedef ())
   {
-    select_linedefs_path (&edit.Selected, edit.highlighted.num, YS_TOGGLE);
+    select_linedefs_path (&edit.Selected, edit.highlighted.num, BOP_TOGGLE);
     edit.RedrawMap = 1;
   }
   // [E]: add linedef and split sector -- [AJA]
@@ -698,14 +698,14 @@ cancel_save_as:
   else if (is_key == 'E' && edit.highlighted._is_linedef ())
   {
     ForgetSelection (&edit.Selected);
-    select_1s_linedefs_path (&edit.Selected, edit.highlighted.num, YS_ADD);
+    select_1s_linedefs_path (&edit.Selected, edit.highlighted.num, BOP_ADD);
     edit.RedrawMap = 1;
   }
 
   // [Ctrl][Shift][e]: Select/unselect all 1s linedefs in path
   else if (is_key == '\5' && is_shift && edit.highlighted._is_linedef ())
   {
-    select_1s_linedefs_path (&edit.Selected, edit.highlighted.num, YS_TOGGLE);
+    select_1s_linedefs_path (&edit.Selected, edit.highlighted.num, BOP_TOGGLE);
     edit.RedrawMap = 1;
   }
 

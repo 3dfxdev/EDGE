@@ -268,7 +268,7 @@ void centre_of_objects (int obj_type, SelPtr list, int *x, int *y)
       centre_of_vertices (list, x, y);
       break;
     default:
-      fatal_error ("coo: bad obj_type %d", obj_type);
+      FatalError("coo: bad obj_type %d", obj_type);
   }
 }
 
