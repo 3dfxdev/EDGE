@@ -80,7 +80,7 @@ switch (choice)
    for (n = 0; n < 4; n++)
       {
       InsertObject (OBJ_LINEDEFS, -1, 0, 0);
-      LineDefs[NumLineDefs - 1].sidedef1 = NumSideDefs;
+      LineDefs[NumLineDefs - 1].side_R = NumSideDefs;
       InsertObject (OBJ_SIDEDEFS, -1, 0, 0);
       if (sector >= 0)
          SideDefs[NumSideDefs - 1].sector = sector;
@@ -125,7 +125,7 @@ switch (choice)
    for (n = 0; n < a; n++)
       {
       InsertObject (OBJ_LINEDEFS, -1, 0, 0);
-      LineDefs[NumLineDefs - 1].sidedef1 = NumSideDefs;
+      LineDefs[NumLineDefs - 1].side_R = NumSideDefs;
       InsertObject (OBJ_SIDEDEFS, -1, 0, 0);
       if (sector >= 0)
          SideDefs[NumSideDefs - 1].sector = sector;
@@ -184,8 +184,8 @@ switch (choice)
       Sectors[NumSectors - 1].floorh = h;
 
       InsertObject (OBJ_LINEDEFS, -1, 0, 0);
-      LineDefs[NumLineDefs - 1].sidedef1 = NumSideDefs;
-      LineDefs[NumLineDefs - 1].sidedef2 = NumSideDefs + 1;
+      LineDefs[NumLineDefs - 1].side_R = NumSideDefs;
+      LineDefs[NumLineDefs - 1].side_L = NumSideDefs + 1;
       InsertObject (OBJ_SIDEDEFS, -1, 0, 0);
       SideDefs[NumSideDefs - 1].sector = sector;
       InsertObject (OBJ_SIDEDEFS, -1, 0, 0);
@@ -434,10 +434,10 @@ switch (val)
    sdlist = 0;
    for (cur = *list; cur; cur = cur->next)
       {
-      if (LineDefs[cur->objnum].sidedef1 >= 0)
-         SelectObject (&sdlist, LineDefs[cur->objnum].sidedef1);
-      if (LineDefs[cur->objnum].sidedef2 >= 0)
-         SelectObject (&sdlist, LineDefs[cur->objnum].sidedef2);
+      if (LineDefs[cur->objnum].side_R >= 0)
+         SelectObject (&sdlist, LineDefs[cur->objnum].side_R);
+      if (LineDefs[cur->objnum].side_L >= 0)
+         SelectObject (&sdlist, LineDefs[cur->objnum].side_L);
       }
    /* align the textures along the Y axis (height) */
    AlignTexturesY (&sdlist);
@@ -460,10 +460,10 @@ switch (val)
    sdlist = 0;
    for (cur = *list; cur; cur = cur->next)
       {
-      if (LineDefs[cur->objnum].sidedef1 >= 0)
-         SelectObject (&sdlist, LineDefs[cur->objnum].sidedef1);
-      if (LineDefs[cur->objnum].sidedef2 >= 0)
-         SelectObject (&sdlist, LineDefs[cur->objnum].sidedef2);
+      if (LineDefs[cur->objnum].side_R >= 0)
+         SelectObject (&sdlist, LineDefs[cur->objnum].side_R);
+      if (LineDefs[cur->objnum].side_L >= 0)
+         SelectObject (&sdlist, LineDefs[cur->objnum].side_L);
       }
    /* align the textures along the X axis (width) */
    AlignTexturesX (&sdlist);
@@ -485,16 +485,16 @@ switch (val)
    for (cur = *list; cur; cur = cur->next)
       {
       struct LineDef *l = LineDefs + cur->objnum;
-      l->sidedef2 = -1;  /* remove ref. to 2nd SD */
+      l->side_L = -1;  /* remove ref. to 2nd SD */
       l->flags &= ~0x04; /* clear "2S" bit */
       l->flags |= 0x01;  /* set "Im" bit */
 
-      if (is_sidedef (l->sidedef1))
+      if (is_sidedef (l->side_R))
          {
-         struct SideDef *s = SideDefs + l->sidedef1;
-         strcpy (s->upper, "-");
-         strcpy (s->lower, "-");
-         strcpy (s->middle, default_middle_texture);
+         struct SideDef *s = SideDefs + l->side_R;
+         strcpy (s->upper_tex, "-");
+         strcpy (s->lower_tex, "-");
+         strcpy (s->mid_tex, default_middle_texture);
          }
       /* Don't delete the 2nd sidedef, it could be used
                by another linedef. And if it isn't, the next
@@ -611,7 +611,7 @@ void TransferThingProperties (int src_thing, SelPtr things)
 
       Things[cur->objnum].angle = Things[src_thing].angle;
       Things[cur->objnum].type  = Things[src_thing].type;
-      Things[cur->objnum].when  = Things[src_thing].when;
+      Things[cur->objnum].options  = Things[src_thing].options;
 
       MadeChanges = 1;
 
@@ -635,15 +635,15 @@ void TransferSectorProperties (int src_sector, SelPtr sectors)
       if (! is_obj(cur->objnum))
          continue;
 
-      strncpy (Sectors[cur->objnum].floort, Sectors[src_sector].floort,
+      strncpy (Sectors[cur->objnum].floor_tex, Sectors[src_sector].floor_tex,
             WAD_FLAT_NAME);
-      strncpy (Sectors[cur->objnum].ceilt, Sectors[src_sector].ceilt,
+      strncpy (Sectors[cur->objnum].ceil_tex, Sectors[src_sector].ceil_tex,
             WAD_FLAT_NAME);
 
       Sectors[cur->objnum].floorh  = Sectors[src_sector].floorh;
       Sectors[cur->objnum].ceilh   = Sectors[src_sector].ceilh;
       Sectors[cur->objnum].light   = Sectors[src_sector].light;
-      Sectors[cur->objnum].special = Sectors[src_sector].special;
+      Sectors[cur->objnum].type = Sectors[src_sector].type;
       Sectors[cur->objnum].tag     = Sectors[src_sector].tag;
 
       MadeChanges = 1;

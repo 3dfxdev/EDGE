@@ -187,14 +187,14 @@ switch (objtype)
          v2 = Vertices + ld->end;
 
          // Get the numbers of the sectors on both sides of the linedef
-   if (is_sidedef (ld->sidedef1)
-    && is_sector (SideDefs[ld->sidedef1].sector))
-      s1 = SideDefs[ld->sidedef1].sector;
+   if (is_sidedef (ld->side_R)
+    && is_sector (SideDefs[ld->side_R].sector))
+      s1 = SideDefs[ld->side_R].sector;
    else
       s1 = OBJ_NO_NONE;
-   if (is_sidedef (ld->sidedef2)
-    && is_sector (SideDefs[ld->sidedef2].sector))
-      s2 = SideDefs[ld->sidedef2].sector;
+   if (is_sidedef (ld->side_L)
+    && is_sector (SideDefs[ld->side_L].sector))
+      s2 = SideDefs[ld->side_L].sector;
    else
       s2 = OBJ_NO_NONE;
 

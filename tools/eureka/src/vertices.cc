@@ -267,19 +267,19 @@ while (ref)
       InsertObject (OBJ_LINEDEFS, ld, 0, 0);
       LineDefs[ld].end = refv;
       LineDefs[NumLineDefs - 1].start = refv;
-      sd = LineDefs[ld].sidedef1;
+      sd = LineDefs[ld].side_R;
       if (sd >= 0)
          {
          InsertObject (OBJ_SIDEDEFS, sd, 0, 0);
          
-         LineDefs[NumLineDefs - 1].sidedef1 = NumSideDefs - 1;
+         LineDefs[NumLineDefs - 1].side_R = NumSideDefs - 1;
          }
-      sd = LineDefs[ld].sidedef2;
+      sd = LineDefs[ld].side_L;
       if (sd >= 0)
          {
          InsertObject (OBJ_SIDEDEFS, sd, 0, 0);
          
-         LineDefs[NumLineDefs - 1].sidedef2 = NumSideDefs - 1;
+         LineDefs[NumLineDefs - 1].side_L = NumSideDefs - 1;
          }
       MadeChanges = 1;
       MadeMapChanges = 1;
@@ -357,33 +357,33 @@ for (ld = 0; ld+1 < NumLineDefs; ld++)
    heights and maybe setting the LTU and UTU flags.
    This also applies when a linedef becomes two-sided as a
    result of creating a new sector. */
-      if (ldn->sidedef1 < 0)
+      if (ldn->side_R < 0)
    {
    if (flipped)
       {
-      ldn->sidedef1 = ldo->sidedef2;
-      ldo->sidedef2 = OBJ_NO_NONE;
+      ldn->side_R = ldo->side_L;
+      ldo->side_L = OBJ_NO_NONE;
       }
    else
       {
-      ldn->sidedef1 = ldo->sidedef1;
-      ldo->sidedef1 = OBJ_NO_NONE;
+      ldn->side_R = ldo->side_R;
+      ldo->side_R = OBJ_NO_NONE;
       }
    }
-      if (ldn->sidedef2 < 0)
+      if (ldn->side_L < 0)
          {
    if (flipped)
       {
-      ldn->sidedef2 = ldo->sidedef1;
-      ldo->sidedef1 = OBJ_NO_NONE;
+      ldn->side_L = ldo->side_R;
+      ldo->side_R = OBJ_NO_NONE;
       }
    else
       {
-      ldn->sidedef2 = ldo->sidedef2;
-      ldo->sidedef2 = OBJ_NO_NONE;
+      ldn->side_L = ldo->side_L;
+      ldo->side_L = OBJ_NO_NONE;
       }
          }
-      if (ldn->sidedef1 >= 0 && ldn->sidedef2 >= 0 && (ldn->flags & 0x04) == 0)
+      if (ldn->side_R >= 0 && ldn->side_L >= 0 && (ldn->flags & 0x04) == 0)
    ldn->flags = 0x04;
       DeleteObject (Objid (OBJ_LINEDEFS, ld1));
       }

@@ -155,8 +155,8 @@ char   msg[80];
 for (cur = *ldlist; cur; cur = cur->next)
    {
    
-   sd1 = LineDefs[cur->objnum].sidedef1;
-   sd2 = LineDefs[cur->objnum].sidedef2;
+   sd1 = LineDefs[cur->objnum].side_R;
+   sd2 = LineDefs[cur->objnum].side_L;
    if (sd1 < 0 || sd2 < 0)
       {
       Beep ();
@@ -180,8 +180,8 @@ for (cur = *ldlist; cur; cur = cur->next)
 for (cur = *ldlist; cur; cur = cur->next)
    {
    
-   sd1 = LineDefs[cur->objnum].sidedef1;
-   sd2 = LineDefs[cur->objnum].sidedef2;
+   sd1 = LineDefs[cur->objnum].side_R;
+   sd2 = LineDefs[cur->objnum].side_L;
    
    s1 = SideDefs[sd1].sector;
    s2 = SideDefs[sd2].sector;
@@ -214,8 +214,8 @@ s = 0;
 for (n = 0; n < NumLineDefs; n++)
 {
    
-   sd1 = LineDefs[n].sidedef1;
-   sd2 = LineDefs[n].sidedef2;
+   sd1 = LineDefs[n].side_R;
+   sd2 = LineDefs[n].side_L;
    if (sd1 >= 0 && sd2 >= 0)
    {
       
@@ -272,19 +272,19 @@ while (ldok != NULL)
    n = ldok->objnum;
    LineDefs[n].type = 1;
    LineDefs[n].flags = 0x04;
-   sd1 = LineDefs[n].sidedef1; /* outside */
-   sd2 = LineDefs[n].sidedef2; /* inside */
+   sd1 = LineDefs[n].side_R; /* outside */
+   sd2 = LineDefs[n].side_L; /* inside */
    /* adjust the textures for the sidedefs */
    
-   if (strncmp (SideDefs[sd1].middle, "-", WAD_TEX_NAME))
+   if (strncmp (SideDefs[sd1].mid_tex, "-", WAD_TEX_NAME))
    {
-      if (!strncmp (SideDefs[sd1].upper, "-", WAD_TEX_NAME))
-   strncpy (SideDefs[sd1].upper, SideDefs[sd1].middle, WAD_TEX_NAME);
-      strncpy (SideDefs[sd1].middle, "-", WAD_TEX_NAME);
+      if (!strncmp (SideDefs[sd1].upper_tex, "-", WAD_TEX_NAME))
+   strncpy (SideDefs[sd1].upper_tex, SideDefs[sd1].mid_tex, WAD_TEX_NAME);
+      strncpy (SideDefs[sd1].mid_tex, "-", WAD_TEX_NAME);
    }
-   if (!strncmp (SideDefs[sd1].upper, "-", WAD_TEX_NAME))
-      strncpy (SideDefs[sd1].upper, "BIGDOOR2", WAD_TEX_NAME);
-   strncpy (SideDefs[sd2].middle, "-", WAD_TEX_NAME);
+   if (!strncmp (SideDefs[sd1].upper_tex, "-", WAD_TEX_NAME))
+      strncpy (SideDefs[sd1].upper_tex, "BIGDOOR2", WAD_TEX_NAME);
+   strncpy (SideDefs[sd2].mid_tex, "-", WAD_TEX_NAME);
    UnSelectObject (&ldok, n);
 }
 while (ld1s != NULL)
@@ -293,13 +293,13 @@ while (ld1s != NULL)
    
    n = ld1s->objnum;
    LineDefs[n].flags = 0x11;
-   sd1 = LineDefs[n].sidedef1;
+   sd1 = LineDefs[n].side_R;
    /* adjust the textures for the sidedef */
    
-   if (!strncmp (SideDefs[sd1].middle, "-", WAD_TEX_NAME))
-      strncpy (SideDefs[sd1].middle, "DOORTRAK", WAD_TEX_NAME);
-   strncpy (SideDefs[sd1].upper, "-", WAD_TEX_NAME);
-   strncpy (SideDefs[sd1].lower, "-", WAD_TEX_NAME);
+   if (!strncmp (SideDefs[sd1].mid_tex, "-", WAD_TEX_NAME))
+      strncpy (SideDefs[sd1].mid_tex, "DOORTRAK", WAD_TEX_NAME);
+   strncpy (SideDefs[sd1].upper_tex, "-", WAD_TEX_NAME);
+   strncpy (SideDefs[sd1].lower_tex, "-", WAD_TEX_NAME);
    UnSelectObject (&ld1s, n);
 }
 /* adjust the ceiling height */
@@ -329,8 +329,8 @@ sect = NULL;
 for (n = 0; n < NumLineDefs; n++)
 {
    
-   sd1 = LineDefs[n].sidedef1;
-   sd2 = LineDefs[n].sidedef2;
+   sd1 = LineDefs[n].side_R;
+   sd2 = LineDefs[n].side_L;
    if (sd1 >= 0 && sd2 >= 0)
    {
       
@@ -413,47 +413,47 @@ while (ldok != NULL)
    LineDefs[n].type = 62; /* lower lift (switch) */
    LineDefs[n].flags = 0x04;
    LineDefs[n].tag = tag;
-   sd1 = LineDefs[n].sidedef1; /* outside */
-   sd2 = LineDefs[n].sidedef2; /* inside */
+   sd1 = LineDefs[n].side_R; /* outside */
+   sd2 = LineDefs[n].side_L; /* inside */
    /* adjust the textures for the sidedef visible from the outside */
    
-   if (strncmp (SideDefs[sd1].middle, "-", WAD_TEX_NAME))
+   if (strncmp (SideDefs[sd1].mid_tex, "-", WAD_TEX_NAME))
       {
-      if (!strncmp (SideDefs[sd1].lower, "-", WAD_TEX_NAME))
-   strncpy (SideDefs[sd1].lower, SideDefs[sd1].middle, WAD_TEX_NAME);
-      strncpy (SideDefs[sd1].middle, "-", WAD_TEX_NAME);
+      if (!strncmp (SideDefs[sd1].lower_tex, "-", WAD_TEX_NAME))
+   strncpy (SideDefs[sd1].lower_tex, SideDefs[sd1].mid_tex, WAD_TEX_NAME);
+      strncpy (SideDefs[sd1].mid_tex, "-", WAD_TEX_NAME);
       }
-   if (!strncmp (SideDefs[sd1].lower, "-", WAD_TEX_NAME))
-      strncpy (SideDefs[sd1].lower, "SHAWN2", WAD_TEX_NAME);
+   if (!strncmp (SideDefs[sd1].lower_tex, "-", WAD_TEX_NAME))
+      strncpy (SideDefs[sd1].lower_tex, "SHAWN2", WAD_TEX_NAME);
    /* adjust the textures for the sidedef visible from the lift */
-   strncpy (SideDefs[sd2].middle, "-", WAD_TEX_NAME);
+   strncpy (SideDefs[sd2].mid_tex, "-", WAD_TEX_NAME);
    s = SideDefs[sd1].sector;
    
    if (Sectors[s].floorh > minh)
       {
       
-      if (strncmp (SideDefs[sd2].middle, "-", WAD_TEX_NAME))
+      if (strncmp (SideDefs[sd2].mid_tex, "-", WAD_TEX_NAME))
       {
-   if (!strncmp (SideDefs[sd2].lower, "-", WAD_TEX_NAME))
-      strncpy (SideDefs[sd2].lower, SideDefs[sd1].middle, WAD_TEX_NAME);
-   strncpy (SideDefs[sd2].middle, "-", WAD_TEX_NAME);
+   if (!strncmp (SideDefs[sd2].lower_tex, "-", WAD_TEX_NAME))
+      strncpy (SideDefs[sd2].lower_tex, SideDefs[sd1].mid_tex, WAD_TEX_NAME);
+   strncpy (SideDefs[sd2].mid_tex, "-", WAD_TEX_NAME);
       }
-      if (!strncmp (SideDefs[sd2].lower, "-", WAD_TEX_NAME))
-   strncpy (SideDefs[sd2].lower, "SHAWN2", WAD_TEX_NAME);
+      if (!strncmp (SideDefs[sd2].lower_tex, "-", WAD_TEX_NAME))
+   strncpy (SideDefs[sd2].lower_tex, "SHAWN2", WAD_TEX_NAME);
       }
    else
       {
       
-      strncpy (SideDefs[sd2].lower, "-", WAD_TEX_NAME);
+      strncpy (SideDefs[sd2].lower_tex, "-", WAD_TEX_NAME);
       }
-   strncpy (SideDefs[sd2].middle, "-", WAD_TEX_NAME);
+   strncpy (SideDefs[sd2].mid_tex, "-", WAD_TEX_NAME);
    
    /* if the ceiling of the sector is lower than that of the lift */
    if (Sectors[s].ceilh < Sectors[sector].ceilh)
       {
       
-      if (strncmp (SideDefs[sd2].upper, "-", WAD_TEX_NAME))
-   strncpy (SideDefs[sd2].upper, default_upper_texture, WAD_TEX_NAME);
+      if (strncmp (SideDefs[sd2].upper_tex, "-", WAD_TEX_NAME))
+   strncpy (SideDefs[sd2].upper_tex, default_upper_texture, WAD_TEX_NAME);
       }
    
    /* if the floor of the sector is above the lift */
@@ -477,13 +477,13 @@ while (ld1s != NULL)
    
    n = ld1s->objnum;
    LineDefs[n].flags = 0x01;
-   sd1 = LineDefs[n].sidedef1;
+   sd1 = LineDefs[n].side_R;
    /* adjust the textures for the sidedef */
    
-   if (!strncmp (SideDefs[sd1].middle, "-", WAD_TEX_NAME))
-      strncpy (SideDefs[sd1].middle, default_middle_texture, WAD_TEX_NAME);
-   strncpy (SideDefs[sd1].upper, "-", WAD_TEX_NAME);
-   strncpy (SideDefs[sd1].lower, "-", WAD_TEX_NAME);
+   if (!strncmp (SideDefs[sd1].mid_tex, "-", WAD_TEX_NAME))
+      strncpy (SideDefs[sd1].mid_tex, default_middle_texture, WAD_TEX_NAME);
+   strncpy (SideDefs[sd1].upper_tex, "-", WAD_TEX_NAME);
+   strncpy (SideDefs[sd1].lower_tex, "-", WAD_TEX_NAME);
    UnSelectObject (&ld1s, n);
    }
 }
@@ -499,10 +499,10 @@ bitvec_c *linedefs_of_sector (obj_no_t s)
 {
 bitvec_c *linedefs = new bitvec_c (NumLineDefs);
 for (int n = 0; n < NumLineDefs; n++)
-   if (is_sidedef (LineDefs[n].sidedef1)
-       && SideDefs[LineDefs[n].sidedef1].sector == s
-    || is_sidedef (LineDefs[n].sidedef2)
-       && SideDefs[LineDefs[n].sidedef2].sector == s)
+   if (is_sidedef (LineDefs[n].side_R)
+       && SideDefs[LineDefs[n].side_R].sector == s
+    || is_sidedef (LineDefs[n].side_L)
+       && SideDefs[LineDefs[n].side_L].sector == s)
       linedefs->set (n);
 return linedefs;
 }
@@ -518,10 +518,10 @@ bitvec_c *linedefs_of_sectors (SelPtr list)
 bitvec_c *sectors  = list_to_bitvec (list, NumSectors);
 bitvec_c *linedefs = new bitvec_c (NumLineDefs);
 for (int n = 0; n < NumLineDefs; n++)
-   if (   is_sidedef (LineDefs[n].sidedef1)
-          && sectors->get (SideDefs[LineDefs[n].sidedef1].sector)
-       || is_sidedef (LineDefs[n].sidedef2)
-          && sectors->get (SideDefs[LineDefs[n].sidedef2].sector))
+   if (   is_sidedef (LineDefs[n].side_R)
+          && sectors->get (SideDefs[LineDefs[n].side_R].sector)
+       || is_sidedef (LineDefs[n].side_L)
+          && sectors->get (SideDefs[LineDefs[n].side_L].sector))
       linedefs->set (n);
 delete sectors;
 return linedefs;
@@ -540,20 +540,20 @@ int linedefs_of_sector (obj_no_t s, obj_no_t *&array)
 {
 int count = 0;
 for (int n = 0; n < NumLineDefs; n++)
-   if (   is_sidedef (LineDefs[n].sidedef1)
-          && SideDefs[LineDefs[n].sidedef1].sector == s
-       || is_sidedef (LineDefs[n].sidedef2)
-          && SideDefs[LineDefs[n].sidedef2].sector == s)
+   if (   is_sidedef (LineDefs[n].side_R)
+          && SideDefs[LineDefs[n].side_R].sector == s
+       || is_sidedef (LineDefs[n].side_L)
+          && SideDefs[LineDefs[n].side_L].sector == s)
       count++;
 if (count > 0)
    {
    array = new obj_no_t[count];
    count = 0;
    for (int n = 0; n < NumLineDefs; n++)
-      if (   is_sidedef (LineDefs[n].sidedef1)
-       && SideDefs[LineDefs[n].sidedef1].sector == s
-    || is_sidedef (LineDefs[n].sidedef2)
-       && SideDefs[LineDefs[n].sidedef2].sector == s)
+      if (   is_sidedef (LineDefs[n].side_R)
+       && SideDefs[LineDefs[n].side_R].sector == s
+    || is_sidedef (LineDefs[n].side_L)
+       && SideDefs[LineDefs[n].side_L].sector == s)
    array[count++] = n;
    }
 return count;
@@ -567,9 +567,10 @@ void swap_flats (SelPtr list)
     wad_flat_name_t tmp;
     struct Sector *s = Sectors + cur->objnum;
 
-    memcpy (tmp,       s->floort, sizeof tmp);
-    memcpy (s->floort, s->ceilt,  sizeof s->floort);
-    memcpy (s->ceilt,  tmp,       sizeof s->ceilt);
+    memcpy (tmp,          s->floor_tex, sizeof tmp);
+    memcpy (s->floor_tex, s->ceil_tex,  sizeof s->floor_tex);
+    memcpy (s->ceil_tex,  tmp,          sizeof s->ceil_tex);
+
     MadeChanges = 1;
   }
 }

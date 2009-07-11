@@ -221,14 +221,14 @@ switch (objtype)
    
    for (n = 0; n < NumLineDefs; n++)
       {
-      if (LineDefs[n].sidedef1 == objnum)
-         LineDefs[n].sidedef1 = -1;
-      else if (LineDefs[n].sidedef1 >= objnum)
-         LineDefs[n].sidedef1--;
-      if (LineDefs[n].sidedef2 == objnum)
-         LineDefs[n].sidedef2 = -1;
-      else if (LineDefs[n].sidedef2 >= objnum)
-         LineDefs[n].sidedef2--;
+      if (LineDefs[n].side_R == objnum)
+         LineDefs[n].side_R = -1;
+      else if (LineDefs[n].side_R >= objnum)
+         LineDefs[n].side_R--;
+      if (LineDefs[n].side_L == objnum)
+         LineDefs[n].side_L = -1;
+      else if (LineDefs[n].side_L >= objnum)
+         LineDefs[n].side_L--;
       }
    /* delete the sidedef */
    
@@ -331,13 +331,13 @@ switch (objtype)
    {
    Things[last].type  = Things[copyfrom].type;
    Things[last].angle = Things[copyfrom].angle;
-   Things[last].when  = Things[copyfrom].when;
+   Things[last].options  = Things[copyfrom].options;
    }
       else
    {
    Things[last].type = default_thing;
    Things[last].angle = 0;
-   Things[last].when  = 0x07;
+   Things[last].options  = 0x07;
    }
       break;
 
@@ -384,8 +384,8 @@ switch (objtype)
    LineDefs[last].type  = 0;
    LineDefs[last].tag   = 0;
    }
-      LineDefs[last].sidedef1 = OBJ_NO_NONE;
-      LineDefs[last].sidedef2 = OBJ_NO_NONE;
+      LineDefs[last].side_R = OBJ_NO_NONE;
+      LineDefs[last].side_L = OBJ_NO_NONE;
       break;
 
    case OBJ_SIDEDEFS:
@@ -397,20 +397,20 @@ switch (objtype)
    SideDefs = (SDPtr) GetMemory (sizeof (struct SideDef));
       if (is_obj (copyfrom))
    {
-   SideDefs[last].xoff = SideDefs[copyfrom].xoff;
-   SideDefs[last].yoff = SideDefs[copyfrom].yoff;
-   strncpy (SideDefs[last].upper, SideDefs[copyfrom].upper, WAD_TEX_NAME);
-   strncpy (SideDefs[last].lower, SideDefs[copyfrom].lower, WAD_TEX_NAME);
-   strncpy (SideDefs[last].middle, SideDefs[copyfrom].middle, WAD_TEX_NAME);
+   SideDefs[last].x_offset = SideDefs[copyfrom].x_offset;
+   SideDefs[last].y_offset = SideDefs[copyfrom].y_offset;
+   strncpy (SideDefs[last].upper_tex, SideDefs[copyfrom].upper_tex, WAD_TEX_NAME);
+   strncpy (SideDefs[last].lower_tex, SideDefs[copyfrom].lower_tex, WAD_TEX_NAME);
+   strncpy (SideDefs[last].mid_tex, SideDefs[copyfrom].mid_tex, WAD_TEX_NAME);
    SideDefs[last].sector = SideDefs[copyfrom].sector;
    }
       else
    {
-   SideDefs[last].xoff = 0;
-   SideDefs[last].yoff = 0;
-   strcpy (SideDefs[last].upper, "-");
-   strcpy (SideDefs[last].lower, "-");
-   strcpy (SideDefs[last].middle, default_middle_texture);
+   SideDefs[last].x_offset = 0;
+   SideDefs[last].y_offset = 0;
+   strcpy (SideDefs[last].upper_tex, "-");
+   strcpy (SideDefs[last].lower_tex, "-");
+   strcpy (SideDefs[last].mid_tex, default_middle_texture);
    SideDefs[last].sector = NumSectors - 1;
    }
       MadeMapChanges = 1;
@@ -427,20 +427,20 @@ switch (objtype)
    {
    Sectors[last].floorh  = Sectors[copyfrom].floorh;
    Sectors[last].ceilh   = Sectors[copyfrom].ceilh;
-   strncpy (Sectors[last].floort, Sectors[copyfrom].floort, WAD_FLAT_NAME);
-   strncpy (Sectors[last].ceilt, Sectors[copyfrom].ceilt, WAD_FLAT_NAME);
+   strncpy (Sectors[last].floor_tex, Sectors[copyfrom].floor_tex, WAD_FLAT_NAME);
+   strncpy (Sectors[last].ceil_tex, Sectors[copyfrom].ceil_tex, WAD_FLAT_NAME);
    Sectors[last].light   = Sectors[copyfrom].light;
-   Sectors[last].special = Sectors[copyfrom].special;
+   Sectors[last].type = Sectors[copyfrom].type;
    Sectors[last].tag     = Sectors[copyfrom].tag;
    }
       else
    {
    Sectors[last].floorh  = default_floor_height;
    Sectors[last].ceilh   = default_ceiling_height;
-   strncpy (Sectors[last].floort, default_floor_texture, WAD_FLAT_NAME);
-   strncpy (Sectors[last].ceilt, default_ceiling_texture, WAD_FLAT_NAME);
+   strncpy (Sectors[last].floor_tex, default_floor_texture, WAD_FLAT_NAME);
+   strncpy (Sectors[last].ceil_tex, default_ceiling_texture, WAD_FLAT_NAME);
    Sectors[last].light   = default_light_level;
-   Sectors[last].special = 0;
+   Sectors[last].type = 0;
    Sectors[last].tag     = 0;
    }
       break;
@@ -640,17 +640,17 @@ if (abs (dy1) > abs (dx1))
    {
    if ((Vertices[LineDefs[bestld].start].x
   < Vertices[LineDefs[bestld].end].x) == (dy1 > 0))
-      x0 = LineDefs[bestld].sidedef1;
+      x0 = LineDefs[bestld].side_R;
    else
-      x0 = LineDefs[bestld].sidedef2;
+      x0 = LineDefs[bestld].side_L;
    }
 else
    {
    if ((Vertices[LineDefs[bestld].start].y
       < Vertices[LineDefs[bestld].end].y) != (dx1 > 0))
-      x0 = LineDefs[bestld].sidedef1;
+      x0 = LineDefs[bestld].side_R;
    else
-      x0 = LineDefs[bestld].sidedef2;
+      x0 = LineDefs[bestld].side_L;
    }
 
 /* there is no SideDef on this side of the LineDef! */
@@ -722,22 +722,22 @@ switch (objtype)
          having to create the New sidedefs manually. plus it saves
          space in the .wad and also it makes editing easier (editing
          one sidedef impacts all linedefs that use it). */
-      LineDefs[New].sidedef1 = LineDefs[old].sidedef1; 
-      LineDefs[New].sidedef2 = LineDefs[old].sidedef2; 
+      LineDefs[New].side_R = LineDefs[old].side_R; 
+      LineDefs[New].side_L = LineDefs[old].side_L; 
       }
          else
             {
             /* AYM 1998-11-08: duplicate sidedefs too.
                DEU 5.21 just left the sidedef references to -1. */
-            if (is_sidedef (LineDefs[old].sidedef1))
+            if (is_sidedef (LineDefs[old].side_R))
          {
-         InsertObject (OBJ_SIDEDEFS, LineDefs[old].sidedef1, 0, 0);
-         LineDefs[New].sidedef1 = NumSideDefs - 1;
+         InsertObject (OBJ_SIDEDEFS, LineDefs[old].side_R, 0, 0);
+         LineDefs[New].side_R = NumSideDefs - 1;
          }
-            if (is_sidedef (LineDefs[old].sidedef2))
+            if (is_sidedef (LineDefs[old].side_L))
          {
-         InsertObject (OBJ_SIDEDEFS, LineDefs[old].sidedef2, 0, 0);
-         LineDefs[New].sidedef2 = NumSideDefs - 1; 
+         InsertObject (OBJ_SIDEDEFS, LineDefs[old].side_L, 0, 0);
+         LineDefs[New].side_L = NumSideDefs - 1; 
          }
             }
    cur->objnum = New;
@@ -782,9 +782,9 @@ switch (objtype)
       for (cur = obj; cur; cur = cur->next)
    {
    for (n = 0; n < NumLineDefs; n++)
-      if  ((((m = LineDefs[n].sidedef1) >= 0
+      if  ((((m = LineDefs[n].side_R) >= 0
            && SideDefs[m].sector == cur->objnum)
-    || ((m = LineDefs[n].sidedef2) >= 0
+    || ((m = LineDefs[n].side_L) >= 0
            && SideDefs[m].sector == cur->objnum))
            && ! IsSelected (list1, n))
          {
@@ -799,19 +799,19 @@ switch (objtype)
      ref1 && ref2;
      ref1 = ref1->next, ref2 = ref2->next)
    {
-   if ((n = LineDefs[ref1->objnum].sidedef1) >= 0)
+   if ((n = LineDefs[ref1->objnum].side_R) >= 0)
       {
       InsertObject (OBJ_SIDEDEFS, n, 0, 0);
       n = NumSideDefs - 1;
       
-      LineDefs[ref2->objnum].sidedef1 = n;
+      LineDefs[ref2->objnum].side_R = n;
       }
-   if ((m = LineDefs[ref1->objnum].sidedef2) >= 0)
+   if ((m = LineDefs[ref1->objnum].side_L) >= 0)
       {
       InsertObject (OBJ_SIDEDEFS, m, 0, 0);
       m = NumSideDefs - 1;
       
-      LineDefs[ref2->objnum].sidedef2 = m;
+      LineDefs[ref2->objnum].side_L = m;
       }
    ref1->objnum = n;
    ref2->objnum = m;
@@ -994,7 +994,7 @@ switch (objtype)
    }
       
       for (n = 0; n < NumLineDefs; n++)
-   if (LineDefs[n].sidedef1 == objnum || LineDefs[n].sidedef2 == objnum)
+   if (LineDefs[n].side_R == objnum || LineDefs[n].side_L == objnum)
       {
       v1 = LineDefs[n].start;
       v2 = LineDefs[n].end;
@@ -1021,8 +1021,8 @@ switch (objtype)
       for (n = 0; n < NumLineDefs; n++)
    {
    
-   sd1 = LineDefs[n].sidedef1;
-   sd2 = LineDefs[n].sidedef2;
+   sd1 = LineDefs[n].side_R;
+   sd2 = LineDefs[n].side_L;
    v1 = LineDefs[n].start;
    v2 = LineDefs[n].end;
    

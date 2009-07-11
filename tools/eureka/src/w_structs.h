@@ -76,11 +76,11 @@ typedef s16_t wad_tangle_t;
 typedef s16_t wad_tflags_t;
 struct Thing
 {
-  wad_coord_t      x;    // FIXME rename to "x"
-  wad_coord_t      y;    // FIXME rename to "y"
+  wad_coord_t      x;
+  wad_coord_t      y;
   wad_tangle_t     angle;
   wad_ttype_t      type;
-  wad_tflags_t     when;    // FIXME rename to "flags"
+  wad_tflags_t     options;
 };
 
 typedef enum
@@ -136,8 +136,8 @@ struct LineDef
   wad_ldflags_t flags;
   wad_ldtype_t  type;
   wad_tag_t     tag;
-  wad_sdn_t     sidedef1;   // # of first (right) sidedef
-  wad_sdn_t     sidedef2;   // # of second (left) sidedef or 0xffff
+  wad_sdn_t     side_R;   // # of first (right) sidedef
+  wad_sdn_t     side_L;   // # of second (left) sidedef or 0xffff
 };
 typedef struct
 {
@@ -150,8 +150,8 @@ typedef struct
   byte            arg3;
   byte            arg4;
   byte            arg5;
-  wad_sdn_t     sidedef1;
-  wad_sdn_t     sidedef2;
+  wad_sdn_t     side_R;
+  wad_sdn_t     side_L;
 } wad_hexen_linedef_t;
 typedef struct LineDef *LDPtr;
 
@@ -211,11 +211,11 @@ linedef_flag_e;
 const size_t WAD_SIDEDEF_BYTES = 30;  // Size in the wad file
 struct SideDef
 {
-  wad_coord_t    xoff;      // FIXME rename to "xofs"
-  wad_coord_t    yoff;      // FIXME rename to "yofs"
-  wad_tex_name_t upper;     // Name of upper texture
-  wad_tex_name_t lower;     // Name of lower texture
-  wad_tex_name_t middle;    // Name of middle texture
+  wad_coord_t    x_offset;
+  wad_coord_t    y_offset;
+  wad_tex_name_t upper_tex;     // Name of upper texture
+  wad_tex_name_t lower_tex;     // Name of lower texture
+  wad_tex_name_t mid_tex;    // Name of middle texture
   wad_sn_t       sector;    // # of adjacent sector
 };
 // (it's the same for Hexen)
@@ -240,10 +240,10 @@ struct Sector
 {
   wad_z_t         floorh;   // Floor height
   wad_z_t         ceilh;    // Ceiling height
-  wad_flat_name_t floort;   // Name of floor texture
-  wad_flat_name_t ceilt;    // Name of ceiling texture
+  wad_flat_name_t floor_tex;   // Name of floor texture
+  wad_flat_name_t ceil_tex;    // Name of ceiling texture
   s16_t             light;    // Light level (0-255)
-  wad_stype_t     special;    // FIXME rename to "type"
+  wad_stype_t     type;
   wad_tag_t       tag;
 };
 typedef struct Sector *SPtr;

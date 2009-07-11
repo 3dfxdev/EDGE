@@ -88,8 +88,8 @@ if (objid.type == OBJ_SECTORS && sector_under_pointer () != objid.num)
    for (int n = 0; n < NumLineDefs; n++)
       {
       
-      sd1 = LineDefs[n].sidedef1;
-      sd2 = LineDefs[n].sidedef2;
+      sd1 = LineDefs[n].side_R;
+      sd2 = LineDefs[n].side_L;
       
       if (sd1 >= 0 && SideDefs[sd1].sector == objid.num
   || sd2 >= 0 && SideDefs[sd2].sector == objid.num)

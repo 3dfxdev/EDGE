@@ -51,14 +51,14 @@ int otherside = OBJ_NO_NONE;
 
 for (l = 0; l < NumLineDefs; l++)
   {
-  if (LineDefs[l].sidedef1 == sidedef)
+  if (LineDefs[l].side_R == sidedef)
     {
-    otherside = LineDefs[l].sidedef2;
+    otherside = LineDefs[l].side_L;
     break;
     }
-  if (LineDefs[l].sidedef2 == sidedef)
+  if (LineDefs[l].side_L == sidedef)
     {
-    otherside = LineDefs[l].sidedef1;
+    otherside = LineDefs[l].side_R;
     break;
     }
   }
@@ -110,7 +110,7 @@ if (! *sdlist)
 /* get the reference height from the first sidedef */
 refh = GetTextureRefHeight ((*sdlist)->objnum);
 
-SideDefs[(*sdlist)->objnum].yoff = 0;
+SideDefs[(*sdlist)->objnum].y_offset = 0;
 UnSelectObject (sdlist, (*sdlist)->objnum);
 
 /* adjust Y offset in all other SideDefs */
@@ -118,7 +118,7 @@ while (*sdlist)
   {
   h = GetTextureRefHeight ((*sdlist)->objnum);
   
-  SideDefs[(*sdlist)->objnum].yoff = (refh - h) % 128;
+  SideDefs[(*sdlist)->objnum].y_offset = (refh - h) % 128;
   UnSelectObject (sdlist, (*sdlist)->objnum);
   }
 MadeChanges = 1;
@@ -230,10 +230,10 @@ sd1 = (*sdlist)->objnum;
 
 if (type_sd == 1) /* throw out all 2nd SideDefs untill a 1st is found */
   {
-  while (*sdlist && LineDefs[ldef].sidedef1!=sd1 && ldef<=NumLineDefs)
+  while (*sdlist && LineDefs[ldef].side_R!=sd1 && ldef<=NumLineDefs)
     {
     ldef++;
-    if (LineDefs[ldef].sidedef2 == sd1)
+    if (LineDefs[ldef].side_L == sd1)
       {
       UnSelectObject (sdlist, (*sdlist)->objnum);
       if (! *sdlist)
@@ -246,10 +246,10 @@ if (type_sd == 1) /* throw out all 2nd SideDefs untill a 1st is found */
 
 if (type_sd == 2) /* throw out all 1st SideDefs untill a 2nd is found */
   {
-  while (LineDefs[ldef].sidedef2!=sd1 && ldef<=NumLineDefs)
+  while (LineDefs[ldef].side_L!=sd1 && ldef<=NumLineDefs)
     {
     ldef++;
-    if (LineDefs[ldef].sidedef1 == sd1)
+    if (LineDefs[ldef].side_R == sd1)
       {
       UnSelectObject (sdlist, (*sdlist)->objnum);
       if (! *sdlist)
@@ -295,10 +295,10 @@ while (*sdlist)  /* main processing loop */
 
    if (type_sd == 1) /* throw out all 2nd SideDefs untill a 1st is found */
    {
-     while (LineDefs[ldef].sidedef1!=sd1 && ldef<=NumLineDefs)
+     while (LineDefs[ldef].side_R!=sd1 && ldef<=NumLineDefs)
        {
        ldef++;
-       if (LineDefs[ldef].sidedef2 == sd1)
+       if (LineDefs[ldef].side_L == sd1)
    {
    UnSelectObject (sdlist, (*sdlist)->objnum);
    sd1 = (*sdlist)->objnum;
@@ -311,10 +311,10 @@ while (*sdlist)  /* main processing loop */
 
    if (type_sd == 2) /* throw out all 1st SideDefs untill a 2nd is found */
      {
-     while (LineDefs[ldef].sidedef2!=sd1 && ldef<=NumLineDefs)
+     while (LineDefs[ldef].side_L!=sd1 && ldef<=NumLineDefs)
        {
        ldef++;
-       if (LineDefs[ldef].sidedef1 == sd1)
+       if (LineDefs[ldef].side_R == sd1)
    {
    UnSelectObject (sdlist, (*sdlist)->objnum);
    sd1 = (*sdlist)->objnum;
@@ -346,12 +346,12 @@ while (*sdlist)  /* main processing loop */
    /* find out which linedef holds that sidedef */
    if (type_sd == 1)
      {
-     while (LineDefs[ldef].sidedef1 != sd1 && ldef < NumLineDefs)
+     while (LineDefs[ldef].side_R != sd1 && ldef < NumLineDefs)
   ldef++;
      }
    else
      {
-     while (LineDefs[ldef].sidedef2 != sd1 && ldef < NumLineDefs)
+     while (LineDefs[ldef].side_L != sd1 && ldef < NumLineDefs)
        ldef++;
      }
 
@@ -370,14 +370,14 @@ while (*sdlist)  /* main processing loop */
      {
      if (type_off == 1)  /* do we have an initial offset ? */
        {
-       SideDefs[sd1].xoff = useroffset;
+       SideDefs[sd1].x_offset = useroffset;
        xoffset = useroffset;
        }
      else
-  SideDefs[sd1].xoff = 0;
+  SideDefs[sd1].x_offset = 0;
      }
    else     /* put new xoffset into the sidedef */
-     SideDefs[sd1].xoff = xoffset;
+     SideDefs[sd1].x_offset = xoffset;
 
    /* calculate length of linedef */
    vert2 = LineDefs[ldef].end;
@@ -492,9 +492,9 @@ for (cur = obj; cur; cur = cur->next)
       LineDefs[ cur->objnum].start = tmp;
    }
    /* swap first and second SideDefs */
-   tmp = LineDefs[ cur->objnum].sidedef1;
-   LineDefs[ cur->objnum].sidedef1 = LineDefs[ cur->objnum].sidedef2;
-   LineDefs[ cur->objnum].sidedef2 = tmp;
+   tmp = LineDefs[ cur->objnum].side_R;
+   LineDefs[ cur->objnum].side_R = LineDefs[ cur->objnum].side_L;
+   LineDefs[ cur->objnum].side_L = tmp;
 }
 MadeChanges = 1;
 MadeMapChanges = 1;
@@ -617,19 +617,19 @@ for (prev_ld_no = linedefno; times > 0; times--, prev_ld_no = NumLineDefs-1)
   LineDefs[NumLineDefs-1].end   = LineDefs[prev_ld_no].end;
   LineDefs[prev_ld_no   ].end   = NumVertices - 1;
   
-  sd = LineDefs[linedefno].sidedef1;
+  sd = LineDefs[linedefno].side_R;
   if (sd >= 0)
     {
     InsertObject (OBJ_SIDEDEFS, sd, 0, 0);
     
-    LineDefs[NumLineDefs-1].sidedef1 = NumSideDefs - 1;
+    LineDefs[NumLineDefs-1].side_R = NumSideDefs - 1;
     }
-  sd = LineDefs[linedefno].sidedef2;
+  sd = LineDefs[linedefno].side_L;
   if (sd >= 0)
     {
     InsertObject (OBJ_SIDEDEFS, sd, 0, 0);
     
-    LineDefs[NumLineDefs-1].sidedef2 = NumSideDefs - 1;
+    LineDefs[NumLineDefs-1].side_L = NumSideDefs - 1;
     }
   }
 }
@@ -707,17 +707,17 @@ for (n = 0; n < NumLineDefs; n++)
    {
    if (IsSelected (linedefs, n))
       {
-      if (side1 && is_sidedef (LineDefs[n].sidedef1))
-         sd_used_in.set (LineDefs[n].sidedef1);
-      if (side2 && is_sidedef (LineDefs[n].sidedef2))
-         sd_used_in.set (LineDefs[n].sidedef2);
+      if (side1 && is_sidedef (LineDefs[n].side_R))
+         sd_used_in.set (LineDefs[n].side_R);
+      if (side2 && is_sidedef (LineDefs[n].side_L))
+         sd_used_in.set (LineDefs[n].side_L);
       }
    else
       {
-      if (is_sidedef (LineDefs[n].sidedef1))
-   sd_used_out.set (LineDefs[n].sidedef1);
-      if (is_sidedef (LineDefs[n].sidedef2))
-   sd_used_out.set (LineDefs[n].sidedef2);
+      if (is_sidedef (LineDefs[n].side_R))
+   sd_used_out.set (LineDefs[n].side_R);
+      if (is_sidedef (LineDefs[n].side_L))
+   sd_used_out.set (LineDefs[n].side_L);
       }
    }
 
@@ -733,10 +733,10 @@ for (n = 0; n < NumSideDefs; n++)
       InsertObject (OBJ_SIDEDEFS, n, 0, 0);
       for (cur = linedefs; cur; cur = cur->next)
          {
-         if (side1 && LineDefs[cur->objnum].sidedef1 == n)
-            LineDefs[cur->objnum].sidedef1 = NumSideDefs - 1;
-         if (side2 && LineDefs[cur->objnum].sidedef2 == n)
-            LineDefs[cur->objnum].sidedef2 = NumSideDefs - 1;
+         if (side1 && LineDefs[cur->objnum].side_R == n)
+            LineDefs[cur->objnum].side_R = NumSideDefs - 1;
+         if (side2 && LineDefs[cur->objnum].side_L == n)
+            LineDefs[cur->objnum].side_L = NumSideDefs - 1;
          }
       }
    }

@@ -149,8 +149,8 @@ if (! is_obj (linedef_no))  // Sanity check
       linedef_no);
 
 LDPtr ld = LineDefs + linedef_no;
-if (! is_obj (ld->sidedef1)  // The first linedef is not single-sided. Quit.
-    || is_obj (ld->sidedef2))
+if (! is_obj (ld->side_R)  // The first linedef is not single-sided. Quit.
+    || is_obj (ld->side_L))
   goto byebye;
 ldsel->frob (linedef_no, mode);
 ldseen.set (linedef_no);
@@ -185,8 +185,8 @@ static void select_1s_linedefs_in_half_path (bitvec_c &ldsel,
     if (n == linedef_no)
       continue;
     if (LineDefs[n].start == vertex_no
-  && is_obj (LineDefs[n].sidedef1)
-  && ! is_obj (LineDefs[n].sidedef2))
+  && is_obj (LineDefs[n].side_R)
+  && ! is_obj (LineDefs[n].side_L))
     {
       if (is_obj (next_linedef_no))
   return;  // There is a fork in the path. Stop here.
@@ -195,8 +195,8 @@ static void select_1s_linedefs_in_half_path (bitvec_c &ldsel,
       next_linedef_no = n;
     }
     if (LineDefs[n].end == vertex_no
-  && is_obj (LineDefs[n].sidedef1)
-  && ! is_obj (LineDefs[n].sidedef2))
+  && is_obj (LineDefs[n].side_R)
+  && ! is_obj (LineDefs[n].side_L))
     {
       if (is_obj (next_linedef_no))
   return;  // There is a fork in the path. Stop here.

@@ -218,8 +218,8 @@ void UI_LineBox::SetObj(int index)
 
   if (is_linedef(obj))
   {
-    front->SetObj(LineDefs[obj].sidedef1);
-     back->SetObj(LineDefs[obj].sidedef2);
+    front->SetObj(LineDefs[obj].side_R);
+     back->SetObj(LineDefs[obj].side_L);
 
     type->value(Int_TmpStr(LineDefs[obj].type));
     desc->value(GetLineDefTypeName(LineDefs[obj].type));
@@ -306,7 +306,7 @@ int UI_LineBox::CalcFlags() const
   int lineflags = 0;
 
   // FIXME: not sure if this belongs here
-  if (is_sidedef(LineDefs[obj].sidedef2))
+  if (is_sidedef(LineDefs[obj].side_L))
     lineflags |= MLF_TwoSided;
 
   switch (f_automap->value())

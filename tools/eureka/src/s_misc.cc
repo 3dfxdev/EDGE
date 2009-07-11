@@ -400,8 +400,8 @@ static void super_set_sector_on_side (int line, wad_sdn_t& side,
       
       if (is_obj (other))
       {
-         strncpy (SideDefs[side].middle,  "-", WAD_TEX_NAME);
-         strncpy (SideDefs[other].middle, "-", WAD_TEX_NAME);
+         strncpy (SideDefs[side].mid_tex,  "-", WAD_TEX_NAME);
+         strncpy (SideDefs[other].mid_tex, "-", WAD_TEX_NAME);
 
          LineDefs[line].flags |=  4;  // Set the 2S bit
          LineDefs[line].flags &= ~1;  // Clear the Im bit
@@ -430,8 +430,8 @@ static int super_find_sector_model (bitvec_c& ld_side1,
 {
    for (int line=0; line < NumLineDefs; line++)
    {
-      int side1 = LineDefs[line].sidedef1;
-      int side2 = LineDefs[line].sidedef2;
+      int side1 = LineDefs[line].side_R;
+      int side2 = LineDefs[line].side_L;
 
       if (ld_side1.get (line))
          if (is_obj (side2))
@@ -503,12 +503,12 @@ void SuperSectorSelector (int map_x, int map_y, int new_sec)
    for (line=0; line < NumLineDefs; line++)
    {
       if (ld_side1.get (line))
-         super_set_sector_on_side (line, LineDefs[line].sidedef1,
-            LineDefs[line].sidedef2, 1, new_sec);
+         super_set_sector_on_side (line, LineDefs[line].side_R,
+            LineDefs[line].side_L, 1, new_sec);
 
       else if (ld_side2.get (line))
-         super_set_sector_on_side (line, LineDefs[line].sidedef2,
-            LineDefs[line].sidedef1, 2, new_sec);
+         super_set_sector_on_side (line, LineDefs[line].side_L,
+            LineDefs[line].side_R, 2, new_sec);
    }
 }
 
@@ -565,14 +565,14 @@ while (curv != vertex2)
    continue;  // Already been there
       const LDPtr ld = LineDefs + ld_numbers[n];
       if (ld->start == curv
-    && is_sidedef (ld->sidedef1) && SideDefs[ld->sidedef1].sector == s)
+    && is_sidedef (ld->side_R) && SideDefs[ld->side_R].sector == s)
          {
    curv = ld->end;
    SelectObject (&llist, ld_numbers[n]);
    break;
          }
       if (ld->end == curv
-    && is_sidedef (ld->sidedef2) && SideDefs[ld->sidedef2].sector == s)
+    && is_sidedef (ld->side_L) && SideDefs[ld->side_L].sector == s)
    {
    curv = ld->start;
    SelectObject (&llist, ld_numbers[n]);
@@ -617,19 +617,19 @@ LineDefs[NumLineDefs - 1].end = vertex2;
 LineDefs[NumLineDefs - 1].flags = 4;
 InsertObject (OBJ_SIDEDEFS, -1, 0, 0);
 SideDefs[NumSideDefs - 1].sector = s;
-strncpy (SideDefs[NumSideDefs - 1].middle, "-", WAD_TEX_NAME);
+strncpy (SideDefs[NumSideDefs - 1].mid_tex, "-", WAD_TEX_NAME);
 InsertObject (OBJ_SIDEDEFS, -1, 0, 0);
-strncpy (SideDefs[NumSideDefs - 1].middle, "-", WAD_TEX_NAME);
+strncpy (SideDefs[NumSideDefs - 1].mid_tex, "-", WAD_TEX_NAME);
 
-LineDefs[NumLineDefs - 1].sidedef1 = NumSideDefs - 2;
-LineDefs[NumLineDefs - 1].sidedef2 = NumSideDefs - 1;
+LineDefs[NumLineDefs - 1].side_R = NumSideDefs - 2;
+LineDefs[NumLineDefs - 1].side_L = NumSideDefs - 1;
 
 /* bind all linedefs in llist to the new sector */
 while (llist)
 {
-   sd = LineDefs[llist->objnum].sidedef1;
+   sd = LineDefs[llist->objnum].side_R;
    if (sd < 0 || SideDefs[sd].sector != s)
-      sd = LineDefs[llist->objnum].sidedef2;
+      sd = LineDefs[llist->objnum].side_L;
    SideDefs[sd].sector = NumSectors - 1;
    UnSelectObject (&llist, llist->objnum);
 }
@@ -638,7 +638,7 @@ while (llist)
 
 for (l = 0; l < NumLineDefs; l++)
 {
-   sd = LineDefs[l].sidedef1;
+   sd = LineDefs[l].side_R;
    if (sd >= 0 && SideDefs[sd].sector == s)
    {
       curv = GetOppositeSector (l, 1);
@@ -646,7 +646,7 @@ for (l = 0; l < NumLineDefs; l++)
       if (curv == NumSectors - 1)
    SideDefs[sd].sector = NumSectors - 1;
    }
-   sd = LineDefs[l].sidedef2;
+   sd = LineDefs[l].side_L;
    if (sd >= 0 && SideDefs[sd].sector == s)
    {
       curv = GetOppositeSector (l, 0);
@@ -674,10 +674,10 @@ char   msg[80];
 
 /* check if the two linedefs are adjacent to the same sector */
 
-s1 = LineDefs[linedef1].sidedef1;
-s2 = LineDefs[linedef1].sidedef2;
-s3 = LineDefs[linedef2].sidedef1;
-s4 = LineDefs[linedef2].sidedef2;
+s1 = LineDefs[linedef1].side_R;
+s2 = LineDefs[linedef1].side_L;
+s3 = LineDefs[linedef2].side_R;
+s4 = LineDefs[linedef2].side_L;
 
 if (s1 >= 0)
    s1 = SideDefs[s1].sector;
@@ -792,10 +792,10 @@ void sector_slice (obj_no_t linedef1, obj_no_t linedef2)
     return;
   }
 
-  obj_no_t l1sdr = LineDefs[linedef1].sidedef1;
-  obj_no_t l1sdl = LineDefs[linedef1].sidedef2;
-  obj_no_t l2sdr = LineDefs[linedef2].sidedef1;
-  obj_no_t l2sdl = LineDefs[linedef2].sidedef2;
+  obj_no_t l1sdr = LineDefs[linedef1].side_R;
+  obj_no_t l1sdl = LineDefs[linedef1].side_L;
+  obj_no_t l2sdr = LineDefs[linedef2].side_R;
+  obj_no_t l2sdl = LineDefs[linedef2].side_L;
 
   obj_no_t l1sr = is_sidedef (l1sdr) ? SideDefs[l1sdr].sector : OBJ_NO_NONE;
   obj_no_t l1sl = is_sidedef (l1sdl) ? SideDefs[l1sdl].sector : OBJ_NO_NONE;
@@ -932,12 +932,12 @@ void sector_slice (obj_no_t linedef1, obj_no_t linedef2)
     LineDefs[NumLineDefs - 1].flags = 4;
     InsertObject (OBJ_SIDEDEFS, -1, 0, 0);    // Right sidedef
     SideDefs[NumSideDefs - 1].sector = NumSectors - 1;  // Redundant
-    strncpy (SideDefs[NumSideDefs - 1].middle, "-", 8);
-    LineDefs[NumLineDefs - 1].sidedef1 = NumSideDefs - 1;
+    strncpy (SideDefs[NumSideDefs - 1].mid_tex, "-", 8);
+    LineDefs[NumLineDefs - 1].side_R = NumSideDefs - 1;
     InsertObject (OBJ_SIDEDEFS, -1, 0, 0);    // Left sidedef
     SideDefs[NumSideDefs - 1].sector = sector;
-    strncpy (SideDefs[NumSideDefs - 1].middle, "-", 8);
-    LineDefs[NumLineDefs - 1].sidedef2 = NumSideDefs - 1;
+    strncpy (SideDefs[NumSideDefs - 1].mid_tex, "-", 8);
+    LineDefs[NumLineDefs - 1].side_L = NumSideDefs - 1;
   }
 
   // Create new linedef from linedef2 to linedef1
@@ -949,27 +949,27 @@ void sector_slice (obj_no_t linedef1, obj_no_t linedef2)
     LineDefs[NumLineDefs - 1].flags = 4;
     InsertObject (OBJ_SIDEDEFS, -1, 0, 0);    // Right sidedef
     SideDefs[NumSideDefs - 1].sector = NumSectors - 1;  // Redundant
-    strncpy (SideDefs[NumSideDefs - 1].middle, "-", 8);
-    LineDefs[NumLineDefs - 1].sidedef1 = NumSideDefs - 1;
+    strncpy (SideDefs[NumSideDefs - 1].mid_tex, "-", 8);
+    LineDefs[NumLineDefs - 1].side_R = NumSideDefs - 1;
     InsertObject (OBJ_SIDEDEFS, -1, 0, 0);    // Left sidedef
     SideDefs[NumSideDefs - 1].sector = sector;
-    strncpy (SideDefs[NumSideDefs - 1].middle, "-", 8);
-    LineDefs[NumLineDefs - 1].sidedef2 = NumSideDefs - 1;
+    strncpy (SideDefs[NumSideDefs - 1].mid_tex, "-", 8);
+    LineDefs[NumLineDefs - 1].side_L = NumSideDefs - 1;
   }
 
   // Adjust sector references for linedef1
   side = secref[sector].linedef1;
   if (side == 'r')
-    SideDefs[LineDefs[linedef1].sidedef1].sector = NumSectors - 1;
+    SideDefs[LineDefs[linedef1].side_R].sector = NumSectors - 1;
   else if (side == 'l')
-    SideDefs[LineDefs[linedef1].sidedef2].sector = NumSectors - 1;
+    SideDefs[LineDefs[linedef1].side_L].sector = NumSectors - 1;
 
   // Adjust sector references for linedef2
   side = secref[sector].linedef2;
   if (side == 'r')
-    SideDefs[LineDefs[linedef2].sidedef1].sector = NumSectors - 1;
+    SideDefs[LineDefs[linedef2].side_R].sector = NumSectors - 1;
   else if (side == 'l')
-    SideDefs[LineDefs[linedef2].sidedef2].sector = NumSectors - 1;
+    SideDefs[LineDefs[linedef2].side_L].sector = NumSectors - 1;
 
   MadeChanges = 1;
   MadeMapChanges = 1;

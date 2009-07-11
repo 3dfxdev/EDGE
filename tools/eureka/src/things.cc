@@ -434,11 +434,11 @@ void frob_things_flags (SelPtr list, int op, int operand)
   for (cur = list; cur; cur = cur->next)
   {
     if (op == YO_CLEAR)
-      Things[cur->objnum].when &= ~mask;
+      Things[cur->objnum].options &= ~mask;
     else if (op == YO_SET)
-      Things[cur->objnum].when |= mask;
+      Things[cur->objnum].options |= mask;
     else if (op == YO_TOGGLE)
-      Things[cur->objnum].when ^= mask;
+      Things[cur->objnum].options ^= mask;
     else
     {
       nf_bug ("frob_things_flags: op=%02X", op);
