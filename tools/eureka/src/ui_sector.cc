@@ -258,14 +258,14 @@ void UI_SectorBox::tex_callback(Fl_Widget *w, void *data)
 
   if (w == box->f_tex)
   {
-    box->FlatFromWidget(Sectors[N].floort, box->f_tex);
-    box->f_pic->GetFlat(Sectors[N].floort);
+    box->FlatFromWidget(Sectors[N].floor_tex, box->f_tex);
+    box->f_pic->GetFlat(Sectors[N].floor_tex);
   }
 
   if (w == box->c_tex)
   {
-    box->FlatFromWidget(Sectors[N].ceilt, box->c_tex);
-    box->c_pic->GetFlat(Sectors[N].ceilt);
+    box->FlatFromWidget(Sectors[N].ceil_tex, box->c_tex);
+    box->c_pic->GetFlat(Sectors[N].ceil_tex);
   }
 }
 
@@ -280,7 +280,7 @@ void UI_SectorBox::type_callback(Fl_Widget *w, void *data)
 
   int new_type = atoi(box->type->value());
 
-  Sectors[N].special = new_type;
+  Sectors[N].type = new_type;
 
   box->desc->value(GetSectorTypeName(new_type));
 
@@ -397,14 +397,14 @@ void UI_SectorBox::SetObj(int index)
       ceil_h->value(Int_TmpStr(Sectors[obj].ceilh));
     headroom->value(Int_TmpStr(Sectors[obj].ceilh - Sectors[obj].floorh));
 
-    FlatToWidget(f_tex, Sectors[obj].floort);
-    FlatToWidget(c_tex, Sectors[obj].ceilt);
+    FlatToWidget(f_tex, Sectors[obj].floor_tex);
+    FlatToWidget(c_tex, Sectors[obj].ceil_tex);
 
-    f_pic->GetFlat(Sectors[obj].floort);
-    c_pic->GetFlat(Sectors[obj].ceilt);
+    f_pic->GetFlat(Sectors[obj].floor_tex);
+    c_pic->GetFlat(Sectors[obj].ceil_tex);
 
-     type->value(Int_TmpStr(Sectors[obj].special));
-     desc->value(GetSectorTypeName(Sectors[obj].special));
+     type->value(Int_TmpStr(Sectors[obj].type));
+     desc->value(GetSectorTypeName(Sectors[obj].type));
 
     light->value(Int_TmpStr(Sectors[obj].light));
       tag->value(Int_TmpStr(Sectors[obj].tag));

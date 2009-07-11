@@ -222,7 +222,7 @@ void UI_ThingBox::SetObj(int index)
     pos_x->value(Int_TmpStr(Things[obj].x));
     pos_y->value(Int_TmpStr(Things[obj].y));
 
-    OptionsFromInt(Things[obj].when);
+    OptionsFromInt(Things[obj].options);
   }
   else
   {
@@ -321,7 +321,7 @@ void UI_ThingBox::option_callback(Fl_Widget *w, void *data)
   if (! is_thing(box->obj))
     return;
 
-  Things[box->obj].when = box->CalcOptions();
+  Things[box->obj].options = box->CalcOptions();
 }
 
 
@@ -373,11 +373,11 @@ void UI_ThingBox::AdjustExtraFloor(int dir)
   if (! is_thing(obj))
     return;
 
-  int old_fl = (Things[obj].when & MTF_EXFLOOR_MASK) >> MTF_EXFLOOR_SHIFT;
+  int old_fl = (Things[obj].options & MTF_EXFLOOR_MASK) >> MTF_EXFLOOR_SHIFT;
   int new_fl = ((old_fl + dir) << MTF_EXFLOOR_SHIFT) & MTF_EXFLOOR_MASK;
 
-  Things[obj].when &= ~MTF_EXFLOOR_MASK;
-  Things[obj].when |= new_fl;
+  Things[obj].options &= ~MTF_EXFLOOR_MASK;
+  Things[obj].options |= new_fl;
 
   if (new_fl)
     exfloor->value(Int_TmpStr(new_fl >> MTF_EXFLOOR_SHIFT));

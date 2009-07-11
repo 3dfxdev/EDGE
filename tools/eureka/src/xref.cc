@@ -37,12 +37,12 @@ void xref_sidedef ()
   int count = 0;
   for (int n = 0; n < NumLineDefs; n++)
   {
-    if (LineDefs[n].sidedef1 == sidedef_no)
+    if (LineDefs[n].side_R == sidedef_no)
     {
       printf (" %dR", n);
       count++;
     }
-    if (LineDefs[n].sidedef2 == sidedef_no)
+    if (LineDefs[n].side_L == sidedef_no)
     {
       printf (" %dL", n);
       count++;
@@ -57,7 +57,7 @@ void secret_sectors ()
   printf ("Secret sectors:");
   int count = 0;
   for (int n = 0; n < NumSectors; n++)
-    if (Sectors[n].special ==  9)  // FIXME hard-coded
+    if (Sectors[n].type ==  9)  // FIXME hard-coded
     {
       printf (" %d", n);
       count++;
@@ -79,8 +79,8 @@ void bad_sector_number (SelPtr *list)
 {
   for (int n = 0; n < NumLineDefs; n++)
   {
-    int s1 = LineDefs[n].sidedef1;
-    int s2 = LineDefs[n].sidedef2;
+    int s1 = LineDefs[n].side_R;
+    int s2 = LineDefs[n].side_L;
     if (s1 >= 0 && s1 < NumSideDefs
   && SideDefs[s1].sector < 0 || SideDefs[s1].sector >= NumSectors
      || s2 >= 0 && s2 < NumSideDefs

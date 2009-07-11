@@ -225,12 +225,12 @@ static void ConvertSelection(int prev_obj_type)
 
     for (l = 0; l < NumLineDefs; l++)
     {
-      sd = LineDefs[l].sidedef1;
+      sd = LineDefs[l].side_R;
       if (sd >= 0 && IsSelected (edit.Selected, SideDefs[sd].sector))
         SelectObject (&NewSel, l);
       else
       {
-        sd = LineDefs[l].sidedef2;
+        sd = LineDefs[l].side_L;
         if (sd >= 0 && IsSelected (edit.Selected, SideDefs[sd].sector))
           SelectObject (&NewSel, l);
       }
@@ -265,10 +265,10 @@ static void ConvertSelection(int prev_obj_type)
     for (l = 0; l < NumLineDefs; l++)
       if (!IsSelected (edit.Selected, l))
       {
-        sd = LineDefs[l].sidedef1;
+        sd = LineDefs[l].side_R;
         if (sd >= 0)
           UnSelectObject (&NewSel, SideDefs[sd].sector);
-        sd = LineDefs[l].sidedef2;
+        sd = LineDefs[l].side_L;
         if (sd >= 0)
           UnSelectObject (&NewSel, SideDefs[sd].sector);
       }
@@ -838,7 +838,7 @@ cancel_save_as:
         if ( ! InputSectorType( 84, 21, &otype))
         {
           for (onum = edit.highlighted () ? onum + 1 : onum; onum <= omax; onum++)
-            if (Sectors[onum].special == (wad_stype_t) otype)
+            if (Sectors[onum].type == (wad_stype_t) otype)
             {
               find_obj.num = onum;
               GoToObject(find_obj);
@@ -1104,8 +1104,8 @@ cancel_save_as:
     {
       
       for (cur = edit.Selected; cur; cur = cur->next)
-        if (LineDefs[cur->objnum].sidedef1 >= 0
-            && LineDefs[cur->objnum].sidedef2 >= 0)
+        if (LineDefs[cur->objnum].side_R >= 0 &&
+            LineDefs[cur->objnum].side_L >= 0)
         {
           char msg[80];
 
@@ -1125,30 +1125,30 @@ cancel_save_as:
           InsertObject (OBJ_SIDEDEFS, -1, 0, 0);
           SideDefs[NumSideDefs - 1].sector = edit.highlighted.num;
           
-          if (LineDefs[cur->objnum].sidedef1 >= 0)
+          if (LineDefs[cur->objnum].side_R >= 0)
           {
             int s;
 
-            s = SideDefs[LineDefs[cur->objnum].sidedef1].sector;
+            s = SideDefs[LineDefs[cur->objnum].side_R].sector;
             if (s >= 0)
             {
               Sectors[edit.highlighted.num].floorh = Sectors[s].floorh;
               Sectors[edit.highlighted.num].ceilh = Sectors[s].ceilh;
-              strncpy (Sectors[edit.highlighted.num].floort,
-                  Sectors[s].floort, WAD_FLAT_NAME);
-              strncpy (Sectors[edit.highlighted.num].ceilt,
-                  Sectors[s].ceilt, WAD_FLAT_NAME);
+              strncpy (Sectors[edit.highlighted.num].floor_tex,
+                  Sectors[s].floor_tex, WAD_FLAT_NAME);
+              strncpy (Sectors[edit.highlighted.num].ceil_tex,
+                  Sectors[s].ceil_tex, WAD_FLAT_NAME);
               Sectors[edit.highlighted.num].light = Sectors[s].light;
             }
-            LineDefs[cur->objnum].sidedef2 = NumSideDefs - 1;
+            LineDefs[cur->objnum].side_L = NumSideDefs - 1;
             LineDefs[cur->objnum].flags = 4;
-            strncpy (SideDefs[NumSideDefs - 1].middle,
+            strncpy (SideDefs[NumSideDefs - 1].mid_tex,
                 "-", WAD_TEX_NAME);
-            strncpy (SideDefs[LineDefs[cur->objnum].sidedef1].middle,
+            strncpy (SideDefs[LineDefs[cur->objnum].side_R].mid_tex,
                 "-", WAD_TEX_NAME);
           }
           else
-            LineDefs[cur->objnum].sidedef1 = NumSideDefs - 1;
+            LineDefs[cur->objnum].side_R = NumSideDefs - 1;
         }
         ForgetSelection (&edit.Selected);
         SelectObject (&edit.Selected, edit.highlighted.num);

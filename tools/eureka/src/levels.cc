@@ -35,11 +35,6 @@
 #include "w_wads.h"
 
 
-/*
-  FIXME
-  All these variables should be turned
-  into members of a "Level" class.
-*/
 MDirPtr Level;      /* master dictionary entry for the level */
 int NumThings;      /* number of things */
 TPtr Things;      /* things data */
@@ -235,7 +230,7 @@ if (NumThings > 0)
    wf->read_i16   ();         // Height
    wf->read_i16   (&Things[n].angle);
    wf->read_i16   (&Things[n].type );
-   wf->read_i16   (&Things[n].when );
+   wf->read_i16   (&Things[n].options );
          wf->read_bytes (dummy2, sizeof dummy2);
    if (wf->error ())
       {
@@ -253,7 +248,7 @@ if (NumThings > 0)
    wf->read_i16 (&Things[n].type );
    if (yg_level_format == YGLF_ALPHA)
       wf->read_i16 ();    // Alpha. Don't know what it's for.
-   wf->read_i16 (&Things[n].when );
+   wf->read_i16 (&Things[n].options );
    if (wf->error ())
       {
       err ("%s: error reading thing #%ld", lump_name, n);
@@ -309,8 +304,8 @@ if (yg_level_format != YGLF_ALPHA)
       wf->read_i16   (&LineDefs[n].end);
       wf->read_i16   (&LineDefs[n].flags);
       wf->read_bytes (dummy, sizeof dummy);
-      wf->read_i16   (&LineDefs[n].sidedef1);
-      wf->read_i16   (&LineDefs[n].sidedef2);
+      wf->read_i16   (&LineDefs[n].side_R);
+      wf->read_i16   (&LineDefs[n].side_L);
       LineDefs[n].type = dummy[0];
       LineDefs[n].tag  = dummy[1];  // arg1 often contains a tag
       if (wf->error ())
@@ -328,8 +323,8 @@ if (yg_level_format != YGLF_ALPHA)
       wf->read_i16 (&LineDefs[n].flags);
       wf->read_i16 (&LineDefs[n].type);
       wf->read_i16 (&LineDefs[n].tag);
-      wf->read_i16 (&LineDefs[n].sidedef1);
-      wf->read_i16 (&LineDefs[n].sidedef2);
+      wf->read_i16 (&LineDefs[n].side_R);
+      wf->read_i16 (&LineDefs[n].side_L);
       if (wf->error ())
          {
          err ("%s: error reading linedef #%ld", lump_name, n);
@@ -368,11 +363,11 @@ if (NumSideDefs > 0)
       }
    for (long n = 0; n < NumSideDefs; n++)
       {
-      wf->read_i16   (&SideDefs[n].xoff);
-      wf->read_i16   (&SideDefs[n].yoff);
-      wf->read_bytes (&SideDefs[n].upper, WAD_TEX_NAME);
-      wf->read_bytes (&SideDefs[n].lower, WAD_TEX_NAME);
-      wf->read_bytes (&SideDefs[n].middle, WAD_TEX_NAME);
+      wf->read_i16   (&SideDefs[n].x_offset);
+      wf->read_i16   (&SideDefs[n].y_offset);
+      wf->read_bytes (&SideDefs[n].upper_tex, WAD_TEX_NAME);
+      wf->read_bytes (&SideDefs[n].lower_tex, WAD_TEX_NAME);
+      wf->read_bytes (&SideDefs[n].mid_tex, WAD_TEX_NAME);
       wf->read_i16   (&SideDefs[n].sector);
       if (wf->error ())
    {
@@ -389,19 +384,19 @@ if (NumSideDefs > 0)
    set to -1. */
 for (long n = 0; n < NumLineDefs; n++)
    {
-   if (LineDefs[n].sidedef1 != -1
-      && outside (LineDefs[n].sidedef1, 0, NumSideDefs - 1))
+   if (LineDefs[n].side_R != -1
+      && outside (LineDefs[n].side_R, 0, NumSideDefs - 1))
       {
       err ("linedef %ld has bad 1st sidedef number %d, giving up",
-   n, LineDefs[n].sidedef1);
+   n, LineDefs[n].side_R);
       rc = 1;
       goto byebye;
       }
-   if (LineDefs[n].sidedef2 != -1
-      && outside (LineDefs[n].sidedef2, 0, NumSideDefs - 1))
+   if (LineDefs[n].side_L != -1
+      && outside (LineDefs[n].side_L, 0, NumSideDefs - 1))
       {
       err ("linedef %ld has bad 2nd sidedef number %d, giving up",
-   n, LineDefs[n].sidedef2);
+   n, LineDefs[n].side_L);
       rc = 1;
       goto byebye;
       }
@@ -577,10 +572,10 @@ if (yg_level_format != YGLF_ALPHA)
    {
    wf->read_i16   (&Sectors[n].floorh);
    wf->read_i16   (&Sectors[n].ceilh);
-   wf->read_bytes (&Sectors[n].floort, WAD_FLAT_NAME);
-   wf->read_bytes (&Sectors[n].ceilt,  WAD_FLAT_NAME);
+   wf->read_bytes (&Sectors[n].floor_tex, WAD_FLAT_NAME);
+   wf->read_bytes (&Sectors[n].ceil_tex,  WAD_FLAT_NAME);
    wf->read_i16   (&Sectors[n].light);
-   wf->read_i16   (&Sectors[n].special);
+   wf->read_i16   (&Sectors[n].type);
    wf->read_i16   (&Sectors[n].tag);
    if (wf->error ())
       {
@@ -698,18 +693,18 @@ else  // Doom alpha--a wholly different SECTORS format
       wf->read_i16 (&Sectors[n].ceilh );
       wf->read_i16 (&index);
       if (nflatnames && flatnames && index >= 0 && index < nflatnames)
-   memcpy (Sectors[n].floort, flatnames + WAD_FLAT_NAME * index,
+   memcpy (Sectors[n].floor_tex, flatnames + WAD_FLAT_NAME * index,
        WAD_FLAT_NAME);
       else
-   strcpy (Sectors[n].floort, "unknown");
+   strcpy (Sectors[n].floor_tex, "unknown");
       wf->read_i16 (&index);
       if (nflatnames && flatnames && index >= 0 && index < nflatnames)
-   memcpy (Sectors[n].ceilt, flatnames + WAD_FLAT_NAME * index,
+   memcpy (Sectors[n].ceil_tex, flatnames + WAD_FLAT_NAME * index,
        WAD_FLAT_NAME);
       else
-   strcpy (Sectors[n].ceilt, "unknown");
+   strcpy (Sectors[n].ceil_tex, "unknown");
       wf->read_i16 (&Sectors[n].light);
-      wf->read_i16 (&Sectors[n].special);
+      wf->read_i16 (&Sectors[n].type);
       wf->read_i16 (&Sectors[n].tag);
       // Don't know what the tail is for. Ignore it.
       if (wf->error ())
@@ -895,7 +890,7 @@ for (n = 0; n < NumThings; n++)
    file_write_i16 (file, Things[n].y );
    file_write_i16 (file, Things[n].angle);
    file_write_i16 (file, Things[n].type );
-   file_write_i16 (file, Things[n].when );
+   file_write_i16 (file, Things[n].options );
    }
 lump_size[l] = ftell (file) - lump_offset[l];
 if (Level)
@@ -912,8 +907,8 @@ for (n = 0; n < NumLineDefs; n++)
    file_write_i16 (file, LineDefs[n].flags   );
    file_write_i16 (file, LineDefs[n].type    );
    file_write_i16 (file, LineDefs[n].tag     );
-   file_write_i16 (file, LineDefs[n].sidedef1);
-   file_write_i16 (file, LineDefs[n].sidedef2);
+   file_write_i16 (file, LineDefs[n].side_R);
+   file_write_i16 (file, LineDefs[n].side_L);
    }
 lump_size[l] = ftell (file) - lump_offset[l];
 if (Level)
@@ -925,11 +920,11 @@ lump_offset[l] = ftell (file);
 
 for (n = 0; n < NumSideDefs; n++)
    {
-   file_write_i16 (file, SideDefs[n].xoff);
-   file_write_i16 (file, SideDefs[n].yoff);
-   WriteBytes     (file, &(SideDefs[n].upper), WAD_TEX_NAME);
-   WriteBytes     (file, &(SideDefs[n].lower), WAD_TEX_NAME);
-   WriteBytes     (file, &(SideDefs[n].middle), WAD_TEX_NAME);
+   file_write_i16 (file, SideDefs[n].x_offset);
+   file_write_i16 (file, SideDefs[n].y_offset);
+   WriteBytes     (file, &(SideDefs[n].upper_tex), WAD_TEX_NAME);
+   WriteBytes     (file, &(SideDefs[n].lower_tex), WAD_TEX_NAME);
+   WriteBytes     (file, &(SideDefs[n].mid_tex), WAD_TEX_NAME);
    file_write_i16 (file, SideDefs[n].sector);
    }
 lump_size[l] = ftell (file) - lump_offset[l];
@@ -998,10 +993,10 @@ for (n = 0; n < NumSectors; n++)
    {
    file_write_i16 (file, Sectors[n].floorh);
    file_write_i16 (file, Sectors[n].ceilh );
-   WriteBytes     (file, Sectors[n].floort, WAD_FLAT_NAME);
-   WriteBytes     (file, Sectors[n].ceilt,  WAD_FLAT_NAME);
+   WriteBytes     (file, Sectors[n].floor_tex, WAD_FLAT_NAME);
+   WriteBytes     (file, Sectors[n].ceil_tex,  WAD_FLAT_NAME);
    file_write_i16 (file, Sectors[n].light  );
-   file_write_i16 (file, Sectors[n].special);
+   file_write_i16 (file, Sectors[n].type);
    file_write_i16 (file, Sectors[n].tag    );
    }
 lump_size[l] = ftell (file) - lump_offset[l];

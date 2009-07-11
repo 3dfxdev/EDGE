@@ -137,20 +137,20 @@ void UI_SideBox::tex_callback(Fl_Widget *w, void *data)
 
   if (w == box->l_tex)
   {
-    box->TexFromWidget (SideDefs[n].lower, box->l_tex);
-    box->l_pic->GetTex(SideDefs[n].lower);
+    box->TexFromWidget (SideDefs[n].lower_tex, box->l_tex);
+    box->l_pic->GetTex(SideDefs[n].lower_tex);
   }
 
   if (w == box->m_tex)
   {
-    box->TexFromWidget (SideDefs[n].middle, box->m_tex);
-    box->m_pic->GetTex(SideDefs[n].middle);
+    box->TexFromWidget (SideDefs[n].mid_tex, box->m_tex);
+    box->m_pic->GetTex(SideDefs[n].mid_tex);
   }
 
   if (w == box->u_tex)
   {
-    box->TexFromWidget (SideDefs[n].upper, box->u_tex);
-    box->u_pic->GetTex(SideDefs[n].upper);
+    box->TexFromWidget (SideDefs[n].upper_tex, box->u_tex);
+    box->u_pic->GetTex(SideDefs[n].upper_tex);
   }
 }
 
@@ -162,8 +162,8 @@ void UI_SideBox::offset_callback(Fl_Widget *w, void *data)
   if (! is_sidedef(box->obj))
     return;
 
-  SideDefs[box->obj].xoff = atoi(box->x_ofs->value());
-  SideDefs[box->obj].yoff = atoi(box->y_ofs->value());
+  SideDefs[box->obj].x_offset = atoi(box->x_ofs->value());
+  SideDefs[box->obj].y_offset = atoi(box->y_ofs->value());
 }
 
 
@@ -198,17 +198,17 @@ void UI_SideBox::SetObj(int index)
 
   if (is_sidedef(obj))
   {
-    x_ofs->value(Int_TmpStr(SideDefs[obj].xoff));
-    y_ofs->value(Int_TmpStr(SideDefs[obj].yoff));
+    x_ofs->value(Int_TmpStr(SideDefs[obj].x_offset));
+    y_ofs->value(Int_TmpStr(SideDefs[obj].y_offset));
       sec->value(Int_TmpStr(SideDefs[obj].sector));
 
-    TexToWidget(l_tex, SideDefs[obj].lower);
-    TexToWidget(m_tex, SideDefs[obj].middle);
-    TexToWidget(u_tex, SideDefs[obj].upper);
+    TexToWidget(l_tex, SideDefs[obj].lower_tex);
+    TexToWidget(m_tex, SideDefs[obj].mid_tex);
+    TexToWidget(u_tex, SideDefs[obj].upper_tex);
 
-    l_pic->GetTex(SideDefs[obj].lower);
-    m_pic->GetTex(SideDefs[obj].middle);
-    u_pic->GetTex(SideDefs[obj].upper);
+    l_pic->GetTex(SideDefs[obj].lower_tex);
+    m_pic->GetTex(SideDefs[obj].mid_tex);
+    u_pic->GetTex(SideDefs[obj].upper_tex);
   }
   else
   {

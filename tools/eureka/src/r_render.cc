@@ -280,17 +280,17 @@ public:
       Sector *front = sec;
       Sector *back  = 0;
 
-      if (is_obj (side ? ld->sidedef1 : ld->sidedef2))
+      if (is_obj (side ? ld->side_R : ld->side_L))
          {
-         SideDef *bsd = SideDefs + (side ? ld->sidedef1 : ld->sidedef2);
+         SideDef *bsd = SideDefs + (side ? ld->side_R : ld->side_L);
 
          if (is_obj (bsd->sector))
             back = Sectors + bsd->sector;
          }
 
-      bool sky_upper = back && is_sky (front->ceilt) && is_sky (back->ceilt);
+      bool sky_upper = back && is_sky (front->ceil_tex) && is_sky (back->ceil_tex);
 
-      if ((front->ceilh > view.z || is_sky (front->ceilt)) && ! sky_upper) 
+      if ((front->ceilh > view.z || is_sky (front->ceil_tex)) && ! sky_upper) 
          {
          ceil.kind = DrawSurf::K_FLAT;
          ceil.h1 = +99999;
@@ -298,10 +298,10 @@ public:
          ceil.tex_h = ceil.h2;
          ceil.y_clip = DrawSurf::SOLID_ABOVE;
 
-         if (is_sky (front->ceilt))
+         if (is_sky (front->ceil_tex))
             ceil.col = sky_colour;
          else
-            ceil.FindFlat (front->ceilt, front);
+            ceil.FindFlat (front->ceil_tex, front);
          }
 
       if (front->floorh < view.z)
@@ -312,10 +312,10 @@ public:
          floor.tex_h = floor.h1;
          floor.y_clip = DrawSurf::SOLID_BELOW;
 
-         if (is_sky (front->floort))
+         if (is_sky (front->floor_tex))
             floor.col = sky_colour;
          else
-            floor.FindFlat (front->floort, front);
+            floor.FindFlat (front->floor_tex, front);
          }
 
       if (! back)
@@ -327,7 +327,7 @@ public:
          lower.h2 = front->floorh;
          lower.y_clip = DrawSurf::SOLID_ABOVE | DrawSurf::SOLID_BELOW;
 
-         lower.FindTex (sd->middle, ld);
+         lower.FindTex (sd->mid_tex, ld);
 
          if (lower.img && (ld->flags & MLF_LowerUnpegged))
             lower.tex_h = lower.h2 + lower.img->height ();
@@ -346,7 +346,7 @@ public:
             upper.tex_h = upper.h1;
             upper.y_clip = DrawSurf::SOLID_ABOVE;
 
-            upper.FindTex (sd->upper, ld);
+            upper.FindTex (sd->upper_tex, ld);
 
             if (upper.img && ! (ld->flags & MLF_UpperUnpegged))
                upper.tex_h = upper.h2 + upper.img->height ();
@@ -361,7 +361,7 @@ public:
             lower.h2 = front->floorh;
             lower.y_clip = DrawSurf::SOLID_BELOW;
 
-            lower.FindTex (sd->lower, ld);
+            lower.FindTex (sd->lower_tex, ld);
 
             if (ld->flags & MLF_LowerUnpegged)
                lower.tex_h = front->ceilh;
@@ -543,10 +543,10 @@ public:
          side = 1;
 
       // ignore the line when there is no facing sidedef
-      if (! is_obj (side ? ld->sidedef2 : ld->sidedef1))
+      if (! is_obj (side ? ld->side_L : ld->side_R))
          return;
 
-      sd = SideDefs + (side ? ld->sidedef2 : ld->sidedef1);
+      sd = SideDefs + (side ? ld->side_L : ld->side_R);
 
       if (! is_obj (sd->sector))
          return;
@@ -737,7 +737,7 @@ public:
          if (! dw)
             continue;
 
-         int one_sided = dw->ld && ! is_obj (dw->ld->sidedef2);
+         int one_sided = dw->ld && ! is_obj (dw->ld->side_L);
          int vis_count = dw->sx2 - dw->sx1 + 1;
 
          for (int x = dw->sx1; x <= dw->sx2; x++)
@@ -805,11 +805,11 @@ public:
 
       int tx = int (dw->t_dist - tan (dw->cur_ang - dw->normal) * dw->dist);
 
-      tx = (dw->sd->xoff + tx) & (tw - 1);
+      tx = (dw->sd->x_offset + tx) & (tw - 1);
 
       /* compute texture Y coords */
 
-      float base_h = surf.tex_h + dw->sd->yoff;
+      float base_h = surf.tex_h + dw->sd->y_offset;
 
       float h1 = base_h - YToSecH (y1, dw->cur_iz);
       float dh = base_h - YToSecH (y2, dw->cur_iz);

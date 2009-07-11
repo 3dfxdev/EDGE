@@ -252,13 +252,13 @@ for (s = 0; s < NumSectors; s++)
    /* array for its starting Vertex, and a "2" for its ending Vertex  */
    for (n = 0; n < NumLineDefs; n++)
       {
-      sd = LineDefs[n].sidedef1;
+      sd = LineDefs[n].side_R;
       if (sd >= 0 && SideDefs[sd].sector == s)
    {
    ends[LineDefs[n].start] |= 1;
    ends[LineDefs[n].end] |= 2;
    }
-      sd = LineDefs[n].sidedef2;
+      sd = LineDefs[n].side_L;
       if (sd >= 0 && SideDefs[sd].sector == s)
    {
    ends[LineDefs[n].end] |= 1;
@@ -312,7 +312,7 @@ FreeMemory (ends);
 for (n = 0; n < NumLineDefs; n++)
    {
    
-   sd = LineDefs[n].sidedef1;
+   sd = LineDefs[n].side_R;
    if (sd >= 0)
       {
       s = GetOppositeSector (n, 1);
@@ -339,7 +339,7 @@ for (n = 0; n < NumLineDefs; n++)
    }
       }
    
-   sd = LineDefs[n].sidedef2;
+   sd = LineDefs[n].side_L;
    if (sd >= 0)
       {
       s = GetOppositeSector (n, 0);
@@ -386,7 +386,7 @@ LogMessage ("\nVerifying cross-references...\n");
 for (n = 0; n < NumLineDefs; n++)
    {
    /* Check for missing first sidedefs */
-   if (LineDefs[n].sidedef1 < 0)
+   if (LineDefs[n].side_R < 0)
       {
       sprintf (msg, "ERROR: linedef #%d has no first sidedef!", n);
       CheckFailed (-1, -1, msg, 0, 1, first_time);
@@ -444,7 +444,7 @@ else
 CheckingObjects ();
 /* check for invalid flags in the linedefs */
 for (n = 0; n < NumLineDefs; n++)
-   if ((LineDefs[n].flags & 0x01) == 0 && LineDefs[n].sidedef2 < 0)
+   if ((LineDefs[n].flags & 0x01) == 0 && LineDefs[n].side_L < 0)
       SelectObject (&cur, n);
 if (cur && (Expert
     || Confirm (-1, -1, "Some linedefs have only one side but their I flag is"
@@ -461,7 +461,7 @@ else
 
 CheckingObjects ();
 for (n = 0; n < NumLineDefs; n++)
-   if ((LineDefs[n].flags & 0x04) != 0 && LineDefs[n].sidedef2 < 0)
+   if ((LineDefs[n].flags & 0x04) != 0 && LineDefs[n].side_L < 0)
       SelectObject (&cur, n);
 if (cur
   && (Expert
@@ -481,7 +481,7 @@ else
 
 CheckingObjects ();
 for (n = 0; n < NumLineDefs; n++)
-   if ((LineDefs[n].flags & 0x04) == 0 && LineDefs[n].sidedef2 >= 0)
+   if ((LineDefs[n].flags & 0x04) == 0 && LineDefs[n].side_L >= 0)
       SelectObject (&cur, n);
 if (cur
   && (Expert
@@ -532,10 +532,10 @@ for (n = 0; n < NumSideDefs; n++)
 /* unselect SideDefs bound to a LineDef */
 for (n = 0; n < NumLineDefs; n++)
    {
-   m = LineDefs[n].sidedef1;
+   m = LineDefs[n].side_R;
    if (cur && m >= 0)
       UnSelectObject (&cur, m);
-   m = LineDefs[n].sidedef2;
+   m = LineDefs[n].side_L;
    if (cur && m >= 0)
       UnSelectObject (&cur, m);
    continue;
@@ -557,12 +557,12 @@ for (n = 0; n < NumSectors; n++)
 for (n = 0; n < NumLineDefs; n++)
    {
    
-   m = LineDefs[n].sidedef1;
+   m = LineDefs[n].side_L;
    
    if (cur && m >= 0 /* && SideDefs[m].sector >= 0 AYM 1998-06-13 */)
       UnSelectObject (&cur, SideDefs[m].sector);
    
-   m = LineDefs[n].sidedef2;
+   m = LineDefs[n].side_R;
    
    if (cur && m >= 0 /* && SideDefs[m].sector >= 0 AYM 1998-06-13 */)
       UnSelectObject (&cur, SideDefs[m].sector);
@@ -596,9 +596,9 @@ LogMessage ("\nVerifying textures...\n");
 
 for (n = 0; n < NumSectors; n++)
    {
-   if (strcmp (Sectors[n].ceilt, "-") == 0
-     || strcmp (Sectors[n].ceilt, "") == 0
-     || memcmp (Sectors[n].ceilt, "        ", 8) == 0)
+   if (strcmp (Sectors[n].ceil_tex, "-") == 0
+     || strcmp (Sectors[n].ceil_tex, "") == 0
+     || memcmp (Sectors[n].ceil_tex, "        ", 8) == 0)
       {
       sprintf (msg1, "Error: sector #%d has no ceiling texture", n);
       sprintf (msg2, "You probably used a brain-damaged editor to do that...");
@@ -606,9 +606,9 @@ for (n = 0; n < NumSectors; n++)
       GoToObject (Objid (OBJ_SECTORS, n));
       return;
       }
-   if (strcmp (Sectors[n].floort, "-") == 0
-     || strcmp (Sectors[n].floort, "") == 0
-     || memcmp (Sectors[n].floort, "        ", 8) == 0)
+   if (strcmp (Sectors[n].floor_tex, "-") == 0
+     || strcmp (Sectors[n].floor_tex, "") == 0
+     || memcmp (Sectors[n].floor_tex, "        ", 8) == 0)
       {
       sprintf (msg1, "Error: sector #%d has no floor texture", n);
       sprintf (msg2, "You probably used a brain-damaged editor to do that...");
@@ -641,8 +641,8 @@ for (n = 0; n < NumSectors; n++)
 for (n = 0; n < NumLineDefs; n++)
    {
    
-   sd1 = LineDefs[n].sidedef1;
-   sd2 = LineDefs[n].sidedef2;
+   sd1 = LineDefs[n].side_R;
+   sd2 = LineDefs[n].side_L;
    
    if (sd1 >= 0)
       s1 = SideDefs[sd1].sector;
@@ -654,7 +654,7 @@ for (n = 0; n < NumLineDefs; n++)
       s2 = OBJ_NO_NONE;
    if (is_obj (s1) && ! is_obj (s2))
       {
-      if (SideDefs[sd1].middle[0] == '-' && SideDefs[sd1].middle[1] == '\0')
+      if (SideDefs[sd1].mid_tex[0] == '-' && SideDefs[sd1].mid_tex[1] == '\0')
    {
    sprintf (msg1, "Error in one-sided linedef #%d:"
      " sidedef #%d has no middle texture", n, sd1);
@@ -665,15 +665,15 @@ for (n = 0; n < NumLineDefs; n++)
       GoToObject (Objid (OBJ_LINEDEFS, n));
       return;
       }
-   strncpy (SideDefs[sd1].middle, default_middle_texture, WAD_TEX_NAME);
+   strncpy (SideDefs[sd1].mid_tex, default_middle_texture, WAD_TEX_NAME);
          MadeChanges = 1;
    CheckingObjects ();
    }
       }
    if (is_obj (s1) && is_obj (s2) && Sectors[s1].ceilh > Sectors[s2].ceilh)
       {
-      if (SideDefs[sd1].upper[0] == '-' && SideDefs[sd1].upper[1] == '\0'
-    && (! is_sky (Sectors[s1].ceilt) || ! is_sky (Sectors[s2].ceilt)))
+      if (SideDefs[sd1].upper_tex[0] == '-' && SideDefs[sd1].upper_tex[1] == '\0'
+    && (! is_sky (Sectors[s1].ceil_tex) || ! is_sky (Sectors[s2].ceil_tex)))
    {
    sprintf (msg1, "Error in first sidedef of linedef #%d:"
      " sidedef #%d has no upper texture", n, sd1);
@@ -684,14 +684,14 @@ for (n = 0; n < NumLineDefs; n++)
       GoToObject (Objid (OBJ_LINEDEFS, n));
       return;
       }
-   strncpy (SideDefs[sd1].upper, default_upper_texture, WAD_TEX_NAME);
+   strncpy (SideDefs[sd1].upper_tex, default_upper_texture, WAD_TEX_NAME);
          MadeChanges = 1;
    CheckingObjects ();
    }
       }
    if (is_obj (s1) && is_obj (s2) && Sectors[s1].floorh < Sectors[s2].floorh)
       {
-      if (SideDefs[sd1].lower[0] == '-' && SideDefs[sd1].lower[1] == '\0')
+      if (SideDefs[sd1].lower_tex[0] == '-' && SideDefs[sd1].lower_tex[1] == '\0')
    {
    sprintf (msg1, "Error in first sidedef of linedef #%d:"
      " sidedef #%d has no lower texture", n, sd1);
@@ -702,15 +702,15 @@ for (n = 0; n < NumLineDefs; n++)
       GoToObject (Objid (OBJ_LINEDEFS, n));
       return;
       }
-   strncpy (SideDefs[sd1].lower, default_lower_texture, WAD_TEX_NAME);
+   strncpy (SideDefs[sd1].lower_tex, default_lower_texture, WAD_TEX_NAME);
          MadeChanges = 1;
    CheckingObjects ();
    }
       }
    if (is_obj (s1) && is_obj (s2) && Sectors[s2].ceilh > Sectors[s1].ceilh)
       {
-      if (SideDefs[sd2].upper[0] == '-' && SideDefs[sd2].upper[1] == '\0'
-    && (! is_sky (Sectors[s1].ceilt) || ! is_sky (Sectors[s2].ceilt)))
+      if (SideDefs[sd2].upper_tex[0] == '-' && SideDefs[sd2].upper_tex[1] == '\0'
+    && (! is_sky (Sectors[s1].ceil_tex) || ! is_sky (Sectors[s2].ceil_tex)))
    {
    sprintf (msg1, "Error in second sidedef of linedef #%d:"
      " sidedef #%d has no upper texture", n, sd2);
@@ -721,14 +721,14 @@ for (n = 0; n < NumLineDefs; n++)
       GoToObject (Objid (OBJ_LINEDEFS, n));
       return;
       }
-   strncpy (SideDefs[sd2].upper, default_upper_texture, WAD_TEX_NAME);
+   strncpy (SideDefs[sd2].upper_tex, default_upper_texture, WAD_TEX_NAME);
          MadeChanges = 1;
    CheckingObjects ();
    }
       }
    if (is_obj (s1) && is_obj (s2) && Sectors[s2].floorh < Sectors[s1].floorh)
       {
-      if (SideDefs[sd2].lower[0] == '-' && SideDefs[sd2].lower[1] == '\0')
+      if (SideDefs[sd2].lower_tex[0] == '-' && SideDefs[sd2].lower_tex[1] == '\0')
    {
    sprintf (msg1, "Error in second sidedef of linedef #%d:"
      " sidedef #%d has no lower texture", n, sd2);
@@ -739,7 +739,7 @@ for (n = 0; n < NumLineDefs; n++)
       GoToObject (Objid (OBJ_LINEDEFS, n));
       return;
       }
-   strncpy (SideDefs[sd2].lower, default_lower_texture, WAD_TEX_NAME);
+   strncpy (SideDefs[sd2].lower_tex, default_lower_texture, WAD_TEX_NAME);
          MadeChanges = 1;
    CheckingObjects ();
    }
@@ -783,11 +783,11 @@ if (! FindMasterDir (MasterDir, "F2_START"))
 
 for (n = 0; n < NumSectors; n++)
    {
-   if (! is_flat_name_in_list (Sectors[n].ceilt))
+   if (! is_flat_name_in_list (Sectors[n].ceil_tex))
       {
       sprintf (msg1, "Invalid ceiling texture in sector #%d", n);
       sprintf (msg2, "The name \"%.*s\" is not a floor/ceiling texture",
-  (int) WAD_FLAT_NAME, Sectors[n].ceilt);
+  (int) WAD_FLAT_NAME, Sectors[n].ceil_tex);
       if (CheckFailed (-1, -1, msg1, msg2, 0, first_time))
    {
    GoToObject (Objid (OBJ_SECTORS, n));
@@ -795,11 +795,11 @@ for (n = 0; n < NumSectors; n++)
    }
       CheckingObjects ();
       }
-   if (! is_flat_name_in_list (Sectors[n].floort))
+   if (! is_flat_name_in_list (Sectors[n].floor_tex))
       {
       sprintf (msg1, "Invalid floor texture in sector #%d", n);
       sprintf (msg2, "The name \"%.*s\" is not a floor/ceiling texture",
-  (int) WAD_FLAT_NAME, Sectors[n].floort);
+  (int) WAD_FLAT_NAME, Sectors[n].floor_tex);
       if (CheckFailed (-1, -1, msg1, msg2, 0, first_time))
    {
    GoToObject (Objid (OBJ_SECTORS, n));
@@ -811,11 +811,11 @@ for (n = 0; n < NumSectors; n++)
 
 for (n = 0; n < NumSideDefs; n++)
    {
-   if (! IsTextureNameInList (SideDefs[n].upper, WTexture, NumWTexture))
+   if (! IsTextureNameInList (SideDefs[n].upper_tex, WTexture, NumWTexture))
       {
       sprintf (msg1, "Invalid upper texture in sidedef #%d", n);
       sprintf (msg2, "The name \"%.*s\" is not a wall texture",
-  (int) WAD_TEX_NAME, SideDefs[n].upper);
+  (int) WAD_TEX_NAME, SideDefs[n].upper_tex);
       if (CheckFailed (-1, -1, msg1, msg2, 0, first_time))
    {
    GoToObject (Objid (OBJ_SIDEDEFS, n));
@@ -823,11 +823,11 @@ for (n = 0; n < NumSideDefs; n++)
    }
       CheckingObjects ();
       }
-   if (! IsTextureNameInList (SideDefs[n].lower, WTexture, NumWTexture))
+   if (! IsTextureNameInList (SideDefs[n].lower_tex, WTexture, NumWTexture))
       {
       sprintf (msg1, "Invalid lower texture in sidedef #%d", n);
       sprintf (msg2, "The name \"%.*s\" is not a wall texture",
-  (int) WAD_TEX_NAME, SideDefs[n].lower);
+  (int) WAD_TEX_NAME, SideDefs[n].lower_tex);
       if (CheckFailed (-1, -1, msg1, msg2, 0, first_time))
    {
    GoToObject (Objid (OBJ_SIDEDEFS, n));
@@ -835,11 +835,11 @@ for (n = 0; n < NumSideDefs; n++)
    }
       CheckingObjects ();
       }
-   if (! IsTextureNameInList (SideDefs[n].middle, WTexture, NumWTexture))
+   if (! IsTextureNameInList (SideDefs[n].mid_tex, WTexture, NumWTexture))
       {
       sprintf (msg1, "Invalid middle texture in sidedef #%d", n);
       sprintf (msg2, "The name \"%.*s\" is not a wall texture",
-  (int) WAD_TEX_NAME, SideDefs[n].middle);
+  (int) WAD_TEX_NAME, SideDefs[n].mid_tex);
       if (CheckFailed (-1, -1, msg1, msg2, 0, first_time))
    {
    GoToObject (Objid (OBJ_SIDEDEFS, n));

@@ -485,10 +485,10 @@ void UI_Canvas::DrawLinedefs()
 				if (LineDefs[n].type == 0 && LineDefs[n].tag != 0)
 					new_colour = LIGHTRED;
 				// No first sidedef
-				if (! is_sidedef (LineDefs[n].sidedef1))
+				if (! is_sidedef (LineDefs[n].side_R))
 					new_colour = LIGHTRED;
 				// Bad second sidedef
-				if (! is_sidedef (LineDefs[n].sidedef2) && LineDefs[n].sidedef2 != -1)
+				if (! is_sidedef (LineDefs[n].side_L) && LineDefs[n].side_L != -1)
 					new_colour = LIGHTRED;
 
 				if (new_colour != current_colour)
@@ -536,9 +536,9 @@ void UI_Canvas::DrawLinedefs()
 				int s2  = OBJ_NO_NONE;
 				// FIXME should flag negative sidedef numbers as errors
 				// FIXME should flag unused tag as errors
-				if ((sd1 = LineDefs[n].sidedef1) < 0 || sd1 >= NumSideDefs
+				if ((sd1 = LineDefs[n].side_R) < 0 || sd1 >= NumSideDefs
 						|| (s1 = SideDefs[sd1].sector) < 0 || s1 >= NumSectors
-						|| (sd2 = LineDefs[n].sidedef2) >= NumSideDefs
+						|| (sd2 = LineDefs[n].side_L) >= NumSideDefs
 						|| sd2 >= 0 && ((s2 = SideDefs[sd2].sector) < 0
 							|| s2 >= NumSectors))
 				{
@@ -550,13 +550,13 @@ void UI_Canvas::DrawLinedefs()
 					bool have_type = false;
 					if (Sectors[s1].tag != 0)
 						have_tag = true;
-					if (Sectors[s1].special != 0)
+					if (Sectors[s1].type != 0)
 						have_type = true;
 					if (sd2 >= 0)
 					{
 						if (Sectors[s2].tag != 0)
 							have_tag = true;
-						if (Sectors[s2].special != 0)
+						if (Sectors[s2].type != 0)
 							have_type = true;
 					}
 					if (have_tag && have_type)
@@ -643,11 +643,11 @@ void UI_Canvas::DrawThings()
 
 			if (active_wmask)
 			{
-				if (Things[n].when & 1)
+				if (Things[n].options & 1)
 					fl_color (YELLOW);
-				else if (Things[n].when & 2)
+				else if (Things[n].options & 2)
 					fl_color (LIGHTGREEN);
-				else if (Things[n].when & 4)
+				else if (Things[n].options & 4)
 					fl_color (LIGHTRED);
 				else
 					fl_color (THING_REM);
@@ -767,10 +767,10 @@ void UI_Canvas::HighlightObject (int objtype, int objnum, Fl_Color colour)
 			const int mapx9 = MAPX (ScrMaxX);
 			const int mapy9 = MAPY (0);
 			for (n = 0; n < NumLineDefs; n++)
-				if (LineDefs[n].sidedef1 != -1
-						&& SideDefs[LineDefs[n].sidedef1].sector == objnum
-						|| LineDefs[n].sidedef2 != -1
-						&& SideDefs[LineDefs[n].sidedef2].sector == objnum)
+				if (LineDefs[n].side_R != -1
+						&& SideDefs[LineDefs[n].side_R].sector == objnum
+						|| LineDefs[n].side_L != -1
+						&& SideDefs[LineDefs[n].side_L].sector == objnum)
 				{
 					const struct Vertex *v1 = Vertices + LineDefs[n].start;
 					const struct Vertex *v2 = Vertices + LineDefs[n].end;

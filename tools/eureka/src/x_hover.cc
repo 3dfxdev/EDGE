@@ -278,9 +278,9 @@ static const Close_obj& get_cur_sector (int x, int y)
   {
     if (Vertices[LineDefs[best_match].start].y
       > Vertices[LineDefs[best_match].end].y)
-      best_match = LineDefs[best_match].sidedef1;
+      best_match = LineDefs[best_match].side_R;
     else
-      best_match = LineDefs[best_match].sidedef2;
+      best_match = LineDefs[best_match].side_L;
     if (best_match >= 0)
     {
       
