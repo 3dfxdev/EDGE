@@ -23,8 +23,8 @@
 //------------------------------------------------------------------------
 
 
-void select_linedefs_path (SelPtr *list, int linedef_no, sel_op_t mode);
-void select_1s_linedefs_path (SelPtr *list, int linedef_no, sel_op_t mode);
+void select_linedefs_path (SelPtr *list, int linedef_no, sel_op_e mode);
+void select_1s_linedefs_path (SelPtr *list, int linedef_no, sel_op_e mode);
 
 
 //--- editor settings ---

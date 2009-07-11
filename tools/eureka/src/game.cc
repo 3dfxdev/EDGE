@@ -75,7 +75,7 @@ strcpy (filename, basename);
 
 ygdfile = fopen (filename, "r");
 if (ygdfile == NULL)
-   fatal_error ("%s: %s", filename, strerror (errno));
+   FatalError ("%s: %s", filename, strerror (errno));
 
 /* Read the game definition
    file, line by line. */
@@ -94,7 +94,7 @@ for (lineno = 2; fgets (readbuf, sizeof readbuf, ygdfile); lineno++)
     /* duplicate the buffer */
     buf = (char *) malloc (strlen (readbuf) + 1);
     if (! buf)
-        fatal_error ("not enough memory");
+        FatalError ("not enough memory");
 
     /* break the line into whitespace-separated tokens.
        whitespace can be enclosed in double quotes. */
@@ -119,7 +119,7 @@ for (lineno = 2; fgets (readbuf, sizeof readbuf, ygdfile); lineno++)
         else if (! in_token && (quoted || ! isspace (*iptr)))
         {
             if (ntoks >= (int) (sizeof token / sizeof *token))
-                fatal_error ("%s(%d): more than %d tokens",
+                FatalError ("%s(%d): more than %d tokens",
                         filename, lineno, sizeof token / sizeof *token);
             token[ntoks] = optr;
             ntoks++;
@@ -139,7 +139,7 @@ for (lineno = 2; fgets (readbuf, sizeof readbuf, ygdfile); lineno++)
             *optr++ = *iptr;
     }
     if (quoted)
-        fatal_error ("%s(%d): unmatched double quote", filename, lineno);
+        FatalError ("%s(%d): unmatched double quote", filename, lineno);
 
     /* process line */
     if (ntoks == 0)
@@ -152,7 +152,7 @@ for (lineno = 2; fgets (readbuf, sizeof readbuf, ygdfile); lineno++)
         ldtdef_t *buf = new ldtdef_t;
 
         if (ntoks != 5)
-            fatal_error (bad_arg_count, filename, lineno, token[0], 4);
+            FatalError (bad_arg_count, filename, lineno, token[0], 4);
 
         buf->number    = atoi (token[1]);
         buf->ldtgroup  = *token[2];
@@ -164,7 +164,7 @@ for (lineno = 2; fgets (readbuf, sizeof readbuf, ygdfile); lineno++)
     else if (! strcmp (token[0], "ldtgroup"))
     {
         if (ntoks != 3)
-            fatal_error (bad_arg_count, filename, lineno, token[0], 2);
+            FatalError (bad_arg_count, filename, lineno, token[0], 2);
 
         ldtgroup_t *buf = new ldtgroup_t;
 
@@ -176,7 +176,7 @@ for (lineno = 2; fgets (readbuf, sizeof readbuf, ygdfile); lineno++)
     else if (! strcmp (token[0], "level_format"))
     {
         if (ntoks != 2)
-            fatal_error (bad_arg_count, filename, lineno, token[0], 1);
+            FatalError (bad_arg_count, filename, lineno, token[0], 1);
         if (! strcmp (token[1], "alpha"))
             yg_level_format = YGLF_ALPHA;
         else if (! strcmp (token[1], "doom"))
@@ -184,14 +184,14 @@ for (lineno = 2; fgets (readbuf, sizeof readbuf, ygdfile); lineno++)
         else if (! strcmp (token[1], "hexen"))
             yg_level_format = YGLF_HEXEN;
         else
-            fatal_error ("%s(%d): invalid argument \"%.32s\" (alpha|doom|hexen)",
+            FatalError ("%s(%d): invalid argument \"%.32s\" (alpha|doom|hexen)",
                     filename, lineno, token[1]);
         free (buf);
     }
     else if (! strcmp (token[0], "level_name"))
     {
         if (ntoks != 2)
-            fatal_error (bad_arg_count, filename, lineno, token[0], 1);
+            FatalError (bad_arg_count, filename, lineno, token[0], 1);
         if (! strcmp (token[1], "e1m1"))
             yg_level_name = YGLN_E1M1;
         else if (! strcmp (token[1], "e1m10"))
@@ -199,14 +199,14 @@ for (lineno = 2; fgets (readbuf, sizeof readbuf, ygdfile); lineno++)
         else if (! strcmp (token[1], "map01"))
             yg_level_name = YGLN_MAP01;
         else
-            fatal_error ("%s(%d): invalid argument \"%.32s\" (e1m1|e1m10|map01)",
+            FatalError ("%s(%d): invalid argument \"%.32s\" (e1m1|e1m10|map01)",
                     filename, lineno, token[1]);
         free (buf);
     }
     else if (! strcmp (token[0], "picture_format"))
     {
         if (ntoks != 2)
-            fatal_error (bad_arg_count, filename, lineno, token[0], 1);
+            FatalError (bad_arg_count, filename, lineno, token[0], 1);
         if (! strcmp (token[1], "alpha"))
             yg_picture_format = YGPF_ALPHA;
         else if (! strcmp (token[1], "pr"))
@@ -214,20 +214,20 @@ for (lineno = 2; fgets (readbuf, sizeof readbuf, ygdfile); lineno++)
         else if (! strcmp (token[1], "normal"))
             yg_picture_format = YGPF_NORMAL;
         else
-            fatal_error ("%s(%d): invalid argument \"%.32s\" (alpha|pr|normal)",
+            FatalError ("%s(%d): invalid argument \"%.32s\" (alpha|pr|normal)",
                     filename, lineno, token[1]);
         free (buf);
     }
     else if (! strcmp (token[0], "sky_flat"))
     {
         if (ntoks != 2)
-            fatal_error (bad_arg_count, filename, lineno, token[0], 1);
+            FatalError (bad_arg_count, filename, lineno, token[0], 1);
         sky_flat = token[1];
     }
     else if (! strcmp (token[0], "st"))
     {
         if (ntoks != 4)
-            fatal_error (bad_arg_count, filename, lineno, token[0], 3);
+            FatalError (bad_arg_count, filename, lineno, token[0], 3);
 
         stdef_t *buf = new stdef_t;
 
@@ -240,7 +240,7 @@ for (lineno = 2; fgets (readbuf, sizeof readbuf, ygdfile); lineno++)
     else if (! strcmp (token[0], "texture_format"))
     {
         if (ntoks != 2)
-            fatal_error (bad_arg_count, filename, lineno, token[0], 1);
+            FatalError (bad_arg_count, filename, lineno, token[0], 1);
         if (! strcmp (token[1], "nameless"))
             yg_texture_format = YGTF_NAMELESS;
         else if (! strcmp (token[1], "normal"))
@@ -248,7 +248,7 @@ for (lineno = 2; fgets (readbuf, sizeof readbuf, ygdfile); lineno++)
         else if (! strcmp (token[1], "strife11"))
             yg_texture_format = YGTF_STRIFE11;
         else
-            fatal_error (
+            FatalError (
                     "%s(%d): invalid argument \"%.32s\" (normal|nameless|strife11)",
                     filename, lineno, token[1]);
         free (buf);
@@ -256,7 +256,7 @@ for (lineno = 2; fgets (readbuf, sizeof readbuf, ygdfile); lineno++)
     else if (! strcmp (token[0], "texture_lumps"))
     {
         if (ntoks != 2)
-            fatal_error (bad_arg_count, filename, lineno, token[0], 1);
+            FatalError (bad_arg_count, filename, lineno, token[0], 1);
         if (! strcmp (token[1], "textures"))
             yg_texture_lumps = YGTL_TEXTURES;
         else if (! strcmp (token[1], "normal"))
@@ -264,7 +264,7 @@ for (lineno = 2; fgets (readbuf, sizeof readbuf, ygdfile); lineno++)
         else if (! strcmp (token[1], "none"))
             yg_texture_lumps = YGTL_NONE;
         else
-            fatal_error (
+            FatalError (
                     "%s(%d): invalid argument \"%.32s\" (normal|textures|none)",
                     filename, lineno, token[1]);
         free (buf);
@@ -272,7 +272,7 @@ for (lineno = 2; fgets (readbuf, sizeof readbuf, ygdfile); lineno++)
     else if (! strcmp (token[0], "thing"))
     {
         if (ntoks < 6 || ntoks > 7)
-            fatal_error (
+            FatalError (
                     "%s(d%): directive \"%s\" takes between 5 and 6 parameters",
                     filename, lineno, token[0]);
 
@@ -290,13 +290,13 @@ for (lineno = 2; fgets (readbuf, sizeof readbuf, ygdfile); lineno++)
     else if (! strcmp (token[0], "thinggroup"))
     {
         if (ntoks != 4)
-            fatal_error (bad_arg_count, filename, lineno, token[0], 3);
+            FatalError (bad_arg_count, filename, lineno, token[0], 3);
 
         thinggroup_t *buf = new thinggroup_t;
 
         buf->thinggroup = *token[1];
         if (getcolour (token[2], &buf->rgb))
-            fatal_error ("%s(%d): bad colour spec \"%.32s\"",
+            FatalError ("%s(%d): bad colour spec \"%.32s\"",
                     filename, lineno, token[2]);
 
         buf->desc = token[3];
@@ -306,7 +306,7 @@ for (lineno = 2; fgets (readbuf, sizeof readbuf, ygdfile); lineno++)
     else
     {
         free (buf);
-        fatal_error ("%s(%d): unknown directive \"%.32s\"",
+        FatalError ("%s(%d): unknown directive \"%.32s\"",
                 filename, lineno, token[0]);
     }
 }
@@ -355,7 +355,7 @@ create_things_table ();
 ///???  
 ///???  buf->push_back(buf);
 ///???  if (al_lwrite (ldtgroup, &buf))
-///???    fatal_error ("LGD90 (%s)", al_astrerror (al_aerrno));
+///???    FatalError ("LGD90 (%s)", al_astrerror (al_aerrno));
 ///???  }
 ///???  
 ///???  /* KLUDGE: Add bogus thinggroup THING_FREE.
@@ -367,7 +367,7 @@ create_things_table ();
 ///???  buf.desc       = "Other (enter number)";
 ///???  al_lseek (thinggroup, 0, SEEK_END);
 ///???  if (al_lwrite (thinggroup, &buf))
-///???    fatal_error ("LGD91 (%s)", al_astrerror (al_aerrno));
+///???    FatalError ("LGD91 (%s)", al_astrerror (al_aerrno));
 ///???  }
 ///???  
 ///???  /* KLUDGE: Add bogus sector type at the end of stdef.
@@ -380,7 +380,7 @@ create_things_table ();
 ///???  buf.longdesc  = "Other (enter number)";
 ///???  al_lseek (stdef, 0, SEEK_END);
 ///???  if (al_lwrite (stdef, &buf))
-///???    fatal_error ("LGD92 (%s)", al_astrerror (al_aerrno));
+///???    FatalError ("LGD92 (%s)", al_astrerror (al_aerrno));
 ///???  }
 
 }

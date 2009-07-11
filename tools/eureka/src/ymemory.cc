@@ -34,7 +34,7 @@ void *GetMemory (unsigned long size)
   void *ret = malloc ((size_t) size);
 
   if (!ret)
-    fatal_error ("out of memory (cannot allocate %u bytes)", size);
+    FatalError("out of memory (cannot allocate %u bytes)", size);
 
   return ret;
 }
@@ -49,7 +49,7 @@ void *ResizeMemory (void *old, unsigned long size)
   void *ret = realloc (old, (size_t) size);
 
   if (!ret)
-    fatal_error ("out of memory (cannot reallocate %lu bytes)", size);
+    FatalError("out of memory (cannot reallocate %lu bytes)", size);
 
   return ret;
 }

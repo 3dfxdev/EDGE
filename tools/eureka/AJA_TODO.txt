@@ -4,9 +4,6 @@ AJA's TODO LIST
 General
 -------
 
-+ command line option to set map to edit
-  (use first found map otherwise)
-
 - proper GAMMA option, for:
   - map drawing
   - renderer

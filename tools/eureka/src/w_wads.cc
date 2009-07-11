@@ -490,170 +490,6 @@ return wf;
 }
 
 
-/*
- *  ListMasterDirectory - list the master directory
- */
-void ListMasterDirectory (FILE *file)
-{
-char dataname[WAD_NAME + 1];
-MDirPtr dir;
-char key;
-int lines = 3;
-
-dataname[WAD_NAME] = '\0';
-fprintf (file, "The Master Directory\n");
-fprintf (file, "====================\n\n");
-fprintf (file, "NAME____  FILE______________________________________________"
-   "  SIZE__  START____\n");
-for (dir = MasterDir; dir; dir = dir->next)
-   {
-   strncpy (dataname, dir->dir.name, WAD_NAME);
-   fprintf (file, "%-*s  %-50s  %6d  x%08x\n",
-    WAD_NAME, dataname, dir->wadfile->pathname (),
-    dir->dir.size, dir->dir.start);
-   if (file == stdout && lines++ > screen_lines - 4)
-      {
-      lines = 0;
-      printf ("['Q' followed by Return to abort, Return only to continue]");
-      key = getchar ();
-      printf ("\r%57s\r", "");
-      if (key == 'Q' || key == 'q')
-   {
-         getchar ();  // Read the '\n'
-         break;
-         }
-      }
-   }
-}
-
-
-/*
- *  ListFileDirectory - list the directory of a wad
- */
-void ListFileDirectory (FILE *file, const Wad_file *wad)
-{
-char dataname[WAD_NAME + 1];
-char key;
-int lines = 5;
-long n;
-
-dataname[WAD_NAME] = '\0';
-fprintf (file, "Wad File Directory\n");
-fprintf (file, "==================\n\n");
-fprintf (file, "Wad File: %s\n\n", wad->pathname ());
-fprintf (file, "NAME____  SIZE__  START____  END______\n");
-for (n = 0; n < wad->dirsize; n++)
-   {
-   strncpy (dataname, wad->directory[n].name, WAD_NAME);
-   fprintf (file, "%-*s  %6d  x%08x  x%08x\n",
-     WAD_NAME, dataname,
-     wad->directory[n].size,
-     wad->directory[n].start,
-     wad->directory[n].size + wad->directory[n].start - 1);
-   if (file == stdout && lines++ > screen_lines - 4)
-      {
-      lines = 0;
-      printf ("['Q' followed by Return to abort, Return only to continue]");
-      key = getchar ();
-      printf ("\r%57s\r", "");
-      if (key == 'Q' || key == 'q')
-         {
-         getchar ();  // Read the '\n'
-   break;
-         }
-      }
-   }
-}
-
-
-
-/*
- *  DumpDirectoryEntry - hexadecimal dump of a lump
- *
- *  Dump a directory entry in hex
- */
-void DumpDirectoryEntry (FILE *file, const char *entryname)
-{
-char dataname[WAD_NAME + 1];
-char key;
-int lines = 5;
-long n = 0;
-unsigned char buf[16];
-const int bytes_per_line = 16;
-
-for (MDirPtr entry = MasterDir; entry != 0; entry = entry->next)
-   {
-   if (y_strnicmp (entry->dir.name, entryname, WAD_NAME) != 0)
-      continue;
-   strncpy (dataname, entry->dir.name, WAD_NAME);
-   dataname[WAD_NAME] = '\0';
-   fprintf (file, "Contents of entry %s (size = %d bytes):\n",
-      dataname, entry->dir.size);
-   const Wad_file *wf = entry->wadfile;
-   wf->seek (entry->dir.start);
-   for (n = 0; n < entry->dir.size;)
-      {
-      int i;
-      fprintf (file, "%04lX: ", n);
-
-      // Nb of bytes to read for this line
-      long bytes_to_read = entry->dir.size - n;
-      if (bytes_to_read > bytes_per_line)
-   bytes_to_read = bytes_per_line;
-      long nbytes = wf->read_vbytes (buf, bytes_to_read);
-      if (wf->error ())
-   break;
-      n += nbytes;
-
-      for (i = 0; i < nbytes; i++)
-   fprintf (file, " %02X", buf[i]);
-      for (; i < bytes_per_line; i++)
-   fputs ("   ", file);
-      fprintf (file, "   ");
-
-      for (i = 0; i < nbytes; i++)
-   {
-   if (buf[i] >= 0x20
-      && buf[i] != 0x7f
-#ifdef Y_UNIX
-      && ! (buf[i] >= 0x80 && buf[i] <= 0xa0)  // ISO 8859-1
-#endif
-      )
-      putc (buf[i], file);
-   else
-      putc ('.', file);
-   }
-      putc ('\n', file);
-
-      if (file == stdout && lines++ > screen_lines - 4)
-   {
-   lines = 0;
-   printf ("[%d%% - Q + Return to abort,"
-       " S + Return to skip this entry,"
-       " Return to continue]", (int) (n * 100 / entry->dir.size));
-   key = getchar ();
-   printf ("\r%68s\r", "");
-   if (key == 'S' || key == 's')
-      {
-      getchar ();  // Read the '\n'
-      break;
-      }
-   if (key == 'Q' || key == 'q')
-      {
-      getchar ();  // Read the '\n'
-      return;
-      }
-   }
-      }
-   }
-if (! n)
-   {
-   printf ("Entry not in master directory.\n");
-   return;
-   }
-}
-
-
 
 /*
  *  SaveDirectoryEntry - write the contents of a lump to a new pwad
@@ -767,12 +603,12 @@ file_write_i32 (file, 12);    // The directory starts at offset 12
 file_write_i32 (file, 28);    // First entry starts at offset 28
 
 if (fseek (raw, 0L, SEEK_END) != 0)
-   fatal_error ("error reading from raw file");
+   FatalError("error reading from raw file");
 size = ftell (raw);
 if (size < 0)
-   fatal_error ("error reading from raw file");
+   FatalError("error reading from raw file");
 if (fseek (raw, 0L, SEEK_SET) != 0)
-   fatal_error ("error reading from raw file");
+   FatalError("error reading from raw file");
 file_write_i32 (file, size);    // Size of first entry
 
 memset (name8, '\0', WAD_NAME);

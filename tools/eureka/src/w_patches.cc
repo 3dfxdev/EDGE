@@ -164,7 +164,7 @@ void Patch_dir::refresh (MDirPtr master_dir)
       else if (! y_strnicmp (dir->dir.name, "PP_START", WAD_NAME))
   end_label = "PP_END";
       else
-  fatal_error ("Bad start label \"%.*s\"", (int) WAD_NAME, dir->dir.name);
+  FatalError("Bad start label \"%.*s\"", (int) WAD_NAME, dir->dir.name);
       //printf ("[%-8.8s ", dir->dir.name);  // DEBUG
       //fflush (stdout);
       dir = dir->next;

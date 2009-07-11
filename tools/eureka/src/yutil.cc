@@ -379,7 +379,7 @@ unsigned long y_milliseconds()
   do                  \
   {                 \
     if (sizeof (type) != size)            \
-      fatal_error ("sizeof " #type " is %d (should be " #size ")",  \
+      FatalError("sizeof " #type " is %d (should be " #size ")",  \
   (int) sizeof (type));           \
   }                 \
   while (0)
@@ -389,7 +389,7 @@ unsigned long y_milliseconds()
   {                 \
     type n = high;              \
     if (++n != low)             \
-      fatal_error ("Type " #type " wraps around to %lu (should be " #low ")",\
+      FatalError("Type " #type " wraps around to %lu (should be " #low ")",\
   (unsigned long) n);           \
   }                 \
   while (0)

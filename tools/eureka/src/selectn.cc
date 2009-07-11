@@ -72,7 +72,7 @@ void SelectObject (SelPtr *list, int objnum)
   SelPtr cur;
 
   if (! is_obj (objnum))
-    fatal_error ("BUG: SelectObject called with %d", objnum);
+    FatalError("BUG: SelectObject called with %d", objnum);
   cur = (SelPtr) GetMemory (sizeof (struct SelectionList));
   cur->next = *list;
   cur->objnum = objnum;
@@ -92,7 +92,7 @@ SelPtr cur;
 SelPtr prev;
 
 if (! is_obj (objnum))
-  fatal_error ("s/u_obj called with %d", objnum);
+  FatalError("s/u_obj called with %d", objnum);
 for (prev = NULL, cur = *list; cur != NULL; prev = cur, cur = cur->next)
   // Already selected: unselect it.
   if (cur->objnum == objnum)
@@ -127,7 +127,7 @@ void UnSelectObject (SelPtr *list, int objnum)
   SelPtr cur, prev;
 
   if (! is_obj (objnum))
-    fatal_error ("BUG: UnSelectObject called with %d", objnum);
+    FatalError("BUG: UnSelectObject called with %d", objnum);
   prev = 0;
   cur = *list;
   while (cur)

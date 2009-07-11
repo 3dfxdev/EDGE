@@ -203,12 +203,12 @@ void WriteBytes (FILE *file, const void *buf, long size)
   while (size > 0x8000)
   {
     if (fwrite (buf, 1, 0x8000, file) != 0x8000)
-      fatal_error ("error writing to file");
+      FatalError("error writing to file");
     buf = (const char *) buf + 0x8000;
     size -= 0x8000;
   }
   if (fwrite (buf, 1, size, file) != (size_t) size)
-    fatal_error ("error writing to file");
+    FatalError("error writing to file");
 }
 
 

@@ -34,12 +34,13 @@ static void select_linedefs_in_half_path (bitvec_c &sel,
     bitvec_c &ldseen,
     int linedef_no,
     int vertex_no,
-    sel_op_t mode);
+    sel_op_e mode);
+
 static void select_1s_linedefs_in_half_path (bitvec_c &sel,
     bitvec_c &ldseen,
     int linedef_no,
     int vertex_no,
-    sel_op_t mode);
+    sel_op_e mode);
 
 
 /*
@@ -51,17 +52,17 @@ static void select_1s_linedefs_in_half_path (bitvec_c &sel,
  *  removed if it was already in the selection, otherwise
  *  added.
  */
-void select_linedefs_path (SelPtr *list, int linedef_no, sel_op_t mode)
+void select_linedefs_path (SelPtr *list, int linedef_no, sel_op_e mode)
 {
 bitvec_c *ldsel = list_to_bitvec (*list, NumLineDefs);
 bitvec_c ldseen (NumLineDefs);  // Linedef already seen ?
 
 if (! is_obj (linedef_no))  // Sanity check
-   fatal_error ("select_linedef_path called with bad linedef_no=%d",
+   FatalError("select_linedef_path called with bad linedef_no=%d",
       linedef_no);
 
 LDPtr ld = LineDefs + linedef_no;
-ldsel->frob (linedef_no, (bitvec_op_t) mode);
+ldsel->frob (linedef_no, mode);
 ldseen.set (linedef_no);
 select_linedefs_in_half_path (*ldsel, ldseen, linedef_no, ld->start, mode);
 select_linedefs_in_half_path (*ldsel, ldseen, linedef_no, ld->end, mode);
@@ -84,7 +85,7 @@ static void select_linedefs_in_half_path (bitvec_c &ldsel,
     bitvec_c &ldseen,
     int linedef_no,
     int vertex_no,
-    sel_op_t mode)
+    sel_op_e mode)
 {
   int next_linedef_no = OBJ_NO_NONE;
   int next_vertex_no = OBJ_NO_NONE;
@@ -121,7 +122,7 @@ static void select_linedefs_in_half_path (bitvec_c &ldsel,
   if (ldseen.get (next_linedef_no))
     return;
 
-  ldsel.frob (next_linedef_no, (bitvec_op_t) mode);
+  ldsel.frob (next_linedef_no, mode);
   ldseen.set (next_linedef_no);
   select_linedefs_in_half_path (ldsel, ldseen, next_linedef_no, next_vertex_no,
       mode);
@@ -138,20 +139,20 @@ static void select_linedefs_in_half_path (bitvec_c &ldsel,
  *  removed if it was already in the selection, otherwise
  *  added.
  */
-void select_1s_linedefs_path (SelPtr *list, int linedef_no, sel_op_t mode)
+void select_1s_linedefs_path (SelPtr *list, int linedef_no, sel_op_e mode)
 {
 bitvec_c *ldsel = list_to_bitvec (*list, NumLineDefs);
 bitvec_c ldseen (NumLineDefs);  // Linedef already seen ?
 
 if (! is_obj (linedef_no))  // Sanity check
-   fatal_error ("select_linedef_path called with bad linedef_no=%d",
+   FatalError("select_linedef_path called with bad linedef_no=%d",
       linedef_no);
 
 LDPtr ld = LineDefs + linedef_no;
 if (! is_obj (ld->sidedef1)  // The first linedef is not single-sided. Quit.
     || is_obj (ld->sidedef2))
   goto byebye;
-ldsel->frob (linedef_no, (bitvec_op_t) mode);
+ldsel->frob (linedef_no, mode);
 ldseen.set (linedef_no);
 select_1s_linedefs_in_half_path (*ldsel, ldseen, linedef_no, ld->start, mode);
 select_1s_linedefs_in_half_path (*ldsel, ldseen, linedef_no, ld->end, mode);
@@ -171,7 +172,7 @@ static void select_1s_linedefs_in_half_path (bitvec_c &ldsel,
     bitvec_c &ldseen,
     int linedef_no,
     int vertex_no,
-    sel_op_t mode)
+    sel_op_e mode)
 {
   int next_linedef_no = OBJ_NO_NONE;
   int next_vertex_no = OBJ_NO_NONE;
@@ -212,7 +213,7 @@ static void select_1s_linedefs_in_half_path (bitvec_c &ldsel,
   if (ldseen.get (next_linedef_no))
     return;
 
-  ldsel.frob (next_linedef_no, (bitvec_op_t) mode);
+  ldsel.frob (next_linedef_no, mode);
   ldseen.set (next_linedef_no);
   select_1s_linedefs_in_half_path (ldsel, ldseen, next_linedef_no,
       next_vertex_no, mode);

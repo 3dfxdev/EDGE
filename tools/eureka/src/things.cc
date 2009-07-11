@@ -79,7 +79,7 @@ if (nthings == 0)
    }
 things_table = (thing_attributes_t *) malloc (nthings * sizeof *things_table);
 if (! things_table)
-   fatal_error ("Not enough memory");
+   FatalError("Not enough memory");
 
 
 for (n = 0; n < nthings; n++)
