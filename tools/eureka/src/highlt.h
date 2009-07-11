@@ -23,10 +23,7 @@
 //------------------------------------------------------------------------
 
 
-#include "edwidget.h"
-
-
-class highlight_c : public edwidget_c
+class highlight_c
    {
    public :
       highlight_c (void);

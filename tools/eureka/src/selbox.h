@@ -23,10 +23,7 @@
 //------------------------------------------------------------------------
 
 
-#include "edwidget.h"
-
-
-class selbox_c : public edwidget_c
+class selbox_c
 {
   public :
 

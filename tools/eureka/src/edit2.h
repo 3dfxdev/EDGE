@@ -31,7 +31,6 @@
 
 class menubar_c;
 class selbox_c;
-class spot_c;
 class highlight_c;
 
 
@@ -94,7 +93,6 @@ public:
     SelPtr Selected;    // Linked list of selected objects (or NULL)
 
     selbox_c    *selbox;   // The selection box
-    spot_c      *spot;   // The insertion spot
     highlight_c *highlight;
 
     int RedrawMap;

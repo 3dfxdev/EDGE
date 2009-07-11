@@ -41,7 +41,6 @@
 #include "selbox.h"
 #include "selectn.h"
 #include "selpath.h"
-#include "spot.h"
 #include "x_mirror.h"
 #include "x_hover.h"
 #include "xref.h"
@@ -176,7 +175,6 @@ main_win->canvas->DrawMap();
 main_win->canvas->HighlightSelection (edit.obj_type, edit.Selected); // FIXME should be widgetized
 
   edit.selbox->draw();
-  edit.spot->draw();
   edit.highlight->draw();
 
   DRAWING_MAP = false;
@@ -1488,10 +1486,6 @@ void EditorMouseMotion(int x, int y, int map_x, int map_y, bool drag)
       HighlightObj(object);
     }
 
-    if (edit.pointer_in_window)
-      edit.spot->set (grid.SnapX(edit.map_x), grid.SnapY(edit.map_y));
-    else
-      edit.spot->unset ();
   }
 
         
@@ -1650,7 +1644,6 @@ void EditorLoop (const char *_levelname)
     edit.Selected            = 0;
 
     edit.selbox              = new selbox_c;
-    edit.spot                = new spot_c;
     edit.highlight           = new highlight_c;
 
     MadeChanges = 0;
