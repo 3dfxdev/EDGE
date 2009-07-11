@@ -63,13 +63,15 @@ UI_MainWin::UI_MainWin(const char *title) :
 
   color(WINDOW_BG, WINDOW_BG);
 
-  int cy = 0;
-  int ey = h();
+	int cy = 0;
+	int ey = h();
 
+	int panel_W = 260;
+	int flattex_W = 170;
 
   /* ---- Menu bar ---- */
   {
-    menu_bar = Menu_Create(0, 0, w() - 262, 28+QF*3);
+    menu_bar = Menu_Create(0, 0, w() - panel_W, 28+QF*3);
     add(menu_bar);
 
 #ifndef MACOSX
@@ -83,10 +85,13 @@ UI_MainWin::UI_MainWin(const char *title) :
 
   ey = ey - info_bar->h();
 
-  
-  int panel_W = 260;
 
-  canvas = new UI_Canvas(0, cy, w()-panel_W, ey - cy);
+
+	tex_list = new UI_FlatTexList(w() - panel_W - flattex_W, cy, flattex_W, ey - cy);
+	add(tex_list);
+
+
+  canvas = new UI_Canvas(0, cy, w() - flattex_W - panel_W, ey - cy);
   add(canvas);
 
   resizable(canvas);
