@@ -672,7 +672,7 @@ static opcode_t pr_operators[] =
 {
 	{"!", OP_NOT_F, -1, &type_float, &type_void, &type_float},
 	{"!", OP_NOT_V, -1, &type_vector, &type_void, &type_float},
-	{"!", OP_NOT_S, -1, &type_vector, &type_void, &type_float},
+	{"!", OP_NOT_S, -1, &type_string, &type_void, &type_float},
 	{"!", OP_NOT_FNC, -1, &type_function, &type_void, &type_float},
 
 	/* priority 1 is for function calls */
@@ -1053,10 +1053,6 @@ def_t *PR_GetDef(type_t *type, char *name, def_t *scope)
 
 def_t * PR_ParseValue(void)
 {
-	// if the token is an immediate, allocate a constant for it
-	if (pr_token_type == tt_immediate)
-		return PR_ParseImmediate();
-
 	char *name = PR_ParseName();
 
 	// look through the defs
@@ -1070,26 +1066,12 @@ def_t * PR_ParseValue(void)
 
 def_t * PR_Term(void)
 {
-	if (PR_Check("!"))
-	{
-		def_t * e = PR_Expression(NOT_PRIORITY);
-		etype_t t = e->type->type;
+	// if the token is an immediate, allocate a constant for it
+	if (pr_token_type == tt_immediate)
+		return PR_ParseImmediate();
 
-		def_t *e2 = NULL;
-
-		if (t == ev_float)
-			e2 = PR_Statement(&pr_operators[OP_NOT_F], e);
-		else if (t == ev_string)
-			e2 = PR_Statement(&pr_operators[OP_NOT_S], e);
-		else if (t == ev_vector)
-			e2 = PR_Statement(&pr_operators[OP_NOT_V], e);
-		else if (t == ev_function)
-			e2 = PR_Statement(&pr_operators[OP_NOT_FNC], e);
-		else
-			PR_ParseError("type mismatch for !");
-
-		return e2;
-	}
+	if (pr_token_type == tt_name)
+		return PR_ParseValue();
 
 	if (PR_Check("("))
 	{
@@ -1098,7 +1080,33 @@ def_t * PR_Term(void)
 		return e;
 	}
 
-	return PR_ParseValue();
+	// unary operator?
+
+	opcode_t *op;
+
+	for (op=pr_operators ; op->name ; op++)
+	{
+		if (op->priority != -1)
+			continue;
+
+		if (! PR_Check(op->name))
+			continue;
+
+		def_t * e = PR_Expression(NOT_PRIORITY);
+
+		for (int i = 0; i == 0 || strcmp(op->name, op[i].name) == 0; i++)
+		{
+			if (op[i].type_a->type != e->type->type)
+				continue;
+
+			return PR_Statement(&op[i], e);
+		}
+
+		PR_ParseError("type mismatch for %s", op->name);
+	}
+
+	PR_ParseError("expected value or unary operator, found %s\n", pr_token);
+	return NULL; /* NOT REACHED */
 }
 
 
