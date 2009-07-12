@@ -25,7 +25,7 @@ syn match   coalComment   "//.*$" contains=coalTodo,@Spell
 syn region  coalComment   start="/[*]" end="[*]/" contains=coalTodo,@Spell
 
 " other keywords
-syn keyword coalDefine function var constant
+syn keyword coalDefine function var constant native module
 syn keyword coalType void float string vector
 syn keyword coalStatement return break while repeat until for if else
 
