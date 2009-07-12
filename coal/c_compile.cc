@@ -766,16 +766,14 @@ def_t *PR_NewLocal(type_t *type, bool is_temporary)
 }
 
 
-def_t * PR_ParseImmediate(void)
+def_t * PR_FindConstant()
 {
-	// Looks for a preexisting constant
-
 	def_t *cn;
 
 	// check for a constant with the same value
-	for (cn=all_defs ; cn ; cn=cn->next)
+	for (cn = all_defs ; cn ; cn = cn->next)
 	{
-		if (! cn->initialized)
+		if (! (cn->flags & DF_Constant))
 			continue;
 
 		if (cn->type != pr_immediate_type)
@@ -783,57 +781,64 @@ def_t * PR_ParseImmediate(void)
 
 		if (pr_immediate_type == &type_string)
 		{
-			if (!strcmp(G_STRING(cn->ofs), pr_immediate_string) )
-			{
-				PR_Lex();
+			if (strcmp(G_STRING(cn->ofs), pr_immediate_string) == 0)
 				return cn;
-			}
 		}
 		else if (pr_immediate_type == &type_float)
 		{
-			if ( G_FLOAT(cn->ofs) == pr_immediate[0] )
-			{
-				PR_Lex();
+			if (G_FLOAT(cn->ofs) == pr_immediate[0])
 				return cn;
-			}
 		}
 		else if	(pr_immediate_type == &type_vector)
 		{
-			if ( ( G_FLOAT(cn->ofs)     == pr_immediate[0] )
-				&& ( G_FLOAT(cn->ofs+1) == pr_immediate[1] )
-				&& ( G_FLOAT(cn->ofs+2) == pr_immediate[2] ) )
+			if (G_FLOAT(cn->ofs)   == pr_immediate[0] &&
+				G_FLOAT(cn->ofs+1) == pr_immediate[1] &&
+				G_FLOAT(cn->ofs+2) == pr_immediate[2])
 			{
-				PR_Lex();
 				return cn;
 			}
 		}
-		else
-			PR_ParseError("weird immediate type");
 	}
 
-	// allocate a new one
-	cn = PR_NewGlobal(pr_immediate_type);
+	return NULL;  // not found
+}
 
-	cn->name = "CONSTANT VALUE";
 
-	cn->initialized = 1;
-	cn->scope = NULL;   // always share immediates
-
-	// link into defs list
-	cn->next = all_defs;
-	all_defs  = cn;
-
-	// copy the immediate to the global area
-
+void PR_StoreConstant(int ofs)
+{
 	if (pr_immediate_type == &type_string)
-		pr_globals[cn->ofs] = (double) CopyString(pr_immediate_string);
+		pr_globals[ofs] = (double) CopyString(pr_immediate_string);
 	else if (pr_immediate_type == &type_vector)
-		memcpy (pr_globals + cn->ofs, pr_immediate, 3 * sizeof(double));
+		memcpy (pr_globals + ofs, pr_immediate, 3 * sizeof(double));
 	else
-		pr_globals[cn->ofs] = pr_immediate[0];
+		pr_globals[ofs] = pr_immediate[0];
+}
+
+
+def_t * PR_ParseImmediate(void)
+{
+	// Looks for a preexisting constant
+	def_t *cn = PR_FindConstant();
+
+	if (! cn)
+	{
+		// allocate a new one
+		cn = PR_NewGlobal(pr_immediate_type);
+
+		cn->name = "CONSTANT VALUE";
+
+		cn->flags |= DF_Constant;
+		cn->scope = NULL;   // immediates are always global
+
+		// link into defs list
+		cn->next = all_defs;
+		all_defs  = cn;
+
+		// copy the immediate to the global area
+		PR_StoreConstant(cn->ofs);
+	}
 
 	PR_Lex();
-
 	return cn;
 }
 
@@ -1283,8 +1288,7 @@ void PR_RepeatLoop(void)
 
 void PR_Assignment(def_t *e)
 {
-	// FIXME: proper constant check
-	if (strncmp(e->name, "CONSTANT", 7) == 0)
+	if (e->flags & DF_Constant)
 		PR_ParseError("assignment to a constant.\n");
 
 	def_t *e2 = PR_Expression(TOP_PRIORITY);
@@ -1479,7 +1483,7 @@ void PR_ParseFunction(void)
 
 	def_t *def = PR_GetDef(func_type, func_name, pr_scope);
 
-	if (def->initialized)
+	if (def->flags & DF_Initialized)
 		PR_ParseError("%s redeclared", func_name);
 
 
@@ -1529,7 +1533,7 @@ void PR_ParseFunction(void)
 	//  }
 	pr_scope = NULL;
 
-	def->initialized = 1;
+	def->flags |= DF_Initialized;
 
 	df->locals_size = locals_end - df->locals_ofs;
 	df->locals_end  = locals_end;
@@ -1685,7 +1689,7 @@ bool PR_FinishCompilation(void)
 		{
 //			f = G_FUNCTION(d->ofs);
 //			if (!f || (!f->code && !f->builtin) )
-			if (!d->initialized)
+			if (! (d->flags & DF_Initialized))
 			{
 				printf("function %s was not defined\n",d->name);
 				errors = true;
