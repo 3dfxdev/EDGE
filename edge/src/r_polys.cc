@@ -25,6 +25,8 @@
 
 #define DIST_EPSILON  0.2f
 
+// #define DEBUG_CLOCKWISE  1
+
 
 static int max_segs;
 static int max_subsecs;
@@ -365,8 +367,8 @@ static void ClockwiseOrder(subsector_t *sub)
 	int total = 0;
 	int first = 0;
 
-#if DEBUG_SUBSEC
-	PrintDebug("Subsec: Clockwising %d\n", sub->index);
+#if DEBUG_CLOCKWISE
+	I_Debugf("Subsec: Clockwising %d\n", sub - subsectors);
 #endif
 
 	// count segs and create an array to manipulate them
@@ -397,8 +399,8 @@ static void ClockwiseOrder(subsector_t *sub)
 
 		angle_t angle1, angle2;
 
-		angle1 = R_PointToAngle(0,0, A->v1->x - mid_x, A->v1->y - mid_y);
-		angle2 = R_PointToAngle(0,0, B->v1->x - mid_x, B->v1->y - mid_y);
+		angle1 = R_PointToAngle(mid_x, mid_y, A->v1->x, A->v1->y);
+		angle2 = R_PointToAngle(mid_x, mid_y, B->v1->x, B->v1->y);
 
 		if (angle1 < angle2)
 		{
@@ -434,16 +436,15 @@ static void ClockwiseOrder(subsector_t *sub)
 	if (total > 32)
 		delete[] array;
 
-#if DEBUG_SORTER
-	PrintDebug("Sorted SEGS around (%1.1f,%1.1f)\n", sub->mid_x, sub->mid_y);
+#if DEBUG_CLOCKWISE
+	I_Debugf("Sorted SEGS around (%1.1f,%1.1f)\n", mid_x, mid_y);
 
-	for (cur=sub->segs; cur; cur=cur->next)
+	for (cur=sub->segs; cur; cur=cur->sub_next)
 	{
-		angle_g angle = UtilComputeAngle(cur->start->x - sub->mid_x,
-				cur->start->y - sub->mid_y);
+		angle_t angle = R_PointToAngle(mid_x, mid_y, cur->v1->x, cur->v1->y);
 
-		PrintDebug("  Seg %p: Angle %1.6f  (%1.1f,%1.1f) -> (%1.1f,%1.1f)\n",
-				cur, angle, cur->start->x, cur->start->y, cur->end->x, cur->end->y);
+		I_Debugf("  Seg %p: Angle %1.6f  (%1.1f,%1.1f) -> (%1.1f,%1.1f)\n",
+				cur, ANG_2_FLOAT(angle), cur->v1->x, cur->v1->y, cur->v2->x, cur->v2->y);
 	}
 #endif
 }
@@ -743,7 +744,6 @@ static void TrySplitSubsector(subsector_t *sub)
 
 	if (! ChoosePartition(sub, &party))
 	{
-		ClockwiseOrder(sub);
 		sub->convex = true;
 		return;
 	}
@@ -804,6 +804,9 @@ void R_PolygonizeMap(void)
 
 	for (int i = 0; i < numsectors; i++)
 		Poly_SplitSector(&sectors[i]);
+
+	for (int k = 0; k < numsubsectors; k++)
+		ClockwiseOrder(&subsectors[k]);
 }
 
 //--- editor settings ---
