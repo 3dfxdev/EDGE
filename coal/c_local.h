@@ -198,8 +198,6 @@ extern	int			numfunctions;
 extern	double		pr_globals[MAX_REGS];
 extern	int			numpr_globals;
 
-extern def_t *pr_global_defs[MAX_REGS];	// to find def for a global variable
-
 #define	G_FLOAT(o) (pr_globals[o])
 #define	G_VECTOR(o) (&pr_globals[o])
 #define	G_STRING(o) (strings + (int)pr_globals[o])
