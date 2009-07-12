@@ -239,7 +239,7 @@ char *PR_GlobalStringNoContents(gofs_t ofs)
 {
 	static char	line[128];
 
-	def_t * def = pr_global_defs[ofs];
+	def_t * def = NULL; // FIXME pr_global_defs[ofs];
 	if (!def)
 //		Error ("PR_GlobalString: no def for %i", ofs);
 		sprintf(line,"%i(?? =%1.2f)", ofs, GVAL(ofs));
@@ -258,7 +258,7 @@ char *PR_GlobalString(gofs_t ofs)
 {
 	static char	line[128];
 
-	def_t *def = pr_global_defs[ofs];
+	def_t *def = NULL; // FIXME pr_global_defs[ofs];
 	if (!def)
 		return PR_GlobalStringNoContents(ofs);
 

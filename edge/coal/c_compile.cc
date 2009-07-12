@@ -92,8 +92,6 @@ def_t	def_void = {&type_void, "VOID_SPACE", 0};
 type_t * all_types;
 def_t  * all_defs;
 
-def_t * pr_global_defs[MAX_REGS];	// to find def for a global variable
-
 def_t		*pr_scope;		// the function being parsed, or NULL
 
 string_t	s_file;			// filename for function definition
@@ -774,12 +772,10 @@ def_t * PR_ParseImmediate(void)
 
 	def_t *cn;
 
-	char im_name[32];
-
 	// check for a constant with the same value
 	for (cn=all_defs ; cn ; cn=cn->next)
 	{
-		if (!cn->initialized)
+		if (! cn->initialized)
 			continue;
 
 		if (cn->type != pr_immediate_type)
@@ -816,22 +812,18 @@ def_t * PR_ParseImmediate(void)
 	}
 
 	// allocate a new one
-	cn = new def_t;
+	cn = PR_NewGlobal(pr_immediate_type);
 
+	cn->name = "CONSTANT VALUE";
+
+	cn->initialized = 1;
+	cn->scope = NULL;   // always share immediates
+
+	// link into defs list
 	cn->next = all_defs;
 	all_defs  = cn;
 
-	sprintf(im_name, "IMMED_%p", cn);
-
-	cn->type = pr_immediate_type;
-	cn->name = strdup(im_name);
-	cn->initialized = 1;
-	cn->scope = NULL;		// always share immediates
-
 	// copy the immediate to the global area
-	cn->ofs = numpr_globals;
-	pr_global_defs[cn->ofs] = cn;
-	numpr_globals += type_size[pr_immediate_type->type];
 
 	if (pr_immediate_type == &type_string)
 		pr_globals[cn->ofs] = (double) CopyString(pr_immediate_string);
@@ -894,8 +886,8 @@ def_t * PR_ParseFunctionCall(def_t *func)
 	{
 		result = PR_NewLocal(t->aux_type, true);
 
-		// FIXME: set result to default value
-		// PR_EmitCode(OP_MOVE_F, default_value, result->ofs)
+		// FIXME: set return value to default value
+		// PR_EmitCode(OP_MOVE_F, default_value, OFS_RETURN)
 	}
 
 
@@ -977,7 +969,7 @@ def_t *PR_FindDef(type_t *type, char *name, def_t *scope)
 
 	for (def = all_defs ; def ; def=def->next)
 	{
-		if (strcmp(def->name,name) != 0)
+		if (strcmp(def->name, name) != 0)
 			continue;
 
 		if ( def->scope && def->scope != scope)
@@ -1000,32 +992,23 @@ def_t *PR_GetDef(type_t *type, char *name, def_t *scope)
 	assert(type);
 
 	def_t *def = PR_FindDef(type, name, scope);
+	if (def)
+		return def;
 
 	// allocate a new def
-	def = new def_t;
-	memset(def, 0, sizeof(*def));
 
-	def->next = all_defs;
-	all_defs = def;
+	if (scope)
+		def = PR_NewLocal(type, false);
+	else
+		def = PR_NewGlobal(type);
 
-	def->name = strdup(name);
-	def->type = type;
-
+	def->name  = strdup(name);
 	def->scope = scope;
 
-	if (! scope)
-	{
-		def->ofs = numpr_globals;
-		pr_global_defs[numpr_globals] = def;
 
-		numpr_globals += type_size[type->type];
-	}
-	else
-	{
-		def->ofs = -(locals_end+1);
-
-		locals_end += type_size[type->type];
-	}
+	// link into list
+	def->next = all_defs;
+	all_defs = def;
 
 	return def;
 }
@@ -1301,7 +1284,7 @@ void PR_RepeatLoop(void)
 void PR_Assignment(def_t *e)
 {
 	// FIXME: proper constant check
-	if (strncmp(e->name, "IMMED_", 6) == 0)
+	if (strncmp(e->name, "CONSTANT", 7) == 0)
 		PR_ParseError("assignment to a constant.\n");
 
 	def_t *e2 = PR_Expression(TOP_PRIORITY);
@@ -1425,6 +1408,9 @@ int PR_ParseFunctionBody(type_t *type)
 
 	for (int i=0 ; i < type->parm_num ; i++)
 	{
+		if (PR_FindDef(type->parm_types[i], pr_parm_names[i], pr_scope))
+			PR_ParseError("parameter %s redeclared", pr_parm_names[i]);
+
 		defs[i] = PR_GetDef(type->parm_types[i], pr_parm_names[i], pr_scope);
 	}
 
@@ -1668,13 +1654,9 @@ called before compiling a batch of files, clears the pr struct
 */
 void PR_BeginCompilation(void)
 {
-	int i;
-
 	numpr_globals = RESERVED_OFS;
-	all_defs = NULL;
 
-	for (i=0 ; i<RESERVED_OFS ; i++)
-		pr_global_defs[i] = &def_void;
+	all_defs = NULL;
 
 // link the function type in so state forward declarations match proper type
 	all_types = &type_function;

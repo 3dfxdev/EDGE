@@ -2,11 +2,13 @@
 COAL TODO
 =========
 
--  find unary operators in operator table
+-  add proper top-of-file comments
 
 >>  make 'burner.cc' be stand-alone interpreter (<-- merge r_cmds)
 
 +  'native' keyword for functions (ETC?)
+
++  modules with '.' notation: hud.foo(hud.bar)
 
 -  move all state into one struct
 
@@ -15,8 +17,6 @@ COAL TODO
 +  default values for local/global variables
 
 -  describe new language (notes.txt)
-
-+  modules with '.' notation: hud.foo(hud.bar)
 
 -  re-use temporaries (sweep after each statement)
 
