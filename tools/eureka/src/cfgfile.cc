@@ -433,13 +433,6 @@ opt_desc_t options[] =    // Description of the command line options
     "Swap mouse buttons",
     &SwapButtons },
 
-  { "text_dot",
-    "td",
-    OPT_BOOLEAN,
-    0,
-    "DrawScreenText debug flag",
-    &text_dot },
-
   { "verbose",
     "v",
     OPT_BOOLEAN,

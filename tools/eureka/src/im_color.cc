@@ -147,54 +147,6 @@ free_colours (game_colours, DOOM_COLOURS);
 }
 
 
-
-/* This is how I used to calculate
-   the physical colour numbers.
-   Works only on TrueColor/DirectColor visuals. */
-
-#if 0
-/* FIXME this is a gross hack */
-for (n = 0; n < DOOM_COLOURS; n++)
-   {
-   xpv_t r = dpal[3*n];
-   xpv_t g = dpal[3*n+1];
-   xpv_t b = dpal[3*n+2];
-   if (win_vis_class == DirectColor || win_vis_class == TrueColor)
-      {
-      xpv_t r_scaled, g_scaled, b_scaled;
-      if (win_r_ofs + win_r_bits < 8)
-   r_scaled = r >> (8 - (win_r_ofs + win_r_bits));
-      else
-   r_scaled = r << (win_r_ofs + win_r_bits - 8) & win_r_mask;
-      if (win_g_ofs + win_g_bits < 8)
-   g_scaled = g >> (8 - (win_g_ofs + win_g_bits));
-      else
-   g_scaled = g << (win_g_ofs + win_g_bits - 8) & win_g_mask;
-      if (win_b_ofs + win_b_bits < 8)
-   b_scaled = b >> (8 - (win_b_ofs + win_b_bits));
-      else
-   b_scaled = b << (win_b_ofs + win_b_bits - 8) & win_b_mask;
-      game_colour[n] = r_scaled | g_scaled | b_scaled;
-      }
-   else if (win_vis_class== PseudoColor || win_vis_class == StaticColor)
-      game_colour[n] = n;  /* Ugh! */
-   else if (win_vis_class == GrayScale || win_vis_class == StaticGray)
-      {
-      game_colour[n] = (r + g + b) / 3;
-      if (win_depth < 8)
-   game_colour[n] >>= 8 - win_depth;
-      else
-   game_colour[n] <<= win_depth - 8;
-      }
-   // printf ("%02X %08lX", n, (unsigned long) game_colour[n]);
-   // if (n % 6 == 5)
-   //    putchar ('\n');
-   // else
-   //    printf ("  ");
-   }
-#endif  /* #if 0 */
-
-
 Game_colour_24 game_colour_24;
 
 

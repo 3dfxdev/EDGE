@@ -43,6 +43,8 @@ public:
 
 	void set_edit_info(Editor_State_c *new_e) { e = new_e; redraw(); }
 
+	void DrawEverything();
+
 	void DrawMap();
 
 	void DrawMapPoint (int mapx, int mapy);

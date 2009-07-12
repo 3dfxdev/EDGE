@@ -152,7 +152,7 @@ void UI_FlatTexList::Populate()
 
 		ftc->name = std::string(WTexture[i]);
 		ftc->label(ftc->name.c_str());
-fprintf(stderr, "Added FlatTex: %s\n", ftc->name.c_str());
+
 		pack->add(ftc);
 
 		y += ftc->h();

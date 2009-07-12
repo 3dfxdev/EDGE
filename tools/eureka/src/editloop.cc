@@ -99,40 +99,40 @@ static int SortLevels (const void *item1, const void *item2);
  */
 const char *SelectLevel (int levelno)
 {
-MDirPtr dir;
-static char name[WAD_NAME + 1]; /* AYM it was [7] previously */
-char **levels = 0;
-int n = 0;           /* number of levels in the dir. that match */
+	MDirPtr dir;
+	static char name[WAD_NAME + 1]; /* AYM it was [7] previously */
+	char **levels = 0;
+	int n = 0;           /* number of levels in the dir. that match */
 
 get_levels_that_match:
-for (dir = MasterDir; dir; dir = dir->next)
-   {
-   if (levelname2levelno (dir->dir.name) > 0
-    && (levelno==0 || levelname2levelno (dir->dir.name) % 1000 == levelno))
-      {
-      if (n == 0)
-   levels = (char **) GetMemory (sizeof (char *));
-      else
-   levels = (char **) ResizeMemory (levels, (n + 1) * sizeof (char *));
-      levels[n] = dir->dir.name;
-      n++;
-      }
-   }
-if (n == 0 && levelno != 0)  /* In case no level matched levelno */
-   {
-   levelno = 0;               /* List ALL levels instead */
-   goto get_levels_that_match;
-   }
-/* So that InputNameFromList doesn't fail if you
-   have both EnMn's and MAPnn's in the master dir. */
-qsort (levels, n, sizeof (char *), SortLevels);
-strncpy (name, levels[0], WAD_NAME);
-name[WAD_NAME] = 0;
-//!!!! if (n == 1)
-   return name;
-///!!!! InputNameFromList (-1, -1, "Level name :", n, levels, name);
-FreeMemory (levels);
-return name;
+	for (dir = MasterDir; dir; dir = dir->next)
+	{
+		if (levelname2levelno (dir->dir.name) > 0
+				&& (levelno==0 || levelname2levelno (dir->dir.name) % 1000 == levelno))
+		{
+			if (n == 0)
+				levels = (char **) GetMemory (sizeof (char *));
+			else
+				levels = (char **) ResizeMemory (levels, (n + 1) * sizeof (char *));
+			levels[n] = dir->dir.name;
+			n++;
+		}
+	}
+	if (n == 0 && levelno != 0)  /* In case no level matched levelno */
+	{
+		levelno = 0;               /* List ALL levels instead */
+		goto get_levels_that_match;
+	}
+	/* So that InputNameFromList doesn't fail if you
+	   have both EnMn's and MAPnn's in the master dir. */
+	qsort (levels, n, sizeof (char *), SortLevels);
+	strncpy (name, levels[0], WAD_NAME);
+	name[WAD_NAME] = 0;
+	//!!!! if (n == 1)
+	return name;
+	///!!!! InputNameFromList (-1, -1, "Level name :", n, levels, name);
+	FreeMemory (levels);
+	return name;
 }
 
 
@@ -149,8 +149,6 @@ return strcmp (*((const char * const *) item1),
 
 
 
-bool DRAWING_MAP;
-
 void ed_highlight_object (Objid& obj)
 {
   edit.highlight->set (obj);
@@ -164,20 +162,6 @@ void ed_forget_highlight ()
 
 main_win->canvas->redraw();
   }
-}
-
-void ed_draw_all()
-{
-  DRAWING_MAP = true;
-
-main_win->canvas->DrawMap(); 
-
-main_win->canvas->HighlightSelection (edit.obj_type, edit.Selected); // FIXME should be widgetized
-
-  edit.selbox->draw();
-  edit.highlight->draw();
-
-  DRAWING_MAP = false;
 }
 
 

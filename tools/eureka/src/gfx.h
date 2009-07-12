@@ -73,34 +73,18 @@ extern int   ScrMaxY;
 
 typedef unsigned long xpv_t;  // The type of a pixel value in X's opinion
 
-extern int  text_dot;     // DrawScreenText()/DrawScreenString() debug flag
-
 /* gfx.cc */
 int InitGfx (void);
 void TermGfx (void);
 void SetWindowSize (int width, int height);
 
-void update_display ();
 void SetLineThickness (int thick);
 void SetDrawingMode (int _xor);
 
-void DrawScreenLine (int, int, int, int);
-void DrawScreenRect (int x, int y, int width, int height);
-void DrawScreenBox (int, int, int, int);
-void DrawScreenBoxwh (int scrx0, int scry0, int width, int height);
-void DrawScreenBox3D (int, int, int, int);
-void DrawScreenBox3DShallow (int, int, int, int);
-void DrawScreenBoxHollow (int x0, int y0, int x1, int y1, acolour_t colour);
-void draw_box_border (int x, int y, int width, int height,
-   int thickness, int raised);
 void DrawScreenText (int, int, const char *, ...);
 void DrawScreenString (int, int, const char *);
-void DrawScreenChar (int x, int y, char c);
-void DrawPointer (bool);
-void DrawScreenLineLen (int x, int y, int width, int height);
-int TranslateToDoomColor (int);
 
-void draw_point (int x, int y);
+int TranslateToDoomColor (int);
 
 #define  set_colour(X)  do{}while(0)
 #define push_colour(X)  do{}while(0)
