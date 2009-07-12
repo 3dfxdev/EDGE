@@ -766,7 +766,7 @@ def_t *PR_NewLocal(type_t *type, bool is_temporary)
 }
 
 
-def_t * PR_FindConstant()
+def_t * PR_FindConstant(void)
 {
 	def_t *cn;
 
@@ -1319,7 +1319,7 @@ void PR_ParseStatement(bool allow_def)
 {
 	if (allow_def && PR_Check("function"))
 	{
-		PR_ParseError("Functions must be global");
+		PR_ParseError("functions must be global");
 		return;
 	}
 
@@ -1331,7 +1331,7 @@ void PR_ParseStatement(bool allow_def)
 
 	if (allow_def && PR_Check("constant"))
 	{
-		PR_ParseConstant();
+		PR_ParseError("constants must be global");
 		return;
 	}
 
@@ -1570,11 +1570,26 @@ void PR_ParseConstant(void)
 	PR_Expect("=");
 
 	if (pr_token_type != tt_immediate)
-		PR_ParseError("Expected value for constant");
+		PR_ParseError("expected value for constant, got %s", pr_token);
 
-	// FIXME: create constant
-	  PR_ParseError("Constants not yet implemented");
-	
+
+	if (PR_FindDef(NULL, const_name, NULL))
+		PR_ParseError("name already used: %s", const_name);
+
+	/// TODO: reuse existing constant
+	/// def_t * exist_cn = PR_FindConstant();
+
+	def_t * cn = PR_NewGlobal(pr_immediate_type);
+
+	cn->name  = const_name;
+	cn->flags |= DF_Constant;
+
+	// link into list
+	cn->next = all_defs;
+	all_defs = cn;
+
+	PR_StoreConstant(cn->ofs);
+
 	PR_Lex();
 
 	// -AJA- optional semicolons
