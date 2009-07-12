@@ -754,7 +754,7 @@ def_t *PR_NewGlobal(type_t *type)
 }
 
 
-def_t *PR_NewLocal(type_t *type)
+def_t *PR_NewLocal(type_t *type, bool is_temporary)
 {
 	def_t * var_c = new def_t;
 	memset(var_c, 0, sizeof(def_t));
@@ -763,26 +763,6 @@ def_t *PR_NewLocal(type_t *type)
 	var_c->type = type;
 
 	locals_end += type_size[type->type];
-
-	return var_c;
-}
-
-
-/*
-============
-PR_Statement
-
-Emits a primitive statement, returning the var it places it's value in
-============
-*/
-def_t * PR_Statement(opcode_t *op, def_t *var_a = NULL, def_t *var_b = NULL)
-{
-	def_t *var_c = PR_NewLocal(op->type_c);
-
-	PR_EmitCode(op->op,
-    			var_a ? var_a->ofs : 0,
-    			var_b ? var_b->ofs : 0,
-    			var_c ? var_c->ofs : 0);
 
 	return var_c;
 }
@@ -912,7 +892,7 @@ def_t * PR_ParseFunctionCall(def_t *func)
 
 	if (t->aux_type->type != ev_void)
 	{
-		result = PR_NewLocal(t->aux_type);
+		result = PR_NewLocal(t->aux_type, true);
 
 		// FIXME: set result to default value
 		// PR_EmitCode(OP_MOVE_F, default_value, result->ofs)
@@ -1099,10 +1079,15 @@ def_t * PR_Term(void)
 			if (op[i].type_a->type != e->type->type)
 				continue;
 
-			return PR_Statement(&op[i], e);
+			def_t *result = PR_NewLocal(op[i].type_c, true);
+
+			PR_EmitCode(op[i].op, e->ofs, 0, result->ofs);
+
+			return result;
 		}
 
 		PR_ParseError("type mismatch for %s", op->name);
+		break;
 	}
 
 	PR_ParseError("expected value or unary operator, found %s\n", pr_token);
@@ -1124,7 +1109,7 @@ def_t * PR_ShortCircuitExp(def_t *e, opcode_t *op)
 	//		MOVE b --> c
 	//		label:
 
-	def_t *result = PR_NewLocal(op->type_c);
+	def_t *result = PR_NewLocal(op->type_c, true);
 
 	PR_EmitCode(OP_MOVE_F, e->ofs, result->ofs);
 
@@ -1225,8 +1210,11 @@ def_t * PR_Expression(int priority, bool *lvalue)
 			if (type_a == ev_pointer && type_b != e->type->aux_type->type)
 				PR_ParseError("type mismatch for %s", op->name);
 
-			e = PR_Statement(op, e, e2);
+			def_t *result = PR_NewLocal(op->type_c, true);
 
+			PR_EmitCode(op->op, e->ofs, e2->ofs, result->ofs);
+
+			e = result;
 #if 0
 			if (type_c != ev_void)	// field access gets type from field
 				e->type = e2->type->aux_type;
