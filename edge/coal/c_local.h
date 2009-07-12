@@ -162,11 +162,21 @@ typedef struct def_s
 
 	gofs_t		ofs;
 	struct def_s	*scope;		// function the var was defined in, or NULL
-	int			initialized;	// 1 when a declaration included "= immediate"
+
+	int			flags;
 
 	struct def_s	*next;
 }
 def_t;
+
+typedef enum
+{
+	DF_Initialized = (1 << 0),	// when a declaration included "= immediate"
+	DF_Constant    = (1 << 1),
+	DF_Temporary   = (1 << 2),
+//	DF_Named       = (1 << 3),
+}
+def_flag_e;
 
 
 //=============================================================================

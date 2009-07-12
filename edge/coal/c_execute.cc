@@ -262,7 +262,7 @@ char *PR_GlobalString(gofs_t ofs)
 	if (!def)
 		return PR_GlobalStringNoContents(ofs);
 
-	if (def->initialized && def->type->type != ev_function)
+	if (false) /// def->initialized && def->type->type != ev_function)
 	{
 		char *s = PR_ValueString(def->type->type, &pr_globals[ofs]);
 		sprintf(line,"%i(%s =%1.2f)", ofs, s, GVAL(ofs));
