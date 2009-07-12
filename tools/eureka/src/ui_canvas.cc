@@ -24,19 +24,19 @@
 #include "editloop.h"
 #include "gfx.h"
 #include "grid2.h"
+#include "highlt.h"
 #include "im_color.h"
 #include "levels.h"
 #include "objects.h"
 #include "r_render.h"
 #include "sectors.h"
+#include "selbox.h"
 #include "selectn.h"
 #include "things.h"
 
 
 extern int active_when;
 extern int active_wmask;
-
-extern bool DRAWING_MAP; //!!! HACK
 
 
 //
@@ -70,7 +70,7 @@ void UI_Canvas::draw()
 	if (render3d)
 		Render3D_Draw(x(), y());
 	else if (e)
-		ed_draw_all();
+		DrawEverything();
 
 	fl_pop_clip();
 }
@@ -182,6 +182,18 @@ int UI_Canvas::handle(int event)
 
 
 //------------------------------------------------------------------------
+
+
+void UI_Canvas::DrawEverything()
+{
+	DrawMap(); 
+
+	HighlightSelection (edit.obj_type, edit.Selected); // FIXME should be widgetized
+
+	edit.selbox->draw();
+	edit.highlight->draw();
+}
+
 
 /*
   draw the actual game map
@@ -348,11 +360,11 @@ void UI_Canvas::DrawGrid()
 			for (int n = 0; n < npoints; n++)
 			{
 				if (pixels_1 < 30.99)
-					fl_point (dispx[n], dispy);
+					fl_point(dispx[n], dispy);
 				else
 				{
-					fl_line (dispx[n]-0, dispy, dispx[n]+1, dispy);
-					fl_line (dispx[n], dispy-0, dispx[n], dispy+1);
+					fl_line(dispx[n]-0, dispy, dispx[n]+1, dispy);
+					fl_line(dispx[n], dispy-0, dispx[n], dispy+1);
 				}
 			}
 		}
@@ -399,8 +411,9 @@ void UI_Canvas::DrawVertices()
 		{
 			int scrx = SCREENX (mapx);
 			int scry = SCREENY (mapy);
-			DrawScreenLine (scrx - r, scry - r, scrx + r, scry + r);
-			DrawScreenLine (scrx + r, scry - r, scrx - r, scry + r);
+
+			fl_line(scrx - r, scry - r, scrx + r, scry + r);
+			fl_line(scrx + r, scry - r, scrx - r, scry + r);
 		}
 	}
 
@@ -752,10 +765,11 @@ void UI_Canvas::HighlightObject (int objtype, int objnum, Fl_Color colour)
 			int scrx9 = SCREENX (Vertices[objnum].x) + r;
 			int scry0 = SCREENY (Vertices[objnum].y) - r;
 			int scry9 = SCREENY (Vertices[objnum].y) + r;
-			DrawScreenLine (scrx0, scry0, scrx9, scry0);
-			DrawScreenLine (scrx9, scry0, scrx9, scry9);
-			DrawScreenLine (scrx9, scry9, scrx0, scry9);
-			DrawScreenLine (scrx0, scry9, scrx0, scry0);
+
+			fl_line(scrx0, scry0, scrx9, scry0);
+			fl_line(scrx9, scry0, scrx9, scry9);
+			fl_line(scrx9, scry9, scrx0, scry9);
+			fl_line(scrx0, scry9, scrx0, scry0);
 		}
 		break;
 
@@ -815,7 +829,6 @@ void UI_Canvas::HighlightSelection (int objtype, SelPtr list)
  */
 void UI_Canvas::DrawMapPoint (int mapx, int mapy)
 {
-  if (DRAWING_MAP)
     fl_point(SCREENX(mapx), SCREENY(mapy));
 }
 
@@ -825,7 +838,6 @@ void UI_Canvas::DrawMapPoint (int mapx, int mapy)
  */
 void UI_Canvas::DrawMapLine (int mapx1, int mapy1, int mapx2, int mapy2)
 {
-  if (DRAWING_MAP)
     fl_line(SCREENX(mapx1), SCREENY(mapy1),
             SCREENX(mapx2), SCREENY(mapy2));
 }
@@ -852,16 +864,13 @@ void UI_Canvas::DrawMapVector (int mapx1, int mapy1, int mapx2, int mapy2)
 	int scrYoff = (r >= 1.0) ? (int) ((scry1 - scry2) * 8.0 / r * (grid.Scale / 2)) : 0;
 #endif
 
-	if (! DRAWING_MAP)
-		return;
-
-	fl_line (scrx1, scry1, scrx2, scry2);
+	fl_line(scrx1, scry1, scrx2, scry2);
 
 	scrx1 = scrx2 + 2 * scrXoff;
 	scry1 = scry2 + 2 * scrYoff;
 
-	fl_line (scrx1 - scrYoff, scry1 + scrXoff, scrx2, scry2);
-	fl_line (scrx1 + scrYoff, scry1 - scrXoff, scrx2, scry2);
+	fl_line(scrx1 - scrYoff, scry1 + scrXoff, scrx2, scry2);
+	fl_line(scrx1 + scrYoff, scry1 - scrXoff, scrx2, scry2);
 }
 
 
@@ -886,16 +895,13 @@ void UI_Canvas::DrawMapArrow (int mapx1, int mapy1, unsigned angle)
 	int scrYoff = (r >= 1.0) ? (int) ((scry1 - scry2) * 8.0 / r * (grid.Scale / 2)) : 0;
 #endif
 
-	if (! DRAWING_MAP)
-		return;
-
-	fl_line (scrx1, scry1, scrx2, scry2);
+	fl_line(scrx1, scry1, scrx2, scry2);
 
 	scrx1 = scrx2 + 2 * scrXoff;
 	scry1 = scry2 + 2 * scrYoff;
 
-	fl_line (scrx1 - scrYoff, scry1 + scrXoff, scrx2, scry2);
-	fl_line (scrx1 + scrYoff, scry1 - scrXoff, scrx2, scry2);
+	fl_line(scrx1 - scrYoff, scry1 + scrXoff, scrx2, scry2);
+	fl_line(scrx1 + scrYoff, scry1 - scrXoff, scrx2, scry2);
 }
 
 

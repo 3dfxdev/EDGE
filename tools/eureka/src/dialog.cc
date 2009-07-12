@@ -176,31 +176,6 @@ void Notify (int x0, int y0, const char *prompt1, const char *prompt2)
 
 
 /*
- *  DisplayMessage - clear the screen and display a message
- */
-void DisplayMessage (int x0, int y0, const char *msg, ...)
-{
-  char prompt[120];
-  va_list args;
-
-  va_start (args, msg);
-  y_vsnprintf (prompt, sizeof prompt, msg, args);
-  int width = 2 * BOX_BORDER + 2 * WIDE_HSPACING + FONTW * strlen (prompt);
-  int height = 2 * BOX_BORDER + 2 * WIDE_VSPACING + FONTH;
-  if (x0 < 0)
-    x0 = (ScrMaxX - width) / 2;
-  if (y0 < 0)
-    y0 = (ScrMaxY - height) / 2;
-  DrawScreenBox3D (x0, y0, x0 + width - 1, y0 + height - 1);
-  push_colour (WINFG);
-  DrawScreenText (x0 + BOX_BORDER + WIDE_HSPACING,
-    y0 + BOX_BORDER + WIDE_VSPACING, prompt);
-  pop_colour ();
-///----  XFlush (dpy);
-}
-
-
-/*
  *  NotImplemented - make the user angry...
  */
 void NotImplemented (void)

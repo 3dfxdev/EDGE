@@ -89,6 +89,8 @@ switch (vDisplayMenu (x0, y0, "Check level consistency",
 
 void Statistics ()
 {
+// FIXME !!!
+#if 0
 int height;
 int width;
 int out_x0;
@@ -146,6 +148,7 @@ DrawScreenText (-1, -1, "Number of sectors:  %4d (%lu K)", NumSectors,
 DrawScreenText (-1, -1, "");
 set_colour (WINTITLE);
 DrawScreenText (-1, -1, "Press any key to continue...");
+#endif
 }
 
 
@@ -166,6 +169,7 @@ static void CheckingObjects ()
 bool CheckFailed (int x0, int y0, char *prompt1, char *prompt2, bool fatal,
     bool &first_time)
 {
+#if 0
 int key;
 size_t maxlen;
 
@@ -225,6 +229,7 @@ if (key != FL_Escape)
    }
 first_time = false;
 return (key == FL_Escape);
+#endif
 }
 
 

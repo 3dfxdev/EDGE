@@ -30,8 +30,6 @@
 #include "im_sticker.h"
 
 
-extern bool DRAWING_MAP;
-
 
 class Sticker_priv
 {
@@ -106,14 +104,11 @@ void Sticker::load (const Img& img, bool opaque)
  */
 void Sticker::draw (char grav, int x, int y)
 {
-  if (! DRAWING_MAP)
-    return;
-
   if (! priv->rgb)
     return;
 
-  int x0 = grav == 'c' ? x - priv->rgb->w()  / 2 : x;
-  int y0 = grav == 'c' ? y - priv->rgb->h() / 2 : y;
+  int x0 = (grav == 'c') ? x - priv->rgb->w() / 2 : x;
+  int y0 = (grav == 'c') ? y - priv->rgb->h() / 2 : y;
 
   priv->rgb->draw(x0, y0);
 }
