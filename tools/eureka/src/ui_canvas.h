@@ -19,7 +19,7 @@
 #ifndef __UI_CANVAS_H__
 #define __UI_CANVAS_H__
 
-#include "edit2.h"
+#include "editloop.h"
 #include "grid2.h"
 
 
