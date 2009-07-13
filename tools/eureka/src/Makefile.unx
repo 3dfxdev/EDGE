@@ -49,7 +49,6 @@ OBJS = \
 	r_images.o  \
 	r_misc.o  \
  	r_render.o  \
-	selbox.o  \
 	selectn.o  \
 	selpath.o  \
 	s_misc.o  \

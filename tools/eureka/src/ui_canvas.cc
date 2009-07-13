@@ -31,7 +31,6 @@
 #include "levels.h"
 #include "objects.h"
 #include "r_render.h"
-#include "selbox.h"
 #include "selectn.h"
 
 
@@ -44,7 +43,7 @@ extern int active_wmask;
 //
 UI_Canvas::UI_Canvas(int X, int Y, int W, int H, const char *label) : 
     Fl_Widget(X, Y, W, H, label),
-    e(NULL), render3d(false)
+    e(NULL), render3d(false), selbox_active(false)
 { }
 
 //
@@ -190,8 +189,10 @@ void UI_Canvas::DrawEverything()
 
 	HighlightSelection (edit.obj_type, edit.Selected); // FIXME should be widgetized
 
-	edit.selbox->draw();
 	edit.highlight->draw();
+
+	if (selbox_active)
+		SelboxDraw();
 }
 
 
@@ -907,6 +908,49 @@ void UI_Canvas::DrawMapArrow (int mapx1, int mapy1, unsigned angle)
 
 	fl_line(scrx1 - scrYoff, scry1 + scrXoff, scrx2, scry2);
 	fl_line(scrx1 + scrYoff, scry1 - scrXoff, scrx2, scry2);
+}
+
+
+void UI_Canvas::SelboxBegin(int mapx, int mapy)
+{
+	selbox_active = true;
+	selbox_x1 = selbox_x2 = mapx;
+	selbox_y1 = selbox_y2 = mapy;
+}
+
+void UI_Canvas::SelboxDrag(int mapx, int mapy)
+{
+	selbox_x2 = mapx;
+	selbox_y2 = mapy;
+
+	redraw();
+}
+
+void UI_Canvas::SelboxFinish(int *x1, int *y1, int *x2, int *y2)
+{
+	selbox_active = false;
+
+	*x1 = MIN(selbox_x1, selbox_x2);
+	*x2 = MAX(selbox_x1, selbox_x2);
+
+	*y1 = MIN(selbox_y1, selbox_y2);
+	*y2 = MAX(selbox_y1, selbox_y2);
+}
+
+void UI_Canvas::SelboxDraw()
+{
+	int x1 = MIN(selbox_x1, selbox_x2);
+	int x2 = MAX(selbox_x1, selbox_x2);
+
+	int y1 = MIN(selbox_y1, selbox_y2);
+	int y2 = MAX(selbox_y1, selbox_y2);
+
+	fl_color(FL_CYAN);
+
+	DrawMapLine (x1, y1, x2, y1);
+	DrawMapLine (x2, y1, x2, y2);
+	DrawMapLine (x2, y2, x1, y2);
+	DrawMapLine (x1, y2, x1, y1);
 }
 
 

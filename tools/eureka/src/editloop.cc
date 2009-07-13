@@ -36,7 +36,6 @@
 #include "levels.h"
 #include "objects.h"
 #include "s_misc.h"
-#include "selbox.h"
 #include "selectn.h"
 #include "selpath.h"
 #include "x_mirror.h"
@@ -1312,15 +1311,18 @@ fprintf(stderr, "MOUSE PRESS !!!\n");
   {
     edit.clicked    = CANVAS;
     edit.click_ctrl = is_ctrl;
+
     if (! is_ctrl)
     {
       ForgetSelection (&edit.Selected);
       edit.RedrawMap = 1;
     }
-    edit.selbox->set_1st_corner (edit.map_x, edit.map_y);
-    edit.selbox->set_2nd_corner (edit.map_x, edit.map_y);
 
-main_win->canvas->redraw();
+	main_win->canvas->SelboxBegin(edit.map_x, edit.map_y);
+
+///---    edit.selbox->set_1st_corner ;
+///---    edit.selbox->set_2nd_corner (edit.map_x, edit.map_y);
+///---  main_win->canvas->redraw();
     return;
   }
 
@@ -1425,11 +1427,12 @@ void EditorMouseRelease()
       && edit.clicked == CANVAS)
   {
     int x1, y1, x2, y2;
-    edit.selbox->get_corners (&x1, &y1, &x2, &y2);
-    SelectObjectsInBox (&edit.Selected, edit.obj_type, x1, y1, x2, y2);
-    edit.selbox->unset_corners ();
-    edit.RedrawMap = 1;
 
+	main_win->canvas->SelboxFinish(&x1, &y1, &x2, &y2);
+
+    SelectObjectsInBox (&edit.Selected, edit.obj_type, x1, y1, x2, y2);
+
+    edit.RedrawMap = 1;
     return;
   }
 
@@ -1478,8 +1481,7 @@ void EditorMouseMotion(int x, int y, int map_x, int map_y, bool drag)
       && is_butl  /* FIXME: edit.selecting */
       && edit.clicked == CANVAS)
   {
-    edit.selbox->set_2nd_corner (edit.map_x, edit.map_y);
-
+	main_win->canvas->SelboxDrag(edit.map_x, edit.map_y);
     return;
   }
 
@@ -1625,7 +1627,6 @@ void EditorLoop (const char *_levelname)
     //edit.highlight_obj_type  = -1;
     edit.Selected            = 0;
 
-    edit.selbox              = new selbox_c;
     edit.highlight           = new highlight_c;
 
     MadeChanges = 0;

@@ -30,6 +30,10 @@ private:
 
 	bool render3d;
 
+	bool selbox_active;
+	int  selbox_x1, selbox_y1;  // map coords
+	int  selbox_x2, selbox_y2;
+
 public:
 	UI_Canvas(int X, int Y, int W, int H, const char *label = NULL);
 	virtual ~UI_Canvas();
@@ -55,6 +59,10 @@ public:
 	void HighlightObject (int objtype, int objnum, Fl_Color colour);
 	void HighlightSelection (int objtype, SelPtr list);
 
+	void SelboxBegin(int mapx, int mapy);
+	void SelboxDrag(int mapx, int mapy);
+	void SelboxFinish(int *x1, int *y1, int *x2, int *y2);
+
 private:
 	// FLTK virtual method for drawing.
 	void draw();
@@ -65,6 +73,8 @@ private:
 	void DrawThings();
 	void DrawRTS();
 	void DrawObjNum(int x, int y, int obj_no, Fl_Color c);
+
+	void SelboxDraw();
 
 	// convert screen coordinates to map coordinates
 	inline int MAPX(int sx) { return (grid.orig_x + I_ROUND((sx - w()/2 - x()) / grid.Scale)); }
