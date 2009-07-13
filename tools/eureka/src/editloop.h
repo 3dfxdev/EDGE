@@ -26,7 +26,6 @@
 #define __EDITLOOP_H__
 
 class menubar_c;
-class selbox_c;
 class highlight_c;
 
 
@@ -55,7 +54,6 @@ public:
     Objid highlighted;    // The highlighted object
     SelPtr Selected;    // Linked list of selected objects (or NULL)
 
-    selbox_c    *selbox;   // The selection box
     highlight_c *highlight;
 
     int RedrawMap;
