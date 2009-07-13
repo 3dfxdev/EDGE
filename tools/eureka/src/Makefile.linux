@@ -32,7 +32,6 @@ OBJS = \
 	editloop.o  \
 	editobj.o  \
 	editsave.o  \
-	e_names.o  \
 	game.o  \
 	gfx.o  \
 	grid2.o  \
