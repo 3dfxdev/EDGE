@@ -27,11 +27,15 @@
 
 #include "m_bitvec.h"
 
+class selection_iterator_c;
 
-#define MAX_STORE_SEL  2   // !!!! 16
+
+#define MAX_STORE_SEL  2   // !!!! FIXME 64 
 
 class selection_c
 {
+friend class selection_iterator_c;
+
 private:
 	obj_type_t type;
 
@@ -43,6 +47,8 @@ private:
 public:
 	 selection_c(obj_type_t _type);
 	~selection_c();
+
+	obj_type_t what_type() const { return type; }
 
 	bool get(int n) const;
 
@@ -58,8 +64,34 @@ public:
 
 	void merge(const selection_c& other);
 
+	void begin(selection_iterator_c * it);
+	// sets up the passed iterator for iterating over all the
+	// object numbers contained in this selection.
+	// Modifying the set is NOT allowed during a traversal.
+
 private:
 	void ConvertToBitvec();
+};
+
+
+class selection_iterator_c
+{
+friend class selection_c;
+
+private:
+	selection_c *sel;
+
+	// this is the position in the objs[] array when there is no
+	// bit vector, otherwise it is the object number itself
+	// (and the corresponding bit will be one).
+	int pos;
+
+public:
+	bool at_end() const;
+
+	int operator* () const;
+
+	selection_iterator_c& operator++ ();
 };
 
 
