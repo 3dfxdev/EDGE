@@ -22,7 +22,6 @@
 //
 //------------------------------------------------------------------------
 
-
 #ifndef YH_GFX  /* Prevent multiple inclusion */
 #define YH_GFX  /* Prevent multiple inclusion */
 
@@ -39,33 +38,8 @@ extern int font_xofs;
 extern int font_yofs;
 
 
-/* This number is the Y offset to use when underscoring a character.
-   For example, if you want to draw an underscored "A" at (x,y),
-   you should do :
-     DrawScreenString (x, y,         "A");
-     DrawScreenString (x, y + FONTU, "_"); */
-#define FONTU  1
-
-/* Narrow spacing around text. That's the distance in pixels
-   between the characters and the inner edge of the box. */
-#define NARROW_HSPACING  4
-#define NARROW_VSPACING  2
-
-/* Wide spacing around text. That's the distance in pixels
-   between the characters and the inner edge of the box. */
-#define WIDE_HSPACING  FONTW
-#define WIDE_VSPACING  (FONTH / 2)
-
-/* Boxes */
-#define BOX_BORDER    2  // Offset between outer and inner edges of a 3D box
-#define NARROW_BORDER 1  // Same thing for a shallow 3D box
-#define HOLLOW_BORDER 1  // Same thing for a hollow box
-#define BOX_VSPACING  WIDE_VSPACING  // Vertical space between two hollow boxes
-
 /* Parameters set by command line args and configuration file */
 
-extern const char *font_name; // X: the name of the font to load
-        // (if NULL, use the default)
 
 /* Global variables */
 extern int   ScrMaxX;

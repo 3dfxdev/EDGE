@@ -28,7 +28,7 @@
 
 #include "im_color.h"
 #include "gfx.h"
-#include "grid2.h"
+#include "r_grid.h"
 #include "levels.h"  /* Level */
 #include "r_render.h"
 
