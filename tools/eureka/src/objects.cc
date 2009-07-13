@@ -32,7 +32,7 @@
 #include "selectn.h"
 #include "things.h"
 
-#include "edit2.h"
+#include "editloop.h"
 #include "grid2.h"
 #include "x_hover.h"
 

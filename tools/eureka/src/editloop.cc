@@ -24,7 +24,6 @@
 
 #include "main.h"
 
-#include "edit2.h"
 #include "checks.h"
 #include "dialog.h"
 #include "editloop.h"

@@ -24,8 +24,8 @@
 
 #include "main.h"
 
-#include "edit2.h"
 #include "dialog.h"
+#include "editloop.h"
 #include "editobj.h"
 #include "game.h"
 #include "gfx.h"
