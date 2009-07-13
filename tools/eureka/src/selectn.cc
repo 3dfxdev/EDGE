@@ -315,12 +315,12 @@ bitvec_c *list_to_bitvec (SelPtr list, size_t bitvec_size)
  *  (i.e. item N in the bitvec is inserted before item N+1).
  *  It's up to the caller to delete the new list after use.
  */
-SelPtr bitvec_to_list (const bitvec_c &b)
+SelPtr bitvec_to_list(const bitvec_c &bv)
 {
   SelPtr list = 0;
-  for (size_t n = 0; n < b.nelements (); n++)
-    if (b.get (n))
-      SelectObject (&list, n);
+  for (int n = 0; n < bv.size(); n++)
+    if (bv.get(n))
+      SelectObject(&list, n);
   return list;
 }
 

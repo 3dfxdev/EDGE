@@ -27,7 +27,49 @@
 #include "m_bitvec.h"
 
 
-const char _bitvec_msg1[] = "bitvec::frob: invalid op = %d";
+bitvec_c::bitvec_c(int n_elements) : num_elem(n_elements)
+{
+	int total = (num_elem / 8) + 1;
+
+	d = new byte[total];
+
+	memset(d, 0, total);
+}
+
+bitvec_c::~bitvec_c()
+{
+	delete[] d;
+}
+
+bool bitvec_c::get(int n) const
+{
+	return (d[n >> 3] & (1 << (n & 7))) ? true : false;
+}
+
+void bitvec_c::set(int n)
+{
+	d[n >> 3] |= (1 << (n & 7));
+}
+
+void bitvec_c::unset(int n)
+{
+	d[n >> 3] &= ~(1 << (n & 7));
+}
+
+void bitvec_c::toggle(int n)
+{
+	d[n >> 3] ^= (1 << (n & 7));
+}
+
+void bitvec_c::frob(int n, sel_op_e op)
+{
+	switch (op)
+	{
+		case BOP_ADD: set(n); break;
+		case BOP_REMOVE: unset(n); break;
+		default: toggle(n); break;
+	}
+}
 
 
 //--- editor settings ---

@@ -48,7 +48,7 @@ long x_sum  = 0;
 long y_sum  = 0;
 int  nitems = 0;
 
-for (size_t n = 0; n < vertices->nelements (); n++)
+for (int n = 0; n < vertices->size(); n++)
    if (vertices->get (n))
       {
       x_sum += Vertices[n].x;
@@ -617,10 +617,10 @@ SelPtr list_vertices_of_sectors (SelPtr list)
 {
   bitvec_c *vertices_bitvec;
   SelPtr vertices_list = 0;
-  size_t n;
 
   vertices_bitvec = bv_vertices_of_sectors (list);
-  for (n = 0; n < vertices_bitvec->nelements (); n++)
+
+  for (int n = 0; n < vertices_bitvec->size(); n++)
   {
     if (vertices_bitvec->get (n))
       SelectObject (&vertices_list, n);
