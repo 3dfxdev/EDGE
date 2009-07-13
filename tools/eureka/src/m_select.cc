@@ -185,5 +185,55 @@ void selection_c::ConvertToBitvec()
 	count = 0;
 }
 
+void selection_c::begin(selection_iterator_c *it)
+{
+	it->sel = this;
+	it->pos = 0;
+	
+	if (bv)
+	{
+		// for bit vector, need to find the first one bit
+		// FIXME: this is rather hacky
+		it->pos = -1;
+
+		++ (*it);
+	}
+}
+
+
+//------------------------------------------------------------------------
+
+
+bool selection_iterator_c::at_end() const
+{
+	if (sel->bv)
+		return (pos >= sel->bv->size());
+	else
+		return (pos >= sel->count);
+}
+
+int selection_iterator_c::operator* () const
+{
+	if (sel->bv)
+		return pos;
+	else
+		return sel->objs[pos];
+}
+
+selection_iterator_c& selection_iterator_c::operator++ ()
+{
+	pos++;
+
+	if (sel->bv)
+	{
+		// FIXME: OPTIMISE THIS
+		while (pos < sel->bv->size() && ! sel->bv->get(pos))
+			pos++;
+	}
+
+	return *this;
+}
+
+
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
