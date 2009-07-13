@@ -25,6 +25,8 @@
 #include "main.h"
 
 #include "m_select.h"
+#include "levels.h"
+#include "objects.h"
 
 
 selection_c::selection_c(obj_type_t _type) : type(_type),
@@ -42,7 +44,11 @@ bool selection_c::get(int n) const
 	if (bv)
 		return bv->get(n);
 
-	// FIXME
+	for (int i = 0; i < count; i++)
+		if (objs[i] == n)
+			return true;
+
+	return false;
 }
 
 void selection_c::set(int n)
@@ -52,7 +58,17 @@ void selection_c::set(int n)
 		bv->set(n); return;
 	}
 
-	// FIXME
+	if (get(n))
+		return;
+
+	if (count == MAX_STORE_SEL)
+	{
+		ConvertToBitvec();
+
+		bv->set(n); return;
+	}
+
+	objs[count++] = n;
 }
 
 void selection_c::clear(int n)
@@ -62,7 +78,19 @@ void selection_c::clear(int n)
 		bv->clear(n); return;
 	}
 
-	// FIXME
+	int i;
+
+	for (i = 0; i < count; i++)
+		if (objs[i] == n)
+			break;
+	
+	if (i >= count)
+		return; // was not present
+
+	count--;
+
+	if (i < count)
+		objs[i] = objs[count];
 }
 
 void selection_c::toggle(int n)
@@ -134,9 +162,20 @@ void selection_c::ConvertToBitvec()
 {
 	SYS_ASSERT(! bv);
 
-	int num_elem = 1234; // FIXME !!!!!
+	int num_elem = 0;
 
-	bv = new bitvec_c(num_elem);
+	switch (type)
+	{
+		case OBJ_THINGS:   num_elem = NumThings;   break;
+		case OBJ_LINEDEFS: num_elem = NumLineDefs; break;
+		case OBJ_SIDEDEFS: num_elem = NumSideDefs; break;
+		case OBJ_VERTICES: num_elem = NumVertices; break;
+		case OBJ_SECTORS:  num_elem = NumSectors;  break;
+
+		default: FatalError("INTERNAL ERROR in selection_c: type=%d\n", (int)type);
+	}
+
+	bv = new bitvec_c(num_elem+1);
 
 	for (int i = 0; i < count; i++)
 	{
