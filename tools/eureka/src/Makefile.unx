@@ -43,6 +43,7 @@ OBJS = \
 	m_config.o  \
 	m_dialog.o  \
 	m_game.o  \
+	m_select.o  \
 	objects.o  \
 	r_grid.o  \
 	r_images.o  \
