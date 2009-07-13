@@ -38,6 +38,9 @@
 #include "w_wads.h"
 
 
+#define VERSION  "0.42"
+
+
 /*
  *  Constants (declared in main.h)
  */
