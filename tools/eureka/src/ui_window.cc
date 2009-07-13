@@ -66,8 +66,8 @@ UI_MainWin::UI_MainWin(const char *title) :
 	int cy = 0;
 	int ey = h();
 
-	int panel_W = 260;
-	int flattex_W = 170;
+	int panel_W   = 260 + QF * 32;
+	int flattex_W = 180 + QF * 20;
 
   /* ---- Menu bar ---- */
   {
