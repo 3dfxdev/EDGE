@@ -95,7 +95,7 @@ int InitGfx (void)
   QF = 0;
   if (screen_w >= 1024) QF++;
   if (screen_w >= 1280) QF++;
-  if (screen_w >= 1600) QF++;
+//  if (screen_w >= 1600) QF++;
 
   QF_F = (14 + QF * 3);  if (QF_F & 1) QF_F++;
 

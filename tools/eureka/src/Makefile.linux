@@ -35,7 +35,6 @@ OBJS = \
 	e_names.o  \
 	game.o  \
 	gfx.o  \
-	gotoobj.o  \
 	grid2.o  \
 	highlt.o  \
 	im_color.o  \
