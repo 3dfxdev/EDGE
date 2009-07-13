@@ -33,7 +33,7 @@ bitvec_c::bitvec_c(int n_elements) : num_elem(n_elements)
 
 	d = new byte[total];
 
-	memset(d, 0, total);
+	clear_all();
 }
 
 bitvec_c::~bitvec_c()
@@ -51,7 +51,7 @@ void bitvec_c::set(int n)
 	d[n >> 3] |= (1 << (n & 7));
 }
 
-void bitvec_c::unset(int n)
+void bitvec_c::clear(int n)
 {
 	d[n >> 3] &= ~(1 << (n & 7));
 }
@@ -61,14 +61,54 @@ void bitvec_c::toggle(int n)
 	d[n >> 3] ^= (1 << (n & 7));
 }
 
+void bitvec_c::set_all()
+{
+	int total = (num_elem / 8) + 1;
+
+	memset(d, 0xFF, total);
+}
+
+void bitvec_c::clear_all()
+{
+	int total = (num_elem / 8) + 1;
+
+	memset(d, 0, total);
+}
+
+void bitvec_c::toggle_all()
+{
+	int total = (num_elem / 8) + 1;
+
+	byte *pos   = d;
+	byte *p_end = d + total;
+
+	while (pos < p_end)
+		*pos++ ^= 0xFF;
+}
+
 void bitvec_c::frob(int n, sel_op_e op)
 {
 	switch (op)
 	{
 		case BOP_ADD: set(n); break;
-		case BOP_REMOVE: unset(n); break;
+		case BOP_REMOVE: clear(n); break;
 		default: toggle(n); break;
 	}
+}
+
+void bitvec_c::merge(const bitvec_c& other)
+{
+	SYS_ASSERT(other.size() == size());
+
+	int total = (num_elem / 8) + 1;
+
+	const byte *src   = other.d;
+	const byte *s_end = other.d + total;
+
+	byte *dest = d;
+
+	while (src < s_end)
+		*dest++ |= *src++;
 }
 
 

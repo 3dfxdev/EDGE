@@ -45,10 +45,16 @@ public:
 	bool get(int n) const;  // Get bit <n>
 
 	void set(int n);    // Set bit <n> to 1
-	void unset(int n);  // Set bit <n> to 0
+	void clear(int n);  // Set bit <n> to 0
 	void toggle(int n); // Toggle bit <n>
 
+	void set_all();
+	void clear_all();
+	void toggle_all();
+
 	void frob(int n, sel_op_e op);
+
+	void merge(const bitvec_c& other);
 };
 
 
