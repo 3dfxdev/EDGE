@@ -37,6 +37,8 @@
 #include "w_name.h"
 #include "w_wads.h"
 
+#include "ui_window.h"
+
 
 #define VERSION  "0.42"
 
@@ -142,6 +144,8 @@ Wad_name sky_flat;
 static int  parse_environment_vars ();
 static void print_error_message (const char *fmt, va_list args);
 
+static void TermFLTK();
+
 
 /*
  *  parse_environment_vars
@@ -210,7 +214,7 @@ void FatalError(const char *fmt, ...)
 	// that a segfault occuring in TermGfx() does not
 	// prevent us from seeing the stderr message.
 
-	TermGfx ();  // Don't need to sleep (1) either.
+	TermFLTK ();  // Don't need to sleep (1) either.
 
 
 	// Clean up things and free swap space
@@ -332,6 +336,61 @@ void LogMessage (const char *logstr, ...)
 }
 
 
+int InitFLTK(void)  // returns 0 on success
+{
+	game_colour = alloc_game_colours (0);
+
+	/*
+	 *  Create the window
+	 */
+	Fl::visual(FL_RGB);
+
+	Fl::scheme("plastic");
+
+	int screen_w = Fl::w();
+	int screen_h = Fl::h();
+
+	fprintf(stderr, "-- SCREEN SIZE %dx%d\n", screen_w, screen_h);
+
+	QF = 0;
+	if (screen_w >= 1024) QF++;
+	if (screen_w >= 1280) QF++;
+	//  if (screen_w >= 1600) QF++;
+
+	QF_F = (14 + QF * 3);  if (QF_F & 1) QF_F++;
+
+
+	main_win = new UI_MainWin("EUREKA FTW!");
+
+	// kill the stupid bright background of the "plastic" scheme
+	delete Fl::scheme_bg_;
+	Fl::scheme_bg_ = NULL;
+
+	main_win->image(NULL);
+
+	// show window (pass some dummy arguments)
+	{
+		int argc = 1;
+		char *argv[] = { "Goobers.exe", NULL };
+
+		main_win->show(argc, argv);
+	}
+
+	SetWindowSize (main_win->canvas->w(), main_win->canvas->h());
+
+	return 0;
+}
+
+
+/*
+ *  TermFLTK
+ */
+void TermFLTK()
+{
+}
+
+
+
 /*
  *  find_level
  *  Look in the master directory for levels that match
@@ -435,7 +494,7 @@ static char *find_level (const char *name_given)
 
 void EditLevel (const char *levelname, bool newlevel)
 {
-    if (InitGfx())
+    if (InitFLTK())
         return;
 
     if (newlevel)
@@ -470,7 +529,7 @@ void EditLevel (const char *levelname, bool newlevel)
 	}
 
 done :
-    TermGfx ();
+    TermFLTK ();
 
     ForgetLevelData ();
 

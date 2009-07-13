@@ -74,12 +74,7 @@ extern int   ScrMaxY;
 typedef unsigned long xpv_t;  // The type of a pixel value in X's opinion
 
 /* gfx.cc */
-int InitGfx (void);
-void TermGfx (void);
 void SetWindowSize (int width, int height);
-
-void SetLineThickness (int thick);
-void SetDrawingMode (int _xor);
 
 void DrawScreenText (int, int, const char *, ...);
 void DrawScreenString (int, int, const char *);

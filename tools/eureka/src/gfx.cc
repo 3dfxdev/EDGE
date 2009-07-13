@@ -40,9 +40,6 @@ int QF;
 int QF_F;
 
 
-const char *font_name = NULL; // X: the name of the font to load
-
-
 int ScrMaxX;    // Maximum display X-coord of screen/window
 int ScrMaxY;    // Maximum display Y-coord of screen/window
 
@@ -52,82 +49,9 @@ int font_xofs = 0;
 int font_yofs = 12;
 
 
-int      win_depth; // The depth of win in bits
-int      ximage_bpp;  // Number of bytes per pixels in XImages
-int      ximage_quantum;// Pad XImages lines to a multiple of that many bytes
-static pcolour_t *app_colour = 0; // Pixel values for the app. colours
-static int DrawingMode    = 0;    // 0 = copy, 1 = xor
-static int LineThickness  = 0;    // 0 = thin, 1 = thick
-
-
 /*
  *  Prototypes
  */
-
-/*
- *  InitGfx - initialize the graphics display
- *
- *  Return 0 on success, non-zero on failure
- */
-int InitGfx (void)
-{
-  game_colour = alloc_game_colours (0);
-
-  if (win_depth == 24)
-    game_colour_24.refresh (game_colour, false);
-
-
-  /*
-   *  Create the window
-   */
-
-// FLTKIFICATION !!!!
-
-  Fl::visual(FL_RGB);
-
-  Fl::scheme("plastic");
-
-  int screen_w = Fl::w();
-  int screen_h = Fl::h();
-
-  fprintf(stderr, "-- SCREEN SIZE %dx%d\n", screen_w, screen_h);
-
-  QF = 0;
-  if (screen_w >= 1024) QF++;
-  if (screen_w >= 1280) QF++;
-//  if (screen_w >= 1600) QF++;
-
-  QF_F = (14 + QF * 3);  if (QF_F & 1) QF_F++;
-
-
-  main_win = new UI_MainWin("EUREKA FTW!");
-
-  // kill the stupid bright background of the "plastic" scheme
-  delete Fl::scheme_bg_;
-  Fl::scheme_bg_ = NULL;
-
-  main_win->image(NULL);
-
-  // show window (pass some dummy arguments)
-  {
-    int argc = 1;
-    char *argv[] = { "Goobers.exe", NULL };
-
-    main_win->show(argc, argv);
-  }
-
-  SetWindowSize (main_win->canvas->w(), main_win->canvas->h());
-
-  return 0;
-}
-
-
-/*
- *  TermGfx - terminate the graphics display
- */
-void TermGfx ()
-{
-}
 
 
 /*
@@ -143,52 +67,6 @@ void SetWindowSize (int width, int height)
   ScrMaxY = height - 1;
 }
 
-
-
-
-/*
- *  SetLineThickness - set the line style (thin or thick)
- */
-void SetLineThickness (int thick)
-{
-  fl_line_style(FL_SOLID, thick*2);
-
-//!!!! #if defined Y_BGI
-//!!!!   setlinestyle (SOLID_LINE, 0, thick ? THICK_WIDTH : NORM_WIDTH);
-//!!!! #elif defined Y_X11
-//!!!!   if (!! thick != LineThickness)
-//!!!!   {
-//!!!!     LineThickness = !! thick;
-//!!!!     XGCValues gcv;
-//!!!!     gcv.line_width = LineThickness ? 3 : (DrawingMode ? 1 : 0);
-//!!!!     // ^ It's important to use a line_width of 1 when in xor mode.
-//!!!!     // See note (1) in the hacker's guide.
-//!!!!     XChangeGC (dpy, gc, GCLineWidth, &gcv);
-//!!!!   }
-//!!!! #endif
-}
-
-
-/*
- *  SetDrawingMode - set the drawing mode (copy or xor)
- */
-void SetDrawingMode (int _xor)
-{
-//!!!! #if defined Y_BGI
-//!!!!   setwritemode (_xor ? XOR_PUT : COPY_PUT);
-//!!!! #elif defined Y_X11
-//!!!!   if (!! _xor != DrawingMode)
-//!!!!   {
-//!!!!     DrawingMode = !! _xor;
-//!!!!     XGCValues gcv;
-//!!!!     gcv.function = DrawingMode ? GXxor : GXcopy;
-//!!!!     gcv.line_width = LineThickness ? 3 : (DrawingMode ? 1 : 0);
-//!!!!     // ^ It's important to use a line_width of 1 when in xor mode.
-//!!!!     // See note (1) in the hacker's guide.
-//!!!!     XChangeGC (dpy, gc, GCFunction | GCLineWidth, &gcv);
-//!!!!   }
-//!!!! #endif
-}
 
 
 
@@ -218,28 +96,29 @@ static int lastycur;
  */
 void DrawScreenText (int scrx, int scry, const char *msg, ...)
 {
-  char temp[120];
-  va_list args;
+	char temp[120];
 
-  // <msg> == NULL: print nothing, just set the coordinates.
-  if (msg == NULL)
-  {
-    if (scrx != -1 && scrx != -2)
-    {
-      lastx0   = scrx;
-      lastxcur = scrx;
-    }
-    if (scry != -1 && scry != -2)
-    {
-      lasty0   = scry;  // Note: no "+ FONTH"
-      lastycur = scry;
-    }
-    return;
-  }
+	va_list args;
 
-  va_start (args, msg);
-  y_vsnprintf (temp, sizeof temp, msg, args);
-  DrawScreenString (scrx, scry, temp);
+	// <msg> == NULL: print nothing, just set the coordinates.
+	if (msg == NULL)
+	{
+		if (scrx != -1 && scrx != -2)
+		{
+			lastx0   = scrx;
+			lastxcur = scrx;
+		}
+		if (scry != -1 && scry != -2)
+		{
+			lasty0   = scry;  // Note: no "+ FONTH"
+			lastycur = scry;
+		}
+		return;
+	}
+
+	va_start (args, msg);
+	y_vsnprintf (temp, sizeof temp, msg, args);
+	DrawScreenString (scrx, scry, temp);
 }
 
 
@@ -268,62 +147,62 @@ void DrawScreenText (int scrx, int scry, const char *msg, ...)
  */
 void DrawScreenString (int scrx, int scry, const char *str)
 {
-  int x; int y;
+	int x; int y;
 
-  /* FIXME originally, the test was "< 0". Because it broke
-     when the screen was too small, I changed it to a more
-     specific "== -1". A quick and very dirty hack ! */
-  if (scrx == -1)
-    x = lastx0;
-  else if (scrx == -2)
-    x = lastxcur;
-  else
-    x = scrx;
-  if (scry == -1)
-    y = lasty0;
-  else if (scry == -2)
-    y = lastycur;
-  else
-    y = scry;
-  size_t len = strlen (str);
+	/* FIXME originally, the test was "< 0". Because it broke
+	   when the screen was too small, I changed it to a more
+	   specific "== -1". A quick and very dirty hack ! */
+	if (scrx == -1)
+		x = lastx0;
+	else if (scrx == -2)
+		x = lastxcur;
+	else
+		x = scrx;
+	if (scry == -1)
+		y = lasty0;
+	else if (scry == -2)
+		y = lastycur;
+	else
+		y = scry;
+	size_t len = strlen (str);
 
-  if (strchr (str, '\1') == 0)
-  {
-    fl_draw (str, len, x - font_xofs, y + font_yofs);
-  }
-  else
-  {
-    int xx = x;
-    len = 0;
-    for (const char *p = str; *p != '\0';)
-    {
-      int i;
-      for (i = 0; p[i] != '\0' && p[i] != '\1' && p[i] != '\2'; i++)
-  ;
-      len += i;
-      if (i > 0)
-      {
-  fl_draw (p, i, xx - font_xofs, y + font_yofs);
-  xx += i * FONTW;
-      }
-      if (p[i] == '\0')
-  break;
-      if (p[i] == '\1')
-  set_colour (save == WINFG_DIM ? WINLABEL_DIM : WINLABEL);
-      else if (p[i] == '\2')
-  set_colour (save);
-      i++;
-      p += i;
-    }
-    set_colour (save);
-  }
+	if (strchr (str, '\1') == 0)
+	{
+		fl_draw (str, len, x - font_xofs, y + font_yofs);
+	}
+	else
+	{
+		int xx = x;
+		len = 0;
+		for (const char *p = str; *p != '\0';)
+		{
+			int i;
+			for (i = 0; p[i] != '\0' && p[i] != '\1' && p[i] != '\2'; i++)
+				;
+			len += i;
+			if (i > 0)
+			{
+				fl_draw (p, i, xx - font_xofs, y + font_yofs);
+				xx += i * FONTW;
+			}
+			if (p[i] == '\0')
+				break;
+			if (p[i] == '\1')
+				set_colour (save == WINFG_DIM ? WINLABEL_DIM : WINLABEL);
+			else if (p[i] == '\2')
+				set_colour (save);
+			i++;
+			p += i;
+		}
+		set_colour (save);
+	}
 
-  lastxcur = x + FONTW * len;
-  lastycur = y;
-  if (scrx != -2)
-    lastx0 = x;
-  if (scry != -2)
-    lasty0 = y + FONTH;
+	lastxcur = x + FONTW * len;
+	lastycur = y;
+	if (scrx != -2)
+		lastx0 = x;
+	if (scry != -2)
+		lasty0 = y + FONTH;
 }
 
 

@@ -744,7 +744,9 @@ void UI_Canvas::HighlightObject (int objtype, int objnum, Fl_Color colour)
 						- Vertices[LineDefs[objnum].start].y) / 3,
 					m + (Vertices[LineDefs[objnum].start].x
 						- Vertices[LineDefs[objnum].end].x) / 3);
-			SetLineThickness (1);
+			
+			fl_line_style(FL_SOLID, 2);
+
 			DrawMapVector (Vertices[LineDefs[objnum].start].x,
 					Vertices[LineDefs[objnum].start].y,
 					Vertices[LineDefs[objnum].end].x,
@@ -755,7 +757,8 @@ void UI_Canvas::HighlightObject (int objtype, int objnum, Fl_Color colour)
 					if (Sectors[m].tag == LineDefs[objnum].tag)
 						HighlightObject (OBJ_SECTORS, m, LIGHTRED);
 			}
-			SetLineThickness (0);
+
+			fl_line_style(FL_SOLID, 1);
 			break;
 
 		case OBJ_VERTICES:
@@ -775,11 +778,13 @@ void UI_Canvas::HighlightObject (int objtype, int objnum, Fl_Color colour)
 
 		case OBJ_SECTORS:
 		{
-			SetLineThickness (1);
-			const int mapx0 = MAPX (0);
-			const int mapy0 = MAPY (w());
-			const int mapx9 = MAPX (ScrMaxX);
-			const int mapy9 = MAPY (0);
+			fl_line_style(FL_SOLID, 2);
+
+			int mapx0 = MAPX(0);
+			int mapy0 = MAPY(w());
+			int mapx9 = MAPX(ScrMaxX);
+			int mapy9 = MAPY(0);
+
 			for (n = 0; n < NumLineDefs; n++)
 				if (LineDefs[n].side_R != -1
 						&& SideDefs[LineDefs[n].side_R].sector == objnum
@@ -788,6 +793,7 @@ void UI_Canvas::HighlightObject (int objtype, int objnum, Fl_Color colour)
 				{
 					const struct Vertex *v1 = Vertices + LineDefs[n].start;
 					const struct Vertex *v2 = Vertices + LineDefs[n].end;
+
 					if (v1->x < mapx0 && v2->x < mapx0
 							|| v1->x > mapx9 && v2->x > mapx9
 							|| v1->y < mapy0 && v2->y < mapy0
@@ -801,7 +807,8 @@ void UI_Canvas::HighlightObject (int objtype, int objnum, Fl_Color colour)
 					if (LineDefs[m].tag == Sectors[objnum].tag)
 						HighlightObject (OBJ_LINEDEFS, m, LIGHTRED);
 			}
-			SetLineThickness (0);
+
+			fl_line_style(FL_SOLID, 1);
 		}
 		break;
 	}

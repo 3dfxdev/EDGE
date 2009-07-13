@@ -86,12 +86,12 @@ void selbox_c::draw (void)
   if ((flags & flags_1st_corner_set) && (flags & flags_2nd_corner_set))
   {
     set_colour (CYAN);
-    SetDrawingMode (1);
+    
 ///!!!    DrawMapLine (x1, y1, x1, y2);
 ///!!!    DrawMapLine (x1, y2, x2, y2);
 ///!!!    DrawMapLine (x2, y2, x2, y1);
 ///!!!    DrawMapLine (x2, y1, x1, y1);
-    SetDrawingMode (0);
+   
     /* Those are needed by undraw() */
     x1_disp = x1;
     y1_disp = y1;
