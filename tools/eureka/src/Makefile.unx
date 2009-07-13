@@ -34,7 +34,6 @@ OBJS = \
 	e_sector.o  \
 	e_things.o  \
 	e_vertex.o  \
-	highlt.o  \
 	im_color.o  \
 	im_img.o  \
 	im_sticker.o  \

@@ -20,6 +20,7 @@
 #define __UI_CANVAS_H__
 
 #include "editloop.h"
+#include "objects.h"
 #include "r_grid.h"
 
 
@@ -29,6 +30,8 @@ private:
 	Editor_State_c *e;
 
 	bool render3d;
+
+	Objid highlight;
 
 	bool selbox_active;
 	int  selbox_x1, selbox_y1;  // map coords
@@ -55,6 +58,9 @@ public:
 	void DrawMapLine (int mapx1, int mapy1, int mapx2, int mapy2);
 	void DrawMapVector (int mapx1, int mapy1, int mapx2, int mapy2);
 	void DrawMapArrow (int mapx1, int mapy1, unsigned angle);
+
+	void HighlightSet(Objid& obj);
+	void HighlightForget();
 
 	void HighlightObject (int objtype, int objnum, Fl_Color colour);
 	void HighlightSelection (int objtype, SelPtr list);

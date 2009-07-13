@@ -26,7 +26,6 @@
 #include "e_things.h"
 #include "r_misc.h"
 #include "r_grid.h"
-#include "highlt.h"
 #include "im_color.h"
 #include "levels.h"
 #include "objects.h"
@@ -43,7 +42,8 @@ extern int active_wmask;
 //
 UI_Canvas::UI_Canvas(int X, int Y, int W, int H, const char *label) : 
     Fl_Widget(X, Y, W, H, label),
-    e(NULL), render3d(false), selbox_active(false)
+    e(NULL), render3d(false),
+	highlight(), selbox_active(false)
 { }
 
 //
@@ -189,7 +189,8 @@ void UI_Canvas::DrawEverything()
 
 	HighlightSelection (edit.obj_type, edit.Selected); // FIXME should be widgetized
 
-	edit.highlight->draw();
+	if (highlight())
+		HighlightObject(highlight.type, highlight.num, YELLOW);
 
 	if (selbox_active)
 		SelboxDraw();
@@ -706,6 +707,27 @@ void UI_Canvas::DrawObjNum(int x, int y, int obj_no, Fl_Color c)
 	DrawScreenText (x,     y,     "%d", obj_no);
 }
 
+
+void UI_Canvas::HighlightSet(Objid& obj)
+{
+	if (highlight == obj)
+		return;
+	
+	highlight = obj;
+
+	redraw();
+}
+
+
+void UI_Canvas::HighlightForget()
+{
+	if (highlight.is_nil())
+		return;
+	
+	highlight.nil();
+
+	redraw();
+}
 
 /*
    highlight the selected object
