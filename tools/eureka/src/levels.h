@@ -29,7 +29,7 @@
 
 #include "w_name.h"
 #include "w_structs.h"
-#include "things.h"
+#include "e_things.h"
 
 
 // Defined in levels.cc
@@ -107,7 +107,6 @@ void EmptyLevelData (const char *levelname);
 void update_level_bounds ();
 
 
-
 extern Wad_name sky_flat;
 
 
@@ -118,6 +117,10 @@ inline bool is_sky (Wad_name flat)
 {
   return sky_flat == flat;
 }
+
+
+int levelname2levelno (const char *name);
+int levelname2rank (const char *name);
 
 
 #endif  /* DO NOT ADD ANYTHING AFTER THIS LINE */

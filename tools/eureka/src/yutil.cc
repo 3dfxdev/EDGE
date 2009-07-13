@@ -24,96 +24,12 @@
 
 #include "main.h"
 
-#include "game.h"
+// #include "m_game.h"
 
 #include <math.h>
 #include <sys/time.h>
 #include <time.h>
 
-
-/*
- *  levelname2levelno
- *  Used to know if directory entry is ExMy or MAPxy
- *  For "ExMy" (case-insensitive),  returns 10x + y
- *  For "ExMyz" (case-insensitive), returns 100*x + 10y + z
- *  For "MAPxy" (case-insensitive), returns 1000 + 10x + y
- *  E0My, ExM0, E0Myz, ExM0z are not considered valid names.
- *  MAP00 is considered a valid name.
- *  For other names, returns 0.
- */
-int levelname2levelno (const char *name)
-{
-  const unsigned char *s = (const unsigned char *) name;
-  if (toupper (s[0]) == 'E'
-   && isdigit (s[1])
-   && s[1] != '0'
-   && toupper (s[2]) == 'M'
-   && isdigit (s[3])
-   && s[3] != '0'
-   && s[4] == '\0')
-    return 10 * dectoi (s[1]) + dectoi (s[3]);
-  if (yg_level_name == YGLN_E1M10
-   && toupper (s[0]) == 'E'
-   && isdigit (s[1])
-   && s[1] != '0'
-   && toupper (s[2]) == 'M'
-   && isdigit (s[3])
-   && s[3] != '0'
-   && isdigit (s[4])
-   && s[5] == '\0')
-    return 100 * dectoi (s[1]) + 10 * dectoi (s[3]) + dectoi (s[4]);
-  if (toupper (s[0]) == 'M'
-   && toupper (s[1]) == 'A'
-   && toupper (s[2]) == 'P'
-   && isdigit (s[3])
-   && isdigit (s[4])
-   && s[5] == '\0')
-    return 1000 + 10 * dectoi (s[3]) + dectoi (s[4]);
-  return 0;
-}
-
-
-/*
- *  levelname2rank
- *  Used to sort level names.
- *  Identical to levelname2levelno except that, for "ExMy",
- *  it returns 100x + y, so that
- *  - f("E1M10") = f("E1M9") + 1
- *  - f("E2M1")  > f("E1M99")
- *  - f("E2M1")  > f("E1M99") + 1
- *  - f("MAPxy") > f("ExMy")
- *  - f("MAPxy") > f("ExMyz")
- */
-int levelname2rank (const char *name)
-{
-  const unsigned char *s = (const unsigned char *) name;
-  if (toupper (s[0]) == 'E'
-   && isdigit (s[1])
-   && s[1] != '0'
-   && toupper (s[2]) == 'M'
-   && isdigit (s[3])
-   && s[3] != '0'
-   && s[4] == '\0')
-    return 100 * dectoi (s[1]) + dectoi (s[3]);
-  if (yg_level_name == YGLN_E1M10
-   && toupper (s[0]) == 'E'
-   && isdigit (s[1])
-   && s[1] != '0'
-   && toupper (s[2]) == 'M'
-   && isdigit (s[3])
-   && s[3] != '0'
-   && isdigit (s[4])
-   && s[5] == '\0')
-    return 100 * dectoi (s[1]) + 10 * dectoi (s[3]) + dectoi (s[4]);
-  if (toupper (s[0]) == 'M'
-   && toupper (s[1]) == 'A'
-   && toupper (s[2]) == 'P'
-   && isdigit (s[3])
-   && isdigit (s[4])
-   && s[5] == '\0')
-    return 1000 + 10 * dectoi (s[3]) + dectoi (s[4]);
-  return 0;
-}
 
 
 /*

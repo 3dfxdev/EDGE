@@ -27,8 +27,6 @@
 #define YH_AYM
 
 
-int levelname2levelno (const char *name);
-int levelname2rank (const char *name);
 const char *spec_path (const char *spec);
 int fncmp (const char *name1, const char *name2);
 int is_absolute (const char *filename);
