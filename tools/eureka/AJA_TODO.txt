@@ -20,8 +20,6 @@ Coding Standards
 
 + proper headers for macros
 
-- editor settings in each file
-
 + SYS_ASSERT
 
 
@@ -57,10 +55,7 @@ CODE STRUCTURE
 
 3. WAD handling : w_
 
-4. Level stuff 
-   -  general   : e_
-   -  linedefs  : l_
-   -  sectors   : s_
+4. Level stuff  : e_
 
 5. Misc / library : m_  sys_
 
