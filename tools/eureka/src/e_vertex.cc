@@ -26,13 +26,13 @@
 
 #include <math.h>
 
-#include "dialog.h"
+#include "m_dialog.h"
 #include "r_grid.h"
 #include "levels.h"
 #include "objects.h"
 #include "selectn.h"
 #include "m_bitvec.h"
-#include "vertices.h"
+#include "e_vertex.h"
 
 
 typedef struct  /* Used only by AutoMergeVertices() and SortLinedefs() */

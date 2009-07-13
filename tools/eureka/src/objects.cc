@@ -25,12 +25,12 @@
 #include "main.h"
 
 #include "r_misc.h"
-#include "linedefs.h"
+#include "e_linedef.h"
+#include "e_sector.h"
+#include "e_things.h"
 #include "levels.h"
 #include "objects.h"
-#include "sectors.h"
 #include "selectn.h"
-#include "things.h"
 
 #include "editloop.h"
 #include "r_grid.h"

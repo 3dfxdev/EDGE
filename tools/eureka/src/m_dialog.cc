@@ -23,7 +23,7 @@
 //------------------------------------------------------------------------
 
 #include "main.h"
-#include "dialog.h"
+#include "m_dialog.h"
 #include "r_misc.h"
 
 

@@ -25,11 +25,11 @@
 #include "main.h"
 
 #include "m_bitvec.h"
-#include "linedefs.h"
+#include "e_linedef.h"
+#include "e_sector.h"
+#include "e_vertex.h"
 #include "levels.h"
-#include "sectors.h"
 #include "selectn.h"
-#include "vertices.h"
 #include "x_mirror.h"
 
 

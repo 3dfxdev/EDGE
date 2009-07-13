@@ -31,9 +31,9 @@
 #include "levels.h"
 #include "selectn.h"
 #include "objects.h"
-#include "dialog.h"
+#include "m_dialog.h"
 #include "x_hover.h"
-#include "sectors.h"
+#include "e_sector.h"
 #include "s_misc.h"
 
 

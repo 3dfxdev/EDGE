@@ -24,9 +24,9 @@
 
 #include "main.h"
 
-#include "dialog.h"
+#include "m_dialog.h"
 #include "editsave.h"
-#include "game.h"
+#include "m_game.h"
 #include "levels.h"
 #include "w_file.h"
 #include "w_list.h"

@@ -24,15 +24,15 @@
 
 #include "main.h"
 
-#include "checks.h"
-#include "dialog.h"
+#include "e_checks.h"
+#include "m_dialog.h"
 #include "editloop.h"
 #include "editobj.h"
 #include "editsave.h"
 #include "r_misc.h"
 #include "r_grid.h"
 #include "highlt.h"
-#include "linedefs.h"
+#include "e_linedef.h"
 #include "levels.h"
 #include "objects.h"
 #include "s_misc.h"

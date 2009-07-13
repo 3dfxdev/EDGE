@@ -22,7 +22,7 @@
 #include <math.h>  // FIXME: standard header
 
 #include "levels.h"
-#include "things.h"
+#include "e_things.h"
 #include "w_structs.h"
 
 
