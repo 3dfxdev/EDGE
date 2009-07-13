@@ -26,7 +26,7 @@
 
 #include "levels.h"
 #include "w_structs.h"
-#include "gfx.h"
+#include "r_misc.h"
 #include "im_img.h"
 #include "things.h"
 #include "objects.h"

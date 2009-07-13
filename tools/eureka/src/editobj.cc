@@ -28,7 +28,7 @@
 #include "editloop.h"
 #include "editobj.h"
 #include "game.h"
-#include "gfx.h"
+#include "r_misc.h"
 #include "levels.h"
 #include "objects.h"
 #include "sectors.h"

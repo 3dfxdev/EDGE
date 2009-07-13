@@ -28,7 +28,7 @@
 #include <sys/stat.h>
 
 #include "cfgfile.h"
-#include "gfx.h"
+#include "r_misc.h"
 #include "levels.h"
 
 

@@ -24,7 +24,7 @@
 
 #include "main.h"
 
-#include "grid2.h"
+#include "r_grid.h"
 #include "ui_window.h"
 
 

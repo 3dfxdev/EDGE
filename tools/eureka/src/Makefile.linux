@@ -33,7 +33,6 @@ OBJS = \
 	editobj.o  \
 	editsave.o  \
 	game.o  \
-	gfx.o  \
 	highlt.o  \
 	im_color.o  \
 	im_img.o  \
@@ -45,6 +44,7 @@ OBJS = \
 	objects.o  \
 	r_grid.o  \
 	r_images.o  \
+	r_misc.o  \
  	r_render.o  \
 	sectors.o  \
 	selbox.o  \

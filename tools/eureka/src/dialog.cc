@@ -24,7 +24,7 @@
 
 #include "main.h"
 #include "dialog.h"
-#include "gfx.h"
+#include "r_misc.h"
 
 
 /*

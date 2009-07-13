@@ -22,8 +22,8 @@
 #include "ui_window.h"
 
 #include "editloop.h"
-#include "gfx.h"
-#include "grid2.h"
+#include "r_misc.h"
+#include "r_grid.h"
 #include "highlt.h"
 #include "im_color.h"
 #include "levels.h"
@@ -212,7 +212,8 @@ void UI_Canvas::DrawMap()
 
 
 	// draw the grid first since it's in the background
-	main_win->canvas->DrawGrid();
+	if (grid.shown)
+		DrawGrid();
 
 	if (e->obj_type != OBJ_THINGS)
 		DrawThings();
@@ -270,9 +271,6 @@ void UI_Canvas::DrawMap()
  */
 void UI_Canvas::DrawGrid()
 {
-	if (! grid.shown)
-		return;
-
 	int mapx0 = MAPX(x());   // FIXME: cache values
 	int mapx9 = MAPX(x()+w());
 	int mapy0 = MAPY(y()+h());

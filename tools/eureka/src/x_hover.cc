@@ -27,7 +27,7 @@
 #include <vector>
 #include <algorithm>
 
-#include "grid2.h"
+#include "r_grid.h"
 #include "levels.h"
 #include "x_hover.h"
 
