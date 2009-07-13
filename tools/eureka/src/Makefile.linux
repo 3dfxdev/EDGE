@@ -34,7 +34,6 @@ OBJS = \
 	editsave.o  \
 	game.o  \
 	gfx.o  \
-	grid2.o  \
 	highlt.o  \
 	im_color.o  \
 	im_img.o  \
@@ -44,6 +43,7 @@ OBJS = \
 	main.o  \
 	m_bitvec.o  \
 	objects.o  \
+	r_grid.o  \
 	r_images.o  \
  	r_render.o  \
 	sectors.o  \
