@@ -258,13 +258,6 @@ opt_desc_t options[] =    // Description of the command line options
     "Patch wad file",
     &PatchWads },
 
-  { "font",
-    "fn",
-    OPT_STRINGPTR,
-    0,
-    "(X11 only) Font name",
-    &font_name },
-
   { "game",
     "g",
     OPT_STRINGPTR,
