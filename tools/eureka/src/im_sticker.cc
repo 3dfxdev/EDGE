@@ -25,7 +25,7 @@
 #include "main.h"
 
 #include "im_color.h"
-#include "gfx.h"
+#include "r_misc.h"
 #include "im_img.h"
 #include "im_sticker.h"
 

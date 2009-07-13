@@ -25,7 +25,7 @@
 #include "main.h"
 #include "checks.h"
 #include "dialog.h"
-#include "gfx.h"
+#include "r_misc.h"
 #include "levels.h"
 #include "objects.h"
 #include "selectn.h"

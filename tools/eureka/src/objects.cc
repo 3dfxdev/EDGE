@@ -24,7 +24,7 @@
 
 #include "main.h"
 
-#include "gfx.h"
+#include "r_misc.h"
 #include "linedefs.h"
 #include "levels.h"
 #include "objects.h"
@@ -33,7 +33,7 @@
 #include "things.h"
 
 #include "editloop.h"
-#include "grid2.h"
+#include "r_grid.h"
 #include "x_hover.h"
 
 

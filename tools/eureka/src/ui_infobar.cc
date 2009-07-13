@@ -19,7 +19,7 @@
 #include "main.h"
 #include "ui_window.h"
 
-#include "grid2.h"
+#include "r_grid.h"
 
 
 //

@@ -27,7 +27,7 @@
 #include <math.h>
 #include <map>
 
-#include "gfx.h"
+#include "r_misc.h"
 #include "levels.h"
 #include "selectn.h"
 #include "objects.h"

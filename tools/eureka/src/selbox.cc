@@ -24,7 +24,7 @@
 
 #include "main.h"
 
-#include "gfx.h"
+#include "r_misc.h"
 #include "selbox.h"
 #include "levels.h"
 #include "selectn.h"

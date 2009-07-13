@@ -26,7 +26,7 @@
 
 #include "im_color.h"
 #include "im_img.h"  // IMG_TRANSP
-#include "gfx.h"
+#include "r_misc.h"
 #include "w_file.h"
 
 

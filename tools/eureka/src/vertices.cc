@@ -27,7 +27,7 @@
 #include <math.h>
 
 #include "dialog.h"
-#include "grid2.h"
+#include "r_grid.h"
 #include "levels.h"
 #include "objects.h"
 #include "selectn.h"

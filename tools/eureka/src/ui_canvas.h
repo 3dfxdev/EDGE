@@ -20,7 +20,7 @@
 #define __UI_CANVAS_H__
 
 #include "editloop.h"
-#include "grid2.h"
+#include "r_grid.h"
 
 
 class UI_Canvas : public Fl_Widget
@@ -73,6 +73,7 @@ private:
 	// convert map coordinates to screen coordinates
 	inline int SCREENX(int mx) { return (x() + w()/2 + I_ROUND((mx - grid.orig_x) * grid.Scale)); }
 	inline int SCREENY(int my) { return (y() + h()/2 + I_ROUND((grid.orig_y - my) * grid.Scale)); }
+
 };
 
 

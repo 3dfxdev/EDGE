@@ -29,7 +29,7 @@
 #include "cfgfile.h"
 #include "editloop.h"
 #include "game.h"
-#include "gfx.h"
+#include "r_misc.h"
 #include "levels.h"    /* Because of "viewtex" */
 #include "w_patches.h"  /* Because of "p" */
 #include "w_file.h"
