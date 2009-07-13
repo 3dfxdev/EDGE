@@ -26,33 +26,34 @@ LDFLAGS=-L/usr/X11R6/lib
 LIBS=-lm -lz $(FLTK_LIBS)
 
 OBJS = \
-	cfgfile.o  \
-	checks.o   \
-	dialog.o  \
 	editloop.o  \
 	editobj.o  \
 	editsave.o  \
-	game.o  \
+	e_checks.o   \
+	e_linedef.o  \
+	e_sector.o  \
+	e_things.o  \
+	e_vertex.o  \
 	highlt.o  \
 	im_color.o  \
 	im_img.o  \
 	im_sticker.o  \
 	levels.o  \
-	linedefs.o  \
 	main.o  \
 	m_bitvec.o  \
+	m_config.o  \
+	m_dialog.o  \
+	m_game.o  \
 	objects.o  \
 	r_grid.o  \
 	r_images.o  \
 	r_misc.o  \
  	r_render.o  \
-	sectors.o  \
 	selbox.o  \
 	selectn.o  \
 	selpath.o  \
 	s_misc.o  \
 	sys_assert.o \
-	things.o  \
 	ui_canvas.o  \
 	ui_flattex.o  \
 	ui_infobar.o  \
@@ -66,7 +67,6 @@ OBJS = \
 	ui_thing.o  \
 	ui_vertex.o  \
 	ui_window.o  \
-	vertices.o  \
 	w_file.o  \
 	w_io.o  \
 	w_list.o  \
