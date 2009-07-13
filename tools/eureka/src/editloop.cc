@@ -31,7 +31,6 @@
 #include "editsave.h"
 #include "r_misc.h"
 #include "r_grid.h"
-#include "highlt.h"
 #include "e_linedef.h"
 #include "levels.h"
 #include "objects.h"
@@ -142,23 +141,6 @@ static int SortLevels (const void *item1, const void *item2)
 /* FIXME should probably use y_stricmp() instead */
 return strcmp (*((const char * const *) item1),
                *((const char * const *) item2));
-}
-
-
-
-void ed_highlight_object (Objid& obj)
-{
-  edit.highlight->set (obj);
-}
-
-void ed_forget_highlight ()
-{
-  if (! edit.highlight->obj.is_nil())
-  {
-    edit.highlight->unset ();
-
-main_win->canvas->redraw();
-  }
 }
 
 
@@ -283,9 +265,9 @@ static void HighlightObj(Objid& obj)
     h_type = edit.obj_type;
 
   if (obj ())
-    ed_highlight_object(edit.highlighted);
+	main_win->canvas->HighlightSet(edit.highlighted);
   else
-    ed_forget_highlight();
+	main_win->canvas->HighlightForget();
 
 
   int obj_idx = obj.num;
@@ -1626,8 +1608,6 @@ void EditorLoop (const char *_levelname)
     //edit.highlight_obj_no    = OBJ_NO_NONE;
     //edit.highlight_obj_type  = -1;
     edit.Selected            = 0;
-
-    edit.highlight           = new highlight_c;
 
     MadeChanges = 0;
     MadeMapChanges = 0;
