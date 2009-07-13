@@ -22,75 +22,37 @@
 //
 //------------------------------------------------------------------------
 
-#ifndef YH_BITVEC  /* DO NOT INSERT ANYTHING BEFORE THIS LINE */
+#ifndef YH_BITVEC
 #define YH_BITVEC
-
-
-#include <limits.h>
-
-#include "ymemory.h"
-
-
-extern const char _bitvec_msg1[];
 
 
 class bitvec_c
 {
-public :
-	bitvec_c (size_t n_elements)
-	{ 
-		a = (char *) GetMemory (n_elements / CHAR_BIT + 1);
-		memset (a, 0, n_elements / CHAR_BIT + 1);
-		_n_elements = n_elements;
-	}
+private:
+	int num_elem;
 
-	~bitvec_c ()
+	byte *d;
+
+public:
+	 bitvec_c(int n_elements);
+	~bitvec_c();
+
+	inline int size() const
 	{
-		FreeMemory (a);
+		return num_elem;
 	}
 
-	size_t nelements () const  // Return the number of elements
-	{
-		return _n_elements;
-	}
+	bool get(int n) const;  // Get bit <n>
 
-	int get (size_t n) const  // Get bit <n>
-	{
-		return a[n/CHAR_BIT] & (1 << (n % CHAR_BIT));
-	}
+	void set(int n);    // Set bit <n> to 1
+	void unset(int n);  // Set bit <n> to 0
+	void toggle(int n); // Toggle bit <n>
 
-	void set (size_t n)  // Set bit <n> to 1
-	{
-		a[n/CHAR_BIT] |= 1 << (n % CHAR_BIT);
-	}
-
-	void unset (size_t n)  // Set bit <n> to 0
-	{
-		a[n/CHAR_BIT] &= ~(1 << (n % CHAR_BIT));
-	}
-
-	void toggle (size_t n)  // Toggle bit <n>
-	{
-		a[n/CHAR_BIT] ^= (1 << (n % CHAR_BIT));
-	}
-
-	void frob (size_t n, sel_op_e op)  // Set, unset or toggle bit <n>
-	{
-		if (op == BOP_ADD)
-			set (n);
-		else if (op == BOP_REMOVE)
-			unset (n);
-		else
-			toggle (n);
-	}
-
-private :
-	size_t _n_elements;
-	char *a;
+	void frob(int n, sel_op_e op);
 };
 
 
-#endif  /* DO NOT ADD ANYTHING AFTER THIS LINE */
+#endif  /* YH_BITVEC */
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

@@ -794,10 +794,10 @@ SelPtr list_vertices_of_linedefs (SelPtr list)
 {
 bitvec_c *vertices_bitvec;
 SelPtr vertices_list = 0;
-size_t n;
 
 vertices_bitvec = bv_vertices_of_linedefs (list);
-for (n = 0; n < vertices_bitvec->nelements (); n++)
+
+for (int n = 0; n < vertices_bitvec->size(); n++)
    {
    if (vertices_bitvec->get (n))
       SelectObject (&vertices_list, n);

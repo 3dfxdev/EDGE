@@ -451,9 +451,9 @@ void centre_of_vertices (const bitvec_c &bv, int &x, int &y)
 {
 long x_sum = 0;
 long y_sum = 0;
-int nmax = bv.nelements ();
+
 int nvertices = 0;
-for (int n = 0; n < nmax; n++)
+for (int n = 0; n < bv.size(); n++)
    {
    if (bv.get (n))
       {
