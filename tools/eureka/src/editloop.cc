@@ -31,7 +31,6 @@
 #include "editobj.h"
 #include "editsave.h"
 #include "gfx.h"
-#include "gotoobj.h"
 #include "grid2.h"
 #include "highlt.h"
 #include "linedefs.h"

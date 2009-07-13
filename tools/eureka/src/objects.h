@@ -88,6 +88,7 @@ void  CopyObjects (int, SelPtr);
 bool  MoveObjectsToCoords (int, SelPtr, int, int, int);
 void  GetObjectCoords (int, int, int *, int *);
 int FindFreeTag (void);
+void GoToObject (const Objid& objid);
 
 
 #endif  /* DO NOT ADD ANYTHING AFTER THIS LINE */
