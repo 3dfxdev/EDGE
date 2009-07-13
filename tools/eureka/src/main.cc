@@ -23,12 +23,13 @@
 //------------------------------------------------------------------------
 
 #include "main.h"
+
 #include <time.h>
 
 #include "im_color.h"
-#include "cfgfile.h"
+#include "m_config.h"
 #include "editloop.h"
-#include "game.h"
+#include "m_game.h"
 #include "r_misc.h"
 #include "levels.h"    /* Because of "viewtex" */
 #include "w_patches.h"  /* Because of "p" */

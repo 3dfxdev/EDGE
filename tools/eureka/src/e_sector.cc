@@ -24,12 +24,12 @@
 
 #include "main.h"
 
-#include "dialog.h"
+#include "m_dialog.h"
 #include "levels.h"
-#include "linedefs.h"
+#include "e_linedef.h"
+#include "e_sector.h"
 #include "m_bitvec.h"
 #include "objects.h"
-#include "sectors.h"
 #include "selectn.h"
 
 

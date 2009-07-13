@@ -28,7 +28,7 @@
 #include "w_structs.h"
 #include "r_misc.h"
 #include "im_img.h"
-#include "things.h"
+#include "e_things.h"
 #include "objects.h"
 #include "w_loadpic.h"
 #include "im_color.h"

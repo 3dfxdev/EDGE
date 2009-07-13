@@ -23,8 +23,8 @@
 //------------------------------------------------------------------------
 
 #include "main.h"
-#include "checks.h"
-#include "dialog.h"
+#include "e_checks.h"
+#include "m_dialog.h"
 #include "r_misc.h"
 #include "levels.h"
 #include "objects.h"

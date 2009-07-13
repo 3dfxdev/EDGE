@@ -22,6 +22,8 @@
 #include "ui_window.h"
 
 #include "editloop.h"
+#include "e_sector.h"
+#include "e_things.h"
 #include "r_misc.h"
 #include "r_grid.h"
 #include "highlt.h"
@@ -29,10 +31,8 @@
 #include "levels.h"
 #include "objects.h"
 #include "r_render.h"
-#include "sectors.h"
 #include "selbox.h"
 #include "selectn.h"
-#include "things.h"
 
 
 extern int active_when;

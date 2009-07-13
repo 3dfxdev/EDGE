@@ -27,7 +27,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include "cfgfile.h"
+#include "m_config.h"
 #include "r_misc.h"
 #include "levels.h"
 

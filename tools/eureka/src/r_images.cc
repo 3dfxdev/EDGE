@@ -24,8 +24,8 @@
 
 #include "main.h"
 
-#include "dialog.h"
-#include "game.h"      /* yg_picture_format */
+#include "m_dialog.h"
+#include "m_game.h"      /* yg_picture_format */
 #include "r_misc.h"
 #include "levels.h"
 #include "w_patches.h"

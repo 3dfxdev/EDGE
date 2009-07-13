@@ -26,8 +26,8 @@
 
 #include "main.h"
 
-#include "game.h"
-#include "things.h"
+#include "m_game.h"
+#include "e_things.h"
 #include "levels.h"
 #include "selectn.h"
 #include "m_bitvec.h"

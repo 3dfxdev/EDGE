@@ -24,7 +24,8 @@
 
 #include "main.h"
 
-#include "game.h" /* yg_picture_format */
+#include "m_game.h" /* yg_picture_format */
+#include "levels.h"
 #include "w_file.h"
 #include "w_list.h"
 #include "w_io.h"

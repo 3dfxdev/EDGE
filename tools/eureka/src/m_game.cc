@@ -25,9 +25,9 @@
 #include "main.h"
 
 #include "im_color.h"
-#include "game.h"
+#include "m_game.h"
 #include "levels.h"
-#include "things.h"
+#include "e_things.h"
 
 
 std::vector<ldtdef_t *> ldtdef;

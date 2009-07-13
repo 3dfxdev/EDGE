@@ -20,7 +20,7 @@
 #include "ui_window.h"
 
 #include "levels.h"
-#include "things.h"
+#include "e_things.h"
 #include "w_structs.h"
 
 

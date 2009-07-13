@@ -24,14 +24,14 @@
 
 #include "main.h"
 
-#include "dialog.h"
+#include "m_dialog.h"
 #include "editloop.h"
 #include "editobj.h"
-#include "game.h"
+#include "m_game.h"
 #include "r_misc.h"
 #include "levels.h"
 #include "objects.h"
-#include "sectors.h"
+#include "e_sector.h"
 #include "s_misc.h"
 #include "selectn.h"
 #include "x_mirror.h"
