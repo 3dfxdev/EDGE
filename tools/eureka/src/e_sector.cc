@@ -43,29 +43,30 @@
  */
 void centre_of_sector (obj_no_t s, int *x, int *y)
 {
-bitvec_c *vertices = bv_vertices_of_sector (s);
-long x_sum  = 0;
-long y_sum  = 0;
-int  nitems = 0;
+	bitvec_c *vertices = bv_vertices_of_sector (s);
 
-for (int n = 0; n < vertices->size(); n++)
-   if (vertices->get (n))
-      {
-      x_sum += Vertices[n].x;
-      y_sum += Vertices[n].y;
-      nitems++;
-      }
-if (nitems == 0)
-   {
-   *x = 0;
-   *y = 0;
-   }
-else
-   {
-   *x = (int) (x_sum / nitems);
-   *y = (int) (y_sum / nitems);
-   }
-delete vertices;
+	long x_sum  = 0;
+	long y_sum  = 0;
+	int  nitems = 0;
+
+	for (int n = 0; n < vertices->size(); n++)
+		if (vertices->get (n))
+		{
+			x_sum += Vertices[n].x;
+			y_sum += Vertices[n].y;
+			nitems++;
+		}
+	if (nitems == 0)
+	{
+		*x = 0;
+		*y = 0;
+	}
+	else
+	{
+		*x = (int) (x_sum / nitems);
+		*y = (int) (y_sum / nitems);
+	}
+	delete vertices;
 }
 
 
@@ -75,34 +76,35 @@ delete vertices;
  */
 void centre_of_sectors (SelPtr list, int *x, int *y)
 {
-bitvec_c *vertices;
-int nitems;
-long x_sum;
-long y_sum;
-int n;
+	bitvec_c *vertices;
 
-vertices = bv_vertices_of_sectors (list);
-x_sum = 0;
-y_sum = 0;
-nitems = 0;
-for (n = 0; n < NumVertices; n++)
-   if (vertices->get (n))
-      {
-      x_sum += Vertices[n].x;
-      y_sum += Vertices[n].y;
-      nitems++;
-      }
-if (nitems == 0)
-   {
-   *x = 0;
-   *y = 0;
-   }
-else
-   {
-   *x = (int) (x_sum / nitems);
-   *y = (int) (y_sum / nitems);
-   }
-delete vertices;
+	int nitems;
+	long x_sum;
+	long y_sum;
+	int n;
+
+	vertices = bv_vertices_of_sectors (list);
+	x_sum = 0;
+	y_sum = 0;
+	nitems = 0;
+	for (n = 0; n < NumVertices; n++)
+		if (vertices->get (n))
+		{
+			x_sum += Vertices[n].x;
+			y_sum += Vertices[n].y;
+			nitems++;
+		}
+	if (nitems == 0)
+	{
+		*x = 0;
+		*y = 0;
+	}
+	else
+	{
+		*x = (int) (x_sum / nitems);
+		*y = (int) (y_sum / nitems);
+	}
+	delete vertices;
 }
 
 
@@ -112,30 +114,29 @@ delete vertices;
 
 void MergeSectors (SelPtr *slist)
 {
-SelPtr cur;
-int    n, olds, news;
+	SelPtr cur;
+	int    n, olds, news;
 
-/* save the first Sector number */
-news = (*slist)->objnum;
-UnSelectObject (slist, news);
+	/* save the first Sector number */
+	news = (*slist)->objnum;
+	UnSelectObject (slist, news);
 
+	/* change all SideDefs references to the other Sectors */
+	for (cur = *slist; cur; cur = cur->next)
+	{
+		olds = cur->objnum;
+		for (n = 0; n < NumSideDefs; n++)
+		{
+			if (SideDefs[n].sector == olds)
+				SideDefs[n].sector = news;
+		}
+	}
 
-/* change all SideDefs references to the other Sectors */
-for (cur = *slist; cur; cur = cur->next)
-{
-   olds = cur->objnum;
-   for (n = 0; n < NumSideDefs; n++)
-   {
-      if (SideDefs[n].sector == olds)
-   SideDefs[n].sector = news;
-   }
-}
+	/* delete the Sectors */
+	DeleteObjects (OBJ_SECTORS, slist);
 
-/* delete the Sectors */
-DeleteObjects (OBJ_SECTORS, slist);
-
-/* the returned list contains only the first Sector */
-SelectObject (slist, news);
+	/* the returned list contains only the first Sector */
+	SelectObject (slist, news);
 }
 
 
@@ -144,54 +145,54 @@ SelectObject (slist, news);
    delete one or several two-sided LineDefs and join the two Sectors
 */
 
-void DeleteLineDefsJoinSectors (SelPtr *ldlist)
+void DeleteLineDefsJoinSectors(SelPtr *ldlist)
 {
-SelPtr cur, slist;
-int    sd1, sd2;
-int    s1, s2;
-char   msg[80];
+	SelPtr cur, slist;
+	char   msg[80];
 
-/* first, do the tests for all LineDefs */
-for (cur = *ldlist; cur; cur = cur->next)
-   {
-   
-   sd1 = LineDefs[cur->objnum].side_R;
-   sd2 = LineDefs[cur->objnum].side_L;
-   if (sd1 < 0 || sd2 < 0)
-      {
-      Beep ();
-      sprintf (msg, "ERROR: Linedef #%d has only one side", cur->objnum);
-      Notify (-1, -1, msg, NULL);
-      return;
-      }
-   
-   s1 = SideDefs[sd1].sector;
-   s2 = SideDefs[sd2].sector;
-   if (s1 < 0 || s2 < 0)
-      {
-      Beep ();
-      sprintf (msg, "ERROR: Linedef #%d has two sides, but one", cur->objnum);
-      Notify (-1, -1, msg, "side is not bound to any sector");
-      return;
-      }
-   }
+	/* first, do the tests for all LineDefs */
+	for (cur = *ldlist; cur; cur = cur->next)
+	{
+		int sd1 = LineDefs[cur->objnum].side_R;
+		int sd2 = LineDefs[cur->objnum].side_L;
 
-/* then join the Sectors and delete the LineDefs */
-for (cur = *ldlist; cur; cur = cur->next)
-   {
-   
-   sd1 = LineDefs[cur->objnum].side_R;
-   sd2 = LineDefs[cur->objnum].side_L;
-   
-   s1 = SideDefs[sd1].sector;
-   s2 = SideDefs[sd2].sector;
-   slist = NULL;
-   SelectObject (&slist, s2);
-   SelectObject (&slist, s1);
-   MergeSectors (&slist);
-   ForgetSelection (&slist);
-   }
-DeleteObjects (OBJ_LINEDEFS, ldlist);
+		if (sd1 < 0 || sd2 < 0)
+		{
+			Beep ();
+			sprintf (msg, "ERROR: Linedef #%d has only one side", cur->objnum);
+			Notify (-1, -1, msg, NULL);
+			return;
+		}
+
+		int s1 = SideDefs[sd1].sector;
+		int s2 = SideDefs[sd2].sector;
+
+		if (s1 < 0 || s2 < 0)
+		{
+			Beep ();
+			sprintf (msg, "ERROR: Linedef #%d has two sides, but one", cur->objnum);
+			Notify (-1, -1, msg, "side is not bound to any sector");
+			return;
+		}
+	}
+
+	/* then join the Sectors and delete the LineDefs */
+	for (cur = *ldlist; cur; cur = cur->next)
+	{
+		int sd1 = LineDefs[cur->objnum].side_R;
+		int sd2 = LineDefs[cur->objnum].side_L;
+
+		int s1 = SideDefs[sd1].sector;
+		int s2 = SideDefs[sd2].sector;
+
+		slist = NULL;
+		SelectObject (&slist, s2);
+		SelectObject (&slist, s1);
+		MergeSectors (&slist);
+		ForgetSelection (&slist);
+	}
+
+	DeleteObjects(OBJ_LINEDEFS, ldlist);
 }
 
 
@@ -202,6 +203,7 @@ DeleteObjects (OBJ_LINEDEFS, ldlist);
 
 void MakeDoorFromSector (int sector)
 {
+#if 0  // TODO: MakeDoorFromSector
 int    sd1, sd2;
 int    n, s;
 SelPtr ldok, ldflip, ld1s;
@@ -305,6 +307,8 @@ while (ld1s != NULL)
 /* adjust the ceiling height */
 
 Sectors[sector].ceilh = Sectors[sector].floorh;
+
+#endif
 }
 
 
@@ -315,6 +319,7 @@ Sectors[sector].ceilh = Sectors[sector].floorh;
 
 void MakeLiftFromSector (int sector)
 {
+#if 0  // TODO: MakeLiftFromSector
 int    sd1, sd2;
 int    n, s, tag;
 SelPtr ldok, ldflip, ld1s;
@@ -486,6 +491,7 @@ while (ld1s != NULL)
    strncpy (SideDefs[sd1].lower_tex, "-", WAD_TEX_NAME);
    UnSelectObject (&ld1s, n);
    }
+#endif
 }
 
 
@@ -497,14 +503,14 @@ while (ld1s != NULL)
  */
 bitvec_c *linedefs_of_sector (obj_no_t s)
 {
-bitvec_c *linedefs = new bitvec_c (NumLineDefs);
-for (int n = 0; n < NumLineDefs; n++)
-   if (is_sidedef (LineDefs[n].side_R)
-       && SideDefs[LineDefs[n].side_R].sector == s
-    || is_sidedef (LineDefs[n].side_L)
-       && SideDefs[LineDefs[n].side_L].sector == s)
-      linedefs->set (n);
-return linedefs;
+	bitvec_c *linedefs = new bitvec_c (NumLineDefs);
+	for (int n = 0; n < NumLineDefs; n++)
+		if (is_sidedef (LineDefs[n].side_R)
+				&& SideDefs[LineDefs[n].side_R].sector == s
+				|| is_sidedef (LineDefs[n].side_L)
+				&& SideDefs[LineDefs[n].side_L].sector == s)
+			linedefs->set (n);
+	return linedefs;
 }
 
 
@@ -515,16 +521,19 @@ return linedefs;
  */
 bitvec_c *linedefs_of_sectors (SelPtr list)
 {
-bitvec_c *sectors  = list_to_bitvec (list, NumSectors);
-bitvec_c *linedefs = new bitvec_c (NumLineDefs);
-for (int n = 0; n < NumLineDefs; n++)
-   if (   is_sidedef (LineDefs[n].side_R)
-          && sectors->get (SideDefs[LineDefs[n].side_R].sector)
-       || is_sidedef (LineDefs[n].side_L)
-          && sectors->get (SideDefs[LineDefs[n].side_L].sector))
-      linedefs->set (n);
-delete sectors;
-return linedefs;
+	bitvec_c *sectors  = list_to_bitvec (list, NumSectors);
+	
+	bitvec_c *linedefs = new bitvec_c (NumLineDefs);
+	
+	for (int n = 0; n < NumLineDefs; n++)
+		if (   is_sidedef (LineDefs[n].side_R)
+				&& sectors->get (SideDefs[LineDefs[n].side_R].sector)
+				|| is_sidedef (LineDefs[n].side_L)
+				&& sectors->get (SideDefs[LineDefs[n].side_L].sector))
+			linedefs->set (n);
+	delete sectors;
+
+	return linedefs;
 }
 
 
@@ -538,41 +547,41 @@ return linedefs;
  */
 int linedefs_of_sector (obj_no_t s, obj_no_t *&array)
 {
-int count = 0;
-for (int n = 0; n < NumLineDefs; n++)
-   if (   is_sidedef (LineDefs[n].side_R)
-          && SideDefs[LineDefs[n].side_R].sector == s
-       || is_sidedef (LineDefs[n].side_L)
-          && SideDefs[LineDefs[n].side_L].sector == s)
-      count++;
-if (count > 0)
-   {
-   array = new obj_no_t[count];
-   count = 0;
-   for (int n = 0; n < NumLineDefs; n++)
-      if (   is_sidedef (LineDefs[n].side_R)
-       && SideDefs[LineDefs[n].side_R].sector == s
-    || is_sidedef (LineDefs[n].side_L)
-       && SideDefs[LineDefs[n].side_L].sector == s)
-   array[count++] = n;
-   }
-return count;
+	int count = 0;
+	for (int n = 0; n < NumLineDefs; n++)
+		if (   is_sidedef (LineDefs[n].side_R)
+				&& SideDefs[LineDefs[n].side_R].sector == s
+				|| is_sidedef (LineDefs[n].side_L)
+				&& SideDefs[LineDefs[n].side_L].sector == s)
+			count++;
+	if (count > 0)
+	{
+		array = new obj_no_t[count];
+		count = 0;
+		for (int n = 0; n < NumLineDefs; n++)
+			if (   is_sidedef (LineDefs[n].side_R)
+					&& SideDefs[LineDefs[n].side_R].sector == s
+					|| is_sidedef (LineDefs[n].side_L)
+					&& SideDefs[LineDefs[n].side_L].sector == s)
+				array[count++] = n;
+	}
+	return count;
 }
 
 
 void swap_flats (SelPtr list)
 {
-  for (SelPtr cur = list; cur != NULL; cur = cur->next)
-  {
-    wad_flat_name_t tmp;
-    struct Sector *s = Sectors + cur->objnum;
+	for (SelPtr cur = list; cur != NULL; cur = cur->next)
+	{
+		wad_flat_name_t tmp;
+		struct Sector *s = Sectors + cur->objnum;
 
-    memcpy (tmp,          s->floor_tex, sizeof tmp);
-    memcpy (s->floor_tex, s->ceil_tex,  sizeof s->floor_tex);
-    memcpy (s->ceil_tex,  tmp,          sizeof s->ceil_tex);
+		memcpy(tmp,          s->floor_tex, sizeof tmp);
+		memcpy(s->floor_tex, s->ceil_tex,  sizeof s->floor_tex);
+		memcpy(s->ceil_tex,  tmp,          sizeof s->ceil_tex);
 
-    MadeChanges = 1;
-  }
+		MadeChanges = 1;
+	}
 }
 
 
@@ -584,10 +593,12 @@ void swap_flats (SelPtr list)
  */
 bitvec_c *bv_vertices_of_sector (obj_no_t s)
 {
-  bitvec_c *linedefs = linedefs_of_sector (s);
-  bitvec_c *vertices = bv_vertices_of_linedefs (linedefs);
-  delete linedefs;
-  return vertices;
+	bitvec_c *linedefs = linedefs_of_sector(s);
+
+	bitvec_c *vertices = bv_vertices_of_linedefs(linedefs);
+	delete linedefs;
+
+	return vertices;
 }
 
 
@@ -598,13 +609,12 @@ bitvec_c *bv_vertices_of_sector (obj_no_t s)
  */
 bitvec_c *bv_vertices_of_sectors (SelPtr list)
 {
-  bitvec_c *linedefs;  // Linedefs used by the sectors
-  bitvec_c *vertices;  // Vertices used by the linedefs
+	bitvec_c * linedefs = linedefs_of_sectors(list);
 
-  linedefs = linedefs_of_sectors (list);
-  vertices = bv_vertices_of_linedefs (linedefs);
-  delete linedefs;
-  return vertices;
+	bitvec_c * vertices = bv_vertices_of_linedefs(linedefs);
+	delete linedefs;
+
+	return vertices;
 }
 
 
@@ -615,18 +625,18 @@ bitvec_c *bv_vertices_of_sectors (SelPtr list)
  */
 SelPtr list_vertices_of_sectors (SelPtr list)
 {
-  bitvec_c *vertices_bitvec;
-  SelPtr vertices_list = 0;
+	SelPtr vertices_list = 0;
 
-  vertices_bitvec = bv_vertices_of_sectors (list);
+	bitvec_c *vertices = bv_vertices_of_sectors (list);
 
-  for (int n = 0; n < vertices_bitvec->size(); n++)
-  {
-    if (vertices_bitvec->get (n))
-      SelectObject (&vertices_list, n);
-  }
-  delete vertices_bitvec;
-  return vertices_list;
+	for (int n = 0; n < vertices->size(); n++)
+	{
+		if (vertices->get (n))
+			SelectObject(&vertices_list, n);
+	}
+	delete vertices;
+
+	return vertices_list;
 }
 
 

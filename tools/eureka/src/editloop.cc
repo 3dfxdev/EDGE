@@ -138,9 +138,9 @@ get_levels_that_match:
 
 static int SortLevels (const void *item1, const void *item2)
 {
-/* FIXME should probably use y_stricmp() instead */
-return strcmp (*((const char * const *) item1),
-               *((const char * const *) item2));
+	/* FIXME should probably use y_stricmp() instead */
+	return strcmp (*((const char * const *) item1),
+					*((const char * const *) item2));
 }
 
 
@@ -152,152 +152,150 @@ return strcmp (*((const char * const *) item1),
  */
 static int zoom_fit ()
 {
-  if (NumVertices == 0)
-    return 0;
+	if (NumVertices == 0)
+		return 0;
 
-  update_level_bounds ();
-  double xzoom;
-  if (MapMaxX - MapMinX)
-     xzoom = .95 * ScrMaxX / (MapMaxX - MapMinX);
-  else
-     xzoom = 1;
-  double yzoom;
-  if (MapMaxY - MapMinY)
-     yzoom = .9 * ScrMaxY / (MapMaxY - MapMinY);
-  else
-     yzoom = 1;
+	update_level_bounds ();
+	double xzoom;
+	if (MapMaxX - MapMinX)
+		xzoom = .95 * ScrMaxX / (MapMaxX - MapMinX);
+	else
+		xzoom = 1;
+	double yzoom;
+	if (MapMaxY - MapMinY)
+		yzoom = .9 * ScrMaxY / (MapMaxY - MapMinY);
+	else
+		yzoom = 1;
 
-  grid.NearestScale(MIN(xzoom, yzoom));
+	grid.NearestScale(MIN(xzoom, yzoom));
 
-
-  grid.CenterMapAt((MapMinX + MapMaxX) / 2, (MapMinY + MapMaxY) / 2);
-  return 0;
+	grid.CenterMapAt((MapMinX + MapMaxX) / 2, (MapMinY + MapMaxY) / 2);
+	return 0;
 }
 
 static void ConvertSelection(int prev_obj_type)
 {
-  if (! edit.Selected)
-    return;
+	if (! edit.Selected)
+		return;
 
-  SelPtr NewSel = 0;
+	SelPtr NewSel = 0;
 
-  /* select all linedefs bound to the selected sectors */
-  if (prev_obj_type == OBJ_SECTORS && edit.obj_type == OBJ_LINEDEFS)
-  {
-    int l, sd;
+	/* select all linedefs bound to the selected sectors */
+	if (prev_obj_type == OBJ_SECTORS && edit.obj_type == OBJ_LINEDEFS)
+	{
+		int l, sd;
 
-    for (l = 0; l < NumLineDefs; l++)
-    {
-      sd = LineDefs[l].side_R;
-      if (sd >= 0 && IsSelected (edit.Selected, SideDefs[sd].sector))
-        SelectObject (&NewSel, l);
-      else
-      {
-        sd = LineDefs[l].side_L;
-        if (sd >= 0 && IsSelected (edit.Selected, SideDefs[sd].sector))
-          SelectObject (&NewSel, l);
-      }
-    }
-    ForgetSelection (&edit.Selected);
-    edit.Selected = NewSel;
-  }
-  /* select all Vertices bound to the selected linedefs */
-  else if (prev_obj_type == OBJ_LINEDEFS && edit.obj_type == OBJ_VERTICES)
-  {
-    while (edit.Selected)
-    {
-      if (!IsSelected (NewSel, LineDefs[edit.Selected->objnum].start))
-        SelectObject (&NewSel, LineDefs[edit.Selected->objnum].start);
+		for (l = 0; l < NumLineDefs; l++)
+		{
+			sd = LineDefs[l].side_R;
+			if (sd >= 0 && IsSelected (edit.Selected, SideDefs[sd].sector))
+				SelectObject (&NewSel, l);
+			else
+			{
+				sd = LineDefs[l].side_L;
+				if (sd >= 0 && IsSelected (edit.Selected, SideDefs[sd].sector))
+					SelectObject (&NewSel, l);
+			}
+		}
+		ForgetSelection (&edit.Selected);
+		edit.Selected = NewSel;
+	}
+	/* select all Vertices bound to the selected linedefs */
+	else if (prev_obj_type == OBJ_LINEDEFS && edit.obj_type == OBJ_VERTICES)
+	{
+		while (edit.Selected)
+		{
+			if (!IsSelected (NewSel, LineDefs[edit.Selected->objnum].start))
+				SelectObject (&NewSel, LineDefs[edit.Selected->objnum].start);
 
-      if (!IsSelected (NewSel, LineDefs[edit.Selected->objnum].end))
-        SelectObject (&NewSel, LineDefs[edit.Selected->objnum].end);
+			if (!IsSelected (NewSel, LineDefs[edit.Selected->objnum].end))
+				SelectObject (&NewSel, LineDefs[edit.Selected->objnum].end);
 
-      UnSelectObject (&edit.Selected, edit.Selected->objnum);
-    }
-    edit.Selected = NewSel;
-  }
-  /* select all sectors that have their linedefs selected */
-  else if (prev_obj_type == OBJ_LINEDEFS && edit.obj_type == OBJ_SECTORS)
-  {
-    int l, sd;
+			UnSelectObject (&edit.Selected, edit.Selected->objnum);
+		}
+		edit.Selected = NewSel;
+	}
+	/* select all sectors that have their linedefs selected */
+	else if (prev_obj_type == OBJ_LINEDEFS && edit.obj_type == OBJ_SECTORS)
+	{
+		int l, sd;
 
-    /* select all sectors... */
-    for (l = 0; l < NumSectors; l++)
-      SelectObject (&NewSel, l);
-    /* ... then unselect those that should not be in the list */
-    for (l = 0; l < NumLineDefs; l++)
-      if (!IsSelected (edit.Selected, l))
-      {
-        sd = LineDefs[l].side_R;
-        if (sd >= 0)
-          UnSelectObject (&NewSel, SideDefs[sd].sector);
-        sd = LineDefs[l].side_L;
-        if (sd >= 0)
-          UnSelectObject (&NewSel, SideDefs[sd].sector);
-      }
-    ForgetSelection (&edit.Selected);
-    edit.Selected = NewSel;
-  }
-  /* select all linedefs that have both ends selected */
-  else if (prev_obj_type == OBJ_VERTICES && edit.obj_type == OBJ_LINEDEFS)
-  {
-    int l;
+		/* select all sectors... */
+		for (l = 0; l < NumSectors; l++)
+			SelectObject (&NewSel, l);
+		/* ... then unselect those that should not be in the list */
+		for (l = 0; l < NumLineDefs; l++)
+			if (!IsSelected (edit.Selected, l))
+			{
+				sd = LineDefs[l].side_R;
+				if (sd >= 0)
+					UnSelectObject (&NewSel, SideDefs[sd].sector);
+				sd = LineDefs[l].side_L;
+				if (sd >= 0)
+					UnSelectObject (&NewSel, SideDefs[sd].sector);
+			}
+		ForgetSelection (&edit.Selected);
+		edit.Selected = NewSel;
+	}
+	/* select all linedefs that have both ends selected */
+	else if (prev_obj_type == OBJ_VERTICES && edit.obj_type == OBJ_LINEDEFS)
+	{
+		int l;
 
-    for (l = 0; l < NumLineDefs; l++)
-      if (IsSelected (edit.Selected, LineDefs[l].start)
-          && IsSelected (edit.Selected, LineDefs[l].end))
-        SelectObject (&NewSel, l);
-    ForgetSelection (&edit.Selected);
-    edit.Selected = NewSel;
-  }
-  /* unselect all */
-  else
-    ForgetSelection (&edit.Selected);
+		for (l = 0; l < NumLineDefs; l++)
+			if (IsSelected (edit.Selected, LineDefs[l].start)
+					&& IsSelected (edit.Selected, LineDefs[l].end))
+				SelectObject (&NewSel, l);
+		ForgetSelection (&edit.Selected);
+		edit.Selected = NewSel;
+	}
+	/* unselect all */
+	else
+		ForgetSelection (&edit.Selected);
 }
 
 static void HighlightObj(Objid& obj)
 {
-  edit.highlighted = obj;
+	edit.highlighted = obj;
 
-  int h_type = obj.type;
+	int h_type = obj.type;
 
-  if (obj.is_nil())
-    h_type = edit.obj_type;
+	if (obj.is_nil())
+		h_type = edit.obj_type;
 
-  if (obj ())
-	main_win->canvas->HighlightSet(edit.highlighted);
-  else
-	main_win->canvas->HighlightForget();
+	if (obj ())
+		main_win->canvas->HighlightSet(edit.highlighted);
+	else
+		main_win->canvas->HighlightForget();
 
+	int obj_idx = obj.num;
 
-  int obj_idx = obj.num;
+	if (obj.is_nil() && edit.Selected)
+	{
+		obj_idx = edit.Selected->objnum;
+	}
 
-  if (obj.is_nil() && edit.Selected)
-  {
-    obj_idx = edit.Selected->objnum;
-  }
+	switch (h_type)
+	{
+		case OBJ_THINGS:
+			main_win->thing_box->SetObj(obj_idx);
+			break;
 
-  switch (h_type)
-  {
-    case OBJ_THINGS:
-      main_win->thing_box->SetObj(obj_idx);
-      break;
+		case OBJ_LINEDEFS:
+			main_win->line_box->SetObj(obj_idx);
+			break;
 
-    case OBJ_LINEDEFS:
-      main_win->line_box->SetObj(obj_idx);
-      break;
+		case OBJ_SECTORS:
+			main_win->sec_box->SetObj(obj_idx);
+			break;
 
-    case OBJ_SECTORS:
-      main_win->sec_box->SetObj(obj_idx);
-      break;
+		case OBJ_VERTICES:
+			main_win->vert_box->SetObj(obj_idx);
+			break;
 
-    case OBJ_VERTICES:
-      main_win->vert_box->SetObj(obj_idx);
-      break;
-
-    //!!!!!!
-    default: break;
-  }
+			//!!!!!!
+		default: break;
+	}
 }
 
 
@@ -312,971 +310,969 @@ void EditorWheel(int delta)
 
 void EditorKey(int is_key, bool is_shift)
 {
+	// [Ctrl][L]: force redraw
+	if (is_key == '\f')
+	{
+		edit.RedrawMap = 1;
+	}
 
-  // [Ctrl][L]: force redraw
-  if (is_key == '\f')
-  {
-    edit.RedrawMap = 1;
-  }
+	// [Esc], [q]: close
+	else if (is_key == FL_Escape || is_key == 'q')
+	{
+		{
+			ForgetSelection (&edit.Selected);
+			if (!MadeChanges
+					|| Confirm (-1, -1, "You have unsaved changes."
+						" Do you really want to quit?", 0))
+			{
+				main_win->action = UI_MainWin::QUIT;
+				return;
+			}
+			edit.RedrawMap = 1;
+		}
+	}
 
-  // [Esc], [q]: close
-  else if (is_key == FL_Escape || is_key == 'q')
-  {
-    {
-      ForgetSelection (&edit.Selected);
-      if (!MadeChanges
-          || Confirm (-1, -1, "You have unsaved changes."
-            " Do you really want to quit?", 0))
-        {
-          main_win->action = UI_MainWin::QUIT;
-          return;
-        }
-      edit.RedrawMap = 1;
-    }
-  }
-
-  // [Shift][F1]: save a screen shot.
-  // FIXME doesn't work in the Unix port
-  else if (is_key == FL_F+1 + FL_SHIFT)
-  {
-    Beep();
-  }
+	// [Shift][F1]: save a screen shot.
+	// FIXME doesn't work in the Unix port
+	else if (is_key == FL_F+1 + FL_SHIFT)
+	{
+		Beep();
+	}
 
 
-  /* [F2] save level into pwad, prompt for the file name
-     every time but keep the same level name. */
-  else if (is_key == FL_F+2 && Registered)
-  {
-    if (! CheckStartingPos ())
-      goto cancel_save;
-    char *outfile;
-    const char *newlevelname;
-    if (levelname)
-      newlevelname = levelname;
-    else
-    {
-      newlevelname = SelectLevel (0);
-      if (! *newlevelname)
-        goto cancel_save;
-    }
-    outfile = GetWadFileName (newlevelname);
-    if (! outfile)
-      goto cancel_save;
-    SaveLevelData (outfile, newlevelname);
-    levelname = newlevelname;
-    // Sigh. Shouldn't have to do that. Level must die !
-    Level = FindMasterDir (MasterDir, levelname);
+	/* [F2] save level into pwad, prompt for the file name
+	   every time but keep the same level name. */
+	else if (is_key == FL_F+2 && Registered)
+	{
+		if (! CheckStartingPos ())
+			goto cancel_save;
+		char *outfile;
+		const char *newlevelname;
+		if (levelname)
+			newlevelname = levelname;
+		else
+		{
+			newlevelname = SelectLevel (0);
+			if (! *newlevelname)
+				goto cancel_save;
+		}
+		outfile = GetWadFileName (newlevelname);
+		if (! outfile)
+			goto cancel_save;
+		SaveLevelData (outfile, newlevelname);
+		levelname = newlevelname;
+		// Sigh. Shouldn't have to do that. Level must die !
+		Level = FindMasterDir (MasterDir, levelname);
 cancel_save:
-    edit.RedrawMap = 1;
-  }
+		edit.RedrawMap = 1;
+	}
 
-  /* [F3] save level into pwad, prompt for the file name and
-     level name. */
-  else if (is_key == FL_F+3 && Registered)
-  {
-    char *outfile;
-    const char *newlevelname;
-    MDirPtr newLevel, oldl, newl;
+	/* [F3] save level into pwad, prompt for the file name and
+	   level name. */
+	else if (is_key == FL_F+3 && Registered)
+	{
+		char *outfile;
+		const char *newlevelname;
+		MDirPtr newLevel, oldl, newl;
 
-    if (! CheckStartingPos ())
-      goto cancel_save_as;
-    newlevelname = SelectLevel (0);
-    if (! *newlevelname)
-      goto cancel_save_as;
-    if (! levelname || y_stricmp (newlevelname, levelname))
-    {
-      /* horrible but it works... */
-      // Horrible indeed -- AYM 1999-07-30
-      newLevel = FindMasterDir (MasterDir, newlevelname);
-      if (! newLevel)
-        nf_bug ("newLevel is NULL");  // Debatable ! -- AYM 2001-05-29
-      if (Level)  // If new level ("create" command), Level is NULL
-      {
-        oldl = Level;
-        newl = newLevel;
-        for (int m = 0; m < 11; m++)
-        {
-          newl->wadfile = oldl->wadfile;
-          if (m > 0)
-            newl->dir = oldl->dir;
-          /*
-             if (!fncmp (outfile, oldl->wadfile->filename))
-             {
-             oldl->wadfile = WadFileList;
-             oldl->dir = lost...
-             }
-             */
-          oldl = oldl->next;
-          newl = newl->next;
-        }
-      }
-      Level = newLevel;
-    }
-    outfile = GetWadFileName (newlevelname);
-    if (! outfile)
-      goto cancel_save_as;
-    SaveLevelData (outfile, newlevelname);
-    levelname = newlevelname;
+		if (! CheckStartingPos ())
+			goto cancel_save_as;
+		newlevelname = SelectLevel (0);
+		if (! *newlevelname)
+			goto cancel_save_as;
+		if (! levelname || y_stricmp (newlevelname, levelname))
+		{
+			/* horrible but it works... */
+			// Horrible indeed -- AYM 1999-07-30
+			newLevel = FindMasterDir (MasterDir, newlevelname);
+			if (! newLevel)
+				nf_bug ("newLevel is NULL");  // Debatable ! -- AYM 2001-05-29
+			if (Level)  // If new level ("create" command), Level is NULL
+			{
+				oldl = Level;
+				newl = newLevel;
+				for (int m = 0; m < 11; m++)
+				{
+					newl->wadfile = oldl->wadfile;
+					if (m > 0)
+						newl->dir = oldl->dir;
+					/*
+					   if (!fncmp (outfile, oldl->wadfile->filename))
+					   {
+					   oldl->wadfile = WadFileList;
+					   oldl->dir = lost...
+					   }
+					   */
+					oldl = oldl->next;
+					newl = newl->next;
+				}
+			}
+			Level = newLevel;
+		}
+		outfile = GetWadFileName (newlevelname);
+		if (! outfile)
+			goto cancel_save_as;
+		SaveLevelData (outfile, newlevelname);
+		levelname = newlevelname;
 cancel_save_as:
-    edit.RedrawMap = 1;
-  }
+		edit.RedrawMap = 1;
+	}
 
 #if 0 //!!!
-  // [F5]: pop up the "Preferences" menu
-  else if (is_key == FL_F+5)
-  {
-    Preferences (-1, -1);
-    edit.RedrawMap = 1;
-  }
+	// [F5]: pop up the "Preferences" menu
+	else if (is_key == FL_F+5)
+	{
+		Preferences (-1, -1);
+		edit.RedrawMap = 1;
+	}
 #endif
 
 #if 0 //!!!!!
-  // [a]: pop up the "Set flag" menu
-  else if (is_key == 'a'
-      && edit.menubar->highlighted () < 0
-      && (edit.Selected || edit.highlighted ()))
-  {
-    if (edit.obj_type == OBJ_LINEDEFS)
-    {
-      menu_linedef_flags->set_title ("Set linedef flag");
-      e.modpopup->set (menu_linedef_flags, 0);
-    }
-    else if (edit.obj_type == OBJ_THINGS)
-    {
-      menu_thing_flags->set_title ("Set thing flag");
-      e.modpopup->set (menu_thing_flags, 0);
-    }
-  }
+	// [a]: pop up the "Set flag" menu
+	else if (is_key == 'a'
+			&& edit.menubar->highlighted () < 0
+			&& (edit.Selected || edit.highlighted ()))
+	{
+		if (edit.obj_type == OBJ_LINEDEFS)
+		{
+			menu_linedef_flags->set_title ("Set linedef flag");
+			e.modpopup->set (menu_linedef_flags, 0);
+		}
+		else if (edit.obj_type == OBJ_THINGS)
+		{
+			menu_thing_flags->set_title ("Set thing flag");
+			e.modpopup->set (menu_thing_flags, 0);
+		}
+	}
 
-  // [b]: pop up the "Toggle flag" menu
-  else if (is_key == 'b'
-      && edit.menubar->highlighted () < 0
-      && (edit.Selected || edit.highlighted ()))
-  {
-    if (edit.obj_type == OBJ_LINEDEFS)
-    {
-      menu_linedef_flags->set_title ("Toggle linedef flag");
-      e.modpopup->set (menu_linedef_flags, 0);
-    }
-    else if (edit.obj_type == OBJ_THINGS)
-    {
-      menu_thing_flags->set_title ("Toggle thing flag");
-      e.modpopup->set (menu_thing_flags, 0);
-    }
-  }
+	// [b]: pop up the "Toggle flag" menu
+	else if (is_key == 'b'
+			&& edit.menubar->highlighted () < 0
+			&& (edit.Selected || edit.highlighted ()))
+	{
+		if (edit.obj_type == OBJ_LINEDEFS)
+		{
+			menu_linedef_flags->set_title ("Toggle linedef flag");
+			e.modpopup->set (menu_linedef_flags, 0);
+		}
+		else if (edit.obj_type == OBJ_THINGS)
+		{
+			menu_thing_flags->set_title ("Toggle thing flag");
+			e.modpopup->set (menu_thing_flags, 0);
+		}
+	}
 
-  // [c]: pop up the "Clear flag" menu
-  else if (is_key == 'c'
-      && edit.menubar->highlighted () < 0
-      && (edit.Selected || edit.highlighted ()))
-  {
-    if (edit.obj_type == OBJ_LINEDEFS)
-    {
-      menu_linedef_flags->set_title ("Clear linedef flag");
-      e.modpopup->set (menu_linedef_flags, 0);
-    }
-    else if (edit.obj_type == OBJ_THINGS)
-    {
-      menu_thing_flags->set_title ("Clear thing flag");
-      e.modpopup->set (menu_thing_flags, 0);
-    }
-  }
+	// [c]: pop up the "Clear flag" menu
+	else if (is_key == 'c'
+			&& edit.menubar->highlighted () < 0
+			&& (edit.Selected || edit.highlighted ()))
+	{
+		if (edit.obj_type == OBJ_LINEDEFS)
+		{
+			menu_linedef_flags->set_title ("Clear linedef flag");
+			e.modpopup->set (menu_linedef_flags, 0);
+		}
+		else if (edit.obj_type == OBJ_THINGS)
+		{
+			menu_thing_flags->set_title ("Clear thing flag");
+			e.modpopup->set (menu_thing_flags, 0);
+		}
+	}
 #endif
 
-  // [M]: pop up the "Misc. operations" menu
-  else if (is_key == 'M')
-  {
-///---    edit.modpopup->set (edit.menubar->get_menu (MBI_MISC), 1);
-  }
+	// [M]: pop up the "Misc. operations" menu
+	else if (is_key == 'M')
+	{
+		///---    edit.modpopup->set (edit.menubar->get_menu (MBI_MISC), 1);
+	}
 
-  // [F9]: pop up the "Insert a standard object" menu
-  else if (is_key == FL_F+9)
-  {
-///---    edit.modpopup->set (edit.menubar->get_menu (MBI_OBJECTS), 1);
-  }
+	// [F9]: pop up the "Insert a standard object" menu
+	else if (is_key == FL_F+9)
+	{
+		///---    edit.modpopup->set (edit.menubar->get_menu (MBI_OBJECTS), 1);
+	}
 
-  // [F10]: pop up the "Checks" menu
-  else if (is_key == FL_F+10)
-  {
-    CheckLevel (-1, -1);
-    edit.RedrawMap = 1;
-  }
+	// [F10]: pop up the "Checks" menu
+	else if (is_key == FL_F+10)
+	{
+		CheckLevel (-1, -1);
+		edit.RedrawMap = 1;
+	}
 
 
-  // [+], [=], wheel: zooming in
-  else if (is_key == '+' || is_key == '=')
-  {
-    EditorWheel(+1);
-  }
+	// [+], [=], wheel: zooming in
+	else if (is_key == '+' || is_key == '=')
+	{
+		EditorWheel(+1);
+	}
 
-  // [-], [_], wheel: zooming out
-  else if (is_key == '-' || is_key == '_')
-  {
-    EditorWheel(-1);
-  }
+	// [-], [_], wheel: zooming out
+	else if (is_key == '-' || is_key == '_')
+	{
+		EditorWheel(-1);
+	}
 
-  // [`]: centre window on centre of map
-  // and set zoom to view the entire map
-  else if (is_key == '`' || is_key == '~')
-  {
-    zoom_fit ();
-    edit.RedrawMap = 1;
-  }
+	// [`]: centre window on centre of map
+	// and set zoom to view the entire map
+	else if (is_key == '`' || is_key == '~')
+	{
+		zoom_fit ();
+		edit.RedrawMap = 1;
+	}
 
-  // [1] - [9]: set the zoom factor
-  else if (is_key >= '1' && is_key <= '9')
-  {
-    float S1 = grid.Scale;
+	// [1] - [9]: set the zoom factor
+	else if (is_key >= '1' && is_key <= '9')
+	{
+		float S1 = grid.Scale;
 
-    grid.ScaleFromDigit(is_key - '0');
-    grid.RefocusZoom(edit.map_x, edit.map_y, S1);
-  }
+		grid.ScaleFromDigit(is_key - '0');
+		grid.RefocusZoom(edit.map_x, edit.map_y, S1);
+	}
 
-  // [']: centre window on centre of map
-  else if (is_key == '\'')
-  {
-    update_level_bounds ();
-    grid.CenterMapAt ((MapMinX + MapMaxX) / 2, (MapMinY + MapMaxY) / 2);
-    edit.RedrawMap = 1;
-  }
+	// [']: centre window on centre of map
+	else if (is_key == '\'')
+	{
+		update_level_bounds ();
+		grid.CenterMapAt ((MapMinX + MapMaxX) / 2, (MapMinY + MapMaxY) / 2);
+		edit.RedrawMap = 1;
+	}
 
-  // [Left], [Right], [Up], [Down]:
-  // scroll <scroll_less> percents of a screenful.
-  else if (is_key == FL_Left && grid.orig_x > -30000)
-  {
-    grid.orig_x -= (int) ((double) ScrMaxX * scroll_less / 100 / grid.Scale);
-    edit.RedrawMap = 1;
-  }
-  else if (is_key == FL_Right && grid.orig_x < 30000)
-  {
-    grid.orig_x += (int) ((double) ScrMaxX * scroll_less / 100 / grid.Scale);
-    edit.RedrawMap = 1;
-  }
-  else if (is_key == FL_Up && grid.orig_y < 30000)
-  {
-    grid.orig_y += (int) ((double) ScrMaxY * scroll_less / 100 / grid.Scale);
-    edit.RedrawMap = 1;
-  }
-  else if (is_key == FL_Down && grid.orig_y > -30000)
-  {
-    grid.orig_y -= (int) ((double) ScrMaxY * scroll_less / 100 / grid.Scale);
-    edit.RedrawMap = 1;
-  }
+	// [Left], [Right], [Up], [Down]:
+	// scroll <scroll_less> percents of a screenful.
+	else if (is_key == FL_Left && grid.orig_x > -30000)
+	{
+		grid.orig_x -= (int) ((double) ScrMaxX * scroll_less / 100 / grid.Scale);
+		edit.RedrawMap = 1;
+	}
+	else if (is_key == FL_Right && grid.orig_x < 30000)
+	{
+		grid.orig_x += (int) ((double) ScrMaxX * scroll_less / 100 / grid.Scale);
+		edit.RedrawMap = 1;
+	}
+	else if (is_key == FL_Up && grid.orig_y < 30000)
+	{
+		grid.orig_y += (int) ((double) ScrMaxY * scroll_less / 100 / grid.Scale);
+		edit.RedrawMap = 1;
+	}
+	else if (is_key == FL_Down && grid.orig_y > -30000)
+	{
+		grid.orig_y -= (int) ((double) ScrMaxY * scroll_less / 100 / grid.Scale);
+		edit.RedrawMap = 1;
+	}
 
-  // [Pgup], [Pgdn], [Home], [End]:
-  // scroll <scroll_more> percents of a screenful.
-  else if (is_key == FL_Page_Up && (grid.orig_y) < /*MapMaxY*/ 20000)
-  {
-    grid.orig_y += (int) ((double) ScrMaxY * scroll_more / 100 / grid.Scale);
-    edit.RedrawMap = 1;
-  }
-  else if (is_key == FL_Page_Down && (grid.orig_y) > /*MapMinY*/ -20000)
-  {
-    grid.orig_y -= (int) ((double) ScrMaxY * scroll_more / 100 / grid.Scale);
-    edit.RedrawMap = 1;
-  }
-  else if (is_key == FL_Home && (grid.orig_x) > /*MapMinX*/ -20000)
-  {
-    grid.orig_x -= (int) ((double) ScrMaxX * scroll_more / 100 / grid.Scale);
-    edit.RedrawMap = 1;
-  }
-  else if (is_key == FL_End && (grid.orig_x) < /*MapMaxX*/ 20000)
-  {
-    grid.orig_x += (int) ((double) ScrMaxX * scroll_more / 100 / grid.Scale);
-    edit.RedrawMap = 1;
-  }
+	// [Pgup], [Pgdn], [Home], [End]:
+	// scroll <scroll_more> percents of a screenful.
+	else if (is_key == FL_Page_Up && (grid.orig_y) < /*MapMaxY*/ 20000)
+	{
+		grid.orig_y += (int) ((double) ScrMaxY * scroll_more / 100 / grid.Scale);
+		edit.RedrawMap = 1;
+	}
+	else if (is_key == FL_Page_Down && (grid.orig_y) > /*MapMinY*/ -20000)
+	{
+		grid.orig_y -= (int) ((double) ScrMaxY * scroll_more / 100 / grid.Scale);
+		edit.RedrawMap = 1;
+	}
+	else if (is_key == FL_Home && (grid.orig_x) > /*MapMinX*/ -20000)
+	{
+		grid.orig_x -= (int) ((double) ScrMaxX * scroll_more / 100 / grid.Scale);
+		edit.RedrawMap = 1;
+	}
+	else if (is_key == FL_End && (grid.orig_x) < /*MapMaxX*/ 20000)
+	{
+		grid.orig_x += (int) ((double) ScrMaxX * scroll_more / 100 / grid.Scale);
+		edit.RedrawMap = 1;
+	}
 
 #if 0
-  /* user wants to change the movement speed */
-  else if (is_key == ' ')
-    edit.move_speed = edit.move_speed == 1 ? 20 : 1;
+	/* user wants to change the movement speed */
+	else if (is_key == ' ')
+		edit.move_speed = edit.move_speed == 1 ? 20 : 1;
 
-  else if (is_key == ' ')
-  {
-    edit.extra_zoom = ! edit.extra_zoom;
-    edit_set_zoom (&edit, Scale * (edit.extra_zoom ? 4 : 0.25));
-    edit.RedrawMap = 1;
-  }
+	else if (is_key == ' ')
+	{
+		edit.extra_zoom = ! edit.extra_zoom;
+		edit_set_zoom (&edit, Scale * (edit.extra_zoom ? 4 : 0.25));
+		edit.RedrawMap = 1;
+	}
 #endif
 
-  // [l], [s], [t], [v]: switch mode
-  else if (is_key == 't' || is_key == 'v' || is_key == 'l' || is_key == 's' || is_key == 'r')
-  {
-    int prev_obj_type = edit.obj_type;
+	// [l], [s], [t], [v]: switch mode
+	else if (is_key == 't' || is_key == 'v' || is_key == 'l' || is_key == 's' || is_key == 'r')
+	{
+		int prev_obj_type = edit.obj_type;
 
-    main_win->SetMode((char)is_key);
+		main_win->SetMode((char)is_key);
 
-    // Set the object type according to the new mode.
-    switch((char)is_key)
-    {
-      case 't': edit.obj_type = OBJ_THINGS;   break;
-      case 'l': edit.obj_type = OBJ_LINEDEFS; break;
-      case 's': edit.obj_type = OBJ_SECTORS;  break;
-      case 'v': edit.obj_type = OBJ_VERTICES; break;
-      case 'r': edit.obj_type = OBJ_RSCRIPT;  break;
+		// Set the object type according to the new mode.
+		switch((char)is_key)
+		{
+			case 't': edit.obj_type = OBJ_THINGS;   break;
+			case 'l': edit.obj_type = OBJ_LINEDEFS; break;
+			case 's': edit.obj_type = OBJ_SECTORS;  break;
+			case 'v': edit.obj_type = OBJ_VERTICES; break;
+			case 'r': edit.obj_type = OBJ_RSCRIPT;  break;
 
-      default:
-        FatalError ("changing mode with %04X", is_key);
-    }
+			default: FatalError ("changing mode with %04X", is_key);
+		}
 
-    ConvertSelection(prev_obj_type);
+		ConvertSelection(prev_obj_type);
 
-    if (GetMaxObjectNum (edit.obj_type) >= 0 && Select0)
-    {
-      edit.highlighted.type = edit.obj_type;
-      edit.highlighted.num  = 0;
-    }
-    else
-      edit.highlighted.nil ();
+		if (GetMaxObjectNum (edit.obj_type) >= 0 && Select0)
+		{
+			edit.highlighted.type = edit.obj_type;
+			edit.highlighted.num  = 0;
+		}
+		else
+			edit.highlighted.nil ();
 
-    edit.RedrawMap = 1;
-  }
+		edit.RedrawMap = 1;
+	}
 
-  // [e]: Select/unselect all linedefs in non-forked path
-  else if (is_key == 'e' && edit.highlighted._is_linedef ())
-  {
-    ForgetSelection (&edit.Selected);
-    select_linedefs_path (&edit.Selected, edit.highlighted.num, BOP_ADD);
-    edit.RedrawMap = 1;
-  }
+	// [e]: Select/unselect all linedefs in non-forked path
+	else if (is_key == 'e' && edit.highlighted._is_linedef ())
+	{
+		ForgetSelection (&edit.Selected);
+		select_linedefs_path (&edit.Selected, edit.highlighted.num, BOP_ADD);
+		edit.RedrawMap = 1;
+	}
 
-  // [Ctrl][e] Select/unselect all linedefs in path
-  else if (is_key == '\5' && ! is_shift && edit.highlighted._is_linedef ())
-  {
-    select_linedefs_path (&edit.Selected, edit.highlighted.num, BOP_TOGGLE);
-    edit.RedrawMap = 1;
-  }
-  // [E]: add linedef and split sector -- [AJA]
-  else if (is_key == 'E' && edit.obj_type == OBJ_VERTICES)
-  {
-    if (edit.Selected)
-    {
-      MiscOperations (edit.obj_type, &edit.Selected, 5);
-      edit.RedrawMap = 1;
-    }
-  }
-  // [E]: Select/unselect all 1s linedefs in path
-  else if (is_key == 'E' && edit.highlighted._is_linedef ())
-  {
-    ForgetSelection (&edit.Selected);
-    select_1s_linedefs_path (&edit.Selected, edit.highlighted.num, BOP_ADD);
-    edit.RedrawMap = 1;
-  }
+	// [Ctrl][e] Select/unselect all linedefs in path
+	else if (is_key == '\5' && ! is_shift && edit.highlighted._is_linedef ())
+	{
+		select_linedefs_path (&edit.Selected, edit.highlighted.num, BOP_TOGGLE);
+		edit.RedrawMap = 1;
+	}
+	// [E]: add linedef and split sector -- [AJA]
+	else if (is_key == 'E' && edit.obj_type == OBJ_VERTICES)
+	{
+		if (edit.Selected)
+		{
+			MiscOperations (edit.obj_type, &edit.Selected, 5);
+			edit.RedrawMap = 1;
+		}
+	}
+	// [E]: Select/unselect all 1s linedefs in path
+	else if (is_key == 'E' && edit.highlighted._is_linedef ())
+	{
+		ForgetSelection (&edit.Selected);
+		select_1s_linedefs_path (&edit.Selected, edit.highlighted.num, BOP_ADD);
+		edit.RedrawMap = 1;
+	}
 
-  // [Ctrl][Shift][e]: Select/unselect all 1s linedefs in path
-  else if (is_key == '\5' && is_shift && edit.highlighted._is_linedef ())
-  {
-    select_1s_linedefs_path (&edit.Selected, edit.highlighted.num, BOP_TOGGLE);
-    edit.RedrawMap = 1;
-  }
+	// [Ctrl][Shift][e]: Select/unselect all 1s linedefs in path
+	else if (is_key == '\5' && is_shift && edit.highlighted._is_linedef ())
+	{
+		select_1s_linedefs_path (&edit.Selected, edit.highlighted.num, BOP_TOGGLE);
+		edit.RedrawMap = 1;
+	}
 
-  // [G]: to increase the grid step
-  else if (is_key == 'G')
-  {
-    grid.AdjustStep(+1);
-  }
+	// [G]: to increase the grid step
+	else if (is_key == 'G')
+	{
+		grid.AdjustStep(+1);
+	}
 
-  // [g]: decrease the grid step
-  else if (is_key == 'g')
-  {
-    grid.AdjustStep(-1);
-  }
+	// [g]: decrease the grid step
+	else if (is_key == 'g')
+	{
+		grid.AdjustStep(-1);
+	}
 
-  // [h]: display or hide the grid
-  else if (is_key == 'h')
-  {
-    grid.shown = ! grid.shown;
-    edit.RedrawMap = 1;
-  }
+	// [h]: display or hide the grid
+	else if (is_key == 'h')
+	{
+		grid.shown = ! grid.shown;
+		edit.RedrawMap = 1;
+	}
 
-//???  // [H]: reset the grid to grid_step_max
-//???  else if (is_key == 'H')
-//???  {
-//???    e.grid_step = e.grid_step_max;
-//???    edit.RedrawMap = 1;
-//???  }
+	//???  // [H]: reset the grid to grid_step_max
+	//???  else if (is_key == 'H')
+	//???  {
+	//???    e.grid_step = e.grid_step_max;
+	//???    edit.RedrawMap = 1;
+	//???  }
 
-  // [f]: toggle the snap_to_grid flag
-  else if (is_key == 'f')
-  {
-    grid.locked = false;
-    grid.snap   = ! grid.snap;
+	// [f]: toggle the snap_to_grid flag
+	else if (is_key == 'f')
+	{
+		grid.locked = false;
+		grid.snap   = ! grid.snap;
 
-    main_win->info_bar->UpdateLock();
-  }
+		main_win->info_bar->UpdateLock();
+	}
 
-  // [k]: toggle the lock_grip_step flag
-  else if (is_key == 'k')
-  {
-    grid.locked = ! grid.locked;
-    grid.snap   = true;
+	// [k]: toggle the lock_grip_step flag
+	else if (is_key == 'k')
+	{
+		grid.locked = ! grid.locked;
+		grid.snap   = true;
 
-    main_win->info_bar->UpdateLock();
-  }
+		main_win->info_bar->UpdateLock();
+	}
 
-  // [r]: toggle the rulers
-  else if (is_key == 'r')
-    edit.rulers_shown = !edit.rulers_shown;
+	// [r]: toggle the rulers
+	else if (is_key == 'r')
+		edit.rulers_shown = !edit.rulers_shown;
 
-  // [n], [>]: highlight the next object
-  else if ((is_key == 'n' || is_key == '>')
-      && ( edit.highlighted ()))
-  {
-    obj_type_t t = edit.highlighted () ? edit.highlighted.type : edit.obj_type;
-    obj_no_t nmax = GetMaxObjectNum (t);
-    if (is_obj (nmax))
-    {
-      if (edit.highlighted.is_nil ())
-      {
-        edit.highlighted.type = t;
-        edit.highlighted.num = 0;
-      }
-      else
-      {
-        edit.highlighted.num++;
-        if (edit.highlighted.num > nmax)
-          edit.highlighted.num = 0;
-      }
-      GoToObject (edit.highlighted);
-      edit.RedrawMap = 1;
-    }
-  }
+	// [n], [>]: highlight the next object
+	else if ((is_key == 'n' || is_key == '>')
+			&& ( edit.highlighted ()))
+	{
+		obj_type_t t = edit.highlighted () ? edit.highlighted.type : edit.obj_type;
+		obj_no_t nmax = GetMaxObjectNum (t);
+		if (is_obj (nmax))
+		{
+			if (edit.highlighted.is_nil ())
+			{
+				edit.highlighted.type = t;
+				edit.highlighted.num = 0;
+			}
+			else
+			{
+				edit.highlighted.num++;
+				if (edit.highlighted.num > nmax)
+					edit.highlighted.num = 0;
+			}
+			GoToObject (edit.highlighted);
+			edit.RedrawMap = 1;
+		}
+	}
 
-  // [p], [<]: highlight the previous object
-  else if ((is_key == 'p' || is_key == '<')
-      && ( edit.highlighted ()))
-  {
-    obj_type_t t = edit.highlighted () ? edit.highlighted.type : edit.obj_type;
-    obj_no_t nmax = GetMaxObjectNum (t);
-    if (is_obj (nmax))
-    {
-      if (edit.highlighted.is_nil ())
-      {
-        edit.highlighted.type = t;
-        edit.highlighted.num = nmax;
-      }
-      else
-      {
-        edit.highlighted.num--;
-        if (edit.highlighted.num < 0)
-          edit.highlighted.num = nmax;
-      }
-      GoToObject (edit.highlighted);
-      edit.RedrawMap = 1;
-    }
-  }
+	// [p], [<]: highlight the previous object
+	else if ((is_key == 'p' || is_key == '<')
+			&& ( edit.highlighted ()))
+	{
+		obj_type_t t = edit.highlighted () ? edit.highlighted.type : edit.obj_type;
+		obj_no_t nmax = GetMaxObjectNum (t);
+		if (is_obj (nmax))
+		{
+			if (edit.highlighted.is_nil ())
+			{
+				edit.highlighted.type = t;
+				edit.highlighted.num = nmax;
+			}
+			else
+			{
+				edit.highlighted.num--;
+				if (edit.highlighted.num < 0)
+					edit.highlighted.num = nmax;
+			}
+			GoToObject (edit.highlighted);
+			edit.RedrawMap = 1;
+		}
+	}
 
-  // [j], [#]: jump to object by number
-  else if ((is_key == 'j' || is_key == '#')
-      && ( edit.highlighted ()))
-  {
-    const char *buf = fl_input("Enter index", "");
+	// [j], [#]: jump to object by number
+	else if ((is_key == 'j' || is_key == '#')
+			&& ( edit.highlighted ()))
+	{
+		const char *buf = fl_input("Enter index", "");
 
-    if (buf)
-    {
-      Objid target_obj;
-      target_obj.type = edit.obj_type;
-      target_obj.num  = atoi(buf);
+		if (buf)
+		{
+			Objid target_obj;
+			target_obj.type = edit.obj_type;
+			target_obj.num  = atoi(buf);
 
-      if (target_obj ())
-      {
-        GoToObject (target_obj);
-        edit.RedrawMap = 1;
-      }
-    }
-  }
+			if (target_obj ())
+			{
+				GoToObject (target_obj);
+				edit.RedrawMap = 1;
+			}
+		}
+	}
 
-  // [f]: find object by type
-  else if (is_key == 'f' && ( edit.highlighted ())) 
-  {
-    Objid find_obj;
-    int otype;
-    obj_no_t omax,onum;
-    find_obj.type = edit.highlighted () ? edit.highlighted.type : edit.obj_type;
-    onum = find_obj.num  = edit.highlighted () ? edit.highlighted.num  : 0;
-    omax = GetMaxObjectNum(find_obj.type);
-    switch (find_obj.type)
-    {
-      case OBJ_SECTORS:
-        if ( ! InputSectorType( 84, 21, &otype))
-        {
-          for (onum = edit.highlighted () ? onum + 1 : onum; onum <= omax; onum++)
-            if (Sectors[onum].type == (wad_stype_t) otype)
-            {
-              find_obj.num = onum;
-              GoToObject(find_obj);
-              break;
-            }
-        }
-        break;
-      case OBJ_THINGS:
-        if ( ! InputThingType( 42, 21, &otype))
-        {
-          for (onum = edit.highlighted () ? onum + 1 : onum; onum <= omax; onum++)
-            if (Things[onum].type == (wad_ttype_t) otype)
-            {
-              find_obj.num = onum;
-              GoToObject(find_obj);
-              break;
-            }
-        }
-        break;
-      case OBJ_LINEDEFS:
-        if ( ! InputLinedefType( 0, 21, &otype))
-        {
-          for (onum = edit.highlighted () ? onum + 1 : onum; onum <= omax; onum++)
-            if (LineDefs[onum].type == (wad_ldtype_t) otype)
-            {
-              find_obj.num = onum;
-              GoToObject(find_obj);
-              break;
-            }
-        }
-        break;
-    }
-    edit.RedrawMap = 1;
-  }
+	// [f]: find object by type
+	else if (is_key == 'f' && ( edit.highlighted ())) 
+	{
+		Objid find_obj;
+		int otype;
+		obj_no_t omax,onum;
+		find_obj.type = edit.highlighted () ? edit.highlighted.type : edit.obj_type;
+		onum = find_obj.num  = edit.highlighted () ? edit.highlighted.num  : 0;
+		omax = GetMaxObjectNum(find_obj.type);
+		switch (find_obj.type)
+		{
+			case OBJ_SECTORS:
+				if ( ! InputSectorType( 84, 21, &otype))
+				{
+					for (onum = edit.highlighted () ? onum + 1 : onum; onum <= omax; onum++)
+						if (Sectors[onum].type == (wad_stype_t) otype)
+						{
+							find_obj.num = onum;
+							GoToObject(find_obj);
+							break;
+						}
+				}
+				break;
+			case OBJ_THINGS:
+				if ( ! InputThingType( 42, 21, &otype))
+				{
+					for (onum = edit.highlighted () ? onum + 1 : onum; onum <= omax; onum++)
+						if (Things[onum].type == (wad_ttype_t) otype)
+						{
+							find_obj.num = onum;
+							GoToObject(find_obj);
+							break;
+						}
+				}
+				break;
+			case OBJ_LINEDEFS:
+				if ( ! InputLinedefType( 0, 21, &otype))
+				{
+					for (onum = edit.highlighted () ? onum + 1 : onum; onum <= omax; onum++)
+						if (LineDefs[onum].type == (wad_ldtype_t) otype)
+						{
+							find_obj.num = onum;
+							GoToObject(find_obj);
+							break;
+						}
+				}
+				break;
+		}
+		edit.RedrawMap = 1;
+	}
 #if 0
-  // [c]: clear selection and redraw the map
-  else if (is_key == 'c')
-  {
-    ForgetSelection (&edit.Selected);
-    edit.RedrawMap = 1;
-  }
+	// [c]: clear selection and redraw the map
+	else if (is_key == 'c')
+	{
+		ForgetSelection (&edit.Selected);
+		edit.RedrawMap = 1;
+	}
 #endif
 
-  // [o]: copy a group of objects
-  else if (is_key == 'o'
-      && (edit.Selected || edit.highlighted ()))
-  {
-    int x, y;
+	// [o]: copy a group of objects
+	else if (is_key == 'o'
+			&& (edit.Selected || edit.highlighted ()))
+	{
+		int x, y;
 
-    /* copy the object(s) */
-    if (! edit.Selected)
-      SelectObject (&edit.Selected, edit.highlighted.num);
-    CopyObjects (edit.obj_type, edit.Selected);
-    /* enter drag mode */
-    /* AYM 19980619 : got to look into this!! */
-    //edit.highlight_obj_no = edit.Selected->objnum;
+		/* copy the object(s) */
+		if (! edit.Selected)
+			SelectObject (&edit.Selected, edit.highlighted.num);
+		CopyObjects (edit.obj_type, edit.Selected);
+		/* enter drag mode */
+		/* AYM 19980619 : got to look into this!! */
+		//edit.highlight_obj_no = edit.Selected->objnum;
 
-    // Find the "hotspot" in the object(s)
-    if (edit.highlighted () && ! edit.Selected)
-      GetObjectCoords (edit.highlighted.type, edit.highlighted.num, &x, &y);
-    else
-      centre_of_objects (edit.obj_type, edit.Selected, &x, &y);
+		// Find the "hotspot" in the object(s)
+		if (edit.highlighted () && ! edit.Selected)
+			GetObjectCoords (edit.highlighted.type, edit.highlighted.num, &x, &y);
+		else
+			centre_of_objects (edit.obj_type, edit.Selected, &x, &y);
 
-    // Drag the object(s) so that the "hotspot" is under the pointer
-    MoveObjectsToCoords (edit.obj_type, 0, x, y, 0);
-    MoveObjectsToCoords (edit.obj_type, edit.Selected,
-        edit.map_x, edit.map_y, 0);
-    edit.RedrawMap = 1;
-  }
+		// Drag the object(s) so that the "hotspot" is under the pointer
+		MoveObjectsToCoords (edit.obj_type, 0, x, y, 0);
+		MoveObjectsToCoords (edit.obj_type, edit.Selected,
+				edit.map_x, edit.map_y, 0);
+		edit.RedrawMap = 1;
+	}
 
 
-  // [w]: spin things 1/8 turn counter-clockwise
-  else if (is_key == 'w' && edit.obj_type == OBJ_THINGS
-      && (edit.Selected || edit.highlighted ()))
-  {
-    if (! edit.Selected)
-    {
-      SelectObject (&edit.Selected, edit.highlighted.num);
-      spin_things (edit.Selected, 45);
-      UnSelectObject (&edit.Selected, edit.highlighted.num);
-    }
-    else
-    {
-      spin_things (edit.Selected, 45);
-    }
-    edit.RedrawMap = 1;  /* FIXME: should redraw only the things */
-  }
+	// [w]: spin things 1/8 turn counter-clockwise
+	else if (is_key == 'w' && edit.obj_type == OBJ_THINGS
+			&& (edit.Selected || edit.highlighted ()))
+	{
+		if (! edit.Selected)
+		{
+			SelectObject (&edit.Selected, edit.highlighted.num);
+			spin_things (edit.Selected, 45);
+			UnSelectObject (&edit.Selected, edit.highlighted.num);
+		}
+		else
+		{
+			spin_things (edit.Selected, 45);
+		}
+		edit.RedrawMap = 1;  /* FIXME: should redraw only the things */
+	}
 
-  // [w]: split linedefs and sectors
-  else if (is_key == 'w' && edit.obj_type == OBJ_LINEDEFS
-      && edit.Selected && edit.Selected->next && ! edit.Selected->next->next)
-  {
-    SplitLineDefsAndSector (edit.Selected->next->objnum, edit.Selected->objnum);
-    ForgetSelection (&edit.Selected);
-    edit.RedrawMap = 1;
-  }
+	// [w]: split linedefs and sectors
+	else if (is_key == 'w' && edit.obj_type == OBJ_LINEDEFS
+			&& edit.Selected && edit.Selected->next && ! edit.Selected->next->next)
+	{
+		SplitLineDefsAndSector (edit.Selected->next->objnum, edit.Selected->objnum);
+		ForgetSelection (&edit.Selected);
+		edit.RedrawMap = 1;
+	}
 
-  // [w]: split sector between vertices
-  else if (is_key == 'w' && edit.obj_type == OBJ_VERTICES
-      && edit.Selected && edit.Selected->next && ! edit.Selected->next->next)
-  {
-    SplitSector (edit.Selected->next->objnum, edit.Selected->objnum);
-    ForgetSelection (&edit.Selected);
-    edit.RedrawMap = 1;
-  }
+	// [w]: split sector between vertices
+	else if (is_key == 'w' && edit.obj_type == OBJ_VERTICES
+			&& edit.Selected && edit.Selected->next && ! edit.Selected->next->next)
+	{
+		SplitSector (edit.Selected->next->objnum, edit.Selected->objnum);
+		ForgetSelection (&edit.Selected);
+		edit.RedrawMap = 1;
+	}
 
-  // [x]: spin things 1/8 turn clockwise
-  else if (is_key == 'x' && edit.obj_type == OBJ_THINGS
-      && (edit.Selected || edit.highlighted ()))
-  {
-    if (! edit.Selected)
-    {
-      SelectObject (&edit.Selected, edit.highlighted.num);
-      spin_things (edit.Selected, -45);
-      UnSelectObject (&edit.Selected, edit.highlighted.num);
-    }
-    else
-    {
-      spin_things (edit.Selected, -45);
-    }
-    edit.RedrawMap = 1;  /* FIXME: should redraw only the things */
-  }
+	// [x]: spin things 1/8 turn clockwise
+	else if (is_key == 'x' && edit.obj_type == OBJ_THINGS
+			&& (edit.Selected || edit.highlighted ()))
+	{
+		if (! edit.Selected)
+		{
+			SelectObject (&edit.Selected, edit.highlighted.num);
+			spin_things (edit.Selected, -45);
+			UnSelectObject (&edit.Selected, edit.highlighted.num);
+		}
+		else
+		{
+			spin_things (edit.Selected, -45);
+		}
+		edit.RedrawMap = 1;  /* FIXME: should redraw only the things */
+	}
 
-  // [x]: split linedefs
-  else if (is_key == 'x' && edit.obj_type == OBJ_LINEDEFS
-      && (edit.Selected || edit.highlighted ()))
-  {
-    if (! edit.Selected)
-    {
-      SelectObject (&edit.Selected, edit.highlighted.num);
-      SplitLineDefs (edit.Selected);
-      UnSelectObject (&edit.Selected, edit.highlighted.num);
-    }
-    else
-      SplitLineDefs (edit.Selected);
-    edit.RedrawMap = 1;
-  }
+	// [x]: split linedefs
+	else if (is_key == 'x' && edit.obj_type == OBJ_LINEDEFS
+			&& (edit.Selected || edit.highlighted ()))
+	{
+		if (! edit.Selected)
+		{
+			SelectObject (&edit.Selected, edit.highlighted.num);
+			SplitLineDefs (edit.Selected);
+			UnSelectObject (&edit.Selected, edit.highlighted.num);
+		}
+		else
+			SplitLineDefs (edit.Selected);
+		edit.RedrawMap = 1;
+	}
 
-  // [Ctrl][x]: exchange objects numbers
-  else if (is_key == 24)
-  {
-    if (! edit.Selected
-        || ! edit.Selected->next
-        || (edit.Selected->next)->next)
-    {
-      Beep ();
-      Notify (-1, -1, "You must select exactly two objects", 0);
-      edit.RedrawMap = 1;
-    }
-    else
-    {
-      exchange_objects_numbers (edit.obj_type, edit.Selected, true);
-      edit.RedrawMap = 1;
-    }
-  }
+	// [Ctrl][x]: exchange objects numbers
+	else if (is_key == 24)
+	{
+		if (! edit.Selected
+				|| ! edit.Selected->next
+				|| (edit.Selected->next)->next)
+		{
+			Beep ();
+			Notify (-1, -1, "You must select exactly two objects", 0);
+			edit.RedrawMap = 1;
+		}
+		else
+		{
+			exchange_objects_numbers (edit.obj_type, edit.Selected, true);
+			edit.RedrawMap = 1;
+		}
+	}
 
-  // [Ctrl][k]: cut a slice out of a sector
-  else if (is_key == 11 && edit.obj_type == OBJ_LINEDEFS
-      && edit.Selected && edit.Selected->next && ! edit.Selected->next->next)
-  {
-    sector_slice (edit.Selected->next->objnum, edit.Selected->objnum);
-    ForgetSelection (&edit.Selected);
-    edit.RedrawMap = 1;
-  }
+	// [Ctrl][k]: cut a slice out of a sector
+	else if (is_key == 11 && edit.obj_type == OBJ_LINEDEFS
+			&& edit.Selected && edit.Selected->next && ! edit.Selected->next->next)
+	{
+		sector_slice (edit.Selected->next->objnum, edit.Selected->objnum);
+		ForgetSelection (&edit.Selected);
+		edit.RedrawMap = 1;
+	}
 
-  // [Del]: delete the current object
-  else if ((is_key == '\b' || is_key == FL_BackSpace || is_key == FL_Delete)
-      && (edit.Selected || edit.highlighted ())) /* 'Del' */
-  {
-    if (edit.obj_type == OBJ_THINGS
-        || Expert
-        || Confirm (-1, -1,
-          (edit.Selected && edit.Selected->next ?
-           "Do you really want to delete these objects?"
-           : "Do you really want to delete this object?"),
-          (edit.Selected && edit.Selected->next ?
-           "This will also delete the objects bound to them."
-           : "This will also delete the objects bound to it.")))
-    {
-      if (edit.Selected)
-        DeleteObjects (edit.obj_type, &edit.Selected);
-      else
-        DeleteObject (edit.highlighted);
-    }
-    // AYM 1998-09-20 I thought I'd add this
-    // (though it doesn't fix the problem : if the object has been
-    // deleted, HighlightObject is still called with a bad object#).
-    edit.highlighted.nil ();
-    edit.RedrawMap = 1;
-  }
+	// [Del]: delete the current object
+	else if ((is_key == '\b' || is_key == FL_BackSpace || is_key == FL_Delete)
+			&& (edit.Selected || edit.highlighted ())) /* 'Del' */
+	{
+		if (edit.obj_type == OBJ_THINGS
+				|| Expert
+				|| Confirm (-1, -1,
+					(edit.Selected && edit.Selected->next ?
+					 "Do you really want to delete these objects?"
+					 : "Do you really want to delete this object?"),
+					(edit.Selected && edit.Selected->next ?
+					 "This will also delete the objects bound to them."
+					 : "This will also delete the objects bound to it.")))
+		{
+			if (edit.Selected)
+				DeleteObjects (edit.obj_type, &edit.Selected);
+			else
+				DeleteObject (edit.highlighted);
+		}
+		// AYM 1998-09-20 I thought I'd add this
+		// (though it doesn't fix the problem : if the object has been
+		// deleted, HighlightObject is still called with a bad object#).
+		edit.highlighted.nil ();
+		edit.RedrawMap = 1;
+	}
 
-  // [Ins]: insert a new object
-  else if (is_key == 'I' || is_key == FL_Insert + FL_SHIFT) /* 'Ins' */
-  {
-    SelPtr cur;
-    int prev_obj_type = edit.obj_type;
+	// [Ins]: insert a new object
+	else if (is_key == 'I' || is_key == FL_Insert + FL_SHIFT) /* 'Ins' */
+	{
+		SelPtr cur;
+		int prev_obj_type = edit.obj_type;
 
-    /* first special case: if several vertices are
-       selected, add new linedefs */
-    if (edit.obj_type == OBJ_VERTICES
-        && edit.Selected && edit.Selected->next)
-    {
-      int firstv;
-      int obj_no = OBJ_NO_NONE;
-      
-      if (edit.Selected->next->next)
-        firstv = edit.Selected->objnum;
-      else
-        firstv = -1;
-      edit.obj_type = OBJ_LINEDEFS;
-      /* create linedefs between the vertices */
-      for (cur = edit.Selected; cur->next; cur = cur->next)
-      {
-        /* check if there is already a linedef between the two vertices */
-        for (obj_no = 0; obj_no < NumLineDefs; obj_no++)
-          if ((LineDefs[obj_no].start == cur->next->objnum
-                && LineDefs[obj_no].end   == cur->objnum)
-              || (LineDefs[obj_no].end   == cur->next->objnum
-                && LineDefs[obj_no].start == cur->objnum))
-            break;
-        if (obj_no < NumLineDefs)
-          cur->objnum = obj_no;
-        else
-        {
-          InsertObject (OBJ_LINEDEFS, -1, 0, 0);
-          edit.highlighted.type = OBJ_LINEDEFS;
-          edit.highlighted.num  = NumLineDefs - 1;
-          LineDefs[edit.highlighted.num].start = cur->next->objnum;
-          LineDefs[edit.highlighted.num].end = cur->objnum;
-          cur->objnum = edit.highlighted.num;  // FIXME cur = edit.highlighted
-        }
-      }
-      /* close the polygon if there are more than 2 vertices */
-      if (firstv >= 0 && is_shift)
-      {
-        edit.highlighted.type = OBJ_LINEDEFS;
-        for (edit.highlighted.num = 0;
-            edit.highlighted.num < NumLineDefs;
-            edit.highlighted.num++)
-          if ((LineDefs[edit.highlighted.num].start == firstv
-                && LineDefs[edit.highlighted.num].end   == cur->objnum)
-              || (LineDefs[edit.highlighted.num].end   == firstv
-                && LineDefs[edit.highlighted.num].start == cur->objnum))
-            break;
-        if (edit.highlighted.num < NumLineDefs)
-          cur->objnum = obj_no;
-        else
-        {
-          InsertObject (OBJ_LINEDEFS, -1, 0, 0);
-          edit.highlighted.type = OBJ_LINEDEFS;
-          edit.highlighted.num  = NumLineDefs - 1;
-          LineDefs[edit.highlighted.num].start = firstv;
-          LineDefs[edit.highlighted.num].end   = cur->objnum;
-          cur->objnum = edit.highlighted.num;  // FIXME cur = edit.highlighted
-        }
-      }
-      else
-        UnSelectObject (&edit.Selected, cur->objnum);
-    }
-    /* second special case: if several linedefs are selected,
-       add new sidedefs and one sector */
-    else if (edit.obj_type == OBJ_LINEDEFS && edit.Selected)
-    {
-      
-      for (cur = edit.Selected; cur; cur = cur->next)
-        if (LineDefs[cur->objnum].side_R >= 0 &&
-            LineDefs[cur->objnum].side_L >= 0)
-        {
-          char msg[80];
+		/* first special case: if several vertices are
+		   selected, add new linedefs */
+		if (edit.obj_type == OBJ_VERTICES
+				&& edit.Selected && edit.Selected->next)
+		{
+			int firstv;
+			int obj_no = OBJ_NO_NONE;
 
-          Beep ();
-          sprintf (msg, "Linedef #%d already has two sidedefs", cur->objnum);
-          Notify (-1, -1, "Error: cannot add the new sector", msg);
-          break;
-        }
-      if (! cur)
-      {
-        edit.obj_type = OBJ_SECTORS;
-        InsertObject (OBJ_SECTORS, -1, 0, 0);
-        edit.highlighted.type = OBJ_SECTORS;
-        edit.highlighted.num  = NumSectors - 1;
-        for (cur = edit.Selected; cur; cur = cur->next)
-        {
-          InsertObject (OBJ_SIDEDEFS, -1, 0, 0);
-          SideDefs[NumSideDefs - 1].sector = edit.highlighted.num;
-          
-          if (LineDefs[cur->objnum].side_R >= 0)
-          {
-            int s;
+			if (edit.Selected->next->next)
+				firstv = edit.Selected->objnum;
+			else
+				firstv = -1;
+			edit.obj_type = OBJ_LINEDEFS;
+			/* create linedefs between the vertices */
+			for (cur = edit.Selected; cur->next; cur = cur->next)
+			{
+				/* check if there is already a linedef between the two vertices */
+				for (obj_no = 0; obj_no < NumLineDefs; obj_no++)
+					if ((LineDefs[obj_no].start == cur->next->objnum
+								&& LineDefs[obj_no].end   == cur->objnum)
+							|| (LineDefs[obj_no].end   == cur->next->objnum
+								&& LineDefs[obj_no].start == cur->objnum))
+						break;
+				if (obj_no < NumLineDefs)
+					cur->objnum = obj_no;
+				else
+				{
+					InsertObject (OBJ_LINEDEFS, -1, 0, 0);
+					edit.highlighted.type = OBJ_LINEDEFS;
+					edit.highlighted.num  = NumLineDefs - 1;
+					LineDefs[edit.highlighted.num].start = cur->next->objnum;
+					LineDefs[edit.highlighted.num].end = cur->objnum;
+					cur->objnum = edit.highlighted.num;  // FIXME cur = edit.highlighted
+				}
+			}
+			/* close the polygon if there are more than 2 vertices */
+			if (firstv >= 0 && is_shift)
+			{
+				edit.highlighted.type = OBJ_LINEDEFS;
+				for (edit.highlighted.num = 0;
+						edit.highlighted.num < NumLineDefs;
+						edit.highlighted.num++)
+					if ((LineDefs[edit.highlighted.num].start == firstv
+								&& LineDefs[edit.highlighted.num].end   == cur->objnum)
+							|| (LineDefs[edit.highlighted.num].end   == firstv
+								&& LineDefs[edit.highlighted.num].start == cur->objnum))
+						break;
+				if (edit.highlighted.num < NumLineDefs)
+					cur->objnum = obj_no;
+				else
+				{
+					InsertObject (OBJ_LINEDEFS, -1, 0, 0);
+					edit.highlighted.type = OBJ_LINEDEFS;
+					edit.highlighted.num  = NumLineDefs - 1;
+					LineDefs[edit.highlighted.num].start = firstv;
+					LineDefs[edit.highlighted.num].end   = cur->objnum;
+					cur->objnum = edit.highlighted.num;  // FIXME cur = edit.highlighted
+				}
+			}
+			else
+				UnSelectObject (&edit.Selected, cur->objnum);
+		}
+		/* second special case: if several linedefs are selected,
+		   add new sidedefs and one sector */
+		else if (edit.obj_type == OBJ_LINEDEFS && edit.Selected)
+		{
 
-            s = SideDefs[LineDefs[cur->objnum].side_R].sector;
-            if (s >= 0)
-            {
-              Sectors[edit.highlighted.num].floorh = Sectors[s].floorh;
-              Sectors[edit.highlighted.num].ceilh = Sectors[s].ceilh;
-              strncpy (Sectors[edit.highlighted.num].floor_tex,
-                  Sectors[s].floor_tex, WAD_FLAT_NAME);
-              strncpy (Sectors[edit.highlighted.num].ceil_tex,
-                  Sectors[s].ceil_tex, WAD_FLAT_NAME);
-              Sectors[edit.highlighted.num].light = Sectors[s].light;
-            }
-            LineDefs[cur->objnum].side_L = NumSideDefs - 1;
-            LineDefs[cur->objnum].flags = 4;
-            strncpy (SideDefs[NumSideDefs - 1].mid_tex,
-                "-", WAD_TEX_NAME);
-            strncpy (SideDefs[LineDefs[cur->objnum].side_R].mid_tex,
-                "-", WAD_TEX_NAME);
-          }
-          else
-            LineDefs[cur->objnum].side_R = NumSideDefs - 1;
-        }
-        ForgetSelection (&edit.Selected);
-        SelectObject (&edit.Selected, edit.highlighted.num);
-      }
-    }
-    /* normal case: add a new object of the current type */
-    else
-    {
-      ForgetSelection (&edit.Selected);
-      /* FIXME how do you insert a new object of type T if
-         no object of that type already exists ? */
-      obj_type_t t = edit.highlighted () ? edit.highlighted.type : edit.obj_type;
-      InsertObject (t, edit.highlighted.num,
-          grid.SnapX(edit.map_x), grid.SnapY(edit.map_y));
-      edit.highlighted.type = t;
-      edit.highlighted.num  = GetMaxObjectNum (edit.obj_type);
-      if (edit.obj_type == OBJ_LINEDEFS)
-      {
+			for (cur = edit.Selected; cur; cur = cur->next)
+				if (LineDefs[cur->objnum].side_R >= 0 &&
+						LineDefs[cur->objnum].side_L >= 0)
+				{
+					char msg[80];
+
+					Beep ();
+					sprintf (msg, "Linedef #%d already has two sidedefs", cur->objnum);
+					Notify (-1, -1, "Error: cannot add the new sector", msg);
+					break;
+				}
+			if (! cur)
+			{
+				edit.obj_type = OBJ_SECTORS;
+				InsertObject (OBJ_SECTORS, -1, 0, 0);
+				edit.highlighted.type = OBJ_SECTORS;
+				edit.highlighted.num  = NumSectors - 1;
+				for (cur = edit.Selected; cur; cur = cur->next)
+				{
+					InsertObject (OBJ_SIDEDEFS, -1, 0, 0);
+					SideDefs[NumSideDefs - 1].sector = edit.highlighted.num;
+
+					if (LineDefs[cur->objnum].side_R >= 0)
+					{
+						int s;
+
+						s = SideDefs[LineDefs[cur->objnum].side_R].sector;
+						if (s >= 0)
+						{
+							Sectors[edit.highlighted.num].floorh = Sectors[s].floorh;
+							Sectors[edit.highlighted.num].ceilh = Sectors[s].ceilh;
+							strncpy (Sectors[edit.highlighted.num].floor_tex,
+									Sectors[s].floor_tex, WAD_FLAT_NAME);
+							strncpy (Sectors[edit.highlighted.num].ceil_tex,
+									Sectors[s].ceil_tex, WAD_FLAT_NAME);
+							Sectors[edit.highlighted.num].light = Sectors[s].light;
+						}
+						LineDefs[cur->objnum].side_L = NumSideDefs - 1;
+						LineDefs[cur->objnum].flags = 4;
+						strncpy (SideDefs[NumSideDefs - 1].mid_tex,
+								"-", WAD_TEX_NAME);
+						strncpy (SideDefs[LineDefs[cur->objnum].side_R].mid_tex,
+								"-", WAD_TEX_NAME);
+					}
+					else
+						LineDefs[cur->objnum].side_R = NumSideDefs - 1;
+				}
+				ForgetSelection (&edit.Selected);
+				SelectObject (&edit.Selected, edit.highlighted.num);
+			}
+		}
+		/* normal case: add a new object of the current type */
+		else
+		{
+			ForgetSelection (&edit.Selected);
+			/* FIXME how do you insert a new object of type T if
+			   no object of that type already exists ? */
+			obj_type_t t = edit.highlighted () ? edit.highlighted.type : edit.obj_type;
+			InsertObject (t, edit.highlighted.num,
+					grid.SnapX(edit.map_x), grid.SnapY(edit.map_y));
+			edit.highlighted.type = t;
+			edit.highlighted.num  = GetMaxObjectNum (edit.obj_type);
+			if (edit.obj_type == OBJ_LINEDEFS)
+			{
 #if 0  // TODO
-        int v1 = LineDefs[edit.highlighted.num].start;
-        int v2 = LineDefs[edit.highlighted.num].end;
-        if (! Input2VertexNumbers (-1, -1,
-              "Choose the two vertices for the new linedef", &v1, &v2))
-        {
-          DeleteObject (edit.highlighted);
-          edit.highlighted.nil ();
-        }
-        else
-        {
-          LineDefs[edit.highlighted.num].start = v1;
-          LineDefs[edit.highlighted.num].end   = v2;
-        }
+				int v1 = LineDefs[edit.highlighted.num].start;
+				int v2 = LineDefs[edit.highlighted.num].end;
+				if (! Input2VertexNumbers (-1, -1,
+							"Choose the two vertices for the new linedef", &v1, &v2))
+				{
+					DeleteObject (edit.highlighted);
+					edit.highlighted.nil ();
+				}
+				else
+				{
+					LineDefs[edit.highlighted.num].start = v1;
+					LineDefs[edit.highlighted.num].end   = v2;
+				}
 #endif
-      }
-      else if (edit.obj_type == OBJ_VERTICES)
-      {
-        SelectObject (&edit.Selected, edit.highlighted.num);
-        if (AutoMergeVertices (&edit.Selected, edit.obj_type, 'i'))
-          edit.RedrawMap = 1;
-        ForgetSelection (&edit.Selected);
-      }
-    }
+			}
+			else if (edit.obj_type == OBJ_VERTICES)
+			{
+				SelectObject (&edit.Selected, edit.highlighted.num);
+				if (AutoMergeVertices (&edit.Selected, edit.obj_type, 'i'))
+					edit.RedrawMap = 1;
+				ForgetSelection (&edit.Selected);
+			}
+		}
 
-    if (edit.obj_type != prev_obj_type)
-    {
-      // FIXME !!!
-    }
+		if (edit.obj_type != prev_obj_type)
+		{
+			// FIXME !!!
+		}
 
-    edit.RedrawMap = 1;
-  }
+		edit.RedrawMap = 1;
+	}
 
-  // [Z] Set sector on surrounding linedefs (AJA)
-  else if (is_key == 'Z' && edit.pointer_in_window) 
-  {
-    if (edit.obj_type == OBJ_SECTORS && edit.Selected)
-    {
-      SuperSectorSelector (edit.map_x, edit.map_y,
-          edit.Selected->objnum);
-    }
-    else
-    {
-      SuperSectorSelector (edit.map_x, edit.map_y, OBJ_NO_NONE);
-    }
-    edit.RedrawMap = 1;
-  }
+	// [Z] Set sector on surrounding linedefs (AJA)
+	else if (is_key == 'Z' && edit.pointer_in_window) 
+	{
+		if (edit.obj_type == OBJ_SECTORS && edit.Selected)
+		{
+			SuperSectorSelector (edit.map_x, edit.map_y,
+					edit.Selected->objnum);
+		}
+		else
+		{
+			SuperSectorSelector (edit.map_x, edit.map_y, OBJ_NO_NONE);
+		}
+		edit.RedrawMap = 1;
+	}
 
-  // [W] limit shown things to specific skill (AJA)
-  else if (is_key == 'W' && edit.obj_type == OBJ_THINGS)
-  {
-    active_wmask ^= 1;
-    active_when = active_wmask;
-    edit.RedrawMap = 1;
-  }
+	// [W] limit shown things to specific skill (AJA)
+	else if (is_key == 'W' && edit.obj_type == OBJ_THINGS)
+	{
+		active_wmask ^= 1;
+		active_when = active_wmask;
+		edit.RedrawMap = 1;
+	}
 
-  // [!] Debug info (not documented)
-  else if (is_key == '!')
-  {
-    DumpSelection (edit.Selected);
-  }
-
-
-  // [T] Transfer properties to selected objects (AJA)
-  else if (is_key == 'T' && edit.Selected 
-      && edit.highlighted.num >= 0)
-  {
-    switch (edit.obj_type)
-    {
-      case OBJ_SECTORS:
-        TransferSectorProperties (edit.highlighted.num, edit.Selected);
-        edit.RedrawMap = 1;
-        break;
-      case OBJ_THINGS:
-        TransferThingProperties (edit.highlighted.num, edit.Selected);
-        edit.RedrawMap = 1;
-        break;
-      case OBJ_LINEDEFS:
-        TransferLinedefProperties (edit.highlighted.num, edit.Selected);
-        edit.RedrawMap = 1;
-        break;
-      default:
-        Beep ();
-        break;
-    }
-  }
+	// [!] Debug info (not documented)
+	else if (is_key == '!')
+	{
+		DumpSelection (edit.Selected);
+	}
 
 
-  // [Ctrl][b] Select linedefs whose sidedefs reference non-existant sectors
-  else if (is_key == 2)
-  {
-    bad_sector_number (&edit.Selected);
-    edit.RedrawMap = 1;
-  }
-
-  // [Ctrl][r] Xref for sidedef (not documented)
-  else if (is_key == 18)
-  {
-    xref_sidedef ();
-  }
-
-  // [Ctrl][s] List secret sectors (not documented)
-  else if (is_key == 19)
-  {
-    secret_sectors ();
-  }
-
-  // [Ctrl][t] List tagged linedefs or sectors
-  else if (is_key == 20)
-  {
-    if (edit.highlighted._is_sector ())
-      list_tagged_linedefs (Sectors[edit.highlighted.num].tag);
-    else if (edit.highlighted._is_linedef ())
-      list_tagged_sectors (LineDefs[edit.highlighted.num].tag);
-    else
-      Beep ();
-  }
-
-  // [Ctrl][u] Select linedefs with unknown type (not documented)
-  else if (is_key == 21)
-  {
-    unknown_linedef_type (&edit.Selected);
-    edit.RedrawMap = 1;
-  }
+	// [T] Transfer properties to selected objects (AJA)
+	else if (is_key == 'T' && edit.Selected 
+			&& edit.highlighted.num >= 0)
+	{
+		switch (edit.obj_type)
+		{
+			case OBJ_SECTORS:
+				TransferSectorProperties (edit.highlighted.num, edit.Selected);
+				edit.RedrawMap = 1;
+				break;
+			case OBJ_THINGS:
+				TransferThingProperties (edit.highlighted.num, edit.Selected);
+				edit.RedrawMap = 1;
+				break;
+			case OBJ_LINEDEFS:
+				TransferLinedefProperties (edit.highlighted.num, edit.Selected);
+				edit.RedrawMap = 1;
+				break;
+			default:
+				Beep ();
+				break;
+		}
+	}
 
 
-  // [&] Show object numbers
-  else if (is_key == '&')
-  {
-    edit.show_object_numbers = ! edit.show_object_numbers;
-    edit.RedrawMap = 1;
-  }
+	// [Ctrl][b] Select linedefs whose sidedefs reference non-existant sectors
+	else if (is_key == 2)
+	{
+		bad_sector_number (&edit.Selected);
+		edit.RedrawMap = 1;
+	}
 
-  // [%] Show things sprites
-  else if (is_key == '%')
-  {
-    edit.show_things_sprites = ! edit.show_things_sprites;
-    edit.show_things_squares = ! edit.show_things_sprites;  // Not a typo !
-    edit.RedrawMap = 1;
-  }
+	// [Ctrl][r] Xref for sidedef (not documented)
+	else if (is_key == 18)
+	{
+		xref_sidedef ();
+	}
 
-  /* user likes music */
-  else if (is_key)
-  {
-fprintf(stderr, "UNKNOWN KEY: %d (0x%04x)\n", is_key, is_key);
-    Beep ();
-  }
+	// [Ctrl][s] List secret sectors (not documented)
+	else if (is_key == 19)
+	{
+		secret_sectors ();
+	}
+
+	// [Ctrl][t] List tagged linedefs or sectors
+	else if (is_key == 20)
+	{
+		if (edit.highlighted._is_sector ())
+			list_tagged_linedefs (Sectors[edit.highlighted.num].tag);
+		else if (edit.highlighted._is_linedef ())
+			list_tagged_sectors (LineDefs[edit.highlighted.num].tag);
+		else
+			Beep ();
+	}
+
+	// [Ctrl][u] Select linedefs with unknown type (not documented)
+	else if (is_key == 21)
+	{
+		unknown_linedef_type (&edit.Selected);
+		edit.RedrawMap = 1;
+	}
+
+
+	// [&] Show object numbers
+	else if (is_key == '&')
+	{
+		edit.show_object_numbers = ! edit.show_object_numbers;
+		edit.RedrawMap = 1;
+	}
+
+	// [%] Show things sprites
+	else if (is_key == '%')
+	{
+		edit.show_things_sprites = ! edit.show_things_sprites;
+		edit.show_things_squares = ! edit.show_things_sprites;  // Not a typo !
+		edit.RedrawMap = 1;
+	}
+
+	/* user likes music */
+	else if (is_key)
+	{
+		fprintf(stderr, "UNKNOWN KEY: %d (0x%04x)\n", is_key, is_key);
+		Beep ();
+	}
 }
 
 
@@ -1401,105 +1397,102 @@ main_win->canvas->redraw();
 
 void EditorMouseRelease()
 {
-  is_butl = false;
+	is_butl = false;
 
-   /* Releasing the button while there was a selection box
-      causes all the objects within the box to be selected. */
-  if (true
-      && edit.clicked == CANVAS)
-  {
-    int x1, y1, x2, y2;
+	/* Releasing the button while there was a selection box
+	   causes all the objects within the box to be selected. */
+	if (true
+			&& edit.clicked == CANVAS)
+	{
+		int x1, y1, x2, y2;
 
-	main_win->canvas->SelboxFinish(&x1, &y1, &x2, &y2);
+		main_win->canvas->SelboxFinish(&x1, &y1, &x2, &y2);
 
-    SelectObjectsInBox (&edit.Selected, edit.obj_type, x1, y1, x2, y2);
+		SelectObjectsInBox (&edit.Selected, edit.obj_type, x1, y1, x2, y2);
 
-    edit.RedrawMap = 1;
-    return;
-  }
+		edit.RedrawMap = 1;
+		return;
+	}
 
-  /* Releasing the button while dragging : drop the selection. */
-  // FIXME : should call this automatically when switching tool
-  if (true
-      && edit.clicked ())
-  {
-    if (AutoMergeVertices (&edit.Selected, edit.obj_type, 'm'))
-      edit.RedrawMap = 1;
+	/* Releasing the button while dragging : drop the selection. */
+	// FIXME : should call this automatically when switching tool
+	if (true
+			&& edit.clicked ())
+	{
+		if (AutoMergeVertices (&edit.Selected, edit.obj_type, 'm'))
+			edit.RedrawMap = 1;
 
-    return;
-  }
+		return;
+	}
 
 }
 
 void EditorMouseMotion(int x, int y, int map_x, int map_y, bool drag)
 {
-  edit.map_x = map_x;
-  edit.map_y = map_y;
-  edit.pointer_in_window = true; // FIXME
+	edit.map_x = map_x;
+	edit.map_y = map_y;
+	edit.pointer_in_window = true; // FIXME
 
-  if (edit.pointer_in_window)
-    main_win->info_bar->SetMouse(edit.map_x, edit.map_y);
+	if (edit.pointer_in_window)
+		main_win->info_bar->SetMouse(edit.map_x, edit.map_y);
 
-// fprintf(stderr, "MOUSE MOTION: %d,%d  map: %d,%d\n", x, y, edit.map_x, edit.map_y);
+	// fprintf(stderr, "MOUSE MOTION: %d,%d  map: %d,%d\n", x, y, edit.map_x, edit.map_y);
 
-  if (! drag)
-  {
-    obj_type_t t = edit.obj_type;
+	if (! drag)
+	{
+		obj_type_t t = edit.obj_type;
 
-    GetCurObject (object, t, edit.map_x, edit.map_y);
+		GetCurObject (object, t, edit.map_x, edit.map_y);
 
-    if (! (object == edit.highlighted)) //!!!! (no button and no CTRL)
-    {
-      HighlightObj(object);
-    }
+		if (! (object == edit.highlighted)) //!!!! (no button and no CTRL)
+		{
+			HighlightObj(object);
+		}
+	}
+	/* Moving the pointer with the left button pressed
+	   and a selection box exists : move the second
+	   corner of the selection box. */
+	else if (true
+			&& is_butl  /* FIXME: edit.selecting */
+			&& edit.clicked == CANVAS)
+	{
+		main_win->canvas->SelboxDrag(edit.map_x, edit.map_y);
+		return;
+	}
 
-  }
+	/* Moving the pointer with the left button pressed
+	   but no selection box exists and [Ctrl] was not
+	   pressed when the button was pressed :
+	   drag the selection. */
+	if (true
+			&& is_butl  /* FIXME: edit.dragging */
+			&& edit.clicked ()
+			&& ! edit.click_ctrl)
+	{
+		fprintf(stderr, "DRAGGING OBJECT: %d\n", edit.clicked.num);
+		if (! edit.Selected)
+		{
+			SelectObject (&edit.Selected, edit.clicked.num);
+			if (MoveObjectsToCoords (edit.clicked.type, edit.Selected,
+						edit.map_x, edit.map_y, grid.snap ? grid.step : 0))
+				edit.RedrawMap = 1;
+			ForgetSelection (&edit.Selected);
+		}
+		else
+		{
+			if (MoveObjectsToCoords (edit.clicked.type, edit.Selected,
+						edit.map_x, edit.map_y, grid.snap ? grid.step : 0))
+				edit.RedrawMap = 1;
+		}
 
-        
-  /* Moving the pointer with the left button pressed
-     and a selection box exists : move the second
-     corner of the selection box. */
-  else if (true
-      && is_butl  /* FIXME: edit.selecting */
-      && edit.clicked == CANVAS)
-  {
-	main_win->canvas->SelboxDrag(edit.map_x, edit.map_y);
-    return;
-  }
-
-  /* Moving the pointer with the left button pressed
-     but no selection box exists and [Ctrl] was not
-     pressed when the button was pressed :
-     drag the selection. */
-  if (true
-      && is_butl  /* FIXME: edit.dragging */
-      && edit.clicked ()
-      && ! edit.click_ctrl)
-  {
-fprintf(stderr, "DRAGGING OBJECT: %d\n", edit.clicked.num);
-    if (! edit.Selected)
-    {
-      SelectObject (&edit.Selected, edit.clicked.num);
-      if (MoveObjectsToCoords (edit.clicked.type, edit.Selected,
-            edit.map_x, edit.map_y, grid.snap ? grid.step : 0))
-        edit.RedrawMap = 1;
-      ForgetSelection (&edit.Selected);
-    }
-    else
-    {
-      if (MoveObjectsToCoords (edit.clicked.type, edit.Selected,
-            edit.map_x, edit.map_y, grid.snap ? grid.step : 0))
-        edit.RedrawMap = 1;
-    }
-
-    return;
-  }
+		return;
+	}
 }
 
 
 void EditorResize(int is_width, int is_height)
 {
-  edit.RedrawMap = 1;
+	edit.RedrawMap = 1;
 }
 
 
