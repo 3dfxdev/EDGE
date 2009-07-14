@@ -31,21 +31,21 @@
  */
 Wad_file::~Wad_file ()
 {
-  if (directory != 0)
-  {
-    FreeMemory (directory);
-    directory = 0;      // Catch bugs
-  }
-  if (fp != 0)
-  {
-    fclose (fp);
-    fp = 0;       // Catch bugs
-  }
-  if (filename != 0)
-  {
-    FreeMemory (filename);
-    filename = 0;     // Catch bugs
-  }
+	if (directory != 0)
+	{
+		FreeMemory (directory);
+		directory = 0;      // Catch bugs
+	}
+	if (fp != 0)
+	{
+		fclose (fp);
+		fp = 0;       // Catch bugs
+	}
+	if (filename != 0)
+	{
+		FreeMemory (filename);
+		filename = 0;     // Catch bugs
+	}
 }
 
 
@@ -56,26 +56,26 @@ Wad_file::~Wad_file ()
  */
 const char *Wad_file::where () const
 {
-  const unsigned long offset       = ftell (fp);
-  const size_t        offset_len   =  + 3;
-  const size_t        name_len_max = sizeof where_ - 1 - offset_len;
+	const unsigned long offset       = ftell (fp);
+	const size_t        offset_len   =  + 3;
+	const size_t        name_len_max = sizeof where_ - 1 - offset_len;
 
-  if (name_len_max >= strlen (filename)) 
-    sprintf (where_, "%s(%lXh)", filename, offset);
-  else
-  {
-    const char  *ellipsis = "...";
-    const size_t total    = name_len_max - strlen (ellipsis);
-    const size_t left     = total / 2;
-    const size_t right    = total - left;
-    sprintf (where_, "%*s%s%*s(%lXh)",
-  left, filename,
-  ellipsis,
-  right, filename + total,
-  offset);
-  }
+	if (name_len_max >= strlen (filename)) 
+		sprintf (where_, "%s(%lXh)", filename, offset);
+	else
+	{
+		const char  *ellipsis = "...";
+		const size_t total    = name_len_max - strlen (ellipsis);
+		const size_t left     = total / 2;
+		const size_t right    = total - left;
+		sprintf (where_, "%*s%s%*s(%lXh)",
+				left, filename,
+				ellipsis,
+				right, filename + total,
+				offset);
+	}
 
-  return where_;
+	return where_;
 }
 
 
@@ -91,30 +91,30 @@ const char *Wad_file::where () const
  */
 long Wad_file::read_vbytes (void *buf, long count) const
 {
-  long bytes_read_total;
-  size_t bytes_read;
-  size_t bytes_to_read;
+	long bytes_read_total;
+	size_t bytes_read;
+	size_t bytes_to_read;
 
-  bytes_read_total = 0;
-  bytes_to_read    = 0x8000;
-  while (count > 0)
-  {
-    if (count <= 0x8000)
-      bytes_to_read = (size_t) count;
-    bytes_read = fread (buf, 1, bytes_to_read, fp);
-    bytes_read_total += bytes_read;
-    if (bytes_read != bytes_to_read)
-      break;
-    buf = (char *) buf + bytes_read;
-    count -= bytes_read;
-  }
-  if (ferror (fp))
-  {
-    if (! error_)
-      err ("%s: read error", where ());
-    error_ = true;
-  }
-  return bytes_read_total;
+	bytes_read_total = 0;
+	bytes_to_read    = 0x8000;
+	while (count > 0)
+	{
+		if (count <= 0x8000)
+			bytes_to_read = (size_t) count;
+		bytes_read = fread (buf, 1, bytes_to_read, fp);
+		bytes_read_total += bytes_read;
+		if (bytes_read != bytes_to_read)
+			break;
+		buf = (char *) buf + bytes_read;
+		count -= bytes_read;
+	}
+	if (ferror (fp))
+	{
+		if (! error_)
+			err ("%s: read error", where ());
+		error_ = true;
+	}
+	return bytes_read_total;
 }
 
 

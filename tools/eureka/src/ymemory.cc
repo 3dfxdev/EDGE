@@ -31,39 +31,39 @@
 
 void *GetMemory (unsigned long size)
 {
-  void *ret = malloc ((size_t) size);
+	void *ret = malloc ((size_t) size);
 
-  if (!ret)
-    FatalError("out of memory (cannot allocate %u bytes)", size);
+	if (!ret)
+		FatalError("out of memory (cannot allocate %u bytes)", size);
 
-  return ret;
+	return ret;
 }
 
 
 /*
    reallocate memory with error checking
-*/
+   */
 
 void *ResizeMemory (void *old, unsigned long size)
 {
-  void *ret = realloc (old, (size_t) size);
+	void *ret = realloc (old, (size_t) size);
 
-  if (!ret)
-    FatalError("out of memory (cannot reallocate %lu bytes)", size);
+	if (!ret)
+		FatalError("out of memory (cannot reallocate %lu bytes)", size);
 
-  return ret;
+	return ret;
 }
 
 
 /*
    free memory
-*/
+   */
 
 void FreeMemory (void *ptr)
 {
-  /* just a wrapper around free(), but provide an entry point */
-  /* for memory debugging routines... */
-  free (ptr);
+	/* just a wrapper around free(), but provide an entry point */
+	/* for memory debugging routines... */
+	free (ptr);
 }
 
 

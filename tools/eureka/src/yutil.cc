@@ -38,15 +38,15 @@
  */
 const char *spec_path (const char *spec)
 {
-  static char path[Y_PATH + 1];
-  size_t n;
+	static char path[Y_PATH + 1];
+	size_t n;
 
-  *path = '\0';
-  strncat (path, spec, sizeof path - 1);
-  for (n = strlen (path); n > 0 && (path[n-1] != '/'); n--)
-    ;
-  path[n] = '\0';
-  return path;
+	*path = '\0';
+	strncat (path, spec, sizeof path - 1);
+	for (n = strlen (path); n > 0 && (path[n-1] != '/'); n--)
+		;
+	path[n] = '\0';
+	return path;
 }
 
 
@@ -60,22 +60,22 @@ const char *spec_path (const char *spec)
 int fncmp (const char *name1, const char *name2)
 {
 #if defined Y_DOS
-  char c1, c2;
-  for (;;)
-  {
-    c1 = tolower ((unsigned char) *name1++);
-    c2 = tolower ((unsigned char) *name2++);
-    if (c1=='\\')
-      c1 = '/';
-    if (c2=='\\')
-      c2 = '/';
-    if (c1 != c2)
-      return c1-c2;
-    if (!c1)
-      return 0;
-  }
+	char c1, c2;
+	for (;;)
+	{
+		c1 = tolower ((unsigned char) *name1++);
+		c2 = tolower ((unsigned char) *name2++);
+		if (c1=='\\')
+			c1 = '/';
+		if (c2=='\\')
+			c2 = '/';
+		if (c1 != c2)
+			return c1-c2;
+		if (!c1)
+			return 0;
+	}
 #elif defined Y_UNIX
-  return strcmp (name1, name2);
+	return strcmp (name1, name2);
 #endif
 }
 
@@ -94,11 +94,11 @@ int fncmp (const char *name1, const char *name2)
 int is_absolute (const char *filename)
 {
 #if defined Y_UNIX
-return *filename == '/';
+	return *filename == '/';
 #elif defined Y_DOS
-return *filename == '/'
-   || *filename == '\\'
-   || isalpha (*filename) && filename[1] == ':';
+	return *filename == '/'
+		|| *filename == '\\'
+		|| isalpha (*filename) && filename[1] == ':';
 #endif
 }
 
@@ -110,20 +110,20 @@ return *filename == '/'
  */
 int y_stricmp (const char *s1, const char *s2)
 {
-for (;;)
-   {
-   if (tolower (*s1) != tolower (*s2))
-      return (unsigned char) *s1 - (unsigned char) *s2;
-   if (! *s1)
-      if (! *s2)
-         return 0;
-      else
-   return -1;
-   if (! *s2)
-      return 1;
-   s1++;
-   s2++;
-   }
+	for (;;)
+	{
+		if (tolower (*s1) != tolower (*s2))
+			return (unsigned char) *s1 - (unsigned char) *s2;
+		if (! *s1)
+			if (! *s2)
+				return 0;
+			else
+				return -1;
+		if (! *s2)
+			return 1;
+		s1++;
+		s2++;
+	}
 }
 
 
@@ -134,21 +134,21 @@ for (;;)
  */
 int y_strnicmp (const char *s1, const char *s2, size_t len)
 {
-while (len-- > 0)
-   {
-   if (tolower (*s1) != tolower (*s2))
-      return (unsigned char) *s1 - (unsigned char) *s2;
-   if (! *s1)
-      if (! *s2)
-         return 0;
-      else
-   return -1;
-   if (! *s2)
-      return 1;
-   s1++;
-   s2++;
-   }
-return 0;
+	while (len-- > 0)
+	{
+		if (tolower (*s1) != tolower (*s2))
+			return (unsigned char) *s1 - (unsigned char) *s2;
+		if (! *s1)
+			if (! *s2)
+				return 0;
+			else
+				return -1;
+		if (! *s2)
+			return 1;
+		s1++;
+		s2++;
+	}
+	return 0;
 }
 
 
@@ -158,12 +158,12 @@ return 0;
  */
 int y_snprintf (char *buf, size_t size, const char *fmt, ...)
 {
-va_list args;
-va_start (args, fmt);
+	va_list args;
+	va_start (args, fmt);
 #ifdef Y_SNPRINTF
-return vsnprintf (buf, size, fmt, args);
+	return vsnprintf (buf, size, fmt, args);
 #else
-return vsprintf (buf, fmt, args);
+	return vsprintf (buf, fmt, args);
 #endif
 }
 
@@ -175,9 +175,9 @@ return vsprintf (buf, fmt, args);
 int y_vsnprintf (char *buf, size_t size, const char *fmt, va_list args)
 {
 #ifdef Y_SNPRINTF
-return vsnprintf (buf, size, fmt, args);
+	return vsnprintf (buf, size, fmt, args);
 #else
-return vsprintf (buf, fmt, args);
+	return vsprintf (buf, fmt, args);
 #endif
 }
 
@@ -188,11 +188,11 @@ return vsprintf (buf, fmt, args);
  */
 void y_strupr (char *string)
 {
-  while (*string)
-  {
-    *string = toupper (*string);
-    string++;
-  }
+	while (*string)
+	{
+		*string = toupper (*string);
+		string++;
+	}
 }
 
 
@@ -204,12 +204,12 @@ void y_strupr (char *string)
  */
 bool file_exists (const char *filename)
 {
-  FILE *test;
+	FILE *test;
 
-  if ((test = fopen (filename, "rb")) == NULL)
-    return 0;
-  fclose (test);
-  return 1;
+	if ((test = fopen (filename, "rb")) == NULL)
+		return 0;
+	fclose (test);
+	return 1;
 }
 
 
@@ -223,49 +223,49 @@ bool file_exists (const char *filename)
  */
 void y_filename (char *buf, size_t size, const char *filename)
 {
-  if (size == 0)
-    return;
-  if (size == 1)
-  {
-    *buf = '\0';
-    return;
-  }
-  size_t len    = strlen (filename);
-  size_t maxlen = size - 1;
+	if (size == 0)
+		return;
+	if (size == 1)
+	{
+		*buf = 0;
+		return;
+	}
+	size_t len    = strlen (filename);
+	size_t maxlen = size - 1;
 
-  if (len > 3 && maxlen <= 3)  // Pathological case, fill with dots
-  {
-    memset (buf, '.', maxlen);
-    buf[maxlen] = '\0';
-    return;
-  }
+	if (len > 3 && maxlen <= 3)  // Pathological case, fill with dots
+	{
+		memset (buf, '.', maxlen);
+		buf[maxlen] = '\0';
+		return;
+	}
 
-  size_t len1 = len;
-  size_t len2 = 0;
-  if (len > maxlen)
-  {
-    len1 = (maxlen - 3) / 2;
-    len2 = maxlen - 3 - len1;
-  }
-  char *p = buf;
-  for (size_t n = 0; n < len1; n++)
-  {
-    *p++ = y_isprint (*filename) ? *filename : '?';
-    filename++;
-  }
-  if (len2 > 0)
-  {
-    *p++ = '.';
-    *p++ = '.';
-    *p++ = '.';
-    filename += len - len1 - len2;
-    for (size_t n = 0; n < len2; n++)
-    {
-      *p++ = y_isprint (*filename) ? *filename : '?';
-      filename++;
-    }
-  }
-  *p++ = '\0';
+	size_t len1 = len;
+	size_t len2 = 0;
+	if (len > maxlen)
+	{
+		len1 = (maxlen - 3) / 2;
+		len2 = maxlen - 3 - len1;
+	}
+	char *p = buf;
+	for (size_t n = 0; n < len1; n++)
+	{
+		*p++ = y_isprint (*filename) ? *filename : '?';
+		filename++;
+	}
+	if (len2 > 0)
+	{
+		*p++ = '.';
+		*p++ = '.';
+		*p++ = '.';
+		filename += len - len1 - len2;
+		for (size_t n = 0; n < len2; n++)
+		{
+			*p++ = y_isprint (*filename) ? *filename : '?';
+			filename++;
+		}
+	}
+	*p++ = 0;
 }
  
 
@@ -312,18 +312,18 @@ unsigned long y_milliseconds()
 
 void check_types ()
 {
-  assert_size (u8_t,  1);
-  assert_size (s8_t,  1);
-  assert_size (u16_t, 2);
-  assert_size (s16_t, 2);
-  assert_size (u32_t, 4);
-  assert_size (s32_t, 4);
+	assert_size (u8_t,  1);
+	assert_size (s8_t,  1);
+	assert_size (u16_t, 2);
+	assert_size (s16_t, 2);
+	assert_size (u32_t, 4);
+	assert_size (s32_t, 4);
 
-  assert_size (struct LineDef, 14);
-  assert_size (struct Sector,  26);
-  assert_size (struct SideDef, 30);
-  assert_size (struct Thing,   10);
-  assert_size (struct Vertex,   4);
+	assert_size (struct LineDef, 14);
+	assert_size (struct Sector,  26);
+	assert_size (struct SideDef, 30);
+	assert_size (struct Thing,   10);
+	assert_size (struct Vertex,   4);
 }
 
 
