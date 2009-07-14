@@ -38,46 +38,46 @@
  */
 void Sprite_loc_by_root (const char *name, Lump_loc& loc)
 {
-  char buffer[16];
+	char buffer[16];
 
-  strcpy(buffer, name);
+	strcpy(buffer, name);
 
-  if (strlen(buffer) == 4)
-    strcat(buffer, "A");
+	if (strlen(buffer) == 4)
+		strcat(buffer, "A");
 
-  if (strlen(buffer) == 5)
-    strcat(buffer, "0");
+	if (strlen(buffer) == 5)
+		strcat(buffer, "0");
 
-  MDirPtr m = FindMasterDir(MasterDir, buffer);
+	MDirPtr m = FindMasterDir(MasterDir, buffer);
 
-  if (! m)
-  {
-    buffer[5] = '1';
-    m = FindMasterDir(MasterDir, buffer);
-  }
+	if (! m)
+	{
+		buffer[5] = '1';
+		m = FindMasterDir(MasterDir, buffer);
+	}
 
-  if (! m)
-  {
-    strcat(buffer, "C1");
-    m = FindMasterDir(MasterDir, buffer);
-  }
+	if (! m)
+	{
+		strcat(buffer, "C1");
+		m = FindMasterDir(MasterDir, buffer);
+	}
 
-  if (! m)
-  {
-    buffer[6] = 'D';
-    m = FindMasterDir(MasterDir, buffer);
-  }
+	if (! m)
+	{
+		buffer[6] = 'D';
+		m = FindMasterDir(MasterDir, buffer);
+	}
 
-  if (! m)
-  {
-    loc.wad = NULL;
-    loc.ofs = loc.len = 0;
-    return;
-  }
+	if (! m)
+	{
+		loc.wad = NULL;
+		loc.ofs = loc.len = 0;
+		return;
+	}
 
-  loc.wad = m->wadfile;
-  loc.ofs = m->dir.start;
-  loc.len = m->dir.size;
+	loc.wad = m->wadfile;
+	loc.ofs = m->dir.start;
+	loc.len = m->dir.size;
 }
 
 //--- editor settings ---

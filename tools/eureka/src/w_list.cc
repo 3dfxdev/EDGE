@@ -37,17 +37,17 @@ typedef std::list<Wad_file *> list_t;
 
 class Wad_list_priv
 {
-  public :
-    Wad_list_priv ();
-    list_t list;
-    mutable list_t::iterator iter;  // Current element
-    mutable bool rewound;   // If true, next get() will return head
+public :
+	Wad_list_priv ();
+	list_t list;
+	mutable list_t::iterator iter;  // Current element
+	mutable bool rewound;   // If true, next get() will return head
 };
 
 
 Wad_list_priv::Wad_list_priv ()
 {
-  rewound = true;
+	rewound = true;
 }
 
 
@@ -56,7 +56,7 @@ Wad_list_priv::Wad_list_priv ()
  */
 Wad_list::Wad_list ()
 {
-  priv = new Wad_list_priv;
+	priv = new Wad_list_priv;
 }
 
 
@@ -65,8 +65,8 @@ Wad_list::Wad_list ()
  */
 Wad_list::~Wad_list ()
 {
-  delete priv;
-  priv = 0;       // Catch bugs
+	delete priv;
+	priv = 0;       // Catch bugs
 }
 
 
@@ -75,7 +75,7 @@ Wad_list::~Wad_list ()
  */
 void Wad_list::rewind () 
 {
-  priv->rewound = true;
+	priv->rewound = true;
 }
 
 
@@ -92,22 +92,22 @@ void Wad_list::rewind ()
  */
 bool Wad_list::get (Wad_file *& wf)
 {
-  if (priv->rewound)
-  {
-    priv->iter = priv->list.begin ();
-    priv->rewound = false;
-  }
-  else
-    ++priv->iter;
+	if (priv->rewound)
+	{
+		priv->iter = priv->list.begin ();
+		priv->rewound = false;
+	}
+	else
+		++priv->iter;
 
-  if (priv->iter == priv->list.end ())
-  {
-    wf = 0;
-    return false;
-  }
+	if (priv->iter == priv->list.end ())
+	{
+		wf = 0;
+		return false;
+	}
 
-  wf = * priv->iter;
-  return true;
+	wf = * priv->iter;
+	return true;
 }
 
 
@@ -117,7 +117,7 @@ bool Wad_list::get (Wad_file *& wf)
  */
 void Wad_list::insert (Wad_file *wf)
 {
-  priv->list.insert (priv->iter, wf);
+	priv->list.insert (priv->iter, wf);
 }
 
 
@@ -135,27 +135,27 @@ void Wad_list::insert (Wad_file *wf)
  */
 void Wad_list::del ()
 {
-  list_t::iterator i;
+	list_t::iterator i;
 
-  if (priv->rewound)
-  {
-    i = priv->list.begin ();
-  }
-  else
-  {
-    i = priv->iter;
-  }
-  if (i == priv->list.end ())
-  {
-    nf_bug ("Wad_list::del: attempt to delete last item");
-    return;
-  }
-  priv->iter = priv->list.erase (i);
-  if (priv->iter == priv->list.begin ())
-  {
-////!!!!    priv->iter = 0;     // Catch bugs
-    priv->rewound = true;
-  }
+	if (priv->rewound)
+	{
+		i = priv->list.begin ();
+	}
+	else
+	{
+		i = priv->iter;
+	}
+	if (i == priv->list.end ())
+	{
+		nf_bug ("Wad_list::del: attempt to delete last item");
+		return;
+	}
+	priv->iter = priv->list.erase (i);
+	if (priv->iter == priv->list.begin ())
+	{
+		////!!!!    priv->iter = 0;     // Catch bugs
+		priv->rewound = true;
+	}
 }
 
 //--- editor settings ---
