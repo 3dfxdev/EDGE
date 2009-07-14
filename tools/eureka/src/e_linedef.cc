@@ -100,6 +100,8 @@ int GetTextureRefHeight (int sidedef)
       way to select only one side of a two-sided wall.
 */
 
+#if (0 == 1)  // FIXME
+
 void AlignTexturesY (SelPtr *sdlist)
 {
 	int h, refh;
@@ -149,277 +151,279 @@ void AlignTexturesX (SelPtr *sdlist)
 {
 #if 0 // TODO: AlignTexturesX
 
-      /* FIRST texture name used in the highlited objects */
-char texname[WAD_TEX_NAME + 1];
-char errormessage[80];  /* area to hold the error messages produced */
-int  ldef;    /* linedef number */
-int  sd1;   /* current sidedef in *sdlist */
-int  vert1, vert2;  /* vertex 1 and 2 for the linedef under scrutiny */
-int  xoffset;   /* xoffset accumulator */
-int  useroffset;  /* user input offset for first input */
-s16_t  texlength;   /* the length of texture to format to */
-int  length;    /* length of linedef under scrutiny */
-s16_t  dummy;   /* holds useless data */
-int  type_off;    /* do we have an initial offset to use */
-int  type_tex;    /* do we check for same textures */
-int  type_sd;   /* do we align sidedef 1 or sidedef 2 */
+	/* FIRST texture name used in the highlited objects */
+	char texname[WAD_TEX_NAME + 1];
+	char errormessage[80];  /* area to hold the error messages produced */
+	int  ldef;    /* linedef number */
+	int  sd1;   /* current sidedef in *sdlist */
+	int  vert1, vert2;  /* vertex 1 and 2 for the linedef under scrutiny */
+	int  xoffset;   /* xoffset accumulator */
+	int  useroffset;  /* user input offset for first input */
+	s16_t  texlength;   /* the length of texture to format to */
+	int  length;    /* length of linedef under scrutiny */
+	s16_t  dummy;   /* holds useless data */
+	int  type_off;    /* do we have an initial offset to use */
+	int  type_tex;    /* do we check for same textures */
+	int  type_sd;   /* do we align sidedef 1 or sidedef 2 */
 
-type_sd  = 0;   /* which sidedef to align, 1=SideDef1, 2=SideDef2 */
-type_tex = 0;   /* do we test for similar textures, 0 = no, 1 = yes */
-type_off = 0;   /* do we have an inital offset, 0 = no, 1 = yes */
+	type_sd  = 0;   /* which sidedef to align, 1=SideDef1, 2=SideDef2 */
+	type_tex = 0;   /* do we test for similar textures, 0 = no, 1 = yes */
+	type_off = 0;   /* do we have an inital offset, 0 = no, 1 = yes */
 
-vert1   = -1;
-vert2   = -1;   /* 1st time round the while loop the -1 value is needed */
-texlength  = 0;
-xoffset    = 0;
-useroffset = 0;
+	vert1   = -1;
+	vert2   = -1;   /* 1st time round the while loop the -1 value is needed */
+	texlength  = 0;
+	xoffset    = 0;
+	useroffset = 0;
 
-switch (vDisplayMenu (250, 110, "Aligning textures (X offset) :",
+	switch (vDisplayMenu (250, 110, "Aligning textures (X offset) :",
 
-  " Sidedef 1, Check for identical textures.     ", YK_, 0,
-  " Sidedef 1, As above, but with inital offset. ", YK_, 0,
-  " Sidedef 1, No texture checking.              ", YK_, 0,
-  " Sidedef 1, As above, but with inital offset. ", YK_, 0,
+				" Sidedef 1, Check for identical textures.     ", YK_, 0,
+				" Sidedef 1, As above, but with inital offset. ", YK_, 0,
+				" Sidedef 1, No texture checking.              ", YK_, 0,
+				" Sidedef 1, As above, but with inital offset. ", YK_, 0,
 
-  " Sidedef 2, Check for identical textures.     ", YK_, 0,
-  " Sidedef 2, As above, but with inital offset. ", YK_, 0,
-  " Sidedef 2, No texture checking.              ", YK_, 0,
-  " Sidedef 2, As above, but with inital offset. ", YK_, 0,
-  NULL))
-  {
-  case 1:       /* Sidedef 1 with checking for same textures   */
-    type_sd = 1; type_tex = 1; type_off = 0;
-    break;
+				" Sidedef 2, Check for identical textures.     ", YK_, 0,
+				" Sidedef 2, As above, but with inital offset. ", YK_, 0,
+				" Sidedef 2, No texture checking.              ", YK_, 0,
+				" Sidedef 2, As above, but with inital offset. ", YK_, 0,
+				NULL))
+	{
+		case 1:       /* Sidedef 1 with checking for same textures   */
+			type_sd = 1; type_tex = 1; type_off = 0;
+			break;
 
-  case 2:       /* Sidedef 1 as above, but with inital offset  */
-    type_sd = 1; type_tex = 1; type_off = 1;
-    break;
+		case 2:       /* Sidedef 1 as above, but with inital offset  */
+			type_sd = 1; type_tex = 1; type_off = 1;
+			break;
 
-  case 3:       /* Sidedef 1 regardless of same textures       */
-    type_sd = 1; type_tex = 0; type_off = 0;
-    break;
+		case 3:       /* Sidedef 1 regardless of same textures       */
+			type_sd = 1; type_tex = 0; type_off = 0;
+			break;
 
-  case 4:       /* Sidedef 1 as above, but with inital offset  */
-    type_sd = 1; type_tex = 0; type_off = 1;
-    break;
+		case 4:       /* Sidedef 1 as above, but with inital offset  */
+			type_sd = 1; type_tex = 0; type_off = 1;
+			break;
 
-  case 5:       /* Sidedef 2 with checking for same textures   */
-    type_sd = 2; type_tex = 1; type_off = 0;
-    break;
+		case 5:       /* Sidedef 2 with checking for same textures   */
+			type_sd = 2; type_tex = 1; type_off = 0;
+			break;
 
-  case 6:       /* Sidedef 2 as above, but with initial offset */
-    type_sd = 2; type_tex = 1; type_off = 1;
-    break;
+		case 6:       /* Sidedef 2 as above, but with initial offset */
+			type_sd = 2; type_tex = 1; type_off = 1;
+			break;
 
-  case 7:       /* Sidedef 2 regardless of same textures       */
-    type_sd = 2; type_tex = 0; type_off = 0;
-    break;
+		case 7:       /* Sidedef 2 regardless of same textures       */
+			type_sd = 2; type_tex = 0; type_off = 0;
+			break;
 
-  case 8:       /* Sidedef 2 as above, but with initial offset */
-    type_sd = 2; type_tex = 0; type_off = 1;
-    break;
-  }
+		case 8:       /* Sidedef 2 as above, but with initial offset */
+			type_sd = 2; type_tex = 0; type_off = 1;
+			break;
+	}
 
-ldef = 0;
-if (! *sdlist)
-   {
-   Notify (-1, -1, "Error in AlignTexturesX: list is empty", 0);
-   return;
-   }
-sd1 = (*sdlist)->objnum;
+	ldef = 0;
+	if (! *sdlist)
+	{
+		Notify (-1, -1, "Error in AlignTexturesX: list is empty", 0);
+		return;
+	}
+	sd1 = (*sdlist)->objnum;
 
-if (type_sd == 1) /* throw out all 2nd SideDefs untill a 1st is found */
-  {
-  while (*sdlist && LineDefs[ldef].side_R!=sd1 && ldef<=NumLineDefs)
-    {
-    ldef++;
-    if (LineDefs[ldef].side_L == sd1)
-      {
-      UnSelectObject (sdlist, (*sdlist)->objnum);
-      if (! *sdlist)
-         return;
-      sd1 = (*sdlist)->objnum;
-      ldef = 0;
-      }
-    }
-  }
+	if (type_sd == 1) /* throw out all 2nd SideDefs untill a 1st is found */
+	{
+		while (*sdlist && LineDefs[ldef].side_R!=sd1 && ldef<=NumLineDefs)
+		{
+			ldef++;
+			if (LineDefs[ldef].side_L == sd1)
+			{
+				UnSelectObject (sdlist, (*sdlist)->objnum);
+				if (! *sdlist)
+					return;
+				sd1 = (*sdlist)->objnum;
+				ldef = 0;
+			}
+		}
+	}
 
-if (type_sd == 2) /* throw out all 1st SideDefs untill a 2nd is found */
-  {
-  while (LineDefs[ldef].side_L!=sd1 && ldef<=NumLineDefs)
-    {
-    ldef++;
-    if (LineDefs[ldef].side_R == sd1)
-      {
-      UnSelectObject (sdlist, (*sdlist)->objnum);
-      if (! *sdlist)
-   return;
-      sd1 = (*sdlist)->objnum;
-      ldef = 0;
-      }
-    }
-  }
-
-
-
-/* get texture name of the sidedef in the *sdlist) */
-strncpy (texname, SideDefs[(*sdlist)->objnum].middle, WAD_TEX_NAME);
-
-/* test if there is a texture there */
-if (texname[0] == '-')
-  {
-  Beep ();
-  sprintf (errormessage, "No texture for sidedef #%d.", (*sdlist)->objnum);
-  Notify (-1, -1, errormessage, 0);
-  return;
-  }
-
-GetWallTextureSize (&texlength, &dummy, texname); /* clunky, but it works */
-
-/* get initial offset to use (if required) */
-if (type_off == 1)    /* source taken from InputObjectNumber */
-   {
-   int  x0;          /* left hand (x) window start     */
-   int  y0;          /* top (y) window start           */
-   int  key;         /* holds value returned by InputInteger */
-   char prompt[80];  /* prompt for inital offset input */
+	if (type_sd == 2) /* throw out all 1st SideDefs untill a 2nd is found */
+	{
+		while (LineDefs[ldef].side_L!=sd1 && ldef<=NumLineDefs)
+		{
+			ldef++;
+			if (LineDefs[ldef].side_R == sd1)
+			{
+				UnSelectObject (sdlist, (*sdlist)->objnum);
+				if (! *sdlist)
+					return;
+				sd1 = (*sdlist)->objnum;
+				ldef = 0;
+			}
+		}
+	}
 
 
 
-   }
+	/* get texture name of the sidedef in the *sdlist) */
+	strncpy (texname, SideDefs[(*sdlist)->objnum].middle, WAD_TEX_NAME);
 
-while (*sdlist)  /* main processing loop */
-   {
-   ldef = 0;
-   sd1 = (*sdlist)->objnum;
+	/* test if there is a texture there */
+	if (texname[0] == '-')
+	{
+		Beep ();
+		sprintf (errormessage, "No texture for sidedef #%d.", (*sdlist)->objnum);
+		Notify (-1, -1, errormessage, 0);
+		return;
+	}
 
-   if (type_sd == 1) /* throw out all 2nd SideDefs untill a 1st is found */
-   {
-     while (LineDefs[ldef].side_R!=sd1 && ldef<=NumLineDefs)
-       {
-       ldef++;
-       if (LineDefs[ldef].side_L == sd1)
-   {
-   UnSelectObject (sdlist, (*sdlist)->objnum);
-   sd1 = (*sdlist)->objnum;
-   ldef = 0;
-   if (! *sdlist)
-      return;
-   }
-       }
-     }
+	GetWallTextureSize (&texlength, &dummy, texname); /* clunky, but it works */
 
-   if (type_sd == 2) /* throw out all 1st SideDefs untill a 2nd is found */
-     {
-     while (LineDefs[ldef].side_L!=sd1 && ldef<=NumLineDefs)
-       {
-       ldef++;
-       if (LineDefs[ldef].side_R == sd1)
-   {
-   UnSelectObject (sdlist, (*sdlist)->objnum);
-   sd1 = (*sdlist)->objnum;
-   ldef = 0;
-   if (! *sdlist)
-      return;
-   }
-       }
-     }
+	/* get initial offset to use (if required) */
+	if (type_off == 1)    /* source taken from InputObjectNumber */
+	{
+		int  x0;          /* left hand (x) window start     */
+		int  y0;          /* top (y) window start           */
+		int  key;         /* holds value returned by InputInteger */
+		char prompt[80];  /* prompt for inital offset input */
 
-   /* do we test for same textures for the sidedef in question?? */
-   if (type_tex == 1)
-     {
-     
-     if (strncmp (SideDefs[(*sdlist)->objnum].middle, texname,WAD_TEX_NAME))
-       {
-       Beep ();
-       sprintf (errormessage, "No texture for sidedef #%d.", (*sdlist)->objnum);
-       Notify (-1, -1, errormessage, 0);
-       return;
-       }
-     }
 
-   sd1 = (*sdlist)->objnum;
-   ldef = 0;
 
-   
+	}
 
-   /* find out which linedef holds that sidedef */
-   if (type_sd == 1)
-     {
-     while (LineDefs[ldef].side_R != sd1 && ldef < NumLineDefs)
-  ldef++;
-     }
-   else
-     {
-     while (LineDefs[ldef].side_L != sd1 && ldef < NumLineDefs)
-       ldef++;
-     }
+	while (*sdlist)  /* main processing loop */
+	{
+		ldef = 0;
+		sd1 = (*sdlist)->objnum;
 
-   vert1 = LineDefs[ldef].start;
-   /* test for linedef highlight continuity */
-   if (vert1 != vert2 && vert2 != -1)
-     {
-     Beep ();
-     sprintf (errormessage, "Linedef #%d is not contiguous"
-       " with the previous linedef, please reselect.", (*sdlist)->objnum);
-     Notify (-1, -1, errormessage, 0);
-     return;
-     }
-   /* is this the first time round here */
-   if (vert1 != vert2)
-     {
-     if (type_off == 1)  /* do we have an initial offset ? */
-       {
-       SideDefs[sd1].x_offset = useroffset;
-       xoffset = useroffset;
-       }
-     else
-  SideDefs[sd1].x_offset = 0;
-     }
-   else     /* put new xoffset into the sidedef */
-     SideDefs[sd1].x_offset = xoffset;
+		if (type_sd == 1) /* throw out all 2nd SideDefs untill a 1st is found */
+		{
+			while (LineDefs[ldef].side_R!=sd1 && ldef<=NumLineDefs)
+			{
+				ldef++;
+				if (LineDefs[ldef].side_L == sd1)
+				{
+					UnSelectObject (sdlist, (*sdlist)->objnum);
+					sd1 = (*sdlist)->objnum;
+					ldef = 0;
+					if (! *sdlist)
+						return;
+				}
+			}
+		}
 
-   /* calculate length of linedef */
-   vert2 = LineDefs[ldef].end;
-   
-   length = ComputeDist (Vertices[vert2].x - Vertices[vert1].x,
-       Vertices[vert2].y - Vertices[vert1].y);
+		if (type_sd == 2) /* throw out all 1st SideDefs untill a 2nd is found */
+		{
+			while (LineDefs[ldef].side_L!=sd1 && ldef<=NumLineDefs)
+			{
+				ldef++;
+				if (LineDefs[ldef].side_R == sd1)
+				{
+					UnSelectObject (sdlist, (*sdlist)->objnum);
+					sd1 = (*sdlist)->objnum;
+					ldef = 0;
+					if (! *sdlist)
+						return;
+				}
+			}
+		}
 
-   xoffset += length;
-   /* remove multiples of texlength from xoffset */
-   xoffset = xoffset % texlength;
-   /* move to next object in selected list */
-   UnSelectObject (sdlist, (*sdlist)->objnum);
-   }
-MadeChanges = 1;
+		/* do we test for same textures for the sidedef in question?? */
+		if (type_tex == 1)
+		{
+
+			if (strncmp (SideDefs[(*sdlist)->objnum].middle, texname,WAD_TEX_NAME))
+			{
+				Beep ();
+				sprintf (errormessage, "No texture for sidedef #%d.", (*sdlist)->objnum);
+				Notify (-1, -1, errormessage, 0);
+				return;
+			}
+		}
+
+		sd1 = (*sdlist)->objnum;
+		ldef = 0;
+
+
+
+		/* find out which linedef holds that sidedef */
+		if (type_sd == 1)
+		{
+			while (LineDefs[ldef].side_R != sd1 && ldef < NumLineDefs)
+				ldef++;
+		}
+		else
+		{
+			while (LineDefs[ldef].side_L != sd1 && ldef < NumLineDefs)
+				ldef++;
+		}
+
+		vert1 = LineDefs[ldef].start;
+		/* test for linedef highlight continuity */
+		if (vert1 != vert2 && vert2 != -1)
+		{
+			Beep ();
+			sprintf (errormessage, "Linedef #%d is not contiguous"
+					" with the previous linedef, please reselect.", (*sdlist)->objnum);
+			Notify (-1, -1, errormessage, 0);
+			return;
+		}
+		/* is this the first time round here */
+		if (vert1 != vert2)
+		{
+			if (type_off == 1)  /* do we have an initial offset ? */
+			{
+				SideDefs[sd1].x_offset = useroffset;
+				xoffset = useroffset;
+			}
+			else
+				SideDefs[sd1].x_offset = 0;
+		}
+		else     /* put new xoffset into the sidedef */
+			SideDefs[sd1].x_offset = xoffset;
+
+		/* calculate length of linedef */
+		vert2 = LineDefs[ldef].end;
+
+		length = ComputeDist (Vertices[vert2].x - Vertices[vert1].x,
+				Vertices[vert2].y - Vertices[vert1].y);
+
+		xoffset += length;
+		/* remove multiples of texlength from xoffset */
+		xoffset = xoffset % texlength;
+		/* move to next object in selected list */
+		UnSelectObject (sdlist, (*sdlist)->objnum);
+	}
+	MadeChanges = 1;
 
 #endif
 }
+
+#endif
 
 
 /*
  *  centre_of_linedefs
  *  Return the coordinates of the centre of a group of linedefs.
  */
-void centre_of_linedefs (SelPtr list, int *x, int *y)
+void centre_of_linedefs (selection_c * list, int *x, int *y)
 {
-	bitvec_c *vertices;
 	int nitems;
 	long x_sum;
 	long y_sum;
 	int n;
 
-	vertices = bv_vertices_of_linedefs (list);
 	x_sum = 0;
 	y_sum = 0;
 	nitems = 0;
+
 	for (n = 0; n < NumVertices; n++)
-		if (vertices->get (n))
+		if (list->get(n))
 		{
 			x_sum += Vertices[n].x;
 			y_sum += Vertices[n].y;
 			nitems++;
 		}
+
 	if (nitems == 0)
 	{
 		*x = 0;
@@ -430,7 +434,6 @@ void centre_of_linedefs (SelPtr list, int *x, int *y)
 		*x = (int) (x_sum / nitems);
 		*y = (int) (y_sum / nitems);
 	}
-	delete vertices;
 }
 
 
@@ -442,6 +445,7 @@ void centre_of_linedefs (SelPtr list, int *x, int *y)
  */
 void frob_linedefs_flags (SelPtr list, int op, int operand)
 {
+#if 0  // FIXME frob_linedefs_flags
 	SelPtr cur;
 	s16_t mask;
 
@@ -465,6 +469,7 @@ void frob_linedefs_flags (SelPtr list, int op, int operand)
 		}
 	}
 	MadeChanges = 1;
+#endif
 }
 
 
@@ -476,8 +481,9 @@ static void SliceLinedef (int linedefno, int times);
    flip one or several LineDefs
    */
 
-void FlipLineDefs ( SelPtr obj, bool swapvertices)
+void FlipLineDefs(SelPtr obj, bool swapvertices)
 {
+#if 0  // FIXME  FlipLineDefs
 	SelPtr cur;
 	int    tmp;
 
@@ -497,6 +503,7 @@ void FlipLineDefs ( SelPtr obj, bool swapvertices)
 	}
 	MadeChanges = 1;
 	MadeMapChanges = 1;
+#endif
 }
 
 
@@ -504,8 +511,9 @@ void FlipLineDefs ( SelPtr obj, bool swapvertices)
    split one or more LineDefs in two, adding new Vertices in the middle
 */
 
-void SplitLineDefs ( SelPtr obj)
+void SplitLineDefs(SelPtr obj)
 {
+#if 0  // FIXME: SplitLineDefs
 	SelPtr cur;
 
 	for (cur = obj; cur; cur = cur->next)
@@ -518,6 +526,7 @@ void SplitLineDefs ( SelPtr obj)
 	}
 	MadeChanges = 1;
 	MadeMapChanges = 1;
+#endif
 }
 
 
@@ -536,6 +545,7 @@ void SplitLineDefs ( SelPtr obj)
  */
 void MakeRectangularNook (SelPtr obj, int width, int depth, int convex)
 {
+#if 0  // FIXME: MakeRectangularNook
 	SelPtr cur;
 
 	for (cur = obj; cur; cur = cur->next)
@@ -588,6 +598,7 @@ void MakeRectangularNook (SelPtr obj, int width, int depth, int convex)
 		MadeChanges = 1;
 		MadeMapChanges = 1;
 	}
+#endif
 }
 
 
@@ -637,6 +648,7 @@ static void SliceLinedef (int linedefno, int times)
  */
 void SetLinedefLength (SelPtr obj, int length, int move_2nd_vertex)
 {
+#if 0  // FIXME  SetLinedefLength
 	SelPtr cur;
 
 	for (cur = obj; cur; cur = cur->next)
@@ -661,6 +673,7 @@ void SetLinedefLength (SelPtr obj, int length, int move_2nd_vertex)
 		MadeChanges = 1;
 		MadeMapChanges = 1;
 	}
+#endif
 }
 
 
@@ -680,6 +693,8 @@ void SetLinedefLength (SelPtr obj, int length, int move_2nd_vertex)
  */
 void unlink_sidedef (SelPtr linedefs, int side1, int side2)
 {
+#if 0  // FIXME unlink_sidedef
+
 	// Array of NumSideDefs bits that tell whether the
 	// sidedef is used by the linedefs in <linedefs>.
 	bitvec_c sd_used_in (NumSideDefs);
@@ -728,11 +743,13 @@ void unlink_sidedef (SelPtr linedefs, int side1, int side2)
 			{
 				if (side1 && LineDefs[cur->objnum].side_R == n)
 					LineDefs[cur->objnum].side_R = NumSideDefs - 1;
+
 				if (side2 && LineDefs[cur->objnum].side_L == n)
 					LineDefs[cur->objnum].side_L = NumSideDefs - 1;
 			}
 		}
 	}
+#endif
 }
 
 
@@ -765,6 +782,8 @@ bitvec_c *bv_vertices_of_linedefs (SelPtr list)
 {
 	bitvec_c * vertices = new bitvec_c (NumVertices);
 
+	// FIXME !!!!!! bv_vertices_of_linedefs
+#if 0
 	SelPtr cur;
 
 	for (cur = list; cur; cur = cur->next)
@@ -772,6 +791,7 @@ bitvec_c *bv_vertices_of_linedefs (SelPtr list)
 		vertices->set (LineDefs[cur->objnum].start);
 		vertices->set (LineDefs[cur->objnum].end);
 	}
+#endif
 	return vertices;
 }
 
@@ -781,6 +801,7 @@ bitvec_c *bv_vertices_of_linedefs (SelPtr list)
  *  Return a list of all vertices used by the linedefs
  *  It's up to the caller to delete the list after use.
  */
+#if 0  // FIXME
 SelPtr list_vertices_of_linedefs (SelPtr list)
 {
 	bitvec_c * bv = bv_vertices_of_linedefs (list);
@@ -796,6 +817,7 @@ SelPtr list_vertices_of_linedefs (SelPtr list)
 
 	return vertices_list;
 }
+#endif
 
 
 /* The Superimposed_ld class is used to find all the linedefs that are

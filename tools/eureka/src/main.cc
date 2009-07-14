@@ -121,7 +121,6 @@ bool      Quiet       = false;
 bool      Quieter     = false;
 unsigned long scroll_less   = 10;
 unsigned long scroll_more   = 90;
-bool      Select0     = false;
 int       show_help     = 0;
 int       sprite_scale                  = 100;
 bool      SwapButtons     = false;

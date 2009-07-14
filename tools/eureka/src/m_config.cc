@@ -451,14 +451,6 @@ opt_desc_t options[] =    // Description of the command line options
 		&scroll_more
 	},
 
-	{	"select0",
-		"s0",
-		OPT_BOOLEAN,
-		0,
-		"Automatic selection of 0th object",
-		&Select0
-	},
-
 	{	"sprite_scale",
 		0,
 		OPT_INTEGER,

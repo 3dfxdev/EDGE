@@ -46,6 +46,7 @@
  */
 void flip_mirror (SelPtr list, int obj_type, char op)
 {
+#if 0  // FIXME flip_mirror
 	enum { flip, mirror } operation;
 
 	if (op == 'f')
@@ -166,6 +167,7 @@ void flip_mirror (SelPtr list, int obj_type, char op)
 			}
 		}
 	}
+#endif
 }
 
 
@@ -192,6 +194,7 @@ inline void RotateAndScaleCoords (int *x, int *y, double angle, double scale)
 
 void RotateAndScaleObjects (int objtype, SelPtr obj, double angle, double scale)
 {
+#if 0  // FIXME RotateAndScaleObjects
 	int    dx, dy;
 	int    centerx, centery;
 	SelPtr cur, vertices;
@@ -242,6 +245,7 @@ void RotateAndScaleObjects (int objtype, SelPtr obj, double angle, double scale)
 			ForgetSelection (&vertices);
 			break;
 	}
+#endif
 }
 
 
@@ -251,9 +255,9 @@ void RotateAndScaleObjects (int objtype, SelPtr obj, double angle, double scale)
  *  Return the coordinates of the centre of a group of objects
  *  of type <obj_type>.
  */
-void centre_of_objects (int obj_type, SelPtr list, int *x, int *y)
+void centre_of_objects (selection_c * list, int *x, int *y)
 {
-	switch (obj_type)
+	switch (list->what_type())
 	{
 		case OBJ_LINEDEFS:
 			centre_of_linedefs (list, x, y);
@@ -268,7 +272,7 @@ void centre_of_objects (int obj_type, SelPtr list, int *x, int *y)
 			centre_of_vertices (list, x, y);
 			break;
 		default:
-			FatalError("coo: bad obj_type %d", obj_type);
+			FatalError("coo: bad obj_type %d", list->what_type);
 	}
 }
 
@@ -282,6 +286,7 @@ void centre_of_objects (int obj_type, SelPtr list, int *x, int *y)
  */
 int exchange_objects_numbers (int obj_type, SelPtr list, bool adjust)
 {
+#if 0  // FIXME exchange_objects_numbers
 	int n1, n2;
 
 	// Must have exactly two objects in the selection
@@ -346,6 +351,7 @@ int exchange_objects_numbers (int obj_type, SelPtr list, bool adjust)
 		}
 	}
 	return 0;
+#endif
 }
 
 

@@ -30,155 +30,137 @@
 
 
 /*
- *  IsSelected - test if an object is in a selection list
- *
- *  FIXME change the identifier
- *  FIXME slow
- */
-bool IsSelected (SelPtr list, int objnum)
-{
-	SelPtr cur;
-
-	for (cur = list; cur; cur = cur->next)
-		if (cur->objnum == objnum)
-			return true;
-	return false;
-}
-
-
-/*
  *  DumpSelection - list the contents of a selection
  *
- *  FIXME change the identifier
  */
-void DumpSelection (SelPtr list)
+void DumpSelection (selection_c * list)
 {
-	int n;
-	SelPtr cur;
+	SYS_ASSERT(list);
 
-	printf ("Selection:");
-	for (n = 0, cur = list; cur; cur = cur->next, n++)
-		printf (" %d", cur->objnum);
-	printf ("  (%d)\n", n);
+	printf("Selection:");
+
+	selection_iterator_c it;
+
+	for (list->begin(&it); ! it.at_end(); ++it)
+		printf(" %d", *it);
+
+	printf("\n");
 }
 
 
-/*
- *  SelectObject - add an object to a selection list
- *
- *  FIXME change the identifier
- */
-void SelectObject (SelPtr *list, int objnum)
-{
-	SelPtr cur;
-
-	if (! is_obj (objnum))
-		FatalError("BUG: SelectObject called with %d", objnum);
-	cur = (SelPtr) GetMemory (sizeof (struct SelectionList));
-	cur->next = *list;
-	cur->objnum = objnum;
-	*list = cur;
-}
-
-
-/*
- *  select_unselect_obj - add or remove an object from a selection list
- *
- *  If the object is not in the selection list, add it.  If
- *  it already is, remove it.
- */
-void select_unselect_obj (SelPtr *list, int objnum)
-{
-	SelPtr cur;
-	SelPtr prev;
-
-	if (! is_obj (objnum))
-		FatalError("s/u_obj called with %d", objnum);
-	for (prev = NULL, cur = *list; cur != NULL; prev = cur, cur = cur->next)
-		// Already selected: unselect it.
-		if (cur->objnum == objnum)
-		{
-			if (prev != NULL)
-				prev->next = cur->next;
-			else
-				*list = cur->next;
-			FreeMemory (cur);
-			if (prev != NULL)
-				cur = prev->next;
-			else
-				cur = (SelPtr) NULL;
-			return;
-		}
-
-	// Not selected: select it.
-	cur = (SelPtr) GetMemory (sizeof (struct SelectionList));
-	cur->next = *list;
-	cur->objnum = objnum;
-	*list = cur;
-}
-
-
-/*
- *  UnSelectObject - remove an object from a selection list
- *
- *  FIXME change the identifier
- */
-void UnSelectObject (SelPtr *list, int objnum)
-{
-	SelPtr cur, prev;
-
-	if (! is_obj (objnum))
-		FatalError("BUG: UnSelectObject called with %d", objnum);
-	prev = 0;
-	cur = *list;
-	while (cur)
-	{
-		if (cur->objnum == objnum)
-		{
-			if (prev)
-				prev->next = cur->next;
-			else
-				*list = cur->next;
-			FreeMemory (cur);
-			if (prev)
-				cur = prev->next;
-			else
-				cur = 0;
-		}
-		else
-		{
-			prev = cur;
-			cur = cur->next;
-		}
-	}
-}
-
-
-/*
- *  ForgetSelection - clear a selection list
- *
- *  FIXME change the identifier
- */
-void ForgetSelection (SelPtr *list)
-{
-	SelPtr cur, prev;
-
-	cur = *list;
-	while (cur)
-	{
-		prev = cur;
-		cur = cur->next;
-		FreeMemory (prev);
-	}
-	*list = 0;
-}
+///---/*
+///--- *  SelectObject - add an object to a selection list
+///--- *
+///--- */
+///---void SelectObject (selection_c *list, int objnum)
+///---{
+///---	SYS_ASSERT(list);
+///---
+///---	if (! is_obj(objnum))
+///---		FatalError("BUG: SelectObject called with %d", objnum);
+///---
+///---	list->set(objnum);
+///---}
+///---
+///---
+///---/*
+///--- *  select_unselect_obj - add or remove an object from a selection list
+///--- *
+///--- *  If the object is not in the selection list, add it.  If
+///--- *  it already is, remove it.
+///--- */
+///---void select_unselect_obj (SelPtr *list, int objnum)
+///---{
+///---	SelPtr cur;
+///---	SelPtr prev;
+///---
+///---	if (! is_obj (objnum))
+///---		FatalError("s/u_obj called with %d", objnum);
+///---	for (prev = NULL, cur = *list; cur != NULL; prev = cur, cur = cur->next)
+///---		// Already selected: unselect it.
+///---		if (cur->objnum == objnum)
+///---		{
+///---			if (prev != NULL)
+///---				prev->next = cur->next;
+///---			else
+///---				*list = cur->next;
+///---			FreeMemory (cur);
+///---			if (prev != NULL)
+///---				cur = prev->next;
+///---			else
+///---				cur = (SelPtr) NULL;
+///---			return;
+///---		}
+///---
+///---	// Not selected: select it.
+///---	cur = (SelPtr) GetMemory (sizeof (struct SelectionList));
+///---	cur->next = *list;
+///---	cur->objnum = objnum;
+///---	*list = cur;
+///---}
+///---
+///---
+///---/*
+///--- *  UnSelectObject - remove an object from a selection list
+///--- *
+///--- *  FIXME change the identifier
+///--- */
+///---void UnSelectObject (SelPtr *list, int objnum)
+///---{
+///---	SelPtr cur, prev;
+///---
+///---	if (! is_obj (objnum))
+///---		FatalError("BUG: UnSelectObject called with %d", objnum);
+///---	prev = 0;
+///---	cur = *list;
+///---	while (cur)
+///---	{
+///---		if (cur->objnum == objnum)
+///---		{
+///---			if (prev)
+///---				prev->next = cur->next;
+///---			else
+///---				*list = cur->next;
+///---			FreeMemory (cur);
+///---			if (prev)
+///---				cur = prev->next;
+///---			else
+///---				cur = 0;
+///---		}
+///---		else
+///---		{
+///---			prev = cur;
+///---			cur = cur->next;
+///---		}
+///---	}
+///---}
+///---
+///---
+///---/*
+///--- *  ForgetSelection - clear a selection list
+///--- *
+///--- *  FIXME change the identifier
+///--- */
+///---void ForgetSelection (SelPtr *list)
+///---{
+///---	SelPtr cur, prev;
+///---
+///---	cur = *list;
+///---	while (cur)
+///---	{
+///---		prev = cur;
+///---		cur = cur->next;
+///---		FreeMemory (prev);
+///---	}
+///---	*list = 0;
+///---}
 
 
 /*
    select all objects inside a given box
    */
 
-void SelectObjectsInBox (SelPtr *list, int objtype, int x0, int y0, int x1, int y1)
+void SelectObjectsInBox (selection_c *list, int objtype, int x0, int y0, int x1, int y1)
 {
 	int n, m;
 
@@ -202,14 +184,14 @@ void SelectObjectsInBox (SelPtr *list, int objtype, int x0, int y0, int x1, int 
 			for (n = 0; n < NumThings; n++)
 				if (Things[n].x >= x0 && Things[n].x <= x1
 						&& Things[n].y >= y0 && Things[n].y <= y1)
-					select_unselect_obj (list, n);
+					ToggleObject (list, n);
 			break;
 		case OBJ_VERTICES:
 
 			for (n = 0; n < NumVertices; n++)
 				if (Vertices[n].x >= x0 && Vertices[n].x <= x1
 						&& Vertices[n].y >= y0 && Vertices[n].y <= y1)
-					select_unselect_obj (list, n);
+					ToggleObject (list, n);
 			break;
 		case OBJ_LINEDEFS:
 
@@ -224,7 +206,7 @@ void SelectObjectsInBox (SelPtr *list, int objtype, int x0, int y0, int x1, int 
 				if (Vertices[m].x < x0 || Vertices[m].x > x1
 						|| Vertices[m].y < y0 || Vertices[m].y > y1)
 					continue;
-				select_unselect_obj (list, n);
+				ToggleObject (list, n);
 			}
 			break;
 		case OBJ_SECTORS:
@@ -298,12 +280,11 @@ void SelectObjectsInBox (SelPtr *list, int objtype, int x0, int y0, int x1, int 
  */
 bitvec_c *list_to_bitvec (SelPtr list, size_t bitvec_size)
 {
-	SelPtr cur;
-	bitvec_c *bitvec;
+	bitvec_c *bitvec = new bitvec_c (bitvec_size);
 
-	bitvec = new bitvec_c (bitvec_size);
-	for (cur = list; cur; cur = cur->next)
-		bitvec->set (cur->objnum);
+//!!!!!!	for (cur = list; cur; cur = cur->next)
+//!!!!!!		bitvec->set (cur->objnum);
+
 	return bitvec;
 }
 
@@ -315,6 +296,7 @@ bitvec_c *list_to_bitvec (SelPtr list, size_t bitvec_size)
  *  (i.e. item N in the bitvec is inserted before item N+1).
  *  It's up to the caller to delete the new list after use.
  */
+#if 0
 SelPtr bitvec_to_list(const bitvec_c &bv)
 {
 	SelPtr list = 0;
@@ -323,6 +305,7 @@ SelPtr bitvec_to_list(const bitvec_c &bv)
 			SelectObject(&list, n);
 	return list;
 }
+#endif
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

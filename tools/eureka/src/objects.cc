@@ -408,8 +408,10 @@ void DeleteObject(const Objid& obj)
  *  The object is inserted at the exact coordinates given.
  *  No snapping to grid is done.
  */
-void InsertObject(obj_type_t objtype, obj_no_t copyfrom, int xpos, int ypos)
+int InsertObject(obj_type_t objtype, obj_no_t copyfrom, int xpos, int ypos)
 {
+	MadeChanges = 1;
+
 	switch (objtype)
 	{
 		case OBJ_THINGS:
@@ -436,8 +438,9 @@ void InsertObject(obj_type_t objtype, obj_no_t copyfrom, int xpos, int ypos)
 				T->angle = 0;
 				T->options = 0x07;
 			}
+
+			return objnum;
 		}
-		break;
 
 		case OBJ_VERTICES:
 		{
@@ -454,8 +457,9 @@ void InsertObject(obj_type_t objtype, obj_no_t copyfrom, int xpos, int ypos)
 			if (ypos > MapMaxY) MapMaxY = ypos;
 
 			MadeMapChanges = 1;
+
+			return objnum;
 		}
-		break;
 
 		case OBJ_LINEDEFS:
 		{
@@ -480,8 +484,9 @@ void InsertObject(obj_type_t objtype, obj_no_t copyfrom, int xpos, int ypos)
 
 			L->side_R = OBJ_NO_NONE;
 			L->side_L = OBJ_NO_NONE;
+
+			return objnum;
 		}
-		break;
 
 		case OBJ_SIDEDEFS:
 		{
@@ -507,9 +512,11 @@ void InsertObject(obj_type_t objtype, obj_no_t copyfrom, int xpos, int ypos)
 				strcpy(S->lower_tex, "-");
 				strcpy(S->mid_tex, default_middle_texture);
 			}
+			
 			MadeMapChanges = 1;
+
+			return objnum;
 		}
-		break;
 
 		case OBJ_SECTORS:
 		{
@@ -537,14 +544,15 @@ void InsertObject(obj_type_t objtype, obj_no_t copyfrom, int xpos, int ypos)
 				strncpy(S->floor_tex, default_floor_texture, WAD_FLAT_NAME);
 				strncpy(S->ceil_tex,  default_ceiling_texture, WAD_FLAT_NAME);
 			}
+
+			return objnum;
 		}
-		break;
 
 		default:
 			nf_bug ("InsertObject: bad objtype %d", (int) objtype);
 	}
 
-	MadeChanges = 1;
+	return OBJ_NO_NONE;  /* NOT REACHED */
 }
 
 
@@ -763,15 +771,16 @@ int GetOppositeSector (int ld1, bool firstside)
 
 /*
    copy a group of objects to a new position
-   */
-void CopyObjects (int objtype, SelPtr obj)
+*/
+void CopyObjects(selection_c *list)
 {
+#if 0  // FIXME !!!!! CopyObjects
 	int        n, m;
 	SelPtr     cur;
 	SelPtr     list1, list2;
 	SelPtr     ref1, ref2;
 
-	if (! obj)
+	if (list->empty())
 		return;
 
 	/* copy the object(s) */
@@ -935,12 +944,14 @@ void CopyObjects (int objtype, SelPtr obj)
 			ForgetSelection (&list2);
 			break;
 	}
+#endif
 }
 
 
 
 /*
  *  MoveObjectsToCoords
+ *
  *  Move a group of objects to a new position
  *
  *  You must first call it with obj == NULL and newx and newy
@@ -952,8 +963,9 @@ void CopyObjects (int objtype, SelPtr obj)
  *
  *  Returns <>0 iff an object was moved.
  */
-bool MoveObjectsToCoords ( int objtype, SelPtr obj, int newx, int newy, int grid)
+bool MoveObjectsToCoords (int objtype, SelPtr obj, int newx, int newy, int grid)
 {
+#if 0  // FIXME !!!!!
 	int        dx, dy;
 	SelPtr     cur, vertices;
 	static int refx, refy; /* previous position */
@@ -1019,6 +1031,9 @@ bool MoveObjectsToCoords ( int objtype, SelPtr obj, int newx, int newy, int grid
 			break;
 	}
 	return true;
+#endif
+
+	return false;
 }
 
 

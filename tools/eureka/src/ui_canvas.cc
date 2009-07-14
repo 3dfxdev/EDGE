@@ -28,7 +28,6 @@
 #include "r_grid.h"
 #include "im_color.h"
 #include "levels.h"
-#include "objects.h"
 #include "r_render.h"
 #include "selectn.h"
 
@@ -187,7 +186,7 @@ void UI_Canvas::DrawEverything()
 {
 	DrawMap(); 
 
-	HighlightSelection (edit.obj_type, edit.Selected); // FIXME should be widgetized
+	HighlightSelection(edit.Selected); // FIXME should be widgetized
 
 	if (highlight())
 		HighlightObject(highlight.type, highlight.num, YELLOW);
@@ -835,15 +834,15 @@ void UI_Canvas::HighlightObject (int objtype, int objnum, Fl_Color colour)
 /*
    highlight the selected objects
 */
-void UI_Canvas::HighlightSelection (int objtype, SelPtr list)
+void UI_Canvas::HighlightSelection(selection_c * list)
 {
-	SelPtr cur;
-
 	if (! list)
 		return;
 
-	for (cur = list; cur; cur = cur->next)
-		HighlightObject(objtype, cur->objnum, fl_rgb_color(255,192,128));
+	selection_iterator_c it;
+
+	for (list->begin(&it); !it.at_end(); ++it)
+		HighlightObject(list->what_type(), *it, fl_rgb_color(255,192,128));
 }
 
 

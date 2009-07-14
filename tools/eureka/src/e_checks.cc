@@ -442,7 +442,7 @@ void CheckCrossReferences ()
 					"Do you want to delete the redundant linedefs?")))
 		DeleteObjects (OBJ_LINEDEFS, &cur);
 	else
-		ForgetSelection (&cur);
+		{ delete cur; cur = NULL; }
 
 	CheckingObjects ();
 	/* check for invalid flags in the linedefs */
@@ -460,7 +460,7 @@ void CheckCrossReferences ()
 			UnSelectObject (&cur, cur->objnum);
 		}
 	else
-		ForgetSelection (&cur);
+		{ delete cur; cur = NULL; }
 
 	CheckingObjects ();
 	for (n = 0; n < NumLineDefs; n++)
@@ -480,7 +480,7 @@ void CheckCrossReferences ()
 		}
 	}
 	else
-		ForgetSelection (&cur);
+		{ delete cur; cur = NULL; }
 
 	CheckingObjects ();
 	for (n = 0; n < NumLineDefs; n++)
@@ -499,7 +499,7 @@ void CheckCrossReferences ()
 		}
 	}
 	else
-		ForgetSelection (&cur);
+		{ delete cur; cur = NULL; }
 
 	CheckingObjects ();
 	/* select all Vertices */
@@ -526,7 +526,7 @@ void CheckCrossReferences ()
 
 	}
 	else
-		ForgetSelection (&cur);
+		{ delete cur; cur = NULL; }
 
 	CheckingObjects ();
 	/* select all SideDefs */
@@ -550,7 +550,7 @@ void CheckCrossReferences ()
 					"Do you want to delete these unused sidedefs?")))
 		DeleteObjects (OBJ_SIDEDEFS, &cur);
 	else
-		ForgetSelection (&cur);
+		{ delete cur; cur = NULL; }
 
 	CheckingObjects ();
 	/* select all Sectors */
@@ -578,7 +578,7 @@ void CheckCrossReferences ()
 					"Do you want to delete these unused sectors?")))
 		DeleteObjects (OBJ_SECTORS, &cur);
 	else
-		ForgetSelection (&cur);
+		{ delete cur; cur = NULL; }
 }
 
 

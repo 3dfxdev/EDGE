@@ -62,8 +62,9 @@ public:
 	void HighlightSet(Objid& obj);
 	void HighlightForget();
 
-	void HighlightObject (int objtype, int objnum, Fl_Color colour);
-	void HighlightSelection (int objtype, SelPtr list);
+	void HighlightObject(int objtype, int objnum, Fl_Color colour);
+
+	void HighlightSelection(selection_c *list);
 
 	void SelboxBegin(int mapx, int mapy);
 	void SelboxDrag(int mapx, int mapy);

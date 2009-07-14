@@ -75,16 +75,22 @@
 #include "sys_assert.h"
 
 
+typedef int  SelPtr;   // TEMPORARY FIXME
+
+
 typedef enum
 {
-  BOP_ADD = 0,   // Add to selection
-  BOP_REMOVE,    // Remove from selection
-  BOP_TOGGLE     // If not in selection, add; else, remove
+	BOP_ADD = 0,   // Add to selection
+	BOP_REMOVE,    // Remove from selection
+	BOP_TOGGLE     // If not in selection, add; else, remove
 }
 sel_op_e;
 
 
+#include "objid.h"
 #include "m_bitvec.h"  /* bv_set, bv_clear, bv_toggle */
+#include "m_select.h"
+
 #include "yutil.h"
 #include "ymemory.h"
 
@@ -178,8 +184,8 @@ struct Lump_loc
 /*
  *  More stuff
  */
-// The actual definition is in selectn.h
-typedef struct SelectionList *SelPtr;
+
+
 // Operations on the selection :
 
 #include "objects.h"
@@ -187,12 +193,13 @@ typedef struct SelectionList *SelPtr;
 
 // Confirmation options are stored internally this way :
 typedef enum
-   {
+{
    YC_YES      = 'y',
    YC_NO       = 'n',
    YC_ASK      = 'a',
    YC_ASK_ONCE = 'o'
-   } confirm_t;
+}
+confirm_t;
 
 // Bit bashing operations
 const int YO_AND    = 'a';  // Argument = mask
@@ -284,7 +291,6 @@ extern bool  Quiet;   // Don't beep when an object is selected
 extern bool  Quieter;   // Don't beep, even on error
 extern unsigned long scroll_less;// %s of screenful to scroll by
 extern unsigned long scroll_more;// %s of screenful to scroll by
-extern bool  Select0;   // Autom. select obj. 0 when switching modes
 extern int   show_help;   // Print usage message and exit.
 extern int   sprite_scale;  // Relative scale used to display sprites
 extern bool  SwapButtons; // Swap right and middle mouse buttons

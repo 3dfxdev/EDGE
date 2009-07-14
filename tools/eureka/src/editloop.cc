@@ -175,9 +175,14 @@ static int zoom_fit ()
 
 static void ConvertSelection(int prev_obj_type)
 {
-	if (! edit.Selected)
+	if (true) // edit.Selected->empty())
+	{
+		edit.Selected->change_type(edit.obj_type);
 		return;
+	}
 
+// FIXME FIXME
+#if 0  
 	SelPtr NewSel = 0;
 
 	/* select all linedefs bound to the selected sectors */
@@ -197,7 +202,6 @@ static void ConvertSelection(int prev_obj_type)
 					SelectObject (&NewSel, l);
 			}
 		}
-		ForgetSelection (&edit.Selected);
 		edit.Selected = NewSel;
 	}
 	/* select all Vertices bound to the selected linedefs */
@@ -234,7 +238,6 @@ static void ConvertSelection(int prev_obj_type)
 				if (sd >= 0)
 					UnSelectObject (&NewSel, SideDefs[sd].sector);
 			}
-		ForgetSelection (&edit.Selected);
 		edit.Selected = NewSel;
 	}
 	/* select all linedefs that have both ends selected */
@@ -246,12 +249,9 @@ static void ConvertSelection(int prev_obj_type)
 			if (IsSelected (edit.Selected, LineDefs[l].start)
 					&& IsSelected (edit.Selected, LineDefs[l].end))
 				SelectObject (&NewSel, l);
-		ForgetSelection (&edit.Selected);
 		edit.Selected = NewSel;
 	}
-	/* unselect all */
-	else
-		ForgetSelection (&edit.Selected);
+#endif
 }
 
 static void HighlightObj(Objid& obj)
@@ -268,11 +268,16 @@ static void HighlightObj(Objid& obj)
 	else
 		main_win->canvas->HighlightForget();
 
+	// choose object to show in right-hand Panel
 	int obj_idx = obj.num;
 
-	if (obj.is_nil() && edit.Selected)
+	if (obj.is_nil() && edit.Selected->notempty())
 	{
-		obj_idx = edit.Selected->objnum;
+		selection_iterator_c it;
+
+		edit.Selected->begin(&it);
+
+		obj_idx = *it;
 	}
 
 	switch (h_type)
@@ -293,7 +298,7 @@ static void HighlightObj(Objid& obj)
 			main_win->vert_box->SetObj(obj_idx);
 			break;
 
-			//!!!!!!
+			//!!!!!! FIXME
 		default: break;
 	}
 }
@@ -320,7 +325,8 @@ void EditorKey(int is_key, bool is_shift)
 	else if (is_key == FL_Escape || is_key == 'q')
 	{
 		{
-			ForgetSelection (&edit.Selected);
+			edit.Selected->clear_all();
+
 			if (!MadeChanges
 					|| Confirm (-1, -1, "You have unsaved changes."
 						" Do you really want to quit?", 0))
@@ -617,13 +623,7 @@ cancel_save_as:
 
 		ConvertSelection(prev_obj_type);
 
-		if (GetMaxObjectNum (edit.obj_type) >= 0 && Select0)
-		{
-			edit.highlighted.type = edit.obj_type;
-			edit.highlighted.num  = 0;
-		}
-		else
-			edit.highlighted.nil ();
+		edit.highlighted.nil ();
 
 		edit.RedrawMap = 1;
 	}
@@ -631,7 +631,8 @@ cancel_save_as:
 	// [e]: Select/unselect all linedefs in non-forked path
 	else if (is_key == 'e' && edit.highlighted._is_linedef ())
 	{
-		ForgetSelection (&edit.Selected);
+		edit.Selected->clear_all();
+		
 		select_linedefs_path (&edit.Selected, edit.highlighted.num, BOP_ADD);
 		edit.RedrawMap = 1;
 	}
@@ -647,14 +648,14 @@ cancel_save_as:
 	{
 		if (edit.Selected)
 		{
-			MiscOperations (edit.obj_type, &edit.Selected, 5);
+///!!!!!		MiscOperations (edit.obj_type, &edit.Selected, 5);
 			edit.RedrawMap = 1;
 		}
 	}
 	// [E]: Select/unselect all 1s linedefs in path
 	else if (is_key == 'E' && edit.highlighted._is_linedef ())
 	{
-		ForgetSelection (&edit.Selected);
+		edit.Selected->clear_all();
 		select_1s_linedefs_path (&edit.Selected, edit.highlighted.num, BOP_ADD);
 		edit.RedrawMap = 1;
 	}
@@ -836,7 +837,7 @@ cancel_save_as:
 	// [c]: clear selection and redraw the map
 	else if (is_key == 'c')
 	{
-		ForgetSelection (&edit.Selected);
+		edit.Selected->clear_all();
 		edit.RedrawMap = 1;
 	}
 #endif
@@ -848,8 +849,9 @@ cancel_save_as:
 		int x, y;
 
 		/* copy the object(s) */
-		if (! edit.Selected)
-			SelectObject (&edit.Selected, edit.highlighted.num);
+		if (edit.Selected->empty())
+			SelectObject (edit.Selected, edit.highlighted.num);
+
 		CopyObjects (edit.obj_type, edit.Selected);
 		/* enter drag mode */
 		/* AYM 19980619 : got to look into this!! */
@@ -873,11 +875,11 @@ cancel_save_as:
 	else if (is_key == 'w' && edit.obj_type == OBJ_THINGS
 			&& (edit.Selected || edit.highlighted ()))
 	{
-		if (! edit.Selected)
+		if (edit.Selected->empty())
 		{
-			SelectObject (&edit.Selected, edit.highlighted.num);
+			SelectObject (edit.Selected, edit.highlighted.num);
 			spin_things (edit.Selected, 45);
-			UnSelectObject (&edit.Selected, edit.highlighted.num);
+			UnSelectObject (edit.Selected, edit.highlighted.num);
 		}
 		else
 		{
@@ -891,7 +893,7 @@ cancel_save_as:
 			&& edit.Selected && edit.Selected->next && ! edit.Selected->next->next)
 	{
 		SplitLineDefsAndSector (edit.Selected->next->objnum, edit.Selected->objnum);
-		ForgetSelection (&edit.Selected);
+		edit.Selected->clear_all();
 		edit.RedrawMap = 1;
 	}
 
@@ -900,7 +902,7 @@ cancel_save_as:
 			&& edit.Selected && edit.Selected->next && ! edit.Selected->next->next)
 	{
 		SplitSector (edit.Selected->next->objnum, edit.Selected->objnum);
-		ForgetSelection (&edit.Selected);
+		edit.Selected->clear_all();
 		edit.RedrawMap = 1;
 	}
 
@@ -908,11 +910,11 @@ cancel_save_as:
 	else if (is_key == 'x' && edit.obj_type == OBJ_THINGS
 			&& (edit.Selected || edit.highlighted ()))
 	{
-		if (! edit.Selected)
+		if (edit.Selected->empty())
 		{
-			SelectObject (&edit.Selected, edit.highlighted.num);
+			SelectObject (edit.Selected, edit.highlighted.num);
 			spin_things (edit.Selected, -45);
-			UnSelectObject (&edit.Selected, edit.highlighted.num);
+			UnSelectObject (edit.Selected, edit.highlighted.num);
 		}
 		else
 		{
@@ -925,7 +927,7 @@ cancel_save_as:
 	else if (is_key == 'x' && edit.obj_type == OBJ_LINEDEFS
 			&& (edit.Selected || edit.highlighted ()))
 	{
-		if (! edit.Selected)
+		if (edit.Selected->empty())
 		{
 			SelectObject (&edit.Selected, edit.highlighted.num);
 			SplitLineDefs (edit.Selected);
@@ -959,7 +961,7 @@ cancel_save_as:
 			&& edit.Selected && edit.Selected->next && ! edit.Selected->next->next)
 	{
 		sector_slice (edit.Selected->next->objnum, edit.Selected->objnum);
-		ForgetSelection (&edit.Selected);
+		edit.Selected->clear_all();
 		edit.RedrawMap = 1;
 	}
 
@@ -990,6 +992,8 @@ cancel_save_as:
 	}
 
 	// [Ins]: insert a new object
+	// !!!!! FIXME !!!!! FIXME
+#if 0 
 	else if (is_key == 'I' || is_key == FL_Insert + FL_SHIFT) /* 'Ins' */
 	{
 		SelPtr cur;
@@ -1109,14 +1113,14 @@ cancel_save_as:
 					else
 						LineDefs[cur->objnum].side_R = NumSideDefs - 1;
 				}
-				ForgetSelection (&edit.Selected);
+				edit.Selected->clear_all();
 				SelectObject (&edit.Selected, edit.highlighted.num);
 			}
 		}
 		/* normal case: add a new object of the current type */
 		else
 		{
-			ForgetSelection (&edit.Selected);
+			edit.Selected->clear_all();
 			/* FIXME how do you insert a new object of type T if
 			   no object of that type already exists ? */
 			obj_type_t t = edit.highlighted () ? edit.highlighted.type : edit.obj_type;
@@ -1147,7 +1151,7 @@ cancel_save_as:
 				SelectObject (&edit.Selected, edit.highlighted.num);
 				if (AutoMergeVertices (&edit.Selected, edit.obj_type, 'i'))
 					edit.RedrawMap = 1;
-				ForgetSelection (&edit.Selected);
+				edit.Selected->clear_all();
 			}
 		}
 
@@ -1158,6 +1162,7 @@ cancel_save_as:
 
 		edit.RedrawMap = 1;
 	}
+#endif
 
 	// [Z] Set sector on surrounding linedefs (AJA)
 	else if (is_key == 'Z' && edit.pointer_in_window) 
@@ -1193,6 +1198,7 @@ cancel_save_as:
 	else if (is_key == 'T' && edit.Selected 
 			&& edit.highlighted.num >= 0)
 	{
+#if 0
 		switch (edit.obj_type)
 		{
 			case OBJ_SECTORS:
@@ -1211,6 +1217,7 @@ cancel_save_as:
 				Beep ();
 				break;
 		}
+#endif
 	}
 
 
@@ -1278,120 +1285,120 @@ cancel_save_as:
 
 void EditorMousePress(bool is_ctrl)
 {
-fprintf(stderr, "MOUSE PRESS !!!\n");
+	fprintf(stderr, "MOUSE PRESS !!!\n");
 
-  is_butl = true;
+	is_butl = true;
 
-   /* Clicking on an empty space starts a new selection box.
-      Unless [Ctrl] is pressed, it also clears the current selection. */
-  if (true
-      && object.is_nil ())
-  {
-    edit.clicked    = CANVAS;
-    edit.click_ctrl = is_ctrl;
+	/* Clicking on an empty space starts a new selection box.
+	   Unless [Ctrl] is pressed, it also clears the current selection. */
+	if (true
+			&& object.is_nil ())
+	{
+		edit.clicked    = CANVAS;
+		edit.click_ctrl = is_ctrl;
 
-    if (! is_ctrl)
-    {
-      ForgetSelection (&edit.Selected);
-      edit.RedrawMap = 1;
-    }
+		if (! is_ctrl)
+		{
+			edit.Selected->clear_all();
+			edit.RedrawMap = 1;
+		}
 
-	main_win->canvas->SelboxBegin(edit.map_x, edit.map_y);
+		main_win->canvas->SelboxBegin(edit.map_x, edit.map_y);
 
-///---    edit.selbox->set_1st_corner ;
-///---    edit.selbox->set_2nd_corner (edit.map_x, edit.map_y);
-///---  main_win->canvas->redraw();
-    return;
-  }
+		///---    edit.selbox->set_1st_corner ;
+		///---    edit.selbox->set_2nd_corner (edit.map_x, edit.map_y);
+		///---  main_win->canvas->redraw();
+		return;
+	}
 
-  /* Clicking on an unselected object unselects
-     everything but that object. Additionally,
-     we write the number of the object in case
-     the user is about to drag it. */
-  if (! is_ctrl
-      && ! IsSelected (edit.Selected, object.num))
-  {
-    edit.clicked        = object;
-    edit.click_ctrl     = 0;
-    edit.click_time     = 0; // is.time;
-    
-    //@@@@@
-    // if (edit.Selected == NOTHING)
-    
-    ForgetSelection (&edit.Selected);
-    SelectObject (&edit.Selected, object.num);
+	/* Clicking on an unselected object unselects
+	   everything but that object. Additionally,
+	   we write the number of the object in case
+	   the user is about to drag it. */
+	if (! is_ctrl
+			&& ! IsSelected (edit.Selected, object.num))
+	{
+		edit.clicked        = object;
+		edit.click_ctrl     = 0;
+		edit.click_time     = 0; // is.time;
 
-    /* I don't like having to do that */
-    if (object.type == OBJ_THINGS && object ())
-      MoveObjectsToCoords (object.type, 0,
-          Things[object.num].x, Things[object.num].y, 0);
-    else if (object.type == OBJ_VERTICES && object ())
-      MoveObjectsToCoords (object.type, 0,
-          Vertices[object.num].x, Vertices[object.num].y, 0);
-    else
-      MoveObjectsToCoords (object.type, 0,
-          edit.map_x, edit.map_y, grid.snap ? grid.step : 0);
-    edit.RedrawMap = 1;
+		//@@@@@
+		// if (edit.Selected == NOTHING)
 
-main_win->canvas->redraw();
-    return;
-  }
+		edit.Selected->clear_all();
+		SelectObject (&edit.Selected, object.num);
+
+		/* I don't like having to do that */
+		if (object.type == OBJ_THINGS && object ())
+			MoveObjectsToCoords (object.type, 0,
+					Things[object.num].x, Things[object.num].y, 0);
+		else if (object.type == OBJ_VERTICES && object ())
+			MoveObjectsToCoords (object.type, 0,
+					Vertices[object.num].x, Vertices[object.num].y, 0);
+		else
+			MoveObjectsToCoords (object.type, 0,
+					edit.map_x, edit.map_y, grid.snap ? grid.step : 0);
+		edit.RedrawMap = 1;
+
+		main_win->canvas->redraw();
+		return;
+	}
 
 #if 0  /* Second click of a double click on an object */
-  if (! is_ctrl
-      && IsSelected (edit.Selected, object.num)
-      && object  == edit.clicked
-      && is.time - edit.click_time <= (unsigned long) double_click_timeout)
-  {
-    // Very important! If you don't do that, the release of the
-    // click that closed the properties menu will drag the object.
-    edit.clicked.nil ();
-    send_event (YK_RETURN);
+	if (! is_ctrl
+			&& IsSelected (edit.Selected, object.num)
+			&& object  == edit.clicked
+			&& is.time - edit.click_time <= (unsigned long) double_click_timeout)
+	{
+		// Very important! If you don't do that, the release of the
+		// click that closed the properties menu will drag the object.
+		edit.clicked.nil ();
+		send_event (YK_RETURN);
 
-main_win->canvas->redraw();
-    return;
-  }
+		main_win->canvas->redraw();
+		return;
+	}
 #endif
 
-  /* Clicking on a selected object does nothing ;
-     the user might want to drag the selection. */
-  if (! is_ctrl
-      && IsSelected (edit.Selected, object.num))
-  {
-    edit.clicked        = object;
-    edit.click_ctrl     = 0;
-    edit.click_time     = 0; /// is.time;
-    /* I don't like having to do that */
-    if (object.type == OBJ_THINGS && object ())
-      MoveObjectsToCoords (object.type, 0,
-          Things[object.num].x, Things[object.num].y, 0);
-    else if (object.type == OBJ_VERTICES && object ())
-      MoveObjectsToCoords (object.type, 0,
-          Vertices[object.num].x, Vertices[object.num].y, 0);
-    else
-      MoveObjectsToCoords (object.type, 0,
-          edit.map_x, edit.map_y, grid.snap ? grid.step : 0);
+	/* Clicking on a selected object does nothing ;
+	   the user might want to drag the selection. */
+	if (! is_ctrl
+			&& IsSelected (edit.Selected, object.num))
+	{
+		edit.clicked        = object;
+		edit.click_ctrl     = 0;
+		edit.click_time     = 0; /// is.time;
+		/* I don't like having to do that */
+		if (object.type == OBJ_THINGS && object ())
+			MoveObjectsToCoords (object.type, 0,
+					Things[object.num].x, Things[object.num].y, 0);
+		else if (object.type == OBJ_VERTICES && object ())
+			MoveObjectsToCoords (object.type, 0,
+					Vertices[object.num].x, Vertices[object.num].y, 0);
+		else
+			MoveObjectsToCoords (object.type, 0,
+					edit.map_x, edit.map_y, grid.snap ? grid.step : 0);
 
-main_win->canvas->redraw();
-    return;
-  }
+		main_win->canvas->redraw();
+		return;
+	}
 
-  /* Clicking on selected object with [Ctrl] pressed unselects it.
-     Clicking on unselected object with [Ctrl] pressed selects it. */
-  if (is_ctrl
-      && object ())
-  {
-    edit.clicked        = object;
-    edit.click_ctrl     = 1;
-    if (IsSelected (edit.Selected, object.num))
-      UnSelectObject (&edit.Selected, object.num);
-    else
-      SelectObject (&edit.Selected, object.num);
-    edit.RedrawMap = 1;
+	/* Clicking on selected object with [Ctrl] pressed unselects it.
+	   Clicking on unselected object with [Ctrl] pressed selects it. */
+	if (is_ctrl
+			&& object ())
+	{
+		edit.clicked        = object;
+		edit.click_ctrl     = 1;
+		if (IsSelected (edit.Selected, object.num))
+			UnSelectObject (&edit.Selected, object.num);
+		else
+			SelectObject (&edit.Selected, object.num);
+		edit.RedrawMap = 1;
 
-main_win->canvas->redraw();
-    return;
-  }
+		main_win->canvas->redraw();
+		return;
+	}
 
 }
 
@@ -1419,8 +1426,8 @@ void EditorMouseRelease()
 	if (true
 			&& edit.clicked ())
 	{
-		if (AutoMergeVertices (&edit.Selected, edit.obj_type, 'm'))
-			edit.RedrawMap = 1;
+///!!!!!!		if (AutoMergeVertices (&edit.Selected, edit.obj_type, 'm'))
+///!!!!!!			edit.RedrawMap = 1;
 
 		return;
 	}
@@ -1470,13 +1477,14 @@ void EditorMouseMotion(int x, int y, int map_x, int map_y, bool drag)
 			&& ! edit.click_ctrl)
 	{
 		fprintf(stderr, "DRAGGING OBJECT: %d\n", edit.clicked.num);
-		if (! edit.Selected)
+		
+		if (edit.Selected->empty())
 		{
 			SelectObject (&edit.Selected, edit.clicked.num);
 			if (MoveObjectsToCoords (edit.clicked.type, edit.Selected,
 						edit.map_x, edit.map_y, grid.snap ? grid.step : 0))
 				edit.RedrawMap = 1;
-			ForgetSelection (&edit.Selected);
+			edit.Selected->clear_all();
 		}
 		else
 		{
@@ -1600,7 +1608,8 @@ void EditorLoop (const char *_levelname)
     edit.highlighted.nil ();
     //edit.highlight_obj_no    = OBJ_NO_NONE;
     //edit.highlight_obj_type  = -1;
-    edit.Selected            = 0;
+
+    edit.Selected = new selection_c();
 
     MadeChanges = 0;
     MadeMapChanges = 0;
