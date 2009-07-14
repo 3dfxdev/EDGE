@@ -22,8 +22,6 @@
 //
 //------------------------------------------------------------------------
 
-#define YC_THINGS
-
 #include "main.h"
 
 #include "m_game.h"
@@ -51,7 +49,6 @@ thing_attributes_t;
 
 static thing_attributes_t *things_table;
 static size_t nthings;
-int _max_radius;
 static size_t last_table_idx = (size_t) -1;
 
 
@@ -71,7 +68,6 @@ void create_things_table ()
 {
 	size_t n;
 
-	_max_radius = default_radius;
 	nthings = thingdef.size();
 	if (nthings == 0)
 	{
@@ -88,7 +84,6 @@ void create_things_table ()
 		things_table[n].type   = thingdef[n]->number;
 		things_table[n].flags  = thingdef[n]->flags;
 		things_table[n].radius = thingdef[n]->radius;
-		_max_radius = MAX(_max_radius, thingdef[n]->radius);
 
 		///!!!    // Fetch the app colour no. for the thinggroup
 		///!!!    for (al_lrewind (thinggroup); ! al_leol (thinggroup); al_lstep (thinggroup))
@@ -277,21 +272,6 @@ int get_thing_radius (wad_ttype_t type)
 		return things_table[table_idx].radius;
 }
 
-
-/*
- *  get_max_thing_radius
- *  Return the radius of the largest thing that exists.
- *  This is a speedup function, used by GetCurObject()
- *  to avoid calculating the distance for the things
- *  that are obviously too far away.
- */
-
-/* It's now inlined in things.h
-int get_max_thing_radius ()
-{
-return _max_radius;
-}
-*/
 
 
 /*

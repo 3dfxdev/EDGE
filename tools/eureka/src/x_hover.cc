@@ -307,7 +307,9 @@ static const Close_obj& get_cur_thing (int x, int y)
 	static Close_obj closest;
 	const int screenslack = 15;     // Slack in pixels
 	double mapslack = fabs (screenslack / grid.Scale);  // Slack in map units
-	int max_radius = (int) (get_max_thing_radius () + mapslack);
+
+	int max_radius = (int) (MAX_RADIUS + mapslack);
+	
 	int xmin = x - max_radius;
 	int xmax = x + max_radius;
 	int ymin = y - max_radius;
