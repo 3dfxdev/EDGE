@@ -377,7 +377,7 @@ return buf;
 /*
  *  spin_thing - change the angle of things
  */
-void spin_things (SelPtr obj, int degrees)
+void spin_things (selection_c * list, int degrees)
 {
 #if 0  // FIXME spin_things
 	SelPtr cur;

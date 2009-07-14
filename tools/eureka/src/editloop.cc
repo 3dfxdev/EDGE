@@ -633,14 +633,14 @@ cancel_save_as:
 	{
 		edit.Selected->clear_all();
 		
-		select_linedefs_path (&edit.Selected, edit.highlighted.num, BOP_ADD);
+//!!!!!!		select_linedefs_path (&edit.Selected, edit.highlighted.num, BOP_ADD);
 		edit.RedrawMap = 1;
 	}
 
 	// [Ctrl][e] Select/unselect all linedefs in path
 	else if (is_key == '\5' && ! is_shift && edit.highlighted._is_linedef ())
 	{
-		select_linedefs_path (&edit.Selected, edit.highlighted.num, BOP_TOGGLE);
+//!!!!!!		select_linedefs_path (&edit.Selected, edit.highlighted.num, BOP_TOGGLE);
 		edit.RedrawMap = 1;
 	}
 	// [E]: add linedef and split sector -- [AJA]
@@ -656,14 +656,14 @@ cancel_save_as:
 	else if (is_key == 'E' && edit.highlighted._is_linedef ())
 	{
 		edit.Selected->clear_all();
-		select_1s_linedefs_path (&edit.Selected, edit.highlighted.num, BOP_ADD);
+//!!!!!!		select_1s_linedefs_path (&edit.Selected, edit.highlighted.num, BOP_ADD);
 		edit.RedrawMap = 1;
 	}
 
 	// [Ctrl][Shift][e]: Select/unselect all 1s linedefs in path
 	else if (is_key == '\5' && is_shift && edit.highlighted._is_linedef ())
 	{
-		select_1s_linedefs_path (&edit.Selected, edit.highlighted.num, BOP_TOGGLE);
+//!!!!!!		select_1s_linedefs_path (&edit.Selected, edit.highlighted.num, BOP_TOGGLE);
 		edit.RedrawMap = 1;
 	}
 
@@ -852,7 +852,8 @@ cancel_save_as:
 		if (edit.Selected->empty())
 			SelectObject (edit.Selected, edit.highlighted.num);
 
-		CopyObjects (edit.obj_type, edit.Selected);
+		CopyObjects (edit.Selected);
+
 		/* enter drag mode */
 		/* AYM 19980619 : got to look into this!! */
 		//edit.highlight_obj_no = edit.Selected->objnum;
@@ -861,12 +862,12 @@ cancel_save_as:
 		if (edit.highlighted () && ! edit.Selected)
 			GetObjectCoords (edit.highlighted.type, edit.highlighted.num, &x, &y);
 		else
-			centre_of_objects (edit.obj_type, edit.Selected, &x, &y);
+			centre_of_objects (edit.Selected, &x, &y);
 
 		// Drag the object(s) so that the "hotspot" is under the pointer
-		MoveObjectsToCoords (edit.obj_type, 0, x, y, 0);
-		MoveObjectsToCoords (edit.obj_type, edit.Selected,
-				edit.map_x, edit.map_y, 0);
+//!!!!!!		MoveObjectsToCoords (edit.obj_type, 0, x, y, 0);
+//!!!!!!		MoveObjectsToCoords (edit.obj_type, edit.Selected,
+//!!!!!!				edit.map_x, edit.map_y, 0);
 		edit.RedrawMap = 1;
 	}
 
@@ -889,22 +890,22 @@ cancel_save_as:
 	}
 
 	// [w]: split linedefs and sectors
-	else if (is_key == 'w' && edit.obj_type == OBJ_LINEDEFS
-			&& edit.Selected && edit.Selected->next && ! edit.Selected->next->next)
-	{
-		SplitLineDefsAndSector (edit.Selected->next->objnum, edit.Selected->objnum);
-		edit.Selected->clear_all();
-		edit.RedrawMap = 1;
-	}
+//!!!	else if (is_key == 'w' && edit.obj_type == OBJ_LINEDEFS
+//!!!			&& edit.Selected && edit.Selected->next && ! edit.Selected->next->next)
+//!!!	{
+//!!!		SplitLineDefsAndSector (edit.Selected->next->objnum, edit.Selected->objnum);
+//!!!		edit.Selected->clear_all();
+//!!!		edit.RedrawMap = 1;
+//!!!	}
 
-	// [w]: split sector between vertices
-	else if (is_key == 'w' && edit.obj_type == OBJ_VERTICES
-			&& edit.Selected && edit.Selected->next && ! edit.Selected->next->next)
-	{
-		SplitSector (edit.Selected->next->objnum, edit.Selected->objnum);
-		edit.Selected->clear_all();
-		edit.RedrawMap = 1;
-	}
+//!!!	// [w]: split sector between vertices
+//!!!	else if (is_key == 'w' && edit.obj_type == OBJ_VERTICES
+//!!!			&& edit.Selected && edit.Selected->next && ! edit.Selected->next->next)
+//!!!	{
+//!!!		SplitSector (edit.Selected->next->objnum, edit.Selected->objnum);
+//!!!		edit.Selected->clear_all();
+//!!!		edit.RedrawMap = 1;
+//!!!	}
 
 	// [x]: spin things 1/8 turn clockwise
 	else if (is_key == 'x' && edit.obj_type == OBJ_THINGS
@@ -929,58 +930,54 @@ cancel_save_as:
 	{
 		if (edit.Selected->empty())
 		{
-			SelectObject (&edit.Selected, edit.highlighted.num);
-			SplitLineDefs (edit.Selected);
-			UnSelectObject (&edit.Selected, edit.highlighted.num);
+			SelectObject(edit.Selected, edit.highlighted.num);
+//!!!!!			SplitLineDefs(edit.Selected);
+			UnSelectObject(edit.Selected, edit.highlighted.num);
 		}
-		else
-			SplitLineDefs (edit.Selected);
+//!!!!!		else
+//!!!!!			SplitLineDefs (edit.Selected);
 		edit.RedrawMap = 1;
 	}
 
 	// [Ctrl][x]: exchange objects numbers
-	else if (is_key == 24)
-	{
-		if (! edit.Selected
-				|| ! edit.Selected->next
-				|| (edit.Selected->next)->next)
-		{
-			Beep ();
-			Notify (-1, -1, "You must select exactly two objects", 0);
-			edit.RedrawMap = 1;
-		}
-		else
-		{
-			exchange_objects_numbers (edit.obj_type, edit.Selected, true);
-			edit.RedrawMap = 1;
-		}
-	}
+//!!!	else if (is_key == 24)
+//!!!	{
+//!!!		if (! edit.Selected
+//!!!				|| ! edit.Selected->next
+//!!!				|| (edit.Selected->next)->next)
+//!!!		{
+//!!!			Beep ();
+//!!!			Notify (-1, -1, "You must select exactly two objects", 0);
+//!!!			edit.RedrawMap = 1;
+//!!!		}
+//!!!		else
+//!!!		{
+//!!!			exchange_objects_numbers (edit.obj_type, edit.Selected, true);
+//!!!			edit.RedrawMap = 1;
+//!!!		}
+//!!!	}
 
 	// [Ctrl][k]: cut a slice out of a sector
-	else if (is_key == 11 && edit.obj_type == OBJ_LINEDEFS
-			&& edit.Selected && edit.Selected->next && ! edit.Selected->next->next)
-	{
-		sector_slice (edit.Selected->next->objnum, edit.Selected->objnum);
-		edit.Selected->clear_all();
-		edit.RedrawMap = 1;
-	}
+//!!!	else if (is_key == 11 && edit.obj_type == OBJ_LINEDEFS
+//!!!			&& edit.Selected && edit.Selected->next && ! edit.Selected->next->next)
+//!!!	{
+//!!!		sector_slice (edit.Selected->next->objnum, edit.Selected->objnum);
+//!!!		edit.Selected->clear_all();
+//!!!		edit.RedrawMap = 1;
+//!!!	}
 
 	// [Del]: delete the current object
 	else if ((is_key == '\b' || is_key == FL_BackSpace || is_key == FL_Delete)
-			&& (edit.Selected || edit.highlighted ())) /* 'Del' */
+			&& (edit.Selected->notempty() || edit.highlighted ())) /* 'Del' */
 	{
 		if (edit.obj_type == OBJ_THINGS
 				|| Expert
 				|| Confirm (-1, -1,
-					(edit.Selected && edit.Selected->next ?
-					 "Do you really want to delete these objects?"
-					 : "Do you really want to delete this object?"),
-					(edit.Selected && edit.Selected->next ?
-					 "This will also delete the objects bound to them."
-					 : "This will also delete the objects bound to it.")))
+					 "Do you really want to delete this object?",
+					 "This will also delete the objects bound to them."))
 		{
-			if (edit.Selected)
-				DeleteObjects (edit.obj_type, &edit.Selected);
+			if (edit.Selected->notempty())
+				DeleteObjects (edit.Selected);
 			else
 				DeleteObject (edit.highlighted);
 		}
@@ -1165,19 +1162,19 @@ cancel_save_as:
 #endif
 
 	// [Z] Set sector on surrounding linedefs (AJA)
-	else if (is_key == 'Z' && edit.pointer_in_window) 
-	{
-		if (edit.obj_type == OBJ_SECTORS && edit.Selected)
-		{
-			SuperSectorSelector (edit.map_x, edit.map_y,
-					edit.Selected->objnum);
-		}
-		else
-		{
-			SuperSectorSelector (edit.map_x, edit.map_y, OBJ_NO_NONE);
-		}
-		edit.RedrawMap = 1;
-	}
+//!!!!!!	else if (is_key == 'Z' && edit.pointer_in_window) 
+//!!!!!!	{
+//!!!!!!		if (edit.obj_type == OBJ_SECTORS && edit.Selected)
+//!!!!!!		{
+//!!!!!!			SuperSectorSelector (edit.map_x, edit.map_y,
+//!!!!!!					edit.Selected->objnum);
+//!!!!!!		}
+//!!!!!!		else
+//!!!!!!		{
+//!!!!!!			SuperSectorSelector (edit.map_x, edit.map_y, OBJ_NO_NONE);
+//!!!!!!		}
+//!!!!!!		edit.RedrawMap = 1;
+//!!!!!!	}
 
 	// [W] limit shown things to specific skill (AJA)
 	else if (is_key == 'W' && edit.obj_type == OBJ_THINGS)
@@ -1224,20 +1221,20 @@ cancel_save_as:
 	// [Ctrl][b] Select linedefs whose sidedefs reference non-existant sectors
 	else if (is_key == 2)
 	{
-		bad_sector_number (&edit.Selected);
+//!!!		bad_sector_number (&edit.Selected);
 		edit.RedrawMap = 1;
 	}
 
 	// [Ctrl][r] Xref for sidedef (not documented)
 	else if (is_key == 18)
 	{
-		xref_sidedef ();
+//!!!		xref_sidedef ();
 	}
 
 	// [Ctrl][s] List secret sectors (not documented)
 	else if (is_key == 19)
 	{
-		secret_sectors ();
+//!!!		secret_sectors ();
 	}
 
 	// [Ctrl][t] List tagged linedefs or sectors
@@ -1254,7 +1251,7 @@ cancel_save_as:
 	// [Ctrl][u] Select linedefs with unknown type (not documented)
 	else if (is_key == 21)
 	{
-		unknown_linedef_type (&edit.Selected);
+///!!!		unknown_linedef_type (&edit.Selected);
 		edit.RedrawMap = 1;
 	}
 
@@ -1326,7 +1323,7 @@ void EditorMousePress(bool is_ctrl)
 		// if (edit.Selected == NOTHING)
 
 		edit.Selected->clear_all();
-		SelectObject (&edit.Selected, object.num);
+		SelectObject (edit.Selected, object.num);
 
 		/* I don't like having to do that */
 		if (object.type == OBJ_THINGS && object ())
@@ -1390,10 +1387,12 @@ void EditorMousePress(bool is_ctrl)
 	{
 		edit.clicked        = object;
 		edit.click_ctrl     = 1;
+
 		if (IsSelected (edit.Selected, object.num))
-			UnSelectObject (&edit.Selected, object.num);
+			UnSelectObject (edit.Selected, object.num);
 		else
-			SelectObject (&edit.Selected, object.num);
+			SelectObject (edit.Selected, object.num);
+
 		edit.RedrawMap = 1;
 
 		main_win->canvas->redraw();
@@ -1415,7 +1414,7 @@ void EditorMouseRelease()
 
 		main_win->canvas->SelboxFinish(&x1, &y1, &x2, &y2);
 
-		SelectObjectsInBox (&edit.Selected, edit.obj_type, x1, y1, x2, y2);
+		SelectObjectsInBox (edit.Selected, edit.obj_type, x1, y1, x2, y2);
 
 		edit.RedrawMap = 1;
 		return;
@@ -1480,17 +1479,17 @@ void EditorMouseMotion(int x, int y, int map_x, int map_y, bool drag)
 		
 		if (edit.Selected->empty())
 		{
-			SelectObject (&edit.Selected, edit.clicked.num);
-			if (MoveObjectsToCoords (edit.clicked.type, edit.Selected,
-						edit.map_x, edit.map_y, grid.snap ? grid.step : 0))
-				edit.RedrawMap = 1;
+			SelectObject (edit.Selected, edit.clicked.num);
+//!!!			if (MoveObjectsToCoords (edit.clicked.type, edit.Selected,
+//!!!						edit.map_x, edit.map_y, grid.snap ? grid.step : 0))
+//!!!				edit.RedrawMap = 1;
 			edit.Selected->clear_all();
 		}
 		else
 		{
-			if (MoveObjectsToCoords (edit.clicked.type, edit.Selected,
-						edit.map_x, edit.map_y, grid.snap ? grid.step : 0))
-				edit.RedrawMap = 1;
+//!!!			if (MoveObjectsToCoords (edit.clicked.type, edit.Selected,
+//!!!						edit.map_x, edit.map_y, grid.snap ? grid.step : 0))
+//!!!				edit.RedrawMap = 1;
 		}
 
 		return;

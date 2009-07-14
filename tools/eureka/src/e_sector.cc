@@ -74,7 +74,7 @@ void centre_of_sector (obj_no_t s, int *x, int *y)
  *  centre_of_sectors
  *  Return the coordinates of the centre of a group of sectors.
  */
-void centre_of_sectors (SelPtr list, int *x, int *y)
+void centre_of_sectors (selection_c * list, int *x, int *y)
 {
 	bitvec_c *vertices;
 
@@ -83,7 +83,7 @@ void centre_of_sectors (SelPtr list, int *x, int *y)
 	long y_sum;
 	int n;
 
-	vertices = bv_vertices_of_sectors (list);
+//!!!!!!	vertices = bv_vertices_of_sectors (list);
 	x_sum = 0;
 	y_sum = 0;
 	nitems = 0;

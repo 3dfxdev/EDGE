@@ -29,9 +29,9 @@ bitvec_c *bv_vertices_of_linedefs (bitvec_c *linedefs);
 bitvec_c *bv_vertices_of_linedefs (SelPtr list);
 SelPtr list_vertices_of_linedefs (SelPtr list);
 
-void centre_of_linedefs (SelPtr list, int *x, int *y);
+void centre_of_linedefs (selection_c * list, int *x, int *y);
 
-void frob_linedefs_flags (SelPtr list, int op, int operand);
+void frob_linedefs_flags (selection_c * list, int op, int operand);
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

@@ -69,14 +69,17 @@ void secret_sectors ()
 
 void unknown_linedef_type (SelPtr *list)
 {
+#if 0  // FIXME unknown_linedef_type
 	for (int n = 0; n < NumLineDefs; n++)
 		if (*GetLineDefTypeName (LineDefs[n].type) == '?')
 			SelectObject (list, n);
+#endif
 }
 
 
 void bad_sector_number (SelPtr *list)
 {
+#if 0 // FIXME bad_sector_number
 	for (int n = 0; n < NumLineDefs; n++)
 	{
 		int s1 = LineDefs[n].side_R;
@@ -87,6 +90,7 @@ void bad_sector_number (SelPtr *list)
 				&& SideDefs[s2].sector < 0 || SideDefs[s2].sector >= NumSectors)
 			SelectObject (list, n);
 	}
+#endif
 }
 
 

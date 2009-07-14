@@ -263,16 +263,17 @@ void centre_of_objects (selection_c * list, int *x, int *y)
 			centre_of_linedefs (list, x, y);
 			break;
 		case OBJ_SECTORS:
-			centre_of_sectors (list, x, y);
+//!!!!!			centre_of_sectors (list, x, y);
 			break;
 		case OBJ_THINGS:
-			centre_of_things (list, x, y);
+//!!!!!			centre_of_things (list, x, y);
 			break;
 		case OBJ_VERTICES:
-			centre_of_vertices (list, x, y);
+//!!!!!			centre_of_vertices (list, x, y);
 			break;
+
 		default:
-			FatalError("coo: bad obj_type %d", list->what_type);
+			FatalError("coo: bad obj_type %d", list->what_type());
 	}
 }
 
