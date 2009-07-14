@@ -46,7 +46,7 @@ private:
 	int b_count;
 
 public:
-	 selection_c(obj_type_t _type = OBJ_NONE);
+	 selection_c(obj_type_t _type = OBJ_NONE, int _initial = -1);
 	~selection_c();
 
 	obj_type_t what_type() const { return type; }
