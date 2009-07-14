@@ -30,13 +30,28 @@
 
 
 selection_c::selection_c(obj_type_t _type) : type(_type),
-	count(0), bv(NULL)
+	count(0), bv(NULL), b_count(0)
 { }
 
 selection_c::~selection_c()
 {
 	if (bv)
 		delete bv;
+}
+
+void selection_c::change_type(obj_type_t new_type)
+{
+	clear_all();
+
+	type = new_type;
+}
+
+bool selection_c::empty() const
+{
+	if (bv)
+		return b_count == 0;
+	
+	return count == 0;
 }
 
 bool selection_c::get(int n) const
@@ -53,19 +68,19 @@ bool selection_c::get(int n) const
 
 void selection_c::set(int n)
 {
-	if (bv)
-	{
-		bv->set(n); return;
-	}
-
 	if (get(n))
 		return;
 
-	if (count == MAX_STORE_SEL)
+	if (!bv && count >= MAX_STORE_SEL)
 	{
 		ConvertToBitvec();
+	}
 
-		bv->set(n); return;
+	if (bv)
+	{
+		bv->set(n);
+		b_count++;
+		return;
 	}
 
 	objs[count++] = n;
@@ -75,7 +90,12 @@ void selection_c::clear(int n)
 {
 	if (bv)
 	{
-		bv->clear(n); return;
+		if (get(n))
+		{
+			bv->clear(n);
+			b_count--;
+		}
+		return;
 	}
 
 	int i;
@@ -85,7 +105,7 @@ void selection_c::clear(int n)
 			break;
 	
 	if (i >= count)
-		return; // was not present
+		return;  // not present
 
 	count--;
 
@@ -95,11 +115,6 @@ void selection_c::clear(int n)
 
 void selection_c::toggle(int n)
 {
-	if (bv)
-	{
-		bv->toggle(n); return;
-	}
-
 	if (get(n))
 		clear(n);
 	else
@@ -108,13 +123,15 @@ void selection_c::toggle(int n)
 
 void selection_c::clear_all()
 {
+	count = 0;
+
 	if (bv)
 	{
 		delete bv;
-		bv = NULL;
-	}
 
-	count = 0;
+		bv = NULL;
+		b_count = 0;
+	}
 }
 
 void selection_c::set_all()
@@ -123,6 +140,7 @@ void selection_c::set_all()
 		ConvertToBitvec();
 	
 	bv->set_all();
+	b_count = bv->size();
 }
 
 void selection_c::toggle_all()
@@ -131,6 +149,7 @@ void selection_c::toggle_all()
 		ConvertToBitvec();
 	
 	bv->toggle_all();
+	b_count = bv->size() - b_count;
 }
 
 void selection_c::frob(int n, sel_op_e op)
@@ -155,7 +174,9 @@ void selection_c::merge(const selection_c& other)
 	if (! bv)
 		ConvertToBitvec();
 	
-	bv->merge(*other.bv);
+	for (int i = 0; i < bv->size(); i++)
+		if (other.bv->get(i))
+			set(i);
 }
 
 void selection_c::ConvertToBitvec()
@@ -182,6 +203,7 @@ void selection_c::ConvertToBitvec()
 		bv->set(objs[i]);
 	}
 
+	b_count = count;
 	count = 0;
 }
 
