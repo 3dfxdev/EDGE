@@ -26,31 +26,31 @@ class Img;
 class UI_Pic : public Fl_Box
 {
 private:
-  Fl_RGB_Image *rgb;
+	Fl_RGB_Image *rgb;
 
-  bool unknown;
-
-public:
-  UI_Pic(int X, int Y, int W, int H);
-  virtual ~UI_Pic();
+	bool unknown;
 
 public:
-  void Nil();
+	UI_Pic(int X, int Y, int W, int H);
+	virtual ~UI_Pic();
 
-  void GetFlat(const wad_flat_name_t& fname);
-  void GetTex (const wad_tex_name_t& tname);
-  void GetSprite(const wad_ttype_t& type);
+public:
+	void Nil();
 
-  // FLTK virtual method for drawing.
-  int handle(int event);
+	void GetFlat(const wad_flat_name_t& fname);
+	void GetTex (const wad_tex_name_t& tname);
+	void GetSprite(const wad_ttype_t& type);
+
+	// FLTK virtual method for drawing.
+	int handle(int event);
 
 private:
-  // FLTK virtual method for drawing.
-  void draw();
+	// FLTK virtual method for drawing.
+	void draw();
 
-  void UploadRGB(const byte *buf, int depth);
+	void UploadRGB(const byte *buf, int depth);
 
-  void TiledImg(Img *img);
+	void TiledImg(Img *img);
 };
 
 

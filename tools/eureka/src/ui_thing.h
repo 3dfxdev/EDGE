@@ -27,76 +27,76 @@ class Sticker;
 class UI_ThingBox : public Fl_Group
 {
 private:
-  int obj;
+	int obj;
 
-  thing_spawn_c *view_TH;
+	thing_spawn_c *view_TH;
 
-  UI_Nombre *which;
+	UI_Nombre *which;
 
-  Fl_Int_Input *type;
-  Fl_Output    *desc;
-  Fl_Button    *choose;
+	Fl_Int_Input *type;
+	Fl_Output    *desc;
+	Fl_Button    *choose;
 
-  Fl_Int_Input *angle;
-  Fl_Button    *ang_left;
-  Fl_Button    *ang_right;
+	Fl_Int_Input *angle;
+	Fl_Button    *ang_left;
+	Fl_Button    *ang_right;
 
-  Fl_Int_Input *exfloor;
-  Fl_Button    *efl_down;
-  Fl_Button    *efl_up;
+	Fl_Int_Input *exfloor;
+	Fl_Button    *efl_down;
+	Fl_Button    *efl_up;
 
-  Fl_Int_Input *pos_x;
-  Fl_Int_Input *pos_y;
+	Fl_Int_Input *pos_x;
+	Fl_Int_Input *pos_y;
 
-  // Options
-  Fl_Check_Button *o_easy;
-  Fl_Check_Button *o_medium;
-  Fl_Check_Button *o_hard;
+	// Options
+	Fl_Check_Button *o_easy;
+	Fl_Check_Button *o_medium;
+	Fl_Check_Button *o_hard;
 
-  Fl_Check_Button *o_sp;
-  Fl_Check_Button *o_coop;
-  Fl_Check_Button *o_dm;
+	Fl_Check_Button *o_sp;
+	Fl_Check_Button *o_coop;
+	Fl_Check_Button *o_dm;
 
-  Fl_Check_Button *o_ambush;
-  Fl_Check_Button *o_friend;
+	Fl_Check_Button *o_ambush;
+	Fl_Check_Button *o_friend;
 
-  UI_Pic *sprite;
-
-public:
-  UI_ThingBox(int X, int Y, int W, int H, const char *label = NULL);
-  virtual ~UI_ThingBox();
+	UI_Pic *sprite;
 
 public:
-  void LoadData(thing_spawn_c *th);
-
-  void SetViewThing(thing_spawn_c *th);
-
-  void ListenField(thing_spawn_c *th, int F);
+	UI_ThingBox(int X, int Y, int W, int H, const char *label = NULL);
+	virtual ~UI_ThingBox();
 
 public:
-  // a negative value will show 'None Selected'.
-  void SetObj(int index);
+	void LoadData(thing_spawn_c *th);
+
+	void SetViewThing(thing_spawn_c *th);
+
+	void ListenField(thing_spawn_c *th, int F);
+
+public:
+	// a negative value will show 'None Selected'.
+	void SetObj(int index);
 
 private:
-  void update_Ambush(thing_spawn_c *th);
-  void update_Type  (thing_spawn_c *th);
-  void update_Pos   (thing_spawn_c *th);
-  void update_Angle (thing_spawn_c *th);
-  void update_WhenAppear(thing_spawn_c *th);
+	void update_Ambush(thing_spawn_c *th);
+	void update_Type  (thing_spawn_c *th);
+	void update_Pos   (thing_spawn_c *th);
+	void update_Angle (thing_spawn_c *th);
+	void update_WhenAppear(thing_spawn_c *th);
 
-  int CalcWhenAppear();
+	int CalcWhenAppear();
 
-  static void   type_callback(Fl_Widget *w, void *data);
-  static void  angle_callback(Fl_Widget *w, void *data);
-  static void    pos_callback(Fl_Widget *w, void *data);
-  static void option_callback(Fl_Widget *w, void *data);
-  static void button_callback(Fl_Widget *w, void *data);
+	static void   type_callback(Fl_Widget *w, void *data);
+	static void  angle_callback(Fl_Widget *w, void *data);
+	static void    pos_callback(Fl_Widget *w, void *data);
+	static void option_callback(Fl_Widget *w, void *data);
+	static void button_callback(Fl_Widget *w, void *data);
 
-  void Rotate(int dir);  // -1 for anticlockwise, +1 for clockwise
-  void AdjustExtraFloor(int dir);
+	void Rotate(int dir);  // -1 for anticlockwise, +1 for clockwise
+	void AdjustExtraFloor(int dir);
 
-  int  CalcOptions() const;
-  void OptionsFromInt(int options);
+	int  CalcOptions() const;
+	void OptionsFromInt(int options);
 
 };
 

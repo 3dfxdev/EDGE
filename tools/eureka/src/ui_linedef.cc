@@ -33,154 +33,154 @@ UI_LineBox::UI_LineBox(int X, int Y, int W, int H, const char *label) :
     Fl_Group(X, Y, W, H, label),
     obj(-1)
 {
-  end();  // cancel begin() in Fl_Group constructor
+	end();  // cancel begin() in Fl_Group constructor
 
-  box(FL_FLAT_BOX); // (FL_THIN_UP_BOX);
+	box(FL_FLAT_BOX); // (FL_THIN_UP_BOX);
 
 
-  X += 6;
-  Y += 5;
+	X += 6;
+	Y += 5;
 
-  W -= 12;
-  H -= 10;
+	W -= 12;
+	H -= 10;
 
 
-  which = new UI_Nombre(X, Y, W-10, 28, "Linedef");
+	which = new UI_Nombre(X, Y, W-10, 28, "Linedef");
 
-  add(which);
+	add(which);
 
-  Y += which->h() + 4;
+	Y += which->h() + 4;
 
 
-  type = new Fl_Int_Input(X+58, Y, 64, 24, "Type: ");
-  type->align(FL_ALIGN_LEFT);
+	type = new Fl_Int_Input(X+58, Y, 64, 24, "Type: ");
+	type->align(FL_ALIGN_LEFT);
 
-  add(type);
+	add(type);
 
-  choose = new Fl_Button(X+W/2+24, Y, 80, 24, "Choose");
-//!!!!  choose->callback(button_callback, this);
+	choose = new Fl_Button(X+W/2+24, Y, 80, 24, "Choose");
+	//!!!!  choose->callback(button_callback, this);
 
-  add(choose);
+	add(choose);
 
-  Y += type->h() + 2;
+	Y += type->h() + 2;
 
 
-  desc = new Fl_Output(X+58, Y, W-66, 24, "Desc: ");
-  desc->align(FL_ALIGN_LEFT);
+	desc = new Fl_Output(X+58, Y, W-66, 24, "Desc: ");
+	desc->align(FL_ALIGN_LEFT);
 
-  add(desc);
+	add(desc);
 
-  Y += desc->h() + 2;
+	Y += desc->h() + 2;
 
 
-  tag = new Fl_Int_Input(X+W/2+52, Y, 64, 24, "Tag: ");
-  tag->align(FL_ALIGN_LEFT);
+	tag = new Fl_Int_Input(X+W/2+52, Y, 64, 24, "Tag: ");
+	tag->align(FL_ALIGN_LEFT);
 
-  add(tag);
+	add(tag);
 
 
-  length = new Fl_Output(X+58, Y, 64, 24, "Length: ");
-  length->align(FL_ALIGN_LEFT);
+	length = new Fl_Output(X+58, Y, 64, 24, "Length: ");
+	length->align(FL_ALIGN_LEFT);
 
-  add(length);
+	add(length);
 
-  Y += tag->h() + 2;
+	Y += tag->h() + 2;
 
-  Y += 3;
+	Y += 3;
 
 
-  Fl_Box *flags = new Fl_Box(FL_FLAT_BOX, X, Y, 64, 24, "Flags: ");
-  flags->align(FL_ALIGN_INSIDE | FL_ALIGN_LEFT);
+	Fl_Box *flags = new Fl_Box(FL_FLAT_BOX, X, Y, 64, 24, "Flags: ");
+	flags->align(FL_ALIGN_INSIDE | FL_ALIGN_LEFT);
 
-  add(flags);
+	add(flags);
 
-  
-  f_automap = new Fl_Choice(X+W-104, Y, 104, 22);
-  f_automap->add("Normal|Invisible|Mapped|Secret");
-  f_automap->value(0);
-  f_automap->callback(flags_callback, this);
 
-  add(f_automap);
+	f_automap = new Fl_Choice(X+W-104, Y, 104, 22);
+	f_automap->add("Normal|Invisible|Mapped|Secret");
+	f_automap->value(0);
+	f_automap->callback(flags_callback, this);
 
+	add(f_automap);
 
-  Y += flags->h() - 1;
 
+	Y += flags->h() - 1;
 
 
-  f_upper = new Fl_Check_Button(X+12, Y+2, 20, 20, "upper unpeg");
-  f_upper->align(FL_ALIGN_RIGHT);
-  f_upper->labelsize(12);
-  f_upper->callback(flags_callback, this);
 
-  add(f_upper);
+	f_upper = new Fl_Check_Button(X+12, Y+2, 20, 20, "upper unpeg");
+	f_upper->align(FL_ALIGN_RIGHT);
+	f_upper->labelsize(12);
+	f_upper->callback(flags_callback, this);
 
+	add(f_upper);
 
-  f_walk = new Fl_Check_Button(X+W-120, Y+2, 20, 20, "block walk");
-  f_walk->align(FL_ALIGN_RIGHT);
-  f_walk->labelsize(12);
-  f_walk->callback(flags_callback, this);
 
-  add(f_walk);
+	f_walk = new Fl_Check_Button(X+W-120, Y+2, 20, 20, "block walk");
+	f_walk->align(FL_ALIGN_RIGHT);
+	f_walk->labelsize(12);
+	f_walk->callback(flags_callback, this);
 
+	add(f_walk);
 
 
-  Y += 19;
 
+	Y += 19;
 
-  f_lower = new Fl_Check_Button(X+12, Y+2, 20, 20, "lower unpeg");
-  f_lower->align(FL_ALIGN_RIGHT);
-  f_lower->labelsize(12);
-  f_lower->callback(flags_callback, this);
 
-  add(f_lower);
+	f_lower = new Fl_Check_Button(X+12, Y+2, 20, 20, "lower unpeg");
+	f_lower->align(FL_ALIGN_RIGHT);
+	f_lower->labelsize(12);
+	f_lower->callback(flags_callback, this);
 
+	add(f_lower);
 
-  f_mons = new Fl_Check_Button(X+W-120, Y+2, 20, 20, "block mons");
-  f_mons->align(FL_ALIGN_RIGHT);
-  f_mons->labelsize(12);
-  f_mons->callback(flags_callback, this);
 
-  add(f_mons);
+	f_mons = new Fl_Check_Button(X+W-120, Y+2, 20, 20, "block mons");
+	f_mons->align(FL_ALIGN_RIGHT);
+	f_mons->labelsize(12);
+	f_mons->callback(flags_callback, this);
 
+	add(f_mons);
 
-  Y += 19;
 
+	Y += 19;
 
-  f_passthru = new Fl_Check_Button(X+12, Y+2, 20, 20, "pass use");
-  f_passthru->align(FL_ALIGN_RIGHT);
-  f_passthru->labelsize(12);
-  f_passthru->callback(flags_callback, this);
 
-  add(f_passthru);
+	f_passthru = new Fl_Check_Button(X+12, Y+2, 20, 20, "pass use");
+	f_passthru->align(FL_ALIGN_RIGHT);
+	f_passthru->labelsize(12);
+	f_passthru->callback(flags_callback, this);
 
+	add(f_passthru);
 
-  f_sound = new Fl_Check_Button(X+W-120, Y+2, 20, 20, "block sound");
-  f_sound->align(FL_ALIGN_RIGHT);
-  f_sound->labelsize(12);
-  f_sound->callback(flags_callback, this);
 
-  add(f_sound);
+	f_sound = new Fl_Check_Button(X+W-120, Y+2, 20, 20, "block sound");
+	f_sound->align(FL_ALIGN_RIGHT);
+	f_sound->labelsize(12);
+	f_sound->callback(flags_callback, this);
 
+	add(f_sound);
 
-//  Fl_Choice *f_block = new Fl_Choice(X+16, Y, 104, 22);
-//  f_block->add("Walkable|Block Mons|Impassible");
-//  f_block->value(0);
-//
-//  add(f_block);
 
-  Y += 29;
+	//  Fl_Choice *f_block = new Fl_Choice(X+16, Y, 104, 22);
+	//  f_block->add("Walkable|Block Mons|Impassible");
+	//  f_block->value(0);
+	//
+	//  add(f_block);
 
+	Y += 29;
 
-  front = new UI_SideBox(x(), Y, w(), 136, 0);
 
-  add(front);
+	front = new UI_SideBox(x(), Y, w(), 136, 0);
 
-  Y += front->h();
+	add(front);
 
+	Y += front->h();
 
-  back = new UI_SideBox(x(), Y, w(), 130, 1);
 
-  add(back);
+	back = new UI_SideBox(x(), Y, w(), 130, 1);
+
+	add(back);
 }
 
 //
@@ -193,12 +193,12 @@ UI_LineBox::~UI_LineBox()
 
 void UI_LineBox::flags_callback(Fl_Widget *w, void *data)
 {
-  UI_LineBox *box = (UI_LineBox *)data;
+	UI_LineBox *box = (UI_LineBox *)data;
 
-  if (! is_linedef(box->obj))
-    return;
+	if (! is_linedef(box->obj))
+		return;
 
-  LineDefs[box->obj].flags = box->CalcFlags();
+	LineDefs[box->obj].flags = box->CalcFlags();
 }
 
 
@@ -208,124 +208,124 @@ void UI_LineBox::flags_callback(Fl_Widget *w, void *data)
 
 void UI_LineBox::SetObj(int index)
 {
-  if (obj == index)
-    return;
+	if (obj == index)
+		return;
 
-  obj = index;
+	obj = index;
 
-  which->SetIndex(index);
-  which->SetTotal(NumLineDefs);
+	which->SetIndex(index);
+	which->SetTotal(NumLineDefs);
 
-  if (is_linedef(obj))
-  {
-    front->SetObj(LineDefs[obj].side_R);
-     back->SetObj(LineDefs[obj].side_L);
+	if (is_linedef(obj))
+	{
+		front->SetObj(LineDefs[obj].side_R);
+		back->SetObj(LineDefs[obj].side_L);
 
-    type->value(Int_TmpStr(LineDefs[obj].type));
-    desc->value(GetLineDefTypeName(LineDefs[obj].type));
-     tag->value(Int_TmpStr(LineDefs[obj].tag));
+		type->value(Int_TmpStr(LineDefs[obj].type));
+		desc->value(GetLineDefTypeName(LineDefs[obj].type));
+		tag->value(Int_TmpStr(LineDefs[obj].tag));
 
-    CalcLength();
+		CalcLength();
 
-    FlagsFromInt(LineDefs[obj].flags);
-  }
-  else
-  {
-    front->SetObj(-1);
-     back->SetObj(-1);
+		FlagsFromInt(LineDefs[obj].flags);
+	}
+	else
+	{
+		front->SetObj(-1);
+		back->SetObj(-1);
 
-    type->value("");
-    desc->value("");
-     tag->value("");
+		type->value("");
+		desc->value("");
+		tag->value("");
 
-    length->value("");
-    
-    FlagsFromInt(0);
-  }
+		length->value("");
 
-//  redraw();
+		FlagsFromInt(0);
+	}
+
+	//  redraw();
 }
 
 
 void UI_LineBox::CalcLength()
 {
-  // ASSERT(obj >= 0);
+	// ASSERT(obj >= 0);
 
-  int n = obj;
+	int n = obj;
 
-  if (! is_vertex(LineDefs[n].start) ||
-      ! is_vertex(LineDefs[n].end))
-  {
-    length->value("????");
-    return;
-  }
+	if (! is_vertex(LineDefs[n].start) ||
+			! is_vertex(LineDefs[n].end))
+	{
+		length->value("????");
+		return;
+	}
 
-  int dx = Vertices[LineDefs[n].start].x - Vertices[LineDefs[n].end].x;
-  int dy = Vertices[LineDefs[n].start].y - Vertices[LineDefs[n].end].y;
+	int dx = Vertices[LineDefs[n].start].x - Vertices[LineDefs[n].end].x;
+	int dy = Vertices[LineDefs[n].start].y - Vertices[LineDefs[n].end].y;
 
-  float len_f = sqrt(dx*dx + dy*dy);
+	float len_f = sqrt(dx*dx + dy*dy);
 
-  char buffer[300];
+	char buffer[300];
 
-  if (int(len_f) >= 10000)
-    sprintf(buffer, "%1.0f", len_f);
-  else if (int(len_f) >= 100)
-    sprintf(buffer, "%1.1f", len_f);
-  else
-    sprintf(buffer, "%1.2f", len_f);
+	if (int(len_f) >= 10000)
+		sprintf(buffer, "%1.0f", len_f);
+	else if (int(len_f) >= 100)
+		sprintf(buffer, "%1.1f", len_f);
+	else
+		sprintf(buffer, "%1.2f", len_f);
 
-  length->value(buffer);
+	length->value(buffer);
 }
 
 
 void UI_LineBox::FlagsFromInt(int lineflags)
 {
-  if (lineflags & MLF_Secret)
-    f_automap->value(3);
-  else if (lineflags & MLF_DontDraw)
-    f_automap->value(1);
-  else if (lineflags & MLF_Mapped)
-    f_automap->value(2);
-  else
-    f_automap->value(0);
+	if (lineflags & MLF_Secret)
+		f_automap->value(3);
+	else if (lineflags & MLF_DontDraw)
+		f_automap->value(1);
+	else if (lineflags & MLF_Mapped)
+		f_automap->value(2);
+	else
+		f_automap->value(0);
 
-  f_upper   ->value((lineflags & MLF_UpperUnpegged) ? 1 : 0);
-  f_lower   ->value((lineflags & MLF_LowerUnpegged) ? 1 : 0);
-  f_passthru->value((lineflags & MLF_PassThru)      ? 1 : 0);
+	f_upper   ->value((lineflags & MLF_UpperUnpegged) ? 1 : 0);
+	f_lower   ->value((lineflags & MLF_LowerUnpegged) ? 1 : 0);
+	f_passthru->value((lineflags & MLF_PassThru)      ? 1 : 0);
 
-  f_walk ->value((lineflags & MLF_Blocking)      ? 1 : 0);
-  f_mons ->value((lineflags & MLF_BlockMonsters) ? 1 : 0);
-  f_sound->value((lineflags & MLF_SoundBlock)    ? 1 : 0);
+	f_walk ->value((lineflags & MLF_Blocking)      ? 1 : 0);
+	f_mons ->value((lineflags & MLF_BlockMonsters) ? 1 : 0);
+	f_sound->value((lineflags & MLF_SoundBlock)    ? 1 : 0);
 }
 
 
 int UI_LineBox::CalcFlags() const
 {
-  // ASSERT(is_linedef(obj))
+	// ASSERT(is_linedef(obj))
 
-  int lineflags = 0;
+	int lineflags = 0;
 
-  // FIXME: not sure if this belongs here
-  if (is_sidedef(LineDefs[obj].side_L))
-    lineflags |= MLF_TwoSided;
+	// FIXME: not sure if this belongs here
+	if (is_sidedef(LineDefs[obj].side_L))
+		lineflags |= MLF_TwoSided;
 
-  switch (f_automap->value())
-  {
-    case 0: /* Normal    */; break;
-    case 1: /* Invisible */ lineflags |= MLF_DontDraw; break;
-    case 2: /* Mapped    */ lineflags |= MLF_Mapped; break;
-    case 3: /* Secret    */ lineflags |= MLF_Secret; break;
-  }
+	switch (f_automap->value())
+	{
+		case 0: /* Normal    */; break;
+		case 1: /* Invisible */ lineflags |= MLF_DontDraw; break;
+		case 2: /* Mapped    */ lineflags |= MLF_Mapped; break;
+		case 3: /* Secret    */ lineflags |= MLF_Secret; break;
+	}
 
-  if (f_upper->value())    lineflags |= MLF_UpperUnpegged;
-  if (f_lower->value())    lineflags |= MLF_LowerUnpegged;
-  if (f_passthru->value()) lineflags |= MLF_PassThru;
+	if (f_upper->value())    lineflags |= MLF_UpperUnpegged;
+	if (f_lower->value())    lineflags |= MLF_LowerUnpegged;
+	if (f_passthru->value()) lineflags |= MLF_PassThru;
 
-  if (f_walk->value())  lineflags |= MLF_Blocking;
-  if (f_mons->value())  lineflags |= MLF_BlockMonsters;
-  if (f_sound->value()) lineflags |= MLF_SoundBlock;
+	if (f_walk->value())  lineflags |= MLF_Blocking;
+	if (f_mons->value())  lineflags |= MLF_BlockMonsters;
+	if (f_sound->value()) lineflags |= MLF_SoundBlock;
 
-  return lineflags;
+	return lineflags;
 }
 
 

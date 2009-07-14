@@ -27,16 +27,15 @@ UI_Nombre::UI_Nombre(int X, int Y, int W, int H, const char *what) :
     Fl_Box(FL_FLAT_BOX, X, Y, W, H, ""),
     index(-1), total(0)
 {
-  type_name = strdup(what);  // FIXME: consistent string handling
+	type_name = strdup(what);  // FIXME: consistent string handling
 
+	align(FL_ALIGN_INSIDE | FL_ALIGN_LEFT);
+	color(FL_GRAY0+2);
 
-  align(FL_ALIGN_INSIDE | FL_ALIGN_LEFT);
-  color(FL_GRAY0+2);
+	labelfont(FL_COURIER_BOLD);
+	labelsize(16 + QF*3);
 
-  labelfont(FL_COURIER_BOLD);
-  labelsize(16 + QF*3);
-
-  Update();
+	Update();
 }
 
 //
@@ -49,40 +48,40 @@ UI_Nombre::~UI_Nombre()
 
 void UI_Nombre::Update()
 {
-  char buffer[256];
+	char buffer[256];
 
-  if (index < 0 && total <= 0)
-    sprintf(buffer, "%s: NONE\n", type_name);
-  else if (index < 0)
-    sprintf(buffer, "%s: NONE / %d\n", type_name, total);
-  else
-    sprintf(buffer, "%s: %-4d / %d\n", type_name, index, total);
+	if (index < 0 && total <= 0)
+		sprintf(buffer, "%s: NONE\n", type_name);
+	else if (index < 0)
+		sprintf(buffer, "%s: NONE / %d\n", type_name, total);
+	else
+		sprintf(buffer, "%s: %-4d / %d\n", type_name, index, total);
 
-  if (index < 0 || total == 0)
-    labelcolor(FL_LIGHT1);
-  else
-    labelcolor(FL_YELLOW);
+	if (index < 0 || total == 0)
+		labelcolor(FL_LIGHT1);
+	else
+		labelcolor(FL_YELLOW);
 
-  copy_label(buffer);
+	copy_label(buffer);
 }
 
 
 void UI_Nombre::SetIndex(int _idx)
 {
-  if (index != _idx)
-  {
-    index = _idx;
-    Update();
-  }
+	if (index != _idx)
+	{
+		index = _idx;
+		Update();
+	}
 }
 
 void UI_Nombre::SetTotal(int _tot)
 {
-  if (total != _tot)
-  {
-    total = _tot;
-    Update();
-  }
+	if (total != _tot)
+	{
+		total = _tot;
+		Update();
+	}
 }
 
 

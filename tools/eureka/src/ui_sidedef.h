@@ -23,39 +23,39 @@
 class UI_SideBox : public Fl_Group
 {
 private:
-  int  obj;
-  bool is_front;
+	int  obj;
+	bool is_front;
 
 public:
-  Fl_Int_Input *x_ofs;
-  Fl_Int_Input *y_ofs;
-  Fl_Int_Input *sec;
+	Fl_Int_Input *x_ofs;
+	Fl_Int_Input *y_ofs;
+	Fl_Int_Input *sec;
 
-  UI_Pic   *l_pic;
-  UI_Pic   *m_pic;
-  UI_Pic   *u_pic;
+	UI_Pic   *l_pic;
+	UI_Pic   *m_pic;
+	UI_Pic   *u_pic;
 
-  Fl_Input *l_tex;
-  Fl_Input *m_tex;
-  Fl_Input *u_tex;
-
-public:
-  UI_SideBox(int X, int Y, int W, int H, int _side);
-  virtual ~UI_SideBox();
+	Fl_Input *l_tex;
+	Fl_Input *m_tex;
+	Fl_Input *u_tex;
 
 public:
-  void SetObj(int index);
+	UI_SideBox(int X, int Y, int W, int H, int _side);
+	virtual ~UI_SideBox();
+
+public:
+	void SetObj(int index);
 
 private:
-  void UpdateLabel();
-  void UpdateHiding(bool hide);
+	void UpdateLabel();
+	void UpdateHiding(bool hide);
 
-  void TexFromWidget(wad_tex_name_t& tname, Fl_Input *w);
-  void TexToWidget(Fl_Input *w, const wad_tex_name_t& tname);
+	void TexFromWidget(wad_tex_name_t& tname, Fl_Input *w);
+	void TexToWidget(Fl_Input *w, const wad_tex_name_t& tname);
 
-  static void    tex_callback(Fl_Widget *, void *);
-  static void offset_callback(Fl_Widget *, void *);
-  static void sector_callback(Fl_Widget *, void *);
+	static void    tex_callback(Fl_Widget *, void *);
+	static void offset_callback(Fl_Widget *, void *);
+	static void sector_callback(Fl_Widget *, void *);
 };
 
 #endif // __UI_SIDEDEF_H__

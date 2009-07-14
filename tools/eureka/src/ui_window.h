@@ -45,9 +45,9 @@ public:
   // main child widgets
 
 #ifdef MACOSX
-  Fl_Sys_Menu_Bar *menu_bar;
+	Fl_Sys_Menu_Bar *menu_bar;
 #else
-  Fl_Menu_Bar *menu_bar;
+	Fl_Menu_Bar *menu_bar;
 #endif
 
 	UI_Canvas *canvas;
@@ -56,37 +56,37 @@ public:
 
 	UI_InfoBar *info_bar;
 
-  UI_ThingBox  *thing_box;
-  UI_LineBox   *line_box;
-  UI_SectorBox *sec_box;
-  UI_VertexBox *vert_box;
-  UI_RadiusBox *rad_box;
+	UI_ThingBox  *thing_box;
+	UI_LineBox   *line_box;
+	UI_SectorBox *sec_box;
+	UI_VertexBox *vert_box;
+	UI_RadiusBox *rad_box;
 
-  enum  // actions
-  {
-    NONE = 0,
-    BUILD,
-    ABORT,
-    QUIT
-  };
-  
-  int action;
+	enum  // actions
+	{
+		NONE = 0,
+		BUILD,
+		ABORT,
+		QUIT
+	};
+	
+	int action;
 
 private:
-  Fl_Cursor cursor_shape;
+	Fl_Cursor cursor_shape;
 
 public:
-  UI_MainWin(const char *title);
-  virtual ~UI_MainWin();
+	UI_MainWin(const char *title);
+	virtual ~UI_MainWin();
 
 public:
-  // mode can be 't', 'l', 's', 'v' or 'r'.   FIXME: ENUMERATE
-  void SetMode(char mode);
+	// mode can be 't', 'l', 's', 'v' or 'r'.   FIXME: ENUMERATE
+	void SetMode(char mode);
 
-  // this is a wrapper around the FLTK cursor() method which
-  // prevents the possibly expensive call when the shape hasn't
-  // changed.
-  void SetCursor(Fl_Cursor shape);
+	// this is a wrapper around the FLTK cursor() method which
+	// prevents the possibly expensive call when the shape hasn't
+	// changed.
+	void SetCursor(Fl_Cursor shape);
 };
 
 
