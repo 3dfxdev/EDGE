@@ -21,27 +21,27 @@
 
 assert_fail_c::assert_fail_c(const char *_msg)
 {
-  strncpy(message, _msg, sizeof(message));
+	strncpy(message, _msg, sizeof(message));
 
-  message[sizeof(message) - 1] = 0;
+	message[sizeof(message) - 1] = 0;
 }
 
 assert_fail_c::~assert_fail_c()
 {
-  /* nothing needed */
+	/* nothing needed */
 }
 
 assert_fail_c::assert_fail_c(const assert_fail_c &other)
 {
-  strcpy(message, other.message);
+	strcpy(message, other.message);
 }
 
 assert_fail_c& assert_fail_c::operator=(const assert_fail_c &other)
 {
-  if (this != &other)
-    strcpy(message, other.message);
-  
-  return *this;
+	if (this != &other)
+		strcpy(message, other.message);
+
+	return *this;
 }
 
 //----------------------------------------------------------------------------
