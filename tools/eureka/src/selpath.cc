@@ -54,21 +54,21 @@ static void select_1s_linedefs_in_half_path (bitvec_c &sel,
  */
 void select_linedefs_path (SelPtr *list, int linedef_no, sel_op_e mode)
 {
-bitvec_c *ldsel = list_to_bitvec (*list, NumLineDefs);
-bitvec_c ldseen (NumLineDefs);  // Linedef already seen ?
+	bitvec_c *ldsel = list_to_bitvec (*list, NumLineDefs);
+	bitvec_c ldseen (NumLineDefs);  // Linedef already seen ?
 
-if (! is_obj (linedef_no))  // Sanity check
-   FatalError("select_linedef_path called with bad linedef_no=%d",
-      linedef_no);
+	if (! is_obj (linedef_no))  // Sanity check
+		FatalError("select_linedef_path called with bad linedef_no=%d",
+				linedef_no);
 
-LDPtr ld = LineDefs + linedef_no;
-ldsel->frob (linedef_no, mode);
-ldseen.set (linedef_no);
-select_linedefs_in_half_path (*ldsel, ldseen, linedef_no, ld->start, mode);
-select_linedefs_in_half_path (*ldsel, ldseen, linedef_no, ld->end, mode);
-ForgetSelection (list);
-*list = bitvec_to_list (*ldsel);
-delete ldsel;
+	LDPtr ld = LineDefs + linedef_no;
+	ldsel->frob (linedef_no, mode);
+	ldseen.set (linedef_no);
+	select_linedefs_in_half_path (*ldsel, ldseen, linedef_no, ld->start, mode);
+	select_linedefs_in_half_path (*ldsel, ldseen, linedef_no, ld->end, mode);
+	ForgetSelection (list);
+	*list = bitvec_to_list (*ldsel);
+	delete ldsel;
 }
 
 
@@ -82,50 +82,51 @@ delete ldsel;
  *  itself on the other vertex of that linedef.
  */
 static void select_linedefs_in_half_path (bitvec_c &ldsel,
-    bitvec_c &ldseen,
-    int linedef_no,
-    int vertex_no,
-    sel_op_e mode)
+		bitvec_c &ldseen,
+		int linedef_no,
+		int vertex_no,
+		sel_op_e mode)
 {
-  int next_linedef_no = OBJ_NO_NONE;
-  int next_vertex_no = OBJ_NO_NONE;
+	int next_linedef_no = OBJ_NO_NONE;
+	int next_vertex_no = OBJ_NO_NONE;
 
-  // Look for the next linedef in the path. It's the
-  // linedef that uses vertex vertex_no and is not
-  // linedef_no.
-  for (int n = 0; n < NumLineDefs; n++)
-  {
-    if (n == linedef_no)
-      continue;
-    if (LineDefs[n].start == vertex_no)
-    {
-      if (is_obj (next_linedef_no))
-  return;  // There is a fork in the path. Stop here.
-      // Continue search at the other end of the linedef
-      next_vertex_no = LineDefs[n].end;
-      next_linedef_no = n;
-    }
-    if (LineDefs[n].end == vertex_no)
-    {
-      if (is_obj (next_linedef_no))
-  return;  // There is a fork in the path. Stop here.
-      // Continue search at the other end of the linedef
-      next_vertex_no = LineDefs[n].start;
-      next_linedef_no = n;
-    }
-  }
-  if (! is_obj (next_linedef_no))  // None ? Reached end of path.
-    return;
+	// Look for the next linedef in the path. It's the
+	// linedef that uses vertex vertex_no and is not
+	// linedef_no.
+	for (int n = 0; n < NumLineDefs; n++)
+	{
+		if (n == linedef_no)
+			continue;
+		if (LineDefs[n].start == vertex_no)
+		{
+			if (is_obj (next_linedef_no))
+				return;  // There is a fork in the path. Stop here.
+			// Continue search at the other end of the linedef
+			next_vertex_no = LineDefs[n].end;
+			next_linedef_no = n;
+		}
+		if (LineDefs[n].end == vertex_no)
+		{
+			if (is_obj (next_linedef_no))
+				return;  // There is a fork in the path. Stop here.
+			// Continue search at the other end of the linedef
+			next_vertex_no = LineDefs[n].start;
+			next_linedef_no = n;
+		}
+	}
+	if (! is_obj (next_linedef_no))  // None ? Reached end of path.
+		return;
 
-  // Already seen the next linedef ? The path must be
-  // closed. No need to do like the Dupondt.
-  if (ldseen.get (next_linedef_no))
-    return;
+	// Already seen the next linedef ? The path must be
+	// closed. No need to do like the Dupondt.
+	if (ldseen.get (next_linedef_no))
+		return;
 
-  ldsel.frob (next_linedef_no, mode);
-  ldseen.set (next_linedef_no);
-  select_linedefs_in_half_path (ldsel, ldseen, next_linedef_no, next_vertex_no,
-      mode);
+	ldsel.frob (next_linedef_no, mode);
+	ldseen.set (next_linedef_no);
+
+	select_linedefs_in_half_path (ldsel, ldseen, next_linedef_no, next_vertex_no,
+			mode);
 }
 
 
@@ -141,25 +142,28 @@ static void select_linedefs_in_half_path (bitvec_c &ldsel,
  */
 void select_1s_linedefs_path (SelPtr *list, int linedef_no, sel_op_e mode)
 {
-bitvec_c *ldsel = list_to_bitvec (*list, NumLineDefs);
-bitvec_c ldseen (NumLineDefs);  // Linedef already seen ?
+	bitvec_c *ldsel = list_to_bitvec (*list, NumLineDefs);
+	bitvec_c ldseen (NumLineDefs);  // Linedef already seen ?
 
-if (! is_obj (linedef_no))  // Sanity check
-   FatalError("select_linedef_path called with bad linedef_no=%d",
-      linedef_no);
+	if (! is_obj (linedef_no))  // Sanity check
+		FatalError("select_linedef_path called with bad linedef_no=%d",
+				linedef_no);
 
-LDPtr ld = LineDefs + linedef_no;
-if (! is_obj (ld->side_R)  // The first linedef is not single-sided. Quit.
-    || is_obj (ld->side_L))
-  goto byebye;
-ldsel->frob (linedef_no, mode);
-ldseen.set (linedef_no);
-select_1s_linedefs_in_half_path (*ldsel, ldseen, linedef_no, ld->start, mode);
-select_1s_linedefs_in_half_path (*ldsel, ldseen, linedef_no, ld->end, mode);
-ForgetSelection (list);
-*list = bitvec_to_list (*ldsel);
+	LDPtr ld = LineDefs + linedef_no;
+	if (! is_obj (ld->side_R)  // The first linedef is not single-sided. Quit.
+			|| is_obj (ld->side_L))
+		goto byebye;
+	ldsel->frob (linedef_no, mode);
+	ldseen.set (linedef_no);
+
+	select_1s_linedefs_in_half_path (*ldsel, ldseen, linedef_no, ld->start, mode);
+	select_1s_linedefs_in_half_path (*ldsel, ldseen, linedef_no, ld->end, mode);
+	
+	ForgetSelection (list);
+	
+	*list = bitvec_to_list (*ldsel);
 byebye:
-delete ldsel;
+	delete ldsel;
 }
 
 
@@ -169,54 +173,55 @@ delete ldsel;
  *  single-sided linedefs are selected.
  */
 static void select_1s_linedefs_in_half_path (bitvec_c &ldsel,
-    bitvec_c &ldseen,
-    int linedef_no,
-    int vertex_no,
-    sel_op_e mode)
+		bitvec_c &ldseen,
+		int linedef_no,
+		int vertex_no,
+		sel_op_e mode)
 {
-  int next_linedef_no = OBJ_NO_NONE;
-  int next_vertex_no = OBJ_NO_NONE;
+	int next_linedef_no = OBJ_NO_NONE;
+	int next_vertex_no = OBJ_NO_NONE;
 
-  // Look for the next linedef in the path. It's the
-  // linedef that uses vertex vertex_no and is not
-  // linedef_no.
-  for (int n = 0; n < NumLineDefs; n++)
-  {
-    if (n == linedef_no)
-      continue;
-    if (LineDefs[n].start == vertex_no
-  && is_obj (LineDefs[n].side_R)
-  && ! is_obj (LineDefs[n].side_L))
-    {
-      if (is_obj (next_linedef_no))
-  return;  // There is a fork in the path. Stop here.
-      // Continue search at the other end of the linedef
-      next_vertex_no = LineDefs[n].end;
-      next_linedef_no = n;
-    }
-    if (LineDefs[n].end == vertex_no
-  && is_obj (LineDefs[n].side_R)
-  && ! is_obj (LineDefs[n].side_L))
-    {
-      if (is_obj (next_linedef_no))
-  return;  // There is a fork in the path. Stop here.
-      // Continue search at the other end of the linedef
-      next_vertex_no = LineDefs[n].start;
-      next_linedef_no = n;
-    }
-  }
-  if (! is_obj (next_linedef_no))  // None ? Reached end of path.
-    return;
+	// Look for the next linedef in the path. It's the
+	// linedef that uses vertex vertex_no and is not
+	// linedef_no.
+	for (int n = 0; n < NumLineDefs; n++)
+	{
+		if (n == linedef_no)
+			continue;
+		if (LineDefs[n].start == vertex_no
+				&& is_obj (LineDefs[n].side_R)
+				&& ! is_obj (LineDefs[n].side_L))
+		{
+			if (is_obj (next_linedef_no))
+				return;  // There is a fork in the path. Stop here.
+			// Continue search at the other end of the linedef
+			next_vertex_no = LineDefs[n].end;
+			next_linedef_no = n;
+		}
+		if (LineDefs[n].end == vertex_no
+				&& is_obj (LineDefs[n].side_R)
+				&& ! is_obj (LineDefs[n].side_L))
+		{
+			if (is_obj (next_linedef_no))
+				return;  // There is a fork in the path. Stop here.
+			// Continue search at the other end of the linedef
+			next_vertex_no = LineDefs[n].start;
+			next_linedef_no = n;
+		}
+	}
+	if (! is_obj (next_linedef_no))  // None ? Reached end of path.
+		return;
 
-  // Already seen the next linedef ? The path must be
-  // closed. No need to do like the Dupondt.
-  if (ldseen.get (next_linedef_no))
-    return;
+	// Already seen the next linedef ? The path must be
+	// closed. No need to do like the Dupondt.
+	if (ldseen.get (next_linedef_no))
+		return;
 
-  ldsel.frob (next_linedef_no, mode);
-  ldseen.set (next_linedef_no);
-  select_1s_linedefs_in_half_path (ldsel, ldseen, next_linedef_no,
-      next_vertex_no, mode);
+	ldsel.frob (next_linedef_no, mode);
+	ldseen.set (next_linedef_no);
+
+	select_1s_linedefs_in_half_path (ldsel, ldseen, next_linedef_no,
+			next_vertex_no, mode);
 }
 
 

@@ -98,80 +98,80 @@ void DistributeSectorCeilings (SelPtr obj)
 void RaiseOrLowerSectors (SelPtr obj)
 {
 #if 0 // TODO: RaiseOrLowerSectors
-SelPtr cur;
-int  x0;          // left hand (x) window start
-int  y0;          // top (y) window start
-int  key;         // holds value returned by InputInteger
-int  delta = 0;   // user input for delta
+	SelPtr cur;
+	int  x0;          // left hand (x) window start
+	int  y0;          // top (y) window start
+	int  key;         // holds value returned by InputInteger
+	int  delta = 0;   // user input for delta
 
 
-x0 = (ScrMaxX - 25 - 44 * FONTW) / 2;
-y0 = (ScrMaxY - 7 * FONTH) / 2;
-DrawScreenBox3D (x0, y0, x0 + 25 + 44 * FONTW, y0 + 7 * FONTH);
-set_colour (WHITE);
-DrawScreenText (x0+10, y0 + FONTH,     "Enter number of units to raise the ceilings");
-DrawScreenText (x0+10, y0 + 2 * FONTH, "and floors of selected sectors by.");
-DrawScreenText (x0+10, y0 + 3 * FONTH, "A negative number lowers them.");
-while (1)
-  {
-  key = InputInteger (x0+10, y0 + 5 * FONTH, &delta, -32768, 32767);
-  if (key == YK_RETURN || key == YK_ESC)
-    break;
-  Beep ();
-  }
-if (key == YK_ESC)
-  return;
+	x0 = (ScrMaxX - 25 - 44 * FONTW) / 2;
+	y0 = (ScrMaxY - 7 * FONTH) / 2;
+	DrawScreenBox3D (x0, y0, x0 + 25 + 44 * FONTW, y0 + 7 * FONTH);
+	set_colour (WHITE);
+	DrawScreenText (x0+10, y0 + FONTH,     "Enter number of units to raise the ceilings");
+	DrawScreenText (x0+10, y0 + 2 * FONTH, "and floors of selected sectors by.");
+	DrawScreenText (x0+10, y0 + 3 * FONTH, "A negative number lowers them.");
+	while (1)
+	{
+		key = InputInteger (x0+10, y0 + 5 * FONTH, &delta, -32768, 32767);
+		if (key == YK_RETURN || key == YK_ESC)
+			break;
+		Beep ();
+	}
+	if (key == YK_ESC)
+		return;
 
-for (cur = obj; cur != NULL; cur = cur->next)
-  {
-  Sectors[cur->objnum].ceilh += delta;
-  Sectors[cur->objnum].floorh += delta;
-  }
-MadeChanges = 1;
+	for (cur = obj; cur != NULL; cur = cur->next)
+	{
+		Sectors[cur->objnum].ceilh += delta;
+		Sectors[cur->objnum].floorh += delta;
+	}
+	MadeChanges = 1;
 #endif
 }
 
 
 /*
    Brighten or darken sectors
-*/
+   */
 
 void BrightenOrDarkenSectors (SelPtr obj)
 {
 #if 0  // TODO: BrightenOrDarkenSectors
-SelPtr cur;
-int  x0;          // left hand (x) window start
-int  y0;          // top (y) window start
-int  key;         // holds value returned by InputInteger
-int  delta = 0;   // user input for delta
+	SelPtr cur;
+	int  x0;          // left hand (x) window start
+	int  y0;          // top (y) window start
+	int  key;         // holds value returned by InputInteger
+	int  delta = 0;   // user input for delta
 
 
-x0 = (ScrMaxX - 25 - 44 * FONTW) / 2;
-y0 = (ScrMaxY - 7 * FONTH) / 2;
-DrawScreenBox3D (x0, y0, x0 + 25 + 44 * FONTW, y0 + 7 * FONTH);
-set_colour (WHITE);
-DrawScreenText (x0+10, y0 + FONTH,     "Enter number of units to brighten");
-DrawScreenText (x0+10, y0 + 2 * FONTH, "the selected sectors by.");
-DrawScreenText (x0+10, y0 + 3 * FONTH, "A negative number darkens them.");
-while (1)
-  {
-  key = InputInteger (x0+10, y0 + 5 * FONTH, &delta, -255, 255);
-  if (key == YK_RETURN || key == YK_ESC)
-    break;
-  Beep ();
-  }
-if (key == YK_ESC)
-  return;
+	x0 = (ScrMaxX - 25 - 44 * FONTW) / 2;
+	y0 = (ScrMaxY - 7 * FONTH) / 2;
+	DrawScreenBox3D (x0, y0, x0 + 25 + 44 * FONTW, y0 + 7 * FONTH);
+	set_colour (WHITE);
+	DrawScreenText (x0+10, y0 + FONTH,     "Enter number of units to brighten");
+	DrawScreenText (x0+10, y0 + 2 * FONTH, "the selected sectors by.");
+	DrawScreenText (x0+10, y0 + 3 * FONTH, "A negative number darkens them.");
+	while (1)
+	{
+		key = InputInteger (x0+10, y0 + 5 * FONTH, &delta, -255, 255);
+		if (key == YK_RETURN || key == YK_ESC)
+			break;
+		Beep ();
+	}
+	if (key == YK_ESC)
+		return;
 
-for (cur = obj; cur != NULL; cur = cur->next)
-  {
-  int light;
-  light = Sectors[cur->objnum].light + delta;
-  light = MAX(light, 0);
-  light = MIN(light, 255);
-  Sectors[cur->objnum].light = light;
-  }
-MadeChanges = 1;
+	for (cur = obj; cur != NULL; cur = cur->next)
+	{
+		int light;
+		light = Sectors[cur->objnum].light + delta;
+		light = MAX(light, 0);
+		light = MIN(light, 255);
+		Sectors[cur->objnum].light = light;
+	}
+	MadeChanges = 1;
 #endif
 }
 

@@ -49,91 +49,91 @@ extern int gammatable[5][256];
  */
 pcolour_t *alloc_game_colours (int playpalnum)
 {
-  MDirPtr dir;
-  u8_t  *dpal;
-  pcolour_t *game_colours = 0;
+	MDirPtr dir;
+	u8_t  *dpal;
+	pcolour_t *game_colours = 0;
 
-  dir = FindMasterDir (MasterDir, "PLAYPAL");
-  if (dir == NULL)
-  {
-    warn ("PLAYPAL lump not found.\n");
-    return 0;
-  }
+	dir = FindMasterDir (MasterDir, "PLAYPAL");
+	if (dir == NULL)
+	{
+		warn ("PLAYPAL lump not found.\n");
+		return 0;
+	}
 
-  int playpal_count = dir->dir.size / (3 * DOOM_COLOURS);
-  if (playpalnum < 0 || playpalnum >= playpal_count)
-  {
-    warn ("playpalnum %d out of range (0-%d). Using #0 instead.\n",
-        playpalnum, playpal_count - 1);
-    playpalnum = 0;
-  }
+	int playpal_count = dir->dir.size / (3 * DOOM_COLOURS);
+	if (playpalnum < 0 || playpalnum >= playpal_count)
+	{
+		warn ("playpalnum %d out of range (0-%d). Using #0 instead.\n",
+				playpalnum, playpal_count - 1);
+		playpalnum = 0;
+	}
 
-  dpal = (u8_t *) GetMemory (3 * DOOM_COLOURS);
-  dir->wadfile->seek (dir->dir.start);
-  if (dir->wadfile->error ())
-  {
-    warn ("%s: can't seek to %lXh\n",
-        dir->wadfile->pathname (), (unsigned long) dir->dir.start);
-    warn ("PLAYPAL: seek error\n");
-  }
-  for (int n = 0; n <= playpalnum; n++)
-  {
-    dir->wadfile->read_bytes (dpal, 3 * DOOM_COLOURS);
-    if (dir->wadfile->error ())
-    {
-      warn ("%s: read error\n", dir->wadfile->where ());
-      warn ("PLAYPAL: error reading entry #%d\n", n);
-    }
-  }
+	dpal = (u8_t *) GetMemory (3 * DOOM_COLOURS);
+	dir->wadfile->seek (dir->dir.start);
+	if (dir->wadfile->error ())
+	{
+		warn ("%s: can't seek to %lXh\n",
+				dir->wadfile->pathname (), (unsigned long) dir->dir.start);
+		warn ("PLAYPAL: seek error\n");
+	}
+	for (int n = 0; n <= playpalnum; n++)
+	{
+		dir->wadfile->read_bytes (dpal, 3 * DOOM_COLOURS);
+		if (dir->wadfile->error ())
+		{
+			warn ("%s: read error\n", dir->wadfile->where ());
+			warn ("PLAYPAL: error reading entry #%d\n", n);
+		}
+	}
 
-  rgb_c rgb_values[DOOM_COLOURS];
-  for (size_t n = 0; n < DOOM_COLOURS; n++)
-  {
-    rgb_values[n].r = (u8_t) dpal[3 * n];
-    rgb_values[n].g = (u8_t) dpal[3 * n + 1];
-    rgb_values[n].b = (u8_t) dpal[3 * n + 2];
+	rgb_c rgb_values[DOOM_COLOURS];
+	for (size_t n = 0; n < DOOM_COLOURS; n++)
+	{
+		rgb_values[n].r = (u8_t) dpal[3 * n];
+		rgb_values[n].g = (u8_t) dpal[3 * n + 1];
+		rgb_values[n].b = (u8_t) dpal[3 * n + 2];
 
-    rgb_values[n].r = gammatable[usegamma][rgb_values[n].r];
-    rgb_values[n].g = gammatable[usegamma][rgb_values[n].g];
-    rgb_values[n].b = gammatable[usegamma][rgb_values[n].b];
-  }
-  game_colours = alloc_colours (rgb_values, DOOM_COLOURS);
+		rgb_values[n].r = gammatable[usegamma][rgb_values[n].r];
+		rgb_values[n].g = gammatable[usegamma][rgb_values[n].g];
+		rgb_values[n].b = gammatable[usegamma][rgb_values[n].b];
+	}
+	game_colours = alloc_colours (rgb_values, DOOM_COLOURS);
 
-  // Find the colour closest to IMG_TRANSP
-  {
-    colour0 = IMG_TRANSP;
-    int smallest_delta = INT_MAX;
+	// Find the colour closest to IMG_TRANSP
+	{
+		colour0 = IMG_TRANSP;
+		int smallest_delta = INT_MAX;
 
-    for (size_t n = 1; n < DOOM_COLOURS; n++)
-    {
-      int delta = rgb_values[IMG_TRANSP] - rgb_values[n];
-      if (delta < smallest_delta)
-      {
-        colour0 = n;
-        smallest_delta = delta;
-      }
-    }
-    verbmsg ("colours: colour %d remapped to %d (delta %d)\n",
-        IMG_TRANSP, colour0, smallest_delta);
+		for (size_t n = 1; n < DOOM_COLOURS; n++)
+		{
+			int delta = rgb_values[IMG_TRANSP] - rgb_values[n];
+			if (delta < smallest_delta)
+			{
+				colour0 = n;
+				smallest_delta = delta;
+			}
+		}
+		verbmsg ("colours: colour %d remapped to %d (delta %d)\n",
+				IMG_TRANSP, colour0, smallest_delta);
 
-    rgb_c med_blue (0, 0, 128);
-    sky_colour = 0;
-    smallest_delta = INT_MAX;
+		rgb_c med_blue (0, 0, 128);
+		sky_colour = 0;
+		smallest_delta = INT_MAX;
 
-    for (size_t n = 0; n < DOOM_COLOURS; n++)
-    {
-      int delta = med_blue - rgb_values[n];
-      if (delta < smallest_delta)
-      {
-        sky_colour = n;
-        smallest_delta = delta;
-      }
-    }
-    verbmsg ("Sky Colour remapped to %d (delta %d)\n", sky_colour, smallest_delta);
-  }
+		for (size_t n = 0; n < DOOM_COLOURS; n++)
+		{
+			int delta = med_blue - rgb_values[n];
+			if (delta < smallest_delta)
+			{
+				sky_colour = n;
+				smallest_delta = delta;
+			}
+		}
+		verbmsg ("Sky Colour remapped to %d (delta %d)\n", sky_colour, smallest_delta);
+	}
 
-  FreeMemory (dpal);
-  return game_colours;
+	FreeMemory (dpal);
+	return game_colours;
 }
 
 
@@ -143,7 +143,7 @@ pcolour_t *alloc_game_colours (int playpalnum)
  */
 void free_game_colours (pcolour_t *game_colours)
 {
-free_colours (game_colours, DOOM_COLOURS);
+	free_colours (game_colours, DOOM_COLOURS);
 }
 
 
@@ -152,27 +152,27 @@ Game_colour_24 game_colour_24;
 
 void Game_colour_24::refresh (const pcolour_t *game_colour, bool big_endian)
 {
-  if (pv_table == 0)
-    pv_table = new pv24_t[DOOM_COLOURS];
+	if (pv_table == 0)
+		pv_table = new pv24_t[DOOM_COLOURS];
 
-  if (big_endian)
-  {
-    for (size_t n = 0; n < DOOM_COLOURS; n++)
-    {
-      pv_table[n][0] = game_colour[n] / 0x10000;
-      pv_table[n][1] = game_colour[n] / 0x100;
-      pv_table[n][2] = game_colour[n];
-    }
-  }
-  else
-  {
-    for (size_t n = 0; n < DOOM_COLOURS; n++)
-    {
-      pv_table[n][0] = game_colour[n];
-      pv_table[n][1] = game_colour[n] / 0x100;
-      pv_table[n][2] = game_colour[n] / 0x10000;
-    }
-  }
+	if (big_endian)
+	{
+		for (size_t n = 0; n < DOOM_COLOURS; n++)
+		{
+			pv_table[n][0] = game_colour[n] / 0x10000;
+			pv_table[n][1] = game_colour[n] / 0x100;
+			pv_table[n][2] = game_colour[n];
+		}
+	}
+	else
+	{
+		for (size_t n = 0; n < DOOM_COLOURS; n++)
+		{
+			pv_table[n][0] = game_colour[n];
+			pv_table[n][1] = game_colour[n] / 0x100;
+			pv_table[n][2] = game_colour[n] / 0x10000;
+		}
+	}
 }
 
 
@@ -183,20 +183,20 @@ void Game_colour_24::refresh (const pcolour_t *game_colour, bool big_endian)
  */
 void irgb2rgb (int c, rgb_c *rgb)
 {
-  if (c == 8)  // Special case for DARKGREY
-    rgb->r = rgb->g = rgb->b = 0x40;
-  else if (c == 6)
-  {
-    rgb->r = 0xff;  // ORANGE
-    rgb->g = 0xaa;
-    rgb->b = 0x00;
-  }
-  else
-  {
-    rgb->r = (c & 4) ? ((c & 8) ? 0xff : 0x80) : 0;
-    rgb->g = (c & 2) ? ((c & 8) ? 0xff : 0x80) : 0;
-    rgb->b = (c & 1) ? ((c & 8) ? 0xff : 0x80) : 0;
-  }
+	if (c == 8)  // Special case for DARKGREY
+		rgb->r = rgb->g = rgb->b = 0x40;
+	else if (c == 6)
+	{
+		rgb->r = 0xff;  // ORANGE
+		rgb->g = 0xaa;
+		rgb->b = 0x00;
+	}
+	else
+	{
+		rgb->r = (c & 4) ? ((c & 8) ? 0xff : 0x80) : 0;
+		rgb->g = (c & 2) ? ((c & 8) ? 0xff : 0x80) : 0;
+		rgb->b = (c & 1) ? ((c & 8) ? 0xff : 0x80) : 0;
+	}
 }
 
 
@@ -209,52 +209,52 @@ void irgb2rgb (int c, rgb_c *rgb)
  */
 int getcolour (const char *s, rgb_c *rgb)
 {
-  int i;
-  int digit;
-  int rdigits;
-  int gdigits;
-  int bdigits;
-  unsigned r;
-  unsigned g;
-  unsigned b;
-  int globaldigits;
+	int i;
+	int digit;
+	int rdigits;
+	int gdigits;
+	int bdigits;
+	unsigned r;
+	unsigned g;
+	unsigned b;
+	int globaldigits;
 
-  if (strncmp (s, "rgb:", 4))
-    return 1;
+	if (strncmp (s, "rgb:", 4))
+		return 1;
 
-  for (i = 4, r = 0, rdigits = 0; (digit = hextoi (s[i])) >= 0; i++, rdigits++)
-    r = (r << 4) | digit;
-  if (s[i++] != '/')
-    return 2;
+	for (i = 4, r = 0, rdigits = 0; (digit = hextoi (s[i])) >= 0; i++, rdigits++)
+		r = (r << 4) | digit;
+	if (s[i++] != '/')
+		return 2;
 
-  for (g = 0, gdigits = 0; (digit = hextoi (s[i])) >= 0; i++, gdigits++)
-    g = (g << 4) | digit;
-  if (s[i++] != '/')
-    return 3;
-    
-  for (b = 0, bdigits = 0; (digit = hextoi (s[i])) >= 0; i++, bdigits++)
-    b = (b << 4) | digit;
-  if (s[i++] != '\0')
-    return 4;
+	for (g = 0, gdigits = 0; (digit = hextoi (s[i])) >= 0; i++, gdigits++)
+		g = (g << 4) | digit;
+	if (s[i++] != '/')
+		return 3;
 
-  // Force to 8 bits (RGB_DIGITS hex digits) by scaling up or down
-  globaldigits = rdigits;
-  globaldigits = MAX(globaldigits, gdigits);
-  globaldigits = MAX(globaldigits, bdigits);
-  for (; globaldigits < RGB_DIGITS; globaldigits++)
-  {
-    r <<= 4;
-    g <<= 4;
-    b <<= 4;
-  }
-  for (; globaldigits > RGB_DIGITS; globaldigits--)
-  {
-    r >>= 4;
-    g >>= 4;
-    b >>= 4;
-  }
-  rgb->set (r, g, b);
-  return 0;
+	for (b = 0, bdigits = 0; (digit = hextoi (s[i])) >= 0; i++, bdigits++)
+		b = (b << 4) | digit;
+	if (s[i++] != '\0')
+		return 4;
+
+	// Force to 8 bits (RGB_DIGITS hex digits) by scaling up or down
+	globaldigits = rdigits;
+	globaldigits = MAX(globaldigits, gdigits);
+	globaldigits = MAX(globaldigits, bdigits);
+	for (; globaldigits < RGB_DIGITS; globaldigits++)
+	{
+		r <<= 4;
+		g <<= 4;
+		b <<= 4;
+	}
+	for (; globaldigits > RGB_DIGITS; globaldigits--)
+	{
+		r >>= 4;
+		g >>= 4;
+		b >>= 4;
+	}
+	rgb->set (r, g, b);
+	return 0;
 }
 
 
@@ -263,9 +263,9 @@ int getcolour (const char *s, rgb_c *rgb)
    with their rgb value and usage count. */
 typedef struct 
 {
-  pcolour_t pcn;  // The physical colour# (pixel value).
-  rgb_c rgb;    // Its RGB value.
-  int usage_count;  // Number of logical colours that use it.
+	pcolour_t pcn;  // The physical colour# (pixel value).
+	rgb_c rgb;    // Its RGB value.
+	int usage_count;  // Number of logical colours that use it.
 }
 pcolours_table_entry_t;
 
@@ -283,22 +283,22 @@ size_t physical_colours = 0;  // Number of entries in <pcolours>
  */
 pcolour_t *alloc_colours (rgb_c rgb_values[], size_t count)
 {
-  verbmsg ("colours: alloc_colours: count %d\n", count);
+	verbmsg ("colours: alloc_colours: count %d\n", count);
 
-  pcolour_t *pcn_table = (pcolour_t *) malloc (count * sizeof *pcn_table);
-  if (pcn_table == NULL)
-    FatalError(msg_nomem);
+	pcolour_t *pcn_table = (pcolour_t *) malloc (count * sizeof *pcn_table);
+	if (pcn_table == NULL)
+		FatalError(msg_nomem);
 
-  /* Allocate the physical colours if necessary. Should not do
-     it for static visuals (StaticColor, TrueColor). It does no
-     harm but it's useless. */
-  for (size_t n = 0; n < count; n++)
-  {
-    pcn_table[n] = (pcolour_t) fl_rgb_color(
-      rgb_values[n].r, rgb_values[n].g, rgb_values[n].b);
-  }
+	/* Allocate the physical colours if necessary. Should not do
+	   it for static visuals (StaticColor, TrueColor). It does no
+	   harm but it's useless. */
+	for (size_t n = 0; n < count; n++)
+	{
+		pcn_table[n] = (pcolour_t) fl_rgb_color(
+				rgb_values[n].r, rgb_values[n].g, rgb_values[n].b);
+	}
 
-  return pcn_table;
+	return pcn_table;
 }
 
 
@@ -309,8 +309,6 @@ pcolour_t *alloc_colours (rgb_c rgb_values[], size_t count)
 void free_colours (pcolour_t *pcn_table, size_t count)
 {
 }
-
-
 
 
 //--- editor settings ---

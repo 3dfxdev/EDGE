@@ -36,7 +36,7 @@
  */
 bool Confirm (int x0, int y0, const char *prompt1, const char *prompt2)
 {
-  return fl_ask("%s\n%s", prompt1, prompt2) ? true:false;
+	return fl_ask("%s\n%s", prompt1, prompt2) ? true:false;
 
 //###  const char *const prompt3 = "Press [Y] to confirm, [N] to cancel...";
 //###  size_t maxlen;
@@ -108,16 +108,16 @@ bool Confirm (int x0, int y0, const char *prompt1, const char *prompt2)
 int Confirm2 (int x0, int y0, confirm_t *confirm_flag,
    const char *prompt1, const char *prompt2)
 {
-  int r;
+	int r;
 
-  if (*confirm_flag == YC_YES)
-    return 1;
-  if (*confirm_flag == YC_NO)
-    return 0;
-  r = Confirm (x0, y0, prompt1, prompt2);
-  if (*confirm_flag == YC_ASK_ONCE)
-    *confirm_flag = r ? YC_YES : YC_NO;  // We won't ask again
-  return r;
+	if (*confirm_flag == YC_YES)
+		return 1;
+	if (*confirm_flag == YC_NO)
+		return 0;
+	r = Confirm (x0, y0, prompt1, prompt2);
+	if (*confirm_flag == YC_ASK_ONCE)
+		*confirm_flag = r ? YC_YES : YC_NO;  // We won't ask again
+	return r;
 }
 
 
@@ -129,7 +129,7 @@ int Confirm2 (int x0, int y0, confirm_t *confirm_flag,
  */
 void Notify (int x0, int y0, const char *prompt1, const char *prompt2)
 {
-  fl_message("%s\n%s", prompt1, prompt2);
+	fl_message("%s\n%s", prompt1, prompt2);
 
 //###  const char *const prompt3 = "Press any key to continue...";
 //###  size_t maxlen;
@@ -180,7 +180,7 @@ void Notify (int x0, int y0, const char *prompt1, const char *prompt2)
  */
 void NotImplemented (void)
 {
-  Notify (-1, -1, "This function is not implemented... Yet!", NULL);
+	Notify (-1, -1, "This function is not implemented... Yet!", NULL);
 }
 
 
@@ -190,12 +190,12 @@ void NotImplemented (void)
  */
 void verbmsg (const char *fmt, ...)
 {
-  va_list args;
+	va_list args;
 
-  if (! verbose)
-    return;
-  va_start (args, fmt);
-  vprintf (fmt, args);
+	if (! verbose)
+		return;
+	va_start (args, fmt);
+	vprintf (fmt, args);
 }
 
 //--- editor settings ---
