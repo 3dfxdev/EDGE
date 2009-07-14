@@ -27,7 +27,7 @@
 
 void flip_mirror (SelPtr list, int obj_type, char op);
 
-void centre_of_objects (int obj_type, SelPtr list, int *x, int *y);
+void centre_of_objects (selection_c * list, int *x, int *y);
 
 int exchange_objects_numbers (int obj_type, SelPtr list, bool adjust);
 

@@ -44,6 +44,7 @@
 
 void DistributeSectorFloors (SelPtr obj)
 {
+#if 0  // FIXME: DistributeSectorFloors
 	SelPtr cur;
 	int    n, num, floor1h, floor2h;
 
@@ -61,6 +62,7 @@ void DistributeSectorFloors (SelPtr obj)
 		n++;
 	}
 	MadeChanges = 1;
+#endif
 }
 
 
@@ -71,6 +73,7 @@ void DistributeSectorFloors (SelPtr obj)
 
 void DistributeSectorCeilings (SelPtr obj)
 {
+#if 0 // FIXME DistributeSectorCeilings
 	SelPtr cur;
 	int    n, num, ceil1h, ceil2h;
 
@@ -88,6 +91,7 @@ void DistributeSectorCeilings (SelPtr obj)
 		n++;
 	}
 	MadeChanges = 1;
+#endif
 }
 
 
@@ -516,6 +520,8 @@ void SuperSectorSelector (int map_x, int map_y, int new_sec)
 
 void SplitSector(int vertex1, int vertex2)
 {
+#if 0  // FIXME SplitSector
+
 	SelPtr llist;
 	int    curv, s, l, sd;
 	char   msg1[80], msg2[80];
@@ -654,6 +660,7 @@ void SplitSector(int vertex1, int vertex2)
 
 	MadeChanges = 1;
 	MadeMapChanges = 1;
+#endif
 }
 
 
@@ -664,6 +671,7 @@ void SplitSector(int vertex1, int vertex2)
 
 void SplitLineDefsAndSector(int linedef1, int linedef2)
 {
+#if 0  // FIXME SplitLineDefsAndSector
 	SelPtr llist;
 	char   msg[80];
 
@@ -697,8 +705,10 @@ void SplitLineDefsAndSector(int linedef1, int linedef2)
 	SelectObject (&llist, linedef2);
 	SplitLineDefs (llist);
 	ForgetSelection (&llist);
+
 	/* split the sector and create a linedef between the two vertices */
 	SplitSector (NumVertices - 1, NumVertices - 2);
+#endif
 }
 
 

@@ -378,6 +378,9 @@ void CheckSectors ()
 
 void CheckCrossReferences ()
 {
+// FIXME !!!!  CheckCrossReferences
+#if 0
+
 	char   msg[80];
 	int    n, m;
 	SelPtr cur;
@@ -579,6 +582,7 @@ void CheckCrossReferences ()
 		DeleteObjects (OBJ_SECTORS, &cur);
 	else
 		{ delete cur; cur = NULL; }
+#endif
 }
 
 

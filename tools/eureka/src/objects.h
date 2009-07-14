@@ -30,7 +30,7 @@
 void  HighlightSelection (int, SelPtr);
 obj_no_t GetMaxObjectNum (int);
 void  GetCurObject (Objid& o, int objtype, int x, int y);
-void  SelectObjectsInBox (SelPtr *list, int, int, int, int, int);
+void  SelectObjectsInBox (selection_c *list, int, int, int, int, int);
 void  HighlightObject (int, int, int);
 
 void  DeleteObject (const Objid& obj);
