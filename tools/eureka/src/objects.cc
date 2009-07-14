@@ -60,6 +60,102 @@ obj_no_t GetMaxObjectNum (int objtype)
 }
 
 
+static void RawDeleteThing(int objnum)
+{
+	SYS_ASSERT(0 <= objnum && objnum < NumThings);
+
+	// Delete the thing
+	NumThings--;
+
+	if (NumThings > 0)
+	{
+		for (int n = objnum; n < NumThings; n++)
+			Things[n] = Things[n + 1];
+	}
+	else
+	{
+		FreeMemory (Things);
+		Things = NULL;
+	}
+}
+
+
+static void RawDeleteVertex(int objnum)
+{
+	SYS_ASSERT(0 <= objnum && objnum < NumVertices);
+
+	NumVertices--;
+
+	if (NumVertices > 0)
+	{
+		for (n = objnum; n < NumVertices; n++)
+			Vertices[n] = Vertices[n + 1];
+	}
+	else
+	{
+		FreeMemory (Vertices);
+		Vertices = NULL;
+	}
+}
+
+
+static void RawDeleteSector(int objnum)
+{
+	SYS_ASSERT(0 <= objnum && objnum < NumSectors);
+
+	NumSectors--;
+
+	if (NumSectors > 0)
+	{
+		for (n = objnum; n < NumSectors; n++)
+			Sectors[n] = Sectors[n + 1];
+	}
+	else
+	{
+		FreeMemory (Sectors);
+		Sectors = NULL;
+	}
+}
+
+
+static void RawDeleteLineDef(int objnum)
+{
+	SYS_ASSERT(0 <= objnum && objnum < NumLineDefs);
+
+	NumLineDefs--;
+
+	if (NumLineDefs > 0)
+	{
+		for (n = objnum; n < NumLineDefs; n++)
+			LineDefs[n] = LineDefs[n + 1];
+	}
+	else
+	{
+		FreeMemory (LineDefs);
+		LineDefs = NULL;
+	}
+}
+
+
+static void RawDeleteSideDef(int objnum)
+{
+	SYS_ASSERT(0 <= objnum && objnum < NumSideDefs);
+
+	NumSideDefs--;
+
+	if (NumSideDefs > 0)
+	{
+		for (n = objnum; n < NumSideDefs; n++)
+			SideDefs[n] = SideDefs[n + 1];
+	}
+	else
+	{
+		FreeMemory (SideDefs);
+		SideDefs = NULL;
+	}
+}
+
+
 
 /*
    delete an object
@@ -75,63 +171,46 @@ void DeleteObject (const Objid& obj)
 
 
 
+
 /*
-   delete a group of objects (*recursive*)
-   */
-void DeleteObjects (int objtype, SelPtr *list)
+   delete a group of objects
+*/
+void DeleteObjects (int objtype, selection_c *list)
 {
-	int    n, objnum;
-	SelPtr cur;
+	selection_iterator_c it;
 
 	MadeChanges = 1;
-	switch (objtype)
+
+	std::vector<int> all_ids;
+
+	// collect all object number and sort them
+	for (list->begin(&it); !it.at_end(); ++it)
 	{
-		case OBJ_THINGS:
+		all_ids.push_back(*it);
+	}
 
-			if (*list)
-			{
-				things_angles++;
-				things_types++;
-			}
-			while (*list)
-			{
-				objnum = (*list)->objnum;
-				if (objnum < 0 || objnum >= NumThings)  // Paranoia
-				{
-					nf_bug ("attempt to delete non-existent thing #%d", objnum);
-					goto next_thing;
-				}
-				// Delete the thing
-				NumThings--;
-				if (NumThings > 0)
-				{
-					for (n = objnum; n < NumThings; n++)
-						Things[n] = Things[n + 1];
-				}
-				else
-				{
-					FreeMemory (Things);
-					Things = 0;
-				}
-				for (cur = (*list)->next; cur; cur = cur->next)
-					if (cur->objnum > objnum)
-						cur->objnum--;
-next_thing:
-				UnSelectObject (list, objnum);
-			}
-			break;
+	std::sort(all_ids.begin(), all_ids.end());
 
-		case OBJ_VERTICES:
-			if (*list)
-				MadeMapChanges = 1;
-			while (*list)
-			{
-				objnum = (*list)->objnum;
-				if (objnum < 0 || objnum >= NumVertices)  // Paranoia
-				{
-					nf_bug ("attempt to delete non-existent vertex #%d", objnum);
-					goto next_vertex;
-				}
+	// selection is now invalid
+	list->clear_all();
+
+
+	selec
+
+
+	for (int p = (int)all_ids.size()-1; p >= 0; p--)
+	{
+		int objnum = all_ids[o];
+		int n;
+
+		switch (objtype)
+		{
+			case OBJ_THINGS:
+				RawDeleteThing(objnum);
+				break;
+
+			case OBJ_VERTICES:
+
 				// Delete the linedefs bound to this vertex and change the references
 
 				for (n = 0; n < NumLineDefs; n++)
@@ -148,17 +227,6 @@ next_thing:
 				}
 				// Delete the vertex
 
-				NumVertices--;
-				if (NumVertices > 0)
-				{
-					for (n = objnum; n < NumVertices; n++)
-						Vertices[n] = Vertices[n + 1];
-				}
-				else
-				{
-					FreeMemory (Vertices);
-					Vertices = 0;
-				}
 				for (cur = (*list)->next; cur; cur = cur->next)
 					if (cur->objnum > objnum)
 						cur->objnum--;
@@ -167,41 +235,16 @@ next_vertex:
 			}
 			break;
 
-		case OBJ_LINEDEFS:
-			/* In DEU, deleting a linedef was not considered to be a
-			   map change. Deleting a _sidedef_ was.  Sidedefs
-			   are not automatically deleted when the linedef
-			   is because some sidedefs are shared by more than one
-			   linedef. So we need to set MadeMapChanges here. */
-			if (*list)
-				MadeMapChanges = 1;
-			/* AYM 19980203 I've removed the deletion of sidedefs
-			   because if several linedefs use the same sidedef, this
-			   would lead to trouble. Instead, I let the xref checking
-			   take care of that. */
-			while (*list)
-			{
+			case OBJ_LINEDEFS:
+			
+				SYS_ASSERT(0 <= objnum && objnum < NumThings);
 
-				objnum = (*list)->objnum;
 				if (objnum < 0 || objnum >= NumLineDefs)  // Paranoia
 				{
 					nf_bug ("attempt to delete non-existent linedef #%d", objnum);
 					goto next_linedef;
 				}
 				// delete the linedef
-				NumLineDefs--;
-				if (NumLineDefs > 0)
-				{
-					for (n = objnum; n < NumLineDefs; n++)
-						LineDefs[n] = LineDefs[n + 1];
-					LineDefs = (LDPtr) ResizeMemory (LineDefs,
-							NumLineDefs * sizeof (struct LineDef));
-				}
-				else
-				{
-					FreeMemory (LineDefs);
-					LineDefs = 0;
-				}
 				for (cur = (*list)->next; cur; cur = cur->next)
 					if (cur->objnum > objnum)
 						cur->objnum--;
@@ -210,12 +253,12 @@ next_linedef:
 			}
 			break;
 
-		case OBJ_SIDEDEFS:
-			if (*list)
-				MadeMapChanges = 1;
-			while (*list)
+			case OBJ_SIDEDEFS:
+///??			if (*list)
+///??				MadeMapChanges = 1;
+			for (list->begin(&it); !it.at_end(); ++it)
 			{
-				objnum = (*list)->objnum;
+				objnum = *it;
 				if (objnum < 0 || objnum >= NumSideDefs)  // Paranoia
 				{
 					nf_bug ("attempt to delete non-existent sidedef #%d", objnum);
@@ -236,17 +279,6 @@ next_linedef:
 				}
 				/* delete the sidedef */
 
-				NumSideDefs--;
-				if (NumSideDefs > 0)
-				{
-					for (n = objnum; n < NumSideDefs; n++)
-						SideDefs[n] = SideDefs[n + 1];
-				}
-				else
-				{
-					FreeMemory (SideDefs);
-					SideDefs = 0;
-				}
 				for (cur = (*list)->next; cur; cur = cur->next)
 					if (cur->objnum > objnum)
 						cur->objnum--;
@@ -254,10 +286,12 @@ next_sidedef:
 				UnSelectObject (list, objnum);
 			}
 			break;
-		case OBJ_SECTORS:
-			while (*list)
+			
+			case OBJ_SECTORS:
+
+			for (list->begin(&it); !it.at_end(); ++it)
 			{
-				objnum = (*list)->objnum;
+				objnum = *it;
 				if (objnum < 0 || objnum >= NumSectors)  // Paranoia
 				{
 					nf_bug ("attempt to delete non-existent sector #%d", objnum);
@@ -273,17 +307,6 @@ next_sidedef:
 						SideDefs[n].sector--;
 				/* delete the sector */
 
-				NumSectors--;
-				if (NumSectors > 0)
-				{
-					for (n = objnum; n < NumSectors; n++)
-						Sectors[n] = Sectors[n + 1];
-				}
-				else
-				{
-					FreeMemory (Sectors);
-					Sectors = 0;
-				}
 				for (cur = (*list)->next; cur; cur = cur->next)
 					if (cur->objnum > objnum)
 						cur->objnum--;
