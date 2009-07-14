@@ -51,8 +51,10 @@ public:
         // empty space, == CANVAS.
     int click_ctrl;   // Was Ctrl pressed at the moment of the click?
     unsigned long click_time; // Date of last left click in ms
-    Objid highlighted;    // The highlighted object
-    SelPtr Selected;    // Linked list of selected objects (or NULL)
+    
+	Objid highlighted;    // The highlighted object
+
+    selection_c *Selected;    // Linked list of selected objects (or NULL)
 
     highlight_c *highlight;
 

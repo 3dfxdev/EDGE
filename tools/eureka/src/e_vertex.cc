@@ -53,6 +53,8 @@ static int SortLinedefs  (const void *item1, const void *item2);
 
 void DeleteVerticesJoinLineDefs (SelPtr obj)
 {
+#if 0 // FIXME  DeleteVerticesJoinLineDefs
+
 	int    lstart, lend, l;
 	SelPtr cur;
 	char   msg[80];
@@ -96,6 +98,7 @@ void DeleteVerticesJoinLineDefs (SelPtr obj)
 		MadeChanges = 1;
 		MadeMapChanges = 1;
 	}
+#endif
 }
 
 
@@ -106,6 +109,7 @@ void DeleteVerticesJoinLineDefs (SelPtr obj)
 
 void MergeVertices (SelPtr *list)
 {
+#if 0 // FIXME !!!!!
 	int    v, l;
 
 	v = (*list)->objnum;
@@ -136,6 +140,7 @@ void MergeVertices (SelPtr *list)
 	DeleteObjects (OBJ_VERTICES, list);
 	MadeChanges = 1;
 	MadeMapChanges = 1;
+#endif
 }
 
 
@@ -152,6 +157,7 @@ void MergeVertices (SelPtr *list)
 
 bool AutoMergeVertices (SelPtr *list, int obj_type, char operation)
 {
+#if 0 // FIXME !!!!
 	SelPtr ref, cur;
 	bool   redraw;
 	bool   flipped, mergedone, isldend;
@@ -393,6 +399,7 @@ bool AutoMergeVertices (SelPtr *list, int obj_type, char operation)
 	}
 
 	return redraw;
+#endif
 }
 
 
@@ -425,11 +432,11 @@ void centre_of_vertices (SelPtr list, int *x, int *y)
 
 	x_sum = 0;
 	y_sum = 0;
-	for (nitems = 0, cur = list; cur; cur = cur->next, nitems++)
-	{
-		x_sum += Vertices[cur->objnum].x;
-		y_sum += Vertices[cur->objnum].y;
-	}
+//!!!!!!	for (nitems = 0, cur = list; cur; cur = cur->next, nitems++)
+//!!!!!!	{
+//!!!!!!		x_sum += Vertices[cur->objnum].x;
+//!!!!!!		y_sum += Vertices[cur->objnum].y;
+//!!!!!!	}
 	if (nitems == 0)
 	{
 		*x = 0;

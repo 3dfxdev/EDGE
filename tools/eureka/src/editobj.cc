@@ -233,167 +233,167 @@ void InsertStandardObject (int xpos, int ypos, int choice)
 {
 #if 0  // TODO !!! InsertStandardObject
 
-int sector;
-int n;
-int a, b;
+	int sector;
+	int n;
+	int a, b;
 
-/* show where the object will be inserted */
-DrawPointer (1);
-/* are we inside a Sector? */
-Objid o;
-GetCurObject (o, OBJ_SECTORS, xpos, ypos);
-sector = o.num;
+	/* show where the object will be inserted */
+	DrawPointer (1);
+	/* are we inside a Sector? */
+	Objid o;
+	GetCurObject (o, OBJ_SECTORS, xpos, ypos);
+	sector = o.num;
 
-/* !!!! Should also check for overlapping objects (sectors) !!!! */
-switch (choice)
-   {
-   case 1:
-      a = 256;
-      b = 128;
-      if (Input2Numbers (-1, -1, "Width", "Height", 2000, 2000, &a, &b))
-   {
-   if (a < 8)
-      a = 8;
-   if (b < 8)
-      b = 8;
-   xpos = xpos - a / 2;
-   ypos = ypos - b / 2;
-   InsertObject (OBJ_VERTICES, -1, xpos, ypos);
-   InsertObject (OBJ_VERTICES, -1, xpos + a, ypos);
-   InsertObject (OBJ_VERTICES, -1, xpos + a, ypos + b);
-   InsertObject (OBJ_VERTICES, -1, xpos, ypos + b);
-   if (sector < 0)
-      InsertObject (OBJ_SECTORS, -1, 0, 0);
-   for (n = 0; n < 4; n++)
-      {
-      InsertObject (OBJ_LINEDEFS, -1, 0, 0);
-      LineDefs[NumLineDefs - 1].side_R = NumSideDefs;
-      InsertObject (OBJ_SIDEDEFS, -1, 0, 0);
-      if (sector >= 0)
-         SideDefs[NumSideDefs - 1].sector = sector;
-      }
-   
-   if (sector >= 0)
-      {
-      LineDefs[NumLineDefs - 4].start = NumVertices - 4;
-      LineDefs[NumLineDefs - 4].end = NumVertices - 3;
-      LineDefs[NumLineDefs - 3].start = NumVertices - 3;
-      LineDefs[NumLineDefs - 3].end = NumVertices - 2;
-      LineDefs[NumLineDefs - 2].start = NumVertices - 2;
-      LineDefs[NumLineDefs - 2].end = NumVertices - 1;
-      LineDefs[NumLineDefs - 1].start = NumVertices - 1;
-      LineDefs[NumLineDefs - 1].end = NumVertices - 4;
-      }
-   else
-      {
-      LineDefs[NumLineDefs - 4].start = NumVertices - 1;
-      LineDefs[NumLineDefs - 4].end = NumVertices - 2;
-      LineDefs[NumLineDefs - 3].start = NumVertices - 2;
-      LineDefs[NumLineDefs - 3].end = NumVertices - 3;
-      LineDefs[NumLineDefs - 2].start = NumVertices - 3;
-      LineDefs[NumLineDefs - 2].end = NumVertices - 4;
-      LineDefs[NumLineDefs - 1].start = NumVertices - 4;
-      LineDefs[NumLineDefs - 1].end = NumVertices - 1;
-      }
-   }
-      break;
-   case 2:
-      a = 8;
-      b = 128;
-      if (Input2Numbers (-1, -1, "Number of sides", "Radius", 32, 2000, &a, &b))
-   {
-   if (a < 3)
-      a = 3;
-   if (b < 8)
-      b = 8;
-   InsertPolygonVertices (xpos, ypos, a, b);
-   if (sector < 0)
-      InsertObject (OBJ_SECTORS, -1, 0, 0);
-   for (n = 0; n < a; n++)
-      {
-      InsertObject (OBJ_LINEDEFS, -1, 0, 0);
-      LineDefs[NumLineDefs - 1].side_R = NumSideDefs;
-      InsertObject (OBJ_SIDEDEFS, -1, 0, 0);
-      if (sector >= 0)
-         SideDefs[NumSideDefs - 1].sector = sector;
-      }
-   
-   if (sector >= 0)
-      {
-      LineDefs[NumLineDefs - 1].start = NumVertices - 1;
-      LineDefs[NumLineDefs - 1].end = NumVertices - a;
-      for (n = 2; n <= a; n++)
-         {
-         LineDefs[NumLineDefs - n].start = NumVertices - n;
-         LineDefs[NumLineDefs - n].end = NumVertices - n + 1;
-         }
-      }
-   else
-      {
-      LineDefs[NumLineDefs - 1].start = NumVertices - a;
-      LineDefs[NumLineDefs - 1].end = NumVertices - 1;
-      for (n = 2; n <= a; n++)
-         {
-         LineDefs[NumLineDefs - n].start = NumVertices - n + 1;
-         LineDefs[NumLineDefs - n].end = NumVertices - n;
-         }
-      }
-   }
-      break;
-   case 3:
-   /*
-      a = 6;
-      b = 16;
-      if (Input2Numbers (-1, -1, "Number of steps", "Step height", 32, 48, &a, &b))
-   {
-   if (a < 2)
-      a = 2;
-   
-   n = Sectors[sector].ceilh;
-   h = Sectors[sector].floorh;
-   if (a * b < n - h)
-      {
-      Beep ();
-      Notify (-1, -1, "The stairs are too high for this Sector", 0);
-      return;
-      }
-   xpos = xpos - 32;
-   ypos = ypos - 32 * a;
-   for (n = 0; n < a; n++)
-      {
-      InsertObject (OBJ_VERTICES, -1, xpos, ypos);
-      InsertObject (OBJ_VERTICES, -1, xpos + 64, ypos);
-      InsertObject (OBJ_VERTICES, -1, xpos + 64, ypos + 64);
-      InsertObject (OBJ_VERTICES, -1, xpos, ypos + 64);
-      ypos += 64;
-      InsertObject (OBJ_SECTORS, sector, 0, 0);
-      h += b;
-      Sectors[NumSectors - 1].floorh = h;
+	/* !!!! Should also check for overlapping objects (sectors) !!!! */
+	switch (choice)
+	{
+		case 1:
+			a = 256;
+			b = 128;
+			if (Input2Numbers (-1, -1, "Width", "Height", 2000, 2000, &a, &b))
+			{
+				if (a < 8)
+					a = 8;
+				if (b < 8)
+					b = 8;
+				xpos = xpos - a / 2;
+				ypos = ypos - b / 2;
+				InsertObject (OBJ_VERTICES, -1, xpos, ypos);
+				InsertObject (OBJ_VERTICES, -1, xpos + a, ypos);
+				InsertObject (OBJ_VERTICES, -1, xpos + a, ypos + b);
+				InsertObject (OBJ_VERTICES, -1, xpos, ypos + b);
+				if (sector < 0)
+					InsertObject (OBJ_SECTORS, -1, 0, 0);
+				for (n = 0; n < 4; n++)
+				{
+					InsertObject (OBJ_LINEDEFS, -1, 0, 0);
+					LineDefs[NumLineDefs - 1].side_R = NumSideDefs;
+					InsertObject (OBJ_SIDEDEFS, -1, 0, 0);
+					if (sector >= 0)
+						SideDefs[NumSideDefs - 1].sector = sector;
+				}
 
-      InsertObject (OBJ_LINEDEFS, -1, 0, 0);
-      LineDefs[NumLineDefs - 1].side_R = NumSideDefs;
-      LineDefs[NumLineDefs - 1].side_L = NumSideDefs + 1;
-      InsertObject (OBJ_SIDEDEFS, -1, 0, 0);
-      SideDefs[NumSideDefs - 1].sector = sector;
-      InsertObject (OBJ_SIDEDEFS, -1, 0, 0);
+				if (sector >= 0)
+				{
+					LineDefs[NumLineDefs - 4].start = NumVertices - 4;
+					LineDefs[NumLineDefs - 4].end = NumVertices - 3;
+					LineDefs[NumLineDefs - 3].start = NumVertices - 3;
+					LineDefs[NumLineDefs - 3].end = NumVertices - 2;
+					LineDefs[NumLineDefs - 2].start = NumVertices - 2;
+					LineDefs[NumLineDefs - 2].end = NumVertices - 1;
+					LineDefs[NumLineDefs - 1].start = NumVertices - 1;
+					LineDefs[NumLineDefs - 1].end = NumVertices - 4;
+				}
+				else
+				{
+					LineDefs[NumLineDefs - 4].start = NumVertices - 1;
+					LineDefs[NumLineDefs - 4].end = NumVertices - 2;
+					LineDefs[NumLineDefs - 3].start = NumVertices - 2;
+					LineDefs[NumLineDefs - 3].end = NumVertices - 3;
+					LineDefs[NumLineDefs - 2].start = NumVertices - 3;
+					LineDefs[NumLineDefs - 2].end = NumVertices - 4;
+					LineDefs[NumLineDefs - 1].start = NumVertices - 4;
+					LineDefs[NumLineDefs - 1].end = NumVertices - 1;
+				}
+			}
+			break;
+		case 2:
+			a = 8;
+			b = 128;
+			if (Input2Numbers (-1, -1, "Number of sides", "Radius", 32, 2000, &a, &b))
+			{
+				if (a < 3)
+					a = 3;
+				if (b < 8)
+					b = 8;
+				InsertPolygonVertices (xpos, ypos, a, b);
+				if (sector < 0)
+					InsertObject (OBJ_SECTORS, -1, 0, 0);
+				for (n = 0; n < a; n++)
+				{
+					InsertObject (OBJ_LINEDEFS, -1, 0, 0);
+					LineDefs[NumLineDefs - 1].side_R = NumSideDefs;
+					InsertObject (OBJ_SIDEDEFS, -1, 0, 0);
+					if (sector >= 0)
+						SideDefs[NumSideDefs - 1].sector = sector;
+				}
 
-      
-      LineDefs[NumLineDefs - 4].start = NumVertices - 4;
-      LineDefs[NumLineDefs - 4].end = NumVertices - 3;
-      LineDefs[NumLineDefs - 3].start = NumVertices - 3;
-      LineDefs[NumLineDefs - 3].end = NumVertices - 2;
-      LineDefs[NumLineDefs - 2].start = NumVertices - 2;
-      LineDefs[NumLineDefs - 2].end = NumVertices - 1;
-      LineDefs[NumLineDefs - 1].start = NumVertices - 1;
-      LineDefs[NumLineDefs - 1].end = NumVertices - 4;
-     }
-   }
-      break;
-   */
-   case 4:
-      NotImplemented ();
-      break;
-   }
+				if (sector >= 0)
+				{
+					LineDefs[NumLineDefs - 1].start = NumVertices - 1;
+					LineDefs[NumLineDefs - 1].end = NumVertices - a;
+					for (n = 2; n <= a; n++)
+					{
+						LineDefs[NumLineDefs - n].start = NumVertices - n;
+						LineDefs[NumLineDefs - n].end = NumVertices - n + 1;
+					}
+				}
+				else
+				{
+					LineDefs[NumLineDefs - 1].start = NumVertices - a;
+					LineDefs[NumLineDefs - 1].end = NumVertices - 1;
+					for (n = 2; n <= a; n++)
+					{
+						LineDefs[NumLineDefs - n].start = NumVertices - n + 1;
+						LineDefs[NumLineDefs - n].end = NumVertices - n;
+					}
+				}
+			}
+			break;
+		case 3:
+			/*
+			   a = 6;
+			   b = 16;
+			   if (Input2Numbers (-1, -1, "Number of steps", "Step height", 32, 48, &a, &b))
+			   {
+			   if (a < 2)
+			   a = 2;
+
+			   n = Sectors[sector].ceilh;
+			   h = Sectors[sector].floorh;
+			   if (a * b < n - h)
+			   {
+			   Beep ();
+			   Notify (-1, -1, "The stairs are too high for this Sector", 0);
+			   return;
+			   }
+			   xpos = xpos - 32;
+			   ypos = ypos - 32 * a;
+			   for (n = 0; n < a; n++)
+			   {
+			   InsertObject (OBJ_VERTICES, -1, xpos, ypos);
+			   InsertObject (OBJ_VERTICES, -1, xpos + 64, ypos);
+			   InsertObject (OBJ_VERTICES, -1, xpos + 64, ypos + 64);
+			   InsertObject (OBJ_VERTICES, -1, xpos, ypos + 64);
+			   ypos += 64;
+			   InsertObject (OBJ_SECTORS, sector, 0, 0);
+			   h += b;
+			   Sectors[NumSectors - 1].floorh = h;
+
+			   InsertObject (OBJ_LINEDEFS, -1, 0, 0);
+			   LineDefs[NumLineDefs - 1].side_R = NumSideDefs;
+			   LineDefs[NumLineDefs - 1].side_L = NumSideDefs + 1;
+			   InsertObject (OBJ_SIDEDEFS, -1, 0, 0);
+			   SideDefs[NumSideDefs - 1].sector = sector;
+			   InsertObject (OBJ_SIDEDEFS, -1, 0, 0);
+
+
+			   LineDefs[NumLineDefs - 4].start = NumVertices - 4;
+			   LineDefs[NumLineDefs - 4].end = NumVertices - 3;
+			   LineDefs[NumLineDefs - 3].start = NumVertices - 3;
+			   LineDefs[NumLineDefs - 3].end = NumVertices - 2;
+			   LineDefs[NumLineDefs - 2].start = NumVertices - 2;
+			   LineDefs[NumLineDefs - 2].end = NumVertices - 1;
+			   LineDefs[NumLineDefs - 1].start = NumVertices - 1;
+			   LineDefs[NumLineDefs - 1].end = NumVertices - 4;
+			   }
+			   }
+			   break;
+			   */
+		case 4:
+			NotImplemented ();
+			break;
+	}
 #endif
 }
 
@@ -403,8 +403,9 @@ switch (choice)
    menu of miscellaneous operations
 */
 
-void MiscOperations (int objtype, SelPtr *list, int val)
+void MiscOperations(int objtype, selection_c *list, int val)
 {
+#if (0 == 1)
 	char   msg[80];
 	int    angle, scale;
 
@@ -474,7 +475,8 @@ void MiscOperations (int objtype, SelPtr *list, int val)
 			else if (objtype == OBJ_VERTICES)
 			{
 				DeleteVerticesJoinLineDefs (*list);
-				ForgetSelection (list);
+
+				list->clear_all();
 			}
 			break;
 
@@ -490,7 +492,8 @@ void MiscOperations (int objtype, SelPtr *list, int val)
 				else
 				{
 					SplitLineDefsAndSector ((*list)->next->objnum, (*list)->objnum);
-					ForgetSelection (list);
+
+					list->clear_all();
 				}
 			}
 			// Sector -> Make lift from sector
@@ -512,7 +515,7 @@ void MiscOperations (int objtype, SelPtr *list, int val)
 			// Vertex -> Merge
 			else if (objtype == OBJ_VERTICES)
 			{
-				MergeVertices (list);
+//!!!!!!		MergeVertices (list);
 			}
 			break;
 
@@ -551,7 +554,8 @@ void MiscOperations (int objtype, SelPtr *list, int val)
 				else
 				{
 					SplitSector ((*list)->next->objnum, (*list)->objnum);
-					ForgetSelection (list);
+
+					list->clear_all();
 				}
 			}
 			break;
@@ -614,6 +618,7 @@ void MiscOperations (int objtype, SelPtr *list, int val)
 			// Linedef ->  Align textures vertically
 			if (objtype == OBJ_LINEDEFS)
 			{
+#if 0  // FIXME
 				SelPtr sdlist, cur;
 
 				/* select all sidedefs */
@@ -628,6 +633,7 @@ void MiscOperations (int objtype, SelPtr *list, int val)
 				}
 				/* align the textures along the Y axis (height) */
 				AlignTexturesY (&sdlist);
+#endif
 			}
 			// Sector -> Brighten or darken
 			else if (objtype == OBJ_SECTORS)
@@ -640,6 +646,7 @@ void MiscOperations (int objtype, SelPtr *list, int val)
 			// Linedef -> Align texture horizontally
 			if (objtype == OBJ_LINEDEFS)
 			{
+#if 0  // FIXME
 				SelPtr sdlist, cur;
 
 				/* select all sidedefs */
@@ -654,6 +661,7 @@ void MiscOperations (int objtype, SelPtr *list, int val)
 				}
 				/* align the textures along the X axis (width) */
 				AlignTexturesX (&sdlist);
+#endif
 			}
 			// Sector -> Unlink room
 			else if (objtype == OBJ_SECTORS)
@@ -773,14 +781,17 @@ void MiscOperations (int objtype, SelPtr *list, int val)
 				else
 				{
 					sector_slice ((*list)->next->objnum, (*list)->objnum);
-					ForgetSelection (list);
+
+					list->clear_all();
 				}
 			}
 			break;
 	}
+#endif
 }
 
 
+#if (0 == 1)  // FIXME
 
 /*
  *   TransferThingProperties
@@ -871,6 +882,8 @@ void TransferLinedefProperties (int src_linedef, SelPtr linedefs)
 		MadeChanges = 1;
 	}
 }
+
+#endif
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

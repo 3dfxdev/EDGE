@@ -54,6 +54,7 @@ static void select_1s_linedefs_in_half_path (bitvec_c &sel,
  */
 void select_linedefs_path (SelPtr *list, int linedef_no, sel_op_e mode)
 {
+#if 0  // FIXME
 	bitvec_c *ldsel = list_to_bitvec (*list, NumLineDefs);
 	bitvec_c ldseen (NumLineDefs);  // Linedef already seen ?
 
@@ -69,6 +70,7 @@ void select_linedefs_path (SelPtr *list, int linedef_no, sel_op_e mode)
 	ForgetSelection (list);
 	*list = bitvec_to_list (*ldsel);
 	delete ldsel;
+#endif
 }
 
 
@@ -142,6 +144,7 @@ static void select_linedefs_in_half_path (bitvec_c &ldsel,
  */
 void select_1s_linedefs_path (SelPtr *list, int linedef_no, sel_op_e mode)
 {
+#if 0  // FIXME
 	bitvec_c *ldsel = list_to_bitvec (*list, NumLineDefs);
 	bitvec_c ldseen (NumLineDefs);  // Linedef already seen ?
 
@@ -164,6 +167,7 @@ void select_1s_linedefs_path (SelPtr *list, int linedef_no, sel_op_e mode)
 	*list = bitvec_to_list (*ldsel);
 byebye:
 	delete ldsel;
+#endif
 }
 
 

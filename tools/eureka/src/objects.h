@@ -32,12 +32,14 @@ obj_no_t GetMaxObjectNum (int);
 void  GetCurObject (Objid& o, int objtype, int x, int y);
 void  SelectObjectsInBox (SelPtr *list, int, int, int, int, int);
 void  HighlightObject (int, int, int);
-void  DeleteObject (const Objid&);
-void  DeleteObjects (int, selection_c *);
-void  InsertObject (obj_type_t, obj_no_t, int, int);
+
+void  DeleteObject (const Objid& obj);
+void  DeleteObjects (selection_c * list);
+int   InsertObject (obj_type_t, obj_no_t, int, int);
+void  CopyObjects (selection_c * list);
+
 bool  IsLineDefInside (int, int, int, int, int);
 int GetOppositeSector (int, bool);
-void  CopyObjects (int, SelPtr);
 bool  MoveObjectsToCoords (int, SelPtr, int, int, int);
 void  GetObjectCoords (int, int, int *, int *);
 int FindFreeTag (void);

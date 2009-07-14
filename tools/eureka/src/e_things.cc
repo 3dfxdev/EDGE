@@ -379,6 +379,7 @@ return buf;
  */
 void spin_things (SelPtr obj, int degrees)
 {
+#if 0  // FIXME spin_things
 	SelPtr cur;
 
 	if (! obj)
@@ -393,6 +394,7 @@ void spin_things (SelPtr obj, int degrees)
 	}
 	things_angles++;
 	MadeChanges = 1;
+#endif
 }
 
 
@@ -404,6 +406,7 @@ void spin_things (SelPtr obj, int degrees)
  */
 void frob_things_flags (SelPtr list, int op, int operand)
 {
+#if 0  // FIXME  frob_things_flags
 	SelPtr cur;
 	s16_t mask;
 
@@ -427,6 +430,7 @@ void frob_things_flags (SelPtr list, int op, int operand)
 		}
 	}
 	MadeChanges = 1;
+#endif
 }
 
 
@@ -437,18 +441,17 @@ void frob_things_flags (SelPtr list, int op, int operand)
  */
 void centre_of_things (SelPtr list, int *x, int *y)
 {
-	SelPtr cur;
 	int nitems;
 	long x_sum;
 	long y_sum;
 
 	x_sum = 0;
 	y_sum = 0;
-	for (nitems = 0, cur = list; cur; cur = cur->next, nitems++)
-	{
-		x_sum += Things[cur->objnum].x;
-		y_sum += Things[cur->objnum].y;
-	}
+//!!!!!!	for (nitems = 0, cur = list; cur; cur = cur->next, nitems++)
+//!!!!!!	{
+//!!!!!!		x_sum += Things[cur->objnum].x;
+//!!!!!!		y_sum += Things[cur->objnum].y;
+//!!!!!!	}
 	if (nitems == 0)
 	{
 		*x = 0;
