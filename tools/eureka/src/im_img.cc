@@ -126,7 +126,7 @@ int gammatable[5][256] =
 // Holds the private data members
 class Img_priv
 {
-  public:
+public:
     Img_priv () { buf = 0; width = 0; height = 0; opaque = false; }
     ~Img_priv () { if (buf != 0) delete[] buf; }
     img_pixel_t *buf;
@@ -143,7 +143,7 @@ class Img_priv
  */
 Img::Img ()
 {
-  p = new Img_priv;
+	p = new Img_priv;
 }
 
 
@@ -154,9 +154,9 @@ Img::Img ()
  */
 Img::Img (img_dim_t width, img_dim_t height, bool opaque)
 {
-  p = new Img_priv;
-  resize (width, height);
-  set_opaque (opaque);
+	p = new Img_priv;
+	resize (width, height);
+	set_opaque (opaque);
 }
 
 
@@ -165,7 +165,7 @@ Img::Img (img_dim_t width, img_dim_t height, bool opaque)
  */
 Img::~Img ()
 {
-  delete p;
+	delete p;
 }
 
 
@@ -174,7 +174,7 @@ Img::~Img ()
  */
 bool Img::is_null () const
 {
-  return p->buf == 0;
+	return p->buf == 0;
 }
 
 
@@ -185,7 +185,7 @@ bool Img::is_null () const
  */
 img_dim_t Img::width () const
 {
-  return p->width;
+	return p->width;
 }
 
 
@@ -196,7 +196,7 @@ img_dim_t Img::width () const
  */
 img_dim_t Img::height () const
 {
-  return p->height;
+	return p->height;
 }
 
 
@@ -207,7 +207,7 @@ img_dim_t Img::height () const
  */
 const img_pixel_t *Img::buf () const
 {
-  return p->buf;
+	return p->buf;
 }
 
 
@@ -218,7 +218,7 @@ const img_pixel_t *Img::buf () const
  */
 img_pixel_t *Img::wbuf ()
 {
-  return p->buf;
+	return p->buf;
 }
 
 
@@ -227,8 +227,8 @@ img_pixel_t *Img::wbuf ()
  */
 void Img::clear ()
 {
-  if (p->buf != 0)
-    memset (p->buf, IMG_TRANSP, p->width * p->height);
+	if (p->buf != 0)
+		memset (p->buf, IMG_TRANSP, p->width * p->height);
 }
 
 
@@ -237,10 +237,10 @@ void Img::clear ()
  */
 void Img::set_opaque (bool opaque)
 {
-  p->opaque = opaque;
+	p->opaque = opaque;
 }
 
- 
+
 /*
  *  Img::resize - resize the image
  *
@@ -249,29 +249,29 @@ void Img::set_opaque (bool opaque)
  */
 void Img::resize (img_dim_t width, img_dim_t height)
 {
-  if (width == p->width && height == p->height)
-    return;
+	if (width == p->width && height == p->height)
+		return;
 
-  // Unallocate old buffer
-  if (p->buf != 0)
-  {
-    delete[] p->buf;
-    p->buf = 0;
-  }
+	// Unallocate old buffer
+	if (p->buf != 0)
+	{
+		delete[] p->buf;
+		p->buf = 0;
+	}
 
-  // Is it a null image ?
-  if (width == 0 || height == 0)
-  {
-    p->width  = 0;
-    p->height = 0;
-    return;
-  }
+	// Is it a null image ?
+	if (width == 0 || height == 0)
+	{
+		p->width  = 0;
+		p->height = 0;
+		return;
+	}
 
-  // Allocate new buffer
-  p->width  = width;
-  p->height = height;
-  p->buf = new img_pixel_t[width * height + 10];  // Some slack
-  clear ();
+	// Allocate new buffer
+	p->width  = width;
+	p->height = height;
+	p->buf = new img_pixel_t[width * height + 10];  // Some slack
+	clear ();
 }
 
 
@@ -286,75 +286,75 @@ void Img::resize (img_dim_t width, img_dim_t height)
  */
 int Img::save (const char *filename) const
 {
-  int rc = 0;
-  FILE *fp = 0;
+	int rc = 0;
+	FILE *fp = 0;
 
-  // Load palette 0 from PLAYPAL
-  MDirPtr dir = FindMasterDir (MasterDir, "PLAYPAL");
-  if (dir == 0)
-  {
-    errno = ECHILD;
-    return 1;
-  }
-  unsigned char *pal = new unsigned char[768];
-  dir->wadfile->seek (dir->dir.start);
-  if (dir->wadfile->error ())
-  {
-    /*warn ("%s: can't seek to %lXh\n",
-  dir->wadfile->filename, (unsigned long) ftell (dir->wadfile->fp));
-    warn ("PLAYPAL: seek error\n");*/
-    rc = 1;
-    errno = ECHILD;
-    goto byebye;
-  }
-  dir->wadfile->read_bytes (pal, 768);
-  if (dir->wadfile->error ())
-  {
-    /*warn ("%s: read error", dir->wadfile->where ());
-    warn ("PLAYPAL: read error\n");*/
-    rc = 1;
-    errno = ECHILD;
-    goto byebye;
-  }
+	// Load palette 0 from PLAYPAL
+	MDirPtr dir = FindMasterDir (MasterDir, "PLAYPAL");
+	if (dir == 0)
+	{
+		errno = ECHILD;
+		return 1;
+	}
+	unsigned char *pal = new unsigned char[768];
+	dir->wadfile->seek (dir->dir.start);
+	if (dir->wadfile->error ())
+	{
+		/*warn ("%s: can't seek to %lXh\n",
+		  dir->wadfile->filename, (unsigned long) ftell (dir->wadfile->fp));
+		  warn ("PLAYPAL: seek error\n");*/
+		rc = 1;
+		errno = ECHILD;
+		goto byebye;
+	}
+	dir->wadfile->read_bytes (pal, 768);
+	if (dir->wadfile->error ())
+	{
+		/*warn ("%s: read error", dir->wadfile->where ());
+		  warn ("PLAYPAL: read error\n");*/
+		rc = 1;
+		errno = ECHILD;
+		goto byebye;
+	}
 
-  // Create PPM file
-  fp = fopen (filename, "wb");
-  if (fp == NULL)
-  {
-    rc = 1;
-    goto byebye;
-  }
-  fputs ("P6\n", fp);
-//  fprintf (fp, "# %s\n", what ());
-  fprintf (fp, "%d %d 255\n", p->width, p->height);
-  {
-    const img_pixel_t *pix    = p->buf;
-    const img_pixel_t *pixmax = pix + (unsigned long) p->width * p->height;
-    for (; pix < pixmax; pix++)
-    {
-      if (*pix == IMG_TRANSP && ! p->opaque)
-      {
-  putc ( 0, fp);  // DeuTex convention, rgb:0/2f/2f
-  putc (47, fp);
-  putc (47, fp);
-      }
-      else
-      {
-  putc (pal[3 * *pix    ], fp);
-  putc (pal[3 * *pix + 1], fp);
-  putc (pal[3 * *pix + 2], fp);
-      }
-    }
-  }
-  if (ferror (fp))
-    rc = 1;
+	// Create PPM file
+	fp = fopen (filename, "wb");
+	if (fp == NULL)
+	{
+		rc = 1;
+		goto byebye;
+	}
+	fputs ("P6\n", fp);
+	//  fprintf (fp, "# %s\n", what ());
+	fprintf (fp, "%d %d 255\n", p->width, p->height);
+	{
+		const img_pixel_t *pix    = p->buf;
+		const img_pixel_t *pixmax = pix + (unsigned long) p->width * p->height;
+		for (; pix < pixmax; pix++)
+		{
+			if (*pix == IMG_TRANSP && ! p->opaque)
+			{
+				putc ( 0, fp);  // DeuTex convention, rgb:0/2f/2f
+				putc (47, fp);
+				putc (47, fp);
+			}
+			else
+			{
+				putc (pal[3 * *pix    ], fp);
+				putc (pal[3 * *pix + 1], fp);
+				putc (pal[3 * *pix + 2], fp);
+			}
+		}
+	}
+	if (ferror (fp))
+		rc = 1;
 
 byebye:
-  if (fp != 0)
-    if (fclose (fp))
-      rc = 1;
-  delete[] pal;
-  return rc;
+	if (fp != 0)
+		if (fclose (fp))
+			rc = 1;
+	delete[] pal;
+	return rc;
 }
 
 
@@ -363,39 +363,39 @@ byebye:
  */
 Img * Img::spectrify() const
 {
-  Img *omg = new Img(width(), height(), p->opaque);
+	Img *omg = new Img(width(), height(), p->opaque);
 
-  int x,y;
-  byte grey;
+	int x,y;
+	byte grey;
 
-  // FIXME this is gross
-  if (! strncmp (Game, "doom", 4))
-    grey = 104;
-  else if (! strcmp (Game, "heretic"))
-    grey = 8;
-  else
-  {
-    nf_bug ("spectrifying not defined with this game");
-  }
+	// FIXME this is gross
+	if (! strncmp (Game, "doom", 4))
+		grey = 104;
+	else if (! strcmp (Game, "heretic"))
+		grey = 8;
+	else
+	{
+		nf_bug ("spectrifying not defined with this game");
+	}
 
-  img_dim_t W = width();
-  img_dim_t H = height();
+	img_dim_t W = width();
+	img_dim_t H = height();
 
-  const img_pixel_t *src = buf();
-  img_pixel_t *dest = omg->wbuf ();
+	const img_pixel_t *src = buf();
+	img_pixel_t *dest = omg->wbuf ();
 
-  for (y = 0; y < H; y++)
-  for (x = 0; x < W; x++)
-  {
-    img_pixel_t pix = src[y * W + x];
+	for (y = 0; y < H; y++)
+	for (x = 0; x < W; x++)
+	{
+		img_pixel_t pix = src[y * W + x];
 
-    if (pix != IMG_TRANSP)
-        pix = grey + (rand () >> 6) % 7;  // FIXME more kludgery
+		if (pix != IMG_TRANSP)
+			pix = grey + (rand () >> 6) % 7;  // FIXME more kludgery
 
-    dest[y * W + x] = pix;
-  }
+		dest[y * W + x] = pix;
+	}
 
-  return omg;
+	return omg;
 }
 
 
@@ -425,29 +425,29 @@ Img * Img::spectrify() const
  */
 void scale_img (const Img& img, double scale, Img& omg)
 {
-  img_dim_t iwidth  = img.width ();
-  img_dim_t owidth  = (img_dim_t) (img.width () * scale + 0.5);
-  img_dim_t oheight = (img_dim_t) (img.height () * scale + 0.5);
-  omg.resize (owidth, oheight);
-  const img_pixel_t *const ibuf = img.buf ();
-  img_pixel_t       *const obuf = omg.wbuf ();
+	img_dim_t iwidth  = img.width ();
+	img_dim_t owidth  = (img_dim_t) (img.width () * scale + 0.5);
+	img_dim_t oheight = (img_dim_t) (img.height () * scale + 0.5);
+	omg.resize (owidth, oheight);
+	const img_pixel_t *const ibuf = img.buf ();
+	img_pixel_t       *const obuf = omg.wbuf ();
 
-  if (true)
-  {
-    img_pixel_t *orow = obuf;
-    int *ix = new int[owidth];
-    for (int ox = 0; ox < owidth; ox++)
-      ix[ox] = (int) (ox / scale);
-    const int *const ix_end = ix + owidth;
-    for (int oy = 0; oy < oheight; oy++)
-    {
-      int iy = (int) (oy / scale);
-      const img_pixel_t *const irow = ibuf + iwidth * iy;
-      for (const int *i = ix; i < ix_end; i++)
-        *orow++ = irow[*i];
-    }
-    delete[] ix;
-  }
+	if (true)
+	{
+		img_pixel_t *orow = obuf;
+		int *ix = new int[owidth];
+		for (int ox = 0; ox < owidth; ox++)
+			ix[ox] = (int) (ox / scale);
+		const int *const ix_end = ix + owidth;
+		for (int oy = 0; oy < oheight; oy++)
+		{
+			int iy = (int) (oy / scale);
+			const img_pixel_t *const irow = ibuf + iwidth * iy;
+			for (const int *i = ix; i < ix_end; i++)
+				*orow++ = irow[*i];
+		}
+		delete[] ix;
+	}
 }
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
