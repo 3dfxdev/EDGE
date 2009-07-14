@@ -30,7 +30,7 @@
 class selection_iterator_c;
 
 
-#define MAX_STORE_SEL  2   // !!!! FIXME 64 
+#define MAX_STORE_SEL  32
 
 class selection_c
 {
@@ -43,12 +43,18 @@ private:
 	int count;
 
 	bitvec_c * bv;  // NULL unless needed
+	int b_count;
 
 public:
-	 selection_c(obj_type_t _type);
+	 selection_c(obj_type_t _type = OBJ_NONE);
 	~selection_c();
 
 	obj_type_t what_type() const { return type; }
+
+	void change_type(obj_type_t new_type);
+
+	bool empty() const;
+	bool notempty() const { return ! empty(); }
 
 	bool get(int n) const;
 
