@@ -24,6 +24,8 @@
 
 #include "main.h"
 
+#include <algorithm>
+
 #include "r_misc.h"
 #include "e_linedef.h"
 #include "e_sector.h"
@@ -60,6 +62,97 @@ obj_no_t GetMaxObjectNum (int objtype)
 }
 
 
+static int RawCreateThing()
+{
+	int objnum = NumThings;
+
+	NumThings++;
+
+	if (objnum > 0)
+		Things = (TPtr) ResizeMemory (Things,
+				(unsigned long) NumThings * sizeof (struct Thing));
+	else
+		Things = (TPtr) GetMemory (sizeof (struct Thing));
+
+	memset(&Things[objnum], 0, sizeof (struct Thing));
+
+	return objnum;
+}
+
+
+static int RawCreateLineDef()
+{
+	int objnum = NumLineDefs;
+
+	NumLineDefs++;
+
+	if (objnum > 0)
+		LineDefs = (LDPtr) ResizeMemory (LineDefs,
+				(unsigned long) NumLineDefs * sizeof (struct LineDef));
+	else
+		LineDefs = (LDPtr) GetMemory (sizeof (struct LineDef));
+
+	memset(&LineDefs[objnum], 0, sizeof (struct LineDef));
+
+	return objnum;
+}
+
+
+static int RawCreateSideDef()
+{
+	int objnum = NumSideDefs;
+
+	NumSideDefs++;
+
+	if (objnum > 0)
+		SideDefs = (SDPtr) ResizeMemory (SideDefs,
+				(unsigned long) NumSideDefs * sizeof (struct SideDef));
+	else
+		SideDefs = (SDPtr) GetMemory (sizeof (struct SideDef));
+
+	memset(&SideDefs[objnum], 0, sizeof (struct SideDef));
+
+	return objnum;
+}
+
+
+static int RawCreateVertex()
+{
+	int objnum = NumVertices;
+
+	NumVertices++;
+
+	if (objnum > 0)
+		Vertices = (VPtr) ResizeMemory (Vertices,
+				(unsigned long) NumVertices * sizeof (struct Vertex));
+	else
+		Vertices = (VPtr) GetMemory (sizeof (struct Vertex));
+
+	memset(&Vertices[objnum], 0, sizeof (struct Vertex));
+
+	return objnum;
+}
+
+
+static int RawCreateSector()
+{
+	int objnum = NumSectors;
+
+	NumSectors++;
+
+	if (objnum > 0)
+		Sectors = (SPtr) ResizeMemory (Sectors,
+				(unsigned long) NumSectors * sizeof (struct Sector));
+	else
+		Sectors = (SPtr) GetMemory (sizeof (struct Sector));
+
+	memset(&Sectors[objnum], 0, sizeof (struct Sector));
+
+	return objnum;
+}
+
+
+
 static void RawDeleteThing(int objnum)
 {
 	SYS_ASSERT(0 <= objnum && objnum < NumThings);
@@ -88,7 +181,7 @@ static void RawDeleteVertex(int objnum)
 
 	if (NumVertices > 0)
 	{
-		for (n = objnum; n < NumVertices; n++)
+		for (int n = objnum; n < NumVertices; n++)
 			Vertices[n] = Vertices[n + 1];
 	}
 	else
@@ -107,7 +200,7 @@ static void RawDeleteSector(int objnum)
 
 	if (NumSectors > 0)
 	{
-		for (n = objnum; n < NumSectors; n++)
+		for (int n = objnum; n < NumSectors; n++)
 			Sectors[n] = Sectors[n + 1];
 	}
 	else
@@ -126,7 +219,7 @@ static void RawDeleteLineDef(int objnum)
 
 	if (NumLineDefs > 0)
 	{
-		for (n = objnum; n < NumLineDefs; n++)
+		for (int n = objnum; n < NumLineDefs; n++)
 			LineDefs[n] = LineDefs[n + 1];
 	}
 	else
@@ -145,7 +238,7 @@ static void RawDeleteSideDef(int objnum)
 
 	if (NumSideDefs > 0)
 	{
-		for (n = objnum; n < NumSideDefs; n++)
+		for (int n = objnum; n < NumSideDefs; n++)
 			SideDefs[n] = SideDefs[n + 1];
 	}
 	else
@@ -209,7 +302,7 @@ void DeleteObjects(selection_c *list)
 
 				for (int n = NumLineDefs-1; n >= 0; n--)
 				{
-					LineDef *L = LineDefs[n];
+					LineDef *L = &LineDefs[n];
 
 					if (L->start == objnum || L->end == objnum)
 						RawDeleteLineDef(n);
@@ -264,8 +357,9 @@ void DeleteObjects(selection_c *list)
 				}
 				break;
 
-		default:
-			nf_bug ("DeleteObjects: bad objtype %d", (int) objtype);
+			default:
+				nf_bug ("DeleteObjects: bad objtype %d", (int) objtype);
+		}
 	}
 
 
@@ -300,10 +394,9 @@ void DeleteObject(const Objid& obj)
 }
 
 
-
-
 /*
  *  InsertObject
+ *
  *  Insert a new object of type <objtype> at map coordinates
  *  (<xpos>, <ypos>).
  *
@@ -315,145 +408,143 @@ void DeleteObject(const Objid& obj)
  *  The object is inserted at the exact coordinates given.
  *  No snapping to grid is done.
  */
-void InsertObject (obj_type_t objtype, obj_no_t copyfrom, int xpos, int ypos)
+void InsertObject(obj_type_t objtype, obj_no_t copyfrom, int xpos, int ypos)
 {
-	int last;
-
-	MadeChanges = 1;
 	switch (objtype)
 	{
 		case OBJ_THINGS:
-			last = NumThings++;
-			if (last > 0)
-				Things = (TPtr) ResizeMemory (Things,
-						(unsigned long) NumThings * sizeof (struct Thing));
-			else
-				Things = (TPtr) GetMemory (sizeof (struct Thing));
-			Things[last].x = xpos;
-			Things[last].y = ypos;
+		{
+			int objnum = RawCreateThing();
+
+			Thing *T = &Things[objnum];
+
+			T->x = xpos;
+			T->y = ypos;
+
 			things_angles++;
 			things_types++;
-			if (is_obj (copyfrom))
+
+			if (is_obj(copyfrom))
 			{
-				Things[last].type  = Things[copyfrom].type;
-				Things[last].angle = Things[copyfrom].angle;
-				Things[last].options  = Things[copyfrom].options;
+				T->type    = Things[copyfrom].type;
+				T->angle   = Things[copyfrom].angle;
+				T->options = Things[copyfrom].options;
 			}
 			else
 			{
-				Things[last].type = default_thing;
-				Things[last].angle = 0;
-				Things[last].options  = 0x07;
+				T->type = default_thing;
+				T->angle = 0;
+				T->options = 0x07;
 			}
-			break;
+		}
+		break;
 
 		case OBJ_VERTICES:
-			last = NumVertices++;
-			if (last > 0)
-				Vertices = (VPtr) ResizeMemory (Vertices,
-						(unsigned long) NumVertices * sizeof (struct Vertex));
-			else
-				Vertices = (VPtr) GetMemory (sizeof (struct Vertex));
-			Vertices[last].x = xpos;
-			Vertices[last].y = ypos;
-			if (Vertices[last].x < MapMinX)
-				MapMinX = Vertices[last].x;
-			if (Vertices[last].x > MapMaxX)
-				MapMaxX = Vertices[last].x;
-			if (Vertices[last].y < MapMinY)
-				MapMinY = Vertices[last].y;
-			if (Vertices[last].y > MapMaxY)
-				MapMaxY = Vertices[last].y;
+		{
+			int objnum = RawCreateVertex();
+
+			Vertex *V = &Vertices[objnum];
+
+			V->x = xpos;
+			V->y = ypos;
+
+			if (xpos < MapMinX) MapMinX = xpos;
+			if (ypos < MapMinY) MapMinY = ypos;
+			if (xpos > MapMaxX) MapMaxX = xpos;
+			if (ypos > MapMaxY) MapMaxY = ypos;
+
 			MadeMapChanges = 1;
-			break;
+		}
+		break;
 
 		case OBJ_LINEDEFS:
-			last = NumLineDefs++;
-			if (last > 0)
-				LineDefs = (LDPtr) ResizeMemory (LineDefs,
-						(unsigned long) NumLineDefs * sizeof (struct LineDef));
-			else
-				LineDefs = (LDPtr) GetMemory (sizeof (struct LineDef));
+		{
+			int objnum = RawCreateLineDef();
+
+			LineDef *L = &LineDefs[objnum];
+
 			if (is_obj (copyfrom))
 			{
-				LineDefs[last].start = LineDefs[copyfrom].start;
-				LineDefs[last].end   = LineDefs[copyfrom].end;
-				LineDefs[last].flags = LineDefs[copyfrom].flags;
-				LineDefs[last].type  = LineDefs[copyfrom].type;
-				LineDefs[last].tag   = LineDefs[copyfrom].tag;
+				L->start = LineDefs[copyfrom].start;
+				L->end   = LineDefs[copyfrom].end;
+				L->flags = LineDefs[copyfrom].flags;
+				L->type  = LineDefs[copyfrom].type;
+				L->tag   = LineDefs[copyfrom].tag;
 			}
 			else
 			{
-				LineDefs[last].start = 0;
-				LineDefs[last].end   = NumVertices - 1;
-				LineDefs[last].flags = 1;
-				LineDefs[last].type  = 0;
-				LineDefs[last].tag   = 0;
+				L->start = 0;
+				L->end   = NumVertices - 1;
+				L->flags = 1;
 			}
-			LineDefs[last].side_R = OBJ_NO_NONE;
-			LineDefs[last].side_L = OBJ_NO_NONE;
-			break;
+
+			L->side_R = OBJ_NO_NONE;
+			L->side_L = OBJ_NO_NONE;
+		}
+		break;
 
 		case OBJ_SIDEDEFS:
-			last = NumSideDefs++;
-			if (last > 0)
-				SideDefs = (SDPtr) ResizeMemory (SideDefs,
-						(unsigned long) NumSideDefs * sizeof (struct SideDef));
-			else
-				SideDefs = (SDPtr) GetMemory (sizeof (struct SideDef));
-			if (is_obj (copyfrom))
+		{
+			int objnum = RawCreateSideDef();
+
+			SideDef *S = &SideDefs[objnum];
+
+			if (is_obj(copyfrom))
 			{
-				SideDefs[last].x_offset = SideDefs[copyfrom].x_offset;
-				SideDefs[last].y_offset = SideDefs[copyfrom].y_offset;
-				strncpy (SideDefs[last].upper_tex, SideDefs[copyfrom].upper_tex, WAD_TEX_NAME);
-				strncpy (SideDefs[last].lower_tex, SideDefs[copyfrom].lower_tex, WAD_TEX_NAME);
-				strncpy (SideDefs[last].mid_tex, SideDefs[copyfrom].mid_tex, WAD_TEX_NAME);
-				SideDefs[last].sector = SideDefs[copyfrom].sector;
+				S->x_offset = SideDefs[copyfrom].x_offset;
+				S->y_offset = SideDefs[copyfrom].y_offset;
+				S->sector   = SideDefs[copyfrom].sector;
+
+				strncpy(S->upper_tex, SideDefs[copyfrom].upper_tex, WAD_TEX_NAME);
+				strncpy(S->lower_tex, SideDefs[copyfrom].lower_tex, WAD_TEX_NAME);
+				strncpy(S->mid_tex,   SideDefs[copyfrom].mid_tex,   WAD_TEX_NAME);
 			}
 			else
 			{
-				SideDefs[last].x_offset = 0;
-				SideDefs[last].y_offset = 0;
-				strcpy (SideDefs[last].upper_tex, "-");
-				strcpy (SideDefs[last].lower_tex, "-");
-				strcpy (SideDefs[last].mid_tex, default_middle_texture);
-				SideDefs[last].sector = NumSectors - 1;
+				S->sector = NumSectors - 1;
+
+				strcpy(S->upper_tex, "-");
+				strcpy(S->lower_tex, "-");
+				strcpy(S->mid_tex, default_middle_texture);
 			}
 			MadeMapChanges = 1;
-			break;
+		}
+		break;
 
 		case OBJ_SECTORS:
-			last = NumSectors++;
-			if (last > 0)
-				Sectors = (SPtr) ResizeMemory (Sectors,
-						(unsigned long) NumSectors * sizeof (struct Sector));
-			else
-				Sectors = (SPtr) GetMemory (sizeof (struct Sector));
-			if (is_obj (copyfrom))
+		{
+			int objnum = RawCreateSector();
+
+			Sector *S = &Sectors[objnum];
+
+			if (is_obj(copyfrom))
 			{
-				Sectors[last].floorh  = Sectors[copyfrom].floorh;
-				Sectors[last].ceilh   = Sectors[copyfrom].ceilh;
-				strncpy (Sectors[last].floor_tex, Sectors[copyfrom].floor_tex, WAD_FLAT_NAME);
-				strncpy (Sectors[last].ceil_tex, Sectors[copyfrom].ceil_tex, WAD_FLAT_NAME);
-				Sectors[last].light   = Sectors[copyfrom].light;
-				Sectors[last].type = Sectors[copyfrom].type;
-				Sectors[last].tag     = Sectors[copyfrom].tag;
+				S->floorh = Sectors[copyfrom].floorh;
+				S->ceilh  = Sectors[copyfrom].ceilh;
+				S->light  = Sectors[copyfrom].light;
+				S->type   = Sectors[copyfrom].type;
+				S->tag    = Sectors[copyfrom].tag;
+
+				strncpy(S->floor_tex, Sectors[copyfrom].floor_tex, WAD_FLAT_NAME);
+				strncpy(S->ceil_tex,  Sectors[copyfrom].ceil_tex, WAD_FLAT_NAME);
 			}
 			else
 			{
-				Sectors[last].floorh  = default_floor_height;
-				Sectors[last].ceilh   = default_ceiling_height;
-				strncpy (Sectors[last].floor_tex, default_floor_texture, WAD_FLAT_NAME);
-				strncpy (Sectors[last].ceil_tex, default_ceiling_texture, WAD_FLAT_NAME);
-				Sectors[last].light   = default_light_level;
-				Sectors[last].type = 0;
-				Sectors[last].tag     = 0;
+				S->floorh = default_floor_height;
+				S->ceilh  = default_ceiling_height;
+				S->light  = default_light_level;
+
+				strncpy(S->floor_tex, default_floor_texture, WAD_FLAT_NAME);
+				strncpy(S->ceil_tex,  default_ceiling_texture, WAD_FLAT_NAME);
 			}
-			break;
+		}
+		break;
 
 		default:
 			nf_bug ("InsertObject: bad objtype %d", (int) objtype);
 	}
+
+	MadeChanges = 1;
 }
 
 
@@ -720,14 +811,14 @@ void CopyObjects (int objtype, SelPtr obj)
 				InsertObject (OBJ_LINEDEFS, old, 0, 0);
 				New = NumLineDefs - 1;
 
-				if (copy_linedef_reuse_sidedefs)
+				if (false) ///!!! copy_linedef_reuse_sidedefs)
 				{
-					/* AYM 1997-07-25: not very orthodox (the New linedef and 
-					   the old one use the same sidedefs). but, in the case where
-					   you're copying into the same sector, it's much better than
-					   having to create the New sidedefs manually. plus it saves
-					   space in the .wad and also it makes editing easier (editing
-					   one sidedef impacts all linedefs that use it). */
+		/* AYM 1997-07-25: not very orthodox (the New linedef and 
+		   the old one use the same sidedefs). but, in the case where
+		   you're copying into the same sector, it's much better than
+		   having to create the New sidedefs manually. plus it saves
+		   space in the .wad and also it makes editing easier (editing
+		   one sidedef impacts all linedefs that use it). */
 					LineDefs[New].side_R = LineDefs[old].side_R; 
 					LineDefs[New].side_L = LineDefs[old].side_L; 
 				}
