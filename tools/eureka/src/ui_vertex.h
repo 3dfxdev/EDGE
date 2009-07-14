@@ -29,30 +29,30 @@ class UI_RadiusInfo;
 class UI_VertexBox : public Fl_Group
 {
 private:
-  int cur_idx;
+	int cur_idx;
 
 public: //???
 
-  UI_Nombre *which;
+	UI_Nombre *which;
 
-  Fl_Int_Input *pos_x;
-  Fl_Int_Input *pos_y;
+	Fl_Int_Input *pos_x;
+	Fl_Int_Input *pos_y;
 
-
-public:
-  UI_VertexBox(int X, int Y, int W, int H, const char *label = NULL);
-  virtual ~UI_VertexBox();
 
 public:
-  int handle(int event);
-  // FLTK virtual method for handling input events.
+	UI_VertexBox(int X, int Y, int W, int H, const char *label = NULL);
+	virtual ~UI_VertexBox();
 
 public:
-  // a negative value will show 'None Selected'.
-  void SetObj(int index);
+	int handle(int event);
+	// FLTK virtual method for handling input events.
+
+public:
+	// a negative value will show 'None Selected'.
+	void SetObj(int index);
 
 private:
-  static void pos_callback(Fl_Widget *, void *);
+	static void pos_callback(Fl_Widget *, void *);
 };
 
 #endif // __UI_VERTEX_H__

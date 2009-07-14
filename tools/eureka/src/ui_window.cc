@@ -42,8 +42,8 @@ UI_MainWin *main_win;
 
 static void main_win_close_CB(Fl_Widget *w, void *data)
 {
-  if (main_win)
-    main_win->action = UI_MainWin::QUIT;
+	if (main_win)
+		main_win->action = UI_MainWin::QUIT;
 }
 
 
@@ -55,13 +55,13 @@ UI_MainWin::UI_MainWin(const char *title) :
     action(UI_MainWin::NONE),
     cursor_shape(FL_CURSOR_DEFAULT)
 {
-  end(); // cancel begin() in Fl_Group constructor
+	end(); // cancel begin() in Fl_Group constructor
 
-  size_range(MAIN_WINDOW_W, MAIN_WINDOW_H);
+	size_range(MAIN_WINDOW_W, MAIN_WINDOW_H);
 
-  callback((Fl_Callback *) main_win_close_CB);
+	callback((Fl_Callback *) main_win_close_CB);
 
-  color(WINDOW_BG, WINDOW_BG);
+	color(WINDOW_BG, WINDOW_BG);
 
 	int cy = 0;
 	int ey = h();
@@ -69,21 +69,21 @@ UI_MainWin::UI_MainWin(const char *title) :
 	int panel_W   = 260 + QF * 32;
 	int flattex_W = 180 + QF * 20;
 
-  /* ---- Menu bar ---- */
-  {
-    menu_bar = Menu_Create(0, 0, w() - panel_W, 28+QF*3);
-    add(menu_bar);
+	/* ---- Menu bar ---- */
+	{
+		menu_bar = Menu_Create(0, 0, w() - panel_W, 28+QF*3);
+		add(menu_bar);
 
 #ifndef MACOSX
-    cy += menu_bar->h();
+		cy += menu_bar->h();
 #endif
-  }
+	}
 
 
-  info_bar = new UI_InfoBar(0, ey - (28+QF*3), w(), 28+QF*3);
-  add(info_bar);
+	info_bar = new UI_InfoBar(0, ey - (28+QF*3), w(), 28+QF*3);
+	add(info_bar);
 
-  ey = ey - info_bar->h();
+	ey = ey - info_bar->h();
 
 
 
@@ -91,33 +91,33 @@ UI_MainWin::UI_MainWin(const char *title) :
 	add(tex_list);
 
 
-  canvas = new UI_Canvas(0, cy, w() - flattex_W - panel_W, ey - cy);
-  add(canvas);
+	canvas = new UI_Canvas(0, cy, w() - flattex_W - panel_W, ey - cy);
+	add(canvas);
 
-  resizable(canvas);
+	resizable(canvas);
 
 
-  int BY = 0;     // cy+2
-  int BH = ey-2;  // ey-BY-2
+	int BY = 0;     // cy+2
+	int BH = ey-2;  // ey-BY-2
 
-  thing_box = new UI_ThingBox(w() - panel_W, BY, panel_W, BH);
-  add(thing_box);
+	thing_box = new UI_ThingBox(w() - panel_W, BY, panel_W, BH);
+	add(thing_box);
 
-  line_box = new UI_LineBox(w() - panel_W, BY, panel_W, BH);
-  line_box->hide();
-  add(line_box);
+	line_box = new UI_LineBox(w() - panel_W, BY, panel_W, BH);
+	line_box->hide();
+	add(line_box);
 
-  sec_box = new UI_SectorBox(w() - panel_W, BY, panel_W, BH);
-  sec_box->hide();
-  add(sec_box);
+	sec_box = new UI_SectorBox(w() - panel_W, BY, panel_W, BH);
+	sec_box->hide();
+	add(sec_box);
 
-  vert_box = new UI_VertexBox(w() - panel_W, BY, panel_W, BH);
-  vert_box->hide();
-  add(vert_box);
+	vert_box = new UI_VertexBox(w() - panel_W, BY, panel_W, BH);
+	vert_box->hide();
+	add(vert_box);
 
-  rad_box = new UI_RadiusBox(w() - panel_W, BY, panel_W, BH);
-  rad_box->hide();
-  add(rad_box);
+	rad_box = new UI_RadiusBox(w() - panel_W, BY, panel_W, BH);
+	rad_box->hide();
+	add(rad_box);
 
 }
 
@@ -130,49 +130,49 @@ UI_MainWin::~UI_MainWin()
 
 void UI_MainWin::SetMode(char mode)
 {
-  // TODO: if mode == cur_mode then return end
+	// TODO: if mode == cur_mode then return end
 
-  thing_box->hide();
-   line_box->hide();
-    sec_box->hide();
-   vert_box->hide();
-    rad_box->hide();
+	thing_box->hide();
+	line_box->hide();
+	sec_box->hide();
+	vert_box->hide();
+	rad_box->hide();
 
-  switch (mode)
-  {
-    case 't': thing_box->show(); break;
-    case 'l':  line_box->show(); break;
-    case 's':   sec_box->show(); break;
-    case 'v':  vert_box->show(); break;
-    case 'r':   rad_box->show(); break;
+	switch (mode)
+	{
+		case 't': thing_box->show(); break;
+		case 'l':  line_box->show(); break;
+		case 's':   sec_box->show(); break;
+		case 'v':  vert_box->show(); break;
+		case 'r':   rad_box->show(); break;
 
-    default: break;
-  }
+		default: break;
+	}
 
-  info_bar->SetMode(mode);
+	info_bar->SetMode(mode);
 
-  redraw();
+	redraw();
 }
 
 
 void UI_MainWin::SetCursor(Fl_Cursor shape)
 {
-  if (shape == cursor_shape)
-    return;
+	if (shape == cursor_shape)
+		return;
 
-  cursor_shape = shape;
+	cursor_shape = shape;
 
-  cursor(shape);
+	cursor(shape);
 }
 
 
 const char *Int_TmpStr(int value)
 {
-  static char buffer[200];
+	static char buffer[200];
 
-  sprintf(buffer, "%d", value);
+	sprintf(buffer, "%d", value);
 
-  return buffer;
+	return buffer;
 }
 
 

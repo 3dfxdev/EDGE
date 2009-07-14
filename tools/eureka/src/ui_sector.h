@@ -23,54 +23,54 @@
 class UI_SectorBox : public Fl_Group
 {
 private:
-  int obj;
+	int obj;
 
 public:
-  UI_Nombre *which;
+	UI_Nombre *which;
 
-  Fl_Int_Input *ceil_h;
-  Fl_Int_Input *headroom;
-  Fl_Int_Input *floor_h;
+	Fl_Int_Input *ceil_h;
+	Fl_Int_Input *headroom;
+	Fl_Int_Input *floor_h;
 
-  Fl_Button *ce_down, *ce_up;
-  Fl_Button *fl_down, *fl_up;
+	Fl_Button *ce_down, *ce_up;
+	Fl_Button *fl_down, *fl_up;
 
-  Fl_Input *c_tex;
-  UI_Pic   *c_pic;
+	Fl_Input *c_tex;
+	UI_Pic   *c_pic;
 
-  Fl_Input *f_tex;
-  UI_Pic   *f_pic;
+	Fl_Input *f_tex;
+	UI_Pic   *f_pic;
 
-  Fl_Int_Input *type;
-  Fl_Output    *desc;
-  Fl_Button    *choose;
+	Fl_Int_Input *type;
+	Fl_Output    *desc;
+	Fl_Button    *choose;
 
-  Fl_Int_Input *light;
-  Fl_Int_Input *tag;
+	Fl_Int_Input *light;
+	Fl_Int_Input *tag;
 
-  Fl_Button *lt_down, *lt_up;
-
-public:
-  UI_SectorBox(int X, int Y, int W, int H, const char *label = NULL);
-  virtual ~UI_SectorBox();
+	Fl_Button *lt_down, *lt_up;
 
 public:
-  // a negative value will show 'None Selected'.
-  void SetObj(int index);
+	UI_SectorBox(int X, int Y, int W, int H, const char *label = NULL);
+	virtual ~UI_SectorBox();
+
+public:
+	// a negative value will show 'None Selected'.
+	void SetObj(int index);
 
 private:
-  void AdjustHeight(s16_t *h, int delta);
-  void AdjustLight (s16_t *L, int delta);
+	void AdjustHeight(s16_t *h, int delta);
+	void AdjustLight (s16_t *L, int delta);
 
-  void FlatFromWidget(wad_flat_name_t& fname, Fl_Input *w);
-  void FlatToWidget(Fl_Input *w, const wad_flat_name_t& fname);
+	void FlatFromWidget(wad_flat_name_t& fname, Fl_Input *w);
+	void FlatToWidget(Fl_Input *w, const wad_flat_name_t& fname);
 
-  static void height_callback(Fl_Widget *, void *);
-  static void    tex_callback(Fl_Widget *, void *);
-  static void   type_callback(Fl_Widget *, void *);
-  static void  light_callback(Fl_Widget *, void *);
-  static void    tag_callback(Fl_Widget *, void *);
-  static void button_callback(Fl_Widget *, void *);
+	static void height_callback(Fl_Widget *, void *);
+	static void    tex_callback(Fl_Widget *, void *);
+	static void   type_callback(Fl_Widget *, void *);
+	static void  light_callback(Fl_Widget *, void *);
+	static void    tag_callback(Fl_Widget *, void *);
+	static void button_callback(Fl_Widget *, void *);
 };
 
 #endif // __UI_SECTOR_H__

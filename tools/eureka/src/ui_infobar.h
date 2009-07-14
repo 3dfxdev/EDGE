@@ -23,50 +23,49 @@
 class UI_InfoBar : public Fl_Group
 {
 public:
-  UI_InfoBar(int X, int Y, int W, int H, const char *label = NULL);
-  virtual ~UI_InfoBar();
+	UI_InfoBar(int X, int Y, int W, int H, const char *label = NULL);
+	virtual ~UI_InfoBar();
 
 public:
-  Fl_Choice *mode;
-  Fl_Choice *scale;
+	Fl_Choice *mode;
+	Fl_Choice *scale;
 
-  Fl_Choice *grid_size;
-  Fl_Choice *grid_lock;
+	Fl_Choice *grid_size;
+	Fl_Choice *grid_lock;
 
-  Fl_Output *mouse_x;
-  Fl_Output *mouse_y;
+	Fl_Output *mouse_x;
+	Fl_Output *mouse_y;
 
-  Fl_Box *map_name;
+	Fl_Box *map_name;
 
-
-public:
-  int handle(int event);
-  // FLTK virtual method for handling input events.
 
 public:
-  void SetMap(const char *name, const char *wad);
-  void SetChanged(bool is_changed);
+	int handle(int event);
+	// FLTK virtual method for handling input events.
 
-  void SetMode(char _mode);
+public:
+	void SetMap(const char *name, const char *wad);
+	void SetChanged(bool is_changed);
 
-  void SetMouse(double mx, double my);
+	void SetMode(char _mode);
 
-  void SetScale(int i);  // called from Grid_State_c ONLY!
-  void SetGrid(int i);   // called from Grid_State_c
+	void SetMouse(double mx, double my);
 
-  // set grid_lock choice based on editor state
-  void UpdateLock();
+	void SetScale(int i);  // called from Grid_State_c ONLY!
+	void SetGrid(int i);   // called from Grid_State_c
+
+	// set grid_lock choice based on editor state
+	void UpdateLock();
 
 
 private:
-  void UpdateModeColor();
-  void UpdateLockColor();
+	void UpdateModeColor();
+	void UpdateLockColor();
 
-  static void  mode_callback(Fl_Widget *, void *);
-  static void scale_callback(Fl_Widget *, void *);
-  static void  grid_callback(Fl_Widget *, void *);
-  static void  lock_callback(Fl_Widget *, void *);
-
+	static void  mode_callback(Fl_Widget *, void *);
+	static void scale_callback(Fl_Widget *, void *);
+	static void  grid_callback(Fl_Widget *, void *);
+	static void  lock_callback(Fl_Widget *, void *);
 };
 
 #endif // __UI_INFOBAR_H__

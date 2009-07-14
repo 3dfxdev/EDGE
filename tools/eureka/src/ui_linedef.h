@@ -23,46 +23,46 @@
 class UI_LineBox : public Fl_Group
 {
 private:
-  int obj;
+	int obj;
 
 public:
-  UI_Nombre *which;
+	UI_Nombre *which;
 
-  Fl_Int_Input *type;
-  Fl_Output    *desc;
-  Fl_Button    *choose;
+	Fl_Int_Input *type;
+	Fl_Output    *desc;
+	Fl_Button    *choose;
 
-  Fl_Output    *length;
-  Fl_Int_Input *tag;
+	Fl_Output    *length;
+	Fl_Int_Input *tag;
 
-  UI_SideBox *front;
-  UI_SideBox *back;
+	UI_SideBox *front;
+	UI_SideBox *back;
 
-  // Flags
-  Fl_Choice *f_automap;
+	// Flags
+	Fl_Choice *f_automap;
 
-  Fl_Check_Button *f_upper;
-  Fl_Check_Button *f_lower;
-  Fl_Check_Button *f_passthru;
+	Fl_Check_Button *f_upper;
+	Fl_Check_Button *f_lower;
+	Fl_Check_Button *f_passthru;
 
-  Fl_Check_Button *f_walk;
-  Fl_Check_Button *f_mons;
-  Fl_Check_Button *f_sound;
-
-public:
-  UI_LineBox(int X, int Y, int W, int H, const char *label = NULL);
-  virtual ~UI_LineBox();
+	Fl_Check_Button *f_walk;
+	Fl_Check_Button *f_mons;
+	Fl_Check_Button *f_sound;
 
 public:
-  void SetObj(int index);
+	UI_LineBox(int X, int Y, int W, int H, const char *label = NULL);
+	virtual ~UI_LineBox();
+
+public:
+	void SetObj(int index);
 
 private:
-  void CalcLength();
+	void CalcLength();
 
-  int  CalcFlags() const;
-  void FlagsFromInt(int flags);
+	int  CalcFlags() const;
+	void FlagsFromInt(int flags);
 
-  static void flags_callback(Fl_Widget *, void *);
+	static void flags_callback(Fl_Widget *, void *);
 };
 
 #endif // __UI_LINEDEF_H__

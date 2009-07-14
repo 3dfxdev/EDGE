@@ -35,10 +35,10 @@ UI_Pic::UI_Pic(int X, int Y, int W, int H) :
     Fl_Box(FL_BORDER_BOX, X, Y, W, H, ""),
     rgb(NULL), unknown(false)
 {
-  color(FL_DARK2);
-  labelcolor(FL_LIGHT2);
+	color(FL_DARK2);
+	labelcolor(FL_LIGHT2);
 
-  align(FL_ALIGN_INSIDE);
+	align(FL_ALIGN_INSIDE);
 }
 
 //
@@ -51,164 +51,164 @@ UI_Pic::~UI_Pic()
 
 void UI_Pic::Nil()
 {
-  if (rgb)
-  {
-    delete rgb; rgb = NULL;
-    label("");
-    redraw();
-  }
+	if (rgb)
+	{
+		delete rgb; rgb = NULL;
+		label("");
+		redraw();
+	}
 }
 
 
 void UI_Pic::GetFlat(const wad_flat_name_t& fname)
 {
-  TiledImg(image_cache->GetFlat(fname));
+	TiledImg(image_cache->GetFlat(fname));
 }
 
 void UI_Pic::GetTex (const wad_tex_name_t& tname)
 {
-  TiledImg(image_cache->GetTex(tname));
+	TiledImg(image_cache->GetTex(tname));
 }
 
 
 void UI_Pic::GetSprite(const wad_ttype_t& type)
 {
-//  color(FL_GRAY0 + 2);
+	//  color(FL_GRAY0 + 2);
 
 
-  if (rgb) Nil();
+	if (rgb) Nil();
 
-  Img *img = image_cache->GetSprite(type);
+	Img *img = image_cache->GetSprite(type);
 
-  if (! img || img->width() < 1 || img->height() < 1)
-    return;
-
-
-  bool new_img = false;
-
-  if (get_thing_flags(type) & THINGDEF_SPECTRAL)
-  {
-    img = img->spectrify();
-    new_img = true;
-  }
+	if (! img || img->width() < 1 || img->height() < 1)
+		return;
 
 
-  u32_t back_col = Fl::get_color(color());
+	bool new_img = false;
 
-  int iw = img->width();
-  int ih = img->height();
-
-  int nw = w();
-  int nh = h();
-
-  int scale = 1;
-
-  if (iw*3 < nw && ih*3 < nh)
-    scale = 2;
-
-///---  if (iw*2 < nw+4 && ih*2 < nh+8)
-///---    scale = 2;
-///---  if (iw*4 < nw && ih*4 < nh)
-///---    scale = 3;
+	if (get_thing_flags(type) & THINGDEF_SPECTRAL)
+	{
+		img = img->spectrify();
+		new_img = true;
+	}
 
 
-  uchar *buf = new uchar[nw * nh * 3];
+	u32_t back_col = Fl::get_color(color());
 
-  for (int y = 0; y < nh; y++)
-  for (int x = 0; x < nw; x++)
-  {
-    int ix = x / scale - (nw / scale - iw) / 2;
-//  int iy = (ih-1) - (nh-4 - y);
-    int iy = y / scale - (nh / scale - ih) / 2;
+	int iw = img->width();
+	int ih = img->height();
 
-    u32_t col = back_col;
+	int nw = w();
+	int nh = h();
 
-    if (ix >= 0 && ix < iw && iy >= 0 && iy < ih)
-    {
-      img_pixel_t pix = img->buf() [iy*iw+ix];
+	int scale = 1;
 
-      if (pix != IMG_TRANSP)
-        col = game_colour[pix];
-    }
+	if (iw*3 < nw && ih*3 < nh)
+		scale = 2;
 
-    // Black border
-    if (x == 0 || x == nw-1 || y == 0 || y == nh-1)
-      col = 0;
+	///---  if (iw*2 < nw+4 && ih*2 < nh+8)
+	///---    scale = 2;
+	///---  if (iw*4 < nw && ih*4 < nh)
+	///---    scale = 3;
 
-    byte *dest = buf + ((y*nw+x) * 3);
 
-    dest[0] = ((col >> 24) & 0xFF);
-    dest[1] = ((col >> 16) & 0xFF);
-    dest[2] = ((col >>  8) & 0xFF);
-  }
+	uchar *buf = new uchar[nw * nh * 3];
 
-  UploadRGB(buf, 3);
+	for (int y = 0; y < nh; y++)
+		for (int x = 0; x < nw; x++)
+		{
+			int ix = x / scale - (nw / scale - iw) / 2;
+			//  int iy = (ih-1) - (nh-4 - y);
+			int iy = y / scale - (nh / scale - ih) / 2;
 
-  if (new_img)
-    delete img;
+			u32_t col = back_col;
+
+			if (ix >= 0 && ix < iw && iy >= 0 && iy < ih)
+			{
+				img_pixel_t pix = img->buf() [iy*iw+ix];
+
+				if (pix != IMG_TRANSP)
+					col = game_colour[pix];
+			}
+
+			// Black border
+			if (x == 0 || x == nw-1 || y == 0 || y == nh-1)
+				col = 0;
+
+			byte *dest = buf + ((y*nw+x) * 3);
+
+			dest[0] = ((col >> 24) & 0xFF);
+			dest[1] = ((col >> 16) & 0xFF);
+			dest[2] = ((col >>  8) & 0xFF);
+		}
+
+	UploadRGB(buf, 3);
+
+	if (new_img)
+		delete img;
 }
 
 
 void UI_Pic::TiledImg(Img *img)
 {
-  color(FL_DARK2);
+	color(FL_DARK2);
 
-  if (rgb) Nil();
+	if (rgb) Nil();
 
-  if (! img || img->width() < 1 || img->height() < 1)
-    return;
-
-
-  int iw = img->width();
-  int ih = img->height();
-
-  int nw = w();
-  int nh = h();
-
-  int scale = 1;
-
-  while (nw*scale < iw || nh*scale < ih)
-    scale = scale * 2;
+	if (! img || img->width() < 1 || img->height() < 1)
+		return;
 
 
-  u32_t back_col = Fl::get_color(color());
+	int iw = img->width();
+	int ih = img->height();
 
-  uchar *buf = new uchar[nw * nh * 3];
+	int nw = w();
+	int nh = h();
 
-  for (int y = 0; y < nh; y++)
-  for (int x = 0; x < nw; x++)
-  {
-    int ix = (x * scale) % iw;
-    int iy = (y * scale) % ih;
+	int scale = 1;
 
-    img_pixel_t pix = img->buf() [iy*iw+ix];
+	while (nw*scale < iw || nh*scale < ih)
+		scale = scale * 2;
 
-    u32_t col = back_col;
 
-    if (pix != IMG_TRANSP)
-      col = game_colour[pix];
+	u32_t back_col = Fl::get_color(color());
 
-    byte *dest = buf + ((y*nw+x) * 3);
+	uchar *buf = new uchar[nw * nh * 3];
 
-    dest[0] = ((col >> 24) & 0xFF);
-    dest[1] = ((col >> 16) & 0xFF);
-    dest[2] = ((col >>  8) & 0xFF);
-  }
+	for (int y = 0; y < nh; y++)
+		for (int x = 0; x < nw; x++)
+		{
+			int ix = (x * scale) % iw;
+			int iy = (y * scale) % ih;
 
-  UploadRGB(buf, 3);
+			img_pixel_t pix = img->buf() [iy*iw+ix];
+
+			u32_t col = back_col;
+
+			if (pix != IMG_TRANSP)
+				col = game_colour[pix];
+
+			byte *dest = buf + ((y*nw+x) * 3);
+
+			dest[0] = ((col >> 24) & 0xFF);
+			dest[1] = ((col >> 16) & 0xFF);
+			dest[2] = ((col >>  8) & 0xFF);
+		}
+
+	UploadRGB(buf, 3);
 }
 
 
 void UI_Pic::UploadRGB(const byte *buf, int depth)
 {
-  rgb = new Fl_RGB_Image(buf, w(), h(), depth, 0);
+	rgb = new Fl_RGB_Image(buf, w(), h(), depth, 0);
 
-  // HACK ALERT: make the Fl_RGB_Image class think it allocated
-  //             the buffer, so that it will get freed properly
-  //             by the Fl_RGB_Image destructor.
-  rgb->alloc_array = true;
+	// HACK ALERT: make the Fl_RGB_Image class think it allocated
+	//             the buffer, so that it will get freed properly
+	//             by the Fl_RGB_Image destructor.
+	rgb->alloc_array = true;
 
-  redraw();
+	redraw();
 }
 
 
@@ -217,37 +217,37 @@ void UI_Pic::UploadRGB(const byte *buf, int depth)
 
 int UI_Pic::handle(int event)
 {
-  switch (event)
-  {
-    case FL_ENTER:
-      main_win->SetCursor(FL_CURSOR_HAND);
-      return 1;
+	switch (event)
+	{
+		case FL_ENTER:
+			main_win->SetCursor(FL_CURSOR_HAND);
+			return 1;
 
-    case FL_LEAVE:
-      main_win->SetCursor(FL_CURSOR_DEFAULT);
-      return 1;
+		case FL_LEAVE:
+			main_win->SetCursor(FL_CURSOR_DEFAULT);
+			return 1;
 
-    case FL_PUSH:
-      do_callback();
-      return 1;
+		case FL_PUSH:
+			do_callback();
+			return 1;
 
-    default:
-      break;
-  }
+		default:
+			break;
+	}
 
-  return 0;  // unused
+	return 0;  // unused
 }
 
 
 void UI_Pic::draw()
 {
-  if (! rgb)
-  {
-    Fl_Box::draw();
-    return;
-  }
+	if (! rgb)
+	{
+		Fl_Box::draw();
+		return;
+	}
 
-  rgb->draw(x(), y());
+	rgb->draw(x(), y());
 }
 
 

@@ -23,20 +23,20 @@
 class UI_Nombre : public Fl_Box
 {
 private:
-  int index;
-  int total;
+	int index;
+	int total;
 
-  const char *type_name;
+	const char *type_name;
 
-  void Update();
-
-public:
-  UI_Nombre(int X, int Y, int W, int H, const char *what = NULL);
-  virtual ~UI_Nombre();
+	void Update();
 
 public:
-  void SetIndex(int _idx);  // _idx < 0 means "no index"
-  void SetTotal(int _tot);
+	UI_Nombre(int X, int Y, int W, int H, const char *what = NULL);
+	virtual ~UI_Nombre();
+
+public:
+	void SetIndex(int _idx);  // _idx < 0 means "no index"
+	void SetTotal(int _tot);
 };
 
 

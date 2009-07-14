@@ -26,66 +26,66 @@ class rad_trigger_c;
 class UI_RadiusBox : public Fl_Group
 {
 public:
-  UI_RadiusBox(int X, int Y, int W, int H, const char *label = NULL);
-  virtual ~UI_RadiusBox();
+	UI_RadiusBox(int X, int Y, int W, int H, const char *label = NULL);
+	virtual ~UI_RadiusBox();
 
 private:
-  rad_trigger_c *view_RAD;
+	rad_trigger_c *view_RAD;
 
-  UI_Nombre *which;
+	UI_Nombre *which;
 
-  // current shape (radio buttons)
-  Fl_Round_Button *is_radius;
-  Fl_Round_Button *is_rect;
+	// current shape (radio buttons)
+	Fl_Round_Button *is_radius;
+	Fl_Round_Button *is_rect;
 
-  Fl_Float_Input *pos_x1;
-  Fl_Float_Input *pos_y1;
+	Fl_Float_Input *pos_x1;
+	Fl_Float_Input *pos_y1;
 
-  // for rectangle shape, 'radius' widget is hidden
-  // for radius shape, 'x2/y2' widgets are hidden
-  Fl_Float_Input *radius;
+	// for rectangle shape, 'radius' widget is hidden
+	// for radius shape, 'x2/y2' widgets are hidden
+	Fl_Float_Input *radius;
 
-  Fl_Float_Input *pos_x2;
-  Fl_Float_Input *pos_y2;
+	Fl_Float_Input *pos_x2;
+	Fl_Float_Input *pos_y2;
 
-  Fl_Float_Input *pos_z1;
-  Fl_Float_Input *pos_z2;
+	Fl_Float_Input *pos_z1;
+	Fl_Float_Input *pos_z2;
 
-  Fl_Input     *name;
-  Fl_Int_Input *tag;
+	Fl_Input     *name;
+	Fl_Int_Input *tag;
 
-  // when appear: two rows of three on/off buttons
-  Fl_Check_Button *wa_easy;
-  Fl_Check_Button *wa_medium;
-  Fl_Check_Button *wa_hard;
+	// when appear: two rows of three on/off buttons
+	Fl_Check_Button *wa_easy;
+	Fl_Check_Button *wa_medium;
+	Fl_Check_Button *wa_hard;
 
-  Fl_Check_Button *wa_sp;
-  Fl_Check_Button *wa_coop;
-  Fl_Check_Button *wa_dm;
+	Fl_Check_Button *wa_sp;
+	Fl_Check_Button *wa_coop;
+	Fl_Check_Button *wa_dm;
 
 public:
-  void LoadData(rad_trigger_c *rad);
+	void LoadData(rad_trigger_c *rad);
 
-  void SetViewRad(rad_trigger_c *rad);
+	void SetViewRad(rad_trigger_c *rad);
 
-  void ListenField(rad_trigger_c *rad, int F);
+	void ListenField(rad_trigger_c *rad, int F);
 
 private:
-  void update_Shape(rad_trigger_c *rad);
-  void update_XY   (rad_trigger_c *rad);
-  void update_Z    (rad_trigger_c *rad);
-  void update_Name (rad_trigger_c *rad);
-  void update_Tag  (rad_trigger_c *rad);
-  void update_WhenAppear(rad_trigger_c *rad);
+	void update_Shape(rad_trigger_c *rad);
+	void update_XY   (rad_trigger_c *rad);
+	void update_Z    (rad_trigger_c *rad);
+	void update_Name (rad_trigger_c *rad);
+	void update_Tag  (rad_trigger_c *rad);
+	void update_WhenAppear(rad_trigger_c *rad);
 
-  int CalcWhenAppear();
+	int CalcWhenAppear();
 
-  static void shape_callback (Fl_Widget *, void *);
-  static void pos_callback   (Fl_Widget *, void *);
-  static void height_callback(Fl_Widget *, void *);
-  static void name_callback  (Fl_Widget *, void *);
-  static void tag_callback   (Fl_Widget *, void *);
-  static void whenapp_callback(Fl_Widget *, void *);
+	static void shape_callback (Fl_Widget *, void *);
+	static void pos_callback   (Fl_Widget *, void *);
+	static void height_callback(Fl_Widget *, void *);
+	static void name_callback  (Fl_Widget *, void *);
+	static void tag_callback   (Fl_Widget *, void *);
+	static void whenapp_callback(Fl_Widget *, void *);
 };
 
 #endif // __UI_RADIUS_H__

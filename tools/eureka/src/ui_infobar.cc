@@ -121,47 +121,47 @@ UI_InfoBar::~UI_InfoBar()
 
 int UI_InfoBar::handle(int event)
 {
-  return Fl_Group::handle(event);
+	return Fl_Group::handle(event);
 }
 
 
 void UI_InfoBar::mode_callback(Fl_Widget *w, void *data)
 {
-  Fl_Choice *mode = (Fl_Choice *)w;
+	Fl_Choice *mode = (Fl_Choice *)w;
 
-  static const char *mode_keys = "tlsvr";
+	static const char *mode_keys = "tlsvr";
 
-  main_win->SetMode(mode_keys[mode->value()]);
+	main_win->SetMode(mode_keys[mode->value()]);
 
-  UI_InfoBar *bar = (UI_InfoBar *)data;
+	UI_InfoBar *bar = (UI_InfoBar *)data;
 
-  bar->UpdateModeColor();
+	bar->UpdateModeColor();
 }
 
 
 void UI_InfoBar::scale_callback(Fl_Widget *w, void *data)
 {
-  Fl_Choice *choice = (Fl_Choice *)w;
+	Fl_Choice *choice = (Fl_Choice *)w;
 
-  grid.ScaleFromWidget(choice->value());
+	grid.ScaleFromWidget(choice->value());
 }
 
 
 void UI_InfoBar::grid_callback(Fl_Widget *w, void *data)
 {
-  Fl_Choice *choice = (Fl_Choice *)w;
+	Fl_Choice *choice = (Fl_Choice *)w;
 
-  grid.StepFromWidget(choice->value());
+	grid.StepFromWidget(choice->value());
 }
 
 
 void UI_InfoBar::lock_callback(Fl_Widget *w, void *data)
 {
-  UI_InfoBar *bar = (UI_InfoBar *)data;
+	UI_InfoBar *bar = (UI_InfoBar *)data;
 
-  // FIXME: editor state!!!!
+	// FIXME: editor state!!!!
 
-  bar->UpdateLockColor();
+	bar->UpdateLockColor();
 }
 
 
@@ -170,82 +170,82 @@ void UI_InfoBar::lock_callback(Fl_Widget *w, void *data)
 
 void UI_InfoBar::SetMode(char mode_ch)
 {
-  switch (mode_ch)
-  {
-    case 't': mode->value(0); break;
-    case 'l': mode->value(1); break;
-    case 's': mode->value(2); break;
-    case 'v': mode->value(3); break;
-    case 'r': mode->value(4); break;
+	switch (mode_ch)
+	{
+		case 't': mode->value(0); break;
+		case 'l': mode->value(1); break;
+		case 's': mode->value(2); break;
+		case 'v': mode->value(3); break;
+		case 'r': mode->value(4); break;
 
-    default: break;
-  }
+		default: break;
+	}
 
-  UpdateModeColor();
+	UpdateModeColor();
 }
 
 
 void UI_InfoBar::SetMouse(double mx, double my)
 {
-  if (mx < -32767.0 || mx > 32767.0 ||
-      my < -32767.0 || my > 32767.0)
-  {
-    mouse_x->value("off map");
-    mouse_y->value("off map");
+	if (mx < -32767.0 || mx > 32767.0 ||
+			my < -32767.0 || my > 32767.0)
+	{
+		mouse_x->value("off map");
+		mouse_y->value("off map");
 
-    return;
-  }
+		return;
+	}
 
-  char x_buffer[60];
-  char y_buffer[60];
+	char x_buffer[60];
+	char y_buffer[60];
 
-  sprintf(x_buffer, "%d", I_ROUND(mx));
-  sprintf(y_buffer, "%d", I_ROUND(my));
+	sprintf(x_buffer, "%d", I_ROUND(mx));
+	sprintf(y_buffer, "%d", I_ROUND(my));
 
-  mouse_x->value(x_buffer);
-  mouse_y->value(y_buffer);
+	mouse_x->value(x_buffer);
+	mouse_y->value(y_buffer);
 }
 
 
 void UI_InfoBar::SetMap(const char *name, const char *wad_name)
 {
-  char buffer[512];
+	char buffer[512];
 
-  sprintf(buffer, "%s  %s\n", name, wad_name);
+	sprintf(buffer, "%s  %s\n", name, wad_name);
 
-  map_name->copy_label(buffer);
+	map_name->copy_label(buffer);
 }
 
 
 void UI_InfoBar::SetChanged(bool is_changed)
 {
-  map_name->labelcolor(is_changed ? FL_RED : FL_BLACK);
+	map_name->labelcolor(is_changed ? FL_RED : FL_BLACK);
 
-  redraw();
+	redraw();
 }
 
 
 void UI_InfoBar::SetScale(int i)
 {
-  scale->value(i);
+	scale->value(i);
 }
 
 void UI_InfoBar::SetGrid(int i)
 {
-  grid_size->value(i);
+	grid_size->value(i);
 }
 
 
 void UI_InfoBar::UpdateLock()
 {
-  if (grid.locked)
-    grid_lock->value(0);
-  else if (grid.snap)
-    grid_lock->value(1);
-  else
-    grid_lock->value(2);
+	if (grid.locked)
+		grid_lock->value(0);
+	else if (grid.snap)
+		grid_lock->value(1);
+	else
+		grid_lock->value(2);
 
-  UpdateLockColor();
+	UpdateLockColor();
 }
 
 
@@ -253,82 +253,82 @@ void UI_InfoBar::UpdateLock()
 
 void UI_InfoBar::SetZoom(float zoom_mul)
 {
-  char buffer[60];
+	char buffer[60];
 
-///  if (0.99 < zoom_mul && zoom_mul < 1.01)
-///  {
-///    grid_size->value("1:1");
-///    return;
-///  }
+	///  if (0.99 < zoom_mul && zoom_mul < 1.01)
+	///  {
+	///    grid_size->value("1:1");
+	///    return;
+	///  }
 
-  if (zoom_mul < 0.99)
-  {
-    sprintf(buffer, "/ %1.3f", 1.0/zoom_mul);
-  }
-  else // zoom_mul > 1
-  {
-    sprintf(buffer, "x %1.3f", zoom_mul);
-  }
+	if (zoom_mul < 0.99)
+	{
+		sprintf(buffer, "/ %1.3f", 1.0/zoom_mul);
+	}
+	else // zoom_mul > 1
+	{
+		sprintf(buffer, "x %1.3f", zoom_mul);
+	}
 
-  grid_size->value(buffer);
+	grid_size->value(buffer);
 }
 
 
 void UI_InfoBar::SetNodeIndex(int index)
 {
 #if 0
-  char buffer[60];
+	char buffer[60];
 
-  sprintf(buffer, "%d", index);
-  
-  ns_index->label("Node #");
-  ns_index->value(buffer);
+	sprintf(buffer, "%d", index);
 
-  redraw();
+	ns_index->label("Node #");
+	ns_index->value(buffer);
+
+	redraw();
 #endif
 }
 
 
 void UI_InfoBar::SetWhich(int index, int total)
 {
-  if (index < 0)
-  {
-    which->label(INDEX_NONE_STR);
-  }
-  else
-  {
-    char buffer[200];
-    sprintf(buffer, "Index: #%d of %d", index, total);
- 
-    which->copy_label(buffer);
-  }
+	if (index < 0)
+	{
+		which->label(INDEX_NONE_STR);
+	}
+	else
+	{
+		char buffer[200];
+		sprintf(buffer, "Index: #%d of %d", index, total);
 
-  redraw();
+		which->copy_label(buffer);
+	}
+
+	redraw();
 }
 #endif
 
 
 void UI_InfoBar::UpdateModeColor()
 {
-  switch (mode->value())
-  {
-    case 0: /* Things   */ mode->color(FL_MAGENTA); break;
-    case 1: /* Linedefs */ mode->color(fl_rgb_color(0,128,255)); break;
-    case 2: /* Sectors  */ mode->color(FL_YELLOW); break;
-    case 3: /* Vertices */ mode->color(fl_rgb_color(0,192,96));  break;
-    case 4: /* RTS      */ mode->color(FL_RED); break;
-  }
+	switch (mode->value())
+	{
+		case 0: /* Things   */ mode->color(FL_MAGENTA); break;
+		case 1: /* Linedefs */ mode->color(fl_rgb_color(0,128,255)); break;
+		case 2: /* Sectors  */ mode->color(FL_YELLOW); break;
+		case 3: /* Vertices */ mode->color(fl_rgb_color(0,192,96));  break;
+		case 4: /* RTS      */ mode->color(FL_RED); break;
+	}
 }
 
 
 void UI_InfoBar::UpdateLockColor()
 {
-  switch (grid_lock->value())
-  {
-    case 0: /* Lock */ grid_lock->color(fl_rgb_color(255,128,128)); break;
-    case 1: /* Snap */ grid_lock->color(FL_BACKGROUND_COLOR); break;
-    case 2: /* Free */ grid_lock->color(fl_rgb_color(128,255,128)); break;
-  }
+	switch (grid_lock->value())
+	{
+		case 0: /* Lock */ grid_lock->color(fl_rgb_color(255,128,128)); break;
+		case 1: /* Snap */ grid_lock->color(FL_BACKGROUND_COLOR); break;
+		case 2: /* Free */ grid_lock->color(fl_rgb_color(128,255,128)); break;
+	}
 }
 
 //--- editor settings ---
