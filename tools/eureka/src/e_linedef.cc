@@ -44,46 +44,46 @@
 
 int GetTextureRefHeight (int sidedef)
 {
-int l, sector;
-int otherside = OBJ_NO_NONE;
+	int l, sector;
+	int otherside = OBJ_NO_NONE;
 
-/* find the sidedef on the other side of the LineDef, if any */
+	/* find the sidedef on the other side of the LineDef, if any */
 
-for (l = 0; l < NumLineDefs; l++)
-  {
-  if (LineDefs[l].side_R == sidedef)
-    {
-    otherside = LineDefs[l].side_L;
-    break;
-    }
-  if (LineDefs[l].side_L == sidedef)
-    {
-    otherside = LineDefs[l].side_R;
-    break;
-    }
-  }
-/* get the Sector number */
+	for (l = 0; l < NumLineDefs; l++)
+	{
+		if (LineDefs[l].side_R == sidedef)
+		{
+			otherside = LineDefs[l].side_L;
+			break;
+		}
+		if (LineDefs[l].side_L == sidedef)
+		{
+			otherside = LineDefs[l].side_R;
+			break;
+		}
+	}
+	/* get the Sector number */
 
-sector = SideDefs[sidedef].sector;
-/* if the upper texture is displayed,
-   then the reference is taken from the other Sector */
-if (otherside >= 0)
-  {
-  l = SideDefs[otherside].sector;
-  if (l > 0)
-    {
-    
-    if (Sectors[l].ceilh < Sectors[sector].ceilh
-     && Sectors[l].ceilh > Sectors[sector].floorh)
-      sector = l;
-    }
-  }
-/* return the altitude of the ceiling */
+	sector = SideDefs[sidedef].sector;
+	/* if the upper texture is displayed,
+	   then the reference is taken from the other Sector */
+	if (otherside >= 0)
+	{
+		l = SideDefs[otherside].sector;
+		if (l > 0)
+		{
 
-if (sector >= 0)
-  return Sectors[sector].ceilh; /* textures are drawn from the ceiling down */
-else
-  return 0; /* yuck! */
+			if (Sectors[l].ceilh < Sectors[sector].ceilh
+					&& Sectors[l].ceilh > Sectors[sector].floorh)
+				sector = l;
+		}
+	}
+	/* return the altitude of the ceiling */
+
+	if (sector >= 0)
+		return Sectors[sector].ceilh; /* textures are drawn from the ceiling down */
+	else
+		return 0; /* yuck! */
 }
 
 
@@ -102,26 +102,26 @@ else
 
 void AlignTexturesY (SelPtr *sdlist)
 {
-int h, refh;
+	int h, refh;
 
-if (! *sdlist)
-   return;
+	if (! *sdlist)
+		return;
 
-/* get the reference height from the first sidedef */
-refh = GetTextureRefHeight ((*sdlist)->objnum);
+	/* get the reference height from the first sidedef */
+	refh = GetTextureRefHeight ((*sdlist)->objnum);
 
-SideDefs[(*sdlist)->objnum].y_offset = 0;
-UnSelectObject (sdlist, (*sdlist)->objnum);
+	SideDefs[(*sdlist)->objnum].y_offset = 0;
+	UnSelectObject (sdlist, (*sdlist)->objnum);
 
-/* adjust Y offset in all other SideDefs */
-while (*sdlist)
-  {
-  h = GetTextureRefHeight ((*sdlist)->objnum);
-  
-  SideDefs[(*sdlist)->objnum].y_offset = (refh - h) % 128;
-  UnSelectObject (sdlist, (*sdlist)->objnum);
-  }
-MadeChanges = 1;
+	/* adjust Y offset in all other SideDefs */
+	while (*sdlist)
+	{
+		h = GetTextureRefHeight ((*sdlist)->objnum);
+
+		SideDefs[(*sdlist)->objnum].y_offset = (refh - h) % 128;
+		UnSelectObject (sdlist, (*sdlist)->objnum);
+	}
+	MadeChanges = 1;
 }
 
 
@@ -403,34 +403,34 @@ MadeChanges = 1;
  */
 void centre_of_linedefs (SelPtr list, int *x, int *y)
 {
-bitvec_c *vertices;
-int nitems;
-long x_sum;
-long y_sum;
-int n;
+	bitvec_c *vertices;
+	int nitems;
+	long x_sum;
+	long y_sum;
+	int n;
 
-vertices = bv_vertices_of_linedefs (list);
-x_sum = 0;
-y_sum = 0;
-nitems = 0;
-for (n = 0; n < NumVertices; n++)
-   if (vertices->get (n))
-      {
-      x_sum += Vertices[n].x;
-      y_sum += Vertices[n].y;
-      nitems++;
-      }
-if (nitems == 0)
-   {
-   *x = 0;
-   *y = 0;
-   }
-else
-   {
-   *x = (int) (x_sum / nitems);
-   *y = (int) (y_sum / nitems);
-   }
-delete vertices;
+	vertices = bv_vertices_of_linedefs (list);
+	x_sum = 0;
+	y_sum = 0;
+	nitems = 0;
+	for (n = 0; n < NumVertices; n++)
+		if (vertices->get (n))
+		{
+			x_sum += Vertices[n].x;
+			y_sum += Vertices[n].y;
+			nitems++;
+		}
+	if (nitems == 0)
+	{
+		*x = 0;
+		*y = 0;
+	}
+	else
+	{
+		*x = (int) (x_sum / nitems);
+		*y = (int) (y_sum / nitems);
+	}
+	delete vertices;
 }
 
 
@@ -442,29 +442,29 @@ delete vertices;
  */
 void frob_linedefs_flags (SelPtr list, int op, int operand)
 {
-  SelPtr cur;
-  s16_t mask;
+	SelPtr cur;
+	s16_t mask;
 
-  if (op == YO_CLEAR || op == YO_SET || op == YO_TOGGLE)
-    mask = 1 << operand;
-  else
-    mask = operand;
+	if (op == YO_CLEAR || op == YO_SET || op == YO_TOGGLE)
+		mask = 1 << operand;
+	else
+		mask = operand;
 
-  for (cur = list; cur; cur = cur->next)
-  {
-    if (op == YO_CLEAR)
-      LineDefs[cur->objnum].flags &= ~mask;
-    else if (op == YO_SET)
-      LineDefs[cur->objnum].flags |= mask;
-    else if (op == YO_TOGGLE)
-      LineDefs[cur->objnum].flags ^= mask;
-    else
-    {
-      nf_bug ("frob_linedef_flags: op=%02X", op);
-      return;
-    }
-  }
-  MadeChanges = 1;
+	for (cur = list; cur; cur = cur->next)
+	{
+		if (op == YO_CLEAR)
+			LineDefs[cur->objnum].flags &= ~mask;
+		else if (op == YO_SET)
+			LineDefs[cur->objnum].flags |= mask;
+		else if (op == YO_TOGGLE)
+			LineDefs[cur->objnum].flags ^= mask;
+		else
+		{
+			nf_bug ("frob_linedef_flags: op=%02X", op);
+			return;
+		}
+	}
+	MadeChanges = 1;
 }
 
 
@@ -474,30 +474,29 @@ static void SliceLinedef (int linedefno, int times);
 
 /*
    flip one or several LineDefs
-*/
+   */
 
 void FlipLineDefs ( SelPtr obj, bool swapvertices)
 {
-SelPtr cur;
-int    tmp;
+	SelPtr cur;
+	int    tmp;
 
-
-for (cur = obj; cur; cur = cur->next)
-{
-   if (swapvertices)
-   {
-      /* swap starting and ending Vertices */
-      tmp = LineDefs[ cur->objnum].end;
-      LineDefs[ cur->objnum].end = LineDefs[ cur->objnum].start;
-      LineDefs[ cur->objnum].start = tmp;
-   }
-   /* swap first and second SideDefs */
-   tmp = LineDefs[ cur->objnum].side_R;
-   LineDefs[ cur->objnum].side_R = LineDefs[ cur->objnum].side_L;
-   LineDefs[ cur->objnum].side_L = tmp;
-}
-MadeChanges = 1;
-MadeMapChanges = 1;
+	for (cur = obj; cur; cur = cur->next)
+	{
+		if (swapvertices)
+		{
+			/* swap starting and ending Vertices */
+			tmp = LineDefs[ cur->objnum].end;
+			LineDefs[ cur->objnum].end = LineDefs[ cur->objnum].start;
+			LineDefs[ cur->objnum].start = tmp;
+		}
+		/* swap first and second SideDefs */
+		tmp = LineDefs[ cur->objnum].side_R;
+		LineDefs[ cur->objnum].side_R = LineDefs[ cur->objnum].side_L;
+		LineDefs[ cur->objnum].side_L = tmp;
+	}
+	MadeChanges = 1;
+	MadeMapChanges = 1;
 }
 
 
@@ -507,20 +506,18 @@ MadeMapChanges = 1;
 
 void SplitLineDefs ( SelPtr obj)
 {
-SelPtr cur;
-int    vstart, vend;
+	SelPtr cur;
 
-
-for (cur = obj; cur; cur = cur->next)
-  {
-  vstart = LineDefs[cur->objnum].start;
-  vend   = LineDefs[cur->objnum].end;
-  SliceLinedef (cur->objnum, 1);
-  Vertices[NumVertices-1].x = (Vertices[vstart].x + Vertices[vend].x) / 2;
-  Vertices[NumVertices-1].y = (Vertices[vstart].y + Vertices[vend].y) / 2;
-  }
-MadeChanges = 1;
-MadeMapChanges = 1;
+	for (cur = obj; cur; cur = cur->next)
+	{
+		int vstart = LineDefs[cur->objnum].start;
+		int vend   = LineDefs[cur->objnum].end;
+		SliceLinedef (cur->objnum, 1);
+		Vertices[NumVertices-1].x = (Vertices[vstart].x + Vertices[vend].x) / 2;
+		Vertices[NumVertices-1].y = (Vertices[vstart].y + Vertices[vend].y) / 2;
+	}
+	MadeChanges = 1;
+	MadeMapChanges = 1;
 }
 
 
@@ -539,59 +536,58 @@ MadeMapChanges = 1;
  */
 void MakeRectangularNook (SelPtr obj, int width, int depth, int convex)
 {
-SelPtr cur;
+	SelPtr cur;
 
+	for (cur = obj; cur; cur = cur->next)
+	{
+		int vstart, vend;
+		int x0;
+		int y0;
+		int dx0, dx1, dx2;
+		int dy0, dy1, dy2;
+		int line_len;
+		double real_width;
+		double angle;
 
-for (cur = obj; cur; cur = cur->next)
-  {
-  int vstart, vend;
-  int x0;
-  int y0;
-  int dx0, dx1, dx2;
-  int dy0, dy1, dy2;
-  int line_len;
-  double real_width;
-  double angle;
+		vstart = LineDefs[cur->objnum].start;
+		vend   = LineDefs[cur->objnum].end;
+		x0     = Vertices[vstart].x;
+		y0     = Vertices[vstart].y;
+		dx0    = Vertices[vend].x - x0;
+		dy0    = Vertices[vend].y - y0;
 
-  vstart = LineDefs[cur->objnum].start;
-  vend   = LineDefs[cur->objnum].end;
-  x0     = Vertices[vstart].x;
-  y0     = Vertices[vstart].y;
-  dx0    = Vertices[vend].x - x0;
-  dy0    = Vertices[vend].y - y0;
+		/* First split the line 4 times */
+		SliceLinedef (cur->objnum, 4);
 
-  /* First split the line 4 times */
-  SliceLinedef (cur->objnum, 4);
+		/* Then position the vertices */
+		angle  = atan2 (dy0, dx0);
 
-  /* Then position the vertices */
-  angle  = atan2 (dy0, dx0);
- 
-  /* If line to split is not longer than sidelen,
-     force sidelen to 1/3 of length */
-  line_len   = ComputeDist (dx0, dy0);
-  real_width = line_len > width ? width : line_len / 3;
-    
-  dx2 = (int) (real_width * cos (angle));
-  dy2 = (int) (real_width * sin (angle));
+		/* If line to split is not longer than sidelen,
+		   force sidelen to 1/3 of length */
+		line_len   = ComputeDist (dx0, dy0);
+		real_width = line_len > width ? width : line_len / 3;
 
-  dx1 = (dx0 - dx2) / 2;
-  dy1 = (dy0 - dy2) / 2;
+		dx2 = (int) (real_width * cos (angle));
+		dy2 = (int) (real_width * sin (angle));
 
-  {
-  double normal = convex ? angle-HALFPI : angle+HALFPI;
-  Vertices[NumVertices-1-3].x = x0 + dx1;
-  Vertices[NumVertices-1-3].y = y0 + dy1;
-  Vertices[NumVertices-1-2].x = x0 + dx1 + (int) (depth * cos (normal));
-  Vertices[NumVertices-1-2].y = y0 + dy1 + (int) (depth * sin (normal));
-  Vertices[NumVertices-1-1].x = x0 + dx1 + dx2 + (int) (depth * cos (normal));
-  Vertices[NumVertices-1-1].y = y0 + dy1 + dy2 + (int) (depth * sin (normal));
-  Vertices[NumVertices-1  ].x = x0 + dx1 + dx2;
-  Vertices[NumVertices-1  ].y = y0 + dy1 + dy2;
-  }
+		dx1 = (dx0 - dx2) / 2;
+		dy1 = (dy0 - dy2) / 2;
 
-  MadeChanges = 1;
-  MadeMapChanges = 1;
-  }
+		{
+			double normal = convex ? angle-HALFPI : angle+HALFPI;
+			Vertices[NumVertices-1-3].x = x0 + dx1;
+			Vertices[NumVertices-1-3].y = y0 + dy1;
+			Vertices[NumVertices-1-2].x = x0 + dx1 + (int) (depth * cos (normal));
+			Vertices[NumVertices-1-2].y = y0 + dy1 + (int) (depth * sin (normal));
+			Vertices[NumVertices-1-1].x = x0 + dx1 + dx2 + (int) (depth * cos (normal));
+			Vertices[NumVertices-1-1].y = y0 + dy1 + dy2 + (int) (depth * sin (normal));
+			Vertices[NumVertices-1  ].x = x0 + dx1 + dx2;
+			Vertices[NumVertices-1  ].y = y0 + dy1 + dy2;
+		}
+
+		MadeChanges = 1;
+		MadeMapChanges = 1;
+	}
 }
 
 
@@ -606,32 +602,32 @@ for (cur = obj; cur; cur = cur->next)
  */
 static void SliceLinedef (int linedefno, int times)
 {
-int prev_ld_no;
-for (prev_ld_no = linedefno; times > 0; times--, prev_ld_no = NumLineDefs-1)
-  {
-  int sd;
+	int prev_ld_no;
+	for (prev_ld_no = linedefno; times > 0; times--, prev_ld_no = NumLineDefs-1)
+	{
+		int sd;
 
-  InsertObject (OBJ_VERTICES, -1, 0, 0);
-  InsertObject (OBJ_LINEDEFS, linedefno, 0, 0);
-  LineDefs[NumLineDefs-1].start = NumVertices - 1;
-  LineDefs[NumLineDefs-1].end   = LineDefs[prev_ld_no].end;
-  LineDefs[prev_ld_no   ].end   = NumVertices - 1;
-  
-  sd = LineDefs[linedefno].side_R;
-  if (sd >= 0)
-    {
-    InsertObject (OBJ_SIDEDEFS, sd, 0, 0);
-    
-    LineDefs[NumLineDefs-1].side_R = NumSideDefs - 1;
-    }
-  sd = LineDefs[linedefno].side_L;
-  if (sd >= 0)
-    {
-    InsertObject (OBJ_SIDEDEFS, sd, 0, 0);
-    
-    LineDefs[NumLineDefs-1].side_L = NumSideDefs - 1;
-    }
-  }
+		InsertObject (OBJ_VERTICES, -1, 0, 0);
+		InsertObject (OBJ_LINEDEFS, linedefno, 0, 0);
+		LineDefs[NumLineDefs-1].start = NumVertices - 1;
+		LineDefs[NumLineDefs-1].end   = LineDefs[prev_ld_no].end;
+		LineDefs[prev_ld_no   ].end   = NumVertices - 1;
+
+		sd = LineDefs[linedefno].side_R;
+		if (sd >= 0)
+		{
+			InsertObject (OBJ_SIDEDEFS, sd, 0, 0);
+
+			LineDefs[NumLineDefs-1].side_R = NumSideDefs - 1;
+		}
+		sd = LineDefs[linedefno].side_L;
+		if (sd >= 0)
+		{
+			InsertObject (OBJ_SIDEDEFS, sd, 0, 0);
+
+			LineDefs[NumLineDefs-1].side_L = NumSideDefs - 1;
+		}
+	}
 }
 
 
@@ -641,31 +637,30 @@ for (prev_ld_no = linedefno; times > 0; times--, prev_ld_no = NumLineDefs-1)
  */
 void SetLinedefLength (SelPtr obj, int length, int move_2nd_vertex)
 {
-SelPtr cur;
+	SelPtr cur;
 
+	for (cur = obj; cur; cur = cur->next)
+	{
+		VPtr vertex1 = Vertices + LineDefs[cur->objnum].start;
+		VPtr vertex2 = Vertices + LineDefs[cur->objnum].end;
+		double angle = atan2 (vertex2->y - vertex1->y, vertex2->x - vertex1->x);
+		int dx       = (int) (length * cos (angle));
+		int dy       = (int) (length * sin (angle));
 
-for (cur = obj; cur; cur = cur->next)
-  {
-  VPtr vertex1 = Vertices + LineDefs[cur->objnum].start;
-  VPtr vertex2 = Vertices + LineDefs[cur->objnum].end;
-  double angle = atan2 (vertex2->y - vertex1->y, vertex2->x - vertex1->x);
-  int dx       = (int) (length * cos (angle));
-  int dy       = (int) (length * sin (angle));
+		if (move_2nd_vertex)
+		{
+			vertex2->x = vertex1->x + dx;
+			vertex2->y = vertex1->y + dy;
+		}
+		else
+		{
+			vertex1->x = vertex2->x - dx;
+			vertex1->y = vertex2->y - dy;
+		}
 
-  if (move_2nd_vertex)
-    {
-    vertex2->x = vertex1->x + dx;
-    vertex2->y = vertex1->y + dy;
-    }
-  else
-    {
-    vertex1->x = vertex2->x - dx;
-    vertex1->y = vertex2->y - dy;
-    }
-
-  MadeChanges = 1;
-  MadeMapChanges = 1;
-  }
+		MadeChanges = 1;
+		MadeMapChanges = 1;
+	}
 }
 
 
@@ -685,61 +680,59 @@ for (cur = obj; cur; cur = cur->next)
  */
 void unlink_sidedef (SelPtr linedefs, int side1, int side2)
 {
-// Array of NumSideDefs bits that tell whether the
-// sidedef is used by the linedefs in <linedefs>.
-bitvec_c sd_used_in (NumSideDefs);
+	// Array of NumSideDefs bits that tell whether the
+	// sidedef is used by the linedefs in <linedefs>.
+	bitvec_c sd_used_in (NumSideDefs);
 
-// Array of NumSideDefs bits that tell whether the
-// sidedef is used by the linedefs _not_ in <linedefs>.
-bitvec_c sd_used_out (NumSideDefs);
+	// Array of NumSideDefs bits that tell whether the
+	// sidedef is used by the linedefs _not_ in <linedefs>.
+	bitvec_c sd_used_out (NumSideDefs);
 
-SelPtr cur;
-int n;
+	SelPtr cur;
+	int n;
 
+	// Put in sd_used_in a list of all sidedefs
+	// that are used by linedefs in <linedefs>.
+	// and in sd_used_out a list of all sidedefs
+	// that are used by linedefs not in <linedefs>
 
+	for (n = 0; n < NumLineDefs; n++)
+	{
+		if (IsSelected (linedefs, n))
+		{
+			if (side1 && is_sidedef (LineDefs[n].side_R))
+				sd_used_in.set (LineDefs[n].side_R);
+			if (side2 && is_sidedef (LineDefs[n].side_L))
+				sd_used_in.set (LineDefs[n].side_L);
+		}
+		else
+		{
+			if (is_sidedef (LineDefs[n].side_R))
+				sd_used_out.set (LineDefs[n].side_R);
+			if (is_sidedef (LineDefs[n].side_L))
+				sd_used_out.set (LineDefs[n].side_L);
+		}
+	}
 
-// Put in sd_used_in a list of all sidedefs
-// that are used by linedefs in <linedefs>.
-// and in sd_used_out a list of all sidedefs
-// that are used by linedefs not in <linedefs>
+	// For all sidedefs that are used both by a linedef
+	// in <linedefs> and a linedef _not_ in <linedefs>,
+	// duplicate the sidedef and make all the linedefs
+	// in <linedefs> use the copy instead.
 
-for (n = 0; n < NumLineDefs; n++)
-   {
-   if (IsSelected (linedefs, n))
-      {
-      if (side1 && is_sidedef (LineDefs[n].side_R))
-         sd_used_in.set (LineDefs[n].side_R);
-      if (side2 && is_sidedef (LineDefs[n].side_L))
-         sd_used_in.set (LineDefs[n].side_L);
-      }
-   else
-      {
-      if (is_sidedef (LineDefs[n].side_R))
-   sd_used_out.set (LineDefs[n].side_R);
-      if (is_sidedef (LineDefs[n].side_L))
-   sd_used_out.set (LineDefs[n].side_L);
-      }
-   }
-
-// For all sidedefs that are used both by a linedef
-// in <linedefs> and a linedef _not_ in <linedefs>,
-// duplicate the sidedef and make all the linedefs
-// in <linedefs> use the copy instead.
-
-for (n = 0; n < NumSideDefs; n++)
-   {
-   if (sd_used_in.get (n) && sd_used_out.get (n))
-      {
-      InsertObject (OBJ_SIDEDEFS, n, 0, 0);
-      for (cur = linedefs; cur; cur = cur->next)
-         {
-         if (side1 && LineDefs[cur->objnum].side_R == n)
-            LineDefs[cur->objnum].side_R = NumSideDefs - 1;
-         if (side2 && LineDefs[cur->objnum].side_L == n)
-            LineDefs[cur->objnum].side_L = NumSideDefs - 1;
-         }
-      }
-   }
+	for (n = 0; n < NumSideDefs; n++)
+	{
+		if (sd_used_in.get (n) && sd_used_out.get (n))
+		{
+			InsertObject (OBJ_SIDEDEFS, n, 0, 0);
+			for (cur = linedefs; cur; cur = cur->next)
+			{
+				if (side1 && LineDefs[cur->objnum].side_R == n)
+					LineDefs[cur->objnum].side_R = NumSideDefs - 1;
+				if (side2 && LineDefs[cur->objnum].side_L == n)
+					LineDefs[cur->objnum].side_L = NumSideDefs - 1;
+			}
+		}
+	}
 }
 
 
@@ -751,17 +744,15 @@ for (n = 0; n < NumSideDefs; n++)
  */
 bitvec_c *bv_vertices_of_linedefs (bitvec_c *linedefs)
 {
-bitvec_c *vertices;
-int n;
+	bitvec_c *vertices = new bitvec_c (NumVertices);
 
-vertices = new bitvec_c (NumVertices);
-for (n = 0; n < NumLineDefs; n++)
-   if (linedefs->get (n))
-      {
-      vertices->set (LineDefs[n].start);
-      vertices->set (LineDefs[n].end);
-      }
-return vertices;
+	for (int n = 0; n < NumLineDefs; n++)
+		if (linedefs->get (n))
+		{
+			vertices->set (LineDefs[n].start);
+			vertices->set (LineDefs[n].end);
+		}
+	return vertices;
 }
 
 
@@ -772,16 +763,16 @@ return vertices;
  */
 bitvec_c *bv_vertices_of_linedefs (SelPtr list)
 {
-bitvec_c *vertices;
-SelPtr cur;
+	bitvec_c * vertices = new bitvec_c (NumVertices);
 
-vertices = new bitvec_c (NumVertices);
-for (cur = list; cur; cur = cur->next)
-   {
-   vertices->set (LineDefs[cur->objnum].start);
-   vertices->set (LineDefs[cur->objnum].end);
-   }
-return vertices;
+	SelPtr cur;
+
+	for (cur = list; cur; cur = cur->next)
+	{
+		vertices->set (LineDefs[cur->objnum].start);
+		vertices->set (LineDefs[cur->objnum].end);
+	}
+	return vertices;
 }
 
 
@@ -792,18 +783,18 @@ return vertices;
  */
 SelPtr list_vertices_of_linedefs (SelPtr list)
 {
-bitvec_c *vertices_bitvec;
-SelPtr vertices_list = 0;
+	bitvec_c * bv = bv_vertices_of_linedefs (list);
 
-vertices_bitvec = bv_vertices_of_linedefs (list);
+	SelPtr vertices_list = 0;
 
-for (int n = 0; n < vertices_bitvec->size(); n++)
-   {
-   if (vertices_bitvec->get (n))
-      SelectObject (&vertices_list, n);
-   }
-delete vertices_bitvec;
-return vertices_list;
+	for (int n = 0; n < bv->size(); n++)
+	{
+		if (bv->get (n))
+			SelectObject (&vertices_list, n);
+	}
+	delete bv;
+
+	return vertices_list;
 }
 
 
@@ -819,19 +810,19 @@ return vertices_list;
 
 class Superimposed_ld
 {
-  public:
+public:
              Superimposed_ld ();
     int      set             (obj_no_t);
     obj_no_t get             ();
     void     rewind          ();
 
-  private:
+private:
     obj_no_t refldno;     // Reference linedef
     obj_no_t ldno;      // get() will start from there
 };
 
 
-inline Superimposed_ld::Superimposed_ld ()
+Superimposed_ld::Superimposed_ld ()
 {
   refldno = -1;
   rewind ();
@@ -845,14 +836,14 @@ inline Superimposed_ld::Superimposed_ld ()
  *  returns a non-zero value. Otherwise, set the linedef number,
  *  calls rewind() and returns a zero value.
  */
-inline int Superimposed_ld::set (obj_no_t ldno)
+int Superimposed_ld::set (obj_no_t ldno)
 {
-  if (! is_linedef (ldno))    // Paranoia
-    return 1;
+	if (! is_linedef (ldno))    // Paranoia
+		return 1;
 
-  refldno = ldno;
-  rewind ();
-  return 0;
+	refldno = ldno;
+	rewind ();
+	return 0;
 }
 
 
@@ -867,49 +858,49 @@ inline int Superimposed_ld::set (obj_no_t ldno)
  *  Linedefs that have invalid start/end vertices are silently
  *  skipped.
  */
-inline obj_no_t Superimposed_ld::get ()
+obj_no_t Superimposed_ld::get ()
 {
-  if (refldno == -1)
-    return -1;
+	if (refldno == -1)
+		return -1;
 
-  /* These variables are there to speed things up a bit by avoiding
-     repetitive table lookups. Everything is re-computed each time as
-     LineDefs could very well be realloc'd while we were out. */
+	/* These variables are there to speed things up a bit by avoiding
+	   repetitive table lookups. Everything is re-computed each time as
+	   LineDefs could very well be realloc'd while we were out. */
 
-  if (! is_linedef (refldno))
-    return -1;
-  const struct LineDef *const pmax = LineDefs + NumLineDefs;
-  const struct LineDef *const pref = LineDefs + refldno;
+	if (! is_linedef (refldno))
+		return -1;
+	const struct LineDef *const pmax = LineDefs + NumLineDefs;
+	const struct LineDef *const pref = LineDefs + refldno;
 
-  const wad_vn_t refv0 = pref->start;
-  const wad_vn_t refv1 = pref->end;
-  if (! is_vertex (refv0) || ! is_vertex (refv1))   // Paranoia
-    return -1;
+	const wad_vn_t refv0 = pref->start;
+	const wad_vn_t refv1 = pref->end;
+	if (! is_vertex (refv0) || ! is_vertex (refv1))   // Paranoia
+		return -1;
 
-  const wad_coord_t refx0 = Vertices[refv0].x;
-  const wad_coord_t refy0 = Vertices[refv0].y;
-  const wad_coord_t refx1 = Vertices[refv1].x;
-  const wad_coord_t refy1 = Vertices[refv1].y;
+	const wad_coord_t refx0 = Vertices[refv0].x;
+	const wad_coord_t refy0 = Vertices[refv0].y;
+	const wad_coord_t refx1 = Vertices[refv1].x;
+	const wad_coord_t refy1 = Vertices[refv1].y;
 
-  for (const struct LineDef *p = LineDefs + ldno; ldno < NumLineDefs;
-      p++, ldno++)
-  {
-    if (! is_vertex (p->start) || ! is_vertex (p->end))   // Paranoia
-      continue;
-    obj_no_t x0 = Vertices[p->start].x;
-    obj_no_t y0 = Vertices[p->start].y;
-    obj_no_t x1 = Vertices[p->end].x;
-    obj_no_t y1 = Vertices[p->end].y;
-    if ( x0 == refx0 && y0 == refy0 && x1 == refx1 && y1 == refy1
-      || x0 == refx1 && y0 == refy1 && x1 == refx0 && y1 == refy0)
-    {
-      if (ldno == refldno)
-  continue;
-      return ldno++;
-    }
-  }
+	for (const struct LineDef *p = LineDefs + ldno; ldno < NumLineDefs;
+			p++, ldno++)
+	{
+		if (! is_vertex (p->start) || ! is_vertex (p->end))   // Paranoia
+			continue;
+		obj_no_t x0 = Vertices[p->start].x;
+		obj_no_t y0 = Vertices[p->start].y;
+		obj_no_t x1 = Vertices[p->end].x;
+		obj_no_t y1 = Vertices[p->end].y;
+		if ( x0 == refx0 && y0 == refy0 && x1 == refx1 && y1 == refy1
+				|| x0 == refx1 && y0 == refy1 && x1 == refx0 && y1 == refy0)
+		{
+			if (ldno == refldno)
+				continue;
+			return ldno++;
+		}
+	}
 
-  return -1;
+	return -1;
 }
 
 
@@ -919,9 +910,9 @@ inline obj_no_t Superimposed_ld::get ()
  *  After calling this method, the next call to get() will start
  *  from the first linedef.
  */
-inline void Superimposed_ld::rewind ()
+void Superimposed_ld::rewind ()
 {
-  ldno = 0;
+	ldno = 0;
 }
 
 

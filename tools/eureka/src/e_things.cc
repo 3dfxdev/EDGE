@@ -39,14 +39,15 @@
 // It is searched in a dichotomic fashion by get_thing_*().
 // This table is only here for speed.
 typedef struct
-  {
-  wad_ttype_t type;
-  char    flags;
-  short         radius;
-  acolour_t     colour;
-  const char    *desc;
-  const char  *sprite;
-  } thing_attributes_t;
+{
+	wad_ttype_t type;
+	char    flags;
+	short         radius;
+	acolour_t     colour;
+	const char    *desc;
+	const char  *sprite;
+}
+thing_attributes_t;
 
 static thing_attributes_t *things_table;
 static size_t nthings;
@@ -68,53 +69,53 @@ static const int default_radius = 16;
  */
 void create_things_table ()
 {
-size_t n;
+	size_t n;
 
-_max_radius = default_radius;
-nthings = thingdef.size();
-if (nthings == 0)
-   {
-   things_table = NULL;
-   return;
-   }
-things_table = (thing_attributes_t *) malloc (nthings * sizeof *things_table);
-if (! things_table)
-   FatalError("Not enough memory");
+	_max_radius = default_radius;
+	nthings = thingdef.size();
+	if (nthings == 0)
+	{
+		things_table = NULL;
+		return;
+	}
+	things_table = (thing_attributes_t *) malloc (nthings * sizeof *things_table);
+	if (! things_table)
+		FatalError("Not enough memory");
 
 
-for (n = 0; n < nthings; n++)
-{
-    things_table[n].type   = thingdef[n]->number;
-    things_table[n].flags  = thingdef[n]->flags;
-    things_table[n].radius = thingdef[n]->radius;
-    _max_radius = MAX(_max_radius, thingdef[n]->radius);
+	for (n = 0; n < nthings; n++)
+	{
+		things_table[n].type   = thingdef[n]->number;
+		things_table[n].flags  = thingdef[n]->flags;
+		things_table[n].radius = thingdef[n]->radius;
+		_max_radius = MAX(_max_radius, thingdef[n]->radius);
 
-///!!!    // Fetch the app colour no. for the thinggroup
-///!!!    for (al_lrewind (thinggroup); ! al_leol (thinggroup); al_lstep (thinggroup))
-///!!!    {
-///!!!        if (CUR_THINGGROUP  /* don't segfault if zero thinggroup ! */
-///!!!                && CUR_THINGGROUP->thinggroup == CUR_THINGDEF->thinggroup)
-///!!!        {
-///!!!            things_table[n].colour = CUR_THINGGROUP->acn;
-///!!!            break;
-///!!!        }
-///!!!    }
+		///!!!    // Fetch the app colour no. for the thinggroup
+		///!!!    for (al_lrewind (thinggroup); ! al_leol (thinggroup); al_lstep (thinggroup))
+		///!!!    {
+		///!!!        if (CUR_THINGGROUP  /* don't segfault if zero thinggroup ! */
+		///!!!                && CUR_THINGGROUP->thinggroup == CUR_THINGDEF->thinggroup)
+		///!!!        {
+		///!!!            things_table[n].colour = CUR_THINGGROUP->acn;
+		///!!!            break;
+		///!!!        }
+		///!!!    }
 
-    things_table[n].desc   = thingdef[n]->desc;
-    things_table[n].sprite = thingdef[n]->sprite;
-}
+		things_table[n].desc   = thingdef[n]->desc;
+		things_table[n].sprite = thingdef[n]->sprite;
+	}
 
-// Sort the table by increasing thing type
-qsort (things_table, nthings, sizeof *things_table, things_table_cmp);
+	// Sort the table by increasing thing type
+	qsort (things_table, nthings, sizeof *things_table, things_table_cmp);
 
 #if 0
-printf ("Type  Colour Radius Desc\n");
-for (n = 0; n < nthings; n++)
-   printf ("%5d %-6d %3d    %s\n",
-      things_table[n].type,
-      things_table[n].colour,
-      things_table[n].radius,
-      things_table[n].desc);
+	printf ("Type  Colour Radius Desc\n");
+	for (n = 0; n < nthings; n++)
+		printf ("%5d %-6d %3d    %s\n",
+				things_table[n].type,
+				things_table[n].colour,
+				things_table[n].radius,
+				things_table[n].desc);
 #endif
 }
 
@@ -125,11 +126,11 @@ for (n = 0; n < nthings; n++)
  */
 void delete_things_table (void)
 {
-if (things_table)
-   {
-   free (things_table);
-   nthings = 0;
-   }
+	if (things_table)
+	{
+		free (things_table);
+		nthings = 0;
+	}
 }
 
 
@@ -140,8 +141,8 @@ if (things_table)
  */
 static int things_table_cmp (const void *a, const void *b)
 {
-return ((const thing_attributes_t *) a)->type
-     - ((const thing_attributes_t *) b)->type;
+	return ((const thing_attributes_t *) a)->type
+			- ((const thing_attributes_t *) b)->type;
 }
 
 
@@ -157,35 +158,35 @@ return ((const thing_attributes_t *) a)->type
  */
 inline int lookup_thing (wad_ttype_t type)
 {
-if (last_table_idx < nthings && things_table[last_table_idx].type == type)
-   return last_table_idx;
+	if (last_table_idx < nthings && things_table[last_table_idx].type == type)
+		return last_table_idx;
 
-if (things_table == NULL)
-   return (size_t) -1;
+	if (things_table == NULL)
+		return (size_t) -1;
 
-size_t nmin = 0;
-size_t nmax = nthings - 1;
-for (;;)
-   {
-   last_table_idx = (nmin + nmax) / 2;
-   if (type > things_table[last_table_idx].type)
-      {
-      if (nmin >= nmax)
-         break;
-      nmin = last_table_idx + 1;
-      }
-   else if (type < things_table[last_table_idx].type)
-      {
-      if (nmin >= nmax)
-         break;
-      if (last_table_idx < 1)
-         break;
-      nmax = last_table_idx - 1;
-      }
-   else
-      return last_table_idx;
-   }
-return (size_t) -1;
+	size_t nmin = 0;
+	size_t nmax = nthings - 1;
+	for (;;)
+	{
+		last_table_idx = (nmin + nmax) / 2;
+		if (type > things_table[last_table_idx].type)
+		{
+			if (nmin >= nmax)
+				break;
+			nmin = last_table_idx + 1;
+		}
+		else if (type < things_table[last_table_idx].type)
+		{
+			if (nmin >= nmax)
+				break;
+			if (last_table_idx < 1)
+				break;
+			nmax = last_table_idx - 1;
+		}
+		else
+			return last_table_idx;
+	}
+	return (size_t) -1;
 }
 
 
@@ -196,8 +197,8 @@ return (size_t) -1;
  */
 bool is_thing_type (wad_ttype_t type)
 {
-size_t table_idx = lookup_thing (type);
-return table_idx < nthings;
+	size_t table_idx = lookup_thing (type);
+	return table_idx < nthings;
 }
 
 
@@ -208,13 +209,13 @@ return table_idx < nthings;
  */
 acolour_t get_thing_colour (wad_ttype_t type)
 {
-return FL_RED;
+	return FL_RED;
 
-size_t table_idx = lookup_thing (type);
-if (table_idx == (size_t) -1)
-   return FL_RED;  // Not found.
-else
-   return things_table[table_idx].colour;
+	size_t table_idx = lookup_thing (type);
+	if (table_idx == (size_t) -1)
+		return FL_RED;  // Not found.
+	else
+		return things_table[table_idx].colour;
 }
 
 
@@ -223,15 +224,15 @@ else
  */
 const char *get_thing_name (wad_ttype_t type)
 {
-  size_t table_idx = lookup_thing (type);
-  if (table_idx == (size_t) -1)
-  {
-    static char buf[20];
-    sprintf (buf, "??? unknown ???");  // Not found.
-    return buf;
-  }
-  else
-    return things_table[table_idx].desc;
+	size_t table_idx = lookup_thing (type);
+	if (table_idx == (size_t) -1)
+	{
+		static char buf[20];
+		sprintf (buf, "??? unknown ???");  // Not found.
+		return buf;
+	}
+	else
+		return things_table[table_idx].desc;
 }
 
 
@@ -241,11 +242,11 @@ const char *get_thing_name (wad_ttype_t type)
  */
 const char *get_thing_sprite (wad_ttype_t type)
 {
-size_t table_idx = lookup_thing (type);
-if (table_idx == (size_t) -1)
-   return NULL;  // Not found
-else
-   return things_table[table_idx].sprite;
+	size_t table_idx = lookup_thing (type);
+	if (table_idx == (size_t) -1)
+		return NULL;  // Not found
+	else
+		return things_table[table_idx].sprite;
 }
 
 
@@ -255,11 +256,11 @@ else
  */
 char get_thing_flags (wad_ttype_t type)
 {
-size_t table_idx = lookup_thing (type);
-if (table_idx == (size_t) -1)
-   return 0;  // Not found
-else
-   return things_table[table_idx].flags;
+	size_t table_idx = lookup_thing (type);
+	if (table_idx == (size_t) -1)
+		return 0;  // Not found
+	else
+		return things_table[table_idx].flags;
 }
 
 
@@ -269,11 +270,11 @@ else
  */
 int get_thing_radius (wad_ttype_t type)
 {
-size_t table_idx = lookup_thing (type);
-if (table_idx == (size_t) -1)
-   return default_radius;  // Not found.
-else
-   return things_table[table_idx].radius;
+	size_t table_idx = lookup_thing (type);
+	if (table_idx == (size_t) -1)
+		return default_radius;  // Not found.
+	else
+		return things_table[table_idx].radius;
 }
 
 
@@ -299,29 +300,29 @@ return _max_radius;
  */
 const char *GetAngleName (int angle)
 {
-static char buf[30];
+	static char buf[30];
 
-switch (angle)
-   {
-   case 0:
-      return "East";
-   case 45:
-      return "North-east";
-   case 90:
-      return "North";
-   case 135:
-      return "North-west";
-   case 180:
-      return "West";
-   case 225:
-      return "South-west";
-   case 270:
-      return "South";
-   case 315:
-      return "South-east";
-   }
-sprintf (buf, "ILLEGAL (%d)", angle);
-return buf;
+	switch (angle)
+	{
+		case 0:
+			return "East";
+		case 45:
+			return "North-east";
+		case 90:
+			return "North";
+		case 135:
+			return "North-west";
+		case 180:
+			return "West";
+		case 225:
+			return "South-west";
+		case 270:
+			return "South";
+		case 315:
+			return "South-east";
+	}
+	sprintf (buf, "ILLEGAL (%d)", angle);
+	return buf;
 }
 
 
@@ -331,25 +332,25 @@ return buf;
  */
 const char *GetWhenName (int when)
 {
-static char buf[16+3+1];
-// "N" is a Boom extension ("not in deathmatch")
-// "C" is a Boom extension ("not in cooperative")
-// "F" is an MBF extension ("friendly")
-const char *flag_chars = "????" "????" "FCNM" "D431";
-int n;
+	static char buf[16+3+1];
+	// "N" is a Boom extension ("not in deathmatch")
+	// "C" is a Boom extension ("not in cooperative")
+	// "F" is an MBF extension ("friendly")
+	const char *flag_chars = "????" "????" "FCNM" "D431";
+	int n;
 
-char *b = buf;
-for (n = 0; n < 16; n++)
-   {
-   if (n != 0 && n % 4 == 0)
-      *b++ = ' ';
-   if (when & (0x8000u >> n))
-      *b++ = flag_chars[n];
-   else
-      *b++ = '-';
-   }
-*b = '\0';
-return buf;
+	char *b = buf;
+	for (n = 0; n < 16; n++)
+	{
+		if (n != 0 && n % 4 == 0)
+			*b++ = ' ';
+		if (when & (0x8000u >> n))
+			*b++ = flag_chars[n];
+		else
+			*b++ = '-';
+	}
+	*b = '\0';
+	return buf;
 
 #if 0
 static char buf[30];
@@ -398,20 +399,20 @@ return buf;
  */
 void spin_things (SelPtr obj, int degrees)
 {
-  SelPtr cur;
+	SelPtr cur;
 
-  if (! obj)
-    return;
-  for (cur = obj; cur; cur = cur->next)
-  {
-    Things[cur->objnum].angle += degrees;
-    while (Things[cur->objnum].angle >= 360)  // No we can't use %
-      Things[cur->objnum].angle -= 360;
-    while (Things[cur->objnum].angle < 0) // (negatives...)
-      Things[cur->objnum].angle += 360;
-  }
-  things_angles++;
-  MadeChanges = 1;
+	if (! obj)
+		return;
+	for (cur = obj; cur; cur = cur->next)
+	{
+		Things[cur->objnum].angle += degrees;
+		while (Things[cur->objnum].angle >= 360)  // No we can't use %
+			Things[cur->objnum].angle -= 360;
+		while (Things[cur->objnum].angle < 0) // (negatives...)
+			Things[cur->objnum].angle += 360;
+	}
+	things_angles++;
+	MadeChanges = 1;
 }
 
 
@@ -423,29 +424,29 @@ void spin_things (SelPtr obj, int degrees)
  */
 void frob_things_flags (SelPtr list, int op, int operand)
 {
-  SelPtr cur;
-  s16_t mask;
+	SelPtr cur;
+	s16_t mask;
 
-  if (op == YO_CLEAR || op == YO_SET || op == YO_TOGGLE)
-    mask = 1 << operand;
-  else
-    mask = operand;
+	if (op == YO_CLEAR || op == YO_SET || op == YO_TOGGLE)
+		mask = 1 << operand;
+	else
+		mask = operand;
 
-  for (cur = list; cur; cur = cur->next)
-  {
-    if (op == YO_CLEAR)
-      Things[cur->objnum].options &= ~mask;
-    else if (op == YO_SET)
-      Things[cur->objnum].options |= mask;
-    else if (op == YO_TOGGLE)
-      Things[cur->objnum].options ^= mask;
-    else
-    {
-      nf_bug ("frob_things_flags: op=%02X", op);
-      return;
-    }
-  }
-  MadeChanges = 1;
+	for (cur = list; cur; cur = cur->next)
+	{
+		if (op == YO_CLEAR)
+			Things[cur->objnum].options &= ~mask;
+		else if (op == YO_SET)
+			Things[cur->objnum].options |= mask;
+		else if (op == YO_TOGGLE)
+			Things[cur->objnum].options ^= mask;
+		else
+		{
+			nf_bug ("frob_things_flags: op=%02X", op);
+			return;
+		}
+	}
+	MadeChanges = 1;
 }
 
 
@@ -456,28 +457,28 @@ void frob_things_flags (SelPtr list, int op, int operand)
  */
 void centre_of_things (SelPtr list, int *x, int *y)
 {
-SelPtr cur;
-int nitems;
-long x_sum;
-long y_sum;
+	SelPtr cur;
+	int nitems;
+	long x_sum;
+	long y_sum;
 
-x_sum = 0;
-y_sum = 0;
-for (nitems = 0, cur = list; cur; cur = cur->next, nitems++)
-   {
-   x_sum += Things[cur->objnum].x;
-   y_sum += Things[cur->objnum].y;
-   }
-if (nitems == 0)
-   {
-   *x = 0;
-   *y = 0;
-   }
-else
-   {
-   *x = (int) (x_sum / nitems);
-   *y = (int) (y_sum / nitems);
-   }
+	x_sum = 0;
+	y_sum = 0;
+	for (nitems = 0, cur = list; cur; cur = cur->next, nitems++)
+	{
+		x_sum += Things[cur->objnum].x;
+		y_sum += Things[cur->objnum].y;
+	}
+	if (nitems == 0)
+	{
+		*x = 0;
+		*y = 0;
+	}
+	else
+	{
+		*x = (int) (x_sum / nitems);
+		*y = (int) (y_sum / nitems);
+	}
 }
 
 //--- editor settings ---
