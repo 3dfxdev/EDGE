@@ -625,16 +625,13 @@ void UI_Canvas::DrawLinedefs()
  */
 void UI_Canvas::DrawThings()
 {
-	// The radius of the largest thing.
-	int max_radius = get_max_thing_radius();
-
 	/* A thing is guaranteed to be totally off-screen
 	   if its centre is more than <max_radius> units
 	   beyond the edge of the screen. */
-	int mapx0 = MAPX(0)   - max_radius; //!!!! FIXME
-	int mapx9 = MAPX(w()) + max_radius;
-	int mapy0 = MAPY(h()) - max_radius;
-	int mapy9 = MAPY(0)   + max_radius;
+	int mapx0 = MAPX(0)   - MAX_RADIUS; //!!!! FIXME
+	int mapx9 = MAPX(w()) + MAX_RADIUS;
+	int mapy0 = MAPY(h()) - MAX_RADIUS;
+	int mapy9 = MAPY(0)   + MAX_RADIUS;
 
 	fl_color(THING_REM);
 
