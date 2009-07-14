@@ -156,52 +156,40 @@ static void RawDeleteSideDef(int objnum)
 }
 
 
-
-/*
-   delete an object
-   */
-void DeleteObject (const Objid& obj)
-{
-	SelPtr list;
-
-	list = 0;
-	SelectObject (&list, obj.num);
-	DeleteObjects (obj.type, &list);
-}
-
-
-
-
 /*
    delete a group of objects
 */
-void DeleteObjects (int objtype, selection_c *list)
+void DeleteObjects(selection_c *list)
 {
-	selection_iterator_c it;
+	int objtype = list->what_type();
 
-	MadeChanges = 1;
+
+	// we need to process the object numbers from highest to lowest,
+	// because each deletion invalidates all higher-numbered refs
+	// in the selection.  Our selection iterator cannot give us
+	// what we need, hence put them into a vector for sorting.
 
 	std::vector<int> all_ids;
 
-	// collect all object number and sort them
+	selection_iterator_c it;
 	for (list->begin(&it); !it.at_end(); ++it)
-	{
 		all_ids.push_back(*it);
-	}
 
 	std::sort(all_ids.begin(), all_ids.end());
 
-	// selection is now invalid
-	list->clear_all();
+
+	// the passed in selection is now invalid.  Hence we clear it,
+	// but we also re-use it for sidedefs which must be deleted
+	// (due to their sectors going away).
+
+	list->change_type(OBJ_SIDEDEFS);
+
+	SYS_ASSERT(list->empty());
 
 
-	selec
-
-
-	for (int p = (int)all_ids.size()-1; p >= 0; p--)
+	for (int i = (int)all_ids.size()-1; i >= 0; i--)
 	{
-		int objnum = all_ids[o];
-		int n;
+		int objnum = all_ids[i];
 
 		switch (objtype)
 		{
@@ -209,115 +197,108 @@ void DeleteObjects (int objtype, selection_c *list)
 				RawDeleteThing(objnum);
 				break;
 
+			case OBJ_LINEDEFS:
+				RawDeleteLineDef(objnum);
+				break;
+
 			case OBJ_VERTICES:
+				RawDeleteVertex(objnum);
 
-				// Delete the linedefs bound to this vertex and change the references
+				// delete the linedefs bound to this vertex and
+				// fix the references
 
-				for (n = 0; n < NumLineDefs; n++)
+				for (int n = NumLineDefs-1; n >= 0; n--)
 				{
-					if (LineDefs[n].start == objnum || LineDefs[n].end == objnum)
-						DeleteObject (Objid (OBJ_LINEDEFS, n--));
+					LineDef *L = LineDefs[n];
+
+					if (L->start == objnum || L->end == objnum)
+						RawDeleteLineDef(n);
 					else
 					{
-						if (LineDefs[n].start >= objnum)
-							LineDefs[n].start--;
-						if (LineDefs[n].end >= objnum)
-							LineDefs[n].end--;
+						if (L->start > objnum)
+							L->start--;
+						if (L->end > objnum)
+							L->end--;
 					}
 				}
-				// Delete the vertex
-
-				for (cur = (*list)->next; cur; cur = cur->next)
-					if (cur->objnum > objnum)
-						cur->objnum--;
-next_vertex:
-				UnSelectObject (list, objnum);
-			}
-			break;
-
-			case OBJ_LINEDEFS:
-			
-				SYS_ASSERT(0 <= objnum && objnum < NumThings);
-
-				if (objnum < 0 || objnum >= NumLineDefs)  // Paranoia
-				{
-					nf_bug ("attempt to delete non-existent linedef #%d", objnum);
-					goto next_linedef;
-				}
-				// delete the linedef
-				for (cur = (*list)->next; cur; cur = cur->next)
-					if (cur->objnum > objnum)
-						cur->objnum--;
-next_linedef:
-				UnSelectObject (list, objnum);
-			}
-			break;
+				break;
 
 			case OBJ_SIDEDEFS:
-///??			if (*list)
-///??				MadeMapChanges = 1;
-			for (list->begin(&it); !it.at_end(); ++it)
-			{
-				objnum = *it;
-				if (objnum < 0 || objnum >= NumSideDefs)  // Paranoia
-				{
-					nf_bug ("attempt to delete non-existent sidedef #%d", objnum);
-					goto next_sidedef;
-				}
-				/* change the linedefs references */
+				RawDeleteSideDef(objnum);
 
-				for (n = 0; n < NumLineDefs; n++)
-				{
-					if (LineDefs[n].side_R == objnum)
-						LineDefs[n].side_R = -1;
-					else if (LineDefs[n].side_R >= objnum)
-						LineDefs[n].side_R--;
-					if (LineDefs[n].side_L == objnum)
-						LineDefs[n].side_L = -1;
-					else if (LineDefs[n].side_L >= objnum)
-						LineDefs[n].side_L--;
-				}
-				/* delete the sidedef */
+				// fix the linedefs references
 
-				for (cur = (*list)->next; cur; cur = cur->next)
-					if (cur->objnum > objnum)
-						cur->objnum--;
-next_sidedef:
-				UnSelectObject (list, objnum);
-			}
-			break;
+				for (int n = NumLineDefs-1; n >= 0; n--)
+				{
+					LineDef *L = &LineDefs[n];
+
+					if (L->side_R == objnum)
+						L->side_R = -1;
+					else if (L->side_R > objnum)
+						L->side_R--;
+
+					if (L->side_L == objnum)
+						L->side_L = -1;
+					else if (L->side_L > objnum)
+						L->side_L--;
+				}
+				break;
 			
 			case OBJ_SECTORS:
+				RawDeleteSector(objnum);
 
-			for (list->begin(&it); !it.at_end(); ++it)
-			{
-				objnum = *it;
-				if (objnum < 0 || objnum >= NumSectors)  // Paranoia
+				// delete the sidedefs bound to this sector and
+				// fix the references
+
+				for (int n = NumSideDefs-1; n >= 0; n--)
 				{
-					nf_bug ("attempt to delete non-existent sector #%d", objnum);
-					goto next_sector;
+					SideDef *S = &SideDefs[n];
+
+					if (S->sector == objnum)
+					{
+						list->set(n);
+						S->sector = -1;
+					}
+					else if (S->sector > objnum)
+						S->sector--;
 				}
-				// Delete the sidedefs bound to this sector and change the references
-				// AYM 19980203: Hmm, hope this is OK with multiply used sidedefs...
+				break;
 
-				for (n = 0; n < NumSideDefs; n++)
-					if (SideDefs[n].sector == objnum)
-						DeleteObject (Objid (OBJ_SIDEDEFS, n--));
-					else if (SideDefs[n].sector >= objnum)
-						SideDefs[n].sector--;
-				/* delete the sector */
-
-				for (cur = (*list)->next; cur; cur = cur->next)
-					if (cur->objnum > objnum)
-						cur->objnum--;
-next_sector:
-				UnSelectObject (list, objnum);
-			}
-			break;
 		default:
 			nf_bug ("DeleteObjects: bad objtype %d", (int) objtype);
 	}
+
+
+	if (list->notempty())
+	{
+		DeleteObjects(list);
+	}
+
+	list->change_type(objtype);
+
+	MadeChanges = 1;
 }
+
+
+void DeleteObject(const Objid& obj)
+{
+	// things and linedefs are easy, since nothing else references them
+	if (obj.type == OBJ_THINGS)
+	{
+		RawDeleteVertex(obj.num);
+		return;
+	}
+	if (obj.type == OBJ_LINEDEFS)
+	{
+		RawDeleteLineDef(obj.num);
+		return;
+	}
+
+	selection_c list(obj.type, obj.num);
+
+	DeleteObjects(&list);
+}
+
 
 
 
