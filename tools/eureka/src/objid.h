@@ -23,8 +23,8 @@
 //------------------------------------------------------------------------
 
 
-#ifndef YH_OBJECTS  /* DO NOT INSERT ANYTHING BEFORE THIS LINE */
-#define YH_OBJECTS
+#ifndef YH_OBJ_ID  /* DO NOT INSERT ANYTHING BEFORE THIS LINE */
+#define YH_OBJ_ID
 
 
 // Object types
@@ -44,8 +44,10 @@
 // Special object numbers
 typedef s16_t  obj_no_t;
 typedef char obj_type_t;
+
 #define OBJ_NO_NONE    -1
 #define OBJ_NO_CANVAS  -2
+
 #define is_obj(n)      ((n) >= 0)
 #define is_linedef(n)  ((n) >= 0 && (n) < NumLineDefs)
 #define is_sector(n)   ((n) >= 0 && (n) < NumSectors )
@@ -55,9 +57,13 @@ typedef char obj_type_t;
 
 class Objid
 {
-  public :
+public :
+    obj_type_t type;
+    obj_no_t   num;
+
     Objid () { num = -1; type = OBJ_NONE; }
     Objid (obj_type_t t, obj_no_t n) { type = t; num = n; }
+
     bool operator== (const Objid& other) const
     {
       return other.type == type && other.num == num;
@@ -69,28 +75,10 @@ class Objid
     bool is_nil     () const { return num <  0 || type == OBJ_NONE; }
     bool operator() () const { return num >= 0 && type != OBJ_NONE; } 
     void nil () { num = -1; type = OBJ_NONE; }
-    obj_type_t type;
-    obj_no_t   num;
 };
 
 
-void  HighlightSelection (int, SelPtr);
-obj_no_t GetMaxObjectNum (int);
-void  GetCurObject (Objid& o, int objtype, int x, int y);
-void  SelectObjectsInBox (SelPtr *list, int, int, int, int, int);
-void  HighlightObject (int, int, int);
-void  DeleteObject (const Objid&);
-void  DeleteObjects (int, SelPtr *);
-void  InsertObject (obj_type_t, obj_no_t, int, int);
-bool  IsLineDefInside (int, int, int, int, int);
-int GetOppositeSector (int, bool);
-void  CopyObjects (int, SelPtr);
-bool  MoveObjectsToCoords (int, SelPtr, int, int, int);
-void  GetObjectCoords (int, int, int *, int *);
-int FindFreeTag (void);
-void GoToObject (const Objid& objid);
-
-
 #endif  /* DO NOT ADD ANYTHING AFTER THIS LINE */
+
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
