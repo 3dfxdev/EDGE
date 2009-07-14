@@ -29,9 +29,12 @@
 #include "objects.h"
 
 
-selection_c::selection_c(obj_type_t _type) : type(_type),
+selection_c::selection_c(obj_type_t _type, int initial) : type(_type),
 	count(0), bv(NULL), b_count(0)
-{ }
+{
+	if (initial >= 0)
+		set(initial);
+}
 
 selection_c::~selection_c()
 {
