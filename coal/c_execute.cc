@@ -429,6 +429,8 @@ void PR_StackTrace(void)
 		return;
 	}
 
+	Con_Printf("Stack Trace:\n");
+
 	pr_stack[pr_depth].f = pr_xfunction;
 
 	for (i = pr_depth; i >= 0; i--)
@@ -459,8 +461,10 @@ void PR_RunError(const char *error, ...)
     vsnprintf(string, sizeof(string), error, argptr);
     va_end(argptr);
 
-    PR_PrintStatement(statements + pr_xstatement);
     PR_StackTrace();
+
+	Con_Printf("Last Statement:\n");
+    PR_PrintStatement(statements + pr_xstatement);
 
     Con_Printf("%s\n", string);
 
