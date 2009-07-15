@@ -1444,7 +1444,7 @@ void PR_ParseStatement(bool allow_def)
 }
 
 
-int PR_ParseFunctionBody(type_t *type)
+int PR_ParseFunctionBody(type_t *type, const char *func_name)
 {
 	temporaries.clear();
 
@@ -1490,7 +1490,15 @@ int PR_ParseFunctionBody(type_t *type)
 		PR_FreeTemporaries();
 	}
 
-	PR_EmitCode(OP_DONE);
+	if (code == numstatements ||
+		! (statements[numstatements-1].op == OP_DONE ||
+		   statements[numstatements-1].op == OP_DONE_V))
+	{
+		if (type->aux_type->type == ev_void)
+			PR_EmitCode(OP_DONE);
+		else
+			PR_ParseError("missing return at end of '%s' function", func_name);
+	}
 
 	return code;
 }
@@ -1589,7 +1597,7 @@ void PR_ParseFunction(void)
 
 	pr_scope = def;
 	//  { 
-		df->first_statement = PR_ParseFunctionBody(func_type);
+		df->first_statement = PR_ParseFunctionBody(func_type, func_name);
 	//  }
 	pr_scope = NULL;
 
