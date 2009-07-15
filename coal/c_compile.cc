@@ -96,12 +96,14 @@ static def_t  * all_defs;
 
 static def_t		*pr_scope;		// the function being parsed, or NULL
 
-static string_t	s_file;			// filename for function definition
+static string_t		s_file;			// filename for function definition
 
 static int			locals_end;		// for tracking local variables vs temps
 
 // all temporaries for current function
 static std::vector<def_t *> temporaries;
+
+static std::vector<def_t *> constants;
 
 
 void PR_ParseStatement(bool allow_def);
@@ -842,13 +844,10 @@ void PR_FreeTemporaries(void)
 
 def_t * PR_FindConstant(void)
 {
-	def_t *cn;
-
 	// check for a constant with the same value
-	for (cn = all_defs ; cn ; cn = cn->next)
+	for (int i = 0; i < (int)constants.size(); i++)
 	{
-		if (! (cn->flags & DF_Constant))
-			continue;
+		def_t *cn = constants[i];
 
 		if (cn->type != pr_immediate_type)
 			continue;
@@ -910,6 +909,8 @@ def_t * PR_ParseImmediate(void)
 
 		// copy the immediate to the global area
 		PR_StoreConstant(cn->ofs);
+
+		constants.push_back(cn);
 	}
 
 	PR_Lex();
@@ -1390,15 +1391,15 @@ void PR_Assignment(def_t *e)
 
 void PR_ParseStatement(bool allow_def)
 {
-	if (allow_def && PR_Check("function"))
-	{
-		PR_ParseError("functions must be global");
-		return;
-	}
-
 	if (allow_def && PR_Check("var"))
 	{
 		PR_ParseVariable();
+		return;
+	}
+
+	if (allow_def && PR_Check("function"))
+	{
+		PR_ParseError("functions must be global");
 		return;
 	}
 
@@ -1679,6 +1680,8 @@ void PR_ParseConstant(void)
 
 	PR_StoreConstant(cn->ofs);
 
+	constants.push_back(cn);
+
 	PR_Lex();
 
 	// -AJA- optional semicolons
@@ -1769,6 +1772,8 @@ void PR_BeginCompilation(void)
 // link the function type in so state forward declarations match proper type
 	all_types = &type_function;
 	type_function.next = NULL;
+
+	constants.clear();
 
 	pr_error_count = 0;
 }
