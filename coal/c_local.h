@@ -174,9 +174,24 @@ typedef enum
 	DF_Initialized = (1 << 0),	// when a declaration included "= immediate"
 	DF_Constant    = (1 << 1),
 	DF_Temporary   = (1 << 2),
-//	DF_Named       = (1 << 3),
+	DF_FreeTemp    = (1 << 3),  // temporary is free to re-use
 }
 def_flag_e;
+
+
+#if 0  // prototyping.....
+class scope_c
+{
+public:
+	std::map<std::string, def_t *> defs;
+
+public:
+	 scope_c() : defs() { }
+	~scope_c() { }
+};
+
+extern scope_c global_scope;
+#endif
 
 
 //=============================================================================
