@@ -61,35 +61,17 @@ int MapMinX = 32767;    /* minimum X value of map */
 int MapMinY = 32767;    /* minimum Y value of map */
 bool MadeChanges;   /* made changes? */
 bool MadeMapChanges;    /* made changes that need rebuilding? */
-unsigned long things_angles;  // See levels.h for description.
-unsigned long things_types; // See levels.h for description.
 
-char Level_name[WAD_NAME + 1];  /* The name of the level (E.G.
-           "MAP01" or "E1M1"), followed by a
-           NUL. If the Level has been created as
-           the result of a "c" command with no
-           argument, an empty string. The name
-           is not necesarily in upper case but
-           it always a valid lump name, not a
-           command line shortcut like "17". */
+char Level_name[WAD_NAME + 1];
 
-y_file_name_t Level_file_name;  /* The name of the file in which
-           the level would be saved. If the
-           level has been created as the result
-           of a "c" command, with or without
-           argument, an empty string. */
-
-y_file_name_t Level_file_name_saved;  /* The name of the file in
-           which the level was last saved. If
-           the Level has never been saved yet,
-           an empty string. */
+y_file_name_t Level_file_name;
+y_file_name_t Level_file_name_saved;
 
 void EmptyLevelData (const char *levelname)
 {
 	Things = 0;
 	NumThings = 0;
-	things_angles++;
-	things_types++;
+
 	LineDefs = 0;
 	NumLineDefs = 0;
 	SideDefs = 0;
@@ -206,8 +188,7 @@ int ReadLevelData (const char *levelname)
 							" The wad might be corrupt.\n", lump_name);
 			}
 		}
-		things_angles++;
-		things_types++;
+
 		if (NumThings > 0)
 		{
 			Things = (TPtr) GetMemory ((unsigned long) NumThings
@@ -763,39 +744,37 @@ void ForgetLevelData ()
 	/* forget the things */
 
 	NumThings = 0;
-	if (Things != 0)
+	if (Things)
 		FreeMemory (Things);
-	Things = 0;
-	things_angles++;
-	things_types++;
+	Things = NULL;
 
 	/* forget the vertices */
 
 	NumVertices = 0;
-	if (Vertices != 0)
+	if (Vertices)
 		FreeMemory (Vertices);
-	Vertices = 0;
+	Vertices = NULL;
 
 	/* forget the linedefs */
 
 	NumLineDefs = 0;
-	if (LineDefs != 0)
+	if (LineDefs)
 		FreeMemory (LineDefs);
-	LineDefs = 0;
+	LineDefs = NULL;
 
 	/* forget the sidedefs */
 
 	NumSideDefs = 0;
-	if (SideDefs != 0)
+	if (SideDefs)
 		FreeMemory (SideDefs);
-	SideDefs = 0;
+	SideDefs = NULL;
 
 	/* forget the sectors */
 
 	NumSectors = 0;
-	if (Sectors != 0)
+	if (Sectors)
 		FreeMemory (Sectors);
-	Sectors = 0;
+	Sectors = NULL;
 
 }
 

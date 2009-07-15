@@ -812,9 +812,6 @@ void TransferThingProperties (int src_thing, SelPtr things)
 		Things[cur->objnum].options  = Things[src_thing].options;
 
 		MadeChanges = 1;
-
-		things_types++;
-		things_angles++;
 	}
 }
 
