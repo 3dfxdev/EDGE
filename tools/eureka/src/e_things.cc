@@ -379,22 +379,21 @@ return buf;
  */
 void spin_things (selection_c * list, int degrees)
 {
-#if 0  // FIXME spin_things
-	SelPtr cur;
+	selection_iterator_c it;
 
-	if (! obj)
-		return;
-	for (cur = obj; cur; cur = cur->next)
+	for (list->begin(&it); !it.at_end(); ++it)
 	{
-		Things[cur->objnum].angle += degrees;
-		while (Things[cur->objnum].angle >= 360)  // No we can't use %
-			Things[cur->objnum].angle -= 360;
-		while (Things[cur->objnum].angle < 0) // (negatives...)
-			Things[cur->objnum].angle += 360;
+		Thing *T = &Things[*it];
+
+		T->angle += degrees;
+
+		while (T->angle < 0)
+			T->angle += 360;
+
+		T->angle %= 360;
 	}
-	things_angles++;
+
 	MadeChanges = 1;
-#endif
 }
 
 
