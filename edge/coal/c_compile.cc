@@ -28,6 +28,8 @@
 
 // #include <sys/signal.h>
 
+#include <vector>
+
 #include "coal.h"
 
 
@@ -97,6 +99,9 @@ def_t		*pr_scope;		// the function being parsed, or NULL
 string_t	s_file;			// filename for function definition
 
 int			locals_end;		// for tracking local variables vs temps
+
+// all temporaries for current function
+static std::vector<def_t *> temporaries;
 
 
 void PR_ParseStatement(bool allow_def);
@@ -740,29 +745,76 @@ void PR_EmitCode(short op, short a=0, short b=0, short c=0)
 
 def_t *PR_NewGlobal(type_t *type)
 {
-	def_t * var_c = new def_t;
-	memset(var_c, 0, sizeof(def_t));
+	def_t * var = new def_t;
+	memset(var, 0, sizeof(def_t));
 
-	var_c->ofs = numpr_globals;
-	var_c->type = type;
+	var->ofs = numpr_globals;
+	var->type = type;
 
 	numpr_globals += type_size[type->type];
 
-	return var_c;
+	return var;
 }
 
 
-def_t *PR_NewLocal(type_t *type, bool is_temporary)
+def_t *PR_NewLocal(type_t *type)
 {
-	def_t * var_c = new def_t;
-	memset(var_c, 0, sizeof(def_t));
+	def_t * var = new def_t;
+	memset(var, 0, sizeof(def_t));
 
-	var_c->ofs = -(locals_end+1);
-	var_c->type = type;
+	var->ofs = -(locals_end+1);
+	var->type = type;
 
 	locals_end += type_size[type->type];
 
-	return var_c;
+	return var;
+}
+
+
+def_t *PR_NewTemporary(type_t *type)
+{
+	def_t *var;
+
+	std::vector<def_t *>::iterator TI;
+
+	for (TI = temporaries.begin(); TI != temporaries.end(); TI++)
+	{
+		var = *TI;
+
+		// make sure it fits
+		if (type_size[var->type->type] < type_size[type->type])
+			continue;
+
+		if (! (var->flags & DF_FreeTemp))
+			continue;
+
+		// found a match, so re-use it!
+
+		var->flags &= ~DF_FreeTemp;
+		var->type = type;
+
+		return var;
+	}
+
+	var = PR_NewLocal(type);
+
+	var->flags |= DF_Temporary;
+	temporaries.push_back(var);
+
+	return var;
+}
+
+
+void PR_FreeTemporaries(void)
+{
+	std::vector<def_t *>::iterator TI;
+
+	for (TI = temporaries.begin(); TI != temporaries.end(); TI++)
+	{
+		def_t *tvar = *TI;
+
+		tvar->flags |= DF_FreeTemp;
+	}
 }
 
 
@@ -889,7 +941,7 @@ def_t * PR_ParseFunctionCall(def_t *func)
 
 	if (t->aux_type->type != ev_void)
 	{
-		result = PR_NewLocal(t->aux_type, true);
+		result = PR_NewTemporary(t->aux_type);
 
 		// FIXME: set return value to default value
 		// PR_EmitCode(OP_MOVE_F, default_value, OFS_RETURN)
@@ -1003,7 +1055,7 @@ def_t *PR_GetDef(type_t *type, char *name, def_t *scope)
 	// allocate a new def
 
 	if (scope)
-		def = PR_NewLocal(type, false);
+		def = PR_NewLocal(type);
 	else
 		def = PR_NewGlobal(type);
 
@@ -1067,7 +1119,7 @@ def_t * PR_Term(void)
 			if (op[i].type_a->type != e->type->type)
 				continue;
 
-			def_t *result = PR_NewLocal(op[i].type_c, true);
+			def_t *result = PR_NewTemporary(op[i].type_c);
 
 			PR_EmitCode(op[i].op, e->ofs, 0, result->ofs);
 
@@ -1097,7 +1149,7 @@ def_t * PR_ShortCircuitExp(def_t *e, opcode_t *op)
 	//		MOVE b --> c
 	//		label:
 
-	def_t *result = PR_NewLocal(op->type_c, true);
+	def_t *result = PR_NewTemporary(op->type_c);
 
 	PR_EmitCode(OP_MOVE_F, e->ofs, result->ofs);
 
@@ -1198,7 +1250,7 @@ def_t * PR_Expression(int priority, bool *lvalue)
 			if (type_a == ev_pointer && type_b != e->type->aux_type->type)
 				PR_ParseError("type mismatch for %s", op->name);
 
-			def_t *result = PR_NewLocal(op->type_c, true);
+			def_t *result = PR_NewTemporary(op->type_c);
 
 			PR_EmitCode(op->op, e->ofs, e2->ofs, result->ofs);
 
@@ -1228,6 +1280,7 @@ void PR_If_Else(void)
 	PR_EmitCode(OP_IFNOT, e->ofs);
 
 	PR_ParseStatement(false);
+	PR_FreeTemporaries();
 
 	if (PR_Check("else"))
 	{
@@ -1238,6 +1291,7 @@ void PR_If_Else(void)
 		statements[patch].b = numstatements;
 
 		PR_ParseStatement(false);
+		PR_FreeTemporaries();
 
 		patch = patch2;
 	}
@@ -1258,6 +1312,7 @@ void PR_WhileLoop(void)
 	PR_EmitCode(OP_IFNOT, e->ofs);
 
 	PR_ParseStatement(false);
+	PR_FreeTemporaries();
 
 	PR_EmitCode(OP_GOTO, 0, begin);
 
@@ -1270,6 +1325,7 @@ void PR_RepeatLoop(void)
 	int begin = numstatements;
 
 	PR_ParseStatement(false);
+	PR_FreeTemporaries();
 
 	PR_Expect("until");
 	PR_Expect("(");
@@ -1284,7 +1340,7 @@ void PR_RepeatLoop(void)
 	if (! (pr_token_is_first || pr_token[0] == '}'))
 		PR_Expect(";");
 }
-		
+
 
 void PR_Assignment(def_t *e)
 {
@@ -1339,6 +1395,7 @@ void PR_ParseStatement(bool allow_def)
 	{
 		do {
 			PR_ParseStatement(true);
+			PR_FreeTemporaries();
 		}
 		while (! PR_Check("}"));
 
@@ -1389,6 +1446,8 @@ void PR_ParseStatement(bool allow_def)
 
 int PR_ParseFunctionBody(type_t *type)
 {
+	temporaries.clear();
+
 	//
 	// check for builtin function definition #1, #2, etc
 	//
@@ -1428,6 +1487,7 @@ int PR_ParseFunctionBody(type_t *type)
 	while (! PR_Check("}"))
 	{
 		PR_ParseStatement(true);
+		PR_FreeTemporaries();
 	}
 
 	PR_EmitCode(OP_DONE);
@@ -1537,6 +1597,8 @@ void PR_ParseFunction(void)
 
 	df->locals_size = locals_end - df->locals_ofs;
 	df->locals_end  = locals_end;
+
+// fprintf(stderr, "FUNCTION %s locals:%d\n", func_name, locals_end);
 }
 
 
