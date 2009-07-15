@@ -205,10 +205,11 @@ extern scope_c global_scope;
 #define	MAX_STATEMENTS	65536
 #define	MAX_FUNCTIONS	8192
 
-#define	OFS_NULL		0
-#define	OFS_RETURN		1
+#define OFS_NULL		0
+#define OFS_RETURN		1
+#define OFS_DEFAULT		4
 
-#define	RESERVED_OFS	10
+#define RESERVED_OFS	10
 
 extern	char	strings[MAX_STRINGS];
 extern	int		strofs;

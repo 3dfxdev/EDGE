@@ -743,6 +743,28 @@ void PR_EmitCode(short op, short a=0, short b=0, short c=0)
 }
 
 
+void PR_DefaultValue(gofs_t ofs, type_t *type)
+{
+	if (ofs > 0)
+	{
+		pr_globals[ofs] = 0;
+
+		if (type->type == ev_vector)
+		{
+			pr_globals[ofs+1] = 0;
+			pr_globals[ofs+2] = 0;
+		}
+
+		return;
+	}
+
+	if (type->type == ev_vector)
+		PR_EmitCode(OP_MOVE_V, OFS_DEFAULT, ofs);
+	else
+		PR_EmitCode(OP_MOVE_F, OFS_DEFAULT, ofs);
+}
+
+
 def_t *PR_NewGlobal(type_t *type)
 {
 	def_t * var = new def_t;
@@ -942,16 +964,12 @@ def_t * PR_ParseFunctionCall(def_t *func)
 	if (t->aux_type->type != ev_void)
 	{
 		result = PR_NewTemporary(t->aux_type);
-
-		// FIXME: set return value to default value
-		// PR_EmitCode(OP_MOVE_F, default_value, OFS_RETURN)
 	}
 
 
+	// copy parameters
 	int parm_ofs = 0;
 
-
-	// copy parameters
 	for (int k = 0; k < arg; k++)
 	{
 		if (exprs[k]->type->type == ev_vector)
@@ -967,10 +985,9 @@ def_t * PR_ParseFunctionCall(def_t *func)
 	}
 
 
-	// FIXME: setup locals
-	// for (int j = 0; j < df->local_size; j++)
-	// 	  PR_EmitCode(OP_PARM_F, default_value, parm_ofs)
-	// 	  parm_ofs++;
+	// Note: local vars are setup where they are declared, and
+	//       temporaries do not need any default value.
+
 
 	if (result)
 	{
@@ -1625,7 +1642,9 @@ void PR_ParseVariable(void)
 	// if (PR_Check("="))
 	// 	 get default value
 
-	PR_GetDef(type, var_name, pr_scope);
+	def_t * def = PR_GetDef(type, var_name, pr_scope);
+
+	PR_DefaultValue(def->ofs, type);
 
 	// -AJA- optional semicolons
 	if (! (pr_token_is_first || pr_token[0] == '}'))
