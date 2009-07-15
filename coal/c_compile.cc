@@ -51,26 +51,26 @@ typedef enum
 token_type_t;
 
 
-int			pr_source_line;
+static int			pr_source_line;
 
-char		*pr_file_p;
-char		*pr_line_start;		// start of current source line
+static char		*pr_file_p;
+static char		*pr_line_start;		// start of current source line
 
-int			pr_bracelevel;
-int			pr_parentheses;
-int			pr_fol_level;    // first on line level
+static int			pr_bracelevel;
+static int			pr_parentheses;
+static int			pr_fol_level;    // first on line level
 
-char		pr_token[2048];
-token_type_t	pr_token_type;
-bool		pr_token_is_first;
-type_t		*pr_immediate_type;
-double		pr_immediate[3];
+static char		pr_token[2048];
+static token_type_t	pr_token_type;
+static bool		pr_token_is_first;
+static type_t		*pr_immediate_type;
+static double		pr_immediate[3];
 
-char	pr_immediate_string[2048];
+static char	pr_immediate_string[2048];
 
-int		pr_error_count;
+static int		pr_error_count;
 
-char	*pr_punctuation[] =
+static char	*pr_punctuation[] =
 // longer symbols must be before a shorter partial match
 {"&&", "||", "<=", ">=","==", "!=", "++", "--", "...", "..",
  ":", ";", ",", "!",
@@ -80,25 +80,25 @@ char	*pr_punctuation[] =
 };
 
 // simple types.  function types are dynamically allocated
-type_t	type_void = {ev_void};
-type_t	type_string = {ev_string};
-type_t	type_float = {ev_float};
-type_t	type_vector = {ev_vector};
-type_t	type_function = {ev_function, &type_void};
+static type_t	type_void = {ev_void};
+static type_t	type_string = {ev_string};
+static type_t	type_float = {ev_float};
+static type_t	type_vector = {ev_vector};
+static type_t	type_function = {ev_function, &type_void};
 
-int		type_size[8] = {1,1,1,3,1,1,1,1};
+static int		type_size[8] = {1,1,1,3,1,1,1,1};
 
-def_t	def_void = {&type_void, "VOID_SPACE", 0};
+static def_t	def_void = {&type_void, "VOID_SPACE", 0};
 
 
-type_t * all_types;
-def_t  * all_defs;
+static type_t * all_types;
+static def_t  * all_defs;
 
-def_t		*pr_scope;		// the function being parsed, or NULL
+static def_t		*pr_scope;		// the function being parsed, or NULL
 
-string_t	s_file;			// filename for function definition
+static string_t	s_file;			// filename for function definition
 
-int			locals_end;		// for tracking local variables vs temps
+static int			locals_end;		// for tracking local variables vs temps
 
 // all temporaries for current function
 static std::vector<def_t *> temporaries;

@@ -279,12 +279,6 @@ char *PR_GlobalString(gofs_t ofs)
 }
 
 
-void PR_PrintOfs(gofs_t ofs)
-{
-	printf("%s\n",PR_GlobalString(ofs));
-}
-
-
 void PR_PrintStatement(statement_t *s)
 {
 	int i;
@@ -328,15 +322,6 @@ void PR_PrintStatement(statement_t *s)
 			printf("c:%s", PR_GlobalStringNoContents(s->c));
 	}
 	printf("\n");
-}
-
-
-void PR_PrintDefs(void)
-{
-	def_t *d;
-
-	for (d=all_defs ; d ; d=d->next)
-		PR_PrintOfs(d->ofs);
 }
 
 

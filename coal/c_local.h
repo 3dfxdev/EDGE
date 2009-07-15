@@ -234,15 +234,6 @@ int	CopyString(char *str);
 
 //=== COMPILER STUFF =========================================//
 
-extern	int		type_size[8];
-
-extern	type_t	type_void, type_string, type_float, type_vector,
-                type_entity, type_function;
-
-
-extern type_t * all_types;  // except built-in types
-extern def_t  * all_defs;
-
 typedef struct
 {
 	const char *name;
@@ -255,7 +246,6 @@ opcode_t;
 extern const char *opcode_names[];
 
 void PR_Lex(void);
-// reads the next token into pr_token and classifies its type
 
 type_t *PR_ParseType(void);
 char *PR_ParseName(void);
@@ -274,23 +264,6 @@ public:
 	~parse_error_x() { }
 };
 
-
-extern	int			pr_source_line;
-extern	char		*pr_file_p;
-
-extern	char	pr_immediate_string[2048];
-
-extern	def_t	*pr_scope;
-extern	int		pr_error_count;
-
-void PR_NewLine(void);
-def_t *PR_GetDef(type_t *type, char *name, def_t *scope, bool allocate);
-
-void PR_SkipToSemicolon(void);
-
-extern char pr_parm_names[MAX_PARMS][MAX_NAME];
-
-extern	string_t	s_file;			// filename for function definition
 
 
 //=== EXECUTION STUFF ========================================//
