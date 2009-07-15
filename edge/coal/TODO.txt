@@ -10,11 +10,9 @@ COAL TODO
 
 +  modules with '.' notation: hud.foo(hud.bar)
 
--  move all state into one struct
-
 +  default values for local/global variables
 
--  describe new language (notes.txt)
+-  move all state into one struct
 
--  re-use temporaries (sweep after each statement)
+-  describe new language (notes.txt)
 
