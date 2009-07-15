@@ -423,9 +423,6 @@ int InsertObject(obj_type_t objtype, obj_no_t copyfrom, int xpos, int ypos)
 			T->x = xpos;
 			T->y = ypos;
 
-			things_angles++;
-			things_types++;
-
 			if (is_obj(copyfrom))
 			{
 				T->type    = Things[copyfrom].type;

@@ -138,7 +138,6 @@ void flip_mirror (SelPtr list, int obj_type, char op)
 		{
 			if (list)
 			{
-				things_angles++;
 				MadeChanges = 1;
 			}
 			for (SelPtr cur = list; cur; cur = cur->next)
@@ -153,7 +152,6 @@ void flip_mirror (SelPtr list, int obj_type, char op)
 		{
 			if (list)
 			{
-				things_angles++;
 				MadeChanges = 1;
 			}
 			for (SelPtr cur = list; cur; cur = cur->next)
