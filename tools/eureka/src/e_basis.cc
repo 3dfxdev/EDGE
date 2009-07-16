@@ -37,93 +37,126 @@ std::vector<LineDef *> LineDefs;
 std::vector<RadTrig *> RadTrigs;
 
 
-static int RawCreateThing()
+static void InsertThing(int objnum)
 {
-	int objnum = NumThings;
+	SYS_ASSERT(0 <= objnum && objnum <= NumThings);
 
-	NumThings++;
+	Things.push_back(NULL);
 
-	if (objnum > 0)
-		Things = (TPtr) ResizeMemory (Things,
-				(unsigned long) NumThings * sizeof (struct Thing));
-	else
-		Things = (TPtr) GetMemory (sizeof (struct Thing));
+	for (int n = NumThings-1; n > objnum; n--)
+		Things[n] = Things[n - 1];
 
-	memset(&Things[objnum], 0, sizeof (struct Thing));
-
-	return objnum;
+	Things[objnum] = new Thing;
 }
 
 
-static int RawCreateLineDef()
+static void InsertLineDef(int objnum)
 {
-	int objnum = NumLineDefs;
+	SYS_ASSERT(0 <= objnum && objnum <= NumThings);
 
-	NumLineDefs++;
+	LineDefs.push_back(NULL);
 
-	if (objnum > 0)
-		LineDefs = (LDPtr) ResizeMemory (LineDefs,
-				(unsigned long) NumLineDefs * sizeof (struct LineDef));
-	else
-		LineDefs = (LDPtr) GetMemory (sizeof (struct LineDef));
+	for (int n = NumLineDefs-1; n > objnum; n--)
+		LineDefs[n] = LineDefs[n - 1];
 
-	memset(&LineDefs[objnum], 0, sizeof (struct LineDef));
-
-	return objnum;
+	LineDefs[objnum] = new LineDef;
 }
 
 
-static int RawCreateSideDef()
+static void InsertVertex(int objnum)
 {
-	int objnum = NumSideDefs;
+	SYS_ASSERT(0 <= objnum && objnum <= NumVertices);
 
-	NumSideDefs++;
+	Vertices.push_back(NULL);
 
-	if (objnum > 0)
-		SideDefs = (SDPtr) ResizeMemory (SideDefs,
-				(unsigned long) NumSideDefs * sizeof (struct SideDef));
-	else
-		SideDefs = (SDPtr) GetMemory (sizeof (struct SideDef));
+	for (int n = NumVertices-1; n > objnum; n--)
+		Vertices[n] = Vertices[n - 1];
 
-	memset(&SideDefs[objnum], 0, sizeof (struct SideDef));
+	Vertices[objnum] = new Vertex;
 
-	return objnum;
+	// fix references in linedefs
+
+	if (objnum+1 == NumVertices)
+		return;
+
+	for (int n = NumLineDefs-1; n >= 0; n--)
+	{
+		LineDef *L = LineDefs[n];
+
+		if (L->start >= objnum)
+			L->start++;
+
+		if (L->end >= objnum)
+			L->end++;
+	}
 }
 
 
-static int RawCreateVertex()
+static void InsertSideDef(int objnum)
 {
-	int objnum = NumVertices;
+	SYS_ASSERT(0 <= objnum && objnum <= NumSideDefs);
 
-	NumVertices++;
+	SideDefs.push_back(NULL);
 
-	if (objnum > 0)
-		Vertices = (VPtr) ResizeMemory (Vertices,
-				(unsigned long) NumVertices * sizeof (struct Vertex));
-	else
-		Vertices = (VPtr) GetMemory (sizeof (struct Vertex));
+	for (int n = NumSideDefs-1; n > objnum; n--)
+		SideDefs[n] = SideDefs[n - 1];
 
-	memset(&Vertices[objnum], 0, sizeof (struct Vertex));
+	SideDefs[objnum] = new SideDef;
 
-	return objnum;
+	// fix the linedefs references
+
+	if (objnum+1 == NumSideDefs)
+		return;
+
+	for (int n = NumLineDefs-1; n >= 0; n--)
+	{
+		LineDef *L = LineDefs[n];
+
+		if (L->right >= objnum)
+			L->right++;
+
+		if (L->left >= objnum)
+			L->left++;
+	}
 }
 
 
-static int RawCreateSector()
+static void InsertSector(int objnum)
 {
-	int objnum = NumSectors;
+	SYS_ASSERT(0 <= objnum && objnum <= NumSectors);
 
-	NumSectors++;
+	Sectors.push_back(NULL);
 
-	if (objnum > 0)
-		Sectors = (SPtr) ResizeMemory (Sectors,
-				(unsigned long) NumSectors * sizeof (struct Sector));
-	else
-		Sectors = (SPtr) GetMemory (sizeof (struct Sector));
+	for (int n = NumSectors-1; n > objnum; n--)
+		Sectors[n] = Sectors[n - 1];
 
-	memset(&Sectors[objnum], 0, sizeof (struct Sector));
+	Sectors[objnum] = new Sector;
 
-	return objnum;
+	// fix all references in sidedefs
+
+	if (objnum+1 == NumSectors)
+		return;
+
+	for (int n = NumSideDefs-1; n >= 0; n--)
+	{
+		SideDef *S = SideDefs[n];
+
+		if (S->sector >= objnum)
+			S->sector++;
+	}
+}
+
+
+static void InsertRadTrig(int objnum)
+{
+	SYS_ASSERT(0 <= objnum && objnum <= NumRadTrigs);
+
+	RadTrigs.push_back(NULL);
+
+	for (int n = NumRadTrigs-1; n > objnum; n--)
+		RadTrigs[n] = RadTrigs[n - 1];
+
+	RadTrigs[objnum] = new RadTrig;
 }
 
 
@@ -131,6 +164,8 @@ static int RawCreateSector()
 static void DeleteThing(int objnum)
 {
 	SYS_ASSERT(0 <= objnum && objnum < NumThings);
+
+	delete Things[objnum];
 
 	for (int n = objnum; n < NumThings-1; n++)
 		Things[n] = Things[n + 1];
@@ -143,6 +178,8 @@ static void DeleteLineDef(int objnum)
 {
 	SYS_ASSERT(0 <= objnum && objnum < NumLineDefs);
 
+	delete LineDefs[objnum];
+
 	for (int n = objnum; n < NumLineDefs-1; n++)
 		LineDefs[n] = LineDefs[n + 1];
 	
@@ -154,6 +191,8 @@ static void DeleteVertex(int objnum)
 {
 	SYS_ASSERT(0 <= objnum && objnum < NumVertices);
 
+	delete Vertices[objnum];
+
 	for (int n = objnum; n < NumVertices-1; n++)
 		Vertices[n] = Vertices[n + 1];
 
@@ -164,7 +203,7 @@ static void DeleteVertex(int objnum)
 
 	for (int n = NumLineDefs-1; n >= 0; n--)
 	{
-		LineDef *L = &LineDefs[n];
+		LineDef *L = LineDefs[n];
 
 		if (L->start == objnum || L->end == objnum)
 			DeleteLineDef(n);
@@ -172,6 +211,7 @@ static void DeleteVertex(int objnum)
 		{
 			if (L->start > objnum)
 				L->start--;
+
 			if (L->end > objnum)
 				L->end--;
 		}
@@ -183,6 +223,8 @@ static void DeleteSideDef(int objnum)
 {
 	SYS_ASSERT(0 <= objnum && objnum < NumSideDefs);
 
+	delete SideDefs[objnum];
+
 	for (int n = objnum; n < NumSideDefs-1; n++)
 		SideDefs[n] = SideDefs[n + 1];
 
@@ -192,17 +234,17 @@ static void DeleteSideDef(int objnum)
 
 	for (int n = NumLineDefs-1; n >= 0; n--)
 	{
-		LineDef *L = &LineDefs[n];
+		LineDef *L = LineDefs[n];
 
-		if (L->side_R == objnum)
-			L->side_R = -1;
-		else if (L->side_R > objnum)
-			L->side_R--;
+		if (L->right == objnum)
+			L->right = -1;
+		else if (L->right > objnum)
+			L->right--;
 
-		if (L->side_L == objnum)
-			L->side_L = -1;
-		else if (L->side_L > objnum)
-			L->side_L--;
+		if (L->left == objnum)
+			L->left = -1;
+		else if (L->left > objnum)
+			L->left--;
 	}
 }
 
@@ -211,24 +253,40 @@ static void DeleteSector(int objnum)
 {
 	SYS_ASSERT(0 <= objnum && objnum < NumSectors);
 
+	delete Sectors[objnum];
+
 	for (int n = objnum; n < NumSectors-1; n++)
 		Sectors[n] = Sectors[n + 1];
 
 	Sectors.pop_back();
 
 	// delete the sidedefs bound to this sector and
-	// fix the references
+	// fix all references
 
 	for (int n = NumSideDefs-1; n >= 0; n--)
 	{
-		SideDef *S = &SideDefs[n];
+		SideDef *S = SideDefs[n];
 
 		if (S->sector == objnum)
-			DeleteSideDef(n)
+			DeleteSideDef(n);
 		else if (S->sector > objnum)
 			S->sector--;
 	}
 }
+
+
+static void DeleteRadTrig(int objnum)
+{
+	SYS_ASSERT(0 <= objnum && objnum < NumRadTrigs);
+
+	delete RadTrigs[objnum];
+
+	for (int n = objnum; n < NumRadTrigs-1; n++)
+		RadTrigs[n] = RadTrigs[n + 1];
+
+	RadTrigs.pop_back();
+}
+
 
 
 void DeleteObject(obj_type_t objtype, int objnum)
@@ -297,7 +355,7 @@ void DeleteObjects(selection_c *list)
 	// but we also re-use it for sidedefs which must be deleted
 	// (due to their sectors going away).
 
-	list->clear();
+	list->clear_all();
 
 	MadeChanges = 1;
 }
@@ -327,7 +385,7 @@ int InsertObject(obj_type_t objtype, obj_no_t copyfrom, int xpos, int ypos)
 		{
 			int objnum = RawCreateThing();
 
-			Thing *T = &Things[objnum];
+			Thing *T = Things[objnum];
 
 			T->x = xpos;
 			T->y = ypos;
@@ -388,8 +446,8 @@ int InsertObject(obj_type_t objtype, obj_no_t copyfrom, int xpos, int ypos)
 				L->flags = 1;
 			}
 
-			L->side_R = OBJ_NO_NONE;
-			L->side_L = OBJ_NO_NONE;
+			L->right = OBJ_NO_NONE;
+			L->left = OBJ_NO_NONE;
 
 			return objnum;
 		}
@@ -522,22 +580,22 @@ void CopyObjects(selection_c *list)
 		   having to create the New sidedefs manually. plus it saves
 		   space in the .wad and also it makes editing easier (editing
 		   one sidedef impacts all linedefs that use it). */
-					LineDefs[New].side_R = LineDefs[old].side_R; 
-					LineDefs[New].side_L = LineDefs[old].side_L; 
+					LineDefs[New].right = LineDefs[old].right; 
+					LineDefs[New].left = LineDefs[old].left; 
 				}
 				else
 				{
 					/* AYM 1998-11-08: duplicate sidedefs too.
 					   DEU 5.21 just left the sidedef references to -1. */
-					if (is_sidedef (LineDefs[old].side_R))
+					if (is_sidedef (LineDefs[old].right))
 					{
-						InsertObject (OBJ_SIDEDEFS, LineDefs[old].side_R, 0, 0);
-						LineDefs[New].side_R = NumSideDefs - 1;
+						InsertObject (OBJ_SIDEDEFS, LineDefs[old].right, 0, 0);
+						LineDefs[New].right = NumSideDefs - 1;
 					}
-					if (is_sidedef (LineDefs[old].side_L))
+					if (is_sidedef (LineDefs[old].left))
 					{
-						InsertObject (OBJ_SIDEDEFS, LineDefs[old].side_L, 0, 0);
-						LineDefs[New].side_L = NumSideDefs - 1; 
+						InsertObject (OBJ_SIDEDEFS, LineDefs[old].left, 0, 0);
+						LineDefs[New].left = NumSideDefs - 1; 
 					}
 				}
 				cur->objnum = New;
@@ -582,9 +640,9 @@ void CopyObjects(selection_c *list)
 			for (cur = obj; cur; cur = cur->next)
 			{
 				for (n = 0; n < NumLineDefs; n++)
-					if  ((((m = LineDefs[n].side_R) >= 0
+					if  ((((m = LineDefs[n].right) >= 0
 									&& SideDefs[m].sector == cur->objnum)
-								|| ((m = LineDefs[n].side_L) >= 0
+								|| ((m = LineDefs[n].left) >= 0
 									&& SideDefs[m].sector == cur->objnum))
 							&& ! IsSelected (list1, n))
 					{
@@ -599,19 +657,19 @@ void CopyObjects(selection_c *list)
 					ref1 && ref2;
 					ref1 = ref1->next, ref2 = ref2->next)
 			{
-				if ((n = LineDefs[ref1->objnum].side_R) >= 0)
+				if ((n = LineDefs[ref1->objnum].right) >= 0)
 				{
 					InsertObject (OBJ_SIDEDEFS, n, 0, 0);
 					n = NumSideDefs - 1;
 
-					LineDefs[ref2->objnum].side_R = n;
+					LineDefs[ref2->objnum].right = n;
 				}
-				if ((m = LineDefs[ref1->objnum].side_L) >= 0)
+				if ((m = LineDefs[ref1->objnum].left) >= 0)
 				{
 					InsertObject (OBJ_SIDEDEFS, m, 0, 0);
 					m = NumSideDefs - 1;
 
-					LineDefs[ref2->objnum].side_L = m;
+					LineDefs[ref2->objnum].left = m;
 				}
 				ref1->objnum = n;
 				ref2->objnum = m;
