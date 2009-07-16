@@ -403,31 +403,29 @@ static int * RawDelete(obj_type_t objtype, int objnum)
 
 void edit_op_c::Apply()
 {
-	if (op == 'v')
+	int * pos;
+
+	switch (action)
 	{
-		int * pos = RawGetBase(objtype, objnum);
+		case OP_CHANGE:
+			pos = RawGetBase(objtype, objnum);
+			std::swap(pos[field], value);
+			return;
 
-		std::swap(pos[field], value);
-		return;
+		case OP_DELETE:
+			ptr = RawDelete(objtype, objnum);
+			action = OP_INSERT;  // reverse the operation
+			return;
+
+		case OP_INSERT:
+			RawInsert(objtype, objnum, ptr);
+			ptr = NULL;
+			action = OP_DELETE;  // reverse the operation
+			return;
+
+		default:
+			nf_bug("edit_op_c::Apply");
 	}
-
-	if (op == 'd')
-	{
-		ptr = RawDelete(objtype, objnum);
-
-		op = 'i';
-		return;
-	}
-
-	if (op == 'i')
-	{
-		RawInsert(objtype, objnum, ptr);
-
-		op = 'd';
-		return;
-	}
-
-	nf_bug("edit_op_c::Apply");
 }
 
 
@@ -437,196 +435,126 @@ void ApplyGroup(op_group_c& grp)
 
 	for (int i = 0; i < total; i++)
 		grp[i].Apply();
-	
-	// reverse group
+
+	// reverse order of all operations
 	
 	for (int i = 0; i < total/2; i++)
 		std::swap(grp[i], grp[total-1-i]);
 }
 
 
-
 //------------------------------------------------------------------------
 
 
-static void AnalyseInsertVertex(int objnum)
+void AnalyseChange(op_group_c& grp, obj_type_t type, int objnum,
+                   byte field, int new_val)
 {
-	SYS_ASSERT(0 <= objnum && objnum <= NumVertices);
+	edit_op_c op;
 
-	Vertices.push_back(NULL);
+	op.action  = OP_CHANGE;
+	op.objtype = type;
+	op.field   = field;
+	op.objnum  = objnum;
+	op.value   = new_val;
 
-	for (int n = NumVertices-1; n > objnum; n--)
-		Vertices[n] = Vertices[n - 1];
+	grp.push_back(op);
 
-	Vertices[objnum] = new Vertex;
-
-	// fix references in linedefs
-
-	if (objnum+1 == NumVertices)
-		return;
-
-	for (int n = NumLineDefs-1; n >= 0; n--)
-	{
-		LineDef *L = LineDefs[n];
-
-		if (L->start >= objnum)
-			L->start++;
-
-		if (L->end >= objnum)
-			L->end++;
-	}
+	op->Apply();
 }
 
 
-static void AnalyseInsertSideDef(int objnum)
+void AnalyseDelete(op_group_c& grp, obj_type_t type, int objnum);
+
+
+static void AnalyseDeleteVertex(op_group_c& grp, int objnum)
 {
-	SYS_ASSERT(0 <= objnum && objnum <= NumSideDefs);
-
-	SideDefs.push_back(NULL);
-
-	for (int n = NumSideDefs-1; n > objnum; n--)
-		SideDefs[n] = SideDefs[n - 1];
-
-	SideDefs[objnum] = new SideDef;
-
-	// fix the linedefs references
-
-	if (objnum+1 == NumSideDefs)
-		return;
-
-	for (int n = NumLineDefs-1; n >= 0; n--)
-	{
-		LineDef *L = LineDefs[n];
-
-		if (L->right >= objnum)
-			L->right++;
-
-		if (L->left >= objnum)
-			L->left++;
-	}
-}
-
-
-static void AnalyseInsertSector(int objnum)
-{
-	SYS_ASSERT(0 <= objnum && objnum <= NumSectors);
-
-	Sectors.push_back(NULL);
-
-	for (int n = NumSectors-1; n > objnum; n--)
-		Sectors[n] = Sectors[n - 1];
-
-	Sectors[objnum] = new Sector;
-
-	// fix all references in sidedefs
-
-	if (objnum+1 == NumSectors)
-		return;
-
-	for (int n = NumSideDefs-1; n >= 0; n--)
-	{
-		SideDef *S = SideDefs[n];
-
-		if (S->sector >= objnum)
-			S->sector++;
-	}
-}
-
-
-static void AnalyseDeleteVertex(int objnum)
-{
-	SYS_ASSERT(0 <= objnum && objnum < NumVertices);
-
-	delete Vertices[objnum];
-
-	for (int n = objnum; n < NumVertices-1; n++)
-		Vertices[n] = Vertices[n + 1];
-
-	Vertices.pop_back();
-
-	// delete the linedefs bound to this vertex and
-	// fix the references
+	// delete any linedefs bound to this vertex
 
 	for (int n = NumLineDefs-1; n >= 0; n--)
 	{
 		LineDef *L = LineDefs[n];
 
 		if (L->start == objnum || L->end == objnum)
-			DeleteLineDef(n);
-		else
-		{
-			if (L->start > objnum)
-				L->start--;
-
-			if (L->end > objnum)
-				L->end--;
-		}
+			AnalyseDelete(grp, OBJ_LINEDEFS, n);
 	}
 }
 
-
-static void AnalyseDeleteSideDef(int objnum)
+static void AnalyseDeleteSideDef(op_group_c& grp, int objnum)
 {
-	SYS_ASSERT(0 <= objnum && objnum < NumSideDefs);
-
-	delete SideDefs[objnum];
-
-	for (int n = objnum; n < NumSideDefs-1; n++)
-		SideDefs[n] = SideDefs[n + 1];
-
-	SideDefs.pop_back();
-
-	// fix the linedefs references
+	// unbind from linedefs
 
 	for (int n = NumLineDefs-1; n >= 0; n--)
 	{
 		LineDef *L = LineDefs[n];
 
 		if (L->right == objnum)
-			L->right = -1;
-		else if (L->right > objnum)
-			L->right--;
+			AnalyseChange(grp, OBJ_LINEDEFS, n, LineDef::F_RIGHT, -1);
 
 		if (L->left == objnum)
-			L->left = -1;
-		else if (L->left > objnum)
-			L->left--;
+			AnalyseChange(grp, OBJ_LINEDEFS, n, LineDef::F_LEFT, -1);
 	}
 }
 
-
-static void AnalyseDeleteSector(int objnum)
+static void AnalyseDeleteSector(op_group_c& grp, int objnum)
 {
-	SYS_ASSERT(0 <= objnum && objnum < NumSectors);
-
-	delete Sectors[objnum];
-
-	for (int n = objnum; n < NumSectors-1; n++)
-		Sectors[n] = Sectors[n + 1];
-
-	Sectors.pop_back();
-
-	// delete the sidedefs bound to this sector and
-	// fix all references
+	// delete the sidedefs bound to this sector
 
 	for (int n = NumSideDefs-1; n >= 0; n--)
 	{
 		SideDef *S = SideDefs[n];
 
 		if (S->sector == objnum)
-			DeleteSideDef(n);
-		else if (S->sector > objnum)
-			S->sector--;
+			AnalyseDelete(grp, OBJ_SIDEDEFS, n);
 	}
 }
 
 
-void BuildDeleteOp(op_group_c& grp, obj_type_t type, int objnum)
+void AnalyseDelete(op_group_c& grp, obj_type_t type, int objnum)
 {
-	...
+	edit_op_c op;
+
+	op.action  = OP_DELETE;
+	op.objtype = type;
+	op.objnum  = objnum;
+
+	// must analyse sidedefs before the deletion
+	if (type == OBJ_SIDEDEFS)
+		AnalyseDeleteSideDef(grp, objnum);
+
+	grp.push_back(op);
+
+	op->Apply();
+
+	// these must be done after the deletion
+	if (type == OBJ_VERTICES)
+		AnalyseDeleteVertex(grp, objnum);
+
+	if (type == OBJ_SECTORS)
+		AnalyseDeleteSector(grp, objnum);
 }
 
 
+void AnalyseCreate(op_group_c& grp, obj_type_t type)
+{
+	edit_op_c op;
+
+	op.action  = OP_INSERT;
+	op.objtype = type;
+
+	switch (type)
+	{
+		case OBJ_THINGS:   op.objnum = NumThings;   break;
+		case OBJ_VERTICES: op.objnum = NumVertices; break;
+		case OBJ_SIDEDEFS: op.objnum = NumSideDefs; break;
+		case OBJ_LINEDEFS: op.objnum = NumLineDefs; break;
+		case OBJ_SECTORS:  op.objnum = NumSectors;  break;
+		case OBJ_RADTRIGS: op.objnum = NumRadTrigs; break;
+	}
+
+	grp.push_back(op);
+
+	op->Apply();
+}
 
 
 #if 0

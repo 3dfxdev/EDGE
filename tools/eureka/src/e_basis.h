@@ -186,10 +186,18 @@ extern std::vector<RadTrig *> RadTrigs;
 #define NumRadTrigs   ((int)RadTrigs.size())
 
 
+enum
+{
+	OP_CHANGE = 'c',
+	OP_INSERT = 'i',
+	OP_DELETE = 'd',
+};
+
+
 class edit_op_c
 {
-private:
-	byte op;
+public:
+	char action;
 	byte objtype;
 	byte field;
 	byte _pad;
@@ -200,7 +208,7 @@ private:
 	int value;
 
 public:
-	 edit_op_c() : op(0), objtype(0), field(0), objnum(0), ptr(NULL), value(0) { }
+	 edit_op_c() : action(0), objtype(0), field(0), objnum(0), ptr(NULL), value(0) { }
 	~edit_op_c() { }
 
 	void Apply();
