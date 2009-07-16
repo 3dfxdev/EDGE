@@ -25,6 +25,26 @@
 #ifndef __E_BASIS_H__
 #define __E_BASIS_H__
 
+
+//
+// DESIGN NOTES
+//
+// Every field in these structures are a plain 'int'.  This is a
+// design decision aiming to simplify the logic and code for undo
+// and redo.
+//
+// Strings are represented as offsets into a string table, where
+// fetching the actual (read-only) string is fast, but adding new
+// strings is slow (with the current code).
+//
+// These structures are always ensured to have valid fields, e.g.
+// the LineDef vertex numbers are OK, the SideDef sector number is
+// valid, etc.  For LineDefs, either/both of side_L and side_R can
+// contain -1 to mean "no sidedef", but note that a missing right
+// sidedef can cause problems when playing the map in DOOM.
+//
+
+
 class Thing
 {
 public:
@@ -66,6 +86,13 @@ public:
 	enum { F_FLOORH, F_CEILH, F_FLOOR_TEX, F_CEIL_TEX, F_LIGHT, F_TYPE, F_TAG };
 
 public:
+	const char *FloorTex() const;
+	const char *CeilTex() const;
+
+	int HeadRoom() const
+	{
+		return ceilh - floorh;
+	}
 };
 
 
@@ -82,6 +109,11 @@ public:
 	enum { F_X_OFFSET, F_Y_OFFSET, F_UPPER_TEX, F_MID_TEX, F_LOWER_TEX, F_SECTOR };
 
 public:
+	const char *UpperTex() const;
+	const char *MidTex()   const;
+	const char *LowerTex() const;
+
+	Sector *SecRef() const;
 };
 
 
@@ -93,14 +125,22 @@ public:
 	int flags;
 	int type;
 	int tag;
-	int side_R;
-	int side_L;
+	int right;
+	int left;
 
-	enum { F_START, F_END, F_FLAGS, F_TYPE, F_TAG, F_SIDE_R, F_SIDE_L };
+	enum { F_START, F_END, F_FLAGS, F_TYPE, F_TAG, F_RIGHT, F_LEFT };
 
 public:
+	Vertex *Start() const;
+	Vertex *End()   const;
+
+	// remember: these two can return NULL!
+	SideDef *Right() const;
+	SideDef *Left()  const;
 };
 
+
+#define RADF_Square  (1 << 20)
 
 class RadTrig
 {
@@ -115,12 +155,19 @@ public:
 
 	int name;
 	int tag;
-	int flags;
+	int options;
 	int code;
 
 	enum { F_MX, F_MY, F_RW, F_RH, F_Z1, F_Z2, F_NAME, F_TAG, F_FLAGS, F_CODE };
 
 public:
+	const char *Name() const;
+	const char *Code() const;
+
+	bool isSquare() const
+	{
+		return (options & RADF_Square) ? true : false;
+	}
 };
 
 
