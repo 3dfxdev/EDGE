@@ -49,12 +49,8 @@ const char *GetObjectTypeName (int objtype)
 		case OBJ_LINEDEFS: return "linedef";
 		case OBJ_SIDEDEFS: return "sidedef";
 		case OBJ_VERTICES: return "vertex";
-		case OBJ_SEGS:     return "segment";
-		case OBJ_SSECTORS: return "ssector";
-		case OBJ_NODES:    return "node";
 		case OBJ_SECTORS:  return "sector";
-		case OBJ_REJECT:   return "reject";
-		case OBJ_BLOCKMAP: return "blockmap";
+		case OBJ_RADTRIGS: return "radtrig";
 	}
 	return "< Bug! >";
 }
