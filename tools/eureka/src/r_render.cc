@@ -156,7 +156,7 @@ public:
          if (img != 0)
             return;
          }
-      col = 0x70 + ((sec - Sectors) % 48);
+      col = 0x70 + ((fname[0]*13+fname[1]*41+fname[2]*11) % 48);
       }
 
    void FindTex (const wad_tex_name_t& tname, LineDef *ld)
@@ -168,7 +168,7 @@ public:
          if (img != 0)
             return;
          }
-      col = 0x30 + ((ld - LineDefs) % 64);
+      col = 0x30 + ((tname[0]*17+tname[1]*47+tname[2]*7) % 64);
 
       if (col >= 0x60)
          col += 0x70;
