@@ -34,6 +34,8 @@ public:
 	int type;
 	int options;
 
+	enum { F_X, F_Y, F_ANGLE, F_TYPE, F_OPTIONS };
+
 public:
 };
 
@@ -43,6 +45,8 @@ class Vertex
 public:
 	int x;
 	int y;
+
+	enum { F_X, F_Y };
 
 public:
 };
@@ -59,6 +63,8 @@ public:
 	int type;
 	int tag;
 
+	enum { F_FLOORH, F_CEILH, F_FLOOR_TEX, F_CEIL_TEX, F_LIGHT, F_TYPE, F_TAG };
+
 public:
 };
 
@@ -72,6 +78,8 @@ public:
 	int mid_tex;
 	int lower_tex;
 	int sector;
+
+	enum { F_X_OFFSET, F_Y_OFFSET, F_UPPER_TEX, F_MID_TEX, F_LOWER_TEX, F_SECTOR };
 
 public:
 };
@@ -88,6 +96,8 @@ public:
 	int side_R;
 	int side_L;
 
+	enum { F_START, F_END, F_FLAGS, F_TYPE, F_TAG, F_SIDE_R, F_SIDE_L };
+
 public:
 };
 
@@ -95,10 +105,10 @@ public:
 class RadTrig
 {
 public:
-	int x;
-	int y;
-	int w;
-	int h;
+	int mx;  // mid-point
+	int my;
+	int rw;  // radius (width/2 and height/2)
+	int rh;
 
 	int z1;
 	int z2;
@@ -107,6 +117,8 @@ public:
 	int tag;
 	int flags;
 	int code;
+
+	enum { F_MX, F_MY, F_RW, F_RH, F_Z1, F_Z2, F_NAME, F_TAG, F_FLAGS, F_CODE };
 
 public:
 };
