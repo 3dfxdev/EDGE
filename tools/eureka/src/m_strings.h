@@ -41,9 +41,11 @@ public:
 	// empty string.  NULL is never returned.
 
 	void clear();
-	// removes all strings.
+	// remove all strings.
 
 private:
+	int find(const char *str, int len);
+	// returns -1 when not found.
 };
 
 
