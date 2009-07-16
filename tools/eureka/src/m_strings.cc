@@ -41,10 +41,11 @@ public:
 
 	int add(const char *str, int len)
 	{
-		int offset = used;
+		SYS_ASSERT(fits(len));
+
+		int offset = used;  used += (len+1);
 
 		memcpy(data + offset, str, len+1);
-		used += len+1;
 
 		return offset;
 	}
@@ -57,16 +58,17 @@ public:
 		{
 			int p_len = (int)strlen(data + pos);
 
+			// we allow matching the end of existing strings
 			if (len <= p_len)
 			{
 				if (memcmp(data + pos + (p_len-len), str, len) == 0)
 					return pos + (p_len-len);
 			}
 
-			pos += p_len+1;
+			pos += (p_len+1);
 		}
 
-		return -1;
+		return -1;  // NOT FOUND
 	}
 };
 
@@ -74,7 +76,7 @@ public:
 //------------------------------------------------------------------------
 
 
-string_table_c::string_table_c() : blocks()
+string_table_c::string_table_c() : blocks(), huge_ones()
 {
 	// nothing needed
 }
@@ -86,44 +88,37 @@ string_table_c::~string_table_c()
 
 int string_table_c::add(const char *str)
 {
-	if (! str || ! str[0])
+	if (!str || !str[0])
 		return 0;
-	
+
 	int len = (int)strlen(str);
-	int offset = find(str, len);
 
-	if (offset != -1)
-		return offset;
-
-	// FIXME: use negative offsets for huge strings
-	if (len > CHARS_PER_BLOCK-8)
-		FatalError("INTERNAL ERROR: string too long for string table (length=%d)\n", len);
-
-	if (blocks.empty())
-		blocks.push_back(new string_block_c);
-
-	string_block_c *last = blocks.back();
-
-
-	if (! last->fits(len))
+	if (len > CHARS_PER_BLOCK/5)
 	{
-		// TODO: try some earlier blocks
+		int offset = find_huge(str, len);
 
-		last = new string_block_c;
-
-		blocks.push_back(last);
+		return offset ? offset : add_huge(str, len);
 	}
 
-	return last->add(str, len);
+	int offset = find_normal(str, len);
+
+	return offset ? offset : add_normal(str, len);
 }
 
 const char * string_table_c::get(int offset)
 {
-	SYS_ASSERT(offset >= 0);
-
 	if (offset == 0)
 		return "";
-	
+
+	if (offset < 0)
+	{
+		offset = -(offset + 1);
+
+		SYS_ASSERT(offset < (int)huge_ones.size());
+
+		return huge_ones[offset];
+	}
+
 	offset--;
 
 	int blk_num = offset / CHARS_PER_BLOCK;
@@ -139,20 +134,76 @@ void string_table_c::clear()
 	for (int i = 0; i < (int)blocks.size(); i++)
 		delete blocks[i];
 
+	for (int i = 0; i < (int)huge_ones.size(); i++)
+		delete[] huge_ones[i];
+
 	blocks.clear();
+	huge_ones.clear();
 }
 
-int string_table_c::find(const char *str, int len)
+int string_table_c::find_normal(const char *str, int len)
 {
-	for (int i = 0; i < (int)blocks.size(); i++)
+	for (int blk_num = 0; blk_num < (int)blocks.size(); blk_num++)
 	{
-		int offset = blocks[i]->find(str, len);
+		int offset = blocks[blk_num]->find(str, len);
 
 		if (offset != -1)
-			return (i * CHARS_PER_BLOCK) + offset;
+			return (blk_num * CHARS_PER_BLOCK) + offset + 1;
 	}
 
-	return -1; // not found
+	return 0; // not found
+}
+
+int string_table_c::add_normal(const char *str, int len)
+{
+	if (blocks.empty())
+		blocks.push_back(new string_block_c);
+
+	int blk_num = (int)blocks.size() - 1;
+
+	if (! blocks[blk_num]->fits(len))
+	{
+		// try some earlier blocks
+		if (blk_num >= 1 && blocks[blk_num-1]->fits(len))
+			blk_num -= 1;
+		else if (blk_num >= 2 && blocks[blk_num-2]->fits(len))
+			blk_num -= 2;
+		else if (blk_num >= 3 && blocks[blk_num-3]->fits(len))
+			blk_num -= 3;
+		else if (blk_num >= 4 && blocks[blk_num-4]->fits(len))
+			blk_num -= 4;
+		else
+		{
+			// need a new block
+			blocks.push_back(new string_block_c);
+			blk_num++;
+		}
+	}
+
+	int offset = blocks[blk_num]->add(str, len);
+
+	return (blk_num * CHARS_PER_BLOCK) + offset + 1;
+}
+
+int string_table_c::find_huge(const char *str, int len)
+{
+	for (int i = 0; i < (int)huge_ones.size(); i++)
+	{
+		if (strcmp(huge_ones[i], str) == 0)
+			return -(i+1);
+	}
+
+	return 0;
+}
+
+int string_table_c::add_huge(const char *str, int len)
+{
+	char *buf = new char[len+2];
+	strcpy(buf, str);
+
+	huge_ones.push_back(buf);
+
+	return -(int)huge_ones.size();
 }
 
 //--- editor settings ---

@@ -27,6 +27,8 @@ class string_table_c
 private:
 	std::vector<string_block_c *> blocks;
 
+	std::vector<const char *> huge_ones;
+
 public:
 	 string_table_c();
 	~string_table_c();
@@ -44,8 +46,14 @@ public:
 	// remove all strings.
 
 private:
-	int find(const char *str, int len);
-	// returns -1 when not found.
+	int find_normal(const char *str, int len);
+	// returns an offset value, zero when not found.
+
+	int find_huge(const char *str, int len);
+	// returns an offset value, zero when not found.
+
+	int add_normal(const char *str, int len);
+	int add_huge(const char *str, int len);
 };
 
 
