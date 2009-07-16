@@ -44,6 +44,7 @@ OBJS = \
 	m_dialog.o  \
 	m_game.o  \
 	m_select.o  \
+	m_strings.o  \
 	objects.o  \
 	r_grid.o  \
 	r_images.o  \
