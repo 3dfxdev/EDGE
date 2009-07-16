@@ -21,17 +21,44 @@
 #include "m_strings.h"
 
 
-class string_block_c { int foo; };  //!!!!!
+#define CHARS_PER_BLOCK  4096
+
+class string_block_c
+{
+public:
+	char data[CHARS_PER_BLOCK];
+
+	int used;
+
+public:
+	 string_block_c() : used(0) { }
+	~string_block_c() { }
+
+	bool fits(int len) const
+	{
+		return (used + len + 1) < CHARS_PER_BLOCK;
+	}
+
+	int add(const char *str, int len)
+	{
+		int offset = used;
+
+		memcpy(data + offset, str, len+1);
+		used += len+1;
+
+		return offset;
+	}
+};
 
 
 string_table_c::string_table_c() : blocks()
 {
+	// nothing needed
 }
 
 string_table_c::~string_table_c()
 {
-	for (int i = 0; i < (int)blocks.size(); i++)
-		delete blocks[i];
+	clear();
 }
 
 int string_table_c::add(const char *str)
@@ -39,18 +66,53 @@ int string_table_c::add(const char *str)
 	if (! str || ! str[0])
 		return 0;
 	
-	// FIXME
-	
-	return 1;
+	if (blocks.empty())
+		blocks.push_back(new string_block_c);
+
+	string_block_c *last = blocks.back();
+
+	int len = (int)strlen(str);
+
+	// FIXME: use negative offsets for huge strings
+	if (len > CHARS_PER_BLOCK-8)
+		FatalError("INTERNAL ERROR: string too long for string table (length=%d)\n", len);
+
+	if (! last->fits(len))
+	{
+		// TODO: try some earlier blocks
+
+		last = new string_block_c;
+
+		blocks.push_back(last);
+	}
+
+	return last->add(str, len);
 }
 
 const char * string_table_c::get(int offset)
 {
-	// FIXME
+	SYS_ASSERT(offset >= 0);
 
-	return "";
+	if (offset == 0)
+		return "";
+	
+	offset--;
+
+	int blk_num = offset / CHARS_PER_BLOCK;
+	offset      = offset % CHARS_PER_BLOCK;
+
+	SYS_ASSERT(blk_num < (int)blocks.size());
+
+	return & blocks[blk_num]->data[offset];
 }
 
+void string_table_c::clear()
+{
+	for (int i = 0; i < (int)blocks.size(); i++)
+		delete blocks[i];
+
+	blocks.clear();
+}
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
