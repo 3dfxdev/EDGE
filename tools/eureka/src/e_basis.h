@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------
-//  LEVEL LOADING ETC
+//  BASIC OBJECT HANDLING
 //------------------------------------------------------------------------
 //
 //  Eureka DOOM Editor (C) 2001-2009 Andrew Apted
@@ -22,91 +22,111 @@
 //
 //------------------------------------------------------------------------
 
+#ifndef __E_BASIS_H__
+#define __E_BASIS_H__
 
-#ifndef YH_LEVELS  /* Prevent multiple inclusion */
-#define YH_LEVELS  /* Prevent multiple inclusion */
-
-
-#include "w_name.h"
-#include "w_structs.h"
-#include "e_things.h"
-
-
-// Defined in levels.cc
-extern MDirPtr Level;   /* master dictionary entry for the level */
-
-extern int   NumThings;   /* number of things */
-extern TPtr  Things;    /* things data */
-extern int   NumLineDefs; /* number of linedefs */
-extern LDPtr LineDefs;    /* linedefs data */
-extern int   NumSideDefs; /* number of sidedefs */
-extern SDPtr SideDefs;    /* sidedefs data */
-extern int   NumVertices; /* number of vertices */
-extern VPtr  Vertices;    /* vertices data */
-extern int   NumSegs;   /* number of segments */
-extern int   NumSectors;  /* number of sectors */
-extern SPtr  Sectors;   /* sectors data */
-
-// FIXME should be somewhere else
-extern int   NumWTexture; /* number of wall textures */
-extern char  **WTexture;  /* array of wall texture names */
-extern size_t NumFTexture;  /* number of floor/ceiling textures */
-typedef struct
+class Thing
 {
-  char            name[WAD_NAME + 1]; // Name of flat
-  const Wad_file *wadfile;    // Pointer on wad where flat comes from
-  s32_t             offset;   // Offset of flat in wad
-} flat_list_entry_t;      // Length is implicit (always 4096)
-extern flat_list_entry_t *flat_list;  // List of all flats in the directory
+public:
+	int x;
+	int y;
+	int angle;
+	int type;
+	int options;
 
-extern int   MapMaxX;   /* maximum X value of map */
-extern int   MapMaxY;   /* maximum Y value of map */
-extern int   MapMinX;   /* minimum X value of map */
-extern int   MapMinY;   /* minimum Y value of map */
-
-extern bool  MadeChanges; /* made changes? */
-extern bool  MadeMapChanges;  /* made changes that need rebuilding? */
-
-extern char Level_name[WAD_NAME + 1]; /* The name of the level (E.G.
-           "MAP01" or "E1M1"), followed by a
-           NUL. If the Level has been created as
-           the result of a "c" command with no
-           argument, an empty string. The name
-           is not necesarily in upper case but
-           it always a valid lump name, not a
-           command line shortcut like "17". */
-
-extern y_file_name_t Level_file_name;  /* The name of the file in which
-           the level would be saved. If the
-           level has been created as the result
-           of a "c" command, with or without
-           argument, an empty string. */
-
-extern y_file_name_t Level_file_name_saved;  /* The name of the file in
-           which the level was last saved. If
-           the Level has never been saved yet,
-           an empty string. */
-
-void EmptyLevelData (const char *levelname);
-void update_level_bounds ();
+public:
+};
 
 
-extern Wad_name sky_flat;
-
-
-/*
- *  is_sky - is this flat a sky
- */
-inline bool is_sky (Wad_name flat)
+class Vertex
 {
-  return sky_flat == flat;
-}
+public:
+	int x;
+	int y;
+
+public:
+};
 
 
-int levelname2levelno (const char *name);
-int levelname2rank (const char *name);
+class Sector
+{
+public:
+	int floorh;
+	int ceilh;
+	int floor_tex;
+	int ceil_tex;
+	int light;
+	int type;
+	int tag;
+
+public:
+};
 
 
-#endif  /* DO NOT ADD ANYTHING AFTER THIS LINE */
+class SideDef
+{
+public:
+	int x_offset;
+	int y_offset;
+	int upper_tex;
+	int mid_tex;
+	int lower_tex;
+	int sector;
+
+public:
+};
+
+
+class LineDef
+{
+public:
+	int start;
+	int end;
+	int flags;
+	int type;
+	int tag;
+	int side_R;
+	int side_L;
+
+public:
+};
+
+
+class RadTrig
+{
+public:
+	int x;
+	int y;
+	int w;
+	int h;
+
+	int z1;
+	int z2;
+
+	int name;
+	int tag;
+	int flags;
+	int code;
+
+public:
+};
+
+
+extern std::vector<Thing *>   Things;
+extern std::vector<Vertex *>  Vertices;
+extern std::vector<Sector *>  Sectors;
+extern std::vector<SideDef *> SideDefs;
+extern std::vector<LineDef *> LineDefs;
+extern std::vector<RadTrig *> RadTrigs;
+
+#define NumThings     ((int)Things.size())
+#define NumVertices   ((int)Vertices.size())
+#define NumSectors    ((int)Sectors.size())
+#define NumSideDefs   ((int)SideDefs.size())
+#define NumLineDefs   ((int)LineDefs.size())
+#define NumRadTrigs   ((int)RadTrigs.size())
+
+#endif  /* __E_BASIS_H__ */
+
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
