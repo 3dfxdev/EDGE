@@ -27,6 +27,10 @@
 #include <algorithm>
 
 #include "e_basis.h"
+#include "m_strings.h"
+
+
+extern int MadeChanges;
 
 
 std::vector<Thing *>   Things;
@@ -36,6 +40,63 @@ std::vector<SideDef *> SideDefs;
 std::vector<LineDef *> LineDefs;
 std::vector<RadTrig *> RadTrigs;
 
+
+string_table_c basis_strtab;
+
+
+const char * Sector::FloorTex() const
+{
+	return basis_strtab.get(floor_tex);
+}
+
+const char * Sector::CeilTex() const
+{
+	return basis_strtab.get(ceil_tex);
+}
+
+const char * SideDef::UpperTex() const
+{
+	return basis_strtab.get(upper_tex);
+}
+
+const char * SideDef::MidTex() const
+{
+	return basis_strtab.get(mid_tex);
+}
+
+const char * SideDef::LowerTex() const
+{
+	return basis_strtab.get(lower_tex);
+}
+
+
+Sector * SideDef::SecRef() const
+{
+	return Sectors[sector];
+}
+
+Vertex * LineDef::Start() const
+{
+	return Vertices[start];
+}
+
+Vertex * LineDef::End() const
+{
+	return Vertices[end];
+}
+
+SideDef * LineDef::Right() const
+{
+	return (right >= 0) ? SideDefs[right] : NULL;
+}
+
+SideDef * LineDef::Left() const
+{
+	return (left >= 0) ? SideDefs[left] : NULL;
+}
+
+
+//------------------------------------------------------------------------
 
 static void InsertThing(int objnum)
 {
@@ -359,6 +420,10 @@ void DeleteObjects(selection_c *list)
 
 	MadeChanges = 1;
 }
+
+
+//------------------------------------------------------------------------
+
 
 
 /*
@@ -699,94 +764,6 @@ void CopyObjects(selection_c *list)
 #endif
 }
 
-
-
-/*
- *  MoveObjectsToCoords
- *
- *  Move a group of objects to a new position
- *
- *  You must first call it with obj == NULL and newx and newy
- *  set to the coordinates of the reference point (E.G. the
- *  object being dragged).
- *  Then, every time the object being dragged has changed its
- *  coordinates, call the it again with newx and newy set to
- *  the new position and obj set to the selection.
- *
- *  Returns <>0 iff an object was moved.
- */
-bool MoveObjectsToCoords (int objtype, SelPtr obj, int newx, int newy, int grid)
-{
-#if 0  // FIXME !!!!!
-	int        dx, dy;
-	SelPtr     cur, vertices;
-	static int refx, refy; /* previous position */
-
-	if (grid > 0)
-	{
-		newx = (newx + grid / 2) & ~(grid - 1);
-		newy = (newy + grid / 2) & ~(grid - 1);
-	}
-
-	// Only update the reference point ?
-	if (! obj)
-	{
-		refx = newx;
-		refy = newy;
-		return true;
-	}
-
-	/* compute the displacement */
-	dx = newx - refx;
-	dy = newy - refy;
-	/* nothing to do? */
-	if (dx == 0 && dy == 0)
-		return false;
-
-	/* move the object(s) */
-	switch (objtype)
-	{
-		case OBJ_THINGS:
-			for (cur = obj; cur; cur = cur->next)
-			{
-				Things[cur->objnum].x += dx;
-				Things[cur->objnum].y += dy;
-			}
-			refx = newx;
-			refy = newy;
-			MadeChanges = 1;
-			break;
-
-		case OBJ_VERTICES:
-			for (cur = obj; cur; cur = cur->next)
-			{
-				Vertices[cur->objnum].x += dx;
-				Vertices[cur->objnum].y += dy;
-			}
-			refx = newx;
-			refy = newy;
-			MadeChanges = 1;
-			MadeMapChanges = 1;
-			break;
-
-		case OBJ_LINEDEFS:
-			vertices = list_vertices_of_linedefs (obj);
-			MoveObjectsToCoords (OBJ_VERTICES, vertices, newx, newy, grid);
-			ForgetSelection (&vertices);
-			break;
-
-		case OBJ_SECTORS:
-
-			vertices = list_vertices_of_sectors (obj);
-			MoveObjectsToCoords (OBJ_VERTICES, vertices, newx, newy, grid);
-			ForgetSelection (&vertices);
-			break;
-	}
-	return true;
-#endif
-
-	return false;
-}
 
 
 
