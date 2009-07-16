@@ -40,6 +40,9 @@ public:
 	// get the string from an offset.  Zero always returns an
 	// empty string.  NULL is never returned.
 
+	void clear();
+	// removes all strings.
+
 private:
 };
 
