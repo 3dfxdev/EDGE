@@ -48,7 +48,30 @@ public:
 
 		return offset;
 	}
+
+	int find(const char *str, int len) const
+	{
+		int pos = 0;
+
+		while (pos < used)
+		{
+			int p_len = (int)strlen(data + pos);
+
+			if (len <= p_len)
+			{
+				if (memcmp(data + pos + (p_len-len), str, len) == 0)
+					return pos + (p_len-len);
+			}
+
+			pos += p_len+1;
+		}
+
+		return -1;
+	}
 };
+
+
+//------------------------------------------------------------------------
 
 
 string_table_c::string_table_c() : blocks()
@@ -66,16 +89,21 @@ int string_table_c::add(const char *str)
 	if (! str || ! str[0])
 		return 0;
 	
+	int len = (int)strlen(str);
+	int offset = find(str, len);
+
+	if (offset != -1)
+		return offset;
+
+	// FIXME: use negative offsets for huge strings
+	if (len > CHARS_PER_BLOCK-8)
+		FatalError("INTERNAL ERROR: string too long for string table (length=%d)\n", len);
+
 	if (blocks.empty())
 		blocks.push_back(new string_block_c);
 
 	string_block_c *last = blocks.back();
 
-	int len = (int)strlen(str);
-
-	// FIXME: use negative offsets for huge strings
-	if (len > CHARS_PER_BLOCK-8)
-		FatalError("INTERNAL ERROR: string too long for string table (length=%d)\n", len);
 
 	if (! last->fits(len))
 	{
@@ -112,6 +140,19 @@ void string_table_c::clear()
 		delete blocks[i];
 
 	blocks.clear();
+}
+
+int string_table_c::find(const char *str, int len)
+{
+	for (int i = 0; i < (int)blocks.size(); i++)
+	{
+		int offset = blocks[i]->find(str, len);
+
+		if (offset != -1)
+			return (i * CHARS_PER_BLOCK) + offset;
+	}
+
+	return -1; // not found
 }
 
 //--- editor settings ---
