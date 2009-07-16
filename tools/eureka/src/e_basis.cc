@@ -98,7 +98,7 @@ SideDef * LineDef::Left() const
 
 //------------------------------------------------------------------------
 
-static void InsertThing(int objnum)
+static void RawInsertThing(int objnum, int *ptr)
 {
 	SYS_ASSERT(0 <= objnum && objnum <= NumThings);
 
@@ -107,11 +107,10 @@ static void InsertThing(int objnum)
 	for (int n = NumThings-1; n > objnum; n--)
 		Things[n] = Things[n - 1];
 
-	Things[objnum] = new Thing;
+	Things[objnum] = (Thing*) ptr;
 }
 
-
-static void InsertLineDef(int objnum)
+static void RawInsertLineDef(int objnum, int *ptr)
 {
 	SYS_ASSERT(0 <= objnum && objnum <= NumThings);
 
@@ -120,11 +119,337 @@ static void InsertLineDef(int objnum)
 	for (int n = NumLineDefs-1; n > objnum; n--)
 		LineDefs[n] = LineDefs[n - 1];
 
-	LineDefs[objnum] = new LineDef;
+	LineDefs[objnum] = (LineDef*) ptr;
+}
+
+static void RawInsertVertex(int objnum, int *ptr)
+{
+	SYS_ASSERT(0 <= objnum && objnum <= NumVertices);
+
+	Vertices.push_back(NULL);
+
+	for (int n = NumVertices-1; n > objnum; n--)
+		Vertices[n] = Vertices[n - 1];
+
+	Vertices[objnum] = (Vertex*) ptr;
+
+	// fix references in linedefs
+
+	if (objnum+1 < NumVertices)
+	{
+		for (int n = NumLineDefs-1; n >= 0; n--)
+		{
+			LineDef *L = LineDefs[n];
+
+			if (L->start >= objnum)
+				L->start++;
+
+			if (L->end >= objnum)
+				L->end++;
+		}
+	}
+}
+
+static void RawInsertSideDef(int objnum, int *ptr)
+{
+	SYS_ASSERT(0 <= objnum && objnum <= NumSideDefs);
+
+	SideDefs.push_back(NULL);
+
+	for (int n = NumSideDefs-1; n > objnum; n--)
+		SideDefs[n] = SideDefs[n - 1];
+
+	SideDefs[objnum] = (SideDef*) ptr;
+
+	// fix the linedefs references
+
+	if (objnum+1 < NumSideDefs)
+	{
+		for (int n = NumLineDefs-1; n >= 0; n--)
+		{
+			LineDef *L = LineDefs[n];
+
+			if (L->right >= objnum)
+				L->right++;
+
+			if (L->left >= objnum)
+				L->left++;
+		}
+	}
+}
+
+static void RawInsertSector(int objnum, int *ptr)
+{
+	SYS_ASSERT(0 <= objnum && objnum <= NumSectors);
+
+	Sectors.push_back(NULL);
+
+	for (int n = NumSectors-1; n > objnum; n--)
+		Sectors[n] = Sectors[n - 1];
+
+	Sectors[objnum] = (Sector*) ptr;
+
+	// fix all sidedef references
+
+	if (objnum+1 < NumSectors)
+	{
+		for (int n = NumSideDefs-1; n >= 0; n--)
+		{
+			SideDef *S = SideDefs[n];
+
+			if (S->sector >= objnum)
+				S->sector++;
+		}
+	}
+}
+
+static void RawInsertRadTrig(int objnum, int *ptr)
+{
+	SYS_ASSERT(0 <= objnum && objnum <= NumRadTrigs);
+
+	RadTrigs.push_back(NULL);
+
+	for (int n = NumRadTrigs-1; n > objnum; n--)
+		RadTrigs[n] = RadTrigs[n - 1];
+
+	RadTrigs[objnum] = (RadTrig*) ptr;
 }
 
 
-static void InsertVertex(int objnum)
+static int * RawDeleteThing(int objnum)
+{
+	SYS_ASSERT(0 <= objnum && objnum < NumThings);
+
+	int * result = (int*) Things[objnum];
+
+	for (int n = objnum; n < NumThings-1; n++)
+		Things[n] = Things[n + 1];
+
+	Things.pop_back();
+
+	return result;
+}
+
+static void RawInsert(obj_type_t objtype, int objnum, int *ptr)
+{
+	switch (objtype)
+	{
+		case OBJ_THINGS:
+			RawInsertThing(objnum, ptr);
+
+		case OBJ_LINEDEFS:
+			RawInsertLineDef(objnum, ptr);
+
+		case OBJ_VERTICES:
+			RawInsertVertex(objnum, ptr);
+
+		case OBJ_SIDEDEFS:
+			RawInsertSideDef(objnum, ptr);
+		
+		case OBJ_SECTORS:
+			RawInsertSector(objnum, ptr);
+
+		case OBJ_RADTRIGS:
+			RawInsertRadTrig(objnum, ptr);
+
+		default:
+			nf_bug ("RawInsert: bad objtype %d", (int) objtype);
+	}
+}
+
+
+static int * RawDeleteLineDef(int objnum)
+{
+	SYS_ASSERT(0 <= objnum && objnum < NumLineDefs);
+
+	int * result = (int*) LineDefs[objnum];
+
+	for (int n = objnum; n < NumLineDefs-1; n++)
+		LineDefs[n] = LineDefs[n + 1];
+	
+	LineDefs.pop_back();
+
+	return result;
+}
+
+static int * RawDeleteVertex(int objnum)
+{
+	SYS_ASSERT(0 <= objnum && objnum < NumVertices);
+
+	int * result = (int*) Vertices[objnum];
+
+	for (int n = objnum; n < NumVertices-1; n++)
+		Vertices[n] = Vertices[n + 1];
+
+	Vertices.pop_back();
+
+	// fix the linedef references
+
+	if (objnum < NumVertices)
+	{
+		for (int n = NumLineDefs-1; n >= 0; n--)
+		{
+			LineDef *L = LineDefs[n];
+
+			if (L->start > objnum)
+				L->start--;
+
+			if (L->end > objnum)
+				L->end--;
+		}
+	}
+
+	return result;
+}
+
+static int * RawDeleteSideDef(int objnum)
+{
+	SYS_ASSERT(0 <= objnum && objnum < NumSideDefs);
+
+	int * result = (int*) SideDefs[objnum];
+
+	for (int n = objnum; n < NumSideDefs-1; n++)
+		SideDefs[n] = SideDefs[n + 1];
+
+	SideDefs.pop_back();
+
+	// fix the linedefs references
+
+	if (objnum < NumSideDefs)
+	{
+		for (int n = NumLineDefs-1; n >= 0; n--)
+		{
+			LineDef *L = LineDefs[n];
+
+			if (L->right > objnum)
+				L->right--;
+
+			if (L->left > objnum)
+				L->left--;
+		}
+	}
+
+	return result;
+}
+
+static int * RawDeleteSector(int objnum)
+{
+	SYS_ASSERT(0 <= objnum && objnum < NumSectors);
+
+	int * result = (int*) Sectors[objnum];
+
+	for (int n = objnum; n < NumSectors-1; n++)
+		Sectors[n] = Sectors[n + 1];
+
+	Sectors.pop_back();
+
+	// fix sidedef references
+
+	if (objnum < NumSectors)
+	{
+		for (int n = NumSideDefs-1; n >= 0; n--)
+		{
+			SideDef *S = SideDefs[n];
+
+			if (S->sector > objnum)
+				S->sector--;
+		}
+	}
+
+	return result;
+}
+
+static int * RawDeleteRadTrig(int objnum)
+{
+	SYS_ASSERT(0 <= objnum && objnum < NumRadTrigs);
+
+	int * result = (int*) RadTrigs[objnum];
+
+	for (int n = objnum; n < NumRadTrigs-1; n++)
+		RadTrigs[n] = RadTrigs[n + 1];
+
+	RadTrigs.pop_back();
+
+	return result;
+}
+
+static int * RawDelete(obj_type_t objtype, int objnum)
+{
+	switch (objtype)
+	{
+		case OBJ_THINGS:
+			return RawDeleteThing(objnum);
+
+		case OBJ_LINEDEFS:
+			return RawDeleteLineDef(objnum);
+
+		case OBJ_VERTICES:
+			return RawDeleteVertex(objnum);
+
+		case OBJ_SIDEDEFS:
+			return RawDeleteSideDef(objnum);
+		
+		case OBJ_SECTORS:
+			return RawDeleteSector(objnum);
+
+		case OBJ_RADTRIGS:
+			return RawDeleteRadTrig(objnum);
+
+		default:
+			nf_bug ("RawDelete: bad objtype %d", (int) objtype);
+	}
+}
+
+
+void edit_op_c::Apply()
+{
+	if (op == 'v')
+	{
+		int * pos = RawGetBase(objtype, objnum);
+
+		std::swap(pos[field], value);
+		return;
+	}
+
+	if (op == 'd')
+	{
+		ptr = RawDelete(objtype, objnum);
+
+		op = 'i';
+		return;
+	}
+
+	if (op == 'i')
+	{
+		RawInsert(objtype, objnum, ptr);
+
+		op = 'd';
+		return;
+	}
+
+	nf_bug("edit_op_c::Apply");
+}
+
+
+void ApplyGroup(op_group_c& grp)
+{
+	int total = (int)grp.size();
+
+	for (int i = 0; i < total; i++)
+		grp[i].Apply();
+	
+	// reverse group
+	
+	for (int i = 0; i < total/2; i++)
+		std::swap(grp[i], grp[total-1-i]);
+}
+
+
+
+//------------------------------------------------------------------------
+
+
+static void AnalyseInsertVertex(int objnum)
 {
 	SYS_ASSERT(0 <= objnum && objnum <= NumVertices);
 
@@ -153,7 +478,7 @@ static void InsertVertex(int objnum)
 }
 
 
-static void InsertSideDef(int objnum)
+static void AnalyseInsertSideDef(int objnum)
 {
 	SYS_ASSERT(0 <= objnum && objnum <= NumSideDefs);
 
@@ -182,7 +507,7 @@ static void InsertSideDef(int objnum)
 }
 
 
-static void InsertSector(int objnum)
+static void AnalyseInsertSector(int objnum)
 {
 	SYS_ASSERT(0 <= objnum && objnum <= NumSectors);
 
@@ -208,47 +533,7 @@ static void InsertSector(int objnum)
 }
 
 
-static void InsertRadTrig(int objnum)
-{
-	SYS_ASSERT(0 <= objnum && objnum <= NumRadTrigs);
-
-	RadTrigs.push_back(NULL);
-
-	for (int n = NumRadTrigs-1; n > objnum; n--)
-		RadTrigs[n] = RadTrigs[n - 1];
-
-	RadTrigs[objnum] = new RadTrig;
-}
-
-
-
-static void DeleteThing(int objnum)
-{
-	SYS_ASSERT(0 <= objnum && objnum < NumThings);
-
-	delete Things[objnum];
-
-	for (int n = objnum; n < NumThings-1; n++)
-		Things[n] = Things[n + 1];
-
-	Things.pop_back();
-}
-
-
-static void DeleteLineDef(int objnum)
-{
-	SYS_ASSERT(0 <= objnum && objnum < NumLineDefs);
-
-	delete LineDefs[objnum];
-
-	for (int n = objnum; n < NumLineDefs-1; n++)
-		LineDefs[n] = LineDefs[n + 1];
-	
-	LineDefs.pop_back();
-}
-
-
-static void DeleteVertex(int objnum)
+static void AnalyseDeleteVertex(int objnum)
 {
 	SYS_ASSERT(0 <= objnum && objnum < NumVertices);
 
@@ -280,7 +565,7 @@ static void DeleteVertex(int objnum)
 }
 
 
-static void DeleteSideDef(int objnum)
+static void AnalyseDeleteSideDef(int objnum)
 {
 	SYS_ASSERT(0 <= objnum && objnum < NumSideDefs);
 
@@ -310,7 +595,7 @@ static void DeleteSideDef(int objnum)
 }
 
 
-static void DeleteSector(int objnum)
+static void AnalyseDeleteSector(int objnum)
 {
 	SYS_ASSERT(0 <= objnum && objnum < NumSectors);
 
@@ -336,49 +621,15 @@ static void DeleteSector(int objnum)
 }
 
 
-static void DeleteRadTrig(int objnum)
+void BuildDeleteOp(op_group_c& grp, obj_type_t type, int objnum)
 {
-	SYS_ASSERT(0 <= objnum && objnum < NumRadTrigs);
-
-	delete RadTrigs[objnum];
-
-	for (int n = objnum; n < NumRadTrigs-1; n++)
-		RadTrigs[n] = RadTrigs[n + 1];
-
-	RadTrigs.pop_back();
+	...
 }
 
 
 
-void DeleteObject(obj_type_t objtype, int objnum)
-{
-	switch (objtype)
-	{
-		case OBJ_THINGS:
-			DeleteThing(objnum);
-			break;
 
-		case OBJ_LINEDEFS:
-			DeleteLineDef(objnum);
-			break;
-
-		case OBJ_VERTICES:
-			DeleteVertex(objnum);
-			break;
-
-		case OBJ_SIDEDEFS:
-			DeleteSideDef(objnum);
-			break;
-		
-		case OBJ_SECTORS:
-			DeleteSector(objnum);
-			break;
-
-		default:
-			nf_bug ("DeleteObject: bad objtype %d", (int) objtype);
-	}
-}
-
+#if 0
 
 void DeleteObject(const Objid& obj)
 {
@@ -767,6 +1018,7 @@ void CopyObjects(selection_c *list)
 
 
 
+#endif
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

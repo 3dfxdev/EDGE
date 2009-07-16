@@ -185,6 +185,34 @@ extern std::vector<RadTrig *> RadTrigs;
 #define NumLineDefs   ((int)LineDefs.size())
 #define NumRadTrigs   ((int)RadTrigs.size())
 
+
+class edit_op_c
+{
+private:
+	byte op;
+	byte objtype;
+	byte field;
+	byte _pad;
+
+	int objnum;
+
+	int *ptr;
+	int value;
+
+public:
+	 edit_op_c() : op(0), objtype(0), field(0), objnum(0), ptr(NULL), value(0) { }
+	~edit_op_c() { }
+
+	void Apply();
+
+private:
+	int *GetStructBase();
+};
+
+
+typedef std::vector<edit_op_c> op_group_c;
+
+
 #endif  /* __E_BASIS_H__ */
 
 //--- editor settings ---
