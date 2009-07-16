@@ -28,18 +28,16 @@
 
 
 // Object types
-#define OBJ_NONE  0
-#define OBJ_THINGS  1
-#define OBJ_LINEDEFS  2
-#define OBJ_SIDEDEFS  3
-#define OBJ_VERTICES  4
-#define OBJ_SEGS  5         // UNUSED
-#define OBJ_SSECTORS  6         // UNUSED
-#define OBJ_NODES 7         // UNUSED
-#define OBJ_SECTORS 8
-#define OBJ_REJECT  9      // UNUSED
-#define OBJ_BLOCKMAP  10   // UNUSED
-#define OBJ_RSCRIPT  11
+enum
+{
+	OBJ_NONE,
+	OBJ_THINGS,
+	OBJ_LINEDEFS,
+	OBJ_SIDEDEFS,
+	OBJ_VERTICES,
+	OBJ_SECTORS,
+	OBJ_RADTRIGS,
+};
 
 // Special object numbers
 typedef s16_t  obj_no_t;
@@ -54,6 +52,7 @@ typedef char obj_type_t;
 #define is_sidedef(n)  ((n) >= 0 && (n) < NumSideDefs)
 #define is_thing(n)    ((n) >= 0 && (n) < NumThings  )
 #define is_vertex(n)   ((n) >= 0 && (n) < NumVertices)
+#define is_radtrig(n)  ((n) >= 0 && (n) < NumRadTrigs)
 
 class Objid
 {
