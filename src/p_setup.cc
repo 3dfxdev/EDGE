@@ -129,6 +129,8 @@ static bool v5_nodes;
 // There is two values for every line: side0 and side1.
 static int *temp_line_sides;
 
+cvar_c goobers;
+
 
 static void CheckEvilutionBug(byte *data, int length)
 {
@@ -695,6 +697,13 @@ static void LoadSectors(int lump)
 
 		ss->f_h = EPI_LE_S16(ms->floor_h);
 		ss->c_h = EPI_LE_S16(ms->ceil_h);
+
+		// return to wolfenstein?
+		if (goobers.d)
+		{
+			ss->f_h = 0;
+			ss->c_h = (ms->floor_h == ms->ceil_h) ? 0 : 128.0f;
+		}
 
 		ss->floor.translucency = VISIBLE;
 		ss->floor.x_mat.x = 1;  ss->floor.x_mat.y = 0;

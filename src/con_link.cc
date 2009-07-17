@@ -39,6 +39,8 @@ extern cvar_c m_language;
 extern cvar_c m_diskicon, m_busywait, m_screenhud;
 extern cvar_c m_messages, m_obituaries;
 
+extern cvar_c goobers;
+
 extern cvar_c sys_directx, sys_waveout;
 extern cvar_c sys_grabfocus;
 
@@ -132,6 +134,8 @@ cvar_link_t  all_cvars[] =
 	{ "m_messages",     &m_messages,     "c",   "1"  },
 	{ "m_obituaries",   &m_obituaries,   "c",   "1"  },
 	{ "m_screenhud",    &m_screenhud,    "c",   "0"  },
+
+	{ "goobers",        &goobers,        "",    "0" },
                                         
 	/* Rendering Stuff */
 
