@@ -83,6 +83,22 @@ angle_t clip_scope;
 mobj_t *view_cam_mo;
 
 
+static int checkcoord[12][4] =
+{
+	{BOXRIGHT, BOXTOP, BOXLEFT, BOXBOTTOM},
+	{BOXRIGHT, BOXTOP, BOXLEFT, BOXTOP},
+	{BOXRIGHT, BOXBOTTOM, BOXLEFT, BOXTOP},
+	{0},
+	{BOXLEFT, BOXTOP, BOXLEFT, BOXBOTTOM},
+	{0},
+	{BOXRIGHT, BOXBOTTOM, BOXRIGHT, BOXTOP},
+	{0},
+	{BOXLEFT, BOXTOP, BOXRIGHT, BOXBOTTOM},
+	{BOXLEFT, BOXBOTTOM, BOXRIGHT, BOXBOTTOM},
+	{BOXLEFT, BOXBOTTOM, BOXRIGHT, BOXTOP}
+};
+
+
 // colour of the player's weapon
 extern int rgl_weapon_r;
 extern int rgl_weapon_g;
@@ -95,11 +111,6 @@ extern float sprite_skew;
 static bool solid_mode;
 
 static std::list<drawsub_c *> drawsubs;
-
-static std::list<drawseg2_c *> free_lines;
-static std::list<drawseg2_c *> blocked_lines;
-
-static std::list<drawseg2_c *> drawsegs;
 
 
 
@@ -1930,6 +1941,9 @@ static void RGL_DrawSeg(drawfloor_t *dfloor, seg_t *seg)
 }
 
 
+static void RGL_WalkBSPNode(unsigned int bspnum);
+
+
 static void RGL_WalkMirror(drawsub_c *dsub, seg_t *seg,
 						   angle_t left, angle_t right,
 						   bool is_portal)
@@ -1955,7 +1969,7 @@ static void RGL_WalkMirror(drawsub_c *dsub, seg_t *seg,
 	clip_scope = left - right;
 
 	// perform another BSP walk
-///????	RGL_WalkBSPNode(root_node);
+	RGL_WalkBSPNode(root_node);
 
 	clip_left  = save_clip_L;
 	clip_right = save_clip_R;
@@ -1966,14 +1980,11 @@ static void RGL_WalkMirror(drawsub_c *dsub, seg_t *seg,
 }
 
 
-#if (0 == 1)  // OLD CRUD
-//
-// RGL_WalkSeg
 //
 // Visit a single seg of the subsector, and for one-sided lines update
 // the 1D occlusion buffer.
 //
-void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
+static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 {
 	// ignore segs sitting on current mirror
 	if (MIR_SegOnPortal(seg))
@@ -2103,27 +2114,173 @@ void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 		}
 	}
 
-	drawseg_c *dseg = NULL; /// R_GetDrawSeg();
-	dseg->seg = seg;
 
-	dsub->segs.push_back(dseg);
+	dsub->segs.push_back(seg);
 
 
-	//sector_t *frontsector = seg->front_sub->sector;
-	sector_t *backsector  = NULL;
+	if (seg->miniseg)
+		return;
 
-	if (seg->back_sub)
-		backsector = seg->back_sub->sector;
-		
-	// only 1 sided walls affect the 1D occlusion buffer
-
+	// only one-sided walls (or closed doors) affect the 1D occlusion buffer
 	if (seg->linedef->blocked)
 	{
 		RGL_1DOcclusionSet(angle_R, angle_L);
 	}
 
+	sector_t *frontsector = seg->front_sub->sector;
+	sector_t *backsector  = NULL;
+
+	if (seg->back_sub)
+		backsector = seg->back_sub->sector;
+
+	if (backsector == frontsector)
+		return;
+
+	// --- handle sky (using the depth buffer) ---
+
+	bool upper_sky = false;
+	bool lower_sky = false;
+
+	if (backsector && IS_SKY(frontsector->floor) && IS_SKY(backsector->floor))
+		lower_sky = true;
+
+	if (backsector && IS_SKY(frontsector->ceil) && IS_SKY(backsector->ceil))
+		upper_sky = true;
+
+	if (lower_sky && frontsector->f_h < backsector->f_h)
+	{
+		RGL_DrawSkyWall(seg, frontsector->f_h, backsector->f_h);
+	}
+
+	if (IS_SKY(frontsector->ceil))
+	{
+		if (frontsector->c_h < frontsector->sky_h &&
+			(! backsector || ! IS_SKY(backsector->ceil) ||
+			backsector->f_h >= frontsector->c_h))
+		{
+			RGL_DrawSkyWall(seg, frontsector->c_h, frontsector->sky_h);
+		}
+		else if (backsector && IS_SKY(backsector->ceil))
+		{
+			float max_f = MAX(frontsector->f_h, backsector->f_h);
+
+			if (backsector->c_h <= max_f && max_f < frontsector->sky_h)
+			{
+				RGL_DrawSkyWall(seg, max_f, frontsector->sky_h);
+			}
+		}
+	}
+	// -AJA- 2004/08/29: Emulate Sky-Flooding TRICK
+	else if (! debug_hom.d && backsector && IS_SKY(backsector->ceil) &&
+			 seg->sidedef->top.image == NULL &&
+			 backsector->c_h < frontsector->c_h)
+	{
+		RGL_DrawSkyWall(seg, backsector->c_h, frontsector->c_h);
+	}
 }
-#endif
+
+
+//
+// Checks BSP node/subtree bounding box.
+// Returns true if some part of the bbox might be visible.
+//
+// Placed here to be close to RGL_WalkSeg(), which has similiar angle
+// clipping stuff in it.
+//
+bool RGL_CheckBBox(float *bspcoord)
+{
+	if (num_active_mirrors > 0)
+	{
+		// a flipped bbox may no longer be axis aligned, hence we
+		// need to find the bounding area of the transformed box.
+		static float new_bbox[4];
+
+		M_ClearBox(new_bbox);
+
+		for (int p=0; p < 4; p++)
+		{
+			float tx = bspcoord[(p & 1) ? BOXLEFT   : BOXRIGHT];
+			float ty = bspcoord[(p & 2) ? BOXBOTTOM : BOXTOP];
+
+			MIR_Coordinate(tx, ty);
+
+			M_AddToBox(new_bbox, tx, ty);
+		}
+
+		bspcoord = new_bbox;
+	}
+			
+	int boxx, boxy;
+
+	// Find the corners of the box
+	// that define the edges from current viewpoint.
+	if (viewx <= bspcoord[BOXLEFT])
+		boxx = 0;
+	else if (viewx < bspcoord[BOXRIGHT])
+		boxx = 1;
+	else
+		boxx = 2;
+
+	if (viewy >= bspcoord[BOXTOP])
+		boxy = 0;
+	else if (viewy > bspcoord[BOXBOTTOM])
+		boxy = 1;
+	else
+		boxy = 2;
+
+	int boxpos = (boxy << 2) + boxx;
+
+	if (boxpos == 5)
+		return true;
+
+	float x1 = bspcoord[checkcoord[boxpos][0]];
+	float y1 = bspcoord[checkcoord[boxpos][1]];
+	float x2 = bspcoord[checkcoord[boxpos][2]];
+	float y2 = bspcoord[checkcoord[boxpos][3]];
+
+	// check clip list for an open space
+	angle_t angle_L = R_PointToAngle(viewx, viewy, x1, y1);
+	angle_t angle_R = R_PointToAngle(viewx, viewy, x2, y2);
+
+	angle_t span = angle_L - angle_R;
+
+	// Sitting on a line?
+	if (span >= ANG180)
+		return true;
+
+	angle_L -= viewangle;
+	angle_R -= viewangle;
+
+	if (clip_scope != ANG180)
+	{
+		angle_t tspan1 = angle_L - clip_right;
+		angle_t tspan2 = clip_left - angle_R;
+
+		if (tspan1 > clip_scope)
+		{
+			// Totally off the left edge?
+			if (tspan2 >= ANG180)
+				return false;
+
+			angle_L = clip_left;
+		}
+
+		if (tspan2 > clip_scope)
+		{
+			// Totally off the right edge?
+			if (tspan1 >= ANG180)
+				return false;
+
+			angle_R = clip_right;
+		}
+
+		if (angle_L == angle_R)
+			return false;
+	}
+
+	return ! RGL_1DOcclusionTest(angle_R, angle_L);
+}
+
 
 
 static void RGL_DrawPlane(subsector_t *sub, drawfloor_t *dfloor, float h,
@@ -2358,13 +2515,15 @@ static inline void AddNewDrawFloor(drawsub_c *dsub, extrafloor_t *ef,
 
 
 //
-// RGL_WalkSubsector
-//
 // Visit a subsector, and collect information, such as where the
 // walls, planes (ceilings & floors) and things need to be drawn.
 //
-void RGL_WalkSubsector(subsector_t *sub, bool do_segs = true)
+static void RGL_WalkSubsector(int num)
 {
+	subsector_t *sub = &subsectors[num];
+	seg_t *seg;
+	mobj_t *mo;
+
 	sector_t *sector;
 	surface_t *floor_s;
 	float floor_h;
@@ -2463,43 +2622,35 @@ void RGL_WalkSubsector(subsector_t *sub, bool do_segs = true)
 		if (tn->mo && tn->mo->subsector == sub)
 			RGL_WalkThing(K, tn->mo);
 	}
+
+	// clip 1D occlusion buffer.
+	for (seg=sub->segs; seg; seg=seg->sub_next)
+	{
+		RGL_WalkSeg(K, seg);
+	}
+
+	// add drawsub to list (closest -> furthest)
+
+	if (num_active_mirrors > 0)
+		active_mirrors[num_active_mirrors-1].def->drawsubs.push_back(K);
+	else
+		drawsubs.push_back(K);
 }
 
 
 static void RGL_DrawSubsector(drawsub_c *dsub);
 
 
-static void RGL_DrawSeg2(drawseg2_c *dseg)
-{
-	if (dseg->linked_sub)
-		RGL_DrawSubsector(dseg->linked_sub);
-
-	if (! dseg->seg->miniseg)
-	{
-		drawsub_c *dsub = dseg->seg->front_sub->dsub;
-		SYS_ASSERT(dsub);
-
-		drawfloor_t *dfloor;
-
-		for (dfloor = dsub->floors_R; dfloor != NULL; dfloor = dfloor->next_R)
-			RGL_DrawSeg(dfloor, dseg->seg);
-	}
-}
-
-
-void RGL_DrawSegList(std::list<drawseg2_c *> &dsegs, drawsub_c *dsub)
+static void RGL_DrawSubList(std::list<drawsub_c *> &dsubs)
 {
 	// draw all solid walls and planes
 	solid_mode = true;
 	RGL_StartUnits(solid_mode);
 
-	std::list<drawseg2_c *>::iterator FI;  // Forward Iterator
+	std::list<drawsub_c *>::iterator FI;  // Forward Iterator
 
-	if (dsub)
-		RGL_DrawSubsector(dsub);
-
-	for (FI = dsegs.begin(); FI != dsegs.end(); FI++)
-		RGL_DrawSeg2(*FI);
+	for (FI = dsubs.begin(); FI != dsubs.end(); FI++)
+		RGL_DrawSubsector(*FI);
 
 	RGL_FinishUnits();
 
@@ -2507,15 +2658,13 @@ void RGL_DrawSegList(std::list<drawseg2_c *> &dsegs, drawsub_c *dsub)
 	solid_mode = false;
 	RGL_StartUnits(solid_mode);
 
-	std::list<drawseg2_c *>::reverse_iterator RI;
+	std::list<drawsub_c *>::reverse_iterator RI;
 
-	for (RI = dsegs.rbegin(); RI != dsegs.rend(); RI++)
-		RGL_DrawSeg2(*RI);
-
-	if (dsub)
-		RGL_DrawSubsector(dsub);
+	for (RI = dsubs.rbegin(); RI != dsubs.rend(); RI++)
+		RGL_DrawSubsector(*RI);
 
 	RGL_FinishUnits();
+
 }
 
 
@@ -2652,7 +2801,7 @@ static void RGL_DrawMirror(drawmirror_c *mir)
 
 	MIR_Push(mir);
 	{
-///???	RGL_DrawSubList(mir->drawsubs);
+		RGL_DrawSubList(mir->drawsubs);
 	}
 	MIR_Pop();
 
@@ -2689,10 +2838,11 @@ static void RGL_DrawSubsector(drawsub_c *dsub)
 	// handle each floor, drawing planes and things
 	for (dfloor = dsub->floors_R; dfloor != NULL; dfloor = dfloor->next_R)
 	{
-		std::list<drawseg2_c *>::iterator SEGI;
+		std::list<seg_t *>::iterator SEGI;
 
-		for (SEGI = dsub->segs2.begin(); SEGI != dsub->segs2.end(); SEGI++)
+		for (SEGI = dsub->segs.begin(); SEGI != dsub->segs.end(); SEGI++)
 		{
+			RGL_DrawSeg(dfloor, *SEGI);
 		}
 
 		RGL_DrawPlane(sub, dfloor, dfloor->c_h, dfloor->ceil,  -1);
@@ -2728,405 +2878,118 @@ static void DoWeaponModel(void)
 }
 
 
-//======================================================================
-
-
-static void LineSet_Init(void)
+//
+// Walks all subsectors below a given node, traversing subtree
+// recursively, collecting information.  Just call with BSP root.
+//
+static void RGL_WalkBSPNode(unsigned int bspnum)
 {
-	free_lines.clear();
-	blocked_lines.clear();
-}
+	node_t *node;
+	int side;
 
-static void LineSet_Done(void)
-{
-	// nothing needed
-}
-
-static void LineSet_InsertFree(drawseg2_c *dseg)
-{
-	SYS_ASSERT(dseg);
-
-	std::list<drawseg2_c *>::iterator LI;
-
-	for (LI = free_lines.begin(); LI != free_lines.end(); LI++)
+	// Found a subsector?
+	if (bspnum & NF_V5_SUBSECTOR)
 	{
-		drawseg2_c *other = *LI;
-
-		if (dseg->dist < other->dist)
-			break;
-	}
-
-	free_lines.insert(LI, dseg);
-}
-
-static inline float ApproxPerpDist( float x, float y,
-						float x1, float y1, float x2, float y2)
-{
-	x  -= x1; y  -= y1;
-	x2 -= x1; y2 -= y1;
-
-	float adx = fabs(x2);
-	float ady = fabs(y2);
-
-  	float len = adx + ady - 0.5 * MIN(adx, ady);
-	// float len = sqrt(x2*x2 + y2 * y2);
-
-	return (x * y2 - y * x2) / len;
-}
-
-static inline int LineSet_Overlap(drawseg2_c *A, drawseg2_c *B)
-{
-	// RETURN:  0 if no overlap
-	//         -1 if A is closer than (blocks) B
-	//         +1 if A is further than (is blocked by) B
-
-	SYS_ASSERT(A->seg != B->seg);
-
-	// subsectors are convex, hence no two segs from the
-	// same subsector can overlap
-	if (A->seg->front_sub == B->seg->front_sub)
-		return 0;
-	
-	// test angle range
-	angle_t L = B->left  - A->right;
-	angle_t R = B->right - A->right;
-
-	if (L == ANG0 || L >= A->span || R == ANG0 || R >= A->span)
-		return 0;
-
-	// test line-line-camera relationship
-	
-	const vertex_t *av1 = A->seg->v1;
-	const vertex_t *av2 = A->seg->v2;
-
-	const vertex_t *bv1 = B->seg->v1;
-	const vertex_t *bv2 = B->seg->v2;
-
-	float a1 = ApproxPerpDist(av1->x, av1->y,  bv1->x, bv1->y, bv2->x, bv2->y);
-	float a2 = ApproxPerpDist(av2->x, av2->y,  bv1->x, bv1->y, bv2->x, bv2->y);
-
-	float b1 = ApproxPerpDist(bv1->x, bv1->y,  av1->x, av1->y, av2->x, av2->y);
-	float b2 = ApproxPerpDist(bv2->x, bv2->y,  av1->x, av1->y, av2->x, av2->y);
-
-if (false)
-I_Debugf("a: %+8.3f %+8.3f  b: %+8.3f %+8.3f\n", a1, a2, b1, b2);
-
-	int a_side = 0;
-	int b_side = 0;
-
-	if (a1 >  0.01 && a2 >  0.01) a_side = +1;
-	if (a1 < -0.01 && a2 < -0.01) a_side = -1;
-
-	if (b1 >  0.01 && b2 >  0.01) b_side = +1;
-	if (b1 < -0.01 && b2 < -0.01) b_side = -1;
-
-///???	if (a_side == 0 || b_side == 0)
-///???		return 0;
-	
-	if (b_side != 0)
-	{
-		// B is completely on one side of A,
-		// check if camera is on same side or not
-
-		return b_side;
-	}
-
-	if (a_side != 0)
-	{
-		// A is completely on one side of B,
-		// check if camera is on same side or not
-
-		return -a_side;
-	}
-
-	// we should not get here, but no biggie
-	return 0;
-}
-
-static void LineSet_TestBlocking(drawseg2_c *A)
-{
-	SYS_ASSERT(A);
-	SYS_ASSERT(A->seg);
-
-	std::list<drawseg2_c *>::iterator LI;
-
-	for (LI = blocked_lines.begin(); LI != blocked_lines.end(); )
-	{
-		drawseg2_c *B = *LI; LI++;
-		SYS_ASSERT(B);
-		SYS_ASSERT(B->seg);
-
-		int cmp = LineSet_Overlap(A, B);
-
-		if (cmp < 0)
-		{
-			A->occludes.push_back(B);
-			B->blockers++;
-		}
-		else if (cmp > 0)
-		{
-			B->occludes.push_back(A);
-			A->blockers++;
-		}
-	}
-
-	for (LI = free_lines.begin(); LI != free_lines.end(); )
-	{
-		drawseg2_c *B = *LI; LI++;
-		SYS_ASSERT(B);
-		SYS_ASSERT(B->seg);
-
-		int cmp = LineSet_Overlap(A, B);
-
-		if (cmp < 0)
-		{
-			A->occludes.push_back(B);
-			B->blockers++;
-
-			// the new seg occludes an existing 'free' line,
-			// hence that must be moved to the blocked list.
-			free_lines.remove(B);
-			blocked_lines.push_back(B);
-		}
-		else if (cmp > 0)
-		{
-			// the new seg is occluded
-			B->occludes.push_back(A);
-			A->blockers++;
-		}
-	}
-
-}
-
-static void LineSet_AddSeg(seg_t *seg)
-{
-//I_Debugf("  trying seg %d, linedef %d:%d\n", seg - segs,
-//seg->linedef ? seg->linedef - lines : -1, seg->side);
-	float sx1 = seg->v1->x;
-	float sy1 = seg->v1->y;
-
-	float sx2 = seg->v2->x;
-	float sy2 = seg->v2->y;
-
-	// FIXME : mirror stuff
-
-	angle_t angle_L = R_PointToAngle(viewx, viewy, sx1, sy1);
-	angle_t angle_R = R_PointToAngle(viewx, viewy, sx2, sy2);
-
-	// Clip to view edges.
-
-	angle_t span = angle_L - angle_R;
-
-	// back side ?
-	if (span >= ANG180)
+		RGL_WalkSubsector(bspnum & (~NF_V5_SUBSECTOR));
 		return;
-
-	angle_L -= viewangle;
-	angle_R -= viewangle;
-
-	if (clip_scope != ANG180)
-	{
-		angle_t tspan1 = angle_L - clip_right;
-		angle_t tspan2 = clip_left - angle_R;
-
-		if (tspan1 > clip_scope)
-		{
-			// Totally off the left edge?
-			if (tspan2 >= ANG180)
-				return;
-
-			angle_L = clip_left;
-		}
-
-		if (tspan2 > clip_scope)
-		{
-			// Totally off the left edge?
-			if (tspan1 >= ANG180)
-				return;
-
-			angle_R = clip_right;
-		}
-
-		span = angle_L - angle_R;
 	}
+
+	node = &nodes[bspnum];
+
+	// Decide which side the view point is on.
+
+	divline_t nd_div;
+
+	nd_div.x  = node->div.x;
+	nd_div.y  = node->div.y;
+	nd_div.dx = node->div.x + node->div.dx;
+	nd_div.dy = node->div.y + node->div.dy;
+
+	MIR_Coordinate(nd_div.x,  nd_div.y);
+	MIR_Coordinate(nd_div.dx, nd_div.dy);
+
+	if (MIR_Reflective())
+	{
+		float tx = nd_div.x; nd_div.x = nd_div.dx; nd_div.dx = tx;
+		float ty = nd_div.y; nd_div.y = nd_div.dy; nd_div.dy = ty;
+	}
+
+	nd_div.dx -= nd_div.x;
+	nd_div.dy -= nd_div.y;
 	
-	if (span == 0)
-		return;
-//I_Debugf("    survived clipping\n");
+	side = P_PointOnDivlineSide(viewx, viewy, &nd_div);
 
-	// visibility test
-	if (RGL_1DOcclusionTest(angle_R, angle_L))
-		return;
-//I_Debugf("    survived 1D occlusion\n");
+	// Recursively divide front space.
+	if (RGL_CheckBBox(node->bbox[side]))
+		RGL_WalkBSPNode(node->children[side]);
 
-	drawseg2_c *dseg = R_GetDrawSeg();
+	// Recursively divide back space.
+	if (RGL_CheckBBox(node->bbox[side ^ 1]))
+		RGL_WalkBSPNode(node->children[side ^ 1]);
+}
 
-	dseg->Clear(seg);
+
+//
+// OpenGL BSP rendering.  Initialises all structures, then walks the
+// BSP tree collecting information, then renders each subsector:
+// firstly front to back (drawing all solid walls & planes) and then
+// from back to front (drawing everything else, sprites etc..).
+//
+static void RGL_RenderTrueBSP(void)
+{
+	// clear extra light on player's weapon
+	rgl_weapon_r = rgl_weapon_g = rgl_weapon_b = 0;
+
+	FUZZ_Update();
+
+	R2_ClearBSP();
+	RGL_1DOcclusionClear();
+
+	drawsubs.clear();
+
+	player_t *v_player = view_cam_mo->player;
 	
-	dseg->left  = angle_L;
-	dseg->right = angle_R;
-	dseg->span  = span;
+	// handle powerup effects
+	RGL_RainbowEffect(v_player);
 
-	dseg->dist = R_PointToDist(viewx, viewy, (sx1+sx2)*0.5, (sy1+sy2)*0.5);
 
-	LineSet_TestBlocking(dseg);
+	RGL_SetupMatrices3D();
 
-//I_Debugf("    ---> %s\n", dseg->blockers ? "blocked_lines" : "free_list");
-	if (dseg->blockers == 0)
-		LineSet_InsertFree(dseg);
-	else
-		blocked_lines.push_back(dseg);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	glEnable(GL_DEPTH_TEST);
 
-	// add drawseg into drawsubsector
-	if (! dseg->seg->miniseg)
+	RGL_BeginSky();
+
+	RGL_WalkBSPNode(root_node);
+
+	RGL_FinishSky();
+
+	RGL_DrawSubList(drawsubs);
+
+	DoWeaponModel();
+
+	glDisable(GL_DEPTH_TEST);
+
+	// now draw 2D stuff like psprites, and add effects
+	RGL_SetupMatrices2D();
+
+	if (v_player)
 	{
-		SYS_ASSERT(seg->front_sub->rend_seen == framecount);
-		seg->front_sub->dsub->segs2.push_back(dseg);
-	}
-}
+		RGL_DrawWeaponSprites(v_player);
 
-static drawseg2_c * LineSet_RemoveFirst(void)
-{
-	if (free_lines.empty())
-	{
-		if ((leveltime & 7) == 0 && ! blocked_lines.empty())
-			I_Printf("cyclic lines: %d\n", blocked_lines.size());
-		return NULL;
-	}
+		RGL_ColourmapEffect(v_player);
+		RGL_PaletteEffect(v_player);
 
-	drawseg2_c *dseg = free_lines.front();
-
-//I_Debugf("  handling seg %d, linedef %d:%d\n", dseg->seg - segs,
-//dseg->seg->linedef ? dseg->seg->linedef - lines : -1, dseg->seg->side);
-
-	free_lines.pop_front();
-
-	// removing this seg causes other lines to become unblocked
-	std::list<drawseg2_c *>::iterator LI;
-	for (LI = dseg->occludes.begin(); LI != dseg->occludes.end(); LI++)
-	{
-		drawseg2_c *other = *LI;
-		SYS_ASSERT(other);
-		SYS_ASSERT(other->blockers >= 1);
-
-		other->blockers--;
-
-		if (other->blockers == 0)
-		{
-//I_Debugf("    unblocked seg %d\n", other->seg - segs);
-			blocked_lines.remove(other);
-			LineSet_InsertFree(other);
-		}
+		RGL_DrawCrosshair(v_player);
 	}
 
-	return dseg;
-}
-
-static void RGL_WalkSubsector2(subsector_t *sub)
-{
-//I_Debugf("  WALKING SUBSECTOR %d\n", sub - subsectors);
-	RGL_WalkSubsector(sub, false);
-
-	sub->rend_seen = framecount;
-
-	for (seg_t *seg = sub->segs; seg; seg = seg->sub_next)
-		LineSet_AddSeg(seg);
-}
-
-static void RGL_WalkSeg2(drawseg2_c *dseg)
-{
-	seg_t *seg = dseg->seg;
-
-	drawsegs.push_back(dseg);
-
-	subsector_t *back = seg->back_sub;
-
-	// only one-sided walls affect the 1D occlusion buffer
-	if (seg->linedef && seg->linedef->blocked)
-	{
-		RGL_1DOcclusionSet(dseg->right, dseg->left);
-	}
-	else if (back && back->rend_seen != framecount)
-	{
-		RGL_WalkSubsector2(back);
-
-		dseg->linked_sub = back->dsub;
-	}
-
-	// --- handle sky (using the depth buffer) ---
-
-	bool upper_sky = false;
-	bool lower_sky = false;
-
-	sector_t *frontsector = seg->front_sub->sector;
-	sector_t *backsector  = NULL;
-
-	if (back)
-		backsector = back->sector;
-
-	if (backsector == frontsector || seg->miniseg)
-		return;
-
-	if (backsector && IS_SKY(frontsector->floor) && IS_SKY(backsector->floor))
-		lower_sky = true;
-
-	if (backsector && IS_SKY(frontsector->ceil) && IS_SKY(backsector->ceil))
-		upper_sky = true;
-
-	if (lower_sky && frontsector->f_h < backsector->f_h)
-	{
-		RGL_DrawSkyWall(seg, frontsector->f_h, backsector->f_h);
-	}
-
-	if (IS_SKY(frontsector->ceil))
-	{
-		if (frontsector->c_h < frontsector->sky_h &&
-			(! backsector || ! IS_SKY(backsector->ceil) ||
-			backsector->f_h >= frontsector->c_h))
-		{
-			RGL_DrawSkyWall(seg, frontsector->c_h, frontsector->sky_h);
-		}
-		else if (backsector && IS_SKY(backsector->ceil))
-		{
-			float max_f = MAX(frontsector->f_h, backsector->f_h);
-
-			if (backsector->c_h <= max_f && max_f < frontsector->sky_h)
-			{
-				RGL_DrawSkyWall(seg, max_f, frontsector->sky_h);
-			}
-		}
-	}
-	// -AJA- 2004/08/29: Emulate Sky-Flooding TRICK
-	else if (! debug_hom.d && backsector && IS_SKY(backsector->ceil) &&
-			 seg->sidedef->top.image == NULL &&
-			 backsector->c_h < frontsector->c_h)
-	{
-		RGL_DrawSkyWall(seg, backsector->c_h, frontsector->c_h);
-	}
-}
-
-static void RGL_WalkLevel(void)
-{
-//I_Debugf("RGL_WalkLevel @ (%1.2f %1.2f)\n", viewx, viewy);
-	LineSet_Init();
-
-	RGL_WalkSubsector2(viewsubsector);
-
-	for (;;)
-	{
-		drawseg2_c *dseg = LineSet_RemoveFirst();
-
-		if (! dseg)  // all done?
-			break;
-
-		RGL_WalkSeg2(dseg);
-	}
-
-	LineSet_Done();
+#if (DEBUG >= 3) 
+	L_WriteDebug( "\n\n");
+#endif
 }
 
 
-void InitCamera(mobj_t *mo)
+static void InitCamera(mobj_t *mo)
 {
 	float fov = r_fov.f;
 	
@@ -3250,61 +3113,6 @@ void InitCamera(mobj_t *mo)
 }
 
 
-static void RGL_RenderNEW(void)
-{
-	// clear extra light on player's weapon
-	rgl_weapon_r = rgl_weapon_g = rgl_weapon_b = 0;
-
-	FUZZ_Update();
-
-	R2_ClearBSP();
-	RGL_1DOcclusionClear();
-
-	drawsubs.clear();
-	drawsegs.clear();
-
-	player_t *v_player = view_cam_mo->player;
-	
-	// handle powerup effects
-	RGL_RainbowEffect(v_player);
-
-
-	RGL_SetupMatrices3D();
-
-	glClear(GL_DEPTH_BUFFER_BIT);
-	glEnable(GL_DEPTH_TEST);
-
-	RGL_BeginSky();
-
-	RGL_WalkLevel();
-
-	RGL_FinishSky();
-
-	RGL_DrawSegList(drawsegs, viewsubsector->dsub);
-
-	DoWeaponModel();
-
-	glDisable(GL_DEPTH_TEST);
-
-	// now draw 2D stuff like psprites, and add effects
-	RGL_SetupMatrices2D();
-
-	if (v_player)
-	{
-		RGL_DrawWeaponSprites(v_player);
-
-		RGL_ColourmapEffect(v_player);
-		RGL_PaletteEffect(v_player);
-
-		RGL_DrawCrosshair(v_player);
-	}
-
-#if (DEBUG >= 3) 
-	L_WriteDebug( "\n\n");
-#endif
-}
-
-
 void R_Render(int x, int y, int w, int h, mobj_t *camera)
 {
 	viewwindow_x = x;
@@ -3325,7 +3133,7 @@ void R_Render(int x, int y, int w, int h, mobj_t *camera)
 	framecount++;
 	validcount++;
 
-	RGL_RenderNEW();
+	RGL_RenderTrueBSP();
 }
 
 

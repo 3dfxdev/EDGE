@@ -61,6 +61,8 @@ extern side_t *sides;
 extern int numvertgaps;
 extern vgap_t *vertgaps;
 
+extern unsigned int root_node;
+
 //
 // POV data.
 //

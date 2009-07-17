@@ -106,6 +106,8 @@ side_t *sides;
 int numvertgaps;
 vgap_t *vertgaps;
 
+unsigned int root_node;
+
 vertex_seclist_t *v_seclists;
 
 static line_t **linebuffer = NULL;
