@@ -238,43 +238,6 @@ public:
 };
 
 
-class drawseg2_c
-{
-public:
-	seg_t *seg;
-
-	angle_t left, right, span;
-
-	float dist;
-
-	// when not NULL, this drawsub should be drawn with the seg
-	drawsub_c * linked_sub;
-
-	// segs which we block
-	std::list<drawseg2_c *> occludes;
-
-	// count of segs which block us
-	int blockers;
-
-public:
-	drawseg2_c() : seg(NULL), linked_sub(NULL), occludes(), blockers(0)
-	{ }
-
-	~drawseg2_c()
-	{ }
-
-	void Clear(seg_t *ss)
-	{
-		seg = ss;
-
-		linked_sub = NULL;
-		blockers = 0;
-
-		occludes.clear();
-	}
-};
-
-
 class drawsub_c
 {
 public:
@@ -286,7 +249,7 @@ public:
 	// link list of floors, render order (furthest to closest)
 	drawfloor_t *floors_R;
 
-	std::list<drawseg2_c *> segs2;
+	std::list<seg_t *> segs;
 
 	std::list<drawmirror_c *> mirrors;
 
@@ -294,7 +257,7 @@ public:
 	bool sorted;
 
 public:
-	drawsub_c() : sub(NULL), floors(), segs2(), mirrors()
+	drawsub_c() : sub(NULL), floors(), segs(), mirrors()
 	{ }
 
 	~drawsub_c()
@@ -308,7 +271,7 @@ public:
 		floors_R = NULL;
 
 		floors.clear();
-		segs2.clear();
+		segs.clear();
 		mirrors.clear();
 	}
 };
@@ -332,7 +295,7 @@ void R2_ClearBSP(void);
 
 drawthing_t  *R_GetDrawThing();
 drawfloor_t  *R_GetDrawFloor();
-drawseg2_c   *R_GetDrawSeg();
+drawseg_c    *R_GetDrawSeg();
 drawsub_c    *R_GetDrawSub();
 drawmirror_c *R_GetDrawMirror();
 

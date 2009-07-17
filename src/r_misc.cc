@@ -281,13 +281,11 @@ region_properties_t *R_PointGetProps(subsector_t *sub, float z)
 
 static std::vector<drawthing_t  *> drawthings;
 static std::vector<drawfloor_t  *> drawfloors;
-static std::vector<drawseg2_c   *> drawsegs;
 static std::vector<drawsub_c    *> drawsubs;
 static std::vector<drawmirror_c *> drawmirrors;
 
 static int drawthing_pos;
 static int drawfloor_pos;
-static int drawseg_pos;
 static int drawsub_pos;
 static int drawmirror_pos;
 
@@ -305,7 +303,6 @@ void R2_ClearBSP(void)
 {
 	drawthing_pos  = 0;
 	drawfloor_pos  = 0;
-	drawseg_pos    = 0;
 	drawsub_pos    = 0;
 	drawmirror_pos = 0;
 }
@@ -316,13 +313,11 @@ void R2_FreeupBSP(void)
 
 	for (i=0; i < (int)drawthings .size(); i++) delete drawthings [i];
 	for (i=0; i < (int)drawfloors .size(); i++) delete drawfloors [i];
-	for (i=0; i < (int)drawsegs   .size(); i++) delete drawsegs   [i];
 	for (i=0; i < (int)drawsubs   .size(); i++) delete drawsubs   [i];
 	for (i=0; i < (int)drawmirrors.size(); i++) delete drawmirrors[i];
 
 	drawthings .erase(drawthings .begin(), drawthings .end());
 	drawfloors .erase(drawfloors .begin(), drawfloors .end());
-	drawsegs   .erase(drawsegs   .begin(), drawsegs   .end());
 	drawsubs   .erase(drawsubs   .begin(), drawsubs   .end());
 	drawmirrors.erase(drawmirrors.begin(), drawmirrors.end());
 
@@ -348,16 +343,6 @@ drawfloor_t *R_GetDrawFloor()
 	}
 
 	return drawfloors[drawfloor_pos++];
-}
-
-drawseg2_c *R_GetDrawSeg()
-{
-	if (drawseg_pos >= (int)drawsegs.size())
-	{
-		drawsegs.push_back(new drawseg2_c);
-	}
-
-	return drawsegs[drawseg_pos++];
 }
 
 drawsub_c *R_GetDrawSub()
