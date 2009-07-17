@@ -44,6 +44,17 @@ std::vector<RadTrig *> RadTrigs;
 string_table_c basis_strtab;
 
 
+int BA_InternaliseString(const char *str)
+{
+	return basis_strtab.add(str);
+}
+
+const char *BA_GetString(int offset)
+{
+	return basis_strtab.get(offset);
+}
+
+
 const char * Sector::FloorTex() const
 {
 	return basis_strtab.get(floor_tex);
@@ -97,6 +108,7 @@ SideDef * LineDef::Left() const
 
 
 //------------------------------------------------------------------------
+
 
 static void RawInsertThing(int objnum, int *ptr)
 {
@@ -401,163 +413,10 @@ static int * RawDelete(obj_type_t objtype, int objnum)
 }
 
 
-void edit_op_c::Apply()
-{
-	int * pos;
-
-	switch (action)
-	{
-		case OP_CHANGE:
-			pos = RawGetBase(objtype, objnum);
-			std::swap(pos[field], value);
-			return;
-
-		case OP_DELETE:
-			ptr = RawDelete(objtype, objnum);
-			action = OP_INSERT;  // reverse the operation
-			return;
-
-		case OP_INSERT:
-			RawInsert(objtype, objnum, ptr);
-			ptr = NULL;
-			action = OP_DELETE;  // reverse the operation
-			return;
-
-		default:
-			nf_bug("edit_op_c::Apply");
-	}
-}
-
-
-void ApplyGroup(op_group_c& grp)
-{
-	int total = (int)grp.size();
-
-	for (int i = 0; i < total; i++)
-		grp[i].Apply();
-
-	// reverse order of all operations
-	
-	for (int i = 0; i < total/2; i++)
-		std::swap(grp[i], grp[total-1-i]);
-}
-
-
+//------------------------------------------------------------------------
+//  BASIS API IMPLEMENTATION
 //------------------------------------------------------------------------
 
-
-void AnalyseChange(op_group_c& grp, obj_type_t type, int objnum,
-                   byte field, int new_val)
-{
-	edit_op_c op;
-
-	op.action  = OP_CHANGE;
-	op.objtype = type;
-	op.field   = field;
-	op.objnum  = objnum;
-	op.value   = new_val;
-
-	grp.push_back(op);
-
-	op->Apply();
-}
-
-
-void AnalyseDelete(op_group_c& grp, obj_type_t type, int objnum);
-
-
-static void AnalyseDeleteVertex(op_group_c& grp, int objnum)
-{
-	// delete any linedefs bound to this vertex
-
-	for (int n = NumLineDefs-1; n >= 0; n--)
-	{
-		LineDef *L = LineDefs[n];
-
-		if (L->start == objnum || L->end == objnum)
-			AnalyseDelete(grp, OBJ_LINEDEFS, n);
-	}
-}
-
-static void AnalyseDeleteSideDef(op_group_c& grp, int objnum)
-{
-	// unbind from linedefs
-
-	for (int n = NumLineDefs-1; n >= 0; n--)
-	{
-		LineDef *L = LineDefs[n];
-
-		if (L->right == objnum)
-			AnalyseChange(grp, OBJ_LINEDEFS, n, LineDef::F_RIGHT, -1);
-
-		if (L->left == objnum)
-			AnalyseChange(grp, OBJ_LINEDEFS, n, LineDef::F_LEFT, -1);
-	}
-}
-
-static void AnalyseDeleteSector(op_group_c& grp, int objnum)
-{
-	// delete the sidedefs bound to this sector
-
-	for (int n = NumSideDefs-1; n >= 0; n--)
-	{
-		SideDef *S = SideDefs[n];
-
-		if (S->sector == objnum)
-			AnalyseDelete(grp, OBJ_SIDEDEFS, n);
-	}
-}
-
-
-void AnalyseDelete(op_group_c& grp, obj_type_t type, int objnum)
-{
-	edit_op_c op;
-
-	op.action  = OP_DELETE;
-	op.objtype = type;
-	op.objnum  = objnum;
-
-	// must analyse sidedefs before the deletion
-	if (type == OBJ_SIDEDEFS)
-		AnalyseDeleteSideDef(grp, objnum);
-
-	grp.push_back(op);
-
-	op->Apply();
-
-	// these must be done after the deletion
-	if (type == OBJ_VERTICES)
-		AnalyseDeleteVertex(grp, objnum);
-
-	if (type == OBJ_SECTORS)
-		AnalyseDeleteSector(grp, objnum);
-}
-
-
-void AnalyseCreate(op_group_c& grp, obj_type_t type)
-{
-	edit_op_c op;
-
-	op.action  = OP_INSERT;
-	op.objtype = type;
-
-	switch (type)
-	{
-		case OBJ_THINGS:   op.objnum = NumThings;   break;
-		case OBJ_VERTICES: op.objnum = NumVertices; break;
-		case OBJ_SIDEDEFS: op.objnum = NumSideDefs; break;
-		case OBJ_LINEDEFS: op.objnum = NumLineDefs; break;
-		case OBJ_SECTORS:  op.objnum = NumSectors;  break;
-		case OBJ_RADTRIGS: op.objnum = NumRadTrigs; break;
-	}
-
-	grp.push_back(op);
-
-	op->Apply();
-}
-
-
-//------------------------------------------------------------------------
 
 enum
 {
@@ -584,101 +443,258 @@ public:
 	 edit_op_c() : action(0), objtype(0), field(0), objnum(0), ptr(NULL), value(0) { }
 	~edit_op_c() { }
 
-	void Apply();
+	void Apply()
+	{
+		int * pos;
+
+		switch (action)
+		{
+			case OP_CHANGE:
+				pos = RawGetBase((obj_type_t)objtype, objnum);
+				std::swap(pos[field], value);
+				return;
+
+			case OP_DELETE:
+				ptr = RawDelete((obj_type_t)objtype, objnum);
+				action = OP_INSERT;  // reverse the operation
+				return;
+
+			case OP_INSERT:
+				RawInsert((obj_type_t)objtype, objnum, ptr);
+				ptr = NULL;
+				action = OP_DELETE;  // reverse the operation
+				return;
+
+			default:
+				nf_bug("edit_op_c::Apply");
+		}
+	}
 
 private:
 	int *GetStructBase();
 };
 
 
-typedef std::vector<edit_op_c> op_group_c;
+class undo_group_c
+{
+private:
+	std::vector<edit_op_c> ops;
+
+	int dir;
+
+public:
+	void Add_Apply(edit_op_c& op)
+	{
+		ops.push_back(op);
+		ops.back().Apply();
+	}
+
+	void GroupApply()   // FIXME: iterate backwards 
+	{
+		int total = (int)ops.size();
+
+		for (int i = 0; i < total; i++)
+			ops[i].Apply();
+
+		// reverse order of all operations
+		
+		for (int i = 0; i < total/2; i++)
+			std::swap(ops[i], ops[total-1-i]);
+	}
+};
 
 
-void BA_Begin();
+static undo_group_c *cur_group;
+
+
+void BA_Begin()
+{
+	// FIXME
+}
+
+void BA_End()
+{
+	// FIXME
+}
+
+
+int BA_New(obj_type_t type)
+{
+	edit_op_c op;
+
+	op.action  = OP_INSERT;
+	op.objtype = type;
+
+	switch (type)
+	{
+		case OBJ_THINGS:
+			op.objnum = NumThings;
+			op.ptr = (int*) new Thing;
+			break;
+
+		case OBJ_VERTICES:
+			op.objnum = NumVertices;
+			op.ptr = (int*) new Vertex;
+			break;
+
+		case OBJ_SIDEDEFS:
+			op.objnum = NumSideDefs;
+			op.ptr = (int*) new SideDef;
+			break;
+
+		case OBJ_LINEDEFS:
+			op.objnum = NumLineDefs;
+			op.ptr = (int*) new LineDef;
+			break;
+
+		case OBJ_SECTORS:
+			op.objnum = NumSectors;
+			op.ptr = (int*) new Sector;
+			break;
+
+		case OBJ_RADTRIGS:
+			op.objnum = NumRadTrigs;
+			op.ptr = (int*) new RadTrig;
+			break;
+
+		default: nf_bug("BA_New");
+	}
+
+	SYS_ASSERT(cur_group);
+
+	cur_group->Add_Apply(op);
+}
+
+
+void BA_Delete(obj_type_t type, int objnum)
+{
+	edit_op_c op;
+
+	op.action  = OP_DELETE;
+	op.objtype = type;
+	op.objnum  = objnum;
+
+	// this must happen  _before_ doing the deletion (otherwise
+	// when we undo, the insertion will mess up the references).
+	if (type == OBJ_SIDEDEFS)
+	{
+		// unbind sidedef from any linedefs using it
+		for (int n = NumLineDefs-1; n >= 0; n--)
+		{
+			LineDef *L = LineDefs[n];
+
+			if (L->right == objnum)
+				BA_ChangeLD(n, LineDef::F_RIGHT, -1);
+
+			if (L->left == objnum)
+				BA_ChangeLD(n, LineDef::F_LEFT, -1);
+		}
+	}
+
+	SYS_ASSERT(cur_group);
+
+	cur_group->Add_Apply(op);
+
+	/* these must be done after the deletion */
+
+	if (type == OBJ_VERTICES)
+	{
+		// delete any linedefs bound to this vertex
+		for (int n = NumLineDefs-1; n >= 0; n--)
+		{
+			LineDef *L = LineDefs[n];
+
+			if (L->start == objnum || L->end == objnum)
+				BA_Delete(OBJ_LINEDEFS, n);
+		}
+	}
+	else if (type == OBJ_SECTORS)
+	{
+		// delete the sidedefs bound to this sector
+		for (int n = NumSideDefs-1; n >= 0; n--)
+		{
+			if (SideDefs[n]->sector == objnum)
+				BA_Delete(OBJ_SIDEDEFS, n);
+		}
+	}
+}
+
+
+bool BA_Change(obj_type_t type, int objnum, byte field, int value)
+{
+	edit_op_c op;
+
+	op.action  = OP_CHANGE;
+	op.objtype = type;
+	op.field   = field;
+	op.objnum  = objnum;
+	op.value   = value;
+
+	SYS_ASSERT(cur_group);
+
+	cur_group->Add_Apply(op);
+}
+
+
+bool BA_Undo()
 {
 	// TODO
 }
 
-void BA_End();
+bool BA_Redo()
 {
 	// TODO
 }
-
-int BA_New(obj_type_t type);
-{
-	// TODO
-}
-
-void BA_Delete(obj_type_t type, int objnum);
-{
-	// TODO
-}
-
-bool BA_Change(obj_type_t type, int objnum, byte field, int value);
-{
-	// TODO
-}
-
-bool BA_Undo();
-{
-	// TODO
-}
-
-bool BA_Redo();
-{
-	// TODO
-}
-
-
-int BA_InternaliseString(const char *str);
-{
-	return basis_strtab.add(str);
-}
-
-const char *BA_GetString(int offset);
-{
-	return basis_strtab.get(offset);
-}
-
 
 
 /* HELPERS */
 
-bool BA_ChangeTH(int thing, byte field, int value);
+bool BA_ChangeTH(int thing, byte field, int value)
 {
 	SYS_ASSERT(is_thing(thing));
+	SYS_ASSERT(field <= Thing::F_OPTIONS);
 
 	return BA_Change(OBJ_THINGS, thing, field, value);
 }
 
-bool BA_ChangeLD(int line,  byte field, int value);
-{
-	SYS_ASSERT(is_linedef(line));
-	// TODO
-}
-
-bool BA_ChangeSD(int side,  byte field, int value);
-{
-	SYS_ASSERT(is_sidedef(side));
-	// TODO
-}
-
-bool BA_ChangeSEC(int sec,  byte field, int value);
-{
-	SYS_ASSERT(is_sector(sec));
-	// TODO
-}
-
-bool BA_ChangeVT(int vert,  byte field, int value);
+bool BA_ChangeVT(int vert, byte field, int value)
 {
 	SYS_ASSERT(is_vertex(vert));
-	// TODO
+	SYS_ASSERT(field <= Vertex::F_Y);
+
+	return BA_Change(OBJ_VERTICES, vert, field, value);
 }
 
-bool BA_ChangeRAD(int rad,   byte field, int value);
+bool BA_ChangeSEC(int sec, byte field, int value)
+{
+	SYS_ASSERT(is_sector(sec));
+	SYS_ASSERT(field <= Sector::F_TAG);
+
+	return BA_Change(OBJ_SECTORS, sec, field, value);
+}
+
+bool BA_ChangeSD(int side, byte field, int value)
+{
+	SYS_ASSERT(is_sidedef(side));
+	SYS_ASSERT(field <= SideDef::F_SECTOR);
+
+	return BA_Change(OBJ_SIDEDEFS, side, field, value);
+}
+
+bool BA_ChangeLD(int line, byte field, int value)
+{
+	SYS_ASSERT(is_linedef(line));
+	SYS_ASSERT(field <= LineDef::F_LEFT);
+
+	return BA_Change(OBJ_LINEDEFS, line, field, value);
+}
+
+bool BA_ChangeRAD(int rad, byte field, int value)
 {
 	SYS_ASSERT(is_radtrig(rad));
-	// TODO
+	SYS_ASSERT(field <= RadTrig::F_CODE);
+
+	return BA_Change(OBJ_RADTRIGS, rad, field, value);
 }
 
 //--- editor settings ---
