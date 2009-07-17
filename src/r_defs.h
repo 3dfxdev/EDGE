@@ -451,9 +451,6 @@ typedef struct subsector_s
 	struct sector_s *deep_ref;
 
 	bool convex;
-
-	int rend_seen;
-	drawsub_c *dsub;  // only valid if rend_seen == framecount
 }
 subsector_t;
 

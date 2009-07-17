@@ -2522,7 +2522,6 @@ static void RGL_WalkSubsector(int num)
 {
 	subsector_t *sub = &subsectors[num];
 	seg_t *seg;
-	mobj_t *mo;
 
 	sector_t *sector;
 	surface_t *floor_s;
@@ -2539,7 +2538,7 @@ static void RGL_WalkSubsector(int num)
 	drawsub_c *K = R_GetDrawSub();
 	K->Clear(sub);
 
-	sub->dsub = K;
+///?????	sub->dsub = K;
 
 	// --- handle sky (using the depth buffer) ---
 

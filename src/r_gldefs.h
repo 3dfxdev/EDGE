@@ -295,7 +295,6 @@ void R2_ClearBSP(void);
 
 drawthing_t  *R_GetDrawThing();
 drawfloor_t  *R_GetDrawFloor();
-drawseg_c    *R_GetDrawSeg();
 drawsub_c    *R_GetDrawSub();
 drawmirror_c *R_GetDrawMirror();
 
