@@ -557,396 +557,129 @@ void AnalyseCreate(op_group_c& grp, obj_type_t type)
 }
 
 
-#if 0
-
-void DeleteObject(const Objid& obj)
-{
-	DeleteObject(obj.type, obj.num);
-}
-
-
-/*
-   delete a group of objects
-*/
-void DeleteObjects(selection_c *list)
-{
-	int objtype = list->what_type();
-
-
-	// we need to process the object numbers from highest to lowest,
-	// because each deletion invalidates all higher-numbered refs
-	// in the selection.  Our selection iterator cannot give us
-	// what we need, hence put them into a vector for sorting.
-
-	std::vector<int> objnums;
-
-	selection_iterator_c it;
-	for (list->begin(&it); !it.at_end(); ++it)
-		objnums.push_back(*it);
-
-	std::sort(objnums.begin(), objnums.end());
-
-	for (int i = (int)objnums.size()-1; i >= 0; i--)
-	{
-		DeleteObject(objtype, objnums[i]);
-	}
-
-	// the passed in selection is now invalid.  Hence we clear it,
-	// but we also re-use it for sidedefs which must be deleted
-	// (due to their sectors going away).
-
-	list->clear_all();
-
-	MadeChanges = 1;
-}
-
-
 //------------------------------------------------------------------------
 
-
-
-/*
- *  InsertObject
- *
- *  Insert a new object of type <objtype> at map coordinates
- *  (<xpos>, <ypos>).
- *
- *  If <copyfrom> is a valid object number, the other properties
- *  of the new object are set from the properties of that object,
- *  with the exception of sidedef numbers, which are forced
- *  to OBJ_NO_NONE.
- *
- *  The object is inserted at the exact coordinates given.
- *  No snapping to grid is done.
- */
-int InsertObject(obj_type_t objtype, obj_no_t copyfrom, int xpos, int ypos)
+enum
 {
-	MadeChanges = 1;
+	OP_CHANGE = 'c',
+	OP_INSERT = 'i',
+	OP_DELETE = 'd',
+};
 
-	switch (objtype)
-	{
-		case OBJ_THINGS:
-		{
-			int objnum = RawCreateThing();
 
-			Thing *T = Things[objnum];
+class edit_op_c
+{
+public:
+	char action;
+	byte objtype;
+	byte field;
+	byte _pad;
 
-			T->x = xpos;
-			T->y = ypos;
+	int objnum;
 
-			if (is_obj(copyfrom))
-			{
-				T->type    = Things[copyfrom].type;
-				T->angle   = Things[copyfrom].angle;
-				T->options = Things[copyfrom].options;
-			}
-			else
-			{
-				T->type = default_thing;
-				T->angle = 0;
-				T->options = 0x07;
-			}
+	int *ptr;
+	int value;
 
-			return objnum;
-		}
+public:
+	 edit_op_c() : action(0), objtype(0), field(0), objnum(0), ptr(NULL), value(0) { }
+	~edit_op_c() { }
 
-		case OBJ_VERTICES:
-		{
-			int objnum = RawCreateVertex();
+	void Apply();
 
-			Vertex *V = &Vertices[objnum];
+private:
+	int *GetStructBase();
+};
 
-			V->x = xpos;
-			V->y = ypos;
 
-			if (xpos < MapMinX) MapMinX = xpos;
-			if (ypos < MapMinY) MapMinY = ypos;
-			if (xpos > MapMaxX) MapMaxX = xpos;
-			if (ypos > MapMaxY) MapMaxY = ypos;
+typedef std::vector<edit_op_c> op_group_c;
 
-			MadeMapChanges = 1;
 
-			return objnum;
-		}
+void BA_Begin();
+{
+	// TODO
+}
 
-		case OBJ_LINEDEFS:
-		{
-			int objnum = RawCreateLineDef();
+void BA_End();
+{
+	// TODO
+}
 
-			LineDef *L = &LineDefs[objnum];
+int BA_New(obj_type_t type);
+{
+	// TODO
+}
 
-			if (is_obj (copyfrom))
-			{
-				L->start = LineDefs[copyfrom].start;
-				L->end   = LineDefs[copyfrom].end;
-				L->flags = LineDefs[copyfrom].flags;
-				L->type  = LineDefs[copyfrom].type;
-				L->tag   = LineDefs[copyfrom].tag;
-			}
-			else
-			{
-				L->start = 0;
-				L->end   = NumVertices - 1;
-				L->flags = 1;
-			}
+void BA_Delete(obj_type_t type, int objnum);
+{
+	// TODO
+}
 
-			L->right = OBJ_NO_NONE;
-			L->left = OBJ_NO_NONE;
+bool BA_Change(obj_type_t type, int objnum, byte field, int value);
+{
+	// TODO
+}
 
-			return objnum;
-		}
+bool BA_Undo();
+{
+	// TODO
+}
 
-		case OBJ_SIDEDEFS:
-		{
-			int objnum = RawCreateSideDef();
+bool BA_Redo();
+{
+	// TODO
+}
 
-			SideDef *S = &SideDefs[objnum];
 
-			if (is_obj(copyfrom))
-			{
-				S->x_offset = SideDefs[copyfrom].x_offset;
-				S->y_offset = SideDefs[copyfrom].y_offset;
-				S->sector   = SideDefs[copyfrom].sector;
+int BA_InternaliseString(const char *str);
+{
+	return basis_strtab.add(str);
+}
 
-				strncpy(S->upper_tex, SideDefs[copyfrom].upper_tex, WAD_TEX_NAME);
-				strncpy(S->lower_tex, SideDefs[copyfrom].lower_tex, WAD_TEX_NAME);
-				strncpy(S->mid_tex,   SideDefs[copyfrom].mid_tex,   WAD_TEX_NAME);
-			}
-			else
-			{
-				S->sector = NumSectors - 1;
-
-				strcpy(S->upper_tex, "-");
-				strcpy(S->lower_tex, "-");
-				strcpy(S->mid_tex, default_middle_texture);
-			}
-			
-			MadeMapChanges = 1;
-
-			return objnum;
-		}
-
-		case OBJ_SECTORS:
-		{
-			int objnum = RawCreateSector();
-
-			Sector *S = &Sectors[objnum];
-
-			if (is_obj(copyfrom))
-			{
-				S->floorh = Sectors[copyfrom].floorh;
-				S->ceilh  = Sectors[copyfrom].ceilh;
-				S->light  = Sectors[copyfrom].light;
-				S->type   = Sectors[copyfrom].type;
-				S->tag    = Sectors[copyfrom].tag;
-
-				strncpy(S->floor_tex, Sectors[copyfrom].floor_tex, WAD_FLAT_NAME);
-				strncpy(S->ceil_tex,  Sectors[copyfrom].ceil_tex, WAD_FLAT_NAME);
-			}
-			else
-			{
-				S->floorh = default_floor_height;
-				S->ceilh  = default_ceiling_height;
-				S->light  = default_light_level;
-
-				strncpy(S->floor_tex, default_floor_texture, WAD_FLAT_NAME);
-				strncpy(S->ceil_tex,  default_ceiling_texture, WAD_FLAT_NAME);
-			}
-
-			return objnum;
-		}
-
-		default:
-			nf_bug ("InsertObject: bad objtype %d", (int) objtype);
-	}
-
-	return OBJ_NO_NONE;  /* NOT REACHED */
+const char *BA_GetString(int offset);
+{
+	return basis_strtab.get(offset);
 }
 
 
 
-/*
-   copy a group of objects to a new position
-*/
-void CopyObjects(selection_c *list)
+/* HELPERS */
+
+bool BA_ChangeTH(int thing, byte field, int value);
 {
-#if 0  // FIXME !!!!! CopyObjects
-	int        n, m;
-	SelPtr     cur;
-	SelPtr     list1, list2;
-	SelPtr     ref1, ref2;
+	SYS_ASSERT(is_thing(thing));
 
-	if (list->empty())
-		return;
-
-	/* copy the object(s) */
-	switch (objtype)
-	{
-		case OBJ_THINGS:
-			for (cur = obj; cur; cur = cur->next)
-			{
-				InsertObject (OBJ_THINGS, cur->objnum, Things[cur->objnum].x,
-						Things[cur->objnum].y);
-				cur->objnum = NumThings - 1;
-			}
-			MadeChanges = 1;
-			break;
-
-		case OBJ_VERTICES:
-			for (cur = obj; cur; cur = cur->next)
-			{
-				InsertObject (OBJ_VERTICES, cur->objnum, Vertices[cur->objnum].x,
-						Vertices[cur->objnum].y);
-				cur->objnum = NumVertices - 1;
-			}
-			MadeChanges = 1;
-			MadeMapChanges = 1;
-			break;
-
-		case OBJ_LINEDEFS:
-			list1 = 0;
-			list2 = 0;
-
-			// Create the linedefs and maybe the sidedefs
-			for (cur = obj; cur; cur = cur->next)
-			{
-				int old = cur->objnum; // No. of original linedef
-				int New;   // No. of duplicate linedef
-
-				InsertObject (OBJ_LINEDEFS, old, 0, 0);
-				New = NumLineDefs - 1;
-
-				if (false) ///!!! copy_linedef_reuse_sidedefs)
-				{
-		/* AYM 1997-07-25: not very orthodox (the New linedef and 
-		   the old one use the same sidedefs). but, in the case where
-		   you're copying into the same sector, it's much better than
-		   having to create the New sidedefs manually. plus it saves
-		   space in the .wad and also it makes editing easier (editing
-		   one sidedef impacts all linedefs that use it). */
-					LineDefs[New].right = LineDefs[old].right; 
-					LineDefs[New].left = LineDefs[old].left; 
-				}
-				else
-				{
-					/* AYM 1998-11-08: duplicate sidedefs too.
-					   DEU 5.21 just left the sidedef references to -1. */
-					if (is_sidedef (LineDefs[old].right))
-					{
-						InsertObject (OBJ_SIDEDEFS, LineDefs[old].right, 0, 0);
-						LineDefs[New].right = NumSideDefs - 1;
-					}
-					if (is_sidedef (LineDefs[old].left))
-					{
-						InsertObject (OBJ_SIDEDEFS, LineDefs[old].left, 0, 0);
-						LineDefs[New].left = NumSideDefs - 1; 
-					}
-				}
-				cur->objnum = New;
-				if (!IsSelected (list1, LineDefs[New].start))
-				{
-					SelectObject (&list1, LineDefs[New].start);
-					SelectObject (&list2, LineDefs[New].start);
-				}
-				if (!IsSelected (list1, LineDefs[New].end))
-				{
-					SelectObject (&list1, LineDefs[New].end);
-					SelectObject (&list2, LineDefs[New].end);
-				}
-			}
-
-			// Create the vertices
-			CopyObjects (OBJ_VERTICES, list2);
-
-
-			// Update the references to the vertices
-			for (ref1 = list1, ref2 = list2;
-					ref1 && ref2;
-					ref1 = ref1->next, ref2 = ref2->next)
-			{
-				for (cur = obj; cur; cur = cur->next)
-				{
-					if (ref1->objnum == LineDefs[cur->objnum].start)
-						LineDefs[cur->objnum].start = ref2->objnum;
-					if (ref1->objnum == LineDefs[cur->objnum].end)
-						LineDefs[cur->objnum].end = ref2->objnum;
-				}
-			}
-			ForgetSelection (&list1);
-			ForgetSelection (&list2);
-			break;
-
-		case OBJ_SECTORS:
-
-			list1 = 0;
-			list2 = 0;
-			// Create the linedefs (and vertices)
-			for (cur = obj; cur; cur = cur->next)
-			{
-				for (n = 0; n < NumLineDefs; n++)
-					if  ((((m = LineDefs[n].right) >= 0
-									&& SideDefs[m].sector == cur->objnum)
-								|| ((m = LineDefs[n].left) >= 0
-									&& SideDefs[m].sector == cur->objnum))
-							&& ! IsSelected (list1, n))
-					{
-						SelectObject (&list1, n);
-						SelectObject (&list2, n);
-					}
-			}
-			CopyObjects (OBJ_LINEDEFS, list2);
-			/* create the sidedefs */
-
-			for (ref1 = list1, ref2 = list2;
-					ref1 && ref2;
-					ref1 = ref1->next, ref2 = ref2->next)
-			{
-				if ((n = LineDefs[ref1->objnum].right) >= 0)
-				{
-					InsertObject (OBJ_SIDEDEFS, n, 0, 0);
-					n = NumSideDefs - 1;
-
-					LineDefs[ref2->objnum].right = n;
-				}
-				if ((m = LineDefs[ref1->objnum].left) >= 0)
-				{
-					InsertObject (OBJ_SIDEDEFS, m, 0, 0);
-					m = NumSideDefs - 1;
-
-					LineDefs[ref2->objnum].left = m;
-				}
-				ref1->objnum = n;
-				ref2->objnum = m;
-			}
-			/* create the Sectors */
-			for (cur = obj; cur; cur = cur->next)
-			{
-				InsertObject (OBJ_SECTORS, cur->objnum, 0, 0);
-
-				for (ref1 = list1, ref2 = list2;
-						ref1 && ref2;
-						ref1 = ref1->next, ref2 = ref2->next)
-				{
-					if (ref1->objnum >= 0
-							&& SideDefs[ref1->objnum].sector == cur->objnum)
-						SideDefs[ref1->objnum].sector = NumSectors - 1;
-					if (ref2->objnum >= 0
-							&& SideDefs[ref2->objnum].sector == cur->objnum)
-						SideDefs[ref2->objnum].sector = NumSectors - 1;
-				}
-				cur->objnum = NumSectors - 1;
-			}
-			ForgetSelection (&list1);
-			ForgetSelection (&list2);
-			break;
-	}
-#endif
+	return BA_Change(OBJ_THINGS, thing, field, value);
 }
 
+bool BA_ChangeLD(int line,  byte field, int value);
+{
+	SYS_ASSERT(is_linedef(line));
+	// TODO
+}
 
+bool BA_ChangeSD(int side,  byte field, int value);
+{
+	SYS_ASSERT(is_sidedef(side));
+	// TODO
+}
 
+bool BA_ChangeSEC(int sec,  byte field, int value);
+{
+	SYS_ASSERT(is_sector(sec));
+	// TODO
+}
 
-#endif
+bool BA_ChangeVT(int vert,  byte field, int value);
+{
+	SYS_ASSERT(is_vertex(vert));
+	// TODO
+}
+
+bool BA_ChangeRAD(int rad,   byte field, int value);
+{
+	SYS_ASSERT(is_radtrig(rad));
+	// TODO
+}
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
