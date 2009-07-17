@@ -4,6 +4,8 @@ Andrew Apted's Log
 
 Restored the old BSP renderer.
 
+Restored old "wolfy" hack via new "goobers" cvar.
+
 2009/07/05:
 
 Rewrote the CreateAggression() code using the blockmap
