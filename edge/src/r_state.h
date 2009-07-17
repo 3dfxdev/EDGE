@@ -52,6 +52,9 @@ extern subsector_t *subsectors;
 extern int numextrafloors;
 extern extrafloor_t *extrafloors;
      
+extern int numnodes;
+extern node_t *nodes;
+
 extern int numlines;
 extern line_t *lines;
 
