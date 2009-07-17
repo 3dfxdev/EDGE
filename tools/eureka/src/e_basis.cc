@@ -25,6 +25,7 @@
 #include "main.h"
 
 #include <algorithm>
+#include <list>
 
 #include "e_basis.h"
 #include "m_strings.h"
@@ -248,21 +249,27 @@ static void RawInsert(obj_type_t objtype, int objnum, int *ptr)
 	{
 		case OBJ_THINGS:
 			RawInsertThing(objnum, ptr);
+			break;
 
 		case OBJ_LINEDEFS:
 			RawInsertLineDef(objnum, ptr);
+			break;
 
 		case OBJ_VERTICES:
 			RawInsertVertex(objnum, ptr);
+			break;
 
 		case OBJ_SIDEDEFS:
 			RawInsertSideDef(objnum, ptr);
+			break;
 		
 		case OBJ_SECTORS:
 			RawInsertSector(objnum, ptr);
+			break;
 
 		case OBJ_RADTRIGS:
 			RawInsertRadTrig(objnum, ptr);
+			break;
 
 		default:
 			nf_bug ("RawInsert: bad objtype %d", (int) objtype);
@@ -392,23 +399,67 @@ static int * RawDelete(obj_type_t objtype, int objnum)
 		case OBJ_THINGS:
 			return RawDeleteThing(objnum);
 
-		case OBJ_LINEDEFS:
-			return RawDeleteLineDef(objnum);
-
 		case OBJ_VERTICES:
 			return RawDeleteVertex(objnum);
+
+		case OBJ_SECTORS:
+			return RawDeleteSector(objnum);
 
 		case OBJ_SIDEDEFS:
 			return RawDeleteSideDef(objnum);
 		
-		case OBJ_SECTORS:
-			return RawDeleteSector(objnum);
+		case OBJ_LINEDEFS:
+			return RawDeleteLineDef(objnum);
 
 		case OBJ_RADTRIGS:
 			return RawDeleteRadTrig(objnum);
 
 		default:
 			nf_bug ("RawDelete: bad objtype %d", (int) objtype);
+	}
+}
+
+
+static int * RawGetBase(obj_type_t objtype, int objnum)
+{
+	switch (objtype)
+	{
+		case OBJ_THINGS:
+			return (int*) Things[objnum];
+
+		case OBJ_VERTICES:
+			return (int*) Vertices[objnum];
+
+		case OBJ_SECTORS:
+			return (int*) Sectors[objnum];
+
+		case OBJ_SIDEDEFS:
+			return (int*) SideDefs[objnum];
+		
+		case OBJ_LINEDEFS:
+			return (int*) LineDefs[objnum];
+
+		case OBJ_RADTRIGS:
+			return (int*) RadTrigs[objnum];
+
+		default:
+			nf_bug ("RawGetBase: bad objtype %d", (int) objtype);
+	}
+}
+
+static void DeleteFinally(obj_type_t objtype, int *ptr)
+{
+	switch (objtype)
+	{
+		case OBJ_THINGS:   delete (Thing *)   ptr; break;
+		case OBJ_VERTICES: delete (Vertex *)  ptr; break;
+		case OBJ_SECTORS:  delete (Sector *)  ptr; break;
+		case OBJ_SIDEDEFS: delete (SideDef *) ptr; break;
+		case OBJ_LINEDEFS: delete (LineDef *) ptr; break;
+		case OBJ_RADTRIGS: delete (RadTrig *) ptr; break;
+
+		default:
+			nf_bug ("DeleteFinally: bad objtype %d", (int) objtype);
 	}
 }
 
@@ -440,8 +491,21 @@ public:
 	int value;
 
 public:
-	 edit_op_c() : action(0), objtype(0), field(0), objnum(0), ptr(NULL), value(0) { }
-	~edit_op_c() { }
+	edit_op_c() : action(0), objtype(0), field(0), objnum(0), ptr(NULL), value(0)
+	{ }
+
+	~edit_op_c()
+	{
+		if (action == OP_INSERT)
+		{
+			SYS_ASSERT(ptr);
+			DeleteFinally((obj_type_t) objtype, ptr);
+		}
+		else
+		{
+			SYS_ASSERT(! ptr);
+		}
+	}
 
 	void Apply()
 	{
@@ -469,9 +533,6 @@ public:
 				nf_bug("edit_op_c::Apply");
 		}
 	}
-
-private:
-	int *GetStructBase();
 };
 
 
@@ -483,38 +544,83 @@ private:
 	int dir;
 
 public:
+	undo_group_c() : ops(), dir(+1)
+	{ }
+
+	~undo_group_c()
+	{ }
+
 	void Add_Apply(edit_op_c& op)
 	{
 		ops.push_back(op);
 		ops.back().Apply();
 	}
 
-	void GroupApply()   // FIXME: iterate backwards 
+	void End()
+	{
+		dir = -1;
+	}
+
+	void ReApply()
 	{
 		int total = (int)ops.size();
 
-		for (int i = 0; i < total; i++)
-			ops[i].Apply();
+		if (dir > 0)
+			for (int i = 0; i < total; i++)
+				ops[i].Apply();
+		else
+			for (int i = total-1; i >= 0; i--)
+				ops[i].Apply();
 
-		// reverse order of all operations
-		
-		for (int i = 0; i < total/2; i++)
-			std::swap(ops[i], ops[total-1-i]);
+		// reverse the order for next time
+		dir = -dir;
 	}
 };
 
 
 static undo_group_c *cur_group;
 
+static std::list<undo_group_c *> undo_history;
+static std::list<undo_group_c *> redo_future;
+
+
+static void ClearUndoHistory()
+{
+	std::list<undo_group_c *>::iterator LI;
+
+	for (LI = undo_history.begin(); LI != undo_history.end(); LI++)
+		delete *LI;
+}
+
+static void ClearRedoFuture()
+{
+	std::list<undo_group_c *>::iterator LI;
+
+	for (LI = redo_future.begin(); LI != redo_future.end(); LI++)
+		delete *LI;
+}
+
 
 void BA_Begin()
 {
-	// FIXME
+	if (cur_group)
+		nf_bug("BA_Begin called twice without BA_End\n");
+
+	ClearRedoFuture();
+
+	cur_group = new undo_group_c();
 }
 
 void BA_End()
 {
-	// FIXME
+	if (! cur_group)
+		nf_bug("BA_End called without a previous BA_Begin\n");
+
+	cur_group->End();
+
+	undo_history.push_front(cur_group);
+
+	cur_group = NULL;
 }
 
 
@@ -638,12 +744,55 @@ bool BA_Change(obj_type_t type, int objnum, byte field, int value)
 
 bool BA_Undo()
 {
-	// TODO
+	if (undo_history.empty())
+		return false;
+
+	undo_group_c * grp = undo_history.front();
+	undo_history.pop_front();
+
+	grp->ReApply();
+
+	redo_future.push_front(grp);
+	return true;
 }
 
 bool BA_Redo()
 {
-	// TODO
+	if (redo_future.empty())
+		return false;
+	
+	undo_group_c * grp = redo_future.front();
+	redo_future.pop_front();
+
+	grp->ReApply();
+
+	undo_history.push_front(grp);
+	return true;
+}
+
+
+void BA_ClearAll()
+{
+	int i;
+
+	for (i = 0; i < NumThings;   i++) delete Things[i];
+	for (i = 0; i < NumVertices; i++) delete Vertices[i];
+	for (i = 0; i < NumSectors;  i++) delete Sectors[i];
+	for (i = 0; i < NumSideDefs; i++) delete SideDefs[i];
+	for (i = 0; i < NumLineDefs; i++) delete LineDefs[i];
+	for (i = 0; i < NumRadTrigs; i++) delete RadTrigs[i];
+
+	Things.clear();
+	Vertices.clear();
+	Sectors.clear();
+	SideDefs.clear();
+	LineDefs.clear();
+	RadTrigs.clear();
+
+	basis_strtab.clear();
+
+	ClearUndoHistory();
+	ClearRedoFuture();
 }
 
 

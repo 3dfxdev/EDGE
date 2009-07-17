@@ -247,6 +247,9 @@ int BA_InternaliseString(const char *str);
 const char *BA_GetString(int offset);
 // get the string from the basis string table.
 
+void BA_ClearAll();
+// clear everything (before loading a new level).
+
 
 /* HELPERS */
 
