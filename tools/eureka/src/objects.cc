@@ -252,7 +252,43 @@ static void RawDeleteSideDef(int objnum)
 /*
    delete a group of objects
 */
-void DeleteObjects(selection_c *list)
+void DeleteObjects_GOOD(selection_c *list)
+{
+	int objtype = list->what_type();
+
+
+	// we need to process the object numbers from highest to lowest,
+	// because each deletion invalidates all higher-numbered refs
+	// in the selection.  Our selection iterator cannot give us
+	// what we need, hence put them into a vector for sorting.
+
+	std::vector<int> objnums;
+
+	selection_iterator_c it;
+	for (list->begin(&it); !it.at_end(); ++it)
+		objnums.push_back(*it);
+
+	std::sort(objnums.begin(), objnums.end());
+
+	for (int i = (int)objnums.size()-1; i >= 0; i--)
+	{
+		DeleteObject(objtype, objnums[i]);
+	}
+
+	// the passed in selection is now invalid.  Hence we clear it,
+	// but we also re-use it for sidedefs which must be deleted
+	// (due to their sectors going away).
+
+	list->clear_all();
+
+	MadeChanges = 1;
+}
+
+
+/*
+   delete a group of objects
+*/
+void OldDeleteObjects(selection_c *list)
 {
 	int objtype = list->what_type();
 

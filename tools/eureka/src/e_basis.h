@@ -206,39 +206,6 @@ extern std::vector<RadTrig *> RadTrigs;
 #define is_linedef(n)  ((n) >= 0 && (n) < NumLineDefs)
 #define is_radtrig(n)  ((n) >= 0 && (n) < NumRadTrigs)
 
-enum
-{
-	OP_CHANGE = 'c',
-	OP_INSERT = 'i',
-	OP_DELETE = 'd',
-};
-
-
-class edit_op_c
-{
-public:
-	char action;
-	byte objtype;
-	byte field;
-	byte _pad;
-
-	int objnum;
-
-	int *ptr;
-	int value;
-
-public:
-	 edit_op_c() : action(0), objtype(0), field(0), objnum(0), ptr(NULL), value(0) { }
-	~edit_op_c() { }
-
-	void Apply();
-
-private:
-	int *GetStructBase();
-};
-
-
-typedef std::vector<edit_op_c> op_group_c;
 
 
 /* BASIS API */
@@ -284,11 +251,11 @@ const char *BA_GetString(int offset);
 /* HELPERS */
 
 bool BA_ChangeTH(int thing, byte field, int value);
-bool BA_ChangeLD(int line,  byte field, int value);
-bool BA_ChangeSD(int side,  byte field, int value);
+bool BA_ChangeVT(int vert,  byte field, int value);
 bool BA_ChangeSEC(int sec,  byte field, int value);
-bool BA_ChangeVR(int vert,  byte field, int value);
-bool BA_ChangeRT(int rad,   byte field, int value);
+bool BA_ChangeSD(int side,  byte field, int value);
+bool BA_ChangeLD(int line,  byte field, int value);
+bool BA_ChangeRAD(int rad,  byte field, int value);
 
 
 #endif  /* __E_BASIS_H__ */
