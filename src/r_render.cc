@@ -967,39 +967,18 @@ typedef enum
 }
 wall_tile_flag_e;
 
-typedef struct wall_tile_s
-{
-	// vertical extent of this tile.  The seg determines the horizontal
-	// extent.
-	// 
-	float lz1, lz2;
-	float rz1, rz2;
-
-    // texturing top, in world coordinates
-	float tex_z;
-
-	// various flags
-	int flags;
-
-	// corresponding surface.  NULL if this tile is unused.
-	surface_t *surface;
-}
-wall_tile_t;
-
 
 static void DrawWallPart(seg_t *wseg,
                          drawfloor_t *dfloor,
 		                 float x1, float y1, float lz1, float lz2,
 						 float x2, float y2, float rz1, float rz2,
-		                 float tex_top_h, wall_tile_t *wt,
+		                 float tex_top_h, surface_t *surf,
 						 bool mid_masked, bool opaque,
    						 float tex_x1, float tex_x2,
 						 region_properties_t *props = NULL)
 {
 	// Note: tex_x1 and tex_x2 are in world coordinates.
 	//       top, bottom and tex_top_h as well.
-
-	surface_t *surf = wt->surface;
 
 	if (! props)
 		props = surf->override_p ? surf->override_p : dfloor->props;
@@ -1198,7 +1177,7 @@ static void DrawWallPart(seg_t *wseg,
 
 static void DrawSlidingDoor(seg_t *wseg,
                             drawfloor_t *dfloor, float c, float f,
-						    float tex_top_h, wall_tile_t *wt,
+						    float tex_top_h, surface_t *surf,
 						    bool opaque, float x_offset)
 {
 
@@ -1301,36 +1280,42 @@ static void DrawSlidingDoor(seg_t *wseg,
 		s_tex += x_offset;
 		e_tex += x_offset;
 
-		DrawWallPart(wseg, dfloor, x1,y1,f,c, x2,y2,f,c, tex_top_h, wt, true, opaque, s_tex, e_tex);
+		DrawWallPart(wseg, dfloor, x1,y1,f,c, x2,y2,f,c, tex_top_h, surf,
+					 true, opaque, s_tex, e_tex);
 	}
 }
 
 
-static void DrawTile(seg_t *seg, drawfloor_t *dfloor, wall_tile_t *wt)
+static void DrawTile(seg_t *seg, drawfloor_t *dfloor,
+					 float lz1, float lz2, float rz1, float rz2,
+					 float tex_z, int flags, surface_t *surf)
 {
-	SYS_ASSERT(wt->surface->image);
+    // tex_z = texturing top, in world coordinates
 
-	float tex_top_h = wt->tex_z + wt->surface->offset.y;
-	float x_offset  = wt->surface->offset.x;
+	SYS_ASSERT(surf->image);
 
-	if (wt->flags & WTILF_ExtraX)
+	float tex_top_h = tex_z + surf->offset.y;
+	float x_offset  = surf->offset.x;
+
+	if (flags & WTILF_ExtraX)
 	{
 		x_offset += seg->sidedef->middle.offset.x;
 	}
-	if (wt->flags & WTILF_ExtraY)
+	if (flags & WTILF_ExtraY)
 	{
 		// needed separate Y flag to maintain compatibility
 		tex_top_h += seg->sidedef->middle.offset.y;
 	}
 
 	bool opaque = (! seg->backsector) ||
-		(wt->surface->translucency >= 0.99f &&
-		 wt->surface->image->opacity == OPAC_Solid);
+		(surf->translucency >= 0.99f &&
+		 surf->image->opacity == OPAC_Solid);
 
 	// check for horizontal sliders
-	if ((wt->flags & WTILF_MidMask) && seg->linedef->slide_door)
+	if ((flags & WTILF_MidMask) && seg->linedef->slide_door)
 	{
-		DrawSlidingDoor(seg, dfloor, wt->lz2, wt->lz1, tex_top_h, wt, opaque, x_offset);
+		DrawSlidingDoor(seg, dfloor, lz2, lz1, tex_top_h,
+						surf, opaque, x_offset);
 		return;
 	}
 
@@ -1351,61 +1336,34 @@ static void DrawTile(seg_t *seg, drawfloor_t *dfloor, wall_tile_t *wt)
 	}
 
 	DrawWallPart(seg, dfloor,
-		x1,y1, wt->lz1,wt->lz2,
-		x2,y2, wt->rz1,wt->rz2, tex_top_h,
-		wt, (wt->flags & WTILF_MidMask) ? true : false, 
-		opaque, tex_x1, tex_x2, (wt->flags & WTILF_MidMask) ?
+		x1,y1, lz1,lz2,
+		x2,y2, rz1,rz2, tex_top_h,
+		surf, (flags & WTILF_MidMask) ? true : false, 
+		opaque, tex_x1, tex_x2, (flags & WTILF_MidMask) ?
 		&seg->sidedef->sector->props : NULL);
 }
 
 static inline void AddWallTile(seg_t *seg, drawfloor_t *dfloor,
-                               surface_t *surface,
+                               surface_t *surf,
                                float z1, float z2,
 							   float tex_z, int flags,
 							   float f_min, float c_max)
 {
-	wall_tile_t foo;
-	wall_tile_t *wt = &foo;
-
-	SYS_ASSERT(surface->image);
-
 	z1 = MAX(f_min, z1);
 	z2 = MIN(c_max, z2);
 
 	if (z1 >= z2 - 0.01)
 		return;
 
-	wt->lz1 = wt->rz1 = z1;
-	wt->lz2 = wt->rz2 = z2;
-
-	wt->tex_z = tex_z;
-	wt->surface = surface;
-	wt->flags = flags;
-
-	DrawTile(seg, dfloor, wt);
+	DrawTile(seg, dfloor, z1,z2, z1,z2, tex_z, flags, surf);
 }
 
 static inline void AddWallTile2(seg_t *seg, drawfloor_t *dfloor,
-                                surface_t *surface,
+                                surface_t *surf,
                                 float lz1, float lz2, float rz1, float rz2,
 							    float tex_z, int flags)
 {
-	wall_tile_t foo;
-	wall_tile_t *wt = &foo;
-
-	SYS_ASSERT(surface->image);
-
-	wt->lz1 = lz1;
-	wt->lz2 = lz2;
-	
-	wt->rz1 = rz1;
-	wt->rz2 = rz2;
-
-	wt->tex_z = tex_z;
-	wt->surface = surface;
-	wt->flags = flags;
-
-	DrawTile(seg, dfloor, wt);
+	DrawTile(seg, dfloor, lz1,lz2, rz1,rz2, tex_z, flags, surf);
 }
 
 static void ComputeWallTiles(seg_t *seg, drawfloor_t *dfloor, int sidenum, float f_min, float c_max)
