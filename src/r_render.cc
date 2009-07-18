@@ -973,6 +973,7 @@ static void DrawWallPart(seg_t *wseg,
 		                 float x1, float y1, float lz1, float lz2,
 						 float x2, float y2, float rz1, float rz2,
 		                 float tex_top_h, surface_t *surf,
+						 const image_c *image,
 						 bool mid_masked, bool opaque,
    						 float tex_x1, float tex_x2,
 						 region_properties_t *props = NULL)
@@ -985,13 +986,13 @@ static void DrawWallPart(seg_t *wseg,
 
 	float trans = surf->translucency;
 
-	SYS_ASSERT(surf->image);
+	SYS_ASSERT(image);
 
 	// (need to load the image to know the opacity)
-	GLuint tex_id = W_ImageCache(surf->image, true, ren_fx_colmap);
+	GLuint tex_id = W_ImageCache(image, true, ren_fx_colmap);
 
 	// ignore non-solid walls in solid mode (& vice versa)
-	if ((trans < 0.99f || surf->image->opacity >= OPAC_Masked) == solid_mode)
+	if ((trans < 0.99f || image->opacity >= OPAC_Masked) == solid_mode)
 		return;
 
 
@@ -1027,8 +1028,8 @@ static void DrawWallPart(seg_t *wseg,
 	}
 
 
-	float total_w = IM_TOTAL_WIDTH( surf->image);
-	float total_h = IM_TOTAL_HEIGHT(surf->image);
+	float total_w = IM_TOTAL_WIDTH(image);
+	float total_h = IM_TOTAL_HEIGHT(image);
 
 	/* convert tex_x1 and tex_x2 from world coords to texture coords */
 	tex_x1 = (tex_x1 * surf->x_mat.x) / total_w;
@@ -1041,7 +1042,7 @@ static void DrawWallPart(seg_t *wseg,
 	MIR_Height(tex_top_h);
 
 	float ty_mul = surf->y_mat.y / (total_h * MIR_ZScale());
-	float ty0    = IM_TOP(surf->image) - tex_top_h * ty_mul;
+	float ty0    = IM_TOP(image) - tex_top_h * ty_mul;
 
 #if (DEBUG >= 3) 
 	L_WriteDebug( "WALL (%d,%d,%d) -> (%d,%d,%d)\n", 
@@ -1111,14 +1112,14 @@ static void DrawWallPart(seg_t *wseg,
 
 	int blending;
 
-	if (trans >= 0.99f && surf->image->opacity == OPAC_Solid)
+	if (trans >= 0.99f && image->opacity == OPAC_Solid)
 		blending = BL_NONE;
-	else if (trans < 0.11f || surf->image->opacity == OPAC_Complex)
+	else if (trans < 0.11f || image->opacity == OPAC_Complex)
 		blending = BL_Masked;
 	else
 		blending = BL_Less;
 
-	if (trans < 0.99f || surf->image->opacity == OPAC_Complex)
+	if (trans < 0.99f || image->opacity == OPAC_Complex)
 		blending |= BL_Alpha;
 
 	// -AJA- 2006-06-22: fix for midmask wrapping bug
@@ -1180,7 +1181,6 @@ static void DrawSlidingDoor(seg_t *wseg,
 						    float tex_top_h, surface_t *surf,
 						    bool opaque, float x_offset)
 {
-
 	/* smov may be NULL */
 	slider_move_t *smov = wseg->linedef->slider_move;
 
@@ -1280,8 +1280,8 @@ static void DrawSlidingDoor(seg_t *wseg,
 		s_tex += x_offset;
 		e_tex += x_offset;
 
-		DrawWallPart(wseg, dfloor, x1,y1,f,c, x2,y2,f,c, tex_top_h, surf,
-					 true, opaque, s_tex, e_tex);
+		DrawWallPart(wseg, dfloor, x1,y1,f,c, x2,y2,f,c, tex_top_h,
+					 surf, surf->image, true, opaque, s_tex, e_tex);
 	}
 }
 
@@ -1292,7 +1292,10 @@ static void DrawTile(seg_t *seg, drawfloor_t *dfloor,
 {
     // tex_z = texturing top, in world coordinates
 
-	SYS_ASSERT(surf->image);
+	const image_c *image = surf->image;
+
+	if (! image)
+		image = W_ImageForHOMDetect();
 
 	float tex_top_h = tex_z + surf->offset.y;
 	float x_offset  = surf->offset.x;
@@ -1309,13 +1312,14 @@ static void DrawTile(seg_t *seg, drawfloor_t *dfloor,
 
 	bool opaque = (! seg->backsector) ||
 		(surf->translucency >= 0.99f &&
-		 surf->image->opacity == OPAC_Solid);
+		 image->opacity == OPAC_Solid);
 
 	// check for horizontal sliders
 	if ((flags & WTILF_MidMask) && seg->linedef->slide_door)
 	{
-		DrawSlidingDoor(seg, dfloor, lz2, lz1, tex_top_h,
-						surf, opaque, x_offset);
+		if (surf->image)
+			DrawSlidingDoor(seg, dfloor, lz2, lz1, tex_top_h,
+							surf, opaque, x_offset);
 		return;
 	}
 
@@ -1338,7 +1342,7 @@ static void DrawTile(seg_t *seg, drawfloor_t *dfloor,
 	DrawWallPart(seg, dfloor,
 		x1,y1, lz1,lz2,
 		x2,y2, rz1,rz2, tex_top_h,
-		surf, (flags & WTILF_MidMask) ? true : false, 
+		surf, image, (flags & WTILF_MidMask) ? true : false, 
 		opaque, tex_x1, tex_x2, (flags & WTILF_MidMask) ?
 		&seg->sidedef->sector->props : NULL);
 }
@@ -1365,6 +1369,8 @@ static inline void AddWallTile2(seg_t *seg, drawfloor_t *dfloor,
 {
 	DrawTile(seg, dfloor, lz1,lz2, rz1,rz2, tex_z, flags, surf);
 }
+
+#define IM_HEIGHT_SAFE(im)  ((im) ? IM_HEIGHT(im) : 0)
 
 static void ComputeWallTiles(seg_t *seg, drawfloor_t *dfloor, int sidenum, float f_min, float c_max)
 {
@@ -1398,14 +1404,14 @@ static void ComputeWallTiles(seg_t *seg, drawfloor_t *dfloor, int sidenum, float
 
 	if (! other)
 	{
-		if (sd->middle.image)
-		{
-			AddWallTile(seg, dfloor,
-			    &sd->middle, slope_fh, slope_ch, 
-				(ld->flags & MLF_LowerUnpegged) ? 
-				sec->f_h + IM_HEIGHT(sd->middle.image) : sec->c_h,
-				0, f_min, c_max);
-		}
+		if (! sd->middle.image && ! debug_hom.d)
+			return;
+
+		AddWallTile(seg, dfloor,
+			&sd->middle, slope_fh, slope_ch, 
+			(ld->flags & MLF_LowerUnpegged) ? 
+			sec->f_h + IM_HEIGHT_SAFE(sd->middle.image) : sec->c_h,
+			0, f_min, c_max);
 		return;
 	}
 
@@ -1413,7 +1419,7 @@ static void ComputeWallTiles(seg_t *seg, drawfloor_t *dfloor, int sidenum, float
 
 	if (slope_fh < other->f_h)
 	{
-		if (! sd->bottom.image)
+		if (! sd->bottom.image && ! debug_hom.d)
 		{
 			lower_invis = true;
 		}
@@ -1441,7 +1447,7 @@ static void ComputeWallTiles(seg_t *seg, drawfloor_t *dfloor, int sidenum, float
 	if (slope_ch > other->c_h &&
 		! (IS_SKY(sec->ceil) && IS_SKY(other->ceil)))
 	{
-		if (! sd->top.image)
+		if (! sd->top.image && ! debug_hom.d)
 		{
 			upper_invis = true;
 		}
@@ -1456,17 +1462,19 @@ static void ComputeWallTiles(seg_t *seg, drawfloor_t *dfloor, int sidenum, float
 			AddWallTile2(seg, dfloor,
 				&sd->top, lz1, lz2, rz1, rz2,
 				(ld->flags & MLF_UpperUnpegged) ? sec->c_h : 
-				other->c_h + IM_HEIGHT(sd->top.image), 0);
+				other->c_h + IM_HEIGHT_SAFE(sd->top.image), 0);
 		}
 		else
 		{
 			AddWallTile(seg, dfloor,
 				&sd->top, other->c_h, slope_ch, 
 				(ld->flags & MLF_UpperUnpegged) ? sec->c_h : 
-				other->c_h + IM_HEIGHT(sd->top.image),
+				other->c_h + IM_HEIGHT_SAFE(sd->top.image),
 				0, f_min, c_max);
 		}
 	}
+
+	// mid-masked texture
 
 	if (sd->middle.image)
 	{
@@ -1560,12 +1568,14 @@ static void ComputeWallTiles(seg_t *seg, drawfloor_t *dfloor, int sidenum, float
 					flags |= WTILF_ExtraY;
 			}
 
-			tex_z = (C->ef_line->flags & MLF_LowerUnpegged) ?
-				C->bottom_h + IM_HEIGHT(surf->image) : C->top_h;
+			if (! surf->image && ! debug_hom.d)
+				continue;
 
-			if (surf->image)
-				AddWallTile(seg, dfloor, surf, C->bottom_h, C->top_h,
-							tex_z, flags, f_min, c_max);
+			tex_z = (C->ef_line->flags & MLF_LowerUnpegged) ?
+				C->bottom_h + IM_HEIGHT_SAFE(surf->image) : C->top_h;
+
+			AddWallTile(seg, dfloor, surf, C->bottom_h, C->top_h,
+						tex_z, flags, f_min, c_max);
 		}
 
 		floor_h = C->top_h;
