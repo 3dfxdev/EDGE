@@ -33,6 +33,8 @@
 
 #include "coal.h"
 
+#include <vector>
+
 
 namespace coal
 {
@@ -83,9 +85,43 @@ int pr_xstatement;
 int pr_argc;
 
 
-void RegisterNativeFunc(const char *name, native_func_t func)
+typedef struct
 {
-	// FIXME !!!
+	const char *name;
+	native_func_t func;
+}
+reg_native_func_t;
+
+
+static std::vector<reg_native_func_t *> native_funcs;
+
+
+int PR_FindNativeFunc(const char *name)
+{
+	for (int i = 0; i < (int)native_funcs.size(); i++)
+		if (strcmp(native_funcs[i]->name, name) == 0)
+			return i;
+	
+	return -1;  // NOT FOUND
+}
+
+void RegisterFunction(const char *name, native_func_t func)
+{
+	// already registered?
+	int prev = PR_FindNativeFunc(name);
+
+	if (prev >= 0)
+	{
+		native_funcs[prev]->func = func;
+		return;
+	}
+
+	reg_native_func_t *reg = new reg_native_func_t;
+
+	reg->name = strdup(name);
+	reg->func = func;
+
+	native_funcs.push_back(reg);
 }
 
 
@@ -417,7 +453,7 @@ const char * PR_ParamString(int p)
 {
 	double *d = PR_Parameter(p);
 
-	return strings + (int)d;
+	return strings + (int) *d;
 }
 
 
@@ -531,17 +567,16 @@ int PR_LeaveFunction(int *result)
 
 void PR_EnterBuiltin(function_t *newf, int result)
 {
-	int i = -newf->first_statement;
+	int n = -(newf->first_statement + 1);
 
-	if (i >= pr_numbuiltins)
-		PR_RunError("Bad builtin call number");
+	assert(n < (int)native_funcs.size());
 
 	function_t *old_prx = pr_xfunction;
 
 	stack_base += pr_xfunction->locals_end;
 	pr_xfunction = newf;
 
-	pr_builtins[i] ();
+	native_funcs[n]->func ();
 
 	pr_xfunction = old_prx;
 	stack_base -= pr_xfunction->locals_end;

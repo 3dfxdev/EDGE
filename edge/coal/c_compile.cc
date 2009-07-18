@@ -105,8 +105,6 @@ static string_t		s_file;			// filename for function definition
 
 static int			locals_end;		// for tracking local variables vs temps
 
-static int			builtin;
-
 // all temporaries for current function
 static std::vector<def_t *> temporaries;
 
@@ -121,6 +119,8 @@ void PR_InitData(void)
 	numstatements = 1;
 	strofs = 1;
 	numfunctions = 1;
+
+	// FIXME: clear native functions
 }
 
 void PR_ShowStats(void)
@@ -932,7 +932,7 @@ def_t * PR_ParseFunctionCall(def_t *func)
 	if (t->type != ev_function)
 		PR_ParseError("not a function");
 	
-	function_t *df = &functions[func->ofs];
+//??	function_t *df = &functions[func->ofs];
 
 	
 	// evaluate all parameters
@@ -1478,9 +1478,12 @@ int PR_ParseFunctionBody(type_t *type, const char *func_name)
 	//
 	if (PR_Check("native"))
 	{
-		builtin += 1;
+		int native = PR_FindNativeFunc(func_name);
 
-		return -builtin;
+		if (native < 0)
+			PR_ParseError("No such native function: %s\n", func_name);
+
+		return -(native + 1);
 	}
 
 	//
@@ -1775,8 +1778,6 @@ void PR_BeginCompilation(void)
 	type_function.next = NULL;
 
 	constants.clear();
-
-	builtin = 0;
 
 	pr_error_count = 0;
 }

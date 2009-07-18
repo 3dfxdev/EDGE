@@ -2,8 +2,8 @@
 // Test script for Coal
 //
 
+function nprint(n : float ) = native
 function sprint(s : string) = native
-function nprint(v : float ) = native
 function vprint(v : vector) = native
 
 function foo(a) =
