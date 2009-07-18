@@ -189,11 +189,13 @@ static seg_t * CreateOneSeg(line_t *ld, sector_t *sec, int side,
 	g->v1 = v1;
 	g->v2 = v2;
 	g->angle = R_PointToAngle(v1->x, v1->y, v2->x, v2->y);
-	g->length = R_PointToDist(v1->x, v1->y, v2->x, v2->y);
 
-	// Note: these fields are setup by GroupLines:
+	// Note: these fields are setup afterwards:
 	//          back_sub,
 	//          backsector
+	//          length
+	//          offset
+	//
 
 	g->miniseg = false;
 
@@ -214,7 +216,6 @@ static seg_t * CreateMiniSeg(vertex_t *v1, vertex_t *v2)
 	g->v1 = v1;
 	g->v2 = v2;
 	g->angle = R_PointToAngle(v1->x, v1->y, v2->x, v2->y);
-	g->length = R_PointToDist(v1->x, v1->y, v2->x, v2->y);
 
 	// Note: these fields are setup by GroupLines:
 	//          front_sub,
@@ -288,9 +289,6 @@ static seg_t *SplitSeg(seg_t *old_seg, float x, float y)
 	old_seg->v2 = new_vert;
 	new_seg->v1 = new_vert;
 
-	old_seg->length = R_PointToDist(old_seg->v1->x, old_seg->v1->y, x, y);
-	new_seg->length = R_PointToDist(new_seg->v2->x, old_seg->v2->y, x, y);
-
 # if DEBUG_SPLIT
 	PrintDebug("Splitting Vertex is %04X at (%1.1f,%1.1f)\n",
 			new_vert->index, new_vert->x, new_vert->y);
@@ -314,9 +312,6 @@ static seg_t *SplitSeg(seg_t *old_seg, float x, float y)
 
 		old_seg->partner->v1 = new_vert;
 		new_seg->partner->v2 = new_vert;
-
-		old_seg->partner->length = old_seg->length;
-		new_seg->partner->length = new_seg->length;
 
 		// link it into list
 		old_seg->partner->sub_next = new_seg->partner;
@@ -882,6 +877,25 @@ static void Poly_AssignSectors(void)
 }
 
 
+static void Poly_FinishSegs(void)
+{
+	for (int k = 0; k < numsegs; k++)
+	{
+		seg_t *g = &segs[k];
+
+		g->length = R_PointToDist(g->v1->x, g->v1->y, g->v2->x, g->v2->y);
+
+		if (! g->miniseg)
+		{
+			float lx = g->side ? g->linedef->v2->x : g->linedef->v1->x;
+			float ly = g->side ? g->linedef->v2->y : g->linedef->v1->y;
+
+			g->offset = R_PointToDist(lx, ly, g->v1->x, g->v1->y);
+		}
+	}
+}
+
+
 void TinyBSP(void)
 {
 	Poly_Setup();
@@ -893,6 +907,7 @@ void TinyBSP(void)
 	root_node = Poly_Split(base_sub);
 
 	Poly_AssignSectors();
+	Poly_FinishSegs();
 
 	for (int k = 0; k < numsubsectors; k++)
 		ClockwiseOrder(&subsectors[k]);
