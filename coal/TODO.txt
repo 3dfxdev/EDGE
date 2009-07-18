@@ -2,9 +2,7 @@
 COAL TODO
 =========
 
--  make 'burner.cc' be stand-alone interpreter (<-- merge r_cmds)
-
--  'native' keyword for functions (ETC?)
+-  remove 'PR_' from API function names.
 
 +  modules with '.' notation: hud.foo(hud.bar)
 
@@ -17,4 +15,6 @@ COAL TODO
 -  move all state into one struct
 
 -  describe new language (notes.txt)
+
+WISH: interactive mode for burner
 
