@@ -1788,23 +1788,7 @@ Returns false if errors were detected.
 */
 bool PR_FinishCompilation(void)
 {
-	def_t *d;
 	bool errors = false;
-
-// check to make sure all functions prototyped have code
-	for (d=all_defs ; d ; d=d->next)
-	{
-		if (d->type->type == ev_function && !d->scope)// function parms are ok
-		{
-//			f = G_FUNCTION(d->ofs);
-//			if (!f || (!f->code && !f->builtin) )
-			if (! (d->flags & DF_Initialized))
-			{
-				printf("function %s was not defined\n",d->name);
-				errors = true;
-			}
-		}
-	}
 
 	return !errors;
 }
