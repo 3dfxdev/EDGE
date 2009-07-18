@@ -28,9 +28,12 @@
 namespace coal
 {
 
+typedef void (*native_func_t)(void);
+
 // === COMPILER ==================================
 
 void PR_InitData(void);
+void RegisterFunction(const char *name, native_func_t func);
 void PR_BeginCompilation(void);
 bool PR_CompileFile(char *buffer, char *filename);
 bool PR_FinishCompilation(void);
@@ -42,7 +45,9 @@ void PR_ShowStats(void);
 void PR_SetTrace(bool enable);
 int PR_FindFunction(const char *func_name);
 int PR_ExecuteProgram(int fnum);
+
 double * PR_Parameter(int p);
+const char * PR_ParamString(int p);
 
 } // namespace coal
 

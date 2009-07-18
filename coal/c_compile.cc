@@ -105,6 +105,8 @@ static string_t		s_file;			// filename for function definition
 
 static int			locals_end;		// for tracking local variables vs temps
 
+static int			builtin;
+
 // all temporaries for current function
 static std::vector<def_t *> temporaries;
 
@@ -1472,18 +1474,12 @@ int PR_ParseFunctionBody(type_t *type, const char *func_name)
 	temporaries.clear();
 
 	//
-	// check for builtin function definition #1, #2, etc
+	// check for native function definition
 	//
-	if (PR_Check("#"))
+	if (PR_Check("native"))
 	{
-		if (pr_token_type != tt_immediate
-			|| pr_immediate_type != &type_float
-			|| pr_immediate[0] != (int)pr_immediate[0])
-		{
-			PR_ParseError("Bad builtin immediate");
-		}
-		int builtin = (int)pr_immediate[0];
-		PR_Lex();
+		builtin += 1;
+
 		return -builtin;
 	}
 
@@ -1779,6 +1775,8 @@ void PR_BeginCompilation(void)
 	type_function.next = NULL;
 
 	constants.clear();
+
+	builtin = 0;
 
 	pr_error_count = 0;
 }

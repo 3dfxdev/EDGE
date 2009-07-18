@@ -94,6 +94,31 @@ int LoadFile(char *filename, char **bufptr)
 //==================================================================//
 
 
+static void PF_PrintStr(void)
+{
+	const char * p = coal::PR_ParamString(0);
+
+    printf("%s\n", p);
+}
+
+static void PF_PrintNum(void)
+{
+	double * p = coal::PR_Parameter(0);
+
+    printf("%1.5f\n", *p);
+}
+
+static void PF_PrintVector(void)
+{
+	double * vec = coal::PR_Parameter(0);
+
+	printf("'%1.3f %1.3f %1.3f'\n", vec[0], vec[1], vec[2]);
+}
+
+
+//==================================================================//
+
+
 int main(int argc, char **argv)
 {
 	char	*src2;
@@ -110,6 +135,10 @@ int main(int argc, char **argv)
 	}
 
 	coal::PR_InitData();
+
+	coal::RegisterFunction("sprint", PF_PrintStr);
+	coal::RegisterFunction("nprint", PF_PrintNum);
+	coal::RegisterFunction("vprint", PF_PrintVector);
 
 	if (strcmp(argv[1], "-t") == 0)
 	{

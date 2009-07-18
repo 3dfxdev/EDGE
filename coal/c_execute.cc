@@ -83,6 +83,12 @@ int pr_xstatement;
 int pr_argc;
 
 
+void RegisterNativeFunc(const char *name, native_func_t func)
+{
+	// FIXME !!!
+}
+
+
 void PR_SetTrace(bool enable)
 {
 	pr_trace = enable;
@@ -404,6 +410,14 @@ double * PR_Parameter(int p)
 		PR_RunError("PR_Parameter: p=%d out of range\n", p);
 	
 	return &localstack[stack_base + pr_xfunction->parm_ofs[p]];
+}
+
+
+const char * PR_ParamString(int p)
+{
+	double *d = PR_Parameter(p);
+
+	return strings + (int)d;
 }
 
 
@@ -816,9 +830,6 @@ int PR_ExecuteProgram(int fnum)
 	}
 }
 
-
-
-#include "r_cmds.c"  // FIXME
 
 }  // namespace coal
 
