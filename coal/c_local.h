@@ -300,6 +300,9 @@ char *PR_GetString(int num);
 void PR_PrintStatement(statement_t *s);
 void PR_PrintDefs(void);
 
+int PR_FindNativeFunc(const char *name);
+
+
 #endif /* __COAL_LOCAL_DEFS_H__ */
 
 //--- editor settings ---
