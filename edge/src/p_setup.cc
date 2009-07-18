@@ -72,7 +72,6 @@
 static bool level_active = false;
 
 
-extern void P_GenerateSubsecMap(void);
 extern void R_PolygonizeMap(void);
 
 //
@@ -1816,7 +1815,6 @@ static void DoBlockMap(int lump)
 	map_height = max_y - min_y;
 
 	P_GenerateBlockMap(min_x, min_y, max_x, max_y);
-	P_GenerateSubsecMap();
 
 	P_CreateThingBlockMap();
 }
