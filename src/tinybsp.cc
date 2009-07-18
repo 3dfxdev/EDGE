@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-//  EDGE OpenGL Rendering : Polygonizer
+//  Tiny Nodes Builder
 //----------------------------------------------------------------------------
 //
 //  Copyright (c) 1999-2009  Andrew Apted
@@ -21,6 +21,7 @@
 #include "r_defs.h"
 #include "r_state.h"
 #include "p_local.h"
+#include "dm_structs.h"
 
 
 #define DIST_EPSILON  0.2f
@@ -36,18 +37,21 @@ static void Poly_Setup(void)
 {
 	numsegs = 0;
 	numsubsectors = 0;
+	numnodes = 0;
 	num_gl_vertexes = 0;
 
 	max_segs    = numsides * 4;
 	max_subsecs = numlines * 2;
 	max_glvert  = numsides * 3;
 
-	segs = new seg_t[max_segs];
-	subsectors = new subsector_t[max_subsecs];
+	segs        = new seg_t[max_segs];
+	subsectors  = new subsector_t[max_subsecs];
+	nodes       = new node_t[max_subsecs];
 	gl_vertexes = new vertex_t[max_glvert];
 
 	Z_Clear(segs, seg_t, max_segs);
 	Z_Clear(subsectors, subsector_t, max_subsecs);
+	Z_Clear(nodes, node_t, max_subsecs);
 	Z_Clear(gl_vertexes, vertex_t, max_glvert);
 }
 
@@ -97,6 +101,20 @@ static vertex_t *NewVertex(float x, float y)
 	return vert;
 }
 
+static node_t *NewNode(void)
+{
+	if (numnodes >= max_subsecs)
+		I_Error("R_PolygonizeMap: ran out of nodes !\n");
+
+	node_t *node = nodes + numnodes;
+
+	memset(node, 0, sizeof(node_t));
+
+	numnodes++;
+
+	return node;
+}
+
 
 //----------------------------------------------------------------------------
 
@@ -139,9 +157,21 @@ static subsector_t *CreateSubsector(sector_t *sec)
 
 	sub->sector = sec;
 
-	// bbox is computed at the very end
+	// subsector bbox is computed at the very end
 	
 	return sub;
+}
+
+static node_t *CreateNode(divline_t *party)
+{
+	node_t *nd = NewNode();
+
+	nd->div = *party;
+	nd->div_len = R_PointToDist(0, 0, party->dx, party->dy);
+
+	// node bbox is computed at very end
+	
+	return nd;
 }
 
 static void AddSeg(subsector_t *sub, seg_t *seg)
@@ -173,13 +203,6 @@ static seg_t * CreateOneSeg(line_t *ld, sector_t *sec, int side,
 	g->side    = side;
 
 	g->frontsector = sec;
-
-	if (! sec->subsectors)
-		sec->subsectors = CreateSubsector(sec);
-
-	subsector_t *sub = sec->subsectors;
-
-	AddSeg(sub, g);
 
 	return g;
 }
@@ -303,7 +326,7 @@ static seg_t *SplitSeg(seg_t *old_seg, float x, float y)
 }
 
 
-static void Poly_CreateSegs(void)
+static void Poly_CreateSegs(subsector_t *sub)
 {
 	for (int i=0; i < numlines; i++)
 	{
@@ -329,6 +352,9 @@ static void Poly_CreateSegs(void)
 			right->partner = left;
 			left ->partner = right;
 		}
+
+		if (right) AddSeg(sub, right);
+		if (left)  AddSeg(sub, left);
 	}
 }
 
@@ -682,7 +708,7 @@ static bool ChoosePartition(subsector_t *sub, divline_t *div)
 
 
 
-static void AddMinisegs(sector_t *sec, divline_t& party,
+static void AddMinisegs(divline_t& party,
 	subsector_t *left, subsector_t *right,
 	std::vector<intersect_t> & cut_list)
 {
@@ -738,24 +764,25 @@ static void AddMinisegs(sector_t *sec, divline_t& party,
 }
 
 
-static void TrySplitSubsector(subsector_t *sub)
+static unsigned int Poly_Split(subsector_t *right)
 {
 	divline_t party;
 
-	if (! ChoosePartition(sub, &party))
+	if (! ChoosePartition(right, &party))
 	{
-		sub->convex = true;
-		return;
+		// link subsector into the Sector
+		right->sec_next = right->sector->subsectors;
+		right->sector->subsectors = right;
+
+		return NF_V5_SUBSECTOR | (unsigned int)(right - subsectors);
 	}
 
-	subsector_t *left = CreateSubsector(sub->sector);
+	node_t *node = CreateNode(&party);
 
-	// link new subsector into the Sector
-	left->sec_next = sub->sector->subsectors;
-	sub->sector->subsectors = left;
+	subsector_t *left = CreateSubsector(right->sector);
 
-	seg_t *seg_list = sub->segs;
-	sub->segs = NULL;
+	seg_t *seg_list = right->segs;
+	right->segs = NULL;
 
 	std::vector<intersect_t> cut_list;
 
@@ -764,46 +791,27 @@ static void TrySplitSubsector(subsector_t *sub)
 		seg_t *cur = seg_list;
 		seg_list = seg_list->sub_next;
 
-		DivideOneSeg(cur, party, left, sub, cut_list);
+		DivideOneSeg(cur, party, left, right, cut_list);
 	}
 
-	AddMinisegs(sub->sector, party, left, sub, cut_list);
+	AddMinisegs(party, left, right, cut_list);
+
+	node->children[0] = Poly_Split(left);
+	node->children[1] = Poly_Split(right);
+
+	return (unsigned int) (node - nodes);
 }
 
 
-void Poly_SplitSector(sector_t *sec)
-{
-	// skip sectors which reference no linedefs
-	if (! sec->subsectors)
-		return;
-
-	for (;;)
-	{
-		int changes = 0;
-
-		for (subsector_t *sub = sec->subsectors; sub; sub = sub->sec_next)
-		{
-			if (! sub->convex)
-			{
-				TrySplitSubsector(sub);
-				changes++;
-			}
-		}
-
-		if (changes == 0)
-			return;
-	}
-}
-
-
-void R_PolygonizeMap(void)
+void TinyBSP(void)
 {
 	Poly_Setup();
 
-	Poly_CreateSegs();
+	subsector_t *base_sub = CreateSubsector(0);
 
-	for (int i = 0; i < numsectors; i++)
-		Poly_SplitSector(&sectors[i]);
+	Poly_CreateSegs(base_sub);
+
+	root_node = Poly_Split(base_sub);
 
 	for (int k = 0; k < numsubsectors; k++)
 		ClockwiseOrder(&subsectors[k]);
