@@ -2,9 +2,9 @@
 // Test script for Coal
 //
 
-function sprint(s : string) = #1
-function nprint(v : float ) = #2
-function vprint(v : vector) = #3
+function sprint(s : string) = native
+function nprint(v : float ) = native
+function vprint(v : vector) = native
 
 function foo(a) =
 {
