@@ -151,11 +151,11 @@ struct Compare_Intersect_pred
 };
 
 
-static subsector_t *CreateSubsector(sector_t *sec)
+static subsector_t *CreateSubsector(void)
 {
 	subsector_t *sub = NewSubsector();
 
-	sub->sector = sec;
+	sub->sector = NULL;
 
 	// subsector bbox is computed at the very end
 	
@@ -770,6 +770,8 @@ static unsigned int Poly_Split(subsector_t *right)
 
 	if (! ChoosePartition(right, &party))
 	{
+		right->sector = &sectors[0];  // FIXME !!!!!
+
 		// link subsector into the Sector
 		right->sec_next = right->sector->subsectors;
 		right->sector->subsectors = right;
@@ -779,7 +781,7 @@ static unsigned int Poly_Split(subsector_t *right)
 
 	node_t *node = CreateNode(&party);
 
-	subsector_t *left = CreateSubsector(right->sector);
+	subsector_t *left = CreateSubsector();
 
 	seg_t *seg_list = right->segs;
 	right->segs = NULL;
@@ -796,8 +798,8 @@ static unsigned int Poly_Split(subsector_t *right)
 
 	AddMinisegs(party, left, right, cut_list);
 
-	node->children[0] = Poly_Split(left);
-	node->children[1] = Poly_Split(right);
+	node->children[0] = Poly_Split(right);
+	node->children[1] = Poly_Split(left);
 
 	return (unsigned int) (node - nodes);
 }
@@ -807,7 +809,7 @@ void TinyBSP(void)
 {
 	Poly_Setup();
 
-	subsector_t *base_sub = CreateSubsector(0);
+	subsector_t *base_sub = CreateSubsector();
 
 	Poly_CreateSegs(base_sub);
 
