@@ -2483,6 +2483,10 @@ static inline void AddNewDrawFloor(drawsub_c *dsub, extrafloor_t *ef,
 static void RGL_WalkSubsector(int num)
 {
 	subsector_t *sub = &subsectors[num];
+
+	if (! RGL_CheckBBox(sub->bbox))
+		return;
+
 	seg_t *seg;
 
 	sector_t *sector;
@@ -2857,6 +2861,9 @@ static void RGL_WalkBSPNode(unsigned int bspnum)
 
 	node = &nodes[bspnum];
 
+	if (! RGL_CheckBBox(node->bbox))
+		return;
+
 	// Decide which side the view point is on.
 
 	divline_t nd_div;
@@ -2881,12 +2888,10 @@ static void RGL_WalkBSPNode(unsigned int bspnum)
 	side = P_PointOnDivlineSide(viewx, viewy, &nd_div);
 
 	// Recursively divide front space.
-	if (RGL_CheckBBox(node->bbox[side]))
-		RGL_WalkBSPNode(node->children[side]);
+	RGL_WalkBSPNode(node->children[side]);
 
 	// Recursively divide back space.
-	if (RGL_CheckBBox(node->bbox[side ^ 1]))
-		RGL_WalkBSPNode(node->children[side ^ 1]);
+	RGL_WalkBSPNode(node->children[side ^ 1]);
 }
 
 

@@ -449,8 +449,6 @@ typedef struct subsector_s
 
 	// -AJA- 2004/04/20: used when emulating deep-water TRICK
 	struct sector_s *deep_ref;
-
-	bool convex;
 }
 subsector_t;
 
@@ -530,7 +528,7 @@ typedef struct node_s
 	unsigned int children[2];
 
 	// Bounding boxes for this node.
-	float bbox[2][4];
+	float bbox[4];
 }
 node_t;
 
