@@ -770,12 +770,6 @@ static unsigned int Poly_Split(subsector_t *right)
 
 	if (! ChoosePartition(right, &party))
 	{
-		right->sector = &sectors[0];  // FIXME !!!!!
-
-		// link subsector into the Sector
-		right->sec_next = right->sector->subsectors;
-		right->sector->subsectors = right;
-
 		return NF_V5_SUBSECTOR | (unsigned int)(right - subsectors);
 	}
 
@@ -805,6 +799,89 @@ static unsigned int Poly_Split(subsector_t *right)
 }
 
 
+static inline void DoAssignSec(subsector_t *sub, sector_t *sec)
+{
+	SYS_ASSERT(sec);
+
+	sub->sector = sec;
+
+	sub->sec_next = sec->subsectors;
+	sec->subsectors = sub;
+}
+
+
+static void Poly_AssignSectors(void)
+{
+	for (int i = 0; i < numsubsectors; i++)
+	{
+		subsector_t *sub = &subsectors[i];
+
+		for (seg_t *seg = sub->segs; seg; seg = seg->sub_next)
+		{
+			seg->front_sub = sub;
+
+			if (! seg->miniseg && ! sub->sector)
+				DoAssignSec(sub, seg->frontsector);
+		}
+	}
+
+	// determine back_sub for each seg
+	for (int k = 0; k < numsegs; k++)
+	{
+		seg_t *seg = &segs[k];
+
+		if (seg->partner)
+		{
+			seg->back_sub   = seg->partner->front_sub;
+			seg->backsector = seg->partner->frontsector;
+		}
+	}
+
+	// take care of any island subsectors (all segs are minisegs)
+	for (int loop = 0; loop < 32; loop--)
+	{
+		int changes = 0;
+
+		for (int i = 0; i < numsubsectors; i++)
+		{
+			subsector_t *sub = &subsectors[i];
+
+			if (sub->sector)
+				continue;
+
+			for (seg_t *seg = sub->segs; seg; seg = seg->sub_next)
+			{
+				if (seg->back_sub && seg->back_sub->sector)
+				{
+					I_Debugf("TinyBSP: Island fill for sub:%d sector:%d\n",
+							 sub - subsectors, seg->back_sub->sector - sectors);
+
+					DoAssignSec(sub, seg->back_sub->sector);
+					changes++;
+					break;
+				}
+			}
+		}
+
+		if (changes == 0)  // all done
+			break;
+	}
+
+	// emergency fallback
+
+	for (int i = 0; i < numsubsectors; i++)
+	{
+		subsector_t *sub = &subsectors[i];
+
+		if (! sub->sector)
+		{
+			I_Debugf("TinyBSP: Emergency fallback for sub:%d\n", sub - subsectors);
+			DoAssignSec(sub, &sectors[0]);
+		}
+	}
+}
+
+
 void TinyBSP(void)
 {
 	Poly_Setup();
@@ -814,6 +891,8 @@ void TinyBSP(void)
 	Poly_CreateSegs(base_sub);
 
 	root_node = Poly_Split(base_sub);
+
+	Poly_AssignSectors();
 
 	for (int k = 0; k < numsubsectors; k++)
 		ClockwiseOrder(&subsectors[k]);
