@@ -72,7 +72,7 @@
 static bool level_active = false;
 
 
-extern void R_PolygonizeMap(void);
+extern void TinyBSP(void);
 
 //
 // MAP related Lookup tables.
@@ -812,10 +812,10 @@ static void LoadV5Nodes(const void *data, int length)
 		{
 			nd->children[j] = EPI_LE_U32(mn->children[j]);
 
-			nd->bbox[j][BOXTOP]    = (float) EPI_LE_S16(mn->bbox[j].maxy);
-			nd->bbox[j][BOXBOTTOM] = (float) EPI_LE_S16(mn->bbox[j].miny);
-			nd->bbox[j][BOXLEFT]   = (float) EPI_LE_S16(mn->bbox[j].minx);
-			nd->bbox[j][BOXRIGHT]  = (float) EPI_LE_S16(mn->bbox[j].maxx);
+///---		nd->bbox[j][BOXTOP]    = (float) EPI_LE_S16(mn->bbox[j].maxy);
+///---		nd->bbox[j][BOXBOTTOM] = (float) EPI_LE_S16(mn->bbox[j].miny);
+///---		nd->bbox[j][BOXLEFT]   = (float) EPI_LE_S16(mn->bbox[j].minx);
+///---		nd->bbox[j][BOXRIGHT]  = (float) EPI_LE_S16(mn->bbox[j].maxx);
 
 ///---			// update bbox pointers in subsector
 ///---			if (nd->children[j] & NF_V5_SUBSECTOR)
@@ -873,10 +873,10 @@ static void LoadNodes(int lump, const char *name)
 		{
 			nd->children[j] = EPI_LE_U16(mn->children[j]);
 
-			nd->bbox[j][BOXTOP]    = (float) EPI_LE_S16(mn->bbox[j].maxy);
-			nd->bbox[j][BOXBOTTOM] = (float) EPI_LE_S16(mn->bbox[j].miny);
-			nd->bbox[j][BOXLEFT]   = (float) EPI_LE_S16(mn->bbox[j].minx);
-			nd->bbox[j][BOXRIGHT]  = (float) EPI_LE_S16(mn->bbox[j].maxx);
+///---		nd->bbox[j][BOXTOP]    = (float) EPI_LE_S16(mn->bbox[j].maxy);
+///---		nd->bbox[j][BOXBOTTOM] = (float) EPI_LE_S16(mn->bbox[j].miny);
+///---		nd->bbox[j][BOXLEFT]   = (float) EPI_LE_S16(mn->bbox[j].minx);
+///---		nd->bbox[j][BOXRIGHT]  = (float) EPI_LE_S16(mn->bbox[j].maxx);
 
 			// change to correct bit, and update bbox pointers
 			if (nd->children[j] & NF_SUBSECTOR)
@@ -1912,6 +1912,29 @@ static void FindSubsecExtents(void)
 	}
 }
 
+static void FindNodeExtents(int nodenum, float *bbox)
+{
+	if (nodenum & NF_V5_SUBSECTOR)
+	{
+		if (bbox)
+		{
+			int subnum = nodenum & ~NF_V5_SUBSECTOR;
+			M_UnionBox(bbox, subsectors[subnum].bbox);
+		}
+		return;
+	}
+
+	node_t *nd = &nodes[nodenum];
+
+	M_ClearBox(nd->bbox);
+
+	FindNodeExtents(nd->children[0], nd->bbox);
+	FindNodeExtents(nd->children[1], nd->bbox);
+
+	if (bbox)
+		M_UnionBox(bbox, nd->bbox);
+}
+
 
 static inline void AddSectorToVertices(int *branches, line_t *ld, sector_t *sec)
 {
@@ -2230,16 +2253,17 @@ void P_SetupLevel(void)
 
 	SYS_ASSERT(gl_lumpnum >= 0);
 
-#if 1
+#if 0
 	LoadGLVertexes(gl_lumpnum + ML_GL_VERT);
 	LoadGLSegs(gl_lumpnum + ML_GL_SEGS);
 	LoadSubsectors(gl_lumpnum + ML_GL_SSECT, "GL_SSECT");
 	LoadNodes(gl_lumpnum + ML_GL_NODES, "GL_NODES");
 #else
-	R_PolygonizeMap();
+	TinyBSP();
 #endif
 
 	FindSubsecExtents();
+	FindNodeExtents(root_node, NULL);
 
 	// REJECT is ignored
 
