@@ -987,269 +987,6 @@ typedef struct wall_tile_s
 wall_tile_t;
 
 
-#define MAX_WALL_TILE  64
-static int tile_used;
-static wall_tile_t tiles[MAX_WALL_TILE];
-
-
-static inline void AddWallTile(surface_t *surface,
-                               float z1, float z2,
-							   float tex_z, int flags,
-							   float f_min, float c_max)
-{
-	wall_tile_t *wt;
-
-	SYS_ASSERT(surface->image);
-
-	if (tile_used >= MAX_WALL_TILE)
-		return;
-
-	z1 = MAX(f_min, z1);
-	z2 = MIN(c_max, z2);
-
-	if (z1 >= z2 - 0.01)
-		return;
-
-	wt = tiles + tile_used;
-
-	wt->lz1 = wt->rz1 = z1;
-	wt->lz2 = wt->rz2 = z2;
-
-	wt->tex_z = tex_z;
-	wt->surface = surface;
-	wt->flags = flags;
-
-	tile_used++;
-}
-
-static inline void AddWallTile2(surface_t *surface,
-                                float lz1, float lz2, float rz1, float rz2,
-							    float tex_z, int flags)
-{
-	wall_tile_t *wt;
-
-	SYS_ASSERT(surface->image);
-
-	if (tile_used >= MAX_WALL_TILE)
-		return;
-
-	wt = tiles + tile_used;
-
-	wt->lz1 = lz1;
-	wt->lz2 = lz2;
-	
-	wt->rz1 = rz1;
-	wt->rz2 = rz2;
-
-	wt->tex_z = tex_z;
-	wt->surface = surface;
-	wt->flags = flags;
-
-	tile_used++;
-}
-
-static void ComputeWallTiles(seg_t *seg, int sidenum, float f_min, float c_max)
-{
-	line_t *ld = seg->linedef;
-	side_t *sd = ld->side[sidenum];
-	sector_t *sec, *other;
-	surface_t *surf;
-
-	extrafloor_t *S, *L, *C;
-	float floor_h;
-	float tex_z;
-
-	bool lower_invis = false;
-	bool upper_invis = false;
-
-
-	// clear existing tiles
-	tile_used = 0;
-
-	if (! sd)
-		return;
-
-	sec = sd->sector;
-	other = sidenum ? ld->frontsector : ld->backsector;
-
-
-	float slope_fh = sec->f_h;
-	if (sec->f_slope)
-		slope_fh += MIN(sec->f_slope->dz1, sec->f_slope->dz2);
-
-	float slope_ch = sec->c_h;
-	if (sec->c_slope)
-		slope_ch += MAX(sec->c_slope->dz1, sec->c_slope->dz2);
-
-	if (! other)
-	{
-		if (sd->middle.image)
-		{
-			AddWallTile(&sd->middle, slope_fh, slope_ch, 
-				(ld->flags & MLF_LowerUnpegged) ? 
-				sec->f_h + IM_HEIGHT(sd->middle.image) : sec->c_h,
-				0, f_min, c_max);
-		}
-		return;
-	}
-
-	// handle lower, upper and mid-masker
-
-	if (slope_fh < other->f_h)
-	{
-		if (! sd->bottom.image)
-		{
-			lower_invis = true;
-		}
-		else if (other->f_slope)
-		{
-			float lz1 = slope_fh;
-			float rz1 = slope_fh;
-
-			float lz2 = other->f_h + Slope_GetHeight(other->f_slope, seg->v1->x, seg->v1->y);
-			float rz2 = other->f_h + Slope_GetHeight(other->f_slope, seg->v2->x, seg->v2->y);
-
-			AddWallTile2(&sd->bottom, lz1, lz2, rz1, rz2,
-				(ld->flags & MLF_LowerUnpegged) ? sec->c_h : other->f_h, 0);
-		}
-		else
-		{
-			AddWallTile(&sd->bottom, slope_fh, other->f_h, 
-				(ld->flags & MLF_LowerUnpegged) ? sec->c_h : other->f_h,
-				0, f_min, c_max);
-		}
-	}
-
-	if (slope_ch > other->c_h &&
-		! (IS_SKY(sec->ceil) && IS_SKY(other->ceil)))
-	{
-		if (! sd->top.image)
-		{
-			upper_invis = true;
-		}
-		else if (other->c_slope)
-		{
-			float lz1 = other->c_h + Slope_GetHeight(other->c_slope, seg->v1->x, seg->v1->y);
-			float rz1 = other->c_h + Slope_GetHeight(other->c_slope, seg->v2->x, seg->v2->y);
-
-			float lz2 = slope_ch;
-			float rz2 = slope_ch;
-
-			AddWallTile2(&sd->top, lz1, lz2, rz1, rz2,
-				(ld->flags & MLF_UpperUnpegged) ? sec->c_h : 
-				other->c_h + IM_HEIGHT(sd->top.image), 0);
-		}
-		else
-		{
-			AddWallTile(&sd->top, other->c_h, slope_ch, 
-				(ld->flags & MLF_UpperUnpegged) ? sec->c_h : 
-				other->c_h + IM_HEIGHT(sd->top.image),
-				0, f_min, c_max);
-		}
-	}
-
-	if (sd->middle.image)
-	{
-		float f1 = MAX(sec->f_h, other->f_h);
-		float c1 = MIN(sec->c_h, other->c_h);
-
-		float f2, c2;
-
-		if (ld->flags & MLF_LowerUnpegged)
-		{
-			f2 = f1 + sd->midmask_offset;
-			c2 = f2 + IM_HEIGHT(sd->middle.image);
-		}
-		else
-		{
-			c2 = c1 + sd->midmask_offset;
-			f2 = c2 - IM_HEIGHT(sd->middle.image);
-		}
-
-		tex_z = c2;
-
-		// hack for transparent doors
-		{
-			if (lower_invis) f1 = sec->f_h;
-			if (upper_invis) c1 = sec->c_h;
-		}
-
-		// hack for "see-through" lines (same sector on both sides)
-		if (sec != other)
-		{
-			f2 = MAX(f2, f1);
-			c2 = MIN(c2, c1);
-		}
-
-		if (c2 > f2)
-		{
-			AddWallTile(&sd->middle, f2, c2, tex_z, WTILF_MidMask, f_min, c_max);
-		}
-	}
-
-	// -- thick extrafloor sides --
-
-	// -AJA- Don't bother drawing extrafloor sides if the front/back
-	//       sectors have the same tag (and thus the same extrafloors).
-	//
-	if (other->tag == sec->tag)
-		return;
-
-	floor_h = other->f_h;
-
-	S = other->bottom_ef;
-	L = other->bottom_liq;
-
-	while (S || L)
-	{
-		if (!L || (S && S->bottom_h < L->bottom_h))
-		{
-			C = S;  S = S->higher;
-		}
-		else
-		{
-			C = L;  L = L->higher;
-		}
-
-		SYS_ASSERT(C);
-
-		// ignore liquids in the middle of THICK solids, or below real
-		// floor or above real ceiling
-		//
-		if (C->bottom_h < floor_h || C->bottom_h > other->c_h)
-			continue;
-
-		if (C->ef_info->type & EXFL_Thick)
-		{
-			int flags = WTILF_IsExtra;
-
-			// -AJA- 1999/09/25: Better DDF control of side texture.
-			if (C->ef_info->type & EXFL_SideUpper)
-				surf = &sd->top;
-			else if (C->ef_info->type & EXFL_SideLower)
-				surf = &sd->bottom;
-			else
-			{
-				surf = &C->ef_line->side[0]->middle;
-
-				flags |= WTILF_ExtraX;
-
-				if (C->ef_info->type & EXFL_SideMidY)
-					flags |= WTILF_ExtraY;
-			}
-
-			tex_z = (C->ef_line->flags & MLF_LowerUnpegged) ?
-				C->bottom_h + IM_HEIGHT(surf->image) : C->top_h;
-
-			if (surf->image)
-				AddWallTile(surf, C->bottom_h, C->top_h, tex_z, flags, f_min, c_max);
-		}
-
-		floor_h = C->top_h;
-	}
-}
-
-
 static void DrawWallPart(seg_t *wseg,
                          drawfloor_t *dfloor,
 		                 float x1, float y1, float lz1, float lz2,
@@ -1569,6 +1306,317 @@ static void DrawSlidingDoor(seg_t *wseg,
 }
 
 
+static void DrawTile(seg_t *seg, drawfloor_t *dfloor, wall_tile_t *wt)
+{
+	SYS_ASSERT(wt->surface->image);
+
+	float tex_top_h = wt->tex_z + wt->surface->offset.y;
+	float x_offset  = wt->surface->offset.x;
+
+	if (wt->flags & WTILF_ExtraX)
+	{
+		x_offset += seg->sidedef->middle.offset.x;
+	}
+	if (wt->flags & WTILF_ExtraY)
+	{
+		// needed separate Y flag to maintain compatibility
+		tex_top_h += seg->sidedef->middle.offset.y;
+	}
+
+	bool opaque = (! seg->backsector) ||
+		(wt->surface->translucency >= 0.99f &&
+		 wt->surface->image->opacity == OPAC_Solid);
+
+	// check for horizontal sliders
+	if ((wt->flags & WTILF_MidMask) && seg->linedef->slide_door)
+	{
+		DrawSlidingDoor(seg, dfloor, wt->lz2, wt->lz1, tex_top_h, wt, opaque, x_offset);
+		return;
+	}
+
+	float x1 = seg->v1->x;
+	float y1 = seg->v1->y;
+	float x2 = seg->v2->x;
+	float y2 = seg->v2->y;
+
+	float tex_x1 = seg->offset;
+	float tex_x2 = tex_x1 + seg->length;
+
+	tex_x1 += x_offset;
+	tex_x2 += x_offset;
+
+	if (MIR_Reflective())
+	{
+		float tmp_tx = tex_x1; tex_x1 = tex_x2; tex_x2 = tmp_tx;
+	}
+
+	DrawWallPart(seg, dfloor,
+		x1,y1, wt->lz1,wt->lz2,
+		x2,y2, wt->rz1,wt->rz2, tex_top_h,
+		wt, (wt->flags & WTILF_MidMask) ? true : false, 
+		opaque, tex_x1, tex_x2, (wt->flags & WTILF_MidMask) ?
+		&seg->sidedef->sector->props : NULL);
+}
+
+static inline void AddWallTile(seg_t *seg, drawfloor_t *dfloor,
+                               surface_t *surface,
+                               float z1, float z2,
+							   float tex_z, int flags,
+							   float f_min, float c_max)
+{
+	wall_tile_t foo;
+	wall_tile_t *wt = &foo;
+
+	SYS_ASSERT(surface->image);
+
+	z1 = MAX(f_min, z1);
+	z2 = MIN(c_max, z2);
+
+	if (z1 >= z2 - 0.01)
+		return;
+
+	wt->lz1 = wt->rz1 = z1;
+	wt->lz2 = wt->rz2 = z2;
+
+	wt->tex_z = tex_z;
+	wt->surface = surface;
+	wt->flags = flags;
+
+	DrawTile(seg, dfloor, wt);
+}
+
+static inline void AddWallTile2(seg_t *seg, drawfloor_t *dfloor,
+                                surface_t *surface,
+                                float lz1, float lz2, float rz1, float rz2,
+							    float tex_z, int flags)
+{
+	wall_tile_t foo;
+	wall_tile_t *wt = &foo;
+
+	SYS_ASSERT(surface->image);
+
+	wt->lz1 = lz1;
+	wt->lz2 = lz2;
+	
+	wt->rz1 = rz1;
+	wt->rz2 = rz2;
+
+	wt->tex_z = tex_z;
+	wt->surface = surface;
+	wt->flags = flags;
+
+	DrawTile(seg, dfloor, wt);
+}
+
+static void ComputeWallTiles(seg_t *seg, drawfloor_t *dfloor, int sidenum, float f_min, float c_max)
+{
+	line_t *ld = seg->linedef;
+	side_t *sd = ld->side[sidenum];
+	sector_t *sec, *other;
+	surface_t *surf;
+
+	extrafloor_t *S, *L, *C;
+	float floor_h;
+	float tex_z;
+
+	bool lower_invis = false;
+	bool upper_invis = false;
+
+
+	if (! sd)
+		return;
+
+	sec = sd->sector;
+	other = sidenum ? ld->frontsector : ld->backsector;
+
+
+	float slope_fh = sec->f_h;
+	if (sec->f_slope)
+		slope_fh += MIN(sec->f_slope->dz1, sec->f_slope->dz2);
+
+	float slope_ch = sec->c_h;
+	if (sec->c_slope)
+		slope_ch += MAX(sec->c_slope->dz1, sec->c_slope->dz2);
+
+	if (! other)
+	{
+		if (sd->middle.image)
+		{
+			AddWallTile(seg, dfloor,
+			    &sd->middle, slope_fh, slope_ch, 
+				(ld->flags & MLF_LowerUnpegged) ? 
+				sec->f_h + IM_HEIGHT(sd->middle.image) : sec->c_h,
+				0, f_min, c_max);
+		}
+		return;
+	}
+
+	// handle lower, upper and mid-masker
+
+	if (slope_fh < other->f_h)
+	{
+		if (! sd->bottom.image)
+		{
+			lower_invis = true;
+		}
+		else if (other->f_slope)
+		{
+			float lz1 = slope_fh;
+			float rz1 = slope_fh;
+
+			float lz2 = other->f_h + Slope_GetHeight(other->f_slope, seg->v1->x, seg->v1->y);
+			float rz2 = other->f_h + Slope_GetHeight(other->f_slope, seg->v2->x, seg->v2->y);
+
+			AddWallTile2(seg, dfloor,
+				&sd->bottom, lz1, lz2, rz1, rz2,
+				(ld->flags & MLF_LowerUnpegged) ? sec->c_h : other->f_h, 0);
+		}
+		else
+		{
+			AddWallTile(seg, dfloor,
+				&sd->bottom, slope_fh, other->f_h, 
+				(ld->flags & MLF_LowerUnpegged) ? sec->c_h : other->f_h,
+				0, f_min, c_max);
+		}
+	}
+
+	if (slope_ch > other->c_h &&
+		! (IS_SKY(sec->ceil) && IS_SKY(other->ceil)))
+	{
+		if (! sd->top.image)
+		{
+			upper_invis = true;
+		}
+		else if (other->c_slope)
+		{
+			float lz1 = other->c_h + Slope_GetHeight(other->c_slope, seg->v1->x, seg->v1->y);
+			float rz1 = other->c_h + Slope_GetHeight(other->c_slope, seg->v2->x, seg->v2->y);
+
+			float lz2 = slope_ch;
+			float rz2 = slope_ch;
+
+			AddWallTile2(seg, dfloor,
+				&sd->top, lz1, lz2, rz1, rz2,
+				(ld->flags & MLF_UpperUnpegged) ? sec->c_h : 
+				other->c_h + IM_HEIGHT(sd->top.image), 0);
+		}
+		else
+		{
+			AddWallTile(seg, dfloor,
+				&sd->top, other->c_h, slope_ch, 
+				(ld->flags & MLF_UpperUnpegged) ? sec->c_h : 
+				other->c_h + IM_HEIGHT(sd->top.image),
+				0, f_min, c_max);
+		}
+	}
+
+	if (sd->middle.image)
+	{
+		float f1 = MAX(sec->f_h, other->f_h);
+		float c1 = MIN(sec->c_h, other->c_h);
+
+		float f2, c2;
+
+		if (ld->flags & MLF_LowerUnpegged)
+		{
+			f2 = f1 + sd->midmask_offset;
+			c2 = f2 + IM_HEIGHT(sd->middle.image);
+		}
+		else
+		{
+			c2 = c1 + sd->midmask_offset;
+			f2 = c2 - IM_HEIGHT(sd->middle.image);
+		}
+
+		tex_z = c2;
+
+		// hack for transparent doors
+		{
+			if (lower_invis) f1 = sec->f_h;
+			if (upper_invis) c1 = sec->c_h;
+		}
+
+		// hack for "see-through" lines (same sector on both sides)
+		if (sec != other)
+		{
+			f2 = MAX(f2, f1);
+			c2 = MIN(c2, c1);
+		}
+
+		if (c2 > f2)
+		{
+			AddWallTile(seg, dfloor,
+						&sd->middle, f2, c2, tex_z, WTILF_MidMask,
+						f_min, c_max);
+		}
+	}
+
+	// -- thick extrafloor sides --
+
+	// -AJA- Don't bother drawing extrafloor sides if the front/back
+	//       sectors have the same tag (and thus the same extrafloors).
+	//
+	if (other->tag == sec->tag)
+		return;
+
+	floor_h = other->f_h;
+
+	S = other->bottom_ef;
+	L = other->bottom_liq;
+
+	while (S || L)
+	{
+		if (!L || (S && S->bottom_h < L->bottom_h))
+		{
+			C = S;  S = S->higher;
+		}
+		else
+		{
+			C = L;  L = L->higher;
+		}
+
+		SYS_ASSERT(C);
+
+		// ignore liquids in the middle of THICK solids, or below real
+		// floor or above real ceiling
+		//
+		if (C->bottom_h < floor_h || C->bottom_h > other->c_h)
+			continue;
+
+		if (C->ef_info->type & EXFL_Thick)
+		{
+			int flags = WTILF_IsExtra;
+
+			// -AJA- 1999/09/25: Better DDF control of side texture.
+			if (C->ef_info->type & EXFL_SideUpper)
+				surf = &sd->top;
+			else if (C->ef_info->type & EXFL_SideLower)
+				surf = &sd->bottom;
+			else
+			{
+				surf = &C->ef_line->side[0]->middle;
+
+				flags |= WTILF_ExtraX;
+
+				if (C->ef_info->type & EXFL_SideMidY)
+					flags |= WTILF_ExtraY;
+			}
+
+			tex_z = (C->ef_line->flags & MLF_LowerUnpegged) ?
+				C->bottom_h + IM_HEIGHT(surf->image) : C->top_h;
+
+			if (surf->image)
+				AddWallTile(seg, dfloor, surf, C->bottom_h, C->top_h,
+							tex_z, flags, f_min, c_max);
+		}
+
+		floor_h = C->top_h;
+	}
+}
+
+
+
+
 #define MAX_FLOOD_VERT  16
 
 typedef struct
@@ -1862,61 +1910,7 @@ static void RGL_DrawSeg(drawfloor_t *dfloor, seg_t *seg)
 	}
 
 
-	ComputeWallTiles(seg, seg->side, f_min, c_max);
-
-	for (int j=0; j < tile_used; j++)
-	{
-		wall_tile_t *wt = tiles + j;
-
-		SYS_ASSERT(wt->surface->image);
-
-		float tex_top_h = wt->tex_z + wt->surface->offset.y;
-		float x_offset  = wt->surface->offset.x;
-
-		if (wt->flags & WTILF_ExtraX)
-		{
-			x_offset += seg->sidedef->middle.offset.x;
-		}
-		if (wt->flags & WTILF_ExtraY)
-		{
-			// needed separate Y flag to maintain compatibility
-			tex_top_h += seg->sidedef->middle.offset.y;
-		}
-
-		bool opaque = (! seg->backsector) ||
-			(wt->surface->translucency >= 0.99f &&
-			 wt->surface->image->opacity == OPAC_Solid);
-
-		// check for horizontal sliders
-		if ((wt->flags & WTILF_MidMask) && seg->linedef->slide_door)
-		{
-			DrawSlidingDoor(seg, dfloor, wt->lz2, wt->lz1, tex_top_h, wt, opaque, x_offset);
-			continue;
-		}
-
-		float x1 = seg->v1->x;
-		float y1 = seg->v1->y;
-		float x2 = seg->v2->x;
-		float y2 = seg->v2->y;
-
-		float tex_x1 = seg->offset;
-		float tex_x2 = tex_x1 + seg->length;
-
-		tex_x1 += x_offset;
-		tex_x2 += x_offset;
-
-		if (MIR_Reflective())
-		{
-			float tmp_tx = tex_x1; tex_x1 = tex_x2; tex_x2 = tmp_tx;
-		}
-
-		DrawWallPart(seg, dfloor,
-			x1,y1, wt->lz1,wt->lz2,
-		    x2,y2, wt->rz1,wt->rz2, tex_top_h,
-			wt, (wt->flags & WTILF_MidMask) ? true : false, 
-			opaque, tex_x1, tex_x2, (wt->flags & WTILF_MidMask) ?
-			&seg->sidedef->sector->props : NULL);
-	}
+	ComputeWallTiles(seg, dfloor, seg->side, f_min, c_max);
 
 	// -AJA- 2004/04/21: Emulate Flat-Flooding TRICK
 	if (! debug_hom.d && solid_mode && dfloor->is_lowest &&
