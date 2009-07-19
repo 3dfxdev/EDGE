@@ -52,6 +52,7 @@ extern const con_cmd_t builtin_commands[];
 
 extern void M_ChangeLevelCheat(const char *string);
 extern void I_ShowJoysticks(void);
+extern void M_QuitFinally(void);
 
 
 int CMD_Exec(char **argv, int argc)
@@ -125,6 +126,12 @@ int CMD_ScreenShot(char **argv, int argc)
 
 int CMD_QuitEDGE(char **argv, int argc)
 {
+	if (argc >= 2 && stricmp(argv[1], "now") == 0)
+	{
+		// this never returns
+		M_QuitFinally();
+	}
+
 	M_QuitEDGE(0);
 
 	return 0;

@@ -1260,6 +1260,23 @@ void M_FinishReadThis(int choice)
 	M_SetupNextMenu(&MainDef);
 }
 
+void M_QuitFinally(void)
+{
+	// -ACB- 1999/09/20 New exit code order
+	// Write the default config file first
+	I_Printf("Saving defaults to: %s\n", cfgfile.c_str());
+
+	M_SaveDefaults();
+
+	I_Printf("Exiting...\n");
+
+	E_EngineShutdown();
+	I_SystemShutdown();
+
+	I_DisplayExitScreen();
+	I_CloseProgram(0);
+}
+
 //
 // -KM- 1998/12/16 Handle sfx that don't exist in this version.
 // -KM- 1999/01/31 Generate quitsounds from default.ldf
@@ -1307,19 +1324,7 @@ static void QuitResponse(int ch)
 		}
 	}
 
-	// -ACB- 1999/09/20 New exit code order
-	// Write the default config file first
-	I_Printf("Saving defaults to: %s\n", cfgfile.c_str());
-
-	M_SaveDefaults();
-
-	I_Printf("Exiting...\n");
-
-	E_EngineShutdown();
-	I_SystemShutdown();
-
-	I_DisplayExitScreen();
-	I_CloseProgram(0);
+	M_QuitFinally();
 }
 
 //
