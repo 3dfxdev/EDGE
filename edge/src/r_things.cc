@@ -35,7 +35,6 @@
 #include "p_local.h"
 #include "r_colormap.h"
 #include "r_defs.h"
-#include "r_draw.h"
 #include "r_effects.h"
 #include "r_gldefs.h"
 #include "r_image.h"

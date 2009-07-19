@@ -34,7 +34,7 @@
 
 #include "e_player.h"
 #include "hu_font.h"
-#include "r_draw.h"
+#include "hu_draw.h"
 #include "r_modes.h"
 #include "r_misc.h"     //  R_Render
 #include "am_map.h"     // AM_Drawer

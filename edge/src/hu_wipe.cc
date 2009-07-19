@@ -30,7 +30,7 @@
 
 #include "m_random.h"
 #include "r_gldefs.h"
-#include "r_wipe.h"
+#include "hu_wipe.h"
 #include "r_image.h"
 #include "r_modes.h"
 #include "r_texgl.h"

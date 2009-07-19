@@ -41,7 +41,7 @@
 #include "p_mobj.h"
 #include "r_colormap.h"
 #include "r_defs.h"
-#include "r_draw.h"
+#include "hu_draw.h"
 #include "r_gldefs.h"
 #include "r_misc.h"
 #include "r_modes.h"

@@ -36,7 +36,7 @@
 #include "r_colormap.h"
 #include "r_image.h"
 #include "r_units.h"
-#include "r_draw.h"
+#include "hu_draw.h"
 
 // Globals
 int SCREENWIDTH;

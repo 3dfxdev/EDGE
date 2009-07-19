@@ -24,7 +24,7 @@
 #include "g_state.h"
 #include "r_local.h"
 #include "r_colormap.h"
-#include "r_draw.h"
+#include "hu_draw.h"
 #include "r_modes.h"
 #include "r_image.h"
 
