@@ -40,66 +40,9 @@
 #define HU_MAXLINES		4
 #define HU_MAXLINELENGTH	80
 
-//
-// Typedefs of widgets
-//
-
-// Text Line widget
-
-typedef struct
-{
-	// position of top/left corner of text
-	int x, y;
-
-	// style
-	style_c *style;
-	int text_type;
-
-	// line of text
-	char ch[HU_MAXLINELENGTH + 1];
-
-	// current line length
-	int len;
-
-	// centre text horizontally, around x.
-	bool centre;
-}
-hu_textline_t;
-
-
-//
-// Widget creation, access, and update routines
-//
 
 // initialises heads-up widget library
 void HL_Init(void);
-
-//
-// Text Line routines
-//
-
-// clear a line of text
-void HL_ClearTextLine(hu_textline_t * t);
-
-void HL_InitTextLine(hu_textline_t * t, int x, int y, 
-    style_c *style, int text_type);
-
-// returns success
-bool HL_AddCharToTextLine(hu_textline_t * t, char ch);
-
-// returns success
-bool HL_DelCharFromTextLine(hu_textline_t * t);
-
-// draws tline
-void HL_DrawTextLine(hu_textline_t * l, bool drawcursor);
-
-// erases text line
-void HL_EraseTextLine(hu_textline_t * l);
-
-
-// -ACB- 1998/06/10
-void HL_DrawTextLineAlpha(hu_textline_t * l, bool drawcursor, 
-		rgbcol_t col, float alpha);
 
 
 void HL_WriteText(style_c *style, int text_type, int x, int y,
