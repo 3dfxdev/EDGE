@@ -591,16 +591,13 @@ bool W_CheckSpritesExist(const std::vector<state_t> &group)
 
 	int pos = 1;
 
-	while (pos < (int)group.size()-1 && group[pos].sprite == SPR_NULL)
+	while (pos < (int)group.size() && group[pos].sprite == SPR_NULL)
 		pos++;
 
 	if (pos >= (int)group.size())
-		return true;
+		return false;
 
-	if (sprites[group[pos].sprite]->frames > 0)
-		return true;	
-
-	return false;
+	return (sprites[group[pos].sprite]->frames > 0);
 }
 
 spriteframe_c *W_GetSpriteFrame(int spr_num, int framenum)
