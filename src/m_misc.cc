@@ -58,10 +58,10 @@
 #include "s_sound.h"
 #include "am_map.h"
 #include "r_colormap.h"
-#include "r_draw.h"
+#include "hu_draw.h"
 #include "r_modes.h"
 #include "r_image.h"
-#include "r_wipe.h"
+#include "hu_wipe.h"
 #include "version.h"
 
 

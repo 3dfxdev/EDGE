@@ -41,7 +41,7 @@
 #include "s_sound.h"
 #include "s_music.h"
 #include "r_misc.h"
-#include "r_draw.h"
+#include "hu_draw.h"
 #include "r_modes.h"
 
 

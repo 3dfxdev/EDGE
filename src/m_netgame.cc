@@ -48,7 +48,7 @@
 #include "s_sound.h"
 #include "sv_chunk.h"
 #include "sv_main.h"
-#include "r_draw.h"
+#include "hu_draw.h"
 #include "r_modes.h"
 #include "r_colormap.h"
 #include "w_wad.h"

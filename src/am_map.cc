@@ -40,7 +40,7 @@
 #include "n_network.h"
 #include "p_local.h"
 #include "am_map.h"
-#include "r_draw.h"
+#include "hu_draw.h"
 #include "r_colormap.h"
 #include "r_modes.h"
 

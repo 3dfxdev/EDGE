@@ -32,7 +32,7 @@
 
 #include "e_player.h"
 #include "hu_font.h"
-#include "r_draw.h"
+#include "hu_draw.h"
 #include "r_modes.h"
 #include "w_wad.h"
 #include "z_zone.h"

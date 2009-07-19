@@ -50,7 +50,7 @@
 #include "p_action.h"
 #include "am_map.h"
 #include "r_colormap.h"
-#include "r_draw.h"
+#include "hu_draw.h"
 #include "r_md2.h"
 #include "r_modes.h"
 #include "r_state.h"
