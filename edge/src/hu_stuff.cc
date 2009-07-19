@@ -72,15 +72,6 @@ static bool message_on;
 static bool message_no_overwrite;
 static int  message_counter;
 
-// 23-6-98 KM Added a line showing the current limits in the
-// render code.  Note that these are not really limits,
-// just show how many items we have enough memory for.  These
-// numbers will increase as needed.  vp = visplanes, vs = vissprites,
-static hu_textline_t textlinefps;
-static hu_textline_t textlinepos;
-static hu_textline_t textlinestats;
-static hu_textline_t textlinememory;
-
 static style_c *message_style;
        style_c *automap_style;
 
@@ -122,17 +113,6 @@ void HU_Start(void)
 	message_no_overwrite = false;
 	chat_on = false;
 
-	//create stuff for showstats cheat
-	// 23-6-98 KM Limits info added.
-	HL_InitTextLine(&textlinefps,
-		0, 1 * (1 + FONT_HEIGHT), message_style, 0);
-	HL_InitTextLine(&textlinestats,
-		0, 2 * (1 + FONT_HEIGHT), message_style, 0);
-	HL_InitTextLine(&textlinepos,
-		0, 3 * (1 + FONT_HEIGHT), message_style, 0);
-	HL_InitTextLine(&textlinememory,
-		0, 5 * (1 + FONT_HEIGHT), message_style, 0);
-
 	// -ACB- 1998/08/09 Use currmap settings
 	if (!currmap->description.empty() &&
 		language.IsValidRef(currmap->description.c_str()))
@@ -157,7 +137,7 @@ void HU_Drawer(void)
 //TODO	if (chat_on)
 //		HL_DrawIText(&w_chat);
 
-	CON_ShowStats(0);
+	CON_ShowStats();
 }
 
 void HU_Erase(void)
