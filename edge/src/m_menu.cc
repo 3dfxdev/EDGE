@@ -45,7 +45,7 @@
 #include "e_main.h"
 #include "g_game.h"
 #include "f_interm.h"
-#include "hu_lib.h"
+#include "hu_draw.h"
 #include "hu_stuff.h"
 #include "hu_style.h"
 #include "m_argv.h"

@@ -29,7 +29,19 @@
 #include "r_image.h"
 
 
+#define DUMMY_WIDTH(font)  (4)
+
+#define HU_CHAR(ch)  (islower(ch) ? toupper(ch) : (ch))
+#define HU_INDEX(c)  ((unsigned char) HU_CHAR(c))
+
+
 static int glbsp_last_prog_time = 0;
+
+
+void HL_Init(void)
+{
+	/* nothing to init */
+}
 
 
 void RGL_DrawImage(float x, float y, float w, float h, const image_c *image, 
@@ -313,6 +325,51 @@ void RGL_DrawProgress(int perc, int glbsp_perc)
 	I_StartFrame();
 }
 
+//
+// Write a string using the hu_font and index translator.
+//
+void HL_WriteTextTrans(style_c *style, int text_type, int x, int y,
+	rgbcol_t col, const char *str, float scale, float alpha)
+{
+	float cx = x;
+	float cy = y;
+
+	font_c *font = style->fonts[text_type];
+
+	scale *= style->def->text[text_type].scale;
+
+	if (! font)
+		I_Error("Style [%s] is missing a font !\n", style->def->ddf.name.c_str());
+
+	for (; *str; str++)
+	{
+		char ch = *str;
+
+		if (ch == '\n')
+		{
+			cx = x;
+			cy += 12.0f * scale;  // FIXME: use font's height
+			continue;
+		}
+
+		if (cx >= 320.0f)
+			continue;
+
+		font->DrawChar320(cx, cy, ch, scale,1.0f, col, alpha);
+
+		cx += font->CharWidth(ch) * scale;
+	}
+}
+
+//
+// Write a string using the hu_font.
+//
+void HL_WriteText(style_c *style, int text_type, int x, int y, const char *str, float scale, float alpha)
+{
+	HL_WriteTextTrans(style, text_type, x, y,
+			V_GetFontColor(style->def->text[text_type].colmap),
+			str, scale, alpha);
+}
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

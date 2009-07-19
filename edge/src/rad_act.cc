@@ -28,7 +28,7 @@
 
 #include "g_state.h"
 #include "con_main.h"
-#include "hu_lib.h"
+#include "hu_draw.h"
 #include "hu_stuff.h"
 #include "g_game.h"
 #include "m_argv.h"

@@ -44,7 +44,7 @@
 #include "e_keys.h"
 #include "e_main.h"
 #include "g_state.h"
-#include "hu_lib.h"
+#include "hu_draw.h"
 #include "hu_style.h"
 #include "hu_stuff.h"
 #include "g_game.h"

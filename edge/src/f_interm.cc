@@ -36,7 +36,7 @@
 #include "f_finale.h"
 #include "f_interm.h"
 #include "g_game.h"
-#include "hu_lib.h"
+#include "hu_draw.h"
 #include "p_local.h"
 #include "s_sound.h"
 #include "s_music.h"
