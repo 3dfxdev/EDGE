@@ -601,6 +601,8 @@ rad_trigger_t;
 // Tip Displayer info
 //
 #define MAXTIPSLOT    45
+
+#define TIP_CHAR_MAX  100
 #define TIP_LINE_MAX  10
 
 typedef struct drawtip_s
@@ -632,9 +634,8 @@ typedef struct drawtip_s
 	int fade_time;
 	float fade_target;
 
-	// HULIB info
-	int hu_linenum;
-	hu_textline_t hu_lines[TIP_LINE_MAX];
+	int linenum;
+	char lines[TIP_LINE_MAX][TIP_CHAR_MAX];
 }
 drawtip_t;
 

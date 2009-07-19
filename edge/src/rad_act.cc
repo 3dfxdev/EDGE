@@ -126,13 +126,7 @@ static void SetupTip(drawtip_t *cur)
 	}
 
 	int i;
-	int font_height = rts_hack_style->fonts[0]->NominalHeight() + 2;
 	int base_x, base_y;
-
-	const char *ch_ptr;
-	bool need_newbie;
-
-	hu_textline_t *HU;
 
 	if (cur->tip_graphic)
 		return;
@@ -145,55 +139,41 @@ static void SetupTip(drawtip_t *cur)
 	base_x = (int)(320 * PERCENT_2_FLOAT(cur->p.x_pos));
 	base_y = (int)(200 * PERCENT_2_FLOAT(cur->p.y_pos));
 
-	HU = NULL;
-	need_newbie = true;
-	cur->hu_linenum = 0;
+	cur->linenum = 1;
+
+	memset(cur->lines, 0, sizeof(cur->lines));
+
+	int pos = 0;
+	const char *ch_ptr;
 
 	for (ch_ptr=cur->tip_text; *ch_ptr; ch_ptr++)
 	{
-		if (need_newbie)
+		if (*ch_ptr == '\n' || pos > TIP_CHAR_MAX-4)
 		{
-			HU = cur->hu_lines + cur->hu_linenum;
-			cur->hu_linenum++;
-
-			HL_InitTextLine(HU, base_x, base_y, rts_hack_style, 0);
-			HU->centre = cur->p.left_just ? false : true;
-
-			need_newbie = false;
-		}
-
-		if (*ch_ptr == '\n')
-		{
-			if (cur->hu_linenum == TIP_LINE_MAX)
+			if (cur->linenum == TIP_LINE_MAX)
 				break;
 
-			need_newbie = true;
+			if (! ch_ptr[1])
+				break;
+			
+			cur->linenum++;
+			pos = 0;
 			continue;
 		}
 
-		SYS_ASSERT(HU);
-
-		HL_AddCharToTextLine(HU, *ch_ptr);
+		cur->lines[cur->linenum-1][pos++] = *ch_ptr;
+		cur->lines[cur->linenum-1][pos] = 0;
 	}
 
 	// adjust vertical positions
-	for (i=0; i < cur->hu_linenum; i++)
+	for (i=0; i < cur->linenum; i++)
 	{
-		cur->hu_lines[i].y += (i * 2 - cur->hu_linenum) * font_height / 2;
+///!!!!		cur->hu_lines[i].y += (i * 2 - cur->hu_linenum) * font_height / 2;
 	}
 }
 
 static void FinishTip(drawtip_t *current)
 {
-	int i;
-
-	if (current->tip_graphic)
-		return;
-
-	for (i=0; i < current->hu_linenum; i++)
-	{
-		HL_EraseTextLine(current->hu_lines + i);
-	}
 }
 
 static void SendTip(rad_trigger_t *R, s_tip_t * tip, int slot)
@@ -243,6 +223,8 @@ void RAD_DisplayTips(void)
 {
 	int i, slot;
 	float alpha;
+
+	int font_height = rts_hack_style ? rts_hack_style->fonts[0]->NominalHeight() + 2 : 4;
 
 	for (slot=0; slot < MAXTIPSLOT; slot++)
 	{
@@ -308,10 +290,13 @@ void RAD_DisplayTips(void)
 
 		// Dump it to the screen
 
-		for (i=0; i < current->hu_linenum; i++)
+		SYS_ASSERT(rts_hack_style);
+
+		for (i=0; i < current->linenum; i++)
 		{
-			HL_DrawTextLineAlpha(current->hu_lines + i, false,
-				current->color, alpha);
+			HL_WriteTextTrans(rts_hack_style,0,
+				0, 30+i*font_height, current->color,
+				current->lines[i], 1.0f, alpha);
 		}
 	}
 }
