@@ -4,6 +4,13 @@ Andrew Apted's Log
 
 Console: typing 'quit now' will quit without the confirmation.
 
+Been thinking about ZIP files.  I think the stumbling block I
+had about them was to consider their location as significant.
+Now I think that _where_ a ZIP file is located is irrelevant
+(for EDGE anyway), and each added zip file simply becomes a
+"place" in the global path list.  The last added zip would
+be at the head of the global path (searched first).
+
 2009/07/17:
 
 Restored the old BSP renderer.
