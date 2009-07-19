@@ -102,9 +102,11 @@ void HL_DrawTextLineAlpha(hu_textline_t * l, bool drawcursor,
 		rgbcol_t col, float alpha);
 
 
-void HL_WriteText(style_c *style, int text_type, int x, int y, const char *str, float scale = 1.0f);
+void HL_WriteText(style_c *style, int text_type, int x, int y,
+		const char *str, float scale = 1.0f, float alpha = 1.0f);
+
 void HL_WriteTextTrans(style_c *style, int text_type, int x, int y,
-		rgbcol_t col, const char *str, float scale = 1.0f);
+		rgbcol_t col, const char *str, float scale = 1.0f, float alpha = 1.0f);
 
 #endif  // __HULIB__
 

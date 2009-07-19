@@ -56,7 +56,7 @@ void HL_Init(void)
 // Write a string using the hu_font and index translator.
 //
 void HL_WriteTextTrans(style_c *style, int text_type, int x, int y,
-	rgbcol_t col, const char *str, float scale)
+	rgbcol_t col, const char *str, float scale, float alpha)
 {
 	float cx = x;
 	float cy = y;
@@ -82,7 +82,7 @@ void HL_WriteTextTrans(style_c *style, int text_type, int x, int y,
 		if (cx >= 320.0f)
 			continue;
 
-		font->DrawChar320(cx, cy, ch, scale,1.0f, col, 1.0f);
+		font->DrawChar320(cx, cy, ch, scale,1.0f, col, alpha);
 
 		cx += font->CharWidth(ch) * scale;
 	}
@@ -93,11 +93,11 @@ void HL_WriteTextTrans(style_c *style, int text_type, int x, int y,
 //
 // Write a string using the hu_font.
 //
-void HL_WriteText(style_c *style, int text_type, int x, int y, const char *str, float scale)
+void HL_WriteText(style_c *style, int text_type, int x, int y, const char *str, float scale, float alpha)
 {
 	HL_WriteTextTrans(style, text_type, x, y,
 			V_GetFontColor(style->def->text[text_type].colmap),
-			str, scale);
+			str, scale, alpha);
 }
 
 //----------------------------------------------------------------------------
