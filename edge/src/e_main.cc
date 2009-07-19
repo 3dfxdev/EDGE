@@ -111,7 +111,6 @@ FILE *debugfile = NULL;
 
 int newnmrespawn = 0;
 
-bool showstats = false;
 bool swapstereo = false;
 bool mus_pause_stop = false;
 
@@ -281,7 +280,6 @@ static void SetGlobalVars(void)
 	if (M_CheckParm("-singletics"))
 		singletics = true;
 
-///???	M_CheckBooleanParm("showstats", &showstats, false);
 ///???	M_CheckBooleanParm("itemrespawn", &global_flags.itemrespawn, false);
 
 	// check for strict and no-warning options
