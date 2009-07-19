@@ -156,6 +156,33 @@ void RGL_SetupMatrices3D(void)
 	/* glBlendFunc(GL_SRC_ALPHA, GL_ONE);  // Additive lighting */
 }
 
+void RGL_NewScreenSize(int width, int height, int bits)
+{
+	//!!! quick hack
+	RGL_SetupMatrices2D();
+
+	// prevent a visible border with certain cards/drivers
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+}
+
+void RGL_ReadScreen(int x, int y, int w, int h, byte *rgb_buffer)
+{
+	glFlush();
+
+	glPixelZoom(1.0f, 1.0f);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+	for (; h > 0; h--, y++)
+	{
+		glReadPixels(x, y, w, 1, GL_RGB, GL_UNSIGNED_BYTE, rgb_buffer);
+
+		rgb_buffer += w * 3;
+	}
+}
+
+
+
 static inline const char *SafeStr(const void *s)
 {
 	return s ? (const char *)s : "";

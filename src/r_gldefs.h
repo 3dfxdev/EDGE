@@ -57,6 +57,9 @@ void RGL_SoftInit(void);
 void RGL_DrawProgress(int perc, int glbsp_perc);
 void RGL_SetupMatrices2D(void);
 void RGL_SetupMatrices3D(void);
+void RGL_NewScreenSize(int width, int height, int bits);
+void RGL_ReadScreen(int x, int y, int w, int h, byte *rgb_buffer);
+
 
 #define LT_RED(light)  (MIN(255,light) * ren_red_mul / 255.0f)
 #define LT_GRN(light)  (MIN(255,light) * ren_grn_mul / 255.0f)
