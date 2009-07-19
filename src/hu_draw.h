@@ -28,6 +28,13 @@
 
 #include "r_image.h"
 
+// We are referring to patches.
+#include "hu_font.h"
+#include "hu_style.h"
+
+#define HU_MAXLINES		4
+#define HU_MAXLINELENGTH	80
+
 void RGL_DrawImage(float x, float y, float w, float h, const image_c *image,
 				   float tx1, float ty1, float tx2, float ty2,
 				   float alpha = 1.0f, rgbcol_t text_col = RGB_NO_VALUE,
@@ -57,6 +64,14 @@ void RGL_GradientBox(int x, int y, int w, int h, rgbcol_t *cols, float alpha = 1
 void RGL_Image(float x, float y, float w, float h, const image_c *image);
 void RGL_Image320(float x, float y, float w, float h, const image_c *image);
 void RGL_ImageEasy320(float x, float y, const image_c *image);
+
+void HL_Init(void);
+
+void HL_WriteText(style_c *style, int text_type, int x, int y,
+		const char *str, float scale = 1.0f, float alpha = 1.0f);
+
+void HL_WriteTextTrans(style_c *style, int text_type, int x, int y,
+		rgbcol_t col, const char *str, float scale = 1.0f, float alpha = 1.0f);
 
 #endif /* __R_DRAW_H__ */
 

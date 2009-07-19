@@ -19,17 +19,14 @@
 #ifndef __RAD_MAIN_H__
 #define __RAD_MAIN_H__
 
-
-#include "r_defs.h"
-#include "hu_stuff.h"
-#include "hu_lib.h"
-
 #include "epi/math_crc.h"
 
 #include "ddf/main.h"
 #include "ddf/attack.h"
 #include "ddf/thing.h"
 #include "ddf/weapon.h"
+
+#include "p_mobj.h"  // position_c
 
 struct rts_state_s;
 struct rad_script_s;
@@ -466,7 +463,7 @@ typedef struct s_onheight_s
 
 	// sector pointer, computed the first time this ONHEIGHT condition
 	// is tested.
-	sector_t *cached_sector;
+	struct sector_s *cached_sector;
 }
 s_onheight_t;
 
