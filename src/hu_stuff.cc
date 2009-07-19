@@ -61,22 +61,16 @@
 #define HU_INPUTHEIGHT	1
 
 bool chat_on;
-static hu_itext_t w_chat;
 
 key_binding_c k_talk;
 
 std::string w_map_title;
 
-static char *chat_dest;
-static hu_itext_t *w_inputbuffer;
+static std::string w_message;
 
 static bool message_on;
 static bool message_no_overwrite;
-
-static hu_stext_t w_message;
-static int message_counter;
-
-static bool headsupactive = false;
+static int  message_counter;
 
 // 23-6-98 KM Added a line showing the current limits in the
 // render code.  Note that these are not really limits,
@@ -89,7 +83,6 @@ static hu_textline_t textlinememory;
 
 static style_c *message_style;
        style_c *automap_style;
-static style_c *chat_style;
 
 
 //
@@ -99,15 +92,10 @@ void HU_Init(void)
 {
 	// should use language["HeadsUpInit"], but LDF hasn't been loaded yet
 	E_ProgressMessage("HU_Init: Setting up heads up display.\n");
-
-	chat_dest = Z_New(char, MAXPLAYERS);
-
-	w_inputbuffer = Z_New(hu_itext_t, MAXPLAYERS);
 }
 
-static void HU_Stop(void)
+void HU_Stop(void)
 {
-	headsupactive = false;
 }
 
 // -ACB- 1998/08/09 Used currmap to set the map name in string
@@ -115,9 +103,6 @@ void HU_Start(void)
 {
 	int i;
 	const char *string;
-
-	if (headsupactive)
-		HU_Stop();
 
 	// find styles
 	styledef_c *msg_styledef = styledefs.Lookup("MESSAGES");
@@ -130,17 +115,9 @@ void HU_Start(void)
 		map_styledef = default_style;
 	automap_style = HU_LookupStyle(map_styledef);
 
-	styledef_c *chat_styledef = styledefs.Lookup("CHAT");
-	if (! chat_styledef)
-		chat_styledef = default_style;
-	chat_style = HU_LookupStyle(chat_styledef);
-
 	message_on = false;
 	message_no_overwrite = false;
 	chat_on = false;
-
-	// create the message widget
-	HL_InitSText(&w_message, HU_MSGX, HU_MSGY, HU_MSGHEIGHT, message_style, 0);
 
 	//create stuff for showstats cheat
 	// 23-6-98 KM Limits info added.
@@ -167,24 +144,15 @@ void HU_Start(void)
 
 		w_map_title = std::string(string);
 	}
-
-	// create the chat widget
-	HL_InitIText(&w_chat, HU_INPUTX, HU_INPUTY, chat_style, 0);
-
-	// create the inputbuffer widgets
-	for (i = 0; i < MAXPLAYERS; i++)
-		HL_InitIText(&w_inputbuffer[i], 0, 0, NULL, 0);
-
-	headsupactive = true;
 }
 
 void HU_Drawer(void)
 {
 	if (message_on)
-		HL_DrawSText(&w_message);
+		HL_WriteText(message_style, 0, HU_MSGX, HU_MSGY, w_message.c_str(), 1.0f);
 
-	if (chat_on)
-		HL_DrawIText(&w_chat);
+//TODO	if (chat_on)
+//		HL_DrawIText(&w_chat);
 
 	//now, draw stats
 	// -ACB- 1998/09/11 Used White Colour Scaling.
@@ -266,11 +234,6 @@ void HU_Drawer(void)
 
 void HU_Erase(void)
 {
-	if (!headsupactive)
-		return;
-
-	HL_EraseSText(&w_message);
-	HL_EraseIText(&w_chat);
 }
 
 // Starts displaying the message.
@@ -279,7 +242,8 @@ void HU_StartMessage(const char *msg)
 	// only display message if necessary
 	if (! message_no_overwrite)
 	{
-		HL_AddMessageToSText(&w_message, 0, msg);
+		w_message = std::string(msg);
+
 		message_on = true;
 		message_counter = HU_MSGTIMEOUT;
 		message_no_overwrite = false;
@@ -299,6 +263,7 @@ void HU_Ticker(void)
 	if (! netgame)
 		return;
 
+#if 0  // OLD STUFF FOR CHAT MESSAGES
 	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
 	{
 		player_t *p = players[pnum];
@@ -342,69 +307,37 @@ void HU_Ticker(void)
 			HL_ResetIText(&w_inputbuffer[i]);
 		}
 	}
-}
-
-#define QUEUESIZE 128
-
-static char chatchars[QUEUESIZE];
-static int head = 0;
-static int tail = 0;
-
-void HU_QueueChatChar(char c)
-{
-	if (((head + 1) & (QUEUESIZE - 1)) == tail)
-	{
-		CON_PlayerMessageLDF(consoleplayer, "UnsentMsg");
-	}
-	else
-	{
-		chatchars[head] = c;
-		head = (head + 1) & (QUEUESIZE - 1);
-	}
-}
-
-char HU_DequeueChatChar(void)
-{
-	char c;
-
-	if (head != tail)
-	{
-		c = chatchars[tail];
-		tail = (tail + 1) & (QUEUESIZE - 1);
-	}
-	else
-	{
-		c = 0;
-	}
-
-	return c;
+#endif
 }
 
 bool HU_Responder(event_t * ev)
 {
-	static char lastmessage[HU_MAXLINELENGTH + 1];
-
 	if (ev->type != ev_keydown)
 		return false;
 
 	int sym = ev->value.key.sym;
 
+	if (!chat_on && sym == KEYD_ENTER)
+	{
+		message_on = true;
+		message_counter = HU_MSGTIMEOUT;
+		return false;
+	}
+
+	return false;
+
+#if 0  // OLD CHAT STUFF
+	static char lastmessage[HU_MAXLINELENGTH + 1];
+
 	if (!chat_on)
 	{
-		if (sym == KEYD_ENTER)
-		{
-			message_on = true;
-			message_counter = HU_MSGTIMEOUT;
-			return false;
-		}
-		else if (netgame && k_talk.HasKey(ev))
+		if (netgame && k_talk.HasKey(ev))
 		{
 			chat_on = true;
 			HL_ResetIText(&w_chat);
 			HU_QueueChatChar(HU_BROADCAST);
 			return true;
 		}
-
 		return false;
 	}
 
@@ -434,6 +367,7 @@ bool HU_Responder(event_t * ev)
 	}
 
 	return eatkey;
+#endif
 }
 
 //--- editor settings ---

@@ -466,7 +466,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	if (k_autorun.WasJustPressed())
 		in_autorun = in_autorun.d ? 0 : 1;
 
-	cmd->chatchar = HU_DequeueChatChar();
+///??	cmd->chatchar = HU_DequeueChatChar();
 
 	for (int k = 0; k < 6; k++)
 		analogue[k] = 0;
