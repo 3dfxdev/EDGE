@@ -66,34 +66,6 @@ typedef struct
 }
 hu_textline_t;
 
-// Scrolling Text window widget
-//  (child of Text Line widget)
-
-typedef struct
-{
-	// text lines to draw
-	hu_textline_t L[HU_MAXLINES];
-
-	// height in lines
-	int h;
-
-	// current line number
-	int curline;
-}
-hu_stext_t;
-
-// Input Text Line widget
-//  (child of Text Line widget)
-
-typedef struct
-{
-	// text line to input on
-	hu_textline_t L;
-
-	// left margin past which I am not to delete characters
-	int margin;
-}
-hu_itext_t;
 
 //
 // Widget creation, access, and update routines
@@ -124,50 +96,6 @@ void HL_DrawTextLine(hu_textline_t * l, bool drawcursor);
 // erases text line
 void HL_EraseTextLine(hu_textline_t * l);
 
-//
-// Scrolling Text window widget routines
-//
-
-// initialise new stext
-void HL_InitSText(hu_stext_t * s, int x, int y, int h, 
-    style_c *style, int text_type);
-
-// add a new line
-void HL_AddLineToSText(hu_stext_t * s);
-
-// add message to stext
-void HL_AddMessageToSText(hu_stext_t * s, 
-    const char *prefix, const char *msg);
-
-// draws stext
-void HL_DrawSText(hu_stext_t * s);
-
-// erases all stext lines
-void HL_EraseSText(hu_stext_t * s);
-
-// Input Text Line widget routines
-void HL_InitIText(hu_itext_t * it, int x, int y, 
-    style_c *style, int text_type);
-
-// enforces left margin
-void HL_DelCharFromIText(hu_itext_t * it);
-
-// enforces left margin
-void HL_EraseLineFromIText(hu_itext_t * it);
-
-// resets line and left margin
-void HL_ResetIText(hu_itext_t * it);
-
-// left of left-margin
-void HL_AddPrefixToIText(hu_itext_t * it, const char *str);
-
-// whether eaten
-bool HL_KeyInIText(hu_itext_t * it, char ch);
-
-void HL_DrawIText(hu_itext_t * it);
-
-// erases all itext lines
-void HL_EraseIText(hu_itext_t * it);
 
 // -ACB- 1998/06/10
 void HL_DrawTextLineAlpha(hu_textline_t * l, bool drawcursor, 
