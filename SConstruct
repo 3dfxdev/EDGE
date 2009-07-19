@@ -94,6 +94,7 @@ class LibraryConfig():
 			test_path = os.path.join(path, self.subdirs['src'])
 		else:
 			test_path = path
+		## print test_path
 		if os.path.isfile(os.path.join(test_path, self.header)):
 			# Setup the include file path
 			config['cpppath'] = test_path
@@ -262,7 +263,7 @@ lib_configs = []
 
 # The Engine itself
 lib_configs.append(LibraryConfig(name='edge1',
-								header='dm_structs.h',
+								header='e_main.h',
 								search_order=['root'],
 								dir='src',
 								no_include_dir=1,
@@ -294,7 +295,7 @@ lib_configs.append(LibraryConfig(name='glbsp',
 # SDL
 if build_info['platform'] == 'win32':
 	lib_configs.append(LibraryConfig(name='SDL',
-									header='SDL.h',
+									header='SDL/SDL.h',
 									defines={'system': ['HAVE_SDL_H']},
 									subdirs={ 'src' : 'include', 'lib':'build' },
 									libs=['SDLmain', '.libs/SDL.dll']))
