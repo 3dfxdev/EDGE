@@ -36,7 +36,7 @@
 #include "ddf/language.h"
 
 #include "g_state.h"
-#include "dm_structs.h"
+#include "dm_struct.h"
 #include "e_main.h"
 #include "g_game.h"
 #include "l_glbsp.h"

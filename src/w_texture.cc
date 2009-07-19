@@ -27,7 +27,7 @@
 #include "epi/endianess.h"
 #include "epi/utility.h"
 
-#include "dm_structs.h"
+#include "dm_struct.h"
 #include "e_search.h"
 #include "e_main.h"
 #include "r_image.h"

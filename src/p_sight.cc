@@ -41,7 +41,7 @@
 
 #include <vector>
 
-#include "dm_structs.h"
+#include "dm_struct.h"
 #include "m_bbox.h"
 #include "p_local.h"
 #include "r_state.h"

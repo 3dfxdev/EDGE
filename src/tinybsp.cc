@@ -21,7 +21,7 @@
 #include "r_defs.h"
 #include "r_state.h"
 #include "p_local.h"
-#include "dm_structs.h"
+#include "dm_struct.h"
 
 
 #define DIST_EPSILON  0.2f

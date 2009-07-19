@@ -35,7 +35,7 @@
 
 #include "epi/utility.h"
 
-#include "dm_structs.h"
+#include "dm_struct.h"
 
 
 class image_c;

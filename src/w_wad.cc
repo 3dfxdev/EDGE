@@ -64,7 +64,7 @@
 #include "ddf/weapon.h"
 
 #include "g_state.h"
-#include "dm_structs.h"
+#include "dm_struct.h"
 #include "m_strings.h"
 #include "e_main.h"
 #include "e_search.h"
