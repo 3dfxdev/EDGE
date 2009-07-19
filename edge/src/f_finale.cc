@@ -390,19 +390,17 @@ static void TextWrite(void)
 	if (count < 0)
 		count = 0;
 
-	hu_textline_t L;
-
 	SYS_ASSERT(finale_hack_style);
+	SYS_ASSERT(finale);
 
-	HL_InitTextLine(&L, cx, cy, finale_hack_style, 0);
+	std::string L;
 
 	for (;;)
 	{
-		SYS_ASSERT(finale);
-
 		if (count == 0 || *ch == 0)
 		{
-			HL_DrawTextLineAlpha(&L, false, finale_textcol, 1.0f);
+			HL_WriteTextTrans(finale_hack_style, 0, cx, cy,
+							  finale_textcol, L.c_str(), 1.0f);
 			break;
 		}
 
@@ -410,13 +408,14 @@ static void TextWrite(void)
 
 		if (c == '\n')
 		{
+			HL_WriteTextTrans(finale_hack_style, 0, cx, cy,
+							  finale_textcol, L.c_str(), 1.0f);
+			L.clear();
 			cy += 11;
-			HL_DrawTextLineAlpha(&L, false, finale_textcol, 1.0f);
-			HL_InitTextLine(&L, cx, cy, finale_hack_style, 0);
 			continue;
 		}
 
-		HL_AddCharToTextLine(&L, c);
+		L += c;
 	}
 }
 
