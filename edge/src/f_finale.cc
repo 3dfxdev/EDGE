@@ -562,8 +562,6 @@ static void CastInitNew(int num)
 
 
 //
-// CastTicker
-//
 // -KM- 1998/10/29 Use sfx_t.
 //      Known bug: Chaingun/Spiderdemon's sounds aren't stopped.
 //
@@ -635,9 +633,7 @@ static void CastTicker(void)
 	}
 }
 
-//
-// CastSkip
-//
+
 static void CastSkip(void)
 {
 	if (cast_death)
@@ -668,17 +664,15 @@ static void CastPrint(const char *text)
 		180, text);
 }
 
-//
-// CastDrawer
-//
+
 static void CastDrawer(void)
 {
 	const image_c *image;
 	bool flip;
 
-	// erase the entire screen to a background
-	// -KM- 1998/07/21 Clear around the pic too.
-	cast_style->DrawBackground();
+	image = W_ImageLookup("BOSSBACK");
+
+	RGL_Image320(0, 0, 320, 200, image);
 
 	CastPrint(cast_title);
 

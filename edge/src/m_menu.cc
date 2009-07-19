@@ -216,9 +216,6 @@ typedef struct menu_s
 	// menu items
 	menuitem_t *menuitems;
 
-	// style variable
-	style_c **style_var;
-
 	// draw routine
 	void (* draw_func)(void);
 
@@ -316,7 +313,6 @@ static menu_t MainDef =
 	main_end,
 	NULL,
 	MainMenu,
-	&main_menu_style,
 	M_DrawMainMenu,
 	97, 64,
 	0
@@ -343,7 +339,6 @@ static menu_t EpiDef =
 	0,  //ep_end,  // # of menu items
 	&MainDef,  // previous menu
 	&DefaultEpiMenu,  // menuitem_t ->
-	&episode_style,
 	M_DrawEpisode,  // drawing routine ->
 	48, 63,  // x,y
 	0  // lastOn
@@ -363,7 +358,6 @@ static menu_t SkillDef =
 	5,    // # of menu items
 	&EpiDef,  // previous menu
 	SkillMenu,  // menuitem_t ->
-	&skill_style,
 	M_DrawNewGame,  // drawing routine ->
 	48, 63,  // x,y
 	sk_medium  // lastOn
@@ -399,7 +393,6 @@ static menu_t ReadDef1 =
 	1,
 	&MainDef,
 	ReadMenu1,
-	&menu_def_style,  // FIXME: maybe have READ_1 and READ_2 styles ??
 	M_DrawReadThis1,
 	280, 185,
 	0
@@ -415,7 +408,6 @@ static menu_t ReadDef2 =
 	1,
 	&ReadDef1,
 	ReadMenu2,
-	&menu_def_style,  // FIXME: maybe have READ_1 and READ_2 styles ??
 	M_DrawReadThis2,
 	330, 175,
 	0
@@ -438,7 +430,6 @@ static menu_t SoundDef =
 	4,
 	&MainDef,  ///  &OptionsDef,
 	SoundMenu,
-	&sound_vol_style,
 	M_DrawSound,
 	80, 64,
 	0
@@ -468,7 +459,6 @@ static menu_t LoadDef =
 	SAVE_SLOTS,
 	&MainDef,
 	LoadingMenu,
-	&load_style,
 	M_DrawLoad,
 	30, 34,
 	0
@@ -496,7 +486,6 @@ static menu_t SaveDef =
 	SAVE_SLOTS,
 	&MainDef,
 	SavingMenu,
-	&save_style,
 	M_DrawSave,
 	30, 34,
 	0
@@ -1900,7 +1889,7 @@ static void DrawMessage(void)
 {
 	short x, y;
 
-	dialog_style->DrawBackground();
+	RGL_SolidBox(0, 0, SCREENWIDTH, SCREENHEIGHT, RGB_MAKE(0,0,0), 0.64f);
 
 	// FIXME: HU code should support center justification: this
 	// would remove the code duplication below...
@@ -2009,10 +1998,7 @@ void M_Drawer(void)
 		return;
 	}
 
-	style_c *style = currentMenu->style_var[0];
-	SYS_ASSERT(style);
-
-	style->DrawBackground();
+	RGL_SolidBox(0, 0, SCREENWIDTH, SCREENHEIGHT, RGB_MAKE(0,0,0), 0.64f);
 
 	// call Draw routine
 	if (currentMenu->draw_func)

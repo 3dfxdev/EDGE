@@ -189,7 +189,7 @@ public:
 
 	void Drawer()
 	{
-		style->DrawBackground();
+		RGL_SolidBox(0, 0, SCREENWIDTH, SCREENHEIGHT, RGB_MAKE(0,0,0), 0.64f);
 
 		for (int t = 0; t < title_num; t++)
 			HL_DrawTextLine(title_lines + t, false);
