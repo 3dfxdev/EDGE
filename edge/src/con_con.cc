@@ -371,7 +371,7 @@ static void HorizontalLine(int y, rgbcol_t col)
 	RGL_SolidBox(0, y, SCREENWIDTH-1, 1, col, alpha);
 }
 
-static void WriteChar(int x, int y, char ch, rgbcol_t col)
+static void DrawChar(int x, int y, char ch, rgbcol_t col)
 {
 	if (x + FNSZ < 0)
 		return;
@@ -409,7 +409,7 @@ static void WriteChar(int x, int y, char ch, rgbcol_t col)
 }
 
 // writes the text on coords (x,y) of the console
-void CON_WriteText(int x, int y, const char *s, rgbcol_t col)
+void CON_DrawText(int x, int y, const char *s, rgbcol_t col)
 {
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, con_font_tex);
@@ -420,7 +420,7 @@ void CON_WriteText(int x, int y, const char *s, rgbcol_t col)
 
 	for (; *s; s++)
 	{
-		WriteChar(x, y, *s, col);
+		DrawChar(x, y, *s, col);
 
 		x += XMUL;
 
@@ -483,21 +483,21 @@ void CON_Drawer(void)
 
 	if (bottomrow == -1 && !conerroractive)
 	{
-		CON_WriteText(0, y, ">", T_PURPLE);
+		CON_DrawText(0, y, ">", T_PURPLE);
 
 		if (cmd_hist_pos >= 0)
 		{
 			const char *text = cmd_history[cmd_hist_pos]->c_str();
 
-			CON_WriteText(XMUL, y, text, T_PURPLE);
+			CON_DrawText(XMUL, y, text, T_PURPLE);
 		}
 		else
 		{
-			CON_WriteText(XMUL, y, input_line, T_PURPLE);
+			CON_DrawText(XMUL, y, input_line, T_PURPLE);
 		}
 
 		if (con_cursor < 16)
-			CON_WriteText((input_pos+1) * XMUL, y - 2, "_", T_PURPLE);
+			CON_DrawText((input_pos+1) * XMUL, y - 2, "_", T_PURPLE);
 
 		y += YMUL;
 	}
@@ -516,7 +516,7 @@ void CON_Drawer(void)
 		if (strncmp(CL->line.c_str(), "--------", 8) == 0)
 			HorizontalLine(y + YMUL/2, CL->color);
 		else
-			CON_WriteText(0, y, CL->line.c_str(), CL->color);
+			CON_DrawText(0, y, CL->line.c_str(), CL->color);
 
 		y += YMUL;
 
@@ -572,14 +572,14 @@ void CON_ShowStats(void)
 	if (debug_fps.d || debug_stats.d)
 	{
 		sprintf(textbuf, "  fps: %1.1f", fps);
-		CON_WriteText(x, y, textbuf, T_WHITE);
+		CON_DrawText(x, y, textbuf, T_WHITE);
 		y -= YMUL;
 	}
 
 	if (debug_fps.d >= 2 || debug_stats.d)
 	{
 		sprintf(textbuf, " ms/f: %1.1f", mspf);
-		CON_WriteText(x, y, textbuf, T_WHITE);
+		CON_DrawText(x, y, textbuf, T_WHITE);
 		y -= YMUL;
 	}
 
@@ -591,40 +591,40 @@ void CON_ShowStats(void)
 		SYS_ASSERT(p);
 
 		sprintf(textbuf, "    x: %d", (int)p->mo->x);
-		CON_WriteText(x, y, textbuf, T_WHITE);
+		CON_DrawText(x, y, textbuf, T_WHITE);
 		y -= YMUL;
 
 		sprintf(textbuf, "    y: %d", (int)p->mo->y);
-		CON_WriteText(x, y, textbuf, T_WHITE);
+		CON_DrawText(x, y, textbuf, T_WHITE);
 		y -= YMUL;
 
 		sprintf(textbuf, "    z: %d", (int)p->mo->z);
-		CON_WriteText(x, y, textbuf, T_WHITE);
+		CON_DrawText(x, y, textbuf, T_WHITE);
 		y -= YMUL;
 
 		sprintf(textbuf, "angle: %d", (int)ANG_2_FLOAT(p->mo->angle));
-		CON_WriteText(x, y, textbuf, T_WHITE);
+		CON_DrawText(x, y, textbuf, T_WHITE);
 		y -= YMUL;
 
 		sprintf(textbuf, "  sec: %d", (int)(p->mo->subsector->sector - sectors));
-		CON_WriteText(x, y, textbuf, T_WHITE);
+		CON_DrawText(x, y, textbuf, T_WHITE);
 		y -= YMUL;
 
 		sprintf(textbuf, "  sub: %d", (int)(p->mo->subsector - subsectors));
-		CON_WriteText(x, y, textbuf, T_WHITE);
+		CON_DrawText(x, y, textbuf, T_WHITE);
 		y -= YMUL*2;
 
 #if 0
 		sprintf(textbuf, "kills: %d", wi_stats.kills);
-		CON_WriteText(x, y, textbuf, T_WHITE);
+		CON_DrawText(x, y, textbuf, T_WHITE);
 		y -= YMUL;
 
 		sprintf(textbuf, "items: %d", wi_stats.items);
-		CON_WriteText(x, y, textbuf, T_WHITE);
+		CON_DrawText(x, y, textbuf, T_WHITE);
 		y -= YMUL;
 
 		sprintf(textbuf, "secret:%d", wi_stats.secret);
-		CON_WriteText(x, y, textbuf, T_WHITE);
+		CON_DrawText(x, y, textbuf, T_WHITE);
 		y -= YMUL;
 #endif
 	}
@@ -1373,7 +1373,7 @@ static void DrawErrorDialog(void)
 	int tx = (x1+x2) /2 - 6 * XMUL;
 	int ty = y2-22 + MAX(0, 22-YMUL)/2;
 
-	CON_WriteText(tx, ty, "Fatal Error", RGB_MAKE(255,255,255));
+	CON_DrawText(tx, ty, "Fatal Error", RGB_MAKE(255,255,255));
 
 	ty = y2 - 60;
 
@@ -1381,7 +1381,7 @@ static void DrawErrorDialog(void)
 
 	for (int line = 0; line < show_lines; line++)
 	{
-		CON_WriteText(x1+70, ty, error_lines[line].c_str(), RGB_MAKE(0,0,0));
+		CON_DrawText(x1+70, ty, error_lines[line].c_str(), RGB_MAKE(0,0,0));
 
 		ty -= YMUL;
 	}
