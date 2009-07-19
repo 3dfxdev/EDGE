@@ -382,15 +382,13 @@ void E_ForceWipe(void)
 	}
 }
 
-//
-// E_Display
+static bool wipe_gl_active = false;
+
 //
 // Draw current display, possibly wiping it from the previous
 //
 // -ACB- 1998/07/27 Removed doublebufferflag check (unneeded).  
-
-static bool wipe_gl_active = false;
-
+//
 void E_Display(void)
 {
 	if (nodrawers)
