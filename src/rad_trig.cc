@@ -2,7 +2,7 @@
 //  EDGE Radius Trigger / Tip Code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -84,16 +84,19 @@ private:
 	style_c *style;
 
 	int title_num;
-	hu_textline_t title_lines[MAX_TITLE];
+	char title_lines[MAX_TITLE][TIP_CHAR_MAX];
 
 	int choice_num;
-	hu_textline_t choice_lines[MAX_CHOICE];
+	char choice_lines[MAX_CHOICE][TIP_CHAR_MAX];
 
 public:
 	rts_menu_c(s_show_menu_t *menu, rad_trigger_t *_trigger, style_c *_style) :
 		trigger(_trigger), style(_style), title_num(0), choice_num(0)
 	{
 		int y = 0;
+
+		memset(title_lines, 0, sizeof(title_lines));
+		memset(choice_lines, 0, sizeof(choice_lines));
 
 		AddTitle(&y, menu->title, menu->use_ldf);
 
@@ -102,14 +105,14 @@ public:
 		for (int idx = 0; (idx < 9) && menu->options[idx]; idx++)
 			AddChoice(&y, no_choices ? 0 : ('1' + idx), menu->options[idx], menu->use_ldf);
 
-		// center the menu vertically
-		int adjust_y = (200 - y) / 2;
-
-		for (int t = 0; t < title_num; t++)
-			title_lines[t].y += adjust_y;
-
-		for (int c = 0; c < choice_num; c++)
-			choice_lines[c].y += adjust_y;
+///!!!		// center the menu vertically
+///!!!		int adjust_y = (200 - y) / 2;
+///!!!
+///!!!		for (int t = 0; t < title_num; t++)
+///!!!			title_lines[t].y += adjust_y;
+///!!!
+///!!!		for (int c = 0; c < choice_num; c++)
+///!!!			choice_lines[c].y += adjust_y;
 	}
 
 	~rts_menu_c() { /* nothing to do */ }
@@ -134,11 +137,16 @@ private:
 
 			title_num = t + 1;
 
-			HL_InitTextLine(title_lines + t, 160, *y, style, t_type);
-			title_lines[t].centre = true;
+///			HL_InitTextLine(title_lines + t, 160, *y, style, t_type);
+///			title_lines[t].centre = true;
+
+			int pos = 0;
 
 			for (; *text && *text != '\n'; text++)
-				HL_AddCharToTextLine(title_lines + t, *text);
+			{
+				title_lines[t][pos++] = *text;
+				title_lines[t][pos] = 0;
+			}
 
 			if (*text == '\n')
 				*text++;
@@ -163,18 +171,25 @@ private:
 		// FIXME: take scaling into account !!!
 		int font_h = style->fonts[t_type]->NominalHeight() + 2; //FIXME: fonts[] may be NULL
 
-		HL_InitTextLine(choice_lines + c, 160, *y, style, t_type);
-		choice_lines[c].centre = true;
+///		HL_InitTextLine(choice_lines + c, 160, *y, style, t_type);
+///		choice_lines[c].centre = true;
+
+		int pos = 0;
 
 		if (key)
 		{
-			HL_AddCharToTextLine(choice_lines + c, key);
-			HL_AddCharToTextLine(choice_lines + c, '.');
-			HL_AddCharToTextLine(choice_lines + c, ' ');
+			choice_lines[c][pos++] = key;
+			choice_lines[c][pos++] = '.';
+			choice_lines[c][pos++] = ' ';
+
+			choice_lines[c][pos] = 0;
 		}
 
 		for (; *text && *text != '\n'; text++)
-			HL_AddCharToTextLine(choice_lines + c, *text);
+		{
+			choice_lines[c][pos++] = *text;
+			choice_lines[c][pos] = 0;
+		}
 
 		(*y) += font_h;
 	}
@@ -191,11 +206,11 @@ public:
 	{
 		RGL_SolidBox(0, 0, SCREENWIDTH, SCREENHEIGHT, RGB_MAKE(0,0,0), 0.64f);
 
-		for (int t = 0; t < title_num; t++)
-			HL_DrawTextLine(title_lines + t, false);
+		for (int t = 0; t < title_num; t++) //!!!!
+			HL_WriteText(style, styledef_c::T_TITLE, 0, t*10, title_lines[t]);
 
 		for (int c = 0; c < choice_num; c++)
-			HL_DrawTextLine(choice_lines + c, false);
+			HL_WriteText(style, styledef_c::T_TEXT, 0,(title_num+1+c)*10, choice_lines[c]);
 	}
 
 	int CheckKey(int key)
