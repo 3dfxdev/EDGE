@@ -48,6 +48,11 @@ static void P_UpdatePowerups(player_t *player);
 
 #define ZOOM_ANGLE_DIV  4
 
+static sfx_t * sfx_jpidle;
+static sfx_t * sfx_jpmove;
+static sfx_t * sfx_jprise;
+static sfx_t * sfx_jpdown;
+static sfx_t * sfx_jpflow;
 
 static void CalcHeight(player_t * player)
 {
@@ -774,6 +779,15 @@ void P_CreatePlayer(int pnum, bool is_bot)
 		P_BotCreate(p, false);
 
 	memset(p->consistency, -1, sizeof(p->consistency));
+
+	if (! sfx_jpidle)
+	{
+		sfx_jpidle = sfxdefs.GetEffect("JPIDLE");
+		sfx_jpmove = sfxdefs.GetEffect("JPMOVE");
+		sfx_jprise = sfxdefs.GetEffect("JPRISE");
+		sfx_jpdown = sfxdefs.GetEffect("JPDOWN");
+		sfx_jpflow = sfxdefs.GetEffect("JPFLOW");
+	}
 }
 
 
@@ -794,6 +808,9 @@ void P_DestroyAllPlayers(void)
 
 	consoleplayer = -1;
 	displayplayer = -1;
+
+	sfx_jpidle = sfx_jpmove = sfx_jprise = NULL;
+	sfx_jpdown = sfx_jpflow = NULL;
 }
 
 

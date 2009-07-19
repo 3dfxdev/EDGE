@@ -27,6 +27,16 @@
 #define __M_MENU__
 
 struct event_s;
+struct sfx_s;
+
+extern struct sfx_s * sfx_swtchn;
+extern struct sfx_s * sfx_tink;
+extern struct sfx_s * sfx_radio;
+extern struct sfx_s * sfx_oof;
+extern struct sfx_s * sfx_pstop;
+extern struct sfx_s * sfx_stnmov;
+extern struct sfx_s * sfx_pistol;
+extern struct sfx_s * sfx_swtchx;
 
 //
 // MENUS

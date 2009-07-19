@@ -45,6 +45,7 @@
 #include "hu_lib.h"
 #include "hu_stuff.h"
 #include "hu_style.h"
+#include "m_menu.h"
 #include "m_random.h"
 #include "p_action.h"
 #include "am_map.h"

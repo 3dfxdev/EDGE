@@ -41,32 +41,6 @@ typedef struct sfx_s
 }
 sfx_t;
 
-// Bastard SFX are sounds that are hardcoded into the
-// code.  They should be removed if at all possible
-
-typedef struct
-{
-	sfx_t *s;
-	const char *name;
-}
-bastard_sfx_t;
-
-extern bastard_sfx_t bastard_sfx[];
-
-#define sfx_swtchn bastard_sfx[0].s
-#define sfx_tink bastard_sfx[1].s
-#define sfx_radio bastard_sfx[2].s
-#define sfx_oof bastard_sfx[3].s
-#define sfx_pstop bastard_sfx[4].s
-#define sfx_stnmov bastard_sfx[5].s
-#define sfx_pistol bastard_sfx[6].s
-#define sfx_swtchx bastard_sfx[7].s
-#define sfx_jpmove bastard_sfx[8].s
-#define sfx_jpidle bastard_sfx[9].s
-#define sfx_jprise bastard_sfx[10].s
-#define sfx_jpdown bastard_sfx[11].s
-#define sfx_jpflow bastard_sfx[12].s
-
 #define sfx_None (sfx_t*) NULL
 
 // Sound Effect Definition Class
