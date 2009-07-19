@@ -58,6 +58,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+extern cvar_c debug_stats;
+
 //
 // CHEAT SEQUENCE PACKAGE
 //
@@ -441,7 +443,7 @@ bool M_CheatResponder(event_t * ev)
 		M_StartMessageInput(language["MusicQ"], M_ChangeMusicCheat);
 	}
 	else if (M_CheckCheat(&cheat_showstats, key))
-		showstats = !showstats;
+		debug_stats = debug_stats.d ? 0 : 1;
 
 	return false;
 }

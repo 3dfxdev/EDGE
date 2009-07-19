@@ -30,6 +30,8 @@
 
 #include "con_main.h"
 #include "e_input.h"
+#include "e_player.h"
+#include "f_interm.h"
 #include "hu_lib.h"
 #include "hu_stuff.h"
 #include "hu_style.h"
@@ -46,6 +48,9 @@
 
 
 key_binding_c k_console;
+
+cvar_c debug_fps;
+cvar_c debug_stats;
 
 
 static visible_t con_visible;
@@ -429,13 +434,8 @@ void CON_WriteText(int x, int y, const char *s, rgbcol_t col)
 }
 
 
-void CON_Drawer(void)
+static void CalcSizes(void)
 {
-	if (con_visible == vs_notvisible && !conwipeactive)
-		return;
-
-	// determine font sizing and spacing
-
 	if (SCREENWIDTH < 400)
 	{
 		FNSZ = 10; XMUL = 7; YMUL = 12;
@@ -448,6 +448,17 @@ void CON_Drawer(void)
 	{
 		FNSZ = 16;  XMUL = 11;  YMUL = 19;
 	}
+
+}
+
+
+void CON_Drawer(void)
+{
+	if (con_visible == vs_notvisible && !conwipeactive)
+		return;
+
+	// determine font sizing and spacing
+	CalcSizes();
 
 
 	// -- background --
@@ -464,7 +475,7 @@ void CON_Drawer(void)
 	else
 		y = y - CON_GFX_HT;
 
-	RGL_SolidBox(0, y, SCREENWIDTH, SCREENWIDTH - y, RGB_MAKE(0,0,8), 0.75);
+	RGL_SolidBox(0, y, SCREENWIDTH, SCREENHEIGHT, RGB_MAKE(0,0,8), 0.75);
 
 	y += YMUL / 4;
 
@@ -513,6 +524,112 @@ void CON_Drawer(void)
 			break;
 	}
 }
+
+
+void CON_ShowStats(void)
+{
+	if (debug_fps.d <= 0 && debug_stats.d <= 0)
+		return;
+
+	static int numframes = 0, lasttime = 0;
+	static float fps = 0, mspf = 0;
+
+	char textbuf[100];
+	char *s;
+	int currtime, timediff;
+
+	numframes++;
+	currtime = I_GetTime();
+	timediff = currtime - lasttime;
+
+	if (timediff > 70)
+	{
+		fps  = (float) (numframes * TICRATE) / (float) timediff;
+		mspf = (float) timediff * 1000.0f / (float) (numframes * TICRATE);
+
+		lasttime = currtime;
+		numframes = 0;
+	}
+
+	int lcount = 1;
+
+	if (debug_fps.d >= 2 || debug_stats.d)
+		lcount++;
+
+	if (debug_stats.d)
+		lcount += 7;
+
+	CalcSizes();
+
+	int x = SCREENWIDTH  - XMUL * 16;
+	int y = SCREENHEIGHT - YMUL * lcount;
+
+	RGL_SolidBox(x, y, SCREENWIDTH, SCREENHEIGHT, RGB_MAKE(0,0,0), 0.5);
+
+	x += XMUL;
+	y = SCREENHEIGHT - YMUL;
+
+	if (debug_fps.d || debug_stats.d)
+	{
+		sprintf(textbuf, "  fps: %1.1f", fps);
+		CON_WriteText(x, y, textbuf, T_WHITE);
+		y -= YMUL;
+	}
+
+	if (debug_fps.d >= 2 || debug_stats.d)
+	{
+		sprintf(textbuf, " ms/f: %1.1f", mspf);
+		CON_WriteText(x, y, textbuf, T_WHITE);
+		y -= YMUL;
+	}
+
+	y -= YMUL;
+
+	if (debug_stats.d)
+	{
+		player_t *p = players[displayplayer];
+		SYS_ASSERT(p);
+
+		sprintf(textbuf, "    x: %d", (int)p->mo->x);
+		CON_WriteText(x, y, textbuf, T_WHITE);
+		y -= YMUL;
+
+		sprintf(textbuf, "    y: %d", (int)p->mo->y);
+		CON_WriteText(x, y, textbuf, T_WHITE);
+		y -= YMUL;
+
+		sprintf(textbuf, "    z: %d", (int)p->mo->z);
+		CON_WriteText(x, y, textbuf, T_WHITE);
+		y -= YMUL;
+
+		sprintf(textbuf, "angle: %d", (int)ANG_2_FLOAT(p->mo->angle));
+		CON_WriteText(x, y, textbuf, T_WHITE);
+		y -= YMUL;
+
+		sprintf(textbuf, "  sec: %d", (int)(p->mo->subsector->sector - sectors));
+		CON_WriteText(x, y, textbuf, T_WHITE);
+		y -= YMUL;
+
+		sprintf(textbuf, "  sub: %d", (int)(p->mo->subsector - subsectors));
+		CON_WriteText(x, y, textbuf, T_WHITE);
+		y -= YMUL*2;
+
+#if 0
+		sprintf(textbuf, "kills: %d", wi_stats.kills);
+		CON_WriteText(x, y, textbuf, T_WHITE);
+		y -= YMUL;
+
+		sprintf(textbuf, "items: %d", wi_stats.items);
+		CON_WriteText(x, y, textbuf, T_WHITE);
+		y -= YMUL;
+
+		sprintf(textbuf, "secret:%d", wi_stats.secret);
+		CON_WriteText(x, y, textbuf, T_WHITE);
+		y -= YMUL;
+#endif
+	}
+}
+
 
 static void GotoEndOfLine(void)
 {
@@ -1277,18 +1394,7 @@ void CON_ErrorDialog(const char *msg)
 	if (! con_font_tex || conerroractive)
 		return;
 
-	if (SCREENWIDTH < 400)
-	{
-		FNSZ = 10; XMUL = 7; YMUL = 12;
-	}
-	else if (SCREENWIDTH < 700)
-	{
-		FNSZ = 13;  XMUL = 9;  YMUL = 15;
-	}
-	else
-	{
-		FNSZ = 16;  XMUL = 11;  YMUL = 19;
-	}
+	CalcSizes();
 
 	FormatMessage(msg, 24);
 

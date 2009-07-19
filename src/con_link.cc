@@ -80,6 +80,7 @@ extern cvar_c tim_quietfactor;
 extern cvar_c debug_nomonsters, debug_hom;
 extern cvar_c debug_fullbright, debug_subsector;
 extern cvar_c debug_joyaxis,    debug_mouse;
+extern cvar_c debug_fps,        debug_stats;
 extern cvar_c debug_normals;
 
 
@@ -277,6 +278,8 @@ cvar_link_t  all_cvars[] =
 	{ "debug_normals",    &debug_normals,    "h", "0" },
 	{ "debug_joyaxis",    &debug_joyaxis,    "h", "0" },
 	{ "debug_mouse",      &debug_mouse,      "h", "0" },
+	{ "debug_stats",      &debug_stats,      "h", "0" },
+	{ "debug_fps",        &debug_fps,        "c", "0" },
 
 //---- END OF LIST -----------------------------------------------------------
 
