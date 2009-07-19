@@ -31,7 +31,7 @@
 // mapblocks are used to check movement
 // against lines and things
 #define BLOCKMAP_UNIT  128
-#define LIGHTMAP_UNIT  512
+#define LIGHTMAP_UNIT  256
 
 #define BMAP_END  ((unsigned short) 0xFFFF)
 
