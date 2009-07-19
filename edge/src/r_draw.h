@@ -33,14 +33,6 @@ void RGL_DrawImage(float x, float y, float w, float h, const image_c *image,
 				   float alpha = 1.0f, rgbcol_t text_col = RGB_NO_VALUE,
 				   const colourmap_c *palremap = NULL);
  
-void RGL_ReadScreen(int x, int y, int w, int h, byte *rgb_buffer);
-
-// This routine should inform the lower level system(s) that the
-// screen has changed size/depth.  New size/depth is given.  Must be
-// called before any rendering has occurred (e.g. just before
-// I_StartFrame).
-void RGL_NewScreenSize(int width, int height, int bits);
-
 // Draw a solid colour box (possibly translucent) in the given
 // rectangle.  Coordinates are inclusive.  Alpha ranges from 0
 // (invisible) to 255 (totally opaque).  Colour is a palette index
