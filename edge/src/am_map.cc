@@ -128,8 +128,8 @@ bool automapactive = false;
 
 
 // location and size of window on screen
-static int f_x, f_y;
-static int f_w, f_h;
+static float f_x, f_y;
+static float f_w, f_h;
 
 // scale value which makes the whole map fit into the on-screen area
 // (multiplying map coords by this value).
@@ -560,16 +560,16 @@ static void DrawMline(mline_t * ml, rgbcol_t rgb)
 		return;
 	}
 
-	if (! am_smoothing.d)
-	{
-		if (x1 == x2 or y1 == y2)
-		{
-			RGL_SolidBox(x1, y1, x2-x1+1, y2-y1+1, rgb);
-			return;
-		}
-	}
+//FIXME	if (! am_smoothing.d)
+//FIXME	{
+//FIXME		if (x1 == x2 or y1 == y2)
+//FIXME		{
+//FIXME			RGL_SolidBox(x1, y1, x2-x1+1, y2-y1+1, rgb);
+//FIXME			return;
+//FIXME		}
+//FIXME	}
 
-	RGL_SolidLine(x1, y1, x2, y2, rgb);
+	HUD_SolidLine(x1, y1, x2, y2, rgb);
 }
 
 
@@ -594,8 +594,9 @@ my0 += 32;
 		if (x1 < f_x && x2 >= f_x + f_w)
 			break;
 
-		RGL_SolidBox(x1, f_y, 1, f_h, am_colors[AMCOL_Grid]);
-		RGL_SolidBox(x2, f_y, 1, f_h, am_colors[AMCOL_Grid]);
+		// FIXME !!!
+		HUD_SolidBox(x1, f_y, 0.5, f_h, am_colors[AMCOL_Grid]);
+		HUD_SolidBox(x2, f_y, 0.5, f_h, am_colors[AMCOL_Grid]);
 	}
 
 	for (int k = 0; ; k++)
@@ -606,8 +607,9 @@ my0 += 32;
 		if (y1 < f_y && y2 >= f_y + f_h)
 			break;
 
-		RGL_SolidBox(f_x, y1, f_w, 1, am_colors[AMCOL_Grid]);
-		RGL_SolidBox(f_x, y2, f_w, 1, am_colors[AMCOL_Grid]);
+		// FIXME !!!!
+		HUD_SolidBox(f_x, y1, f_w, 0.5, am_colors[AMCOL_Grid]);
+		HUD_SolidBox(f_x, y2, f_w, 0.5, am_colors[AMCOL_Grid]);
 	}
 }
 
@@ -970,7 +972,7 @@ static void DrawMarks(void)
 
 static void AM_RenderScene(void)
 {
-	glEnable(GL_SCISSOR_TEST);
+//!!!!!!FIXME	glEnable(GL_SCISSOR_TEST);
 
 	glScissor(f_x, f_y, f_w, f_h);
 
@@ -996,7 +998,7 @@ static void AM_RenderScene(void)
 }
 
 
-void AM_Drawer(int x, int y, int w, int h, mobj_t *focus)
+void AM_Drawer(float x, float y, float w, float h, mobj_t *focus)
 {
 	f_x = x;
 	f_y = y;

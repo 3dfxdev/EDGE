@@ -69,6 +69,7 @@ void style_c::Load()
 //
 void style_c::DrawBackground(int x, int y, int w, int h, int align)
 {
+#if 0  // OLD CRUD
 	if (w == 0)
 		x = 0, w = SCREENWIDTH;
 
@@ -117,6 +118,7 @@ void style_c::DrawBackground(int x, int y, int w, int h, int align)
 		RGL_DrawImage(x, y, w, h, bg_image, 0.0f, 0.0f,
 					  right, top, alpha);
 	}
+#endif
 }
 
 

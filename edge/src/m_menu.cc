@@ -1889,7 +1889,9 @@ static void DrawMessage(void)
 {
 	short x, y;
 
-	RGL_SolidBox(0, 0, SCREENWIDTH, SCREENHEIGHT, RGB_MAKE(0,0,0), 0.64f);
+	HUD_SetAlpha(0.64f);
+	HUD_SolidBox(0, 0, 320, 200, T_BLACK);
+	HUD_Reset("a");
 
 	// FIXME: HU code should support center justification: this
 	// would remove the code duplication below...
@@ -1998,7 +2000,9 @@ void M_Drawer(void)
 		return;
 	}
 
-	RGL_SolidBox(0, 0, SCREENWIDTH, SCREENHEIGHT, RGB_MAKE(0,0,0), 0.64f);
+	HUD_SetAlpha(0.64f);
+	HUD_SolidBox(0, 0, 320, 200, T_BLACK);
+	HUD_Reset("a");
 
 	// call Draw routine
 	if (currentMenu->draw_func)

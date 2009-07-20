@@ -61,11 +61,15 @@ void RGL_DrawImage(float x, float y, float w, float h, const image_c *image,
 // rectangle.
 void RGL_SolidBox(int x, int y, int w, int h, rgbcol_t col, float alpha = 1.0);
 
+void HUD_SolidBox(float x, float y, float w, float h, rgbcol_t col);
+
 // Draw a solid colour line (possibly translucent) between the two
 // end points.  Coordinates are inclusive.  Used for the automap.
 // Colour is a palette index (0-255).  Drawing will be clipped to
 // the current clipping rectangle.
 void RGL_SolidLine(int x1, int y1, int x2, int y2, rgbcol_t col, float alpha = 1.0);
+
+void HUD_SolidLine(float x1, float y1, float x2, float y2, rgbcol_t col);
 
 // Draw a thin outline of a box.
 void RGL_ThinBox(int x, int y, int w, int h, rgbcol_t col, float alpha = 1.0);
@@ -80,6 +84,8 @@ void RGL_Image320(float x, float y, float w, float h, const image_c *image);
 void RGL_ImageEasy320(float x, float y, const image_c *image);
 
 void HL_Init(void);
+
+void HUD_FrameSetup(void);
 
 void HL_WriteText(style_c *style, int text_type, int x, int y,
 		const char *str, float scale = 1.0f, float alpha = 1.0f);

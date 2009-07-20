@@ -204,7 +204,9 @@ public:
 
 	void Drawer()
 	{
-		RGL_SolidBox(0, 0, SCREENWIDTH, SCREENHEIGHT, RGB_MAKE(0,0,0), 0.64f);
+		HUD_SetAlpha(0.64f);
+		HUD_SolidBox(0, 0, 320, 200, T_BLACK);
+		HUD_Reset("a");
 
 		for (int t = 0; t < title_num; t++) //!!!!
 			HL_WriteText(style, styledef_c::T_TITLE, 0, t*10, title_lines[t]);

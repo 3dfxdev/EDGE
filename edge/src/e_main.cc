@@ -58,6 +58,7 @@
 #include "f_finale.h"
 #include "f_interm.h"
 #include "g_game.h"
+#include "hu_draw.h"
 #include "hu_stuff.h"
 #include "hu_vm.h"
 #include "l_glbsp.h"
@@ -397,6 +398,8 @@ void E_Display(void)
 	// Start the frame - should we need to.
 	I_StartFrame();
 
+	HUD_FrameSetup();
+
 	// -AJA- 1999/08/02: Make sure palette/gamma is OK.
 	V_ColourNewFrame();
 
@@ -500,7 +503,7 @@ static void E_TitleDrawer(void)
 	if (title_image)
 		RGL_Image320(0, 0, 320, 200, title_image);
 	else
-		RGL_SolidBox(0, 0, SCREENWIDTH, SCREENHEIGHT, RGB_MAKE(64,64,64), 1);
+		HUD_SolidBox(0, 0, 320, 200, T_DGREY);
 }
 
 
