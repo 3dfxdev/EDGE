@@ -63,16 +63,9 @@ static bool conerroractive;
 
 extern GLuint con_font_tex;
 
-
-#define T_WHITE   RGB_MAKE(208,208,208)
-#define T_YELLOW  RGB_MAKE(255,255,0)
-#define T_PURPLE  RGB_MAKE(255,32,255)
-#define T_BLUE    RGB_MAKE(128,128,255)
-#define T_ORANGE  RGB_MAKE(255,72,0)
-#define T_GREEN   RGB_MAKE(0,208,72)
-#define T_RED     RGB_MAKE(255,0,0)
-
 static rgbcol_t current_color;
+
+#define T_GREY176  RGB_MAKE(176,176,176)
 
 
 // TODO: console var
@@ -86,11 +79,11 @@ public:
 	rgbcol_t color;
 
 public:
-	console_line_c(const std::string& text, rgbcol_t _col = T_WHITE) :
+	console_line_c(const std::string& text, rgbcol_t _col = T_LGREY) :
 		line(text), color(_col)
 	{ }
 
-	console_line_c(const char *text, rgbcol_t _col = T_WHITE) :
+	console_line_c(const char *text, rgbcol_t _col = T_LGREY) :
 		line(text), color(_col)
 	{ }
 
@@ -180,7 +173,7 @@ static void CON_AddLine(const char *s, bool partial)
 
 	rgbcol_t col = current_color;
 
-	if (col == T_WHITE && (strncmp(s, "WARNING", 7) == 0))
+	if (col == T_LGREY && (strncmp(s, "WARNING", 7) == 0))
 		col = T_ORANGE;
 
 	console_lines[0] = new console_line_c(s, col);
@@ -299,7 +292,7 @@ static void SplitIntoLines(char *src)
 		CON_AddLine(line, true);
 	}
 
-	current_color = T_WHITE;
+	current_color = T_LGREY;
 }
 
 void CON_Printf(const char *message, ...)
@@ -551,7 +544,7 @@ void CON_ShowStats(void)
 		numframes = 0;
 	}
 
-	int lcount = 1;
+	int lcount = 2;
 
 	if (debug_fps.d >= 2 || debug_stats.d)
 		lcount++;
@@ -567,19 +560,19 @@ void CON_ShowStats(void)
 	RGL_SolidBox(x, y, SCREENWIDTH, SCREENHEIGHT, RGB_MAKE(0,0,0), 0.5);
 
 	x += XMUL;
-	y = SCREENHEIGHT - YMUL;
+	y = SCREENHEIGHT - YMUL - YMUL/2;
 
 	if (debug_fps.d || debug_stats.d)
 	{
 		sprintf(textbuf, "  fps: %1.1f", fps);
-		CON_DrawText(x, y, textbuf, T_WHITE);
+		CON_DrawText(x, y, textbuf, T_GREY176);
 		y -= YMUL;
 	}
 
 	if (debug_fps.d >= 2 || debug_stats.d)
 	{
 		sprintf(textbuf, " ms/f: %1.1f", mspf);
-		CON_DrawText(x, y, textbuf, T_WHITE);
+		CON_DrawText(x, y, textbuf, T_GREY176);
 		y -= YMUL;
 	}
 
@@ -591,40 +584,40 @@ void CON_ShowStats(void)
 		SYS_ASSERT(p);
 
 		sprintf(textbuf, "    x: %d", (int)p->mo->x);
-		CON_DrawText(x, y, textbuf, T_WHITE);
+		CON_DrawText(x, y, textbuf, T_GREY176);
 		y -= YMUL;
 
 		sprintf(textbuf, "    y: %d", (int)p->mo->y);
-		CON_DrawText(x, y, textbuf, T_WHITE);
+		CON_DrawText(x, y, textbuf, T_GREY176);
 		y -= YMUL;
 
 		sprintf(textbuf, "    z: %d", (int)p->mo->z);
-		CON_DrawText(x, y, textbuf, T_WHITE);
+		CON_DrawText(x, y, textbuf, T_GREY176);
 		y -= YMUL;
 
 		sprintf(textbuf, "angle: %d", (int)ANG_2_FLOAT(p->mo->angle));
-		CON_DrawText(x, y, textbuf, T_WHITE);
+		CON_DrawText(x, y, textbuf, T_GREY176);
 		y -= YMUL;
 
 		sprintf(textbuf, "  sec: %d", (int)(p->mo->subsector->sector - sectors));
-		CON_DrawText(x, y, textbuf, T_WHITE);
+		CON_DrawText(x, y, textbuf, T_GREY176);
 		y -= YMUL;
 
 		sprintf(textbuf, "  sub: %d", (int)(p->mo->subsector - subsectors));
-		CON_DrawText(x, y, textbuf, T_WHITE);
+		CON_DrawText(x, y, textbuf, T_GREY176);
 		y -= YMUL*2;
 
 #if 0
 		sprintf(textbuf, "kills: %d", wi_stats.kills);
-		CON_DrawText(x, y, textbuf, T_WHITE);
+		CON_DrawText(x, y, textbuf, T_MGREY);
 		y -= YMUL;
 
 		sprintf(textbuf, "items: %d", wi_stats.items);
-		CON_DrawText(x, y, textbuf, T_WHITE);
+		CON_DrawText(x, y, textbuf, T_MGREY);
 		y -= YMUL;
 
 		sprintf(textbuf, "secret:%d", wi_stats.secret);
-		CON_DrawText(x, y, textbuf, T_WHITE);
+		CON_DrawText(x, y, textbuf, T_MGREY);
 		y -= YMUL;
 #endif
 	}
@@ -794,7 +787,7 @@ static void TabComplete(void)
 	}
 
 	// show what we were trying to match
-	CON_MessageColor(T_BLUE);
+	CON_MessageColor(T_LTBLUE);
 	CON_Printf(">%s\n", input_line);
 
 	input_line[input_pos] = save_ch;
@@ -809,14 +802,14 @@ static void TabComplete(void)
 	{
 		CON_Printf("%u Possible variables:\n", match_vars.size());
 
-		ListCompletions(match_vars, input_pos, 7, T_GREEN);
+		ListCompletions(match_vars, input_pos, 7, RGB_MAKE(0,208,72));
 	}
 
 	if (match_keys.size() > 0)
 	{
 		CON_Printf("%u Possible keys:\n", match_keys.size());
 
-		ListCompletions(match_keys, input_pos, 4, T_GREEN);
+		ListCompletions(match_keys, input_pos, 4, RGB_MAKE(0,208,72));
 	}
 
 	if (match_cmds.size() > 0)
@@ -963,7 +956,7 @@ bool CON_HandleKey(int key)
 
 		if (strlen(input_line) == 0)
 		{
-			CON_MessageColor(T_BLUE);
+			CON_MessageColor(T_LTBLUE);
 			CON_Printf(">\n");
 		}
 		else
@@ -971,7 +964,7 @@ bool CON_HandleKey(int key)
 			// Add it to history & draw it
 			CON_AddCmdHistory(input_line);
 
-			CON_MessageColor(T_BLUE);
+			CON_MessageColor(T_LTBLUE);
 			CON_Printf(">%s\n", input_line);
 		
 			// Run it!
@@ -1222,7 +1215,7 @@ void CON_InitConsole(void)
 
 	CON_ClearInputLine();
 
-	current_color = T_WHITE;
+	current_color = T_LGREY;
 
 	CON_AddLine("", false);
 	CON_AddLine("", false);
