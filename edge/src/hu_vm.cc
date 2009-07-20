@@ -320,7 +320,6 @@ static int HD_text_font(lua_State *L)
 	SYS_ASSERT(cur_font);
 
 	HUD_SetFont(cur_font);
-
 	return 0;
 }
 
@@ -329,14 +328,13 @@ static int HD_text_font(lua_State *L)
 //
 static int HD_text_color(lua_State *L)
 {
-	cur_color = RGB_NO_VALUE;
+	rgbcol_t color = RGB_NO_VALUE;
 
 	int nargs = lua_gettop(L);
 	if (nargs >= 1)
-		cur_color = ParseColor(L, 1);
+		color = ParseColor(L, 1);
 
-	HUD_SetTextColor(cur_color);
-
+	HUD_SetTextColor(color);
 	return 0;
 }
 
@@ -345,13 +343,12 @@ static int HD_text_color(lua_State *L)
 //
 static int HD_set_scale(lua_State *L)
 {
-	cur_scale = luaL_checknumber(L, 1);
+	float scale = luaL_checknumber(L, 1);
 
-	if (cur_scale <= 0)
-		I_Error("hud.set_scale: Bad scale value: %1.3f\n", cur_scale);
+	if (scale <= 0)
+		I_Error("hud.set_scale: Bad scale value: %1.3f\n", scale);
 
-	HUD_SetScale(cur_scale);
-
+	HUD_SetScale(scale);
 	return 0;
 }
 
@@ -360,10 +357,9 @@ static int HD_set_scale(lua_State *L)
 //
 static int HD_set_alpha(lua_State *L)
 {
-	cur_alpha = luaL_checknumber(L, 1);
+	float alpha = luaL_checknumber(L, 1);
 
-	HUD_SetAlpha(cur_alpha);
-
+	HUD_SetAlpha(alpha);
 	return 0;
 }
 
@@ -377,13 +373,9 @@ static int HD_solid_box(lua_State *L)
 	float w = luaL_checknumber(L, 3);
 	float h = luaL_checknumber(L, 4);
 
-///---	w = COORD_X(w); h = COORD_Y(h);
-///---	x = COORD_X(x); y = SCREENHEIGHT - COORD_Y(y) - h;
-
 	rgbcol_t rgb = ParseColor(L, 5);
 
 	HUD_SolidBox(x, y, w, h, rgb);
-
 	return 0;
 }
 
@@ -397,13 +389,9 @@ static int HD_solid_line(lua_State *L)
 	float x2 = luaL_checknumber(L, 3);
 	float y2 = luaL_checknumber(L, 4);
 
-///---	x1 = COORD_X(x1); y1 = SCREENHEIGHT - COORD_Y(y1);
-///---	x2 = COORD_X(x2); y2 = SCREENHEIGHT - COORD_Y(y2);
-
 	rgbcol_t rgb = ParseColor(L, 5);
 
 	HUD_SolidLine(x1, y1, x2, y2, rgb);
-
 	return 0;
 }
 
@@ -417,13 +405,9 @@ static int HD_thin_box(lua_State *L)
 	float w = luaL_checknumber(L, 3);
 	float h = luaL_checknumber(L, 4);
 
-	w = COORD_X(w); h = COORD_Y(h);
-	x = COORD_X(x); y = SCREENHEIGHT - COORD_Y(y) - h;
-
 	rgbcol_t rgb = ParseColor(L, 5);
 
-	RGL_ThinBox((int)x, (int)y, I_ROUND(w), I_ROUND(h), rgb, cur_alpha);
-
+	HUD_ThinBox(x, y, w, h, rgb);
 	return 0;
 }
 
@@ -437,9 +421,6 @@ static int HD_gradient_box(lua_State *L)
 	float w = luaL_checknumber(L, 3);
 	float h = luaL_checknumber(L, 4);
 
-	w = COORD_X(w); h = COORD_Y(h);
-	x = COORD_X(x); y = SCREENHEIGHT - COORD_Y(y) - h;
-
 	rgbcol_t cols[4];
 
 	cols[0] = ParseColor(L, 5);
@@ -447,8 +428,7 @@ static int HD_gradient_box(lua_State *L)
 	cols[2] = ParseColor(L, 7);
 	cols[3] = ParseColor(L, 8);
 
-	RGL_GradientBox((int)x, (int)y, I_ROUND(w), I_ROUND(h), cols, cur_alpha);
-
+	HUD_GradientBox(x, y, w, h, cols);
 	return 0;
 }
 
@@ -596,6 +576,7 @@ static int HD_render_world(lua_State *L)
 	float w = luaL_checknumber(L, 3);
 	float h = luaL_checknumber(L, 4);
 
+	// FIXME !!!!!!
 	x = COORD_X(x); y = COORD_Y(y);
 	w = COORD_X(w); h = COORD_Y(h);
 
@@ -657,9 +638,6 @@ static int HD_render_automap(lua_State *L)
 	float y = luaL_checknumber(L, 2);
 	float w = luaL_checknumber(L, 3);
 	float h = luaL_checknumber(L, 4);
-
-///	x = COORD_X(x); y = COORD_Y(y);
-///	w = COORD_X(w); h = COORD_Y(h);
 
 	int   old_state;
 	float old_zoom;

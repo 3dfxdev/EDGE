@@ -153,7 +153,7 @@ static float m_scale;
 
 // translates between frame-buffer and map coordinates
 #define CXMTOF(xx)  (f_x + f_w/2 + MTOF((xx) - m_cx))
-#define CYMTOF(yy)  (f_y + f_h/2 + MTOF((yy) - m_cy))
+#define CYMTOF(yy)  (f_y + f_h/2 - MTOF((yy) + m_cy))
 
 
 // largest size of map along X or Y axis
@@ -593,7 +593,7 @@ my0 += 32;
 		if (x1 < f_x && x2 >= f_x + f_w)
 			break;
 
-		// FIXME !!!
+		// FIXME: perhaps need HUD_ThinVLine()
 		HUD_SolidBox(x1, f_y, 0.5, f_h, am_colors[AMCOL_Grid]);
 		HUD_SolidBox(x2, f_y, 0.5, f_h, am_colors[AMCOL_Grid]);
 	}
@@ -606,7 +606,7 @@ my0 += 32;
 		if (y1 < f_y && y2 >= f_y + f_h)
 			break;
 
-		// FIXME !!!!
+		// FIXME
 		HUD_SolidBox(f_x, y1, f_w, 0.5, am_colors[AMCOL_Grid]);
 		HUD_SolidBox(f_x, y2, f_w, 0.5, am_colors[AMCOL_Grid]);
 	}

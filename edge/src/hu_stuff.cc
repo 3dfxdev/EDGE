@@ -60,6 +60,9 @@
 #define HU_INPUTWIDTH	64
 #define HU_INPUTHEIGHT	1
 
+#define HU_MAXLINELENGTH	80
+
+
 bool chat_on;
 
 key_binding_c k_talk;

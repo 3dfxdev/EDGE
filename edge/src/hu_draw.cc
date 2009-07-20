@@ -273,58 +273,64 @@ void HUD_SolidLine(float x1, float y1, float x2, float y2, rgbcol_t col)
 }
 
 
-void RGL_ThinBox(int x, int y, int w, int h, rgbcol_t col, float alpha)
+void HUD_ThinBox(float x, float y, float w, float h, rgbcol_t col)
 {
-	if (alpha < 0.99f)
+	w = COORD_X(w); h = COORD_Y(h);
+	x = COORD_X(x); y = SCREENHEIGHT - COORD_Y(y) - h;
+
+	if (cur_alpha < 0.99f)
 		glEnable(GL_BLEND);
   
-	glColor4f(RGB_RED(col)/255.0, RGB_GRN(col)/255.0, RGB_BLU(col)/255.0, alpha);
+	glColor4f(RGB_RED(col)/255.0, RGB_GRN(col)/255.0, RGB_BLU(col)/255.0, cur_alpha);
   
 	glBegin(GL_QUADS);
-	glVertex2i(x,   y);   glVertex2i(x,   y+h);
-	glVertex2i(x+2, y+h); glVertex2i(x+2, y);
+	glVertex2f(x,   y);   glVertex2f(x,   y+h);
+	glVertex2f(x+2, y+h); glVertex2f(x+2, y);
 	glEnd();
 
 	glBegin(GL_QUADS);
-	glVertex2i(x+w-2, y);   glVertex2i(x+w-2, y+h);
-	glVertex2i(x+w,   y+h); glVertex2i(x+w,   y);
+	glVertex2f(x+w-2, y);   glVertex2f(x+w-2, y+h);
+	glVertex2f(x+w,   y+h); glVertex2f(x+w,   y);
 	glEnd();
 
 	glBegin(GL_QUADS);
-	glVertex2i(x+2,   y);   glVertex2i(x+2,   y+2);
-	glVertex2i(x+w-2, y+2); glVertex2i(x+w-2, y);
+	glVertex2f(x+2,   y);   glVertex2f(x+2,   y+2);
+	glVertex2f(x+w-2, y+2); glVertex2f(x+w-2, y);
 	glEnd();
 
 	glBegin(GL_QUADS);
-	glVertex2i(x+2,   y+h-2); glVertex2i(x+2,   y+h);
-	glVertex2i(x+w-2, y+h);   glVertex2i(x+w-2, y+h-2);
+	glVertex2f(x+2,   y+h-2); glVertex2f(x+2,   y+h);
+	glVertex2f(x+w-2, y+h);   glVertex2f(x+w-2, y+h-2);
 	glEnd();
 
 	glDisable(GL_BLEND);
 }
 
-void RGL_GradientBox(int x, int y, int w, int h, rgbcol_t *cols, float alpha)
+void HUD_GradientBox(float x, float y, float w, float h, rgbcol_t *cols)
 {
-	if (alpha < 0.99f)
+	w = COORD_X(w); h = COORD_Y(h);
+	x = COORD_X(x); y = SCREENHEIGHT - COORD_Y(y) - h;
+
+	if (cur_alpha < 0.99f)
 		glEnable(GL_BLEND);
   
 	glBegin(GL_QUADS);
 
 	glColor4f(RGB_RED(cols[1])/255.0, RGB_GRN(cols[1])/255.0,
-	          RGB_BLU(cols[1])/255.0, alpha);
-	glVertex2i(x, y);
+	          RGB_BLU(cols[1])/255.0, cur_alpha);
+	glVertex2f(x, y);
 
 	glColor4f(RGB_RED(cols[0])/255.0, RGB_GRN(cols[0])/255.0,
-	          RGB_BLU(cols[0])/255.0, alpha);
-	glVertex2i(x, y+h);
+	          RGB_BLU(cols[0])/255.0, cur_alpha);
+	glVertex2f(x, y+h);
 
 	glColor4f(RGB_RED(cols[2])/255.0, RGB_GRN(cols[2])/255.0,
-	          RGB_BLU(cols[2])/255.0, alpha);
-	glVertex2i(x+w, y+h);
+	          RGB_BLU(cols[2])/255.0, cur_alpha);
+	glVertex2f(x+w, y+h);
 
 	glColor4f(RGB_RED(cols[3])/255.0, RGB_GRN(cols[3])/255.0,
-	          RGB_BLU(cols[3])/255.0, alpha);
-	glVertex2i(x+w, y);
+	          RGB_BLU(cols[3])/255.0, cur_alpha);
+	glVertex2f(x+w, y);
   
 	glEnd();
 	glDisable(GL_BLEND);

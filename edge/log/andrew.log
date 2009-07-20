@@ -5,8 +5,12 @@ Andrew Apted's Log
 Began working on a unified HUD/2D/UI drawing backend, using
 the Lua 'hud' module as the template.  The new code is in
 files called hu_draw.cc/h.  Text drawing in particular will
-be different, new to call a function to set the font, color
+be different, now we call a function to set the font, color
 or alpha instead of passing these as parameters.
+
+Rebuilt EDGE.WAD with different lump names for the air bar,
+because the format changed to PNG and this can make mods
+(ICD-SE in particular) stop working.
 
 2009/07/19:
 
