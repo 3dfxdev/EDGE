@@ -463,23 +463,10 @@ static int HD_draw_image(lua_State *L)
 	const char *name = luaL_checkstring(L, 3);
 
 	const image_c *img = W_ImageLookup(name, INS_Graphic);
+
 	if (img)
 	{
-		x -= IM_OFFSETX(img);
-		y -= IM_OFFSETY(img);
-
-		float w = IM_WIDTH(img);
-		float h = IM_HEIGHT(img);
-
-		w *= cur_scale;
-		h *= cur_scale;
-
-		w = COORD_X(w); h = COORD_Y(h);
-		x = COORD_X(x); y = SCREENHEIGHT - COORD_Y(y) - h;
-
-		RGL_DrawImage(x, y, w, h, img,
-		              0, 0, IM_RIGHT(img), IM_TOP(img),
-					  cur_alpha);
+		HUD_DrawImage(x, y, img);
 	}
 
 	return 0;
@@ -498,21 +485,17 @@ static int HD_stretch_image(lua_State *L)
 	const char *name = luaL_checkstring(L, 5);
 
 	const image_c *img = W_ImageLookup(name, INS_Graphic);
+
 	if (img)
 	{
-		w = COORD_X(w); h = COORD_Y(h);
-		x = COORD_X(x); y = SCREENHEIGHT - COORD_Y(y) - h;
-
-		RGL_DrawImage(x, y, w, h, img,
-		              0, 0, IM_RIGHT(img), IM_TOP(img),
-					  cur_alpha);
+		HUD_StretchImage(x, y, w, h, img);
 	}
 
 	return 0;
 }
 
 
-// hud.tile_image(x, y, w, h, name, [x_offset, y_offset])
+// hud.tile_image(x, y, w, h, name, [offset_x, offset_y])
 //
 static int HD_tile_image(lua_State *L)
 {
@@ -533,23 +516,10 @@ static int HD_tile_image(lua_State *L)
 		offset_y = lua_tonumber(L, 7);
 
 	const image_c *img = W_ImageLookup(name, INS_Texture);
+
 	if (img)
 	{
-		offset_x /=  w;
-		offset_y /= -h;
-
-		float tx_scale = w / IM_TOTAL_WIDTH(img)  / cur_scale;
-		float ty_scale = h / IM_TOTAL_HEIGHT(img) / cur_scale;
-
-		w = COORD_X(w); h = COORD_Y(h);
-		x = COORD_X(x); y = SCREENHEIGHT - COORD_Y(y) - h;
-
-		RGL_DrawImage(x, y, w, h, img,
-		              (offset_x) * tx_scale,
-					  (offset_y) * ty_scale,
-					  (offset_x + 1) * tx_scale,
-					  (offset_y + 1) * ty_scale,
-					  cur_alpha);
+		HUD_TileImage(x, y, w, h, img, offset_x, offset_y);
 	}
 
 	return 0;

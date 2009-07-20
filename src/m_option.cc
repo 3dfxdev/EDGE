@@ -845,7 +845,7 @@ void M_OptDrawer()
 
 		image = curr_menu->title_image;
 
-		RGL_ImageEasy320(curr_menu->title_x, menutop, image);
+		HUD_DrawImage(curr_menu->title_x, menutop, image);
 	}
 
 	//now, draw all the menuitems

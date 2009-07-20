@@ -191,39 +191,45 @@ void RGL_DrawImage(float x, float y, float w, float h, const image_c *image,
 	glAlphaFunc(GL_GREATER, 0);
 }
 
-
-void RGL_Image320(float x, float y, float w, float h, const image_c *image)
+void HUD_StretchImage(float x, float y, float w, float h, const image_c *img)
 {
-    RGL_DrawImage(
-			FROM_320(x-IM_OFFSETX(image)),
-            SCREENHEIGHT - FROM_200(y-IM_OFFSETY(image)) - FROM_200(h),
-            FROM_320(w), FROM_200(h), image,
-			0, 0, IM_RIGHT(image), IM_TOP(image));
+	x -= IM_OFFSETX(img);
+	y -= IM_OFFSETY(img);
+
+	w = COORD_X(w); h = COORD_Y(h);
+	x = COORD_X(x); y = SCREENHEIGHT - COORD_Y(y) - h;
+
+    RGL_DrawImage(x, y, w, h, img, 0, 0, IM_RIGHT(img), IM_TOP(img), cur_alpha);
 }
 
-void RGL_ImageEasy320(float x, float y, const image_c *image)
+void HUD_DrawImage(float x, float y, const image_c *img)
 {
-    RGL_Image320(x, y, IM_WIDTH(image), IM_HEIGHT(image), image);
+	float w = cur_scale * IM_WIDTH(img);
+	float h = cur_scale * IM_HEIGHT(img);
+
+    HUD_StretchImage(x, y, w, h, img);
 }
 
-
-void RGL_SolidBox(int x, int y, int w, int h, rgbcol_t col, float alpha)
+void HUD_TileImage(float x, float y, float w, float h, const image_c *img,
+				   float offset_x, float offset_y)
 {
-	if (alpha < 0.99f)
-		glEnable(GL_BLEND);
-  
-	glColor4f(RGB_RED(col)/255.0, RGB_GRN(col)/255.0, RGB_BLU(col)/255.0, alpha);
-  
-	glBegin(GL_QUADS);
+	offset_x /=  w;
+	offset_y /= -h;
 
-	glVertex2i(x,   y);
-	glVertex2i(x,   y+h);
-	glVertex2i(x+w, y+h);
-	glVertex2i(x+w, y);
-  
-	glEnd();
-	glDisable(GL_BLEND);
+	float tx_scale = w / IM_TOTAL_WIDTH(img)  / cur_scale;
+	float ty_scale = h / IM_TOTAL_HEIGHT(img) / cur_scale;
+
+	w = COORD_X(w); h = COORD_Y(h);
+	x = COORD_X(x); y = SCREENHEIGHT - COORD_Y(y) - h;
+
+	RGL_DrawImage(x, y, w, h, img,
+				  (offset_x) * tx_scale,
+				  (offset_y) * ty_scale,
+				  (offset_x + 1) * tx_scale,
+				  (offset_y + 1) * ty_scale,
+				  cur_alpha);
 }
+
 
 void HUD_SolidBox(float x, float y, float w, float h, rgbcol_t col)
 {
@@ -246,22 +252,6 @@ void HUD_SolidBox(float x, float y, float w, float h, rgbcol_t col)
 	glDisable(GL_BLEND);
 }
 
-
-void RGL_SolidLine(int x1, int y1, int x2, int y2, rgbcol_t col, float alpha)
-{
-	if (alpha < 0.99f)
-		glEnable(GL_BLEND);
-  
-	glColor4f(RGB_RED(col)/255.0, RGB_GRN(col)/255.0, RGB_BLU(col)/255.0, alpha);
-  
-	glBegin(GL_LINES);
-
-	glVertex2i(x1, y1);
-	glVertex2i(x2, y2);
-  
-	glEnd();
-	glDisable(GL_BLEND);
-}
 
 void HUD_SolidLine(float x1, float y1, float x2, float y2, rgbcol_t col)
 {

@@ -413,8 +413,8 @@ static void DrawLevelFinished(void)
 
 	float w2 = IM_WIDTH(finished);
 
-	RGL_ImageEasy320(160 - w/2,  y, lnames[0]);
-	RGL_ImageEasy320(160 - w2/2, y + h * 5/4, finished);
+	HUD_DrawImage(160 - w/2,  y, lnames[0]);
+	HUD_DrawImage(160 - w2/2, y + h * 5/4, finished);
 }
 
 // Draws "Entering <LevelName>"
@@ -431,8 +431,8 @@ static void DrawEnteringLevel(void)
 	float w = IM_WIDTH(entering);
 	float w2 = IM_WIDTH(lnames[1]);
 
-	RGL_ImageEasy320(160 - w/2,  y, entering);
-	RGL_ImageEasy320(160 - w2/2, y + h * 5/4, lnames[1]);
+	HUD_DrawImage(160 - w/2,  y, entering);
+	HUD_DrawImage(160 - w2/2, y + h * 5/4, lnames[1]);
 }
 
 static void DrawOnLnode(wi_mappos_c* mappos, const image_c * images[2])
@@ -462,7 +462,7 @@ static void DrawOnLnode(wi_mappos_c* mappos, const image_c * images[2])
 
 	if (i < 2)
 	{
-		RGL_ImageEasy320(mappos->info->x, mappos->info->y, images[i]);
+		HUD_DrawImage(mappos->info->x, mappos->info->y, images[i]);
 	}
 	else
 	{
@@ -517,14 +517,14 @@ static float DrawNum(float x, float y, int n, int numdigits)
 	for (; numdigits > 0; n /= 10, numdigits--)
 	{
 		x -= IM_WIDTH(digits[0]);
-		RGL_ImageEasy320(x, y, digits[n % 10]);
+		HUD_DrawImage(x, y, digits[n % 10]);
 	}
 
 	// draw a minus sign if necessary
 	if (neg)
 	{
 		x -= IM_WIDTH(wiminus);
-		RGL_ImageEasy320(x, y, wiminus);
+		HUD_DrawImage(x, y, wiminus);
 	}
 
 	return x;
@@ -535,7 +535,7 @@ static void DrawPercent(float x, float y, int p)
 	if (p < 0)
 		return;
 
-	RGL_ImageEasy320(x, y, percent);
+	HUD_DrawImage(x, y, percent);
 
 	DrawNum(x, y, p, -1);
 }
@@ -564,14 +564,14 @@ static void DrawTime(float x, float y, int t)
 
 			// draw
 			if (div == 60 || t / div)
-				RGL_ImageEasy320(x, y, colon);
+				HUD_DrawImage(x, y, colon);
 		}
 		while (t / div);
 	}
 	else
 	{
 		// "sucks"
-		RGL_ImageEasy320(x - IM_WIDTH(sucks), y, sucks);
+		HUD_DrawImage(x - IM_WIDTH(sucks), y, sucks);
 	}
 }
 
@@ -1273,22 +1273,22 @@ static void DrawSinglePlayerStats(void)
 
 	DrawLevelFinished();
 
-	RGL_ImageEasy320(SP_STATSX, SP_STATSY, kills);
+	HUD_DrawImage(SP_STATSX, SP_STATSY, kills);
 	DrawPercent(320 - SP_STATSX, SP_STATSY, cnt_kills[0]);
 
-	RGL_ImageEasy320(SP_STATSX, SP_STATSY + lh, items);
+	HUD_DrawImage(SP_STATSX, SP_STATSY + lh, items);
 	DrawPercent(320 - SP_STATSX, SP_STATSY + lh, cnt_items[0]);
 
-	RGL_ImageEasy320(SP_STATSX, SP_STATSY + 2 * lh, sp_secret);
+	HUD_DrawImage(SP_STATSX, SP_STATSY + 2 * lh, sp_secret);
 	DrawPercent(320 - SP_STATSX, SP_STATSY + 2 * lh, cnt_secrets[0]);
 
-	RGL_ImageEasy320(SP_TIMEX, SP_TIMEY, time_image);
+	HUD_DrawImage(SP_TIMEX, SP_TIMEY, time_image);
 	DrawTime(160 - SP_TIMEX, SP_TIMEY, cnt_time);
 
 	// -KM- 1998/11/25 Removed episode check. Replaced with partime check
 	if (wi_stats.partime)
 	{
-		RGL_ImageEasy320(160 + SP_TIMEX, SP_TIMEY, par);
+		HUD_DrawImage(160 + SP_TIMEX, SP_TIMEY, par);
 		DrawTime(320 - SP_TIMEX, SP_TIMEY, cnt_par);
 	}
 }
@@ -1395,7 +1395,7 @@ void WI_Drawer(void)
 	} 
 	else
 	{
-		RGL_Image320(0, 0, 320, 200, bg_image);
+		HUD_StretchImage(0, 0, 320, 200, bg_image);
 
 		for (int i = 0; i < worldint.numanims; i++)
 		{
@@ -1417,7 +1417,7 @@ void WI_Drawer(void)
 				f = &a->frames[a->frameon];
 
 			if (f)
-				RGL_ImageEasy320(f->info->x, f->info->y, f->image);
+				HUD_DrawImage(f->info->x, f->info->y, f->image);
 		}
 	}
 

@@ -357,6 +357,24 @@ static int XMUL;
 static int YMUL;
 
 
+static void RGL_SolidBox(int x, int y, int w, int h, rgbcol_t col, float alpha)
+{
+	if (alpha < 0.99f)
+		glEnable(GL_BLEND);
+  
+	glColor4f(RGB_RED(col)/255.0, RGB_GRN(col)/255.0, RGB_BLU(col)/255.0, alpha);
+  
+	glBegin(GL_QUADS);
+
+	glVertex2i(x,   y);
+	glVertex2i(x,   y+h);
+	glVertex2i(x+w, y+h);
+	glVertex2i(x+w, y);
+  
+	glEnd();
+	glDisable(GL_BLEND);
+}
+
 static void HorizontalLine(int y, rgbcol_t col)
 {
 	float alpha = 1.0f;

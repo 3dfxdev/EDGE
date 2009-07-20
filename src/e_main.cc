@@ -356,14 +356,10 @@ static void M_DisplayPause(void)
 
 	// make sure image is centered horizontally
 
-	float w = FROM_320(IM_WIDTH(pause_image));
-	float h = FROM_200(IM_HEIGHT(pause_image));
+	float w = IM_WIDTH(pause_image);
+	float h = IM_HEIGHT(pause_image);
 
-	float x = FROM_320(160) - w / 2;
-	float y = FROM_200(190) - h;
-
-    RGL_DrawImage(x, y, w, h, pause_image,
-			      0, 0, IM_RIGHT(pause_image), IM_TOP(pause_image));
+    HUD_DrawImage(160 - w/2, 10, pause_image);
 }
 
 static int need_wipe = 0;  // method kind
@@ -501,7 +497,7 @@ static const image_c *title_image = NULL;
 static void E_TitleDrawer(void)
 {
 	if (title_image)
-		RGL_Image320(0, 0, 320, 200, title_image);
+		HUD_StretchImage(0, 0, 320, 200, title_image);
 	else
 		HUD_SolidBox(0, 0, 320, 200, T_DGREY);
 }
