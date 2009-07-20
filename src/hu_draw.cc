@@ -105,7 +105,6 @@ void HUD_Reset(const char *what)
 	}
 }
 
-
 void HUD_FrameSetup(void)
 {
 	if (! default_font)
@@ -124,22 +123,76 @@ void HUD_FrameSetup(void)
 	HUD_Reset();
 }
 
-
-void HUD_PushScissor(float x1, float y1, float x2, float y2)
-{
-	// FIXME !!!!
-}
-
-void HUD_PopScissor()
-{
-	// FIXME !!!!
-}
-
-
 void HL_Init(void)
 {
 	/* nothing to init */
 }
+
+
+#define MAX_SCISSOR_STACK  10
+
+static int scissor_stack[MAX_SCISSOR_STACK][4];
+static int sci_stack_top = 0;
+
+
+void HUD_PushScissor(float x1, float y1, float x2, float y2)
+{
+	SYS_ASSERT(sci_stack_top < MAX_SCISSOR_STACK);
+
+	x1 = COORD_X(x1); y1 = SCREENHEIGHT - COORD_Y(y1);
+	x2 = COORD_X(x2); y2 = SCREENHEIGHT - COORD_Y(y2);
+
+	int sx1 = I_ROUND(x1); int sy1 = I_ROUND(y2);
+	int sx2 = I_ROUND(x2); int sy2 = I_ROUND(y1);
+
+	if (sci_stack_top == 0)
+	{
+		glEnable(GL_SCISSOR_TEST);
+	}
+	else
+	{
+		// clip to previous scissor
+		int *xy = scissor_stack[sci_stack_top-1];
+
+		sx1 = MAX(sx1, xy[0]); sy1 = MAX(sy1, xy[1]);
+		sx2 = MIN(sx2, xy[2]); sy2 = MIN(sy2, xy[3]);
+	}
+
+	SYS_ASSERT(sx2 >= sx1);
+	SYS_ASSERT(sy2 >= sy1);
+
+	glScissor(sx1, sy1, sx2 - sx1, sy2 - sy1);
+
+	// push current scissor
+	int *xy = scissor_stack[sci_stack_top];
+
+	xy[0] = sx1; xy[1] = sy1;
+	xy[2] = sx2; xy[3] = sy2;
+
+	sci_stack_top++;
+}
+
+void HUD_PopScissor()
+{
+	SYS_ASSERT(sci_stack_top > 0);
+
+	sci_stack_top--;
+
+	if (sci_stack_top == 0)
+	{
+		glDisable(GL_SCISSOR_TEST);
+	}
+	else
+	{
+		// restore previous scissor
+		int *xy = scissor_stack[sci_stack_top];
+
+		glScissor(xy[0], xy[1], xy[2]-xy[0], xy[3]-xy[1]);
+	}
+}
+
+
+//----------------------------------------------------------------------------
 
 
 void RGL_DrawImage(float x, float y, float w, float h, const image_c *image, 
