@@ -175,7 +175,7 @@ void M_DisplayDisk(void)
 	float w = IM_WIDTH(disk_image);
 	float h = IM_HEIGHT(disk_image);
 
-	RGL_Image320(314 - w, 164 - h, w, h, disk_image);
+	HUD_DrawImage(314 - w, 164 - h, disk_image);
 }
 
 
@@ -218,7 +218,7 @@ void M_DisplayAir(void)
 		SYS_ASSERT(1 <= i && i <= 20);
 	}
   
-	RGL_ImageEasy320(0, 0, air_images[i - 1]);
+	HUD_DrawImage(0, 0, air_images[i - 1]);
 }
 
 

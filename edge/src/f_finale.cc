@@ -671,7 +671,7 @@ static void CastDrawer(void)
 
 	image = W_ImageLookup("BOSSBACK");
 
-	RGL_Image320(0, 0, 320, 200, image);
+	HUD_StretchImage(0, 0, 320, 200, image);
 
 	CastPrint(cast_title);
 
@@ -756,8 +756,8 @@ static void BunnyScroll(void)
 	if (scrolled < 0)
 		scrolled = 0;
 
-	RGL_Image320(0   - scrolled, 0, 320, 200, p1);
-	RGL_Image320(320 - scrolled, 0, 320, 200, p2);
+	HUD_StretchImage(0   - scrolled, 0, 320, 200, p1);
+	HUD_StretchImage(320 - scrolled, 0, 320, 200, p2);
 
 	if (finalecount < 1130)
 		return;
@@ -766,7 +766,7 @@ static void BunnyScroll(void)
 	{
 		p1 = W_ImageLookup("END0");
 
-		RGL_ImageEasy320((320 - 13 * 8) / 2, (200 - 8 * 8) / 2, p1);
+		HUD_DrawImage((320 - 13 * 8) / 2, (200 - 8 * 8) / 2, p1);
 		laststage = 0;
 		return;
 	}
@@ -786,7 +786,7 @@ static void BunnyScroll(void)
 
 	p1 = W_ImageLookup(name);
 
-	RGL_ImageEasy320((320 - 13 * 8) / 2, (200 - 8 * 8) / 2, p1);
+	HUD_DrawImage((320 - 13 * 8) / 2, (200 - 8 * 8) / 2, p1);
 }
 
 
@@ -804,7 +804,7 @@ void F_Drawer(void)
 			{
 				const image_c *image = W_ImageLookup(finale->pics[picnum]);
 
-				RGL_Image320(0, 0, 320, 200, image);
+				HUD_StretchImage(0, 0, 320, 200, image);
 			}
 			break;
 
