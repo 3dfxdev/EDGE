@@ -36,7 +36,7 @@
 void HUD_SetCoordSys(int width, int height);
 
 void HUD_SetFont(font_c *font);
-void HUD_SetTextScale(float scale);
+void HUD_SetScale(float scale);
 void HUD_SetTextColor(rgbcol_t color);
 void HUD_SetAlpha(float alpha);
 

@@ -136,8 +136,8 @@ static void SetupTip(drawtip_t *cur)
 
 	// build HULIB information
 
-	base_x = (int)(320 * PERCENT_2_FLOAT(cur->p.x_pos));
-	base_y = (int)(200 * PERCENT_2_FLOAT(cur->p.y_pos));
+	base_x = (int)(cur->p.x_pos);
+	base_y = (int)(cur->p.y_pos);
 
 	cur->linenum = 1;
 
@@ -266,24 +266,23 @@ void RAD_DisplayTips(void)
 
 		if (current->tip_graphic)
 		{
-			float sc = current->scale;
+			const image_c *img = current->tip_graphic;
+			float scale = current->scale;
 
-			const image_c *image = current->tip_graphic;
+			float x = current->p.x_pos;
+			float y = current->p.y_pos;
 
-			int x = (int)(SCREENWIDTH  * PERCENT_2_FLOAT(current->p.x_pos));
-			int y = (int)(SCREENHEIGHT * PERCENT_2_FLOAT(current->p.y_pos));
-
-			int w = (int)(0.5f + sc * FROM_320(IM_WIDTH(image)));
-			int h = (int)(0.5f + sc * FROM_200(IM_HEIGHT(image)));
+			float w = scale * IM_WIDTH(img);
+			float h = scale * IM_HEIGHT(img);
 
 			y -= h / 2;
 
 			if (! current->p.left_just)
 				x -= w / 2;
 
-			RGL_DrawImage(x, SCREENHEIGHT-1 - y-h, w, h, image,
-						  0, 0, IM_RIGHT(image), IM_TOP(image),
-						  alpha);
+			HUD_SetAlpha(alpha);
+			HUD_StretchImage(x, y, w, h, img);
+			HUD_Reset("a");
 
 			continue;
 		}

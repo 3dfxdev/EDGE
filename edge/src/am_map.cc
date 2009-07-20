@@ -543,15 +543,14 @@ static inline angle_t GetRotatedAngle(angle_t src)
 //
 static void DrawMline(mline_t * ml, rgbcol_t rgb)
 {
-	int x1, y1, x2, y2;
-	int f_x2 = f_x + f_w - 1;
-	int f_y2 = f_y + f_h - 1;
+	float f_x2 = f_x + f_w - 1;
+	float f_y2 = f_y + f_h - 1;
 
-	// transform to frame-buffer coordinates.
-	x1 = CXMTOF(ml->a.x);
-	y1 = CYMTOF(ml->a.y);
-	x2 = CXMTOF(ml->b.x);
-	y2 = CYMTOF(ml->b.y);
+	// transform to 320x200 coordinates.
+	float x1 = CXMTOF(ml->a.x);
+	float y1 = CYMTOF(ml->a.y);
+	float x2 = CXMTOF(ml->b.x);
+	float y2 = CYMTOF(ml->b.y);
 
 	// trivial rejects
 	if ((x1 < f_x && x2 < f_x) || (x1 > f_x2 && x2 > f_x2) ||
@@ -588,8 +587,8 @@ my0 += 32;
 
 	for (int j = 0; ; j++)
 	{
-		int x1 = CXMTOF(mx0 - j * grid_size);
-		int x2 = CXMTOF(mx0 + j * grid_size + grid_size);
+		float x1 = CXMTOF(mx0 - j * grid_size);
+		float x2 = CXMTOF(mx0 + j * grid_size + grid_size);
 
 		if (x1 < f_x && x2 >= f_x + f_w)
 			break;
@@ -601,8 +600,8 @@ my0 += 32;
 
 	for (int k = 0; ; k++)
 	{
-		int y1 = CYMTOF(my0 - k * grid_size);
-		int y2 = CYMTOF(my0 + k * grid_size + grid_size);
+		float y1 = CYMTOF(my0 - k * grid_size);
+		float y2 = CYMTOF(my0 + k * grid_size + grid_size);
 
 		if (y1 < f_y && y2 >= f_y + f_h)
 			break;
@@ -973,8 +972,7 @@ static void DrawMarks(void)
 static void AM_RenderScene(void)
 {
 //!!!!!!FIXME	glEnable(GL_SCISSOR_TEST);
-
-	glScissor(f_x, f_y, f_w, f_h);
+//!!!!!!FIXME	glScissor(f_x, f_y, f_w, f_h);
 
 	if (am_smoothing.d)
 	{

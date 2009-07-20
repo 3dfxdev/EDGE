@@ -68,7 +68,7 @@ void HUD_SetFont(font_c *font)
 	cur_font = font;
 }
 
-void HUD_SetTextScale(float scale)
+void HUD_SetScale(float scale)
 {
 	cur_scale = scale;
 }
