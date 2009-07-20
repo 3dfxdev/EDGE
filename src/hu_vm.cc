@@ -350,7 +350,7 @@ static int HD_set_scale(lua_State *L)
 	if (cur_scale <= 0)
 		I_Error("hud.set_scale: Bad scale value: %1.3f\n", cur_scale);
 
-	HUD_SetTextScale(cur_scale);
+	HUD_SetScale(cur_scale);
 
 	return 0;
 }

@@ -56,8 +56,8 @@ typedef struct s_tip_prop_s
 	// new slot number, or < 0 for no change.
 	int slot_num;
 
-	// tip position (as a percentage, 0-255), < 0 for no change
-	percent_t x_pos, y_pos;
+	// tip position (in 320x200 coords), < 0 for no change
+	float x_pos, y_pos;
 
 	// left justify.  Can be 1, 0, or < 0 for no change.
 	int left_just;

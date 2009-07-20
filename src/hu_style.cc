@@ -64,61 +64,9 @@ void style_c::Load()
 	}
 }
 
-//
-// !!! FIXME: align -- temp fix for console.
-//
+
 void style_c::DrawBackground(int x, int y, int w, int h, int align)
 {
-#if 0  // OLD CRUD
-	if (w == 0)
-		x = 0, w = SCREENWIDTH;
-
-	if (h == 0)
-		y = 0, h = SCREENHEIGHT;
-
-	float alpha = PERCENT_2_FLOAT(def->bg.translucency);
-
-	if (alpha < 0.02)
-		return;
-
-	if (! bg_image)
-	{
-		if (def->bg.colour != RGB_NO_VALUE)
-			RGL_SolidBox(x, y, w, h, def->bg.colour, alpha);
-		return;
-	}
-
-	float right = IM_RIGHT(bg_image);
-	float top   = IM_TOP(bg_image);
-
-	if (def->special & SYLSP_Tiled)
-	{
-		float y_scale = def->bg.scale;
-		float x_scale = def->bg.aspect * y_scale;
-
-		x_scale *= (float)SCREENWIDTH  / 320.0f;
-		y_scale *= (float)SCREENHEIGHT / 200.0f;
-
-		RGL_DrawImage(x, y, w, h, bg_image,
-				0.0f, align ? (1.0f - top * h / IM_HEIGHT(bg_image) / y_scale) : 0.0f,
-				right  * w / IM_WIDTH(bg_image)  / x_scale,
-				align ? 1.0f : (top * h / IM_HEIGHT(bg_image) / y_scale),
-				alpha);
-	}
-	else if (def->special & SYLSP_TiledNoScale)
-	{
-		RGL_DrawImage(x, y, w, h, bg_image,
-				0.0f, align ? (1.0f - top * h / IM_HEIGHT(bg_image)) : 0.0f,
-				right  * w / IM_WIDTH(bg_image),
-				align ? 1.0f : (top * h / IM_HEIGHT(bg_image)),
-				alpha);
-	}
-	else
-	{
-		RGL_DrawImage(x, y, w, h, bg_image, 0.0f, 0.0f,
-					  right, top, alpha);
-	}
-#endif
 }
 
 
