@@ -2,7 +2,7 @@
 //  EDGE 2D DRAWING STUFF
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -19,6 +19,8 @@
 #include "i_defs.h"
 #include "i_defs_gl.h"
 
+#include "ddf/font.h"
+
 #include "g_game.h"
 #include "r_misc.h"
 #include "r_gldefs.h"
@@ -34,8 +36,85 @@
 #define HU_CHAR(ch)  (islower(ch) ? toupper(ch) : (ch))
 #define HU_INDEX(c)  ((unsigned char) HU_CHAR(c))
 
+static font_c *default_font;
+
+
+// current state
+static float cur_coord_W;
+static float cur_coord_H;
+
+static font_c *cur_font;
+static rgbcol_t cur_color;
+static float cur_scale;
+static float cur_alpha;
+
+#define COORD_X(x)  ((x) * SCREENWIDTH  / cur_coord_W)
+#define COORD_Y(y)  ((y) * SCREENHEIGHT / cur_coord_H)
+
 
 static int glbsp_last_prog_time = 0;
+
+
+void HUD_SetCoordSys(int width, int height)
+{
+	cur_coord_W = width;
+	cur_coord_H = height;
+}
+
+void HUD_SetFont(font_c *font)
+{
+	SYS_ASSERT(font);
+
+	cur_font = font;
+}
+
+void HUD_SetTextScale(float scale)
+{
+	cur_scale = scale;
+}
+
+void HUD_SetTextColor(rgbcol_t color)
+{
+	cur_color = color;
+}
+
+void HUD_SetAlpha(float alpha)
+{
+	cur_alpha = alpha;
+}
+
+void HUD_Reset(const char *what)
+{
+	for (; *what; what++)
+	{
+		switch (*what)
+		{
+			case 'f': cur_font  = default_font; break;
+			case 's': cur_scale = 1.0f; break;
+			case 'c': cur_color = RGB_NO_VALUE; break;
+			case 'a': cur_alpha = 1.0f; break;
+		}
+	}
+}
+
+
+void HUD_FrameSetup(void)
+{
+	if (! default_font)
+	{
+		// FIXME: get default font from DDF gamedef
+		fontdef_c *DEF = fontdefs.Lookup("DOOM");
+		SYS_ASSERT(DEF);
+
+		default_font = HU_LookupFont(DEF);
+		SYS_ASSERT(default_font);
+	}
+
+	cur_coord_W = 320.0f;
+	cur_coord_H = 200.0f;
+
+	HUD_Reset();
+}
 
 
 void HL_Init(void)
