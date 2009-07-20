@@ -225,6 +225,28 @@ void RGL_SolidBox(int x, int y, int w, int h, rgbcol_t col, float alpha)
 	glDisable(GL_BLEND);
 }
 
+void HUD_SolidBox(float x, float y, float w, float h, rgbcol_t col)
+{
+	w = COORD_X(w); h = COORD_Y(h);
+	x = COORD_X(x); y = SCREENHEIGHT - COORD_Y(y) - h;
+
+	if (cur_alpha < 0.99f)
+		glEnable(GL_BLEND);
+  
+	glColor4f(RGB_RED(col)/255.0, RGB_GRN(col)/255.0, RGB_BLU(col)/255.0, cur_alpha);
+  
+	glBegin(GL_QUADS);
+
+	glVertex2f(x,   y);
+	glVertex2f(x,   y+h);
+	glVertex2f(x+w, y+h);
+	glVertex2f(x+w, y);
+  
+	glEnd();
+	glDisable(GL_BLEND);
+}
+
+
 void RGL_SolidLine(int x1, int y1, int x2, int y2, rgbcol_t col, float alpha)
 {
 	if (alpha < 0.99f)
@@ -236,6 +258,25 @@ void RGL_SolidLine(int x1, int y1, int x2, int y2, rgbcol_t col, float alpha)
 
 	glVertex2i(x1, y1);
 	glVertex2i(x2, y2);
+  
+	glEnd();
+	glDisable(GL_BLEND);
+}
+
+void HUD_SolidLine(float x1, float y1, float x2, float y2, rgbcol_t col)
+{
+	x1 = COORD_X(x1); y1 = SCREENHEIGHT - COORD_Y(y1);
+	x2 = COORD_X(x2); y2 = SCREENHEIGHT - COORD_Y(y2);
+
+	if (cur_alpha < 0.99f)
+		glEnable(GL_BLEND);
+  
+	glColor4f(RGB_RED(col)/255.0, RGB_GRN(col)/255.0, RGB_BLU(col)/255.0, cur_alpha);
+  
+	glBegin(GL_LINES);
+
+	glVertex2f(x1, y1);
+	glVertex2f(x2, y2);
   
 	glEnd();
 	glDisable(GL_BLEND);

@@ -1,5 +1,13 @@
 Andrew Apted's Log
 
+2009/07/20:
+
+Began working on a unified HUD/2D/UI drawing backend, using
+the Lua 'hud' module as the template.  The new code is in
+files called hu_draw.cc/h.  Text drawing in particular will
+be different, new to call a function to set the font, color
+or alpha instead of passing these as parameters.
+
 2009/07/19:
 
 Console: typing 'quit now' will quit without the confirmation.

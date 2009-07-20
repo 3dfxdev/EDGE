@@ -319,6 +319,8 @@ static int HD_text_font(lua_State *L)
 	cur_font = HU_LookupFont(DEF);
 	SYS_ASSERT(cur_font);
 
+	HUD_SetFont(cur_font);
+
 	return 0;
 }
 
@@ -333,6 +335,8 @@ static int HD_text_color(lua_State *L)
 	if (nargs >= 1)
 		cur_color = ParseColor(L, 1);
 
+	HUD_SetTextColor(cur_color);
+
 	return 0;
 }
 
@@ -346,6 +350,8 @@ static int HD_set_scale(lua_State *L)
 	if (cur_scale <= 0)
 		I_Error("hud.set_scale: Bad scale value: %1.3f\n", cur_scale);
 
+	HUD_SetTextScale(cur_scale);
+
 	return 0;
 }
 
@@ -355,6 +361,8 @@ static int HD_set_scale(lua_State *L)
 static int HD_set_alpha(lua_State *L)
 {
 	cur_alpha = luaL_checknumber(L, 1);
+
+	HUD_SetAlpha(cur_alpha);
 
 	return 0;
 }
@@ -369,12 +377,12 @@ static int HD_solid_box(lua_State *L)
 	float w = luaL_checknumber(L, 3);
 	float h = luaL_checknumber(L, 4);
 
-	w = COORD_X(w); h = COORD_Y(h);
-	x = COORD_X(x); y = SCREENHEIGHT - COORD_Y(y) - h;
+///---	w = COORD_X(w); h = COORD_Y(h);
+///---	x = COORD_X(x); y = SCREENHEIGHT - COORD_Y(y) - h;
 
 	rgbcol_t rgb = ParseColor(L, 5);
 
-	RGL_SolidBox((int)x, (int)y, I_ROUND(w), I_ROUND(h), rgb, cur_alpha);
+	HUD_SolidBox(x, y, w, h, rgb);
 
 	return 0;
 }
@@ -389,12 +397,12 @@ static int HD_solid_line(lua_State *L)
 	float x2 = luaL_checknumber(L, 3);
 	float y2 = luaL_checknumber(L, 4);
 
-	x1 = COORD_X(x1); y1 = SCREENHEIGHT - COORD_Y(y1);
-	x2 = COORD_X(x2); y2 = SCREENHEIGHT - COORD_Y(y2);
+///---	x1 = COORD_X(x1); y1 = SCREENHEIGHT - COORD_Y(y1);
+///---	x2 = COORD_X(x2); y2 = SCREENHEIGHT - COORD_Y(y2);
 
 	rgbcol_t rgb = ParseColor(L, 5);
 
-	RGL_SolidLine((int)x1, (int)y1, (int)x2, (int)y2, rgb, cur_alpha);
+	HUD_SolidLine(x1, y1, x2, y2, rgb);
 
 	return 0;
 }
@@ -680,8 +688,8 @@ static int HD_render_automap(lua_State *L)
 	float w = luaL_checknumber(L, 3);
 	float h = luaL_checknumber(L, 4);
 
-	x = COORD_X(x); y = COORD_Y(y);
-	w = COORD_X(w); h = COORD_Y(h);
+///	x = COORD_X(x); y = COORD_Y(y);
+///	w = COORD_X(w); h = COORD_Y(h);
 
 	int   old_state;
 	float old_zoom;
@@ -698,8 +706,7 @@ static int HD_render_automap(lua_State *L)
 		AM_SetState(new_state, new_zoom);
 	}
 
- 	AM_Drawer((int)x, SCREENHEIGHT-(int)(y+h), I_ROUND(w), I_ROUND(h),
-			  render_player->mo);
+ 	AM_Drawer(x, y, w, h, render_player->mo);
 
 	AM_SetState(old_state, old_zoom);
 

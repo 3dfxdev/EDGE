@@ -59,9 +59,8 @@ bool AM_Responder(struct event_s * ev);
 // Called by main loop.
 void AM_Ticker(void);
 
-// Called by main loop,
 // called instead of view drawer if automap active.
-void AM_Drawer(int x, int y, int w, int h, struct mobj_s *focus);
+void AM_Drawer(float x, float y, float w, float h, struct mobj_s *focus);
 
 // Called to force the automap to quit
 // if the level is completed while it is up.
