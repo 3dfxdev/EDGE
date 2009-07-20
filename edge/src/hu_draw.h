@@ -32,6 +32,20 @@
 #include "hu_font.h"
 #include "hu_style.h"
 
+
+void HUD_SetCoordSys(int width, int height);
+
+void HUD_SetFont(font_c *font);
+void HUD_SetTextScale(float scale);
+void HUD_SetTextColor(rgbcol_t color);
+void HUD_SetAlpha(float alpha);
+
+void HUD_Reset(const char *what = "fsca");
+// letters can be:
+// 	 'f' for Font   	's' for Scale
+// 	 'c' for Color		'a' for Alpha
+
+
 #define HU_MAXLINES		4
 #define HU_MAXLINELENGTH	80
 
