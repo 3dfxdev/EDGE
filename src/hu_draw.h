@@ -52,6 +52,11 @@ void HUD_Reset(const char *what = "acfgs");
 // 	 'g' for Alignment
 
 
+void HL_Init(void);
+
+void HUD_FrameSetup(void);
+
+
 void HUD_PushScissor(float x1, float y1, float x2, float y2);
 void HUD_PopScissor();
 // manage the current clip rectangle.  The first push enables the
@@ -85,9 +90,8 @@ void HUD_StretchImage(float x, float y, float w, float h, const image_c *image);
 void HUD_TileImage(float x, float y, float w, float h, const image_c *image,
 				   float offset_x = 0.0f, float offset_y = 0.0f);
 
-void HL_Init(void);
+void HUD_DrawChar(float left_x, float top_y, const image_c *img);
 
-void HUD_FrameSetup(void);
 
 void HL_WriteText(style_c *style, int text_type, int x, int y,
 		const char *str, float scale = 1.0f, float alpha = 1.0f);

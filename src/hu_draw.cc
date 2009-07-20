@@ -307,6 +307,28 @@ void HUD_TileImage(float x, float y, float w, float h, const image_c *img,
 }
 
 
+void HUD_DrawChar(float left_x, float top_y, const image_c *img)
+{
+	float sc_x = cur_scale; // TODO * aspect;
+	float sc_y = cur_scale;
+
+	float x = left_x - IM_OFFSETX(img) * sc_x;
+	float y = top_y  - IM_OFFSETY(img) * sc_y;
+
+	// jump down to baseline
+	y += IM_HEIGHT(img) * sc_y;
+
+	float w = IM_WIDTH(img)  * sc_x;
+	float h = IM_HEIGHT(img) * sc_y;
+
+	w = COORD_X(w); h = COORD_Y(h);
+	x = COORD_X(x); y = SCREENHEIGHT - COORD_Y(y) - h;
+
+    RGL_DrawImage(x, y, w, h, img, 0, 0, IM_RIGHT(img), IM_TOP(img),
+				  cur_alpha, cur_color);
+}
+
+
 void HUD_SolidBox(float x1, float y1, float x2, float y2, rgbcol_t col)
 {
 	x1 = COORD_X(x1); y1 = SCREENHEIGHT - COORD_Y(y1);
