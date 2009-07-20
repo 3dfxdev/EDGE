@@ -40,10 +40,23 @@ void HUD_SetScale(float scale);
 void HUD_SetTextColor(rgbcol_t color);
 void HUD_SetAlpha(float alpha);
 
-void HUD_Reset(const char *what = "fsca");
+void HUD_SetAlignment(int xa, int ya);
+// xa is -1 for left, 0 for centred, +1 for right
+// ya is -1 for top,  0 for centred, +! for bottom
+// (Note: ya is ignored for text)
+
+void HUD_Reset(const char *what = "acfgs");
 // letters can be:
 // 	 'f' for Font   	's' for Scale
 // 	 'c' for Color		'a' for Alpha
+// 	 'g' for Alignment
+
+
+void HUD_PushScissor(float x1, float y1, float x2, float y2);
+void HUD_PopScissor();
+// manage the current clip rectangle.  The first push enables the
+// scissor test, subsequent pushes merely shrink the area, and the
+// last pop disables the scissor test.
 
 
 void RGL_DrawImage(float x, float y, float w, float h, const image_c *image,
@@ -51,21 +64,19 @@ void RGL_DrawImage(float x, float y, float w, float h, const image_c *image,
 				 float alpha = 1.0f, rgbcol_t text_col = RGB_NO_VALUE,
 				 const colourmap_c *palremap = NULL);
  
-void HUD_SolidBox(float x, float y, float w, float h, rgbcol_t col);
+void HUD_SolidBox(float x1, float y1, float x2, float y2, rgbcol_t col);
 // Draw a solid colour box (possibly translucent) in the given
-// rectangle.  Coordinates are inclusive.  Alpha ranges from 0
-// (invisible) to 255 (totally opaque).
-// Drawing will be clipped to the current clipping rectangle.
+// rectangle.
 
 void HUD_SolidLine(float x1, float y1, float x2, float y2, rgbcol_t col);
 // Draw a solid colour line (possibly translucent) between the two
 // end points.  Coordinates are inclusive.  Used for the automap.
 // Drawing will be clipped to the current clipping rectangle.
 
-void HUD_ThinBox(float x, float y, float w, float h, rgbcol_t col);
+void HUD_ThinBox(float x1, float y1, float x2, float y2, rgbcol_t col);
 // Draw a thin outline of a box.
 
-void HUD_GradientBox(float x, float y, float w, float h, rgbcol_t *cols);
+void HUD_GradientBox(float x1, float y1, float x2, float y2, rgbcol_t *cols);
 // Like HUD_SolidBox but the colors of each corner (TL, BL, TR, BR) can
 // be specified individually.
 

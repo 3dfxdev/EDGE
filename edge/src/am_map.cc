@@ -594,8 +594,8 @@ my0 += 32;
 			break;
 
 		// FIXME: perhaps need HUD_ThinVLine()
-		HUD_SolidBox(x1, f_y, 0.5, f_h, am_colors[AMCOL_Grid]);
-		HUD_SolidBox(x2, f_y, 0.5, f_h, am_colors[AMCOL_Grid]);
+		HUD_SolidBox(x1, f_y, x1+0.5, f_y+f_h, am_colors[AMCOL_Grid]);
+		HUD_SolidBox(x2, f_y, x2+0.5, f_y+f_h, am_colors[AMCOL_Grid]);
 	}
 
 	for (int k = 0; ; k++)
@@ -607,8 +607,8 @@ my0 += 32;
 			break;
 
 		// FIXME
-		HUD_SolidBox(f_x, y1, f_w, 0.5, am_colors[AMCOL_Grid]);
-		HUD_SolidBox(f_x, y2, f_w, 0.5, am_colors[AMCOL_Grid]);
+		HUD_SolidBox(f_x, y1, f_x+f_w, y1+0.5, am_colors[AMCOL_Grid]);
+		HUD_SolidBox(f_x, y2, f_x+f_w, y2+0.5, am_colors[AMCOL_Grid]);
 	}
 }
 

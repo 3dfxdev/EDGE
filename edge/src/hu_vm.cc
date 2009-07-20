@@ -375,7 +375,7 @@ static int HD_solid_box(lua_State *L)
 
 	rgbcol_t rgb = ParseColor(L, 5);
 
-	HUD_SolidBox(x, y, w, h, rgb);
+	HUD_SolidBox(x, y, x+w, y+h, rgb);
 	return 0;
 }
 
@@ -407,7 +407,7 @@ static int HD_thin_box(lua_State *L)
 
 	rgbcol_t rgb = ParseColor(L, 5);
 
-	HUD_ThinBox(x, y, w, h, rgb);
+	HUD_ThinBox(x, y, x+w, y+h, rgb);
 	return 0;
 }
 
@@ -428,7 +428,7 @@ static int HD_gradient_box(lua_State *L)
 	cols[2] = ParseColor(L, 7);
 	cols[3] = ParseColor(L, 8);
 
-	HUD_GradientBox(x, y, w, h, cols);
+	HUD_GradientBox(x, y, x+w, y+h, cols);
 	return 0;
 }
 

@@ -45,8 +45,9 @@ static float cur_coord_H;
 
 static font_c *cur_font;
 static rgbcol_t cur_color;
-static float cur_scale;
-static float cur_alpha;
+
+static float cur_scale, cur_alpha;
+static int cur_x_align, cur_y_align;
 
 #define COORD_X(x)  ((x) * SCREENWIDTH  / cur_coord_W)
 #define COORD_Y(y)  ((y) * SCREENHEIGHT / cur_coord_H)
@@ -83,16 +84,23 @@ void HUD_SetAlpha(float alpha)
 	cur_alpha = alpha;
 }
 
+void HUD_SetAlignment(int xa, int ya)
+{
+	cur_x_align = xa;
+	cur_y_align = ya;
+}
+
 void HUD_Reset(const char *what)
 {
 	for (; *what; what++)
 	{
 		switch (*what)
 		{
+			case 'a': cur_alpha = 1.0f; break;
+			case 'c': cur_color = RGB_NO_VALUE; break;
 			case 'f': cur_font  = default_font; break;
 			case 's': cur_scale = 1.0f; break;
-			case 'c': cur_color = RGB_NO_VALUE; break;
-			case 'a': cur_alpha = 1.0f; break;
+			case 'g': cur_x_align = cur_y_align = -1; break;
 		}
 	}
 }
@@ -114,6 +122,17 @@ void HUD_FrameSetup(void)
 	cur_coord_H = 200.0f;
 
 	HUD_Reset();
+}
+
+
+void HUD_PushScissor(float x1, float y1, float x2, float y2)
+{
+	// FIXME !!!!
+}
+
+void HUD_PopScissor()
+{
+	// FIXME !!!!
 }
 
 
@@ -193,6 +212,8 @@ void RGL_DrawImage(float x, float y, float w, float h, const image_c *image,
 
 void HUD_StretchImage(float x, float y, float w, float h, const image_c *img)
 {
+	// FIXME: handle alignment !!!
+
 	x -= IM_OFFSETX(img);
 	y -= IM_OFFSETY(img);
 
@@ -213,6 +234,8 @@ void HUD_DrawImage(float x, float y, const image_c *img)
 void HUD_TileImage(float x, float y, float w, float h, const image_c *img,
 				   float offset_x, float offset_y)
 {
+	// FIXME: handle alignment !!!
+
 	offset_x /=  w;
 	offset_y /= -h;
 
@@ -231,10 +254,10 @@ void HUD_TileImage(float x, float y, float w, float h, const image_c *img,
 }
 
 
-void HUD_SolidBox(float x, float y, float w, float h, rgbcol_t col)
+void HUD_SolidBox(float x1, float y1, float x2, float y2, rgbcol_t col)
 {
-	w = COORD_X(w); h = COORD_Y(h);
-	x = COORD_X(x); y = SCREENHEIGHT - COORD_Y(y) - h;
+	x1 = COORD_X(x1); y1 = SCREENHEIGHT - COORD_Y(y1);
+	x2 = COORD_X(x2); y2 = SCREENHEIGHT - COORD_Y(y2);
 
 	if (cur_alpha < 0.99f)
 		glEnable(GL_BLEND);
@@ -243,10 +266,10 @@ void HUD_SolidBox(float x, float y, float w, float h, rgbcol_t col)
   
 	glBegin(GL_QUADS);
 
-	glVertex2f(x,   y);
-	glVertex2f(x,   y+h);
-	glVertex2f(x+w, y+h);
-	glVertex2f(x+w, y);
+	glVertex2f(x1, y1);
+	glVertex2f(x1, y2);
+	glVertex2f(x2, y2);
+	glVertex2f(x2, y1);
   
 	glEnd();
 	glDisable(GL_BLEND);
@@ -273,10 +296,10 @@ void HUD_SolidLine(float x1, float y1, float x2, float y2, rgbcol_t col)
 }
 
 
-void HUD_ThinBox(float x, float y, float w, float h, rgbcol_t col)
+void HUD_ThinBox(float x1, float y1, float x2, float y2, rgbcol_t col)
 {
-	w = COORD_X(w); h = COORD_Y(h);
-	x = COORD_X(x); y = SCREENHEIGHT - COORD_Y(y) - h;
+	x1 = COORD_X(x1); y1 = SCREENHEIGHT - COORD_Y(y1);
+	x2 = COORD_X(x2); y2 = SCREENHEIGHT - COORD_Y(y2);
 
 	if (cur_alpha < 0.99f)
 		glEnable(GL_BLEND);
@@ -284,32 +307,32 @@ void HUD_ThinBox(float x, float y, float w, float h, rgbcol_t col)
 	glColor4f(RGB_RED(col)/255.0, RGB_GRN(col)/255.0, RGB_BLU(col)/255.0, cur_alpha);
   
 	glBegin(GL_QUADS);
-	glVertex2f(x,   y);   glVertex2f(x,   y+h);
-	glVertex2f(x+2, y+h); glVertex2f(x+2, y);
+	glVertex2f(x1,   y1); glVertex2f(x1,   y2);
+	glVertex2f(x1+2, y2); glVertex2f(x1+2, y1);
 	glEnd();
 
 	glBegin(GL_QUADS);
-	glVertex2f(x+w-2, y);   glVertex2f(x+w-2, y+h);
-	glVertex2f(x+w,   y+h); glVertex2f(x+w,   y);
+	glVertex2f(x2-2, y1); glVertex2f(x2-2, y2);
+	glVertex2f(x2,   y2); glVertex2f(x2,   y1);
 	glEnd();
 
 	glBegin(GL_QUADS);
-	glVertex2f(x+2,   y);   glVertex2f(x+2,   y+2);
-	glVertex2f(x+w-2, y+2); glVertex2f(x+w-2, y);
+	glVertex2f(x1+2, y1);   glVertex2f(x1+2, y1+2);
+	glVertex2f(x2-2, y1+2); glVertex2f(x2-2, y1);
 	glEnd();
 
 	glBegin(GL_QUADS);
-	glVertex2f(x+2,   y+h-2); glVertex2f(x+2,   y+h);
-	glVertex2f(x+w-2, y+h);   glVertex2f(x+w-2, y+h-2);
+	glVertex2f(x1+2,  y2-2); glVertex2f(x1+2, y2);
+	glVertex2f(x2-2,  y2);   glVertex2f(x2-2, y2-2);
 	glEnd();
 
 	glDisable(GL_BLEND);
 }
 
-void HUD_GradientBox(float x, float y, float w, float h, rgbcol_t *cols)
+void HUD_GradientBox(float x1, float y1, float x2, float y2, rgbcol_t *cols)
 {
-	w = COORD_X(w); h = COORD_Y(h);
-	x = COORD_X(x); y = SCREENHEIGHT - COORD_Y(y) - h;
+	x1 = COORD_X(x1); y1 = SCREENHEIGHT - COORD_Y(y1);
+	x2 = COORD_X(x2); y2 = SCREENHEIGHT - COORD_Y(y2);
 
 	if (cur_alpha < 0.99f)
 		glEnable(GL_BLEND);
@@ -318,19 +341,19 @@ void HUD_GradientBox(float x, float y, float w, float h, rgbcol_t *cols)
 
 	glColor4f(RGB_RED(cols[1])/255.0, RGB_GRN(cols[1])/255.0,
 	          RGB_BLU(cols[1])/255.0, cur_alpha);
-	glVertex2f(x, y);
+	glVertex2f(x1, y1);
 
 	glColor4f(RGB_RED(cols[0])/255.0, RGB_GRN(cols[0])/255.0,
 	          RGB_BLU(cols[0])/255.0, cur_alpha);
-	glVertex2f(x, y+h);
+	glVertex2f(x1, y2);
 
 	glColor4f(RGB_RED(cols[2])/255.0, RGB_GRN(cols[2])/255.0,
 	          RGB_BLU(cols[2])/255.0, cur_alpha);
-	glVertex2f(x+w, y+h);
+	glVertex2f(x2, y2);
 
 	glColor4f(RGB_RED(cols[3])/255.0, RGB_GRN(cols[3])/255.0,
 	          RGB_BLU(cols[3])/255.0, cur_alpha);
-	glVertex2f(x+w, y);
+	glVertex2f(x2, y1);
   
 	glEnd();
 	glDisable(GL_BLEND);
