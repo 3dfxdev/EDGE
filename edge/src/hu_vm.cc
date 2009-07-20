@@ -104,25 +104,12 @@ static void FrameSetup(void)
 
 static void DoDrawChar(float cx, float cy, char ch)
 {
-	const image_c *image = cur_font->CharImage(ch);
+	const image_c *img = cur_font->CharImage(ch);
 
-	if (! image)
+	if (! img)
 		return;
 	
-	float sc_x = cur_scale;  // * aspect
-	float sc_y = cur_scale;
-
-	cx -= IM_OFFSETX(image) * sc_x;
-	cy -= IM_OFFSETY(image) * sc_y;
-
-	RGL_DrawImage(
-	    COORD_X(cx),
-		SCREENHEIGHT - COORD_Y(cy + IM_HEIGHT(image) * sc_y),
-		COORD_X(IM_WIDTH(image))  * sc_x,
-		COORD_Y(IM_HEIGHT(image)) * sc_y,
-		image, 0.0f, 0.0f,
-		IM_RIGHT(image), IM_TOP(image),
-		cur_alpha, cur_color);
+	HUD_DrawChar(cx, cy, img);
 }
 
 static void DoWriteText(float x, float y, const char *str)

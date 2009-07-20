@@ -971,10 +971,9 @@ static void DrawMarks(void)
 
 static void AM_RenderScene(void)
 {
-//!!!!!!FIXME	glEnable(GL_SCISSOR_TEST);
-//!!!!!!FIXME	glScissor(f_x, f_y, f_w, f_h);
+	HUD_PushScissor(f_x, f_y, f_x+f_w, f_y+f_h);
 
-	if (am_smoothing.d)
+	if (am_smoothing.d)  // FIXME: make part of HUD API
 	{
 		glEnable(GL_LINE_SMOOTH);
 		glEnable(GL_BLEND);
@@ -992,7 +991,7 @@ static void AM_RenderScene(void)
 	glDisable(GL_BLEND);
 	glLineWidth(1.0f);
 
-	glDisable(GL_SCISSOR_TEST);
+	HUD_PopScissor();
 }
 
 
