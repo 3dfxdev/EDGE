@@ -191,7 +191,9 @@ static void DDF_AnimGetType(const char *info, void *storage)
 
 static void DDF_AnimGetPic (const char *info, void *storage)
 {
-	buffer_anim.pics.Insert(info);
+	epi::strlist_c *pics = (epi::strlist_c *) storage;
+
+	pics->Insert(info);
 }
 
 void DDF_ParseANIMATED(const byte *data, int size)

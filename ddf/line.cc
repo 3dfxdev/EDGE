@@ -1030,9 +1030,10 @@ static void DDF_LineGetSlopeType(const char *info, void *storage)
 
 static void DDF_LineMakeCrush(const char *info, void *storage)
 {
-	// FIXME
-	buffer_line.f.crush_damage = 10;
-	buffer_line.c.crush_damage = 10;
+	linetype_c *lt = (linetype_c *) storage;
+
+	lt->f.crush_damage = 10;
+	lt->c.crush_damage = 10;
 }
 
 
