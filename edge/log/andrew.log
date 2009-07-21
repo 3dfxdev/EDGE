@@ -1,5 +1,9 @@
 Andrew Apted's Log
 
+2009/07/21:
+
+Completely removed STYLES.DDF support.
+
 2009/07/20:
 
 Began working on a unified HUD/2D/UI drawing backend, using
