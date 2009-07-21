@@ -6,7 +6,11 @@ Completely removed STYLES.DDF support.
 
 Removed GLBSP as a dependency.  EDGE can still load GL nodes
 (when explicitly enabled via the m_glnodes cvar), but the
-task of generation now falls to the 'tinybsp' code.
+task of generation now falls to my new 'TinyBSP' code.
+
+DDF: Disabled for now the parsing of the "ANIM" field for
+GAMES.DDF, which was doing nasty stuff with static variables.
+Besides the animations will eventually get drawn by scripts.
 
 2009/07/20:
 
