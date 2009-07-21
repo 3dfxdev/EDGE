@@ -27,6 +27,7 @@
 #include "i_defs_gl.h"
 
 #include "ddf/language.h"
+#include "ddf/font.h"
 
 #include "con_main.h"
 #include "g_state.h"
@@ -172,6 +173,8 @@ static float panning_y = 0;
 // how far the window zooms in each tic (map coords)
 static float zooming = -1;
 
+
+static font_c *am_digit_font;
 
 // where the points are
 static mpoint_t markpoints[AM_NUMMARKPOINTS];
@@ -944,6 +947,17 @@ static void AM_WalkThing(mobj_t *mo)
 
 static void DrawMarks(void)
 {
+	if (! am_digit_font)
+	{
+		fontdef_c *DEF = fontdefs.Lookup("AUTOMAP_DIGIT");
+		SYS_ASSERT(DEF);
+
+		am_digit_font = HU_LookupFont(DEF);
+		SYS_ASSERT(DEF);
+	}
+
+	HUD_SetFont(am_digit_font);
+
 	for (int i = 0; i < AM_NUMMARKPOINTS; i++)
 	{
 		if (markpoints[i].x == -1)
@@ -956,17 +970,14 @@ static void DrawMarks(void)
 		float cx = CXMTOF(mx);
 		float cy = CYMTOF(my);
 
-		float scale = 1.0f; /// f_w / 320.0f;
+		char buffer[4];
+		buffer[0] = '1' + i;
+		buffer[1] = 0;
 
-		font_c *am_font = automap_style->fonts[0];
-		SYS_ASSERT(am_font);
-
-		// oh fuck me!
-		cx = cx * 320.f / SCREENWIDTH;
-		cy = 200.0 - (cy * 200.0f / SCREENHEIGHT);
-
-		am_font->DrawChar320(cx, cy, '1'+i, scale,1.0f, RGB_NO_VALUE,1.0f);
+		HUD_DrawText(cx - 2, cy - 2, buffer);
 	}
+
+	HUD_Reset("f");
 }
 
 static void AM_RenderScene(void)

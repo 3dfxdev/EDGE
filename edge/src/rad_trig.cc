@@ -125,10 +125,7 @@ private:
 
 		title_num = 0;
 
-		int t_type = styledef_c::T_TITLE;
-
-		// FIXME: take scaling into account !!!
-		int font_h = style->fonts[t_type]->NominalHeight() + 2; //FIXME: fonts[] may be NULL
+		int font_h = 10; /// FIXME remove
 
 		for (int t = 0; t < MAX_TITLE; t++)
 		{
@@ -166,10 +163,7 @@ private:
 		int c = choice_num;
 		choice_num++;
 
-		int t_type = styledef_c::T_TEXT;
-
-		// FIXME: take scaling into account !!!
-		int font_h = style->fonts[t_type]->NominalHeight() + 2; //FIXME: fonts[] may be NULL
+		int font_h = 10; /// FIXME remove
 
 ///		HL_InitTextLine(choice_lines + c, 160, *y, style, t_type);
 ///		choice_lines[c].centre = true;
@@ -212,14 +206,16 @@ public:
 
 		HUD_SetTextColor(T_WHITE);  // FIXME
 
+		float font_h = HUD_FontHeight();
+
 		// FIXME: !!!!!! POSITION
 		for (int t = 0; t < title_num; t++)
-			HUD_DrawText(0, t*10, title_lines[t]);
+			HUD_DrawText(0, t*font_h, title_lines[t]);
 
 		HUD_SetTextColor(T_LTBLUE);  // FIXME
 
 		for (int c = 0; c < choice_num; c++)
-			HUD_DrawText(0, (title_num+1+c)*10, choice_lines[c]);
+			HUD_DrawText(0, (title_num+1+c)*font_h, choice_lines[c]);
 	}
 
 	int CheckKey(int key)

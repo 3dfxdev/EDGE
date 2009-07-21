@@ -780,7 +780,7 @@ void M_DrawSave(void)
 		{
 			HUD_SetTextColor(T_YELLOW);
 
-			len = 100; // FIXME !!!!  save_style->fonts[1]->StringWidth(ex_slots[save_slot].desc);
+			len = HUD_StringWidth(ex_slots[save_slot].desc);
 
 			HUD_DrawText(LoadDef.x + 8, y, ex_slots[i].desc);
 			HUD_DrawText(LoadDef.x + len + 8, y, "_");
@@ -1620,9 +1620,7 @@ bool M_Responder(event_t * ev)
 				ch = toupper(ch);
 				SYS_ASSERT(save_style);
 				if (ch >= 32 && ch <= 127 &&
-					saveCharIndex < SAVESTRINGSIZE - 1 &&
-					save_style->fonts[1]->StringWidth(ex_slots[save_slot].desc) <
-					(SAVESTRINGSIZE - 2) * 8)
+					saveCharIndex < SAVESTRINGSIZE - 1)
 				{
 					ex_slots[save_slot].desc[saveCharIndex++] = ch;
 					ex_slots[save_slot].desc[saveCharIndex] = 0;
@@ -1900,8 +1898,7 @@ static void DrawMessage(void)
 
 	std::string s = msg + input;
 
-	y = 100 - (dialog_style->fonts[0]->StringLines(s.c_str()) *
-		dialog_style->fonts[0]->NominalHeight()/ 2);
+	y = 100 - HUD_StringHeight(s.c_str()) / 2.0f;
 
 	if (!msg.empty())
 	{
@@ -1924,7 +1921,7 @@ static void DrawMessage(void)
 				HUD_Reset("s");
 			}
 
-			y += dialog_style->fonts[0]->NominalHeight();
+			y += HUD_FontHeight();
 
 			oldpos = pos + 1;
 		}
@@ -1952,7 +1949,7 @@ static void DrawMessage(void)
 				HUD_Reset("s");
 			}
 			
-			y += dialog_style->fonts[1]->NominalHeight();
+			y += HUD_FontHeight();
 
 			oldpos = pos + 1;
 		}
