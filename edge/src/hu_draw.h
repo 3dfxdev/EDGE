@@ -90,6 +90,13 @@ void HUD_StretchImage(float x, float y, float w, float h, const image_c *image);
 void HUD_TileImage(float x, float y, float w, float h, const image_c *image,
 				   float offset_x = 0.0f, float offset_y = 0.0f);
 
+
+float HUD_FontWidth(void);
+float HUD_FontHeight(void);
+
+float HUD_StringWidth(const char *str);
+float HUD_StringHeight(const char *str);
+
 void HUD_DrawChar(float left_x, float top_y, const image_c *img);
 
 void HUD_DrawText(float x, float y, const char *str);

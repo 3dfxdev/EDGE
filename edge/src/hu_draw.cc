@@ -522,6 +522,27 @@ void RGL_DrawProgress(int perc, int glbsp_perc)
 }
 
 
+float HUD_FontWidth(void)
+{
+	return cur_font->NominalWidth();
+}
+
+float HUD_FontHeight(void)
+{
+	return cur_font->NominalHeight();
+}
+
+float HUD_StringWidth(const char *str)
+{
+	return cur_font->StringWidth(str);
+}
+
+float HUD_StringHeight(const char *str)
+{
+	return cur_font->StringLines(str) * HUD_FontHeight();
+}
+
+
 void HUD_DrawChar(float left_x, float top_y, const image_c *img)
 {
 	float sc_x = cur_scale; // TODO * aspect;
