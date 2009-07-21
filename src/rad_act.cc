@@ -226,8 +226,6 @@ void RAD_DisplayTips(void)
 	int i, slot;
 	float alpha;
 
-	int font_height = rts_hack_style ? rts_hack_style->fonts[0]->NominalHeight() + 2 : 4;
-
 	for (slot=0; slot < MAXTIPSLOT; slot++)
 	{
 		drawtip_t *current = tip_slots + slot;
@@ -300,7 +298,7 @@ void RAD_DisplayTips(void)
 			HUD_SetTextColor(current->color);
 
 			// FIXME: !!!!!! POSITION
-			HUD_DrawText(0, 30+i*font_height, current->lines[i]);
+			HUD_DrawText(0, 30+i*HUD_FontHeight(), current->lines[i]);
 
 			HUD_Reset();
 		}
