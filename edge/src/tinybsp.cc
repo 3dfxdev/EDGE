@@ -20,6 +20,7 @@
 
 #include "r_defs.h"
 #include "r_state.h"
+#include "m_bbox.h"
 #include "p_local.h"
 #include "dm_struct.h"
 
@@ -27,6 +28,9 @@
 #define DIST_EPSILON  0.2f
 
 // #define DEBUG_CLOCKWISE  1
+
+#define MIN_BINARY_SEG   160
+#define MIN_BINARY_DIST  64
 
 
 static int max_segs;
@@ -155,9 +159,9 @@ static subsector_t *CreateSubsector(void)
 {
 	subsector_t *sub = NewSubsector();
 
-	sub->sector = NULL;
+	sub->seg_count = 0;
 
-	// subsector bbox is computed at the very end
+	M_ClearBox(sub->bbox);
 	
 	return sub;
 }
@@ -179,6 +183,11 @@ static void AddSeg(subsector_t *sub, seg_t *seg)
 	// add seg to subsector
 	seg->sub_next = sub->segs;
 	sub->segs = seg;
+
+	sub->seg_count++;
+
+	M_AddToBox(sub->bbox, seg->v1->x, seg->v1->y);
+	M_AddToBox(sub->bbox, seg->v2->x, seg->v2->y);
 }
 
 static seg_t * CreateOneSeg(line_t *ld, sector_t *sec, int side,
@@ -652,6 +661,21 @@ static void DivideOneSeg(seg_t *cur, divline_t& party,
 }
 
 
+static float NiceMidwayPoint(float low, float extent)
+{
+	int pow2 = 1;
+
+	while (pow2 < extent/5)
+		pow2 = pow2 << 1;
+	
+	int mid = I_ROUND((low + extent/2.0f) / pow2) * pow2;
+
+	// SYS_ASSERT(low < mid && mid < low+extent);
+
+	return mid;
+}
+
+
 static bool ChoosePartition(subsector_t *sub, divline_t *div)
 {
 	int total = 0;
@@ -661,7 +685,39 @@ static bool ChoosePartition(subsector_t *sub, divline_t *div)
 	if (total <= 3)
 		return false;
 
-	// FIXME: if total > ### median shit
+
+	// try a pure binary split
+	if (sub->seg_count >= MIN_BINARY_SEG)
+	{
+		float w = sub->bbox[BOXRIGHT] - sub->bbox[BOXLEFT];
+		float h = sub->bbox[BOXTOP]   - sub->bbox[BOXBOTTOM];
+
+		// IDEA: evaluate both options and pick best
+
+		if (MAX(w, h) >= MIN_BINARY_DIST)
+		{
+			if (w >= h)
+			{
+				div->x  = NiceMidwayPoint(sub->bbox[BOXLEFT], w);
+				div->y  = 0.0f;
+				div->dx = 0.0f;
+				div->dy = 1.0f;
+
+//				I_Debugf("split horizontally @ x=%1.1f\n", div->x);
+			}
+			else
+			{
+				div->x  = 0.0f;
+				div->y  = NiceMidwayPoint(sub->bbox[BOXBOTTOM], h);
+				div->dx = 1.0f;
+				div->dy = 0.0f;
+
+//				I_Debugf("split vertically @ y=%1.1f\n", div->y);
+			}
+			return true;
+		}
+	}
+
 
 	seg_t *best = NULL;
 	float best_cost = 1e30;
@@ -773,7 +829,10 @@ static unsigned int Poly_Split(subsector_t *right)
 	subsector_t *left = CreateSubsector();
 
 	seg_t *seg_list = right->segs;
+
 	right->segs = NULL;
+	right->seg_count = 0;
+	M_ClearBox(right->bbox);
 
 	std::vector<intersect_t> cut_list;
 

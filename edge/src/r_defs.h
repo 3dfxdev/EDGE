@@ -449,6 +449,9 @@ typedef struct subsector_s
 
 	// -AJA- 2004/04/20: used when emulating deep-water TRICK
 	struct sector_s *deep_ref;
+
+	// only used by TinyBSP
+	int seg_count;
 }
 subsector_t;
 
@@ -527,7 +530,7 @@ typedef struct node_s
 	// bit NF_V5_SUBSECTOR set for a subsector.
 	unsigned int children[2];
 
-	// Bounding boxes for this node.
+	// bounding box for this node.
 	float bbox[4];
 }
 node_t;
