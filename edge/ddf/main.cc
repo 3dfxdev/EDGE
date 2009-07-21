@@ -195,7 +195,6 @@ void DDF_Init(int _engine_ver)
 	DDF_ColmapInit();
 	DDF_ImageInit();
 	DDF_FontInit();
-	DDF_StyleInit();
 	DDF_AttackInit(); 
 	DDF_WeaponInit();
 	DDF_MobjInit();
@@ -274,7 +273,6 @@ void DDF_CleanUp(void)
 	DDF_LanguageCleanUp();
 	DDF_ImageCleanUp();
 	DDF_FontCleanUp();
-	DDF_StyleCleanUp();
 	DDF_MobjCleanUp();
 	DDF_AttackCleanUp();
 	DDF_StateCleanUp();
@@ -2081,7 +2079,6 @@ extern readinfo_t line_readinfo;
 extern readinfo_t playlist_readinfo;
 extern readinfo_t sector_readinfo;
 extern readinfo_t sound_readinfo;
-extern readinfo_t style_readinfo;
 extern readinfo_t switch_readinfo;
 extern readinfo_t thing_readinfo;
 extern readinfo_t weapon_readinfo;
@@ -2101,7 +2098,6 @@ static readinfo_t * all_readinfos[] =
 	&playlist_readinfo,
 	&sector_readinfo,
 	&sound_readinfo,
-	&style_readinfo,
 	&switch_readinfo,
 	&thing_readinfo,
 	&weapon_readinfo,

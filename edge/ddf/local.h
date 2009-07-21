@@ -368,11 +368,7 @@ void DDF_ColmapCleanUp (void);
 void DDF_FontInit (void);
 void DDF_FontCleanUp (void);
 
-// DDF_STYLE Code -AJA- 2004/11/14.
-void DDF_StyleInit (void);
-void DDF_StyleCleanUp (void);
-
-// DDF_FONT Code -AJA- 2004/11/18.
+// DDF_IMAGE Code -AJA- 2004/11/18.
 void DDF_ImageInit (void);
 void DDF_ImageCleanUp (void);
 

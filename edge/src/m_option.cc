@@ -82,7 +82,6 @@
 #include "e_input.h"
 #include "g_game.h"
 #include "hu_stuff.h"
-#include "hu_style.h"
 #include "m_menu.h"
 #include "m_misc.h"
 #include "m_netgame.h"

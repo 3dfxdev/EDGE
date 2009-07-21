@@ -76,7 +76,6 @@ static s_tip_prop_t fixed_props[FIXEDSLOTS] =
 	{ 15, 0.20f, 0.75f, 1, "#33FF33", 1.0f } 
 };
 
-static style_c *rts_hack_style;
 
 //
 // Once-only initialisation.
@@ -117,14 +116,6 @@ void RAD_ResetTips(void)
 
 static void SetupTip(drawtip_t *cur)
 {
-	if (! rts_hack_style)
-	{
-		styledef_c *def = styledefs.Lookup("RTS_TIP");
-		if (! def)
-			def = default_style;
-		rts_hack_style = HU_LookupStyle(def);
-	}
-
 	int i;
 	int base_x, base_y;
 
@@ -288,8 +279,6 @@ void RAD_DisplayTips(void)
 		}
 
 		// Dump it to the screen
-
-		SYS_ASSERT(rts_hack_style);
 
 		for (i=0; i < current->linenum; i++)
 		{

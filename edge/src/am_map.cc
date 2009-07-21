@@ -190,8 +190,6 @@ cheatseq_t cheat_amap = {0, 0};
 
 static bool stopped = true;
 
-extern style_c *automap_style;  // FIXME: put in header
-
 
 //
 // adds a marker at the current location
@@ -1021,8 +1019,6 @@ void AM_Drawer(float x, float y, float w, float h, mobj_t *focus)
 		m_cx = f_focus->x;
 		m_cy = f_focus->y;
 	}
-
-	SYS_ASSERT(automap_style);
 
 	if (grid && !am_rotate.d)
 		DrawGrid();

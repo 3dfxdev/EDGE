@@ -34,7 +34,6 @@
 #include "f_interm.h"
 #include "hu_draw.h"
 #include "hu_stuff.h"
-#include "hu_style.h"
 #include "m_argv.h"
 
 #include "r_gldefs.h"

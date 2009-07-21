@@ -58,7 +58,6 @@
 #include "ddf/language.h"
 #include "ddf/playlist.h"
 #include "ddf/sfx.h"
-#include "ddf/style.h"
 #include "ddf/switch.h"
 #include "ddf/thing.h"
 #include "ddf/weapon.h"
@@ -91,7 +90,6 @@ static ddf_reader_t DDF_Readers[] =
 	{ "DDFCOLM", "ColourMaps", "colmap.ddf"    },  // -AJA- 1999/07/09.
 	{ "DDFIMAGE","Images",     "images.ddf"    },  // -AJA- 2004/11/18
 	{ "DDFFONT", "Fonts",      "fonts.ddf"     },  // -AJA- 2004/11/13
-	{ "DDFSTYLE","Styles",     "styles.ddf"    },  // -AJA- 2004/11/14
 	{ "DDFATK",  "Attacks",    "attacks.ddf"   },
 	{ "DDFWEAP", "Weapons",    "weapons.ddf"   },
 	{ "DDFTHING","Things",     "things.ddf"    },
@@ -111,9 +109,9 @@ static ddf_reader_t DDF_Readers[] =
 
 #define LANG_READER  0
 #define COLM_READER  2
-#define SWTH_READER  12
-#define ANIM_READER  13
-#define RTS_READER   17
+#define SWTH_READER  11
+#define ANIM_READER  12
+#define RTS_READER   16
 
 class data_file_c
 {

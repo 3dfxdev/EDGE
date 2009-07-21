@@ -30,7 +30,6 @@
 
 // We are referring to patches.
 #include "hu_font.h"
-#include "hu_style.h"
 
 
 void HUD_SetCoordSys(int width, int height);

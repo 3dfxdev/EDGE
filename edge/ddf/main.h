@@ -57,7 +57,6 @@ class pl_entry_c;
 class sectortype_c;
 class sfxdef_c;
 class sliding_door_c;
-class styledef_c;
 class switchdef_c;
 class teleportdef_c;
 class weakness_info_c;
