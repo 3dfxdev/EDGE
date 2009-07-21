@@ -75,9 +75,6 @@ static bool message_on;
 static bool message_no_overwrite;
 static int  message_counter;
 
-static style_c *message_style;
-       style_c *automap_style;
-
 extern void CON_ShowStats(void);
 
 
@@ -100,17 +97,6 @@ void HU_Start(void)
 {
 	int i;
 	const char *string;
-
-	// find styles
-	styledef_c *msg_styledef = styledefs.Lookup("MESSAGES");
-	if (! msg_styledef)
-		msg_styledef = default_style;
-	message_style = HU_LookupStyle(msg_styledef);
-
-	styledef_c *map_styledef = styledefs.Lookup("AUTOMAP");
-	if (! map_styledef)
-		map_styledef = default_style;
-	automap_style = HU_LookupStyle(map_styledef);
 
 	message_on = false;
 	message_no_overwrite = false;

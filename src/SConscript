@@ -27,7 +27,7 @@ sources = [
     'f_finale.cc', 'f_interm.cc',
     'g_game.cc',
     'hu_draw.cc', 'hu_font.cc', 'hu_stuff.cc',
-    'hu_style.cc', 'hu_vm.cc', 'hu_wipe.cc',
+    'hu_vm.cc', 'hu_wipe.cc',
     'l_glbsp.cc', 'l_deh.cc',  'l_lua.cc',
     'm_argv.cc', 'm_bbox.cc', 
     'm_cheat.cc', 'm_math.cc', 'm_menu.cc', 'm_misc.cc', 'm_option.cc', 

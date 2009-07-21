@@ -33,7 +33,6 @@
 #include "e_main.h"
 #include "g_game.h"
 #include "hu_stuff.h"
-#include "hu_style.h"
 #include "m_argv.h"
 #include "m_menu.h"
 #include "m_misc.h"

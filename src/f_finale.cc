@@ -44,7 +44,6 @@
 #include "f_interm.h"
 #include "hu_draw.h"
 #include "hu_stuff.h"
-#include "hu_style.h"
 #include "m_menu.h"
 #include "m_random.h"
 #include "p_action.h"
@@ -100,9 +99,6 @@ static void CastSkip(void);
 
 static const image_c *finale_textback;
 static float finale_textbackscale;
-
-static style_c *cast_style;
-static style_c *finale_hack_style;
 
 
 static bool HasFinale(const map_finaledef_c *F, finalestage_e cur)
@@ -211,16 +207,6 @@ static void DoBumpFinale(void)
 static void LookupFinaleStuff(void)
 {
 	// here is where we lookup the required images
-	if (! cast_style)
-	{
-		styledef_c *def = styledefs.Lookup("CAST SCREEN");
-		if (! def)
-			def = default_style;
-		cast_style = HU_LookupStyle(def);
-	}
-
-	if (! finale_hack_style)
-		finale_hack_style = HU_LookupStyle(default_style); //???
 
 	if (finale->text_flat[0])
 	{
@@ -390,7 +376,6 @@ static void TextWrite(void)
 	if (count < 0)
 		count = 0;
 
-	SYS_ASSERT(finale_hack_style);
 	SYS_ASSERT(finale);
 
 	HUD_Reset("fsa");

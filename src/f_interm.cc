@@ -128,8 +128,6 @@ static int ng_state;
 
 static bool snl_pointeron = false;
 
-static style_c *wi_sp_style;
-static style_c *wi_net_style;
 
 // GRAPHICS
 
@@ -802,7 +800,7 @@ static void DrawDeathmatchStats(void)
 {
 	DrawLevelFinished();
 
-	int t_type = styledef_c::T_TITLE;
+	int t_type = 0; // styledef_c::T_TITLE;
 	int y = 40;
 
 	HUD_DrawText( 20, y, "Player");
@@ -818,12 +816,12 @@ static void DrawDeathmatchStats(void)
 
 		y += 12;
 
-		t_type = styledef_c::T_TEXT;
+		// t_type = styledef_c::T_TEXT;
 
 		// hightlight the console player
 #if 1
 		if (p == consoleplayer)
-			t_type = styledef_c::T_ALT;
+			t_type = 3; // styledef_c::T_ALT;
 #else
 		if (p == consoleplayer && ((bcnt & 31) < 16))
 			continue;
@@ -1069,7 +1067,7 @@ static void DrawCoopStats(void)
 {
 	DrawLevelFinished();
 
-	int t_type = styledef_c::T_TITLE;
+	int t_type = 0; // styledef_c::T_TITLE;
 	int y = 40;
 
 	// FIXME: better alignment
@@ -1098,12 +1096,12 @@ static void DrawCoopStats(void)
 
 		y += 12;
 
-		t_type = styledef_c::T_TEXT;
+		// t_type = styledef_c::T_TEXT;
 
 		// hightlight the console player
 #if 1
 		if (p == consoleplayer)
-			t_type = styledef_c::T_ALT;
+			t_type = 3; // styledef_c::T_ALT;
 #else
 		if (p == consoleplayer && ((bcnt & 31) < 16))
 			continue;
@@ -1451,21 +1449,6 @@ void WI_Drawer(void)
 static void LoadData(void)
 {
 	int i, j;
-
-	// find styles
-	if (! wi_sp_style)
-	{
-		styledef_c *def = styledefs.Lookup("STATS");
-		if (! def) def = default_style;
-		wi_sp_style = HU_LookupStyle(def);
-	}
-
-	if (! wi_net_style)
-	{
-		styledef_c *def = styledefs.Lookup("NET STATS");
-		if (! def) def = default_style;
-		wi_net_style = HU_LookupStyle(def);
-	}
 
 	const gamedef_c *gd = wi_stats.cur->episode;
 

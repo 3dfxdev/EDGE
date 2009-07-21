@@ -47,7 +47,6 @@
 #include "f_interm.h"
 #include "hu_draw.h"
 #include "hu_stuff.h"
-#include "hu_style.h"
 #include "m_argv.h"
 #include "m_menu.h"
 #include "m_misc.h"
@@ -124,15 +123,6 @@ static const image_c *menu_skill;
 static const image_c *menu_episode;
 static const image_c *menu_skull[2];
 static const image_c *menu_readthis[2];
-
-static style_c *menu_def_style;
-static style_c *main_menu_style;
-static style_c *episode_style;
-static style_c *skill_style;
-static style_c *load_style;
-static style_c *save_style;
-static style_c *dialog_style;
-static style_c *sound_vol_style;
 
 //
 //  SAVE STUFF
@@ -620,7 +610,7 @@ void M_ReadSaveStrings(void)
 	}
 }
 
-static void M_DrawSaveLoadCommon(int row, int row2, style_c *style)
+static void M_DrawSaveLoadCommon(int row, int row2)
 {
 	int y = LoadDef.y + LINEHEIGHT * row;
 
@@ -708,7 +698,7 @@ void M_DrawLoad(void)
 		             LoadDef.x + 8, LoadDef.y + LINEHEIGHT * (i),
 					 ex_slots[i].desc);
 
-	M_DrawSaveLoadCommon(i, i+1, load_style);
+	M_DrawSaveLoadCommon(i, i+1);
 }
 
 
@@ -789,7 +779,7 @@ void M_DrawSave(void)
 			HUD_DrawText(LoadDef.x + 8, y, ex_slots[i].desc);
 	}
 
-	M_DrawSaveLoadCommon(i, i+1, save_style);
+	M_DrawSaveLoadCommon(i, i+1);
 }
 
 //
@@ -1618,7 +1608,7 @@ bool M_Responder(event_t * ev)
 
 			default:
 				ch = toupper(ch);
-				SYS_ASSERT(save_style);
+
 				if (ch >= 32 && ch <= 127 &&
 					saveCharIndex < SAVESTRINGSIZE - 1)
 				{
@@ -1894,8 +1884,6 @@ static void DrawMessage(void)
 		input += "_";
 	
 	// Calc required height
-	SYS_ASSERT(dialog_style);
-
 	std::string s = msg + input;
 
 	y = 100 - HUD_StringHeight(s.c_str()) / 2.0f;
@@ -2084,36 +2072,6 @@ void M_Init(void)
 	msg_string.clear();
 	msg_lastmenu = menuactive;
 	quickSaveSlot = -1;
-
-	// lookup styles
-	styledef_c *def;
-
-	def = styledefs.Lookup("MENU");
-	if (! def) def = default_style;
-	menu_def_style = HU_LookupStyle(def);
-
-	def = styledefs.Lookup("MAIN MENU");
-	main_menu_style = def ? HU_LookupStyle(def) : menu_def_style;
-
-	def = styledefs.Lookup("CHOOSE EPISODE");
-	episode_style = def ? HU_LookupStyle(def) : menu_def_style;
-
-	def = styledefs.Lookup("CHOOSE SKILL");
-	skill_style = def ? HU_LookupStyle(def) : menu_def_style;
-
-	def = styledefs.Lookup("LOAD MENU");
-	load_style = def ? HU_LookupStyle(def) : menu_def_style;
-
-	def = styledefs.Lookup("SAVE MENU");
-	save_style = def ? HU_LookupStyle(def) : menu_def_style;
-
-	def = styledefs.Lookup("DIALOG");
-	dialog_style = def ? HU_LookupStyle(def) : menu_def_style;
-
-	def = styledefs.Lookup("SOUND VOLUME");
-	if (! def) def = styledefs.Lookup("OPTIONS");
-	if (! def) def = default_style;
-	sound_vol_style = HU_LookupStyle(def);
 
 	// lookup required images
 	therm_l = W_ImageLookup("M_THERML");

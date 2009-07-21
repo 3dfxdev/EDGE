@@ -45,7 +45,6 @@
 #include "e_main.h"
 #include "g_state.h"
 #include "hu_draw.h"
-#include "hu_style.h"
 #include "hu_stuff.h"
 #include "g_game.h"
 #include "m_argv.h"
@@ -81,7 +80,6 @@ private:
 	static const int MAX_CHOICE = 9;
 
 	rad_trigger_t *trigger;
-	style_c *style;
 
 	int title_num;
 	char title_lines[MAX_TITLE][TIP_CHAR_MAX];
@@ -90,8 +88,8 @@ private:
 	char choice_lines[MAX_CHOICE][TIP_CHAR_MAX];
 
 public:
-	rts_menu_c(s_show_menu_t *menu, rad_trigger_t *_trigger, style_c *_style) :
-		trigger(_trigger), style(_style), title_num(0), choice_num(0)
+	rts_menu_c(s_show_menu_t *menu, rad_trigger_t *_trigger) :
+		trigger(_trigger), title_num(0), choice_num(0)
 	{
 		int y = 0;
 
@@ -954,17 +952,7 @@ void RAD_StartMenu(rad_trigger_t *R, s_show_menu_t *menu)
 {
 	SYS_ASSERT(! rts_menuactive);
 
-	// find the right style
-	styledef_c *def = NULL;
-
-	if (R->menu_style_name)
-		def = styledefs.Lookup(R->menu_style_name);
-
-	if (! def) def = styledefs.Lookup("RTS MENU");
-	if (! def) def = styledefs.Lookup("MENU");
-	if (! def) def = default_style;
-
-	rts_curr_menu = new rts_menu_c(menu, R, HU_LookupStyle(def));
+	rts_curr_menu = new rts_menu_c(menu, R);
 	rts_menuactive = true;
 }
 
