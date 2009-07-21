@@ -563,34 +563,63 @@ void HUD_DrawChar(float left_x, float top_y, const image_c *img)
 
 
 //
-// Write a string using the hu_font and index translator.
+// Write a string using the current font
 //
 void HUD_DrawText(float x, float y, const char *str)
 {
 	SYS_ASSERT(cur_font);
 
-	float cx = x;
 	float cy = y;
 
-	// FIXME: do it line-by-line, and implement Alignment!
-
-	for (; *str; str++)
+	if (cur_y_align >= 0)
 	{
-		char ch = *str;
+		float total_h = HUD_StringHeight(str);
 
-		if (ch == '\n')
+		if (cur_y_align == 0)
+			total_h /= 2.0f;
+
+		cy -= total_h;
+	}
+
+	// handle each line
+	while (*str)
+	{
+		// get the length of the line
+		int len = 0;
+		while (str[len] && str[len] != '\n')
+			len++;
+
+		float cx = x;
+		float total_w = 0;
+
+		for (int i = 0; i < len; i++)
+			total_w += cur_font->CharWidth(str[i]) * cur_scale;
+
+		if (cur_x_align >= 0)
 		{
-			cx = x;
-			cy += cur_font->NominalHeight() * cur_scale;
-			continue;
+			if (cur_x_align == 0)
+				total_w /= 2.0f;
+			
+			cx -= total_w;
 		}
 
-		const image_c *img = cur_font->CharImage(ch);
+		for (int k = 0; k < len; k++)
+		{
+			char ch = str[k];
 
-		if (img)
-			HUD_DrawChar(cx, cy, img);
+			const image_c *img = cur_font->CharImage(ch);
 
-		cx += cur_font->CharWidth(ch) * cur_scale;
+			if (img)
+				HUD_DrawChar(cx, cy, img);
+
+			cx += cur_font->CharWidth(ch) * cur_scale;
+		}
+
+		if (str[len] == 0)
+			break;
+
+		str += (len + 1);
+		cy  += HUD_FontHeight();
 	}
 }
 

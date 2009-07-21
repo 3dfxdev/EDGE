@@ -649,18 +649,18 @@ static void M_DrawSaveLoadCommon(int row, int row2)
 
 	y = LoadDef.y + LINEHEIGHT * (row2 + 1);
 
-	HUD_DrawText(210, y, info->timestr);
+	HUD_DrawText(310, y, info->timestr);
 
 	y -= LINEHEIGHT;
     
 
 	switch (info->skill)
 	{
-		case 1:  HUD_DrawText(210, y, "Too Young To Die"); break;
-		case 2:  HUD_DrawText(210, y, "Not Too Rough"); break;
-		case 3:  HUD_DrawText(210, y, "Hurt Me Plenty"); break;
-		case 4:  HUD_DrawText(210, y, "Ultra Violence"); break;
-		default: HUD_DrawText(210, y, "NIGHTMARE"); break;
+		case 1:  HUD_DrawText(310, y, "Too Young To Die"); break;
+		case 2:  HUD_DrawText(310, y, "Not Too Rough"); break;
+		case 3:  HUD_DrawText(310, y, "Hurt Me Plenty"); break;
+		case 4:  HUD_DrawText(310, y, "Ultra Violence"); break;
+		default: HUD_DrawText(310, y, "NIGHTMARE"); break;
 	}
 
 	y -= LINEHEIGHT;
@@ -668,15 +668,17 @@ static void M_DrawSaveLoadCommon(int row, int row2)
   
 	switch (info->netgame)
 	{
-		case 0:  HUD_DrawText(210, y, "SP MODE"); break;
-		case 1:  HUD_DrawText(210, y, "COOP MODE"); break;
-		default: HUD_DrawText(210, y, "DM MODE"); break;
+		case 0:  HUD_DrawText(310, y, "SP MODE"); break;
+		case 1:  HUD_DrawText(310, y, "COOP MODE"); break;
+		default: HUD_DrawText(310, y, "DM MODE"); break;
 	}
   
 	y -= LINEHEIGHT;
 
   
-	HUD_DrawText(210, y, info->mapname);
+	HUD_DrawText(310, y, info->mapname);
+
+	HUD_Reset("ac");
 }
 
 //
