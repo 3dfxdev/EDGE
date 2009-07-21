@@ -134,8 +134,10 @@ void HU_Start(void)
 
 void HU_Drawer(void)
 {
+	HUD_Reset();
+
 	if (message_on)
-		HL_WriteText(message_style, 0, HU_MSGX, HU_MSGY, w_message.c_str(), 1.0f);
+		HUD_DrawText(HU_MSGX, HU_MSGY, w_message.c_str());
 
 //TODO	if (chat_on)
 //		HL_DrawIText(&w_chat);

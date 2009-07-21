@@ -805,9 +805,9 @@ static void DrawDeathmatchStats(void)
 	int t_type = styledef_c::T_TITLE;
 	int y = 40;
 
-	HL_WriteText(wi_net_style, t_type,  20, y, "Player");
-	HL_WriteText(wi_net_style, t_type, 100, y, "Frags");
-	HL_WriteText(wi_net_style, t_type, 200, y, "Total");
+	HUD_DrawText( 20, y, "Player");
+	HUD_DrawText(100, y, "Frags");
+	HUD_DrawText(200, y, "Total");
 
 	for (int i = 0; i < NUM_SHOWN; i++)
 	{
@@ -832,13 +832,13 @@ static void DrawDeathmatchStats(void)
 		char temp[40];
 
 		sprintf(temp, "%s", players[p]->playername);
-		HL_WriteText(wi_net_style, t_type, 20, y, temp);
+		HUD_DrawText(20, y, temp);
 
 		sprintf(temp, "%5d", dm_frags[i]);
-		HL_WriteText(wi_net_style, t_type, 100, y, temp);
+		HUD_DrawText(100, y, temp);
 
 		sprintf(temp, "%11d", dm_totals[i]);
-		HL_WriteText(wi_net_style, t_type, 200, y, temp);
+		HUD_DrawText(200, y, temp);
 	}
 }
 
@@ -1074,16 +1074,20 @@ static void DrawCoopStats(void)
 
 	// FIXME: better alignment
 
-	HL_WriteText(wi_net_style, t_type,   6, y, "Player");
-	HL_WriteText(wi_net_style, t_type,  56, y, "Kills");
-	HL_WriteText(wi_net_style, t_type,  98, y, "Items");
-	HL_WriteText(wi_net_style, t_type, 142, y, "Secret");
+	HUD_SetTextColor(T_WHITE);
+
+	HUD_DrawText(6, y, "Player");
+	HUD_DrawText(56, y, "Kills");
+	HUD_DrawText(98, y, "Items");
+	HUD_DrawText(142, y, "Secret");
 
 	if (dofrags)
 	{
-		HL_WriteText(wi_net_style, t_type, 190, y, "Frags");
-		HL_WriteText(wi_net_style, t_type, 232, y, "Total");
+		HUD_DrawText(190, y, "Frags");
+		HUD_DrawText(232, y, "Total");
 	}
+
+	HUD_Reset("c");
 
 	for (int i = 0; i < NUM_SHOWN; i++)
 	{
@@ -1108,24 +1112,24 @@ static void DrawCoopStats(void)
 		char temp[40];
 
 		sprintf(temp, "%s", players[p]->playername);
-		HL_WriteText(wi_net_style, t_type, 6, y, temp);
+		HUD_DrawText(6, y, temp);
 
 		sprintf(temp, "%3d%%", cnt_kills[i]);
-		HL_WriteText(wi_net_style, t_type, 64, y, temp);
+		HUD_DrawText(64, y, temp);
 
 		sprintf(temp, "%3d%%", cnt_items[i]);
-		HL_WriteText(wi_net_style, t_type, 106, y, temp);
+		HUD_DrawText(106, y, temp);
 
 		sprintf(temp, "%3d%%", cnt_secrets[i]);
-		HL_WriteText(wi_net_style, t_type, 158, y, temp);
+		HUD_DrawText(158, y, temp);
 
 		if (dofrags)
 		{
 			sprintf(temp, "%5d", cnt_frags[i]);
-			HL_WriteText(wi_net_style, t_type, 190, y, temp);
+			HUD_DrawText(190, y, temp);
 
 			sprintf(temp, "%11d", cnt_totals[i]);
-			HL_WriteText(wi_net_style, t_type, 232, y, temp);
+			HUD_DrawText(232, y, temp);
 		}
 	}
 }
@@ -1387,6 +1391,8 @@ void WI_Ticker(void)
 
 void WI_Drawer(void)
 {
+	HUD_Reset();
+
 	SYS_ASSERT(gamestate == GS_INTERMISSION);
 
 	if (background_camera_mo)

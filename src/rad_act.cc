@@ -221,6 +221,8 @@ static void SendTip(rad_trigger_t *R, s_tip_t * tip, int slot)
 //
 void RAD_DisplayTips(void)
 {
+	HUD_Reset();
+
 	int i, slot;
 	float alpha;
 
@@ -293,9 +295,14 @@ void RAD_DisplayTips(void)
 
 		for (i=0; i < current->linenum; i++)
 		{
-			HL_WriteTextTrans(rts_hack_style,0,
-				0, 30+i*font_height, current->color,
-				current->lines[i], 1.0f, alpha);
+			HUD_SetAlpha(alpha);
+			// FIXME HUD_SetAlignment
+			HUD_SetTextColor(current->color);
+
+			// FIXME: !!!!!! POSITION
+			HUD_DrawText(0, 30+i*font_height, current->lines[i]);
+
+			HUD_Reset();
 		}
 	}
 }

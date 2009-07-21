@@ -393,29 +393,37 @@ static void TextWrite(void)
 	SYS_ASSERT(finale_hack_style);
 	SYS_ASSERT(finale);
 
-	std::string L;
+	HUD_Reset("fsa");
+	HUD_SetTextColor(finale_textcol);
+
+	char line[200];
+	int  pos = 0;
+
+	line[0] = 0;
 
 	for (;;)
 	{
 		if (count == 0 || *ch == 0)
 		{
-			HL_WriteTextTrans(finale_hack_style, 0, cx, cy,
-							  finale_textcol, L.c_str(), 1.0f);
+			HUD_DrawText(cx, cy, line);
 			break;
 		}
 
 		int c = *ch++; count--;
 
-		if (c == '\n')
+		if (c == '\n' || pos > (int)sizeof(line)-4)
 		{
-			HL_WriteTextTrans(finale_hack_style, 0, cx, cy,
-							  finale_textcol, L.c_str(), 1.0f);
-			L.clear();
-			cy += 11;
+			HUD_DrawText(cx, cy, line);
+
+			pos = 0;
+			line[0] = 0;
+
+			cy += 11;  // FIXME: HUD_FontHeight()
 			continue;
 		}
 
-		L += c;
+		line[pos++] = c;
+		line[pos] = 0;
 	}
 }
 
@@ -657,23 +665,19 @@ static void CastSkip(void)
 		S_StartFX(cast_info->deathsound);
 }
 
-static void CastPrint(const char *text)
-{
-	HL_WriteText(cast_style, 0, 160 - cast_style->fonts[0]->StringWidth(text)/2,
-		180, text);
-}
-
 
 static void CastDrawer(void)
 {
-	const image_c *image;
-	bool flip;
+	HUD_Reset();
 
-	image = W_ImageLookup("BOSSBACK");
+	const image_c *image = W_ImageLookup("BOSSBACK");
 
 	HUD_StretchImage(0, 0, 320, 200, image);
 
-	CastPrint(cast_title);
+	HUD_SetAlignment(0, -1);
+	HUD_SetTextColor(T_YELLOW);
+	HUD_DrawText(160, 180, cast_title);
+	HUD_Reset();
 
 	if (cast_state->flags & SFF_Model)
 	{
@@ -697,8 +701,9 @@ static void CastDrawer(void)
 	}
 
 	// draw the current frame in the middle of the screen
-	image = R2_GetOtherSprite(cast_state->sprite, cast_state->frame, &flip);
+	bool flip;
 
+	image = R2_GetOtherSprite(cast_state->sprite, cast_state->frame, &flip);
 	if (! image)
 		return;
 
@@ -820,6 +825,8 @@ void F_Drawer(void)
 			I_Error("F_Drawer: bad finalestage #%d\n", (int)finalestage);
 			break;
 	}
+
+	HUD_Reset();
 }
 
 //--- editor settings ---
