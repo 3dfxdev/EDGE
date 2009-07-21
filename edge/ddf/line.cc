@@ -41,24 +41,16 @@
 
 #define DDF_LineHashFunc(x)  (((x) + LOOKUP_CACHESIZE) % LOOKUP_CACHESIZE)
 
-// -KM- 1999/01/29 Improved scrolling.
-// Scrolling
-typedef enum
-{
-	dir_none  = 0,
-	dir_vert  = 1,
-	dir_up    = 2,
-	dir_horiz = 4,
-	dir_left  = 8
-}
-scrolldirs_e;
 
 linetype_c buffer_line;
 linetype_c *dynamic_line;
 
-// these bits logically belong with buffer_line:
-static float s_speed;
-static scrolldirs_e s_dir;
+// hack to support old SCROLL and SCROLLING_SPEED fields
+#define SCPT_TMP_LEFT    0x10000
+#define SCPT_TMP_RIGHT   0x20000
+#define SCPT_TMP_UP      0x40000
+#define SCPT_TMP_DOWN    0x80000
+#define SCPT_TMP_KLUDGE  0xF0000
 
 linetype_container_c linetypes;		// <-- User-defined
 
@@ -178,10 +170,6 @@ static const commandlist_t linedef_commands[] =
 	DF("EXIT", e_exit, DDF_SectGetExit),
 	DF("HUB_EXIT", hub_exit, DDF_MainGetNumeric),
 
-	// FIXME: WTF
-	{"SCROLL", DDF_LineGetScroller, &s_dir, NULL},
-	{"SCROLLING_SPEED", DDF_MainGetFloat, &s_speed, NULL},
-
 	DF("SCROLL_XSPEED", s_xspeed, DDF_MainGetFloat),
 	DF("SCROLL_YSPEED", s_yspeed, DDF_MainGetFloat),
 	DF("SCROLL_PARTS", scroll_parts, DDF_LineGetScrollPart),
@@ -210,6 +198,8 @@ static const commandlist_t linedef_commands[] =
 
 	// -AJA- backwards compatibility cruft...
 	DF("CRUSH", ddf, DDF_LineMakeCrush),
+	DF("SCROLL", ddf, DDF_LineGetScroller),
+	DF("SCROLLING_SPEED", s_xspeed, DDF_MainGetFloat),
 	DF("SECSPECIAL", ddf, DDF_DummyFunction),
 
 	DF("!EXTRAFLOOR_TRANSLUCENCY", translucency, DDF_MainGetPercent),
@@ -217,24 +207,6 @@ static const commandlist_t linedef_commands[] =
 	DF("!LIGHT_PROBABILITY", ddf, DDF_DummyFunction),
 
 	DDF_CMD_END
-};
-
-
-typedef struct
-{
-	const char *s;
-	scrolldirs_e dir;
-}
-scroll_kludge_t;
-
-static scroll_kludge_t s_scroll[] =
-{
-	{ "NONE",  dir_none  },
-	{ "UP",    (scrolldirs_e)(dir_vert | dir_up) },
-	{ "DOWN",  dir_vert  },
-	{ "LEFT",  (scrolldirs_e)(dir_horiz | dir_left) },
-	{ "RIGHT", dir_horiz },
-	{ NULL,    dir_none  }
 };
 
 
@@ -359,9 +331,6 @@ static bool LinedefStartEntry(const char *name)
 	// instantiate the static entry
 	buffer_line.Default();
 
-	s_speed = 1.0f;
-	s_dir = dir_none;
-
 	return (existing != NULL);
 }
 
@@ -380,21 +349,25 @@ static void LinedefParseField(const char *field, const char *contents,
 
 static void LinedefFinishEntry(void)
 {
-	// -KM- 1999/01/29 Convert old style scroller to new.
-	if (s_dir & dir_vert)
+	// -AJA- 2009: Convert old style scroller to new style
+	if (buffer_line.scroll_parts & SCPT_TMP_KLUDGE)
 	{
-		if (s_dir & dir_up)
-			buffer_line.s_yspeed = s_speed;
-		else
-			buffer_line.s_yspeed = -s_speed;
-	}
+		if (buffer_line.scroll_parts & SCPT_TMP_LEFT)
+		{
+			buffer_line.s_xspeed *= -1.0f;
+		}
+		else if (buffer_line.scroll_parts & SCPT_TMP_UP)
+		{
+			buffer_line.s_yspeed = buffer_line.s_xspeed;
+			buffer_line.s_xspeed = 0.0f;
+		}
+		else if (buffer_line.scroll_parts & SCPT_TMP_DOWN)
+		{
+			buffer_line.s_yspeed = buffer_line.s_xspeed * -1.0f;
+			buffer_line.s_xspeed = 0.0f;
+		}
 
-	if (s_dir & dir_horiz)
-	{
-		if (s_dir & dir_left)
-			buffer_line.s_xspeed = s_speed;
-		else
-			buffer_line.s_xspeed = -s_speed;
+		buffer_line.scroll_parts = (scroll_part_e)(buffer_line.scroll_parts & ~SCPT_TMP_KLUDGE);
 	}
 
 	// backwards compat: COUNT=0 means no limit on triggering
@@ -504,20 +477,25 @@ void DDF_LinedefCleanUp(void)
 }
 
 //
-// Check for scroll types
+// Check for scroll types   (Kludgy!)
 //
 void DDF_LineGetScroller(const char *info, void *storage)
 {
-	for (int i = 0; s_scroll[i].s; i++)
-	{
-		if (DDF_CompareName(info, s_scroll[i].s) == 0)
-		{
-			s_dir = (scrolldirs_e)(s_dir | s_scroll[i].dir);
-			return;
-		}
-	}
-	DDF_WarnError2(129, "Unknown scroll direction %s\n", info);
+	linetype_c *lt = (linetype_c *) storage;
+
+	if (DDF_CompareName(info, "LEFT") == 0)
+		lt->scroll_parts = (scroll_part_e)(lt->scroll_parts | SCPT_TMP_LEFT);
+	if (DDF_CompareName(info, "RIGHT") == 0)
+		lt->scroll_parts = (scroll_part_e)(lt->scroll_parts | SCPT_TMP_RIGHT);
+	if (DDF_CompareName(info, "UP") == 0)
+		lt->scroll_parts = (scroll_part_e)(lt->scroll_parts | SCPT_TMP_UP);
+	if (DDF_CompareName(info, "DOWN") == 0)
+		lt->scroll_parts = (scroll_part_e)(lt->scroll_parts | SCPT_TMP_DOWN);
+
+	if (lt->s_xspeed <= 0)
+		lt->s_xspeed = 1.0f;
 }
+
 
 //
 // Get Red/Blue/Yellow keys
