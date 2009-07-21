@@ -10,12 +10,6 @@ Deh_Edge : DeHackEd/BEX patch to DDF converter
 Timidity : MIDI playback library
 
 
-Affiliated (in snapshots, not in SVN)
--------------------------------------
-
-glBSP    : GL-Nodes builder
-
-
 External
 --------
 
