@@ -203,6 +203,8 @@ static int FontParseCharacter(const char *buf)
 //
 static void DDF_FontGetPatch(const char *info, void *storage)
 {
+	fontpatch_c ** patches = (fontpatch_c **) storage;
+
 	char patch_buf[100];
 	char range_buf[100];
 
@@ -237,15 +239,15 @@ static void DDF_FontGetPatch(const char *info, void *storage)
 	fontpatch_c *pat = new fontpatch_c(char1, char2, patch_buf);
 
 	// add to list
-	pat->next = buffer_font.patches;
-	buffer_font.patches = pat;
+	pat->next = *patches;
+	*patches = pat;
 }
 
 
 // ---> fontpatch_c class
 
 fontpatch_c::fontpatch_c(int _ch1, int _ch2, const char *_pat1) :
-	next(NULL), char1(_ch1), char2(_ch2), patch1(_pat1)
+	char1(_ch1), char2(_ch2), patch1(_pat1), next(NULL)
 { }
 
 // ---> fontdef_c class
@@ -314,9 +316,6 @@ fontdef_c& fontdef_c::operator= (const fontdef_c &rhs)
 
 // ---> fontdef_container_c class
 
-//
-// fontdef_container_c::CleanupObject()
-//
 void fontdef_container_c::CleanupObject(void *obj)
 {
 	fontdef_c *a = *(fontdef_c**)obj;
@@ -324,9 +323,6 @@ void fontdef_container_c::CleanupObject(void *obj)
 	if (a) delete a;
 }
 
-//
-// fontdef_container_c::Lookup()
-//
 fontdef_c* fontdef_container_c::Lookup(const char *refname)
 {
 	if (!refname || !refname[0])
@@ -342,9 +338,7 @@ fontdef_c* fontdef_container_c::Lookup(const char *refname)
 	return NULL;
 }
 
-//
-// DDF_MainLookupFont
-//
+
 void DDF_MainLookupFont(const char *info, void *storage)
 {
 	fontdef_c **dest = (fontdef_c **)storage;

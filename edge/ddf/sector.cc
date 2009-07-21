@@ -199,20 +199,18 @@ static specflags_t sector_specials[] =
 //
 void DDF_SectGetSpecialFlags(const char *info, void *storage)
 {
-	int flag_value;
+	sector_flag_e *sp_flags = (sector_flag_e *) storage;
 
-	switch (DDF_MainCheckSpecialFlag(info, sector_specials, &flag_value, true, false))
+	int value;
+
+	switch (DDF_MainCheckSpecialFlag(info, sector_specials, &value, true, false))
 	{
 		case CHKF_Positive:
-			buffer_sector.special_flags = 
-				(sector_flag_e)(buffer_sector.special_flags | flag_value);
-			
+			*sp_flags = (sector_flag_e)(*sp_flags | value);
 			break;
 
 		case CHKF_Negative:
-			buffer_sector.special_flags = 
-				(sector_flag_e)(buffer_sector.special_flags & ~flag_value);
-			
+			*sp_flags = (sector_flag_e)(*sp_flags & ~value);
 			break;
 
 		case CHKF_User:
@@ -233,22 +231,20 @@ static specflags_t exit_types[] =
 	{NULL, 0, 0}
 };
 
-//
-// DDF_SectGetExit
+
 //
 // Get the exit type
 //
 void DDF_SectGetExit(const char *info, void *storage)
 {
 	int *dest = (int *)storage;
-	int flag_value;
+	int value;
 
-	switch (DDF_MainCheckSpecialFlag(info, exit_types, &flag_value,
-		false, false))
+	switch (DDF_MainCheckSpecialFlag(info, exit_types, &value, false, false))
 	{
 		case CHKF_Positive:
 		case CHKF_Negative:
-			(*dest) = flag_value;
+			(*dest) = value;
 			break;
 
 		case CHKF_User:
@@ -271,21 +267,18 @@ static specflags_t light_types[] =
 };
 
 //
-// DDF_SectGetLighttype
-//
 // Get the light type
 //
 void DDF_SectGetLighttype(const char *info, void *storage)
 {
 	int *dest = (int *)storage;
-	int flag_value;
+	int value;
 
-	switch (DDF_MainCheckSpecialFlag(info, light_types, &flag_value,
-		false, false))
+	switch (DDF_MainCheckSpecialFlag(info, light_types, &value, false, false))
 	{
 		case CHKF_Positive:
 		case CHKF_Negative:
-			(*dest) = flag_value;
+			(*dest) = value;
 			break;
 
 		case CHKF_User:
@@ -309,21 +302,19 @@ static specflags_t movement_types[] =
 };
 
 //
-// DDF_SectGetMType
-//
 // Get movement types: MoveWaitReturn etc
 //
 void DDF_SectGetMType(const char *info, void *storage)
 {
 	int *dest = (int *)storage;
-	int flag_value;
+	int value;
 
-	switch (DDF_MainCheckSpecialFlag(info, movement_types, &flag_value,
+	switch (DDF_MainCheckSpecialFlag(info, movement_types, &value,
 		false, false))
 	{
 		case CHKF_Positive:
 		case CHKF_Negative:
-			(*dest) = flag_value;
+			(*dest) = value;
 			break;
 
 		case CHKF_User:
@@ -365,8 +356,6 @@ static specflags_t reference_types[] =
 };
 
 //
-// DDF_SectGetDestRef
-//
 // Get surroundingsectorceiling/floorheight etc
 //
 void DDF_SectGetDestRef(const char *info, void *storage)
@@ -403,8 +392,10 @@ void DDF_SectGetDestRef(const char *info, void *storage)
 
 static void DDF_SectMakeCrush(const char *info, void *storage)
 {
-	buffer_sector.f.crush_damage = 10;
-	buffer_sector.c.crush_damage = 10;
+	sectortype_c *sec = (sectortype_c *) storage;
+
+	sec->f.crush_damage = 10;
+	sec->c.crush_damage = 10;
 }
 
 

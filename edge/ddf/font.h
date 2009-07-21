@@ -41,11 +41,11 @@ public:
 	fontpatch_c(int _ch1, int _ch2, const char *_pat1);
 	~fontpatch_c();
 
-	fontpatch_c *next;  // link in list
-
 	int char1, char2;  // range
 
 	epi::strent_c patch1;
+
+	fontpatch_c *next;  // link in list
 };
 
 class fontdef_c
