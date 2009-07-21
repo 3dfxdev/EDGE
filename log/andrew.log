@@ -4,6 +4,10 @@ Andrew Apted's Log
 
 Completely removed STYLES.DDF support.
 
+Removed GLBSP as a dependency.  EDGE can still load GL nodes
+(when explicitly enabled via the m_glnodes cvar), but the
+task of generation now falls to the 'tinybsp' code.
+
 2009/07/20:
 
 Began working on a unified HUD/2D/UI drawing backend, using

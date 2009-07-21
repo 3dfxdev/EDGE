@@ -39,7 +39,6 @@
 #include "dm_struct.h"
 #include "e_main.h"
 #include "g_game.h"
-#include "l_glbsp.h"
 #include "m_argv.h"
 #include "m_bbox.h"
 #include "m_misc.h"
@@ -127,6 +126,8 @@ static bool v5_nodes;
 // a place to store sidedef numbers of the loaded linedefs.
 // There is two values for every line: side0 and side1.
 static int *temp_line_sides;
+
+cvar_c m_glnodes;
 
 cvar_c goobers;
 
@@ -2173,9 +2174,6 @@ void P_SetupLevel(void)
 	if (gl_lumpnum >= 0 && gl_lumpnum < lumpnum)
 		gl_lumpnum = -1;
 
-	if (gl_lumpnum < 0)  // shouldn't happen
-		I_Error("Internal error: missing GL-Nodes.\n");
-
 	// clear CRC values
 	mapsector_CRC.Reset();
 	mapline_CRC.Reset();
@@ -2251,16 +2249,17 @@ void P_SetupLevel(void)
 
 	delete[] temp_line_sides;
 
-	SYS_ASSERT(gl_lumpnum >= 0);
+	// FIXME !!!!  only load/create nodes on first load of a level
 
-#if 0
-	LoadGLVertexes(gl_lumpnum + ML_GL_VERT);
-	LoadGLSegs(gl_lumpnum + ML_GL_SEGS);
-	LoadSubsectors(gl_lumpnum + ML_GL_SSECT, "GL_SSECT");
-	LoadNodes(gl_lumpnum + ML_GL_NODES, "GL_NODES");
-#else
-	TinyBSP();
-#endif
+	if (gl_lumpnum >= 0 && m_glnodes.d)
+	{
+		LoadGLVertexes(gl_lumpnum + ML_GL_VERT);
+		LoadGLSegs(gl_lumpnum + ML_GL_SEGS);
+		LoadSubsectors(gl_lumpnum + ML_GL_SSECT, "GL_SSECT");
+		LoadNodes(gl_lumpnum + ML_GL_NODES, "GL_NODES");
+	}
+	else
+		TinyBSP();
 
 	FindSubsecExtents();
 	FindNodeExtents(root_node, NULL);

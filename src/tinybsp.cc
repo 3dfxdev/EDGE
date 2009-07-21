@@ -898,6 +898,8 @@ static void Poly_FinishSegs(void)
 
 void TinyBSP(void)
 {
+	I_Printf("Building nodes...\n");
+
 	Poly_Setup();
 
 	subsector_t *base_sub = CreateSubsector();

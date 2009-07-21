@@ -68,7 +68,6 @@
 #include "e_main.h"
 #include "e_search.h"
 #include "l_deh.h"
-#include "l_glbsp.h"
 #include "m_misc.h"
 #include "rad_trig.h"
 #include "w_wad.h"
@@ -835,23 +834,15 @@ static void ComputeFileMD5hash(epi::md5hash_c& hash, epi::file_c *file)
 	delete[] buffer;
 }
 
-static bool FindCacheFilename (std::string& out_name,
+static bool FindGWAFilename (std::string& out_name,
 		const char *filename, data_file_c *df,
 		const char *extension)
 {
 	std::string wad_dir;
-	std::string hash_string;
 	std::string local_name;
-	std::string cache_name;
 
 	// Get the directory which the wad is currently stored
 	wad_dir = epi::PATH_GetDir(filename);
-
-	// Hash string used for files in the cache directory
-	hash_string = epi::STR_Format("-%02X%02X%02X-%02X%02X%02X",
-		df->dir_hash.hash[0], df->dir_hash.hash[1],
-		df->dir_hash.hash[2], df->dir_hash.hash[3],
-		df->dir_hash.hash[4], df->dir_hash.hash[5]);
 
 	// Determine the full path filename for "local" (same-directory) version
 	local_name = epi::PATH_GetBasename(filename);
@@ -860,50 +851,17 @@ static bool FindCacheFilename (std::string& out_name,
 
 	local_name = epi::PATH_Join(wad_dir.c_str(), local_name.c_str());
 
-	// Determine the full path filename for the cached version
-	cache_name = epi::PATH_GetBasename(filename);
-	cache_name += (hash_string);
-	cache_name += (".");
-	cache_name += (extension);
-
-	cache_name = epi::PATH_Join(cache_dir.c_str(), cache_name.c_str());
-
-	I_Debugf("FindCacheFilename: local_name = '%s'\n", local_name.c_str());
-	I_Debugf("FindCacheFilename: cache_name = '%s'\n", cache_name.c_str());
+	I_Debugf("FindGWAFilename: local_name = '%s'\n", local_name.c_str());
 	
-	// Check for the existance of the local and cached dir files
-	bool has_local = epi::FS_Access(local_name.c_str(), epi::file_c::ACCESS_READ);
-	bool has_cache = epi::FS_Access(cache_name.c_str(), epi::file_c::ACCESS_READ);
+	if (! epi::FS_Access(local_name.c_str(), epi::file_c::ACCESS_READ))
+		return false;
 
-	// If both exist, use the local one.
-	// If neither exist, create one in the cache directory.
+	// Check whether the GWA is out of date
+	if (L_CompareFileTimes(filename, local_name.c_str()) > 0)
+		return false;
 
-	// Check whether the waddir gwa is out of date
-	if (has_local) 
-		has_local = (L_CompareFileTimes(filename, local_name.c_str()) <= 0);
-
-	// Check whether the cached gwa is out of date
-	if (has_cache) 
-		has_cache = (L_CompareFileTimes(filename, cache_name.c_str()) <= 0);
-
-	I_Debugf("FindCacheFilename: has_local=%s  has_cache=%s\n",
-		has_local ? "YES" : "NO", has_cache ? "YES" : "NO");
-
-
-	if (has_local)
-	{
-		out_name = local_name;
-		return true;
-	}
-	else if (has_cache)
-	{
-		out_name = cache_name;
-		return true;
-	}
-
-	// Neither is valid so create one in the cached directory
-	out_name = cache_name;
-	return false;
+	out_name = local_name;
+	return true;
 }
 
 //
@@ -1071,23 +1029,18 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 
 			std::string gwa_filename;
 
-			bool exists = FindCacheFilename(gwa_filename, filename, df, EDGEGWAEXT);
+			bool exists = FindGWAFilename(gwa_filename, filename, df, EDGEGWAEXT);
 
-			I_Debugf("Actual_GWA_filename: %s\n", gwa_filename.c_str());
-
-			if (! exists)
+			if (exists)
 			{
-				I_Printf("Building GL Nodes for: %s\n", filename);
+				I_Debugf("Actual_GWA_filename: %s\n", gwa_filename.c_str());
 
-				if (! GB_BuildNodes(filename, gwa_filename.c_str()))
-					I_Error("Failed to build GL nodes for: %s\n", filename);
+				// Load it.  This recursion bit is rather sneaky,
+				// hopefully it doesn't break anything...
+				AddFile(gwa_filename.c_str(), FLKIND_GWad, datafile);
+
+				df->companion_gwa = datafile + 1;
             }
-
-			// Load it.  This recursion bit is rather sneaky,
-			// hopefully it doesn't break anything...
-			AddFile(gwa_filename.c_str(), FLKIND_GWad, datafile);
-
-			df->companion_gwa = datafile + 1;
 		}
 	}
 

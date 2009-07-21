@@ -284,14 +284,6 @@ lib_configs.append(LibraryConfig(name='glew',
 								subdirs={ 'src':'include', 'lib':'lib' },
 								libs=[glew_libname]))
 del glew_libname # No more use at global level for this
-# glBSP
-lib_configs.append(LibraryConfig(name='glbsp',
-				  header='glbsp.h',
-				  defines={ 'system' : ['HAVE_GLBSP_H'],
-				            'internal' : ['HAVE_GLBSP_H']}, # Include HAVE_GLBSP_H if system wide lib used
-				  subdirs={ 'src':'src' },
-				  scons_script='SConscript.edge',
-				  deps=['z']))
 # SDL
 if build_info['platform'] == 'win32':
 	lib_configs.append(LibraryConfig(name='SDL',
