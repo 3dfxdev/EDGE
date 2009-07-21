@@ -34,9 +34,6 @@ gamedef_container_c gamedefs;
 static gamedef_c  buffer_gamedef;
 static gamedef_c *dynamic_gamedef;
 
-static wi_animdef_c  buffer_animdef;
-static wi_framedef_c buffer_framedef;
-
 static void DDF_GameGetPic (const char *info, void *storage);
 static void DDF_GameGetAnim(const char *info, void *storage);
 static void DDF_GameGetMap (const char *info, void *storage);
@@ -73,7 +70,8 @@ static const commandlist_t gamedef_commands[] =
 	DF("TITLE_GRAPHIC", ddf, DDF_GameGetPic),
 	DF("MAP", ddf, DDF_GameGetMap),
 
-	{"ANIM", DDF_GameGetAnim, &buffer_framedef, NULL},
+	// FIXME !!!
+	DF("ANIM", ddf, DDF_DummyFunction),
 
 	DDF_CMD_END
 };
@@ -111,8 +109,9 @@ static bool GameStartEntry (const char *name)
 
 	// instantiate the static entries
 	buffer_gamedef.Default();
-	buffer_animdef.Default();
-	buffer_framedef.Default();
+
+///---	buffer_animdef.Default();
+///---	buffer_framedef.Default();
 
 	return (existing != NULL);
 }
@@ -170,6 +169,12 @@ void DDF_GameCleanUp(void)
 
 	gamedefs.Trim();
 }
+
+
+#if 0  // DISABLED FOR TIME BEING
+
+static wi_animdef_c  buffer_animdef;
+static wi_framedef_c buffer_framedef;
 
 static void DDF_GameAddFrame(void)
 {
@@ -241,6 +246,8 @@ static void DDF_GameGetAnim(const char *info, void *storage)
 	// this assumes 'f' points to buffer_framedef
 	DDF_GameAddFrame();
 }
+#endif
+
 
 static void ParseMap(const char *info, wi_mapposdef_c *mp)
 {
@@ -260,16 +267,20 @@ static void ParseMap(const char *info, wi_mapposdef_c *mp)
 
 static void DDF_GameGetMap(const char *info, void *storage)
 {
+	gamedef_c *gd = (gamedef_c *) storage;
+
 	wi_mapposdef_c *mp = new wi_mapposdef_c();
 
 	ParseMap(info, mp);
 
-	buffer_gamedef.mappos.Insert(mp);
+	gd->mappos.Insert(mp);
 }
 
 static void DDF_GameGetPic (const char *info, void *storage)
 {
-	buffer_gamedef.titlepics.Insert(info);
+	gamedef_c *gd = (gamedef_c *) storage;
+
+	gd->titlepics.Insert(info);
 }
 
 
