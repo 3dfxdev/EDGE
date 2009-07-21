@@ -629,74 +629,64 @@ static void M_DrawSaveLoadCommon(int row, int row2, style_c *style)
 	char mbuffer[200];
 
 
-	sprintf(mbuffer, "PAGE %d", save_page + 1);
-
 	// -KM-  1998/06/25 This could quite possibly be replaced by some graphics...
-	if (save_page > 0)
-		HL_WriteText(style,2, LoadDef.x - 4, y, "< PREV");
+	HUD_SetTextColor(T_WHITE);
 
-	HL_WriteText(style,2, LoadDef.x + 94 - style->fonts[2]->StringWidth(mbuffer) / 2, y,
-					  mbuffer);
+	if (save_page > 0)
+		HUD_DrawText(LoadDef.x - 4, y, "< PREV");
 
 	if (save_page < SAVE_PAGES-1)
-		HL_WriteText(style,2, LoadDef.x + 192 - style->fonts[2]->StringWidth("NEXT >"), y,
-						  "NEXT >");
+		HUD_DrawText(LoadDef.x + 172, y, "NEXT >");
  
+	sprintf(mbuffer, "PAGE %d", save_page + 1);
+
+ 	HUD_SetAlignment(0, -1);
+	HUD_DrawText(LoadDef.x + 94, y, mbuffer);
+	HUD_Reset();
+
+
 	info = ex_slots + itemOn;
 	SYS_ASSERT(0 <= itemOn && itemOn < SAVE_SLOTS);
 
 	if (saveStringEnter || info->empty || info->corrupt)
 		return;
 
+
 	// show some info about the savegame
+
+	HUD_SetAlignment(+1, -1);
+	HUD_SetTextColor(T_GREEN);
 
 	y = LoadDef.y + LINEHEIGHT * (row2 + 1);
 
-	mbuffer[0] = 0;
-
-	strcat(mbuffer, info->timestr);
-
-	HL_WriteText(style,3, 310 - style->fonts[3]->StringWidth(mbuffer), y, mbuffer);
-
+	HUD_DrawText(210, y, info->timestr);
 
 	y -= LINEHEIGHT;
     
-	mbuffer[0] = 0;
 
-	// FIXME: use the patches (but shrink them)
 	switch (info->skill)
 	{
-		case 1: strcat(mbuffer, "Too Young To Die"); break;
-		case 2: strcat(mbuffer, "Not Too Rough"); break;
-		case 3: strcat(mbuffer, "Hurt Me Plenty"); break;
-		case 4: strcat(mbuffer, "Ultra Violence"); break;
-		default: strcat(mbuffer, "NIGHTMARE"); break;
+		case 1:  HUD_DrawText(210, y, "Too Young To Die"); break;
+		case 2:  HUD_DrawText(210, y, "Not Too Rough"); break;
+		case 3:  HUD_DrawText(210, y, "Hurt Me Plenty"); break;
+		case 4:  HUD_DrawText(210, y, "Ultra Violence"); break;
+		default: HUD_DrawText(210, y, "NIGHTMARE"); break;
 	}
 
-	HL_WriteText(style,3, 310 - style->fonts[3]->StringWidth(mbuffer), y, mbuffer);
-
-
 	y -= LINEHEIGHT;
-  
-	mbuffer[0] = 0;
 
+  
 	switch (info->netgame)
 	{
-		case 0: strcat(mbuffer, "SP MODE"); break;
-		case 1: strcat(mbuffer, "COOP MODE"); break;
-		default: strcat(mbuffer, "DM MODE"); break;
+		case 0:  HUD_DrawText(210, y, "SP MODE"); break;
+		case 1:  HUD_DrawText(210, y, "COOP MODE"); break;
+		default: HUD_DrawText(210, y, "DM MODE"); break;
 	}
   
-	HL_WriteText(style,3, 310 - style->fonts[3]->StringWidth(mbuffer), y, mbuffer);
-
-
 	y -= LINEHEIGHT;
+
   
-	mbuffer[0] = 0;
-
-	strcat(mbuffer, info->mapname);
-
-	HL_WriteText(style,3, 310 - style->fonts[3]->StringWidth(mbuffer), y, mbuffer);
+	HUD_DrawText(210, y, info->mapname);
 }
 
 //
@@ -714,7 +704,7 @@ void M_DrawLoad(void)
 	// draw screenshot ?
 
 	for (i = 0; i < SAVE_SLOTS; i++)
-		HL_WriteText(load_style, ex_slots[i].corrupt ? 3 : 0,
+		HUD_DrawText(// FIXME ex_slots[i].corrupt ? 3 : 0,
 		             LoadDef.x + 8, LoadDef.y + LINEHEIGHT * (i),
 					 ex_slots[i].desc);
 
@@ -788,13 +778,15 @@ void M_DrawSave(void)
 
 		if (saveStringEnter && i == save_slot)
 		{
-			len = save_style->fonts[1]->StringWidth(ex_slots[save_slot].desc);
+			HUD_SetTextColor(T_YELLOW);
 
-			HL_WriteText(save_style,1, LoadDef.x + 8, y, ex_slots[i].desc);
-			HL_WriteText(save_style,1, LoadDef.x + len + 8, y, "_");
+			len = 100; // FIXME !!!!  save_style->fonts[1]->StringWidth(ex_slots[save_slot].desc);
+
+			HUD_DrawText(LoadDef.x + 8, y, ex_slots[i].desc);
+			HUD_DrawText(LoadDef.x + len + 8, y, "_");
 		}
 		else
-			HL_WriteText(save_style,0, LoadDef.x + 8, y, ex_slots[i].desc);
+			HUD_DrawText(LoadDef.x + 8, y, ex_slots[i].desc);
 	}
 
 	M_DrawSaveLoadCommon(i, i+1, save_style);
@@ -1927,10 +1919,11 @@ static void DrawMessage(void)
 		
 			if (s.size() > 0)
 			{
-				x = 160 - (dialog_style->fonts[0]->StringWidth(s.c_str()) / 2);
-				HL_WriteText(dialog_style,0, x, y, s.c_str());
+				HUD_SetAlignment(0, -1);
+				HUD_DrawText(160, y, s.c_str());
+				HUD_Reset("s");
 			}
-			
+
 			y += dialog_style->fonts[0]->NominalHeight();
 
 			oldpos = pos + 1;
@@ -1954,8 +1947,9 @@ static void DrawMessage(void)
 		
 			if (s.size() > 0)
 			{
-				x = 160 - (dialog_style->fonts[1]->StringWidth(s.c_str()) / 2);
-				HL_WriteText(dialog_style,1, x, y, s.c_str());
+				HUD_SetAlignment(0, -1);
+				HUD_DrawText(160, y, s.c_str());
+				HUD_Reset("s");
 			}
 			
 			y += dialog_style->fonts[1]->NominalHeight();
@@ -1966,10 +1960,7 @@ static void DrawMessage(void)
 	}
 }
 
-//
-// Called after the view has been rendered,
-// but before it has been blitted.
-//
+
 void M_Drawer(void)
 {
 	short x, y;
@@ -1979,6 +1970,8 @@ void M_Drawer(void)
 
 	if (!menuactive)
 		return;
+
+	HUD_Reset();
 
 	// Horiz. & Vertically center string and print it.
 	if (msg_mode)

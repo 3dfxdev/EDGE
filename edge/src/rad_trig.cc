@@ -204,15 +204,22 @@ public:
 
 	void Drawer()
 	{
+		HUD_Reset();
+
 		HUD_SetAlpha(0.64f);
 		HUD_SolidBox(0, 0, 320, 200, T_BLACK);
 		HUD_Reset("a");
 
-		for (int t = 0; t < title_num; t++) //!!!!
-			HL_WriteText(style, styledef_c::T_TITLE, 0, t*10, title_lines[t]);
+		HUD_SetTextColor(T_WHITE);  // FIXME
+
+		// FIXME: !!!!!! POSITION
+		for (int t = 0; t < title_num; t++)
+			HUD_DrawText(0, t*10, title_lines[t]);
+
+		HUD_SetTextColor(T_LTBLUE);  // FIXME
 
 		for (int c = 0; c < choice_num; c++)
-			HL_WriteText(style, styledef_c::T_TEXT, 0,(title_num+1+c)*10, choice_lines[c]);
+			HUD_DrawText(0, (title_num+1+c)*10, choice_lines[c]);
 	}
 
 	int CheckKey(int key)

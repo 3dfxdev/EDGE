@@ -207,6 +207,10 @@ void RGL_DrawImage(float x, float y, float w, float h, const image_c *image,
 
 	if (x1 == x2 || y1 == y2)
 		return;
+	
+	if (x2 < 0 || x1 > SCREENWIDTH ||
+		y2 < 0 || y1 > SCREENHEIGHT)
+		return;
 
 	float r = 1.0f, g = 1.0f, b = 1.0f;
 
@@ -304,28 +308,6 @@ void HUD_TileImage(float x, float y, float w, float h, const image_c *img,
 				  (offset_x + 1) * tx_scale,
 				  (offset_y + 1) * ty_scale,
 				  cur_alpha);
-}
-
-
-void HUD_DrawChar(float left_x, float top_y, const image_c *img)
-{
-	float sc_x = cur_scale; // TODO * aspect;
-	float sc_y = cur_scale;
-
-	float x = left_x - IM_OFFSETX(img) * sc_x;
-	float y = top_y  - IM_OFFSETY(img) * sc_y;
-
-	// jump down to baseline
-	y += IM_HEIGHT(img) * sc_y;
-
-	float w = IM_WIDTH(img)  * sc_x;
-	float h = IM_HEIGHT(img) * sc_y;
-
-	w = COORD_X(w); h = COORD_Y(h);
-	x = COORD_X(x); y = SCREENHEIGHT - COORD_Y(y) - h;
-
-    RGL_DrawImage(x, y, w, h, img, 0, 0, IM_RIGHT(img), IM_TOP(img),
-				  cur_alpha, cur_color);
 }
 
 
@@ -539,21 +521,37 @@ void RGL_DrawProgress(int perc, int glbsp_perc)
 	I_StartFrame();
 }
 
+
+void HUD_DrawChar(float left_x, float top_y, const image_c *img)
+{
+	float sc_x = cur_scale; // TODO * aspect;
+	float sc_y = cur_scale;
+
+	float x = left_x - IM_OFFSETX(img) * sc_x;
+	float y = top_y  - IM_OFFSETY(img) * sc_y;
+
+	float w = IM_WIDTH(img)  * sc_x;
+	float h = IM_HEIGHT(img) * sc_y;
+
+	w = COORD_X(w); h = COORD_Y(h);
+	x = COORD_X(x); y = SCREENHEIGHT - COORD_Y(y) - h;
+
+    RGL_DrawImage(x, y, w, h, img, 0, 0, IM_RIGHT(img), IM_TOP(img),
+				  cur_alpha, cur_color);
+}
+
+
 //
 // Write a string using the hu_font and index translator.
 //
-void HL_WriteTextTrans(style_c *style, int text_type, int x, int y,
-	rgbcol_t col, const char *str, float scale, float alpha)
+void HUD_DrawText(float x, float y, const char *str)
 {
+	SYS_ASSERT(cur_font);
+
 	float cx = x;
 	float cy = y;
 
-	font_c *font = style->fonts[text_type];
-
-	scale *= style->def->text[text_type].scale;
-
-	if (! font)
-		I_Error("Style [%s] is missing a font !\n", style->def->ddf.name.c_str());
+	// FIXME: do it line-by-line, and implement Alignment!
 
 	for (; *str; str++)
 	{
@@ -562,27 +560,17 @@ void HL_WriteTextTrans(style_c *style, int text_type, int x, int y,
 		if (ch == '\n')
 		{
 			cx = x;
-			cy += 12.0f * scale;  // FIXME: use font's height
+			cy += cur_font->NominalHeight() * cur_scale;
 			continue;
 		}
 
-		if (cx >= 320.0f)
-			continue;
+		const image_c *img = cur_font->CharImage(ch);
 
-		font->DrawChar320(cx, cy, ch, scale,1.0f, col, alpha);
+		if (img)
+			HUD_DrawChar(cx, cy, img);
 
-		cx += font->CharWidth(ch) * scale;
+		cx += cur_font->CharWidth(ch) * cur_scale;
 	}
-}
-
-//
-// Write a string using the hu_font.
-//
-void HL_WriteText(style_c *style, int text_type, int x, int y, const char *str, float scale, float alpha)
-{
-	HL_WriteTextTrans(style, text_type, x, y,
-			V_GetFontColor(style->def->text[text_type].colmap),
-			str, scale, alpha);
 }
 
 //--- editor settings ---
