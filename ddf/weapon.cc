@@ -97,25 +97,27 @@ static const commandlist_t weapon_commands[] =
 
 static const state_starter_t weapon_starters[] =
 {
-	{"UP",        "UP",     &buffer_weapon.up_state},
-	{"DOWN",      "DOWN",   &buffer_weapon.down_state},
-	{"READY",     "READY",  &buffer_weapon.ready_state},
-	{"EMPTY",     "EMPTY",  &buffer_weapon.empty_state},
-	{"IDLE",      "READY",  &buffer_weapon.idle_state},
-	{"CROSSHAIR", "CROSSHAIR", &buffer_weapon.crosshair},
-	{"ZOOM",      "ZOOM",   &buffer_weapon.zoom_state},
+	DDF_STATE("UP",        "UP",        up_state),
+	DDF_STATE("DOWN",      "DOWN",      down_state),
+	DDF_STATE("READY",     "READY",     ready_state),
+	DDF_STATE("EMPTY",     "EMPTY",     empty_state),
+	DDF_STATE("IDLE",      "READY",     idle_state),
+	DDF_STATE("CROSSHAIR", "CROSSHAIR", crosshair),
+	DDF_STATE("ZOOM",      "ZOOM",      zoom_state),
 
-	{"ATTACK",    "READY",  &buffer_weapon.attack_state[0]},
-	{"RELOAD",    "READY",  &buffer_weapon.reload_state[0]},
-	{"DISCARD",   "READY",  &buffer_weapon.discard_state[0]},
-	{"WARMUP",    "ATTACK", &buffer_weapon.warmup_state[0]},
-	{"FLASH",     "REMOVE", &buffer_weapon.flash_state[0]},
-	{"SECATTACK", "READY",  &buffer_weapon.attack_state[1]},
-	{"SECRELOAD", "READY",  &buffer_weapon.reload_state[1]},
-	{"SECDISCARD","READY",  &buffer_weapon.discard_state[1]},
-	{"SECWARMUP", "SECATTACK", &buffer_weapon.warmup_state[1]},
-	{"SECFLASH",  "REMOVE", &buffer_weapon.flash_state[1]},
-	{NULL, NULL, NULL}
+	DDF_STATE("ATTACK",    "READY",     attack_state[0]),
+	DDF_STATE("RELOAD",    "READY",     reload_state[0]),
+	DDF_STATE("DISCARD",   "READY",     discard_state[0]),
+	DDF_STATE("WARMUP",    "ATTACK",    warmup_state[0]),
+	DDF_STATE("FLASH",     "REMOVE",    flash_state[0]),
+
+	DDF_STATE("SECATTACK", "READY",     attack_state[1]),
+	DDF_STATE("SECRELOAD", "READY",     reload_state[1]),
+	DDF_STATE("SECDISCARD","READY",     discard_state[1]),
+	DDF_STATE("SECWARMUP", "SECATTACK", warmup_state[1]),
+	DDF_STATE("SECFLASH",  "REMOVE",    flash_state[1]),
+
+	DDF_STATE_END
 };
 
 static const actioncode_t weapon_actions[] =

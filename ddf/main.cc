@@ -897,8 +897,8 @@ void DDF_MainReadFile(readinfo_t * readinfo, char *memfileptr)
 }
 
 
-//
-// DDF_MainGetNumeric
+//----------------------------------------------------------------------------
+
 //
 // Get numeric value directly from the file
 //
@@ -918,8 +918,6 @@ void DDF_MainGetNumeric(const char *info, void *storage)
 	*dest = strtol(info, NULL, 0);  // straight conversion - no messin'
 }
 
-//
-// DDF_MainGetBoolean
 //
 // Get true/false from the file
 //
@@ -946,27 +944,6 @@ void DDF_MainGetBoolean(const char *info, void *storage)
 	DDF_Error("Bad boolean value: %s\n", info);
 }
 
-//
-// DDF_MainGetString
-//
-// Get String value directly from the file
-//
-// -KM- 1998/07/31 Needed a string argument.  Based on DDF_MainGetNumeric.
-// -AJA- 2000/02/09: Free any existing string (potential memory leak).
-// -ACB- 2004/07/26: Use epi::strent_c
-//
-void DDF_MainGetString(const char *info, void *storage)
-{
-	epi::strent_c *dest = (epi::strent_c *)storage;
-
-	SYS_ASSERT(info && storage);
-
-	dest->Set(info);
-}
-
-
-//
-// DDF_MainParseSubField
 //
 // Check if the sub-command exists, and call the parser function if it
 // does (and return true), otherwise return false.  For sub-commands,
@@ -1036,8 +1013,6 @@ bool DDF_MainParseSubField(const commandlist_t *sub_comms,
 }
 
 //
-// DDF_MainParseField
-//
 // Check if the command exists, and call the parser function if it
 // does (and return true), otherwise return false.
 //
@@ -1096,6 +1071,23 @@ bool DDF_MainParseField(const commandlist_t *commands,
 	(* commands[i].parse_command)(contents, commands[i].storage);
 
 	return true;
+}
+
+
+//
+// Get String value directly from the file
+//
+// -KM- 1998/07/31 Needed a string argument.  Based on DDF_MainGetNumeric.
+// -AJA- 2000/02/09: Free any existing string (potential memory leak).
+// -ACB- 2004/07/26: Use epi::strent_c
+//
+void DDF_MainGetString(const char *info, void *storage)
+{
+	epi::strent_c *dest = (epi::strent_c *)storage;
+
+	SYS_ASSERT(info && storage);
+
+	dest->Set(info);
 }
 
 
