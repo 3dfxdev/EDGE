@@ -42,7 +42,7 @@ static const commandlist_t musplaylistcmds[] =
 //  DDF PARSE ROUTINES
 //
 
-static bool PlaylistStartEntry(const char *name)
+static void PlaylistStartEntry(const char *name)
 {	
 	pl_entry_c* existing = NULL;
 	int number = MAX(0, atoi(name));
@@ -64,7 +64,6 @@ static bool PlaylistStartEntry(const char *name)
 
 	// instantiate the static entry
 	buffer_plentry.Default();
-	return (existing != NULL);
 }
 
 static void PlaylistParseField(const char *field, const char *contents,

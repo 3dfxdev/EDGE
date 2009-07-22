@@ -62,7 +62,8 @@ animdef_container_c animdefs;
 //
 //  DDF PARSE ROUTINES
 //
-static bool AnimStartEntry(const char *name)
+
+static void AnimStartEntry(const char *name)
 {
 	bool replaces = false;
 
@@ -100,7 +101,6 @@ static bool AnimStartEntry(const char *name)
 
 	// instantiate the static entry
 	buffer_anim.Default();
-	return replaces;
 }
 
 static void AnimParseField(const char *field, const char *contents, int index, bool is_last)

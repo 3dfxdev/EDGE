@@ -119,7 +119,7 @@ static const commandlist_t attack_commands[] =
 //  DDF PARSE ROUTINES
 //
 
-static bool AttackStartEntry(const char *name)
+static void AttackStartEntry(const char *name)
 {
 	atkdef_c *existing = NULL;
 
@@ -152,8 +152,6 @@ static bool AttackStartEntry(const char *name)
 
 	buffer_mobj.states.clear();
 	buffer_mobj.Default();
-
-	return (existing != NULL);
 }
 
 static void AttackParseField(const char *field, const char *contents,

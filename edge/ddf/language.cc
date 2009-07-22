@@ -381,10 +381,10 @@ ddf_bi_lang_c* lang_buildinfo;
 //
 //  DDF PARSING ROUTINES
 //
-static bool LanguageStartEntry(const char *name)
+
+static void LanguageStartEntry(const char *name)
 {
-	// Return value is true if language is a replacement
-	return lang_buildinfo->AddLanguage(name);
+	lang_buildinfo->AddLanguage(name);
 }
 
 static void LanguageParseField(const char *field, const char *contents,
