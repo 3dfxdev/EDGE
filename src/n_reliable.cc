@@ -28,7 +28,6 @@
 #include <vector>
 
 #include "n_reliable.h"
-#include "n_bcast.h"
 
 
 net_node_c::net_node_c() : sock(INVALID_SOCKET), remote()
