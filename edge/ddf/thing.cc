@@ -112,8 +112,8 @@ const commandlist_t thing_commands[] =
 	DF("MASS", mass, DDF_MainGetFloat),
 	DF("SPEED", speed, DDF_MainGetFloat),
 	DF("FAST", fast, DDF_MainGetFloat),
-	DF("SPECIAL", flags, DDF_MobjGetSpecial),
-	DF("PROJECTILE_SPECIAL", flags, DDF_MobjGetSpecial),
+	DF("SPECIAL", ddf, DDF_MobjGetSpecial),
+	DF("PROJECTILE_SPECIAL", ddf, DDF_MobjGetSpecial),
 	DF("EXTRA", extendedflags, DDF_MobjGetExtra),
 	DF("RESPAWN_TIME", respawntime, DDF_MainGetTime),
 	DF("FUSE", fuse, DDF_MainGetTime),
@@ -716,8 +716,7 @@ static int ParseBenefitString(const char *info, char *name, char *param,
 //  false.
 //
 
-static bool BenefitTryAmmo(const char *name, benefit_t *be,
-								int num_vals)
+static bool BenefitTryAmmo(const char *name, benefit_t *be, int num_vals)
 {
 	if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, ammo_types, 
 		&be->sub.type, false, false))
@@ -747,8 +746,7 @@ static bool BenefitTryAmmo(const char *name, benefit_t *be,
 	return true;
 }
 
-static bool BenefitTryAmmoLimit(const char *name, benefit_t *be,
-									 int num_vals)
+static bool BenefitTryAmmoLimit(const char *name, benefit_t *be, int num_vals)
 {
 	char namebuf[200];
 	int len = strlen(name);
@@ -791,8 +789,7 @@ static bool BenefitTryAmmoLimit(const char *name, benefit_t *be,
 	return true;
 }
 
-static bool BenefitTryWeapon(const char *name, benefit_t *be,
-								  int num_vals)
+static bool BenefitTryWeapon(const char *name, benefit_t *be, int num_vals)
 {
 	int idx = weapondefs.FindFirst(name, weapondefs.GetDisabledCount());
 
@@ -821,8 +818,7 @@ static bool BenefitTryWeapon(const char *name, benefit_t *be,
 	return true;
 }
 
-static bool BenefitTryKey(const char *name, benefit_t *be,
-							   int num_vals)
+static bool BenefitTryKey(const char *name, benefit_t *be, int num_vals)
 {
 	if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, keytype_names, 
 		&be->sub.type, false, false))
@@ -850,8 +846,7 @@ static bool BenefitTryKey(const char *name, benefit_t *be,
 	return true;
 }
 
-static bool BenefitTryHealth(const char *name, benefit_t *be,
-								  int num_vals)
+static bool BenefitTryHealth(const char *name, benefit_t *be, int num_vals)
 {
 	if (DDF_CompareName(name, "HEALTH") != 0)
 		return false;
@@ -871,8 +866,7 @@ static bool BenefitTryHealth(const char *name, benefit_t *be,
 	return true;
 }
 
-static bool BenefitTryArmour(const char *name, benefit_t *be,
-								  int num_vals)
+static bool BenefitTryArmour(const char *name, benefit_t *be, int num_vals)
 {
 	if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, armourtype_names, 
 		&be->sub.type, false, false))
@@ -904,8 +898,7 @@ static bool BenefitTryArmour(const char *name, benefit_t *be,
 	return true;
 }
 
-static bool BenefitTryPowerup(const char *name, benefit_t *be,
-								   int num_vals)
+static bool BenefitTryPowerup(const char *name, benefit_t *be, int num_vals)
 {
 	if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, powertype_names, 
 		&be->sub.type, false, false))
@@ -922,6 +915,8 @@ static bool BenefitTryPowerup(const char *name, benefit_t *be,
 		be->limit = 999999.0f;
 
 	// -AJA- backwards compatibility (need Fist for Berserk)
+	// FIXME: handle this another way
+#if 0
 	if (be->sub.type == PW_Berserk &&
 		DDF_CompareName(name, "POWERUP_BERSERK") == 0)
 	{
@@ -936,6 +931,7 @@ static bool BenefitTryPowerup(const char *name, benefit_t *be,
 				new pickup_effect_c(PUFX_KeepPowerup, PW_Berserk, 0, 0));
 		}
 	}
+#endif
 
 	return true;
 }
@@ -1259,14 +1255,12 @@ static specflags_t hyper_specials[] =
 
 void DDF_MobjGetSpecial(const char *info, void *storage)
 {
-	int *flags = (int *)storage;
-	int *extflags = flags + 1;  // ouch, a little hacky
-	int *hypflags = flags + 2;
+	mobjtype_c *def = (mobjtype_c *) storage;
 
 	// handle the "INVISIBLE" tag
 	if (DDF_CompareName(info, "INVISIBLE") == 0)
 	{
-//FIXME!!!		buffer_mobj.translucency = PERCENT_MAKE(0);
+		def->translucency = PERCENT_MAKE(0);
 		return;
 	}
 
@@ -1278,21 +1272,20 @@ void DDF_MobjGetSpecial(const char *info, void *storage)
 	// normal flags & extended flags.
 	if (DDF_CompareName(info, "MISSILE") == 0)
 	{
-		*flags    |= MF_MISSILE;
-		*extflags |= EF_CROSSLINES | EF_NOFRICTION;
+		def->flags         |= MF_MISSILE;
+		def->extendedflags |= EF_CROSSLINES | EF_NOFRICTION;
 		return;
 	}
 
 	int value;
-
-	int *flag_ptr = flags;
+	int *flag_ptr = &def->flags;
 
 	checkflag_result_e res = DDF_MainCheckSpecialFlag(info, normal_specials, &value, true);
 
 	if (res == CHKF_Unknown)
 	{
 		// wasn't a normal special.  Try the extended ones...
-		flag_ptr = extflags;
+		flag_ptr = &def->extendedflags;
 
 		res = DDF_MainCheckSpecialFlag(info, extended_specials, &value, true);
 	}
@@ -1300,7 +1293,7 @@ void DDF_MobjGetSpecial(const char *info, void *storage)
 	if (res == CHKF_Unknown)
 	{
 		// -AJA- 2004/08/25: Try the hyper specials...
-		flag_ptr = hypflags;
+		flag_ptr = &def->hyperflags;
 
 		res = DDF_MainCheckSpecialFlag(info, hyper_specials, &value, true);
 	}
