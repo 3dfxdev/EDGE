@@ -42,7 +42,7 @@ sources = [
     'rad_act.cc', 'rad_pars.cc', 'rad_trig.cc', 
     'r_colormap.cc', 'r_shader.cc',
     'r_render.cc', 'r_effects.cc', 'r_main.cc',
-    'r_occlude.cc', 'm_logo.cc', 'r_things.cc', 'r_units.cc', 
+    'r_occlude.cc', 'r_things.cc', 'r_units.cc', 
     'r_misc.cc', 'r_sky.cc',
     'r_modes.cc', 'r_md2.cc',
     'r_image.cc', 'r_doomtex.cc', 'r_texgl.cc',

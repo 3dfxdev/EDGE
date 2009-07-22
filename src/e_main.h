@@ -42,9 +42,6 @@ void E_Display(void);
 void E_ProgressMessage(const char *message);
 void E_LocalProgress(int step, int total);
 
-void E_NodeMessage(const char *message);
-void E_NodeProgress(int perc);
-
 typedef enum
 {
 	APP_STATE_ACTIVE       = 0x1,
