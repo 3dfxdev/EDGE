@@ -205,22 +205,23 @@ const commandlist_t thing_commands[] =
 
 static const state_starter_t thing_starters[] =
 {
-	{"SPAWN",      "IDLE",     &buffer_mobj.spawn_state},
-	{"IDLE",       "IDLE",     &buffer_mobj.idle_state},
-	{"CHASE",      "CHASE",    &buffer_mobj.chase_state},
-	{"PAIN",       "IDLE",     &buffer_mobj.pain_state},
-	{"MISSILE",    "IDLE",     &buffer_mobj.missile_state},
-	{"MELEE",      "IDLE",     &buffer_mobj.melee_state},
-	{"DEATH",      "REMOVE",   &buffer_mobj.death_state},
-	{"OVERKILL",   "REMOVE",   &buffer_mobj.overkill_state},
-	{"RESPAWN",    "IDLE",     &buffer_mobj.raise_state},
-	{"RESURRECT",  "IDLE",     &buffer_mobj.res_state},
-	{"MEANDER",    "MEANDER",  &buffer_mobj.meander_state},
-	{"BOUNCE",     "IDLE",     &buffer_mobj.bounce_state},
-	{"TOUCH",      "IDLE",     &buffer_mobj.touch_state},
-	{"RELOAD",     "IDLE",     &buffer_mobj.reload_state},
-	{"GIB",        "REMOVE",   &buffer_mobj.gib_state},
-	{NULL, NULL, NULL}
+	DDF_STATE("SPAWN",     "IDLE",    spawn_state),
+	DDF_STATE("IDLE",      "IDLE",    idle_state),
+	DDF_STATE("CHASE",     "CHASE",   chase_state),
+	DDF_STATE("PAIN",      "IDLE",    pain_state),
+	DDF_STATE("MISSILE",   "IDLE",    missile_state),
+	DDF_STATE("MELEE",     "IDLE",    melee_state),
+	DDF_STATE("DEATH",     "REMOVE",  death_state),
+	DDF_STATE("OVERKILL",  "REMOVE",  overkill_state),
+	DDF_STATE("RESPAWN",   "IDLE",    raise_state),
+	DDF_STATE("RESURRECT", "IDLE",    res_state),
+	DDF_STATE("MEANDER",   "MEANDER", meander_state),
+	DDF_STATE("BOUNCE",    "IDLE",    bounce_state),
+	DDF_STATE("TOUCH",     "IDLE",    touch_state),
+	DDF_STATE("RELOAD",    "IDLE",    reload_state),
+	DDF_STATE("GIB",       "REMOVE",  gib_state),
+
+	DDF_STATE_END
 };
 
 // -KM- 1998/11/25 Added weapon functions.

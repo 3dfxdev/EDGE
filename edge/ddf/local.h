@@ -72,9 +72,7 @@ typedef struct commandlist_s
 	// command name
 	const char *name;
 
-	// parse function.  `storage' is where the data should go (for
-	// routines that don't modify the buffer_xxxx structure directly).
-	//
+	// parse function.  `storage' is where the data should go
 	void (*parse_command) (const char *info, void *storage);
 
 	void *storage;
@@ -83,6 +81,20 @@ typedef struct commandlist_s
 	void *sub_dummy_base;
 }
 commandlist_t;
+
+// This structure is used for parsing states
+typedef struct
+{
+	// state label
+	const char *label;
+
+	// redirection label for last state
+	const char *last_redir;
+
+	// pointer to state_num storage
+	int *state_num;
+}
+state_starter_t;
 
 // NOTE: requires DDF_CMD_BASE to be defined as the dummy struct
 
@@ -94,6 +106,10 @@ commandlist_t;
 
 #define DDF_CMD_END  { NULL, NULL, NULL, NULL }
 
+#define DDF_STATE(name,redir,field)  \
+	{ name, redir, &DDF_CMD_BASE.field }
+
+#define DDF_STATE_END  { NULL, NULL, NULL }
 
 //
 // This structure passes the information needed to DDF_MainReadFile, so that
@@ -210,20 +226,6 @@ typedef struct
 	void (*handle_arg) (const char *arg, state_t * curstate);
 }
 actioncode_t;
-
-// This structure is used for parsing states
-typedef struct
-{
-	// state label
-	const char *label;
-
-	// redirection label for last state
-	const char *last_redir;
-
-	// pointer to state_num storage
-	int *state_num;
-}
-state_starter_t;
 
 extern int ddf_version;  // decimal e.g. 128
 
