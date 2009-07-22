@@ -27,7 +27,6 @@
 
 #include "ddf/language.h"
 
-#include "n_bcast.h"
 #include "n_reliable.h"
 #include "n_network.h"
 
@@ -79,17 +78,7 @@ void N_InitNetwork(void)
 	I_Printf("Network: base port is %d\n", base_port);
 
 	N_StartupReliableLink (base_port+0);
-	N_StartupBroadcastLink(base_port+1);
 }
-
-
-// TEMP CRAP
-bool N_OpenBroadcastSocket(bool is_host)
-{ return true; }
-void N_CloseBroadcastSocket(void)
-{ }
-void N_SendBroadcastDiscovery(void)
-{ }
 
 
 static void GetPackets(bool do_delay)
@@ -102,121 +91,10 @@ static void GetPackets(bool do_delay)
 
 		return;
 	}
-
-#ifdef USE_HAWKNL
-
-	NLsocket socks[4];  // only one in the group
-
-	int delay = (do_delay && ! m_busywait.d) ? 10 /* millis */ : 0;
-	int num = nlPollGroup(sk_group, NL_READ_STATUS, socks, 4, delay);
-
-	if (num < 1)
-		return;
-
-	if (! pk.Read(socks[0]))
-		return;
-
-	L_WriteDebug("- GOT PACKET [%c%c] len = %d\n", pk.hd().type[0], pk.hd().type[1],
-		pk.hd().data_len);
-
-#if 0
-	if (! pk.CheckType("Tg"))
-		return;
-
-	// FIXME: validate packet, check size
-
-	tic_group_proto_t& tg = pk.tg_p();
-
-	int count = tg.last_player - tg.first_player + 1;
-
-	tg.ByteSwap();
-	tg.ByteSwapCmds((1 + bots_each) * count);
-
-	// !!! FIXME: handle tg.count
-
-	player_t *p = players[consoleplayer]; //!!!!
-
-	int got_tic = tg.gametic + tg.offset;
-
-	L_WriteDebug("-- Got TG: counter = %d  in_tic = %d\n", got_tic, p->in_tic);
-
-	if (got_tic != p->in_tic)
-	{
-		L_WriteDebug("GOT TIC %d != EXPECTED %d\n", got_tic, p->in_tic);
-
-		// !!! FIXME: handle "future" tics (save them, set bit in mask)
-		//            (send retransmission request for gametic NOW).
-		return;
-	}
-
-	ticcmd_t *raw_cmd = tg.tic_cmds;
-
-	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
-	{
-		player_t *p = players[pnum];
-
-		if (! p) continue;
-
-		memcpy(p->in_cmds + (got_tic % (MP_SAVETICS*2)), raw_cmd, sizeof(ticcmd_t));
-
-		raw_cmd++;
-
-		p->in_tic++;
-	}
-
-//	SYS_ASSERT((raw_cmd - tg.tic_cmds) == (1 + bots_each));
-
-#endif
-
-#endif  // USE_HAWKNL
 }
 
 static void DoSendTiccmds(int tic)
 {
-#ifdef USE_HAWKNL_XX
-	pk.Clear();  // FIXME: TESTING ONLY
-
-	pk.SetType("tc");
-	pk.hd().flags = 0;
-	pk.hd().data_len = sizeof(ticcmd_proto_t) - sizeof(ticcmd_t);
-	pk.hd().client = client_id;
-
-    ticcmd_proto_t& tc = pk.tc_p();
-
-	SYS_ASSERT(tic >= gametic);
-
-	tc.gametic = gametic;
-	tc.offset  = tic - gametic;
-	tc.count   = 1;
-
-	ticcmd_t *raw_cmd = tc.tic_cmds;
-
-	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
-	{
-		player_t *p = players[pnum];
-
-		if (! p || ! p->builder) continue;
-
-		memcpy(raw_cmd, p->out_cmds + (tic % (MP_SAVETICS*2)), sizeof(ticcmd_t));
-
-		raw_cmd++;
-
-		pk.hd().data_len += sizeof(ticcmd_t);
-	}
-
-	SYS_ASSERT((raw_cmd - tc.tic_cmds) == (1 + bots_each));
-
-    tc.ByteSwap();
-    tc.ByteSwapCmds((1 + bots_each) * tc.count);
-
-	L_WriteDebug("Writing ticcmd for tic %d\n", tic);
-
-	if (! pk.Write(socket))
-		L_WriteDebug("Failed to write packet (tic %d)\n", tic);
-	
-	// FIXME: need an 'out_tic' for resends....
-
-#endif  // USE_HAWKNL_XX
 }
 
 bool N_BuildTiccmds(void)
