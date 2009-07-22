@@ -450,7 +450,7 @@ static bool ThingTryParseState(const char *field,
 //  DDF PARSE ROUTINES
 //
 
-static bool ThingStartEntry(const char *buffer)
+static void ThingStartEntry(const char *buffer)
 {
 	SYS_ASSERT(buffer);
 
@@ -496,8 +496,6 @@ static bool ThingStartEntry(const char *buffer)
 	// instantiate the static entry
 	buffer_mobj.states.clear();
 	buffer_mobj.Default();
-
-	return (idx >= 0);
 }
 
 void ThingParseField(const char *field, const char *contents,

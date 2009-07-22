@@ -57,7 +57,7 @@ static const commandlist_t colmap_commands[] =
 //  DDF PARSE ROUTINES
 //
 
-static bool ColmapStartEntry(const char *name)
+static void ColmapStartEntry(const char *name)
 {
 	colourmap_c *existing = NULL;
 
@@ -85,8 +85,6 @@ static bool ColmapStartEntry(const char *name)
 
 	// instantiate the static entry
 	buffer_colmap.Default();
-
-	return (existing != NULL);
 }
 
 static void ColmapParseField(const char *field, const char *contents,

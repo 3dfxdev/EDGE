@@ -306,7 +306,7 @@ const specflags_t keytype_names[] =
 //  DDF PARSE ROUTINES
 //
 
-static bool LinedefStartEntry(const char *name)
+static void LinedefStartEntry(const char *name)
 {
 	int number = MAX(0, atoi(name));
 
@@ -330,8 +330,6 @@ static bool LinedefStartEntry(const char *name)
 
 	// instantiate the static entry
 	buffer_line.Default();
-
-	return (existing != NULL);
 }
 
 static void LinedefParseField(const char *field, const char *contents,

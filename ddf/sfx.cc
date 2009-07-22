@@ -60,7 +60,7 @@ static const commandlist_t sfx_commands[] =
 //  DDF PARSE ROUTINES
 //
 
-static bool SoundStartEntry(const char *name)
+static void SoundStartEntry(const char *name)
 {
 	sfxdef_c *existing = NULL;
 
@@ -92,8 +92,6 @@ static bool SoundStartEntry(const char *name)
 
 	// instantiate the static entries
 	buffer_sfx.Default();
-
-	return (existing != NULL);
 }
 
 static void SoundParseField(const char *field, const char *contents,

@@ -81,7 +81,7 @@ static const commandlist_t gamedef_commands[] =
 //  DDF PARSE ROUTINES
 //
 
-static bool GameStartEntry (const char *name)
+static void GameStartEntry (const char *name)
 {
 	gamedef_c *existing = NULL;
 
@@ -112,8 +112,6 @@ static bool GameStartEntry (const char *name)
 
 ///---	buffer_animdef.Default();
 ///---	buffer_framedef.Default();
-
-	return (existing != NULL);
 }
 
 static void GameParseField (const char *field, const char *contents,

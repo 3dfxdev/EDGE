@@ -77,7 +77,7 @@ static image_namespace_e GetImageNamespace(const char *prefix)
 //  DDF PARSE ROUTINES
 //
 
-static bool ImageStartEntry(const char *name)
+static void ImageStartEntry(const char *name)
 {
 	I_Debugf("ImageStartEntry [%s]\n", name);
 
@@ -137,8 +137,6 @@ static bool ImageStartEntry(const char *name)
 	// instantiate the static entry
 	buffer_image.Default();
 	buffer_image.belong = belong;
-
-	return replaces;
 }
 
 static void ImageParseField(const char *field, const char *contents, int index, bool is_last)

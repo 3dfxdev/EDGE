@@ -89,7 +89,7 @@ static const commandlist_t sect_commands[] =
 //  DDF PARSE ROUTINES
 //
 
-static bool SectorStartEntry(const char *name)
+static void SectorStartEntry(const char *name)
 {
 	int number = MAX(0, atoi(name));
 
@@ -113,8 +113,6 @@ static bool SectorStartEntry(const char *name)
 
 	// instantiate the static entry
 	buffer_sector.Default();
-
-	return (existing != NULL);
 }
 
 

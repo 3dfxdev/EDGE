@@ -248,7 +248,7 @@ static bool WeaponTryParseState(const char *field,
 //  DDF PARSE ROUTINES
 //
 
-static bool WeaponStartEntry(const char *name)
+static void WeaponStartEntry(const char *name)
 {
 	weapondef_c *existing = NULL;
 
@@ -277,8 +277,6 @@ static bool WeaponStartEntry(const char *name)
 	// instantiate the static entries
 	buffer_weapon.states.clear();
 	buffer_weapon.Default();
-
-	return (existing != NULL);
 }
 
 static void WeaponParseField(const char *field, const char *contents,
