@@ -137,81 +137,17 @@ extern cvar_c m_language;
 extern cvar_c debug_fullbright;
 
 
-class startup_progress_c
-{
-private:
-	int perc;
-	int g_step, g_size, g_total;  // global progress
-	int l_step, l_total;   // local progress
-
-public:
-	startup_progress_c() :
-		perc(-1),  // force update on initial setting
-		g_step(0), g_size(0), g_total(0),
-		l_step(0), l_total(0) { }
-
-	~startup_progress_c() { }
-
-	void recomputePercent()
-	{
-		int pp = (100 * g_step + (100 * g_size * l_step / l_total)) / g_total;
-
-		SYS_ASSERT(0 <= pp && pp <= 100);
-
-		if (pp != perc)
-		{
-			perc = pp; //!!!!  drawIt();
-		}
-	}
-
-	void drawIt(int glbsp_perc = -1)  // a bit kludgy...
-	{
-		RGL_DrawProgress(perc, glbsp_perc);
-	}
-
-	void setGlobal(int step, int size, int total)
-	{
-		g_step  = step;
-		g_size  = size;
-		g_total = total;
-	}
-
-	void setLocal(int step, int total)
-	{
-		l_step  = step;
-		l_total = total;
-	}
-};
-
-static startup_progress_c s_progress;
-
 void E_ProgressMessage(const char *message)
 {
-	// FIXME: show message near progress bar
 	I_Printf("%s", message);
 }
 
 void E_LocalProgress(int step, int total)
 {
-	s_progress.setLocal(step, total);
-	s_progress.recomputePercent();
 }
 
 void E_GlobalProgress(int step, int size, int total)
 {
-	s_progress.setGlobal(step, size, total);
-
-	E_LocalProgress(0, 1);  // recomputes the percentage
-}
-
-void E_NodeMessage(const char *message)
-{
-	// FIXME: show message
-}
-
-void E_NodeProgress(int perc)
-{
-	s_progress.drawIt(perc);
 }
 
 

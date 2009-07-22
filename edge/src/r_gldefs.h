@@ -54,9 +54,10 @@ extern int glmax_tex_units;
 
 void RGL_Init(void);
 void RGL_SoftInit(void);
-void RGL_DrawProgress(int perc, int glbsp_perc);
+
 void RGL_SetupMatrices2D(void);
 void RGL_SetupMatrices3D(void);
+
 void RGL_NewScreenSize(int width, int height, int bits);
 void RGL_ReadScreen(int x, int y, int w, int h, byte *rgb_buffer);
 
@@ -64,16 +65,6 @@ void RGL_ReadScreen(int x, int y, int w, int h, byte *rgb_buffer);
 #define LT_RED(light)  (MIN(255,light) * ren_red_mul / 255.0f)
 #define LT_GRN(light)  (MIN(255,light) * ren_grn_mul / 255.0f)
 #define LT_BLU(light)  (MIN(255,light) * ren_blu_mul / 255.0f)
-
-
-//
-// RGL_TEX
-//
-const byte *RGL_LogoImage(int *w, int *h);
-const byte *RGL_InitImage(int *w, int *h);
-const byte *RGL_GlbspImage(int *w, int *h);
-const byte *RGL_BuildImage(int *w, int *h);
-const byte *RGL_BetaImage(int *w, int *h);
 
 
 //
