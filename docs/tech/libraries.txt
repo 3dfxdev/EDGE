@@ -8,6 +8,7 @@ Internal (in SVN)
 EPI      : Edge Platform Interface (utility code)
 Deh_Edge : DeHackEd/BEX patch to DDF converter
 Timidity : MIDI playback library
+ENET     : Networking library
 
 
 External
@@ -33,7 +34,6 @@ LINKS
 
 http://edge.sourceforge.net/
 http://glbsp.sourceforge.net/
-http://humidity.sourceforge.net/
 
 http://www.libsdl.org/
 http://www.libsdl.org/projects/SDL_net/
@@ -41,6 +41,7 @@ http://www.libsdl.org/projects/SDL_net/
 http://www.vorbis.com/
 http://www.lua.org/
 http://www.fltk.org/
+http://enet.bespin.org/
 
 http://www.opengl.org/
 http://glew.sourceforge.net/
