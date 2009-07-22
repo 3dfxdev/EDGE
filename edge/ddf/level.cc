@@ -146,7 +146,6 @@ static bool LevelStartEntry(const char *name)
 
 	// instantiate the static entries
 	buffer_map.Default();
-	buffer_finale.Default();
 
 	return (existing != NULL);	
 }

@@ -37,83 +37,6 @@ static const commandlist_t musplaylistcmds[] =
 	DDF_CMD_END
 };
 
-//
-// DDF_MusicParseInfo
-//
-// Parses the music information given.
-//
-static void DDF_MusicParseInfo(const char *info, void *storage)
-{
-	static const char *const musstrtype[] = { "UNKNOWN", "CD", "MIDI", "MUS", "OGG", "MP3", NULL };
-	static const char *const musinftype[] = { "UNKNOWN", "TRACK", "LUMP", "FILE", NULL };
-	char charbuff[256];
-	int pos,i;
-
-	// Get the music type
-	i=0;
-	pos=0;
-	while (info[pos] != ':' && i<255)
-	{
-		if (info[i] == '\0')
-			DDF_Error("DDF_MusicParseInfo: Premature end of music info\n");
-
-		charbuff[i] = info[pos];
-
-		i++;
-		pos++;
-	}
-
-	if (i==255)
-		DDF_Error("DDF_MusicParseInfo: Music info too big\n");
-
-	// -AJA- terminate charbuff with trailing \0.
-	charbuff[i] = 0;
-
-	i=MUS_UNKNOWN;
-	while (i!=ENDOFMUSTYPES && stricmp(charbuff, musstrtype[i]) != 0)
-		i++;
-
-	if (i==ENDOFMUSTYPES)
-		DDF_Error("DDF_MusicParseInfo: Unknown music type: '%s'\n", charbuff);
-	else
-		buffer_plentry.type = (musictype_t)i;
-
-	// Data Type
-	i=0;
-	pos++;
-	while (info[pos] != ':' && i<255)
-	{
-		if (info[pos] == '\0')
-			DDF_Error("DDF_MusicParseInfo: Premature end of music info\n");
-
-		charbuff[i] = info[pos];
-
-		pos++;
-		i++;
-	}
-
-	if (i==255)
-		DDF_Error("DDF_MusicParseInfo: Music info too big\n");
-
-	// -AJA- terminate charbuff with trailing \0.
-	charbuff[i] = 0;
-
-	i=MUSINF_UNKNOWN;
-	while (musinftype[i] != NULL && stricmp(charbuff, musinftype[i]) != 0)
-		i++;
-
-	if (i==ENDOFMUSINFTYPES)
-		DDF_Error("DDF_MusicParseInfo: Unknown music info: '%s'\n", charbuff);
-	else
-		buffer_plentry.infotype = (musicinftype_e)i; // technically speaking this is proper
-
-	// Remained is the string reference: filename/lumpname/track-number
-	pos++;
-	buffer_plentry.info.Set(&info[pos]);
-
-	return;
-}
-
 
 //
 //  DDF PARSE ROUTINES
@@ -194,6 +117,82 @@ void DDF_MusicPlaylistCleanUp(void)
 {
 	// -ACB- 2004/05/04 Cut our playlist down to size
 	playlist.Trim();
+}
+
+//
+// Parses the music information given.
+//
+static void DDF_MusicParseInfo(const char *info, void *storage)
+{
+	pl_entry_c *pl = (pl_entry_c *) storage;
+
+	static const char *const musstrtype[] = { "UNKNOWN", "CD", "MIDI", "MUS", "OGG", "MP3", NULL };
+	static const char *const musinftype[] = { "UNKNOWN", "TRACK", "LUMP", "FILE", NULL };
+	char charbuff[256];
+	int pos,i;
+
+	// Get the music type
+	i=0;
+	pos=0;
+	while (info[pos] != ':' && i<255)
+	{
+		if (info[i] == '\0')
+			DDF_Error("DDF_MusicParseInfo: Premature end of music info\n");
+
+		charbuff[i] = info[pos];
+
+		i++;
+		pos++;
+	}
+
+	if (i==255)
+		DDF_Error("DDF_MusicParseInfo: Music info too big\n");
+
+	// -AJA- terminate charbuff with trailing \0.
+	charbuff[i] = 0;
+
+	i=MUS_UNKNOWN;
+	while (i!=ENDOFMUSTYPES && stricmp(charbuff, musstrtype[i]) != 0)
+		i++;
+
+	if (i==ENDOFMUSTYPES)
+		DDF_Error("DDF_MusicParseInfo: Unknown music type: '%s'\n", charbuff);
+	else
+		pl->type = (musictype_t)i;
+
+	// Data Type
+	i=0;
+	pos++;
+	while (info[pos] != ':' && i<255)
+	{
+		if (info[pos] == '\0')
+			DDF_Error("DDF_MusicParseInfo: Premature end of music info\n");
+
+		charbuff[i] = info[pos];
+
+		pos++;
+		i++;
+	}
+
+	if (i==255)
+		DDF_Error("DDF_MusicParseInfo: Music info too big\n");
+
+	// -AJA- terminate charbuff with trailing \0.
+	charbuff[i] = 0;
+
+	i=MUSINF_UNKNOWN;
+	while (musinftype[i] != NULL && stricmp(charbuff, musinftype[i]) != 0)
+		i++;
+
+	if (i==ENDOFMUSINFTYPES)
+		DDF_Error("DDF_MusicParseInfo: Unknown music info: '%s'\n", charbuff);
+	else
+		pl->infotype = (musicinftype_e)i; // technically speaking this is proper
+
+	// Remained is the string reference: filename/lumpname/track-number
+	pos++;
+
+	pl->info.Set(&info[pos]);
 }
 
 // --> pl_entry_c class
