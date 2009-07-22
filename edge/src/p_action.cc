@@ -982,7 +982,7 @@ static mobj_t *DoLaunchProjectile(mobj_t * source, float tx, float ty, float tz,
 {
 	const atkdef_c *attack = source->currentattack;
 
-	if (! attack)
+	if (!attack || !type)
 		return NULL;
 
 	// -AJA- projz now handles crouching
@@ -1114,6 +1114,9 @@ static mobj_t *LaunchProjectile(mobj_t * source, mobj_t * target,
 static void LaunchSmartProjectile(mobj_t * source, mobj_t * target, 
 								  const mobjtype_c * type)
 {
+	if (!target || !type)
+		return;
+
 	float t = -1;
 	float mx = 0, my = 0;
 
@@ -1756,7 +1759,7 @@ static void SprayAttack(mobj_t * mo)
 {
 	const atkdef_c *attack = mo->currentattack;
 
-	if (! attack)
+	if (! attack || ! attack->atk_mobj)
 		return;
 
 	float range = (attack->range > 0) ? attack->range : MISSILERANGE;
@@ -1904,7 +1907,7 @@ static void LaunchTracker(mobj_t * mo)
 	const atkdef_c *attack = mo->currentattack;
 	mobj_t *target = mo->target;
 
-	if (!attack || !target)
+	if (!attack || !attack->atk_mobj || !target)
 		return;
 
 	mobj_t *tracker = P_MobjCreateObject(target->x, target->y, target->z,

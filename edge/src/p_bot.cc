@@ -170,8 +170,11 @@ static int BOT_EvaluateWeapon(bot_t *bot, int w_num)
 		case ATK_SMARTPROJECTILE:
 			value *= 2;
 		case ATK_PROJECTILE:
-			value += 256 * attack->atk_mobj->explode_damage.nominal;
-			value *= attack->atk_mobj->speed / 20;
+			if (attack->atk_mobj)
+			{
+				value += 256 * attack->atk_mobj->explode_damage.nominal;
+				value *= attack->atk_mobj->speed / 20;
+			}
 			break;
 
 		case ATK_SPAWNER:
