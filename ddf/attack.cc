@@ -36,14 +36,17 @@ static atkdef_c *dynamic_atk;
 
 // this (and buffer_mobj) logically belongs with buffer_atk:
 static bool attack_has_mobj;
-static float a_damage_range;
-static float a_damage_multi;
+
+// kludge for backwards compatibility
+#define AF_DAMAGE_KLUDGE  (1 << 24)
 
 atkdef_container_c atkdefs;
 
 static void DDF_AtkGetType(const char *info, void *storage);
 static void DDF_AtkGetSpecial(const char *info, void *storage);
 static void DDF_AtkGetLabel(const char *info, void *storage);
+static void DDF_AtkGetOldDamRange(const char *info, void *storage);
+static void DDF_AtkGetOldDamMulti(const char *info, void *storage);
 
 damage_c buffer_damage;
 
@@ -105,8 +108,8 @@ static const commandlist_t attack_commands[] =
 
 	// -AJA- backward compatibility cruft...
 	DF("!DAMAGE", damage.nominal, DDF_MainGetFloat),
-	{"!DAMAGE_RANGE", DDF_MainGetFloat, &a_damage_range, NULL},
-	{"!DAMAGE_MULTI", DDF_MainGetFloat, &a_damage_multi, NULL},
+	DF("!DAMAGE_RANGE", ddf, DDF_AtkGetOldDamRange),
+	DF("!DAMAGE_MULTI", ddf, DDF_AtkGetOldDamMulti),
 
 	DDF_CMD_END
 };
@@ -143,8 +146,6 @@ static bool AttackStartEntry(const char *name)
 	dynamic_atk->ddf.number = 0;
 
 	attack_has_mobj = false;
-	a_damage_range = -1;
-	a_damage_multi = -1;
 
 	// instantiate the static entries
 	buffer_atk.Default();
@@ -224,13 +225,14 @@ static void AttackFinishEntry(void)
 			BITSET_MAKE('C') : BITSET_MAKE('B');
 	}
 
-	// -AJA- 2001/01/27: Backwards compatibility
-	if (a_damage_range > 0)
+	// -AJA- 2009: Backwards compatibility
+	if (buffer_atk.flags & AF_DAMAGE_KLUDGE)
 	{
-		buffer_atk.damage.nominal = a_damage_range;
+		if (buffer_atk.damage.linear_max < 1.0f)
+			buffer_atk.damage.linear_max = 1.0f;
 
-		if (a_damage_multi > 0)
-			buffer_atk.damage.linear_max = a_damage_range * a_damage_multi;
+		buffer_atk.damage.linear_max *= buffer_atk.damage.nominal;
+		buffer_atk.flags = (attackflags_e)(buffer_atk.flags & ~AF_DAMAGE_KLUDGE);
 	}
 
 	// -AJA- 2005/08/06: Berserk backwards compatibility
@@ -404,6 +406,23 @@ static void DDF_AtkGetLabel(const char *info, void *storage)
 	lab->offset = div ? MAX(0, atoi(div+1) - 1) : 0;
 }
 
+static void DDF_AtkGetOldDamRange(const char *info, void *storage)
+{
+	atkdef_c *atk = (atkdef_c *) storage;
+
+	atk->flags = (attackflags_e)(atk->flags | AF_DAMAGE_KLUDGE);
+	atk->damage.nominal = atof(info);
+}
+
+static void DDF_AtkGetOldDamMulti(const char *info, void *storage)
+{
+	atkdef_c *atk = (atkdef_c *) storage;
+
+	atk->flags = (attackflags_e)(atk->flags | AF_DAMAGE_KLUDGE);
+	atk->damage.linear_max = atof(info);
+}
+
+
 // Attack definition class
 
 // 
@@ -437,6 +456,8 @@ void atkdef_c::Copy(atkdef_c &src)
 
 void atkdef_c::CopyDetail(atkdef_c &src)
 {
+	atk_mobj = src.atk_mobj;
+
 	attackstyle = src.attackstyle;
 	flags = src.flags;
 	initsound = src.initsound;
@@ -462,7 +483,6 @@ void atkdef_c::CopyDetail(atkdef_c &src)
 	objinitstate_ref = src.objinitstate_ref;
 	notracechance = src.notracechance;
 	keepfirechance = src.keepfirechance;
-	atk_mobj = src.atk_mobj;
 	spawnedobj = src.spawnedobj;
 	spawnedobj_ref = src.spawnedobj_ref;
 	spawn_limit = src.spawn_limit;
@@ -473,6 +493,8 @@ void atkdef_c::CopyDetail(atkdef_c &src)
 void atkdef_c::Default()
 {
 	ddf.Default();
+
+	atk_mobj = NULL;
 
 	attackstyle = ATK_NONE;
 	flags = AF_None;
@@ -499,7 +521,6 @@ void atkdef_c::Default()
 	objinitstate_ref.clear();
 	notracechance = PERCENT_MAKE(0); 
 	keepfirechance = PERCENT_MAKE(0);
-	atk_mobj = NULL;
 	spawnedobj = NULL;
 	spawnedobj_ref.clear();
 	spawn_limit = 0;  // unlimited
