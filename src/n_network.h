@@ -19,11 +19,28 @@
 #ifndef __N_NETWORK_H__
 #define __N_NETWORK_H__
 
+#include "i_net.h"
+
 #define MP_EDGE_PORT  26710
 
 #define MP_PROTOCOL_VER  1
 
 #define MP_SAVETICS  6  // past and future
+
+class net_node_c
+{
+public:
+	SOCKET sock;
+
+	net_address_c remote;
+
+public:
+	net_node_c() : sock(INVALID_SOCKET), remote()
+	{ }
+
+	~net_node_c()
+	{ }
+};
 
 extern bool netgame;
 
