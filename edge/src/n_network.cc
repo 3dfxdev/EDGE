@@ -27,7 +27,6 @@
 
 #include "ddf/language.h"
 
-#include "n_reliable.h"
 #include "n_network.h"
 
 #include "g_state.h"
@@ -76,8 +75,6 @@ void N_InitNetwork(void)
 		base_port = atoi(str);
 
 	I_Printf("Network: base port is %d\n", base_port);
-
-	N_StartupReliableLink (base_port+0);
 }
 
 
