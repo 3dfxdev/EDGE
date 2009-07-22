@@ -65,7 +65,7 @@ extern std::string w_map_title;
 
 static void FrameSetup(void)
 {
-	fontdef_c *DEF = fontdefs.Lookup("DOOM");  // FIXME allow other default
+	fontdef_c *DEF = DDF_LookupFont("DOOM");  // FIXME allow other default
 	SYS_ASSERT(DEF);
 
 	cur_font = HU_LookupFont(DEF);
@@ -300,7 +300,7 @@ static int HD_text_font(lua_State *L)
 {
 	const char *font_name = luaL_checkstring(L, 1);
 
-	fontdef_c *DEF = fontdefs.Lookup(font_name);
+	fontdef_c *DEF = DDF_LookupFont(font_name);
 	SYS_ASSERT(DEF);
 
 	cur_font = HU_LookupFont(DEF);

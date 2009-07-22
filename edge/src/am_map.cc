@@ -947,7 +947,7 @@ static void DrawMarks(void)
 {
 	if (! am_digit_font)
 	{
-		fontdef_c *DEF = fontdefs.Lookup("AUTOMAP_DIGIT");
+		fontdef_c *DEF = DDF_LookupFont("AUTOMAP_DIGIT");
 		SYS_ASSERT(DEF);
 
 		am_digit_font = HU_LookupFont(DEF);
