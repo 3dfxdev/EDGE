@@ -21,18 +21,20 @@
 
 #include "local.h"
 
+#include <map>
+
 #include "font.h"
 
 #undef  DF
 #define DF  DDF_CMD
 
-static fontdef_c buffer_font;
+static fontdef_c dummy_font;
 static fontdef_c *dynamic_font;
 
 static void DDF_FontGetType( const char *info, void *storage);
 static void DDF_FontGetPatch(const char *info, void *storage);
 
-#define DDF_CMD_BASE  buffer_font
+#define DDF_CMD_BASE  dummy_font
 
 static const commandlist_t font_commands[] =
 {
@@ -44,51 +46,36 @@ static const commandlist_t font_commands[] =
 	DDF_CMD_END
 };
 
-// -ACB- 2004/06/03 Replaced array and size with purpose-built class
+
+typedef std::map<const char *, fontdef_c *, DDF_Name_Cmp> fontdef_container_c;
+
 fontdef_container_c fontdefs;
+
 
 //
 //  DDF PARSE ROUTINES
 //
-static bool FontStartEntry(const char *name)
+
+static void FontStartEntry(const char *name)
 {
-	bool replaces = false;
+	dynamic_font = NULL;
 
-	if (name && name[0])
+	// FIXME: catch this before we get here
+	if (!name || !name[0])
 	{
-		epi::array_iterator_c it;
-		fontdef_c *a;
-
-		for (it = fontdefs.GetBaseIterator(); it.IsValid(); it++)
-		{
-			a = ITERATOR_TO_TYPE(it, fontdef_c*);
-			if (DDF_CompareName(a->ddf.name.c_str(), name) == 0)
-			{
-				dynamic_font = a;
-				replaces = true;
-				break;
-			}
-		}
+		DDF_Error("New font entry is missing a name!");
 	}
 
-	// not found, create a new one
-	if (! replaces)
+	dynamic_font = DDF_LookupFont(name);
+
+	if (! dynamic_font)
 	{
-		dynamic_font = new fontdef_c;
-
-		if (name && name[0])
-			dynamic_font->ddf.name = name;
-		else
-			dynamic_font->ddf.SetUniqueName("UNNAMED_FONT", fontdefs.GetSize());
-
-		fontdefs.Insert(dynamic_font);
+		dynamic_font = new fontdef_c();
+		dynamic_font->ddf.name = name;
 	}
-
-	dynamic_font->ddf.number = 0;
 
 	// instantiate the static entry
-	buffer_font.Default();
-	return replaces;
+	dummy_font.Default();
 }
 
 static void FontParseField(const char *field, const char *contents, int index, bool is_last)
@@ -103,10 +90,10 @@ static void FontParseField(const char *field, const char *contents, int index, b
 
 static void FontFinishEntry(void)
 {
-	if (buffer_font.type == FNTYP_UNSET)
+	if (dummy_font.type == FNTYP_UNSET)
 		DDF_Error("No type specified for font.\n");
 
-	if (buffer_font.type == FNTYP_Patch && ! buffer_font.patches)
+	if (dummy_font.type == FNTYP_Patch && ! dummy_font.patches)
 	{
 		DDF_Error("Missing font patch list.\n");
 	}
@@ -114,17 +101,27 @@ static void FontFinishEntry(void)
 	// FIXME: check FNTYP_Image
 
 	// transfer static entry to dynamic entry
-	dynamic_font->CopyDetail(buffer_font);
+	dynamic_font->CopyDetail(dummy_font);
 
 	// Compute CRC.  In this case, there is no need, since fonts
 	// have zero impact on the game simulation.
 	dynamic_font->ddf.crc.Reset();
+
+	// link it into map
+	const char *name = dynamic_font->ddf.name.c_str();
+
+	fontdefs[name] = dynamic_font;
 }
 
 static void FontClearAll(void)
 {
 	// safe to just delete all fonts
-	fontdefs.Clear();
+	fontdef_container_c::iterator it;
+
+	for (it = fontdefs.begin(); it != fontdefs.end(); it++)
+		delete it->second;
+
+	fontdefs.clear();
 }
 
 
@@ -142,15 +139,13 @@ readinfo_t font_readinfo =
 
 void DDF_FontInit(void)
 {
-	fontdefs.Clear();		// <-- Consistent with existing behaviour (-ACB- 2004/05/04)
 }
 
 void DDF_FontCleanUp(void)
 {
-	if (fontdefs.GetSize() == 0)
+	// FIXME: this is an Engine problem, not a DDF one
+	if (fontdefs.size() == 0)
 		I_Error("There are no fonts defined in DDF !\n");
-
-	fontdefs.Trim();		// <-- Reduce to allocated size
 }
 
 
@@ -184,9 +179,9 @@ static int FontParseCharacter(const char *buf)
 	}
 #endif
 
-	if (buf[0]>0 && isdigit(buf[0]) && isdigit(buf[1]))
+	if (buf[0] > 0 && isdigit(buf[0]) && isdigit(buf[1]))
 		return atoi(buf);
-	
+
 	return buf[0];
 
 #if 0
@@ -195,8 +190,6 @@ static int FontParseCharacter(const char *buf)
 #endif
 }
 
-//
-// DDF_FontGetPatch
 //
 // Formats: PATCH123("x"), PATCH065(65),
 //          PATCH456("a" : "z"), PATCH033(33:111).
@@ -255,7 +248,7 @@ fontpatch_c::fontpatch_c(int _ch1, int _ch2, const char *_pat1) :
 //
 // fontdef_c constructor
 //
-fontdef_c::fontdef_c()
+fontdef_c::fontdef_c() : ddf()
 {
 	Default();
 }
@@ -314,28 +307,20 @@ fontdef_c& fontdef_c::operator= (const fontdef_c &rhs)
 	return *this;
 }
 
-// ---> fontdef_container_c class
 
-void fontdef_container_c::CleanupObject(void *obj)
-{
-	fontdef_c *a = *(fontdef_c**)obj;
-
-	if (a) delete a;
-}
-
-fontdef_c* fontdef_container_c::Lookup(const char *refname)
+fontdef_c * DDF_LookupFont(const char *refname)
 {
 	if (!refname || !refname[0])
 		return NULL;
-	
-	for (epi::array_iterator_c it = GetIterator(0); it.IsValid(); it++)
-	{
-		fontdef_c *f = ITERATOR_TO_TYPE(it, fontdef_c*);
-		if (DDF_CompareName(f->ddf.name.c_str(), refname) == 0)
-			return f;
-	}
 
-	return NULL;
+	fontdef_container_c::iterator it;
+	
+	it = fontdefs.find(refname);
+
+	if (it == fontdefs.end())
+		return NULL;
+
+	return it->second;
 }
 
 
@@ -343,7 +328,7 @@ void DDF_MainLookupFont(const char *info, void *storage)
 {
 	fontdef_c **dest = (fontdef_c **)storage;
 
-	*dest = fontdefs.Lookup(info);
+	*dest = DDF_LookupFont(info);
 
 	if (*dest == NULL)
 		DDF_Error("Unknown font: %s\n", info);
