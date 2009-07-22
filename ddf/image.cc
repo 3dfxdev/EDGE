@@ -42,7 +42,7 @@ static void DDF_ImageGetFixTrans(const char *info, void *storage);
 
 static const commandlist_t image_commands[] =
 {
-	DF("IMAGE_DATA", type,     DDF_ImageGetType),
+	DF("IMAGE_DATA", ddf,      DDF_ImageGetType),
 	DF("SPECIAL",    special,  DDF_ImageGetSpecial),
 	DF("X_OFFSET",   x_offset, DDF_MainGetNumeric),
 	DF("Y_OFFSET",   y_offset, DDF_MainGetNumeric),
@@ -262,31 +262,38 @@ void DDF_ImageCleanUp(void)
 }
 
 
-static void ImageParseColour(const char *value)
+static void ImageParseColour(imagedef_c *def, const char *value)
 {
-	DDF_MainGetRGB(value, &buffer_image.colour);
+	def->type = IMGDT_Colour;
+
+	DDF_MainGetRGB(value, &def->colour);
 }
 
-static void ImageParseBuiltin(const char *value)
+static void ImageParseBuiltin(imagedef_c *def, const char *value)
 {
+	def->type = IMGDT_Builtin;
+
 	if (DDF_CompareName(value, "LINEAR") == 0)
-		buffer_image.builtin = BLTIM_Linear;
+		def->builtin = BLTIM_Linear;
 	else if (DDF_CompareName(value, "QUADRATIC") == 0)
-		buffer_image.builtin = BLTIM_Quadratic;
+		def->builtin = BLTIM_Quadratic;
 	else if (DDF_CompareName(value, "SHADOW") == 0)
-		buffer_image.builtin = BLTIM_Shadow;
+		def->builtin = BLTIM_Shadow;
 	else
 		DDF_Error("Unknown image BUILTIN kind: %s\n", value);
 }
 
-static void ImageParseName(const char *value)
+static void ImageParseFile(imagedef_c *def, const char *value)
 {
 	// ouch, hard work here...
-	buffer_image.name.Set(value);
+	def->type = IMGDT_File;
+	def->name.Set(value);
 }
 
-static void ImageParseLump(const char *spec)
+static void ImageParseLump(imagedef_c *def, const char *spec)
 {
+	def->type = IMGDT_Lump;
+
 	const char *colon = DDF_MainDecodeList(spec, ':', true);
 
 	if (! colon || colon == spec || (colon - spec) >= 16 || colon[1] == 0)
@@ -298,20 +305,20 @@ static void ImageParseLump(const char *spec)
 	keyword[colon - spec] = 0;
 
 	// store the lump name
-	buffer_image.name.Set(colon + 1);
+	def->name.Set(colon + 1);
 
 	if (DDF_CompareName(keyword, "PNG") == 0)
 	{
-		buffer_image.format = LIF_PNG;
+		def->format = LIF_PNG;
 	}
 	else if (DDF_CompareName(keyword, "JPG") == 0 ||
 	         DDF_CompareName(keyword, "JPEG") == 0)
 	{
-		buffer_image.format = LIF_JPEG;
+		def->format = LIF_JPEG;
 	}
 	else if (DDF_CompareName(keyword, "TGA") == 0)
 	{
-		buffer_image.format = LIF_TGA;
+		def->format = LIF_TGA;
 	}
 	else
 		DDF_Error("Unknown image format: %s (use PNG or JPEG)\n", keyword);
@@ -320,7 +327,7 @@ static void ImageParseLump(const char *spec)
 
 static void DDF_ImageGetType(const char *info, void *storage)
 {
-	imagedata_type_e *type = (imagedata_type_e *)storage;
+	imagedef_c *def = (imagedef_c *) storage;
 
 	const char *colon = DDF_MainDecodeList(info, ':', true);
 
@@ -334,23 +341,19 @@ static void DDF_ImageGetType(const char *info, void *storage)
 
 	if (DDF_CompareName(keyword, "COLOUR") == 0)
 	{
-		*type = IMGDT_Colour;
-		ImageParseColour(colon + 1);
+		ImageParseColour(def, colon + 1);
 	}
 	else if (DDF_CompareName(keyword, "BUILTIN") == 0)
 	{
-		*type = IMGDT_Builtin;
-		ImageParseBuiltin(colon + 1);
+		ImageParseBuiltin(def, colon + 1);
 	}
 	else if (DDF_CompareName(keyword, "FILE") == 0)
 	{
-		*type = IMGDT_File;
-		ImageParseName(colon + 1);
+		ImageParseFile(def, colon + 1);
 	}
 	else if (DDF_CompareName(keyword, "LUMP") == 0)
 	{
-		*type = IMGDT_Lump;
-		ImageParseLump(colon + 1);
+		ImageParseLump(def, colon + 1);
 	}
 	else
 		DDF_Error("Unknown image type: %s\n", keyword);
