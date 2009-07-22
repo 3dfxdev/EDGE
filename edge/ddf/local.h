@@ -384,6 +384,18 @@ extern const specflags_t keytype_names[];
 extern const commandlist_t floor_commands[];
 extern const commandlist_t damage_commands[];
 
+// comparision function for std::map
+struct DDF_Name_Cmp
+{
+	bool operator() (const char *a, const char *b)
+	{
+		if (! a) a = "";
+		if (! b) b = "";
+
+		return DDF_CompareName(a, b) < 0;
+	}
+};
+
 
 #endif //__DDF_LOCAL_H__*/
 
