@@ -121,18 +121,9 @@ bool N_BuildTiccmds(void)
 
 		if (p->builder)
 		{
-			ticcmd_t *cmd;
-
-///     L_WriteDebug("N_BuildTiccmds: pnum %d netgame %c\n", pnum, netgame ? 'Y' : 'n');
-
-			if (false) // FIXME: temp hack!!!  if (netgame)
-				cmd = &p->out_cmds[maketic % (MP_SAVETICS*2)];
-			else
-				cmd = &p->in_cmds[maketic % (MP_SAVETICS*2)];
+			ticcmd_t *cmd = &p->in_cmds[maketic % BACKUPTICS];
 
 			p->builder(p, p->build_data, cmd);
-			
-			cmd->consistency = p->consistency[maketic % (MP_SAVETICS*2)];
 		}
 	}
 
@@ -322,19 +313,6 @@ void N_TiccmdTicker(void)
 		{
 			// FIXME: something better for turbo cheat
 			I_Printf(language["IsTurbo"], p->playername);
-		}
-
-		if (netgame)
-		{
-			if (gametic > BACKUPTICS && p->consistency[buf] != p->cmd.consistency)
-			{
-// !!!! DEBUG //	I_Warning("Consistency failure on player %d (%i should be %i)",
-//					p->pnum + 1, p->cmd.consistency, p->consistency[buf]);
-			}
-			if (p->mo)
-				p->consistency[buf] = (int)p->mo->x;
-			else
-				p->consistency[buf] = P_ReadRandomState() & 0xff;
 		}
 	}
 
