@@ -28,7 +28,6 @@
 
 // -KM- 1998/11/25 Added BFG SPRAY attack type.
 
-// FIXME!!! Move enums into attackdef_t
 typedef enum
 {
 	ATK_NONE = 0,
@@ -89,8 +88,12 @@ public:
 	// Member vars
 	ddf_base_c ddf;
 
+	// the MOBJ that is integrated with this attack, or NULL
+	const mobjtype_c *atk_mobj;
+
 	attackstyle_e attackstyle;
 	attackflags_e flags;
+
 	struct sfx_s *initsound;
 	struct sfx_s *sound;
 	float accuracy_slope;
@@ -118,9 +121,6 @@ public:
   
 	percent_t notracechance;
 	percent_t keepfirechance;
-
-	// the MOBJ that is integrated with this attack, or NULL
-	const mobjtype_c *atk_mobj;
 
 	// spawned object (for spawners).  The mobjdef pointer only becomes
 	// valid after DDF_AttackCleanUp().  Can be NULL.
