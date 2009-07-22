@@ -145,13 +145,12 @@ typedef struct readinfo_s
 	// if an entry with the given name/number already exists, re-use
 	// that entry for the dynamic part, otherwise create a new dynamic
 	// entry and add it to the list.  Note that only the name and/or
-	// number need to be kept valid in the dynamic entry.  Returns true
-	// if the name already existed, otherwise false.
+	// number need to be kept valid in the dynamic entry.
 	//
 	// Note: for things.ddf, only the name is significant when checking
 	// if the entry already exists.
 	//
-	bool (*start_entry) (const char *name);
+	void (*start_entry) (const char *name);
 
 	// parse a single field for the entry.  Usually it will just call
 	// the ddf_main routine to handle the command list.  For
@@ -257,6 +256,7 @@ void DDF_MainGetBitSet (const char *info, void *storage);
 bool DDF_MainParseField (const commandlist_t * commands,
 			      const char *field, const char *contents);
 void DDF_MainLookupSound (const char *info, void *storage);
+void DDF_MainLookupFont(const char *info, void *storage);
 void DDF_MainRefAttack (const char *info, void *storage);
 
 void DDF_DummyFunction (const char *info, void *storage);

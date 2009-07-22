@@ -74,28 +74,9 @@ public:
 	epi::strent_c image_name;
 };
 
-// Our fontdefs container
-class fontdef_container_c : public epi::array_c 
-{
-public:
-	fontdef_container_c() : epi::array_c(sizeof(fontdef_c*)) {}
-	~fontdef_container_c() { Clear(); } 
 
-private:
-	void CleanupObject(void *obj);
+fontdef_c * DDF_LookupFont(const char *refname);
 
-public:
-	int GetSize() {	return array_entries; } 
-	int Insert(fontdef_c *a) { return InsertObject((void*)&a); }
-	fontdef_c* operator[](int idx) { return *(fontdef_c**)FetchObject(idx); } 
-
-	// Search Functions
-	fontdef_c* Lookup(const char* refname);
-};
-
-extern fontdef_container_c fontdefs;
-
-void DDF_MainLookupFont(const char *info, void *storage);
 
 #endif  /* __DDF_FONT__ */
 
