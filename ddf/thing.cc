@@ -1684,20 +1684,134 @@ mobjtype_c::mobjtype_c() : name(), states()
 	Default();
 }
 
-mobjtype_c::mobjtype_c(mobjtype_c &rhs) : states()
-{
-	Copy(rhs);
-}
-
 mobjtype_c::~mobjtype_c()
 {
 	// FIXME
 }
 
 
-void mobjtype_c::Copy(mobjtype_c &src)
+void mobjtype_c::Default()
 {
-	CopyDetail(src);	
+    spawn_state = 0;
+    idle_state = 0;
+    chase_state = 0;
+    pain_state = 0;
+    missile_state = 0;
+    melee_state = 0;
+    death_state = 0;
+    overkill_state = 0;
+    raise_state = 0;
+    res_state = 0;
+    meander_state = 0;
+    bounce_state = 0;
+    touch_state = 0;
+    reload_state = 0;
+    gib_state = 0;
+
+    reactiontime = 0;
+	painchance = PERCENT_MAKE(0);
+	spawnhealth = 1000.0f;
+    speed = 0;
+	float_speed = 2.0f;
+    radius = 0;
+    height = 0;
+	step_size = 24.0f;
+	mass = 100.0f;
+
+    flags = 0;
+    extendedflags = 0;
+	hyperflags = 0;
+
+	explode_damage.Default(damage_c::DEFAULT_Mobj);
+	explode_radius = 0;
+
+	lose_benefits = NULL;
+	pickup_benefits = NULL;
+	pickup_effects = NULL;
+	pickup_message = NULL;
+	initial_benefits = NULL;
+
+    castorder = 0;
+	cast_title.clear();
+	respawntime = 30 * TICRATE;
+	translucency = PERCENT_MAKE(100);
+	minatkchance = PERCENT_MAKE(0);
+	palremap = NULL;
+
+	jump_delay = 1 * TICRATE;
+    jumpheight = 0;
+    crouchheight = 0;
+	viewheight = PERCENT_MAKE(75);
+	shotheight = PERCENT_MAKE(64);
+    maxfall = 0;
+	fast = 1.0f;
+	scale = 1.0f;
+	aspect = 1.0f;
+	yalign = SPYA_BottomUp;
+
+	model_skin = 1;
+	model_scale = 1.0f;
+	model_aspect = 1.0f;
+	model_bias = 0.0f;
+
+	bounce_speed = 0.5f;
+	bounce_up = 0.5f;
+	sight_slope = 16.0f;
+	sight_angle = ANG90;
+	ride_friction = RIDE_FRICTION;
+	shadow_trans = PERCENT_MAKE(50);
+	glow_type = GLOW_None;
+
+	seesound = sfx_None;
+	attacksound = sfx_None;
+	painsound = sfx_None;
+	deathsound = sfx_None;
+	overkill_sound = sfx_None;
+	activesound = sfx_None;
+	walksound = sfx_None;
+	jump_sound = sfx_None;
+	noway_sound = sfx_None;
+	oof_sound = sfx_None;
+	gasp_sound = sfx_None;
+
+    fuse = 0;
+	reload_shots = 5;
+	armour_protect = -1.0;  // disabled!
+	armour_deplete = PERCENT_MAKE(100);
+	armour_class = BITSET_FULL;
+
+	side = BITSET_EMPTY;
+    playernum = 0;
+	lung_capacity = 20 * TICRATE;
+	gasp_start = 2  * TICRATE;
+
+	choke_damage.Default(damage_c::DEFAULT_MobjChoke);
+
+	bobbing = PERCENT_MAKE(100);
+	immunity = BITSET_EMPTY;
+	resistance = BITSET_EMPTY;
+	resist_multiply = 0.4;
+	resist_painchance = -1; // disabled
+	ghost = BITSET_EMPTY;
+
+	closecombat = NULL;
+	rangeattack = NULL;
+	spareattack = NULL;
+
+	// dynamic light info
+	dlight[0].Default();
+	dlight[1].Default();
+
+	weak.Default();
+
+	dropitem = NULL;
+	dropitem_ref.clear();
+	blood = NULL;
+	blood_ref.clear();
+	respawneffect = NULL;
+	respawneffect_ref.clear();
+	spitspot = NULL;
+	spitspot_ref.clear();
 }
 
 
@@ -1849,130 +1963,6 @@ void mobjtype_c::CopyStates(mobjtype_c &src)
 }
 
 
-void mobjtype_c::Default()
-{
-    spawn_state = 0;
-    idle_state = 0;
-    chase_state = 0;
-    pain_state = 0;
-    missile_state = 0;
-    melee_state = 0;
-    death_state = 0;
-    overkill_state = 0;
-    raise_state = 0;
-    res_state = 0;
-    meander_state = 0;
-    bounce_state = 0;
-    touch_state = 0;
-    reload_state = 0;
-    gib_state = 0;
-
-    reactiontime = 0;
-	painchance = PERCENT_MAKE(0);
-	spawnhealth = 1000.0f;
-    speed = 0;
-	float_speed = 2.0f;
-    radius = 0;
-    height = 0;
-	step_size = 24.0f;
-	mass = 100.0f;
-
-    flags = 0;
-    extendedflags = 0;
-	hyperflags = 0;
-
-	explode_damage.Default(damage_c::DEFAULT_Mobj);
-	explode_radius = 0;
-
-	lose_benefits = NULL;
-	pickup_benefits = NULL;
-	pickup_effects = NULL;
-	pickup_message = NULL;
-	initial_benefits = NULL;
-
-    castorder = 0;
-	cast_title.clear();
-	respawntime = 30 * TICRATE;
-	translucency = PERCENT_MAKE(100);
-	minatkchance = PERCENT_MAKE(0);
-	palremap = NULL;
-
-	jump_delay = 1 * TICRATE;
-    jumpheight = 0;
-    crouchheight = 0;
-	viewheight = PERCENT_MAKE(75);
-	shotheight = PERCENT_MAKE(64);
-    maxfall = 0;
-	fast = 1.0f;
-	scale = 1.0f;
-	aspect = 1.0f;
-	yalign = SPYA_BottomUp;
-
-	model_skin = 1;
-	model_scale = 1.0f;
-	model_aspect = 1.0f;
-	model_bias = 0.0f;
-
-	bounce_speed = 0.5f;
-	bounce_up = 0.5f;
-	sight_slope = 16.0f;
-	sight_angle = ANG90;
-	ride_friction = RIDE_FRICTION;
-	shadow_trans = PERCENT_MAKE(50);
-	glow_type = GLOW_None;
-
-	seesound = sfx_None;
-	attacksound = sfx_None;
-	painsound = sfx_None;
-	deathsound = sfx_None;
-	overkill_sound = sfx_None;
-	activesound = sfx_None;
-	walksound = sfx_None;
-	jump_sound = sfx_None;
-	noway_sound = sfx_None;
-	oof_sound = sfx_None;
-	gasp_sound = sfx_None;
-
-    fuse = 0;
-	reload_shots = 5;
-	armour_protect = -1.0;  // disabled!
-	armour_deplete = PERCENT_MAKE(100);
-	armour_class = BITSET_FULL;
-
-	side = BITSET_EMPTY;
-    playernum = 0;
-	lung_capacity = 20 * TICRATE;
-	gasp_start = 2  * TICRATE;
-
-	choke_damage.Default(damage_c::DEFAULT_MobjChoke);
-
-	bobbing = PERCENT_MAKE(100);
-	immunity = BITSET_EMPTY;
-	resistance = BITSET_EMPTY;
-	resist_multiply = 0.4;
-	resist_painchance = -1; // disabled
-	ghost = BITSET_EMPTY;
-
-	closecombat = NULL;
-	rangeattack = NULL;
-	spareattack = NULL;
-
-	// dynamic light info
-	dlight[0].Default();
-	dlight[1].Default();
-
-	weak.Default();
-
-	dropitem = NULL;
-	dropitem_ref.clear();
-	blood = NULL;
-	blood_ref.clear();
-	respawneffect = NULL;
-	respawneffect_ref.clear();
-	spitspot = NULL;
-	spitspot_ref.clear();
-}
-
 void mobjtype_c::DLightCompatibility(void)
 {
 	for (int DL = 0; DL < 2; DL++)
@@ -2009,15 +1999,6 @@ void mobjtype_c::DLightCompatibility(void)
 //??	if (dlight[DL].radius > 500)
 //??		dlight[DL].radius = 500;
 	}
-}
-
-
-mobjtype_c& mobjtype_c::operator=(mobjtype_c &rhs)
-{
-	if (&rhs != this)
-		Copy(rhs);
-		
-	return *this;
 }
 
 

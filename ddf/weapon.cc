@@ -519,41 +519,86 @@ bool DDF_WeaponIsUpgrade(weapondef_c *weap, weapondef_c *old)
 
 // --> Weapon Definition
 
-//
-// weapondef_c Constructor
-//
 weapondef_c::weapondef_c() : name(), states()
 {
 	Default();
 }
 
-//
-// weapondef_c Copy constructor
-//
-weapondef_c::weapondef_c(weapondef_c &rhs) : states()
-{
-	Copy(rhs);
-}
-
-//
-// weapondef_c Destructor
-//
 weapondef_c::~weapondef_c()
 {
 	// FIXME
 }
 
-//
-// weapondef_c::Copy()
-//
-void weapondef_c::Copy(weapondef_c &src)
+
+void weapondef_c::Default(void)
 {
-	CopyDetail(src);
+	for (int ATK = 0; ATK < 2; ATK++)
+	{
+		attack[ATK] = NULL;
+		ammo[ATK]   = AM_NoAmmo;
+		ammopershot[ATK] = 0;
+		clip_size[ATK]   = 0;
+		autofire[ATK]    = false;
+
+		attack_state[ATK]  = 0;
+		reload_state[ATK]  = 0;
+		discard_state[ATK] = 0;
+		warmup_state[ATK]  = 0;
+		flash_state[ATK]   = 0;
+	}
+
+	specials[0] = DEFAULT_WPSP;
+	specials[1] = (weapon_flag_e)(DEFAULT_WPSP & ~WPSP_SwitchAway);
+
+	kick = 0.0f;
+
+	up_state = 0;
+	down_state= 0;
+	ready_state = 0;
+	empty_state = 0;
+	idle_state = 0;
+
+	crosshair = 0;
+	zoom_state = 0;
+
+	no_cheat = false;
+
+	autogive = false;
+	feedback = false;
+	upgrade_weap = NULL;
+	priority = 0;
+	dangerous = false;
+
+	eject_attack = NULL;
+	idle = NULL;
+	engaged = NULL;
+	hit = NULL;
+	start = NULL;
+
+	sound1 = NULL;
+	sound2 = NULL;
+	sound3 = NULL;
+
+	nothrust = false;
+	bind_key = -1;
+	zoom_fov = 0;
+	refire_inacc = false;
+	show_clip = false;
+	shared_clip = false;
+
+	bobbing = PERCENT_MAKE(100);
+	swaying = PERCENT_MAKE(100);
+	idle_wait = 15 * TICRATE;
+	idle_chance = PERCENT_MAKE(12);
+
+	model_skin = 1;
+	model_aspect = 1.0f;
+	model_bias = 0.0f;
+	model_forward = 0.0f;
+	model_side = 0.0f;
 }
 
-//
-// weapondef_c::CopyDetail()
-//
+
 void weapondef_c::CopyDetail(weapondef_c &src)
 {
 	CopyStates(src);
@@ -635,85 +680,6 @@ void weapondef_c::CopyStates(weapondef_c &src)
 		states.push_back(*SI);
 }
 
-
-void weapondef_c::Default(void)
-{
-	for (int ATK = 0; ATK < 2; ATK++)
-	{
-		attack[ATK] = NULL;
-		ammo[ATK]   = AM_NoAmmo;
-		ammopershot[ATK] = 0;
-		clip_size[ATK]   = 0;
-		autofire[ATK]    = false;
-
-		attack_state[ATK]  = 0;
-		reload_state[ATK]  = 0;
-		discard_state[ATK] = 0;
-		warmup_state[ATK]  = 0;
-		flash_state[ATK]   = 0;
-	}
-
-	specials[0] = DEFAULT_WPSP;
-	specials[1] = (weapon_flag_e)(DEFAULT_WPSP & ~WPSP_SwitchAway);
-
-	kick = 0.0f;
-
-	up_state = 0;
-	down_state= 0;
-	ready_state = 0;
-	empty_state = 0;
-	idle_state = 0;
-
-	crosshair = 0;
-	zoom_state = 0;
-
-	no_cheat = false;
-
-	autogive = false;
-	feedback = false;
-	upgrade_weap = NULL;
-	priority = 0;
-	dangerous = false;
-
-	eject_attack = NULL;
-	idle = NULL;
-	engaged = NULL;
-	hit = NULL;
-	start = NULL;
-
-	sound1 = NULL;
-	sound2 = NULL;
-	sound3 = NULL;
-
-	nothrust = false;
-	bind_key = -1;
-	zoom_fov = 0;
-	refire_inacc = false;
-	show_clip = false;
-	shared_clip = false;
-
-	bobbing = PERCENT_MAKE(100);
-	swaying = PERCENT_MAKE(100);
-	idle_wait = 15 * TICRATE;
-	idle_chance = PERCENT_MAKE(12);
-
-	model_skin = 1;
-	model_aspect = 1.0f;
-	model_bias = 0.0f;
-	model_forward = 0.0f;
-	model_side = 0.0f;
-}
-
-//
-// weapondef_c assignment operator
-//	
-weapondef_c& weapondef_c::operator=(weapondef_c &rhs)
-{
-	if (&rhs != this)
-		Copy(rhs);
-	
-	return *this;
-}
 
 // --> Weapon Definition Container
 

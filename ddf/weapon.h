@@ -73,24 +73,11 @@ weapon_flag_e;
 
 #define DEFAULT_WPSP  (weapon_flag_e)(WPSP_Trigger | WPSP_Manual | WPSP_SwitchAway | WPSP_Partial)
 
+
 class weapondef_c
 {
 public:
-	weapondef_c();
-	weapondef_c(weapondef_c &rhs);
-	~weapondef_c();
-	
-private:
-	void Copy(weapondef_c &src);
-	void CopyStates(weapondef_c &src);
-	
-public:
-	void Default(void);
-	void CopyDetail(weapondef_c &src);
-
-	weapondef_c& operator=(weapondef_c &rhs);
-
-	epi::strent_c name;     // Weapon's name, etc...
+	epi::strent_c name;     // Weapon's DDF name
 
 	atkdef_c *attack[2];	// Attack type used.
   
@@ -191,6 +178,12 @@ public:
 	float model_side;
 
 public:
+	 weapondef_c();
+	~weapondef_c();
+
+	void Default(void);
+	void CopyDetail(weapondef_c &src);
+
 	inline int KeyPri(int idx) const  // next/prev order value
 	{
 		int key = 1 + MAX(-1, MIN(10, bind_key));
@@ -198,7 +191,16 @@ public:
 
 		return (pri * 20 + key) * 100 + idx;
 	}
+
+private:
+	void CopyStates(weapondef_c &src);
+
+	// disable copy construct and assignment operator
+	explicit weapondef_c(weapondef_c &rhs) { }
+	weapondef_c& operator= (weapondef_c &rhs) { return *this; }
+
 };
+
 
 class weapondef_container_c : public epi::array_c
 {

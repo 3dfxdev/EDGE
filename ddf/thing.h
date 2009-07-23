@@ -750,25 +750,25 @@ public:
 	epi::strent_c spitspot_ref;
 
 public:
-	mobjtype_c();
-	mobjtype_c(mobjtype_c &rhs);
+	 mobjtype_c();
 	~mobjtype_c();
-
-private:
-	void Copy(mobjtype_c &src);
-	void CopyStates(mobjtype_c &src);
 
 public:
 	void Default();
 	void CopyDetail(mobjtype_c &src);
-	
-	mobjtype_c& operator=(mobjtype_c &rhs);
 
 	void DLightCompatibility(void);
+
+private:
+	void CopyStates(mobjtype_c &src);
+
+	// disable copy construct and assignment operator
+	explicit mobjtype_c(mobjtype_c &rhs) { }
+	mobjtype_c& operator= (mobjtype_c &rhs) { return *this; }
 };
 
-// Our mobjdef container
 
+// Our mobjdef container
 class mobjtype_container_c : public epi::array_c
 {
 public:
