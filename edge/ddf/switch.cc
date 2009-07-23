@@ -107,10 +107,6 @@ static void SwitchFinishEntry(void)
 
 	// transfer static entry to dynamic entry
 	dynamic_switchdef->CopyDetail(buffer_switchdef);
-
-	// Compute CRC.  In this case, there is no need, since switch
-	// textures have zero impact on the game simulation.
-	dynamic_switchdef->ddf.crc.Reset();
 }
 
 static void SwitchClearAll(void)
@@ -166,7 +162,6 @@ void DDF_ParseSWITCHES(const byte *data, int size)
 
 		def->ddf.SetUniqueName("BOOM_SWITCH", switchdefs.GetSize());
 		def->ddf.number = 0;
-		def->ddf.crc.Reset();
 
 		def->Default();
 		

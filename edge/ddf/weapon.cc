@@ -377,19 +377,6 @@ static void WeaponFinishEntry(void)
 
 	// transfer static entry to dynamic entry
 	dynamic_weapon->CopyDetail(buffer_weapon);
-
-	// compute CRC...
-	for (ATK = 0; ATK < 2; ATK++)
-	{
-		// FIXME: attack name
-		dynamic_weapon->ddf.crc += dynamic_weapon->ammo[ATK];
-		dynamic_weapon->ddf.crc += dynamic_weapon->ammopershot[ATK];
-		dynamic_weapon->ddf.crc += dynamic_weapon->clip_size[ATK];
-		dynamic_weapon->ddf.crc += dynamic_weapon->autofire[ATK];
-		dynamic_weapon->ddf.crc += dynamic_weapon->specials[ATK];
-	}
-
-	// FIXME: add more stuff...
 }
 
 static void WeaponClearAll(void)
