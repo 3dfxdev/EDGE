@@ -225,32 +225,30 @@ void DDF_ColourmapAddRaw(const char *lump_name, int size)
 
 // --> Colourmap Class
 
-//
-// colourmap_c Constructor
-//
 colourmap_c::colourmap_c() : name()
 {
 	Default();
 }
 
-//
-// colourmap_c Copy Constructor
-//
-colourmap_c::colourmap_c(colourmap_c &rhs)
-{
-	Copy(rhs);
-}
- 
-//
-// colourmap_c Deconstructor
-//
 colourmap_c::~colourmap_c()
 {
 }
 
-void colourmap_c::Copy(colourmap_c &src)
+
+void colourmap_c::Default()
 {
-	CopyDetail(src);
+	lump_name.clear();
+
+	start   = 0;
+	length  = 0;
+	special = COLSP_None;
+	
+	gl_colour   = RGB_NO_VALUE;
+	font_colour = RGB_NO_VALUE;
+
+	// FIXME!!! Cache struct to class
+	cache.data = NULL;
+	analysis = NULL;
 }
 
 void colourmap_c::CopyDetail(colourmap_c &src)
@@ -269,32 +267,6 @@ void colourmap_c::CopyDetail(colourmap_c &src)
 	analysis = NULL;
 }
 
-void colourmap_c::Default()
-{
-	lump_name.clear();
-
-	start   = 0;
-	length  = 0;
-	special = COLSP_None;
-	
-	gl_colour   = RGB_NO_VALUE;
-	font_colour = RGB_NO_VALUE;
-
-	// FIXME!!! Cache struct to class
-	cache.data = NULL;
-	analysis = NULL;
-}
-
-//
-// colourmap_c assignment operator
-//
-colourmap_c& colourmap_c::operator=(colourmap_c &rhs)
-{
-	if (&rhs != this)
-		Copy(rhs);
-		
-	return *this;
-}
 
 // --> colourmap_container_c class
 

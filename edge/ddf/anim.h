@@ -31,20 +31,6 @@
 class animdef_c
 {
 public:
-	animdef_c();
-	animdef_c(animdef_c &rhs);
-	~animdef_c() {};
-
-private:
-	void Copy(animdef_c &src);
-
-public:
-	void CopyDetail(animdef_c &src);
-	void Default(void);
-	animdef_c& operator=(animdef_c &rhs);
-
-	// Member vars....
-
 	epi::strent_c name;
 
 	enum  // types
@@ -65,7 +51,20 @@ public:
 
 	// how many 1/35s ticks each frame lasts
 	int speed;
+
+public:
+	 animdef_c();
+	~animdef_c();
+
+	void Default(void);
+	void CopyDetail(animdef_c &src);
+
+private:
+	// disable copy construct and assignment operator
+	explicit animdef_c(animdef_c &rhs) { }
+	animdef_c& operator= (animdef_c &rhs) { return *this; }
 };
+
 
 // Our animdefs container
 class animdef_container_c : public epi::array_c 

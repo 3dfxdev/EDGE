@@ -21,13 +21,8 @@
 
 #include "main.h"
 
-// ----------------------------------------------------------------
-// -------------------------MUSIC PLAYLIST-------------------------
-// ----------------------------------------------------------------
-
 // Playlist entry class
 
-// FIXME: Move enums in pl_entry_c class?
 typedef enum
 {
 	MUS_UNKNOWN   = 0,
@@ -50,27 +45,29 @@ typedef enum
 }
 musicinftype_e;
 
+
 class pl_entry_c
 {
 public:
-	pl_entry_c();
-	pl_entry_c(pl_entry_c &rhs);
-	~pl_entry_c();
-
-private:
-	void Copy(pl_entry_c &src);
-
-public:
-	void CopyDetail(pl_entry_c &src);
-	void Default(void);
-	pl_entry_c& operator=(pl_entry_c &rhs);
-
 	epi::strent_c name;
 
 	musictype_t type;
 	musicinftype_e infotype;
 	epi::strent_c info;
+
+public:
+	 pl_entry_c();
+	~pl_entry_c();
+
+	void Default(void);
+	void CopyDetail(pl_entry_c &src);
+
+private:
+	// disable copy construct and assignment operator
+	explicit pl_entry_c(pl_entry_c &rhs) { }
+	pl_entry_c& operator= (pl_entry_c &rhs) { return *this; }
 };
+
 
 // Our playlist entry container
 class pl_entry_container_c : public epi::array_c 

@@ -91,23 +91,10 @@ typedef enum
 }
 L_image_format_e;
 
+
 class imagedef_c
 {
 public:
-	imagedef_c();
-	imagedef_c(const imagedef_c &rhs);
-	~imagedef_c() {};
-
-private:
-	void Copy(const imagedef_c &src);
-
-public:
-	void CopyDetail(const imagedef_c &src);
-	void Default(void);
-	imagedef_c& operator= (const imagedef_c &rhs);
-
-	// Member vars....
-
 	epi::strent_c name;
 
 	image_namespace_e belong;
@@ -144,7 +131,20 @@ public:
 	float scale, aspect;
 	//   percent_t translucency;
 	//   angle_t rotation;
+
+public:
+	 imagedef_c();
+	~imagedef_c();
+
+	void Default(void);
+	void CopyDetail(const imagedef_c &src);
+
+private:
+	// disable copy construct and assignment operator
+	explicit imagedef_c(imagedef_c &rhs) { }
+	imagedef_c& operator=(imagedef_c &rhs) { return *this; }
 };
+
 
 // Our imagedefs container
 class imagedef_container_c : public epi::array_c 

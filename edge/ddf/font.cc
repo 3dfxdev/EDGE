@@ -239,34 +239,31 @@ fontpatch_c::fontpatch_c(int _ch1, int _ch2, const char *_pat1) :
 	char1(_ch1), char2(_ch2), patch1(_pat1), next(NULL)
 { }
 
+fontpatch_c::~fontpatch_c()
+{ }
+
+
 // ---> fontdef_c class
 
-//
-// fontdef_c constructor
-//
 fontdef_c::fontdef_c() : name()
 {
 	Default();
 }
 
-//
-// fontdef_c Copy constructor
-//
-fontdef_c::fontdef_c(const fontdef_c &rhs)
+fontdef_c::~fontdef_c()
 {
-	Copy(rhs);
 }
 
-//
-// fontdef_c::Copy()
-//
-void fontdef_c::Copy(const fontdef_c &src)
+
+void fontdef_c::Default()
 {
-	CopyDetail(src);
+	type = FNTYP_Patch;
+	patches = NULL;
+	image_name.clear();
+	missing_patch.clear();
 }
 
-//
-// fontdef_c::CopyDetail()
+
 //
 // Copies all the detail with the exception of ddf info
 //
@@ -276,28 +273,6 @@ void fontdef_c::CopyDetail(const fontdef_c &src)
 	patches = src.patches;  // FIXME: copy list
 	image_name = src.image_name;
 	missing_patch = src.missing_patch;
-}
-
-//
-// fontdef_c::Default()
-//
-void fontdef_c::Default()
-{
-	type = FNTYP_Patch;
-	patches = NULL;
-	image_name.clear();
-	missing_patch.clear();
-}
-
-//
-// fontdef_c assignment operator
-//
-fontdef_c& fontdef_c::operator= (const fontdef_c &rhs)
-{
-	if (&rhs != this)
-		Copy(rhs);
-	
-	return *this;
 }
 
 

@@ -579,6 +579,11 @@ public:
 };
 
 
+// special 'number' value which signifies that the mobjtype_c
+// forms part of an ATTACKS.DDF entry.
+#define ATTACK__MOBJ  -7777
+
+
 // mobjdef class
 class mobjtype_c
 {

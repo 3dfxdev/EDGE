@@ -403,15 +403,29 @@ imagedef_c::imagedef_c() : name(), info()
 	Default();
 }
 
-imagedef_c::imagedef_c(const imagedef_c &rhs)
+imagedef_c::~imagedef_c()
 {
-	Copy(rhs);
 }
 
-void imagedef_c::Copy(const imagedef_c &src)
+
+void imagedef_c::Default()
 {
-	CopyDetail(src);
+	belong  = INS_Graphic;
+	type    = IMGDT_Colour;
+	colour  = 0x000000;  // black
+	builtin = BLTIM_Quadratic;
+	format  = LIF_PNG;
+
+	info.clear();
+
+	special  = IMGSP_None;
+	x_offset = y_offset = 0;
+
+	scale  = 1.0f;
+	aspect = 1.0f;
+	fix_trans = FIXTRN_None;
 }
+
 
 //
 // Copies all the detail with the exception of ddf info
@@ -433,40 +447,9 @@ void imagedef_c::CopyDetail(const imagedef_c &src)
 	fix_trans = src.fix_trans;
 }
 
-void imagedef_c::Default()
-{
-	belong  = INS_Graphic;
-	type    = IMGDT_Colour;
-	colour  = 0x000000;  // black
-	builtin = BLTIM_Quadratic;
-	format  = LIF_PNG;
-
-	info.clear();
-
-	special  = IMGSP_None;
-	x_offset = y_offset = 0;
-
-	scale  = 1.0f;
-	aspect = 1.0f;
-	fix_trans = FIXTRN_None;
-}
-
-//
-// imagedef_c assignment operator
-//
-imagedef_c& imagedef_c::operator= (const imagedef_c &rhs)
-{
-	if (&rhs != this)
-		Copy(rhs);
-	
-	return *this;
-}
 
 // ---> imagedef_container_c class
 
-//
-// imagedef_container_c::CleanupObject()
-//
 void imagedef_container_c::CleanupObject(void *obj)
 {
 	imagedef_c *a = *(imagedef_c**)obj;
