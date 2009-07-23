@@ -56,11 +56,14 @@ static const commandlist_t switch_commands[] =
 
 static void SwitchStartEntry(const char *name)
 {
-	switchdef_c *existing = NULL;
+	if (!name || !name[0])
+	{
+		DDF_WarnError("New switch entry is missing a name!");
+		name = "SWITCH_WITH_NO_NAME";
+	}
 
-	if (name && name[0])
-		existing = switchdefs.Find(name);
-	
+	switchdef_c *existing = switchdefs.Find(name);
+
 	if (existing)
 	{
 		dynamic_switchdef = existing;	
@@ -69,15 +72,10 @@ static void SwitchStartEntry(const char *name)
 	{
 		dynamic_switchdef = new switchdef_c;
 		
-		if (name && name[0])
-			dynamic_switchdef->ddf.name = name;
-		else
-			dynamic_switchdef->ddf.SetUniqueName("UNNAMED_SWITCH", switchdefs.GetSize());
-		
+		dynamic_switchdef->ddf.name = name;
+
 		switchdefs.Insert(dynamic_switchdef);
 	}
-	
-	dynamic_switchdef->ddf.number = 0;
 
 	// instantiate the static entry
 	buffer_switchdef.Default();
@@ -160,8 +158,7 @@ void DDF_ParseSWITCHES(const byte *data, int size)
 
 		switchdef_c *def = new switchdef_c;
 
-		def->ddf.SetUniqueName("BOOM_SWITCH", switchdefs.GetSize());
-		def->ddf.number = 0;
+		def->ddf.name = "BOOM_SWITCH";
 
 		def->Default();
 		

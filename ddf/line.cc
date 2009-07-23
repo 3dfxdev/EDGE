@@ -324,7 +324,7 @@ static void LinedefStartEntry(const char *name)
 	else
 	{
 		dynamic_line = new linetype_c;
-		dynamic_line->ddf.number = number;
+		dynamic_line->ddf.name = epi::STR_Format("%d", number);
 		linetypes.Insert(dynamic_line);
 	}
 
@@ -447,7 +447,7 @@ void DDF_LinedefInit(void)
 	
 	l = new linetype_c;
 	l->Default();
-	l->ddf.number = -1;
+	l->ddf.name = "-1";
 	linetypes.Insert(l);
 }
 
@@ -460,7 +460,7 @@ void DDF_LinedefCleanUp(void)
 	{
 		l = ITERATOR_TO_TYPE(it, linetype_c*);
 
-		cur_ddf_entryname = epi::STR_Format("[%d]  (lines.ddf)", l->ddf.number);
+		cur_ddf_entryname = epi::STR_Format("[%s]  (lines.ddf)", l->ddf.name.c_str());
 
 		l->t.inspawnobj = l->t.inspawnobj_ref.empty() ? NULL :
 			mobjtypes.Lookup(l->t.inspawnobj_ref.c_str());
@@ -1731,11 +1731,11 @@ linetype_c* linetype_container_c::Lookup(const int id)
 	int slot = DDF_LineHashFunc(id);
 
 	// check the cache
-	if (lookup_cache[slot] &&
-		lookup_cache[slot]->ddf.number == id)
-	{
-		return lookup_cache[slot];
-	}
+///---	if (lookup_cache[slot] &&
+///---		lookup_cache[slot]->ddf.number == id)
+///---	{
+///---		return lookup_cache[slot];
+///---	}
 
 	epi::array_iterator_c it;
 	linetype_c *l = 0;
@@ -1743,7 +1743,7 @@ linetype_c* linetype_container_c::Lookup(const int id)
 	for (it = GetTailIterator(); it.IsValid(); it--)
 	{
 		l = ITERATOR_TO_TYPE(it, linetype_c*);
-		if (l->ddf.number == id)
+		if (atoi(l->ddf.name.c_str()) == id)
 		{
 			break;
 		}

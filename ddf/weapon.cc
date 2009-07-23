@@ -250,10 +250,13 @@ static bool WeaponTryParseState(const char *field,
 
 static void WeaponStartEntry(const char *name)
 {
-	weapondef_c *existing = NULL;
+	if (!name || !name[0])
+	{
+		DDF_WarnError("New weapon entry is missing a name!");
+		name = "WEAPON_WITH_NO_NAME";
+	}
 
-	if (name && name[0])
-		existing = weapondefs.Lookup(name);
+	weapondef_c *existing = weapondefs.Lookup(name);
 
 	// not found, create a new one
 	if (existing)
@@ -264,15 +267,10 @@ static void WeaponStartEntry(const char *name)
 	{
 		dynamic_weapon = new weapondef_c;
 
-		if (name && name[0])
-			dynamic_weapon->ddf.name = name;
-		else
-			dynamic_weapon->ddf.SetUniqueName("UNNAMED_WEAPON", weapondefs.GetSize());
+		dynamic_weapon->ddf.name = name;
 
 		weapondefs.Insert(dynamic_weapon);
 	}
-
-	dynamic_weapon->ddf.number = 0;
 
 	// instantiate the static entries
 	buffer_weapon.states.clear();

@@ -120,10 +120,15 @@ static specflags_t map_specials[] =
 
 static void LevelStartEntry(const char *name)
 {
+	if (!name || !name[0])
+	{
+		DDF_WarnError("New level entry is missing a name!");
+		name = "LEVEL_WITH_NO_NAME";
+	}
+
 	mapdef_c *existing = NULL;
 
-	if (name && name[0])
-		existing = mapdefs.Lookup(name);
+	existing = mapdefs.Lookup(name);
 
 	// not found, create a new one
 	if (existing)
@@ -134,15 +139,10 @@ static void LevelStartEntry(const char *name)
 	{
 		dynamic_map = new mapdef_c;
 
-		if (name && name[0])
-			dynamic_map->ddf.name = name;
-		else
-			dynamic_map->ddf.SetUniqueName("UNNAMED_LEVEL_MAP", mapdefs.GetSize());
+		dynamic_map->ddf.name = name;
 
 		mapdefs.Insert(dynamic_map);
 	}
-
-	dynamic_map->ddf.number = 0;
 
 	// instantiate the static entries
 	buffer_map.Default();

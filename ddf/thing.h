@@ -586,6 +586,8 @@ public:
 	// DDF Id
 	ddf_base_c ddf;
 
+	int number;	
+
 	// range of states used
 	std::vector<state_t> states;
   

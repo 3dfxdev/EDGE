@@ -452,9 +452,14 @@ static bool ThingTryParseState(const char *field,
 
 static void ThingStartEntry(const char *buffer)
 {
-	SYS_ASSERT(buffer);
+	if (!buffer || !buffer[0])
+	{
+		DDF_WarnError("New thing entry is missing a name!");
+		buffer = "THING_WITH_NO_NAME";
+	}
 
 	std::string name(buffer);
+
 	int number = 0;
 
 	char *pos = strchr(buffer, ':');
@@ -464,11 +469,16 @@ static void ThingStartEntry(const char *buffer)
 		name = std::string(buffer, pos - buffer);
 
 		number = MAX(0, atoi(pos+1));
+
+		if (name.empty())
+		{
+			DDF_WarnError("New thing entry is missing a name!");
+			name = "THING_WITH_NO_NAME";
+		}
 	}
 
 	int idx = -1;
 
-	if (! name.empty())
 	{
 		idx = mobjtypes.FindFirst(name.c_str(), mobjtypes.GetDisabledCount());
 
@@ -483,15 +493,12 @@ static void ThingStartEntry(const char *buffer)
 	{
 		dynamic_mobj = new mobjtype_c;
 
-		if (name.empty())
-			dynamic_mobj->ddf.SetUniqueName("UNNAMED_THING", mobjtypes.GetSize());
-		else
-			dynamic_mobj->ddf.name = name;
+		dynamic_mobj->ddf.name = name;
 
 		mobjtypes.Insert(dynamic_mobj);
 	}
 
-	dynamic_mobj->ddf.number = number;
+	dynamic_mobj->number = number;
 
 	// instantiate the static entry
 	buffer_mobj.states.clear();
@@ -2149,7 +2156,7 @@ const mobjtype_c *mobjtype_container_c::Lookup(int id)
 
 	// check the cache
 	if (lookup_cache[slot] &&
-		lookup_cache[slot]->ddf.number == id)
+		lookup_cache[slot]->number == id)
 	{
 		return lookup_cache[slot];
 	}
@@ -2160,7 +2167,7 @@ const mobjtype_c *mobjtype_container_c::Lookup(int id)
 	for (it = GetTailIterator(); it.IsValid(); it--)
 	{
 		m = ITERATOR_TO_TYPE(it, mobjtype_c*);
-		if (m->ddf.number == id)
+		if (m->number == id)
 		{
 			break;
 		}

@@ -107,7 +107,7 @@ static void SectorStartEntry(const char *name)
 	else
 	{
 		dynamic_sector = new sectortype_c;
-		dynamic_sector->ddf.number = number;
+		dynamic_sector->ddf.name = epi::STR_Format("%d", number);
 		sectortypes.Insert(dynamic_sector);
 	}
 
@@ -168,7 +168,7 @@ void DDF_SectorInit(void)
 	sectortype_c *s;
 	s = new sectortype_c;
 	s->Default();
-	s->ddf.number = -1;
+	s->ddf.name = "-1";
 	sectortypes.Insert(s);
 }
 
@@ -552,11 +552,11 @@ sectortype_c* sectortype_container_c::Lookup(const int id)
 	int slot = DDF_SectHashFunc(id);
 
 	// check the cache
-	if (lookup_cache[slot] &&
-		lookup_cache[slot]->ddf.number == id)
-	{
-		return lookup_cache[slot];
-	}	
+///---	if (lookup_cache[slot] &&
+///---		lookup_cache[slot]->ddf.number == id)
+///---	{
+///---		return lookup_cache[slot];
+///---	}	
 
 	epi::array_iterator_c it;
 	sectortype_c *s = NULL;
@@ -564,7 +564,7 @@ sectortype_c* sectortype_container_c::Lookup(const int id)
 	for (it = GetTailIterator(); it.IsValid(); it--)
 	{
 		s = ITERATOR_TO_TYPE(it, sectortype_c*);
-		if (s->ddf.number == id)
+		if (atoi(s->ddf.name.c_str()) == id)
 		{
 			break;
 		}

@@ -1741,7 +1741,7 @@ const char *DDF_MainDecodeList(const char *info, char divider, bool simple)
 //
 // ddf_base_c Constructor
 //
-ddf_base_c::ddf_base_c() : name(), number(0)
+ddf_base_c::ddf_base_c() : name()
 {
 }
 
@@ -1758,7 +1758,6 @@ ddf_base_c::~ddf_base_c()
 void ddf_base_c::Copy(const ddf_base_c &src)
 {
 	name = src.name;
-	number = src.number;
 }
 
 //
@@ -1767,7 +1766,6 @@ void ddf_base_c::Copy(const ddf_base_c &src)
 void ddf_base_c::Default()
 {
 	name.clear();
-	number = 0;
 }
 
 //

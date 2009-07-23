@@ -83,20 +83,22 @@ static const commandlist_t gamedef_commands[] =
 
 static void GameStartEntry (const char *name)
 {
+	if (!name || !name[0])
+	{
+		DDF_WarnError("New game entry is missing a name!");
+		name = "GAME_WITH_NO_NAME";
+	}
+
 	gamedef_c *existing = NULL;
 
-	if (name && name[0])
-		existing = gamedefs.Lookup(name);
+	existing = gamedefs.Lookup(name);
 
 	// not found, create a new one
 	if (! existing)
 	{
 		dynamic_gamedef = new gamedef_c;
 
-		if (name && name[0])
-			dynamic_gamedef->ddf.name = name;
-		else
-			dynamic_gamedef->ddf.SetUniqueName("UNNAMED_GAMEDEF", gamedefs.GetSize());
+		dynamic_gamedef->ddf.name = name;
 
 		gamedefs.Insert(dynamic_gamedef);
 	}
@@ -104,8 +106,6 @@ static void GameStartEntry (const char *name)
 	{
 		dynamic_gamedef = existing;
 	}
-
-	dynamic_gamedef->ddf.number = 0;
 
 	// instantiate the static entries
 	buffer_gamedef.Default();

@@ -60,10 +60,10 @@ static void FontStartEntry(const char *name)
 {
 	dynamic_font = NULL;
 
-	// FIXME: catch this before we get here
 	if (!name || !name[0])
 	{
-		DDF_Error("New font entry is missing a name!");
+		DDF_WarnError("New font entry is missing a name!");
+		name = "FONT_WITH_NO_NAME";
 	}
 
 	dynamic_font = DDF_LookupFont(name);

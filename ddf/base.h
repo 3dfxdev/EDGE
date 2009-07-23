@@ -39,7 +39,6 @@ public:
 
 	epi::strent_c name;
 
-	int number;	
 };
 
 #endif /*__DDF_BASE_H__*/
