@@ -7,6 +7,8 @@ Removed the ddf_base_c struct (the 'ddf' field).  Made the
 copy constructor and assignment operator private (and hence
 inaccessible).
 
+Improved handling of Donuts.
+
 2009/07/21:
 
 Completely removed STYLES.DDF support.

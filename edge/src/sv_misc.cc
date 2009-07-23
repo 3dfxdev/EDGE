@@ -29,13 +29,14 @@
 //    slider_move_t   [SMOV]
 //
 // TODO HERE:
-//   +  Fix donuts.
 //   -  Button off_sound field.
 //
 
 #include "i_defs.h"
 
 #include "epi/str_format.h"
+
+#include "ddf/line.h"
 
 #include "rad_trig.h"
 #include "sv_chunk.h"
@@ -1181,8 +1182,8 @@ bool SR_PlaneMoveGetType(void *storage, int index, void *extra)
 	}
 	else if (str[0] == 'D')
 	{
-		// FIXME: this ain't gonna work, freddy
-		(*dest) = is_ceil ? &donut[number].c : &donut[number].f;
+		linetype_c *special = DDF_GetDonutType(number);
+		(*dest) = is_ceil ? &special->c : &special->f;
 	}
 	else
 		I_Error("SR_PlaneMoveGetType: invalid srctype `%s'\n", str);
@@ -1217,22 +1218,21 @@ void SR_PlaneMovePutType(void *storage, int index, void *extra)
 	}
 
 	// check for donut
+	for (int i=0; i < 2; i++)
 	{
-		int i;
-		for (i=0; i < 2; i++)
+		linetype_c *special = DDF_GetDonutType(i);
+
+		if (src == &special->f)
 		{
-			if (src == &donut[i].f)
-			{
-				std::string s = epi::STR_Format("D:F:%d", i);
-				SV_PutString(s.c_str());
-				return;
-			}
-			else if (src == &donut[i].c)
-			{
-				std::string s = epi::STR_Format("D:C:%d", i);
-				SV_PutString(s.c_str());
-				return;
-			}
+			std::string s = epi::STR_Format("D:F:%d", i);
+			SV_PutString(s.c_str());
+			return;
+		}
+		else if (src == &special->c)
+		{
+			std::string s = epi::STR_Format("D:C:%d", i);
+			SV_PutString(s.c_str());
+			return;
 		}
 	}
 	

@@ -73,7 +73,7 @@ static bool DoLights_wrapper(sector_t *s, const void *p1, void *p2)
 
 static bool DoDonut_wrapper(sector_t *s, const void *p1, void *p2)
 {
-	return EV_DoDonut(s, (sfx_t**)p2);
+	return EV_DoDonut(s, (const donutdef_c*)p1);
 }
 
 
@@ -920,7 +920,6 @@ static bool P_ActivateSpecialLine(line_t * line,
 	bool texSwitch = false;
 	bool playedSound = false;
 
-	sfx_t *sfx[4];
 	sector_t *tsec;
 
 	int i;
@@ -1094,13 +1093,7 @@ static bool P_ActivateSpecialLine(line_t * line,
 
 	if (special->d.dodonut)
 	{
-		// Proper ANSI C++ Init
-		sfx[0] = special->d.d_sfxout;
-		sfx[1] = special->d.d_sfxoutstop;
-		sfx[2] = special->d.d_sfxin;
-		sfx[3] = special->d.d_sfxinstop;
-
-		texSwitch = P_DoSectorsFromTag(tag, NULL, sfx, DoDonut_wrapper);
+		texSwitch = P_DoSectorsFromTag(tag, &special->d, NULL, DoDonut_wrapper);
 	}
 
 	//

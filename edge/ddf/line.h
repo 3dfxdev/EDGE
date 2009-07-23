@@ -915,6 +915,8 @@ public:
 extern linetype_container_c linetypes;		// -ACB- 2004/07/05 Implemented
 extern sectortype_container_c sectortypes;	// -ACB- 2004/07/05 Implemented
 
+extern linetype_c * DDF_GetDonutType(int number);
+
 #endif // __DDF_LINE_H__
 
 //--- editor settings ---

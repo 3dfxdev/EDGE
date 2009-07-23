@@ -51,10 +51,6 @@ std::vector<plane_move_t *>  active_planes;
 std::vector<slider_move_t *> active_sliders;
 
 
-linetype_c donut[2];
-static int donut_setup = 0;
-
-
 static bool P_ActivateInStasis(int tag);
 static bool P_StasifySector(int tag);
 
@@ -1002,49 +998,35 @@ bool P_SectorIsLowering(sector_t *sec)
 // Special Stuff that can not be categorized
 // Mmmmmmm....  Donuts....
 //
-bool EV_DoDonut(sector_t * s1, sfx_t *sfx[4])
+bool EV_DoDonut(sector_t * s1, const donutdef_c *dough)
 {
-    sector_t *s2;
-    sector_t *s3;
-    bool result = false;
-    int i;
-    plane_move_t *sec;
-
-    if (! donut_setup)
-    {
-        donut[0].Default();
-        donut[0].count = 1;
-        donut[0].f.Default(movplanedef_c::DEFAULT_DonutFloor);
-        donut[0].f.tex.Set("-");
-
-        donut[1].Default();
-        donut[1].count = 1;
-        donut[1].f.Default(movplanedef_c::DEFAULT_DonutFloor);
-        donut[1].f.dest = -32000.0f;
-
-        donut_setup++;
-    }
-  
     // ALREADY MOVING?  IF SO, KEEP GOING...
     if (s1->floor_move)
         return false;
 
-    s2 = P_GetNextSector(s1->lines[0], s1);
+    bool result = false;
 
-    for (i = 0; i < s2->linecount; i++)
+	linetype_c *donut[2];
+
+	donut[0] = DDF_GetDonutType(0);
+	donut[1] = DDF_GetDonutType(1);
+  
+    sector_t *s2 = P_GetNextSector(s1->lines[0], s1);
+
+    for (int i = 0; i < s2->linecount; i++)
     {
-        if (!(s2->lines[i]->flags & MLF_TwoSided) || (s2->lines[i]->backsector == s1))
+        if (! (s2->lines[i]->flags & MLF_TwoSided) || (s2->lines[i]->backsector == s1))
             continue;
 
-        s3 = s2->lines[i]->backsector;
+		sector_t *s3 = s2->lines[i]->backsector;
 
         result = true;
 
         // Spawn rising slime
-        donut[0].f.sfxup = sfx[0];
-        donut[0].f.sfxstop = sfx[1];
+        donut[0]->f.sfxup   = dough->d_sfxout;
+        donut[0]->f.sfxstop = dough->d_sfxoutstop;
     
-        sec = P_SetupSectorAction(s2, &donut[0].f, s3);
+		plane_move_t *sec = P_SetupSectorAction(s2, &donut[0]->f, s3);
 
         if (sec)
         {
@@ -1056,10 +1038,10 @@ bool EV_DoDonut(sector_t * s1, sfx_t *sfx[4])
         }
 
         // Spawn lowering donut-hole
-        donut[1].f.sfxup = sfx[2];
-        donut[1].f.sfxstop = sfx[3];
+        donut[1]->f.sfxup   = dough->d_sfxin;
+        donut[1]->f.sfxstop = dough->d_sfxinstop;
 
-        sec = P_SetupSectorAction(s1, &donut[1].f, s1);
+        sec = P_SetupSectorAction(s1, &donut[1]->f, s1);
 
         if (sec)
             sec->destheight = s3->f_h;
