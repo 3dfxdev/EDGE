@@ -256,9 +256,6 @@ savearray_t sv_array_iteminque =
 
 //----------------------------------------------------------------------------
 
-//
-// SV_MobjCountElems
-//
 int SV_MobjCountElems(void)
 {
 	mobj_t *cur;
@@ -270,8 +267,6 @@ int SV_MobjCountElems(void)
 	return count;
 }
 
-//
-// SV_MobjGetElem
 //
 // The index here starts at 0.
 //
@@ -292,8 +287,6 @@ void *SV_MobjGetElem(int index)
 }
 
 //
-// SV_MobjFindElem
-//
 // Returns the index number (starts at 0 here).
 // 
 int SV_MobjFindElem(mobj_t *elem)
@@ -310,9 +303,7 @@ int SV_MobjFindElem(mobj_t *elem)
 	return index;
 }
 
-//
-// SV_MobjCreateElems
-//
+
 void SV_MobjCreateElems(int num_elems)
 {
 	// free existing mobjs
@@ -336,7 +327,7 @@ void SV_MobjCreateElems(int num_elems)
 		mobjlisthead = cur;
 
 		// initialise defaults
-		cur->info = mobjtypes[0];
+		cur->info = NULL;
 		cur->state = cur->next_state = 1;
 
 		cur->model_skin = 1;
@@ -344,15 +335,16 @@ void SV_MobjCreateElems(int num_elems)
 	}
 }
 
-//
-// SV_MobjFinaliseElems
-//
+
 void SV_MobjFinaliseElems(void)
 {
 	mobj_t *mo;
 
 	for (mo=mobjlisthead; mo; mo=mo->next)
 	{
+		if (! mo->info)
+			mo->info = mobjtypes.Lookup(0);  // template
+
 		P_SetThingPosition(mo);
 
 		// handle reference counts
@@ -376,9 +368,6 @@ void SV_MobjFinaliseElems(void)
 
 //----------------------------------------------------------------------------
 
-//
-// SV_ItemqCountElems
-//
 int SV_ItemqCountElems(void)
 {
 	iteminque_t *cur;
@@ -390,8 +379,6 @@ int SV_ItemqCountElems(void)
 	return count;
 }
 
-//
-// SV_ItemqGetElem
 //
 // The index value starts at 0.
 //
@@ -410,8 +397,6 @@ void *SV_ItemqGetElem(int index)
 }
 
 //
-// SV_ItemqFindElem
-//
 // Returns the index number (starts at 0 here).
 // 
 int SV_ItemqFindElem(iteminque_t *elem)
@@ -428,9 +413,7 @@ int SV_ItemqFindElem(iteminque_t *elem)
 	return index;
 }
 
-//
-// SV_ItemqCreateElems
-//
+
 void SV_ItemqCreateElems(int num_elems)
 {
 	P_RemoveItemsInQue();
@@ -455,9 +438,7 @@ void SV_ItemqCreateElems(int num_elems)
 	}
 }
 
-//
-// SV_ItemqFinaliseElems
-//
+
 void SV_ItemqFinaliseElems(void)
 {
 	iteminque_t *cur, *next;
@@ -532,8 +513,25 @@ bool SR_MobjGetType(void *storage, int index, void *extra)
 
 	const char *name = SV_GetString();
 
-	// Intentional Const Override
-	*dest = (name == NULL) ? NULL : (mobjtype_c *)mobjtypes.Lookup(name);
+	if (! name)
+	{
+		*dest = NULL;
+		return true;
+	}
+
+	// special handling for projectiles (attacks)
+	if (name[0] == '!')
+	{
+		const atkdef_c *atk = atkdefs.Lookup(name+1);
+
+		if (atk)
+			*dest = (mobjtype_c *)atk->atk_mobj;
+	}
+	else
+		*dest = (mobjtype_c *)mobjtypes.Lookup(name);
+
+	if (! *dest)
+		I_Warning("LOADGAME: no such thing type '%s'\n",  name);
 
 	SV_FreeString(name);
 	return true;
@@ -543,7 +541,31 @@ void SR_MobjPutType(void *storage, int index, void *extra)
 {
 	mobjtype_c *info = ((mobjtype_c **)storage)[index];
 
-	SV_PutString((info == NULL) ? NULL : info->name.c_str());
+	if (! info)
+	{
+		SV_PutString(NULL);
+		return;
+	}
+
+	// special handling for projectiles (attacks)
+	if (info->number != ATTACK__MOBJ)
+	{
+		atkdef_c *atk = DDF_AttackForMobjtype(info);
+
+		if (atk)
+		{
+			char buffer[256];
+			snprintf(buffer, sizeof(buffer)-2, "!%s", atk->name.c_str());
+			buffer[255] = 0;
+
+			SV_PutString(buffer);
+			return;
+		}
+
+		I_Warning("SAVEGAME: missing attack for mobjtype %p\n", info);
+	}
+
+	SV_PutString(info->name.c_str());
 }
 
 bool SR_MobjGetSpawnPoint(void *storage, int index, void *extra)

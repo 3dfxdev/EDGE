@@ -2351,7 +2351,7 @@ linetype_c *P_LookupLineType(int num)
 		return DDF_BoomGetGenLine(num);
 
 	I_Warning("P_LookupLineType(): Unknown linedef type %d\n", num);
-	return linetypes[0];	// Return template line
+	return linetypes.Lookup(0);	// Return template line
 }	
 
 
@@ -2377,7 +2377,7 @@ sectortype_c *P_LookupSectorType(int num)
 		return DDF_BoomGetGenSector(num);
 
 	I_Warning("P_LookupSectorType(): Unknown sector type %d\n", num);
-	return sectortypes[0];	// Return template sector
+	return sectortypes.Lookup(0);	// Return template sector
 }
 
 //--- editor settings ---

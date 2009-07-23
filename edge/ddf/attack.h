@@ -22,12 +22,6 @@
 #include "main.h"
 
 
-// ------------------------------------------------------------------
-// --------------------ATTACK TYPE STRUCTURES------------------------
-// ------------------------------------------------------------------
-
-// -KM- 1998/11/25 Added BFG SPRAY attack type.
-
 typedef enum
 {
 	ATK_NONE = 0,
@@ -42,7 +36,8 @@ typedef enum
 	ATK_SHOOTTOSPOT,
 	ATK_SKULLFLY,
 	ATK_SMARTPROJECTILE,
-	ATK_SPRAY,
+	ATK_SPRAY,  // -KM- 1998/11/25 Added BFG SPRAY attack type.
+
 	NUMATKCLASS
 }
 attackstyle_e;
@@ -141,7 +136,6 @@ public:
 	atkdef_container_c();
 	~atkdef_container_c();
 
-private:
 	void CleanupObject(void *obj);
 
 	int num_disabled;					// Number of disabled 
@@ -165,6 +159,7 @@ public:
 
 extern atkdef_container_c atkdefs;			// -ACB- 2004/06/09 Implemented
 
+atkdef_c * DDF_AttackForMobjtype(const mobjtype_c *info);
 
 #endif // __DDF_ATK_H__
 

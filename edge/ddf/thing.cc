@@ -47,6 +47,8 @@ extern damage_c buffer_damage;
 
 mobjtype_container_c mobjtypes;
 
+mobjtype_c * default_mobjtype;
+
 void DDF_MobjGetBenefit(const char *info, void *storage);
 void DDF_MobjGetPickupEffect(const char *info, void *storage);
 void DDF_MobjGetDLight(const char *info, void *storage);
@@ -661,6 +663,10 @@ void DDF_MobjCleanUp(void)
 	}
 
 	mobjtypes.Trim();
+
+	default_mobjtype = new mobjtype_c();
+	default_mobjtype->name   = "__DEFAULT_MOBJ";
+	default_mobjtype->number = 0;
 }
 
 //
@@ -1474,20 +1480,15 @@ static void DDF_MobjGetAngleRange(const char *info, void *storage)
 //
 mobjtype_c *DDF_MobjMakeAttackObj(mobjtype_c *info, const char *atk_name)
 {
-	std::string name("__ATKMOBJ_");
-
-	name += atk_name;
-
 	mobjtype_c *result = new mobjtype_c;
 
-	result->name = name;
+	result->name = atk_name;
+	result->number = ATTACK__MOBJ;
+
 	result->CopyDetail(info[0]);
 
 	// backwards compat
 	result->DLightCompatibility();
-
-	// Add to the list
-	mobjtypes.Insert(result);
 
 	return result;
 }
@@ -2146,6 +2147,9 @@ const mobjtype_c *mobjtype_container_c::Lookup(const char *refname)
 
 const mobjtype_c *mobjtype_container_c::Lookup(int id)
 {
+	if (id == 0)
+		return default_mobjtype;
+
 	// Looks an mobjdef by number.
 	// Fatal error if it does not exist.
 
