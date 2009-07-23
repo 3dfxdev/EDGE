@@ -115,7 +115,7 @@ public:
 	rgbcol_t colour;          // IMGDT_Colour
 	builtin_image_e builtin;  // IMGDT_Builtin
 
-	epi::strent_c name;   // IMGDT_WadXXX, IMGDT_Package, IMGDT_File, IMGDT_Lump
+	epi::strent_c fname;   // IMGDT_WadXXX, IMGDT_Package, IMGDT_File, IMGDT_Lump
 	L_image_format_e format;  // IMGDT_Lump, IMGDT_File (etc)
 
 	image_special_e special;

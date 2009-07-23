@@ -53,9 +53,6 @@ static int cur_x_align, cur_y_align;
 #define COORD_Y(y)  ((y) * SCREENHEIGHT / cur_coord_H)
 
 
-static int glbsp_last_prog_time = 0;
-
-
 void HUD_SetCoordSys(int width, int height)
 {
 	cur_coord_W = width;

@@ -413,7 +413,7 @@ static image_c *AddImageUser(imagedef_c *def)
 		case IMGDT_File:
 		case IMGDT_Lump:
 		{
-			const char *basename = def->name.c_str();
+			const char *basename = def->fname.c_str();
 
 			epi::file_c *f = OpenUserFileOrLump(def);
 

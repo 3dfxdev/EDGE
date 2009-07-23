@@ -44,13 +44,13 @@ static const commandlist_t musplaylistcmds[] =
 
 static void PlaylistStartEntry(const char *name)
 {	
-	pl_entry_c* existing = NULL;
 	int number = MAX(0, atoi(name));
 
 	if (number == 0)
 		DDF_Error("Bad music number in playlist.ddf: %s\n", name);
 
-	existing = playlist.Find(number);
+	pl_entry_c* existing = playlist.Find(number);
+
 	if (existing)
 	{
 		dynamic_plentry = existing;
@@ -58,7 +58,7 @@ static void PlaylistStartEntry(const char *name)
 	else
 	{
 		dynamic_plentry = new pl_entry_c;
-		dynamic_plentry->ddf.number = number;
+		dynamic_plentry->ddf.name = epi::STR_Format("%d", number);
 		playlist.Insert(dynamic_plentry);
 	}
 
@@ -285,7 +285,7 @@ pl_entry_c* pl_entry_container_c::Find(int number)
 	for (it = GetBaseIterator(); it.IsValid(); it++)
 	{
 		p = ITERATOR_TO_TYPE(it, pl_entry_c*);
-		if (p->ddf.number == number)
+		if (atoi(p->ddf.name.c_str()) == number)
 			return p;
 	}
 

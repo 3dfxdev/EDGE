@@ -151,9 +151,7 @@ void DDF_BoomMakeGenSector(sectortype_c *sec, int number)
 	// ignoring bit 9: Wind effect
 }
 
-//
-// DDF_BoomGetGenSector
-// 
+
 sectortype_c *DDF_BoomGetGenSector(int number)
 {
 	SYS_ASSERT(DDF_IsBoomSectorType(number));
@@ -166,6 +164,8 @@ sectortype_c *DDF_BoomGetGenSector(int number)
 		sec = new sectortype_c;
 		sec->Default();
 		
+		sec->ddf.name = epi::STR_Format("%d", number);
+
 		DDF_BoomMakeGenSector(sec, number);
 		
 		gensectortypes.Insert(sec);
@@ -627,7 +627,7 @@ linetype_c *DDF_BoomGetGenLine(int number)
 		line = new linetype_c;
 		line->Default();
 
-		line->ddf.number = number;
+		line->ddf.name = epi::STR_Format("%d", number);
 
 		DDF_BoomMakeGenLine(line, number);
 

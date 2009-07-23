@@ -61,8 +61,13 @@ static void ColmapStartEntry(const char *name)
 {
 	colourmap_c *existing = NULL;
 
-	if (name && name[0])
-		existing = colourmaps.Lookup(name);
+	if (!name || !name[0])
+	{
+		DDF_WarnError("New colormap entry is missing a name!");
+		name = "COLORMAP_WITH_NO_NAME";
+	}
+
+	existing = colourmaps.Lookup(name);
 
 	// not found, create a new one
 	if (existing)
@@ -73,15 +78,10 @@ static void ColmapStartEntry(const char *name)
 	{
 		dynamic_colmap = new colourmap_c;
 
-		if (name && name[0])
-			dynamic_colmap->ddf.name = name;
-		else
-			dynamic_colmap->ddf.SetUniqueName("UNNAMED_COLMAP", colourmaps.GetSize());
+		dynamic_colmap->ddf.name = name;
 
 		colourmaps.Insert(dynamic_colmap);
 	}
-
-	dynamic_colmap->ddf.number = 0;
 
 	// instantiate the static entry
 	buffer_colmap.Default();
@@ -212,7 +212,6 @@ void DDF_ColourmapAddRaw(const char *lump_name, int size)
 	def->Default();
 
 	def->ddf.name = lump_name;
-	def->ddf.number = 0;
 
 	def->lump_name.Set(lump_name);
 

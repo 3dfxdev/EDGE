@@ -712,7 +712,7 @@ void SV_SectorFinaliseElems(void)
 		if (savegame_version < 0x12903)
 		{
 			sec->props.type = sec->props.special ?
-				sec->props.special->ddf.number : 0;
+				atoi(sec->props.special->ddf.name.c_str()) : 0;
 		}
 	}
 
@@ -1019,7 +1019,7 @@ void SR_LinePutSpecial(void *storage, int index, void *extra)
 		return;
 	}
 
-	std::string s = epi::STR_Format(":%d", src->ddf.number);
+	std::string s = epi::STR_Format(":%s", src->ddf.name.c_str());
 
 	SV_PutString(s.c_str());
 }
@@ -1063,7 +1063,7 @@ void SR_SectorPutSpecial(void *storage, int index, void *extra)
 		return;
 	}
 
-	std::string s = epi::STR_Format(":%d", src->ddf.number);
+	std::string s = epi::STR_Format(":%s", src->ddf.name.c_str());
 
 	SV_PutString(s.c_str());
 }
