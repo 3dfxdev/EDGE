@@ -24,7 +24,7 @@
 #include "main.h"
 
 //
-// -AJA- 2004/11/13 Fonts.ddf
+// -AJA- 2004/11/13: Fonts.ddf
 //
 typedef enum
 {
@@ -35,36 +35,25 @@ typedef enum
 }
 fonttype_e;
 
+
 class fontpatch_c
 {
 public:
-	fontpatch_c(int _ch1, int _ch2, const char *_pat1);
-	~fontpatch_c();
-
 	int char1, char2;  // range
 
 	epi::strent_c patch1;
 
 	fontpatch_c *next;  // link in list
+
+public:
+	 fontpatch_c(int _ch1, int _ch2, const char *_pat1);
+	~fontpatch_c();
 };
+
 
 class fontdef_c
 {
 public:
-	fontdef_c();
-	fontdef_c(const fontdef_c &rhs);
-	~fontdef_c() {};
-
-private:
-	void Copy(const fontdef_c &src);
-
-public:
-	void CopyDetail(const fontdef_c &src);
-	void Default(void);
-	fontdef_c& operator= (const fontdef_c &rhs);
-
-	// Member vars....
-
 	epi::strent_c name;
 
 	fonttype_e type;
@@ -73,6 +62,18 @@ public:
 	epi::strent_c missing_patch;
 
 	epi::strent_c image_name;
+
+public:
+	 fontdef_c();
+	~fontdef_c();
+
+	void Default(void);
+	void CopyDetail(const fontdef_c &src);
+
+private:
+	// disable copy construct and assignment operator
+	explicit fontdef_c(fontdef_c &rhs) { }
+	fontdef_c& operator=(fontdef_c &rhs) { return *this; }
 };
 
 

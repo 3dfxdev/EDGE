@@ -41,22 +41,10 @@ typedef struct colmapcache_s
 }
 colmapcache_t;
 
+
 class colourmap_c
 {
 public:
-	colourmap_c();
-	colourmap_c(colourmap_c &rhs); 
-	~colourmap_c();
-
-private:
-	void Copy(colourmap_c &src);
-
-public:
-	void CopyDetail(colourmap_c &src);
-	void Default();
-	
-	colourmap_c& operator=(colourmap_c &rhs);
-
 	epi::strent_c name;
 
 	lumpname_c lump_name;
@@ -69,13 +57,25 @@ public:
 	// colours for GL renderer
 	rgbcol_t gl_colour;
 
-
 	rgbcol_t font_colour;  // (computed only, not in DDF)
 
 	colmapcache_t cache;
 
 	void *analysis;
+
+public:
+	 colourmap_c();
+	~colourmap_c();
+
+	void Default();
+	void CopyDetail(colourmap_c &src);
+	
+private:
+	// disable copy construct and assignment operator
+	explicit colourmap_c(colourmap_c &rhs) { }
+	colourmap_c& operator=(colourmap_c &rhs) { return *this; }
 };
+
 
 // Colourmap container
 class colourmap_container_c : public epi::array_c

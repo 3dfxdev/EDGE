@@ -145,76 +145,16 @@ void DDF_SFXCleanUp(void)
 	sfxdefs.Trim();
 }
 
-//
-// DDF_MainLookupSound
-//
-// Lookup the sound specified.
-//
-// -ACB- 1998/07/08 Checked the S_sfx table for sfx names.
-// -ACB- 1998/07/18 Removed to the need set *currentcmdlist[commandref].data to -1
-// -KM- 1998/09/27 Fixed this func because of sounds.ddf
-// -KM- 1998/10/29 sfx_t finished
-//
-void DDF_MainLookupSound(const char *info, void *storage)
-{
-	sfx_t **dest = (sfx_t **)storage;
-
-	SYS_ASSERT(info && storage);
-
-	*dest = sfxdefs.GetEffect(info);
-}
 
 // --> Sound Effect Definition Class
 
-//
-// sfxdef_c Constructor
-//
 sfxdef_c::sfxdef_c() : name()
 {
 	Default();
 }
 
-//
-// sfxdef_c Copy constructor
-//
-sfxdef_c::sfxdef_c(sfxdef_c &rhs)
-{
-	Copy(rhs);
-}
-
-//
-// sfxdef_c Destructor
-//
 sfxdef_c::~sfxdef_c()
 {
-}
-
-//
-// sfxdef_c::Copy()
-//
-void sfxdef_c::Copy(sfxdef_c &src)
-{
-	CopyDetail(src);
-}
-
-//
-// sfxdef_c::CopyDetail()
-//
-void sfxdef_c::CopyDetail(sfxdef_c &src)
-{
-	lump_name = src.lump_name;
-	file_name = src.file_name;
-
-	// clear the internal sfx_t (ID would be wrong)
-	normal.sounds[0] = 0;
-	normal.num = 0;
-
-	singularity = src.singularity;      // singularity
-	priority = src.priority;    		// priority (lower is more important)
-	volume = src.volume; 				// volume
-	looping = src.looping;  			// looping
-	precious = src.precious;  			// precious
-	max_distance = src.max_distance; 	// max_distance
 }
 
 
@@ -234,16 +174,23 @@ void sfxdef_c::Default()
 	max_distance = S_CLIPPING_DIST; // max_distance
 }
 
-//
-// sfxdef_c assignment operator
-//
-sfxdef_c& sfxdef_c::operator=(sfxdef_c &rhs)
+void sfxdef_c::CopyDetail(sfxdef_c &src)
 {
-	if(&rhs != this)
-		Copy(rhs);
+	lump_name = src.lump_name;
+	file_name = src.file_name;
 
-	return *this;
+	// clear the internal sfx_t (ID would be wrong)
+	normal.sounds[0] = 0;
+	normal.num = 0;
+
+	singularity = src.singularity;      // singularity
+	priority = src.priority;    		// priority (lower is more important)
+	volume = src.volume; 				// volume
+	looping = src.looping;  			// looping
+	precious = src.precious;  			// precious
+	max_distance = src.max_distance; 	// max_distance
 }
+
 
 // --> Sound Effect Definition Containter Class
 
@@ -373,6 +320,26 @@ sfxdef_c* sfxdef_container_c::Lookup(const char *name)
 	}
 	
 	return NULL;
+}
+
+
+//
+// DDF_MainLookupSound
+//
+// Lookup the sound specified.
+//
+// -ACB- 1998/07/08 Checked the S_sfx table for sfx names.
+// -ACB- 1998/07/18 Removed to the need set *currentcmdlist[commandref].data to -1
+// -KM- 1998/09/27 Fixed this func because of sounds.ddf
+// -KM- 1998/10/29 sfx_t finished
+//
+void DDF_MainLookupSound(const char *info, void *storage)
+{
+	sfx_t **dest = (sfx_t **)storage;
+
+	SYS_ASSERT(info && storage);
+
+	*dest = sfxdefs.GetEffect(info);
 }
 
 //--- editor settings ---

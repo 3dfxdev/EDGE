@@ -191,49 +191,16 @@ static void DDF_MusicParseInfo(const char *info, void *storage)
 	pl->info.Set(&info[pos]);
 }
 
+
 // --> pl_entry_c class
 
-//
-// pl_entry_c constructor
-//
 pl_entry_c::pl_entry_c() : name()
 {
 	Default();
 }
 
-//
-// pl_entry_c Copy constructor
-//
-pl_entry_c::pl_entry_c(pl_entry_c &rhs)
-{
-	Copy(rhs);
-}
-
-//
-// pl_entry_c destructor
-//
 pl_entry_c::~pl_entry_c()
 {
-}
-
-//
-// pl_entry_c::Copy()
-//
-void pl_entry_c::Copy(pl_entry_c &src)
-{
-	CopyDetail(src);
-}
-
-//
-// pl_entry_c::CopyDetail()
-//
-// Copy everything with exception ddf identifier
-//
-void pl_entry_c::CopyDetail(pl_entry_c &src)
-{
-	type = src.type;
-	infotype = src.infotype;
-	info = src.info;
 }
 
 
@@ -245,15 +212,15 @@ void pl_entry_c::Default()
 }
 
 //
-// pl_entry_c copy constructor
+// Copy everything with exception of ddf identifier
 //
-pl_entry_c& pl_entry_c::operator=(pl_entry_c &rhs)
+void pl_entry_c::CopyDetail(pl_entry_c &src)
 {
-	if (&rhs != this)
-		Copy(rhs);
-	
-	return *this;
+	type = src.type;
+	infotype = src.infotype;
+	info = src.info;
 }
+
 
 // --> pl_entry_containter_c class
 

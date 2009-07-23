@@ -172,32 +172,27 @@ void DDF_ParseSWITCHES(const byte *data, int size)
 
 // ---> switchdef_c class
 
-//
-// switchdef_c Constructor
-//
 switchdef_c::switchdef_c() : name()
 {
 	Default();
 }
 
-//
-// switchdef_c Copy constructor
-//
-switchdef_c::switchdef_c(switchdef_c &rhs)
+switchdef_c::~switchdef_c()
 {
-	Copy(rhs);
 }
 
-//
-// switchdef_c::Copy()
-//
-void switchdef_c::Copy(switchdef_c &src)
+
+void switchdef_c::Default()
 {
-	CopyDetail(src);
+	name1.clear();
+	name2.clear();
+
+	on_sfx = sfx_None;
+	off_sfx = sfx_None;
+
+	time = BUTTONTIME;
 }
 
-//
-// switchdef_c::CopyDetail()
 //
 // Copies all the detail with the exception of ddf info
 //
@@ -212,27 +207,6 @@ void switchdef_c::CopyDetail(switchdef_c &src)
 	time = src.time;
 }
 
-void switchdef_c::Default()
-{
-	name1.clear();
-	name2.clear();
-
-	on_sfx = sfx_None;
-	off_sfx = sfx_None;
-
-	time = BUTTONTIME;
-}
-
-//
-// switchdef_c assignment operator
-//
-switchdef_c& switchdef_c::operator=(switchdef_c &rhs)
-{
-	if (&rhs != this)
-		Copy(rhs);
-	
-	return *this;
-}
 
 // --> switchdef_container_c Class
 

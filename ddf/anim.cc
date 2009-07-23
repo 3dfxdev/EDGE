@@ -239,34 +239,8 @@ animdef_c::animdef_c() : name()
 	Default();
 }
 
-//
-// animdef_c Copy constructor
-//
-animdef_c::animdef_c(animdef_c &rhs)
+animdef_c::~animdef_c()
 {
-	Copy(rhs);
-}
-
-//
-// animdef_c::Copy()
-//
-void animdef_c::Copy(animdef_c &src)
-{
-	CopyDetail(src);
-}
-
-//
-// animdef_c::CopyDetail()
-//
-// Copies all the detail with the exception of ddf info
-//
-void animdef_c::CopyDetail(animdef_c &src)
-{
-	type = src.type;
-	pics = src.pics;
-	startname = src.startname;
-	endname = src.endname;
-	speed = src.speed;
 }
 
 
@@ -283,15 +257,18 @@ void animdef_c::Default()
 }
 
 //
-// animdef_c assignment operator
+// Copies all the detail with the exception of the name
 //
-animdef_c& animdef_c::operator=(animdef_c &rhs)
+void animdef_c::CopyDetail(animdef_c &src)
 {
-	if (&rhs != this)
-		Copy(rhs);
-	
-	return *this;
+	type = src.type;
+	pics = src.pics;
+	startname = src.startname;
+	endname = src.endname;
+	speed = src.speed;
 }
+
+
 
 // ---> animdef_container_c class
 
