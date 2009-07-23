@@ -9,6 +9,15 @@ inaccessible).
 
 Improved handling of Donuts.
 
+Changed the way mobjtype_c associated with an attack is
+saved/restored in savegames, since ATTACKS.DDF mobjtype_cs
+are no longer stored alongside the THINGS.DDF ones.
+
+Attempted to clean up some other hacks in the DDF library.
+Some parts of the engine want a "default" object (linetype,
+sectortype or mobjtype), and these can be acquired by just
+doing a Lookup(0).
+
 2009/07/21:
 
 Completely removed STYLES.DDF support.

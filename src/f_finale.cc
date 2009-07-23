@@ -537,7 +537,7 @@ static void CastInitNew(int num)
 
 	// FIXME!!! Better handling of the finale
 	if (!cast_info)
-		cast_info = mobjtypes[0];
+		cast_info = mobjtypes.Lookup(0);
 
 	cast_title = cast_info->cast_title.empty() ?
 		cast_info->name.c_str() :

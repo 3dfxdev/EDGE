@@ -54,6 +54,7 @@ linetype_c *dynamic_line;
 
 linetype_container_c linetypes;		// <-- User-defined
 
+linetype_c * default_linetype;
 linetype_c * donut_types[2];
 
 movplanedef_c buffer_floor;
@@ -442,15 +443,6 @@ readinfo_t line_readinfo =
 void DDF_LinedefInit(void)
 {
 	linetypes.Reset();
-	
-	// Insert the template line as the first entry, this is used
-	// should the lookup fail	
-	linetype_c *l;
-	
-	l = new linetype_c;
-	l->Default();
-	l->name = "-1";
-	linetypes.Insert(l);
 }
 
 void DDF_LinedefCleanUp(void)
@@ -474,6 +466,9 @@ void DDF_LinedefCleanUp(void)
 	}
 
 	linetypes.Trim();
+
+	default_linetype = new linetype_c();
+	default_linetype->name = "0";
 
 	// create Donut types
 	
@@ -1740,6 +1735,9 @@ void linetype_container_c::CleanupObject(void *obj)
 //
 linetype_c* linetype_container_c::Lookup(const int id)
 {
+	if (id == 0)
+		return default_linetype;
+
 	int slot = DDF_LineHashFunc(id);
 
 	// check the cache

@@ -37,6 +37,9 @@ extern movplanedef_c buffer_floor;
 
 sectortype_container_c sectortypes; 	// <-- User-defined
 
+sectortype_c * default_sectortype;
+
+
 void DDF_SectGetSpecialFlags(const char *info, void *storage);
 static void DDF_SectMakeCrush(const char *info, void *storage);
 
@@ -162,20 +165,16 @@ readinfo_t sector_readinfo =
 void DDF_SectorInit(void)
 {
 	sectortypes.Reset();
-	
-	// Insert the template sector as the first entry, this is used
-	// should the lookup fail	
-	sectortype_c *s;
-	s = new sectortype_c;
-	s->Default();
-	s->name = "-1";
-	sectortypes.Insert(s);
 }
 
 void DDF_SectorCleanUp(void)
 {
 	sectortypes.Trim();
+
+	default_sectortype = new sectortype_c();
+	default_sectortype->name = "0";
 }
+
 
 //----------------------------------------------------------------------------
 
@@ -541,6 +540,9 @@ void sectortype_container_c::CleanupObject(void *obj)
 //
 sectortype_c* sectortype_container_c::Lookup(const int id)
 {
+	if (id == 0)
+		return default_sectortype;
+
 	int slot = DDF_SectHashFunc(id);
 
 	// check the cache

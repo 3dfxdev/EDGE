@@ -588,5 +588,22 @@ atkdef_c* atkdef_container_c::Lookup(const char *refname)
 	return NULL;
 }
 
+
+atkdef_c * DDF_AttackForMobjtype(const mobjtype_c *info)
+{
+	SYS_ASSERT(info);
+
+	epi::array_iterator_c it;
+	for (it = atkdefs.GetIterator(atkdefs.num_disabled); it.IsValid(); it++)
+	{
+		atkdef_c * a = ITERATOR_TO_TYPE(it, atkdef_c*);
+
+		if (a->atk_mobj == info)
+			return a;
+	}
+
+	return NULL;
+}
+
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

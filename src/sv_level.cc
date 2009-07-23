@@ -641,7 +641,7 @@ void SV_ExfloorFinaliseElems(void)
 			!(ef->ef_line->special->ef.type & EXFL_Present))
 		{
 			I_Warning("LOADGAME: Missing Extrafloor Special !\n");
-			ef->ef_info = &linetypes[0]->ef;
+			ef->ef_info = &linetypes.Lookup(0)->ef;
 			continue;
 		}
 

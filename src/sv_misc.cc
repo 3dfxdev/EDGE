@@ -567,7 +567,7 @@ void SV_LightCreateElems(int num_elems)
 		light_t *cur = P_NewLight();
 
 		// initialise defaults
-		cur->type = &sectortypes[0]->l;
+		cur->type = &sectortypes.Lookup(0)->l;
 		cur->sector = sectors + 0;
 	}
 }
