@@ -57,7 +57,7 @@ public:
 	
 	colourmap_c& operator=(colourmap_c &rhs);
 
-	ddf_base_c ddf;
+	epi::strent_c name;
 
 	lumpname_c lump_name;
 

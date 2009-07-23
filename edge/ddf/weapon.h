@@ -90,7 +90,7 @@ public:
 
 	weapondef_c& operator=(weapondef_c &rhs);
 
-	ddf_base_c ddf;			// Weapon's name, etc...
+	epi::strent_c name;     // Weapon's name, etc...
 
 	atkdef_c *attack[2];	// Attack type used.
   

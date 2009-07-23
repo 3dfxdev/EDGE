@@ -113,7 +113,7 @@ public:
 	void Default(void);
 	mapdef_c& operator=(mapdef_c &rhs);
 
-	ddf_base_c ddf;
+	epi::strent_c name;
 
 ///---	// next in the list
 ///---	mapdef_c *next;				// FIXME!! Gamestate information

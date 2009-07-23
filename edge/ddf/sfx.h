@@ -60,7 +60,7 @@ public:
 	sfxdef_c& operator=(sfxdef_c &rhs);
 	
 	// sound's name, etc..
-	ddf_base_c ddf;
+	epi::strent_c name;
 
     // full sound lump name (or file name)
 	lumpname_c lump_name;

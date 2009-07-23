@@ -42,7 +42,7 @@ static void DDF_ImageGetFixTrans(const char *info, void *storage);
 
 static const commandlist_t image_commands[] =
 {
-	DF("IMAGE_DATA", ddf,      DDF_ImageGetType),
+	DF("IMAGE_DATA", name,     DDF_ImageGetType),
 	DF("SPECIAL",    special,  DDF_ImageGetSpecial),
 	DF("X_OFFSET",   x_offset, DDF_MainGetNumeric),
 	DF("Y_OFFSET",   y_offset, DDF_MainGetNumeric),
@@ -126,7 +126,7 @@ static void ImageStartEntry(const char *name)
 	{
 		dynamic_image = new imagedef_c;
 
-		dynamic_image->ddf.name = name;
+		dynamic_image->name = name;
 
 		imagedefs.Insert(dynamic_image);
 	}
@@ -150,7 +150,7 @@ static void ImageFinishEntry(void)
 {
 	if (buffer_image.type == IMGDT_File)
 	{
-        const char *filename = buffer_image.fname.c_str();
+        const char *filename = buffer_image.info.c_str();
 
 		// determine format
         std::string ext(epi::PATH_GetExtension(filename));
@@ -210,9 +210,8 @@ static void AddEssentialImages(void)
 
 		def->Default();
 
-		def->ddf.name = ("DLIGHT_EXP");
-
-		def->fname = ("DLITEXPN");
+		def->name = "DLIGHT_EXP";
+		def->info = "DLITEXPN";
 
 		def->belong  = INS_Graphic;
 		def->type    = IMGDT_Lump;
@@ -228,9 +227,8 @@ static void AddEssentialImages(void)
 
 		def->Default();
 
-		def->ddf.name =  ("FUZZ_MAP");
-
-		def->fname.Set("FUZZMAP8");
+		def->name = "FUZZ_MAP";
+		def->info = "FUZZMAP8";
 
 		def->belong  = INS_Texture;
 		def->type    = IMGDT_Lump;
@@ -274,7 +272,7 @@ static void ImageParseFile(imagedef_c *def, const char *value)
 {
 	// ouch, hard work here...
 	def->type = IMGDT_File;
-	def->fname.Set(value);
+	def->info = value;
 }
 
 static void ImageParseLump(imagedef_c *def, const char *spec)
@@ -292,7 +290,7 @@ static void ImageParseLump(imagedef_c *def, const char *spec)
 	keyword[colon - spec] = 0;
 
 	// store the lump name
-	def->fname.Set(colon + 1);
+	def->info.Set(colon + 1);
 
 	if (DDF_CompareName(keyword, "PNG") == 0)
 	{
@@ -400,7 +398,7 @@ static void DDF_ImageGetFixTrans(const char *info, void *storage)
 
 // ---> imagedef_c class
 
-imagedef_c::imagedef_c() : fname()
+imagedef_c::imagedef_c() : name(), info()
 {
 	Default();
 }
@@ -412,7 +410,6 @@ imagedef_c::imagedef_c(const imagedef_c &rhs)
 
 void imagedef_c::Copy(const imagedef_c &src)
 {
-	ddf = src.ddf;
 	CopyDetail(src);
 }
 
@@ -425,7 +422,7 @@ void imagedef_c::CopyDetail(const imagedef_c &src)
 	type    = src.type;
 	colour  = src.colour;
 	builtin = src.builtin;
-	fname   = src.fname;
+	info   = src.info;
 	format  = src.format;
 
 	special  = src.special;
@@ -438,15 +435,13 @@ void imagedef_c::CopyDetail(const imagedef_c &src)
 
 void imagedef_c::Default()
 {
-	ddf.Default();
-
 	belong  = INS_Graphic;
 	type    = IMGDT_Colour;
 	colour  = 0x000000;  // black
 	builtin = BLTIM_Quadratic;
 	format  = LIF_PNG;
 
-	fname.clear();
+	info.clear();
 
 	special  = IMGSP_None;
 	x_offset = y_offset = 0;
@@ -489,7 +484,7 @@ imagedef_c * imagedef_container_c::Lookup(const char *refname, image_namespace_e
 	for (it = GetBaseIterator(); it.IsValid(); it++)
 	{
 		imagedef_c *g = ITERATOR_TO_TYPE(it, imagedef_c*);
-		if (DDF_CompareName(g->ddf.name.c_str(), refname) == 0 && g->belong == belong)
+		if (DDF_CompareName(g->name.c_str(), refname) == 0 && g->belong == belong)
 			return g;
 	}
 

@@ -22,7 +22,6 @@
 #include "epi/file.h"
 #include "epi/utility.h"
 
-#include "base.h"
 #include "types.h"
 
 #define DEBUG_DDF  0

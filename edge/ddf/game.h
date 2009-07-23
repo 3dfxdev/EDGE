@@ -180,7 +180,7 @@ public:
 	void Default(void);
 	gamedef_c& operator=(gamedef_c &rhs);
 
-	ddf_base_c ddf;
+	epi::strent_c name;
 
 	wi_animdef_container_c anims;
 	wi_mapposdef_container_c mappos;

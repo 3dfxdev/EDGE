@@ -108,8 +108,8 @@ static const commandlist_t attack_commands[] =
 
 	// -AJA- backward compatibility cruft...
 	DF("!DAMAGE", damage.nominal, DDF_MainGetFloat),
-	DF("!DAMAGE_RANGE", ddf, DDF_AtkGetOldDamRange),
-	DF("!DAMAGE_MULTI", ddf, DDF_AtkGetOldDamMulti),
+	DF("!DAMAGE_RANGE", name, DDF_AtkGetOldDamRange),
+	DF("!DAMAGE_MULTI", name, DDF_AtkGetOldDamMulti),
 
 	DDF_CMD_END
 };
@@ -140,7 +140,7 @@ static void AttackStartEntry(const char *name)
 	{
 		dynamic_atk = new atkdef_c;
 
-		dynamic_atk->ddf.name = name;
+		dynamic_atk->name = name;
 
 		atkdefs.Insert(dynamic_atk);
 	}
@@ -209,7 +209,7 @@ static void AttackFinishEntry(void)
 				buffer_mobj.dlight[0].radius);
 
 		buffer_atk.atk_mobj = DDF_MobjMakeAttackObj(&buffer_mobj,
-											dynamic_atk->ddf.name.c_str());
+											dynamic_atk->name.c_str());
 	}
 	else
 		buffer_atk.atk_mobj = NULL;
@@ -234,7 +234,7 @@ static void AttackFinishEntry(void)
 	}
 
 	// -AJA- 2005/08/06: Berserk backwards compatibility
-	if (DDF_CompareName(dynamic_atk->ddf.name.c_str(), "PLAYER_PUNCH") == 0
+	if (DDF_CompareName(dynamic_atk->name.c_str(), "PLAYER_PUNCH") == 0
 		&& buffer_atk.berserk_mul == 1.0f)
 	{
 		buffer_atk.berserk_mul = 10.0f;
@@ -281,7 +281,7 @@ void DDF_AttackCleanUp(void)
 	{
 		a = ITERATOR_TO_TYPE(it, atkdef_c*);
 
-		cur_ddf_entryname = epi::STR_Format("[%s]  (attacks.ddf)", a->ddf.name.c_str());
+		cur_ddf_entryname = epi::STR_Format("[%s]  (attacks.ddf)", a->name.c_str());
 
 		// lookup thing references
 
@@ -426,7 +426,7 @@ static void DDF_AtkGetOldDamMulti(const char *info, void *storage)
 // 
 // atkdef_c Constructor
 //
-atkdef_c::atkdef_c()
+atkdef_c::atkdef_c() : name()
 {
 	Default();
 }
@@ -448,7 +448,6 @@ atkdef_c::~atkdef_c()
 
 void atkdef_c::Copy(atkdef_c &src)
 {
-	ddf = src.ddf;
 	CopyDetail(src);
 }
 
@@ -490,8 +489,6 @@ void atkdef_c::CopyDetail(atkdef_c &src)
 
 void atkdef_c::Default()
 {
-	ddf.Default();
-
 	atk_mobj = NULL;
 
 	attackstyle = ATK_NONE;
@@ -584,7 +581,7 @@ atkdef_c* atkdef_container_c::Lookup(const char *refname)
 	for (it = GetIterator(num_disabled); it.IsValid(); it++)
 	{
 		a = ITERATOR_TO_TYPE(it, atkdef_c*);
-		if (DDF_CompareName(a->ddf.name.c_str(), refname) == 0)
+		if (DDF_CompareName(a->name.c_str(), refname) == 0)
 			return a;
 	}
 

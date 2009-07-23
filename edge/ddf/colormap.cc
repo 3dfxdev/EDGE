@@ -44,10 +44,10 @@ static const commandlist_t colmap_commands[] =
 	DF("GL_COLOUR", gl_colour, DDF_MainGetRGB),
 
 	// -AJA- backwards compatibility cruft...
-	DF("!PRIORITY", ddf, DDF_DummyFunction),
-	DF("!ALT_COLOUR",  ddf, DDF_DummyFunction),
-	DF("!WASH_COLOUR", ddf, DDF_DummyFunction),
-	DF("!WASH_TRANSLUCENCY", ddf, DDF_DummyFunction),
+	DF("!PRIORITY", name, DDF_DummyFunction),
+	DF("!ALT_COLOUR",  name, DDF_DummyFunction),
+	DF("!WASH_COLOUR", name, DDF_DummyFunction),
+	DF("!WASH_TRANSLUCENCY", name, DDF_DummyFunction),
 
 	DDF_CMD_END
 };
@@ -78,7 +78,7 @@ static void ColmapStartEntry(const char *name)
 	{
 		dynamic_colmap = new colourmap_c;
 
-		dynamic_colmap->ddf.name = name;
+		dynamic_colmap->name = name;
 
 		colourmaps.Insert(dynamic_colmap);
 	}
@@ -211,7 +211,7 @@ void DDF_ColourmapAddRaw(const char *lump_name, int size)
 
 	def->Default();
 
-	def->ddf.name = lump_name;
+	def->name = lump_name;
 
 	def->lump_name.Set(lump_name);
 
@@ -228,8 +228,9 @@ void DDF_ColourmapAddRaw(const char *lump_name, int size)
 //
 // colourmap_c Constructor
 //
-colourmap_c::colourmap_c()
+colourmap_c::colourmap_c() : name()
 {
+	Default();
 }
 
 //
@@ -249,8 +250,6 @@ colourmap_c::~colourmap_c()
 
 void colourmap_c::Copy(colourmap_c &src)
 {
-	ddf = src.ddf;
-
 	CopyDetail(src);
 }
 
@@ -272,8 +271,6 @@ void colourmap_c::CopyDetail(colourmap_c &src)
 
 void colourmap_c::Default()
 {
-	ddf.Default();
-	
 	lump_name.clear();
 
 	start   = 0;
@@ -332,7 +329,7 @@ colourmap_c* colourmap_container_c::Lookup(const char *refname)
 	for (it = GetIterator(num_disabled); it.IsValid(); it++)
 	{
 		c = ITERATOR_TO_TYPE(it, colourmap_c*);
-		if (DDF_CompareName(c->ddf.name.c_str(), refname) == 0)
+		if (DDF_CompareName(c->name.c_str(), refname) == 0)
 			return c;
 	}
 

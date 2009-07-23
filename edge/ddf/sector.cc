@@ -73,14 +73,14 @@ static const commandlist_t sect_commands[] =
 	DF("PUSH_ZSPEED", push_zspeed, DDF_MainGetFloat),
 
 	// -AJA- backwards compatibility cruft...
-	DF("CRUSH", ddf, DDF_SectMakeCrush),
-	DF("CRUSH_DAMAGE", ddf, DDF_SectMakeCrush),
-	DF("CRUSH_TIME", ddf, DDF_DummyFunction),
+	DF("CRUSH", name, DDF_SectMakeCrush),
+	DF("CRUSH_DAMAGE", name, DDF_SectMakeCrush),
+	DF("CRUSH_TIME", name, DDF_DummyFunction),
 
 	DF("!DAMAGE", damage.nominal, DDF_MainGetFloat),
 	DF("!DAMAGETIME", damage.delay, DDF_MainGetTime),
-	DF("!SOUND", ddf, DDF_DummyFunction),
-	DF("!LIGHT_PROBABILITY", ddf, DDF_DummyFunction),
+	DF("!SOUND", name, DDF_DummyFunction),
+	DF("!LIGHT_PROBABILITY", name, DDF_DummyFunction),
 
 	DDF_CMD_END
 };
@@ -107,7 +107,7 @@ static void SectorStartEntry(const char *name)
 	else
 	{
 		dynamic_sector = new sectortype_c;
-		dynamic_sector->ddf.name = epi::STR_Format("%d", number);
+		dynamic_sector->name = epi::STR_Format("%d", number);
 		sectortypes.Insert(dynamic_sector);
 	}
 
@@ -168,7 +168,7 @@ void DDF_SectorInit(void)
 	sectortype_c *s;
 	s = new sectortype_c;
 	s->Default();
-	s->ddf.name = "-1";
+	s->name = "-1";
 	sectortypes.Insert(s);
 }
 
@@ -405,8 +405,9 @@ static void DDF_SectMakeCrush(const char *info, void *storage)
 //
 // sectortype_c Constructor
 //
-sectortype_c::sectortype_c()
+sectortype_c::sectortype_c() : name()
 {
+	Default();
 }
 
 //
@@ -424,18 +425,13 @@ sectortype_c::~sectortype_c()
 {
 }
 
-//
-// sectortype_c::Copy()
-//
+
 void sectortype_c::Copy(sectortype_c &src)
 {
-	ddf = src.ddf;
 	CopyDetail(src);
 }
 
-//
-// sectortype_c::CopyDetail()
-//
+
 void sectortype_c::CopyDetail(sectortype_c &src)
 {
 	secret = src.secret;
@@ -465,13 +461,9 @@ void sectortype_c::CopyDetail(sectortype_c &src)
 	push_angle = src.push_angle;
 }
 
-//
-// sectortype_c::Default()
-//
+
 void sectortype_c::Default()
 {
-	ddf.Default();
-	
 	secret = false;
 	gravity = GRAVITY;
 	friction = FRICTION;
@@ -564,7 +556,7 @@ sectortype_c* sectortype_container_c::Lookup(const int id)
 	for (it = GetTailIterator(); it.IsValid(); it--)
 	{
 		s = ITERATOR_TO_TYPE(it, sectortype_c*);
-		if (atoi(s->ddf.name.c_str()) == id)
+		if (atoi(s->name.c_str()) == id)
 		{
 			break;
 		}

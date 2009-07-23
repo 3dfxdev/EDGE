@@ -65,7 +65,8 @@ public:
 	void Default(void);
 	pl_entry_c& operator=(pl_entry_c &rhs);
 
-	ddf_base_c ddf;
+	epi::strent_c name;
+
 	musictype_t type;
 	musicinftype_e infotype;
 	epi::strent_c info;

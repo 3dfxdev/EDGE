@@ -49,8 +49,8 @@ static const commandlist_t sfx_commands[] =
 	DF("MAX_DISTANCE", max_distance, DDF_MainGetFloat),
 
 	// -AJA- backwards compatibility cruft...
-	DF("!BITS",   ddf, DDF_DummyFunction),
-	DF("!STEREO", ddf, DDF_DummyFunction),
+	DF("!BITS",   name, DDF_DummyFunction),
+	DF("!STEREO", name, DDF_DummyFunction),
 
 	DDF_CMD_END
 };
@@ -81,7 +81,7 @@ static void SoundStartEntry(const char *name)
 	{
 		dynamic_sfx = new sfxdef_c;
 
-		dynamic_sfx->ddf.name = name;
+		dynamic_sfx->name = name;
 
 		sfxdefs.Insert(dynamic_sfx);
 
@@ -169,8 +169,9 @@ void DDF_MainLookupSound(const char *info, void *storage)
 //
 // sfxdef_c Constructor
 //
-sfxdef_c::sfxdef_c()
+sfxdef_c::sfxdef_c() : name()
 {
+	Default();
 }
 
 //
@@ -193,7 +194,6 @@ sfxdef_c::~sfxdef_c()
 //
 void sfxdef_c::Copy(sfxdef_c &src)
 {
-	ddf = src.ddf;
 	CopyDetail(src);
 }
 
@@ -217,13 +217,9 @@ void sfxdef_c::CopyDetail(sfxdef_c &src)
 	max_distance = src.max_distance; 	// max_distance
 }
 
-//
-// sfxdef_c::Default()
-//
+
 void sfxdef_c::Default()
 {
-	ddf.Default();
-	
 	lump_name.clear();
 	file_name.clear();
 
@@ -309,7 +305,7 @@ sfx_t* sfxdef_container_c::GetEffect(const char *name, bool error)
 	{
 		si = ITERATOR_TO_TYPE(it, sfxdef_c*);
 		
-		if (strncasecmpwild(name, si->ddf.name.c_str(), 8) == 0)
+		if (strncasecmpwild(name, si->name.c_str(), 8) == 0)
 		{
 			count++;
 			last = it;
@@ -352,7 +348,7 @@ sfx_t* sfxdef_container_c::GetEffect(const char *name, bool error)
 	{
 		si = ITERATOR_TO_TYPE(it, sfxdef_c*);
 		
-		if (strncasecmpwild(name, si->ddf.name.c_str(), 8) == 0)
+		if (strncasecmpwild(name, si->name.c_str(), 8) == 0)
 			r->sounds[r->num++] = it.GetPos();
 	}
 
@@ -361,9 +357,7 @@ sfx_t* sfxdef_container_c::GetEffect(const char *name, bool error)
 	return r;
 }
 
-//
-// sfxdef_container_c::Lookup()
-//
+
 sfxdef_c* sfxdef_container_c::Lookup(const char *name)
 {
 	epi::array_iterator_c it;
@@ -372,7 +366,7 @@ sfxdef_c* sfxdef_container_c::Lookup(const char *name)
 	for (it=GetIterator(num_disabled); it.IsValid(); it++)
 	{
 		s = ITERATOR_TO_TYPE(it, sfxdef_c*);
-		if (DDF_CompareName(s->ddf.name.c_str(), name) == 0)
+		if (DDF_CompareName(s->name.c_str(), name) == 0)
 		{
 			return s;
 		}

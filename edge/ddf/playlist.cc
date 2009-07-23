@@ -33,7 +33,8 @@ static void DDF_MusicParseInfo(const char *info, void *storage);
 
 static const commandlist_t musplaylistcmds[] =
 {
-	DDF_CMD("MUSICINFO", ddf, DDF_MusicParseInfo),
+	DDF_CMD("MUSICINFO", name, DDF_MusicParseInfo),
+
 	DDF_CMD_END
 };
 
@@ -58,7 +59,7 @@ static void PlaylistStartEntry(const char *name)
 	else
 	{
 		dynamic_plentry = new pl_entry_c;
-		dynamic_plentry->ddf.name = epi::STR_Format("%d", number);
+		dynamic_plentry->name = epi::STR_Format("%d", number);
 		playlist.Insert(dynamic_plentry);
 	}
 
@@ -195,7 +196,7 @@ static void DDF_MusicParseInfo(const char *info, void *storage)
 //
 // pl_entry_c constructor
 //
-pl_entry_c::pl_entry_c()
+pl_entry_c::pl_entry_c() : name()
 {
 	Default();
 }
@@ -220,7 +221,6 @@ pl_entry_c::~pl_entry_c()
 //
 void pl_entry_c::Copy(pl_entry_c &src)
 {
-	ddf = src.ddf;
 	CopyDetail(src);
 }
 
@@ -236,13 +236,9 @@ void pl_entry_c::CopyDetail(pl_entry_c &src)
 	info = src.info;
 }
 
-//
-// pl_entry_c::Default()
-// 
+
 void pl_entry_c::Default()
 {
-	ddf.Default();
-
 	type = MUS_UNKNOWN;     
 	infotype = MUSINF_UNKNOWN;
 	info.clear();             
@@ -285,7 +281,7 @@ pl_entry_c* pl_entry_container_c::Find(int number)
 	for (it = GetBaseIterator(); it.IsValid(); it++)
 	{
 		p = ITERATOR_TO_TYPE(it, pl_entry_c*);
-		if (atoi(p->ddf.name.c_str()) == number)
+		if (atoi(p->name.c_str()) == number)
 			return p;
 	}
 

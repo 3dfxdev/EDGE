@@ -112,8 +112,8 @@ const commandlist_t thing_commands[] =
 	DF("MASS", mass, DDF_MainGetFloat),
 	DF("SPEED", speed, DDF_MainGetFloat),
 	DF("FAST", fast, DDF_MainGetFloat),
-	DF("SPECIAL", ddf, DDF_MobjGetSpecial),
-	DF("PROJECTILE_SPECIAL", ddf, DDF_MobjGetSpecial),
+	DF("SPECIAL", name, DDF_MobjGetSpecial),
+	DF("PROJECTILE_SPECIAL", name, DDF_MobjGetSpecial),
 	DF("EXTRA", extendedflags, DDF_MobjGetExtra),
 	DF("RESPAWN_TIME", respawntime, DDF_MainGetTime),
 	DF("FUSE", fuse, DDF_MainGetTime),
@@ -197,8 +197,8 @@ const commandlist_t thing_commands[] =
 	DF("!EXPLOD_DAMAGE", explode_damage.nominal, DDF_MainGetFloat),
 	DF("!EXPLOSION_DAMAGE", explode_damage.nominal, DDF_MainGetFloat),
 	DF("!EXPLOD_DAMAGERANGE", explode_damage.nominal, DDF_MainGetFloat),
-	DF("!EXPLOD_DAMAGEMULTI", ddf, DDF_DummyFunction),
-	DF("!GIB", ddf, DDF_DummyFunction),
+	DF("!EXPLOD_DAMAGEMULTI", name, DDF_DummyFunction),
+	DF("!GIB", name, DDF_DummyFunction),
 
 	DDF_CMD_END
 };
@@ -493,7 +493,7 @@ static void ThingStartEntry(const char *buffer)
 	{
 		dynamic_mobj = new mobjtype_c;
 
-		dynamic_mobj->ddf.name = name;
+		dynamic_mobj->name = name;
 
 		mobjtypes.Insert(dynamic_mobj);
 	}
@@ -639,7 +639,7 @@ void DDF_MobjCleanUp(void)
 	{
 		m = ITERATOR_TO_TYPE(it, mobjtype_c*);
 
-		cur_ddf_entryname = epi::STR_Format("[%s]  (things.ddf)", m->ddf.name.c_str());
+		cur_ddf_entryname = epi::STR_Format("[%s]  (things.ddf)", m->name.c_str());
 
 		m->dropitem = m->dropitem_ref.empty() ? NULL :
 			mobjtypes.Lookup(m->dropitem_ref.c_str());
@@ -1480,7 +1480,7 @@ mobjtype_c *DDF_MobjMakeAttackObj(mobjtype_c *info, const char *atk_name)
 
 	mobjtype_c *result = new mobjtype_c;
 
-	result->ddf.name = name;
+	result->name = name;
 	result->CopyDetail(info[0]);
 
 	// backwards compat
@@ -1678,7 +1678,7 @@ bool DDF_MainParseCondition(const char *info, condition_check_t *cond)
 
 // ---> mobjdef class
 
-mobjtype_c::mobjtype_c() : states()
+mobjtype_c::mobjtype_c() : name(), states()
 {
 	Default();
 }
@@ -1696,7 +1696,6 @@ mobjtype_c::~mobjtype_c()
 
 void mobjtype_c::Copy(mobjtype_c &src)
 {
-	ddf = src.ddf;
 	CopyDetail(src);	
 }
 
@@ -1851,8 +1850,6 @@ void mobjtype_c::CopyStates(mobjtype_c &src)
 
 void mobjtype_c::Default()
 {
-	ddf.Default();
-
     spawn_state = 0;
     idle_state = 0;
     chase_state = 0;
@@ -2062,7 +2059,7 @@ int mobjtype_container_c::FindFirst(const char *name, int startpos)
 	while (it.IsValid())
 	{
 		m = ITERATOR_TO_TYPE(it, mobjtype_c*);
-		if (DDF_CompareName(m->ddf.name.c_str(), name) == 0)
+		if (DDF_CompareName(m->name.c_str(), name) == 0)
 		{
 			return it.GetPos();
 		}
@@ -2087,7 +2084,7 @@ int mobjtype_container_c::FindLast(const char *name, int startpos)
 	while (it.IsValid())
 	{
 		m = ITERATOR_TO_TYPE(it, mobjtype_c*);
-		if (DDF_CompareName(m->ddf.name.c_str(), name) == 0)
+		if (DDF_CompareName(m->name.c_str(), name) == 0)
 		{
 			return it.GetPos();
 		}

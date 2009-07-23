@@ -1736,57 +1736,6 @@ const char *DDF_MainDecodeList(const char *info, char divider, bool simple)
 
 // DDF OBJECTS
 
-// ---> ddf base class
-
-//
-// ddf_base_c Constructor
-//
-ddf_base_c::ddf_base_c() : name()
-{
-}
-
-//
-// ddf_base_c Deconstructor
-//
-ddf_base_c::~ddf_base_c()
-{
-}
-
-//
-// ddf_base_c::Copy()
-//
-void ddf_base_c::Copy(const ddf_base_c &src)
-{
-	name = src.name;
-}
-
-//
-// ddf_base_c::Default()
-//
-void ddf_base_c::Default()
-{
-	name.clear();
-}
-
-//
-// ddf_base_c::SetUniqueName()
-//
-void ddf_base_c::SetUniqueName(const char *prefix, int num)
-{
-	name = epi::STR_Format("_%s_%d\n", prefix, num);
-}
-
-//
-// ddf_base_c assignment operator
-//
-ddf_base_c& ddf_base_c::operator= (const ddf_base_c &rhs)
-{
-	if (&rhs != this)
-		Copy(rhs);
-		
-	return *this;
-}
-
 // ---> mobj_strref class
 
 const mobjtype_c *mobj_strref_c::GetRef()
