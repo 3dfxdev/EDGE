@@ -403,8 +403,6 @@ static changetex_type_e RAD_CheckForChangetexType(const char *info)
 }
 
 //
-// RAD_UnquoteString
-//
 // Remove the quotes from the given string, returning a newly
 // allocated string.
 //
@@ -484,7 +482,6 @@ void RAD_ParsePlayerSet(const char *info, u32_t *set)
 	}
 }
 
-// AddStateToScript
 //
 // Adds a new action state to the tail of the current set of states
 // for the given radius trigger.
@@ -519,9 +516,7 @@ static void AddStateToScript(rad_script_t *R, int tics,
 	R->last_state = state;
 }
 
-//
-// ClearOneScripts
-//
+
 static void ClearOneScript(rad_script_t *scr)
 {
 	Z_Free(scr->mapid);
@@ -555,7 +550,7 @@ static void ClearOneScript(rad_script_t *scr)
 	}
 }
 
-// ClearPreviousScripts
+
 //
 // Removes any radius triggers for a given map when start_map is used.
 // Thus triggers in later RTS files/lumps replace those in earlier RTS
@@ -591,7 +586,7 @@ static void ClearPreviousScripts(const char *mapid)
 	}
 }
 
-// ClearAllScripts
+
 //
 // Removes all radius triggers from all maps.
 // 
@@ -608,9 +603,7 @@ static void ClearAllScripts(void)
 	}
 }
 
-//
-// RAD_ComputeScriptCRC
-//
+
 static void RAD_ComputeScriptCRC(rad_script_t *scr)
 {
 	scr->crc.Reset();
@@ -655,11 +648,11 @@ static void RAD_ComputeScriptCRC(rad_script_t *scr)
 
 	// Q/ add in states ?  
 	// A/ Nah.
+#undef M_FLAG
 }
 
-#undef M_FLAG
 
-// RAD_CollectParameters
+
 //
 // Collect the parameters from the line into an array of strings
 // 'pars', which can hold at most 'max' string pointers.
@@ -772,10 +765,7 @@ static void RAD_CollectParameters(const char *line, int *pnum,
 	}
 }
 
-// RAD_FreeParameters
-//
-// Free previously collected parameters.
-// 
+
 static void RAD_FreeParameters(int pnum, char **pars)
 {
 	while (pnum > 0)

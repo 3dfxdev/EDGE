@@ -92,15 +92,6 @@ static const global_command_t global_commands[] =
 	{ "MAPLINE",   GV_GetCheckCRC, GV_PutCheckCRC, GLOB_OFF(mapline) },
 	{ "MAPTHING",  GV_GetCheckCRC, GV_PutCheckCRC, GLOB_OFF(mapthing) },
 
-	{ "RSCRIPT", GV_GetCheckCRC, GV_PutCheckCRC, GLOB_OFF(rscript) },
-	{ "DDFATK",  GV_GetCheckCRC, GV_PutCheckCRC, GLOB_OFF(ddfatk) },
-	{ "DDFGAME", GV_GetCheckCRC, GV_PutCheckCRC, GLOB_OFF(ddfgame) },
-	{ "DDFLEVL", GV_GetCheckCRC, GV_PutCheckCRC, GLOB_OFF(ddflevl) },
-	{ "DDFLINE", GV_GetCheckCRC, GV_PutCheckCRC, GLOB_OFF(ddfline) },
-	{ "DDFSECT", GV_GetCheckCRC, GV_PutCheckCRC, GLOB_OFF(ddfsect) },
-	{ "DDFMOBJ", GV_GetCheckCRC, GV_PutCheckCRC, GLOB_OFF(ddfmobj) },
-	{ "DDFWEAP", GV_GetCheckCRC, GV_PutCheckCRC, GLOB_OFF(ddfweap) },
-
 	{ NULL, NULL, 0 }
 };
 
@@ -305,7 +296,7 @@ static bool GlobReadVARI(saveglobals_t *globs)
 	}
 	else
 	{
-		I_Warning("GlobReadVARI: unknown global: %s\n", var_name);
+		I_Debugf("GlobReadVARI: unknown global: %s\n", var_name);
 	}
 
 	SV_FreeString(var_name);
