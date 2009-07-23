@@ -421,71 +421,17 @@ static void DDF_AtkGetOldDamMulti(const char *info, void *storage)
 }
 
 
-// Attack definition class
+// Attack definition class --->
 
-// 
-// atkdef_c Constructor
-//
 atkdef_c::atkdef_c() : name()
 {
 	Default();
 }
 
-//
-// atkdef_c Copy Constructor
-//
-atkdef_c::atkdef_c(atkdef_c &rhs)
-{
-	Copy(rhs);
-}
-
-//
-// atkdef_c Destructor
-//
 atkdef_c::~atkdef_c()
 {
 }
 
-void atkdef_c::Copy(atkdef_c &src)
-{
-	CopyDetail(src);
-}
-
-void atkdef_c::CopyDetail(atkdef_c &src)
-{
-	atk_mobj = src.atk_mobj;
-
-	attackstyle = src.attackstyle;
-	flags = src.flags;
-	initsound = src.initsound;
-	sound = src.sound;
-	accuracy_slope = src.accuracy_slope;
-	accuracy_angle = src.accuracy_angle;
-	xoffset = src.xoffset;
-	yoffset = src.yoffset;
-	angle_offset = src.angle_offset;
-	slope_offset = src.slope_offset;
-	trace_angle  = src.trace_angle;
-	assault_speed = src.assault_speed;
-	height = src.height;
-	range = src.range;
-	count = src.count;
-	tooclose = src.tooclose;
-	berserk_mul = src.berserk_mul;
-
-	damage = src.damage;
-
-	attack_class = src.attack_class;
-	objinitstate = src.objinitstate;
-	objinitstate_ref = src.objinitstate_ref;
-	notracechance = src.notracechance;
-	keepfirechance = src.keepfirechance;
-	spawnedobj = src.spawnedobj;
-	spawnedobj_ref = src.spawnedobj_ref;
-	spawn_limit = src.spawn_limit;
-	puff = src.puff;
-	puff_ref = src.puff_ref;
-}
 
 void atkdef_c::Default()
 {
@@ -523,16 +469,42 @@ void atkdef_c::Default()
 	puff_ref.clear();
 }
 
-//
-// atkdef_c assignment operator
-//
-atkdef_c& atkdef_c::operator=(atkdef_c &rhs)
+void atkdef_c::CopyDetail(atkdef_c &src)
 {
-	if (&rhs != this)
-		Copy(rhs);
-	
-	return *this;
+	atk_mobj = src.atk_mobj; //FIXME !!!!!! PROBABLY NOT RIGHT !
+
+	attackstyle = src.attackstyle;
+	flags = src.flags;
+	initsound = src.initsound;
+	sound = src.sound;
+	accuracy_slope = src.accuracy_slope;
+	accuracy_angle = src.accuracy_angle;
+	xoffset = src.xoffset;
+	yoffset = src.yoffset;
+	angle_offset = src.angle_offset;
+	slope_offset = src.slope_offset;
+	trace_angle  = src.trace_angle;
+	assault_speed = src.assault_speed;
+	height = src.height;
+	range = src.range;
+	count = src.count;
+	tooclose = src.tooclose;
+	berserk_mul = src.berserk_mul;
+
+	damage = src.damage;
+
+	attack_class = src.attack_class;
+	objinitstate = src.objinitstate;
+	objinitstate_ref = src.objinitstate_ref;
+	notracechance = src.notracechance;
+	keepfirechance = src.keepfirechance;
+	spawnedobj = src.spawnedobj;
+	spawnedobj_ref = src.spawnedobj_ref;
+	spawn_limit = src.spawn_limit;
+	puff = src.puff;
+	puff_ref = src.puff_ref;
 }
+
 
 // --> atkdef_container_c class
 
