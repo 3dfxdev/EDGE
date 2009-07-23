@@ -64,7 +64,8 @@ public:
 	fontdef_c& operator= (const fontdef_c &rhs);
 
 	// Member vars....
-	ddf_base_c ddf;
+
+	epi::strent_c name;
 
 	fonttype_e type;
 

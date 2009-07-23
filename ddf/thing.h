@@ -583,8 +583,8 @@ public:
 class mobjtype_c
 {
 public:
-	// DDF Id
-	ddf_base_c ddf;
+	// Identifier
+	epi::strent_c name;
 
 	int number;	
 

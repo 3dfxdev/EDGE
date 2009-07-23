@@ -44,7 +44,8 @@ public:
 	animdef_c& operator=(animdef_c &rhs);
 
 	// Member vars....
-	ddf_base_c ddf;
+
+	epi::strent_c name;
 
 	enum  // types
 	{

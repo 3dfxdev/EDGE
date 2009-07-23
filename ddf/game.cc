@@ -67,11 +67,11 @@ static const commandlist_t gamedef_commands[] =
 	DF("FEATURES", features, DDF_LevelGetSpecials),
 
 	// these don't quite fit in yet
-	DF("TITLE_GRAPHIC", ddf, DDF_GameGetPic),
-	DF("MAP", ddf, DDF_GameGetMap),
+	DF("TITLE_GRAPHIC", name, DDF_GameGetPic),
+	DF("MAP", name, DDF_GameGetMap),
 
-	// FIXME !!!
-	DF("ANIM", ddf, DDF_DummyFunction),
+	// FIXME !!!!
+	DF("ANIM", name, DDF_DummyFunction),
 
 	DDF_CMD_END
 };
@@ -98,7 +98,7 @@ static void GameStartEntry (const char *name)
 	{
 		dynamic_gamedef = new gamedef_c;
 
-		dynamic_gamedef->ddf.name = name;
+		dynamic_gamedef->name = name;
 
 		gamedefs.Insert(dynamic_gamedef);
 	}
@@ -707,7 +707,7 @@ wi_animdef_container_c& wi_animdef_container_c::operator=(wi_animdef_container_c
 //
 // gamedef_c Constructor
 //
-gamedef_c::gamedef_c()
+gamedef_c::gamedef_c() : name()
 {
 	Default();
 }
@@ -732,7 +732,6 @@ gamedef_c::~gamedef_c()
 //
 void gamedef_c::Copy(gamedef_c &src)
 {
-	ddf = src.ddf;
 	CopyDetail(src);
 }
 
@@ -777,8 +776,6 @@ void gamedef_c::CopyDetail(gamedef_c &src)
 //
 void gamedef_c::Default()
 {
-	ddf.Default();
-
 	anims.Clear();
 	mappos.Clear();
 
@@ -868,7 +865,7 @@ gamedef_c* gamedef_container_c::Lookup(const char *refname)
 	for (it = GetBaseIterator(); it.IsValid(); it++)
 	{
 		g = ITERATOR_TO_TYPE(it, gamedef_c*);
-		if (DDF_CompareName(g->ddf.name.c_str(), refname) == 0)
+		if (DDF_CompareName(g->name.c_str(), refname) == 0)
 			return g;
 	}
 

@@ -87,7 +87,7 @@ static const commandlist_t level_commands[] =
 	DF("SPECIAL", features, DDF_LevelGetSpecials),
 
 	// -AJA- backwards compatibility cruft...
-	DF("LIGHTING", ddf, DDF_DummyFunction),
+	DF("LIGHTING", name, DDF_DummyFunction),
 
 	DDF_CMD_END
 };
@@ -139,7 +139,7 @@ static void LevelStartEntry(const char *name)
 	{
 		dynamic_map = new mapdef_c;
 
-		dynamic_map->ddf.name = name;
+		dynamic_map->name = name;
 
 		mapdefs.Insert(dynamic_map);
 	}
@@ -217,7 +217,7 @@ void DDF_LevelCleanUp(void)
 
 		if (m->episode_name.empty())
 			I_Printf("WARNING: Cannot find episode '%s' for map entry [%s]\n",
-					 m->episode_name.c_str(), m->ddf.name.c_str());
+					 m->episode_name.c_str(), m->name.c_str());
 	}
 }
 
@@ -341,12 +341,12 @@ map_finaledef_c& map_finaledef_c::operator=(map_finaledef_c &rhs)
 
 // --> map definition class
 
-mapdef_c::mapdef_c()
+mapdef_c::mapdef_c() : name()
 {
 	Default();
 }
 
-mapdef_c::mapdef_c(mapdef_c &rhs)
+mapdef_c::mapdef_c(mapdef_c &rhs) : name()
 {
 	Copy(rhs);
 }
@@ -357,7 +357,6 @@ mapdef_c::~mapdef_c()
 
 void mapdef_c::Copy(mapdef_c &src)
 {
-	ddf = src.ddf;
 	CopyDetail(src);	
 }
 
@@ -391,8 +390,6 @@ void mapdef_c::CopyDetail(mapdef_c &src)
 
 void mapdef_c::Default()
 {
-	ddf.Default();
-
 	description.clear();	
   	namegraphic.clear();
   	lump.clear();
@@ -458,7 +455,7 @@ mapdef_c* mapdef_container_c::Lookup(const char *refname)
 		if (! m->episode)
 			continue;
 
-		if (DDF_CompareName(m->ddf.name.c_str(), refname) == 0)
+		if (DDF_CompareName(m->name.c_str(), refname) == 0)
 			return m;
 	}
 

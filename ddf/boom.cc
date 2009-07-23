@@ -164,7 +164,7 @@ sectortype_c *DDF_BoomGetGenSector(int number)
 		sec = new sectortype_c;
 		sec->Default();
 		
-		sec->ddf.name = epi::STR_Format("%d", number);
+		sec->name = epi::STR_Format("%d", number);
 
 		DDF_BoomMakeGenSector(sec, number);
 		
@@ -627,7 +627,7 @@ linetype_c *DDF_BoomGetGenLine(int number)
 		line = new linetype_c;
 		line->Default();
 
-		line->ddf.name = epi::STR_Format("%d", number);
+		line->name = epi::STR_Format("%d", number);
 
 		DDF_BoomMakeGenLine(line, number);
 

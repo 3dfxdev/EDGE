@@ -71,7 +71,7 @@ static void FontStartEntry(const char *name)
 	if (! dynamic_font)
 	{
 		dynamic_font = new fontdef_c();
-		dynamic_font->ddf.name = name;
+		dynamic_font->name = name;
 	}
 
 	// instantiate the static entry
@@ -104,7 +104,7 @@ static void FontFinishEntry(void)
 	dynamic_font->CopyDetail(dummy_font);
 
 	// link it into map
-	const char *name = dynamic_font->ddf.name.c_str();
+	const char *name = dynamic_font->name.c_str();
 
 	fontdefs[name] = dynamic_font;
 }
@@ -244,7 +244,7 @@ fontpatch_c::fontpatch_c(int _ch1, int _ch2, const char *_pat1) :
 //
 // fontdef_c constructor
 //
-fontdef_c::fontdef_c() : ddf()
+fontdef_c::fontdef_c() : name()
 {
 	Default();
 }
@@ -262,7 +262,6 @@ fontdef_c::fontdef_c(const fontdef_c &rhs)
 //
 void fontdef_c::Copy(const fontdef_c &src)
 {
-	ddf = src.ddf;
 	CopyDetail(src);
 }
 
@@ -284,8 +283,6 @@ void fontdef_c::CopyDetail(const fontdef_c &src)
 //
 void fontdef_c::Default()
 {
-	ddf.Default();
-
 	type = FNTYP_Patch;
 	patches = NULL;
 	image_name.clear();

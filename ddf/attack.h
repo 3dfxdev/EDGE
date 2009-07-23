@@ -86,7 +86,8 @@ public:
 	atkdef_c& operator=(atkdef_c &rhs);
 
 	// Member vars
-	ddf_base_c ddf;
+
+	epi::strent_c name;
 
 	// the MOBJ that is integrated with this attack, or NULL
 	const mobjtype_c *atk_mobj;

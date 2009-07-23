@@ -267,7 +267,7 @@ static void WeaponStartEntry(const char *name)
 	{
 		dynamic_weapon = new weapondef_c;
 
-		dynamic_weapon->ddf.name = name;
+		dynamic_weapon->name = name;
 
 		weapondefs.Insert(dynamic_weapon);
 	}
@@ -297,7 +297,7 @@ static void WeaponFinishEntry(void)
 {
 	if (buffer_weapon.states.empty())
 		DDF_Error("Weapon `%s' has missing states.\n",
-			dynamic_weapon->ddf.name.c_str());
+			dynamic_weapon->name.c_str());
 
 	DDF_StateFinishStates(buffer_weapon.states);
 
@@ -522,7 +522,7 @@ bool DDF_WeaponIsUpgrade(weapondef_c *weap, weapondef_c *old)
 //
 // weapondef_c Constructor
 //
-weapondef_c::weapondef_c() : states()
+weapondef_c::weapondef_c() : name(), states()
 {
 	Default();
 }
@@ -548,7 +548,6 @@ weapondef_c::~weapondef_c()
 //
 void weapondef_c::Copy(weapondef_c &src)
 {
-	ddf = src.ddf;
 	CopyDetail(src);
 }
 
@@ -635,13 +634,10 @@ void weapondef_c::CopyStates(weapondef_c &src)
 	for (SI = src.states.begin(); SI != src.states.end(); SI++)
 		states.push_back(*SI);
 }
-//
-// weapondef_c::Default()
-//
+
+
 void weapondef_c::Default(void)
 {
-	ddf.Default();
-
 	for (int ATK = 0; ATK < 2; ATK++)
 	{
 		attack[ATK] = NULL;
@@ -767,7 +763,7 @@ int weapondef_container_c::FindFirst(const char *name, int startpos)
 	while (it.IsValid())
 	{
 		w = ITERATOR_TO_TYPE(it, weapondef_c*);
-		if (DDF_CompareName(w->ddf.name.c_str(), name) == 0)
+		if (DDF_CompareName(w->name.c_str(), name) == 0)
 		{
 			return it.GetPos();
 		}

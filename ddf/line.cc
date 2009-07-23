@@ -197,14 +197,14 @@ static const commandlist_t linedef_commands[] =
 	DF("COLOUR", fx_color, DDF_MainGetRGB),
 
 	// -AJA- backwards compatibility cruft...
-	DF("CRUSH", ddf, DDF_LineMakeCrush),
-	DF("SCROLL", ddf, DDF_LineGetScroller),
+	DF("CRUSH", name, DDF_LineMakeCrush),
+	DF("SCROLL", name, DDF_LineGetScroller),
 	DF("SCROLLING_SPEED", s_xspeed, DDF_MainGetFloat),
-	DF("SECSPECIAL", ddf, DDF_DummyFunction),
+	DF("SECSPECIAL", name, DDF_DummyFunction),
 
 	DF("!EXTRAFLOOR_TRANSLUCENCY", translucency, DDF_MainGetPercent),
-	DF("!SOUND", ddf, DDF_DummyFunction),
-	DF("!LIGHT_PROBABILITY", ddf, DDF_DummyFunction),
+	DF("!SOUND", name, DDF_DummyFunction),
+	DF("!LIGHT_PROBABILITY", name, DDF_DummyFunction),
 
 	DDF_CMD_END
 };
@@ -324,7 +324,7 @@ static void LinedefStartEntry(const char *name)
 	else
 	{
 		dynamic_line = new linetype_c;
-		dynamic_line->ddf.name = epi::STR_Format("%d", number);
+		dynamic_line->name = epi::STR_Format("%d", number);
 		linetypes.Insert(dynamic_line);
 	}
 
@@ -447,7 +447,7 @@ void DDF_LinedefInit(void)
 	
 	l = new linetype_c;
 	l->Default();
-	l->ddf.name = "-1";
+	l->name = "-1";
 	linetypes.Insert(l);
 }
 
@@ -460,7 +460,7 @@ void DDF_LinedefCleanUp(void)
 	{
 		l = ITERATOR_TO_TYPE(it, linetype_c*);
 
-		cur_ddf_entryname = epi::STR_Format("[%s]  (lines.ddf)", l->ddf.name.c_str());
+		cur_ddf_entryname = epi::STR_Format("[%s]  (lines.ddf)", l->name.c_str());
 
 		l->t.inspawnobj = l->t.inspawnobj_ref.empty() ? NULL :
 			mobjtypes.Lookup(l->t.inspawnobj_ref.c_str());
@@ -1555,7 +1555,7 @@ teleportdef_c& teleportdef_c::operator=(teleportdef_c &rhs)
 //
 // linetype_c Constructor
 //
-linetype_c::linetype_c()
+linetype_c::linetype_c() : name()
 {
 	Default();
 }
@@ -1575,7 +1575,6 @@ linetype_c::~linetype_c()
 
 void linetype_c::Copy(linetype_c &src)
 {
-	ddf = src.ddf;
 	CopyDetail(src);
 }
 
@@ -1631,8 +1630,6 @@ void linetype_c::CopyDetail(linetype_c &src)
 
 void linetype_c::Default(void)
 {
-	ddf.Default();
-
 	newtrignum = 0;
 	type = line_none;
 	obj = trig_none;
@@ -1743,7 +1740,7 @@ linetype_c* linetype_container_c::Lookup(const int id)
 	for (it = GetTailIterator(); it.IsValid(); it--)
 	{
 		l = ITERATOR_TO_TYPE(it, linetype_c*);
-		if (atoi(l->ddf.name.c_str()) == id)
+		if (atoi(l->name.c_str()) == id)
 		{
 			break;
 		}

@@ -669,7 +669,7 @@ public:
 	void Default(void);
 	linetype_c& operator=(linetype_c &rhs);
 	
-	ddf_base_c ddf;
+	epi::strent_c name;
 	
     // Linedef will change to this.
 	int newtrignum;
@@ -840,8 +840,8 @@ public:
 	void Default(void);
 	sectortype_c& operator=(sectortype_c &rhs);
 	
-	// Sector's name, number, etc...
-	ddf_base_c ddf;
+	// Sector's number, etc...
+	epi::strent_c name;
 
     // This sector gives you secret count
 	bool secret;
