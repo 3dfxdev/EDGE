@@ -540,7 +540,7 @@ static void CastInitNew(int num)
 		cast_info = mobjtypes[0];
 
 	cast_title = cast_info->cast_title.empty() ?
-		cast_info->ddf.name.c_str() :
+		cast_info->name.c_str() :
 		language[cast_info->cast_title.c_str()];
 
 	cast_death = false;

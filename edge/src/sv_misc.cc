@@ -899,7 +899,7 @@ void SR_LightPutType(void *storage, int index, void *extra)
 		ln = ITERATOR_TO_TYPE(it, linetype_c*);
 		if (src == &ln->l)
 		{
-			std::string s = epi::STR_Format("L:%s", ln->ddf.name.c_str());
+			std::string s = epi::STR_Format("L:%s", ln->name.c_str());
 			SV_PutString(s.c_str());
 			return;
 		}
@@ -911,7 +911,7 @@ void SR_LightPutType(void *storage, int index, void *extra)
 		sec = ITERATOR_TO_TYPE(it, sectortype_c*);
 		if (src == &sec->l)
 		{
-			std::string s = epi::STR_Format("S:%s", sec->ddf.name.c_str());
+			std::string s = epi::STR_Format("S:%s", sec->name.c_str());
 			SV_PutString(s.c_str());
 			return;
 		}
@@ -1243,14 +1243,14 @@ void SR_PlaneMovePutType(void *storage, int index, void *extra)
 		
 		if (src == &ln->f)
 		{
-			std::string s = epi::STR_Format("L:F:%s", ln->ddf.name.c_str());
+			std::string s = epi::STR_Format("L:F:%s", ln->name.c_str());
 			SV_PutString(s.c_str());
 			return;
 		}
 		
 		if (src == &ln->c)
 		{
-			std::string s = epi::STR_Format("L:C:%s", ln->ddf.name.c_str());
+			std::string s = epi::STR_Format("L:C:%s", ln->name.c_str());
 			SV_PutString(s.c_str());
 			return;
 		}
@@ -1263,14 +1263,14 @@ void SR_PlaneMovePutType(void *storage, int index, void *extra)
 
 		if (src == &sec->f)
 		{
-			std::string s = epi::STR_Format("S:F:%s", sec->ddf.name.c_str());
+			std::string s = epi::STR_Format("S:F:%s", sec->name.c_str());
 			SV_PutString(s.c_str());
 			return;
 		}
 		
 		if (src == &sec->c)
 		{
-			std::string s = epi::STR_Format("S:C:%s", sec->ddf.name.c_str());
+			std::string s = epi::STR_Format("S:C:%s", sec->name.c_str());
 			SV_PutString(s.c_str());
 			return;
 		}
@@ -1330,7 +1330,7 @@ void SR_SliderPutInfo(void *storage, int index, void *extra)
 		
 		if (src == &ld_type->s)
 		{
-			std::string s = epi::STR_Format(":%s", ld_type->ddf.name.c_str());
+			std::string s = epi::STR_Format(":%s", ld_type->name.c_str());
 			SV_PutString(s.c_str());
 			return;
 		}

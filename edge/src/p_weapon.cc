@@ -1374,7 +1374,7 @@ static void DoWeaponShoot(mobj_t * mo, int ATK, void *data)
 
 	if (! attack)
 		I_Error("Weapon [%s] missing attack for %s action.\n",
-			w->ddf.name.c_str(), ATK ? "SECSHOOT" : "SHOOT");
+			w->name.c_str(), ATK ? "SECSHOOT" : "SHOOT");
 
 	// Some do not need ammunition anyway.
 	// Return if current ammunition sufficient.
@@ -1473,7 +1473,7 @@ void A_WeaponEject(mobj_t * mo, void *data)
 
 	if (! attack)
 		I_Error("Weapon [%s] missing attack for EJECT action.\n",
-			w->ddf.name.c_str());
+			w->name.c_str());
 
 	P_PlayerAttack(mo, attack);
 }
@@ -1548,7 +1548,7 @@ void A_WeaponJump(mobj_t * mo, void *data)
 	if (psp->state == S_NULL || !data)
 	{
 		M_WarnError("JUMP used in weapon [%s] without a label !\n",
-				w->ddf.name.c_str());
+				w->name.c_str());
 		return;
 	}
 
@@ -1632,7 +1632,7 @@ void A_WeaponSetSkin(mobj_t * mo, void *data)
 
 		if (skin < 0 || skin > 9)
 			I_Error("Weapon [%s]: Bad skin number %d in SET_SKIN action.\n",
-					w->ddf.name.c_str(), skin);
+					w->name.c_str(), skin);
 
 		p->weapons[p->ready_wp].model_skin = skin;
 	}

@@ -288,7 +288,7 @@ static void LoadColourmap(const colourmap_c * colm)
 
 	if ((colm->start + colm->length) * 256 > size)
 		I_Error("Colourmap [%s] is too small ! (LENGTH too big)\n", 
-		colm->ddf.name.c_str());
+		colm->name.c_str());
 
 	data_in = data + (colm->start * 256);
 
@@ -484,7 +484,7 @@ void TransformColourmap(colourmap_c *colmap)
 
 #if 0  // DEBUGGING
 		I_Debugf("COLMAP [%s] alpha %d --> (%d %d %d)\n",
-				 colmap->ddf.name.c_str(), 0, r, g, b);
+				 colmap->name.c_str(), 0, r, g, b);
 #endif
 
 		r = MIN(255, MAX(0, r));
@@ -494,7 +494,7 @@ void TransformColourmap(colourmap_c *colmap)
 		colmap->gl_colour = RGB_MAKE(r, g, b);
 	}
 
-	L_WriteDebug("TransformColourmap [%s]\n", colmap->ddf.name.c_str());
+	L_WriteDebug("TransformColourmap [%s]\n", colmap->name.c_str());
 	L_WriteDebug("- gl_colour   = #%06x\n", colmap->gl_colour);
 }
 

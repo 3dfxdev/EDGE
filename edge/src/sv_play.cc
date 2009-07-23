@@ -540,7 +540,7 @@ void SR_WeaponPutInfo(void *storage, int index, void *extra)
 {
 	weapondef_c *info = ((weapondef_c **)storage)[index];
 
-	SV_PutString(info ? info->ddf.name.c_str() : NULL);
+	SV_PutString(info ? info->name.c_str() : NULL);
 }
 
 

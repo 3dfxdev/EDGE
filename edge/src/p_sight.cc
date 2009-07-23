@@ -340,10 +340,10 @@ bool P_CheckSight(mobj_t * src, mobj_t * dest)
 	L_WriteDebug("\n");
 	L_WriteDebug("P_CheckSight:\n");
 	L_WriteDebug("  Src: [%s] @ (%1.0f,%1.0f) in sub %d SEC %d\n", 
-		src->info->ddf.name, sight_I.src.x, sight_I.src.y,
+		src->info->name, sight_I.src.x, sight_I.src.y,
 		sight_I.src_sub - subsectors, sight_I.src_sub->sector - sectors);
 	L_WriteDebug("  Dest: [%s] @ (%1.0f,%1.0f) in sub %d SEC %d\n", 
-		dest->info->ddf.name, sight_I.dest.x, sight_I.dest.y,
+		dest->info->name, sight_I.dest.x, sight_I.dest.y,
 		sight_I.dest_sub - subsectors, sight_I.dest_sub->sector - sectors);
 	L_WriteDebug("  Angle: %1.0f\n", ANG_2_FLOAT(sight_I.angle));
 #endif

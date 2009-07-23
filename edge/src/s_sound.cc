@@ -435,7 +435,7 @@ void S_StartFX(sfx_t *sfx, int category, position_c *pos, int flags)
 		flags |= (def->precious ? FX_Precious : 0);
 	}
 
-//I_Printf("StartFX: '%s' cat:%d flags:0x%04x\n", def->ddf.name.c_str(), category, flags);
+//I_Printf("StartFX: '%s' cat:%d flags:0x%04x\n", def->name.c_str(), category, flags);
 
 	I_LockAudio();
 	{

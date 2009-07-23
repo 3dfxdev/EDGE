@@ -543,7 +543,7 @@ void SR_MobjPutType(void *storage, int index, void *extra)
 {
 	mobjtype_c *info = ((mobjtype_c **)storage)[index];
 
-	SV_PutString((info == NULL) ? NULL : info->ddf.name.c_str());
+	SV_PutString((info == NULL) ? NULL : info->name.c_str());
 }
 
 bool SR_MobjGetSpawnPoint(void *storage, int index, void *extra)
@@ -580,7 +580,7 @@ void SR_MobjPutAttack(void *storage, int index, void *extra)
 {
 	atkdef_c *info = ((atkdef_c **)storage)[index];
 
-	SV_PutString((info == NULL) ? NULL : info->ddf.name.c_str());
+	SV_PutString((info == NULL) ? NULL : info->name.c_str());
 }
 
 
@@ -707,7 +707,7 @@ void SR_MobjPutState(void *storage, int index, void *extra)
 	// object has no states ?
 	if (mo->info->states.empty())
 	{
-		I_Warning("SAVEGAME: object [%s] has no states!\n", mo->info->ddf.name.c_str());
+		I_Warning("SAVEGAME: object [%s] has no states!\n", mo->info->name.c_str());
 		SV_PutString(NULL);
 		return;
 	}
@@ -716,7 +716,7 @@ void SR_MobjPutState(void *storage, int index, void *extra)
 	if (stnum < 0 || stnum >= (int)mo->info->states.size())
 	{
 		I_Warning("SAVEGAME: object [%s] is in invalid state %d\n", 
-			mo->info->ddf.name.c_str(), stnum);
+			mo->info->name.c_str(), stnum);
 
 		if (mo->info->idle_state)
 			stnum = mo->info->idle_state;
@@ -741,7 +741,7 @@ void SR_MobjPutState(void *storage, int index, void *extra)
 
 #if 0
 	L_WriteDebug("Swizzled state %d of [%s] -> `%s'\n", 
-		s_num, mo->info->ddf.name, swizzle);
+		s_num, mo->info->name, swizzle);
 #endif
 
 	SV_PutString(swizzle);
