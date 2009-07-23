@@ -712,8 +712,6 @@ static void G_DoLoadGame(void)
 		I_Error("LOAD-GAME: Level data does not match !  Check WADs\n");
 	}
 
-	//!!! FIXME: Check DDF/RTS consistency (crc), warning only
-
 	if (! is_hub)
 	{
 		leveltime   = globs->level_time;

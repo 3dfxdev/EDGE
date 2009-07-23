@@ -123,7 +123,7 @@ savefield_t;
     { (const char *) & SV_F_BASE.field,  \
       fname, fnum, ftype, getter, putter, NULL }
 
-#define SVFIELD_END  { 0, NULL, 0, SVT_INVALID, NULL, NULL, NULL }
+#define SVFIELD_END  { NULL, NULL, 0, SVT_INVALID, NULL, NULL, NULL }
 
 #define SVDUMMY  ((const char *) & SV_F_BASE)
 
@@ -286,15 +286,6 @@ typedef struct
 	crc_check_t mapsector;
 	crc_check_t mapline;
 	crc_check_t mapthing;
-
-	crc_check_t rscript;
-	crc_check_t ddfatk;
-	crc_check_t ddfgame;
-	crc_check_t ddflevl;
-	crc_check_t ddfline;
-	crc_check_t ddfsect;
-	crc_check_t ddfmobj;
-	crc_check_t ddfweap;
 
 	// [VIEW] info.  Unused if view_pixels is NULL.
 	unsigned short *view_pixels;
