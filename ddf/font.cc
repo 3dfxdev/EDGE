@@ -103,10 +103,6 @@ static void FontFinishEntry(void)
 	// transfer static entry to dynamic entry
 	dynamic_font->CopyDetail(dummy_font);
 
-	// Compute CRC.  In this case, there is no need, since fonts
-	// have zero impact on the game simulation.
-	dynamic_font->ddf.crc.Reset();
-
 	// link it into map
 	const char *name = dynamic_font->ddf.name.c_str();
 

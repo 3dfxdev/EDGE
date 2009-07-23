@@ -119,11 +119,6 @@ static void ColmapFinishEntry(void)
 
 	// transfer static entry to dynamic entry
 	dynamic_colmap->CopyDetail(buffer_colmap);
-
-	// Compute CRC.  In this case, there is no need, since colourmaps
-	// only affect rendering, they have zero effect on the game
-	// simulation itself.
-	dynamic_colmap->ddf.crc.Reset();
 }
 
 static void ColmapClearAll(void)
@@ -218,7 +213,6 @@ void DDF_ColourmapAddRaw(const char *lump_name, int size)
 
 	def->ddf.name = lump_name;
 	def->ddf.number = 0;
-	def->ddf.crc.Reset();
 
 	def->lump_name.Set(lump_name);
 

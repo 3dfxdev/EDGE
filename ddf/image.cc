@@ -173,10 +173,6 @@ static void ImageFinishEntry(void)
 
 	// transfer static entry to dynamic entry
 	dynamic_image->CopyDetail(buffer_image);
-
-	// Compute CRC.  In this case, there is no need, since images
-	// have no real impact on the game simulation.
-	dynamic_image->ddf.crc.Reset();
 }
 
 static void ImageClearAll(void)
@@ -219,7 +215,6 @@ static void AddEssentialImages(void)
 
 		def->ddf.name = ("DLIGHT_EXP");
 		def->ddf.number = 0;
-		def->ddf.crc.Reset();
 
 		def->name = ("DLITEXPN");
 
@@ -239,7 +234,6 @@ static void AddEssentialImages(void)
 
 		def->ddf.name =  ("FUZZ_MAP");
 		def->ddf.number = 0;
-		def->ddf.crc.Reset();
 
 		def->name.Set("FUZZMAP8");
 

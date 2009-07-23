@@ -116,10 +116,6 @@ static void SoundFinishEntry(void)
 	// Keeps the ID info intact as well.
 	dynamic_sfx->normal.sounds[0] = buffer_sfx_ID;
 	dynamic_sfx->normal.num = 1;
-
-	// Compute CRC.  In this case, there is no need, since sounds have
-	// zero impact on the game simulation itself.
-	dynamic_sfx->ddf.crc.Reset();
 }
 
 static void SoundClearAll(void)

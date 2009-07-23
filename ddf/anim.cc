@@ -135,10 +135,6 @@ static void AnimFinishEntry(void)
 
 	// transfer static entry to dynamic entry
 	dynamic_anim->CopyDetail(buffer_anim);
-
-	// Compute CRC.  In this case, there is no need, since animations
-	// have zero impact on the game simulation.
-	dynamic_anim->ddf.crc.Reset();
 }
 
 static void AnimClearAll(void)
@@ -222,7 +218,6 @@ void DDF_ParseANIMATED(const byte *data, int size)
 
 		def->ddf.SetUniqueName("BOOM_ANIM", animdefs.GetSize());
 		def->ddf.number = 0;
-		def->ddf.crc.Reset();
 
 		def->Default();
 		
