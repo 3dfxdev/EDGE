@@ -712,7 +712,7 @@ void SV_SectorFinaliseElems(void)
 		if (savegame_version < 0x12903)
 		{
 			sec->props.type = sec->props.special ?
-				atoi(sec->props.special->ddf.name.c_str()) : 0;
+				atoi(sec->props.special->name.c_str()) : 0;
 		}
 	}
 
@@ -960,7 +960,7 @@ bool SR_LevelGetColmap(void *storage, int index, void *extra)
 		(*dest) = NULL;
 
 	// -AJA- 2008/03/15: backwards compatibility
-	if (*dest && stricmp((*dest)->ddf.name.c_str(), "NORMAL") == 0)
+	if (*dest && stricmp((*dest)->name.c_str(), "NORMAL") == 0)
 		*dest = NULL;
 
 	SV_FreeString(str);
@@ -975,7 +975,7 @@ void SR_LevelPutColmap(void *storage, int index, void *extra)
 	const colourmap_c *src = ((const colourmap_c **)storage)[index];
 
 	if (src)
-		SV_PutString(src->ddf.name.c_str());
+		SV_PutString(src->name.c_str());
 	else
 		SV_PutString(NULL);
 }
@@ -1019,7 +1019,7 @@ void SR_LinePutSpecial(void *storage, int index, void *extra)
 		return;
 	}
 
-	std::string s = epi::STR_Format(":%s", src->ddf.name.c_str());
+	std::string s = epi::STR_Format(":%s", src->name.c_str());
 
 	SV_PutString(s.c_str());
 }
@@ -1063,7 +1063,7 @@ void SR_SectorPutSpecial(void *storage, int index, void *extra)
 		return;
 	}
 
-	std::string s = epi::STR_Format(":%s", src->ddf.name.c_str());
+	std::string s = epi::STR_Format(":%s", src->name.c_str());
 
 	SV_PutString(s.c_str());
 }

@@ -221,7 +221,7 @@ void G_DoLoadLevel(void)
 	
 	P_SetupLevel();
 
-	RAD_SpawnTriggers(currmap->ddf.name.c_str());
+	RAD_SpawnTriggers(currmap->name.c_str());
 
 	starttime = I_GetTime();
 	exittime = INT_MAX;
@@ -520,7 +520,7 @@ void G_ExitToHub(int map_number, int tag)
 	char name_buf[32];
 
 	// bit hackish: decided whether to use MAP## or E#M#
-	if (currmap->ddf.name[0] == 'E')
+	if (currmap->name[0] == 'E')
 	{
 		sprintf(name_buf, "E%dM%d", 1+(map_number/10), map_number%10);
 	}
@@ -790,7 +790,7 @@ static void G_DoSaveGame(void)
 	// --- fill in global structure ---
 
 	globs->game  = SV_DupString(currmap->episode_name.c_str());
-	globs->level = SV_DupString(currmap->ddf.name.c_str());
+	globs->level = SV_DupString(currmap->name.c_str());
 
 	globs->skill = g_skill.d - 1;
 	globs->netgame = netgame ? (g_gametype.d + 1) : 0;

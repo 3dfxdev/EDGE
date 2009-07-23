@@ -271,7 +271,7 @@ static int HD_game_name(lua_State *L)
 	gamedef_c *g = currmap->episode;
 	SYS_ASSERT(g);
 
-	lua_pushstring(L, g->ddf.name.c_str());
+	lua_pushstring(L, g->name.c_str());
 	return 1;
 }
 
@@ -280,7 +280,7 @@ static int HD_game_name(lua_State *L)
 //
 static int HD_map_name(lua_State *L)
 {
-	lua_pushstring(L, currmap->ddf.name.c_str());
+	lua_pushstring(L, currmap->name.c_str());
 	return 1;
 }
 

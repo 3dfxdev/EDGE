@@ -601,8 +601,8 @@ void P_PlayerThink(player_t * player)
 		for (tn = mo->touch_sectors; tn; tn=tn->mo_next)
 		{
 			L_WriteDebug("  SEC %d  Other = %s\n", tn->sec - sectors,
-				tn->sec_next ? tn->sec_next->mo->info->ddf.name :
-			tn->sec_prev ? tn->sec_prev->mo->info->ddf.name : "(None)");
+				tn->sec_next ? tn->sec_next->mo->info->name :
+			tn->sec_prev ? tn->sec_prev->mo->info->name : "(None)");
 
 			SYS_ASSERT(tn->mo == mo);
 			if (tn->mo_next)
@@ -895,7 +895,7 @@ bool P_AddWeapon(player_t *player, weapondef_c *info, int *index)
 	if (index)
 		(*index) = slot;
 
-	L_WriteDebug("P_AddWeapon: [%s] @ %d\n", info->ddf.name.c_str(), slot);
+	L_WriteDebug("P_AddWeapon: [%s] @ %d\n", info->name.c_str(), slot);
 
 	player->weapons[slot].owned = true;
 	player->weapons[slot].info  = info;
@@ -965,7 +965,7 @@ bool P_RemoveWeapon(player_t *player, weapondef_c *info)
 	if (i >= MAXWEAPONS)
 		return false;
 
-	L_WriteDebug("P_RemoveWeapon: [%s] @ %d\n", info->ddf.name.c_str(), i);
+	L_WriteDebug("P_RemoveWeapon: [%s] @ %d\n", info->name.c_str(), i);
 
 	player->weapons[i].owned = false;
 

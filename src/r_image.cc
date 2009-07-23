@@ -413,7 +413,7 @@ static image_c *AddImageUser(imagedef_c *def)
 		case IMGDT_File:
 		case IMGDT_Lump:
 		{
-			const char *basename = def->fname.c_str();
+			const char *basename = def->info.c_str();
 
 			epi::file_c *f = OpenUserFileOrLump(def);
 
@@ -438,7 +438,7 @@ static image_c *AddImageUser(imagedef_c *def)
 
 			CloseUserFileOrLump(def, f);
 #if 1
-			L_WriteDebug("GETINFO [%s] : size %dx%d\n", def->ddf.name.c_str(), w, h);
+			L_WriteDebug("GETINFO [%s] : size %dx%d\n", def->name.c_str(), w, h);
 #endif
 		}
 		break;
@@ -456,7 +456,7 @@ static image_c *AddImageUser(imagedef_c *def)
 	rim->scale_x = def->scale * def->aspect;
 	rim->scale_y = def->scale;
 
-	strcpy(rim->name, def->ddf.name.c_str());
+	strcpy(rim->name, def->name.c_str());
 
 	/* FIX NAME : replace space with '_' */
 	for (int i = 0; rim->name[i]; i++)
