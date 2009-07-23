@@ -164,8 +164,6 @@ force_t;
 extern bool levelTimer;
 extern int levelTimeCount;
 
-extern linetype_c donut[2];
-
 // at map load
 void P_SpawnSpecials1(void);
 void P_SpawnSpecials2(int autotag);
@@ -219,7 +217,7 @@ void P_RunSectorSFX(void);
 void P_DestroyAllSectorSFX(void);
 
 void EV_LightTurnOn(int tag, int bright);
-bool EV_DoDonut(sector_t * s1, struct sfx_s * sfx[4]);
+bool EV_DoDonut(sector_t * s1, const donutdef_c * dough);
 bool EV_Teleport(line_t * line, int tag, mobj_t *thing, const teleportdef_c *def);
 bool EV_ManualPlane(line_t * line, mobj_t * thing, const movplanedef_c * type);
 // bool EV_ManualElevator(line_t * line, mobj_t * thing, const elevatordef_c * type);

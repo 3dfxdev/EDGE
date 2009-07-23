@@ -54,6 +54,8 @@ linetype_c *dynamic_line;
 
 linetype_container_c linetypes;		// <-- User-defined
 
+linetype_c * donut_types[2];
+
 movplanedef_c buffer_floor;
 ladderdef_c buffer_ladder;
 sliding_door_c buffer_slider;
@@ -472,6 +474,19 @@ void DDF_LinedefCleanUp(void)
 	}
 
 	linetypes.Trim();
+
+	// create Donut types
+	
+	donut_types[0] = new linetype_c();
+	donut_types[1] = new linetype_c();
+
+	donut_types[0]->count = 1;
+	donut_types[0]->f.Default(movplanedef_c::DEFAULT_DonutFloor);
+	donut_types[0]->f.tex.Set("-");
+
+	donut_types[1]->count = 1;
+	donut_types[1]->f.Default(movplanedef_c::DEFAULT_DonutFloor);
+	donut_types[1]->f.dest = -32000.0f;
 }
 
 //
@@ -1762,6 +1777,14 @@ void linetype_container_c::Reset()
 {
 	Clear();
 	memset(lookup_cache, 0, sizeof(linetype_c*) * LOOKUP_CACHESIZE);
+}
+
+
+linetype_c * DDF_GetDonutType(int number)
+{
+	SYS_ASSERT(0 <= number && number <= 1);
+
+	return donut_types[number];
 }
 
 //--- editor settings ---
