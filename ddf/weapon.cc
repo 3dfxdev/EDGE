@@ -207,45 +207,6 @@ const specflags_t ammo_types[] =
 };
 
 
-static bool WeaponTryParseState(const char *field, 
-    const char *contents, int index, bool is_last)
-{
-	int i;
-	const state_starter_t *starter;
-	const char *pos;
-
-	if (strnicmp(field, "STATES(", 7) != 0)
-		return false;
-
-	// extract label name
-	field += 7;
-
-	pos = strchr(field, ')');
-
-	if (pos == NULL || pos == field || pos > (field+64))
-		return false;
-
-	std::string labname(field, pos - field);
-
-	// check for the "standard" states
-	starter = NULL;
-
-	for (i=0; weapon_starters[i].label; i++)
-		if (DDF_CompareName(weapon_starters[i].label, labname.c_str()) == 0)
-			break;
-
-	if (weapon_starters[i].label)
-		starter = &weapon_starters[i];
-
-	DDF_StateReadState(contents, labname.c_str(), dynamic_weapon->states,
-			starter ? starter->state_num : NULL, index, 
-			is_last ? starter ? starter->last_redir : "READY" : NULL, 
-			weapon_actions, true);
-
-	return true;
-}
-
-
 //
 //  DDF PARSE ROUTINES
 //
@@ -280,7 +241,9 @@ static void WeaponParseField(const char *field, const char *contents,
 	if (DDF_MainParseField((char *)dynamic_weapon, weapon_commands, field, contents))
 		return;
 
-	if (WeaponTryParseState(field, contents, index, is_last))
+	if (DDF_MainParseState((char *)dynamic_weapon, dynamic_weapon->states, field, contents,
+						   index, is_last, true /* is_weapon */,
+						   weapon_starters, weapon_actions))
 		return;
 
 	DDF_WarnError("Unknown weapons.ddf command: %s\n", field);

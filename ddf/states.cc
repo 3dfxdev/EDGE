@@ -276,6 +276,7 @@ int DDF_StateFindLabel(const std::vector<state_t> &group, const char *label)
 	return 0;
 }
 
+
 void DDF_StateReadState(const char *info, const char *label,
 						std::vector<state_t> &group, int *state_num, int index,
 						const char *redir, const actioncode_t *action_list,
@@ -490,6 +491,47 @@ void DDF_StateReadState(const char *info, const char *label,
 }
 
 
+bool DDF_MainParseState(char *object, std::vector<state_t> &group,
+						const char *field, const char *contents,
+						int index, bool is_last, bool is_weapon,
+						const state_starter_t *starters,
+						const actioncode_t *actions)
+{
+	if (strnicmp(field, "STATES(", 7) != 0)
+		return false;
+
+	// extract label name
+	field += 7;
+
+	const char *pos = strchr(field, ')');
+
+	if (pos == NULL || pos == field || pos > (field+64))
+		return false;
+
+	std::string labname(field, pos - field);
+
+	// check for the "standard" states
+	int i;
+	for (i=0; starters[i].label; i++)
+		if (DDF_CompareName(starters[i].label, labname.c_str()) == 0)
+			break;
+
+	const state_starter_t *starter = NULL;
+	if (starters[i].label)
+		starter = &starters[i];
+
+	int * var = NULL;
+	if (starter)
+		var = (int *)(object + starter->offset);
+
+	DDF_StateReadState(contents, labname.c_str(), group, var, index,
+		is_last ? starter ? starter->last_redir : (is_weapon ? "READY" : "IDLE") : NULL, 
+		actions, is_weapon);
+
+	return true;
+}
+
+
 //
 // Check through the states on an mobj and attempts to dereference any
 // encoded state redirectors.
@@ -535,6 +577,24 @@ void DDF_StateFinishStates(std::vector<state_t> &group)
   
 	redirs.Clear();
 }
+
+
+//----------------------------------------------------------------------------
+
+
+act_jump_info_s::act_jump_info_s() : chance(PERCENT_MAKE(100)) // -ACB- 2001/02/04 tis a precent_t
+{ }
+
+act_jump_info_s::~act_jump_info_s()
+{ }
+
+
+act_become_info_s::act_become_info_s() : info(NULL), info_ref(), start()
+{ }
+
+act_become_info_s::~act_become_info_s()
+{ }
+
 
 //
 // Parse the special argument for the state as an attack.
@@ -632,13 +692,6 @@ void DDF_StateGetPercent(const char *arg, state_t * cur_state)
 }
 
 
-act_jump_info_s::act_jump_info_s() :
-	chance(PERCENT_MAKE(100)) // -ACB- 2001/02/04 tis a precent_t
-{ }
-
-act_jump_info_s::~act_jump_info_s()
-{ }
-
 void DDF_StateGetJump(const char *arg, state_t * cur_state)
 {
 	// JUMP(label)
@@ -716,13 +769,6 @@ void DDF_StateGetFrame(const char *arg, state_t * cur_state)
 	cur_state->jumpstate = ((StateGetRedirector(buffer) + 1) << 16) + offset;
 }
 
-
-act_become_info_s::act_become_info_s() :
-	info(NULL), info_ref(), start()
-{ }
-
-act_become_info_s::~act_become_info_s()
-{ }
 
 void DDF_StateGetBecome(const char *arg, state_t * cur_state)
 {

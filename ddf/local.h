@@ -241,6 +241,12 @@ void DDF_Obsolete(const char *err, ...) GCCATTR((format (printf,1,2)));
 bool DDF_MainParseField(char *object, const commandlist_t * commands,
 			      		const char *field, const char *contents);
 
+bool DDF_MainParseState(char *object, std::vector<state_t> &group,
+						const char *field, const char *contents,
+						int index, bool is_last, bool is_weapon,
+						const state_starter_t *starters,
+						const actioncode_t *actions);
+
 void DDF_DummyFunction(const char *info, void *storage);
 
 void DDF_MainGetPercent(const char *info, void *storage);
@@ -332,10 +338,6 @@ void DDF_StateGetAngle (const char *arg, state_t * cur_state);
 void DDF_StateGetSlope (const char *arg, state_t * cur_state);
 void DDF_StateGetRGB (const char *arg, state_t * cur_state);
 
-void DDF_StateReadState (const char *info, const char *label,
-			 std::vector<state_t> &group, int *state_num, int index,
-			 const char *redir, const actioncode_t * action_list,
-			 bool is_weapon);
 void DDF_StateFinishStates (std::vector<state_t> &group);
 void DDF_StateCleanUp (void);
 int DDF_StateFindLabel (const std::vector<state_t> &group, const char *label);

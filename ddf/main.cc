@@ -343,6 +343,41 @@ weakness_info_c& weakness_info_c::operator=(weakness_info_c &rhs)
 	return *this;
 }
 
+//
+// Compare two names. This is like stricmp(), except that spaces
+// and underscors are ignored for comparison purposes.
+//
+// -AJA- 1999/09/11: written.
+//
+int DDF_CompareName(const char *A, const char *B)
+{
+	for (;;)
+	{
+		if (*A == 0 && *B == 0)
+			return 0;
+
+		if (*A == 0) return -1;
+		if (*B == 0) return +1;
+
+		if (*A == ' ' || *A == '_')
+		{
+			A++; continue;
+		}
+
+		if (*B == ' ' || *B == '_')
+		{
+			B++; continue;
+		}
+
+		if (toupper(*A) == toupper(*B))
+		{
+			A++; B++; continue;
+		}
+
+		return toupper(*A) - toupper(*B);
+	}
+}
+
 float DDF_Tan(float degrees)
 {
 	degrees = CLAMP(-89.5f, degrees, 89.5f);
