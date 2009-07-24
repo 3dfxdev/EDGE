@@ -2,7 +2,7 @@
 //  EDGE Data Definition File Code (Main)
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -27,10 +27,6 @@
 #define S_CLOSE_DIST     160.0f
 #define S_CLIPPING_DIST  4000.0f
 
-
-// ----------------------------------------------------------------
-// ------------------------ SOUND EFFECTS -------------------------
-// ----------------------------------------------------------------
 
 // -KM- 1998/10/29
 typedef struct sfx_s
