@@ -168,18 +168,6 @@ lighting_model_e;
 class gamedef_c
 {
 public:
-	gamedef_c();
-	gamedef_c(gamedef_c &rhs);
-	~gamedef_c();
-
-private:
-	void Copy(gamedef_c &src);
-	
-public:
-	void CopyDetail(gamedef_c &src);
-	void Default(void);
-	gamedef_c& operator=(gamedef_c &rhs);
-
 	epi::strent_c name;
 
 	wi_animdef_container_c anims;
@@ -213,7 +201,20 @@ public:
 
 	// contains a bitmask of MPF_XXX flags
 	int features;
+
+public:
+	 gamedef_c();
+	~gamedef_c();
+
+	void Default(void);
+	void CopyDetail(gamedef_c &src);
+
+private:
+	// disable copy construct and assignment operator
+	explicit gamedef_c(gamedef_c &rhs) { }
+	gamedef_c& operator= (gamedef_c &rhs) { return *this; }
 };
+
 
 class gamedef_container_c : public epi::array_c
 {

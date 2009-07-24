@@ -648,23 +648,12 @@ typedef enum
 }
 line_special_e;
 
+
 // --> Line definition type class
 
 class linetype_c
 {
 public:
-	linetype_c();
-	linetype_c(linetype_c &rhs);
-	~linetype_c();
-	
-private:
-	void Copy(linetype_c &src);
-
-public:
-	void CopyDetail(linetype_c &src);
-	void Default(void);
-	linetype_c& operator=(linetype_c &rhs);
-	
 	epi::strent_c name;
 	
     // Linedef will change to this.
@@ -767,7 +756,20 @@ public:
 
 	// -AJA- 2007/07/05: color for effects (e.g. MIRRORs)
 	rgbcol_t fx_color;
+
+public:
+	 linetype_c();
+	~linetype_c();
+	
+	void Default(void);
+	void CopyDetail(linetype_c &src);
+	
+private:
+	// disable copy construct and assignment operator
+	explicit linetype_c(linetype_c &rhs) { }
+	linetype_c& operator= (linetype_c &rhs) { return *this; }
 };
+
 
 // --> Linetype container class
 
@@ -821,22 +823,11 @@ typedef enum
 }
 sector_flag_e;
 
+
 class sectortype_c
 {
 public:
-	sectortype_c();
-	sectortype_c(sectortype_c &rhs);
-	~sectortype_c();
-	
-private:
-	void Copy(sectortype_c &src);
-	
-public:
-	void CopyDetail(sectortype_c &src);
-	void Default(void);
-	sectortype_c& operator=(sectortype_c &rhs);
-	
-	// Sector's number, etc...
+	// Sector's DDF number
 	epi::strent_c name;
 
     // This sector gives you secret count
@@ -881,7 +872,20 @@ public:
 	float push_speed;
 	float push_zspeed;
 	angle_t push_angle;
+
+public:
+	 sectortype_c();
+	~sectortype_c();
+	
+	void Default(void);
+	void CopyDetail(sectortype_c &src);
+	
+private:
+	// disable copy construct and assignment operator
+	explicit sectortype_c(sectortype_c &rhs) { }
+	sectortype_c& operator= (sectortype_c &rhs) { return *this; }
 };
+
 
 // --> Sectortype container class
 
