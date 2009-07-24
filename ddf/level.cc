@@ -35,11 +35,12 @@ static void DDF_LevelGetWistyle(const char *info, void *storage);
 
 mapdef_container_c mapdefs;
 
-static mapdef_c *dynamic_map;
+static mapdef_c *dynamic_level;
+
 
 #undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  buffer_finale
-static map_finaledef_c buffer_finale;
+#define DDF_CMD_BASE  dummy_finale
+static map_finaledef_c dummy_finale;
 
 static const commandlist_t finale_commands[] =
 {
@@ -62,8 +63,8 @@ static const commandlist_t finale_commands[] =
 // -KM- 1998/11/25 Finales are all go.
 
 #undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  dummy_map
-static mapdef_c dummy_map;
+#define DDF_CMD_BASE  dummy_level
+static mapdef_c dummy_level;
 
 static const commandlist_t level_commands[] =
 {
@@ -125,15 +126,15 @@ static void LevelStartEntry(const char *name)
 		name = "LEVEL_WITH_NO_NAME";
 	}
 
-	dynamic_map = mapdefs.Lookup(name);
+	dynamic_level = mapdefs.Lookup(name);
 
 	// not found, create a new one
-	if (! dynamic_map)
+	if (! dynamic_level)
 	{
-		dynamic_map = new mapdef_c;
-		dynamic_map->name = name;
+		dynamic_level = new mapdef_c;
+		dynamic_level->name = name;
 
-		mapdefs.Insert(dynamic_map);
+		mapdefs.Insert(dynamic_level);
 	}
 }
 
@@ -144,14 +145,16 @@ static void LevelParseField(const char *field, const char *contents,
 	I_Debugf("LEVEL_PARSE: %s = %s;\n", field, contents);
 #endif
 
-	if (! DDF_MainParseField(dynamic_map, level_commands, field, contents))
-		DDF_WarnError2(128, "Unknown levels.ddf command: %s\n", field);
+	if (! DDF_MainParseField((char *)dynamic_level, level_commands, field, contents))
+	{
+		DDF_WarnError("Unknown levels.ddf command: %s\n", field);
+	}
 }
 
 static void LevelFinishEntry(void)
 {
 	// check stuff
-	if (dynamic_map->episode_name.empty())
+	if (dynamic_level->episode_name.empty())
 		DDF_Error("Level entry must have an EPISODE name !\n");
 
 	// TODO: check more stuff...

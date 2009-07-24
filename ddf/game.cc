@@ -108,8 +108,10 @@ static void GameParseField (const char *field, const char *contents,
 	I_Debugf("GAME_PARSE: %s = %s;\n", field, contents);
 #endif
 
-	if (! DDF_MainParseField(dynamic_gamedef, gamedef_commands, field, contents))
+	if (! DDF_MainParseField((char *)dynamic_gamedef, gamedef_commands, field, contents))
+	{
 		DDF_WarnError("Unknown games.ddf command: %s\n", field);
+	}
 }
 
 static void GameFinishEntry (void)

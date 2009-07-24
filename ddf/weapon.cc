@@ -26,21 +26,22 @@
 
 #include "src/p_action.h"
 
-#undef  DF
-#define DF  DDF_CMD
-
-static weapondef_c buffer_weapon;
-static weapondef_c *dynamic_weapon;
 
 weapondef_container_c weapondefs;
+
+static weapondef_c *dynamic_weapon;
 
 
 static void DDF_WGetAmmo(const char *info, void *storage);
 static void DDF_WGetUpgrade(const char *info, void *storage);
 static void DDF_WGetSpecialFlags(const char *info, void *storage);
 
+#undef  DF
+#define DF  DDF_CMD
+
 #undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  buffer_weapon
+#define DDF_CMD_BASE  dummy_weapon
+static weapondef_c dummy_weapon;
 
 static const commandlist_t weapon_commands[] =
 {
@@ -205,6 +206,7 @@ const specflags_t ammo_types[] =
     {NULL, 0, 0}
 };
 
+
 static bool WeaponTryParseState(const char *field, 
     const char *contents, int index, bool is_last)
 {
@@ -235,7 +237,7 @@ static bool WeaponTryParseState(const char *field,
 	if (weapon_starters[i].label)
 		starter = &weapon_starters[i];
 
-	DDF_StateReadState(contents, labname.c_str(), buffer_weapon.states,
+	DDF_StateReadState(contents, labname.c_str(), dynamic_weapon->states,
 			starter ? starter->state_num : NULL, index, 
 			is_last ? starter ? starter->last_redir : "READY" : NULL, 
 			weapon_actions, true);
@@ -256,25 +258,16 @@ static void WeaponStartEntry(const char *name)
 		name = "WEAPON_WITH_NO_NAME";
 	}
 
-	weapondef_c *existing = weapondefs.Lookup(name);
+	dynamic_weapon = weapondefs.Lookup(name);
 
 	// not found, create a new one
-	if (existing)
-	{
-		dynamic_weapon = existing;
-	}
-	else
+	if (! dynamic_weapon)
 	{
 		dynamic_weapon = new weapondef_c;
-
 		dynamic_weapon->name = name;
 
 		weapondefs.Insert(dynamic_weapon);
 	}
-
-	// instantiate the static entries
-	buffer_weapon.states.clear();
-	buffer_weapon.Default();
 }
 
 static void WeaponParseField(const char *field, const char *contents,
@@ -284,97 +277,94 @@ static void WeaponParseField(const char *field, const char *contents,
 	I_Debugf("WEAPON_PARSE: %s = %s;\n", field, contents);
 #endif
 
-	if (DDF_MainParseField(weapon_commands, field, contents))
+	if (DDF_MainParseField((char *)dynamic_weapon, weapon_commands, field, contents))
 		return;
 
 	if (WeaponTryParseState(field, contents, index, is_last))
 		return;
 
-	DDF_WarnError2(128, "Unknown weapons.ddf command: %s\n", field);
+	DDF_WarnError("Unknown weapons.ddf command: %s\n", field);
 }
 
 static void WeaponFinishEntry(void)
 {
-	if (buffer_weapon.states.empty())
+	if (dynamic_weapon->states.empty())
 		DDF_Error("Weapon `%s' has missing states.\n",
 			dynamic_weapon->name.c_str());
 
-	DDF_StateFinishStates(buffer_weapon.states);
+	DDF_StateFinishStates(dynamic_weapon->states);
 
 	// check stuff...
 	int ATK;
 
 	for (ATK = 0; ATK < 2; ATK++)
 	{
-		if (buffer_weapon.ammopershot[ATK] < 0)
+		if (dynamic_weapon->ammopershot[ATK] < 0)
 		{
 			DDF_WarnError2(128, "Bad %sAMMOPERSHOT value for weapon: %d\n",
-					ATK ? "SEC_" : "", buffer_weapon.ammopershot[ATK]);
-			buffer_weapon.ammopershot[ATK] = 0;
+					ATK ? "SEC_" : "", dynamic_weapon->ammopershot[ATK]);
+			dynamic_weapon->ammopershot[ATK] = 0;
 		}
 
 		// zero values for ammopershot really mean infinite ammo
-		if (buffer_weapon.ammopershot[ATK] == 0)
-			buffer_weapon.ammo[ATK] = AM_NoAmmo;
+		if (dynamic_weapon->ammopershot[ATK] == 0)
+			dynamic_weapon->ammo[ATK] = AM_NoAmmo;
 
-		if (buffer_weapon.clip_size[ATK] < 0)
+		if (dynamic_weapon->clip_size[ATK] < 0)
 		{
 			DDF_WarnError2(129, "Bad %sCLIPSIZE value for weapon: %d\n",
-					ATK ? "SEC_" : "", buffer_weapon.clip_size[ATK]);
-			buffer_weapon.clip_size[ATK] = 0;
+					ATK ? "SEC_" : "", dynamic_weapon->clip_size[ATK]);
+			dynamic_weapon->clip_size[ATK] = 0;
 		}
 
 		// check if clip_size + ammopershot makes sense
-		if (buffer_weapon.clip_size[ATK] > 0 && buffer_weapon.ammo[ATK] != AM_NoAmmo &&
-			(buffer_weapon.clip_size[ATK] < buffer_weapon.ammopershot[ATK] ||
-			 (buffer_weapon.clip_size[ATK] % buffer_weapon.ammopershot[ATK] != 0)))
+		if (dynamic_weapon->clip_size[ATK] > 0 && dynamic_weapon->ammo[ATK] != AM_NoAmmo &&
+			(dynamic_weapon->clip_size[ATK] < dynamic_weapon->ammopershot[ATK] ||
+			 (dynamic_weapon->clip_size[ATK] % dynamic_weapon->ammopershot[ATK] != 0)))
 		{
 			DDF_WarnError2(129, "%sAMMOPERSHOT=%d incompatible with %sCLIPSIZE=%d\n",
-				ATK ? "SEC_" : "", buffer_weapon.ammopershot[ATK],
-				ATK ? "SEC_" : "", buffer_weapon.clip_size[ATK]);
-			buffer_weapon.ammopershot[ATK] = 1;
+				ATK ? "SEC_" : "", dynamic_weapon->ammopershot[ATK],
+				ATK ? "SEC_" : "", dynamic_weapon->clip_size[ATK]);
+			dynamic_weapon->ammopershot[ATK] = 1;
 		}
 
 		// DISCARD states require the PARTIAL special
-		if (buffer_weapon.discard_state[ATK] &&
-			! (buffer_weapon.specials[ATK] & WPSP_Partial))
+		if (dynamic_weapon->discard_state[ATK] &&
+			! (dynamic_weapon->specials[ATK] & WPSP_Partial))
 		{
 			DDF_Error("Cannot use %sDISCARD states with NO_PARTIAL special.\n",
 				ATK ? "SEC_" : "");
 		}
 	}
 
-	if (buffer_weapon.shared_clip)
+	if (dynamic_weapon->shared_clip)
 	{
-		if (buffer_weapon.clip_size[0] == 0)
+		if (dynamic_weapon->clip_size[0] == 0)
 			DDF_Error("SHARED_CLIP requires a clip weapon (missing CLIPSIZE)\n");
 
-		if (buffer_weapon.attack_state[1] == 0)
+		if (dynamic_weapon->attack_state[1] == 0)
 			DDF_Error("SHARED_CLIP used without secondary attack states.\n");
 
-		if (buffer_weapon.ammo[1] != AM_NoAmmo ||
-			buffer_weapon.ammopershot[1] != 0 ||
-			buffer_weapon.clip_size[1] != 0)
+		if (dynamic_weapon->ammo[1] != AM_NoAmmo ||
+			dynamic_weapon->ammopershot[1] != 0 ||
+			dynamic_weapon->clip_size[1] != 0)
 		{
 			DDF_Error("SHARED_CLIP cannot be used with SEC_AMMO or SEC_CLIPSIZE commands.\n");
 		}
 	}
 
-	if (buffer_weapon.model_skin < 0 || buffer_weapon.model_skin > 9)
+	if (dynamic_weapon->model_skin < 0 || dynamic_weapon->model_skin > 9)
 		DDF_Error("Bad MODEL_SKIN value %d in DDF (must be 0-9).\n",
-			buffer_weapon.model_skin);
+			dynamic_weapon->model_skin);
 
 	// backwards compatibility
-	if (buffer_weapon.priority < 0)
+	if (dynamic_weapon->priority < 0)
 	{
 		DDF_WarnError2(129, "Using PRIORITY=-1 in weapons.ddf is obsolete !\n");
 
-		buffer_weapon.dangerous = true;
-		buffer_weapon.priority = 10;
+		dynamic_weapon->dangerous = true;
+		dynamic_weapon->priority = 10;
 	}
-
-	// transfer static entry to dynamic entry
-	dynamic_weapon->CopyDetail(buffer_weapon);
 }
 
 static void WeaponClearAll(void)

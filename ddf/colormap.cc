@@ -84,10 +84,10 @@ static void ColmapParseField(const char *field, const char *contents,
 	I_Debugf("COLMAP_PARSE: %s = %s;\n", field, contents);
 #endif
 
-	if (DDF_MainParseField(dynamic_colmap, colmap_commands, field, contents))
-		return;
-
-	DDF_WarnError2(128, "Unknown colmap.ddf command: %s\n", field);
+	if (! DDF_MainParseField((char *)dynamic_colmap, colmap_commands, field, contents))
+	{
+		DDF_WarnError("Unknown colmap.ddf command: %s\n", field);
+	}
 }
 
 static void ColmapFinishEntry(void)

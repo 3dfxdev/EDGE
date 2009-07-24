@@ -308,10 +308,9 @@ void DDF_MobjGetBpArmour (const char *info, void *storage);
 void DDF_MobjGetBpKeys (const char *info, void *storage);
 void DDF_MobjGetBpWeapon (const char *info, void *storage);
 void DDF_MobjGetPlayer (const char *info, void *storage);
-mobjtype_c *DDF_MobjMakeAttackObj (mobjtype_c * info, const char *atk_name);
 
 void ThingParseField (const char *field, const char *contents,
-		      int index, bool is_last);
+					  int index, bool is_last);
 
 // DDF_MUS Code
 void DDF_MusicPlaylistInit (void);
