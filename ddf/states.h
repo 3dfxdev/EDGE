@@ -110,6 +110,8 @@ extern const state_t ddf_template_state;
 extern std::vector<std::string> ddf_sprite_names;
 extern std::vector<std::string> ddf_model_names;
 
+int DDF_StateFindLabel(const std::vector<state_t> &group, const char *label);
+
 
 #endif // __DDF_STATES_H__
 

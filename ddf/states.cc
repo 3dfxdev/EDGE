@@ -255,9 +255,11 @@ static int StateGetRedirector(const char *redir)
 	return redirs.GetSize()-1;
 }
 
+
 int DDF_StateFindLabel(const std::vector<state_t> &group, const char *label)
 {
-	for (int i = 1; i < (int)group.size(); i++)
+	// the first state is S_NULL, and never needs to be checked
+	for (int i = (int)group.size()-1; i >= 1; i--)
 	{
 		if (! group[i].label)
 			continue;
@@ -266,14 +268,24 @@ int DDF_StateFindLabel(const std::vector<state_t> &group, const char *label)
 			return i;
 	}
 
+	return S_NULL;
+}
+
+static int DoFindLabel(const std::vector<state_t> &group, const char *label)
+{
+	int result = DDF_StateFindLabel(group, label);
+
+	if (result != S_NULL)
+		return result;
+
 	// compatibility hack:
 	if (DDF_CompareName(label, "IDLE") == 0)
 	{
-		return DDF_StateFindLabel(group, "SPAWN");
+		return DoFindLabel(group, "SPAWN");
 	}
-  
-	DDF_Error("Unknown label `%s' (object has no such frames).\n", label);
-	return 0;
+
+	DDF_Error("Unknown label '%s' (object has no such frames).\n", label);
+	return S_NULL; /* NOT REACHED */
 }
 
 
@@ -555,7 +567,7 @@ void DDF_StateFinishStates(std::vector<state_t> &group)
 		}
 		else
 		{
-			st->nextstate = DDF_StateFindLabel(group, redirs[(st->nextstate >> 16) - 1]) +
+			st->nextstate = DoFindLabel(group, redirs[(st->nextstate >> 16) - 1]) +
 				(st->nextstate & 0xFFFF);
 		}
 
@@ -570,13 +582,41 @@ void DDF_StateFinishStates(std::vector<state_t> &group)
 		}
 		else
 		{
-			st->jumpstate = DDF_StateFindLabel(group, redirs[(st->jumpstate >> 16) - 1]) +
+			st->jumpstate = DoFindLabel(group, redirs[(st->jumpstate >> 16) - 1]) +
 				(st->jumpstate & 0xFFFF);
 		}
 	}
   
 	redirs.Clear();
 }
+
+
+int DDF_MainLookupDirector(const mobjtype_c *info, const char *ref)
+{
+	const char *p = strchr(ref, ':');
+
+	int len = p ? (p - ref) : strlen(ref);
+
+	if (len <= 0)
+		DDF_Error("Bad Director '%s' : Nothing after divide\n", ref);
+
+	std::string director(ref, len);
+
+	int index = DoFindLabel(info->states, director.c_str());
+
+	if (p)
+		index += MAX(0, atoi(p + 1) - 1);
+
+	if (index >= (int)info->states.size())
+	{
+		DDF_Warning("Bad Director '%s' : offset is too large\n", ref);
+		index = MAX(0, (int)info->states.size() - 1);
+	}
+
+	return index;
+}
+
+
 
 
 //----------------------------------------------------------------------------
