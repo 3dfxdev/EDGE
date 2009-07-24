@@ -31,14 +31,12 @@
 #undef  DF
 #define DF  DDF_CMD
 
-static atkdef_c buffer_atk;
-static atkdef_c *dynamic_atk;
-
-// this (and buffer_mobj) logically belongs with buffer_atk:
 static bool attack_has_mobj;
 
 // kludge for backwards compatibility
 #define AF_DAMAGE_KLUDGE  (1 << 24)
+
+static atkdef_c *dynamic_atk;
 
 atkdef_container_c atkdefs;
 
@@ -48,10 +46,9 @@ static void DDF_AtkGetLabel(const char *info, void *storage);
 static void DDF_AtkGetOldDamRange(const char *info, void *storage);
 static void DDF_AtkGetOldDamMulti(const char *info, void *storage);
 
-damage_c buffer_damage;
-
 #undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  buffer_damage
+#define DDF_CMD_BASE  dummy_damage
+damage_c dummy_damage;
 
 const commandlist_t damage_commands[] =
 {
@@ -74,12 +71,13 @@ const commandlist_t damage_commands[] =
 //  thing commands for all types of things (scenery, items, creatures + projectiles)
 
 #undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  buffer_atk
+#define DDF_CMD_BASE  dummy_atk
+static atkdef_c dummy_atk;
 
 static const commandlist_t attack_commands[] =
 {
 	// sub-commands
-	DDF_SUB_LIST("DAMAGE", damage, damage_commands, buffer_damage),
+	DDF_SUB_LIST("DAMAGE", damage, damage_commands),
 
 	DF("ATTACKTYPE", attackstyle, DDF_AtkGetType),
 	DF("ATTACK_SPECIAL", flags, DDF_AtkGetSpecial),
@@ -121,25 +119,18 @@ static const commandlist_t attack_commands[] =
 
 static void AttackStartEntry(const char *name)
 {
-	atkdef_c *existing = NULL;
-
 	if (!name || !name[0])
 	{
 		DDF_WarnError("New attack entry is missing a name!");
 		name = "!NO_NAME_ATTACK!";
 	}
 
-	existing = atkdefs.Lookup(name);
+	dynamic_atk = atkdefs.Lookup(name);
 
 	// not found, create a new one
-	if (existing)
-	{
-		dynamic_atk = existing;
-	}
-	else
+	if (! dynamic_atk)
 	{
 		dynamic_atk = new atkdef_c;
-
 		dynamic_atk->name = name;
 
 		atkdefs.Insert(dynamic_atk);
@@ -147,9 +138,8 @@ static void AttackStartEntry(const char *name)
 
 	attack_has_mobj = false;
 
-	// instantiate the static entries
-	buffer_atk.Default();
 
+	// FIXME !!!
 	buffer_mobj.states.clear();
 	buffer_mobj.Default();
 }
@@ -162,21 +152,21 @@ static void AttackParseField(const char *field, const char *contents,
 #endif
 
 	// first, check attack commands
-	if (DDF_MainParseField(attack_commands, field, contents))
+	if (DDF_MainParseField((char *)dynamic_atk, attack_commands, field, contents))
 		return;
 
 	// we need to create an MOBJ for this attack
 	attack_has_mobj = true;
 
-	ThingParseField(field, contents, index, is_last);
+	ThingParseField((char *)dynamic_mobj, field, contents, index, is_last);
 }
 
 static void AttackFinishEntry(void)
 {
 	// check DAMAGE stuff
-	if (buffer_atk.damage.nominal < 0)
+	if (dynamic_atk->damage.nominal < 0)
 	{
-		DDF_WarnError2(128, "Bad DAMAGE.VAL value %f in DDF.\n", buffer_atk.damage.nominal);
+		DDF_WarnError2(128, "Bad DAMAGE.VAL value %f in DDF.\n", dynamic_atk->damage.nominal);
 	}
 
 	// FIXME: check more stuff...
@@ -208,43 +198,37 @@ static void AttackFinishEntry(void)
 			DDF_Warning("DLIGHT RADIUS value %1.1f too large (over 512).\n",
 				buffer_mobj.dlight[0].radius);
 
-		buffer_atk.atk_mobj = DDF_MobjMakeAttackObj(&buffer_mobj,
+		dynamic_atk->atk_mobj = DDF_MobjMakeAttackObj(&buffer_mobj,
 											dynamic_atk->name.c_str());
 	}
 	else
-		buffer_atk.atk_mobj = NULL;
+		dynamic_atk->atk_mobj = NULL;
 
 	// compute an attack class, if none specified
-	if (buffer_atk.attack_class == BITSET_EMPTY)
+	if (dynamic_atk->attack_class == BITSET_EMPTY)
 	{
-		buffer_atk.attack_class = attack_has_mobj ? BITSET_MAKE('M') : 
-			(buffer_atk.attackstyle == ATK_CLOSECOMBAT ||
-			 buffer_atk.attackstyle == ATK_SKULLFLY) ? 
+		dynamic_atk->attack_class = attack_has_mobj ? BITSET_MAKE('M') : 
+			(dynamic_atk->attackstyle == ATK_CLOSECOMBAT ||
+			 dynamic_atk->attackstyle == ATK_SKULLFLY) ? 
 			BITSET_MAKE('C') : BITSET_MAKE('B');
 	}
 
 	// -AJA- 2009: Backwards compatibility
-	if (buffer_atk.flags & AF_DAMAGE_KLUDGE)
+	if (dynamic_atk->flags & AF_DAMAGE_KLUDGE)
 	{
-		if (buffer_atk.damage.linear_max < 1.0f)
-			buffer_atk.damage.linear_max = 1.0f;
+		if (dynamic_atk->damage.linear_max < 1.0f)
+			dynamic_atk->damage.linear_max = 1.0f;
 
-		buffer_atk.damage.linear_max *= buffer_atk.damage.nominal;
-		buffer_atk.flags = (attackflags_e)(buffer_atk.flags & ~AF_DAMAGE_KLUDGE);
+		dynamic_atk->damage.linear_max *= dynamic_atk->damage.nominal;
+		dynamic_atk->flags = (attackflags_e)(dynamic_atk->flags & ~AF_DAMAGE_KLUDGE);
 	}
 
 	// -AJA- 2005/08/06: Berserk backwards compatibility
 	if (DDF_CompareName(dynamic_atk->name.c_str(), "PLAYER_PUNCH") == 0
-		&& buffer_atk.berserk_mul == 1.0f)
+		&& dynamic_atk->berserk_mul == 1.0f)
 	{
-		buffer_atk.berserk_mul = 10.0f;
+		dynamic_atk->berserk_mul = 10.0f;
 	}
-
-	// transfer static entry to dynamic entry
-  
-	dynamic_atk->CopyDetail(buffer_atk);
-
-	// FIXME!! Compute the CRC value
 }
 
 static void AttackClearAll(void)

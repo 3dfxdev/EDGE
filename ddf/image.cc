@@ -28,9 +28,6 @@
 #undef  DF
 #define DF  DDF_CMD
 
-static imagedef_c buffer_image;
-static imagedef_c *dynamic_image;
-
 static void DDF_ImageGetType(const char *info, void *storage);
 static void DDF_ImageGetSpecial(const char *info, void *storage);
 static void DDF_ImageGetFixTrans(const char *info, void *storage);
@@ -38,7 +35,8 @@ static void DDF_ImageGetFixTrans(const char *info, void *storage);
 // -ACB- 1998/08/10 Use DDF_MainGetLumpName for getting the..lump name.
 // -KM- 1998/09/27 Use DDF_MainGetTime for getting tics
 
-#define DDF_CMD_BASE  buffer_image
+#define DDF_CMD_BASE  dummy_image
+static imagedef_c dummy_image;
 
 static const commandlist_t image_commands[] =
 {
@@ -53,7 +51,11 @@ static const commandlist_t image_commands[] =
 	DDF_CMD_END
 };
 
+
+static imagedef_c *dynamic_image;
+
 imagedef_container_c imagedefs;
+
 
 static image_namespace_e GetImageNamespace(const char *prefix)
 {
@@ -127,13 +129,10 @@ static void ImageStartEntry(const char *name)
 		dynamic_image = new imagedef_c;
 
 		dynamic_image->name = name;
+		dynamic_image->belong = belong;
 
 		imagedefs.Insert(dynamic_image);
 	}
-
-	// instantiate the static entry
-	buffer_image.Default();
-	buffer_image.belong = belong;
 }
 
 static void ImageParseField(const char *field, const char *contents, int index, bool is_last)
@@ -142,34 +141,31 @@ static void ImageParseField(const char *field, const char *contents, int index, 
 	I_Debugf("IMAGE_PARSE: %s = %s;\n", field, contents);
 #endif
 
-	if (! DDF_MainParseField(image_commands, field, contents))
+	if (! DDF_MainParseField(dynamic_image, image_commands, field, contents))
 		DDF_Error("Unknown images.ddf command: %s\n", field);
 }
 
 static void ImageFinishEntry(void)
 {
-	if (buffer_image.type == IMGDT_File)
+	if (dynamic_image->type == IMGDT_File)
 	{
-        const char *filename = buffer_image.info.c_str();
+        const char *filename = dynamic_image->info.c_str();
 
 		// determine format
         std::string ext(epi::PATH_GetExtension(filename));
 
 		if (DDF_CompareName(ext.c_str(), "png") == 0)
-			buffer_image.format = LIF_PNG;
+			dynamic_image->format = LIF_PNG;
 		else if (DDF_CompareName(ext.c_str(), "jpg")  == 0 ||
 				 DDF_CompareName(ext.c_str(), "jpeg") == 0)
-			buffer_image.format = LIF_JPEG;
+			dynamic_image->format = LIF_JPEG;
 		else if (DDF_CompareName(ext.c_str(), "tga") == 0)
-			buffer_image.format = LIF_TGA;
+			dynamic_image->format = LIF_TGA;
 		else
 			DDF_Error("Unknown image extension for '%s'\n", filename);
 	}
 
-	// check stuff...
-
-	// transfer static entry to dynamic entry
-	dynamic_image->CopyDetail(buffer_image);
+	// TODO check more stuff...
 }
 
 static void ImageClearAll(void)

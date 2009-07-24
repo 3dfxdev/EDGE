@@ -28,13 +28,11 @@
 #undef  DF
 #define DF  DDF_CMD
 
-static fontdef_c dummy_font;
-static fontdef_c *dynamic_font;
-
 static void DDF_FontGetType( const char *info, void *storage);
 static void DDF_FontGetPatch(const char *info, void *storage);
 
 #define DDF_CMD_BASE  dummy_font
+static fontdef_c dummy_font;
 
 static const commandlist_t font_commands[] =
 {
@@ -46,6 +44,8 @@ static const commandlist_t font_commands[] =
 	DDF_CMD_END
 };
 
+
+static fontdef_c *dynamic_font;
 
 typedef std::map<const char *, fontdef_c *, DDF_Name_Cmp> fontdef_container_c;
 
@@ -73,9 +73,6 @@ static void FontStartEntry(const char *name)
 		dynamic_font = new fontdef_c();
 		dynamic_font->name = name;
 	}
-
-	// instantiate the static entry
-	dummy_font.Default();
 }
 
 static void FontParseField(const char *field, const char *contents, int index, bool is_last)
@@ -84,26 +81,23 @@ static void FontParseField(const char *field, const char *contents, int index, b
 	I_Debugf("FONT_PARSE: %s = %s;\n", field, contents);
 #endif
 
-	if (! DDF_MainParseField(font_commands, field, contents))
+	if (! DDF_MainParseField(dynamic_font, font_commands, field, contents))
 		DDF_Error("Unknown fonts.ddf command: %s\n", field);
 }
 
 static void FontFinishEntry(void)
 {
-	if (dummy_font.type == FNTYP_UNSET)
+	if (dynamic_font->type == FNTYP_UNSET)
 		DDF_Error("No type specified for font.\n");
 
-	if (dummy_font.type == FNTYP_Patch && ! dummy_font.patches)
+	if (dynamic_font->type == FNTYP_Patch && ! dynamic_font->patches)
 	{
 		DDF_Error("Missing font patch list.\n");
 	}
 
 	// FIXME: check FNTYP_Image
 
-	// transfer static entry to dynamic entry
-	dynamic_font->CopyDetail(dummy_font);
-
-	// link it into map
+	// link it into name map
 	const char *name = dynamic_font->name.c_str();
 
 	fontdefs[name] = dynamic_font;

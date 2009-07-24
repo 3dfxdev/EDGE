@@ -100,7 +100,7 @@ state_starter_t;
 #define DDF_CMD(name,field,parser)  \
     { name, parser, ((char*)&DDF_CMD_BASE.field - (char*)&DDF_CMD_BASE), NULL }
 
-#define DDF_SUB_LIST(name,field,subcomms,dummybase)  \
+#define DDF_SUB_LIST(name,field,subcomms)  \
     { "*" name, NULL, ((char*)&DDF_CMD_BASE.field - (char*)&DDF_CMD_BASE), subcomms }
 
 #define DDF_CMD_END  { NULL, NULL, 0, NULL }

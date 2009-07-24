@@ -26,14 +26,14 @@
 #undef  DF
 #define DF  DDF_CMD
 
-static colourmap_c buffer_colmap;
 static colourmap_c *dynamic_colmap;
 
 colourmap_container_c colourmaps;
 
 void DDF_ColmapGetSpecial(const char *info, void *storage);
 
-#define DDF_CMD_BASE  buffer_colmap
+#define DDF_CMD_BASE  dummy_colmap
+static colourmap_c dummy_colmap;
 
 static const commandlist_t colmap_commands[] =
 {
@@ -59,32 +59,22 @@ static const commandlist_t colmap_commands[] =
 
 static void ColmapStartEntry(const char *name)
 {
-	colourmap_c *existing = NULL;
-
 	if (!name || !name[0])
 	{
 		DDF_WarnError("New colormap entry is missing a name!");
 		name = "COLORMAP_WITH_NO_NAME";
 	}
 
-	existing = colourmaps.Lookup(name);
+	dynamic_colmap = colourmaps.Lookup(name);
 
 	// not found, create a new one
-	if (existing)
-	{
-		dynamic_colmap = existing;
-	}
-	else
+	if (! dynamic_colmap)
 	{
 		dynamic_colmap = new colourmap_c;
-
 		dynamic_colmap->name = name;
 
 		colourmaps.Insert(dynamic_colmap);
 	}
-
-	// instantiate the static entry
-	buffer_colmap.Default();
 }
 
 static void ColmapParseField(const char *field, const char *contents,
@@ -94,7 +84,7 @@ static void ColmapParseField(const char *field, const char *contents,
 	I_Debugf("COLMAP_PARSE: %s = %s;\n", field, contents);
 #endif
 
-	if (DDF_MainParseField(colmap_commands, field, contents))
+	if (DDF_MainParseField(dynamic_colmap, colmap_commands, field, contents))
 		return;
 
 	DDF_WarnError2(128, "Unknown colmap.ddf command: %s\n", field);
@@ -102,23 +92,20 @@ static void ColmapParseField(const char *field, const char *contents,
 
 static void ColmapFinishEntry(void)
 {
-	if (buffer_colmap.start < 0)
+	if (dynamic_colmap->start < 0)
 	{
-		DDF_WarnError2(128, "Bad START value for colmap: %d\n", buffer_colmap.start);
-		buffer_colmap.start = 0;
+		DDF_WarnError2(128, "Bad START value for colmap: %d\n", dynamic_colmap->start);
+		dynamic_colmap->start = 0;
 	}
 
-	if (! buffer_colmap.lump_name.empty() && buffer_colmap.length <= 0)
+	if (! dynamic_colmap->lump_name.empty() && dynamic_colmap->length <= 0)
 	{
-		DDF_WarnError2(128, "Bad LENGTH value for colmap: %d\n", buffer_colmap.length);
-		buffer_colmap.length = 1;
+		DDF_WarnError2(128, "Bad LENGTH value for colmap: %d\n", dynamic_colmap->length);
+		dynamic_colmap->length = 1;
 	}
 
-	if (buffer_colmap.lump_name.empty() && buffer_colmap.gl_colour == RGB_NO_VALUE)
+	if (dynamic_colmap->lump_name.empty() && dynamic_colmap->gl_colour == RGB_NO_VALUE)
 		DDF_Error("Colourmap entry missing LUMP or GL_COLOUR.\n");
-
-	// transfer static entry to dynamic entry
-	dynamic_colmap->CopyDetail(buffer_colmap);
 }
 
 static void ColmapClearAll(void)

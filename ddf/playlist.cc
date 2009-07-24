@@ -21,15 +21,11 @@
 #include "playlist.h"
 
 
-static pl_entry_c buffer_plentry;
-static pl_entry_c *dynamic_plentry;
-
-pl_entry_container_c playlist;
-
 static void DDF_MusicParseInfo(const char *info, void *storage);
 
 #undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  buffer_plentry
+#define DDF_CMD_BASE  dummy_plentry
+static pl_entry_c dummy_plentry;
 
 static const commandlist_t musplaylistcmds[] =
 {
@@ -37,6 +33,11 @@ static const commandlist_t musplaylistcmds[] =
 
 	DDF_CMD_END
 };
+
+
+pl_entry_container_c playlist;
+
+static pl_entry_c *dynamic_plentry;
 
 
 //
@@ -50,21 +51,15 @@ static void PlaylistStartEntry(const char *name)
 	if (number == 0)
 		DDF_Error("Bad music number in playlist.ddf: %s\n", name);
 
-	pl_entry_c* existing = playlist.Find(number);
+	dynamic_plentry = playlist.Find(number);
 
-	if (existing)
-	{
-		dynamic_plentry = existing;
-	}
-	else
+	if (! dynamic_plentry)
 	{
 		dynamic_plentry = new pl_entry_c;
-		dynamic_plentry->name = epi::STR_Format("%d", number);
+		dynamic_plentry->name = name;
+
 		playlist.Insert(dynamic_plentry);
 	}
-
-	// instantiate the static entry
-	buffer_plentry.Default();
 }
 
 static void PlaylistParseField(const char *field, const char *contents,
@@ -74,14 +69,13 @@ static void PlaylistParseField(const char *field, const char *contents,
 	I_Debugf("PLAYLIST_PARSE: %s = %s;\n", field, contents);
 #endif
 
-	if (! DDF_MainParseField(musplaylistcmds, field, contents))
+	if (! DDF_MainParseField(dynamic_plentry, musplaylistcmds, field, contents))
 		DDF_WarnError2(128, "Unknown playlist.ddf command: %s\n", field);
 }
 
 static void PlaylistFinishEntry(void)
 {
-	// transfer static entry to dynamic entry
-	dynamic_plentry->CopyDetail(buffer_plentry);
+	// nothing needed
 }
 
 static void PlaylistClearAll(void)

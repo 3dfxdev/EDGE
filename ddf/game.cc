@@ -26,12 +26,8 @@
 #include "sfx.h"
 
 
-#undef  DF
-#define DF  DDF_CMD
-
 gamedef_container_c gamedefs;
 
-static gamedef_c  buffer_gamedef;
 static gamedef_c *dynamic_gamedef;
 
 static void DDF_GameGetPic (const char *info, void *storage);
@@ -42,7 +38,11 @@ static void DDF_GameGetLighting(const char *info, void *storage);
 extern void DDF_LevelGetSpecials(const char *info, void *storage);
 
 
-#define DDF_CMD_BASE  buffer_gamedef
+#undef  DF
+#define DF  DDF_CMD
+
+#define DDF_CMD_BASE  dummy_gamedef
+static gamedef_c  dummy_gamedef;
 
 static const commandlist_t gamedef_commands[] = 
 {
@@ -70,7 +70,7 @@ static const commandlist_t gamedef_commands[] =
 	DF("TITLE_GRAPHIC", name, DDF_GameGetPic),
 	DF("MAP", name, DDF_GameGetMap),
 
-	// FIXME !!!!
+	// FIXME ??
 	DF("ANIM", name, DDF_DummyFunction),
 
 	DDF_CMD_END
@@ -89,51 +89,32 @@ static void GameStartEntry (const char *name)
 		name = "GAME_WITH_NO_NAME";
 	}
 
-	gamedef_c *existing = NULL;
-
-	existing = gamedefs.Lookup(name);
+	dynamic_gamedef = gamedefs.Lookup(name);
 
 	// not found, create a new one
-	if (! existing)
+	if (! dynamic_gamedef)
 	{
 		dynamic_gamedef = new gamedef_c;
-
 		dynamic_gamedef->name = name;
 
 		gamedefs.Insert(dynamic_gamedef);
 	}
-	else
-	{
-		dynamic_gamedef = existing;
-	}
-
-	// instantiate the static entries
-	buffer_gamedef.Default();
-
-///---	buffer_animdef.Default();
-///---	buffer_framedef.Default();
 }
 
 static void GameParseField (const char *field, const char *contents,
 		int index, bool is_last)
 {
 #if (DEBUG_DDF)
-	I_Debugf ("GAME_PARSE: %s = %s;\n", field, contents);
+	I_Debugf("GAME_PARSE: %s = %s;\n", field, contents);
 #endif
 
-	if (!DDF_MainParseField (gamedef_commands, field, contents))
-		DDF_WarnError ("Unknown games.ddf command: %s\n", field);
+	if (! DDF_MainParseField(dynamic_gamedef, gamedef_commands, field, contents))
+		DDF_WarnError("Unknown games.ddf command: %s\n", field);
 }
 
 static void GameFinishEntry (void)
 {
 	// FIXME: check stuff...
-
-	// transfer static entry to dynamic entry
-	dynamic_gamedef->CopyDetail(buffer_gamedef);
-
-	// compute CRC...
-	// FIXME: Do something!
 }
 
 static void GameClearAll (void)
