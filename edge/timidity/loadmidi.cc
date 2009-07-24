@@ -147,9 +147,9 @@ static int sysex(int len, byte *syschan, byte *sysa, byte *sysb)
 	if (id==0x7f && len==7 && port==0x7f && model==0x04 && adhi==0x01)
 	{
 		ctl_msg(CMSG_TEXT, VERB_DEBUG, "Master Volume %d", s[4]+(s[5]<<7));
-		free(s);
 		*sysa = s[4];
 		*sysb = s[5];
+		free(s);
 		return ME_MASTERVOLUME;
 		/** return s[4]+(s[5]<<7); **/
 	}

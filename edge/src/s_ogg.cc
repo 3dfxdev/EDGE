@@ -446,14 +446,17 @@ void oggplayer_c::Close()
 	Stop();
 
 	ov_clear(&ogg_stream);
-	
-	status = NOT_LOADED;
+
+	// NOTE: the ov_clear has called our fclose() callback
+	ogg_file = NULL;
 	
 	if (ogg_lump.data)
 	{
 		delete[] ogg_lump.data;
 		ogg_lump.data = NULL;
 	}
+	
+	status = NOT_LOADED;
 }
 
 
