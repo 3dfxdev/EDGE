@@ -135,7 +135,7 @@ static bool Scan_IFCONFIG(bool got_local)
     if (ioctl(tmp_sock, SIOCGIFCONF, &config) < 0)
 	{
 		I_Printf("WARNING: cannot find broadcast address (SIOCGIFCONF)\n");
-		delete buffer;
+		delete[] buffer;
 		return false;
 	}
 
@@ -201,7 +201,7 @@ static bool Scan_IFCONFIG(bool got_local)
 #endif
 	}
 
-	delete buffer;
+	delete[] buffer;
 
 	closesocket(tmp_sock);
 
