@@ -487,34 +487,6 @@ void DDF_MainRefAttack(const char *info, void *storage)
 }
 
 
-int DDF_MainLookupDirector(const mobjtype_c *info, const char *ref)
-{
-	const char *p = strchr(ref, ':');
-
-	int len = p ? (p - ref) : strlen(ref);
-
-	if (len <= 0)
-		DDF_Error("Bad Director '%s' : Nothing after divide\n", ref);
-
-	std::string director(ref, len);
-
-	int index = DDF_StateFindLabel(info->states, director.c_str());
-
-	if (p)
-		index += MAX(0, atoi(p + 1) - 1);
-
-	if (index >= (int)info->states.size())
-	{
-		DDF_Warning("Bad Director '%s' : offset is too large\n", ref);
-		index = MAX(0, (int)info->states.size() - 1);
-	}
-
-	return index;
-}
-
-
-
-
 void DDF_MainGetFloat(const char *info, void *storage)
 {
 	float *dest = (float *)storage;

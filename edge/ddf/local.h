@@ -341,7 +341,6 @@ void DDF_StateGetRGB (const char *arg, state_t * cur_state);
 
 void DDF_StateFinishStates (std::vector<state_t> &group);
 void DDF_StateCleanUp (void);
-int DDF_StateFindLabel (const std::vector<state_t> &group, const char *label);
 
 // DDF_SECT Code
 void DDF_SectorInit (void);

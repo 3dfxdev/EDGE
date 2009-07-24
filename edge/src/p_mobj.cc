@@ -524,21 +524,10 @@ bool P_SetMobjStateDeferred(mobj_t * mo, int stnum, int tic_skip)
 //
 int P_MobjFindLabel(mobj_t * mo, const char *label)
 {
-	for (int i=1; i < (int)mo->info->states.size(); i++)
-	{
-		if (! mo->info->states[i].label)
-			continue;
-
-		if (DDF_CompareName(mo->info->states[i].label, label) == 0)
-			return i;
-	}
-
-	return S_NULL;
+	return DDF_StateFindLabel(mo->info->states, label);
 }
 
-//
-// P_SetMobjDirAndSpeed
-//
+
 void P_SetMobjDirAndSpeed(mobj_t * mo, angle_t angle, float slope, float speed)
 {
 	mo->angle = angle;
