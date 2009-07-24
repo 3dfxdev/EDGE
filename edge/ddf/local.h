@@ -315,8 +315,9 @@ void DDF_MobjGetBpKeys (const char *info, void *storage);
 void DDF_MobjGetBpWeapon (const char *info, void *storage);
 void DDF_MobjGetPlayer (const char *info, void *storage);
 
-void ThingParseField (const char *field, const char *contents,
-					  int index, bool is_last);
+extern const commandlist_t   thing_commands[];
+extern const state_starter_t thing_starters[];
+extern const actioncode_t    thing_actions[];
 
 // DDF_MUS Code
 void DDF_MusicPlaylistInit (void);

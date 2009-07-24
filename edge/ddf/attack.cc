@@ -112,11 +112,6 @@ static const commandlist_t attack_commands[] =
 };
 
 
-extern const commandlist_t   thing_commands[];
-extern const state_starter_t thing_starters[];
-extern const actioncode_t    thing_actions[];
-
-
 //
 //  DDF PARSE ROUTINES
 //
