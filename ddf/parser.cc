@@ -848,91 +848,18 @@ void DDF_MainReadFile(readinfo_t * readinfo, char *memfileptr)
 }
 
 
-//----------------------------------------------------------------------------
-
-//
-// Check if the sub-command exists, and call the parser function if it
-// does (and return true), otherwise return false.  For sub-commands,
-// the storage pointer
-//
-bool DDF_MainParseSubField(const commandlist_t *sub_comms,
-							const char *field, const char *contents, char *stor_base,
-							char *dummy_base, const char *base_command)
-{
-	int i, len;
-	bool obsolete = false;
-	const char *name = NULL;
-
-	for (i=0; sub_comms[i].name; i++)
-	{
-		name = sub_comms[i].name;
-		obsolete = false;
-
-		if (name[0] == '!')
-		{
-			name++;
-			obsolete = true;
-		}
-    
-		// handle sub-fields within sub-fields
-		if (name[0] == '*')
-		{
-			name++;
-
-			len = strlen(name);
-			SYS_ASSERT(len > 0);
-
-			if (strncmp(field, name, len) == 0 && field[len] == '.' && 
-				isalnum(field[len+1]))
-			{
-				// found the sub-field reference, recurse !
-
-				int offset = ((char *) sub_comms[i].storage) - dummy_base;
-        
-				return DDF_MainParseSubField(sub_comms[i].sub_comms,
-						field + len + 1, contents, stor_base + offset,
-						(char *)sub_comms[i].sub_dummy_base, name);
-			}
-
-			continue;
-		}
-
-		if (DDF_CompareName(field, name) == 0)
-			break;
-	}
-
-	if (!sub_comms[i].name)
-		return false;
-
-	if (obsolete)
-		DDF_Obsolete("The ddf %s.%s command is obsolete !\n", base_command, name);
-
-	// found it, so call parse routine
-
-	SYS_ASSERT(sub_comms[i].parse_command);
-
-	int offset = ((char *) sub_comms[i].storage) - dummy_base;
-
-	(* sub_comms[i].parse_command)(contents, stor_base + offset);
-
-	return true;
-}
-
 //
 // Check if the command exists, and call the parser function if it
 // does (and return true), otherwise return false.
 //
-bool DDF_MainParseField(const commandlist_t *commands, 
-						 const char *field, const char *contents)
+bool DDF_MainParseField(char *object, const commandlist_t *commands, 
+						const char *field, const char *value)
 {
-	int i, len;
-	bool obsolete = false;
-	const char *name = NULL;
-
-	for (i=0; commands[i].name; i++)
+	for (int i=0; commands[i].name; i++)
 	{
-		name = commands[i].name;
-		obsolete = false;
+		bool obsolete = false;
+
+		const char *name = commands[i].name;
 
 		if (name[0] == '!')
 		{
@@ -945,40 +872,40 @@ bool DDF_MainParseField(const commandlist_t *commands,
 		{
 			name++;
 
-			len = strlen(name);
+			int len = strlen(name);
 			SYS_ASSERT(len > 0);
 
 			if (strncmp(field, name, len) == 0 && field[len] == '.' && 
 				isalnum(field[len+1]))
 			{
-				// found the sub-field reference
-				return DDF_MainParseSubField( commands[i].sub_comms, 
-                        field + len + 1, contents, (char*)commands[i].storage,
-                        (char*)commands[i].sub_dummy_base, name);
+				// recursively parse the sub-field
+				return DDF_MainParseField(object + commands[i].offset,
+							commands[i].sub_comms,
+							field + len + 1, value);
 			}
       
 			continue;
 		}
 
-		if (DDF_CompareName(field, name) == 0)
-			break;
+		if (DDF_CompareName(field, name) != 0)
+			continue;
+
+		// found it, so call parse routine
+		if (obsolete)
+			DDF_Obsolete("The ddf %s command is obsolete !\n", name);
+
+		SYS_ASSERT(commands[i].parse_command);
+
+		(* commands[i].parse_command)(value, object + commands[i].offset);
+
+		return true;
 	}
 
-	if (!commands[i].name)
-		return false;
-
-	if (obsolete)
-		DDF_Obsolete("The ddf %s command is obsolete !\n", name);
-
-	// found it, so call parse routine
-
-	SYS_ASSERT(commands[i].parse_command);
-
-	(* commands[i].parse_command)(contents, commands[i].storage);
-
-	return true;
+	return false;
 }
 
+
+//----------------------------------------------------------------------------
 
 
 extern readinfo_t anim_readinfo;

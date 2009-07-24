@@ -75,10 +75,9 @@ typedef struct commandlist_s
 	// parse function.  `storage' is where the data should go
 	void (*parse_command) (const char *info, void *storage);
 
-	void *storage;
+	ptrdiff_t offset;
 
 	const struct commandlist_s *sub_comms;
-	void *sub_dummy_base;
 }
 commandlist_t;
 
@@ -92,24 +91,24 @@ typedef struct
 	const char *last_redir;
 
 	// pointer to state_num storage
-	int *state_num;
+	ptrdiff_t offset;
 }
 state_starter_t;
 
 // NOTE: requires DDF_CMD_BASE to be defined as the dummy struct
 
 #define DDF_CMD(name,field,parser)  \
-    { name, parser, &DDF_CMD_BASE.field, NULL, NULL }
+    { name, parser, ((char*)&DDF_CMD_BASE.field - (char*)&DDF_CMD_BASE), NULL }
 
 #define DDF_SUB_LIST(name,field,subcomms,dummybase)  \
-    { "*" name, NULL, &DDF_CMD_BASE.field, subcomms, &dummybase }
+    { "*" name, NULL, ((char*)&DDF_CMD_BASE.field - (char*)&DDF_CMD_BASE), subcomms }
 
-#define DDF_CMD_END  { NULL, NULL, NULL, NULL }
+#define DDF_CMD_END  { NULL, NULL, 0, NULL }
 
 #define DDF_STATE(name,redir,field)  \
-	{ name, redir, &DDF_CMD_BASE.field }
+	{ name, redir, ((char*)&DDF_CMD_BASE.field - (char*)&DDF_CMD_BASE) }
 
-#define DDF_STATE_END  { NULL, NULL, NULL }
+#define DDF_STATE_END  { NULL, NULL, 0 }
 
 //
 // This structure passes the information needed to DDF_MainReadFile, so that
@@ -239,28 +238,29 @@ void DDF_WarnError(const char *err, ...) GCCATTR((format (printf,1,2)));
 void DDF_WarnError2 (int ver, const char *err, ...) GCCATTR((format (printf,2,3)));
 void DDF_Obsolete(const char *err, ...) GCCATTR((format (printf,1,2)));
 
-void DDF_MainGetPercent (const char *info, void *storage);
-void DDF_MainGetPercentAny (const char *info, void *storage);
-void DDF_MainGetBoolean (const char *info, void *storage);
-void DDF_MainGetFloat (const char *info, void *storage);
-void DDF_MainGetAngle (const char *info, void *storage);
-void DDF_MainGetSlope (const char *info, void *storage);
-void DDF_MainGetNumeric (const char *info, void *storage);
-void DDF_MainGetString (const char *info, void *storage);
-void DDF_MainGetLumpName (const char *info, void *storage);
-void DDF_MainGetTime (const char *info, void *storage);
-void DDF_MainGetColourmap (const char *info, void *storage);
-void DDF_MainGetRGB (const char *info, void *storage);
-void DDF_MainGetWhenAppear (const char *info, void *storage);
-void DDF_MainGetBitSet (const char *info, void *storage);
+bool DDF_MainParseField(char *object, const commandlist_t * commands,
+			      		const char *field, const char *contents);
 
-bool DDF_MainParseField (const commandlist_t * commands,
-			      const char *field, const char *contents);
-void DDF_MainLookupSound (const char *info, void *storage);
+void DDF_DummyFunction(const char *info, void *storage);
+
+void DDF_MainGetPercent(const char *info, void *storage);
+void DDF_MainGetPercentAny(const char *info, void *storage);
+void DDF_MainGetBoolean(const char *info, void *storage);
+void DDF_MainGetFloat(const char *info, void *storage);
+void DDF_MainGetAngle(const char *info, void *storage);
+void DDF_MainGetSlope(const char *info, void *storage);
+void DDF_MainGetNumeric(const char *info, void *storage);
+void DDF_MainGetString(const char *info, void *storage);
+void DDF_MainGetLumpName(const char *info, void *storage);
+void DDF_MainGetTime(const char *info, void *storage);
+void DDF_MainGetColourmap(const char *info, void *storage);
+void DDF_MainGetRGB(const char *info, void *storage);
+void DDF_MainGetWhenAppear(const char *info, void *storage);
+void DDF_MainGetBitSet(const char *info, void *storage);
+
+void DDF_MainLookupSound(const char *info, void *storage);
 void DDF_MainLookupFont(const char *info, void *storage);
-void DDF_MainRefAttack (const char *info, void *storage);
-
-void DDF_DummyFunction (const char *info, void *storage);
+void DDF_MainRefAttack(const char *info, void *storage);
 
 checkflag_result_e DDF_MainCheckSpecialFlag(const char *name,
 			      const specflags_t * flag_set, int *flag_value,
