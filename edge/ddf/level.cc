@@ -35,13 +35,11 @@ static void DDF_LevelGetWistyle(const char *info, void *storage);
 
 mapdef_container_c mapdefs;
 
-static mapdef_c buffer_map;
-static mapdef_c* dynamic_map;
-
-static map_finaledef_c buffer_finale;
+static mapdef_c *dynamic_map;
 
 #undef  DDF_CMD_BASE
 #define DDF_CMD_BASE  buffer_finale
+static map_finaledef_c buffer_finale;
 
 static const commandlist_t finale_commands[] =
 {
@@ -64,13 +62,14 @@ static const commandlist_t finale_commands[] =
 // -KM- 1998/11/25 Finales are all go.
 
 #undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  buffer_map
+#define DDF_CMD_BASE  dummy_map
+static mapdef_c dummy_map;
 
 static const commandlist_t level_commands[] =
 {
 	// sub-commands
-	DDF_SUB_LIST("PRE", f_pre, finale_commands, buffer_finale),
-	DDF_SUB_LIST("END", f_end, finale_commands, buffer_finale),
+	DDF_SUB_LIST("PRE", f_pre, finale_commands),
+	DDF_SUB_LIST("END", f_end, finale_commands),
 
 	DF("LUMPNAME", lump, DDF_MainGetLumpName),
 	DF("DESCRIPTION", description, DDF_MainGetString),
@@ -126,26 +125,16 @@ static void LevelStartEntry(const char *name)
 		name = "LEVEL_WITH_NO_NAME";
 	}
 
-	mapdef_c *existing = NULL;
-
-	existing = mapdefs.Lookup(name);
+	dynamic_map = mapdefs.Lookup(name);
 
 	// not found, create a new one
-	if (existing)
-	{
-		dynamic_map = existing;
-	}
-	else
+	if (! dynamic_map)
 	{
 		dynamic_map = new mapdef_c;
-
 		dynamic_map->name = name;
 
 		mapdefs.Insert(dynamic_map);
 	}
-
-	// instantiate the static entries
-	buffer_map.Default();
 }
 
 static void LevelParseField(const char *field, const char *contents,
@@ -155,23 +144,17 @@ static void LevelParseField(const char *field, const char *contents,
 	I_Debugf("LEVEL_PARSE: %s = %s;\n", field, contents);
 #endif
 
-	if (! DDF_MainParseField(level_commands, field, contents))
+	if (! DDF_MainParseField(dynamic_map, level_commands, field, contents))
 		DDF_WarnError2(128, "Unknown levels.ddf command: %s\n", field);
 }
 
 static void LevelFinishEntry(void)
 {
 	// check stuff
-	if (buffer_map.episode_name.empty())
+	if (dynamic_map->episode_name.empty())
 		DDF_Error("Level entry must have an EPISODE name !\n");
 
-	// FIXME: check more stuff here...
-
-	// transfer static entry to dynamic entry
-	dynamic_map->CopyDetail(buffer_map);
-
-	// compute CRC...
-	// FIXME! Do something...
+	// TODO: check more stuff...
 }
 
 static void LevelClearAll(void)

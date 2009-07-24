@@ -27,15 +27,11 @@
 #undef  DF
 #define DF  DDF_CMD
 
-static sfxdef_c buffer_sfx;
-static sfxdef_c *dynamic_sfx;
-
 static int buffer_sfx_ID;
 
-sfxdef_container_c sfxdefs;
-
 #undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  buffer_sfx
+#define DDF_CMD_BASE  dummy_sfx
+static sfxdef_c dummy_sfx;
 
 static const commandlist_t sfx_commands[] =
 {
@@ -56,6 +52,11 @@ static const commandlist_t sfx_commands[] =
 };
 
 
+sfxdef_container_c sfxdefs;
+
+static sfxdef_c *dynamic_sfx;
+
+
 //
 //  DDF PARSE ROUTINES
 //
@@ -68,28 +69,19 @@ static void SoundStartEntry(const char *name)
 		name = "SOUND_WITH_NO_NAME";
 	}
 
-	sfxdef_c *existing = sfxdefs.Lookup(name);
+	dynamic_sfx = sfxdefs.Lookup(name);
 
 	// not found, create a new one
-	if (existing)
-	{
-		dynamic_sfx = existing;
-
-		buffer_sfx_ID = existing->normal.sounds[0];
-	}
-	else
+	if (! dynamic_sfx)
 	{
 		dynamic_sfx = new sfxdef_c;
-
 		dynamic_sfx->name = name;
 
 		sfxdefs.Insert(dynamic_sfx);
 
+		// !!!!! FIXME: WHAT THE FUCK ??
 		buffer_sfx_ID = sfxdefs.GetSize()-1; // self reference
 	}
-
-	// instantiate the static entries
-	buffer_sfx.Default();
 }
 
 static void SoundParseField(const char *field, const char *contents,
@@ -99,21 +91,18 @@ static void SoundParseField(const char *field, const char *contents,
 	I_Debugf("SOUND_PARSE: %s = %s;\n", field, contents);
 #endif
 
-	if (! DDF_MainParseField(sfx_commands, field, contents))
+	if (! DDF_MainParseField(dynamic_sfx, sfx_commands, field, contents))
 		DDF_WarnError2(128, "Unknown sounds.ddf command: %s\n", field);
 }
 
 static void SoundFinishEntry(void)
 {
-	if (buffer_sfx.lump_name.empty() && buffer_sfx.file_name.empty())
+	if (dynamic_sfx->lump_name.empty() && dynamic_sfx->file_name.empty())
 		DDF_Error("Missing LUMP_NAME or FILE_NAME for sound.\n");
 
-	// transfer static entry to dynamic entry.
-	dynamic_sfx->CopyDetail(buffer_sfx);
-
 	// Keeps the ID info intact as well.
-	dynamic_sfx->normal.sounds[0] = buffer_sfx_ID;
 	dynamic_sfx->normal.num = 1;
+	dynamic_sfx->normal.sounds[0] = buffer_sfx_ID;
 }
 
 static void SoundClearAll(void)

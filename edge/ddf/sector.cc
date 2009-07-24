@@ -29,28 +29,19 @@
 
 #define DDF_SectHashFunc(x)  (((x) + LOOKUP_CACHESIZE) % LOOKUP_CACHESIZE)
 
-static sectortype_c buffer_sector;
-static sectortype_c *dynamic_sector;
-
-extern damage_c buffer_damage;
-extern movplanedef_c buffer_floor;
-
-sectortype_container_c sectortypes; 	// <-- User-defined
-
-sectortype_c * default_sectortype;
-
 
 void DDF_SectGetSpecialFlags(const char *info, void *storage);
 static void DDF_SectMakeCrush(const char *info, void *storage);
 
 #undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  buffer_sector
+#define DDF_CMD_BASE  dummy_sector
+static sectortype_c dummy_sector;
 
 static const commandlist_t sect_commands[] =
 {
-  	DDF_SUB_LIST("FLOOR",    f,      floor_commands,    buffer_floor),
-  	DDF_SUB_LIST("CEILING",  c,      floor_commands,    buffer_floor),
-  	DDF_SUB_LIST("DAMAGE",   damage, damage_commands,   buffer_damage),
+  	DDF_SUB_LIST("FLOOR",    f,      floor_commands),
+  	DDF_SUB_LIST("CEILING",  c,      floor_commands),
+  	DDF_SUB_LIST("DAMAGE",   damage, damage_commands),
 
 	DF("SECRET", secret, DDF_MainGetBoolean),
 	DF("SPECIAL", special_flags, DDF_SectGetSpecialFlags),
@@ -88,6 +79,13 @@ static const commandlist_t sect_commands[] =
 	DDF_CMD_END
 };
 
+
+sectortype_container_c sectortypes; 	// <-- User-defined
+
+static sectortype_c *default_sectortype;
+
+static sectortype_c *dynamic_sector;
+
 //
 //  DDF PARSE ROUTINES
 //
@@ -99,23 +97,15 @@ static void SectorStartEntry(const char *name)
 	if (number == 0)
 		DDF_Error("Bad sectordef number in sectors.ddf: %s\n", name);
 
-	epi::array_iterator_c it;
-	sectortype_c *existing = NULL;
+	dynamic_sector = sectortypes.Lookup(number);
 
-	existing = sectortypes.Lookup(number);
-	if (existing)
-	{
-		dynamic_sector = existing;
-	}
-	else
+	if (! dynamic_sector)
 	{
 		dynamic_sector = new sectortype_c;
-		dynamic_sector->name = epi::STR_Format("%d", number);
+		dynamic_sector->name = name;
+
 		sectortypes.Insert(dynamic_sector);
 	}
-
-	// instantiate the static entry
-	buffer_sector.Default();
 }
 
 
@@ -126,7 +116,7 @@ static void SectorParseField(const char *field, const char *contents,
 	I_Debugf("SECTOR_PARSE: %s = %s;\n", field, contents);
 #endif
 
-	if (DDF_MainParseField(sect_commands, field, contents))
+	if (DDF_MainParseField(dynamic_sector, sect_commands, field, contents))
 		return;
 
 	DDF_WarnError2(128, "Unknown sectors.ddf command: %s\n", field);
@@ -135,11 +125,7 @@ static void SectorParseField(const char *field, const char *contents,
 
 static void SectorFinishEntry(void)
 {
-	// FIXME!! Check stuff
-	dynamic_sector->CopyDetail(buffer_sector);
-
-	// compute CRC...
-	// FIXME: add stuff...
+	// TODO check stuff
 }
 
 

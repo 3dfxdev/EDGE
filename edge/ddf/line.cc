@@ -42,9 +42,6 @@
 #define DDF_LineHashFunc(x)  (((x) + LOOKUP_CACHESIZE) % LOOKUP_CACHESIZE)
 
 
-linetype_c buffer_line;
-linetype_c *dynamic_line;
-
 // hack to support old SCROLL and SCROLLING_SPEED fields
 #define SCPT_TMP_LEFT    0x10000
 #define SCPT_TMP_RIGHT   0x20000
@@ -52,14 +49,12 @@ linetype_c *dynamic_line;
 #define SCPT_TMP_DOWN    0x80000
 #define SCPT_TMP_KLUDGE  0xF0000
 
+linetype_c *dynamic_line;
+
 linetype_container_c linetypes;		// <-- User-defined
 
 linetype_c * default_linetype;
 linetype_c * donut_types[2];
-
-movplanedef_c buffer_floor;
-ladderdef_c buffer_ladder;
-sliding_door_c buffer_slider;
 
 static void DDF_LineGetTrigType(const char *info, void *storage);
 static void DDF_LineGetActivators(const char *info, void *storage);
@@ -79,8 +74,10 @@ static void DDF_LineGetSlopeType(const char *info, void *storage);
 
 static void DDF_LineMakeCrush(const char *info, void *storage);
 
+
 #undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  buffer_floor
+#define DDF_CMD_BASE  dummy_floor
+static movplanedef_c dummy_floor;
 
 const commandlist_t floor_commands[] =
 {
@@ -107,7 +104,8 @@ const commandlist_t floor_commands[] =
 };
 
 #undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  buffer_ladder
+#define DDF_CMD_BASE  dummy_ladder
+static ladderdef_c dummy_ladder;
 
 const commandlist_t ladder_commands[] =
 {
@@ -115,8 +113,10 @@ const commandlist_t ladder_commands[] =
 	DDF_CMD_END
 };
 
+
 #undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  buffer_slider
+#define DDF_CMD_BASE  dummy_slider
+static sliding_door_c dummy_slider;
 
 const commandlist_t slider_commands[] =
 {
@@ -134,15 +134,16 @@ const commandlist_t slider_commands[] =
 };
 
 #undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  buffer_line
+#define DDF_CMD_BASE  dummy_line
+static linetype_c dummy_line;
 
 static const commandlist_t linedef_commands[] =
 {
 	// sub-commands
-	DDF_SUB_LIST("FLOOR",    f, floor_commands,    buffer_floor),
-	DDF_SUB_LIST("CEILING",  c, floor_commands,    buffer_floor),
-	DDF_SUB_LIST("SLIDER",   s, slider_commands,   buffer_slider),
-	DDF_SUB_LIST("LADDER",   ladder, ladder_commands, buffer_ladder),
+	DDF_SUB_LIST("FLOOR",    f, floor_commands),
+	DDF_SUB_LIST("CEILING",  c, floor_commands),
+	DDF_SUB_LIST("SLIDER",   s, slider_commands),
+	DDF_SUB_LIST("LADDER",   ladder, ladder_commands),
 
 	DF("NEWTRIGGER", newtrignum, DDF_MainGetNumeric),
 	DF("ACTIVATORS", obj, DDF_LineGetActivators),
@@ -316,23 +317,15 @@ static void LinedefStartEntry(const char *name)
 	if (number == 0)
 		DDF_Error("Bad linedef number in lines.ddf: %s\n", name);
 
-	epi::array_iterator_c it;
-	linetype_c *existing = NULL;
+	dynamic_line = linetypes.Lookup(number);
 
-	existing = linetypes.Lookup(number);
-	if (existing)
-	{
-		dynamic_line = existing;
-	}
-	else
+	if (! dynamic_line)
 	{
 		dynamic_line = new linetype_c;
-		dynamic_line->name = epi::STR_Format("%d", number);
+		dynamic_line->name = name;
+
 		linetypes.Insert(dynamic_line);
 	}
-
-	// instantiate the static entry
-	buffer_line.Default();
 }
 
 static void LinedefParseField(const char *field, const char *contents,
@@ -342,7 +335,7 @@ static void LinedefParseField(const char *field, const char *contents,
 	I_Debugf("LINEDEF_PARSE: %s = %s;\n", field, contents);
 #endif
 
-	if (DDF_MainParseField(linedef_commands, field, contents))
+	if (DDF_MainParseField(dynamic_line, linedef_commands, field, contents))
 		return;
 
 	DDF_WarnError2(128, "Unknown lines.ddf command: %s\n", field);
@@ -351,74 +344,68 @@ static void LinedefParseField(const char *field, const char *contents,
 static void LinedefFinishEntry(void)
 {
 	// -AJA- 2009: Convert old style scroller to new style
-	if (buffer_line.scroll_parts & SCPT_TMP_KLUDGE)
+	if (dynamic_line->scroll_parts & SCPT_TMP_KLUDGE)
 	{
-		if (buffer_line.scroll_parts & SCPT_TMP_LEFT)
+		if (dynamic_line->scroll_parts & SCPT_TMP_LEFT)
 		{
-			buffer_line.s_xspeed *= -1.0f;
+			dynamic_line->s_xspeed *= -1.0f;
 		}
-		else if (buffer_line.scroll_parts & SCPT_TMP_UP)
+		else if (dynamic_line->scroll_parts & SCPT_TMP_UP)
 		{
-			buffer_line.s_yspeed = buffer_line.s_xspeed;
-			buffer_line.s_xspeed = 0.0f;
+			dynamic_line->s_yspeed = dynamic_line->s_xspeed;
+			dynamic_line->s_xspeed = 0.0f;
 		}
-		else if (buffer_line.scroll_parts & SCPT_TMP_DOWN)
+		else if (dynamic_line->scroll_parts & SCPT_TMP_DOWN)
 		{
-			buffer_line.s_yspeed = buffer_line.s_xspeed * -1.0f;
-			buffer_line.s_xspeed = 0.0f;
+			dynamic_line->s_yspeed = dynamic_line->s_xspeed * -1.0f;
+			dynamic_line->s_xspeed = 0.0f;
 		}
 
-		buffer_line.scroll_parts = (scroll_part_e)(buffer_line.scroll_parts & ~SCPT_TMP_KLUDGE);
+		dynamic_line->scroll_parts = (scroll_part_e)(dynamic_line->scroll_parts & ~SCPT_TMP_KLUDGE);
 	}
 
 	// backwards compat: COUNT=0 means no limit on triggering
-	if (buffer_line.count == 0)
-		buffer_line.count = -1;
+	if (dynamic_line->count == 0)
+		dynamic_line->count = -1;
 
-	if (buffer_line.hub_exit > 0)
-		buffer_line.e_exit = EXIT_Hub;
+	if (dynamic_line->hub_exit > 0)
+		dynamic_line->e_exit = EXIT_Hub;
 
 	// check stuff...
 
-	if (buffer_line.ef.type != EXFL_None)
+	if (dynamic_line->ef.type != EXFL_None)
 	{
 		// AUTO is no longer needed for extrafloors
-		buffer_line.autoline = false;
+		dynamic_line->autoline = false;
 
-		if ((buffer_line.ef.type & EXFL_Flooder) && (buffer_line.ef.type & EXFL_NoShade))
+		if ((dynamic_line->ef.type & EXFL_Flooder) && (dynamic_line->ef.type & EXFL_NoShade))
 		{
 			DDF_WarnError2(129, "FLOODER and NOSHADE tags cannot be used together.\n");
-			buffer_line.ef.type = (extrafloor_type_e)(buffer_line.ef.type & ~EXFL_Flooder);
+			dynamic_line->ef.type = (extrafloor_type_e)(dynamic_line->ef.type & ~EXFL_Flooder);
 		}
 
-		if (! (buffer_line.ef.type & EXFL_Present))
+		if (! (dynamic_line->ef.type & EXFL_Present))
 		{
 			DDF_WarnError2(129, "Extrafloor type missing THIN, THICK or LIQUID.\n");
-			buffer_line.ef.type = EXFL_None;
+			dynamic_line->ef.type = EXFL_None;
 		}
 	}
 
-	if (buffer_line.friction != FLO_UNUSED && buffer_line.friction < 0.05f)
+	if (dynamic_line->friction != FLO_UNUSED && dynamic_line->friction < 0.05f)
 	{
 		DDF_WarnError2(129, "Friction value too low (%1.2f), it would prevent "
-			"all movement.\n", buffer_line.friction);
-		buffer_line.friction = 0.05f;
+			"all movement.\n", dynamic_line->friction);
+		dynamic_line->friction = 0.05f;
 	}
 
-	if (buffer_line.viscosity != FLO_UNUSED && buffer_line.viscosity > 0.95f)
+	if (dynamic_line->viscosity != FLO_UNUSED && dynamic_line->viscosity > 0.95f)
 	{
 		DDF_WarnError2(129, "Viscosity value too high (%1.2f), it would prevent "
-			"all movement.\n", buffer_line.viscosity);
-		buffer_line.viscosity = 0.95f;
+			"all movement.\n", dynamic_line->viscosity);
+		dynamic_line->viscosity = 0.95f;
 	}
 
 	// FIXME: check more stuff...
-
-	// transfer static entry to dynamic entry
-	dynamic_line->CopyDetail(buffer_line);
-
-	// compute CRC...
-	// FIXME: Do something!
 }
 
 static void LinedefClearAll(void)
