@@ -530,6 +530,19 @@ void W_InitSprites(void)
 		if (info) CountFramesInGroup(info->states);
 	}
 
+	for (it = atkdefs.GetIterator(atkdefs.GetDisabledCount());
+		 it.IsValid(); it++)
+	{
+		atkdef_c *info = ITERATOR_TO_TYPE(it, atkdef_c*);
+
+		if (info)
+		{
+			mobjtype_c *info2 = (mobjtype_c *) info->atk_mobj;
+
+			if (info2) CountFramesInGroup(info2->states);
+		}
+	}
+
 	// 3. Allocate frames
 
 	for (int k=1; k < numsprites; k++)
