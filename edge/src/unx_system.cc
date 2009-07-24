@@ -203,20 +203,20 @@ void I_Warning(const char *warning,...)
 {
 	va_list argptr;
 
-	va_start (argptr, warning);
-	vsprintf (errmsg, warning, argptr);
-	va_end (argptr);
+	va_start(argptr, warning);
+	vsprintf(errmsg, warning, argptr);
+	va_end(argptr);
 
-	I_Printf ("WARNING: %s", errmsg);
+	I_Printf("WARNING: %s", errmsg);
 }
 
 void I_Error(const char *error, ...)
 {
 	va_list argptr;
 
-	va_start (argptr, error);
-	vsprintf (errmsg, error, argptr);
-	va_end (argptr);
+	va_start(argptr, error);
+	vsprintf(errmsg, error, argptr);
+	va_end(argptr);
 
 	if (logfile)
 	{
@@ -230,16 +230,16 @@ void I_Error(const char *error, ...)
 		fflush(debugfile);
 	}
 
+	fprintf(stderr, "%s\n", errmsg);
+
+	I_GrabCursor(false);
+
 	// -AJA- Commit suicide, thereby producing a core dump which may
 	//       come in handy for debugging the code that called I_Error().
 	if (M_CheckParm("-core"))
 	{
-		fprintf(stderr, "%s\n", errmsg);
-
-		I_GrabCursor(false);
-
 		raise(11);
-		/* NOTREACHED */
+		/* NOT REACHED */
 	}
 
 #if defined(LINUX) && !defined(USE_FLTK)
