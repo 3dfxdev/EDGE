@@ -354,6 +354,13 @@ float DDF_Tan(float degrees)
 
 //----------------------------------------------------------------------------
 
+
+void DDF_DummyFunction(const char *info, void *storage)
+{
+	/* does nothing */
+}
+
+
 //
 // Get numeric value directly from the file
 //
@@ -616,17 +623,7 @@ void DDF_MainGetTime(const char *info, void *storage)
 	*dest = (int)(val * (float)TICRATE);
 }
 
-//
-// DDF_DummyFunction
-//
-void DDF_DummyFunction(const char *info, void *storage)
-{
-	/* does nothing */
-}
 
-//
-// DDF_MainGetColourmap
-//
 void DDF_MainGetColourmap(const char *info, void *storage)
 {
 	const colourmap_c **result = (const colourmap_c **)storage;
@@ -637,9 +634,7 @@ void DDF_MainGetColourmap(const char *info, void *storage)
 	
 }
 
-//
-// DDF_MainGetRGB
-//
+
 void DDF_MainGetRGB(const char *info, void *storage)
 {
 	rgbcol_t *result = (rgbcol_t *)storage;
@@ -664,7 +659,7 @@ void DDF_MainGetRGB(const char *info, void *storage)
 }
 
 //
-// DDF_MainGetWhenAppear
+// WhenAppear
 //
 // Syntax:  [ '!' ]  [ SKILL ]  ':'  [ NETMODE ]
 //
@@ -815,9 +810,7 @@ void Test_ParseWhenAppear(void)
 }
 #endif
 
-//
-// DDF_MainGetBitSet
-//
+
 void DDF_MainGetBitSet(const char *info, void *storage)
 {
 	bitset_t *result = (bitset_t *)storage;
@@ -848,6 +841,216 @@ void DDF_MainGetBitSet(const char *info, void *storage)
 		for (; start <= end; start++)
 			(*result) |= (1 << start);
 	}
+}
+
+
+static int FindSpecialFlag(const char *prefix, const char *name,
+						   const specflags_t *flag_set)
+{
+	int i;
+	char try_name[512];
+
+	for (i=0; flag_set[i].name; i++)
+	{
+		const char *current = flag_set[i].name;
+		bool obsolete = false;
+
+		if (current[0] == '!')
+		{
+			current++;
+			obsolete = true;
+		}
+    
+		sprintf(try_name, "%s%s", prefix, current);
+    
+		if (DDF_CompareName(name, try_name) == 0)
+		{
+			if (obsolete)
+				DDF_Obsolete("The ddf flag `%s' is obsolete !\n", try_name);
+
+			return i;
+		}
+	}
+
+	return -1;
+}
+
+checkflag_result_e DDF_MainCheckSpecialFlag(const char *name,
+							 const specflags_t *flag_set, int *flag_value, 
+							 bool allow_prefixes, bool allow_user)
+{
+	int index;
+	int negate = 0;
+	int user = 0;
+
+	// try plain name...
+	index = FindSpecialFlag("", name, flag_set);
+  
+	if (allow_prefixes)
+	{
+		// try name with ENABLE_ prefix...
+		if (index == -1)
+		{
+			index = FindSpecialFlag("ENABLE_", name, flag_set);
+		}
+
+		// try name with NO_ prefix...
+		if (index == -1)
+		{
+			negate = 1;
+			index = FindSpecialFlag("NO_", name, flag_set);
+		}
+
+		// try name with NOT_ prefix...
+		if (index == -1)
+		{
+			negate = 1;
+			index = FindSpecialFlag("NOT_", name, flag_set);
+		}
+
+		// try name with DISABLE_ prefix...
+		if (index == -1)
+		{
+			negate = 1;
+			index = FindSpecialFlag("DISABLE_", name, flag_set);
+		}
+
+		// try name with USER_ prefix...
+		if (index == -1 && allow_user)
+		{
+			user = 1;
+			negate = 0;
+			index = FindSpecialFlag("USER_", name, flag_set);
+		}
+	}
+
+	if (index < 0)
+		return CHKF_Unknown;
+
+	(*flag_value) = flag_set[index].flags;
+
+	if (flag_set[index].negative)
+		negate = !negate;
+  
+	if (user)
+		return CHKF_User;
+  
+	if (negate)
+		return CHKF_Negative;
+
+	return CHKF_Positive;
+}
+
+//
+// Decode a keyword followed by something in () brackets.  Buf_len gives
+// the maximum size of the output buffers.  The outer keyword is required
+// to be non-empty, though the inside can be empty.  Returns false if
+// cannot be parsed (e.g. no brackets).  Handles strings.
+//
+bool DDF_MainDecodeBrackets(const char *info, char *outer, char *inner,
+	int buf_len)
+{
+	const char *pos = info;
+	
+	while (*pos && *pos != '(')
+		pos++;
+	
+	if (*pos == 0 || pos == info)
+		return false;
+	
+	if (pos - info >= buf_len)  // overflow
+		return false;
+
+	strncpy(outer, info, pos - info);
+	outer[pos - info] = 0;
+
+	pos++;  // skip the '('
+
+	info = pos;
+
+	bool in_string = false;
+
+	while (*pos && (in_string || *pos != ')'))
+	{
+		// handle escaped quotes
+		if (pos[0] == '\\' && pos[1] == '"')
+		{
+			pos += 2;
+			continue;
+		}
+
+		if (*pos == '"')
+			in_string = ! in_string;
+
+		pos++;
+	}
+
+	if (*pos == 0)
+		return false;
+
+	if (pos - info >= buf_len)  // overflow
+		return false;
+
+	strncpy(inner, info, pos - info);
+	inner[pos - info] = 0;
+
+	return true;
+}
+
+//
+// DDF_MainDecodeList
+//
+// Find the dividing character.  Returns NULL if not found.
+// Handles strings and brackets unless simple is true.
+//
+const char *DDF_MainDecodeList(const char *info, char divider, bool simple)
+{
+	int  brackets  = 0;
+	bool in_string = false;
+
+	const char *pos = info;
+
+	for (;;)
+	{
+		if (*pos == 0)
+			break;
+
+		if (brackets == 0 && !in_string && *pos == divider)
+			return pos;
+
+		// handle escaped quotes
+		if (! simple)
+		{
+			if (pos[0] == '\\' && pos[1] == '"')
+			{
+				pos += 2;
+				continue;
+			}
+
+			if (*pos == '"')
+				in_string = ! in_string;
+
+			if (!in_string && *pos == '(')
+				brackets++;
+
+			if (!in_string && *pos == ')')
+			{
+				brackets--;
+				if (brackets < 0)
+					DDF_Error("Too many ')' found: %s\n", info);
+			}
+		}
+
+		pos++;
+	}
+
+	if (in_string)
+		DDF_Error("Unterminated string found: %s\n", info);
+
+	if (brackets != 0)
+		DDF_Error("Unclosed brackets found: %s\n", info);
+
+	return NULL;
 }
 
 

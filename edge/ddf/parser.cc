@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Data Definition Files Code (Main)
+//  DDF Parsing code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE Team.
 //           
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -168,8 +168,7 @@ void DDF_WarnError2(int ver, const char *err, ...)
 		DDF_Warning("%s", buffer);
 }
 
-static void GCCATTR((format (printf,1,2)))
-	DDF_Obsolete(const char *err, ...)
+void DDF_Obsolete(const char *err, ...)
 {
 	va_list argptr;
 	char buffer[1024];
@@ -857,8 +856,8 @@ void DDF_MainReadFile(readinfo_t * readinfo, char *memfileptr)
 // the storage pointer
 //
 bool DDF_MainParseSubField(const commandlist_t *sub_comms,
-								const char *field, const char *contents, char *stor_base,
-    char *dummy_base, const char *base_command)
+							const char *field, const char *contents, char *stor_base,
+							char *dummy_base, const char *base_command)
 {
 	int i, len;
 	bool obsolete = false;
@@ -924,7 +923,7 @@ bool DDF_MainParseSubField(const commandlist_t *sub_comms,
 // does (and return true), otherwise return false.
 //
 bool DDF_MainParseField(const commandlist_t *commands, 
-							 const char *field, const char *contents)
+						 const char *field, const char *contents)
 {
 	int i, len;
 	bool obsolete = false;
@@ -980,215 +979,6 @@ bool DDF_MainParseField(const commandlist_t *commands,
 	return true;
 }
 
-
-static int FindSpecialFlag(const char *prefix, const char *name,
-						   const specflags_t *flag_set)
-{
-	int i;
-	char try_name[512];
-
-	for (i=0; flag_set[i].name; i++)
-	{
-		const char *current = flag_set[i].name;
-		bool obsolete = false;
-
-		if (current[0] == '!')
-		{
-			current++;
-			obsolete = true;
-		}
-    
-		sprintf(try_name, "%s%s", prefix, current);
-    
-		if (DDF_CompareName(name, try_name) == 0)
-		{
-			if (obsolete)
-				DDF_Obsolete("The ddf flag `%s' is obsolete !\n", try_name);
-
-			return i;
-		}
-	}
-
-	return -1;
-}
-
-checkflag_result_e DDF_MainCheckSpecialFlag(const char *name,
-							 const specflags_t *flag_set, int *flag_value, 
-							 bool allow_prefixes, bool allow_user)
-{
-	int index;
-	int negate = 0;
-	int user = 0;
-
-	// try plain name...
-	index = FindSpecialFlag("", name, flag_set);
-  
-	if (allow_prefixes)
-	{
-		// try name with ENABLE_ prefix...
-		if (index == -1)
-		{
-			index = FindSpecialFlag("ENABLE_", name, flag_set);
-		}
-
-		// try name with NO_ prefix...
-		if (index == -1)
-		{
-			negate = 1;
-			index = FindSpecialFlag("NO_", name, flag_set);
-		}
-
-		// try name with NOT_ prefix...
-		if (index == -1)
-		{
-			negate = 1;
-			index = FindSpecialFlag("NOT_", name, flag_set);
-		}
-
-		// try name with DISABLE_ prefix...
-		if (index == -1)
-		{
-			negate = 1;
-			index = FindSpecialFlag("DISABLE_", name, flag_set);
-		}
-
-		// try name with USER_ prefix...
-		if (index == -1 && allow_user)
-		{
-			user = 1;
-			negate = 0;
-			index = FindSpecialFlag("USER_", name, flag_set);
-		}
-	}
-
-	if (index < 0)
-		return CHKF_Unknown;
-
-	(*flag_value) = flag_set[index].flags;
-
-	if (flag_set[index].negative)
-		negate = !negate;
-  
-	if (user)
-		return CHKF_User;
-  
-	if (negate)
-		return CHKF_Negative;
-
-	return CHKF_Positive;
-}
-
-//
-// Decode a keyword followed by something in () brackets.  Buf_len gives
-// the maximum size of the output buffers.  The outer keyword is required
-// to be non-empty, though the inside can be empty.  Returns false if
-// cannot be parsed (e.g. no brackets).  Handles strings.
-//
-bool DDF_MainDecodeBrackets(const char *info, char *outer, char *inner,
-	int buf_len)
-{
-	const char *pos = info;
-	
-	while (*pos && *pos != '(')
-		pos++;
-	
-	if (*pos == 0 || pos == info)
-		return false;
-	
-	if (pos - info >= buf_len)  // overflow
-		return false;
-
-	strncpy(outer, info, pos - info);
-	outer[pos - info] = 0;
-
-	pos++;  // skip the '('
-
-	info = pos;
-
-	bool in_string = false;
-
-	while (*pos && (in_string || *pos != ')'))
-	{
-		// handle escaped quotes
-		if (pos[0] == '\\' && pos[1] == '"')
-		{
-			pos += 2;
-			continue;
-		}
-
-		if (*pos == '"')
-			in_string = ! in_string;
-
-		pos++;
-	}
-
-	if (*pos == 0)
-		return false;
-
-	if (pos - info >= buf_len)  // overflow
-		return false;
-
-	strncpy(inner, info, pos - info);
-	inner[pos - info] = 0;
-
-	return true;
-}
-
-//
-// DDF_MainDecodeList
-//
-// Find the dividing character.  Returns NULL if not found.
-// Handles strings and brackets unless simple is true.
-//
-const char *DDF_MainDecodeList(const char *info, char divider, bool simple)
-{
-	int  brackets  = 0;
-	bool in_string = false;
-
-	const char *pos = info;
-
-	for (;;)
-	{
-		if (*pos == 0)
-			break;
-
-		if (brackets == 0 && !in_string && *pos == divider)
-			return pos;
-
-		// handle escaped quotes
-		if (! simple)
-		{
-			if (pos[0] == '\\' && pos[1] == '"')
-			{
-				pos += 2;
-				continue;
-			}
-
-			if (*pos == '"')
-				in_string = ! in_string;
-
-			if (!in_string && *pos == '(')
-				brackets++;
-
-			if (!in_string && *pos == ')')
-			{
-				brackets--;
-				if (brackets < 0)
-					DDF_Error("Too many ')' found: %s\n", info);
-			}
-		}
-
-		pos++;
-	}
-
-	if (in_string)
-		DDF_Error("Unterminated string found: %s\n", info);
-
-	if (brackets != 0)
-		DDF_Error("Unclosed brackets found: %s\n", info);
-
-	return NULL;
-}
 
 
 extern readinfo_t anim_readinfo;

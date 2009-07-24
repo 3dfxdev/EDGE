@@ -237,6 +237,7 @@ void DDF_Error    (const char *err, ...) GCCATTR((format (printf,1,2)));
 void DDF_Warning  (const char *err, ...) GCCATTR((format (printf,1,2)));
 void DDF_WarnError(const char *err, ...) GCCATTR((format (printf,1,2)));
 void DDF_WarnError2 (int ver, const char *err, ...) GCCATTR((format (printf,2,3)));
+void DDF_Obsolete(const char *err, ...) GCCATTR((format (printf,1,2)));
 
 void DDF_MainGetPercent (const char *info, void *storage);
 void DDF_MainGetPercentAny (const char *info, void *storage);
