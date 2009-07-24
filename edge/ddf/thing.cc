@@ -204,7 +204,7 @@ const commandlist_t thing_commands[] =
 	DDF_CMD_END
 };
 
-static const state_starter_t thing_starters[] =
+const state_starter_t thing_starters[] =
 {
 	DDF_STATE("SPAWN",     "IDLE",    spawn_state),
 	DDF_STATE("IDLE",      "IDLE",    idle_state),
@@ -229,7 +229,7 @@ static const state_starter_t thing_starters[] =
 // -AJA- 1999/08/09: Moved this here from p_action.h, and added an extra
 // field `handle_arg' for things like "WEAPON_SHOOT(FIREBALL)".
 
-static const actioncode_t thing_actions[] =
+const actioncode_t thing_actions[] =
 {
 	{"NOTHING", NULL, NULL},
 
@@ -373,79 +373,6 @@ const specflags_t simplecond_names[] =
 	{NULL, 0, 0}
 };
 
-//
-// DDF_CompareName
-//
-// Compare two names. This is like stricmp(), except that spaces
-// and underscors are ignored for comparison purposes.
-//
-// -AJA- 1999/09/11: written.
-//
-int DDF_CompareName(const char *A, const char *B)
-{
-	for (;;)
-	{
-		if (*A == 0 && *B == 0)
-			return 0;
-
-		if (*A == 0) return -1;
-		if (*B == 0) return +1;
-
-		if (*A == ' ' || *A == '_')
-		{
-			A++; continue;
-		}
-
-		if (*B == ' ' || *B == '_')
-		{
-			B++; continue;
-		}
-
-		if (toupper(*A) == toupper(*B))
-		{
-			A++; B++; continue;
-		}
-
-		return toupper(*A) - toupper(*B);
-	}
-}
-
-static bool ThingTryParseState(const char *field, 
-									const char *contents, int index, bool is_last)
-{
-	const char *pos;
-
-	if (strnicmp(field, "STATES(", 7) != 0)
-		return false;
-
-	// extract label name
-	field += 7;
-
-	pos = strchr(field, ')');
-
-	if (pos == NULL || pos == field || pos > (field+64))
-		return false;
-
-	std::string labname(field, pos - field);
-
-	// check for the "standard" states
-	int i;
-	for (i=0; thing_starters[i].label; i++)
-		if (DDF_CompareName(thing_starters[i].label, labname.c_str()) == 0)
-			break;
-
-	const state_starter_t *starter = NULL;
-	if (thing_starters[i].label)
-		starter = &thing_starters[i];
-
-	DDF_StateReadState(contents, labname.c_str(), dynamic_thing->states,
-		starter ? starter->state_num : NULL, index, 
-		is_last ? starter ? starter->last_redir : "IDLE" : NULL, 
-		thing_actions, false);
-
-	return true;
-}
-
 
 //
 //  DDF PARSE ROUTINES
@@ -511,10 +438,12 @@ void ThingParseField(const char *field, const char *contents,
 	if (DDF_MainParseField((char *)dynamic_thing, thing_commands, field, contents))
 		return;
 
-	if (ThingTryParseState(field, contents, index, is_last))
+	if (DDF_MainParseState((char *)dynamic_thing, dynamic_thing->states, field, contents,
+						   index, is_last, false /* is_weapon */,
+						   thing_starters, thing_actions))
 		return;
 
-	DDF_WarnError2(128, "Unknown thing/attack command: %s\n", field);
+	DDF_WarnError("Unknown thing command: %s\n", field);
 }
 
 static void ThingFinishEntry(void)

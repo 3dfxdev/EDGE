@@ -112,6 +112,11 @@ static const commandlist_t attack_commands[] =
 };
 
 
+extern const commandlist_t   thing_commands[];
+extern const state_starter_t thing_starters[];
+extern const actioncode_t    thing_actions[];
+
+
 //
 //  DDF PARSE ROUTINES
 //
@@ -148,9 +153,11 @@ static void AttackParseField(const char *field, const char *contents,
 		return;
 
 	// we need to create an MOBJ for this attack
-	if (! dynamic_atk->atk_mobj)
+	mobjtype_c *atk_mobj = (mobjtype_c *)dynamic_atk->atk_mobj;
+
+	if (! atk_mobj)
 	{
-		mobjtype_c *atk_mobj = new mobjtype_c();
+		 atk_mobj = new mobjtype_c();
 
 		// determine a name
 		char mt_name[256];
@@ -164,7 +171,17 @@ static void AttackParseField(const char *field, const char *contents,
 		dynamic_atk->atk_mobj = atk_mobj;
 	}
 
-	ThingParseField((char *)dynamic_atk->atk_mobj, field, contents, index, is_last);
+	// Parse field as a thing command
+
+	if (DDF_MainParseField((char *)atk_mobj, thing_commands, field, contents))
+		return;
+
+	if (DDF_MainParseState((char *)atk_mobj, atk_mobj->states, field, contents,
+						   index, is_last, false /* is_weapon */,
+						   thing_starters, thing_actions))
+		return;
+
+	DDF_WarnError("Unknown attack command: %s\n", field);
 }
 
 static void AttackFinishEntry(void)
