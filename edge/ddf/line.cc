@@ -335,10 +335,10 @@ static void LinedefParseField(const char *field, const char *contents,
 	I_Debugf("LINEDEF_PARSE: %s = %s;\n", field, contents);
 #endif
 
-	if (DDF_MainParseField(dynamic_line, linedef_commands, field, contents))
-		return;
-
-	DDF_WarnError2(128, "Unknown lines.ddf command: %s\n", field);
+	if (! DDF_MainParseField((char *)dynamic_line, linedef_commands, field, contents))
+	{
+		DDF_WarnError("Unknown lines.ddf command: %s\n", field);
+	}
 }
 
 static void LinedefFinishEntry(void)

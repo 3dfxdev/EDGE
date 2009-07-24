@@ -31,7 +31,6 @@
 #undef  DF
 #define DF  DDF_CMD
 
-static bool attack_has_mobj;
 
 // kludge for backwards compatibility
 #define AF_DAMAGE_KLUDGE  (1 << 24)
@@ -135,13 +134,6 @@ static void AttackStartEntry(const char *name)
 
 		atkdefs.Insert(dynamic_atk);
 	}
-
-	attack_has_mobj = false;
-
-
-	// FIXME !!!
-	buffer_mobj.states.clear();
-	buffer_mobj.Default();
 }
 
 static void AttackParseField(const char *field, const char *contents,
@@ -156,58 +148,70 @@ static void AttackParseField(const char *field, const char *contents,
 		return;
 
 	// we need to create an MOBJ for this attack
-	attack_has_mobj = true;
+	if (! dynamic_atk->atk_mobj)
+	{
+		mobjtype_c *atk_mobj = new mobjtype_c();
 
-	ThingParseField((char *)dynamic_mobj, field, contents, index, is_last);
+		// determine a name
+		char mt_name[256];
+
+		snprintf(mt_name, sizeof(mt_name)-2, "atk:%s", dynamic_atk->name.c_str());
+		mt_name[255] = 0;
+
+		atk_mobj->name = mt_name;
+		atk_mobj->number = ATTACK__MOBJ;
+
+		dynamic_atk->atk_mobj = atk_mobj;
+	}
+
+	ThingParseField((char *)dynamic_atk->atk_mobj, field, contents, index, is_last);
 }
 
 static void AttackFinishEntry(void)
 {
-	// check DAMAGE stuff
-	if (dynamic_atk->damage.nominal < 0)
-	{
-		DDF_WarnError2(128, "Bad DAMAGE.VAL value %f in DDF.\n", dynamic_atk->damage.nominal);
-	}
-
-	// FIXME: check more stuff...
-
 	// handle attacks that have mobjs
-	if (attack_has_mobj)
+	if (dynamic_atk->atk_mobj)
 	{
-		DDF_StateFinishStates(buffer_mobj.states); 
+		mobjtype_c *atk_mobj = (mobjtype_c *)dynamic_atk->atk_mobj;
+
+		DDF_StateFinishStates(atk_mobj->states); 
 
 		// check MOBJ stuff
 
-		if (buffer_mobj.explode_damage.nominal < 0)
+		if (atk_mobj->explode_damage.nominal < 0)
 		{
 			DDF_WarnError2(131, "Bad EXPLODE_DAMAGE.VAL value %f in DDF.\n",
-				buffer_mobj.explode_damage.nominal);
+				atk_mobj->explode_damage.nominal);
 		}
 
-		if (buffer_mobj.explode_radius < 0)
+		if (atk_mobj->explode_radius < 0)
 		{
 			DDF_WarnError2(131, "Bad EXPLODE_RADIUS value %f in DDF.\n",
-				buffer_mobj.explode_radius);
+				atk_mobj->explode_radius);
 		}
 
-		if (buffer_mobj.model_skin < 0 || buffer_mobj.model_skin > 9)
+		if (atk_mobj->model_skin < 0 || atk_mobj->model_skin > 9)
 			DDF_Error("Bad MODEL_SKIN value %d in DDF (must be 0-9).\n",
-				buffer_mobj.model_skin);
+				atk_mobj->model_skin);
 
-		if (buffer_mobj.dlight[0].radius > 512)
+		if (atk_mobj->dlight[0].radius > 512)
 			DDF_Warning("DLIGHT RADIUS value %1.1f too large (over 512).\n",
-				buffer_mobj.dlight[0].radius);
+				atk_mobj->dlight[0].radius);
 
-		dynamic_atk->atk_mobj = DDF_MobjMakeAttackObj(&buffer_mobj,
-											dynamic_atk->name.c_str());
+		// backwards compat
+		atk_mobj->DLightCompatibility();
 	}
-	else
-		dynamic_atk->atk_mobj = NULL;
+
+	// check DAMAGE stuff
+	if (dynamic_atk->damage.nominal < 0)
+	{
+		DDF_WarnError("Bad DAMAGE.VAL value %f in DDF.\n", dynamic_atk->damage.nominal);
+	}
 
 	// compute an attack class, if none specified
 	if (dynamic_atk->attack_class == BITSET_EMPTY)
 	{
-		dynamic_atk->attack_class = attack_has_mobj ? BITSET_MAKE('M') : 
+		dynamic_atk->attack_class = dynamic_atk->atk_mobj ? BITSET_MAKE('M') : 
 			(dynamic_atk->attackstyle == ATK_CLOSECOMBAT ||
 			 dynamic_atk->attackstyle == ATK_SKULLFLY) ? 
 			BITSET_MAKE('C') : BITSET_MAKE('B');
@@ -229,6 +233,9 @@ static void AttackFinishEntry(void)
 	{
 		dynamic_atk->berserk_mul = 10.0f;
 	}
+
+	// TODO: check more stuff...
+
 }
 
 static void AttackClearAll(void)

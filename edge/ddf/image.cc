@@ -141,8 +141,10 @@ static void ImageParseField(const char *field, const char *contents, int index, 
 	I_Debugf("IMAGE_PARSE: %s = %s;\n", field, contents);
 #endif
 
-	if (! DDF_MainParseField(dynamic_image, image_commands, field, contents))
+	if (! DDF_MainParseField((char *)dynamic_image, image_commands, field, contents))
+	{
 		DDF_Error("Unknown images.ddf command: %s\n", field);
+	}
 }
 
 static void ImageFinishEntry(void)

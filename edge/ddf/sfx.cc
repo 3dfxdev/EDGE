@@ -91,8 +91,10 @@ static void SoundParseField(const char *field, const char *contents,
 	I_Debugf("SOUND_PARSE: %s = %s;\n", field, contents);
 #endif
 
-	if (! DDF_MainParseField(dynamic_sfx, sfx_commands, field, contents))
-		DDF_WarnError2(128, "Unknown sounds.ddf command: %s\n", field);
+	if (! DDF_MainParseField((char *)dynamic_sfx, sfx_commands, field, contents))
+	{
+		DDF_WarnError("Unknown sounds.ddf command: %s\n", field);
+	}
 }
 
 static void SoundFinishEntry(void)

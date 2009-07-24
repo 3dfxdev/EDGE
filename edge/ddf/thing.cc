@@ -2,7 +2,7 @@
 //  EDGE Data Definition File Code (Things - MOBJs)
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -40,14 +40,11 @@
 
 #define DDF_MobjHashFunc(x)  (((x) + LOOKUP_CACHESIZE) % LOOKUP_CACHESIZE)
 
-mobjtype_c buffer_mobj;
-mobjtype_c *dynamic_mobj;
-
-extern damage_c buffer_damage;
-
 mobjtype_container_c mobjtypes;
 
-mobjtype_c * default_mobjtype;
+static mobjtype_c * default_mobjtype;
+
+static mobjtype_c *dynamic_thing;
 
 void DDF_MobjGetBenefit(const char *info, void *storage);
 void DDF_MobjGetPickupEffect(const char *info, void *storage);
@@ -60,10 +57,10 @@ static void DDF_MobjGetAngleRange(const char *info, void *storage);
 
 static void AddPickupEffect(pickup_effect_c **list, pickup_effect_c *cur);
 
-static dlight_info_c buffer_dlight;
 
 #undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  buffer_dlight
+#define DDF_CMD_BASE  dummy_dlight
+static dlight_info_c dummy_dlight;
 
 const commandlist_t dlight_commands[] =
 {
@@ -80,10 +77,10 @@ const commandlist_t dlight_commands[] =
 	DDF_CMD_END
 };
 
-static weakness_info_c buffer_weakness;
 
 #undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  buffer_weakness
+#define DDF_CMD_BASE  dummy_weakness
+static weakness_info_c dummy_weakness;
 
 const commandlist_t weakness_commands[] =
 {
@@ -96,17 +93,19 @@ const commandlist_t weakness_commands[] =
 	DDF_CMD_END
 };
 
+
 #undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  buffer_mobj
+#define DDF_CMD_BASE  dummy_thing
+static mobjtype_c dummy_thing;
 
 const commandlist_t thing_commands[] =
 {
 	// sub-commands
-	DDF_SUB_LIST("DLIGHT",  dlight[0], dlight_commands, buffer_dlight),
-	DDF_SUB_LIST("DLIGHT2", dlight[1], dlight_commands, buffer_dlight),
-	DDF_SUB_LIST("WEAKNESS", weak, weakness_commands, buffer_weakness),
-	DDF_SUB_LIST("EXPLODE_DAMAGE", explode_damage, damage_commands, buffer_damage),
-	DDF_SUB_LIST("CHOKE_DAMAGE", choke_damage, damage_commands, buffer_damage),
+	DDF_SUB_LIST("DLIGHT",  dlight[0], dlight_commands),
+	DDF_SUB_LIST("DLIGHT2", dlight[1], dlight_commands),
+	DDF_SUB_LIST("WEAKNESS", weak, weakness_commands),
+	DDF_SUB_LIST("EXPLODE_DAMAGE", explode_damage, damage_commands),
+	DDF_SUB_LIST("CHOKE_DAMAGE", choke_damage, damage_commands),
 
 	DF("SPAWNHEALTH", spawnhealth, DDF_MainGetFloat),
 	DF("RADIUS", radius, DDF_MainGetFloat),
@@ -439,7 +438,7 @@ static bool ThingTryParseState(const char *field,
 	if (thing_starters[i].label)
 		starter = &thing_starters[i];
 
-	DDF_StateReadState(contents, labname.c_str(), buffer_mobj.states,
+	DDF_StateReadState(contents, labname.c_str(), dynamic_thing->states,
 		starter ? starter->state_num : NULL, index, 
 		is_last ? starter ? starter->last_redir : "IDLE" : NULL, 
 		thing_actions, false);
@@ -484,27 +483,22 @@ static void ThingStartEntry(const char *buffer)
 	{
 		idx = mobjtypes.FindFirst(name.c_str(), mobjtypes.GetDisabledCount());
 
-		if (idx>=0)
+		if (idx >= 0)
 		{
 			mobjtypes.MoveToEnd(idx);
-			dynamic_mobj = mobjtypes[mobjtypes.GetSize()-1];
+			dynamic_thing = mobjtypes[mobjtypes.GetSize()-1];
 		}
 	}
 
 	if (idx < 0)
 	{
-		dynamic_mobj = new mobjtype_c;
+		dynamic_thing = new mobjtype_c;
+		dynamic_thing->name = name;
 
-		dynamic_mobj->name = name;
-
-		mobjtypes.Insert(dynamic_mobj);
+		mobjtypes.Insert(dynamic_thing);
 	}
 
-	dynamic_mobj->number = number;
-
-	// instantiate the static entry
-	buffer_mobj.states.clear();
-	buffer_mobj.Default();
+	dynamic_thing->number = number;
 }
 
 void ThingParseField(const char *field, const char *contents,
@@ -514,7 +508,7 @@ void ThingParseField(const char *field, const char *contents,
 	I_Debugf("THING_PARSE: %s = %s;\n", field, contents);
 #endif
 
-	if (DDF_MainParseField(thing_commands, field, contents))
+	if (DDF_MainParseField((char *)dynamic_thing, thing_commands, field, contents))
 		return;
 
 	if (ThingTryParseState(field, contents, index, is_last))
@@ -525,84 +519,78 @@ void ThingParseField(const char *field, const char *contents,
 
 static void ThingFinishEntry(void)
 {
-	DDF_StateFinishStates(buffer_mobj.states);
+	DDF_StateFinishStates(dynamic_thing->states);
 
 	// count-as-kill things are automatically monsters
-	if (buffer_mobj.flags & MF_COUNTKILL)
-		buffer_mobj.extendedflags |= EF_MONSTER;
+	if (dynamic_thing->flags & MF_COUNTKILL)
+		dynamic_thing->extendedflags |= EF_MONSTER;
 
 	// countable items are always pick-up-able
-	if (buffer_mobj.flags & MF_COUNTITEM)
-		buffer_mobj.hyperflags |= HF_FORCEPICKUP;
+	if (dynamic_thing->flags & MF_COUNTITEM)
+		dynamic_thing->hyperflags |= HF_FORCEPICKUP;
 
 	// shootable things are always pushable
-	if (buffer_mobj.flags & MF_SHOOTABLE)
-		buffer_mobj.hyperflags |= HF_PUSHABLE;
+	if (dynamic_thing->flags & MF_SHOOTABLE)
+		dynamic_thing->hyperflags |= HF_PUSHABLE;
 
 	// check stuff...
 
-	if (buffer_mobj.mass < 1)
+	if (dynamic_thing->mass < 1)
 	{
-		DDF_WarnError2(128, "Bad MASS value %f in DDF.\n", buffer_mobj.mass);
-		buffer_mobj.mass = 1;
+		DDF_WarnError2(128, "Bad MASS value %f in DDF.\n", dynamic_thing->mass);
+		dynamic_thing->mass = 1;
 	}
 
 	// check CAST stuff
-	if (buffer_mobj.castorder > 0)
+	if (dynamic_thing->castorder > 0)
 	{
-		if (! buffer_mobj.chase_state)
+		if (! dynamic_thing->chase_state)
 			DDF_Error("Cast object must have CHASE states !\n");
 
-		if (! buffer_mobj.death_state)
+		if (! dynamic_thing->death_state)
 			DDF_Error("Cast object must have DEATH states !\n");
 	}
 
 	// check DAMAGE stuff
-	if (buffer_mobj.explode_damage.nominal < 0)
+	if (dynamic_thing->explode_damage.nominal < 0)
 	{
 		DDF_WarnError2(128, "Bad EXPLODE_DAMAGE.VAL value %f in DDF.\n",
-			buffer_mobj.explode_damage.nominal);
+			dynamic_thing->explode_damage.nominal);
 	}
 
-	if (buffer_mobj.explode_radius < 0)
+	if (dynamic_thing->explode_radius < 0)
 	{
 		DDF_Error("Bad EXPLODE_RADIUS value %f in DDF.\n",
-			buffer_mobj.explode_radius);
+			dynamic_thing->explode_radius);
 	}
 
-	if (buffer_mobj.reload_shots <= 0)
+	if (dynamic_thing->reload_shots <= 0)
 	{
 		DDF_Error("Bad RELOAD_SHOTS value %d in DDF.\n",
-			buffer_mobj.reload_shots);
+			dynamic_thing->reload_shots);
 	}
 
-	if (buffer_mobj.choke_damage.nominal < 0)
+	if (dynamic_thing->choke_damage.nominal < 0)
 	{
 		DDF_WarnError2(128, "Bad CHOKE_DAMAGE.VAL value %f in DDF.\n",
-			buffer_mobj.choke_damage.nominal);
+			dynamic_thing->choke_damage.nominal);
 	}
 
-	if (buffer_mobj.model_skin < 0 || buffer_mobj.model_skin > 9)
+	if (dynamic_thing->model_skin < 0 || dynamic_thing->model_skin > 9)
 		DDF_Error("Bad MODEL_SKIN value %d in DDF (must be 0-9).\n",
-			buffer_mobj.model_skin);
+			dynamic_thing->model_skin);
 
-	if (buffer_mobj.dlight[0].radius > 512)
+	if (dynamic_thing->dlight[0].radius > 512)
 		DDF_Warning("DLIGHT_RADIUS value %1.1f too large (over 512).\n",
-			buffer_mobj.dlight[0].radius);
+			dynamic_thing->dlight[0].radius);
 
-	// FIXME: check more stuff
+	// TODO: check more stuff
 
 	// backwards compatibility:
-	if (!buffer_mobj.idle_state && buffer_mobj.spawn_state)
-		buffer_mobj.idle_state = buffer_mobj.spawn_state;
+	if (!dynamic_thing->idle_state && dynamic_thing->spawn_state)
+		dynamic_thing->idle_state = dynamic_thing->spawn_state;
 
-	buffer_mobj.DLightCompatibility();
-
-	// transfer static entry to dynamic entry
-	dynamic_mobj->CopyDetail(buffer_mobj);
-
-	// compute CRC...
-	// FIXME: Do something. :-)))
+	dynamic_thing->DLightCompatibility();
 }
 
 static void ThingClearAll(void)
@@ -1471,27 +1459,6 @@ static void DDF_MobjGetAngleRange(const char *info, void *storage)
 	dest[1] = FLOAT_2_ANG(val2);
 }
 
-//
-// DDF_MobjMakeAttackObj
-//
-// Creates an object that is tightly bound to an attack.
-//
-// -AJA- 2000/02/11: written.
-//
-mobjtype_c *DDF_MobjMakeAttackObj(mobjtype_c *info, const char *atk_name)
-{
-	mobjtype_c *result = new mobjtype_c;
-
-	result->name = atk_name;
-	result->number = ATTACK__MOBJ;
-
-	result->CopyDetail(info[0]);
-
-	// backwards compat
-	result->DLightCompatibility();
-
-	return result;
-}
 
 //
 //  CONDITION TESTERS

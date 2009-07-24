@@ -81,8 +81,10 @@ static void FontParseField(const char *field, const char *contents, int index, b
 	I_Debugf("FONT_PARSE: %s = %s;\n", field, contents);
 #endif
 
-	if (! DDF_MainParseField(dynamic_font, font_commands, field, contents))
+	if (! DDF_MainParseField((char *)dynamic_font, font_commands, field, contents))
+	{
 		DDF_Error("Unknown fonts.ddf command: %s\n", field);
+	}
 }
 
 static void FontFinishEntry(void)

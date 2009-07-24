@@ -116,10 +116,10 @@ static void SectorParseField(const char *field, const char *contents,
 	I_Debugf("SECTOR_PARSE: %s = %s;\n", field, contents);
 #endif
 
-	if (DDF_MainParseField(dynamic_sector, sect_commands, field, contents))
-		return;
-
-	DDF_WarnError2(128, "Unknown sectors.ddf command: %s\n", field);
+	if (! DDF_MainParseField((char *)dynamic_sector, sect_commands, field, contents))
+	{
+		DDF_WarnError("Unknown sectors.ddf command: %s\n", field);
+	}
 }
 
 

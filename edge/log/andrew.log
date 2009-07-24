@@ -1,5 +1,12 @@
 Andrew Apted's Log
 
+2009/07/23:
+
+DDF library: changed the way DDF_CMD() stores fields, we now store
+the offset (ptrdiff_t) directly.  Updated DDF_MainParseField() to
+accept the object we are changing.  These changes mean we don't
+need a separate DDF_MainParseSubField() function.
+
 2009/07/22:
 
 Worked on simplifying some aspects of the DDF library.
@@ -16,7 +23,7 @@ are no longer stored alongside the THINGS.DDF ones.
 Attempted to clean up some other hacks in the DDF library.
 Some parts of the engine want a "default" object (linetype,
 sectortype or mobjtype), and these can be acquired by just
-doing a Lookup(0).
+doing a Lookup(0) -- guaranteed not to return NULL.
 
 2009/07/21:
 
