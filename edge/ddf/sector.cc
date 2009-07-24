@@ -398,66 +398,15 @@ static void DDF_SectMakeCrush(const char *info, void *storage)
 
 //----------------------------------------------------------------------------
 
-
 // --> Sector type definition class
 
-//
-// sectortype_c Constructor
-//
 sectortype_c::sectortype_c() : name()
 {
 	Default();
 }
 
-//
-// sectortype_c Copy constructor
-//
-sectortype_c::sectortype_c(sectortype_c &rhs)
-{
-	Copy(rhs);
-}
-
-//
-// sectortype_c Destructor
-//
 sectortype_c::~sectortype_c()
 {
-}
-
-
-void sectortype_c::Copy(sectortype_c &src)
-{
-	CopyDetail(src);
-}
-
-
-void sectortype_c::CopyDetail(sectortype_c &src)
-{
-	secret = src.secret;
-	gravity = src.gravity;
-	friction = src.friction;
-	viscosity = src.viscosity;
-	drag = src.drag;
-
-	f = src.f;
-	c = src.c;
-	l = src.l;
-
-	damage = src.damage;
-	
-	special_flags = src.special_flags;
-	e_exit = src.e_exit;
-	
-	use_colourmap = src.use_colourmap;
-	
-	ambient_sfx = src.ambient_sfx;
-	splash_sfx = src.splash_sfx;
-
-	appear = src.appear;
-
-	push_speed = src.push_speed;
-	push_zspeed = src.push_zspeed;
-	push_angle = src.push_angle;
 }
 
 
@@ -490,16 +439,35 @@ void sectortype_c::Default()
 	push_angle = 0;
 }
 
-//
-// sectortype_c assignment operator
-//
-sectortype_c& sectortype_c::operator=(sectortype_c &rhs)
+void sectortype_c::CopyDetail(sectortype_c &src)
 {
-	if(&rhs != this)
-		Copy(rhs);
+	secret = src.secret;
+	gravity = src.gravity;
+	friction = src.friction;
+	viscosity = src.viscosity;
+	drag = src.drag;
 
-	return *this;
+	f = src.f;
+	c = src.c;
+	l = src.l;
+
+	damage = src.damage;
+	
+	special_flags = src.special_flags;
+	e_exit = src.e_exit;
+	
+	use_colourmap = src.use_colourmap;
+	
+	ambient_sfx = src.ambient_sfx;
+	splash_sfx = src.splash_sfx;
+
+	appear = src.appear;
+
+	push_speed = src.push_speed;
+	push_zspeed = src.push_zspeed;
+	push_angle = src.push_angle;
 }
+
 
 // --> Sector definition type container class
 

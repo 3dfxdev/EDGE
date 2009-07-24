@@ -1562,81 +1562,15 @@ teleportdef_c& teleportdef_c::operator=(teleportdef_c &rhs)
 
 // --> Line definition type class
 
-//
-// linetype_c Constructor
-//
 linetype_c::linetype_c() : name()
 {
 	Default();
 }
 
-linetype_c::linetype_c(linetype_c &rhs)
-{
-	Copy(rhs);
-}
-
-//
-// linetype_c Destructor
-//
 linetype_c::~linetype_c()
 {
 }
 	
-
-void linetype_c::Copy(linetype_c &src)
-{
-	CopyDetail(src);
-}
-
-
-void linetype_c::CopyDetail(linetype_c &src)
-{
-	newtrignum = src.newtrignum;
-	type = src.type;
-	obj = src.obj;
-	keys = src.keys;
-	count = src.count;
-
-	f = src.f;
-	c = src.c;
-	d = src.d;
-	s = src.s;
-	t = src.t;
-	l = src.l;
-
-	ladder = src.ladder;
-	e_exit = src.e_exit;
-	hub_exit = src.hub_exit;
-	s_xspeed = src.s_xspeed;
-	s_yspeed = src.s_yspeed;
-	scroll_parts = src.scroll_parts;
-
-	failedmessage = src.failedmessage;
-
-	use_colourmap = src.use_colourmap;
-	gravity = src.gravity;
-	friction = src.friction;
-	viscosity = src.viscosity;
-	drag = src.drag;
-	ambient_sfx = src.ambient_sfx;
-	activate_sfx = src.activate_sfx;
-	music = src.music;
-	autoline = src.autoline;
-	singlesided = src.singlesided;
-	ef = src.ef;
-	translucency = src.translucency;
-	appear = src.appear;
-
-	special_flags = src.special_flags;
-	trigger_effect = src.trigger_effect;
-	line_effect = src.line_effect;
-	line_parts = src.line_parts;
-	sector_effect = src.sector_effect;
-	portal_effect = src.portal_effect;
-	slope_type = src.slope_type;
-	fx_color = src.fx_color;
-}
-
 
 void linetype_c::Default(void)
 {
@@ -1690,16 +1624,54 @@ void linetype_c::Default(void)
 	fx_color = RGB_MAKE(0,0,0);
 }
 
-//
-// linetype_c assignment operator
-//
-linetype_c& linetype_c::operator=(linetype_c &rhs)
+void linetype_c::CopyDetail(linetype_c &src)
 {
-	if (&rhs != this)
-		Copy(rhs);
-		
-	return *this;
+	newtrignum = src.newtrignum;
+	type = src.type;
+	obj = src.obj;
+	keys = src.keys;
+	count = src.count;
+
+	f = src.f;
+	c = src.c;
+	d = src.d;
+	s = src.s;
+	t = src.t;
+	l = src.l;
+
+	ladder = src.ladder;
+	e_exit = src.e_exit;
+	hub_exit = src.hub_exit;
+	s_xspeed = src.s_xspeed;
+	s_yspeed = src.s_yspeed;
+	scroll_parts = src.scroll_parts;
+
+	failedmessage = src.failedmessage;
+
+	use_colourmap = src.use_colourmap;
+	gravity = src.gravity;
+	friction = src.friction;
+	viscosity = src.viscosity;
+	drag = src.drag;
+	ambient_sfx = src.ambient_sfx;
+	activate_sfx = src.activate_sfx;
+	music = src.music;
+	autoline = src.autoline;
+	singlesided = src.singlesided;
+	ef = src.ef;
+	translucency = src.translucency;
+	appear = src.appear;
+
+	special_flags = src.special_flags;
+	trigger_effect = src.trigger_effect;
+	line_effect = src.line_effect;
+	line_parts = src.line_parts;
+	sector_effect = src.sector_effect;
+	portal_effect = src.portal_effect;
+	slope_type = src.slope_type;
+	fx_color = src.fx_color;
 }
+
 
 // --> Line definition type container class
 

@@ -98,21 +98,10 @@ typedef enum
 }
 intermission_style_e;
 
+
 class mapdef_c
 {
 public:
-	mapdef_c();
-	mapdef_c(mapdef_c &rhs);
-	~mapdef_c();
-	
-private:
-	void Copy(mapdef_c &src);
-	
-public:
-	void CopyDetail(mapdef_c &src);
-	void Default(void);
-	mapdef_c& operator=(mapdef_c &rhs);
-
 	epi::strent_c name;
 
 ///---	// next in the list
@@ -151,7 +140,20 @@ public:
 	// -KM- 1998/11/25 Generalised finales.
 	map_finaledef_c f_pre;
 	map_finaledef_c f_end;
+
+public:
+	 mapdef_c();
+	~mapdef_c();
+	
+	void Default(void);
+	void CopyDetail(mapdef_c &src);
+
+private:
+	// disable copy construct and assignment operator
+	explicit mapdef_c(mapdef_c &rhs) { }
+	mapdef_c& operator= (mapdef_c &rhs) { return *this; }
 };
+
 
 // Our mapdefs container
 class mapdef_container_c : public epi::array_c 

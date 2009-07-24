@@ -346,18 +346,36 @@ mapdef_c::mapdef_c() : name()
 	Default();
 }
 
-mapdef_c::mapdef_c(mapdef_c &rhs) : name()
-{
-	Copy(rhs);
-}
-
 mapdef_c::~mapdef_c()
 {
 }
 
-void mapdef_c::Copy(mapdef_c &src)
+
+void mapdef_c::Default()
 {
-	CopyDetail(src);	
+	description.clear();	
+  	namegraphic.clear();
+  	lump.clear();
+   	sky.clear();
+   	surround.clear();
+   	
+   	music = 0;
+	partime = 0;
+
+	episode = NULL;
+	episode_name.clear();	
+
+	features = MPF_NONE;
+
+	nextmapname.clear();
+	secretmapname.clear();
+
+	autotag = 0;
+
+	wistyle = WISTYLE_Doom;
+
+	f_pre.Default();
+	f_end.Default();
 }
 
 void mapdef_c::CopyDetail(mapdef_c &src)
@@ -388,40 +406,6 @@ void mapdef_c::CopyDetail(mapdef_c &src)
 	f_end = src.f_end;
 }
 
-void mapdef_c::Default()
-{
-	description.clear();	
-  	namegraphic.clear();
-  	lump.clear();
-   	sky.clear();
-   	surround.clear();
-   	
-   	music = 0;
-	partime = 0;
-
-	episode = NULL;
-	episode_name.clear();	
-
-	features = MPF_NONE;
-
-	nextmapname.clear();
-	secretmapname.clear();
-
-	autotag = 0;
-
-	wistyle = WISTYLE_Doom;
-
-	f_pre.Default();
-	f_end.Default();
-}
-
-mapdef_c& mapdef_c::operator=(mapdef_c &rhs)
-{
-	if (&rhs != this)
-		Copy(rhs);
-		
-	return *this;
-}
 
 // --> map definition container class
 

@@ -704,76 +704,16 @@ wi_animdef_container_c& wi_animdef_container_c::operator=(wi_animdef_container_c
 
 // --> game definition class 
 
-//
-// gamedef_c Constructor
-//
 gamedef_c::gamedef_c() : name()
 {
 	Default();
 }
 
-//
-// gamedef_c Copy constructor
-//
-gamedef_c::gamedef_c(gamedef_c &rhs)
-{
-	Copy(rhs);
-}
-
-//
-// gamedef_c Destructor
-//
 gamedef_c::~gamedef_c()
 {
 }
 
-//
-// gamedef_c::Copy()
-//
-void gamedef_c::Copy(gamedef_c &src)
-{
-	CopyDetail(src);
-}
 
-//
-// gamedef_c::CopyDetail()
-//
-void gamedef_c::CopyDetail(gamedef_c &src)
-{
-	anims = src.anims;
-	mappos = src.mappos;
-
-	background = src.background;
-	splatpic = src.splatpic;
-
-	yah[0] = src.yah[0];
-	yah[1] = src.yah[1];
-
-	bg_camera = src.bg_camera;
-	music = src.music;
-
-	percent = src.percent;
-	done = src.done;
-	endmap = src.endmap;
-	nextmap = src.nextmap;
-	accel_snd = src.accel_snd;
-	frag_snd = src.frag_snd;
-
-	firstmap = src.firstmap;
-	namegraphic = src.namegraphic;
-
-	titlepics  = src.titlepics;
-	titlemusic = src.titlemusic;
-	titletics  = src.titletics;
-
-	special_music = src.special_music;
-	lighting = src.lighting;
-	features = src.features;
-}
-
-//
-// gamedef_c::Default()
-//
 void gamedef_c::Default()
 {
 	anims.Clear();
@@ -808,16 +748,39 @@ void gamedef_c::Default()
 	features = MPF_NONE;
 }
 
-//
-// gamedef_c assignment operator
-//
-gamedef_c& gamedef_c::operator=(gamedef_c &rhs)
+void gamedef_c::CopyDetail(gamedef_c &src)
 {
-	if (&rhs != this)
-		Copy(rhs);
+	anims = src.anims;
+	mappos = src.mappos;
 
-	return *this;
+	background = src.background;
+	splatpic = src.splatpic;
+
+	yah[0] = src.yah[0];
+	yah[1] = src.yah[1];
+
+	bg_camera = src.bg_camera;
+	music = src.music;
+
+	percent = src.percent;
+	done = src.done;
+	endmap = src.endmap;
+	nextmap = src.nextmap;
+	accel_snd = src.accel_snd;
+	frag_snd = src.frag_snd;
+
+	firstmap = src.firstmap;
+	namegraphic = src.namegraphic;
+
+	titlepics  = src.titlepics;
+	titlemusic = src.titlemusic;
+	titletics  = src.titletics;
+
+	special_music = src.special_music;
+	lighting = src.lighting;
+	features = src.features;
 }
+
 
 // --> game definition container class
 
