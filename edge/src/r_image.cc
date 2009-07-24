@@ -867,9 +867,7 @@ static GLuint LoadImageOGL(image_c *rim, const colourmap_c *trans)
 //  IMAGE LOOKUP
 //----------------------------------------------------------------------------
 
-//
-// BackupTexture
-//
+
 static const image_c *BackupTexture(const char *tex_name, int flags)
 {
 	const image_c *rim;
