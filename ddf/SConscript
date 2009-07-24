@@ -15,7 +15,7 @@ ddf_sources = [
     'anim.cc', 'attack.cc', 'boom.cc', 'colormap.cc',
     'font.cc', 'game.cc', 'image.cc', 'language.cc',
     'level.cc', 'line.cc', 'main.cc', 'playlist.cc',
-    'sector.cc', 'sfx.cc', 'states.cc',
+    'parser.cc', 'sector.cc', 'sfx.cc', 'states.cc',
     'switch.cc', 'thing.cc', 'weapon.cc',
     ] 
 
