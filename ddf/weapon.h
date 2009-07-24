@@ -2,7 +2,7 @@
 //  EDGE Data Definition File Code (Main)
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -22,10 +22,6 @@
 #include "main.h"
 #include "states.h"
 
-
-// ------------------------------------------------------------------
-// -----------------------WEAPON HANDLING----------------------------
-// ------------------------------------------------------------------
 
 // Ammunition types defined.
 typedef enum
