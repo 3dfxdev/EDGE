@@ -343,7 +343,7 @@ lib_configs.append(LibraryConfig(name='dehedge',
 								search_order=['root'],
 								dir='deh_edge',
 								no_include_dir=1,
-								scons_script='SConscript.edge'))
+								scons_script='SConscript'))
 # EDGE Programmer Interface
 lib_configs.append(LibraryConfig(name='epi',
 								header='epi.h',
