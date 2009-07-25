@@ -28,26 +28,41 @@
 namespace coal
 {
 
-typedef void (*native_func_t)(void);
+class vm_c;
 
-// === COMPILER ==================================
+typedef void (*print_func_t)(const char *msg, ...);
 
-void PR_InitData(void);
-void RegisterFunction(const char *name, native_func_t func);
-void PR_BeginCompilation(void);
-bool PR_CompileFile(char *buffer, char *filename);
-bool PR_FinishCompilation(void);
-void PR_ShowStats(void);
+typedef void (*native_func_t)(vm_c *vm);
 
+class vm_c
+{
+	/* this is an abstract base class */
 
-// === VM ========================================
+public:
+	vm_c() { }
+	virtual ~vm_c() { }
 
-void PR_SetTrace(bool enable);
-int PR_FindFunction(const char *func_name);
-int PR_ExecuteProgram(int fnum);
+	virtual void SetErrorFunc(print_func_t func) = 0;
+	virtual void SetPrintFunc(print_func_t func) = 0;
 
-double * PR_Parameter(int p);
-const char * PR_ParamString(int p);
+	virtual void AddNativeFunction(const char *name, native_func_t func) = 0;
+
+	virtual bool CompileFile(char *buffer, char *filename) = 0;
+	virtual void ShowStats() = 0;
+
+	virtual void SetTrace(bool enable) = 0;
+
+	virtual int FindFunction(const char *name) = 0;
+	virtual int FindVariable(const char *name) = 0;
+
+	virtual int Execute(int func_id) = 0;
+
+	virtual double     * AccessParam(int p) = 0;
+	virtual const char * AccessParamString(int p) = 0;
+};
+
+// create a new Coal virtual machine
+vm_c * CreateVM();
 
 } // namespace coal
 

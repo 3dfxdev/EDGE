@@ -105,7 +105,7 @@ int PR_FindNativeFunc(const char *name)
 	return -1;  // NOT FOUND
 }
 
-void RegisterFunction(const char *name, native_func_t func)
+void real_vm_c::AddNativeFunction(const char *name, native_func_t func)
 {
 	// already registered?
 	int prev = PR_FindNativeFunc(name);
@@ -125,13 +125,13 @@ void RegisterFunction(const char *name, native_func_t func)
 }
 
 
-void PR_SetTrace(bool enable)
+void real_vm_c::SetTrace(bool enable)
 {
 	pr_trace = enable;
 }
 
 
-int PR_FindFunction(const char *func_name)
+int real_vm_c::FindFunction(const char *func_name)
 {
 	for (int i = 0; i < numfunctions; i++)
 	{
@@ -145,9 +145,15 @@ int PR_FindFunction(const char *func_name)
 			return i;
 	}
 
-	return 0;  // NOT FOUND
+	return -1;  // NOT FOUND
 }
 
+int real_vm_c::FindVariable(const char *var_name)
+{
+	// FIXME
+
+	return -1;  // NOT FOUND
+}
 
 // CopyString returns an offset from the string heap
 int	CopyString(char *str)
@@ -438,7 +444,7 @@ void PrintFunctions(void)
 }
 
 
-double * PR_Parameter(int p)
+double * real_vm_c::AccessParam(int p)
 {
 	assert(pr_xfunction);
 
@@ -449,9 +455,9 @@ double * PR_Parameter(int p)
 }
 
 
-const char * PR_ParamString(int p)
+const char * real_vm_c::AccessParamString(int p)
 {
-	double *d = PR_Parameter(p);
+	double *d = AccessParam(p);
 
 	return strings + (int) *d;
 }
@@ -565,7 +571,7 @@ int PR_LeaveFunction(int *result)
 }
 
 
-void PR_EnterBuiltin(function_t *newf, int result)
+void real_vm_c::EnterNative(function_t *newf, int result)
 {
 	int n = -(newf->first_statement + 1);
 
@@ -576,21 +582,16 @@ void PR_EnterBuiltin(function_t *newf, int result)
 	stack_base += pr_xfunction->locals_end;
 	pr_xfunction = newf;
 
-	native_funcs[n]->func ();
+	native_funcs[n]->func (this);
 
 	pr_xfunction = old_prx;
 	stack_base -= pr_xfunction->locals_end;
 }
 
 
-static void DoExecuteProgram(int fnum)
+void real_vm_c::DoExecute(int fnum)
 {
     function_t *newf;
-
-	if (!fnum || fnum >= numfunctions)
-	{
-		PR_RunError("PR_ExecuteProgram: NULL function");
-	}
 
 	function_t *f = &functions[fnum];
 
@@ -788,7 +789,7 @@ static void DoExecuteProgram(int fnum)
 				/* negative statements are built in functions */
 				if (newf->first_statement < 0)
 				{
-					PR_EnterBuiltin(newf, st->c);
+					EnterNative(newf, st->c);
 					break;
 				}
 
@@ -852,11 +853,16 @@ static void DoExecuteProgram(int fnum)
 	}
 }
 
-int PR_ExecuteProgram(int fnum)
+int real_vm_c::Execute(int func_id)
 {
+	if (func_id < 0 || func_id >= numfunctions)
+	{
+		PR_RunError("PR_ExecuteProgram: NULL function");
+	}
+
 	try
 	{
-		DoExecuteProgram(fnum);
+		DoExecute(func_id);
 		return 0;
 	}
 	catch (exec_error_x err)

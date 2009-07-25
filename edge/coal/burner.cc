@@ -37,6 +37,9 @@
 #include "coal.h"
 
 
+coal::vm_c * coalvm;
+
+
 void Error(char *error, ...)
 {
 	va_list argptr;
@@ -94,23 +97,23 @@ int LoadFile(char *filename, char **bufptr)
 //==================================================================//
 
 
-static void PF_PrintStr(void)
+static void PF_PrintStr(coal::vm_c * vm)
 {
-	const char * p = coal::PR_ParamString(0);
+	const char * p = vm->AccessParamString(0);
 
     printf("%s\n", p);
 }
 
-static void PF_PrintNum(void)
+static void PF_PrintNum(coal::vm_c * vm)
 {
-	double * p = coal::PR_Parameter(0);
+	double * p = vm->AccessParam(0);
 
     printf("%1.5f\n", *p);
 }
 
-static void PF_PrintVector(void)
+static void PF_PrintVector(coal::vm_c * vm)
 {
-	double * vec = coal::PR_Parameter(0);
+	double * vec = vm->AccessParam(0);
 
 	printf("'%1.3f %1.3f %1.3f'\n", vec[0], vec[1], vec[2]);
 }
@@ -134,20 +137,20 @@ int main(int argc, char **argv)
 		return 0;
 	}
 
-	coal::PR_InitData();
+	coalvm = coal::CreateVM();
 
-	coal::RegisterFunction("sprint", PF_PrintStr);
-	coal::RegisterFunction("nprint", PF_PrintNum);
-	coal::RegisterFunction("vprint", PF_PrintVector);
+	assert(coalvm);
+
+	coalvm->AddNativeFunction("sprint", PF_PrintStr);
+	coalvm->AddNativeFunction("nprint", PF_PrintNum);
+	coalvm->AddNativeFunction("vprint", PF_PrintVector);
 
 	if (strcmp(argv[1], "-t") == 0)
 	{
-		coal::PR_SetTrace(true);
+		coalvm->SetTrace(true);
 		argv++; argc--;
 	}
 
-
-	coal::PR_BeginCompilation();
 
 	// compile all the files
 	for (k = 1; k < argc; k++)
@@ -161,26 +164,23 @@ int main(int argc, char **argv)
 
 		LoadFile(filename, &src2);
 
-		if (! coal::PR_CompileFile(src2, filename))
+		if (! coalvm->CompileFile(src2, filename))
 			exit(1);
 
 		// FIXME: FreeFile(src2);
 	}
 
-	if (! coal::PR_FinishCompilation())
-		Error("compilation errors");
-
-	coal::PR_ShowStats();
+	coalvm->ShowStats();
 
 
 	// find 'main' function
 
-	int main_func = coal::PR_FindFunction("main");
+	int main_func = coalvm->FindFunction("main");
 
 	if (! main_func)
 		Error("No main function!\n");
 
-	if (coal::PR_ExecuteProgram(main_func) != 0)
+	if (coalvm->Execute(main_func) != 0)
 	{
 		fprintf(stderr, "\n*** script terminated by error\n");
 		return 1;

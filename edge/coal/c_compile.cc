@@ -123,7 +123,7 @@ void PR_InitData(void)
 	// FIXME: clear native functions
 }
 
-void PR_ShowStats(void)
+void real_vm_c::ShowStats()
 {
 	printf("%6i strofs\n", strofs);
 	printf("%6i numstatements\n", numstatements);
@@ -1726,7 +1726,7 @@ PR_CompileFile
 compiles the 0 terminated text, adding definitions to the pr structure
 ============
 */
-bool PR_CompileFile(char *string, char *filename)
+bool real_vm_c::CompileFile(char *string, char *filename)
 {
 	s_file = CopyString(filename);
 
@@ -1795,6 +1795,36 @@ bool PR_FinishCompilation(void)
 	bool errors = false;
 
 	return !errors;
+}
+
+
+real_vm_c::real_vm_c()
+{
+	// FIXME !!!!
+	PR_InitData();
+	PR_BeginCompilation();
+}
+
+real_vm_c::~real_vm_c()
+{
+	// FIXME !!!!
+}
+
+
+void real_vm_c::SetErrorFunc(print_func_t func)
+{
+	// TODO
+}
+
+void real_vm_c::SetPrintFunc(print_func_t func)
+{
+	// TODO
+}
+
+
+vm_c * CreateVM()
+{
+	return new real_vm_c;
 }
 
 }  // namespace coal
