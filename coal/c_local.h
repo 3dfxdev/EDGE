@@ -303,6 +303,40 @@ void PR_PrintDefs(void);
 int PR_FindNativeFunc(const char *name);
 
 
+class real_vm_c : public vm_c
+{
+public:
+	/* API functions */
+
+	 real_vm_c();
+	~real_vm_c();
+
+	void SetErrorFunc(print_func_t func);
+	void SetPrintFunc(print_func_t func);
+
+	void AddNativeModule(const char *name);
+	void AddNativeFunction(const char *name, native_func_t func);
+
+	bool CompileFile(char *buffer, char *filename);
+	void ShowStats();
+
+	void SetTrace(bool enable);
+
+	int FindFunction(const char *name);
+	int FindVariable(const char *name);
+
+	int Execute(int func_id);
+
+	double     * AccessParam(int p);
+	const char * AccessParamString(int p);
+
+private:
+	void DoExecute(int func_id);
+
+	void EnterNative(function_t *newf, int result);
+};
+
+
 #endif /* __COAL_LOCAL_DEFS_H__ */
 
 //--- editor settings ---
