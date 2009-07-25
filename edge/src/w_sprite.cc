@@ -242,9 +242,7 @@ static void InstallSpriteImage(spritedef_c *def, const image_c *img,
 	frame->flip[rot] = flip;
 }
 
-//
-// FillSpriteFrames
-//
+
 static void FillSpriteFrames(int file, int prog_base, int prog_total)
 {
 	epi::u32array_c& lumps = W_GetListLumps(file, LMPLST_Sprites);
@@ -300,8 +298,6 @@ static void FillSpriteFrames(int file, int prog_base, int prog_total)
 	}
 }
 
-//
-// FillSpriteFramesUser
 //
 // Like the above, but made especially for IMAGES.DDF.
 //
@@ -477,8 +473,6 @@ static void MarkWeaponSprites(void)
 }
 
 //
-// W_InitSprites
-//
 // Use the sprite lists in the WAD (S_START..S_END) to flesh out the
 // known sprite definitions (global 'sprites' array, created while
 // parsing DDF) with images.
@@ -597,6 +591,10 @@ void W_InitSprites(void)
 	sprite_map = NULL;
 }
 
+
+//----------------------------------------------------------------------------
+
+
 bool W_CheckSpritesExist(const std::vector<state_t> &group)
 {
 	if (group.empty())
@@ -612,6 +610,7 @@ bool W_CheckSpritesExist(const std::vector<state_t> &group)
 
 	return (sprites[group[pos].sprite]->frames > 0);
 }
+
 
 spriteframe_c *W_GetSpriteFrame(int spr_num, int framenum)
 {

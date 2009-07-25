@@ -41,8 +41,82 @@
 #include "w_texture.h"
 #include "z_zone.h"
 
+
+void W_InitFlats(void)
+{
+	int max_file = W_GetNumFiles();
+	int j, file;
+
+	I_Printf("W_InitFlats...\n");
+
+	// iterate over each file, creating our big array of flats
+
+	int total = 0;
+
+	for (file=0; file < max_file; file++)
+	{
+		epi::u32array_c& lumps = W_GetListLumps(file, LMPLST_Flats);
+		total += lumps.GetSize();
+	}
+
+	if (total == 0)
+		I_Error("No flats found !  Make sure the chosen IWAD is valid.\n");
+
+	int *F_lumps = new int[total];
+	int numflats = 0;
+
+	for (file=0; file < max_file; file++)
+	{
+		epi::u32array_c& lumps = W_GetListLumps(file, LMPLST_Flats);
+		int lumpnum = lumps.GetSize();
+
+		for (j=0; j < lumpnum; j++)
+			F_lumps[numflats++] = lumps[j];
+	}
+
+	// now sort the flats, primarily by increasing name, secondarily by
+	// increasing lump number (a measure of newness).
+
+#define CMP(a, b)  \
+	(strcmp(W_GetLumpName(a), W_GetLumpName(b)) < 0 || \
+	 (strcmp(W_GetLumpName(a), W_GetLumpName(b)) == 0 && a < b))
+		QSORT(int, F_lumps, numflats, CUTOFF);
+#undef CMP
+
+	// remove duplicate names.  We rely on the fact that newer lumps
+	// have greater lump values than older ones.  Because the QSORT took
+	// newness into account, only the last entry in a run of identically
+	// named flats needs to be kept.
+
+	for (j=1; j < numflats; j++)
+	{
+		int a = F_lumps[j - 1];
+		int b = F_lumps[j];
+
+		if (strcmp(W_GetLumpName(a), W_GetLumpName(b)) == 0)
+			F_lumps[j - 1] = -1;
+	}
+
+	for (j=0; j < numflats; j++)
+	{
+		if (F_lumps[j] < 0)
+			continue;
+
+#if 0  // DEBUGGING
+		I_Debugf("FLAT #%d:  lump=%d  name=[%s]\n", j,
+				F_lumps[j], W_GetLumpName(F_lumps[j]));
+#endif
+		R_ImageCreateFlat(W_GetLumpName(F_lumps[j]), F_lumps[j]);
+	}
+    
+	delete[] F_lumps;
+}
+
+
+//----------------------------------------------------------------------------
+
 //
-// R_AddFlatAnim
+// FLAT ANIMATIONS
 //
 // Here are the rules for flats, they get a bit hairy, but are the
 // simplest thing which achieves expected behaviour:
@@ -136,7 +210,7 @@ void R_AddFlatAnim(animdef_c *anim)
 }
 
 //
-// R_AddTextureAnim
+// TEXTURE ANIMATIONS
 //
 // Here are the rules for textures:
 //
@@ -232,77 +306,6 @@ void R_AddGraphicAnim(animdef_c *anim)
 }
 
 
-void W_InitFlats(void)
-{
-	int max_file = W_GetNumFiles();
-	int j, file;
-
-	I_Printf("W_InitFlats...\n");
-
-	// iterate over each file, creating our big array of flats
-
-	int total = 0;
-
-	for (file=0; file < max_file; file++)
-	{
-		epi::u32array_c& lumps = W_GetListLumps(file, LMPLST_Flats);
-		total += lumps.GetSize();
-	}
-
-	if (total == 0)
-		I_Error("No flats found !  Make sure the chosen IWAD is valid.\n");
-
-	int *F_lumps = new int[total];
-	int numflats = 0;
-
-	for (file=0; file < max_file; file++)
-	{
-		epi::u32array_c& lumps = W_GetListLumps(file, LMPLST_Flats);
-		int lumpnum = lumps.GetSize();
-
-		for (j=0; j < lumpnum; j++)
-			F_lumps[numflats++] = lumps[j];
-	}
-
-	// now sort the flats, primarily by increasing name, secondarily by
-	// increasing lump number (a measure of newness).
-
-#define CMP(a, b)  \
-	(strcmp(W_GetLumpName(a), W_GetLumpName(b)) < 0 || \
-	 (strcmp(W_GetLumpName(a), W_GetLumpName(b)) == 0 && a < b))
-		QSORT(int, F_lumps, numflats, CUTOFF);
-#undef CMP
-
-	// remove duplicate names.  We rely on the fact that newer lumps
-	// have greater lump values than older ones.  Because the QSORT took
-	// newness into account, only the last entry in a run of identically
-	// named flats needs to be kept.
-
-	for (j=1; j < numflats; j++)
-	{
-		int a = F_lumps[j - 1];
-		int b = F_lumps[j];
-
-		if (strcmp(W_GetLumpName(a), W_GetLumpName(b)) == 0)
-			F_lumps[j - 1] = -1;
-	}
-
-	for (j=0; j < numflats; j++)
-	{
-		if (F_lumps[j] < 0)
-			continue;
-
-#if 0  // DEBUGGING
-		I_Debugf("FLAT #%d:  lump=%d  name=[%s]\n", j,
-				F_lumps[j], W_GetLumpName(F_lumps[j]));
-#endif
-		R_ImageCreateFlat(W_GetLumpName(F_lumps[j]), F_lumps[j]);
-	}
-    
-	delete[] F_lumps;
-}
-
-
 void W_InitPicAnims(void)
 {
 	epi::array_iterator_c it;
@@ -334,6 +337,7 @@ void W_InitPicAnims(void)
 }
 
 
+//----------------------------------------------------------------------------
 
 //
 // Preloads all relevant graphics for the level.

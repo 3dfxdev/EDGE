@@ -209,6 +209,7 @@ static void InstallTextureLumps(int file, const wadtex_resource_c *WT)
 		Z_Free((void*)maptex2);
 }
 
+
 //
 // Initialises the texture list with the textures from the world map.
 //
@@ -315,6 +316,9 @@ void W_InitTextures(void)
 	delete[] textures;
 }
 
+
+//----------------------------------------------------------------------------
+
 //
 // Returns the set number containing the texture names (with the
 // offset values updated to the indexes), or -1 if none could be
@@ -353,6 +357,7 @@ int W_FindTextureSequence(const char *start, const char *end,
 	// not found
 	return -1;
 }
+
 
 const char *W_TextureNameInSet(int set, int offset)
 {
