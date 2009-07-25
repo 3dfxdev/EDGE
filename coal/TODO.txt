@@ -2,7 +2,7 @@
 COAL TODO
 =========
 
--  remove 'PR_' from API function names.
+>>>  move all state into the real_vm_c class
 
 +  modules with '.' notation: hud.foo(hud.bar)
 
@@ -12,9 +12,7 @@ COAL TODO
 
 -  improve tracing, implement a real ASM dump
 
--  move all state into one struct
-
 -  describe new language (notes.txt)
 
-WISH: interactive mode for burner
++  WISH: interactive mode for the burner
 
