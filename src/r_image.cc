@@ -249,7 +249,7 @@ static image_c *NewImage(int width, int height, int opacity = OPAC_Unknown)
 	return rim;
 }
 
-static image_c *AddDummyImage(const char *name, rgbcol_t fg, rgbcol_t bg)
+static image_c *R_ImageCreateDummy(const char *name, rgbcol_t fg, rgbcol_t bg)
 {
 	image_c *rim;
   
@@ -585,7 +585,7 @@ const image_c ** W_ImageGetUserSprites(int *count)
 			array[pos++] = rim;
 	}
 
-#define CMP(a, b)  (strcmp(W_ImageGetName(a), W_ImageGetName(b)) < 0)
+#define CMP(a, b)  (strcmp((a)->name, (b)->name) < 0)
 	QSORT(const image_c *, array, (*count), CUTOFF);
 #undef CMP
 
@@ -594,7 +594,7 @@ const image_c ** W_ImageGetUserSprites(int *count)
 	L_WriteDebug("{\n");
 
 	for (pos = 0; pos < *count; pos++)
-		L_WriteDebug("   %p = [%s] %dx%d\n", array[pos], W_ImageGetName(array[pos]),
+		L_WriteDebug("   %p = [%s] %dx%d\n", array[pos], array[pos]->name),
 			array[pos]->actual_w, array[pos]->actual_h);
 		
 	L_WriteDebug("}\n");
@@ -846,10 +846,7 @@ static const image_c *BackupTexture(const char *tex_name, int flags)
 	return rim;
 }
 
-//
-// BackupFlat
-//
-//
+
 static const image_c *BackupFlat(const char *flat_name, int flags)
 {
 	const image_c *rim;
@@ -1027,16 +1024,13 @@ const image_c *W_ImageParseSaveString(char type, const char *name)
 {
 	// Used by the savegame code.
 
-	// this name represents the sky (historical reasons)
-	if (type == 'd' && stricmp(name, "DUMMY__2") == 0)
-	{
-		return skyflatimage;
-	}
-
 	const image_c *rim;
 
 	switch (type)
 	{
+		case 'k':
+			return skyflatimage;
+
 		case 'o': /* font (backwards compat) */
 		case 'r': /* raw320x200 (backwards compat) */
 		case 'P':
@@ -1083,9 +1077,8 @@ void W_ImageMakeSaveString(const image_c *image, char *type, char *namebuf)
 
     if (image == skyflatimage)
 	{
-		// this name represents the sky (historical reasons)
-		*type = 'd';
-		strcpy(namebuf, "DUMMY__2");
+		*type = 'k';
+		strcpy(namebuf, "F_SKY1");
 		return;
 	}
 
@@ -1123,16 +1116,6 @@ void W_ImageMakeSaveString(const image_c *image, char *type, char *namebuf)
 			I_Error("W_ImageMakeSaveString: bad type %d\n", rim->source_type);
 			break;
 	}
-}
-
-
-const char *W_ImageGetName(const image_c *image)
-{
-	const image_c *rim;
-
-	rim = (const image_c *) image;
-
-	return rim->name;
 }
 
 
@@ -1262,19 +1245,19 @@ void W_ImagePreCache(const image_c *image)
 static void W_CreateDummyImages(void)
 {
 	// setup dummy images
-	AddDummyImage("DUMMY_TEXTURE", 0xAA5511, 0x663300);
-	AddDummyImage("DUMMY_FLAT",    0x11AA11, 0x115511);
+	R_ImageCreateDummy("DUMMY_TEXTURE", 0xAA5511, 0x663300);
+	R_ImageCreateDummy("DUMMY_FLAT",    0x11AA11, 0x115511);
 
-	AddDummyImage("DUMMY_GRAPHIC", 0xFF0000, TRANS_PIXEL);
-	AddDummyImage("DUMMY_FONT",    0xFFFFFF, TRANS_PIXEL);
+	R_ImageCreateDummy("DUMMY_GRAPHIC", 0xFF0000, TRANS_PIXEL);
+	R_ImageCreateDummy("DUMMY_FONT",    0xFFFFFF, TRANS_PIXEL);
 
-	dummy_sprite = AddDummyImage("DUMMY_SPRITE", 0xFFFF00, TRANS_PIXEL);
-	dummy_skin   = AddDummyImage("DUMMY_SKIN",   0xFF77FF, 0x993399);
+	dummy_sprite = R_ImageCreateDummy("DUMMY_SPRITE", 0xFFFF00, TRANS_PIXEL);
+	dummy_skin   = R_ImageCreateDummy("DUMMY_SKIN",   0xFF77FF, 0x993399);
 
-	skyflatimage = AddDummyImage("DUMMY_SKY",    0x0000AA, 0x55AADD);
+	skyflatimage = R_ImageCreateDummy("DUMMY_SKY",    0x0000AA, 0x55AADD);
 
-	dummy_hom[0] = AddDummyImage("DUMMY_HOM1", 0xFF3333, 0x000000);
-	dummy_hom[1] = AddDummyImage("DUMMY_HOM2", 0x000000, 0xFF3333);
+	dummy_hom[0] = R_ImageCreateDummy("DUMMY_HOM1", 0xFF3333, 0x000000);
+	dummy_hom[1] = R_ImageCreateDummy("DUMMY_HOM2", 0x000000, 0xFF3333);
 
 	// make the dummy sprite easier to see
 	{

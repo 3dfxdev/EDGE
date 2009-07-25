@@ -219,12 +219,10 @@ void W_ImagePreCache(const image_c *image);
 // -AJA- planned....
 // rgbcol_t W_ImageGetHue(const image_c *c);
 
-const char *W_ImageGetName(const image_c *image);
-
-// this only needed during initialisation -- r_things.cpp
+// this only needed during initialisation -- w_sprites.cpp
 const image_c ** W_ImageGetUserSprites(int *count);
 
-// internal routines -- only needed by rgl_wipe.c
+// internal routines -- only needed by hu_wipe.c
 int W_MakeValidSize(int value);
 
 

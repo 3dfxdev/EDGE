@@ -316,7 +316,7 @@ static void FillSpriteFramesUser(int prog_base, int prog_total)
 	while (S < sprite_map_len && L < img_num)
 	{
 		const char *sprname  = sprite_map[S]->name;
-		const char *img_name = W_ImageGetName(images[L]);
+		const char *img_name = images[L]->name;
 
 		// ignore model skins
 		if (img_name[4] == 'S' && img_name[5] == 'K' && img_name[6] == 'N')
