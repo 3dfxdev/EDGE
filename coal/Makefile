@@ -12,7 +12,7 @@ all: $(OUTPUTS)
 clean:
 	rm -f *.o *.obj $(OUTPUTS) core
 
-test:
+test: burner
 	./burner mod_base.ec mod_hud.ec mod_player.ec doom_hud.ec
 
 .PHONY: all clean test
