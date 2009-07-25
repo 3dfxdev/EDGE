@@ -42,11 +42,6 @@
 #include "s_sound.h"
 
 
-static font_c *cur_font = NULL;
-static rgbcol_t cur_color = RGB_NO_VALUE;
-static float cur_scale;
-static float cur_alpha;
-
 static float cur_coord_W;
 static float cur_coord_H;
 
@@ -68,12 +63,6 @@ static void FrameSetup(void)
 	fontdef_c *DEF = DDF_LookupFont("DOOM");  // FIXME allow other default
 	SYS_ASSERT(DEF);
 
-	cur_font = HU_LookupFont(DEF);
-	SYS_ASSERT(cur_font);
-
-	cur_color  = RGB_NO_VALUE;
-	cur_scale  = 1.0f;
-	cur_alpha  = 1.0f;
 
 	cur_coord_W = 320;
 	cur_coord_H = 200;
@@ -102,43 +91,7 @@ static void FrameSetup(void)
 }
 
 
-static void DoDrawChar(float cx, float cy, char ch)
-{
-	const image_c *img = cur_font->CharImage(ch);
-
-	if (! img)
-		return;
-	
-	HUD_DrawChar(cx, cy, img);
-}
-
-static void DoWriteText(float x, float y, const char *str)
-{
-	float cx = x;
-	float cy = y;
-
-	float f_h = cur_font->NominalHeight() * 1.5;
-
-	for (; *str; str++)
-	{
-		char ch = *str;
-
-		if (ch == '\n')
-		{
-			cx = x;
-			cy += f_h * cur_scale;
-			continue;
-		}
-
-		if (COORD_X(cx) >= SCREENWIDTH)
-			continue;
-
-		DoDrawChar(cx, cy, ch);
-
-		cx += cur_font->CharWidth(ch) * cur_scale;
-	}
-}
-
+#if 0
 static void DoWriteText_RightAlign(float x, float y, const char *str)
 {
 	float cx = x;
@@ -162,9 +115,13 @@ static void DoWriteText_RightAlign(float x, float y, const char *str)
 
 		cx -= cur_font->CharWidth(ch) * cur_scale;
 
-		DoDrawChar(cx, cy, ch);
+		const image_c *img = cur_font->CharImage(ch);
+
+		if (img)
+			HUD_DrawChar(cx, cy, img);
 	}
 }
+#endif
 
 static rgbcol_t ParseColor(lua_State *L, int index)
 {
@@ -303,10 +260,10 @@ static int HD_text_font(lua_State *L)
 	fontdef_c *DEF = DDF_LookupFont(font_name);
 	SYS_ASSERT(DEF);
 
-	cur_font = HU_LookupFont(DEF);
-	SYS_ASSERT(cur_font);
+	font_c *font = HU_LookupFont(DEF);
+	SYS_ASSERT(font);
 
-	HUD_SetFont(cur_font);
+	HUD_SetFont(font);
 	return 0;
 }
 
@@ -502,8 +459,7 @@ static int HD_draw_text(lua_State *L)
 
 	const char *str = luaL_checkstring(L, 3);
 
-	DoWriteText(x, y, str);
-
+	HUD_DrawText(x, y, str);
 	return 0;
 }
 
@@ -548,7 +504,9 @@ static int HD_draw_num2(lua_State *L)
 			*--pos = '-';
 	}
 
-	DoWriteText_RightAlign(x, y, pos);
+	HUD_SetAlignment(+1, -1);
+	HUD_DrawText(x, y, pos);
+	HUD_Reset("a");
 
 	return 0;
 }
