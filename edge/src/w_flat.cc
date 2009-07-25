@@ -287,16 +287,18 @@ void W_InitFlats(void)
 			F_lumps[j - 1] = -1;
 	}
 
-#if 0  // DEBUGGING
 	for (j=0; j < numflats; j++)
 	{
-		L_WriteDebug("FLAT #%d:  lump=%d  name=[%s]\n", j,
+		if (F_lumps[j] < 0)
+			continue;
+
+#if 0  // DEBUGGING
+		I_Debugf("FLAT #%d:  lump=%d  name=[%s]\n", j,
 				F_lumps[j], W_GetLumpName(F_lumps[j]));
-	}
 #endif
-
-	W_ImageCreateFlats(F_lumps, numflats); 
-
+		R_ImageCreateFlat(W_GetLumpName(F_lumps[j]), F_lumps[j]);
+	}
+    
 	delete[] F_lumps;
 }
 

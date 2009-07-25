@@ -211,7 +211,7 @@ static void InstallSpriteLump(spritedef_c *def, int lump,
 		return;
 	}
 
-	frame->images[rot] = W_ImageCreateSprite(lumpname, lump, frame->is_weapon);
+	frame->images[rot] = R_ImageCreateSprite(lumpname, lump, frame->is_weapon);
 
 	frame->flip[rot] = flip;
 }
