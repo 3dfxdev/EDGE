@@ -203,8 +203,8 @@ cvar_link_t  all_cvars[] =
 	{ "mouse_x.sens",   &mouse_x_sens,   "c",   "10"  },
 	{ "mouse_y.axis",   &mouse_y_axis,   "c",   "4" /* AXIS_MLOOK */ },
 	{ "mouse_y.sens",   &mouse_y_sens,   "c",   "10" },
-	{ "mouse_accel",    &mouse_accel,    "c",   "0"  },
-	{ "mouse_filter",   &mouse_filter,   "c",   "0"  },
+//	{ "mouse_accel",    &mouse_accel,    "c",   "0"  },
+//	{ "mouse_filter",   &mouse_filter,   "c",   "0"  },
 
 	{ "joy_enable",     &joy_enable,     "c",   "0"  },
 
