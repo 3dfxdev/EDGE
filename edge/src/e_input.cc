@@ -520,28 +520,20 @@ bool INP_Responder(event_t * ev)
 				I_Printf("Mouse %+04d %+04d --> %+7.2f %+7.2f\n",
 				         ev->value.mouse.dx, ev->value.mouse.dy, dx, dy);
 
-			analogue[x_axis] += dx;
-			analogue[y_axis] += dy;
-
-#if 0  // FIXME !!!!
-				// -AJA- 1999/07/27: Mlook key like quake's.
-				if ((g_mlook.d && !(map_features & MPF_NoMLook)) &&
-				    k_mlook.IsPressed())
-				{
-					if (ev->value.analogue.axis == fabs(mouse_xaxis.d))
-					{
-						analogue[AXIS_TURN] += ev->value.analogue.amount;
-						return true;
-					}
-					if (ev->value.analogue.axis == fabs(mouse_yaxis.d))
-					{
-						analogue[AXIS_MLOOK] += ev->value.analogue.amount;
-						return true;
-					}
-				}
-#endif
-				return true;  // eat events
+			// -AJA- 1999/07/27: Mlook key like quake's.
+			if (k_mlook.IsPressed())
+			{
+				analogue[AXIS_TURN]  += dx;
+				analogue[AXIS_MLOOK] += dy;
 			}
+			else
+			{
+				analogue[x_axis] += dx;
+				analogue[y_axis] += dy;
+			}
+
+			return true;  // eat events
+		}
 
 		default:
 			break;
