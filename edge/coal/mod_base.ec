@@ -1,9 +1,9 @@
 
 // BASICS
 
-function sprint(s : string) = #1
-function nprint(n : float)  = #2
-function vprint(v : vector) = #3
+function sprint(s : string) = native
+function nprint(n : float)  = native
+function vprint(v : vector) = native
 
 function sys_assert(n : float) = { }
 
