@@ -437,6 +437,8 @@ static void P_BringUpWeapon(player_t * p)
 		S_StartFX(w->start, WeapSfxCat(p), p->mo);
 
 	P_SetWeaponStateDeferred(p, ps_weapon, w, w->up_state);
+	p->psprites[ps_weapon].state = w->up_state;
+
 	P_SetWeaponState(p, ps_flash,     w, S_NULL);
 	P_SetWeaponState(p, ps_crosshair, w, S_NULL);
 
@@ -809,7 +811,8 @@ void P_MovePsprites(player_t * p)
 
 	pspdef_t *psp = &p->psprites[0];
 
-	weapondef_c *w = p->weapons[p->ready_wp].info;
+	int ready = p->ready_wp;
+	weapondef_c *w = p->weapons[ready].info;
 
 	for (int i = 0; i < NUMPSPRITES; i++, psp++)
 	{
@@ -817,13 +820,13 @@ void P_MovePsprites(player_t * p)
 		if (psp->state == S_NULL)
 			continue;
 
+		// Note: a -1 tic count never changes
+		if (psp->tics < 0)
+			continue;
+
 		for (int loop_count=0; loop_count < MAX_PSP_LOOP; loop_count++)
 		{
 			// drop tic count and possibly change state
-			// Note: a -1 tic count never changes.
-			if (psp->tics < 0)
-				break;
-
 			psp->tics--;
 
 			if (psp->tics > 0)
@@ -831,9 +834,16 @@ void P_MovePsprites(player_t * p)
 
 			P_SetWeaponState(p, i, w, psp->next_state);
 
+			// handle a weapon change
+			if (p->ready_wp != ready)
+				break;
+
 			if (psp->tics != 0)
 				break;
 		}
+
+		if (p->ready_wp != ready)
+			break;
 
 		// handle translucency fades
 		psp->visibility = (34 * psp->visibility + psp->vis_target) / 35;
