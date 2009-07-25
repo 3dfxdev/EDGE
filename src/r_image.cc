@@ -2,7 +2,7 @@
 //  EDGE Generalised Image Handling
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -268,14 +268,13 @@ static image_c *AddDummyImage(const char *name, rgbcol_t fg, rgbcol_t bg)
 	return rim;
 }
 
-static image_c *AddImageGraphic(const char *name,
-									 image_source_e type, int lump)
+static image_c *AddImageGraphic(const char *name, image_source_e type, int lump)
 {
 	/* used for Sprites too */
 
 	int width, height, offset_x, offset_y;
   
-	image_c *rim;
+	image_c *im;
 
 	patch_t *pat = (patch_t *) W_LoadLumpNum(lump);
   
@@ -296,66 +295,65 @@ static image_c *AddImageGraphic(const char *name,
 
 		if (length == 320*200 && type == IMSRC_Graphic)
 		{
-			rim = NewImage(320, 200, OPAC_Solid);
-			strcpy(rim->name, name);
+			im = NewImage(320, 200, OPAC_Solid);
+			strcpy(im->name, name);
 
-			rim->source_type = IMSRC_Raw320x200;
-			rim->source.flat.lump = lump;
-			rim->source_palette = W_GetFileForLump(lump);
-			return rim;
+			im->source_type = IMSRC_Raw320x200;
+			im->source.flat.lump = lump;
+			im->source_palette = W_GetFileForLump(lump);
+			return im;
 		}
 
 		if (length == 64*64 || length == 64*65 || length == 64*128)
 			I_Warning("Graphic '%s' seems to be a flat.\n", name);
 		else
-			I_Warning("Graphic '%s' does not seem to be a graphic.\n", name);
+			I_Warning("Graphic '%s' is not valid.\n", name);
 
 		return NULL;
 	}
  
 	// create new image
-	rim = NewImage(width, height, OPAC_Unknown);
+	im = NewImage(width, height, OPAC_Unknown);
  
-	rim->offset_x = offset_x;
-	rim->offset_y = offset_y;
+	im->offset_x = offset_x;
+	im->offset_y = offset_y;
 
-	strcpy(rim->name, name);
+	strcpy(im->name, name);
 
-	rim->source_type = type;
-	rim->source.graphic.lump = lump;
-	rim->source_palette = W_GetFileForLump(lump);
+	im->source_type = type;
+	im->source.graphic.lump = lump;
+	im->source_palette = W_GetFileForLump(lump);
 
 	if (type == IMSRC_Sprite)
-		real_sprites.push_back(rim);
+		real_sprites.push_back(im);
 	else
-		real_graphics.push_back(rim);
+		real_graphics.push_back(im);
 
-	return rim;
+	return im;
 }
 
-static image_c *AddImageTexture(const char *name, texturedef_t *tdef)
+
+const image_c * R_ImageCreateTexture(texturedef_t *tdef)
 {
-	image_c *rim;
+	image_c *im = NewImage(tdef->width, tdef->height);
  
-	rim = NewImage(tdef->width, tdef->height);
- 
-	strcpy(rim->name, name);
+	strcpy(im->name, tdef->name);
 
-	rim->source_type = IMSRC_Texture;
-	rim->source.texture.tdef = tdef;
-	rim->source_palette = tdef->file;
+	im->source_type = IMSRC_Texture;
+	im->source.texture.tdef = tdef;
+	im->source_palette = tdef->file;
 
-	real_textures.push_back(rim);
+	// NOTE: assumes new texture will be unique!
 
-	return rim;
+	real_textures.push_back(im);
+
+	return im;
 }
 
-static image_c *AddImageFlat(const char *name, int lump)
+const image_c * R_ImageCreateFlat(const char *name, int lump)
 {
-	image_c *rim;
-	int len, size;
-  
-	len = W_LumpLength(lump);
+	int len = W_LumpLength(lump);
+	int size;
   
 	switch (len)
 	{
@@ -374,20 +372,49 @@ static image_c *AddImageFlat(const char *name, int lump)
 		case 1024 * 1024: size = 1024; break;
     
 		default:
+			I_Warning("Skipping weird flat '%s' (%d bytes)\n", name, len);
 			return NULL;
 	}
    
-	rim = NewImage(size, size, OPAC_Solid);
+	image_c *im = NewImage(size, size, OPAC_Solid);
  
-	strcpy(rim->name, name);
+	strcpy(im->name, name);
 
-	rim->source_type = IMSRC_Flat;
-	rim->source.flat.lump = lump;
-	rim->source_palette = W_GetFileForLump(lump);
+	im->source_type = IMSRC_Flat;
+	im->source.flat.lump = lump;
+	im->source_palette = W_GetFileForLump(lump);
 
-	real_flats.push_back(rim);
+	real_flats.push_back(im);
 
-	return rim;
+	// NOTE: assumes new flat will be unique!
+
+	return im;
+}
+
+
+const image_c *R_ImageCreateSprite(const char *name, int lump, bool is_weapon)
+{
+	SYS_ASSERT(lump >= 0);
+
+	// NOTE: assumes new flat will be unique!
+
+	image_c *im = AddImageGraphic(name, IMSRC_Sprite, lump);
+	if (! im)
+		return NULL;
+
+	// adjust sprite offsets so that (0,0) is normal
+	if (is_weapon)
+	{
+		im->offset_x += (320 / 2  - im->actual_w / 2);  // loss of accuracy
+		im->offset_y += (200 - 32 - im->actual_h);
+	}
+	else
+	{
+		im->offset_x -= im->actual_w / 2;   // loss of accuracy
+		im->offset_y -= im->actual_h;
+	}
+
+	return im;
 }
 
 
@@ -487,86 +514,6 @@ static image_c *AddImageUser(imagedef_c *def)
 	return rim;
 }
 
-
-//
-// Used to fill in the image array with flats from the WAD.  The set
-// of lumps is those that occurred between F_START and F_END in each
-// existing wad file, with duplicates set to -1.
-//
-// NOTE: should only be called once, as it assumes none of the flats
-// in the list have names colliding with existing flat images.
-// 
-void W_ImageCreateFlats(int *lumps, int number)
-{
-	int i;
-
-	SYS_ASSERT(lumps);
-
-	for (i=0; i < number; i++)
-	{
-		if (lumps[i] < 0)
-			continue;
-    
-		AddImageFlat(W_GetLumpName(lumps[i]), lumps[i]);
-	}
-}
-
-
-//
-// Used to fill in the image array with textures from the WAD.  The
-// list of texture definitions comes from each TEXTURE1/2 lump in each
-// existing wad file, with duplicates set to NULL.
-//
-// NOTE: should only be called once, as it assumes none of the
-// textures in the list have names colliding with existing texture
-// images.
-// 
-void W_ImageCreateTextures(struct texturedef_s ** defs, int number)
-{
-	int i;
-
-	SYS_ASSERT(defs);
-
-	for (i=0; i < number; i++)
-	{
-		if (defs[i] == NULL)
-			continue;
-    
-		AddImageTexture(defs[i]->name, defs[i]);
-	}
-}
-
-
-// 
-// Used to fill in the image array with sprites from the WAD.  The
-// lumps come from those occurring between S_START and S_END markers
-// in each existing wad.
-//
-// NOTE: it is assumed that each new sprite is unique i.e. the name
-// does not collide with any existing sprite image.
-// 
-const image_c *W_ImageCreateSprite(const char *name, int lump, bool is_weapon)
-{
-	SYS_ASSERT(lump >= 0);
-
-	image_c *rim = AddImageGraphic(name, IMSRC_Sprite, lump);
-	if (! rim)
-		return NULL;
-
-	// adjust sprite offsets so that (0,0) is normal
-	if (is_weapon)
-	{
-		rim->offset_x += (320 / 2 - rim->actual_w / 2);  // loss of accuracy
-		rim->offset_y += (200 - 32 - rim->actual_h);
-	}
-	else
-	{
-		rim->offset_x -= rim->actual_w / 2;   // loss of accuracy
-		rim->offset_y -= rim->actual_h;
-	}
-
-	return rim;
-}
 
 
 // 
@@ -914,7 +861,7 @@ static const image_c *BackupFlat(const char *flat_name, int flags)
 
 		if (i >= 0)
 		{
-			rim = AddImageFlat(flat_name, i);
+			rim = R_ImageCreateFlat(flat_name, i);
 			if (rim)
 				return rim;
 		}

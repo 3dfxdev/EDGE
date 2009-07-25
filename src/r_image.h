@@ -201,9 +201,10 @@ bool W_InitImages(void);
 void W_UpdateImageAnims(void);
 void W_DeleteAllImages(void);
 
-void W_ImageCreateFlats(int *lumps, int number);
-void W_ImageCreateTextures(struct texturedef_s ** defs, int number);
-const image_c *W_ImageCreateSprite(const char *name, int lump, bool is_weapon);
+const image_c *R_ImageCreateTexture(struct texturedef_s *tdef);
+const image_c *R_ImageCreateFlat(const char *name, int lump);
+const image_c *R_ImageCreateSprite(const char *name, int lump, bool is_weapon);
+
 void W_ImageCreateUser(void);
 void W_AnimateImageSet(const image_c ** images, int number, int speed);
 void W_DrawSavePic(const byte *pixels);

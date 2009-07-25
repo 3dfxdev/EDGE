@@ -219,10 +219,6 @@ void W_InitTextures(void)
 	int num_files = W_GetNumFiles();
 	int j, t, file;
 
-	texturedef_t ** textures = NULL;
-	texturedef_t ** cur;
-	int numtextures = 0;
-
 	I_Printf("W_InitTextures...\n");
 
 	SYS_ASSERT(tex_sets.empty());
@@ -261,10 +257,13 @@ void W_InitTextures(void)
 	// (measure of newness).  We ignore "dud" textures (missing
 	// patches).
 
+	int numtextures = 0;
+
 	for (j=0; j < (int)tex_sets.size(); j++)
 		numtextures += tex_sets[j]->num_tex;
 
-	textures = cur = new texturedef_t*[numtextures];
+	texturedef_t ** textures = new texturedef_t* [numtextures];
+	texturedef_t ** cur = textures;
 
 	for (j=0; j < (int)tex_sets.size(); j++)
 	{
@@ -298,25 +297,22 @@ void W_InitTextures(void)
 		}
 	}
 
-#if 0  // DEBUGGING
 	for (j=0; j < numtextures; j++)
 	{
 		if (textures[j] == NULL)
-		{
-			L_WriteDebug("TEXTURE #%d was a dupicate\n", j);
 			continue;
-		}
-		L_WriteDebug("TEXTURE #%d:  name=[%s]  file=%d  size=%dx%d\n", j,
+    
+#if 0  // DEBUGGING
+		I_WriteDebug("TEXTURE #%d:  name=[%s]  file=%d  size=%dx%d\n", j,
 				textures[j]->name, textures[j]->file,
 				textures[j]->width, textures[j]->height);
-	}
 #endif
-
-	W_ImageCreateTextures(textures, numtextures); 
+		R_ImageCreateTexture(textures[j]);
+	}
 
 	// free pointer array.  We need to keep the definitions in memory
 	// for (a) the image system and (b) texture anims.
-	delete [] textures;
+	delete[] textures;
 }
 
 //
