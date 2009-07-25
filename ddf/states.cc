@@ -36,11 +36,11 @@ const state_t ddf_template_state =
 
 	NULL,		// model_frame
 	NULL,       // label
-	NULL,       // routine
+	NULL,       // action
 	NULL,       // parameter
 
 	0,          // next state ref
-	-1          // jump state ref
+	0           // jump state ref
 };
 
 
@@ -48,17 +48,25 @@ std::vector<std::string> ddf_sprite_names;
 std::vector<std::string> ddf_model_names;
 
 
-// Until the DDF_StateFinishState() routine is called, the `nextstate'
-// field of each state contains a special value.  0 for normal (no
-// redirector).  -1 for the #REMOVE redirector.  Otherwise the top 16
-// bits is a redirector, and the bottom 16 bits is a positive offset
-// from that redirector (usually 0).
 //
-// Every time a new redirector is used, it is added to this list.  The
-// top 16 bits (minus 1) will be an index into this list of redirector
-// names.  These labels will be looked for in the states when the
-// fixup routine is called.
-static epi::strlist_c redirs;
+// Until the DDF_StateFinishState() routine is called, the
+// 'nextstate' field of each state contains a special value:  
+//
+//    -1 for the #REMOVE redirector
+//    -2 for simply moving to the next state
+//
+// otherwise the top 16 bits is a (non-zero) redirector, and the
+// bottom 16 bits is the offset from that redirector (usually 0).
+//
+// For previously created (inherited) states, the 'nextstate'
+// fields contain a normal reference (a small >= 0 number).
+//
+
+#define REDIR_REMOVE  -1
+#define REDIR_NEXT    -2
+
+static std::vector<std::string> redirs;
+
 
 #define NUM_SPLIT 10  // Max Number of sections a state is split info
 
@@ -136,7 +144,7 @@ void DDF_StateCleanUp(void)
 //
 // -KM- 1998/12/21 Rewrote procedure, much cleaner now.
 //
-// -AJA- 2000/09/03: Rewrote _again_ damn it, in order to handle `:'
+// -AJA- 2000/09/03: Rewrote _again_ damn it, in order to handle ':'
 //       appearing inside brackets.
 //
 static int DDF_MainSplitIntoState(const char *info)
@@ -239,20 +247,17 @@ static void DDF_MainSplitActionArg(const char *info, char *actname, char *actarg
 	}
 }
 
-static int StateGetRedirector(const char *redir)
+static int StateGetRedirector(const char *name)
 {
-	epi::array_iterator_c it;
-	const char *s;
-	
-	for (it=redirs.GetBaseIterator(); it.IsValid(); it++)
+	for (int i = 0; i < (int)redirs.size(); i++)
 	{
-		s = ITERATOR_TO_TYPE(it, const char*);
-		if (DDF_CompareName(s, redir) == 0)
-			return it.GetPos();
+		if (DDF_CompareName(redirs[i].c_str(), name) == 0)
+			return i;
 	}
 	
-	redirs.Insert(redir);
-	return redirs.GetSize()-1;
+	redirs.push_back(name);
+
+	return (int)redirs.size()-1;
 }
 
 
@@ -296,11 +301,6 @@ void DDF_StateReadState(const char *info, const char *label,
 {
 	int i, j;
 
-	char action_name[128];
-	char action_arg[128];
-
-	state_t *cur;
-
 	// Split the state info into component parts
 	// -ACB- 1998/07/26 New Procedure, for cleaner code.
 
@@ -316,24 +316,23 @@ void DDF_StateReadState(const char *info, const char *label,
 	}
 
 	if (stateinfo[0].empty())
-		DDF_Error("Missing sprite in state frames: `%s'\n", info);
+		DDF_Error("Missing sprite in state frames: '%s'\n", info);
 
-	//--------------------------------------------------
-	//----------------REDIRECTOR HANDLING---------------
-	//--------------------------------------------------
+
+	//------- REDIRECTOR HANDLING ----------------------
 
 	if (stateinfo[2].empty())
 	{
 		if (group.empty())
-			DDF_Error("Redirector used without any states (`%s')\n", info);
+			DDF_Error("Redirector used without any states ('%s')\n", info);
 
-		cur = &group.back();
+		state_t *cur = &group.back();
 
 		SYS_ASSERT(! stateinfo[0].empty());
 
 		if (DDF_CompareName(stateinfo[0].c_str(), "REMOVE") == 0)
 		{
-			cur->nextstate = -1;
+			cur->nextstate = REDIR_REMOVE;
 			return;
 		}  
 
@@ -345,9 +344,8 @@ void DDF_StateReadState(const char *info, const char *label,
 		return;
 	}
 
-	//--------------------------------------------------
-	//---------------- ALLOCATE NEW STATE --------------
-	//--------------------------------------------------
+
+	//-------- ALLOCATE NEW STATE ----------------------
 
 	// insert DUMMY at front of group (compatibility wart)
 	if (group.empty())
@@ -356,8 +354,8 @@ void DDF_StateReadState(const char *info, const char *label,
 	// add new state (initialise with defaults)
 	group.push_back(ddf_template_state);
 
-	cur = &group.back();
-
+	state_t *cur = &group.back();
+	
 	if (index == 0)
 	{
 		// first state in this set of states
@@ -368,17 +366,16 @@ void DDF_StateReadState(const char *info, const char *label,
 		cur->label = strdup(label);
 	}
 
-	if (redir && cur->nextstate == 0)
-	{
-		if (DDF_CompareName("REMOVE", redir) == 0)
-			cur->nextstate = -1;
-		else
-			cur->nextstate = (StateGetRedirector(redir) + 1) << 16;
-	}
+	// setup 'nextstate'
+	if (! redir)
+		cur->nextstate = REDIR_NEXT;
+	else if (DDF_CompareName(redir, "REMOVE") == 0)
+		cur->nextstate = REDIR_REMOVE;
+	else
+		cur->nextstate = (StateGetRedirector(redir) + 1) << 16;
 
-	//--------------------------------------------------
-	//----------------SPRITE NAME HANDLING--------------
-	//--------------------------------------------------
+
+	//-------- SPRITE NAME HANDLING --------------------
 
 	if (stateinfo[1].empty() || stateinfo[2].empty() || stateinfo[3].empty())
 		DDF_Error("Bad state frame, missing fields: %s\n", info);
@@ -387,11 +384,8 @@ void DDF_StateReadState(const char *info, const char *label,
 		DDF_Error("DDF_MainLoadStates: Sprite names must be 4 "
 				  "characters long '%s'.\n", stateinfo[0].c_str());
 
-	//--------------------------------------------------
-	//--------------SPRITE INDEX HANDLING---------------
-	//--------------------------------------------------
 
-	cur->flags = 0;
+	//--------- SPRITE INDEX HANDLING ------------------
 
 	// look at the first character
 	const char *sprite_x = stateinfo[1].c_str();
@@ -404,8 +398,6 @@ void DDF_StateReadState(const char *info, const char *label,
 	}
 	else if (j == '@')
 	{
-		cur->frame = -1;
-
 		char first_ch = sprite_x[1];
 
 		if (isdigit(first_ch))
@@ -419,8 +411,7 @@ void DDF_StateReadState(const char *info, const char *label,
 			cur->frame = 0;
 			cur->model_frame = strdup(sprite_x+1);
 		}
-
-		if (cur->frame < 0)
+		else
 			DDF_Error("DDF_MainLoadStates: Illegal model frame: %s\n", sprite_x);
 	}
 	else
@@ -434,15 +425,13 @@ void DDF_StateReadState(const char *info, const char *label,
 	else
 		cur->sprite = AddSpriteName(stateinfo[0].c_str());
 
-	//--------------------------------------------------
-	//------------STATE TIC COUNT HANDLING--------------
-	//--------------------------------------------------
+
+	//------ STATE TIC COUNT HANDLING ------------------
 
 	cur->tics = atol(stateinfo[2].c_str());
 
-	//--------------------------------------------------
-	//------------STATE BRIGHTNESS LEVEL----------------
-	//--------------------------------------------------
+
+	//------ STATE BRIGHTNESS LEVEL --------------------
 
 	if (strcmp(stateinfo[3].c_str(), "NORMAL") == 0)
 		cur->bright = 0;
@@ -454,11 +443,13 @@ void DDF_StateReadState(const char *info, const char *label,
 		cur->bright = CLAMP(0, cur->bright * 255 / 99, 255);
 	}
 	else
-		DDF_WarnError2(128, "DDF_MainLoadStates: Lighting is not BRIGHT or NORMAL\n");
+		DDF_WarnError("DDF_MainLoadStates: Lighting is not BRIGHT or NORMAL\n");
 
-	//--------------------------------------------------
-	//------------STATE ACTION CODE HANDLING------------
-	//--------------------------------------------------
+
+	//------- STATE ACTION CODE HANDLING ---------------
+
+	char action_name[128];
+	char action_arg[128];
 
 	if (! stateinfo[4].empty())
 	{
@@ -482,14 +473,13 @@ void DDF_StateReadState(const char *info, const char *label,
     
 			if (DDF_CompareName(current, action_name) == 0)
 			{
-				if (obsolete && !no_obsoletes)
-					DDF_Warning("The ddf %s action is obsolete !\n", current);
-
+				if (obsolete)
+					DDF_WarnError("The ddf %s action is obsolete!\n", current);
 				break;
 			}
 		}
 
-		if (!action_list[i].actionname)
+		if (! action_list[i].actionname)
 			DDF_WarnError("Unknown code pointer: %s\n", stateinfo[4].c_str());
 		else
 		{
@@ -536,58 +526,78 @@ bool DDF_MainParseState(char *object, std::vector<state_t> &group,
 	if (starter)
 		var = (int *)(object + starter->offset);
 
-	DDF_StateReadState(contents, labname.c_str(), group, var, index,
-		is_last ? starter ? starter->last_redir : (is_weapon ? "READY" : "IDLE") : NULL, 
-		actions, is_weapon);
+	const char *redir = NULL;
+	if (is_last)
+		redir = starter ? starter->last_redir : (is_weapon ? "READY" : "IDLE");
 
+	DDF_StateReadState(contents, labname.c_str(), group, var, index,
+					   redir, actions, is_weapon);
 	return true;
 }
 
 
 //
-// Check through the states on an mobj and attempts to dereference any
-// encoded state redirectors.
+// Check through the states on an mobj and attempts to dereference
+// any encoded state redirectors.
 //
 void DDF_StateFinishStates(std::vector<state_t> &group)
 {
 	int last = (int)group.size() - 1;
 
-	for (int i = 1; i < (int)group.size(); i++)
+	for (int i = 1; i <= last; i++)
 	{
 		state_t *st = &group[i];
 
-		// handle next state ref
-		if (st->nextstate == -1)
+		// handle next state reference
+		if (st->nextstate == REDIR_REMOVE)
 		{
 			st->nextstate = S_NULL;
 		}
-		else if ((st->nextstate >> 16) == 0)
+		else if (st->nextstate == REDIR_NEXT)
 		{
-			st->nextstate = (i == last) ? S_NULL : i+1;
+			st->nextstate = (i < last) ? i+1 : S_NULL;
 		}
-		else
+		else if ((st->nextstate >> 16) > 0)
 		{
-			st->nextstate = DoFindLabel(group, redirs[(st->nextstate >> 16) - 1]) +
-				(st->nextstate & 0xFFFF);
+			const char *redir = redirs[(st->nextstate >> 16) - 1].c_str();
+			int offset = st->nextstate & 0xFFFF;
+
+			st->nextstate = DoFindLabel(group, redir) + offset;
+
+			if (st->nextstate > last)
+			{
+				DDF_WarnError("Redirector out of range: '%s:%d'\n",
+							  redir, offset+1);
+				st->nextstate = last;
+			}
 		}
 
-		// handle jump state ref
-		if (st->jumpstate == -1)
+		// handle jump state reference
+		if (st->jumpstate == REDIR_REMOVE)
 		{
 			st->jumpstate = S_NULL;
 		}
-		else if ((st->jumpstate >> 16) == 0)
+		else if (st->jumpstate == REDIR_NEXT)
 		{
-			st->jumpstate = (i == last) ? S_NULL : i+1;
+			st->jumpstate = (i < last) ? i+1 : S_NULL;
 		}
-		else
+		else if ((st->jumpstate >> 16) > 0)
 		{
-			st->jumpstate = DoFindLabel(group, redirs[(st->jumpstate >> 16) - 1]) +
-				(st->jumpstate & 0xFFFF);
+			const char *redir = redirs[(st->jumpstate >> 16) - 1].c_str();
+			int offset = st->jumpstate & 0xFFFF;
+
+			st->jumpstate = DoFindLabel(group, redir) + offset;
+
+			if (st->jumpstate > last)
+			{
+				DDF_WarnError("Jump target out of range: '%s:%d'\n",
+							  redir, offset+1);
+				st->jumpstate = last;
+			}
 		}
 	}
   
-	redirs.Clear();
+	redirs.clear();
 }
 
 
@@ -615,8 +625,6 @@ int DDF_MainLookupDirector(const mobjtype_c *info, const char *ref)
 
 	return index;
 }
-
-
 
 
 //----------------------------------------------------------------------------
@@ -648,7 +656,7 @@ void DDF_StateGetAttack(const char *arg, state_t * cur_state)
 
 	cur_state->action_par = (void *)atkdefs.Lookup(arg);
 	if (cur_state->action_par == NULL)
-		DDF_WarnError2(127, "Unknown Attack (States): %s\n", arg);
+		DDF_WarnError("Unknown Attack (States): %s\n", arg);
 }
 
 
@@ -768,7 +776,7 @@ void DDF_StateGetJump(const char *arg, state_t * cur_state)
 	// copy label name
 	char buffer[80];
 
-	for (len=0; *arg && (*arg != ':') && (*arg != ','); len++, arg++)
+	for (len = 0; *arg && (*arg != ':') && (*arg != ','); len++, arg++)
 		buffer[len] = *arg;
 
 	buffer[len] = 0;
