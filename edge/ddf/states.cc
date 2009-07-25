@@ -58,7 +58,7 @@ std::vector<std::string> ddf_model_names;
 // top 16 bits (minus 1) will be an index into this list of redirector
 // names.  These labels will be looked for in the states when the
 // fixup routine is called.
-epi::strlist_c redirs;
+static epi::strlist_c redirs;
 
 #define NUM_SPLIT 10  // Max Number of sections a state is split info
 
