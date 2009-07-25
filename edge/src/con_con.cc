@@ -1271,6 +1271,7 @@ void CON_ErrorDialog(const char *msg)
 
 	conwipeactive = false;
 	conerroractive = true;
+	bottomrow = -1;
 
 	CON_Printf("\n\n\n");
 
