@@ -485,7 +485,7 @@ static image_c *AddImageUser(imagedef_c *def)
 
 	strcpy(rim->name, def->name.c_str());
 
-	/* FIX NAME : replace space with '_' */
+	// fix the name : replace space with underscore
 	for (int i = 0; rim->name[i]; i++)
 		if (rim->name[i] == ' ')
 			rim->name[i] = '_';
@@ -609,10 +609,9 @@ const image_c ** W_ImageGetUserSprites(int *count)
 //  IMAGE LOADING / UNLOADING
 //
 
-// TODO: make methods of image_c class
-static bool IM_ShouldClamp(const image_c *rim)
+bool image_c::ShouldClamp() const
 {
-	switch (rim->source_type)
+	switch (source_type)
 	{
 		case IMSRC_Graphic:
 		case IMSRC_Raw320x200:
@@ -620,7 +619,7 @@ static bool IM_ShouldClamp(const image_c *rim)
 			return true;
 
 		case IMSRC_User:
-			switch (rim->source.user.def->belong)
+			switch (source.user.def->belong)
 			{
 				case INS_Graphic:
 				case INS_Sprite:
@@ -635,20 +634,20 @@ static bool IM_ShouldClamp(const image_c *rim)
 	}
 }
 
-static bool IM_ShouldMipmap(image_c *rim)
+bool image_c::ShouldMipmap() const
 {
    	// the "SKY" check here is a hack...
-   	if (strnicmp(rim->name, "SKY", 3) == 0)
+   	if (strnicmp(name, "SKY", 3) == 0)
 		return false;
 
-	switch (rim->source_type)
+	switch (source_type)
 	{
 		case IMSRC_Texture:
 		case IMSRC_Flat:
 			return true;
 		
 		case IMSRC_User:
-			switch (rim->source.user.def->belong)
+			switch (source.user.def->belong)
 			{
 				case INS_Texture:
 				case INS_Flat:
@@ -663,10 +662,10 @@ static bool IM_ShouldMipmap(image_c *rim)
 	}
 }
 
-static bool IM_ShouldSmooth(image_c *rim)
+bool image_c::ShouldSmooth() const
 {
    	// the "SKY" check here is a hack...
-   	if (strnicmp(rim->name, "SKY", 3) == 0)
+   	if (strnicmp(name, "SKY", 3) == 0)
 		return true;
 
 	// TODO: more smooth options
@@ -674,7 +673,7 @@ static bool IM_ShouldSmooth(image_c *rim)
 	return r_smoothing.d ? true : false;
 }
 
-static bool IM_ShouldHQ2X(image_c *rim)
+bool image_c::ShouldHQ2X() const
 {
 	// Note: no need to check IMSRC_User, since those images are
 	//       always PNG or JPEG (etc) and never palettised, hence
@@ -686,7 +685,7 @@ static bool IM_ShouldHQ2X(image_c *rim)
 	if (r_hq2x.d >= 3)
 		return true;
 
-	switch (rim->source_type)
+	switch (source_type)
 	{
 		case IMSRC_Graphic:
 		case IMSRC_Raw320x200:
@@ -711,9 +710,9 @@ static bool IM_ShouldHQ2X(image_c *rim)
 	return false;
 }
 
-static int IM_PixelLimit(image_c *rim)
+int image_c::PixelLimit() const
 {
-	if (IM_ShouldMipmap(rim))
+	if (ShouldMipmap())
 		return 65536 * (1 << (2 * CLAMP(0, r_detaillevel.d, 2)));
 
 	return (1 << 24);
@@ -722,11 +721,11 @@ static int IM_PixelLimit(image_c *rim)
 
 static GLuint LoadImageOGL(image_c *rim, const colourmap_c *trans)
 {
-	bool clamp  = IM_ShouldClamp(rim);
-	bool mip    = IM_ShouldMipmap(rim);
-	bool smooth = IM_ShouldSmooth(rim);
+	bool clamp  = rim->ShouldClamp();
+	bool mip    = rim->ShouldMipmap();
+	bool smooth = rim->ShouldSmooth();
  
- 	int max_pix = IM_PixelLimit(rim);
+ 	int max_pix = rim->PixelLimit();
 
 	if (rim->source_type == IMSRC_User)
 	{
@@ -769,7 +768,7 @@ static GLuint LoadImageOGL(image_c *rim, const colourmap_c *trans)
 	if (rim->opacity == OPAC_Unknown)
 		rim->opacity = R_DetermineOpacity(tmp_img);
 
-	if ((tmp_img->bpp == 1) && IM_ShouldHQ2X(rim))
+	if ((tmp_img->bpp == 1) && rim->ShouldHQ2X())
 	{
 		bool solid = (rim->opacity == OPAC_Solid);
 
