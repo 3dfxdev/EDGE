@@ -10,6 +10,14 @@ which keeps the name and caches previous lookups), actually
 updated all our code to use it would be huge job, and hence
 not really worth the benefit.  Hence shelving that idea.
 
+Worked on new system for missing textures (or graphics etc).
+Goal here is to create a new (but dummy) image_c and add it
+to the image bucket with the correct name, so it can be found
+by subsequent searches.  One advantage is that missing flats
+or textures in a level doesn't produce heaps of warnings.
+Another advantage is that the original name is kept (for
+savegames and debugging).
+
 2009/07/23:
 
 DDF library: changed the way DDF_CMD() stores fields, we now store
