@@ -120,15 +120,20 @@ void HU_Start(void)
 
 void HU_Drawer(void)
 {
+	CON_ShowStats();
+
 	HUD_Reset();
 
 	if (message_on)
+	{
+		HUD_SetScale(0.75f);
 		HUD_DrawText(HU_MSGX, HU_MSGY, w_message.c_str());
+		HUD_Reset("s");
+	}
 
 //TODO	if (chat_on)
 //		HL_DrawIText(&w_chat);
 
-	CON_ShowStats();
 }
 
 void HU_Erase(void)
