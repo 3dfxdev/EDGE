@@ -31,8 +31,6 @@
 #include "src/p_action.h"
 
 
-#define DEBUG_DDFREAD  0
-
 int ddf_version;  // global
 
 int engine_version;
@@ -210,8 +208,8 @@ public:
 	{ }
 };
 
-// -AJA- 1999/09/12: Made these static.  The variable `defines' was
-//       clashing with the one in rad_trig.c.  Ugh.
+// -AJA- 1999/09/12: Made these static.  The variable 'defines' was
+//       clashing with the one in rad_trig.c -- Ugh.
 
 static std::vector<define_c> defines;
 
@@ -351,187 +349,257 @@ static void DDF_ParseVersion(const char *str, int len)
 // from the file.
 //
 
+#define SPRITE_CHARS  "_-:.[]\\!#%+@?"
+
 //
 // DDF_MainProcessChar
 //
 // 1998/08/10 Added String reading code.
 //
-static readchar_t DDF_MainProcessChar(char character, std::string& token, int status)
+static readchar_t DDF_MainProcessChar(char ch, std::string& token, int status)
 {
-	//int len;
-
-	// -ACB- 1998/08/11 Used for detecting formatting in a string
-	static bool formatchar = false;
-
-	// With the exception of reading_string, whitespace is ignored.
-	if (status != reading_string)
+	if (status == reading_string)
 	{
-		if (isspace(character))
-			return nothing;
-	}
-	else  // check for formatting char in a string
-	{
-		if (!formatchar && character == '\\')
+		// -ACB- 1998/08/11 Used for detecting formatting in a string
+		static bool formatchar = false;
+
+		if (!formatchar && ch == '\\')
 		{
 			formatchar = true;
 			return nothing;
 		}
+
+		// -ACB- 1998/08/10 New string handling
+		// -KM- 1999/01/29 Fixed nasty bug where \" would be recognised as
+		//  string end quote mark.  One of the level text used this.
+		if (formatchar)
+		{
+			formatchar = false;
+
+			// -ACB- 1998/08/11 Formatting check: Carriage-return.
+			if (ch == 'n')
+			{
+				token += '\n';
+				return ok_char;
+			}
+			else if (ch == '\"')    // -KM- 1998/10/29 Also recognise quote
+			{
+				token += '\"';
+				return ok_char;
+			}
+			else if (ch == '\\') // -ACB- 1999/11/24 Double backslash means directory
+			{
+				token += '\\';
+				return ok_char;
+			}
+
+			// -ACB- 1999/11/24 Any other characters are treated in the norm
+			token += ch;
+			return ok_char;
+		}
+		else if (ch == '\"')
+		{
+			return string_stop;
+		}
+		else if (ch == '\n')
+		{
+			cur_ddf_line_num--;
+			DDF_WarnError("Unclosed string detected.\n");
+
+			cur_ddf_line_num++;
+			return nothing;
+		}
+		// -KM- 1998/10/29 Removed ascii check, allow foreign characters (?)
+		// -ES- HEY! Swedish is not foreign!
+
+		token += ch;
+		return ok_char;
 	}
 
-	// -AJA- 1999/09/26: Handle unmatched '}' better.
-	if (status != reading_string && character == '{')
-		return remark_start;
-  
-	if (status == reading_remark && character == '}')
-		return remark_stop;
 
-	if (status != reading_string && character == '}')
+	// With the exception of reading_string, whitespace is ignored.
+	if (isspace(ch))
+		return nothing;
+
+	// -AJA- 1999/09/26: Handle unmatched '}' better.
+	if (status == reading_remark)
+	{
+		if (ch == '}')
+			return remark_stop;
+
+		return nothing;
+	}
+
+	if (ch == '{')
+		return remark_start;
+
+	if (ch == '}')
 		DDF_Error("DDF: Encountered '}' without previous '{'.\n");
+	
 
 	switch (status)
 	{
-		case reading_remark:
-			return nothing;
-
 		case waiting_newdef:
-			if (character == '[')
+			if (ch == '[')
 				return def_start;
 			else
 				return nothing;
 
 		case reading_newdef:
-			if (character == ']')
+			if (ch == ']')
 			{
 				return def_stop;
 			}
-			else if ((isalnum(character)) || (character == '_') ||
-					 (character == ':'))
+			else if (isalnum(ch) || ch == '_' || ch == ':' || ch == '*')
 			{
-				token += toupper(character);
+				token += toupper(ch);
 				return ok_char;
 			}
 			return nothing;
 
 		case reading_command:
-			if (character == '=')
+			if (ch == '=')
 			{
 				return command_read;
 			}
-			else if (character == ';')
+			else if (ch == ';')
 			{
 				return property_read;
 			}
-			else if (character == '[')
+			else if (ch == '[')
 			{
 				return def_start;
 			}
-			else if (isalnum(character) || character == '_' ||
-					 character == '(' || character == ')' ||
-					 character == '.')
+			else if (isalnum(ch) || ch == '_' || ch == '(' || ch == ')' || ch == '.')
 			{
-				token += toupper(character);
+				token += toupper(ch);
 				return ok_char;
 			}
 			return nothing;
 
 			// -ACB- 1998/08/10 Check for string start
 		case reading_data:
-			if (character == '\"')
+			if (ch == '\"')
 				return string_start;
       
-			if (character == ';')
+			if (ch == ';')
 				return terminator;
       
-			if (character == ',')
+			if (ch == ',')
 				return separator;
       
-			if (character == '(')
+			if (ch == '(')
 			{
-				token += (character);
+				token += ch;
 				return group_start;
 			}
       
-			if (character == ')')
+			if (ch == ')')
 			{
-				token += (character);
+				token += ch;
 				return group_stop;
 			}
       
 			// Sprite Data - more than a few exceptions....
-			if (isalnum(character) || character == '_' || character == '-' ||
-				character == ':' || character == '.'  || character == '[' ||
-				character == ']' || character == '\\' || character == '!' ||
-				character == '#' || character == '%'  || character == '+' ||
-				character == '@' || character == '?')
+			if (isalnum(ch) || strchr(SPRITE_CHARS, ch))
 			{
-				token += toupper(character);
+				token += toupper(ch);
 				return ok_char;
 			}
-			else if (isprint(character))
-				DDF_WarnError("DDF: Illegal character '%c' found.\n", character);
 
+			if (isprint(ch))
+				DDF_WarnError("DDF: Illegal character '%c' found.\n", ch);
 			break;
 
-		case reading_string:  // -ACB- 1998/08/10 New string handling
-			// -KM- 1999/01/29 Fixed nasty bug where \" would be recognised as
-			//  string end over quote mark.  One of the level text used this.
-			if (formatchar)
-			{
-				// -ACB- 1998/08/11 Formatting check: Carriage-return.
-				if (character == 'n')
-				{
-					token += ('\n');
-					formatchar = false;
-					return ok_char;
-				}
-				else if (character == '\"')    // -KM- 1998/10/29 Also recognise quote
-				{
-					token += ('\"');
-					formatchar = false;
-					return ok_char;
-				}
-				else if (character == '\\') // -ACB- 1999/11/24 Double backslash means directory
-				{
-					token += ('\\');
-					formatchar = false;
-					return ok_char;
-				}
-				else // -ACB- 1999/11/24 Any other characters are treated in the norm
-				{
-					token += (character);
-					formatchar = false;
-					return ok_char;
-				}
-
-			}
-			else if (character == '\"')
-			{
-				return string_stop;
-			}
-			else if (character == '\n')
-			{
-				cur_ddf_line_num--;
-				DDF_WarnError2(128, "Unclosed string detected.\n");
-
-				cur_ddf_line_num++;
-				return nothing;
-			}
-			// -KM- 1998/10/29 Removed ascii check, allow foreign characters (?)
-			// -ES- HEY! Swedish is not foreign!
-			else
-			{
-				token += (character);
-				return ok_char;
-			}
-
 		default:  // doh!
-			I_Error("DDF_MainProcessChar: INTERNAL ERROR: "
-					"Bad status value %d !\n", status);
+			I_Error("DDF_MainProcessChar: Bad status value %d !\n", status);
 			break;
 	}
 
 	return nothing;
 }
+
+
+static char * DDF_MainProcessNewLine(readinfo_t *readinfo, char *pos, bool firstgo)
+{
+	// -AJA- 2000/03/21: determine linedata
+	int len = 0;
+
+	while (pos[len] && pos[len] != '\n' && pos[len] != '\r')
+		 len++;
+
+	cur_ddf_linedata = std::string(pos, len);
+
+	// -AJA- 2001/05/21: handle directives (lines beginning with #).
+	// This code is more hackitude -- to be fixed when the whole
+	// parsing code gets the overhaul it needs.
+
+	while (*pos == ' ' || *pos == '\t')
+		pos++;
+
+	// -KM- 1998/12/16 Added #define command to ddf files.
+	if (strnicmp(pos, "#DEFINE", 7) == 0)
+	{
+		bool line = false;
+
+		pos += 8;
+		char *name = pos;
+
+		while (*pos && *pos != ' ')
+			pos++;
+
+		if (! *pos)
+			DDF_Error("#DEFINE used without a value\n");
+
+		*pos++ = 0;
+		char *value = pos;
+
+		while (*pos)
+		{
+			if (*pos == '\r')
+				*pos = ' ';
+			
+			if (*pos == '\\')
+				line = true;
+
+			if (*pos == '\n' && !line)
+				break;
+			pos++;
+		}
+
+		if (*pos == '\n')
+			cur_ddf_line_num++;
+
+		*pos++ = 0;
+
+		DDF_MainAddDefine(name, value);
+
+		return pos;
+	}
+
+	if (strnicmp(pos, "#CLEARALL", 9) == 0)
+	{
+		if (! firstgo)
+			DDF_Error("#CLEARALL cannot be used inside an entry !\n");
+
+		(* readinfo->clear_all)();
+
+		return pos + len;
+	}
+
+	if (strnicmp(pos, "#VERSION", 8) == 0)
+	{
+		if (! firstgo)
+			DDF_Error("#VERSION cannot be used inside an entry !\n");
+
+		DDF_ParseVersion(pos + 8, len - 8);
+
+		return pos + len;
+	}
+
+	return NULL;  // situation normal
+}
+
 
 //
 // DDF_MainReadFile
@@ -541,20 +609,13 @@ static readchar_t DDF_MainProcessChar(char character, std::string& token, int st
 // -AJA- 1999/10/02 Recursive { } comments.
 // -ES- 2000/02/29 Added
 //
-void DDF_MainReadFile(readinfo_t * readinfo, char *memfileptr)
+void DDF_MainReadFile(readinfo_t * readinfo, char *pos)
 {
 	std::string token;
 	std::string current_cmd;
 
-	char *name;
-	char *value = NULL;
-
 	int current_index = 0;
 	int entry_count = 0;
-
-#if (DEBUG_DDFREAD)
-	char charcount = 0;
-#endif
 
 	ddf_version = 127;
 
@@ -564,109 +625,39 @@ void DDF_MainReadFile(readinfo_t * readinfo, char *memfileptr)
 	int bracket_level = 0;
 	bool firstgo = true;
 
-	while (* memfileptr)
+	DDF_MainProcessNewLine(readinfo, pos, firstgo);
+
+	while (* pos)
 	{
-		// -KM- 1998/12/16 Added #define command to ddf files.
-		if (!strnicmp(memfileptr, "#DEFINE", 7))
+		// -AJA- 1999/10/27: detect // comments and ignore them
+		if (pos[0] == '/' && pos[1] == '/' &&
+			comment_level == 0 && status != reading_string)
 		{
-			bool line = false;
+			while (*pos && *pos != '\n')
+				pos++;
 
-			memfileptr += 8;
-			name = memfileptr;
+			if (! *pos)
+				break;
 
-			while (*memfileptr && *memfileptr != ' ')
-				memfileptr++;
-
-			if (*memfileptr)
-			{
-				*memfileptr++ = 0;
-				value = memfileptr;
-			}
-			else
-			{
-				DDF_Error("#DEFINE '%s' as what?!\n", name);
-			}
-
-			while (*memfileptr)
-			{
-				if (*memfileptr == '\r')
-					*memfileptr = ' ';
-				if (*memfileptr == '\\')
-					line = true;
-				if (*memfileptr == '\n' && !line)
-					break;
-				memfileptr++;
-			}
-
-			if (*memfileptr == '\n')
-				cur_ddf_line_num++;
-
-			*memfileptr++ = 0;
-
-			DDF_MainAddDefine(name, value);
-
-			token.clear();
-			continue;
-		}
-
-		// -AJA- 1999/10/27: Not the greatest place for it, but detect //
-		//       comments here and ignore them.  Ow the pain of long
-		//       identifier names...  Ow the pain of &memfile[size] :-)
-    
-		if (comment_level == 0 && status != reading_string &&
-			memfileptr[0] == '/' && memfileptr[1] == '/')
-		{
-			while (*memfileptr && *memfileptr != '\n')
-				memfileptr++;
-
-			continue;
+			// fall through to '\n' handling code...
 		}
     
-		char character = *memfileptr++;
+		char ch = *pos++;
 
-		if (character == '\n')
+		if (ch == '\n')
 		{
-			int l_len;
+			char *new_pos = DDF_MainProcessNewLine(readinfo, pos, firstgo);
 
 			cur_ddf_line_num++;
 
-			// -AJA- 2000/03/21: determine linedata.  Ouch.
-			for (l_len=0;
-			     memfileptr[l_len] && memfileptr[l_len] != '\n' && memfileptr[l_len] != '\r';
-			     l_len++)
-			{ }
-
-
-			cur_ddf_linedata = std::string(memfileptr, l_len);
-
-			// -AJA- 2001/05/21: handle directives (lines beginning with #).
-			// This code is more hackitude -- to be fixed when the whole
-			// parsing code gets the overhaul it needs.
-      
-			if (strnicmp(memfileptr, "#CLEARALL", 9) == 0)
+			if (new_pos)
 			{
-				if (! firstgo)
-					DDF_Error("#CLEARALL cannot be used inside an entry !\n");
-
-				(* readinfo->clear_all)();
-
-				memfileptr += l_len;
-				continue;
-			}
-
-			if (strnicmp(memfileptr, "#VERSION", 8) == 0)
-			{
-				if (! firstgo)
-					DDF_Error("#VERSION cannot be used inside an entry !\n");
-
-				DDF_ParseVersion(memfileptr + 8, l_len - 8);
-
-				memfileptr += l_len;
+				pos = new_pos;
 				continue;
 			}
 		}
 
-		int response = DDF_MainProcessChar(character, token, status);
+		int response = DDF_MainProcessChar(ch, token, status);
 
 		switch (response)
 		{
@@ -745,7 +736,7 @@ void DDF_MainReadFile(readinfo_t * readinfo, char *memfileptr)
 				{
 					bracket_level--;
 					if (bracket_level < 0)
-						DDF_Error("Unexpected `)' bracket.\n");
+						DDF_Error("Unexpected ')' bracket.\n");
 				}
 				break;
 
@@ -757,10 +748,10 @@ void DDF_MainReadFile(readinfo_t * readinfo, char *memfileptr)
 				}
 
 				if (current_cmd.empty())
-					DDF_Error("Unexpected comma `,'.\n");
+					DDF_Error("Unexpected comma ','.\n");
 
 				if (firstgo)
-					DDF_WarnError2(128, "Command %s used outside of any entry\n",
+					DDF_WarnError("Command %s used outside of any entry\n",
 								   current_cmd.c_str());
 				else
 				{ 
@@ -784,7 +775,7 @@ void DDF_MainReadFile(readinfo_t * readinfo, char *memfileptr)
 
 			case terminator:
 				if (current_cmd.empty())
-					DDF_Error("Unexpected semicolon `;'.\n");
+					DDF_Error("Unexpected semicolon ';'.\n");
 
 				if (bracket_level > 0)
 					DDF_Error("Missing ')' bracket in ddf command.\n");
@@ -798,24 +789,13 @@ void DDF_MainReadFile(readinfo_t * readinfo, char *memfileptr)
 				break;
 
 			case property_read:
-				DDF_WarnError2(128, "Badly formed command: Unexpected semicolon `;'\n");
-				break;
-
-			case nothing:
+				DDF_WarnError("Badly formed command: Unexpected semicolon ';'\n");
 				break;
 
 			case ok_char:
-#if (DEBUG_DDFREAD)
-				charcount++;
-				I_Debugf("%c", character);
-				if (charcount == 75)
-				{
-					charcount = 0;
-					I_Debugf("\n");
-				}
-#endif
 				break;
 
+			case nothing:
 			default:
 				break;
 		}
@@ -835,16 +815,17 @@ void DDF_MainReadFile(readinfo_t * readinfo, char *memfileptr)
 		DDF_Error("Unclosed [] brackets detected.\n");
 	
 	if (status == reading_data || status == reading_string)
-		DDF_WarnError2(128, "Unfinished DDF command on last line.\n");
+		DDF_WarnError("Unfinished DDF command on last line.\n");
 
 	// if firstgo is true, nothing was defined
 	if (!firstgo)
 		(* readinfo->finish_entry)();
 
+	defines.clear();
+
 	cur_ddf_entryname.clear();
 	cur_ddf_filename.clear();
-
-	defines.clear();
+	cur_ddf_linedata.clear();
 }
 
 
