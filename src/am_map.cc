@@ -73,7 +73,6 @@ static rgbcol_t am_colors[AM_NUM_COLORS] =
     RGB_MAKE(120, 60, 30)   // AMCOL_Scenery
 };
 
-
 // Automap keys
 
 key_binding_c k_automap;
@@ -87,6 +86,23 @@ key_binding_c k_am_mark;
 key_binding_c k_am_clear;
 
 #define AM_NUMMARKPOINTS  9
+
+
+//
+// Automap drawing structs
+//
+typedef struct
+{
+	float x, y;
+}
+mpoint_t;
+
+typedef struct
+{
+	mpoint_t a, b;
+}
+mline_t;
+
 
 //
 // NOTE:
@@ -153,8 +169,8 @@ static float m_scale;
 #define FTOM(xx) ((float)((xx) / m_scale / f_scale))
 
 // translates between frame-buffer and map coordinates
-#define CXMTOF(xx)  (f_x + f_w/2 + MTOF((xx) - m_cx))
-#define CYMTOF(yy)  (f_y + f_h/2 - MTOF((yy) + m_cy))
+#define CXMTOF(xx)  (f_x + f_w/2.0 + MTOF((xx) - m_cx))
+#define CYMTOF(yy)  (f_y + f_h/2.0 - MTOF((yy) - m_cy))
 
 
 // largest size of map along X or Y axis
