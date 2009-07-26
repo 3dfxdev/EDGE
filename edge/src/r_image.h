@@ -28,6 +28,7 @@
 
 #include <vector>
 
+#include "epi/image_data.h"
 #include "ddf/image.h"
 
 #include "r_defs.h"
@@ -83,13 +84,23 @@ public:
     // one of the OPAC_XXX values
 	int opacity;
 
+	
+	// -------- PRIVATE STUFF FROM NOW ON -------- //
 
-//!!!!!! private:
-
-	// --- information about where this image came from ---
 	char name[16];
 
-	int source_type;  // image_source_e
+	enum
+	{
+		Graphic, // Source was a graphic name
+		Raw320x200, // INTERNAL ONLY: Source was a raw block of 320x200 bytes (Heretic/Hexen)
+		Sprite,  // Source was a sprite name
+		Flat,    // Source was a flat name
+		Texture, // Source was a texture name
+		User,    // INTERNAL ONLY: Source is from IMAGE.DDF
+		Dummy,   // INTERNAL ONLY: Source is dummy image
+	};
+
+	int source_type;
  
 	union
 	{
@@ -143,7 +154,24 @@ public:
 	 image_c();
 	~image_c();
 
+public:
+	epi::image_data_c * ReadBlock();
+
+	bool ShouldClamp()  const;
+	bool ShouldMipmap() const;
+	bool ShouldSmooth() const;
+	bool ShouldHQ2X()   const;
+
+	int PixelLimit() const;
+
 	/* TODO: add methods here... */
+
+private:
+	epi::image_data_c * ReadFlat();
+	epi::image_data_c * ReadTexture();
+	epi::image_data_c * ReadPatch();
+	epi::image_data_c * ReadUser();
+	epi::image_data_c * ReadDummy();
 };
 
 
@@ -197,16 +225,16 @@ void W_ImageMakeSaveString(const image_c *image, char *type, char *namebuf);
 // specialised images (e.g. for colormapping) can be recreated.
 extern int  image_reset_counter;
 
-bool W_InitImages(void);
-void W_UpdateImageAnims(void);
-void W_DeleteAllImages(void);
+bool R_InitImages(void);
+void R_UpdateImageAnims(void);
+void R_DeleteAllImages(void);
 
 const image_c *R_ImageCreateTexture(struct texturedef_s *tdef);
 const image_c *R_ImageCreateFlat(const char *name, int lump);
 const image_c *R_ImageCreateSprite(const char *name, int lump, bool is_weapon);
 
-void W_ImageCreateUser(void);
-void W_AnimateImageSet(const image_c ** images, int number, int speed);
+void R_ImageCreateUser(void);
+void R_AnimateImageSet(const image_c ** images, int number, int speed);
 void W_DrawSavePic(const byte *pixels);
 
 #ifdef USING_GL_TYPES
@@ -225,31 +253,6 @@ const image_c ** W_ImageGetUserSprites(int *count);
 // internal routines -- only needed by hu_wipe.c
 int W_MakeValidSize(int value);
 
-
-typedef enum
-{
-	// Source was a graphic name
-	IMSRC_Graphic = 0,
-
-	// INTERNAL ONLY: Source was a raw block of 320x200 bytes (Heretic/Hexen)
-	IMSRC_Raw320x200,
-
-	// Source was a sprite name
-	IMSRC_Sprite,
-
-	// Source was a flat name
-	IMSRC_Flat,
-
-	// Source was a texture name
-	IMSRC_Texture,
-
-	// INTERNAL ONLY: Source is from IMAGE.DDF
-	IMSRC_User,
-
-	// INTERNAL ONLY: Source is dummy image
-	IMSRC_Dummy,
-}
-image_source_e;
 
 
 #endif  // __R_IMAGE__

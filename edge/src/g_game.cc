@@ -400,8 +400,8 @@ void G_BigStuff(void)
 
 void G_Ticker(void)
 {
-	// ANIMATE FLATS AND TEXTURES GLOBALLY
-	W_UpdateImageAnims();
+	// animate flats and textures globally
+	R_UpdateImageAnims();
 
 	// do main actions
 	switch (gamestate)

@@ -187,7 +187,7 @@ void R_AddFlatAnim(animdef_c *anim)
 			flats[i] = W_ImageLookup(name, INS_Flat, ILF_Null|ILF_Exact|ILF_NoNew);
 		}
 
-		W_AnimateImageSet(flats, total, anim->speed);
+		R_AnimateImageSet(flats, total, anim->speed);
 		delete[] flats;
 	}
 
@@ -205,7 +205,7 @@ void R_AddFlatAnim(animdef_c *anim)
 		flats[i] = W_ImageLookup(anim->pics[i], INS_Flat, ILF_Null|ILF_Exact);
 	}
 
-	W_AnimateImageSet(flats, total, anim->speed);
+	R_AnimateImageSet(flats, total, anim->speed);
 	delete[] flats;
 }
 
@@ -260,7 +260,7 @@ void R_AddTextureAnim(animdef_c *anim)
 			texs[i] = W_ImageLookup(name, INS_Texture, ILF_Null|ILF_Exact|ILF_NoNew);
 		}
 
-		W_AnimateImageSet(texs, total, anim->speed);
+		R_AnimateImageSet(texs, total, anim->speed);
 		delete[] texs;
 
 		return;
@@ -280,7 +280,7 @@ void R_AddTextureAnim(animdef_c *anim)
 		texs[i] = W_ImageLookup(anim->pics[i], INS_Texture, ILF_Null|ILF_Exact);
 	}
 
-	W_AnimateImageSet(texs, total, anim->speed);
+	R_AnimateImageSet(texs, total, anim->speed);
 	delete[] texs;
 }
 
@@ -301,7 +301,7 @@ void R_AddGraphicAnim(animdef_c *anim)
 		users[i] = W_ImageLookup(anim->pics[i], INS_Graphic, ILF_Null|ILF_Exact);
 	}
 
-	W_AnimateImageSet(users, total, anim->speed);
+	R_AnimateImageSet(users, total, anim->speed);
 	delete[] users;
 }
 

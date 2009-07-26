@@ -758,7 +758,7 @@ void M_LoadGame(int choice)
 //
 void M_DrawSave(void)
 {
-	int i, len;
+	int i;
 
 	HUD_DrawImage(72, 8, menu_saveg);
 
@@ -772,7 +772,7 @@ void M_DrawSave(void)
 		{
 			HUD_SetTextColor(T_YELLOW);
 
-			len = HUD_StringWidth(ex_slots[save_slot].desc);
+			float len = HUD_StringWidth(ex_slots[save_slot].desc);
 
 			HUD_DrawText(LoadDef.x + 8, y, ex_slots[i].desc);
 			HUD_DrawText(LoadDef.x + len + 8, y, "_");
@@ -1869,8 +1869,6 @@ static std::string GetMiddle(std::string& str, int pos, int len)
 
 static void DrawMessage(void)
 {
-	short x, y;
-
 	HUD_SetAlpha(0.64f);
 	HUD_SolidBox(0, 0, 320, 200, T_BLACK);
 	HUD_Reset("a");
@@ -1888,7 +1886,7 @@ static void DrawMessage(void)
 	// Calc required height
 	std::string s = msg + input;
 
-	y = 100 - HUD_StringHeight(s.c_str()) / 2.0f;
+	float y = 100 - HUD_StringHeight(s.c_str()) / 2.0f;
 
 	if (!msg.empty())
 	{

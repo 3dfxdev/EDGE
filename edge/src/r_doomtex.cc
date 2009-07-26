@@ -173,25 +173,23 @@ static void DrawColumnIntoEpiBlock(image_c *rim, epi::image_data_c *img,
 //------------------------------------------------------------------------
 
 //
-//  BLOCK READING STUFF
+//  READING STUFF
 //
 
-//
-// ReadFlatAsBlock
+
 //
 // Loads a flat from the wad and returns the image block for it.
 // Doesn't do any mipmapping (this is too "raw" if you follow).
 //
-static epi::image_data_c *ReadFlatAsEpiBlock(image_c *rim)
+epi::image_data_c * image_c::ReadFlat()
 {
-	SYS_ASSERT(rim->source_type == IMSRC_Flat ||
-				rim->source_type == IMSRC_Raw320x200);
+	SYS_ASSERT(source_type == Flat || source_type == Raw320x200);
 
-	int tw = MAX(rim->total_w, 1);
-	int th = MAX(rim->total_h, 1);
+	int tw = MAX(total_w, 1);
+	int th = MAX(total_h, 1);
 
-	int w = rim->actual_w;
-	int h = rim->actual_h;
+	int w = actual_w;
+	int h = actual_h;
 
 	epi::image_data_c *img = new epi::image_data_c(tw, th, 1);
 
@@ -206,7 +204,7 @@ static epi::image_data_c *ReadFlatAsEpiBlock(image_c *rim)
 	img->Clear(pal_black);
 
 	// read in pixels
-	const byte *src = (const byte*)W_LoadLumpNum(rim->source.flat.lump);
+	const byte *src = (const byte*)W_LoadLumpNum(source.flat.lump);
 
 	for (int y=0; y < h; y++)
 	for (int x=0; x < w; x++)
@@ -228,8 +226,7 @@ static epi::image_data_c *ReadFlatAsEpiBlock(image_c *rim)
 	return img;
 }
 
-//
-// ReadTextureAsBlock
+
 //
 // Loads a texture from the wad and returns the image block for it.
 // Doesn't do any mipmapping (this is too "raw" if you follow).
@@ -237,15 +234,15 @@ static epi::image_data_c *ReadFlatAsEpiBlock(image_c *rim)
 //---- This routine will also update the `solid' flag
 //---- if texture turns out to be solid.
 //
-static epi::image_data_c *ReadTextureAsEpiBlock(image_c *rim)
+epi::image_data_c * image_c::ReadTexture()
 {
-	SYS_ASSERT(rim->source_type == IMSRC_Texture);
+	SYS_ASSERT(source_type == Texture);
 
-	texturedef_t *tdef = rim->source.texture.tdef;
+	texturedef_t *tdef = source.texture.tdef;
 	SYS_ASSERT(tdef);
 
-	int tw = rim->total_w;
-	int th = rim->total_h;
+	int tw = total_w;
+	int th = total_h;
 
 	epi::image_data_c *img = new epi::image_data_c(tw, th, 1);
 
@@ -261,7 +258,7 @@ static epi::image_data_c *ReadTextureAsEpiBlock(image_c *rim)
 	//---- out to be solid instead of transparent, the transparent pixels
 	//---- will be blackened.
   
-	if (rim->opacity == OPAC_Solid)
+	if (opacity == OPAC_Solid)
 		img->Clear(pal_black);
 	else
 		img->Clear(TRANS_PIXEL);
@@ -289,12 +286,11 @@ static epi::image_data_c *ReadTextureAsEpiBlock(image_c *rim)
 			int offset = EPI_LE_S32(realpatch->columnofs[x - x1]);
 
 			if (offset < 0 || offset >= realsize)
-				I_Error("Bad image offset 0x%08x in image [%s]\n", offset, rim->name);
+				I_Error("Bad image offset 0x%08x in image [%s]\n", offset, name);
 
-			const column_t *patchcol = (const column_t *)
-				((const byte *) realpatch + offset);
+			const column_t *patchcol = (const column_t *) ((const byte *) realpatch + offset);
 
-			DrawColumnIntoEpiBlock(rim, img, patchcol, x, y1);
+			DrawColumnIntoEpiBlock(this, img, patchcol, x, y1);
 		}
 
 		Z_Free((void*)realpatch);
@@ -303,8 +299,7 @@ static epi::image_data_c *ReadTextureAsEpiBlock(image_c *rim)
 	return img;
 }
 
-//
-// ReadPatchAsBlock
+
 //
 // Loads a patch from the wad and returns the image block for it.
 // Very similiar to ReadTextureAsBlock() above.  Doesn't do any
@@ -313,13 +308,12 @@ static epi::image_data_c *ReadTextureAsEpiBlock(image_c *rim)
 //---- This routine will also update the `solid' flag
 //---- if it turns out to be 100% solid.
 //
-static epi::image_data_c *ReadPatchAsEpiBlock(image_c *rim)
+epi::image_data_c * image_c::ReadPatch()
 {
-	SYS_ASSERT(rim->source_type == IMSRC_Graphic ||
-				rim->source_type == IMSRC_Sprite);
+	SYS_ASSERT(source_type == Graphic || source_type == Sprite);
 
-	int tw = rim->total_w;
-	int th = rim->total_h;
+	int tw = total_w;
+	int th = total_h;
 
 	epi::image_data_c *img = new epi::image_data_c(tw, th, 1);
 
@@ -330,30 +324,29 @@ static epi::image_data_c *ReadPatchAsEpiBlock(image_c *rim)
 	//---- out to be solid instead of transparent, the transparent pixels
 	//---- will be blackened.
   
-	if (rim->opacity == OPAC_Solid)
+	if (opacity == OPAC_Solid)
 		img->Clear(pal_black);
 	else
 		img->Clear(TRANS_PIXEL);
 
 	// Composite the columns into the block.
-	const patch_t *realpatch = (const patch_t*)W_LoadLumpNum(rim->source.graphic.lump);
+	const patch_t *realpatch = (const patch_t*)W_LoadLumpNum(source.graphic.lump);
 
-	int realsize = W_LumpLength(rim->source.graphic.lump);
+	int realsize = W_LumpLength(source.graphic.lump);
 
-	SYS_ASSERT(rim->actual_w == EPI_LE_S16(realpatch->width));
-	SYS_ASSERT(rim->actual_h == EPI_LE_S16(realpatch->height));
+	SYS_ASSERT(actual_w == EPI_LE_S16(realpatch->width));
+	SYS_ASSERT(actual_h == EPI_LE_S16(realpatch->height));
   
-	for (int x=0; x < rim->actual_w; x++)
+	for (int x=0; x < actual_w; x++)
 	{
 		int offset = EPI_LE_S32(realpatch->columnofs[x]);
 
 		if (offset < 0 || offset >= realsize)
-			I_Error("Bad image offset 0x%08x in image [%s]\n", offset, rim->name);
+			I_Error("Bad image offset 0x%08x in image [%s]\n", offset, name);
 
-		const column_t *patchcol = (const column_t *)
-			((const byte *) realpatch + offset);
+		const column_t *patchcol = (const column_t *) ((const byte *) realpatch + offset);
 
-		DrawColumnIntoEpiBlock(rim, img, patchcol, x, 0);
+		DrawColumnIntoEpiBlock(this, img, patchcol, x, 0);
 	}
 
 	Z_Free((void*)realpatch);
@@ -362,18 +355,13 @@ static epi::image_data_c *ReadPatchAsEpiBlock(image_c *rim)
 }
 
 
-//
-// ReadDummyAsBlock
-//
-// Creates a dummy image.
-//
-static epi::image_data_c *ReadDummyAsEpiBlock(image_c *rim)
+epi::image_data_c * image_c::ReadDummy()
 {
-	SYS_ASSERT(rim->source_type == IMSRC_Dummy);
-	SYS_ASSERT(rim->actual_w == rim->total_w);
-	SYS_ASSERT(rim->actual_h == rim->total_h);
-	SYS_ASSERT(rim->total_w == DUMMY_X);
-	SYS_ASSERT(rim->total_h == DUMMY_Y);
+	SYS_ASSERT(source_type == image_c::Dummy);
+	SYS_ASSERT(actual_w == total_w);
+	SYS_ASSERT(actual_h == total_h);
+	SYS_ASSERT(total_w  == DUMMY_X);
+	SYS_ASSERT(total_h  == DUMMY_Y);
 
 	epi::image_data_c *img = new epi::image_data_c(DUMMY_X, DUMMY_Y, 4);
 
@@ -385,12 +373,12 @@ static epi::image_data_c *ReadDummyAsEpiBlock(image_c *rim)
 
 		if (dummy_graphic[(DUMMY_Y-1 - y) * DUMMY_X + x])
 		{
-			*dest_pix++ = (rim->source.dummy.fg & 0xFF0000) >> 16;
-			*dest_pix++ = (rim->source.dummy.fg & 0x00FF00) >> 8;
-			*dest_pix++ = (rim->source.dummy.fg & 0x0000FF);
+			*dest_pix++ = (source.dummy.fg & 0xFF0000) >> 16;
+			*dest_pix++ = (source.dummy.fg & 0x00FF00) >> 8;
+			*dest_pix++ = (source.dummy.fg & 0x0000FF);
 			*dest_pix++ = 255;
 		}
-		else if (rim->source.dummy.bg == TRANS_PIXEL)
+		else if (source.dummy.bg == TRANS_PIXEL)
 		{
 			*dest_pix++ = 0;
 			*dest_pix++ = 0;
@@ -399,15 +387,16 @@ static epi::image_data_c *ReadDummyAsEpiBlock(image_c *rim)
 		}
 		else
 		{
-			*dest_pix++ = (rim->source.dummy.bg & 0xFF0000) >> 16;
-			*dest_pix++ = (rim->source.dummy.bg & 0x00FF00) >> 8;
-			*dest_pix++ = (rim->source.dummy.bg & 0x0000FF);
+			*dest_pix++ = (source.dummy.bg & 0xFF0000) >> 16;
+			*dest_pix++ = (source.dummy.bg & 0x00FF00) >> 8;
+			*dest_pix++ = (source.dummy.bg & 0x0000FF);
 			*dest_pix++ = 255;
 		}
 	}
 
 	return img;
 }
+
 
 static epi::image_data_c * CreateUserColourImage(image_c *rim, imagedef_c *def)
 {
@@ -531,30 +520,28 @@ static epi::image_data_c *CreateUserFileImage(image_c *rim, imagedef_c *def)
 
 
 //
-// ReadUserAsEpiBlock
-//
 // Loads or Creates the user defined image.
-// Doesn't do any mipmapping (this is too "raw" if you follow).
+// Doesn't do any mipmapping (that happens later).
 //
-static epi::image_data_c *ReadUserAsEpiBlock(image_c *rim)
+epi::image_data_c * image_c::ReadUser()
 {
-	SYS_ASSERT(rim->source_type == IMSRC_User);
+	SYS_ASSERT(source_type == User);
 
 	// clear initial image to black / transparent
 	/// ALREADY DONE: memset(dest, pal_black, tw * th * bpp);
 
-	imagedef_c *def = rim->source.user.def;
+	imagedef_c *def = source.user.def;
 
 	switch (def->type)
 	{
 		case IMGDT_Builtin:  // DEAD!
 
 		case IMGDT_Colour:
-			return CreateUserColourImage(rim, def);
+			return CreateUserColourImage(this, def);
 
 		case IMGDT_File:
 		case IMGDT_Lump:
-		    return CreateUserFileImage(rim, def);
+		    return CreateUserFileImage(this, def);
 
 		default:
 			I_Error("ReadUserAsEpiBlock: Coding error, unknown type %d\n", def->type);
@@ -563,8 +550,7 @@ static epi::image_data_c *ReadUserAsEpiBlock(image_c *rim)
 	return NULL;  /* NOT REACHED */
 }
 
-//
-// ReadAsEpiBlock
+
 //
 // Read the image from the wad into an image_data_c class.
 // The image returned is normally palettised (bpp == 1), and the
@@ -573,30 +559,30 @@ static epi::image_data_c *ReadUserAsEpiBlock(image_c *rim)
 //
 // Never returns NULL.
 //
-epi::image_data_c *ReadAsEpiBlock(image_c *rim) 
+epi::image_data_c * image_c::ReadBlock()
 {
-	switch (rim->source_type)
+	switch (source_type)
 	{
-		case IMSRC_Flat:
-		case IMSRC_Raw320x200:
-			return ReadFlatAsEpiBlock(rim);
+		case Flat:
+		case Raw320x200:
+			return ReadFlat();
 
-		case IMSRC_Texture:
-			return ReadTextureAsEpiBlock(rim);
+		case Texture:
+			return ReadTexture();
 
-		case IMSRC_Graphic:
-		case IMSRC_Sprite:
-			return ReadPatchAsEpiBlock(rim);
+		case Graphic:
+		case Sprite:
+			return ReadPatch();
 
-		case IMSRC_Dummy:
-			return ReadDummyAsEpiBlock(rim);
-    
-		case IMSRC_User:
-			return ReadUserAsEpiBlock(rim);
-      
+		case User:
+			return ReadUser();
+
+		case Dummy:
+			return ReadDummy();
+
 		default:
-			I_Error("ReadAsBlock: unknown source_type %d !\n", rim->source_type);
-			return NULL;
+			I_Error("ReadBlock: unknown source_type %d !\n", source_type);
+			return NULL; /* NEVER REACHED */
 	}
 }
 
