@@ -47,9 +47,6 @@ const image_c *sky_image;
 
 bool custom_sky_box;
 
-// needed for SKY
-extern epi::image_data_c *ReadAsEpiBlock(image_c *rim);
-
 
 typedef struct sec_sky_ring_s
 {
@@ -65,8 +62,7 @@ typedef struct sec_sky_ring_s
 }
 sec_sky_ring_t;
 
-//
-// R_ComputeSkyHeights
+
 // 
 // This routine computes the sky height field in sector_t, which is
 // the maximal sky height over all sky sectors (ceiling only) which
@@ -887,7 +883,7 @@ int RGL_UpdateSkyBoxTextures(void)
 
 	
 	// Intentional Const Override
-	const epi::image_data_c *block = ReadAsEpiBlock((image_c*)sky_image);
+	const epi::image_data_c *block = ((image_c*)sky_image)->ReadBlock();;
 	SYS_ASSERT(block);
 
 	// get correct palette
