@@ -906,9 +906,10 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 	data_file_c *df = new data_file_c(filename, kind, file);
 	data_files.push_back(df);
 
-	// for RTS scripts, adding the data_file is enough
-	if (kind == FLKIND_Script)
+	// for RTS scripts and DDF files, having the data_file is enough
+	if (kind == FLKIND_Script || kind == FLKIND_DDF)
 		return;
+
 
 	if (kind <= FLKIND_HWad)
 	{
@@ -963,11 +964,8 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 
 		SYS_ASSERT(dyn_index < 0);
 
-		if (kind == FLKIND_DDF)
-        {
-			sprintf(lump_name, "DDF%04d", datafile);
-        }
-        else
+		SYS_ASSERT(kind != FLKIND_DDF);
+
         {
             std::string base = epi::PATH_GetBasename(filename);
             if (base.size() > 8)
@@ -1202,6 +1200,25 @@ void W_ReadDDF(void)
 				delete F;
 
 				RAD_Parse(data, length, df->file_name);
+				delete[] data;
+
+				continue;
+			}
+
+			// user-supplied DDF files get parsed here
+			if (d == RTS_READER && df->kind == FLKIND_DDF)
+			{
+				I_Debugf("- Loading DDF file: %s\n", df->file_name);
+
+				epi::file_c *F = epi::FS_Open(df->file_name, epi::file_c::ACCESS_READ | epi::file_c::ACCESS_BINARY);
+				if (! F) I_Error("No such file\n");
+
+				int length = F->GetLength();
+				byte *data = F->LoadIntoMemory();
+
+				delete F;
+
+				DDF_Parse(data, length, df->file_name);
 				delete[] data;
 
 				continue;
