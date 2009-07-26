@@ -162,7 +162,7 @@ cvar_link_t  all_cvars[] =
 	{ "r_mipmapping",   &r_mipmapping,   "c",   "0"  },
 	{ "r_smoothing",    &r_smoothing,    "c",   "0"  },
 	{ "r_dithering",    &r_dithering,    "c",   "0"  },
-	{ "r_hq2x",         &r_hq2x,         "c",   "1"  },
+	{ "r_hq2x",         &r_hq2x,         "c",   "0"  },
 
 	{ "r_dynlight",     &r_dynlight,     "c",   "1"  },
 	{ "r_detaillevel",  &r_detaillevel,  "c",   "1"  },
