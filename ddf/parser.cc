@@ -351,6 +351,64 @@ static void DDF_ParseVersion(const char *str, int len)
 
 #define SPRITE_CHARS  "_-:.[]\\!#%+@?"
 
+static readchar_t DDF_MainProcessString(char ch, std::string& token)
+{
+	// -ACB- 1998/08/11 Used for detecting formatting in a string
+	static bool formatchar = false;
+
+	if (!formatchar && ch == '\\')
+	{
+		formatchar = true;
+		return nothing;
+	}
+
+	// -ACB- 1998/08/10 New string handling
+	// -KM- 1999/01/29 Fixed nasty bug where \" would be recognised as
+	//  string end quote mark.  One of the level text used this.
+	if (formatchar)
+	{
+		formatchar = false;
+
+		// -ACB- 1998/08/11 Formatting check: Carriage-return.
+		if (ch == 'n')
+		{
+			token += '\n';
+			return ok_char;
+		}
+		else if (ch == '\"')    // -KM- 1998/10/29 Also recognise quote
+		{
+			token += '\"';
+			return ok_char;
+		}
+		else if (ch == '\\') // -ACB- 1999/11/24 Double backslash means directory
+		{
+			token += '\\';
+			return ok_char;
+		}
+
+		// -ACB- 1999/11/24 Any other characters are treated in the norm
+		token += ch;
+		return ok_char;
+	}
+	else if (ch == '\"')
+	{
+		return string_stop;
+	}
+	else if (ch == '\n')
+	{
+		cur_ddf_line_num--;
+		DDF_WarnError("Unclosed string detected.\n");
+
+		cur_ddf_line_num++;
+		return nothing;
+	}
+	// -KM- 1998/10/29 Removed ascii check, allow foreign characters (?)
+	// -ES- HEY! Swedish is not foreign!
+
+	token += ch;
+	return ok_char;
+}
+
 //
 // DDF_MainProcessChar
 //
@@ -359,63 +417,7 @@ static void DDF_ParseVersion(const char *str, int len)
 static readchar_t DDF_MainProcessChar(char ch, std::string& token, int status)
 {
 	if (status == reading_string)
-	{
-		// -ACB- 1998/08/11 Used for detecting formatting in a string
-		static bool formatchar = false;
-
-		if (!formatchar && ch == '\\')
-		{
-			formatchar = true;
-			return nothing;
-		}
-
-		// -ACB- 1998/08/10 New string handling
-		// -KM- 1999/01/29 Fixed nasty bug where \" would be recognised as
-		//  string end quote mark.  One of the level text used this.
-		if (formatchar)
-		{
-			formatchar = false;
-
-			// -ACB- 1998/08/11 Formatting check: Carriage-return.
-			if (ch == 'n')
-			{
-				token += '\n';
-				return ok_char;
-			}
-			else if (ch == '\"')    // -KM- 1998/10/29 Also recognise quote
-			{
-				token += '\"';
-				return ok_char;
-			}
-			else if (ch == '\\') // -ACB- 1999/11/24 Double backslash means directory
-			{
-				token += '\\';
-				return ok_char;
-			}
-
-			// -ACB- 1999/11/24 Any other characters are treated in the norm
-			token += ch;
-			return ok_char;
-		}
-		else if (ch == '\"')
-		{
-			return string_stop;
-		}
-		else if (ch == '\n')
-		{
-			cur_ddf_line_num--;
-			DDF_WarnError("Unclosed string detected.\n");
-
-			cur_ddf_line_num++;
-			return nothing;
-		}
-		// -KM- 1998/10/29 Removed ascii check, allow foreign characters (?)
-		// -ES- HEY! Swedish is not foreign!
-
-		token += ch;
-		return ok_char;
-	}
-
+		return DDF_MainProcessString(ch, token);
 
 	// With the exception of reading_string, whitespace is ignored.
 	if (isspace(ch))
