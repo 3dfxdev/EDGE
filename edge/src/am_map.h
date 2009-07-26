@@ -36,20 +36,6 @@ extern bool automapactive;
 extern cvar_c am_rotate;
 extern cvar_c am_smoothing;
 
-//
-// Automap drawing structs
-//
-typedef struct
-{
-	float x, y;
-}
-mpoint_t;
-
-typedef struct
-{
-	mpoint_t a, b;
-}
-mline_t;
 
 void AM_InitLevel(void);
 
