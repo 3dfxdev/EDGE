@@ -95,7 +95,6 @@ void HU_Stop(void)
 // -ACB- 1998/08/09 Used currmap to set the map name in string
 void HU_Start(void)
 {
-	int i;
 	const char *string;
 
 	message_on = false;

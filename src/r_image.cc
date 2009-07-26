@@ -75,8 +75,6 @@ cvar_c r_hq2x;
 // LIGHTING DEBUGGING
 // #define MAKE_TEXTURES_WHITE  1
 
-extern epi::image_data_c *ReadAsEpiBlock(image_c *rim);
-
 extern epi::file_c *OpenUserFileOrLump(imagedef_c *def);
 
 extern void CloseUserFileOrLump(imagedef_c *def, epi::file_c *f);
@@ -102,9 +100,6 @@ typedef struct cached_image_s
 	// colormap used for translated image, normally NULL
 	const colourmap_c *trans_map;
 
-	// general hue of image (skewed towards pure colors)
-	rgbcol_t hue;
-
 	// texture identifier within GL
 	GLuint tex_id;
 }
@@ -120,7 +115,7 @@ static image_c *do_Lookup(real_image_container_c& bucket, const char *name,
 	// for a normal lookup, we want USER images to override
 	if (source_type == -1)
 	{
-		image_c *rim = do_Lookup(bucket, name, IMSRC_User);  // recursion
+		image_c *rim = do_Lookup(bucket, name, image_c::User);  // recursion
 		if (rim)
 			return rim;
 	}
@@ -214,7 +209,7 @@ int image_reset_counter = 0;
 //
 
 image_c::image_c() : actual_w(0), actual_h(0), total_w(0), total_h(0),
-					 source_type(IMSRC_Dummy),
+					 source_type(Dummy),
 					 source_palette(-1),
 					 cache()
 {
@@ -257,7 +252,7 @@ static image_c *R_ImageCreateDummy(const char *name, rgbcol_t fg, rgbcol_t bg)
  
  	strcpy(rim->name, name);
 
-	rim->source_type = IMSRC_Dummy;
+	rim->source_type = image_c::Dummy;
 	rim->source_palette = -1;
 
 	rim->source.dummy.fg = fg;
@@ -268,7 +263,7 @@ static image_c *R_ImageCreateDummy(const char *name, rgbcol_t fg, rgbcol_t bg)
 	return rim;
 }
 
-static image_c *AddImageGraphic(const char *name, image_source_e type, int lump)
+static image_c *AddImageGraphic(const char *name, int type, int lump)
 {
 	/* used for Sprites too */
 
@@ -293,12 +288,12 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump)
 		// check for Heretic/Hexen images, which are raw 320x200 
 		int length = W_LumpLength(lump);
 
-		if (length == 320*200 && type == IMSRC_Graphic)
+		if (length == 320*200 && type == image_c::Graphic)
 		{
 			im = NewImage(320, 200, OPAC_Solid);
 			strcpy(im->name, name);
 
-			im->source_type = IMSRC_Raw320x200;
+			im->source_type = image_c::Raw320x200;
 			im->source.flat.lump = lump;
 			im->source_palette = W_GetFileForLump(lump);
 			return im;
@@ -324,7 +319,7 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump)
 	im->source.graphic.lump = lump;
 	im->source_palette = W_GetFileForLump(lump);
 
-	if (type == IMSRC_Sprite)
+	if (type == image_c::Sprite)
 		real_sprites.push_back(im);
 	else
 		real_graphics.push_back(im);
@@ -339,7 +334,7 @@ const image_c * R_ImageCreateTexture(texturedef_t *tdef)
  
 	strcpy(im->name, tdef->name);
 
-	im->source_type = IMSRC_Texture;
+	im->source_type = image_c::Texture;
 	im->source.texture.tdef = tdef;
 	im->source_palette = tdef->file;
 
@@ -380,7 +375,7 @@ const image_c * R_ImageCreateFlat(const char *name, int lump)
  
 	strcpy(im->name, name);
 
-	im->source_type = IMSRC_Flat;
+	im->source_type = image_c::Flat;
 	im->source.flat.lump = lump;
 	im->source_palette = W_GetFileForLump(lump);
 
@@ -398,7 +393,7 @@ const image_c *R_ImageCreateSprite(const char *name, int lump, bool is_weapon)
 
 	// NOTE: assumes new flat will be unique!
 
-	image_c *im = AddImageGraphic(name, IMSRC_Sprite, lump);
+	image_c *im = AddImageGraphic(name, image_c::Sprite, lump);
 	if (! im)
 		return NULL;
 
@@ -490,7 +485,7 @@ static image_c *AddImageUser(imagedef_c *def)
 		if (rim->name[i] == ' ')
 			rim->name[i] = '_';
 
-	rim->source_type = IMSRC_User;
+	rim->source_type = image_c::User;
 	rim->source.user.def = def;
 
 	if (def->special & IMGSP_Crosshair)
@@ -519,7 +514,7 @@ static image_c *AddImageUser(imagedef_c *def)
 // 
 // Add the images defined in IMAGES.DDF.
 //
-void W_ImageCreateUser(void)
+void R_ImageCreateUser(void)
 {
 	for (int i = 0; i < imagedefs.GetSize(); i++)
 	{
@@ -564,7 +559,7 @@ const image_c ** W_ImageGetUserSprites(int *count)
 	{
 		image_c *rim = *it;
 
-		if (rim->source_type == IMSRC_User)
+		if (rim->source_type == image_c::User)
 			(*count) += 1;
 	}
 
@@ -581,7 +576,7 @@ const image_c ** W_ImageGetUserSprites(int *count)
 	{
 		image_c *rim = *it;
     
-		if (rim->source_type == IMSRC_User)
+		if (rim->source_type == image_c::User)
 			array[pos++] = rim;
 	}
 
@@ -613,12 +608,12 @@ bool image_c::ShouldClamp() const
 {
 	switch (source_type)
 	{
-		case IMSRC_Graphic:
-		case IMSRC_Raw320x200:
-		case IMSRC_Sprite:
+		case Graphic:
+		case Raw320x200:
+		case Sprite:
 			return true;
 
-		case IMSRC_User:
+		case User:
 			switch (source.user.def->belong)
 			{
 				case INS_Graphic:
@@ -642,11 +637,11 @@ bool image_c::ShouldMipmap() const
 
 	switch (source_type)
 	{
-		case IMSRC_Texture:
-		case IMSRC_Flat:
+		case Texture:
+		case Flat:
 			return true;
 		
-		case IMSRC_User:
+		case User:
 			switch (source.user.def->belong)
 			{
 				case INS_Texture:
@@ -687,8 +682,8 @@ bool image_c::ShouldHQ2X() const
 
 	switch (source_type)
 	{
-		case IMSRC_Graphic:
-		case IMSRC_Raw320x200:
+		case Graphic:
+		case Raw320x200:
 			// UI elements
 			return true;
 #if 0
@@ -698,7 +693,7 @@ bool image_c::ShouldHQ2X() const
 				return true;
 			break;
 #endif
-		case IMSRC_Sprite:
+		case Sprite:
 			if (r_hq2x.d >= 2)
 				return true;
 			break;
@@ -727,7 +722,7 @@ static GLuint LoadImageOGL(image_c *rim, const colourmap_c *trans)
  
  	int max_pix = rim->PixelLimit();
 
-	if (rim->source_type == IMSRC_User)
+	if (rim->source_type == image_c::User)
 	{
 		if (rim->source.user.def->special & IMGSP_Clamp)
 			clamp = true;
@@ -763,7 +758,8 @@ static GLuint LoadImageOGL(image_c *rim, const colourmap_c *trans)
 	}
 
 
-	epi::image_data_c *tmp_img = ReadAsEpiBlock(rim);
+	epi::image_data_c *tmp_img = rim->ReadBlock();
+
 
 	if (rim->opacity == OPAC_Unknown)
 		rim->opacity = R_DetermineOpacity(tmp_img);
@@ -883,9 +879,16 @@ static const image_c *BackupFlat(const char *flat_name, int flags)
 	return rim;
 }
 
-//
-// BackupGraphic
-//
+
+static const image_c *BackupSprite(const char *spr_name, int flags)
+{
+		if (flags & ILF_Null)
+			return NULL;
+		else
+			return W_ImageForDummySprite();
+}
+
+
 static const image_c *BackupGraphic(const char *gfx_name, int flags)
 {
 	const image_c *rim;
@@ -893,7 +896,7 @@ static const image_c *BackupGraphic(const char *gfx_name, int flags)
 	// backup plan 1: look for sprites and heretic-background
 	if (! (flags & (ILF_Exact | ILF_Font)))
 	{
-		rim = do_Lookup(real_graphics, gfx_name, IMSRC_Raw320x200);
+		rim = do_Lookup(real_graphics, gfx_name, image_c::Raw320x200);
 		if (rim)
 			return rim;
   
@@ -909,7 +912,7 @@ static const image_c *BackupGraphic(const char *gfx_name, int flags)
 
 		if (i >= 0)
 		{
-			rim = AddImageGraphic(gfx_name, IMSRC_Graphic, i);
+			rim = AddImageGraphic(gfx_name, image_c::Graphic, i);
 			if (rim)
 				return rim;
 		}
@@ -939,13 +942,14 @@ const image_c *W_ImageLookup(const char *name, image_namespace_e type, int flags
 		return NULL;
 
 	// "Sky" marker.
-	if (type == INS_Flat && (stricmp(name, "F_SKY1") == 0) ||
-		(stricmp(name, "F_SKY") == 0))
+	if (type == INS_Flat && 
+		( (stricmp(name, "F_SKY1") == 0) ||
+		  (stricmp(name, "F_SKY")  == 0)))
 	{
 		return skyflatimage;
 	}
 
-	// compatibility hack (first texture in IWAD is a dummy)
+	// compatibility hack (first texture in TEXTURE1 lump is only a placeholder)
 	if (type == INS_Texture &&
 		( (stricmp(name, "AASTINKY") == 0) ||
 		  (stricmp(name, "AASHITTY") == 0) ||
@@ -955,63 +959,40 @@ const image_c *W_ImageLookup(const char *name, image_namespace_e type, int flags
 	    return NULL;
 	}
   
-	const image_c *rim = NULL;
+	const image_c *rim;
 
-	switch (type)
+	if (type == INS_Texture)
 	{
-		case INS_Texture:
-			rim = do_Lookup(real_textures, name);
-			if (! rim)
-				return BackupTexture(name, flags);
-			break;
-
-		case INS_Flat:
-			rim = do_Lookup(real_flats, name);
-			if (! rim)
-				return BackupFlat(name, flags);
-			break;
-
-		case INS_Sprite:
-			rim = do_Lookup(real_sprites, name);
-			if (! rim)
-			{
-				if (flags & ILF_Null)
-					return NULL;
-				
-				return W_ImageForDummySprite();
-			}
-			break;
-
-		default: /* INS_Graphic */
-			rim = do_Lookup(real_graphics, name);
-			if (! rim)
-				return BackupGraphic(name, flags);
-			break;
+		rim = do_Lookup(real_textures, name);
+		return rim ? rim : BackupTexture(name, flags);
+	}
+	if (type == INS_Flat)
+	{
+		rim = do_Lookup(real_flats, name);
+		return rim ? rim : BackupFlat(name, flags);
+	}
+	if (type == INS_Sprite)
+	{
+		rim = do_Lookup(real_sprites, name);
+		return rim ? rim : BackupSprite(name, flags);
 	}
 
-	SYS_ASSERT(rim);
+	/* INS_Graphic */
 
-	return rim;
+	rim = do_Lookup(real_graphics, name);
+	return rim ? rim : BackupGraphic(name, flags);
 }
 
 
 const image_c *W_ImageForDummySprite(void)
 {
 	return dummy_sprite;
-#if 0
-	const image_c *rim = do_Lookup(dummies, "DUMMY_SPRITE");
-	SYS_ASSERT(rim);
-
-	return rim;
-#endif
 }
-
 
 const image_c *W_ImageForDummySkin(void)
 {
 	return dummy_skin;
 }
-
 
 const image_c *W_ImageForHOMDetect(void)
 {
@@ -1086,7 +1067,7 @@ void W_ImageMakeSaveString(const image_c *image, char *type, char *namebuf)
 	strcpy(namebuf, rim->name);
 
 	/* handle User images (convert to a more general type) */
-	if (rim->source_type == IMSRC_User)
+	if (rim->source_type == image_c::User)
 	{
 		switch (rim->source.user.def->belong)
 		{
@@ -1102,14 +1083,14 @@ void W_ImageMakeSaveString(const image_c *image, char *type, char *namebuf)
 
 	switch (rim->source_type)
 	{
-		case IMSRC_Raw320x200:
-		case IMSRC_Graphic: (*type) = 'P'; return;
+		case image_c::Raw320x200:
+		case image_c::Graphic: (*type) = 'P'; return;
 
-		case IMSRC_Texture: (*type) = 'T'; return;
-		case IMSRC_Flat:    (*type) = 'F'; return;
-		case IMSRC_Sprite:  (*type) = 'S'; return;
+		case image_c::Texture: (*type) = 'T'; return;
+		case image_c::Flat:    (*type) = 'F'; return;
+		case image_c::Sprite:  (*type) = 'S'; return;
 
-		case IMSRC_Dummy:   (*type) = 'd'; return;
+		case image_c::Dummy:   (*type) = 'd'; return;
 
 		default:
 			I_Error("W_ImageMakeSaveString: bad type %d\n", rim->source_type);
@@ -1155,7 +1136,6 @@ static cached_image_t *ImageCacheOGL(image_c *rim,
 
 		rc->parent = rim;
 		rc->trans_map = trans;
-		rc->hue = RGB_NO_VALUE;
 		rc->tex_id = 0;
 
 		if (free_slot >= 0)
@@ -1200,21 +1180,6 @@ GLuint W_ImageCache(const image_c *image, bool anim,
 }
 
 
-#if 0
-rgbcol_t W_ImageGetHue(const image_c *img)
-{
-	SYS_ASSERT(c);
-
-	// Intentional Const Override
-	cached_image_t *rc = ((cached_image_t *) c) - 1;
-
-	SYS_ASSERT(rc->parent);
-
-	return rc->hue;
-}
-#endif
-
-
 void W_ImagePreCache(const image_c *image)
 {
 	W_ImageCache(image, false);
@@ -1241,7 +1206,7 @@ void W_ImagePreCache(const image_c *image)
 
 //----------------------------------------------------------------------------
 
-static void W_CreateDummyImages(void)
+static void CreateDummyImages(void)
 {
 	// setup dummy images
 	R_ImageCreateDummy("DUMMY_TEXTURE", 0xAA5511, 0x663300);
@@ -1272,9 +1237,9 @@ static void W_CreateDummyImages(void)
 //
 // Initialises the image system.
 //
-bool W_InitImages(void)
+bool R_InitImages(void)
 {
-	W_CreateDummyImages();
+	CreateDummyImages();
 
 	return true;
 }
@@ -1283,7 +1248,7 @@ bool W_InitImages(void)
 //
 // Animate all the images.
 //
-void W_UpdateImageAnims(void)
+void R_UpdateImageAnims(void)
 {
 	do_Animate(real_graphics);
 	do_Animate(real_textures);
@@ -1291,7 +1256,7 @@ void W_UpdateImageAnims(void)
 }
 
 
-void W_DeleteAllImages(void)
+void R_DeleteAllImages(void)
 {
 	std::list<cached_image_t *>::iterator CI;
 
@@ -1312,14 +1277,14 @@ void W_DeleteAllImages(void)
 
 
 //
-// W_AnimateImageSet
+// R_AnimateImageSet
 //
 // Sets up the images so they will animate properly.  Array is
 // allowed to contain NULL entries.
 //
 // NOTE: modifies the input array of images.
 // 
-void W_AnimateImageSet(const image_c ** images, int number, int speed)
+void R_AnimateImageSet(const image_c ** images, int number, int speed)
 {
 	int i, total;
 	image_c *rim, *other;

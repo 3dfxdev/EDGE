@@ -545,7 +545,6 @@ void CON_ShowStats(void)
 	static float fps = 0, mspf = 0;
 
 	char textbuf[100];
-	char *s;
 	int currtime, timediff;
 
 	numframes++;

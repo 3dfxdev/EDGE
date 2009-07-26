@@ -259,7 +259,7 @@ static void ShowNotice(void)
 static void DoSystemStartup(void)
 {
 	// startup the system now
-	W_InitImages();
+	R_InitImages();
 
 	I_Debugf("- System startup begun.\n");
 
@@ -292,7 +292,6 @@ static void M_DisplayPause(void)
 	// make sure image is centered horizontally
 
 	float w = IM_WIDTH(pause_image);
-	float h = IM_HEIGHT(pause_image);
 
     HUD_DrawImage(160 - w/2, 10, pause_image);
 }
@@ -1029,7 +1028,7 @@ startuporder_t startcode[] =
 	{  1, SetLanguage          },
 	{  1, ShowNotice           },
 	{  1, SV_MainInit          },
-	{ 15, W_ImageCreateUser    },
+	{ 10, R_ImageCreateUser    },
 	{ 20, W_InitSprites        },
 	{  1, W_InitModels         },
 	{  1, M_Init               },
