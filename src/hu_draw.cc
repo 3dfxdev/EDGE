@@ -342,8 +342,8 @@ void HUD_SolidLine(float x1, float y1, float x2, float y2, rgbcol_t col)
   
 	glBegin(GL_LINES);
 
-	glVertex2f(x1, y1);
-	glVertex2f(x2, y2);
+	glVertex2i((int)x1, (int)y1);
+	glVertex2i((int)x2, (int)y2);
   
 	glEnd();
 	glDisable(GL_BLEND);
