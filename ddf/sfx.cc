@@ -27,8 +27,6 @@
 #undef  DF
 #define DF  DDF_CMD
 
-static int buffer_sfx_ID;
-
 #undef  DDF_CMD_BASE
 #define DDF_CMD_BASE  dummy_sfx
 static sfxdef_c dummy_sfx;
@@ -79,8 +77,9 @@ static void SoundStartEntry(const char *name)
 
 		sfxdefs.Insert(dynamic_sfx);
 
-		// !!!!! FIXME: WHAT THE FUCK ??
-		buffer_sfx_ID = sfxdefs.GetSize()-1; // self reference
+		// Keeps the ID info intact as well.
+		dynamic_sfx->normal.num = 1;
+		dynamic_sfx->normal.sounds[0] = sfxdefs.GetSize()-1; // self reference
 	}
 }
 
@@ -101,10 +100,6 @@ static void SoundFinishEntry(void)
 {
 	if (dynamic_sfx->lump_name.empty() && dynamic_sfx->file_name.empty())
 		DDF_Error("Missing LUMP_NAME or FILE_NAME for sound.\n");
-
-	// Keeps the ID info intact as well.
-	dynamic_sfx->normal.num = 1;
-	dynamic_sfx->normal.sounds[0] = buffer_sfx_ID;
 }
 
 static void SoundClearAll(void)
