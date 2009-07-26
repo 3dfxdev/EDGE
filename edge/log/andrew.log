@@ -1,5 +1,15 @@
 Andrew Apted's Log
 
+2009/07/26:
+
+One of my plans with the recent DDF work was to make it load-
+order independent (e.g. it wouldn't matter if you loaded SFX
+first or last).  HOWEVER while the mechanism of achieving that
+is not too hard (each "reference" would need a little struct
+which keeps the name and caches previous lookups), actually
+updated all our code to use it would be huge job, and hence
+not really worth the benefit.  Hence shelving that idea.
+
 2009/07/23:
 
 DDF library: changed the way DDF_CMD() stores fields, we now store
