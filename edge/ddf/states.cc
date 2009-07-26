@@ -362,7 +362,15 @@ void DDF_StateReadState(const char *info, const char *label,
 		if (state_num)
 			*state_num = (int)group.size()-1;
     
-		// ...therefore copy the label
+		// here we "patch" an existing label to jump to its replacement
+		int old = DDF_StateFindLabel(group, label);
+		if (old != S_NULL)
+		{
+			group[old] = ddf_template_state;
+			group[old].tics = 0;
+			group[old].nextstate = (int)group.size() - 1;
+		}
+
 		cur->label = strdup(label);
 	}
 
