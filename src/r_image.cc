@@ -187,8 +187,6 @@ static real_image_container_c real_textures;
 static real_image_container_c real_flats;
 static real_image_container_c real_sprites;
 
-static real_image_container_c dummies;
-
 
 const image_c *skyflatimage;
 
@@ -244,6 +242,7 @@ static image_c *NewImage(int width, int height, int opacity = OPAC_Unknown)
 	return rim;
 }
 
+
 static image_c *R_ImageCreateDummy(const char *name, rgbcol_t fg, rgbcol_t bg)
 {
 	image_c *rim;
@@ -258,10 +257,9 @@ static image_c *R_ImageCreateDummy(const char *name, rgbcol_t fg, rgbcol_t bg)
 	rim->source.dummy.fg = fg;
 	rim->source.dummy.bg = bg;
 
-	dummies.push_back(rim);
-
 	return rim;
 }
+
 
 static image_c *AddImageGraphic(const char *name, int type, int lump)
 {
@@ -827,18 +825,16 @@ static const image_c *BackupTexture(const char *tex_name, int flags)
 
 	M_WarnError("Unknown texture found in level: '%s'\n", tex_name);
 
+	image_c *dummy;
+
    	if (strnicmp(tex_name, "SKY", 3) == 0)
-	{
-		rim = do_Lookup(dummies, "DUMMY_SKY");
-		if (rim)
-			return rim;
-	}
+		dummy = R_ImageCreateDummy(tex_name, 0x0000AA, 0x55AADD);
+	else
+		dummy = R_ImageCreateDummy(tex_name, 0xAA5511, 0x663300);
 
-	// return the texture dummy image
-	rim = do_Lookup(dummies, "DUMMY_TEXTURE");
-	SYS_ASSERT(rim);
-
-	return rim;
+	// keep dummy texture so that future looks will succeed
+	real_textures.push_back(dummy);
+	return dummy;
 }
 
 
@@ -872,20 +868,11 @@ static const image_c *BackupFlat(const char *flat_name, int flags)
 
 	M_WarnError("Unknown flat found in level: '%s'\n", flat_name);
 
-	// return the flat dummy image
-	rim = do_Lookup(dummies, "DUMMY_FLAT");
-	SYS_ASSERT(rim);
+	image_c *dummy = R_ImageCreateDummy(flat_name, 0x11AA11, 0x115511);
 
-	return rim;
-}
-
-
-static const image_c *BackupSprite(const char *spr_name, int flags)
-{
-		if (flags & ILF_Null)
-			return NULL;
-		else
-			return W_ImageForDummySprite();
+	// keep dummy flat so that future looks will succeed
+	real_flats.push_back(dummy);
+	return dummy;
 }
 
 
@@ -894,7 +881,7 @@ static const image_c *BackupGraphic(const char *gfx_name, int flags)
 	const image_c *rim;
 
 	// backup plan 1: look for sprites and heretic-background
-	if (! (flags & (ILF_Exact | ILF_Font)))
+	if ((flags & (ILF_Exact | ILF_Font)) == 0)
 	{
 		rim = do_Lookup(real_graphics, gfx_name, image_c::Raw320x200);
 		if (rim)
@@ -905,7 +892,7 @@ static const image_c *BackupGraphic(const char *gfx_name, int flags)
 			return rim;
 	}
   
-	// not already loaded ?  Check if lump exists in wad, if so add it.
+	// not already loaded ?  If lump exists in wad, create new gfx.
 	if (! (flags & ILF_NoNew))
 	{
 		int i = W_CheckNumForName(gfx_name);
@@ -923,11 +910,25 @@ static const image_c *BackupGraphic(const char *gfx_name, int flags)
 
 	M_WarnError("Unknown graphic: '%s'\n", gfx_name);
 
-	// return the graphic dummy image
-	rim = do_Lookup(dummies, (flags & ILF_Font) ? "DUMMY_FONT" : "DUMMY_GRAPHIC");
-	SYS_ASSERT(rim);
+	image_c *dummy;
 
-	return rim;
+	if (flags & ILF_Font)
+		dummy = R_ImageCreateDummy(gfx_name, 0xFFFFFF, TRANS_PIXEL);
+	else
+		dummy = R_ImageCreateDummy(gfx_name, 0xFF0000, TRANS_PIXEL);
+
+	// keep dummy graphic so that future looks will succeed
+	real_graphics.push_back(dummy);
+	return dummy;
+}
+
+
+static const image_c *BackupSprite(const char *spr_name, int flags)
+{
+	if (flags & ILF_Null)
+		return NULL;
+
+	return W_ImageForDummySprite();
 }
 
 
@@ -1004,50 +1005,30 @@ const image_c *W_ImageParseSaveString(char type, const char *name)
 {
 	// Used by the savegame code.
 
-	const image_c *rim;
-
 	switch (type)
 	{
-		case 'k':
+		case 'K':
 			return skyflatimage;
-
-		case 'o': /* font (backwards compat) */
-		case 'r': /* raw320x200 (backwards compat) */
-		case 'P':
-			return W_ImageLookup(name, INS_Graphic);
-
-		case 'T':
-			return W_ImageLookup(name, INS_Texture);
 
 		case 'F':
 			return W_ImageLookup(name, INS_Flat);
 
+		case 'G':
+			return W_ImageLookup(name, INS_Graphic);
+
 		case 'S':
 			return W_ImageLookup(name, INS_Sprite);
 
-		case 'd': /* dummy */
-			rim = do_Lookup(dummies, name);
-			if (rim)
-				return rim;
-			break;
-
 		default:
 			I_Warning("W_ImageParseSaveString: unknown type '%c'\n", type);
-			break;
+			/* FALL THROUGH */
+		
+		case 'd': /* dummy */
+		case 'T':
+			return W_ImageLookup(name, INS_Texture);
 	}
 
-	rim = do_Lookup(real_graphics, name); if (rim) return rim;
-	rim = do_Lookup(real_textures, name); if (rim) return rim;
-	rim = do_Lookup(real_flats, name);    if (rim) return rim;
-	rim = do_Lookup(real_sprites, name);  if (rim) return rim;
-
-	I_Warning("W_ImageParseSaveString: image [%c:%s] not found.\n", type, name);
-
-	// return the texture dummy image
-	rim = do_Lookup(dummies, "DUMMY_TEXTURE");
-	SYS_ASSERT(rim);
-
-	return rim;
+	return NULL; /* NOT REACHED */
 }
 
 
@@ -1057,34 +1038,32 @@ void W_ImageMakeSaveString(const image_c *image, char *type, char *namebuf)
 
     if (image == skyflatimage)
 	{
-		*type = 'k';
+		*type = 'K';
 		strcpy(namebuf, "F_SKY1");
 		return;
 	}
 
-	const image_c *rim = (const image_c *) image;
-
-	strcpy(namebuf, rim->name);
+	strcpy(namebuf, image->name);
 
 	/* handle User images (convert to a more general type) */
-	if (rim->source_type == image_c::User)
+	if (image->source_type == image_c::User)
 	{
-		switch (rim->source.user.def->belong)
+		switch (image->source.user.def->belong)
 		{
 			case INS_Texture: (*type) = 'T'; return;
 			case INS_Flat:    (*type) = 'F'; return;
 			case INS_Sprite:  (*type) = 'S'; return;
 
 			default:  /* INS_Graphic */
-				(*type) = 'P';
+				(*type) = 'G';
 				return;
 		}
 	}
 
-	switch (rim->source_type)
+	switch (image->source_type)
 	{
 		case image_c::Raw320x200:
-		case image_c::Graphic: (*type) = 'P'; return;
+		case image_c::Graphic: (*type) = 'G'; return;
 
 		case image_c::Texture: (*type) = 'T'; return;
 		case image_c::Flat:    (*type) = 'F'; return;
@@ -1093,7 +1072,7 @@ void W_ImageMakeSaveString(const image_c *image, char *type, char *namebuf)
 		case image_c::Dummy:   (*type) = 'd'; return;
 
 		default:
-			I_Error("W_ImageMakeSaveString: bad type %d\n", rim->source_type);
+			I_Error("W_ImageMakeSaveString: bad type %d\n", image->source_type);
 			break;
 	}
 }
@@ -1209,19 +1188,14 @@ void W_ImagePreCache(const image_c *image)
 static void CreateDummyImages(void)
 {
 	// setup dummy images
-	R_ImageCreateDummy("DUMMY_TEXTURE", 0xAA5511, 0x663300);
-	R_ImageCreateDummy("DUMMY_FLAT",    0x11AA11, 0x115511);
-
-	R_ImageCreateDummy("DUMMY_GRAPHIC", 0xFF0000, TRANS_PIXEL);
-	R_ImageCreateDummy("DUMMY_FONT",    0xFFFFFF, TRANS_PIXEL);
 
 	dummy_sprite = R_ImageCreateDummy("DUMMY_SPRITE", 0xFFFF00, TRANS_PIXEL);
 	dummy_skin   = R_ImageCreateDummy("DUMMY_SKIN",   0xFF77FF, 0x993399);
 
 	skyflatimage = R_ImageCreateDummy("DUMMY_SKY",    0x0000AA, 0x55AADD);
 
-	dummy_hom[0] = R_ImageCreateDummy("DUMMY_HOM1", 0xFF3333, 0x000000);
-	dummy_hom[1] = R_ImageCreateDummy("DUMMY_HOM2", 0x000000, 0xFF3333);
+	dummy_hom[0] = R_ImageCreateDummy("DUMMY_HOM1",   0xFF3333, 0x000000);
+	dummy_hom[1] = R_ImageCreateDummy("DUMMY_HOM2",   0x000000, 0xFF3333);
 
 	// make the dummy sprite easier to see
 	{
