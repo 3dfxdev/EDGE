@@ -1376,9 +1376,6 @@ static void RAD_ParseTipPos(int pnum, const char ** pars)
 	RAD_CheckForPercentAny(pars[1], &tp->x_pos);
 	RAD_CheckForPercentAny(pars[2], &tp->y_pos);
 
-	tp->x_pos *= 320.0f;
-	tp->y_pos *= 200.0f;
-
 	if (pnum >= 4)
 		RAD_CheckForTime(pars[3], &tp->time);
 

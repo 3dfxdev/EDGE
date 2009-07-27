@@ -210,13 +210,16 @@ void RAD_DisplayTips(void)
 		else
 			HUD_SetAlignment(0, 0);
 
+		float x = current->p.x_pos * 320.0f;
+		float y = current->p.y_pos * 200.0f;
+
 		if (current->tip_graphic)
 		{
-			HUD_DrawImage(current->p.x_pos, current->p.y_pos, current->tip_graphic);
+			HUD_DrawImage(x, y, current->tip_graphic);
 		}
 		else
 		{
-			HUD_DrawText(current->p.x_pos, current->p.y_pos, current->tip_text);
+			HUD_DrawText(x, y, current->tip_text);
 		}
 
 		HUD_SetAlignment();
