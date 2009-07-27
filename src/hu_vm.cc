@@ -36,24 +36,16 @@
 #include "hu_font.h"
 #include "hu_draw.h"
 #include "r_modes.h"
-#include "r_misc.h"     //  R_Render
 #include "am_map.h"     // AM_Drawer
 #include "r_colormap.h"
 #include "s_sound.h"
 
-
-static float cur_coord_W;
-static float cur_coord_H;
 
 static player_t *render_player = NULL;
 
 static int hud_last_time = -1;
 
 extern std::string w_map_title;
-
-
-#define COORD_X(x)  ((x) * SCREENWIDTH  / cur_coord_W)
-#define COORD_Y(y)  ((y) * SCREENHEIGHT / cur_coord_H)
 
 
 //------------------------------------------------------------------------
@@ -63,9 +55,6 @@ static void FrameSetup(void)
 	fontdef_c *DEF = DDF_LookupFont("DOOM");  // FIXME allow other default
 	SYS_ASSERT(DEF);
 
-
-	cur_coord_W = 320;
-	cur_coord_H = 200;
 
 	render_player = players[displayplayer];
 
@@ -167,9 +156,7 @@ static int HD_coord_sys(lua_State *L)
 	if (w < 64 || h < 64)
 		I_Error("Bad hud.coord_sys size: %dx%d\n", w, h);
 
-	cur_coord_W = w;
-	cur_coord_H = h;
-
+	HUD_SetCoordSys(w, h);
 	return 0;
 }
 
@@ -489,13 +476,7 @@ static int HD_render_world(lua_State *L)
 	float w = luaL_checknumber(L, 3);
 	float h = luaL_checknumber(L, 4);
 
-	// FIXME !!!!!!
-	x = COORD_X(x); y = COORD_Y(y);
-	w = COORD_X(w); h = COORD_Y(h);
-
- 	R_Render((int)x, SCREENHEIGHT-(int)(y+h), I_ROUND(w), I_ROUND(h),
-			 render_player->mo);
-
+ 	HUD_RenderWorld(x, y, x+w, y+h, render_player->mo);
 	return 0;
 }
 

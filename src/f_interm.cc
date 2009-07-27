@@ -40,8 +40,6 @@
 #include "p_local.h"
 #include "s_sound.h"
 #include "s_music.h"
-#include "r_misc.h"
-#include "hu_draw.h"
 #include "r_modes.h"
 
 
@@ -1395,7 +1393,7 @@ void WI_Drawer(void)
 
 	if (background_camera_mo)
 	{
-		R_Render(0, 0, SCREENWIDTH, SCREENHEIGHT, background_camera_mo);
+		HUD_RenderWorld(0, 0, 320, 200, background_camera_mo);
 	} 
 	else
 	{
