@@ -25,6 +25,8 @@
 
 extern cvar_c edge_compat;
 
+extern cvar_c ddf_strict, ddf_lax, ddf_quiet;
+
 extern cvar_c g_skill, g_gametype;
 extern cvar_c g_mlook, g_autoaim;
 extern cvar_c g_jumping, g_crouching;
@@ -112,6 +114,10 @@ cvar_link_t  all_cvars[] =
     { "sys_directx",    &sys_directx,    "c",   "0"  },
     { "sys_waveout",    &sys_waveout,    "c",   "0"  },
     { "sys_grabfocus",  &sys_grabfocus,  "c",   "1"  },
+
+    { "ddf_strict",     &ddf_strict,     "c",   "0"  },
+    { "ddf_lax",        &ddf_lax,        "c",   "0"  },
+    { "ddf_quiet",      &ddf_quiet,      "c",   "0"  },
 
     { "g_skill",        &g_skill,        "c",   "3"  },
     { "g_gametype",     &g_gametype,     "",    "0"  },
