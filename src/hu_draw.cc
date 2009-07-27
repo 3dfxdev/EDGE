@@ -32,6 +32,9 @@
 #include "r_misc.h"     //  R_Render
 
 
+cvar_c am_smoothing;
+
+
 #define DUMMY_WIDTH(font)  (4)
 
 #define HU_CHAR(ch)  (islower(ch) ? toupper(ch) : (ch))
@@ -54,8 +57,6 @@ static int cur_x_align, cur_y_align;
 #define COORD_Y(y)  ((y) * SCREENHEIGHT / cur_coord_H)
 
 #define VERT_SPACING  2.0f
-
-extern cvar_c am_smoothing; //!!!
 
 
 void HUD_SetCoordSys(int width, int height)
