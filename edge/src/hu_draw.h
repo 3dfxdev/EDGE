@@ -71,8 +71,12 @@ void HUD_SolidBox(float x1, float y1, float x2, float y2, rgbcol_t col);
 
 void HUD_SolidLine(float x1, float y1, float x2, float y2, rgbcol_t col);
 // Draw a solid colour line (possibly translucent) between the two
-// end points.  Coordinates are inclusive.  Used for the automap.
-// Drawing will be clipped to the current clipping rectangle.
+// end points.  Coordinates are inclusive.  Drawing will be clipped
+// to the current scissor rectangle.
+
+void HUD_AutomapLine(float x1, float y1, float x2, float y2,
+					 float dx, float dy, rgbcol_t col);
+// like HUD_SolidLine() but with special logic to reduce the wobblies.
 
 void HUD_ThinBox(float x1, float y1, float x2, float y2, rgbcol_t col);
 // Draw a thin outline of a box.
