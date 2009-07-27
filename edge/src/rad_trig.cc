@@ -81,113 +81,50 @@ private:
 
 	rad_trigger_t *trigger;
 
-	int title_num;
-	char title_lines[MAX_TITLE][TIP_CHAR_MAX];
+	std::string title;
 
-	int choice_num;
-	char choice_lines[MAX_CHOICE][TIP_CHAR_MAX];
+	std::vector< std::string > choices;
 
 public:
 	rts_menu_c(s_show_menu_t *menu, rad_trigger_t *_trigger) :
-		trigger(_trigger), title_num(0), choice_num(0)
+		trigger(_trigger), title(), choices(0)
 	{
-		int y = 0;
+		const char * text = menu->title;
+		if (menu->use_ldf)
+			text = language[text];
 
-		memset(title_lines, 0, sizeof(title_lines));
-		memset(choice_lines, 0, sizeof(choice_lines));
-
-		AddTitle(&y, menu->title, menu->use_ldf);
+		title = text;
 
 		bool no_choices = (! menu->options[0] || ! menu->options[1]);
 
 		for (int idx = 0; (idx < 9) && menu->options[idx]; idx++)
-			AddChoice(&y, no_choices ? 0 : ('1' + idx), menu->options[idx], menu->use_ldf);
+		{
+			char key = no_choices ? 0 : ('1' + idx);
 
-///!!!		// center the menu vertically
-///!!!		int adjust_y = (200 - y) / 2;
-///!!!
-///!!!		for (int t = 0; t < title_num; t++)
-///!!!			title_lines[t].y += adjust_y;
-///!!!
-///!!!		for (int c = 0; c < choice_num; c++)
-///!!!			choice_lines[c].y += adjust_y;
+			text = menu->options[idx];
+
+			if (menu->use_ldf)
+				text = language[text];
+
+			if (key)
+			{
+				char buffer[8];
+				sprintf(buffer, "%c. ", key);
+
+				choices[idx] = buffer;
+			}
+
+			choices[idx] += std::string(text);
+		}
 	}
 
 	~rts_menu_c() { /* nothing to do */ }
 
-private:
-	void AddTitle(int *y, const char *text, bool use_ldf)
-	{
-		if (use_ldf)
-			text = language[text];
-
-		title_num = 0;
-
-		int font_h = 10; /// FIXME remove
-
-		for (int t = 0; t < MAX_TITLE; t++)
-		{
-			if (! *text)
-				break;
-
-			title_num = t + 1;
-
-///			HL_InitTextLine(title_lines + t, 160, *y, style, t_type);
-///			title_lines[t].centre = true;
-
-			int pos = 0;
-
-			for (; *text && *text != '\n'; text++)
-			{
-				title_lines[t][pos++] = *text;
-				title_lines[t][pos] = 0;
-			}
-
-			if (*text == '\n')
-				*text++;
-
-			(*y) += font_h;
-		}
-
-		// spacing between two halves (make it changeable ???)
-		(*y) += font_h;
-	}
-
-	void AddChoice(int *y, char key, const char *text, bool use_ldf)
-	{
-		if (use_ldf)
-			text = language[text];
-
-		int c = choice_num;
-		choice_num++;
-
-		int font_h = 10; /// FIXME remove
-
-///		HL_InitTextLine(choice_lines + c, 160, *y, style, t_type);
-///		choice_lines[c].centre = true;
-
-		int pos = 0;
-
-		if (key)
-		{
-			choice_lines[c][pos++] = key;
-			choice_lines[c][pos++] = '.';
-			choice_lines[c][pos++] = ' ';
-
-			choice_lines[c][pos] = 0;
-		}
-
-		for (; *text && *text != '\n'; text++)
-		{
-			choice_lines[c][pos++] = *text;
-			choice_lines[c][pos] = 0;
-		}
-
-		(*y) += font_h;
-	}
-
 public:
-	int NumChoices() const { return choice_num; }
+	int NumChoices() const
+	{
+		return (int)choices.size();
+	}
 
 	void NotifyResult(int result)
 	{
@@ -199,22 +136,31 @@ public:
 		HUD_Reset();
 
 		HUD_SetAlpha(0.64f);
-		HUD_SolidBox(0, 0, 320, 200, T_BLACK);
+		HUD_SolidBox(0, 0, 320, 200, T_BLACK);  // TODO changeable
 		HUD_SetAlpha();
 
-		HUD_SetTextColor(T_WHITE);  // FIXME
+		HUD_SetAlignment(0, -1);
+		HUD_SetTextColor(T_WHITE);  // TODO changeable
 
-		float font_h = HUD_FontHeight();
+		float total_h = HUD_StringHeight(title.c_str());
+		total_h += HUD_FontHeight() * (NumChoices() + 1);
 
-		// FIXME: !!!!!! POSITION
-		for (int t = 0; t < title_num; t++)
-			HUD_DrawText(0, t*font_h, title_lines[t]);
+		float y = 100 - total_h / 2.0f;
 
-		HUD_SetTextColor(T_LTBLUE);  // FIXME
+		HUD_DrawText(160, y, title.c_str());
 
-		for (int c = 0; c < choice_num; c++)
-			HUD_DrawText(0, (title_num+1+c)*font_h, choice_lines[c]);
+		y += HUD_StringHeight(title.c_str());
+		y += HUD_FontHeight();
 
+		HUD_SetAlignment(-1, -1);
+		HUD_SetTextColor(T_LTBLUE);  // TODO changeable
+
+		for (int c = 0; c < NumChoices(); c++, y += HUD_FontHeight())
+		{
+			HUD_DrawText(50, y, choices[c].c_str());
+		}
+
+		HUD_SetAlignment();
 		HUD_SetTextColor();
 	}
 
@@ -226,10 +172,10 @@ public:
 		if (key == 'Q' || key == 'X')  // cancel
 			return 0;
 
-		if ('1' <= key && key <= ('0' + choice_num))
+		if ('1' <= key && key <= ('0' + NumChoices()))
 			return key - '0';
 
-		if (choice_num < 2 &&
+		if (NumChoices() < 2 &&
 			(key == KEYD_SPACE || key == KEYD_ENTER || key == 'Y'))
 			return 1;
 
