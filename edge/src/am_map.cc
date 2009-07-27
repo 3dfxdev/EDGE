@@ -127,7 +127,6 @@ mline_t;
 #define WHEEL_ZOOMIN  1.32f
 
 
-cvar_c am_smoothing;
 cvar_c am_rotate;
 
 cvar_c debug_subsector;
@@ -347,8 +346,8 @@ bool AM_Responder(event_t * ev)
 		    k_right.HasKey(ev) || k_turnright.HasKey(ev))
 			panning_x = 0;
 
-		if (k_up.HasKey(ev)   || k_lookup.HasKey(ev) ||
-		    k_down.HasKey(ev) || k_lookdown.HasKey(ev))
+		if (k_forward.HasKey(ev) || k_lookup.HasKey(ev) ||
+		    k_back.HasKey(ev)    || k_lookdown.HasKey(ev))
 			panning_y = 0;
 
 		if (k_am_zoomin.HasKey(ev) || k_am_zoomout.HasKey(ev))
@@ -419,7 +418,7 @@ bool AM_Responder(event_t * ev)
 		return true;
 	}
 
-	if (k_up.HasKey(ev) || k_lookup.HasKey(ev))
+	if (k_forward.HasKey(ev) || k_lookup.HasKey(ev))
 	{
 		if (followplayer)
 			return false;
@@ -428,7 +427,7 @@ bool AM_Responder(event_t * ev)
 		return true;
 	}
 
-	if (k_down.HasKey(ev) || k_lookdown.HasKey(ev))
+	if (k_back.HasKey(ev) || k_lookdown.HasKey(ev))
 	{
 		if (followplayer)
 			return false;
@@ -569,21 +568,12 @@ static void DrawMline(mline_t * ml, rgbcol_t rgb)
 	float x2 = CXMTOF(ml->b.x);
 	float y2 = CYMTOF(ml->b.y);
 
-	// trivial rejects
+	// trivial rejects  -- FIXME: do the checks in map space
 	if ((x1 < f_x && x2 < f_x) || (x1 > f_x2 && x2 > f_x2) ||
 		(y1 < f_y && y2 < f_y) || (y1 > f_y2 && y2 > f_y2))
 	{
 		return;
 	}
-
-//FIXME	if (! am_smoothing.d)
-//FIXME	{
-//FIXME		if (x1 == x2 or y1 == y2)
-//FIXME		{
-//FIXME			RGL_SolidBox(x1, y1, x2-x1+1, y2-y1+1, rgb);
-//FIXME			return;
-//FIXME		}
-//FIXME	}
 
 	x1 = f_x + f_w/2.0 + MTOF(ml->a.x);
 	y1 = f_y + f_h/2.0 - MTOF(ml->a.y);
@@ -759,40 +749,36 @@ static void AM_DrawSubsector(subsector_t *sub)
 
 static void DrawLineCharacter(mline_t *lineguy, int lineguylines, 
 							  float radius, angle_t angle,
-							  rgbcol_t rgb, float x, float y)
+							  rgbcol_t col, float x, float y)
 {
-	int i;
-	mline_t l;
-	float ch_x, ch_y;
+	float cx, cy;
+	GetRotatedCoords(x, y, &cx, &cy);
+
+	cx = CXMTOF(cx);
+	cy = CYMTOF(cy);
+
+	radius = MTOF(radius);
 
 	if (radius < 2)
 		radius = 2;
 
-	GetRotatedCoords(x, y, &ch_x, &ch_y);
-
 	angle = GetRotatedAngle(angle);
 
-	for (i = 0; i < lineguylines; i++)
+	for (int i = 0; i < lineguylines; i++)
 	{
-		l.a.x = lineguy[i].a.x * radius;
-		l.a.y = lineguy[i].a.y * radius;
+		float ax = lineguy[i].a.x * radius;
+		float ay = lineguy[i].a.y * radius;
 
 		if (angle)
-			Rotate(&l.a.x, &l.a.y, angle);
+			Rotate(&ax, &ay, angle);
 
-		l.a.x += ch_x;
-		l.a.y += ch_y;
-
-		l.b.x = lineguy[i].b.x * radius;
-		l.b.y = lineguy[i].b.y * radius;
+		float bx = lineguy[i].b.x * radius;
+		float by = lineguy[i].b.y * radius;
 
 		if (angle)
-			Rotate(&l.b.x, &l.b.y, angle);
+			Rotate(&bx, &by, angle);
 
-		l.b.x += ch_x;
-		l.b.y += ch_y;
-
-		DrawMline(&l, rgb);
+		HUD_SolidLine(cx+ax, cy-ay, cx+bx, cy-by, col);
 	}
 }
 
@@ -1007,23 +993,12 @@ static void AM_RenderScene(void)
 {
 	HUD_PushScissor(f_x, f_y, f_x+f_w, f_y+f_h);
 
-//---	if (am_smoothing.d)  // FIXME: make part of HUD API
-//---	{
-//---		glEnable(GL_BLEND);
-//---		glEnable(GL_LINE_SMOOTH);
-//---		glLineWidth(1.5f);
-//---	}
-
 	// FIXME optimise this!
 	for (int i = 0; i < numlines; i++)
 		AM_WalkLine(lines + i);
 
 	for (mobj_t *mo = mobjlisthead; mo; mo=mo->next)
 		AM_WalkThing(mo);
-
-//---	glDisable(GL_LINE_SMOOTH);
-//---	glDisable(GL_BLEND);
-//---	glLineWidth(1.0f);
 
 	HUD_PopScissor();
 }
