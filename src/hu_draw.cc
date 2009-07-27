@@ -52,6 +52,8 @@ static int cur_x_align, cur_y_align;
 #define COORD_X(x)  ((x) * SCREENWIDTH  / cur_coord_W)
 #define COORD_Y(y)  ((y) * SCREENHEIGHT / cur_coord_H)
 
+#define VERT_SPACING  2.0f
+
 
 void HUD_SetCoordSys(int width, int height)
 {
@@ -433,7 +435,9 @@ float HUD_StringWidth(const char *str)
 
 float HUD_StringHeight(const char *str)
 {
-	return cur_font->StringLines(str) * HUD_FontHeight();
+	int lines = cur_font->StringLines(str);
+
+	return lines * HUD_FontHeight() + (lines - 1) * VERT_SPACING;
 }
 
 
@@ -513,7 +517,7 @@ void HUD_DrawText(float x, float y, const char *str)
 			break;
 
 		str += (len + 1);
-		cy  += HUD_FontHeight();
+		cy  += HUD_FontHeight() + VERT_SPACING;
 	}
 }
 
