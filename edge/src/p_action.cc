@@ -2943,7 +2943,7 @@ void A_StandardLook(mobj_t * mo, void *data)
 		mo->vis_target = VISIBLE;
 
 	if (g_aggression.d)
-		if (CreateAggression(mo))
+		if (CreateAggression(mo) || CreateAggression(mo))
 			return;
 
 	if (targ && (targ->flags & MF_SHOOTABLE))
