@@ -216,7 +216,7 @@ void RGL_DrawImage(float x, float y, float w, float h, const image_c *image,
 		palremap = font_whiten_map;
 	}
 
-	GLuint tex_id = W_ImageCache(image, true, palremap);
+	GLuint tex_id = image->Cache(true, palremap);
 
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, tex_id);

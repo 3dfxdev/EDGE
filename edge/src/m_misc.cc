@@ -167,7 +167,7 @@ void M_DisplayDisk(void)
 		return;
    
 	if (!disk_image)
-		disk_image = W_ImageLookup("STDISK");
+		disk_image = R_ImageLookup("STDISK");
 
 	// reset flag
 	display_disk = false;
@@ -202,7 +202,7 @@ void M_DisplayAir(void)
 		{
 			char buffer[16];
 			sprintf(buffer, "AIRBAR%02d", i);
-			air_images[i - 1] = W_ImageLookup(buffer);
+			air_images[i - 1] = R_ImageLookup(buffer);
 		}
 	}
 

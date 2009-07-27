@@ -712,15 +712,15 @@ static void LoadSectors(int lump)
 		ss->ceil = ss->floor;
 
 		Z_StrNCpy(buffer, ms->floor_tex, 8);
-		ss->floor.image = W_ImageLookup(buffer, INS_Flat);
+		ss->floor.image = R_ImageLookup(buffer, INS_Flat);
 
 		Z_StrNCpy(buffer, ms->ceil_tex, 8);
-		ss->ceil.image = W_ImageLookup(buffer, INS_Flat);
+		ss->ceil.image = R_ImageLookup(buffer, INS_Flat);
 
 		if (! ss->floor.image)
 		{
 			I_Warning("Bad Level: sector #%d has missing floor texture.\n", i);
-			ss->floor.image = W_ImageLookup("FLAT1", INS_Flat);
+			ss->floor.image = R_ImageLookup("FLAT1", INS_Flat);
 		}
 		if (! ss->ceil.image)
 		{
@@ -1363,29 +1363,29 @@ static void TransferMapSideDef(const raw_sidedef_t *msd, side_t *sd,
 	sd->sector = &sectors[sec_num];
 
 	Z_StrNCpy(buffer, msd->upper_tex, 8);
-	sd->top.image = W_ImageLookup(buffer, INS_Texture, ILF_Null);
+	sd->top.image = R_ImageLookup(buffer, INS_Texture, ILF_Null);
 
 	// handle air colourmaps with BOOM's [242] linetype
 	if (! sd->top.image)
 	{
-		sd->top.image = W_ImageLookup(buffer, INS_Texture);
+		sd->top.image = R_ImageLookup(buffer, INS_Texture);
 		colourmap_c *cmap = colourmaps.Lookup(buffer);
 		if (cmap) sd->sector->props.colourmap = cmap;
 	}
 
 	Z_StrNCpy(buffer, msd->lower_tex, 8);
-	sd->bottom.image = W_ImageLookup(buffer, INS_Texture, ILF_Null);
+	sd->bottom.image = R_ImageLookup(buffer, INS_Texture, ILF_Null);
 
 	// handle water colourmaps with BOOM's [242] linetype
 	if (! sd->bottom.image)
 	{
-		sd->bottom.image = W_ImageLookup(buffer, INS_Texture);
+		sd->bottom.image = R_ImageLookup(buffer, INS_Texture);
 		colourmap_c *cmap = colourmaps.Lookup(buffer);
 		if (cmap) sd->sector->props.colourmap = cmap;
 	}
 
 	Z_StrNCpy(buffer, msd->mid_tex, 8);
-	sd->middle.image = W_ImageLookup(buffer, INS_Texture);
+	sd->middle.image = R_ImageLookup(buffer, INS_Texture);
 
 	if (sd->middle.image && two_sided)
 	{

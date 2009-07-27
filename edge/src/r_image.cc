@@ -928,11 +928,11 @@ static const image_c *BackupSprite(const char *spr_name, int flags)
 	if (flags & ILF_Null)
 		return NULL;
 
-	return W_ImageForDummySprite();
+	return R_ImageForDummySprite();
 }
 
 
-const image_c *W_ImageLookup(const char *name, image_namespace_e type, int flags)
+const image_c *R_ImageLookup(const char *name, image_namespace_e type, int flags)
 {
 	//
 	// Note: search must be case insensitive.
@@ -985,23 +985,23 @@ const image_c *W_ImageLookup(const char *name, image_namespace_e type, int flags
 }
 
 
-const image_c *W_ImageForDummySprite(void)
+const image_c *R_ImageForDummySprite(void)
 {
 	return dummy_sprite;
 }
 
-const image_c *W_ImageForDummySkin(void)
+const image_c *R_ImageForDummySkin(void)
 {
 	return dummy_skin;
 }
 
-const image_c *W_ImageForHOMDetect(void)
+const image_c *R_ImageForHOMDetect(void)
 {
 	return dummy_hom[(framecount & 0x10) ? 1 : 0];
 }
 
 
-const image_c *W_ImageParseSaveString(char type, const char *name)
+const image_c *R_ImageParseSaveString(char type, const char *name)
 {
 	// Used by the savegame code.
 
@@ -1011,13 +1011,13 @@ const image_c *W_ImageParseSaveString(char type, const char *name)
 			return skyflatimage;
 
 		case 'F':
-			return W_ImageLookup(name, INS_Flat);
+			return R_ImageLookup(name, INS_Flat);
 
 		case 'G':
-			return W_ImageLookup(name, INS_Graphic);
+			return R_ImageLookup(name, INS_Graphic);
 
 		case 'S':
-			return W_ImageLookup(name, INS_Sprite);
+			return R_ImageLookup(name, INS_Sprite);
 
 		default:
 			I_Warning("W_ImageParseSaveString: unknown type '%c'\n", type);
@@ -1025,14 +1025,14 @@ const image_c *W_ImageParseSaveString(char type, const char *name)
 		
 		case 'd': /* dummy */
 		case 'T':
-			return W_ImageLookup(name, INS_Texture);
+			return R_ImageLookup(name, INS_Texture);
 	}
 
 	return NULL; /* NOT REACHED */
 }
 
 
-void W_ImageMakeSaveString(const image_c *image, char *type, char *namebuf)
+void R_ImageMakeSaveString(const image_c *image, char *type, char *namebuf)
 {
 	// Used by the savegame code
 
@@ -1141,11 +1141,10 @@ static cached_image_t *ImageCacheOGL(image_c *rim,
 // The top-level routine for caching in an image.  Mainly just a
 // switch to more specialised routines.
 //
-GLuint W_ImageCache(const image_c *image, bool anim,
-				    const colourmap_c *trans)
+GLuint image_c::Cache(bool anim, const colourmap_c *trans) const
 {
 	// Intentional Const Override
-	image_c *rim = (image_c *) image;
+	image_c *rim = (image_c *) this;
  
 	// handle animations
 	if (anim)
@@ -1159,12 +1158,12 @@ GLuint W_ImageCache(const image_c *image, bool anim,
 }
 
 
-void W_ImagePreCache(const image_c *image)
+void image_c::PreCache() const
 {
-	W_ImageCache(image, false);
+	Cache(false);
 
 	// Intentional Const Override
-	image_c *rim = (image_c *) image;
+	image_c *rim = (image_c *) this;
 
 	// pre-cache alternative images for switches too
 	if (strlen(rim->name) >= 4 &&
@@ -1178,7 +1177,7 @@ void W_ImagePreCache(const image_c *image)
 
 		image_c *alt = do_Lookup(real_textures, alt_name);
 
-		if (alt) W_ImageCache(alt, false);
+		if (alt) alt->Cache(false);
 	}
 }
 

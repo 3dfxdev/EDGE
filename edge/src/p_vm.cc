@@ -882,7 +882,7 @@ static int PS_set_side_prop(lua_State *L)
     if (prop_type >= PS_SDPROP_UPPERTEX &&
         prop_type <= PS_SDPROP_LOWERTEX)
     {
-        const image_c *image = W_ImageLookup(luaL_checkstring(L, 3),
+        const image_c *image = R_ImageLookup(luaL_checkstring(L, 3),
                                              INS_Texture);
         if (image)
         {
@@ -1051,7 +1051,7 @@ static void SetSectorProperty(lua_State *L,
     case PS_SECTPROP_CEILING_TEX:
     case PS_SECTPROP_FLOOR_TEX:
     {
-        const image_c *image = W_ImageLookup(luaL_checkstring(L, index), 
+        const image_c *image = R_ImageLookup(luaL_checkstring(L, index), 
                                              INS_Flat);
         if (image)
         {

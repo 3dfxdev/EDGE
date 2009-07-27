@@ -210,12 +210,12 @@ static void LookupFinaleStuff(void)
 
 	if (finale->text_flat[0])
 	{
-		finale_textback = W_ImageLookup(finale->text_flat, INS_Flat);
+		finale_textback = R_ImageLookup(finale->text_flat, INS_Flat);
 		finale_textbackscale = 5.0f;
 	}
 	else if (finale->text_back[0])
 	{
-		finale_textback = W_ImageLookup(finale->text_back, INS_Graphic);
+		finale_textback = R_ImageLookup(finale->text_back, INS_Graphic);
 		finale_textbackscale = 1.0f;
 	}
 	else
@@ -654,7 +654,7 @@ static void CastSkip(void)
 
 static void CastDrawer(void)
 {
-	const image_c *image = W_ImageLookup("BOSSBACK");
+	const image_c *image = R_ImageLookup("BOSSBACK");
 
 	HUD_StretchImage(0, 0, 320, 200, image);
 
@@ -671,7 +671,7 @@ static void CastDrawer(void)
 		const image_c *skin_img = md->skins[cast_info->model_skin];
 
 		if (! skin_img)
-			skin_img = W_ImageForDummySkin();
+			skin_img = R_ImageForDummySkin();
 
 		glClear(GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
@@ -736,8 +736,8 @@ static void BunnyScroll(void)
 	int stage;
 	static int laststage;
 
-	p1 = W_ImageLookup("PFUB2");
-	p2 = W_ImageLookup("PFUB1");
+	p1 = R_ImageLookup("PFUB2");
+	p2 = R_ImageLookup("PFUB1");
 
 	scrolled = 320 - (finalecount - 230) / 2;
 
@@ -754,7 +754,7 @@ static void BunnyScroll(void)
 
 	if (finalecount < 1180)
 	{
-		p1 = W_ImageLookup("END0");
+		p1 = R_ImageLookup("END0");
 
 		HUD_DrawImage((320 - 13 * 8) / 2, (200 - 8 * 8) / 2, p1);
 		laststage = 0;
@@ -774,7 +774,7 @@ static void BunnyScroll(void)
 
 	sprintf(name, "END%i", stage);
 
-	p1 = W_ImageLookup(name);
+	p1 = R_ImageLookup(name);
 
 	HUD_DrawImage((320 - 13 * 8) / 2, (200 - 8 * 8) / 2, p1);
 }
@@ -794,7 +794,7 @@ void F_Drawer(void)
 
 		case f_pic:
 			{
-				const image_c *image = W_ImageLookup(finale->pics[picnum]);
+				const image_c *image = R_ImageLookup(finale->pics[picnum]);
 
 				HUD_StretchImage(0, 0, 320, 200, image);
 			}

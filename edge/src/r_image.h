@@ -36,6 +36,10 @@
 
 struct texturedef_s;
 
+#ifndef USING_GL_TYPES
+#define GLuint  u32_t
+#endif
+
 
 // the transparent pixel value we use
 #define TRANS_PIXEL  247
@@ -155,6 +159,10 @@ public:
 	~image_c();
 
 public:
+	GLuint Cache(bool anim = true, const colourmap_c *trans = NULL) const;
+
+	void PreCache() const;
+
 	epi::image_data_c * ReadBlock();
 
 	bool ShouldClamp()  const;
@@ -205,16 +213,16 @@ typedef enum
 }
 image_lookup_flags_e;
 
-const image_c *W_ImageLookup(const char *name, image_namespace_e = INS_Graphic,
+const image_c *R_ImageLookup(const char *name, image_namespace_e = INS_Graphic,
 	int flags = 0);
 
-const image_c *W_ImageForDummySprite(void);
-const image_c *W_ImageForDummySkin(void);
-const image_c *W_ImageForHOMDetect(void);
+const image_c *R_ImageForDummySprite(void);
+const image_c *R_ImageForDummySkin(void);
+const image_c *R_ImageForHOMDetect(void);
 
 // savegame code (Only)
-const image_c *W_ImageParseSaveString(char type, const char *name);
-void W_ImageMakeSaveString(const image_c *image, char *type, char *namebuf);
+const image_c *R_ImageParseSaveString(char type, const char *name);
+void R_ImageMakeSaveString(const image_c *image, char *type, char *namebuf);
 
 
 //
@@ -237,12 +245,6 @@ void R_ImageCreateUser(void);
 void R_AnimateImageSet(const image_c ** images, int number, int speed);
 void W_DrawSavePic(const byte *pixels);
 
-#ifdef USING_GL_TYPES
-GLuint W_ImageCache(const image_c *image, bool anim = true,
-					const colourmap_c *trans = NULL);
-#endif
-void W_ImagePreCache(const image_c *image);
-
 
 // -AJA- planned....
 // rgbcol_t W_ImageGetHue(const image_c *c);
@@ -254,6 +256,9 @@ const image_c ** W_ImageGetUserSprites(int *count);
 int W_MakeValidSize(int value);
 
 
+#ifndef USING_GL_TYPES
+#undef GLuint
+#endif
 
 #endif  // __R_IMAGE__
 

@@ -1453,51 +1453,51 @@ static void LoadData(void)
 	const gamedef_c *gd = wi_stats.cur->episode;
 
 	// background
-	bg_image = W_ImageLookup(gd->background);
+	bg_image = R_ImageLookup(gd->background);
 
-	lnames[0] = W_ImageLookup(wi_stats.cur->namegraphic);
+	lnames[0] = R_ImageLookup(wi_stats.cur->namegraphic);
 
 	if (wi_stats.next)
-		lnames[1] = W_ImageLookup(wi_stats.next->namegraphic);
+		lnames[1] = R_ImageLookup(wi_stats.next->namegraphic);
 
 	if (gd->yah[0][0])
-		yah[0] = W_ImageLookup(gd->yah[0]);
+		yah[0] = R_ImageLookup(gd->yah[0]);
 	if (gd->yah[1][0])
-		yah[1] = W_ImageLookup(gd->yah[1]);
+		yah[1] = R_ImageLookup(gd->yah[1]);
 	if (gd->splatpic[0])
-		splat[0] = W_ImageLookup(gd->splatpic);
+		splat[0] = R_ImageLookup(gd->splatpic);
 	
-	wiminus = W_ImageLookup("WIMINUS"); //!!! FIXME: use the style!
-	percent = W_ImageLookup("WIPCNT");
-	colon = W_ImageLookup("WICOLON");
+	wiminus = R_ImageLookup("WIMINUS"); //!!! FIXME: use the style!
+	percent = R_ImageLookup("WIPCNT");
+	colon = R_ImageLookup("WICOLON");
 
-	finished = W_ImageLookup("WIF");
-	entering = W_ImageLookup("WIENTER");
-	kills = W_ImageLookup("WIOSTK");
-	secret = W_ImageLookup("WIOSTS");  // "scrt"
+	finished = R_ImageLookup("WIF");
+	entering = R_ImageLookup("WIENTER");
+	kills = R_ImageLookup("WIOSTK");
+	secret = R_ImageLookup("WIOSTS");  // "scrt"
 
-	sp_secret = W_ImageLookup("WISCRT2");  // "secret"
+	sp_secret = R_ImageLookup("WISCRT2");  // "secret"
 
-	items = W_ImageLookup("WIOSTI");
-	frags = W_ImageLookup("WIFRGS");
-	time_image = W_ImageLookup("WITIME");
-	sucks = W_ImageLookup("WISUCKS");
-	par = W_ImageLookup("WIPAR");
-	killers = W_ImageLookup("WIKILRS");  // "killers" (vertical)
+	items = R_ImageLookup("WIOSTI");
+	frags = R_ImageLookup("WIFRGS");
+	time_image = R_ImageLookup("WITIME");
+	sucks = R_ImageLookup("WISUCKS");
+	par = R_ImageLookup("WIPAR");
+	killers = R_ImageLookup("WIKILRS");  // "killers" (vertical)
 
-	victims = W_ImageLookup("WIVCTMS");  // "victims" (horiz)
+	victims = R_ImageLookup("WIVCTMS");  // "victims" (horiz)
 
-	total = W_ImageLookup("WIMSTT");
-	star = W_ImageLookup("STFST01");  // your face
+	total = R_ImageLookup("WIMSTT");
+	star = R_ImageLookup("STFST01");  // your face
 
-	bstar = W_ImageLookup("STFDEAD0");  // dead face
+	bstar = R_ImageLookup("STFDEAD0");  // dead face
 
 	for (i = 0; i < 10; i++)
 	{
 		// numbers 0-9
 		char name[64];
 		sprintf(name, "WINUM%d", i);
-		digits[i] = W_ImageLookup(name);
+		digits[i] = R_ImageLookup(name);
 	}
 
 	for (i = 0; i < worldint.numanims; i++)
@@ -1509,7 +1509,7 @@ static void LoadData(void)
 				worldint.anims[i].frames[j].info->pic.c_str());
 
 			worldint.anims[i].frames[j].image = 
-				W_ImageLookup(worldint.anims[i].frames[j].info->pic);
+				R_ImageLookup(worldint.anims[i].frames[j].info->pic);
 		}
 	}
 }

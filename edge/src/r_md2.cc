@@ -1300,7 +1300,7 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 
 	if (data.is_fuzzy)
 	{
-		skin_tex = W_ImageCache(fuzz_image, false);
+		skin_tex = fuzz_image->Cache(false);
 
 		data.fuzz_mul = 0.8;
 		data.fuzz_add.Set(0, 0);
@@ -1324,7 +1324,7 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 	}
 	else /* (! data.is_fuzzy) */
 	{
-		skin_tex = W_ImageCache(skin_img, false,
+		skin_tex = skin_img->Cache(false,
 			ren_fx_colmap ? ren_fx_colmap :
 			is_weapon ? NULL : mo->info->palremap);
 
@@ -1425,7 +1425,7 @@ void MD2_RenderModel_2D(md2_model_c *md, const image_c *skin_img, int frame,
 	if (frame < 0 || frame >= md->num_frames)
 		return;
 
-	GLuint skin_tex = W_ImageCache(skin_img, false, info->palremap);
+	GLuint skin_tex = skin_img->Cache(false, info->palremap);
 
 	float im_right = IM_RIGHT(skin_img);
 	float im_top   = IM_TOP(skin_img);
