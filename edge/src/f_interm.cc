@@ -1085,7 +1085,7 @@ static void DrawCoopStats(void)
 		HUD_DrawText(232, y, "Total");
 	}
 
-	HUD_Reset("c");
+	HUD_SetTextColor();
 
 	for (int i = 0; i < NUM_SHOWN; i++)
 	{

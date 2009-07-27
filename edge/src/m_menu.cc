@@ -632,7 +632,7 @@ static void M_DrawSaveLoadCommon(int row, int row2)
 
  	HUD_SetAlignment(0, -1);
 	HUD_DrawText(LoadDef.x + 94, y, mbuffer);
-	HUD_Reset();
+	HUD_SetAlignment();
 
 
 	info = ex_slots + itemOn;
@@ -678,7 +678,8 @@ static void M_DrawSaveLoadCommon(int row, int row2)
   
 	HUD_DrawText(310, y, info->mapname);
 
-	HUD_Reset("ac");
+	HUD_SetAlpha();
+	HUD_SetTextColor();
 }
 
 //
@@ -777,7 +778,7 @@ void M_DrawSave(void)
 			HUD_DrawText(LoadDef.x + 8, y, ex_slots[i].desc);
 			HUD_DrawText(LoadDef.x + len + 8, y, "_");
 
-			HUD_Reset("c");
+			HUD_SetTextColor();
 		}
 		else
 			HUD_DrawText(LoadDef.x + 8, y, ex_slots[i].desc);
@@ -1851,7 +1852,7 @@ static void DrawMessage(void)
 {
 	HUD_SetAlpha(0.64f);
 	HUD_SolidBox(0, 0, 320, 200, T_BLACK);
-	HUD_Reset("a");
+	HUD_SetAlpha();
 
 	std::string s(msg_string);
 
@@ -1862,12 +1863,14 @@ static void DrawMessage(void)
 	
 	HUD_SetAlignment(0, 0);
 	HUD_DrawText(160, 100, s.c_str());
-	HUD_Reset("g");
+	HUD_SetAlignment();
 }
 
 
 void M_Drawer(void)
 {
+	HUD_Reset();
+
 	short x, y;
 
 	unsigned int i;
@@ -1875,8 +1878,6 @@ void M_Drawer(void)
 
 	if (!menuactive)
 		return;
-
-	HUD_Reset();
 
 	// Horiz. & Vertically center string and print it.
 	if (msg_mode)
@@ -1900,7 +1901,7 @@ void M_Drawer(void)
 
 	HUD_SetAlpha(0.64f);
 	HUD_SolidBox(0, 0, 320, 200, T_BLACK);
-	HUD_Reset("a");
+	HUD_SetAlpha();
 
 	// call Draw routine
 	if (currentMenu->draw_func)

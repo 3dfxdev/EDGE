@@ -200,7 +200,7 @@ public:
 
 		HUD_SetAlpha(0.64f);
 		HUD_SolidBox(0, 0, 320, 200, T_BLACK);
-		HUD_Reset("a");
+		HUD_SetAlpha();
 
 		HUD_SetTextColor(T_WHITE);  // FIXME
 
@@ -214,6 +214,8 @@ public:
 
 		for (int c = 0; c < choice_num; c++)
 			HUD_DrawText(0, (title_num+1+c)*font_h, choice_lines[c]);
+
+		HUD_SetTextColor();
 	}
 
 	int CheckKey(int key)

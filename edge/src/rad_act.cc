@@ -273,7 +273,7 @@ void RAD_DisplayTips(void)
 
 			HUD_SetAlpha(alpha);
 			HUD_StretchImage(x, y, w, h, img);
-			HUD_Reset("a");
+			HUD_SetAlpha();
 
 			continue;
 		}
@@ -288,8 +288,6 @@ void RAD_DisplayTips(void)
 
 			// FIXME: !!!!!! POSITION
 			HUD_DrawText(0, 30+i*HUD_FontHeight(), current->lines[i]);
-
-			HUD_Reset();
 		}
 	}
 }
