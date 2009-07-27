@@ -91,38 +91,6 @@ static void FrameSetup(void)
 }
 
 
-#if 0
-static void DoWriteText_RightAlign(float x, float y, const char *str)
-{
-	float cx = x;
-	float cy = y;
-
-	float f_h = cur_font->NominalHeight() * 1.5;
-
-	for (int pos = strlen(str)-1; pos >= 0; pos--)
-	{
-		char ch = str[pos];
-
-		if (ch == '\n')
-		{
-			cx = x;
-			cy += f_h * cur_scale;
-			continue;
-		}
-
-		if (COORD_X(cx) >= SCREENWIDTH)
-			continue;
-
-		cx -= cur_font->CharWidth(ch) * cur_scale;
-
-		const image_c *img = cur_font->CharImage(ch);
-
-		if (img)
-			HUD_DrawChar(cx, cy, img);
-	}
-}
-#endif
-
 static rgbcol_t ParseColor(lua_State *L, int index)
 {
 	if (lua_isstring(L, index))
