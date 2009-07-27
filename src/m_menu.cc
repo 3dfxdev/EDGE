@@ -776,6 +776,8 @@ void M_DrawSave(void)
 
 			HUD_DrawText(LoadDef.x + 8, y, ex_slots[i].desc);
 			HUD_DrawText(LoadDef.x + len + 8, y, "_");
+
+			HUD_Reset("c");
 		}
 		else
 			HUD_DrawText(LoadDef.x + 8, y, ex_slots[i].desc);
@@ -1844,28 +1846,6 @@ void M_StartControlPanel(void)
 //!!!!!	M_OptCheckNetgame();
 }
 
-static int FindChar(std::string& str, char ch, int pos)
-{
-	SYS_ASSERT(pos <= (int)str.size());
-
-	const char *scan = strchr(str.c_str() + pos, ch);
-
-	if (! scan)
-		return -1;
-
-	return (int)(scan - str.c_str());
-}
-
-static std::string GetMiddle(std::string& str, int pos, int len)
-{
-	SYS_ASSERT(pos >= 0 && len >= 0);
-	SYS_ASSERT(pos + len <= (int)str.size());
-
-	if (len == 0)
-		return std::string();
-
-	return std::string(str.c_str() + pos, len);
-}
 
 static void DrawMessage(void)
 {
@@ -1873,76 +1853,16 @@ static void DrawMessage(void)
 	HUD_SolidBox(0, 0, 320, 200, T_BLACK);
 	HUD_Reset("a");
 
-	// FIXME: HU code should support center justification: this
-	// would remove the code duplication below...
+	std::string s(msg_string);
 
-	std::string msg(msg_string);
-
-	std::string input(input_string);
+	s += input_string;
 
 	if (msg_mode == 2)
-		input += "_";
+		s += "_";
 	
-	// Calc required height
-	std::string s = msg + input;
-
-	float y = 100 - HUD_StringHeight(s.c_str()) / 2.0f;
-
-	if (!msg.empty())
-	{
-		int oldpos = 0;
-		int pos;
-
-		do
-		{
-			pos = FindChar(msg, '\n', oldpos);
-
-			if (pos < 0)
-				s = std::string(msg, oldpos);
-			else
-				s = GetMiddle(msg, oldpos, pos-oldpos);
-		
-			if (s.size() > 0)
-			{
-				HUD_SetAlignment(0, -1);
-				HUD_DrawText(160, y, s.c_str());
-				HUD_Reset("s");
-			}
-
-			y += HUD_FontHeight();
-
-			oldpos = pos + 1;
-		}
-		while (pos >= 0 && oldpos < (int)msg.size());
-	}
-
-	if (! input.empty())
-	{
-		int oldpos = 0;
-		int pos;
-
-		do
-		{
-			pos = FindChar(input, '\n', oldpos);
-
-			if (pos < 0)
-				s = std::string(input, oldpos);
-			else
-				s = GetMiddle(input, oldpos, pos-oldpos);
-		
-			if (s.size() > 0)
-			{
-				HUD_SetAlignment(0, -1);
-				HUD_DrawText(160, y, s.c_str());
-				HUD_Reset("s");
-			}
-			
-			y += HUD_FontHeight();
-
-			oldpos = pos + 1;
-		}
-		while (pos >= 0 && oldpos < (int)input.size());
-	}
+	HUD_SetAlignment(0, 0);
+	HUD_DrawText(160, 100, s.c_str());
+	HUD_Reset("g");
 }
 
 
