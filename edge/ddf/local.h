@@ -225,8 +225,6 @@ typedef struct
 }
 actioncode_t;
 
-extern int ddf_version;  // decimal e.g. 128
-
 extern int cur_ddf_line_num;
 extern std::string cur_ddf_filename;
 extern std::string cur_ddf_entryname;
@@ -235,8 +233,6 @@ extern std::string cur_ddf_linedata;
 void DDF_Error    (const char *err, ...) GCCATTR((format (printf,1,2)));
 void DDF_Warning  (const char *err, ...) GCCATTR((format (printf,1,2)));
 void DDF_WarnError(const char *err, ...) GCCATTR((format (printf,1,2)));
-void DDF_WarnError2 (int ver, const char *err, ...) GCCATTR((format (printf,2,3)));
-void DDF_Obsolete(const char *err, ...) GCCATTR((format (printf,1,2)));
 
 bool DDF_MainParseField(char *object, const commandlist_t * commands,
 			      		const char *field, const char *contents);

@@ -94,13 +94,13 @@ static void ColmapFinishEntry(void)
 {
 	if (dynamic_colmap->start < 0)
 	{
-		DDF_WarnError2(128, "Bad START value for colmap: %d\n", dynamic_colmap->start);
+		DDF_WarnError("Bad START value for colmap: %d\n", dynamic_colmap->start);
 		dynamic_colmap->start = 0;
 	}
 
 	if (! dynamic_colmap->lump_name.empty() && dynamic_colmap->length <= 0)
 	{
-		DDF_WarnError2(128, "Bad LENGTH value for colmap: %d\n", dynamic_colmap->length);
+		DDF_WarnError("Bad LENGTH value for colmap: %d\n", dynamic_colmap->length);
 		dynamic_colmap->length = 1;
 	}
 
@@ -168,7 +168,7 @@ void DDF_ColmapGetSpecial(const char *info, void *storage)
 			break;
 
 		default:
-			DDF_WarnError2(128, "DDF_ColmapGetSpecial: Unknown Special: %s", info);
+			DDF_WarnError("DDF_ColmapGetSpecial: Unknown Special: %s", info);
 			break;
 	}
 }

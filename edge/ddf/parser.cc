@@ -31,15 +31,12 @@
 #include "src/p_action.h"
 
 
-int ddf_version;  // global
-
 int engine_version;
 static std::string ddf_where;
 
 bool strict_errors = false;
 bool lax_errors = false;
 bool no_warnings = false;
-bool no_obsoletes = false;
 
 
 //
@@ -151,36 +148,6 @@ void DDF_WarnError(const char *err, ...)
 		DDF_Warning("%s", buffer);
 }
 
-void DDF_WarnError2(int ver, const char *err, ...)
-{
-	va_list argptr;
-	char buffer[1024];
-
-	va_start(argptr, err);
-	vsprintf(buffer, err, argptr);
-	va_end(argptr);
-
-	if (strict_errors || (ddf_version >= ver && ! lax_errors))
-		DDF_Error("%s", buffer);
-	else
-		DDF_Warning("%s", buffer);
-}
-
-void DDF_Obsolete(const char *err, ...)
-{
-	va_list argptr;
-	char buffer[1024];
-
-	va_start(argptr, err);
-	vsprintf(buffer, err, argptr);
-	va_end(argptr);
-
-	if (strict_errors || (ddf_version >= 128 && ! lax_errors))
-		DDF_Error("%s", buffer);
-	else if (no_obsoletes)
-		DDF_Warning("%s", buffer);
-}
-
 
 void DDF_SetWhere(const std::string& dir)
 {
@@ -252,12 +219,12 @@ static void DDF_ParseVersion(const char *str, int len)
 		DDF_Error("Badly formed #VERSION directive.\n");
 	}
 
-	ddf_version = ((str[0] - '0') * 100) |
-	              ((str[2] - '0') *  10) |
-				   (str[3] - '0');
+	int ddf_version = ((str[0]-'0') * 100) +
+	                  ((str[2]-'0') *  10) +
+			           (str[3]-'0');
 
 	if (ddf_version < 123)
-		DDF_Error("Illegal #VERSION number.\n");
+		DDF_Error("Illegal #VERSION number: %s\n", str);
 
 	if (ddf_version > engine_version)
 		DDF_Error("This version of EDGE cannot handle this DDF.\n");
@@ -625,8 +592,6 @@ void DDF_MainReadFile(readinfo_t * readinfo, char *pos)
 	bool seen_entry = false;
 	bool seen_command = false;
 
-	ddf_version = 127;
-
 	DDF_MainProcessNewLine(readinfo, pos, seen_entry);
 
 	while (* pos)
@@ -869,7 +834,7 @@ bool DDF_MainParseField(char *object, const commandlist_t *commands,
 
 		// found it, so call parse routine
 		if (obsolete)
-			DDF_Obsolete("The ddf %s command is obsolete !\n", name);
+			DDF_WarnError("The ddf %s command is obsolete !\n", name);
 
 		SYS_ASSERT(commands[i].parse_command);
 

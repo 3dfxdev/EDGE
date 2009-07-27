@@ -105,7 +105,7 @@ static void AnimParseField(const char *field, const char *contents, int index, b
 
 	if (! DDF_MainParseField((char *)dynamic_anim, anim_commands, field, contents))
 	{
-		DDF_WarnError2(128, "Unknown anims.ddf command: %s\n", field);
+		DDF_WarnError("Unknown anims.ddf command: %s\n", field);
 	}
 }
 
@@ -113,7 +113,7 @@ static void AnimFinishEntry(void)
 {
 	if (dynamic_anim->speed <= 0)
 	{
-		DDF_WarnError2(128, "Bad TICS value for anim: %d\n", dynamic_anim->speed);
+		DDF_WarnError("Bad TICS value for anim: %d\n", dynamic_anim->speed);
 		dynamic_anim->speed = 8;
 	}
 
@@ -173,7 +173,7 @@ static void DDF_AnimGetType(const char *info, void *storage)
 		(*type) = animdef_c::A_Graphic;
 	else
 	{
-		DDF_WarnError2(128, "Unknown animation type: %s\n", info);
+		DDF_WarnError("Unknown animation type: %s\n", info);
 		(*type) = animdef_c::A_Flat;
 	}
 }
