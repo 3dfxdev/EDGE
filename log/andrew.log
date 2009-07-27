@@ -2,7 +2,22 @@ Andrew Apted's Log
 
 2009/07/27:
 
-Made the automap lines not wobble when merely scrolling.
+Made the automap lines not wobble when scrolling (especially 
+while the player is just moving around).
+
+DDF: simplified handling of warnings/errors/obsoletes.  The
+rationale here is that we _have_ to support old stuff for
+backwards compatibility, so it should be done consistently
+(not depending on the specified #VERSION).  Added some cvars
+as well: ddf_strict, ddf_lax and ddf_quiet.
+
+DDF: added ability to extend an existing entry, which means
+you modify an existing entry instead of replacing it.  The
+syntax uses "++" in front of the name, for example:
+
+   [++IMP]
+   speed = 20;
+   spawnhealth = 90;
 
 2009/07/26:
 
