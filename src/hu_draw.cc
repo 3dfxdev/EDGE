@@ -61,9 +61,7 @@ void HUD_SetCoordSys(int width, int height)
 
 void HUD_SetFont(font_c *font)
 {
-	SYS_ASSERT(font);
-
-	cur_font = font;
+	cur_font = font ? font : default_font;
 }
 
 void HUD_SetScale(float scale)
@@ -87,20 +85,19 @@ void HUD_SetAlignment(int xa, int ya)
 	cur_y_align = ya;
 }
 
-void HUD_Reset(const char *what)
+
+void HUD_Reset()
 {
-	for (; *what; what++)
-	{
-		switch (*what)
-		{
-			case 'a': cur_alpha = 1.0f; break;
-			case 'c': cur_color = RGB_NO_VALUE; break;
-			case 'f': cur_font  = default_font; break;
-			case 's': cur_scale = 1.0f; break;
-			case 'g': cur_x_align = cur_y_align = -1; break;
-		}
-	}
+	cur_coord_W = 320.0f;
+	cur_coord_H = 200.0f;
+
+	cur_font  = default_font;
+	cur_color = RGB_NO_VALUE;
+	cur_scale = 1.0f;
+	cur_alpha = 1.0f;
+	cur_x_align = cur_y_align = -1;
 }
+
 
 void HUD_FrameSetup(void)
 {
@@ -113,9 +110,6 @@ void HUD_FrameSetup(void)
 		default_font = HU_LookupFont(DEF);
 		SYS_ASSERT(default_font);
 	}
-
-	cur_coord_W = 320.0f;
-	cur_coord_H = 200.0f;
 
 	HUD_Reset();
 }

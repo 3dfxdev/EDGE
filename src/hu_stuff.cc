@@ -125,9 +125,9 @@ void HU_Drawer(void)
 
 	if (message_on)
 	{
-		HUD_SetScale(0.75f);
+		HUD_SetScale(0.8f);
 		HUD_DrawText(HU_MSGX, HU_MSGY, w_message.c_str());
-		HUD_Reset("s");
+		HUD_SetScale();
 	}
 
 //TODO	if (chat_on)

@@ -363,7 +363,7 @@ static void TextWrite(void)
 	{
 		HUD_SetScale(finale_textbackscale);
 		HUD_TileImage(0, 0, 320, 200, finale_textback);
-		HUD_Reset("s");
+		HUD_SetScale();
 	}
 
 	// draw some of the text onto the screen
@@ -378,7 +378,8 @@ static void TextWrite(void)
 
 	SYS_ASSERT(finale);
 
-	HUD_Reset("fsa");
+	HUD_SetFont();
+	HUD_SetScale();
 	HUD_SetTextColor(finale_textcol);
 
 	char line[200];
@@ -653,8 +654,6 @@ static void CastSkip(void)
 
 static void CastDrawer(void)
 {
-	HUD_Reset();
-
 	const image_c *image = W_ImageLookup("BOSSBACK");
 
 	HUD_StretchImage(0, 0, 320, 200, image);
@@ -662,6 +661,7 @@ static void CastDrawer(void)
 	HUD_SetAlignment(0, -1);
 	HUD_SetTextColor(T_YELLOW);
 	HUD_DrawText(160, 180, cast_title);
+
 	HUD_Reset();
 
 	if (cast_state->flags & SFF_Model)
@@ -782,6 +782,8 @@ static void BunnyScroll(void)
 
 void F_Drawer(void)
 {
+	HUD_Reset();
+
 	SYS_ASSERT(gamestate == GS_FINALE);
 
 	switch (finalestage)
@@ -810,8 +812,6 @@ void F_Drawer(void)
 			I_Error("F_Drawer: bad finalestage #%d\n", (int)finalestage);
 			break;
 	}
-
-	HUD_Reset();
 }
 
 //--- editor settings ---

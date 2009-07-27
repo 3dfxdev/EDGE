@@ -474,7 +474,7 @@ static int HD_draw_num2(lua_State *L)
 
 	HUD_SetAlignment(+1, -1);
 	HUD_DrawText(x, y, pos);
-	HUD_Reset("a");
+	HUD_SetAlignment();
 
 	return 0;
 }

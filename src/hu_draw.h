@@ -34,21 +34,18 @@
 
 void HUD_SetCoordSys(int width, int height);
 
-void HUD_SetFont(font_c *font);
-void HUD_SetScale(float scale);
-void HUD_SetTextColor(rgbcol_t color);
-void HUD_SetAlpha(float alpha);
+void HUD_SetFont(font_c *font = NULL);
+void HUD_SetScale(float scale = 1.0f);
+void HUD_SetTextColor(rgbcol_t color = RGB_NO_VALUE);
+void HUD_SetAlpha(float alpha = 1.0f);
 
-void HUD_SetAlignment(int xa, int ya);
+void HUD_SetAlignment(int xa = -1, int ya = -1);
 // xa is -1 for left, 0 for centred, +1 for right
 // ya is -1 for top,  0 for centred, +! for bottom
 // (Note: ya is ignored for text)
 
-void HUD_Reset(const char *what = "acfgs");
-// letters can be:
-// 	 'f' for Font   	's' for Scale
-// 	 'c' for Color		'a' for Alpha
-// 	 'g' for Alignment
+void HUD_Reset();
+// resets the coord sys to 320x200, and resets all properties
 
 
 void HL_Init(void);

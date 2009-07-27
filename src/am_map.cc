@@ -991,7 +991,7 @@ static void DrawMarks(void)
 		HUD_DrawText(cx - 2, cy - 2, buffer);
 	}
 
-	HUD_Reset("f");
+	HUD_SetFont();
 }
 
 static void AM_RenderScene(void)
