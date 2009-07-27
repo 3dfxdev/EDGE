@@ -585,7 +585,16 @@ static void DrawMline(mline_t * ml, rgbcol_t rgb)
 //FIXME		}
 //FIXME	}
 
-	HUD_SolidLine(x1, y1, x2, y2, rgb);
+	x1 = f_x + f_w/2.0 + MTOF(ml->a.x);
+	y1 = f_y + f_h/2.0 - MTOF(ml->a.y);
+
+	x2 = f_x + f_w/2.0 + MTOF(ml->b.x);
+	y2 = f_y + f_h/2.0 - MTOF(ml->b.y);
+
+	float dx = MTOF(- m_cx);
+	float dy = MTOF(- m_cy);
+
+	HUD_AutomapLine(x1, y1, x2, y2, dx, dy, rgb);
 }
 
 
@@ -998,12 +1007,12 @@ static void AM_RenderScene(void)
 {
 	HUD_PushScissor(f_x, f_y, f_x+f_w, f_y+f_h);
 
-	if (am_smoothing.d)  // FIXME: make part of HUD API
-	{
-		glEnable(GL_LINE_SMOOTH);
-		glEnable(GL_BLEND);
-		glLineWidth(1.5f);
-	}
+//---	if (am_smoothing.d)  // FIXME: make part of HUD API
+//---	{
+//---		glEnable(GL_BLEND);
+//---		glEnable(GL_LINE_SMOOTH);
+//---		glLineWidth(1.5f);
+//---	}
 
 	// FIXME optimise this!
 	for (int i = 0; i < numlines; i++)
@@ -1012,9 +1021,9 @@ static void AM_RenderScene(void)
 	for (mobj_t *mo = mobjlisthead; mo; mo=mo->next)
 		AM_WalkThing(mo);
 
-	glDisable(GL_LINE_SMOOTH);
-	glDisable(GL_BLEND);
-	glLineWidth(1.0f);
+//---	glDisable(GL_LINE_SMOOTH);
+//---	glDisable(GL_BLEND);
+//---	glLineWidth(1.0f);
 
 	HUD_PopScissor();
 }
