@@ -351,6 +351,9 @@ static void DDF_ParseVersion(const char *str, int len)
 
 #define SPRITE_CHARS  "_-:.[]\\!#%+@?"
 
+//
+// 1998/08/10 Added String reading code.
+//
 static readchar_t DDF_MainProcessString(char ch, std::string& token)
 {
 	// -ACB- 1998/08/11 Used for detecting formatting in a string
@@ -409,11 +412,7 @@ static readchar_t DDF_MainProcessString(char ch, std::string& token)
 	return ok_char;
 }
 
-//
-// DDF_MainProcessChar
-//
-// 1998/08/10 Added String reading code.
-//
+
 static readchar_t DDF_MainProcessChar(char ch, std::string& token, int status)
 {
 	if (status == reading_string)
@@ -452,7 +451,7 @@ static readchar_t DDF_MainProcessChar(char ch, std::string& token, int status)
 			{
 				return def_stop;
 			}
-			else if (isalnum(ch) || ch == '_' || ch == ':' || ch == '*')
+			else if (isalnum(ch) || ch == '_' || ch == ':' || ch == '+')
 			{
 				token += toupper(ch);
 				return ok_char;
@@ -522,7 +521,7 @@ static readchar_t DDF_MainProcessChar(char ch, std::string& token, int status)
 }
 
 
-static char * DDF_MainProcessNewLine(readinfo_t *readinfo, char *pos, bool firstgo)
+static char * DDF_MainProcessNewLine(readinfo_t *readinfo, char *pos, bool seen_entry)
 {
 	// -AJA- 2000/03/21: determine linedata
 	int len = 0;
@@ -581,7 +580,7 @@ static char * DDF_MainProcessNewLine(readinfo_t *readinfo, char *pos, bool first
 
 	if (strnicmp(pos, "#CLEARALL", 9) == 0)
 	{
-		if (! firstgo)
+		if (seen_entry)
 			DDF_Error("#CLEARALL cannot be used inside an entry !\n");
 
 		(* readinfo->clear_all)();
@@ -591,7 +590,7 @@ static char * DDF_MainProcessNewLine(readinfo_t *readinfo, char *pos, bool first
 
 	if (strnicmp(pos, "#VERSION", 8) == 0)
 	{
-		if (! firstgo)
+		if (seen_entry)
 			DDF_Error("#VERSION cannot be used inside an entry !\n");
 
 		DDF_ParseVersion(pos + 8, len - 8);
@@ -616,18 +615,19 @@ void DDF_MainReadFile(readinfo_t * readinfo, char *pos)
 	std::string token;
 	std::string current_cmd;
 
+	int status = waiting_newdef;
+	int formerstatus = readstatus_invalid;
+
 	int current_index = 0;
-	int entry_count = 0;
+	int comment_level = 0;
+	int bracket_level = 0;
+
+	bool seen_entry = false;
+	bool seen_command = false;
 
 	ddf_version = 127;
 
-	int status = waiting_newdef;
-	int formerstatus = readstatus_invalid;
-	int comment_level = 0;
-	int bracket_level = 0;
-	bool firstgo = true;
-
-	DDF_MainProcessNewLine(readinfo, pos, firstgo);
+	DDF_MainProcessNewLine(readinfo, pos, seen_entry);
 
 	while (* pos)
 	{
@@ -648,7 +648,7 @@ void DDF_MainReadFile(readinfo_t * readinfo, char *pos)
 
 		if (ch == '\n')
 		{
-			char *new_pos = DDF_MainProcessNewLine(readinfo, pos, firstgo);
+			char *new_pos = DDF_MainProcessNewLine(readinfo, pos, seen_entry);
 
 			cur_ddf_line_num++;
 
@@ -663,6 +663,9 @@ void DDF_MainReadFile(readinfo_t * readinfo, char *pos)
 
 		switch (response)
 		{
+			case ok_char:
+				break;
+
 			case remark_start:
 				if (comment_level == 0)
 				{
@@ -680,54 +683,7 @@ void DDF_MainReadFile(readinfo_t * readinfo, char *pos)
 				}
 				break;
 
-			case command_read:
-				if (! token.empty())
-					current_cmd = token.c_str();
-				else
-					current_cmd.clear();
-
-				SYS_ASSERT(current_index == 0);
-
-				token.clear();
-				status = reading_data;
-				break;
-
-			case def_start:
-				if (bracket_level > 0)
-					DDF_Error("Unclosed () brackets detected.\n");
-         
-				entry_count++;
-
-				if (firstgo)
-				{
-					firstgo = false;
-					status = reading_newdef;
-				}
-				else
-				{
-					cur_ddf_linedata.clear();
-
-					// finish off previous entry
-					(* readinfo->finish_entry)();
-
-					token.clear();
-					
-					status = reading_newdef;
-
-					cur_ddf_entryname.clear();
-				}
-				break;
-
-			case def_stop:
-				cur_ddf_entryname = epi::STR_Format("[%s]", token.c_str());
-
-				(* readinfo->start_entry)(token.c_str());
-         
-				token.clear();
-				status = reading_command;
-				break;
-
-				// -AJA- 2000/10/02: support for () brackets
+			// -AJA- 2000/10/02: support for () brackets
 			case group_start:
 				if (status == reading_data || status == reading_command)
 					bracket_level++;
@@ -742,37 +698,82 @@ void DDF_MainReadFile(readinfo_t * readinfo, char *pos)
 				}
 				break;
 
+			// -ACB- 1998/08/10 String Handling
+			case string_start:
+				status = reading_string;
+				break;
+
+			// -ACB- 1998/08/10 String Handling
+			case string_stop:
+				status = reading_data;
+				break;
+
+			case def_start:
+				if (bracket_level > 0)
+					DDF_Error("Unclosed () brackets detected.\n");
+         
+				if (seen_entry)
+				{
+					cur_ddf_linedata.clear();
+
+					// finish off previous entry
+					(* readinfo->finish_entry)();
+				}
+
+				token.clear();
+				cur_ddf_entryname.clear();
+
+				seen_entry = true;
+				status = reading_newdef;
+				break;
+
+			case def_stop:
+				cur_ddf_entryname = epi::STR_Format("[%s]", token.c_str());
+
+				(* readinfo->start_entry)(token.c_str());
+         
+				token.clear();
+				seen_command = false;
+				status = reading_command;
+				break;
+
+			case command_read:
+				if (! token.empty())
+					current_cmd = token.c_str();
+				else
+					current_cmd.clear();
+
+				token.clear();
+				current_index = 0;
+				status = reading_data;
+				break;
+
+			case property_read:
+				DDF_WarnError("Badly formed command: expected '='\n");
+				break;
+
 			case separator:
 				if (bracket_level > 0)
 				{
-					token += (',');
+					token += ',';
 					break;
 				}
 
 				if (current_cmd.empty())
 					DDF_Error("Unexpected comma ','.\n");
 
-				if (firstgo)
+				if (! seen_entry)
 					DDF_WarnError("Command %s used outside of any entry\n",
 								   current_cmd.c_str());
 				else
 				{ 
 					(* readinfo->parse_field)(current_cmd.c_str(), 
 						  DDF_MainGetDefine(token.c_str()), current_index, false);
+
 					current_index++;
 				}
 
 				token.clear();
-				break;
-
-				// -ACB- 1998/08/10 String Handling
-			case string_start:
-				status = reading_string;
-				break;
-
-				// -ACB- 1998/08/10 String Handling
-			case string_stop:
-				status = reading_data;
 				break;
 
 			case terminator:
@@ -784,17 +785,10 @@ void DDF_MainReadFile(readinfo_t * readinfo, char *pos)
 
 				(* readinfo->parse_field)(current_cmd.c_str(), 
 					  DDF_MainGetDefine(token.c_str()), current_index, true);
-				current_index = 0;
 
 				token.clear();
+				seen_command = true;
 				status = reading_command;
-				break;
-
-			case property_read:
-				DDF_WarnError("Badly formed command: Unexpected semicolon ';'\n");
-				break;
-
-			case ok_char:
 				break;
 
 			case nothing:
@@ -819,8 +813,8 @@ void DDF_MainReadFile(readinfo_t * readinfo, char *pos)
 	if (status == reading_data || status == reading_string)
 		DDF_WarnError("Unfinished DDF command on last line.\n");
 
-	// if firstgo is true, nothing was defined
-	if (!firstgo)
+	// make sure we finish any in-progress entry
+	if (seen_entry)
 		(* readinfo->finish_entry)();
 
 	defines.clear();
