@@ -87,7 +87,8 @@ static void FontStartEntry(const char *name, bool extend)
 	dynamic_font->name = name;
 
 	// link it into name map
-	fontdefs[name] = dynamic_font;
+	// Note: must use the epi::string's data (which will persist)
+	fontdefs[dynamic_font->name.c_str()] = dynamic_font;
 }
 
 
