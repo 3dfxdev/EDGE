@@ -372,13 +372,15 @@ ddf_bi_lang_c* lang_buildinfo;
 //  DDF PARSING ROUTINES
 //
 
-static void LanguageStartEntry(const char *name)
+static void LanguageStartEntry(const char *name, bool extend)
 {
 	if (!name || !name[0])
 	{
 		DDF_WarnError("New language entry is missing a name!");
 		name = "DEAD_LANGUAGE";
 	}
+
+	// Note: extension is the norm for LANGUAGES.LDF
 
 	lang_buildinfo->AddLanguage(name);
 }

@@ -79,14 +79,14 @@ static image_namespace_e GetImageNamespace(const char *prefix)
 //  DDF PARSE ROUTINES
 //
 
-static void ImageStartEntry(const char *name)
+static void ImageStartEntry(const char *name, bool extend)
 {
 	if (!name || !name[0])
 		DDF_Error("New image entry is missing a name!");
 
 	I_Debugf("ImageStartEntry [%s]\n", name);
 
-	bool replaces = false;
+	dynamic_image = NULL;
 
 	image_namespace_e belong = INS_Graphic;
 
@@ -115,25 +115,33 @@ static void ImageStartEntry(const char *name)
 		if (strlen(name) > 15)
 			DDF_Error("Image name [%s] too long.\n", name);
 
-		imagedef_c *a = imagedefs.Lookup(name, belong);
-		if (a)
-		{
-			dynamic_image = a;
-			replaces = true;
-		}
+		dynamic_image = imagedefs.Lookup(name, belong);
+	}
+
+	if (extend)
+	{
+		if (! dynamic_image)
+			DDF_Error("Unknown image to extend: %s\n", name);
+		return;
+	}
+
+	// replaces the existing entry
+	if (dynamic_image)
+	{
+		dynamic_image->Default();
+		dynamic_image->belong = belong;
+		return;
 	}
 
 	// not found, create a new one
-	if (! replaces)
-	{
-		dynamic_image = new imagedef_c;
+	dynamic_image = new imagedef_c;
 
-		dynamic_image->name = name;
-		dynamic_image->belong = belong;
+	dynamic_image->name = name;
+	dynamic_image->belong = belong;
 
-		imagedefs.Insert(dynamic_image);
-	}
+	imagedefs.Insert(dynamic_image);
 }
+
 
 static void ImageParseField(const char *field, const char *contents, int index, bool is_last)
 {
@@ -146,6 +154,7 @@ static void ImageParseField(const char *field, const char *contents, int index, 
 		DDF_Error("Unknown images.ddf command: %s\n", field);
 	}
 }
+
 
 static void ImageFinishEntry(void)
 {
@@ -169,6 +178,7 @@ static void ImageFinishEntry(void)
 
 	// TODO check more stuff...
 }
+
 
 static void ImageClearAll(void)
 {

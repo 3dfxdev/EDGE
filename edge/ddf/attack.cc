@@ -116,7 +116,7 @@ static const commandlist_t attack_commands[] =
 //  DDF PARSE ROUTINES
 //
 
-static void AttackStartEntry(const char *name)
+static void AttackStartEntry(const char *name, bool extend)
 {
 	if (!name || !name[0])
 	{
@@ -126,14 +126,25 @@ static void AttackStartEntry(const char *name)
 
 	dynamic_atk = atkdefs.Lookup(name);
 
-	// not found, create a new one
-	if (! dynamic_atk)
+	if (extend)
 	{
-		dynamic_atk = new atkdef_c;
-		dynamic_atk->name = name;
-
-		atkdefs.Insert(dynamic_atk);
+		if (! dynamic_atk)
+			DDF_Error("Unknown attack to extend: %s\n", name);
+		return;
 	}
+
+	// replaces the existing entry
+	if (dynamic_atk)
+	{
+		dynamic_atk->Default();
+		return;
+	}
+
+	// not found, create a new one
+	dynamic_atk = new atkdef_c;
+	dynamic_atk->name = name;
+
+	atkdefs.Insert(dynamic_atk);
 }
 
 static void AttackParseField(const char *field, const char *contents,

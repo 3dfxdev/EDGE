@@ -310,7 +310,7 @@ const specflags_t keytype_names[] =
 //  DDF PARSE ROUTINES
 //
 
-static void LinedefStartEntry(const char *name)
+static void LinedefStartEntry(const char *name, bool extend)
 {
 	int number = MAX(0, atoi(name));
 
@@ -319,13 +319,25 @@ static void LinedefStartEntry(const char *name)
 
 	dynamic_line = linetypes.Lookup(number);
 
-	if (! dynamic_line)
+	if (extend)
 	{
-		dynamic_line = new linetype_c;
-		dynamic_line->name = name;
-
-		linetypes.Insert(dynamic_line);
+		if (! dynamic_line)
+			DDF_Error("Unknown line-type to extend: %s\n", name);
+		return;
 	}
+
+	// replaces the existing entry
+	if (dynamic_line)
+	{
+		dynamic_line->Default();
+		return;
+	}
+
+	// create a new one and add it
+	dynamic_line = new linetype_c;
+	dynamic_line->name = name;
+
+	linetypes.Insert(dynamic_line);
 }
 
 static void LinedefParseField(const char *field, const char *contents,

@@ -56,7 +56,7 @@ fontdef_container_c fontdefs;
 //  DDF PARSE ROUTINES
 //
 
-static void FontStartEntry(const char *name)
+static void FontStartEntry(const char *name, bool extend)
 {
 	dynamic_font = NULL;
 
@@ -68,12 +68,28 @@ static void FontStartEntry(const char *name)
 
 	dynamic_font = DDF_LookupFont(name);
 
-	if (! dynamic_font)
+	if (extend)
 	{
-		dynamic_font = new fontdef_c();
-		dynamic_font->name = name;
+		if (! dynamic_font)
+			DDF_Error("Unknown font to extend: %s\n", name);
+		return;
 	}
+
+	// replaces the existing entry
+	if (dynamic_font)
+	{
+		dynamic_font->Default();
+		return;
+	}
+
+	// not found, create a new one
+	dynamic_font = new fontdef_c();
+	dynamic_font->name = name;
+
+	// link it into name map
+	fontdefs[name] = dynamic_font;
 }
+
 
 static void FontParseField(const char *field, const char *contents, int index, bool is_last)
 {
@@ -98,11 +114,6 @@ static void FontFinishEntry(void)
 	}
 
 	// FIXME: check FNTYP_Image
-
-	// link it into name map
-	const char *name = dynamic_font->name.c_str();
-
-	fontdefs[name] = dynamic_font;
 }
 
 static void FontClearAll(void)

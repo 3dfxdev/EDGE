@@ -378,7 +378,7 @@ const specflags_t simplecond_names[] =
 //  DDF PARSE ROUTINES
 //
 
-static void ThingStartEntry(const char *buffer)
+static void ThingStartEntry(const char *buffer, bool extend)
 {
 	if (!buffer || !buffer[0])
 	{
@@ -387,13 +387,15 @@ static void ThingStartEntry(const char *buffer)
 	}
 
 	std::string name(buffer);
-
 	int number = 0;
 
 	char *pos = strchr(buffer, ':');
 
 	if (pos)
 	{
+		if (extend)
+			DDF_Error("Extending thing: must omit the number after ':'.\n");
+
 		name = std::string(buffer, pos - buffer);
 
 		number = MAX(0, atoi(pos+1));
@@ -405,28 +407,38 @@ static void ThingStartEntry(const char *buffer)
 		}
 	}
 
-	int idx = -1;
+	dynamic_thing = NULL;
 
+	int idx = mobjtypes.FindFirst(name.c_str(), mobjtypes.GetDisabledCount());
+	if (idx >= 0)
 	{
-		idx = mobjtypes.FindFirst(name.c_str(), mobjtypes.GetDisabledCount());
-
-		if (idx >= 0)
-		{
-			mobjtypes.MoveToEnd(idx);
-			dynamic_thing = mobjtypes[mobjtypes.GetSize()-1];
-		}
+		mobjtypes.MoveToEnd(idx);
+		dynamic_thing = mobjtypes[mobjtypes.GetSize()-1];
 	}
 
-	if (idx < 0)
+	if (extend)
 	{
-		dynamic_thing = new mobjtype_c;
-		dynamic_thing->name = name;
-
-		mobjtypes.Insert(dynamic_thing);
+		if (! dynamic_thing)
+			DDF_Error("Unknown thing to extend: %s\n", name.c_str());
+		return;
 	}
 
+	// replaces the existing entry
+	if (dynamic_thing)
+	{
+		dynamic_thing->Default();
+		dynamic_thing->number = number;
+		return;
+	}
+
+	// create a new one and insert it
+	dynamic_thing = new mobjtype_c;
+	dynamic_thing->name = name.c_str();
 	dynamic_thing->number = number;
+
+	mobjtypes.Insert(dynamic_thing);
 }
+
 
 void ThingParseField(const char *field, const char *contents,
 					 int index, bool is_last)
@@ -445,6 +457,7 @@ void ThingParseField(const char *field, const char *contents,
 
 	DDF_WarnError("Unknown thing command: %s\n", field);
 }
+
 
 static void ThingFinishEntry(void)
 {
@@ -1588,6 +1601,8 @@ mobjtype_c::~mobjtype_c()
 
 void mobjtype_c::Default()
 {
+	states.clear();
+
     spawn_state = 0;
     idle_state = 0;
     chase_state = 0;

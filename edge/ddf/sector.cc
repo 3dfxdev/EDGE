@@ -90,7 +90,7 @@ static sectortype_c *dynamic_sector;
 //  DDF PARSE ROUTINES
 //
 
-static void SectorStartEntry(const char *name)
+static void SectorStartEntry(const char *name, bool extend)
 {
 	int number = MAX(0, atoi(name));
 
@@ -99,13 +99,25 @@ static void SectorStartEntry(const char *name)
 
 	dynamic_sector = sectortypes.Lookup(number);
 
-	if (! dynamic_sector)
+	if (extend)
 	{
-		dynamic_sector = new sectortype_c;
-		dynamic_sector->name = name;
-
-		sectortypes.Insert(dynamic_sector);
+		if (! dynamic_sector)
+			DDF_Error("Unknown sector-type to extend: %s\n", name);
+		return;
 	}
+
+	// replaces the existing entry
+	if (dynamic_sector)
+	{
+		dynamic_sector->Default();
+		return;
+	}
+
+	// create a new one and insert it
+	dynamic_sector = new sectortype_c;
+	dynamic_sector->name = name;
+
+	sectortypes.Insert(dynamic_sector);
 }
 
 
