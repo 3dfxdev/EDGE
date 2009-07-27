@@ -184,7 +184,7 @@ void R_AddFlatAnim(animdef_c *anim)
 			// that -- the lump list does NOT take overriding flats (in newer
 			// pwads) into account.
 
-			flats[i] = W_ImageLookup(name, INS_Flat, ILF_Null|ILF_Exact|ILF_NoNew);
+			flats[i] = R_ImageLookup(name, INS_Flat, ILF_Null|ILF_Exact|ILF_NoNew);
 		}
 
 		R_AnimateImageSet(flats, total, anim->speed);
@@ -202,7 +202,7 @@ void R_AddFlatAnim(animdef_c *anim)
 
 	for (int i = 0; i < total; i++)
 	{
-		flats[i] = W_ImageLookup(anim->pics[i], INS_Flat, ILF_Null|ILF_Exact);
+		flats[i] = R_ImageLookup(anim->pics[i], INS_Flat, ILF_Null|ILF_Exact);
 	}
 
 	R_AnimateImageSet(flats, total, anim->speed);
@@ -257,7 +257,7 @@ void R_AddTextureAnim(animdef_c *anim)
 		for (int i = 0; i < total; i++)
 		{
 			const char *name = W_TextureNameInSet(set, s_offset + i);
-			texs[i] = W_ImageLookup(name, INS_Texture, ILF_Null|ILF_Exact|ILF_NoNew);
+			texs[i] = R_ImageLookup(name, INS_Texture, ILF_Null|ILF_Exact|ILF_NoNew);
 		}
 
 		R_AnimateImageSet(texs, total, anim->speed);
@@ -277,7 +277,7 @@ void R_AddTextureAnim(animdef_c *anim)
 
 	for (int i = 0; i < total; i++)
 	{
-		texs[i] = W_ImageLookup(anim->pics[i], INS_Texture, ILF_Null|ILF_Exact);
+		texs[i] = R_ImageLookup(anim->pics[i], INS_Texture, ILF_Null|ILF_Exact);
 	}
 
 	R_AnimateImageSet(texs, total, anim->speed);
@@ -298,7 +298,7 @@ void R_AddGraphicAnim(animdef_c *anim)
 
 	for (int i = 0; i < total; i++)
 	{
-		users[i] = W_ImageLookup(anim->pics[i], INS_Graphic, ILF_Null|ILF_Exact);
+		users[i] = R_ImageLookup(anim->pics[i], INS_Graphic, ILF_Null|ILF_Exact);
 	}
 
 	R_AnimateImageSet(users, total, anim->speed);
@@ -409,7 +409,7 @@ void W_PrecacheLevel(void)
 		if (images[i] == skyflatimage)
 			continue;
 
-		W_ImagePreCache(images[i]);
+		images[i]->PreCache();
 	}
 
 	RGL_PreCacheSky();

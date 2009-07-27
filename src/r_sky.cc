@@ -436,7 +436,7 @@ void RGL_DrawSkyOriginal(void)
 		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, white);
 	}
 
-	GLuint tex_id = W_ImageCache(sky_image, false, ren_fx_colmap);
+	GLuint tex_id = sky_image->Cache(false, ren_fx_colmap);
 
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, tex_id);
@@ -855,7 +855,7 @@ int RGL_UpdateSkyBoxTextures(void)
 
 
 	// check for custom sky images
-	info->face[WSKY_North] = W_ImageLookup(
+	info->face[WSKY_North] = R_ImageLookup(
 			UserSkyFaceName(sky_image->name, WSKY_North), INS_Texture, ILF_Null);
 
 	if (info->face[WSKY_North])
@@ -865,11 +865,11 @@ int RGL_UpdateSkyBoxTextures(void)
 		info->face_size = info->face[WSKY_North]->total_w;
 
 		for (int i = WSKY_East; i < 6; i++)
-			info->face[i] = W_ImageLookup(
+			info->face[i] = R_ImageLookup(
 					UserSkyFaceName(sky_image->name, i), INS_Texture);
 
 		for (int k = 0; k < 6; k++)
-			info->tex[k] = W_ImageCache(info->face[k], false, ren_fx_colmap);
+			info->tex[k] = info->face[k]->Cache(false, ren_fx_colmap);
 
 		return SK;
 	}

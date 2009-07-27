@@ -141,7 +141,7 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	if (!image)
 		return;
 
-	GLuint tex_id = W_ImageCache(image, false,
+	GLuint tex_id = image->Cache(false,
 					  (which == ps_crosshair) ? NULL : ren_fx_colmap);
 
 	float w = IM_WIDTH(image);
@@ -305,7 +305,7 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 				continue;
 		}
 
-		GLuint fuzz_tex = is_fuzzy ? W_ImageCache(fuzz_image, false) : 0;
+		GLuint fuzz_tex = is_fuzzy ? fuzz_image->Cache(false) : 0;
 
 		local_gl_vert_t * glvert = RGL_BeginUnit(GL_POLYGON, 4,
 				 is_additive ? ENV_SKIP_RGB : GL_MODULATE, tex_id,
@@ -404,10 +404,10 @@ static void DrawStdCrossHair(void)
 		char name[32];
 		sprintf(name, "STDCROSS%d", crosshair_which);
 
-		crosshair_image = W_ImageLookup(name);
+		crosshair_image = R_ImageLookup(name);
 	}
 
-	GLuint tex_id = W_ImageCache(crosshair_image);
+	GLuint tex_id = crosshair_image->Cache();
 
 
 	static int xh_count = 0;
@@ -542,7 +542,7 @@ void RGL_DrawWeaponModel(player_t * p)
 	if (! skin_img)  // FIXME: use a dummy image
 	{
 I_Debugf("Render model: no skin %d\n", skin_num);
-		skin_img = W_ImageForDummySkin();
+		skin_img = R_ImageForDummySkin();
 	}
 
 
@@ -628,7 +628,7 @@ static const image_c * R2_GetThingSprite2(mobj_t *mo, float mx, float my, bool *
 	{
 		// show dummy sprite for missing frame
 		(*flip) = false;
-		return W_ImageForDummySprite();
+		return R_ImageForDummySprite();
 	}
 
 	int rot = 0;
@@ -663,7 +663,7 @@ static const image_c * R2_GetThingSprite2(mobj_t *mo, float mx, float my, bool *
 	{
 		// show dummy sprite for missing rotation
 		(*flip) = false;
-		return W_ImageForDummySprite();
+		return R_ImageForDummySprite();
 	}
 
 	return frame->images[rot];
@@ -682,7 +682,7 @@ const image_c * R2_GetOtherSprite(int spritenum, int framenum, bool *flip)
 	if (! frame || ! frame->images[0])
 	{
 		(*flip) = false;
-		return W_ImageForDummySprite();
+		return R_ImageForDummySprite();
 	}
 
 	*flip = frame->flip[0] ? true : false;
@@ -1110,7 +1110,7 @@ static void RGL_DrawModel(drawthing_t *dthing)
 	if (! skin_img)
 	{
 I_Debugf("Render model: no skin %d\n", mo->model_skin);
-		skin_img = W_ImageForDummySkin();
+		skin_img = R_ImageForDummySkin();
 	}
 
 
@@ -1195,7 +1195,7 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 
 	const image_c *image = dthing->image;
 
-	GLuint tex_id = W_ImageCache(image, false,
+	GLuint tex_id = image->Cache(false,
 	                  ren_fx_colmap ? ren_fx_colmap : dthing->mo->info->palremap);
 
 //	float w = IM_WIDTH(image);
@@ -1360,7 +1360,7 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 				continue;
 		}
 
-		GLuint fuzz_tex = is_fuzzy ? W_ImageCache(fuzz_image, false) : 0;
+		GLuint fuzz_tex = is_fuzzy ? fuzz_image->Cache(false) : 0;
 
 		local_gl_vert_t * glvert = RGL_BeginUnit(GL_POLYGON, 4,
 				 is_additive ? ENV_SKIP_RGB : GL_MODULATE, tex_id,

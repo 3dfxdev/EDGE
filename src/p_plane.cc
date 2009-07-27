@@ -744,7 +744,7 @@ static plane_move_t *P_SetupSectorAction(sector_t * sector,
     }
     else if (def->tex[0])
     {
-        plane->new_image = W_ImageLookup(def->tex, INS_Flat);
+        plane->new_image = R_ImageLookup(def->tex, INS_Flat);
     }
 
     P_AddActivePlane(plane);

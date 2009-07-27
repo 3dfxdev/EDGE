@@ -989,7 +989,7 @@ static void DrawWallPart(seg_t *wseg,
 	SYS_ASSERT(image);
 
 	// (need to load the image to know the opacity)
-	GLuint tex_id = W_ImageCache(image, true, ren_fx_colmap);
+	GLuint tex_id = image->Cache(true, ren_fx_colmap);
 
 	// ignore non-solid walls in solid mode (& vice versa)
 	if ((trans < 0.99f || image->opacity >= OPAC_Masked) == solid_mode)
@@ -1295,7 +1295,7 @@ static void DrawTile(seg_t *seg, drawfloor_t *dfloor,
 	const image_c *image = surf->image;
 
 	if (! image)
-		image = W_ImageForHOMDetect();
+		image = R_ImageForHOMDetect();
 
 	float tex_top_h = tex_z + surf->offset.y;
 	float x_offset  = surf->offset.x;
@@ -1718,7 +1718,7 @@ static void EmulateFloodPlane(seg_t *seg, const drawfloor_t *dfloor,
 
 	flood_emu_data_t data;
 
-	data.tex_id = W_ImageCache(surf->image, true, ren_fx_colmap);
+	data.tex_id = surf->image->Cache(true, ren_fx_colmap);
 	data.pass = 0;
 
 	data.R = data.G = data.B = 1.0f;
@@ -2305,7 +2305,7 @@ static void RGL_DrawPlane(subsector_t *sub, drawfloor_t *dfloor, float h,
 
 
 	// (need to load the image to know the opacity)
-	GLuint tex_id = W_ImageCache(surf->image, true, ren_fx_colmap);
+	GLuint tex_id = surf->image->Cache(true, ren_fx_colmap);
 
 	// ignore non-solid planes in solid_mode (& vice versa)
 	if ((trans < 0.99f || surf->image->opacity >= OPAC_Masked) == solid_mode)
@@ -2703,7 +2703,7 @@ static void DrawPortalPolygon(drawmirror_c *mir)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// set texture
-	GLuint tex_id = W_ImageCache(surf->image);
+	GLuint tex_id = surf->image->Cache();
 
 	glBindTexture(GL_TEXTURE_2D, tex_id);
 

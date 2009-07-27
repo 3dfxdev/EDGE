@@ -287,7 +287,7 @@ static void M_DisplayPause(void)
 	static const image_c *pause_image = NULL;
 
 	if (! pause_image)
-		pause_image = W_ImageLookup("M_PAUSE");
+		pause_image = R_ImageLookup("M_PAUSE");
 
 	// make sure image is centered horizontally
 
@@ -469,7 +469,7 @@ void E_AdvanceTitle(void)
 		}
 
 		// ignore non-existing images
-		title_image = W_ImageLookup(g->titlepics[title_pic], INS_Graphic, ILF_Null);
+		title_image = R_ImageLookup(g->titlepics[title_pic], INS_Graphic, ILF_Null);
 
 		if (! title_image)
 		{

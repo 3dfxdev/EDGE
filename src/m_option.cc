@@ -840,7 +840,7 @@ void M_OptDrawer()
 		const image_c *image;
 
 		if (! curr_menu->title_image)
-			curr_menu->title_image = W_ImageLookup(curr_menu->title_name);
+			curr_menu->title_image = R_ImageLookup(curr_menu->title_name);
 
 		image = curr_menu->title_image;
 

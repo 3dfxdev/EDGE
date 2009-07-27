@@ -135,7 +135,7 @@ modeldef_c *LoadModelFromLump(int model_num)
 	{
 		sprintf(skinname, "%sSKN%d", basename, i);
 
-		def->skins[i] = W_ImageLookup(skinname, INS_Sprite, ILF_Null);
+		def->skins[i] = R_ImageLookup(skinname, INS_Sprite, ILF_Null);
 	}
 
 	// need at least one skin

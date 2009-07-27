@@ -683,7 +683,7 @@ void W_PrecacheSprites(void)
 				if (cur_image == NULL || cur_image == last_image)
 					continue;
 
-				W_ImagePreCache(cur_image);
+				cur_image->PreCache();
 
 				last_image = cur_image;
 			}

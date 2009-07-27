@@ -710,9 +710,9 @@ void M_DrawLoad(void)
 //
 void M_DrawSaveLoadBorder(float x, float y, int len)
 {
-	const image_c *L = W_ImageLookup("M_LSLEFT");
-	const image_c *C = W_ImageLookup("M_LSCNTR");
-	const image_c *R = W_ImageLookup("M_LSRGHT");
+	const image_c *L = R_ImageLookup("M_LSLEFT");
+	const image_c *C = R_ImageLookup("M_LSCNTR");
+	const image_c *R = R_ImageLookup("M_LSRGHT");
 
 	HUD_DrawImage(x - IM_WIDTH(L), y + 7, L);
 
@@ -1919,7 +1919,7 @@ void M_Drawer(void)
 			continue;
 
 		if (! currentMenu->menuitems[i].image)
-			currentMenu->menuitems[i].image = W_ImageLookup(
+			currentMenu->menuitems[i].image = R_ImageLookup(
 				currentMenu->menuitems[i].patch_name);
 
 		const image_c *image = currentMenu->menuitems[i].image;
@@ -1995,24 +1995,24 @@ void M_Init(void)
 	quickSaveSlot = -1;
 
 	// lookup required images
-	therm_l = W_ImageLookup("M_THERML");
-	therm_m = W_ImageLookup("M_THERMM");
-	therm_r = W_ImageLookup("M_THERMR");
-	therm_o = W_ImageLookup("M_THERMO");
+	therm_l = R_ImageLookup("M_THERML");
+	therm_m = R_ImageLookup("M_THERMM");
+	therm_r = R_ImageLookup("M_THERMR");
+	therm_o = R_ImageLookup("M_THERMO");
 
-	menu_loadg    = W_ImageLookup("M_LOADG");
-	menu_saveg    = W_ImageLookup("M_SAVEG");
-	menu_svol     = W_ImageLookup("M_SVOL");
-	menu_newgame  = W_ImageLookup("M_NEWG");
-	menu_skill    = W_ImageLookup("M_SKILL");
-	menu_episode  = W_ImageLookup("M_EPISOD");
-	menu_skull[0] = W_ImageLookup("M_SKULL1");
-	menu_skull[1] = W_ImageLookup("M_SKULL2");
+	menu_loadg    = R_ImageLookup("M_LOADG");
+	menu_saveg    = R_ImageLookup("M_SAVEG");
+	menu_svol     = R_ImageLookup("M_SVOL");
+	menu_newgame  = R_ImageLookup("M_NEWG");
+	menu_skill    = R_ImageLookup("M_SKILL");
+	menu_episode  = R_ImageLookup("M_EPISOD");
+	menu_skull[0] = R_ImageLookup("M_SKULL1");
+	menu_skull[1] = R_ImageLookup("M_SKULL2");
 
 	if (W_CheckNumForName("M_HTIC") >= 0)
-		menu_doom = W_ImageLookup("M_HTIC");
+		menu_doom = R_ImageLookup("M_HTIC");
 	else
-		menu_doom = W_ImageLookup("M_DOOM");
+		menu_doom = R_ImageLookup("M_DOOM");
 
 	// Here we could catch other version dependencies,
 	//  like HELP1/2, and four episodes.
@@ -2022,15 +2022,15 @@ void M_Init(void)
 	//      EpiDef.numitems--;
 
 	if (W_CheckNumForName("HELP") >= 0)
-		menu_readthis[0] = W_ImageLookup("HELP");
+		menu_readthis[0] = R_ImageLookup("HELP");
 	else
-		menu_readthis[0] = W_ImageLookup("HELP1");
+		menu_readthis[0] = R_ImageLookup("HELP1");
 
 	if (W_CheckNumForName("HELP2") >= 0)
-		menu_readthis[1] = W_ImageLookup("HELP2");
+		menu_readthis[1] = R_ImageLookup("HELP2");
 	else
 	{
-		menu_readthis[1] = W_ImageLookup("CREDIT");
+		menu_readthis[1] = R_ImageLookup("CREDIT");
 
 		// This is used because DOOM 2 had only one HELP
 		//  page. I use CREDIT as second page now, but

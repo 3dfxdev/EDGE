@@ -114,12 +114,12 @@ void font_c::LoadPatches()
 			int idx = ch - p_cache.first;
 			SYS_ASSERT(0 <= idx && idx < total);
 
-			p_cache.images[idx] = W_ImageLookup(pname, INS_Graphic, ILF_Font|ILF_Null);
+			p_cache.images[idx] = R_ImageLookup(pname, INS_Graphic, ILF_Font|ILF_Null);
 		}
 	}
 
 	p_cache.missing = def->missing_patch.empty() ? NULL :
-		W_ImageLookup(def->missing_patch.c_str(), INS_Graphic, ILF_Font|ILF_Null);
+		R_ImageLookup(def->missing_patch.c_str(), INS_Graphic, ILF_Font|ILF_Null);
 
 	const image_c *Nom = NULL;
 

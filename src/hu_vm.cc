@@ -354,7 +354,7 @@ static int HD_draw_image(lua_State *L)
 
 	const char *name = luaL_checkstring(L, 3);
 
-	const image_c *img = W_ImageLookup(name, INS_Graphic);
+	const image_c *img = R_ImageLookup(name, INS_Graphic);
 
 	if (img)
 	{
@@ -376,7 +376,7 @@ static int HD_stretch_image(lua_State *L)
 
 	const char *name = luaL_checkstring(L, 5);
 
-	const image_c *img = W_ImageLookup(name, INS_Graphic);
+	const image_c *img = R_ImageLookup(name, INS_Graphic);
 
 	if (img)
 	{
@@ -407,7 +407,7 @@ static int HD_tile_image(lua_State *L)
 	if (lua_isnumber(L, 7))
 		offset_y = lua_tonumber(L, 7);
 
-	const image_c *img = W_ImageLookup(name, INS_Texture);
+	const image_c *img = R_ImageLookup(name, INS_Texture);
 
 	if (img)
 	{

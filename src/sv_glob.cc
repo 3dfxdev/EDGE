@@ -152,7 +152,7 @@ static void GV_GetImage(const char *info, void *storage)
 	if (info[1] != ':')
 		I_Warning("GV_GetImage: invalid image string `%s'\n", info);
 
-	(*dest) = W_ImageParseSaveString(info[0], info + 2);
+	(*dest) = R_ImageParseSaveString(info[0], info + 2);
 }
 
 
@@ -209,7 +209,7 @@ static const char *GV_PutImage(void *storage)
 	if (*src == NULL)
 		return SV_DupString("");
 
-	W_ImageMakeSaveString(*src, buffer, buffer + 2);
+	R_ImageMakeSaveString(*src, buffer, buffer + 2);
 	buffer[1] = ':';
 
 	return SV_DupString(buffer);
