@@ -266,7 +266,11 @@ void RGL_DrawImage(float x, float y, float w, float h, const image_c *image,
 
 void HUD_StretchImage(float x, float y, float w, float h, const image_c *img)
 {
-	// FIXME: handle alignment !!!
+	if (cur_x_align >= 0)
+		x -= w / (cur_x_align == 0 ? 2.0f : 1.0f);
+
+	if (cur_y_align >= 0)
+		y -= h / (cur_y_align == 0 ? 2.0f : 1.0f);
 
 	x -= IM_OFFSETX(img);
 	y -= IM_OFFSETY(img);
@@ -288,7 +292,11 @@ void HUD_DrawImage(float x, float y, const image_c *img)
 void HUD_TileImage(float x, float y, float w, float h, const image_c *img,
 				   float offset_x, float offset_y)
 {
-	// FIXME: handle alignment !!!
+	if (cur_x_align >= 0)
+		x -= w / (cur_x_align == 0 ? 2.0f : 1.0f);
+
+	if (cur_y_align >= 0)
+		y -= h / (cur_y_align == 0 ? 2.0f : 1.0f);
 
 	offset_x /=  w;
 	offset_y /= -h;
