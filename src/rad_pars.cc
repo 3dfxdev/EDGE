@@ -35,8 +35,6 @@
 #include "version.h"
 #include "z_zone.h"
 
-static int rts_version;  // decimal e.g. 129
-
 
 typedef struct define_s
 {
@@ -166,11 +164,11 @@ void RAD_Error(const char *err, ...)
 
 void RAD_Warning(const char *err, ...)
 {
-	va_list argptr;
-	char buffer[1024];
-
 	if (no_warnings)
 		return;
+
+	va_list argptr;
+	char buffer[1024];
 
 	va_start(argptr, err);
 	vsprintf(buffer, err, argptr);
@@ -201,20 +199,6 @@ void RAD_WarnError(const char *err, ...)
 		RAD_Warning("%s", buffer);
 }
 
-static void RAD_WarnError2(int ver, const char *err, ...)
-{
-	va_list argptr;
-	char buffer[1024];
-
-	va_start(argptr, err);
-	vsprintf(buffer, err, argptr);
-	va_end(argptr);
-
-	if (strict_errors || (rts_version >= ver && ! lax_errors))
-		RAD_Error("%s", buffer);
-	else
-		RAD_Warning("%s", buffer);
-}
 
 // Searches through the #defines namespace for a match and returns
 // its value if it exists.
@@ -779,7 +763,7 @@ static void RAD_FreeParameters(int pnum, char **pars)
 
 static void RAD_ParseVersion(int pnum, const char **pars)
 {
-	// #Version <vers>
+	// #VERSION <vers>
 
 	if (rad_has_start_map)
 		RAD_Error("The #VERSION directive must appear before all scripts.\n");
@@ -791,14 +775,10 @@ static void RAD_ParseVersion(int pnum, const char **pars)
 	if (vers < 0.99f || vers > 9.99f)
 		RAD_Error("Illegal #VERSION number.\n");
 
-	rts_version = I_ROUND(vers * 100);
-
-	// backwards compat (old scripts have #VERSION 1.1 in them)
-	if (rts_version < 123)
-		rts_version = 127;
+	int rts_version = I_ROUND(vers * 100);
 
 	if (rts_version > EDGEVER)
-		RAD_Error("This version of EDGE cannot handle this RTS script\n");
+		RAD_Error("This version of EDGE cannot handle this RTS script.\n");
 }
 
 static void RAD_ParseClearAll(int pnum, const char **pars)
@@ -810,7 +790,7 @@ static void RAD_ParseClearAll(int pnum, const char **pars)
 
 static void RAD_ParseDefine(int pnum, const char **pars)
 {
-	// #Define <identifier> <num>
+	// #DEFINE <identifier> <num>
 
 	define_t *newdef;
 
@@ -896,9 +876,9 @@ static void RAD_ParseRadiusTrigger(int pnum, const char **pars)
 		RAD_CheckForFloat(pars[4], &y2);
 
 		if (x1 > x2)
-			RAD_WarnError2(128, "%s: bad X range %1.1f to %1.1f\n", pars[0], x1, x2);
+			RAD_WarnError("%s: bad X range %1.1f to %1.1f\n", pars[0], x1, x2);
 		if (y1 > y2)
-			RAD_WarnError2(128, "%s: bad Y range %1.1f to %1.1f\n", pars[0], y1, y2);
+			RAD_WarnError("%s: bad Y range %1.1f to %1.1f\n", pars[0], y1, y2);
 
 		this_rad->x = (float)(x1 + x2) / 2.0f;
 		this_rad->y = (float)(y1 + y2) / 2.0f;
@@ -911,7 +891,7 @@ static void RAD_ParseRadiusTrigger(int pnum, const char **pars)
 			RAD_CheckForFloat(pars[6], &z2);
 
 			if (z1 > z2 + 1)
-				RAD_WarnError2(128, "%s: bad height range %1.1f to %1.1f\n",
+				RAD_WarnError("%s: bad height range %1.1f to %1.1f\n",
 				pars[0], z1, z2);
 
 			this_rad->z = (z1 + z2) / 2.0f;
@@ -937,7 +917,7 @@ static void RAD_ParseRadiusTrigger(int pnum, const char **pars)
 			RAD_CheckForFloat(pars[5], &z2);
 
 			if (z1 > z2)
-				RAD_WarnError2(128, "%s: bad height range %1.1f to %1.1f\n", pars[0], z1, z2);
+				RAD_WarnError("%s: bad height range %1.1f to %1.1f\n", pars[0], z1, z2);
 
 			this_rad->z = (z1 + z2) / 2.0f;
 			this_rad->rad_z = fabs(z1 - z2) / 2.0f;
@@ -1438,7 +1418,7 @@ static void RAD_ParseTipAlign(int pnum, const char ** pars)
 	}
 	else
 	{
-		RAD_WarnError2(128, "TIP_POS: unknown justify method '%s'\n", pars[1]);
+		RAD_WarnError("TIP_POS: unknown justify method '%s'\n", pars[1]);
 	}
 
 	AddStateToScript(this_rad, 0, RAD_ActTipProps, tp);
@@ -1849,8 +1829,7 @@ static void RAD_ParseGotoMap(int pnum, const char **pars)
 			go->skip_all = true;
 		}
 		else
-			RAD_WarnError2(128, "%s: unknown flag '%s'.\n",
-				pars[0], pars[2]);
+			RAD_WarnError("%s: unknown flag '%s'.\n", pars[0], pars[2]);
 	}
 
 	AddStateToScript(this_rad, 0, RAD_ActGotoMap, go);
@@ -1917,8 +1896,7 @@ static void RAD_ParseMoveSector(int pnum, const char **pars)
 			if (DDF_CompareName(pars[4], "ABSOLUTE") == 0)
 				secv->relative = false;
 			else
-				RAD_WarnError2(128, "%s: expected 'ABSOLUTE' but got '%s'.\n",
-				pars[0], pars[4]);
+				RAD_WarnError("%s: expected 'ABSOLUTE' but got '%s'.\n", pars[0], pars[4]);
 		}
 	}
 
@@ -1959,8 +1937,7 @@ static void RAD_ParseLightSector(int pnum, const char **pars)
 			if (DDF_CompareName(pars[3], "ABSOLUTE") == 0)
 				secl->relative = false;
 			else
-				RAD_WarnError2(128, "%s: expected 'ABSOLUTE' but got '%s'.\n",
-				pars[0], pars[3]);
+				RAD_WarnError("%s: expected 'ABSOLUTE' but got '%s'.\n", pars[0], pars[3]);
 		}
 	}
 
@@ -2292,10 +2269,7 @@ void RAD_ParseLine(char *s)
 			continue;
 
 		if (obsolete)
-		{
-			if (no_obsoletes)
-				RAD_WarnError("The rts %s command is obsolete !\n", cur_name);
-		}
+			RAD_WarnError("The rts %s command is obsolete!\n", cur_name);
 
 		// check level
 		if (cur->level >= 0)
@@ -2332,7 +2306,7 @@ void RAD_ParseLine(char *s)
 		return;
 	}
 
-	RAD_WarnError2(128, "Unknown primitive: %s\n", pars[0]);
+	RAD_WarnError("Unknown primitive: %s\n", pars[0]);
 
 	RAD_FreeParameters(pnum, pars);
 	rad_cur_linedata.clear();
@@ -2342,8 +2316,6 @@ void RAD_ParserBegin(void)
 {
 	rad_cur_level = 0;
 	rad_has_start_map = false;
-
-	rts_version = 127;
 }
 
 void RAD_ParserDone(void)
