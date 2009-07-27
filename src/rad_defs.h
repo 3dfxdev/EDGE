@@ -630,9 +630,6 @@ typedef struct drawtip_s
 	// fading fields
 	int fade_time;
 	float fade_target;
-
-	int linenum;
-	char lines[TIP_LINE_MAX][TIP_CHAR_MAX];
 }
 drawtip_t;
 

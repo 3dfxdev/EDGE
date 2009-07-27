@@ -116,55 +116,11 @@ void RAD_ResetTips(void)
 
 static void SetupTip(drawtip_t *cur)
 {
-	int i;
-	int base_x, base_y;
-
 	if (cur->tip_graphic)
 		return;
 
 	if (cur->color == RGB_NO_VALUE)
 		cur->color = V_ParseFontColor(cur->p.color_name);
-
-	// build HULIB information
-
-	base_x = (int)(cur->p.x_pos);
-	base_y = (int)(cur->p.y_pos);
-
-	cur->linenum = 1;
-
-	memset(cur->lines, 0, sizeof(cur->lines));
-
-	int pos = 0;
-	const char *ch_ptr;
-
-	for (ch_ptr=cur->tip_text; *ch_ptr; ch_ptr++)
-	{
-		if (*ch_ptr == '\n' || pos > TIP_CHAR_MAX-4)
-		{
-			if (cur->linenum == TIP_LINE_MAX)
-				break;
-
-			if (! ch_ptr[1])
-				break;
-			
-			cur->linenum++;
-			pos = 0;
-			continue;
-		}
-
-		cur->lines[cur->linenum-1][pos++] = *ch_ptr;
-		cur->lines[cur->linenum-1][pos] = 0;
-	}
-
-	// adjust vertical positions
-	for (i=0; i < cur->linenum; i++)
-	{
-///!!!!		cur->hu_lines[i].y += (i * 2 - cur->hu_linenum) * font_height / 2;
-	}
-}
-
-static void FinishTip(drawtip_t *current)
-{
 }
 
 static void SendTip(rad_trigger_t *R, s_tip_t * tip, int slot)
@@ -174,10 +130,6 @@ static void SendTip(rad_trigger_t *R, s_tip_t * tip, int slot)
 	SYS_ASSERT(0 <= slot && slot < MAXTIPSLOT);
 
 	current = tip_slots + slot;
-
-	// if already in use, boot out the squatter
-	if (current->delay && !current->dirty)
-		FinishTip(current);
 
 	current->delay = tip->display_time;
 
@@ -197,8 +149,7 @@ static void SendTip(rad_trigger_t *R, s_tip_t * tip, int slot)
 		R->last_con_message = current->tip_text;
 	}
 
-	current->tip_graphic = tip->tip_graphic ?
-		W_ImageLookup(tip->tip_graphic) : NULL;
+	current->tip_graphic = tip->tip_graphic ?  W_ImageLookup(tip->tip_graphic) : NULL;
 	current->playsound   = tip->playsound ? true : false;
 	current->scale       = tip->tip_graphic ? tip->gfx_scale : 1.0f;
 	current->fade_time   = 0;
@@ -214,10 +165,7 @@ void RAD_DisplayTips(void)
 {
 	HUD_Reset();
 
-	int i, slot;
-	float alpha;
-
-	for (slot=0; slot < MAXTIPSLOT; slot++)
+	for (int slot=0; slot < MAXTIPSLOT; slot++)
 	{
 		drawtip_t *current = tip_slots + slot;
 
@@ -234,8 +182,6 @@ void RAD_DisplayTips(void)
 		// If the display time is up reset the tip and erase it.
 		if (current->delay == 0)
 		{
-			FinishTip(current);
-
 			current->delay = -1;
 			continue;
 		}
@@ -250,45 +196,33 @@ void RAD_DisplayTips(void)
 			current->playsound = false;
 		}
 
-		alpha = current->p.translucency;
+		float alpha = current->p.translucency;
 
 		if (alpha < 0.02f)
 			continue;
 
+		HUD_SetScale(current->scale);
+		HUD_SetTextColor(current->color);
+		HUD_SetAlpha(alpha);
+
+		if (current->p.left_just)
+			HUD_SetAlignment(-1, 0);
+		else
+			HUD_SetAlignment(0, 0);
+
 		if (current->tip_graphic)
 		{
-			const image_c *img = current->tip_graphic;
-			float scale = current->scale;
-
-			float x = current->p.x_pos;
-			float y = current->p.y_pos;
-
-			float w = scale * IM_WIDTH(img);
-			float h = scale * IM_HEIGHT(img);
-
-			y -= h / 2;
-
-			if (! current->p.left_just)
-				x -= w / 2;
-
-			HUD_SetAlpha(alpha);
-			HUD_StretchImage(x, y, w, h, img);
-			HUD_SetAlpha();
-
-			continue;
+			HUD_DrawImage(current->p.x_pos, current->p.y_pos, current->tip_graphic);
 		}
-
-		// Dump it to the screen
-
-		for (i=0; i < current->linenum; i++)
+		else
 		{
-			HUD_SetAlpha(alpha);
-			// FIXME HUD_SetAlignment
-			HUD_SetTextColor(current->color);
-
-			// FIXME: !!!!!! POSITION
-			HUD_DrawText(0, 30+i*HUD_FontHeight(), current->lines[i]);
+			HUD_DrawText(current->p.x_pos, current->p.y_pos, current->tip_text);
 		}
+
+		HUD_SetAlignment();
+		HUD_SetAlpha();
+		HUD_SetScale();
+		HUD_SetTextColor();
 	}
 }
 
@@ -297,11 +231,7 @@ void RAD_DisplayTips(void)
 //
 void RAD_Ticker(void)
 {
-	int i;
-
-	// update the tips.
-
-	for (i=0; i < MAXTIPSLOT; i++)
+	for (int i=0; i < MAXTIPSLOT; i++)
 	{
 		drawtip_t *current = tip_slots + i;
 
