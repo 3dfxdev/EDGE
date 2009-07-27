@@ -44,7 +44,6 @@
 
 #include <stdio.h>
 
-#define FONT_HEIGHT  7  //!!!! FIXME temp hack
 
 //
 // Locally used constants, shortcuts.
@@ -54,11 +53,6 @@
 #define HU_TITLEHEIGHT	1
 #define HU_TITLEX	0
 #define HU_TITLEY	(200 - 32 - 10) 
-
-#define HU_INPUTX	HU_MSGX
-#define HU_INPUTY	(HU_MSGY + HU_MSGHEIGHT * (FONT_HEIGHT+1))
-#define HU_INPUTWIDTH	64
-#define HU_INPUTHEIGHT	1
 
 #define HU_MAXLINELENGTH	80
 

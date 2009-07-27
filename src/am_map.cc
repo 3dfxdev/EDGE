@@ -622,7 +622,7 @@ my0 += 32;
 		if (y1 < f_y && y2 >= f_y + f_h)
 			break;
 
-		// FIXME
+		// FIXME: perhaps need HUD_ThinHLine()
 		HUD_SolidBox(f_x, y1, f_x+f_w, y1+0.5, am_colors[AMCOL_Grid]);
 		HUD_SolidBox(f_x, y2, f_x+f_w, y2+0.5, am_colors[AMCOL_Grid]);
 	}
