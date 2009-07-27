@@ -407,7 +407,7 @@ void DDF_MainGetNumeric(const char *info, void *storage)
 
 	if (isalpha(info[0]))
 	{
-		DDF_WarnError2(128, "Bad numeric value: %s\n", info);
+		DDF_WarnError("Bad numeric value: %s\n", info);
 		return;
 	}
 
@@ -467,7 +467,7 @@ void DDF_MainGetLumpName(const char *info, void *storage)
 	lumpname_c *LN = (lumpname_c *)storage;
 
 	if (strlen(info) == 9)
-		DDF_WarnError2(131, "Name %s too long (should be 8 characters or less)\n", info);
+		DDF_WarnError("Name %s too long (should be 8 characters or less)\n", info);
 	else if (strlen(info) > 9)
 		DDF_Error("Name %s too long (must be 8 characters or less)\n", info);
 
@@ -483,7 +483,7 @@ void DDF_MainRefAttack(const char *info, void *storage)
 
 	*dest = (atkdef_c*)atkdefs.Lookup(info);
 	if (*dest == NULL)
-		DDF_WarnError2(128, "Unknown Attack: %s\n", info);
+		DDF_WarnError("Unknown Attack: %s\n", info);
 }
 
 
@@ -513,7 +513,7 @@ void DDF_MainGetAngle(const char *info, void *storage)
 	if ((int) val == 360)
 		val = 359.5;
 	else if (val > 360.0f)
-		DDF_WarnError2(129, "Angle '%s' too large (must be less than 360)\n", info);
+		DDF_WarnError("Angle '%s' too large (must be less than 360)\n", info);
 
 	*dest = FLOAT_2_ANG(val);
 }
@@ -551,7 +551,7 @@ void DDF_MainGetPercent(const char *info, void *storage)
 	// the number must be followed by %
 	if (*p != '%')
 	{
-		DDF_WarnError2(128, "Bad percent value '%s': Should be a number followed by %%\n", info);
+		DDF_WarnError("Bad percent value '%s': Should be a number followed by %%\n", info);
 		// -AJA- 2001/01/27: backwards compatibility
 		DDF_MainGetFloat(s, &f);
 		*dest = MAX(0, MIN(1, f));
@@ -588,7 +588,7 @@ void DDF_MainGetPercentAny(const char *info, void *storage)
 	// the number must be followed by %
 	if (*p != '%')
 	{
-		DDF_WarnError2(128, "Bad percent value '%s': Should be a number followed by %%\n", info);
+		DDF_WarnError("Bad percent value '%s': Should be a number followed by %%\n", info);
 		// -AJA- 2001/01/27: backwards compatibility
 		DDF_MainGetFloat(s, dest);
 		return;
@@ -873,7 +873,7 @@ static int FindSpecialFlag(const char *prefix, const char *name,
 		if (DDF_CompareName(name, try_name) == 0)
 		{
 			if (obsolete)
-				DDF_Obsolete("The ddf flag `%s' is obsolete !\n", try_name);
+				DDF_WarnError("The ddf flag '%s' is obsolete!\n", try_name);
 
 			return i;
 		}
