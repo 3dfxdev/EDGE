@@ -193,11 +193,6 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	y1t = y2t = viewwindow_h * ty2 / 200.0f;
 
 
-	// clip psprite to view window
-	glEnable(GL_SCISSOR_TEST);
-
-	glScissor(viewwindow_x, viewwindow_y, viewwindow_w, viewwindow_h);
-
 	x1b = (float)viewwindow_x + x1b;
 	x1t = (float)viewwindow_x + x1t;
 	x2t = (float)viewwindow_x + x2t;
@@ -380,7 +375,6 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	glDisable(GL_ALPHA_TEST);
 	glDisable(GL_BLEND);
 #endif
-	glDisable(GL_SCISSOR_TEST);
 }
 
 static const rgbcol_t crosshair_colors[8] =

@@ -99,6 +99,9 @@ void HUD_DrawText(float x, float y, const char *str);
 // draw a text string with the current font, current color (etc).
 
 
+void HUD_RenderWorld(float x1, float y1, float x2, float y2, mobj_t *camera);
+// render a view of the world using the given camera object.
+
 #endif /* __R_DRAW_H__ */
 
 //--- editor settings ---

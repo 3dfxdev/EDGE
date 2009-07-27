@@ -29,6 +29,7 @@
 #include "hu_draw.h"
 #include "r_modes.h"
 #include "r_image.h"
+#include "r_misc.h"     //  R_Render
 
 
 #define DUMMY_WIDTH(font)  (4)
@@ -141,14 +142,23 @@ void HUD_PushScissor(float x1, float y1, float x2, float y2)
 	if (sci_stack_top == 0)
 	{
 		glEnable(GL_SCISSOR_TEST);
+
+		sx1 = MAX(sx1, 0);
+		sy1 = MAX(sy1, 0);
+
+		sx2 = MIN(sx2, SCREENWIDTH);
+		sy2 = MIN(sy2, SCREENHEIGHT);
 	}
 	else
 	{
 		// clip to previous scissor
 		int *xy = scissor_stack[sci_stack_top-1];
 
-		sx1 = MAX(sx1, xy[0]); sy1 = MAX(sy1, xy[1]);
-		sx2 = MIN(sx2, xy[2]); sy2 = MIN(sy2, xy[3]);
+		sx1 = MAX(sx1, xy[0]);
+		sy1 = MAX(sy1, xy[1]);
+
+		sx2 = MIN(sx2, xy[2]);
+		sy2 = MIN(sy2, xy[3]);
 	}
 
 	SYS_ASSERT(sx2 >= sx1);
@@ -519,6 +529,18 @@ void HUD_DrawText(float x, float y, const char *str)
 		str += (len + 1);
 		cy  += HUD_FontHeight() + VERT_SPACING;
 	}
+}
+
+
+void HUD_RenderWorld(float x1, float y1, float x2, float y2, mobj_t *camera)
+{
+	HUD_PushScissor(x1, y1, x2, y2);
+
+	int *xy = scissor_stack[sci_stack_top-1];
+
+	R_Render(xy[0], xy[1], xy[2]-xy[0], xy[3]-xy[1], camera);
+
+	HUD_PopScissor();
 }
 
 //--- editor settings ---

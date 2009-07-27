@@ -2957,6 +2957,8 @@ static void RGL_RenderTrueBSP(void)
 
 static void InitCamera(mobj_t *mo)
 {
+	view_cam_mo = mo;
+
 	float fov = r_fov.f;
 	
 	view_zoomed = false;
@@ -3086,13 +3088,7 @@ void R_Render(int x, int y, int w, int h, mobj_t *camera)
 	viewwindow_w = w;
 	viewwindow_h = h;
 
-	view_cam_mo = camera;
-
-	// FIXME: SCISSOR TEST
-
-
 	// Load the details for the camera
-
 	InitCamera(camera);
 
 	// Profiling
