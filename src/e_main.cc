@@ -128,6 +128,10 @@ std::string shot_dir;
 
 static void E_TitleDrawer(void);
 
+cvar_c ddf_strict;
+cvar_c ddf_lax;
+cvar_c ddf_quiet;
+
 extern cvar_c r_width;
 extern cvar_c r_height;
 extern cvar_c r_depth;
@@ -218,11 +222,14 @@ static void SetGlobalVars(void)
 
 ///???	M_CheckBooleanParm("itemrespawn", &global_flags.itemrespawn, false);
 
-	// check for strict and no-warning options
-	M_CheckBooleanParm("strict", &strict_errors, false);
-	M_CheckBooleanParm("warn", &no_warnings, true);
-	M_CheckBooleanParm("obsolete", &no_obsoletes, true);
-	M_CheckBooleanParm("lax", &lax_errors, false);
+	// check for strict, lax and no-warning options
+	M_CheckBooleanCVar("strict", &ddf_strict, false);
+	M_CheckBooleanCVar("lax",    &ddf_lax,    false);
+	M_CheckBooleanCVar("warn",   &ddf_quiet,  true);
+
+	strict_errors = ddf_strict.d ? true : false;
+	lax_errors    = ddf_lax.d    ? true : false;
+	no_warnings   = ddf_quiet.d  ? true : false;
 }
 
 
