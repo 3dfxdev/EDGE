@@ -53,7 +53,7 @@ static switchdef_c *dynamic_switchdef;
 //  DDF PARSE ROUTINES
 //
 
-static void SwitchStartEntry(const char *name)
+static void SwitchStartEntry(const char *name, bool extend)
 {
 	if (!name || !name[0])
 	{
@@ -63,13 +63,24 @@ static void SwitchStartEntry(const char *name)
 
 	dynamic_switchdef = switchdefs.Find(name);
 
-	if (! dynamic_switchdef)
+	if (extend)
 	{
-		dynamic_switchdef = new switchdef_c;
-		dynamic_switchdef->name = name;
-
-		switchdefs.Insert(dynamic_switchdef);
+		if (! dynamic_switchdef)
+			DDF_Error("Unknown switch to extend: %s\n", name);
+		return;
 	}
+
+	// replaces the existing entry
+	if (dynamic_switchdef)
+	{
+		dynamic_switchdef->Default();
+		return;
+	}
+
+	dynamic_switchdef = new switchdef_c;
+	dynamic_switchdef->name = name;
+
+	switchdefs.Insert(dynamic_switchdef);
 }
 
 static void SwitchParseField(const char *field, const char *contents,

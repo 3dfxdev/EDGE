@@ -44,7 +44,7 @@ static pl_entry_c *dynamic_plentry;
 //  DDF PARSE ROUTINES
 //
 
-static void PlaylistStartEntry(const char *name)
+static void PlaylistStartEntry(const char *name, bool extend)
 {	
 	int number = MAX(0, atoi(name));
 
@@ -53,14 +53,27 @@ static void PlaylistStartEntry(const char *name)
 
 	dynamic_plentry = playlist.Find(number);
 
-	if (! dynamic_plentry)
+	if (extend)
 	{
-		dynamic_plentry = new pl_entry_c;
-		dynamic_plentry->name = name;
-
-		playlist.Insert(dynamic_plentry);
+		if (! dynamic_plentry)
+			DDF_Error("Unknown playlist to extend: %s\n", name);
+		return;
 	}
+
+	// replaces the existing entry
+	if (dynamic_plentry)
+	{
+		dynamic_plentry->Default();
+		return;
+	}
+
+	// create a new one and insert it
+	dynamic_plentry = new pl_entry_c;
+	dynamic_plentry->name = name;
+
+	playlist.Insert(dynamic_plentry);
 }
+
 
 static void PlaylistParseField(const char *field, const char *contents,
 		int index, bool is_last)

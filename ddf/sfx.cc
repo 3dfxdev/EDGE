@@ -59,7 +59,7 @@ static sfxdef_c *dynamic_sfx;
 //  DDF PARSE ROUTINES
 //
 
-static void SoundStartEntry(const char *name)
+static void SoundStartEntry(const char *name, bool extend)
 {
 	if (!name || !name[0])
 	{
@@ -69,19 +69,37 @@ static void SoundStartEntry(const char *name)
 
 	dynamic_sfx = sfxdefs.Lookup(name);
 
-	// not found, create a new one
-	if (! dynamic_sfx)
+	if (extend)
 	{
-		dynamic_sfx = new sfxdef_c;
-		dynamic_sfx->name = name;
-
-		sfxdefs.Insert(dynamic_sfx);
-
-		// Keeps the ID info intact as well.
-		dynamic_sfx->normal.num = 1;
-		dynamic_sfx->normal.sounds[0] = sfxdefs.GetSize()-1; // self reference
+		if (! dynamic_sfx)
+			DDF_Error("Unknown sfx to extend: %s\n", name);
+		return;
 	}
+
+	// replaces the existing entry
+	if (dynamic_sfx)
+	{
+		// maintain the internal ID
+		int id = dynamic_sfx->normal.sounds[0];
+
+		dynamic_sfx->Default();
+
+		dynamic_sfx->normal.num = 1;
+		dynamic_sfx->normal.sounds[0] = id;
+		return;
+	}
+
+	// not found, create a new one
+	dynamic_sfx = new sfxdef_c;
+	dynamic_sfx->name = name;
+
+	sfxdefs.Insert(dynamic_sfx);
+
+	// Keeps the ID info intact as well.
+	dynamic_sfx->normal.num = 1;
+	dynamic_sfx->normal.sounds[0] = sfxdefs.GetSize()-1; // self reference
 }
+
 
 static void SoundParseField(const char *field, const char *contents,
     int index, bool is_last)

@@ -146,10 +146,14 @@ typedef struct readinfo_s
 	// entry and add it to the list.  Note that only the name and/or
 	// number need to be kept valid in the dynamic entry.
 	//
+	// when 'extend' is true, the existing entry should merely be
+	// extended with new data (i.e. don't reset to defaults).  If
+	// there is no existing entry, an error is raised.
+	//
 	// Note: for things.ddf, only the name is significant when checking
 	// if the entry already exists.
 	//
-	void (*start_entry) (const char *name);
+	void (*start_entry) (const char *name, bool extend);
 
 	// parse a single field for the entry.  Usually it will just call
 	// the ddf_main routine to handle the command list.  For

@@ -211,7 +211,7 @@ const specflags_t ammo_types[] =
 //  DDF PARSE ROUTINES
 //
 
-static void WeaponStartEntry(const char *name)
+static void WeaponStartEntry(const char *name, bool extend)
 {
 	if (!name || !name[0])
 	{
@@ -221,15 +221,27 @@ static void WeaponStartEntry(const char *name)
 
 	dynamic_weapon = weapondefs.Lookup(name);
 
-	// not found, create a new one
-	if (! dynamic_weapon)
+	if (extend)
 	{
-		dynamic_weapon = new weapondef_c;
-		dynamic_weapon->name = name;
-
-		weapondefs.Insert(dynamic_weapon);
+		if (! dynamic_weapon)
+			DDF_Error("Unknown weapon to extend: %s\n", name);
+		return;
 	}
+
+	// replaces the existing entry
+	if (dynamic_weapon)
+	{
+		dynamic_weapon->Default();
+		return;
+	}
+
+	// not found, create a new one
+	dynamic_weapon = new weapondef_c;
+	dynamic_weapon->name = name;
+
+	weapondefs.Insert(dynamic_weapon);
 }
+
 
 static void WeaponParseField(const char *field, const char *contents,
     int index, bool is_last)
@@ -248,6 +260,7 @@ static void WeaponParseField(const char *field, const char *contents,
 
 	DDF_WarnError("Unknown weapons.ddf command: %s\n", field);
 }
+
 
 static void WeaponFinishEntry(void)
 {
@@ -485,6 +498,8 @@ weapondef_c::~weapondef_c()
 
 void weapondef_c::Default(void)
 {
+	states.clear();
+
 	for (int ATK = 0; ATK < 2; ATK++)
 	{
 		attack[ATK] = NULL;

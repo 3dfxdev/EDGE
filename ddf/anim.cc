@@ -63,15 +63,15 @@ animdef_container_c animdefs;
 //  DDF PARSE ROUTINES
 //
 
-static void AnimStartEntry(const char *name)
+static void AnimStartEntry(const char *name, bool extend)
 {
-	bool replaces = false;
-
 	if (!name || !name[0])
 	{
 		DDF_WarnError("New anim entry is missing a name!");
 		name = "ANIM_WITH_NO_NAME";
 	}
+
+	dynamic_anim = NULL;
 
 	epi::array_iterator_c it;
 
@@ -82,19 +82,29 @@ static void AnimStartEntry(const char *name)
 		if (DDF_CompareName(a->name.c_str(), name) == 0)
 		{
 			dynamic_anim = a;
-			replaces = true;
 			break;
 		}
 	}
 
-	// not found, create a new one
-	if (! replaces)
+	if (extend)
 	{
-		dynamic_anim = new animdef_c;
-		dynamic_anim->name = name;
-
-		animdefs.Insert(dynamic_anim);
+		if (! dynamic_anim)
+			DDF_Error("Unknown animdef to extend: %s\n", name);
+		return;
 	}
+
+	// replacing an existing one
+	if (dynamic_anim)
+	{
+		dynamic_anim->Default();
+		return;
+	}
+
+	// not found, create a new one
+	dynamic_anim = new animdef_c;
+	dynamic_anim->name = name;
+
+	animdefs.Insert(dynamic_anim);
 }
 
 static void AnimParseField(const char *field, const char *contents, int index, bool is_last)
