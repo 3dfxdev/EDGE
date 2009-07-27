@@ -591,7 +591,6 @@ void DDF_MainReadFile(readinfo_t * readinfo, char *pos)
 
 	bool seen_entry = false;
 	bool seen_command = false;
-	bool extending;
 
 	DDF_MainProcessNewLine(readinfo, pos, seen_entry);
 
@@ -696,9 +695,15 @@ void DDF_MainReadFile(readinfo_t * readinfo, char *pos)
 			case def_stop:
 				cur_ddf_entryname = epi::STR_Format("[%s]", token.c_str());
 
-				extending = false; // TODO
-
-				(* readinfo->start_entry)(token.c_str(), extending);
+				// -AJA- 2009/07/27: extend an existing entry
+				if (token[0] == '+' && token[1] == '+')
+				{
+					(* readinfo->start_entry)(token.c_str()+2, true);
+				}
+				else
+				{
+					(* readinfo->start_entry)(token.c_str(), false);
+				}
          
 				token.clear();
 				seen_command = false;
