@@ -179,7 +179,7 @@ static void ConvertSelection(int prev_obj_type)
 {
 	if (true) // edit.Selected->empty())
 	{
-		edit.Selected->change_type(edit.obj_type);
+		edit.Selected->change_type((obj_type_t)edit.obj_type);
 		return;
 	}
 
@@ -618,7 +618,7 @@ cancel_save_as:
 			case 'l': edit.obj_type = OBJ_LINEDEFS; break;
 			case 's': edit.obj_type = OBJ_SECTORS;  break;
 			case 'v': edit.obj_type = OBJ_VERTICES; break;
-			case 'r': edit.obj_type = OBJ_RSCRIPT;  break;
+			case 'r': edit.obj_type = OBJ_RADTRIGS; break;
 
 			default: FatalError ("changing mode with %04X", is_key);
 		}
@@ -721,13 +721,13 @@ cancel_save_as:
 	else if ((is_key == 'n' || is_key == '>')
 			&& ( edit.highlighted ()))
 	{
-		obj_type_t t = edit.highlighted () ? edit.highlighted.type : edit.obj_type;
+		int t = edit.highlighted () ? edit.highlighted.type : edit.obj_type;
 		obj_no_t nmax = GetMaxObjectNum (t);
 		if (is_obj (nmax))
 		{
 			if (edit.highlighted.is_nil ())
 			{
-				edit.highlighted.type = t;
+				edit.highlighted.type = (obj_type_t)t;
 				edit.highlighted.num = 0;
 			}
 			else
@@ -745,13 +745,13 @@ cancel_save_as:
 	else if ((is_key == 'p' || is_key == '<')
 			&& ( edit.highlighted ()))
 	{
-		obj_type_t t = edit.highlighted () ? edit.highlighted.type : edit.obj_type;
+		int t = edit.highlighted () ? edit.highlighted.type : edit.obj_type;
 		obj_no_t nmax = GetMaxObjectNum (t);
 		if (is_obj (nmax))
 		{
 			if (edit.highlighted.is_nil ())
 			{
-				edit.highlighted.type = t;
+				edit.highlighted.type = (obj_type_t)t;
 				edit.highlighted.num = nmax;
 			}
 			else
@@ -774,7 +774,7 @@ cancel_save_as:
 		if (buf)
 		{
 			Objid target_obj;
-			target_obj.type = edit.obj_type;
+			target_obj.type = (obj_type_t)edit.obj_type;
 			target_obj.num  = atoi(buf);
 
 			if (target_obj ())
@@ -791,7 +791,7 @@ cancel_save_as:
 		Objid find_obj;
 		int otype;
 		obj_no_t omax,onum;
-		find_obj.type = edit.highlighted () ? edit.highlighted.type : edit.obj_type;
+		find_obj.type = edit.highlighted () ? edit.highlighted.type : (obj_type_t)edit.obj_type;
 		onum = find_obj.num  = edit.highlighted () ? edit.highlighted.num  : 0;
 		omax = GetMaxObjectNum(find_obj.type);
 		switch (find_obj.type)
@@ -800,7 +800,7 @@ cancel_save_as:
 				if ( ! InputSectorType( 84, 21, &otype))
 				{
 					for (onum = edit.highlighted () ? onum + 1 : onum; onum <= omax; onum++)
-						if (Sectors[onum].type == (wad_stype_t) otype)
+						if (Sectors[onum]->type == (wad_stype_t) otype)
 						{
 							find_obj.num = onum;
 							GoToObject(find_obj);
@@ -812,7 +812,7 @@ cancel_save_as:
 				if ( ! InputThingType( 42, 21, &otype))
 				{
 					for (onum = edit.highlighted () ? onum + 1 : onum; onum <= omax; onum++)
-						if (Things[onum].type == (wad_ttype_t) otype)
+						if (Things[onum]->type == (wad_ttype_t) otype)
 						{
 							find_obj.num = onum;
 							GoToObject(find_obj);
@@ -824,7 +824,7 @@ cancel_save_as:
 				if ( ! InputLinedefType( 0, 21, &otype))
 				{
 					for (onum = edit.highlighted () ? onum + 1 : onum; onum <= omax; onum++)
-						if (LineDefs[onum].type == (wad_ldtype_t) otype)
+						if (LineDefs[onum]->type == (wad_ldtype_t) otype)
 						{
 							find_obj.num = onum;
 							GoToObject(find_obj);
@@ -1243,9 +1243,9 @@ cancel_save_as:
 	else if (is_key == 20)
 	{
 		if (edit.highlighted._is_sector ())
-			list_tagged_linedefs (Sectors[edit.highlighted.num].tag);
+			list_tagged_linedefs (Sectors[edit.highlighted.num]->tag);
 		else if (edit.highlighted._is_linedef ())
-			list_tagged_sectors (LineDefs[edit.highlighted.num].tag);
+			list_tagged_sectors (LineDefs[edit.highlighted.num]->tag);
 		else
 			Beep ();
 	}
@@ -1330,10 +1330,10 @@ void EditorMousePress(bool is_ctrl)
 		/* I don't like having to do that */
 		if (object.type == OBJ_THINGS && object ())
 			MoveObjectsToCoords (object.type, 0,
-					Things[object.num].x, Things[object.num].y, 0);
+					Things[object.num]->x, Things[object.num]->y, 0);
 		else if (object.type == OBJ_VERTICES && object ())
 			MoveObjectsToCoords (object.type, 0,
-					Vertices[object.num].x, Vertices[object.num].y, 0);
+					Vertices[object.num]->x, Vertices[object.num]->y, 0);
 		else
 			MoveObjectsToCoords (object.type, 0,
 					edit.map_x, edit.map_y, grid.snap ? grid.step : 0);
@@ -1370,10 +1370,10 @@ void EditorMousePress(bool is_ctrl)
 		/* I don't like having to do that */
 		if (object.type == OBJ_THINGS && object ())
 			MoveObjectsToCoords (object.type, 0,
-					Things[object.num].x, Things[object.num].y, 0);
+					Things[object.num]->x, Things[object.num]->y, 0);
 		else if (object.type == OBJ_VERTICES && object ())
 			MoveObjectsToCoords (object.type, 0,
-					Vertices[object.num].x, Vertices[object.num].y, 0);
+					Vertices[object.num]->x, Vertices[object.num]->y, 0);
 		else
 			MoveObjectsToCoords (object.type, 0,
 					edit.map_x, edit.map_y, grid.snap ? grid.step : 0);
@@ -1448,7 +1448,7 @@ void EditorMouseMotion(int x, int y, int map_x, int map_y, bool drag)
 
 	if (! drag)
 	{
-		obj_type_t t = edit.obj_type;
+		obj_type_t t = (obj_type_t) edit.obj_type;
 
 		GetCurObject (object, t, edit.map_x, edit.map_y);
 
