@@ -250,6 +250,7 @@ bool BA_Redo();
 // there is no stored redo steps.
 
 int BA_InternaliseString(const char *str);
+int BA_InternaliseShortStr(const char *str, int max_len);
 // add this string to the basis string table (if it doesn't
 // already exist) and return its integer offset.
 
