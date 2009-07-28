@@ -2,8 +2,10 @@
 //  MAIN PROGRAM
 //------------------------------------------------------------------------
 //
-//  Eureka DOOM Editor (C) 2001-2009 Andrew Apted
-//                     (C) 1997-2003 André Majorel et al
+//  Eureka DOOM Editor
+//
+//  Copyright (C) 2001-2009 Andrew Apted
+//  Copyright (C) 1997-2003 André Majorel et al
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -41,7 +43,7 @@
 #include "ui_window.h"
 
 
-#define VERSION  "0.42"
+#define VERSION  "0.46"
 
 
 /*
@@ -156,7 +158,7 @@ static int parse_environment_vars ()
 {
 	char *value;
 
-	value = getenv ("YADEX_GAME");
+	value = getenv ("EUREKA_GAME");
 	if (value != NULL)
 		Game = value;
 	return 0;

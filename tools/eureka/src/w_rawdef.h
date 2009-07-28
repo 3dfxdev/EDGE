@@ -2,7 +2,9 @@
 //  RAWDEF : Doom structures, raw on-disk layout
 //------------------------------------------------------------------------
 //
-//  Copyright (c) 2007-2008  The EDGE Team.
+//  Eureka DOOM Editor
+//
+//  Copyright (C) 2007-2008 Andrew Apted
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License

@@ -2,8 +2,10 @@
 //  MAIN DEFINITIONS
 //------------------------------------------------------------------------
 //
-//  Eureka DOOM Editor (C) 2001-2009 Andrew Apted
-//                     (C) 1997-2003 André Majorel et al
+//  Eureka DOOM Editor
+//
+//  Copyright (C) 2001-2009 Andrew Apted
+//  Copyright (C) 1997-2003 André Majorel et al
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -127,7 +129,8 @@ const char *const Y_NULL = 0;  // NULL (const char *)
 class rgb_c;
 
 
-#include "w_structs.h"
+#include "e_basis.h"
+//????  #include "w_structs.h"
 
 
 /*
@@ -178,7 +181,6 @@ struct Lump_loc
    s32_t len;
    };
 
-#include "w_structs.h"
 
 
 /*

@@ -2,7 +2,9 @@
 //  FLTK INCLUDES
 //------------------------------------------------------------------------
 //
-//  Oblige Level Maker (C) 2006-2008 Andrew Apted
+//  Eureka DOOM Editor
+//
+//  Copyright (C) 2006-2008 Andrew Apted
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License

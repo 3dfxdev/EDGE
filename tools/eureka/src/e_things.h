@@ -2,8 +2,10 @@
 //  THING OPERATIONS
 //------------------------------------------------------------------------
 //
-//  Eureka DOOM Editor (C) 2001-2009 Andrew Apted
-//                     (C) 1997-2003 André Majorel et al
+//  Eureka DOOM Editor
+//
+//  Copyright (C) 2001-2009 Andrew Apted
+//  Copyright (C) 1997-2003 André Majorel et al
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -26,8 +28,6 @@
 #ifndef YH_THINGS  /* Prevent multiple inclusion */
 #define YH_THINGS  /* Prevent multiple inclusion */
 
-
-#include "w_structs.h"
 
 
 /* starting areas */
