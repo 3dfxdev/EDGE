@@ -243,6 +243,22 @@ static void WeaponStartEntry(const char *name, bool extend)
 }
 
 
+static void WeaponDoTemplate(const char *contents, bool do_states, int index)
+{
+	if (index > 0)
+		DDF_Error("Template must be a single name (not a list).\n");
+
+	weapondef_c *other = weapondefs.Lookup(contents);
+	if (! other)
+		DDF_Error("Unknown weapon template: '%s'\n", contents);
+
+	dynamic_weapon->CopyDetail(*other);
+
+	if (do_states)
+		dynamic_weapon->CopyStates(*other);
+}
+
+
 static void WeaponParseField(const char *field, const char *contents,
     int index, bool is_last)
 {
@@ -250,13 +266,26 @@ static void WeaponParseField(const char *field, const char *contents,
 	I_Debugf("WEAPON_PARSE: %s = %s;\n", field, contents);
 #endif
 
+	if (DDF_CompareName(field, "TEMPLATE") == 0)
+	{
+		WeaponDoTemplate(contents, true, index);
+		return;
+	}
+	if (DDF_CompareName(field, "TEMPLATE_NOSTATES") == 0)
+	{
+		WeaponDoTemplate(contents, false, index);
+		return;
+	}
+
 	if (DDF_MainParseField((char *)dynamic_weapon, weapon_commands, field, contents))
 		return;
 
 	if (DDF_MainParseState((char *)dynamic_weapon, dynamic_weapon->states, field, contents,
 						   index, is_last, true /* is_weapon */,
 						   weapon_starters, weapon_actions))
+	{
 		return;
+	}
 
 	DDF_WarnError("Unknown weapons.ddf command: %s\n", field);
 }
@@ -525,7 +554,6 @@ void weapondef_c::Default(void)
 	ready_state = 0;
 	empty_state = 0;
 	idle_state = 0;
-
 	crosshair = 0;
 	zoom_state = 0;
 
@@ -567,10 +595,8 @@ void weapondef_c::Default(void)
 }
 
 
-void weapondef_c::CopyDetail(weapondef_c &src)
+void weapondef_c::CopyDetail(const weapondef_c &src)
 {
-	CopyStates(src);
-
 	for (int ATK = 0; ATK < 2; ATK++)
 	{
 		attack[ATK] = src.attack[ATK];
@@ -579,23 +605,9 @@ void weapondef_c::CopyDetail(weapondef_c &src)
 		autofire[ATK]  = src.autofire[ATK];
 		clip_size[ATK] = src.clip_size[ATK];
 		specials[ATK]  = src.specials[ATK];
-
-		attack_state[ATK]  = src.attack_state[ATK];
-		reload_state[ATK]  = src.reload_state[ATK];
-		discard_state[ATK] = src.discard_state[ATK];
-		warmup_state[ATK]  = src.warmup_state[ATK];
-		flash_state[ATK]   = src.flash_state[ATK];
 	}
 
 	kick = src.kick;
-
-	up_state    = src.up_state;
-	down_state  = src.down_state;
-	ready_state = src.ready_state;
-	empty_state = src.empty_state;
-	idle_state  = src.idle_state;
-	crosshair   = src.crosshair;
-	zoom_state  = src.zoom_state;
 
 	no_cheat = src.no_cheat;
 
@@ -638,14 +650,33 @@ void weapondef_c::CopyDetail(weapondef_c &src)
 	model_side = src.model_side;
 }
 
-void weapondef_c::CopyStates(weapondef_c &src)
+void weapondef_c::CopyStates(const weapondef_c &src)
 {
 	states.clear();
 
-	std::vector<state_t>::iterator SI;
+	std::vector<state_t>::const_iterator SI;
 
 	for (SI = src.states.begin(); SI != src.states.end(); SI++)
+	{
 		states.push_back(*SI);
+	}
+
+	up_state    = src.up_state;
+	down_state  = src.down_state;
+	ready_state = src.ready_state;
+	empty_state = src.empty_state;
+	idle_state  = src.idle_state;
+	crosshair   = src.crosshair;
+	zoom_state  = src.zoom_state;
+
+	for (int ATK = 0; ATK < 2; ATK++)
+	{
+		attack_state[ATK]  = src.attack_state[ATK];
+		reload_state[ATK]  = src.reload_state[ATK];
+		discard_state[ATK] = src.discard_state[ATK];
+		warmup_state[ATK]  = src.warmup_state[ATK];
+		flash_state[ATK]   = src.flash_state[ATK];
+	}
 }
 
 

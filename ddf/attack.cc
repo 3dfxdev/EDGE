@@ -147,12 +147,67 @@ static void AttackStartEntry(const char *name, bool extend)
 	atkdefs.Insert(dynamic_atk);
 }
 
+
+static mobjtype_c * CreateAtkMobj(const char *atk_name)
+{
+	mobjtype_c *mobj = new mobjtype_c();
+
+	// determine a name
+	char mt_name[256];
+
+	snprintf(mt_name, sizeof(mt_name)-2, "atk:%s", atk_name);
+	mt_name[255] = 0;
+
+	mobj->name = mt_name;
+	mobj->number = ATTACK__MOBJ;
+
+	return mobj;
+}
+
+
+static void AttackDoTemplate(const char *contents, bool do_states, int index)
+{
+	if (index > 0)
+		DDF_Error("Template must be a single name (not a list).\n");
+
+	atkdef_c *other = atkdefs.Lookup(contents);
+	if (! other)
+		DDF_Error("Unknown attack template: '%s'\n", contents);
+
+	dynamic_atk->CopyDetail(*other);
+	dynamic_atk->atk_mobj = NULL;
+
+	if (other->atk_mobj)
+	{
+		mobjtype_c *atk_mobj = CreateAtkMobj(dynamic_atk->name.c_str());
+
+		atk_mobj->CopyDetail(*other->atk_mobj);
+
+		if (do_states)
+			atk_mobj->CopyStates(*other->atk_mobj);
+
+		dynamic_atk->atk_mobj = atk_mobj;
+	}
+}
+
+
 static void AttackParseField(const char *field, const char *contents,
 							 int index, bool is_last)
 {
 #if (DEBUG_DDF)  
 	I_Debugf("ATTACK_PARSE: %s = %s;\n", field, contents);
 #endif
+
+	if (DDF_CompareName(field, "TEMPLATE") == 0)
+	{
+		AttackDoTemplate(contents, true, index);
+		return;
+	}
+	if (DDF_CompareName(field, "TEMPLATE_NOSTATES") == 0)
+	{
+		AttackDoTemplate(contents, false, index);
+		return;
+	}
 
 	// first, check attack commands
 	if (DDF_MainParseField((char *)dynamic_atk, attack_commands, field, contents))
@@ -163,16 +218,7 @@ static void AttackParseField(const char *field, const char *contents,
 
 	if (! atk_mobj)
 	{
-		 atk_mobj = new mobjtype_c();
-
-		// determine a name
-		char mt_name[256];
-
-		snprintf(mt_name, sizeof(mt_name)-2, "atk:%s", dynamic_atk->name.c_str());
-		mt_name[255] = 0;
-
-		atk_mobj->name = mt_name;
-		atk_mobj->number = ATTACK__MOBJ;
+		atk_mobj = CreateAtkMobj(dynamic_atk->name.c_str());
 
 		dynamic_atk->atk_mobj = atk_mobj;
 	}
@@ -185,10 +231,13 @@ static void AttackParseField(const char *field, const char *contents,
 	if (DDF_MainParseState((char *)atk_mobj, atk_mobj->states, field, contents,
 						   index, is_last, false /* is_weapon */,
 						   thing_starters, thing_actions))
+	{
 		return;
+	}
 
 	DDF_WarnError("Unknown attack command: %s\n", field);
 }
+
 
 static void AttackFinishEntry(void)
 {
@@ -280,6 +329,7 @@ static void AttackFinishEntry(void)
 
 }
 
+
 static void AttackClearAll(void)
 {
 return; //!!!! -AJA- FIXME: temp hack to get castle.wad working
@@ -337,6 +387,9 @@ void DDF_AttackCleanUp(void)
 
 	atkdefs.Trim();
 }
+
+
+//----------------------------------------------------------------------------
 
 static const specflags_t attack_specials[] =
 {
@@ -502,9 +555,9 @@ void atkdef_c::Default()
 	puff_ref.clear();
 }
 
-void atkdef_c::CopyDetail(atkdef_c &src)
+void atkdef_c::CopyDetail(const atkdef_c &src)
 {
-	atk_mobj = src.atk_mobj; //FIXME !!!!!! PROBABLY NOT RIGHT !
+	// NOTE: atk_mobj not handled here
 
 	attackstyle = src.attackstyle;
 	flags = src.flags;

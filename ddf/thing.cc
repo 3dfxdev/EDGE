@@ -447,7 +447,7 @@ static void ThingDoTemplate(const char *contents, bool do_states, int index)
 
 	int idx = mobjtypes.FindFirst(contents, mobjtypes.GetDisabledCount());
 	if (idx < 0)
-		DDF_Error("Unknown template thing: '%s'\n", contents);
+		DDF_Error("Unknown thing template: '%s'\n", contents);
 
 	mobjtype_c *other = mobjtypes[idx];
 	SYS_ASSERT(other);
@@ -483,7 +483,9 @@ void ThingParseField(const char *field, const char *contents,
 	if (DDF_MainParseState((char *)dynamic_thing, dynamic_thing->states, field, contents,
 						   index, is_last, false /* is_weapon */,
 						   thing_starters, thing_actions))
+	{
 		return;
+	}
 
 	DDF_WarnError("Unknown thing command: %s\n", field);
 }
@@ -1763,7 +1765,7 @@ void mobjtype_c::Default()
 }
 
 
-void mobjtype_c::CopyDetail(mobjtype_c &src)
+void mobjtype_c::CopyDetail(const mobjtype_c &src)
 {
     reactiontime = src.reactiontime; 
 	painchance = src.painchance; 
@@ -1873,11 +1875,11 @@ void mobjtype_c::CopyDetail(mobjtype_c &src)
 	spitspot_ref = src.spitspot_ref; 
 }
 
-void mobjtype_c::CopyStates(mobjtype_c &src)
+void mobjtype_c::CopyStates(const mobjtype_c &src)
 {
 	states.clear();
 
-	std::vector<state_t>::iterator SI;
+	std::vector<state_t>::const_iterator SI;
 
 	for (SI = src.states.begin(); SI != src.states.end(); SI++)
 	{

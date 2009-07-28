@@ -107,7 +107,7 @@ damage_c::damage_c()
 //
 // damage_c Copy constructor
 //
-damage_c::damage_c(damage_c &rhs)
+damage_c::damage_c(const damage_c &rhs)
 {
 	Copy(rhs);
 }
@@ -119,10 +119,8 @@ damage_c::~damage_c()
 {
 }
 
-//
-// damage_c::Copy
-//
-void damage_c::Copy(damage_c &src)
+
+void damage_c::Copy(const damage_c &src)
 {
 	nominal = src.nominal;
 	linear_max = src.linear_max;
@@ -137,9 +135,7 @@ void damage_c::Copy(damage_c &src)
 	no_armour = src.no_armour;
 }
 
-//
-// damage_c::Default
-//
+
 void damage_c::Default(damage_c::default_e def)
 {
 	obituary.clear();
@@ -185,10 +181,8 @@ void damage_c::Default(damage_c::default_e def)
 	overkill.Default();
 }
 
-//
-// damage_c assignment operator
-//
-damage_c& damage_c::operator=(damage_c &rhs)
+
+damage_c& damage_c::operator= (const damage_c &rhs)
 {
 	if (&rhs != this)
 		Copy(rhs);
@@ -221,18 +215,14 @@ label_offset_c::~label_offset_c()
 {
 }
 
-//
-// label_offset_c::Copy
-//
-void label_offset_c::Copy(label_offset_c &src)
+
+void label_offset_c::Copy(const label_offset_c &src)
 {
 	label = src.label;
 	offset = src.offset;
 }
 
-//
-// label_offset_c::Default
-//
+
 void label_offset_c::Default()
 {
 	label.clear();
@@ -240,10 +230,7 @@ void label_offset_c::Default()
 }
 
 
-//
-// label_offset_c assignment operator
-//
-label_offset_c& label_offset_c::operator=(label_offset_c& rhs)
+label_offset_c& label_offset_c::operator= (const label_offset_c& rhs)
 {
 	if (&rhs != this)
 		Copy(rhs);
@@ -258,12 +245,12 @@ dlight_info_c::dlight_info_c()
 	Default();
 }
 
-dlight_info_c::dlight_info_c(dlight_info_c &rhs)
+dlight_info_c::dlight_info_c(const dlight_info_c &rhs)
 {
 	Copy(rhs);
 }
 
-void dlight_info_c::Copy(dlight_info_c &src)
+void dlight_info_c::Copy(const dlight_info_c &src)
 {
 	type   = src.type;
 	shape  = src.shape;
@@ -288,7 +275,7 @@ void dlight_info_c::Default()
 	cache_data = NULL;
 }
 
-dlight_info_c& dlight_info_c::operator= (dlight_info_c &rhs)
+dlight_info_c& dlight_info_c::operator= (const dlight_info_c &rhs)
 {
 	CHECK_SELF_ASSIGN(rhs);
 
@@ -304,12 +291,12 @@ weakness_info_c::weakness_info_c()
 	Default();
 }
 
-weakness_info_c::weakness_info_c(weakness_info_c &rhs)
+weakness_info_c::weakness_info_c(const weakness_info_c &rhs)
 {
 	Copy(rhs);
 }
 
-void weakness_info_c::Copy(weakness_info_c &src)
+void weakness_info_c::Copy(const weakness_info_c &src)
 {
 	height[0] = src.height[0];
 	height[1] = src.height[1];
@@ -334,7 +321,7 @@ void weakness_info_c::Default()
 	painchance = -1; // disabled
 }
 
-weakness_info_c& weakness_info_c::operator=(weakness_info_c &rhs)
+weakness_info_c& weakness_info_c::operator= (const weakness_info_c &rhs)
 {
 	CHECK_SELF_ASSIGN(rhs);
 
