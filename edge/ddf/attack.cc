@@ -201,6 +201,16 @@ static void AttackFinishEntry(void)
 
 		// check MOBJ stuff
 
+		if (!atk_mobj->idle_state && !atk_mobj->spawn_state)
+		{
+			if (dynamic_atk->attackstyle != ATK_SHOT &&
+				dynamic_atk->attackstyle != ATK_CLOSECOMBAT &&
+				dynamic_atk->attackstyle != ATK_SKULLFLY)
+			{
+				DDF_Error("Projectile without initial state (SPAWN or IDLE).\n");
+			}
+		}
+
 		if (atk_mobj->explode_damage.nominal < 0)
 		{
 			DDF_WarnError("Bad EXPLODE_DAMAGE.VAL value %f in DDF.\n",
@@ -223,6 +233,15 @@ static void AttackFinishEntry(void)
 
 		// backwards compat
 		atk_mobj->DLightCompatibility();
+	}
+	else  // no atk_mobj
+	{
+		if (dynamic_atk->attackstyle != ATK_SHOT &&
+			dynamic_atk->attackstyle != ATK_CLOSECOMBAT &&
+			dynamic_atk->attackstyle != ATK_SKULLFLY)
+		{
+			DDF_WarnError("Projectile attack lacks states (etc).\n");
+		}
 	}
 
 	// check DAMAGE stuff
