@@ -16,11 +16,7 @@ General
 Coding Standards
 ----------------
 
-- rename all files
-
-+ proper headers for macros
-
-+ SYS_ASSERT
+- rename some files
 
 
 
@@ -42,7 +38,7 @@ Renderer
 
 - make it into a proper widget (occupy same space as Canvas)
 
-- give it an info bar:  X  Y  Z  ANG  WALK  SKILL  GAMEMODE
+? give it an info bar:  X  Y  Z  ANG  WALK  SKILL  GAMEMODE
 
 
 
