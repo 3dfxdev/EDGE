@@ -57,7 +57,7 @@ static int flat_list_entry_match (const void *key, const void *flat_list_entry)
  *  load a flat into a new image.  NULL if not found.
  */
 
-Img * Flat2Img (const wad_flat_name_t& fname)
+Img * Flat2Img (const char * fname)
 {
 	char name[WAD_FLAT_NAME + 1];
 	strncpy (name, fname, WAD_FLAT_NAME);
@@ -89,7 +89,7 @@ Img * Flat2Img (const wad_flat_name_t& fname)
  * Returns NULL if not found or error.
  */
 
-Img * Tex2Img (const wad_tex_name_t& texname)
+Img * Tex2Img (const char * texname)
 {
 	MDirPtr  dir = 0; /* main directory pointer to the TEXTURE* entries */
 	s32_t     *offsets; /* array of offsets to texture names */
@@ -311,9 +311,9 @@ Img * Tex2Img (const wad_tex_name_t& texname)
 /* --- ImageCache methods --- */
 
 
-Img *ImageCache::GetFlat (const wad_flat_name_t& fname)
+Img *ImageCache::GetFlat (const char * fname)
 {
-	std::string f_str = WadToString(fname);
+	std::string f_str = fname;
 
 	flat_map_t::iterator P = flats.find (f_str);
 
@@ -333,12 +333,12 @@ Img *ImageCache::GetFlat (const wad_flat_name_t& fname)
 }
 
 
-Img *ImageCache::GetTex (const wad_tex_name_t& tname)
+Img *ImageCache::GetTex (const char * tname)
 {
 	if (tname[0] == 0 || tname[0] == '-')
 		return 0;
 
-	std::string t_str = WadToString(tname);
+	std::string t_str = tname;
 
 	tex_map_t::iterator P = textures.find (t_str);
 
