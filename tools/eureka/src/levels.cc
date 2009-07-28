@@ -38,16 +38,7 @@
 
 
 MDirPtr Level;      /* master dictionary entry for the level */
-int NumThings;      /* number of things */
-TPtr Things;      /* things data */
-int NumLineDefs;    /* number of line defs */
-LDPtr LineDefs;     /* line defs data */
-int NumSideDefs;    /* number of side defs */
-SDPtr SideDefs;     /* side defs data */
-int NumVertices;    /* number of vertexes */
-VPtr Vertices;      /* vertex data */
-int NumSectors;     /* number of sectors */
-SPtr Sectors;     /* sectors data */
+
 
 // FIXME should be somewhere else
 int NumWTexture;    /* number of wall textures */

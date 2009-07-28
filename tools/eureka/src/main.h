@@ -130,7 +130,8 @@ class rgb_c;
 
 
 #include "e_basis.h"
-//????  #include "w_structs.h"
+
+#include "w_structs.h"
 
 
 /*

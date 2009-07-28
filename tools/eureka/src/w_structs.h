@@ -110,14 +110,7 @@ const size_t WAD_HEXEN_THING_BYTES = 20;  // Size in the wad file
 typedef s16_t wad_ttype_t;
 typedef s16_t wad_tangle_t;
 typedef s16_t wad_tflags_t;
-struct Thing
-{
-  wad_coord_t      x;
-  wad_coord_t      y;
-  wad_tangle_t     angle;
-  wad_ttype_t      type;
-  wad_tflags_t     options;
-};
+
 
 typedef enum
 {
@@ -139,57 +132,11 @@ thing_option_e;
 #define MTF_EXFLOOR_SHIFT   10
 
 
-typedef struct
-{
-  s16_t            tid;
-  wad_coord_t      x;
-  wad_coord_t      y;
-  wad_z_t          height;
-  wad_tangle_t     angle;
-  wad_ttype_t      type;
-
-  u16_t             options;
-
-  byte               special;
-  byte               arg1;
-  byte               arg2;
-  byte               arg3;
-  byte               arg4;
-  byte               arg5;
-} wad_hexen_thing_t;
-typedef struct Thing *TPtr;
-
-
 // Linedefs
 const size_t WAD_LINEDEF_BYTES       = 14;  // Size in the wad file
 const size_t WAD_HEXEN_LINEDEF_BYTES = 16;  // Size in the wad file
 typedef s16_t wad_ldflags_t;
 typedef s16_t wad_ldtype_t;
-struct LineDef
-{
-  wad_vn_t      start;      // # of start vertex
-  wad_vn_t      end;      // # of end vertex
-  wad_ldflags_t flags;
-  wad_ldtype_t  type;
-  wad_tag_t     tag;
-  wad_sdn_t     side_R;   // # of first (right) sidedef
-  wad_sdn_t     side_L;   // # of second (left) sidedef or 0xffff
-};
-typedef struct
-{
-  wad_vn_t      start;
-  wad_vn_t      end;
-  wad_ldflags_t flags;
-  byte            type;
-  byte            arg1;
-  byte            arg2;
-  byte            arg3;
-  byte            arg4;
-  byte            arg5;
-  wad_sdn_t     side_R;
-  wad_sdn_t     side_L;
-} wad_hexen_linedef_t;
-typedef struct LineDef *LDPtr;
 
 
 typedef enum
@@ -245,44 +192,17 @@ linedef_flag_e;
 
 // Sidedefs
 const size_t WAD_SIDEDEF_BYTES = 30;  // Size in the wad file
-struct SideDef
-{
-  wad_coord_t    x_offset;
-  wad_coord_t    y_offset;
-  wad_tex_name_t upper_tex;     // Name of upper texture
-  wad_tex_name_t lower_tex;     // Name of lower texture
-  wad_tex_name_t mid_tex;    // Name of middle texture
-  wad_sn_t       sector;    // # of adjacent sector
-};
-// (it's the same for Hexen)
-typedef struct SideDef *SDPtr;
+
 
 
 // Vertices
 const size_t WAD_VERTEX_BYTES = 4;  // Size in the wad file
-struct Vertex
-{
-  wad_coord_t x;
-  wad_coord_t y;
-};
-// (it's the same for Hexen)
-typedef struct Vertex *VPtr;
+
 
 
 // Sectors
 const size_t WAD_SECTOR_BYTES = 26; // Size in the wad file
 typedef s16_t wad_stype_t;
-struct Sector
-{
-  wad_z_t         floorh;   // Floor height
-  wad_z_t         ceilh;    // Ceiling height
-  wad_flat_name_t floor_tex;   // Name of floor texture
-  wad_flat_name_t ceil_tex;    // Name of ceiling texture
-  s16_t             light;    // Light level (0-255)
-  wad_stype_t     type;
-  wad_tag_t       tag;
-};
-typedef struct Sector *SPtr;
 
 typedef enum
 {
