@@ -1,5 +1,28 @@
 Andrew Apted's Log
 
+2009/07/28:
+
+Implemented (finally!) inheritance for DDF.  The syntax is a
+command called "TEMPLATE" which takes the name (or number) of
+another DDF entry to inherit from (which must exist) :
+
+   [FAST_IMP:1234]
+   template = IMP;   // <---
+   speed = 20;
+
+For THINGS.DDF, ATTACKS.DDF and WEAPONS.DDF there is another
+version "TEMPLATE_NOSTATES" which does not copy the state
+frames (because that can sometimes have undesired effects).
+
+LANGUAGES.LDF does not support inheritance, this file has
+always worked in a different way, and inheritance offers no
+benefits.  PLAYLIST.DDF does not support it, because it's
+too simple (only a single command).  If other commands get
+added in the future, then it would make sense.
+
+IMAGES.DDF currently has a limitation that the template
+must exist in the same namespace as the new entry.
+
 2009/07/27:
 
 Made the automap lines not wobble when scrolling (especially 
@@ -60,7 +83,7 @@ are no longer stored alongside the THINGS.DDF ones.
 Attempted to clean up some other hacks in the DDF library.
 Some parts of the engine want a "default" object (linetype,
 sectortype or mobjtype), and these can be acquired by just
-doing a Lookup(0) -- guaranteed not to return NULL.
+doing a Lookup(0) -- guaranteed never to return NULL.
 
 2009/07/21:
 
