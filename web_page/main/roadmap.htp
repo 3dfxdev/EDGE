@@ -17,12 +17,38 @@ features from being implemented.
 
 <hr>
 
-<h3 class="sub_title">RELEASE 1.33</h3>
+<h3 class="sub_title">RELEASE 1.32</h3>
   <ul>
     <li type="disc">Better console
+      <span class="done">[DONE]</span>
     <li type="disc">Inheritance for DDF
+      <span class="done">[DONE]</span>
+    <li type="disc">Joystick support
+      <span class="partway">[70%]</span>
+  </ul>
+
+  <ul>
     <li type="disc">New scripting language
-    <li type="disc">Good documentation (DDF Online)
+      <span class="partway">[started]</span>
+    <li type="disc">Module system
+      <span class="lazy">[not started]</span>
+    <li type="disc">Good DDF documentation
+      <span class="lazy">[not started]</span>
+  </ul>
+
+  <ul>
+    <li type="circle">Obituary messages
+      <span class="done">[DONE]</span>
+    <li type="circle">MD3 model loader
+      <span class="partway">[60%]</span>
+  </ul>
+
+
+<h3 class="sub_title">FUTURE RELEASE</h3>
+  <ul>
+    <li type="disc">Client/Server multiplayer
+    <li type="disc">Improved physics, Real Slopes
+    <li type="disc">Heretic support
   </ul>
 
 <hr>
@@ -39,15 +65,12 @@ features from being implemented.
     It will be done when it's done.
 
   <li>
-    Version numbers are odd for full releases, and
-    even for development releases.  Hence the next
-    full release after 1.31 will be 1.33.
-
-  <li>
-    Some things we <b>don't plan</b> on adding
-    into EDGE:
-    Hexen support, Splitscreen mode, PAK/PK3/ZIP files,
-    Level editing, or an Email reader.
+    Some things we <b>don't plan</b> on adding into EDGE:
+       Hexen support,
+       Software rendering,
+       Splitscreen mode,
+       Level editing,
+       or an Email reader.
 </OL>
 
 </block>

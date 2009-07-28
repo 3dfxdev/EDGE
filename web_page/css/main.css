@@ -123,6 +123,11 @@ h3.sub_title {
   /* text-align: justify; */
   }
 
+.lazy {
+    font-size: smaller;
+    color: #3333DD;
+  }
+
 .partway {
     font-size: smaller;
     color: #33AA33;
