@@ -29,6 +29,7 @@ OBJS = \
 	editloop.o  \
 	editobj.o  \
 	editsave.o  \
+	e_basis.o   \
 	e_checks.o   \
 	e_linedef.o  \
 	e_sector.o  \
