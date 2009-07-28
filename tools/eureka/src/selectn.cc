@@ -164,6 +164,7 @@ void DumpSelection (selection_c * list)
 
 void SelectObjectsInBox (selection_c *list, int objtype, int x0, int y0, int x1, int y1)
 {
+#if 0  //// FIXME !!!!!!!!
 	int n, m;
 
 	if (x1 < x0)
@@ -270,6 +271,7 @@ void SelectObjectsInBox (selection_c *list, int objtype, int x0, int y0, int x1,
 			}
 			break;
 	}
+#endif
 }
 
 
