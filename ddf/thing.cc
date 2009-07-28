@@ -493,6 +493,13 @@ static void ThingFinishEntry(void)
 {
 	DDF_StateFinishStates(dynamic_thing->states);
 
+	if (!dynamic_thing->idle_state &&
+		!dynamic_thing->spawn_state &&
+		!dynamic_thing->meander_state)
+	{
+		DDF_Error("Thing without initial state (SPAWN, IDLE or MEANDER).\n");
+	}
+
 	// count-as-kill things are automatically monsters
 	if (dynamic_thing->flags & MF_COUNTKILL)
 		dynamic_thing->extendedflags |= EF_MONSTER;
