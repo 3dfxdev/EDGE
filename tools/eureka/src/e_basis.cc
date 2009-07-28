@@ -418,6 +418,7 @@ static int * RawDelete(obj_type_t objtype, int objnum)
 
 		default:
 			nf_bug ("RawDelete: bad objtype %d", (int) objtype);
+			return NULL; /* NOT REACHED */
 	}
 }
 
@@ -446,6 +447,7 @@ static int * RawGetBase(obj_type_t objtype, int objnum)
 
 		default:
 			nf_bug ("RawGetBase: bad objtype %d", (int) objtype);
+			return NULL; /* NOT REACHED */
 	}
 }
 
@@ -671,6 +673,8 @@ int BA_New(obj_type_t type)
 	SYS_ASSERT(cur_group);
 
 	cur_group->Add_Apply(op);
+
+	return op.objnum;
 }
 
 
@@ -730,6 +734,8 @@ void BA_Delete(obj_type_t type, int objnum)
 
 bool BA_Change(obj_type_t type, int objnum, byte field, int value)
 {
+	// TODO: optimise, check whether value actually changes
+
 	edit_op_c op;
 
 	op.action  = OP_CHANGE;
@@ -741,6 +747,7 @@ bool BA_Change(obj_type_t type, int objnum, byte field, int value)
 	SYS_ASSERT(cur_group);
 
 	cur_group->Add_Apply(op);
+	return true;
 }
 
 

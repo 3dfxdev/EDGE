@@ -150,36 +150,6 @@ typedef enum { YGTF_NORMAL, YGTF_NAMELESS, YGTF_STRIFE11 } ygtf_t;
 typedef enum { YGTL_NORMAL, YGTL_TEXTURES, YGTL_NONE } ygtl_t;
 
 
-/*
- *  Directory
- */
-/* The wad file pointer structure is used for holding the information
-   on the wad files in a linked list.
-   The first wad file is the main wad file. The rest are patches. */
-class Wad_file;
-
-/* The master directory structure is used to build a complete directory
-   of all the data blocks from all the various wad files. */
-typedef struct MasterDirectory *MDirPtr;
-struct MasterDirectory
-   {
-   MDirPtr next;    // Next in list
-   const Wad_file *wadfile; // File of origin
-   struct Directory dir;  // Directory data
-   };
-
-/* Lump location : enough information to load a lump without
-   having to do a directory lookup. */
-struct Lump_loc
-   {
-   Lump_loc () { wad = 0; }
-   Lump_loc (const Wad_file *w, s32_t o, s32_t l) { wad = w; ofs = o; len = l; }
-   bool operator == (const Lump_loc& other) const
-     { return wad == other.wad && ofs == other.ofs && len == other.len; }
-   const Wad_file *wad;
-   s32_t ofs;
-   s32_t len;
-   };
 
 
 
@@ -252,14 +222,14 @@ extern const char *config_file; // Name of the configuration file
 extern int   copy_linedef_reuse_sidedefs;
 extern bool  Debug;     // Are we debugging?
 extern int   default_ceiling_height;      // For new sectors
-extern char  default_ceiling_texture[WAD_FLAT_NAME + 1];// For new sectors
+extern char  default_ceiling_texture[8 + 1];// For new sectors
 extern int   default_floor_height;      // For new sectors
-extern char  default_floor_texture[WAD_FLAT_NAME + 1];  // For new sectors
+extern char  default_floor_texture[8 + 1];  // For new sectors
 extern int   default_light_level;     // For new sectors
-extern char  default_lower_texture[WAD_TEX_NAME + 1]; // For new linedefs
-extern char  default_middle_texture[WAD_TEX_NAME + 1];  // For new linedefs
+extern char  default_lower_texture[8 + 1]; // For new linedefs
+extern char  default_middle_texture[8 + 1];  // For new linedefs
 extern int   default_thing;       // For new THINGS
-extern char  default_upper_texture[WAD_TEX_NAME + 1]; // For new linedefs
+extern char  default_upper_texture[8 + 1]; // For new linedefs
 extern int   double_click_timeout;// Max ms between clicks of double click.
 extern bool  Expert;    // Don't ask for confirmation for some ops.
 extern const char *Game;  // Name of game "doom", "doom2", "heretic", ...
@@ -303,9 +273,6 @@ extern const char *bench; // Benchmark to run
 
 typedef int acolour_t;
 
-
-// Defined in wads.cc
-extern MDirPtr   MasterDir; // The master directory
 
 
 // Defined in edit.cc
@@ -434,9 +401,6 @@ extern const char *const yadex_etc_common;
 extern const char *const yadex_ygd_version;
 extern const char *const yadex_ygd_common;
 
-// wads.cc
-MDirPtr FindMasterDir (MDirPtr, const char *);
-MDirPtr FindMasterDir (MDirPtr, const char *, const char *);
 int entryname_cmp (const char *entry1, const char *entry2);
 
 // warning.cc

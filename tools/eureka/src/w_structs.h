@@ -24,12 +24,9 @@
 //
 //------------------------------------------------------------------------
 
-
 #ifndef YH_WSTRUCTS // To prevent multiple inclusion
 #define YH_WSTRUCTS // To prevent multiple inclusion
 
-
-// FIXME: all identifiers should start with wad_ or WAD_...
 
 
 // Directory
@@ -41,6 +38,43 @@ struct Directory
   s32_t        start;     // Offset to start of data
   s32_t        size;      // Byte size of data
   wad_name_t name;      // Name of data block
+};
+
+
+/*
+ *  Directory
+ */
+/* The wad file pointer structure is used for holding the information
+   on the wad files in a linked list.
+   The first wad file is the main wad file. The rest are patches. */
+class Wad_file;
+
+/* The master directory structure is used to build a complete directory
+   of all the data blocks from all the various wad files. */
+typedef struct MasterDirectory *MDirPtr;
+struct MasterDirectory
+   {
+   MDirPtr next;    // Next in list
+   const Wad_file *wadfile; // File of origin
+   struct Directory dir;  // Directory data
+   };
+
+
+// Defined in wads.cc
+extern MDirPtr   MasterDir; // The master directory
+
+
+/* Lump location : enough information to load a lump without
+   having to do a directory lookup. */
+struct Lump_loc
+   {
+   Lump_loc () { wad = 0; }
+   Lump_loc (const Wad_file *w, s32_t o, s32_t l) { wad = w; ofs = o; len = l; }
+   bool operator == (const Lump_loc& other) const
+     { return wad == other.wad && ofs == other.ofs && len == other.len; }
+   const Wad_file *wad;
+   s32_t ofs;
+   s32_t len;
 };
 
 
@@ -305,6 +339,10 @@ const wad_level_lump_def_t wad_level_lump[WAD_LL__] =
   { "BLOCKMAP", 0                 }
               // Hexen has a BEHAVIOR lump here
 };
+
+
+MDirPtr FindMasterDir (MDirPtr, const char *);
+MDirPtr FindMasterDir (MDirPtr, const char *, const char *);
 
 
 #endif  /* DO NOT ADD ANYTHING AFTER THIS LINE */
