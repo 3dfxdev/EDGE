@@ -244,14 +244,16 @@ namespace epi
 	//
 	// strlist_c::Copy()
 	//
-	void strlist_c::Copy(strlist_c &src)
+	void strlist_c::Copy(const strlist_c &src)
 	{
         // Enlarge to required size
         Size(src.array_entries);
         
         // Copy contents
         array_iterator_c it;
-        for (it = src.GetBaseIterator(); it.IsValid(); it++)
+
+		// FIXME: Horrible Const Override
+        for (it = ((strlist_c *)&src)->GetBaseIterator(); it.IsValid(); it++)
             Insert(ITERATOR_TO_TYPE(it, char*));
 
 		Trim();
@@ -321,7 +323,7 @@ namespace epi
 	//
 	// strlist_c assignment operator
 	//
-	strlist_c& strlist_c::operator=(strlist_c& rhs)
+	strlist_c& strlist_c::operator= (const strlist_c& rhs)
 	{
 		if (&rhs != this)
 		{

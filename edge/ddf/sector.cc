@@ -437,7 +437,7 @@ void sectortype_c::Default()
 	push_angle = 0;
 }
 
-void sectortype_c::CopyDetail(sectortype_c &src)
+void sectortype_c::CopyDetail(const sectortype_c &src)
 {
 	secret = src.secret;
 	gravity = src.gravity;

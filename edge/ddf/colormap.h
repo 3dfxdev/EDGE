@@ -68,7 +68,7 @@ public:
 	~colourmap_c();
 
 	void Default();
-	void CopyDetail(colourmap_c &src);
+	void CopyDetail(const colourmap_c &src);
 	
 private:
 	// disable copy construct and assignment operator

@@ -57,7 +57,7 @@ public:
 	~animdef_c();
 
 	void Default(void);
-	void CopyDetail(animdef_c &src);
+	void CopyDetail(const animdef_c &src);
 
 private:
 	// disable copy construct and assignment operator

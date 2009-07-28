@@ -249,7 +249,7 @@ void colourmap_c::Default()
 	analysis = NULL;
 }
 
-void colourmap_c::CopyDetail(colourmap_c &src)
+void colourmap_c::CopyDetail(const colourmap_c &src)
 {
 	lump_name = src.lump_name;
 

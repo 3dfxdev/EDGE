@@ -60,7 +60,7 @@ public:
 	~pl_entry_c();
 
 	void Default(void);
-	void CopyDetail(pl_entry_c &src);
+	void CopyDetail(const pl_entry_c &src);
 
 private:
 	// disable copy construct and assignment operator

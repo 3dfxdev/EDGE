@@ -178,7 +178,7 @@ void sfxdef_c::Default()
 	max_distance = S_CLIPPING_DIST; // max_distance
 }
 
-void sfxdef_c::CopyDetail(sfxdef_c &src)
+void sfxdef_c::CopyDetail(const sfxdef_c &src)
 {
 	lump_name = src.lump_name;
 	file_name = src.file_name;

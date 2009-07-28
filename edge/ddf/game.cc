@@ -742,10 +742,11 @@ void gamedef_c::Default()
 	features = MPF_NONE;
 }
 
-void gamedef_c::CopyDetail(gamedef_c &src)
+void gamedef_c::CopyDetail(const gamedef_c &src)
 {
-	anims = src.anims;
-	mappos = src.mappos;
+	// FIXME: Horrible Const Overrides
+	anims  = ((gamedef_c *)&src) ->anims;
+	mappos = ((gamedef_c *)&src) ->mappos;
 
 	background = src.background;
 	splatpic = src.splatpic;

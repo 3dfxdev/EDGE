@@ -223,7 +223,7 @@ void pl_entry_c::Default()
 //
 // Copy everything with exception of ddf identifier
 //
-void pl_entry_c::CopyDetail(pl_entry_c &src)
+void pl_entry_c::CopyDetail(const pl_entry_c &src)
 {
 	type = src.type;
 	infotype = src.infotype;
