@@ -2,8 +2,10 @@
 //  OBJECT STUFF
 //------------------------------------------------------------------------
 //
-//  Eureka DOOM Editor (C) 2001-2009 Andrew Apted
-//                     (C) 1997-2003 André Majorel et al
+//  Eureka DOOM Editor
+//
+//  Copyright (C) 2001-2009 Andrew Apted
+//  Copyright (C) 1997-2003 André Majorel et al
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -22,37 +24,19 @@
 //
 //------------------------------------------------------------------------
 
-
 #ifndef YH_OBJ_ID  /* DO NOT INSERT ANYTHING BEFORE THIS LINE */
 #define YH_OBJ_ID
 
+#include "e_basis.h"
 
-// Object types
-enum
-{
-	OBJ_NONE,
-	OBJ_THINGS,
-	OBJ_LINEDEFS,
-	OBJ_SIDEDEFS,
-	OBJ_VERTICES,
-	OBJ_SECTORS,
-	OBJ_RADTRIGS,
-};
 
 // Special object numbers
 typedef s16_t  obj_no_t;
-typedef char obj_type_t;
 
 #define OBJ_NO_NONE    -1
 #define OBJ_NO_CANVAS  -2
 
 #define is_obj(n)      ((n) >= 0)
-#define is_linedef(n)  ((n) >= 0 && (n) < NumLineDefs)
-#define is_sector(n)   ((n) >= 0 && (n) < NumSectors )
-#define is_sidedef(n)  ((n) >= 0 && (n) < NumSideDefs)
-#define is_thing(n)    ((n) >= 0 && (n) < NumThings  )
-#define is_vertex(n)   ((n) >= 0 && (n) < NumVertices)
-#define is_radtrig(n)  ((n) >= 0 && (n) < NumRadTrigs)
 
 class Objid
 {

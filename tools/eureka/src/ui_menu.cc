@@ -2,7 +2,9 @@
 //  Menus
 //------------------------------------------------------------------------
 //
-//  RTS Layout Tool (C) 2007 Andrew Apted
+//  Eureka DOOM Editor
+//
+//  Copyright (C) 2007-2009 Andrew Apted
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -186,10 +188,10 @@ static void about_quit_CB(Fl_Widget *w, void *data)
 }
 
 static const char *about_Text =
-"RTS Layout Tool allows you to position your\n"
-"EDGE RTS scripts over a map of your level.\n"
+"Eureka DOOM Editor\n"
 "\n"
-"Copyright (C) 2007 Andrew Apted\n"
+"Copyright (C) 2001-2009 Andrew Apted\n"
+"Copyright (C) 1997-2003 André Majorel et al\n"
 "\n"
 "This program is free software, and may be\n"
 "distributed and modified under the terms of\n"
@@ -210,7 +212,7 @@ void help_do_about(Fl_Widget *w, void * data)
 {
 	about_box_quit = false;
 
-	Fl_Window *about = new Fl_Window(326, 340, "About RTS_Layout");
+	Fl_Window *about = new Fl_Window(326, 340, "About Eureka");
 	about->end();
 
 	// non-resizable

@@ -2,8 +2,10 @@
 //  LEVEL LOADING ETC
 //------------------------------------------------------------------------
 //
-//  Eureka DOOM Editor (C) 2001-2009 Andrew Apted
-//                     (C) 1997-2003 André Majorel et al
+//  Eureka DOOM Editor
+//
+//  Copyright (C) 2001-2009 Andrew Apted
+//  Copyright (C) 1997-2003 André Majorel et al
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -28,7 +30,6 @@
 
 
 #include "w_name.h"
-#include "w_structs.h"
 #include "e_things.h"
 
 

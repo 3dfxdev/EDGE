@@ -2,7 +2,9 @@
 //  Debugging support
 //------------------------------------------------------------------------
 //
-//  Eureka DOOM Editor (C) 2006-2009 Andrew Apted
+//  Eureka DOOM Editor
+//
+//  Copyright (C) 2006-2009 Andrew Apted
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -32,7 +34,7 @@ void LogInit(const char *filename)
 		log_file = fopen(filename, "w");
 	}
 
-	LogPrintf("========= START OF OBLIGE LOGS =========\n\n");
+	LogPrintf("========= START OF LOGS =========\n\n");
 }
 
 
@@ -51,7 +53,7 @@ void LogEnableTerminal(void)
 
 void LogClose(void)
 {
-	LogPrintf("\n========= END OF OBLIGE LOGS =========\n");
+	LogPrintf("\n========= END OF LOGS =========\n");
 
 	if (log_file)
 	{
