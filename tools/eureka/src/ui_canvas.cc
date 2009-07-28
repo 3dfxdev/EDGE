@@ -229,7 +229,7 @@ void UI_Canvas::DrawMap()
 	if (e->obj_type == OBJ_THINGS)
 		DrawThings();
 
-	if (e->obj_type == OBJ_RSCRIPT)
+	if (e->obj_type == OBJ_RADTRIGS)
 		DrawRTS();
 
 
@@ -238,8 +238,8 @@ void UI_Canvas::DrawMap()
 	{
 		for (n = 0; n < NumThings; n++)
 		{
-			int mapx = Things[n].x;
-			int mapy = Things[n].y;
+			int mapx = Things[n]->x;
+			int mapy = Things[n]->y;
 
 			if (mapx >= mapx0 && mapx <= mapx9 && mapy >= mapy0 && mapy <= mapy9)
 				DrawObjNum(SCREENX (mapx) + FONTW, SCREENY (mapy) + 2, n, THING_NO);
@@ -284,7 +284,7 @@ void UI_Canvas::DrawGrid()
 	int grid_step_3 = 8 * grid_step_2;  // Map units between bright lines
 
 	float pixels_1 = grid.step * grid.Scale;
-	float pixels_2 = 8 * pixels_1;
+	// float pixels_2 = 8 * pixels_1;
 
 
 	if (pixels_1 < 1.99)
@@ -406,12 +406,13 @@ void UI_Canvas::DrawVertices()
 
 	for (int n = 0; n < NumVertices; n++)
 	{
-		int mapx = Vertices[n].x;
-		int mapy = Vertices[n].y;
+		int mapx = Vertices[n]->x;
+		int mapy = Vertices[n]->y;
+
 		if (mapx >= mapx0 && mapx <= mapx9 && mapy >= mapy0 && mapy <= mapy9)
 		{
-			int scrx = SCREENX (mapx);
-			int scry = SCREENY (mapy);
+			int scrx = SCREENX(mapx);
+			int scry = SCREENY(mapy);
 
 			fl_line(scrx - r, scry - r, scrx + r, scry + r);
 			fl_line(scrx + r, scry - r, scrx - r, scry + r);
@@ -422,12 +423,13 @@ void UI_Canvas::DrawVertices()
 	{
 		for (int n = 0; n < NumVertices; n++)
 		{
-			int mapx = Vertices[n].x;
-			int mapy = Vertices[n].y;
+			int mapx = Vertices[n]->x;
+			int mapy = Vertices[n]->y;
+
 			if (mapx >= mapx0 && mapx <= mapx9 && mapy >= mapy0 && mapy <= mapy9)
 			{
-				int x = (int) (SCREENX (mapx) + 2 * r);
-				int y = SCREENY (mapy) + 2;
+				int x = SCREENX(mapx) + 2 * r;
+				int y = SCREENY(mapy) + 2;
 				DrawObjNum(x, y, n, VERTEX_NO);
 			}
 		}
@@ -452,10 +454,11 @@ void UI_Canvas::DrawLinedefs()
 			fl_color (LIGHTGREY);
 			for (int n = 0; n < NumLineDefs; n++)
 			{
-				int x1 = Vertices[LineDefs[n].start].x;
-				int y1 = Vertices[LineDefs[n].start].y;
-				int x2 = Vertices[LineDefs[n].end  ].x;
-				int y2 = Vertices[LineDefs[n].end  ].y;
+				int x1 = LineDefs[n]->Start()->x;
+				int y1 = LineDefs[n]->Start()->y;
+				int x2 = LineDefs[n]->End  ()->x;
+				int y2 = LineDefs[n]->End  ()->y;
+
 				if (x1 < mapx0 && x2 < mapx0
 						|| x1 > mapx9 && x2 > mapx9
 						|| y1 < mapy0 && y2 < mapy0
@@ -473,36 +476,34 @@ void UI_Canvas::DrawLinedefs()
 
 			for (int n = 0; n < NumLineDefs; n++)
 			{
-				int x1 = Vertices[LineDefs[n].start].x;
-				int x2 = Vertices[LineDefs[n].end  ].x;
-				int y1 = Vertices[LineDefs[n].start].y;
-				int y2 = Vertices[LineDefs[n].end  ].y;
+				int x1 = LineDefs[n]->Start()->x;
+				int y1 = LineDefs[n]->Start()->y;
+				int x2 = LineDefs[n]->End  ()->x;
+				int y2 = LineDefs[n]->End  ()->y;
+
 				if (x1 < mapx0 && x2 < mapx0
 						|| x1 > mapx9 && x2 > mapx9
 						|| y1 < mapy0 && y2 < mapy0
 						|| y1 > mapy9 && y2 > mapy9)
 					continue;
-				if (LineDefs[n].type != 0)  /* AYM 19980207: was "> 0" */
+				if (LineDefs[n]->type != 0)  /* AYM 19980207: was "> 0" */
 				{
-					if (LineDefs[n].tag != 0)  /* AYM 19980207: was "> 0" */
+					if (LineDefs[n]->tag != 0)  /* AYM 19980207: was "> 0" */
 						new_colour = LIGHTMAGENTA;
 					else
 						new_colour = LIGHTGREEN;
 				}
-				else if (LineDefs[n].flags & 1)
+				else if (LineDefs[n]->flags & 1)
 					new_colour = WHITE;
 				else
 					new_colour = LIGHTGREY;
 
 				// Signal errors by drawing the linedef in red. Needs work.
 				// Tag on a typeless linedef
-				if (LineDefs[n].type == 0 && LineDefs[n].tag != 0)
+				if (LineDefs[n]->type == 0 && LineDefs[n]->tag != 0)
 					new_colour = LIGHTRED;
 				// No first sidedef
-				if (! is_sidedef (LineDefs[n].side_R))
-					new_colour = LIGHTRED;
-				// Bad second sidedef
-				if (! is_sidedef (LineDefs[n].side_L) && LineDefs[n].side_L != -1)
+				if (! LineDefs[n]->Right())
 					new_colour = LIGHTRED;
 
 				if (new_colour != current_colour)
@@ -535,10 +536,11 @@ void UI_Canvas::DrawLinedefs()
 
 			for (int n = 0; n < NumLineDefs; n++)
 			{
-				int x1 = Vertices[LineDefs[n].start].x;
-				int x2 = Vertices[LineDefs[n].end  ].x;
-				int y1 = Vertices[LineDefs[n].start].y;
-				int y2 = Vertices[LineDefs[n].end  ].y;
+				int x1 = LineDefs[n]->Start()->x;
+				int y1 = LineDefs[n]->Start()->y;
+				int x2 = LineDefs[n]->End  ()->x;
+				int y2 = LineDefs[n]->End  ()->y;
+				
 				if (x1 < mapx0 && x2 < mapx0
 						|| x1 > mapx9 && x2 > mapx9
 						|| y1 < mapy0 && y2 < mapy0
@@ -550,10 +552,10 @@ void UI_Canvas::DrawLinedefs()
 				int s2  = OBJ_NO_NONE;
 				// FIXME should flag negative sidedef numbers as errors
 				// FIXME should flag unused tag as errors
-				if ((sd1 = LineDefs[n].side_R) < 0 || sd1 >= NumSideDefs
-						|| (s1 = SideDefs[sd1].sector) < 0 || s1 >= NumSectors
-						|| (sd2 = LineDefs[n].side_L) >= NumSideDefs
-						|| sd2 >= 0 && ((s2 = SideDefs[sd2].sector) < 0
+				if ((sd1 = LineDefs[n]->right) < 0 || sd1 >= NumSideDefs
+						|| (s1 = SideDefs[sd1]->sector) < 0 || s1 >= NumSectors
+						|| (sd2 = LineDefs[n]->left) >= NumSideDefs
+						|| sd2 >= 0 && ((s2 = SideDefs[sd2]->sector) < 0
 							|| s2 >= NumSectors))
 				{
 					new_colour = LIGHTRED;
@@ -562,15 +564,16 @@ void UI_Canvas::DrawLinedefs()
 				{
 					bool have_tag  = false;
 					bool have_type = false;
-					if (Sectors[s1].tag != 0)
+
+					if (Sectors[s1]->tag != 0)
 						have_tag = true;
-					if (Sectors[s1].type != 0)
+					if (Sectors[s1]->type != 0)
 						have_type = true;
 					if (sd2 >= 0)
 					{
-						if (Sectors[s2].tag != 0)
+						if (Sectors[s2]->tag != 0)
 							have_tag = true;
-						if (Sectors[s2].type != 0)
+						if (Sectors[s2]->type != 0)
 							have_type = true;
 					}
 					if (have_tag && have_type)
@@ -579,7 +582,7 @@ void UI_Canvas::DrawLinedefs()
 						new_colour = SECTOR_TAG;
 					else if (have_type)
 						new_colour = SECTOR_TYPE;
-					else if (LineDefs[n].flags & 1)
+					else if (LineDefs[n]->flags & 1)
 						new_colour = WHITE;
 					else
 						new_colour = LIGHTGREY;
@@ -598,16 +601,18 @@ void UI_Canvas::DrawLinedefs()
 
 			for (int n = 0; n < NumLineDefs; n++)
 			{
-				int x1 = Vertices[LineDefs[n].start].x;
-				int x2 = Vertices[LineDefs[n].end  ].x;
-				int y1 = Vertices[LineDefs[n].start].y;
-				int y2 = Vertices[LineDefs[n].end  ].y;
+				int x1 = LineDefs[n]->Start()->x;
+				int y1 = LineDefs[n]->Start()->y;
+				int x2 = LineDefs[n]->End  ()->x;
+				int y2 = LineDefs[n]->End  ()->y;
+				
 				if (x1 < mapx0 && x2 < mapx0
 						|| x1 > mapx9 && x2 > mapx9
 						|| y1 < mapy0 && y2 < mapy0
 						|| y1 > mapy9 && y2 > mapy9)
 					continue;
-				if (LineDefs[n].flags & 1)
+
+				if (LineDefs[n]->flags & 1)
 					new_colour = WHITE;
 				else
 					new_colour = LIGHTGREY;
@@ -638,44 +643,46 @@ void UI_Canvas::DrawThings()
 
 	for (int n = 0; n < NumThings; n++)
 	{
-		int mapx = Things[n].x;
-		int mapy = Things[n].y;
-		int corner_x;
-		int corner_y;
+		int mapx = Things[n]->x;
+		int mapy = Things[n]->y;
 
 		if (mapx < mapx0 || mapx > mapx9 || mapy < mapy0 || mapy > mapy9)
 			continue;
 
-		int m = get_thing_radius (Things[n].type);
+		int m = get_thing_radius(Things[n]->type);
 
 		if (e->obj_type == OBJ_THINGS)
 		{
-			fl_color (get_thing_colour (Things[n].type));
+			fl_color(get_thing_colour(Things[n]->type));
 
 			if (active_wmask)
 			{
-				if (Things[n].options & 1)
+				if (Things[n]->options & 1)
 					fl_color (YELLOW);
-				else if (Things[n].options & 2)
+				else if (Things[n]->options & 2)
 					fl_color (LIGHTGREEN);
-				else if (Things[n].options & 4)
+				else if (Things[n]->options & 4)
 					fl_color (LIGHTRED);
 				else
 					fl_color (THING_REM);
 			}
 		}
+
 		DrawMapLine (mapx - m, mapy - m, mapx + m, mapy - m);
 		DrawMapLine (mapx + m, mapy - m, mapx + m, mapy + m);
 		DrawMapLine (mapx + m, mapy + m, mapx - m, mapy + m);
 		DrawMapLine (mapx - m, mapy + m, mapx - m, mapy - m);
+
 		{
-			size_t direction = angle_to_direction (Things[n].angle);
+			size_t direction = angle_to_direction(Things[n]->angle);
 			static const short xsign[] = {  1,  1,  0, -1, -1, -1,  0,  1,  0 };
 			static const short ysign[] = {  0,  1,  1,  1,  0, -1, -1, -1,  0 };
-			corner_x = m * xsign[direction];
-			corner_y = m * ysign[direction];
+
+			int corner_x = m * xsign[direction];
+			int corner_y = m * ysign[direction];
+
+			DrawMapLine (mapx, mapy, mapx + corner_x, mapy + corner_y);
 		}
-		DrawMapLine (mapx, mapy, mapx + corner_x, mapy + corner_y);
 	}
 }
 
@@ -727,13 +734,24 @@ void UI_Canvas::HighlightForget()
 	redraw();
 }
 
+
+static bool LineTouchesSector(int L, int S)
+{
+	SideDef *s1 = LineDefs[L]->Right();
+	SideDef *s2 = LineDefs[L]->Left();
+
+	if (s1 && s1->sector == S) return true;
+	if (s2 && s2->sector == S) return true;
+
+	return false;
+}
+
+
 /*
    highlight the selected object
 */
 void UI_Canvas::HighlightObject (int objtype, int objnum, Fl_Color colour)
 {
-	int  n, m;
-
 	fl_color (colour);
 
 	// fprintf(stderr, "HighlightObject: %d\n", objnum);
@@ -741,52 +759,56 @@ void UI_Canvas::HighlightObject (int objtype, int objnum, Fl_Color colour)
 	switch (objtype)
 	{
 		case OBJ_THINGS:
-			m = (get_thing_radius (Things[objnum].type) * 3) / 2;
-			DrawMapLine (Things[objnum].x - m, Things[objnum].y - m,
-					Things[objnum].x - m, Things[objnum].y + m);
-			DrawMapLine (Things[objnum].x - m, Things[objnum].y + m,
-					Things[objnum].x + m, Things[objnum].y + m);
-			DrawMapLine (Things[objnum].x + m, Things[objnum].y + m,
-					Things[objnum].x + m, Things[objnum].y - m);
-			DrawMapLine (Things[objnum].x + m, Things[objnum].y - m,
-					Things[objnum].x - m, Things[objnum].y - m);
-			DrawMapArrow (Things[objnum].x, Things[objnum].y,
-					Things[objnum].angle * 182);
-			break;
+		{
+			int x = Things[objnum]->x;
+			int y = Things[objnum]->y;
+
+			int m = (get_thing_radius(Things[objnum]->type) * 3) / 2;
+
+			DrawMapLine(x - m, y - m, x - m, y + m);
+			DrawMapLine(x - m, y + m, x + m, y + m);
+			DrawMapLine(x + m, y + m, x + m, y - m);
+			DrawMapLine(x + m, y - m, x - m, y - m);
+
+			DrawMapArrow(x, y, Things[objnum]->angle * 182);
+		}
+		break;
 
 		case OBJ_LINEDEFS:
-			n = (Vertices[LineDefs[objnum].start].x
-					+ Vertices[LineDefs[objnum].end].x) / 2;
-			m = (Vertices[LineDefs[objnum].start].y
-					+ Vertices[LineDefs[objnum].end].y) / 2;
-			DrawMapLine (n, m, n + (Vertices[LineDefs[objnum].end].y
-						- Vertices[LineDefs[objnum].start].y) / 3,
-					m + (Vertices[LineDefs[objnum].start].x
-						- Vertices[LineDefs[objnum].end].x) / 3);
-			
+		{
+			int x1 = LineDefs[objnum]->Start()->x;
+			int y1 = LineDefs[objnum]->Start()->y;
+			int x2 = LineDefs[objnum]->End  ()->x;
+			int y2 = LineDefs[objnum]->End  ()->y;
+
+			int n = (x1 + x2) / 2;
+			int m = (y1 + y2) / 2;
+
+			DrawMapLine(n, m, n + (y2 - y1) / 3, m + (x1 - x2) / 3);
+
 			fl_line_style(FL_SOLID, 2);
 
-			DrawMapVector (Vertices[LineDefs[objnum].start].x,
-					Vertices[LineDefs[objnum].start].y,
-					Vertices[LineDefs[objnum].end].x,
-					Vertices[LineDefs[objnum].end].y);
-			if (colour != LIGHTRED && LineDefs[objnum].tag > 0)
+			DrawMapVector(x1, y1, x2, y2);
+
+			if (colour != LIGHTRED && LineDefs[objnum]->tag > 0)
 			{
-				for (m = 0; m < NumSectors; m++)
-					if (Sectors[m].tag == LineDefs[objnum].tag)
+				for (int m = 0; m < NumSectors; m++)
+					if (Sectors[m]->tag == LineDefs[objnum]->tag)
 						HighlightObject (OBJ_SECTORS, m, LIGHTRED);
 			}
 
 			fl_line_style(FL_SOLID, 1);
-			break;
+		}
+		break;
 
 		case OBJ_VERTICES:
 		{
-			int r = vertex_radius (grid.Scale) * 3 / 2;
-			int scrx0 = SCREENX (Vertices[objnum].x) - r;
-			int scrx9 = SCREENX (Vertices[objnum].x) + r;
-			int scry0 = SCREENY (Vertices[objnum].y) - r;
-			int scry9 = SCREENY (Vertices[objnum].y) + r;
+			int r = vertex_radius(grid.Scale) * 3 / 2;
+
+			int scrx0 = SCREENX(Vertices[objnum]->x) - r;
+			int scrx9 = SCREENX(Vertices[objnum]->x) + r;
+			int scry0 = SCREENY(Vertices[objnum]->y) - r;
+			int scry9 = SCREENY(Vertices[objnum]->y) + r;
 
 			fl_line(scrx0, scry0, scrx9, scry0);
 			fl_line(scrx9, scry0, scrx9, scry9);
@@ -804,26 +826,27 @@ void UI_Canvas::HighlightObject (int objtype, int objnum, Fl_Color colour)
 			int mapx9 = MAPX(ScrMaxX);
 			int mapy9 = MAPY(0);
 
-			for (n = 0; n < NumLineDefs; n++)
-				if (LineDefs[n].side_R != -1
-						&& SideDefs[LineDefs[n].side_R].sector == objnum
-						|| LineDefs[n].side_L != -1
-						&& SideDefs[LineDefs[n].side_L].sector == objnum)
+			for (int n = 0; n < NumLineDefs; n++)
+			{
+				if (LineTouchesSector(n, objnum))
 				{
-					const struct Vertex *v1 = Vertices + LineDefs[n].start;
-					const struct Vertex *v2 = Vertices + LineDefs[n].end;
+					const Vertex *v1 = LineDefs[n]->Start();
+					const Vertex *v2 = LineDefs[n]->End();
 
 					if (v1->x < mapx0 && v2->x < mapx0
 							|| v1->x > mapx9 && v2->x > mapx9
 							|| v1->y < mapy0 && v2->y < mapy0
 							|| v1->y > mapy9 && v2->y > mapy9)
 						continue;  // Off-screen
+
 					DrawMapLine (v1->x, v1->y, v2->x, v2->y);
 				}
-			if (colour != LIGHTRED && Sectors[objnum].tag > 0)
+			}
+
+			if (colour != LIGHTRED && Sectors[objnum]->tag > 0)
 			{
-				for (m = 0; m < NumLineDefs; m++)
-					if (LineDefs[m].tag == Sectors[objnum].tag)
+				for (int m = 0; m < NumLineDefs; m++)
+					if (LineDefs[m]->tag == Sectors[objnum]->tag)
 						HighlightObject (OBJ_LINEDEFS, m, LIGHTRED);
 			}
 
