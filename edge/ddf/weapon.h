@@ -178,7 +178,8 @@ public:
 	~weapondef_c();
 
 	void Default(void);
-	void CopyDetail(weapondef_c &src);
+	void CopyDetail(const weapondef_c &src);
+	void CopyStates(const weapondef_c &src);
 
 	inline int KeyPri(int idx) const  // next/prev order value
 	{
@@ -189,8 +190,6 @@ public:
 	}
 
 private:
-	void CopyStates(weapondef_c &src);
-
 	// disable copy construct and assignment operator
 	explicit weapondef_c(weapondef_c &rhs) { }
 	weapondef_c& operator= (weapondef_c &rhs) { return *this; }

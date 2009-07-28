@@ -215,11 +215,11 @@ public:
 	~label_offset_c(); 
 
 private:
-	void Copy(label_offset_c &src);
+	void Copy(const label_offset_c &src);
 
 public:
 	void Default();
-	label_offset_c& operator=(label_offset_c &rhs);
+	label_offset_c& operator= (const label_offset_c &rhs);
 
 	epi::strent_c label;
 	int offset;
@@ -230,7 +230,7 @@ class damage_c
 {
 public:
 	damage_c();
-	damage_c(damage_c &rhs);
+	damage_c(const damage_c &rhs);
 	~damage_c();
 	
 	enum default_e
@@ -243,11 +243,11 @@ public:
 	};
 	
 private:
-	void Copy(damage_c &src);
+	void Copy(const damage_c &src);
 
 public:
 	void Default(default_e def);
-	damage_c& operator= (damage_c &rhs);
+	damage_c& operator= (const damage_c &rhs);
 
 	// nominal damage amount (required)
 	float nominal;

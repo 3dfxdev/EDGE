@@ -123,7 +123,7 @@ public:
 	~atkdef_c();
 
 	void Default();
-	void CopyDetail(atkdef_c &src);
+	void CopyDetail(const atkdef_c &src);
 
 private:
 	// disable copy construct and assignment operator

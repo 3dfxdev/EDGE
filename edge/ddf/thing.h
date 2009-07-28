@@ -537,15 +537,15 @@ class dlight_info_c
 {
 public:
 	dlight_info_c();
-	dlight_info_c(dlight_info_c &rhs);
+	dlight_info_c(const dlight_info_c &rhs);
 	~dlight_info_c() {};
 
 private:
-	void Copy(dlight_info_c &src);
+	void Copy(const dlight_info_c &src);
 
 public:
 	void Default(void);
-	dlight_info_c& operator=(dlight_info_c &rhs);
+	dlight_info_c& operator= (const dlight_info_c &rhs);
 
 	dlight_type_e type;
 	epi::strent_c shape;  // IMAGES.DDF reference
@@ -561,15 +561,15 @@ class weakness_info_c
 {
 public:
 	weakness_info_c();
-	weakness_info_c(weakness_info_c &rhs);
+	weakness_info_c(const weakness_info_c &rhs);
 	~weakness_info_c() {};
 
 private:
-	void Copy(weakness_info_c &src);
+	void Copy(const weakness_info_c &src);
 
 public:
 	void Default(void);
-	weakness_info_c& operator=(weakness_info_c &rhs);
+	weakness_info_c& operator= (const weakness_info_c &rhs);
 
 	percent_t height[2];
 	angle_t angle[2];
@@ -755,8 +755,8 @@ public:
 
 public:
 	void Default();
-	void CopyDetail(mobjtype_c &src);
-	void CopyStates(mobjtype_c &src);
+	void CopyDetail(const mobjtype_c &src);
+	void CopyStates(const mobjtype_c &src);
 
 	void DLightCompatibility(void);
 
