@@ -83,8 +83,8 @@ public:
       sprites.clear ();
       }
 
-   Img *GetFlat   (const wad_flat_name_t& fname);
-   Img *GetTex    (const wad_tex_name_t& tname);
+   Img *GetFlat   (const char * fname);
+   Img *GetTex    (const char * tname);
    Img *GetSprite (const wad_ttype_t& type);
 };
 

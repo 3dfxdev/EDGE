@@ -90,7 +90,7 @@ public:
         GetCurObject (o, OBJ_SECTORS, int (x), int (y));
       int secnum = o.num;
       if (secnum >= 0)
-         z = Sectors[secnum].floorh + EYE_HEIGHT;
+         z = Sectors[secnum]->floorh + EYE_HEIGHT;
       }
 
    void ClearScreen ()
@@ -105,14 +105,13 @@ public:
    for (int i = 0; i < NumThings; i++)
       {
         Objid o;
-        GetCurObject (o, OBJ_SECTORS, Things[i].x, 
-            Things[i].y);
+        GetCurObject (o, OBJ_SECTORS, Things[i]->x, Things[i]->y);
       int secnum = o.num;
       
       if (secnum < 0)
          thing_floors[i] = 0;
       else
-         thing_floors[i] = Sectors[secnum].floorh;
+         thing_floors[i] = Sectors[secnum]->floorh;
       }
    }
 };
@@ -149,11 +148,11 @@ public:
 
    DrawSurf () { kind = K_INVIS; img = 0; }
 
-   void FindFlat (const wad_flat_name_t& fname, Sector *sec)
+   void FindFlat(const char * fname, Sector *sec)
       {
       if (view.texturing)
          {
-         img = image_cache->GetFlat (fname);
+         img = image_cache->GetFlat(fname);
 
          if (img != 0)
             return;
@@ -161,11 +160,11 @@ public:
       col = 0x70 + ((fname[0]*13+fname[1]*41+fname[2]*11) % 48);
       }
 
-   void FindTex (const wad_tex_name_t& tname, LineDef *ld)
+   void FindTex(const char * tname, LineDef *ld)
       {
       if (view.texturing)
          {
-         img = image_cache->GetTex (tname);
+         img = image_cache->GetTex(tname);
 
          if (img != 0)
             return;
@@ -282,17 +281,17 @@ public:
       Sector *front = sec;
       Sector *back  = 0;
 
-      if (is_obj (side ? ld->side_R : ld->side_L))
+      if (is_obj (side ? ld->right : ld->left))
          {
-         SideDef *bsd = SideDefs + (side ? ld->side_R : ld->side_L);
+         SideDef *bsd = side ? ld->Right() : ld->Left();
 
          if (is_obj (bsd->sector))
-            back = Sectors + bsd->sector;
+            back = Sectors[bsd->sector];
          }
 
-      bool sky_upper = back && is_sky (front->ceil_tex) && is_sky (back->ceil_tex);
+      bool sky_upper = back && is_sky(front->CeilTex()) && is_sky(back->CeilTex());
 
-      if ((front->ceilh > view.z || is_sky (front->ceil_tex)) && ! sky_upper) 
+      if ((front->ceilh > view.z || is_sky(front->CeilTex())) && ! sky_upper) 
          {
          ceil.kind = DrawSurf::K_FLAT;
          ceil.h1 = +99999;
@@ -300,10 +299,10 @@ public:
          ceil.tex_h = ceil.h2;
          ceil.y_clip = DrawSurf::SOLID_ABOVE;
 
-         if (is_sky (front->ceil_tex))
+         if (is_sky(front->CeilTex()))
             ceil.col = sky_colour;
          else
-            ceil.FindFlat (front->ceil_tex, front);
+            ceil.FindFlat(front->CeilTex(), front);
          }
 
       if (front->floorh < view.z)
@@ -314,10 +313,10 @@ public:
          floor.tex_h = floor.h1;
          floor.y_clip = DrawSurf::SOLID_BELOW;
 
-         if (is_sky (front->floor_tex))
+         if (is_sky(front->FloorTex()))
             floor.col = sky_colour;
          else
-            floor.FindFlat (front->floor_tex, front);
+            floor.FindFlat(front->FloorTex(), front);
          }
 
       if (! back)
@@ -329,7 +328,7 @@ public:
          lower.h2 = front->floorh;
          lower.y_clip = DrawSurf::SOLID_ABOVE | DrawSurf::SOLID_BELOW;
 
-         lower.FindTex (sd->mid_tex, ld);
+         lower.FindTex(sd->MidTex(), ld);
 
          if (lower.img && (ld->flags & MLF_LowerUnpegged))
             lower.tex_h = lower.h2 + lower.img->height ();
@@ -348,7 +347,7 @@ public:
             upper.tex_h = upper.h1;
             upper.y_clip = DrawSurf::SOLID_ABOVE;
 
-            upper.FindTex (sd->upper_tex, ld);
+            upper.FindTex(sd->UpperTex(), ld);
 
             if (upper.img && ! (ld->flags & MLF_UpperUnpegged))
                upper.tex_h = upper.h2 + upper.img->height ();
@@ -363,7 +362,7 @@ public:
             lower.h2 = front->floorh;
             lower.y_clip = DrawSurf::SOLID_BELOW;
 
-            lower.FindTex (sd->lower_tex, ld);
+            lower.FindTex(sd->LowerTex(), ld);
 
             if (ld->flags & MLF_LowerUnpegged)
                lower.tex_h = front->ceilh;
@@ -512,15 +511,15 @@ public:
 
    void AddLine (int linenum)
       {
-      LineDef *ld = LineDefs + linenum;
+      LineDef *ld = LineDefs[linenum];
 
       if (! is_obj (ld->start) || ! is_obj (ld->end))
          return;
 
-      float x1 = Vertices[ld->start].x - view.x;
-      float y1 = Vertices[ld->start].y - view.y;
-      float x2 = Vertices[ld->end].x - view.x;
-      float y2 = Vertices[ld->end].y - view.y;
+      float x1 = ld->Start()->x - view.x;
+      float y1 = ld->Start()->y - view.y;
+      float x2 = ld->End()->x - view.x;
+      float y2 = ld->End()->y - view.y;
 
       float tx1 = x1 * view.Sin - y1 * view.Cos;
       float ty1 = x1 * view.Cos + y1 * view.Sin;
@@ -545,10 +544,10 @@ public:
          side = 1;
 
       // ignore the line when there is no facing sidedef
-      if (! is_obj (side ? ld->side_L : ld->side_R))
+      if (! is_obj (side ? ld->left : ld->right))
          return;
 
-      sd = SideDefs + (side ? ld->side_L : ld->side_R);
+      sd = side ? ld->Left() : ld->Right();
 
       if (! is_obj (sd->sector))
          return;
@@ -629,7 +628,7 @@ public:
       dw->th = 0;
       dw->ld = ld;
       dw->sd = sd;
-      dw->sec = Sectors + sd->sector;
+      dw->sec = sd->SecRef();
 
       dw->side = side;
 
@@ -652,7 +651,7 @@ public:
 
    void AddThing (int thingnum)
       {
-      Thing *th = Things + thingnum;
+      Thing *th = Things[thingnum];
 
       float x = th->x - view.x;
       float y = th->y - view.y;
@@ -739,7 +738,7 @@ public:
          if (! dw)
             continue;
 
-         int one_sided = dw->ld && ! is_obj (dw->ld->side_L);
+         int one_sided = dw->ld && ! is_obj (dw->ld->left);
          int vis_count = dw->sx2 - dw->sx1 + 1;
 
          for (int x = dw->sx1; x <= dw->sx2; x++)
@@ -1082,11 +1081,11 @@ public:
 
 static Thing *FindPlayer (int typenum)
 {
-for (int i=0; i < NumThings; i++)
-   if (Things[i].type == typenum)
-      return Things + i;
+	for (int i=0; i < NumThings; i++)
+		if (Things[i]->type == typenum)
+			return Things[i];
 
-return 0;
+	return 0;
 }
 
 
