@@ -756,12 +756,11 @@ public:
 public:
 	void Default();
 	void CopyDetail(mobjtype_c &src);
+	void CopyStates(mobjtype_c &src);
 
 	void DLightCompatibility(void);
 
 private:
-	void CopyStates(mobjtype_c &src);
-
 	// disable copy construct and assignment operator
 	explicit mobjtype_c(mobjtype_c &rhs) { }
 	mobjtype_c& operator= (mobjtype_c &rhs) { return *this; }

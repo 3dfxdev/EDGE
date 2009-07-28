@@ -440,12 +440,42 @@ static void ThingStartEntry(const char *buffer, bool extend)
 }
 
 
+static void ThingDoTemplate(const char *contents, bool do_states, int index)
+{
+	if (index > 0)
+		DDF_Error("Template must be a single name (not a list).\n");
+
+	int idx = mobjtypes.FindFirst(contents, mobjtypes.GetDisabledCount());
+	if (idx < 0)
+		DDF_Error("Unknown template thing: '%s'\n", contents);
+
+	mobjtype_c *other = mobjtypes[idx];
+	SYS_ASSERT(other);
+
+	dynamic_thing->CopyDetail(*other);
+
+	if (do_states)
+		dynamic_thing->CopyStates(*other);
+}
+
+
 void ThingParseField(const char *field, const char *contents,
 					 int index, bool is_last)
 {
 #if (DEBUG_DDF)  
 	I_Debugf("THING_PARSE: %s = %s;\n", field, contents);
 #endif
+
+	if (DDF_CompareName(field, "TEMPLATE") == 0)
+	{
+		ThingDoTemplate(contents, true, index);
+		return;
+	}
+	if (DDF_CompareName(field, "TEMPLATE_NOSTATES") == 0)
+	{
+		ThingDoTemplate(contents, false, index);
+		return;
+	}
 
 	if (DDF_MainParseField((char *)dynamic_thing, thing_commands, field, contents))
 		return;
@@ -1728,24 +1758,6 @@ void mobjtype_c::Default()
 
 void mobjtype_c::CopyDetail(mobjtype_c &src)
 {
-	CopyStates(src);
-
-    spawn_state = src.spawn_state; 
-    idle_state = src.idle_state; 
-    chase_state = src.chase_state; 
-    pain_state = src.pain_state; 
-    missile_state = src.missile_state; 
-    melee_state = src.melee_state; 
-    death_state = src.death_state; 
-    overkill_state = src.overkill_state; 
-    raise_state = src.raise_state; 
-    res_state = src.res_state; 
-    meander_state = src.meander_state; 
-    bounce_state = src.bounce_state; 
-    touch_state = src.touch_state; 
-    reload_state = src.reload_state; 
-    gib_state = src.gib_state; 
-
     reactiontime = src.reactiontime; 
 	painchance = src.painchance; 
 	spawnhealth = src.spawnhealth; 
@@ -1861,7 +1873,10 @@ void mobjtype_c::CopyStates(mobjtype_c &src)
 	std::vector<state_t>::iterator SI;
 
 	for (SI = src.states.begin(); SI != src.states.end(); SI++)
+	{
 		states.push_back(*SI);
+	}
+
 #if 0
 	I_Debugf("STATES FOR [%s]\n", ddf.name.c_str());
 	for (SI = src.states.begin(); SI != src.states.end(); SI++)
@@ -1871,6 +1886,22 @@ void mobjtype_c::CopyStates(mobjtype_c &src)
 			SI->sprite, SI->frame, SI->tics, SI->action, SI->nextstate);
 	}
 #endif
+
+    spawn_state = src.spawn_state; 
+    idle_state  = src.idle_state; 
+    chase_state = src.chase_state; 
+    pain_state  = src.pain_state; 
+    missile_state = src.missile_state; 
+    melee_state = src.melee_state; 
+    death_state = src.death_state; 
+    overkill_state = src.overkill_state; 
+    raise_state = src.raise_state; 
+    res_state   = src.res_state; 
+    meander_state = src.meander_state; 
+    bounce_state = src.bounce_state; 
+    touch_state  = src.touch_state; 
+    reload_state = src.reload_state; 
+    gib_state    = src.gib_state; 
 }
 
 
