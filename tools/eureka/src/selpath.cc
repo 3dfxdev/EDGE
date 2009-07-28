@@ -101,20 +101,20 @@ static void select_linedefs_in_half_path (bitvec_c &ldsel,
 	{
 		if (n == linedef_no)
 			continue;
-		if (LineDefs[n].start == vertex_no)
+		if (LineDefs[n]->start == vertex_no)
 		{
 			if (is_obj (next_linedef_no))
 				return;  // There is a fork in the path. Stop here.
 			// Continue search at the other end of the linedef
-			next_vertex_no = LineDefs[n].end;
+			next_vertex_no = LineDefs[n]->end;
 			next_linedef_no = n;
 		}
-		if (LineDefs[n].end == vertex_no)
+		if (LineDefs[n]->end == vertex_no)
 		{
 			if (is_obj (next_linedef_no))
 				return;  // There is a fork in the path. Stop here.
 			// Continue search at the other end of the linedef
-			next_vertex_no = LineDefs[n].start;
+			next_vertex_no = LineDefs[n]->start;
 			next_linedef_no = n;
 		}
 	}
@@ -194,24 +194,24 @@ static void select_1s_linedefs_in_half_path (bitvec_c &ldsel,
 	{
 		if (n == linedef_no)
 			continue;
-		if (LineDefs[n].start == vertex_no
-				&& is_obj (LineDefs[n].side_R)
-				&& ! is_obj (LineDefs[n].side_L))
+		if (LineDefs[n]->start == vertex_no
+				&& is_obj (LineDefs[n]->right)
+				&& ! is_obj (LineDefs[n]->left))
 		{
 			if (is_obj (next_linedef_no))
 				return;  // There is a fork in the path. Stop here.
 			// Continue search at the other end of the linedef
-			next_vertex_no = LineDefs[n].end;
+			next_vertex_no = LineDefs[n]->end;
 			next_linedef_no = n;
 		}
-		if (LineDefs[n].end == vertex_no
-				&& is_obj (LineDefs[n].side_R)
-				&& ! is_obj (LineDefs[n].side_L))
+		if (LineDefs[n]->end == vertex_no
+				&& is_obj (LineDefs[n]->right)
+				&& ! is_obj (LineDefs[n]->left))
 		{
 			if (is_obj (next_linedef_no))
 				return;  // There is a fork in the path. Stop here.
 			// Continue search at the other end of the linedef
-			next_vertex_no = LineDefs[n].start;
+			next_vertex_no = LineDefs[n]->start;
 			next_linedef_no = n;
 		}
 	}

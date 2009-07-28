@@ -70,10 +70,8 @@ const char *GetEditModeName (int objtype)
 		case OBJ_LINEDEFS:
 		case OBJ_SIDEDEFS: return "LD & SD";
 		case OBJ_VERTICES: return "Vertices";
-		case OBJ_SEGS:     return "Segments";
-		case OBJ_SSECTORS: return "Subsectors";
-		case OBJ_NODES:    return "Nodes";
 		case OBJ_SECTORS:  return "Sectors";
+		case OBJ_RADTRIGS:  return "Hippies";
 	}
 	return "< Bug! >";
 }

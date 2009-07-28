@@ -32,6 +32,7 @@ OBJS = \
 	e_basis.o   \
 	e_checks.o   \
 	e_linedef.o  \
+	e_load.o    \
 	e_sector.o  \
 	e_things.o  \
 	e_vertex.o  \

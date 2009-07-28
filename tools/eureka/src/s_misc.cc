@@ -187,6 +187,7 @@ static int find_linedef_for_area (int x, int y, int& side)
 	int n, m, curx;
 	int best_match = -1;
 
+#if 0 // FIXME !!!!
 	curx = 32767;  // Oh yes, one more hard-coded constant!
 
 	for (n = 0; n < NumLineDefs; n++)
@@ -215,7 +216,7 @@ static int find_linedef_for_area (int x, int y, int& side)
 		side = 1;
 	else
 		side = 2;
-
+#endif
 	return best_match;
 }
 
@@ -228,6 +229,7 @@ static int find_linedef_for_area (int x, int y, int& side)
 
 static double angle_between_linedefs (int A, int B, int C)
 {
+#if 0
 	int a_dx = Vertices[B].x - Vertices[A].x;
 	int a_dy = Vertices[B].y - Vertices[A].y;
 
@@ -253,6 +255,7 @@ static double angle_between_linedefs (int A, int B, int C)
 #endif
 
 	return result;
+#endif
 }
 
 /*
@@ -267,6 +270,7 @@ static double angle_between_linedefs (int A, int B, int C)
 static int select_sides_in_closed_path (bitvec_c& ld_side1,
     bitvec_c& ld_side2, int line, int side)
 {
+#if 0  // FIXME !!!!!
 	int cur_vert, prev_vert, final_vert;
 
 	if (side == 1)
@@ -366,6 +370,7 @@ static int select_sides_in_closed_path (bitvec_c& ld_side1,
 	fprintf(stderr, "PATH CLOSED !\n");
 #endif
 
+#endif
 	return 1;
 }
 
@@ -376,6 +381,7 @@ static int select_sides_in_closed_path (bitvec_c& ld_side1,
 static void super_set_sector_on_side(int line, wad_sdn_t& side,
    wad_sdn_t& other, int side_no, int sector)
 {
+#if 0 // FIXME !!!!!!!!!
 	if (is_obj(side) && SideDefs[side].sector == sector)
 	{
 		// there was no change.
@@ -426,6 +432,7 @@ static void super_set_sector_on_side(int line, wad_sdn_t& side,
 
 	MadeChanges = 1;
 	MadeMapChanges = 1;
+#endif
 }
 
 static int super_find_sector_model(bitvec_c& ld_side1,
@@ -433,16 +440,16 @@ static int super_find_sector_model(bitvec_c& ld_side1,
 {
 	for (int line=0; line < NumLineDefs; line++)
 	{
-		int side1 = LineDefs[line].side_R;
-		int side2 = LineDefs[line].side_L;
+		int side1 = LineDefs[line]->right;
+		int side2 = LineDefs[line]->left;
 
 		if (ld_side1.get(line))
 			if (is_obj(side2))
-				return SideDefs[side2].sector;
+				return SideDefs[side2]->sector;
 
 		if (ld_side2.get(line))
 			if (is_obj(side1))
-				return SideDefs[side1].sector;
+				return SideDefs[side1]->sector;
 	}
 
 	return OBJ_NO_NONE;
@@ -504,13 +511,13 @@ void SuperSectorSelector (int map_x, int map_y, int new_sec)
 
 	for (line=0; line < NumLineDefs; line++)
 	{
-		if (ld_side1.get(line))
-			super_set_sector_on_side (line, LineDefs[line].side_R,
-					LineDefs[line].side_L, 1, new_sec);
-
-		else if (ld_side2.get(line))
-			super_set_sector_on_side (line, LineDefs[line].side_L,
-					LineDefs[line].side_R, 2, new_sec);
+//@@@@@@		if (ld_side1.get(line))
+//@@@@@@			super_set_sector_on_side (line, LineDefs[line]->right,
+//@@@@@@					LineDefs[line]->left, 1, new_sec);
+//@@@@@@
+//@@@@@@		else if (ld_side2.get(line))
+//@@@@@@			super_set_sector_on_side (line, LineDefs[line]->left,
+//@@@@@@					LineDefs[line]->right, 2, new_sec);
 	}
 }
 
@@ -729,6 +736,8 @@ class Secref      // Reference to a sector
  */
 void sector_slice (obj_no_t linedef1, obj_no_t linedef2)
 {
+#if 0  // FIXME !!!! sector_slice
+
   /* We have between 0 and 4 sidedefs. We need to make sure that
      there are exactly 2 that face the same sector and that they
      belong to different linedefs.
@@ -981,6 +990,7 @@ void sector_slice (obj_no_t linedef1, obj_no_t linedef2)
 
 	MadeChanges = 1;
 	MadeMapChanges = 1;
+#endif
 }
 
 //--- editor settings ---
