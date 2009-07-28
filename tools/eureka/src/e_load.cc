@@ -82,48 +82,48 @@ static void LoadVertices()
 
 static void LoadSectors()
 {
-  int i, count=-1;
-  raw_sector_t *raw;
-  lump_t *lump = FindLevelLump("SECTORS");
+	MDirPtr dir = FindMasterDir(Level, "SECTORS");
+	if (dir == 0)
+		FatalError("No sector lump!\n");
 
-  if (lump)
-    count = lump->length / sizeof(raw_sector_t);
+	const Wad_file *wf = dir->wadfile;
+	wf->seek(dir->dir.start);
+	if (wf->error ())
+		FatalError("Error seeking to sector lump!\n");
 
-  if (!lump || count == 0)
-    FatalError("Couldn't find any Sectors");
-
-  DisplayTicker();
+	int count = (int)dir->dir.size / sizeof(raw_sector_t);
 
 # if DEBUG_LOAD
-  PrintDebug("GetSectors: num = %d\n", count);
+	PrintDebug("GetSectors: num = %d\n", count);
 # endif
 
-  raw = (raw_sector_t *) lump->data;
+	if (count == 0)
+		FatalError("Couldn't find any Sectors\n");
 
-  for (i=0; i < count; i++, raw++)
-  {
-    sector_t *sector = NewSector();
+	Sectors.reserve(count);
 
-    sector->floor_h = SINT16(raw->floor_h);
-    sector->ceil_h  = SINT16(raw->ceil_h);
+	for (int i = 0; i < count; i++)
+	{
+		raw_sector_t raw;
 
-    memcpy(sector->floor_tex, raw->floor_tex, sizeof(sector->floor_tex));
-    memcpy(sector->ceil_tex,  raw->ceil_tex,  sizeof(sector->ceil_tex));
+		wf->read_bytes(&raw, sizeof(raw));
+		if (wf->error())
+			FatalError("Error reading sectors.\n");
 
-    sector->light = UINT16(raw->light);
-    sector->special = UINT16(raw->special);
-    sector->tag = SINT16(raw->tag);
+		Sector *sec = new Sector;
 
-    sector->coalesce = (sector->tag >= 900 && sector->tag < 1000) ?
-        TRUE : FALSE;
+		sec->floorh = LE_S16(raw.floorh);
+		sec->ceilh  = LE_S16(raw.ceilh);
 
-    /* sector indices never change */
-    sector->index = i;
+		sec->floor_tex = BA_InternaliseShortStr(raw.floor_tex, 8);
+		sec->ceil_tex  = BA_InternaliseShortStr(raw.ceil_tex,  8);
 
-    sector->warned_facing = -1;
+		sec->light = LE_U16(raw.light);
+		sec->type  = LE_U16(raw.type);
+		sec->tag   = LE_S16(raw.tag);
 
-    /* Note: rej_* fields are handled completely in reject.c */
-  }
+		Sectors.push_back(sec);
+	}
 }
 
 
@@ -156,11 +156,11 @@ void LoadThings(void)
   {
     thing_t *thing = NewThing();
 
-    thing->x = SINT16(raw->x);
-    thing->y = SINT16(raw->y);
+    thing->x = LE_S16(raw->x);
+    thing->y = LE_S16(raw->y);
 
-    thing->type = UINT16(raw->type);
-    thing->options = UINT16(raw->options);
+    thing->type = LE_U16(raw->type);
+    thing->options = LE_U16(raw->options);
 
     thing->index = i;
   }
@@ -191,14 +191,14 @@ void LoadSideDefs()
   {
     sidedef_t *side = NewSidedef();
 
-    side->sector = (SINT16(raw->sector) == -1) ? NULL :
-        LookupSector(UINT16(raw->sector));
+    side->sector = (LE_S16(raw->sector) == -1) ? NULL :
+        LookupSector(LE_U16(raw->sector));
 
     if (side->sector)
       side->sector->ref_count++;
 
-    side->x_offset = SINT16(raw->x_offset);
-    side->y_offset = SINT16(raw->y_offset);
+    side->x_offset = LE_S16(raw->x_offset);
+    side->y_offset = LE_S16(raw->y_offset);
 
     memcpy(side->upper_tex, raw->upper_tex, sizeof(side->upper_tex));
     memcpy(side->lower_tex, raw->lower_tex, sizeof(side->lower_tex));
@@ -246,8 +246,8 @@ void LoadLineDefs()
   {
     linedef_t *line;
 
-    vertex_t *start = LookupVertex(UINT16(raw->start));
-    vertex_t *end   = LookupVertex(UINT16(raw->end));
+    vertex_t *start = LookupVertex(LE_U16(raw->start));
+    vertex_t *end   = LookupVertex(LE_U16(raw->end));
 
     start->ref_count++;
     end->ref_count++;
@@ -261,16 +261,16 @@ void LoadLineDefs()
     line->zero_len = (fabs(start->x - end->x) < DIST_EPSILON) && 
         (fabs(start->y - end->y) < DIST_EPSILON);
 
-    line->flags = UINT16(raw->flags);
-    line->type = UINT16(raw->type);
-    line->tag  = SINT16(raw->tag);
+    line->flags = LE_U16(raw->flags);
+    line->type = LE_U16(raw->type);
+    line->tag  = LE_S16(raw->tag);
 
     line->two_sided = (line->flags & LINEFLAG_TWO_SIDED) ? TRUE : FALSE;
     line->is_precious = (line->tag >= 900 && line->tag < 1000) ? 
         TRUE : FALSE;
 
-    line->right = SafeLookupSidedef(UINT16(raw->sidedef1));
-    line->left  = SafeLookupSidedef(UINT16(raw->sidedef2));
+    line->right = SafeLookupSidedef(LE_U16(raw->sidedef1));
+    line->left  = SafeLookupSidedef(LE_U16(raw->sidedef2));
 
     if (line->right)
     {
