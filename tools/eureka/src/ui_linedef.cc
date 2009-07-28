@@ -200,7 +200,7 @@ void UI_LineBox::flags_callback(Fl_Widget *w, void *data)
 	if (! is_linedef(box->obj))
 		return;
 
-	LineDefs[box->obj].flags = box->CalcFlags();
+//@@@@@@	LineDefs[box->obj].flags = box->CalcFlags();
 }
 
 
@@ -220,16 +220,16 @@ void UI_LineBox::SetObj(int index)
 
 	if (is_linedef(obj))
 	{
-		front->SetObj(LineDefs[obj].side_R);
-		back->SetObj(LineDefs[obj].side_L);
+		front->SetObj(LineDefs[obj]->right);
+		back->SetObj(LineDefs[obj]->left);
 
-		type->value(Int_TmpStr(LineDefs[obj].type));
-		desc->value(GetLineDefTypeName(LineDefs[obj].type));
-		tag->value(Int_TmpStr(LineDefs[obj].tag));
+		type->value(Int_TmpStr(LineDefs[obj]->type));
+		desc->value(GetLineDefTypeName(LineDefs[obj]->type));
+		tag->value(Int_TmpStr(LineDefs[obj]->tag));
 
 		CalcLength();
 
-		FlagsFromInt(LineDefs[obj].flags);
+		FlagsFromInt(LineDefs[obj]->flags);
 	}
 	else
 	{
@@ -255,15 +255,8 @@ void UI_LineBox::CalcLength()
 
 	int n = obj;
 
-	if (! is_vertex(LineDefs[n].start) ||
-			! is_vertex(LineDefs[n].end))
-	{
-		length->value("????");
-		return;
-	}
-
-	int dx = Vertices[LineDefs[n].start].x - Vertices[LineDefs[n].end].x;
-	int dy = Vertices[LineDefs[n].start].y - Vertices[LineDefs[n].end].y;
+	int dx = LineDefs[n]->Start()->x - LineDefs[n]->End()->x;
+	int dy = LineDefs[n]->Start()->y - LineDefs[n]->End()->y;
 
 	float len_f = sqrt(dx*dx + dy*dy);
 
@@ -308,7 +301,7 @@ int UI_LineBox::CalcFlags() const
 	int lineflags = 0;
 
 	// FIXME: not sure if this belongs here
-	if (is_sidedef(LineDefs[obj].side_L))
+	if (LineDefs[obj]->left >= 0)
 		lineflags |= MLF_TwoSided;
 
 	switch (f_automap->value())

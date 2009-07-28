@@ -225,7 +225,7 @@ void UI_SectorBox::height_callback(Fl_Widget *w, void *data)
 		int new_h = atoi(box->floor_h->value());
 		new_h = MIN(32767, MAX(-32767, new_h));
 
-		Sectors[N].floorh = new_h;
+//@@@@@@		Sectors[N].floorh = new_h;
 	}
 
 	if (w == box->ceil_h)
@@ -233,20 +233,20 @@ void UI_SectorBox::height_callback(Fl_Widget *w, void *data)
 		int new_h = atoi(box->ceil_h->value());
 		new_h = MIN(32767, MAX(-32767, new_h));
 
-		Sectors[N].ceilh = new_h;
+//@@@@@@		Sectors[N].ceilh = new_h;
 	}
 
 	if (w == box->headroom)
 	{
-		int new_h = Sectors[N].floorh + atoi(box->headroom->value());
+		int new_h = Sectors[N]->floorh + atoi(box->headroom->value());
 		new_h = MIN(32767, MAX(-32767, new_h));
 
-		Sectors[N].ceilh = new_h;
+//@@@@@@		Sectors[N].ceilh = new_h;
 	}
 
-	box-> floor_h->value(Int_TmpStr(Sectors[N].floorh));
-	box->  ceil_h->value(Int_TmpStr(Sectors[N].ceilh));
-	box->headroom->value(Int_TmpStr(Sectors[N].ceilh - Sectors[N].floorh));
+	box-> floor_h->value(Int_TmpStr(Sectors[N]->floorh));
+	box->  ceil_h->value(Int_TmpStr(Sectors[N]->ceilh));
+	box->headroom->value(Int_TmpStr(Sectors[N]->HeadRoom()));
 }
 
 
@@ -260,14 +260,14 @@ void UI_SectorBox::tex_callback(Fl_Widget *w, void *data)
 
 	if (w == box->f_tex)
 	{
-		box->FlatFromWidget(Sectors[N].floor_tex, box->f_tex);
-		box->f_pic->GetFlat(Sectors[N].floor_tex);
+//@@@@@@		box->FlatFromWidget(Sectors[N].floor_tex, box->f_tex);
+//@@@@@@		box->f_pic->GetFlat(Sectors[N].floor_tex);
 	}
 
 	if (w == box->c_tex)
 	{
-		box->FlatFromWidget(Sectors[N].ceil_tex, box->c_tex);
-		box->c_pic->GetFlat(Sectors[N].ceil_tex);
+//@@@@@@		box->FlatFromWidget(Sectors[N].ceil_tex, box->c_tex);
+//@@@@@@		box->c_pic->GetFlat(Sectors[N].ceil_tex);
 	}
 }
 
@@ -282,7 +282,7 @@ void UI_SectorBox::type_callback(Fl_Widget *w, void *data)
 
 	int new_type = atoi(box->type->value());
 
-	Sectors[N].type = new_type;
+//@@@@@@	Sectors[N].type = new_type;
 
 	box->desc->value(GetSectorTypeName(new_type));
 
@@ -306,7 +306,7 @@ void UI_SectorBox::light_callback(Fl_Widget *w, void *data)
 
 	new_lt = MAX(0, new_lt);
 
-	Sectors[N].light = new_lt;
+//@@@@@@	Sectors[N].light = new_lt;
 }
 
 
@@ -320,7 +320,7 @@ void UI_SectorBox::tag_callback(Fl_Widget *w, void *data)
 
 	int new_tag = atoi(box->tag->value());
 
-	Sectors[N].tag = new_tag;
+//@@@@@@	Sectors[N].tag = new_tag;
 }
 
 
@@ -357,26 +357,26 @@ void UI_SectorBox::button_callback(Fl_Widget *w, void *data)
 	else if (Fl::event_ctrl())
 		dist = 64;
 
-	if (w == box->lt_up)
-		box->AdjustLight(&Sectors[N].light, +dist);
-	else if (w == box->lt_down)
-		box->AdjustLight(&Sectors[N].light, -dist);
+//@@@@	if (w == box->lt_up)
+//@@@@		box->AdjustLight(&Sectors[N].light, +dist);
+//@@@@	else if (w == box->lt_down)
+//@@@@		box->AdjustLight(&Sectors[N].light, -dist);
+//@@@@
+//@@@@	if (w == box->ce_up)
+//@@@@		box->AdjustHeight(&Sectors[N].ceilh, +dist);
+//@@@@	else if (w == box->ce_down)
+//@@@@		box->AdjustHeight(&Sectors[N].ceilh, -dist);
+//@@@@
+//@@@@	if (w == box->fl_up)
+//@@@@		box->AdjustHeight(&Sectors[N].floorh, +dist);
+//@@@@	else if (w == box->fl_down)
+//@@@@		box->AdjustHeight(&Sectors[N].floorh, -dist);
 
-	if (w == box->ce_up)
-		box->AdjustHeight(&Sectors[N].ceilh, +dist);
-	else if (w == box->ce_down)
-		box->AdjustHeight(&Sectors[N].ceilh, -dist);
+	box->light->value(Int_TmpStr(Sectors[N]->light));
 
-	if (w == box->fl_up)
-		box->AdjustHeight(&Sectors[N].floorh, +dist);
-	else if (w == box->fl_down)
-		box->AdjustHeight(&Sectors[N].floorh, -dist);
-
-	box->light->value(Int_TmpStr(Sectors[N].light));
-
-	box-> floor_h->value(Int_TmpStr(Sectors[N].floorh));
-	box->  ceil_h->value(Int_TmpStr(Sectors[N].ceilh));
-	box->headroom->value(Int_TmpStr(Sectors[N].ceilh - Sectors[N].floorh));
+	box-> floor_h->value(Int_TmpStr(Sectors[N]->floorh));
+	box->  ceil_h->value(Int_TmpStr(Sectors[N]->ceilh));
+	box->headroom->value(Int_TmpStr(Sectors[N]->HeadRoom()));
 }
 
 
@@ -395,21 +395,21 @@ void UI_SectorBox::SetObj(int index)
 
 	if (is_sector(obj))
 	{
-		floor_h->value(Int_TmpStr(Sectors[obj].floorh));
-		ceil_h->value(Int_TmpStr(Sectors[obj].ceilh));
-		headroom->value(Int_TmpStr(Sectors[obj].ceilh - Sectors[obj].floorh));
+		floor_h->value(Int_TmpStr(Sectors[obj]->floorh));
+		ceil_h->value(Int_TmpStr(Sectors[obj]->ceilh));
+		headroom->value(Int_TmpStr(Sectors[obj]->HeadRoom()));
 
-		FlatToWidget(f_tex, Sectors[obj].floor_tex);
-		FlatToWidget(c_tex, Sectors[obj].ceil_tex);
+//@@@@		FlatToWidget(f_tex, Sectors[obj].floor_tex);
+//@@@@		FlatToWidget(c_tex, Sectors[obj].ceil_tex);
+//@@@@
+//@@@@		f_pic->GetFlat(Sectors[obj].floor_tex);
+//@@@@		c_pic->GetFlat(Sectors[obj].ceil_tex);
 
-		f_pic->GetFlat(Sectors[obj].floor_tex);
-		c_pic->GetFlat(Sectors[obj].ceil_tex);
+		type->value(Int_TmpStr(Sectors[obj]->type));
+		desc->value(GetSectorTypeName(Sectors[obj]->type));
 
-		type->value(Int_TmpStr(Sectors[obj].type));
-		desc->value(GetSectorTypeName(Sectors[obj].type));
-
-		light->value(Int_TmpStr(Sectors[obj].light));
-		tag->value(Int_TmpStr(Sectors[obj].tag));
+		light->value(Int_TmpStr(Sectors[obj]->light));
+		tag->value(Int_TmpStr(Sectors[obj]->tag));
 	}
 	else
 	{
