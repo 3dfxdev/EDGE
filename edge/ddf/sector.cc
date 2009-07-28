@@ -95,7 +95,7 @@ static void SectorStartEntry(const char *name, bool extend)
 	int number = MAX(0, atoi(name));
 
 	if (number == 0)
-		DDF_Error("Bad sectordef number in sectors.ddf: %s\n", name);
+		DDF_Error("Bad sector-type number in sectors.ddf: %s\n", name);
 
 	dynamic_sector = sectortypes.Lookup(number);
 
@@ -121,12 +121,35 @@ static void SectorStartEntry(const char *name, bool extend)
 }
 
 
+static void SectorDoTemplate(const char *contents, int index)
+{
+	if (index > 0)
+		DDF_Error("Template must be a single name (not a list).\n");
+
+	int number = MAX(0, atoi(contents));
+	if (number == 0)
+		DDF_Error("Bad sector-type number for template: %s\n", contents);
+
+	sectortype_c *other = sectortypes.Lookup(number);
+	if (! other)
+		DDF_Error("Unknown sector template: '%s'\n", contents);
+
+	dynamic_sector->CopyDetail(*other);
+}
+
+
 static void SectorParseField(const char *field, const char *contents,
 							 int index, bool is_last)
 {
 #if (DEBUG_DDF)  
 	I_Debugf("SECTOR_PARSE: %s = %s;\n", field, contents);
 #endif
+
+	if (DDF_CompareName(field, "TEMPLATE") == 0)
+	{
+		SectorDoTemplate(contents, index);
+		return;
+	}
 
 	if (! DDF_MainParseField((char *)dynamic_sector, sect_commands, field, contents))
 	{

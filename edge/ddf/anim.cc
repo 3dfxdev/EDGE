@@ -59,6 +59,23 @@ static animdef_c *dynamic_anim;
 // -ACB- 2004/06/03 Replaced array and size with purpose-built class
 animdef_container_c animdefs;
 
+
+static animdef_c * animdefs_Lookup(const char *name)
+{
+	epi::array_iterator_c it;
+
+	for (it = animdefs.GetBaseIterator(); it.IsValid(); it++)
+	{
+		animdef_c *a = ITERATOR_TO_TYPE(it, animdef_c*);
+
+		if (DDF_CompareName(a->name.c_str(), name) == 0)
+			return a;
+	}
+
+	return NULL;  // not found
+}
+
+
 //
 //  DDF PARSE ROUTINES
 //
@@ -71,20 +88,7 @@ static void AnimStartEntry(const char *name, bool extend)
 		name = "ANIM_WITH_NO_NAME";
 	}
 
-	dynamic_anim = NULL;
-
-	epi::array_iterator_c it;
-
-	for (it = animdefs.GetBaseIterator(); it.IsValid(); it++)
-	{
-		animdef_c *a = ITERATOR_TO_TYPE(it, animdef_c*);
-
-		if (DDF_CompareName(a->name.c_str(), name) == 0)
-		{
-			dynamic_anim = a;
-			break;
-		}
-	}
+	dynamic_anim = animdefs_Lookup(name);
 
 	if (extend)
 	{
@@ -107,11 +111,31 @@ static void AnimStartEntry(const char *name, bool extend)
 	animdefs.Insert(dynamic_anim);
 }
 
+
+static void AnimDoTemplate(const char *contents, int index)
+{
+	if (index > 0)
+		DDF_Error("Template must be a single name (not a list).\n");
+
+	animdef_c *other = animdefs_Lookup(contents);
+	if (! other)
+		DDF_Error("Unknown animdef template: '%s'\n", contents);
+
+	dynamic_anim->CopyDetail(*other);
+}
+
+
 static void AnimParseField(const char *field, const char *contents, int index, bool is_last)
 {
 #if (DEBUG_DDF)  
 	I_Debugf("ANIM_PARSE: %s = %s;\n", field, contents);
 #endif
+
+	if (DDF_CompareName(field, "TEMPLATE") == 0)
+	{
+		AnimDoTemplate(contents, index);
+		return;
+	}
 
 	if (! DDF_MainParseField((char *)dynamic_anim, anim_commands, field, contents))
 	{

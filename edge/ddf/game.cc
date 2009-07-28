@@ -112,12 +112,32 @@ static void GameStartEntry (const char *name, bool extend)
 	gamedefs.Insert(dynamic_gamedef);
 }
 
+
+static void GameDoTemplate(const char *contents, int index)
+{
+	if (index > 0)
+		DDF_Error("Template must be a single name (not a list).\n");
+
+	gamedef_c *other = gamedefs.Lookup(contents);
+	if (! other)
+		DDF_Error("Unknown game template: '%s'\n", contents);
+
+	dynamic_gamedef->CopyDetail(*other);
+}
+
+
 static void GameParseField (const char *field, const char *contents,
 		int index, bool is_last)
 {
 #if (DEBUG_DDF)
 	I_Debugf("GAME_PARSE: %s = %s;\n", field, contents);
 #endif
+
+	if (DDF_CompareName(field, "TEMPLATE") == 0)
+	{
+		GameDoTemplate(contents, index);
+		return;
+	}
 
 	if (! DDF_MainParseField((char *)dynamic_gamedef, gamedef_commands, field, contents))
 	{
@@ -129,6 +149,7 @@ static void GameFinishEntry (void)
 {
 	// FIXME: check stuff...
 }
+
 
 static void GameClearAll (void)
 {

@@ -143,11 +143,34 @@ static void ImageStartEntry(const char *name, bool extend)
 }
 
 
+static void ImageDoTemplate(const char *contents, int index)
+{
+	if (index > 0)
+		DDF_Error("Template must be a single name (not a list).\n");
+
+	// TODO: support images in other namespaces
+	if (strchr(contents, ':'))
+		DDF_Error("Cannot use image prefixes for templates.\n");
+
+	imagedef_c *other = imagedefs.Lookup(contents, dynamic_image->belong);
+	if (! other)
+		DDF_Error("Unknown image template: '%s'\n", contents);
+
+	dynamic_image->CopyDetail(*other);
+}
+
+
 static void ImageParseField(const char *field, const char *contents, int index, bool is_last)
 {
 #if (DEBUG_DDF)  
 	I_Debugf("IMAGE_PARSE: %s = %s;\n", field, contents);
 #endif
+
+	if (DDF_CompareName(field, "TEMPLATE") == 0)
+	{
+		ImageDoTemplate(contents, index);
+		return;
+	}
 
 	if (! DDF_MainParseField((char *)dynamic_image, image_commands, field, contents))
 	{
@@ -440,7 +463,8 @@ void imagedef_c::Default()
 //
 void imagedef_c::CopyDetail(const imagedef_c &src)
 {
-	belong  = src.belong;
+	// NOTE: belong is not copied
+
 	type    = src.type;
 	colour  = src.colour;
 	builtin = src.builtin;
