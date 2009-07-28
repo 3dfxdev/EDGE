@@ -264,7 +264,7 @@ void animdef_c::Default()
 //
 // Copies all the detail with the exception of the name
 //
-void animdef_c::CopyDetail(animdef_c &src)
+void animdef_c::CopyDetail(const animdef_c &src)
 {
 	type = src.type;
 	pics = src.pics;
@@ -272,7 +272,6 @@ void animdef_c::CopyDetail(animdef_c &src)
 	endname = src.endname;
 	speed = src.speed;
 }
-
 
 
 // ---> animdef_container_c class

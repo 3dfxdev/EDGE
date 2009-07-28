@@ -141,7 +141,7 @@ namespace epi
         
     private:
         void CleanupObject(void *obj);
-		void Copy(strlist_c &src);
+		void Copy(const strlist_c &src);
         
     public:
         void Delete(int idx) { RemoveObject(idx); }
@@ -150,7 +150,7 @@ namespace epi
 	    int Insert(const char *s);
     	void Set(strbox_c &src);
     	
-		strlist_c& operator=(strlist_c &rhs);
+		strlist_c& operator= (const strlist_c &rhs);
 	    char* operator[](int idx) const { return *(char**)FetchObject(idx); } 
     };
     

@@ -58,7 +58,7 @@ public:
 	~switchdef_c();
 
 	void Default(void);
-	void CopyDetail(switchdef_c &src);
+	void CopyDetail(const switchdef_c &src);
 
 private:
 	// disable copy construct and assignment operator

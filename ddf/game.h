@@ -204,7 +204,7 @@ public:
 	~gamedef_c();
 
 	void Default(void);
-	void CopyDetail(gamedef_c &src);
+	void CopyDetail(const gamedef_c &src);
 
 private:
 	// disable copy construct and assignment operator

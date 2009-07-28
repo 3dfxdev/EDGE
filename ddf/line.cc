@@ -1059,7 +1059,7 @@ donutdef_c::donutdef_c()
 //
 // donutdef_c Copy constructor
 //
-donutdef_c::donutdef_c(donutdef_c &rhs)
+donutdef_c::donutdef_c(const donutdef_c &rhs)
 {
 	Copy(rhs);
 }
@@ -1071,24 +1071,18 @@ donutdef_c::~donutdef_c()
 {
 }
 
-//
-// donutdef_c::Copy()
-//
-void donutdef_c::Copy(donutdef_c &src)
+
+void donutdef_c::Copy(const donutdef_c &src)
 {
 	dodonut = src.dodonut;
 
-	// FIXME! Strip out the d_ since we're not trying to
-	// to differentiate them now?
 	d_sfxin = src.d_sfxin; 
 	d_sfxinstop = src.d_sfxinstop;
 	d_sfxout = src.d_sfxout; 
 	d_sfxoutstop = src.d_sfxoutstop;
 }
 
-//
-// donutdef_c::Default()
-//
+
 void donutdef_c::Default()
 {
 	dodonut = false;
@@ -1098,10 +1092,8 @@ void donutdef_c::Default()
 	d_sfxoutstop = NULL;
 }
 
-//
-// donutdef_c assignment operator
-//
-donutdef_c& donutdef_c::operator=(donutdef_c &rhs)
+
+donutdef_c& donutdef_c::operator= (const donutdef_c &rhs)
 {
 	if(&rhs != this)
 		Copy(rhs);
@@ -1122,7 +1114,7 @@ extrafloordef_c::extrafloordef_c()
 //
 // extrafloordef_c Copy constructor
 //
-extrafloordef_c::extrafloordef_c(extrafloordef_c &rhs)
+extrafloordef_c::extrafloordef_c(const extrafloordef_c &rhs)
 {
 	Copy(rhs);
 }
@@ -1134,28 +1126,22 @@ extrafloordef_c::~extrafloordef_c()
 {
 }
 
-//
-// extrafloordef_c::Copy()
-//
-void extrafloordef_c::Copy(extrafloordef_c &src)
+
+void extrafloordef_c::Copy(const extrafloordef_c &src)
 {
 	control = src.control;
 	type = src.type;
 }
 
-//
-// extrafloordef_c::Default()
-//
+
 void extrafloordef_c::Default()
 {
 	control = EFCTL_None;
 	type = EXFL_None;
 }
 
-//
-// extrafloordef_c assignment operator
-//
-extrafloordef_c& extrafloordef_c::operator=(extrafloordef_c &rhs)
+
+extrafloordef_c& extrafloordef_c::operator= (const extrafloordef_c &rhs)
 {
 	if(&rhs != this)
 		Copy(rhs);
@@ -1176,7 +1162,7 @@ ladderdef_c::ladderdef_c()
 //
 // ladderdef_c Copy constructor
 //
-ladderdef_c::ladderdef_c(ladderdef_c &rhs)
+ladderdef_c::ladderdef_c(const ladderdef_c &rhs)
 {
 	Copy(rhs);
 }
@@ -1188,26 +1174,20 @@ ladderdef_c::~ladderdef_c()
 {
 }
 
-//
-// ladderdef_c::Copy()
-//
-void ladderdef_c::Copy(ladderdef_c &src)
+
+void ladderdef_c::Copy(const ladderdef_c &src)
 {
 	height = src.height;
 }
 
-//
-// ladderdef_c::Default()
-//
+
 void ladderdef_c::Default()
 {
 	height = 0.0f;
 }
 
-//
-// ladderdef_c assignment operator
-//
-ladderdef_c& ladderdef_c::operator=(ladderdef_c &rhs)
+
+ladderdef_c& ladderdef_c::operator= (const ladderdef_c &rhs)
 {
 	if(&rhs != this)
 		Copy(rhs);
@@ -1227,7 +1207,7 @@ lightdef_c::lightdef_c()
 //
 // lightdef_c Copy constructor
 //
-lightdef_c::lightdef_c(lightdef_c &rhs)
+lightdef_c::lightdef_c(const lightdef_c &rhs)
 {
 	Copy(rhs);
 }
@@ -1239,10 +1219,8 @@ lightdef_c::~lightdef_c()
 {
 }
 
-//
-// lightdef_c::Copy()
-//
-void lightdef_c::Copy(lightdef_c &src)
+
+void lightdef_c::Copy(const lightdef_c &src)
 {
 	type = src.type;
 	level = src.level;
@@ -1253,9 +1231,7 @@ void lightdef_c::Copy(lightdef_c &src)
 	step = src.step;
 }
 
-//
-// lightdef_c::Default()
-//
+
 void lightdef_c::Default()
 {
 	type = LITE_None;
@@ -1267,10 +1243,8 @@ void lightdef_c::Default()
 	step = 8;
 }
 
-//
-// lightdef_c assignment operator
-//
-lightdef_c& lightdef_c::operator=(lightdef_c &rhs)
+
+lightdef_c& lightdef_c::operator= (const lightdef_c &rhs)
 {
 	if(&rhs != this)
 		Copy(rhs);
@@ -1290,7 +1264,7 @@ movplanedef_c::movplanedef_c()
 //
 // movplanedef_c Copy constructor
 //
-movplanedef_c::movplanedef_c(movplanedef_c &rhs)
+movplanedef_c::movplanedef_c(const movplanedef_c &rhs)
 {
 	Copy(rhs);
 }
@@ -1302,10 +1276,8 @@ movplanedef_c::~movplanedef_c()
 {
 }
 
-//
-// movplanedef_c::Copy()
-//
-void movplanedef_c::Copy(movplanedef_c &src)
+
+void movplanedef_c::Copy(const movplanedef_c &src)
 {
 	type = src.type;
 	is_ceiling = src.is_ceiling;
@@ -1328,9 +1300,7 @@ void movplanedef_c::Copy(movplanedef_c &src)
 	ignore_texture = src.ignore_texture;
 }
 
-//
-// movplanedef_c::Default()
-//
+
 void movplanedef_c::Default(movplanedef_c::default_e def)
 {
 	type = mov_undefined;
@@ -1412,10 +1382,8 @@ void movplanedef_c::Default(movplanedef_c::default_e def)
 	ignore_texture = false;
 }
 
-//
-// movplanedef_c assignment operator
-//
-movplanedef_c& movplanedef_c::operator=(movplanedef_c &rhs)
+
+movplanedef_c& movplanedef_c::operator= (const movplanedef_c &rhs)
 {
 	if(&rhs != this)
 		Copy(rhs);
@@ -1426,31 +1394,29 @@ movplanedef_c& movplanedef_c::operator=(movplanedef_c &rhs)
 // --> Sliding door definition class
 
 //
-// sliding_door_c Constructor
+// Constructor
 //
 sliding_door_c::sliding_door_c()
 {
 }
 
 //
-// sliding_door_c Copy constructor
+// Copy constructor
 //
-sliding_door_c::sliding_door_c(sliding_door_c &rhs)
+sliding_door_c::sliding_door_c(const sliding_door_c &rhs)
 {
 	Copy(rhs);
 }
 
 //
-// sliding_door_c Destructor
+// Destructor
 //
 sliding_door_c::~sliding_door_c()
 {
 }
 
-//
-// sliding_door_c::Copy()
-//
-void sliding_door_c::Copy(sliding_door_c &src)
+
+void sliding_door_c::Copy(const sliding_door_c &src)
 {
 	type = src.type;
 	speed = src.speed;
@@ -1463,9 +1429,7 @@ void sliding_door_c::Copy(sliding_door_c &src)
 	sfx_stop = src.sfx_stop;
 }
 
-//
-// sliding_door_c::Default()
-//
+
 void sliding_door_c::Default()
 {
 	type = SLIDE_None;   
@@ -1479,10 +1443,8 @@ void sliding_door_c::Default()
 	sfx_stop = sfx_None;
 }
 
-//
-// sliding_door_c assignment operator
-//
-sliding_door_c& sliding_door_c::operator=(sliding_door_c &rhs)
+
+sliding_door_c& sliding_door_c::operator= (const sliding_door_c &rhs)
 {
 	if(&rhs != this)
 		Copy(rhs);
@@ -1493,31 +1455,29 @@ sliding_door_c& sliding_door_c::operator=(sliding_door_c &rhs)
 // --> Teleport point definition class
 
 //
-// teleportdef_c Constructor
+// Constructor
 //
 teleportdef_c::teleportdef_c()
 {
 }
 
 //
-// teleportdef_c Copy constructor
+// Copy constructor
 //
-teleportdef_c::teleportdef_c(teleportdef_c &rhs)
+teleportdef_c::teleportdef_c(const teleportdef_c &rhs)
 {
 	Copy(rhs);
 }
 
 //
-// teleportdef_c Destructor
+// Destructor
 //
 teleportdef_c::~teleportdef_c()
 {
 }
 
-//
-// teleportdef_c::Copy()
-//
-void teleportdef_c::Copy(teleportdef_c &src)
+
+void teleportdef_c::Copy(const teleportdef_c &src)
 {
 	teleport = src.teleport;
 	
@@ -1531,9 +1491,7 @@ void teleportdef_c::Copy(teleportdef_c &src)
 	delay = src.delay;
 }
 
-//
-// teleportdef_c::Default()
-//
+
 void teleportdef_c::Default()
 {
 	teleport = false;
@@ -1548,10 +1506,8 @@ void teleportdef_c::Default()
 	special = TELSP_None;
 }
 
-//
-// teleportdef_c assignment operator
-//
-teleportdef_c& teleportdef_c::operator=(teleportdef_c &rhs)
+
+teleportdef_c& teleportdef_c::operator= (const teleportdef_c &rhs)
 {
 	if(&rhs != this)
 		Copy(rhs);
@@ -1569,7 +1525,7 @@ linetype_c::linetype_c() : name()
 linetype_c::~linetype_c()
 {
 }
-	
+
 
 void linetype_c::Default(void)
 {
@@ -1623,7 +1579,7 @@ void linetype_c::Default(void)
 	fx_color = RGB_MAKE(0,0,0);
 }
 
-void linetype_c::CopyDetail(linetype_c &src)
+void linetype_c::CopyDetail(const linetype_c &src)
 {
 	newtrignum = src.newtrignum;
 	type = src.type;

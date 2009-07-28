@@ -205,15 +205,15 @@ class extrafloordef_c
 {
 public:
 	extrafloordef_c();
-	extrafloordef_c(extrafloordef_c &rhs);
+	extrafloordef_c(const extrafloordef_c &rhs);
 	~extrafloordef_c();
 
 private:
-	void Copy(extrafloordef_c &src);
+	void Copy(const extrafloordef_c &src);
 
 public:
 	void Default(void);
-	extrafloordef_c& operator=(extrafloordef_c &src);
+	extrafloordef_c& operator= (const extrafloordef_c &src);
 
 	extrafloor_type_e type;
 	extrafloor_control_e control;
@@ -224,7 +224,7 @@ class movplanedef_c
 {
 public:
 	movplanedef_c();
-	movplanedef_c(movplanedef_c &rhs);
+	movplanedef_c(const movplanedef_c &rhs);
 	~movplanedef_c();
 	
 	enum default_e
@@ -238,11 +238,11 @@ public:
 	};
 	
 private:
-	void Copy(movplanedef_c &src);
+	void Copy(const movplanedef_c &src);
 	
 public:
 	void Default(default_e def);
-	movplanedef_c& operator=(movplanedef_c &rhs);
+	movplanedef_c& operator= (const movplanedef_c &rhs);
 
 	// Type of floor: raise/lower/etc
 	movetype_e type;
@@ -316,15 +316,15 @@ class sliding_door_c
 {
 public:
 	sliding_door_c();
-	sliding_door_c(sliding_door_c &rhs);
+	sliding_door_c(const sliding_door_c &rhs);
 	~sliding_door_c();
 	
 private:
-	void Copy(sliding_door_c &src);
+	void Copy(const sliding_door_c &src);
 	
 public:
 	void Default(void);
-	sliding_door_c& operator=(sliding_door_c &rhs);
+	sliding_door_c& operator= (const sliding_door_c &rhs);
 	
 	// type of slider, normally SLIDE_None
 	slidetype_e type;
@@ -355,28 +355,20 @@ class donutdef_c
 {
 public:
 	donutdef_c();
-	donutdef_c(donutdef_c &rhs);
+	donutdef_c(const donutdef_c &rhs);
 	~donutdef_c();
 	
 private:
-	void Copy(donutdef_c &src);
+	void Copy(const donutdef_c &src);
 	
 public:
 	void Default(void);
-	donutdef_c& operator=(donutdef_c &rhs);
+	donutdef_c& operator= (const donutdef_c &rhs);
 	
 	// Do Donut?
 
-	//
-	// FIXME! Make the objects that use this require
-	//        a pointer/ref. This becomes an
-	//        therefore becomes an unnecessary entry
-	//
 	bool dodonut;
 
-	// FIXME! Strip out the d_ since we're not trying to
-	// to differentiate them now?
-	 
 	// SFX for inner donut parts
 	struct sfx_s *d_sfxin, *d_sfxinstop;
 
@@ -385,7 +377,6 @@ public:
 };
 
 // -AJA- 1999/07/12: teleporter special flags.
-// FIXME!! Move into teleport def class?
 typedef enum
 {
 	TELSP_None       = 0,
@@ -410,22 +401,17 @@ class teleportdef_c
 {
 public:
 	teleportdef_c();
-	teleportdef_c(teleportdef_c &rhs);
+	teleportdef_c(const teleportdef_c &rhs);
 	~teleportdef_c();
 	
 private:
-	void Copy(teleportdef_c &src);
+	void Copy(const teleportdef_c &src);
 	
 public:
 	void Default(void);
-	teleportdef_c& operator=(teleportdef_c &rhs);
+	teleportdef_c& operator= (const teleportdef_c &rhs);
 
-	// If true, teleport activator
-	//
-	// FIXME! Make the objects that use this require
-	//        a pointer/ref. This
-	//        therefore becomes an unnecessary entry
-	//
+	// if true, teleport activator
 	bool teleport;
 
   	// effect object spawned when going in...
@@ -444,7 +430,6 @@ public:
 };
 
 // Light Specials
-// FIXME!! Speak English(UK)/Move into lightdef_c?
 typedef enum
 {
 	LITE_None,
@@ -474,15 +459,15 @@ class lightdef_c
 {
 public:
 	lightdef_c();
-	lightdef_c(lightdef_c &rhs);
+	lightdef_c(const lightdef_c &rhs);
 	~lightdef_c();
 	
 private:
-	void Copy(lightdef_c &src);
+	void Copy(const lightdef_c &src);
 	
 public:
 	void Default(void);
-	lightdef_c& operator=(lightdef_c &rhs);
+	lightdef_c& operator= (const lightdef_c &rhs);
 	
 	lighttype_e type;
 
@@ -509,15 +494,15 @@ class ladderdef_c
 {
 public:
 	ladderdef_c();
-	ladderdef_c(ladderdef_c &rhs);
+	ladderdef_c(const ladderdef_c &rhs);
 	~ladderdef_c();
 	
 private:
-	void Copy(ladderdef_c &src);
+	void Copy(const ladderdef_c &src);
 
 public:
 	void Default(void);
-	ladderdef_c& operator=(ladderdef_c &rhs);
+	ladderdef_c& operator= (const ladderdef_c &rhs);
 
 	// height of ladder itself.  Zero or negative disables.  Bottom of
 	// ladder comes from Y_OFFSET on the linedef.
@@ -671,26 +656,25 @@ public:
 	// Number of times this line can be triggered. -1 = Any amount
 	int count;
 
-	// Floor - FIXME!!! Pointer/reference to table?
+	// Floor
 	movplanedef_c f;
 
-	// Ceiling - FIXME!!! Pointer/reference to table?
+	// Ceiling
 	movplanedef_c c;
 
-	// Donut - FIXME!!! Pointer/reference to table?
+	// Donut
 	donutdef_c d;
 
-	// Slider - FIXME!!! Pointer/reference to table?
+	// Slider
 	sliding_door_c s;
 
-	// -AJA- 2001/03/10: ladder linetypes - FIXME!!! Pointer/reference to table?
+	// -AJA- 2001/03/10: ladder linetypes
 	ladderdef_c ladder;
 
-	// Teleport - FIXME!!! Pointer/reference to table?
+	// Teleport
 	teleportdef_c t;
 
-	// LIGHT SPECIFIC - FIXME!!! Pointer/reference to table?
-	// Things may be added here; start strobing/flashing glowing lights.
+	// LIGHT SPECIFIC
 	lightdef_c l;
 
     // EXIT SPECIFIC
@@ -762,7 +746,7 @@ public:
 	~linetype_c();
 	
 	void Default(void);
-	void CopyDetail(linetype_c &src);
+	void CopyDetail(const linetype_c &src);
 	
 private:
 	// disable copy construct and assignment operator
@@ -878,7 +862,7 @@ public:
 	~sectortype_c();
 	
 	void Default(void);
-	void CopyDetail(sectortype_c &src);
+	void CopyDetail(const sectortype_c &src);
 	
 private:
 	// disable copy construct and assignment operator

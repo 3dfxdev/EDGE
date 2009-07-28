@@ -135,7 +135,7 @@ class lumpname_c
 {
 public:
 	lumpname_c() { clear(); }
-	lumpname_c(lumpname_c &rhs) { Set(rhs.data); }
+	lumpname_c(const lumpname_c &rhs) { Set(rhs.data); }
 	~lumpname_c() {};
 
 private:
@@ -158,7 +158,7 @@ public:
 		data[i] = '\0';
 	}
 
-	lumpname_c& operator=(lumpname_c &rhs) 
+	lumpname_c& operator= (const lumpname_c &rhs) 
 	{
 		if (&rhs != this) 
 			Set(rhs.data);
@@ -191,7 +191,7 @@ public:
 	// Note: this returns NULL if not found, in which case you should
 	// produce an error, since future calls will do the search again.
 
-	mobj_strref_c& operator= (mobj_strref_c &rhs) 
+	mobj_strref_c& operator= (const mobj_strref_c &rhs) 
 	{
 		if (&rhs != this) 
 		{

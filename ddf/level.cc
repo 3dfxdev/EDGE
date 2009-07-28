@@ -282,7 +282,7 @@ map_finaledef_c::map_finaledef_c()
 	Default();
 }
 
-map_finaledef_c::map_finaledef_c(map_finaledef_c &rhs)
+map_finaledef_c::map_finaledef_c(const map_finaledef_c &rhs)
 {
 	Copy(rhs);
 }
@@ -291,7 +291,7 @@ map_finaledef_c::~map_finaledef_c()
 {
 }
 
-void map_finaledef_c::Copy(map_finaledef_c &src)
+void map_finaledef_c::Copy(const map_finaledef_c &src)
 {
 	text = src.text;
 
@@ -328,7 +328,7 @@ void map_finaledef_c::Default()
 	music = 0;
 }
 
-map_finaledef_c& map_finaledef_c::operator=(map_finaledef_c &rhs)
+map_finaledef_c& map_finaledef_c::operator= (const map_finaledef_c &rhs)
 {
 	if (&rhs != this)
 		Copy(rhs);
@@ -375,10 +375,8 @@ void mapdef_c::Default()
 	f_end.Default();
 }
 
-void mapdef_c::CopyDetail(mapdef_c &src)
+void mapdef_c::CopyDetail(const mapdef_c &src)
 {
-///---	next = src.next;				// FIXME!! Gamestate data
-
 	description = src.description;	
   	namegraphic = src.namegraphic;
   	lump = src.lump;

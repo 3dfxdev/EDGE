@@ -27,15 +27,15 @@ class map_finaledef_c
 {
 public:
 	map_finaledef_c();
-	map_finaledef_c(map_finaledef_c &rhs);
+	map_finaledef_c(const map_finaledef_c &rhs);
 	~map_finaledef_c();
 
 private:
-	void Copy(map_finaledef_c &src);
+	void Copy(const map_finaledef_c &src);
 	
 public:
 	void Default(void);
-	map_finaledef_c& operator=(map_finaledef_c &rhs);
+	map_finaledef_c& operator= (const map_finaledef_c &rhs);
 
 	// Text
 	epi::strent_c text;
@@ -142,7 +142,7 @@ public:
 	~mapdef_c();
 	
 	void Default(void);
-	void CopyDetail(mapdef_c &src);
+	void CopyDetail(const mapdef_c &src);
 
 private:
 	// disable copy construct and assignment operator

@@ -81,7 +81,7 @@ public:
 	~sfxdef_c();
 
 	void Default(void);
-	void CopyDetail(sfxdef_c &src);
+	void CopyDetail(const sfxdef_c &src);
 
 private:
 	// disable copy construct and assignment operator

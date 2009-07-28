@@ -197,7 +197,7 @@ void switchdef_c::Default()
 //
 // Copies all the detail with the exception of ddf info
 //
-void switchdef_c::CopyDetail(switchdef_c &src)
+void switchdef_c::CopyDetail(const switchdef_c &src)
 {
 	name1 = src.name1;
 	name2 = src.name2;
