@@ -99,8 +99,8 @@ void UI_VertexBox::pos_callback(Fl_Widget *w, void *data)
 
 	if (is_vertex(box->cur_idx))
 	{
-		Vertices[box->cur_idx].x = atoi(box->pos_x->value());
-		Vertices[box->cur_idx].y = atoi(box->pos_y->value());
+//@@@@@@		Vertices[box->cur_idx].x = atoi(box->pos_x->value());
+//@@@@@@		Vertices[box->cur_idx].y = atoi(box->pos_y->value());
 
 		main_win->canvas->redraw();
 	}
@@ -121,8 +121,8 @@ void UI_VertexBox::SetObj(int index)
 
 	if (is_vertex(cur_idx))
 	{
-		pos_x->value(Int_TmpStr(Vertices[cur_idx].x));
-		pos_y->value(Int_TmpStr(Vertices[cur_idx].y));
+		pos_x->value(Int_TmpStr(Vertices[cur_idx]->x));
+		pos_y->value(Int_TmpStr(Vertices[cur_idx]->y));
 	}
 	else
 	{
