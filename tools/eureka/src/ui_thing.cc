@@ -216,15 +216,15 @@ void UI_ThingBox::SetObj(int index)
 
 	if (is_thing(obj))
 	{
-		type ->value(Int_TmpStr(Things[obj].type));
-		desc ->value(get_thing_name(Things[obj].type));
-		sprite->GetSprite(Things[obj].type);
+		type ->value(Int_TmpStr(Things[obj]->type));
+		desc ->value(get_thing_name(Things[obj]->type));
+		sprite->GetSprite(Things[obj]->type);
 
-		angle->value(Int_TmpStr(Things[obj].angle));
-		pos_x->value(Int_TmpStr(Things[obj].x));
-		pos_y->value(Int_TmpStr(Things[obj].y));
+		angle->value(Int_TmpStr(Things[obj]->angle));
+		pos_x->value(Int_TmpStr(Things[obj]->x));
+		pos_y->value(Int_TmpStr(Things[obj]->y));
 
-		OptionsFromInt(Things[obj].options);
+		OptionsFromInt(Things[obj]->options);
 	}
 	else
 	{
@@ -280,7 +280,7 @@ void UI_ThingBox::type_callback(Fl_Widget *w, void *data)
 
 	int new_type = atoi(box->type->value());
 
-	Things[box->obj].type = new_type;
+//@@@@@@	Things[box->obj].type = new_type;
 
 	box->desc->value(get_thing_name(new_type));
 	box->sprite->GetSprite(new_type);
@@ -296,7 +296,7 @@ void UI_ThingBox::angle_callback(Fl_Widget *w, void *data)
 	if (! is_thing(box->obj))
 		return;
 
-	Things[box->obj].angle = atoi(box->angle->value());
+//@@@@@@	Things[box->obj].angle = atoi(box->angle->value());
 
 	main_win->canvas->redraw();
 }
@@ -309,8 +309,8 @@ void UI_ThingBox::pos_callback(Fl_Widget *w, void *data)
 	if (! is_thing(box->obj))
 		return;
 
-	Things[box->obj].x = atoi(box->pos_x->value());
-	Things[box->obj].y = atoi(box->pos_y->value());
+//@@@@@@	Things[box->obj].x = atoi(box->pos_x->value());
+//@@@@@@	Things[box->obj].y = atoi(box->pos_y->value());
 
 	main_win->canvas->redraw();
 }
@@ -323,7 +323,7 @@ void UI_ThingBox::option_callback(Fl_Widget *w, void *data)
 	if (! is_thing(box->obj))
 		return;
 
-	Things[box->obj].options = box->CalcOptions();
+//@@@@@@	Things[box->obj].options = box->CalcOptions();
 }
 
 
@@ -335,17 +335,17 @@ void UI_ThingBox::button_callback(Fl_Widget *w, void *data)
 	if (! is_thing(n))
 		return;
 
-	if (w == box->ang_left)
-		box->Rotate(+1);
-
-	if (w == box->ang_right)
-		box->Rotate(-1);
-
-	if (w == box->efl_down)
-		box->AdjustExtraFloor(-1);
-
-	if (w == box->efl_up)
-		box->AdjustExtraFloor(+1);
+//@@@@	if (w == box->ang_left)
+//@@@@		box->Rotate(+1);
+//@@@@
+//@@@@	if (w == box->ang_right)
+//@@@@		box->Rotate(-1);
+//@@@@
+//@@@@	if (w == box->efl_down)
+//@@@@		box->AdjustExtraFloor(-1);
+//@@@@
+//@@@@	if (w == box->efl_up)
+//@@@@		box->AdjustExtraFloor(+1);
 
 	if (w == box->choose || w == box->sprite)
 	{
@@ -359,10 +359,10 @@ void UI_ThingBox::Rotate(int dir)
 	if (! is_thing(obj))
 		return;
 
-	int old_ang = (Things[obj].angle / 45) & 7;
+	int old_ang = (Things[obj]->angle / 45) & 7;
 	int new_ang = ((old_ang + dir) & 7) * 45;
 
-	Things[obj].angle = new_ang;
+//@@@@	Things[obj].angle = new_ang;
 
 	angle->value(Int_TmpStr(new_ang));
 
@@ -375,11 +375,11 @@ void UI_ThingBox::AdjustExtraFloor(int dir)
 	if (! is_thing(obj))
 		return;
 
-	int old_fl = (Things[obj].options & MTF_EXFLOOR_MASK) >> MTF_EXFLOOR_SHIFT;
+	int old_fl = (Things[obj]->options & MTF_EXFLOOR_MASK) >> MTF_EXFLOOR_SHIFT;
 	int new_fl = ((old_fl + dir) << MTF_EXFLOOR_SHIFT) & MTF_EXFLOOR_MASK;
 
-	Things[obj].options &= ~MTF_EXFLOOR_MASK;
-	Things[obj].options |= new_fl;
+//@@@@	Things[obj].options &= ~MTF_EXFLOOR_MASK;
+//@@@@	Things[obj].options |= new_fl;
 
 	if (new_fl)
 		exfloor->value(Int_TmpStr(new_fl >> MTF_EXFLOOR_SHIFT));

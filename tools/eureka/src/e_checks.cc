@@ -240,6 +240,7 @@ bool CheckFailed (int x0, int y0, char *prompt1, char *prompt2, bool fatal,
 
 void CheckSectors ()
 {
+#if 0  // TODO
 	int        s, n, sd;
 	char *ends;
 	char       msg1[80], msg2[80];
@@ -371,6 +372,7 @@ void CheckSectors ()
 			}
 		}
 	}
+#endif
 }
 
 
@@ -594,6 +596,7 @@ void CheckCrossReferences ()
 
 void CheckTextures ()
 {
+#if 0  // TODO
 	int  n;
 	int  sd1, sd2;
 	int  s1, s2;
@@ -754,6 +757,7 @@ void CheckTextures ()
 			}
 		}
 	}
+#endif
 }
 
 
@@ -778,6 +782,7 @@ bool IsTextureNameInList (char *name, char **list, int numelems)
 
 void CheckTextureNames ()
 {
+#if 0  // TODO
 	int  n;
 	char msg1[80], msg2[80];
 	bool first_time = true;
@@ -857,6 +862,7 @@ void CheckTextureNames ()
 			CheckingObjects ();
 		}
 	}
+#endif
 }
 
 
@@ -876,15 +882,15 @@ bool CheckStartingPos ()
 
 	for (t = 0; t < NumThings; t++)
 	{
-		if (Things[t].type == THING_PLAYER1)
+		if (Things[t]->type == THING_PLAYER1)
 			p1 = true;
-		if (Things[t].type == THING_PLAYER2)
+		if (Things[t]->type == THING_PLAYER2)
 			p2 = true;
-		if (Things[t].type == THING_PLAYER3)
+		if (Things[t]->type == THING_PLAYER3)
 			p3 = true;
-		if (Things[t].type == THING_PLAYER4)
+		if (Things[t]->type == THING_PLAYER4)
 			p4 = true;
-		if (Things[t].type == THING_DEATHMATCH)
+		if (Things[t]->type == THING_DEATHMATCH)
 			dm++;
 	}
 	if (! p1)
