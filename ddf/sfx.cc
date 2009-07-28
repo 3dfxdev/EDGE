@@ -101,12 +101,31 @@ static void SoundStartEntry(const char *name, bool extend)
 }
 
 
+static void SoundDoTemplate(const char *contents, int index)
+{
+	if (index > 0)
+		DDF_Error("Template must be a single name (not a list).\n");
+
+	sfxdef_c *other = sfxdefs.Lookup(contents);
+	if (! other)
+		DDF_Error("Unknown sound template: '%s'\n", contents);
+
+	dynamic_sfx->CopyDetail(*other);
+}
+
+
 static void SoundParseField(const char *field, const char *contents,
     int index, bool is_last)
 {
 #if (DEBUG_DDF)  
 	I_Debugf("SOUND_PARSE: %s = %s;\n", field, contents);
 #endif
+
+	if (DDF_CompareName(field, "TEMPLATE") == 0)
+	{
+		SoundDoTemplate(contents, index);
+		return;
+	}
 
 	if (! DDF_MainParseField((char *)dynamic_sfx, sfx_commands, field, contents))
 	{
@@ -180,12 +199,10 @@ void sfxdef_c::Default()
 
 void sfxdef_c::CopyDetail(const sfxdef_c &src)
 {
+	// NOTE: the internal sfx_t is not copied (since it is a self-reference)
+
 	lump_name = src.lump_name;
 	file_name = src.file_name;
-
-	// clear the internal sfx_t (ID would be wrong)
-	normal.sounds[0] = 0;
-	normal.num = 0;
 
 	singularity = src.singularity;      // singularity
 	priority = src.priority;    		// priority (lower is more important)

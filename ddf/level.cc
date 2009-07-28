@@ -149,6 +149,20 @@ static void LevelStartEntry(const char *name, bool extend)
 	mapdefs.Insert(dynamic_level);
 }
 
+
+static void LevelDoTemplate(const char *contents, int index)
+{
+	if (index > 0)
+		DDF_Error("Template must be a single name (not a list).\n");
+
+	mapdef_c *other = mapdefs.Lookup(contents);
+	if (! other)
+		DDF_Error("Unknown level template: '%s'\n", contents);
+
+	dynamic_level->CopyDetail(*other);
+}
+
+
 static void LevelParseField(const char *field, const char *contents,
 							int index, bool is_last)
 {
@@ -156,11 +170,18 @@ static void LevelParseField(const char *field, const char *contents,
 	I_Debugf("LEVEL_PARSE: %s = %s;\n", field, contents);
 #endif
 
+	if (DDF_CompareName(field, "TEMPLATE") == 0)
+	{
+		LevelDoTemplate(contents, index);
+		return;
+	}
+
 	if (! DDF_MainParseField((char *)dynamic_level, level_commands, field, contents))
 	{
 		DDF_WarnError("Unknown levels.ddf command: %s\n", field);
 	}
 }
+
 
 static void LevelFinishEntry(void)
 {
@@ -170,6 +191,7 @@ static void LevelFinishEntry(void)
 
 	// TODO: check more stuff...
 }
+
 
 static void LevelClearAll(void)
 {

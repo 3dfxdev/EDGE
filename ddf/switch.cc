@@ -83,12 +83,32 @@ static void SwitchStartEntry(const char *name, bool extend)
 	switchdefs.Insert(dynamic_switchdef);
 }
 
+
+static void SwitchDoTemplate(const char *contents, int index)
+{
+	if (index > 0)
+		DDF_Error("Template must be a single name (not a list).\n");
+
+	switchdef_c *other = switchdefs.Find(contents);
+	if (! other)
+		DDF_Error("Unknown switch template: '%s'\n", contents);
+
+	dynamic_switchdef->CopyDetail(*other);
+}
+
+
 static void SwitchParseField(const char *field, const char *contents,
 		int index, bool is_last)
 {
 #if (DEBUG_DDF)  
 	I_Debugf("SWITCH_PARSE: %s = %s;\n", field, contents);
 #endif
+
+	if (DDF_CompareName(field, "TEMPLATE") == 0)
+	{
+		SwitchDoTemplate(contents, index);
+		return;
+	}
 
 	if (! DDF_MainParseField((char *)dynamic_switchdef, switch_commands, field, contents))
 	{

@@ -315,7 +315,7 @@ static void LinedefStartEntry(const char *name, bool extend)
 	int number = MAX(0, atoi(name));
 
 	if (number == 0)
-		DDF_Error("Bad linedef number in lines.ddf: %s\n", name);
+		DDF_Error("Bad line-type number in lines.ddf: %s\n", name);
 
 	dynamic_line = linetypes.Lookup(number);
 
@@ -340,6 +340,24 @@ static void LinedefStartEntry(const char *name, bool extend)
 	linetypes.Insert(dynamic_line);
 }
 
+
+static void LinedefDoTemplate(const char *contents, int index)
+{
+	if (index > 0)
+		DDF_Error("Template must be a single name (not a list).\n");
+
+	int number = MAX(0, atoi(contents));
+	if (number == 0)
+		DDF_Error("Bad line-type number for template: %s\n", contents);
+
+	linetype_c *other = linetypes.Lookup(number);
+	if (! other)
+		DDF_Error("Unknown line-type template: '%s'\n", contents);
+
+	dynamic_line->CopyDetail(*other);
+}
+
+
 static void LinedefParseField(const char *field, const char *contents,
 							  int index, bool is_last)
 {
@@ -347,11 +365,18 @@ static void LinedefParseField(const char *field, const char *contents,
 	I_Debugf("LINEDEF_PARSE: %s = %s;\n", field, contents);
 #endif
 
+	if (DDF_CompareName(field, "TEMPLATE") == 0)
+	{
+		LinedefDoTemplate(contents, index);
+		return;
+	}
+
 	if (! DDF_MainParseField((char *)dynamic_line, linedef_commands, field, contents))
 	{
 		DDF_WarnError("Unknown lines.ddf command: %s\n", field);
 	}
 }
+
 
 static void LinedefFinishEntry(void)
 {
@@ -1105,14 +1130,14 @@ donutdef_c& donutdef_c::operator= (const donutdef_c &rhs)
 // --> Extrafloor definition class
 
 //
-// extrafloordef_c Constructor
+// Constructor
 //
 extrafloordef_c::extrafloordef_c()
 {
 }
 
 //
-// extrafloordef_c Copy constructor
+// Copy constructor
 //
 extrafloordef_c::extrafloordef_c(const extrafloordef_c &rhs)
 {
@@ -1120,7 +1145,7 @@ extrafloordef_c::extrafloordef_c(const extrafloordef_c &rhs)
 }
 
 //
-// extrafloordef_c Destructor
+// Destructor
 //
 extrafloordef_c::~extrafloordef_c()
 {
@@ -1153,14 +1178,14 @@ extrafloordef_c& extrafloordef_c::operator= (const extrafloordef_c &rhs)
 // --> Ladder definition class
 
 //
-// ladderdef_c Constructor
+// Constructor
 //
 ladderdef_c::ladderdef_c()
 {
 }
 
 //
-// ladderdef_c Copy constructor
+// Copy constructor
 //
 ladderdef_c::ladderdef_c(const ladderdef_c &rhs)
 {
@@ -1168,7 +1193,7 @@ ladderdef_c::ladderdef_c(const ladderdef_c &rhs)
 }
 
 //
-// ladderdef_c Destructor
+// Destructor
 //
 ladderdef_c::~ladderdef_c()
 {
@@ -1198,14 +1223,14 @@ ladderdef_c& ladderdef_c::operator= (const ladderdef_c &rhs)
 // --> Light effect definition class
 
 //
-// lightdef_c Constructor
+// Constructor
 //
 lightdef_c::lightdef_c()
 {
 }
 
 //
-// lightdef_c Copy constructor
+// Copy constructor
 //
 lightdef_c::lightdef_c(const lightdef_c &rhs)
 {
@@ -1213,7 +1238,7 @@ lightdef_c::lightdef_c(const lightdef_c &rhs)
 }
 
 //
-// lightdef_c Destructor
+// Destructor
 //
 lightdef_c::~lightdef_c()
 {
@@ -1255,14 +1280,14 @@ lightdef_c& lightdef_c::operator= (const lightdef_c &rhs)
 // --> Moving plane definition class
 
 //
-// movplanedef_c Constructor
+// Constructor
 //
 movplanedef_c::movplanedef_c()
 {
 }
 
 //
-// movplanedef_c Copy constructor
+// Copy constructor
 //
 movplanedef_c::movplanedef_c(const movplanedef_c &rhs)
 {
@@ -1270,7 +1295,7 @@ movplanedef_c::movplanedef_c(const movplanedef_c &rhs)
 }
 
 //
-// movplanedef_c Destructor
+// Destructor
 //
 movplanedef_c::~movplanedef_c()
 {
