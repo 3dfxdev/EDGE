@@ -36,17 +36,6 @@
 // Defined in levels.cc
 extern MDirPtr Level;   /* master dictionary entry for the level */
 
-extern int   NumThings;   /* number of things */
-extern TPtr  Things;    /* things data */
-extern int   NumLineDefs; /* number of linedefs */
-extern LDPtr LineDefs;    /* linedefs data */
-extern int   NumSideDefs; /* number of sidedefs */
-extern SDPtr SideDefs;    /* sidedefs data */
-extern int   NumVertices; /* number of vertices */
-extern VPtr  Vertices;    /* vertices data */
-extern int   NumSegs;   /* number of segments */
-extern int   NumSectors;  /* number of sectors */
-extern SPtr  Sectors;   /* sectors data */
 
 // FIXME should be somewhere else
 extern int   NumWTexture; /* number of wall textures */
