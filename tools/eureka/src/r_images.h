@@ -47,16 +47,6 @@ public:
    tex_map_t    textures;
    sprite_map_t sprites;
 
-   static std::string WadToString(const wad_flat_name_t& fname)
-   {
-      int len;
-
-      for (len = 0; len < WAD_NAME && fname[len]; len++)
-      { }
-        
-      return std::string(fname, len);
-   }
-
    static void DeleteFlat(const flat_map_t::value_type& P)
       {
       delete P.second;
