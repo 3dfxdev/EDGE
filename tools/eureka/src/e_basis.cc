@@ -28,6 +28,7 @@
 
 #include <algorithm>
 #include <list>
+#include <string>
 
 #include "e_basis.h"
 #include "m_strings.h"
@@ -50,6 +51,15 @@ string_table_c basis_strtab;
 int BA_InternaliseString(const char *str)
 {
 	return basis_strtab.add(str);
+}
+
+int BA_InternaliseShortStr(const char *str, int max_len)
+{
+	std::string goodie(str, max_len);
+
+	int result = BA_InternaliseString(goodie.c_str());
+
+	return result;
 }
 
 const char *BA_GetString(int offset)
