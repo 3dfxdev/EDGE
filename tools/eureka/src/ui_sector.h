@@ -65,7 +65,6 @@ private:
 	void AdjustLight (s16_t *L, int delta);
 
 	void FlatFromWidget(wad_flat_name_t& fname, Fl_Input *w);
-	void FlatToWidget(Fl_Input *w, const wad_flat_name_t& fname);
 
 	static void height_callback(Fl_Widget *, void *);
 	static void    tex_callback(Fl_Widget *, void *);

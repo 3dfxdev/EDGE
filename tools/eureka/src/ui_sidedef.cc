@@ -27,7 +27,7 @@
 
 
 //
-// UI_SideBox Constructor
+// Constructor
 //
 UI_SideBox::UI_SideBox(int X, int Y, int W, int H, int _side) : 
     Fl_Group(X, Y, W, H),
@@ -108,7 +108,7 @@ UI_SideBox::UI_SideBox(int X, int Y, int W, int H, int _side) :
 }
 
 //
-// UI_SideBox Destructor
+// Destructor
 //
 UI_SideBox::~UI_SideBox()
 {
@@ -205,13 +205,13 @@ void UI_SideBox::SetObj(int index)
 		y_ofs->value(Int_TmpStr(SideDefs[obj]->y_offset));
 		sec->value(Int_TmpStr(SideDefs[obj]->sector));
 
-//@@@@		TexToWidget(l_tex, SideDefs[obj].lower_tex);
-//@@@@		TexToWidget(m_tex, SideDefs[obj].mid_tex);
-//@@@@		TexToWidget(u_tex, SideDefs[obj].upper_tex);
-//@@@@
-//@@@@		l_pic->GetTex(SideDefs[obj].lower_tex);
-//@@@@		m_pic->GetTex(SideDefs[obj].mid_tex);
-//@@@@		u_pic->GetTex(SideDefs[obj].upper_tex);
+		l_tex->value(SideDefs[obj]->LowerTex());
+		m_tex->value(SideDefs[obj]->MidTex());
+		u_tex->value(SideDefs[obj]->UpperTex());
+
+		l_pic->GetTex(SideDefs[obj]->LowerTex());
+		m_pic->GetTex(SideDefs[obj]->MidTex());
+		u_pic->GetTex(SideDefs[obj]->UpperTex());
 	}
 	else
 	{
@@ -292,17 +292,6 @@ void UI_SideBox::TexFromWidget(wad_tex_name_t& tname, Fl_Input *w)
 
 	for (int i = 0; i < WAD_TEX_NAME; i++)
 		tname[i] = toupper(tname[i]);
-}
-
-void UI_SideBox::TexToWidget(Fl_Input *w, const wad_tex_name_t& tname)
-{
-	char buffer[WAD_TEX_NAME + 1];
-
-	strncpy(buffer, tname, WAD_TEX_NAME);
-
-	buffer[WAD_TEX_NAME] = 0;
-
-	w->value(buffer);
 }
 
 

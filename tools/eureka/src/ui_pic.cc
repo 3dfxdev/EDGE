@@ -62,12 +62,12 @@ void UI_Pic::Nil()
 }
 
 
-void UI_Pic::GetFlat(const wad_flat_name_t& fname)
+void UI_Pic::GetFlat(const char * fname)
 {
 	TiledImg(image_cache->GetFlat(fname));
 }
 
-void UI_Pic::GetTex (const wad_tex_name_t& tname)
+void UI_Pic::GetTex (const char * tname)
 {
 	TiledImg(image_cache->GetTex(tname));
 }
