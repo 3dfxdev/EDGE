@@ -153,6 +153,8 @@ public:
 	// remember: these two can return NULL!
 	SideDef *Right() const;
 	SideDef *Left()  const;
+
+	bool TouchesSector(const Sector *sec) const;
 };
 
 

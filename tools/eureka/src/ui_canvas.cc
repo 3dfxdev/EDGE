@@ -735,18 +735,6 @@ void UI_Canvas::HighlightForget()
 }
 
 
-static bool LineTouchesSector(int L, int S)
-{
-	SideDef *s1 = LineDefs[L]->Right();
-	SideDef *s2 = LineDefs[L]->Left();
-
-	if (s1 && s1->sector == S) return true;
-	if (s2 && s2->sector == S) return true;
-
-	return false;
-}
-
-
 /*
    highlight the selected object
 */
@@ -828,7 +816,7 @@ void UI_Canvas::HighlightObject (int objtype, int objnum, Fl_Color colour)
 
 			for (int n = 0; n < NumLineDefs; n++)
 			{
-				if (LineTouchesSector(n, objnum))
+				if (LineDefs[n]->TouchesSector(Sectors[objnum]))
 				{
 					const Vertex *v1 = LineDefs[n]->Start();
 					const Vertex *v2 = LineDefs[n]->End();
