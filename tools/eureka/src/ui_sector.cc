@@ -400,11 +400,11 @@ void UI_SectorBox::SetObj(int index)
 		ceil_h->value(Int_TmpStr(Sectors[obj]->ceilh));
 		headroom->value(Int_TmpStr(Sectors[obj]->HeadRoom()));
 
-//@@@@		FlatToWidget(f_tex, Sectors[obj].floor_tex);
-//@@@@		FlatToWidget(c_tex, Sectors[obj].ceil_tex);
-//@@@@
-//@@@@		f_pic->GetFlat(Sectors[obj].floor_tex);
-//@@@@		c_pic->GetFlat(Sectors[obj].ceil_tex);
+		f_tex->value(Sectors[obj]->FloorTex());
+		c_tex->value(Sectors[obj]->CeilTex());
+
+		f_pic->GetFlat(Sectors[obj]->FloorTex());
+		c_pic->GetFlat(Sectors[obj]->CeilTex());
 
 		type->value(Int_TmpStr(Sectors[obj]->type));
 		desc->value(GetSectorTypeName(Sectors[obj]->type));
@@ -484,17 +484,6 @@ void UI_SectorBox::FlatFromWidget(wad_flat_name_t& fname, Fl_Input *w)
 
 	for (int i = 0; i < WAD_FLAT_NAME; i++)
 		fname[i] = toupper(fname[i]);
-}
-
-void UI_SectorBox::FlatToWidget(Fl_Input *w, const wad_flat_name_t& fname)
-{
-	char buffer[WAD_FLAT_NAME + 1];
-
-	strncpy(buffer, fname, WAD_FLAT_NAME);
-
-	buffer[WAD_FLAT_NAME] = 0;
-
-	w->value(buffer);
 }
 
 

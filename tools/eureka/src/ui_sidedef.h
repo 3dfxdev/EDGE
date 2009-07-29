@@ -53,7 +53,6 @@ private:
 	void UpdateHiding(bool hide);
 
 	void TexFromWidget(wad_tex_name_t& tname, Fl_Input *w);
-	void TexToWidget(Fl_Input *w, const wad_tex_name_t& tname);
 
 	static void    tex_callback(Fl_Widget *, void *);
 	static void offset_callback(Fl_Widget *, void *);

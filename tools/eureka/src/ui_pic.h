@@ -39,8 +39,8 @@ public:
 public:
 	void Nil();
 
-	void GetFlat(const wad_flat_name_t& fname);
-	void GetTex (const wad_tex_name_t& tname);
+	void GetFlat(const char * fname);
+	void GetTex (const char * tname);
 	void GetSprite(const wad_ttype_t& type);
 
 	// FLTK virtual method for drawing.
