@@ -129,175 +129,160 @@ static void LoadSectors()
 
 void LoadThings(void)
 {
-  int i, count=-1;
-  raw_thing_t *raw;
-  lump_t *lump = FindLevelLump("THINGS");
+	MDirPtr dir = FindMasterDir(Level, "THINGS");
+	if (dir == 0)
+		FatalError("No things lump!\n");
 
-  if (lump)
-    count = lump->length / sizeof(raw_thing_t);
+	const Wad_file *wf = dir->wadfile;
+	wf->seek(dir->dir.start);
+	if (wf->error ())
+		FatalError("Error seeking to things lump!\n");
 
-  if (!lump || count == 0)
-  {
-    // Note: no error if no things exist, even though technically a map
-    // will be unplayable without the player starts.
-    PrintWarn("Couldn't find any Things!\n");
-    return;
-  }
-
-  DisplayTicker();
+	int count = dir->dir.size / sizeof(raw_thing_t);
 
 # if DEBUG_LOAD
-  PrintDebug("GetThings: num = %d\n", count);
+	PrintDebug("GetThings: num = %d\n", count);
 # endif
 
-  raw = (raw_thing_t *) lump->data;
+	if (count == 0)
+	{
+		// Note: no error if no things exist, even though technically a map
+		// will be unplayable without the player starts.
+//!!!!		PrintWarn("Couldn't find any Things!\n");
+		return;
+	}
 
-  for (i=0; i < count; i++, raw++)
-  {
-    thing_t *thing = NewThing();
+	for (int i = 0; i < count; i++)
+	{
+		raw_thing_t raw;
 
-    thing->x = LE_S16(raw->x);
-    thing->y = LE_S16(raw->y);
+		wf->read_bytes(&raw, sizeof(raw));
+		if (wf->error())
+			FatalError("Error reading things.\n");
 
-    thing->type = LE_U16(raw->type);
-    thing->options = LE_U16(raw->options);
+		Thing *th = new Thing;
 
-    thing->index = i;
-  }
+		th->x = LE_S16(raw.x);
+		th->y = LE_S16(raw.y);
+
+		th->angle   = LE_U16(raw.angle);
+		th->type    = LE_U16(raw.type);
+		th->options = LE_U16(raw.options);
+
+		Things.push_back(th);
+	}
 }
 
 
 void LoadSideDefs()
 {
-  int i, count=-1;
-  raw_sidedef_t *raw;
-  lump_t *lump = FindLevelLump("SIDEDEFS");
+	MDirPtr dir = FindMasterDir(Level, "SIDEDEFS");
+	if (dir == 0)
+		FatalError("No sidedefs lump!\n");
 
-  if (lump)
-    count = lump->length / sizeof(raw_sidedef_t);
+	const Wad_file *wf = dir->wadfile;
+	wf->seek(dir->dir.start);
+	if (wf->error ())
+		FatalError("Error seeking to sidedefs lump!\n");
 
-  if (!lump || count == 0)
-    FatalError("Couldn't find any Sidedefs");
-
-  DisplayTicker();
+	int count = dir->dir.size / sizeof(raw_sidedef_t);
 
 # if DEBUG_LOAD
-  PrintDebug("GetSidedefs: num = %d\n", count);
+	PrintDebug("GetSidedefs: num = %d\n", count);
 # endif
 
-  raw = (raw_sidedef_t *) lump->data;
+	if (count == 0)
+		FatalError("Couldn't find any Sidedefs\n");
 
-  for (i=0; i < count; i++, raw++)
-  {
-    sidedef_t *side = NewSidedef();
+	for (int i = 0; i < count; i++)
+	{
+		raw_sidedef_t raw;
 
-    side->sector = (LE_S16(raw->sector) == -1) ? NULL :
-        LookupSector(LE_U16(raw->sector));
+		wf->read_bytes(&raw, sizeof(raw));
+		if (wf->error())
+			FatalError("Error reading sidedefs.\n");
 
-    if (side->sector)
-      side->sector->ref_count++;
+		SideDef *sd = new SideDef;
 
-    side->x_offset = LE_S16(raw->x_offset);
-    side->y_offset = LE_S16(raw->y_offset);
+		sd->x_offset = LE_S16(raw.x_offset);
+		sd->y_offset = LE_S16(raw.y_offset);
 
-    memcpy(side->upper_tex, raw->upper_tex, sizeof(side->upper_tex));
-    memcpy(side->lower_tex, raw->lower_tex, sizeof(side->lower_tex));
-    memcpy(side->mid_tex,   raw->mid_tex,   sizeof(side->mid_tex));
+		sd->upper_tex = BA_InternaliseShortStr(raw.upper_tex, 8);
+		sd->lower_tex = BA_InternaliseShortStr(raw.lower_tex, 8);
+		sd->  mid_tex = BA_InternaliseShortStr(raw.  mid_tex, 8);
 
-    /* sidedef indices never change */
-    side->index = i;
-  }
-}
+		sd->sector = LE_U16(raw.sector);
 
+		if (sd->sector >= NumSectors)  // FIXME warning
+			sd->sector = 0;
 
-static INLINE_G sidedef_t *SafeLookupSidedef(uint16_g num)
-{
-  if (num == 0xFFFF)
-    return NULL;
-
-  if ((int)num >= num_sidedefs && (sint16_g)(num) < 0)
-    return NULL;
-
-  return LookupSidedef(num);
+		SideDefs.push_back(sd);
+	}
 }
 
 
 void LoadLineDefs()
 {
-  int i, count=-1;
-  raw_linedef_t *raw;
-  lump_t *lump = FindLevelLump("LINEDEFS");
+	MDirPtr dir = FindMasterDir(Level, "LINEDEFS");
+	if (dir == 0)
+		FatalError("No linedefs lump!\n");
 
-  if (lump)
-    count = lump->length / sizeof(raw_linedef_t);
+	const Wad_file *wf = dir->wadfile;
+	wf->seek(dir->dir.start);
+	if (wf->error ())
+		FatalError("Error seeking to linedefs lump!\n");
 
-  if (!lump || count == 0)
-    FatalError("Couldn't find any Linedefs");
-
-  DisplayTicker();
+	int count = dir->dir.size / sizeof(raw_linedef_t);
 
 # if DEBUG_LOAD
-  PrintDebug("GetLinedefs: num = %d\n", count);
+	PrintDebug("GetLinedefs: num = %d\n", count);
 # endif
 
-  raw = (raw_linedef_t *) lump->data;
+	if (count == 0)
+		FatalError("Couldn't find any Linedefs");
 
-  for (i=0; i < count; i++, raw++)
-  {
-    linedef_t *line;
+	for (int i = 0; i < count; i++)
+	{
+		raw_linedef_t raw;
 
-    vertex_t *start = LookupVertex(LE_U16(raw->start));
-    vertex_t *end   = LookupVertex(LE_U16(raw->end));
+		wf->read_bytes(&raw, sizeof(raw));
+		if (wf->error())
+			FatalError("Error reading sidedefs.\n");
 
-    start->ref_count++;
-    end->ref_count++;
+		LineDef *ld = new LineDef;
 
-    line = NewLinedef();
+		ld->start = LE_U16(raw.start);
+		ld->end   = LE_U16(raw.end);
 
-    line->start = start;
-    line->end   = end;
+		ld->flags = LE_U16(raw.flags);
+		ld->type  = LE_U16(raw.type);
+		ld->tag   = LE_S16(raw.tag);
 
-    /* check for zero-length line */
-    line->zero_len = (fabs(start->x - end->x) < DIST_EPSILON) && 
-        (fabs(start->y - end->y) < DIST_EPSILON);
+		ld->right = LE_U16(raw.right);
+		ld->left  = LE_U16(raw.left);
 
-    line->flags = LE_U16(raw->flags);
-    line->type = LE_U16(raw->type);
-    line->tag  = LE_S16(raw->tag);
+		// FIXME vertex check
 
-    line->two_sided = (line->flags & LINEFLAG_TWO_SIDED) ? TRUE : FALSE;
-    line->is_precious = (line->tag >= 900 && line->tag < 1000) ? 
-        TRUE : FALSE;
+		if (ld->right == 0xFFFF)
+			ld->right = -1;
+		else if (ld->right >= NumSideDefs)
+			ld->right = 0;  // FIXME warning
 
-    line->right = SafeLookupSidedef(LE_U16(raw->sidedef1));
-    line->left  = SafeLookupSidedef(LE_U16(raw->sidedef2));
+		if (ld->left == 0xFFFF)
+			ld->left = -1;
+		else if (ld->left >= NumSideDefs)
+			ld->left = -1;  // FIXME warning
 
-    if (line->right)
-    {
-      line->right->ref_count++;
-      line->right->on_special |= (line->type > 0) ? 1 : 0;
-    }
-
-    if (line->left)
-    {
-      line->left->ref_count++;
-      line->left->on_special |= (line->type > 0) ? 1 : 0;
-    }
-
-    line->self_ref = (line->left && line->right &&
-        (line->left->sector == line->right->sector));
-
-    line->index = i;
-  }
+		LineDefs.push_back(ld);
+	}
 }
-
 
 
 /*
    read in the level data
 */
 
-int LoadLevel (const char *levelname)
+int LoadLevel(const char *levelname)
 {
 	/* Find the various level information from the master directory */
 	//DisplayMessage (-1, -1, "Reading data for level %s...", levelname);

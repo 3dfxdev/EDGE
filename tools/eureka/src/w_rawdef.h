@@ -88,8 +88,8 @@ typedef struct raw_linedef_s
 	u16_t flags;    // linedef flags (impassible, etc)
 	u16_t type;     // special type (0 for none, 97 for teleporter, etc)
 	s16_t tag;      // this linedef activates the sector with same tag
-	u16_t side_R;   // right sidedef
-	u16_t side_L;   // left sidedef (only if this line adjoins 2 sectors)
+	u16_t right;    // right sidedef
+	u16_t left;     // left sidedef (only if this line adjoins 2 sectors)
 }
 raw_linedef_t;
 
@@ -100,8 +100,8 @@ typedef struct raw_hexen_linedef_s
 	u16_t flags;      // linedef flags (impassible, etc)
 	u8_t  type;       // special type
 	u8_t  args[5];    // special arguments
-	u16_t side_R;     // right sidedef
-	u16_t side_L;     // left sidedef
+	u16_t right;      // right sidedef
+	u16_t left;       // left sidedef
 }
 raw_hexen_linedef_t;
 
