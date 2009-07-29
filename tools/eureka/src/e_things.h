@@ -58,7 +58,7 @@ const char *GetWhenName (int);
  *
  *  Return a value that is guaranteed to be within [0-7].
  */
-inline int angle_to_direction (wad_tangle_t angle)
+inline int angle_to_direction (int angle)
 {
   return ((unsigned) angle / 45) % 8;
 }

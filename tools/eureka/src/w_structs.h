@@ -93,174 +93,17 @@ const size_t WAD_PIC_NAME = WAD_NAME;
 typedef char wad_pic_name_t[WAD_TEX_NAME];
 
 
-// Level objects properties
-typedef s16_t wad_coord_t;    // Map (X,Y) coordinates
-typedef s16_t wad_ldn_t;      // Linedef#
-typedef s16_t wad_sdn_t;      // Sidedef#
-typedef s16_t wad_sn_t;     // Sector#
-typedef s16_t wad_tag_t;      // Tag
-typedef s16_t wad_tn_t;     // Thing# (theor. there might be more)
-typedef s16_t wad_vn_t;     // Vertex#
-typedef s16_t wad_z_t;      // Map Z coordinate
-
 
 // Things
-const size_t WAD_THING_BYTES       = 10;  // Size in the wad file
-const size_t WAD_HEXEN_THING_BYTES = 20;  // Size in the wad file
 typedef s16_t wad_ttype_t;
-typedef s16_t wad_tangle_t;
 typedef s16_t wad_tflags_t;
 
-
-namespace shite {
-typedef enum
-{
-  MTF_Easy      = 1,
-  MTF_Medium    = 2,
-  MTF_Hard      = 4,
-  MTF_Ambush    = 8,
-
-  MTF_Not_SP    = 16,
-  MTF_Not_DM    = 32,
-  MTF_Not_COOP  = 64,
-
-  MTF_Friend    = 128,
-  MTF_Reserved  = 256,
-}
-thing_option_e;
-
-#define MTF_EXFLOOR_MASK    0x3C00
-#define MTF_EXFLOOR_SHIFT   10
-}
-
-// Linedefs
-const size_t WAD_LINEDEF_BYTES       = 14;  // Size in the wad file
-const size_t WAD_HEXEN_LINEDEF_BYTES = 16;  // Size in the wad file
-typedef s16_t wad_ldflags_t;
-typedef s16_t wad_ldtype_t;
-
-namespace shite {
-typedef enum
-{
-  // solid, is an obstacle
-  MLF_Blocking = 0x0001,
-
-  // blocks monsters only
-  MLF_BlockMonsters = 0x0002,
-
-  // backside will not be present at all if not two sided
-  MLF_TwoSided = 0x0004,
-
-  // If a texture is pegged, the texture will have
-  // the end exposed to air held constant at the
-  // top or bottom of the texture (stairs or pulled
-  // down things) and will move with a height change
-  // of one of the neighbor sectors.
-  // Unpegged textures allways have the first row of
-  // the texture at the top pixel of the line for both
-  // top and bottom textures (use next to windows).
-
-  // upper texture unpegged
-  MLF_UpperUnpegged = 0x0008,
-
-  // lower texture unpegged
-  MLF_LowerUnpegged = 0x0010,
-
-  // in AutoMap: don't map as two sided: IT'S A SECRET!
-  MLF_Secret = 0x0020,
-
-  // sound rendering: don't let sound cross two of these
-  MLF_SoundBlock = 0x0040,
-
-  // don't draw on the automap at all
-  MLF_DontDraw = 0x0080,
-
-  // set as if already seen, thus drawn in automap
-  MLF_Mapped = 0x0100,
-
-  // -AJA- this one is from Boom. Allows multiple lines to
-  //       be pushed simultaneously.
-  MLF_PassThru = 0x0200,
-
-  // -AJA- these three from XDoom
-  MLF_Translucent = 0x0400,
-  MLF_ShootBlock  = 0x0800,
-  MLF_SightBlock  = 0x1000,
-}
-linedef_flag_e;
-}
-
-
-// Sidedefs
-const size_t WAD_SIDEDEF_BYTES = 30;  // Size in the wad file
-
-
-
-// Vertices
-const size_t WAD_VERTEX_BYTES = 4;  // Size in the wad file
-
-
-
-// Sectors
-const size_t WAD_SECTOR_BYTES = 26; // Size in the wad file
-typedef s16_t wad_stype_t;
-
-namespace shite {
-typedef enum
-{
-  MSF_TypeMask   = 0x001F,
-  MSF_DamageMask = 0x0060,
-  MSF_Secret     = 0x0080,
-  MSF_Friction   = 0x0100,
-  MSF_Push       = 0x0200,
-  MSF_NoSounds   = 0x0400,
-  MSF_QuietPlane = 0x0800
-}
-sector_flag_e; 
-
-#define MSF_BoomFlags  0x0FE0
-}
-
-
-// The 11 lumps that constitute a Doom/Heretic/Strife level
-typedef enum
-{
-  WAD_LL_LABEL,
-  WAD_LL_THINGS,
-  WAD_LL_LINEDEFS,
-  WAD_LL_SIDEDEFS,
-  WAD_LL_VERTEXES,
-  WAD_LL_SEGS,
-  WAD_LL_SSECTORS,
-  WAD_LL_NODES,
-  WAD_LL_SECTORS,
-  WAD_LL_REJECT,
-  WAD_LL_BLOCKMAP,
-          // Hexen has a BEHAVIOR lump here
-  WAD_LL__
-} wad_level_lump_no_t;
 
 typedef struct
 {
   const char *const name;
   size_t item_size;
 } wad_level_lump_def_t;
-
-const wad_level_lump_def_t wad_level_lump[WAD_LL__] =
-{
-  { 0,          0                 },  // Label -- no fixed name
-  { "THINGS",   WAD_THING_BYTES   },
-  { "LINEDEFS", WAD_LINEDEF_BYTES },
-  { "SIDEDEFS", WAD_SIDEDEF_BYTES },
-  { "VERTEXES", WAD_VERTEX_BYTES  },
-  { "SEGS",     0                 },
-  { "SSECTORS", 0                 },
-  { "NODES",    0                 },
-  { "SECTORS",  WAD_SECTOR_BYTES  },
-  { "REJECT",   0                 },
-  { "BLOCKMAP", 0                 }
-              // Hexen has a BEHAVIOR lump here
-};
 
 
 MDirPtr FindMasterDir (MDirPtr, const char *);
