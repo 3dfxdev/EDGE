@@ -356,12 +356,11 @@ int InitFLTK(void)  // returns 0 on success
 
 	fprintf(stderr, "-- SCREEN SIZE %dx%d\n", screen_w, screen_h);
 
-	QF = 0;
-	if (screen_w >= 1024) QF++;
-	if (screen_w >= 1280) QF++;
-	//  if (screen_w >= 1600) QF++;
+	KF = 0;
+	if (screen_w >= 1000) KF++;
+	if (screen_w >= 1240) KF++;
 
-	QF_F = (14 + QF * 3);  if (QF_F & 1) QF_F++;
+	KF_fonth = (14 + KF * 2);
 
 
 	main_win = new UI_MainWin("EUREKA FTW!");

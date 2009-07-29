@@ -280,9 +280,8 @@ typedef int acolour_t;
 extern bool InfoShown;          // Is the bottom line displayed?
 
 
-extern int QF;  // widget scale Factor
-
-extern int QF_F;  // default font size
+extern int KF;  // widget scale Factor
+extern int KF_fonth;  // default font size
 
 
 /*
