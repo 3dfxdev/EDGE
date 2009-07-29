@@ -45,7 +45,7 @@
 extern int LoadLevel(const char *levelname);
 
 
-#define VERSION  "0.46"
+#define VERSION  "0.51"
 
 
 /*
@@ -358,7 +358,7 @@ int InitFLTK(void)  // returns 0 on success
 	KF_fonth = (14 + KF * 2);
 
 
-	main_win = new UI_MainWin("EUREKA FTW!");
+	main_win = new UI_MainWin("Eureka DOOM Editor " VERSION);
 
 	// kill the stupid bright background of the "plastic" scheme
 	delete Fl::scheme_bg_;
