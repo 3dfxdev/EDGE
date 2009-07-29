@@ -24,8 +24,7 @@
 //
 //------------------------------------------------------------------------
 
-
-#ifndef YH_WADFILE  /* DO NOT INSERT ANYTHING BEFORE THIS LINE */
+#ifndef YH_WADFILE
 #define YH_WADFILE
 
 
@@ -327,24 +326,7 @@ inline void Wad_file::read_bytes (void *buf, long count) const
   }
 }
 
-
-/*
- *  Wad_file::what - what a wad contains
- *
- *  Written for the sake of the "w" command. Return the
- *  name of the first lump in the wad, which gives an idea
- *  of what it contains. The string is *not* NUL-terminated.
- */
-inline const char *Wad_file::what () const
-{
-  if (directory == 0)
-    return "(nodir)";
-  if (dirsize < 1)
-    return "(empty)";
-  return directory[0].name;
-}
-
-
 #endif  /* DO NOT ADD ANYTHING AFTER THIS LINE */
+
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
