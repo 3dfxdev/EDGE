@@ -131,7 +131,7 @@ static void SectorDoTemplate(const char *contents, int index)
 		DDF_Error("Bad sector-type number for template: %s\n", contents);
 
 	sectortype_c *other = sectortypes.Lookup(number);
-	if (! other)
+	if (!other || other == dynamic_sector)
 		DDF_Error("Unknown sector template: '%s'\n", contents);
 
 	dynamic_sector->CopyDetail(*other);

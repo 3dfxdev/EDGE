@@ -90,7 +90,7 @@ static void SwitchDoTemplate(const char *contents, int index)
 		DDF_Error("Template must be a single name (not a list).\n");
 
 	switchdef_c *other = switchdefs.Find(contents);
-	if (! other)
+	if (!other || other == dynamic_switchdef)
 		DDF_Error("Unknown switch template: '%s'\n", contents);
 
 	dynamic_switchdef->CopyDetail(*other);

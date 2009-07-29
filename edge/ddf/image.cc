@@ -153,7 +153,7 @@ static void ImageDoTemplate(const char *contents, int index)
 		DDF_Error("Cannot use image prefixes for templates.\n");
 
 	imagedef_c *other = imagedefs.Lookup(contents, dynamic_image->belong);
-	if (! other)
+	if (!other || other == dynamic_image)
 		DDF_Error("Unknown image template: '%s'\n", contents);
 
 	dynamic_image->CopyDetail(*other);

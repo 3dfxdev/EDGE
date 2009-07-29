@@ -171,7 +171,7 @@ static void AttackDoTemplate(const char *contents, bool do_states, int index)
 		DDF_Error("Template must be a single name (not a list).\n");
 
 	atkdef_c *other = atkdefs.Lookup(contents);
-	if (! other)
+	if (!other || other == dynamic_atk)
 		DDF_Error("Unknown attack template: '%s'\n", contents);
 
 	dynamic_atk->CopyDetail(*other);
