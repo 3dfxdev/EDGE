@@ -76,7 +76,6 @@ OBJS = \
 	w_wads.o  \
 	x_hover.o  \
 	x_mirror.o  \
-	xref.o  \
 	ymemory.o  \
 	yutil.o
 
