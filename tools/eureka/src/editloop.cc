@@ -30,7 +30,6 @@
 #include "m_dialog.h"
 #include "editloop.h"
 #include "editobj.h"
-#include "editsave.h"
 #include "r_misc.h"
 #include "r_grid.h"
 #include "e_linedef.h"
@@ -41,7 +40,6 @@
 #include "selpath.h"
 #include "x_mirror.h"
 #include "x_hover.h"
-#include "xref.h"
 #include "r_render.h"
 #include "ui_window.h"
 
@@ -1217,44 +1215,6 @@ void EditorKey(int is_key, bool is_shift)
 				break;
 		}
 #endif
-	}
-
-
-	// [Ctrl][b] Select linedefs whose sidedefs reference non-existant sectors
-	else if (is_key == 2)
-	{
-//!!!		bad_sector_number (&edit.Selected);
-		edit.RedrawMap = 1;
-	}
-
-	// [Ctrl][r] Xref for sidedef (not documented)
-	else if (is_key == 18)
-	{
-//!!!		xref_sidedef ();
-	}
-
-	// [Ctrl][s] List secret sectors (not documented)
-	else if (is_key == 19)
-	{
-//!!!		secret_sectors ();
-	}
-
-	// [Ctrl][t] List tagged linedefs or sectors
-	else if (is_key == 20)
-	{
-		if (edit.highlighted._is_sector ())
-			list_tagged_linedefs (Sectors[edit.highlighted.num]->tag);
-		else if (edit.highlighted._is_linedef ())
-			list_tagged_sectors (LineDefs[edit.highlighted.num]->tag);
-		else
-			Beep ();
-	}
-
-	// [Ctrl][u] Select linedefs with unknown type (not documented)
-	else if (is_key == 21)
-	{
-///!!!		unknown_linedef_type (&edit.Selected);
-		edit.RedrawMap = 1;
 	}
 
 
