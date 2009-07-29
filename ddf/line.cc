@@ -351,7 +351,7 @@ static void LinedefDoTemplate(const char *contents, int index)
 		DDF_Error("Bad line-type number for template: %s\n", contents);
 
 	linetype_c *other = linetypes.Lookup(number);
-	if (! other)
+	if (!other || other == dynamic_line)
 		DDF_Error("Unknown line-type template: '%s'\n", contents);
 
 	dynamic_line->CopyDetail(*other);

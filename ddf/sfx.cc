@@ -107,7 +107,7 @@ static void SoundDoTemplate(const char *contents, int index)
 		DDF_Error("Template must be a single name (not a list).\n");
 
 	sfxdef_c *other = sfxdefs.Lookup(contents);
-	if (! other)
+	if (!other || other == dynamic_sfx)
 		DDF_Error("Unknown sound template: '%s'\n", contents);
 
 	dynamic_sfx->CopyDetail(*other);

@@ -452,6 +452,9 @@ static void ThingDoTemplate(const char *contents, bool do_states, int index)
 	mobjtype_c *other = mobjtypes[idx];
 	SYS_ASSERT(other);
 
+	if (other == dynamic_thing)
+		DDF_Error("Bad thing template: '%s'\n", contents);
+
 	dynamic_thing->CopyDetail(*other);
 
 	if (do_states)

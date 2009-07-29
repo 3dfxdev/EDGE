@@ -249,7 +249,7 @@ static void WeaponDoTemplate(const char *contents, bool do_states, int index)
 		DDF_Error("Template must be a single name (not a list).\n");
 
 	weapondef_c *other = weapondefs.Lookup(contents);
-	if (! other)
+	if (!other || other == dynamic_weapon)
 		DDF_Error("Unknown weapon template: '%s'\n", contents);
 
 	dynamic_weapon->CopyDetail(*other);

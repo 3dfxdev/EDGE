@@ -95,7 +95,7 @@ static void ColmapDoTemplate(const char *contents, int index)
 		DDF_Error("Template must be a single name (not a list).\n");
 
 	colourmap_c *other = colourmaps.Lookup(contents);
-	if (! other)
+	if (!other || other == dynamic_colmap)
 		DDF_Error("Unknown colourmap template: '%s'\n", contents);
 
 	dynamic_colmap->CopyDetail(*other);
