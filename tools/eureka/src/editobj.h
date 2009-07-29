@@ -28,5 +28,13 @@
 void DisplayObjectInfo (const Editor_State_c *e, int);
 void input_objid (Objid& objid, const Objid& init, int x0, int y0);
 
+int InputObjectNumber (int, int, int, int);
+int InputObjectXRef (int, int, int, bool, int);
+bool Input2VertexNumbers (int, int, const char *, int *, int *);
+void EditObjectsInfo (int, int, int, SelPtr);
+void InsertStandardObject (int, int, int choice);
+void MiscOperations (int, SelPtr *, int choice);
+
+
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

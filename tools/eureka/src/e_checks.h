@@ -32,6 +32,8 @@ void CheckCrossReferences ();
 void CheckTextures ();
 void CheckTextureNames ();
 
+void CheckLevel (int, int, int pulldown);
+bool CheckStartingPos (void);
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

@@ -287,23 +287,7 @@ extern int KF_fonth;  // default font size
  *  room for improvement on that matter...
  */
 
-// checks.cc (previously in editobj.cc)
-void CheckLevel (int, int, int pulldown);
-bool CheckStartingPos (void);
 
-
-// editobj.cc
-int InputObjectNumber (int, int, int, int);
-int InputObjectXRef (int, int, int, bool, int);
-bool Input2VertexNumbers (int, int, const char *, int *, int *);
-void EditObjectsInfo (int, int, int, SelPtr);
-void InsertStandardObject (int, int, int choice);
-void MiscOperations (int, SelPtr *, int choice);
-
-
-// geom.cc
-unsigned ComputeAngle (int, int);
-unsigned ComputeDist (int, int);
 
 // l_align.cc (previously in objects.cc)
 void AlignTexturesY (SelPtr *);
@@ -320,16 +304,6 @@ void TransferLinedefProperties (int src_linedef, SelPtr linedefs);
 
 // l_unlink.cc
 void unlink_sidedef (SelPtr linedefs, int side1, int side2);
-
-// levels.cc
-int ReadLevelData (const char *);
-void ForgetLevelData (void);
-int SaveLevelData (const char *, const char *level_name);
-void ReadWTextureNames (void);
-void ForgetFTextureNames (void);
-int is_flat_name_in_list (const char *name);
-void ReadFTextureNames (void);
-void ForgetWTextureNames (void);
 
 // names.cc
 const char *GetObjectTypeName (int);
@@ -381,15 +355,6 @@ void InsertPolygonVertices (int, int, int, int);
 // verbmsg.cc
 void verbmsg (const char *fmt, ...);
 
-// version.cc
-extern const char *const yadex_version;
-extern const char *const yadex_source_date;
-
-// prefix.cc
-extern const char *const yadex_etc_version;
-extern const char *const yadex_etc_common;
-extern const char *const yadex_ygd_version;
-extern const char *const yadex_ygd_common;
 
 int entryname_cmp (const char *entry1, const char *entry2);
 
