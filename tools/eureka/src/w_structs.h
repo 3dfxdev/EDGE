@@ -99,12 +99,6 @@ typedef s16_t wad_ttype_t;
 typedef s16_t wad_tflags_t;
 
 
-typedef struct
-{
-  const char *const name;
-  size_t item_size;
-} wad_level_lump_def_t;
-
 
 MDirPtr FindMasterDir (MDirPtr, const char *);
 MDirPtr FindMasterDir (MDirPtr, const char *, const char *);

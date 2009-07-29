@@ -24,12 +24,8 @@
 #
 #------------------------------------------------------------------------
 
-level_format    doom
 level_name      map01
-picture_format  normal
 sky_flat        f_sky1
-texture_format  normal
-texture_lumps   normal
 
 #
 #	Definition of linedef type groups

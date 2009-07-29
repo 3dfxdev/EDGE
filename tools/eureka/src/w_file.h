@@ -90,7 +90,7 @@ class Wad_file
   friend int       SaveLevelData      (const char *, const char *);
   friend int       OpenMainWad        (const char *);
   friend int       OpenPatchWad       (const char *);
-  friend Wad_file *BasicWadOpen       (const char *, ygpf_t);
+  friend Wad_file *BasicWadOpen       (const char *);
   friend void      BuildNewMainWad    (const char *, bool);
   friend void      SaveDirectoryEntry (FILE *, const char *);
   friend void      SaveEntryToRawFile (FILE *, const char *);

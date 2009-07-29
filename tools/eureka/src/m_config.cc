@@ -1035,11 +1035,11 @@ void dump_parameters (FILE *fp)
 	for (o = options + 1; o->opt_type != OPT_END; o++)
 	{
 		int len = strlen (o->desc);
-		desc_maxlen = al_amax (desc_maxlen, len);
+		desc_maxlen = MAX(desc_maxlen, len);
 		if (o->long_name)
 		{
 			len = strlen (o->long_name);
-			name_maxlen = al_amax (name_maxlen, len);
+			name_maxlen = MAX(name_maxlen, len);
 		}
 	}
 
@@ -1100,11 +1100,11 @@ void dump_command_line_options (FILE *fd)
 		if (! o->short_name)
 			continue;
 		len = strlen (o->desc);
-		desc_maxlen = al_amax (desc_maxlen, len);
+		desc_maxlen = MAX(desc_maxlen, len);
 		if (o->long_name)
 		{
 			len = strlen (o->long_name);
-			name_maxlen = al_amax (name_maxlen, len);
+			name_maxlen = MAX(name_maxlen, len);
 		}
 	}
 

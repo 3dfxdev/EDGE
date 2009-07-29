@@ -36,7 +36,7 @@ int OpenMainWad (const char *);
 int OpenPatchWad (const char *);
 void CloseWadFiles (void);
 void CloseUnusedWadFiles (void);
-Wad_file *BasicWadOpen (const char *, ygpf_t pic_format);
+Wad_file *BasicWadOpen (const char *);
 void ListMasterDirectory (FILE *);
 void ListFileDirectory (FILE *, const Wad_file *);
 void DumpDirectoryEntry (FILE *, const char *);

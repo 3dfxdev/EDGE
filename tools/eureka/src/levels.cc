@@ -69,17 +69,12 @@ void EmptyLevelData (const char *levelname)
 static char *tex_list = 0;
 static size_t ntex = 0;
 static char tex_name[WAD_TEX_NAME + 1];
+
 inline const char *texno_texname (s16_t texno)
 {
 	if (texno < 0)
 		return "-";
 	else
-		if (yg_texture_format == YGTF_NAMELESS)
-		{
-			sprintf (tex_name, "TEX%04u", (unsigned) texno);
-			return tex_name;
-		}
-		else
 		{
 			if (texno < (s16_t) ntex)
 				return tex_list + WAD_TEX_NAME * texno;
@@ -176,118 +171,7 @@ void ReadWTextureNames ()
 
 	verbmsg ("Reading texture names\n");
 
-	// Doom alpha 0.4 : "TEXTURES", no names
-	if (yg_texture_lumps == YGTL_TEXTURES
-			&& yg_texture_format == YGTF_NAMELESS)
-	{
-		const char *lump_name = "TEXTURES";
-		dir = FindMasterDir (MasterDir, lump_name);
-		if (dir == NULL)
-		{
-			warn ("%s: lump not found in directory\n", lump_name);
-			goto textures04_done;
-		}
-		{
-			const Wad_file *wf = dir->wadfile;
-			wf->seek (dir->dir.start);
-			if (wf->error ())
-			{
-				warn ("%s: seek error\n", lump_name);
-				goto textures04_done;
-			}
-			wf->read_i32 (&val);
-			if (wf->error ())
-			{
-				warn ("%s: error reading texture count\n", lump_name);
-				goto textures04_done;
-			}
-			NumWTexture = (int) val + 1;
-			WTexture = (char **) GetMemory ((long) NumWTexture * sizeof *WTexture);
-			WTexture[0] = (char *) GetMemory (WAD_TEX_NAME + 1);
-			strcpy (WTexture[0], "-");
-			if (WAD_TEX_NAME < 7) nf_bug ("WAD_TEX_NAME too small");  // Sanity
-			for (long n = 0; n < val; n++)
-			{
-				WTexture[n + 1] = (char *) GetMemory (WAD_TEX_NAME + 1);
-				if (n > 9999)
-				{
-					warn ("more than 10,000 textures. Ignoring excess.\n");
-					break;
-				}
-				sprintf (WTexture[n + 1], "TEX%04ld", n);
-			}
-		}
-textures04_done:
-		;
-	}
-
-	// Doom alpha 0.5 : only "TEXTURES"
-	else if (yg_texture_lumps == YGTL_TEXTURES
-			&& (yg_texture_format == YGTF_NORMAL
-				|| yg_texture_format == YGTF_STRIFE11))
-	{
-		const char *lump_name = "TEXTURES";
-		s32_t *offsets = 0;
-		dir = FindMasterDir (MasterDir, lump_name);
-		if (dir == NULL)  // In theory it always exists, though
-		{
-			warn ("%s: lump not found in directory\n", lump_name);
-			goto textures05_done;
-		}
-		{
-			const Wad_file *wf = dir->wadfile;
-			wf->seek (dir->dir.start);
-			if (wf->error ())
-			{
-				warn ("%s: seek error\n", lump_name);
-				goto textures05_done;
-			}
-			wf->read_i32 (&val);
-			if (wf->error ())
-			{
-				warn ("%s: error reading texture count\n", lump_name);
-				goto textures05_done;
-			}
-			NumWTexture = (int) val + 1;
-			/* read in the offsets for texture1 names */
-			offsets = (s32_t *) GetMemory ((long) NumWTexture * 4);
-			wf->read_i32 (offsets + 1, NumWTexture - 1);
-			if (wf->error ())
-			{
-				warn ("%s: error reading offsets table\n", lump_name);
-				goto textures05_done;
-			}
-			/* read in the actual names */
-			WTexture = (char **) GetMemory ((long) NumWTexture * sizeof (char *));
-			WTexture[0] = (char *) GetMemory (WAD_TEX_NAME + 1);
-			strcpy (WTexture[0], "-");
-			for (n = 1; n < NumWTexture; n++)
-			{
-				WTexture[n] = (char *) GetMemory (WAD_TEX_NAME + 1);
-				long offset = dir->dir.start + offsets[n];
-				wf->seek (offset);
-				if (wf->error ())
-				{
-					warn ("%s: error seeking to  error\n", lump_name);
-					goto textures05_done;    // FIXME cleanup
-				}
-				wf->read_bytes (WTexture[n], WAD_TEX_NAME);
-				if (wf->error ())
-				{
-					warn ("%s: error reading texture names\n", lump_name);
-					goto textures05_done;    // FIXME cleanup
-				}
-				WTexture[n][WAD_TEX_NAME] = '\0';
-			}
-		}
-textures05_done:
-		if (offsets != 0)
-			FreeMemory (offsets);
-	}
 	// Other iwads : "TEXTURE1" and possibly "TEXTURE2"
-	else if (yg_texture_lumps == YGTL_NORMAL
-			&& (yg_texture_format == YGTF_NORMAL
-				|| yg_texture_format == YGTF_STRIFE11))
 	{
 		const char *lump_name = "TEXTURE1";
 		s32_t *offsets = 0;
@@ -380,8 +264,6 @@ textures05_done:
 			}
 		}
 	}
-	else
-		nf_bug ("Invalid texture_format/texture_lumps combination.");
 
 	/* sort the names */
 	qsort (WTexture, NumWTexture, sizeof (char *), SortTextures);

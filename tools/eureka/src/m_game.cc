@@ -149,6 +149,7 @@ void LoadGameDefs (const char *game)
 			free (buf);
 			continue;
 		}
+
 		if (! strcmp (token[0], "ldt"))
 		{
 			ldtdef_t *buf = new ldtdef_t;
@@ -175,21 +176,6 @@ void LoadGameDefs (const char *game)
 
 			ldtgroup.push_back(buf);
 		}
-		else if (! strcmp (token[0], "level_format"))
-		{
-			if (ntoks != 2)
-				FatalError (bad_arg_count, filename, lineno, token[0], 1);
-			if (! strcmp (token[1], "alpha"))
-				yg_level_format = YGLF_ALPHA;
-			else if (! strcmp (token[1], "doom"))
-				yg_level_format = YGLF_DOOM;
-			else if (! strcmp (token[1], "hexen"))
-				yg_level_format = YGLF_HEXEN;
-			else
-				FatalError ("%s(%d): invalid argument \"%.32s\" (alpha|doom|hexen)",
-						filename, lineno, token[1]);
-			free (buf);
-		}
 		else if (! strcmp (token[0], "level_name"))
 		{
 			if (ntoks != 2)
@@ -202,21 +188,6 @@ void LoadGameDefs (const char *game)
 				yg_level_name = YGLN_MAP01;
 			else
 				FatalError ("%s(%d): invalid argument \"%.32s\" (e1m1|e1m10|map01)",
-						filename, lineno, token[1]);
-			free (buf);
-		}
-		else if (! strcmp (token[0], "picture_format"))
-		{
-			if (ntoks != 2)
-				FatalError (bad_arg_count, filename, lineno, token[0], 1);
-			if (! strcmp (token[1], "alpha"))
-				yg_picture_format = YGPF_ALPHA;
-			else if (! strcmp (token[1], "pr"))
-				yg_picture_format = YGPF_PR;
-			else if (! strcmp (token[1], "normal"))
-				yg_picture_format = YGPF_NORMAL;
-			else
-				FatalError ("%s(%d): invalid argument \"%.32s\" (alpha|pr|normal)",
 						filename, lineno, token[1]);
 			free (buf);
 		}
@@ -238,38 +209,6 @@ void LoadGameDefs (const char *game)
 			buf->longdesc  = token[3];  /* FIXME: trunc reasonably */
 
 			stdef.push_back(buf);
-		}
-		else if (! strcmp (token[0], "texture_format"))
-		{
-			if (ntoks != 2)
-				FatalError (bad_arg_count, filename, lineno, token[0], 1);
-			if (! strcmp (token[1], "nameless"))
-				yg_texture_format = YGTF_NAMELESS;
-			else if (! strcmp (token[1], "normal"))
-				yg_texture_format = YGTF_NORMAL;
-			else if (! strcmp (token[1], "strife11"))
-				yg_texture_format = YGTF_STRIFE11;
-			else
-				FatalError (
-						"%s(%d): invalid argument \"%.32s\" (normal|nameless|strife11)",
-						filename, lineno, token[1]);
-			free (buf);
-		}
-		else if (! strcmp (token[0], "texture_lumps"))
-		{
-			if (ntoks != 2)
-				FatalError (bad_arg_count, filename, lineno, token[0], 1);
-			if (! strcmp (token[1], "textures"))
-				yg_texture_lumps = YGTL_TEXTURES;
-			else if (! strcmp (token[1], "normal"))
-				yg_texture_lumps = YGTL_NORMAL;
-			else if (! strcmp (token[1], "none"))
-				yg_texture_lumps = YGTL_NONE;
-			else
-				FatalError (
-						"%s(%d): invalid argument \"%.32s\" (normal|textures|none)",
-						filename, lineno, token[1]);
-			free (buf);
 		}
 		else if (! strcmp (token[0], "thing"))
 		{
@@ -307,7 +246,6 @@ void LoadGameDefs (const char *game)
 		}
 		else
 		{
-			free (buf);
 			FatalError ("%s(%d): unknown directive \"%.32s\"",
 					filename, lineno, token[0]);
 		}
@@ -318,26 +256,16 @@ void LoadGameDefs (const char *game)
 	/* Verify that all the mandatory directives are present. */
 	{
 		bool abort = false;
-		if (yg_level_format == YGLF__)
-		{
-			err ("%s: Missing \"level_format\" directive.", filename);
-			abort = true;
-		}
 		if (yg_level_name == YGLN__)
 		{
 			err ("%s: Missing \"level_name\" directive.", filename);
 			abort = true;
 		}
-		// FIXME perhaps print a warning message if picture_format
-		// is missing ("assuming picture_format=normal").
-		// FIXME and same thing for texture_format and texture_lumps ?
+
 		if (abort)
 			exit (2);
 	}
 
-#if 0
-
-#endif
 
 	/*
 	 *  Second pass
@@ -346,45 +274,6 @@ void LoadGameDefs (const char *game)
 	/* Speed optimization : build the table of things attributes
 	   that get_thing_*() use. */
 	create_things_table ();
-
-	///???  /* KLUDGE: Add bogus ldtgroup LDT_FREE. InputLinedefType()
-	///???     knows that it means "let the user enter a number". */
-	///???  {
-	///???  ldtgroup_t * buf = new ldtgroup_t;
-	///???  
-	///???  buf->ldtgroup = LDT_FREE;  /* that is '\0' */
-	///???  buf->desc     = "Other (enter number)";
-	///???  
-	///???  buf->push_back(buf);
-	///???  if (al_lwrite (ldtgroup, &buf))
-	///???    FatalError ("LGD90 (%s)", al_astrerror (al_aerrno));
-	///???  }
-	///???  
-	///???  /* KLUDGE: Add bogus thinggroup THING_FREE.
-	///???     InputThingType() knows that it means "let the user enter a number". */
-	///???  {
-	///???  thinggroup_t buf;
-	///???  
-	///???  buf.thinggroup = THING_FREE;  /* that is '\0' */
-	///???  buf.desc       = "Other (enter number)";
-	///???  al_lseek (thinggroup, 0, SEEK_END);
-	///???  if (al_lwrite (thinggroup, &buf))
-	///???    FatalError ("LGD91 (%s)", al_astrerror (al_aerrno));
-	///???  }
-	///???  
-	///???  /* KLUDGE: Add bogus sector type at the end of stdef.
-	///???     SectorProperties() knows that it means "let the user enter a number". */
-	///???  {
-	///???  stdef_t buf;
-	///???  
-	///???  buf.number    = 0;     /* not significant */
-	///???  buf.shortdesc = 0;     /* not significant */
-	///???  buf.longdesc  = "Other (enter number)";
-	///???  al_lseek (stdef, 0, SEEK_END);
-	///???  if (al_lwrite (stdef, &buf))
-	///???    FatalError ("LGD92 (%s)", al_astrerror (al_aerrno));
-	///???  }
-
 }
 
 

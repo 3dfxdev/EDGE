@@ -132,12 +132,7 @@ int       verbose     = 0;
 int       welcome_message   = 1;
 const char *bench     = 0;
 
-// Global variables declared in game.h
-yglf_t yg_level_format   = YGLF__;
-ygln_t yg_level_name     = YGLN__;
-ygpf_t yg_picture_format = YGPF_NORMAL;
-ygtf_t yg_texture_format = YGTF_NORMAL;
-ygtl_t yg_texture_lumps  = YGTL_NORMAL;
+ygln_t yg_level_name = YGLN__;
 
 Wad_name sky_flat;
 
