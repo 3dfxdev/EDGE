@@ -53,37 +53,37 @@ int GetTextureRefHeight (int sidedef)
 
 	for (l = 0; l < NumLineDefs; l++)
 	{
-		if (LineDefs[l].side_R == sidedef)
+		if (LineDefs[l]->right == sidedef)
 		{
-			otherside = LineDefs[l].side_L;
+			otherside = LineDefs[l]->left;
 			break;
 		}
-		if (LineDefs[l].side_L == sidedef)
+		if (LineDefs[l]->left == sidedef)
 		{
-			otherside = LineDefs[l].side_R;
+			otherside = LineDefs[l]->right;
 			break;
 		}
 	}
 	/* get the Sector number */
 
-	sector = SideDefs[sidedef].sector;
+	sector = SideDefs[sidedef]->sector;
 	/* if the upper texture is displayed,
 	   then the reference is taken from the other Sector */
 	if (otherside >= 0)
 	{
-		l = SideDefs[otherside].sector;
+		l = SideDefs[otherside]->sector;
 		if (l > 0)
 		{
 
-			if (Sectors[l].ceilh < Sectors[sector].ceilh
-					&& Sectors[l].ceilh > Sectors[sector].floorh)
+			if (Sectors[l]->ceilh < Sectors[sector]->ceilh
+					&& Sectors[l]->ceilh > Sectors[sector]->floorh)
 				sector = l;
 		}
 	}
 	/* return the altitude of the ceiling */
 
 	if (sector >= 0)
-		return Sectors[sector].ceilh; /* textures are drawn from the ceiling down */
+		return Sectors[sector]->ceilh; /* textures are drawn from the ceiling down */
 	else
 		return 0; /* yuck! */
 }
@@ -114,7 +114,7 @@ void AlignTexturesY (SelPtr *sdlist)
 	/* get the reference height from the first sidedef */
 	refh = GetTextureRefHeight ((*sdlist)->objnum);
 
-	SideDefs[(*sdlist)->objnum].y_offset = 0;
+	SideDefs[(*sdlist)->objnum]->y_offset = 0;
 	UnSelectObject (sdlist, (*sdlist)->objnum);
 
 	/* adjust Y offset in all other SideDefs */
@@ -122,7 +122,7 @@ void AlignTexturesY (SelPtr *sdlist)
 	{
 		h = GetTextureRefHeight ((*sdlist)->objnum);
 
-		SideDefs[(*sdlist)->objnum].y_offset = (refh - h) % 128;
+		SideDefs[(*sdlist)->objnum]->y_offset = (refh - h) % 128;
 		UnSelectObject (sdlist, (*sdlist)->objnum);
 	}
 	MadeChanges = 1;
@@ -234,10 +234,10 @@ void AlignTexturesX (SelPtr *sdlist)
 
 	if (type_sd == 1) /* throw out all 2nd SideDefs untill a 1st is found */
 	{
-		while (*sdlist && LineDefs[ldef].side_R!=sd1 && ldef<=NumLineDefs)
+		while (*sdlist && LineDefs[ldef]->right!=sd1 && ldef<=NumLineDefs)
 		{
 			ldef++;
-			if (LineDefs[ldef].side_L == sd1)
+			if (LineDefs[ldef]->left == sd1)
 			{
 				UnSelectObject (sdlist, (*sdlist)->objnum);
 				if (! *sdlist)
@@ -250,10 +250,10 @@ void AlignTexturesX (SelPtr *sdlist)
 
 	if (type_sd == 2) /* throw out all 1st SideDefs untill a 2nd is found */
 	{
-		while (LineDefs[ldef].side_L!=sd1 && ldef<=NumLineDefs)
+		while (LineDefs[ldef]->left!=sd1 && ldef<=NumLineDefs)
 		{
 			ldef++;
-			if (LineDefs[ldef].side_R == sd1)
+			if (LineDefs[ldef]->right == sd1)
 			{
 				UnSelectObject (sdlist, (*sdlist)->objnum);
 				if (! *sdlist)
@@ -267,7 +267,7 @@ void AlignTexturesX (SelPtr *sdlist)
 
 
 	/* get texture name of the sidedef in the *sdlist) */
-	strncpy (texname, SideDefs[(*sdlist)->objnum].middle, WAD_TEX_NAME);
+	strncpy (texname, SideDefs[(*sdlist)->objnum]->middle, WAD_TEX_NAME);
 
 	/* test if there is a texture there */
 	if (texname[0] == '-')
@@ -299,10 +299,10 @@ void AlignTexturesX (SelPtr *sdlist)
 
 		if (type_sd == 1) /* throw out all 2nd SideDefs untill a 1st is found */
 		{
-			while (LineDefs[ldef].side_R!=sd1 && ldef<=NumLineDefs)
+			while (LineDefs[ldef]->right!=sd1 && ldef<=NumLineDefs)
 			{
 				ldef++;
-				if (LineDefs[ldef].side_L == sd1)
+				if (LineDefs[ldef]->left == sd1)
 				{
 					UnSelectObject (sdlist, (*sdlist)->objnum);
 					sd1 = (*sdlist)->objnum;
@@ -315,10 +315,10 @@ void AlignTexturesX (SelPtr *sdlist)
 
 		if (type_sd == 2) /* throw out all 1st SideDefs untill a 2nd is found */
 		{
-			while (LineDefs[ldef].side_L!=sd1 && ldef<=NumLineDefs)
+			while (LineDefs[ldef]->left!=sd1 && ldef<=NumLineDefs)
 			{
 				ldef++;
-				if (LineDefs[ldef].side_R == sd1)
+				if (LineDefs[ldef]->right == sd1)
 				{
 					UnSelectObject (sdlist, (*sdlist)->objnum);
 					sd1 = (*sdlist)->objnum;
@@ -333,7 +333,7 @@ void AlignTexturesX (SelPtr *sdlist)
 		if (type_tex == 1)
 		{
 
-			if (strncmp (SideDefs[(*sdlist)->objnum].middle, texname,WAD_TEX_NAME))
+			if (strncmp (SideDefs[(*sdlist)->objnum]->middle, texname,WAD_TEX_NAME))
 			{
 				Beep ();
 				sprintf (errormessage, "No texture for sidedef #%d.", (*sdlist)->objnum);
@@ -350,16 +350,16 @@ void AlignTexturesX (SelPtr *sdlist)
 		/* find out which linedef holds that sidedef */
 		if (type_sd == 1)
 		{
-			while (LineDefs[ldef].side_R != sd1 && ldef < NumLineDefs)
+			while (LineDefs[ldef]->right != sd1 && ldef < NumLineDefs)
 				ldef++;
 		}
 		else
 		{
-			while (LineDefs[ldef].side_L != sd1 && ldef < NumLineDefs)
+			while (LineDefs[ldef]->left != sd1 && ldef < NumLineDefs)
 				ldef++;
 		}
 
-		vert1 = LineDefs[ldef].start;
+		vert1 = LineDefs[ldef]->start;
 		/* test for linedef highlight continuity */
 		if (vert1 != vert2 && vert2 != -1)
 		{
@@ -374,20 +374,20 @@ void AlignTexturesX (SelPtr *sdlist)
 		{
 			if (type_off == 1)  /* do we have an initial offset ? */
 			{
-				SideDefs[sd1].x_offset = useroffset;
+				SideDefs[sd1]->x_offset = useroffset;
 				xoffset = useroffset;
 			}
 			else
-				SideDefs[sd1].x_offset = 0;
+				SideDefs[sd1]->x_offset = 0;
 		}
 		else     /* put new xoffset into the sidedef */
-			SideDefs[sd1].x_offset = xoffset;
+			SideDefs[sd1]->x_offset = xoffset;
 
 		/* calculate length of linedef */
-		vert2 = LineDefs[ldef].end;
+		vert2 = LineDefs[ldef]->end;
 
-		length = ComputeDist (Vertices[vert2].x - Vertices[vert1].x,
-				Vertices[vert2].y - Vertices[vert1].y);
+		length = ComputeDist (Vertices[vert2]->x - Vertices[vert1]->x,
+				Vertices[vert2]->y - Vertices[vert1]->y);
 
 		xoffset += length;
 		/* remove multiples of texlength from xoffset */
@@ -421,8 +421,8 @@ void centre_of_linedefs (selection_c * list, int *x, int *y)
 	for (n = 0; n < NumVertices; n++)
 		if (list->get(n))
 		{
-			x_sum += Vertices[n].x;
-			y_sum += Vertices[n].y;
+			x_sum += Vertices[n]->x;
+			y_sum += Vertices[n]->y;
 			nitems++;
 		}
 
@@ -459,11 +459,11 @@ void frob_linedefs_flags (SelPtr list, int op, int operand)
 	for (cur = list; cur; cur = cur->next)
 	{
 		if (op == YO_CLEAR)
-			LineDefs[cur->objnum].flags &= ~mask;
+			LineDefs[cur->objnum]->flags &= ~mask;
 		else if (op == YO_SET)
-			LineDefs[cur->objnum].flags |= mask;
+			LineDefs[cur->objnum]->flags |= mask;
 		else if (op == YO_TOGGLE)
-			LineDefs[cur->objnum].flags ^= mask;
+			LineDefs[cur->objnum]->flags ^= mask;
 		else
 		{
 			nf_bug ("frob_linedef_flags: op=%02X", op);
@@ -494,14 +494,14 @@ void FlipLineDefs(SelPtr obj, bool swapvertices)
 		if (swapvertices)
 		{
 			/* swap starting and ending Vertices */
-			tmp = LineDefs[ cur->objnum].end;
-			LineDefs[ cur->objnum].end = LineDefs[ cur->objnum].start;
-			LineDefs[ cur->objnum].start = tmp;
+			tmp = LineDefs[ cur->objnum]->end;
+			LineDefs[ cur->objnum]->end = LineDefs[ cur->objnum]->start;
+			LineDefs[ cur->objnum]->start = tmp;
 		}
 		/* swap first and second SideDefs */
-		tmp = LineDefs[ cur->objnum].side_R;
-		LineDefs[ cur->objnum].side_R = LineDefs[ cur->objnum].side_L;
-		LineDefs[ cur->objnum].side_L = tmp;
+		tmp = LineDefs[ cur->objnum]->right;
+		LineDefs[ cur->objnum]->right = LineDefs[ cur->objnum]->left;
+		LineDefs[ cur->objnum]->left = tmp;
 	}
 	MadeChanges = 1;
 	MadeMapChanges = 1;
@@ -520,11 +520,11 @@ void SplitLineDefs(SelPtr obj)
 
 	for (cur = obj; cur; cur = cur->next)
 	{
-		int vstart = LineDefs[cur->objnum].start;
-		int vend   = LineDefs[cur->objnum].end;
+		int vstart = LineDefs[cur->objnum]->start;
+		int vend   = LineDefs[cur->objnum]->end;
 		SliceLinedef (cur->objnum, 1);
-		Vertices[NumVertices-1].x = (Vertices[vstart].x + Vertices[vend].x) / 2;
-		Vertices[NumVertices-1].y = (Vertices[vstart].y + Vertices[vend].y) / 2;
+		Vertices[NumVertices-1]->x = (Vertices[vstart]->x + Vertices[vend]->x) / 2;
+		Vertices[NumVertices-1]->y = (Vertices[vstart]->y + Vertices[vend]->y) / 2;
 	}
 	MadeChanges = 1;
 	MadeMapChanges = 1;
@@ -561,12 +561,12 @@ void MakeRectangularNook (SelPtr obj, int width, int depth, int convex)
 		double real_width;
 		double angle;
 
-		vstart = LineDefs[cur->objnum].start;
-		vend   = LineDefs[cur->objnum].end;
-		x0     = Vertices[vstart].x;
-		y0     = Vertices[vstart].y;
-		dx0    = Vertices[vend].x - x0;
-		dy0    = Vertices[vend].y - y0;
+		vstart = LineDefs[cur->objnum]->start;
+		vend   = LineDefs[cur->objnum]->end;
+		x0     = Vertices[vstart]->x;
+		y0     = Vertices[vstart]->y;
+		dx0    = Vertices[vend]->x - x0;
+		dy0    = Vertices[vend]->y - y0;
 
 		/* First split the line 4 times */
 		SliceLinedef (cur->objnum, 4);
@@ -587,14 +587,14 @@ void MakeRectangularNook (SelPtr obj, int width, int depth, int convex)
 
 		{
 			double normal = convex ? angle-HALFPI : angle+HALFPI;
-			Vertices[NumVertices-1-3].x = x0 + dx1;
-			Vertices[NumVertices-1-3].y = y0 + dy1;
-			Vertices[NumVertices-1-2].x = x0 + dx1 + (int) (depth * cos (normal));
-			Vertices[NumVertices-1-2].y = y0 + dy1 + (int) (depth * sin (normal));
-			Vertices[NumVertices-1-1].x = x0 + dx1 + dx2 + (int) (depth * cos (normal));
-			Vertices[NumVertices-1-1].y = y0 + dy1 + dy2 + (int) (depth * sin (normal));
-			Vertices[NumVertices-1  ].x = x0 + dx1 + dx2;
-			Vertices[NumVertices-1  ].y = y0 + dy1 + dy2;
+			Vertices[NumVertices-1-3]->x = x0 + dx1;
+			Vertices[NumVertices-1-3]->y = y0 + dy1;
+			Vertices[NumVertices-1-2]->x = x0 + dx1 + (int) (depth * cos (normal));
+			Vertices[NumVertices-1-2]->y = y0 + dy1 + (int) (depth * sin (normal));
+			Vertices[NumVertices-1-1]->x = x0 + dx1 + dx2 + (int) (depth * cos (normal));
+			Vertices[NumVertices-1-1]->y = y0 + dy1 + dy2 + (int) (depth * sin (normal));
+			Vertices[NumVertices-1  ]->x = x0 + dx1 + dx2;
+			Vertices[NumVertices-1  ]->y = y0 + dy1 + dy2;
 		}
 
 		MadeChanges = 1;
@@ -615,6 +615,7 @@ void MakeRectangularNook (SelPtr obj, int width, int depth, int convex)
  */
 static void SliceLinedef (int linedefno, int times)
 {
+#if 0  // FIXME SliceLinedef
 	int prev_ld_no;
 	for (prev_ld_no = linedefno; times > 0; times--, prev_ld_no = NumLineDefs-1)
 	{
@@ -622,25 +623,26 @@ static void SliceLinedef (int linedefno, int times)
 
 		InsertObject (OBJ_VERTICES, -1, 0, 0);
 		InsertObject (OBJ_LINEDEFS, linedefno, 0, 0);
-		LineDefs[NumLineDefs-1].start = NumVertices - 1;
-		LineDefs[NumLineDefs-1].end   = LineDefs[prev_ld_no].end;
-		LineDefs[prev_ld_no   ].end   = NumVertices - 1;
+		LineDefs[NumLineDefs-1]->start = NumVertices - 1;
+		LineDefs[NumLineDefs-1]->end   = LineDefs[prev_ld_no]->end;
+		LineDefs[prev_ld_no   ]->end   = NumVertices - 1;
 
-		sd = LineDefs[linedefno].side_R;
+		sd = LineDefs[linedefno]->right;
 		if (sd >= 0)
 		{
 			InsertObject (OBJ_SIDEDEFS, sd, 0, 0);
 
-			LineDefs[NumLineDefs-1].side_R = NumSideDefs - 1;
+			LineDefs[NumLineDefs-1]->right = NumSideDefs - 1;
 		}
-		sd = LineDefs[linedefno].side_L;
+		sd = LineDefs[linedefno]->left;
 		if (sd >= 0)
 		{
 			InsertObject (OBJ_SIDEDEFS, sd, 0, 0);
 
-			LineDefs[NumLineDefs-1].side_L = NumSideDefs - 1;
+			LineDefs[NumLineDefs-1]->left = NumSideDefs - 1;
 		}
 	}
+#endif
 }
 
 
@@ -655,8 +657,8 @@ void SetLinedefLength (SelPtr obj, int length, int move_2nd_vertex)
 
 	for (cur = obj; cur; cur = cur->next)
 	{
-		VPtr vertex1 = Vertices + LineDefs[cur->objnum].start;
-		VPtr vertex2 = Vertices + LineDefs[cur->objnum].end;
+		VPtr vertex1 = Vertices + LineDefs[cur->objnum]->start;
+		VPtr vertex2 = Vertices + LineDefs[cur->objnum]->end;
 		double angle = atan2 (vertex2->y - vertex1->y, vertex2->x - vertex1->x);
 		int dx       = (int) (length * cos (angle));
 		int dy       = (int) (length * sin (angle));
@@ -717,17 +719,17 @@ void unlink_sidedef (SelPtr linedefs, int side1, int side2)
 	{
 		if (IsSelected (linedefs, n))
 		{
-			if (side1 && is_sidedef (LineDefs[n].side_R))
-				sd_used_in.set (LineDefs[n].side_R);
-			if (side2 && is_sidedef (LineDefs[n].side_L))
-				sd_used_in.set (LineDefs[n].side_L);
+			if (side1 && is_sidedef (LineDefs[n]->right))
+				sd_used_in.set (LineDefs[n]->right);
+			if (side2 && is_sidedef (LineDefs[n]->left))
+				sd_used_in.set (LineDefs[n]->left);
 		}
 		else
 		{
-			if (is_sidedef (LineDefs[n].side_R))
-				sd_used_out.set (LineDefs[n].side_R);
-			if (is_sidedef (LineDefs[n].side_L))
-				sd_used_out.set (LineDefs[n].side_L);
+			if (is_sidedef (LineDefs[n]->right))
+				sd_used_out.set (LineDefs[n]->right);
+			if (is_sidedef (LineDefs[n]->left))
+				sd_used_out.set (LineDefs[n]->left);
 		}
 	}
 
@@ -743,11 +745,11 @@ void unlink_sidedef (SelPtr linedefs, int side1, int side2)
 			InsertObject (OBJ_SIDEDEFS, n, 0, 0);
 			for (cur = linedefs; cur; cur = cur->next)
 			{
-				if (side1 && LineDefs[cur->objnum].side_R == n)
-					LineDefs[cur->objnum].side_R = NumSideDefs - 1;
+				if (side1 && LineDefs[cur->objnum]->right == n)
+					LineDefs[cur->objnum]->right = NumSideDefs - 1;
 
-				if (side2 && LineDefs[cur->objnum].side_L == n)
-					LineDefs[cur->objnum].side_L = NumSideDefs - 1;
+				if (side2 && LineDefs[cur->objnum]->left == n)
+					LineDefs[cur->objnum]->left = NumSideDefs - 1;
 			}
 		}
 	}
@@ -768,8 +770,8 @@ bitvec_c *bv_vertices_of_linedefs (bitvec_c *linedefs)
 	for (int n = 0; n < NumLineDefs; n++)
 		if (linedefs->get (n))
 		{
-			vertices->set (LineDefs[n].start);
-			vertices->set (LineDefs[n].end);
+			vertices->set (LineDefs[n]->start);
+			vertices->set (LineDefs[n]->end);
 		}
 	return vertices;
 }
@@ -790,8 +792,8 @@ bitvec_c *bv_vertices_of_linedefs (SelPtr list)
 
 	for (cur = list; cur; cur = cur->next)
 	{
-		vertices->set (LineDefs[cur->objnum].start);
-		vertices->set (LineDefs[cur->objnum].end);
+		vertices->set (LineDefs[cur->objnum]->start);
+		vertices->set (LineDefs[cur->objnum]->end);
 	}
 #endif
 	return vertices;
@@ -884,6 +886,7 @@ int Superimposed_ld::set (obj_no_t ldno)
  */
 obj_no_t Superimposed_ld::get ()
 {
+#if 0  // FIXME
 	if (refldno == -1)
 		return -1;
 
@@ -901,20 +904,20 @@ obj_no_t Superimposed_ld::get ()
 	if (! is_vertex (refv0) || ! is_vertex (refv1))   // Paranoia
 		return -1;
 
-	const wad_coord_t refx0 = Vertices[refv0].x;
-	const wad_coord_t refy0 = Vertices[refv0].y;
-	const wad_coord_t refx1 = Vertices[refv1].x;
-	const wad_coord_t refy1 = Vertices[refv1].y;
+	const wad_coord_t refx0 = Vertices[refv0]->x;
+	const wad_coord_t refy0 = Vertices[refv0]->y;
+	const wad_coord_t refx1 = Vertices[refv1]->x;
+	const wad_coord_t refy1 = Vertices[refv1]->y;
 
 	for (const struct LineDef *p = LineDefs + ldno; ldno < NumLineDefs;
 			p++, ldno++)
 	{
 		if (! is_vertex (p->start) || ! is_vertex (p->end))   // Paranoia
 			continue;
-		obj_no_t x0 = Vertices[p->start].x;
-		obj_no_t y0 = Vertices[p->start].y;
-		obj_no_t x1 = Vertices[p->end].x;
-		obj_no_t y1 = Vertices[p->end].y;
+		obj_no_t x0 = Vertices[p->start]->x;
+		obj_no_t y0 = Vertices[p->start]->y;
+		obj_no_t x1 = Vertices[p->end]->x;
+		obj_no_t y1 = Vertices[p->end]->y;
 		if ( x0 == refx0 && y0 == refy0 && x1 == refx1 && y1 == refy1
 				|| x0 == refx1 && y0 == refy1 && x1 == refx0 && y1 == refy0)
 		{
@@ -923,7 +926,7 @@ obj_no_t Superimposed_ld::get ()
 			return ldno++;
 		}
 	}
-
+#endif
 	return -1;
 }
 

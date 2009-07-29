@@ -128,7 +128,7 @@ void GetCurObject (Objid& o, int objtype, int x, int y)
 			return;
 		}
 
-		case OBJ_RSCRIPT:
+		case OBJ_RADTRIGS:
 		{
 			o = get_cur_rts (x, y).obj;
 			return;
@@ -158,10 +158,11 @@ static const Close_obj& get_cur_linedef (int x, int y)
 	object.nil ();
 	for (int n = 0; n < NumLineDefs; n++)
 	{
-		int x0 = Vertices[LineDefs[n].start].x;
-		int y0 = Vertices[LineDefs[n].start].y;
-		int x1 = Vertices[LineDefs[n].end].x;
-		int y1 = Vertices[LineDefs[n].end].y;
+		int x0 = LineDefs[n]->Start()->x;
+		int y0 = LineDefs[n]->Start()->y;
+		int x1 = LineDefs[n]->End()->x;
+		int y1 = LineDefs[n]->End()->y;
+
 		int dx;
 		int dy;
 
@@ -260,13 +261,14 @@ static const Close_obj& get_cur_sector (int x, int y)
 	int curx = 32767;  // Oh yes, one more hard-coded constant!
 
 	for (int n = 0; n < NumLineDefs; n++)
-		if ((Vertices[LineDefs[n].start].y > y)
-				!= (Vertices[LineDefs[n].end].y > y))
+		if ((LineDefs[n]->Start()->y > y)
+				!= (LineDefs[n]->End()->y > y))
 		{
-			int lx0 = Vertices[LineDefs[n].start].x;
-			int ly0 = Vertices[LineDefs[n].start].y;
-			int lx1 = Vertices[LineDefs[n].end].x;
-			int ly1 = Vertices[LineDefs[n].end].y;
+			int lx0 = LineDefs[n]->Start()->x;
+			int ly0 = LineDefs[n]->Start()->y;
+			int lx1 = LineDefs[n]->End()->x;
+			int ly1 = LineDefs[n]->End()->y;
+
 			int m = lx0 + (int) ((long) (y - ly0) * (long) (lx1 - lx0)
 					/ (long) (ly1 - ly0));
 			if (m >= x && m < curx)
@@ -280,17 +282,15 @@ static const Close_obj& get_cur_sector (int x, int y)
 	object.nil ();
 	if (best_match >= 0)
 	{
-		if (Vertices[LineDefs[best_match].start].y
-				> Vertices[LineDefs[best_match].end].y)
-			best_match = LineDefs[best_match].side_R;
+		if (LineDefs[best_match]->Start()->y > LineDefs[best_match]->End()->y)
+			best_match = LineDefs[best_match]->right;
 		else
-			best_match = LineDefs[best_match].side_L;
+			best_match = LineDefs[best_match]->left;
 
 		if (best_match >= 0)
 		{
-
 			object.obj.type = OBJ_SECTORS;
-			object.obj.num  = SideDefs[best_match].sector;
+			object.obj.num  = SideDefs[best_match]->sector;
 			object.distance = 0;  // Not meaningful for sectors
 			object.radius   = 1;  // Not meaningful for sectors
 			object.inside   = true; // Not meaningful for sectors
@@ -322,42 +322,47 @@ static const Close_obj& get_cur_thing (int x, int y)
 
 	for (int n = 0; n < NumThings; n++)
 	{
+		int tx = Things[n]->x;
+		int ty = Things[n]->y;
+
 		// Filter out things that are farther than <max_radius> units away.
-		if (Things[n].x < xmin
-				|| Things[n].x > xmax
-				|| Things[n].y < ymin
-				|| Things[n].y > ymax)
+		if (tx < xmin
+				|| tx > xmax
+				|| ty < ymin
+				|| ty > ymax)
 			continue;
 
 		// So how far is that thing exactly ?
 #ifdef ROUND_THINGS
-		double dist = hypot (x - Things[n].x, y - Things[n].y);
+		double dist = hypot(x - tx, y - ty);
+
 		if (dist < closest.distance
-				&& dist <= get_thing_radius (Things[n].type) + mapslack)
+				&& dist <= get_thing_radius(Things[n]->type) + mapslack)
 		{
 			closest.obj.type = OBJ_THINGS;
 			closest.obj.num  = n;
 			closest.distance = dist;
-			closest.radius   = get_thing_radius (Things[n].type);
+			closest.radius   = get_thing_radius(Things[n]->type);
 			closest.inside   = dist < closest.radius;
 		}
 #else
 		{
-			int thing_radius = (int) (get_thing_radius (Things[n].type) + mapslack);
-			if (x > Things[n].x - thing_radius
-					&& x < Things[n].x + thing_radius
-					&& y > Things[n].y - thing_radius
-					&& y < Things[n].y + thing_radius)
+			int thing_radius = (int) (get_thing_radius(Things[n]->type) + mapslack);
+
+			if (x > tx - thing_radius
+					&& x < tx + thing_radius
+					&& y > ty - thing_radius
+					&& y < ty + thing_radius)
 			{
 				Close_obj current;
 				current.obj.type = OBJ_THINGS;
 				current.obj.num  = n;
-				current.distance = hypot (x - Things[n].x, y - Things[n].y);
-				current.radius   = get_thing_radius (Things[n].type);
-				current.inside   = x > Things[n].x - current.radius
-					&& x < Things[n].x + current.radius
-					&& y > Things[n].y - current.radius
-					&& y < Things[n].y + current.radius;
+				current.distance = hypot(x - tx, y - ty);
+				current.radius   = get_thing_radius (Things[n]->type);
+				current.inside   = x > tx - current.radius
+					&& x < tx + current.radius
+					&& y > ty - current.radius
+					&& y < ty + current.radius;
 				if (current <= closest)  /* "<=" because if there are superimposed
 											things, we want to return the
 											highest-numbered one. */
@@ -389,13 +394,16 @@ static const Close_obj& get_cur_vertex (int x, int y)
 	object.nil ();
 	for (int n = 0; n < NumVertices; n++)
 	{
+		int vx = Vertices[n]->x;
+		int vy = Vertices[y]->y;
+
 		/* Filter out objects that are farther than <radius> units away. */
-		if (Vertices[n].x < xmin
-				|| Vertices[n].x > xmax
-				|| Vertices[n].y < ymin
-				|| Vertices[n].y > ymax)
+		if (vx < xmin
+				|| vx > xmax
+				|| vy < ymin
+				|| vy > ymax)
 			continue;
-		double dist = hypot (x - Vertices[n].x, y - Vertices[n].y);
+		double dist = hypot (x - vx, y - vy);
 		if (dist <= object.distance  /* "<=" because if there are superimposed
 										vertices, we want to return the
 										highest-numbered one. */
@@ -405,10 +413,10 @@ static const Close_obj& get_cur_vertex (int x, int y)
 			object.obj.num  = n;
 			object.distance = dist;
 			object.radius   = mapradius;
-			object.inside   = x > Vertices[n].x - mapradius
-				&& x < Vertices[n].x + mapradius
-				&& y > Vertices[n].y - mapradius
-				&& y < Vertices[n].y + mapradius;
+			object.inside   = x > vx - mapradius
+				&& x < vx + mapradius
+				&& y > vy - mapradius
+				&& y < vy + mapradius;
 		}
 	}
 	return object;

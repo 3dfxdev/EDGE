@@ -28,6 +28,7 @@
 
 #include "levels.h"
 #include "w_structs.h"
+#include "w_rawdef.h"
 #include "r_misc.h"
 #include "im_img.h"
 #include "e_things.h"

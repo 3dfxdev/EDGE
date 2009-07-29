@@ -296,7 +296,7 @@ sectorflag_e;
 
 // Skill flags.
 #define MTF_Easy         1
-#define MTF_Normal       2
+#define MTF_Medium       2
 #define MTF_Hard         4
 
 // Deaf monsters/do not react to sound.

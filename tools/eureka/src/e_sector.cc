@@ -54,8 +54,8 @@ void centre_of_sector (obj_no_t s, int *x, int *y)
 	for (int n = 0; n < vertices->size(); n++)
 		if (vertices->get (n))
 		{
-			x_sum += Vertices[n].x;
-			y_sum += Vertices[n].y;
+			x_sum += Vertices[n]->x;
+			y_sum += Vertices[n]->y;
 			nitems++;
 		}
 	if (nitems == 0)
@@ -92,8 +92,8 @@ void centre_of_sectors (selection_c * list, int *x, int *y)
 	for (n = 0; n < NumVertices; n++)
 		if (vertices->get (n))
 		{
-			x_sum += Vertices[n].x;
-			y_sum += Vertices[n].y;
+			x_sum += Vertices[n]->x;
+			y_sum += Vertices[n]->y;
 			nitems++;
 		}
 	if (nitems == 0)
@@ -131,8 +131,8 @@ void MergeSectors (SelPtr *slist)
 		olds = cur->objnum;
 		for (n = 0; n < NumSideDefs; n++)
 		{
-			if (SideDefs[n].sector == olds)
-				SideDefs[n].sector = news;
+			if (SideDefs[n]->sector == olds)
+				SideDefs[n]->sector = news;
 		}
 	}
 
@@ -160,8 +160,8 @@ void DeleteLineDefsJoinSectors(SelPtr *ldlist)
 	/* first, do the tests for all LineDefs */
 	for (cur = *ldlist; cur; cur = cur->next)
 	{
-		int sd1 = LineDefs[cur->objnum].side_R;
-		int sd2 = LineDefs[cur->objnum].side_L;
+		int sd1 = LineDefs[cur->objnum]->right;
+		int sd2 = LineDefs[cur->objnum]->left;
 
 		if (sd1 < 0 || sd2 < 0)
 		{
@@ -171,8 +171,8 @@ void DeleteLineDefsJoinSectors(SelPtr *ldlist)
 			return;
 		}
 
-		int s1 = SideDefs[sd1].sector;
-		int s2 = SideDefs[sd2].sector;
+		int s1 = SideDefs[sd1]->sector;
+		int s2 = SideDefs[sd2]->sector;
 
 		if (s1 < 0 || s2 < 0)
 		{
@@ -186,11 +186,11 @@ void DeleteLineDefsJoinSectors(SelPtr *ldlist)
 	/* then join the Sectors and delete the LineDefs */
 	for (cur = *ldlist; cur; cur = cur->next)
 	{
-		int sd1 = LineDefs[cur->objnum].side_R;
-		int sd2 = LineDefs[cur->objnum].side_L;
+		int sd1 = LineDefs[cur->objnum]->right;
+		int sd2 = LineDefs[cur->objnum]->left;
 
-		int s1 = SideDefs[sd1].sector;
-		int s2 = SideDefs[sd2].sector;
+		int s1 = SideDefs[sd1]->sector;
+		int s2 = SideDefs[sd2]->sector;
 
 		slist = NULL;
 		SelectObject (&slist, s2);
@@ -224,17 +224,17 @@ void MakeDoorFromSector (int sector)
 	for (n = 0; n < NumLineDefs; n++)
 	{
 
-		sd1 = LineDefs[n].side_R;
-		sd2 = LineDefs[n].side_L;
+		sd1 = LineDefs[n]->right;
+		sd2 = LineDefs[n]->left;
 		if (sd1 >= 0 && sd2 >= 0)
 		{
 
-			if (SideDefs[sd2].sector == sector)
+			if (SideDefs[sd2]->sector == sector)
 			{
 				SelectObject (&ldok, n); /* already ok */
 				s++;
 			}
-			if (SideDefs[sd1].sector == sector)
+			if (SideDefs[sd1]->sector == sector)
 			{
 				SelectObject (&ldflip, n); /* must be flipped */
 				s++;
@@ -243,7 +243,7 @@ void MakeDoorFromSector (int sector)
 		else if (sd1 >= 0 && sd2 < 0)
 		{
 
-			if (SideDefs[sd1].sector == sector)
+			if (SideDefs[sd1]->sector == sector)
 				SelectObject (&ld1s, n); /* wall (one-sided) */
 		}
 	}
@@ -280,21 +280,21 @@ void MakeDoorFromSector (int sector)
 		/* give the "normal door" type and flags to the linedef */
 
 		n = ldok->objnum;
-		LineDefs[n].type = 1;
-		LineDefs[n].flags = 0x04;
-		sd1 = LineDefs[n].side_R; /* outside */
-		sd2 = LineDefs[n].side_L; /* inside */
+		LineDefs[n]->type = 1;
+		LineDefs[n]->flags = 0x04;
+		sd1 = LineDefs[n]->right; /* outside */
+		sd2 = LineDefs[n]->left; /* inside */
 		/* adjust the textures for the sidedefs */
 
-		if (strncmp (SideDefs[sd1].mid_tex, "-", WAD_TEX_NAME))
+		if (strncmp (SideDefs[sd1]->mid_tex, "-", WAD_TEX_NAME))
 		{
-			if (!strncmp (SideDefs[sd1].upper_tex, "-", WAD_TEX_NAME))
-				strncpy (SideDefs[sd1].upper_tex, SideDefs[sd1].mid_tex, WAD_TEX_NAME);
-			strncpy (SideDefs[sd1].mid_tex, "-", WAD_TEX_NAME);
+			if (!strncmp (SideDefs[sd1]->upper_tex, "-", WAD_TEX_NAME))
+				strncpy (SideDefs[sd1]->upper_tex, SideDefs[sd1]->mid_tex, WAD_TEX_NAME);
+			strncpy (SideDefs[sd1]->mid_tex, "-", WAD_TEX_NAME);
 		}
-		if (!strncmp (SideDefs[sd1].upper_tex, "-", WAD_TEX_NAME))
-			strncpy (SideDefs[sd1].upper_tex, "BIGDOOR2", WAD_TEX_NAME);
-		strncpy (SideDefs[sd2].mid_tex, "-", WAD_TEX_NAME);
+		if (!strncmp (SideDefs[sd1]->upper_tex, "-", WAD_TEX_NAME))
+			strncpy (SideDefs[sd1]->upper_tex, "BIGDOOR2", WAD_TEX_NAME);
+		strncpy (SideDefs[sd2]->mid_tex, "-", WAD_TEX_NAME);
 		UnSelectObject (&ldok, n);
 	}
 	while (ld1s != NULL)
@@ -302,19 +302,19 @@ void MakeDoorFromSector (int sector)
 		/* give the "door side" flags to the linedef */
 
 		n = ld1s->objnum;
-		LineDefs[n].flags = 0x11;
-		sd1 = LineDefs[n].side_R;
+		LineDefs[n]->flags = 0x11;
+		sd1 = LineDefs[n]->right;
 		/* adjust the textures for the sidedef */
 
-		if (!strncmp (SideDefs[sd1].mid_tex, "-", WAD_TEX_NAME))
-			strncpy (SideDefs[sd1].mid_tex, "DOORTRAK", WAD_TEX_NAME);
-		strncpy (SideDefs[sd1].upper_tex, "-", WAD_TEX_NAME);
-		strncpy (SideDefs[sd1].lower_tex, "-", WAD_TEX_NAME);
+		if (!strncmp (SideDefs[sd1]->mid_tex, "-", WAD_TEX_NAME))
+			strncpy (SideDefs[sd1]->mid_tex, "DOORTRAK", WAD_TEX_NAME);
+		strncpy (SideDefs[sd1]->upper_tex, "-", WAD_TEX_NAME);
+		strncpy (SideDefs[sd1]->lower_tex, "-", WAD_TEX_NAME);
 		UnSelectObject (&ld1s, n);
 	}
 	/* adjust the ceiling height */
 
-	Sectors[sector].ceilh = Sectors[sector].floorh;
+	Sectors[sector]->ceilh = Sectors[sector]->floorh;
 
 #endif
 }
@@ -342,22 +342,22 @@ void MakeLiftFromSector (int sector)
 	for (n = 0; n < NumLineDefs; n++)
 	{
 
-		sd1 = LineDefs[n].side_R;
-		sd2 = LineDefs[n].side_L;
+		sd1 = LineDefs[n]->right;
+		sd2 = LineDefs[n]->left;
 		if (sd1 >= 0 && sd2 >= 0)
 		{
 
-			if (SideDefs[sd2].sector == sector)
+			if (SideDefs[sd2]->sector == sector)
 			{
 				SelectObject (&ldok, n); /* already ok */
-				s = SideDefs[sd1].sector;
+				s = SideDefs[sd1]->sector;
 				if (s != sector && !IsSelected (sect, s))
 					SelectObject (&sect, s);
 			}
-			if (SideDefs[sd1].sector == sector)
+			if (SideDefs[sd1]->sector == sector)
 			{
 				SelectObject (&ldflip, n); /* will be flipped */
-				s = SideDefs[sd2].sector;
+				s = SideDefs[sd2]->sector;
 				if (s != sector && !IsSelected (sect, s))
 					SelectObject (&sect, s);
 			}
@@ -365,7 +365,7 @@ void MakeLiftFromSector (int sector)
 		else if (sd1 >= 0 && sd2 < 0)
 		{
 
-			if (SideDefs[sd1].sector == sector)
+			if (SideDefs[sd1]->sector == sector)
 				SelectObject (&ld1s, n); /* wall (one-sided) */
 		}
 	}
@@ -399,23 +399,23 @@ void MakeLiftFromSector (int sector)
 	maxh = -32767;
 	for (curs = sect; curs; curs = curs->next)
 	{
-		if (Sectors[curs->objnum].floorh < minh)
-			minh = Sectors[curs->objnum].floorh;
-		if (Sectors[curs->objnum].floorh > maxh)
-			maxh = Sectors[curs->objnum].floorh;
+		if (Sectors[curs->objnum]->floorh < minh)
+			minh = Sectors[curs->objnum]->floorh;
+		if (Sectors[curs->objnum]->floorh > maxh)
+			maxh = Sectors[curs->objnum]->floorh;
 	}
 	ForgetSelection (&sect);
 
 	/* change the lift's floor height if necessary */
-	if (Sectors[sector].floorh < maxh)
-		Sectors[sector].floorh = maxh;
+	if (Sectors[sector]->floorh < maxh)
+		Sectors[sector]->floorh = maxh;
 
 	/* change the lift's ceiling height if necessary */
-	if (Sectors[sector].ceilh < maxh + DOOM_PLAYER_HEIGHT)
-		Sectors[sector].ceilh = maxh + DOOM_PLAYER_HEIGHT;
+	if (Sectors[sector]->ceilh < maxh + DOOM_PLAYER_HEIGHT)
+		Sectors[sector]->ceilh = maxh + DOOM_PLAYER_HEIGHT;
 
 	/* assign the new tag number to the lift */
-	Sectors[sector].tag = tag;
+	Sectors[sector]->tag = tag;
 
 	/* change the linedefs and sidedefs */
 	while (ldok != NULL)
@@ -423,57 +423,57 @@ void MakeLiftFromSector (int sector)
 		/* give the "lower lift" type and flags to the linedef */
 
 		n = ldok->objnum;
-		LineDefs[n].type = 62; /* lower lift (switch) */
-		LineDefs[n].flags = 0x04;
-		LineDefs[n].tag = tag;
-		sd1 = LineDefs[n].side_R; /* outside */
-		sd2 = LineDefs[n].side_L; /* inside */
+		LineDefs[n]->type = 62; /* lower lift (switch) */
+		LineDefs[n]->flags = 0x04;
+		LineDefs[n]->tag = tag;
+		sd1 = LineDefs[n]->right; /* outside */
+		sd2 = LineDefs[n]->left; /* inside */
 		/* adjust the textures for the sidedef visible from the outside */
 
-		if (strncmp (SideDefs[sd1].mid_tex, "-", WAD_TEX_NAME))
+		if (strncmp (SideDefs[sd1]->mid_tex, "-", WAD_TEX_NAME))
 		{
-			if (!strncmp (SideDefs[sd1].lower_tex, "-", WAD_TEX_NAME))
-				strncpy (SideDefs[sd1].lower_tex, SideDefs[sd1].mid_tex, WAD_TEX_NAME);
-			strncpy (SideDefs[sd1].mid_tex, "-", WAD_TEX_NAME);
+			if (!strncmp (SideDefs[sd1]->lower_tex, "-", WAD_TEX_NAME))
+				strncpy (SideDefs[sd1]->lower_tex, SideDefs[sd1]->mid_tex, WAD_TEX_NAME);
+			strncpy (SideDefs[sd1]->mid_tex, "-", WAD_TEX_NAME);
 		}
-		if (!strncmp (SideDefs[sd1].lower_tex, "-", WAD_TEX_NAME))
-			strncpy (SideDefs[sd1].lower_tex, "SHAWN2", WAD_TEX_NAME);
+		if (!strncmp (SideDefs[sd1]->lower_tex, "-", WAD_TEX_NAME))
+			strncpy (SideDefs[sd1]->lower_tex, "SHAWN2", WAD_TEX_NAME);
 		/* adjust the textures for the sidedef visible from the lift */
-		strncpy (SideDefs[sd2].mid_tex, "-", WAD_TEX_NAME);
-		s = SideDefs[sd1].sector;
+		strncpy (SideDefs[sd2]->mid_tex, "-", WAD_TEX_NAME);
+		s = SideDefs[sd1]->sector;
 
-		if (Sectors[s].floorh > minh)
+		if (Sectors[s]->floorh > minh)
 		{
 
-			if (strncmp (SideDefs[sd2].mid_tex, "-", WAD_TEX_NAME))
+			if (strncmp (SideDefs[sd2]->mid_tex, "-", WAD_TEX_NAME))
 			{
-				if (!strncmp (SideDefs[sd2].lower_tex, "-", WAD_TEX_NAME))
-					strncpy (SideDefs[sd2].lower_tex, SideDefs[sd1].mid_tex, WAD_TEX_NAME);
-				strncpy (SideDefs[sd2].mid_tex, "-", WAD_TEX_NAME);
+				if (!strncmp (SideDefs[sd2]->lower_tex, "-", WAD_TEX_NAME))
+					strncpy (SideDefs[sd2]->lower_tex, SideDefs[sd1]->mid_tex, WAD_TEX_NAME);
+				strncpy (SideDefs[sd2]->mid_tex, "-", WAD_TEX_NAME);
 			}
-			if (!strncmp (SideDefs[sd2].lower_tex, "-", WAD_TEX_NAME))
-				strncpy (SideDefs[sd2].lower_tex, "SHAWN2", WAD_TEX_NAME);
+			if (!strncmp (SideDefs[sd2]->lower_tex, "-", WAD_TEX_NAME))
+				strncpy (SideDefs[sd2]->lower_tex, "SHAWN2", WAD_TEX_NAME);
 		}
 		else
 		{
 
-			strncpy (SideDefs[sd2].lower_tex, "-", WAD_TEX_NAME);
+			strncpy (SideDefs[sd2]->lower_tex, "-", WAD_TEX_NAME);
 		}
-		strncpy (SideDefs[sd2].mid_tex, "-", WAD_TEX_NAME);
+		strncpy (SideDefs[sd2]->mid_tex, "-", WAD_TEX_NAME);
 
 		/* if the ceiling of the sector is lower than that of the lift */
-		if (Sectors[s].ceilh < Sectors[sector].ceilh)
+		if (Sectors[s]->ceilh < Sectors[sector]->ceilh)
 		{
 
-			if (strncmp (SideDefs[sd2].upper_tex, "-", WAD_TEX_NAME))
-				strncpy (SideDefs[sd2].upper_tex, default_upper_texture, WAD_TEX_NAME);
+			if (strncmp (SideDefs[sd2]->upper_tex, "-", WAD_TEX_NAME))
+				strncpy (SideDefs[sd2]->upper_tex, default_upper_texture, WAD_TEX_NAME);
 		}
 
 		/* if the floor of the sector is above the lift */
-		if (Sectors[s].floorh >= Sectors[sector].floorh)
+		if (Sectors[s]->floorh >= Sectors[sector]->floorh)
 		{
 
-			LineDefs[n].type = 88; /* lower lift (walk through) */
+			LineDefs[n]->type = 88; /* lower lift (walk through) */
 			/* flip it, just for fun */
 			curs = NULL;
 			SelectObject (&curs, n);
@@ -489,14 +489,14 @@ void MakeLiftFromSector (int sector)
 		/* these are the lift walls (one-sided) */
 
 		n = ld1s->objnum;
-		LineDefs[n].flags = 0x01;
-		sd1 = LineDefs[n].side_R;
+		LineDefs[n]->flags = 0x01;
+		sd1 = LineDefs[n]->right;
 		/* adjust the textures for the sidedef */
 
-		if (!strncmp (SideDefs[sd1].mid_tex, "-", WAD_TEX_NAME))
-			strncpy (SideDefs[sd1].mid_tex, default_middle_texture, WAD_TEX_NAME);
-		strncpy (SideDefs[sd1].upper_tex, "-", WAD_TEX_NAME);
-		strncpy (SideDefs[sd1].lower_tex, "-", WAD_TEX_NAME);
+		if (!strncmp (SideDefs[sd1]->mid_tex, "-", WAD_TEX_NAME))
+			strncpy (SideDefs[sd1]->mid_tex, default_middle_texture, WAD_TEX_NAME);
+		strncpy (SideDefs[sd1]->upper_tex, "-", WAD_TEX_NAME);
+		strncpy (SideDefs[sd1]->lower_tex, "-", WAD_TEX_NAME);
 		UnSelectObject (&ld1s, n);
 	}
 #endif
@@ -512,12 +512,11 @@ void MakeLiftFromSector (int sector)
 bitvec_c *linedefs_of_sector (obj_no_t s)
 {
 	bitvec_c *linedefs = new bitvec_c (NumLineDefs);
+
 	for (int n = 0; n < NumLineDefs; n++)
-		if (is_sidedef (LineDefs[n].side_R)
-				&& SideDefs[LineDefs[n].side_R].sector == s
-				|| is_sidedef (LineDefs[n].side_L)
-				&& SideDefs[LineDefs[n].side_L].sector == s)
+		if (LineDefs[n]->TouchesSector(Sectors[s]))
 			linedefs->set (n);
+
 	return linedefs;
 }
 
@@ -529,18 +528,19 @@ bitvec_c *linedefs_of_sector (obj_no_t s)
  */
 bitvec_c *linedefs_of_sectors (SelPtr list)
 {
-	bitvec_c *sectors  = list_to_bitvec (list, NumSectors);
-	
 	bitvec_c *linedefs = new bitvec_c (NumLineDefs);
 	
+#if 0 // FIXME linedefs_of_sectors
+	bitvec_c *sectors  = list_to_bitvec (list, NumSectors);
+	
 	for (int n = 0; n < NumLineDefs; n++)
-		if (   is_sidedef (LineDefs[n].side_R)
-				&& sectors->get (SideDefs[LineDefs[n].side_R].sector)
-				|| is_sidedef (LineDefs[n].side_L)
-				&& sectors->get (SideDefs[LineDefs[n].side_L].sector))
+		if (   is_sidedef (LineDefs[n]->right)
+				&& sectors->get (SideDefs[LineDefs[n]->right].sector)
+				|| is_sidedef (LineDefs[n]->left)
+				&& sectors->get (SideDefs[LineDefs[n]->left].sector))
 			linedefs->set (n);
 	delete sectors;
-
+#endif
 	return linedefs;
 }
 
@@ -556,23 +556,25 @@ bitvec_c *linedefs_of_sectors (SelPtr list)
 int linedefs_of_sector (obj_no_t s, obj_no_t *&array)
 {
 	int count = 0;
+#if 0  // FIXME  linedefs_of_sector shit
 	for (int n = 0; n < NumLineDefs; n++)
-		if (   is_sidedef (LineDefs[n].side_R)
-				&& SideDefs[LineDefs[n].side_R].sector == s
-				|| is_sidedef (LineDefs[n].side_L)
-				&& SideDefs[LineDefs[n].side_L].sector == s)
+		if (   is_sidedef (LineDefs[n]->right)
+				&& SideDefs[LineDefs[n]->right].sector == s
+				|| is_sidedef (LineDefs[n]->left)
+				&& SideDefs[LineDefs[n]->left].sector == s)
 			count++;
 	if (count > 0)
 	{
 		array = new obj_no_t[count];
 		count = 0;
 		for (int n = 0; n < NumLineDefs; n++)
-			if (   is_sidedef (LineDefs[n].side_R)
-					&& SideDefs[LineDefs[n].side_R].sector == s
-					|| is_sidedef (LineDefs[n].side_L)
-					&& SideDefs[LineDefs[n].side_L].sector == s)
+			if (   is_sidedef (LineDefs[n]->right)
+					&& SideDefs[LineDefs[n]->right].sector == s
+					|| is_sidedef (LineDefs[n]->left)
+					&& SideDefs[LineDefs[n]->left].sector == s)
 				array[count++] = n;
 	}
+#endif
 	return count;
 }
 

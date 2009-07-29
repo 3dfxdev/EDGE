@@ -32,6 +32,7 @@
 
 void xref_sidedef ()
 {
+#if 0
 	int sidedef_no;
 	printf ("Enter sidedef number : ");
 	scanf ("%d", &sidedef_no);
@@ -51,6 +52,7 @@ void xref_sidedef ()
 		}
 	}
 	printf (" (total %d linedefs)\n", count);
+#endif
 }
 
 
@@ -59,7 +61,7 @@ void secret_sectors ()
 	printf ("Secret sectors:");
 	int count = 0;
 	for (int n = 0; n < NumSectors; n++)
-		if (Sectors[n].type ==  9)  // FIXME hard-coded
+		if (Sectors[n]->type ==  9)  // FIXME hard-coded
 		{
 			printf (" %d", n);
 			count++;
@@ -105,7 +107,7 @@ void list_tagged_sectors (int tag)
 	int count = 0;
 
 	for (int n = 0; n < NumSectors; n++)
-		if (Sectors[n].tag == tag)
+		if (Sectors[n]->tag == tag)
 		{
 			printf (" %d", n);
 			count++;
@@ -123,7 +125,7 @@ void list_tagged_linedefs (int tag)
 	int count = 0;
 
 	for (int n = 0; n < NumLineDefs; n++)
-		if (LineDefs[n].tag == tag)
+		if (LineDefs[n]->tag == tag)
 		{
 			printf (" %d", n);
 			count++;

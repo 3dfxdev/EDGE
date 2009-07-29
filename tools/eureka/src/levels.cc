@@ -62,17 +62,6 @@ y_file_name_t Level_file_name_saved;
 
 void EmptyLevelData (const char *levelname)
 {
-	Things = 0;
-	NumThings = 0;
-
-	LineDefs = 0;
-	NumLineDefs = 0;
-	SideDefs = 0;
-	NumSideDefs = 0;
-	Sectors = 0;
-	NumSectors = 0;
-	Vertices = 0;
-	NumVertices = 0;
 }
 
 
@@ -109,6 +98,8 @@ inline const char *texno_texname (s16_t texno)
 
 int ReadLevelData (const char *levelname)
 {
+#if 0  // OLD OLD OLD OLD OLD  CRUD CRUD CRUD
+
 	int rc = 0;
 	MDirPtr dir;
 	int OldNumVertices;
@@ -724,6 +715,7 @@ byebye:
 	if (rc != 0)
 		err ("%s: errors found, giving up", levelname);
 	return rc;
+#endif
 }
 
 
@@ -734,6 +726,7 @@ byebye:
 
 void ForgetLevelData ()
 {
+#if 0  // OLD OLD OLD OLD OLD  CRUD CRUD CRUD
 	/* forget the things */
 
 	NumThings = 0;
@@ -769,6 +762,7 @@ void ForgetLevelData ()
 		FreeMemory (Sectors);
 	Sectors = NULL;
 
+#endif
 }
 
 
@@ -799,6 +793,7 @@ void ForgetLevelData ()
  */
 int SaveLevelData (const char *outfile, const char *level_name)
 {
+#if 0  // OLD OLD OLD OLD OLD  CRUD CRUD CRUD
 	FILE   *file;
 	MDirPtr dir;
 	int     n;
@@ -1066,6 +1061,7 @@ int SaveLevelData (const char *outfile, const char *level_name)
 
 	update_level_bounds ();
 	return 0;
+#endif
 }
 
 
@@ -1481,20 +1477,18 @@ void update_level_bounds ()
 {
 	MapMaxX = -32767;
 	MapMaxY = -32767;
-	MapMinX = 32767;
-	MapMinY = 32767;
+	MapMinX =  32767;
+	MapMinY =  32767;
+
 	for (obj_no_t n = 0; n < NumVertices; n++)
 	{
-		int x = Vertices[n].x;
-		if (x < MapMinX)
-			MapMinX = x;
-		if (x > MapMaxX)
-			MapMaxX = x;
-		int y = Vertices[n].y;
-		if (y < MapMinY)
-			MapMinY = y;
-		if (y > MapMaxY)
-			MapMaxY = y;
+		int x = Vertices[n]->x;
+		int y = Vertices[n]->y;
+
+		if (x < MapMinX) MapMinX = x;
+		if (x > MapMaxX) MapMaxX = x;
+		if (y < MapMinY) MapMinY = y;
+		if (y > MapMaxY) MapMaxY = y;
 	}
 }
 
