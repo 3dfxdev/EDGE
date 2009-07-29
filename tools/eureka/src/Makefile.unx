@@ -38,7 +38,6 @@ OBJS = \
 	e_vertex.o  \
 	im_color.o  \
 	im_img.o  \
-	im_sticker.o  \
 	levels.o  \
 	main.o  \
 	m_bitvec.o  \

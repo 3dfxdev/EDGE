@@ -54,8 +54,7 @@ class Img
     void               clear      ();
     void               set_opaque (bool opaque);
     void               resize     (img_dim_t width, img_dim_t height);
-    int                save       (const char *filename) const;
-    
+
     Img * spectrify() const;
 
   private :
