@@ -378,8 +378,8 @@ static int select_sides_in_closed_path (bitvec_c& ld_side1,
    update the side on a single linedef, using the given sector
    reference.  Will create a new sidedef if necessary.
  */
-static void super_set_sector_on_side(int line, wad_sdn_t& side,
-   wad_sdn_t& other, int side_no, int sector)
+static void super_set_sector_on_side(int line, int& side,
+   int& other, int side_no, int sector)
 {
 #if 0 // FIXME !!!!!!!!!
 	if (is_obj(side) && SideDefs[side].sector == sector)

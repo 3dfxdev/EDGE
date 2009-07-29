@@ -800,7 +800,7 @@ cancel_save_as:
 				if ( ! InputSectorType( 84, 21, &otype))
 				{
 					for (onum = edit.highlighted () ? onum + 1 : onum; onum <= omax; onum++)
-						if (Sectors[onum]->type == (wad_stype_t) otype)
+						if (Sectors[onum]->type == otype)
 						{
 							find_obj.num = onum;
 							GoToObject(find_obj);
@@ -824,7 +824,7 @@ cancel_save_as:
 				if ( ! InputLinedefType( 0, 21, &otype))
 				{
 					for (onum = edit.highlighted () ? onum + 1 : onum; onum <= omax; onum++)
-						if (LineDefs[onum]->type == (wad_ldtype_t) otype)
+						if (LineDefs[onum]->type == otype)
 						{
 							find_obj.num = onum;
 							GoToObject(find_obj);

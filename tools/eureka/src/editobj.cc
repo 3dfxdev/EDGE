@@ -858,7 +858,7 @@ void TransferSectorProperties (int src_sector, SelPtr sectors)
 void TransferLinedefProperties (int src_linedef, SelPtr linedefs)
 {
 	SelPtr cur;
-	wad_ldflags_t src_flags = LineDefs[src_linedef].flags & ~LINEDEF_FLAG_KEEP;
+	int src_flags = LineDefs[src_linedef].flags & ~LINEDEF_FLAG_KEEP;
 
 	for (cur=linedefs; cur; cur=cur->next)
 	{
