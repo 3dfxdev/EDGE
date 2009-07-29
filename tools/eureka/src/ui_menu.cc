@@ -292,21 +292,29 @@ static Fl_Menu_Item menu_items[] =
 		{ "&New Map",   FL_COMMAND + 'n', FCAL file_do_new },
 		{ "&Open Map",  FL_COMMAND + 'o', FCAL file_do_open },
 		{ "&Save Map",  FL_COMMAND + 's', FCAL file_do_save },
-		{ "Save &As",   0,                FCAL file_do_save_as, 0, FL_MENU_DIVIDER },
+		{ "Save &As",   0,                FCAL file_do_save_as, 0, 0*FL_MENU_DIVIDER },
+
+		{ "", 0, 0, 0, FL_MENU_DIVIDER },
+
 		{ "&Quit",      FL_COMMAND + 'q', FCAL file_do_quit },
 		{ 0 },
 
 	{ "&Edit", 0, 0, 0, FL_SUBMENU },
 		{ "&Undo",   FL_COMMAND + 'z',  FCAL edit_do_undo },
-		{ "&Redo",   FL_COMMAND + 'a',  FCAL edit_do_redo, 0, FL_MENU_DIVIDER },
+		{ "&Redo",   FL_COMMAND + 'y',  FCAL edit_do_redo, 0, 0*FL_MENU_DIVIDER },
+
+		{ "", 0, 0, 0, FL_MENU_DIVIDER },
 
 		{ "Cu&t",    FL_COMMAND + 'x',  FCAL edit_do_cut },
 		{ "&Copy",   FL_COMMAND + 'c',  FCAL edit_do_copy },
-		{ "&Paste",  FL_COMMAND + 'v',  FCAL edit_do_paste, 0, FL_MENU_DIVIDER },
+		{ "&Paste",  FL_COMMAND + 'v',  FCAL edit_do_paste, 0, 0*FL_MENU_DIVIDER },
 
-		{ "Insert",  FL_Insert,         FCAL edit_do_insert },
+///		{ "Insert",  FL_Insert,         FCAL edit_do_insert },
 		{ "Delete",  FL_Delete,         FCAL edit_do_delete },
-		{ "Unselect &All", FL_Enter,    FCAL edit_do_unselect, 0, FL_MENU_DIVIDER },
+		{ "Select All", FL_COMMAND + 'a',    FCAL edit_do_unselect, 0, 0*FL_MENU_DIVIDER },
+		{ "Unselect &All", FL_Enter,    FCAL edit_do_unselect, 0, 0*FL_MENU_DIVIDER },
+
+		{ "", 0, 0, 0, FL_MENU_DIVIDER },
 
 		{ "&Move",      0, FCAL misc_do_offset },
 		{ "&Rotate",    0, FCAL misc_do_rotate_scale },
@@ -325,6 +333,8 @@ static Fl_Menu_Item menu_items[] =
 		{ "Zoom &Out",    0, FCAL view_do_zoom_out },
 		{ "&Whole Level", 0, FCAL view_do_whole_level },
 
+		{ "", 0, 0, 0, FL_MENU_DIVIDER },
+
 		{ "&Find Object",      0, FCAL search_do_find },
 		{ "&Next Object",      0, FCAL search_do_next },
 		{ "&Prev Object",      0, FCAL search_do_prev },
@@ -332,6 +342,7 @@ static Fl_Menu_Item menu_items[] =
 		{ "&Show Object Nums", 0, FCAL search_do_jump },
 		{ 0 },
 
+#if 0
 	{ "&RTS", 0, 0, 0, FL_SUBMENU },
 		{ "&Open RTS File",   0, FCAL view_do_zoom_out },
 		{ "&Import from WAD", 0, FCAL view_do_zoom_out },
@@ -342,6 +353,7 @@ static Fl_Menu_Item menu_items[] =
 		{ "Load DDF &File",    0, FCAL view_do_zoom_out },
 		{ "Load DDF &WAD",    0, FCAL view_do_zoom_out },
 		{ 0 },
+#endif
 
 	{ "&Help", 0, 0, 0, FL_SUBMENU },
 		{ "&About Eureka",   0,  FCAL help_do_about },
@@ -362,7 +374,7 @@ Fl_Sys_Menu_Bar * Menu_Create(int x, int y, int w, int h)
 Fl_Menu_Bar * Menu_Create(int x, int y, int w, int h)
 {
 	Fl_Menu_Bar *bar = new Fl_Menu_Bar(x, y, w, h);
-	bar->textsize(QF_F);
+	bar->textsize(KF_fonth);
 	bar->menu(menu_items);
 	return bar;
 }
