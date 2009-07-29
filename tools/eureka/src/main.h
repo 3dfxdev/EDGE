@@ -55,12 +55,6 @@
 #include <vector>
 
 
-// FIXME
-#define al_amin(a,b) ((a) < (b) ? (a) : (b))
-#define al_amax(a,b) ((a) > (b) ? (a) : (b))
-
-
-
 /*
  *  Additional libraries
  */
@@ -306,10 +300,6 @@ void EditObjectsInfo (int, int, int, SelPtr);
 void InsertStandardObject (int, int, int choice);
 void MiscOperations (int, SelPtr *, int choice);
 
-// game.cc
-void InitGameDefs (void);
-void LoadGameDefs (const char *game);
-void FreeGameDefs (void);
 
 // geom.cc
 unsigned ComputeAngle (int, int);

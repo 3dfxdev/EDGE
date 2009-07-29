@@ -54,7 +54,7 @@ int OpenMainWad (const char *filename)
 
 	/* open the wad file */
 	printf ("Loading iwad: %s...\n", filename);
-	wf = BasicWadOpen (filename, yg_picture_format);
+	wf = BasicWadOpen (filename);
 	if (wf == 0)
 		return 1;
 	if (strncmp (wf->type, "IWAD", 4))
@@ -126,7 +126,7 @@ int OpenPatchWad (const char *filename)
 	/* open the wad file */
 	printf ("Loading pwad: %s...\n", real_name);
 	// By default, assume pwads use the normal picture format.
-	wad = BasicWadOpen (real_name, YGPF_NORMAL);
+	wad = BasicWadOpen (real_name);
 	FreeMemory (real_name);
 	if (! wad)
 		return 1;
@@ -404,7 +404,7 @@ void CloseUnusedWadFiles ()
  *
  *  Return a null pointer on error.
  */
-Wad_file *BasicWadOpen (const char *filename, ygpf_t pic_format)
+Wad_file *BasicWadOpen (const char *filename)
 {
 	bool fail = false;
 
@@ -429,7 +429,6 @@ Wad_file *BasicWadOpen (const char *filename, ygpf_t pic_format)
 
 	// Create a new Wad_file
 	Wad_file *wf = new Wad_file;
-	wf->pic_format_ = pic_format;
 	wf->directory   = 0;
 	wf->filename    = (char *) GetMemory (strlen (filename) + 1);
 	strcpy (wf->filename, filename);

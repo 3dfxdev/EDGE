@@ -109,85 +109,16 @@ Img * Tex2Img (const char * texname)
 	name[WAD_TEX_NAME] = 0;
 
 	// Iwad-dependant details
-	if (yg_texture_format == YGTF_NAMELESS)
 	{
 		have_dummy_bytes = true;
 		header_size      = 14;
 		item_size        = 10;
-	}
-	else if (yg_texture_format == YGTF_NORMAL)
-	{
-		have_dummy_bytes = true;
-		header_size      = 14;
-		item_size        = 10;
-	}
-	else if (yg_texture_format == YGTF_STRIFE11)
-	{
-		have_dummy_bytes = false;
-		header_size      = 10;
-		item_size        = 6;
-	}
-	else
-	{
-		nf_bug ("Bad texture format %d.", (int) yg_texture_format);
-		return 0;
 	}
 
 	/* offset for texture we want. */
 	texofs = 0;
-	// Doom alpha 0.4 : "TEXTURES", no names
-	if (yg_texture_lumps == YGTL_TEXTURES && yg_texture_format == YGTF_NAMELESS)
-	{
-		dir = FindMasterDir (MasterDir, "TEXTURES");
-		if (dir != NULL)
-		{
-			dir->wadfile->seek (dir->dir.start);
-			dir->wadfile->read_i32 (&numtex);
-			if (WAD_TEX_NAME < 7) nf_bug ("WAD_TEX_NAME too small");  // Sanity
-			if (! y_strnicmp (name, "TEX", 3)
-					&& isdigit (name[3])
-					&& isdigit (name[4])
-					&& isdigit (name[5])
-					&& isdigit (name[6])
-					&& name[7] == '\0')
-			{
-				long num;
-				if (sscanf (name + 3, "%4ld", &num) == 1
-						&& num >= 0 && num < numtex)
-				{
-					dir->wadfile->seek (dir->dir.start + 4 + 4 * num);
-					dir->wadfile->read_i32 (&texofs);
-					texofs += dir->dir.start;
-				}
-			}
-		}
-	}
-	// Doom alpha 0.5 : only "TEXTURES"
-	else if (yg_texture_lumps == YGTL_TEXTURES
-			&& (yg_texture_format == YGTF_NORMAL || yg_texture_format == YGTF_STRIFE11))
-	{
-		// Is it in TEXTURES ?
-		dir = FindMasterDir (MasterDir, "TEXTURES");
-		if (dir != NULL)  // (Theoretically, it should always exist)
-		{
-			dir->wadfile->seek (dir->dir.start);
-			dir->wadfile->read_i32 (&numtex);
-			/* read in the offsets for texture1 names and info. */
-			offsets = (s32_t *) GetMemory ((long) numtex * 4);
-			dir->wadfile->read_i32 (offsets, numtex);
-			for (n = 0; n < numtex && !texofs; n++)
-			{
-				dir->wadfile->seek (dir->dir.start + offsets[n]);
-				dir->wadfile->read_bytes (&tname, WAD_TEX_NAME);
-				if (!y_strnicmp (tname, name, WAD_TEX_NAME))
-					texofs = dir->dir.start + offsets[n];
-			}
-			FreeMemory (offsets);
-		}
-	}
+
 	// Other iwads : "TEXTURE1" and "TEXTURE2"
-	else if (yg_texture_lumps == YGTL_NORMAL
-			&& (yg_texture_format == YGTF_NORMAL || yg_texture_format == YGTF_STRIFE11))
 	{
 		// Is it in TEXTURE1 ?
 		dir = FindMasterDir (MasterDir, "TEXTURE1");
@@ -229,8 +160,6 @@ Img * Tex2Img (const char * texname)
 			}
 		}
 	}
-	else
-		nf_bug ("Invalid texture_format/texture_lumps combination.");
 
 	/* texture name not found */
 	if (texofs == 0)
@@ -238,10 +167,9 @@ Img * Tex2Img (const char * texname)
 
 	/* read the info for this texture */
 	s32_t header_ofs;
-	if (yg_texture_format == YGTF_NAMELESS)
-		header_ofs = texofs;
-	else
-		header_ofs = texofs + WAD_TEX_NAME;
+	
+	header_ofs = texofs + WAD_TEX_NAME;
+
 	dir->wadfile->seek (header_ofs + 4);
 	dir->wadfile->read_i16 (&width);
 	dir->wadfile->read_i16 (&height);
@@ -405,44 +333,10 @@ void GetWallTextureSize (s16_t *width, s16_t *height, const char *texname)
 
 	// Offset for texture we want
 	texofs = 0;
+
 	// Search for texname in TEXTURE1 (or TEXTURES)
-	if (yg_texture_lumps == YGTL_TEXTURES && yg_texture_format == YGTF_NAMELESS)
 	{
-		dir = FindMasterDir (MasterDir, "TEXTURES");
-		if (dir != NULL)
-		{
-			dir->wadfile->seek (dir->dir.start);
-			dir->wadfile->read_i32 (&numtex);
-			if (WAD_TEX_NAME < 7) nf_bug ("WAD_TEX_NAME too small");  // Sanity
-			if (! y_strnicmp (texname, "TEX", 3)
-					&& isdigit (texname[3])
-					&& isdigit (texname[4])
-					&& isdigit (texname[5])
-					&& isdigit (texname[6])
-					&& texname[7] == '\0')
-			{
-				long num;
-				if (sscanf (texname + 3, "%4ld", &num) == 1
-						&& num >= 0 && num < numtex)
-				{
-					dir->wadfile->seek (dir->dir.start + 4 + 4 * num);
-					dir->wadfile->read_i32 (&texofs);
-				}
-			}
-		}
-	}
-	else if (yg_texture_format == YGTF_NORMAL
-			|| yg_texture_format == YGTF_STRIFE11)
-	{
-		if (yg_texture_lumps == YGTL_TEXTURES)
-			dir = FindMasterDir (MasterDir, "TEXTURES");  // Doom alpha 0.5
-		else if (yg_texture_lumps == YGTL_NORMAL)
-			dir = FindMasterDir (MasterDir, "TEXTURE1");
-		else
-		{
-			dir = 0;
-			nf_bug ("Invalid texture_format/texture_lumps combination.");
-		}
+		dir = FindMasterDir (MasterDir, "TEXTURE1");
 		if (dir != NULL)
 		{
 			dir->wadfile->seek (dir->dir.start);
@@ -459,7 +353,7 @@ void GetWallTextureSize (s16_t *width, s16_t *height, const char *texname)
 			}
 			FreeMemory (offsets);
 		}
-		if (texofs == 0 && yg_texture_lumps == YGTL_NORMAL)
+		if (texofs == 0)
 		{
 			// Search for texname in TEXTURE2
 			dir = FindMasterDir (MasterDir, "TEXTURE2");
@@ -481,16 +375,11 @@ void GetWallTextureSize (s16_t *width, s16_t *height, const char *texname)
 			}
 		}
 	}
-	else
-		nf_bug ("Invalid texture_format/texture_lumps combination.");
 
 	if (texofs != 0)
 	{
 		// Read the info for this texture
-		if (yg_texture_format == YGTF_NAMELESS)
-			dir->wadfile->seek (texofs + 4L);
-		else
-			dir->wadfile->seek (texofs + 12L);
+		dir->wadfile->seek (texofs + 12L);
 		dir->wadfile->read_i16 (width);
 		dir->wadfile->read_i16 (height);
 	}

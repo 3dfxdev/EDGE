@@ -244,7 +244,7 @@ int LoadPicture (
 
 	// For each (non clipped) column of the picture...
 	for (pic_x = pic_x0,
-			buf = img.wbuf () + al_amax (pic_x_offset, 0) + img_width * pic_y_offset;
+			buf = img.wbuf () + MAX(pic_x_offset, 0) + img_width * pic_y_offset;
 			pic_x <= pic_x1;
 			pic_x++, buf++)
 	{
