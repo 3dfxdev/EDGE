@@ -42,6 +42,8 @@
 
 #include "ui_window.h"
 
+extern int LoadLevel(const char *levelname);
+
 
 #define VERSION  "0.46"
 
@@ -512,7 +514,7 @@ void EditLevel (const char *levelname, bool newlevel)
     }
     else
     {
-        if (ReadLevelData (levelname))
+        if (LoadLevel(levelname))
         {
             goto done;  // Failure!
         }
