@@ -978,10 +978,10 @@ cancel_save_as:
 					 "Do you really want to delete this object?",
 					 "This will also delete the objects bound to them."))
 		{
-			if (edit.Selected->notempty())
-				DeleteObjects (edit.Selected);
-			else
-				DeleteObject (edit.highlighted);
+//@@@@@@			if (edit.Selected->notempty())
+//@@@@@@				DeleteObjects (edit.Selected);
+//@@@@@@			else
+//@@@@@@				DeleteObject (edit.highlighted);
 		}
 		// AYM 1998-09-20 I thought I'd add this
 		// (though it doesn't fix the problem : if the object has been

@@ -112,6 +112,7 @@ typedef s16_t wad_tangle_t;
 typedef s16_t wad_tflags_t;
 
 
+namespace shite {
 typedef enum
 {
   MTF_Easy      = 1,
@@ -130,7 +131,7 @@ thing_option_e;
 
 #define MTF_EXFLOOR_MASK    0x3C00
 #define MTF_EXFLOOR_SHIFT   10
-
+}
 
 // Linedefs
 const size_t WAD_LINEDEF_BYTES       = 14;  // Size in the wad file
@@ -138,7 +139,7 @@ const size_t WAD_HEXEN_LINEDEF_BYTES = 16;  // Size in the wad file
 typedef s16_t wad_ldflags_t;
 typedef s16_t wad_ldtype_t;
 
-
+namespace shite {
 typedef enum
 {
   // solid, is an obstacle
@@ -187,7 +188,7 @@ typedef enum
   MLF_SightBlock  = 0x1000,
 }
 linedef_flag_e;
-
+}
 
 
 // Sidedefs
@@ -204,6 +205,7 @@ const size_t WAD_VERTEX_BYTES = 4;  // Size in the wad file
 const size_t WAD_SECTOR_BYTES = 26; // Size in the wad file
 typedef s16_t wad_stype_t;
 
+namespace shite {
 typedef enum
 {
   MSF_TypeMask   = 0x001F,
@@ -214,10 +216,10 @@ typedef enum
   MSF_NoSounds   = 0x0400,
   MSF_QuietPlane = 0x0800
 }
-sector_flag_e;
+sector_flag_e; 
 
 #define MSF_BoomFlags  0x0FE0
-
+}
 
 
 // The 11 lumps that constitute a Doom/Heretic/Strife level

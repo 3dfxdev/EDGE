@@ -385,7 +385,7 @@ void spin_things (selection_c * list, int degrees)
 
 	for (list->begin(&it); !it.at_end(); ++it)
 	{
-		Thing *T = &Things[*it];
+		Thing *T = Things[*it];
 
 		T->angle += degrees;
 
@@ -419,11 +419,11 @@ void frob_things_flags (SelPtr list, int op, int operand)
 	for (cur = list; cur; cur = cur->next)
 	{
 		if (op == YO_CLEAR)
-			Things[cur->objnum].options &= ~mask;
+			Things[cur->objnum]->options &= ~mask;
 		else if (op == YO_SET)
-			Things[cur->objnum].options |= mask;
+			Things[cur->objnum]->options |= mask;
 		else if (op == YO_TOGGLE)
-			Things[cur->objnum].options ^= mask;
+			Things[cur->objnum]->options ^= mask;
 		else
 		{
 			nf_bug ("frob_things_flags: op=%02X", op);
@@ -450,8 +450,8 @@ void centre_of_things (SelPtr list, int *x, int *y)
 	y_sum = 0;
 //!!!!!!	for (nitems = 0, cur = list; cur; cur = cur->next, nitems++)
 //!!!!!!	{
-//!!!!!!		x_sum += Things[cur->objnum].x;
-//!!!!!!		y_sum += Things[cur->objnum].y;
+//!!!!!!		x_sum += Things[cur->objnum]->x;
+//!!!!!!		y_sum += Things[cur->objnum]->y;
 //!!!!!!	}
 	if (nitems == 0)
 	{

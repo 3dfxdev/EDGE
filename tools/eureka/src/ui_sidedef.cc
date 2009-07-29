@@ -22,6 +22,7 @@
 #include "ui_window.h"
 
 #include "levels.h"
+#include "w_rawdef.h"
 #include "w_structs.h"
 
 

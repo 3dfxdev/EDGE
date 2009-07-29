@@ -70,14 +70,14 @@ void DeleteVerticesJoinLineDefs (SelPtr obj)
 		lend = -1;
 		for (l = 0; l < NumLineDefs; l++)
 		{
-			if (LineDefs[l].start == cur->objnum)
+			if (LineDefs[l]->start == cur->objnum)
 			{
 				if (lstart == -1)
 					lstart = l;
 				else
 					lstart = -2;
 			}
-			if (LineDefs[l].end == cur->objnum)
+			if (LineDefs[l]->end == cur->objnum)
 			{
 				if (lend == -1)
 					lend = l;
@@ -94,7 +94,7 @@ void DeleteVerticesJoinLineDefs (SelPtr obj)
 					" and the end of another one");
 			continue;
 		}
-		LineDefs[lend].end = LineDefs[lstart].end;
+		LineDefs[lend]->end = LineDefs[lstart]->end;
 		DeleteObject (Objid (OBJ_LINEDEFS, lstart));
 		DeleteObject (Objid (OBJ_VERTICES, cur->objnum));
 		MadeChanges = 1;
@@ -125,17 +125,17 @@ void MergeVertices (SelPtr *list)
 	/* change the linedefs starts & ends */
 	for (l = 0; l < NumLineDefs; l++)
 	{
-		if (IsSelected (*list, LineDefs[l].start))
+		if (IsSelected (*list, LineDefs[l]->start))
 		{
 			/* don't change a linedef that has both ends on the same spot */
-			if (!IsSelected (*list, LineDefs[l].end) && LineDefs[l].end != v)
-				LineDefs[l].start = v;
+			if (!IsSelected (*list, LineDefs[l]->end) && LineDefs[l]->end != v)
+				LineDefs[l]->start = v;
 		}
-		else if (IsSelected (*list, LineDefs[l].end))
+		else if (IsSelected (*list, LineDefs[l]->end))
 		{
 			/* idem */
-			if (LineDefs[l].start != v)
-				LineDefs[l].end = v;
+			if (LineDefs[l]->start != v)
+				LineDefs[l]->end = v;
 		}
 	}
 	/* delete the vertices (and some linedefs too) */
@@ -196,8 +196,8 @@ bool AutoMergeVertices (SelPtr *list, int obj_type, char operation)
 		/* check if there is a vertex at the same position (same X and Y) */
 		for (v = 0; v < NumVertices; v++)
 			if (v != refv
-					&& Vertices[refv].x == Vertices[v].x
-					&& Vertices[refv].y == Vertices[v].y)
+					&& Vertices[refv]->x == Vertices[v]->x
+					&& Vertices[refv]->y == Vertices[v]->y)
 			{
 				char buf[81];
 				redraw = true;
@@ -253,15 +253,15 @@ bool AutoMergeVertices (SelPtr *list, int obj_type, char operation)
 		for (ld = 0; ld < oldnumld; ld++)
 		{
 
-			if (LineDefs[ld].start == refv || LineDefs[ld].end == refv)
+			if (LineDefs[ld]->start == refv || LineDefs[ld]->end == refv)
 			{
 				/* one vertex had a linedef bound to it -- check it later */
 				isldend = true;
 			}
-			else if (IsLineDefInside (ld, Vertices[refv].x - tolerance,
-						Vertices[refv].y - tolerance, 
-						Vertices[refv].x + tolerance,
-						Vertices[refv].y + tolerance))
+			else if (IsLineDefInside (ld, Vertices[refv]->x - tolerance,
+						Vertices[refv]->y - tolerance, 
+						Vertices[refv]->x + tolerance,
+						Vertices[refv]->y + tolerance))
 			{
 				char buf[81];
 				redraw = true;
@@ -273,21 +273,21 @@ bool AutoMergeVertices (SelPtr *list, int obj_type, char operation)
 					/* split the linedef */
 					mergedone = true;
 					InsertObject (OBJ_LINEDEFS, ld, 0, 0);
-					LineDefs[ld].end = refv;
-					LineDefs[NumLineDefs - 1].start = refv;
-					sd = LineDefs[ld].side_R;
+					LineDefs[ld]->end = refv;
+					LineDefs[NumLineDefs - 1]->start = refv;
+					sd = LineDefs[ld]->right;
 					if (sd >= 0)
 					{
 						InsertObject (OBJ_SIDEDEFS, sd, 0, 0);
 
-						LineDefs[NumLineDefs - 1].side_R = NumSideDefs - 1;
+						LineDefs[NumLineDefs - 1]->right = NumSideDefs - 1;
 					}
-					sd = LineDefs[ld].side_L;
+					sd = LineDefs[ld]->side_L;
 					if (sd >= 0)
 					{
 						InsertObject (OBJ_SIDEDEFS, sd, 0, 0);
 
-						LineDefs[NumLineDefs - 1].side_L = NumSideDefs - 1;
+						LineDefs[NumLineDefs - 1]->side_L = NumSideDefs - 1;
 					}
 					MadeChanges = 1;
 					MadeMapChanges = 1;
@@ -329,8 +329,8 @@ bool AutoMergeVertices (SelPtr *list, int obj_type, char operation)
 		linedefs = (linedef_t *) GetMemory (NumLineDefs * sizeof (linedef_t));
 		for (ld = 0; ld < NumLineDefs; ld++)
 		{
-			linedefs[ld].vertexl = MIN(LineDefs[ld].start, LineDefs[ld].end);
-			linedefs[ld].vertexh = MAX(LineDefs[ld].start, LineDefs[ld].end);
+			linedefs[ld].vertexl = MIN(LineDefs[ld]->start, LineDefs[ld]->end);
+			linedefs[ld].vertexh = MAX(LineDefs[ld]->start, LineDefs[ld]->end);
 			linedefs[ld].linedefno = ld;
 		}
 		qsort (linedefs, NumLineDefs, sizeof (linedef_t), SortLinedefs);
@@ -365,25 +365,25 @@ bool AutoMergeVertices (SelPtr *list, int obj_type, char operation)
 				   heights and maybe setting the LTU and UTU flags.
 				   This also applies when a linedef becomes two-sided as a
 				   result of creating a new sector. */
-				if (ldn->side_R < 0)
+				if (ldn->right < 0)
 				{
 					if (flipped)
 					{
-						ldn->side_R = ldo->side_L;
+						ldn->right = ldo->side_L;
 						ldo->side_L = OBJ_NO_NONE;
 					}
 					else
 					{
-						ldn->side_R = ldo->side_R;
-						ldo->side_R = OBJ_NO_NONE;
+						ldn->right = ldo->right;
+						ldo->right = OBJ_NO_NONE;
 					}
 				}
 				if (ldn->side_L < 0)
 				{
 					if (flipped)
 					{
-						ldn->side_L = ldo->side_R;
-						ldo->side_R = OBJ_NO_NONE;
+						ldn->side_L = ldo->right;
+						ldo->right = OBJ_NO_NONE;
 					}
 					else
 					{
@@ -391,7 +391,7 @@ bool AutoMergeVertices (SelPtr *list, int obj_type, char operation)
 						ldo->side_L = OBJ_NO_NONE;
 					}
 				}
-				if (ldn->side_R >= 0 && ldn->side_L >= 0 && (ldn->flags & 0x04) == 0)
+				if (ldn->right >= 0 && ldn->side_L >= 0 && (ldn->flags & 0x04) == 0)
 					ldn->flags = 0x04;
 				DeleteObject (Objid (OBJ_LINEDEFS, ld1));
 			}
@@ -436,8 +436,8 @@ void centre_of_vertices (SelPtr list, int *x, int *y)
 	y_sum = 0;
 //!!!!!!	for (nitems = 0, cur = list; cur; cur = cur->next, nitems++)
 //!!!!!!	{
-//!!!!!!		x_sum += Vertices[cur->objnum].x;
-//!!!!!!		y_sum += Vertices[cur->objnum].y;
+//!!!!!!		x_sum += Vertices[cur->objnum]->x;
+//!!!!!!		y_sum += Vertices[cur->objnum]->y;
 //!!!!!!	}
 	if (nitems == 0)
 	{
@@ -466,8 +466,8 @@ void centre_of_vertices (const bitvec_c &bv, int &x, int &y)
 	{
 		if (bv.get (n))
 		{
-			x_sum += Vertices[n].x;
-			y_sum += Vertices[n].y;
+			x_sum += Vertices[n]->x;
+			y_sum += Vertices[n]->y;
 			nvertices++;
 		}
 	}
