@@ -44,6 +44,9 @@ void check_types ();
 
 unsigned long y_milliseconds ();
 
+unsigned ComputeAngle (int, int);
+unsigned ComputeDist (int, int);
+
 
 /*
  *  within
