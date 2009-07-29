@@ -119,6 +119,17 @@ SideDef * LineDef::Left() const
 	return (left >= 0) ? SideDefs[left] : NULL;
 }
 
+bool LineDef::TouchesSector(const Sector *sec) const
+{
+	if (right >= 0 && SideDefs[right]->SecRef() == sec)
+		return true;
+
+	if (left >= 0 && SideDefs[left]->SecRef() == sec)
+		return true;
+
+	return false;
+}
+
 
 //------------------------------------------------------------------------
 
