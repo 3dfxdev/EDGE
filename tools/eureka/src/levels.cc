@@ -37,9 +37,6 @@
 #include "w_wads.h"
 
 
-MDirPtr Level;      /* master dictionary entry for the level */
-
-
 // FIXME should be somewhere else
 int NumWTexture;    /* number of wall textures */
 char **WTexture;    /* array of wall texture names */

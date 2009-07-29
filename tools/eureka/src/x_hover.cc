@@ -395,7 +395,7 @@ static const Close_obj& get_cur_vertex (int x, int y)
 	for (int n = 0; n < NumVertices; n++)
 	{
 		int vx = Vertices[n]->x;
-		int vy = Vertices[y]->y;
+		int vy = Vertices[n]->y;
 
 		/* Filter out objects that are farther than <radius> units away. */
 		if (vx < xmin

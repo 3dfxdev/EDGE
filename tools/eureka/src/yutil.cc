@@ -32,6 +32,8 @@
 #include <sys/time.h>
 #include <time.h>
 
+#include "w_rawdef.h"
+
 
 
 /*
@@ -321,11 +323,11 @@ void check_types ()
 	assert_size (u32_t, 4);
 	assert_size (s32_t, 4);
 
-	assert_size (struct LineDef, 14);
-	assert_size (struct Sector,  26);
-	assert_size (struct SideDef, 30);
-	assert_size (struct Thing,   10);
-	assert_size (struct Vertex,   4);
+	assert_size (raw_linedef_t, 14);
+	assert_size (raw_sector_s,  26);
+	assert_size (raw_sidedef_t, 30);
+	assert_size (raw_thing_t,   10);
+	assert_size (raw_vertex_t,   4);
 }
 
 
