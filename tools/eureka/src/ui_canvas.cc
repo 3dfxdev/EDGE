@@ -510,6 +510,11 @@ void UI_Canvas::DrawLinedefs()
 					fl_color (current_colour = new_colour);
 				DrawMapLine (x1, y1, x2, y2);
 
+///				int mx = (x1 + x2) / 2;
+///				int my = (y1 + y2) / 2;
+///
+///				DrawMapLine(mx, my, mx + (y2 - y1) / 5, my + (x1 - x2) / 5);
+
 				if (e->show_object_numbers)
 				{
 					int scnx0       = SCREENX (x1);
@@ -769,10 +774,10 @@ void UI_Canvas::HighlightObject (int objtype, int objnum, Fl_Color colour)
 			int x2 = LineDefs[objnum]->End  ()->x;
 			int y2 = LineDefs[objnum]->End  ()->y;
 
-			int n = (x1 + x2) / 2;
-			int m = (y1 + y2) / 2;
+			int mx = (x1 + x2) / 2;
+			int my = (y1 + y2) / 2;
 
-			DrawMapLine(n, m, n + (y2 - y1) / 3, m + (x1 - x2) / 3);
+			DrawMapLine(mx, my, mx + (y2 - y1) / 5, my + (x1 - x2) / 5);
 
 			fl_line_style(FL_SOLID, 2);
 

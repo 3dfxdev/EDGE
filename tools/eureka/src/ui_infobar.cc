@@ -40,8 +40,8 @@ UI_InfoBar::UI_InfoBar(int X, int Y, int W, int H, const char *label) :
 	mode->add("Things|Linedefs|Sectors|Vertices|RTS");
 	mode->value(0);
 	mode->callback(mode_callback, this);
-	mode->labelsize(QF_F);
-	mode->textsize(QF_F);
+	mode->labelsize(KF_fonth);
+	mode->textsize(KF_fonth);
 
 	add(mode);
 
@@ -53,8 +53,8 @@ UI_InfoBar::UI_InfoBar(int X, int Y, int W, int H, const char *label) :
 	scale->add(Grid_State_c::scale_options());
 	scale->value(8);
 	scale->callback(scale_callback, this);
-	scale->labelsize(QF_F);
-	scale->textsize(QF_F);
+	scale->labelsize(KF_fonth);
+	scale->textsize(KF_fonth);
 
 	add(scale);
 
@@ -67,8 +67,8 @@ UI_InfoBar::UI_InfoBar(int X, int Y, int W, int H, const char *label) :
 	grid_size->add(Grid_State_c::grid_options());
 	grid_size->value(1);
 	grid_size->callback(grid_callback, this);
-	grid_size->labelsize(QF_F);
-	grid_size->textsize(QF_F);
+	grid_size->labelsize(KF_fonth);
+	grid_size->textsize(KF_fonth);
 
 	add(grid_size);
 
@@ -79,8 +79,8 @@ UI_InfoBar::UI_InfoBar(int X, int Y, int W, int H, const char *label) :
 	grid_lock->add("LOCK|Snap|FREE");
 	grid_lock->value(1);
 	grid_lock->callback(lock_callback, this);
-	grid_lock->labelsize(QF_F);
-	grid_lock->textsize(QF_F);
+	grid_lock->labelsize(KF_fonth);
+	grid_lock->textsize(KF_fonth);
 
 	add(grid_lock);
 
@@ -93,8 +93,8 @@ UI_InfoBar::UI_InfoBar(int X, int Y, int W, int H, const char *label) :
 	mouse_x->align(FL_ALIGN_LEFT);
 	mouse_y->align(FL_ALIGN_LEFT);
 
-	mouse_x->labelsize(QF_F); mouse_y->labelsize(QF_F);
-	mouse_x->textsize(QF_F);  mouse_y->textsize(QF_F);
+	mouse_x->labelsize(KF_fonth); mouse_y->labelsize(KF_fonth);
+	mouse_x->textsize(KF_fonth);  mouse_y->textsize(KF_fonth);
 
 	add(mouse_x);
 	add(mouse_y);
@@ -105,7 +105,7 @@ UI_InfoBar::UI_InfoBar(int X, int Y, int W, int H, const char *label) :
 	map_name = new Fl_Box(FL_FLAT_BOX, X, Y+4, 80, H-4, "");
 	map_name->align(FL_ALIGN_INSIDE | FL_ALIGN_LEFT);
 	map_name->label("MAP01");
-	map_name->labelsize(QF_F);
+	map_name->labelsize(KF_fonth);
 
 	add(map_name);
 

@@ -38,8 +38,8 @@
 
 
 
-int QF;
-int QF_F;
+int KF;
+int KF_fonth;
 
 
 int ScrMaxX;    // Maximum display X-coord of screen/window

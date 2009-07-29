@@ -35,8 +35,8 @@
 
 UI_MainWin *main_win;
 
-#define MAIN_WINDOW_W  (800-32+QF*60)
-#define MAIN_WINDOW_H  (600-98+QF*40)
+#define MAIN_WINDOW_W  (800-32+KF*60)
+#define MAIN_WINDOW_H  (600-98+KF*40)
 
 #define MAX_WINDOW_W  MAIN_WINDOW_W
 #define MAX_WINDOW_H  MAIN_WINDOW_H
@@ -68,12 +68,12 @@ UI_MainWin::UI_MainWin(const char *title) :
 	int cy = 0;
 	int ey = h();
 
-	int panel_W   = 260 + QF * 32;
-	int flattex_W = 180 + QF * 20;
+	int panel_W   = 260 + KF * 32;
+	int flattex_W = 180 + KF * 20;
 
 	/* ---- Menu bar ---- */
 	{
-		menu_bar = Menu_Create(0, 0, w() - panel_W, 28+QF*3);
+		menu_bar = Menu_Create(0, 0, w() - panel_W, 28+KF*3);
 		add(menu_bar);
 
 #ifndef MACOSX
@@ -82,7 +82,7 @@ UI_MainWin::UI_MainWin(const char *title) :
 	}
 
 
-	info_bar = new UI_InfoBar(0, ey - (28+QF*3), w(), 28+QF*3);
+	info_bar = new UI_InfoBar(0, ey - (28+KF*3), w(), 28+KF*3);
 	add(info_bar);
 
 	ey = ey - info_bar->h();

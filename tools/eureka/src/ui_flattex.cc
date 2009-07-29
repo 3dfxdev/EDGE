@@ -36,7 +36,7 @@ FlatTex_Choice::FlatTex_Choice(int X, int Y, int W, int H) :
 {
 	align(FL_ALIGN_INSIDE | FL_ALIGN_LEFT);
 	labelfont(FL_COURIER);
-	labelsize(QF_F);
+	labelsize(KF_fonth);
 	color(FL_DARK3, FL_DARK3);
 
 	// TODO
@@ -92,8 +92,8 @@ UI_FlatTexList::UI_FlatTexList(int X, int Y, int W, int H, const char *label) :
 ///---
 ///---	add(top);
 
-	title_lab = new Fl_Box(X, Y+10, W, 22+QF*4, "Texture List");
-	title_lab->labelsize(20+QF*4);
+	title_lab = new Fl_Box(X, Y+10, W, 22+KF*4, "Texture List");
+	title_lab->labelsize(20+KF*4);
 	add(title_lab);
 
 	mode = new Fl_Choice(X+50, Y+36, W-60, 24, "Mode:");
@@ -102,8 +102,8 @@ UI_FlatTexList::UI_FlatTexList(int X, int Y, int W, int H, const char *label) :
 	mode->add("Images|Names");
 	mode->value(0);
 //	mode->callback(mode_callback, this);
-	mode->labelsize(QF_F);
-	mode->textsize(QF_F);
+	mode->labelsize(KF_fonth);
+	mode->textsize(KF_fonth);
 
 	add(mode);
 
