@@ -28,7 +28,6 @@ LIBS=-lm -lz $(FLTK_LIBS)
 OBJS = \
 	editloop.o  \
 	editobj.o  \
-	editsave.o  \
 	e_basis.o   \
 	e_checks.o   \
 	e_linedef.o  \

@@ -348,83 +348,83 @@ void EditorKey(int is_key, bool is_shift)
 	}
 
 
-	/* [F2] save level into pwad, prompt for the file name
-	   every time but keep the same level name. */
-	else if (is_key == FL_F+2 && Registered)
-	{
-		if (! CheckStartingPos ())
-			goto cancel_save;
-		char *outfile;
-		const char *newlevelname;
-		if (levelname)
-			newlevelname = levelname;
-		else
-		{
-			newlevelname = SelectLevel (0);
-			if (! *newlevelname)
-				goto cancel_save;
-		}
-		outfile = GetWadFileName (newlevelname);
-		if (! outfile)
-			goto cancel_save;
-		SaveLevelData (outfile, newlevelname);
-		levelname = newlevelname;
-		// Sigh. Shouldn't have to do that. Level must die !
-		Level = FindMasterDir (MasterDir, levelname);
-cancel_save:
-		edit.RedrawMap = 1;
-	}
-
-	/* [F3] save level into pwad, prompt for the file name and
-	   level name. */
-	else if (is_key == FL_F+3 && Registered)
-	{
-		char *outfile;
-		const char *newlevelname;
-		MDirPtr newLevel, oldl, newl;
-
-		if (! CheckStartingPos ())
-			goto cancel_save_as;
-		newlevelname = SelectLevel (0);
-		if (! *newlevelname)
-			goto cancel_save_as;
-		if (! levelname || y_stricmp (newlevelname, levelname))
-		{
-			/* horrible but it works... */
-			// Horrible indeed -- AYM 1999-07-30
-			newLevel = FindMasterDir (MasterDir, newlevelname);
-			if (! newLevel)
-				nf_bug ("newLevel is NULL");  // Debatable ! -- AYM 2001-05-29
-			if (Level)  // If new level ("create" command), Level is NULL
-			{
-				oldl = Level;
-				newl = newLevel;
-				for (int m = 0; m < 11; m++)
-				{
-					newl->wadfile = oldl->wadfile;
-					if (m > 0)
-						newl->dir = oldl->dir;
-					/*
-					   if (!fncmp (outfile, oldl->wadfile->filename))
-					   {
-					   oldl->wadfile = WadFileList;
-					   oldl->dir = lost...
-					   }
-					   */
-					oldl = oldl->next;
-					newl = newl->next;
-				}
-			}
-			Level = newLevel;
-		}
-		outfile = GetWadFileName (newlevelname);
-		if (! outfile)
-			goto cancel_save_as;
-		SaveLevelData (outfile, newlevelname);
-		levelname = newlevelname;
-cancel_save_as:
-		edit.RedrawMap = 1;
-	}
+///---	/* [F2] save level into pwad, prompt for the file name
+///---	   every time but keep the same level name. */
+///---	else if (is_key == FL_F+2 && Registered)
+///---	{
+///---		if (! CheckStartingPos ())
+///---			goto cancel_save;
+///---		char *outfile;
+///---		const char *newlevelname;
+///---		if (levelname)
+///---			newlevelname = levelname;
+///---		else
+///---		{
+///---			newlevelname = SelectLevel (0);
+///---			if (! *newlevelname)
+///---				goto cancel_save;
+///---		}
+///---		outfile = GetWadFileName (newlevelname);
+///---		if (! outfile)
+///---			goto cancel_save;
+///---		SaveLevelData (outfile, newlevelname);
+///---		levelname = newlevelname;
+///---		// Sigh. Shouldn't have to do that. Level must die !
+///---		Level = FindMasterDir (MasterDir, levelname);
+///---cancel_save:
+///---		edit.RedrawMap = 1;
+///---	}
+///---
+///---	/* [F3] save level into pwad, prompt for the file name and
+///---	   level name. */
+///---	else if (is_key == FL_F+3 && Registered)
+///---	{
+///---		char *outfile;
+///---		const char *newlevelname;
+///---		MDirPtr newLevel, oldl, newl;
+///---
+///---		if (! CheckStartingPos ())
+///---			goto cancel_save_as;
+///---		newlevelname = SelectLevel (0);
+///---		if (! *newlevelname)
+///---			goto cancel_save_as;
+///---		if (! levelname || y_stricmp (newlevelname, levelname))
+///---		{
+///---			/* horrible but it works... */
+///---			// Horrible indeed -- AYM 1999-07-30
+///---			newLevel = FindMasterDir (MasterDir, newlevelname);
+///---			if (! newLevel)
+///---				nf_bug ("newLevel is NULL");  // Debatable ! -- AYM 2001-05-29
+///---			if (Level)  // If new level ("create" command), Level is NULL
+///---			{
+///---				oldl = Level;
+///---				newl = newLevel;
+///---				for (int m = 0; m < 11; m++)
+///---				{
+///---					newl->wadfile = oldl->wadfile;
+///---					if (m > 0)
+///---						newl->dir = oldl->dir;
+///---					/*
+///---					   if (!fncmp (outfile, oldl->wadfile->filename))
+///---					   {
+///---					   oldl->wadfile = WadFileList;
+///---					   oldl->dir = lost...
+///---					   }
+///---					   */
+///---					oldl = oldl->next;
+///---					newl = newl->next;
+///---				}
+///---			}
+///---			Level = newLevel;
+///---		}
+///---		outfile = GetWadFileName (newlevelname);
+///---		if (! outfile)
+///---			goto cancel_save_as;
+///---		SaveLevelData (outfile, newlevelname);
+///---		levelname = newlevelname;
+///---cancel_save_as:
+///---		edit.RedrawMap = 1;
+///---	}
 
 #if 0 //!!!
 	// [F5]: pop up the "Preferences" menu
