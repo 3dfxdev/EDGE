@@ -54,7 +54,7 @@ bool Lump_c::Seek(int offset)
 	return (fseek(parent->fp, l_start + offset, SEEK_SET) == 0);
 }
 
-bool Lump_c::Read(byte *data, int len)
+bool Lump_c::Read(void *data, int len)
 {
 	SYS_ASSERT(data && len > 0);
 
@@ -131,7 +131,7 @@ Lump_c * Wad_file::FindLump(const char *name)
 }
 
 
-Lump_c * Wad_file::FindLumpInLevel(short level, const char *name)
+Lump_c * Wad_file::FindLumpInLevel(const char *name, short level)
 {
 	SYS_ASSERT(0 <= level && level < (short)levels.size());
 

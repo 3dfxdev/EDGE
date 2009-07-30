@@ -68,6 +68,7 @@ OBJS = \
 	ui_thing.o  \
 	ui_vertex.o  \
 	ui_window.o  \
+	w_wad.o   \
 	w_file.o  \
 	w_io.o  \
 	w_list.o  \

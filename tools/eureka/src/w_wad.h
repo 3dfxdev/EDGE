@@ -57,7 +57,7 @@ public:
 	bool Seek(int offset = 0);
 
 	// read some data from the lump, returning true if OK.
-	bool Read(byte *data, int len);
+	bool Read(void *data, int len);
 
 private:
 	// deliberately don't implement these
@@ -103,7 +103,7 @@ public:
 
 	Lump_c * GetLump(short index);
 	Lump_c * FindLump(const char *name);
-	Lump_c * FindLumpInLevel(short level, const char *name);
+	Lump_c * FindLumpInLevel(const char *name, short level);
 
 	short FindLevel(const char *name);
 
