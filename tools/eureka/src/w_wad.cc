@@ -109,6 +109,7 @@ Wad_file * Wad_file::Open(const char *filename)
 
 	w->ReadDirectory();
 	w->DetectLevels();
+	w->ProcessNamespaces();
 
 	return w;
 }
@@ -221,7 +222,7 @@ void Wad_file::ReadDirectory()
 
 	if (fseek(fp, dir_start, SEEK_SET) != 0)
 		FatalError("Error seeking to WAD directory.\n");
-	
+
 	for (int i = 0; i < dir_count; i++)
 	{
 		raw_wad_entry_t entry;
@@ -237,8 +238,6 @@ void Wad_file::ReadDirectory()
 		// TODO: check if entry is valid
 
 		directory.push_back(lump);
-
-		// FIXME: handle the namespaces (S_START..S_END etc)
 	}
 
 	dir_crc = checksum.raw;
@@ -293,6 +292,117 @@ void Wad_file::DetectLevels()
 			DebugPrintf("Detected level : %s\n", directory[k]->name);
 		}
 	}
+}
+
+
+static bool IsDummyMarker(const char *name)
+{
+	// matches P1_START, F3_END etc...
+
+	if (strlen(name) < 3)
+		return false;
+
+	if (! strchr("PSF", toupper(name[0])))
+		return false;
+	
+	if (! isdigit(name[1]))
+		return false;
+
+	if (y_stricmp(name+2, "_START") == 0 ||
+	    y_stricmp(name+2, "_END") == 0)
+		return true;
+
+	return false;
+}
+
+void Wad_file::ProcessNamespaces()
+{
+	char active = 0;
+
+	for (int k = 0; k < NumLumps(); k++)
+	{
+		const char *name = directory[k]->name;
+
+		// skip the sub-namespace markers
+		if (IsDummyMarker(name))
+			continue;
+
+		if (y_stricmp(name, "P_START") == 0 || y_stricmp(name, "PP_START") == 0)
+		{
+			if (active && active != 'P')
+				LogPrintf("WARNING: missing %c_END marker.\n", active);
+			
+			active = 'P';
+			continue;
+		}
+		else if (y_stricmp(name, "P_END") == 0 || y_stricmp(name, "PP_END") == 0)
+		{
+			if (active != 'P')
+				LogPrintf("WARNING: stray P_END marker found.\n");
+			
+			active = 0;
+			continue;
+		}
+
+		if (y_stricmp(name, "S_START") == 0 || y_stricmp(name, "SS_START") == 0)
+		{
+			if (active && active != 'S')
+				LogPrintf("WARNING: missing %c_END marker.\n", active);
+			
+			active = 'S';
+			continue;
+		}
+		else if (y_stricmp(name, "S_END") == 0 || y_stricmp(name, "SS_END") == 0)
+		{
+			if (active != 'S')
+				LogPrintf("WARNING: stray S_END marker found.\n");
+			
+			active = 0;
+			continue;
+		}
+
+		if (y_stricmp(name, "F_START") == 0 || y_stricmp(name, "FF_START") == 0)
+		{
+			if (active && active != 'F')
+				LogPrintf("WARNING: missing %c_END marker.\n", active);
+			
+			active = 'F';
+			continue;
+		}
+		else if (y_stricmp(name, "F_END") == 0 || y_stricmp(name, "FF_END") == 0)
+		{
+			if (active != 'F')
+				LogPrintf("WARNING: stray F_END marker found.\n");
+			
+			active = 0;
+			continue;
+		}
+
+		if (active)
+		{
+			if (directory[k]->Length() == 0)
+			{
+				LogPrintf("WARNING: skipping empty lump %s in %c_START\n",
+						  name, active);
+				continue;
+			}
+
+//			DebugPrintf("Namespace %c lump : %s\n", active, name);
+
+			switch (active)
+			{
+				case 'P': patches.push_back(k); break;
+				case 'S': sprites.push_back(k); break;
+				case 'F': flats.  push_back(k); break;
+
+				default:
+					BugError("ProcessNamespaces: active = 0x%02x\n", (int)active);
+			}
+		}
+	}
+
+	if (active)
+		LogPrintf("WARNING: Missing %c_END marker (at EOF)\n", active);
 }
 
 
