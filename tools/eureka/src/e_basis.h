@@ -221,46 +221,46 @@ extern std::vector<RadTrig *> RadTrigs;
 
 /* BASIS API */
 
-void BA_Begin();
 // begin a group of operations that will become a single undo/redo
 // step.  All stored _redo_ steps will be removed.  The BA_New,
 // BA_Delete and BA_Change calls must only be called between
 // BA_Begin() and BA_End() pairs.
+void BA_Begin();
 
-void BA_End();
 // finish a group of operations.
+void BA_End();
 
-int BA_New(obj_type_t type);
 // returns the new objnum
+int BA_New(obj_type_t type);
 
-void BA_Delete(obj_type_t type, int objnum);
 // deletes the given object, and in certain cases other types of
 // objects bound to it (e.g. deleting a vertex will cause all
 // bound linedefs to also be deleted).
+void BA_Delete(obj_type_t type, int objnum);
 
-bool BA_Change(obj_type_t type, int objnum, byte field, int value);
 // change a field of an existing object.  If the value was the
 // same as before, nothing happens and false is returned.
 // Otherwise returns true.
+bool BA_Change(obj_type_t type, int objnum, byte field, int value);
 
-bool BA_Undo();
 // attempt to undo the last normal or redo operation.  Returns
 // false if the undo history is empty.
+bool BA_Undo();
 
-bool BA_Redo();
 // attempt to re-do the last undo operation.  Returns false if
 // there is no stored redo steps.
+bool BA_Redo();
 
-int BA_InternaliseString(const char *str);
-int BA_InternaliseShortStr(const char *str, int max_len);
 // add this string to the basis string table (if it doesn't
 // already exist) and return its integer offset.
+int BA_InternaliseString(const char *str);
+int BA_InternaliseShortStr(const char *str, int max_len);
 
-const char *BA_GetString(int offset);
 // get the string from the basis string table.
+const char *BA_GetString(int offset);
 
-void BA_ClearAll();
 // clear everything (before loading a new level).
+void BA_ClearAll();
 
 
 /* HELPERS */
