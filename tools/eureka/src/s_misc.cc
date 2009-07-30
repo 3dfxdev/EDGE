@@ -26,7 +26,6 @@
 
 #include "main.h"
 
-#include <math.h>
 #include <map>
 
 #include "r_misc.h"

@@ -47,6 +47,7 @@
 #include <ctype.h>
 #include <limits.h>
 #include <errno.h>
+#include <math.h>
 
 #if defined Y_UNIX
 #include <unistd.h>

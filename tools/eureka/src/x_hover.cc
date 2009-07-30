@@ -25,8 +25,7 @@
 //------------------------------------------------------------------------
 
 #include "main.h"
-#include <math.h>
-#include <vector>
+
 #include <algorithm>
 
 #include "r_grid.h"

@@ -26,8 +26,6 @@
 
 #include "main.h"
 
-#include <math.h>
-
 #include "m_dialog.h"
 #include "r_grid.h"
 #include "levels.h"

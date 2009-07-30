@@ -28,7 +28,6 @@
 
 // #include "m_game.h"
 
-#include <math.h>
 #include <sys/time.h>
 #include <time.h>
 

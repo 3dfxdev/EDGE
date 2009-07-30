@@ -26,8 +26,6 @@
 
 #include "main.h"
 
-#include <math.h>
-
 #include "im_color.h"
 #include "r_misc.h"
 #include "r_grid.h"

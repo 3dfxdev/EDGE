@@ -37,8 +37,6 @@
 #include "objects.h"
 #include "w_structs.h"
 
-#include <math.h>
-
 
 /*
    get the absolute height from which the textures are drawn
