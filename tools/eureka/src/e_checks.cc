@@ -198,11 +198,11 @@ bool CheckFailed (int x0, int y0, char *prompt1, char *prompt2, bool fatal,
 		Beep ();
 	set_colour (WHITE);
 	DrawScreenText (text_x0, cur_y += FONTH, prompt1);
-	LogMessage ("\t%s\n", prompt1);
+	LogPrintf("\t%s\n", prompt1);
 	if (prompt2)
 	{
 		DrawScreenText (text_x0, cur_y += FONTH, prompt2);
-		LogMessage ("\t%s\n", prompt2);
+		LogPrintf("\t%s\n", prompt2);
 	}
 	if (fatal)
 	{
@@ -211,7 +211,7 @@ bool CheckFailed (int x0, int y0, char *prompt1, char *prompt2, bool fatal,
 		set_colour (WINTITLE);
 		DrawScreenText (text_x0, cur_y += FONTH,
 				"Press any key to see the object");
-		LogMessage ("\n");
+		LogPrintf("\n");
 	}
 	else
 	{
@@ -247,7 +247,7 @@ void CheckSectors ()
 	bool       first_time = true;
 
 	CheckingObjects ();
-	LogMessage ("\nVerifying Sectors...\n");
+	LogPrintf("\nVerifying Sectors...\n");
 
 	ends = (char *) GetMemory (NumVertices);
 	for (s = 0; s < NumSectors; s++)
@@ -391,7 +391,7 @@ void CheckCrossReferences ()
 	bool   first_time = true;
 
 	CheckingObjects ();
-	LogMessage ("\nVerifying cross-references...\n");
+	LogPrintf("\nVerifying cross-references...\n");
 
 	for (n = 0; n < NumLineDefs; n++)
 	{
@@ -462,7 +462,7 @@ void CheckCrossReferences ()
 					"Do you want to set the 'Impassible' flag?")))
 		while (cur)
 		{
-			LogMessage  ("Check: 1-sided linedef without I flag: %d", cur->objnum);
+			LogPrintf("Check: 1-sided linedef without I flag: %d", cur->objnum);
 			LineDefs[cur->objnum].flags |= 0x01;
 			UnSelectObject (&cur, cur->objnum);
 		}
@@ -481,7 +481,7 @@ void CheckCrossReferences ()
 	{
 		while (cur)
 		{
-			LogMessage  ("Check: 1-sided linedef with 2s bit: %d", cur->objnum);
+			LogPrintf("Check: 1-sided linedef with 2s bit: %d", cur->objnum);
 			LineDefs[cur->objnum].flags &= ~0x04;
 			UnSelectObject (&cur, cur->objnum);
 		}
@@ -604,7 +604,7 @@ void CheckTextures ()
 	bool first_time = true;
 
 	CheckingObjects ();
-	LogMessage ("\nVerifying textures...\n");
+	LogPrintf("\nVerifying textures...\n");
 
 	for (n = 0; n < NumSectors; n++)
 	{
@@ -788,7 +788,7 @@ void CheckTextureNames ()
 	bool first_time = true;
 
 	CheckingObjects ();
-	LogMessage ("\nVerifying texture names...\n");
+	LogPrintf("\nVerifying texture names...\n");
 
 	// AYM 2000-07-24: could someone explain this one ?
 	if (! FindMasterDir (MasterDir, "F2_START"))

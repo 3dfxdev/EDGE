@@ -53,7 +53,7 @@ OBJS = \
 	selectn.o  \
 	selpath.o  \
 	s_misc.o  \
-	sys_assert.o \
+	sys_debug.o \
 	ui_canvas.o  \
 	ui_flattex.o  \
 	ui_infobar.o  \
