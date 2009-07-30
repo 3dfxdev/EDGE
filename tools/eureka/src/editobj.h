@@ -35,6 +35,9 @@ void EditObjectsInfo (int, int, int, SelPtr);
 void InsertStandardObject (int, int, int choice);
 void MiscOperations (int, SelPtr *, int choice);
 
+void TransferLinedefProperties (int src_linedef, SelPtr linedefs);
+void TransferSectorProperties (int src_sector, SelPtr sectors);
+void TransferThingProperties (int src_thing, SelPtr things);
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

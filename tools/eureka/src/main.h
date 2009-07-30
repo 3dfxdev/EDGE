@@ -65,10 +65,13 @@
 /*
  *  Platform-independant types and formats.
  */
+void FatalError(const char *fmt, ...);
+void BugError(const char *fmt, ...);
+
 #include "sys_type.h"
 #include "sys_macro.h"
 #include "sys_endian.h"
-#include "sys_assert.h"
+#include "sys_debug.h"
 
 
 typedef int  SelPtr;   // TEMPORARY FIXME
@@ -182,7 +185,6 @@ const int YO_XOR    = 'x';  // Argument = mask
  *  Even more stuff ("the macros and constants")
  */
 
-extern const char *const log_file;
 extern const char *const msg_unexpected;  // "unexpected error"
 extern const char *const msg_nomem;       // "Not enough memory"
 
@@ -205,7 +207,6 @@ extern char error_invalid[1];     // Invalid parameter
  *  Interfile global variables
  */
 
-extern FILE *logfile;     // Filepointer to the error log
 extern bool  Registered;    // Registered or shareware iwad ?
 extern int remind_to_build_nodes; // Remind the user to build nodes
 
@@ -299,8 +300,6 @@ void SplitLineDefs (SelPtr);
 void MakeRectangularNook (SelPtr obj, int width, int depth, int convex);
 void SetLinedefLength (SelPtr obj, int length, int move_2nd_vertex);
 
-// l_prop.cc (previously in editobj.cc)
-void TransferLinedefProperties (int src_linedef, SelPtr linedefs);
 
 // l_unlink.cc
 void unlink_sidedef (SelPtr linedefs, int side1, int side2);
@@ -332,17 +331,12 @@ void RaiseOrLowerSectors (SelPtr obj);
 void BrightenOrDarkenSectors (SelPtr obj);
 void SuperSectorSelector (int map_x, int map_y, int new_sec);
 
-// s_prop.cc (previously in editobj.cc)
-void TransferSectorProperties (int src_sector, SelPtr sectors);
 
 // s_split.cc (previously in objects.cc)
 void SplitSector (int, int);
 void SplitLineDefsAndSector (int, int);
 void MultiSplitLineDefsAndSector (int, int);
 
-// selrect.cc
-// t_prop.c (previously in editobj.c)
-void TransferThingProperties (int src_thing, SelPtr things);
 
 // v_merge.cc
 void DeleteVerticesJoinLineDefs (SelPtr );
@@ -363,16 +357,13 @@ void warn (const char *fmt, ...);
 
 // yadex.cc
 void Beep (void);
-void LogMessage (const char *, ...);
 
 // OTHER
 
 int vertex_radius (double scale);
 
 
-void FatalError (const char *fmt, ...);
 void err (const char *fmt, ...);
-void nf_bug (const char *fmt, ...);
 
 
 #endif  /* DO NOT ADD ANYTHING AFTER THIS LINE */

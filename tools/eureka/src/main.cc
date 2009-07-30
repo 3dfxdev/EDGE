@@ -51,7 +51,6 @@ extern int LoadLevel(const char *levelname);
 /*
  *  Constants (declared in main.h)
  */
-const char *const log_file       = "eureka.log";
 const char *const msg_unexpected = "unexpected error";
 const char *const msg_nomem      = "Not enough memory";
 
@@ -68,7 +67,6 @@ char error_invalid[1];     // Invalid parameter
 /*
  *  Global variables
  */
-FILE *      logfile     = NULL;   // Filepointer to the error log
 bool        Registered  = false;  // Registered or shareware game?
 int         remind_to_build_nodes = 0;  // Remind user to build nodes
 
@@ -201,20 +199,11 @@ void warn (const char *fmt, ...)
  */
 void FatalError(const char *fmt, ...)
 {
-	// With BGI, we have to switch back to text mode
-	// before printing the error message so do it now...
-
 	va_list args;
 	va_start (args, fmt);
 	print_error_message (fmt, args);
 
-	// ... on the other hand, with X, we don't have to
-	// call TermGfx() before printing so we do it last so
-	// that a segfault occuring in TermGfx() does not
-	// prevent us from seeing the stderr message.
-
-	TermFLTK ();  // Don't need to sleep (1) either.
-
+	TermFLTK ();
 
 	// Clean up things and free swap space
 	ForgetLevelData ();
@@ -222,6 +211,23 @@ void FatalError(const char *fmt, ...)
 	ForgetFTextureNames ();
 	CloseWadFiles ();
 	exit (2);
+}
+
+
+void BugError(const char *fmt, ...)
+{
+	va_list args;
+	va_start (args, fmt);
+	print_error_message (fmt, args);  // FUCKEN FIXME QUICK
+
+	TermFLTK ();
+
+	// Clean up things and free swap space
+	ForgetLevelData ();
+	ForgetWTextureNames ();
+	ForgetFTextureNames ();
+	CloseWadFiles ();
+	exit (9);
 }
 
 
@@ -249,13 +255,6 @@ static void print_error_message (const char *fmt, va_list args)
 	vfprintf (stderr, fmt, args);
 	fputc ('\n', stderr);
 	fflush (stderr);
-	if (Debug && logfile != NULL)
-	{
-		fputs ("Error: ", logfile);
-		vfprintf (logfile, fmt, args);
-		fputc ('\n', logfile);
-		fflush (logfile);
-	}
 }
 
 
@@ -305,33 +304,6 @@ void nf_bug (const char *fmt, ...)
 			repeats = 0;
 		}
 	}
-}
-
-
-/*
-   write a message in the log file
-*/
-
-void LogMessage (const char *logstr, ...)
-{
-  va_list  args;
-  time_t   tval;
-  char    *tstr;
-
-  if (Debug && logfile != NULL)
-  {
-    va_start (args, logstr);
-    /* if the message begins with ":", output the current date & time first */
-    if (logstr[0] == ':')
-    {
-      time (&tval);
-      tstr = ctime (&tval);
-      tstr[strlen (tstr) - 1] = '\0';
-      fprintf (logfile, "%s", tstr);
-    }
-    vfprintf (logfile, logstr, args);
-    fflush (logfile);  /* AYM 19971031 */
-  }
 }
 
 
@@ -514,11 +486,11 @@ void EditLevel (const char *levelname, bool newlevel)
         }
     }
 
-    LogMessage (": Editing %s...\n", levelname ? levelname : "new level");
+    LogPrintf(": Editing %s...\n", levelname ? levelname : "new level");
 
 	EditorLoop (levelname);
 
-	LogMessage (": Finished editing %s...\n", levelname ? levelname : "new level");
+	LogPrintf(": Finished editing %s...\n", levelname ? levelname : "new level");
 
 	if (Level && Level->wadfile)
 	{
@@ -540,8 +512,10 @@ done :
 
 
 
-int main (int argc, char *argv[])
+int main(int argc, char *argv[])
 {
+	LogInit("LOG.txt");
+
 	int r;
 
 	// First detect manually --help and --version
@@ -701,12 +675,7 @@ int main (int argc, char *argv[])
 				"\"strife10\".\n");
 		exit (1);
 	}
-	if (Debug)
-	{
-		logfile = fopen (log_file, "a");
-		if (logfile == NULL)
-			warn ("can't open log file \"%s\" (%s)", log_file, strerror (errno));
-	}
+
 	if (Quieter)
 		Quiet = true;
 
@@ -746,15 +715,15 @@ int main (int argc, char *argv[])
 	/* that's all, folks! */
 	CloseWadFiles();
 	FreeGameDefs();
-	LogMessage(": The end!\n\n\n");
 
-	if (logfile != NULL)
-		fclose (logfile);
 	if (remind_to_build_nodes)
 		printf ("\n"
 				"** You have made changes to one or more wads. Don't forget to pass\n"
 				"** them through a nodes builder (E.G. BSP) before running them.\n"
 				"** Like this: \"ybsp foo.wad -o tmp.wad; doom -file tmp.wad\"\n\n");
+
+	LogClose();
+
 	return 0;
 }
 
