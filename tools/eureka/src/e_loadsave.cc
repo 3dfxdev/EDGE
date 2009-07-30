@@ -33,26 +33,23 @@
 #include "levels.h"  // update_level_bounds()
 #include "w_rawdef.h"
 #include "w_structs.h"
-#include "w_file.h"
-#include "w_io.h"
-#include "w_wads.h"
+
+#include "w_wad.h"
 
 
 MDirPtr Level;      /* master dictionary entry for the level */
 
 
-static void LoadVertices()
+static void LoadVertices(short lev_idx)
 {
-	MDirPtr dir = FindMasterDir(Level, "VERTEXES");
-	if (dir == 0)
+	Lump_c *lump = editing_wad->FindLumpInLevel("VERTEXES", lev_idx);
+	if (! lump)
 		FatalError("No vertex lump!\n");
 
-	const Wad_file *wf = dir->wadfile;
-	wf->seek(dir->dir.start);
-	if (wf->error ())
+	if (! lump->Seek())
 		FatalError("Error seeking to vertex lump!\n");
 
-	int count = (int)dir->dir.size / sizeof(raw_vertex_t);
+	int count = lump->Length() / sizeof(raw_vertex_t);
 
 # if DEBUG_LOAD
 	PrintDebug("GetVertices: num = %d\n", count);
@@ -67,8 +64,7 @@ static void LoadVertices()
 	{
 		raw_vertex_t raw;
 
-		wf->read_bytes(&raw, sizeof(raw));
-		if (wf->error())
+		if (! lump->Read(&raw, sizeof(raw)))
 			FatalError("Error reading vertices.\n");
 
 		Vertex *vert = new Vertex;
@@ -81,18 +77,16 @@ static void LoadVertices()
 }
 
 
-static void LoadSectors()
+static void LoadSectors(short lev_idx)
 {
-	MDirPtr dir = FindMasterDir(Level, "SECTORS");
-	if (dir == 0)
+	Lump_c *lump = editing_wad->FindLumpInLevel("SECTORS", lev_idx);
+	if (! lump)
 		FatalError("No sector lump!\n");
 
-	const Wad_file *wf = dir->wadfile;
-	wf->seek(dir->dir.start);
-	if (wf->error ())
+	if (! lump->Seek())
 		FatalError("Error seeking to sector lump!\n");
 
-	int count = (int)dir->dir.size / sizeof(raw_sector_t);
+	int count = lump->Length() / sizeof(raw_sector_t);
 
 # if DEBUG_LOAD
 	PrintDebug("GetSectors: num = %d\n", count);
@@ -107,8 +101,7 @@ static void LoadSectors()
 	{
 		raw_sector_t raw;
 
-		wf->read_bytes(&raw, sizeof(raw));
-		if (wf->error())
+		if (! lump->Read(&raw, sizeof(raw)))
 			FatalError("Error reading sectors.\n");
 
 		Sector *sec = new Sector;
@@ -128,18 +121,16 @@ static void LoadSectors()
 }
 
 
-static void LoadThings(void)
+static void LoadThings(short lev_idx)
 {
-	MDirPtr dir = FindMasterDir(Level, "THINGS");
-	if (dir == 0)
+	Lump_c *lump = editing_wad->FindLumpInLevel("THINGS", lev_idx);
+	if (! lump)
 		FatalError("No things lump!\n");
 
-	const Wad_file *wf = dir->wadfile;
-	wf->seek(dir->dir.start);
-	if (wf->error ())
+	if (! lump->Seek())
 		FatalError("Error seeking to things lump!\n");
 
-	int count = dir->dir.size / sizeof(raw_thing_t);
+	int count = lump->Length() / sizeof(raw_thing_t);
 
 # if DEBUG_LOAD
 	PrintDebug("GetThings: num = %d\n", count);
@@ -157,8 +148,7 @@ static void LoadThings(void)
 	{
 		raw_thing_t raw;
 
-		wf->read_bytes(&raw, sizeof(raw));
-		if (wf->error())
+		if (! lump->Read(&raw, sizeof(raw)))
 			FatalError("Error reading things.\n");
 
 		Thing *th = new Thing;
@@ -175,18 +165,16 @@ static void LoadThings(void)
 }
 
 
-static void LoadSideDefs()
+static void LoadSideDefs(short lev_idx)
 {
-	MDirPtr dir = FindMasterDir(Level, "SIDEDEFS");
-	if (dir == 0)
+	Lump_c *lump = editing_wad->FindLumpInLevel("SIDEDEFS", lev_idx);
+	if (! lump)
 		FatalError("No sidedefs lump!\n");
 
-	const Wad_file *wf = dir->wadfile;
-	wf->seek(dir->dir.start);
-	if (wf->error ())
+	if (! lump->Seek())
 		FatalError("Error seeking to sidedefs lump!\n");
 
-	int count = dir->dir.size / sizeof(raw_sidedef_t);
+	int count = lump->Length() / sizeof(raw_sidedef_t);
 
 # if DEBUG_LOAD
 	PrintDebug("GetSidedefs: num = %d\n", count);
@@ -199,8 +187,7 @@ static void LoadSideDefs()
 	{
 		raw_sidedef_t raw;
 
-		wf->read_bytes(&raw, sizeof(raw));
-		if (wf->error())
+		if (! lump->Read(&raw, sizeof(raw)))
 			FatalError("Error reading sidedefs.\n");
 
 		SideDef *sd = new SideDef;
@@ -222,18 +209,16 @@ static void LoadSideDefs()
 }
 
 
-static void LoadLineDefs()
+static void LoadLineDefs(short lev_idx)
 {
-	MDirPtr dir = FindMasterDir(Level, "LINEDEFS");
-	if (dir == 0)
+	Lump_c *lump = editing_wad->FindLumpInLevel("LINEDEFS", lev_idx);
+	if (! lump)
 		FatalError("No linedefs lump!\n");
 
-	const Wad_file *wf = dir->wadfile;
-	wf->seek(dir->dir.start);
-	if (wf->error ())
+	if (! lump->Seek())
 		FatalError("Error seeking to linedefs lump!\n");
 
-	int count = dir->dir.size / sizeof(raw_linedef_t);
+	int count = lump->Length() / sizeof(raw_linedef_t);
 
 # if DEBUG_LOAD
 	PrintDebug("GetLinedefs: num = %d\n", count);
@@ -246,9 +231,8 @@ static void LoadLineDefs()
 	{
 		raw_linedef_t raw;
 
-		wf->read_bytes(&raw, sizeof(raw));
-		if (wf->error())
-			FatalError("Error reading sidedefs.\n");
+		if (! lump->Read(&raw, sizeof(raw)))
+			FatalError("Error reading linedefs.\n");
 
 		LineDef *ld = new LineDef;
 
@@ -319,6 +303,14 @@ static void RemoveUnusedVertices()
 
 int LoadLevel(const char *levelname)
 {
+Wad_file *F = Wad_file::Open("doom2.wad");
+SYS_ASSERT(F);
+
+master_dir.push_back(F);
+
+short lev_idx = WAD_FindEditLevel(levelname);
+SYS_ASSERT(lev_idx >= 0);
+
 	LogPrintf("Loading level: %s\n", levelname);
 
 	/* Find the various level information from the master directory */
@@ -329,11 +321,11 @@ int LoadLevel(const char *levelname)
 
 	BA_ClearAll();
 
-	LoadVertices();
-	LoadThings();
-	LoadSectors();
-	LoadSideDefs();
-	LoadLineDefs();
+	LoadVertices(lev_idx);
+	LoadThings(lev_idx);
+	LoadSectors(lev_idx);
+	LoadSideDefs(lev_idx);
+	LoadLineDefs(lev_idx);
 
 	// Node builders will create a lot of new vertices for segs.
 	// However these would just get in the way for editing, so
