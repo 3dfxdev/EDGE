@@ -74,6 +74,8 @@ friend class Lump_c;
 private:
 	FILE * fp;
 
+	int total_size;
+
 	std::vector< Lump_c* > directory;
 
 	int dir_start;
