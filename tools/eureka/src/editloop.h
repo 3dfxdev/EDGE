@@ -72,7 +72,7 @@ extern Editor_State_c edit;
 
 
 void EditorLoop (const char *);
-const char *SelectLevel (int levelno);
+
 extern int InputSectorType(int x0, int y0, int *number);
 extern int InputLinedefType(int x0, int y0, int *number);
 extern int InputThingType(int x0, int y0, int *number);
