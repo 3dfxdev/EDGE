@@ -295,7 +295,7 @@ static void RawInsert(obj_type_t objtype, int objnum, int *ptr)
 			break;
 
 		default:
-			nf_bug ("RawInsert: bad objtype %d", (int) objtype);
+			BugError("RawInsert: bad objtype %d", (int) objtype);
 	}
 }
 
@@ -438,7 +438,7 @@ static int * RawDelete(obj_type_t objtype, int objnum)
 			return RawDeleteRadTrig(objnum);
 
 		default:
-			nf_bug ("RawDelete: bad objtype %d", (int) objtype);
+			BugError("RawDelete: bad objtype %d", (int) objtype);
 			return NULL; /* NOT REACHED */
 	}
 }
@@ -467,7 +467,7 @@ static int * RawGetBase(obj_type_t objtype, int objnum)
 			return (int*) RadTrigs[objnum];
 
 		default:
-			nf_bug ("RawGetBase: bad objtype %d", (int) objtype);
+			BugError("RawGetBase: bad objtype %d", (int) objtype);
 			return NULL; /* NOT REACHED */
 	}
 }
@@ -484,7 +484,7 @@ static void DeleteFinally(obj_type_t objtype, int *ptr)
 		case OBJ_RADTRIGS: delete (RadTrig *) ptr; break;
 
 		default:
-			nf_bug ("DeleteFinally: bad objtype %d", (int) objtype);
+			BugError("DeleteFinally: bad objtype %d", (int) objtype);
 	}
 }
 
@@ -555,7 +555,7 @@ public:
 				return;
 
 			default:
-				nf_bug("edit_op_c::Apply");
+				BugError("edit_op_c::Apply");
 		}
 	}
 };
@@ -629,7 +629,7 @@ static void ClearRedoFuture()
 void BA_Begin()
 {
 	if (cur_group)
-		nf_bug("BA_Begin called twice without BA_End\n");
+		BugError("BA_Begin called twice without BA_End\n");
 
 	ClearRedoFuture();
 
@@ -639,7 +639,7 @@ void BA_Begin()
 void BA_End()
 {
 	if (! cur_group)
-		nf_bug("BA_End called without a previous BA_Begin\n");
+		BugError("BA_End called without a previous BA_Begin\n");
 
 	cur_group->End();
 
@@ -688,7 +688,7 @@ int BA_New(obj_type_t type)
 			op.ptr = (int*) new RadTrig;
 			break;
 
-		default: nf_bug("BA_New");
+		default: BugError("BA_New");
 	}
 
 	SYS_ASSERT(cur_group);

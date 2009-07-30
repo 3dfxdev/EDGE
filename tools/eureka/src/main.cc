@@ -258,55 +258,6 @@ static void print_error_message (const char *fmt, va_list args)
 }
 
 
-/*
- *  nf_bug
- *  Report about a non-fatal bug to stderr. The message
- *  should not expand to more than 80 characters.
- */
-void nf_bug (const char *fmt, ...)
-{
-	static bool first_time = 1;
-	static int repeats = 0;
-	static char msg_prev[81];
-	char msg[81];
-
-	va_list args;
-	va_start (args, fmt);
-	y_vsnprintf (msg, sizeof msg, fmt, args);
-	if (first_time || strncmp (msg, msg_prev, sizeof msg))
-	{
-		fflush (stdout);
-		if (repeats)
-		{
-			fprintf (stderr, "Bug: Previous message repeated %d times\n",
-					repeats);
-			repeats = 0;
-		}
-
-		fprintf (stderr, "Bug: %s\n", msg);
-		fflush (stderr);
-		if (first_time)
-		{
-			fputs ("REPORT ALL \"Bug:\" MESSAGES TO THE MAINTAINER !\n", stderr);
-			first_time = 0;
-		}
-		strncpy (msg_prev, msg, sizeof msg_prev);
-	}
-	else
-	{
-		repeats++;  // Same message as above
-		if (repeats == 10)
-		{
-			fflush (stdout);
-			fprintf (stderr, "Bug: Previous message repeated %d times\n",
-					repeats);
-			fflush (stderr);
-			repeats = 0;
-		}
-	}
-}
-
-
 int InitFLTK(void)  // returns 0 on success
 {
 	game_colour = alloc_game_colours (0);

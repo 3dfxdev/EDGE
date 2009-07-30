@@ -294,7 +294,7 @@ Img * Img::spectrify() const
 		grey = 8;
 	else
 	{
-		nf_bug ("spectrifying not defined with this game");
+		BugError("spectrifying not defined with this game");
 	}
 
 	img_dim_t W = width();

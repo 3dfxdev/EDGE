@@ -426,7 +426,7 @@ void frob_things_flags (SelPtr list, int op, int operand)
 			Things[cur->objnum]->options ^= mask;
 		else
 		{
-			nf_bug ("frob_things_flags: op=%02X", op);
+			BugError("frob_things_flags: op=%02X", op);
 			return;
 		}
 	}
