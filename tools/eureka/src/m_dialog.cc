@@ -186,19 +186,5 @@ void NotImplemented (void)
 }
 
 
-/*
- *  verbmsg
- *  Like printf() but does nothing unlike <verbose> is set.
- */
-void verbmsg (const char *fmt, ...)
-{
-	va_list args;
-
-	if (! verbose)
-		return;
-	va_start (args, fmt);
-	vprintf (fmt, args);
-}
-
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

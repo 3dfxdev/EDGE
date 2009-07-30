@@ -76,10 +76,10 @@ public:
       {
       angle = new_ang;
 
-      if (angle >= TWOPI)
-         angle -= TWOPI;
+      if (angle >= 2*M_PI)
+         angle -= 2*M_PI;
       else if (angle < 0)
-         angle += TWOPI;
+         angle += 2*M_PI;
 
       Sin = sin (angle);
       Cos = cos (angle);
@@ -416,19 +416,19 @@ public:
    static inline float PointToAngle (float x, float y)
       {
       if (-0.01 < x && x < 0.01)
-         return (y > 0) ? HALFPI : (3 * HALFPI);
+         return (y > 0) ? M_PI/2 : (3 * M_PI/2);
 
       float angle = atan2(y, x);
 
       if (angle < 0)
-         angle += TWOPI;
+         angle += 2*M_PI;
 
       return angle;
       }
 
    static inline int AngleToX (float ang)
       {
-      float t = tan (HALFPI - ang);
+      float t = tan (M_PI/2 - ang);
 
       int x = int (view.sw * t);
 
@@ -446,12 +446,12 @@ public:
       {
       x = x * 2 - view.sw;
 
-      float ang = HALFPI + atan (x / float (view.sw));
+      float ang = M_PI/2 + atan (x / float (view.sw));
 
       if (ang < 0)
          ang = 0;
-      else if (ang > ONEPI)
-         ang = ONEPI;
+      else if (ang > M_PI)
+         ang = M_PI;
 
       return ang;
       }
@@ -536,12 +536,12 @@ public:
       float span = angle1 - angle2;
 
       if (span < 0)
-         span += TWOPI;
+         span += 2*M_PI;
 
       int side = 0;
       SideDef *sd;
 
-      if (span >= ONEPI)
+      if (span >= M_PI)
          side = 1;
 
       // ignore the line when there is no facing sidedef
@@ -564,28 +564,28 @@ public:
 
       float base_ang = angle1;
 
-      float leftclip  = (3 * ONEPI / 4);
-      float rightclip = ONEPI / 4;
+      float leftclip  = (3 * M_PI / 4);
+      float rightclip = M_PI / 4;
 
       float tspan1 = angle1 - rightclip;
       float tspan2 = leftclip - angle2;
 
-      if (tspan1 < 0) tspan1 += TWOPI;
-      if (tspan2 < 0) tspan2 += TWOPI;
+      if (tspan1 < 0) tspan1 += 2*M_PI;
+      if (tspan2 < 0) tspan2 += 2*M_PI;
 
-      if (tspan1 > HALFPI)
+      if (tspan1 > M_PI/2)
          {
          // Totally off the left edge?
-         if (tspan2 >= ONEPI)
+         if (tspan2 >= M_PI)
             return;
 
          angle1 = leftclip;
          }
 
-      if (tspan2 > HALFPI)
+      if (tspan2 > M_PI/2)
          {
          // Totally off the left edge?
-         if (tspan1 >= ONEPI)
+         if (tspan1 >= M_PI)
             return;
 
          angle2 = rightclip;
@@ -617,8 +617,8 @@ public:
          normal = PointToAngle (ty1 - ty2, tx2 - tx1);
 
       // compute inverse distances
-      double iz1 = cos (normal - angle1) / dist / cos (HALFPI - angle1);
-      double iz2 = cos (normal - angle2) / dist / cos (HALFPI - angle2);
+      double iz1 = cos (normal - angle1) / dist / cos (M_PI/2 - angle1);
+      double iz2 = cos (normal - angle2) / dist / cos (M_PI/2 - angle2);
 
       double diz = (iz2 - iz1) / MAX(1, sx2 - sx1);
 
@@ -776,10 +776,10 @@ public:
       int th = surf.img->height ();
 
       float ang = XToAngle (x);
-      float modv = cos (ang - HALFPI);
+      float modv = cos (ang - M_PI/2);
 
-      float t_cos = cos (ONEPI + -view.angle + ang) / modv;
-      float t_sin = sin (ONEPI + -view.angle + ang) / modv;
+      float t_cos = cos (M_PI + -view.angle + ang) / modv;
+      float t_sin = sin (M_PI + -view.angle + ang) / modv;
 
       buf += x + y1 * view.sw;
 
@@ -1203,7 +1203,7 @@ void Render3D_Setup(int w, int h)
     view.y = view.py = player->y;
 
     view.CalcViewZ ();
-    view.SetAngle (player->angle * ONEPI / 180.0);
+    view.SetAngle (player->angle * M_PI / 180.0);
   }
 
   /* create image */
@@ -1266,12 +1266,12 @@ bool Render3D_Key(int key)
 
   if ((key & ~FL_SHIFT) == FL_Left)
   {
-    view.SetAngle (view.angle + ONEPI / ((key & FL_SHIFT) ? 4 : 8));
+    view.SetAngle (view.angle + M_PI / ((key & FL_SHIFT) ? 4 : 8));
     Redraw = true;
   }
   else if ((key & ~FL_SHIFT) == FL_Right)
   {
-    view.SetAngle (view.angle -ONEPI / ((key & FL_SHIFT) ? 4 : 8));
+    view.SetAngle (view.angle -M_PI / ((key & FL_SHIFT) ? 4 : 8));
     Redraw = true;
   }
   else if ((key & ~FL_SHIFT) == FL_Up)

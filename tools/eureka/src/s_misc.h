@@ -28,9 +28,16 @@
 #ifndef YH_S_SLICE  /* DO NOT INSERT ANYTHING BEFORE THIS LINE */
 #define YH_S_SLICE
 
-
 void sector_slice (obj_no_t linedef1, obj_no_t linedef2);
 
+void DistributeSectorFloors (SelPtr);
+void DistributeSectorCeilings (SelPtr);
+void RaiseOrLowerSectors (SelPtr obj);
+void BrightenOrDarkenSectors (SelPtr obj);
+void SuperSectorSelector (int map_x, int map_y, int new_sec);
+
+void SplitSector (int, int);
+void SplitLineDefsAndSector (int, int);
 
 #endif  /* DO NOT ADD ANYTHING AFTER THIS LINE */
 //--- editor settings ---

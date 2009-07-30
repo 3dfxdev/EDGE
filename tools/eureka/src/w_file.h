@@ -99,7 +99,6 @@ class Wad_file
   public :
     Wad_file () :
       filename (0),
-      pic_format_ (YGPF_NORMAL),
       fp (0),
       dirsize (0),
       dirstart (0),
@@ -111,7 +110,6 @@ class Wad_file
     }
     ~Wad_file ();
     const char *pathname    () const;
-    ygpf_t      pic_format  () const;
     bool        error       () const;
     const char *where       () const;
     void        seek        (long offset) const;
@@ -126,7 +124,6 @@ class Wad_file
 
   private :
     char *filename;     // Name of the wad file
-    ygpf_t pic_format_;     // Picture format (usually PF_NORMAL)
     FILE *fp;       // C file stream information
     char type[4];     // Type of wad file ("IWAD" or "PWAD")
     s32_t  dirsize;     // Entries in directory
@@ -146,15 +143,6 @@ class Wad_file
 inline const char *Wad_file::pathname () const
 {
   return filename;
-}
-
-
-/*
- *  Wad_file::pic_format - return the pic_format of the wad
- */
-inline ygpf_t Wad_file::pic_format () const
-{
-  return pic_format_;
 }
 
 

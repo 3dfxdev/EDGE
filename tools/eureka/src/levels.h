@@ -97,12 +97,10 @@ int levelname2levelno (const char *name);
 int levelname2rank (const char *name);
 
 
-int ReadLevelData (const char *);
-void ForgetLevelData (void);
-int SaveLevelData (const char *, const char *level_name);
 void ReadWTextureNames (void);
 void ForgetFTextureNames (void);
 int is_flat_name_in_list (const char *name);
+
 void ReadFTextureNames (void);
 void ForgetWTextureNames (void);
 

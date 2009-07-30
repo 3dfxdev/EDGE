@@ -451,18 +451,18 @@ void frob_linedefs_flags (SelPtr list, int op, int operand)
 	SelPtr cur;
 	s16_t mask;
 
-	if (op == YO_CLEAR || op == YO_SET || op == YO_TOGGLE)
+	if (op == BOP_REMOVE || op == BOP_ADD || op == BOP_TOGGLE)
 		mask = 1 << operand;
 	else
 		mask = operand;
 
 	for (cur = list; cur; cur = cur->next)
 	{
-		if (op == YO_CLEAR)
+		if (op == BOP_REMOVE)
 			LineDefs[cur->objnum]->flags &= ~mask;
-		else if (op == YO_SET)
+		else if (op == BOP_ADD)
 			LineDefs[cur->objnum]->flags |= mask;
-		else if (op == YO_TOGGLE)
+		else if (op == BOP_TOGGLE)
 			LineDefs[cur->objnum]->flags ^= mask;
 		else
 		{
@@ -586,7 +586,7 @@ void MakeRectangularNook (SelPtr obj, int width, int depth, int convex)
 		dy1 = (dy0 - dy2) / 2;
 
 		{
-			double normal = convex ? angle-HALFPI : angle+HALFPI;
+			double normal = convex ? angle-M_PI/2 : angle+M_PI/2;
 			Vertices[NumVertices-1-3]->x = x0 + dx1;
 			Vertices[NumVertices-1-3]->y = y0 + dy1;
 			Vertices[NumVertices-1-2]->x = x0 + dx1 + (int) (depth * cos (normal));

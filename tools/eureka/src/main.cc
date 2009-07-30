@@ -114,10 +114,7 @@ const char *Iwad8     = NULL;
 const char *Iwad9     = NULL;
 const char *Iwad10      = NULL;
 const char *MainWad     = NULL;
-#ifdef AYM_MOUSE_HACKS
-int       MouseMickeysH     = 5;
-int       MouseMickeysV     = 5;
-#endif
+
 char **   PatchWads     = NULL;
 bool      Quiet       = false;
 bool      Quieter     = false;
@@ -171,29 +168,6 @@ void Beep ()
 
 
 /*
- *  warn
- *  printf a warning message to stdout.
- *  If the format string of the previous invocation did not
- *  end with a '\n', do not prepend the "Warning: " string.
- *
- *  FIXME should handle cases where stdout is not available
- *  (BGI version when in graphics mode).
- */
-void warn (const char *fmt, ...)
-{
-	static bool start_of_line = true;
-	va_list args;
-
-	if (start_of_line)
-		fputs ("Warning: ", stdout);
-	va_start (args, fmt);
-	vprintf (fmt, args);
-	size_t len = strlen (fmt);
-	start_of_line = len > 0 && fmt[len - 1] == '\n';
-}
-
-
-/*
  *  fatal_error
  *  Print an error message and terminate the program with code 2.
  */
@@ -206,7 +180,7 @@ void FatalError(const char *fmt, ...)
 	TermFLTK ();
 
 	// Clean up things and free swap space
-	ForgetLevelData ();
+//	ForgetLevelData ();
 	ForgetWTextureNames ();
 	ForgetFTextureNames ();
 	CloseWadFiles ();
@@ -223,24 +197,11 @@ void BugError(const char *fmt, ...)
 	TermFLTK ();
 
 	// Clean up things and free swap space
-	ForgetLevelData ();
+//	ForgetLevelData ();
 	ForgetWTextureNames ();
 	ForgetFTextureNames ();
 	CloseWadFiles ();
 	exit (9);
-}
-
-
-/*
- *  err
- *  Print an error message but do not terminate the program.
- */
-void err (const char *fmt, ...)
-{
-	va_list args;
-
-	va_start (args, fmt);
-	print_error_message (fmt, args);
 }
 
 
@@ -303,9 +264,6 @@ int InitFLTK(void)  // returns 0 on success
 }
 
 
-/*
- *  TermFLTK
- */
 void TermFLTK()
 {
 }
@@ -452,7 +410,7 @@ void EditLevel (const char *levelname, bool newlevel)
 done :
     TermFLTK ();
 
-    ForgetLevelData ();
+	BA_ClearAll();
 
     /* forget the level pointer */
     Level = 0;

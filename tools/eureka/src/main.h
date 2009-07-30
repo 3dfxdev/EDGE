@@ -106,15 +106,6 @@ typedef char y_file_name_t[Y_FILE_NAME + 1];
 
 
 /*
- *  Constants of the universe.
- */
-const double HALFPI = 1.5707963;
-const double ONEPI  = 3.1415926;
-const double TWOPI  = 6.2831852;
-const double ANSWER = 42;
-
-
-/*
  *  Syntactic sugar
  */
 const char *const Y_NULL = 0;  // NULL (const char *)
@@ -143,12 +134,6 @@ const int DOOM_FLAT_HEIGHT           = 64;
 const size_t DOOM_MIN_DEATHMATCH_STARTS = 4;
 const size_t DOOM_MAX_DEATHMATCH_STARTS = 10;
 const size_t DOOM_COLOURS               = 256;
-typedef enum { YGPF_NORMAL, YGPF_ALPHA, YGPF_PR } ygpf_t;
-typedef enum { YGTF_NORMAL, YGTF_NAMELESS, YGTF_STRIFE11 } ygtf_t;
-typedef enum { YGTL_NORMAL, YGTL_TEXTURES, YGTL_NONE } ygtl_t;
-
-
-
 
 
 /*
@@ -170,15 +155,6 @@ typedef enum
    YC_ASK_ONCE = 'o'
 }
 confirm_t;
-
-// Bit bashing operations
-const int YO_AND    = 'a';  // Argument = mask
-const int YO_CLEAR  = 'c';  // Argument = bit#
-const int YO_COPY   = 'd';  // Argument = source_bit# dest_bit#
-const int YO_OR     = 'o';  // Argument = mask
-const int YO_SET    = 's';  // Argument = bit#
-const int YO_TOGGLE = 't';  // Argument = bit#
-const int YO_XOR    = 'x';  // Argument = mask
 
 
 /*
@@ -250,10 +226,7 @@ extern const char *Iwad8; // Name of the Doom alpha 0.5 iwad
 extern const char *Iwad9; // Name of the Doom press release iwad
 extern const char *Iwad10;  // Name of the Strife 1.0 iwad
 extern const char *MainWad; // Name of the main wad file
-#ifdef AYM_MOUSE_HACKS
-extern int   MouseMickeysH; 
-extern int   MouseMickeysV; 
-#endif
+
 extern char **PatchWads;  // List of pwad files
 extern bool  Quiet;   // Don't beep when an object is selected
 extern bool  Quieter;   // Don't beep, even on error
@@ -279,27 +252,6 @@ extern int KF;  // widget scale Factor
 extern int KF_fonth;  // default font size
 
 
-/*
- *  Prototypes
- *  AYM 1998-10-16: DEU used to have _all_ prototypes here. Thus
- *  I had to recompile _all_ the modules every time I changed
- *  a single prototype. To avoid this, my theory is to put all
- *  the prototypes I can in individual headers. There is still
- *  room for improvement on that matter...
- */
-
-
-
-// l_align.cc (previously in objects.cc)
-void AlignTexturesY (SelPtr *);
-void AlignTexturesX (SelPtr *);
-
-// l_misc.cc (previously in objects.cc)
-void FlipLineDefs (SelPtr, bool);
-void SplitLineDefs (SelPtr);
-void MakeRectangularNook (SelPtr obj, int width, int depth, int convex);
-void SetLinedefLength (SelPtr obj, int length, int move_2nd_vertex);
-
 
 // l_unlink.cc
 void unlink_sidedef (SelPtr linedefs, int side1, int side2);
@@ -314,56 +266,19 @@ const char *GetLineDefFlagsLongName (int);
 const char *GetSectorTypeName (int);
 const char *GetSectorTypeLongName (int);
 
-// s_door.cc (previously in objects.cc)
-void MakeDoorFromSector (int);
-
-// s_lift.cc (previously in objects.cc)
-void MakeLiftFromSector (int);
-
-// s_merge.cc (previously in objects.cc)
-void MergeSectors (SelPtr *);
-void DeleteLineDefsJoinSectors (SelPtr *);
-
-// s_misc.cc (previously in objects.cc)
-void DistributeSectorFloors (SelPtr);
-void DistributeSectorCeilings (SelPtr);
-void RaiseOrLowerSectors (SelPtr obj);
-void BrightenOrDarkenSectors (SelPtr obj);
-void SuperSectorSelector (int map_x, int map_y, int new_sec);
-
-
-// s_split.cc (previously in objects.cc)
-void SplitSector (int, int);
-void SplitLineDefsAndSector (int, int);
-void MultiSplitLineDefsAndSector (int, int);
-
-
-// v_merge.cc
-void DeleteVerticesJoinLineDefs (SelPtr );
-void MergeVertices (SelPtr *);
-bool AutoMergeVertices (SelPtr *, int obj_type, char operation);
-
-// v_polyg.cc
-void InsertPolygonVertices (int, int, int, int);
-
-// verbmsg.cc
-void verbmsg (const char *fmt, ...);
-
 
 int entryname_cmp (const char *entry1, const char *entry2);
 
-// warning.cc
-void warn (const char *fmt, ...);
 
-// yadex.cc
 void Beep (void);
 
-// OTHER
 
 int vertex_radius (double scale);
 
 
-void err (const char *fmt, ...);
+#define verbmsg  LogPrintf
+#define warn     LogPrintf
+#define err      LogPrintf
 
 
 #endif  /* DO NOT ADD ANYTHING AFTER THIS LINE */

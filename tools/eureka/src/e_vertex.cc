@@ -495,8 +495,8 @@ void InsertPolygonVertices (int centerx, int centery, int sides, int radius)
 
 	for (n = 0; n < sides; n++)
 		InsertObject (OBJ_VERTICES, -1,
-				centerx + (int) ((double)radius * cos (TWOPI * (double)n / (double)sides)),
-				centery + (int) ((double)radius * sin (TWOPI * (double)n / (double)sides)));
+				centerx + (int) ((double)radius * cos (2*M_PI * (double)n / (double)sides)),
+				centery + (int) ((double)radius * sin (2*M_PI * (double)n / (double)sides)));
 }
 
 

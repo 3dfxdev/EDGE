@@ -35,5 +35,13 @@ void centre_of_linedefs (selection_c * list, int *x, int *y);
 
 void frob_linedefs_flags (selection_c * list, int op, int operand);
 
+void AlignTexturesY (SelPtr *);
+void AlignTexturesX (SelPtr *);
+
+void FlipLineDefs (SelPtr, bool);
+void SplitLineDefs (SelPtr);
+void MakeRectangularNook (SelPtr obj, int width, int depth, int convex);
+void SetLinedefLength (SelPtr obj, int length, int move_2nd_vertex);
+
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
