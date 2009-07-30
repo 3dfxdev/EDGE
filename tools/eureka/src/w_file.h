@@ -27,6 +27,7 @@
 #ifndef YH_WADFILE
 #define YH_WADFILE
 
+#define Wad_file  Wad_file0
 
 /*
  *  Wad_file - wad file open for reading
@@ -313,6 +314,8 @@ inline void Wad_file::read_bytes (void *buf, long count) const
     error_ = true;
   }
 }
+
+#undef Wad_file
 
 #endif  /* DO NOT ADD ANYTHING AFTER THIS LINE */
 

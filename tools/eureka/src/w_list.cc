@@ -31,6 +31,8 @@
 #include <list>
 
 
+#define Wad_file  Wad_file0
+
 Wad_list wad_list;      // One global instance
 
 

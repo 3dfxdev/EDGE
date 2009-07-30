@@ -65,8 +65,8 @@ public:
 
 public:
     void rewind ();
-    bool get    (Wad_file *& wf);
-    void insert (Wad_file *);
+    bool get    (Wad_file0 *& wf);
+    void insert (Wad_file0 *);
     void del    ();
 
 private :

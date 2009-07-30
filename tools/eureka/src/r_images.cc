@@ -73,7 +73,7 @@ Img * Flat2Img (const char * fname)
 	int width  = DOOM_FLAT_WIDTH;  // Big deal !
 	int height = DOOM_FLAT_HEIGHT;
 
-	const Wad_file *wadfile = flat->wadfile;
+	const Wad_file0 *wadfile = flat->wadfile;
 	wadfile->seek (flat->offset);
 
 	Img *img = new Img (width, height, false);

@@ -34,6 +34,9 @@
 #include "w_wads.h"
 
 
+#define Wad_file  Wad_file0
+
+
 static char *locate_pwad (const char *filename);
 static int level_name_order (const void *p1, const void *p2);
 

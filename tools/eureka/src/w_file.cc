@@ -27,6 +27,7 @@
 #include "main.h"
 #include "w_file.h"
 
+#define Wad_file  Wad_file0
 
 /*
  *  Wad_file::~Wad_file - dtor
