@@ -45,7 +45,7 @@
 extern int LoadLevel(const char *levelname);
 
 
-#define VERSION  "0.51"
+#define VERSION  "0.52"
 
 
 /*
