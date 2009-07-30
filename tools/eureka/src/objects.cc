@@ -256,7 +256,7 @@ int InsertObject(obj_type_t objtype, obj_no_t copyfrom, int xpos, int ypos)
 		}
 
 		default:
-			nf_bug ("InsertObject: bad objtype %d", (int) objtype);
+			BugError("InsertObject: bad objtype %d", (int) objtype);
 	}
 
 #endif
@@ -761,39 +761,21 @@ void GetObjectCoords (int objtype, int objnum, int *xpos, int *ypos)
 	switch (objtype)
 	{
 		case OBJ_THINGS:
-			if (! is_thing (objnum))    // Can't happen
-			{
-				nf_bug ("GetObjectCoords: bad thing# %d", objnum);
-				*xpos = 0;
-				*ypos = 0;
-				return;
-			}
+			SYS_ASSERT(is_thing(objnum));
 
 			*xpos = Things[objnum]->x;
 			*ypos = Things[objnum]->y;
 			break;
 
 		case OBJ_VERTICES:
-			if (! is_vertex (objnum))   // Can't happen
-			{
-				nf_bug ("GetObjectCoords: bad vertex# %d", objnum);
-				*xpos = 0;
-				*ypos = 0;
-				return;
-			}
+			SYS_ASSERT(is_vertex(objnum));
 
 			*xpos = Vertices[objnum]->x;
 			*ypos = Vertices[objnum]->y;
 			break;
 
 		case OBJ_LINEDEFS:
-			if (! is_linedef (objnum))  // Can't happen
-			{
-				nf_bug ("GetObjectCoords: bad linedef# %d", objnum);
-				*xpos = 0;
-				*ypos = 0;
-				return;
-			}
+			SYS_ASSERT(is_linedef(objnum));
 
 			v1 = LineDefs[objnum]->start;
 			v2 = LineDefs[objnum]->end;
@@ -803,13 +785,7 @@ void GetObjectCoords (int objtype, int objnum, int *xpos, int *ypos)
 			break;
 
 		case OBJ_SIDEDEFS:
-			if (! is_sidedef (objnum))  // Can't happen
-			{
-				nf_bug ("GetObjectCoords: bad sidedef# %d", objnum);
-				*xpos = 0;
-				*ypos = 0;
-				return;
-			}
+			SYS_ASSERT(is_sidedef(objnum));
 
 			for (n = 0; n < NumLineDefs; n++)
 				if (LineDefs[n]->right == objnum || LineDefs[n]->left == objnum)
@@ -826,13 +802,8 @@ void GetObjectCoords (int objtype, int objnum, int *xpos, int *ypos)
 			// FIXME is the fall through intentional ? -- AYM 2000-11-08
 
 		case OBJ_SECTORS:
-			if (! is_sector (objnum))   // Can't happen
-			{
-				nf_bug ("GetObjectCoords: bad sector# %d", objnum);
-				*xpos = 0;
-				*ypos = 0;
-				return;
-			}
+			SYS_ASSERT(is_sector(objnum));
+
 			accx = 0L;
 			accy = 0L;
 			num = 0L;
@@ -870,9 +841,7 @@ void GetObjectCoords (int objtype, int objnum, int *xpos, int *ypos)
 			break;
 
 		default:
-			nf_bug ("GetObjectCoords: bad objtype %d", objtype);  // Can't happen
-			*xpos = 0;
-			*ypos = 0;
+			BugError("GetObjectCoords: bad objtype %d", objtype);  // Can't happen
 	}
 }
 

@@ -392,7 +392,7 @@ void EditorKey(int is_key, bool is_shift)
 ///---			// Horrible indeed -- AYM 1999-07-30
 ///---			newLevel = FindMasterDir (MasterDir, newlevelname);
 ///---			if (! newLevel)
-///---				nf_bug ("newLevel is NULL");  // Debatable ! -- AYM 2001-05-29
+///---				BugError("newLevel is NULL");  // Debatable ! -- AYM 2001-05-29
 ///---			if (Level)  // If new level ("create" command), Level is NULL
 ///---			{
 ///---				oldl = Level;

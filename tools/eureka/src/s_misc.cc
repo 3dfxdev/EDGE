@@ -561,7 +561,7 @@ void SplitSector(int vertex1, int vertex2)
 	int nlinedefs = linedefs_of_sector (s, ld_numbers);
 	if (nlinedefs < 1)  // Can't happen
 	{
-		nf_bug ("SplitSector: no linedef for sector %d\n", s);
+		BugError("SplitSector: no linedef for sector %d\n", s);
 		return;
 	}
 	llist = NULL;
@@ -895,7 +895,7 @@ void sector_slice (obj_no_t linedef1, obj_no_t linedef2)
 	}
 	else          // Can't happen
 	{
-		nf_bug ("sector %d: linedef1 = %02Xh", int (sector), side);
+		BugError("sector %d: linedef1 = %02Xh", int (sector), side);
 		return;
 	}
 
@@ -912,7 +912,7 @@ void sector_slice (obj_no_t linedef1, obj_no_t linedef2)
 	}
 	else          // Can't happen
 	{
-		nf_bug ("sector %d: linedef2 = %02Xh", int (sector), side);
+		BugError("sector %d: linedef2 = %02Xh", int (sector), side);
 		return;
 	}
 

@@ -328,9 +328,8 @@ int LoadPicture (
 #ifdef PARANOIA
 						if (b < img.buf ())
 						{
-							nf_bug ("Picture %.*s(%d): b < buffer",
+							BugError("Picture %.*s(%d): b < buffer",
 									WAD_PIC_NAME, picname, (int) pic_x);
-							goto next_column;
 						}
 #endif
 						*b = (*p == IMG_TRANSP) ? colour0 : *p;

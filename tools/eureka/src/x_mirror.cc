@@ -57,7 +57,7 @@ void flip_mirror (SelPtr list, int obj_type, char op)
 		operation = mirror;
 	else
 	{
-		nf_bug ("flip_mirror: Bad operation %02Xh", op);
+		BugError("flip_mirror: Bad operation %02Xh", op);
 		return;
 	}
 
@@ -293,7 +293,7 @@ int exchange_objects_numbers (int obj_type, SelPtr list, bool adjust)
 	// Must have exactly two objects in the selection
 	if (list == 0 || list->next == 0 || (list->next)->next != 0)
 	{
-		nf_bug ("exchange_object_numbers: wrong objects count.");
+		BugError("exchange_object_numbers: wrong objects count.");
 		return 1;
 	}
 	n1 = list->objnum;

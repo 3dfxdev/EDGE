@@ -133,7 +133,7 @@ void Wad_list::insert (Wad_file *wf)
  *  After a call to del(), a call to get will return the wad
  *  the followed the one that was deleted.
  *
- *  If already at the end of the list, nf_bug() is called.
+ *  If already at the end of the list, BugError() is called.
  */
 void Wad_list::del ()
 {
@@ -149,7 +149,7 @@ void Wad_list::del ()
 	}
 	if (i == priv->list.end ())
 	{
-		nf_bug ("Wad_list::del: attempt to delete last item");
+		BugError("Wad_list::del: attempt to delete last item");
 		return;
 	}
 	priv->iter = priv->list.erase (i);

@@ -531,7 +531,7 @@ void SaveDirectoryEntry (FILE *file, const char *entryname)
 			else if (r == 2)
 				err ("%s: error writing to destination wad", entryname);
 			else
-				nf_bug ("%s: copy_bytes() returned %d", entryname, r);
+				BugError("%s: copy_bytes() returned %d", entryname, r);
 			return;
 		}
 	}
@@ -573,7 +573,7 @@ void SaveEntryToRawFile (FILE *file, const char *entryname)
 			else if (r == 2)
 				err ("%s: error writing to destination file", entryname);
 			else
-				nf_bug ("%s: copy_bytes() returned %d", entryname, r);
+				BugError("%s: copy_bytes() returned %d", entryname, r);
 			return;
 		}
 	}
@@ -625,7 +625,7 @@ void SaveEntryFromRawFile (FILE *file, FILE *raw, const char *entryname)
 		else if (r == 2)
 			err ("%s: error writing to destination wad", entryname);
 		else
-			nf_bug ("%s: copy_bytes() returned %d", entryname, r);
+			BugError("%s: copy_bytes() returned %d", entryname, r);
 		return;
 	}
 }

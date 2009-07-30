@@ -466,7 +466,7 @@ void frob_linedefs_flags (SelPtr list, int op, int operand)
 			LineDefs[cur->objnum]->flags ^= mask;
 		else
 		{
-			nf_bug ("frob_linedef_flags: op=%02X", op);
+			BugError("frob_linedef_flags: op=%02X", op);
 			return;
 		}
 	}

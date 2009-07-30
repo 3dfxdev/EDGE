@@ -810,7 +810,7 @@ static int parse_config_file (const char *filename)
 
 				default:
 					{
-						nf_bug ("%s(%u): unknown option type %d",
+						BugError("%s(%u): unknown option type %d",
 								filename, lnum, (int) o->opt_type);
 						RETURN_FAILURE;
 					}
@@ -1011,7 +1011,7 @@ int parse_command_line_options (int argc, const char *const *argv, int pass)
 
 			default:
 				{
-					nf_bug ("unknown option type (%d)", (int) o->opt_type);
+					BugError("unknown option type (%d)", (int) o->opt_type);
 					return 1;
 				}
 		}

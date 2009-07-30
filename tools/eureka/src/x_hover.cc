@@ -135,9 +135,7 @@ void GetCurObject (Objid& o, int objtype, int x, int y)
 		}
 
 		default:
-			nf_bug ("GetCurObject: objtype %d", (int) objtype);
-			o.nil ();
-			return;
+			BugError("GetCurObject: objtype %d", (int) objtype);
 	}
 }
 
