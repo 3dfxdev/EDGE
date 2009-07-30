@@ -85,58 +85,6 @@ inline const char *texno_texname (s16_t texno)
 
 
 /*
-   read in the level data
-   */
-
-int ReadLevelData (const char *levelname)
-{
-// OLD OLD OLD OLD OLD  CRUD CRUD CRUD
-}
-
-
-
-/*
-   forget the level data
-   */
-
-void ForgetLevelData ()
-{
-// OLD OLD OLD OLD OLD  CRUD CRUD CRUD
-}
-
-
-/*
- *  Save the level data to a pwad file
- *  The name of the level is always obtained from
- *  <level_name>, whether or not the level was created from
- *  scratch.
- *
- *  The previous contents of the pwad file are lost. Yes, it
- *  sucks but it's not easy to fix.
- *
- *  The lumps are always written in the same order, the same
- *  as the one in the Doom iwad. The length field of the
- *  marker lump is always set to 0. Its offset field is
- *  always set to the offset of the first lump of the level
- *  (THINGS).
- *
- *  If the level has been created by editing an existing
- *  level and has not been changed in a way that calls for a
- *  rebuild of the nodes, the VERTEXES, SEGS, SSECTORS,
- *  NODES, REJECT and BLOCKMAP lumps are copied from the
- *  original level. Otherwise, they are created with a
- *  length of 0 bytes and an offset equal to the offset of
- *  the previous lump plus its length.
- *
- *  Returns 0 on success and non-zero on failure (see errno).
- */
-int SaveLevelData (const char *outfile, const char *level_name)
-{
-// OLD OLD OLD OLD OLD  CRUD CRUD CRUD
-}
-
-
-/*
  *  flat_list_entry_cmp
  *  Function used by qsort() to sort the flat_list_entry array
  *  by ascending flat name.

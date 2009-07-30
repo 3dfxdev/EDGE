@@ -31,6 +31,12 @@
 void centre_of_sector (obj_no_t s, int *x, int *y);
 void centre_of_sectors (selection_c * list, int *x, int *y);
 
+void MakeDoorFromSector (int);
+void MakeLiftFromSector (int);
+
+void MergeSectors (SelPtr *);
+void DeleteLineDefsJoinSectors (SelPtr *);
+
 
 class bitvec_c;
 

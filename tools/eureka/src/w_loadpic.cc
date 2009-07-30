@@ -115,9 +115,10 @@ int LoadPicture (
 				WAD_PIC_NAME, picname);
 		return 1;
 	}
-	bool dummy_bytes  = dir->wadfile->pic_format () == YGPF_NORMAL;
-	bool long_header  = dir->wadfile->pic_format () != YGPF_ALPHA;
-	bool long_offsets = dir->wadfile->pic_format () == YGPF_NORMAL;
+	bool dummy_bytes  = true;
+	bool long_header  = true;
+	bool long_offsets = true;
+
 	if (long_header)
 	{
 		dir->wadfile->read_i16 (&pic_width_);

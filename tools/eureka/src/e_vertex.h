@@ -28,6 +28,11 @@
 void centre_of_vertices (selection_c * list, int *x, int *y);
 void centre_of_vertices (const bitvec_c &bv, int &x, int &y);
 
+void DeleteVerticesJoinLineDefs (SelPtr );
+void MergeVertices (SelPtr *);
+bool AutoMergeVertices (SelPtr *, int obj_type, char operation);
+void InsertPolygonVertices (int, int, int, int);
+
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

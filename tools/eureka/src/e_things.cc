@@ -411,18 +411,18 @@ void frob_things_flags (SelPtr list, int op, int operand)
 	SelPtr cur;
 	s16_t mask;
 
-	if (op == YO_CLEAR || op == YO_SET || op == YO_TOGGLE)
+	if (op == BOP_REMOVE || op == BOP_ADD || op == BOP_TOGGLE)
 		mask = 1 << operand;
 	else
 		mask = operand;
 
 	for (cur = list; cur; cur = cur->next)
 	{
-		if (op == YO_CLEAR)
+		if (op == BOP_REMOVE)
 			Things[cur->objnum]->options &= ~mask;
-		else if (op == YO_SET)
+		else if (op == BOP_ADD)
 			Things[cur->objnum]->options |= mask;
-		else if (op == YO_TOGGLE)
+		else if (op == BOP_TOGGLE)
 			Things[cur->objnum]->options ^= mask;
 		else
 		{
