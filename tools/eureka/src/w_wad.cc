@@ -45,7 +45,10 @@ Lump_c::~Lump_c()
 //------------------------------------------------------------------------
 
 
-Wad_file::Wad_file(FILE * file) : fp(file), directory()
+Wad_file::Wad_file(FILE * file) : fp(file), directory(),
+	dir_offset(0), dir_length(0), dir_crc(0),
+	levels(), patches(), sprites(), flats(), tex_info(NULL),
+	holes()
 {
 }
 
@@ -53,6 +56,7 @@ Wad_file::~Wad_file()
 {
 	// TODO FreeDirectory()
 }
+
 
 Wad_file * Wad_file::Open(const char *filename)
 {
@@ -66,6 +70,20 @@ Wad_file * Wad_file::Open(const char *filename)
 
 	return w;
 }
+
+Wad_file * Wad_file::Create(const char *filename)
+{
+	FILE *fp = fopen(filename, "rw");
+	if (! fp)
+		return NULL;
+
+	Wad_file *w = new Wad_file(fp);
+
+	// FIXME write out base header
+
+	return w;
+}
+
 
 void Wad_file::ReadDirectory()
 {
