@@ -340,11 +340,7 @@ int DDF_CompareName(const char *A, const char *B)
 {
 	for (;;)
 	{
-		if (*A == 0 && *B == 0)
-			return 0;
-
-		if (*A == 0) return -1;
-		if (*B == 0) return +1;
+		// Note: must skip stuff BEFORE checking for NUL
 
 		if (*A == ' ' || *A == '_')
 		{
@@ -355,6 +351,12 @@ int DDF_CompareName(const char *A, const char *B)
 		{
 			B++; continue;
 		}
+
+		if (*A == 0 && *B == 0)
+			return 0;
+
+		if (*A == 0) return -1;
+		if (*B == 0) return +1;
 
 		if (toupper(*A) == toupper(*B))
 		{
