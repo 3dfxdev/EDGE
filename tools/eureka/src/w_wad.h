@@ -111,6 +111,7 @@ public:
 private:
 	void ReadDirectory();
 	void DetectLevels();
+	void ProcessNamespaces();
 
 private:
 	// deliberately don't implement these
