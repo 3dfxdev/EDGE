@@ -99,13 +99,24 @@ Wad_file::~Wad_file()
 
 Wad_file * Wad_file::Open(const char *filename)
 {
+	LogPrintf("Opening WAD file: %s\n", filename);
+
 	FILE *fp = fopen(filename, "rw");
 	if (! fp)
 		return NULL;
 
-	// FIXME : determine total size (seek to end)
-
 	Wad_file *w = new Wad_file(fp);
+
+	// determine total size (seek to end)
+	if (fseek(fp, 0, SEEK_END) != 0)
+		FatalError("Error determining WAD size.\n");
+	
+	w->total_size = (int)ftell(fp);
+
+	DebugPrintf("total_size = %d\n", w->total_size);
+
+	if (w->total_size < 0)
+		FatalError("Error determining WAD size.\n");
 
 	w->ReadDirectory();
 	w->DetectLevels();
@@ -116,6 +127,8 @@ Wad_file * Wad_file::Open(const char *filename)
 
 Wad_file * Wad_file::Create(const char *filename)
 {
+	LogPrintf("Creating new WAD file: %s\n", filename);
+
 	FILE *fp = fopen(filename, "rw");
 	if (! fp)
 		return NULL;
@@ -202,9 +215,8 @@ void Wad_file::ReadDirectory()
 {
 	// TODO: no fatal errors
 
-	// TODO: rewind(fp);
+	rewind(fp);
 
-	// FIXME: read header in ::Open()
 	raw_wad_header_t header;
 
 	if (fread(&header, sizeof(header), 1, fp) != 1)
