@@ -108,6 +108,7 @@ Wad_file * Wad_file::Open(const char *filename)
 	Wad_file *w = new Wad_file(fp);
 
 	w->ReadDirectory();
+	w->DetectLevels();
 
 	return w;
 }
@@ -243,6 +244,55 @@ void Wad_file::ReadDirectory()
 	dir_crc = checksum.raw;
 
 	LogPrintf("Loaded directory. crc = %08x\n", dir_crc);
+}
+
+
+static int WhatLevelPart(const char *name)
+{
+	if (y_stricmp(name, "THINGS")   == 0) return 1;
+	if (y_stricmp(name, "LINEDEFS") == 0) return 2;
+	if (y_stricmp(name, "SIDEDEFS") == 0) return 3;
+	if (y_stricmp(name, "VERTEXES") == 0) return 4;
+	if (y_stricmp(name, "SECTORS")  == 0) return 5;
+
+	return 0;
+}
+
+void Wad_file::DetectLevels()
+{
+	// Determine what lumps in the wad are level markers, based on
+	// the lumps which follow it.  Store the result in the 'levels'
+	// vector.  The test here is rather lax, as I'm told certain
+	// wads exist with a non-standard ordering of level lumps.
+
+	for (int k = 0; k+5 < NumLumps(); k++)
+	{
+		int part_mask  = 0;
+		int part_count = 0;
+
+		// check whether the next four lumps are level lumps
+		for (int i = 1; i <= 4; i++)
+		{
+			int part = WhatLevelPart(directory[k+i]->name);
+
+			if (part == 0)
+				break;
+
+			// do not allow duplicates
+			if (part_mask & (1 << part))
+				break;
+
+			part_mask |= (1 << part);
+			part_count++;
+		}
+
+		if (part_count == 4)
+		{
+			levels.push_back(k);
+
+			DebugPrintf("Detected level : %s\n", directory[k]->name);
+		}
+	}
 }
 
 
