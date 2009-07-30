@@ -41,22 +41,28 @@ private:
 
 	const char *name;
 
-	int offset;
-	int length;
+	int l_start;
+	int l_length;
 
-	Lump_c(Wad_file *_par, const char *_nam, int _ofs, int _len);
+	// constructor is private
+	Lump_c(Wad_file *_par, const char *_nam, int _start, int _len);
 
 public:
 	~Lump_c();
 
-	int Length() const { return length; }
+	int Length() const { return l_length; }
 
 	// attempt to seek to a position within the lump (default is
 	// the beginning).  Returns true if OK, false on error.
 	bool Seek(int offset = 0);
 
 	// read some data from the lump, returning true if OK.
-	bool Read(byte *data, int length);
+	bool Read(byte *data, int len);
+
+private:
+	// deliberately don't implement these
+	Lump_c(const Lump_c& other);
+	Lump_c& operator= (const Lump_c& other);
 };
 
 
@@ -69,7 +75,7 @@ private:
 
 	std::vector< Lump_c* > directory;
 
-	int dir_offset;
+	int dir_start;
 	int dir_length;
 	u32_t dir_crc;
 
@@ -93,6 +99,8 @@ public:
 	static Wad_file * Open(const char *filename);
 	static Wad_file * Create(const char *filename);
 
+	short NumLumps() const { return (short)directory.size(); }
+
 	Lump_c * GetLump(short index);
 	Lump_c * FindLump(const char *name);
 	Lump_c * FindLumpInLevel(short level, const char *name);
@@ -101,6 +109,11 @@ public:
 
 private:
 	void ReadDirectory();
+
+private:
+	// deliberately don't implement these
+	Wad_file(const Wad_file& other);
+	Wad_file& operator= (const Wad_file& other);
 };
 
 
@@ -111,8 +124,9 @@ extern Wad_file * editing_wad;
 
 
 // attemps to find the level for editing.  If found, sets the
-// 'editing_wad' global var and returns the lump index, or
-// returns -1 if not found.
+// 'editing_wad' global var to the wad containing the level and
+// returns a LEVEL index number (NOT a lump number).  If not
+// found, returns -1.
 short WAD_FindEditLevel(const char *name);
 
 // find a lump in any loaded wad (later ones tried first),

@@ -35,8 +35,8 @@ std::vector< Wad_file* > master_dir;
 Wad_file * editing_wad;
 
 
-Lump_c::Lump_c(Wad_file *_par, const char *_nam, int _ofs, int _len) :
-	parent(_par), offset(_ofs), length(_len)
+Lump_c::Lump_c(Wad_file *_par, const char *_nam, int _start, int _len) :
+	parent(_par), l_start(_start), l_length(_len)
 {
 	name = strdup(_nam);
 }
@@ -47,11 +47,26 @@ Lump_c::~Lump_c()
 }
 
 
+bool Lump_c::Seek(int offset)
+{
+	SYS_ASSERT(offset >= 0);
+
+	return (fseek(parent->fp, l_start + offset, SEEK_SET) == 0);
+}
+
+bool Lump_c::Read(byte *data, int len)
+{
+	SYS_ASSERT(data && len > 0);
+
+	return (fread(data, len, 1, parent->fp) == 1);
+}
+
+
 //------------------------------------------------------------------------
 
 
 Wad_file::Wad_file(FILE * file) : fp(file), directory(),
-	dir_offset(0), dir_length(0), dir_crc(0),
+	dir_start(0), dir_length(0), dir_crc(0),
 	levels(), patches(), sprites(), flats(), tex_info(NULL),
 	holes()
 {
@@ -99,7 +114,7 @@ Wad_file * Wad_file::Create(const char *filename)
 
 Lump_c * Wad_file::GetLump(short index)
 {
-	SYS_ASSERT(0 <= index && index < (short)directory.size());
+	SYS_ASSERT(0 <= index && index < NumLumps());
 	SYS_ASSERT(directory[index]);
 
 	return directory[index];
@@ -108,7 +123,7 @@ Lump_c * Wad_file::GetLump(short index)
 
 Lump_c * Wad_file::FindLump(const char *name)
 {
-	for (int k = 0; k < (int)directory.size(); k++)
+	for (int k = 0; k < NumLumps(); k++)
 		if (y_stricmp(directory[k]->name, name) == 0)
 			return directory[k];
 
@@ -118,13 +133,25 @@ Lump_c * Wad_file::FindLump(const char *name)
 
 Lump_c * Wad_file::FindLumpInLevel(short level, const char *name)
 {
-	SYS_ASSERT(0 <= level && level < (short)directory.size());
+	SYS_ASSERT(0 <= level && level < (short)levels.size());
 
-	// TODO: FindLumpInLevel
+	// determine how far past the level marker (MAP01 etc) to search
+	short last = levels[level] + 14;
 
-	for (int i = 1; i < 12; i++)
+	if (last >= NumLumps())
+		last = NumLumps() - 1;
+	
+	// assumes levels[] are in increasing lump order!
+	if (level+1 < (short)levels.size())
+		if (last >= levels[level+1])
+			last = levels[level+1] - 1;
+
+	for (short k = levels[level]+1; k <= last; k++)
 	{
-		
+		SYS_ASSERT(0 <= k && k < NumLumps());
+
+		if (y_stricmp(directory[k]->name, name) == 0)
+			return directory[k];
 	}
 
 	return NULL;
@@ -137,11 +164,11 @@ short Wad_file::FindLevel(const char *name)
 	{
 		short index = levels[k];
 
-		SYS_ASSERT(0 <= index && index < (short)directory.size());
+		SYS_ASSERT(0 <= index && index < NumLumps());
 		SYS_ASSERT(directory[index]);
 
 		if (y_stricmp(directory[index]->name, name) == 0)
-			return index;
+			return k;
 	}
 
 	return -1;  // not found
@@ -172,6 +199,7 @@ short WAD_FindEditLevel(const char *name)
 	editing_wad = NULL;
 	return -1;
 }
+
 
 Lump_c * WAD_FindLump(const char *name)
 {
