@@ -26,9 +26,6 @@
 
 #include "main.h"
 
-//#include "m_bitvec.h"
-//#include "m_dialog.h"
-//#include "m_game.h"
 #include "e_basis.h"
 #include "levels.h"  // update_level_bounds()
 #include "w_rawdef.h"
@@ -37,12 +34,9 @@
 #include "w_wad.h"
 
 
-MDirPtr Level;      /* master dictionary entry for the level */
-
-
-static void LoadVertices(short lev_idx)
+static void LoadVertices(Wad_file *wad, short lev_idx)
 {
-	Lump_c *lump = editing_wad->FindLumpInLevel("VERTEXES", lev_idx);
+	Lump_c *lump = wad->FindLumpInLevel("VERTEXES", lev_idx);
 	if (! lump)
 		FatalError("No vertex lump!\n");
 
@@ -77,9 +71,9 @@ static void LoadVertices(short lev_idx)
 }
 
 
-static void LoadSectors(short lev_idx)
+static void LoadSectors(Wad_file *wad, short lev_idx)
 {
-	Lump_c *lump = editing_wad->FindLumpInLevel("SECTORS", lev_idx);
+	Lump_c *lump = wad->FindLumpInLevel("SECTORS", lev_idx);
 	if (! lump)
 		FatalError("No sector lump!\n");
 
@@ -121,9 +115,9 @@ static void LoadSectors(short lev_idx)
 }
 
 
-static void LoadThings(short lev_idx)
+static void LoadThings(Wad_file *wad, short lev_idx)
 {
-	Lump_c *lump = editing_wad->FindLumpInLevel("THINGS", lev_idx);
+	Lump_c *lump = wad->FindLumpInLevel("THINGS", lev_idx);
 	if (! lump)
 		FatalError("No things lump!\n");
 
@@ -165,9 +159,9 @@ static void LoadThings(short lev_idx)
 }
 
 
-static void LoadSideDefs(short lev_idx)
+static void LoadSideDefs(Wad_file *wad, short lev_idx)
 {
-	Lump_c *lump = editing_wad->FindLumpInLevel("SIDEDEFS", lev_idx);
+	Lump_c *lump = wad->FindLumpInLevel("SIDEDEFS", lev_idx);
 	if (! lump)
 		FatalError("No sidedefs lump!\n");
 
@@ -209,9 +203,9 @@ static void LoadSideDefs(short lev_idx)
 }
 
 
-static void LoadLineDefs(short lev_idx)
+static void LoadLineDefs(Wad_file *wad, short lev_idx)
 {
-	Lump_c *lump = editing_wad->FindLumpInLevel("LINEDEFS", lev_idx);
+	Lump_c *lump = wad->FindLumpInLevel("LINEDEFS", lev_idx);
 	if (! lump)
 		FatalError("No linedefs lump!\n");
 
@@ -308,33 +302,119 @@ SYS_ASSERT(F);
 
 master_dir.push_back(F);
 
-short lev_idx = WAD_FindEditLevel(levelname);
+short lev_idx = F->FindLevel(levelname);
 SYS_ASSERT(lev_idx >= 0);
 
 	LogPrintf("Loading level: %s\n", levelname);
 
-	/* Find the various level information from the master directory */
-	//DisplayMessage (-1, -1, "Reading data for level %s...", levelname);
-	Level = FindMasterDir (MasterDir, levelname);
-	if (!Level)
-		FatalError("level data not found");
-
 	BA_ClearAll();
 
-	LoadVertices(lev_idx);
-	LoadThings(lev_idx);
-	LoadSectors(lev_idx);
-	LoadSideDefs(lev_idx);
-	LoadLineDefs(lev_idx);
+	LoadVertices(F, lev_idx);
+	LoadThings  (F, lev_idx);
+	LoadSectors (F, lev_idx);
+	LoadSideDefs(F, lev_idx);
+	LoadLineDefs(F, lev_idx);
 
-	// Node builders will create a lot of new vertices for segs.
-	// However these would just get in the way for editing, so
-	// we remove them.
+	// Node builders create a lot of new vertices for segs.
+	// However they just get in the way for editing, so remove them.
 	RemoveUnusedVertices();
 
 	update_level_bounds();
 
 	return 0;
+}
+
+
+//------------------------------------------------------------------------
+
+
+static void SaveVertices(Wad_file *wad)
+{
+	int size = NumVertices * (int)sizeof(raw_vertex_t);
+
+	Lump_c *lump = wad->AddLump("VERTEXES", size);
+
+	...
+
+	lump->Finish();
+}
+
+
+static void SaveSectors(Wad_file *wad)
+{
+	int size = NumSectors * (int)sizeof(raw_sector_t);
+
+	Lump_c *lump = wad->AddLump("SECTORS", size);
+
+	...
+
+	lump->Finish();
+}
+
+
+static void SaveThings(Wad_file *wad)
+{
+	int size = NumThings * (int)sizeof(raw_thing_t);
+
+	Lump_c *lump = wad->AddLump("THINGS", size);
+
+	...
+
+	lump->Finish();
+}
+
+
+static void SaveSideDefs(Wad_file *wad)
+{
+	int size = NumSideDefs * (int)sizeof(raw_sidedef_t);
+
+	Lump_c *lump = wad->AddLump("SIDEDEFS", size);
+
+	...
+
+	lump->Finish();
+}
+
+
+static void SaveLineDefs(Wad_file *wad)
+{
+	int size = NumLineDefs * (int)sizeof(raw_linedef_t);
+
+	Lump_c *lump = wad->AddLump("LINEDEFS", size);
+
+	...
+
+	lump->Finish();
+}
+
+
+int SaveLevel(const char *levelname)
+{
+	Wad_file *wad = ... ;
+
+	wad->BeginWrite();
+
+	if (was_old)
+		wad->RemoveLevel(xxx);
+
+	wad->AddLevel(levelname);
+
+	SaveThings  (wad);
+	SaveLineDefs(wad);
+	SaveSideDefs(wad);
+	SaveVertexes(wad);
+
+	wad->AddLump("SEGS")    ->Finish();
+	wad->AddLump("SSECTORS")->Finish();
+	wad->AddLump("NODES")   ->Finish();
+
+	SaveSectors(wad);
+
+	wad->AddLump("REJECT")  ->Finish();
+	wad->AddLump("BLOCKMAP")->Finish();
+
+	// write out the new directory
+	wad->EndWrite();
 }
 
 
