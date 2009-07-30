@@ -144,6 +144,8 @@ Wad_file * Wad_file::Create(const char *filename)
 	fwrite(&header, sizeof(header), 1, fp);
 	fflush(fp);
 
+	w->total_size = (int)sizeof(header);
+
 	return w;
 }
 
