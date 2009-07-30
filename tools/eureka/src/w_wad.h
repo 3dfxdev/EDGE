@@ -110,6 +110,7 @@ public:
 
 private:
 	void ReadDirectory();
+	void DetectLevels();
 
 private:
 	// deliberately don't implement these
