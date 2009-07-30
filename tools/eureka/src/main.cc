@@ -424,6 +424,7 @@ done :
 int main(int argc, char *argv[])
 {
 	LogInit("LOG.txt");
+	LogEnableDebug();
 
 	int r;
 
