@@ -29,6 +29,7 @@
 
 
 class Wad_file;
+class Texture_info;
 
 
 class Lump_c
@@ -57,12 +58,29 @@ private:
 
 	std::vector< Lump_c* > directory;
 
+	int dir_offset;
+	int dir_length;
+	u32_t dir_crc;
+
+	// these are lump indices (into 'directory' vector)
+	std::vector<short> levels;
+	std::vector<short> patches;
+	std::vector<short> sprites;
+	std::vector<short> flats;
+
+	Texture_info *tex_info;
+
+	// this keeps track of unused areas in the WAD file
+	std::vector< Lump_c* > holes;
+
+	// constructor is private
 	Wad_file(FILE * file);
 
 public:
 	~Wad_file();
 
 	static Wad_file * Open(const char *filename);
+	static Wad_file * Create(const char *filename);
 
 
 private:
