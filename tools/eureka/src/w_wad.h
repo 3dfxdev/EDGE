@@ -46,6 +46,7 @@ private:
 
 	// constructor is private
 	Lump_c(Wad_file *_par, const char *_nam, int _start, int _len);
+	Lump_c(Wad_file *_par, const struct raw_wad_entry_s *entry);
 
 public:
 	~Lump_c();
@@ -76,7 +77,7 @@ private:
 	std::vector< Lump_c* > directory;
 
 	int dir_start;
-	int dir_length;
+	int dir_count;
 	u32_t dir_crc;
 
 	// these are lump indices (into 'directory' vector)

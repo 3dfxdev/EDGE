@@ -26,6 +26,7 @@
 
 #include "main.h"
 
+#include "lib_crc.h"
 #include "w_rawdef.h"
 #include "w_wad.h"
 
@@ -39,6 +40,24 @@ Lump_c::Lump_c(Wad_file *_par, const char *_nam, int _start, int _len) :
 	parent(_par), l_start(_start), l_length(_len)
 {
 	name = strdup(_nam);
+}
+
+Lump_c::Lump_c(Wad_file *_par, const struct raw_wad_entry_s *entry) :
+	parent(_par)
+{
+	// handle the entry name, which can lack a terminating NUL
+	char *buffer = (char *)malloc(10);
+	SYS_ASSERT(buffer);
+
+	memcpy(buffer, entry->name, 8);
+	buffer[8] = 0;
+
+	name = buffer;
+
+	l_start  = LE_U32(entry->pos);
+	l_length = LE_U32(entry->size);
+
+//	DebugPrintf("new lump '%s' @ %d len:%d\n", name, l_start, l_length);
 }
 
 Lump_c::~Lump_c()
@@ -66,7 +85,7 @@ bool Lump_c::Read(void *data, int len)
 
 
 Wad_file::Wad_file(FILE * file) : fp(file), directory(),
-	dir_start(0), dir_length(0), dir_crc(0),
+	dir_start(0), dir_count(0), dir_crc(0),
 	levels(), patches(), sprites(), flats(), tex_info(NULL),
 	holes()
 {
@@ -83,6 +102,8 @@ Wad_file * Wad_file::Open(const char *filename)
 	FILE *fp = fopen(filename, "rw");
 	if (! fp)
 		return NULL;
+
+	// FIXME : determine total size (seek to end)
 
 	Wad_file *w = new Wad_file(fp);
 
@@ -177,7 +198,51 @@ short Wad_file::FindLevel(const char *name)
 
 void Wad_file::ReadDirectory()
 {
-	// TODO: ReadDirectory
+	// TODO: no fatal errors
+
+	// TODO: rewind(fp);
+
+	// FIXME: read header in ::Open()
+	raw_wad_header_t header;
+
+	if (fread(&header, sizeof(header), 1, fp) != 1)
+		FatalError("Error reading WAD header.\n");
+
+	// TODO: check ident for PWAD or IWAD
+
+	dir_start = LE_U32(header.dir_start);
+	dir_count = LE_U32(header.num_entries);
+
+	if (dir_count > 32000)
+		FatalError("Bad WAD header, too many entries (%d)\n", dir_count);
+
+	crc32_c checksum;
+
+	if (fseek(fp, dir_start, SEEK_SET) != 0)
+		FatalError("Error seeking to WAD directory.\n");
+	
+	for (int i = 0; i < dir_count; i++)
+	{
+		raw_wad_entry_t entry;
+
+		if (fread(&entry, sizeof(entry), 1, fp) != 1)
+			FatalError("Error reading WAD directory.\n");
+
+		// update the checksum with each _RAW_ entry
+		checksum.AddBlock((u8_t *) &entry, sizeof(entry));
+
+		Lump_c *lump = new Lump_c(this, &entry);
+
+		// TODO: check if entry is valid
+
+		directory.push_back(lump);
+
+		// FIXME: handle the namespaces (S_START..S_END etc)
+	}
+
+	dir_crc = checksum.raw;
+
+	LogPrintf("Loaded directory. crc = %08x\n", dir_crc);
 }
 
 
