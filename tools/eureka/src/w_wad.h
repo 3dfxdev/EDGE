@@ -37,22 +37,33 @@ class Lump_c
 friend class Wad_file;
 
 private:
+	Wad_file *parent;
+
+	const char *name;
+
 	int offset;
 	int length;
 
-	Lump_c(int _ofs, int _len);
+	Lump_c(Wad_file *_par, const char *_nam, int _ofs, int _len);
 
 public:
 	~Lump_c();
 
 	int Length() const { return length; }
 
-	
+	// attempt to seek to a position within the lump (default is
+	// the beginning).  Returns true if OK, false on error.
+	bool Seek(int offset = 0);
+
+	// read some data from the lump, returning true if OK.
+	bool Read(byte *data, int length);
 };
 
 
 class Wad_file
 {
+friend class Lump_c;
+
 private:
 	FILE * fp;
 
@@ -82,13 +93,31 @@ public:
 	static Wad_file * Open(const char *filename);
 	static Wad_file * Create(const char *filename);
 
+	Lump_c * GetLump(short index);
+	Lump_c * FindLump(const char *name);
+	Lump_c * FindLumpInLevel(short level, const char *name);
+
+	short FindLevel(const char *name);
 
 private:
 	void ReadDirectory();
 };
 
 
-extern std::vector< Wad_file* > master_dir;
+extern std::vector<Wad_file *> master_dir;
+
+// the WAD which we are currently editing
+extern Wad_file * editing_wad;
+
+
+// attemps to find the level for editing.  If found, sets the
+// 'editing_wad' global var and returns the lump index, or
+// returns -1 if not found.
+short WAD_FindEditLevel(const char *name);
+
+// find a lump in any loaded wad (later ones tried first),
+// returning NULL if not found.
+Lump_c * WAD_FindLump(const char *name);
 
 
 #endif  /* __W_WAD_H__ */
