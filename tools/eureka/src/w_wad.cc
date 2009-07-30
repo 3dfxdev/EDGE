@@ -226,10 +226,10 @@ void Wad_file::ReadDirectory()
 
 	// TODO: check ident for PWAD or IWAD
 
-	dir_start = LE_U32(header.dir_start);
-	dir_count = LE_U32(header.num_entries);
+	dir_start = LE_S32(header.dir_start);
+	dir_count = LE_S32(header.num_entries);
 
-	if (dir_count > 32000)
+	if (dir_count < 0 || dir_count > 32000)
 		FatalError("Bad WAD header, too many entries (%d)\n", dir_count);
 
 	crc32_c checksum;
@@ -417,6 +417,46 @@ void Wad_file::ProcessNamespaces()
 
 	if (active)
 		LogPrintf("WARNING: Missing %c_END marker (at EOF)\n", active);
+}
+
+
+bool Wad_file::WasExternallyModified()
+{
+	if (fseek(fp, 0, SEEK_END) != 0)
+		FatalError("Error determining WAD size.\n");
+
+	if (total_size != (int)ftell(fp))
+		return true;
+	
+	rewind(fp);
+
+	raw_wad_header_t header;
+
+	if (fread(&header, sizeof(header), 1, fp) != 1)
+		FatalError("Error reading WAD header.\n");
+
+	if (dir_start != LE_S32(header.dir_start) ||
+		dir_count != LE_S32(header.num_entries))
+		return true;
+
+	fseek(fp, dir_start, SEEK_SET);
+
+	crc32_c checksum;
+
+	for (int i = 0; i < dir_count; i++)
+	{
+		raw_wad_entry_t entry;
+
+		if (fread(&entry, sizeof(entry), 1, fp) != 1)
+			FatalError("Error reading WAD directory.\n");
+
+		checksum.AddBlock((u8_t *) &entry, sizeof(entry));
+
+	}
+
+	DebugPrintf("New CRC : %08x\n", checksum.raw);
+
+	return (dir_crc != checksum.raw);
 }
 
 

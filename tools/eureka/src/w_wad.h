@@ -110,6 +110,11 @@ public:
 
 	short FindLevel(const char *name);
 
+	// check whether another program has modified this WAD, and return
+	// either true or false.  We test if the file has changed size, if
+	// the directory has moved or changed size, and the directory CRC.
+	bool WasExternallyModified();
+
 private:
 	void ReadDirectory();
 	void DetectLevels();
