@@ -47,7 +47,7 @@ struct Directory
 /* The wad file pointer structure is used for holding the information
    on the wad files in a linked list.
    The first wad file is the main wad file. The rest are patches. */
-class Wad_file;
+class Wad_file0;
 
 /* The master directory structure is used to build a complete directory
    of all the data blocks from all the various wad files. */
@@ -55,7 +55,7 @@ typedef struct MasterDirectory *MDirPtr;
 struct MasterDirectory
    {
    MDirPtr next;    // Next in list
-   const Wad_file *wadfile; // File of origin
+   const Wad_file0 *wadfile; // File of origin
    struct Directory dir;  // Directory data
    };
 
@@ -69,10 +69,10 @@ extern MDirPtr   MasterDir; // The master directory
 struct Lump_loc
    {
    Lump_loc () { wad = 0; }
-   Lump_loc (const Wad_file *w, s32_t o, s32_t l) { wad = w; ofs = o; len = l; }
+   Lump_loc (const Wad_file0 *w, s32_t o, s32_t l) { wad = w; ofs = o; len = l; }
    bool operator == (const Lump_loc& other) const
      { return wad == other.wad && ofs == other.ofs && len == other.len; }
-   const Wad_file *wad;
+   const Wad_file0 *wad;
    s32_t ofs;
    s32_t len;
 };

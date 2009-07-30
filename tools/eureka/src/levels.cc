@@ -126,7 +126,7 @@ void ReadWTextureNames ()
 		dir = FindMasterDir (MasterDir, lump_name);
 		if (dir != NULL)  // In theory it always exists, though
 		{
-			const Wad_file *wf = dir->wadfile;
+			const Wad_file0 *wf = dir->wadfile;
 			wf->seek (dir->dir.start);
 			if (wf->error ())
 			{
@@ -171,7 +171,7 @@ void ReadWTextureNames ()
 			dir = FindMasterDir (MasterDir, "TEXTURE2");
 			if (dir)  /* Doom II has no TEXTURE2 */
 			{
-				const Wad_file *wf = dir->wadfile;
+				const Wad_file0 *wf = dir->wadfile;
 				wf->seek (dir->dir.start);
 				if (wf->error ())
 				{

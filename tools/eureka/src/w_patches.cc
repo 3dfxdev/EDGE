@@ -108,7 +108,7 @@ void Patch_dir::refresh (MDirPtr master_dir)
 						(long) dir->dir.size, (int) (pnames_body_size % 8));
 			}
 			npatches_body = pnames_body_size / 8;
-			const Wad_file *wf = dir->wadfile;
+			const Wad_file0 *wf = dir->wadfile;
 			wf->seek (dir->dir.start);
 			if (wf->error ())
 			{

@@ -44,7 +44,7 @@ extern size_t NumFTexture;  /* number of floor/ceiling textures */
 typedef struct
 {
   char            name[WAD_NAME + 1]; // Name of flat
-  const Wad_file *wadfile;    // Pointer on wad where flat comes from
+  const Wad_file0 *wadfile;    // Pointer on wad where flat comes from
   s32_t             offset;   // Offset of flat in wad
 } flat_list_entry_t;      // Length is implicit (always 4096)
 extern flat_list_entry_t *flat_list;  // List of all flats in the directory
