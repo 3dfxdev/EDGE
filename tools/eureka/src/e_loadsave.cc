@@ -281,7 +281,35 @@ static void LoadLineDefs()
 
 static void RemoveUnusedVertices()
 {
-	// FIXME: RemoveUnusedVertices
+	if (NumVertices == 0)
+		return;
+	
+	bitvec_c *used_verts = new bitvec_c(NumVertices);
+
+	for (int i = 0; i < NumLineDefs; i++)
+	{
+		used_verts->set(LineDefs[i]->start);
+		used_verts->set(LineDefs[i]->end);
+	}
+
+	int new_count = NumVertices;
+
+	while (new_count > 2 && !used_verts->get(new_count-1))
+		new_count--;
+
+	// we directly modify the vertex array here (which is not
+	// normally kosher, but level loading is a special case).
+	if (new_count < NumVertices)
+	{
+		LogPrintf("Removing %d unused vertices at end\n", new_count);
+
+		for (int i = new_count; i < NumVertices; i++)
+			delete Vertices[i];
+
+		Vertices.resize(new_count);
+	}
+
+	delete used_verts;
 }
 
 
@@ -291,6 +319,8 @@ static void RemoveUnusedVertices()
 
 int LoadLevel(const char *levelname)
 {
+	LogPrintf("Loading level: %s\n", levelname);
+
 	/* Find the various level information from the master directory */
 	//DisplayMessage (-1, -1, "Reading data for level %s...", levelname);
 	Level = FindMasterDir (MasterDir, levelname);
