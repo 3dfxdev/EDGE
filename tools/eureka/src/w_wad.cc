@@ -84,11 +84,17 @@ bool Lump_c::Write(void *data, int len)
 {
 	SYS_ASSERT(data && len > 0);
 
+	if (l_start == 0)
+		l_start = parent->PositionForWrite();
+
+	l_length += len;
+
 	return (fwrite(data, len, 1, parent->fp) == 1);
 }
 
-bool Lump_c::Finish(void *data, int len)
+bool Lump_c::Finish()
 {
+	parent->FinishLump();
 	// TODO
 }
 
@@ -96,10 +102,10 @@ bool Lump_c::Finish(void *data, int len)
 //------------------------------------------------------------------------
 
 
-Wad_file::Wad_file(FILE * file) : fp(file), directory(),
-	dir_start(0), dir_count(0), dir_crc(0),
+Wad_file::Wad_file(FILE * file) : fp(file), total_size(0),
+	directory(), dir_start(0), dir_count(0), dir_crc(0),
 	levels(), patches(), sprites(), flats(), tex_info(NULL),
-	holes()
+	can_write(false)
 {
 }
 
@@ -113,7 +119,7 @@ Wad_file * Wad_file::Open(const char *filename)
 {
 	LogPrintf("Opening WAD file: %s\n", filename);
 
-	FILE *fp = fopen(filename, "rw");
+	FILE *fp = fopen(filename, "r+b");
 	if (! fp)
 		return NULL;
 
@@ -141,7 +147,7 @@ Wad_file * Wad_file::Create(const char *filename)
 {
 	LogPrintf("Creating new WAD file: %s\n", filename);
 
-	FILE *fp = fopen(filename, "rw");
+	FILE *fp = fopen(filename, "w+b");
 	if (! fp)
 		return NULL;
 
@@ -507,14 +513,7 @@ void Wad_file::EndWrite()
 
 	can_write = false;
 
-	if (total_size == 0)
-	{
-		total_size == HighWaterMark();
-		InvalidateHoles();
-	}
-
-
-	//....
+	WriteDirectory();
 }
 
 
@@ -530,15 +529,11 @@ void Wad_file::RemoveLumps(short index, short count)
 	{
 		Lump_c * lump = directory[index + i];
 
-	// worth re-using the space?
-	// FIXME: it is possible another lump is using the same data
-	//        area (an optimisation for identical lumps), hence we
-	//        cannot do the following without a checking for that.
-#if 0
-		if (lump->Length() >= 256)
-			holes.push_back(lump);
-		else
-#endif
+		// it would be possible to put this lump into a list of
+		// 'holes' for later re-use.  However the possibility of
+		// aliasing (i.e. two entries in the directory refering
+		// to the same data) make that a pain to implement.
+
 		delete lump;
 	}
 
@@ -550,11 +545,14 @@ void Wad_file::RemoveLumps(short index, short count)
 
 bool Wad_file::RemoveLump(const char *name)
 {
+	// TODO: RemoveLump
 }
 
 bool Wad_file::RemoveLevel(short level)
 {
 	SYS_ASSERT(can_write);
+
+	// TODO: RemoveLevel
 }
 
 
@@ -562,11 +560,12 @@ Lump_c * Wad_file::AddLump(const char *name, int max_size)
 {
 	if (total_size == 0)
 	{
-		total_size == HighWaterMark();
-		InvalidateHoles();
+		HighWaterMark();
 	}
 
 	SYS_ASSERT(can_write);
+
+	// TODO: AddLump
 }
 
 Lump_c * Wad_file::AddLevel(const char *name, int max_size)
@@ -576,9 +575,10 @@ Lump_c * Wad_file::AddLevel(const char *name, int max_size)
 	return AddLump(name, max_size);
 }
 
+
 int Wad_file::HighWaterMark()
 {
-	int offset = size(raw_wad_header_t);
+	int offset = (int)sizeof(raw_wad_header_t);
 
 	for (int k = 0; k < NumLumps(); k++)
 	{
@@ -600,6 +600,70 @@ int Wad_file::HighWaterMark()
 	return offset;
 }
 
+int Wad_file::PositionForWrite()
+{
+	// already got the position?
+	if (total_size > 0)
+		return total_size;
+
+	total_size = HighWaterMark();
+	SYS_ASSERT(total_size > 0);
+
+	if (fseek(fp, 0, SEEK_END) < 0)
+		FatalError("Error seeking to new write position.\n");
+
+	int pos = (int)ftell(fp);
+
+	if (pos < 0)
+		FatalError("Error seeking to new write position.\n");
+	
+	if (pos < total_size)
+	{
+		WritePadding(total_size - pos);
+		fflush(fp);
+	}
+	else if (pos > total_size)
+	{
+		if (fseek(fp, total_size, SEEK_SET) < 0)
+			FatalError("Error seeking to new write position.\n");
+	}
+
+	return total_size;
+}
+
+
+void Wad_file::FinishLump()
+{
+	if (total_size & 3)
+	{
+		total_size += WritePadding(4 - (total_size & 3));
+	}
+
+	fflush(fp);
+}
+
+
+int Wad_file::WritePadding(int count)
+{
+	static byte zeros[8] = { 0,0,0,0,0,0,0,0 };
+
+	SYS_ASSERT(1 <= count && count <= 8);
+
+	fwrite(zeros, count, 1, fp);
+
+	return count;
+}
+
+
+void Wad_file::WriteDirectory()
+{
+	PositionForWrite();
+
+	// TODO WriteDirectory
+}
+
+
+#if 0  // NOT USED
 void Wad_file::InvalidateHoles()
 {
 	int dest = 0;
@@ -620,6 +684,7 @@ void Wad_file::InvalidateHoles()
 
 	holes.resize(dest);
 }
+#endif
 
 
 //------------------------------------------------------------------------

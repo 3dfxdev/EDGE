@@ -100,9 +100,6 @@ private:
 
 	Texture_info *tex_info;
 
-	// this keeps track of unused areas in the WAD file
-	std::vector< Lump_c* > holes;
-
 	bool can_write;
 
 	// constructor is private
@@ -155,8 +152,17 @@ private:
 	// start of file where we can write new data.
 	int HighWaterMark();
 
-	// remove any holes that lie above the high water mark
-	void InvalidateHoles(int high_mark);
+	// set the file write position to match 'total_size', appending
+	// zeros if the file is currently shorter (the different should
+	// be no more than a few bytes).  Returns new position.
+	int PositionForWrite();
+
+	void FinishLump();
+	int  WritePadding(int count);
+
+	// write the new directory, updating the dir_xxx variables
+	// (including the CRC).
+	void WriteDirectory();
 
 private:
 	// deliberately don't implement these
