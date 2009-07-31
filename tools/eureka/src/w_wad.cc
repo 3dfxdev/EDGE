@@ -46,13 +46,11 @@ Lump_c::Lump_c(Wad_file *_par, const struct raw_wad_entry_s *entry) :
 	parent(_par)
 {
 	// handle the entry name, which can lack a terminating NUL
-	char *buffer = (char *)malloc(10);
-	SYS_ASSERT(buffer);
-
-	memcpy(buffer, entry->name, 8);
+	char buffer[10];
+	strncpy(buffer, entry->name, 8);
 	buffer[8] = 0;
 
-	name = buffer;
+	name = strdup(buffer);
 
 	l_start  = LE_U32(entry->pos);
 	l_length = LE_U32(entry->size);
@@ -63,6 +61,14 @@ Lump_c::Lump_c(Wad_file *_par, const struct raw_wad_entry_s *entry) :
 Lump_c::~Lump_c()
 {
 	free((void*)name);
+}
+
+void Lump_c::MakeEntry(struct raw_wad_entry_s *entry)
+{
+	strncpy(entry->name, name, 8);
+
+	entry->pos    = LE_U32(l_start);
+	entry->length = LE_U32(l_length);
 }
 
 
@@ -84,10 +90,10 @@ bool Lump_c::Write(void *data, int len)
 {
 	SYS_ASSERT(data && len > 0);
 
-	if (l_start == 0)
-		l_start = parent->PositionForWrite();
-
 	l_length += len;
+
+	// hmmm, maybe move this into Wad_file
+	parent->total_size += len;
 
 	return (fwrite(data, len, 1, parent->fp) == 1);
 }
@@ -95,7 +101,6 @@ bool Lump_c::Write(void *data, int len)
 bool Lump_c::Finish()
 {
 	parent->FinishLump();
-	// TODO
 }
 
 
@@ -508,7 +513,7 @@ void Wad_file::BeginWrite()
 
 void Wad_file::EndWrite()
 {
-	if (!can_write)
+	if (! can_write)
 		BugError("Wad_file::EndWrite() called without BeginWrite()\n");
 
 	can_write = false;
@@ -558,12 +563,12 @@ bool Wad_file::RemoveLevel(short level)
 
 Lump_c * Wad_file::AddLump(const char *name, int max_size)
 {
-	if (total_size == 0)
-	{
-		HighWaterMark();
-	}
-
 	SYS_ASSERT(can_write);
+
+
+		l_start = parent->PositionForWrite();
+
+
 
 	// TODO: AddLump
 }
@@ -642,7 +647,6 @@ void Wad_file::FinishLump()
 	fflush(fp);
 }
 
-
 int Wad_file::WritePadding(int count)
 {
 	static byte zeros[8] = { 0,0,0,0,0,0,0,0 };
@@ -657,9 +661,44 @@ int Wad_file::WritePadding(int count)
 
 void Wad_file::WriteDirectory()
 {
-	PositionForWrite();
+	dir_start = PositionForWrite();
+	dir_count = NumLumps();
 
-	// TODO WriteDirectory
+	LogPrintf("WriteDirectory...\n");
+	DebugPrintf("dir_start:%d  dir_count:%d\n", dir_start, dir_count);
+
+	crc32_c checksum;
+
+	for (int k = 0; k < dir_count; k++)
+	{
+		Lump_c *lump = directory[k];
+		SYS_ASSERT(lump);
+
+		raw_wad_entry_t entry;
+
+		lump->MakeEntry(&entry);
+
+		// update the CRC
+		checksum.AddBlock((u8_t *) &entry, sizeof(entry));
+
+		if (fwrite(&entry, sizeof(entry), 1, fp) != 1)
+			FatalError("Error writing WAD directory.\n");
+	}
+
+	dir_crc = checksum.raw;
+	DebugPrintf("dir_crc: %08x\n", dir_crc);
+
+	fflush(fp);
+
+	total_size = (int)ftell(fp);
+	DebugPrintf("total_size: %d\n", total_size);
+
+	if (total_size < 0)
+		FatalError("Error determining WAD size.\n");
+	
+	// update header at start of file
+	
+	// FIXME!!!
 }
 
 

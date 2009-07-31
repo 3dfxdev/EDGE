@@ -48,6 +48,8 @@ private:
 	Lump_c(Wad_file *_par, const char *_nam, int _start, int _len);
 	Lump_c(Wad_file *_par, const struct raw_wad_entry_s *entry);
 
+	void MakeEntry(struct raw_wad_entry_s *entry);
+
 public:
 	~Lump_c();
 
@@ -85,6 +87,8 @@ private:
 	// call to BeginWrite() and before any call to AddLump() or
 	// the finishing EndWrite().
 	int total_size;
+
+	char kind;  // 'P' for PWAD, 'I' for IWAD
 
 	std::vector< Lump_c* > directory;
 
