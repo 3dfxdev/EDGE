@@ -80,6 +80,18 @@ bool Lump_c::Read(void *data, int len)
 	return (fread(data, len, 1, parent->fp) == 1);
 }
 
+bool Lump_c::Write(void *data, int len)
+{
+	SYS_ASSERT(data && len > 0);
+
+	return (fwrite(data, len, 1, parent->fp) == 1);
+}
+
+bool Lump_c::Finish(void *data, int len)
+{
+	// TODO
+}
+
 
 //------------------------------------------------------------------------
 
@@ -271,6 +283,20 @@ static int WhatLevelPart(const char *name)
 	return 0;
 }
 
+static bool IsLevelLump(const char *name)
+{
+	if (y_stricmp(name, "SEGS")     == 0) return true;
+	if (y_stricmp(name, "SSECTORS") == 0) return true;
+	if (y_stricmp(name, "NODES")    == 0) return true;
+	if (y_stricmp(name, "REJECT")   == 0) return true;
+	if (y_stricmp(name, "BLOCKMAP") == 0) return true;
+	if (y_stricmp(name, "BEHAVIOR") == 0) return true;
+	if (y_stricmp(name, "SCRIPTS")  == 0) return true;
+
+	return WhatLevelPart(name) != 0;
+}
+
+
 void Wad_file::DetectLevels()
 {
 	// Determine what lumps in the wad are level markers, based on
@@ -457,6 +483,142 @@ bool Wad_file::WasExternallyModified()
 	DebugPrintf("New CRC : %08x\n", checksum.raw);
 
 	return (dir_crc != checksum.raw);
+}
+
+
+//------------------------------------------------------------------------
+
+
+void Wad_file::BeginWrite()
+{
+	if (can_write)
+		BugError("Wad_file::BeginWrite() called again with EndWrite()\n");
+
+	// put the size into a quantum state
+	total_size = 0;
+
+	can_write = true;
+}
+
+void Wad_file::EndWrite()
+{
+	if (!can_write)
+		BugError("Wad_file::EndWrite() called without BeginWrite()\n");
+
+	can_write = false;
+
+	if (total_size == 0)
+	{
+		total_size == HighWaterMark();
+		InvalidateHoles();
+	}
+
+
+	//....
+}
+
+
+void Wad_file::RemoveLumps(short index, short count)
+{
+	SYS_ASSERT(can_write);
+	SYS_ASSERT(0 <= index && index < NumLumps());
+	SYS_ASSERT(directory[index]);
+
+	short i;
+
+	for (i = 0; i < count; i++)
+	{
+		Lump_c * lump = directory[index + i];
+
+	// worth re-using the space?
+	// FIXME: it is possible another lump is using the same data
+	//        area (an optimisation for identical lumps), hence we
+	//        cannot do the following without a checking for that.
+#if 0
+		if (lump->Length() >= 256)
+			holes.push_back(lump);
+		else
+#endif
+		delete lump;
+	}
+
+	for (i = index; i+count < NumLumps(); i++)
+		directory[i] = directory[i+count];
+
+	directory.resize(directory.size() - (size_t)count);
+}
+
+bool Wad_file::RemoveLump(const char *name)
+{
+}
+
+bool Wad_file::RemoveLevel(short level)
+{
+	SYS_ASSERT(can_write);
+}
+
+
+Lump_c * Wad_file::AddLump(const char *name, int max_size)
+{
+	if (total_size == 0)
+	{
+		total_size == HighWaterMark();
+		InvalidateHoles();
+	}
+
+	SYS_ASSERT(can_write);
+}
+
+Lump_c * Wad_file::AddLevel(const char *name, int max_size)
+{
+	levels.push_back(NumLumps());
+
+	return AddLump(name, max_size);
+}
+
+int Wad_file::HighWaterMark()
+{
+	int offset = size(raw_wad_header_t);
+
+	for (int k = 0; k < NumLumps(); k++)
+	{
+		Lump_c *lump = directory[k];
+
+		// ignore zero-length lumps (their offset could be anything)
+		if (lump->Length() <= 0)
+			continue;
+
+		int l_end = lump->l_start + lump->l_length;
+
+		if (offset < l_end)
+			offset = l_end;
+	}
+
+	// round up to a multiple of 4
+	offset = ((offset + 3) / 4) * 4;
+
+	return offset;
+}
+
+void Wad_file::InvalidateHoles()
+{
+	int dest = 0;
+
+	for (int i = 0; i < (int)holes.size(); i++)
+	{
+		Lump_c *hole = holes[i];
+		SYS_ASSERT(hole);
+
+		if (hole->l_start + hole->l_length >= total_size)
+		{
+			delete hole; continue;
+		}
+
+		// compact the array as we go...
+		holes[dest++] = hole;
+	}
+
+	holes.resize(dest);
 }
 
 
