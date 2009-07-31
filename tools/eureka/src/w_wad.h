@@ -60,6 +60,13 @@ public:
 	// read some data from the lump, returning true if OK.
 	bool Read(void *data, int len);
 
+	// write some data to the lump.  Only the lump which had just
+	// been created with Wad_file::AddLump() can be written to.
+	bool Write(void *data, int len);
+
+	// mark the lump as finished (after writing it).
+	bool Finish();
+
 private:
 	// deliberately don't implement these
 	Lump_c(const Lump_c& other);
@@ -93,6 +100,8 @@ private:
 	// this keeps track of unused areas in the WAD file
 	std::vector< Lump_c* > holes;
 
+	bool can_write;
+
 	// constructor is private
 	Wad_file(FILE * file);
 
@@ -111,9 +120,28 @@ public:
 	short FindLevel(const char *name);
 
 	// check whether another program has modified this WAD, and return
-	// either true or false.  We test if the file has changed size, if
-	// the directory has moved or changed size, and the directory CRC.
+	// either true or false.  We test for change in file size, change
+	// in directory size or location, and directory contents (CRC).
 	bool WasExternallyModified();
+
+	// all changes to the was must occur between calls to BeginWrite()
+	// and EndWrite() methods.
+	void BeginWrite();
+	void EndWrite();
+
+	// remove the given lump.
+	void RemoveLump(short index);
+	bool RemoveLump(const char *name);
+
+	// this removes the level marker PLUS all associated level lumps
+	bool RemoveLevel(short level);
+
+	// insert a new lump.  The second form is for a level marker.
+	// The 'max_size' parameter (if >= 0) specifies the most data
+	// you will write into the lump -- writing more will corrupt
+	// something else in the WAD.
+	Lump_c * AddLump (const char *name, int max_size = -1);
+	Lump_c * AddLevel(const char *name, int max_size = -1);
 
 private:
 	void ReadDirectory();
