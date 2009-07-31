@@ -334,7 +334,17 @@ static void SaveVertices(Wad_file *wad)
 
 	Lump_c *lump = wad->AddLump("VERTEXES", size);
 
-	...
+	for (int i = 0; i < NumVertices; i++)
+	{
+		Vertex *vert = Vertices[i];
+
+		raw_vertex_t raw;
+
+		raw.x = LE_S16(vert->x);
+		raw.y = LE_S16(vert->y);
+
+		lump->Write(&raw, sizeof(raw));
+	}
 
 	lump->Finish();
 }
@@ -346,7 +356,24 @@ static void SaveSectors(Wad_file *wad)
 
 	Lump_c *lump = wad->AddLump("SECTORS", size);
 
-	...
+	for (int i = 0; i < NumSectors; i++)
+	{
+		Sector *sec = Sectors[i];
+
+		raw_sector_t raw;
+		
+		raw.floorh = LE_S16(sec->floorh);
+		raw.ceilh  = LE_S16(sec->ceilh);
+
+		strncpy(raw.floor_tex, sec->FloorTex(), sizeof(raw.floor_tex));
+		strncpy(raw.ceil_tex,  sec->CeilTex(),  sizeof(raw.ceil_tex));
+
+		raw.light = LE_U16(sec->light);
+		raw.type  = LE_U16(sec->type);
+		raw.tag   = LE_U16(sec->tag);
+
+		lump->Write(&raw, sizeof(raw));
+	}
 
 	lump->Finish();
 }
@@ -358,7 +385,21 @@ static void SaveThings(Wad_file *wad)
 
 	Lump_c *lump = wad->AddLump("THINGS", size);
 
-	...
+	for (int i = 0; i < NumThings; i++)
+	{
+		Thing *th = Things[i];
+
+		raw_thing_t raw;
+		
+		raw.x = LE_S16(th->x);
+		raw.y = LE_S16(th->y);
+
+		raw.angle   = LE_U16(th->angle);
+		raw.type    = LE_U16(th->type);
+		raw.options = LE_U16(th->options);
+
+		lump->Write(&raw, sizeof(raw));
+	}
 
 	lump->Finish();
 }
@@ -370,7 +411,23 @@ static void SaveSideDefs(Wad_file *wad)
 
 	Lump_c *lump = wad->AddLump("SIDEDEFS", size);
 
-	...
+	for (int i = 0; i < NumSideDefs; i++)
+	{
+		SideDef *side = SideDefs[i];
+
+		raw_sidedef_t raw;
+		
+		raw.x_offset = LE_S16(side->x_offset);
+		raw.y_offset = LE_S16(side->y_offset);
+
+		strncpy(raw.upper_tex, side->UpperTex(), sizeof(raw.upper_tex));
+		strncpy(raw.lower_tex, side->LowerTex(), sizeof(raw.lower_tex));
+		strncpy(raw.mid_tex,   side->MidTex(),   sizeof(raw.mid_tex));
+
+		raw.sector = LE_U16(side->sector);
+
+		lump->Write(&raw, sizeof(raw));
+	}
 
 	lump->Finish();
 }
@@ -382,7 +439,24 @@ static void SaveLineDefs(Wad_file *wad)
 
 	Lump_c *lump = wad->AddLump("LINEDEFS", size);
 
-	...
+	for (int i = 0; i < NumThings; i++)
+	{
+		LineDef *ld = LineDefs[i];
+
+		raw_linedef_t raw;
+		
+		raw.start = LE_U16(ld->start);
+		raw.end   = LE_U16(ld->end);
+
+		raw.flags = LE_U16(ld->flags);
+		raw.type  = LE_U16(ld->type);
+		raw.tag   = LE_S16(ld->tag);
+
+		raw.right = (ld->right >= 0) ? LE_U16(ld->right) : 0xFFFF;
+		raw.left  = (ld->left  >= 0) ? LE_U16(ld->left)  : 0xFFFF;
+
+		lump->Write(&raw, sizeof(raw));
+	}
 
 	lump->Finish();
 }
@@ -397,21 +471,21 @@ int SaveLevel(const char *levelname)
 	if (was_old)
 		wad->RemoveLevel(xxx);
 
-	wad->AddLevel(levelname);
+	wad->AddLevel(levelname, 0);
 
 	SaveThings  (wad);
 	SaveLineDefs(wad);
 	SaveSideDefs(wad);
-	SaveVertexes(wad);
+	SaveVertices(wad);
 
-	wad->AddLump("SEGS")    ->Finish();
-	wad->AddLump("SSECTORS")->Finish();
-	wad->AddLump("NODES")   ->Finish();
+	wad->AddLump("SEGS",     0)->Finish();
+	wad->AddLump("SSECTORS", 0)->Finish();
+	wad->AddLump("NODES",    0)->Finish();
 
 	SaveSectors(wad);
 
-	wad->AddLump("REJECT")  ->Finish();
-	wad->AddLump("BLOCKMAP")->Finish();
+	wad->AddLump("REJECT",   0)->Finish();
+	wad->AddLump("BLOCKMAP", 0)->Finish();
 
 	// write out the new directory
 	wad->EndWrite();
