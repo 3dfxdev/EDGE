@@ -81,6 +81,9 @@ friend class Lump_c;
 private:
 	FILE * fp;
 
+	// zero means "currently unknown", which only occurs after a
+	// call to BeginWrite() and before any call to AddLump() or
+	// the finishing EndWrite().
 	int total_size;
 
 	std::vector< Lump_c* > directory;
@@ -129,8 +132,8 @@ public:
 	void BeginWrite();
 	void EndWrite();
 
-	// remove the given lump.
-	void RemoveLump(short index);
+	// remove the given lump(s)
+	void RemoveLumps(short index, short count = 1);
 	bool RemoveLump(const char *name);
 
 	// this removes the level marker PLUS all associated level lumps
@@ -147,6 +150,13 @@ private:
 	void ReadDirectory();
 	void DetectLevels();
 	void ProcessNamespaces();
+
+	// look at all the lumps and determine the lowest offset from
+	// start of file where we can write new data.
+	int HighWaterMark();
+
+	// remove any holes that lie above the high water mark
+	void InvalidateHoles(int high_mark);
 
 private:
 	// deliberately don't implement these
