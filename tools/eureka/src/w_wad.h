@@ -90,7 +90,7 @@ private:
 
 	char kind;  // 'P' for PWAD, 'I' for IWAD
 
-	std::vector< Lump_c* > directory;
+	std::vector<Lump_c *> directory;
 
 	int dir_start;
 	int dir_count;
@@ -121,6 +121,7 @@ public:
 	Lump_c * FindLump(const char *name);
 	Lump_c * FindLumpInLevel(const char *name, short level);
 
+	short FindLumpNum(const char *name);
 	short FindLevel(const char *name);
 
 	// check whether another program has modified this WAD, and return
@@ -135,10 +136,9 @@ public:
 
 	// remove the given lump(s)
 	void RemoveLumps(short index, short count = 1);
-	bool RemoveLump(const char *name);
 
 	// this removes the level marker PLUS all associated level lumps
-	bool RemoveLevel(short level);
+	void RemoveLevel(short level);
 
 	// insert a new lump.  The second form is for a level marker.
 	// The 'max_size' parameter (if >= 0) specifies the most data
@@ -148,8 +148,11 @@ public:
 	Lump_c * AddLevel(const char *name, int max_size = -1);
 
 private:
+	// read the existing directory.
 	void ReadDirectory();
+
 	void DetectLevels();
+
 	void ProcessNamespaces();
 
 	// look at all the lumps and determine the lowest offset from
@@ -161,12 +164,14 @@ private:
 	// be no more than a few bytes).  Returns new position.
 	int PositionForWrite();
 
-	void FinishLump();
+	bool FinishLump();
 	int  WritePadding(int count);
 
 	// write the new directory, updating the dir_xxx variables
 	// (including the CRC).
 	void WriteDirectory();
+
+	void FixGroup(std::vector<short>& group, short index, short removed);
 
 private:
 	// deliberately don't implement these
