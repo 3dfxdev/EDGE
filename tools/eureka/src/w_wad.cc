@@ -107,10 +107,11 @@ bool Lump_c::Finish()
 
 
 //------------------------------------------------------------------------
+//  WAD Reading Interface
+//------------------------------------------------------------------------
 
-
-Wad_file::Wad_file(FILE * file) : fp(file), total_size(0),
-	kind('P'), directory(),
+Wad_file::Wad_file(FILE * file) : fp(file), kind('P'),
+	total_size(0), directory(),
 	dir_start(0), dir_count(0), dir_crc(0),
 	levels(), patches(), sprites(), flats(),
 	tex_info(NULL), can_write(false)
@@ -119,7 +120,13 @@ Wad_file::Wad_file(FILE * file) : fp(file), total_size(0),
 
 Wad_file::~Wad_file()
 {
-	// TODO free stuff
+	fclose(fp);
+
+	// free the directory
+	for (short k = 0; k < NumLumps(); k++)
+		delete directory[k];
+
+	directory.clear();
 }
 
 
@@ -176,6 +183,31 @@ Wad_file * Wad_file::Create(const char *filename)
 }
 
 
+static int WhatLevelPart(const char *name)
+{
+	if (y_stricmp(name, "THINGS")   == 0) return 1;
+	if (y_stricmp(name, "LINEDEFS") == 0) return 2;
+	if (y_stricmp(name, "SIDEDEFS") == 0) return 3;
+	if (y_stricmp(name, "VERTEXES") == 0) return 4;
+	if (y_stricmp(name, "SECTORS")  == 0) return 5;
+
+	return 0;
+}
+
+static bool IsLevelLump(const char *name)
+{
+	if (y_stricmp(name, "SEGS")     == 0) return true;
+	if (y_stricmp(name, "SSECTORS") == 0) return true;
+	if (y_stricmp(name, "NODES")    == 0) return true;
+	if (y_stricmp(name, "REJECT")   == 0) return true;
+	if (y_stricmp(name, "BLOCKMAP") == 0) return true;
+	if (y_stricmp(name, "BEHAVIOR") == 0) return true;
+	if (y_stricmp(name, "SCRIPTS")  == 0) return true;
+
+	return WhatLevelPart(name) != 0;
+}
+
+
 Lump_c * Wad_file::GetLump(short index)
 {
 	SYS_ASSERT(0 <= index && index < NumLumps());
@@ -206,25 +238,24 @@ short Wad_file::FindLumpNum(const char *name)
 
 Lump_c * Wad_file::FindLumpInLevel(const char *name, short level)
 {
-	SYS_ASSERT(0 <= level && level < (short)levels.size());
+	SYS_ASSERT(0 <= level && level < NumLumps());
 
 	// determine how far past the level marker (MAP01 etc) to search
-	short last = levels[level] + 14;
+	short last = level + 14;
 
 	if (last >= NumLumps())
 		last = NumLumps() - 1;
-	
-	// assumes levels[] are in increasing lump order!
-	if (level+1 < (short)levels.size())
-		if (last >= levels[level+1])
-			last = levels[level+1] - 1;
 
-	for (short k = levels[level]+1; k <= last; k++)
+	for (short k = level+1; k <= last; k++)
 	{
 		SYS_ASSERT(0 <= k && k < NumLumps());
 
+		if (! IsLevelLump(directory[k]->name))
+			break;
+
 		if (y_stricmp(directory[k]->name, name) == 0)
 			return directory[k];
+
 	}
 
 	return NULL;  // not found
@@ -241,7 +272,7 @@ short Wad_file::FindLevel(const char *name)
 		SYS_ASSERT(directory[index]);
 
 		if (y_stricmp(directory[index]->name, name) == 0)
-			return k;
+			return index;
 	}
 
 	return -1;  // not found
@@ -294,31 +325,6 @@ void Wad_file::ReadDirectory()
 	dir_crc = checksum.raw;
 
 	LogPrintf("Loaded directory. crc = %08x\n", dir_crc);
-}
-
-
-static int WhatLevelPart(const char *name)
-{
-	if (y_stricmp(name, "THINGS")   == 0) return 1;
-	if (y_stricmp(name, "LINEDEFS") == 0) return 2;
-	if (y_stricmp(name, "SIDEDEFS") == 0) return 3;
-	if (y_stricmp(name, "VERTEXES") == 0) return 4;
-	if (y_stricmp(name, "SECTORS")  == 0) return 5;
-
-	return 0;
-}
-
-static bool IsLevelLump(const char *name)
-{
-	if (y_stricmp(name, "SEGS")     == 0) return true;
-	if (y_stricmp(name, "SSECTORS") == 0) return true;
-	if (y_stricmp(name, "NODES")    == 0) return true;
-	if (y_stricmp(name, "REJECT")   == 0) return true;
-	if (y_stricmp(name, "BLOCKMAP") == 0) return true;
-	if (y_stricmp(name, "BEHAVIOR") == 0) return true;
-	if (y_stricmp(name, "SCRIPTS")  == 0) return true;
-
-	return WhatLevelPart(name) != 0;
 }
 
 
@@ -512,7 +518,8 @@ bool Wad_file::WasExternallyModified()
 
 
 //------------------------------------------------------------------------
-
+//  WAD Writing Interface
+//------------------------------------------------------------------------
 
 void Wad_file::BeginWrite()
 {
@@ -568,14 +575,11 @@ void Wad_file::RemoveLumps(short index, short count)
 	FixGroup(flats,   index, count);
 }
 
-void Wad_file::RemoveLevel(short level)
+void Wad_file::RemoveLevel(short index)
 {
 	SYS_ASSERT(can_write);
-	SYS_ASSERT(0 <= level && level < (short)levels.size());
+	SYS_ASSERT(0 <= index && index < NumLumps());
 
-	// Note: FixGroup() handles the levels[] array
-
-	short index = levels[level];
 	short count = 1;
 
 	while (count < 14 && index+count < NumLumps() &&
@@ -583,6 +587,8 @@ void Wad_file::RemoveLevel(short level)
 	{
 		count++;
 	}
+
+	// Note: FixGroup() will remove the entry in levels[]
 
 	RemoveLumps(index, count);
 }
@@ -771,32 +777,9 @@ void Wad_file::WriteDirectory()
 }
 
 
-#if 0  // NOT USED
-void Wad_file::InvalidateHoles()
-{
-	int dest = 0;
-
-	for (short i = 0; i < (int)holes.size(); i++)
-	{
-		Lump_c *hole = holes[i];
-		SYS_ASSERT(hole);
-
-		if (hole->l_start + hole->l_length >= total_size)
-		{
-			delete hole; continue;
-		}
-
-		// compact the array as we go...
-		holes[dest++] = hole;
-	}
-
-	holes.resize(dest);
-}
-#endif
-
-
 //------------------------------------------------------------------------
-
+//  GLOBAL API
+//------------------------------------------------------------------------
 
 short WAD_FindEditLevel(const char *name)
 {
@@ -804,9 +787,9 @@ short WAD_FindEditLevel(const char *name)
 	{
 		editing_wad = master_dir[i];
 
-		short level = editing_wad->FindLevel(name);
-		if (level >= 0)
-			return level;
+		short index = editing_wad->FindLevel(name);
+		if (index >= 0)
+			return index;
 	}
 
 	// not found

@@ -83,12 +83,12 @@ friend class Lump_c;
 private:
 	FILE * fp;
 
+	char kind;  // 'P' for PWAD, 'I' for IWAD
+
 	// zero means "currently unknown", which only occurs after a
 	// call to BeginWrite() and before any call to AddLump() or
-	// the finishing EndWrite().
+	// the finalizing EndWrite().
 	int total_size;
-
-	char kind;  // 'P' for PWAD, 'I' for IWAD
 
 	std::vector<Lump_c *> directory;
 
@@ -137,8 +137,9 @@ public:
 	// remove the given lump(s)
 	void RemoveLumps(short index, short count = 1);
 
-	// this removes the level marker PLUS all associated level lumps
-	void RemoveLevel(short level);
+	// this removes the level marker PLUS all associated level
+	// lumps which follow it.
+	void RemoveLevel(short index);
 
 	// insert a new lump.  The second form is for a level marker.
 	// The 'max_size' parameter (if >= 0) specifies the most data
@@ -152,7 +153,6 @@ private:
 	void ReadDirectory();
 
 	void DetectLevels();
-
 	void ProcessNamespaces();
 
 	// look at all the lumps and determine the lowest offset from
@@ -188,8 +188,7 @@ extern Wad_file * editing_wad;
 
 // attemps to find the level for editing.  If found, sets the
 // 'editing_wad' global var to the wad containing the level and
-// returns a LEVEL index number (NOT a lump number).  If not
-// found, returns -1.
+// returns the lump number.  If not found, returns -1.
 short WAD_FindEditLevel(const char *name);
 
 // find a lump in any loaded wad (later ones tried first),
