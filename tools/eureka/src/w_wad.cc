@@ -26,12 +26,14 @@
 
 #include "main.h"
 
+#include <algorithm>
+
 #include "lib_crc.h"
 #include "w_rawdef.h"
 #include "w_wad.h"
 
 
-std::vector< Wad_file* > master_dir;
+std::vector<Wad_file *> master_dir;
 
 Wad_file * editing_wad;
 
@@ -67,8 +69,8 @@ void Lump_c::MakeEntry(struct raw_wad_entry_s *entry)
 {
 	strncpy(entry->name, name, 8);
 
-	entry->pos    = LE_U32(l_start);
-	entry->length = LE_U32(l_length);
+	entry->pos  = LE_U32(l_start);
+	entry->size = LE_U32(l_length);
 }
 
 
@@ -100,7 +102,7 @@ bool Lump_c::Write(void *data, int len)
 
 bool Lump_c::Finish()
 {
-	parent->FinishLump();
+	return parent->FinishLump();
 }
 
 
@@ -108,9 +110,10 @@ bool Lump_c::Finish()
 
 
 Wad_file::Wad_file(FILE * file) : fp(file), total_size(0),
-	directory(), dir_start(0), dir_count(0), dir_crc(0),
-	levels(), patches(), sprites(), flats(), tex_info(NULL),
-	can_write(false)
+	kind('P'), directory(),
+	dir_start(0), dir_count(0), dir_crc(0),
+	levels(), patches(), sprites(), flats(),
+	tex_info(NULL), can_write(false)
 {
 }
 
@@ -184,11 +187,20 @@ Lump_c * Wad_file::GetLump(short index)
 
 Lump_c * Wad_file::FindLump(const char *name)
 {
-	for (int k = 0; k < NumLumps(); k++)
+	for (short k = 0; k < NumLumps(); k++)
 		if (y_stricmp(directory[k]->name, name) == 0)
 			return directory[k];
 
-	return NULL;
+	return NULL;  // not found
+}
+
+short Wad_file::FindLumpNum(const char *name)
+{
+	for (short k = 0; k < NumLumps(); k++)
+		if (y_stricmp(directory[k]->name, name) == 0)
+			return k;
+
+	return -1;  // not found
 }
 
 
@@ -215,13 +227,13 @@ Lump_c * Wad_file::FindLumpInLevel(const char *name, short level)
 			return directory[k];
 	}
 
-	return NULL;
+	return NULL;  // not found
 }
 
 
 short Wad_file::FindLevel(const char *name)
 {
-	for (int k = 0; k < (int)levels.size(); k++)
+	for (short k = 0; k < (int)levels.size(); k++)
 	{
 		short index = levels[k];
 
@@ -249,6 +261,8 @@ void Wad_file::ReadDirectory()
 
 	// TODO: check ident for PWAD or IWAD
 
+	kind = header.ident[0];
+
 	dir_start = LE_S32(header.dir_start);
 	dir_count = LE_S32(header.num_entries);
 
@@ -260,7 +274,7 @@ void Wad_file::ReadDirectory()
 	if (fseek(fp, dir_start, SEEK_SET) != 0)
 		FatalError("Error seeking to WAD directory.\n");
 
-	for (int i = 0; i < dir_count; i++)
+	for (short i = 0; i < dir_count; i++)
 	{
 		raw_wad_entry_t entry;
 
@@ -315,13 +329,13 @@ void Wad_file::DetectLevels()
 	// vector.  The test here is rather lax, as I'm told certain
 	// wads exist with a non-standard ordering of level lumps.
 
-	for (int k = 0; k+5 < NumLumps(); k++)
+	for (short k = 0; k+5 < NumLumps(); k++)
 	{
 		int part_mask  = 0;
 		int part_count = 0;
 
 		// check whether the next four lumps are level lumps
-		for (int i = 1; i <= 4; i++)
+		for (short i = 1; i <= 4; i++)
 		{
 			int part = WhatLevelPart(directory[k+i]->name);
 
@@ -370,7 +384,7 @@ void Wad_file::ProcessNamespaces()
 {
 	char active = 0;
 
-	for (int k = 0; k < NumLumps(); k++)
+	for (short k = 0; k < NumLumps(); k++)
 	{
 		const char *name = directory[k]->name;
 
@@ -480,7 +494,7 @@ bool Wad_file::WasExternallyModified()
 
 	crc32_c checksum;
 
-	for (int i = 0; i < dir_count; i++)
+	for (short i = 0; i < dir_count; i++)
 	{
 		raw_wad_entry_t entry;
 
@@ -535,9 +549,9 @@ void Wad_file::RemoveLumps(short index, short count)
 		Lump_c * lump = directory[index + i];
 
 		// it would be possible to put this lump into a list of
-		// 'holes' for later re-use.  However the possibility of
-		// aliasing (i.e. two entries in the directory refering
-		// to the same data) make that a pain to implement.
+		// 'holes' for later re-use.  However due to the chance
+		// of aliasing (two entries in the directory refering
+		// to the same data) it becomes harder to implement.
 
 		delete lump;
 	}
@@ -546,18 +560,59 @@ void Wad_file::RemoveLumps(short index, short count)
 		directory[i] = directory[i+count];
 
 	directory.resize(directory.size() - (size_t)count);
+
+	// fix various arrays containing lump indices
+	FixGroup(levels,  index, count);
+	FixGroup(patches, index, count);
+	FixGroup(sprites, index, count);
+	FixGroup(flats,   index, count);
 }
 
-bool Wad_file::RemoveLump(const char *name)
-{
-	// TODO: RemoveLump
-}
-
-bool Wad_file::RemoveLevel(short level)
+void Wad_file::RemoveLevel(short level)
 {
 	SYS_ASSERT(can_write);
+	SYS_ASSERT(0 <= level && level < (short)levels.size());
 
-	// TODO: RemoveLevel
+	// Note: FixGroup() handles the levels[] array
+
+	short index = levels[level];
+	short count = 1;
+
+	while (count < 14 && index+count < NumLumps() &&
+		   IsLevelLump(directory[index+count]->name))
+	{
+		count++;
+	}
+
+	RemoveLumps(index, count);
+}
+
+void Wad_file::FixGroup(std::vector<short>& group, short index, short removed)
+{
+	short high = index + removed - 1;
+	bool did_remove = false;
+
+	for (short k = (short)group.size()-1; k >= 0; k--)
+	{
+		if (group[k] < index)
+			continue;
+
+		if (group[k] > high)
+		{
+			group[k] -= removed;
+			continue;
+		}
+
+		group[k] = -1;
+		did_remove = true;
+	}
+
+	if (did_remove)
+	{
+		std::vector<short>::iterator ENDP;
+		ENDP = std::remove(group.begin(), group.end(), (short)-1);
+		group.erase(ENDP, group.end());
+	}
 }
 
 
@@ -565,12 +620,13 @@ Lump_c * Wad_file::AddLump(const char *name, int max_size)
 {
 	SYS_ASSERT(can_write);
 
+	int start = PositionForWrite();
 
-		l_start = parent->PositionForWrite();
+	Lump_c *lump = new Lump_c(this, name, start, 0);
 
+	directory.push_back(lump);
 
-
-	// TODO: AddLump
+	return lump;
 }
 
 Lump_c * Wad_file::AddLevel(const char *name, int max_size)
@@ -585,7 +641,7 @@ int Wad_file::HighWaterMark()
 {
 	int offset = (int)sizeof(raw_wad_header_t);
 
-	for (int k = 0; k < NumLumps(); k++)
+	for (short k = 0; k < NumLumps(); k++)
 	{
 		Lump_c *lump = directory[k];
 
@@ -637,7 +693,7 @@ int Wad_file::PositionForWrite()
 }
 
 
-void Wad_file::FinishLump()
+bool Wad_file::FinishLump()
 {
 	if (total_size & 3)
 	{
@@ -645,6 +701,7 @@ void Wad_file::FinishLump()
 	}
 
 	fflush(fp);
+	return true;
 }
 
 int Wad_file::WritePadding(int count)
@@ -669,7 +726,7 @@ void Wad_file::WriteDirectory()
 
 	crc32_c checksum;
 
-	for (int k = 0; k < dir_count; k++)
+	for (short k = 0; k < dir_count; k++)
 	{
 		Lump_c *lump = directory[k];
 		SYS_ASSERT(lump);
@@ -698,7 +755,19 @@ void Wad_file::WriteDirectory()
 	
 	// update header at start of file
 	
-	// FIXME!!!
+	rewind(fp);
+
+	raw_wad_header_t header;
+
+	strncpy(header.ident, (kind == 'I') ? "IWAD" : "PWAD", 4);
+
+	header.dir_start   = LE_U32(dir_start);
+	header.num_entries = LE_U32(dir_count);
+
+	if (fwrite(&header, sizeof(header), 1, fp) != 1)
+		FatalError("Error writing WAD header.\n");
+
+	fflush(fp);
 }
 
 
@@ -707,7 +776,7 @@ void Wad_file::InvalidateHoles()
 {
 	int dest = 0;
 
-	for (int i = 0; i < (int)holes.size(); i++)
+	for (short i = 0; i < (int)holes.size(); i++)
 	{
 		Lump_c *hole = holes[i];
 		SYS_ASSERT(hole);
@@ -731,7 +800,7 @@ void Wad_file::InvalidateHoles()
 
 short WAD_FindEditLevel(const char *name)
 {
-	for (int i = (int)master_dir.size()-1; i >= 0; i--)
+	for (short i = (int)master_dir.size()-1; i >= 0; i--)
 	{
 		editing_wad = master_dir[i];
 
@@ -748,7 +817,7 @@ short WAD_FindEditLevel(const char *name)
 
 Lump_c * WAD_FindLump(const char *name)
 {
-	for (int i = (int)master_dir.size()-1; i >= 0; i--)
+	for (short i = (int)master_dir.size()-1; i >= 0; i--)
 	{
 		Lump_c *L = master_dir[i]->FindLump(name);
 		if (L)
