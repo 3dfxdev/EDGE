@@ -41,9 +41,6 @@
 #include "w_texture.h"
 
 
-ImageCache *image_cache;
-
-
 struct Y_View
 {
 public:
@@ -1176,9 +1173,6 @@ int UI_RenderWin::handle(int event)
 
 void Render3D_Setup(int w, int h)
 {
-  if (! image_cache)
-    image_cache = new ImageCache;
-
   if (! view.p_type)
   {
     view.p_type = THING_PLAYER1;

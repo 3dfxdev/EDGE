@@ -48,7 +48,6 @@ OBJS = \
 	m_strings.o  \
 	objects.o  \
 	r_grid.o  \
-	r_images.o  \
 	r_misc.o  \
  	r_render.o  \
 	selectn.o  \
