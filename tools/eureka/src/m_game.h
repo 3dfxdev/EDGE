@@ -47,7 +47,6 @@ linegroup_t;
 // line <number> <group> <shortdesc> <longdesc>
 typedef struct
 {
-	int number;
 	char group;
 	const char *desc;
 }
@@ -57,7 +56,6 @@ linetype_t;
 // sector <number> <description>
 typedef struct
 {
-	int number;
 	const char *desc;
 }
 sectortype_t;
@@ -76,7 +74,6 @@ thinggroup_t;
 // thing <number> <group> <flags> <radius> <description> [<sprite>]
 typedef struct
 {
-	int number;    // Thing number
 	char group; // Thing group
 	char flags;    // Flags
 	int radius;    // Radius of thing
@@ -100,20 +97,15 @@ typedef enum { YGLN__, YGLN_E1M10, YGLN_E1M1, YGLN_MAP01 } ygln_t;
 extern ygln_t yg_level_name;
 
 
-extern std::vector<linegroup_t *> line_groups;
-extern std::vector<linetype_t *> line_types;
-extern std::vector<sectortype_t *> sector_types;
-extern std::vector<thinggroup_t *> thing_groups;
-extern std::vector<thingtype_t *> thing_types;
-
-
 void InitGameDefs();
 void LoadGameDefs(const char *game);
 void FreeGameDefs();
 
 
-const char *GetLineDefTypeName(int);
-const char *GetSectorTypeName(int);
+const sectortype_t * M_GetSectorType(int type);
+const linetype_t   * M_GetLineType(int type);
+const thingtype_t  * M_GetThingType(int type);
+
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

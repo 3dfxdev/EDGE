@@ -286,7 +286,9 @@ void UI_SectorBox::type_callback(Fl_Widget *w, void *data)
 
 //@@@@@@	Sectors[N].type = new_type;
 
-	box->desc->value(GetSectorTypeName(new_type));
+	const sectortype_t * info = M_GetSectorType(new_type);
+
+	box->desc->value(info->desc);
 
 	///  main_win->canvas->redraw();
 }
@@ -407,8 +409,10 @@ void UI_SectorBox::SetObj(int index)
 		f_pic->GetFlat(Sectors[obj]->FloorTex());
 		c_pic->GetFlat(Sectors[obj]->CeilTex());
 
+		const sectortype_t *info = M_GetSectorType(Sectors[obj]->type);
+
 		type->value(Int_TmpStr(Sectors[obj]->type));
-		desc->value(GetSectorTypeName(Sectors[obj]->type));
+		desc->value(info->desc);
 
 		light->value(Int_TmpStr(Sectors[obj]->light));
 		tag->value(Int_TmpStr(Sectors[obj]->tag));

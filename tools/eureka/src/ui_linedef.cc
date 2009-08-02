@@ -223,8 +223,10 @@ void UI_LineBox::SetObj(int index)
 		front->SetObj(LineDefs[obj]->right);
 		back->SetObj(LineDefs[obj]->left);
 
+		const linetype_t *info = M_GetLineType(LineDefs[obj]->type);
+		desc->value(info->desc);
+
 		type->value(Int_TmpStr(LineDefs[obj]->type));
-		desc->value(GetLineDefTypeName(LineDefs[obj]->type));
 		tag->value(Int_TmpStr(LineDefs[obj]->tag));
 
 		CalcLength();
