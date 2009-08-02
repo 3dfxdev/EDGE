@@ -39,6 +39,10 @@ private:
 	int  selbox_x1, selbox_y1;  // map coords
 	int  selbox_x2, selbox_y2;
 
+	// drawing state only
+	int map_lx, map_ly;
+	int map_hx, map_hy;
+
 public:
 	UI_Canvas(int X, int Y, int W, int H, const char *label = NULL);
 	virtual ~UI_Canvas();
@@ -86,13 +90,23 @@ private:
 	void SelboxDraw();
 
 	// convert screen coordinates to map coordinates
-	inline int MAPX(int sx) { return (grid.orig_x + I_ROUND((sx - w()/2 - x()) / grid.Scale)); }
-	inline int MAPY(int sy) { return (grid.orig_y + I_ROUND((h()/2 - sy + y()) / grid.Scale)); }
+	inline int MAPX(int sx) const { return (grid.orig_x + I_ROUND((sx - w()/2 - x()) / grid.Scale)); }
+	inline int MAPY(int sy) const { return (grid.orig_y + I_ROUND((h()/2 - sy + y()) / grid.Scale)); }
 
 	// convert map coordinates to screen coordinates
-	inline int SCREENX(int mx) { return (x() + w()/2 + I_ROUND((mx - grid.orig_x) * grid.Scale)); }
-	inline int SCREENY(int my) { return (y() + h()/2 + I_ROUND((grid.orig_y - my) * grid.Scale)); }
+	inline int SCREENX(int mx) const { return (x() + w()/2 + I_ROUND((mx - grid.orig_x) * grid.Scale)); }
+	inline int SCREENY(int my) const { return (y() + h()/2 + I_ROUND((grid.orig_y - my) * grid.Scale)); }
 
+	inline bool Vis(int x, int y, int r) const
+	{
+		return (x+r >= map_lx) && (x-r <= map_hx) &&
+		       (y+r >= map_ly) && (y-r <= map_hy);
+	}
+	inline bool Vis(int x1, int y1, int x2, int y2) const
+	{
+		return (x2 >= map_lx) && (x1 <= map_hx) &&
+		       (y2 >= map_ly) && (y1 <= map_hy);
+	}
 };
 
 
