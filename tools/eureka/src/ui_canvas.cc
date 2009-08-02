@@ -188,7 +188,7 @@ void UI_Canvas::DrawEverything()
 	map_lx = MAPX(x());
 	map_ly = MAPY(y()+h());
 	map_hx = MAPX(x()+w());
-	map_hx = MAPY(y());
+	map_hy = MAPY(y());
 
 	DrawMap(); 
 
