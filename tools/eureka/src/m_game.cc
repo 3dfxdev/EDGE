@@ -153,7 +153,7 @@ void LoadGameDefs (const char *game)
 		if (y_stricmp(token[0], "linegroup") == 0)
 		{
 			if (ntoks != 3)
-				FatalError (bad_arg_count, filename, lineno, token[0], 2);
+				FatalError(bad_arg_count, filename, lineno, token[0], 2);
 
 			linegroup_t *buf = new linegroup_t;
 
@@ -167,7 +167,7 @@ void LoadGameDefs (const char *game)
 			linetype_t *buf = new linetype_t;
 
 			if (ntoks != 5)
-				FatalError (bad_arg_count, filename, lineno, token[0], 4);
+				FatalError(bad_arg_count, filename, lineno, token[0], 4);
 
 			buf->number    = atoi (token[1]);
 			buf->group     = *token[2];
@@ -179,7 +179,8 @@ void LoadGameDefs (const char *game)
 		else if (y_stricmp(token[0], "level_name") == 0)
 		{
 			if (ntoks != 2)
-				FatalError (bad_arg_count, filename, lineno, token[0], 1);
+				FatalError(bad_arg_count, filename, lineno, token[0], 1);
+
 			if (! strcmp (token[1], "e1m1"))
 				yg_level_name = YGLN_E1M1;
 			else if (! strcmp (token[1], "e1m10"))
@@ -194,19 +195,19 @@ void LoadGameDefs (const char *game)
 		else if (y_stricmp(token[0], "sky_flat") == 0)
 		{
 			if (ntoks != 2)
-				FatalError (bad_arg_count, filename, lineno, token[0], 1);
+				FatalError(bad_arg_count, filename, lineno, token[0], 1);
+
 			sky_flat = token[1];
 		}
 		else if (y_stricmp(token[0], "sector") == 0)
 		{
-			if (ntoks != 4)
-				FatalError (bad_arg_count, filename, lineno, token[0], 3);
+			if (ntoks != 3)
+				FatalError(bad_arg_count, filename, lineno, token[0], 2);
 
 			sectortype_t *buf = new sectortype_t;
 
-			buf->number    = atoi (token[1]);
-			buf->shortdesc = token[2];  /* FIXME: trunc to 14 char. */
-			buf->longdesc  = token[3];  /* FIXME: trunc reasonably */
+			buf->number = atoi (token[1]);
+			buf->desc   = token[2];
 
 			sector_types.push_back(buf);
 		}
@@ -311,31 +312,11 @@ const char *GetSectorTypeName (int type)
 	/* KLUDGE: To avoid the last element which is bogus */
 	for (int n = 0; n < (int)sector_types.size()-1; n++)
 		if (sector_types[n]->number == type)
-			return sector_types[n]->shortdesc;
+			return sector_types[n]->desc;
 	static char buf[30];
 	sprintf (buf, "UNKNOWN (%d)", type);
 	return buf;
 }
-
-
-
-/*
-   get a long description of the type of a sector
-*/
-
-const char *GetSectorTypeLongName (int type)
-{
-	/* KLUDGE: To avoid the last element which is bogus */
-
-	for (int n = 0; n < (int)sector_types.size()-1; n++)
-		if (sector_types[n]->number == type)
-			return sector_types[n]->longdesc;
-	static char buf[30];
-	sprintf (buf, "UNKNOWN (%d)", type);
-	return buf;
-}
-
-
 
 
 //--- editor settings ---
