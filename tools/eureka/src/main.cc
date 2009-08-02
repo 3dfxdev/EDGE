@@ -369,42 +369,6 @@ static char *find_level (const char *name_given)
 /*
    the driving program
 */
-
-void EditLevel (const char *levelname, bool newlevel)
-{
-    if (InitFLTK())
-        return;
-
-    if (newlevel)
-    {
-        EmptyLevelData (levelname);
-
-        MapMinX = -2000;
-        MapMinY = -2000;
-        MapMaxX = 2000;
-        MapMaxY = 2000;
-    }
-    else
-    {
-        LoadLevel(levelname);
-    }
-
-    LogPrintf(": Editing %s...\n", levelname ? levelname : "new level");
-
-	EditorLoop (levelname);
-
-	LogPrintf(": Finished editing %s...\n", levelname ? levelname : "new level");
-
-    TermFLTK ();
-
-	BA_ClearAll();
-
-    ForgetWTextureNames ();
-    ForgetFTextureNames ();
-}
-
-
-
 int main(int argc, char *argv[])
 {
 	LogInit("LOG.txt");
@@ -599,12 +563,35 @@ int main(int argc, char *argv[])
 	if (! Warp || ! Warp[0])
 		Warp = "MAP01";
 
+	const char *levelname = Warp;
+
     ReadWTextureNames();
     ReadFTextureNames();
 
     patch_dir.refresh(MasterDir);
 
-	EditLevel(Warp, 0);
+    if (InitFLTK())
+        exit(9);
+
+	bool newlevel = false;
+
+    if (newlevel)
+		FreshLevel();
+    else
+        LoadLevel(levelname);
+
+    LogPrintf(": Editing %s...\n", levelname ? levelname : "new level");
+
+	EditorLoop (levelname);
+
+	LogPrintf(": Finished editing %s...\n", levelname ? levelname : "new level");
+
+    TermFLTK ();
+
+	BA_ClearAll();
+
+    ForgetWTextureNames ();
+    ForgetFTextureNames ();
 
 	/* that's all, folks! */
 	CloseWadFiles();
