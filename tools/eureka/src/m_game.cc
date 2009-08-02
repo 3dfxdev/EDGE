@@ -166,13 +166,12 @@ void LoadGameDefs (const char *game)
 		{
 			linetype_t *buf = new linetype_t;
 
-			if (ntoks != 5)
-				FatalError(bad_arg_count, filename, lineno, token[0], 4);
+			if (ntoks < 4)  //!!!!!! FIXME != 4
+				FatalError(bad_arg_count, filename, lineno, token[0], 3);
 
-			buf->number    = atoi (token[1]);
-			buf->group     = *token[2];
-			buf->shortdesc = token[3];  /* FIXME: trunc to 16 char. */
-			buf->longdesc  = token[4];  /* FIXME: trunc reasonably */
+			buf->number = atoi(token[1]);
+			buf->group  = *token[2];
+			buf->desc   = token[3];
 
 			line_types.push_back(buf);
 		}
@@ -297,7 +296,7 @@ const char *GetLineDefTypeName (int type)
 {
 	for (int n = 0; n < (int)line_types.size(); n++)
 		if (line_types[n]->number == type)
-			return line_types[n]->shortdesc;
+			return line_types[n]->desc;
 	return "??  UNKNOWN";
 }
 

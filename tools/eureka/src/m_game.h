@@ -49,8 +49,7 @@ typedef struct
 {
 	int number;
 	char group;
-	const char *shortdesc;
-	const char *longdesc;
+	const char *desc;
 }
 linetype_t;
 
