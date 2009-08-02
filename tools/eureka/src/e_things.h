@@ -28,6 +28,7 @@
 #ifndef YH_THINGS  /* Prevent multiple inclusion */
 #define YH_THINGS  /* Prevent multiple inclusion */
 
+#include "im_color.h"
 
 
 /* starting areas */
@@ -44,7 +45,7 @@
 void        create_things_table ();
 void        delete_things_table ();
 bool        is_thing_type    (wad_ttype_t type);
-acolour_t   get_thing_colour (wad_ttype_t type);
+pcolour_t   get_thing_colour (int type);
 const char *get_thing_name   (wad_ttype_t type);
 const char *get_thing_sprite (wad_ttype_t type);
 char        get_thing_flags  (wad_ttype_t type);
