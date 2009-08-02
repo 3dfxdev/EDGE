@@ -182,14 +182,6 @@ private:
 
 extern std::vector<Wad_file *> master_dir;
 
-// the WAD which we are currently editing
-extern Wad_file * editing_wad;
-
-
-// attemps to find the level for editing.  If found, sets the
-// 'editing_wad' global var to the wad containing the level and
-// returns the lump number.  If not found, returns -1.
-short WAD_FindEditLevel(const char *name);
 
 // find a lump in any loaded wad (later ones tried first),
 // returning NULL if not found.

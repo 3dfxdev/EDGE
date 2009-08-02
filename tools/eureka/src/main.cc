@@ -28,6 +28,7 @@
 
 #include <time.h>
 
+#include "e_loadsave.h"
 #include "im_color.h"
 #include "m_config.h"
 #include "editloop.h"
@@ -41,8 +42,6 @@
 #include "w_wads.h"
 
 #include "ui_window.h"
-
-extern int LoadLevel(const char *levelname);
 
 
 #define VERSION  "0.52"
@@ -384,15 +383,10 @@ void EditLevel (const char *levelname, bool newlevel)
         MapMinY = -2000;
         MapMaxX = 2000;
         MapMaxY = 2000;
-
-        Level = 0;
     }
     else
     {
-        if (LoadLevel(levelname))
-        {
-            goto done;  // Failure!
-        }
+        LoadLevel(levelname);
     }
 
     LogPrintf(": Editing %s...\n", levelname ? levelname : "new level");
@@ -401,19 +395,9 @@ void EditLevel (const char *levelname, bool newlevel)
 
 	LogPrintf(": Finished editing %s...\n", levelname ? levelname : "new level");
 
-	if (Level && Level->wadfile)
-	{
-		const char *const file_name =
-			Level->wadfile ? Level->wadfile->pathname () : "(New level)";
-	}
-
-done :
     TermFLTK ();
 
 	BA_ClearAll();
-
-    /* forget the level pointer */
-    Level = 0;
 
     ForgetWTextureNames ();
     ForgetFTextureNames ();
