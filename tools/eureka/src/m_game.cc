@@ -229,10 +229,8 @@ void LoadGameDefs (const char *game)
 		}
 		else if (y_stricmp(token[0], "thing") == 0)
 		{
-			if (ntoks < 6 || ntoks > 7)
-				FatalError (
-						"%s(d%): directive \"%s\" takes between 5 and 6 parameters",
-						filename, lineno, token[0]);
+			if (ntoks != 7)
+				FatalError (bad_arg_count, filename, lineno, token[0], 7);
 
 			thingtype_t *buf = new thingtype_t;
 
@@ -240,8 +238,8 @@ void LoadGameDefs (const char *game)
 			buf->group      = *token[2];
 			buf->flags      = *token[3] == 's' ? THINGDEF_SPECTRAL : 0;  // FIXME!
 			buf->radius     = atoi (token[4]);
-			buf->desc       = token[5];
-			buf->sprite     = ntoks >= 7 ? token[6] : 0;
+			buf->sprite     = token[5];
+			buf->desc       = token[6];
 
 			thing_types.push_back(buf);
 		}
