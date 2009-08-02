@@ -34,6 +34,9 @@
 #include "e_things.h"
 
 
+#define UNKNOWN_THING_COLOR  fl_rgb_color(0,255,255)
+
+
 std::map<char, linegroup_t *>  line_groups;
 std::map<char, thinggroup_t *> thing_groups;
 
@@ -93,7 +96,7 @@ void LoadGameDefs(const char *game)
 
 	ygdfile = fopen(filename, "r");
 	if (ygdfile == NULL)
-		FatalError ("%s: %s", filename, strerror (errno));
+		FatalError("%s: %s", filename, strerror (errno));
 
 	/* Read the game definition
 	   file, line by line. */
@@ -112,7 +115,7 @@ void LoadGameDefs(const char *game)
 		/* duplicate the buffer */
 		buf = (char *) malloc(strlen(readbuf) + 1);
 		if (! buf)
-			FatalError ("not enough memory");
+			FatalError("not enough memory");
 
 		/* break the line into whitespace-separated tokens.
 		   whitespace can be enclosed in double quotes. */
@@ -137,7 +140,7 @@ void LoadGameDefs(const char *game)
 			else if (! in_token && (quoted || ! isspace(*iptr)))
 			{
 				if (ntoks >= (int) (sizeof token / sizeof *token))
-					FatalError ("%s(%d): more than %d tokens",
+					FatalError("%s(%d): more than %d tokens",
 							filename, lineno, sizeof token / sizeof *token);
 				token[ntoks] = optr;
 				ntoks++;
@@ -157,7 +160,7 @@ void LoadGameDefs(const char *game)
 				*optr++ = *iptr;
 		}
 		if (quoted)
-			FatalError ("%s(%d): unmatched double quote", filename, lineno);
+			FatalError("%s(%d): unmatched double quote", filename, lineno);
 
 		/* process line */
 		if (ntoks == 0)
@@ -173,7 +176,7 @@ void LoadGameDefs(const char *game)
 
 			linegroup_t *buf = new linegroup_t;
 
-			buf->group = *token[1];
+			buf->group = token[1][0];
 			buf->desc  = token[2];
 
 			line_groups[buf->group] = buf;
@@ -187,8 +190,12 @@ void LoadGameDefs(const char *game)
 
 			int number = atoi(token[1]);
 
-			buf->group = *token[2];
+			buf->group = token[2][0];
 			buf->desc  = token[3];
+
+			if (line_groups.find(buf->group) == line_groups.end())
+				FatalError("%s(%d): unknown line group '%c'.\n",
+						filename, lineno, buf->group);
 
 			line_types[number] = buf;
 		}
@@ -204,7 +211,7 @@ void LoadGameDefs(const char *game)
 			else if (! strcmp(token[1], "map01"))
 				yg_level_name = YGLN_MAP01;
 			else
-				FatalError ("%s(%d): invalid argument \"%.32s\" (e1m1|e1m10|map01)",
+				FatalError("%s(%d): invalid argument \"%.32s\" (e1m1|e1m10|map01)",
 						filename, lineno, token[1]);
 			free(buf);
 		}
@@ -230,11 +237,11 @@ void LoadGameDefs(const char *game)
 		else if (y_stricmp(token[0], "thinggroup") == 0)
 		{
 			if (ntoks != 4)
-				FatalError (bad_arg_count, filename, lineno, token[0], 3);
+				FatalError(bad_arg_count, filename, lineno, token[0], 3);
 
 			thinggroup_t *buf = new thinggroup_t;
 
-			buf->group = *token[1];
+			buf->group = token[1][0];
 			buf->color = ParseHexColor(token[2]);
 			buf->desc  = token[3];
 
@@ -243,23 +250,29 @@ void LoadGameDefs(const char *game)
 		else if (y_stricmp(token[0], "thing") == 0)
 		{
 			if (ntoks != 7)
-				FatalError (bad_arg_count, filename, lineno, token[0], 7);
+				FatalError(bad_arg_count, filename, lineno, token[0], 7);
 
 			thingtype_t *buf = new thingtype_t;
 
 			int number = atoi(token[1]);
 
-			buf->group  = *token[2];
+			buf->group  = token[2][0];
 			buf->flags  = (token[3][0] == 's') ? THINGDEF_SPECTRAL : 0;  // FIXME!
 			buf->radius = atoi(token[4]);
 			buf->sprite = token[5];
 			buf->desc   = token[6];
 
+			if (thing_groups.find(buf->group) == thing_groups.end())
+				FatalError("%s(%d): unknown thing group '%c'.\n",
+						filename, lineno, buf->group);
+
+			buf->color  = thing_groups[buf->group]->color;
+
 			thing_types[number] = buf;
 		}
 		else
 		{
-			FatalError ("%s(%d): unknown directive \"%.32s\"",
+			FatalError("%s(%d): unknown directive \"%.32s\"",
 					filename, lineno, token[0]);
 		}
 	}
@@ -347,7 +360,7 @@ const thingtype_t * M_GetThingType(int type)
 
 	static thingtype_t dummy_type =
 	{
-		0, 0, 1, "UNKNOWN TYPE", "NULL"
+		0, 0, 1, "UNKNOWN TYPE", "NULL", UNKNOWN_THING_COLOR
 	};
 
 	return &dummy_type;

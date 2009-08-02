@@ -79,6 +79,7 @@ typedef struct
 	int radius;    // Radius of thing
 	const char *desc;  // Short description of thing
 	const char *sprite;  // Root of name of sprite for thing
+	pcolour_t color;  // RGB color (from group)
 }
 thingtype_t;
 
