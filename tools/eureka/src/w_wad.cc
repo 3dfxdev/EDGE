@@ -781,22 +781,6 @@ void Wad_file::WriteDirectory()
 //  GLOBAL API
 //------------------------------------------------------------------------
 
-short WAD_FindEditLevel(const char *name)
-{
-	for (short i = (int)master_dir.size()-1; i >= 0; i--)
-	{
-		editing_wad = master_dir[i];
-
-		short index = editing_wad->FindLevel(name);
-		if (index >= 0)
-			return index;
-	}
-
-	// not found
-	editing_wad = NULL;
-	return -1;
-}
-
 
 Lump_c * WAD_FindLump(const char *name)
 {

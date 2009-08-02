@@ -33,10 +33,6 @@
 #include "e_things.h"
 
 
-// Defined in levels.cc
-extern MDirPtr Level;   /* master dictionary entry for the level */
-
-
 // FIXME should be somewhere else
 extern int   NumWTexture; /* number of wall textures */
 extern char  **WTexture;  /* array of wall texture names */
