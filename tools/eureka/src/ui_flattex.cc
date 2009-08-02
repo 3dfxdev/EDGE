@@ -27,7 +27,6 @@
 #include "m_game.h"
 #include "e_things.h"
 #include "w_structs.h"
-#include "r_images.h"
 #include "levels.h"
 
 

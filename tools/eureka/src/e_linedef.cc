@@ -30,7 +30,6 @@
 #include "r_misc.h"
 #include "levels.h"
 #include "selectn.h"
-#include "r_images.h"
 
 #include "e_linedef.h"
 #include "m_bitvec.h"
