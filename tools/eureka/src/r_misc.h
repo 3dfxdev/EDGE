@@ -47,15 +47,12 @@ extern int font_yofs;
 extern int   ScrMaxX;
 extern int   ScrMaxY;
 
-typedef unsigned long xpv_t;  // The type of a pixel value in X's opinion
-
 /* gfx.cc */
 void SetWindowSize (int width, int height);
 
 void DrawScreenText (int, int, const char *, ...);
 void DrawScreenString (int, int, const char *);
 
-int TranslateToDoomColor (int);
 
 #define  set_colour(X)  do{}while(0)
 #define push_colour(X)  do{}while(0)
