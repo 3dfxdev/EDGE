@@ -35,63 +35,62 @@ extern const char ygd_file_magic[];
  *  Data structures for game definition data
  */
 
-// ldt <number> <ldtgroup> <shortdesc> <longdesc>
+// linegroup <letter> <description>
 typedef struct
 {
-	int number;
-	char ldtgroup;
-	const char *shortdesc;
-	const char *longdesc;
-}
-ldtdef_t;
-
-
-// ldtgroup <ldtgroup> <description>
-typedef struct
-{
-	char ldtgroup;
+	char group;
 	const char *desc;
 }
-ldtgroup_t;
+linegroup_t;
 
 
-// st <number> <shortdesc> <longdesc>
+// line <number> <group> <shortdesc> <longdesc>
+typedef struct
+{
+	int number;
+	char group;
+	const char *shortdesc;
+	const char *longdesc;
+}
+linetype_t;
+
+
+// sector <number> <shortdesc> <longdesc>
 typedef struct
 {
 	int number;
 	const char *shortdesc;
 	const char *longdesc;
 }
-stdef_t;
+sectortype_t;
 
 
-// thing <number> <thinggroup> <flags> <radius> <description> [<sprite>]
+// thinggroup <letter> <colour> <description>
+typedef struct
+{
+	char group;        // group letter
+	pcolour_t color;   // RGB colour
+	const char *desc;  // Description of thing group
+}
+thinggroup_t;
+
+
+// thing <number> <group> <flags> <radius> <description> [<sprite>]
 typedef struct
 {
 	int number;    // Thing number
-	char thinggroup; // Thing group
+	char group; // Thing group
 	char flags;    // Flags
 	int radius;    // Radius of thing
 	const char *desc;  // Short description of thing
 	const char *sprite;  // Root of name of sprite for thing
 }
-thingdef_t;
+thingtype_t;
 
 
 /* (1)  This is only here for speed, to avoid having to lookup
         thinggroup for each thing when drawing things */
 const char THINGDEF_SPECTRAL = 0x01;
-
-
-// thinggroup <thinggroup> <colour> <description>
-typedef struct
-{
-	char thinggroup; // Thing group
-	rgb_c rgb;   // RGB colour
-	acolour_t acn; // Application colour#
-	const char *desc;  // Description of thing group
-}
-thinggroup_t;
 
 
 /*
@@ -103,25 +102,22 @@ typedef enum { YGLN__, YGLN_E1M10, YGLN_E1M1, YGLN_MAP01 } ygln_t;
 extern ygln_t yg_level_name;
 
 
-extern std::vector<ldtdef_t *> ldtdef;
-extern std::vector<ldtgroup_t *> ldtgroup;
-extern std::vector<stdef_t *> stdef;
-extern std::vector<thingdef_t *> thingdef;
-extern std::vector<thinggroup_t *> thinggroup;
+extern std::vector<linegroup_t *> line_groups;
+extern std::vector<linetype_t *> line_types;
+extern std::vector<sectortype_t *> sector_types;
+extern std::vector<thinggroup_t *> thing_groups;
+extern std::vector<thingtype_t *> thing_types;
 
 
-// Shorthands to make the code more readable
-#define CUR_LDTDEF     ((ldtdef_t     *)al_lptr (ldtdef    ))
-#define CUR_LDTGROUP   ((ldtgroup_t   *)al_lptr (ldtgroup  ))
-#define CUR_STDEF      ((stdef_t      *)al_lptr (stdef     ))
-#define CUR_THINGDEF   ((thingdef_t   *)al_lptr (thingdef  ))
-#define CUR_THINGGROUP ((thinggroup_t *)al_lptr (thinggroup))
-
-
-void InitGameDefs(void);
+void InitGameDefs();
 void LoadGameDefs(const char *game);
-void FreeGameDefs(void);
+void FreeGameDefs();
 
+
+const char *GetLineDefTypeName(int);
+const char *GetLineDefTypeLongName(int);
+const char *GetSectorTypeName(int);
+const char *GetSectorTypeLongName(int);
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

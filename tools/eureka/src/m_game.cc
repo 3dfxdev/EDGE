@@ -32,11 +32,11 @@
 #include "e_things.h"
 
 
-std::vector<ldtdef_t *> ldtdef;
-std::vector<ldtgroup_t *> ldtgroup;
-std::vector<stdef_t *> stdef;
-std::vector<thingdef_t *> thingdef;
-std::vector<thinggroup_t *> thinggroup;
+std::vector<linegroup_t *> line_groups;
+std::vector<linetype_t *> line_types;
+std::vector<sectortype_t *> sector_types;
+std::vector<thinggroup_t *> thing_groups;
+std::vector<thingtype_t *> thing_types;
 
 
 /*
@@ -45,11 +45,11 @@ std::vector<thinggroup_t *> thinggroup;
  */
 void InitGameDefs (void)
 {
-    ldtdef.clear();
-    ldtgroup.clear();
-    stdef.clear();
-    thingdef.clear();
-    thinggroup.clear();
+    line_groups.clear();
+    line_types.clear();
+    sector_types.clear();
+    thing_groups.clear();
+    thing_types.clear();
 }
 
 
@@ -150,33 +150,33 @@ void LoadGameDefs (const char *game)
 			continue;
 		}
 
-		if (! strcmp (token[0], "ldt"))
+		if (y_stricmp(token[0], "linegroup") == 0)
 		{
-			ldtdef_t *buf = new ldtdef_t;
+			if (ntoks != 3)
+				FatalError (bad_arg_count, filename, lineno, token[0], 2);
+
+			linegroup_t *buf = new linegroup_t;
+
+			buf->group = *token[1];
+			buf->desc  = token[2];
+
+			line_groups.push_back(buf);
+		}
+		else if (y_stricmp(token[0], "line") == 0)
+		{
+			linetype_t *buf = new linetype_t;
 
 			if (ntoks != 5)
 				FatalError (bad_arg_count, filename, lineno, token[0], 4);
 
 			buf->number    = atoi (token[1]);
-			buf->ldtgroup  = *token[2];
+			buf->group     = *token[2];
 			buf->shortdesc = token[3];  /* FIXME: trunc to 16 char. */
 			buf->longdesc  = token[4];  /* FIXME: trunc reasonably */
 
-			ldtdef.push_back(buf);
+			line_types.push_back(buf);
 		}
-		else if (! strcmp (token[0], "ldtgroup"))
-		{
-			if (ntoks != 3)
-				FatalError (bad_arg_count, filename, lineno, token[0], 2);
-
-			ldtgroup_t *buf = new ldtgroup_t;
-
-			buf->ldtgroup = *token[1];
-			buf->desc     = token[2];
-
-			ldtgroup.push_back(buf);
-		}
-		else if (! strcmp (token[0], "level_name"))
+		else if (y_stricmp(token[0], "level_name") == 0)
 		{
 			if (ntoks != 2)
 				FatalError (bad_arg_count, filename, lineno, token[0], 1);
@@ -191,58 +191,59 @@ void LoadGameDefs (const char *game)
 						filename, lineno, token[1]);
 			free (buf);
 		}
-		else if (! strcmp (token[0], "sky_flat"))
+		else if (y_stricmp(token[0], "sky_flat") == 0)
 		{
 			if (ntoks != 2)
 				FatalError (bad_arg_count, filename, lineno, token[0], 1);
 			sky_flat = token[1];
 		}
-		else if (! strcmp (token[0], "st"))
+		else if (y_stricmp(token[0], "sector") == 0)
 		{
 			if (ntoks != 4)
 				FatalError (bad_arg_count, filename, lineno, token[0], 3);
 
-			stdef_t *buf = new stdef_t;
+			sectortype_t *buf = new sectortype_t;
 
 			buf->number    = atoi (token[1]);
 			buf->shortdesc = token[2];  /* FIXME: trunc to 14 char. */
 			buf->longdesc  = token[3];  /* FIXME: trunc reasonably */
 
-			stdef.push_back(buf);
+			sector_types.push_back(buf);
 		}
-		else if (! strcmp (token[0], "thing"))
-		{
-			if (ntoks < 6 || ntoks > 7)
-				FatalError (
-						"%s(d%): directive \"%s\" takes between 5 and 6 parameters",
-						filename, lineno, token[0]);
-
-			thingdef_t *buf = new thingdef_t;
-
-			buf->number     = atoi (token[1]);
-			buf->thinggroup = *token[2];
-			buf->flags      = *token[3] == 's' ? THINGDEF_SPECTRAL : 0;  // FIXME!
-			buf->radius     = atoi (token[4]);
-			buf->desc       = token[5];
-			buf->sprite     = ntoks >= 7 ? token[6] : 0;
-
-			thingdef.push_back(buf);
-		}
-		else if (! strcmp (token[0], "thinggroup"))
+		else if (y_stricmp(token[0], "thinggroup") == 0)
 		{
 			if (ntoks != 4)
 				FatalError (bad_arg_count, filename, lineno, token[0], 3);
 
 			thinggroup_t *buf = new thinggroup_t;
 
-			buf->thinggroup = *token[1];
-			if (getcolour (token[2], &buf->rgb))
-				FatalError ("%s(%d): bad colour spec \"%.32s\"",
-						filename, lineno, token[2]);
+			buf->group = *token[1];
+
+// FIXME !!!!		if (getcolour (token[2], &buf->rgb))
+// FIXME !!!!			FatalError ("%s(%d): bad colour spec \"%.32s\"",
+// FIXME !!!!					filename, lineno, token[2]);
 
 			buf->desc = token[3];
 
-			thinggroup.push_back(buf);
+			thing_groups.push_back(buf);
+		}
+		else if (y_stricmp(token[0], "thing") == 0)
+		{
+			if (ntoks < 6 || ntoks > 7)
+				FatalError (
+						"%s(d%): directive \"%s\" takes between 5 and 6 parameters",
+						filename, lineno, token[0]);
+
+			thingtype_t *buf = new thingtype_t;
+
+			buf->number     = atoi (token[1]);
+			buf->group      = *token[2];
+			buf->flags      = *token[3] == 's' ? THINGDEF_SPECTRAL : 0;  // FIXME!
+			buf->radius     = atoi (token[4]);
+			buf->desc       = token[5];
+			buf->sprite     = ntoks >= 7 ? token[6] : 0;
+
+			thing_types.push_back(buf);
 		}
 		else
 		{
@@ -285,6 +286,56 @@ void FreeGameDefs (void)
 {
 	delete_things_table ();
 }
+
+
+/*
+   get a short (16 char.) description of the type of a linedef
+*/
+
+const char *GetLineDefTypeName (int type)
+{
+	for (int n = 0; n < (int)line_types.size(); n++)
+		if (line_types[n]->number == type)
+			return line_types[n]->shortdesc;
+	return "??  UNKNOWN";
+}
+
+
+
+/*
+   get a short (14 char.) description of the type of a sector
+*/
+
+const char *GetSectorTypeName (int type)
+{
+	/* KLUDGE: To avoid the last element which is bogus */
+	for (int n = 0; n < (int)sector_types.size()-1; n++)
+		if (sector_types[n]->number == type)
+			return sector_types[n]->shortdesc;
+	static char buf[30];
+	sprintf (buf, "UNKNOWN (%d)", type);
+	return buf;
+}
+
+
+
+/*
+   get a long description of the type of a sector
+*/
+
+const char *GetSectorTypeLongName (int type)
+{
+	/* KLUDGE: To avoid the last element which is bogus */
+
+	for (int n = 0; n < (int)sector_types.size()-1; n++)
+		if (sector_types[n]->number == type)
+			return sector_types[n]->longdesc;
+	static char buf[30];
+	sprintf (buf, "UNKNOWN (%d)", type);
+	return buf;
+}
+
+
 
 
 //--- editor settings ---

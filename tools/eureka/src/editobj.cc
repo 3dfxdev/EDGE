@@ -79,19 +79,6 @@ const char *GetEditModeName (int objtype)
 
 
 /*
-   get a short (16 char.) description of the type of a linedef
-   */
-
-const char *GetLineDefTypeName (int type)
-{
-	for (int n = 0; n < (int)ldtdef.size(); n++)
-		if (ldtdef[n]->number == type)
-			return ldtdef[n]->shortdesc;
-	return "??  UNKNOWN";
-}
-
-
-/*
    get a short description of the flags of a linedef
    */
 
@@ -185,40 +172,6 @@ const char *GetLineDefFlagsLongName (int flags)
 	return "UNKNOWN";
 }
 
-
-
-/*
-   get a short (14 char.) description of the type of a sector
-*/
-
-const char *GetSectorTypeName (int type)
-{
-	/* KLUDGE: To avoid the last element which is bogus */
-	for (int n = 0; n < (int)stdef.size()-1; n++)
-		if (stdef[n]->number == type)
-			return stdef[n]->shortdesc;
-	static char buf[30];
-	sprintf (buf, "UNKNOWN (%d)", type);
-	return buf;
-}
-
-
-
-/*
-   get a long description of the type of a sector
-*/
-
-const char *GetSectorTypeLongName (int type)
-{
-	/* KLUDGE: To avoid the last element which is bogus */
-
-	for (int n = 0; n < (int)stdef.size()-1; n++)
-		if (stdef[n]->number == type)
-			return stdef[n]->longdesc;
-	static char buf[30];
-	sprintf (buf, "UNKNOWN (%d)", type);
-	return buf;
-}
 
 
 /*
