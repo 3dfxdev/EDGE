@@ -28,6 +28,8 @@
 #define __E_LOADSAVE_H__
 
 
+void FreshLevel();
+
 void LoadLevel(const char *levelname);
 
 void SaveLevel(const char *levelname);

@@ -39,6 +39,50 @@ Wad_file * edit_wad;
 short      edit_level;
 
 
+void FreshLevel()
+{
+	BA_ClearAll();
+
+	Sector *sec = new Sector;
+	Sectors.push_back(sec);
+
+	sec->ceilh = 256;
+	sec->light = 192;
+
+	Thing *th = new Thing;
+	Things.push_back(th);
+
+	th->type = 1;
+	th->options = 7;
+
+	for (int i = 0; i < 4; i++)
+	{
+		Vertex *v = new Vertex;
+		Vertices.push_back(v);
+
+		v->x = (i & 1) ? 256 : -256;
+		v->y = (i==1 || i==2) ? 256 : -256;
+
+		SideDef *sd = new SideDef;
+		SideDefs.push_back(sd);
+
+		LineDef *ld = new LineDef;
+		LineDefs.push_back(ld);
+
+		ld->start = i;
+		ld->end   = (i+1) % 4;
+		ld->flags = MLF_Blocking;
+		ld->right = i;
+		ld->left  = -1;
+	}
+
+	update_level_bounds();
+}
+
+
+//------------------------------------------------------------------------
+
+
 static void LoadVertices()
 {
 	Lump_c *lump = edit_wad->FindLumpInLevel("VERTEXES", edit_level);
