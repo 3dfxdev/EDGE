@@ -307,13 +307,13 @@ void UI_Canvas::DrawGrid()
 
 		for (; gx <= map_hx; gx += grid_step_2)
 			if (gx % grid_step_3 != 0)
-				DrawMapLine (gx, map_ly, gx, map_hy);
+				DrawMapLine(gx, map_ly, gx, map_hy);
 
 		int gy = (map_ly / grid_step_2) * grid_step_2;
 
 		for (; gy <= map_hy; gy += grid_step_2)
 			if (gy % grid_step_3 != 0)
-				DrawMapLine (map_lx, gy, map_hx, gy);
+				DrawMapLine(map_lx, gy, map_hx, gy);
 	}
 
 
@@ -356,11 +356,11 @@ void UI_Canvas::DrawGrid()
  *    plot [0:10] x                                          
  *    replot log(x+1.46)/log(1.5)-log(2.46)/log(1.5)+1
  */
-int vertex_radius (double scale)
+int vertex_radius(double scale)
 {
 	const int VERTEX_PIXELS = 6;
 
-	return (int) (VERTEX_PIXELS * (0.2 + scale / 2));
+	return (int)(VERTEX_PIXELS * (0.2 + scale / 2));
 }
 
 
@@ -473,7 +473,7 @@ void UI_Canvas::DrawLinedefs()
 					int scny0       = SCREENY (y1);
 					int scny1       = SCREENY (y2);
 					int label_width = 5 * FONTW; ///!!! ((int) log10 (n) + 1) * FONTW;
-					if (abs (scnx1 - scnx0) > label_width + 4
+					if (abs(scnx1 - scnx0) > label_width + 4
 							|| abs (scny1 - scny0) > label_width + 4)
 					{
 						int scnx = (scnx0 + scnx1) / 2 - label_width / 2;
@@ -543,7 +543,7 @@ void UI_Canvas::DrawLinedefs()
 
 				fl_color(new_colour);
 
-				DrawMapLine (x1, y1, x2, y2);
+				DrawMapLine(x1, y1, x2, y2);
 			}
 			break;
 		}
@@ -617,16 +617,16 @@ void UI_Canvas::DrawObjNum(int x, int y, int obj_no, Fl_Color c)
 {
 	fl_color(FL_BLACK);
 
-	DrawScreenText (x - 2, y,     "%d", obj_no);
-	DrawScreenText (x - 1, y,     "%d", obj_no);
-	DrawScreenText (x + 1, y,     "%d", obj_no);
-	DrawScreenText (x + 2, y,     "%d", obj_no);
-	DrawScreenText (x,     y + 1, "%d", obj_no);
-	DrawScreenText (x,     y - 1, "%d", obj_no);
+	DrawScreenText(x - 2, y,     "%d", obj_no);
+	DrawScreenText(x - 1, y,     "%d", obj_no);
+	DrawScreenText(x + 1, y,     "%d", obj_no);
+	DrawScreenText(x + 2, y,     "%d", obj_no);
+	DrawScreenText(x,     y + 1, "%d", obj_no);
+	DrawScreenText(x,     y - 1, "%d", obj_no);
 
 	fl_color(c);
 
-	DrawScreenText (x,     y,     "%d", obj_no);
+	DrawScreenText(x,     y,     "%d", obj_no);
 }
 
 
@@ -655,7 +655,7 @@ void UI_Canvas::HighlightForget()
 /*
    highlight the selected object
 */
-void UI_Canvas::HighlightObject (int objtype, int objnum, Fl_Color colour)
+void UI_Canvas::HighlightObject(int objtype, int objnum, Fl_Color colour)
 {
 	fl_color(colour);
 
@@ -722,15 +722,15 @@ void UI_Canvas::HighlightObject (int objtype, int objnum, Fl_Color colour)
 
 			int r = vertex_radius(grid.Scale) * 3 / 2;
 
-			int scrx0 = SCREENX(x) - r;
-			int scrx9 = SCREENX(x) + r;
-			int scry0 = SCREENY(y) - r;
-			int scry9 = SCREENY(y) + r;
+			int sx1 = SCREENX(x) - r;
+			int sy1 = SCREENY(y) - r;
+			int sx2 = SCREENX(x) + r;
+			int sy2 = SCREENY(y) + r;
 
-			fl_line(scrx0, scry0, scrx9, scry0);
-			fl_line(scrx9, scry0, scrx9, scry9);
-			fl_line(scrx9, scry9, scrx0, scry9);
-			fl_line(scrx0, scry9, scrx0, scry0);
+			fl_line(sx1, sy1, sx2, sy1);
+			fl_line(sx2, sy1, sx2, sy2);
+			fl_line(sx2, sy2, sx1, sy2);
+			fl_line(sx1, sy2, sx1, sy1);
 		}
 		break;
 
@@ -751,7 +751,7 @@ void UI_Canvas::HighlightObject (int objtype, int objnum, Fl_Color colour)
 				if (! Vis(MIN(x1,x2), MIN(y1,y2), MAX(x1,x2), MAX(y1,y2)))
 					continue;
 
-				DrawMapLine (x1, y1, x2, y2);
+				DrawMapLine(x1, y1, x2, y2);
 			}
 
 			fl_line_style(FL_SOLID, 1);
@@ -760,7 +760,7 @@ void UI_Canvas::HighlightObject (int objtype, int objnum, Fl_Color colour)
 			{
 				for (int m = 0; m < NumLineDefs; m++)
 					if (LineDefs[m]->tag == Sectors[objnum]->tag)
-						HighlightObject (OBJ_LINEDEFS, m, LIGHTRED);
+						HighlightObject(OBJ_LINEDEFS, m, LIGHTRED);
 			}
 		}
 		break;
@@ -787,7 +787,7 @@ void UI_Canvas::HighlightSelection(selection_c * list)
  *
  *  The point is drawn at map coordinates (<mapx>, <mapy>)
  */
-void UI_Canvas::DrawMapPoint (int mapx, int mapy)
+void UI_Canvas::DrawMapPoint(int mapx, int mapy)
 {
     fl_point(SCREENX(mapx), SCREENY(mapy));
 }
@@ -796,7 +796,7 @@ void UI_Canvas::DrawMapPoint (int mapx, int mapy)
 /*
  *  DrawMapLine - draw a line on the screen from map coords
  */
-void UI_Canvas::DrawMapLine (int mapx1, int mapy1, int mapx2, int mapy2)
+void UI_Canvas::DrawMapLine(int mapx1, int mapy1, int mapx2, int mapy2)
 {
     fl_line(SCREENX(mapx1), SCREENY(mapy1),
             SCREENX(mapx2), SCREENY(mapy2));
@@ -814,7 +814,7 @@ void UI_Canvas::DrawMapVector (int mapx1, int mapy1, int mapx2, int mapy2)
 	int scrx2 = SCREENX (mapx2);
 	int scry2 = SCREENY (mapy2);
 
-	double r  = hypot ((double) (scrx1 - scrx2), (double) (scry1 - scry2));
+	double r  = hypot((double) (scrx1 - scrx2), (double) (scry1 - scry2));
 #if 0
 	/* AYM 19980216 to avoid getting huge arrowheads when zooming in */
 	int    scrXoff = (r >= 1.0) ? (int) ((scrx1 - scrx2) * 8.0 / r * (Scale < 1 ? Scale : 1)) : 0;
@@ -837,16 +837,16 @@ void UI_Canvas::DrawMapVector (int mapx1, int mapy1, int mapx2, int mapy2)
 /*
  *  DrawMapArrow - draw an arrow on the screen from map coords and angle (0 - 65535)
  */
-void UI_Canvas::DrawMapArrow (int mapx1, int mapy1, unsigned angle)
+void UI_Canvas::DrawMapArrow(int mapx1, int mapy1, unsigned angle)
 {
-	int mapx2 = mapx1 + (int) (50 * cos (angle / 10430.37835));
-	int mapy2 = mapy1 + (int) (50 * sin (angle / 10430.37835));
-	int scrx1 = SCREENX (mapx1);
-	int scry1 = SCREENY (mapy1);
-	int scrx2 = SCREENX (mapx2);
-	int scry2 = SCREENY (mapy2);
+	int mapx2 = mapx1 + (int) (50 * cos(angle / 10430.37835));
+	int mapy2 = mapy1 + (int) (50 * sin(angle / 10430.37835));
+	int scrx1 = SCREENX(mapx1);
+	int scry1 = SCREENY(mapy1);
+	int scrx2 = SCREENX(mapx2);
+	int scry2 = SCREENY(mapy2);
 
-	double r = hypot (scrx1 - scrx2, scry1 - scry2);
+	double r = hypot(scrx1 - scrx2, scry1 - scry2);
 #if 0
 	int    scrXoff = (r >= 1.0) ? (int) ((scrx1 - scrx2) * 8.0 / r * (Scale < 1 ? Scale : 1)) : 0;
 	int    scrYoff = (r >= 1.0) ? (int) ((scry1 - scry2) * 8.0 / r * (Scale < 1 ? Scale : 1)) : 0;
@@ -901,10 +901,10 @@ void UI_Canvas::SelboxDraw()
 
 	fl_color(FL_CYAN);
 
-	DrawMapLine (x1, y1, x2, y1);
-	DrawMapLine (x2, y1, x2, y2);
-	DrawMapLine (x2, y2, x1, y2);
-	DrawMapLine (x1, y2, x1, y1);
+	DrawMapLine(x1, y1, x2, y1);
+	DrawMapLine(x2, y1, x2, y2);
+	DrawMapLine(x2, y2, x1, y2);
+	DrawMapLine(x1, y2, x1, y1);
 }
 
 
