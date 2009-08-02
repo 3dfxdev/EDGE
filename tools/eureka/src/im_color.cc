@@ -149,35 +149,6 @@ void free_game_colours (pcolour_t *game_colours)
 }
 
 
-Game_colour_24 game_colour_24;
-
-
-void Game_colour_24::refresh (const pcolour_t *game_colour, bool big_endian)
-{
-	if (pv_table == 0)
-		pv_table = new pv24_t[DOOM_COLOURS];
-
-	if (big_endian)
-	{
-		for (size_t n = 0; n < DOOM_COLOURS; n++)
-		{
-			pv_table[n][0] = game_colour[n] / 0x10000;
-			pv_table[n][1] = game_colour[n] / 0x100;
-			pv_table[n][2] = game_colour[n];
-		}
-	}
-	else
-	{
-		for (size_t n = 0; n < DOOM_COLOURS; n++)
-		{
-			pv_table[n][0] = game_colour[n];
-			pv_table[n][1] = game_colour[n] / 0x100;
-			pv_table[n][2] = game_colour[n] / 0x10000;
-		}
-	}
-}
-
-
 /*
  *  irgb2rgb
  *  Convert an IRGB colour (16-colour VGA) to an 8-bit-per-component
