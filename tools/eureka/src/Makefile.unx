@@ -74,7 +74,6 @@ OBJS = \
 	w_list.o  \
 	w_loadpic.o  \
 	w_patches.o  \
-	w_sprites.o  \
 	w_wads.o  \
 	x_hover.o  \
 	x_mirror.o  \

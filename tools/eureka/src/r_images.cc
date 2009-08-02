@@ -32,12 +32,63 @@
 #include "levels.h"
 #include "w_patches.h"
 #include "w_loadpic.h"
-#include "w_sprites.h"
 #include "w_file.h"
 #include "w_io.h"
 #include "w_structs.h"
 
 #include "r_images.h"
+
+
+/*
+ *  Sprite_dir::loc_by_root - find sprite by prefix
+ *  
+ *      Return the (wad, offset, length) location of the first
+ *      lump by alphabetical order whose name begins with
+ *      <name>. If not found, set loc.wad to 0.
+ */
+void Sprite_loc_by_root (const char *name, Lump_loc& loc)
+{
+	char buffer[16];
+
+	strcpy(buffer, name);
+
+	if (strlen(buffer) == 4)
+		strcat(buffer, "A");
+
+	if (strlen(buffer) == 5)
+		strcat(buffer, "0");
+
+	MDirPtr m = FindMasterDir(MasterDir, buffer);
+
+	if (! m)
+	{
+		buffer[5] = '1';
+		m = FindMasterDir(MasterDir, buffer);
+	}
+
+	if (! m)
+	{
+		strcat(buffer, "C1");
+		m = FindMasterDir(MasterDir, buffer);
+	}
+
+	if (! m)
+	{
+		buffer[6] = 'D';
+		m = FindMasterDir(MasterDir, buffer);
+	}
+
+	if (! m)
+	{
+		loc.wad = NULL;
+		loc.ofs = loc.len = 0;
+		return;
+	}
+
+	loc.wad = m->wadfile;
+	loc.ofs = m->dir.start;
+	loc.len = m->dir.size;
+}
 
 
 /*
