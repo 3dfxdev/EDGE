@@ -24,42 +24,8 @@
 //
 //------------------------------------------------------------------------
 
-#ifndef YH_COLOUR  // Prevent multiple inclusion
-#define YH_COLOUR  // Prevent multiple inclusion
-
-class rgb_c
-{
-public:
-  u8_t r, g, b;
-
-public:
-  rgb_c ()
-  {
-  }
-
-  // Must be defined before rbg_c (r, g, b)
-  void set (u8_t red, u8_t green, u8_t blue)
-  {
-     r = red;
-     g = green;
-     b = blue;
-  }
-
-  rgb_c (u8_t red, u8_t green, u8_t blue)
-  {
-     set (red, green, blue);
-  }
-
-  int operator == (const rgb_c& rgb2) const
-  {
-     return rgb2.r == r && rgb2.g == g && rgb2.b == b;
-  }
-
-  int operator - (const rgb_c& rgb2) const
-  {
-     return abs (rgb2.r - r) + abs (rgb2.g - g) + abs (rgb2.b - b);
-  }
-};
+#ifndef __IM_COLOR_H__
+#define __IM_COLOR_H__
 
 
 /* pcolour_t -- a physical colour number.
@@ -70,24 +36,18 @@ public:
    it's a palette index.
    With BGI 16-colour modes, it's an IRGB value. */
 
-typedef unsigned long pcolour_t;  // X11: up to 32 BPP.
+typedef unsigned long pcolour_t;
 
-#define PCOLOUR_NONE  0xffffffff  /* An "impossible" colour no. */
-
-pcolour_t *alloc_colours (rgb_c rgb_values[], size_t count);
-void free_colours (pcolour_t *pc, size_t count);
+#define PCOL_INVALID  0xffffffff  /* An "impossible" colour */
 
 
-pcolour_t *alloc_game_colours (int playpalnum);
-void free_game_colours (pcolour_t *game_colours);
-
-void irgb2rgb (int c, rgb_c *rgb);
-int getcolour (const char *s, rgb_c *rgb);
+void W_LoadPalette();
 
 
-extern pcolour_t *game_colour;  // Pixel values for the DOOM_COLOURS game clrs.
-extern int colour0;   // Game colour to which g. colour 0 is remapped
-extern int sky_colour;    // Game colour for a medium blue sky
+extern pcolour_t palette[256];
+
+// game color closest to palette[IMG_TRANSP]
+extern int trans_replace;
 
 
 //------------------------------------------------------------//
@@ -146,7 +106,7 @@ extern int sky_colour;    // Game colour for a medium blue sky
 #define WINTITLE        fl_rgb_color(0xff, 0xff, 0x00)
 
 
-#endif  // Prevent multiple inclusions
+#endif  /* __IM_COLOR_H__ */
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

@@ -53,6 +53,18 @@ void InitGameDefs (void)
 }
 
 
+static pcolour_t ParseHexColor(const char *str)
+{
+	int number = strtol(str, NULL, 16);
+
+	int r = (number & 0xF00) >> 8;
+	int g = (number & 0x0F0) >> 4;
+	int b = (number & 0x00F);
+
+	return fl_rgb_color(r*17, g*17, b*17);
+}
+
+
 /*
  *  LoadGameDefs
  *  Looks for file <game>.ugh in various directories and reads it.
@@ -218,12 +230,8 @@ void LoadGameDefs (const char *game)
 			thinggroup_t *buf = new thinggroup_t;
 
 			buf->group = *token[1];
-
-// FIXME !!!!		if (getcolour (token[2], &buf->rgb))
-// FIXME !!!!			FatalError ("%s(%d): bad colour spec \"%.32s\"",
-// FIXME !!!!					filename, lineno, token[2]);
-
-			buf->desc = token[3];
+			buf->color = ParseHexColor(token[2]);
+			buf->desc  = token[3];
 
 			thing_groups.push_back(buf);
 		}

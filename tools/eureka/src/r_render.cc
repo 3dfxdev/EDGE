@@ -94,7 +94,8 @@ public:
 
    void ClearScreen ()
       {
-      memset (screen, colour0, sw * sh);
+	  // color #0 is black (DOOM, Heretic, Hexen)
+      memset (screen, 0, sw * sh);
       }
 
    void FindThingFloors ()
@@ -299,7 +300,7 @@ public:
          ceil.y_clip = DrawSurf::SOLID_ABOVE;
 
          if (is_sky(front->CeilTex()))
-            ceil.col = sky_colour;
+            ceil.col = sky_color;
          else
             ceil.FindFlat(front->CeilTex(), front);
          }
@@ -313,7 +314,7 @@ public:
          floor.y_clip = DrawSurf::SOLID_BELOW;
 
          if (is_sky(front->FloorTex()))
-            floor.col = sky_colour;
+            floor.col = sky_color;
          else
             floor.FindFlat(front->FloorTex(), front);
          }
@@ -1238,7 +1239,7 @@ void Render3D_Draw(int ox, int oy)
 
     for (; dest < dest_end; dest += 3, src++)
     {
-      u32_t col = game_colour[*src];
+      u32_t col = palette[*src];
 
       dest[0] = ((col >> 24) & 0xFF);
       dest[1] = ((col >> 16) & 0xFF);

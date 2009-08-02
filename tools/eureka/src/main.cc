@@ -129,6 +129,7 @@ const char *bench     = 0;
 ygln_t yg_level_name = YGLN__;
 
 Wad_name sky_flat;
+int sky_color = 207; // FIXME: move into UGH file
 
 
 /*
@@ -220,8 +221,6 @@ static void print_error_message (const char *fmt, va_list args)
 
 int InitFLTK(void)  // returns 0 on success
 {
-	game_colour = alloc_game_colours (0);
-
 	/*
 	 *  Create the window
 	 */
@@ -565,6 +564,8 @@ int main(int argc, char *argv[])
 		Warp = "MAP01";
 
 	const char *levelname = Warp;
+
+	W_LoadPalette();
 
     ReadWTextureNames();
     ReadFTextureNames();
