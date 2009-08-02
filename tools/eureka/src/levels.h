@@ -77,6 +77,7 @@ void update_level_bounds ();
 
 
 extern Wad_name sky_flat;
+extern int sky_color;
 
 
 /*

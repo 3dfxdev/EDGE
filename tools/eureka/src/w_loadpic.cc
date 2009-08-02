@@ -26,7 +26,7 @@
 
 #include "main.h"
 
-#include "im_color.h"  /* colour0 */
+#include "im_color.h"  /* trans_replace */
 #include "w_loadpic.h"
 #include "w_file.h"
 #include "w_io.h"
@@ -333,7 +333,7 @@ int LoadPicture (
 									WAD_PIC_NAME, picname, (int) pic_x);
 						}
 #endif
-						*b = (*p == IMG_TRANSP) ? colour0 : *p;
+						*b = (*p == IMG_TRANSP) ? trans_replace : *p;
 					}
 				}
 

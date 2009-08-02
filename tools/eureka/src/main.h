@@ -134,7 +134,6 @@ const int DOOM_FLAT_WIDTH            = 64;
 const int DOOM_FLAT_HEIGHT           = 64;
 const size_t DOOM_MIN_DEATHMATCH_STARTS = 4;
 const size_t DOOM_MAX_DEATHMATCH_STARTS = 10;
-const size_t DOOM_COLOURS               = 256;
 
 
 /*
