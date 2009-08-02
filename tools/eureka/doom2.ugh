@@ -28,8 +28,10 @@ level_name      map01
 sky_flat        f_sky1
 
 #
-#	Definition of linedef type groups
-#	Format is : linegroup <group> <description>
+#	Definition of linedef groups
+#	Format is : linegroup <letter> <description>
+#
+#	<description> should not exceed 24 characters
 #
 
 linegroup d "Door"
@@ -54,9 +56,9 @@ linegroup x "Misc."
 
 #
 #	Definition of linedef types
-#	Format is : line <number> <group> <shortdesc> <longdesc>
+#	Format is : line <number> <group> <description>
 #
-#	<shortdesc> must not exceed 16 characters.
+#	<desc> should not exceed 24 characters.
 #
 
 line   0 x "-- Normal"        "--  Normal"
@@ -372,26 +374,27 @@ line 9097 t "WR Teleport prv" "WR  Teleport, preserving direction [EDGE]"
 
 #
 #	Definition of sector types
-#	Format is : st <number> <shortdesc> <longdesc>
-#	<shortdesc> must not exceed 14 characters.
+#	Format is : sector <number> <description>
+#
+#	<description> should not exceed 24 characters.
 #
 
-sector  0 "X Normal"       "X Normal"
-sector  1 "  Blinks rand"  "  Light blinks randomly"
-sector  2 "  Flashes 2 Hz" "  Light flashes 2 Hz"
-sector  3 "  Flashes 1 Hz" "  Light flashes 1 Hz"
-sector  4 "P -20% & 2Hz"   "P -10/20% health, flashes 2 Hz"
-sector  5 "P -10% health"  "P -5/10% health"
-sector  7 "P -5% health"   "P -2/5% health"
-sector  8 "  Oscillates"   "  Light oscillates"
-sector  9 "P Secret"       "P Secret"
-sector 10 "  Closes 30 s"  "  30 s after level start, ceiling closes like a door"
-sector 11 "P -20% & end"   "P -10/20% health and end level when health <= 10%"
-sector 12 "  Flash1Hz syn" "  Light flashes 1 Hz, synchronized"
-sector 13 "  Flash2Hz syn" "  Light flashes 2 Hz, synchronized"
-sector 14 "  Opens 300 s"  "  300 s after level start, ceiling opens like a door"
-sector 16 "P -20% health"  "P -10/20% health"
-sector 17 "  Flicker rand" "  Light flickers on and off randomly [v1.6]"
+sector  0 "Normal"
+sector  1 "Light blinks randomly"
+sector  2 "Light flashes 2 Hz"
+sector  3 "Light flashes 1 Hz"
+sector  4 "Flashes / 20% damage"
+sector  5 "Damage 10%"
+sector  7 "Damage 5%"
+sector  8 "Light oscillates"
+sector  9 "SECRET"
+sector 10 "Close after 30 sec"
+sector 11 "End level / damage"
+sector 12 "Flashes 1 Hz sync"
+sector 13 "Flashes 2 Hz sync"
+sector 14 "Open after 5 min"
+sector 16 "Damage 20%"
+sector 17 "Light flickering"
 
 #
 #	Definition of thing groups
@@ -413,9 +416,10 @@ thinggroup s 0BD "Special"
 
 #
 #	Definition of things
-#	Format is :
-#	thing <number> <group> <flags> <radius> <desc> [<sprite>]
-#	<desc> must not exceed 19 characters.
+#	Format is : thing <number> <group> <flags> <radius> <sprite> <desc>
+#
+#	<desc> should not exceed 24 characters.
+#	<sprite> should be NULL for things without any sprite
 #
 
 thing 2007 a -  20 "Clip"			CLIP

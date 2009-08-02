@@ -55,12 +55,11 @@ typedef struct
 linetype_t;
 
 
-// sector <number> <shortdesc> <longdesc>
+// sector <number> <description>
 typedef struct
 {
 	int number;
-	const char *shortdesc;
-	const char *longdesc;
+	const char *desc;
 }
 sectortype_t;
 
@@ -115,9 +114,7 @@ void FreeGameDefs();
 
 
 const char *GetLineDefTypeName(int);
-const char *GetLineDefTypeLongName(int);
 const char *GetSectorTypeName(int);
-const char *GetSectorTypeLongName(int);
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
