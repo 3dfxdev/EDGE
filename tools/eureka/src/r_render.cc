@@ -166,9 +166,9 @@ public:
       {
       if (view.texturing)
          {
-         img = image_cache->GetTex(tname);
+         img = W_GetTexture(tname);
 
-         if (img != 0)
+         if (img)
             return;
          }
       col = 0x30 + ((tname[0]*17+tname[1]*47+tname[2]*7) % 64);

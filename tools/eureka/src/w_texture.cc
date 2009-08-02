@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------
-//  RENDER IMAGES
+//  TEXTURE LOADING
 //------------------------------------------------------------------------
 //
 //  Eureka DOOM Editor
@@ -26,6 +26,10 @@
 
 #include "main.h"
 
+#include <map>
+#include <algorithm>
+#include <string>
+
 #include "m_dialog.h"
 #include "m_game.h"      /* yg_picture_format */
 #include "r_misc.h"
@@ -36,102 +40,24 @@
 #include "w_io.h"
 #include "w_structs.h"
 
-#include "r_images.h"
+#include "w_texture.h"
 
 
-/*
- *  Sprite_dir::loc_by_root - find sprite by prefix
- *  
- *      Return the (wad, offset, length) location of the first
- *      lump by alphabetical order whose name begins with
- *      <name>. If not found, set loc.wad to 0.
- */
-void Sprite_loc_by_root (const char *name, Lump_loc& loc)
+typedef std::map<std::string, Img *> tex_map_t;
+
+static tex_map_t textures;
+
+
+static void DeleteTex(const tex_map_t::value_type& P)
 {
-	char buffer[16];
-
-	strcpy(buffer, name);
-
-	if (strlen(buffer) == 4)
-		strcat(buffer, "A");
-
-	if (strlen(buffer) == 5)
-		strcat(buffer, "0");
-
-	MDirPtr m = FindMasterDir(MasterDir, buffer);
-
-	if (! m)
-	{
-		buffer[5] = '1';
-		m = FindMasterDir(MasterDir, buffer);
-	}
-
-	if (! m)
-	{
-		strcat(buffer, "C1");
-		m = FindMasterDir(MasterDir, buffer);
-	}
-
-	if (! m)
-	{
-		buffer[6] = 'D';
-		m = FindMasterDir(MasterDir, buffer);
-	}
-
-	if (! m)
-	{
-		loc.wad = NULL;
-		loc.ofs = loc.len = 0;
-		return;
-	}
-
-	loc.wad = m->wadfile;
-	loc.ofs = m->dir.start;
-	loc.len = m->dir.size;
+	delete P.second;
 }
 
-
-/*
- *  flat_list_entry_match
- *  Function used by bsearch() to locate a particular 
- *  flat in the FTexture.
- */
-static int flat_list_entry_match (const void *key, const void *flat_list_entry)
+void W_ClearTextures()
 {
-	return y_strnicmp ((const char *) key,
-						((const flat_list_entry_t *) flat_list_entry)->name,
-						WAD_FLAT_NAME);
-}
+	std::for_each(textures.begin(), textures.end(), DeleteTex);
 
-
-/*
- *  load a flat into a new image.  NULL if not found.
- */
-
-Img * Flat2Img (const char * fname)
-{
-	char name[WAD_FLAT_NAME + 1];
-	strncpy (name, fname, WAD_FLAT_NAME);
-	name[WAD_FLAT_NAME] = 0;
-
-	flat_list_entry_t *flat = (flat_list_entry_t *)
-		bsearch (name, flat_list, NumFTexture, sizeof *flat_list,
-				flat_list_entry_match);
-
-	if (! flat)  // Not found in list
-		return 0;
-
-	int width  = DOOM_FLAT_WIDTH;  // Big deal !
-	int height = DOOM_FLAT_HEIGHT;
-
-	const Wad_file0 *wadfile = flat->wadfile;
-	wadfile->seek (flat->offset);
-
-	Img *img = new Img (width, height, false);
-
-	wadfile->read_bytes (img->wbuf (), (long) width * height);
-
-	return img;
+	textures.clear();
 }
 
 
@@ -287,37 +213,18 @@ Img * Tex2Img (const char * texname)
 }
 
 
-/* --- ImageCache methods --- */
-
-
-Img *ImageCache::GetFlat (const char * fname)
+void W_LoadTextures()
 {
-	std::string f_str = fname;
-
-	flat_map_t::iterator P = flats.find (f_str);
-
-	if (P != flats.end ())
-		return P->second;
-
-	// flat not in the list yet.  Add it.
-
-	Img *result = Flat2Img (fname);
-	flats[f_str] = result;
-
-	// note that a NULL return from Flat2Img is OK, it means that no
-	// such flat exists.  Our renderer will revert to using a solid
-	// colour.
-
-	return result;
+	// TODO: W_LoadTextures
 }
 
 
-Img *ImageCache::GetTex (const char * tname)
+Img * W_GetTexture(const char *name)
 {
-	if (tname[0] == 0 || tname[0] == '-')
+	if (name[0] == 0 || name[0] == '-')
 		return 0;
 
-	std::string t_str = tname;
+	std::string t_str = name;
 
 	tex_map_t::iterator P = textures.find (t_str);
 
@@ -326,46 +233,13 @@ Img *ImageCache::GetTex (const char * tname)
 
 	// texture not in the list yet.  Add it.
 
-	Img *result = Tex2Img (tname);
+	Img *result = Tex2Img(name);
 	textures[t_str] = result;
 
 	// note that a NULL return from Tex2Img is OK, it means that no
 	// such texture exists.  Our renderer will revert to using a solid
 	// colour.
 
-	return result;
-}
-
-
-Img *ImageCache::GetSprite (const wad_ttype_t& type)
-{
-	sprite_map_t::iterator P = sprites.find (type);
-
-	if (P != sprites.end ())
-		return P->second;
-
-	// sprite not in the list yet.  Add it.
-
-	Img *result = 0;
-
-	const char *sprite_root = get_thing_sprite (type);
-	if (sprite_root)
-	{
-		Lump_loc loc;
-		Sprite_loc_by_root (sprite_root, loc);
-		result = new Img ();
-
-		if (LoadPicture (*result, sprite_root, loc, 0, 0) != 0)
-		{
-			delete result;
-			result = 0;
-		}
-	}
-
-	// note that a NULL image is OK.  Our renderer will just ignore the
-	// missing sprite.
-
-	sprites[type] = result;
 	return result;
 }
 

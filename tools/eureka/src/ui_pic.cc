@@ -70,9 +70,9 @@ void UI_Pic::GetFlat(const char * fname)
 	TiledImg(W_GetFlat(fname));
 }
 
-void UI_Pic::GetTex (const char * tname)
+void UI_Pic::GetTex(const char * tname)
 {
-	TiledImg(image_cache->GetTex(tname));
+	TiledImg(W_GetTexture(tname));
 }
 
 
