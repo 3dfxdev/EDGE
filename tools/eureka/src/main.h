@@ -241,10 +241,6 @@ extern int   welcome_message; // Print the welcome message on startup.
 extern const char *bench; // Benchmark to run
 
 
-typedef int acolour_t;
-
-
-
 // Defined in edit.cc
 extern bool InfoShown;          // Is the bottom line displayed?
 

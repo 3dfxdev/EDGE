@@ -43,7 +43,7 @@ typedef struct
 	wad_ttype_t type;
 	char    flags;
 	short         radius;
-	acolour_t     colour;
+	pcolour_t     color;
 	const char    *desc;
 	const char  *sprite;
 }
@@ -202,9 +202,9 @@ bool is_thing_type (wad_ttype_t type)
 /*
  *  get_thing_colour - return the colour of the thing of given type.
  *
- *  Return the colour. If the 
+ *  Return the colour. 
  */
-acolour_t get_thing_colour (wad_ttype_t type)
+pcolour_t get_thing_colour(int type)
 {
 	return FL_RED;
 
@@ -212,7 +212,7 @@ acolour_t get_thing_colour (wad_ttype_t type)
 	if (table_idx == (size_t) -1)
 		return FL_RED;  // Not found.
 	else
-		return things_table[table_idx].colour;
+		return things_table[table_idx].color;
 }
 
 
