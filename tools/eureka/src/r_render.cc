@@ -665,7 +665,7 @@ public:
       if (ty < 4)
          return;
 
-      Img *sprite = image_cache->GetSprite (th->type);
+      Img *sprite = W_GetSprite(th->type);
       if (! sprite)
          return;
 

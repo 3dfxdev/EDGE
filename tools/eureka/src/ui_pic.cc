@@ -80,10 +80,9 @@ void UI_Pic::GetSprite(const wad_ttype_t& type)
 {
 	//  color(FL_GRAY0 + 2);
 
-
 	if (rgb) Nil();
 
-	Img *img = image_cache->GetSprite(type);
+	Img *img = W_GetSprite((int)type);
 
 	if (! img || img->width() < 1 || img->height() < 1)
 		return;
