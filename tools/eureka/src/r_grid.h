@@ -25,77 +25,73 @@
 class Grid_State_c
 {
 public:
-  bool shown;
+	bool shown;
 
-  // if true, objects forced to be on the grid
-  bool snap;
+	// if true, objects forced to be on the grid
+	bool snap;
 
-  // if true, grid step does not automatically change when zoom changes
-  bool locked;
+	// if true, grid step does not automatically change when zoom changes
+	bool locked;
 
-  // minimum grid step in pixels when not locked
-  int pixels_min;
+	// minimum grid step in pixels when not locked
+	int pixels_min;
 
-  // map coordinates for centre of canvas
-  int orig_x;
-  int orig_y;
+	// map coordinates for centre of canvas
+	int orig_x;
+	int orig_y;
 
-  // scale for drawing map
-  float Scale;
+	// scale for drawing map
+	float Scale;
 
-  int step;
-
-private:
-  int scale_idx;  // ?????????????
-  int step_idx;
+	int step;
 
 public:
-  Grid_State_c();
-  virtual ~Grid_State_c();
+	Grid_State_c();
+	virtual ~Grid_State_c();
 
 public:
-  inline bool isShown() const
-  {
-    return shown;
-  }
+	inline bool isShown() const
+	{
+		return shown;
+	}
 
-  // change the view so that the map coordinates (x, y)
-  // appear at the centre of the window
-  void CenterMapAt(int x, int y);
+	// change the view so that the map coordinates (x, y)
+	// appear at the centre of the window
+	void CenterMapAt(int x, int y);
 
-  // return X/Y coordinate snapped to grid
-  // (or unchanged is snap_to_grid is off)
-  int SnapX(int mapx) const;
-  int SnapY(int mapy) const;
+	// return X/Y coordinate snapped to grid
+	// (or unchanged is snap_to_grid is off)
+	int SnapX(int mapx) const;
+	int SnapY(int mapy) const;
 
-  // interface with UI_Infobar widget...
-  static const char *scale_options();
-  static const char *grid_options();
+	// interface with UI_Infobar widget...
+	static const char *scale_options();
+	static const char *grid_options();
 
-  void ScaleFromWidget(int i);
-  void  StepFromWidget(int i);
+	void ScaleFromWidget(int i);
+	void  StepFromWidget(int i);
 
-  // compute new grid step from current scale
-  void StepFromScale();
+	// compute new grid step from current scale
+	void StepFromScale();
 
-  // increase or decrease the grid size.  The 'delta' parameter
-  // is positive to increase it, negative to decrease it.
-  void AdjustStep(int delta);
-  void AdjustScale(int delta);
+	// increase or decrease the grid size.  The 'delta' parameter
+	// is positive to increase it, negative to decrease it.
+	void AdjustStep(int delta);
+	void AdjustScale(int delta);
 
-  // choose the scale nearest to (and less than) the wanted one
-  void NearestScale(double want_scale);
+	// choose the scale nearest to (and less than) the wanted one
+	void NearestScale(double want_scale);
 
-  void ScaleFromDigit(int digit);
+	void ScaleFromDigit(int digit);
 
-  // move the origin so that the focus point of the last zoom
-  // operation (scale change) is map_x/y.
-  void RefocusZoom(int map_x, int map_y, float before_Scale);
+	// move the origin so that the focus point of the last zoom
+	// operation (scale change) is map_x/y.
+	void RefocusZoom(int map_x, int map_y, float before_Scale);
 
 private:
-  static const double scale_values[];
-  static const int digit_scales[];
-  static const int grid_values[];
+	static const double scale_values[];
+	static const int digit_scales[];
+	static const int grid_values[];
 };
 
 extern Grid_State_c grid;
