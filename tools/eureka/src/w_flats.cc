@@ -107,7 +107,6 @@ Img * Flat2Img (const char * fname)
 }
 
 
-
 void W_LoadFlats()
 {
 	// FIXME

@@ -257,16 +257,6 @@ extern int KF_fonth;  // default font size
 // l_unlink.cc
 void unlink_sidedef (SelPtr linedefs, int side1, int side2);
 
-// names.cc
-const char *GetObjectTypeName (int);
-const char *GetEditModeName (int);
-const char *GetLineDefTypeName (int);
-const char *GetLineDefTypeLongName (int);
-const char *GetLineDefFlagsName (int);
-const char *GetLineDefFlagsLongName (int);
-const char *GetSectorTypeName (int);
-const char *GetSectorTypeLongName (int);
-
 
 int entryname_cmp (const char *entry1, const char *entry2);
 

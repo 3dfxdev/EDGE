@@ -23,6 +23,7 @@
 
 #include "levels.h"
 #include "e_things.h"
+#include "m_game.h"
 #include "w_rawdef.h"
 #include "w_structs.h"
 

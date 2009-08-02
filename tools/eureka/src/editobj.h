@@ -39,5 +39,11 @@ void TransferLinedefProperties (int src_linedef, SelPtr linedefs);
 void TransferSectorProperties (int src_sector, SelPtr sectors);
 void TransferThingProperties (int src_thing, SelPtr things);
 
+const char *GetObjectTypeName (int);
+const char *GetEditModeName (int);
+const char *GetLineDefFlagsName (int);
+const char *GetLineDefFlagsLongName (int);
+
+
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

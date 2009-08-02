@@ -70,7 +70,7 @@ void create_things_table ()
 {
 	size_t n;
 
-	nthings = thingdef.size();
+	nthings = thing_types.size();
 	if (nthings == 0)
 	{
 		things_table = NULL;
@@ -83,9 +83,9 @@ void create_things_table ()
 
 	for (n = 0; n < nthings; n++)
 	{
-		things_table[n].type   = thingdef[n]->number;
-		things_table[n].flags  = thingdef[n]->flags;
-		things_table[n].radius = thingdef[n]->radius;
+		things_table[n].type   = thing_types[n]->number;
+		things_table[n].flags  = thing_types[n]->flags;
+		things_table[n].radius = thing_types[n]->radius;
 
 		///!!!    // Fetch the app colour no. for the thinggroup
 		///!!!    for (al_lrewind (thinggroup); ! al_leol (thinggroup); al_lstep (thinggroup))
@@ -98,8 +98,8 @@ void create_things_table ()
 		///!!!        }
 		///!!!    }
 
-		things_table[n].desc   = thingdef[n]->desc;
-		things_table[n].sprite = thingdef[n]->sprite;
+		things_table[n].desc   = thing_types[n]->desc;
+		things_table[n].sprite = thing_types[n]->sprite;
 	}
 
 	// Sort the table by increasing thing type
