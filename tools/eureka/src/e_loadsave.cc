@@ -59,7 +59,7 @@ void FreshLevel()
 		Vertex *v = new Vertex;
 		Vertices.push_back(v);
 
-		v->x = (i & 1) ? 256 : -256;
+		v->x = (i >= 2) ? 256 : -256;
 		v->y = (i==1 || i==2) ? 256 : -256;
 
 		SideDef *sd = new SideDef;
