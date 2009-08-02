@@ -57,31 +57,7 @@ char Level_name[WAD_NAME + 1];
 y_file_name_t Level_file_name;
 y_file_name_t Level_file_name_saved;
 
-void EmptyLevelData (const char *levelname)
-{
-}
 
-
-/*
- *  texno_texname
- *  A convenience function when loading Doom alpha levels
- */
-static char *tex_list = 0;
-static size_t ntex = 0;
-static char tex_name[WAD_TEX_NAME + 1];
-
-inline const char *texno_texname (s16_t texno)
-{
-	if (texno < 0)
-		return "-";
-	else
-		{
-			if (texno < (s16_t) ntex)
-				return tex_list + WAD_TEX_NAME * texno;
-			else
-				return "unknown";
-		}
-}
 
 
 /*
