@@ -73,6 +73,7 @@ public:
 	enum { F_X, F_Y, F_ANGLE, F_TYPE, F_OPTIONS };
 
 public:
+	Thing() : x(0), y(0), angle(0), type(0), options(7) { }
 };
 
 
@@ -85,6 +86,7 @@ public:
 	enum { F_X, F_Y };
 
 public:
+	Vertex() : x(0), y(0) { }
 };
 
 
@@ -102,6 +104,10 @@ public:
 	enum { F_FLOORH, F_CEILH, F_FLOOR_TEX, F_CEIL_TEX, F_LIGHT, F_TYPE, F_TAG };
 
 public:
+	Sector() : floorh(0), ceilh(0), floor_tex(0), ceil_tex(0),
+	           light(0), type(0), tag(0)
+	{ }
+
 	const char *FloorTex() const;
 	const char *CeilTex() const;
 
@@ -125,6 +131,10 @@ public:
 	enum { F_X_OFFSET, F_Y_OFFSET, F_UPPER_TEX, F_MID_TEX, F_LOWER_TEX, F_SECTOR };
 
 public:
+	SideDef() : x_offset(0), y_offset(0), upper_tex(0), mid_tex(0),
+				lower_tex(0), sector(0)
+	{ }
+
 	const char *UpperTex() const;
 	const char *MidTex()   const;
 	const char *LowerTex() const;
@@ -147,6 +157,10 @@ public:
 	enum { F_START, F_END, F_FLAGS, F_TYPE, F_TAG, F_RIGHT, F_LEFT };
 
 public:
+	LineDef() : start(0), end(0), flags(0), type(0), tag(0),
+				right(-1), left(-1)
+	{ }
+
 	Vertex *Start() const;
 	Vertex *End()   const;
 
@@ -179,6 +193,10 @@ public:
 	enum { F_MX, F_MY, F_RW, F_RH, F_Z1, F_Z2, F_NAME, F_TAG, F_FLAGS, F_CODE };
 
 public:
+	RadTrig() : mx(0), my(0), rw(128), rh(128), z1(0), z2(0),
+				name(0), tag(0), options(0), code(0)
+	{ }
+
 	const char *Name() const;
 	const char *Code() const;
 

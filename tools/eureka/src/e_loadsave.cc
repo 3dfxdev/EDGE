@@ -53,7 +53,6 @@ void FreshLevel()
 	Things.push_back(th);
 
 	th->type = 1;
-	th->options = 7;
 
 	for (int i = 0; i < 4; i++)
 	{
@@ -73,7 +72,6 @@ void FreshLevel()
 		ld->end   = (i+1) % 4;
 		ld->flags = MLF_Blocking;
 		ld->right = i;
-		ld->left  = -1;
 	}
 
 	update_level_bounds();
