@@ -26,25 +26,29 @@
 
 #include "main.h"
 
+#include <map>
+
 #include "im_color.h"
 #include "m_game.h"
 #include "levels.h"
 #include "e_things.h"
 
 
-std::vector<linegroup_t *> line_groups;
-std::vector<linetype_t *> line_types;
-std::vector<sectortype_t *> sector_types;
-std::vector<thinggroup_t *> thing_groups;
-std::vector<thingtype_t *> thing_types;
+std::map<char, linegroup_t *>  line_groups;
+std::map<char, thinggroup_t *> thing_groups;
 
+std::map<int, linetype_t *>   line_types;
+std::map<int, sectortype_t *> sector_types;
+std::map<int, thingtype_t *>  thing_types;
 
 /*
  *  InitGameDefs
  *  Create empty lists for game definitions
  */
-void InitGameDefs (void)
+void InitGameDefs(void)
 {
+	// TODO: delete the contents
+
     line_groups.clear();
     line_types.clear();
     sector_types.clear();
@@ -71,7 +75,7 @@ static pcolour_t ParseHexColor(const char *str)
  *  Builds list ThingsDefs.
  *  A totally boring piece of code.
  */
-void LoadGameDefs (const char *game)
+void LoadGameDefs(const char *game)
 {
 	FILE *ygdfile = 0;    /* YGD file descriptor */
 #define YGD_BUF 200   /* max. line length + 2 */
@@ -81,19 +85,19 @@ void LoadGameDefs (const char *game)
 	char filename[1025];
 	char basename[256];
 
-	strcpy (basename, game  );
-	strcat (basename, ".ugh");
+	strcpy(basename, game  );
+	strcat(basename, ".ugh");
 
-	strcpy (filename, basename);
+	strcpy(filename, basename);
 
 
-	ygdfile = fopen (filename, "r");
+	ygdfile = fopen(filename, "r");
 	if (ygdfile == NULL)
 		FatalError ("%s: %s", filename, strerror (errno));
 
 	/* Read the game definition
 	   file, line by line. */
-	for (lineno = 2; fgets (readbuf, sizeof readbuf, ygdfile); lineno++)
+	for (lineno = 2; fgets(readbuf, sizeof readbuf, ygdfile); lineno++)
 	{
 		int         ntoks;
 		char       *token[MAX_TOKENS];
@@ -106,7 +110,7 @@ void LoadGameDefs (const char *game)
 			"%s(%d): directive \"%s\" takes %d parameters";
 
 		/* duplicate the buffer */
-		buf = (char *) malloc (strlen (readbuf) + 1);
+		buf = (char *) malloc(strlen(readbuf) + 1);
 		if (! buf)
 			FatalError ("not enough memory");
 
@@ -130,7 +134,7 @@ void LoadGameDefs (const char *game)
 				break;
 
 			// First character of token
-			else if (! in_token && (quoted || ! isspace (*iptr)))
+			else if (! in_token && (quoted || ! isspace(*iptr)))
 			{
 				if (ntoks >= (int) (sizeof token / sizeof *token))
 					FatalError ("%s(%d): more than %d tokens",
@@ -142,7 +146,7 @@ void LoadGameDefs (const char *game)
 			}
 
 			// First space between two tokens
-			else if (in_token && ! quoted && isspace (*iptr))
+			else if (in_token && ! quoted && isspace(*iptr))
 			{
 				*optr++ = '\0';
 				in_token = 0;
@@ -158,7 +162,7 @@ void LoadGameDefs (const char *game)
 		/* process line */
 		if (ntoks == 0)
 		{
-			free (buf);
+			free(buf);
 			continue;
 		}
 
@@ -172,7 +176,7 @@ void LoadGameDefs (const char *game)
 			buf->group = *token[1];
 			buf->desc  = token[2];
 
-			line_groups.push_back(buf);
+			line_groups[buf->group] = buf;
 		}
 		else if (y_stricmp(token[0], "line") == 0)
 		{
@@ -181,27 +185,28 @@ void LoadGameDefs (const char *game)
 			if (ntoks < 4)  //!!!!!! FIXME != 4
 				FatalError(bad_arg_count, filename, lineno, token[0], 3);
 
-			buf->number = atoi(token[1]);
-			buf->group  = *token[2];
-			buf->desc   = token[3];
+			int number = atoi(token[1]);
 
-			line_types.push_back(buf);
+			buf->group = *token[2];
+			buf->desc  = token[3];
+
+			line_types[number] = buf;
 		}
 		else if (y_stricmp(token[0], "level_name") == 0)
 		{
 			if (ntoks != 2)
 				FatalError(bad_arg_count, filename, lineno, token[0], 1);
 
-			if (! strcmp (token[1], "e1m1"))
+			if (! strcmp(token[1], "e1m1"))
 				yg_level_name = YGLN_E1M1;
-			else if (! strcmp (token[1], "e1m10"))
+			else if (! strcmp(token[1], "e1m10"))
 				yg_level_name = YGLN_E1M10;
-			else if (! strcmp (token[1], "map01"))
+			else if (! strcmp(token[1], "map01"))
 				yg_level_name = YGLN_MAP01;
 			else
 				FatalError ("%s(%d): invalid argument \"%.32s\" (e1m1|e1m10|map01)",
 						filename, lineno, token[1]);
-			free (buf);
+			free(buf);
 		}
 		else if (y_stricmp(token[0], "sky_flat") == 0)
 		{
@@ -215,12 +220,12 @@ void LoadGameDefs (const char *game)
 			if (ntoks != 3)
 				FatalError(bad_arg_count, filename, lineno, token[0], 2);
 
+			int number = atoi(token[1]);
+
 			sectortype_t *buf = new sectortype_t;
+			buf->desc = token[2];
 
-			buf->number = atoi (token[1]);
-			buf->desc   = token[2];
-
-			sector_types.push_back(buf);
+			sector_types[number] = buf;
 		}
 		else if (y_stricmp(token[0], "thinggroup") == 0)
 		{
@@ -233,7 +238,7 @@ void LoadGameDefs (const char *game)
 			buf->color = ParseHexColor(token[2]);
 			buf->desc  = token[3];
 
-			thing_groups.push_back(buf);
+			thing_groups[buf->group] = buf;
 		}
 		else if (y_stricmp(token[0], "thing") == 0)
 		{
@@ -242,14 +247,15 @@ void LoadGameDefs (const char *game)
 
 			thingtype_t *buf = new thingtype_t;
 
-			buf->number     = atoi (token[1]);
-			buf->group      = *token[2];
-			buf->flags      = *token[3] == 's' ? THINGDEF_SPECTRAL : 0;  // FIXME!
-			buf->radius     = atoi (token[4]);
-			buf->sprite     = token[5];
-			buf->desc       = token[6];
+			int number = atoi(token[1]);
 
-			thing_types.push_back(buf);
+			buf->group  = *token[2];
+			buf->flags  = (token[3][0] == 's') ? THINGDEF_SPECTRAL : 0;  // FIXME!
+			buf->radius = atoi(token[4]);
+			buf->sprite = token[5];
+			buf->desc   = token[6];
+
+			thing_types[number] = buf;
 		}
 		else
 		{
@@ -258,7 +264,7 @@ void LoadGameDefs (const char *game)
 		}
 	}
 
-	fclose (ygdfile);
+	fclose(ygdfile);
 
 	/* Verify that all the mandatory directives are present. */
 	{
@@ -270,7 +276,7 @@ void LoadGameDefs (const char *game)
 		}
 
 		if (abort)
-			exit (2);
+			exit(2);
 	}
 
 
@@ -280,7 +286,7 @@ void LoadGameDefs (const char *game)
 
 	/* Speed optimization : build the table of things attributes
 	   that get_thing_*() use. */
-	create_things_table ();
+	create_things_table();
 }
 
 
@@ -288,39 +294,63 @@ void LoadGameDefs (const char *game)
  *  FreeGameDefs
  *  Free all memory allocated to game definitions
  */
-void FreeGameDefs (void)
+void FreeGameDefs(void)
 {
-	delete_things_table ();
+	delete_things_table();
 }
 
 
-/*
-   get a short (16 char.) description of the type of a linedef
-*/
-
-const char *GetLineDefTypeName (int type)
+const sectortype_t * M_GetSectorType(int type)
 {
-	for (int n = 0; n < (int)line_types.size(); n++)
-		if (line_types[n]->number == type)
-			return line_types[n]->desc;
-	return "??  UNKNOWN";
+	std::map<int, sectortype_t *>::iterator SI;
+
+	SI = sector_types.find(type);
+
+	if (SI != sector_types.end())
+		return SI->second;
+
+	static sectortype_t dummy_type =
+	{
+		"UNKNOWN TYPE"
+	};
+
+	return &dummy_type;
 }
 
 
-
-/*
-   get a short (14 char.) description of the type of a sector
-*/
-
-const char *GetSectorTypeName (int type)
+const linetype_t * M_GetLineType(int type)
 {
-	/* KLUDGE: To avoid the last element which is bogus */
-	for (int n = 0; n < (int)sector_types.size()-1; n++)
-		if (sector_types[n]->number == type)
-			return sector_types[n]->desc;
-	static char buf[30];
-	sprintf (buf, "UNKNOWN (%d)", type);
-	return buf;
+	std::map<int, linetype_t *>::iterator LI;
+
+	LI = line_types.find(type);
+
+	if (LI != line_types.end())
+		return LI->second;
+
+	static linetype_t dummy_type =
+	{
+		0, "UNKNOWN TYPE"
+	};
+
+	return &dummy_type;
+}
+
+
+const thingtype_t * M_GetThingType(int type)
+{
+	std::map<int, thingtype_t *>::iterator TI;
+
+	TI = thing_types.find(type);
+
+	if (TI != thing_types.end())
+		return TI->second;
+
+	static thingtype_t dummy_type =
+	{
+		0, 0, 1, "UNKNOWN TYPE", "NULL"
+	};
+
+	return &dummy_type;
 }
 
 
