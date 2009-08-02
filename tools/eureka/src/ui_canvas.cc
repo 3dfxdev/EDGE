@@ -185,6 +185,11 @@ int UI_Canvas::handle(int event)
 
 void UI_Canvas::DrawEverything()
 {
+	map_lx = MAPX(x());
+	map_ly = MAPY(y()+h());
+	map_hx = MAPX(x()+w());
+	map_hx = MAPY(y());
+
 	DrawMap(); 
 
 	HighlightSelection(edit.Selected); // FIXME should be widgetized
@@ -202,16 +207,8 @@ void UI_Canvas::DrawEverything()
 */
 void UI_Canvas::DrawMap()
 {
-	int mapx0 = MAPX(x());   // FIXME: cache values
-	int mapx9 = MAPX(x()+w());
-	int mapy0 = MAPY(y()+h());
-	int mapy9 = MAPY(y());
-	int n;
-
-
 	fl_color(FL_BLACK);
 	fl_rectf(x(), y(), w(), h());
-
 
 	// draw the grid first since it's in the background
 	if (grid.shown)
@@ -232,16 +229,18 @@ void UI_Canvas::DrawMap()
 		DrawRTS();
 
 
+	int n;
+
 	// Draw the things numbers
 	if (e->obj_type == OBJ_THINGS && e->show_object_numbers)
 	{
 		for (n = 0; n < NumThings; n++)
 		{
-			int mapx = Things[n]->x;
-			int mapy = Things[n]->y;
+			int x = Things[n]->x;
+			int y = Things[n]->y;
 
-			if (mapx >= mapx0 && mapx <= mapx9 && mapy >= mapy0 && mapy <= mapy9)
-				DrawObjNum(SCREENX (mapx) + FONTW, SCREENY (mapy) + 2, n, THING_NO);
+			if (Vis(x, y, MAX_RADIUS))
+				DrawObjNum(SCREENX(x) + FONTW, SCREENY(y) + 2, n, THING_NO);
 		}
 	}
 
@@ -252,13 +251,13 @@ void UI_Canvas::DrawMap()
 
 		for (n = 0; n < NumSectors; n++)
 		{
-			int mapx;
-			int mapy;
+			int x;
+			int y;
 
-			centre_of_sector (n, &mapx, &mapy);
+			centre_of_sector(n, &x, &y);
 
-			if (mapx >= mapx0 && mapx <= mapx9 && mapy >= mapy0 && mapy <= mapy9)
-				DrawObjNum(SCREENX (mapx) + xoffset, SCREENY (mapy) - FONTH / 2, n, SECTOR_NO);
+			if (Vis(x, y, MAX_RADIUS))
+				DrawObjNum(SCREENX(x) + xoffset, SCREENY(y) - FONTH / 2, n, SECTOR_NO);
 
 			if (n == 10 || n == 100 || n == 1000 || n == 10000)
 				xoffset -= FONTW / 2;
@@ -273,17 +272,11 @@ void UI_Canvas::DrawMap()
  */
 void UI_Canvas::DrawGrid()
 {
-	int mapx0 = MAPX(x());   // FIXME: cache values
-	int mapx9 = MAPX(x()+w());
-	int mapy0 = MAPY(y()+h());
-	int mapy9 = MAPY(y());
-
-	int grid_step_1 = grid.step; // Map units between dots
+	int grid_step_1 = 1 * grid.step;    // Map units between dots
 	int grid_step_2 = 8 * grid_step_1;  // Map units between dim lines
 	int grid_step_3 = 8 * grid_step_2;  // Map units between bright lines
 
 	float pixels_1 = grid.step * grid.Scale;
-	// float pixels_2 = 8 * pixels_1;
 
 
 	if (pixels_1 < 1.99)
@@ -296,42 +289,35 @@ void UI_Canvas::DrawGrid()
 
 	fl_color (GRID_BRIGHT);
 	{
-		int mapx0_3 = (mapx0 / grid_step_3) * grid_step_3;
-		if (mapx0_3 < mapx0)
-			mapx0_3 += grid_step_3;
-		for (int i = mapx0_3; i <= mapx9; i += grid_step_3)
-			DrawMapLine (i, mapy0, i, mapy9);
-	}
+		int gx = (map_lx / grid_step_3) * grid_step_3;
 
-	{
-		int mapy0_3 = (mapy0 / grid_step_3) * grid_step_3;
-		if (mapy0_3 < mapy0)
-			mapy0_3 += grid_step_3;
-		for (int j = mapy0_3; j <=  mapy9; j += grid_step_3)
-			DrawMapLine (mapx0, j, mapx9, j);
+		for (; gx <= map_hx; gx += grid_step_3)
+			DrawMapLine(gx, map_ly-2, gx, map_hy+2);
+
+		int gy = (map_ly / grid_step_3) * grid_step_3;
+
+		for (; gy <=  map_hy; gy += grid_step_3)
+			DrawMapLine(map_lx, gy, map_hx, gy);
 	}
 
 
 	fl_color (GRID_MEDIUM);
-
 	{
-		int mapx0_2 = (mapx0 / grid_step_2) * grid_step_2;
-		if (mapx0_2 < mapx0)
-			mapx0_2 += grid_step_2;
-		for (int i = mapx0_2; i <= mapx9; i += grid_step_2)
-			if (i % grid_step_3 != 0)
-				DrawMapLine (i, mapy0, i, mapy9);
+		int gx = (map_lx / grid_step_2) * grid_step_2;
+
+		for (; gx <= map_hx; gx += grid_step_2)
+			if (gx % grid_step_3 != 0)
+				DrawMapLine (gx, map_ly, gx, map_hy);
+
+		int gy = (map_ly / grid_step_2) * grid_step_2;
+
+		for (; gy <= map_hy; gy += grid_step_2)
+			if (gy % grid_step_3 != 0)
+				DrawMapLine (map_lx, gy, map_hx, gy);
 	}
 
-	{
-		int mapy0_2 = (mapy0 / grid_step_2) * grid_step_2;
-		if (mapy0_2 < mapy0)
-			mapy0_2 += grid_step_2;
-		for (int j = mapy0_2; j <=  mapy9; j += grid_step_2)
-			if (j % grid_step_3 != 0)
-				DrawMapLine (mapx0, j, mapx9, j);
-	}
 
+	// POINTS
 
 	if (pixels_1 < 3.99)
 		fl_color(GRID_MEDIUM);
@@ -341,31 +327,21 @@ void UI_Canvas::DrawGrid()
 		fl_color(GRID_POINT);
 
 	{
-		int mapx0_1 = (mapx0 / grid_step_1) * grid_step_1;
-		if (mapx0_1 < mapx0)
-			mapx0_1 += grid_step_1;
-		int mapy0_1 = (mapy0 / grid_step_1) * grid_step_1;
-		if (mapy0_1 < mapy0)
-			mapy0_1 += grid_step_1;
+		int gx = (map_lx / grid_step_1) * grid_step_1;
+		int gy = (map_ly / grid_step_1) * grid_step_1;
 
-		int npoints = (mapx9 - mapx0_1) / grid_step_1 + 1;
-		int dispx[npoints];
-
-		for (int n = 0; n < npoints; n++)
-			dispx[n] = SCREENX (mapx0_1 + n * grid_step_1);
-
-		for (int j = mapy0_1; j <= mapy9; j += grid_step_1)
+		for (int ny = gy; ny <= map_hy; ny += grid_step_1)
+		for (int nx = gx; nx <= map_hx; nx += grid_step_1)
 		{
-			int dispy = SCREENY (j);
-			for (int n = 0; n < npoints; n++)
+			int sx = SCREENX(nx);
+			int sy = SCREENY(ny);
+
+			if (pixels_1 < 30.99)
+				fl_point(sx, sy);
+			else
 			{
-				if (pixels_1 < 30.99)
-					fl_point(dispx[n], dispy);
-				else
-				{
-					fl_line(dispx[n]-0, dispy, dispx[n]+1, dispy);
-					fl_line(dispx[n], dispy-0, dispx[n], dispy+1);
-				}
+				fl_line(sx-0, sy, sx+1, sy);
+				fl_line(sx, sy-0, sx, sy+1);
 			}
 		}
 	}
@@ -394,24 +370,19 @@ int vertex_radius (double scale)
  */
 void UI_Canvas::DrawVertices()
 {
-	int mapx0 = MAPX(x());
-	int mapx9 = MAPX(x() + w());
-	int mapy0 = MAPY(y() + h());
-	int mapy9 = MAPY(y());
+	const int r = vertex_radius(grid.Scale);
 
-	const int r = vertex_radius (grid.Scale);
-
-	fl_color (FL_GREEN);
+	fl_color(FL_GREEN);
 
 	for (int n = 0; n < NumVertices; n++)
 	{
-		int mapx = Vertices[n]->x;
-		int mapy = Vertices[n]->y;
+		int x = Vertices[n]->x;
+		int y = Vertices[n]->y;
 
-		if (mapx >= mapx0 && mapx <= mapx9 && mapy >= mapy0 && mapy <= mapy9)
+		if (Vis(x, y, r))
 		{
-			int scrx = SCREENX(mapx);
-			int scry = SCREENY(mapy);
+			int scrx = SCREENX(x);
+			int scry = SCREENY(y);
 
 			fl_line(scrx - r, scry - r, scrx + r, scry + r);
 			fl_line(scrx + r, scry - r, scrx - r, scry + r);
@@ -422,14 +393,15 @@ void UI_Canvas::DrawVertices()
 	{
 		for (int n = 0; n < NumVertices; n++)
 		{
-			int mapx = Vertices[n]->x;
-			int mapy = Vertices[n]->y;
+			int x = Vertices[n]->x;
+			int y = Vertices[n]->y;
 
-			if (mapx >= mapx0 && mapx <= mapx9 && mapy >= mapy0 && mapy <= mapy9)
+			if (Vis(x, y, r))
 			{
-				int x = SCREENX(mapx) + 2 * r;
-				int y = SCREENY(mapy) + 2;
-				DrawObjNum(x, y, n, VERTEX_NO);
+				int sx = SCREENX(x) + 2 * r;
+				int sy = SCREENY(y) + 2;
+
+				DrawObjNum(sx, sy, n, VERTEX_NO);
 			}
 		}
 	}
@@ -441,50 +413,32 @@ void UI_Canvas::DrawVertices()
  */
 void UI_Canvas::DrawLinedefs()
 {
-	int mapx0 = MAPX (x());
-	int mapx9 = MAPX (x() + w());
-	int mapy0 = MAPY (y() + h());
-	int mapy9 = MAPY (y());
+	int new_colour;
 
-	switch (e->obj_type)
+	for (int n = 0; n < NumLineDefs; n++)
 	{
-		case OBJ_VERTICES:
-		{
-			fl_color (LIGHTGREY);
-			for (int n = 0; n < NumLineDefs; n++)
-			{
-				int x1 = LineDefs[n]->Start()->x;
-				int y1 = LineDefs[n]->Start()->y;
-				int x2 = LineDefs[n]->End  ()->x;
-				int y2 = LineDefs[n]->End  ()->y;
+		int x1 = LineDefs[n]->Start()->x;
+		int y1 = LineDefs[n]->Start()->y;
+		int x2 = LineDefs[n]->End  ()->x;
+		int y2 = LineDefs[n]->End  ()->y;
 
-				if (x1 < mapx0 && x2 < mapx0
-						|| x1 > mapx9 && x2 > mapx9
-						|| y1 < mapy0 && y2 < mapy0
-						|| y1 > mapy9 && y2 > mapy9)
-					continue;
-				DrawMapVector (x1, y1, x2, y2);
+		if (! Vis(MIN(x1,x2), MIN(y1,y2), MAX(x1,x2), MAX(y1,y2)))
+			continue;
+
+		switch (e->obj_type)
+		{
+			case OBJ_VERTICES:
+			{
+				fl_color(LIGHTGREY);
+
+				DrawMapVector(x1, y1, x2, y2);
 			}
 			break;
-		}
 
-		case OBJ_LINEDEFS:
-		{
-			int current_colour = INT_MIN;  /* Some impossible colour no. */
-			int new_colour;
-
-			for (int n = 0; n < NumLineDefs; n++)
+			case OBJ_LINEDEFS:
 			{
-				int x1 = LineDefs[n]->Start()->x;
-				int y1 = LineDefs[n]->Start()->y;
-				int x2 = LineDefs[n]->End  ()->x;
-				int y2 = LineDefs[n]->End  ()->y;
+				int new_colour = LIGHTGREY;
 
-				if (x1 < mapx0 && x2 < mapx0
-						|| x1 > mapx9 && x2 > mapx9
-						|| y1 < mapy0 && y2 < mapy0
-						|| y1 > mapy9 && y2 > mapy9)
-					continue;
 				if (LineDefs[n]->type != 0)  /* AYM 19980207: was "> 0" */
 				{
 					if (LineDefs[n]->tag != 0)  /* AYM 19980207: was "> 0" */
@@ -494,8 +448,6 @@ void UI_Canvas::DrawLinedefs()
 				}
 				else if (LineDefs[n]->flags & 1)
 					new_colour = WHITE;
-				else
-					new_colour = LIGHTGREY;
 
 				// Signal errors by drawing the linedef in red. Needs work.
 				// Tag on a typeless linedef
@@ -505,9 +457,9 @@ void UI_Canvas::DrawLinedefs()
 				if (! LineDefs[n]->Right())
 					new_colour = LIGHTRED;
 
-				if (new_colour != current_colour)
-					fl_color (current_colour = new_colour);
-				DrawMapLine (x1, y1, x2, y2);
+				fl_color (new_colour);
+
+				DrawMapLine(x1, y1, x2, y2);
 
 ///				int mx = (x1 + x2) / 2;
 ///				int my = (y1 + y2) / 2;
@@ -531,25 +483,9 @@ void UI_Canvas::DrawLinedefs()
 				}
 			}
 			break;
-		}
 
-		case OBJ_SECTORS:
-		{
-			int current_colour = INT_MIN;  /* Some impossible colour no. */
-			int new_colour;
-
-			for (int n = 0; n < NumLineDefs; n++)
+			case OBJ_SECTORS:
 			{
-				int x1 = LineDefs[n]->Start()->x;
-				int y1 = LineDefs[n]->Start()->y;
-				int x2 = LineDefs[n]->End  ()->x;
-				int y2 = LineDefs[n]->End  ()->y;
-				
-				if (x1 < mapx0 && x2 < mapx0
-						|| x1 > mapx9 && x2 > mapx9
-						|| y1 < mapy0 && y2 < mapy0
-						|| y1 > mapy9 && y2 > mapy9)
-					continue;
 				int sd1 = OBJ_NO_NONE;
 				int sd2 = OBJ_NO_NONE;
 				int s1  = OBJ_NO_NONE;
@@ -591,37 +527,22 @@ void UI_Canvas::DrawLinedefs()
 					else
 						new_colour = LIGHTGREY;
 				}
-				if (new_colour != current_colour)
-					fl_color (current_colour = new_colour);
-				DrawMapLine (x1, y1, x2, y2);
+				
+				fl_color(new_colour);
+
+				DrawMapLine(x1, y1, x2, y2);
 			}
 			break;
-		}
 
-		default:
-		{
-			int current_colour = INT_MIN;  /* Some impossible colour no. */
-			int new_colour;
-
-			for (int n = 0; n < NumLineDefs; n++)
+			default:
 			{
-				int x1 = LineDefs[n]->Start()->x;
-				int y1 = LineDefs[n]->Start()->y;
-				int x2 = LineDefs[n]->End  ()->x;
-				int y2 = LineDefs[n]->End  ()->y;
-				
-				if (x1 < mapx0 && x2 < mapx0
-						|| x1 > mapx9 && x2 > mapx9
-						|| y1 < mapy0 && y2 < mapy0
-						|| y1 > mapy9 && y2 > mapy9)
-					continue;
-
 				if (LineDefs[n]->flags & 1)
 					new_colour = WHITE;
 				else
 					new_colour = LIGHTGREY;
-				if (new_colour != current_colour)
-					fl_color (current_colour = new_colour);
+
+				fl_color(new_colour);
+
 				DrawMapLine (x1, y1, x2, y2);
 			}
 			break;
@@ -635,22 +556,14 @@ void UI_Canvas::DrawLinedefs()
  */
 void UI_Canvas::DrawThings()
 {
-	/* A thing is guaranteed to be totally off-screen
-	   if its centre is more than <max_radius> units
-	   beyond the edge of the screen. */
-	int mapx0 = MAPX(0)   - MAX_RADIUS; //!!!! FIXME
-	int mapx9 = MAPX(w()) + MAX_RADIUS;
-	int mapy0 = MAPY(h()) - MAX_RADIUS;
-	int mapy9 = MAPY(0)   + MAX_RADIUS;
-
 	fl_color(THING_REM);
 
 	for (int n = 0; n < NumThings; n++)
 	{
-		int mapx = Things[n]->x;
-		int mapy = Things[n]->y;
+		int x = Things[n]->x;
+		int y = Things[n]->y;
 
-		if (mapx < mapx0 || mapx > mapx9 || mapy < mapy0 || mapy > mapy9)
+		if (! Vis(x, y, MAX_RADIUS))
 			continue;
 
 		int m = get_thing_radius(Things[n]->type);
@@ -672,10 +585,10 @@ void UI_Canvas::DrawThings()
 			}
 		}
 
-		DrawMapLine (mapx - m, mapy - m, mapx + m, mapy - m);
-		DrawMapLine (mapx + m, mapy - m, mapx + m, mapy + m);
-		DrawMapLine (mapx + m, mapy + m, mapx - m, mapy + m);
-		DrawMapLine (mapx - m, mapy + m, mapx - m, mapy - m);
+		DrawMapLine(x-m, y-m, x+m, y-m);
+		DrawMapLine(x+m, y-m, x+m, y+m);
+		DrawMapLine(x+m, y+m, x-m, y+m);
+		DrawMapLine(x-m, y+m, x-m, y-m);
 
 		{
 			size_t direction = angle_to_direction(Things[n]->angle);
@@ -685,7 +598,7 @@ void UI_Canvas::DrawThings()
 			int corner_x = m * xsign[direction];
 			int corner_y = m * ysign[direction];
 
-			DrawMapLine (mapx, mapy, mapx + corner_x, mapy + corner_y);
+			DrawMapLine(x, y, x + corner_x, y + corner_y);
 		}
 	}
 }
@@ -744,7 +657,7 @@ void UI_Canvas::HighlightForget()
 */
 void UI_Canvas::HighlightObject (int objtype, int objnum, Fl_Color colour)
 {
-	fl_color (colour);
+	fl_color(colour);
 
 	// fprintf(stderr, "HighlightObject: %d\n", objnum);
 
@@ -754,6 +667,9 @@ void UI_Canvas::HighlightObject (int objtype, int objnum, Fl_Color colour)
 		{
 			int x = Things[objnum]->x;
 			int y = Things[objnum]->y;
+
+			if (! Vis(x, y, MAX_RADIUS))
+				return;
 
 			int m = (get_thing_radius(Things[objnum]->type) * 3) / 2;
 
@@ -772,6 +688,9 @@ void UI_Canvas::HighlightObject (int objtype, int objnum, Fl_Color colour)
 			int y1 = LineDefs[objnum]->Start()->y;
 			int x2 = LineDefs[objnum]->End  ()->x;
 			int y2 = LineDefs[objnum]->End  ()->y;
+
+			if (! Vis(MIN(x1,x2), MIN(y1,y2), MAX(x1,x2), MAX(y1,y2)))
+				return;
 
 			int mx = (x1 + x2) / 2;
 			int my = (y1 + y2) / 2;
@@ -795,12 +714,18 @@ void UI_Canvas::HighlightObject (int objtype, int objnum, Fl_Color colour)
 
 		case OBJ_VERTICES:
 		{
+			int x = Vertices[objnum]->x;
+			int y = Vertices[objnum]->y;
+
+			if (! Vis(x, y, MAX_RADIUS))
+				return;
+
 			int r = vertex_radius(grid.Scale) * 3 / 2;
 
-			int scrx0 = SCREENX(Vertices[objnum]->x) - r;
-			int scrx9 = SCREENX(Vertices[objnum]->x) + r;
-			int scry0 = SCREENY(Vertices[objnum]->y) - r;
-			int scry9 = SCREENY(Vertices[objnum]->y) + r;
+			int scrx0 = SCREENX(x) - r;
+			int scrx9 = SCREENX(x) + r;
+			int scry0 = SCREENY(y) - r;
+			int scry9 = SCREENY(y) + r;
 
 			fl_line(scrx0, scry0, scrx9, scry0);
 			fl_line(scrx9, scry0, scrx9, scry9);
@@ -813,27 +738,23 @@ void UI_Canvas::HighlightObject (int objtype, int objnum, Fl_Color colour)
 		{
 			fl_line_style(FL_SOLID, 2);
 
-			int mapx0 = MAPX(0);
-			int mapy0 = MAPY(w());
-			int mapx9 = MAPX(ScrMaxX);
-			int mapy9 = MAPY(0);
-
 			for (int n = 0; n < NumLineDefs; n++)
 			{
-				if (LineDefs[n]->TouchesSector(Sectors[objnum]))
-				{
-					const Vertex *v1 = LineDefs[n]->Start();
-					const Vertex *v2 = LineDefs[n]->End();
+				if (! LineDefs[n]->TouchesSector(Sectors[objnum]))
+					continue;
 
-					if (v1->x < mapx0 && v2->x < mapx0
-							|| v1->x > mapx9 && v2->x > mapx9
-							|| v1->y < mapy0 && v2->y < mapy0
-							|| v1->y > mapy9 && v2->y > mapy9)
-						continue;  // Off-screen
+				int x1 = LineDefs[n]->Start()->x;
+				int y1 = LineDefs[n]->Start()->y;
+				int x2 = LineDefs[n]->End  ()->x;
+				int y2 = LineDefs[n]->End  ()->y;
 
-					DrawMapLine (v1->x, v1->y, v2->x, v2->y);
-				}
+				if (! Vis(MIN(x1,x2), MIN(y1,y2), MAX(x1,x2), MAX(y1,y2)))
+					continue;
+
+				DrawMapLine (x1, y1, x2, y2);
 			}
+
+			fl_line_style(FL_SOLID, 1);
 
 			if (colour != LIGHTRED && Sectors[objnum]->tag > 0)
 			{
@@ -841,8 +762,6 @@ void UI_Canvas::HighlightObject (int objtype, int objnum, Fl_Color colour)
 					if (LineDefs[m]->tag == Sectors[objnum]->tag)
 						HighlightObject (OBJ_LINEDEFS, m, LIGHTRED);
 			}
-
-			fl_line_style(FL_SOLID, 1);
 		}
 		break;
 	}
