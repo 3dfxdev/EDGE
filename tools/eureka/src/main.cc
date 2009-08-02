@@ -372,6 +372,7 @@ static char *find_level (const char *name_given)
 int main(int argc, char *argv[])
 {
 	LogInit("LOG.txt");
+	LogPrintf("Eureka DOOM Editor v%s\n\n", VERSION);
 	LogEnableDebug();
 
 	int r;
