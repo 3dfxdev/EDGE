@@ -35,7 +35,10 @@
 #include "im_color.h"
 
 #include "r_render.h"
-#include "r_images.h"
+
+#include "w_flats.h"
+#include "w_sprite.h"
+#include "w_texture.h"
 
 
 ImageCache *image_cache;
@@ -151,9 +154,9 @@ public:
       {
       if (view.texturing)
          {
-         img = image_cache->GetFlat(fname);
+         img = W_GetFlat(fname);
 
-         if (img != 0)
+         if (img)
             return;
          }
       col = 0x70 + ((fname[0]*13+fname[1]*41+fname[2]*11) % 48);
