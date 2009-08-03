@@ -147,11 +147,11 @@ void UI_FlatTexList::Populate()
 	int mx = pack->x();
 	int mw = pack->w();
 
-	for (int i = 0; i < NumWTexture; i++)
+	for (int i = 0; i < 77; i++)
 	{
 		FlatTex_Choice *ftc = new FlatTex_Choice(mx, y, mw, 24);
 
-		ftc->name = std::string(WTexture[i]);
+		ftc->name = std::string("FOOBAR");
 		ftc->label(ftc->name.c_str());
 
 		pack->add(ftc);
