@@ -37,6 +37,7 @@ class Lump_c
 friend class Wad_file;
 
 private:
+public: //!!!!!!!! <---
 	Wad_file *parent;
 
 	const char *name;
@@ -53,6 +54,7 @@ private:
 public:
 	~Lump_c();
 
+	const char *Name() const { return name; }
 	int Length() const { return l_length; }
 
 	// attempt to seek to a position within the lump (default is
@@ -81,6 +83,7 @@ class Wad_file
 friend class Lump_c;
 
 private:
+public: //!!!!!!!!!! <---
 	FILE * fp;
 
 	char kind;  // 'P' for PWAD, 'I' for IWAD

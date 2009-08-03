@@ -344,10 +344,8 @@ static void RemoveUnusedVertices()
 
 void LoadLevel(const char *levelname)
 {
-edit_wad = Wad_file::Open("doom2.wad");
+edit_wad = master_dir[0];
 SYS_ASSERT(edit_wad);
-
-master_dir.push_back(edit_wad);
 
 edit_level = edit_wad->FindLevel(levelname);
 SYS_ASSERT(edit_level >= 0);

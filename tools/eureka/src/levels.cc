@@ -43,7 +43,6 @@ char **WTexture;    /* array of wall texture names */
 
 // FIXME all the flat list stuff should be put in a separate class
 size_t NumFTexture;   /* number of floor/ceiling textures */
-flat_list_entry_t *flat_list; // List of all flats in the directory
 
 int MapMaxX = -32767;   /* maximum X value of map */
 int MapMaxY = -32767;   /* maximum Y value of map */
@@ -60,18 +59,6 @@ y_file_name_t Level_file_name_saved;
 
 
 
-/*
- *  flat_list_entry_cmp
- *  Function used by qsort() to sort the flat_list_entry array
- *  by ascending flat name.
- */
-static int flat_list_entry_cmp (const void *a, const void *b)
-{
-	return y_strnicmp (
-			((const flat_list_entry_t *) a)->name,
-			((const flat_list_entry_t *) b)->name,
-			WAD_FLAT_NAME);
-}
 
 
 /*
@@ -273,83 +260,15 @@ void ReadFTextureNames ()
 			warn ("this wad uses FF_END. That won't work with Doom."
 					" Use F_END instead.\n");
 		/* get the actual names from master dir. */
-		flat_list = (flat_list_entry_t *) ResizeMemory (flat_list,
-				(NumFTexture + n) * sizeof *flat_list);
-		for (size_t m = NumFTexture; m < NumFTexture + n; dir0 = dir0->next)
-		{
-			// Skip all labels.
-			if (dir0->dir.start == 0
-					|| dir0->dir.size == 0
-					|| (toupper (dir0->dir.name[0]) == 'F'
-						&& (dir0->dir.name[1] == '1'
-							|| dir0->dir.name[1] == '2'
-							|| dir0->dir.name[1] == '3'
-							|| toupper (dir0->dir.name[1]) == 'F')
-						&& dir0->dir.name[2] == '_'
-						&& (! y_strnicmp (dir0->dir.name + 3, "START", WAD_NAME - 3)
-							|| ! y_strnicmp (dir0->dir.name + 3, "END", WAD_NAME - 3))
-					   ))
-				continue;
-			*flat_list[m].name = '\0';
-			strncat (flat_list[m].name, dir0->dir.name, sizeof flat_list[m].name - 1);
-			flat_list[m].wadfile = dir0->wadfile;
-			flat_list[m].offset  = dir0->dir.start;
-			m++;
-		}
-		NumFTexture += n;
+
 	}
 
 	verbmsg ("\n");
 
-	/* sort the flats by names */
-	qsort (flat_list, NumFTexture, sizeof *flat_list, flat_list_entry_cmp);
 
-	/* Eliminate all but the last duplicates of a flat. Suboptimal.
-	   Would be smarter to start by the end. */
-	for (size_t n = 0; n < NumFTexture; n++)
-	{
-		size_t m = n;
-		while (m + 1 < NumFTexture
-				&& ! flat_list_entry_cmp (flat_list + n, flat_list + m + 1))
-			m++;
-		// m now contains the index of the last duplicate
-		int nduplicates = m - n;
-		if (nduplicates > 0)
-		{
-			memmove (flat_list + n, flat_list + m,
-					(NumFTexture - m) * sizeof *flat_list);
-			NumFTexture -= nduplicates;
-			// Note that I'm too lazy to resize flat_list...
-		}
-	}
 }
 
 
-/*
- *  is_flat_name_in_list
- *  FIXME should use bsearch()
- */
-int is_flat_name_in_list (const char *name)
-{
-	if (! flat_list)
-		return 0;
-	for (size_t n = 0; n < NumFTexture; n++)
-		if (! y_strnicmp (name, flat_list[n].name, WAD_FLAT_NAME))
-			return 1;
-	return 0;
-}
-
-
-/*
-   forget the flat names
-   */
-
-void ForgetFTextureNames ()
-{
-	NumFTexture = 0;
-	FreeMemory (flat_list);
-	flat_list = 0;
-}
 
 
 /*

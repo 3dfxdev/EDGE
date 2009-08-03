@@ -41,6 +41,9 @@
 #include "w_name.h"
 #include "w_wads.h"
 
+#include "w_flats.h"
+#include "w_wad.h"
+
 #include "ui_window.h"
 
 
@@ -179,12 +182,8 @@ void FatalError(const char *fmt, ...)
 
 	TermFLTK ();
 
-	// Clean up things and free swap space
-//	ForgetLevelData ();
-	ForgetWTextureNames ();
-	ForgetFTextureNames ();
 	CloseWadFiles ();
-	exit (2);
+	exit(2);
 }
 
 
@@ -196,12 +195,8 @@ void BugError(const char *fmt, ...)
 
 	TermFLTK ();
 
-	// Clean up things and free swap space
-//	ForgetLevelData ();
-	ForgetWTextureNames ();
-	ForgetFTextureNames ();
 	CloseWadFiles ();
-	exit (9);
+	exit(9);
 }
 
 
@@ -430,110 +425,6 @@ int main(int argc, char *argv[])
 		exit (1);
 	}
 
-	if (Game != NULL && strcmp (Game, "doom") == 0)
-	{
-		if (Iwad1 == NULL)
-		{
-			err ("You have to tell me where doom.wad is.");
-			exit (1);
-		}
-		MainWad = Iwad1;
-	}
-	else if (Game != NULL && strcmp (Game, "doom2") == 0)
-	{
-		if (Iwad2 == NULL)
-		{
-			err ("You have to tell me where doom2.wad is.");
-			exit (1);
-		}
-		MainWad = Iwad2;
-	}
-	else if (Game != NULL && strcmp (Game, "heretic") == 0)
-	{
-		if (Iwad3 == NULL)
-		{
-			err ("You have to tell me where heretic.wad is.");
-			exit (1);
-		}
-		MainWad = Iwad3;
-	}
-	else if (Game != NULL && strcmp (Game, "hexen") == 0)
-	{
-		if (Iwad4 == NULL)
-		{
-			err ("You have to tell me where hexen.wad is.");
-			exit (1);
-		}
-		MainWad = Iwad4;
-	}
-	else if (Game != NULL && strcmp (Game, "strife") == 0)
-	{
-		if (Iwad5 == NULL)
-		{
-			err ("You have to tell me where strife1.wad is.");
-			exit (1);
-		}
-		MainWad = Iwad5;
-	}
-	else if (Game != NULL && strcmp (Game, "doom02") == 0)
-	{
-		if (Iwad6 == NULL)
-		{
-			err ("You have to tell me where the Doom alpha 0.2 iwad is.");
-			exit (1);
-		}
-		MainWad = Iwad6;
-	}
-	else if (Game != NULL && strcmp (Game, "doom04") == 0)
-	{
-		if (Iwad7 == NULL)
-		{
-			err ("You have to tell me where the Doom alpha 0.4 iwad is.");
-			exit (1);
-		}
-		MainWad = Iwad7;
-	}
-	else if (Game != NULL && strcmp (Game, "doom05") == 0)
-	{
-		if (Iwad8 == NULL)
-		{
-			err ("You have to tell me where the Doom alpha 0.5 iwad is.");
-			exit (1);
-		}
-		MainWad = Iwad8;
-	}
-	else if (Game != NULL && strcmp (Game, "doompr") == 0)
-	{
-		if (Iwad9 == NULL)
-		{
-			err ("You have to tell me where the Doom press release iwad is.");
-			exit (1);
-		}
-		MainWad = Iwad9;
-	}
-	else if (Game != NULL && strcmp (Game, "strife10") == 0)
-	{
-		if (Iwad10 == NULL)
-		{
-			err ("You have to tell me where strife1.wad is.");
-			exit (1);
-		}
-		MainWad = Iwad10;
-	}
-	else
-	{
-		if (Game == NULL)
-			err ("You didn't say for which game you want to edit.");
-		else
-			err ("Unknown game \"%s\"", Game);
-		fprintf (stderr,
-				"Use \"-g <game>\" on the command line or put \"game=<game>\" in config file\n"
-				"where <game> is one of \"doom\", \"doom02\", \"doom04\", \"doom05\","
-				" \"doom2\",\n\"doompr\", \"heretic\", \"hexen\", \"strife\" and "
-				"\"strife10\".\n");
-		exit (1);
-	}
-
 	if (Quieter)
 		Quiet = true;
 
@@ -545,7 +436,7 @@ int main(int argc, char *argv[])
 	LoadGameDefs(Game);
 
 	// Load the iwad and the pwads.
-	if (OpenMainWad(MainWad))
+	if (OpenMainWad("doom2.wad"))
 		FatalError("If you don't give me an iwad, I'll quit. I'm serious.");
 
 	if (PatchWads)
@@ -577,10 +468,17 @@ int main(int argc, char *argv[])
 
 	bool newlevel = false;
 
+	Wad_file * iwad = Wad_file::Open("doom2.wad");
+	if (! iwad)
+		FatalError("Cannot find IWAD!\n");
+	master_dir.push_back(iwad);
+
     if (newlevel)
 		FreshLevel();
     else
         LoadLevel(levelname);
+
+	W_LoadFlats();
 
     LogPrintf(": Editing %s...\n", levelname ? levelname : "new level");
 
@@ -592,8 +490,8 @@ int main(int argc, char *argv[])
 
 	BA_ClearAll();
 
-    ForgetWTextureNames ();
-    ForgetFTextureNames ();
+    //?? ForgetWTextureNames ();
+    //?? ForgetFTextureNames ();
 
 	/* that's all, folks! */
 	CloseWadFiles();
