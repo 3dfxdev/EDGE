@@ -67,15 +67,11 @@ OBJS = \
 	ui_thing.o  \
 	ui_vertex.o  \
 	ui_window.o  \
-	w_wad.o   \
-	w_file.o  \
-	w_io.o  \
-	w_list.o  \
 	w_loadpic.o  \
 	w_flats.o  \
 	w_sprite.o  \
 	w_texture.o  \
-	w_wads.o  \
+	w_wad.o   \
 	x_hover.o  \
 	x_mirror.o  \
 	ymemory.o  \

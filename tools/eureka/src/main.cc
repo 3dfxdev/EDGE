@@ -35,11 +35,7 @@
 #include "m_game.h"
 #include "r_misc.h"
 #include "levels.h"    /* Because of "viewtex" */
-#include "w_file.h"
-#include "w_list.h"
 #include "w_name.h"
-#include "w_wads.h"
-
 #include "w_flats.h"
 #include "w_texture.h"
 #include "w_wad.h"
@@ -47,7 +43,7 @@
 #include "ui_window.h"
 
 
-#define VERSION  "0.52"
+#define VERSION  "0.54"
 
 
 /*
@@ -182,7 +178,7 @@ void FatalError(const char *fmt, ...)
 
 	TermFLTK ();
 
-	CloseWadFiles ();
+// TODO	CloseWadFiles ();
 	exit(2);
 }
 
@@ -195,7 +191,7 @@ void BugError(const char *fmt, ...)
 
 	TermFLTK ();
 
-	CloseWadFiles ();
+// TODO	CloseWadFiles ();
 	exit(9);
 }
 
@@ -235,7 +231,7 @@ int InitFLTK(void)  // returns 0 on success
 	KF_fonth = (14 + KF * 2);
 
 
-	main_win = new UI_MainWin("Eureka DOOM Editor " VERSION);
+	main_win = new UI_MainWin("Eureka DOOM Editor v" VERSION);
 
 	// kill the stupid bright background of the "plastic" scheme
 	delete Fl::scheme_bg_;
@@ -259,104 +255,6 @@ int InitFLTK(void)  // returns 0 on success
 
 void TermFLTK()
 {
-}
-
-
-
-/*
- *  find_level
- *  Look in the master directory for levels that match
- *  the name in <name_given>.
- *
- *  <name_given> can have one of the following formats :
- *  
- *    [Ee]n[Mm]m      EnMm
- *    [Mm][Aa][Pp]nm  MAPnm
- *    n               MAP0n
- *    nm              Either EnMn or MAPnm
- *    ijk             EiMjk (Doom alpha 0.4 and 0.5)
- *
- *  Return:
- *  - If <name_given> is either [Ee]n[Mm]m or [Mm][Aa][Pp]nm,
- *    - if the level was found, its canonical (uppercased)
- *      name in a freshly malloc'd buffer,
- *    - else, NULL.
- *  - If <name_given> is either n or nm,
- *    - if either EnMn or MAPnm was found, the canonical name
- *      of the level found, in a freshly malloc'd buffer,
- *    - if none was found, <error_none>,
- *    - if the <name_given> is invalid, <error_invalid>,
- *    - if several were found, <error_non_unique>.
- */
-static char *find_level (const char *name_given)
-{
-	// Is it a shorthand name ? ("1", "23", ...)
-	if (isdigit(name_given[0])
-			&& (atoi (name_given) <= 99
-				|| atoi (name_given) <= 999 && yg_level_name == YGLN_E1M10))
-	{
-		int n = atoi (name_given);
-		char *name1 = (char *) malloc (7);
-		char *name2 = (char *) malloc (6);
-		if (n > 99)
-			sprintf (name1, "E%dM%02d", n / 100, n % 100);
-		else
-			sprintf (name1, "E%dM%d", n / 10, n % 10);
-		sprintf (name2, "MAP%02d", n);
-		int match1 = FindMasterDir (MasterDir, name1) != NULL;
-		int match2 = FindMasterDir (MasterDir, name2) != NULL;
-		if (match1 && ! match2)  // Found only ExMy
-		{
-			free (name2);
-			return name1;
-		}
-		else if (match2 && ! match1) // Found only MAPxy
-		{
-			free (name1);
-			return name2;
-		}
-		else if (match1 && match2) // Found both
-		{
-			free (name1);
-			free (name2);
-			return error_non_unique;
-		}
-		else       // Found none
-		{
-			free (name1);
-			free (name2);
-			return error_none;
-		}
-	}
-
-#if 1
-	// Else look for <name_given>
-	if (FindMasterDir (MasterDir, name_given))
-		return strdup (name_given);
-	else
-	{
-		if (levelname2levelno (name_given))
-			return NULL;
-		else
-			return error_invalid;
-	}
-#else
-	// If <name_given> is "[Ee]n[Mm]m" or "[Mm][Aa][Pp]nm", look for that
-	if (levelname2levelno (name_given))
-	{
-		char *canonical_name = strdup (name_given);
-		for (char *p = canonical_name; *p; p++)
-			*p = toupper (*p);  // But shouldn't FindMasterDir() be case-insensitive ?
-		if (FindMasterDir (MasterDir, canonical_name))
-			return canonical_name;
-		else
-		{
-			free (canonical_name);
-			return NULL;
-		}
-	}
-	return error_invalid;
-#endif
 }
 
 
@@ -435,10 +333,18 @@ int main(int argc, char *argv[])
 	InitGameDefs();
 	LoadGameDefs(Game);
 
-	// Load the iwad and the pwads.
-	if (OpenMainWad("doom2.wad"))
-		FatalError("If you don't give me an iwad, I'll quit. I'm serious.");
+	/* all systems go! */
+	if (! Warp || ! Warp[0])
+		Warp = "MAP01";
 
+	// Load the iwad and the pwads.
+
+	Wad_file * iwad = Wad_file::Open("doom2.wad");
+	if (! iwad)
+		FatalError("Cannot find IWAD!\n");
+	master_dir.push_back(iwad);
+
+#if 0  // FIXME !!!!
 	if (PatchWads)
 	{
 		const char * const *pwad_name;
@@ -446,18 +352,7 @@ int main(int argc, char *argv[])
 		for (pwad_name = PatchWads; *pwad_name; pwad_name++)
 			OpenPatchWad (*pwad_name);
 	}
-
-	/* sanity check */
-	CloseUnusedWadFiles();
-
-	/* all systems go! */
-	if (! Warp || ! Warp[0])
-		Warp = "MAP01";
-
-	Wad_file * iwad = Wad_file::Open("doom2.wad");
-	if (! iwad)
-		FatalError("Cannot find IWAD!\n");
-	master_dir.push_back(iwad);
+#endif
 
 	W_LoadPalette();
 
@@ -489,7 +384,7 @@ int main(int argc, char *argv[])
 	// clear textures??
 
 	/* that's all, folks! */
-	CloseWadFiles();
+// TODO	CloseWadFiles();
 	FreeGameDefs();
 
 	if (remind_to_build_nodes)
