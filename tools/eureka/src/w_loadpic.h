@@ -40,21 +40,6 @@ bool LoadPicture(Img& img,
 	int *pic_height = NULL);  /* (can be NULL) */
 
 
-int LoadPicture0 (
-   Img& img,
-#if 0
-   img_pixel_t *buffer, /* Buffer to load picture into */
-   int buf_width,   /* Dimensions of the buffer */
-   int buf_height,
-#endif
-   const char *picname,   /* Picture lump name */
-   const Lump_loc& picloc,  /* Picture lump name */
-   int pic_x_offset,    /* Coordinates of top left corner of picture */
-   int pic_y_offset,    /* relative to top left corner of buffer. */
-   int *pic_width = 0,    /* To return the size of the picture */
-   int *pic_height = 0);  /* (can be NULL) */
-
-
 #endif  /* __W_LOADPIC_H__ */
 
 //--- editor settings ---
