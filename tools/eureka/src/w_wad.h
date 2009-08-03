@@ -190,6 +190,9 @@ extern std::vector<Wad_file *> master_dir;
 // returning NULL if not found.
 Lump_c * WAD_FindLump(const char *name);
 
+// load the lump into memory, returning the size
+int  W_LoadLumpData(Lump_c *lump, byte ** buf_ptr);
+void W_FreeLumpData(byte ** buf_ptr);
 
 #endif  /* __W_WAD_H__ */
 

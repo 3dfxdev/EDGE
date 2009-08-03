@@ -794,5 +794,32 @@ Lump_c * WAD_FindLump(const char *name)
 	return NULL;  // not found
 }
 
+
+int W_LoadLumpData(Lump_c *lump, byte ** buf_ptr)
+{
+	// include an extra byte, used to NUL-terminate a text buffer
+	*buf_ptr = new byte[lump->Length() + 1];
+
+	if (lump->Length() > 0)
+	{
+		if (! lump->Seek() ||
+			! lump->Read(*buf_ptr, lump->Length()))
+			FatalError("W_LoadLumpData: read error loading lump.\n");
+	}
+
+	(*buf_ptr)[lump->Length()] = 0;
+
+	return lump->Length();
+}
+
+void W_FreeLumpData(byte ** buf_ptr)
+{
+	if (*buf_ptr)
+	{
+		delete[] *buf_ptr;
+		*buf_ptr = NULL;
+	}
+}
+
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
