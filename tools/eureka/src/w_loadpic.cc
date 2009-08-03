@@ -33,6 +33,7 @@
 #include "w_file.h"
 #include "w_io.h"
 
+#include "w_rawdef.h"
 #include "w_wad.h"
 
 
@@ -96,74 +97,6 @@ static void DrawColumn(Img& img, const post_t *column, int x, int y)
 }
 
 
-bool LoadPicture(
-   Img& img,      // Game image to load picture into
-   const char *lump_name,   // Picture lump name
-   int pic_x_offset,    // Coordinates of top left corner of picture
-   int pic_y_offset,    // relative to top left corner of buffer
-   int *pic_width,    // To return the size of the picture
-   int *pic_height)   // (can be NULL)
-{
-	Lump_c *lump = WAD_FindLump(lump_name);
-	if (! lump)
-		FatalError("LoadPicture: no such lump '%s'\n", lump_name);
-
-	patch_t *pat = (patch_t *) W_LoadLump(lump);
-  
-	width    = EPI_LE_S16(pat->width);
-	height   = EPI_LE_S16(pat->height);
-	offset_x = EPI_LE_S16(pat->leftoffset);
-	offset_y = EPI_LE_S16(pat->topoffset);
-
-	int tw = total_w;
-	int th = total_h;
-
-
-
-	// Clear initial pixels to either totally transparent, or totally
-	// black (if we know the image should be solid).
-	//
-	//---- If the image turns
-	//---- out to be solid instead of transparent, the transparent pixels
-	//---- will be blackened.
-  
-	if (opacity == OPAC_Solid)
-		img->Clear(pal_black);
-	else
-		img->Clear(TRANS_PIXEL);
-
-	// Composite the columns into the block.
-	const patch_t *realpatch = (const patch_t*)W_LoadLumpNum(source.graphic.lump);
-
-	int realsize = W_LumpLength(source.graphic.lump);
-
-	SYS_ASSERT(actual_w == EPI_LE_S16(realpatch->width));
-	SYS_ASSERT(actual_h == EPI_LE_S16(realpatch->height));
-  
-	for (int x=0; x < actual_w; x++)
-	{
-		int offset = EPI_LE_S32(realpatch->columnofs[x]);
-
-		if (offset < 0 || offset >= realsize)
-			I_Error("Bad image offset 0x%08x in image [%s]\n", offset, name);
-
-		const column_t *patchcol = (const column_t *) ((const byte *) realpatch + offset);
-
-		DrawColumnIntoEpiBlock(this, img, patchcol, x, 0);
-	}
-
-	Z_Free((void*)realpatch);
-}
-
-
-typedef enum { _MT_BADOFS, _MT_TOOLONG, _MT_TOOMANY } _msg_type_t;
-
-
-static int add_msg (char type, int arg);
-static void do_add_msg (char type, int arg);
-static void flush_msg (const char *picname);
-
-
 /*
  *  LoadPicture - read a picture from a wad file into an Img object
  *
@@ -182,6 +115,69 @@ static void flush_msg (const char *picname);
  *  If pic_x_offset == INT_MIN, the picture is centred horizontally.
  *  If pic_y_offset == INT_MIN, the picture is centred vertically.
  */
+bool LoadPicture(
+   Img& img,      // Game image to load picture into
+   const char *lump_name,   // Picture lump name
+   int pic_x_offset,    // Coordinates of top left corner of picture
+   int pic_y_offset,    // relative to top left corner of buffer
+   int *pic_width,    // To return the size of the picture
+   int *pic_height)   // (can be NULL)
+{
+	Lump_c *lump = WAD_FindLump(lump_name);
+	if (! lump)
+		FatalError("LoadPicture: no such lump '%s'\n", lump_name);
+
+	byte *raw_data;
+	W_LoadLumpData(lump, &raw_data);
+
+	const patch_t *pat = (patch_t *) raw_data;
+  
+	int width    = LE_S16(pat->width);
+	int height   = LE_S16(pat->height);
+	int offset_x = LE_S16(pat->leftoffset);
+	int offset_y = LE_S16(pat->topoffset);
+
+	// FIXME: validate values (in case we got flat data or so)
+
+	if (pic_width)  *pic_width  = width;
+	if (pic_height) *pic_height = height;
+
+	if (img.is_null())
+	{
+		// our new image will be completely transparent
+		img.resize (width, height);
+	}
+
+	// Centre the picture?
+	if (pic_x_offset == INT_MIN)
+		pic_x_offset = (img.width() - width) / 2;
+	if (pic_y_offset == INT_MIN)
+		pic_y_offset = (img.height() - height) / 2;
+
+	for (int x=0; x < width; x++)
+	{
+		int offset = LE_S32(pat->columnofs[x]);
+
+		if (offset < 0 || offset >= lump->Length())
+			FatalError("Bad image offset 0x%08x in patch [%s]\n", offset, lump_name);
+
+		const post_t *column = (const post_t *) ((const byte *)pat + offset);
+
+		DrawColumn(img, column, pic_x_offset + x, pic_y_offset);
+	}
+
+	W_FreeLumpData(&raw_data);
+	return true;
+}
+
+
+typedef enum { _MT_BADOFS, _MT_TOOLONG, _MT_TOOMANY } _msg_type_t;
+
+
+static int add_msg (char type, int arg) { }
+static void flush_msg (const char *picname) { }
+
+
 
 int LoadPicture0 (
    Img& img,      // Game image to load picture into
@@ -486,120 +482,6 @@ pic_end:
 	if (pic_height)
 		*pic_height = pic_height_;
 	return 0;
-}
-
-
-/*
- *  List to hold pending warning messages
- */
-typedef struct
-{
-  char type;
-  short arg;
-} _msg_t;
-static _msg_t *_msg_list  = 0;
-static size_t _nmsg       = 0;
-const size_t _granularity = 128;
-const size_t _max_msg     = 20;
-
-
-/*
- *  add_msg
- *  Add a warning message to the list
- *
- *  Return 0 on success, <>0 if the max number of messages
- *  has been reached.
- */
-static int add_msg (char type, int arg)
-{
-	if (_nmsg >= _max_msg)
-	{
-		if (_nmsg == _max_msg)  // Test in case the caller ignores our return value
-			do_add_msg (_MT_TOOMANY, arg);
-		return 1;
-	}
-	do_add_msg (type, arg);
-	return 0;
-}
-
-
-static void do_add_msg (char type, int arg)
-{
-	if ((_nmsg + 1) % _granularity == 1)  // Grow list if necessary
-	{
-		_msg_t *new_list = (_msg_t *) realloc (_msg_list,
-				(_nmsg / _granularity + 1) * _granularity * sizeof *_msg_list);
-		if (new_list == 0)  // Not enough memory ? Ignore the new message
-			return;
-		_msg_list = new_list;
-	}
-	_msg_list[_nmsg].type = type;
-	_msg_list[_nmsg].arg  = arg;
-	_nmsg++;
-	return;
-}
-
-
-/*
- *  flush_msg
- *  Output all pending warning messages in an smart fashion
- */
-static void flush_msg (const char *picname)
-{
-	if (_nmsg == 0 || _msg_list == 0)
-		return;
-
-	for (_msg_type_t t = _MT_BADOFS; t <= _MT_TOOLONG; ((int &) t)++)
-	{
-		int first_msg = (1 << 30);
-		int last_msg = (1 << 30);
-		const char *str = "unknown error";
-		if (t == _MT_BADOFS)
-			str = "bad file offset";
-		else if (t == _MT_TOOLONG)
-			str = "post too long";
-
-		for (size_t n = 0; n < _nmsg; n++)
-		{
-			if (_msg_list[n].type == t)
-			{
-				if (first_msg == (1 << 30))
-				{
-					first_msg = n;
-					last_msg = n;
-				}
-				else
-				{
-					if (_msg_list[last_msg].arg != _msg_list[n].arg - 1)
-					{
-						warn ("picture %.*s(%d",
-								WAD_PIC_NAME, picname, (int) _msg_list[first_msg].arg);
-						if (last_msg != first_msg)
-							warn ("-%d", (int) _msg_list[last_msg].arg);
-						warn ("): %s. Corrupt wad ?\n", str);
-						first_msg = n;
-						last_msg = n;
-					}
-					else
-						last_msg = n;
-				}
-			}
-		}
-		if (first_msg != (1 << 30))
-		{
-			warn ("picture %.*s(%d",
-					WAD_PIC_NAME, picname, (int) _msg_list[first_msg].arg);
-			if (last_msg != first_msg)
-				warn ("-%d", (int) _msg_list[last_msg].arg);
-			warn ("): %s. Corrupt wad ?\n", str);
-		}
-	}
-
-	if (_msg_list[_nmsg - 1].type == _MT_TOOMANY)
-		warn ("picture %.*s: too many errors. Giving up.\n", WAD_PIC_NAME, picname);
-	_nmsg = 0;
-	free (_msg_list);
-	_msg_list = 0;
 }
 
 

@@ -139,7 +139,7 @@ Img * W_GetSprite(int type)
 		Sprite_loc_by_root (info->sprite, loc);
 		result = new Img ();
 
-		if (LoadPicture (*result, info->sprite, loc, 0, 0) != 0)
+		if (LoadPicture0 (*result, info->sprite, loc, 0, 0) != 0)
 		{
 			delete result;
 			result = NULL;

@@ -204,7 +204,7 @@ Img * Tex2Img (const char * texname)
 			strncat (picname, (const char *) *wname, sizeof picname - 1);
 		}
 
-		if (LoadPicture (*texbuf, picname, loc, xofs, yofs, 0, 0))
+		if (! LoadPicture(*texbuf, picname, xofs, yofs, 0, 0))
 			warn ("texture \"%.*s\": patch \"%.*s\" not found.\n",
 					WAD_TEX_NAME, tname, WAD_PIC_NAME, picname);
 	}
