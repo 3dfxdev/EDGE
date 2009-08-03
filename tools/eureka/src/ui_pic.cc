@@ -132,7 +132,7 @@ void UI_Pic::GetSprite(const wad_ttype_t& type)
 			{
 				img_pixel_t pix = img->buf() [iy*iw+ix];
 
-				if (pix != IMG_TRANSP)
+				if (pix != TRANS_PIXEL)
 					col = palette[pix];
 			}
 
@@ -190,7 +190,7 @@ void UI_Pic::TiledImg(Img *img)
 
 			u32_t col = back_col;
 
-			if (pix != IMG_TRANSP)
+			if (pix != TRANS_PIXEL)
 				col = palette[pix];
 
 			byte *dest = buf + ((y*nw+x) * 3);

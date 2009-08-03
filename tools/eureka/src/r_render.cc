@@ -934,7 +934,7 @@ public:
 
          img_pixel_t pix = wbuf[ty * tw];
 
-         if (pix != IMG_TRANSP)
+         if (pix != TRANS_PIXEL)
             *buf = pix;
          }
       }

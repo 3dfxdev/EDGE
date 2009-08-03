@@ -37,7 +37,7 @@ class Img_priv;
 /* The colour number used to represent transparent pixels in an
    Img. Any value will do but zero is probably best
    performance-wise. */
-const img_pixel_t IMG_TRANSP = 247;
+const img_pixel_t TRANS_PIXEL = 247;
 
 
 class Img

@@ -27,7 +27,7 @@
 #include "main.h"
 
 #include "im_color.h"
-#include "im_img.h"  // IMG_TRANSP
+#include "im_img.h"  // TRANS_PIXEL
 #include "r_misc.h"
 #include "w_file.h"
 #include "w_wad.h"
@@ -61,9 +61,9 @@ void W_LoadPalette()
 		return;
 	}
 
-	byte tr = raw_pal[IMG_TRANSP*3 + 0];
-	byte tg = raw_pal[IMG_TRANSP*3 + 0];
-	byte tb = raw_pal[IMG_TRANSP*3 + 0];
+	byte tr = raw_pal[TRANS_PIXEL*3 + 0];
+	byte tg = raw_pal[TRANS_PIXEL*3 + 0];
+	byte tb = raw_pal[TRANS_PIXEL*3 + 0];
 
 	int best_dist = (1 << 30);
 
@@ -73,8 +73,8 @@ void W_LoadPalette()
 		byte g = raw_pal[c*3+1];
 		byte b = raw_pal[c*3+2];
 
-		// Find the colour closest to IMG_TRANSP
-		if (c != IMG_TRANSP)
+		// Find the colour closest to TRANS_PIXEL
+		if (c != TRANS_PIXEL)
 		{
 			int sr = (int)r - (int)tr;
 			int sg = (int)g - (int)tg;
