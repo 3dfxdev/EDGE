@@ -34,7 +34,8 @@
 #include "e_things.h"
 
 
-#define UNKNOWN_THING_COLOR  fl_rgb_color(0,255,255)
+#define UNKNOWN_THING_RADIUS  16
+#define UNKNOWN_THING_COLOR   fl_rgb_color(0,255,255)
 
 
 std::map<char, linegroup_t *>  line_groups;
@@ -350,7 +351,9 @@ const thingtype_t * M_GetThingType(int type)
 
 	static thingtype_t dummy_type =
 	{
-		0, 0, 1, "UNKNOWN TYPE", "NULL", UNKNOWN_THING_COLOR
+		0, 0, UNKNOWN_THING_RADIUS,
+		"UNKNOWN TYPE", "NULL",
+		UNKNOWN_THING_COLOR
 	};
 
 	return &dummy_type;

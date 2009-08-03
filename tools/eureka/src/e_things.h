@@ -42,14 +42,6 @@
 #define MAX_RADIUS  128
 
 
-void        create_things_table ();
-void        delete_things_table ();
-bool        is_thing_type    (wad_ttype_t type);
-pcolour_t   get_thing_colour (int type);
-const char *get_thing_name   (wad_ttype_t type);
-const char *get_thing_sprite (wad_ttype_t type);
-char        get_thing_flags  (wad_ttype_t type);
-int         get_thing_radius (wad_ttype_t type);
 const char *GetAngleName (int);
 const char *GetWhenName (int);
 
