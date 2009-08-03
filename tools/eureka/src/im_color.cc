@@ -30,6 +30,7 @@
 #include "im_img.h"  // IMG_TRANSP
 #include "r_misc.h"
 #include "w_file.h"
+#include "w_wad.h"
 
 
 pcolour_t palette[256];
@@ -43,26 +44,20 @@ extern int gammatable[5][256];
 
 void W_LoadPalette()
 {
-	MDirPtr dir = FindMasterDir (MasterDir, "PLAYPAL");
-	if (dir == NULL)
+	Lump_c *lump = WAD_FindLump("PLAYPAL");
+
+	if (! lump)
 	{
-		warn ("PLAYPAL lump not found.\n");
+		FatalError("PLAYPAL lump not found.\n");
 		return;
 	}
 
 	byte raw_pal[256*3];
 
-	dir->wadfile->seek(dir->dir.start);
-	if (dir->wadfile->error())
+	if (! lump->Seek() ||
+		! lump->Read(raw_pal, sizeof(raw_pal)))
 	{
-		warn("PLAYPAL: seek error\n");
-		return;
-	}
-	
-	dir->wadfile->read_bytes (raw_pal, 256*3);
-	if (dir->wadfile->error ())
-	{
-		warn ("PLAYPAL: read error\n");
+		warn("PLAYPAL: read error\n");
 		return;
 	}
 

@@ -454,7 +454,10 @@ int main(int argc, char *argv[])
 	if (! Warp || ! Warp[0])
 		Warp = "MAP01";
 
-	const char *levelname = Warp;
+	Wad_file * iwad = Wad_file::Open("doom2.wad");
+	if (! iwad)
+		FatalError("Cannot find IWAD!\n");
+	master_dir.push_back(iwad);
 
 	W_LoadPalette();
 
@@ -466,12 +469,9 @@ int main(int argc, char *argv[])
     if (InitFLTK())
         exit(9);
 
-	bool newlevel = false;
+	const char *levelname = Warp;
 
-	Wad_file * iwad = Wad_file::Open("doom2.wad");
-	if (! iwad)
-		FatalError("Cannot find IWAD!\n");
-	master_dir.push_back(iwad);
+	bool newlevel = false;
 
     if (newlevel)
 		FreshLevel();
