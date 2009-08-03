@@ -215,9 +215,118 @@ Img * Tex2Img (const char * texname)
 }
 
 
+static void LoadTextureLump(Lump_c *lump, byte *pnames, int pname_size)
+{
+	// skip size word at front of PNAMES
+	pnames += 4;
+
+	pname_size /= 8;
+
+	// load TEXTUREx data into memory for easier processing
+	byte *tex_data;
+	int tex_length = W_LoadLumpData(lump, &tex_data);
+
+	// at the front of the TEXTUREx lump are some 4-byte integers
+	s32_t *tex_data_s32 = (s32_t *)tex_data;
+
+	int num_tex = LE_S32(tex_data_s32[0]);
+
+	// FIXME validate num_tex
+	
+	for (int n = 0; n < num_tex; n++)
+	{
+		int offset = LE_S32(tex_data_s32[1+n]);
+
+		// FIXME: validate offset
+
+		offset = EPI_LE_S32(*directory);
+
+		const raw_texture_t *raw = (const raw_texture_t *)(tex_data + offset);
+
+
+		patchcount = EPI_LE_S16(mtexture->patch_count);
+		if (!patchcount)
+			I_Error("W_InitTextures: Texture '%.8s' has no patches", mtexture->name);
+
+		width = EPI_LE_S16(mtexture->width);
+		if (width == 0)
+			I_Error("W_InitTextures: Texture '%.8s' has zero width", mtexture->name);
+
+		// -ES- Allocate texture, patches and columnlump/ofs in one big chunk
+		base_size = sizeof(texturedef_t) + sizeof(texpatch_t) * (patchcount - 1);
+		texture = cur_set->textures[i] = (texturedef_t *) Z_Malloc(base_size + width * (sizeof(byte) + sizeof(short)));
+		base = (byte *)texture + base_size;
+
+		texture->columnofs = (unsigned short *)base;
+
+		texture->width = width;
+		texture->height = EPI_LE_S16(mtexture->height);
+		texture->file = file;
+		texture->palette_lump = WT->palette;  // NOTE: unused
+		texture->patchcount = patchcount;
+
+		Z_StrNCpy(texture->name, mtexture->name, 8);
+		strupr(texture->name);
+
+		mpatch = &mtexture->patches[0];
+		patch = &texture->patches[0];
+
+		bool is_sky = (strncmp("SKY", texture->name, 3) == 0);
+
+		for (j = 0; j < texture->patchcount; j++, mpatch++, patch++)
+		{
+			patch->originx = EPI_LE_S16(mpatch->x_origin);
+			patch->originy = EPI_LE_S16(mpatch->y_origin);
+			patch->patch = patchlookup[EPI_LE_S16(mpatch->pname)];
+
+			// work-around for strange Y offset in SKY1 of DOOM 1 
+			if (is_sky && patch->originy < 0)
+				patch->originy = 0;
+
+			if (patch->patch == -1)
+			{
+				I_Warning("Missing patch in texture \'%.8s\'\n", texture->name);
+
+				// mark texture as a dud
+				texture->patchcount = 0;
+				break;
+			}
+		}
+	}
+
+	W_FreeLumpData(&tex_data);
+}
+
+
 void W_LoadTextures()
 {
-	// TODO: W_LoadTextures
+	for (int i = 0; i < (int)master_dir.size(); i++)
+	{
+		LogPrintf("Loading Textures from WAD #%d\n", i+1);
+
+		Lump_c *pnames   = master_dir[i]->FindLump("PNAMES");
+		Lump_c *texture1 = master_dir[i]->FindLump("TEXTURE1");
+		Lump_c *texture2 = master_dir[i]->FindLump("TEXTURE2");
+
+		// Note that we _require_ the PNAMES lump to exist along
+		// with the TEXTURE1/2 lump which uses it.  Probably a
+		// few wads exist which lack the PNAMES lump (relying on
+		// the one in the IWAD), however this practice is too
+		// error-prone (using the wrong IWAD will break it),
+		// so I think supporting it is a bad idea.  -- AJA
+
+		if (!pnames)
+			continue;
+		
+		byte *pname_data;
+		int pname_size = W_LoadLumpData(pnames, &pname_data);
+
+		if (texture1)
+			LoadTextureLump(texture1, pname_data, pname_size);
+
+		if (texture2)
+			LoadTextureLump(texture2, pname_data, pname_size);
+	}
 }
 
 
@@ -228,27 +337,18 @@ Img * W_GetTexture(const char *name)
 
 	std::string t_str = name;
 
-	tex_map_t::iterator P = textures.find (t_str);
+	tex_map_t::iterator P = textures.find(t_str);
 
-	if (P != textures.end ())
+	if (P != textures.end())
 		return P->second;
 
-	// texture not in the list yet.  Add it.
-
-	Img *result = Tex2Img(name);
-	textures[t_str] = result;
-
-	// note that a NULL return from Tex2Img is OK, it means that no
-	// such texture exists.  Our renderer will revert to using a solid
-	// colour.
-
-	return result;
+	return NULL;
 }
 
 
 /*
    Function to get the size of a wall texture
-   */
+*/
 void GetWallTextureSize (s16_t *width, s16_t *height, const char *texname)
 {
 	MDirPtr  dir = 0;     // Pointer in main directory to texname
