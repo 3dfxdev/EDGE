@@ -129,19 +129,20 @@ Img * W_GetSprite(int type)
 
 	// sprite not in the list yet.  Add it.
 
-	Img *result = 0;
+	const thingtype_t *info = M_GetThingType(type);
 
-	const char *sprite_root = get_thing_sprite (type);
-	if (sprite_root)
+	Img *result = NULL;
+
+	if (y_stricmp(info->sprite, "NULL") != 0)
 	{
 		Lump_loc loc;
-		Sprite_loc_by_root (sprite_root, loc);
+		Sprite_loc_by_root (info->sprite, loc);
 		result = new Img ();
 
-		if (LoadPicture (*result, sprite_root, loc, 0, 0) != 0)
+		if (LoadPicture (*result, info->sprite, loc, 0, 0) != 0)
 		{
 			delete result;
-			result = 0;
+			result = NULL;
 		}
 	}
 

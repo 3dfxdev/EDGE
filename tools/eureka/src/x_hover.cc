@@ -30,6 +30,7 @@
 
 #include "r_grid.h"
 #include "levels.h"
+#include "m_game.h"
 #include "x_hover.h"
 
 
@@ -323,28 +324,26 @@ static const Close_obj& get_cur_thing (int x, int y)
 		int ty = Things[n]->y;
 
 		// Filter out things that are farther than <max_radius> units away.
-		if (tx < xmin
-				|| tx > xmax
-				|| ty < ymin
-				|| ty > ymax)
+		if (tx < xmin || tx > xmax || ty < ymin || ty > ymax)
 			continue;
+
+		const thingtype_t *info = M_GetThingType(Things[n]->type);
 
 		// So how far is that thing exactly ?
 #ifdef ROUND_THINGS
 		double dist = hypot(x - tx, y - ty);
 
-		if (dist < closest.distance
-				&& dist <= get_thing_radius(Things[n]->type) + mapslack)
+		if (dist < closest.distance && dist <= info->radius + mapslack)
 		{
 			closest.obj.type = OBJ_THINGS;
 			closest.obj.num  = n;
 			closest.distance = dist;
-			closest.radius   = get_thing_radius(Things[n]->type);
+			closest.radius   = info->radius;
 			closest.inside   = dist < closest.radius;
 		}
 #else
 		{
-			int thing_radius = (int) (get_thing_radius(Things[n]->type) + mapslack);
+			int thing_radius = (int)(info->radius + mapslack);
 
 			if (x > tx - thing_radius
 					&& x < tx + thing_radius
@@ -355,7 +354,7 @@ static const Close_obj& get_cur_thing (int x, int y)
 				current.obj.type = OBJ_THINGS;
 				current.obj.num  = n;
 				current.distance = hypot(x - tx, y - ty);
-				current.radius   = get_thing_radius (Things[n]->type);
+				current.radius   = info->radius;
 				current.inside   = x > tx - current.radius
 					&& x < tx + current.radius
 					&& y > ty - current.radius

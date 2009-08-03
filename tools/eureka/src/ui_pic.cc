@@ -87,10 +87,11 @@ void UI_Pic::GetSprite(const wad_ttype_t& type)
 	if (! img || img->width() < 1 || img->height() < 1)
 		return;
 
+	const thingtype_t *info = M_GetThingType((int)type);
 
 	bool new_img = false;
 
-	if (get_thing_flags(type) & THINGDEF_SPECTRAL)
+	if (info->flags & THINGDEF_SPECTRAL)
 	{
 		img = img->spectrify();
 		new_img = true;
