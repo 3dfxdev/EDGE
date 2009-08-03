@@ -37,10 +37,6 @@ Img * W_GetTexture(const char *name);
 // TODO  Img * W_PlaceholderTex()
 
 
-// ick, remove
-void GetWallTextureSize (s16_t *, s16_t *, const char *);
-
-
 #endif  /* __W_TEXTURE_H__ */
 
 //--- editor settings ---
