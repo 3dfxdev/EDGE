@@ -28,15 +28,16 @@
 #define __W_LOADPIC_H__
 
 #include "im_img.h"
+#include "w_wad.h"
 
 
-bool LoadPicture(
-   Img& img,
-   const char *lump_name,   /* Picture lump name */
-   int pic_x_offset,    /* Coordinates of top left corner of picture */
-   int pic_y_offset,    /* relative to top left corner of buffer. */
-   int *pic_width = NULL,    /* To return the size of the picture */
-   int *pic_height = NULL);  /* (can be NULL) */
+bool LoadPicture(Img& img,
+	Lump_c *lump,           /* Lump containing picture */
+	const char *pic_name,   /* Picture name, for messages */
+	int pic_x_offset,    /* Coordinates of top left corner of picture */
+	int pic_y_offset,    /* relative to top left corner of buffer. */
+	int *pic_width = NULL,    /* To return the size of the picture */
+	int *pic_height = NULL);  /* (can be NULL) */
 
 
 int LoadPicture0 (

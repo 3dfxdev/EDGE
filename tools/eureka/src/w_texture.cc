@@ -190,7 +190,6 @@ Img * Tex2Img (const char * texname)
 		if (yofs < 0)
 			yofs = 0;
 
-		Lump_loc loc;
 		{
 			wad_pic_name_t *wname = patch_dir.name_for_num (pnameind);
 			if (wname == 0)
@@ -199,12 +198,15 @@ Img * Tex2Img (const char * texname)
 						WAD_TEX_NAME, tname, (int) n, (int) pnameind);
 				continue;
 			}
-			patch_dir.loc_by_name ((const char *) *wname, loc);
+
 			*picname = '\0';
 			strncat (picname, (const char *) *wname, sizeof picname - 1);
 		}
 
-		if (! LoadPicture(*texbuf, picname, xofs, yofs, 0, 0))
+		Lump_c *lump = W_FindPatchLump(picname);
+
+		if (! lump ||
+		    ! LoadPicture(*texbuf, lump, picname, xofs, yofs, 0, 0))
 			warn ("texture \"%.*s\": patch \"%.*s\" not found.\n",
 					WAD_TEX_NAME, tname, WAD_PIC_NAME, picname);
 	}
