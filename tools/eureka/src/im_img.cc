@@ -230,7 +230,7 @@ img_pixel_t *Img::wbuf ()
 void Img::clear ()
 {
 	if (p->buf != 0)
-		memset (p->buf, IMG_TRANSP, p->width * p->height);
+		memset (p->buf, TRANS_PIXEL, p->width * p->height);
 }
 
 
@@ -308,7 +308,7 @@ Img * Img::spectrify() const
 	{
 		img_pixel_t pix = src[y * W + x];
 
-		if (pix != IMG_TRANSP)
+		if (pix != TRANS_PIXEL)
 			pix = grey + (rand () >> 6) % 7;  // FIXME more kludgery
 
 		dest[y * W + x] = pix;

@@ -46,7 +46,7 @@ void W_LoadPalette();
 
 extern pcolour_t palette[256];
 
-// game color closest to palette[IMG_TRANSP]
+// game color closest to palette[TRANS_PIXEL]
 extern int trans_replace;
 
 
