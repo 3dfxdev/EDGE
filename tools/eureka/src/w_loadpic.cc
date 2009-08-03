@@ -123,7 +123,7 @@ bool LoadPicture(
    int *pic_width,    // To return the size of the picture
    int *pic_height)   // (can be NULL)
 {
-	Lump_c *lump = WAD_FindLump(lump_name);
+	Lump_c *lump = W_FindLump(lump_name);
 	if (! lump)
 		FatalError("LoadPicture: no such lump '%s'\n", lump_name);
 
