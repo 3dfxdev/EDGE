@@ -22,6 +22,7 @@
 #include "ui_window.h"
 
 #include "levels.h"
+#include "m_game.h"
 #include "w_rawdef.h"
 #include "w_structs.h"
 
@@ -217,8 +218,10 @@ void UI_ThingBox::SetObj(int index)
 
 	if (is_thing(obj))
 	{
-		type ->value(Int_TmpStr(Things[obj]->type));
-		desc ->value(get_thing_name(Things[obj]->type));
+		const thingtype_t *info = M_GetThingType(Things[obj]->type);
+		desc->value(info->desc);
+
+		type  ->value(Int_TmpStr(Things[obj]->type));
 		sprite->GetSprite(Things[obj]->type);
 
 		angle->value(Int_TmpStr(Things[obj]->angle));
@@ -283,7 +286,9 @@ void UI_ThingBox::type_callback(Fl_Widget *w, void *data)
 
 //@@@@@@	Things[box->obj].type = new_type;
 
-	box->desc->value(get_thing_name(new_type));
+	const thingtype_t *info = M_GetThingType(new_type);
+
+	box->desc->value(info->desc);
 	box->sprite->GetSprite(new_type);
 
 	main_win->canvas->redraw();

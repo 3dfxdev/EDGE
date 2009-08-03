@@ -25,6 +25,7 @@
 #include "editloop.h"
 #include "e_sector.h"
 #include "e_things.h"
+#include "m_game.h"
 #include "r_misc.h"
 #include "r_grid.h"
 #include "im_color.h"
@@ -566,11 +567,11 @@ void UI_Canvas::DrawThings()
 		if (! Vis(x, y, MAX_RADIUS))
 			continue;
 
-		int m = get_thing_radius(Things[n]->type);
+		const thingtype_t *info = M_GetThingType(Things[n]->type);
 
 		if (e->obj_type == OBJ_THINGS)
 		{
-			fl_color(get_thing_colour(Things[n]->type));
+			fl_color(info->color);
 
 			if (active_wmask)
 			{
@@ -585,18 +586,20 @@ void UI_Canvas::DrawThings()
 			}
 		}
 
-		DrawMapLine(x-m, y-m, x+m, y-m);
-		DrawMapLine(x+m, y-m, x+m, y+m);
-		DrawMapLine(x+m, y+m, x-m, y+m);
-		DrawMapLine(x-m, y+m, x-m, y-m);
+		int r = info->radius;
+
+		DrawMapLine(x-r, y-r, x+r, y-r);
+		DrawMapLine(x+r, y-r, x+r, y+r);
+		DrawMapLine(x+r, y+r, x-r, y+r);
+		DrawMapLine(x-r, y+r, x-r, y-r);
 
 		{
 			size_t direction = angle_to_direction(Things[n]->angle);
 			static const short xsign[] = {  1,  1,  0, -1, -1, -1,  0,  1,  0 };
 			static const short ysign[] = {  0,  1,  1,  1,  0, -1, -1, -1,  0 };
 
-			int corner_x = m * xsign[direction];
-			int corner_y = m * ysign[direction];
+			int corner_x = r * xsign[direction];
+			int corner_y = r * ysign[direction];
 
 			DrawMapLine(x, y, x + corner_x, y + corner_y);
 		}
@@ -671,12 +674,14 @@ void UI_Canvas::HighlightObject(int objtype, int objnum, Fl_Color colour)
 			if (! Vis(x, y, MAX_RADIUS))
 				return;
 
-			int m = (get_thing_radius(Things[objnum]->type) * 3) / 2;
+			const thingtype_t *info = M_GetThingType(Things[objnum]->type);
 
-			DrawMapLine(x - m, y - m, x - m, y + m);
-			DrawMapLine(x - m, y + m, x + m, y + m);
-			DrawMapLine(x + m, y + m, x + m, y - m);
-			DrawMapLine(x + m, y - m, x - m, y - m);
+			int r = (info->radius * 3) / 2;
+
+			DrawMapLine(x-r, y-r, x-r, y+r);
+			DrawMapLine(x-r, y+r, x+r, y+r);
+			DrawMapLine(x+r, y+r, x+r, y-r);
+			DrawMapLine(x+r, y-r, x-r, y-r);
 
 			DrawMapArrow(x, y, Things[objnum]->angle * 182);
 		}

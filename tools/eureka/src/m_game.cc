@@ -291,15 +291,6 @@ void LoadGameDefs(const char *game)
 		if (abort)
 			exit(2);
 	}
-
-
-	/*
-	 *  Second pass
-	 */
-
-	/* Speed optimization : build the table of things attributes
-	   that get_thing_*() use. */
-	create_things_table();
 }
 
 
@@ -309,7 +300,6 @@ void LoadGameDefs(const char *game)
  */
 void FreeGameDefs(void)
 {
-	delete_things_table();
 }
 
 
