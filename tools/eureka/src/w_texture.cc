@@ -40,6 +40,7 @@
 #include "w_io.h"
 #include "w_structs.h"
 
+#include "w_rawdef.h"
 #include "w_texture.h"
 
 
@@ -239,59 +240,60 @@ static void LoadTextureLump(Lump_c *lump, byte *pnames, int pname_size)
 
 		// FIXME: validate offset
 
-		offset = EPI_LE_S32(*directory);
-
 		const raw_texture_t *raw = (const raw_texture_t *)(tex_data + offset);
 
+		// create the new Img
+		int width  = LE_U16(raw->width);
+		int height = LE_U16(raw->height);
 
-		patchcount = EPI_LE_S16(mtexture->patch_count);
-		if (!patchcount)
-			I_Error("W_InitTextures: Texture '%.8s' has no patches", mtexture->name);
+		if (width == 0 || height == 0)
+			FatalError("W_InitTextures: Texture '%.8s' has zero size", raw->name);
 
-		width = EPI_LE_S16(mtexture->width);
-		if (width == 0)
-			I_Error("W_InitTextures: Texture '%.8s' has zero width", mtexture->name);
+		Img *img = new Img(width, height, false);
 
-		// -ES- Allocate texture, patches and columnlump/ofs in one big chunk
-		base_size = sizeof(texturedef_t) + sizeof(texpatch_t) * (patchcount - 1);
-		texture = cur_set->textures[i] = (texturedef_t *) Z_Malloc(base_size + width * (sizeof(byte) + sizeof(short)));
-		base = (byte *)texture + base_size;
+		// apply all the patches
+		int num_patches = LE_S16(raw->patch_count);
+		if (! num_patches)
+			FatalError("W_InitTextures: Texture '%.8s' has no patches", raw->name);
 
-		texture->columnofs = (unsigned short *)base;
-
-		texture->width = width;
-		texture->height = EPI_LE_S16(mtexture->height);
-		texture->file = file;
-		texture->palette_lump = WT->palette;  // NOTE: unused
-		texture->patchcount = patchcount;
-
-		Z_StrNCpy(texture->name, mtexture->name, 8);
-		strupr(texture->name);
-
-		mpatch = &mtexture->patches[0];
-		patch = &texture->patches[0];
-
-		bool is_sky = (strncmp("SKY", texture->name, 3) == 0);
-
-		for (j = 0; j < texture->patchcount; j++, mpatch++, patch++)
+		for (int j = 0; j < num_patches; j++)
 		{
-			patch->originx = EPI_LE_S16(mpatch->x_origin);
-			patch->originy = EPI_LE_S16(mpatch->y_origin);
-			patch->patch = patchlookup[EPI_LE_S16(mpatch->pname)];
+			int xofs = LE_S16(patdef->x_origin);
+			int yofs = LE_S16(patdef->y_origin);
+			int pname_idx = LE_U16(patdef->pname);
 
-			// work-around for strange Y offset in SKY1 of DOOM 1 
-			if (is_sky && patch->originy < 0)
-				patch->originy = 0;
+			// COMMENT THIS FIXME FIXME
+			if (yofs < 0)
+				yofs = 0;
 
-			if (patch->patch == -1)
+			if (pname_idx >= pname_size)
 			{
-				I_Warning("Missing patch in texture \'%.8s\'\n", texture->name);
-
-				// mark texture as a dud
-				texture->patchcount = 0;
-				break;
+				warn("Invalid pname in texture \'%.8s\'\n", raw->name);
+				continue;
 			}
+
+			char picname[16];
+			memcpy(picname, pnames + 8*pname_idx, 8);
+			picname[8] = 0;
+
+			Lump_c *lump = W_FindPatchLump(picname);
+
+			if (! lump ||
+				! LoadPicture(img, lump, picname, xofs, yofs, 0, 0))
+				warn ("texture \"%.*s\": patch \"%.*s\" not found.\n",
+						WAD_TEX_NAME, tname, WAD_PIC_NAME, picname);
 		}
+
+		// store the new texture
+		char namebuf[16];
+		memcpy(namebuf, raw->name, 8);
+		namebuf[8] = 0;
+
+		std::string t_str(namebuf);
+
+		// FIXME: free any existing one with same name
+
+		textures[t_str] = img;
 	}
 
 	W_FreeLumpData(&tex_data);

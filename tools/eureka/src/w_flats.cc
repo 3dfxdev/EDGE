@@ -85,6 +85,8 @@ void W_LoadFlats()
 				! lump->Read(img->wbuf(), 64*64))
 				FatalError("Error reading flat from WAD.\n");
 
+			// FIXME: free any existing one with same name
+
 			flats[std::string(lump->Name())] = img;
 		}
 	}
