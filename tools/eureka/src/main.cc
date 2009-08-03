@@ -42,6 +42,7 @@
 #include "w_wads.h"
 
 #include "w_flats.h"
+#include "w_texture.h"
 #include "w_wad.h"
 
 #include "ui_window.h"
@@ -479,6 +480,7 @@ int main(int argc, char *argv[])
         LoadLevel(levelname);
 
 	W_LoadFlats();
+	W_LoadTextures();
 
     LogPrintf(": Editing %s...\n", levelname ? levelname : "new level");
 
