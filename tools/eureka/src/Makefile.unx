@@ -72,7 +72,6 @@ OBJS = \
 	w_io.o  \
 	w_list.o  \
 	w_loadpic.o  \
-	w_patches.o  \
 	w_flats.o  \
 	w_sprite.o  \
 	w_texture.o  \

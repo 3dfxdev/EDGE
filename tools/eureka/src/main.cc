@@ -35,7 +35,6 @@
 #include "m_game.h"
 #include "r_misc.h"
 #include "levels.h"    /* Because of "viewtex" */
-#include "w_patches.h"  /* Because of "p" */
 #include "w_file.h"
 #include "w_list.h"
 #include "w_name.h"
@@ -464,8 +463,6 @@ int main(int argc, char *argv[])
 
     ReadWTextureNames();
     ReadFTextureNames();
-
-    patch_dir.refresh(MasterDir);
 
     if (InitFLTK())
         exit(9);
