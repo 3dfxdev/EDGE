@@ -30,9 +30,6 @@
 #include "im_img.h"
 
 #include "w_loadpic.h"
-#include "w_file.h"
-#include "w_io.h"
-
 #include "w_rawdef.h"
 #include "w_wad.h"
 

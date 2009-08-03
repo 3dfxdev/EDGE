@@ -27,8 +27,6 @@
 #include "main.h"
 
 #include "im_img.h"
-#include "w_file.h"
-#include "w_io.h"
 
 
 int usegamma = 1;

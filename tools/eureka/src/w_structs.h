@@ -64,20 +64,6 @@ struct MasterDirectory
 extern MDirPtr   MasterDir; // The master directory
 
 
-/* Lump location : enough information to load a lump without
-   having to do a directory lookup. */
-struct Lump_loc
-   {
-   Lump_loc () { wad = 0; }
-   Lump_loc (const Wad_file0 *w, s32_t o, s32_t l) { wad = w; ofs = o; len = l; }
-   bool operator == (const Lump_loc& other) const
-     { return wad == other.wad && ofs == other.ofs && len == other.len; }
-   const Wad_file0 *wad;
-   s32_t ofs;
-   s32_t len;
-};
-
-
 // Textures
 const size_t WAD_TEX_NAME = 8;
 typedef char wad_tex_name_t[WAD_TEX_NAME];

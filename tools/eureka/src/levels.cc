@@ -32,9 +32,6 @@
 #include "levels.h"
 #include "e_things.h"
 #include "w_structs.h"
-#include "w_file.h"
-#include "w_io.h"
-#include "w_wads.h"
 
 
 int MapMaxX = -32767;   /* maximum X value of map */
