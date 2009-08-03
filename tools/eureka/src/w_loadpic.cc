@@ -27,9 +27,133 @@
 #include "main.h"
 
 #include "im_color.h"  /* trans_replace */
+#include "im_img.h"
+
 #include "w_loadpic.h"
 #include "w_file.h"
 #include "w_io.h"
+
+#include "w_wad.h"
+
+
+// posts are runs of non masked source pixels
+typedef struct
+{
+	// offset down from top.  P_SENTINEL terminates the list.
+	byte topdelta;
+
+    // length data bytes follows
+	byte length;
+	
+	/* byte pixels[length+2] */
+}
+post_t;
+
+#define P_SENTINEL  0xFF
+
+
+static void DrawColumn(Img& img, const post_t *column, int x, int y)
+{
+	SYS_ASSERT(column);
+
+	int W = img.width();
+	int H = img.height();
+
+	// clip horizontally
+	if (x < 0 || x >= W)
+		return;
+
+	while (column->topdelta != P_SENTINEL)
+	{
+		int top = y + (int) column->topdelta;
+		int count = column->length;
+
+		byte *src = (byte *) column + 3;
+		byte *dest = img.wbuf() + x;
+
+		if (top < 0)
+		{
+			count += top;
+			top = 0;
+		}
+
+		if (top + count > H)
+			count = H - top;
+
+		// copy the pixels, remapping any TRANS_PIXEL values
+		for (; count > 0; count--, top++)
+		{
+			byte pix = *src++;
+
+			if (pix == TRANS_PIXEL)
+				pix = trans_replace;
+
+			dest[top * W] = pix;
+		}
+
+		column = (const post_t *) ((const byte *) column + column->length + 4);
+	}
+}
+
+
+bool LoadPicture(
+   Img& img,      // Game image to load picture into
+   const char *lump_name,   // Picture lump name
+   int pic_x_offset,    // Coordinates of top left corner of picture
+   int pic_y_offset,    // relative to top left corner of buffer
+   int *pic_width,    // To return the size of the picture
+   int *pic_height)   // (can be NULL)
+{
+	Lump_c *lump = WAD_FindLump(lump_name);
+	if (! lump)
+		FatalError("LoadPicture: no such lump '%s'\n", lump_name);
+
+	patch_t *pat = (patch_t *) W_LoadLump(lump);
+  
+	width    = EPI_LE_S16(pat->width);
+	height   = EPI_LE_S16(pat->height);
+	offset_x = EPI_LE_S16(pat->leftoffset);
+	offset_y = EPI_LE_S16(pat->topoffset);
+
+	int tw = total_w;
+	int th = total_h;
+
+
+
+	// Clear initial pixels to either totally transparent, or totally
+	// black (if we know the image should be solid).
+	//
+	//---- If the image turns
+	//---- out to be solid instead of transparent, the transparent pixels
+	//---- will be blackened.
+  
+	if (opacity == OPAC_Solid)
+		img->Clear(pal_black);
+	else
+		img->Clear(TRANS_PIXEL);
+
+	// Composite the columns into the block.
+	const patch_t *realpatch = (const patch_t*)W_LoadLumpNum(source.graphic.lump);
+
+	int realsize = W_LumpLength(source.graphic.lump);
+
+	SYS_ASSERT(actual_w == EPI_LE_S16(realpatch->width));
+	SYS_ASSERT(actual_h == EPI_LE_S16(realpatch->height));
+  
+	for (int x=0; x < actual_w; x++)
+	{
+		int offset = EPI_LE_S32(realpatch->columnofs[x]);
+
+		if (offset < 0 || offset >= realsize)
+			I_Error("Bad image offset 0x%08x in image [%s]\n", offset, name);
+
+		const column_t *patchcol = (const column_t *) ((const byte *) realpatch + offset);
+
+		DrawColumnIntoEpiBlock(this, img, patchcol, x, 0);
+	}
+
+	Z_Free((void*)realpatch);
+}
 
 
 typedef enum { _MT_BADOFS, _MT_TOOLONG, _MT_TOOMANY } _msg_type_t;
@@ -59,7 +183,7 @@ static void flush_msg (const char *picname);
  *  If pic_y_offset == INT_MIN, the picture is centred vertically.
  */
 
-int LoadPicture (
+int LoadPicture0 (
    Img& img,      // Game image to load picture into
    const char *picname,   // Picture lump name
    const Lump_loc& picloc,  // Picture lump location
@@ -333,7 +457,7 @@ int LoadPicture (
 									WAD_PIC_NAME, picname, (int) pic_x);
 						}
 #endif
-						*b = (*p == IMG_TRANSP) ? trans_replace : *p;
+						*b = (*p == TRANS_PIXEL) ? trans_replace : *p;
 					}
 				}
 
