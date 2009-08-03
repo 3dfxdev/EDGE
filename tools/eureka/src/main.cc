@@ -35,7 +35,6 @@
 #include "m_game.h"
 #include "r_misc.h"
 #include "levels.h"    /* Because of "viewtex" */
-#include "w_name.h"
 #include "w_flats.h"
 #include "w_texture.h"
 #include "w_wad.h"
@@ -127,7 +126,7 @@ const char *bench     = 0;
 
 ygln_t yg_level_name = YGLN__;
 
-Wad_name sky_flat;
+std::string sky_flat;
 int sky_color = 207; // FIXME: move into UGH file
 
 

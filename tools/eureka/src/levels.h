@@ -29,7 +29,8 @@
 #define YH_LEVELS  /* Prevent multiple inclusion */
 
 
-#include "w_name.h"
+#include <string>
+
 #include "e_things.h"
 
 
@@ -64,17 +65,12 @@ extern y_file_name_t Level_file_name_saved;  /* The name of the file in
 void update_level_bounds ();
 
 
-extern Wad_name sky_flat;
+extern std::string sky_flat;
 extern int sky_color;
 
 
-/*
- *  is_sky - is this flat a sky
- */
-inline bool is_sky (Wad_name flat)
-{
-  return sky_flat == flat;
-}
+// is this flat a sky?
+bool is_sky(const char *flat);
 
 
 int levelname2levelno (const char *name);
