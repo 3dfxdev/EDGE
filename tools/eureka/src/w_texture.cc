@@ -245,6 +245,7 @@ static void LoadTextureLump(Lump_c *lump, byte *pnames, int pname_size)
 		// create the new Img
 		int width  = LE_U16(raw->width);
 		int height = LE_U16(raw->height);
+DebugPrintf("Texture [%.8s] : %dx%d\n", raw->name, width, height);
 
 		if (width == 0 || height == 0)
 			FatalError("W_InitTextures: Texture '%.8s' has zero size", raw->name);
@@ -256,13 +257,20 @@ static void LoadTextureLump(Lump_c *lump, byte *pnames, int pname_size)
 		if (! num_patches)
 			FatalError("W_InitTextures: Texture '%.8s' has no patches", raw->name);
 
-		for (int j = 0; j < num_patches; j++)
+		const raw_patchdef_t *patdef = (const raw_patchdef_t *) & raw->patches[0];
+
+		for (int j = 0; j < num_patches; j++, patdef++)
 		{
 			int xofs = LE_S16(patdef->x_origin);
 			int yofs = LE_S16(patdef->y_origin);
 			int pname_idx = LE_U16(patdef->pname);
 
-			// COMMENT THIS FIXME FIXME
+			// AYM 1998-08-08: Yes, that's weird but that's what Doom
+			// does. Without these two lines, the few textures that have
+			// patches with negative y-offsets (BIGDOOR7, SKY1, TEKWALL1,
+			// TEKWALL5 and a few others) would not look in the texture
+			// viewer quite like in Doom. This should be mentioned in
+			// the UDS, by the way.
 			if (yofs < 0)
 				yofs = 0;
 
@@ -276,12 +284,13 @@ static void LoadTextureLump(Lump_c *lump, byte *pnames, int pname_size)
 			memcpy(picname, pnames + 8*pname_idx, 8);
 			picname[8] = 0;
 
+DebugPrintf("-- %d patch [%s]\n", j, picname);
 			Lump_c *lump = W_FindPatchLump(picname);
 
 			if (! lump ||
-				! LoadPicture(img, lump, picname, xofs, yofs, 0, 0))
-				warn ("texture \"%.*s\": patch \"%.*s\" not found.\n",
-						WAD_TEX_NAME, tname, WAD_PIC_NAME, picname);
+				! LoadPicture(*img, lump, picname, xofs, yofs, 0, 0))
+				warn ("texture \"%.8s\": patch \"%.8s\" not found.\n",
+						raw->name, picname);
 		}
 
 		// store the new texture
