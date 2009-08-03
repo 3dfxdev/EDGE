@@ -40,6 +40,7 @@
 #include "w_io.h"
 #include "w_structs.h"
 
+#include "w_wad.h"
 #include "w_flats.h"
 
 
@@ -62,54 +63,31 @@ void W_ClearFlats()
 }
 
 
-
-/*
- *  flat_list_entry_match
- *  Function used by bsearch() to locate a particular 
- *  flat in the FTexture.
- */
-static int flat_list_entry_match (const void *key, const void *flat_list_entry)
-{
-	return y_strnicmp ((const char *) key,
-						((const flat_list_entry_t *) flat_list_entry)->name,
-						WAD_FLAT_NAME);
-}
-
-
-/*
- *  load a flat into a new image.  NULL if not found.
- */
-
-Img * Flat2Img (const char * fname)
-{
-	char name[WAD_FLAT_NAME + 1];
-	strncpy (name, fname, WAD_FLAT_NAME);
-	name[WAD_FLAT_NAME] = 0;
-
-	flat_list_entry_t *flat = (flat_list_entry_t *)
-		bsearch (name, flat_list, NumFTexture, sizeof *flat_list,
-				flat_list_entry_match);
-
-	if (! flat)  // Not found in list
-		return 0;
-
-	int width  = DOOM_FLAT_WIDTH;  // Big deal !
-	int height = DOOM_FLAT_HEIGHT;
-
-	const Wad_file0 *wadfile = flat->wadfile;
-	wadfile->seek (flat->offset);
-
-	Img *img = new Img (width, height, false);
-
-	wadfile->read_bytes (img->wbuf (), (long) width * height);
-
-	return img;
-}
-
-
 void W_LoadFlats()
 {
-	// FIXME
+	for (int i = 0; i < (int)master_dir.size(); i++)
+	{
+		LogPrintf("Loading Flats from WAD #%d\n", i+1);
+
+		Wad_file *wf = master_dir[i];
+
+		for (int k = 0; k < (int)wf->flats.size(); k++)
+		{
+			Lump_c *lump = wf->GetLump(wf->flats[k]);
+
+			DebugPrintf("  Flat %d : '%s'\n", k, lump->Name());
+
+			// TODO: check size == 64*64
+
+			Img *img = new Img(64, 64, false);
+			
+			if (! lump->Seek() ||
+				! lump->Read(img->wbuf(), 64*64))
+				FatalError("Error reading flat from WAD.\n");
+
+			flats[std::string(lump->Name())] = img;
+		}
+	}
 }
 
 
@@ -119,19 +97,12 @@ Img * W_GetFlat(const char *name)
 
 	flat_map_t::iterator P = flats.find(f_str);
 
-	if (P != flats.end ())
+	if (P != flats.end())
 		return P->second;
 
-	// flat not in the list yet.  Add it.
+	//???  flats[f_str] = NULL
 
-	Img *result = Flat2Img(name);
-	flats[f_str] = result;
-
-	// note that a NULL return from Flat2Img is OK, it means that no
-	// such flat exists.  Our renderer will revert to using a solid
-	// colour.
-
-	return result;
+	return NULL;
 }
 
 
