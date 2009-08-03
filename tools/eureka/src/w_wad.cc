@@ -279,6 +279,38 @@ short Wad_file::FindLevel(const char *name)
 }
 
 
+Lump_c * Wad_file::FindLumpInNamespace(const char *name, char group)
+{
+	short k;
+
+	switch (group)
+	{
+		case 'P':
+			for (k = 0; k < (short)patches.size(); k++)
+				if (y_stricmp(directory[patches[k]]->name, name) == 0)
+					return directory[patches[k]];
+			break;
+
+		case 'S':
+			for (k = 0; k < (short)sprites.size(); k++)
+				if (y_stricmp(directory[sprites[k]]->name, name) == 0)
+					return directory[sprites[k]];
+			break;
+
+		case 'F':
+			for (k = 0; k < (short)flats.size(); k++)
+				if (y_stricmp(directory[flats[k]]->name, name) == 0)
+					return directory[flats[k]];
+			break;
+
+		default:
+			BugError("FindLumpInNamespace: bad group '%c'\n", group);
+	}
+
+	return NULL; // not found!
+}
+
+
 void Wad_file::ReadDirectory()
 {
 	// TODO: no fatal errors
@@ -782,7 +814,7 @@ void Wad_file::WriteDirectory()
 //------------------------------------------------------------------------
 
 
-Lump_c * WAD_FindLump(const char *name)
+Lump_c * W_FindLump(const char *name)
 {
 	for (short i = (int)master_dir.size()-1; i >= 0; i--)
 	{
@@ -792,6 +824,31 @@ Lump_c * WAD_FindLump(const char *name)
 	}
 
 	return NULL;  // not found
+}
+
+Lump_c * W_FindSpriteLump(const char *name)
+{
+	for (short i = (int)master_dir.size()-1; i >= 0; i--)
+	{
+		Lump_c *L = master_dir[i]->FindLumpInNamespace(name, 'S');
+		if (L)
+			return L;
+	}
+
+	return NULL;  // not found
+}
+
+Lump_c * W_FindPatchLump(const char *name)
+{
+	for (short i = (int)master_dir.size()-1; i >= 0; i--)
+	{
+		Lump_c *L = master_dir[i]->FindLumpInNamespace(name, 'P');
+		if (L)
+			return L;
+	}
+
+	// Fallback: try a sprite
+	return W_FindSpriteLump(name);
 }
 
 

@@ -44,7 +44,7 @@ extern int gammatable[5][256];
 
 void W_LoadPalette()
 {
-	Lump_c *lump = WAD_FindLump("PLAYPAL");
+	Lump_c *lump = W_FindLump("PLAYPAL");
 
 	if (! lump)
 	{

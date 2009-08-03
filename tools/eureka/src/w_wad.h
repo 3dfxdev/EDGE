@@ -127,6 +127,8 @@ public:
 	short FindLumpNum(const char *name);
 	short FindLevel(const char *name);
 
+	Lump_c * FindLumpInNamespace(const char *name, char group);
+
 	// check whether another program has modified this WAD, and return
 	// either true or false.  We test for change in file size, change
 	// in directory size or location, and directory contents (CRC).
@@ -188,7 +190,12 @@ extern std::vector<Wad_file *> master_dir;
 
 // find a lump in any loaded wad (later ones tried first),
 // returning NULL if not found.
-Lump_c * WAD_FindLump(const char *name);
+Lump_c * W_FindLump(const char *name);
+
+// find a lump that only exists in a certain namespace (sprite,
+// or patch) of a loaded wad (later ones tried first).
+Lump_c * W_FindSpriteLump(const char *name);
+Lump_c * W_FindPatchLump(const char *name);
 
 // load the lump into memory, returning the size
 int  W_LoadLumpData(Lump_c *lump, byte ** buf_ptr);
