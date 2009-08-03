@@ -461,9 +461,6 @@ int main(int argc, char *argv[])
 
 	W_LoadPalette();
 
-    ReadWTextureNames();
-    ReadFTextureNames();
-
     if (InitFLTK())
         exit(9);
 
@@ -489,8 +486,7 @@ int main(int argc, char *argv[])
 
 	BA_ClearAll();
 
-    //?? ForgetWTextureNames ();
-    //?? ForgetFTextureNames ();
+	// clear textures??
 
 	/* that's all, folks! */
 	CloseWadFiles();

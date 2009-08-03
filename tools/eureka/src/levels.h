@@ -33,11 +33,6 @@
 #include "e_things.h"
 
 
-// FIXME should be somewhere else
-extern int   NumWTexture; /* number of wall textures */
-extern char  **WTexture;  /* array of wall texture names */
-
-
 extern int   MapMaxX;   /* maximum X value of map */
 extern int   MapMaxY;   /* maximum Y value of map */
 extern int   MapMinX;   /* minimum X value of map */
@@ -85,13 +80,6 @@ inline bool is_sky (Wad_name flat)
 int levelname2levelno (const char *name);
 int levelname2rank (const char *name);
 
-
-void ReadWTextureNames (void);
-void ForgetFTextureNames (void);
-int is_flat_name_in_list (const char *name);
-
-void ReadFTextureNames (void);
-void ForgetWTextureNames (void);
 
 
 #endif  /* DO NOT ADD ANYTHING AFTER THIS LINE */
