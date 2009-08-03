@@ -115,18 +115,14 @@ static void DrawColumn(Img& img, const post_t *column, int x, int y)
  *  If pic_x_offset == INT_MIN, the picture is centred horizontally.
  *  If pic_y_offset == INT_MIN, the picture is centred vertically.
  */
-bool LoadPicture(
-   Img& img,      // Game image to load picture into
-   const char *lump_name,   // Picture lump name
-   int pic_x_offset,    // Coordinates of top left corner of picture
-   int pic_y_offset,    // relative to top left corner of buffer
-   int *pic_width,    // To return the size of the picture
-   int *pic_height)   // (can be NULL)
+bool LoadPicture(Img& img,      // image to load picture into
+	Lump_c *lump,
+	const char *pic_name,   // Picture name (for messages)
+	int pic_x_offset,    // Coordinates of top left corner of picture
+	int pic_y_offset,    // relative to top left corner of buffer
+	int *pic_width,    // To return the size of the picture
+	int *pic_height)   // (can be NULL)
 {
-	Lump_c *lump = W_FindLump(lump_name);
-	if (! lump)
-		FatalError("LoadPicture: no such lump '%s'\n", lump_name);
-
 	byte *raw_data;
 	W_LoadLumpData(lump, &raw_data);
 
@@ -159,7 +155,7 @@ bool LoadPicture(
 		int offset = LE_S32(pat->columnofs[x]);
 
 		if (offset < 0 || offset >= lump->Length())
-			FatalError("Bad image offset 0x%08x in patch [%s]\n", offset, lump_name);
+			FatalError("Bad image offset 0x%08x in patch [%s]\n", offset, pic_name);
 
 		const post_t *column = (const post_t *) ((const byte *)pat + offset);
 

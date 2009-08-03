@@ -62,14 +62,8 @@ void W_ClearSprites()
 }
 
 
-/*
- *  Sprite_dir::loc_by_root - find sprite by prefix
- *  
- *      Return the (wad, offset, length) location of the first
- *      lump by alphabetical order whose name begins with
- *      <name>. If not found, set loc.wad to 0.
- */
-void Sprite_loc_by_root (const char *name, Lump_loc& loc)
+// find sprite by prefix
+Lump_c * Sprite_loc_by_root (const char *name)
 {
 	char buffer[16];
 
@@ -81,36 +75,21 @@ void Sprite_loc_by_root (const char *name, Lump_loc& loc)
 	if (strlen(buffer) == 5)
 		strcat(buffer, "0");
 
-	MDirPtr m = FindMasterDir(MasterDir, buffer);
+	Lump_c *lump = W_FindSpriteLump(buffer);
 
-	if (! m)
+	if (! lump)
 	{
 		buffer[5] = '1';
-		m = FindMasterDir(MasterDir, buffer);
+		lump = W_FindSpriteLump(buffer);
 	}
 
-	if (! m)
+	if (! lump)
 	{
-		strcat(buffer, "C1");
-		m = FindMasterDir(MasterDir, buffer);
+		strcat(buffer, "D1");
+		lump = W_FindSpriteLump(buffer);
 	}
 
-	if (! m)
-	{
-		buffer[6] = 'D';
-		m = FindMasterDir(MasterDir, buffer);
-	}
-
-	if (! m)
-	{
-		loc.wad = NULL;
-		loc.ofs = loc.len = 0;
-		return;
-	}
-
-	loc.wad = m->wadfile;
-	loc.ofs = m->dir.start;
-	loc.len = m->dir.size;
+	return lump;
 }
 
 
@@ -135,14 +114,20 @@ Img * W_GetSprite(int type)
 
 	if (y_stricmp(info->sprite, "NULL") != 0)
 	{
-		Lump_loc loc;
-		Sprite_loc_by_root (info->sprite, loc);
-		result = new Img ();
-
-		if (LoadPicture0 (*result, info->sprite, loc, 0, 0) != 0)
+		Lump_c *lump = Sprite_loc_by_root(info->sprite);
+		if (! lump)
 		{
-			delete result;
-			result = NULL;
+			warn ("Sprite not found: '%s'\n", info->sprite);
+		}
+		else
+		{
+			result = new Img ();
+
+			if (! LoadPicture(*result, lump, info->sprite, 0, 0))
+			{
+				delete result;
+				result = NULL;
+			}
 		}
 	}
 
