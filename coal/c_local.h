@@ -280,7 +280,6 @@ extern int pr_numbuiltins;
 
 extern int pr_argc;
 
-extern bool pr_trace;
 
 
 class exec_error_x
@@ -329,6 +328,9 @@ public:
 
 	double     * AccessParam(int p);
 	const char * AccessParamString(int p);
+
+private:
+	bool trace;
 
 private:
 	void DoExecute(int func_id);

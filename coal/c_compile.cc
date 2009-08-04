@@ -1798,7 +1798,7 @@ bool PR_FinishCompilation(void)
 }
 
 
-real_vm_c::real_vm_c()
+real_vm_c::real_vm_c() : trace(false)
 {
 	// FIXME !!!!
 	PR_InitData();
