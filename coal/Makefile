@@ -22,7 +22,7 @@ test2: burner
 
 #==============================================================================
 
-COALFIRES=c_compile.o c_execute.o
+COALFIRES=c_compile.o c_execute.o c_memory.o
 
 libcoal.a: $(COALFIRES)
 	$(AR) $@ $(COALFIRES)
