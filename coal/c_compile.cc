@@ -111,6 +111,62 @@ static std::vector<def_t *> temporaries;
 static std::vector<def_t *> constants;
 
 
+static opcode_t pr_operators[] =
+{
+	{"!", OP_NOT_F, -1, &type_float, &type_void, &type_float},
+	{"!", OP_NOT_V, -1, &type_vector, &type_void, &type_float},
+	{"!", OP_NOT_S, -1, &type_string, &type_void, &type_float},
+	{"!", OP_NOT_FNC, -1, &type_function, &type_void, &type_float},
+
+	/* priority 1 is for function calls */
+
+	{"^", OP_POWER_F, 2, &type_float, &type_float, &type_float},
+
+	{"*", OP_MUL_F,  2, &type_float, &type_float, &type_float},
+	{"*", OP_MUL_V,  2, &type_vector, &type_vector, &type_float},
+	{"*", OP_MUL_FV, 2, &type_float, &type_vector, &type_vector},
+	{"*", OP_MUL_VF, 2, &type_vector, &type_float, &type_vector},
+
+	{"/", OP_DIV_F, 2, &type_float, &type_float, &type_float},
+	{"/", OP_DIV_V, 2, &type_vector, &type_float, &type_vector},
+	{"%", OP_MOD_F, 2, &type_float, &type_float, &type_float},
+
+	{"+", OP_ADD_F, 3, &type_float, &type_float, &type_float},
+	{"+", OP_ADD_V, 3, &type_vector, &type_vector, &type_vector},
+
+	{"-", OP_SUB_F, 3, &type_float, &type_float, &type_float},
+	{"-", OP_SUB_V, 3, &type_vector, &type_vector, &type_vector},
+
+	{"==", OP_EQ_F, 4, &type_float, &type_float, &type_float},
+	{"==", OP_EQ_V, 4, &type_vector, &type_vector, &type_float},
+	{"==", OP_EQ_S, 4, &type_string, &type_string, &type_float},
+	{"==", OP_EQ_FNC, 4, &type_function, &type_function, &type_float},
+
+	{"!=", OP_NE_F, 4, &type_float, &type_float, &type_float},
+	{"!=", OP_NE_V, 4, &type_vector, &type_vector, &type_float},
+	{"!=", OP_NE_S, 4, &type_string, &type_string, &type_float},
+	{"!=", OP_NE_FNC, 4, &type_function, &type_function, &type_float},
+
+	{"<=", OP_LE, 4, &type_float, &type_float, &type_float},
+	{">=", OP_GE, 4, &type_float, &type_float, &type_float},
+	{"<",  OP_LT, 4, &type_float, &type_float, &type_float},
+	{">",  OP_GT, 4, &type_float, &type_float, &type_float},
+
+	{"&&", OP_AND, 5, &type_float, &type_float, &type_float},
+	{"||", OP_OR,  5, &type_float, &type_float, &type_float},
+
+	{"&", OP_BITAND, 2, &type_float, &type_float, &type_float},
+	{"|", OP_BITOR,  2, &type_float, &type_float, &type_float},
+
+	{NULL}
+};
+
+#define	TOP_PRIORITY	6
+#define	NOT_PRIORITY	1
+
+
+
+
 void InitData(void)
 {
 	numstatements = 1;
@@ -640,88 +696,6 @@ type_t * real_vm_c::ParseType()
 
 	return FindType(&t_new);
 }
-
-
-//=================================================================//
-
-
-const char * opcode_names[] =
-{
-	"DONE", "DONE_V",
-	"NOT_F", "NOT_V", "NOT_S", "NOT_FNC",
-	"POWER", 
-	"MUL_F", "MUL_V", "MUL_FV", "MUL_VF",
-	"DIV_F", "DIV_V", "MOD_F",
-	"ADD_F", "ADD_V",
-	"SUB_F", "SUB_V",
-	"EQ_F", "EQ_V", "EQ_S", "EQ_FNC",
-	"NE_F", "NE_V", "NE_S", "NE_FNC",
-	"LE", "GE", "LT", "GT",
-	"MOVE_F", "MOVE_V", "MOVE_S", "MOVE_FNC",
-	"CALL",
-	"IF", "IFNOT", "GOTO",
-	"AND", "OR", "BITAND", "BITOR",
-	"PARM_F", "PARM_V",
-
-	"???", "???", "???", "???", "???", "???",
-	"???", "???", "???", "???", "???", "???",
-	"???", "???", "???", "???", "???", "???",
-	"???", "???", "???", "???", "???", "???"
-};
-
-
-static opcode_t pr_operators[] =
-{
-	{"!", OP_NOT_F, -1, &type_float, &type_void, &type_float},
-	{"!", OP_NOT_V, -1, &type_vector, &type_void, &type_float},
-	{"!", OP_NOT_S, -1, &type_string, &type_void, &type_float},
-	{"!", OP_NOT_FNC, -1, &type_function, &type_void, &type_float},
-
-	/* priority 1 is for function calls */
-
-	{"^", OP_POWER_F, 2, &type_float, &type_float, &type_float},
-
-	{"*", OP_MUL_F,  2, &type_float, &type_float, &type_float},
-	{"*", OP_MUL_V,  2, &type_vector, &type_vector, &type_float},
-	{"*", OP_MUL_FV, 2, &type_float, &type_vector, &type_vector},
-	{"*", OP_MUL_VF, 2, &type_vector, &type_float, &type_vector},
-
-	{"/", OP_DIV_F, 2, &type_float, &type_float, &type_float},
-	{"/", OP_DIV_V, 2, &type_vector, &type_float, &type_vector},
-	{"%", OP_MOD_F, 2, &type_float, &type_float, &type_float},
-
-	{"+", OP_ADD_F, 3, &type_float, &type_float, &type_float},
-	{"+", OP_ADD_V, 3, &type_vector, &type_vector, &type_vector},
-
-	{"-", OP_SUB_F, 3, &type_float, &type_float, &type_float},
-	{"-", OP_SUB_V, 3, &type_vector, &type_vector, &type_vector},
-
-	{"==", OP_EQ_F, 4, &type_float, &type_float, &type_float},
-	{"==", OP_EQ_V, 4, &type_vector, &type_vector, &type_float},
-	{"==", OP_EQ_S, 4, &type_string, &type_string, &type_float},
-	{"==", OP_EQ_FNC, 4, &type_function, &type_function, &type_float},
-
-	{"!=", OP_NE_F, 4, &type_float, &type_float, &type_float},
-	{"!=", OP_NE_V, 4, &type_vector, &type_vector, &type_float},
-	{"!=", OP_NE_S, 4, &type_string, &type_string, &type_float},
-	{"!=", OP_NE_FNC, 4, &type_function, &type_function, &type_float},
-
-	{"<=", OP_LE, 4, &type_float, &type_float, &type_float},
-	{">=", OP_GE, 4, &type_float, &type_float, &type_float},
-	{"<",  OP_LT, 4, &type_float, &type_float, &type_float},
-	{">",  OP_GT, 4, &type_float, &type_float, &type_float},
-
-	{"&&", OP_AND, 5, &type_float, &type_float, &type_float},
-	{"||", OP_OR,  5, &type_float, &type_float, &type_float},
-
-	{"&", OP_BITAND, 2, &type_float, &type_float, &type_float},
-	{"|", OP_BITOR,  2, &type_float, &type_float, &type_float},
-
-	{NULL}
-};
-
-#define	TOP_PRIORITY	6
-#define	NOT_PRIORITY	1
 
 
 //===========================================================================
