@@ -67,8 +67,8 @@ typedef struct
 }
 prstack_t;
 
-#define	MAX_STACK_DEPTH		128
-prstack_t pr_stack[MAX_STACK_DEPTH];
+#define	MAX_STACK_DEPTH		96
+prstack_t pr_stack[MAX_STACK_DEPTH+1];
 int pr_depth;
 
 #define	LOCALSTACK_SIZE		2048
@@ -78,6 +78,8 @@ int stack_base;
 function_t *pr_xfunction;
 int pr_xstatement;
 int pr_argc;
+
+#define MAX_RUNAWAY  2000000
 
 
 typedef struct
@@ -449,32 +451,6 @@ const char * real_vm_c::AccessParamString(int p)
 }
 
 
-void PR_StackTrace(void)
-{
-    function_t *f;
-    int i;
-
-	if (pr_depth == 0)
-	{
-		Con_Printf("<NO STACK>\n");
-		return;
-	}
-
-	Con_Printf("Stack Trace:\n");
-
-	pr_stack[pr_depth].f = pr_xfunction;
-
-	for (i = pr_depth; i >= 0; i--)
-	{
-		f = pr_stack[i].f;
-		if (!f)
-			Con_Printf("<NO FUNCTION>\n");
-		else
-			Con_Printf("FUNCTION %p\n", f);
-//!!!!!! FIXME	Con_Printf("%12s : %s\n", REF_STRING(f->s_file), REF_STRING(f->s_name));
-	}
-}
-
 
 /*
 ============
@@ -486,18 +462,19 @@ Aborts the currently executing function
 void real_vm_c::RunError(const char *error, ...)
 {
     va_list argptr;
-    char string[MAX_PRINTMSG];
+    char buffer[MAX_PRINTMSG];
 
     va_start(argptr, error);
-    vsnprintf(string, sizeof(string), error, argptr);
+    vsnprintf(buffer, sizeof(buffer), error, argptr);
     va_end(argptr);
 
-    PR_StackTrace();
+	if (pr_depth > 0)
+		StackTrace();
 
-	Con_Printf("Last Statement:\n");
-    PR_PrintStatement(statements + pr_xstatement);
+//??	Con_Printf("Last Statement:\n");
+//??    PR_PrintStatement(statements + pr_xstatement);
 
-    Con_Printf("%s\n", string);
+    Con_Printf("%s\n", buffer);
 
     /* clear the stack so SV/Host_Error can shutdown functions */
     pr_depth = 0;
@@ -581,7 +558,7 @@ void real_vm_c::DoExecute(int fnum)
 
 	function_t *f = &functions[fnum];
 
-	int runaway = 100000;
+	int runaway = MAX_RUNAWAY;
 
 	// make a stack frame
 	int exitdepth = pr_depth;
@@ -592,18 +569,17 @@ void real_vm_c::DoExecute(int fnum)
 	{
 		statement_t *st = &statements[s];
 
+		pr_xstatement = s;
+
+		if (trace)
+			PR_PrintStatement(st);
+
 		double * a = (st->a >= 0) ? &pr_globals[st->a] : &localstack[stack_base - (st->a + 1)];
 		double * b = (st->b >= 0) ? &pr_globals[st->b] : &localstack[stack_base - (st->b + 1)];
 		double * c = (st->c >= 0) ? &pr_globals[st->c] : &localstack[stack_base - (st->c + 1)];
 
 		if (!--runaway)
 			RunError("runaway loop error");
-
-		// pr_xfunction->profile++;
-		pr_xstatement = s;
-
-		if (trace)
-			PR_PrintStatement(st);
 
 		s++;  // next statement
 
@@ -841,13 +817,13 @@ void real_vm_c::DoExecute(int fnum)
 
 int real_vm_c::Execute(int func_id)
 {
-	if (func_id < 0 || func_id >= numfunctions)
-	{
-		RunError("PR_ExecuteProgram: NULL function");
-	}
-
 	try
 	{
+		if (func_id < 0 || func_id >= numfunctions)
+		{
+			RunError("PR_ExecuteProgram: NULL function");
+		}
+
 		DoExecute(func_id);
 		return 0;
 	}
@@ -886,6 +862,29 @@ const char * opcode_names[] =
 	"???", "???", "???", "???", "???", "???"
 };
 
+
+void real_vm_c::StackTrace()
+{
+	Con_Printf("Stack Trace:\n");
+
+	pr_stack[pr_depth].f = pr_xfunction;
+	pr_stack[pr_depth].s = pr_xstatement;
+
+	for (int i = pr_depth; i >= 1; i--)
+	{
+		int back = (pr_depth - i) + 1;
+
+		function_t * f = pr_stack[i].f;
+		statement_t *st = &statements[pr_stack[i].s];
+
+		if (f)
+			Con_Printf("%-2d %s() at %s:%d\n", back, f->name, f->source_file, f->source_line + st->line);
+		else
+			Con_Printf("%-2d ????\n", back);
+	}
+
+	Con_Printf("\n");
+}
 
 
 }  // namespace coal
