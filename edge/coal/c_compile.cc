@@ -541,7 +541,7 @@ Returns a preexisting complex type that matches the parm, or allocates
 a new one and copies it out.
 ============
 */
-type_t * FindType(type_t *type)
+type_t * real_vm_c::FindType(type_t *type)
 {
 	def_t	*def;
 	type_t	*check;

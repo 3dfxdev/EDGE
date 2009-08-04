@@ -297,8 +297,6 @@ public:
 };
 
 
-void PR_RunError(const char *error, ...) __attribute__((format(printf,1,2)));
-
 char *PR_GetString(int num);
 
 void PR_PrintStatement(statement_t *s);
@@ -381,6 +379,7 @@ private:
 
 	char *   ParseName();
 	type_t * ParseType();
+	type_t * FindType(type_t *type);
 
 	void EmitCode(short op, short a=0, short b=0, short c=0);
 
@@ -410,7 +409,12 @@ private:
 
 	void EnterNative(function_t *newf, int result);
 
+	int  EnterFunction(function_t *f, int result = 0);
+	int  LeaveFunction(int *result);
+
 	int	InternaliseString(const char *new_s);
+
+	void RunError(const char *error, ...);
 };
 
 

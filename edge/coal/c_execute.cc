@@ -397,7 +397,7 @@ void PrintFunction(char *name)
 			break;
 
 	if (i==numfunctions)
-		PR_RunError("No function names \"%s\"", name);
+		RunError("No function names \"%s\"", name);
 
 	df = functions + i;
 
@@ -435,7 +435,7 @@ double * real_vm_c::AccessParam(int p)
 	assert(pr_xfunction);
 
 	if (p >= pr_xfunction->parm_num)
-		PR_RunError("PR_Parameter: p=%d out of range\n", p);
+		RunError("PR_Parameter: p=%d out of range\n", p);
 	
 	return &localstack[stack_base + pr_xfunction->parm_ofs[p]];
 }
@@ -478,12 +478,12 @@ void PR_StackTrace(void)
 
 /*
 ============
-PR_RunError
+RunError
 
 Aborts the currently executing function
 ============
 */
-void PR_RunError(const char *error, ...)
+void real_vm_c::RunError(const char *error, ...)
 {
     va_list argptr;
     char string[MAX_PRINTMSG];
@@ -515,7 +515,7 @@ The interpretation main loop
 ============================================================================
 */
 
-int PR_EnterFunction(function_t *f, int result = 0)
+int real_vm_c::EnterFunction(function_t *f, int result)
 {
 	// Returns the new program statement counter
 
@@ -525,13 +525,13 @@ int PR_EnterFunction(function_t *f, int result = 0)
 
     pr_depth++;
 	if (pr_depth >= MAX_STACK_DEPTH)
-		PR_RunError("stack overflow");
+		RunError("stack overflow");
 
 	if (pr_xfunction)
 		stack_base += pr_xfunction->locals_end;
 
 	if (stack_base + f->locals_end >= LOCALSTACK_SIZE)
-		PR_RunError("PR_ExecuteProgram: locals stack overflow\n");
+		RunError("PR_ExecuteProgram: locals stack overflow\n");
 
 	pr_xfunction = f;
 
@@ -539,10 +539,10 @@ int PR_EnterFunction(function_t *f, int result = 0)
 }
 
 
-int PR_LeaveFunction(int *result)
+int real_vm_c::LeaveFunction(int *result)
 {
 	if (pr_depth <= 0)
-		PR_RunError("stack underflow");
+		RunError("stack underflow");
 
 	// up stack
 	pr_depth--;
@@ -586,7 +586,7 @@ void real_vm_c::DoExecute(int fnum)
 	// make a stack frame
 	int exitdepth = pr_depth;
 
-	int s = PR_EnterFunction(f);
+	int s = EnterFunction(f);
 
 	for (;;)
 	{
@@ -597,7 +597,7 @@ void real_vm_c::DoExecute(int fnum)
 		double * c = (st->c >= 0) ? &pr_globals[st->c] : &localstack[stack_base - (st->c + 1)];
 
 		if (!--runaway)
-			PR_RunError("runaway loop error");
+			RunError("runaway loop error");
 
 		// pr_xfunction->profile++;
 		pr_xstatement = s;
@@ -647,13 +647,13 @@ void real_vm_c::DoExecute(int fnum)
 
 			case OP_DIV_F:
 				if (*b == 0)
-					PR_RunError("Division by zero");
+					RunError("Division by zero");
 				*c = *a / *b;
 				break;
 
 			case OP_DIV_V:
 				if (*b == 0)
-					PR_RunError("Division by zero");
+					RunError("Division by zero");
 				c[0] = a[0] / *b;
 				c[1] = a[1] / *b;
 				c[2] = a[2] / *b;
@@ -661,7 +661,7 @@ void real_vm_c::DoExecute(int fnum)
 
 			case OP_MOD_F:
 				if (*b == 0)
-					PR_RunError("Division by zero");
+					RunError("Division by zero");
 				{
 					float d = floorf(*a / *b);
 					*c = *a - d * (*b);
@@ -767,7 +767,7 @@ void real_vm_c::DoExecute(int fnum)
 			{
 				int fnum = (int)*a;
 				if (!fnum)
-					PR_RunError("NULL function");
+					RunError("NULL function");
 				newf = &functions[fnum];
 
 				pr_argc = st->b;
@@ -779,14 +779,14 @@ void real_vm_c::DoExecute(int fnum)
 					break;
 				}
 
-				s = PR_EnterFunction(newf, st->c);
+				s = EnterFunction(newf, st->c);
 			}
 			break;
 
 			case OP_DONE:
 			{
 				int result;
-				s = PR_LeaveFunction(&result);
+				s = LeaveFunction(&result);
 
 				if (pr_depth == exitdepth)
 					return;		// all done
@@ -802,7 +802,7 @@ void real_vm_c::DoExecute(int fnum)
 			case OP_DONE_V:
 			{
 				int result;
-				s = PR_LeaveFunction(&result);
+				s = LeaveFunction(&result);
 
 				if (pr_depth == exitdepth)
 					return;		// all done
@@ -834,7 +834,7 @@ void real_vm_c::DoExecute(int fnum)
 				break;
 
 			default:
-				PR_RunError("Bad opcode %i", st->op);
+				RunError("Bad opcode %i", st->op);
 		}
 	}
 }
@@ -843,7 +843,7 @@ int real_vm_c::Execute(int func_id)
 {
 	if (func_id < 0 || func_id >= numfunctions)
 	{
-		PR_RunError("PR_ExecuteProgram: NULL function");
+		RunError("PR_ExecuteProgram: NULL function");
 	}
 
 	try
