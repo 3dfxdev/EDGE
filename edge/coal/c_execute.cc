@@ -79,7 +79,6 @@ int pr_depth;
 double localstack[LOCALSTACK_SIZE];
 int stack_base;
 
-bool pr_trace;
 function_t *pr_xfunction;
 int pr_xstatement;
 int pr_argc;
@@ -127,7 +126,7 @@ void real_vm_c::AddNativeFunction(const char *name, native_func_t func)
 
 void real_vm_c::SetTrace(bool enable)
 {
-	pr_trace = enable;
+	trace = enable;
 }
 
 
@@ -616,7 +615,7 @@ void real_vm_c::DoExecute(int fnum)
 		// pr_xfunction->profile++;
 		pr_xstatement = s;
 
-		if (pr_trace)
+		if (trace)
 			PR_PrintStatement(st);
 
 		s++;  // next statement

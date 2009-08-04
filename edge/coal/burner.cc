@@ -133,7 +133,7 @@ int main(int argc, char **argv)
 	    (strcmp(argv[1], "-?") == 0) || (strcmp(argv[1], "-h") == 0) ||
 		(strcmp(argv[1], "-help") == 0) || (strcmp(argv[1], "--help") == 0))
 	{
-		printf("USAGE: coal [OPTIONS] filename.qc ...\n");
+		printf("USAGE: coal [OPTIONS] filename.ec ...\n");
 		return 0;
 	}
 
