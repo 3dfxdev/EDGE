@@ -8,7 +8,7 @@ COAL TODO
 
 +  support 'var x = 123' and 'var y : string = "foo"'
 
--  statement_t : store line number (relative to function)
+DONE:  statement_t : store line number (relative to function)
 
 -  improve tracing, implement a real ASM dump
 
