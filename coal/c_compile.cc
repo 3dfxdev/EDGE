@@ -417,38 +417,7 @@ void LEX_Whitespace(void)
 	}
 }
 
-//============================================================================
 
-
-// just parses text, returning false if an eol is reached
-bool PR_SimpleGetToken(void)
-{
-	int		c;
-	int		i;
-
-// skip whitespace
-	while ( (c = *pr_file_p) <= ' ')
-	{
-		if (c=='\n' || c == 0)
-			return false;
-		pr_file_p++;
-	}
-
-	i = 0;
-	while ( (c = *pr_file_p) > ' ' && c != ',' && c != ';')
-	{
-		pr_token[i] = c;
-		i++;
-		pr_file_p++;
-	}
-	
-	pr_token[i] = 0;
-
-	return true;
-}
-
-
-//============================================================================
 
 /*
 ==============
@@ -510,7 +479,6 @@ void LEX_Next(void)
 	LEX_Punctuation();
 }
 
-//=============================================================================
 
 /*
 =============
@@ -549,6 +517,25 @@ bool LEX_Check(const char *str)
 
 /*
 ============
+LEX_SkipToSemicolon
+
+For error recovery, also pops out of nested braces
+============
+*/
+void LEX_SkipToSemicolon(void)
+{
+	do
+	{
+		if (!pr_bracelevel && LEX_Check(";"))
+			return;
+		LEX_Next();
+	}
+	while (pr_token_type != tt_eof);
+}
+
+
+/*
+============
 ParseName
 
 Checks to see if the current token is a valid name
@@ -569,6 +556,9 @@ char * ParseName (void)
 
 	return ident;
 }
+
+
+//=============================================================================
 
 /*
 ============
@@ -612,25 +602,6 @@ type_t * FindType(type_t *type)
 	def->type = t_new;
 	
 	return t_new;
-}
-
-
-/*
-============
-LEX_SkipToSemicolon
-
-For error recovery, also pops out of nested braces
-============
-*/
-void LEX_SkipToSemicolon(void)
-{
-	do
-	{
-		if (!pr_bracelevel && LEX_Check(";"))
-			return;
-		LEX_Next();
-	}
-	while (pr_token_type != tt_eof);
 }
 
 
@@ -857,7 +828,7 @@ void real_vm_c::StoreConstant(int ofs)
 }
 
 
-def_t * real_vm_c::ParseImmediate()
+def_t * real_vm_c::EXP_Constant()
 {
 	// Looks for a preexisting constant
 	def_t *cn = FindConstant();
@@ -887,7 +858,7 @@ def_t * real_vm_c::ParseImmediate()
 }
 
 
-def_t * real_vm_c::ParseFunctionCall(def_t *func)
+def_t * real_vm_c::EXP_FunctionCall(def_t *func)
 {
 	type_t * t = func->type;
 
@@ -911,7 +882,7 @@ def_t * real_vm_c::ParseFunctionCall(def_t *func)
 
 			assert(arg < MAX_PARMS);
 
-			def_t * e = ParseExpression(TOP_PRIORITY);
+			def_t * e = EXP_Expression(TOP_PRIORITY);
 
 			if (e->type != t->parm_types[arg])
 				ZZ_ParseError("type mismatch on parm %i", arg+1);
@@ -971,7 +942,7 @@ def_t * real_vm_c::ParseFunctionCall(def_t *func)
 }
 
 
-void real_vm_c::ParseReturn(void)
+void real_vm_c::STAT_Return(void)
 {
 	if (pr_token_is_first || pr_token[0] == '}' || LEX_Check(";"))
 	{
@@ -982,7 +953,7 @@ void real_vm_c::ParseReturn(void)
 		return;
 	}
 
-	def_t * e = ParseExpression(TOP_PRIORITY);
+	def_t * e = EXP_Expression(TOP_PRIORITY);
 
 	if (pr_scope->type->aux_type->type == ev_void)
 		ZZ_ParseError("return with value in void function");
@@ -1058,7 +1029,7 @@ def_t * real_vm_c::GetDef(type_t *type, char *name, def_t *scope)
 }
 
 
-def_t * real_vm_c::ParseValue()
+def_t * real_vm_c::EXP_VarValue()
 {
 	char *name = ParseName();
 
@@ -1071,18 +1042,18 @@ def_t * real_vm_c::ParseValue()
 }
 
 
-def_t * real_vm_c::PR_Term()
+def_t * real_vm_c::EXP_Term()
 {
 	// if the token is an immediate, allocate a constant for it
 	if (pr_token_type == tt_immediate)
-		return ParseImmediate();
+		return EXP_Constant();
 
 	if (pr_token_type == tt_name)
-		return ParseValue();
+		return EXP_VarValue();
 
 	if (LEX_Check("("))
 	{
-		def_t *e = ParseExpression(TOP_PRIORITY);
+		def_t *e = EXP_Expression(TOP_PRIORITY);
 		LEX_Expect(")");
 		return e;
 	}
@@ -1099,7 +1070,7 @@ def_t * real_vm_c::PR_Term()
 		if (! LEX_Check(op->name))
 			continue;
 
-		def_t * e = ParseExpression(NOT_PRIORITY);
+		def_t * e = EXP_Expression(NOT_PRIORITY);
 
 		for (int i = 0; i == 0 || strcmp(op->name, op[i].name) == 0; i++)
 		{
@@ -1122,7 +1093,7 @@ def_t * real_vm_c::PR_Term()
 }
 
 
-def_t * real_vm_c::ShortCircuitExp(def_t *e, opcode_t *op)
+def_t * real_vm_c::EXP_ShortCircuit(def_t *e, opcode_t *op)
 {
 	if (e->type->type != ev_float)
 		ZZ_ParseError("type mismatch for %s", op->name);
@@ -1147,7 +1118,7 @@ def_t * real_vm_c::ShortCircuitExp(def_t *e, opcode_t *op)
 	else
 		EmitCode(OP_IF, result->ofs);
 
-	def_t *e2 = ParseExpression(op->priority - 1);
+	def_t *e2 = EXP_Expression(op->priority - 1);
 	if (e2->type->type != ev_float)
 		ZZ_ParseError("type mismatch for %s", op->name);
 
@@ -1159,7 +1130,7 @@ def_t * real_vm_c::ShortCircuitExp(def_t *e, opcode_t *op)
 }
 
 
-def_t * real_vm_c::ParseFieldQuery(def_t *e, bool lvalue)
+def_t * real_vm_c::EXP_FieldQuery(def_t *e, bool lvalue)
 {
 	// TODO
 	ZZ_ParseError("Operator . not yet implemented\n");
@@ -1167,12 +1138,12 @@ def_t * real_vm_c::ParseFieldQuery(def_t *e, bool lvalue)
 }
 
 
-def_t * real_vm_c::ParseExpression(int priority, bool *lvalue)
+def_t * real_vm_c::EXP_Expression(int priority, bool *lvalue)
 {
 	if (priority == 0)
-		return PR_Term();
+		return EXP_Term();
 
-	def_t * e = ParseExpression(priority-1, lvalue);
+	def_t * e = EXP_Expression(priority-1, lvalue);
 
 	for (;;)
 	{
@@ -1180,11 +1151,11 @@ def_t * real_vm_c::ParseExpression(int priority, bool *lvalue)
 		{
 			if (lvalue)
 				*lvalue = false;
-			return ParseFunctionCall(e);
+			return EXP_FunctionCall(e);
 		}
 
 		if (priority == 1 && LEX_Check("."))
-			return ParseFieldQuery(e, lvalue);
+			return EXP_FieldQuery(e, lvalue);
 
 		if (lvalue)
 			return e;
@@ -1202,11 +1173,11 @@ def_t * real_vm_c::ParseExpression(int priority, bool *lvalue)
 			if (strcmp(op->name, "&&") == 0 ||
 			    strcmp(op->name, "||") == 0)
 			{
-				e = ShortCircuitExp(e, op);
+				e = EXP_ShortCircuit(e, op);
 				break;
 			}
 
-			def_t * e2 = ParseExpression(priority-1);
+			def_t * e2 = EXP_Expression(priority-1);
 
 			// type check
 
@@ -1257,16 +1228,16 @@ def_t * real_vm_c::ParseExpression(int priority, bool *lvalue)
 }
 
 
-void real_vm_c::PR_If_Else()
+void real_vm_c::STAT_If_Else()
 {
 	LEX_Expect("(");
-	def_t * e = ParseExpression(TOP_PRIORITY);
+	def_t * e = EXP_Expression(TOP_PRIORITY);
 	LEX_Expect(")");
 
 	int patch = numstatements;
 	EmitCode(OP_IFNOT, e->ofs);
 
-	ParseStatement(false);
+	STAT_Statement(false);
 	FreeTemporaries();
 
 	if (LEX_Check("else"))
@@ -1277,7 +1248,7 @@ void real_vm_c::PR_If_Else()
 
 		statements[patch].b = numstatements;
 
-		ParseStatement(false);
+		STAT_Statement(false);
 		FreeTemporaries();
 
 		patch = patch2;
@@ -1287,18 +1258,18 @@ void real_vm_c::PR_If_Else()
 }
 
 
-void real_vm_c::PR_WhileLoop()
+void real_vm_c::STAT_WhileLoop()
 {
 	int begin = numstatements;
 
 	LEX_Expect("(");
-	def_t * e = ParseExpression(TOP_PRIORITY);
+	def_t * e = EXP_Expression(TOP_PRIORITY);
 	LEX_Expect(")");
 
 	int patch = numstatements;
 	EmitCode(OP_IFNOT, e->ofs);
 
-	ParseStatement(false);
+	STAT_Statement(false);
 	FreeTemporaries();
 
 	EmitCode(OP_GOTO, 0, begin);
@@ -1307,17 +1278,17 @@ void real_vm_c::PR_WhileLoop()
 }
 
 
-void real_vm_c::PR_RepeatLoop()
+void real_vm_c::STAT_RepeatLoop()
 {
 	int begin = numstatements;
 
-	ParseStatement(false);
+	STAT_Statement(false);
 	FreeTemporaries();
 
 	LEX_Expect("until");
 	LEX_Expect("(");
 
-	def_t * e = ParseExpression(TOP_PRIORITY);
+	def_t * e = EXP_Expression(TOP_PRIORITY);
 
 	EmitCode(OP_IFNOT, e->ofs, begin);
 
@@ -1329,12 +1300,12 @@ void real_vm_c::PR_RepeatLoop()
 }
 
 
-void real_vm_c::ParseAssignment(def_t *e)
+void real_vm_c::STAT_Assignment(def_t *e)
 {
 	if (e->flags & DF_Constant)
 		ZZ_ParseError("assignment to a constant.\n");
 
-	def_t *e2 = ParseExpression(TOP_PRIORITY);
+	def_t *e2 = EXP_Expression(TOP_PRIORITY);
 
 	if (e2->type != e->type)
 		ZZ_ParseError("type mismatch in assignment.\n");
@@ -1358,11 +1329,11 @@ void real_vm_c::ParseAssignment(def_t *e)
 }
 
 
-void real_vm_c::ParseStatement(bool allow_def)
+void real_vm_c::STAT_Statement(bool allow_def)
 {
 	if (allow_def && LEX_Check("var"))
 	{
-		ParseVariable();
+		GLOB_Variable();
 		return;
 	}
 
@@ -1381,7 +1352,7 @@ void real_vm_c::ParseStatement(bool allow_def)
 	if (LEX_Check("{"))
 	{
 		do {
-			ParseStatement(true);
+			STAT_Statement(true);
 			FreeTemporaries();
 		}
 		while (! LEX_Check("}"));
@@ -1391,30 +1362,30 @@ void real_vm_c::ParseStatement(bool allow_def)
 
 	if (LEX_Check("return"))
 	{
-		ParseReturn();
+		STAT_Return();
 		return;
 	}
 
 	if (LEX_Check("if"))
 	{
-		PR_If_Else();
+		STAT_If_Else();
 		return;
 	}
 
 	if (LEX_Check("while"))
 	{
-		PR_WhileLoop();
+		STAT_WhileLoop();
 		return;
 	}
 
 	if (LEX_Check("repeat"))
 	{
-		PR_RepeatLoop();
+		STAT_RepeatLoop();
 		return;
 	}
 
 	bool lvalue = true;
-	def_t * e = ParseExpression(TOP_PRIORITY, &lvalue);
+	def_t * e = EXP_Expression(TOP_PRIORITY, &lvalue);
 
 	// lvalue is false for a plain function call
 
@@ -1422,7 +1393,7 @@ void real_vm_c::ParseStatement(bool allow_def)
 	{
 		LEX_Expect("=");
 
-		ParseAssignment(e);
+		STAT_Assignment(e);
 	}
 
 	// -AJA- optional semicolons
@@ -1431,7 +1402,7 @@ void real_vm_c::ParseStatement(bool allow_def)
 }
 
 
-int real_vm_c::ParseFunctionBody(type_t *type, const char *func_name)
+int real_vm_c::GLOB_FunctionBody(type_t *type, const char *func_name)
 {
 	temporaries.clear();
 
@@ -1470,7 +1441,7 @@ int real_vm_c::ParseFunctionBody(type_t *type, const char *func_name)
 
 	while (! LEX_Check("}"))
 	{
-		ParseStatement(true);
+		STAT_Statement(true);
 		FreeTemporaries();
 	}
 
@@ -1488,7 +1459,7 @@ int real_vm_c::ParseFunctionBody(type_t *type, const char *func_name)
 }
 
 
-void real_vm_c::ParseFunction()
+void real_vm_c::GLOB_Function()
 {
 	char *func_name = strdup(ParseName());
 
@@ -1575,13 +1546,13 @@ void real_vm_c::ParseFunction()
 
 	df->locals_ofs = stack_ofs;
 
-	// parms are "realloc'd" by GetDef in ParseFunctionBody (FIXME)
+	// parms are "realloc'd" by GetDef in FunctionBody (FIXME)
 	locals_end = 0;
 
 
 	pr_scope = def;
 	//  { 
-		df->first_statement = ParseFunctionBody(func_type, func_name);
+		df->first_statement = GLOB_FunctionBody(func_type, func_name);
 	//  }
 	pr_scope = NULL;
 
@@ -1594,7 +1565,7 @@ void real_vm_c::ParseFunction()
 }
 
 
-void real_vm_c::ParseVariable()
+void real_vm_c::GLOB_Variable()
 {
 	char *var_name = strdup(ParseName());
 
@@ -1619,7 +1590,7 @@ void real_vm_c::ParseVariable()
 }
 
 
-void real_vm_c::ParseConstant()
+void real_vm_c::GLOB_Constant()
 {
 	char *const_name = strdup(ParseName());
 
@@ -1656,26 +1627,25 @@ void real_vm_c::ParseConstant()
 }
 
 
-void real_vm_c::ParseGlobals()
+void real_vm_c::GLOB_Globals()
 {
 	if (LEX_Check("function"))
 	{
-		ParseFunction();
+		GLOB_Function();
 		return;
 	}
 
 	if (LEX_Check("var"))
 	{
-		ParseVariable();
+		GLOB_Variable();
 		return;
 	}
 
 	if (LEX_Check("constant"))
 	{
-		ParseConstant();
+		GLOB_Constant();
 		return;
 	}
-
 
 	ZZ_ParseError("Expected global definition, found %s", pr_token);
 }
@@ -1705,7 +1675,7 @@ bool real_vm_c::CompileFile(char *string, char *filename)
 		{
 			pr_scope = NULL;	// outside all functions
 
-			ParseGlobals();
+			GLOB_Globals();
 		}
 		catch (parse_error_x err)
 		{

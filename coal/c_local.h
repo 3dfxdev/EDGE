@@ -343,28 +343,26 @@ private:
 	void BeginCompilation();
 	bool FinishCompilation();
 
-	void ParseGlobals();
-	void ParseConstant();
-	void ParseVariable();
+	void GLOB_Globals();
+	void GLOB_Constant();
+	void GLOB_Variable();
+	void GLOB_Function();
+	int  GLOB_FunctionBody(type_t *type, const char *func_name);
 
-	void ParseFunction();
-	int ParseFunctionBody(type_t *type, const char *func_name);
-	void ParseStatement(bool allow_def);
-	void ParseAssignment(def_t *e);
+	void STAT_Statement(bool allow_def);
+	void STAT_Assignment(def_t *e);
+	void STAT_If_Else();
+	void STAT_WhileLoop();
+	void STAT_RepeatLoop();
+	void STAT_Return();
 
-	void PR_If_Else();
-	void PR_WhileLoop();
-	void PR_RepeatLoop();
-	void ParseReturn();
-
-	def_t * ParseExpression(int priority, bool *lvalue = NULL);
-	def_t * ParseFieldQuery(def_t *e, bool lvalue);
-	def_t * ShortCircuitExp(def_t *e, opcode_t *op);
-
-	def_t * PR_Term();
-	def_t * ParseValue();
-	def_t * ParseFunctionCall(def_t *func);
-	def_t * ParseImmediate();
+	def_t * EXP_Expression(int priority, bool *lvalue = NULL);
+	def_t * EXP_FieldQuery(def_t *e, bool lvalue);
+	def_t * EXP_ShortCircuit(def_t *e, opcode_t *op);
+	def_t * EXP_Term();
+	def_t * EXP_VarValue();
+	def_t * EXP_FunctionCall(def_t *func);
+	def_t * EXP_Constant();
 
 	def_t * GetDef (type_t *type, char *name, def_t *scope);
 	def_t * FindDef(type_t *type, char *name, def_t *scope);
