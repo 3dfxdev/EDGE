@@ -50,7 +50,9 @@ etype_t;
 
 typedef struct
 {
-	int op;
+	short op;
+	short line;  // offset from start of function
+
 	int a, b, c;
 }
 statement_t;
@@ -122,9 +124,11 @@ enum
 
 typedef struct
 {
-	// these two are offsets into the strings[] buffer
-	int		s_name;
-	int		s_file;			// source file defined in
+	const char *name;
+
+	// where it was defined (last)
+	const char *source_file;
+	int source_line;
 
 	int		return_size;
 
@@ -219,7 +223,6 @@ extern scope_c global_scope;
 
 extern	statement_t	statements[MAX_STATEMENTS];
 extern	int			numstatements;
-extern	int			statement_linenums[MAX_STATEMENTS];
 
 extern	function_t  functions[MAX_FUNCTIONS];
 extern	int			numfunctions;
@@ -318,7 +321,7 @@ public:
 	void AddNativeModule(const char *name);
 	void AddNativeFunction(const char *name, native_func_t func);
 
-	bool CompileFile(char *buffer, char *filename);
+	bool CompileFile(char *buffer, const char *filename);
 	void ShowStats();
 
 	void SetTrace(bool enable);
@@ -332,16 +335,15 @@ public:
 	const char * AccessParamString(int p);
 
 private:
-	bool trace;
-
 	bmaster_c global_mem;
 	bmaster_c string_mem;
 	bmaster_c op_mem;
 
 	// c_compile.cc
 private:
-	void BeginCompilation();
-	bool FinishCompilation();
+	const char *source_file;
+	int source_line;
+	int function_line;
 
 	void GLOB_Globals();
 	void GLOB_Constant();
@@ -377,12 +379,33 @@ private:
 	def_t * NewLocal(type_t *type);
 	void DefaultValue(gofs_t ofs, type_t *type);
 
+	char *   ParseName();
 	type_t * ParseType();
 
 	void EmitCode(short op, short a=0, short b=0, short c=0);
 
+
+	void LEX_Next();
+	void LEX_Whitespace();
+	void LEX_NewLine();
+	void LEX_SkipToSemicolon();
+
+	bool LEX_Check (const char *str);
+	void LEX_Expect(const char *str);
+
+	void LEX_String();
+	float LEX_Number();
+	void LEX_Vector();
+	void LEX_Name();
+	void LEX_Punctuation();
+
+	void CompileError(const char *error, ...);
+
+
 	// c_execute.cc
 private:
+	bool trace;
+
 	void DoExecute(int func_id);
 
 	void EnterNative(function_t *newf, int result);
