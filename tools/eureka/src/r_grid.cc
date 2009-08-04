@@ -121,9 +121,9 @@ const int Grid_State_c::grid_values[] =
 
 const char *Grid_State_c::scale_options()
 {
-	return  "x 16|x 8.0|x 6.0|x 4.0|x 3.0|x 2.0|x 1.5|"
+	return  "x 16|x 8|x 6|x 4|x 3|x 2|x 1.5|"
 			" 100% |"
-			"/ 1.5|/ 2.0|/ 3.0|/ 4.0|/ 6.0|/ 8.0|/ 16|/ 32|/ 64"; 
+			"/ 1.5|/ 2|/ 3|/ 4|/ 6|/ 8|/ 16|/ 32|/ 64"; 
 }
 
 const char *Grid_State_c::grid_options()
