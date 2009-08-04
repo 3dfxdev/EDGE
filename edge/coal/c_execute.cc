@@ -888,7 +888,11 @@ void real_vm_c::PrintStatement(function_t *f, int s)
 
 		case OP_CALL:
 			Con_Printf("%s, %d ", RegString(st, 1), st->b);
-			Con_Printf("-> %s",   RegString(st, 3));
+
+			if (! st->c)
+				Con_Printf(" ");
+			else
+				Con_Printf("-> %s",   RegString(st, 3));
 			break;
 
 		case OP_PARM_F:
