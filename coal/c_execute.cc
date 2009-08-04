@@ -52,9 +52,6 @@ namespace coal
 double		pr_globals[MAX_REGS];
 int			numpr_globals;
 
-char		strings[MAX_STRINGS];
-int			strofs;
-
 statement_t	statements[MAX_STATEMENTS];
 int			numstatements;
 int			statement_linenums[MAX_STATEMENTS];
@@ -136,7 +133,7 @@ int real_vm_c::FindFunction(const char *func_name)
 	{
 		function_t *f = &functions[i];
 
-		const char *name = strings + f->s_name;
+		const char *name = REF_STRING(f->s_name);
 
 		// printf("  %d '%s'\n", f->s_name, name);
 
@@ -154,27 +151,16 @@ int real_vm_c::FindVariable(const char *var_name)
 	return -1;  // NOT FOUND
 }
 
-// CopyString returns an offset from the string heap
-int	CopyString(char *str)
+// returns an offset from the string heap
+int	real_vm_c::InternaliseString(const char *new_s)
 {
-	int old;
+	if (new_s[0] == 0)
+		return 0;
 
-	old = strofs;
-	strcpy(strings+strofs, str);
-	strofs += strlen(str)+1;
+	int ofs = string_mem.alloc(strlen(new_s) + 1);
+	strcpy((char *)string_mem.deref(ofs), new_s);
 
-	return old;
-}
-
-
-char * PR_GetString(int num)
-{
-	if (num >= 0)
-		return strings + num;
-	else
-		PR_RunError("invalid string offset %d\n", num);
-
-	return "";
+	return ofs;
 }
 
 
@@ -236,10 +222,12 @@ char *PR_ValueString(etype_t type, double *val)
 	def_t		*def;
 	function_t	*f;
 
+	line[0] = 0;
+
 	switch (type)
 	{
 	case ev_string:
-		sprintf(line, "%s", PR_String(strings + (int)*val));
+//!!!!		sprintf(line, "%s", PR_String(REF_STRING((int)*val)));
 		break;
 //	case ev_entity:
 //		sprintf (line, "entity %i", *(int *)val);
@@ -248,8 +236,8 @@ char *PR_ValueString(etype_t type, double *val)
 		f = functions + (int)*val;
 		if (!f)
 			sprintf(line, "undefined function");
-		else
-			sprintf(line, "%s()", strings + f->s_name);
+//!!!!		else
+//!!!!			sprintf(line, "%s()", REF_STRING(f->s_name));
 		break;
 //	case ev_field:
 //		def = PR_DefForFieldOfs ( *(int *)val );
@@ -332,6 +320,7 @@ char *PR_GlobalString(gofs_t ofs)
 
 void PR_PrintStatement(statement_t *s)
 {
+#if 0  // FIXME
 	int i;
 
 	const char *opname = opcode_names[s->op];
@@ -356,7 +345,7 @@ void PR_PrintStatement(statement_t *s)
 	{
 		function_t *f = &functions[(int)G_FUNCTION(s->a)];
 
-		printf("a:%d(%s) ", s->a, strings + f->s_name);
+		printf("a:%d(%s) ", s->a, REF_STRING(f->s_name));
 
 		if (s->b)
 			printf("b:%s",PR_GlobalString(s->b));
@@ -372,10 +361,12 @@ void PR_PrintStatement(statement_t *s)
 		if (s->c)
 			printf("c:%s", PR_GlobalStringNoContents(s->c));
 	}
+#endif
 	printf("\n");
 }
 
 
+#if 0
 void PrintStrings(void)
 {
 	int		i, l, j;
@@ -441,6 +432,7 @@ void PrintFunctions(void)
 		printf(")\n");
 	}
 }
+#endif
 
 
 double * real_vm_c::AccessParam(int p)
@@ -458,7 +450,7 @@ const char * real_vm_c::AccessParamString(int p)
 {
 	double *d = AccessParam(p);
 
-	return strings + (int) *d;
+	return REF_STRING((int) *d);
 }
 
 
@@ -483,8 +475,8 @@ void PR_StackTrace(void)
 		if (!f)
 			Con_Printf("<NO FUNCTION>\n");
 		else
-			Con_Printf("%12s : %s\n", PR_GetString(f->s_file),
-					PR_GetString(f->s_name));
+			Con_Printf("FUNCTION %p\n", f);
+//!!!!!! FIXME	Con_Printf("%12s : %s\n", REF_STRING(f->s_file), REF_STRING(f->s_name));
 	}
 }
 
@@ -721,7 +713,7 @@ void real_vm_c::DoExecute(int fnum)
 				*c = !a[0] && !a[1] && !a[2];
 				break;
 			case OP_NOT_S:
-				*c = !*a || !*PR_GetString((int)*a);
+				*c = !*a;
 				break;
 
 			case OP_EQ_F:
@@ -733,7 +725,7 @@ void real_vm_c::DoExecute(int fnum)
 				break;
 			case OP_EQ_S:
 				*c = (*a == *b) ? 1 :
-					!strcmp(PR_GetString((int)*a), PR_GetString((int)*b));
+					!strcmp(REF_STRING((int)*a), REF_STRING((int)*b));
 				break;
 
 			case OP_NE_F:
@@ -745,7 +737,7 @@ void real_vm_c::DoExecute(int fnum)
 				break;
 			case OP_NE_S:
 				*c = (*a == *b) ? 0 :
-					!! strcmp(PR_GetString((int)*a), PR_GetString((int)*b));
+					!! strcmp(REF_STRING((int)*a), REF_STRING((int)*b));
 				break;
 
 				//==================
