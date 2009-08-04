@@ -37,7 +37,6 @@ class Lump_c
 friend class Wad_file;
 
 private:
-public: //!!!!!!!! <---
 	Wad_file *parent;
 
 	const char *name;
@@ -81,9 +80,9 @@ private:
 class Wad_file
 {
 friend class Lump_c;
+friend void W_LoadFlats();
 
 private:
-public: //!!!!!!!!!! <---
 	FILE * fp;
 
 	char kind;  // 'P' for PWAD, 'I' for IWAD
