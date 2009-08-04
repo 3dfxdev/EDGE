@@ -25,6 +25,8 @@
 #ifndef __COAL_LOCAL_DEFS_H__
 #define __COAL_LOCAL_DEFS_H__
 
+#include "c_memory.h"
+
 typedef unsigned char byte;
 
 typedef int	func_t;
@@ -204,7 +206,6 @@ extern scope_c global_scope;
 #define	MAX_DATA_PATH	64
 
 #define	MAX_REGS		16384
-#define	MAX_STRINGS		500000
 #define	MAX_GLOBALS		16384
 #define	MAX_FIELDS		1024
 #define	MAX_STATEMENTS	65536
@@ -216,9 +217,6 @@ extern scope_c global_scope;
 
 #define RESERVED_OFS	10
 
-extern	char	strings[MAX_STRINGS];
-extern	int		strofs;
-
 extern	statement_t	statements[MAX_STATEMENTS];
 extern	int			numstatements;
 extern	int			statement_linenums[MAX_STATEMENTS];
@@ -229,9 +227,13 @@ extern	int			numfunctions;
 extern	double		pr_globals[MAX_REGS];
 extern	int			numpr_globals;
 
+#define REF_GLOBAL(ofs)  ((double *)global_mem.deref(ofs))
+#define REF_STRING(ofs)  ((ofs)==0 ? "" : (char *)string_mem.deref(ofs))
+#define REF_OP(ofs)      ((statement_t *)op_mem.deref(ofs))
+
 #define	G_FLOAT(o) (pr_globals[o])
 #define	G_VECTOR(o) (&pr_globals[o])
-#define	G_STRING(o) (strings + (int)pr_globals[o])
+#define	G_STRING(o)  REF_STRING((int)pr_globals[o])
 #define	G_FUNCTION(o) (pr_globals[o])
 
 int	CopyString(char *str);
@@ -332,10 +334,62 @@ public:
 private:
 	bool trace;
 
+	bmaster_c global_mem;
+	bmaster_c string_mem;
+	bmaster_c op_mem;
+
+	// c_compile.cc
+private:
+	void BeginCompilation();
+	bool FinishCompilation();
+
+	void ParseGlobals();
+	void ParseConstant();
+	void ParseVariable();
+
+	void ParseFunction();
+	int ParseFunctionBody(type_t *type, const char *func_name);
+	void ParseStatement(bool allow_def);
+	void ParseAssignment(def_t *e);
+
+	void PR_If_Else();
+	void PR_WhileLoop();
+	void PR_RepeatLoop();
+	void ParseReturn();
+
+	def_t * ParseExpression(int priority, bool *lvalue = NULL);
+	def_t * ParseFieldQuery(def_t *e, bool lvalue);
+	def_t * ShortCircuitExp(def_t *e, opcode_t *op);
+
+	def_t * PR_Term();
+	def_t * ParseValue();
+	def_t * ParseFunctionCall(def_t *func);
+	def_t * ParseImmediate();
+
+	def_t * GetDef (type_t *type, char *name, def_t *scope);
+	def_t * FindDef(type_t *type, char *name, def_t *scope);
+
+	void StoreConstant(int ofs);
+	def_t * FindConstant();
+
+	def_t * NewTemporary(type_t *type);
+	void FreeTemporaries();
+
+	def_t * NewGlobal(type_t *type);
+	def_t * NewLocal(type_t *type);
+	void DefaultValue(gofs_t ofs, type_t *type);
+
+	type_t * ParseType();
+
+	void EmitCode(short op, short a=0, short b=0, short c=0);
+
+	// c_execute.cc
 private:
 	void DoExecute(int func_id);
 
 	void EnterNative(function_t *newf, int result);
+
+	int	InternaliseString(const char *new_s);
 };
 
 
