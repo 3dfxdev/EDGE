@@ -54,7 +54,6 @@ int			numpr_globals;
 
 statement_t	statements[MAX_STATEMENTS];
 int			numstatements;
-int			statement_linenums[MAX_STATEMENTS];
 
 function_t	functions[MAX_FUNCTIONS];
 int			numfunctions;
@@ -129,15 +128,11 @@ void real_vm_c::SetTrace(bool enable)
 
 int real_vm_c::FindFunction(const char *func_name)
 {
-	for (int i = 0; i < numfunctions; i++)
+	for (int i = 1; i < numfunctions; i++)
 	{
 		function_t *f = &functions[i];
 
-		const char *name = REF_STRING(f->s_name);
-
-		// printf("  %d '%s'\n", f->s_name, name);
-
-		if (strcmp(name, func_name) == 0)
+		if (strcmp(f->name, func_name) == 0)
 			return i;
 	}
 

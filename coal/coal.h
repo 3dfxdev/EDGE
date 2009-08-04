@@ -47,7 +47,7 @@ public:
 
 	virtual void AddNativeFunction(const char *name, native_func_t func) = 0;
 
-	virtual bool CompileFile(char *buffer, char *filename) = 0;
+	virtual bool CompileFile(char *buffer, const char *filename) = 0;
 	virtual void ShowStats() = 0;
 
 	virtual void SetTrace(bool enable) = 0;

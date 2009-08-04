@@ -56,8 +56,6 @@ typedef enum
 token_type_t;
 
 
-static int			pr_source_line;
-
 static char		*pr_file_p;
 static char		*pr_line_start;		// start of current source line
 
@@ -100,8 +98,6 @@ static type_t * all_types;
 static def_t  * all_defs;
 
 static def_t		*pr_scope;		// the function being parsed, or NULL
-
-static string_t		s_file;			// filename for function definition
 
 static int			locals_end;		// for tracking local variables vs temps
 
@@ -165,30 +161,12 @@ static opcode_t pr_operators[] =
 #define	NOT_PRIORITY	1
 
 
-
-
-void InitData(void)
-{
-	numstatements = 1;
-	numfunctions = 1;
-
-	// FIXME: clear native functions
-}
-
-void real_vm_c::ShowStats()
-{
-	printf("string memory: %d / %d\n", string_mem.totalUsed(), string_mem.totalMemory());
-	printf("%6i numstatements\n", numstatements);
-	printf("%6i numfunctions\n", numfunctions);
-	printf("%6i numpr_globals\n", numpr_globals);
-}
-
-
-void LEX_NewLine(void)
+void real_vm_c::LEX_NewLine()
 {
 	// Called when *pr_file_p == '\n'
 
-	pr_source_line++;
+	source_line++;
+
 	pr_line_start = pr_file_p + 1;
 	pr_fol_level = 0;
 }
@@ -196,12 +174,12 @@ void LEX_NewLine(void)
 
 /*
 ============
-ZZ_ParseError
+CompileError
 
 Aborts the current file load
 ============
 */
-void ZZ_ParseError(char *error, ...)
+void real_vm_c::CompileError(const char *error, ...)
 {
 	va_list		argptr;
 	char		buffer[1024];
@@ -210,23 +188,17 @@ void ZZ_ParseError(char *error, ...)
 	vsprintf(buffer,error,argptr);
 	va_end(argptr);
 
-//!!!!!! FIXME	printf("%s:%i:%s\n", REF_STRING(s_file), pr_source_line, buffer);
-	printf("%s:%i:%s\n", "?", pr_source_line, buffer);
+	printf("%s:%i:%s\n", source_file, source_line, buffer);
 
 //  raise(11);
 	throw parse_error_x();
 }
 
 
-/*
-==============
-LEX_String
-
-Parses a quoted string
-==============
-*/
-void LEX_String(void)
+void real_vm_c::LEX_String()
 {
+	// Parses a quoted string
+
 	int		c;
 	int		len;
 
@@ -237,20 +209,20 @@ void LEX_String(void)
 	{
 		c = *pr_file_p++;
 		if (!c)
-			ZZ_ParseError("EOF inside quote");
+			CompileError("EOF inside quote");
 		if (c=='\n')
-			ZZ_ParseError("newline inside quote");
+			CompileError("newline inside quote");
 		if (c=='\\')
 		{	// escape char
 			c = *pr_file_p++;
 			if (!c)
-				ZZ_ParseError("EOF inside quote");
+				CompileError("EOF inside quote");
 			if (c == 'n')
 				c = '\n';
 			else if (c == '"')
 				c = '"';
 			else
-				ZZ_ParseError("Unknown escape char");
+				CompileError("Unknown escape char");
 		}
 		else if (c=='\"')
 		{
@@ -266,7 +238,7 @@ void LEX_String(void)
 }
 
 
-float LEX_Number(void)
+float real_vm_c::LEX_Number()
 {
 	int		c;
 	int		len;
@@ -287,7 +259,7 @@ float LEX_Number(void)
 }
 
 
-void LEX_Vector(void)
+void real_vm_c::LEX_Vector()
 {
 	// Parses a single quoted vector
 
@@ -307,12 +279,12 @@ void LEX_Vector(void)
 			pr_file_p++;
 	}
 	if (*pr_file_p != '\'')
-		ZZ_ParseError("Bad vector");
+		CompileError("Bad vector");
 	pr_file_p++;
 }
 
 
-void LEX_Name(void)
+void real_vm_c::LEX_Name()
 {
 	// Parses an identifier
 
@@ -335,7 +307,7 @@ void LEX_Name(void)
 }
 
 
-void LEX_Punctuation(void)
+void real_vm_c::LEX_Punctuation()
 {
 	int		i;
 	int		len;
@@ -360,11 +332,11 @@ void LEX_Punctuation(void)
 		}
 	}
 
-	ZZ_ParseError("Unknown punctuation: %c", ch);
+	CompileError("Unknown punctuation: %c", ch);
 }
 
 
-void LEX_Whitespace(void)
+void real_vm_c::LEX_Whitespace(void)
 {
 	int c;
 
@@ -426,7 +398,7 @@ LEX_Next
 Sets pr_token, pr_token_type, and possibly pr_immediate and pr_immediate_type
 ==============
 */
-void LEX_Next(void)
+void real_vm_c::LEX_Next()
 {
 	assert(pr_file_p);
 
@@ -488,10 +460,10 @@ Issues an error if the current token isn't equal to string
 Gets the next token
 =============
 */
-void LEX_Expect(const char *str)
+void real_vm_c::LEX_Expect(const char *str)
 {
 	if (strcmp(pr_token, str) != 0)
-		ZZ_ParseError("expected %s found %s", str, pr_token);
+		CompileError("expected %s found %s", str, pr_token);
 
 	LEX_Next();
 }
@@ -505,7 +477,7 @@ Returns true and gets the next token if the current token equals string
 Returns false and does nothing otherwise
 =============
 */
-bool LEX_Check(const char *str)
+bool real_vm_c::LEX_Check(const char *str)
 {
 	if (strcmp(pr_token, str) != 0)
 		return false;
@@ -522,7 +494,7 @@ LEX_SkipToSemicolon
 For error recovery, also pops out of nested braces
 ============
 */
-void LEX_SkipToSemicolon(void)
+void real_vm_c::LEX_SkipToSemicolon()
 {
 	do
 	{
@@ -541,15 +513,16 @@ ParseName
 Checks to see if the current token is a valid name
 ============
 */
-char * ParseName (void)
+char * real_vm_c::ParseName()
 {
 	static char	ident[MAX_NAME];
 
 	if (pr_token_type != tt_name)
-		ZZ_ParseError("expected identifier");
+		CompileError("expected identifier");
+
 	if (strlen(pr_token) >= MAX_NAME-1)
-		ZZ_ParseError("identifier too long");
-	
+		CompileError("identifier too long");
+
 	strcpy(ident, pr_token);
 
 	LEX_Next();
@@ -634,7 +607,7 @@ type_t * real_vm_c::ParseType()
 		type = &type_void;
 	else
 	{
-		ZZ_ParseError("\"%s\" is not a type", pr_token);
+		CompileError("\"%s\" is not a type", pr_token);
 		type = &type_float;	// shut up compiler warning
 	}
 	LEX_Next();
@@ -674,11 +647,11 @@ type_t * real_vm_c::ParseType()
 
 void real_vm_c::EmitCode(short op, short a, short b, short c)
 {
-	statement_linenums[numstatements] = pr_source_line;
-
 	statement_t *st = &statements[numstatements++];
 
 	st->op = op;
+	st->line = source_line - function_line;
+
 	st->a  = a;
 	st->b  = b;
 	st->c  = c;
@@ -863,7 +836,7 @@ def_t * real_vm_c::EXP_FunctionCall(def_t *func)
 	type_t * t = func->type;
 
 	if (t->type != ev_function)
-		ZZ_ParseError("not a function");
+		CompileError("not a function");
 	
 //??	function_t *df = &functions[func->ofs];
 
@@ -878,14 +851,14 @@ def_t * real_vm_c::EXP_FunctionCall(def_t *func)
 		do
 		{
 			if (arg >= t->parm_num)
-				ZZ_ParseError("too many parameters (expected %d)", t->parm_num);
+				CompileError("too many parameters (expected %d)", t->parm_num);
 
 			assert(arg < MAX_PARMS);
 
 			def_t * e = EXP_Expression(TOP_PRIORITY);
 
 			if (e->type != t->parm_types[arg])
-				ZZ_ParseError("type mismatch on parm %i", arg+1);
+				CompileError("type mismatch on parm %i", arg+1);
 
 			assert (e->type->type != ev_void);
 
@@ -894,7 +867,7 @@ def_t * real_vm_c::EXP_FunctionCall(def_t *func)
 		while (LEX_Check(","));
 
 		if (arg != t->parm_num)
-			ZZ_ParseError("too few parameters (needed %d)", t->parm_num);
+			CompileError("too few parameters (needed %d)", t->parm_num);
 
 		LEX_Expect(")");
 	}
@@ -947,7 +920,7 @@ void real_vm_c::STAT_Return(void)
 	if (pr_token_is_first || pr_token[0] == '}' || LEX_Check(";"))
 	{
 		if (pr_scope->type->aux_type->type != ev_void)
-			ZZ_ParseError("missing value for return");
+			CompileError("missing value for return");
 
 		EmitCode(OP_DONE);
 		return;
@@ -956,10 +929,10 @@ void real_vm_c::STAT_Return(void)
 	def_t * e = EXP_Expression(TOP_PRIORITY);
 
 	if (pr_scope->type->aux_type->type == ev_void)
-		ZZ_ParseError("return with value in void function");
+		CompileError("return with value in void function");
 
 	if (pr_scope->type->aux_type != e->type)
-		ZZ_ParseError("mismatch types for return");
+		CompileError("mismatch types for return");
 
 	if (pr_scope->type->aux_type->type == ev_vector)
 	{
@@ -991,7 +964,7 @@ def_t * real_vm_c::FindDef(type_t *type, char *name, def_t *scope)
 			continue;		// in a different function
 
 		if (type && def->type != type)
-			ZZ_ParseError("Type mismatch on redeclaration of %s", name);
+			CompileError("Type mismatch on redeclaration of %s", name);
 
 		return def;
 	}
@@ -1036,7 +1009,7 @@ def_t * real_vm_c::EXP_VarValue()
 	// look through the defs
 	def_t *d = FindDef(NULL, name, pr_scope);
 	if (!d)
-		ZZ_ParseError("Unknown identifier '%s'", name);
+		CompileError("Unknown identifier '%s'", name);
 
 	return d;
 }
@@ -1084,11 +1057,11 @@ def_t * real_vm_c::EXP_Term()
 			return result;
 		}
 
-		ZZ_ParseError("type mismatch for %s", op->name);
+		CompileError("type mismatch for %s", op->name);
 		break;
 	}
 
-	ZZ_ParseError("expected value or unary operator, found %s\n", pr_token);
+	CompileError("expected value or unary operator, found %s\n", pr_token);
 	return NULL; /* NOT REACHED */
 }
 
@@ -1096,7 +1069,7 @@ def_t * real_vm_c::EXP_Term()
 def_t * real_vm_c::EXP_ShortCircuit(def_t *e, opcode_t *op)
 {
 	if (e->type->type != ev_float)
-		ZZ_ParseError("type mismatch for %s", op->name);
+		CompileError("type mismatch for %s", op->name);
 
 	// Instruction stream for &&
 	//
@@ -1120,7 +1093,7 @@ def_t * real_vm_c::EXP_ShortCircuit(def_t *e, opcode_t *op)
 
 	def_t *e2 = EXP_Expression(op->priority - 1);
 	if (e2->type->type != ev_float)
-		ZZ_ParseError("type mismatch for %s", op->name);
+		CompileError("type mismatch for %s", op->name);
 
 	EmitCode(OP_MOVE_F, e2->ofs, result->ofs);
 
@@ -1133,7 +1106,7 @@ def_t * real_vm_c::EXP_ShortCircuit(def_t *e, opcode_t *op)
 def_t * real_vm_c::EXP_FieldQuery(def_t *e, bool lvalue)
 {
 	// TODO
-	ZZ_ParseError("Operator . not yet implemented\n");
+	CompileError("Operator . not yet implemented\n");
 	return NULL;
 }
 
@@ -1202,11 +1175,11 @@ def_t * real_vm_c::EXP_Expression(int priority, bool *lvalue)
 			{
 				op++;
 				if (!op->name || strcmp(op->name , oldop->name) != 0)
-					ZZ_ParseError("type mismatch for %s", oldop->name);
+					CompileError("type mismatch for %s", oldop->name);
 			}
 
 			if (type_a == ev_pointer && type_b != e->type->aux_type->type)
-				ZZ_ParseError("type mismatch for %s", op->name);
+				CompileError("type mismatch for %s", op->name);
 
 			def_t *result = NewTemporary(op->type_c);
 
@@ -1303,12 +1276,12 @@ void real_vm_c::STAT_RepeatLoop()
 void real_vm_c::STAT_Assignment(def_t *e)
 {
 	if (e->flags & DF_Constant)
-		ZZ_ParseError("assignment to a constant.\n");
+		CompileError("assignment to a constant.\n");
 
 	def_t *e2 = EXP_Expression(TOP_PRIORITY);
 
 	if (e2->type != e->type)
-		ZZ_ParseError("type mismatch in assignment.\n");
+		CompileError("type mismatch in assignment.\n");
 
 	switch (e->type->type)
 	{
@@ -1323,7 +1296,7 @@ void real_vm_c::STAT_Assignment(def_t *e)
 			break;
 
 		default:
-			ZZ_ParseError("weird type for assignment.\n");
+			CompileError("weird type for assignment.\n");
 			break;
 	}
 }
@@ -1339,13 +1312,13 @@ void real_vm_c::STAT_Statement(bool allow_def)
 
 	if (allow_def && LEX_Check("function"))
 	{
-		ZZ_ParseError("functions must be global");
+		CompileError("functions must be global");
 		return;
 	}
 
 	if (allow_def && LEX_Check("constant"))
 	{
-		ZZ_ParseError("constants must be global");
+		CompileError("constants must be global");
 		return;
 	}
 
@@ -1406,6 +1379,8 @@ int real_vm_c::GLOB_FunctionBody(type_t *type, const char *func_name)
 {
 	temporaries.clear();
 
+	function_line = source_line;
+
 	//
 	// check for native function definition
 	//
@@ -1414,7 +1389,7 @@ int real_vm_c::GLOB_FunctionBody(type_t *type, const char *func_name)
 		int native = PR_FindNativeFunc(func_name);
 
 		if (native < 0)
-			ZZ_ParseError("No such native function: %s\n", func_name);
+			CompileError("No such native function: %s\n", func_name);
 
 		return -(native + 1);
 	}
@@ -1427,7 +1402,7 @@ int real_vm_c::GLOB_FunctionBody(type_t *type, const char *func_name)
 	for (int i=0 ; i < type->parm_num ; i++)
 	{
 		if (FindDef(type->parm_types[i], pr_parm_names[i], pr_scope))
-			ZZ_ParseError("parameter %s redeclared", pr_parm_names[i]);
+			CompileError("parameter %s redeclared", pr_parm_names[i]);
 
 		defs[i] = GetDef(type->parm_types[i], pr_parm_names[i], pr_scope);
 	}
@@ -1452,7 +1427,7 @@ int real_vm_c::GLOB_FunctionBody(type_t *type, const char *func_name)
 		if (type->aux_type->type == ev_void)
 			EmitCode(OP_DONE);
 		else
-			ZZ_ParseError("missing return at end of '%s' function", func_name);
+			CompileError("missing return at end of '%s' function", func_name);
 	}
 
 	return code;
@@ -1477,7 +1452,7 @@ void real_vm_c::GLOB_Function()
 		do
 		{
 			if (t_new.parm_num >= MAX_PARMS)
-				ZZ_ParseError("too many parameters (over %d)", MAX_PARMS);
+				CompileError("too many parameters (over %d)", MAX_PARMS);
 
 			char *name = ParseName();
 
@@ -1507,7 +1482,7 @@ void real_vm_c::GLOB_Function()
 	def_t *def = GetDef(func_type, func_name, pr_scope);
 
 	if (def->flags & DF_Initialized)
-		ZZ_ParseError("%s redeclared", func_name);
+		CompileError("%s redeclared", func_name);
 
 
 	LEX_Expect("=");
@@ -1523,8 +1498,9 @@ void real_vm_c::GLOB_Function()
 	function_t *df = &functions[(int)G_FUNCTION(def->ofs)];
 	memset(df, 0, sizeof(function_t));
 
-	df->s_name = InternaliseString(func_name);
-	df->s_file = s_file;
+	df->name = func_name;  // already strdup'd
+	df->source_file = strdup(source_file);
+	df->source_line = source_line;
 
 	int stack_ofs = 0;
 
@@ -1597,11 +1573,11 @@ void real_vm_c::GLOB_Constant()
 	LEX_Expect("=");
 
 	if (pr_token_type != tt_immediate)
-		ZZ_ParseError("expected value for constant, got %s", pr_token);
+		CompileError("expected value for constant, got %s", pr_token);
 
 
 	if (FindDef(NULL, const_name, NULL))
-		ZZ_ParseError("name already used: %s", const_name);
+		CompileError("name already used: %s", const_name);
 
 	/// TODO: reuse existing constant
 	/// def_t * exist_cn = FindConstant();
@@ -1647,7 +1623,7 @@ void real_vm_c::GLOB_Globals()
 		return;
 	}
 
-	ZZ_ParseError("Expected global definition, found %s", pr_token);
+	CompileError("Expected global definition, found %s", pr_token);
 }
 
 
@@ -1658,13 +1634,14 @@ CompileFile
 compiles the 0 terminated text, adding definitions to the pr structure
 ============
 */
-bool real_vm_c::CompileFile(char *string, char *filename)
+bool real_vm_c::CompileFile(char *string, const char *filename)
 {
-	s_file = InternaliseString(filename);
+	source_file = filename;
+	source_line = 1;
+	function_line = 0;
 
 	pr_file_p = string;
 	pr_line_start = string;
-	pr_source_line = 1;
 	pr_fol_level = 0;
 
 	LEX_Next();	// read first token
@@ -1689,18 +1666,37 @@ bool real_vm_c::CompileFile(char *string, char *filename)
 		}
 	}
 
+	source_file = NULL;
+
 	return (pr_error_count == 0);
 }
 
-/*
-==============
-BeginCompilation
-
-called before compiling a batch of files, clears the pr struct
-==============
-*/
-void real_vm_c::BeginCompilation()
+void real_vm_c::ShowStats()
 {
+	printf("string memory: %d / %d\n", string_mem.totalUsed(), string_mem.totalMemory());
+	printf("%6i numstatements\n", numstatements);
+	printf("%6i numfunctions\n", numfunctions);
+	printf("%6i numpr_globals\n", numpr_globals);
+}
+
+
+real_vm_c::real_vm_c() :
+	global_mem(), string_mem(), op_mem(),
+	source_file(NULL),
+	trace(false)
+{
+	// string #0 must be the empty string
+	int ofs = string_mem.alloc(2);
+	assert(ofs == 0);
+	strcpy((char *)string_mem.deref(0), "");
+
+
+	numstatements = 1;
+	numfunctions = 1;
+
+	// FIXME: clear native functions
+
+
 	numpr_globals = RESERVED_OFS;
 
 	all_defs = NULL;
@@ -1712,35 +1708,6 @@ void real_vm_c::BeginCompilation()
 	constants.clear();
 
 	pr_error_count = 0;
-}
-
-/*
-==============
-FinishCompilation
-
-called after all files are compiled to check for errors
-Returns false if errors were detected.
-==============
-*/
-bool real_vm_c::FinishCompilation()
-{
-	bool errors = false;
-
-	return !errors;
-}
-
-
-real_vm_c::real_vm_c() : trace(false), global_mem(), string_mem(),
-                         op_mem()
-{
-	// string #0 must be the empty string
-	int ofs = string_mem.alloc(2);
-	assert(ofs == 0);
-	strcpy((char *)string_mem.deref(0), "");
-
-	// FIXME !!!!
-	InitData();
-	BeginCompilation();
 }
 
 real_vm_c::~real_vm_c()
