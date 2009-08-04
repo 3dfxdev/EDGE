@@ -299,7 +299,6 @@ public:
 
 char *PR_GetString(int num);
 
-void PR_PrintStatement(statement_t *s);
 void PR_PrintDefs(void);
 
 int PR_FindNativeFunc(const char *name);
@@ -417,6 +416,8 @@ private:
 	void RunError(const char *error, ...);
 
 	void StackTrace();
+	void PrintStatement(function_t *f, int s);
+	const char * RegString(statement_t *st, int who);
 };
 
 
