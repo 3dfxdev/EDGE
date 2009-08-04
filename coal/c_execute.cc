@@ -315,54 +315,6 @@ char *PR_GlobalString(gofs_t ofs)
 }
 
 
-void PR_PrintStatement(statement_t *s)
-{
-#if 0  // FIXME
-	int i;
-
-	const char *opname = opcode_names[s->op];
-	printf("%4i : %4i : %s ", (int)(s - statements),
-	        statement_linenums[s-statements], opname);
-	i = strlen(opname);
-	for ( ; i<10 ; i++)
-		printf(" ");
-
-	if (s->op == OP_IF || s->op == OP_IFNOT)
-		printf("%sbranch %i",PR_GlobalString(s->a),s->b);
-	else if (s->op == OP_GOTO)
-	{
-		printf("branch %i",s->a);
-	}
-	else if ( (unsigned)(s->op - OP_MOVE_F) < 4)
-	{
-		printf("%s",PR_GlobalString(s->a));
-		printf("%s", PR_GlobalStringNoContents(s->b));
-	}
-	else if (s->op == OP_CALL)
-	{
-		function_t *f = &functions[(int)G_FUNCTION(s->a)];
-
-		printf("a:%d(%s) ", s->a, REF_STRING(f->s_name));
-
-		if (s->b)
-			printf("b:%s",PR_GlobalString(s->b));
-		if (s->c)
-			printf("c:%s", PR_GlobalStringNoContents(s->c));
-	}
-	else
-	{
-		if (s->a)
-			printf("a:%s",PR_GlobalString(s->a));
-		if (s->b)
-			printf("b:%s",PR_GlobalString(s->b));
-		if (s->c)
-			printf("c:%s", PR_GlobalStringNoContents(s->c));
-	}
-#endif
-	printf("\n");
-}
-
-
 #if 0
 void PrintStrings(void)
 {
@@ -572,7 +524,7 @@ void real_vm_c::DoExecute(int fnum)
 		pr_xstatement = s;
 
 		if (trace)
-			PR_PrintStatement(st);
+			PrintStatement(f, s);
 
 		double * a = (st->a >= 0) ? &pr_globals[st->a] : &localstack[stack_base - (st->a + 1)];
 		double * b = (st->b >= 0) ? &pr_globals[st->b] : &localstack[stack_base - (st->b + 1)];
@@ -769,7 +721,7 @@ void real_vm_c::DoExecute(int fnum)
 
 				if (result)
 				{
-					double * c = (result >= 0) ? &pr_globals[result] : &localstack[stack_base - (result + 1)];
+					 c = (result > 0) ? &pr_globals[result] : &localstack[stack_base - (result + 1)];
 					*c = pr_globals[OFS_RETURN];
 				}
 			}
@@ -785,7 +737,7 @@ void real_vm_c::DoExecute(int fnum)
 
 				assert(result);
 				{
-					double * c = (result >= 0) ? &pr_globals[result] : &localstack[stack_base - (result + 1)];
+					c = (result > 0) ? &pr_globals[result] : &localstack[stack_base - (result + 1)];
 
 					c[0] = pr_globals[OFS_RETURN+0];
 					c[1] = pr_globals[OFS_RETURN+1];
@@ -796,17 +748,17 @@ void real_vm_c::DoExecute(int fnum)
 
 			case OP_PARM_F:
 // printf("OP_PARM_F: %d=%1.2f --> %d+%d+%d\n", st->a, *a, stack_base, pr_xfunction->locals_end, st->b);
-				c = &localstack[stack_base + pr_xfunction->locals_end + st->b];
+				b = &localstack[stack_base + pr_xfunction->locals_end + st->b];
 
-				*c = *a;
+				*b = *a;
 				break;
 
 			case OP_PARM_V:
-				c = &localstack[stack_base + pr_xfunction->locals_end + st->b];
+				b = &localstack[stack_base + pr_xfunction->locals_end + st->b];
 
-				c[0] = a[0];
-				c[1] = a[1];
-				c[2] = a[2];
+				b[0] = a[0];
+				b[1] = a[1];
+				b[2] = a[2];
 				break;
 
 			default:
@@ -855,12 +807,16 @@ const char * opcode_names[] =
 	"IF", "IFNOT", "GOTO",
 	"AND", "OR", "BITAND", "BITOR",
 	"PARM_F", "PARM_V",
-
-	"???", "???", "???", "???", "???", "???",
-	"???", "???", "???", "???", "???", "???",
-	"???", "???", "???", "???", "???", "???",
-	"???", "???", "???", "???", "???", "???"
 };
+
+
+static const char *OpcodeName(short op)
+{
+	if (op < 0 || op > OP_PARM_V)
+		return "???";
+	
+	return opcode_names[op];
+}
 
 
 void real_vm_c::StackTrace()
@@ -885,6 +841,123 @@ void real_vm_c::StackTrace()
 
 	Con_Printf("\n");
 }
+
+
+const char * real_vm_c::RegString(statement_t *st, int who)
+{
+	static char buffer[100];
+
+	int val = (who == 1) ? st->a : (who == 2) ? st->b : st->c;
+
+	sprintf(buffer, "%s[%d]", (val < 0) ? "stack" : "glob", abs(val));
+
+	return buffer;
+}
+
+void real_vm_c::PrintStatement(function_t *f, int s)
+{
+	statement_t *st = &statements[s];
+
+	const char *op_name = OpcodeName(st->op);
+
+	Con_Printf("%06x: %-9s ", s, op_name);
+
+	switch (st->op)
+	{
+		case OP_DONE:
+		case OP_DONE_V:
+			break;
+	
+		case OP_MOVE_F:
+		case OP_MOVE_S:
+		case OP_MOVE_FNC:	// pointers
+		case OP_MOVE_V:
+			Con_Printf("%s ",    RegString(st, 1));
+			Con_Printf("-> %s",  RegString(st, 2));
+			break;
+
+		case OP_IFNOT:
+		case OP_IF:
+			Con_Printf("%s, %08x", RegString(st, 1), st->b);
+			break;
+
+		case OP_GOTO:
+			Con_Printf("%08x", st->b);
+			// TODO
+			break;
+
+		case OP_CALL:
+			Con_Printf("%s, %d ", RegString(st, 1), st->b);
+			Con_Printf("-> %s",   RegString(st, 3));
+			break;
+
+		case OP_PARM_F:
+		case OP_PARM_V:
+			Con_Printf("%s -> future[%d]", RegString(st, 1), st->b);
+			break;
+
+		case OP_NOT_F:
+		case OP_NOT_FNC:
+		case OP_NOT_V:
+		case OP_NOT_S:
+			Con_Printf("%s ",    RegString(st, 1));
+			Con_Printf("-> %s",  RegString(st, 3));
+			break;
+
+		default:
+			Con_Printf("%s, ",   RegString(st, 1));
+			Con_Printf("%s ",    RegString(st, 2));
+			Con_Printf("-> %s",  RegString(st, 3));
+			break;
+	}
+
+	Con_Printf("\n");
+
+#if 0
+	int i;
+
+	const char *opname = opcode_names[s->op];
+	printf("%4i : %4i : %s ", (int)(s - statements),
+	        statement_linenums[s-statements], opname);
+	i = strlen(opname);
+	for ( ; i<10 ; i++)
+		printf(" ");
+
+	if (s->op == OP_IF || s->op == OP_IFNOT)
+		printf("%sbranch %i",PR_GlobalString(s->a),s->b);
+	else if (s->op == OP_GOTO)
+	{
+		printf("branch %i",s->a);
+	}
+	else if ( (unsigned)(s->op - OP_MOVE_F) < 4)
+	{
+		printf("%s",PR_GlobalString(s->a));
+		printf("%s", PR_GlobalStringNoContents(s->b));
+	}
+	else if (s->op == OP_CALL)
+	{
+		function_t *f = &functions[(int)G_FUNCTION(s->a)];
+
+		printf("a:%d(%s) ", s->a, REF_STRING(f->s_name));
+
+		if (s->b)
+			printf("b:%s",PR_GlobalString(s->b));
+		if (s->c)
+			printf("c:%s", PR_GlobalStringNoContents(s->c));
+	}
+	else
+	{
+		if (s->a)
+			printf("a:%s",PR_GlobalString(s->a));
+		if (s->b)
+			printf("b:%s",PR_GlobalString(s->b));
+		if (s->c)
+			printf("c:%s", PR_GlobalStringNoContents(s->c));
+	}
+	printf("\n");
+#endif
+}
+
 
 
 }  // namespace coal
