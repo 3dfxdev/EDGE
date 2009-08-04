@@ -23,7 +23,7 @@ struct block_c
 {
 	int used;
 
-	byte data[4096];
+	char data[4096];
 
 public:
 	 block_c() : used(0) { }
@@ -41,6 +41,9 @@ public:
 	~bgroup_c();
 
 	int try_alloc(int len);
+
+	int totalUsed() const;
+	int totalMemory() const;
 };
 
 
@@ -66,6 +69,11 @@ public:
 
 		return blk->data + index;
 	}
+
+	// compute the total amount of memory used.  The second form
+	// includes all the extra/free/wasted space.
+	int totalUsed() const;
+	int totalMemory() const;
 };
 
 #endif /* __COAL_MEMORY_STUFF_H__ */
