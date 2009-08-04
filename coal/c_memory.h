@@ -39,6 +39,8 @@ struct bgroup_c
 public:
 	 bgroup_c() : used(0) { }
 	~bgroup_c();
+
+	int try_alloc(int len);
 };
 
 
@@ -54,7 +56,7 @@ public:
 
 	int alloc(int len);
 
-	void *ref(int index) const
+	inline void *deref(int index) const
 	{
 		bgroup_c *grp = groups[index >> 20];
 		index &= ((1 << 20) - 1);

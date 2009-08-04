@@ -36,7 +36,7 @@ bgroup_c::~bgroup_c()
 	while (used > 0)
 	{
 		used--;
-		delete blocks[used];
+		delete[] blocks[used];
 	}
 }
 
@@ -46,17 +46,77 @@ bmaster_c::~bmaster_c()
 	while (used > 0)
 	{
 		used--;
-		delete groups[used];
+		delete[] groups[used];
 	}
+}
+
+
+int bgroup_c::try_alloc(int len)
+{
+	if (len > 2040)
+	{
+		// Special handling for "big" blocks:
+		//
+		// We allocate a number of contiguous block_c structures,
+		// returning the address for the first one (allowing the
+		// rest to be overwritten).
+
+		if (used == 256)
+			return -1;
+
+		int big_num = 1 + (len >> 12);
+
+		blocks[used] = new block_c[big_num];
+		blocks[used]->used = len;
+
+		used++;
+
+		return (used - 1) << 12;
+	}
+
+	if (used == 0)
+		blocks[used++] = new block_c[1];
+
+	if (blocks[used-1]->used + len > 4096)
+	{
+		// need a new block
+		if (used == 256)
+			return -1;
+
+		blocks[used++] = new block_c[1];
+	}
+
+	int result = ((used-1) << 12) | blocks[used-1]->used;
+
+	blocks[used-1]->used += len;
+
+	return result;
 }
 
 
 int bmaster_c::alloc(int len)
 {
+	if (len == 0)
+		return 0;
+
+	if (used == 0)
+		groups[used++] = new bgroup_c[1];
+
+	int attempt = groups[used-1]->try_alloc(len);
+
+	if (attempt < 0)
+	{
+		// need a new group
+		assert(used < 256);
+
+		groups[used++] = new bgroup_c[1];
+
+		attempt = groups[used-1]->try_alloc(len);
+		assert(attempt >= 0);
+	}
+
+	return ((used - 1) << 20) | attempt;
 }
-
-
-
 
 
 }  // namespace coal
