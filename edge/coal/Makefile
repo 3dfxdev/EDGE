@@ -10,7 +10,7 @@ AR=ar rcs
 all: $(OUTPUTS)
 
 clean:
-	rm -f *.o *.obj $(OUTPUTS) core
+	rm -f *.o *.obj $(OUTPUTS) core ERRS
 
 test: burner
 	./burner test.ec
