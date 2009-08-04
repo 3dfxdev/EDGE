@@ -415,6 +415,8 @@ private:
 	int	InternaliseString(const char *new_s);
 
 	void RunError(const char *error, ...);
+
+	void StackTrace();
 };
 
 
