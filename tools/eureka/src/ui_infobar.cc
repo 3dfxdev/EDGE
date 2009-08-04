@@ -190,7 +190,7 @@ void UI_InfoBar::SetMode(char mode_ch)
 void UI_InfoBar::SetMouse(double mx, double my)
 {
 	if (mx < -32767.0 || mx > 32767.0 ||
-			my < -32767.0 || my > 32767.0)
+		my < -32767.0 || my > 32767.0)
 	{
 		mouse_x->value("off map");
 		mouse_y->value("off map");
