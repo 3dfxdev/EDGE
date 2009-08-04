@@ -40,17 +40,6 @@ bgroup_c::~bgroup_c()
 	}
 }
 
-
-bmaster_c::~bmaster_c()
-{
-	while (used > 0)
-	{
-		used--;
-		delete[] groups[used];
-	}
-}
-
-
 int bgroup_c::try_alloc(int len)
 {
 	if (len > 2040)
@@ -93,6 +82,45 @@ int bgroup_c::try_alloc(int len)
 	return result;
 }
 
+int bgroup_c::totalUsed() const
+{
+	int result = 0;
+
+	for (int i = 0; i < used; i++)
+		result += blocks[i]->used;
+
+	return result;
+}
+
+int bgroup_c::totalMemory() const
+{
+	int result = (int)sizeof(bgroup_c);
+
+	for (int i = 0; i < used; i++)
+	{
+		int big_num = 1;
+		if (blocks[i]->used > 4096)
+			big_num = 1 + (blocks[i]->used >> 12);
+
+		result += big_num * (int)sizeof(block_c);
+	}
+
+	return result;
+}
+
+
+//----------------------------------------------------------------------
+
+bmaster_c::~bmaster_c()
+{
+	while (used > 0)
+	{
+		used--;
+		delete[] groups[used];
+	}
+}
+
+
 
 int bmaster_c::alloc(int len)
 {
@@ -116,6 +144,27 @@ int bmaster_c::alloc(int len)
 	}
 
 	return ((used - 1) << 20) | attempt;
+}
+
+
+int bmaster_c::totalUsed() const
+{
+	int result = 0;
+
+	for (int k = 0; k < used; k++)
+		result += groups[k]->totalUsed();
+
+	return result;
+}
+
+int bmaster_c::totalMemory() const
+{
+	int result = (int)sizeof(bmaster_c);
+
+	for (int k = 0; k < used; k++)
+		result += groups[k]->totalMemory();
+
+	return result;
 }
 
 
