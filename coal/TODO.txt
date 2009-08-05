@@ -2,23 +2,20 @@
 COAL TODO
 =========
 
->>>  ASM_DumpFunction
->>>  improve tracing, implement a real ASM dump
-
 >>>  move all state into the real_vm_c class
 
 -  use c_memory class for Statements
 +  use c_memory class for Globals
 
+-  allow functions and constants to be redefined (but type must match)
+
 +  modules with '.' notation: hud.foo(hud.bar)
 
 +  support 'var x = 123' and 'var y : string = "foo"'
 
-DONE:  statement_t : store line number (relative to function)
-
--  allow functions and constants to be redefined (but type must match)
-
 -  describe new language (notes.txt)
+
+-  Coal API for dumping functions (etc)
 
 +  WISH: interactive mode for the burner
 

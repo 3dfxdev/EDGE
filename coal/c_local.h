@@ -343,13 +343,13 @@ private:
 	def_t * EXP_Term();
 	def_t * EXP_VarValue();
 	def_t * EXP_FunctionCall(def_t *func);
-	def_t * EXP_Constant();
+	def_t * EXP_Literal();
 
 	def_t * GetDef (type_t *type, char *name, def_t *scope);
 	def_t * FindDef(type_t *type, char *name, def_t *scope);
 
 	void StoreLiteral(int ofs);
-	def_t * FindConstant();
+	def_t * FindLiteral();
 
 	def_t * NewTemporary(type_t *type);
 	void FreeTemporaries();
