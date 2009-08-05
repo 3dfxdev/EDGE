@@ -237,7 +237,6 @@ extern	int			numpr_globals;
 #define	G_STRING(o)  REF_STRING((int)pr_globals[o])
 #define	G_FUNCTION(o) (pr_globals[o])
 
-int	CopyString(char *str);
 
 
 //=== COMPILER STUFF =========================================//
@@ -252,15 +251,6 @@ typedef struct
 opcode_t;
 
 extern const char *opcode_names[];
-
-void PR_Lex(void);
-
-type_t *PR_ParseType(void);
-char *PR_ParseName(void);
-
-bool PR_Check(char *string);
-void PR_Expect(char *string);
-void PR_ParseError(char *error, ...);
 
 
 class parse_error_x
@@ -294,10 +284,6 @@ public:
 	~exec_error_x() { }
 };
 
-
-char *PR_GetString(int num);
-
-void PR_PrintDefs(void);
 
 int PR_FindNativeFunc(const char *name);
 
@@ -338,10 +324,6 @@ private:
 
 	// c_compile.cc
 private:
-	const char *source_file;
-	int source_line;
-	int function_line;
-
 	void GLOB_Globals();
 	void GLOB_Constant();
 	void GLOB_Variable();
@@ -402,8 +384,6 @@ private:
 
 	// c_execute.cc
 private:
-	bool trace;
-
 	void DoExecute(int func_id);
 
 	void EnterNative  (int func, int result);
