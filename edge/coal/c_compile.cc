@@ -1538,8 +1538,6 @@ void real_vm_c::GLOB_Function()
 	df->locals_size = locals_end - df->locals_ofs;
 	df->locals_end  = locals_end;
 
-	printf("\n");
-	printf("Function %s DISASSEMBLY:\n", func_name);
 	ASM_DumpFunction(df);
 // fprintf(stderr, "FUNCTION %s locals:%d\n", func_name, locals_end);
 }
