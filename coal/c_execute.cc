@@ -860,7 +860,7 @@ void real_vm_c::PrintStatement(function_t *f, int s)
 
 	const char *op_name = OpcodeName(st->op);
 
-	Con_Printf("%06x: %-9s ", s, op_name);
+	Con_Printf("  %06x: %-9s ", s, op_name);
 
 	switch (st->op)
 	{
@@ -965,18 +965,30 @@ void real_vm_c::PrintStatement(function_t *f, int s)
 
 void real_vm_c::ASM_DumpFunction(function_t *f)
 {
+	Con_Printf("Function %s()\n", f->name);
+
 	if (f->first_statement < 0)
-		return;  // FIXME
+	{
+		Con_Printf("  native #%d\n\n", - f->first_statement);
+		return;
+	}
 
 	for (int s = f->first_statement; s <= f->last_statement; s++)
 	{
 		PrintStatement(f, s);
 	}
+
+	Con_Printf("\n");
 }
 
 void real_vm_c::ASM_DumpAll()
 {
-	// TODO
+	for (int i = 1; i < numfunctions; i++)
+	{
+		function_t *f = &functions[i];
+
+		ASM_DumpFunction(f);
+	}
 }
 
 
