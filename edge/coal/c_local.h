@@ -141,6 +141,7 @@ typedef struct
 	int		locals_end;
 
 	int		first_statement;	// negative numbers are builtins
+	int		last_statement;
 }
 function_t;
 
@@ -418,6 +419,9 @@ private:
 	void StackTrace();
 	void PrintStatement(function_t *f, int s);
 	const char * RegString(statement_t *st, int who);
+
+	void ASM_DumpFunction(function_t *f);
+	void ASM_DumpAll();
 };
 
 
