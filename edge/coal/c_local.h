@@ -407,9 +407,8 @@ private:
 
 	void DoExecute(int func_id);
 
-	void EnterNative(function_t *newf, int result);
-
-	int  EnterFunction(function_t *f, int result = 0);
+	void EnterNative  (int func, int result);
+	int  EnterFunction(int func, int result = 0);
 	int  LeaveFunction(int *result);
 
 	int	InternaliseString(const char *new_s);

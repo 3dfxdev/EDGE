@@ -40,6 +40,7 @@ namespace coal
 {
 
 #include "c_local.h"
+#include "c_execute.h"
 
 
 // FIXME
@@ -59,27 +60,12 @@ function_t	functions[MAX_FUNCTIONS];
 int			numfunctions;
 
 
-typedef struct
-{
-    int s;
-    function_t *f;
-	int result;
-}
-prstack_t;
+execution_c * EXE;
 
-#define	MAX_STACK_DEPTH		96
-prstack_t pr_stack[MAX_STACK_DEPTH+1];
-int pr_depth;
 
-#define	LOCALSTACK_SIZE		2048
-double localstack[LOCALSTACK_SIZE];
-int stack_base;
-
-function_t *pr_xfunction;
-int pr_xstatement;
 int pr_argc;
 
-#define MAX_RUNAWAY  2000000
+#define MAX_RUNAWAY  (1000*1000)
 
 
 typedef struct
@@ -91,6 +77,14 @@ reg_native_func_t;
 
 
 static std::vector<reg_native_func_t *> native_funcs;
+
+
+execution_c::execution_c() :
+	s(0), func(0), tracing(false), stack_depth(0), call_depth(0)
+{ }
+
+execution_c::~execution_c()
+{ }
 
 
 int PR_FindNativeFunc(const char *name)
@@ -163,12 +157,12 @@ int	real_vm_c::InternaliseString(const char *new_s)
 
 double * real_vm_c::AccessParam(int p)
 {
-	assert(pr_xfunction);
+	assert(EXE->func);
 
-	if (p >= pr_xfunction->parm_num)
+	if (p >= functions[EXE->func].parm_num)
 		RunError("PR_Parameter: p=%d out of range\n", p);
-	
-	return &localstack[stack_base + pr_xfunction->parm_ofs[p]];
+
+	return &EXE->stack[EXE->stack_depth + functions[EXE->func].parm_ofs[p]];
 }
 
 
@@ -192,7 +186,7 @@ void real_vm_c::RunError(const char *error, ...)
     vsnprintf(buffer, sizeof(buffer), error, argptr);
     va_end(argptr);
 
-	if (pr_depth > 0)
+	if (EXE->call_depth > 0)
 		StackTrace();
 
 //??	Con_Printf("Last Statement:\n");
@@ -201,7 +195,7 @@ void real_vm_c::RunError(const char *error, ...)
     Con_Printf("%s\n", buffer);
 
     /* clear the stack so SV/Host_Error can shutdown functions */
-    pr_depth = 0;
+    EXE->call_depth = 0;
 
 //  raise(11);
     throw exec_error_x();
@@ -212,25 +206,27 @@ void real_vm_c::RunError(const char *error, ...)
 //  EXECUTION ENGINE
 //================================================================
 
-int real_vm_c::EnterFunction(function_t *f, int result)
+int real_vm_c::EnterFunction(int func, int result)
 {
 	// Returns the new program statement counter
 
-    pr_stack[pr_depth].s = pr_xstatement;
-    pr_stack[pr_depth].f = pr_xfunction;
-    pr_stack[pr_depth].result = result;
+	function_t *f = &functions[func];
 
-    pr_depth++;
-	if (pr_depth >= MAX_STACK_DEPTH)
+    EXE->call_stack[EXE->call_depth].s      = EXE->s;
+    EXE->call_stack[EXE->call_depth].func   = EXE->func;
+    EXE->call_stack[EXE->call_depth].result = result;
+
+    EXE->call_depth++;
+	if (EXE->call_depth >= MAX_CALL_STACK)
 		RunError("stack overflow");
 
-	if (pr_xfunction)
-		stack_base += pr_xfunction->locals_end;
+	if (EXE->func)
+		EXE->stack_depth += functions[EXE->func].locals_end;
 
-	if (stack_base + f->locals_end >= LOCALSTACK_SIZE)
+	if (EXE->stack_depth + f->locals_end >= MAX_LOCAL_STACK)
 		RunError("PR_ExecuteProgram: locals stack overflow\n");
 
-	pr_xfunction = f;
+	EXE->func = func;
 
 	return f->first_statement;
 }
@@ -238,36 +234,38 @@ int real_vm_c::EnterFunction(function_t *f, int result)
 
 int real_vm_c::LeaveFunction(int *result)
 {
-	if (pr_depth <= 0)
+	if (EXE->call_depth <= 0)
 		RunError("stack underflow");
 
-	pr_depth--;
+	EXE->call_depth--;
 
-	pr_xfunction = pr_stack[pr_depth].f;
-	*result      = pr_stack[pr_depth].result;
+	EXE->func = EXE->call_stack[EXE->call_depth].func;
+	*result   = EXE->call_stack[EXE->call_depth].result;
 
-	if (pr_xfunction)
-		stack_base -= pr_xfunction->locals_end;
+	if (EXE->func)
+		EXE->stack_depth -= functions[EXE->func].locals_end;
 
-	return pr_stack[pr_depth].s + 1;  // skip the calling op
+	return EXE->call_stack[EXE->call_depth].s + 1;  // skip the calling op
 }
 
 
-void real_vm_c::EnterNative(function_t *newf, int result)
+void real_vm_c::EnterNative(int func, int result)
 {
-	int n = -(newf->first_statement + 1);
+	function_t *newf = &functions[func];
 
+	int n = -(newf->first_statement + 1);
 	assert(n < (int)native_funcs.size());
 
-	function_t *old_prx = pr_xfunction;
-
-	stack_base += pr_xfunction->locals_end;
-	pr_xfunction = newf;
-
-	native_funcs[n]->func (this);
-
-	pr_xfunction = old_prx;
-	stack_base -= pr_xfunction->locals_end;
+	EXE->stack_depth += functions[EXE->func].locals_end;
+	{
+		int old_func = EXE->func;
+		{
+			EXE->func = func;
+			native_funcs[n]->func (this);
+		}
+		EXE->func = old_func;
+	}
+	EXE->stack_depth -= functions[EXE->func].locals_end;
 }
 
 
@@ -280,22 +278,22 @@ void real_vm_c::DoExecute(int fnum)
 	int runaway = MAX_RUNAWAY;
 
 	// make a stack frame
-	int exitdepth = pr_depth;
+	int exitdepth = EXE->call_depth;
 
-	int s = EnterFunction(f);
+	int s = EnterFunction(fnum);
 
 	for (;;)
 	{
 		statement_t *st = &statements[s];
 
-		pr_xstatement = s;
+		EXE->s = s;
 
-		if (trace)
+		if (EXE->tracing)
 			PrintStatement(f, s);
 
-		double * a = (st->a >= 0) ? &pr_globals[st->a] : &localstack[stack_base - (st->a + 1)];
-		double * b = (st->b >= 0) ? &pr_globals[st->b] : &localstack[stack_base - (st->b + 1)];
-		double * c = (st->c >= 0) ? &pr_globals[st->c] : &localstack[stack_base - (st->c + 1)];
+		double * a = (st->a >= 0) ? &pr_globals[st->a] : &EXE->stack[EXE->stack_depth - (st->a + 1)];
+		double * b = (st->b >= 0) ? &pr_globals[st->b] : &EXE->stack[EXE->stack_depth - (st->b + 1)];
+		double * c = (st->c >= 0) ? &pr_globals[st->c] : &EXE->stack[EXE->stack_depth - (st->c + 1)];
 
 		if (!--runaway)
 			RunError("runaway loop error");
@@ -470,11 +468,11 @@ void real_vm_c::DoExecute(int fnum)
 				/* negative statements are built in functions */
 				if (newf->first_statement < 0)
 				{
-					EnterNative(newf, st->c);
+					EnterNative(fnum, st->c);
 					break;
 				}
 
-				s = EnterFunction(newf, st->c);
+				s = EnterFunction(fnum, st->c);
 			}
 			break;
 
@@ -483,12 +481,12 @@ void real_vm_c::DoExecute(int fnum)
 				int result;
 				s = LeaveFunction(&result);
 
-				if (pr_depth == exitdepth)
+				if (EXE->call_depth == exitdepth)
 					return;		// all done
 
 				if (result)
 				{
-					 c = (result > 0) ? &pr_globals[result] : &localstack[stack_base - (result + 1)];
+					 c = (result > 0) ? &pr_globals[result] : &EXE->stack[EXE->stack_depth - (result + 1)];
 					*c = pr_globals[OFS_RETURN];
 				}
 			}
@@ -499,12 +497,12 @@ void real_vm_c::DoExecute(int fnum)
 				int result;
 				s = LeaveFunction(&result);
 
-				if (pr_depth == exitdepth)
+				if (EXE->call_depth == exitdepth)
 					return;		// all done
 
 				assert(result);
 				{
-					c = (result > 0) ? &pr_globals[result] : &localstack[stack_base - (result + 1)];
+					c = (result > 0) ? &pr_globals[result] : &EXE->stack[EXE->stack_depth - (result + 1)];
 
 					c[0] = pr_globals[OFS_RETURN+0];
 					c[1] = pr_globals[OFS_RETURN+1];
@@ -514,14 +512,13 @@ void real_vm_c::DoExecute(int fnum)
 			break;
 
 			case OP_PARM_F:
-// printf("OP_PARM_F: %d=%1.2f --> %d+%d+%d\n", st->a, *a, stack_base, pr_xfunction->locals_end, st->b);
-				b = &localstack[stack_base + pr_xfunction->locals_end + st->b];
+				b = &EXE->stack[EXE->stack_depth + functions[EXE->func].locals_end + st->b];
 
 				*b = *a;
 				break;
 
 			case OP_PARM_V:
-				b = &localstack[stack_base + pr_xfunction->locals_end + st->b];
+				b = &EXE->stack[EXE->stack_depth + functions[EXE->func].locals_end + st->b];
 
 				b[0] = a[0];
 				b[1] = a[1];
@@ -536,6 +533,8 @@ void real_vm_c::DoExecute(int fnum)
 
 int real_vm_c::Execute(int func_id)
 {
+if (! EXE) EXE = new execution_c();
+
 	try
 	{
 		if (func_id < 0 || func_id >= numfunctions)
@@ -687,15 +686,16 @@ void real_vm_c::StackTrace()
 {
 	Con_Printf("Stack Trace:\n");
 
-	pr_stack[pr_depth].f = pr_xfunction;
-	pr_stack[pr_depth].s = pr_xstatement;
+	EXE->call_stack[EXE->call_depth].func = EXE->func;
+	EXE->call_stack[EXE->call_depth].s = EXE->s;
 
-	for (int i = pr_depth; i >= 1; i--)
+	for (int i = EXE->call_depth; i >= 1; i--)
 	{
-		int back = (pr_depth - i) + 1;
+		int back = (EXE->call_depth - i) + 1;
 
-		function_t * f = pr_stack[i].f;
-		statement_t *st = &statements[pr_stack[i].s];
+		function_t * f = &functions[EXE->call_stack[i].func];
+
+		statement_t *st = &statements[EXE->call_stack[i].s];
 
 		if (f)
 			Con_Printf("%-2d %s() at %s:%d\n", back, f->name, f->source_file, f->source_line + st->line);
