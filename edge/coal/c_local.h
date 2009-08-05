@@ -215,8 +215,6 @@ extern scope_c global_scope;
 #define	MAX_REGS		16384
 #define	MAX_GLOBALS		16384
 #define	MAX_FIELDS		1024
-#define	MAX_STATEMENTS	65536
-#define	MAX_FUNCTIONS	8192
 
 #define OFS_NULL		0
 #define OFS_RETURN		1
