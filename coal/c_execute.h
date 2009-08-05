@@ -35,7 +35,7 @@ struct call_stack_c
 class execution_c
 {
 public:
-	// current statement
+	// code pointer
 	int s;
 	int func;
 
