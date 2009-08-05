@@ -718,7 +718,7 @@ void real_vm_c::FreeTemporaries()
 }
 
 
-def_t * real_vm_c::FindConstant()
+def_t * real_vm_c::FindLiteral()
 {
 	// check for a constant with the same value
 	for (int i = 0; i < (int)COM->constants.size(); i++)
@@ -764,10 +764,10 @@ void real_vm_c::StoreLiteral(int ofs)
 }
 
 
-def_t * real_vm_c::EXP_Constant()
+def_t * real_vm_c::EXP_Literal()
 {
 	// Looks for a preexisting constant
-	def_t *cn = FindConstant();
+	def_t *cn = FindLiteral();
 
 	if (! cn)
 	{
@@ -982,7 +982,7 @@ def_t * real_vm_c::EXP_Term()
 {
 	// if the token is a literal, allocate a constant for it
 	if (COM->token_type == tt_literal)
-		return EXP_Constant();
+		return EXP_Literal();
 
 	if (COM->token_type == tt_name)
 		return EXP_VarValue();
@@ -1442,7 +1442,8 @@ void real_vm_c::GLOB_Function()
 
 	type_t *func_type = FindType(&t_new);
 
-	def_t *def = GetDef(func_type, func_name, COM->scope);
+	assert(COM->scope == NULL);
+	def_t *def = GetDef(func_type, func_name, NULL);
 
 	if (def->flags & DF_Initialized)
 		CompileError("%s redeclared", func_name);
@@ -1544,8 +1545,6 @@ void real_vm_c::GLOB_Constant()
 	if (FindDef(NULL, const_name, NULL))
 		CompileError("name already used: %s", const_name);
 
-	/// TODO: reuse existing constant
-	/// def_t * exist_cn = FindConstant();
 
 	def_t * cn = NewGlobal(COM->literal_type);
 
