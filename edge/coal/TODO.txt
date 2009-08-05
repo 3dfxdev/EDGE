@@ -16,6 +16,8 @@ COAL TODO
 
 DONE:  statement_t : store line number (relative to function)
 
+-  allow functions and constants to be redefined (but type must match)
+
 -  describe new language (notes.txt)
 
 +  WISH: interactive mode for the burner
