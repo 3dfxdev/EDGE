@@ -225,9 +225,6 @@ extern scope_c global_scope;
 extern	statement_t	statements[MAX_STATEMENTS];
 extern	int			numstatements;
 
-extern	function_t  functions[MAX_FUNCTIONS];
-extern	int			numfunctions;
-
 extern	double		pr_globals[MAX_REGS];
 extern	int			numpr_globals;
 
@@ -336,6 +333,8 @@ private:
 	bmaster_c global_mem;
 	bmaster_c string_mem;
 	bmaster_c op_mem;
+
+	std::vector< function_t* > functions;
 
 	// c_compile.cc
 private:

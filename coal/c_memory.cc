@@ -21,6 +21,8 @@
 #include <stdarg.h>
 #include <assert.h>
 
+#include <vector>
+
 #include "coal.h"
 
 
