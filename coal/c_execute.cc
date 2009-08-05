@@ -161,229 +161,6 @@ int	real_vm_c::InternaliseString(const char *new_s)
 }
 
 
-/*
-===============
-PR_String
-
-Returns a string suitable for printing (no newlines, max 60 chars length)
-===============
-*/
-char *PR_String(char *string)
-{
-	static char buf[80];
-	char	*s;
-
-	s = buf;
-	*s++ = '"';
-	while (string && *string)
-	{
-		if (s == buf + sizeof(buf) - 2)
-			break;
-		if (*string == '\n')
-		{
-			*s++ = '\\';
-			*s++ = 'n';
-		}
-		else if (*string == '"')
-		{
-			*s++ = '\\';
-			*s++ = '"';
-		}
-		else
-			*s++ = *string;
-		string++;
-		if (s - buf > 60)
-		{
-			*s++ = '.';
-			*s++ = '.';
-			*s++ = '.';
-			break;
-		}
-	}
-	*s++ = '"';
-	*s++ = 0;
-	return buf;
-}
-
-
-/*
-============
-PR_ValueString
-
-Returns a string describing *data in a type specific manner
-=============
-*/
-char *PR_ValueString(etype_t type, double *val)
-{
-	static char	line[256];
-	def_t		*def;
-	function_t	*f;
-
-	line[0] = 0;
-
-	switch (type)
-	{
-	case ev_string:
-//!!!!		sprintf(line, "%s", PR_String(REF_STRING((int)*val)));
-		break;
-//	case ev_entity:
-//		sprintf (line, "entity %i", *(int *)val);
-//		break;
-	case ev_function:
-		f = functions + (int)*val;
-		if (!f)
-			sprintf(line, "undefined function");
-//!!!!		else
-//!!!!			sprintf(line, "%s()", REF_STRING(f->s_name));
-		break;
-//	case ev_field:
-//		def = PR_DefForFieldOfs ( *(int *)val );
-//		sprintf (line, ".%s", def->name);
-//		break;
-	case ev_void:
-		sprintf(line, "void");
-		break;
-	case ev_float:
-		sprintf(line, "%5.1f", (float) *val);
-		break;
-	case ev_vector:
-		sprintf(line, "'%5.1f %5.1f %5.1f'", val[0], val[1], val[2]);
-		break;
-	case ev_pointer:
-		sprintf(line, "pointer");
-		break;
-	default:
-		sprintf(line, "bad type %i", type);
-		break;
-	}
-
-	return line;
-}
-
-/*
-============
-PR_GlobalString
-
-Returns a string with a description and the contents of a global,
-padded to 20 field width
-============
-*/
-
-#define GVAL(o)  ((o < 0) ? o : pr_globals[o])
-
-char *PR_GlobalStringNoContents(gofs_t ofs)
-{
-	static char	line[128];
-
-	def_t * def = NULL; // FIXME pr_global_defs[ofs];
-	if (!def)
-//		Error ("PR_GlobalString: no def for %i", ofs);
-		sprintf(line,"%i(?? =%1.2f)", ofs, GVAL(ofs));
-	else
-		sprintf(line,"%i(%s =%1.2f)", ofs, def->name, GVAL(ofs));
-
-	int i = strlen(line);
-	for ( ; i<16 ; i++)
-		strcat(line," ");
-	strcat(line," ");
-
-	return line;
-}
-
-char *PR_GlobalString(gofs_t ofs)
-{
-	static char	line[128];
-
-	def_t *def = NULL; // FIXME pr_global_defs[ofs];
-	if (!def)
-		return PR_GlobalStringNoContents(ofs);
-
-	if (false) /// def->initialized && def->type->type != ev_function)
-	{
-		char *s = PR_ValueString(def->type->type, &pr_globals[ofs]);
-		sprintf(line,"%i(%s =%1.2f)", ofs, s, GVAL(ofs));
-	}
-	else
-		sprintf(line,"%i(%s =%1.2f)", ofs, def->name, GVAL(ofs));
-
-	int i = strlen(line);
-	for ( ; i<16 ; i++)
-		strcat(line," ");
-	strcat(line," ");
-
-	return line;
-}
-
-
-#if 0
-void PrintStrings(void)
-{
-	int		i, l, j;
-
-	for (i=0 ; i<strofs ; i += l)
-	{
-		l = strlen(strings+i) + 1;
-		printf("%5i : ",i);
-
-		for (j=0 ; j<l ; j++)
-		{
-			if (strings[i+j] == '\n')
-			{
-				putchar('\\');
-				putchar('n');
-			}
-			else
-				putchar(strings[i+j]);
-		}
-		printf("\n");
-	}
-}
-
-
-void PrintFunction(char *name)
-{
-	int		i;
-	statement_t	*ds;
-	function_t		*df;
-
-	for (i=0 ; i<numfunctions ; i++)
-		if (!strcmp(name, strings + functions[i].s_name))
-			break;
-
-	if (i==numfunctions)
-		RunError("No function names \"%s\"", name);
-
-	df = functions + i;
-
-	printf("Statements for %s:\n", name);
-	ds = statements + df->first_statement;
-
-	for (;;)
-	{
-		PR_PrintStatement(ds);
-		if (!ds->op)
-			break;
-		ds++;
-	}
-}
-
-void PrintFunctions(void)
-{
-	int		i,j;
-	function_t	*d;
-
-	for (i=0 ; i<numfunctions ; i++)
-	{
-		d = &functions[i];
-		printf("%s : %s : %i %i (", strings + d->s_file, strings + d->s_name, d->first_statement, d->parm_ofs[0]);
-		for (j=0 ; j<d->parm_num ; j++)
-			printf("%i ",d->parm_size[j]);
-		printf(")\n");
-	}
-}
-#endif
-
-
 double * real_vm_c::AccessParam(int p)
 {
 	assert(pr_xfunction);
@@ -403,14 +180,9 @@ const char * real_vm_c::AccessParamString(int p)
 }
 
 
-
-/*
-============
-RunError
-
-Aborts the currently executing function
-============
-*/
+//
+// Aborts the currently executing functions
+//
 void real_vm_c::RunError(const char *error, ...)
 {
     va_list argptr;
@@ -436,13 +208,9 @@ void real_vm_c::RunError(const char *error, ...)
 }
 
 
-/*
-============================================================================
-PR_ExecuteProgram
-
-The interpretation main loop
-============================================================================
-*/
+//================================================================
+//  EXECUTION ENGINE
+//================================================================
 
 int real_vm_c::EnterFunction(function_t *f, int result)
 {
@@ -473,7 +241,6 @@ int real_vm_c::LeaveFunction(int *result)
 	if (pr_depth <= 0)
 		RunError("stack underflow");
 
-	// up stack
 	pr_depth--;
 
 	pr_xfunction = pr_stack[pr_depth].f;
@@ -819,6 +586,103 @@ static const char *OpcodeName(short op)
 }
 
 
+#define GVAL(o)  ((o < 0) ? o : pr_globals[o])
+
+//
+// Returns a string suitable for printing (no newlines, max 60 chars length)
+// TODO: reimplement this
+#if 0
+char *DebugString(char *string)
+{
+	static char buf[80];
+	char	*s;
+
+	s = buf;
+	*s++ = '"';
+	while (string && *string)
+	{
+		if (s == buf + sizeof(buf) - 2)
+			break;
+		if (*string == '\n')
+		{
+			*s++ = '\\';
+			*s++ = 'n';
+		}
+		else if (*string == '"')
+		{
+			*s++ = '\\';
+			*s++ = '"';
+		}
+		else
+			*s++ = *string;
+		string++;
+		if (s - buf > 60)
+		{
+			*s++ = '.';
+			*s++ = '.';
+			*s++ = '.';
+			break;
+		}
+	}
+	*s++ = '"';
+	*s++ = 0;
+	return buf;
+}
+#endif
+
+//
+// Returns a string describing *data in a type specific manner
+// TODO: reimplement this
+#if 0
+char *Debug_ValueString(etype_t type, double *val)
+{
+	static char	line[256];
+	def_t		*def;
+	function_t	*f;
+
+	line[0] = 0;
+
+	switch (type)
+	{
+	case ev_string:
+//!!!!		sprintf(line, "%s", PR_String(REF_STRING((int)*val)));
+		break;
+//	case ev_entity:
+//		sprintf (line, "entity %i", *(int *)val);
+//		break;
+	case ev_function:
+		f = functions + (int)*val;
+		if (!f)
+			sprintf(line, "undefined function");
+//!!!!		else
+//!!!!			sprintf(line, "%s()", REF_STRING(f->s_name));
+		break;
+//	case ev_field:
+//		def = PR_DefForFieldOfs ( *(int *)val );
+//		sprintf (line, ".%s", def->name);
+//		break;
+	case ev_void:
+		sprintf(line, "void");
+		break;
+	case ev_float:
+		sprintf(line, "%5.1f", (float) *val);
+		break;
+	case ev_vector:
+		sprintf(line, "'%5.1f %5.1f %5.1f'", val[0], val[1], val[2]);
+		break;
+	case ev_pointer:
+		sprintf(line, "pointer");
+		break;
+	default:
+		sprintf(line, "bad type %i", type);
+		break;
+	}
+
+	return line;
+}
+#endif
+
+
 void real_vm_c::StackTrace()
 {
 	Con_Printf("Stack Trace:\n");
@@ -916,50 +780,6 @@ void real_vm_c::PrintStatement(function_t *f, int s)
 	}
 
 	Con_Printf("\n");
-
-#if 0
-	int i;
-
-	const char *opname = opcode_names[s->op];
-	printf("%4i : %4i : %s ", (int)(s - statements),
-	        statement_linenums[s-statements], opname);
-	i = strlen(opname);
-	for ( ; i<10 ; i++)
-		printf(" ");
-
-	if (s->op == OP_IF || s->op == OP_IFNOT)
-		printf("%sbranch %i",PR_GlobalString(s->a),s->b);
-	else if (s->op == OP_GOTO)
-	{
-		printf("branch %i",s->a);
-	}
-	else if ( (unsigned)(s->op - OP_MOVE_F) < 4)
-	{
-		printf("%s",PR_GlobalString(s->a));
-		printf("%s", PR_GlobalStringNoContents(s->b));
-	}
-	else if (s->op == OP_CALL)
-	{
-		function_t *f = &functions[(int)G_FUNCTION(s->a)];
-
-		printf("a:%d(%s) ", s->a, REF_STRING(f->s_name));
-
-		if (s->b)
-			printf("b:%s",PR_GlobalString(s->b));
-		if (s->c)
-			printf("c:%s", PR_GlobalStringNoContents(s->c));
-	}
-	else
-	{
-		if (s->a)
-			printf("a:%s",PR_GlobalString(s->a));
-		if (s->b)
-			printf("b:%s",PR_GlobalString(s->b));
-		if (s->c)
-			printf("c:%s", PR_GlobalStringNoContents(s->c));
-	}
-	printf("\n");
-#endif
 }
 
 
