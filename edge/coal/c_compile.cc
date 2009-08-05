@@ -608,16 +608,25 @@ type_t * real_vm_c::ParseType()
 //===========================================================================
 
 
-void real_vm_c::EmitCode(short op, short a, short b, short c)
+int real_vm_c::EmitCode(short op, short a, short b, short c)
 {
-	statement_t *st = &statements[numstatements++];
+	// IDEA: if last statement was OP_NULL, overwrite it instead of
+	//       creating a new one.
+
+	int ofs = op_mem.alloc((int)sizeof(statement_t));
+
+	statement_t *st = REF_OP(ofs);
 
 	st->op = op;
 	st->line = COM->source_line - COM->function_line;
 
-	st->a  = a;
-	st->b  = b;
-	st->c  = c;
+	st->a = a;
+	st->b = b;
+	st->c = c;
+
+	COM->last_statement = ofs;
+
+	return ofs;
 }
 
 
@@ -1047,12 +1056,12 @@ def_t * real_vm_c::EXP_ShortCircuit(def_t *e, opcode_t *op)
 
 	EmitCode(OP_MOVE_F, e->ofs, result->ofs);
 
-	int patch = numstatements;
+	int patch;
 
 	if (op->name[0] == '&')
-		EmitCode(OP_IFNOT, result->ofs);
+		patch = EmitCode(OP_IFNOT, result->ofs);
 	else
-		EmitCode(OP_IF, result->ofs);
+		patch = EmitCode(OP_IF, result->ofs);
 
 	def_t *e2 = EXP_Expression(op->priority - 1);
 	if (e2->type->type != ev_float)
@@ -1060,7 +1069,7 @@ def_t * real_vm_c::EXP_ShortCircuit(def_t *e, opcode_t *op)
 
 	EmitCode(OP_MOVE_F, e2->ofs, result->ofs);
 
-	statements[patch].b = numstatements;
+	REF_OP(patch)->b = EmitCode(OP_NULL);
 
 	return result;
 }
@@ -1170,8 +1179,7 @@ void real_vm_c::STAT_If_Else()
 	def_t * e = EXP_Expression(TOP_PRIORITY);
 	LEX_Expect(")");
 
-	int patch = numstatements;
-	EmitCode(OP_IFNOT, e->ofs);
+	int patch = EmitCode(OP_IFNOT, e->ofs);
 
 	STAT_Statement(false);
 	FreeTemporaries();
@@ -1179,44 +1187,42 @@ void real_vm_c::STAT_If_Else()
 	if (LEX_Check("else"))
 	{
 		// use GOTO to skip over the else statements
-		int patch2 = numstatements;
-		EmitCode(OP_GOTO);
+		int patch2 = EmitCode(OP_GOTO);
 
-		statements[patch].b = numstatements;
+		REF_OP(patch)->b = EmitCode(OP_NULL);
+
+		patch = patch2;
 
 		STAT_Statement(false);
 		FreeTemporaries();
-
-		patch = patch2;
 	}
-	
-	statements[patch].b = numstatements;
+
+	REF_OP(patch)->b = EmitCode(OP_NULL);
 }
 
 
 void real_vm_c::STAT_WhileLoop()
 {
-	int begin = numstatements;
+	int begin = EmitCode(OP_NULL);
 
 	LEX_Expect("(");
 	def_t * e = EXP_Expression(TOP_PRIORITY);
 	LEX_Expect(")");
 
-	int patch = numstatements;
-	EmitCode(OP_IFNOT, e->ofs);
+	int patch = EmitCode(OP_IFNOT, e->ofs);
 
 	STAT_Statement(false);
 	FreeTemporaries();
 
 	EmitCode(OP_GOTO, 0, begin);
 
-	statements[patch].b = numstatements;
+	REF_OP(patch)->b = EmitCode(OP_NULL);
 }
 
 
 void real_vm_c::STAT_RepeatLoop()
 {
-	int begin = numstatements;
+	int begin = EmitCode(OP_NULL);
 
 	STAT_Statement(false);
 	FreeTemporaries();
@@ -1340,6 +1346,8 @@ void real_vm_c::STAT_Statement(bool allow_def)
 
 int real_vm_c::GLOB_FunctionBody(type_t *type, const char *func_name)
 {
+	// Returns the first_statement value
+
 	COM->temporaries.clear();
 
 	COM->function_line = COM->source_line;
@@ -1370,7 +1378,7 @@ int real_vm_c::GLOB_FunctionBody(type_t *type, const char *func_name)
 		defs[i] = GetDef(type->parm_types[i], COM->parm_names[i], COM->scope);
 	}
 
-	int code = numstatements;
+	int code = EmitCode(OP_NULL);
 
 	//
 	// parse regular statements
@@ -1383,9 +1391,9 @@ int real_vm_c::GLOB_FunctionBody(type_t *type, const char *func_name)
 		FreeTemporaries();
 	}
 
-	if (code == numstatements ||
-		! (statements[numstatements-1].op == OP_DONE ||
-		   statements[numstatements-1].op == OP_DONE_V))
+	statement_t *last = REF_OP(COM->last_statement);
+
+	if (last->op != OP_DONE && last->op != OP_DONE_V)
 	{
 		if (type->aux_type->type == ev_void)
 			EmitCode(OP_DONE);
@@ -1494,7 +1502,7 @@ void real_vm_c::GLOB_Function()
 	COM->scope = def;
 	//  { 
 		df->first_statement = GLOB_FunctionBody(func_type, func_name);
-		df->last_statement  = numstatements-1;
+		df->last_statement  = COM->last_statement;
 	//  }
 	COM->scope = NULL;
 
@@ -1503,6 +1511,7 @@ void real_vm_c::GLOB_Function()
 	df->locals_size = COM->locals_end - df->locals_ofs;
 	df->locals_end  = COM->locals_end;
 
+	ASM_DumpFunction(df);
 // fprintf(stderr, "FUNCTION %s locals:%d\n", func_name, COM->locals_end);
 }
 
@@ -1635,10 +1644,10 @@ bool real_vm_c::CompileFile(char *buffer, const char *filename)
 
 void real_vm_c::ShowStats()
 {
+	printf("functions: %6u\n", functions.size());
 	printf("string memory: %d / %d\n", string_mem.totalUsed(), string_mem.totalMemory());
-	printf("%6i numstatements\n", numstatements);
-	printf("%6u numfunctions\n", functions.size());
-	printf("%6i numpr_globals\n", numpr_globals);
+	printf("instruction memory: %d / %d\n", op_mem.totalUsed(), op_mem.totalMemory());
+	printf("globals memory: %u\n", numpr_globals * sizeof(double));
 }
 
 
@@ -1662,13 +1671,17 @@ COM = new compiling_c;
 	functions.push_back(df);
 
 
-	// FIXME: clear native functions
+	// statement #0 is never used
+	ofs = EmitCode(OP_DONE);
+	assert(ofs == 0);
 
 
-	numstatements = 1;
-
-
+	// FIXME:  global #0 is equivalent to NULL
+	//         global #1-#6 are reserved for function return values
 	numpr_globals = RESERVED_OFS;
+
+
+	// FIXME: clear native functions
 
 
 // FIXME NEEDED ????

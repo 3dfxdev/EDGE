@@ -60,6 +60,8 @@ statement_t;
 
 enum
 {
+	OP_NULL = 0,
+
 	OP_DONE,
 	OP_DONE_V,
 
@@ -222,9 +224,6 @@ extern scope_c global_scope;
 
 #define RESERVED_OFS	10
 
-extern	statement_t	statements[MAX_STATEMENTS];
-extern	int			numstatements;
-
 extern	double		pr_globals[MAX_REGS];
 extern	int			numpr_globals;
 
@@ -266,10 +265,6 @@ public:
 
 //=== EXECUTION STUFF ========================================//
 
-
-typedef void (*builtin_t) (void);
-extern builtin_t *pr_builtins;
-extern int pr_numbuiltins;
 
 extern int pr_argc;
 
@@ -362,7 +357,7 @@ private:
 	type_t * ParseType();
 	type_t * FindType(type_t *type);
 
-	void EmitCode(short op, short a=0, short b=0, short c=0);
+	int EmitCode(short op, short a=0, short b=0, short c=0);
 
 
 	void LEX_Next();
@@ -387,8 +382,8 @@ private:
 	void DoExecute(int func_id);
 
 	void EnterNative  (int func, int result);
-	int  EnterFunction(int func, int result = 0);
-	int  LeaveFunction(int *result);
+	void EnterFunction(int func, int result = 0);
+	void LeaveFunction(int *result);
 
 	int	InternaliseString(const char *new_s);
 

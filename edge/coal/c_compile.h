@@ -72,6 +72,7 @@ public:
 
 	// for tracking local variables vs temps
 	int locals_end;
+	int last_statement;
 
 public:
 	 compiling_c();
