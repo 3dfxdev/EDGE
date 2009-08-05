@@ -17,42 +17,47 @@
 //
 //----------------------------------------------------------------------
 
-#ifndef __COAL_EXECUTION_STUFF_H__
-#define __COAL_EXECUTION_STUFF_H__
+#ifndef __COAL_COMPILER_BITS_H__
+#define __COAL_COMPILER_BITS_H__
 
 
-#define	MAX_CALL_STACK		96
-#define	MAX_LOCAL_STACK		2048
-
-struct call_stack_c
+typedef enum
 {
-	int s;
-	int func;
-	int result;
-};
+	tt_eof,			// end of file reached
+	tt_name, 		// an alphanumeric name token
+	tt_punct, 		// code punctuation
+	tt_literal,  	// string, float, vector
+}
+token_e;
 
 
-class execution_c
+class compiling_c
 {
 public:
-	// current statement
-	int s;
-	int func;
+	char    token_buf[2048];
+	token_e token_type;
+	bool    token_is_first;
 
-	bool tracing;
+	char    literal_buf[2048];
+	type_t *literal_type;
+	double  literal_value[3];
 
-	double stack[MAX_LOCAL_STACK];
-	int stack_depth;
+	int error_count;
 
-	call_stack_c call_stack[MAX_CALL_STACK+1];
-	int call_depth;
+	type_t * all_types;
+	def_t  * all_defs;
+
+	// all temporaries for current function
+	std::vector<def_t *> temporaries;
+
+	std::vector<def_t *> constants;
 
 public:
-	 execution_c();
-	~execution_c();
+	 compiling_c();
+	~compiling_c();
 };
 
-#endif /* __COAL_EXECUTION_STUFF_H__ */
+#endif /* __COAL_COMPILER_BITS_H__ */
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
