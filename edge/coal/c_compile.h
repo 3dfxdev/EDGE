@@ -54,6 +54,9 @@ public:
 	type_t *literal_type;
 	double  literal_value[3];
 
+	// parameter names (when parsing a function def)
+	char parm_names[MAX_PARMS][MAX_NAME];
+
 	int error_count;
 
 	type_t * all_types;

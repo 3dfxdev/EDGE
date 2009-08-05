@@ -82,7 +82,9 @@ static type_t	type_function = {ev_function, &type_void};
 
 static int		type_size[8] = {1,1,1,3,1,1,1,1};
 
-static def_t	def_void = {&type_void, "VOID_SPACE", 0};
+
+// definition used for void return functions
+static def_t def_void = {&type_void, "VOID_SPACE", 0};
 
 
 static opcode_t pr_operators[] =
@@ -371,13 +373,10 @@ void real_vm_c::LEX_Whitespace(void)
 
 
 
-/*
-==============
-LEX_Next
-
-Sets COM->token_buf, COM->token_type, and possibly COM->literal_value and COM->literal_type
-==============
-*/
+//
+// Parse the next token in the file.
+// Sets token_type and token_buf, and possibly the literal_xxx fields
+//
 void real_vm_c::LEX_Next()
 {
 	assert(COM->parse_p);
@@ -432,14 +431,10 @@ void real_vm_c::LEX_Next()
 }
 
 
-/*
-=============
-LEX_Expect
-
-Issues an error if the current token isn't equal to string
-Gets the next token
-=============
-*/
+//
+// Issues an error if the current token isn't what we want.
+// On success, automatically skips to the next token.
+//
 void real_vm_c::LEX_Expect(const char *str)
 {
 	if (strcmp(COM->token_buf, str) != 0)
@@ -449,14 +444,13 @@ void real_vm_c::LEX_Expect(const char *str)
 }
 
 
-/*
-=============
-LEX_Check
-
-Returns true and gets the next token if the current token equals string
-Returns false and does nothing otherwise
-=============
-*/
+//
+// Checks that the current token matches what we want
+// (which can be a keyword or symbol).
+//
+// Returns true on a match (skipping to the next token),
+// otherwise returns false and does nothing.
+//
 bool real_vm_c::LEX_Check(const char *str)
 {
 	if (strcmp(COM->token_buf, str) != 0)
@@ -467,13 +461,13 @@ bool real_vm_c::LEX_Check(const char *str)
 	return true;
 }
 
-/*
-============
-LEX_SkipToSemicolon
 
-For error recovery, also pops out of nested braces
-============
-*/
+//
+// For error recovery.
+// Also pops out of nested braces
+//
+// FIXME: useless now that semicolons are optional
+//
 void real_vm_c::LEX_SkipToSemicolon()
 {
 	do
@@ -486,13 +480,9 @@ void real_vm_c::LEX_SkipToSemicolon()
 }
 
 
-/*
-============
-ParseName
-
-Checks to see if the current token is a valid name
-============
-*/
+//
+// Checks to see if the current token is a valid name
+//
 char * real_vm_c::ParseName()
 {
 	static char	ident[MAX_NAME];
@@ -513,14 +503,11 @@ char * real_vm_c::ParseName()
 
 //=============================================================================
 
-/*
-============
-FindType
 
-Returns a preexisting complex type that matches the parm, or allocates
-a new one and copies it out.
-============
-*/
+//
+// Returns a preexisting complex type that matches the parm, or allocates
+// a new one and copies it out.
+//
 type_t * real_vm_c::FindType(type_t *type)
 {
 	def_t	*def;
@@ -558,15 +545,9 @@ type_t * real_vm_c::FindType(type_t *type)
 }
 
 
-/*
-============
-ParseType
-
-Parses a variable type, including field and functions types
-============
-*/
-char	pr_parm_names[MAX_PARMS][MAX_NAME];
-
+//
+// Parses a variable type, including field and functions types
+//
 type_t * real_vm_c::ParseType()
 {
 	type_t	t_new;
@@ -610,7 +591,9 @@ type_t * real_vm_c::ParseType()
 			{
 				type = ParseType();
 				name = ParseName();
-				strcpy(pr_parm_names[t_new.parm_num], name);
+				
+				strcpy(COM->parm_names[t_new.parm_num], name);
+
 				t_new.parm_types[t_new.parm_num] = type;
 				t_new.parm_num++;
 			} while (LEX_Check(","));
@@ -770,7 +753,7 @@ def_t * real_vm_c::FindConstant()
 }
 
 
-void real_vm_c::StoreConstant(int ofs)
+void real_vm_c::StoreLiteral(int ofs)
 {
 	if (COM->literal_type == &type_string)
 		pr_globals[ofs] = (double) InternaliseString(COM->literal_buf);
@@ -801,7 +784,7 @@ def_t * real_vm_c::EXP_Constant()
 		COM->all_defs  = cn;
 
 		// copy the literal to the global area
-		StoreConstant(cn->ofs);
+		StoreLiteral(cn->ofs);
 
 		COM->constants.push_back(cn);
 	}
@@ -1381,10 +1364,10 @@ int real_vm_c::GLOB_FunctionBody(type_t *type, const char *func_name)
 
 	for (int i=0 ; i < type->parm_num ; i++)
 	{
-		if (FindDef(type->parm_types[i], pr_parm_names[i], COM->scope))
-			CompileError("parameter %s redeclared", pr_parm_names[i]);
+		if (FindDef(type->parm_types[i], COM->parm_names[i], COM->scope))
+			CompileError("parameter %s redeclared", COM->parm_names[i]);
 
-		defs[i] = GetDef(type->parm_types[i], pr_parm_names[i], COM->scope);
+		defs[i] = GetDef(type->parm_types[i], COM->parm_names[i], COM->scope);
 	}
 
 	int code = numstatements;
@@ -1436,7 +1419,7 @@ void real_vm_c::GLOB_Function()
 
 			char *name = ParseName();
 
-			strcpy(pr_parm_names[t_new.parm_num], name);
+			strcpy(COM->parm_names[t_new.parm_num], name);
 
 			// parameter type (defaults to float)
 			if (LEX_Check(":"))
@@ -1573,7 +1556,7 @@ void real_vm_c::GLOB_Constant()
 	cn->next = COM->all_defs;
 	COM->all_defs = cn;
 
-	StoreConstant(cn->ofs);
+	StoreLiteral(cn->ofs);
 
 	COM->constants.push_back(cn);
 
