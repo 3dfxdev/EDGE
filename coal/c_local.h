@@ -348,7 +348,7 @@ private:
 	def_t * GetDef (type_t *type, char *name, def_t *scope);
 	def_t * FindDef(type_t *type, char *name, def_t *scope);
 
-	void StoreConstant(int ofs);
+	void StoreLiteral(int ofs);
 	def_t * FindConstant();
 
 	def_t * NewTemporary(type_t *type);
