@@ -878,7 +878,7 @@ void real_vm_c::PrintStatement(function_t *f, int s)
 
 		case OP_IFNOT:
 		case OP_IF:
-			Con_Printf("%s, %08x", RegString(st, 1), st->b);
+			Con_Printf("%s %08x", RegString(st, 1), st->b);
 			break;
 
 		case OP_GOTO:
@@ -887,7 +887,7 @@ void real_vm_c::PrintStatement(function_t *f, int s)
 			break;
 
 		case OP_CALL:
-			Con_Printf("%s, %d ", RegString(st, 1), st->b);
+			Con_Printf("%s (%d) ", RegString(st, 1), st->b);
 
 			if (! st->c)
 				Con_Printf(" ");
@@ -909,7 +909,7 @@ void real_vm_c::PrintStatement(function_t *f, int s)
 			break;
 
 		default:
-			Con_Printf("%s, ",   RegString(st, 1));
+			Con_Printf("%s + ",  RegString(st, 1));
 			Con_Printf("%s ",    RegString(st, 2));
 			Con_Printf("-> %s",  RegString(st, 3));
 			break;
@@ -962,6 +962,22 @@ void real_vm_c::PrintStatement(function_t *f, int s)
 #endif
 }
 
+
+void real_vm_c::ASM_DumpFunction(function_t *f)
+{
+	if (f->first_statement < 0)
+		return;  // FIXME
+
+	for (int s = f->first_statement; s <= f->last_statement; s++)
+	{
+		PrintStatement(f, s);
+	}
+}
+
+void real_vm_c::ASM_DumpAll()
+{
+	// TODO
+}
 
 
 }  // namespace coal
