@@ -34,6 +34,18 @@ token_e;
 class compiling_c
 {
 public:
+	const char *source_file;
+	int source_line;
+	int function_line;
+
+	// current parsing position
+	char *parse_p;
+	char *line_start;	// start of current source line
+	int  bracelevel;
+	int  parentheses;
+	int  fol_level;    // fol = first on line
+
+	// current token (from LEX_Next)
 	char    token_buf[2048];
 	token_e token_type;
 	bool    token_is_first;
@@ -51,6 +63,12 @@ public:
 	std::vector<def_t *> temporaries;
 
 	std::vector<def_t *> constants;
+
+	// the function being parsed, or NULL
+	def_t  * scope;
+
+	// for tracking local variables vs temps
+	int locals_end;
 
 public:
 	 compiling_c();

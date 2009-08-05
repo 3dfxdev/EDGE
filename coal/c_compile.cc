@@ -52,6 +52,8 @@ compiling_c * COM;
 
 
 compiling_c::compiling_c() :
+	source_file(NULL), source_line(0),
+	parse_p(NULL), line_start(NULL),
 	error_count(0),
 	all_types(NULL), all_defs(NULL),
 	temporaries(), constants()
@@ -60,14 +62,6 @@ compiling_c::compiling_c() :
 compiling_c::~compiling_c()
 { }
 
-
-
-static char		*pr_file_p;
-static char		*pr_line_start;		// start of current source line
-
-static int			pr_bracelevel;
-static int			pr_parentheses;
-static int			pr_fol_level;    // fol = first on line
 
 
 const char * punctuation[] =
@@ -89,12 +83,6 @@ static type_t	type_function = {ev_function, &type_void};
 static int		type_size[8] = {1,1,1,3,1,1,1,1};
 
 static def_t	def_void = {&type_void, "VOID_SPACE", 0};
-
-
-static def_t		*pr_scope;		// the function being parsed, or NULL
-
-static int			locals_end;		// for tracking local variables vs temps
-
 
 
 static opcode_t pr_operators[] =
@@ -153,12 +141,12 @@ static opcode_t pr_operators[] =
 
 void real_vm_c::LEX_NewLine()
 {
-	// Called when *pr_file_p == '\n'
+	// Called when *COM->parse_p == '\n'
 
-	source_line++;
+	COM->source_line++;
 
-	pr_line_start = pr_file_p + 1;
-	pr_fol_level = 0;
+	COM->line_start = COM->parse_p + 1;
+	COM->fol_level = 0;
 }
 
 
@@ -174,7 +162,7 @@ void real_vm_c::CompileError(const char *error, ...)
 	vsprintf(buffer,error,argptr);
 	va_end(argptr);
 
-	printf("%s:%i:%s\n", source_file, source_line, buffer);
+	printf("%s:%i:%s\n", COM->source_file, COM->source_line, buffer);
 
 //  raise(11);
 	throw parse_error_x();
@@ -189,18 +177,18 @@ void real_vm_c::LEX_String()
 	int		len;
 
 	len = 0;
-	pr_file_p++;
+	COM->parse_p++;
 
 	for (;;)
 	{
-		c = *pr_file_p++;
+		c = *COM->parse_p++;
 		if (!c)
 			CompileError("EOF inside quote");
 		if (c=='\n')
 			CompileError("newline inside quote");
 		if (c=='\\')
 		{	// escape char
-			c = *pr_file_p++;
+			c = *COM->parse_p++;
 			if (!c)
 				CompileError("EOF inside quote");
 			if (c == 'n')
@@ -230,13 +218,13 @@ float real_vm_c::LEX_Number()
 	int		len;
 
 	len = 0;
-	c = *pr_file_p;
+	c = *COM->parse_p;
 	do
 	{
 		COM->token_buf[len] = c;
 		len++;
-		pr_file_p++;
-		c = *pr_file_p;
+		COM->parse_p++;
+		c = *COM->parse_p;
 	} while ((c >= '0' && c<= '9') || c == '.');
 
 	COM->token_buf[len] = 0;
@@ -251,7 +239,7 @@ void real_vm_c::LEX_Vector()
 
 	int		i;
 
-	pr_file_p++;
+	COM->parse_p++;
 	COM->token_type = tt_literal;
 	COM->literal_type = &type_vector;
 
@@ -261,12 +249,12 @@ void real_vm_c::LEX_Vector()
 
 		COM->literal_value[i] = LEX_Number();
 
-		while (isspace(*pr_file_p) && *pr_file_p != '\n')
-			pr_file_p++;
+		while (isspace(*COM->parse_p) && *COM->parse_p != '\n')
+			COM->parse_p++;
 	}
-	if (*pr_file_p != '\'')
+	if (*COM->parse_p != '\'')
 		CompileError("Bad vector");
-	pr_file_p++;
+	COM->parse_p++;
 }
 
 
@@ -278,13 +266,13 @@ void real_vm_c::LEX_Name()
 	int		len;
 
 	len = 0;
-	c = *pr_file_p;
+	c = *COM->parse_p;
 	do
 	{
 		COM->token_buf[len] = c;
 		len++;
-		pr_file_p++;
-		c = *pr_file_p;
+		COM->parse_p++;
+		c = *COM->parse_p;
 	} while (   (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_'
 			 || (c >= '0' && c <= '9'));
 
@@ -299,27 +287,27 @@ void real_vm_c::LEX_Punctuation()
 
 	const char *p;
 
-	char ch = *pr_file_p;
+	char ch = *COM->parse_p;
 
 	for (int i=0 ; (p = punctuation[i]) != NULL ; i++)
 	{
 		int len = strlen(p);
 
-		if (strncmp(p, pr_file_p, len) == 0)
+		if (strncmp(p, COM->parse_p, len) == 0)
 		{
 			strcpy(COM->token_buf, p);
 
 			if (p[0] == '{')
-				pr_bracelevel++;
+				COM->bracelevel++;
 			else if (p[0] == '}')
-				pr_bracelevel--;
+				COM->bracelevel--;
 
 			if (p[0] == '(')
-				pr_parentheses++;
+				COM->parentheses++;
 			else if (p[0] == ')')
-				pr_parentheses--;
+				COM->parentheses--;
 
-			pr_file_p += len;
+			COM->parse_p += len;
 			return;
 		}
 	}
@@ -335,7 +323,7 @@ void real_vm_c::LEX_Whitespace(void)
 	for (;;)
 	{
 		// skip whitespace
-		while ( (c = *pr_file_p) <= ' ')
+		while ( (c = *COM->parse_p) <= ' ')
 		{
 			if (c == 0) // end of file?
 				return;
@@ -343,37 +331,37 @@ void real_vm_c::LEX_Whitespace(void)
 			if (c=='\n')
 				LEX_NewLine();
 
-			pr_file_p++;
+			COM->parse_p++;
 		}
 
 		// skip // comments
-		if (c=='/' && pr_file_p[1] == '/')
+		if (c=='/' && COM->parse_p[1] == '/')
 		{
-			while (*pr_file_p && *pr_file_p != '\n')
-				pr_file_p++;
+			while (*COM->parse_p && *COM->parse_p != '\n')
+				COM->parse_p++;
 
 			LEX_NewLine();
 
-			pr_file_p++;
+			COM->parse_p++;
 			continue;
 		}
 
 		// skip /* */ comments
-		if (c=='/' && pr_file_p[1] == '*')
+		if (c=='/' && COM->parse_p[1] == '*')
 		{
 			do
 			{
-				pr_file_p++;
+				COM->parse_p++;
 				
-				if (pr_file_p[0]=='\n')
+				if (COM->parse_p[0]=='\n')
 					LEX_NewLine();
 
-				if (pr_file_p[1] == 0)
+				if (COM->parse_p[1] == 0)
 					return;
 
-			} while (pr_file_p[-1] != '*' || pr_file_p[0] != '/');
+			} while (COM->parse_p[-1] != '*' || COM->parse_p[0] != '/');
 
-			pr_file_p++;
+			COM->parse_p++;
 			continue;
 		}
 
@@ -392,16 +380,16 @@ Sets COM->token_buf, COM->token_type, and possibly COM->literal_value and COM->l
 */
 void real_vm_c::LEX_Next()
 {
-	assert(pr_file_p);
+	assert(COM->parse_p);
 
 	LEX_Whitespace();
 
 	COM->token_buf[0] = 0;
-	COM->token_is_first = (pr_fol_level == 0);
+	COM->token_is_first = (COM->fol_level == 0);
 
-	pr_fol_level++;
+	COM->fol_level++;
 
-	int c = *pr_file_p;
+	int c = *COM->parse_p;
 
 	if (!c)
 	{
@@ -425,7 +413,7 @@ void real_vm_c::LEX_Next()
 
 // if the first character is a valid identifier, parse until a non-id
 // character is reached
-	if ( (c >= '0' && c <= '9') || ( c=='-' && pr_file_p[1]>='0' && pr_file_p[1] <='9') )
+	if ( (c >= '0' && c <= '9') || ( c=='-' && COM->parse_p[1]>='0' && COM->parse_p[1] <='9') )
 	{
 		COM->token_type = tt_literal;
 		COM->literal_type = &type_float;
@@ -490,7 +478,7 @@ void real_vm_c::LEX_SkipToSemicolon()
 {
 	do
 	{
-		if (!pr_bracelevel && LEX_Check(";"))
+		if (!COM->bracelevel && LEX_Check(";"))
 			return;
 		LEX_Next();
 	}
@@ -642,7 +630,7 @@ void real_vm_c::EmitCode(short op, short a, short b, short c)
 	statement_t *st = &statements[numstatements++];
 
 	st->op = op;
-	st->line = source_line - function_line;
+	st->line = COM->source_line - COM->function_line;
 
 	st->a  = a;
 	st->b  = b;
@@ -691,10 +679,10 @@ def_t * real_vm_c::NewLocal(type_t *type)
 	def_t * var = new def_t;
 	memset(var, 0, sizeof(def_t));
 
-	var->ofs = -(locals_end+1);
+	var->ofs = -(COM->locals_end+1);
 	var->type = type;
 
-	locals_end += type_size[type->type];
+	COM->locals_end += type_size[type->type];
 
 	return var;
 }
@@ -911,7 +899,7 @@ void real_vm_c::STAT_Return(void)
 {
 	if (COM->token_is_first || COM->token_buf[0] == '}' || LEX_Check(";"))
 	{
-		if (pr_scope->type->aux_type->type != ev_void)
+		if (COM->scope->type->aux_type->type != ev_void)
 			CompileError("missing value for return");
 
 		EmitCode(OP_DONE);
@@ -920,13 +908,13 @@ void real_vm_c::STAT_Return(void)
 
 	def_t * e = EXP_Expression(TOP_PRIORITY);
 
-	if (pr_scope->type->aux_type->type == ev_void)
+	if (COM->scope->type->aux_type->type == ev_void)
 		CompileError("return with value in void function");
 
-	if (pr_scope->type->aux_type != e->type)
+	if (COM->scope->type->aux_type != e->type)
 		CompileError("mismatch types for return");
 
-	if (pr_scope->type->aux_type->type == ev_vector)
+	if (COM->scope->type->aux_type->type == ev_vector)
 	{
 		EmitCode(OP_MOVE_V, e->ofs, OFS_RETURN);
 		EmitCode(OP_DONE_V);
@@ -999,7 +987,7 @@ def_t * real_vm_c::EXP_VarValue()
 	char *name = ParseName();
 
 	// look through the defs
-	def_t *d = FindDef(NULL, name, pr_scope);
+	def_t *d = FindDef(NULL, name, COM->scope);
 	if (!d)
 		CompileError("Unknown identifier '%s'", name);
 
@@ -1371,7 +1359,7 @@ int real_vm_c::GLOB_FunctionBody(type_t *type, const char *func_name)
 {
 	COM->temporaries.clear();
 
-	function_line = source_line;
+	COM->function_line = COM->source_line;
 
 	//
 	// check for native function definition
@@ -1393,10 +1381,10 @@ int real_vm_c::GLOB_FunctionBody(type_t *type, const char *func_name)
 
 	for (int i=0 ; i < type->parm_num ; i++)
 	{
-		if (FindDef(type->parm_types[i], pr_parm_names[i], pr_scope))
+		if (FindDef(type->parm_types[i], pr_parm_names[i], COM->scope))
 			CompileError("parameter %s redeclared", pr_parm_names[i]);
 
-		defs[i] = GetDef(type->parm_types[i], pr_parm_names[i], pr_scope);
+		defs[i] = GetDef(type->parm_types[i], pr_parm_names[i], COM->scope);
 	}
 
 	int code = numstatements;
@@ -1471,7 +1459,7 @@ void real_vm_c::GLOB_Function()
 
 	type_t *func_type = FindType(&t_new);
 
-	def_t *def = GetDef(func_type, func_name, pr_scope);
+	def_t *def = GetDef(func_type, func_name, COM->scope);
 
 	if (def->flags & DF_Initialized)
 		CompileError("%s redeclared", func_name);
@@ -1492,8 +1480,8 @@ void real_vm_c::GLOB_Function()
 	functions.push_back(df);
 
 	df->name = func_name;  // already strdup'd
-	df->source_file = strdup(source_file);
-	df->source_line = source_line;
+	df->source_file = strdup(COM->source_file);
+	df->source_line = COM->source_line;
 
 	int stack_ofs = 0;
 
@@ -1516,22 +1504,22 @@ void real_vm_c::GLOB_Function()
 	df->locals_ofs = stack_ofs;
 
 	// parms are "realloc'd" by GetDef in FunctionBody (FIXME)
-	locals_end = 0;
+	COM->locals_end = 0;
 
 
-	pr_scope = def;
+	COM->scope = def;
 	//  { 
 		df->first_statement = GLOB_FunctionBody(func_type, func_name);
 		df->last_statement  = numstatements-1;
 	//  }
-	pr_scope = NULL;
+	COM->scope = NULL;
 
 	def->flags |= DF_Initialized;
 
-	df->locals_size = locals_end - df->locals_ofs;
-	df->locals_end  = locals_end;
+	df->locals_size = COM->locals_end - df->locals_ofs;
+	df->locals_end  = COM->locals_end;
 
-// fprintf(stderr, "FUNCTION %s locals:%d\n", func_name, locals_end);
+// fprintf(stderr, "FUNCTION %s locals:%d\n", func_name, COM->locals_end);
 }
 
 
@@ -1550,7 +1538,7 @@ void real_vm_c::GLOB_Variable()
 	// if (LEX_Check("="))
 	// 	 get default value
 
-	def_t * def = GetDef(type, var_name, pr_scope);
+	def_t * def = GetDef(type, var_name, COM->scope);
 
 	DefaultValue(def->ofs, type);
 
@@ -1624,15 +1612,17 @@ void real_vm_c::GLOB_Globals()
 //
 // compiles the NUL terminated text, adding definitions to the pr structure
 //
-bool real_vm_c::CompileFile(char *string, const char *filename)
+bool real_vm_c::CompileFile(char *buffer, const char *filename)
 {
-	source_file = filename;
-	source_line = 1;
-	function_line = 0;
+	COM->source_file = filename;
+	COM->source_line = 1;
+	COM->function_line = 0;
 
-	pr_file_p = string;
-	pr_line_start = string;
-	pr_fol_level = 0;
+	COM->parse_p = buffer;
+	COM->line_start = buffer;
+	COM->bracelevel  = 0;
+	COM->parentheses = 0;
+	COM->fol_level   = 0;
 
 	LEX_Next();	// read first token
 
@@ -1640,7 +1630,7 @@ bool real_vm_c::CompileFile(char *string, const char *filename)
 	{
 		try
 		{
-			pr_scope = NULL;	// outside all functions
+			COM->scope = NULL;	// outside all functions
 
 			GLOB_Globals();
 		}
@@ -1656,7 +1646,7 @@ bool real_vm_c::CompileFile(char *string, const char *filename)
 		}
 	}
 
-	source_file = NULL;
+	COM->source_file = NULL;
 
 	return (COM->error_count == 0);
 }
@@ -1671,9 +1661,7 @@ void real_vm_c::ShowStats()
 
 
 real_vm_c::real_vm_c() :
-	global_mem(), string_mem(), op_mem(), functions(),
-	source_file(NULL),
-	trace(false)
+	global_mem(), string_mem(), op_mem(), functions()
 {
 // FIXME TEMP HACK !!!!!!
 COM = new compiling_c;

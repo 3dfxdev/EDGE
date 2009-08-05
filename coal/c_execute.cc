@@ -115,7 +115,7 @@ void real_vm_c::AddNativeFunction(const char *name, native_func_t func)
 
 void real_vm_c::SetTrace(bool enable)
 {
-	trace = enable;
+	// FIXME: EXE->tracing = enable;
 }
 
 
