@@ -1482,13 +1482,14 @@ void real_vm_c::GLOB_Function()
 	assert(func_type->type == ev_function);
 
 
-	G_FUNCTION(def->ofs) = (func_t)numfunctions;
-	numfunctions++;
+	G_FUNCTION(def->ofs) = (func_t)functions.size();
 
 
 	// fill in the dfunction
-	function_t *df = &functions[(int)G_FUNCTION(def->ofs)];
+	function_t *df = new function_t;
 	memset(df, 0, sizeof(function_t));
+
+	functions.push_back(df);
 
 	df->name = func_name;  // already strdup'd
 	df->source_file = strdup(source_file);
@@ -1664,30 +1665,37 @@ void real_vm_c::ShowStats()
 {
 	printf("string memory: %d / %d\n", string_mem.totalUsed(), string_mem.totalMemory());
 	printf("%6i numstatements\n", numstatements);
-	printf("%6i numfunctions\n", numfunctions);
+	printf("%6u numfunctions\n", functions.size());
 	printf("%6i numpr_globals\n", numpr_globals);
 }
 
 
 real_vm_c::real_vm_c() :
-	global_mem(), string_mem(), op_mem(),
+	global_mem(), string_mem(), op_mem(), functions(),
 	source_file(NULL),
 	trace(false)
 {
+// FIXME TEMP HACK !!!!!!
+COM = new compiling_c;
+
+
 	// string #0 must be the empty string
 	int ofs = string_mem.alloc(2);
 	assert(ofs == 0);
 	strcpy((char *)string_mem.deref(0), "");
 
 
-// FIXME TEMP HACK
-COM = new compiling_c;
+	// function #0 is the "null function" 
+	function_t *df = new function_t;
+	memset(df, 0, sizeof(function_t));
+
+	functions.push_back(df);
+
+
+	// FIXME: clear native functions
 
 
 	numstatements = 1;
-	numfunctions = 1;
-
-	// FIXME: clear native functions
 
 
 	numpr_globals = RESERVED_OFS;

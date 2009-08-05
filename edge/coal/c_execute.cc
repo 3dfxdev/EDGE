@@ -56,9 +56,6 @@ int			numpr_globals;
 statement_t	statements[MAX_STATEMENTS];
 int			numstatements;
 
-function_t	functions[MAX_FUNCTIONS];
-int			numfunctions;
-
 
 execution_c * EXE;
 
@@ -124,9 +121,9 @@ void real_vm_c::SetTrace(bool enable)
 
 int real_vm_c::FindFunction(const char *func_name)
 {
-	for (int i = 1; i < numfunctions; i++)
+	for (int i = 1; i < (int)functions.size(); i++)
 	{
-		function_t *f = &functions[i];
+		function_t *f = functions[i];
 
 		if (strcmp(f->name, func_name) == 0)
 			return i;
@@ -159,10 +156,10 @@ double * real_vm_c::AccessParam(int p)
 {
 	assert(EXE->func);
 
-	if (p >= functions[EXE->func].parm_num)
+	if (p >= functions[EXE->func]->parm_num)
 		RunError("PR_Parameter: p=%d out of range\n", p);
 
-	return &EXE->stack[EXE->stack_depth + functions[EXE->func].parm_ofs[p]];
+	return &EXE->stack[EXE->stack_depth + functions[EXE->func]->parm_ofs[p]];
 }
 
 
@@ -210,7 +207,9 @@ int real_vm_c::EnterFunction(int func, int result)
 {
 	// Returns the new program statement counter
 
-	function_t *f = &functions[func];
+	assert(func > 0);
+
+	function_t *f = functions[func];
 
     EXE->call_stack[EXE->call_depth].s      = EXE->s;
     EXE->call_stack[EXE->call_depth].func   = EXE->func;
@@ -221,7 +220,7 @@ int real_vm_c::EnterFunction(int func, int result)
 		RunError("stack overflow");
 
 	if (EXE->func)
-		EXE->stack_depth += functions[EXE->func].locals_end;
+		EXE->stack_depth += functions[EXE->func]->locals_end;
 
 	if (EXE->stack_depth + f->locals_end >= MAX_LOCAL_STACK)
 		RunError("PR_ExecuteProgram: locals stack overflow\n");
@@ -243,7 +242,7 @@ int real_vm_c::LeaveFunction(int *result)
 	*result   = EXE->call_stack[EXE->call_depth].result;
 
 	if (EXE->func)
-		EXE->stack_depth -= functions[EXE->func].locals_end;
+		EXE->stack_depth -= functions[EXE->func]->locals_end;
 
 	return EXE->call_stack[EXE->call_depth].s + 1;  // skip the calling op
 }
@@ -251,12 +250,12 @@ int real_vm_c::LeaveFunction(int *result)
 
 void real_vm_c::EnterNative(int func, int result)
 {
-	function_t *newf = &functions[func];
+	function_t *newf = functions[func];
 
 	int n = -(newf->first_statement + 1);
 	assert(n < (int)native_funcs.size());
 
-	EXE->stack_depth += functions[EXE->func].locals_end;
+	EXE->stack_depth += functions[EXE->func]->locals_end;
 	{
 		int old_func = EXE->func;
 		{
@@ -265,7 +264,7 @@ void real_vm_c::EnterNative(int func, int result)
 		}
 		EXE->func = old_func;
 	}
-	EXE->stack_depth -= functions[EXE->func].locals_end;
+	EXE->stack_depth -= functions[EXE->func]->locals_end;
 }
 
 
@@ -273,7 +272,7 @@ void real_vm_c::DoExecute(int fnum)
 {
     function_t *newf;
 
-	function_t *f = &functions[fnum];
+	function_t *f = functions[fnum];
 
 	int runaway = MAX_RUNAWAY;
 
@@ -461,7 +460,7 @@ void real_vm_c::DoExecute(int fnum)
 				int fnum = (int)*a;
 				if (!fnum)
 					RunError("NULL function");
-				newf = &functions[fnum];
+				newf = functions[fnum];
 
 				pr_argc = st->b;
 
@@ -512,13 +511,13 @@ void real_vm_c::DoExecute(int fnum)
 			break;
 
 			case OP_PARM_F:
-				b = &EXE->stack[EXE->stack_depth + functions[EXE->func].locals_end + st->b];
+				b = &EXE->stack[EXE->stack_depth + functions[EXE->func]->locals_end + st->b];
 
 				*b = *a;
 				break;
 
 			case OP_PARM_V:
-				b = &EXE->stack[EXE->stack_depth + functions[EXE->func].locals_end + st->b];
+				b = &EXE->stack[EXE->stack_depth + functions[EXE->func]->locals_end + st->b];
 
 				b[0] = a[0];
 				b[1] = a[1];
@@ -537,9 +536,9 @@ if (! EXE) EXE = new execution_c();
 
 	try
 	{
-		if (func_id < 0 || func_id >= numfunctions)
+		if (func_id < 1 || func_id >= (int)functions.size())
 		{
-			RunError("PR_ExecuteProgram: NULL function");
+			RunError("vm_c::Execute: NULL function");
 		}
 
 		DoExecute(func_id);
@@ -693,7 +692,7 @@ void real_vm_c::StackTrace()
 	{
 		int back = (EXE->call_depth - i) + 1;
 
-		function_t * f = &functions[EXE->call_stack[i].func];
+		function_t * f = functions[EXE->call_stack[i].func];
 
 		statement_t *st = &statements[EXE->call_stack[i].s];
 
@@ -803,9 +802,9 @@ void real_vm_c::ASM_DumpFunction(function_t *f)
 
 void real_vm_c::ASM_DumpAll()
 {
-	for (int i = 1; i < numfunctions; i++)
+	for (int i = 1; i < (int)functions.size(); i++)
 	{
-		function_t *f = &functions[i];
+		function_t *f = functions[i];
 
 		ASM_DumpFunction(f);
 	}
