@@ -42,18 +42,24 @@ namespace coal
 {
 
 #include "c_local.h"
+#include "c_compile.h"
 
 #define MAX_ERRORS  1000
 
 
-typedef enum
-{
-	tt_eof,			// end of file reached
-	tt_name, 		// an alphanumeric name token
-	tt_punct, 		// code punctuation
-	tt_immediate,	// string, float, vector
-}
-token_type_t;
+
+compiling_c * COM;
+
+
+compiling_c::compiling_c() :
+	error_count(0),
+	all_types(NULL), all_defs(NULL),
+	temporaries(), constants()
+{ }
+
+compiling_c::~compiling_c()
+{ }
+
 
 
 static char		*pr_file_p;
@@ -61,19 +67,10 @@ static char		*pr_line_start;		// start of current source line
 
 static int			pr_bracelevel;
 static int			pr_parentheses;
-static int			pr_fol_level;    // first on line level
+static int			pr_fol_level;    // fol = first on line
 
-static char		pr_token[2048];
-static token_type_t	pr_token_type;
-static bool		pr_token_is_first;
-static type_t		*pr_immediate_type;
-static double		pr_immediate[3];
 
-static char	pr_immediate_string[2048];
-
-static int		pr_error_count;
-
-static char	*pr_punctuation[] =
+const char * punctuation[] =
 // longer symbols must be before a shorter partial match
 {"&&", "||", "<=", ">=","==", "!=", "++", "--", "...", "..",
  ":", ";", ",", "!",
@@ -94,17 +91,10 @@ static int		type_size[8] = {1,1,1,3,1,1,1,1};
 static def_t	def_void = {&type_void, "VOID_SPACE", 0};
 
 
-static type_t * all_types;
-static def_t  * all_defs;
-
 static def_t		*pr_scope;		// the function being parsed, or NULL
 
 static int			locals_end;		// for tracking local variables vs temps
 
-// all temporaries for current function
-static std::vector<def_t *> temporaries;
-
-static std::vector<def_t *> constants;
 
 
 static opcode_t pr_operators[] =
@@ -172,13 +162,9 @@ void real_vm_c::LEX_NewLine()
 }
 
 
-/*
-============
-CompileError
-
-Aborts the current file load
-============
-*/
+//
+// Aborts the current function parse
+//
 void real_vm_c::CompileError(const char *error, ...)
 {
 	va_list		argptr;
@@ -226,13 +212,13 @@ void real_vm_c::LEX_String()
 		}
 		else if (c=='\"')
 		{
-			pr_token[len] = 0;
-			pr_token_type = tt_immediate;
-			pr_immediate_type = &type_string;
-			strcpy(pr_immediate_string, pr_token);
+			COM->token_buf[len] = 0;
+			COM->token_type = tt_literal;
+			COM->literal_type = &type_string;
+			strcpy(COM->literal_buf, COM->token_buf);
 			return;
 		}
-		pr_token[len] = c;
+		COM->token_buf[len] = c;
 		len++;
 	}
 }
@@ -247,15 +233,15 @@ float real_vm_c::LEX_Number()
 	c = *pr_file_p;
 	do
 	{
-		pr_token[len] = c;
+		COM->token_buf[len] = c;
 		len++;
 		pr_file_p++;
 		c = *pr_file_p;
 	} while ((c >= '0' && c<= '9') || c == '.');
 
-	pr_token[len] = 0;
+	COM->token_buf[len] = 0;
 
-	return atof(pr_token);
+	return atof(COM->token_buf);
 }
 
 
@@ -266,14 +252,14 @@ void real_vm_c::LEX_Vector()
 	int		i;
 
 	pr_file_p++;
-	pr_token_type = tt_immediate;
-	pr_immediate_type = &type_vector;
+	COM->token_type = tt_literal;
+	COM->literal_type = &type_vector;
 
 	for (i=0 ; i<3 ; i++)
 	{
 		// FIXME: check for digits etc!
 
-		pr_immediate[i] = LEX_Number();
+		COM->literal_value[i] = LEX_Number();
 
 		while (isspace(*pr_file_p) && *pr_file_p != '\n')
 			pr_file_p++;
@@ -295,38 +281,44 @@ void real_vm_c::LEX_Name()
 	c = *pr_file_p;
 	do
 	{
-		pr_token[len] = c;
+		COM->token_buf[len] = c;
 		len++;
 		pr_file_p++;
 		c = *pr_file_p;
 	} while (   (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_'
 			 || (c >= '0' && c <= '9'));
 
-	pr_token[len] = 0;
-	pr_token_type = tt_name;
+	COM->token_buf[len] = 0;
+	COM->token_type = tt_name;
 }
 
 
 void real_vm_c::LEX_Punctuation()
 {
-	int		i;
-	int		len;
-	char	*p;
+	COM->token_type = tt_punct;
 
-	pr_token_type = tt_punct;
+	const char *p;
 
 	char ch = *pr_file_p;
 
-	for (i=0 ; (p = pr_punctuation[i]) != NULL ; i++)
+	for (int i=0 ; (p = punctuation[i]) != NULL ; i++)
 	{
-		len = strlen(p);
-		if (!strncmp(p, pr_file_p, len) )
+		int len = strlen(p);
+
+		if (strncmp(p, pr_file_p, len) == 0)
 		{
-			strcpy(pr_token, p);
+			strcpy(COM->token_buf, p);
+
 			if (p[0] == '{')
 				pr_bracelevel++;
 			else if (p[0] == '}')
 				pr_bracelevel--;
+
+			if (p[0] == '(')
+				pr_parentheses++;
+			else if (p[0] == ')')
+				pr_parentheses--;
+
 			pr_file_p += len;
 			return;
 		}
@@ -395,7 +387,7 @@ void real_vm_c::LEX_Whitespace(void)
 ==============
 LEX_Next
 
-Sets pr_token, pr_token_type, and possibly pr_immediate and pr_immediate_type
+Sets COM->token_buf, COM->token_type, and possibly COM->literal_value and COM->literal_type
 ==============
 */
 void real_vm_c::LEX_Next()
@@ -404,8 +396,8 @@ void real_vm_c::LEX_Next()
 
 	LEX_Whitespace();
 
-	pr_token[0] = 0;
-	pr_token_is_first = (pr_fol_level == 0);
+	COM->token_buf[0] = 0;
+	COM->token_is_first = (pr_fol_level == 0);
 
 	pr_fol_level++;
 
@@ -413,7 +405,7 @@ void real_vm_c::LEX_Next()
 
 	if (!c)
 	{
-		pr_token_type = tt_eof;
+		COM->token_type = tt_eof;
 		return;
 	}
 
@@ -435,9 +427,9 @@ void real_vm_c::LEX_Next()
 // character is reached
 	if ( (c >= '0' && c <= '9') || ( c=='-' && pr_file_p[1]>='0' && pr_file_p[1] <='9') )
 	{
-		pr_token_type = tt_immediate;
-		pr_immediate_type = &type_float;
-		pr_immediate[0] = LEX_Number();
+		COM->token_type = tt_literal;
+		COM->literal_type = &type_float;
+		COM->literal_value[0] = LEX_Number();
 		return;
 	}
 
@@ -462,8 +454,8 @@ Gets the next token
 */
 void real_vm_c::LEX_Expect(const char *str)
 {
-	if (strcmp(pr_token, str) != 0)
-		CompileError("expected %s found %s", str, pr_token);
+	if (strcmp(COM->token_buf, str) != 0)
+		CompileError("expected %s found %s", str, COM->token_buf);
 
 	LEX_Next();
 }
@@ -479,7 +471,7 @@ Returns false and does nothing otherwise
 */
 bool real_vm_c::LEX_Check(const char *str)
 {
-	if (strcmp(pr_token, str) != 0)
+	if (strcmp(COM->token_buf, str) != 0)
 		return false;
 
 	LEX_Next();
@@ -502,7 +494,7 @@ void real_vm_c::LEX_SkipToSemicolon()
 			return;
 		LEX_Next();
 	}
-	while (pr_token_type != tt_eof);
+	while (COM->token_type != tt_eof);
 }
 
 
@@ -517,13 +509,13 @@ char * real_vm_c::ParseName()
 {
 	static char	ident[MAX_NAME];
 
-	if (pr_token_type != tt_name)
+	if (COM->token_type != tt_name)
 		CompileError("expected identifier");
 
-	if (strlen(pr_token) >= MAX_NAME-1)
+	if (strlen(COM->token_buf) >= MAX_NAME-1)
 		CompileError("identifier too long");
 
-	strcpy(ident, pr_token);
+	strcpy(ident, COM->token_buf);
 
 	LEX_Next();
 
@@ -547,7 +539,7 @@ type_t * real_vm_c::FindType(type_t *type)
 	type_t	*check;
 	int		i;
 
-	for (check = all_types ; check ; check = check->next)
+	for (check = COM->all_types ; check ; check = check->next)
 	{
 		if (check->type != type->type
 			|| check->aux_type != type->aux_type
@@ -566,8 +558,8 @@ type_t * real_vm_c::FindType(type_t *type)
 	type_t *t_new = new type_t;
 	*t_new = *type;
 
-	t_new->next = all_types;
-	all_types = t_new;
+	t_new->next = COM->all_types;
+	COM->all_types = t_new;
 
 // allocate a generic def for the type, so fields can reference it
 	def = new def_t;
@@ -593,21 +585,21 @@ type_t * real_vm_c::ParseType()
 	type_t	*type;
 	char	*name;
 
-	if (!strcmp(pr_token, "float") )
+	if (!strcmp(COM->token_buf, "float") )
 		type = &type_float;
-	else if (!strcmp(pr_token, "vector") )
+	else if (!strcmp(COM->token_buf, "vector") )
 		type = &type_vector;
-	else if (!strcmp(pr_token, "float") )
+	else if (!strcmp(COM->token_buf, "float") )
 		type = &type_float;
-//	else if (!strcmp(pr_token, "entity") )
+//	else if (!strcmp(COM->token_buf, "entity") )
 //		type = &type_entity;
-	else if (!strcmp(pr_token, "string") )
+	else if (!strcmp(COM->token_buf, "string") )
 		type = &type_string;
-	else if (!strcmp(pr_token, "void") )
+	else if (!strcmp(COM->token_buf, "void") )
 		type = &type_void;
 	else
 	{
-		CompileError("\"%s\" is not a type", pr_token);
+		CompileError("\"%s\" is not a type", COM->token_buf);
 		type = &type_float;	// shut up compiler warning
 	}
 	LEX_Next();
@@ -714,7 +706,7 @@ def_t * real_vm_c::NewTemporary(type_t *type)
 
 	std::vector<def_t *>::iterator TI;
 
-	for (TI = temporaries.begin(); TI != temporaries.end(); TI++)
+	for (TI = COM->temporaries.begin(); TI != COM->temporaries.end(); TI++)
 	{
 		var = *TI;
 
@@ -736,7 +728,7 @@ def_t * real_vm_c::NewTemporary(type_t *type)
 	var = NewLocal(type);
 
 	var->flags |= DF_Temporary;
-	temporaries.push_back(var);
+	COM->temporaries.push_back(var);
 
 	return var;
 }
@@ -746,7 +738,7 @@ void real_vm_c::FreeTemporaries()
 {
 	std::vector<def_t *>::iterator TI;
 
-	for (TI = temporaries.begin(); TI != temporaries.end(); TI++)
+	for (TI = COM->temporaries.begin(); TI != COM->temporaries.end(); TI++)
 	{
 		def_t *tvar = *TI;
 
@@ -758,28 +750,28 @@ void real_vm_c::FreeTemporaries()
 def_t * real_vm_c::FindConstant()
 {
 	// check for a constant with the same value
-	for (int i = 0; i < (int)constants.size(); i++)
+	for (int i = 0; i < (int)COM->constants.size(); i++)
 	{
-		def_t *cn = constants[i];
+		def_t *cn = COM->constants[i];
 
-		if (cn->type != pr_immediate_type)
+		if (cn->type != COM->literal_type)
 			continue;
 
-		if (pr_immediate_type == &type_string)
+		if (COM->literal_type == &type_string)
 		{
-			if (strcmp(G_STRING(cn->ofs), pr_immediate_string) == 0)
+			if (strcmp(G_STRING(cn->ofs), COM->literal_buf) == 0)
 				return cn;
 		}
-		else if (pr_immediate_type == &type_float)
+		else if (COM->literal_type == &type_float)
 		{
-			if (G_FLOAT(cn->ofs) == pr_immediate[0])
+			if (G_FLOAT(cn->ofs) == COM->literal_value[0])
 				return cn;
 		}
-		else if	(pr_immediate_type == &type_vector)
+		else if	(COM->literal_type == &type_vector)
 		{
-			if (G_FLOAT(cn->ofs)   == pr_immediate[0] &&
-				G_FLOAT(cn->ofs+1) == pr_immediate[1] &&
-				G_FLOAT(cn->ofs+2) == pr_immediate[2])
+			if (G_FLOAT(cn->ofs)   == COM->literal_value[0] &&
+				G_FLOAT(cn->ofs+1) == COM->literal_value[1] &&
+				G_FLOAT(cn->ofs+2) == COM->literal_value[2])
 			{
 				return cn;
 			}
@@ -792,12 +784,12 @@ def_t * real_vm_c::FindConstant()
 
 void real_vm_c::StoreConstant(int ofs)
 {
-	if (pr_immediate_type == &type_string)
-		pr_globals[ofs] = (double) InternaliseString(pr_immediate_string);
-	else if (pr_immediate_type == &type_vector)
-		memcpy (pr_globals + ofs, pr_immediate, 3 * sizeof(double));
+	if (COM->literal_type == &type_string)
+		pr_globals[ofs] = (double) InternaliseString(COM->literal_buf);
+	else if (COM->literal_type == &type_vector)
+		memcpy (pr_globals + ofs, COM->literal_value, 3 * sizeof(double));
 	else
-		pr_globals[ofs] = pr_immediate[0];
+		pr_globals[ofs] = COM->literal_value[0];
 }
 
 
@@ -809,21 +801,21 @@ def_t * real_vm_c::EXP_Constant()
 	if (! cn)
 	{
 		// allocate a new one
-		cn = NewGlobal(pr_immediate_type);
+		cn = NewGlobal(COM->literal_type);
 
 		cn->name = "CONSTANT VALUE";
 
 		cn->flags |= DF_Constant;
-		cn->scope = NULL;   // immediates are always global
+		cn->scope = NULL;   // literals are always global
 
 		// link into defs list
-		cn->next = all_defs;
-		all_defs  = cn;
+		cn->next = COM->all_defs;
+		COM->all_defs  = cn;
 
-		// copy the immediate to the global area
+		// copy the literal to the global area
 		StoreConstant(cn->ofs);
 
-		constants.push_back(cn);
+		COM->constants.push_back(cn);
 	}
 
 	LEX_Next();
@@ -917,7 +909,7 @@ def_t * real_vm_c::EXP_FunctionCall(def_t *func)
 
 void real_vm_c::STAT_Return(void)
 {
-	if (pr_token_is_first || pr_token[0] == '}' || LEX_Check(";"))
+	if (COM->token_is_first || COM->token_buf[0] == '}' || LEX_Check(";"))
 	{
 		if (pr_scope->type->aux_type->type != ev_void)
 			CompileError("missing value for return");
@@ -946,7 +938,7 @@ void real_vm_c::STAT_Return(void)
 	}
 
 	// -AJA- optional semicolons
-	if (! (pr_token_is_first || pr_token[0] == '}'))
+	if (! (COM->token_is_first || COM->token_buf[0] == '}'))
 		LEX_Expect(";");
 }
 
@@ -955,7 +947,7 @@ def_t * real_vm_c::FindDef(type_t *type, char *name, def_t *scope)
 {
 	def_t *def;
 
-	for (def = all_defs ; def ; def=def->next)
+	for (def = COM->all_defs ; def ; def=def->next)
 	{
 		if (strcmp(def->name, name) != 0)
 			continue;
@@ -995,8 +987,8 @@ def_t * real_vm_c::GetDef(type_t *type, char *name, def_t *scope)
 
 
 	// link into list
-	def->next = all_defs;
-	all_defs = def;
+	def->next = COM->all_defs;
+	COM->all_defs = def;
 
 	return def;
 }
@@ -1017,11 +1009,11 @@ def_t * real_vm_c::EXP_VarValue()
 
 def_t * real_vm_c::EXP_Term()
 {
-	// if the token is an immediate, allocate a constant for it
-	if (pr_token_type == tt_immediate)
+	// if the token is a literal, allocate a constant for it
+	if (COM->token_type == tt_literal)
 		return EXP_Constant();
 
-	if (pr_token_type == tt_name)
+	if (COM->token_type == tt_name)
 		return EXP_VarValue();
 
 	if (LEX_Check("("))
@@ -1061,7 +1053,7 @@ def_t * real_vm_c::EXP_Term()
 		break;
 	}
 
-	CompileError("expected value or unary operator, found %s\n", pr_token);
+	CompileError("expected value or unary operator, found %s\n", COM->token_buf);
 	return NULL; /* NOT REACHED */
 }
 
@@ -1268,7 +1260,7 @@ void real_vm_c::STAT_RepeatLoop()
 	LEX_Expect(")");
 
 	// -AJA- optional semicolons
-	if (! (pr_token_is_first || pr_token[0] == '}'))
+	if (! (COM->token_is_first || COM->token_buf[0] == '}'))
 		LEX_Expect(";");
 }
 
@@ -1370,14 +1362,14 @@ void real_vm_c::STAT_Statement(bool allow_def)
 	}
 
 	// -AJA- optional semicolons
-	if (! (pr_token_is_first || pr_token[0] == '}'))
+	if (! (COM->token_is_first || COM->token_buf[0] == '}'))
 		LEX_Expect(";");
 }
 
 
 int real_vm_c::GLOB_FunctionBody(type_t *type, const char *func_name)
 {
-	temporaries.clear();
+	COM->temporaries.clear();
 
 	function_line = source_line;
 
@@ -1562,7 +1554,7 @@ void real_vm_c::GLOB_Variable()
 	DefaultValue(def->ofs, type);
 
 	// -AJA- optional semicolons
-	if (! (pr_token_is_first || pr_token[0] == '}'))
+	if (! (COM->token_is_first || COM->token_buf[0] == '}'))
 		LEX_Expect(";");
 }
 
@@ -1573,8 +1565,8 @@ void real_vm_c::GLOB_Constant()
 
 	LEX_Expect("=");
 
-	if (pr_token_type != tt_immediate)
-		CompileError("expected value for constant, got %s", pr_token);
+	if (COM->token_type != tt_literal)
+		CompileError("expected value for constant, got %s", COM->token_buf);
 
 
 	if (FindDef(NULL, const_name, NULL))
@@ -1583,23 +1575,23 @@ void real_vm_c::GLOB_Constant()
 	/// TODO: reuse existing constant
 	/// def_t * exist_cn = FindConstant();
 
-	def_t * cn = NewGlobal(pr_immediate_type);
+	def_t * cn = NewGlobal(COM->literal_type);
 
 	cn->name  = const_name;
 	cn->flags |= DF_Constant;
 
 	// link into list
-	cn->next = all_defs;
-	all_defs = cn;
+	cn->next = COM->all_defs;
+	COM->all_defs = cn;
 
 	StoreConstant(cn->ofs);
 
-	constants.push_back(cn);
+	COM->constants.push_back(cn);
 
 	LEX_Next();
 
 	// -AJA- optional semicolons
-	if (! (pr_token_is_first || pr_token[0] == '}'))
+	if (! (COM->token_is_first || COM->token_buf[0] == '}'))
 		LEX_Expect(";");
 }
 
@@ -1624,17 +1616,13 @@ void real_vm_c::GLOB_Globals()
 		return;
 	}
 
-	CompileError("Expected global definition, found %s", pr_token);
+	CompileError("Expected global definition, found %s", COM->token_buf);
 }
 
 
-/*
-============
-CompileFile
-
-compiles the 0 terminated text, adding definitions to the pr structure
-============
-*/
+//
+// compiles the NUL terminated text, adding definitions to the pr structure
+//
 bool real_vm_c::CompileFile(char *string, const char *filename)
 {
 	source_file = filename;
@@ -1647,7 +1635,7 @@ bool real_vm_c::CompileFile(char *string, const char *filename)
 
 	LEX_Next();	// read first token
 
-	while (pr_token_type != tt_eof)
+	while (COM->token_type != tt_eof)
 	{
 		try
 		{
@@ -1657,19 +1645,19 @@ bool real_vm_c::CompileFile(char *string, const char *filename)
 		}
 		catch (parse_error_x err)
 		{
-			if (++pr_error_count > MAX_ERRORS)
+			if (++COM->error_count > MAX_ERRORS)
 				return false;
 
 			LEX_SkipToSemicolon();
 
-			if (pr_token_type == tt_eof)
+			if (COM->token_type == tt_eof)
 				return false;
 		}
 	}
 
 	source_file = NULL;
 
-	return (pr_error_count == 0);
+	return (COM->error_count == 0);
 }
 
 void real_vm_c::ShowStats()
@@ -1692,6 +1680,10 @@ real_vm_c::real_vm_c() :
 	strcpy((char *)string_mem.deref(0), "");
 
 
+// FIXME TEMP HACK
+COM = new compiling_c;
+
+
 	numstatements = 1;
 	numfunctions = 1;
 
@@ -1700,15 +1692,11 @@ real_vm_c::real_vm_c() :
 
 	numpr_globals = RESERVED_OFS;
 
-	all_defs = NULL;
 
+// FIXME NEEDED ????
 // link the function type in so state forward declarations match proper type
-	all_types = &type_function;
+	COM->all_types = &type_function;
 	type_function.next = NULL;
-
-	constants.clear();
-
-	pr_error_count = 0;
 }
 
 real_vm_c::~real_vm_c()
