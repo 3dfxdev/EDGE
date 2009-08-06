@@ -165,7 +165,10 @@ int main(int argc, char **argv)
 		LoadFile(filename, &src2);
 
 		if (! coalvm->CompileFile(src2, filename))
+		{
+			printf("failed with errors.\n");
 			exit(1);
+		}
 
 		// FIXME: FreeFile(src2);
 	}
