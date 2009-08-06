@@ -42,7 +42,7 @@ public:
 
 	int try_alloc(int len);
 
-	int totalUsed() const;
+	int usedMemory() const;
 	int totalMemory() const;
 };
 
@@ -72,7 +72,7 @@ public:
 
 	// compute the total amount of memory used.  The second form
 	// includes all the extra/free/wasted space.
-	int totalUsed() const;
+	int usedMemory() const;
 	int totalMemory() const;
 };
 

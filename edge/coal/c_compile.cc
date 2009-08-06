@@ -1662,8 +1662,8 @@ bool real_vm_c::CompileFile(char *buffer, const char *filename)
 void real_vm_c::ShowStats()
 {
 	printf("functions: %6u\n", functions.size());
-	printf("string memory: %d / %d\n", string_mem.totalUsed(), string_mem.totalMemory());
-	printf("instruction memory: %d / %d\n", op_mem.totalUsed(), op_mem.totalMemory());
+	printf("string memory: %d / %d\n", string_mem.usedMemory(), string_mem.totalMemory());
+	printf("instruction memory: %d / %d\n", op_mem.usedMemory(), op_mem.totalMemory());
 	printf("globals memory: %u\n", numpr_globals * sizeof(double));
 }
 
