@@ -103,6 +103,12 @@ int LoadFile(char *filename, char **bufptr)
 	return length;
 }
 
+void FreeFile(char **bufptr)
+{
+	free((void *) *bufptr);
+	*bufptr = NULL;
+}
+
 
 //==================================================================//
 
@@ -182,7 +188,7 @@ int main(int argc, char **argv)
 			exit(1);
 		}
 
-		// FIXME: FreeFile(src2);
+		FreeFile(&src2);
 	}
 
 	coalvm->ShowStats();
