@@ -160,13 +160,13 @@ int main(int argc, char **argv)
 
 		sprintf(filename, "%s", argv[k]);
 
-		printf("compiling %s\n", filename);
+		printf("Compiling %s\n", filename);
 
 		LoadFile(filename, &src2);
 
 		if (! coalvm->CompileFile(src2, filename))
 		{
-			printf("failed with errors.\n");
+			printf("Failed with errors.\n");
 			exit(1);
 		}
 

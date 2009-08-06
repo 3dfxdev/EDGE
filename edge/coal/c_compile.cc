@@ -153,18 +153,19 @@ void real_vm_c::LEX_NewLine()
 
 
 //
-// Aborts the current function parse
+// Aborts the current function parse.
+// The given message should have a trailing \n
 //
 void real_vm_c::CompileError(const char *error, ...)
 {
-	va_list		argptr;
-	char		buffer[1024];
+	va_list argptr;
+	char	buffer[1024];
 
 	va_start(argptr,error);
 	vsprintf(buffer,error,argptr);
 	va_end(argptr);
 
-	printf("%s:%i: %s\n", COM->source_file, COM->source_line, buffer);
+	printf("%s:%i: %s", COM->source_file, COM->source_line, buffer);
 
 //  raise(11);
 	throw parse_error_x();
@@ -175,30 +176,28 @@ void real_vm_c::LEX_String()
 {
 	// Parses a quoted string
 
-	int		c;
-	int		len;
-
-	len = 0;
 	COM->parse_p++;
+
+	int len = 0;
 
 	for (;;)
 	{
-		c = *COM->parse_p++;
-		if (!c)
-			CompileError("EOF inside quote");
-		if (c=='\n')
-			CompileError("newline inside quote");
-		if (c=='\\')
-		{	// escape char
+		int c = *COM->parse_p++;
+		if (!c || c=='\n')
+			CompileError("unterminated string\n");
+
+		if (c=='\\') // escape char
+		{
 			c = *COM->parse_p++;
-			if (!c)
-				CompileError("EOF inside quote");
+			if (!c || !isprint(c))
+				CompileError("bad escape in string\n");
+
 			if (c == 'n')
 				c = '\n';
 			else if (c == '"')
 				c = '"';
 			else
-				CompileError("Unknown escape char");
+				CompileError("unknown escape char: %c\n", c);
 		}
 		else if (c=='\"')
 		{
@@ -208,26 +207,25 @@ void real_vm_c::LEX_String()
 			strcpy(COM->literal_buf, COM->token_buf);
 			return;
 		}
-		COM->token_buf[len] = c;
-		len++;
+
+		COM->token_buf[len++] = c;
 	}
 }
 
 
 float real_vm_c::LEX_Number()
 {
-	int		c;
-	int		len;
+	int len = 0;
+	int c = *COM->parse_p;
 
-	len = 0;
-	c = *COM->parse_p;
 	do
 	{
-		COM->token_buf[len] = c;
-		len++;
+		COM->token_buf[len++] = c;
+
 		COM->parse_p++;
 		c = *COM->parse_p;
-	} while ((c >= '0' && c<= '9') || c == '.');
+	}
+	while ((c >= '0' && c<= '9') || c == '.');
 
 	COM->token_buf[len] = 0;
 
@@ -239,13 +237,11 @@ void real_vm_c::LEX_Vector()
 {
 	// Parses a single quoted vector
 
-	int		i;
-
 	COM->parse_p++;
 	COM->token_type = tt_literal;
 	COM->literal_type = &type_vector;
 
-	for (i=0 ; i<3 ; i++)
+	for (int i=0 ; i<3 ; i++)
 	{
 		// FIXME: check for digits etc!
 
@@ -254,8 +250,10 @@ void real_vm_c::LEX_Vector()
 		while (isspace(*COM->parse_p) && *COM->parse_p != '\n')
 			COM->parse_p++;
 	}
+
 	if (*COM->parse_p != '\'')
-		CompileError("Bad vector");
+		CompileError("bad vector\n");
+
 	COM->parse_p++;
 }
 
@@ -264,19 +262,17 @@ void real_vm_c::LEX_Name()
 {
 	// Parses an identifier
 
-	int		c;
-	int		len;
+	int len = 0;
+	int c = *COM->parse_p;
 
-	len = 0;
-	c = *COM->parse_p;
 	do
 	{
-		COM->token_buf[len] = c;
-		len++;
+		COM->token_buf[len++] = c;
+
 		COM->parse_p++;
 		c = *COM->parse_p;
-	} while (   (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_'
-			 || (c >= '0' && c <= '9'));
+	}
+	while (isalnum(c) || c == '_');
 
 	COM->token_buf[len] = 0;
 	COM->token_type = tt_name;
@@ -297,6 +293,7 @@ void real_vm_c::LEX_Punctuation()
 
 		if (strncmp(p, COM->parse_p, len) == 0)
 		{
+			// found it
 			strcpy(COM->token_buf, p);
 
 			if (p[0] == '{')
@@ -309,7 +306,7 @@ void real_vm_c::LEX_Punctuation()
 		}
 	}
 
-	CompileError("Unknown punctuation: %c", ch);
+	CompileError("unknown punctuation: %c\n", ch);
 }
 
 
@@ -388,6 +385,7 @@ void real_vm_c::LEX_Next()
 	if (!c)
 	{
 		COM->token_type = tt_eof;
+		strcpy(COM->token_buf, "(EOF)");
 		return;
 	}
 
@@ -433,7 +431,7 @@ void real_vm_c::LEX_Next()
 void real_vm_c::LEX_Expect(const char *str)
 {
 	if (strcmp(COM->token_buf, str) != 0)
-		CompileError("expected %s found %s", str, COM->token_buf);
+		CompileError("expected %s got %s\n", str, COM->token_buf);
 
 	LEX_Next();
 }
@@ -493,10 +491,10 @@ char * real_vm_c::ParseName()
 	static char	ident[MAX_NAME];
 
 	if (COM->token_type != tt_name)
-		CompileError("expected identifier");
+		CompileError("expected identifier, got %s\n", COM->token_buf);
 
 	if (strlen(COM->token_buf) >= MAX_NAME-1)
-		CompileError("identifier too long");
+		CompileError("identifier too long\n");
 
 	strcpy(ident, COM->token_buf);
 
@@ -573,7 +571,7 @@ type_t * real_vm_c::ParseType()
 		type = &type_void;
 	else
 	{
-		CompileError("\"%s\" is not a type", COM->token_buf);
+		CompileError("unknown type: %s\n", COM->token_buf);
 		type = &type_float;	// shut up compiler warning
 	}
 	LEX_Next();
@@ -703,7 +701,6 @@ def_t * real_vm_c::NewTemporary(type_t *type)
 			continue;
 
 		// found a match, so re-use it!
-
 		var->flags &= ~DF_FreeTemp;
 		var->type = type;
 
@@ -813,7 +810,7 @@ def_t * real_vm_c::EXP_FunctionCall(def_t *func)
 	type_t * t = func->type;
 
 	if (t->type != ev_function)
-		CompileError("not a function");
+		CompileError("not a function before ()\n");
 	
 //??	function_t *df = &functions[func->ofs];
 
@@ -828,14 +825,14 @@ def_t * real_vm_c::EXP_FunctionCall(def_t *func)
 		do
 		{
 			if (arg >= t->parm_num)
-				CompileError("too many parameters (expected %d)", t->parm_num);
+				CompileError("too many parameters (expected %d)\n", t->parm_num);
 
 			assert(arg < MAX_PARMS);
 
 			def_t * e = EXP_Expression(TOP_PRIORITY);
 
 			if (e->type != t->parm_types[arg])
-				CompileError("type mismatch on parm %i", arg+1);
+				CompileError("type mismatch on parameter %i\n", arg+1);
 
 			assert (e->type->type != ev_void);
 
@@ -844,7 +841,7 @@ def_t * real_vm_c::EXP_FunctionCall(def_t *func)
 		while (LEX_Check(","));
 
 		if (arg != t->parm_num)
-			CompileError("too few parameters (needed %d)", t->parm_num);
+			CompileError("too few parameters (needed %d)\n", t->parm_num);
 
 		LEX_Expect(")");
 	}
@@ -897,7 +894,7 @@ void real_vm_c::STAT_Return(void)
 	if (COM->token_is_first || COM->token_buf[0] == '}' || LEX_Check(";"))
 	{
 		if (COM->scope->type->aux_type->type != ev_void)
-			CompileError("missing value for return");
+			CompileError("missing value for return\n");
 
 		EmitCode(OP_DONE);
 		return;
@@ -906,10 +903,10 @@ void real_vm_c::STAT_Return(void)
 	def_t * e = EXP_Expression(TOP_PRIORITY);
 
 	if (COM->scope->type->aux_type->type == ev_void)
-		CompileError("return with value in void function");
+		CompileError("return with value in void function\n");
 
 	if (COM->scope->type->aux_type != e->type)
-		CompileError("mismatch types for return");
+		CompileError("type mismatch for return\n");
 
 	if (COM->scope->type->aux_type->type == ev_vector)
 	{
@@ -941,7 +938,7 @@ def_t * real_vm_c::FindDef(type_t *type, char *name, def_t *scope)
 			continue;		// in a different function
 
 		if (type && def->type != type)
-			CompileError("Type mismatch on redeclaration of %s", name);
+			CompileError("type mismatch on redeclaration of %s\n", name);
 
 		return def;
 	}
@@ -986,7 +983,7 @@ def_t * real_vm_c::EXP_VarValue()
 	// look through the defs
 	def_t *d = FindDef(NULL, name, COM->scope);
 	if (!d)
-		CompileError("Unknown identifier '%s'", name);
+		CompileError("unknown identifier: %s\n", name);
 
 	return d;
 }
@@ -1034,11 +1031,11 @@ def_t * real_vm_c::EXP_Term()
 			return result;
 		}
 
-		CompileError("type mismatch for %s", op->name);
+		CompileError("type mismatch for %s\n", op->name);
 		break;
 	}
 
-	CompileError("expected value or unary operator, found %s\n", COM->token_buf);
+	CompileError("expected value, got %s\n", COM->token_buf);
 	return NULL; /* NOT REACHED */
 }
 
@@ -1046,7 +1043,7 @@ def_t * real_vm_c::EXP_Term()
 def_t * real_vm_c::EXP_ShortCircuit(def_t *e, opcode_t *op)
 {
 	if (e->type->type != ev_float)
-		CompileError("type mismatch for %s", op->name);
+		CompileError("type mismatch for %s\n", op->name);
 
 	// Instruction stream for &&
 	//
@@ -1070,7 +1067,7 @@ def_t * real_vm_c::EXP_ShortCircuit(def_t *e, opcode_t *op)
 
 	def_t *e2 = EXP_Expression(op->priority - 1);
 	if (e2->type->type != ev_float)
-		CompileError("type mismatch for %s", op->name);
+		CompileError("type mismatch for %s\n", op->name);
 
 	EmitCode(OP_MOVE_F, e2->ofs, result->ofs);
 
@@ -1083,7 +1080,7 @@ def_t * real_vm_c::EXP_ShortCircuit(def_t *e, opcode_t *op)
 def_t * real_vm_c::EXP_FieldQuery(def_t *e, bool lvalue)
 {
 	// TODO
-	CompileError("Operator . not yet implemented\n");
+	CompileError("operator . not yet implemented\n");
 	return NULL;
 }
 
@@ -1152,11 +1149,11 @@ def_t * real_vm_c::EXP_Expression(int priority, bool *lvalue)
 			{
 				op++;
 				if (!op->name || strcmp(op->name , oldop->name) != 0)
-					CompileError("type mismatch for %s", oldop->name);
+					CompileError("type mismatch for %s\n", oldop->name);
 			}
 
 			if (type_a == ev_pointer && type_b != e->type->aux_type->type)
-				CompileError("type mismatch for %s", op->name);
+				CompileError("type mismatch for %s\n", op->name);
 
 			def_t *result = NewTemporary(op->type_c);
 
@@ -1250,12 +1247,12 @@ void real_vm_c::STAT_RepeatLoop()
 void real_vm_c::STAT_Assignment(def_t *e)
 {
 	if (e->flags & DF_Constant)
-		CompileError("assignment to a constant.\n");
+		CompileError("assignment to a constant\n");
 
 	def_t *e2 = EXP_Expression(TOP_PRIORITY);
 
 	if (e2->type != e->type)
-		CompileError("type mismatch in assignment.\n");
+		CompileError("type mismatch in assignment\n");
 
 	switch (e->type->type)
 	{
@@ -1270,7 +1267,7 @@ void real_vm_c::STAT_Assignment(def_t *e)
 			break;
 
 		default:
-			CompileError("weird type for assignment.\n");
+			CompileError("weird type for assignment\n");
 			break;
 	}
 }
@@ -1286,13 +1283,13 @@ void real_vm_c::STAT_Statement(bool allow_def)
 
 	if (allow_def && LEX_Check("function"))
 	{
-		CompileError("functions must be global");
+		CompileError("functions must be global\n");
 		return;
 	}
 
 	if (allow_def && LEX_Check("constant"))
 	{
-		CompileError("constants must be global");
+		CompileError("constants must be global\n");
 		return;
 	}
 
@@ -1365,7 +1362,7 @@ int real_vm_c::GLOB_FunctionBody(type_t *type, const char *func_name)
 		int native = PR_FindNativeFunc(func_name);
 
 		if (native < 0)
-			CompileError("No such native function: %s\n", func_name);
+			CompileError("no such native function: %s\n", func_name);
 
 		return -(native + 1);
 	}
@@ -1378,7 +1375,7 @@ int real_vm_c::GLOB_FunctionBody(type_t *type, const char *func_name)
 	for (int i=0 ; i < type->parm_num ; i++)
 	{
 		if (FindDef(type->parm_types[i], COM->parm_names[i], COM->scope))
-			CompileError("parameter %s redeclared", COM->parm_names[i]);
+			CompileError("parameter %s redeclared\n", COM->parm_names[i]);
 
 		defs[i] = GetDef(type->parm_types[i], COM->parm_names[i], COM->scope);
 	}
@@ -1416,7 +1413,7 @@ int real_vm_c::GLOB_FunctionBody(type_t *type, const char *func_name)
 		if (type->aux_type->type == ev_void)
 			EmitCode(OP_DONE);
 		else
-			CompileError("missing return at end of '%s' function", func_name);
+			CompileError("missing return at end of function %s", func_name);
 	}
 
 	return code;
@@ -1441,7 +1438,7 @@ void real_vm_c::GLOB_Function()
 		do
 		{
 			if (t_new.parm_num >= MAX_PARMS)
-				CompileError("too many parameters (over %d)", MAX_PARMS);
+				CompileError("too many parameters (over %d)\n", MAX_PARMS);
 
 			char *name = ParseName();
 
@@ -1472,7 +1469,7 @@ void real_vm_c::GLOB_Function()
 	def_t *def = GetDef(func_type, func_name, NULL);
 
 	if (def->flags & DF_Initialized)
-		CompileError("%s redeclared", func_name);
+		CompileError("%s redeclared\n", func_name);
 
 
 	LEX_Expect("=");
@@ -1568,11 +1565,11 @@ void real_vm_c::GLOB_Constant()
 	LEX_Expect("=");
 
 	if (COM->token_type != tt_literal)
-		CompileError("expected value for constant, got %s", COM->token_buf);
+		CompileError("expected value for constant, got %s\n", COM->token_buf);
 
 
 	if (FindDef(NULL, const_name, NULL))
-		CompileError("name already used: %s", const_name);
+		CompileError("name already used: %s\n", const_name);
 
 
 	def_t * cn = NewGlobal(COM->literal_type);
@@ -1616,7 +1613,7 @@ void real_vm_c::GLOB_Globals()
 		return;
 	}
 
-	CompileError("Expected global definition, found %s", COM->token_buf);
+	CompileError("expected global definition, got %s\n", COM->token_buf);
 }
 
 
