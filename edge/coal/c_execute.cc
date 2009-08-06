@@ -57,8 +57,6 @@ int			numpr_globals;
 execution_c * EXE;
 
 
-int pr_argc;
-
 #define MAX_RUNAWAY  (1000*1000)
 
 
@@ -463,7 +461,7 @@ void real_vm_c::DoExecute(int fnum)
 					RunError("NULL function");
 				newf = functions[fnum];
 
-				pr_argc = st->b;
+				//??  pr_argc = st->b;
 
 				/* negative statements are built in functions */
 				if (newf->first_statement < 0)

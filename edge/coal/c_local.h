@@ -264,10 +264,6 @@ public:
 //=== EXECUTION STUFF ========================================//
 
 
-extern int pr_argc;
-
-
-
 class exec_error_x
 {
 public:
