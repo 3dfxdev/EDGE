@@ -2,9 +2,11 @@
 COAL TODO
 =========
 
+-  rename OP_DONE --> OP_RET
+-  rename totalUsed --> usedMemory
+
 >>>  move all state into the real_vm_c class
 
--  use c_memory class for Statements
 +  use c_memory class for Globals
 
 -  allow functions and constants to be redefined (but type must match)
@@ -16,6 +18,7 @@ COAL TODO
 -  describe new language (notes.txt)
 
 -  Coal API for dumping functions (etc)
+   (fix tracing too)
 
 +  WISH: interactive mode for the burner
 

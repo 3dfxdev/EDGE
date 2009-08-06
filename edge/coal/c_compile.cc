@@ -165,7 +165,7 @@ void real_vm_c::CompileError(const char *error, ...)
 	vsprintf(buffer,error,argptr);
 	va_end(argptr);
 
-	printf("%s:%i: %s", COM->source_file, COM->source_line, buffer);
+	printer("%s:%i: %s", COM->source_file, COM->source_line, buffer);
 
 //  raise(11);
 	throw parse_error_x();
@@ -1529,7 +1529,7 @@ void real_vm_c::GLOB_Function()
 	if (false) // FIXME
 		ASM_DumpFunction(df);
 
-// fprintf(stderr, "FUNCTION %s locals:%d\n", func_name, COM->locals_end);
+// debugprintf(stderr, "FUNCTION %s locals:%d\n", func_name, COM->locals_end);
 }
 
 
@@ -1661,10 +1661,10 @@ bool real_vm_c::CompileFile(char *buffer, const char *filename)
 
 void real_vm_c::ShowStats()
 {
-	printf("functions: %6u\n", functions.size());
-	printf("string memory: %d / %d\n", string_mem.usedMemory(), string_mem.totalMemory());
-	printf("instruction memory: %d / %d\n", op_mem.usedMemory(), op_mem.totalMemory());
-	printf("globals memory: %u\n", numpr_globals * sizeof(double));
+	printer("functions: %6u\n", functions.size());
+	printer("string memory: %d / %d\n", string_mem.usedMemory(), string_mem.totalMemory());
+	printer("instruction memory: %d / %d\n", op_mem.usedMemory(), op_mem.totalMemory());
+	printer("globals memory: %u\n", numpr_globals * sizeof(double));
 }
 
 

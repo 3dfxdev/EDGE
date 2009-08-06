@@ -43,10 +43,6 @@ namespace coal
 #include "c_execute.h"
 
 
-// FIXME
-#define Con_Printf   printf
-#define Con_DPrintf  printf
-
 #define MAX_PRINTMSG  1024
 
 
@@ -192,10 +188,10 @@ void real_vm_c::RunError(const char *error, ...)
 	if (EXE->call_depth > 0)
 		StackTrace();
 
-//??	Con_Printf("Last Statement:\n");
+//??	printer("Last Statement:\n");
 //??    PR_PrintStatement(statements + pr_xstatement);
 
-    Con_Printf("%s\n", buffer);
+    printer("%s\n", buffer);
 
     /* clear the stack so SV/Host_Error can shutdown functions */
     EXE->call_depth = 0;
@@ -694,7 +690,7 @@ char *Debug_ValueString(etype_t type, double *val)
 
 void real_vm_c::StackTrace()
 {
-	Con_Printf("Stack Trace:\n");
+	printer("Stack Trace:\n");
 
 	EXE->call_stack[EXE->call_depth].func = EXE->func;
 	EXE->call_stack[EXE->call_depth].s    = EXE->s;
@@ -708,12 +704,12 @@ void real_vm_c::StackTrace()
 		statement_t *st = REF_OP(EXE->call_stack[i].s);
 
 		if (f)
-			Con_Printf("%-2d %s() at %s:%d\n", back, f->name, f->source_file, f->source_line + st->line);
+			printer("%-2d %s() at %s:%d\n", back, f->name, f->source_file, f->source_line + st->line);
 		else
-			Con_Printf("%-2d ????\n", back);
+			printer("%-2d ????\n", back);
 	}
 
-	Con_Printf("\n");
+	printer("\n");
 }
 
 
@@ -736,7 +732,7 @@ void real_vm_c::PrintStatement(function_t *f, int s)
 
 	const char *op_name = OpcodeName(st->op);
 
-	Con_Printf("  %06x: %-9s ", s, op_name);
+	printer("  %06x: %-9s ", s, op_name);
 
 	switch (st->op)
 	{
@@ -749,60 +745,60 @@ void real_vm_c::PrintStatement(function_t *f, int s)
 		case OP_MOVE_S:
 		case OP_MOVE_FNC:	// pointers
 		case OP_MOVE_V:
-			Con_Printf("%s ",    RegString(st, 1));
-			Con_Printf("-> %s",  RegString(st, 2));
+			printer("%s ",    RegString(st, 1));
+			printer("-> %s",  RegString(st, 2));
 			break;
 
 		case OP_IFNOT:
 		case OP_IF:
-			Con_Printf("%s %08x", RegString(st, 1), st->b);
+			printer("%s %08x", RegString(st, 1), st->b);
 			break;
 
 		case OP_GOTO:
-			Con_Printf("%08x", st->b);
+			printer("%08x", st->b);
 			// TODO
 			break;
 
 		case OP_CALL:
-			Con_Printf("%s (%d) ", RegString(st, 1), st->b);
+			printer("%s (%d) ", RegString(st, 1), st->b);
 
 			if (! st->c)
-				Con_Printf(" ");
+				printer(" ");
 			else
-				Con_Printf("-> %s",   RegString(st, 3));
+				printer("-> %s",   RegString(st, 3));
 			break;
 
 		case OP_PARM_F:
 		case OP_PARM_V:
-			Con_Printf("%s -> future[%d]", RegString(st, 1), st->b);
+			printer("%s -> future[%d]", RegString(st, 1), st->b);
 			break;
 
 		case OP_NOT_F:
 		case OP_NOT_FNC:
 		case OP_NOT_V:
 		case OP_NOT_S:
-			Con_Printf("%s ",    RegString(st, 1));
-			Con_Printf("-> %s",  RegString(st, 3));
+			printer("%s ",    RegString(st, 1));
+			printer("-> %s",  RegString(st, 3));
 			break;
 
 		default:
-			Con_Printf("%s + ",  RegString(st, 1));
-			Con_Printf("%s ",    RegString(st, 2));
-			Con_Printf("-> %s",  RegString(st, 3));
+			printer("%s + ",  RegString(st, 1));
+			printer("%s ",    RegString(st, 2));
+			printer("-> %s",  RegString(st, 3));
 			break;
 	}
 
-	Con_Printf("\n");
+	printer("\n");
 }
 
 
 void real_vm_c::ASM_DumpFunction(function_t *f)
 {
-	Con_Printf("Function %s()\n", f->name);
+	printer("Function %s()\n", f->name);
 
 	if (f->first_statement < 0)
 	{
-		Con_Printf("  native #%d\n\n", - f->first_statement);
+		printer("  native #%d\n\n", - f->first_statement);
 		return;
 	}
 
@@ -811,7 +807,7 @@ void real_vm_c::ASM_DumpFunction(function_t *f)
 		PrintStatement(f, s);
 	}
 
-	Con_Printf("\n");
+	printer("\n");
 }
 
 void real_vm_c::ASM_DumpAll()
