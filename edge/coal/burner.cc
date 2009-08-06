@@ -151,7 +151,7 @@ int main(int argc, char **argv)
 
 	assert(coalvm);
 
-	coalvm->SetPrintFunc(BurnPrint);
+	coalvm->SetPrinter(BurnPrint);
 
 	coalvm->AddNativeFunction("sprint", PF_PrintStr);
 	coalvm->AddNativeFunction("nprint", PF_PrintNum);

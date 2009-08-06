@@ -42,8 +42,7 @@ public:
 	vm_c() { }
 	virtual ~vm_c() { }
 
-	virtual void SetPrintFunc(print_func_t func) = 0;
-	virtual void SetAbortFunc(print_func_t func) = 0;
+	virtual void SetPrinter(print_func_t func) = 0;
 
 	virtual void AddNativeFunction(const char *name, native_func_t func) = 0;
 
