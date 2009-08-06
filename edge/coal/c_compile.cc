@@ -82,8 +82,19 @@ static int		type_size[8] = {1,1,1,3,1,1,1,1};
 // definition used for void return functions
 static def_t def_void = {&type_void, "VOID_SPACE", 0};
 
+//
+//  OPERATOR TABLE
+//
+typedef struct
+{
+	const char *name;
+	int op;  // OP_XXX
+	int priority;
+	type_t *type_a, *type_b, *type_c;
+}
+opcode_t;
 
-static opcode_t pr_operators[] =
+static opcode_t all_operators[] =
 {
 	{"!", OP_NOT_F, -1, &type_float, &type_void, &type_float},
 	{"!", OP_NOT_V, -1, &type_vector, &type_void, &type_float},
@@ -130,7 +141,7 @@ static opcode_t pr_operators[] =
 	{"&", OP_BITAND, 2, &type_float, &type_float, &type_float},
 	{"|", OP_BITOR,  2, &type_float, &type_float, &type_float},
 
-	{NULL}
+	{NULL}  // end of list
 };
 
 #define	TOP_PRIORITY	6
@@ -1003,10 +1014,10 @@ def_t * real_vm_c::EXP_Term()
 
 	// unary operator?
 
-	opcode_t *op;
-
-	for (op=pr_operators ; op->name ; op++)
+	for (int n = 0; all_operators[n].name; n++)
 	{
+		opcode_t *op = &all_operators[n];
+
 		if (op->priority != -1)
 			continue;
 
@@ -1036,8 +1047,10 @@ def_t * real_vm_c::EXP_Term()
 }
 
 
-def_t * real_vm_c::EXP_ShortCircuit(def_t *e, opcode_t *op)
+def_t * real_vm_c::EXP_ShortCircuit(def_t *e, int n)
 {
+	opcode_t *op = &all_operators[n];
+
 	if (e->type->type != ev_float)
 		CompileError("type mismatch for %s\n", op->name);
 
@@ -1088,8 +1101,13 @@ def_t * real_vm_c::EXP_Expression(int priority, bool *lvalue)
 
 	def_t * e = EXP_Expression(priority-1, lvalue);
 
-	for (;;)
+	// loop through a sequence of same-priority operators
+	bool found;
+
+	do
 	{
+		found = false;
+
 		if (priority == 1 && LEX_Check("("))
 		{
 			if (lvalue)
@@ -1103,20 +1121,22 @@ def_t * real_vm_c::EXP_Expression(int priority, bool *lvalue)
 		if (lvalue)
 			return e;
 
-		opcode_t *op;
-
-		for (op=pr_operators ; op->name ; op++)
+		for (int n = 0; all_operators[n].name; n++)
 		{
+			opcode_t *op = &all_operators[n];
+
 			if (op->priority != priority)
 				continue;
 
 			if (! LEX_Check(op->name))
 				continue;
 
+			found = true;
+
 			if (strcmp(op->name, "&&") == 0 ||
 			    strcmp(op->name, "||") == 0)
 			{
-				e = EXP_ShortCircuit(e, op);
+				e = EXP_ShortCircuit(e, n);
 				break;
 			}
 
@@ -1127,21 +1147,12 @@ def_t * real_vm_c::EXP_Expression(int priority, bool *lvalue)
 			etype_t type_a = e->type->type;
 			etype_t type_b = e2->type->type;
 			etype_t type_c = ev_void;
-#if 0
-			if (op->name[0] == '.')// field access gets type from field
-			{
-				if (e2->type->aux_type)
-					type_c = e2->type->aux_type->type;
-				else
-					type_c = ev_INVALID;	// not a field
-			}
-#endif
 
 			opcode_t * oldop = op;
 
-			while (type_a != op->type_a->type
-					|| type_b != op->type_b->type
-					|| (type_c != ev_void && type_c != op->type_c->type) )
+			while (type_a != op->type_a->type ||
+				   type_b != op->type_b->type ||
+				   (type_c != ev_void && type_c != op->type_c->type) )
 			{
 				op++;
 				if (!op->name || strcmp(op->name , oldop->name) != 0)
@@ -1156,16 +1167,10 @@ def_t * real_vm_c::EXP_Expression(int priority, bool *lvalue)
 			EmitCode(op->op, e->ofs, e2->ofs, result->ofs);
 
 			e = result;
-#if 0
-			if (type_c != ev_void)	// field access gets type from field
-				e->type = e2->type->aux_type;
-#endif
 			break;
 		}
-
-		if (!op->name)
-			break;	// next token isn't at this priority level
 	}
+	while (found);
 
 	return e;
 }

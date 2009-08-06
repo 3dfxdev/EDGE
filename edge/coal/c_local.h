@@ -214,7 +214,6 @@ extern scope_c global_scope;
 
 #define	MAX_REGS		16384
 #define	MAX_GLOBALS		16384
-#define	MAX_FIELDS		1024
 
 #define OFS_NULL		0
 #define OFS_RETURN		1
@@ -233,19 +232,6 @@ extern	int			numpr_globals;
 #define	G_VECTOR(o) (&pr_globals[o])
 #define	G_STRING(o)  REF_STRING((int)pr_globals[o])
 #define	G_FUNCTION(o) (pr_globals[o])
-
-
-
-typedef struct
-{
-	const char *name;
-	int op;  // OP_XXX
-	int priority;
-	type_t *type_a, *type_b, *type_c;
-}
-opcode_t;
-
-extern const char *opcode_names[];
 
 
 class parse_error_x
@@ -333,7 +319,7 @@ private:
 
 	def_t * EXP_Expression(int priority, bool *lvalue = NULL);
 	def_t * EXP_FieldQuery(def_t *e, bool lvalue);
-	def_t * EXP_ShortCircuit(def_t *e, opcode_t *op);
+	def_t * EXP_ShortCircuit(def_t *e, int n);
 	def_t * EXP_Term();
 	def_t * EXP_VarValue();
 	def_t * EXP_FunctionCall(def_t *func);
