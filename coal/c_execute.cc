@@ -218,7 +218,7 @@ void real_vm_c::EnterFunction(int func, int result)
 }
 
 
-void real_vm_c::LeaveFunction(int *result)
+int real_vm_c::LeaveFunction()
 {
 	if (exec.call_depth <= 0)
 		RunError("stack underflow");
@@ -227,13 +227,11 @@ void real_vm_c::LeaveFunction(int *result)
 
 	exec.s    = exec.call_stack[exec.call_depth].s;
 	exec.func = exec.call_stack[exec.call_depth].func;
-	*result   = exec.call_stack[exec.call_depth].result;
 
 	if (exec.func)
 		exec.stack_depth -= functions[exec.func]->locals_end;
 
-///---	// skip the OP_CALL instruction
-///---	exec.s += sizeof(statement_t);
+	return exec.call_stack[exec.call_depth].result;
 }
 
 
@@ -257,10 +255,14 @@ void real_vm_c::EnterNative(int func, int result, int argc)
 }
 
 
+#define Operand(a)  (   \
+	((a) > 0) ? &pr_globals[a] :    \
+    ((a) < 0) ? &exec.stack[exec.stack_depth - ((a) + 1)] :   \
+	NULL)
+
+
 void real_vm_c::DoExecute(int fnum)
 {
-    function_t *newf;
-
 	function_t *f = functions[fnum];
 
 	int runaway = MAX_RUNAWAY;
@@ -277,20 +279,129 @@ void real_vm_c::DoExecute(int fnum)
 		if (exec.tracing)
 			PrintStatement(f, exec.s);
 
-		double * a = (st->a >= 0) ? &pr_globals[st->a] : &exec.stack[exec.stack_depth - (st->a + 1)];
-		double * b = (st->b >= 0) ? &pr_globals[st->b] : &exec.stack[exec.stack_depth - (st->b + 1)];
-		double * c = (st->c >= 0) ? &pr_globals[st->c] : &exec.stack[exec.stack_depth - (st->c + 1)];
-
 		if (!--runaway)
 			RunError("runaway loop error");
 
 		// move code pointer to next statement
 		exec.s += sizeof(statement_t);
 
-		switch (st->op)
+		// handle exotic operations here (ones which store special
+		// values in the a / b / c values).
+
+		if (st->op < OP_MOVE_F) switch (st->op)
 		{
 			case OP_NULL:
 				// no operation
+				continue;
+
+			case OP_CALL:
+			{
+				double * a = Operand(st->a);
+
+				int fnum = (int)*a;
+				if (fnum <= 0)
+					RunError("NULL function");
+
+				function_t *newf = functions[fnum];
+
+				/* negative statements are built in functions */
+				if (newf->first_statement < 0)
+					EnterNative(fnum, st->c, st->b);
+				else
+					EnterFunction(fnum, st->c);
+				continue;
+			}
+
+			case OP_RET:
+			{
+				int result = LeaveFunction();
+
+				if (exec.call_depth == exitdepth)
+					return;		// all done
+
+				if (result)
+				{
+					Operand(result)[0] = pr_globals[OFS_RETURN];
+				}
+				continue;
+			}
+
+			case OP_RET_V:
+			{
+				int result = LeaveFunction();
+
+				if (exec.call_depth == exitdepth)
+					return;		// all done
+
+				double * c = Operand(result);
+				assert(c);
+
+				c[0] = pr_globals[OFS_RETURN+0];
+				c[1] = pr_globals[OFS_RETURN+1];
+				c[2] = pr_globals[OFS_RETURN+2];
+				continue;
+			}
+
+			case OP_PARM_F:
+			{
+				double *a = Operand(st->a);
+				double *b = &exec.stack[exec.stack_depth + functions[exec.func]->locals_end + st->b];
+
+				*b = *a;
+				continue;
+			}
+
+			case OP_PARM_V:
+			{
+				double *a = Operand(st->a);
+				double *b = &exec.stack[exec.stack_depth + functions[exec.func]->locals_end + st->b];
+
+				b[0] = a[0];
+				b[1] = a[1];
+				b[2] = a[2];
+				continue;
+			}
+
+			case OP_IFNOT:
+			{
+				if (! Operand(st->a)[0])
+					exec.s = st->b;
+				continue;
+			}
+
+			case OP_IF:
+			{
+				if (Operand(st->a)[0])
+					exec.s = st->b;
+				continue;
+			}
+
+			case OP_GOTO:
+				exec.s = st->b;
+				continue;
+
+			default:
+				RunError("Bad opcode %i", st->op);
+		}
+
+		// handle mathematical ops here
+
+		double * a = Operand(st->a);
+		double * b = Operand(st->b);
+		double * c = Operand(st->c);
+
+		switch (st->op)
+		{
+			case OP_MOVE_F:
+			case OP_MOVE_S:
+			case OP_MOVE_FNC:	// pointers
+				*b = *a;
+				break;
+
+			case OP_MOVE_V:
+				b[0] = a[0];
+				b[1] = a[1];
+				b[2] = a[2];
 				break;
 
 			case OP_ADD_F:
@@ -346,6 +457,7 @@ void real_vm_c::DoExecute(int fnum)
 			case OP_MOD_F:
 				if (*b == 0)
 					RunError("Division by zero");
+				else
 				{
 					float d = floorf(*a / *b);
 					*c = *a - d * (*b);
@@ -419,101 +531,6 @@ void real_vm_c::DoExecute(int fnum)
 					!! strcmp(REF_STRING((int)*a), REF_STRING((int)*b));
 				break;
 
-				//==================
-			case OP_MOVE_F:
-			case OP_MOVE_S:
-			case OP_MOVE_FNC:	// pointers
-				*b = *a;
-				break;
-			case OP_MOVE_V:
-				b[0] = a[0];
-				b[1] = a[1];
-				b[2] = a[2];
-				break;
-
-				//==================
-
-			case OP_IFNOT:
-				if (!*a)
-					exec.s = st->b;
-				break;
-
-			case OP_IF:
-				if (*a)
-					exec.s = st->b;
-				break;
-
-			case OP_GOTO:
-				exec.s = st->b;
-				break;
-
-			case OP_CALL:
-			{
-				int fnum = (int)*a;
-				if (!fnum)
-					RunError("NULL function");
-				newf = functions[fnum];
-
-				/* negative statements are built in functions */
-				if (newf->first_statement < 0)
-				{
-					EnterNative(fnum, st->c, st->b);
-					break;
-				}
-
-				EnterFunction(fnum, st->c);
-			}
-			break;
-
-			case OP_DONE:
-			{
-				int result;
-				LeaveFunction(&result);
-
-				if (exec.call_depth == exitdepth)
-					return;		// all done
-
-				if (result)
-				{
-					 c = (result > 0) ? &pr_globals[result] : &exec.stack[exec.stack_depth - (result + 1)];
-					*c = pr_globals[OFS_RETURN];
-				}
-			}
-			break;
-
-			case OP_DONE_V:
-			{
-				int result;
-				LeaveFunction(&result);
-
-				if (exec.call_depth == exitdepth)
-					return;		// all done
-
-				assert(result);
-				{
-					c = (result > 0) ? &pr_globals[result] : &exec.stack[exec.stack_depth - (result + 1)];
-
-					c[0] = pr_globals[OFS_RETURN+0];
-					c[1] = pr_globals[OFS_RETURN+1];
-					c[2] = pr_globals[OFS_RETURN+2];
-				}
-			}
-			break;
-
-			case OP_PARM_F:
-				b = &exec.stack[exec.stack_depth + functions[exec.func]->locals_end + st->b];
-
-				*b = *a;
-				break;
-
-			case OP_PARM_V:
-				b = &exec.stack[exec.stack_depth + functions[exec.func]->locals_end + st->b];
-
-				b[0] = a[0];
-				b[1] = a[1];
-				b[2] = a[2];
-				break;
-
 			default:
 				RunError("Bad opcode %i", st->op);
 		}
@@ -566,9 +583,9 @@ const char * opcode_names[] =
 
 static const char *OpcodeName(short op)
 {
-	if (op < 0 || op > OP_PARM_V)
+	if (op < 0 || op >= NUM_OPERATIONS)
 		return "???";
-	
+
 	return opcode_names[op];
 }
 
@@ -719,8 +736,8 @@ void real_vm_c::PrintStatement(function_t *f, int s)
 	switch (st->op)
 	{
 		case OP_NULL:
-		case OP_DONE:
-		case OP_DONE_V:
+		case OP_RET:
+		case OP_RET_V:
 			break;
 	
 		case OP_MOVE_F:

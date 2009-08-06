@@ -62,8 +62,24 @@ enum
 {
 	OP_NULL = 0,
 
-	OP_DONE,
-	OP_DONE_V,
+	OP_CALL,
+
+	OP_RET,
+	OP_RET_V,
+
+	OP_PARM_F,
+	OP_PARM_V,
+
+	OP_IF,
+	OP_IFNOT,
+	OP_GOTO,
+
+	OP_MOVE_F,
+	OP_MOVE_V,
+	OP_MOVE_S,
+	OP_MOVE_FNC,
+
+	// ---- mathematical ops from here on --->
 
 	OP_NOT_F,
 	OP_NOT_V,
@@ -100,25 +116,13 @@ enum
 	OP_LT,
 	OP_GT,
 
-	OP_MOVE_F,
-	OP_MOVE_V,
-	OP_MOVE_S,
-	OP_MOVE_FNC,
-
-	OP_CALL,
-
-	OP_IF,
-	OP_IFNOT,
-
-	OP_GOTO,
 	OP_AND,
 	OP_OR,
 
 	OP_BITAND,
 	OP_BITOR,
 
-	OP_PARM_F,
-	OP_PARM_V
+	NUM_OPERATIONS
 };
 
 
@@ -374,7 +378,7 @@ private:
 
 	void EnterNative  (int func, int result, int argc);
 	void EnterFunction(int func, int result = 0);
-	void LeaveFunction(int *result);
+	int  LeaveFunction();
 
 	int GetNativeFunc(const char *name);
 	int	InternaliseString(const char *new_s);

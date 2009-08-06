@@ -903,7 +903,7 @@ void real_vm_c::STAT_Return(void)
 		if (comp.scope->type->aux_type->type != ev_void)
 			CompileError("missing value for return\n");
 
-		EmitCode(OP_DONE);
+		EmitCode(OP_RET);
 		return;
 	}
 
@@ -918,12 +918,12 @@ void real_vm_c::STAT_Return(void)
 	if (comp.scope->type->aux_type->type == ev_vector)
 	{
 		EmitCode(OP_MOVE_V, e->ofs, OFS_RETURN);
-		EmitCode(OP_DONE_V);
+		EmitCode(OP_RET_V);
 	}
 	else
 	{
 		EmitCode(OP_MOVE_F, e->ofs, OFS_RETURN);
-		EmitCode(OP_DONE);
+		EmitCode(OP_RET);
 	}
 
 	// -AJA- optional semicolons
@@ -1409,10 +1409,10 @@ int real_vm_c::GLOB_FunctionBody(type_t *type, const char *func_name)
 
 	statement_t *last = REF_OP(comp.last_statement);
 
-	if (last->op != OP_DONE && last->op != OP_DONE_V)
+	if (last->op != OP_RET && last->op != OP_RET_V)
 	{
 		if (type->aux_type->type == ev_void)
-			EmitCode(OP_DONE);
+			EmitCode(OP_RET);
 		else
 			CompileError("missing return at end of function %s", func_name);
 	}
@@ -1689,7 +1689,7 @@ real_vm_c::real_vm_c() :
 
 
 	// statement #0 is never used
-	ofs = EmitCode(OP_DONE);
+	ofs = EmitCode(OP_RET);
 	assert(ofs == 0);
 
 
