@@ -642,35 +642,29 @@ int real_vm_c::EmitCode(short op, short a, short b, short c)
 
 void real_vm_c::DefaultValue(gofs_t ofs, type_t *type)
 {
+	// global vars are already zero (via NewGlobal)
 	if (ofs > 0)
-	{
-		pr_globals[ofs] = 0;
-
-		if (type->type == ev_vector)
-		{
-			pr_globals[ofs+1] = 0;
-			pr_globals[ofs+2] = 0;
-		}
-
 		return;
-	}
 
 	if (type->type == ev_vector)
-		EmitCode(OP_MOVE_V, OFS_DEFAULT, ofs);
+		EmitCode(OP_MOVE_V, OFS_DEFAULT*8, ofs);
 	else
-		EmitCode(OP_MOVE_F, OFS_DEFAULT, ofs);
+		EmitCode(OP_MOVE_F, OFS_DEFAULT*8, ofs);
 }
 
 
 def_t * real_vm_c::NewGlobal(type_t *type)
 {
+	int tsize = type_size[type->type];
+
 	def_t * var = new def_t;
 	memset(var, 0, sizeof(def_t));
 
-	var->ofs = numpr_globals;
+	var->ofs  = global_mem.alloc(tsize * sizeof(double));
 	var->type = type;
 
-	numpr_globals += type_size[type->type];
+	// clear it 
+	memset(global_mem.deref(var->ofs), 0, tsize * sizeof(double));
 
 	return var;
 }
@@ -773,12 +767,22 @@ def_t * real_vm_c::FindLiteral()
 
 void real_vm_c::StoreLiteral(int ofs)
 {
+	double *p = REF_GLOBAL(ofs);
+
 	if (comp.literal_type == &type_string)
-		pr_globals[ofs] = (double) InternaliseString(comp.literal_buf);
+	{
+		*p = (double) InternaliseString(comp.literal_buf);
+	}
 	else if (comp.literal_type == &type_vector)
-		memcpy (pr_globals + ofs, comp.literal_value, 3 * sizeof(double));
+	{
+		p[0] = comp.literal_value[0];
+		p[1] = comp.literal_value[1];
+		p[2] = comp.literal_value[2];
+	}
 	else
-		pr_globals[ofs] = comp.literal_value[0];
+	{
+		*p = comp.literal_value[0];
+	}
 }
 
 
@@ -917,12 +921,12 @@ void real_vm_c::STAT_Return(void)
 
 	if (comp.scope->type->aux_type->type == ev_vector)
 	{
-		EmitCode(OP_MOVE_V, e->ofs, OFS_RETURN);
+		EmitCode(OP_MOVE_V, e->ofs, OFS_RETURN*8);
 		EmitCode(OP_RET_V);
 	}
 	else
 	{
-		EmitCode(OP_MOVE_F, e->ofs, OFS_RETURN);
+		EmitCode(OP_MOVE_F, e->ofs, OFS_RETURN*8);
 		EmitCode(OP_RET);
 	}
 
@@ -1478,7 +1482,7 @@ void real_vm_c::GLOB_Function()
 	assert(func_type->type == ev_function);
 
 
-	G_FUNCTION(def->ofs) = (func_t)functions.size();
+	G_FLOAT(def->ofs) = (double)functions.size();
 
 
 	// fill in the dfunction
@@ -1662,10 +1666,10 @@ bool real_vm_c::CompileFile(char *buffer, const char *filename)
 
 void real_vm_c::ShowStats()
 {
-	printer("functions: %6u\n", functions.size());
-	printer("string memory: %d / %d\n", string_mem.usedMemory(), string_mem.totalMemory());
+	printer("functions: %u\n", functions.size());
+	printer("string memory: %d / %d\n",  string_mem.usedMemory(), string_mem.totalMemory());
 	printer("instruction memory: %d / %d\n", op_mem.usedMemory(), op_mem.totalMemory());
-	printer("globals memory: %u\n", numpr_globals * sizeof(double));
+	printer("globals memory: %d / %d\n", global_mem.usedMemory(), global_mem.totalMemory());
 }
 
 
@@ -1693,12 +1697,12 @@ real_vm_c::real_vm_c() :
 	assert(ofs == 0);
 
 
-	// FIXME:  global #0 is equivalent to NULL
-	//         global #1-#6 are reserved for function return values
-	numpr_globals = RESERVED_OFS;
-
-
-	// FIXME: clear native functions
+	// global #0 is never used (equivalent to NULL)
+	// global #1-#3 are reserved for function return values
+	// global #4-#6 are reserved for a zero value
+	ofs = global_mem.alloc(7 * sizeof(double));
+	assert(ofs == 0);
+	memset(global_mem.deref(0), 0, 7 * sizeof(double));
 
 
 // FIXME NEEDED ????
@@ -1721,6 +1725,8 @@ void real_vm_c::SetPrinter(print_func_t func)
 
 vm_c * CreateVM()
 {
+	assert(sizeof(double) == 8);
+
 	return new real_vm_c;
 }
 
