@@ -255,7 +255,12 @@ public:
 };
 
 
-int PR_FindNativeFunc(const char *name);
+typedef struct
+{
+	const char *name;
+	native_func_t func;
+}
+reg_native_func_t;
 
 
 //============================================================//
@@ -298,6 +303,7 @@ private:
 	bmaster_c op_mem;
 
 	std::vector< function_t* > functions;
+	std::vector< reg_native_func_t* > native_funcs;
 
 	compiling_c comp;
 	execution_c exec;
@@ -370,6 +376,7 @@ private:
 	void EnterFunction(int func, int result = 0);
 	void LeaveFunction(int *result);
 
+	int GetNativeFunc(const char *name);
 	int	InternaliseString(const char *new_s);
 
 	void RunError(const char *error, ...);

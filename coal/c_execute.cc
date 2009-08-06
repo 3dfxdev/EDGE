@@ -53,17 +53,6 @@ int			numpr_globals;
 #define MAX_RUNAWAY  (1000*1000)
 
 
-typedef struct
-{
-	const char *name;
-	native_func_t func;
-}
-reg_native_func_t;
-
-
-static std::vector<reg_native_func_t *> native_funcs;
-
-
 execution_c::execution_c() :
 	s(0), func(0), tracing(false), stack_depth(0), call_depth(0)
 { }
@@ -83,7 +72,7 @@ void real_vm_c::default_aborter(const char *msg, ...)
 }
 
 
-int PR_FindNativeFunc(const char *name)
+int real_vm_c::GetNativeFunc(const char *name)
 {
 	for (int i = 0; i < (int)native_funcs.size(); i++)
 		if (strcmp(native_funcs[i]->name, name) == 0)
@@ -95,7 +84,7 @@ int PR_FindNativeFunc(const char *name)
 void real_vm_c::AddNativeFunction(const char *name, native_func_t func)
 {
 	// already registered?
-	int prev = PR_FindNativeFunc(name);
+	int prev = GetNativeFunc(name);
 
 	if (prev >= 0)
 	{
@@ -114,7 +103,7 @@ void real_vm_c::AddNativeFunction(const char *name, native_func_t func)
 
 void real_vm_c::SetTrace(bool enable)
 {
-	// FIXME: exec.tracing = enable;
+	exec.tracing = enable;
 }
 
 

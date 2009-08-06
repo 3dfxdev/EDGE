@@ -1360,7 +1360,7 @@ int real_vm_c::GLOB_FunctionBody(type_t *type, const char *func_name)
 	//
 	if (LEX_Check("native"))
 	{
-		int native = PR_FindNativeFunc(func_name);
+		int native = GetNativeFunc(func_name);
 
 		if (native < 0)
 			CompileError("no such native function: %s\n", func_name);
@@ -1672,7 +1672,7 @@ void real_vm_c::ShowStats()
 real_vm_c::real_vm_c() :
 	printer(default_printer),
 	global_mem(), string_mem(), op_mem(),
-	functions(),
+	functions(), native_funcs(),
 	comp(), exec()
 {
 	// string #0 must be the empty string
