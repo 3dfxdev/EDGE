@@ -236,8 +236,6 @@ extern	int			numpr_globals;
 
 
 
-//=== COMPILER STUFF =========================================//
-
 typedef struct
 {
 	const char *name;
@@ -261,9 +259,6 @@ public:
 
 
 
-//=== EXECUTION STUFF ========================================//
-
-
 class exec_error_x
 {
 public:
@@ -275,6 +270,12 @@ public:
 
 
 int PR_FindNativeFunc(const char *name);
+
+
+//============================================================//
+
+#include "c_compile.h"
+#include "c_execute.h"
 
 
 class real_vm_c : public vm_c
@@ -311,6 +312,9 @@ private:
 	bmaster_c op_mem;
 
 	std::vector< function_t* > functions;
+
+	compiling_c comp;
+	execution_c exec;
 
 	// c_compile.cc
 private:
