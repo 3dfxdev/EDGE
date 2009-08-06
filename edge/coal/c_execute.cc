@@ -563,7 +563,13 @@ int real_vm_c::Execute(int func_id)
 const char * opcode_names[] =
 {
 	"NULL",
+	"CALL",
 	"RET", "RET_V",
+	"PARM_F", "PARM_V",
+	"IF", "IFNOT", "GOTO",
+
+	"MOVE_F", "MOVE_V", "MOVE_S", "MOVE_FNC",
+
 	"NOT_F", "NOT_V", "NOT_S", "NOT_FNC",
 	"POWER", 
 	"MUL_F", "MUL_V", "MUL_FV", "MUL_VF",
@@ -573,11 +579,7 @@ const char * opcode_names[] =
 	"EQ_F", "EQ_V", "EQ_S", "EQ_FNC",
 	"NE_F", "NE_V", "NE_S", "NE_FNC",
 	"LE", "GE", "LT", "GT",
-	"MOVE_F", "MOVE_V", "MOVE_S", "MOVE_FNC",
-	"CALL",
-	"IF", "IFNOT", "GOTO",
 	"AND", "OR", "BITAND", "BITOR",
-	"PARM_F", "PARM_V",
 };
 
 
