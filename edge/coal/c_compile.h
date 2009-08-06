@@ -27,6 +27,7 @@ typedef enum
 	tt_name, 		// an alphanumeric name token
 	tt_punct, 		// code punctuation
 	tt_literal,  	// string, float, vector
+	tt_error        // an error occured (so get next token)
 }
 token_e;
 
@@ -41,9 +42,8 @@ public:
 	// current parsing position
 	char *parse_p;
 	char *line_start;	// start of current source line
-	int  bracelevel;
-	int  parentheses;
-	int  fol_level;    // fol = first on line
+	int bracelevel;
+	int fol_level;    // fol = first on line
 
 	// current token (from LEX_Next)
 	char    token_buf[2048];
