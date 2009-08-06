@@ -84,7 +84,7 @@ int bgroup_c::try_alloc(int len)
 	return result;
 }
 
-int bgroup_c::totalUsed() const
+int bgroup_c::usedMemory() const
 {
 	int result = 0;
 
@@ -149,12 +149,12 @@ int bmaster_c::alloc(int len)
 }
 
 
-int bmaster_c::totalUsed() const
+int bmaster_c::usedMemory() const
 {
 	int result = 0;
 
 	for (int k = 0; k < used; k++)
-		result += groups[k]->totalUsed();
+		result += groups[k]->usedMemory();
 
 	return result;
 }
