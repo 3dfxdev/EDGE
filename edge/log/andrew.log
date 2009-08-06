@@ -1,5 +1,21 @@
 Andrew Apted's Log
 
+2009/08/06:
+
+Coal development reached a small milestone today, the limited
+arrays containing the globals, instructions and strings have
+been replaced with growable memory blocks, so there is almost
+no limit to the amount of code which can be loaded now.
+
+Also all of the state has moved from static variables to the
+real_vm_c class, hence Coal should now be capable of handling
+more than one VM at a time.  EDGE will need at least two: one
+for the UI and one for the Playsim.
+
+There are still a few features that are needed before Coal is
+ready to replace Lua for drawing huds (especially support for
+modules) but it is getting tantalizingly close.
+
 2009/07/28:
 
 Implemented (finally!) inheritance for DDF.  The syntax is a
