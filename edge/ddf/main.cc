@@ -341,19 +341,10 @@ int DDF_CompareName(const char *A, const char *B)
 	for (;;)
 	{
 		// Note: must skip stuff BEFORE checking for NUL
+		while (*A == ' ' || *A == '_') A++;
+		while (*B == ' ' || *B == '_') B++;
 
-		if (*A == ' ' || *A == '_')
-		{
-			A++; continue;
-		}
-
-		if (*B == ' ' || *B == '_')
-		{
-			B++; continue;
-		}
-
-		if (*A == 0 && *B == 0)
-			return 0;
+		if (*A == 0 && *B == 0) return 0;
 
 		if (*A == 0) return -1;
 		if (*B == 0) return +1;
