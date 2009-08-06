@@ -1670,7 +1670,6 @@ void real_vm_c::ShowStats()
 
 real_vm_c::real_vm_c() :
 	printer(default_printer),
-	aborter(default_aborter),
 	global_mem(), string_mem(), op_mem(),
 	functions()
 {
@@ -1716,14 +1715,9 @@ real_vm_c::~real_vm_c()
 }
 
 
-void real_vm_c::SetPrintFunc(print_func_t func)
+void real_vm_c::SetPrinter(print_func_t func)
 {
 	printer = func;
-}
-
-void real_vm_c::SetAbortFunc(print_func_t func)
-{
-	aborter = func;
 }
 
 

@@ -285,8 +285,7 @@ public:
 	 real_vm_c();
 	~real_vm_c();
 
-	void SetPrintFunc(print_func_t func);
-	void SetAbortFunc(print_func_t func);
+	void SetPrinter(print_func_t func);
 
 	void AddNativeModule(const char *name);
 	void AddNativeFunction(const char *name, native_func_t func);
@@ -306,7 +305,6 @@ public:
 
 private:
 	print_func_t printer;
-	print_func_t aborter;
 
 	bmaster_c global_mem;
 	bmaster_c string_mem;
