@@ -1669,7 +1669,10 @@ void real_vm_c::ShowStats()
 
 
 real_vm_c::real_vm_c() :
-	global_mem(), string_mem(), op_mem(), functions()
+	printer(default_printer),
+	aborter(default_aborter),
+	global_mem(), string_mem(), op_mem(),
+	functions()
 {
 // FIXME TEMP HACK !!!!!!
 COM = new compiling_c;
@@ -1713,14 +1716,14 @@ real_vm_c::~real_vm_c()
 }
 
 
-void real_vm_c::SetErrorFunc(print_func_t func)
-{
-	// TODO
-}
-
 void real_vm_c::SetPrintFunc(print_func_t func)
 {
-	// TODO
+	printer = func;
+}
+
+void real_vm_c::SetAbortFunc(print_func_t func)
+{
+	aborter = func;
 }
 
 

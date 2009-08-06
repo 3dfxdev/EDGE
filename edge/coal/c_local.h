@@ -285,8 +285,8 @@ public:
 	 real_vm_c();
 	~real_vm_c();
 
-	void SetErrorFunc(print_func_t func);
 	void SetPrintFunc(print_func_t func);
+	void SetAbortFunc(print_func_t func);
 
 	void AddNativeModule(const char *name);
 	void AddNativeFunction(const char *name, native_func_t func);
@@ -305,6 +305,9 @@ public:
 	const char * AccessParamString(int p);
 
 private:
+	print_func_t printer;
+	print_func_t aborter;
+
 	bmaster_c global_mem;
 	bmaster_c string_mem;
 	bmaster_c op_mem;
@@ -389,6 +392,9 @@ private:
 
 	void ASM_DumpFunction(function_t *f);
 	void ASM_DumpAll();
+
+	static void default_printer(const char *msg, ...);
+	static void default_aborter(const char *msg, ...);
 };
 
 

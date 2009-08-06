@@ -40,19 +40,29 @@
 coal::vm_c * coalvm;
 
 
-void Error(char *error, ...)
+void Error(const char *msg, ...)
 {
 	va_list argptr;
 
 	printf("************ ERROR ************\n");
 
-	va_start(argptr,error);
-	vprintf(error,argptr);
+	va_start(argptr, msg);
+	vprintf(msg, argptr);
 	va_end(argptr);
 	
 	printf("\n");
 
 	exit(1);
+}
+
+
+void BurnPrint(const char *msg, ...)
+{
+	va_list argptr;
+
+	va_start(argptr, msg);
+	vprintf(msg, argptr);
+	va_end(argptr);
 }
 
 
@@ -140,6 +150,8 @@ int main(int argc, char **argv)
 	coalvm = coal::CreateVM();
 
 	assert(coalvm);
+
+//!!!!!!!	coalvm->SetPrintFunc(BurnPrint);
 
 	coalvm->AddNativeFunction("sprint", PF_PrintStr);
 	coalvm->AddNativeFunction("nprint", PF_PrintNum);

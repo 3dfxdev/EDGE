@@ -79,6 +79,17 @@ execution_c::~execution_c()
 { }
 
 
+void real_vm_c::default_printer(const char *msg, ...)
+{
+	// does nothing
+}
+
+void real_vm_c::default_aborter(const char *msg, ...)
+{
+	exit(66);
+}
+
+
 int PR_FindNativeFunc(const char *name)
 {
 	for (int i = 0; i < (int)native_funcs.size(); i++)
