@@ -32,7 +32,7 @@ class vm_c;
 
 typedef void (*print_func_t)(const char *msg, ...);
 
-typedef void (*native_func_t)(vm_c *vm);
+typedef void (*native_func_t)(vm_c *vm, int argc);
 
 class vm_c
 {
