@@ -2,13 +2,6 @@
 COAL TODO
 =========
 
--  rename OP_DONE --> OP_RET
--  rename totalUsed --> usedMemory
-
->>>  move all state into the real_vm_c class
-
-+  use c_memory class for Globals
-
 -  allow functions and constants to be redefined (but type must match)
 
 +  modules with '.' notation: hud.foo(hud.bar)

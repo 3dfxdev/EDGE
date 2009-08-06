@@ -43,14 +43,9 @@ namespace coal
 #include "c_execute.h"
 
 
-#define MAX_PRINTMSG  1024
-
-
-double		pr_globals[MAX_REGS];
-int			numpr_globals;
-
-
 #define MAX_RUNAWAY  (1000*1000)
+
+#define MAX_PRINTMSG  1024
 
 
 execution_c::execution_c() :
@@ -256,7 +251,7 @@ void real_vm_c::EnterNative(int func, int result, int argc)
 
 
 #define Operand(a)  (   \
-	((a) > 0) ? &pr_globals[a] :    \
+	((a) > 0) ? REF_GLOBAL(a) :   \
     ((a) < 0) ? &exec.stack[exec.stack_depth - ((a) + 1)] :   \
 	NULL)
 
@@ -321,7 +316,7 @@ void real_vm_c::DoExecute(int fnum)
 
 				if (result)
 				{
-					Operand(result)[0] = pr_globals[OFS_RETURN];
+					Operand(result)[0] = G_FLOAT(OFS_RETURN*8);
 				}
 				continue;
 			}
@@ -333,12 +328,13 @@ void real_vm_c::DoExecute(int fnum)
 				if (exec.call_depth == exitdepth)
 					return;		// all done
 
+				double * a = REF_GLOBAL(OFS_RETURN*8);
 				double * c = Operand(result);
 				assert(c);
 
-				c[0] = pr_globals[OFS_RETURN+0];
-				c[1] = pr_globals[OFS_RETURN+1];
-				c[2] = pr_globals[OFS_RETURN+2];
+				c[0] = a[0];
+				c[1] = a[1];
+				c[2] = a[2];
 				continue;
 			}
 
@@ -591,8 +587,6 @@ static const char *OpcodeName(short op)
 	return opcode_names[op];
 }
 
-
-#define GVAL(o)  ((o < 0) ? o : pr_globals[o])
 
 //
 // Returns a string suitable for printing (no newlines, max 60 chars length)

@@ -214,28 +214,19 @@ extern scope_c global_scope;
 
 //=============================================================================
 
-#define	MAX_DATA_PATH	64
-
-#define	MAX_REGS		16384
-#define	MAX_GLOBALS		16384
 
 #define OFS_NULL		0
 #define OFS_RETURN		1
 #define OFS_DEFAULT		4
 
-#define RESERVED_OFS	10
-
-extern	double		pr_globals[MAX_REGS];
-extern	int			numpr_globals;
 
 #define REF_GLOBAL(ofs)  ((double *)global_mem.deref(ofs))
 #define REF_STRING(ofs)  ((ofs)==0 ? "" : (char *)string_mem.deref(ofs))
 #define REF_OP(ofs)      ((statement_t *)op_mem.deref(ofs))
 
-#define	G_FLOAT(o) (pr_globals[o])
-#define	G_VECTOR(o) (&pr_globals[o])
-#define	G_STRING(o)  REF_STRING((int)pr_globals[o])
-#define	G_FUNCTION(o) (pr_globals[o])
+#define	G_FLOAT(ofs)    (* REF_GLOBAL(ofs))
+#define	G_VECTOR(ofs)   REF_GLOBAL(ofs)
+#define	G_STRING(ofs)   REF_STRING((int) G_FLOAT(ofs))
 
 
 class parse_error_x
