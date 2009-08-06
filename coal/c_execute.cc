@@ -237,7 +237,7 @@ void real_vm_c::LeaveFunction(int *result)
 }
 
 
-void real_vm_c::EnterNative(int func, int result)
+void real_vm_c::EnterNative(int func, int result, int argc)
 {
 	function_t *newf = functions[func];
 
@@ -249,7 +249,7 @@ void real_vm_c::EnterNative(int func, int result)
 		int old_func = exec.func;
 		{
 			exec.func = func;
-			native_funcs[n]->func (this);
+			native_funcs[n]->func (this, argc);
 		}
 		exec.func = old_func;
 	}
@@ -454,12 +454,10 @@ void real_vm_c::DoExecute(int fnum)
 					RunError("NULL function");
 				newf = functions[fnum];
 
-				//??  pr_argc = st->b;
-
 				/* negative statements are built in functions */
 				if (newf->first_statement < 0)
 				{
-					EnterNative(fnum, st->c);
+					EnterNative(fnum, st->c, st->b);
 					break;
 				}
 

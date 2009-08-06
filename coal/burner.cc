@@ -107,21 +107,21 @@ int LoadFile(char *filename, char **bufptr)
 //==================================================================//
 
 
-static void PF_PrintStr(coal::vm_c * vm)
+static void PF_PrintStr(coal::vm_c * vm, int argc)
 {
 	const char * p = vm->AccessParamString(0);
 
     printf("%s\n", p);
 }
 
-static void PF_PrintNum(coal::vm_c * vm)
+static void PF_PrintNum(coal::vm_c * vm, int argc)
 {
 	double * p = vm->AccessParam(0);
 
     printf("%1.5f\n", *p);
 }
 
-static void PF_PrintVector(coal::vm_c * vm)
+static void PF_PrintVector(coal::vm_c * vm, int argc)
 {
 	double * vec = vm->AccessParam(0);
 

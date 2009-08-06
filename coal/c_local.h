@@ -372,7 +372,7 @@ private:
 private:
 	void DoExecute(int func_id);
 
-	void EnterNative  (int func, int result);
+	void EnterNative  (int func, int result, int argc);
 	void EnterFunction(int func, int result = 0);
 	void LeaveFunction(int *result);
 
