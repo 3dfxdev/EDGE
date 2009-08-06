@@ -361,7 +361,7 @@ private:
 	void LEX_Next();
 	void LEX_Whitespace();
 	void LEX_NewLine();
-	void LEX_SkipToSemicolon();
+	void LEX_SkipPastError();
 
 	bool LEX_Check (const char *str);
 	void LEX_Expect(const char *str);

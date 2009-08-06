@@ -164,7 +164,7 @@ void real_vm_c::CompileError(const char *error, ...)
 	vsprintf(buffer,error,argptr);
 	va_end(argptr);
 
-	printf("%s:%i:%s\n", COM->source_file, COM->source_line, buffer);
+	printf("%s:%i: %s\n", COM->source_file, COM->source_line, buffer);
 
 //  raise(11);
 	throw parse_error_x();
@@ -303,11 +303,6 @@ void real_vm_c::LEX_Punctuation()
 				COM->bracelevel++;
 			else if (p[0] == '}')
 				COM->bracelevel--;
-
-			if (p[0] == '(')
-				COM->parentheses++;
-			else if (p[0] == ')')
-				COM->parentheses--;
 
 			COM->parse_p += len;
 			return;
@@ -464,19 +459,29 @@ bool real_vm_c::LEX_Check(const char *str)
 
 //
 // For error recovery.
-// Also pops out of nested braces
 //
-// FIXME: useless now that semicolons are optional
+// This is very simple, we just jump to the end of the line.
+// The error may have occured inside a string, making checks for
+// other stuff (like semicolons and comments) unreliable.
 //
-void real_vm_c::LEX_SkipToSemicolon()
+// We cannot use LEX_Next() here because it can throw another
+// error exception.
+//
+void real_vm_c::LEX_SkipPastError()
 {
-	do
+	for (; *COM->parse_p && *COM->parse_p != '\n'; COM->parse_p++)
 	{
-		if (!COM->bracelevel && LEX_Check(";"))
-			return;
-		LEX_Next();
+#if 0
+		if (*parse_p == ';' || *parse_p == '}' ||
+			(parse_p[0] == '/' && parse_p[1] == '/') ||
+			(parse_p[0] == '/' && parse_p[1] == '*'))
+			break;
+#endif
 	}
-	while (COM->token_type != tt_eof);
+
+	COM->token_type = tt_error;
+	COM->token_buf[0] = 0;
+	COM->token_is_first = false;
 }
 
 
@@ -1387,7 +1392,20 @@ int real_vm_c::GLOB_FunctionBody(type_t *type, const char *func_name)
 
 	while (! LEX_Check("}"))
 	{
-		STAT_Statement(true);
+		try
+		{
+			// handle a previous error
+			if (COM->token_type == tt_error)
+				LEX_Next();
+
+			STAT_Statement(true);
+		}
+		catch (parse_error_x err)
+		{
+			COM->error_count++;
+			LEX_SkipPastError();
+		}
+
 		FreeTemporaries();
 	}
 
@@ -1511,7 +1529,9 @@ void real_vm_c::GLOB_Function()
 	df->locals_size = COM->locals_end - df->locals_ofs;
 	df->locals_end  = COM->locals_end;
 
-	ASM_DumpFunction(df);
+	if (false) // FIXME
+		ASM_DumpFunction(df);
+
 // fprintf(stderr, "FUNCTION %s locals:%d\n", func_name, COM->locals_end);
 }
 
@@ -1611,29 +1631,29 @@ bool real_vm_c::CompileFile(char *buffer, const char *filename)
 
 	COM->parse_p = buffer;
 	COM->line_start = buffer;
-	COM->bracelevel  = 0;
-	COM->parentheses = 0;
-	COM->fol_level   = 0;
+	COM->bracelevel = 0;
+	COM->fol_level  = 0;
 
 	LEX_Next();	// read first token
 
-	while (COM->token_type != tt_eof)
+	while (COM->token_type != tt_eof &&
+		   COM->error_count < MAX_ERRORS)
 	{
 		try
 		{
 			COM->scope = NULL;	// outside all functions
 
+			// handle a previous error
+			if (COM->token_type == tt_error)
+				LEX_Next();
+
 			GLOB_Globals();
 		}
 		catch (parse_error_x err)
 		{
-			if (++COM->error_count > MAX_ERRORS)
-				return false;
+			COM->error_count++;
 
-			LEX_SkipToSemicolon();
-
-			if (COM->token_type == tt_eof)
-				return false;
+			LEX_SkipPastError();
 		}
 	}
 
