@@ -1396,8 +1396,8 @@ int real_vm_c::GLOB_FunctionBody(type_t *type, const char *func_name)
 			// handle a previous error
 			if (comp.token_type == tt_error)
 				LEX_Next();
-
-			STAT_Statement(true);
+			else
+				STAT_Statement(true);
 		}
 		catch (parse_error_x err)
 		{
@@ -1544,6 +1544,9 @@ void real_vm_c::GLOB_Variable()
 
 	def_t * def = GetDef(type, var_name, comp.scope);
 
+	if (def->flags & DF_Constant)
+		CompileError("%s previously defined as a constant\n");
+
 	if (LEX_Check("="))
 	{
 		// global variables can only be initialised with a constant
@@ -1666,8 +1669,8 @@ bool real_vm_c::CompileFile(char *buffer, const char *filename)
 			// handle a previous error
 			if (comp.token_type == tt_error)
 				LEX_Next();
-
-			GLOB_Globals();
+			else
+				GLOB_Globals();
 		}
 		catch (parse_error_x err)
 		{
