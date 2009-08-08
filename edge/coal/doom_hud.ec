@@ -44,19 +44,23 @@ function pain_digit() : string =
     if (health > 100)
         health = 100
 
-    var index; index = math_floor(4.99 * (100 - health) / 100)
+    var index; index = 4.99 * (100 - health) / 100
+
+    index = index - index % 1
 
     sys_assert(index >= 0)
     sys_assert(index <= 4)
 
-    return string_format("%d", index)
+    return "" + index
 }
 
 function turn_digit() : string =
 {
     var r; r = math_random() * 2.99
-    r = math_floor(r)
-    return string_format("%d", r)
+
+    r = r - (r % 1)
+
+    return "" + r
 }
 
 function select_new_face() =
@@ -70,14 +74,14 @@ function select_new_face() =
     if (player_health() <= 0)
     {
         face_image = "STFDEAD0"
-            face_time  = 10
-            return
+        face_time  = 10
+        return
     }
 
     // evil grin when player just picked up a weapon
     if (player_is_grinning())
     {
-        face_image = string_concat("STFEVL", pain_digit())
+        face_image = "STFEVL" + pain_digit()
         face_time  = 7
         return
     }
@@ -87,7 +91,7 @@ function select_new_face() =
     {
         if (player_hurt_pain() > 50)
         {
-            face_image = string_concat("STFOUCH", pain_digit())
+            face_image = "STFOUCH" + pain_digit()
             face_time = 26
             return
         }
@@ -101,11 +105,11 @@ function select_new_face() =
         }
 
         if (dir < 0)
-            face_image = string_concat3("STFTL", pain_digit(), "0")
+            face_image = "STFTL" + pain_digit() + "0"
         else if (dir > 0)
-            face_image = string_concat3("STFTR", pain_digit(), "0")
+            face_image = "STFTR" + pain_digit() + "0"
         else
-            face_image = string_concat("STFKILL", pain_digit())
+            face_image = "STFKILL" + pain_digit()
 
         face_time = 35
         return
@@ -114,7 +118,7 @@ function select_new_face() =
     // rampaging?
     if (player_is_rampaging())
     {
-        face_image = string_concat("STFKILL", pain_digit())
+        face_image = "STFKILL" + pain_digit()
         face_time  = 7
         return
     }
@@ -128,7 +132,7 @@ function select_new_face() =
     }
 
     // default: look about the place...
-    face_image = string_concat3("STFST", pain_digit(), turn_digit())
+    face_image = "STFST" + pain_digit() + turn_digit()
     face_time  = 17
 }
 
@@ -269,7 +273,12 @@ function edge_air_bar() =
 
     air = math_floor(1 + 21 * ((100 - air) / 100.1))
 
-    var barname : string; barname = string_format("AIRBAR%02d", air)
+    var barname : string;
+    
+    if (air < 10)
+        barname = "AIRBAR0" + air
+    else
+        barname = "AIRBAR" + air
 
     hud_draw_image(0, 0, barname)
 }
