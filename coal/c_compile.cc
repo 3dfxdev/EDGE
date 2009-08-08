@@ -792,10 +792,6 @@ def_t * real_vm_c::EXP_Literal()
 		cn->flags |= DF_Constant;
 		cn->scope = NULL;   // literals are always global
 
-		// link into defs list
-		cn->next = comp.all_defs;
-		comp.all_defs  = cn;
-
 		// copy the literal to the global area
 		StoreLiteral(cn->ofs);
 
@@ -943,7 +939,7 @@ def_t * real_vm_c::FindDef(type_t *type, char *name, def_t *scope)
 		if (strcmp(def->name, name) != 0)
 			continue;
 
-		if ( def->scope && def->scope != scope)
+		if (def->scope && def->scope != scope)
 			continue;		// in a different function
 
 		if (type && def->type != type)
@@ -1380,8 +1376,8 @@ int real_vm_c::GLOB_FunctionBody(type_t *type, const char *func_name)
 
 	for (int i=0 ; i < type->parm_num ; i++)
 	{
-		if (FindDef(type->parm_types[i], comp.parm_names[i], comp.scope))
-			CompileError("parameter %s redeclared\n", comp.parm_names[i]);
+//???	if (FindDef(type->parm_types[i], comp.parm_names[i], comp.scope))
+//???		CompileError("parameter %s redeclared\n", comp.parm_names[i]);
 
 		defs[i] = GetDef(type->parm_types[i], comp.parm_names[i], comp.scope);
 	}
@@ -1471,11 +1467,7 @@ void real_vm_c::GLOB_Function()
 
 	type_t *func_type = FindType(&t_new);
 
-	assert(comp.scope == NULL);
-	def_t *def = GetDef(func_type, func_name, NULL);
-
-	if (def->flags & DF_Initialized)
-		CompileError("%s redeclared\n", func_name);
+	def_t *def = GetDef(func_type, func_name, comp.scope);
 
 
 	LEX_Expect("=");
@@ -1609,18 +1601,10 @@ void real_vm_c::GLOB_Constant()
 		CompileError("expected value for constant, got %s\n", comp.token_buf);
 
 
-	if (FindDef(NULL, const_name, NULL))
-		CompileError("name already used: %s\n", const_name);
+	def_t * cn = GetDef(comp.literal_type, const_name, comp.scope);
 
-
-	def_t * cn = NewGlobal(comp.literal_type);
-
-	cn->name  = const_name;
 	cn->flags |= DF_Constant;
 
-	// link into list
-	cn->next = comp.all_defs;
-	comp.all_defs = cn;
 
 	StoreLiteral(cn->ofs);
 
