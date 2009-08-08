@@ -10,10 +10,10 @@ DONE:  support 'var x = 123' and 'var y : string = "foo"'
 
 +  InternaliseString: find an existing matching string 
 
--  describe new language (notes.txt)
+DONE:  implemented c_memory 'reset' function
+DONE:  check some previous blocks for free space
 
--  Coal API for dumping functions (etc)
-   (fix tracing too)
+-  describe new language (notes.txt)
 
 +  WISH: interactive mode for the burner
 
