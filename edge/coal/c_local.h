@@ -344,7 +344,6 @@ private:
 
 	def_t * NewGlobal(type_t *type);
 	def_t * NewLocal(type_t *type);
-	void DefaultValue(gofs_t ofs, type_t *type);
 
 	char *   ParseName();
 	type_t * ParseType();

@@ -643,19 +643,6 @@ int real_vm_c::EmitCode(short op, short a, short b, short c)
 }
 
 
-void real_vm_c::DefaultValue(gofs_t ofs, type_t *type)
-{
-	// global vars are already zero (via NewGlobal)
-	if (ofs > 0)
-		return;
-
-	if (type->type == ev_vector)
-		EmitCode(OP_MOVE_V, OFS_DEFAULT*8, ofs);
-	else
-		EmitCode(OP_MOVE_F, OFS_DEFAULT*8, ofs);
-}
-
-
 def_t * real_vm_c::NewGlobal(type_t *type)
 {
 	int tsize = type_size[type->type];
@@ -1562,13 +1549,48 @@ void real_vm_c::GLOB_Variable()
 		type = ParseType();
 	}
 
-	// TODO
-	// if (LEX_Check("="))
-	// 	 get default value
-
 	def_t * def = GetDef(type, var_name, comp.scope);
 
-	DefaultValue(def->ofs, type);
+	if (LEX_Check("="))
+	{
+		// global variables can only be initialised with a constant
+		if (def->ofs > 0)
+		{
+			if (comp.token_type != tt_literal)
+				CompileError("expected value for var, got %s\n", comp.token_buf);
+			
+			if (comp.literal_type->type != type->type)
+				CompileError("type mismatch for %s\n", var_name);
+
+			StoreLiteral(def->ofs);
+
+			LEX_Next();
+		}
+		else  // local variables can take an expression
+		 	  // it is equivalent to: var XX ; XX = ...
+		{
+			def_t *e2 = EXP_Expression(TOP_PRIORITY);
+
+			if (e2->type != def->type)
+				CompileError("type mismatch for %s\n", var_name);
+
+			if (type->type == ev_vector)
+				EmitCode(OP_MOVE_V, e2->ofs, def->ofs);
+			else
+				EmitCode(OP_MOVE_F, e2->ofs, def->ofs);
+		}
+	}
+	else  // set to default
+	{
+		// global vars are already zero (via NewGlobal)
+		if (def->ofs < 0)
+		{
+			if (type->type == ev_vector)
+				EmitCode(OP_MOVE_V, OFS_DEFAULT*8, def->ofs);
+			else
+				EmitCode(OP_MOVE_F, OFS_DEFAULT*8, def->ofs);
+		}
+	}
 
 	// -AJA- optional semicolons
 	if (! (comp.token_is_first || comp.token_buf[0] == '}'))
