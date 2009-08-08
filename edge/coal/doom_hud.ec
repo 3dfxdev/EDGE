@@ -271,7 +271,8 @@ function edge_air_bar() =
 
     var air; air = player_air_in_lungs()
 
-    air = math_floor(1 + 21 * ((100 - air) / 100.1))
+    air = 1 + 21 * ((100 - air) / 100.1)
+    air = air - air % 1
 
     var barname : string;
     
