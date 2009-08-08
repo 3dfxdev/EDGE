@@ -98,6 +98,10 @@ enum
 
 	OP_ADD_F,
 	OP_ADD_V,
+	OP_ADD_S,
+	OP_ADD_SF,
+	OP_ADD_SV,
+
 	OP_SUB_F,
 	OP_SUB_V,
 
@@ -220,9 +224,11 @@ extern scope_c global_scope;
 #define OFS_DEFAULT		4
 
 
-#define REF_GLOBAL(ofs)  ((double *)global_mem.deref(ofs))
-#define REF_STRING(ofs)  ((ofs)==0 ? "" : (char *)string_mem.deref(ofs))
 #define REF_OP(ofs)      ((statement_t *)op_mem.deref(ofs))
+#define REF_GLOBAL(ofs)  ((double *)global_mem.deref(ofs))
+#define REF_STRING(ofs)  ((ofs)==0 ? "" :   \
+                          (ofs) < 0 ? (char *)temp_strings.deref(-(1+(ofs))) :   \
+                          (char *)string_mem.deref(ofs))
 
 #define	G_FLOAT(ofs)    (* REF_GLOBAL(ofs))
 #define	G_VECTOR(ofs)   REF_GLOBAL(ofs)
@@ -293,9 +299,10 @@ public:
 private:
 	print_func_t printer;
 
+	bmaster_c op_mem;
 	bmaster_c global_mem;
 	bmaster_c string_mem;
-	bmaster_c op_mem;
+	bmaster_c temp_strings;
 
 	std::vector< function_t* > functions;
 	std::vector< reg_native_func_t* > native_funcs;
@@ -373,6 +380,10 @@ private:
 
 	int GetNativeFunc(const char *name);
 	int	InternaliseString(const char *new_s);
+
+	int STR_Concat(const char * s1, const char * s2);
+	int STR_ConcatFloat (const char * s, double f);
+	int STR_ConcatVector(const char * s, double *v);
 
 	void RunError(const char *error, ...);
 
