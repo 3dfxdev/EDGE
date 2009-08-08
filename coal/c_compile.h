@@ -39,6 +39,8 @@ public:
 	int source_line;
 	int function_line;
 
+	bool asm_dump;
+
 	// current parsing position
 	char *parse_p;
 	char *line_start;	// start of current source line

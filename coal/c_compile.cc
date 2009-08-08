@@ -49,6 +49,7 @@ namespace coal
 
 compiling_c::compiling_c() :
 	source_file(NULL), source_line(0),
+	asm_dump(false),
 	parse_p(NULL), line_start(NULL),
 	error_count(0),
 	all_types(NULL), all_defs(NULL),
@@ -1531,7 +1532,7 @@ void real_vm_c::GLOB_Function()
 	df->locals_size = comp.locals_end - df->locals_ofs;
 	df->locals_end  = comp.locals_end;
 
-	if (false) // FIXME
+	if (comp.asm_dump)
 		ASM_DumpFunction(df);
 
 // debugprintf(stderr, "FUNCTION %s locals:%d\n", func_name, comp.locals_end);
@@ -1754,6 +1755,12 @@ void real_vm_c::SetPrinter(print_func_t func)
 {
 	printer = func;
 }
+
+void real_vm_c::SetAsm(bool enable)
+{
+	comp.asm_dump = enable;
+}
+
 
 
 vm_c * CreateVM()
