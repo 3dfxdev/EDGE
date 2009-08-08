@@ -32,6 +32,12 @@ typedef unsigned char byte;
 typedef int	func_t;
 typedef int	string_t;
 
+
+#define	MAX_NAME	64
+
+#define	MAX_PARMS	16
+
+
 typedef enum
 {
 	ev_INVALID = -1,
@@ -130,8 +136,6 @@ enum
 };
 
 
-#define	MAX_PARMS	16
-
 typedef struct
 {
 	const char *name;
@@ -159,61 +163,6 @@ function_t;
 // when < 0, it is offset into local stack frame
 typedef int	gofs_t;
 
-
-#define	MAX_NAME		64
-
-
-typedef struct type_s
-{
-	etype_t			type;
-
-// function types are more complex
-	struct type_s	*aux_type;	// return type or field type
-
-	int				parm_num;	// -1 = variable args
-	struct type_s	*parm_types[MAX_PARMS];	// only [parm_num] allocated
-
-	struct type_s	*next;
-}
-type_t;
-
-typedef struct def_s
-{
-	type_t		*type;
-	char		*name;
-
-	gofs_t		ofs;
-	struct def_s	*scope;		// function the var was defined in, or NULL
-
-	int			flags;
-
-	struct def_s	*next;
-}
-def_t;
-
-typedef enum
-{
-	DF_Initialized = (1 << 0),	// when a declaration included "= immediate"
-	DF_Constant    = (1 << 1),
-	DF_Temporary   = (1 << 2),
-	DF_FreeTemp    = (1 << 3),  // temporary is free to re-use
-}
-def_flag_e;
-
-
-#if 0  // prototyping.....
-class scope_c
-{
-public:
-	std::map<std::string, def_t *> defs;
-
-public:
-	 scope_c() : defs() { }
-	~scope_c() { }
-};
-
-extern scope_c global_scope;
-#endif
 
 
 //=============================================================================
@@ -334,8 +283,8 @@ private:
 	def_t * EXP_FunctionCall(def_t *func);
 	def_t * EXP_Literal();
 
-	def_t * GetDef (type_t *type, char *name, def_t *scope);
-	def_t * FindDef(type_t *type, char *name, def_t *scope);
+	def_t * DeclareDef(type_t *type, char *name, scope_c *scope);
+	def_t * FindDef   (type_t *type, char *name, scope_c *scope);
 
 	void StoreLiteral(int ofs);
 	def_t * FindLiteral();

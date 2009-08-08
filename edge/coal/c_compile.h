@@ -20,6 +20,7 @@
 #ifndef __COAL_COMPILER_BITS_H__
 #define __COAL_COMPILER_BITS_H__
 
+class scope_c;
 
 typedef enum
 {
@@ -30,6 +31,66 @@ typedef enum
 	tt_error        // an error occured (so get next token)
 }
 token_e;
+
+
+typedef struct type_s
+{
+	etype_t			type;
+
+// function types are more complex
+	struct type_s	*aux_type;	// return type or field type
+
+	int				parm_num;	// -1 = variable args
+	struct type_s	*parm_types[MAX_PARMS];	// only [parm_num] allocated
+
+	struct type_s	*next;
+}
+type_t;
+
+
+typedef struct def_s
+{
+	type_t	*type;
+	char	*name;
+
+	gofs_t	ofs;
+
+	scope_c	*scope;
+
+	int		flags;
+
+	struct def_s *next;
+}
+def_t;
+
+typedef enum
+{
+	DF_Constant    = (1 << 1),
+	DF_Temporary   = (1 << 2),
+	DF_FreeTemp    = (1 << 3),  // temporary can be re-used
+}
+def_flag_e;
+
+
+class scope_c
+{
+public:
+	char kind;  // 'g' global, 'f' function, 'm' module
+
+	def_t * names;  // functions, vars, constants, parameters
+
+	def_t * def;   // parent scope is def->scope
+
+public:
+	 scope_c() : kind('g'), names(NULL), def(NULL) { }
+	~scope_c() { }
+
+	void push_back(def_t *def)
+	{
+		def->scope = this;
+		def->next = names; names = def;
+	}
+};
 
 
 class compiling_c
@@ -61,16 +122,17 @@ public:
 
 	int error_count;
 
+	scope_c global_scope;
+
 	type_t * all_types;
-	def_t  * all_defs;
 
 	std::vector<def_t *> all_literals;
 
 	// all temporaries for current function
 	std::vector<def_t *> temporaries;
 
-	// the function being parsed, or NULL
-	def_t  * scope;
+	// the function/module being parsed, or NULL
+	scope_c * scope;
 
 	// for tracking local variables vs temps
 	int locals_end;
