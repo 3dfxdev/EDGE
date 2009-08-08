@@ -8,6 +8,8 @@ COAL TODO
 
 +  support 'var x = 123' and 'var y : string = "foo"'
 
++  InternaliseString: find an existing matching string 
+
 -  describe new language (notes.txt)
 
 -  Coal API for dumping functions (etc)
