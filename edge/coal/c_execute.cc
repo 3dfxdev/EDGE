@@ -49,7 +49,8 @@ namespace coal
 
 
 execution_c::execution_c() :
-	s(0), func(0), tracing(false), stack_depth(0), call_depth(0)
+	s(0), func(0), tracing(false),
+	stack_depth(0), call_depth(0)
 { }
 
 execution_c::~execution_c()
@@ -166,19 +167,64 @@ void real_vm_c::RunError(const char *error, ...)
     vsnprintf(buffer, sizeof(buffer), error, argptr);
     va_end(argptr);
 
+    printer("ERROR: %s\n", buffer);
+
 	if (exec.call_depth > 0)
 		StackTrace();
-
-//??	printer("Last Statement:\n");
-//??    PR_PrintStatement(statements + pr_xstatement);
-
-    printer("%s\n", buffer);
 
     /* clear the stack so SV/Host_Error can shutdown functions */
     exec.call_depth = 0;
 
 //  raise(11);
     throw exec_error_x();
+}
+
+
+int real_vm_c::STR_Concat(const char * s1, const char * s2)
+{
+	int len1 = strlen(s1);
+	int len2 = strlen(s2);
+
+	int index = temp_strings.alloc(len1 + len2 + 1);
+	char *s3  = (char *) temp_strings.deref(index);
+
+	strcpy(s3, s1);
+	strcpy(s3 + len1, s2);
+
+	return -(1 + index);
+
+}
+
+int real_vm_c::STR_ConcatFloat(const char * s, double f)
+{
+	char buffer[100];
+
+	if (f == (int)f)
+	{
+		sprintf(buffer, "%1.0f", f);
+	}
+	else
+	{
+		sprintf(buffer, "%8.6f", f);
+	}
+
+	return STR_Concat(s, buffer);
+}
+
+int real_vm_c::STR_ConcatVector(const char * s, double *v)
+{
+	char buffer[200];
+
+	if (v[0] == (int)v[0] && v[1] == (int)v[1] && v[2] == (int)v[2])
+	{
+		sprintf(buffer, "'%1.0f %1.0f %1.0f'", v[0], v[1], v[2]);
+	}
+	else
+	{
+		sprintf(buffer, "'%6.4f %6.4f %6.4f'", v[0], v[1], v[2]);
+	}
+
+	return STR_Concat(s, buffer);
 }
 
 
@@ -389,8 +435,13 @@ void real_vm_c::DoExecute(int fnum)
 		switch (st->op)
 		{
 			case OP_MOVE_F:
-			case OP_MOVE_S:
 			case OP_MOVE_FNC:	// pointers
+				*b = *a;
+				break;
+
+			case OP_MOVE_S:
+				if (*a < 0 && st->b > OFS_RETURN*8)
+					RunError("temp string assigned to global var");
 				*b = *a;
 				break;
 
@@ -408,6 +459,24 @@ void real_vm_c::DoExecute(int fnum)
 				c[0] = a[0] + b[0];
 				c[1] = a[1] + b[1];
 				c[2] = a[2] + b[2];
+				break;
+
+			case OP_ADD_S:
+				if (st->c > OFS_RETURN*8)
+					RunError("temp string assigned to global var");
+				*c = STR_Concat(REF_STRING((int)*a), REF_STRING((int)*b));
+				break;
+
+			case OP_ADD_SF:
+				if (st->c > OFS_RETURN*8)
+					RunError("temp string assigned to global var");
+				*c = STR_ConcatFloat(REF_STRING((int)*a), *b);
+				break;
+
+			case OP_ADD_SV:
+				if (st->c > OFS_RETURN*8)
+					RunError("temp string assigned to global var");
+				*c = STR_ConcatVector(REF_STRING((int)*a), b);
 				break;
 
 			case OP_SUB_F:
@@ -560,22 +629,58 @@ const char * opcode_names[] =
 {
 	"NULL",
 	"CALL",
-	"RET", "RET_V",
-	"PARM_F", "PARM_V",
-	"IF", "IFNOT", "GOTO",
+	"RET",
+	"RET_V",
+	"PARM_F",
+	"PARM_V",
+	"IF",
+	"IFNOT",
+	"GOTO",
 
-	"MOVE_F", "MOVE_V", "MOVE_S", "MOVE_FNC",
+	"MOVE_F",
+	"MOVE_V",
+	"MOVE_S",
+	"MOVE_FNC",
 
-	"NOT_F", "NOT_V", "NOT_S", "NOT_FNC",
+	"NOT_F",
+	"NOT_V",
+	"NOT_S",
+	"NOT_FNC",
 	"POWER", 
-	"MUL_F", "MUL_V", "MUL_FV", "MUL_VF",
-	"DIV_F", "DIV_V", "MOD_F",
-	"ADD_F", "ADD_V",
-	"SUB_F", "SUB_V",
-	"EQ_F", "EQ_V", "EQ_S", "EQ_FNC",
-	"NE_F", "NE_V", "NE_S", "NE_FNC",
-	"LE", "GE", "LT", "GT",
-	"AND", "OR", "BITAND", "BITOR",
+
+	"MUL_F",
+	"MUL_V",
+	"MUL_FV",
+	"MUL_VF",
+	"DIV_F",
+	"DIV_V",
+	"MOD_F",
+
+	"ADD_F",
+	"ADD_V",
+	"ADD_S",
+	"ADD_SF",
+	"ADD_SV",
+	"SUB_F",
+	"SUB_V",
+
+	"EQ_F",
+	"EQ_V",
+	"EQ_S",
+	"EQ_FNC",
+	"NE_F",
+	"NE_V",
+	"NE_S",
+	"NE_FNC",
+	"LE",
+	"GE",
+	"LT",
+	"GT",
+
+	"AND",
+	"OR",
+	"BITAND",
+	"BITOR",
 };
 
 

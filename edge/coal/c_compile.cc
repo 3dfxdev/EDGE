@@ -114,8 +114,11 @@ static opcode_t all_operators[] =
 	{"/", OP_DIV_V, 2, &type_vector, &type_float, &type_vector},
 	{"%", OP_MOD_F, 2, &type_float, &type_float, &type_float},
 
-	{"+", OP_ADD_F, 3, &type_float, &type_float, &type_float},
-	{"+", OP_ADD_V, 3, &type_vector, &type_vector, &type_vector},
+	{"+", OP_ADD_F,  3, &type_float, &type_float, &type_float},
+	{"+", OP_ADD_V,  3, &type_vector, &type_vector, &type_vector},
+	{"+", OP_ADD_S,  3, &type_string, &type_string, &type_string},
+	{"+", OP_ADD_SF, 3, &type_string, &type_float, &type_string},
+	{"+", OP_ADD_SV, 3, &type_string, &type_vector, &type_string},
 
 	{"-", OP_SUB_F, 3, &type_float, &type_float, &type_float},
 	{"-", OP_SUB_V, 3, &type_vector, &type_vector, &type_vector},
@@ -919,15 +922,22 @@ void real_vm_c::STAT_Return(void)
 	if (comp.scope->type->aux_type != e->type)
 		CompileError("type mismatch for return\n");
 
-	if (comp.scope->type->aux_type->type == ev_vector)
+	switch (comp.scope->type->aux_type->type == ev_vector)
 	{
-		EmitCode(OP_MOVE_V, e->ofs, OFS_RETURN*8);
-		EmitCode(OP_RET_V);
-	}
-	else
-	{
-		EmitCode(OP_MOVE_F, e->ofs, OFS_RETURN*8);
-		EmitCode(OP_RET);
+		case ev_vector:
+			EmitCode(OP_MOVE_V, e->ofs, OFS_RETURN*8);
+			EmitCode(OP_RET_V);
+			break;
+
+		case ev_string:
+			EmitCode(OP_MOVE_S, e->ofs, OFS_RETURN*8);
+			EmitCode(OP_RET);
+			break;
+
+		default:
+			EmitCode(OP_MOVE_F, e->ofs, OFS_RETURN*8);
+			EmitCode(OP_RET);
+			break;
 	}
 
 	// -AJA- optional semicolons
@@ -1261,9 +1271,12 @@ void real_vm_c::STAT_Assignment(def_t *e)
 
 	switch (e->type->type)
 	{
-		case ev_float:
 		case ev_string:
+			EmitCode(OP_MOVE_S, e2->ofs, e->ofs);
+			break;
+
 		case ev_function:
+		case ev_float:
 			EmitCode(OP_MOVE_F, e2->ofs, e->ofs);
 			break;
 
@@ -1675,7 +1688,7 @@ void real_vm_c::ShowStats()
 
 real_vm_c::real_vm_c() :
 	printer(default_printer),
-	global_mem(), string_mem(), op_mem(),
+	op_mem(), global_mem(), string_mem(), temp_strings(),
 	functions(), native_funcs(),
 	comp(), exec()
 {
