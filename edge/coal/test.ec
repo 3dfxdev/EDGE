@@ -6,6 +6,9 @@ function nprint(n : float ) = native
 function sprint(s : string) = native
 function vprint(v : vector) = native
 
+var jackpot : string = "JACKPOT!"
+var noobvec : vector = '1 2 3'
+
 function foo(a) =
 {
     nprint(a)
@@ -13,14 +16,14 @@ function foo(a) =
 
 function bar(b) =
 {
-    var y; y = 1 | 4 | 16
+    var y = 1 | 4 | 16
     b = b & y
 
     nprint(b)
     if (b <= 4)
         b = 1
     else
-        sprint("JACKPOT!")
+        sprint(jackpot)
 }
 
 function factorial(n) : float =
@@ -40,14 +43,12 @@ function main() =
     nprint(factorial(5))
     nprint(factorial(4) + factorial(3) + factorial(2))
 
-    vprint('1 2 3' + '4 5 6')
-    vprint('1 2 3' / 4  )
+    vprint(noobvec + '4 5 6')
+    vprint(noobvec / 4  )
 
     sprint("")
 
-    var x
-
-    x = 1; repeat { foo(x); x = x + 1; } until (x > 6)
+    var x = 1; repeat { foo(x); x = x + 1; } until (x > 6)
 
     sprint("")
 
