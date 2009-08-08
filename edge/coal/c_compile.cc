@@ -52,7 +52,7 @@ compiling_c::compiling_c() :
 	parse_p(NULL), line_start(NULL),
 	error_count(0),
 	all_types(NULL), all_defs(NULL),
-	temporaries(), constants()
+	all_literals(), temporaries()
 { }
 
 compiling_c::~compiling_c()
@@ -723,9 +723,9 @@ void real_vm_c::FreeTemporaries()
 def_t * real_vm_c::FindLiteral()
 {
 	// check for a constant with the same value
-	for (int i = 0; i < (int)comp.constants.size(); i++)
+	for (int i = 0; i < (int)comp.all_literals.size(); i++)
 	{
-		def_t *cn = comp.constants[i];
+		def_t *cn = comp.all_literals[i];
 
 		if (cn->type != comp.literal_type)
 			continue;
@@ -798,7 +798,7 @@ def_t * real_vm_c::EXP_Literal()
 		// copy the literal to the global area
 		StoreLiteral(cn->ofs);
 
-		comp.constants.push_back(cn);
+		comp.all_literals.push_back(cn);
 	}
 
 	LEX_Next();
@@ -1622,8 +1622,6 @@ void real_vm_c::GLOB_Constant()
 	comp.all_defs = cn;
 
 	StoreLiteral(cn->ofs);
-
-	comp.constants.push_back(cn);
 
 	LEX_Next();
 

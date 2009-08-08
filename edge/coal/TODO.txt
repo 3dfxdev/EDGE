@@ -6,7 +6,7 @@ COAL TODO
 
 +  modules with '.' notation: hud.foo(hud.bar)
 
-+  support 'var x = 123' and 'var y : string = "foo"'
+DONE:  support 'var x = 123' and 'var y : string = "foo"'
 
 +  InternaliseString: find an existing matching string 
 

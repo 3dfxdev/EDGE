@@ -62,10 +62,10 @@ public:
 	type_t * all_types;
 	def_t  * all_defs;
 
+	std::vector<def_t *> all_literals;
+
 	// all temporaries for current function
 	std::vector<def_t *> temporaries;
-
-	std::vector<def_t *> constants;
 
 	// the function being parsed, or NULL
 	def_t  * scope;
