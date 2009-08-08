@@ -116,6 +116,8 @@ void bgroup_c::reset()
 			else
 				blocks[i]->used = 0;
 		}
+
+	pos = 0;
 }
 
 int bgroup_c::usedMemory() const
@@ -191,6 +193,8 @@ void bmaster_c::reset()
 	for (int k = 0; k <= pos; k++)
 		if (groups[k])
 			groups[k]->reset();
+
+	pos = 0;
 }
 
 
