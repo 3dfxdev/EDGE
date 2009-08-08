@@ -32,15 +32,17 @@ public:
 
 struct bgroup_c
 {
-	int used;
+	int pos;
 
 	block_c *blocks[256];
 
 public:
-	 bgroup_c() : used(0) { }
+	 bgroup_c();
 	~bgroup_c();
 
 	int try_alloc(int len);
+
+	void reset();
 
 	int usedMemory() const;
 	int totalMemory() const;
@@ -49,12 +51,12 @@ public:
 
 struct bmaster_c
 {
-	int used;
+	int pos;
 
 	bgroup_c *groups[256];
 
 public:
-	 bmaster_c() : used(0) { }
+	 bmaster_c();
 	~bmaster_c();
 
 	int alloc(int len);
