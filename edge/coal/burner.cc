@@ -163,6 +163,12 @@ int main(int argc, char **argv)
 	coalvm->AddNativeFunction("nprint", PF_PrintNum);
 	coalvm->AddNativeFunction("vprint", PF_PrintVector);
 
+	if (strcmp(argv[1], "-a") == 0)
+	{
+		coalvm->SetAsm(true);
+		argv++; argc--;
+	}
+
 	if (strcmp(argv[1], "-t") == 0)
 	{
 		coalvm->SetTrace(true);

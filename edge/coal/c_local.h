@@ -287,6 +287,7 @@ public:
 	void ShowStats();
 
 	void SetTrace(bool enable);
+	void SetAsm  (bool enable);
 
 	int FindFunction(const char *name);
 	int FindVariable(const char *name);
