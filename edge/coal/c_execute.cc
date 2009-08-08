@@ -620,12 +620,15 @@ int real_vm_c::Execute(int func_id)
 		}
 
 		DoExecute(func_id);
-		return 0;
 	}
 	catch (exec_error_x err)
 	{
 		return 9;
 	}
+
+	// printer("TEMP_STRINGs: %d / %d\n", temp_strings.usedMemory(), temp_strings.totalMemory());
+
+	return 0;
 }
 
 
