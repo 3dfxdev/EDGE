@@ -52,7 +52,7 @@ compiling_c::compiling_c() :
 	asm_dump(false),
 	parse_p(NULL), line_start(NULL),
 	error_count(0),
-	all_types(NULL), all_defs(NULL),
+	global_scope(), all_types(NULL),
 	all_literals(), temporaries()
 { }
 
@@ -790,7 +790,7 @@ def_t * real_vm_c::EXP_Literal()
 		cn->name = "CONSTANT VALUE";
 
 		cn->flags |= DF_Constant;
-		cn->scope = NULL;   // literals are always global
+		cn->scope = NULL;   // literals are "scope-less"
 
 		// copy the literal to the global area
 		StoreLiteral(cn->ofs);
@@ -889,9 +889,11 @@ def_t * real_vm_c::EXP_FunctionCall(def_t *func)
 
 void real_vm_c::STAT_Return(void)
 {
+	def_t *func_def = comp.scope->def;
+
 	if (comp.token_is_first || comp.token_buf[0] == '}' || LEX_Check(";"))
 	{
-		if (comp.scope->type->aux_type->type != ev_void)
+		if (func_def->type->aux_type->type != ev_void)
 			CompileError("missing value for return\n");
 
 		EmitCode(OP_RET);
@@ -900,13 +902,13 @@ void real_vm_c::STAT_Return(void)
 
 	def_t * e = EXP_Expression(TOP_PRIORITY);
 
-	if (comp.scope->type->aux_type->type == ev_void)
+	if (func_def->type->aux_type->type == ev_void)
 		CompileError("return with value in void function\n");
 
-	if (comp.scope->type->aux_type != e->type)
+	if (func_def->type->aux_type != e->type)
 		CompileError("type mismatch for return\n");
 
-	switch (comp.scope->type->aux_type->type == ev_vector)
+	switch (func_def->type->aux_type->type == ev_vector)
 	{
 		case ev_vector:
 			EmitCode(OP_MOVE_V, e->ofs, OFS_RETURN*8);
@@ -930,17 +932,12 @@ void real_vm_c::STAT_Return(void)
 }
 
 
-def_t * real_vm_c::FindDef(type_t *type, char *name, def_t *scope)
+def_t * real_vm_c::FindDef(type_t *type, char *name, scope_c *scope)
 {
-	def_t *def;
-
-	for (def = comp.all_defs ; def ; def=def->next)
+	for (def_t * def = scope->names ; def ; def=def->next)
 	{
 		if (strcmp(def->name, name) != 0)
 			continue;
-
-		if (def->scope && def->scope != scope)
-			continue;		// in a different function
 
 		if (type && def->type != type)
 			CompileError("type mismatch on redeclaration of %s\n", name);
@@ -952,7 +949,7 @@ def_t * real_vm_c::FindDef(type_t *type, char *name, def_t *scope)
 }
 
 
-def_t * real_vm_c::GetDef(type_t *type, char *name, def_t *scope)
+def_t * real_vm_c::DeclareDef(type_t *type, char *name, scope_c *scope)
 {
 	// A new def will be allocated if it can't be found
 
@@ -964,18 +961,15 @@ def_t * real_vm_c::GetDef(type_t *type, char *name, def_t *scope)
 
 	// allocate a new def
 
-	if (scope)
+	if (scope->kind == 'f')
 		def = NewLocal(type);
 	else
 		def = NewGlobal(type);
 
-	def->name  = strdup(name);
-	def->scope = scope;
-
+	def->name = strdup(name);
 
 	// link into list
-	def->next = comp.all_defs;
-	comp.all_defs = def;
+	scope->push_back(def);
 
 	return def;
 }
@@ -986,11 +980,20 @@ def_t * real_vm_c::EXP_VarValue()
 	char *name = ParseName();
 
 	// look through the defs
-	def_t *d = FindDef(NULL, name, comp.scope);
-	if (!d)
-		CompileError("unknown identifier: %s\n", name);
+	scope_c *scope = comp.scope;
 
-	return d;
+	for (;;)
+	{
+		def_t *d = FindDef(NULL, name, scope);
+		if (d)
+			return d;
+
+		if (scope->kind == 'g')
+			CompileError("unknown identifier: %s\n", name);
+
+		// move to outer scope
+		scope = scope->def->scope;
+	}
 }
 
 
@@ -1376,10 +1379,10 @@ int real_vm_c::GLOB_FunctionBody(type_t *type, const char *func_name)
 
 	for (int i=0 ; i < type->parm_num ; i++)
 	{
-//???	if (FindDef(type->parm_types[i], comp.parm_names[i], comp.scope))
-//???		CompileError("parameter %s redeclared\n", comp.parm_names[i]);
+		if (FindDef(type->parm_types[i], comp.parm_names[i], comp.scope))
+			CompileError("parameter %s redeclared\n", comp.parm_names[i]);
 
-		defs[i] = GetDef(type->parm_types[i], comp.parm_names[i], comp.scope);
+		defs[i] = DeclareDef(type->parm_types[i], comp.parm_names[i], comp.scope);
 	}
 
 	int code = EmitCode(OP_NULL);
@@ -1467,7 +1470,7 @@ void real_vm_c::GLOB_Function()
 
 	type_t *func_type = FindType(&t_new);
 
-	def_t *def = GetDef(func_type, func_name, comp.scope);
+	def_t *def = DeclareDef(func_type, func_name, comp.scope);
 
 
 	LEX_Expect("=");
@@ -1508,18 +1511,20 @@ void real_vm_c::GLOB_Function()
 
 	df->locals_ofs = stack_ofs;
 
-	// parms are "realloc'd" by GetDef in FunctionBody (FIXME)
+	// parms are "realloc'd" by DeclareDef in FunctionBody
 	comp.locals_end = 0;
 
 
-	comp.scope = def;
+	scope_c *OLD_scope = comp.scope;
+
+	comp.scope = new scope_c;
+	comp.scope->kind = 'f';
+	comp.scope->def  = def;
 	//  { 
 		df->first_statement = GLOB_FunctionBody(func_type, func_name);
 		df->last_statement  = comp.last_statement;
 	//  }
-	comp.scope = NULL;
-
-	def->flags |= DF_Initialized;
+	comp.scope = OLD_scope;
 
 	df->locals_size = comp.locals_end - df->locals_ofs;
 	df->locals_end  = comp.locals_end;
@@ -1542,7 +1547,7 @@ void real_vm_c::GLOB_Variable()
 		type = ParseType();
 	}
 
-	def_t * def = GetDef(type, var_name, comp.scope);
+	def_t * def = DeclareDef(type, var_name, comp.scope);
 
 	if (def->flags & DF_Constant)
 		CompileError("%s previously defined as a constant\n");
@@ -1604,7 +1609,7 @@ void real_vm_c::GLOB_Constant()
 		CompileError("expected value for constant, got %s\n", comp.token_buf);
 
 
-	def_t * cn = GetDef(comp.literal_type, const_name, comp.scope);
+	def_t * cn = DeclareDef(comp.literal_type, const_name, comp.scope);
 
 	cn->flags |= DF_Constant;
 
@@ -1664,7 +1669,7 @@ bool real_vm_c::CompileFile(char *buffer, const char *filename)
 	{
 		try
 		{
-			comp.scope = NULL;	// outside all functions
+			comp.scope = &comp.global_scope;
 
 			// handle a previous error
 			if (comp.token_type == tt_error)
