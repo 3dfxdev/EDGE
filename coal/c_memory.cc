@@ -149,6 +149,12 @@ int bmaster_c::alloc(int len)
 }
 
 
+void bmaster_c::reset()
+{
+	// FIXME: bmaster_c reset()
+}
+
+
 int bmaster_c::usedMemory() const
 {
 	int result = 0;

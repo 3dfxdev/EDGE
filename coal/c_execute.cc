@@ -604,6 +604,9 @@ void real_vm_c::DoExecute(int fnum)
 
 int real_vm_c::Execute(int func_id)
 {
+	// re-use the temporary string space
+	temp_strings.reset();
+
 	try
 	{
 		if (func_id < 1 || func_id >= (int)functions.size())

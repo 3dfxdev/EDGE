@@ -70,6 +70,10 @@ public:
 		return blk->data + index;
 	}
 
+	// forget all the previously stored items.  May not actually
+	// free any memory.
+	void reset();
+
 	// compute the total amount of memory used.  The second form
 	// includes all the extra/free/wasted space.
 	int usedMemory() const;
