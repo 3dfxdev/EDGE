@@ -440,9 +440,12 @@ void real_vm_c::DoExecute(int fnum)
 				break;
 
 			case OP_MOVE_S:
+				// temp strings must be internalised when assigned
+				// to a global variable.
 				if (*a < 0 && st->b > OFS_RETURN*8)
-					RunError("temp string assigned to global var");
-				*b = *a;
+					*b = InternaliseString(REF_STRING((int)*a));
+				else
+					*b = *a;
 				break;
 
 			case OP_MOVE_V:
@@ -462,21 +465,23 @@ void real_vm_c::DoExecute(int fnum)
 				break;
 
 			case OP_ADD_S:
-				if (st->c > OFS_RETURN*8)
-					RunError("temp string assigned to global var");
 				*c = STR_Concat(REF_STRING((int)*a), REF_STRING((int)*b));
+				// temp strings must be internalised when assigned
+				// to a global variable.
+				if (st->c > OFS_RETURN*8)
+					*c = InternaliseString(REF_STRING((int)*c));
 				break;
 
 			case OP_ADD_SF:
-				if (st->c > OFS_RETURN*8)
-					RunError("temp string assigned to global var");
 				*c = STR_ConcatFloat(REF_STRING((int)*a), *b);
+				if (st->c > OFS_RETURN*8)
+					*c = InternaliseString(REF_STRING((int)*c));
 				break;
 
 			case OP_ADD_SV:
-				if (st->c > OFS_RETURN*8)
-					RunError("temp string assigned to global var");
 				*c = STR_ConcatVector(REF_STRING((int)*a), b);
+				if (st->c > OFS_RETURN*8)
+					*c = InternaliseString(REF_STRING((int)*c));
 				break;
 
 			case OP_SUB_F:
