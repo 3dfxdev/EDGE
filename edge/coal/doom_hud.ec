@@ -20,8 +20,8 @@ function doom_weapon_icon (slot, x, y, off_pic : string, on_pic : string) =
 function doom_key (x, y, card, skull,
     card_pic : string, skull_pic : string, both_pic : string) =
 {
-    var has_cd ; has_cd = player_has_key(card)
-    var has_sk ; has_cd = player_has_key(skull)
+    var has_cd = player_has_key(card)
+    var has_sk = player_has_key(skull)
 
     if (has_cd && has_sk)
     {
@@ -40,11 +40,11 @@ function doom_key (x, y, card, skull,
 
 function pain_digit() : string =
 {
-    var health; health = player_health()
+    var health = player_health()
     if (health > 100)
         health = 100
 
-    var index; index = 4.99 * (100 - health) / 100
+    var index = 4.99 * (100 - health) / 100
 
     index = index - index % 1
 
@@ -56,7 +56,7 @@ function pain_digit() : string =
 
 function turn_digit() : string =
 {
-    var r; r = math_random() * 2.99
+    var r = math_random() * 2.99
 
     r = r - (r % 1)
 
@@ -96,7 +96,7 @@ function select_new_face() =
             return
         }
 
-        var dir; dir = 0
+        var dir = 0
 
         if (player_hurt_by() == "enemy" ||
             player_hurt_by() == "friend")
@@ -254,7 +254,7 @@ function doom_automap() =
 
     doom_status_bar()
 
-    var title : string; title = hud_map_title()
+    var title : string = hud_map_title()
 
     hud_text_font("DOOM")
     hud_draw_text(0, 200 - 32 - 10, title)
@@ -269,7 +269,7 @@ function edge_air_bar() =
     if (! player_under_water())
         return
 
-    var air; air = player_air_in_lungs()
+    var air = player_air_in_lungs()
 
     air = 1 + 21 * ((100 - air) / 100.1)
     air = air - air % 1
