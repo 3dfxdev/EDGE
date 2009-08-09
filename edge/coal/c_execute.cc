@@ -239,7 +239,7 @@ int real_vm_c::STR_ConcatVector(const char * s, double *v)
 //  EXECUTION ENGINE
 //================================================================
 
-void real_vm_c::EnterFunction(int func, int result)
+void real_vm_c::EnterFunction(int func)
 {
 	assert(func > 0);
 
@@ -247,9 +247,8 @@ void real_vm_c::EnterFunction(int func, int result)
 
 	// NOTE: the saved 's' value points to the instruction _after_ OP_CALL
 
-    exec.call_stack[exec.call_depth].s      = exec.s;
-    exec.call_stack[exec.call_depth].func   = exec.func;
-    exec.call_stack[exec.call_depth].result = result;
+    exec.call_stack[exec.call_depth].s    = exec.s;
+    exec.call_stack[exec.call_depth].func = exec.func;
 
     exec.call_depth++;
 	if (exec.call_depth >= MAX_CALL_STACK)
@@ -266,7 +265,7 @@ void real_vm_c::EnterFunction(int func, int result)
 }
 
 
-int real_vm_c::LeaveFunction()
+void real_vm_c::LeaveFunction()
 {
 	if (exec.call_depth <= 0)
 		RunError("stack underflow");
@@ -278,12 +277,10 @@ int real_vm_c::LeaveFunction()
 
 	if (exec.func)
 		exec.stack_depth -= functions[exec.func]->locals_end;
-
-	return exec.call_stack[exec.call_depth].result;
 }
 
 
-void real_vm_c::EnterNative(int func, int result, int argc)
+void real_vm_c::EnterNative(int func, int argc)
 {
 	function_t *newf = functions[func];
 
@@ -354,40 +351,20 @@ void real_vm_c::DoExecute(int fnum)
 
 				/* negative statements are built in functions */
 				if (newf->first_statement < 0)
-					EnterNative(fnum, st->c, st->b);
+					EnterNative(fnum, st->b);
 				else
-					EnterFunction(fnum, st->c);
+					EnterFunction(fnum);
 				continue;
 			}
 
 			case OP_RET:
 			{
-				int result = LeaveFunction();
+				LeaveFunction();
 
+				// all done?
 				if (exec.call_depth == exitdepth)
-					return;		// all done
+					return;
 
-				if (result)
-				{
-					Operand(result)[0] = G_FLOAT(OFS_RETURN*8);
-				}
-				continue;
-			}
-
-			case OP_RET_V:
-			{
-				int result = LeaveFunction();
-
-				if (exec.call_depth == exitdepth)
-					return;		// all done
-
-				double * a = REF_GLOBAL(OFS_RETURN*8);
-				double * c = Operand(result);
-				assert(c);
-
-				c[0] = a[0];
-				c[1] = a[1];
-				c[2] = a[2];
 				continue;
 			}
 
@@ -654,7 +631,6 @@ const char * opcode_names[] =
 	"NULL",
 	"CALL",
 	"RET",
-	"RET_V",
 	"PARM_F",
 	"PARM_V",
 	"IF",
@@ -675,7 +651,6 @@ const char * opcode_names[] =
 	"DEC",
 
 	"POWER", 
-
 	"MUL_F",
 	"MUL_V",
 	"MUL_FV",
@@ -847,8 +822,11 @@ const char * real_vm_c::RegString(statement_t *st, int who)
 
 	int val = (who == 1) ? st->a : (who == 2) ? st->b : st->c;
 
-	if (val == 1)
+	if (val == OFS_RETURN*8)
 		return "result";
+
+	if (val == OFS_DEFAULT*8)
+		return "default";
 
 	sprintf(buffer, "%s[%d]", (val < 0) ? "stack" : "glob", abs(val));
 	return buffer;
@@ -866,7 +844,6 @@ void real_vm_c::PrintStatement(function_t *f, int s)
 	{
 		case OP_NULL:
 		case OP_RET:
-		case OP_RET_V:
 			break;
 	
 		case OP_MOVE_F:

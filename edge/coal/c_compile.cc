@@ -886,13 +886,13 @@ def_t * real_vm_c::EXP_FunctionCall(def_t *func)
 	//       temporaries do not need any default value.
 
 
+	EmitCode(OP_CALL, func->ofs, arg);
+
 	if (result)
 	{
-		EmitCode(OP_CALL, func->ofs, arg, result->ofs);
+		EmitMove(result->type, OFS_RETURN*8, result->ofs);
 		return result;
 	}
-
-	EmitCode(OP_CALL, func->ofs, arg, 0);
 
 	return &def_void;
 }
@@ -921,10 +921,7 @@ void real_vm_c::STAT_Return(void)
 
 	EmitMove(func_def->type->aux_type, e->ofs, OFS_RETURN*8);
 
-	if (func_def->type->aux_type->type == ev_vector)
-		EmitCode(OP_RET_V);
-	else
-		EmitCode(OP_RET);
+	EmitCode(OP_RET);
 
 	// -AJA- optional semicolons
 	if (! (comp.token_is_first || comp.token_buf[0] == '}'))
@@ -1477,7 +1474,7 @@ int real_vm_c::GLOB_FunctionBody(def_t *func_def, type_t *type, const char *func
 
 	statement_t *last = REF_OP(comp.last_statement);
 
-	if (last->op != OP_RET && last->op != OP_RET_V)
+	if (last->op != OP_RET)
 	{
 		if (type->aux_type->type == ev_void)
 			EmitCode(OP_RET);

@@ -70,9 +70,7 @@ enum
 	OP_NULL = 0,
 
 	OP_CALL,
-
 	OP_RET,
-	OP_RET_V,
 
 	OP_PARM_F,
 	OP_PARM_V,
@@ -329,9 +327,9 @@ private:
 private:
 	void DoExecute(int func_id);
 
-	void EnterNative  (int func, int result, int argc);
-	void EnterFunction(int func, int result = 0);
-	int  LeaveFunction();
+	void EnterNative  (int func, int argc);
+	void EnterFunction(int func);
+	void LeaveFunction();
 
 	int GetNativeFunc(const char *name, const char *module);
 	int	InternaliseString(const char *new_s);
