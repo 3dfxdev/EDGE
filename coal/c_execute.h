@@ -28,7 +28,6 @@ struct call_stack_c
 {
 	int s;
 	int func;
-	int result;
 };
 
 
