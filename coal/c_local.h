@@ -235,8 +235,8 @@ public:
 	bool CompileFile(char *buffer, const char *filename);
 	void ShowStats();
 
-	void SetTrace(bool enable);
-	void SetAsm  (bool enable);
+	void SetAsmDump(bool enable);
+	void SetTrace  (bool enable);
 
 	int FindFunction(const char *name);
 	int FindVariable(const char *name);
