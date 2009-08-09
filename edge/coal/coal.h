@@ -49,8 +49,8 @@ public:
 	virtual bool CompileFile(char *buffer, const char *filename) = 0;
 	virtual void ShowStats() = 0;
 
-	virtual void SetTrace(bool enable) = 0;
-	virtual void SetAsm  (bool enable) = 0;
+	virtual void SetAsmDump(bool enable) = 0;
+	virtual void SetTrace  (bool enable) = 0;
 
 	virtual int FindFunction(const char *name) = 0;
 	virtual int FindVariable(const char *name) = 0;

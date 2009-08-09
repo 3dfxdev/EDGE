@@ -1748,7 +1748,7 @@ void real_vm_c::SetPrinter(print_func_t func)
 	printer = func;
 }
 
-void real_vm_c::SetAsm(bool enable)
+void real_vm_c::SetAsmDump(bool enable)
 {
 	comp.asm_dump = enable;
 }

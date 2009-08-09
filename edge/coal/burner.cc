@@ -165,7 +165,7 @@ int main(int argc, char **argv)
 
 	if (strcmp(argv[1], "-a") == 0)
 	{
-		coalvm->SetAsm(true);
+		coalvm->SetAsmDump(true);
 		argv++; argc--;
 	}
 
