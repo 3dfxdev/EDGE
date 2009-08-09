@@ -304,7 +304,8 @@ private:
 	type_t * ParseType();
 	type_t * FindType(type_t *type);
 
-	int EmitCode(short op, short a=0, short b=0, short c=0);
+	int EmitCode(short op, int a=0, int b=0, int c=0);
+	int EmitMove(type_t *type, int a, int b);
 
 
 	void LEX_Next();
