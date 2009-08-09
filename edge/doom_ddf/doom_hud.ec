@@ -1,14 +1,14 @@
 //------------------------------------------
-//  HUD CODE for EDGE
-//  Copyright (c) 2009 The Edge Team.
-//  Under the GNU General Public License.
+//  DOOM HUD CODE for EDGE
+//  Copyright (c) 2009 The Edge Team
+//  Under the GNU General Public License
 //------------------------------------------
 
 var face_time  : float
 var face_image : string
 
 
-function doom_weapon_icon (slot, x, y, off_pic : string, on_pic : string) =
+function doom_weapon_icon(slot, x, y, off_pic : string, on_pic : string) =
 {
     if (player.has_weapon_slot(slot))
         hud.draw_image(x, y, on_pic)
@@ -17,7 +17,7 @@ function doom_weapon_icon (slot, x, y, off_pic : string, on_pic : string) =
 }
 
 
-function doom_key (x, y, card, skull,
+function doom_key(x, y, card, skull,
     card_pic : string, skull_pic : string, both_pic : string) =
 {
     var has_cd = player.has_key(card)
@@ -44,9 +44,7 @@ function pain_digit() : string =
     if (health > 100)
         health = 100
 
-    var index = 4.99 * (100 - health) / 100
-
-    index = math.floor(index)
+    var index = math.floor(4.99 * (100 - health) / 100)
 
     sys.assert(index >= 0)
     sys.assert(index <= 4)
