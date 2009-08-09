@@ -268,7 +268,7 @@ private:
 	void GLOB_Constant();
 	void GLOB_Variable();
 	void GLOB_Function();
-	int  GLOB_FunctionBody(type_t *type, const char *func_name);
+	int  GLOB_FunctionBody(def_t *func_def, type_t *type, const char *func_name);
 
 	void STAT_Statement(bool allow_def);
 	void STAT_Assignment(def_t *e);
@@ -329,7 +329,7 @@ private:
 	void EnterFunction(int func, int result = 0);
 	int  LeaveFunction();
 
-	int GetNativeFunc(const char *name);
+	int GetNativeFunc(const char *name, const char *module);
 	int	InternaliseString(const char *new_s);
 
 	int STR_Concat(const char * s1, const char * s2);
