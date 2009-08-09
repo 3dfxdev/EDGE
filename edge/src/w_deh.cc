@@ -27,7 +27,7 @@
 
 #include "deh_edge/dh_plugin.h"
 
-#include "l_deh.h"
+#include "w_deh.h"
 #include "version.h"
 
 static char dh_message[1024];
