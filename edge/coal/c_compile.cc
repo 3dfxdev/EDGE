@@ -77,6 +77,7 @@ static type_t	type_string = {ev_string};
 static type_t	type_float = {ev_float};
 static type_t	type_vector = {ev_vector};
 static type_t	type_function = {ev_function, &type_void};
+static type_t	type_module = {ev_module};
 
 static int		type_size[8] = {1,1,1,3,1,1,1,1};
 
@@ -1618,6 +1619,67 @@ void real_vm_c::GLOB_Constant()
 }
 
 
+void real_vm_c::GLOB_Module()
+{
+	if (comp.scope->kind != 'g')
+		CompileError("modules cannot contain other modules.\n");
+
+	char *mod_name = strdup(ParseName());
+
+	// OK if module already exists, we merely extend it
+	scope_c *mod = NULL;
+	for (int i = 0; i < (int)comp.all_modules.size(); i++)
+		if (strcmp(mod_name, comp.all_modules[i]->def->name) == 0)
+		{
+			mod = comp.all_modules[i];
+			break;
+		}
+
+	if (! mod)
+	{
+		def_t * def = new def_t;
+		memset(def, 0, sizeof(def_t));
+
+		def->name = mod_name;
+		def->type = &type_module;
+		def->ofs  = (int)comp.all_modules.size();
+		def->scope = comp.scope;
+
+		mod = new scope_c;
+
+		mod->kind = 'm';
+		mod->def  = def;
+
+		comp.all_modules.push_back(mod);
+	}
+
+	scope_c *OLD_scope = comp.scope;
+
+	comp.scope = mod;
+
+	LEX_Expect("{");
+
+	while (! LEX_Check("}"))
+	{
+		try
+		{
+			// handle a previous error
+			if (comp.token_type == tt_error)
+				LEX_Next();
+			else
+				GLOB_Globals();
+		}
+		catch (parse_error_x err)
+		{
+			comp.error_count++;
+			LEX_SkipPastError();
+		}
+	}
+
+	comp.scope = OLD_scope;
+}
+
+
 void real_vm_c::GLOB_Globals()
 {
 	if (LEX_Check("function"))
@@ -1635,6 +1697,12 @@ void real_vm_c::GLOB_Globals()
 	if (LEX_Check("constant"))
 	{
 		GLOB_Constant();
+		return;
+	}
+
+	if (LEX_Check("module"))
+	{
+		GLOB_Module();
 		return;
 	}
 
