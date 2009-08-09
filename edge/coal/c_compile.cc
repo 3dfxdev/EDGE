@@ -197,7 +197,7 @@ void real_vm_c::LEX_String()
 	{
 		int c = *comp.parse_p++;
 		if (!c || c=='\n')
-			CompileError("unterminated string\n");
+			CompileError("unfinished string\n");
 
 		if (c=='\\') // escape char
 		{
@@ -1428,6 +1428,9 @@ int real_vm_c::GLOB_FunctionBody(def_t *func_def, type_t *type, const char *func
 			LEX_SkipPastError();
 		}
 
+		if (comp.token_type == tt_eof)
+			CompileError("unfinished function body (hit EOF)\n");
+
 		FreeTemporaries();
 	}
 
@@ -1645,7 +1648,7 @@ void real_vm_c::GLOB_Constant()
 void real_vm_c::GLOB_Module()
 {
 	if (comp.scope->kind != 'g')
-		CompileError("modules cannot contain other modules.\n");
+		CompileError("modules cannot contain other modules\n");
 
 	char *mod_name = strdup(ParseName());
 
@@ -1696,6 +1699,9 @@ void real_vm_c::GLOB_Module()
 			comp.error_count++;
 			LEX_SkipPastError();
 		}
+
+		if (comp.token_type == tt_eof)
+			CompileError("unfinished module (hit EOF)\n");
 	}
 
 	comp.scope = OLD_scope;
