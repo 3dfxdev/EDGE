@@ -173,6 +173,12 @@ void VM_LoadCoalFire(const char *filename)
 	// FIXME !!!!
 }
 
+void VM_LoadScripts()
+{
+	VM_LoadCoalFire("doom_ddf/basics.ec");
+	VM_LoadCoalFire("doom_ddf/doom_hud.ec");
+}
+
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

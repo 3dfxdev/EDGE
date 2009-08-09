@@ -1,5 +1,12 @@
 Andrew Apted's Log
 
+2009/08/09:
+
+Another Coal milestone: support for modules has been added,
+and lots of stuff has been cleaned up / improved, like adding
+syntax for FOR loops, and simplified the handling of return
+values.  Coal is now ready for integration with EDGE.
+
 2009/08/06:
 
 Coal development reached a small milestone today, the limited

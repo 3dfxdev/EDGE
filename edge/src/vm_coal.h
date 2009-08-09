@@ -23,6 +23,7 @@ void VM_InitCoal();
 void VM_QuitCoal();
 
 void VM_LoadCoalFire(const char *filename);
+void VM_LoadScripts();
 
 void VM_RegisterHUD();
 void VM_RegisterPlaysim();
