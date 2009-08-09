@@ -7,7 +7,8 @@ function sprint(s : string) = native
 function vprint(v : vector) = native
 
 var jackpot : string = "JACKPOT!"
-var noobvec : vector = '1 2 3'
+
+constant noobvec = '1 2 3'
 
 function foo(a) =
 {
