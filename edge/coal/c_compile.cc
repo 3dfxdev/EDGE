@@ -1626,24 +1626,23 @@ void real_vm_c::GLOB_Module()
 
 	char *mod_name = strdup(ParseName());
 
-	// OK if module already exists, we merely extend it
-	scope_c *mod = NULL;
-	for (int i = 0; i < (int)comp.all_modules.size(); i++)
-		if (strcmp(mod_name, comp.all_modules[i]->def->name) == 0)
-		{
-			mod = comp.all_modules[i];
-			break;
-		}
+	def_t * def = FindDef(&type_module, mod_name, comp.scope);
 
-	if (! mod)
+	scope_c * mod;
+
+	if (def)
+		mod = comp.all_modules[def->ofs];
+	else
 	{
-		def_t * def = new def_t;
+		def = new def_t;
 		memset(def, 0, sizeof(def_t));
 
 		def->name = mod_name;
 		def->type = &type_module;
 		def->ofs  = (int)comp.all_modules.size();
 		def->scope = comp.scope;
+
+		comp.scope->push_back(def);
 
 		mod = new scope_c;
 
