@@ -40,20 +40,26 @@
 coal::vm_c *ui_vm;
 
 
-void VM_SetFloat(const char *module, const char *name, int value)
+void VM_SetFloat(coal::vm_c *vm, const char *name, double value)
+{
+	// FIXME !!!!!  VM_SetFloat
+}
+
+void VM_SetString(coal::vm_c *vm, const char *name, const char *value)
 {
 	// TODO
 }
 
-void VM_SetString(const char *module, const char *name, const char *value)
-{
-	// TODO
-}
 
-
-void VM_CallFunction(const char *name)
+void VM_CallFunction(coal::vm_c *vm, const char *name)
 {
-	// TODO
+	int func = vm->FindFunction("main");
+
+	if (! func)
+		I_Error("Missing coal function: %s\n", name);
+
+	if (vm->Execute(func) != 0)
+		I_Error("Coal script terminated with an error\n");
 }
 
 
