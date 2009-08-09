@@ -16,7 +16,7 @@ test: burner
 	./burner test.ec
 
 test2: burner
-	./burner mod_base.ec mod_hud.ec mod_player.ec doom_hud.ec
+	./burner basics.ec doom_hud.ec
 
 .PHONY: all clean test
 
