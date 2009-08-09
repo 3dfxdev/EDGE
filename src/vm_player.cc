@@ -1,8 +1,8 @@
 //------------------------------------------------------------------------
-//  LUA Play Simulation Interface
+//  COAL Play Simulation Interface
 //------------------------------------------------------------------------
 //
-//  Copyright (c) 2006-2008  The EDGE Team.
+//  Copyright (c) 2006-2009  The EDGE Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -17,13 +17,12 @@
 //------------------------------------------------------------------------
 
 #include "i_defs.h"
-#include "i_luainc.h"
+
+#include "coal/coal.h"
 
 #include "ddf/types.h"
 
-#include "l_lua.h"
-#include "p_vm.h"
-
+#include "vm_coal.h"
 #include "p_local.h"  
 #include "p_mobj.h"
 #include "r_state.h"
@@ -40,12 +39,19 @@
 #include "r_sky.h"
 
 
-static player_t *cur_player = NULL;
+extern coal::vm_c *ui_vm;
+
+extern void VM_SetFloat(coal::vm_c *vm, const char *name, double value);
+extern void VM_CallFunction(coal::vm_c *vm, const char *name);
+
+
+player_t * ui_player_who = NULL;
 
 
 //------------------------------------------------------------------------
 //  PLAYER MODULE
 //------------------------------------------------------------------------
+
 
 // player.num_players()
 //
@@ -685,655 +691,58 @@ static int PL_hurt_angle(lua_State *L)
 }
 
 
-const luaL_Reg player_module[] =
-{
-	{ "num_players", PL_num_players },
-	{ "set_who",     PL_set_who  },
-    { "is_bot",      PL_is_bot   },
-    { "get_name",    PL_get_name },
-
-    { "health",      PL_health      },
-    { "armor",       PL_armor       },
-    { "total_armor", PL_total_armor },
-    { "frags",       PL_frags       },
-    { "ammo",        PL_ammo        },
-    { "ammomax",     PL_ammomax     },
-
-    { "is_swimming",     PL_is_swimming   },
-    { "is_jumping",      PL_is_jumping    },
-    { "is_crouching",    PL_is_crouching  },
-    { "is_using",        PL_is_using      },
-    { "is_attacking",    PL_is_attacking  },
-    { "is_rampaging",    PL_is_rampaging  },
-    { "is_grinning",     PL_is_grinning   },
-
-    { "under_water",     PL_under_water   },
-    { "on_ground",       PL_on_ground     },
-    { "move_speed",      PL_move_speed    },
-    { "air_in_lungs",    PL_air_in_lungs  },
-
-    { "has_key",         PL_has_key   },
-    { "has_power",       PL_has_power },
-    { "power_left",      PL_power_left },
-    { "has_weapon",      PL_has_weapon      },
-    { "has_weapon_slot", PL_has_weapon_slot },
-    { "cur_weapon",      PL_cur_weapon      },
-    { "cur_weapon_slot", PL_cur_weapon_slot },
-
-    { "main_ammo",       PL_main_ammo  },
-    { "ammo_type",       PL_ammo_type  },
-    { "ammo_pershot",    PL_ammo_pershot },
-    { "clip_ammo",       PL_clip_ammo  },
-    { "clip_size",       PL_clip_size  },
-    { "clip_is_shared",  PL_clip_is_shared },
-
-    { "hurt_by",         PL_hurt_by    },
-    { "hurt_mon",        PL_hurt_mon   },
-    { "hurt_pain",       PL_hurt_pain  },
-    { "hurt_dir",        PL_hurt_dir   },
-    { "hurt_angle",      PL_hurt_angle },
-
-	{ NULL, NULL } // the end
-};
-
-
-//------------------------------------------------------------------------
-//  WORLD MODULE
 //------------------------------------------------------------------------
 
-// world.activate_line_type(type, tag)
-//
-static int PS_activate_line_type(lua_State *L)
+
+void VM_RegisterPlaysim()
 {
-    if (lua_gettop(L) != 2)
-    {
-        return luaL_error(L, 
-                          "\nRequired parameters: %s", 
-                          "<linedef-action-type> <tag>");
-    }
+	ui_vm->AddNativeFunction("player.num_players", PL_num_players);
+	ui_vm->AddNativeFunction("player.set_who",     PL_set_who);
+    ui_vm->AddNativeFunction("player.is_bot",      PL_is_bot);
+    ui_vm->AddNativeFunction("player.get_name",    PL_get_name);
 
-    int typenum = luaL_checkint(L, 1);
-    int tag = luaL_checkint(L, 2);
+    ui_vm->AddNativeFunction("player.health",      PL_health);
+    ui_vm->AddNativeFunction("player.armor",       PL_armor);
+    ui_vm->AddNativeFunction("player.total_armor", PL_total_armor);
+    ui_vm->AddNativeFunction("player.frags",       PL_frags);
+    ui_vm->AddNativeFunction("player.ammo",        PL_ammo);
+    ui_vm->AddNativeFunction("player.ammomax",     PL_ammomax);
 
-	P_RemoteActivation(NULL, typenum, tag, 0, line_Any);
+    ui_vm->AddNativeFunction("player.is_swimming",     PL_is_swimming);
+    ui_vm->AddNativeFunction("player.is_jumping",      PL_is_jumping);
+    ui_vm->AddNativeFunction("player.is_crouching",    PL_is_crouching);
+    ui_vm->AddNativeFunction("player.is_using",        PL_is_using);
+    ui_vm->AddNativeFunction("player.is_attacking",    PL_is_attacking);
+    ui_vm->AddNativeFunction("player.is_rampaging",    PL_is_rampaging);
+    ui_vm->AddNativeFunction("player.is_grinning",     PL_is_grinning);
 
-    return 0;
+    ui_vm->AddNativeFunction("player.under_water",     PL_under_water);
+    ui_vm->AddNativeFunction("player.on_ground",       PL_on_ground);
+    ui_vm->AddNativeFunction("player.move_speed",      PL_move_speed);
+    ui_vm->AddNativeFunction("player.air_in_lungs",    PL_air_in_lungs);
+
+    ui_vm->AddNativeFunction("player.has_key",         PL_has_key);
+    ui_vm->AddNativeFunction("player.has_power",       PL_has_power);
+    ui_vm->AddNativeFunction("player.power_left",      PL_power_left);
+    ui_vm->AddNativeFunction("player.has_weapon",      PL_has_weapon);
+    ui_vm->AddNativeFunction("player.has_weapon_slot", PL_has_weapon_slot);
+    ui_vm->AddNativeFunction("player.cur_weapon",      PL_cur_weapon);
+    ui_vm->AddNativeFunction("player.cur_weapon_slot", PL_cur_weapon_slot);
+
+    ui_vm->AddNativeFunction("player.main_ammo",       PL_main_ammo);
+    ui_vm->AddNativeFunction("player.ammo_type",       PL_ammo_type);
+    ui_vm->AddNativeFunction("player.ammo_pershot",    PL_ammo_pershot);
+    ui_vm->AddNativeFunction("player.clip_ammo",       PL_clip_ammo);
+    ui_vm->AddNativeFunction("player.clip_size",       PL_clip_size);
+    ui_vm->AddNativeFunction("player.clip_is_shared",  PL_clip_is_shared);
+
+    ui_vm->AddNativeFunction("player.hurt_by",         PL_hurt_by);
+    ui_vm->AddNativeFunction("player.hurt_mon",        PL_hurt_mon);
+    ui_vm->AddNativeFunction("player.hurt_pain",       PL_hurt_pain);
+    ui_vm->AddNativeFunction("player.hurt_dir",        PL_hurt_dir);
+    ui_vm->AddNativeFunction("player.hurt_angle",      PL_hurt_angle);
 }
 
-// ---- Sidedefs ----
-typedef enum
-{
-    PS_SDPROP_UPPERTEX,
-    PS_SDPROP_MIDDLETEX,
-    PS_SDPROP_LOWERTEX,
-    PS_SDPROP_NUMTYPES
-}
-ps_sidedef_prop_e;
-
-static const char *ps_sidedef_properties[PS_SDPROP_NUMTYPES] = 
-{ 
-    "upper_tex", 
-    "middle_tex",
-    "lower_tex"
-};
-
-static void SetSidedefTexture(int sd_num, 
-                              int prop_type, 
-                              const image_c* image)
-{
-    if (sd_num < 0 || sd_num >= numsides)
-        return;
-
-    side_t *side = sides + sd_num;
-
-    if (prop_type == PS_SDPROP_UPPERTEX)
-        side->top.image = image;
-    else if (prop_type == PS_SDPROP_MIDDLETEX)
-        side->middle.image = image;
-    else /* if (prop_type == PS_SDPROP_LOWERTEX) */
-        side->bottom.image = image;
-}
-
-
-// world.get_side_prop(prop_type, sidedef_num)
-//
-static int PS_get_side_prop(lua_State *L)
-{
-    if (lua_gettop(L) < 2)
-    {
-        return luaL_error(L, 
-                   "\nRequired parameters: %s", 
-                   "<property>, <sidedef_no>");
-    }
-
-    // Get property type
-    const char *prop = lua_tolstring(L, 1, NULL);
-
-    int prop_type = 0; 
-    while(prop_type < PS_SDPROP_NUMTYPES && 
-          strcmp(ps_sidedef_properties[prop_type],prop))
-        prop_type++;
-
-    if (prop_type == PS_SDPROP_NUMTYPES)
-        return luaL_error(L, "Invalid property");
-
-    // Get property from sector
-    int sd_num = luaL_checkint(L, 2);
-    if (sd_num >= 0 && sd_num < numlines)
-    {
-        side_t *side = sides + sd_num;
-        const image_c *image = NULL;
-
-        switch (prop_type)
-        {
-        case PS_SDPROP_UPPERTEX:
-        case PS_SDPROP_MIDDLETEX:
-        case PS_SDPROP_LOWERTEX:
-            if (prop_type == PS_SDPROP_UPPERTEX)
-                image = side->top.image;
-            else if (prop_type == PS_SDPROP_MIDDLETEX)
-                image = side->middle.image;
-            else /* if (prop_type == PS_SDPROP_LOWERTEX) */
-                image = side->bottom.image;
-
-            if (image)
-                lua_pushstring(L, image->name);
-            else
-                lua_pushnil(L);
-            break;
-
-        default:
-            lua_pushnil(L);
-            break;
-        }
-
-    }
-    else
-    {
-        lua_pushnil(L);
-    }
-
-    return 1;
-}
-
-// world.set_side_prop(prop_type, sidedef_num, attribute_value)
-//
-static int PS_set_side_prop(lua_State *L)
-{
-    if (lua_gettop(L) < 3)
-    {
-        return luaL_error(L, 
-                          "\nRequired parameters: %s", 
-                          "<property>, <sidedef_num>, <attribute_value>");
-    }
-
-    // Get property type
-    const char *prop = lua_tolstring(L, 1, NULL);
-
-    int prop_type = 0; 
-    while(prop_type < PS_SDPROP_NUMTYPES && 
-          strcmp(ps_sidedef_properties[prop_type],prop))
-        prop_type++;
-
-    if (prop_type == PS_SDPROP_NUMTYPES)
-        return luaL_error(L, "Invalid property");
-
-    // Set sidedef(s)
-    if (prop_type >= PS_SDPROP_UPPERTEX &&
-        prop_type <= PS_SDPROP_LOWERTEX)
-    {
-        const image_c *image = R_ImageLookup(luaL_checkstring(L, 3),
-                                             INS_Texture);
-        if (image)
-        {
-            int type = lua_type(L, 2);
-            if (type == LUA_TTABLE)
-            {
-                lua_pushnil(L);  // Get first key
-                while (lua_next(L, 2) != 0) {
-                    if (lua_type(L, -1) == LUA_TNUMBER)
-                        SetSidedefTexture(lua_tointeger(L, -1),
-                                          prop_type,
-                                          image);
-
-                    lua_pop(L, 1); // Pop value, leaving the key for next func
-                }
-            }
-            else if (type == LUA_TNUMBER)
-            {
-                SetSidedefTexture(luaL_checkint(L, 2),
-                                  prop_type,
-                                  image);
-            }
-            else 
-            {
-                return luaL_error(L, "Expected numeric or table.");
-            }
-        }
-    }
-    return 0;
-}
-
-
-// ---- Lines ----
-typedef enum
-{
-    PS_LINEPROP_SIDEDEFS,
-    PS_LINEPROP_NUMTYPES
-}
-ps_line_prop_e;
-
-static const char *ps_line_properties[PS_LINEPROP_NUMTYPES] = 
-{ 
-    "sidedefs"
-};
-
-// world.get_line_prop(prop_type, line_num)
-//
-static int PS_get_line_prop(lua_State *L)
-{
-    if (lua_gettop(L) < 2)
-    {
-        return luaL_error(L, 
-                          "\nRequired parameters: %s", 
-                          "<property>, <line_num>");
-    }
-
-    // Get property type
-    const char *prop = lua_tolstring(L, 1, NULL);
-
-    int prop_type = 0; 
-    while(prop_type < PS_LINEPROP_NUMTYPES && 
-          strcmp(ps_line_properties[prop_type],prop))
-        prop_type++;
-
-    if (prop_type == PS_LINEPROP_NUMTYPES)
-        return luaL_error(L, "Invalid property");
-
-    // Get property from sector
-    int line_num = luaL_checkint(L, 2);
-    if (line_num >= 0 && line_num < numlines)
-    {
-        line_t *line = lines + line_num;
-
-        switch(prop_type)
-        {
-
-        case PS_LINEPROP_SIDEDEFS:
-        {
-            lua_createtable(L, 0, 2);
-            int table_index = lua_gettop(L);
-
-            side_t* side;
-            for (int i=0; i<2; i++)
-            {
-                side = line->side[i];
-                if (side)
-                    lua_pushinteger(L, side - sides);
-                else
-                    lua_pushnil(L);
-
-                lua_rawseti(L, table_index, i+1);
-            }
-            break;
-        }
-
-        default:
-            lua_pushnil(L);
-            break;
-        }
-    }
-    else
-    {
-        lua_pushnil(L);
-    }
-
-    return 1;
-}
-
-
-// ---- Sectors ----
-typedef enum
-{
-    PS_SECTPROP_LIGHTING,
-    PS_SECTPROP_CEILING,
-    PS_SECTPROP_FLOOR,
-    PS_SECTPROP_CEILING_TEX,
-    PS_SECTPROP_FLOOR_TEX,
-    PS_SECTPROP_LINES,
-    PS_SECTPROP_NUMTYPES
-}
-ps_sector_prop_e;
-
-static const char *ps_sector_properties[PS_SECTPROP_NUMTYPES] = 
-{ 
-    "light", "ceiling", "floor", "ceiling_tex", "floor_tex", "lines"
-};
-
-static void SetSectorProperty(lua_State *L, 
-                              int sec_num, 
-                              int prop_type, 
-                              int index)
-{
-    if (sec_num < 0 || sec_num >= numsectors)
-        return;
-
-    sector_t *sec = sectors + sec_num;
-
-    switch (prop_type)
-    {
-    case PS_SECTPROP_LIGHTING:
-        sec->props.lightlevel = luaL_checkint(L, index);
-        break;
-
-    case PS_SECTPROP_CEILING:
-    case PS_SECTPROP_FLOOR:
-    {
-        float dh = (float)luaL_checknumber(L, index);
-        bool is_ceiling;
-        if (prop_type == PS_SECTPROP_CEILING)
-        {    
-            dh = dh - sec->c_h;
-            is_ceiling = true;
-        }
-        else
-        {    
-            dh = dh - sec->f_h;
-            is_ceiling = false;
-        }
-
-        if (P_CheckSolidSectorMove(sec, is_ceiling, dh))
-            P_SolidSectorMove(sec, is_ceiling, dh);
-
-        break;
-    }
-    
-    case PS_SECTPROP_CEILING_TEX:
-    case PS_SECTPROP_FLOOR_TEX:
-    {
-        const image_c *image = R_ImageLookup(luaL_checkstring(L, index), 
-                                             INS_Flat);
-        if (image)
-        {
-			if (prop_type == PS_SECTPROP_FLOOR_TEX)
-				sec->floor.image = image;
-			else
-				sec->ceil.image = image;
-
-			if (image == skyflatimage)
-                R_ComputeSkyHeights();
-		}
-
-        break;
-    }
-
-    default:
-        break;
-    }
-}
-
-// world.get_sectors(tag)
-//
-static int PS_get_sectors(lua_State *L) 
-{
-    if (lua_gettop(L) != 1)
-    {
-        return luaL_error(L, 
-                          "\nRequired parameters: %s", 
-                          "<tag>");
-    }
-
-    int tag = luaL_checkint(L, 1); 
-
-	// OPTIMISE !
-    int table_index = 0;
-    int table_pos = 1;
-	for (int i=0; i < numsectors; i++)
-	{
-		if (sectors[i].tag == tag)
-        {
-            if (!table_index)
-            {
-                lua_createtable(L, 0, 1);
-                table_index = lua_gettop(L);
-            }
-
-            lua_pushinteger(L, i);
-            lua_rawseti(L, table_index, table_pos);
-
-            table_pos++;
-        }
-	}
-    
-    // No table created on the stack, therefore push on a NIL as 
-    // the return value
-    if (!table_index)
-        lua_pushnil(L);
-
-    return 1;
-}
-
-// world.get_sec_prop(prop_type, sector_num)
-//
-static int PS_get_sec_prop(lua_State *L)
-{
-    if (lua_gettop(L) != 2)
-    {
-        return luaL_error(L, 
-                          "\nRequired parameters: %s", 
-                          "<property>, <sector_num>");
-    }
-
-    // Get property type
-    const char *prop = lua_tolstring(L, 1, NULL);
-
-    int prop_type = 0; 
-    while(prop_type < PS_SECTPROP_NUMTYPES && 
-          strcmp(ps_sector_properties[prop_type],prop))
-        prop_type++;
-
-    if (prop_type == PS_SECTPROP_NUMTYPES)
-        return luaL_error(L, "Invalid property");
-
-    // Get property from sector
-    int sec_num = luaL_checkint(L, 2);
-    if (sec_num >= 0 && sec_num < numsectors)
-    {
-        sector_t *sec = sectors + sec_num;
-
-        switch (prop_type)
-        {
-        case PS_SECTPROP_LIGHTING:
-            lua_pushinteger(L, sec->props.lightlevel);
-            break;
-
-        case PS_SECTPROP_CEILING:
-            lua_pushnumber(L, sec->c_h);
-            break;
-
-        case PS_SECTPROP_FLOOR:
-            lua_pushnumber(L, sec->f_h);
-            break;
-
-        case PS_SECTPROP_CEILING_TEX:
-            lua_pushstring(L, sec->ceil.image->name);
-            break;
-
-        case PS_SECTPROP_FLOOR_TEX:
-            lua_pushstring(L, sec->floor.image->name);
-            break;
-
-        case PS_SECTPROP_LINES:
-            if (sec->linecount)
-            {
-                lua_createtable(L, 0, sec->linecount);
-                int table_index = lua_gettop(L);
-
-                for(int i=0; i<sec->linecount; i++)
-                {
-                    lua_pushinteger(L, sec->lines[i] - lines);
-                    lua_rawseti(L, table_index, i+1);
-                }
-            }
-            else
-            {
-                lua_pushnil(L);
-            }
-
-            break;
-
-        default:
-            lua_pushnil(L);
-            break;
-        }
-    }
-    else
-    {
-        lua_pushnil(L);
-    }
-
-    return 1;
-}
-
-// world.set_sec_prop(prop_type, sector_num(s), attribute_value)
-//
-static int PS_set_sec_prop(lua_State *L)
-{
-    if (lua_gettop(L) < 3)
-    {
-        return luaL_error(L, 
-                          "\nRequired parameters: %s", 
-                          "<property>, <sector_nums>, <attribute_value>");
-    }
-
-    // Get property type
-    const char *prop = lua_tolstring(L, 1, NULL);
-
-    int prop_type = 0; 
-    while(prop_type < PS_SECTPROP_NUMTYPES && 
-          strcmp(ps_sector_properties[prop_type],prop))
-        prop_type++;
-
-    if (prop_type == PS_SECTPROP_NUMTYPES)
-        return luaL_error(L, "Invalid property");
-
-    if (prop_type == PS_SECTPROP_LINES) // Read-only 
-        return luaL_error(L, "Property is read only");
-
-    // Get sector(s)
-    const int prop_value_index = 3;
-    int type = lua_type(L, 2);
-    if (type == LUA_TTABLE)
-    {
-        lua_pushnil(L);  // Get first key
-        while (lua_next(L, 2) != 0) {
-            if (lua_type(L, -1) == LUA_TNUMBER)
-                SetSectorProperty(L, 
-                                  lua_tointeger(L, -1),
-                                  prop_type,
-                                  prop_value_index);
-
-            lua_pop(L, 1); // Pop value, leaving the key for next func
-        }
-    }
-    else if (type == LUA_TNUMBER)
-    {
-        SetSectorProperty(L, 
-                          luaL_checkint(L, 2),
-                          prop_type,
-                          prop_value_index);
-    }
-    else 
-    {
-        return luaL_error(L, "Expected numeric or table.");
-    }
-
-    return 0;
-}
-
-// world.spawn_thing(thing_name/thing_num, angle, x, y, z)
-//
-static int PS_spawn_thing(lua_State *L)
-{
-    if (lua_gettop(L) != 5)
-    {
-        return luaL_error(L, 
-                   "\nRequired parameters: %s", 
-                   "<thing name/num>, <angle>, <x>, <y>, <z>");
-    }
-
-	const mobjtype_c *minfo;
-    if (lua_isnumber(L, 1))
-    {
-        int type = lua_tointeger(L,1);
-        minfo = mobjtypes.Lookup(type);
-        if (minfo == NULL)
-            return luaL_error(L, "Unknown thing type '%d'", type);
-    }
-    else
-    {
-        const char *name = lua_tolstring(L, 1, NULL);
-
-        const int idx = mobjtypes.FindLast(name);
-        if (idx < 0)
-            return luaL_error(L, "Unknown thing name '%s'", name);
-        
-        minfo = mobjtypes[idx];
-    }
-
-    int angle = luaL_checkint(L, 2);
-    int x = luaL_checkint(L, 3);
-    int y = luaL_checkint(L, 4);
-    int z = luaL_checkint(L, 5);
-
-	mobj_t *mo = P_MobjCreateObject(x, y, z, minfo);
-	if (!P_CheckAbsPosition(mo, x, y, z))
-	{
-		P_RemoveMobj(mo);
-		return 0;
-	}
-
-	P_SetMobjDirAndSpeed(mo, angle, 0, 0);
-
-	mo->spawnpoint.x = x;
-	mo->spawnpoint.y = y;
-	mo->spawnpoint.z = z;
-	mo->spawnpoint.angle = angle;
-	mo->spawnpoint.vertangle = 0;
-	mo->spawnpoint.info = minfo;
-	mo->spawnpoint.flags = 0;
-
-    return 0;
-}
-
-const luaL_Reg world_module[] =
-{
-	{ "activate_line_type",  PS_activate_line_type },
-	{ "spawn_thing",         PS_spawn_thing },
-
-	{ "get_line_prop",       PS_get_line_prop },
-	{ "get_side_prop",       PS_get_side_prop },
-	{ "get_sec_prop",        PS_get_sec_prop },
-	{ "get_sectors",         PS_get_sectors },
-	{ "set_side_prop",       PS_set_side_prop },
-	{ "set_sec_prop",        PS_set_sec_prop },
-
-    { NULL, NULL }  // the end
-};
-
-
-//------------------------------------------------------------------------
-
-void P_RegisterModules()
-{
-    vm->LoadModule("player", player_module);
-    vm->LoadModule("world",  world_module);
-}
-
-void P_SetupPlayerModule(int player)
-{
-    cur_player = players[player];
-}
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

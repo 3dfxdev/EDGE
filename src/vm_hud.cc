@@ -1,8 +1,8 @@
 //------------------------------------------------------------------------
-//  LUA HUD module
+//  COAL HUD module
 //------------------------------------------------------------------------
 //
-//  Copyright (c) 2006-2008  The EDGE Team.
+//  Copyright (c) 2006-2009  The EDGE Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -17,16 +17,14 @@
 //------------------------------------------------------------------------
 
 #include "i_defs.h"
-#include "i_luainc.h"
+
+#include "coal/coal.h"
 
 #include "ddf/font.h"
 #include "ddf/game.h"
 #include "ddf/level.h"
 
-#include "l_lua.h"
-#include "hu_vm.h"
-#include "p_vm.h"
-
+#include "vm_coal.h"
 #include "g_state.h"
 #include "e_main.h"
 #include "g_game.h"
@@ -41,7 +39,13 @@
 #include "s_sound.h"
 
 
-static player_t *render_player = NULL;
+extern coal::vm_c *ui_vm;
+
+extern void VM_SetFloat(coal::vm_c *vm, const char *name, double value);
+extern void VM_CallFunction(coal::vm_c *vm, const char *name);
+
+
+player_t *ui_hud_who = NULL;
 
 static int hud_last_time = -1;
 
@@ -49,35 +53,6 @@ extern std::string w_map_title;
 
 
 //------------------------------------------------------------------------
-
-static void FrameSetup(void)
-{
-	fontdef_c *DEF = DDF_LookupFont("DOOM");  // FIXME allow other default
-	SYS_ASSERT(DEF);
-
-
-	render_player = players[displayplayer];
-
-
-	int now_time = I_GetTime();
-	int passed_time = 0;
-
-	if (hud_last_time > 0 && hud_last_time <= now_time)
-	{
-		passed_time = MIN(now_time - hud_last_time, TICRATE);
-	}
-
-	hud_last_time = now_time;
-
-
-	// setup some fields in 'hud' module
-
-	vm->SetIntVar("hud", "which", m_screenhud.d);
-	vm->SetIntVar("hud", "now_time", now_time);
-	vm->SetIntVar("hud", "passed_time", passed_time);
-
-	vm->SetBoolVar("hud", "automap", automapactive);
-}
 
 
 static rgbcol_t ParseColor(lua_State *L, int index)
@@ -476,7 +451,7 @@ static int HD_render_world(lua_State *L)
 	float w = luaL_checknumber(L, 3);
 	float h = luaL_checknumber(L, 4);
 
- 	HUD_RenderWorld(x, y, x+w, y+h, render_player->mo);
+ 	HUD_RenderWorld(x, y, x+w, y+h, ui_hud_who->mo);
 	return 0;
 }
 
@@ -548,7 +523,7 @@ static int HD_render_automap(lua_State *L)
 		AM_SetState(new_state, new_zoom);
 	}
 
- 	AM_Drawer(x, y, w, h, render_player->mo);
+ 	AM_Drawer(x, y, w, h, ui_hud_who->mo);
 
 	AM_SetState(old_state, old_zoom);
 
@@ -609,7 +584,7 @@ static int HD_set_render_who(lua_State *L)
 
 	if (index == 0)
 	{
-		render_player = players[consoleplayer];
+		ui_hud_who = players[consoleplayer];
 		return 0;
 	}
 
@@ -624,7 +599,7 @@ static int HD_set_render_who(lua_State *L)
 		while (players[who] == NULL);
 	}
 
-	render_player = players[who];
+	ui_hud_who = players[who];
 	return 0;
 }
 
@@ -634,15 +609,6 @@ static int HD_set_render_who(lua_State *L)
 static int HD_play_sound(lua_State *L)
 {
 	const char *name = luaL_checkstring(L, 1);
-
-	float volume = 1.0f;
-
-	int nargs = lua_gettop(L);
-	if (nargs >= 2)
-		volume = luaL_checknumber(L, 2) / 100.0f;
-
-	if (volume <= 0)
-		return 0;
 
 	sfx_t *fx = sfxdefs.GetEffect(name);
 
@@ -658,40 +624,6 @@ static int HD_play_sound(lua_State *L)
 
 const luaL_Reg hud_module[] =
 {
-	{ "raw_debug_print", HD_raw_debug_print },
-
-	// query functions
-    { "game_mode",       HD_game_mode },
-    { "game_name",       HD_game_name },
-    { "map_name",  	     HD_map_name },
-    { "map_title",  	 HD_map_title },
-
-	// set-state functions
-    { "coord_sys",       HD_coord_sys   },
-    { "text_font",       HD_text_font   },
-    { "text_color",      HD_text_color  },
-    { "set_scale",       HD_set_scale   },
-    { "set_alpha",       HD_set_alpha   },
-    { "automap_colors",  HD_automap_colors },
-
-	// drawing functions
-    { "solid_box",       HD_solid_box   },
-    { "solid_line",      HD_solid_line  },
-    { "thin_box",        HD_thin_box    },
-    { "gradient_box",    HD_gradient_box },
-
-    { "draw_image",      HD_draw_image  },
-    { "stretch_image",   HD_stretch_image },
-    { "tile_image",      HD_tile_image  },
-    { "draw_text",       HD_draw_text   },
-    { "draw_num2",       HD_draw_num2   },
-
-    { "render_world",    HD_render_world   },
-    { "render_automap",  HD_render_automap },
-	{ "set_render_who",  HD_set_render_who },
-
-	// sound functions
-	{ "play_sound",      HD_play_sound },
 
 	{ NULL, NULL } // the end
 };
@@ -701,9 +633,40 @@ const luaL_Reg hud_module[] =
 // HUD Functions
 //------------------------------------------------------------------------
 
-void HU_RegisterModules()
+void VM_RegisterHUD()
 {
-    vm->LoadModule("hud", hud_module);
+	// query functions
+    ui_vm->AddNativeFunction("hud.game_mode",       HD_game_mode);
+    ui_vm->AddNativeFunction("hud.game_name",       HD_game_name);
+    ui_vm->AddNativeFunction("hud.map_name",  	    HD_map_name);
+    ui_vm->AddNativeFunction("hud.map_title",  	    HD_map_title);
+
+	// set-state functions
+    ui_vm->AddNativeFunction("hud.coord_sys",       HD_coord_sys);
+    ui_vm->AddNativeFunction("hud.text_font",       HD_text_font);
+    ui_vm->AddNativeFunction("hud.text_color",      HD_text_color);
+    ui_vm->AddNativeFunction("hud.set_scale",       HD_set_scale);
+    ui_vm->AddNativeFunction("hud.set_alpha",       HD_set_alpha);
+    ui_vm->AddNativeFunction("hud.automap_colors",  HD_automap_colors);
+
+	// drawing functions
+    ui_vm->AddNativeFunction("hud.solid_box",       HD_solid_box);
+    ui_vm->AddNativeFunction("hud.solid_line",      HD_solid_line);
+    ui_vm->AddNativeFunction("hud.thin_box",        HD_thin_box);
+    ui_vm->AddNativeFunction("hud.gradient_box",    HD_gradient_box);
+
+    ui_vm->AddNativeFunction("hud.draw_image",      HD_draw_image);
+    ui_vm->AddNativeFunction("hud.stretch_image",   HD_stretch_image);
+    ui_vm->AddNativeFunction("hud.tile_image",      HD_tile_image);
+    ui_vm->AddNativeFunction("hud.draw_text",       HD_draw_text);
+    ui_vm->AddNativeFunction("hud.draw_num2",       HD_draw_num2);
+
+    ui_vm->AddNativeFunction("hud.render_world",    HD_render_world);
+    ui_vm->AddNativeFunction("hud.render_automap",  HD_render_automap);
+	ui_vm->AddNativeFunction("hud.set_render_who",  HD_set_render_who);
+
+	// sound functions
+	ui_vm->AddNativeFunction("hud.play_sound",      HD_play_sound);
 }
 
 void HU_BeginLevel(void)
@@ -713,11 +676,28 @@ void HU_BeginLevel(void)
 
 void HU_RunHud(void)
 { 
-    P_SetupPlayerModule(displayplayer);
+	ui_hud_who    = players[displayplayer];
+	ui_player_who = players[displayplayer];
 
-	FrameSetup();
+	int now_time = I_GetTime();
+	int passed_time = 0;
 
-    vm->CallFunction("hud", "draw_all");
+	if (hud_last_time > 0 && hud_last_time <= now_time)
+	{
+		passed_time = MIN(now_time - hud_last_time, TICRATE);
+	}
+
+	hud_last_time = now_time;
+
+
+	// setup some fields in 'hud' module
+
+	VM_SetFloat(ui_vm, "hud.which", m_screenhud.d);
+	VM_SetFloat(ui_vm, "hud.automap", automapactive ? 1 : 0);
+	VM_SetFloat(ui_vm, "hud.now_time", now_time);
+	VM_SetFloat(ui_vm, "hud.passed_time", passed_time);
+
+    VM_CallFunction(ui_vm, "draw_all");
 }
 
 //--- editor settings ---
