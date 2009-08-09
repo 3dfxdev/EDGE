@@ -67,9 +67,9 @@
 #include "m_strings.h"
 #include "e_main.h"
 #include "e_search.h"
-#include "l_deh.h"
 #include "m_misc.h"
 #include "rad_trig.h"
+#include "w_deh.h"
 #include "w_wad.h"
 #include "z_zone.h"
 
