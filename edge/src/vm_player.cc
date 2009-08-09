@@ -55,7 +55,7 @@ player_t * ui_player_who = NULL;
 
 // player.num_players()
 //
-static int PL_num_players(lua_State *L)
+static void PL_num_players(coal::vm_c *vm, int argc)
 {
 	lua_pushinteger(L, numplayers);
 	return 1;
@@ -64,7 +64,7 @@ static int PL_num_players(lua_State *L)
 
 // player.set_who(index)
 //
-static int PL_set_who(lua_State *L)
+static void PL_set_who(coal::vm_c *vm, int argc)
 {
 	int index = luaL_checkint(L, 1);
 
@@ -96,7 +96,7 @@ static int PL_set_who(lua_State *L)
 
 // player.is_bot()
 //
-static int PL_is_bot(lua_State *L)
+static void PL_is_bot(coal::vm_c *vm, int argc)
 {
 	lua_pushboolean(L, (cur_player->playerflags & PFL_Bot) ? 1 : 0);
 	return 1;
@@ -105,7 +105,7 @@ static int PL_is_bot(lua_State *L)
 
 // player.get_name()
 //
-static int PL_get_name(lua_State *L)
+static void PL_get_name(coal::vm_c *vm, int argc)
 {
 	lua_pushstring(L, cur_player->playername);
 	return 1;
@@ -114,7 +114,7 @@ static int PL_get_name(lua_State *L)
 
 // player.health()
 //
-static int PL_health(lua_State *L)
+static void PL_health(coal::vm_c *vm, int argc)
 {
 	float h = cur_player->health * 100 / cur_player->mo->info->spawnhealth;
 
@@ -125,7 +125,7 @@ static int PL_health(lua_State *L)
 
 // player.armor(type)
 //
-static int PL_armor(lua_State *L)
+static void PL_armor(coal::vm_c *vm, int argc)
 {
 	int kind = luaL_checkint(L, 1);
 
@@ -141,7 +141,7 @@ static int PL_armor(lua_State *L)
 
 // player.total_armor(type)
 //
-static int PL_total_armor(lua_State *L)
+static void PL_total_armor(coal::vm_c *vm, int argc)
 {
 	lua_pushinteger(L, (int)floor(cur_player->totalarmour + 0.99));
 	return 1;
@@ -150,7 +150,7 @@ static int PL_total_armor(lua_State *L)
 
 // player.frags()
 //
-static int PL_frags(lua_State *L)
+static void PL_frags(coal::vm_c *vm, int argc)
 {
 	lua_pushinteger(L, cur_player->frags);
 	return 1;
@@ -159,7 +159,7 @@ static int PL_frags(lua_State *L)
 
 // player.under_water()
 //
-static int PL_under_water(lua_State *L)
+static void PL_under_water(coal::vm_c *vm, int argc)
 {
 	lua_pushboolean(L, cur_player->underwater ? 1 : 0);
 	return 1;
@@ -168,7 +168,7 @@ static int PL_under_water(lua_State *L)
 
 // player.on_ground()
 //
-static int PL_on_ground(lua_State *L)
+static void PL_on_ground(coal::vm_c *vm, int argc)
 {
 	lua_pushboolean(L, (cur_player->mo->z <= cur_player->mo->floorz) ? 1 : 0);
 	return 1;
@@ -177,7 +177,7 @@ static int PL_on_ground(lua_State *L)
 
 // player.is_swimming()
 //
-static int PL_is_swimming(lua_State *L)
+static void PL_is_swimming(coal::vm_c *vm, int argc)
 {
 	lua_pushboolean(L, cur_player->swimming ? 1 : 0);
 	return 1;
@@ -186,7 +186,7 @@ static int PL_is_swimming(lua_State *L)
 
 // player.is_jumping()
 //
-static int PL_is_jumping(lua_State *L)
+static void PL_is_jumping(coal::vm_c *vm, int argc)
 {
 	lua_pushboolean(L, (cur_player->jumpwait > 0) ? 1 : 0);
 	return 1;
@@ -195,7 +195,7 @@ static int PL_is_jumping(lua_State *L)
 
 // player.is_crouching()
 //
-static int PL_is_crouching(lua_State *L)
+static void PL_is_crouching(coal::vm_c *vm, int argc)
 {
 	lua_pushboolean(L, (cur_player->mo->extendedflags & EF_CROUCHING) ? 1 : 0);
 	return 1;
@@ -204,7 +204,7 @@ static int PL_is_crouching(lua_State *L)
 
 // player.is_attacking()
 //
-static int PL_is_attacking(lua_State *L)
+static void PL_is_attacking(coal::vm_c *vm, int argc)
 {
 	lua_pushboolean(L, (cur_player->attackdown[0] ||
 	                    cur_player->attackdown[1]) ? 1 : 0);
@@ -214,7 +214,7 @@ static int PL_is_attacking(lua_State *L)
 
 // player.is_rampaging()
 //
-static int PL_is_rampaging(lua_State *L)
+static void PL_is_rampaging(coal::vm_c *vm, int argc)
 {
 	lua_pushboolean(L, (cur_player->attackdown_count >= 70) ? 1 : 0);
 	return 1;
@@ -223,7 +223,7 @@ static int PL_is_rampaging(lua_State *L)
 
 // player.is_grinning()
 //
-static int PL_is_grinning(lua_State *L)
+static void PL_is_grinning(coal::vm_c *vm, int argc)
 {
 	lua_pushboolean(L, (cur_player->grin_count > 0) ? 1 : 0);
 	return 1;
@@ -232,7 +232,7 @@ static int PL_is_grinning(lua_State *L)
 
 // player.is_using()
 //
-static int PL_is_using(lua_State *L)
+static void PL_is_using(coal::vm_c *vm, int argc)
 {
 	lua_pushboolean(L, cur_player->usedown ? 1 : 0);
 	return 1;
@@ -241,7 +241,7 @@ static int PL_is_using(lua_State *L)
 
 // player.move_speed()
 //
-static int PL_move_speed(lua_State *L)
+static void PL_move_speed(coal::vm_c *vm, int argc)
 {
 	lua_pushnumber(L, cur_player->actual_speed);
 	return 1;
@@ -250,7 +250,7 @@ static int PL_move_speed(lua_State *L)
 
 // player.air_in_lungs()
 //
-static int PL_air_in_lungs(lua_State *L)
+static void PL_air_in_lungs(coal::vm_c *vm, int argc)
 {
 	if (cur_player->air_in_lungs <= 0)
 	{
@@ -270,7 +270,7 @@ static int PL_air_in_lungs(lua_State *L)
 
 // player.has_key(key)
 //
-static int PL_has_key(lua_State *L)
+static void PL_has_key(coal::vm_c *vm, int argc)
 {
 	int key = luaL_checkint(L, 1);
 
@@ -288,7 +288,7 @@ static int PL_has_key(lua_State *L)
 
 // player.has_power(power)
 //
-static int PL_has_power(lua_State *L)
+static void PL_has_power(coal::vm_c *vm, int argc)
 {
 	int power = luaL_checkint(L, 1);
 
@@ -310,7 +310,7 @@ static int PL_has_power(lua_State *L)
 
 // player.power_left(power)
 //
-static int PL_power_left(lua_State *L)
+static void PL_power_left(coal::vm_c *vm, int argc)
 {
 	int power = luaL_checkint(L, 1);
 
@@ -331,7 +331,7 @@ static int PL_power_left(lua_State *L)
 
 // player.has_weapon_slot(slot)
 //
-static int PL_has_weapon_slot(lua_State *L)
+static void PL_has_weapon_slot(coal::vm_c *vm, int argc)
 {
 	int slot = luaL_checkint(L, 1);
 
@@ -345,7 +345,7 @@ static int PL_has_weapon_slot(lua_State *L)
 }
 
 
-static int PL_cur_weapon_slot(lua_State *L)
+static void PL_cur_weapon_slot(coal::vm_c *vm, int argc)
 {
 	int slot;
 
@@ -361,7 +361,7 @@ static int PL_cur_weapon_slot(lua_State *L)
 
 // player.has_weapon(name)
 //
-static int PL_has_weapon(lua_State *L)
+static void PL_has_weapon(coal::vm_c *vm, int argc)
 {
 	const char * name = luaL_checkstring(L, 1);
 	SYS_ASSERT(name);
@@ -385,7 +385,7 @@ static int PL_has_weapon(lua_State *L)
 }
 
 
-static int PL_cur_weapon(lua_State *L)
+static void PL_cur_weapon(coal::vm_c *vm, int argc)
 {
 	if (cur_player->pending_wp >= 0)
 	{
@@ -408,7 +408,7 @@ static int PL_cur_weapon(lua_State *L)
 
 // player.ammo(type)
 //
-static int PL_ammo(lua_State *L)
+static void PL_ammo(coal::vm_c *vm, int argc)
 {
 	int ammo = luaL_checkint(L, 1);
 
@@ -424,7 +424,7 @@ static int PL_ammo(lua_State *L)
 
 // player.ammomax(type)
 //
-static int PL_ammomax(lua_State *L)
+static void PL_ammomax(coal::vm_c *vm, int argc)
 {
 	int ammo = luaL_checkint(L, 1);
 
@@ -440,7 +440,7 @@ static int PL_ammomax(lua_State *L)
 
 // player.main_ammo(clip)
 //
-static int PL_main_ammo(lua_State *L)
+static void PL_main_ammo(coal::vm_c *vm, int argc)
 {
 	int value = 0;
 
@@ -473,7 +473,7 @@ static int PL_main_ammo(lua_State *L)
 
 // player.ammo_type(ATK)
 //
-static int PL_ammo_type(lua_State *L)
+static void PL_ammo_type(coal::vm_c *vm, int argc)
 {
 	int ATK = luaL_checkint(L, 1);
 
@@ -498,7 +498,7 @@ static int PL_ammo_type(lua_State *L)
 
 // player.ammo_pershot(ATK)
 //
-static int PL_ammo_pershot(lua_State *L)
+static void PL_ammo_pershot(coal::vm_c *vm, int argc)
 {
 	int ATK = luaL_checkint(L, 1);
 
@@ -523,7 +523,7 @@ static int PL_ammo_pershot(lua_State *L)
 
 // player.clip_ammo(ATK)
 //
-static int PL_clip_ammo(lua_State *L)
+static void PL_clip_ammo(coal::vm_c *vm, int argc)
 {
 	int ATK = luaL_checkint(L, 1);
 
@@ -548,7 +548,7 @@ static int PL_clip_ammo(lua_State *L)
 
 // player.clip_size(ATK)
 //
-static int PL_clip_size(lua_State *L)
+static void PL_clip_size(coal::vm_c *vm, int argc)
 {
 	int ATK = luaL_checkint(L, 1);
 
@@ -573,7 +573,7 @@ static int PL_clip_size(lua_State *L)
 
 // player.clip_is_shared()
 //
-static int PL_clip_is_shared(lua_State *L)
+static void PL_clip_is_shared(coal::vm_c *vm, int argc)
 {
 	int value = 0;
 
@@ -592,7 +592,7 @@ static int PL_clip_is_shared(lua_State *L)
 
 // player.hurt_by()
 //
-static int PL_hurt_by(lua_State *L)
+static void PL_hurt_by(coal::vm_c *vm, int argc)
 {
 	if (cur_player->damagecount <= 0)
 		return 0;  // return NIL
@@ -613,7 +613,7 @@ static int PL_hurt_by(lua_State *L)
 
 // player.hurt_mon()
 //
-static int PL_hurt_mon(lua_State *L)
+static void PL_hurt_mon(coal::vm_c *vm, int argc)
 {
 	if (cur_player->damagecount > 0 &&
 		cur_player->attacker &&
@@ -629,7 +629,7 @@ static int PL_hurt_mon(lua_State *L)
 
 // player.hurt_pain()
 //
-static int PL_hurt_pain(lua_State *L)
+static void PL_hurt_pain(coal::vm_c *vm, int argc)
 {
 	lua_pushnumber(L, cur_player->damage_pain);
 	return 1;
@@ -638,7 +638,7 @@ static int PL_hurt_pain(lua_State *L)
 
 // player.hurt_dir()
 //
-static int PL_hurt_dir(lua_State *L)
+static void PL_hurt_dir(coal::vm_c *vm, int argc)
 {
 	int dir = 0;
 
@@ -666,7 +666,7 @@ static int PL_hurt_dir(lua_State *L)
 
 // player.hurt_angle()
 //
-static int PL_hurt_angle(lua_State *L)
+static void PL_hurt_angle(coal::vm_c *vm, int argc)
 {
 	float value = 0;
 

@@ -55,47 +55,22 @@ extern std::string w_map_title;
 //------------------------------------------------------------------------
 
 
-static rgbcol_t ParseColor(lua_State *L, int index)
+rgbcol_t VM_VectorToColor(double * v)
 {
-	if (lua_isstring(L, index))
-	{
-		const char *name = lua_tostring(L, index);
+	if (v[0] < 0)
+		return RGB_NO_VALUE;
 
-		return V_ParseFontColor(name, true);
-	}
+	int r = CLAMP(0, (int)v[0], 255);
+	int g = CLAMP(0, (int)v[1], 255);
+	int b = CLAMP(0, (int)v[2], 255);
 
-	if (lua_istable(L, index))
-	{
-		// parse 'r', 'g', 'b' fields
-		int r, g, b;
+	rgbcol_t rgb = RGB_MAKE(r, g, b);
 
-		lua_getfield(L, index, "r");
-		if (! lua_isnumber(L, -1))
-			I_Error("Bad color table in lua script (missing \"r\")\n");
-		r = lua_tointeger(L, -1);
+	// ensure we don't get the "no color" value by mistake
+	if (rgb == RGB_NO_VALUE)
+		rgb ^= 0x000101;
 
-		lua_getfield(L, index, "g");
-		if (! lua_isnumber(L, -1))
-			I_Error("Bad color table in lua script (missing \"g\")\n");
-		g = lua_tointeger(L, -1);
-
-		lua_getfield(L, index, "b");
-		if (! lua_isnumber(L, -1))
-			I_Error("Bad color table in lua script (missing \"b\")\n");
-		b = lua_tointeger(L, -1);
-
-		lua_pop(L, 3);
-
-		rgbcol_t rgb = RGB_MAKE(r, g, b);
-
-		if (rgb == RGB_NO_VALUE)
-			rgb ^= 0x000101;
-
-		return rgb;
-	}
-
-	I_Error("Bad color value in lua script!\n");
-	return 0; /* NOT REACHED */
+	return rgb;
 }
 
 
@@ -103,89 +78,66 @@ static rgbcol_t ParseColor(lua_State *L, int index)
 //  HUD MODULE
 //------------------------------------------------------------------------
 
-// hud.raw_debug_print(str)
-//
-static int HD_raw_debug_print(lua_State *L)
-{
-	int nargs = lua_gettop(L);
-
-	if (nargs >= 1)
-	{
-		const char *res = luaL_checkstring(L,1);
-		SYS_ASSERT(res);
-
-		I_Debugf("%s", res);
-	}
-
-	return 0;
-}
-
 
 // hud.coord_sys(w, h)
 //
-static int HD_coord_sys(lua_State *L)
+static void HD_coord_sys(coal::vm_c *vm, int argc)
 {
-	int w = luaL_checkint(L, 1);
-	int h = luaL_checkint(L, 2);
+	double * w = vm->AccessParam(0);
+	double * h = vm->AccessParam(1);
 
-	if (w < 64 || h < 64)
-		I_Error("Bad hud.coord_sys size: %dx%d\n", w, h);
+	if (*w < 64 || *h < 64)
+		I_Error("Bad hud.coord_sys size: %1.0fx%1.0f\n", *w, *h);
 
-	HUD_SetCoordSys(w, h);
-	return 0;
+	HUD_SetCoordSys((int)*w, (int)*h);
 }
 
 
 // hud.game_mode()
 //
-static int HD_game_mode(lua_State *L)
+static void HD_game_mode(coal::vm_c *vm, int argc)
 {
 	if (DEATHMATCH())
-		lua_pushstring(L, "dm");
+		vm->ReturnString("dm");
 	else if (COOP_MATCH())
-		lua_pushstring(L, "coop");
+		vm->ReturnString("coop");
 	else
-		lua_pushstring(L, "sp");
-
-	return 1;
+		vm->ReturnString("sp");
 }
 
 
 // hud.game_name()
 //
-static int HD_game_name(lua_State *L)
+static void HD_game_name(coal::vm_c *vm, int argc)
 {
 	gamedef_c *g = currmap->episode;
 	SYS_ASSERT(g);
 
-	lua_pushstring(L, g->name.c_str());
-	return 1;
+	vm->ReturnString(g->name.c_str());
 }
 
 
 // hud.map_name()
 //
-static int HD_map_name(lua_State *L)
+static void HD_map_name(coal::vm_c *vm, int argc)
 {
-	lua_pushstring(L, currmap->name.c_str());
-	return 1;
+	vm->ReturnString(currmap->name.c_str());
 }
 
 
 // hud.map_title()
 //
-static int HD_map_title(lua_State *L)
+static void HD_map_title(coal::vm_c *vm, int argc)
 {
-	lua_pushstring(L, w_map_title.c_str());
-	return 1;
+	vm->ReturnString(w_map_title.c_str());
 }
 
 
 // hud.text_font(name)
 //
-static int HD_text_font(lua_State *L)
+static void HD_text_font(coal::vm_c *vm, int argc)
 {
-	const char *font_name = luaL_checkstring(L, 1);
+	const char *font_name = vm->AccessParamString(0);
 
 	fontdef_c *DEF = DDF_LookupFont(font_name);
 	SYS_ASSERT(DEF);
@@ -194,28 +146,24 @@ static int HD_text_font(lua_State *L)
 	SYS_ASSERT(font);
 
 	HUD_SetFont(font);
-	return 0;
 }
 
 
-// hud.text_color(name)
+// hud.text_color(rgb)
 //
-static int HD_text_color(lua_State *L)
+static void HD_text_color(coal::vm_c *vm, int argc)
 {
-	rgbcol_t color = RGB_NO_VALUE;
+	double * p = vm->AccessParam(0);
 
-	int nargs = lua_gettop(L);
-	if (nargs >= 1)
-		color = ParseColor(L, 1);
+	rgbcol_t color = VM_VectorToColor(p);
 
 	HUD_SetTextColor(color);
-	return 0;
 }
 
 
 // hud.set_scale(value)
 //
-static int HD_set_scale(lua_State *L)
+static void HD_set_scale(coal::vm_c *vm, int argc)
 {
 	float scale = luaL_checknumber(L, 1);
 
@@ -229,7 +177,7 @@ static int HD_set_scale(lua_State *L)
 
 // hud.set_alpha(value)
 //
-static int HD_set_alpha(lua_State *L)
+static void HD_set_alpha(coal::vm_c *vm, int argc)
 {
 	float alpha = luaL_checknumber(L, 1);
 
@@ -240,7 +188,7 @@ static int HD_set_alpha(lua_State *L)
 
 // hud.solid_box(x, y, w, h, color)
 //
-static int HD_solid_box(lua_State *L)
+static void HD_solid_box(coal::vm_c *vm, int argc)
 {
 	float x = luaL_checknumber(L, 1);
 	float y = luaL_checknumber(L, 2);
@@ -256,7 +204,7 @@ static int HD_solid_box(lua_State *L)
 
 // hud.solid_line(x1, y1, x2, y2, color)
 //
-static int HD_solid_line(lua_State *L)
+static void HD_solid_line(coal::vm_c *vm, int argc)
 {
 	float x1 = luaL_checknumber(L, 1);
 	float y1 = luaL_checknumber(L, 2);
@@ -272,7 +220,7 @@ static int HD_solid_line(lua_State *L)
 
 // hud.thin_box(x, y, w, h, color)
 //
-static int HD_thin_box(lua_State *L)
+static void HD_thin_box(coal::vm_c *vm, int argc)
 {
 	float x = luaL_checknumber(L, 1);
 	float y = luaL_checknumber(L, 2);
@@ -288,7 +236,7 @@ static int HD_thin_box(lua_State *L)
 
 // hud.gradient_box(x, y, w, h, TL, BL, TR, BR)
 //
-static int HD_gradient_box(lua_State *L)
+static void HD_gradient_box(coal::vm_c *vm, int argc)
 {
 	float x = luaL_checknumber(L, 1);
 	float y = luaL_checknumber(L, 2);
@@ -309,7 +257,7 @@ static int HD_gradient_box(lua_State *L)
 
 // hud.draw_image(x, y, name)
 //
-static int HD_draw_image(lua_State *L)
+static void HD_draw_image(coal::vm_c *vm, int argc)
 {
 	float x = luaL_checknumber(L, 1);
 	float y = luaL_checknumber(L, 2);
@@ -329,7 +277,7 @@ static int HD_draw_image(lua_State *L)
 
 // hud.stretch_image(x, y, w, h, name)
 //
-static int HD_stretch_image(lua_State *L)
+static void HD_stretch_image(coal::vm_c *vm, int argc)
 {
 	float x = luaL_checknumber(L, 1);
 	float y = luaL_checknumber(L, 2);
@@ -351,7 +299,7 @@ static int HD_stretch_image(lua_State *L)
 
 // hud.tile_image(x, y, w, h, name, [offset_x, offset_y])
 //
-static int HD_tile_image(lua_State *L)
+static void HD_tile_image(coal::vm_c *vm, int argc)
 {
 	float x = luaL_checknumber(L, 1);
 	float y = luaL_checknumber(L, 2);
@@ -382,7 +330,7 @@ static int HD_tile_image(lua_State *L)
 
 // hud.draw_text(x, y, str)
 //
-static int HD_draw_text(lua_State *L)
+static void HD_draw_text(coal::vm_c *vm, int argc)
 {
 	float x = luaL_checknumber(L, 1);
 	float y = luaL_checknumber(L, 2);
@@ -396,7 +344,7 @@ static int HD_draw_text(lua_State *L)
 
 // hud.draw_num2(x, y, len, num)
 //
-static int HD_draw_num2(lua_State *L)
+static void HD_draw_num2(coal::vm_c *vm, int argc)
 {
 	float x = luaL_checknumber(L, 1);
 	float y = luaL_checknumber(L, 2);
@@ -444,7 +392,7 @@ static int HD_draw_num2(lua_State *L)
 
 // hud.render_world(x, y, w, h, [options])
 //
-static int HD_render_world(lua_State *L)
+static void HD_render_world(coal::vm_c *vm, int argc)
 {
 	float x = luaL_checknumber(L, 1);
 	float y = luaL_checknumber(L, 2);
@@ -456,7 +404,7 @@ static int HD_render_world(lua_State *L)
 }
 
 
-static void ParseAutomapOptions(lua_State *L, int IDX, int *state, float *zoom)
+static void ParseAutomapOptions(coal::vm_c *vm, int argc, int IDX, int *state, float *zoom)
 {
 	lua_getfield(L, IDX, "zoom");
 
@@ -501,7 +449,7 @@ static void ParseAutomapOptions(lua_State *L, int IDX, int *state, float *zoom)
 
 // hud.render_automap(x, y, w, h, [options])
 //
-static int HD_render_automap(lua_State *L)
+static void HD_render_automap(coal::vm_c *vm, int argc)
 {
 	float x = luaL_checknumber(L, 1);
 	float y = luaL_checknumber(L, 2);
@@ -553,7 +501,7 @@ static const char * am_color_names[AM_NUM_COLORS] =
 
 // hud.automap_colors(table)
 //
-static int HD_automap_colors(lua_State *L)
+static void HD_automap_colors(coal::vm_c *vm, int argc)
 {
 	if (! lua_istable(L, 1))
 		I_Error("hud.automap_colors() requires a table!\n");
@@ -575,7 +523,7 @@ static int HD_automap_colors(lua_State *L)
 
 // hud.set_render_who(index)
 //
-static int HD_set_render_who(lua_State *L)
+static void HD_set_render_who(coal::vm_c *vm, int argc)
 {
 	int index = luaL_checkint(L, 1);
 
@@ -606,7 +554,7 @@ static int HD_set_render_who(lua_State *L)
 
 // hud.play_sound(name, [volume])
 //
-static int HD_play_sound(lua_State *L)
+static void HD_play_sound(coal::vm_c *vm, int argc)
 {
 	const char *name = luaL_checkstring(L, 1);
 
