@@ -1361,7 +1361,7 @@ void real_vm_c::STAT_Statement(bool allow_def)
 }
 
 
-int real_vm_c::GLOB_FunctionBody(type_t *type, const char *func_name)
+int real_vm_c::GLOB_FunctionBody(def_t *func_def, type_t *type, const char *func_name)
 {
 	// Returns the first_statement value
 
@@ -1374,10 +1374,15 @@ int real_vm_c::GLOB_FunctionBody(type_t *type, const char *func_name)
 	//
 	if (LEX_Check("native"))
 	{
-		int native = GetNativeFunc(func_name);
+		const char *module = NULL;
+		if (func_def->scope->kind == 'm')
+			module = func_def->scope->def->name;
+
+		int native = GetNativeFunc(func_name, module);
 
 		if (native < 0)
-			CompileError("no such native function: %s\n", func_name);
+			CompileError("no such native function: %s%s%s\n",
+				module ? module : "", module ? "." : "", func_name);
 
 		return -(native + 1);
 	}
@@ -1531,7 +1536,7 @@ void real_vm_c::GLOB_Function()
 	comp.scope->kind = 'f';
 	comp.scope->def  = def;
 	//  { 
-		df->first_statement = GLOB_FunctionBody(func_type, func_name);
+		df->first_statement = GLOB_FunctionBody(def, func_type, func_name);
 		df->last_statement  = comp.last_statement;
 	//  }
 	comp.scope = OLD_scope;

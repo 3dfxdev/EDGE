@@ -68,10 +68,17 @@ void real_vm_c::default_aborter(const char *msg, ...)
 }
 
 
-int real_vm_c::GetNativeFunc(const char *name)
+int real_vm_c::GetNativeFunc(const char *name, const char *module)
 {
+	char buffer[256];
+
+	if (module)
+		sprintf(buffer, "%s.%s", module, name);
+	else
+		strcpy(buffer, name);
+
 	for (int i = 0; i < (int)native_funcs.size(); i++)
-		if (strcmp(native_funcs[i]->name, name) == 0)
+		if (strcmp(native_funcs[i]->name, buffer) == 0)
 			return i;
 	
 	return -1;  // NOT FOUND
@@ -80,7 +87,7 @@ int real_vm_c::GetNativeFunc(const char *name)
 void real_vm_c::AddNativeFunction(const char *name, native_func_t func)
 {
 	// already registered?
-	int prev = GetNativeFunc(name);
+	int prev = GetNativeFunc(name, NULL);
 
 	if (prev >= 0)
 	{
