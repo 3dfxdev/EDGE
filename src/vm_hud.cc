@@ -47,6 +47,9 @@ extern void VM_CallFunction(coal::vm_c *vm, const char *name);
 
 player_t *ui_hud_who = NULL;
 
+extern player_t *ui_player_who;
+
+
 static int hud_last_time = -1;
 
 extern std::string w_map_title;
@@ -83,13 +86,13 @@ rgbcol_t VM_VectorToColor(double * v)
 //
 static void HD_coord_sys(coal::vm_c *vm, int argc)
 {
-	double * w = vm->AccessParam(0);
-	double * h = vm->AccessParam(1);
+	int w = (int) *vm->AccessParam(0);
+	int h = (int) *vm->AccessParam(1);
 
-	if (*w < 64 || *h < 64)
-		I_Error("Bad hud.coord_sys size: %1.0fx%1.0f\n", *w, *h);
+	if (w < 64 || h < 64)
+		I_Error("Bad hud.coord_sys size: %dx%d\n", w, h);
 
-	HUD_SetCoordSys((int)*w, (int)*h);
+	HUD_SetCoordSys(w, h);
 }
 
 
@@ -153,9 +156,9 @@ static void HD_text_font(coal::vm_c *vm, int argc)
 //
 static void HD_text_color(coal::vm_c *vm, int argc)
 {
-	double * p = vm->AccessParam(0);
+	double * v = vm->AccessParam(0);
 
-	rgbcol_t color = VM_VectorToColor(p);
+	rgbcol_t color = VM_VectorToColor(v);
 
 	HUD_SetTextColor(color);
 }
@@ -165,13 +168,12 @@ static void HD_text_color(coal::vm_c *vm, int argc)
 //
 static void HD_set_scale(coal::vm_c *vm, int argc)
 {
-	float scale = luaL_checknumber(L, 1);
+	float scale = *vm->AccessParam(0);
 
 	if (scale <= 0)
 		I_Error("hud.set_scale: Bad scale value: %1.3f\n", scale);
 
 	HUD_SetScale(scale);
-	return 0;
 }
 
 
@@ -179,10 +181,9 @@ static void HD_set_scale(coal::vm_c *vm, int argc)
 //
 static void HD_set_alpha(coal::vm_c *vm, int argc)
 {
-	float alpha = luaL_checknumber(L, 1);
+	float alpha = *vm->AccessParam(0);
 
 	HUD_SetAlpha(alpha);
-	return 0;
 }
 
 
@@ -190,15 +191,14 @@ static void HD_set_alpha(coal::vm_c *vm, int argc)
 //
 static void HD_solid_box(coal::vm_c *vm, int argc)
 {
-	float x = luaL_checknumber(L, 1);
-	float y = luaL_checknumber(L, 2);
-	float w = luaL_checknumber(L, 3);
-	float h = luaL_checknumber(L, 4);
+	float x = *vm->AccessParam(0);
+	float y = *vm->AccessParam(1);
+	float w = *vm->AccessParam(2);
+	float h = *vm->AccessParam(3);
 
-	rgbcol_t rgb = ParseColor(L, 5);
+	rgbcol_t rgb = VM_VectorToColor(vm->AccessParam(4));
 
 	HUD_SolidBox(x, y, x+w, y+h, rgb);
-	return 0;
 }
 
 
@@ -206,15 +206,14 @@ static void HD_solid_box(coal::vm_c *vm, int argc)
 //
 static void HD_solid_line(coal::vm_c *vm, int argc)
 {
-	float x1 = luaL_checknumber(L, 1);
-	float y1 = luaL_checknumber(L, 2);
-	float x2 = luaL_checknumber(L, 3);
-	float y2 = luaL_checknumber(L, 4);
+	float x1 = *vm->AccessParam(0);
+	float y1 = *vm->AccessParam(1);
+	float x2 = *vm->AccessParam(2);
+	float y2 = *vm->AccessParam(3);
 
-	rgbcol_t rgb = ParseColor(L, 5);
+	rgbcol_t rgb = VM_VectorToColor(vm->AccessParam(4));
 
 	HUD_SolidLine(x1, y1, x2, y2, rgb);
-	return 0;
 }
 
 
@@ -222,15 +221,14 @@ static void HD_solid_line(coal::vm_c *vm, int argc)
 //
 static void HD_thin_box(coal::vm_c *vm, int argc)
 {
-	float x = luaL_checknumber(L, 1);
-	float y = luaL_checknumber(L, 2);
-	float w = luaL_checknumber(L, 3);
-	float h = luaL_checknumber(L, 4);
+	float x = *vm->AccessParam(0);
+	float y = *vm->AccessParam(1);
+	float w = *vm->AccessParam(2);
+	float h = *vm->AccessParam(3);
 
-	rgbcol_t rgb = ParseColor(L, 5);
+	rgbcol_t rgb = VM_VectorToColor(vm->AccessParam(4));
 
 	HUD_ThinBox(x, y, x+w, y+h, rgb);
-	return 0;
 }
 
 
@@ -238,20 +236,19 @@ static void HD_thin_box(coal::vm_c *vm, int argc)
 //
 static void HD_gradient_box(coal::vm_c *vm, int argc)
 {
-	float x = luaL_checknumber(L, 1);
-	float y = luaL_checknumber(L, 2);
-	float w = luaL_checknumber(L, 3);
-	float h = luaL_checknumber(L, 4);
+	float x = *vm->AccessParam(0);
+	float y = *vm->AccessParam(1);
+	float w = *vm->AccessParam(2);
+	float h = *vm->AccessParam(3);
 
 	rgbcol_t cols[4];
 
-	cols[0] = ParseColor(L, 5);
-	cols[1] = ParseColor(L, 6);
-	cols[2] = ParseColor(L, 7);
-	cols[3] = ParseColor(L, 8);
+	cols[0] = VM_VectorToColor(vm->AccessParam(4));
+	cols[1] = VM_VectorToColor(vm->AccessParam(5));
+	cols[2] = VM_VectorToColor(vm->AccessParam(6));
+	cols[3] = VM_VectorToColor(vm->AccessParam(7));
 
 	HUD_GradientBox(x, y, x+w, y+h, cols);
-	return 0;
 }
 
 
@@ -259,10 +256,10 @@ static void HD_gradient_box(coal::vm_c *vm, int argc)
 //
 static void HD_draw_image(coal::vm_c *vm, int argc)
 {
-	float x = luaL_checknumber(L, 1);
-	float y = luaL_checknumber(L, 2);
+	float x = *vm->AccessParam(0);
+	float y = *vm->AccessParam(1);
 
-	const char *name = luaL_checkstring(L, 3);
+	const char *name = vm->AccessParamString(2);
 
 	const image_c *img = R_ImageLookup(name, INS_Graphic);
 
@@ -270,8 +267,6 @@ static void HD_draw_image(coal::vm_c *vm, int argc)
 	{
 		HUD_DrawImage(x, y, img);
 	}
-
-	return 0;
 }
 
 
@@ -279,12 +274,12 @@ static void HD_draw_image(coal::vm_c *vm, int argc)
 //
 static void HD_stretch_image(coal::vm_c *vm, int argc)
 {
-	float x = luaL_checknumber(L, 1);
-	float y = luaL_checknumber(L, 2);
-	float w = luaL_checknumber(L, 3);
-	float h = luaL_checknumber(L, 4);
+	float x = *vm->AccessParam(0);
+	float y = *vm->AccessParam(1);
+	float w = *vm->AccessParam(2);
+	float h = *vm->AccessParam(3);
 
-	const char *name = luaL_checkstring(L, 5);
+	const char *name = vm->AccessParamString(4);
 
 	const image_c *img = R_ImageLookup(name, INS_Graphic);
 
@@ -292,8 +287,6 @@ static void HD_stretch_image(coal::vm_c *vm, int argc)
 	{
 		HUD_StretchImage(x, y, w, h, img);
 	}
-
-	return 0;
 }
 
 
@@ -301,21 +294,21 @@ static void HD_stretch_image(coal::vm_c *vm, int argc)
 //
 static void HD_tile_image(coal::vm_c *vm, int argc)
 {
-	float x = luaL_checknumber(L, 1);
-	float y = luaL_checknumber(L, 2);
-	float w = luaL_checknumber(L, 3);
-	float h = luaL_checknumber(L, 4);
+	float x = *vm->AccessParam(0);
+	float y = *vm->AccessParam(1);
+	float w = *vm->AccessParam(2);
+	float h = *vm->AccessParam(3);
 
-	const char *name = luaL_checkstring(L, 5);
+	const char *name = vm->AccessParamString(4);
 
 	float offset_x = 0;
 	float offset_y = 0;
 
-	if (lua_isnumber(L, 6))
-		offset_x = lua_tonumber(L, 6);
-
-	if (lua_isnumber(L, 7))
-		offset_y = lua_tonumber(L, 7);
+//???	if (lua_isnumber(L, 6))
+//???		offset_x = lua_tonumber(L, 6);
+//???
+//???	if (lua_isnumber(L, 7))
+//???		offset_y = lua_tonumber(L, 7);
 
 	const image_c *img = R_ImageLookup(name, INS_Texture);
 
@@ -323,8 +316,6 @@ static void HD_tile_image(coal::vm_c *vm, int argc)
 	{
 		HUD_TileImage(x, y, w, h, img, offset_x, offset_y);
 	}
-
-	return 0;
 }
 
 
@@ -332,13 +323,12 @@ static void HD_tile_image(coal::vm_c *vm, int argc)
 //
 static void HD_draw_text(coal::vm_c *vm, int argc)
 {
-	float x = luaL_checknumber(L, 1);
-	float y = luaL_checknumber(L, 2);
+	float x = *vm->AccessParam(0);
+	float y = *vm->AccessParam(1);
 
-	const char *str = luaL_checkstring(L, 3);
+	const char *str = vm->AccessParamString(2);
 
 	HUD_DrawText(x, y, str);
-	return 0;
 }
 
 
@@ -346,11 +336,11 @@ static void HD_draw_text(coal::vm_c *vm, int argc)
 //
 static void HD_draw_num2(coal::vm_c *vm, int argc)
 {
-	float x = luaL_checknumber(L, 1);
-	float y = luaL_checknumber(L, 2);
+	float x = *vm->AccessParam(0);
+	float y = *vm->AccessParam(1);
 
-	int len = luaL_checkint(L, 3);
-	int num = luaL_checkint(L, 4);
+	int len = (int) *vm->AccessParam(2);
+	int num = (int) *vm->AccessParam(3);
 
 	if (len < 1 || len > 20)
 		I_Error("hud.draw_number: bad field length: %d\n", len);
@@ -385,8 +375,6 @@ static void HD_draw_num2(coal::vm_c *vm, int argc)
 	HUD_SetAlignment(+1, -1);
 	HUD_DrawText(x, y, pos);
 	HUD_SetAlignment();
-
-	return 0;
 }
 
 
@@ -394,16 +382,16 @@ static void HD_draw_num2(coal::vm_c *vm, int argc)
 //
 static void HD_render_world(coal::vm_c *vm, int argc)
 {
-	float x = luaL_checknumber(L, 1);
-	float y = luaL_checknumber(L, 2);
-	float w = luaL_checknumber(L, 3);
-	float h = luaL_checknumber(L, 4);
+	float x = *vm->AccessParam(0);
+	float y = *vm->AccessParam(1);
+	float w = *vm->AccessParam(2);
+	float h = *vm->AccessParam(3);
 
  	HUD_RenderWorld(x, y, x+w, y+h, ui_hud_who->mo);
-	return 0;
 }
 
 
+#if 0  // FIXME
 static void ParseAutomapOptions(coal::vm_c *vm, int argc, int IDX, int *state, float *zoom)
 {
 	lua_getfield(L, IDX, "zoom");
@@ -445,40 +433,40 @@ static void ParseAutomapOptions(coal::vm_c *vm, int argc, int IDX, int *state, f
 		lua_pop(L, 1);
 	}
 }
+#endif
 
 
 // hud.render_automap(x, y, w, h, [options])
 //
 static void HD_render_automap(coal::vm_c *vm, int argc)
 {
-	float x = luaL_checknumber(L, 1);
-	float y = luaL_checknumber(L, 2);
-	float w = luaL_checknumber(L, 3);
-	float h = luaL_checknumber(L, 4);
+	float x = *vm->AccessParam(0);
+	float y = *vm->AccessParam(1);
+	float w = *vm->AccessParam(2);
+	float h = *vm->AccessParam(3);
 
 	int   old_state;
 	float old_zoom;
 
 	AM_GetState(&old_state, &old_zoom);
 
-	if (lua_istable(L, 5))
-	{
-		int   new_state = old_state;
-		float new_zoom  = old_zoom;
-
-		ParseAutomapOptions(L, 5, &new_state, &new_zoom);
-
-		AM_SetState(new_state, new_zoom);
-	}
+//???	if (lua_istable(L, 5))
+//???	{
+//???		int   new_state = old_state;
+//???		float new_zoom  = old_zoom;
+//???
+//???		ParseAutomapOptions(L, 5, &new_state, &new_zoom);
+//???
+//???		AM_SetState(new_state, new_zoom);
+//???	}
 
  	AM_Drawer(x, y, w, h, ui_hud_who->mo);
 
 	AM_SetState(old_state, old_zoom);
-
-	return 0;
 }
 
 
+#if 0  // FIXME
 static const char * am_color_names[AM_NUM_COLORS] =
 {
     "grid",     // AMCOL_Grid
@@ -497,7 +485,6 @@ static const char * am_color_names[AM_NUM_COLORS] =
     "missile",  // AMCOL_Missile
     "scenery"   // AMCOL_Scenery
 };
-
 
 // hud.automap_colors(table)
 //
@@ -520,12 +507,14 @@ static void HD_automap_colors(coal::vm_c *vm, int argc)
 
 	return 0;
 }
+#endif
+
 
 // hud.set_render_who(index)
 //
 static void HD_set_render_who(coal::vm_c *vm, int argc)
 {
-	int index = luaL_checkint(L, 1);
+	int index = (int) *vm->AccessParam(0);
 
 	if (index < 0 || index >= numplayers)
 		I_Error("hud.set_render_who: bad index value: %d (numplayers=%d)\n", index, numplayers);
@@ -533,7 +522,7 @@ static void HD_set_render_who(coal::vm_c *vm, int argc)
 	if (index == 0)
 	{
 		ui_hud_who = players[consoleplayer];
-		return 0;
+		return;
 	}
 
 	int who = displayplayer;
@@ -548,15 +537,14 @@ static void HD_set_render_who(coal::vm_c *vm, int argc)
 	}
 
 	ui_hud_who = players[who];
-	return 0;
 }
 
 
-// hud.play_sound(name, [volume])
+// hud.play_sound(name)
 //
 static void HD_play_sound(coal::vm_c *vm, int argc)
 {
-	const char *name = luaL_checkstring(L, 1);
+	const char *name = vm->AccessParamString(0);
 
 	sfx_t *fx = sfxdefs.GetEffect(name);
 
@@ -566,15 +554,7 @@ static void HD_play_sound(coal::vm_c *vm, int argc)
 	// FIXME: support 'volume' parameter
 
 	S_StartFX(fx);
-	return 0;
 }
-
-
-const luaL_Reg hud_module[] =
-{
-
-	{ NULL, NULL } // the end
-};
 
 
 //------------------------------------------------------------------------
@@ -595,7 +575,7 @@ void VM_RegisterHUD()
     ui_vm->AddNativeFunction("hud.text_color",      HD_text_color);
     ui_vm->AddNativeFunction("hud.set_scale",       HD_set_scale);
     ui_vm->AddNativeFunction("hud.set_alpha",       HD_set_alpha);
-    ui_vm->AddNativeFunction("hud.automap_colors",  HD_automap_colors);
+/// ui_vm->AddNativeFunction("hud.automap_colors",  HD_automap_colors);
 
 	// drawing functions
     ui_vm->AddNativeFunction("hud.solid_box",       HD_solid_box);
