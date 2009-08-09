@@ -2,10 +2,6 @@
 COAL TODO
 =========
 
-DONE:  allow functions and constants to be redefined (but type must match)
-
-DONE:  modules with '.' notation: hud.foo(hud.bar)
-
 -  describe new language (notes.txt)
 
 +  InternaliseString: find an existing matching string 
