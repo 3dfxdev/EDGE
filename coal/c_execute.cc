@@ -162,6 +162,26 @@ const char * real_vm_c::AccessParamString(int p)
 }
 
 
+void real_vm_c::ReturnFloat(double f)
+{
+	G_FLOAT(OFS_RETURN*8) = f;
+}
+
+void real_vm_c::ReturnVector(double *v)
+{
+	double *c = G_VECTOR(OFS_RETURN*8);
+
+	c[0] = v[0];
+	c[1] = v[1];
+	c[2] = v[2];
+}
+
+void real_vm_c::ReturnString(const char *s)
+{
+	G_FLOAT(OFS_RETURN*8) = STR_Concat("", s);
+}
+
+
 //
 // Aborts the currently executing functions
 //

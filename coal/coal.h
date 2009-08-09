@@ -59,6 +59,10 @@ public:
 
 	virtual double     * AccessParam(int p) = 0;
 	virtual const char * AccessParamString(int p) = 0;
+
+	virtual void ReturnFloat(double f) = 0;
+	virtual void ReturnVector(double *v) = 0;
+	virtual void ReturnString(const char *s) = 0;
 };
 
 // create a new Coal virtual machine

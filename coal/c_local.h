@@ -247,6 +247,10 @@ public:
 	double     * AccessParam(int p);
 	const char * AccessParamString(int p);
 
+	void ReturnFloat(double f);
+	void ReturnVector(double *v);
+	void ReturnString(const char *s);
+
 private:
 	print_func_t printer;
 
