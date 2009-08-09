@@ -49,6 +49,7 @@ typedef enum
 	ev_entity,
 	ev_field,
 	ev_function,
+	ev_module,
 	ev_pointer
 }
 etype_t;
@@ -263,6 +264,7 @@ private:
 	// c_compile.cc
 private:
 	void GLOB_Globals();
+	void GLOB_Module();
 	void GLOB_Constant();
 	void GLOB_Variable();
 	void GLOB_Function();
