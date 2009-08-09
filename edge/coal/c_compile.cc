@@ -1087,7 +1087,7 @@ def_t * real_vm_c::EXP_FieldQuery(def_t *e, bool lvalue)
 	char *name = ParseName();
 
 	if (e->type->type == ev_vector)
-		CompileError("vector fields not yet implemented\n");
+		CompileError("vector x/y/z access not yet implemented\n");
 
 	if (e->type->type == ev_module)
 	{
