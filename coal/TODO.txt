@@ -2,18 +2,15 @@
 COAL TODO
 =========
 
--  allow functions and constants to be redefined (but type must match)
+DONE:  allow functions and constants to be redefined (but type must match)
 
-+  modules with '.' notation: hud.foo(hud.bar)
+DONE:  modules with '.' notation: hud.foo(hud.bar)
 
-DONE:  support 'var x = 123' and 'var y : string = "foo"'
+-  describe new language (notes.txt)
 
 +  InternaliseString: find an existing matching string 
 
-DONE:  implemented c_memory 'reset' function
-DONE:  check some previous blocks for free space
-
--  describe new language (notes.txt)
++  support vector access with .x .y .z
 
 +  WISH: interactive mode for the burner
 
