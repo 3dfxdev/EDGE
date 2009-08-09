@@ -57,8 +57,7 @@ player_t * ui_player_who = NULL;
 //
 static void PL_num_players(coal::vm_c *vm, int argc)
 {
-	lua_pushinteger(L, numplayers);
-	return 1;
+	vm->ReturnFloat(numplayers);
 }
 
 
@@ -66,15 +65,15 @@ static void PL_num_players(coal::vm_c *vm, int argc)
 //
 static void PL_set_who(coal::vm_c *vm, int argc)
 {
-	int index = luaL_checkint(L, 1);
+	int index = (int) *vm->AccessParam(0);
 
 	if (index < 0 || index >= numplayers)
 		I_Error("player.set_who: bad index value: %d (numplayers=%d)\n", index, numplayers);
 
 	if (index == 0)
 	{
-		cur_player = players[consoleplayer];
-		return 0;
+		ui_player_who = players[consoleplayer];
+		return;
 	}
 
 	int who = displayplayer;
@@ -88,9 +87,7 @@ static void PL_set_who(coal::vm_c *vm, int argc)
 		while (players[who] == NULL);
 	}
 
-	cur_player = players[who];
-
-	return 0;
+	ui_player_who = players[who];
 }
 
 
@@ -98,8 +95,7 @@ static void PL_set_who(coal::vm_c *vm, int argc)
 //
 static void PL_is_bot(coal::vm_c *vm, int argc)
 {
-	lua_pushboolean(L, (cur_player->playerflags & PFL_Bot) ? 1 : 0);
-	return 1;
+	vm->ReturnFloat((ui_player_who->playerflags & PFL_Bot) ? 1 : 0);
 }
 
 
@@ -107,8 +103,7 @@ static void PL_is_bot(coal::vm_c *vm, int argc)
 //
 static void PL_get_name(coal::vm_c *vm, int argc)
 {
-	lua_pushstring(L, cur_player->playername);
-	return 1;
+	vm->ReturnString(ui_player_who->playername);
 }
 
 
@@ -116,10 +111,9 @@ static void PL_get_name(coal::vm_c *vm, int argc)
 //
 static void PL_health(coal::vm_c *vm, int argc)
 {
-	float h = cur_player->health * 100 / cur_player->mo->info->spawnhealth;
+	float h = ui_player_who->health * 100 / ui_player_who->mo->info->spawnhealth;
 
-	lua_pushinteger(L, (int)floor(h + 0.99));
-	return 1;
+	vm->ReturnFloat(floor(h + 0.99));
 }
 
 
@@ -127,15 +121,14 @@ static void PL_health(coal::vm_c *vm, int argc)
 //
 static void PL_armor(coal::vm_c *vm, int argc)
 {
-	int kind = luaL_checkint(L, 1);
+	int kind = (int) *vm->AccessParam(0);
 
 	if (kind < 1 || kind > NUMARMOUR)
 		I_Error("player.armor: bad armor index: %d\n", kind);
 	
 	kind--;
 
-	lua_pushinteger(L, (int)floor(cur_player->armours[kind] + 0.99));
-	return 1;
+	vm->ReturnFloat(floor(ui_player_who->armours[kind] + 0.99));
 }
 
 
@@ -143,8 +136,7 @@ static void PL_armor(coal::vm_c *vm, int argc)
 //
 static void PL_total_armor(coal::vm_c *vm, int argc)
 {
-	lua_pushinteger(L, (int)floor(cur_player->totalarmour + 0.99));
-	return 1;
+	vm->ReturnFloat(floor(ui_player_who->totalarmour + 0.99));
 }
 
 
@@ -152,8 +144,7 @@ static void PL_total_armor(coal::vm_c *vm, int argc)
 //
 static void PL_frags(coal::vm_c *vm, int argc)
 {
-	lua_pushinteger(L, cur_player->frags);
-	return 1;
+	vm->ReturnFloat(ui_player_who->frags);
 }
 
 
@@ -161,8 +152,7 @@ static void PL_frags(coal::vm_c *vm, int argc)
 //
 static void PL_under_water(coal::vm_c *vm, int argc)
 {
-	lua_pushboolean(L, cur_player->underwater ? 1 : 0);
-	return 1;
+	vm->ReturnFloat(ui_player_who->underwater ? 1 : 0);
 }
 
 
@@ -170,8 +160,7 @@ static void PL_under_water(coal::vm_c *vm, int argc)
 //
 static void PL_on_ground(coal::vm_c *vm, int argc)
 {
-	lua_pushboolean(L, (cur_player->mo->z <= cur_player->mo->floorz) ? 1 : 0);
-	return 1;
+	vm->ReturnFloat((ui_player_who->mo->z <= ui_player_who->mo->floorz) ? 1 : 0);
 }
 
 
@@ -179,8 +168,7 @@ static void PL_on_ground(coal::vm_c *vm, int argc)
 //
 static void PL_is_swimming(coal::vm_c *vm, int argc)
 {
-	lua_pushboolean(L, cur_player->swimming ? 1 : 0);
-	return 1;
+	vm->ReturnFloat(ui_player_who->swimming ? 1 : 0);
 }
 
 
@@ -188,8 +176,7 @@ static void PL_is_swimming(coal::vm_c *vm, int argc)
 //
 static void PL_is_jumping(coal::vm_c *vm, int argc)
 {
-	lua_pushboolean(L, (cur_player->jumpwait > 0) ? 1 : 0);
-	return 1;
+	vm->ReturnFloat((ui_player_who->jumpwait > 0) ? 1 : 0);
 }
 
 
@@ -197,8 +184,7 @@ static void PL_is_jumping(coal::vm_c *vm, int argc)
 //
 static void PL_is_crouching(coal::vm_c *vm, int argc)
 {
-	lua_pushboolean(L, (cur_player->mo->extendedflags & EF_CROUCHING) ? 1 : 0);
-	return 1;
+	vm->ReturnFloat((ui_player_who->mo->extendedflags & EF_CROUCHING) ? 1 : 0);
 }
 
 
@@ -206,9 +192,8 @@ static void PL_is_crouching(coal::vm_c *vm, int argc)
 //
 static void PL_is_attacking(coal::vm_c *vm, int argc)
 {
-	lua_pushboolean(L, (cur_player->attackdown[0] ||
-	                    cur_player->attackdown[1]) ? 1 : 0);
-	return 1;
+	vm->ReturnFloat((ui_player_who->attackdown[0] ||
+	                 ui_player_who->attackdown[1]) ? 1 : 0);
 }
 
 
@@ -216,8 +201,7 @@ static void PL_is_attacking(coal::vm_c *vm, int argc)
 //
 static void PL_is_rampaging(coal::vm_c *vm, int argc)
 {
-	lua_pushboolean(L, (cur_player->attackdown_count >= 70) ? 1 : 0);
-	return 1;
+	vm->ReturnFloat((ui_player_who->attackdown_count >= 70) ? 1 : 0);
 }
 
 
@@ -225,8 +209,7 @@ static void PL_is_rampaging(coal::vm_c *vm, int argc)
 //
 static void PL_is_grinning(coal::vm_c *vm, int argc)
 {
-	lua_pushboolean(L, (cur_player->grin_count > 0) ? 1 : 0);
-	return 1;
+	vm->ReturnFloat((ui_player_who->grin_count > 0) ? 1 : 0);
 }
 
 
@@ -234,8 +217,7 @@ static void PL_is_grinning(coal::vm_c *vm, int argc)
 //
 static void PL_is_using(coal::vm_c *vm, int argc)
 {
-	lua_pushboolean(L, cur_player->usedown ? 1 : 0);
-	return 1;
+	vm->ReturnFloat(ui_player_who->usedown ? 1 : 0);
 }
 
 
@@ -243,8 +225,7 @@ static void PL_is_using(coal::vm_c *vm, int argc)
 //
 static void PL_move_speed(coal::vm_c *vm, int argc)
 {
-	lua_pushnumber(L, cur_player->actual_speed);
-	return 1;
+	vm->ReturnFloat(ui_player_who->actual_speed);
 }
 
 
@@ -252,19 +233,18 @@ static void PL_move_speed(coal::vm_c *vm, int argc)
 //
 static void PL_air_in_lungs(coal::vm_c *vm, int argc)
 {
-	if (cur_player->air_in_lungs <= 0)
+	if (ui_player_who->air_in_lungs <= 0)
 	{
-		lua_pushnumber(L, 0.0f);
-		return 1;
+		vm->ReturnFloat(0);
+		return;
 	}
 
-	float value = cur_player->air_in_lungs * 100.0f /
-	              cur_player->mo->info->lung_capacity;
+	float value = ui_player_who->air_in_lungs * 100.0f /
+	              ui_player_who->mo->info->lung_capacity;
 
 	value = CLAMP(0.0f, value, 100.0f);
 
-	lua_pushnumber(L, value);
-	return 1;
+	vm->ReturnFloat(value);
 }
 
 
@@ -272,17 +252,16 @@ static void PL_air_in_lungs(coal::vm_c *vm, int argc)
 //
 static void PL_has_key(coal::vm_c *vm, int argc)
 {
-	int key = luaL_checkint(L, 1);
+	int key = (int) *vm->AccessParam(0);
 
 	if (key < 1 || key > 16)
 		I_Error("player.has_key: bad key number: %d\n", key);
 
 	key--;
 
-	int value = (cur_player->cards & (1 << key)) ? 1 : 0;
+	int value = (ui_player_who->cards & (1 << key)) ? 1 : 0;
 
-	lua_pushboolean(L, value);
-	return 1;
+	vm->ReturnFloat(value);
 }
 
 
@@ -290,21 +269,20 @@ static void PL_has_key(coal::vm_c *vm, int argc)
 //
 static void PL_has_power(coal::vm_c *vm, int argc)
 {
-	int power = luaL_checkint(L, 1);
+	int power = (int) *vm->AccessParam(0);
 
 	if (power < 1 || power > NUMPOWERS)
 		I_Error("player.has_power: bad powerup number: %d\n", power);
 
 	power--;
 
-	int value = (cur_player->powers[power] > 0) ? 1 : 0;
+	int value = (ui_player_who->powers[power] > 0) ? 1 : 0;
 
 	// special check for GOD mode
-	if (power == PW_Invulnerable && (cur_player->cheats & CF_GODMODE))
+	if (power == PW_Invulnerable && (ui_player_who->cheats & CF_GODMODE))
 		value = 1;
 
-	lua_pushboolean(L, value);
-	return 1;
+	vm->ReturnFloat(value);
 }
 
 
@@ -312,20 +290,19 @@ static void PL_has_power(coal::vm_c *vm, int argc)
 //
 static void PL_power_left(coal::vm_c *vm, int argc)
 {
-	int power = luaL_checkint(L, 1);
+	int power = (int) *vm->AccessParam(0);
 
 	if (power < 1 || power > NUMPOWERS)
 		I_Error("player.power_left: bad powerup number: %d\n", power);
 
 	power--;
 
-	float value = cur_player->powers[power];
+	float value = ui_player_who->powers[power];
 
 	if (value > 0)
 		value /= TICRATE;
 
-	lua_pushnumber(L, value);
-	return 1;
+	vm->ReturnFloat(value);
 }
 
 
@@ -333,29 +310,29 @@ static void PL_power_left(coal::vm_c *vm, int argc)
 //
 static void PL_has_weapon_slot(coal::vm_c *vm, int argc)
 {
-	int slot = luaL_checkint(L, 1);
+	int slot = (int) *vm->AccessParam(0);
 
 	if (slot < 0 || slot > 9)
 		I_Error("player.has_weapon_slot: bad slot number: %d\n", slot);
 
-	int value = cur_player->avail_weapons[slot] ? 1 : 0;
+	int value = ui_player_who->avail_weapons[slot] ? 1 : 0;
 
-	lua_pushboolean(L, value);
-	return 1;
+	vm->ReturnFloat(value);
 }
 
 
+// player.cur_weapon_slot()
+// 
 static void PL_cur_weapon_slot(coal::vm_c *vm, int argc)
 {
 	int slot;
 
-	if (cur_player->ready_wp < 0)
+	if (ui_player_who->ready_wp < 0)
 		slot = -1;
 	else
-		slot = cur_player->weapons[cur_player->ready_wp].info->bind_key;
+		slot = ui_player_who->weapons[ui_player_who->ready_wp].info->bind_key;
 
-	lua_pushinteger(L, slot);
-	return 1;
+	vm->ReturnFloat(slot);
 }
 
 
@@ -363,46 +340,42 @@ static void PL_cur_weapon_slot(coal::vm_c *vm, int argc)
 //
 static void PL_has_weapon(coal::vm_c *vm, int argc)
 {
-	const char * name = luaL_checkstring(L, 1);
-	SYS_ASSERT(name);
+	const char * name = vm->AccessParamString(0);
 
 	for (int j = 0; j < MAXWEAPONS; j++)
 	{
-		playerweapon_t *pw = &cur_player->weapons[j];
+		playerweapon_t *pw = &ui_player_who->weapons[j];
 
-		if (pw->owned && ! (pw->flags & PLWEP_Removing))
+		if (pw->owned && ! (pw->flags & PLWEP_Removing) &&
+			DDF_CompareName(name, pw->info->name.c_str()) == 0)
 		{
-			if (DDF_CompareName(name, pw->info->name.c_str()) == 0)
-			{
-				lua_pushboolean(L, 1);
-				return 1;
-			}
+			vm->ReturnFloat(1);
+			return;
 		}
 	}
 
-	lua_pushboolean(L, 0);
-	return 1;
+	vm->ReturnFloat(0);
 }
 
-
+// player.cur_weapon()
+// 
 static void PL_cur_weapon(coal::vm_c *vm, int argc)
 {
-	if (cur_player->pending_wp >= 0)
+	if (ui_player_who->pending_wp >= 0)
 	{
-		lua_pushstring(L, "change");
-		return 1;
+		vm->ReturnString("change");
+		return;
 	}
 
-	if (cur_player->ready_wp < 0)
+	if (ui_player_who->ready_wp < 0)
 	{
-		lua_pushstring(L, "none");
-		return 1;
+		vm->ReturnString("none");
+		return;
 	}
 
-	weapondef_c *info = cur_player->weapons[cur_player->ready_wp].info;
+	weapondef_c *info = ui_player_who->weapons[ui_player_who->ready_wp].info;
 
-	lua_pushstring(L, info->name.c_str());
-	return 1;
+	vm->ReturnString(info->name.c_str());
 }
 
 
@@ -410,15 +383,14 @@ static void PL_cur_weapon(coal::vm_c *vm, int argc)
 //
 static void PL_ammo(coal::vm_c *vm, int argc)
 {
-	int ammo = luaL_checkint(L, 1);
+	int ammo = (int) *vm->AccessParam(0);
 
 	if (ammo < 1 || ammo > NUMAMMO)
 		I_Error("player.ammo: bad ammo number: %d\n", ammo);
 
 	ammo--;
 
-	lua_pushinteger(L, cur_player->ammo[ammo].num);
-	return 1;
+	vm->ReturnFloat(ui_player_who->ammo[ammo].num);
 }
 
 
@@ -426,15 +398,14 @@ static void PL_ammo(coal::vm_c *vm, int argc)
 //
 static void PL_ammomax(coal::vm_c *vm, int argc)
 {
-	int ammo = luaL_checkint(L, 1);
+	int ammo = (int) *vm->AccessParam(0);
 
 	if (ammo < 1 || ammo > NUMAMMO)
 		I_Error("player.ammomax: bad ammo number: %d\n", ammo);
 
 	ammo--;
 
-	lua_pushinteger(L, cur_player->ammo[ammo].max);
-	return 1;
+	vm->ReturnFloat(ui_player_who->ammo[ammo].max);
 }
 
 
@@ -444,9 +415,9 @@ static void PL_main_ammo(coal::vm_c *vm, int argc)
 {
 	int value = 0;
 
-	if (cur_player->ready_wp >= 0)
+	if (ui_player_who->ready_wp >= 0)
 	{
-		playerweapon_t *pw = &cur_player->weapons[cur_player->ready_wp];
+		playerweapon_t *pw = &ui_player_who->weapons[ui_player_who->ready_wp];
 
 		if (pw->info->ammo[0] != AM_NoAmmo)
 		{
@@ -458,7 +429,7 @@ static void PL_main_ammo(coal::vm_c *vm, int argc)
 			}
 			else
 			{
-				value = cur_player->ammo[pw->info->ammo[0]].num;
+				value = ui_player_who->ammo[pw->info->ammo[0]].num;
 
 				if (pw->info->clip_size[0] > 0)
 					value += pw->clip_size[0];
@@ -466,8 +437,7 @@ static void PL_main_ammo(coal::vm_c *vm, int argc)
 		}
 	}
 
-	lua_pushinteger(L, value);
-	return 1;
+	vm->ReturnFloat(value);
 }
 
 
@@ -475,7 +445,7 @@ static void PL_main_ammo(coal::vm_c *vm, int argc)
 //
 static void PL_ammo_type(coal::vm_c *vm, int argc)
 {
-	int ATK = luaL_checkint(L, 1);
+	int ATK = (int) *vm->AccessParam(0);
 
 	if (ATK < 1 || ATK > 2)
 		I_Error("player.ammo_type: bad attack number: %d\n", ATK);
@@ -484,15 +454,14 @@ static void PL_ammo_type(coal::vm_c *vm, int argc)
 
 	int value = 0;
 
-	if (cur_player->ready_wp >= 0)
+	if (ui_player_who->ready_wp >= 0)
 	{
-		playerweapon_t *pw = &cur_player->weapons[cur_player->ready_wp];
+		playerweapon_t *pw = &ui_player_who->weapons[ui_player_who->ready_wp];
 		
 		value = 1 + (int) pw->info->ammo[ATK];
 	}
 
-	lua_pushinteger(L, value);
-	return 1;
+	vm->ReturnFloat(value);
 }
 
 
@@ -500,7 +469,7 @@ static void PL_ammo_type(coal::vm_c *vm, int argc)
 //
 static void PL_ammo_pershot(coal::vm_c *vm, int argc)
 {
-	int ATK = luaL_checkint(L, 1);
+	int ATK = (int) *vm->AccessParam(0);
 
 	if (ATK < 1 || ATK > 2)
 		I_Error("player.ammo_pershot: bad attack number: %d\n", ATK);
@@ -509,15 +478,14 @@ static void PL_ammo_pershot(coal::vm_c *vm, int argc)
 
 	int value = 0;
 
-	if (cur_player->ready_wp >= 0)
+	if (ui_player_who->ready_wp >= 0)
 	{
-		playerweapon_t *pw = &cur_player->weapons[cur_player->ready_wp];
+		playerweapon_t *pw = &ui_player_who->weapons[ui_player_who->ready_wp];
 		
 		value = pw->info->ammopershot[ATK];
 	}
 
-	lua_pushinteger(L, value);
-	return 1;
+	vm->ReturnFloat(value);
 }
 
 
@@ -525,7 +493,7 @@ static void PL_ammo_pershot(coal::vm_c *vm, int argc)
 //
 static void PL_clip_ammo(coal::vm_c *vm, int argc)
 {
-	int ATK = luaL_checkint(L, 1);
+	int ATK = (int) *vm->AccessParam(0);
 
 	if (ATK < 1 || ATK > 2)
 		I_Error("player.clip_ammo: bad attack number: %d\n", ATK);
@@ -534,15 +502,14 @@ static void PL_clip_ammo(coal::vm_c *vm, int argc)
 
 	int value = 0;
 
-	if (cur_player->ready_wp >= 0)
+	if (ui_player_who->ready_wp >= 0)
 	{
-		playerweapon_t *pw = &cur_player->weapons[cur_player->ready_wp];
+		playerweapon_t *pw = &ui_player_who->weapons[ui_player_who->ready_wp];
 
 		value = pw->clip_size[ATK];
 	}
 
-	lua_pushinteger(L, value);
-	return 1;
+	vm->ReturnFloat(value);
 }
 
 
@@ -550,7 +517,7 @@ static void PL_clip_ammo(coal::vm_c *vm, int argc)
 //
 static void PL_clip_size(coal::vm_c *vm, int argc)
 {
-	int ATK = luaL_checkint(L, 1);
+	int ATK = (int) *vm->AccessParam(0);
 
 	if (ATK < 1 || ATK > 2)
 		I_Error("player.clip_size: bad attack number: %d\n", ATK);
@@ -559,15 +526,14 @@ static void PL_clip_size(coal::vm_c *vm, int argc)
 
 	int value = 0;
 
-	if (cur_player->ready_wp >= 0)
+	if (ui_player_who->ready_wp >= 0)
 	{
-		playerweapon_t *pw = &cur_player->weapons[cur_player->ready_wp];
+		playerweapon_t *pw = &ui_player_who->weapons[ui_player_who->ready_wp];
 
 		value = pw->info->clip_size[ATK];
 	}
 
-	lua_pushinteger(L, value);
-	return 1;
+	vm->ReturnFloat(value);
 }
 
 
@@ -577,16 +543,15 @@ static void PL_clip_is_shared(coal::vm_c *vm, int argc)
 {
 	int value = 0;
 
-	if (cur_player->ready_wp >= 0)
+	if (ui_player_who->ready_wp >= 0)
 	{
-		playerweapon_t *pw = &cur_player->weapons[cur_player->ready_wp];
+		playerweapon_t *pw = &ui_player_who->weapons[ui_player_who->ready_wp];
 
 		if (pw->info->shared_clip)
 			value = 1;
 	}
 
-	lua_pushboolean(L, value);
-	return 1;
+	vm->ReturnFloat(value);
 }
 
 
@@ -594,20 +559,21 @@ static void PL_clip_is_shared(coal::vm_c *vm, int argc)
 //
 static void PL_hurt_by(coal::vm_c *vm, int argc)
 {
-	if (cur_player->damagecount <= 0)
-		return 0;  // return NIL
+	if (ui_player_who->damagecount <= 0)
+	{
+		vm->ReturnString("");
+		return;
+	}
 
 	// getting hurt because of your own damn stupidity
-	if (cur_player->attacker == cur_player->mo)
-		lua_pushstring(L, "self");
-	else if (cur_player->attacker && (cur_player->attacker->side & cur_player->mo->side))
-		lua_pushstring(L, "friend");
-	else if (cur_player->attacker)
-		lua_pushstring(L, "enemy");
+	if (ui_player_who->attacker == ui_player_who->mo)
+		vm->ReturnString("self");
+	else if (ui_player_who->attacker && (ui_player_who->attacker->side & ui_player_who->mo->side))
+		vm->ReturnString("friend");
+	else if (ui_player_who->attacker)
+		vm->ReturnString("enemy");
 	else
-		lua_pushstring(L, "other");
-
-	return 1;
+		vm->ReturnString("other");
 }
 
 
@@ -615,15 +581,15 @@ static void PL_hurt_by(coal::vm_c *vm, int argc)
 //
 static void PL_hurt_mon(coal::vm_c *vm, int argc)
 {
-	if (cur_player->damagecount > 0 &&
-		cur_player->attacker &&
-		cur_player->attacker != cur_player->mo)
+	if (ui_player_who->damagecount > 0 &&
+		ui_player_who->attacker &&
+		ui_player_who->attacker != ui_player_who->mo)
 	{
-		lua_pushstring(L, cur_player->attacker->info->name.c_str());
-		return 1;
+		vm->ReturnString(ui_player_who->attacker->info->name.c_str());
+		return;
 	}
 
-	return 0;  // return NIL
+	vm->ReturnString("");
 }
 
 
@@ -631,8 +597,7 @@ static void PL_hurt_mon(coal::vm_c *vm, int argc)
 //
 static void PL_hurt_pain(coal::vm_c *vm, int argc)
 {
-	lua_pushnumber(L, cur_player->damage_pain);
-	return 1;
+	vm->ReturnFloat(ui_player_who->damage_pain);
 }
 
 
@@ -642,10 +607,10 @@ static void PL_hurt_dir(coal::vm_c *vm, int argc)
 {
 	int dir = 0;
 
-	if (cur_player->attacker && cur_player->attacker != cur_player->mo)
+	if (ui_player_who->attacker && ui_player_who->attacker != ui_player_who->mo)
 	{
-		mobj_t *badguy = cur_player->attacker;
-		mobj_t *pmo    = cur_player->mo;
+		mobj_t *badguy = ui_player_who->attacker;
+		mobj_t *pmo    = ui_player_who->mo;
 
 		angle_t diff = R_PointToAngle(pmo->x, pmo->y, badguy->x, badguy->y) - pmo->angle;
 
@@ -659,8 +624,7 @@ static void PL_hurt_dir(coal::vm_c *vm, int argc)
 		}
 	}
 
-	lua_pushinteger(L, dir);
-	return 1;
+	vm->ReturnFloat(dir);
 }
 
 
@@ -670,10 +634,10 @@ static void PL_hurt_angle(coal::vm_c *vm, int argc)
 {
 	float value = 0;
 
-	if (cur_player->attacker && cur_player->attacker != cur_player->mo)
+	if (ui_player_who->attacker && ui_player_who->attacker != ui_player_who->mo)
 	{
-		mobj_t *badguy = cur_player->attacker;
-		mobj_t *pmo    = cur_player->mo;
+		mobj_t *badguy = ui_player_who->attacker;
+		mobj_t *pmo    = ui_player_who->mo;
 
 		angle_t real_a = R_PointToAngle(pmo->x, pmo->y, badguy->x, badguy->y);
 
@@ -686,8 +650,7 @@ static void PL_hurt_angle(coal::vm_c *vm, int argc)
 			value += 360.0f;
 	}
 
-	lua_pushnumber(L, value);
-	return 1;
+	vm->ReturnFloat(value);
 }
 
 
