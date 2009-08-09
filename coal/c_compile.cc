@@ -1256,6 +1256,54 @@ void real_vm_c::STAT_RepeatLoop()
 }
 
 
+void real_vm_c::STAT_ForLoop()
+{
+	LEX_Expect("(");
+
+	char * var_name = strdup(ParseName());
+
+	def_t * var = FindDef(&type_float, var_name, comp.scope);
+
+	if (! var || (var->flags & DF_Constant))
+		CompileError("unknown variable in for loop: %s\n", var_name);
+
+	LEX_Expect("=");
+
+	def_t * e1 = EXP_Expression(TOP_PRIORITY);
+	if (e1->type != var->type)
+		CompileError("type mismatch in for loop\n");
+
+	// assign first value to the variable
+	EmitCode(OP_MOVE_F, e1->ofs, var->ofs);
+
+	LEX_Expect(",");
+
+	def_t * e2 = EXP_Expression(TOP_PRIORITY);
+	if (e2->type != var->type)
+		CompileError("type mismatch in for loop\n");
+
+	// create local to contain second value
+	def_t * target = NewLocal(&type_float);
+	EmitCode(OP_MOVE_F, e2->ofs, target->ofs);
+
+	LEX_Expect(")");
+
+	def_t * cond_temp = NewTemporary(&type_float);
+
+	int begin = EmitCode(OP_LE, var->ofs, target->ofs, cond_temp->ofs);
+	int patch = EmitCode(OP_IFNOT, cond_temp->ofs);
+
+	STAT_Statement(false);
+	FreeTemporaries();
+
+	// increment the variable
+	EmitCode(OP_INC, var->ofs, 0, var->ofs);
+	EmitCode(OP_GOTO, 0, begin);
+
+	REF_OP(patch)->b = EmitCode(OP_NULL);
+}
+
+
 void real_vm_c::STAT_Assignment(def_t *e)
 {
 	if (e->flags & DF_Constant)
@@ -1340,6 +1388,12 @@ void real_vm_c::STAT_Statement(bool allow_def)
 	if (LEX_Check("repeat"))
 	{
 		STAT_RepeatLoop();
+		return;
+	}
+
+	if (LEX_Check("for"))
+	{
+		STAT_ForLoop();
 		return;
 	}
 

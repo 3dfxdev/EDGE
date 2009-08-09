@@ -461,6 +461,24 @@ void real_vm_c::DoExecute(int fnum)
 				b[2] = a[2];
 				break;
 
+			case OP_NOT_F:
+			case OP_NOT_FNC:
+				*c = !*a;
+				break;
+			case OP_NOT_V:
+				*c = !a[0] && !a[1] && !a[2];
+				break;
+			case OP_NOT_S:
+				*c = !*a;
+				break;
+
+			case OP_INC:
+				*c = *a + 1;
+				break;
+			case OP_DEC:
+				*c = *a - 1;
+				break;
+
 			case OP_ADD_F:
 				*c = *a + *b;
 				break;
@@ -545,15 +563,6 @@ void real_vm_c::DoExecute(int fnum)
 				*c = powf(*a, *b);
 				break;
 
-			case OP_BITAND:
-				*c = (int)*a & (int)*b;
-				break;
-
-			case OP_BITOR:
-				*c = (int)*a | (int)*b;
-				break;
-
-
 			case OP_GE:
 				*c = *a >= *b;
 				break;
@@ -565,23 +574,6 @@ void real_vm_c::DoExecute(int fnum)
 				break;
 			case OP_LT:
 				*c = *a < *b;
-				break;
-			case OP_AND:
-				*c = *a && *b;
-				break;
-			case OP_OR:
-				*c = *a || *b;
-				break;
-
-			case OP_NOT_F:
-			case OP_NOT_FNC:
-				*c = !*a;
-				break;
-			case OP_NOT_V:
-				*c = !a[0] && !a[1] && !a[2];
-				break;
-			case OP_NOT_S:
-				*c = !*a;
 				break;
 
 			case OP_EQ_F:
@@ -606,6 +598,20 @@ void real_vm_c::DoExecute(int fnum)
 			case OP_NE_S:
 				*c = (*a == *b) ? 0 :
 					!! strcmp(REF_STRING((int)*a), REF_STRING((int)*b));
+				break;
+
+			case OP_AND:
+				*c = *a && *b;
+				break;
+			case OP_OR:
+				*c = *a || *b;
+				break;
+
+			case OP_BITAND:
+				*c = (int)*a & (int)*b;
+				break;
+			case OP_BITOR:
+				*c = (int)*a | (int)*b;
 				break;
 
 			default:
@@ -664,6 +670,10 @@ const char * opcode_names[] =
 	"NOT_V",
 	"NOT_S",
 	"NOT_FNC",
+
+	"INC",
+	"DEC",
+
 	"POWER", 
 
 	"MUL_F",
