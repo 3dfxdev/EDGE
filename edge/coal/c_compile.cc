@@ -52,8 +52,9 @@ compiling_c::compiling_c() :
 	asm_dump(false),
 	parse_p(NULL), line_start(NULL),
 	error_count(0),
-	global_scope(), all_types(NULL),
-	all_literals(), temporaries()
+	global_scope(), all_modules(),
+	all_types(), all_literals(),
+	temporaries()
 { }
 
 compiling_c::~compiling_c()
@@ -524,17 +525,16 @@ char * real_vm_c::ParseName()
 //
 type_t * real_vm_c::FindType(type_t *type)
 {
-	def_t	*def;
-	type_t	*check;
-	int		i;
-
-	for (check = comp.all_types ; check ; check = check->next)
+	for (int k = 0; k < (int)comp.all_types.size(); k++)
 	{
+		type_t *check = comp.all_types[k];
+
 		if (check->type != type->type
 			|| check->aux_type != type->aux_type
 			|| check->parm_num != type->parm_num)
 			continue;
 
+		int i;
 		for (i=0 ; i< type->parm_num ; i++)
 			if (check->parm_types[i] != type->parm_types[i])
 				break;
@@ -543,18 +543,12 @@ type_t * real_vm_c::FindType(type_t *type)
 			return check;
 	}
 
-// allocate a new one
+	// allocate a new one
 	type_t *t_new = new type_t;
 	*t_new = *type;
 
-	t_new->next = comp.all_types;
-	comp.all_types = t_new;
+	comp.all_types.push_back(t_new);
 
-// allocate a generic def for the type, so fields can reference it
-	def = new def_t;
-	def->name = "COMPLEX TYPE";
-	def->type = t_new;
-	
 	return t_new;
 }
 
@@ -1729,12 +1723,6 @@ real_vm_c::real_vm_c() :
 	ofs = global_mem.alloc(7 * sizeof(double));
 	assert(ofs == 0);
 	memset(global_mem.deref(0), 0, 7 * sizeof(double));
-
-
-// FIXME NEEDED ????
-// link the function type in so state forward declarations match proper type
-	comp.all_types = &type_function;
-	type_function.next = NULL;
 }
 
 real_vm_c::~real_vm_c()
