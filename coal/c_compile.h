@@ -124,9 +124,9 @@ public:
 
 	scope_c global_scope;
 
-	type_t * all_types;
-
-	std::vector<def_t *> all_literals;
+	std::vector<scope_c *> all_modules;
+	std::vector<type_t  *> all_types;
+	std::vector<def_t   *> all_literals;
 
 	// all temporaries for current function
 	std::vector<def_t *> temporaries;
