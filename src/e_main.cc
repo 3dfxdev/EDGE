@@ -61,7 +61,6 @@
 #include "hu_draw.h"
 #include "hu_stuff.h"
 #include "hu_vm.h"
-#include "l_lua.h"
 #include "m_argv.h"
 #include "m_bbox.h"
 #include "m_cheat.h"
@@ -82,6 +81,7 @@
 #include "hu_draw.h"
 #include "r_modes.h"
 #include "r_image.h"
+#include "vm_coal.h"
 #include "w_model.h"
 #include "w_sprite.h"
 #include "w_texture.h"
@@ -1047,8 +1047,8 @@ startuporder_t startcode[] =
 	{  1, S_Init               },
 	{  1, N_InitNetwork        },
 	{  1, M_CheatInit          },
-	{  1, LU_Init              },
-	{  4, LU_LoadScripts       },
+	{  1, VM_InitCoal          },
+	{  8, VM_LoadScripts       },
 	{  0, NULL                 }
 };
 
