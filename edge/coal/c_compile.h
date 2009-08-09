@@ -42,8 +42,6 @@ typedef struct type_s
 
 	int				parm_num;	// -1 = variable args
 	struct type_s	*parm_types[MAX_PARMS];	// only [parm_num] allocated
-
-	struct type_s	*next;
 }
 type_t;
 
