@@ -1,26 +1,29 @@
 
 // BASICS
 
-function sprint(s : string) = native
-function nprint(n : float)  = native
-function vprint(v : vector) = native
-
-module Sys
+module sys
 {
+    function print(s : string) = native
+
     function assert(n : float) = { }
 }
 
+// FIXME temp crud
+function nprint(n : float) = { sys.print("" + n) }
+
+
 // MATH
 
-module Math
+module math
 {
     function floor(n : float) : float = { return n - n % 1; }
     function random() : float = { return 1; }
 }
 
+
 // STRING
 
-module Strings
+module strings
 {
 }
 
@@ -38,47 +41,47 @@ module hud
 
     function text_color(color : string) =
     {
-      sprint("HUD_TEXT_COLOR");
-      sprint(color);
+      sys.print("HUD_TEXT_COLOR");
+      sys.print(color);
     }
 
     function text_font(font : string) =
     { 
-      sprint("HUD_TEXT_FONT");
-      sprint(font);
+      sys.print("HUD_TEXT_FONT");
+      sys.print(font);
     }
 
     function draw_num2(x, y, w, num) =
     {
-      sprint("HUD_DRAW_NUM2");
+      sys.print("HUD_DRAW_NUM2");
       nprint(num);
     }
 
     function draw_image(x, y, image : string) =
     {
-      sprint("HUD_DRAW_IMAGE");
-      sprint(image);
+      sys.print("HUD_DRAW_IMAGE");
+      sys.print(image);
     }
 
     function draw_text(x, y, text : string) =
     {
-      sprint("HUD_DRAW_TEXT");
-      sprint(text);
+      sys.print("HUD_DRAW_TEXT");
+      sys.print(text);
     }
 
     function render_world(x, y, w, h) =
     {
-      sprint("HUD_RENDER_WORLD");
+      sys.print("HUD_RENDER_WORLD");
     }
 
     function render_automap(x, y, w, h) =
     {
-      sprint("HUD_RENDER_AUTOMAP");
+      sys.print("HUD_RENDER_AUTOMAP");
     }
 
     function coord_sys(w, h) =
     {
-      sprint("HUD_COORD_SYS:");
+      sys.print("HUD_COORD_SYS:");
       nprint(w);
       nprint(h);
     }
