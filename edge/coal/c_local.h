@@ -93,6 +93,9 @@ enum
 	OP_NOT_S,
 	OP_NOT_FNC,
 
+	OP_INC,
+	OP_DEC,
+
 	OP_POWER_F,
 	OP_MUL_F,
 	OP_MUL_V,
@@ -129,7 +132,6 @@ enum
 
 	OP_AND,
 	OP_OR,
-
 	OP_BITAND,
 	OP_BITOR,
 
@@ -275,6 +277,7 @@ private:
 	void STAT_If_Else();
 	void STAT_WhileLoop();
 	void STAT_RepeatLoop();
+	void STAT_ForLoop();
 	void STAT_Return();
 
 	def_t * EXP_Expression(int priority, bool *lvalue = NULL);
