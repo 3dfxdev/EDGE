@@ -334,7 +334,7 @@ void real_vm_c::DoExecute(int fnum)
 		exec.s += sizeof(statement_t);
 
 		// handle exotic operations here (ones which store special
-		// values in the a / b / c values).
+		// values in the a / b / c fields of statement_t).
 
 		if (st->op < OP_MOVE_F) switch (st->op)
 		{

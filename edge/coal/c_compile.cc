@@ -617,7 +617,7 @@ type_t * real_vm_c::ParseType()
 //===========================================================================
 
 
-int real_vm_c::EmitCode(short op, short a, short b, short c)
+int real_vm_c::EmitCode(short op, int a, int b, int c)
 {
 	// IDEA: if last statement was OP_NULL, overwrite it instead of
 	//       creating a new one.
@@ -636,6 +636,22 @@ int real_vm_c::EmitCode(short op, short a, short b, short c)
 	comp.last_statement = ofs;
 
 	return ofs;
+}
+
+
+int real_vm_c::EmitMove(type_t *type, int a, int b)
+{
+	switch (type->type == ev_vector)
+	{
+		case ev_string:
+			return EmitCode(OP_MOVE_S, a, b);
+
+		case ev_vector:
+			return EmitCode(OP_MOVE_V, a, b);
+
+		default:
+			return EmitCode(OP_MOVE_F, a, b);
+	}
 }
 
 
@@ -903,23 +919,12 @@ void real_vm_c::STAT_Return(void)
 	if (func_def->type->aux_type != e->type)
 		CompileError("type mismatch for return\n");
 
-	switch (func_def->type->aux_type->type == ev_vector)
-	{
-		case ev_vector:
-			EmitCode(OP_MOVE_V, e->ofs, OFS_RETURN*8);
-			EmitCode(OP_RET_V);
-			break;
+	EmitMove(func_def->type->aux_type, e->ofs, OFS_RETURN*8);
 
-		case ev_string:
-			EmitCode(OP_MOVE_S, e->ofs, OFS_RETURN*8);
-			EmitCode(OP_RET);
-			break;
-
-		default:
-			EmitCode(OP_MOVE_F, e->ofs, OFS_RETURN*8);
-			EmitCode(OP_RET);
-			break;
-	}
+	if (func_def->type->aux_type->type == ev_vector)
+		EmitCode(OP_RET_V);
+	else
+		EmitCode(OP_RET);
 
 	// -AJA- optional semicolons
 	if (! (comp.token_is_first || comp.token_buf[0] == '}'))
@@ -1314,25 +1319,7 @@ void real_vm_c::STAT_Assignment(def_t *e)
 	if (e2->type != e->type)
 		CompileError("type mismatch in assignment\n");
 
-	switch (e->type->type)
-	{
-		case ev_string:
-			EmitCode(OP_MOVE_S, e2->ofs, e->ofs);
-			break;
-
-		case ev_function:
-		case ev_float:
-			EmitCode(OP_MOVE_F, e2->ofs, e->ofs);
-			break;
-
-		case ev_vector:
-			EmitCode(OP_MOVE_V, e2->ofs, e->ofs);
-			break;
-
-		default:
-			CompileError("weird type for assignment\n");
-			break;
-	}
+	EmitMove(e->type, e2->ofs, e->ofs);
 }
 
 
@@ -1650,22 +1637,14 @@ void real_vm_c::GLOB_Variable()
 			if (e2->type != def->type)
 				CompileError("type mismatch for %s\n", var_name);
 
-			if (type->type == ev_vector)
-				EmitCode(OP_MOVE_V, e2->ofs, def->ofs);
-			else
-				EmitCode(OP_MOVE_F, e2->ofs, def->ofs);
+			EmitMove(type, e2->ofs, def->ofs);
 		}
 	}
 	else  // set to default
 	{
 		// global vars are already zero (via NewGlobal)
 		if (def->ofs < 0)
-		{
-			if (type->type == ev_vector)
-				EmitCode(OP_MOVE_V, OFS_DEFAULT*8, def->ofs);
-			else
-				EmitCode(OP_MOVE_F, OFS_DEFAULT*8, def->ofs);
-		}
+			EmitMove(type, OFS_DEFAULT*8, def->ofs);
 	}
 
 	// -AJA- optional semicolons
