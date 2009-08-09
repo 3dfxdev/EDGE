@@ -306,12 +306,3 @@ function draw_all() =
     edge_air_bar()
 }
 
-
-function main() =
-{
-    hud.which = 0
-    hud.automap = 0
-
-    draw_all()
-}
-
