@@ -105,7 +105,7 @@ static void MATH_floor(coal::vm_c *vm, int argc)
 {
 	double * p = vm->AccessParam(0);
 
-//!!!!!!	vm->SetResult(floor(*p));
+	vm->ReturnFloat(floor(*p));
 }
 
 
@@ -115,7 +115,7 @@ static void MATH_ceil(coal::vm_c *vm, int argc)
 {
 	double * p = vm->AccessParam(0);
 
-//!!!!!!	vm->SetResult(ceil(*p));
+	vm->ReturnFloat(ceil(*p));
 }
 
 
@@ -127,7 +127,7 @@ static void MATH_random(coal::vm_c *vm, int argc)
 
 	r = (r ^ (r >> 18)) & 0xFFFF;
 
-	//!!!!!!	vm->SetResult(r / double(0x10000));
+	vm->ReturnFloat(r / double(0x10000));
 }
 
 
