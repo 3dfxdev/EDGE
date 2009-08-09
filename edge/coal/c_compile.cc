@@ -1381,8 +1381,13 @@ int real_vm_c::GLOB_FunctionBody(def_t *func_def, type_t *type, const char *func
 		int native = GetNativeFunc(func_name, module);
 
 		if (native < 0)
+		{
+			// fix scope (must not stay in function scope)
+			comp.scope = func_def->scope;
+
 			CompileError("no such native function: %s%s%s\n",
 				module ? module : "", module ? "." : "", func_name);
+		}
 
 		return -(native + 1);
 	}
@@ -1487,16 +1492,14 @@ void real_vm_c::GLOB_Function()
 
 	def_t *def = DeclareDef(func_type, func_name, comp.scope);
 
-
-	LEX_Expect("=");
-
 	assert(func_type->type == ev_function);
 
 
-	G_FLOAT(def->ofs) = (double)functions.size();
-
+	LEX_Expect("=");
 
 	// fill in the dfunction
+	G_FLOAT(def->ofs) = (double)functions.size();
+
 	function_t *df = new function_t;
 	memset(df, 0, sizeof(function_t));
 
