@@ -113,21 +113,21 @@ void FreeFile(char **bufptr)
 //==================================================================//
 
 
-static void PF_PrintStr(coal::vm_c * vm, int argc)
+void PF_PrintStr(coal::vm_c * vm, int argc)
 {
 	const char * p = vm->AccessParamString(0);
 
     printf("%s\n", p);
 }
 
-static void PF_PrintNum(coal::vm_c * vm, int argc)
+void PF_PrintNum(coal::vm_c * vm, int argc)
 {
 	double * p = vm->AccessParam(0);
 
     printf("%1.5f\n", *p);
 }
 
-static void PF_PrintVector(coal::vm_c * vm, int argc)
+void PF_PrintVector(coal::vm_c * vm, int argc)
 {
 	double * vec = vm->AccessParam(0);
 
@@ -159,9 +159,7 @@ int main(int argc, char **argv)
 
 	coalvm->SetPrinter(BurnPrint);
 
-	coalvm->AddNativeFunction("sprint", PF_PrintStr);
-	coalvm->AddNativeFunction("nprint", PF_PrintNum);
-	coalvm->AddNativeFunction("vprint", PF_PrintVector);
+	coalvm->AddNativeFunction("sys.print", PF_PrintStr);
 
 	if (strcmp(argv[1], "-a") == 0)
 	{

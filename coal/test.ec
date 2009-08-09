@@ -2,9 +2,15 @@
 // Test script for Coal
 //
 
-function nprint(n : float ) = native
-function sprint(s : string) = native
-function vprint(v : vector) = native
+module sys
+{
+    function print(s : string) = native
+}
+
+function nprint(n : float ) = { sys.print("" + n) }
+function vprint(v : vector) = { sys.print("" + v) }
+function sprint(s : string) = { sys.print(s) }
+
 
 var jackpot : string = "JACKPOT!"
 
