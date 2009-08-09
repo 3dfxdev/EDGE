@@ -10,55 +10,53 @@ var face_image : string
 
 function doom_weapon_icon (slot, x, y, off_pic : string, on_pic : string) =
 {
-    if (player_has_weapon_slot(slot))
-        hud_draw_image(x, y, on_pic)
+    if (player.has_weapon_slot(slot))
+        hud.draw_image(x, y, on_pic)
     else
-        hud_draw_image(x, y, off_pic)
+        hud.draw_image(x, y, off_pic)
 }
 
 
 function doom_key (x, y, card, skull,
     card_pic : string, skull_pic : string, both_pic : string) =
 {
-    var has_cd = player_has_key(card)
-    var has_sk = player_has_key(skull)
+    var has_cd = player.has_key(card)
+    var has_sk = player.has_key(skull)
 
     if (has_cd && has_sk)
     {
-        hud_draw_image(x, y, both_pic)
+        hud.draw_image(x, y, both_pic)
     }
     else if (has_cd)
     {
-        hud_draw_image(x, y, card_pic)
+        hud.draw_image(x, y, card_pic)
     }
     else if (has_sk)
     {
-        hud_draw_image(x, y, skull_pic)
+        hud.draw_image(x, y, skull_pic)
     }
 }
 
 
 function pain_digit() : string =
 {
-    var health = player_health()
+    var health = player.health()
     if (health > 100)
         health = 100
 
     var index = 4.99 * (100 - health) / 100
 
-    index = index - index % 1
+    index = math.floor(index)
 
-    sys_assert(index >= 0)
-    sys_assert(index <= 4)
+    sys.assert(index >= 0)
+    sys.assert(index <= 4)
 
     return "" + index
 }
 
 function turn_digit() : string =
 {
-    var r = math_random() * 2.99
-
-    r = r - (r % 1)
+    var r = math.floor(math.random() * 2.99)
 
     return "" + r
 }
@@ -71,7 +69,7 @@ function select_new_face() =
     //    dead > evil grin > turned head > straight ahead
 
     // dead ?
-    if (player_health() <= 0)
+    if (player.health() <= 0)
     {
         face_image = "STFDEAD0"
         face_time  = 10
@@ -79,7 +77,7 @@ function select_new_face() =
     }
 
     // evil grin when player just picked up a weapon
-    if (player_is_grinning())
+    if (player.is_grinning())
     {
         face_image = "STFEVL" + pain_digit()
         face_time  = 7
@@ -87,9 +85,9 @@ function select_new_face() =
     }
 
     // being attacked ?
-    if (player_hurt_by() != "none")
+    if (player.hurt_by() != "none")
     {
-        if (player_hurt_pain() > 50)
+        if (player.hurt_pain() > 50)
         {
             face_image = "STFOUCH" + pain_digit()
             face_time = 26
@@ -98,10 +96,10 @@ function select_new_face() =
 
         var dir = 0
 
-        if (player_hurt_by() == "enemy" ||
-            player_hurt_by() == "friend")
+        if (player.hurt_by() == "enemy" ||
+            player.hurt_by() == "friend")
         {
-            dir = player_hurt_dir()
+            dir = player.hurt_dir()
         }
 
         if (dir < 0)
@@ -116,7 +114,7 @@ function select_new_face() =
     }
 
     // rampaging?
-    if (player_is_rampaging())
+    if (player.is_rampaging())
     {
         face_image = "STFKILL" + pain_digit()
         face_time  = 7
@@ -124,7 +122,7 @@ function select_new_face() =
     }
 
     // god mode?
-    if (player_has_power("invuln"))
+    if (player.has_power("invuln"))
     {
         face_image = "STFGOD0"
         face_time  = 7
@@ -140,35 +138,35 @@ function doomguy_face (x, y) =
 {
     //---| doomguy_face |---
 
-    sprint("doomguy_face")
+    sys.print("doomguy_face")
 
-    face_time = face_time - hud_passed_time
+    face_time = face_time - hud.passed_time
 
     if (face_time <= 0)
         select_new_face()
 
     // FIXME faceback
 
-    hud_draw_image(x - 1, y - 1, face_image)
+    hud.draw_image(x - 1, y - 1, face_image)
 }
 
 
 function doom_little_ammo() =
 {
-    hud_text_font("YELLOW_DIGIT")
-    hud_text_color("")
+    hud.text_font("YELLOW_DIGIT")
+    hud.text_color("")
 
     var a
 
-    a = player_ammo(1); hud_draw_num2(288, 173, 3, a)
-    a = player_ammo(2); hud_draw_num2(288, 179, 3, a)
-    a = player_ammo(3); hud_draw_num2(288, 185, 3, a)
-    a = player_ammo(4); hud_draw_num2(288, 191, 3, a)
+    a = player.ammo(1); hud.draw_num2(288, 173, 3, a)
+    a = player.ammo(2); hud.draw_num2(288, 179, 3, a)
+    a = player.ammo(3); hud.draw_num2(288, 185, 3, a)
+    a = player.ammo(4); hud.draw_num2(288, 191, 3, a)
 
-    a = player_ammomax(1); hud_draw_num2(314, 173, 3, a)
-    a = player_ammomax(2); hud_draw_num2(314, 179, 3, a)
-    a = player_ammomax(3); hud_draw_num2(314, 185, 3, a)
-    a = player_ammomax(4); hud_draw_num2(314, 191, 3, a)
+    a = player.ammomax(1); hud.draw_num2(314, 173, 3, a)
+    a = player.ammomax(2); hud.draw_num2(314, 179, 3, a)
+    a = player.ammomax(3); hud.draw_num2(314, 185, 3, a)
+    a = player.ammomax(4); hud.draw_num2(314, 191, 3, a)
 }
 
 
@@ -176,24 +174,24 @@ function doom_status_bar() =
 {
     var a
 
-    hud_draw_image(  0, 168, "STBAR")
-    hud_draw_image( 90, 171, "STTPRCNT")
-    hud_draw_image(221, 171, "STTPRCNT")
+    hud.draw_image(  0, 168, "STBAR")
+    hud.draw_image( 90, 171, "STTPRCNT")
+    hud.draw_image(221, 171, "STTPRCNT")
 
-    hud_text_font("BIG_DIGIT")
+    hud.text_font("BIG_DIGIT")
 
-    a = player_main_ammo(1) ; hud_draw_num2( 44, 171, 3, a)
-    a = player_health()     ; hud_draw_num2( 90, 171, 3, a)
-    a = player_total_armor(); hud_draw_num2(221, 171, 3, a)
+    a = player.main_ammo(1) ; hud.draw_num2( 44, 171, 3, a)
+    a = player.health()     ; hud.draw_num2( 90, 171, 3, a)
+    a = player.total_armor(); hud.draw_num2(221, 171, 3, a)
 
-    if (hud_game_mode() == "dm")
+    if (hud.game_mode() == "dm")
     {
-        a = player_frags()
-        hud_draw_num2(138, 171, 2, a)
+        a = player.frags()
+        hud.draw_num2(138, 171, 2, a)
     }
     else
     {
-        hud_draw_image(104, 168, "STARMS")
+        hud.draw_image(104, 168, "STARMS")
 
         doom_weapon_icon(2, 111, 172, "STGNUM2", "STYSNUM2")
         doom_weapon_icon(3, 123, 172, "STGNUM3", "STYSNUM3")
@@ -218,22 +216,22 @@ function doom_overlay_status() =
 {
     var a
 
-    hud_text_font("BIG_DIGIT")
+    hud.text_font("BIG_DIGIT")
 
-    a = player_health()
-    hud_draw_num2(100, 171, 3, a)
+    a = player.health()
+    hud.draw_num2(100, 171, 3, a)
 
-    a = player_main_ammo(1)
-    hud_text_color("TEXT_YELLOW")
-    hud_draw_num2( 44, 171, 3, a)
+    a = player.main_ammo(1)
+    hud.text_color("TEXT_YELLOW")
+    hud.draw_num2( 44, 171, 3, a)
 
-    a = player_total_armor()
-    if (player_total_armor() > 100)
-        hud_text_color("TEXT_BLUE")
+    a = player.total_armor()
+    if (player.total_armor() > 100)
+        hud.text_color("TEXT_BLUE")
     else
-        hud_text_color("TEXT_GREEN")
+        hud.text_color("TEXT_GREEN")
 
-    hud_draw_num2(242, 171, 3, a)
+    hud.draw_num2(242, 171, 3, a)
 
     doom_key(256, 171, 1, 5, "STKEYS0", "STKEYS3", "STKEYS6")
     doom_key(256, 181, 2, 6, "STKEYS1", "STKEYS4", "STKEYS7")
@@ -248,31 +246,30 @@ function doom_automap() =
     // Background is already black, only need to use 'solid_box'
     // when we want a different color.
     //
-    // hud_solid_box(0, 0, 320, 200-32, "#505050")
+    // hud.solid_box(0, 0, 320, 200-32, "#505050")
 
-    hud_render_automap(0, 0, 320, 200 - 32)
+    hud.render_automap(0, 0, 320, 200 - 32)
 
     doom_status_bar()
 
-    var title : string = hud_map_title()
+    var title : string = hud.map_title()
 
-    hud_text_font("DOOM")
-    hud_draw_text(0, 200 - 32 - 10, title)
+    hud.text_font("DOOM")
+    hud.draw_text(0, 200 - 32 - 10, title)
 }
 
 
 function edge_air_bar() =
 {
-    if (player_health() <= 0)
+    if (player.health() <= 0)
         return
 
-    if (! player_under_water())
+    if (! player.under_water())
         return
 
-    var air = player_air_in_lungs()
+    var air = player.air_in_lungs()
 
-    air = 1 + 21 * ((100 - air) / 100.1)
-    air = air - air % 1
+    air = math.floor(1 + 21 * ((100 - air) / 100.1))
 
     var barname : string;
     
@@ -281,31 +278,31 @@ function edge_air_bar() =
     else
         barname = "AIRBAR" + air
 
-    hud_draw_image(0, 0, barname)
+    hud.draw_image(0, 0, barname)
 }
 
 
 function draw_all() =
 {
-    hud_coord_sys(320, 200)
+    hud.coord_sys(320, 200)
 
-    if (hud_automap)
+    if (hud.automap)
     {
         doom_automap()
             return
     }
 
     // there are three standard HUDs
-    hud_which = hud_which % 3
+    hud.which = hud.which % 3
 
-    if (hud_which == 0)
-        hud_render_world(0, 0, 320, 200 - 32)
+    if (hud.which == 0)
+        hud.render_world(0, 0, 320, 200 - 32)
     else
-        hud_render_world(0, 0, 320, 200)
+        hud.render_world(0, 0, 320, 200)
 
-    if (hud_which == 0)
+    if (hud.which == 0)
         doom_status_bar()
-    else if (hud_which == 2)
+    else if (hud.which == 2)
         doom_overlay_status()
 
     edge_air_bar()
@@ -314,8 +311,8 @@ function draw_all() =
 
 function main() =
 {
-    hud_which = 0
-    hud_automap = 0
+    hud.which = 0
+    hud.automap = 0
 
     draw_all()
 }
