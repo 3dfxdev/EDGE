@@ -1084,9 +1084,24 @@ def_t * real_vm_c::EXP_ShortCircuit(def_t *e, int n)
 
 def_t * real_vm_c::EXP_FieldQuery(def_t *e, bool lvalue)
 {
-	// TODO
-	CompileError("operator . not yet implemented\n");
-	return NULL;
+	char *name = ParseName();
+
+	if (e->type->type == ev_vector)
+		CompileError("vector fields not yet implemented\n");
+
+	if (e->type->type == ev_module)
+	{
+		scope_c * mod = comp.all_modules[e->ofs];
+
+		def_t *d = FindDef(NULL, name, mod);
+		if (! d)
+			CompileError("unknown identifier: %s.%s\n", e->name, name);
+
+		return d;
+	}
+
+	CompileError("type mismatch with . operator\n");
+	return NULL; // NOT REACHED
 }
 
 
@@ -1104,15 +1119,15 @@ def_t * real_vm_c::EXP_Expression(int priority, bool *lvalue)
 	{
 		found = false;
 
+		while (priority == 1 && LEX_Check("."))
+			e = EXP_FieldQuery(e, lvalue);
+
 		if (priority == 1 && LEX_Check("("))
 		{
 			if (lvalue)
 				*lvalue = false;
 			return EXP_FunctionCall(e);
 		}
-
-		if (priority == 1 && LEX_Check("."))
-			return EXP_FieldQuery(e, lvalue);
 
 		if (lvalue)
 			return e;
