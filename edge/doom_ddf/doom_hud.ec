@@ -65,6 +65,7 @@ function select_new_face() =
     // The precedence of expressions is:
     //
     //    dead > evil grin > turned head > straight ahead
+    //
 
     // dead ?
     if (player.health() <= 0)
@@ -287,7 +288,7 @@ function draw_all() =
     if (hud.automap)
     {
         doom_automap()
-            return
+        return
     }
 
     // there are three standard HUDs
