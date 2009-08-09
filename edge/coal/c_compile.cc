@@ -44,7 +44,7 @@ namespace coal
 #include "c_local.h"
 #include "c_compile.h"
 
-#define MAX_ERRORS  1000
+#define MAX_ERRORS  200
 
 
 compiling_c::compiling_c() :
