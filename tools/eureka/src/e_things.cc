@@ -139,6 +139,7 @@ return buf;
  */
 void spin_things (selection_c * list, int degrees)
 {
+#if 0  // FIXME  spin_things
 	selection_iterator_c it;
 
 	for (list->begin(&it); !it.at_end(); ++it)
@@ -154,6 +155,7 @@ void spin_things (selection_c * list, int degrees)
 	}
 
 	MadeChanges = 1;
+#endif
 }
 
 
