@@ -137,8 +137,6 @@ function doomguy_face (x, y) =
 {
     //---| doomguy_face |---
 
-    sys.print("doomguy_face")
-
     face_time = face_time - hud.passed_time
 
     if (face_time <= 0)
