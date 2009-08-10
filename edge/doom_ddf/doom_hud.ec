@@ -153,38 +153,33 @@ function doom_little_ammo() =
     hud.text_font("YELLOW_DIGIT")
     hud.text_color(hud.NO_COLOR)
 
-    var a
+    hud.draw_num2(288, 173, 3, player.ammo(1))
+    hud.draw_num2(288, 179, 3, player.ammo(2))
+    hud.draw_num2(288, 185, 3, player.ammo(3))
+    hud.draw_num2(288, 191, 3, player.ammo(4))
 
-    a = player.ammo(1); hud.draw_num2(288, 173, 3, a)
-    a = player.ammo(2); hud.draw_num2(288, 179, 3, a)
-    a = player.ammo(3); hud.draw_num2(288, 185, 3, a)
-    a = player.ammo(4); hud.draw_num2(288, 191, 3, a)
-
-    a = player.ammomax(1); hud.draw_num2(314, 173, 3, a)
-    a = player.ammomax(2); hud.draw_num2(314, 179, 3, a)
-    a = player.ammomax(3); hud.draw_num2(314, 185, 3, a)
-    a = player.ammomax(4); hud.draw_num2(314, 191, 3, a)
+    hud.draw_num2(314, 173, 3, player.ammomax(1))
+    hud.draw_num2(314, 179, 3, player.ammomax(2))
+    hud.draw_num2(314, 185, 3, player.ammomax(3))
+    hud.draw_num2(314, 191, 3, player.ammomax(4))
 }
 
 
 function doom_status_bar() =
 {
-    var a
-
     hud.draw_image(  0, 168, "STBAR")
     hud.draw_image( 90, 171, "STTPRCNT")
     hud.draw_image(221, 171, "STTPRCNT")
 
     hud.text_font("BIG_DIGIT")
 
-    a = player.main_ammo(1) ; hud.draw_num2( 44, 171, 3, a)
-    a = player.health()     ; hud.draw_num2( 90, 171, 3, a)
-    a = player.total_armor(); hud.draw_num2(221, 171, 3, a)
+    hud.draw_num2( 44, 171, 3, player.main_ammo(1) )
+    hud.draw_num2( 90, 171, 3, player.health()     )
+    hud.draw_num2(221, 171, 3, player.total_armor())
 
     if (hud.game_mode() == "dm")
     {
-        a = player.frags()
-        hud.draw_num2(138, 171, 2, a)
+        hud.draw_num2(138, 171, 2, player.frags())
     }
     else
     {
@@ -211,24 +206,19 @@ function doom_status_bar() =
 
 function doom_overlay_status() = 
 {
-    var a
-
     hud.text_font("BIG_DIGIT")
 
-    a = player.health()
-    hud.draw_num2(100, 171, 3, a)
+    hud.draw_num2(100, 171, 3, player.health())
 
-    a = player.main_ammo(1)
     hud.text_color(hud.YELLOW)
-    hud.draw_num2( 44, 171, 3, a)
+    hud.draw_num2( 44, 171, 3, player.main_ammo(1))
 
-    a = player.total_armor()
     if (player.total_armor() > 100)
         hud.text_color(hud.BLUE)
     else
         hud.text_color(hud.GREEN)
 
-    hud.draw_num2(242, 171, 3, a)
+    hud.draw_num2(242, 171, 3, player.total_armor())
 
     doom_key(256, 171, 1, 5, "STKEYS0", "STKEYS3", "STKEYS6")
     doom_key(256, 181, 2, 6, "STKEYS1", "STKEYS4", "STKEYS7")
@@ -249,10 +239,8 @@ function doom_automap() =
 
     doom_status_bar()
 
-    var title : string = hud.map_title()
-
     hud.text_font("DOOM")
-    hud.draw_text(0, 200 - 32 - 10, title)
+    hud.draw_text(0, 200 - 32 - 10, hud.map_title())
 }
 
 
