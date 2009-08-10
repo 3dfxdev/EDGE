@@ -46,7 +46,6 @@
 #include "g_game.h"
 #include "g_state.h"
 #include "hu_stuff.h"
-#include "hu_vm.h"
 #include "m_argv.h"
 #include "m_cheat.h"
 #include "m_menu.h"
