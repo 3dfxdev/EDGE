@@ -72,13 +72,13 @@ void VM_SetString(coal::vm_c *vm, const char *name, const char *value)
 
 void VM_CallFunction(coal::vm_c *vm, const char *name)
 {
-	int func = vm->FindFunction("main");
+	int func = vm->FindFunction(name);
 
-	if (! func)
+	if (func == coal::vm_c::NOT_FOUND)
 		I_Error("Missing coal function: %s\n", name);
 
 	if (vm->Execute(func) != 0)
-		I_Error("Coal script terminated with an error\n");
+		I_Error("Coal script terminated with an error.\n");
 }
 
 
