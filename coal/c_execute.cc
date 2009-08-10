@@ -120,14 +120,14 @@ int real_vm_c::FindFunction(const char *func_name)
 			return i;
 	}
 
-	return -1;  // NOT FOUND
+	return vm_c::NOT_FOUND;
 }
 
 int real_vm_c::FindVariable(const char *var_name)
 {
 	// FIXME
 
-	return -1;  // NOT FOUND
+	return vm_c::NOT_FOUND;
 }
 
 // returns an offset from the string heap
