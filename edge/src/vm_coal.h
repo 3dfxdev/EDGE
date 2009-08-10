@@ -28,6 +28,10 @@ void VM_LoadScripts();
 void VM_RegisterHUD();
 void VM_RegisterPlaysim();
 
+// HUD stuff
+void HU_BeginLevel(void);
+void HU_RunHud(void);
+
 #endif // __VM_COAL_H__
 
 //--- editor settings ---
