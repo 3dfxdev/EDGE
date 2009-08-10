@@ -40,12 +40,25 @@ module hud
     var passed_time;
     var automap;
 
+    // handy colors
+    constant NO_COLOR = '-1 -1 -1'
+
+    constant BLACK  = '0 0 0'
+    constant WHITE  = '255 255 255'
+    constant RED    = '255 0 0'
+    constant GREEN  = '0 255 0'
+    constant BLUE   = '0 0 255'
+    constant YELLOW = '255 255 0'
+    constant PURPLE = '255 0 255'
+    constant CYAN   = '0 255 255'
+    constant ORANGE = '255 160 0'
+
     function map_title() : string = native
     function game_mode() : string = native
 
     function coord_sys(w, h) = native
 
-    function text_color(color : string) = native
+    function text_color(color : vector) = native
     function text_font(font : string) = native
 
     function draw_num2(x, y, w, num) = native

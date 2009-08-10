@@ -151,7 +151,7 @@ function doomguy_face (x, y) =
 function doom_little_ammo() =
 {
     hud.text_font("YELLOW_DIGIT")
-    hud.text_color("")
+    hud.text_color(hud.NO_COLOR)
 
     var a
 
@@ -219,14 +219,14 @@ function doom_overlay_status() =
     hud.draw_num2(100, 171, 3, a)
 
     a = player.main_ammo(1)
-    hud.text_color("TEXT_YELLOW")
+    hud.text_color(hud.YELLOW)
     hud.draw_num2( 44, 171, 3, a)
 
     a = player.total_armor()
     if (player.total_armor() > 100)
-        hud.text_color("TEXT_BLUE")
+        hud.text_color(hud.BLUE)
     else
-        hud.text_color("TEXT_GREEN")
+        hud.text_color(hud.GREEN)
 
     hud.draw_num2(242, 171, 3, a)
 
