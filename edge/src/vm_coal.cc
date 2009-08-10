@@ -20,6 +20,9 @@
 
 #include "coal/coal.h"
 
+#include "epi/file.h"
+#include "epi/filesystem.h"
+
 #include "ddf/font.h"
 
 #include "vm_coal.h"
@@ -38,6 +41,22 @@
 
 // user interface VM
 coal::vm_c *ui_vm;
+
+
+void VM_Printer(const char *msg, ...)
+{
+	static char buffer[1024];
+
+	va_list argptr;
+
+	va_start(argptr, msg);
+	vsnprintf(buffer, sizeof(buffer), msg, argptr);
+	va_end(argptr);
+
+	buffer[sizeof(buffer)-1] = 0;
+
+	I_Printf("COAL: %s", buffer);
+}
 
 
 void VM_SetFloat(coal::vm_c *vm, const char *name, double value)
@@ -153,6 +172,8 @@ void VM_InitCoal()
 {
 	ui_vm = coal::CreateVM();
 
+	ui_vm->SetPrinter(VM_Printer);
+
 	VM_RegisterBASE(ui_vm);
 	VM_RegisterHUD();
 	VM_RegisterPlaysim();
@@ -170,7 +191,20 @@ void VM_QuitCoal()
 
 void VM_LoadCoalFire(const char *filename)
 {
-	// FIXME !!!!
+	epi::file_c *F = epi::FS_Open(filename, epi::file_c::ACCESS_READ | epi::file_c::ACCESS_BINARY);
+
+	if (! F)
+		I_Error("Could not open coal script: %s\n", filename);
+
+	I_Printf("Compiling COAL script: %s\n", filename);
+
+	byte *data = F->LoadIntoMemory();
+
+	if (! ui_vm->CompileFile((char *)data, filename))
+		I_Error("Errors compiling coal script: %s\n", filename);
+
+	delete[] data;
+	delete F;
 }
 
 void VM_LoadScripts()
