@@ -1,5 +1,14 @@
 Andrew Apted's Log
 
+2009/08/10:
+
+COAL IS IN!
+
+After converting the implementations of the Lua API (hud.xxx,
+player.xxx) for Coal and writing some implementations for the
+basic modules (sys.print, math.random etc) plus all the glue
+logic, Coal has finally replaced Lua for drawing HUDs.
+
 2009/08/09:
 
 Another Coal milestone: support for modules has been added,
