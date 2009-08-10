@@ -306,11 +306,12 @@ elif build_info['platform'] == 'linux':
 									dir='SDL',
 									syslib_script='sdl-config --cflags --libs'))
 
-# LUA Scripting
-lib_configs.append(LibraryConfig(name='lua',
-								header='lua.h',
-								search_order=['internal'], # Do not use system LUA
-								subdirs={ 'src':'src', 'lib':'src'}))
+# COAL Scripting
+lib_configs.append(LibraryConfig(name='coal',
+								header='coal.h',
+								dir='coal',
+								search_order=['root'],
+								no_include_dir=1))
 # OGG Vorbis Support
 lib_configs.append(LibraryConfig(name='vorbis',
 								dir='libvorbis',
