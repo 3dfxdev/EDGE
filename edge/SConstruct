@@ -352,12 +352,12 @@ lib_configs.append(LibraryConfig(name='epi',
 								no_include_dir=1,
 								scons_script='SConscript'))
 # ENET Networking Lib
-lib_configs.append(LibraryConfig(name='enet',
-								header='enet.h',
-								search_order=['root'],
-								no_include_dir=1,
-								scons_script='SConscript',
-								deps=['png','jpeg','z']))
+#lib_configs.append(LibraryConfig(name='enet',
+#								header='enet.h',
+#								search_order=['root'],
+#								no_include_dir=1,
+#								scons_script='SConscript',
+#								deps=['png','jpeg','z']))
 # PNG Support
 lib_configs.append(LibraryConfig(name='png', header='png.h', dir='libpng'))
 # JPEG Support
