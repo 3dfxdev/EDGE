@@ -1,5 +1,15 @@
 Andrew Apted's Log
 
+2009/09/07:
+
+Added a new feature: two "Action buttons" which can be used by
+mods for custom purposes.  They can be bound in the key controls
+menu (well, when it comes back), and checked for in RTS with the
+following commands:
+
+   ON_CONDITION ACTION1 
+   ON_CONDITION ACTION2 
+
 2009/08/10:
 
 COAL IS IN!
