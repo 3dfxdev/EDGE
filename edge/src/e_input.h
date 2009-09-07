@@ -144,8 +144,10 @@ extern key_binding_c k_strafe;
 extern key_binding_c k_speed;
 extern key_binding_c k_autorun;
 extern key_binding_c k_turn180;
-extern key_binding_c k_mlook;  // -AJA- 1999/07/27.
-extern key_binding_c k_reload;  // -AJA- 2004/11/10.
+extern key_binding_c k_mlook;    // -AJA- 1999/07/27.
+extern key_binding_c k_reload;   // -AJA- 2004/11/10.
+extern key_binding_c k_action1;  // -AJA- 2004/11/10.
+extern key_binding_c k_action2;  // -AJA- 2009/09/07.
 
 extern key_binding_c k_weapons[10]; // -AJA- 2009/06/20.
 extern key_binding_c k_nextweapon;

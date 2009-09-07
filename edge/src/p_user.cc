@@ -694,6 +694,9 @@ void P_PlayerThink(player_t * player)
 		player->usedown = false;
 	}
 
+	player->actiondown[0] = (cmd->extbuttons & EBT_ACTION1) ? true : false;
+	player->actiondown[1] = (cmd->extbuttons & EBT_ACTION2) ? true : false;
+
 	// decrement jumpwait counter
 	if (player->jumpwait > 0)
 		player->jumpwait--;

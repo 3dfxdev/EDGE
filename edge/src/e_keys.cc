@@ -345,6 +345,8 @@ key_link_t  all_binds[] =
 	// Miscellaneous
     { "k_zoom",          &k_zoom,        '\\', 0 },
     { "k_reload",        &k_reload,      'R', 0 },
+    { "k_action1",       &k_action1,     'G', 0 },
+    { "k_action2",       &k_action2,     'H', 0 },
     { "k_console",       &k_console,     KEYD_TILDE, 0 },
     { "k_mlook",         &k_mlook,       'M', 0 },
     { "k_talk",          &k_talk,        'T', 0 },
