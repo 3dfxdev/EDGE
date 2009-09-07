@@ -349,7 +349,9 @@ static void P_SpawnPlayer(player_t *p, const spawnpoint_t *point)
 	p->jumpwait = 0;
 
 	// don't do anything immediately 
-	p->usedown = p->attackdown[0] = p->attackdown[1] = false;
+	p->attackdown[0] = p->attackdown[1] = false;
+	p->usedown = false;
+	p->actiondown[0] = p->actiondown[1] = false;
 
 	// setup gun psprite
 	P_SetupPsprites(p);
@@ -630,6 +632,28 @@ bool G_CheckConditions(mobj_t *mo, condition_check_t *cond)
 					return false;
 
 				temp = p->usedown;
+
+				if ((!cond->negate && !temp) || (cond->negate && temp))
+					return false;
+
+				break;
+
+			case COND_Action1:
+				if (!p)
+					return false;
+
+				temp = p->actiondown[0];
+
+				if ((!cond->negate && !temp) || (cond->negate && temp))
+					return false;
+
+				break;
+
+			case COND_Action2:
+				if (!p)
+					return false;
+
+				temp = p->actiondown[1];
 
 				if ((!cond->negate && !temp) || (cond->negate && temp))
 					return false;

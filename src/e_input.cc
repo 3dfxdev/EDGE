@@ -80,13 +80,16 @@ key_binding_c k_zoom;
 
 key_binding_c k_fire;
 key_binding_c k_secondatk;
+key_binding_c k_reload;
 key_binding_c k_use;
+key_binding_c k_action1;
+key_binding_c k_action2;
+
 key_binding_c k_strafe;
 key_binding_c k_speed;
 key_binding_c k_autorun;
 key_binding_c k_turn180;
 key_binding_c k_mlook;
-key_binding_c k_reload;
 
 // -MH- 1998/07/10 Flying keys
 key_binding_c k_up;
@@ -427,6 +430,12 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 
 	if (k_reload.IsPressed())
 		cmd->extbuttons |= EBT_RELOAD;
+
+	if (k_action1.IsPressed())
+		cmd->extbuttons |= EBT_ACTION1;
+
+	if (k_action2.IsPressed())
+		cmd->extbuttons |= EBT_ACTION2;
 
 	// -ACB- 1998/07/02 Use CENTER flag to center the vertical look.
 	if (k_lookcenter.IsPressed())
