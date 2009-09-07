@@ -281,7 +281,6 @@ void *SV_MobjGetElem(int index)
 		I_Error("LOADGAME: Invalid Mobj: %d\n", index);
 
 	SYS_ASSERT(index == 0);
-	SYS_ASSERT(cur->info);
 
 	return cur;
 }
@@ -531,7 +530,11 @@ bool SR_MobjGetType(void *storage, int index, void *extra)
 		*dest = (mobjtype_c *)mobjtypes.Lookup(name);
 
 	if (! *dest)
+	{
 		I_Warning("LOADGAME: no such thing type '%s'\n",  name);
+
+		//?? *dest = mobjtypess.Lookup(0);
+	}
 
 	SV_FreeString(name);
 	return true;
@@ -615,11 +618,10 @@ bool SR_MobjGetState(void *storage, int index, void *extra)
 	const mobj_t *mo = (mobj_t *) sv_current_elem;
 
 	SYS_ASSERT(mo);
-	SYS_ASSERT(mo->info);
 
 	const char *swizzle = SV_GetString();
 
-	if (! swizzle)
+	if (!swizzle || !mo->info)
 	{
 		*dest = S_NULL;
 		return true;
@@ -696,20 +698,17 @@ bool SR_MobjGetState(void *storage, int index, void *extra)
 //
 //    THING `:' BASE `:' OFFSET
 //
-// where THING is usually just "*" for the current thing, but can
-// refer to another ddf thing (e.g. "IMP").  BASE is the nearest
-// labelled state (e.g. "SPAWN"), or "*" as offset from the thing's
-// first state (unlikely to be needed).  OFFSET is the integer offset
-// from the base state (e.g. "5"), which BTW starts at 1 (like the ddf
-// format).
+// where THING is now always "*" (meaning the current thing).
+// BASE is the nearest labelled state (e.g. "SPAWN"), or "*" as
+// offset from the first state.   OFFSET is the integer offset
+// from the base state (e.g. "5"), which BTW starts at 1
+// (like in ddf).
 //
 // Alternatively, the string can be NULL, which means the state
-// pointer should be NULL.
+// index should be S_NULL.
 //
-// P.S: we go to all this trouble to try and get reasonable behaviour
-// when loading with different DDF files than what we saved with.
-// Typical example: a new item, monster or weapon gets added to our
-// DDF files causing all state numbers to be shifted upwards.
+// P.S: we go to all this trouble to get reasonable behaviour
+// when using different DDF files than what we saved with.
 //
 void SR_MobjPutState(void *storage, int index, void *extra)
 {
@@ -718,9 +717,8 @@ void SR_MobjPutState(void *storage, int index, void *extra)
 	const mobj_t *mo = (mobj_t *) sv_current_elem;
 
 	SYS_ASSERT(mo);
-	SYS_ASSERT(mo->info);
 
-	if (stnum == S_NULL)
+	if (stnum == S_NULL || !mo->info)
 	{
 		SV_PutString(NULL);
 		return;
