@@ -957,7 +957,7 @@ static void Poly_FinishSegs(void)
 
 void TinyBSP(void)
 {
-	I_Printf("Building nodes...\n");
+	I_Printf("Building nodes with TinyBSP...\n");
 
 	Poly_Setup();
 
