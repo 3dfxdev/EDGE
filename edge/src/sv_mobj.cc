@@ -551,7 +551,7 @@ void SR_MobjPutType(void *storage, int index, void *extra)
 	}
 
 	// special handling for projectiles (attacks)
-	if (info->number != ATTACK__MOBJ)
+	if (info->number == ATTACK__MOBJ)
 	{
 		atkdef_c *atk = DDF_AttackForMobjtype(info);
 
