@@ -221,6 +221,22 @@ static void PL_is_using(coal::vm_c *vm, int argc)
 }
 
 
+// player.is_action1()
+//
+static void PL_is_action1(coal::vm_c *vm, int argc)
+{
+	vm->ReturnFloat(ui_player_who->actiondown[0] ? 1 : 0);
+}
+
+
+// player.is_action2()
+//
+static void PL_is_action2(coal::vm_c *vm, int argc)
+{
+	vm->ReturnFloat(ui_player_who->actiondown[1] ? 1 : 0);
+}
+
+
 // player.move_speed()
 //
 static void PL_move_speed(coal::vm_c *vm, int argc)
@@ -675,6 +691,8 @@ void VM_RegisterPlaysim()
     ui_vm->AddNativeFunction("player.is_jumping",      PL_is_jumping);
     ui_vm->AddNativeFunction("player.is_crouching",    PL_is_crouching);
     ui_vm->AddNativeFunction("player.is_using",        PL_is_using);
+    ui_vm->AddNativeFunction("player.is_action1",      PL_is_action1);
+    ui_vm->AddNativeFunction("player.is_action2",      PL_is_action2);
     ui_vm->AddNativeFunction("player.is_attacking",    PL_is_attacking);
     ui_vm->AddNativeFunction("player.is_rampaging",    PL_is_rampaging);
     ui_vm->AddNativeFunction("player.is_grinning",     PL_is_grinning);
