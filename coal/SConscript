@@ -1,0 +1,20 @@
+#
+# SConscript (sub) file for COAL
+#
+import os
+
+Import('build_info')
+Import('env')
+
+# allow #include "coal/xxxx.h" to find the correct file
+env.Append(CPPPATH = ['#.'])
+
+coal_sources = [
+    'c_compile.cc',
+    'c_execute.cc',
+    'c_memory.cc']
+
+env.StaticLibrary('coal', coal_sources)
+
+##--- editor settings ---
+## vi:ts=4:sw=4:expandtab
