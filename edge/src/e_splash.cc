@@ -322,6 +322,8 @@ static void DrawOneStar(float mx, float my, float sz,
 	float x = SCREENWIDTH  * mx / 320.0f;
 	float y = SCREENHEIGHT * my / 200.0f;
 
+	sz = sz * SCREENWIDTH / 640.0f;
+
 	glColor4f(r, g, b, alpha);
 
 	glBegin(GL_POLYGON);
@@ -556,7 +558,7 @@ static void InsertNewStars(int millies)
 		total = millies + int(millies * f);
 	}
 
-	total = total * 5 / 4;
+	// total = total * 5 / 4;
 
 	for (; all_count < total; all_count++)
 	{
