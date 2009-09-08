@@ -84,7 +84,7 @@ function select_new_face() =
     }
 
     // being attacked ?
-    if (player.hurt_by() != "none")
+    if (player.hurt_by())
     {
         if (player.hurt_pain() > 50)
         {
