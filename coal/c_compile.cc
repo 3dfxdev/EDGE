@@ -641,7 +641,7 @@ int real_vm_c::EmitCode(short op, int a, int b, int c)
 
 int real_vm_c::EmitMove(type_t *type, int a, int b)
 {
-	switch (type->type == ev_vector)
+	switch (type->type)
 	{
 		case ev_string:
 			return EmitCode(OP_MOVE_S, a, b);
