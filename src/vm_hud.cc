@@ -136,6 +136,30 @@ static void HD_map_title(coal::vm_c *vm, int argc)
 }
 
 
+// hud.which_hud()
+//
+static void HD_which_hud(coal::vm_c *vm, int argc)
+{
+	vm->ReturnFloat((double)m_screenhud.d);
+}
+
+
+// hud.check_automap()
+//
+static void HD_check_automap(coal::vm_c *vm, int argc)
+{
+	vm->ReturnFloat(automapactive ? 1 : 0);
+}
+
+
+// hud.get_time()
+//
+static void HD_get_time(coal::vm_c *vm, int argc)
+{
+	vm->ReturnFloat((double) I_GetTime());
+}
+
+
 // hud.text_font(name)
 //
 static void HD_text_font(coal::vm_c *vm, int argc)
@@ -569,6 +593,10 @@ void VM_RegisterHUD()
     ui_vm->AddNativeFunction("hud.map_name",  	    HD_map_name);
     ui_vm->AddNativeFunction("hud.map_title",  	    HD_map_title);
 
+    ui_vm->AddNativeFunction("hud.which_hud",  	    HD_which_hud);
+    ui_vm->AddNativeFunction("hud.check_automap",  	HD_check_automap);
+    ui_vm->AddNativeFunction("hud.get_time",  	    HD_get_time);
+
 	// set-state functions
     ui_vm->AddNativeFunction("hud.coord_sys",       HD_coord_sys);
     ui_vm->AddNativeFunction("hud.text_font",       HD_text_font);
@@ -607,6 +635,7 @@ void HU_RunHud(void)
 	ui_hud_who    = players[displayplayer];
 	ui_player_who = players[displayplayer];
 
+	// TODO: remove this
 	int now_time = I_GetTime();
 	int passed_time = 0;
 
@@ -620,10 +649,10 @@ void HU_RunHud(void)
 
 	// setup some fields in 'hud' module
 
-	VM_SetFloat(ui_vm, "hud.which", m_screenhud.d);
-	VM_SetFloat(ui_vm, "hud.automap", automapactive ? 1 : 0);
-	VM_SetFloat(ui_vm, "hud.now_time", now_time);
-	VM_SetFloat(ui_vm, "hud.passed_time", passed_time);
+//??	VM_SetFloat(ui_vm, "hud.which", m_screenhud.d);
+//??	VM_SetFloat(ui_vm, "hud.automap", automapactive ? 1 : 0);
+//??	VM_SetFloat(ui_vm, "hud.now_time", now_time);
+//??	VM_SetFloat(ui_vm, "hud.passed_time", passed_time);
 
     VM_CallFunction(ui_vm, "draw_all");
 }
