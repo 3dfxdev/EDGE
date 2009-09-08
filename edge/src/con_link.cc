@@ -142,7 +142,7 @@ cvar_link_t  all_cvars[] =
 	{ "m_messages",     &m_messages,     "c",   "1"  },
 	{ "m_obituaries",   &m_obituaries,   "c",   "1"  },
 	{ "m_screenhud",    &m_screenhud,    "c",   "0"  },
-	{ "m_glnodes",      &m_glnodes,      "c",   "0"  },
+	{ "m_glnodes",      &m_glnodes,      "c",   "1"  },
 
 	{ "goobers",        &goobers,        "",    "0" },
                                         
