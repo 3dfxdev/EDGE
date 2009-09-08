@@ -31,18 +31,14 @@ module math
 
     function min(a, b) : float =
     {
-      if (a < b)
-        return a
-      else
-        return b
+      if (a < b) return a
+      return b
     }
 
     function max(a, b) : float =
     {
-      if (a > b)
-        return a
-      else
-        return b
+      if (a > b) return a
+      return b
     }
 }
 
@@ -93,6 +89,10 @@ module hud
     function text_color(color : vector) = native
     function set_scale(scale : float) = native
     function set_alpha(alpha : float) = native
+
+    function solid_box(x, y, w, h, color : vector) = native
+    function solid_line(x1, y1, x2, y2, color : vector) = native
+    function thin_box(x, y, w, h, color : vector) = native
 
     function draw_image(x, y, image : string) = native
     function stretch_image(x, y, w, h, image : string) = native
