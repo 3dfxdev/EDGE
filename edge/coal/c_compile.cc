@@ -1479,7 +1479,7 @@ int real_vm_c::GLOB_FunctionBody(def_t *func_def, type_t *type, const char *func
 		if (type->aux_type->type == ev_void)
 			EmitCode(OP_RET);
 		else
-			CompileError("missing return at end of function %s", func_name);
+			CompileError("missing return at end of function %s\n", func_name);
 	}
 
 	return code;
