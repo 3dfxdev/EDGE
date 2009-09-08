@@ -270,24 +270,25 @@ function edge_air_bar() =
 function draw_all() =
 {
     hud.coord_sys(320, 200)
+    hud.grab_times()
 
-    if (hud.automap)
+    if (hud.check_automap())
     {
         doom_automap()
         return
     }
 
     // there are three standard HUDs
-    hud.which = hud.which % 3
+    var which = hud.which_hud() % 3
 
-    if (hud.which == 0)
+    if (which == 0)
         hud.render_world(0, 0, 320, 200 - 32)
     else
         hud.render_world(0, 0, 320, 200)
 
-    if (hud.which == 0)
+    if (which == 0)
         doom_status_bar()
-    else if (hud.which == 2)
+    else if (which == 2)
         doom_overlay_status()
 
     edge_air_bar()
