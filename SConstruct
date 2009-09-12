@@ -311,7 +311,8 @@ lib_configs.append(LibraryConfig(name='coal',
 								header='coal.h',
 								dir='coal',
 								search_order=['root'],
-								no_include_dir=1))
+								no_include_dir=1,
+								scons_script='SConscript'))
 # OGG Vorbis Support
 lib_configs.append(LibraryConfig(name='vorbis',
 								dir='libvorbis',
