@@ -254,7 +254,8 @@ static void AttackFinishEntry(void)
 		{
 			if (dynamic_atk->attackstyle != ATK_SHOT &&
 				dynamic_atk->attackstyle != ATK_CLOSECOMBAT &&
-				dynamic_atk->attackstyle != ATK_SKULLFLY)
+				dynamic_atk->attackstyle != ATK_SKULLFLY &&
+				dynamic_atk->attackstyle != ATK_SPAWNER)
 			{
 				DDF_Error("Projectile without initial state (SPAWN or IDLE).\n");
 			}
@@ -287,7 +288,8 @@ static void AttackFinishEntry(void)
 	{
 		if (dynamic_atk->attackstyle != ATK_SHOT &&
 			dynamic_atk->attackstyle != ATK_CLOSECOMBAT &&
-			dynamic_atk->attackstyle != ATK_SKULLFLY)
+			dynamic_atk->attackstyle != ATK_SKULLFLY &&
+			dynamic_atk->attackstyle != ATK_SPAWNER)
 		{
 			DDF_WarnError("Projectile attack lacks states (etc).\n");
 		}
