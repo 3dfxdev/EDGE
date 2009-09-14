@@ -87,7 +87,7 @@ private:
 
 public:
 	rts_menu_c(s_show_menu_t *menu, rad_trigger_t *_trigger) :
-		trigger(_trigger), title(), choices(0)
+		trigger(_trigger), title(), choices()
 	{
 		const char * text = menu->title;
 		if (menu->use_ldf)
@@ -101,20 +101,20 @@ public:
 		{
 			char key = no_choices ? 0 : ('1' + idx);
 
-			text = menu->options[idx];
+			std::string text = menu->options[idx];
 
 			if (menu->use_ldf)
-				text = language[text];
+				text = language[text.c_str()];
 
 			if (key)
 			{
 				char buffer[8];
 				sprintf(buffer, "%c. ", key);
 
-				choices[idx] = buffer;
+				text = std::string(buffer) + text;
 			}
 
-			choices[idx] += std::string(text);
+			choices.push_back(text);
 		}
 	}
 
