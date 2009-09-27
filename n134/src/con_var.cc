@@ -21,23 +21,27 @@
 #include "con_var.h"
 #include "con_main.h"
 
+#include "m_argv.h"
 
-cvar_c::cvar_c(int value) : d(value), f(value), str(buffer)
+#include "z_zone.h"  // Noooooooooooooo!
+
+
+cvar_c::cvar_c(int value) : d(value), f(value), str(buffer), modified(0)
 {
 	sprintf(buffer, "%d", value);
 }
 
-cvar_c::cvar_c(float value) : d(I_ROUND(value)), f(value), str(buffer)
+cvar_c::cvar_c(float value) : d(I_ROUND(value)), f(value), str(buffer), modified(0)
 {
 	FmtFloat(value);
 }
 
-cvar_c::cvar_c(const char *value) : str(buffer)
+cvar_c::cvar_c(const char *value) : str(buffer), modified(0)
 {
 	DoStr(value);
 }
 
-cvar_c::cvar_c(const cvar_c& other) : str(buffer)
+cvar_c::cvar_c(const cvar_c& other) : str(buffer), modified(0)
 {
 	DoStr(other.str);
 }
@@ -46,7 +50,7 @@ cvar_c::~cvar_c()
 {
 	if (Allocd())
 	{
-		free((void *) str);
+		Z_Free((void *) str);
 	}
 }
 
@@ -55,7 +59,7 @@ cvar_c& cvar_c::operator= (int value)
 {
 	if (Allocd())
 	{
-		free((void *) str);
+		Z_Free((void *) str);
 	}
 
 	d = value;
@@ -64,6 +68,7 @@ cvar_c& cvar_c::operator= (int value)
 	str = buffer;
 	sprintf(buffer, "%d", value);
 
+	modified++;
 	return *this;
 }
 
@@ -71,7 +76,7 @@ cvar_c& cvar_c::operator= (float value)
 {
 	if (Allocd())
 	{
-		free((void *) str);
+		Z_Free((void *) str);
 	}
 
 	d = I_ROUND(value);
@@ -80,6 +85,7 @@ cvar_c& cvar_c::operator= (float value)
 	str = buffer;
 	FmtFloat(value);
 
+	modified++;
 	return *this;
 }
 
@@ -87,6 +93,7 @@ cvar_c& cvar_c::operator= (const char *value)
 {
 	DoStr(value);
 
+	modified++;
 	return *this;
 }
 
@@ -94,6 +101,7 @@ cvar_c& cvar_c::operator= (std::string value)
 {
 	DoStr(value.c_str());
 
+	modified++;
 	return *this;
 }
 
@@ -104,9 +112,11 @@ cvar_c& cvar_c::operator= (const cvar_c& other)
 		DoStr(other.str);
 	}
 
+	modified++;
 	return *this;
 }
 
+// private method
 void cvar_c::FmtFloat(float value)
 {
 	float ab = fabs(value);
@@ -123,11 +133,12 @@ void cvar_c::FmtFloat(float value)
 		sprintf(buffer, "%1.7f", value);
 }
 
+// private method
 void cvar_c::DoStr(const char *value)
 {
 	if (Allocd())
 	{
-		free((void *) str);
+		Z_Free((void *) str);
 	}
 
 	if (strlen(value)+1 <= BUFSIZE)
@@ -137,7 +148,7 @@ void cvar_c::DoStr(const char *value)
 	}
 	else
 	{
-		str = strdup(value);
+		str = Z_StrDup(value);
 	}
 
 	d = atoi(str);
@@ -167,40 +178,48 @@ static bool CON_MatchFlags(const char *var_f, const char *want_f)
 }
 
 
-static bool CON_MatchPattern(const char *name, const char *pat)
-{
-	// FIXME !!!
-	return false;
-}
-
-
-void CON_ResetAllVars(void)
+void CON_ResetAllVars(bool initial)
 {
 	for (int i = 0; all_cvars[i].var; i++)
 	{
 		*all_cvars[i].var = all_cvars[i].def_val;
+
+		// this function is equivalent to construction,
+		// hence ensure the modified count is zero.
+		if (initial)
+			all_cvars[i].var->modified = 0;
 	}
 }
 
 
-cvar_link_t * CON_FindVar(const char *name, bool no_alias)
+cvar_link_t * CON_FindVar(const char *name)
 {
 	for (int i = 0; all_cvars[i].var; i++)
 	{
 		if (stricmp(all_cvars[i].name, name) == 0)
 			return &all_cvars[i];
-
-		if (! no_alias)
-		{
-			// FIXME: check aliases
-		}
 	}
 
 	return NULL;
 }
 
 
-int CON_FindMultiVar(std::vector<cvar_link_t *>& list,
+bool CON_MatchPattern(const char *name, const char *pat)
+{
+	while (*name && *pat)
+	{
+		if (*name != *pat)
+			return false;
+
+		name++;
+		pat++;
+	}
+
+	return (*pat == 0);
+}
+
+
+int CON_MatchAllVars(std::vector<const char *>& list,
                      const char *pattern, const char *flags)
 {
 	list.clear();
@@ -213,7 +232,7 @@ int CON_FindMultiVar(std::vector<cvar_link_t *>& list,
 		if (! CON_MatchFlags(all_cvars[i].flags, flags))
 			continue;
 
-		list.push_back(&all_cvars[i]);
+		list.push_back(all_cvars[i].name);
 	}
 
 	return (int)list.size();
@@ -230,7 +249,7 @@ bool CON_SetVar(const char *name, const char *flags, const char *value)
 		flags++;
 	}
 
-	cvar_link_t *L = CON_FindVar(name, no_alias);
+	cvar_link_t *L = CON_FindVar(name);
 
 	if (! L)
 	{
@@ -247,6 +266,33 @@ bool CON_SetVar(const char *name, const char *flags, const char *value)
 	*L->var = value;
 
 	return true;
+}
+
+
+void CON_HandleProgramArgs(void)
+{
+	for (int p = 1; p < M_GetArgCount(); p++)
+	{
+		const char *s = M_GetArgument(p);
+
+		if (s[0] != '-')
+			continue;
+
+		cvar_link_t *link = CON_FindVar(s+1);
+
+		if (! link)
+			continue;
+
+		p++;
+
+		if (p >= M_GetArgCount() || M_GetArgument(p)[0] == '-')
+		{
+			I_Error("Missing value for option: %s\n", s);
+			continue;
+		}
+
+		*link->var = M_GetArgument(p);
+	}
 }
 
 
