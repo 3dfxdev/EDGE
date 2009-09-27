@@ -1020,7 +1020,7 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 
 			local_gl_vert_t * glvert = RGL_BeginUnit(
 					 data.strip->mode, data.strip->count,
-					 GL_MODULATE, data.is_additive ? 0 : skin_tex,
+					 data.is_additive ? ENV_SKIP_RGB : GL_MODULATE, skin_tex,
 					 ENV_NONE, 0, pass, blending);
 
 			for (int v_idx=0; v_idx < md->strips[i].count; v_idx++)
