@@ -219,6 +219,7 @@ typedef struct player_s
 	// True if button down last tic.
 	bool attackdown[2];
 	bool usedown;
+	bool actiondown[2];
 
 	// Bit flags, for cheats and debug.
 	// See cheat_t, above.

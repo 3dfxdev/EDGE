@@ -675,10 +675,12 @@ static menuinfo_t extkeyconfiginfo =
 static optmenuitem_t otherkeyconfig[] =
 {
 	{OPT_KeyConfig, "Use Item",         NULL, 0, CFGDEF_KEY_USE,         &key_use, NULL, NULL},
+	{OPT_KeyConfig, "Action 1",         NULL, 0, 0,                      &key_action1, NULL, NULL},
+	{OPT_KeyConfig, "Action 2",         NULL, 0, 0,                      &key_action2, NULL, NULL},
 	{OPT_KeyConfig, "Strafe",           NULL, 0, CFGDEF_KEY_STRAFE,      &key_strafe, NULL, NULL},
 	{OPT_KeyConfig, "Run",              NULL, 0, CFGDEF_KEY_SPEED,       &key_speed, NULL, NULL},
-	{OPT_KeyConfig, "Toggle Autorun",   NULL, 0, CFGDEF_KEY_AUTORUN,     &key_autorun, NULL, NULL},
 	{OPT_Plain,     "",                 NULL, 0, 0,                      NULL, NULL, NULL},
+	{OPT_KeyConfig, "Toggle Autorun",   NULL, 0, CFGDEF_KEY_AUTORUN,     &key_autorun, NULL, NULL},
 	{OPT_KeyConfig, "180 degree turn",  NULL, 0, CFGDEF_KEY_180,        &key_180, NULL, NULL},
 	{OPT_KeyConfig, "Multiplayer Talk", NULL, 0, CFGDEF_KEY_TALK,       &key_talk, NULL, NULL},
 	{OPT_KeyConfig, "Map Toggle",       NULL, 0, CFGDEF_KEY_MAP,        &key_map, NULL, NULL},

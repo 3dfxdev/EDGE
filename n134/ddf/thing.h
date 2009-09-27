@@ -528,6 +528,10 @@ typedef enum
 	// player must be using (holding space down)
 	COND_Using,
 
+	// player must be pressing an Action key
+	COND_Action1,
+	COND_Action2,
+
 	// player must be walking
 	COND_Walking
 }

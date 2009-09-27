@@ -87,6 +87,8 @@ int key_console;
 int key_mlook;
 int key_secondatk;
 int key_reload;
+int key_action1;
+int key_action2;
 
 // -MH- 1998/07/10 Flying keys
 int key_flyup;
@@ -374,6 +376,12 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 
 	if (E_InputCheckKey(key_reload))
 		cmd->extbuttons |= EBT_RELOAD;
+
+	if (E_InputCheckKey(key_action1))
+		cmd->extbuttons |= EBT_ACTION1;
+
+	if (E_InputCheckKey(key_action2))
+		cmd->extbuttons |= EBT_ACTION2;
 
 	// -KM- 1998/11/25 Weapon change key
 	for (int w = 0; w < WEAPON_KEYS; w++)

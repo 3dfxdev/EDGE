@@ -3,9 +3,16 @@ CHANGES (since 1.31)
 ====================
 
 
+- two new Action buttons for RTS scripting
+
+- new RTS command: ONCEILINGHEIGHT (Andrew Baker)
+
+- fixed 16-rotation sprites
 - fixed some colormap issues
 - fixed slowdown with savegames on large maps
 - fixed teleporting into walls bug (with help from Andrew Baker)
 - fixed bug with LOSE_BENEFIT on ammo limits
-- fixed weapon refire accuracy after a savegame
+- fixed weapon refire accuracy after a loadgame
+- fixed dynamic lights on translucent MD2 skins
+- fixed some Timidity issues
 
