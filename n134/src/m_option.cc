@@ -1061,11 +1061,10 @@ bool M_OptResponder(event_t * ev, int ch)
 	if (keyscan)
 	{
 		int *blah;
-		int key;
 
 		if (ev->type != ev_keydown)
 			return false;
-		key = ev->value.key;
+		int key = ev->value.key.sym;
 
 		keyscan = 0;
 
