@@ -974,30 +974,32 @@ static int fill_bank(int dr, int b)
 
 	for (int i=0; i < MAXPROG; i++)
 	{
-		if (bank->tone[i].layer == MAGIC_LOAD_INSTRUMENT)
-		{
-			if (! try_load_instr(bank, b, dr, i))
-			{
-				if (b == 0)
-					// standard bank : try again later
-					bank->tone[i].layer = MAGIC_LOAD_INSTRUMENT;
-				else
-				{
-					if (dr)
-					{
-						if (! drumset[0]->tone[i].layer)
-							drumset[0]->tone[i].layer = MAGIC_LOAD_INSTRUMENT;
-					}
-					else
-					{
-						if (! tonebank[0]->tone[i].layer)
-							tonebank[0]->tone[i].layer = MAGIC_LOAD_INSTRUMENT;
-					}
-				}
+		if (bank->tone[i].layer != MAGIC_LOAD_INSTRUMENT)
+			continue;
 
-				errors++;
-			}
+		if (try_load_instr(bank, b, dr, i))
+		{
+			// OK!!
+			continue;
 		}
+
+		errors++;
+
+		if (b == 0)
+		{
+			// standard bank : try again in second pass
+			bank->tone[i].layer = MAGIC_LOAD_INSTRUMENT;
+			continue;
+		}
+
+		// force usage of the instrument in bank #0
+		bank->tone[i].layer = NULL;
+
+		// mark the instrument in bank #0 to be loaded
+		ToneBank *bank_zero = (dr) ? drumset[0] : tonebank[0];
+
+		if (! bank_zero->tone[i].layer)
+			bank_zero->tone[i].layer = MAGIC_LOAD_INSTRUMENT;
 	}
 
 	if (b != 0)
