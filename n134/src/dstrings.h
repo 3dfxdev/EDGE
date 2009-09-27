@@ -2,7 +2,7 @@
 //  EDGE Strings
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -48,6 +48,8 @@
 
 #ifdef WIN32
 #define EDGEHOMESUBDIR  "Application Data\\Edge"
+#elif MACOSX
+#define EDGEHOMESUBDIR  "Library/Application Support/EDGE"
 #else // Linux
 #define EDGEHOMESUBDIR  ".edge"
 #endif

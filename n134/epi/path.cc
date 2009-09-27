@@ -23,8 +23,6 @@ namespace epi
 {
 
 // Path Manipulation Functions
-
-
 std::string PATH_GetDir(const char *path)
 {
 	SYS_ASSERT(path);
@@ -32,9 +30,9 @@ std::string PATH_GetDir(const char *path)
 	const char *p = path + strlen(path) - 1;
 
 	// back up until a slash or the start
-	for (; p >= path; p--)
+	for (; p > path; p--)
 		if (PATH_IsDirSep(*p))
-			return std::string(path, (p - path) + 1);
+			return std::string(path, (p - path));
 
     return std::string();  // nothing
 }
@@ -171,10 +169,10 @@ std::string PATH_Join(const char *lhs, const char *rhs)
 
 #ifdef WIN32
 		if (c != '\\' && c != '/')
-			result += '\\';
+			result += DIRSEPARATOR;
 #else // LINUX
 		if (c != '/')
-			result += '/';
+			result += DIRSEPARATOR;
 #endif
 	}
 

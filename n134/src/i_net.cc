@@ -27,6 +27,10 @@
 #include "i_defs.h"
 #include "i_net.h"
 
+bool nonet = true;
+
+#if 0  // DISABLED FOR NOW
+
 #ifdef LINUX
 #include <linux/if.h>
 #include <linux/sockios.h>
@@ -36,8 +40,6 @@
 
 #include "m_argv.h"
 
-
-bool nonet = true;
 
 net_address_c n_local_addr;
 
@@ -436,6 +438,7 @@ void I_SetBroadcast(SOCKET sock, bool enable)
 #endif
 }
 
+#endif  // DISABLED FOR NOW
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
