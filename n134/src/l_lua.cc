@@ -1015,6 +1015,24 @@ static int PL_is_using(lua_State *L)
 }
 
 
+// player.is_action1()
+//
+static int PL_is_action1(lua_State *L)
+{
+	lua_pushboolean(L, cur_player->actiondown[0] ? 1 : 0);
+	return 1;
+}
+
+
+// player.is_action2()
+//
+static int PL_is_action2(lua_State *L)
+{
+	lua_pushboolean(L, cur_player->actiondown[1] ? 1 : 0);
+	return 1;
+}
+
+
 // player.move_speed()
 //
 static int PL_move_speed(lua_State *L)
@@ -1483,6 +1501,8 @@ static const luaL_Reg player_module[] =
     { "is_jumping",      PL_is_jumping    },
     { "is_crouching",    PL_is_crouching  },
     { "is_using",        PL_is_using      },
+    { "is_action1",      PL_is_action1    },
+    { "is_action2",      PL_is_action2    },
     { "is_attacking",    PL_is_attacking  },
     { "is_rampaging",    PL_is_rampaging  },
     { "is_grinning",     PL_is_grinning   },
