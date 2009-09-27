@@ -33,7 +33,6 @@
 #include "ddf/main.h"
 #include "ddf/colormap.h"
 
-#include "con_cvar.h"
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "dm_structs.h"

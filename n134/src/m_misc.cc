@@ -41,7 +41,6 @@
 #include "epi/image_jpeg.h"
 #include "epi/image_png.h"
 
-#include "con_cvar.h"
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "e_input.h"
@@ -396,6 +395,8 @@ void M_LoadDefaults(void)
 
 void M_InitMiscConVars(void)
 {
+// FIXME
+#if 0
 	M_CheckBooleanParm("diskicon", &var_diskicon, false);
 	CON_CreateCVarBool("diskicon", cf_normal, &var_diskicon);
 
@@ -407,7 +408,7 @@ void M_InitMiscConVars(void)
 
 	M_CheckBooleanParm("smoothmap", &var_smoothmap, false);
 	CON_CreateCVarBool("smoothmap", cf_normal, &var_smoothmap);
-
+#endif
 
 	const char *s = M_GetParm("-nearclip");
 	if (s)
@@ -417,9 +418,10 @@ void M_InitMiscConVars(void)
 	if (s)
 		var_farclip = atoi(s);
 
+#if 0
 	CON_CreateCVarInt("nearclip", cf_normal, &var_nearclip);
 	CON_CreateCVarInt("farclip",  cf_normal, &var_farclip);
-
+#endif
 
 	if (M_CheckParm("-hqscale") || M_CheckParm("-hqall"))
 		hq2x_scaling = 3;

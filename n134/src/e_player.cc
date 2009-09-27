@@ -31,7 +31,6 @@
 
 #include "epi/endianess.h"
 
-#include "con_cvar.h"
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "e_player.h"
@@ -238,65 +237,6 @@ static bool G_CheckSpot(player_t *player, const spawnpoint_t *point)
 	return true; // OK
 }
 
-static void SetPlayerConVars(player_t *p)
-{
-	mobj_t *mobj = p->mo;
-
-	char buffer[16];
-
-	CON_DeleteCVar("health");
-	CON_DeleteCVar("frags");
-	CON_DeleteCVar("totalfrags");
-
-	CON_CreateCVarReal("health", (cflag_t)(cf_read | cf_delete), &mobj->health);
-	CON_CreateCVarInt("frags", (cflag_t)(cf_read | cf_delete), &p->frags);
-	CON_CreateCVarInt("totalfrags", (cflag_t)(cf_read | cf_delete), &p->totalfrags);
-
-	int i;
-	for (i = 0; i < NUMAMMO; i++)
-	{
-		sprintf(buffer, "ammo%d", i);
-		CON_DeleteCVar(buffer);
-		CON_CreateCVarInt(buffer, (cflag_t)(cf_read | cf_delete), &p->ammo[i].num);
-
-		sprintf(buffer, "maxammo%d", i);
-		CON_DeleteCVar(buffer);
-		CON_CreateCVarInt(buffer, (cflag_t)(cf_read | cf_delete), &p->ammo[i].max);
-	}
-
-#if 0  // FIXME:
-	for (i = num_disabled_weapons; i < numweapons; i++)
-	{
-		sprintf(buffer, "weapon%d", i);
-		CON_DeleteCVar(buffer);
-		CON_CreateCVarBool(buffer, (cflag_t)(cf_read | cf_delete), &p->weapons[i].owned);
-	}
-#endif
-
-	for (i = 0; i < NUMARMOUR; i++)
-	{
-		sprintf(buffer, "armour%d", i);
-		CON_DeleteCVar(buffer);
-		CON_CreateCVarReal(buffer, (cflag_t)(cf_read | cf_delete), &p->armours[i]);
-	}
-
-#if 0  // FIXME:
-	for (i = 0; i < NUMCARDS; i++)
-	{
-		sprintf(buffer, "key%d", i);
-		CON_DeleteCVar(buffer);
-		CON_CreateCVarBool(buffer, cf_read | cf_delete, &p->cards[i]);
-	}
-#endif
-
-	for (i = 0; i < NUMPOWERS; i++)
-	{
-		sprintf(buffer, "power%d", i);
-		CON_DeleteCVar(buffer);
-		CON_CreateCVarReal(buffer, (cflag_t)(cf_read | cf_delete), &p->powers[i]);
-	}
-}
-
 
 //
 // G_SetConsolePlayer
@@ -430,8 +370,6 @@ static void P_SpawnPlayer(player_t *p, const spawnpoint_t *point)
 	{
 		// wake up the status bar and heads up text
 		HU_Start();
-
-		SetPlayerConVars(p);
 	}
 
 	// Don't get stuck spawned in things: telefrag them.
