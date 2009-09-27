@@ -37,10 +37,10 @@
 bool alt_is_down;
 bool eat_mouse_motion = true;
 
-#if defined(MACOSX) || defined(BeOS) || defined(WIN32)
-bool use_warp_mouse = true;
-#else
+#ifdef LINUX
 bool use_warp_mouse = false;
+#else
+bool use_warp_mouse = true;
 #endif
 
 int TranslateSDLKey(int key);

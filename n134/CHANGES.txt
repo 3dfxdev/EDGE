@@ -14,5 +14,6 @@ CHANGES (since 1.31)
 - fixed bug with LOSE_BENEFIT on ammo limits
 - fixed weapon refire accuracy after a loadgame
 - fixed dynamic lights on translucent MD2 skins
+- fixed gamma to be restored at exit
 - fixed some Timidity issues
 
