@@ -46,7 +46,6 @@
 #define CFGDEF_KEY_LOOKCENTER   (KEYD_HOME)
 #define CFGDEF_KEY_MLOOK        ('m')
 #define CFGDEF_KEY_ZOOM         ('\\')
-// #define CFGDEF_KEY_JUMP         ('/')
 #define CFGDEF_KEY_MAP          (KEYD_TAB)
 #define CFGDEF_KEY_180          (0)
 #define CFGDEF_KEY_RELOAD       ('r')
@@ -74,10 +73,10 @@
 #define CFGDEF_SHOWMESSAGES     (1)
 
 // Sound and Music
-#define CFGDEF_SOUND_VOLUME     (10)
-#define CFGDEF_MUSIC_VOLUME     (10)
+#define CFGDEF_SOUND_VOLUME     (8)
+#define CFGDEF_MUSIC_VOLUME     (8)
 #define CFGDEF_SAMPLE_RATE      (1)  // 22050Hz
-#define CFGDEF_SOUND_BITS       (0)  // 8-bit
+#define CFGDEF_SOUND_BITS       (1)  // 16-bit
 #define CFGDEF_SOUND_STEREO     (1)  // Stereo
 #define CFGDEF_MIX_CHANNELS     (2)  // 32 channels
 #define CFGDEF_QUIET_FACTOR     (1)
@@ -97,7 +96,7 @@
 #define CFGDEF_DOOM_FADING      (1)
 #define CFGDEF_DETAIL_LEVEL     (1)
 #define CFGDEF_USE_MIPMAPPING   (0)
-#define CFGDEF_HQ2X_SCALING     (1)
+#define CFGDEF_HQ2X_SCALING     (0)
 #define CFGDEF_SCREEN_HUD       (0)
 #define CFGDEF_SHADOWS          (0)
 #define CFGDEF_CROSSHAIR        (0)
@@ -114,8 +113,8 @@
 // Gameplay Options
 #define CFGDEF_AUTOAIM          (1)
 #define CFGDEF_MLOOK            (1)
-#define CFGDEF_JUMP             (0)
-#define CFGDEF_CROUCH           (0)
+#define CFGDEF_JUMP             (1)
+#define CFGDEF_CROUCH           (1)
 #define CFGDEF_KICKING          (0)
 #define CFGDEF_WEAPON_SWITCH    (1)
 #define CFGDEF_MORE_BLOOD       (0)
