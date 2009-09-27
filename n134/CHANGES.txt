@@ -1,0 +1,11 @@
+
+CHANGES (since 1.31)
+====================
+
+
+- fixed some colormap issues
+- fixed slowdown with savegames on large maps
+- fixed teleporting into walls bug (with help from Andrew Baker)
+- fixed bug with LOSE_BENEFIT on ammo limits
+- fixed weapon refire accuracy after a savegame
+
