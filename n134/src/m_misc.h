@@ -79,6 +79,7 @@ extern bool force_waveout;
 
 extern bool var_fadepower;
 extern bool var_smoothmap;
+extern bool var_obituaries;
 
 extern int var_sample_rate;
 extern int var_sound_bits;

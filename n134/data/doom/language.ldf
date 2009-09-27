@@ -118,6 +118,42 @@ GameSaved="game saved.";
 UnsentMsg="[Message unsent]";
 Sent="[Message Sent]";
 
+OB_CRUSH    = "%o was crushed.";
+OB_EXPLODE  = "%o was blown up.";
+OB_DROWN    = "%o drowned";
+OB_SECTOR   = "%o melted.";
+OB_SUICIDE  = "%o suicided.";
+OB_SLIME    = "%o choked on the slime.";
+OB_LAVA     = "%o was burnt to a crisp.";
+
+OB_Arachnotron = "%o was melted by an Arachnotron.";
+OB_Archvile    = "%o was charred by an Archvile.";
+OB_Baron       = "%o was killed by a Baron of Hell.";
+OB_BaronClaw   = "%o was clawed by a Baron of Hell.";
+OB_CacoBite    = "A Cacodemon chewed up %o!";
+OB_Cacodemon   = "%o was killed by a Cacodemon.";
+OB_ChaingunGuy = "%o was mowed down by a Chaingunner.";
+OB_Cyberdemon  = "%o was blown to bits by a Cyberdemon.";
+OB_Demon       = "%o was mauled by a Demon.";
+OB_Dog         = "%o was bitten by a Dog.";
+OB_Imp         = "%o was killed by an Imp.";
+OB_ImpClaw     = "An Imp tore %o a new one!";
+OB_Mancubus    = "%o was killed by a Mancubus.";
+OB_Revenant    = "%o was killed by a Revenant.";
+OB_RevPunch    = "A revenant knocked %o's head off.";
+OB_ShotgunGuy  = "%o was shot by a Shotgun Sergeant.";
+OB_Skull       = "%o was eaten by a Lost Soul!";
+OB_Zombie      = "%o was gunned down by a Zombie.";
+
+OB_Chaingun  = "%o was torn apart by %k.";
+OB_Pistol    = "%o was gunned down by %k.";
+OB_Missile   = "%o was blown up by %k.";
+OB_Plasma    = "%o was melted by %k.";
+OB_Punch     = "%k punched %o's lights out.";
+OB_Saw       = "%k sawed %o's head off.";
+OB_Shotgun   = "%o was shot by %k.";
+OB_BFG       = "%k annihilated %o.";
+
 Map01Desc="level 1: entryway";
 Map02Desc="level 2: underhalls";
 Map03Desc="level 3: the gantlet";

@@ -3,9 +3,11 @@ CHANGES (since 1.31)
 ====================
 
 
-- two new Action buttons for RTS scripting
++ obituary messages (new DAMAGE.OBITUARY field)
 
-- new RTS command: ONCEILINGHEIGHT (Andrew Baker)
++ two new Action buttons for RTS scripting
+
++ new RTS command: ONCEILINGHEIGHT (Andrew Baker)
 
 - fixed 16-rotation sprites
 - fixed some colormap issues
