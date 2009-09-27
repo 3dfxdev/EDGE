@@ -435,12 +435,11 @@ bool HU_Responder(event_t * ev)
 	bool eatkey = false;
 	static bool shiftdown = false;
 	static bool altdown = false;
-	unsigned char c;
 
 	if (ev->type == ev_analogue)
 		return false;
 
-	c = ev->value.key;
+	int c = ev->value.key.sym;
 
 	if (c == KEYD_RSHIFT)
 	{

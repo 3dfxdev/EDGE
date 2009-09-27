@@ -1456,13 +1456,12 @@ void M_StopMessage(void)
 //
 bool M_Responder(event_t * ev)
 {
-	int ch;
 	int i;
 
 	if (ev->type != ev_keydown)
 		return false;
 
-	ch = ev->value.key;
+	int ch = ev->value.key.sym;
 
 	// -ACB- 1999/10/11 F1 is responsible for print screen at any time
 	if (ch == KEYD_F1 || ch == KEYD_PRTSCR)
