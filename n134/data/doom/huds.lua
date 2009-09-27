@@ -76,13 +76,13 @@ function doomguy_face(x, y)
       
       if player.hurt_pain() > 50 then
         face_image = "STFOUCH" .. pain_digit()
-        face_time = 35
+        face_time = 26
         return
       end
 
       local dir = 0
 
-      if player.hurt_by() == "enemy" then
+      if player.hurt_by() == "enemy" or player.hurt_by() == "friend" then
         dir = player.hurt_dir()
       end
 
