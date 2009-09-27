@@ -22,6 +22,8 @@
 //
 //----------------------------------------------------------------------------
 
+#if 0  // DISABLED
+
 #include "i_defs.h"
 #include "i_net.h"
 
@@ -153,6 +155,7 @@ int N_BroadcastRecv(net_address_c *remote, byte *buffer, int max_len)
 	return actual; //OK
 }
 
+#endif  // DISABLED
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

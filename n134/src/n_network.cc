@@ -78,8 +78,8 @@ void N_InitNetwork(void)
 
 	I_Printf("Network: base port is %d\n", base_port);
 
-	N_StartupReliableLink (base_port+0);
-	N_StartupBroadcastLink(base_port+1);
+///!!!	N_StartupReliableLink (base_port+0);
+///!!!	N_StartupBroadcastLink(base_port+1);
 }
 
 

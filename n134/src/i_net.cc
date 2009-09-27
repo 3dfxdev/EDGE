@@ -29,8 +29,6 @@
 
 bool nonet = true;
 
-#if 0  // DISABLED FOR NOW
-
 #ifdef LINUX
 #include <linux/if.h>
 #include <linux/sockios.h>
@@ -46,6 +44,113 @@ net_address_c n_local_addr;
 net_address_c n_broadcast_send;
 net_address_c n_broadcast_listen;
 
+
+//----------------------------------------------------------------------------
+
+
+net_address_c::net_address_c(const byte *_ip, int _pt) : port(_pt)
+{
+	addr[0] = _ip[0];
+	addr[1] = _ip[1];
+	addr[2] = _ip[2];
+	addr[3] = _ip[3];
+}
+
+net_address_c::net_address_c(const net_address_c& rhs) : port(rhs.port)
+{
+	addr[0] = rhs.addr[0];
+	addr[1] = rhs.addr[1];
+	addr[2] = rhs.addr[2];
+	addr[3] = rhs.addr[3];
+}
+
+void net_address_c::FromSockAddr(const struct sockaddr_in *inaddr)
+{
+	port = ntohs(inaddr->sin_port);
+
+	const byte *source = (const byte*) &inaddr->sin_addr.s_addr;
+
+	addr[0] = source[0];
+	addr[1] = source[1];
+	addr[2] = source[2];
+	addr[3] = source[3];
+}
+
+void net_address_c::ToSockAddr(struct sockaddr_in *inaddr) const
+{
+	memset(inaddr, 0, sizeof(struct sockaddr_in));
+
+	inaddr->sin_family = AF_INET;
+	inaddr->sin_port   = htons(port);
+
+	byte *dest = (byte *) &inaddr->sin_addr.s_addr;
+
+	dest[0] = addr[0];
+	dest[1] = addr[1];
+	dest[2] = addr[2];
+	dest[3] = addr[3];
+}
+
+const char * net_address_c::TempString(bool with_port) const
+{
+	static char buffer[256];
+
+	if (with_port)
+	{
+		sprintf(buffer, "%d.%d.%d.%d:%d",
+				(int)addr[0], (int)addr[1],
+				(int)addr[2], (int)addr[3], port);
+	}
+	else
+	{
+		sprintf(buffer, "%d.%d.%d.%d",
+				(int)addr[0], (int)addr[1],
+				(int)addr[2], (int)addr[3]);
+	}
+
+	return buffer;
+}
+
+bool net_address_c::FromString(const char *str)
+{
+	if (strchr(str, ':') != NULL)
+		port = atoi(strchr(str, ':') + 1);
+
+	int tmp_addr[4];
+
+	if (4 != sscanf(str, " %d.%d.%d.%d  ",
+			   tmp_addr+0, tmp_addr+1, tmp_addr+2, tmp_addr+3))
+		return false;
+
+	addr[0] = tmp_addr[0];
+	addr[1] = tmp_addr[1];
+	addr[2] = tmp_addr[2];
+	addr[3] = tmp_addr[3];
+
+	return true;
+}
+
+void net_address_c::GuessBroadcast(void)
+{
+	// class A subnet mask = 255.0.0.0
+	// class B subnet mask = 255.255.0.0
+	// class C subnet mask = 255.255.255.0
+
+	if (addr[0] < 128) addr[1] = 255;
+	if (addr[0] < 192) addr[2] = 255;
+
+	addr[3] = 255;
+}
+
+
+//----------------------------------------------------------------------------
+
+#if 1
+
+void I_StartupNetwork(void) { }
+void I_ShutdownNetwork(void) { }
+
+#else  // DISABLED FOR NOW
 
 static bool GetLocalAddress(void)
 {
@@ -302,104 +407,6 @@ void I_ShutdownNetwork(void)
 		}
 #endif
 	}
-}
-
-
-//----------------------------------------------------------------------------
-
-
-net_address_c::net_address_c(const byte *_ip, int _pt) : port(_pt)
-{
-	addr[0] = _ip[0];
-	addr[1] = _ip[1];
-	addr[2] = _ip[2];
-	addr[3] = _ip[3];
-}
-
-net_address_c::net_address_c(const net_address_c& rhs) : port(rhs.port)
-{
-	addr[0] = rhs.addr[0];
-	addr[1] = rhs.addr[1];
-	addr[2] = rhs.addr[2];
-	addr[3] = rhs.addr[3];
-}
-
-void net_address_c::FromSockAddr(const struct sockaddr_in *inaddr)
-{
-	port = ntohs(inaddr->sin_port);
-
-	const byte *source = (const byte*) &inaddr->sin_addr.s_addr;
-
-	addr[0] = source[0];
-	addr[1] = source[1];
-	addr[2] = source[2];
-	addr[3] = source[3];
-}
-
-void net_address_c::ToSockAddr(struct sockaddr_in *inaddr) const
-{
-	memset(inaddr, 0, sizeof(struct sockaddr_in));
-
-	inaddr->sin_family = AF_INET;
-	inaddr->sin_port   = htons(port);
-
-	byte *dest = (byte *) &inaddr->sin_addr.s_addr;
-
-	dest[0] = addr[0];
-	dest[1] = addr[1];
-	dest[2] = addr[2];
-	dest[3] = addr[3];
-}
-
-const char * net_address_c::TempString(bool with_port) const
-{
-	static char buffer[256];
-
-	if (with_port)
-	{
-		sprintf(buffer, "%d.%d.%d.%d:%d",
-				(int)addr[0], (int)addr[1],
-				(int)addr[2], (int)addr[3], port);
-	}
-	else
-	{
-		sprintf(buffer, "%d.%d.%d.%d",
-				(int)addr[0], (int)addr[1],
-				(int)addr[2], (int)addr[3]);
-	}
-
-	return buffer;
-}
-
-bool net_address_c::FromString(const char *str)
-{
-	if (strchr(str, ':') != NULL)
-		port = atoi(strchr(str, ':') + 1);
-
-	int tmp_addr[4];
-
-	if (4 != sscanf(str, " %d.%d.%d.%d  ",
-			   tmp_addr+0, tmp_addr+1, tmp_addr+2, tmp_addr+3))
-		return false;
-
-	addr[0] = tmp_addr[0];
-	addr[1] = tmp_addr[1];
-	addr[2] = tmp_addr[2];
-	addr[3] = tmp_addr[3];
-
-	return true;
-}
-
-void net_address_c::GuessBroadcast(void)
-{
-	// class A subnet mask = 255.0.0.0
-	// class B subnet mask = 255.255.0.0
-	// class C subnet mask = 255.255.255.0
-
-	if (addr[0] < 128) addr[1] = 255;
-	if (addr[0] < 192) addr[2] = 255;
-
-	addr[3] = 255;
 }
 
 

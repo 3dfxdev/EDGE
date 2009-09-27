@@ -37,6 +37,9 @@ net_node_c::net_node_c() : sock(INVALID_SOCKET), remote()
 net_node_c::~net_node_c()
 { }
 
+
+#if 0  // DISABLED
+
 //----------------------------------------------------------------------------
 
 static SOCKET host_conn_sock = INVALID_SOCKET;
@@ -303,6 +306,7 @@ void N_RemoveNode(net_node_c *nd)
 	I_Error("INTERNAL ERROR N_RemoveNode: no such node '%p'\n", nd);
 }
 
+#endif  // DISABLED
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

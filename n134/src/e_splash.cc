@@ -22,7 +22,7 @@
 #include "g_game.h"
 #include "r_misc.h"
 #include "r_gldefs.h"
-#include "hu_draw.h"
+// #include "hu_draw.h"
 #include "r_modes.h"
 #include "r_texgl.h"
 
