@@ -1216,6 +1216,9 @@ static void RAD_ParseOnHeight(int pnum, const char **pars)
 {
 	// OnHeight <low Z> <high Z>
 	// OnHeight <low Z> <high Z> <sector num>
+	//
+	// OnCeilingHeight <low Z> <high Z>
+	// OnCeilingHeight <low Z> <high Z> <sector num>
 
 	s_onheight_t *cond = Z_New(s_onheight_t, 1);
 
@@ -1235,6 +1238,8 @@ static void RAD_ParseOnHeight(int pnum, const char **pars)
 	{
 		RAD_CheckForInt(pars[3], &cond->sec_num);
 	}
+
+	cond->is_ceil = (DDF_CompareName("ONCEILINGHEIGHT", pars[0]) == 0);
 
 	// link it into list of ONHEIGHT conditions
 	cond->next = this_rad->height_trig;
@@ -2237,6 +2242,7 @@ static const rts_parser_t radtrig_parsers[] =
 	{2, "PATH_EVENT", 2,2, RAD_ParsePathEvent},
 	{2, "ONDEATH",  2,3, RAD_ParseOnDeath},
 	{2, "ONHEIGHT", 3,4, RAD_ParseOnHeight},
+	{2, "ONCEILINGHEIGHT", 3,4, RAD_ParseOnHeight},
 	{2, "ONCONDITION",  2,2, RAD_ParseOnCondition},
 
 	// actions...
