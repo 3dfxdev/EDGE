@@ -631,11 +631,11 @@ static optmenuitem_t stdkeyconfig[] =
 {
 	{OPT_KeyConfig, "Walk Forward",   NULL, 0, CFGDEF_KEY_UP,          &key_up, NULL, NULL},
 	{OPT_KeyConfig, "Walk Backwards", NULL, 0, CFGDEF_KEY_DOWN,        &key_down, NULL, NULL},
-	{OPT_KeyConfig, "Turn Left",      NULL, 0, CFGDEF_KEY_LEFT,        &key_left, NULL, NULL},
-	{OPT_KeyConfig, "Turn Right",     NULL, 0, CFGDEF_KEY_RIGHT,       &key_right, NULL, NULL},
-	{OPT_Plain,      "",              NULL, 0, 0,                       NULL, NULL, NULL},
 	{OPT_KeyConfig, "Strafe Left",    NULL, 0, CFGDEF_KEY_STRAFELEFT,  &key_strafeleft, NULL, NULL},
 	{OPT_KeyConfig, "Strafe Right",   NULL, 0, CFGDEF_KEY_STRAFERIGHT, &key_straferight, NULL, NULL},
+	{OPT_Plain,      "",              NULL, 0, 0,                       NULL, NULL, NULL},
+	{OPT_KeyConfig, "Turn Left",      NULL, 0, CFGDEF_KEY_LEFT,        &key_left, NULL, NULL},
+	{OPT_KeyConfig, "Turn Right",     NULL, 0, CFGDEF_KEY_RIGHT,       &key_right, NULL, NULL},
 	{OPT_KeyConfig, "Up / Jump",      NULL, 0, CFGDEF_KEY_FLYUP,   &key_flyup, NULL, NULL},
 	{OPT_KeyConfig, "Down / Crouch",  NULL, 0, CFGDEF_KEY_FLYDOWN, &key_flydown, NULL, NULL},
 };
@@ -678,17 +678,17 @@ static menuinfo_t extkeyconfiginfo =
 //
 static optmenuitem_t otherkeyconfig[] =
 {
-	{OPT_KeyConfig, "Use Item",         NULL, 0, CFGDEF_KEY_USE,         &key_use, NULL, NULL},
-	{OPT_KeyConfig, "Action 1",         NULL, 0, 0,                      &key_action1, NULL, NULL},
-	{OPT_KeyConfig, "Action 2",         NULL, 0, 0,                      &key_action2, NULL, NULL},
-	{OPT_KeyConfig, "Strafe",           NULL, 0, CFGDEF_KEY_STRAFE,      &key_strafe, NULL, NULL},
-	{OPT_KeyConfig, "Run",              NULL, 0, CFGDEF_KEY_SPEED,       &key_speed, NULL, NULL},
-	{OPT_Plain,     "",                 NULL, 0, 0,                      NULL, NULL, NULL},
-	{OPT_KeyConfig, "Toggle Autorun",   NULL, 0, CFGDEF_KEY_AUTORUN,     &key_autorun, NULL, NULL},
+	{OPT_KeyConfig, "Use Item",         NULL, 0, CFGDEF_KEY_USE,        &key_use, NULL, NULL},
+	{OPT_KeyConfig, "Strafe",           NULL, 0, CFGDEF_KEY_STRAFE,     &key_strafe, NULL, NULL},
+	{OPT_KeyConfig, "Run",              NULL, 0, CFGDEF_KEY_SPEED,      &key_speed, NULL, NULL},
+	{OPT_KeyConfig, "Toggle Autorun",   NULL, 0, CFGDEF_KEY_AUTORUN,    &key_autorun, NULL, NULL},
 	{OPT_KeyConfig, "180 degree turn",  NULL, 0, CFGDEF_KEY_180,        &key_180, NULL, NULL},
-	{OPT_KeyConfig, "Multiplayer Talk", NULL, 0, CFGDEF_KEY_TALK,       &key_talk, NULL, NULL},
+	{OPT_Plain,     "",                 NULL, 0, 0,                      NULL, NULL, NULL},
 	{OPT_KeyConfig, "Map Toggle",       NULL, 0, CFGDEF_KEY_MAP,        &key_map, NULL, NULL},
+	{OPT_KeyConfig, "Multiplayer Talk", NULL, 0, CFGDEF_KEY_TALK,       &key_talk, NULL, NULL},
 	{OPT_KeyConfig, "Console",          NULL, 0, CFGDEF_KEY_CONSOLE,    &key_console, NULL, NULL},
+	{OPT_KeyConfig, "Action 1",         NULL, 0, CFGDEF_KEY_ACTION1,    &key_action1, NULL, NULL},
+	{OPT_KeyConfig, "Action 2",         NULL, 0, CFGDEF_KEY_ACTION2,    &key_action2, NULL, NULL},
 };
 
 static menuinfo_t otherkeyconfiginfo = 
