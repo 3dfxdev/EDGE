@@ -125,18 +125,18 @@ static spriteframe_c *WhatFrame(spritedef_c *def, const char *name, int pos)
 
 static void SetExtendedRots(spriteframe_c *frame)
 {
-	if (frame->rots == 16)
-		return;
-
 	frame->rots = 16;
 
-	for (int i = 1; i <= 7; i++)
+	for (int i = 7; i >= 1; i--)
 	{
-		frame->flip[2*i]   = frame->flip[i];
 		frame->images[2*i] = frame->images[i];
+		frame->flip[2*i]   = frame->flip[i];
+	}
 
-		frame->flip[i]   = 0;
-		frame->images[i] = NULL;
+	for (int k = 1; k <= 15; k += 2)
+	{
+		frame->images[k] = NULL;
+		frame->flip[k]   = 0;
 	}
 }
 
@@ -161,10 +161,10 @@ static int WhatRot(spriteframe_c *frame, const char *name, int pos )
 	if (frame->rots == 0)
 		frame->rots = 1;
 
-	if (rot >= 1)
+	if (rot >= 1 && frame->rots == 1)
 		frame->rots = 8;
 
-	if (rot >= 9)
+	if (rot >= 9 && frame->rots != 16)
 		SetExtendedRots(frame);
 
 	switch (frame->rots)
