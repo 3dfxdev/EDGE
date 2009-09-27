@@ -141,7 +141,7 @@ int M_CheckCheat(cheatseq_t * cht, char key)
 	return rc;
 }
 
-static void M_ChangeLevelCheat(const char *string)
+void M_ChangeLevelCheat(const char *string)
 {
 	// User pressed <ESC>
 	if (!string)

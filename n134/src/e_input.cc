@@ -575,11 +575,11 @@ void E_ProcessEvents(void)
 	{
 		ev = &events[eventtail];
 
+		if (CON_Responder(ev))
+			continue;  // Console ate the event
+
 		if (chat_on && HU_Responder(ev))
 			continue;  // let chat eat the event first of all
-
-		if (CON_Responder(ev))
-			continue;  // GUI ate the event
 
 		if (M_Responder(ev))
 			continue;  // menu ate the event

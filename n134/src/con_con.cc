@@ -745,7 +745,7 @@ static void TabComplete(void)
 	}
 }
 
-bool CON_HandleKey(int key)
+void CON_HandleKey(int key)
 {
 	switch (key)
 	{
@@ -935,8 +935,6 @@ bool CON_HandleKey(int key)
 		break;
 
 	}
-
-	return true;
 }
 
 static int GetKeycode(event_t *ev)
@@ -978,6 +976,9 @@ static int GetKeycode(event_t *ev)
 
 bool CON_Responder(event_t * ev)
 {
+	if (ev->type != ev_keyup && ev->type != ev_keydown)
+		return false;
+
 	if (ev->type == ev_keydown && ev->value.key.sym == (key_console & 0xFFF))
 	{
 		CON_SetVisible(vs_toggle);
@@ -989,7 +990,7 @@ bool CON_Responder(event_t * ev)
 
 	int key = GetKeycode(ev);
 	if (key < 0)
-		return false;
+		return true;
 
 	if (ev->type == ev_keyup)
 	{
@@ -1006,10 +1007,10 @@ bool CON_Responder(event_t * ev)
 				KeysShifted = false;
 				break;
 			default:
-				return false;
+				break;
 		}
 	}
-	else if (ev->type == ev_keydown)
+	else
 	{
 		// Okay, fine. Most keys don't repeat
 		switch (key)
@@ -1030,10 +1031,10 @@ bool CON_Responder(event_t * ev)
 
 		repeat_key = key;
 
-		return CON_HandleKey(repeat_key);
+		CON_HandleKey(key);
 	}
 
-	return false;
+	return true;  // eat all keyboard events
 }
 
 void CON_Ticker(void)
