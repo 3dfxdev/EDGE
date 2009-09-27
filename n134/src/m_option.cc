@@ -570,6 +570,10 @@ static optmenuitem_t playoptions[] =
      CFGDEF_WEAPON_SWITCH, 
      &global_flags.weapon_switch, M_ChangeWeaponSwitch, NULL},
 
+	{OPT_Boolean, "Obituary Messages",  YesNo, 2, 
+     CFGDEF_MLOOK, 
+     &var_obituaries, NULL, NULL},
+
 	{OPT_Boolean, "More Blood",         YesNo, 2, 
      CFGDEF_MORE_BLOOD, 
      &global_flags.more_blood, M_ChangeBlood, "Blood"},

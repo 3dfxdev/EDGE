@@ -192,6 +192,7 @@ static default_t defaults[] =
 	{CFGT_Boolean,  "var_hogcpu",        &var_hogcpu,     1},
 	{CFGT_Boolean,  "var_fadepower",     &var_fadepower,  1},
 	{CFGT_Boolean,  "var_smoothmap",     &var_smoothmap,  1},
+	{CFGT_Boolean,  "var_obituaries",    &var_obituaries, 1},
 
 	{CFGT_Int,      "var_nearclip",      &var_nearclip,   4},
 	{CFGT_Int,      "var_farclip",       &var_farclip,    64000},
