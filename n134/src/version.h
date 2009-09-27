@@ -18,12 +18,12 @@
 
 #define TITLE  "EDGE Engine"
 
-#define EDGEVER       131
-#define EDGEVERHEX  0x131
-#define EDGEVERSTR  "1.31b"
+#define EDGEVER       134
+#define EDGEVERHEX  0x134
+#define EDGEVERSTR  "1.34a"
 
 // patch level (Savegames and Demos)
-#define EDGEPATCH  9
+#define EDGEPATCH  1
 
 // -ES- 2000/03/04 The version of EDGE.WAD we require.
 #define EDGE_WAD_VERSION 5
