@@ -53,7 +53,6 @@
 #include "p_mobj.h"
 
 #include "con_main.h"
-#include "con_cvar.h"
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "g_game.h"

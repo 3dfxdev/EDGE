@@ -21,6 +21,7 @@
 
 #include "epi/epi.h"
 
+#include "con_var.h"
 #include "i_system.h"
 
 #endif /*__SYSTEM_SPECIFIC_DEFS__*/
