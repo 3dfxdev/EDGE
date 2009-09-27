@@ -27,7 +27,6 @@
 
 #include "epi/image_data.h"
 
-#include "con_cvar.h"
 #include "m_argv.h"
 #include "r_gldefs.h"
 #include "r_units.h"
@@ -100,9 +99,12 @@ void RGL_InitUnits(void)
 	M_CheckBooleanParm("colormaterial", &use_color_material, false);
 	M_CheckBooleanParm("dumbsky",       &dumb_sky, false);
 
+// FIXME
+#if 0
 	CON_CreateCVarBool("lighting",      cf_normal, &use_lighting);
 	CON_CreateCVarBool("colormaterial", cf_normal, &use_color_material);
 	CON_CreateCVarBool("dumbsky",       cf_normal, &dumb_sky);
+#endif
 
 	// Run the soft init code
 	RGL_SoftInitUnits();
