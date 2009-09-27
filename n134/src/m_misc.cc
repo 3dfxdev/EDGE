@@ -230,6 +230,8 @@ static default_t defaults[] =
     {CFGT_Key,      "key_mlook",         &key_mlook,      0},  // -AJA- 1999/07/27.
     {CFGT_Key,      "key_secondatk",     &key_secondatk,  0},  // -AJA- 2000/02/08.
     {CFGT_Key,      "key_reload",        &key_reload,     0},  // -AJA- 2004/11/11.
+    {CFGT_Key,      "key_action1",       &key_action1,    0},  // -AJA- 2009/09/07
+    {CFGT_Key,      "key_action2",       &key_action2,    0},  // -AJA- 2009/09/07
 };
 
 

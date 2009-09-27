@@ -107,7 +107,11 @@ typedef enum
 	EBT_ZOOM = 16,
 
 	// -AJA- 2004/11/10: manual weapon reload
-	EBT_RELOAD = 32
+	EBT_RELOAD = 32,
+
+	// -AJA- 2009/09/07: custom action buttons
+	EBT_ACTION1 = 64,
+	EBT_ACTION2 = 128,
 }
 extbuttoncode_e;
 
