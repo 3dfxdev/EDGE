@@ -34,6 +34,8 @@
 #include "r_state.h"
 #include "s_sound.h"
 
+#include <algorithm>
+
 typedef enum
 {
     RES_Ok,
@@ -1257,8 +1259,9 @@ void P_RunActivePlanes(void)
 	{
 		std::vector<plane_move_t *>::iterator ENDP;
 
-		ENDP = std::remove(active_planes.begin(), active_planes.end(),
-						   (plane_move_t *) NULL);
+		ENDP = std::remove(active_planes.begin(), 
+		                   active_planes.end(),
+				   (plane_move_t *) NULL);
 
 		active_planes.erase(ENDP, active_planes.end());
 	}
@@ -1291,8 +1294,9 @@ void P_RunActiveSliders(void)
 	{
 		std::vector<slider_move_t *>::iterator ENDP;
 
-		ENDP = std::remove(active_sliders.begin(), active_sliders.end(),
-						   (slider_move_t *) NULL);
+		ENDP = std::remove(active_sliders.begin(), 
+		                   active_sliders.end(),
+				   (slider_move_t *) NULL);
 
 		active_sliders.erase(ENDP, active_sliders.end());
 	}
