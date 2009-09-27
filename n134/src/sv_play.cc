@@ -103,6 +103,7 @@ static savefield_t sv_fields_player[] =
 	SF(ammo[0], "ammo", NUMAMMO, SVT_STRUCT("playerammo_t"), 
 	SR_PlayerGetAmmo, SR_PlayerPutAmmo),
 	SF(cheats, "cheats", 1, SVT_INT, SR_GetInt, SR_PutInt),
+	SF(refire, "refire", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(killcount, "killcount", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(itemcount, "itemcount", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(secretcount, "secretcount", 1, SVT_INT, SR_GetInt, SR_PutInt),
