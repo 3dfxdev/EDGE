@@ -44,7 +44,6 @@
 #include "epi/utility.h"
 
 #include "r_automap.h"
-#include "con_defs.h"
 #include "con_gui.h"
 #include "con_main.h"
 #include "con_var.h"

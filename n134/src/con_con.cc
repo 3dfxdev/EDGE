@@ -26,7 +26,6 @@
 #include "i_defs.h"
 #include "i_defs_gl.h"
 
-#include "con_defs.h"
 #include "e_input.h"
 #include "hu_lib.h"
 #include "hu_stuff.h"

@@ -20,203 +20,75 @@
 
 #include "epi/math_crc.h"
 
+#include "ddf/language.h"
+#include "ddf/sfx.h"
+
 #include "con_main.h"
-#include "con_defs.h"
+#include "con_var.h"
+
+#include "e_input.h"
 #include "g_game.h"
 #include "m_menu.h"
 #include "s_sound.h"
 #include "w_wad.h"
+#include "version.h"
 #include "z_zone.h"
 
 
-#define SCREENROWS 100
-#define SCREENCOLS 80
-#define BACKBUFFER 10
+#define MAX_CON_ARGS  64
+
 
 typedef struct
 {
 	const char *name;
-	int flags;
-	int (*cmd) (const char *arg);
+
+	int (* func)(char **argv, int argc);
 }
 con_cmd_t;
 
-int CMD_Eat(const char *args);
-int CMD_Exec(const char *args);
-int CMD_ArgText(const char *args);
-int CMD_Type(const char *args);
-int CMD_TypeOf(const char *args);
-int CMD_ScreenShot(const char *args);
-int CMD_Set(const char *args);
-int CMD_QuitEDGE(const char *args);
-int CMD_Crc(const char *args);
-int CMD_PlaySound(const char *args);
+
+// forward decl.
+extern const con_cmd_t builtin_commands[];
+
+extern void M_ChangeLevelCheat(const char *string);
+extern void I_ShowJoysticks(void);
+extern void M_QuitFinally(void);
 
 
-// Current console commands.  Needs extending badly.
-// 'Builtin' commands should be added here
-// TODO: add another file (i_exec.c) that can load in
-//   'external' commands.  On a real operating system,
-//   these 'external' commands could be loaded in using
-//   dynamic linking, on DOS they must be linked statically.
-static const con_cmd_t consolecommands[] =
+int CMD_Exec(char **argv, int argc)
 {
-	{"args", 0, CMD_ArgText},
-	{"crc", 0, CMD_Crc},
-	{"playsound", 0, CMD_PlaySound},
-	{"eat", 0, CMD_Eat},
-	{"exec", 0, CMD_Exec},
-	{"screenshot", 0, CMD_ScreenShot},
-	{"set", 0, CMD_Set},
-	{"type", 0, CMD_Type},
-	{"typeof", 0, CMD_TypeOf},
-	{"quit", 0, CMD_QuitEDGE},
-	{"exit", 0, CMD_QuitEDGE},
-};
-
-static int GetArgs(const char *args, int argc, char **argv)
-{
-	int i, j, k = 0, m;
-	const int len = (const int)strlen(args);
-	char *s;
-	int quote;
-
-	// skip any leading spaces
-	for (i = 0; args[i] == ' '; i++)
-		;
-
-	for (; i < len; i = j)
-	{
-		// find end of arg
-		if (args[i] == '\"')
-		{
-			quote = 1;
-			i++;
-			for (j = i; args[j] != '\"' && j < len; j++)
-				;
-		} else
-		{
-			quote = 0;
-			for (j = i; args[j] != ' ' && j < len; j++)
-				;
-		}
-
-		s = Z_New(char, j - i + 1);
-		for (m = 0; m < j - i; m++)
-		{
-			// -ES- 1999/07/25 Convert to lowercase, to avoid case sensitivity
-			s[m] = tolower(args[i + m]);
-		}
-		s[j - i] = '\0';
-
-		argv[k] = s;
-
-		if (++k == argc)
-			break;
-
-		if (quote)
-			// skip the ending quote
-			j++;
-
-		// skip whitespace until the next arg
-		while (args[j] == ' ' && j < len)
-			j++;
-	}
-
-	return k;
-}
-
-static void KillArgs(int argc, char *(argv[]))
-{
-	int i;
-
-	for (i = 0; i < argc; i++)
-		Z_Free(argv[i]);
-}
-
-void CON_TryCommand(const char *cmd)
-{
-	int i, j, e;
-	const char *s, *c;
-
-	while (isspace(*cmd))
-		cmd++;
-
-	if (strlen(cmd) == 0)
-		return;
-
-	for (i = sizeof(consolecommands) / sizeof(consolecommands[0]); i--;)
-	{
-		s = consolecommands[i].name;
-		c = cmd;
-		for (j = strlen(consolecommands[i].name); j--; s++, c++)
-			if (*s != *c)
-				break;
-		if (j == -1 && (!*c || *c == ' '))
-		{
-			e = consolecommands[i].cmd(cmd);
-			if (e)
-				CON_Printf("Error %d\n", e);
-			return;
-		}
-	}
-	CON_Printf("Bad Command.\n");
-}
-
-
-int CMD_Exec(const char *args)
-{
-	FILE *script;
-	int argc;
-	char *argv[2];
-	char buffer[SCREENCOLS];
-
-	argc = GetArgs(args, 2, argv);
-
-	if (!argc)
-		return 1;
-
 	if (argc != 2)
 	{
-		CON_Printf("Usage: exec <script name.cfg>\n");
-		KillArgs(argc, argv);
+		CON_Printf("Usage: exec <script.cfg>\n");
 		return 1;
 	}
 
-	script = fopen(argv[1], "rb");
+	FILE *script = fopen(argv[1], "rb");
 	if (!script)
 	{
-		CON_Printf("Unable to open \'%s\'!\n", argv[1]);
-		KillArgs(argc, argv);
+		CON_Printf("Unable to open file: %s\n", argv[1]);
 		return 1;
 	}
 
-	while (fgets(buffer, SCREENCOLS - 1, script))
+	char buffer[200];
+
+	while (fgets(buffer, sizeof(buffer)-1, script))
 	{
 		CON_TryCommand(buffer);
 	}
 
 	fclose(script);
-	KillArgs(argc, argv);
 	return 0;
 }
 
-int CMD_Type(const char *args)
+int CMD_Type(char **argv, int argc)
 {
 	FILE *script;
-	int argc;
-	char *argv[2];
-	char buffer[SCREENCOLS];
-
-	argc = GetArgs(args, 2, argv);
-
-	if (!argc)
-		return 1;
+	char buffer[200];
 
 	if (argc != 2)
 	{
-		CON_Printf("Usage: type <file name.txt>\n");
-		KillArgs(argc, argv);
+		CON_Printf("Usage: type <filename.txt>\n");
 		return 2;
 	}
 
@@ -224,255 +96,89 @@ int CMD_Type(const char *args)
 	if (!script)
 	{
 		CON_Printf("Unable to open \'%s\'!\n", argv[1]);
-		KillArgs(argc, argv);
 		return 3;
 	}
-	while (fgets(buffer, SCREENCOLS - 1, script))
+	while (fgets(buffer, sizeof(buffer)-1, script))
 	{
 		CON_Printf("%s", buffer);
 	}
 	fclose(script);
-	KillArgs(argc, argv);
+
 	return 0;
 }
 
-int CMD_ArgText(const char *args)
+int CMD_ArgList(char **argv, int argc)
 {
-	int argc;
-	int i;
-	char *(argv[10]);
+	I_Printf("Arguments:\n");
 
-	argc = GetArgs(args, 10, argv);
-
-	for (i = 0; i < argc; i++)
-		CON_Printf("%d:(%d) \"%s\"\n", i, (int)strlen(argv[i]), argv[i]);
-
-	KillArgs(argc, argv);
-	return 0;
-}
-
-//
-// Eats memory.
-//
-int CMD_Eat(const char *args)
-{
-	int argc;
-	char *argv[2];
-	int bytes;
-	static char *p = NULL;
-
-	argc = GetArgs(args, 2, argv);
-	if (!argc)
-		return 1;
-
-	if (argc != 2 || 1 != sscanf(argv[1], "%d", &bytes))
-	{
-		CON_Printf("Eat memory. Usage: eat <size>\n");
-		KillArgs(argc, argv);
-		return 2;
-	}
-
-	if (!bytes)
-	{
-		Z_Free(p);
-		p = NULL;
-	}
-	else
-		Z_Resize(p, char, bytes);
+	for (int i = 0; i < argc; i++)
+		I_Printf(" %2d len:%d text:\"%s\"\n", i, (int)strlen(argv[i]), argv[i]);
 
 	return 0;
 }
 
-int CMD_ScreenShot(const char *args)
+int CMD_ScreenShot(char **argv, int argc)
 {
 	G_DeferredScreenShot();
 
 	return 0;
 }
 
-int CMD_Set(const char *args)
+int CMD_QuitEDGE(char **argv, int argc)
 {
-	int argc;
-	cvar_t *var;
-	// temp argv: Just to handle 'const' keyword properly
-	char *tmpargv[3];
-	const char *argv[3];
-	int i;
-	int e = 0;
-	char buf[1025];
-
-	argc = GetArgs(args, 3, tmpargv);
-
-	for (i = 0; i < argc; i++)
-		argv[i] = tmpargv[i];
-
-	switch (argc)
+	if (argc >= 2 && stricmp(argv[1], "now") == 0)
 	{
-	case 2:
-	case 1:
-		for (i = 0; i < num_cvars; i++)
-		{
-			if (argc == 2)
-				if (stricmp(argv[1], cvars[i]->name))
-					continue;
-			if (cvars[i]->flags & cf_read)
-			{
-				cvars[i]->type->get_value_str(cvars[i]->value, buf);
-				CON_Printf("%s = %s\n", cvars[i]->name, buf);
-			}
-			else
-				CON_Printf("%s (Write Only)\n", cvars[i]->name);
-			if (argc == 2)
-				break;
-		}
-		if (i == num_cvars && argc == 2)
-		{  // not found
-
-			CON_Printf("No cvar '%s'!\n", argv[1]);
-			e = 3;
-		}
-		break;
-	default:
-		var = CON_CVarPtrFromName(argv[1]);
-		if (var)
-		{
-			if (!strlen(argv[2]) && var->flags & cf_delete)
-				CON_DeleteCVar(argv[1]);
-			else
-			{
-				if (var->flags & cf_write)
-				{
-					if (!var->type->set_value(var, argc - 2, &argv[2]))
-						e = 1, CON_Printf("\"%s\" is not a valid value for type %s\n", argv[2], var->type->get_name(var));
-				}
-				else
-					e = 2, CON_Printf("\"%s\" is read only\n", var->name);
-			}
-		}
-		else
-		{
-			if (argv[2][0] >= '0' && argv[2][0] <= '9')
-			{
-				int *x = Z_New(int, 1);
-
-				*x = strtol(argv[2], NULL, 0);
-				CON_CreateCVarInt(argv[1], (cflag_t) (cf_delete|cf_mem|cf_normal), x);
-			}
-			else if (!strcmp(argv[2], "true") || !strcmp(argv[2], "false"))
-			{
-				bool *b = Z_New(bool, 1);
-
-				*b = !strcmp(argv[2], "true");
-				CON_CreateCVarBool(argv[1], (cflag_t) (cf_delete|cf_mem|cf_normal), b);
-			}
-			else
-			{
-				char *s = Z_New(char, 256);
-
-				strcpy(s, argv[2]);
-				CON_CreateCVarStr(argv[1], (cflag_t) (cf_delete|cf_mem|cf_normal), s, 255);
-			}
-		}
-		break;
+		// this never returns
+		M_QuitFinally();
 	}
 
-	KillArgs(argc, tmpargv);
-	return e;
-}
-
-int CMD_TypeOf(const char *args)
-{
-	cvar_t *v;
-	char *argv[2];
-	int argc;
-	int e;
-
-	argc = GetArgs(args, 2, argv);
-
-	if (argc < 2)
-	{
-		CON_Printf("Usage: Typeof <cvar>\n");
-		e = 1;
-	}
-	else
-	{
-		v = CON_CVarPtrFromName(argv[1]);
-
-		if (v)
-		{
-			CON_Printf("The type of \"%s\" is \"%s\"\n", v->name, v->type->get_name(v));
-			e = 0;
-		}
-		else
-		{
-			CON_Printf("No console variable called \"%s\"!\n", args);
-			e = 2;
-		}
-	}
-
-	KillArgs(argc, argv);
-
-	return e;
-}
-
-
-int CMD_QuitEDGE(const char *args)
-{
 	M_QuitEDGE(0);
 
 	return 0;
 }
 
 
-int CMD_Crc(const char *args)
+int CMD_Crc(char **argv, int argc)
 {
-	int argc;
-	char *argv[3];
-
 	int lump, length;
 	const byte *data;
 
-	argc = GetArgs(args, 2, argv);
-
-	if (argc != 2)
+	if (argc < 2)
 	{
 		CON_Printf("Usage: crc <lump>\n");
 		return 1;
 	}
 
-	lump = W_CheckNumForName(argv[1]);
-
-	if (lump == -1)
+	for (int i = 1; i < argc; i++)
 	{
-		CON_Printf("No such lump: %s\n", argv[1]);
+		lump = W_CheckNumForName(argv[i]);
+
+		if (lump == -1)
+		{
+			CON_Printf("No such lump: %s\n", argv[i]);
+		}
+		else
+		{
+			length = W_LumpLength(lump);
+			data = (const byte*)W_LoadLumpNum(lump);
+
+			epi::crc32_c result;
+
+			result.Reset();
+			result.AddBlock(data, length);
+
+			Z_Free((void*)data);
+
+			CON_Printf("  %s  %d bytes  crc = %08x\n", argv[i], length, result.crc);
+		}
 	}
-	else
-	{
-		data = (const byte*)W_CacheLumpNum(lump);
-		length = W_LumpLength(lump);
 
-		epi::crc32_c result;
-
-		result.Reset();
-		result.AddBlock(data, length);
-
-		W_DoneWithLump(data);
-
-		CON_Printf("  %s  %d bytes  crc = %08x\n", argv[1], length, result.crc);
-	}
-
-	KillArgs(argc, argv);
 	return 0;
 }
 
-int CMD_PlaySound(const char *args)
+int CMD_PlaySound(char **argv, int argc)
 {
-	int argc;
-	char *argv[3];
-
 	sfx_t *sfx;
-
-	argc = GetArgs(args, 2, argv);
 
 	if (argc != 2)
 	{
@@ -490,9 +196,402 @@ int CMD_PlaySound(const char *args)
 		S_StartFX(sfx, SNCAT_UI);
 	}
 
-	KillArgs(argc, argv);
 	return 0;
 }
+
+int CMD_ResetKeys(char **argv, int argc)
+{
+	// TODO; first param is a name match
+	
+	// TODO E_ResetAllBinds();
+	return 0;
+}
+
+int CMD_ResetVars(char **argv, int argc)
+{
+	// TODO; first param is a name match
+
+	CON_ResetAllVars();
+	return 0;
+}
+
+int CMD_ShowFiles(char **argv, int argc)
+{
+	// TODO	W_ShowFiles();
+	return 0;
+}
+
+int CMD_ShowLumps(char **argv, int argc)
+{
+	int for_file = -1;  // all files
+
+	char *match = NULL;
+
+	if (argc >= 2 && isdigit(argv[1][0]))
+		for_file = atoi(argv[1]);
+
+	if (argc >= 3)
+	{
+		match = argv[2];
+		strupr(match);
+	}
+
+	// TODO W_ShowLumps(for_file, match);
+
+	return 0;
+}
+
+int CMD_ShowVars(char **argv, int argc)
+{
+	bool show_defaults = false;
+
+	char *match = NULL;
+
+	if (argc >= 2 && stricmp(argv[1], "-l") == 0)
+	{
+		show_defaults = true;
+		argv++; argc--;
+	}
+
+	if (argc >= 2)
+		match = argv[1];
+
+	I_Printf("Console Variables:\n");
+
+	int total = 0;
+
+	for (int i = 0; all_cvars[i].name; i++)
+	{
+		if (match && *match)
+			if (! strstr(all_cvars[i].name, match))
+				continue;
+
+		cvar_c *var = all_cvars[i].var;
+
+		if (show_defaults)
+			I_Printf("  %-15s \"%s\" (%s)\n", all_cvars[i].name, var->str, all_cvars[i].def_val);
+		else
+			I_Printf("  %-15s \"%s\"\n", all_cvars[i].name, var->str);
+
+		total++;
+	}
+
+	if (total == 0)
+		I_Printf("Nothing matched.\n");
+
+	return 0;
+}
+
+int CMD_ShowCmds(char **argv, int argc)
+{
+	char *match = NULL;
+
+	if (argc >= 2)
+		match = argv[1];
+
+	I_Printf("Console Commands:\n");
+
+	int total = 0;
+
+	for (int i = 0; builtin_commands[i].name; i++)
+	{
+		if (match && *match)
+			if (! strstr(builtin_commands[i].name, match))
+				continue;
+
+		I_Printf("  %-15s\n", builtin_commands[i].name);
+		total++;
+	}
+
+	if (total == 0)
+		I_Printf("Nothing matched.\n");
+
+	return 0;
+}
+
+int CMD_ShowKeys(char **argv, int argc)
+{
+#if 0  // TODO
+	char *match = NULL;
+
+	if (argc >= 2)
+		match = argv[1];
+
+	I_Printf("Key Bindings:\n");
+
+	int total = 0;
+
+	for (int i = 0; all_binds[i].name; i++)
+	{
+		if (match && *match)
+			if (! strstr(all_binds[i].name, match))
+				continue;
+
+		std::string keylist = all_binds[i].bind->FormatKeyList();
+
+		I_Printf("  %-15s %s\n", all_binds[i].name, keylist.c_str());
+		total++;
+	}
+
+	if (total == 0)
+		I_Printf("Nothing matched.\n");
+#endif
+	return 0;
+}
+
+int CMD_ShowJoysticks(char **argv, int argc)
+{
+	I_ShowJoysticks();
+
+	return 0;
+}
+
+
+int CMD_Help(char **argv, int argc)
+{
+	I_Printf("Welcome to the EDGE Console.\n");
+	I_Printf("\n");
+	I_Printf("Use the 'showcmds' command to list all commands.\n");
+	I_Printf("The 'showvars' command will list all variables.\n");
+	I_Printf("Both of these can take a keyword to match the names with.\n");
+	I_Printf("\n");
+	I_Printf("To show the value of a variable, just type its name.\n");
+	I_Printf("To change it, follow the name with a space and the new value.\n");
+	I_Printf("\n");
+	I_Printf("Press ESC key to close the console.\n");
+	I_Printf("The PGUP and PGDN keys scroll the console up and down.\n");
+	I_Printf("The UP and DOWN arrow keys let you recall previous commands.\n");
+	I_Printf("\n");
+	I_Printf("Have a nice day!\n");
+
+	return 0;
+}
+
+int CMD_Version(char **argv, int argc)
+{
+	I_Printf("EDGE v" EDGEVERSTR "\n");
+	return 0;
+}
+
+
+int CMD_Map(char **argv, int argc)
+{
+	if (argc <= 1)
+	{
+		CON_Printf("Usage: map <level>\n");
+		return 0;
+	}
+
+	M_ChangeLevelCheat(argv[1]);
+	return 0;
+}
+
+
+//----------------------------------------------------------------------------
+
+// oh lordy....
+static char *StrDup(const char *start, int len)
+{
+	char *buf = new char[len + 2];
+
+	memcpy(buf, start, len);
+	buf[len] = 0;
+
+	return buf;
+}
+
+static int GetArgs(const char *line, char **argv, int max_argc)
+{
+	int argc = 0;
+
+	for (;;)
+	{
+		while (isspace(*line))
+			line++;
+
+		if (! *line)
+			break;
+
+		// silent truncation (bad?)
+		if (argc >= max_argc)
+			break;
+
+		const char *start = line;
+
+		if (*line == '"')
+		{
+			start++; line++;
+
+			while (*line && *line != '"')
+				line++;
+		}
+		else
+		{
+			while (*line && !isspace(*line))
+				line++;
+		}
+
+		// ignore empty strings at beginning of the line
+		if (! (argc == 0 && start == line))
+		{
+			argv[argc++] = StrDup(start, line - start);
+		}
+
+		if (*line)
+			line++;
+	}
+
+	return argc;
+}
+
+static void KillArgs(char **argv, int argc)
+{
+	for (int i = 0; i < argc; i++)
+		delete[] argv[i];
+}
+
+
+//
+// Current console commands:
+//
+const con_cmd_t builtin_commands[] =
+{
+	{ "args",           CMD_ArgList },
+	{ "crc",            CMD_Crc },
+	{ "exec",           CMD_Exec },
+	{ "help",           CMD_Help },
+	{ "map",            CMD_Map },
+	{ "playsound",      CMD_PlaySound },
+  	{ "resetkeys",      CMD_ResetKeys },
+	{ "resetvars",      CMD_ResetVars },
+	{ "showfiles",      CMD_ShowFiles },
+  	{ "showjoysticks",  CMD_ShowJoysticks },
+  	{ "showkeys",       CMD_ShowKeys },
+	{ "showlumps",      CMD_ShowLumps },
+	{ "showcmds",       CMD_ShowCmds },
+	{ "showvars",       CMD_ShowVars },
+	{ "screenshot",     CMD_ScreenShot },
+	{ "type",           CMD_Type },
+	{ "version",        CMD_Version },
+	{ "quit",           CMD_QuitEDGE },
+	{ "exit",           CMD_QuitEDGE },
+
+	// end of list
+	{ NULL, NULL }
+};
+
+
+static int FindCommand(const char *name)
+{
+	for (int i = 0; builtin_commands[i].name; i++)
+	{
+		if (stricmp(name, builtin_commands[i].name) == 0)
+			return i;
+	}
+
+	return -1;  // not found
+}
+
+#if 0
+static void ProcessBind(key_link_t *link, char **argv, int argc)
+{
+	for (int i = 1; i < argc; i++)
+	{
+		if (stricmp(argv[i], "-c") == 0)
+		{
+			link->bind->Clear();
+			continue;
+		}
+
+		int keyd = E_KeyFromName(argv[i]);
+		if (keyd == 0)
+		{
+			CON_Printf("Invalid key name: %s\n", argv[i]);
+			continue;
+		}
+
+		link->bind->Toggle(keyd);
+	}
+}
+#endif
+
+void CON_TryCommand(const char *cmd)
+{
+	char *argv[MAX_CON_ARGS];
+	int argc = GetArgs(cmd, argv, MAX_CON_ARGS);
+
+	if (argc == 0)
+		return;
+
+	int index = FindCommand(argv[0]);
+	if (index >= 0)
+	{
+		(* builtin_commands[index].func)(argv, argc);
+
+		KillArgs(argv, argc);
+		return;
+	}
+
+	cvar_link_t *link = CON_FindVar(argv[0]);
+	if (link)
+	{
+		if (argc <= 1)
+			I_Printf("%s \"%s\"\n", argv[0], link->var->str);
+		else if (argc >= 3)
+			I_Printf("Can only assign one value (%d given).\n", argc-1);
+		else if (strchr(link->flags, 'r'))
+			I_Printf("That cvar is read only.\n");
+		else
+			*link->var = argv[1];
+
+		KillArgs(argv, argc);
+		return;
+	}
+
+#if 0
+	// hmmm I like it kinky...
+	key_link_t *kink = E_FindKeyBinding(argv[0]);
+	if (kink)
+	{
+		if (argc <= 1)
+		{
+			std::string keylist = kink->bind->FormatKeyList();
+
+			I_Printf("%s %s\n", argv[0], keylist.c_str());
+		}
+		else
+		{
+			ProcessBind(kink, argv, argc);
+		}
+
+		KillArgs(argv, argc);
+		return;
+	}
+#endif
+
+	I_Printf("Unknown console command: %s\n", argv[0]);
+
+	KillArgs(argv, argc);
+	return;
+}
+
+
+int CON_MatchAllCmds(std::vector<const char *>& list,
+                     const char *pattern)
+{
+	list.clear();
+
+	for (int i = 0; builtin_commands[i].name; i++)
+	{
+		if (! CON_MatchPattern(builtin_commands[i].name, pattern))
+			continue;
+
+		list.push_back(builtin_commands[i].name);
+	}
+
+	return (int)list.size();
+}
+
 
 //
 // CON_PlayerMessage
