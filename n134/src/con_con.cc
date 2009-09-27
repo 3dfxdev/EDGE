@@ -2,7 +2,8 @@
 //  EDGE Console Interface code.
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1998       Randy Heit
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -16,16 +17,19 @@
 //
 //----------------------------------------------------------------------------
 //
-// Partially based on the ZDoom console code, by Randy Heit
+// Originally based on the ZDoom console code, by Randy Heit
 // (rheit@iastate.edu).  Randy Heit has given his permission to
 // release this code under the GPL, for which the EDGE Team is very
-// grateful.  The original GPL'd version `c_consol.c' can be found in
-// the contrib/ directory.
+// grateful.  The original GPL'd version `c_consol.c' can be found
+// in the contrib/ directory.
 //
 
 #include "i_defs.h"
 #include "i_defs_gl.h"
 
+#include "ddf/language.h"
+
+#include "con_main.h"
 #include "e_input.h"
 #include "hu_lib.h"
 #include "hu_stuff.h"
@@ -35,7 +39,6 @@
 #include "r_image.h"
 #include "r_modes.h"
 #include "r_wipe.h"
-#include "z_zone.h"
 
 
 #define CON_WIPE_TICS  12
@@ -50,16 +53,12 @@ static const image_c *con_font;
 // the console's background
 static style_c *console_style;
 
-
-#define T_WHITE   RGB_MAKE(208,208,208)
-#define T_YELLOW  RGB_MAKE(255,255,0)
-#define T_PURPLE  RGB_MAKE(255,32,255)
-#define T_BLUE    RGB_MAKE( 32,32,255)
-#define T_ORANGE  RGB_MAKE(255,72,0)
-
 static rgbcol_t current_color;
 
 
+#define T_GREY176  RGB_MAKE(176,176,176)
+ 
+// TODO: console var
 #define MAX_CON_LINES  160
 
 class console_line_c
@@ -70,11 +69,11 @@ public:
 	rgbcol_t color;
 
 public:
-	console_line_c(const std::string& text, rgbcol_t _col = T_WHITE) :
+	console_line_c(const std::string& text, rgbcol_t _col = T_LGREY) :
 		line(text), color(_col)
 	{ }
 
-	console_line_c(const char *text, rgbcol_t _col = T_WHITE) :
+	console_line_c(const char *text, rgbcol_t _col = T_LGREY) :
 		line(text), color(_col)
 	{ }
 
@@ -107,15 +106,15 @@ static int  input_pos = 0;
 // stores the console toggle effect
 static int conwipeactive = 0;
 static int conwipepos = 0;
-static int conwipemethod = WIPE_Crossfade;
-static bool conwipereverse = 0;
-static int conwipeduration = 10;
 
 
 #define KEYREPEATDELAY ((250 * TICRATE) / 1000)
 #define KEYREPEATRATE  (TICRATE / 15)
 
 
+// HISTORY
+
+// TODO: console var to control history size
 #define MAX_CMD_HISTORY  100
 
 static std::string *cmd_history[MAX_CMD_HISTORY];
@@ -127,25 +126,15 @@ static int cmd_hist_pos = -1;
 
 
 // always type ev_keydown
-static int RepeatKey;
-static int RepeatCountdown;
+static int repeat_key;
+static int repeat_countdown;
 
 // tells whether shift is pressed, and pgup/dn should scroll to top/bottom of linebuffer.
 static bool KeysShifted;
 
 static bool TabbedLast;
 
-bool CON_HandleKey(int key);
-
-typedef enum
-{
-	NOSCROLL,
-	SCROLLUP,
-	SCROLLDN
-}
-scrollstate_e;
-
-static scrollstate_e scroll_state;
+static int scroll_dir;
 
 
 static void CON_AddLine(const char *s, bool partial)
@@ -169,7 +158,7 @@ static void CON_AddLine(const char *s, bool partial)
 
 	rgbcol_t col = current_color;
 
-	if (col == T_WHITE && (strncmp(s, "WARNING", 7) == 0))
+	if (col == T_LGREY && (strncmp(s, "WARNING", 7) == 0))
 		col = T_ORANGE;
 
 	console_lines[0] = new console_line_c(s, col);
@@ -182,6 +171,11 @@ static void CON_AddLine(const char *s, bool partial)
 
 static void CON_AddCmdHistory(const char *s)
 {
+	// don't add if same as previous command
+	if (cmd_used_hist > 0)
+    	if (strcmp(s, cmd_history[0]->c_str()) == 0)
+        	return;
+
 	// scroll everything up 
 	delete cmd_history[MAX_CMD_HISTORY-1];
 
@@ -207,7 +201,7 @@ void CON_SetVisible(visible_t v)
 	{
 		v = (con_visible == vs_notvisible) ? vs_maximal : vs_notvisible;
 
-		scroll_state = NOSCROLL;
+		scroll_dir = 0;
 	}
 
 	if (con_visible == v)
@@ -283,7 +277,7 @@ static void SplitIntoLines(char *src)
 		CON_AddLine(line, true);
 	}
 
-	current_color = T_WHITE;
+	current_color = T_LGREY;
 }
 
 void CON_Printf(const char *message, ...)
@@ -342,59 +336,6 @@ void CON_MessageColor(rgbcol_t col)
 	current_color = col;
 }
 
-
-void CON_Ticker(void)
-{
-	con_cursor = (con_cursor + 1) & 31;
-
-	if (con_visible != vs_notvisible)
-	{
-		// Handle repeating keys
-		switch (scroll_state)
-		{
-		case SCROLLUP:
-			if (bottomrow < MAX_CON_LINES-10)
-				bottomrow++;
-
-			break;
-
-		case SCROLLDN:
-			if (bottomrow > -1)
-				bottomrow--;
-
-			break;  
-
-		default:
-			if (RepeatCountdown)
-			{
-				RepeatCountdown -= 1;
-
-				while (RepeatCountdown <= 0)
-				{
-					RepeatCountdown += KEYREPEATRATE;
-					CON_HandleKey(RepeatKey);
-				}
-			}
-			break;
-		}
-	}
-
-	if (conwipeactive)
-	{
-		if (con_visible == vs_notvisible)
-		{
-			conwipepos--;
-			if (conwipepos <= 0)
-				conwipeactive = false;
-		}
-		else
-		{
-			conwipepos++;
-			if (conwipepos >= CON_WIPE_TICS)
-				conwipeactive = false;
-		}
-	}
-}
 
 
 static int FNSZ;
@@ -578,18 +519,231 @@ void CON_Drawer(void)
 	}
 }
 
-#if 0
-static void TabComplete(void)
-{  // -ES- fixme - implement these
 
-}
-static void AddTabCommand(char *name)
+static void GotoEndOfLine(void)
 {
+	if (cmd_hist_pos < 0)
+		input_pos = strlen(input_line);
+	else
+		input_pos = strlen(cmd_history[cmd_hist_pos]->c_str());
+
+	con_cursor = 0;
 }
-static void RemoveTabCommand(char *name)
+
+static void EditHistory(void)
 {
+	if (cmd_hist_pos >= 0)
+	{
+		strcpy(input_line, cmd_history[cmd_hist_pos]->c_str());
+
+		cmd_hist_pos = -1;
+	}
 }
-#endif
+
+static void InsertChar(char ch)
+{
+	// make room for new character, shift the trailing NUL too
+
+	for (int j = MAX_CON_INPUT-2; j >= input_pos; j--)
+		input_line[j+1] = input_line[j];
+
+	input_line[MAX_CON_INPUT-1] = 0;
+
+	input_line[input_pos++] = ch;
+}
+
+static void ListCompletions(std::vector<const char *> & list,
+                            int word_len, int max_row, rgbcol_t color)
+{
+	int max_col = SCREENWIDTH / XMUL - 4;
+	max_col = CLAMP(24, max_col, 78);
+
+	char buffer[200];
+	int buf_len = 0;
+
+	buffer[buf_len] = 0;
+
+	char temp[200];
+	char last_ja = 0;
+
+	for (int i = 0; i < (int)list.size(); i++)
+	{
+		const char *name = list[i];
+		int n_len = (int)strlen(name);
+
+		// support for names with a '.' in them
+		const char *dotpos = strchr(name, '.');
+		if (dotpos && dotpos > name + word_len)
+		{
+			if (last_ja == dotpos[-1])
+				continue;
+
+			last_ja = dotpos[-1];
+
+			n_len = (int)(dotpos - name);
+
+			strcpy(temp, name);
+			temp[n_len] = 0;
+
+			name = temp;
+		}
+		else
+			last_ja = 0;
+
+		if (n_len >= max_col * 2 / 3)
+		{
+			CON_MessageColor(color);
+			CON_Printf("  %s\n", name);
+			max_row--;
+			continue;
+		}
+
+		if (buf_len + 1 + n_len > max_col)
+		{
+			CON_MessageColor(color);
+			CON_Printf("  %s\n", buffer);
+			max_row--;
+
+			buf_len = 0;
+			buffer[buf_len] = 0;
+
+			if (max_row <= 0)
+			{
+				CON_MessageColor(color);
+				CON_Printf("  etc...\n");
+				break;
+			}
+		}
+
+		if (buf_len > 0)
+			buffer[buf_len++] = ' ';
+
+		strcpy(buffer + buf_len, name);
+
+		buf_len += n_len;
+	}
+
+	if (buf_len > 0)
+	{
+		CON_MessageColor(color);
+		CON_Printf("  %s\n", buffer);
+	}
+}
+
+static void TabComplete(void)
+{
+	EditHistory();
+
+	// check if we are positioned after a word
+	{
+		if (input_pos == 0)
+			return ;
+
+		if (isdigit(input_line[0]))
+			return ;
+
+		for (int i=0; i < input_pos; i++)
+		{
+			char ch = input_line[i];
+
+			if (! (isalnum(ch) || ch == '_' || ch == '.'))
+				return;
+		}
+	}
+
+	char save_ch = input_line[input_pos];
+	input_line[input_pos] = 0;
+
+	std::vector<const char *> match_cmds;
+	std::vector<const char *> match_vars;
+	std::vector<const char *> match_keys;
+
+	int num_cmd = CON_MatchAllCmds(match_cmds, input_line);
+	int num_var = CON_MatchAllVars(match_vars, input_line);
+	int num_key = 0; ///  E_MatchAllKeys(match_keys, input_line);
+
+	// we have an unambiguous match, no need to print anything
+	if (num_cmd + num_var + num_key == 1)
+	{
+		input_line[input_pos] = save_ch;
+
+		const char *name = (num_var > 0) ? match_vars[0] :
+		                   (num_key > 0) ? match_keys[0] : match_cmds[0];
+
+		SYS_ASSERT((int)strlen(name) >= input_pos);
+
+		for (name += input_pos; *name; name++)
+			InsertChar(*name);
+
+		if (save_ch != ' ')
+			InsertChar(' ');
+
+		con_cursor = 0;
+		return;
+	}
+
+	// show what we were trying to match
+	CON_MessageColor(T_LTBLUE);
+	CON_Printf(">%s\n", input_line);
+
+	input_line[input_pos] = save_ch;
+
+	if (num_cmd + num_var + num_key == 0)
+	{
+		CON_Printf("No matches.\n");
+		return;
+	}
+
+	if (match_vars.size() > 0)
+	{
+		CON_Printf("%u Possible variables:\n", match_vars.size());
+
+		ListCompletions(match_vars, input_pos, 7, RGB_MAKE(0,208,72));
+	}
+
+	if (match_keys.size() > 0)
+	{
+		CON_Printf("%u Possible keys:\n", match_keys.size());
+
+		ListCompletions(match_keys, input_pos, 4, RGB_MAKE(0,208,72));
+	}
+
+	if (match_cmds.size() > 0)
+	{
+		CON_Printf("%u Possible commands:\n", match_cmds.size());
+
+		ListCompletions(match_cmds, input_pos, 3, T_ORANGE);
+	}
+
+	// Add as many common characters as possible
+	// (e.g. "mou <TAB>" should add the s, e and _).
+
+	// begin by lumping all completions into one list
+	unsigned int i;
+
+	for (i = 0; i < match_keys.size(); i++)
+		match_vars.push_back(match_keys[i]);
+
+	for (i = 0; i < match_cmds.size(); i++)
+		match_vars.push_back(match_cmds[i]);
+
+	int pos = input_pos;
+
+	for (;;)
+	{
+		char ch = match_vars[0][pos];
+		if (! ch)
+			return;
+
+		for (i = 1; i < match_vars.size(); i++)
+			if (match_vars[i][pos] != ch)
+				return;
+
+		InsertChar(ch);
+
+		pos++;
+	}
+}
 
 bool CON_HandleKey(int key)
 {
@@ -608,7 +762,7 @@ bool CON_HandleKey(int key)
 			bottomrow = MAX_CON_LINES - 10;  //!!! FIXME
 		else
 			// Start scrolling console buffer up
-			scroll_state = SCROLLUP;
+			scroll_dir = +1;
 		break;
 	
 	case KEYD_PGDN:
@@ -617,9 +771,21 @@ bool CON_HandleKey(int key)
 			bottomrow = -1;
 		else
 			// Start scrolling console buffer down
-			scroll_state = SCROLLDN;
+			scroll_dir = -1;
 		break;
 	
+    case KEYD_MWHEEL_UP:
+        bottomrow += 4;
+        if (bottomrow >= MAX_CON_LINES-10)
+            bottomrow  = MAX_CON_LINES-10;
+        break;
+    
+    case KEYD_MWHEEL_DN:
+        bottomrow -= 4;
+        if (bottomrow < -1)
+            bottomrow = -1;
+        break;
+
 	case KEYD_HOME:
 		// Move cursor to start of line
 		input_pos = 0;
@@ -633,6 +799,22 @@ bool CON_HandleKey(int key)
 		con_cursor = 0;
 		break;
 	
+	case KEYD_UPARROW:
+		if (cmd_hist_pos < cmd_used_hist-1)
+			cmd_hist_pos++;
+
+		TabbedLast = false;
+		break;
+	
+	case KEYD_DOWNARROW:
+		// Move to next entry in the command history
+	
+		if (cmd_hist_pos > -1)
+			cmd_hist_pos--;
+	
+		TabbedLast = false;
+		break;
+
 	case KEYD_LEFTARROW:
 		// Move cursor left one character
 	
@@ -689,22 +871,6 @@ bool CON_HandleKey(int key)
 		KeysShifted = true;
 		break;
 	
-	case KEYD_UPARROW:
-		if (cmd_hist_pos < cmd_used_hist-1)
-			cmd_hist_pos++;
-
-		TabbedLast = false;
-		break;
-	
-	case KEYD_DOWNARROW:
-		// Move to next entry in the command history
-	
-		if (cmd_hist_pos > -1)
-			cmd_hist_pos--;
-	
-		TabbedLast = false;
-		break;
-
 	case KEYD_ENTER:
 	
 		// Execute command line (ENTER)
@@ -773,9 +939,46 @@ bool CON_HandleKey(int key)
 	return true;
 }
 
+static int GetKeycode(event_t *ev)
+{
+    int sym = ev->value.key.sym;
+
+	switch (sym)
+	{
+		case KEYD_TAB:
+		case KEYD_PGUP:
+		case KEYD_PGDN:
+		case KEYD_HOME:
+		case KEYD_END:
+		case KEYD_LEFTARROW:
+		case KEYD_RIGHTARROW:
+		case KEYD_BACKSPACE:
+		case KEYD_DELETE:
+		case KEYD_UPARROW:
+		case KEYD_DOWNARROW:
+		case KEYD_MWHEEL_UP:
+		case KEYD_MWHEEL_DN:
+		case KEYD_ENTER:
+		case KEYD_ESCAPE:
+			return sym;
+
+		default:
+			break;
+    }
+
+    int unicode = ev->value.key.unicode;
+    if (HU_IS_PRINTABLE(unicode))
+        return unicode;
+
+    if (HU_IS_PRINTABLE(sym))
+        return sym;
+
+    return -1;
+}
+
 bool CON_Responder(event_t * ev)
 {
-	if (ev->type == ev_keydown && ev->value.key == key_console)
+	if (ev->type == ev_keydown && ev->value.key.sym == (key_console & 0xFFF))
 	{
 		CON_SetVisible(vs_toggle);
 		return true;
@@ -784,16 +987,20 @@ bool CON_Responder(event_t * ev)
 	if (con_visible == vs_notvisible)
 		return false;
 
+	int key = GetKeycode(ev);
+	if (key < 0)
+		return false;
+
 	if (ev->type == ev_keyup)
 	{
-		if (ev->value.key == RepeatKey)
-			RepeatCountdown = 0;
+		if (key == repeat_key)
+			repeat_countdown = 0;
 
-		switch (ev->value.key)
+		switch (key)
 		{
 			case KEYD_PGUP:
 			case KEYD_PGDN:
-				scroll_state = NOSCROLL;
+				scroll_dir = 0;
 				break;
 			case KEYD_RSHIFT:
 				KeysShifted = false;
@@ -805,7 +1012,7 @@ bool CON_Responder(event_t * ev)
 	else if (ev->type == ev_keydown)
 	{
 		// Okay, fine. Most keys don't repeat
-		switch (ev->value.key)
+		switch (key)
 		{
 			case KEYD_RIGHTARROW:
 			case KEYD_LEFTARROW:
@@ -814,19 +1021,70 @@ bool CON_Responder(event_t * ev)
 			case KEYD_SPACE:
 			case KEYD_BACKSPACE:
 			case KEYD_DELETE:
-				RepeatCountdown = KEYREPEATDELAY;
+				repeat_countdown = KEYREPEATDELAY;
 				break;
 			default:
-				RepeatCountdown = 0;
+				repeat_countdown = 0;
 				break;
 		}
 
-		RepeatKey = ev->value.key;
+		repeat_key = key;
 
-		return CON_HandleKey(RepeatKey);
+		return CON_HandleKey(repeat_key);
 	}
 
 	return false;
+}
+
+void CON_Ticker(void)
+{
+	con_cursor = (con_cursor + 1) & 31;
+
+	if (con_visible != vs_notvisible)
+	{
+		// Handle repeating keys
+		switch (scroll_dir)
+		{
+		case +1:
+			if (bottomrow < MAX_CON_LINES-10)
+				bottomrow++;
+			break;
+
+		case -1:
+			if (bottomrow > -1)
+				bottomrow--;
+			break;  
+
+		default:
+			if (repeat_countdown)
+			{
+				repeat_countdown -= 1;
+
+				while (repeat_countdown <= 0)
+				{
+					repeat_countdown += KEYREPEATRATE;
+					CON_HandleKey(repeat_key);
+				}
+			}
+			break;
+		}
+	}
+
+	if (conwipeactive)
+	{
+		if (con_visible == vs_notvisible)
+		{
+			conwipepos--;
+			if (conwipepos <= 0)
+				conwipeactive = false;
+		}
+		else
+		{
+			conwipepos++;
+			if (conwipepos >= CON_WIPE_TICS)
+				conwipeactive = false;
+		}
+	}
 }
 
 
@@ -843,7 +1101,7 @@ void CON_InitConsole(void)
 
 	CON_ClearInputLine();
 
-	current_color = T_WHITE;
+	current_color = T_LGREY;
 
 	CON_AddLine("", false);
 	CON_AddLine("", false);
@@ -851,10 +1109,6 @@ void CON_InitConsole(void)
 
 void CON_Start(void)
 {
-	CON_CreateCVarEnum("conwipemethod",  cf_normal, &conwipemethod, WIPE_EnumStr, WIPE_NUMWIPES);
-	CON_CreateCVarInt("conwipeduration", cf_normal, &conwipeduration);
-	CON_CreateCVarBool("conwipereverse", cf_normal, &conwipereverse);
-
 	con_visible = vs_notvisible;
 	con_cursor  = 0;
 }
