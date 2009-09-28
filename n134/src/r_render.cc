@@ -1329,7 +1329,7 @@ static void DrawTile(seg_t *seg, drawfloor_t *dfloor,
 
 	bool opaque = (! seg->backsector) ||
 		(surf->translucency >= 0.99f &&
-		 surf->image->opacity == OPAC_Solid);
+		 image->opacity == OPAC_Solid);
 
 	// check for horizontal sliders
 	if ((flags & WTILF_MidMask) && seg->linedef->slide_door)
