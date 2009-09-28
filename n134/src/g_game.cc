@@ -31,6 +31,7 @@
 #include "epi/endianess.h"
 #include "epi/path.h"
 #include "epi/str_format.h"
+#include "epi/filesystem.h"
 
 #include "con_main.h"
 #include "dstrings.h"
@@ -798,11 +799,17 @@ static void G_DoSaveGame(void)
 	time_t cur_time;
 	char timebuf[100];
 
-	std::string fn(G_FileNameFromSlot(defer_save_slot));
-	
-	if (! SV_OpenWriteFile(fn.c_str(), (EDGEVERHEX << 8) | EDGEPATCH))
+	// use a temporary file in case EDGE crashes during the save.
+	// On success we rename this to the actual filename.
+	std::string temp_fn = epi::PATH_Join(save_dir.c_str(), "TEMPSAVE.raw");
+
+	std::string new_fn(G_FileNameFromSlot(defer_save_slot));
+
+	epi::FS_Delete(new_fn.c_str());
+
+	if (! SV_OpenWriteFile(temp_fn.c_str(), (EDGEVERHEX << 8) | EDGEPATCH))
 	{
-		I_Error("Unable to create savegame file: %s\n", fn.c_str());
+		I_Error("Unable to create savegame file: %s\n", temp_fn.c_str());
 		return; /* NOT REACHED */
 	}
 
@@ -857,7 +864,13 @@ static void G_DoSaveGame(void)
 	SV_FinishSave();
 	SV_CloseWriteFile();
 
-	std::string fn_base = epi::PATH_GetBasename(fn.c_str());
+	if (! epi::FS_Rename(temp_fn.c_str(), new_fn.c_str()))
+	{
+		I_Error("Unable to create savegame file: %s\n", new_fn.c_str());
+		return; /* NOT REACHED */
+	}
+
+	std::string fn_base = epi::PATH_GetBasename(new_fn.c_str());
 
 	HUB_CopyHubsForSavegame(fn_base.c_str());
 
