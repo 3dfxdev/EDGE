@@ -3051,11 +3051,13 @@ void P_ActStandardLook(mobj_t * object)
 	if (object->flags & MF_STEALTH)
 		object->vis_target = VISIBLE;
 
+#if 0  // DISABLED, HORRIBLY BROKEN
 	if (infight)
 	{
 		if (CreateAggression(object))
 			return;
 	}
+#endif
 
 	if (targ && (targ->flags & MF_SHOOTABLE))
 	{

@@ -328,7 +328,6 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	}
 
 	// -MH- 1998/08/18 Fly up
-	if (level_flags.true3dgameplay)
 	{
 		if ((E_InputCheckKey(key_flyup)))
 			upward += upwardmove[speed];
