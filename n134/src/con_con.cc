@@ -46,8 +46,9 @@
 
 static visible_t con_visible;
 
-static int con_cursor;
-
+// stores the console toggle effect
+static int conwipeactive = 0;
+static int conwipepos = 0;
 static const image_c *con_font;
 
 // the console's background
@@ -102,10 +103,7 @@ static int bottomrow = -1;
 static char input_line[MAX_CON_INPUT+2];
 static int  input_pos = 0;
 
-
-// stores the console toggle effect
-static int conwipeactive = 0;
-static int conwipepos = 0;
+static int con_cursor;
 
 
 #define KEYREPEATDELAY ((250 * TICRATE) / 1000)
@@ -350,19 +348,10 @@ static void HorizontalLine(int y, rgbcol_t col)
 	RGL_SolidBox(0, y, SCREENWIDTH-1, 1, col, alpha);
 }
 
-static void WriteChar(int x, int y, char ch, rgbcol_t col)
+static void DrawChar(int x, int y, char ch, rgbcol_t col)
 {
 	if (x + FNSZ < 0)
 		return;
-
-	GLuint tex_id = W_ImageCache(con_font);
-
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, tex_id);
- 
-	glEnable(GL_BLEND);
-	glEnable(GL_ALPHA_TEST);
-	glAlphaFunc(GL_GREATER, 0);
 
 	float alpha = 1.0f;
 
@@ -377,7 +366,6 @@ static void WriteChar(int x, int y, char ch, rgbcol_t col)
 
 	float ty1 = (py  ) / 16.0;
 	float ty2 = (py+1) / 16.0;
-
 
 	glBegin(GL_POLYGON);
   
@@ -394,25 +382,33 @@ static void WriteChar(int x, int y, char ch, rgbcol_t col)
 	glVertex2i(x + FNSZ, y);
   
 	glEnd();
-
-
-	glDisable(GL_TEXTURE_2D);
-	glDisable(GL_ALPHA_TEST);
-	glDisable(GL_BLEND);
 }
 
 // writes the text on coords (x,y) of the console
-static void WriteText(int x, int y, const char *s, rgbcol_t col)
+static void DrawText(int x, int y, const char *s, rgbcol_t col)
 {
+	GLuint tex_id = W_ImageCache(con_font);
+
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, tex_id);
+ 
+	glEnable(GL_BLEND);
+	glEnable(GL_ALPHA_TEST);
+	glAlphaFunc(GL_GREATER, 0);
+
 	for (; *s; s++)
 	{
-		WriteChar(x, y, *s, col);
+		DrawChar(x, y, *s, col);
 
 		x += XMUL;
 
 		if (x >= SCREENWIDTH)
-			return;
+			break;
 	}
+
+	glDisable(GL_TEXTURE_2D);
+	glDisable(GL_ALPHA_TEST);
+	glDisable(GL_BLEND);
 }
 
 
@@ -475,23 +471,21 @@ void CON_Drawer(void)
 
 	if (bottomrow == -1)
 	{
-		WriteText(0, y, ">", T_PURPLE);
+		DrawText(0, y, ">", T_PURPLE);
 
 		if (cmd_hist_pos >= 0)
 		{
 			const char *text = cmd_history[cmd_hist_pos]->c_str();
 
-			WriteText(XMUL, y, text, T_PURPLE);
+			DrawText(XMUL, y, text, T_PURPLE);
 		}
 		else
 		{
-			WriteText(XMUL, y, input_line, T_PURPLE);
-
-			if (con_cursor < 16)
-			{
-				WriteText((input_pos+1) * XMUL, y - 2, "_", T_PURPLE);
-			}
+			DrawText(XMUL, y, input_line, T_PURPLE);
 		}
+
+		if (con_cursor < 16)
+			DrawText((input_pos+1) * XMUL, y - 2, "_", T_PURPLE);
 
 		y += YMUL;
 	}
@@ -510,7 +504,7 @@ void CON_Drawer(void)
 		if (strncmp(CL->line.c_str(), "--------", 8) == 0)
 			HorizontalLine(y + YMUL/2, CL->color);
 		else
-			WriteText(0, y, CL->line.c_str(), CL->color);
+			DrawText(0, y, CL->line.c_str(), CL->color);
 
 		y += YMUL;
 
@@ -979,7 +973,7 @@ bool CON_Responder(event_t * ev)
 	if (ev->type != ev_keyup && ev->type != ev_keydown)
 		return false;
 
-	if (ev->type == ev_keydown && ev->value.key.sym == (key_console & 0xFFF))
+	if (ev->type == ev_keydown && ev->value.key.sym == (key_console & 0xffff))
 	{
 		CON_SetVisible(vs_toggle);
 		return true;
@@ -1090,7 +1084,7 @@ void CON_Ticker(void)
 
 
 //
-// Initialises the console with the given dimensions, in characters.
+// Initialises the console
 //
 void CON_InitConsole(void)
 {
