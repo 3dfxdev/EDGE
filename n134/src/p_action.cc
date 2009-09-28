@@ -2899,6 +2899,7 @@ void P_ActReloadReset(mobj_t * object)
 //-----------LOOKING AND CHASING---------------
 //---------------------------------------------
 
+#if 0  // DISABLED, BROKEN
 //
 // SelectTarget
 //
@@ -3019,6 +3020,7 @@ static bool CreateAggression(mobj_t * object)
 
 	return true;
 }
+#endif
 
 
 //
@@ -3051,7 +3053,7 @@ void P_ActStandardLook(mobj_t * object)
 	if (object->flags & MF_STEALTH)
 		object->vis_target = VISIBLE;
 
-#if 0  // DISABLED, HORRIBLY BROKEN
+#if 0  // DISABLED, BROKEN
 	if (infight)
 	{
 		if (CreateAggression(object))

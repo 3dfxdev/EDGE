@@ -37,7 +37,7 @@ extern cvar_c g_weaponkick, g_weaponswitch;
 
 extern cvar_c am_rotate, am_smoothing;
 
-       cvar_c m_language;
+extern cvar_c m_language;
 extern cvar_c m_diskicon, m_busywait, m_screenhud;
 extern cvar_c m_messages, m_obituaries;
 extern cvar_c m_glnodes;
