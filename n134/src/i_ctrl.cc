@@ -43,7 +43,7 @@ bool use_warp_mouse = false;
 bool use_warp_mouse = true;
 #endif
 
-bool in_keypad = true;
+cvar_c in_keypad;
 
 //
 // Translates a key from SDL -> EDGE
@@ -52,7 +52,7 @@ bool in_keypad = true;
 int TranslateSDLKey(int key)
 {
 	// if keypad is not wanted, convert to normal keys
-	if (! in_keypad)
+	if (! in_keypad.d)
 	{
 		if (SDLK_KP0 <= key && key <= SDLK_KP9)
 			return '0' + (key - SDLK_KP0);
