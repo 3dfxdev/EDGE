@@ -41,6 +41,7 @@
 #include "epi/image_jpeg.h"
 #include "epi/image_png.h"
 
+#include "con_main.h"
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "e_input.h"
@@ -239,11 +240,6 @@ void M_SaveDefaults(void)
 {
 	edge_version = EDGEVER;
 
-///---	// Don't want to save settings in a network game: might not
-///---	// be ours.
-///---	if (netgame)
-///---		return;
-
     // Set the number of defaults
 	int numdefaults = sizeof(defaults) / sizeof(defaults[0]);
 
@@ -260,6 +256,16 @@ void M_SaveDefaults(void)
 	// -AJA- 2004/01/10: this doesn't fit in yet...
 	fprintf(f, "language\t\t\"%s\"\n", language.GetName());
 
+	// console variables
+	for (int k = 0; all_cvars[k].name; k++)
+	{
+		cvar_c *var = all_cvars[k].var;
+
+		if (strchr(all_cvars[k].flags, 'c'))
+			fprintf(f, "/%s\t\"%s\"\n", all_cvars[k].name, var->str);
+	}
+
+	// normal variables
 	for (int i = 0; i < numdefaults; i++)
 	{
 		int v;
@@ -278,7 +284,6 @@ void M_SaveDefaults(void)
 				v = *(int*)defaults[i].location;
 				fprintf(f,  "%s\t\t0x%X\n", defaults[i].name, v);
 				break;
-				
 		}
 	}
 
@@ -337,6 +342,19 @@ void M_LoadDefaults(void)
 
 		if (fscanf(f, "%79s %[^\n]\n", def, strparm) != 2)
 			continue;
+
+		// console var?
+		if (def[0] == '/')
+		{
+			std::string con_line;
+
+			con_line += (def+1);
+			con_line += " ";
+			con_line += strparm;
+
+			CON_TryCommand(con_line.c_str());
+			continue;
+		}
 
 		if (strparm[0] == '"')
 		{
