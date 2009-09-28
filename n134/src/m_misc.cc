@@ -88,8 +88,6 @@ bool force_waveout = false;
 unsigned short save_screenshot[160][100];
 bool save_screenshot_valid = false;
 
-std::string config_language;
-
 int var_sample_rate = 0;
 int var_sound_bits = 0;
 int var_sound_stereo = 0;
@@ -253,9 +251,6 @@ void M_SaveDefaults(void)
 		return;  // can't write the file, but don't complain
 	}
 
-	// -AJA- 2004/01/10: this doesn't fit in yet...
-	fprintf(f, "language\t\t\"%s\"\n", language.GetName());
-
 	// console variables
 	for (int k = 0; all_cvars[k].name; k++)
 	{
@@ -369,16 +364,6 @@ void M_LoadDefaults(void)
 			sscanf(strparm + 2, "%x", &parm);
 		else
 			sscanf(strparm, "%i", &parm);
-
-		// -AJA- 2004/01/10: this doesn't fit in yet...
-		if (strcmp(def, "language") == 0)
-		{
-			if (!isstring)
-				continue;  // FIXME: show warning
-			
-			config_language = newstr;
-			continue;
-		}
 
 		for (i = 0; i < numdefaults; i++)
 		{
