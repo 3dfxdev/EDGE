@@ -90,8 +90,6 @@ extern int var_timid_factor;
 
 extern int cfgnormalfov, cfgzoomedfov;
 
-extern std::string config_language;
-
 #endif  /* __M_MISC__ */
 
 //--- editor settings ---
