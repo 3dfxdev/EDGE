@@ -139,7 +139,7 @@ extern bool external_ddf;
 extern bool precache;
 
 // if true, enable HOM detection (hall of mirrors effect)
-extern bool hom_detect;
+extern cvar_c debug_hom;
 
 extern int mouseSensitivity;
 extern int save_page;

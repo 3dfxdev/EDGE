@@ -183,6 +183,7 @@ const image_c *W_ImageLookup(const char *name, image_namespace_e = INS_Graphic,
 
 const image_c *W_ImageForDummySprite(void);
 const image_c *W_ImageForDummySkin(void);
+const image_c *W_ImageForHOMDetect(void);
 
 // savegame code (Only)
 const image_c *W_ImageParseSaveString(char type, const char *name);
