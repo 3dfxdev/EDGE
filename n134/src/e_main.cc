@@ -1299,6 +1299,7 @@ static void E_Startup(void)
 
 	M_LoadDefaults();
 
+	CON_HandleProgramArgs();
 	SetGlobalVars();
 
 	DoSystemStartup();
