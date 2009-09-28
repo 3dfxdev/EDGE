@@ -113,6 +113,11 @@ cvar_link_t  all_cvars[] =
 
 	{ "in_keypad",      &in_keypad,      "c",   "1"  },
 
+	{ "r_crosshair",    &r_crosshair,    "c",   "0"  },
+	{ "r_crosscolor",   &r_crosscolor,   "c",   "0"  },
+	{ "r_crosssize",    &r_crosssize,    "c",   "16" },
+	{ "r_crossbright",  &r_crossbright,  "c",   "1.0" },
+
 #if 0 // FIXME
     { "edge_compat",    &edge_compat,    "",    "0"  },
 
@@ -162,11 +167,6 @@ cvar_link_t  all_cvars[] =
 	{ "r_fadepower",    &r_fadepower,    "c",   "1"  },
 	{ "r_fov",          &r_fov,          "c",   "90" },
 	{ "r_zoomedfov",    &r_zoomedfov,    "c",   "10" },
-
-	{ "r_crosshair",    &r_crosshair,    "c",   "0"  },
-	{ "r_crosscolor",   &r_crosscolor,   "c",   "7"  },
-	{ "r_crosssize",    &r_crosssize,    "c",   "16" },
-	{ "r_crossbright",  &r_crossbright,  "c",   "1.0" },
 
 	{ "r_mipmapping",   &r_mipmapping,   "c",   "0"  },
 	{ "r_smoothing",    &r_smoothing,    "c",   "0"  },
