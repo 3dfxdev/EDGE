@@ -108,6 +108,8 @@
 
 int option_menuon = 0;
 
+extern cvar_c m_language;
+
 //submenus
 static void M_KeyboardOptions(int keypressed);
 static void M_VideoOptions(int keypressed);
@@ -1747,6 +1749,9 @@ static void M_ChangeLanguage(int keypressed)
 			
 		language.Select(idx);
 	}
+
+	// update cvar
+	m_language = language.GetName();
 }
 
 
