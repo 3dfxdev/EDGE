@@ -109,6 +109,8 @@ cvar_link_t  all_cvars[] =
 
     { "language",       &m_language,     "c",   "ENGLISH" },
 
+	{ "goobers",        &goobers,        "",    "0" },
+
 #if 0 // FIXME
     { "edge_compat",    &edge_compat,    "",    "0"  },
 
@@ -145,8 +147,6 @@ cvar_link_t  all_cvars[] =
 	{ "m_screenhud",    &m_screenhud,    "c",   "0"  },
 	{ "m_glnodes",      &m_glnodes,      "c",   "1"  },
 
-	{ "goobers",        &goobers,        "",    "0" },
-                                        
 	/* Rendering Stuff */
 
 	{ "r_width",        &r_width,        "c",   "640"   },
