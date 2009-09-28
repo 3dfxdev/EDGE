@@ -7,7 +7,11 @@ CHANGES (since 1.31)
 + two new Action buttons for RTS scripting
 + new RTS command: ONCEILINGHEIGHT (Andrew Baker)
 
+- support for keys on the numeric keypad
 - old EDGE title screens retired
+- improved various defaults (e.g. WASD movement)
+- better HOM detection ((debug_hom cvar)
+- new 'goobers' cvar for a fun effect
 
 - fixed 16-rotation sprites
 - fixed some colormap issues
