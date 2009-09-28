@@ -86,7 +86,6 @@ static cheatseq_t cheat_keys              = {0, 0};
 static cheatseq_t cheat_loaded            = {0, 0};
 static cheatseq_t cheat_takeall           = {0, 0};
 static cheatseq_t cheat_god               = {0, 0};
-static cheatseq_t cheat_lazarus           = {0, 0};
 static cheatseq_t cheat_ammo              = {0, 0};
 static cheatseq_t cheat_ammonokey         = {0, 0};
 static cheatseq_t cheat_noclip            = {0, 0};
@@ -372,16 +371,6 @@ bool M_CheatResponder(event_t * ev)
 		else
 			CON_MessageLDF("HomDetectOff");
 	}
-#if 0
-	else if (M_CheckCheat(&cheat_lazarus, key))
-	{
-		if (pl->playerstate == PST_DEAD && (netgame==0))
-		{
-			SYS_ASSERT(pl->mo);
-			P_BringCorpseToLife(pl->mo);
-		}
-	}
-#endif
 
 	// 'behold?' power-up cheats
 	for (i = 0; i < 9; i++)
@@ -463,7 +452,6 @@ void M_CheatInit(void)
 	// Now what?
 	cheat_mus.sequence               = language["idmus"];
 	cheat_god.sequence               = language["iddqd"];
-	cheat_lazarus.sequence           = "idlazarus";
 	cheat_ammo.sequence              = language["idkfa"];
 	cheat_ammonokey.sequence         = language["idfa"];
 	cheat_noclip.sequence            = language["idspispopd"];
