@@ -121,8 +121,8 @@ module hud
 
 module player
 {
-	  function num_players() = native
-	  function set_who(index) = native
+    function num_players() = native
+    function set_who(index) = native
     function is_bot() = native
     function get_name() = native
 
