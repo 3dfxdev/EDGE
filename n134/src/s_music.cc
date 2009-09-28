@@ -47,10 +47,6 @@ int var_music_dev;
 bool nomusic = false;
 bool nocdmusic = false;
 
-// FIXME: put in i_system.h
-extern abstract_music_c * I_PlayHWMusic(const byte *data, int length,
-			float volume, bool loop);
-
 
 void S_ChangeMusic(int entrynum, bool loop)
 {
@@ -150,7 +146,7 @@ void S_ChangeMusic(int entrynum, bool loop)
 	bool is_mus = (data[0] == 'M' && data[1] == 'U' && data[2] == 'S');
 
 	if (var_music_dev == 0 && is_mus)
-		music_player = I_PlayHWMusic(data, length, volume, loop);
+		music_player = I_PlayNativeMusic(data, length, volume, loop);
 	else
 		music_player = S_PlayTimidity(data, length, is_mus, volume, loop);
 

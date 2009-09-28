@@ -568,7 +568,7 @@ void I_ShutdownMUS(void)
 }
 
 
-abstract_music_c * I_PlayHWMusic(const byte *data, int length, float  volume, bool loop)
+abstract_music_c * I_PlayNativeMusic(const byte *data, int length, float  volume, bool loop)
 {
 	if (!midiavailable)
 		return NULL;
@@ -577,7 +577,7 @@ abstract_music_c * I_PlayHWMusic(const byte *data, int length, float  volume, bo
 	if (length < 16 ||
 		! (data[0] == 'M' && data[1] == 'U' && data[2] == 'S' && data[3] == 0x1A))
 	{
-		I_Warning("I_PlayHWMusic: wrong format (not MUS)\n");
+		I_Warning("I_PlayNativeMusic: wrong format (not MUS)\n");
 		return NULL;
 	}
 
