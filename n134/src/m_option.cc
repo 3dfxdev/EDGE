@@ -382,7 +382,7 @@ static optmenuitem_t mainoptions[] =
 	{OPT_Switch,   "Messages",          YesNo, 2, CFGDEF_SHOWMESSAGES, &showMessages, NULL, "Messages"},
 	{OPT_Plain,    "",                  NULL,  0, 0, NULL, NULL, NULL},
 	{OPT_Function, "Host NetGame",      NULL,  0, 0, NULL, M_HostNetGame, NULL},
-	{OPT_Function, "Join NetGame",      NULL,  0, 0, NULL, M_JoinNetGame, NULL},
+//	{OPT_Function, "Join NetGame",      NULL,  0, 0, NULL, M_JoinNetGame, NULL},
 	{OPT_Plain,    "",                  NULL,  0,              0, NULL, NULL, NULL},
 	{OPT_Function, "Reset to Defaults", NULL,  0, 0, NULL, M_ResetToDefaults, "ResetToDefaults"}
 };
