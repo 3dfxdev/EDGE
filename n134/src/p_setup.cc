@@ -68,6 +68,8 @@
 #define SUB_INVALID  ((subsector_t *) -3)
 
 
+cvar_c goobers;
+
 static bool level_active = false;
 
 
@@ -712,6 +714,13 @@ static void LoadSectors(int lump)
 
 		ss->f_h = EPI_LE_S16(ms->floor_h);
 		ss->c_h = EPI_LE_S16(ms->ceil_h);
+
+        // return to wolfenstein?
+        if (goobers.d)
+        {
+            ss->f_h = 0;
+            ss->c_h = (ms->floor_h == ms->ceil_h) ? 0 : 128.0f;
+        }
 
 		ss->floor.translucency = VISIBLE;
 		ss->floor.x_mat.x = 1;  ss->floor.x_mat.y = 0;
