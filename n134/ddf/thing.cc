@@ -1233,6 +1233,7 @@ static const specflags_t normal_specials[] =
 	{"SHOOTABLE", MF_SHOOTABLE, 0},
 	{"COUNT_AS_KILL", MF_COUNTKILL, 0},
 	{"COUNT_AS_ITEM", MF_COUNTITEM, 0},
+	{"SKULLFLY", MF_SKULLFLY, 0},
 	{"SPECIAL", MF_SPECIAL, 0},
 	{"SECTOR", MF_NOSECTOR, 1},
 	{"BLOCKMAP", MF_NOBLOCKMAP, 1},
