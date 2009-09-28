@@ -390,7 +390,7 @@ static bool GlobReadVARI(saveglobals_t *globs)
 	}
 	else
 	{
-		I_Warning("GlobReadVARI: unknown global: %s\n", var_name);
+		I_Debugf("GlobReadVARI: unknown global: %s\n", var_name);
 	}
 
 	SV_FreeString(var_name);
