@@ -2,12 +2,12 @@
 CHANGES (since 1.31)
 ====================
 
-
++ improved console with command history and TAB-completion
 + obituary messages (new DAMAGE.OBITUARY field)
-
 + two new Action buttons for RTS scripting
-
 + new RTS command: ONCEILINGHEIGHT (Andrew Baker)
+
+- old EDGE title screens retired
 
 - fixed 16-rotation sprites
 - fixed some colormap issues
