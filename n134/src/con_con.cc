@@ -743,12 +743,15 @@ void CON_HandleKey(int key)
 {
 	switch (key)
 	{
-#if 0  // -ES- fixme - implement tab stuff (need commands first, though)
-	case KEYD_TAB:
-		// Try to do tab-completion
-		TabComplete();
+	case KEYD_RALT:
+	case KEYD_RCTRL:
+		// Do nothing
 		break;
-#endif
+	
+	case KEYD_RSHIFT:
+		// SHIFT was pressed
+		KeysShifted = true;
+		break;
 	
 	case KEYD_PGUP:
 		if (KeysShifted)
@@ -788,45 +791,83 @@ void CON_HandleKey(int key)
 	
 	case KEYD_END:
 		// Move cursor to end of line
-		while (input_line[input_pos] != 0)
-			input_pos++;
-		con_cursor = 0;
+		GotoEndOfLine();
 		break;
 	
 	case KEYD_UPARROW:
+		// Move to previous entry in the command history
 		if (cmd_hist_pos < cmd_used_hist-1)
+		{
 			cmd_hist_pos++;
-
+			GotoEndOfLine();
+		}
 		TabbedLast = false;
 		break;
 	
 	case KEYD_DOWNARROW:
 		// Move to next entry in the command history
-	
 		if (cmd_hist_pos > -1)
+		{
 			cmd_hist_pos--;
-	
+			GotoEndOfLine();
+		}
 		TabbedLast = false;
 		break;
 
 	case KEYD_LEFTARROW:
 		// Move cursor left one character
-	
 		if (input_pos > 0)
 			input_pos--;
+
 		con_cursor = 0;
 		break;
 	
 	case KEYD_RIGHTARROW:
 		// Move cursor right one character
-	
-		if (input_line[input_pos] != 0)
-			input_pos++;
+		if (cmd_hist_pos < 0)
+		{
+			if (input_line[input_pos] != 0)
+				input_pos++;
+		}
+		else
+		{
+			if (cmd_history[cmd_hist_pos]->c_str()[input_pos] != 0)
+				input_pos++;
+		}
 		con_cursor = 0;
+		break;
+
+	case KEYD_ENTER:
+		EditHistory();
+
+		// Execute command line (ENTER)
+		StripWhitespace(input_line);
+
+		if (strlen(input_line) == 0)
+		{
+			CON_MessageColor(T_LTBLUE);
+			CON_Printf(">\n");
+		}
+		else
+		{
+			// Add it to history & draw it
+			CON_AddCmdHistory(input_line);
+
+			CON_MessageColor(T_LTBLUE);
+			CON_Printf(">%s\n", input_line);
+		
+			// Run it!
+			CON_TryCommand(input_line);
+		}
+	
+		CON_ClearInputLine();
+
+		TabbedLast = false;
 		break;
 	
 	case KEYD_BACKSPACE:
 		// Erase character to left of cursor
+		EditHistory();
 	
 		if (input_pos > 0)
 		{
@@ -843,6 +884,7 @@ void CON_HandleKey(int key)
 	
 	case KEYD_DELETE:
 		// Erase charater under cursor
+		EditHistory();
 	
 		if (input_line[input_pos] != 0)
 		{
@@ -855,49 +897,18 @@ void CON_HandleKey(int key)
 		con_cursor = 0;
 		break;
 	
-	case KEYD_RALT:
-	case KEYD_RCTRL:
-		// Do nothing
+	case KEYD_TAB:
+		// Try to do tab-completion
+		TabComplete();
 		break;
-	
-	case KEYD_RSHIFT:
-		// SHIFT was pressed
-		KeysShifted = true;
-		break;
-	
-	case KEYD_ENTER:
-	
-		// Execute command line (ENTER)
 
-		StripWhitespace(input_line);
-
-		if (strlen(input_line) == 0)
-		{
-			CON_Printf(">\n");
-		}
-		else
-		{
-			// Add it to history & draw it
-			CON_AddCmdHistory(input_line);
-
-			CON_MessageColor(T_BLUE);
-			CON_Printf(">%s\n", input_line);
-		
-			// Run it!
-			CON_TryCommand(input_line);
-		}
-	
-		CON_ClearInputLine();
-
-		TabbedLast = false;
-		break;
-	
 	case KEYD_ESCAPE:
 		// Close console, clear command line, but if we're in the
 		// fullscreen console mode, there's nothing to fall back on
 		// if it's closed.
 		CON_ClearInputLine();
 	
+		cmd_hist_pos = -1;
 		TabbedLast = false;
 	
 		CON_SetVisible(vs_notvisible);
@@ -910,24 +921,16 @@ void CON_HandleKey(int key)
 			break;
 		}
 
+		EditHistory();
+
 		if (input_pos >= MAX_CON_INPUT-1)
 			break;
 
-		// make room for new character, shift the trailing NUL too
-		{
-			for (int j = MAX_CON_INPUT-2; j >= input_pos; j--)
-				input_line[j+1] = input_line[j];
-
-			input_line[MAX_CON_INPUT-1] = 0;
-		}
-
-		// Add keypress to command line
-		input_line[input_pos++] = key;
-
+		InsertChar(key);
+		
 		TabbedLast = false;
 		con_cursor = 0;
 		break;
-
 	}
 }
 
