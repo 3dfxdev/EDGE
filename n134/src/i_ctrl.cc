@@ -2,7 +2,7 @@
 //  EDGE SDL Controller Stuff
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -43,12 +43,34 @@ bool use_warp_mouse = false;
 bool use_warp_mouse = true;
 #endif
 
+bool in_keypad = true;
+
 //
 // Translates a key from SDL -> EDGE
 // Returns -1 if no suitable translation exists.
 //
 int TranslateSDLKey(int key)
 {
+	// if keypad is not wanted, convert to normal keys
+	if (! in_keypad)
+	{
+		if (SDLK_KP0 <= key && key <= SDLK_KP9)
+			return '0' + (key - SDLK_KP0);
+
+		switch (key)
+		{
+			case SDLK_KP_PLUS:     return '+';
+			case SDLK_KP_MINUS:    return '-';
+			case SDLK_KP_PERIOD:   return '.';
+			case SDLK_KP_MULTIPLY: return '*';
+			case SDLK_KP_DIVIDE:   return '/';
+			case SDLK_KP_EQUALS:   return '=';
+			case SDLK_KP_ENTER:    return KEYD_ENTER;
+
+			default: break;
+		}
+	}
+
 	switch (key) 
 	{
 		case SDLK_TAB: return KEYD_TAB;
@@ -67,7 +89,6 @@ int TranslateSDLKey(int key)
 		case SDLK_DELETE: return KEYD_DELETE;
 		case SDLK_PAGEUP: return KEYD_PGUP;
 		case SDLK_PAGEDOWN: return KEYD_PGDN;
-		case SDLK_PRINT:  return KEYD_PRTSCR;
 
 		case SDLK_F1:  return KEYD_F1;
 		case SDLK_F2:  return KEYD_F2;
@@ -82,28 +103,29 @@ int TranslateSDLKey(int key)
 		case SDLK_F11: return KEYD_F11;
 		case SDLK_F12: return KEYD_F12;
 
-		case SDLK_KP0: return '0';
-		case SDLK_KP1: return '1';
-		case SDLK_KP2: return '2';
-		case SDLK_KP3: return '3';
-		case SDLK_KP4: return '4';
-		case SDLK_KP5: return '5';
-		case SDLK_KP6: return '6';
-		case SDLK_KP7: return '7';
-		case SDLK_KP8: return '8';
-		case SDLK_KP9: return '9';
+		case SDLK_KP0: return KEYD_KP0;
+		case SDLK_KP1: return KEYD_KP1;
+		case SDLK_KP2: return KEYD_KP2;
+		case SDLK_KP3: return KEYD_KP3;
+		case SDLK_KP4: return KEYD_KP4;
+		case SDLK_KP5: return KEYD_KP5;
+		case SDLK_KP6: return KEYD_KP6;
+		case SDLK_KP7: return KEYD_KP7;
+		case SDLK_KP8: return KEYD_KP8;
+		case SDLK_KP9: return KEYD_KP9;
 
-		case SDLK_KP_PLUS:  return '+';
-		case SDLK_KP_MINUS: return '-';
-		case SDLK_KP_PERIOD: return '.';
-		case SDLK_KP_ENTER: return KEYD_ENTER;
-		case SDLK_KP_DIVIDE: return '/';
-		case SDLK_KP_MULTIPLY:  return '*';
-		case SDLK_KP_EQUALS: return '=';
+		case SDLK_KP_PERIOD:   return KEYD_KP_DOT;
+		case SDLK_KP_PLUS:     return KEYD_KP_PLUS;
+		case SDLK_KP_MINUS:    return KEYD_KP_MINUS;
+		case SDLK_KP_MULTIPLY: return KEYD_KP_STAR;
+		case SDLK_KP_DIVIDE:   return KEYD_KP_SLASH;
+		case SDLK_KP_EQUALS:   return KEYD_KP_EQUAL;
+		case SDLK_KP_ENTER:    return KEYD_KP_ENTER;
 
+		case SDLK_PRINT:     return KEYD_PRTSCR;
+		case SDLK_CAPSLOCK:  return KEYD_CAPSLOCK;
 		case SDLK_NUMLOCK:   return KEYD_NUMLOCK;
 		case SDLK_SCROLLOCK: return KEYD_SCRLOCK;
-		case SDLK_CAPSLOCK:  return KEYD_CAPSLOCK;
 		case SDLK_PAUSE:     return KEYD_PAUSE;
 
 		case SDLK_LSHIFT:
@@ -198,8 +220,12 @@ void HandleKeyEvent(SDL_Event* ev)
 			sym, ev->key.keysym.scancode, ev->key.keysym.unicode, event.value.key);
 #endif
 
-	if (event.value.key.sym < 0)
+	if (event.value.key.sym < 0 &&
+	    event.value.key.unicode == 0)
+	{
+		// No translation possible for SDL symbol and no unicode value
 		return;
+	}
 
     if (event.value.key.sym == KEYD_TAB && alt_is_down)
     {
