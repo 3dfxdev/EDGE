@@ -204,6 +204,7 @@ const image_c *skyflatimage;
 
 static const image_c *dummy_sprite;
 static const image_c *dummy_skin;
+static const image_c *dummy_hom[2];
 
 
 // image cache (actually a ring structure)
@@ -1154,6 +1155,11 @@ const image_c *W_ImageForDummySkin(void)
 	return dummy_skin;
 }
 
+const image_c *W_ImageForHOMDetect(void)
+{
+	return dummy_hom[(framecount & 0x10) ? 1 : 0];
+}
+
 
 const image_c *W_ImageParseSaveString(char type, const char *name)
 {
@@ -1416,6 +1422,9 @@ static void W_CreateDummyImages(void)
 	dummy_skin   = AddDummyImage("DUMMY_SKIN",   0xFF77FF, 0x993399);
 
 	skyflatimage = AddDummyImage("DUMMY_SKY",    0x0000AA, 0x55AADD);
+
+	dummy_hom[0] = AddDummyImage("DUMMY_HOM1", 0xFF3333, 0x000000);
+	dummy_hom[1] = AddDummyImage("DUMMY_HOM2", 0x000000, 0xFF3333);
 
 	// make the dummy sprite easier to see
 	{

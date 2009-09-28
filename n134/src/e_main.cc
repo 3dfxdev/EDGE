@@ -152,7 +152,6 @@ bool infight = false;
 bool png_scrshots = false;
 
 bool external_ddf = false;
-bool hom_detect = false;
 bool autoquickload = false;
 
 std::string cfgfile;
@@ -321,7 +320,6 @@ static void SetGlobalVars(void)
 	M_CheckBooleanParm("rotatemap", &rotatemap, false);
 	M_CheckBooleanParm("invertmouse", &invertmouse, false);
 	M_CheckBooleanParm("showstats", &showstats, false);
-	M_CheckBooleanParm("hom", &hom_detect, false);
 	M_CheckBooleanParm("sound", &nosound, true);
 	M_CheckBooleanParm("music", &nomusic, true);
 	M_CheckBooleanParm("cdmusic", &nocdmusic, true);
