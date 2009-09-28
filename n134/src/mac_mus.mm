@@ -93,12 +93,10 @@ public:
 };
 
 //
-// I_PlayMUSMusic
+// I_PlayNativeMusic
 //
-abstract_music_c * I_PlayMUSMusic(const byte *data, 
-                                  int length, 
-                                  float volume, 
-                                  bool loop)
+abstract_music_c * I_PlayNativeMusic(const byte *data, int length, 
+                                     float volume, bool loop)
 {
     // verify format
 	if (length < 16 ||
@@ -107,7 +105,7 @@ abstract_music_c * I_PlayMUSMusic(const byte *data,
            data[2] == 'S' && 
            data[3] == 0x1A))
 	{
-		I_Warning("I_PlayHWMusic: wrong format (not MUS)\n");
+		I_Warning("I_PlayNativeMusic: wrong format (not MUS)\n");
 		return NULL;
 	}
 
@@ -163,7 +161,7 @@ abstract_music_c * I_PlayMUSMusic(const byte *data,
         char *buf = new char[len];
 
         [error_msg getCString:buf maxLength:len encoding:def_enc];
-        I_Printf("I_PlayMUSMusic: %s\n", buf);
+        I_Printf("I_PlayNativeMusic: %s\n", buf);
 
         delete [] buf;
         [error_msg release];
