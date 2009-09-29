@@ -1,6 +1,6 @@
 --------------------------------------------
 --  HUD LUA CODE for EDGE
---  Copyright (c) 2008 The Edge Team.
+--  Copyright (c) 2009 The Edge Team.
 --  Under the GNU General Public License.
 --------------------------------------------
 
