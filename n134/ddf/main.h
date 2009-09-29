@@ -109,9 +109,6 @@ extern bool lax_errors;
 // if true, disable warning messages
 extern bool no_warnings;
 
-// if true, disable obsolete warning messages
-extern bool no_obsoletes;
-
 void DDF_Init(int _engine_ver);
 void DDF_CleanUp(void);
 void DDF_SetWhere(const std::string& dir);

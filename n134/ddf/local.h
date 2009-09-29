@@ -240,8 +240,6 @@ state_starter_t;
 // DDF_MAIN Code (Reading all files, main init & generic functions).
 bool DDF_MainReadFile (readinfo_t * readinfo);
 
-extern int ddf_version;  // decimal e.g. 128
-
 extern int cur_ddf_line_num;
 extern std::string cur_ddf_filename;
 extern std::string cur_ddf_entryname;
@@ -250,7 +248,6 @@ extern std::string cur_ddf_linedata;
 void DDF_Error    (const char *err, ...) GCCATTR((format (printf,1,2)));
 void DDF_Warning  (const char *err, ...) GCCATTR((format (printf,1,2)));
 void DDF_WarnError(const char *err, ...) GCCATTR((format (printf,1,2)));
-void DDF_WarnError2 (int ver, const char *err, ...) GCCATTR((format (printf,2,3)));
 
 void DDF_MainGetPercent (const char *info, void *storage);
 void DDF_MainGetPercentAny (const char *info, void *storage);

@@ -292,7 +292,7 @@ static void WeaponParseField(const char *field, const char *contents,
 	if (WeaponTryParseState(field, contents, index, is_last))
 		return;
 
-	DDF_WarnError2(128, "Unknown weapons.ddf command: %s\n", field);
+	DDF_WarnError("Unknown weapons.ddf command: %s\n", field);
 }
 
 static void WeaponFinishEntry(void)
@@ -310,7 +310,7 @@ static void WeaponFinishEntry(void)
 	{
 		if (buffer_weapon.ammopershot[ATK] < 0)
 		{
-			DDF_WarnError2(128, "Bad %sAMMOPERSHOT value for weapon: %d\n",
+			DDF_WarnError("Bad %sAMMOPERSHOT value for weapon: %d\n",
 					ATK ? "SEC_" : "", buffer_weapon.ammopershot[ATK]);
 			buffer_weapon.ammopershot[ATK] = 0;
 		}
@@ -321,7 +321,7 @@ static void WeaponFinishEntry(void)
 
 		if (buffer_weapon.clip_size[ATK] < 0)
 		{
-			DDF_WarnError2(129, "Bad %sCLIPSIZE value for weapon: %d\n",
+			DDF_WarnError("Bad %sCLIPSIZE value for weapon: %d\n",
 					ATK ? "SEC_" : "", buffer_weapon.clip_size[ATK]);
 			buffer_weapon.clip_size[ATK] = 0;
 		}
@@ -331,7 +331,7 @@ static void WeaponFinishEntry(void)
 			(buffer_weapon.clip_size[ATK] < buffer_weapon.ammopershot[ATK] ||
 			 (buffer_weapon.clip_size[ATK] % buffer_weapon.ammopershot[ATK] != 0)))
 		{
-			DDF_WarnError2(129, "%sAMMOPERSHOT=%d incompatible with %sCLIPSIZE=%d\n",
+			DDF_WarnError("%sAMMOPERSHOT=%d incompatible with %sCLIPSIZE=%d\n",
 				ATK ? "SEC_" : "", buffer_weapon.ammopershot[ATK],
 				ATK ? "SEC_" : "", buffer_weapon.clip_size[ATK]);
 			buffer_weapon.ammopershot[ATK] = 1;
@@ -369,7 +369,7 @@ static void WeaponFinishEntry(void)
 	// backwards compatibility
 	if (buffer_weapon.priority < 0)
 	{
-		DDF_WarnError2(129, "Using PRIORITY=-1 in weapons.ddf is obsolete !\n");
+		DDF_WarnError("Using PRIORITY=-1 in weapons.ddf is obsolete !\n");
 
 		buffer_weapon.dangerous = true;
 		buffer_weapon.priority = 10;
@@ -473,7 +473,7 @@ static void DDF_WGetAmmo(const char *info, void *storage)
 
 		case CHKF_User:
 		case CHKF_Unknown:
-			DDF_WarnError2(128, "Unknown Ammo type '%s'\n", info);
+			DDF_WarnError("Unknown Ammo type '%s'\n", info);
 			break;
 	}
 }
@@ -523,7 +523,7 @@ static void DDF_WGetSpecialFlags(const char *info, void *storage)
 
 		case CHKF_User:
 		case CHKF_Unknown:
-			DDF_WarnError2(128, "DDF_WGetSpecialFlags: Unknown Special: %s", info);
+			DDF_WarnError("DDF_WGetSpecialFlags: Unknown Special: %s", info);
 			return;
 	}
 }

@@ -341,7 +341,7 @@ static void LinedefParseField(const char *field, const char *contents,
 	if (DDF_MainParseField(linedef_commands, field, contents))
 		return;
 
-	DDF_WarnError2(128, "Unknown lines.ddf command: %s\n", field);
+	DDF_WarnError("Unknown lines.ddf command: %s\n", field);
 }
 
 //
@@ -382,27 +382,27 @@ static void LinedefFinishEntry(void)
 
 		if ((buffer_line.ef.type & EXFL_Flooder) && (buffer_line.ef.type & EXFL_NoShade))
 		{
-			DDF_WarnError2(129, "FLOODER and NOSHADE tags cannot be used together.\n");
+			DDF_WarnError("FLOODER and NOSHADE tags cannot be used together.\n");
 			buffer_line.ef.type = (extrafloor_type_e)(buffer_line.ef.type & ~EXFL_Flooder);
 		}
 
 		if (! (buffer_line.ef.type & EXFL_Present))
 		{
-			DDF_WarnError2(129, "Extrafloor type missing THIN, THICK or LIQUID.\n");
+			DDF_WarnError("Extrafloor type missing THIN, THICK or LIQUID.\n");
 			buffer_line.ef.type = EXFL_None;
 		}
 	}
 
 	if (buffer_line.friction != FLO_UNUSED && buffer_line.friction < 0.05f)
 	{
-		DDF_WarnError2(129, "Friction value too low (%1.2f), it would prevent "
+		DDF_WarnError("Friction value too low (%1.2f), it would prevent "
 			"all movement.\n", buffer_line.friction);
 		buffer_line.friction = 0.05f;
 	}
 
 	if (buffer_line.viscosity != FLO_UNUSED && buffer_line.viscosity > 0.95f)
 	{
-		DDF_WarnError2(129, "Viscosity value too high (%1.2f), it would prevent "
+		DDF_WarnError("Viscosity value too high (%1.2f), it would prevent "
 			"all movement.\n", buffer_line.viscosity);
 		buffer_line.viscosity = 0.95f;
 	}
@@ -516,7 +516,7 @@ void DDF_LineGetScroller(const char *info, void *storage)
 			return;
 		}
 	}
-	DDF_WarnError2(129, "Unknown scroll direction %s\n", info);
+	DDF_WarnError("Unknown scroll direction %s\n", info);
 }
 
 //
@@ -554,7 +554,7 @@ void DDF_LineGetSecurity(const char *info, void *storage)
 		}
 	}
 
-	DDF_WarnError2(129, "Unknown key type %s\n", info);
+	DDF_WarnError("Unknown key type %s\n", info);
 }
 
 //
@@ -583,7 +583,7 @@ void DDF_LineGetTrigType(const char *info, void *storage)
 		}
 	}
 
-	DDF_WarnError2(129, "Unknown Trigger type %s\n", info);
+	DDF_WarnError("Unknown Trigger type %s\n", info);
 }
 
 //
@@ -604,7 +604,7 @@ void DDF_LineGetActivators(const char *info, void *storage)
 		}
 	}
 
-	DDF_WarnError2(129,"Unknown Activator type %s\n", info);
+	DDF_WarnError("Unknown Activator type %s\n", info);
 }
 
 static specflags_t extrafloor_types[] =
@@ -661,7 +661,7 @@ void DDF_LineGetExtraFloor(const char *info, void *storage)
 
 		case CHKF_User:
 		case CHKF_Unknown:
-			DDF_WarnError2(129, "Unknown Extrafloor Type: %s\n", info);
+			DDF_WarnError("Unknown Extrafloor Type: %s\n", info);
 			break;
 	}
 }
@@ -834,7 +834,7 @@ void DDF_LineGetSpecialFlags(const char *info, void *storage)
 
 	case CHKF_User:
 	case CHKF_Unknown:
-		DDF_WarnError2(129, "Unknown line special: %s", info);
+		DDF_WarnError("Unknown line special: %s", info);
 		break;
 	}
 }

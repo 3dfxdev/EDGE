@@ -367,9 +367,9 @@ static void SetGlobalVars(void)
 
 	// check for strict and no-warning options
 	M_CheckBooleanParm("strict", &strict_errors, false);
-	M_CheckBooleanParm("warn", &no_warnings, true);
-	M_CheckBooleanParm("obsolete", &no_obsoletes, true);
 	M_CheckBooleanParm("lax", &lax_errors, false);
+
+	M_CheckBooleanParm("warn", &no_warnings, true);
 }
 
 //

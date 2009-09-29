@@ -130,7 +130,7 @@ static void SectorParseField(const char *field, const char *contents,
 	if (DDF_MainParseField(sect_commands, field, contents))
 		return;
 
-	DDF_WarnError2(128, "Unknown sectors.ddf command: %s\n", field);
+	DDF_WarnError("Unknown sectors.ddf command: %s\n", field);
 }
 
 //
@@ -249,7 +249,7 @@ void DDF_SectGetSpecialFlags(const char *info, void *storage)
 
 		case CHKF_User:
 		case CHKF_Unknown:
-			DDF_WarnError2(128, "Unknown sector special: %s", info);
+			DDF_WarnError("Unknown sector special: %s", info);
 			break;
 	}
 }
@@ -285,7 +285,7 @@ void DDF_SectGetExit(const char *info, void *storage)
 
 		case CHKF_User:
 		case CHKF_Unknown:
-			DDF_WarnError2(128, "Unknown Exit type: %s\n", info);
+			DDF_WarnError("Unknown Exit type: %s\n", info);
 			break;
 	}
 }
@@ -322,7 +322,7 @@ void DDF_SectGetLighttype(const char *info, void *storage)
 
 		case CHKF_User:
 		case CHKF_Unknown:
-			DDF_WarnError2(128, "Unknown light type: %s\n", info);
+			DDF_WarnError("Unknown light type: %s\n", info);
 			break;
 	}
 }
@@ -360,7 +360,7 @@ void DDF_SectGetMType(const char *info, void *storage)
 
 		case CHKF_User:
 		case CHKF_Unknown:
-			DDF_WarnError2(128, "Unknown Movement type: %s\n", info);
+			DDF_WarnError("Unknown Movement type: %s\n", info);
 			break;
 	}
 }
@@ -428,7 +428,7 @@ void DDF_SectGetDestRef(const char *info, void *storage)
 
 		case CHKF_User:
 		case CHKF_Unknown:
-			DDF_WarnError2(128, "Unknown Reference Point: %s\n", info);
+			DDF_WarnError("Unknown Reference Point: %s\n", info);
 			break;
 	}
 }

@@ -2,7 +2,7 @@
 //  EDGE Data Definition Files Code (Main)
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE Team.
 //           
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -35,15 +35,12 @@ extern float M_Tan(angle_t ang)  GCCATTR((const));
 
 #define DEBUG_DDFREAD  0
 
-int ddf_version;  // global
-
 static int engine_version;
 static std::string ddf_where;
 
 bool strict_errors = false;
 bool lax_errors = false;
 bool no_warnings = false;
-bool no_obsoletes = false;
 
 
 //
@@ -155,36 +152,6 @@ void DDF_WarnError(const char *err, ...)
 		DDF_Warning("%s", buffer);
 }
 
-void DDF_WarnError2(int ver, const char *err, ...)
-{
-	va_list argptr;
-	char buffer[1024];
-
-	va_start(argptr, err);
-	vsprintf(buffer, err, argptr);
-	va_end(argptr);
-
-	if (strict_errors || (ddf_version >= ver && ! lax_errors))
-		DDF_Error("%s", buffer);
-	else
-		DDF_Warning("%s", buffer);
-}
-
-static void GCCATTR((format (printf,1,2)))
-	DDF_Obsolete(const char *err, ...)
-{
-	va_list argptr;
-	char buffer[1024];
-
-	va_start(argptr, err);
-	vsprintf(buffer, err, argptr);
-	va_end(argptr);
-
-	if (strict_errors || (ddf_version >= 128 && ! lax_errors))
-		DDF_Error("%s", buffer);
-	else if (no_obsoletes)
-		DDF_Warning("%s", buffer);
-}
 
 void DDF_Init(int _engine_ver)
 {
@@ -452,12 +419,12 @@ static void DDF_ParseVersion(const char *str, int len)
 		DDF_Error("Badly formed #VERSION directive.\n");
 	}
 
-	ddf_version = ((str[0] - '0') * 100) |
-	              ((str[2] - '0') *  10) |
-				   (str[3] - '0');
+	int ddf_version = ((str[0] - '0') * 100) |
+	                  ((str[2] - '0') *  10) |
+				       (str[3] - '0');
 
 	if (ddf_version < 123)
-		DDF_Error("Illegal #VERSION number.\n");
+		DDF_Error("Illegal #VERSION number: %s\n", str);
 
 	if (ddf_version > engine_version)
 		DDF_Error("This version of EDGE cannot handle this DDF.\n");
@@ -726,7 +693,7 @@ static readchar_t DDF_MainProcessChar(char character, std::string& token, int st
 			else if (character == '\n')
 			{
 				cur_ddf_line_num--;
-				DDF_WarnError2(128, "Unclosed string detected.\n");
+				DDF_WarnError("Unclosed string detected.\n");
 
 				cur_ddf_line_num++;
 				return nothing;
@@ -779,8 +746,6 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 #if (DEBUG_DDFREAD)
 	char charcount = 0;
 #endif
-
-	ddf_version = 127;
 
 	status = waiting_tag;
 	formerstatus = readstatus_invalid;
@@ -1022,7 +987,7 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 					DDF_Error("Unexpected comma `,'.\n");
 
 				if (firstgo)
-					DDF_WarnError2(128, "Command %s used outside of any entry\n",
+					DDF_WarnError("Command %s used outside of any entry\n",
 								   current_cmd.c_str());
 				else
 				{ 
@@ -1060,7 +1025,7 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 				break;
 
 			case property_read:
-				DDF_WarnError2(128, "Badly formed command: Unexpected semicolon `;'\n");
+				DDF_WarnError("Badly formed command: Unexpected semicolon `;'\n");
 				break;
 
 			case nothing:
@@ -1100,7 +1065,7 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 		DDF_Error("Unclosed [] brackets detected.\n");
 	
 	if (status == reading_data || status == reading_string)
-		DDF_WarnError2(128, "Unfinished DDF command on last line.\n");
+		DDF_WarnError("Unfinished DDF command on last line.\n");
 
 	// if firstgo is true, nothing was defined
 	if (!firstgo)
@@ -1161,7 +1126,7 @@ void DDF_MainGetNumeric(const char *info, void *storage)
 
 	if (isalpha(info[0]))
 	{
-		DDF_WarnError2(128, "Bad numeric value: %s\n", info);
+		DDF_WarnError("Bad numeric value: %s\n", info);
 		return;
 	}
 
@@ -1273,7 +1238,7 @@ bool DDF_MainParseSubField(const commandlist_t *sub_comms,
 		return false;
 
 	if (obsolete)
-		DDF_Obsolete("The ddf %s.%s command is obsolete !\n", base_command, name);
+		DDF_WarnError("The ddf %s.%s command is obsolete !\n", base_command, name);
 
 	// found it, so call parse routine
 
@@ -1338,7 +1303,7 @@ bool DDF_MainParseField(const commandlist_t *commands,
 		return false;
 
 	if (obsolete)
-		DDF_Obsolete("The ddf %s command is obsolete !\n", name);
+		DDF_WarnError("The ddf %s command is obsolete !\n", name);
 
 	// found it, so call parse routine
 
@@ -1359,7 +1324,7 @@ void DDF_MainGetLumpName(const char *info, void *storage)
 	lumpname_c *LN = (lumpname_c *)storage;
 
 	if (strlen(info) == 9)
-		DDF_WarnError2(131, "Name %s too long (should be 8 characters or less)\n", info);
+		DDF_WarnError("Name %s too long (should be 8 characters or less)\n", info);
 	else if (strlen(info) > 9)
 		DDF_Error("Name %s too long (must be 8 characters or less)\n", info);
 
@@ -1375,7 +1340,7 @@ void DDF_MainRefAttack(const char *info, void *storage)
 
 	*dest = (atkdef_c*)atkdefs.Lookup(info);
 	if (*dest == NULL)
-		DDF_WarnError2(128, "Unknown Attack: %s\n", info);
+		DDF_WarnError("Unknown Attack: %s\n", info);
 }
 
 
@@ -1424,7 +1389,7 @@ void DDF_MainGetAngle(const char *info, void *storage)
 	if ((int) val == 360)
 		val = 359.5;
 	else if (val > 360.0f)
-		DDF_WarnError2(129, "Angle '%s' too large (must be less than 360)\n", info);
+		DDF_WarnError("Angle '%s' too large (must be less than 360)\n", info);
 
 	*dest = FLOAT_2_ANG(val);
 }
@@ -1467,7 +1432,7 @@ void DDF_MainGetPercent(const char *info, void *storage)
 	// the number must be followed by %
 	if (*p != '%')
 	{
-		DDF_WarnError2(128, "Bad percent value '%s': Should be a number followed by %%\n", info);
+		DDF_WarnError("Bad percent value '%s': Should be a number followed by %%\n", info);
 		// -AJA- 2001/01/27: backwards compatibility
 		DDF_MainGetFloat(s, &f);
 		*dest = MAX(0, MIN(1, f));
@@ -1504,7 +1469,7 @@ void DDF_MainGetPercentAny(const char *info, void *storage)
 	// the number must be followed by %
 	if (*p != '%')
 	{
-		DDF_WarnError2(128, "Bad percent value '%s': Should be a number followed by %%\n", info);
+		DDF_WarnError("Bad percent value '%s': Should be a number followed by %%\n", info);
 		// -AJA- 2001/01/27: backwards compatibility
 		DDF_MainGetFloat(s, dest);
 		return;
@@ -1802,7 +1767,7 @@ static int FindSpecialFlag(const char *prefix, const char *name,
 		if (DDF_CompareName(name, try_name) == 0)
 		{
 			if (obsolete)
-				DDF_Obsolete("The ddf flag `%s' is obsolete !\n", try_name);
+				DDF_WarnError("The ddf flag `%s' is obsolete !\n", try_name);
 
 			return i;
 		}
