@@ -2344,11 +2344,11 @@ void P_SetupLevel(void)
 	for (j=0; j < numsectors; j++)
 		P_RecomputeGapsAroundSector(sectors + j);
 
+	G_ClearBodyQueue();
+
 	// set up world state
 	// (must be before loading things to create Extrafloors)
-	P_SpawnSpecials(currmap->autotag);
-
-	G_ClearBodyQueue();
+	P_SpawnSpecials1();
 
 	// -AJA- 1999/10/21: Clear out player starts (ready to load).
 	dm_starts.Clear();
@@ -2367,6 +2367,8 @@ void P_SetupLevel(void)
 #endif
 
 	CreateVertexSeclists();
+
+	P_SpawnSpecials2(currmap->autotag);
 
 	AM_InitLevel();
 
