@@ -27,6 +27,7 @@
 #include "hu_stuff.h"
 
 #include "con_main.h"
+#include "con_gui.h"
 #include "dm_state.h"
 #include "e_input.h"
 #include "e_main.h"
@@ -227,88 +228,13 @@ void HU_Start(void)
 
 void HU_Drawer(void)
 {
+	CON_ShowFPS();
+
 	if (message_on)
 		HL_DrawSText(&w_message);
 
 	if (chat_on)
 		HL_DrawIText(&w_chat);
-
-	//now, draw stats
-	// -ACB- 1998/09/11 Used White Colour Scaling.
-	if (showstats)
-	{
-		static int numframes = 0, lasttime = 0;
-		static float fps = 0, mspf = 0;
-
-		char textbuf[100];
-		char *s;
-		int currtime, timediff;
-
-		numframes++;
-		currtime = I_GetTime();
-		timediff = currtime - lasttime;
-
-		if (timediff > 70)
-		{
-			fps  = (float) (numframes * TICRATE) / (float) timediff;
-			mspf = (float) timediff * 1000.0f / (float) (numframes * TICRATE);
-
-			lasttime = currtime;
-			numframes = 0;
-		}
-
-		HL_ClearTextLine(&textlinefps);
-		sprintf(textbuf, "fps: %1.1f  ms/f:%1.1f   time:%d:%02d", fps, 
-			mspf, (leveltime / TICRATE) / 60, (leveltime / TICRATE) % 60);
-
-		s = textbuf;
-		while (*s)
-			HL_AddCharToTextLine(&textlinefps, *(s++));
-		HL_DrawTextLine(&textlinefps, 0);
-
-#if 1  // don't want non-FPS info causing extra slowdown
-
-		HL_ClearTextLine(&textlinememory);
-		sprintf(textbuf, "used cache: %d/%d",
-			W_CacheInfo(1),
-			W_CacheInfo(2));
-		s = textbuf;
-		while (*s)
-			HL_AddCharToTextLine(&textlinememory, *(s++));
-		HL_DrawTextLine(&textlinememory, 0);
-
-		if (!netgame)
-		{
-			HL_ClearTextLine(&textlinepos);
-			HL_ClearTextLine(&textlinestats);
-
-			player_t *p = players[displayplayer];
-			SYS_ASSERT(p);
-
-			// Convert angle & x,y co-ordinates so they are easier to read.
-			// -KM- 1998/11/25 Added z co-ordinate
-			sprintf(textbuf, "LookDir=%1.0f; x,y,z=( %1.0f, %1.0f, %1.0f );"
-				" sec=%d/%d", ANG_2_FLOAT(p->mo->angle),
-				p->mo->x, p->mo->y,
-				p->mo->z,
-				(int) (p->mo->subsector->sector - sectors),
-				(int) (p->mo->subsector - subsectors));
-			s = textbuf;
-			while (*s)
-				HL_AddCharToTextLine(&textlinepos, *(s++));
-
-			sprintf(textbuf, "Kills:%d/%d   Items:%d/%d   Secrets:%d/%d",
-				p->killcount, wi_stats.kills,
-				p->itemcount, wi_stats.items,
-				p->secretcount, wi_stats.secret);
-			s = textbuf;
-			while (*s)
-				HL_AddCharToTextLine(&textlinestats, *(s++));
-			HL_DrawTextLine(&textlinepos, 0);
-			HL_DrawTextLine(&textlinestats, 0);
-		}
-#endif
-	}
 }
 
 void HU_Erase(void)

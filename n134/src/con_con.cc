@@ -31,6 +31,7 @@
 
 #include "con_main.h"
 #include "e_input.h"
+#include "e_player.h"
 #include "hu_lib.h"
 #include "hu_stuff.h"
 #include "hu_style.h"
@@ -43,6 +44,9 @@
 
 #define CON_WIPE_TICS  12
 
+
+cvar_c debug_fps;
+cvar_c debug_pos;
 
 static visible_t con_visible;
 
@@ -340,6 +344,23 @@ static int FNSZ;
 static int XMUL;
 static int YMUL;
 
+static void CalcSizes()
+{
+	// determine font sizing and spacing
+	if (SCREENWIDTH < 400)
+	{
+		FNSZ = 10; XMUL = 7; YMUL = 12;
+	}
+	else if (SCREENWIDTH < 700)
+	{
+		FNSZ = 13; XMUL = 9; YMUL = 15;
+	}
+	else
+	{
+		FNSZ = 16; XMUL = 11; YMUL = 19;
+	}
+}
+
 
 static void HorizontalLine(int y, rgbcol_t col)
 {
@@ -433,20 +454,7 @@ void CON_Drawer(void)
 		return;
 
 
-	// determine font sizing and spacing
-
-	if (SCREENWIDTH < 400)
-	{
-		FNSZ = 10; XMUL = 7; YMUL = 12;
-	}
-	else if (SCREENWIDTH < 700)
-	{
-		FNSZ = 13;  XMUL = 9;  YMUL = 15;
-	}
-	else
-	{
-		FNSZ = 16;  XMUL = 11;  YMUL = 19;
-	}
+	CalcSizes();
 
 
 	// -- background --
@@ -1110,6 +1118,97 @@ void CON_Start(void)
 	con_visible = vs_notvisible;
 	con_cursor  = 0;
 }
+
+void CON_ShowFPS(void)
+{
+	if (debug_fps.d <= 0 && debug_pos.d <= 0)
+		return;
+
+	static int numframes = 0, lasttime = 0;
+	static float fps = 0, mspf = 0;
+
+	char textbuf[100];
+	int currtime, timediff;
+
+	numframes++;
+	currtime = I_GetTime();
+	timediff = currtime - lasttime;
+
+	if (timediff > 70)
+	{
+		fps  = (float) (numframes * TICRATE) / (float) timediff;
+		mspf = (float) timediff * 1000.0f / (float) (numframes * TICRATE);
+
+		lasttime = currtime;
+		numframes = 0;
+	}
+
+	int lcount = 2;
+
+	if (debug_fps.d >= 2)
+		lcount++;
+
+	if (debug_pos.d)
+		lcount += 7;
+
+	CalcSizes();
+
+	int x = SCREENWIDTH  - XMUL * 16;
+	int y = SCREENHEIGHT - YMUL * lcount;
+
+	RGL_SolidBox(x, y, SCREENWIDTH, SCREENHEIGHT, RGB_MAKE(0,0,0), 0.5);
+
+	x += XMUL;
+	y = SCREENHEIGHT - YMUL - YMUL/2;
+
+	if (true)
+	{
+		sprintf(textbuf, "  fps: %1.1f", fps);
+		DrawText(x, y, textbuf, T_GREY176);
+		y -= YMUL;
+	}
+
+	if (debug_fps.d >= 2)
+	{
+		sprintf(textbuf, " ms/f: %1.1f", mspf);
+		DrawText(x, y, textbuf, T_GREY176);
+		y -= YMUL;
+	}
+
+	y -= YMUL;
+
+	if (debug_pos.d)
+	{
+		player_t *p = players[displayplayer];
+		SYS_ASSERT(p);
+
+		sprintf(textbuf, "    x: %d", (int)p->mo->x);
+		DrawText(x, y, textbuf, T_GREY176);
+		y -= YMUL;
+
+		sprintf(textbuf, "    y: %d", (int)p->mo->y);
+		DrawText(x, y, textbuf, T_GREY176);
+		y -= YMUL;
+
+		sprintf(textbuf, "    z: %d", (int)p->mo->z);
+		DrawText(x, y, textbuf, T_GREY176);
+		y -= YMUL;
+
+		sprintf(textbuf, "angle: %d", (int)ANG_2_FLOAT(p->mo->angle));
+		DrawText(x, y, textbuf, T_GREY176);
+		y -= YMUL;
+
+		sprintf(textbuf, "  sec: %d", (int)(p->mo->subsector->sector - sectors));
+		DrawText(x, y, textbuf, T_GREY176);
+		y -= YMUL;
+
+		sprintf(textbuf, "  sub: %d", (int)(p->mo->subsector - subsectors));
+		DrawText(x, y, textbuf, T_GREY176);
+		y -= YMUL*2;
+	}
+}
+
+
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

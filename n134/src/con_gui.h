@@ -33,6 +33,8 @@ bool CON_Responder(event_t * ev);
 // Drawer. Draws the console.
 void CON_Drawer(void);
 
+void CON_ShowFPS(void);
+
 // Initialises the console
 void CON_InitConsole(void);
 
