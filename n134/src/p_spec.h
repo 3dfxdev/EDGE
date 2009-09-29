@@ -168,7 +168,8 @@ extern int levelTimeCount;
 extern linetype_c donut[2];
 
 // at map load
-void P_SpawnSpecials(int autotag);
+void P_SpawnSpecials1(void);
+void P_SpawnSpecials2(int autotag);
 
 // at map exit
 void P_StopAmbientSectorSfx(void);
