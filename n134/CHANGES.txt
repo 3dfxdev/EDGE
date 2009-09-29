@@ -11,6 +11,7 @@ CHANGES (since 1.31)
 - support for keys on the numeric keypad
 - improved various defaults (e.g. WASD movement)
 - new Lua function: hud.play_sound()
+- new 'debug_fps' and 'debug_pos' cvars
 - shorter cheat code for 'killall'
 - better HOM detection (debug_hom cvar)
 - new 'goobers' cvar for a fun effect

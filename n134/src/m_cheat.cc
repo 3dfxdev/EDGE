@@ -50,8 +50,9 @@
 #include "p_bot.h"
 #include "w_wad.h"
 
-#include <stdio.h>
-#include <stdlib.h>
+
+extern cvar_c debug_fps;
+extern cvar_c debug_pos;
 
 //
 // CHEAT SEQUENCE PACKAGE
@@ -436,7 +437,10 @@ bool M_CheatResponder(event_t * ev)
 		M_StartMessageInput(language["MusicQ"], M_ChangeMusicCheat);
 	}
 	else if (M_CheckCheat(&cheat_showstats, key))
-		showstats = !showstats;
+	{
+		debug_fps = debug_fps.d ? 0 : 1;
+		debug_pos = debug_fps.d;
+	}
 
 	return false;
 }

@@ -83,8 +83,7 @@ extern cvar_c tim_quietfactor;
 extern cvar_c debug_nomonsters, debug_hom;
 extern cvar_c debug_fullbright, debug_subsector;
 extern cvar_c debug_joyaxis,    debug_mouse;
-extern cvar_c debug_fps,        debug_stats;
-extern cvar_c debug_normals;
+extern cvar_c debug_fps,        debug_pos;
 
 
 #ifndef LINUX
@@ -285,14 +284,13 @@ cvar_link_t  all_cvars[] =
 	{ "debug_nomonsters", &debug_nomonsters, "h", "0" },
 	{ "debug_fullbright", &debug_fullbright, "h", "0" },
 	{ "debug_subsector",  &debug_subsector,  "h", "0" },
-	{ "debug_normals",    &debug_normals,    "h", "0" },
 	{ "debug_joyaxis",    &debug_joyaxis,    "h", "0" },
 	{ "debug_mouse",      &debug_mouse,      "h", "0" },
-	{ "debug_stats",      &debug_stats,      "h", "0" },
-	{ "debug_fps",        &debug_fps,        "c", "0" },
 #endif
 
 	{ "debug_hom",        &debug_hom,        "h", "0" },
+	{ "debug_pos",        &debug_pos,        "h", "0" },
+	{ "debug_fps",        &debug_fps,        "c", "0" },
 
 //---- END OF LIST -----------------------------------------------------------
 

@@ -143,10 +143,8 @@ gameflags_t global_flags;
 
 int newnmrespawn = 0;
 
-bool showstats = false;
 bool swapstereo = false;
 bool mus_pause_stop = false;
-bool infight = false;
 bool png_scrshots = false;
 
 bool external_ddf = false;
@@ -167,6 +165,7 @@ std::string shot_dir;
 int crosshair = 0;
 
 extern cvar_c m_language;
+extern cvar_c g_aggression;
 
 static void E_TitleDrawer(void);
 
@@ -319,7 +318,6 @@ static void SetGlobalVars(void)
 	// -AJA- 1999/10/18: Reworked these with M_CheckBooleanParm
 	M_CheckBooleanParm("rotatemap", &rotatemap, false);
 	M_CheckBooleanParm("invertmouse", &invertmouse, false);
-	M_CheckBooleanParm("showstats", &showstats, false);
 	M_CheckBooleanParm("sound", &nosound, true);
 	M_CheckBooleanParm("music", &nomusic, true);
 	M_CheckBooleanParm("cdmusic", &nocdmusic, true);
@@ -332,7 +330,6 @@ static void SetGlobalVars(void)
 	M_CheckBooleanParm("halos", &global_flags.halos, false);
 	M_CheckBooleanParm("kick", &global_flags.kicking, false);
 	M_CheckBooleanParm("singletics", &singletics, false);
-	M_CheckBooleanParm("infight", &infight, false);
 	M_CheckBooleanParm("true3d", &global_flags.true3dgameplay, false);
 	M_CheckBooleanParm("blood", &global_flags.more_blood, false);
 	M_CheckBooleanParm("cheats", &global_flags.cheats, false);
@@ -340,6 +337,9 @@ static void SetGlobalVars(void)
 	M_CheckBooleanParm("crouching", &global_flags.crouch, false);
 	M_CheckBooleanParm("weaponswitch", &global_flags.weapon_switch, false);
 	M_CheckBooleanParm("autoload", &autoquickload, false);
+
+	if (M_CheckParm("-infight"))
+		g_aggression = 1;
 
 	if (M_CheckParm("-dlights"))
 		use_dlights = 1;

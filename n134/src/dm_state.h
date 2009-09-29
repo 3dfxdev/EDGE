@@ -165,9 +165,7 @@ extern const image_c *skyflatimage;
 extern int maketic;
 
 //misc stuff
-extern bool showstats;
 extern bool swapstereo;
-extern bool infight;
 extern bool png_scrshots;
 
 #define NUMHUD  120
