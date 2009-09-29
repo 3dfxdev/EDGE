@@ -433,7 +433,7 @@ static void DrawText(int x, int y, const char *s, rgbcol_t col)
 }
 
 
-void CON_Drawer(void)
+void CON_SetupFont(void)
 {
 	if (! con_font)
 	{
@@ -450,12 +450,16 @@ void CON_Drawer(void)
 		console_style = hu_styles.Lookup(def);
 	}
 
+	CalcSizes();
+}
+
+
+void CON_Drawer(void)
+{
+	CON_SetupFont();
+
 	if (con_visible == vs_notvisible && !conwipeactive)
 		return;
-
-
-	CalcSizes();
-
 
 	// -- background --
 
@@ -1121,6 +1125,8 @@ void CON_Start(void)
 
 void CON_ShowFPS(void)
 {
+	CON_SetupFont();
+
 	if (debug_fps.d <= 0 && debug_pos.d <= 0)
 		return;
 
@@ -1150,8 +1156,6 @@ void CON_ShowFPS(void)
 
 	if (debug_pos.d)
 		lcount += 7;
-
-	CalcSizes();
 
 	int x = SCREENWIDTH  - XMUL * 16;
 	int y = SCREENHEIGHT - YMUL * lcount;
@@ -1207,7 +1211,6 @@ void CON_ShowFPS(void)
 		y -= YMUL*2;
 	}
 }
-
 
 
 //--- editor settings ---
