@@ -24,5 +24,6 @@ CHANGES (since 1.31)
 - fixed dynamic lights on translucent MD2 skins
 - fixed excessive warnings for missing textures
 - fixed gamma to be restored at exit
+- fixed display of gamma change messages
 - fixed some Timidity issues
 
