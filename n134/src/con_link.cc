@@ -109,6 +109,8 @@ cvar_link_t  all_cvars[] =
 
     { "language",       &m_language,     "c",   "ENGLISH" },
 
+    { "g_aggression",   &g_aggression,   "c",   "0"  },
+
 	{ "goobers",        &goobers,        "",    "0" },
 
 	{ "in_keypad",      &in_keypad,      "c",   "1"  },
@@ -139,7 +141,6 @@ cvar_link_t  all_cvars[] =
     { "g_noextra",      &g_noextra,      "c",   "0"  },
     { "g_moreblood",    &g_moreblood,    "c",   "0"  },
     { "g_fastmon",      &g_fastmon,      "c",   "0"  },
-    { "g_aggression",   &g_aggression,   "c",   "0"  },
     { "g_passmissile",  &g_passmissile,  "c",   "1"  },
     { "g_weaponkick",   &g_weaponkick,   "c",   "0"  },
     { "g_weaponswitch", &g_weaponswitch, "c",   "1"  },
