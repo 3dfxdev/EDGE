@@ -1702,8 +1702,8 @@ bool M_Responder(event_t * ev)
 					default: { msg = NULL; break; }
 				}
 				
-				if (msg)	
-					CON_Printf("%s\n", msg);
+				if (msg)
+					CON_PlayerMessage(consoleplayer, "%s", msg);
 
 				// -AJA- 1999/07/03: removed PLAYPAL reference.
 				return true;
