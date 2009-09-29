@@ -8,10 +8,6 @@
 
 #VERSION 1.31
 
-[flat:CONSOLE]
-IMAGE_DATA=LUMP:PNG:"CONSOL_P";
-SCALE=0.5;
-
 [gfx:STDCROSS1]
 image_data = LUMP:PNG:"CROSSHR1";
 special = FORCE_SMOOTH;
