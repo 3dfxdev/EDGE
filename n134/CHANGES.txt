@@ -9,12 +9,12 @@ CHANGES (since 1.31)
 + new RTS command: ONCEILINGHEIGHT (Andrew Baker)
 
 - support for keys on the numeric keypad
-- old EDGE title screens retired
 - improved various defaults (e.g. WASD movement)
-- better HOM detection (debug_hom cvar)
 - new Lua function: hud.play_sound()
 - shorter cheat code for 'killall'
+- better HOM detection (debug_hom cvar)
 - new 'goobers' cvar for a fun effect
+- old EDGE title screens retired
 
 - fixed 16-rotation sprites
 - fixed some colormap issues
@@ -25,6 +25,7 @@ CHANGES (since 1.31)
 - fixed dynamic lights on translucent MD2 skins
 - fixed excessive warnings for missing textures
 - fixed gamma to be restored at exit
-- fixed display of gamma change messages
+- fixed display of gamma-change messages
+- fixed crashes with extra aggression
 - fixed some Timidity issues
 

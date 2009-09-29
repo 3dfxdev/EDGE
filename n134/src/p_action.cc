@@ -57,6 +57,9 @@
 #include "z_zone.h"
 
 
+cvar_c g_aggression;
+
+
 static int AttackSfxCat(const mobj_t *mo)
 {
 	int category = P_MobjGetSfxCategory(mo);
@@ -2898,42 +2901,7 @@ void P_ActReloadReset(mobj_t * object)
 //-----------LOOKING AND CHASING---------------
 //---------------------------------------------
 
-#if 0  // DISABLED, BROKEN
-//
-// SelectTarget
-//
-// Search the things list for a target
-//
-// -ACB- 2000/06/20 Re-written and Simplified
-//
-static mobj_t *SelectTarget(bool newlev)
-{
-	static mobj_t *targetobj;
-	int count;
-
-	// Setup target object
-	if (newlev)
-		targetobj = mobjlisthead;
-
-	// Nothing?
-	if (!targetobj)
-		return NULL;
-
-	// Find mobj in list 
-	for (count = P_Random(); count > 0; count--)
-	{
-		targetobj = targetobj->next;
-
-		if (! targetobj)
-			targetobj = mobjlisthead;
-	}
-
-	// Not a valid obj?
-	if (!(targetobj->info->extendedflags & EF_MONSTER) || targetobj->health <=0)
-		return NULL;
-
-	return targetobj;
-}
+extern mobj_t ** bmap_things;
 
 //
 // CreateAggression
@@ -2942,84 +2910,83 @@ static mobj_t *SelectTarget(bool newlev)
 //
 // -ACB- 2000/06/20 Re-written and Simplified
 //
-static bool CreateAggression(mobj_t * object)
+// -AJA- 2009/07/05 Rewritten again, using the blockmap
+//
+static bool CreateAggression(mobj_t * mo)
 {
-	static const mapdef_c *mapcheck = NULL;	// FIXME!!! Lose this static sh*te!
-	static mobj_t *target = NULL;
-	static int count = 0;
-	const mobjtype_c *targinfo;
-	const mobjtype_c *objinfo;
-
-	count++;
-
-	// New map of no map - setup the procedure for next time
-	if (mapcheck == NULL || mapcheck != currmap)
-	{
-		mapcheck = currmap;
-		target = SelectTarget(true);
-		count = 0;
+	if (mo->target && mo->target->health > 0)
 		return false;
+
+	// pick a block in blockmap to check
+	int bdx = P_RandomNegPos() / 17;
+	int bdy = P_RandomNegPos() / 17;
+
+	int block_x = BLOCKMAP_GET_X(mo->x) + bdx;
+	int block_y = BLOCKMAP_GET_X(mo->y) + bdy;
+
+	block_x = abs(block_x + bmap_width)  % bmap_width;
+	block_y = abs(block_y + bmap_height) % bmap_height;
+
+//  I_Debugf("BLOCKMAP POS: %3d %3d  (size: %d %d)\n", block_x, block_y, bmap_width, bmap_height);
+
+	int bnum = block_y * bmap_width + block_x;
+
+	for (mobj_t *other = bmap_things[bnum]; other; other = other->bnext)
+	{
+		if (! (other->info->extendedflags & EF_MONSTER) || other->health <= 0)
+			continue;
+
+		if (other == mo)
+			continue;
+
+		if (other->info == mo->info)
+		{
+			if (! (other->info->extendedflags & EF_DISLOYALTYPE))
+				continue;
+
+			// Type the same and it can't hurt own kind - not good.
+			if (! (other->info->extendedflags & EF_OWNATTACKHURTS))
+				continue;
+		}
+
+		// don't attack a friend if we cannot hurt them.
+		// -AJA- I'm assuming that even friends will 'infight'.
+		if ((mo->info->side & other->info->side) != 0 && 
+			(other->info->hyperflags & (HF_SIDEIMMUNE | HF_ULTRALOYAL)))
+		{
+			continue;
+		}
+
+		// POTENTIAL TARGET
+
+		// fairly low chance of trying it, in case this block
+		// contains many monsters (spread the love)
+		if (P_Random() > 99)
+			continue;
+
+		// sight check is expensive, do it last
+		if (! P_CheckSight(mo, other))
+			continue;
+
+		// OK, you got me
+		mo->SetTarget(other);
+
+		I_Debugf("Created aggression : %s --> %s\n",
+				 mo->info->ddf.name.c_str(),
+				 other->info->ddf.name.c_str());
+
+		if (mo->info->seesound)
+			S_StartFX(mo->info->seesound, P_MobjGetSfxCategory(mo),
+						   mo, SfxFlags(mo->info));
+
+		if (mo->info->chase_state)
+			P_SetMobjStateDeferred(mo, mo->info->chase_state, 0);
+
+		return true;
 	}
 
-	// No target or target dead
-	if (target == NULL)
-	{
-		target = SelectTarget(false);
-		count = 0;
-		return false;
-	}
-
-	if (!(target->info->extendedflags & EF_MONSTER) || target->health <= 0)
-	{
-		target = SelectTarget(false);
-		count = 0;
-		return false;
-	}
-
-	// Don't target self...
-	if (object == target)
-		return false;
-
-	// This object has been checked too many times, try a another one.
-	if (count > 127)
-	{
-		target = SelectTarget(false);
-		count = 0;
-		return false;
-	}
-
-	objinfo = object->info;
-	targinfo = target->info;
-
-	if (!P_CheckSight(object, target))
-		return false;
-
-	if (targinfo == objinfo)
-	{
-		if (! (objinfo->extendedflags & EF_DISLOYALTYPE))
-			return false;
-
-		// Type the same and it can't hurt own kind - not good.
-		if (! (objinfo->extendedflags & EF_OWNATTACKHURTS))
-			return false;
-	}
-
-	// don't attack a friend if we cannot hurt them.
-	// -AJA- I'm assuming that even friends will 'infight'.
-	if ((targinfo->side & objinfo->side) != 0 && 
-		(objinfo->hyperflags & (HF_SIDEIMMUNE | HF_ULTRALOYAL)))
-	{
-		return false;
-	}
-
-	object->SetTarget(target);
-
-	if (object->info->chase_state)
-		P_SetMobjStateDeferred(object, object->info->chase_state, 0);
-
-	return true;
+	return false;
 }
-#endif
 
 
 //
@@ -3052,13 +3019,9 @@ void P_ActStandardLook(mobj_t * object)
 	if (object->flags & MF_STEALTH)
 		object->vis_target = VISIBLE;
 
-#if 0  // DISABLED, BROKEN
-	if (infight)
-	{
-		if (CreateAggression(object))
+	if (g_aggression.d)
+		if (CreateAggression(object) || CreateAggression(object))
 			return;
-	}
-#endif
 
 	if (targ && (targ->flags & MF_SHOOTABLE))
 	{
