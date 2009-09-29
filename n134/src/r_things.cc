@@ -467,6 +467,7 @@ void RGL_DrawWeaponSprites(player_t * p)
 {
 	bool got_cross = false;
 
+
 	// special handling for zoom: show viewfinder
 	if (viewiszoomed)
 	{
@@ -492,7 +493,7 @@ void RGL_DrawWeaponSprites(player_t * p)
 		{
 			pspdef_t *psp = &p->psprites[i];
 
-			if (psp->state == S_NULL)
+			if ((p->ready_wp < 0) || (psp->state == S_NULL))
 				continue;
 
 			RGL_DrawPSprite(psp, i, p, view_props, psp->state);
@@ -1083,32 +1084,6 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 	dthing->left_dy  = pos1 * -viewcos * mir_scale;
 	dthing->right_dx = pos2 *  viewsin * mir_scale;
 	dthing->right_dy = pos2 * -viewcos * mir_scale;
-
-	// create shadow
-#if 0
-	if (level_flags.shadows && mo->info->shadow_trans > 0 &&
-		mo->floorz < viewz && ! IS_SKY(mo->subsector->sector->floor))
-	{
-		drawthing_t *dshadow = R_GetDrawThing();
-
-		dshadow[0] = dthing[0];
-
-		dshadow->is_shadow = true;
-		dshadow->y_clipping = -1;
-		dshadow->tz += 1.5f;
-
-		// shadows are 1/4 the height
-		dshadow->iyscale *= 4.0f;
-
-		gzb = mo->floorz;
-		gzt = gzb + sprite_height / 4.0f * mo->info->yscale;
-
-		dshadow->top = gzt;
-		dshadow->bottom = gzb;
-
-		R2_ClipSpriteVertically(dsub, dshadow);
-	}
-#endif
 
 	R2_ClipSpriteVertically(dsub, dthing);
 }
