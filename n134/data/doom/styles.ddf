@@ -1,7 +1,7 @@
 // 
 //    EDGE STYLES.DDF -redefine or add new styles.
 //    For documentation, see http://edge.sourceforge.net/
-//    DDF Version 5.9
+//    DDF Version 6.1
 //
 //    NOTE: STYLES.DDF IS EXPERIMENTAL !!
 //
@@ -89,7 +89,7 @@ TEXT.FONT="DOOM";
 SOUND.BEGIN="TINK";
 
 [CONSOLE]
-BACKGROUND.COLOUR=#000020;
+BACKGROUND.COLOUR=#000010;
 BACKGROUND.TRANSLUCENCY=75%;
 // SPECIAL=TILED;
 TEXT.FONT="DOOM";
