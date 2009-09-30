@@ -14,6 +14,7 @@ CHANGES (since 1.31)
 - new 'debug_fps' and 'debug_pos' cvars
 - shorter cheat code for 'killall'
 - better HOM detection (debug_hom cvar)
+- always generate our own BLOCKMAP, ignore REJECT
 - new 'goobers' cvar for a fun effect
 - old EDGE title screens retired
 
@@ -28,5 +29,6 @@ CHANGES (since 1.31)
 - fixed gamma to be restored at exit
 - fixed display of gamma-change messages
 - fixed crashes with extra aggression
+- fixed Boom point pushers/pullers
 - fixed some Timidity issues
 
