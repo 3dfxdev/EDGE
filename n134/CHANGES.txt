@@ -24,11 +24,13 @@ CHANGES (since 1.31)
 - fixed teleporting into walls bug (with help from Andrew Baker)
 - fixed bug with LOSE_BENEFIT on ammo limits
 - fixed weapon refire accuracy after a loadgame
-- fixed dynamic lights on translucent MD2 skins
 - fixed excessive warnings for missing textures
-- fixed gamma to be restored at exit
+
+- fixed some Timidity issues
+- fixed dynamic lights on translucent MD2 skins
+- fixed RTS execution semantics in multiplayer games
 - fixed display of gamma-change messages
+- fixed gamma to be restored at exit
 - fixed crashes with extra aggression
 - fixed Boom point pushers/pullers
-- fixed some Timidity issues
 
