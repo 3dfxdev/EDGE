@@ -246,12 +246,12 @@ void w32_mus_player_c::Stop()
 
 	paused = true;
 
-	// Reset pitchwheel on all channels
-	for (int i=0; i <= 15; i++)              
-		midiOutShortMsg(midioutput, 0xE0+i); 
+	// reset pitchwheel on all channels
+	for (int i=0; i < 16; i++)              
+		midiOutShortMsg(midioutput, i | 0xe0 | (0x40 << 16)); 
 
 	// send RESET_ALL_CONTROLLERS message
-	midiOutShortMsg(midioutput, 0xB0+(121<<8));
+	midiOutShortMsg(midioutput, 0xb0 | (121<<8));
 
 	midiOutReset(midioutput); 
 }
@@ -336,18 +336,12 @@ void w32_mus_player_c::SysTicker(void)
 
 			case MUS_EV_PITCH_WHEEL:
 			{
-				int scratch;
-				long pitchwheel;
+				// Convert to 14-bit MIDI pitch value
+				int pitchwheel = (int)(*pos++) << 6;
 
-				// Scale to MIDI Pitch range
-				pitchwheel = *pos++;
-				pitchwheel *= 16384;
-				pitchwheel /= 256;
-
-				// Assemble to 14-bit MIDI pitch value
-				midiStatus |= 0xE0;
-				scratch = (pitchwheel & 7);	midiParm1 = (byte)scratch;
-				scratch = (pitchwheel & 0x3F80) >> 7; midiParm2 = (byte)scratch;
+				midiStatus = 0xe0;
+				midiParm1 = pitchwheel & 127;
+				midiParm2 = pitchwheel >> 7;
 				break;
 			}
 
