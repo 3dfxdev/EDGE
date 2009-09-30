@@ -791,10 +791,10 @@ void M_OptCheckNetgame(void)
 		mainoptions[HOSTNET_POS+0].routine = &M_EndGame;
 		mainoptions[HOSTNET_POS+0].help = NULL;
 
-		strcpy(mainoptions[HOSTNET_POS+1].name, "");
-		mainoptions[HOSTNET_POS+1].type = OPT_Plain;
-		mainoptions[HOSTNET_POS+1].routine = NULL;
-		mainoptions[HOSTNET_POS+1].help = NULL;
+//		strcpy(mainoptions[HOSTNET_POS+1].name, "");
+//		mainoptions[HOSTNET_POS+1].type = OPT_Plain;
+//		mainoptions[HOSTNET_POS+1].routine = NULL;
+//		mainoptions[HOSTNET_POS+1].help = NULL;
 	}
 	else
 	{
@@ -802,10 +802,10 @@ void M_OptCheckNetgame(void)
 		mainoptions[HOSTNET_POS+0].routine = &M_HostNetGame;
 		mainoptions[HOSTNET_POS+0].help = NULL;
 
-		strcpy(mainoptions[HOSTNET_POS+1].name, "Join Net Game");
-		mainoptions[HOSTNET_POS+1].type = OPT_Function;
-		mainoptions[HOSTNET_POS+1].routine = &M_JoinNetGame;
-		mainoptions[HOSTNET_POS+1].help = NULL;
+//		strcpy(mainoptions[HOSTNET_POS+1].name, "Join Net Game");
+//		mainoptions[HOSTNET_POS+1].type = OPT_Function;
+//		mainoptions[HOSTNET_POS+1].routine = &M_JoinNetGame;
+//		mainoptions[HOSTNET_POS+1].help = NULL;
 	}
 }
 
