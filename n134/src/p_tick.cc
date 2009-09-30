@@ -37,6 +37,7 @@
 #include "n_network.h"
 #include "p_local.h"
 #include "p_spec.h"
+#include "rad_trig.h"
 
 int leveltime;
 
@@ -58,6 +59,8 @@ void P_Ticker(void)
 	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
 		if (players[pnum])
 			P_PlayerThink(players[pnum]);
+
+	RAD_RunTriggers();
 
 	P_RunForces();
 	P_RunMobjThinkers();

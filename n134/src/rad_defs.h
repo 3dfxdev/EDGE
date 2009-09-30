@@ -397,7 +397,7 @@ typedef struct rts_state_s
 	int tics;
 
 	// routine to be performed
-	void (*action)(struct rad_trigger_s *trig, mobj_t *actor, void *param);
+	void (*action)(struct rad_trigger_s *trig, void *param);
 
 	// parameter for routine, or NULL
 	void *param;
@@ -469,20 +469,6 @@ s_onheight_t;
 // Trigger Definition (Made up of actions)
 // Start_Map & Radius_Trigger Declaration
 
-// Multiplayer info
-typedef enum
-{
-	// spawn a separate trigger for each player
-	RNET_Separate,
-
-	// spawn only a single trigger, "absolute" semantics
-	RNET_Absolute,
-
-	// not specified -- try to automatically detect it
-	RNET_Auto
-}
-rad_script_netmode_e;
-
 typedef struct rad_script_s
 {
 	// link in list
@@ -498,9 +484,6 @@ typedef struct rad_script_s
 	int min_players;
 	int max_players;
 
-	// Handling for multiple players
-	rad_script_netmode_e netmode;
-
 	// Map Coordinates
 	float x, y, z;
 
@@ -512,9 +495,6 @@ typedef struct rad_script_s
 
 	// Script tag (or 0 for none)
 	int tag;
-
-	// for SEPARATE mode, bit field of players to spawn trigger
-	u32_t what_players;
 
 	// ABSOLUTE mode: minimum players needed to trigger, -1 for ALL
 	int absolute_req_players;
@@ -530,9 +510,6 @@ typedef struct rad_script_s
 
 	// Requires no player intervention ?
 	bool tagged_immediate;
-
-	// Should external enables/disables be player specific ?
-	bool tagged_player_specific;
 
 	// Tagged_Repeat info (normal if repeat_count < 0)
 	int repeat_count;
@@ -584,7 +561,7 @@ typedef struct rad_trigger_s
 	bool activated;
 
 	// players who activated it (bit field)
-	u32_t acti_players;
+	int acti_players;
 
 	// repeat info
 	int repeats_left;

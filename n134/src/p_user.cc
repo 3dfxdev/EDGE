@@ -648,11 +648,7 @@ void P_PlayerThink(player_t * player)
 		P_PlayerInSpecialSector(player, player->mo->subsector->sector);
 	}
 
-	// -AJA- FIXME: rework RTS execution as per docs/rts_rule.txt
-	RAD_DoRadiTrigger(player);
-
 	// Check for weapon change.
-
 	if (cmd->buttons & BT_CHANGE)
 	{
 		// The actual changing of the weapon is done when the weapon
