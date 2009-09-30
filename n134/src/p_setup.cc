@@ -1795,73 +1795,15 @@ static void DetectDeepWaterTrick(void)
 }
 
 
-//
-// LoadBlockMap
-//
-// 23-6-98 KM Brand Spanking New Blockmap code:
-//
-// -AJA- 2000/07/31: Heavy reworking.
-//
-static void LoadBlockMap(int lump)
-{
-	int i;
-	int num_lines, num_ofs;
-
-	const short *data;
-	const short *dat_pos;
-
-	data = (const short*)W_CacheLumpNum(lump);
-	num_lines = W_LumpLength(lump) / sizeof(short);
-
-	if (num_lines <= 4)
-		I_Error("Bad WAD: level %s missing BLOCKMAP.  Build the nodes !\n", 
-			currmap->lump.c_str());
-
-	bmap_orgx = (float)EPI_LE_S16(data[0]);
-	bmap_orgy = (float)EPI_LE_S16(data[1]);
-	bmap_width  = EPI_LE_S16(data[2]);
-	bmap_height = EPI_LE_S16(data[3]);
-
-	// skip header
-	dat_pos = data + 4;
-
-	num_ofs = bmap_width * bmap_height;
-	num_lines -= (num_ofs + 4);
-
-	bmap_pointers = new unsigned short* [num_ofs];
-	bmap_lines    = new unsigned short  [num_lines];
-
-	// Note: there is potential to skip the ever-present initial zero in
-	// the linedef list (which means that linedef #0 always gets checked
-	// for everything -- inefficient).  But I'm assuming that some wads
-	// (or even editors / blockmap builders) may rely on this behaviour.
-
-	for (i=0; i < num_ofs; i++)
-		bmap_pointers[i] = bmap_lines +
-			((int)EPI_LE_U16(dat_pos[i]) - num_ofs - 4);
-
-	// skip offsets
-	dat_pos += num_ofs;
-
-	for (i=0; i < num_lines; i++)
-		bmap_lines[i] = EPI_LE_U16(dat_pos[i]);
-
-	W_DoneWithLump(data);
-}
-
-
 static void DoBlockMap(int lump)
 {
-	int i;
-	int map_width, map_height;
-
 	int min_x = (int)vertexes[0].x;
 	int min_y = (int)vertexes[0].y;
 
 	int max_x = (int)vertexes[0].x;
 	int max_y = (int)vertexes[0].y;
 
-	for (i=1; i < numvertexes; i++)
+	for (int i=1; i < numvertexes; i++)
 	{
 		vec2_t *v = vertexes + i;
 
@@ -1871,22 +1813,10 @@ static void DoBlockMap(int lump)
 		max_y = MAX((int)v->y, max_y);
 	}
 
-	map_width  = max_x - min_x;
-	map_height = max_y - min_y;
+	// int map_width  = max_x - min_x;
+	// int map_height = max_y - min_y;
 
-	if (! W_VerifyLumpName(lump, "BLOCKMAP"))
-		I_Error("Bad WAD: level %s missing BLOCKMAP.  Build the nodes !\n", 
-			currmap->lump.c_str());
-
-	if (M_CheckParm("-blockmap") > 0 ||
-		W_LumpLength(lump) == 0 ||
-		W_LumpLength(lump) > (128 * 1024) ||
-		map_width >= 16000 || map_height >= 16000)
-	{
-		P_GenerateBlockMap(min_x, min_y, max_x, max_y);
-	}
-	else
-		LoadBlockMap(lump);
+	P_GenerateBlockMap(min_x, min_y, max_x, max_y);
 
 	P_CreateThingBlockMap();
 }
