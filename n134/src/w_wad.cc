@@ -1165,12 +1165,13 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 	{
 		std::string hwa_filename;
 
-		bool exists = FindCacheFilename(hwa_filename, filename, df, EDGEHWAEXT);
+		char base_name[64];
+		sprintf(base_name, "DEH_%04d.%s", datafile, EDGEHWAEXT);
+ 
+		hwa_filename = epi::PATH_Join(cache_dir.c_str(), base_name);
 
 		I_Debugf("Actual_HWA_filename: %s\n", hwa_filename.c_str());
 
-		if (! exists)
-		{
 			if (kind == FLKIND_Deh)
 			{
                 I_Printf("Converting DEH file: %s\n", filename);
@@ -1192,7 +1193,6 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 
 				W_DoneWithLump(data);
 			}
-        }
 
 		// Load it (using good ol' recursion again).
 		AddFile(hwa_filename.c_str(), FLKIND_HWad, -1);
