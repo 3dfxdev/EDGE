@@ -24,6 +24,8 @@
 #include "p_local.h"
 #include "dm_struct.h"
 
+#include <algorithm>
+
 
 #define DIST_EPSILON  0.2f
 
