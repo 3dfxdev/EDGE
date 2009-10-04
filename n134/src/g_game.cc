@@ -736,6 +736,8 @@ static void G_DoLoadGame(void)
 	
 	G_InitNew(params);
 
+	curr_hub_tag = globs->hub_tag;
+
 	G_DoLoadLevel();
 
 	// -- Check LEVEL consistency (crc) --
@@ -753,8 +755,6 @@ static void G_DoLoadGame(void)
 
 		I_Error("LOAD-GAME: Level data does not match !  Check WADs\n");
 	}
-
-	//!!! FIXME: Check DDF/RTS consistency (crc), warning only
 
 	if (! is_hub)
 	{
@@ -842,6 +842,7 @@ static void G_DoSaveGame(void)
 	globs->game  = SV_DupString(currmap->episode_name);
 	globs->level = SV_DupString(currmap->ddf.name);
 	globs->flags = level_flags;
+	globs->hub_tag = curr_hub_tag;
 
 	globs->skill = gameskill;
 	globs->netgame = netgame ? (1+deathmatch) : 0;
