@@ -73,6 +73,8 @@ static const global_command_t global_commands[] =
 	{ "GAME",  GV_GetString, GV_PutString, GLOB_OFF(game) },
 	{ "LEVEL", GV_GetString, GV_PutString, GLOB_OFF(level) },
 	{ "FLAGS", GV_GetLevelFlags, GV_PutLevelFlags, GLOB_OFF(flags) },
+	{ "HUB_TAG", GV_GetInt, GV_PutInt, GLOB_OFF(hub_tag) },
+
 	{ "GRAVITY", GV_GetInt, GV_PutInt, GLOB_OFF(flags.menu_grav) },
 	{ "LEVEL_TIME", GV_GetInt, GV_PutInt, GLOB_OFF(level_time) },
 	{ "EXIT_TIME", GV_GetInt, GV_PutInt, GLOB_OFF(exit_time) },
