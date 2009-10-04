@@ -105,7 +105,7 @@ bool exit_skipall = false;  // -AJA- temporary (maybe become "exit_mode")
 
 int deathmatch;
 
-skill_t gameskill = sk_invalid;
+skill_t gameskill = sk_medium;
 
 // -ACB- 2004/05/25 We need to store our current/next mapdefs
 const mapdef_c *currmap = NULL;
