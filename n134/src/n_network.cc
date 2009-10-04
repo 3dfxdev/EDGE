@@ -44,10 +44,7 @@ bool netgame = false;
 
 int base_port;
 
-
-bool var_hogcpu = true;
-
-extern gameflags_t default_gameflags;
+cvar_c m_busywait;
 
 
 int gametic;
@@ -55,6 +52,8 @@ int maketic;
 
 static int last_update_tic;
 static int last_tryrun_tic;
+
+extern gameflags_t default_gameflags;
 
 
 //----------------------------------------------------------------------------
@@ -97,7 +96,7 @@ static void GetPackets(bool do_delay)
 	if (! netgame)
 	{
 		// -AJA- This can make everything a bit "jerky" :-(
-		if (do_delay && ! var_hogcpu)
+		if (do_delay && ! m_busywait.d)
 			I_Sleep(10 /* millis */);
 
 		return;
@@ -107,7 +106,7 @@ static void GetPackets(bool do_delay)
 
 	NLsocket socks[4];  // only one in the group
 
-	int delay = (do_delay && ! var_hogcpu) ? 10 /* millis */ : 0;
+	int delay = (do_delay && ! m_busywait.d) ? 10 /* millis */ : 0;
 	int num = nlPollGroup(sk_group, NL_READ_STATUS, socks, 4, delay);
 
 	if (num < 1)
