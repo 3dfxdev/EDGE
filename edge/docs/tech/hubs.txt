@@ -1,41 +1,38 @@
 
-Hub System
-----------
+Hub System V2.0
+---------------
 
-Basic idea is that every visited hub level, except the current
-level, is stored in a savegame with a special name:
+Hubs are implemented mainly by managing savegame files.
 
-    HUB##.esg
+Assume $SAVEDIR is the directory for savegames.
 
-To perform a full savegame, the current level is saved normally,
-for example to file SAVE0123.esg, and the hub savegames are
-simply copied, e.g. HUB02.esg --> SAVE0123_02.esg.
+Each full savegame has it's own folder: $SAVEDIR/slot###/
+There is also one for the current game: $SAVEDIR/current/
 
-Performing a full loadgame means copying the hub savegames
-and then doing a normal load for the current level.
+Within one of these folders, there is a savegame for the
+current map, called "head.esg", and there can be savegames
+for previously visited levels, which are just the map name
+with the "esg" extension, for example: "map01.esg".
 
-Whenever a new level is started normally (not part of the
-current hubs), then all the HUB## savegames must be deleted.
-They should also be deleted when the engine shuts down.
+PERFORM SAVE GAME:
+  -  save map into $SAVEDIR/current/head.esg
+  -  create or clear the $SAVEDIR/slot### folder
+  -  copy contents of $SAVEDIR/current --> $SAVEDIR/slot###
 
-The engine must keep a current list of "dormant" hubs, so
-it knows when to do a "hub load" instead of a normal level
-load.  This dormant hub list must also be saved into full
-savegames, but not hub savegames.
+PERFORM LOAD GAME:
+  -  clear contents of $SAVEDIR/current
+  -  copy contents of $SAVEDIR/slot### --> $SAVEDIR/current
+  -  load map from $SAVEDIR/current/head.esg
+     (but skip players)
 
-When loading from a hub savegame, we must not clobber the
-current player information, or the dormant hub information.
+CLEAN UP OPERATION:
+  -  clear contents of $SAVEDIR/current
+     (do this at engine startup, begin new game, leave game)
 
-
-HUB API
--------
-
-HUB_Init();
-
-HUB_DeleteHubSaves()
-
-HUB_CopyHubsForSaving(basename)
-
-HUB_CopyHubsForLoading(basename)
-
+LEAVE MAPxx / ENTER MAPyy:
+  -  save map into $SAVEDIR/current/mapXX.esg
+  -  if $SAVEDIR/current/mapYY.esg exists, load it,
+     otherwise load fresh map
+  -  connect players to [HUB_START] things in tagged sector
+     (ignore normal player starts).
 
