@@ -109,6 +109,9 @@
 int option_menuon = 0;
 
 extern cvar_c m_language;
+extern cvar_c r_crosshair;
+
+static int menu_crosshair;  // temp hack
 
 //submenus
 static void M_KeyboardOptions(int keypressed);
@@ -130,6 +133,7 @@ static void M_ChangeAutoAim(int keypressed);
 static void M_ChangeFastparm(int keypressed);
 static void M_ChangeRespawn(int keypressed);
 static void M_ChangePassMissile(int keypressed);
+static void M_ChangeCrossHair(int keypressed);
 
 //Special function declarations
 int menunormalfov, menuzoomedfov;
@@ -165,7 +169,7 @@ static void M_LanguageDrawer(int x, int y, int deltay);
 static void M_ChangeLanguage(int keypressed);
 
 static char YesNo[]     = "Off/On";  // basic on/off
-static char CrosO[]     = "None/Cross/Dot/Angle";  // crosshair options
+static char CrossH[]    = "None/Dot/Angle/Plus/Spiked/Thin/Cross/Carat/Circle/Double";
 static char Respw[]     = "Teleport/Resurrect";  // monster respawning
 static char Axis[]      = "Turn/Forward/Strafe/MLook/Fly/Disable";
 static char DLMode[]    = "Off/On";
@@ -425,7 +429,7 @@ static optmenuitem_t vidoptions[] =
 #endif
 	{OPT_Plain,   "",  NULL, 0, 0, NULL, NULL, NULL},
 
-	{OPT_Switch,  "Crosshair",     CrosO, 4,  CFGDEF_CROSSHAIR,      &crosshair, NULL, NULL},
+	{OPT_Switch,  "Crosshair",     CrossH, 10,  0, &menu_crosshair, M_ChangeCrossHair, NULL},
 	{OPT_Boolean, "Map Rotation",  YesNo, 2,  CFGDEF_ROTATEMAP,      &rotatemap, NULL, NULL},
 	{OPT_Switch,  "Teleport Flash",YesNo, 2,  CFGDEF_TELEPT_FLASH,   &telept_flash, NULL, NULL},
 	{OPT_Switch,  "Invulnerability", Invuls, NUM_INVULFX,  CFGDEF_INVUL_FX,   &var_invul_fx, NULL, NULL},
@@ -1717,6 +1721,11 @@ static void M_ChangeDLights(int keypressed)
 	/* nothing to do */
 }
 
+static void M_ChangeCrossHair(int keypressed)
+{
+	r_crosshair = menu_crosshair;
+}
+
 
 //
 // M_ChangeLanguage
@@ -1865,6 +1874,14 @@ static void M_JoinNetGame(int keypressed)
 
 	M_NetJoinBegun();
 #endif
+}
+
+void M_Options(int choice)
+{
+	option_menuon = 1;
+
+	// hack
+	menu_crosshair = CLAMP(0, r_crosshair.d, 9);
 }
 
 

@@ -162,8 +162,6 @@ std::string save_dir;
 std::string hub_dir;
 std::string shot_dir;
 
-int crosshair = 0;
-
 extern cvar_c m_language;
 extern cvar_c g_aggression;
 
