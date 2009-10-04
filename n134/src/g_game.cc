@@ -45,7 +45,6 @@
 #include "m_random.h"
 #include "n_network.h"
 #include "p_bot.h"
-#include "p_hubs.h"
 #include "p_setup.h"
 #include "p_tick.h"
 #include "rad_trig.h"
@@ -92,6 +91,7 @@ int starttime;
 
 int exittime = INT_MAX;
 bool exit_skipall = false;  // -AJA- temporary (maybe become "exit_mode")
+int exit_hub_tag  = 0;
 
 
 // GAMEPLAY MODES:
@@ -111,6 +111,8 @@ skill_t gameskill = sk_medium;
 const mapdef_c *currmap = NULL;
 const mapdef_c *nextmap = NULL;
 
+int curr_hub_tag = 0;  // affects where players are spawned
+
 // -KM- 1998/12/16 These flags hold everything needed about a level
 gameflags_t level_flags;
 
@@ -128,9 +130,10 @@ static newgame_params_c *defer_params = NULL;
 //
 // REQUIRED STATE:
 //   (a) currmap
-//   (b) players[], numplayers (etc)
-//   (c) gameskill + deathmatch
-//   (d) level_flags
+//   (b) curr_hub_tag
+//   (c) players[], numplayers (etc)
+//   (d) gameskill + deathmatch
+//   (e) level_flags
 //
 //   ??  exittime
 //
@@ -138,6 +141,9 @@ void G_DoLoadLevel(void)
 {
 	if (currmap == NULL)
 		I_Error("G_DoLoadLevel: No Current Map selected");
+
+	if (curr_hub_tag == 0)
+		SV_ClearCurrent();
 
 	// Set the sky map.
 	//
@@ -248,6 +254,7 @@ void G_DoLoadLevel(void)
 	starttime = I_GetTime();
 	exittime = INT_MAX;
 	exit_skipall = false;
+	exit_hub_tag = 0;
 
 	LU_BeginLevel();
 
@@ -404,6 +411,7 @@ void G_BigStuff(void)
 			case ga_finale:
 				SYS_ASSERT(nextmap);
 				currmap = nextmap;
+				curr_hub_tag = 0;
 				F_StartFinale(&currmap->f_pre, ga_loadlevel);
 				break;
 
@@ -512,6 +520,7 @@ void G_ExitLevel(int time)
 	nextmap = G_LookupMap(currmap->nextmapname);
 	exittime = leveltime + time;
 	exit_skipall = false;
+	exit_hub_tag = 0;
 }
 
 // -ACB- 1998/08/08 We don't have support for the german edition
@@ -521,6 +530,7 @@ void G_SecretExitLevel(int time)
 	nextmap = G_LookupMap(currmap->secretmapname);
 	exittime = leveltime + time;
 	exit_skipall = false;
+	exit_hub_tag = 0;
 }
 
 void G_ExitToLevel(char *name, int time, bool skip_all)
@@ -528,11 +538,21 @@ void G_ExitToLevel(char *name, int time, bool skip_all)
 	nextmap = G_LookupMap(name);
 	exittime = leveltime + time;
 	exit_skipall = skip_all;
+	exit_hub_tag = 0;
 }
 
 void G_ExitToHub(const char *map_name, int tag)
 {
-	// FIXME !!! G_ExitToHub
+	if (tag <= 0)
+		I_Error("Hub exit line/command: bad tag %d\n", tag);
+
+	nextmap = G_LookupMap(map_name);
+	if (! nextmap)
+		I_Error("G_ExitToHub: No such map %s !\n", map_name);
+
+	exittime = leveltime + 5;
+	exit_skipall = true;
+	exit_hub_tag = tag;
 }
 
 void G_ExitToHub(int map_number, int tag)
@@ -558,6 +578,7 @@ void G_ExitToHub(int map_number, int tag)
 //   (b) players[]
 //   (c) leveltime
 //   (d) exit_skipall
+//   (d) exit_hub_tag
 //   (e) wi_stats.kills (etc)
 // 
 static void G_DoCompleted(void)
@@ -595,6 +616,7 @@ static void G_DoCompleted(void)
 		if (exit_skipall && nextmap)
 		{
 			currmap = nextmap;
+			curr_hub_tag = exit_hub_tag;
 			gameaction = ga_loadlevel;
 		}
 		else
@@ -1008,11 +1030,11 @@ static void G_DoNewGame(void)
 //
 void G_InitNew(newgame_params_c& params)
 {
+	SV_ClearCurrent();
+
 	// --- create players ---
 
 	P_DestroyAllPlayers();
-
-//????	HUB_DestroyAll();
 
 	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
 	{
@@ -1047,6 +1069,7 @@ void G_InitNew(newgame_params_c& params)
 	}
 
 	currmap = params.map;
+	curr_hub_tag = 0;
 
 	if (params.skill > sk_nightmare)
 		params.skill = sk_nightmare;

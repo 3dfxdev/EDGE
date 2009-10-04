@@ -337,6 +337,8 @@ void SV_FinishSave(void);
 void SV_SaveStruct(void *base, savestruct_t *info);
 void SV_SaveEverything(void);
 
+void SV_ClearCurrent(void);
+
 
 //
 //  DEBUGGING
