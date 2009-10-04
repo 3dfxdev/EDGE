@@ -20,10 +20,10 @@
 
 #define EDGEVER       132
 #define EDGEVERHEX  0x132
-#define EDGEVERSTR  "1.32-TEST2"
+#define EDGEVERSTR  "1.32-SVN"
 
 // patch level (Savegames and Demos)
-#define EDGEPATCH  2
+#define EDGEPATCH  3
 
 
 //--- editor settings ---

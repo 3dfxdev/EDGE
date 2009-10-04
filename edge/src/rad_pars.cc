@@ -855,7 +855,6 @@ static void RAD_ParseRadiusTrigger(int pnum, const char **pars)
 	this_rad->appear = DEFAULT_APPEAR;
 	this_rad->min_players = 0;
 	this_rad->max_players = MAXPLAYERS;
-	this_rad->what_players = ~0;  // "ALL"
 	this_rad->absolute_req_players = 1;
 	this_rad->repeat_count = -1;
 	this_rad->repeat_delay = 0;
