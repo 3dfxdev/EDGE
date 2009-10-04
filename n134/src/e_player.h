@@ -335,6 +335,15 @@ void G_PlayerFinishLevel(player_t *p);
 
 bool G_CheckConditions(mobj_t *mo, condition_check_t *cond);
 
+void G_ClearPlayerStarts(void);
+
+void G_AddDeathmatchStart(const spawnpoint_t& point);
+void G_AddCoopStart(const spawnpoint_t& point);
+void G_AddHubStart(const spawnpoint_t& point);
+void G_AddVoodooDoll(const spawnpoint_t& point);
+
+spawnpoint_t *G_FindCoopPlayer(int pnum);
+
 #endif // __E_PLAYER_H__
 
 //--- editor settings ---

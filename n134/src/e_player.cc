@@ -67,12 +67,22 @@ static mobj_t *bodyqueue[MAX_BODIES];
 static int bodyqueue_size = 0;
 
 // Maintain single and multi player starting spots.
-spawnpointarray_c dm_starts;
-spawnpointarray_c coop_starts;
-spawnpointarray_c voodoo_doll_starts;
+static std::vector<spawnpoint_t> dm_starts;
+static std::vector<spawnpoint_t> coop_starts;
+static std::vector<spawnpoint_t> voodoo_dolls;
+static std::vector<spawnpoint_t> hub_starts;
+
 
 static void P_SpawnPlayer(player_t *p, const spawnpoint_t *point);
 
+
+void G_ClearPlayerStarts(void)
+{
+	dm_starts.clear();
+	coop_starts.clear();
+	voodoo_dolls.clear();
+	hub_starts.clear();
+}
 
 void G_ClearBodyQueue(void)
 {
@@ -412,37 +422,35 @@ static void P_SpawnVoodooDoll(player_t *p, const spawnpoint_t *point)
 //
 void G_DeathMatchSpawnPlayer(player_t *p)
 {
-	if (p->pnum >= dm_starts.GetSize())
+	if (p->pnum >= (int)dm_starts.size())
 		I_Warning("Few deathmatch spots, %d recommended.\n", p->pnum + 1);
 
-	if (dm_starts.GetSize())
+	int begin = P_Random();
+
+	if (dm_starts.size() > 0)
 	{
-		int begin = P_Random() % dm_starts.GetSize();
-
-		for (int j = 0; j < dm_starts.GetSize(); j++)
+		for (int j = 0; j < (int)dm_starts.size(); j++)
 		{
-			int i = (begin + j) % dm_starts.GetSize();
+			int i = (begin + j) % (int)dm_starts.size();
 
-			if (G_CheckSpot(p, dm_starts[i]))
+			if (G_CheckSpot(p, &dm_starts[i]))
 				return;
 		}
 	}
 
 	// no good spot, so the player will probably get stuck
-	if (coop_starts.GetSize())
+	if (coop_starts.size() > 0)
 	{
-		int begin = P_Random() % coop_starts.GetSize();
-
-		for (int j = 0; j < coop_starts.GetSize(); j++)
+		for (int j = 0; j < (int)coop_starts.size(); j++)
 		{
-			int i = (begin + j) % coop_starts.GetSize();
+			int i = (begin + j) % (int)coop_starts.size();
 
-			if (G_CheckSpot(p, coop_starts[i]))
+			if (G_CheckSpot(p, &coop_starts[i]))
 				return;
 		}
 	}
 
-	I_Error("No player starts found!");
+	I_Error("No usable DM start found!");
 }
 
 //
@@ -453,12 +461,12 @@ void G_DeathMatchSpawnPlayer(player_t *p)
 //
 void G_CoopSpawnPlayer(player_t *p)
 {
-	spawnpoint_t *sp = coop_starts.FindPlayer(p->pnum+1);
+	spawnpoint_t *point = G_FindCoopPlayer(p->pnum+1);
 
-	if (sp == NULL)
+	if (point == NULL)
 		I_Error("Missing player %d start !\n", p->pnum+1);
 
-	if (G_CheckSpot(p, sp))
+	if (G_CheckSpot(p, point))
 		return;
 
 	I_Warning("Player %d start is invalid.\n", p->pnum+1);
@@ -466,34 +474,28 @@ void G_CoopSpawnPlayer(player_t *p)
 	int begin = p->pnum;
 
 	// try to spawn at one of the other players spots
-	for (int j = 0; j < coop_starts.GetSize(); j++)
+	for (int j = 0; j < (int)coop_starts.size(); j++)
 	{
-		int i = (begin + j) % coop_starts.GetSize();
+		int i = (begin + j) % (int)coop_starts.size();
 
-		spawnpoint_t *new_sp = coop_starts[i];
-
-		if (G_CheckSpot(p, new_sp))
-		{
-			sp = new_sp;
-			break;
-		}
+		if (G_CheckSpot(p, &coop_starts[i]))
+			return;
 	}
+
+	I_Error("No usable player start found!\n");
 }
 
 
 void G_SpawnVoodooDolls(player_t *p)
 {
-	for (int i = 0; i < voodoo_doll_starts.GetSize(); i++)
+	for (int i = 0; i < (int)voodoo_dolls.size(); i++)
 	{
-		spawnpoint_t *sp = voodoo_doll_starts[i];
+		spawnpoint_t *point = &voodoo_dolls[i];
 
-		if (sp->info->playernum != p->pnum + 1)
+		if (point->info->playernum != p->pnum + 1)
 			continue;
-#if 0
-		if (! G_CheckSpot(p, sp))
-			continue;
-#endif
-		P_SpawnVoodooDoll(p, sp);
+
+		P_SpawnVoodooDoll(p, point);
 	}
 }
 
@@ -698,13 +700,31 @@ bool G_CheckConditions(mobj_t *mo, condition_check_t *cond)
 	return true;
 }
 
-spawnpoint_t *spawnpointarray_c::FindPlayer(int pnum)
+void G_AddDeathmatchStart(const spawnpoint_t& point)
 {
-	epi::array_iterator_c it;
+	dm_starts.push_back(point);
+}
 
-	for (it=GetBaseIterator(); it.IsValid(); it++)
+void G_AddHubStart(const spawnpoint_t& point)
+{
+	hub_starts.push_back(point);
+}
+
+void G_AddCoopStart(const spawnpoint_t& point)
+{
+	coop_starts.push_back(point);
+}
+
+void G_AddVoodooDoll(const spawnpoint_t& point)
+{
+	voodoo_dolls.push_back(point);
+}
+
+spawnpoint_t *G_FindCoopPlayer(int pnum)
+{
+	for (int i = 0; i < (int)coop_starts.size(); i++)
 	{
-		spawnpoint_t *point = ITERATOR_TO_PTR(it, spawnpoint_t);
+		spawnpoint_t *point = &coop_starts[i];
 		SYS_ASSERT(point->info);
 
 		if (point->info->playernum == pnum)

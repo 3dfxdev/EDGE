@@ -45,13 +45,13 @@
 #include "m_random.h"
 #include "p_local.h"
 #include "p_bot.h"
-#include "p_hubs.h"
 #include "p_setup.h"
 #include "r_automap.h"
 #include "r_gldefs.h"
 #include "r_sky.h"
 #include "s_sound.h"
 #include "s_music.h"
+#include "sv_main.h"
 #include "r_image.h"
 #include "w_texture.h"
 #include "w_wad.h"
@@ -67,8 +67,6 @@
 #define SEG_INVALID  ((seg_t *) -3)
 #define SUB_INVALID  ((subsector_t *) -3)
 
-
-cvar_c goobers;
 
 static bool level_active = false;
 
@@ -127,10 +125,7 @@ static bool v5_nodes;
 // There is two values for every line: side0 and side1.
 static int *temp_line_sides;
 
-
-extern spawnpointarray_c dm_starts;
-extern spawnpointarray_c coop_starts;
-extern spawnpointarray_c voodoo_doll_starts;
+cvar_c goobers;
 
 
 static void CheckEvilutionBug(byte *data, int length)
@@ -904,8 +899,6 @@ static void SpawnMapThing(const mobjtype_c *info,
 						  float x, float y, float z,
 						  angle_t angle, int options, int tag)
 {
-	int bit;
-	mobj_t *mobj;
 	spawnpoint_t point;
 
 	point.x = x;
@@ -919,9 +912,22 @@ static void SpawnMapThing(const mobjtype_c *info,
 
 	// -KM- 1999/01/31 Use playernum property.
 	// count deathmatch start positions
-	if (info->playernum < 0)
+
+	if (info->playernum == -2)
 	{
-		dm_starts.Insert(&point);
+		// determine sector tag for [HUB_START] thing
+		sector_t *sec = R_PointInSubsector(x, y)->sector;
+		point.tag = sec->tag;
+
+		if (sec->tag <= 0)
+			I_Warning("HUB_START in sector without tag @ (%1.0f %1.0f)\n", x, y);
+
+		G_AddHubStart(point);
+		return;
+	}
+	else if (info->playernum < 0)
+	{
+		G_AddDeathmatchStart(point);
 		return;
 	}
 
@@ -930,15 +936,17 @@ static void SpawnMapThing(const mobjtype_c *info,
 	{
 		// -AJA- 2004/12/30: for duplicate players, the LAST one must
 		//       be used (so levels with Voodoo dolls work properly).
-		spawnpoint_t *prev = coop_starts.FindPlayer(info->playernum);
+		spawnpoint_t *prev = G_FindCoopPlayer(info->playernum);
 
-		if (prev)
+		if (! prev)
+			G_AddCoopStart(point);
+		else
 		{
-			voodoo_doll_starts.Insert (prev);
+			G_AddVoodooDoll(*prev);
+
+			// overwrite the one in the Coop list
 			memcpy(prev, &point, sizeof(point));
 		}
-		else
-			coop_starts.Insert(&point);
 		return;
 	}
 
@@ -954,6 +962,8 @@ static void SpawnMapThing(const mobjtype_c *info,
 
 	if (DEATHMATCH() && (options & MTF_NOT_DM))
 		return;
+
+	int bit;
 
 	if (gameskill == sk_baby)
 		bit = 1;
@@ -979,23 +989,23 @@ static void SpawnMapThing(const mobjtype_c *info,
 
 	// spawn it now !
 	// Use MobjCreateObject -ACB- 1998/08/06
-	mobj = P_MobjCreateObject(x, y, z, info);
+	mobj_t * mo = P_MobjCreateObject(x, y, z, info);
 
-	mobj->angle = angle;
-	mobj->spawnpoint = point;
+	mo->angle = angle;
+	mo->spawnpoint = point;
 
-	if (mobj->state && mobj->state->tics > 1)
-		mobj->tics = 1 + (P_Random() % mobj->state->tics);
+	if (mo->state && mo->state->tics > 1)
+		mo->tics = 1 + (P_Random() % mo->state->tics);
 
 	if (options & MTF_AMBUSH)
 	{
-		mobj->flags |= MF_AMBUSH;
-		mobj->spawnpoint.flags |= MF_AMBUSH;
+		mo->flags |= MF_AMBUSH;
+		mo->spawnpoint.flags |= MF_AMBUSH;
 	}
 
 	// -AJA- 2000/09/22: MBF compatibility flag
 	if (options & MTF_FRIEND)
-		mobj->side = ~0;
+		mo->side = ~0;
 }
 
 static void LoadThings(int lump)
@@ -2241,9 +2251,7 @@ void P_SetupLevel(void)
 	P_SpawnSpecials1();
 
 	// -AJA- 1999/10/21: Clear out player starts (ready to load).
-	dm_starts.Clear();
-	coop_starts.Clear();
-	voodoo_doll_starts.Clear();
+	G_ClearPlayerStarts();
 
 	if (hexen_level)
 		LoadHexenThings(lumpnum + ML_THINGS);
@@ -2286,14 +2294,9 @@ void P_Init(void)
 	// There should not yet exist a player
 	SYS_ASSERT(numplayers == 0);
 
-	currmap = NULL; //!!! mapdefs[0];
+	G_ClearPlayerStarts();
 
-	dm_starts.Clear();
-	coop_starts.Clear();
-	voodoo_doll_starts.Clear();
-
-	HUB_Init();
-	HUB_DeleteHubSaves();
+	SV_ClearCurrent();
 }
 
 
