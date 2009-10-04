@@ -13,19 +13,21 @@ CHANGES (since 1.31)
 - new Lua function: hud.play_sound()
 - new 'debug_fps' and 'debug_pos' cvars
 - shorter cheat code for 'killall'
+
 - better HOM detection (debug_hom cvar)
 - always generate our own BLOCKMAP, ignore REJECT
 - new 'goobers' cvar for a fun effect
 - old EDGE title screens retired
 
-- fixed 16-rotation sprites
 - fixed some colormap issues
+- fixed music detuning with Windows native playback
 - fixed slowdown with savegames on large maps
 - fixed teleporting into walls bug (with help from Andrew Baker)
 - fixed bug with LOSE_BENEFIT on ammo limits
 - fixed weapon refire accuracy after a loadgame
 - fixed excessive warnings for missing textures
 
+- fixed 16-rotation sprites
 - fixed some Timidity issues
 - fixed dynamic lights on translucent MD2 skins
 - fixed RTS execution semantics in multiplayer games
