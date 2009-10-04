@@ -38,7 +38,6 @@
 
 #include "ddf/colormap.h"
 
-#include "p_hubs.h"
 #include "r_image.h"
 #include "sv_chunk.h"
 #include "sv_main.h"
@@ -73,12 +72,6 @@ void * SV_SectorGetElem(int index);
 void SV_SectorCreateElems(int num_elems);
 void SV_SectorFinaliseElems(void);
 
-int SV_HubCountElems(void);
-int SV_HubFindElem(sector_t *elem);
-void * SV_HubGetElem(int index);
-void SV_HubCreateElems(int num_elems);
-void SV_HubFinaliseElems(void);
-
 bool SR_LevelGetImage(void *storage, int index, void *extra);
 bool SR_LevelGetColmap(void *storage, int index, void *extra);
 bool SR_LevelGetSurface(void *storage, int index, void *extra);
@@ -98,9 +91,6 @@ void SR_SectorPutSpecial(void *storage, int index, void *extra);
 void SR_SectorPutProps(void *storage, int index, void *extra);
 void SR_SectorPutPropRef(void *storage, int index, void *extra);
 void SR_SectorPutGenMove(void *storage, int index, void *extra);
-
-bool SR_HubGetMap(void *storage, int index, void *extra);
-void SR_HubPutMap(void *storage, int index, void *extra);
 
 
 //----------------------------------------------------------------------------
@@ -415,54 +405,6 @@ savearray_t sv_array_sector =
 
 
 //----------------------------------------------------------------------------
-//
-//  HUB STRUCTURE
-//
-static hub_info_c sv_dummy_hub;
-
-#define SV_F_BASE  sv_dummy_hub
-
-static savefield_t sv_fields_hub[] =
-{
-	SF(index, "index", 1, SVT_INT, SR_GetInt, SR_PutInt),
-
-	SF(map_name, "map_name", 1, SVT_STRING, SR_HubGetMap, SR_HubPutMap),
-
-	SVFIELD_END
-};
-
-savestruct_t sv_struct_hub =
-{
-	NULL,              // link in list
-	"hub_info_c",      // structure name
-	"dhub",            // start marker
-	sv_fields_hub,     // field descriptions
-	SVDUMMY,           // dummy base
-	true,              // define_me
-	NULL               // pointer to known struct
-};
-
-#undef SV_F_BASE
-
-savearray_t sv_array_hub =
-{
-	NULL,               // link in list
-	"active_hubs",      // array name
-	&sv_struct_hub,     // array type
-	true,               // define_me
-	false,              // allow_hub
-
-	SV_HubCountElems,     // count routine
-	SV_HubGetElem,        // index routine
-	SV_HubCreateElems,    // creation routine
-	SV_HubFinaliseElems,  // finalisation routine
-
-	NULL,     // pointer to known array
-	0         // loaded size
-};
-
-
-//----------------------------------------------------------------------------
 
 int SV_SideCountElems(void)
 {
@@ -731,68 +673,6 @@ void SV_SectorFinaliseElems(void)
 			pmov->sector->ceil_move = pmov;
 		else
 			pmov->sector->floor_move = pmov;
-	}
-}
-
-
-//----------------------------------------------------------------------------
-
-extern std::vector<hub_info_c *> active_hubs;
-
-int SV_HubCountElems(void)
-{
-	return (int)active_hubs.size();
-}
-
-void *SV_HubGetElem(int index)
-{
-	if (index < 0 || index >= SV_HubCountElems())
-	{
-		I_Warning("LOADGAME: Invalid Hub: %d\n", index);
-		index = 0;
-	}
-
-	return active_hubs[index];
-}
-
-int SV_HubFindElem(hub_info_c *elem)
-{
-	int index = 0;
-
-	std::vector<hub_info_c *>::iterator HI;
-
-	for (HI  = active_hubs.begin();
-         HI != active_hubs.end() && (*HI) != elem;
-         HI++)
-	{
-		index++;
-	}
-
-	if (HI == active_hubs.end())
-		I_Error("LOADGAME: No such HubPtr: %p\n", elem);
-
-	return index;
-}
-
-void SV_HubCreateElems(int num_elems)
-{
-	HUB_DestroyAll();
-
-	for (; num_elems > 0; num_elems--)
-	{
-		active_hubs.push_back(new hub_info_c(-1, "DUMMY"));
-	}
-}
-
-void SV_HubFinaliseElems(void)
-{
-	// just a verification pass
-	for (unsigned int j = 0; j < active_hubs.size(); j++)
-	{
-		hub_info_c *H = active_hubs[j];
-
-		if (!H || H->index < 0)
-			I_Error("Failure loading HUB information!");
 	}
 }
 
@@ -1209,32 +1089,6 @@ void SR_SectorPutEF(void *storage, int index, void *extra)
 	int swizzle = (elem == NULL) ? 0 : SV_ExfloorFindElem(elem) + 1;
 
 	SV_PutInt(swizzle);
-}
-
-
-//----------------------------------------------------------------------------
-
-bool SR_HubGetMap(void *storage, int index, void *extra)
-{
-	const char ** dest = (const char **)storage + index;
-
-	// the HUB code uses SV_DupString/SV_FreeString for the
-	// map_name field, hence is 100% compatible with savegame
-	// usage of strings.
-
-	if (*dest)
-		SV_FreeString(*dest);
-
-	(*dest) = SV_GetString();
-
-	return true;
-}
-
-void SR_HubPutMap(void *storage, int index, void *extra)
-{
-	const char *src = ((const char **)storage)[index];
-
-	SV_PutString(src);
 }
 
 
