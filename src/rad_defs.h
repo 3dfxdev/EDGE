@@ -498,9 +498,6 @@ typedef struct rad_script_s
 	// Script tag (or 0 for none)
 	int tag;
 
-	// for SEPARATE mode, bit field of players to spawn trigger
-	u32_t what_players;
-
 	// ABSOLUTE mode: minimum players needed to trigger, -1 for ALL
 	int absolute_req_players;
 

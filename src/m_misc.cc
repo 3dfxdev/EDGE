@@ -148,8 +148,12 @@ void M_LoadDefaults(void)
 			}
 			continue;
 		}
+
+		// skip any slash at the beginning
+		char *pos = buffer;
+		if (pos[0] == '/') pos++;
 		
-		CON_TryCommand(buffer);
+		CON_TryCommand(pos);
 	}
 
 	fclose(f);
