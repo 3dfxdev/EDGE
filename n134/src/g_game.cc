@@ -665,12 +665,6 @@ void G_DeferredLoadGame(int slot)
 	gameaction = ga_loadgame;
 }
 
-void G_DeferredLoadHub(int hub_index)
-{
-	defer_load_slot = -1 - hub_index;
-	gameaction = ga_loadgame;
-}
-
 
 //
 // REQUIRED STATE:
