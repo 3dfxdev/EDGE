@@ -218,7 +218,7 @@ int CMD_ResetVars(char **argv, int argc)
 
 int CMD_ShowFiles(char **argv, int argc)
 {
-	// TODO	W_ShowFiles();
+	W_ShowFiles();
 	return 0;
 }
 
@@ -237,8 +237,7 @@ int CMD_ShowLumps(char **argv, int argc)
 		strupr(match);
 	}
 
-	// TODO W_ShowLumps(for_file, match);
-
+	W_ShowLumps(for_file, match);
 	return 0;
 }
 
@@ -462,11 +461,11 @@ const con_cmd_t builtin_commands[] =
 	{ "exec",           CMD_Exec },
 	{ "help",           CMD_Help },
 	{ "playsound",      CMD_PlaySound },
-  	{ "resetkeys",      CMD_ResetKeys },
+//	{ "resetkeys",      CMD_ResetKeys },
 	{ "resetvars",      CMD_ResetVars },
 	{ "showfiles",      CMD_ShowFiles },
   	{ "showjoysticks",  CMD_ShowJoysticks },
-  	{ "showkeys",       CMD_ShowKeys },
+//	{ "showkeys",       CMD_ShowKeys },
 	{ "showlumps",      CMD_ShowLumps },
 	{ "showcmds",       CMD_ShowCmds },
 	{ "showvars",       CMD_ShowVars },
