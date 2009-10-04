@@ -170,7 +170,6 @@ extern bool png_scrshots;
 
 #define NUMHUD  120
 
-extern int crosshair;
 extern int screen_hud;
 extern int menunormalfov, menuzoomedfov;
 

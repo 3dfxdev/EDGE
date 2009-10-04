@@ -132,7 +132,6 @@ static default_t defaults[] =
     {CFGT_Int,      "invuln_fx",         &var_invul_fx,   CFGDEF_INVUL_FX},
     {CFGT_Enum,     "wipe_method",       &wipe_method,    CFGDEF_WIPE_METHOD},
     {CFGT_Int,      "wipe_reverse",      &wipe_reverse,   CFGDEF_WIPE_REVERSE},
-    {CFGT_Enum,     "crosshair",         &crosshair,      CFGDEF_CROSSHAIR},
     {CFGT_Boolean,  "rotatemap",         &rotatemap,      CFGDEF_ROTATEMAP},
     {CFGT_Boolean,  "respawnsetting",    &global_flags.res_respawn, CFGDEF_RES_RESPAWN},
     {CFGT_Boolean,  "itemrespawn",       &global_flags.itemrespawn, CFGDEF_ITEMRESPAWN},

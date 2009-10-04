@@ -240,8 +240,8 @@ static void M_LoadGame(int choice);
 static void M_SaveGame(int choice);
 
 // 25-6-98 KM
+extern void M_Options(int choice);
 static void M_LoadSavePage(int choice);
-static void M_Options(int choice);
 static void M_ReadThis(int choice);
 static void M_ReadThis2(int choice);
 void M_EndGame(int choice);
@@ -1192,11 +1192,6 @@ void M_Episode(int choice)
 {
 	chosen_epi = choice;
 	M_SetupNextMenu(&SkillDef);
-}
-
-void M_Options(int choice)
-{
-	option_menuon = 1;
 }
 
 //
