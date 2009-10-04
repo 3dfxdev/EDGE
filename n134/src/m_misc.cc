@@ -71,7 +71,8 @@
 int cfgnormalfov;
 int cfgzoomedfov;
 
-bool var_diskicon = true;
+cvar_c m_diskicon;
+
 bool display_disk = false;
 int  display_desync = 0;
 
@@ -185,8 +186,6 @@ static default_t defaults[] =
 
 	// -------------------- VARS --------------------
 
-	{CFGT_Boolean,  "var_diskicon",      &var_diskicon,   1},
-	{CFGT_Boolean,  "var_hogcpu",        &var_hogcpu,     1},
 	{CFGT_Boolean,  "var_fadepower",     &var_fadepower,  1},
 	{CFGT_Boolean,  "var_smoothmap",     &var_smoothmap,  1},
 	{CFGT_Boolean,  "var_obituaries",    &var_obituaries, 1},
@@ -436,7 +435,7 @@ void M_DisplayDisk(void)
 {
 	/* displays disk icon during loading... */
 
-	if (!var_diskicon || !display_disk)
+	if (!m_diskicon.d || !display_disk)
 		return;
    
 	if (!disk_image)

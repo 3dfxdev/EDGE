@@ -114,6 +114,9 @@ cvar_link_t  all_cvars[] =
 
 	{ "in_keypad",      &in_keypad,      "c",   "1"  },
 
+	{ "m_diskicon",     &m_diskicon,     "c",   "1"  },
+	{ "m_busywait",     &m_busywait,     "c",   "1"  },
+
 	{ "r_crosshair",    &r_crosshair,    "c",   "0"  },
 	{ "r_crosscolor",   &r_crosscolor,   "c",   "0"  },
 	{ "r_crosssize",    &r_crosssize,    "c",   "16" },
@@ -147,8 +150,6 @@ cvar_link_t  all_cvars[] =
 	{ "am_rotate",      &am_rotate,      "c",   "0"  },
 	{ "am_smoothing",   &am_smoothing,   "c",   "1"  },
                                         
-	{ "m_diskicon",     &m_diskicon,     "c",   "1"  },
-	{ "m_busywait",     &m_busywait,     "c",   "1"  },
 	{ "m_messages",     &m_messages,     "c",   "1"  },
 	{ "m_obituaries",   &m_obituaries,   "c",   "1"  },
 	{ "m_screenhud",    &m_screenhud,    "c",   "0"  },
