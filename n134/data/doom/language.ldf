@@ -134,6 +134,9 @@ OB_CacoBite    = "A Cacodemon chewed up %o!";
 OB_Cacodemon   = "%o was killed by a Cacodemon.";
 OB_ChaingunGuy = "%o was mowed down by a Chaingunner.";
 OB_Cyberdemon  = "%o was blown to bits by a Cyberdemon.";
+OB_Mastermind  = "A Spider Mastermind ripped %o apart!";
+OB_WolfSS      = "%o was executed by a Nazi.";
+
 OB_Demon       = "%o was mauled by a Demon.";
 OB_Dog         = "%o was bitten by a Dog.";
 OB_Imp         = "%o was killed by an Imp.";
