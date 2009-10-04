@@ -1850,7 +1850,6 @@ static void RAD_ParseGotoMap(int pnum, const char **pars)
 
 static void RAD_ParseHubExit(int pnum, const char **pars)
 {
-	// HubExit <map>
 	// HubExit <map> <tag>
 
 	s_gotomap_t *go = Z_New(s_gotomap_t, 1);
@@ -1860,10 +1859,7 @@ static void RAD_ParseHubExit(int pnum, const char **pars)
 	go->is_hub = true;
 	go->map_name = Z_StrDup(pars[1]);
 
-	if (pnum >= 3)
-	{
-		RAD_CheckForInt(pars[2], &go->tag);
-	}
+	RAD_CheckForInt(pars[2], &go->tag);
 
 	AddStateToScript(this_rad, 0, RAD_ActGotoMap, go);
 }
@@ -2220,7 +2216,7 @@ static const rts_parser_t radtrig_parsers[] =
 	{2, "THING_EVENT", 3,4, RAD_ParseThingEvent},
 	{2, "SKILL",   4,4, RAD_ParseSkill},
 	{2, "GOTOMAP", 2,3, RAD_ParseGotoMap},
-	{2, "HUB_EXIT", 2,3, RAD_ParseHubExit},
+	{2, "HUB_EXIT", 3,3, RAD_ParseHubExit},
 	{2, "MOVE_SECTOR", 4,5, RAD_ParseMoveSector},
 	{2, "LIGHT_SECTOR", 3,4, RAD_ParseLightSector},
 	{2, "ENABLE_SCRIPT",  2,2, RAD_ParseEnableScript},
