@@ -1928,5 +1928,65 @@ const char *W_GetLumpName(int lump)
 	return lumpinfo[lump].name;
 }
 
+
+static const char *FileKind_Strings[] =
+{
+	"iwad", "pwad", "edge", "gwa", "hwa",
+	"lump", "ddf",  "demo", "scr", "deh",
+	"???",  "???",  "???",  "???"
+};
+
+static const char *LumpKind_Strings[] =
+{
+	"normal", "???", "???",
+	"marker", "???", "???",
+	"wadtex", "???", "???", "???",
+	"ddf",    "???", "???", "???",
+
+	"tx", "colmap", "flat", "sprite", "patch",
+	"???", "???", "???", "???"
+};
+
+
+void W_ShowLumps(int for_file, const char *match)
+{
+	I_Printf("Lump list:\n");
+
+	int total = 0;
+
+	for (int i = 0; i < numlumps; i++)
+	{
+		lumpinfo_t *L = &lumpinfo[i];
+
+		if (for_file >= 1 && L->file != for_file-1)
+			continue;
+
+		if (match && *match)
+			if (! strstr(L->name, match))
+				continue;
+
+		I_Printf(" %4d %-9s %2d %-6s %7d @ 0x%08x\n", 
+		         i+1, L->name,
+				 L->file+1, LumpKind_Strings[L->kind],
+				 L->size, L->position);
+		total++;
+	}
+
+	I_Printf("Total: %d\n", total);
+}
+
+void W_ShowFiles(void)
+{
+	I_Printf("File list:\n");
+
+	for (int i = 0; i < (int)data_files.size(); i++)
+	{
+		data_file_c *df = data_files[i];
+
+		I_Printf(" %2d %-4s \"%s\"\n", i+1, FileKind_Strings[df->kind], df->file_name);
+	}
+}
+
+
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
