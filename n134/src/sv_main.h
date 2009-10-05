@@ -339,7 +339,7 @@ void SV_SaveStruct(void *base, savestruct_t *info);
 void SV_SaveEverything(void);
 
 const char *SV_SlotName(int slot);
-std::string SV_FileName(const char *base);
+std::string SV_FileName(const char *dir_name, const char *map_name);
 
 void SV_ClearSlot(const char *dir_name);
 void SV_CopySlot(const char *src_name, const char *dest_name);

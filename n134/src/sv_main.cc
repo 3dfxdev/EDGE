@@ -453,9 +453,9 @@ const char *SV_SlotName(int slot)
 	return buffer;
 }
 
-std::string SV_FileName(const char *base)
+std::string SV_FileName(const char *dir_name, const char *map_name)
 {
-    std::string temp(epi::STR_Format("current/%s.%s", base, SAVEGAMEEXT));
+    std::string temp(epi::STR_Format("%s/%s.%s", dir_name, map_name, SAVEGAMEEXT));
 
 	return epi::PATH_Join(save_dir.c_str(), temp.c_str());
 }
