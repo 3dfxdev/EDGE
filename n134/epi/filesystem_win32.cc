@@ -169,20 +169,29 @@ bool FS_ReadDir(filesystem_dir_c *fsd, const char *dir, const char *mask)
 
 	do
 	{
-		filesys_direntry_c tmp_entry;
-
-		tmp_entry.name = std::string(fdata.cFileName);
-		tmp_entry.size = fdata.nFileSizeLow;
-		tmp_entry.is_dir = (fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)?true:false; 
-
-		if (! fsd->AddEntry(&tmp_entry))
+	    if (strcmp(fdata.cFileName, ".")  == 0 ||
+			strcmp(fdata.cFileName, "..") == 0)
 		{
-			FindClose(handle);
-			FS_SetCurrDir(prev_dir.c_str());
-			return false;
+		  // skip the funky "." and ".." dirs 
+		}
+		else
+		{
+			filesys_direntry_c *entry = new filesys_direntry_c();
+
+			entry->name = std::string(fdata.cFileName);
+			entry->size = fdata.nFileSizeLow;
+			entry->is_dir = (fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)?true:false; 
+
+			if (! fsd->AddEntry(entry))
+			{
+				delete entry;
+				FindClose(handle);
+				FS_SetCurrDir(prev_dir.c_str());
+				return false;
+			}
 		}
 	}
-	while(FindNextFile(handle, &fdata));
+	while (FindNextFile(handle, &fdata));
 
 	FindClose(handle);
 
