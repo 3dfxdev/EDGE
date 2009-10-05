@@ -456,7 +456,7 @@ void G_DeathMatchSpawnPlayer(player_t *p)
 //
 // G_CoopSpawnPlayer 
 //
-// Spawns a player at one of the random deathmatch spots.
+// Spawns a player at one of the single player spots.
 // Called at level load and each death.
 //
 void G_CoopSpawnPlayer(player_t *p)
@@ -483,6 +483,43 @@ void G_CoopSpawnPlayer(player_t *p)
 	}
 
 	I_Error("No usable player start found!\n");
+}
+
+
+static spawnpoint_t *G_FindHubPlayer(int pnum, int tag)
+{
+	int index = 0;
+
+	for (int i = 0; i < (int)hub_starts.size(); i++)
+	{
+		spawnpoint_t *point = &hub_starts[i];
+		SYS_ASSERT(point->info);
+
+		if (point->tag != tag)
+			continue;
+
+		index++;
+
+		if (index == pnum)
+			return point;
+	}
+
+	if (index == 0)
+		I_Error("Missing hub starts with tag %d\n", tag);
+	else
+		I_Error("Not enough hub starts (with tag %d)\n", tag);
+
+	return NULL;  /* NOT REACHED */
+}
+
+void G_HubSpawnPlayer(player_t *p, int tag)
+{
+	SYS_ASSERT(! p->mo);
+
+	spawnpoint_t *point = G_FindHubPlayer(p->pnum+1, tag);
+
+	// assume player will fit (too bad otherwise)
+	P_SpawnPlayer(p, point);
 }
 
 

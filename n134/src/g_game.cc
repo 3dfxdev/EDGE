@@ -62,7 +62,7 @@
 #include "z_zone.h"
 
 
-static void G_DoReborn(player_t *p);
+static void RespawnPlayer(player_t *p);
 
 static void G_DoNewGame(void);
 static void G_DoLoadGame(void);
@@ -246,7 +246,7 @@ void G_DoLoadLevel(void)
 	players[consoleplayer]->viewz = FLO_UNUSED;
 
 	leveltime = 0;
-	
+
 	P_SetupLevel();
 
 	RAD_SpawnTriggers(currmap->ddf.name.c_str());
@@ -262,7 +262,7 @@ void G_DoLoadLevel(void)
 
 	gamestate = GS_LEVEL;
 
-	CON_SetVisible( /* !!! showMessages?vs_minimal: */ vs_notvisible);
+	CON_SetVisible(vs_notvisible);
 
 	// clear cmd building stuff
 	E_ClearInput();
@@ -348,10 +348,8 @@ bool G_Responder(event_t * ev)
 }
 
 
-static bool CheckPlayersReborn(void)
+static void CheckPlayersReborn(void)
 {
-	// returns TRUE if should reload the level
-
 	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
 	{
 		player_t *p = players[pnum];
@@ -360,12 +358,15 @@ static bool CheckPlayersReborn(void)
 			continue;
 
 		if (SP_MATCH())
-			return true;
+		{
+			// reload the level
+			E_ForceWipe();
+			gameaction = ga_loadlevel;
+			return;
+		}
 
-		G_DoReborn(p);
+		RespawnPlayer(p);
 	}
-
-	return false;
 }
 
 
@@ -449,11 +450,7 @@ void G_Ticker(void)
 			RAD_Ticker();
 
 			// do player reborns if needed
-			if (CheckPlayersReborn())
-			{
-				E_ForceWipe();
-				gameaction = ga_loadlevel;
-			}
+			CheckPlayersReborn();
 			break;
 
 		case GS_INTERMISSION:
@@ -472,7 +469,7 @@ void G_Ticker(void)
 }
 
 
-static void G_DoReborn(player_t *p)
+static void RespawnPlayer(player_t *p)
 {
 	// first disassociate the corpse (if any)
 	if (p->mo)
@@ -481,6 +478,8 @@ static void G_DoReborn(player_t *p)
 	// spawn at random spot if in death match 
 	if (DEATHMATCH())
 		G_DeathMatchSpawnPlayer(p);
+	else if (curr_hub_tag > 0)
+		G_HubSpawnPlayer(p, curr_hub_tag);
 	else
 		G_CoopSpawnPlayer(p); // respawn at the start
 }
@@ -495,7 +494,7 @@ void G_SpawnInitialPlayers(void)
 		player_t *p = players[pnum];
 		if (! p) continue;
 
-		G_DoReborn(p);
+		RespawnPlayer(p);
 
 		if (!DEATHMATCH())
 			G_SpawnVoodooDolls(p);
