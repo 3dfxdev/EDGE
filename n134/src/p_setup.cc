@@ -2295,8 +2295,6 @@ void P_Init(void)
 	SYS_ASSERT(numplayers == 0);
 
 	G_ClearPlayerStarts();
-
-	SV_ClearCurrent();
 }
 
 

@@ -438,5 +438,46 @@ void SV_MainTestPrimitives(void)
 
 #endif  // TEST CODE
 
+
+//----------------------------------------------------------------------------
+
+const char *SV_SlotName(int slot)
+{
+	SYS_ASSERT(slot < 1000);
+
+	static char buffer[256];
+
+	sprintf(buffer, "slot%03d", slot);
+
+	return buffer;
+}
+
+std::string SV_FileName(const char *base)
+{
+    std::string temp(epi::STR_Format("current/%s.%s", base, SAVEGAMEEXT));
+
+	return epi::PATH_Join(save_dir.c_str(), temp.c_str());
+}
+
+std::string SV_DirName(const char *dir_name)
+{
+	return epi::PATH_Join(save_dir.c_str(), dir_name);
+}
+
+void SV_ClearSlot(const char *dir_name)
+{
+	std::string full_dir = SV_DirName(dir_name);
+
+	// FIXME
+}
+
+void SV_CopySlot(const char *src_name, const char *dest_name)
+{
+	std::string src_dir  = SV_DirName(src_name);
+	std::string dest_dir = SV_DirName(dest_name);
+
+	// FIXME
+}
+
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
