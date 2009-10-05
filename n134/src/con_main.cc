@@ -117,9 +117,9 @@ int CMD_Dir(char **argv, int argc)
 		path = argv[1];
 
 	if (argc >= 3)
-		mask = argv[1];
+		mask = argv[2];
 
-	I_Printf("Directory contents:\n");
+	I_Printf("Directory contents matching %s\n", mask);
 
 	epi::filesystem_dir_c fsd;
 
@@ -133,9 +133,10 @@ int CMD_Dir(char **argv, int argc)
 	{
 		epi::filesys_direntry_c *entry = fsd[i];
 
-		I_Printf("  %02d: type=%s size=%-10d '%s'\n",
-				 i+1, entry->is_dir ? "D" : "F",
-				 entry->size, entry->name.c_str());
+		I_Printf("  %2d: %10d %s '%s'\n",
+				 i+1, entry->size,
+				 entry->is_dir ? "DIR" : "   ",
+				 entry->name.c_str());
 	}
 
 	return 0;
