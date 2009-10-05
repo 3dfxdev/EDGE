@@ -640,16 +640,6 @@ static void G_DoCompleted(void)
 
 std::string G_FileNameFromSlot(int slot)
 {
-	// Creates a savegame file name.
-
-	if (slot < 0) // HUB Hack
-	{
-		int hub_index = -1 - slot;
-
-		std::string temp(epi::STR_Format("%s%02d.%s", HUBBASE, hub_index, SAVEGAMEEXT));
-
-		return epi::PATH_Join(hub_dir.c_str(), temp.c_str());
-	}
 
     std::string temp(epi::STR_Format("%s%04d.%s", SAVEGAMEBASE, slot + 1, SAVEGAMEEXT));
 
@@ -784,13 +774,14 @@ static void G_DoLoadGame(void)
 	SV_FinishLoad();
 	SV_CloseReadFile();
 
+#if 0
 	if (! is_hub)
 	{
 		std::string fn_base = epi::PATH_GetBasename(fn.c_str());
 
 		HUB_CopyHubsForLoadgame(fn_base.c_str());
 	}
-
+#endif
 	V_SetPalette(PALETTE_NORMAL, 0);
 
 	HU_Start();
@@ -889,7 +880,7 @@ static void G_DoSaveGame(void)
 
 	std::string fn_base = epi::PATH_GetBasename(new_fn.c_str());
 
-	HUB_CopyHubsForSavegame(fn_base.c_str());
+///---	HUB_CopyHubsForSavegame(fn_base.c_str());
 
 	defer_save_desc[0] = 0;
 
@@ -1111,7 +1102,8 @@ static void G_DoEndGame(void)
 	E_ForceWipe();
 
 	P_DestroyAllPlayers();
-	HUB_DestroyAll();
+
+	SV_ClearSlot("current");
 
 	if (gamestate == GS_LEVEL)
 	{
