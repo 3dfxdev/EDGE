@@ -159,7 +159,6 @@ std::string ddf_dir;
 std::string game_dir;
 std::string home_dir;
 std::string save_dir;
-std::string hub_dir;
 std::string shot_dir;
 
 extern cvar_c m_language;
@@ -812,11 +811,7 @@ void InitDirectories(void)
     if (! epi::FS_IsDir(save_dir.c_str()))
         epi::FS_MakeDir(save_dir.c_str());
 
-	// HUB savegame directory
-    hub_dir = epi::PATH_Join(save_dir.c_str(), HUBDIR);
-	
-    if (! epi::FS_IsDir(hub_dir.c_str()))
-        epi::FS_MakeDir(hub_dir.c_str());
+	SV_ClearSlot("current");
 
 	// screenshot directory
     shot_dir = epi::PATH_Join(home_dir.c_str(), SCRNSHOTDIR);

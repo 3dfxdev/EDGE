@@ -143,7 +143,7 @@ void G_DoLoadLevel(void)
 		I_Error("G_DoLoadLevel: No Current Map selected");
 
 	if (curr_hub_tag == 0)
-		SV_ClearCurrent();
+		SV_ClearSlot("current");
 
 	// Set the sky map.
 	//
@@ -1025,7 +1025,7 @@ static void G_DoNewGame(void)
 //
 void G_InitNew(newgame_params_c& params)
 {
-	SV_ClearCurrent();
+	SV_ClearSlot("current");
 
 	// --- create players ---
 
