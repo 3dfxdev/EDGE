@@ -22,7 +22,12 @@
 
 #include "i_defs.h"
 
+#include "epi/path.h"
+#include "epi/str_format.h"
+#include "epi/filesystem.h"
+
 #include "dm_state.h"
+#include "dstrings.h"
 #include "e_main.h"
 #include "g_game.h"
 #include "f_interm.h"
@@ -67,13 +72,11 @@ extern savestruct_t sv_struct_line;
 extern savestruct_t sv_struct_regprops;
 extern savestruct_t sv_struct_exfloor;
 extern savestruct_t sv_struct_sector;
-extern savestruct_t sv_struct_hub;
 
 extern savearray_t sv_array_side;
 extern savearray_t sv_array_line;
 extern savearray_t sv_array_exfloor;
 extern savearray_t sv_array_sector;
-extern savearray_t sv_array_hub;
 
 // sv_misc.c
 extern savestruct_t sv_struct_button;
@@ -271,13 +274,11 @@ void SV_MainInit(void)
 	AddKnownStruct(&sv_struct_regprops);
 	AddKnownStruct(&sv_struct_exfloor);
 	AddKnownStruct(&sv_struct_sector);
-	AddKnownStruct(&sv_struct_hub);
 
 	AddKnownArray(&sv_array_side);
 	AddKnownArray(&sv_array_line);
 	AddKnownArray(&sv_array_exfloor);
 	AddKnownArray(&sv_array_sector);
-	AddKnownArray(&sv_array_hub);
 
 	// sv_misc.c
 	AddKnownStruct(&sv_struct_button);
