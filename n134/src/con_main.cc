@@ -18,6 +18,7 @@
 
 #include "i_defs.h"
 
+#include "epi/filesystem.h"
 #include "epi/math_crc.h"
 
 #include "ddf/language.h"
@@ -103,6 +104,39 @@ int CMD_Type(char **argv, int argc)
 		CON_Printf("%s", buffer);
 	}
 	fclose(script);
+
+	return 0;
+}
+
+int CMD_Dir(char **argv, int argc)
+{
+	const char *path = ".";
+	const char *mask = "*.*";
+
+	if (argc >= 2)
+		path = argv[1];
+
+	if (argc >= 3)
+		mask = argv[1];
+
+	I_Printf("Directory contents:\n");
+
+	epi::filesystem_dir_c fsd;
+
+	if (! FS_ReadDir(&fsd, path, mask))
+	{
+		I_Printf("Failed to read dir: %s\n", path);
+		return 1;
+	}
+
+	for (int i = 0; i < fsd.GetSize(); i++)
+	{
+		epi::filesys_direntry_c *entry = fsd[i];
+
+		I_Printf("  %02d: type=%s size=%-10d '%s'\n",
+				 i+1, entry->is_dir ? "D" : "F",
+				 entry->size, entry->name.c_str());
+	}
 
 	return 0;
 }
@@ -458,6 +492,7 @@ const con_cmd_t builtin_commands[] =
 {
 	{ "args",           CMD_ArgList },
 	{ "crc",            CMD_Crc },
+	{ "dir",            CMD_Dir },
 	{ "exec",           CMD_Exec },
 	{ "help",           CMD_Help },
 	{ "playsound",      CMD_PlaySound },
