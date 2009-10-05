@@ -23,16 +23,16 @@ PERFORM LOAD GAME:
   -  clear contents of $SAVEDIR/current
   -  copy contents of $SAVEDIR/slot### --> $SAVEDIR/current
   -  load map from $SAVEDIR/current/head.esg
-     (but skip players)
-
-CLEAN UP OPERATION:
-  -  clear contents of $SAVEDIR/current
-     (do this at engine startup, begin new game, leave game)
 
 LEAVE MAPxx / ENTER MAPyy:
   -  save map into $SAVEDIR/current/mapXX.esg
-  -  if $SAVEDIR/current/mapYY.esg exists, load it,
+  -  if $SAVEDIR/current/mapYY.esg exists, load it (but skip players)
      otherwise load fresh map
   -  connect players to [HUB_START] things in tagged sector
      (ignore normal player starts).
+
+CLEAN UP OPERATION:
+  -  clear contents of $SAVEDIR/current
+     (do this at engine startup, begin new game, leave game,
+      also when begin a non-hub level).
 
