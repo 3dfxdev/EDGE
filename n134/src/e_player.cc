@@ -488,7 +488,7 @@ void G_CoopSpawnPlayer(player_t *p)
 
 static spawnpoint_t *G_FindHubPlayer(int pnum, int tag)
 {
-	int index = 0;
+	int count = 0;
 
 	for (int i = 0; i < (int)hub_starts.size(); i++)
 	{
@@ -498,16 +498,16 @@ static spawnpoint_t *G_FindHubPlayer(int pnum, int tag)
 		if (point->tag != tag)
 			continue;
 
-		index++;
+		count++;
 
-		if (index == pnum)
+		if (point->info->playernum == pnum)
 			return point;
 	}
 
-	if (index == 0)
+	if (count == 0)
 		I_Error("Missing hub starts with tag %d\n", tag);
 	else
-		I_Error("Not enough hub starts (with tag %d)\n", tag);
+		I_Error("No usable hub start for player %d (tag %d)\n", pnum+1, tag);
 
 	return NULL;  /* NOT REACHED */
 }
