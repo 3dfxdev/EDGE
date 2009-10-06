@@ -930,7 +930,6 @@ static void SpawnMapThing(const mobjtype_c *info,
 
 			point.tag = sec->tag;
 
-I_Printf("Added hub start for player %d in sector tag %d\n", info->playernum, sec->tag);
 			G_AddHubStart(point);
 			return;
 		}

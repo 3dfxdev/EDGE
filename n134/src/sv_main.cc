@@ -474,7 +474,7 @@ void SV_ClearSlot(const char *dir_name)
 
 	epi::filesystem_dir_c fsd;
 
-	if (! FS_ReadDir(&fsd, full_dir.c_str(), "*.*"))
+	if (! FS_ReadDir(&fsd, full_dir.c_str(), "*.esg"))
 	{
 		I_Warning("Failed to read directory: %s\n", full_dir.c_str());
 		return;
@@ -504,7 +504,7 @@ void SV_CopySlot(const char *src_name, const char *dest_name)
 
 	epi::filesystem_dir_c fsd;
 
-	if (! FS_ReadDir(&fsd, src_dir.c_str(), "*.*"))
+	if (! FS_ReadDir(&fsd, src_dir.c_str(), "*.esg"))
 	{
 		I_Error("SV_CopySlot: failed to read dir: %s\n", src_dir.c_str());
 		return;
