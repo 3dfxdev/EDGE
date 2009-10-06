@@ -95,6 +95,9 @@ LIGHT_TYPE=FLICKER;
 LIGHT_DARKTIME=4T;
 LIGHT_BRIGHTTIME=4T;
 
+[29]  // Hub Entry
+HUB=TRUE;
+
 //--------------------------------------------------
 // EDGE-Specific Sector Types
 //--------------------------------------------------

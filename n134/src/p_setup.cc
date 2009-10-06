@@ -897,7 +897,8 @@ static void LoadNodes(int lump, const char *name)
 
 static void SpawnMapThing(const mobjtype_c *info,
 						  float x, float y, float z,
-						  angle_t angle, int options, int tag)
+						  sector_t *sec, angle_t angle,
+						  int options, int tag)
 {
 	spawnpoint_t point;
 
@@ -912,20 +913,7 @@ static void SpawnMapThing(const mobjtype_c *info,
 
 	// -KM- 1999/01/31 Use playernum property.
 	// count deathmatch start positions
-
-	if (info->playernum == -2)
-	{
-		// determine sector tag for [HUB_START] thing
-		sector_t *sec = R_PointInSubsector(x, y)->sector;
-		point.tag = sec->tag;
-
-		if (sec->tag <= 0)
-			I_Warning("HUB_START in sector without tag @ (%1.0f %1.0f)\n", x, y);
-
-		G_AddHubStart(point);
-		return;
-	}
-	else if (info->playernum < 0)
+	if (info->playernum < 0)
 	{
 		G_AddDeathmatchStart(point);
 		return;
@@ -934,6 +922,19 @@ static void SpawnMapThing(const mobjtype_c *info,
 	// check for players specially -jc-
 	if (info->playernum > 0)
 	{
+		// -AJA- 2009/10/07: Hub support
+		if (sec->props.special && sec->props.special->hub)
+		{
+			if (sec->tag <= 0)
+				I_Warning("HUB_START in sector without tag @ (%1.0f %1.0f)\n", x, y);
+
+			point.tag = sec->tag;
+
+I_Printf("Added hub start for player %d in sector tag %d\n", info->playernum, sec->tag);
+			G_AddHubStart(point);
+			return;
+		}
+
 		// -AJA- 2004/12/30: for duplicate players, the LAST one must
 		//       be used (so levels with Voodoo dolls work properly).
 		spawnpoint_t *prev = G_FindCoopPlayer(info->playernum);
@@ -944,7 +945,7 @@ static void SpawnMapThing(const mobjtype_c *info,
 		{
 			G_AddVoodooDoll(*prev);
 
-			// overwrite the one in the Coop list
+			// overwrite one in the Coop list with new location
 			memcpy(prev, &point, sizeof(point));
 		}
 		return;
@@ -1104,7 +1105,7 @@ static void LoadThings(int lump)
 			}
 		}
 
-		SpawnMapThing(objtype, x, y, z, angle, options, 0);
+		SpawnMapThing(objtype, x, y, z, sec, angle, options, 0);
 	}
 
 	W_DoneWithLump(data);
@@ -1168,7 +1169,7 @@ static void LoadHexenThings(int lump)
 		if (objtype->flags & MF_SPAWNCEILING)
 			z = sec->c_h - objtype->height;
 
-		SpawnMapThing(objtype, x, y, z, angle, options, tag);
+		SpawnMapThing(objtype, x, y, z, sec, angle, options, tag);
 	}
 
 	W_DoneWithLump(data);

@@ -872,6 +872,9 @@ public:
 	bool secret;
 	bool crush;
 
+	// Hub entry, player starts are treated differently
+	bool hub;
+
 	// Gravity
 	float gravity;
 	float friction;

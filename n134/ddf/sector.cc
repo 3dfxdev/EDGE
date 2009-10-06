@@ -47,6 +47,7 @@ static const commandlist_t sect_commands[] =
   	DDF_SUB_LIST("DAMAGE",   damage, damage_commands,   buffer_damage),
 
 	DF("SECRET", secret, DDF_MainGetBoolean),
+	DF("HUB", hub, DDF_MainGetBoolean),
 	DF("SPECIAL", special_flags, DDF_SectGetSpecialFlags),
 
 	DF("LIGHT_TYPE", l.type, DDF_SectGetLighttype),
@@ -482,6 +483,8 @@ void sectortype_c::Copy(sectortype_c &src)
 void sectortype_c::CopyDetail(sectortype_c &src)
 {
 	secret = src.secret;
+	hub = src.hub;
+
 	gravity = src.gravity;
 	friction = src.friction;
 	viscosity = src.viscosity;
@@ -516,6 +519,8 @@ void sectortype_c::Default()
 	ddf.Default();
 	
 	secret = false;
+	hub = false;
+
 	gravity = GRAVITY;
 	friction = FRICTION;
 	viscosity = VISCOSITY;
