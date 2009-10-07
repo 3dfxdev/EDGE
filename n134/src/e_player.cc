@@ -111,19 +111,21 @@ void G_AddBodyToQueue(mobj_t *mo)
 
 //
 // Called when a player completes a level.
+// For HUB changes, we keep powerups and keycards
 //
-void G_PlayerFinishLevel(player_t *p)
+void G_PlayerFinishLevel(player_t *p, bool keep_cards)
 {
-	int i;
+	if (! keep_cards)
+	{
+		for (int i = 0; i < NUMPOWERS; i++)
+			p->powers[i] = 0;
 
-	for (i = 0; i < NUMPOWERS; i++)
-		p->powers[i] = 0;
+		p->keep_powers = 0;
 
-	p->keep_powers = 0;
+		p->cards = KF_NONE;
 
-	p->cards = KF_NONE;
-
-	p->mo->flags &= ~MF_FUZZY;  // cancel invisibility 
+		p->mo->flags &= ~MF_FUZZY;  // cancel invisibility 
+	}
 
 	p->extralight = 0;  // cancel gun flashes 
 
