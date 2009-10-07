@@ -350,6 +350,12 @@ bool G_Responder(event_t * ev)
 
 static void CheckPlayersReborn(void)
 {
+	// -AJA- player respawn on HUB maps does not make sense
+	//       (any held keys and weapons will be lost).  Compare
+	//       with Quake II, which just opens the loadgame menu.
+	if (curr_hub_tag > 0)
+		return;
+
 	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
 	{
 		player_t *p = players[pnum];
@@ -596,7 +602,7 @@ static void G_DoCompleted(void)
 		p->leveltime = leveltime;
 
 		// take away cards and stuff
-		G_PlayerFinishLevel(p);
+		G_PlayerFinishLevel(p, exit_hub_tag > 0);
 	}
 
 	if (automapactive)
