@@ -62,14 +62,6 @@
 #include "z_zone.h"
 
 
-static void RespawnPlayer(player_t *p);
-
-static void G_DoNewGame(void);
-static void G_DoLoadGame(void);
-static void G_DoCompleted(void);
-static void G_DoSaveGame(void);
-static void G_DoEndGame(void);
-
 gamestate_e gamestate = GS_NOTHING;
 
 gameaction_e gameaction = ga_nothing;
@@ -126,6 +118,17 @@ static char defer_save_desc[32];
 
 // deferred stuff...
 static newgame_params_c *defer_params = NULL;
+
+
+static void G_DoNewGame(void);
+static void G_DoLoadGame(void);
+static void G_DoCompleted(void);
+static void G_DoSaveGame(void);
+static void G_DoEndGame(void);
+
+static void RespawnPlayer(player_t *p);
+
+static bool G_SaveGameToFile(const char *filename, const char *description);
 
 
 //
@@ -618,21 +621,34 @@ static void G_DoCompleted(void)
 
 	BOT_EndLevel();
 
+	automapactive = false;
+
 	// handle "no stat" levels
 	if (currmap->wistyle == WISTYLE_None || exit_skipall)
 	{
-		automapactive = false;
-
 		if (exit_skipall && nextmap)
 		{
+			if (exit_hub_tag <= 0)
+				curr_hub_first = NULL;
+			else
+			{
+				// save current map for HUB system
+				I_Printf("Saving HUB...\n");
+
+				const char *mapname = SV_MapName(currmap);
+
+				std::string fn(SV_FileName("current", mapname));
+
+				if (! G_SaveGameToFile(fn.c_str(), "__HUB_SAVE__"))
+					I_Error("SAVE-HUB failed with filename: %s\n", fn.c_str());
+
+				if (! curr_hub_first)
+					curr_hub_first = currmap;
+			}
+
 			currmap = nextmap;
 			curr_hub_tag = exit_hub_tag;
 			
-			if (exit_hub_tag <= 0)
-				curr_hub_first = NULL;
-			else if (! curr_hub_first)
-				curr_hub_first = currmap;
-
 			gameaction = ga_loadlevel;
 		}
 		else
@@ -642,8 +658,6 @@ static void G_DoCompleted(void)
 
 		return;
 	}
-
-	automapactive = false;
 
 	wi_stats.cur  = currmap;
 	wi_stats.next = nextmap;
@@ -808,7 +822,7 @@ void G_DeferredSaveGame(int slot, const char *description)
 	gameaction = ga_savegame;
 }
 
-static bool G_SaveGameToFile(const char *filename)
+static bool G_SaveGameToFile(const char *filename, const char *description)
 {
 	time_t cur_time;
 	char timebuf[100];
@@ -852,7 +866,7 @@ static bool G_SaveGameToFile(const char *filename)
 	if (timebuf[0] == '0' && isdigit(timebuf[1]))
 		timebuf[0] = ' ';
 
-	globs->description = SV_DupString(defer_save_desc);
+	globs->description = SV_DupString(description);
 	globs->desc_date   = SV_DupString(timebuf);
 
 	globs->mapsector.count = numsectors;
@@ -879,7 +893,7 @@ static void G_DoSaveGame(void)
 {
 	std::string fn(SV_FileName("current", "head"));
 
-	if (G_SaveGameToFile(fn.c_str()))
+	if (G_SaveGameToFile(fn.c_str(), defer_save_desc))
 	{
 		const char *dir_name = SV_SlotName(defer_save_slot);
 
