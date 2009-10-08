@@ -775,6 +775,8 @@ static bool G_LoadGameFromFile(const char *filename, bool is_hub = false)
 //
 static void G_DoLoadGame(void)
 {
+	E_ForceWipe();
+
 	const char *dir_name = SV_SlotName(defer_load_slot);
 
 	SV_ClearSlot("current");
@@ -786,8 +788,6 @@ static void G_DoLoadGame(void)
 	{
 		// !!! FIXME: what to do?
 	}
-
-	E_ForceWipe();
 
 	V_SetPalette(PALETTE_NORMAL, 0);
 
