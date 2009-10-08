@@ -127,27 +127,16 @@ static void G_DoSaveGame(void);
 static void G_DoEndGame(void);
 
 static void RespawnPlayer(player_t *p);
+static void SpawnInitialPlayers(void);
 
+static bool G_LoadGameFromFile(const char *filename, bool is_hub = false);
 static bool G_SaveGameToFile(const char *filename, const char *description);
 
 
-//
-// REQUIRED STATE:
-//   (a) currmap
-//   (b) curr_hub_tag
-//   (c) players[], numplayers (etc)
-//   (d) gameskill + deathmatch
-//   (e) level_flags
-//
-//   ??  exittime
-//
-void G_DoLoadLevel(void)
+void LoadLevel_Bits(void)
 {
 	if (currmap == NULL)
 		I_Error("G_DoLoadLevel: No Current Map selected");
-
-	if (curr_hub_tag == 0)
-		SV_ClearSlot("current");
 
 	// Set the sky map.
 	//
@@ -272,6 +261,51 @@ void G_DoLoadLevel(void)
 	E_ClearInput();
 
 	paused = false;
+}
+
+//
+// REQUIRED STATE:
+//   (a) currmap
+//   (b) curr_hub_tag
+//   (c) players[], numplayers (etc)
+//   (d) gameskill + deathmatch
+//   (e) level_flags
+//
+//   ??  exittime
+//
+void G_DoLoadLevel(void)
+{
+	if (curr_hub_tag == 0)
+		SV_ClearSlot("current");
+
+	if (curr_hub_tag > 0)
+	{
+		// HUB system: check for loading a previously visited map
+		const char *mapname = SV_MapName(currmap);
+
+		std::string fn(SV_FileName("current", mapname));
+
+		if (epi::FS_Access(fn.c_str(), epi::file_c::ACCESS_READ))
+		{
+			I_Printf("Loading HUB...\n");
+
+			int old_hub_tag = curr_hub_tag;
+			const mapdef_c * old_hub_first = curr_hub_first;
+
+			if (! G_LoadGameFromFile(fn.c_str(), true))
+				I_Error("LOAD-HUB failed with filename: %s\n", fn.c_str());
+
+			curr_hub_tag   = old_hub_tag;
+			curr_hub_first = old_hub_first;
+
+			SpawnInitialPlayers();
+			return;
+		}
+	}
+
+	LoadLevel_Bits();
+
+	SpawnInitialPlayers();
 }
 
 
@@ -399,7 +433,6 @@ void G_BigStuff(void)
 
 			case ga_loadlevel:
 				G_DoLoadLevel();
-				G_SpawnInitialPlayers();
 				break;
 
 			case ga_loadgame:
@@ -498,7 +531,7 @@ static void RespawnPlayer(player_t *p)
 		G_CoopSpawnPlayer(p); // respawn at the start
 }
 
-void G_SpawnInitialPlayers(void)
+static void SpawnInitialPlayers(void)
 {
 	L_WriteDebug("Deathmatch %d\n", deathmatch);
 
@@ -677,7 +710,7 @@ void G_DeferredLoadGame(int slot)
 }
 
 
-static bool G_LoadGameFromFile(const char *filename, bool is_hub = false)
+static bool G_LoadGameFromFile(const char *filename, bool is_hub)
 {
 	if (! SV_OpenReadFile(filename))
 	{
@@ -726,7 +759,7 @@ static bool G_LoadGameFromFile(const char *filename, bool is_hub = false)
 	curr_hub_tag = globs->hub_tag;
 	curr_hub_first = globs->hub_first ? G_LookupMap(globs->hub_first) : NULL;
 
-	G_DoLoadLevel();
+	LoadLevel_Bits();
 
 	// -- Check LEVEL consistency (crc) --
 	//
