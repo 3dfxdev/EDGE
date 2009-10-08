@@ -2,10 +2,11 @@
 CHANGES (since 1.31)
 ====================
 
-+ improved console with command history and TAB-completion
++ HUB support!
 + obituary messages (new DAMAGE.OBITUARY field)
 + two new Action buttons for RTS scripting
 + better crosshairs, more configurable
++ improved console with command history and TAB-completion
 + new RTS command: ONCEILINGHEIGHT (Andrew Baker)
 
 - support for keys on the numeric keypad
@@ -31,8 +32,8 @@ CHANGES (since 1.31)
 - fixed some Timidity issues
 - fixed dynamic lights on translucent MD2 skins
 - fixed RTS execution semantics in multiplayer games
+- fixed crashes with "monster aggression" feature
 - fixed display of gamma-change messages
 - fixed gamma to be restored at exit
-- fixed crashes with extra aggression
 - fixed Boom point pushers/pullers
 
