@@ -776,5 +776,20 @@ spawnpoint_t *G_FindCoopPlayer(int pnum)
 }
 
 
+void G_PlayerRemoveMobjs(void)
+{
+	for (int i = 0; i < MAXPLAYERS; i++)
+	{
+		player_t *p = players[i];
+
+		if (p && p->mo)
+		{
+			P_RemoveMobj(p->mo);
+			p->mo = NULL;
+		}
+	}
+}
+
+
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

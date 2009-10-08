@@ -672,6 +672,10 @@ static void G_DoCompleted(void)
 				// save current map for HUB system
 				I_Printf("Saving HUB...\n");
 
+				// don't keep the avatars of players (otherwise they
+				// will exist when we come back as voodoo dolls).
+				G_PlayerRemoveMobjs();
+
 				const char *mapname = SV_MapName(currmap);
 
 				std::string fn(SV_FileName("current", mapname));
