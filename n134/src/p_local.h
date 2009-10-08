@@ -161,6 +161,7 @@ int P_MobjGetSfxCategory(const mobj_t *mo);
 // Needed by savegame code.
 void P_RemoveAllMobjs(void);
 void P_RemoveItemsInQue(void);
+void P_ClearAllStaleRefs(void);
 
 
 //

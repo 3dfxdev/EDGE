@@ -931,6 +931,8 @@ static bool G_SaveGameToFile(const char *filename, const char *description)
 	globs->mapthing.count = mapthing_NUM;
 	globs->mapthing.crc = mapthing_CRC.crc;
 
+	P_ClearAllStaleRefs();
+
 	SV_BeginSave();
 
 	SV_SaveGLOB(globs);
