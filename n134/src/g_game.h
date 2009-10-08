@@ -133,7 +133,6 @@ void G_Ticker(void);
 bool G_Responder(event_t * ev);
 
 bool G_CheckWhenAppear(when_appear_e appear);
-std::string G_FileNameFromSlot(int slot);
 
 extern const mapdef_c* currmap;
 extern const mapdef_c* nextmap;

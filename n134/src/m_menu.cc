@@ -549,7 +549,8 @@ void M_ReadSaveStrings(void)
 		ex_slots[i].mapname[0] = 0;
 		ex_slots[i].gamename[0] = 0;
     
-		std::string fn(G_FileNameFromSlot(save_page * SAVE_SLOTS + i));
+		int slot = save_page * SAVE_SLOTS + i;
+		std::string fn(SV_FileName(SV_SlotName(slot), "head"));
 
 		if (! SV_OpenReadFile(fn.c_str()))
 		{

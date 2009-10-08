@@ -637,15 +637,6 @@ static void G_DoCompleted(void)
 }
 
 
-std::string G_FileNameFromSlot(int slot)
-{
-
-    std::string temp(epi::STR_Format("%s%04d.%s", SAVEGAMEBASE, slot + 1, SAVEGAMEEXT));
-
-	return epi::PATH_Join(save_dir.c_str(), temp.c_str());
-}
-
-
 void G_DeferredLoadGame(int slot)
 {
 	// Can be called by the startup code or the menu task. 
@@ -655,28 +646,12 @@ void G_DeferredLoadGame(int slot)
 }
 
 
-//
-// REQUIRED STATE:
-//   (a) defer_load_slot
-//
-//   ?? nothing else ??
-//
-static void G_DoLoadGame(void)
+static bool G_LoadGameFromFile(const char *filename)
 {
-	E_ForceWipe();
-
-#if 0  // DEBUGGING CODE
-	SV_DumpSaveGame(defer_load_slot);
-	return;
-#endif
-
-	// Try to open		
-	std::string fn(G_FileNameFromSlot(defer_load_slot));
-
-	if (! SV_OpenReadFile(fn.c_str()))
+	if (! SV_OpenReadFile(filename))
 	{
-		I_Printf("LOAD-GAME: cannot open %s\n", fn.c_str());
-		return;
+		I_Printf("LOAD-GAME: cannot open %s\n", filename);
+		return false;
 	}
 	
 	int version;
@@ -685,10 +660,10 @@ static void G_DoLoadGame(void)
 	{
 		I_Printf("LOAD-GAME: Savegame is corrupt !\n");
 		SV_CloseReadFile();
-		return;
+		return false;
 	}
 
-	bool is_hub = (defer_load_slot < 0);
+	bool is_hub = false;  // FIXME
 
 	SV_BeginLoad(is_hub);
 
@@ -773,14 +748,31 @@ static void G_DoLoadGame(void)
 	SV_FinishLoad();
 	SV_CloseReadFile();
 
-#if 0
-	if (! is_hub)
-	{
-		std::string fn_base = epi::PATH_GetBasename(fn.c_str());
+	return true; //OK
+}
 
-		HUB_CopyHubsForLoadgame(fn_base.c_str());
+//
+// REQUIRED STATE:
+//   (a) defer_load_slot
+//
+//   ?? nothing else ??
+//
+static void G_DoLoadGame(void)
+{
+	const char *dir_name = SV_SlotName(defer_load_slot);
+
+	SV_ClearSlot("current");
+	SV_CopySlot(dir_name, "current");
+
+	std::string fn(SV_FileName("current", "head"));
+
+	if (! G_LoadGameFromFile(fn.c_str()))
+	{
+		// !!! FIXME: what to do?
 	}
-#endif
+
+	E_ForceWipe();
+
 	V_SetPalette(PALETTE_NORMAL, 0);
 
 	HU_Start();
@@ -800,23 +792,17 @@ void G_DeferredSaveGame(int slot, const char *description)
 	gameaction = ga_savegame;
 }
 
-static void G_DoSaveGame(void)
+static bool G_SaveGameToFile(const char *filename)
 {
 	time_t cur_time;
 	char timebuf[100];
 
-	// use a temporary file in case EDGE crashes during the save.
-	// On success we rename this to the actual filename.
-	std::string temp_fn = epi::PATH_Join(save_dir.c_str(), "TEMPSAVE.raw");
+	epi::FS_Delete(filename);
 
-	std::string new_fn(G_FileNameFromSlot(defer_save_slot));
-
-	epi::FS_Delete(new_fn.c_str());
-
-	if (! SV_OpenWriteFile(temp_fn.c_str(), (EDGEVERHEX << 8) | EDGEPATCH))
+	if (! SV_OpenWriteFile(filename, (EDGEVERHEX << 8) | EDGEPATCH))
 	{
-		I_Error("Unable to create savegame file: %s\n", temp_fn.c_str());
-		return; /* NOT REACHED */
+		I_Printf("Unable to create savegame file: %s\n", filename);
+		return false; /* NOT REACHED */
 	}
 
 	saveglobals_t *globs = SV_NewGLOB();
@@ -859,8 +845,6 @@ static void G_DoSaveGame(void)
 	globs->mapthing.count = mapthing_NUM;
 	globs->mapthing.crc = mapthing_CRC.crc;
 
-	// FIXME: store DDF CRC values too...
-
 	SV_BeginSave();
 
 	SV_SaveGLOB(globs);
@@ -871,19 +855,28 @@ static void G_DoSaveGame(void)
 	SV_FinishSave();
 	SV_CloseWriteFile();
 
-	if (! epi::FS_Rename(temp_fn.c_str(), new_fn.c_str()))
+	return true; //OK
+}
+
+static void G_DoSaveGame(void)
+{
+	std::string fn(SV_FileName("current", "head"));
+
+	if (G_SaveGameToFile(fn.c_str()))
 	{
-		I_Error("Unable to create savegame file: %s\n", new_fn.c_str());
-		return; /* NOT REACHED */
+		const char *dir_name = SV_SlotName(defer_save_slot);
+
+		SV_ClearSlot(dir_name);
+		SV_CopySlot("current", dir_name);
+
+		CON_Printf("%s", language["GameSaved"]);
+	}
+	else
+	{
+		// !!! FIXME: what to do?
 	}
 
-	std::string fn_base = epi::PATH_GetBasename(new_fn.c_str());
-
-///---	HUB_CopyHubsForSavegame(fn_base.c_str());
-
 	defer_save_desc[0] = 0;
-
-	CON_Printf("%s", language["GameSaved"]);
 }
 
 //
