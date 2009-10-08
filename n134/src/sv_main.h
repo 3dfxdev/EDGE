@@ -267,6 +267,7 @@ typedef struct
 	const char *level;
 	gameflags_t flags;
 	int hub_tag;
+	const char *hub_first;
 
 	int level_time;
 	int exit_time;

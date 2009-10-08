@@ -710,6 +710,7 @@ static bool G_LoadGameFromFile(const char *filename, bool is_hub = false)
 	G_InitNew(params);
 
 	curr_hub_tag = globs->hub_tag;
+	curr_hub_first = globs->hub_first ? G_LookupMap(globs->hub_first) : NULL;
 
 	G_DoLoadLevel();
 
@@ -828,6 +829,7 @@ static bool G_SaveGameToFile(const char *filename)
 	globs->level = SV_DupString(currmap->ddf.name);
 	globs->flags = level_flags;
 	globs->hub_tag = curr_hub_tag;
+	globs->hub_first = curr_hub_first ? SV_DupString(curr_hub_first->ddf.name) : NULL;
 
 	globs->skill = gameskill;
 	globs->netgame = netgame ? (1+deathmatch) : 0;
