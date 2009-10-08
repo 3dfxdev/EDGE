@@ -1423,6 +1423,16 @@ void P_RunMobjThinkers(void)
 	P_RemoveQueuedMobjs(false);
 }
 
+
+void P_ClearAllStaleRefs(void)
+{
+	for (mobj_t * mo = mobjlisthead; mo; mo = mo->next)
+	{
+		mo->ClearStaleRefs();
+	}
+}
+
+
 //
 // P_RemoveQueuedMobjs
 //
