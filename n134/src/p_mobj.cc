@@ -1526,9 +1526,9 @@ void P_RemoveMobj(mobj_t *mo)
 		return;
 	}
 
-	if (! (mo->flags & MF_MISSILE) &&
+	if ((mo->info->flags & MF_SPECIAL) && 
+	    ! (mo->flags & MF_MISSILE) &&
 		(deathmatch >= 2 || level_flags.itemrespawn) &&
-		(mo->info->flags & MF_SPECIAL) && 
 		!(mo->extendedflags & EF_NORESPAWN) &&
 		!(mo->flags & MF_DROPPED))
 	{
