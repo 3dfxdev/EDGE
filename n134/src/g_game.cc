@@ -291,14 +291,14 @@ void G_DoLoadLevel(void)
 		{
 			I_Printf("Loading HUB...\n");
 
-			int old_hub_tag = curr_hub_tag;
-			const mapdef_c * old_hub_first = curr_hub_first;
+///---			int old_hub_tag = curr_hub_tag;
+///---			const mapdef_c * old_hub_first = curr_hub_first;
 
 			if (! G_LoadGameFromFile(fn.c_str(), true))
 				I_Error("LOAD-HUB failed with filename: %s\n", fn.c_str());
 
-			curr_hub_tag   = old_hub_tag;
-			curr_hub_first = old_hub_first;
+///---			curr_hub_tag   = old_hub_tag;
+///---			curr_hub_first = old_hub_first;
 
 			SpawnInitialPlayers();
 
@@ -740,28 +740,42 @@ static bool G_LoadGameFromFile(const char *filename, bool is_hub)
 
 	// --- pull info from global structure ---
 
-	newgame_params_c params;
+	if (is_hub)
+	{
+		currmap = G_LookupMap(globs->level);
+		if (! currmap)
+			I_Error("LOAD-HUB: No such map %s !  Check WADS\n", globs->level);
 
-	params.map = G_LookupMap(globs->level);
-	if (! params.map)
-		I_Error("LOAD-GAME: No such map %s !  Check WADS\n", globs->level);
+		G_SetDisplayPlayer(consoleplayer);
+		automapactive = false;
 
-	SYS_ASSERT(params.map->episode);
+		N_ResetTics();
+	}
+	else
+	{
+		newgame_params_c params;
 
-	params.skill      = (skill_t) globs->skill;
-	params.deathmatch = (globs->netgame >= 2) ? (globs->netgame - 1) : 0;
+		params.map = G_LookupMap(globs->level);
+		if (! params.map)
+			I_Error("LOAD-GAME: No such map %s !  Check WADS\n", globs->level);
 
-	params.random_seed = globs->p_random;
+		SYS_ASSERT(params.map->episode);
 
-	// this player is a dummy one, replaced during actual load
-	params.SinglePlayer(0);
+		params.skill      = (skill_t) globs->skill;
+		params.deathmatch = (globs->netgame >= 2) ? (globs->netgame - 1) : 0;
 
-	params.CopyFlags(&globs->flags);
-	
-	InitNew(params);
+		params.random_seed = globs->p_random;
 
-	curr_hub_tag = globs->hub_tag;
-	curr_hub_first = globs->hub_first ? G_LookupMap(globs->hub_first) : NULL;
+		// this player is a dummy one, replaced during actual load
+		params.SinglePlayer(0);
+
+		params.CopyFlags(&globs->flags);
+		
+		InitNew(params);
+
+		curr_hub_tag = globs->hub_tag;
+		curr_hub_first = globs->hub_first ? G_LookupMap(globs->hub_first) : NULL;
+	}
 
 	LoadLevel_Bits();
 
