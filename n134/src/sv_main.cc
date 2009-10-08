@@ -453,21 +453,34 @@ const char *SV_SlotName(int slot)
 	return buffer;
 }
 
-std::string SV_FileName(const char *dir_name, const char *map_name)
+const char *SV_MapName(const mapdef_c *map)
 {
-    std::string temp(epi::STR_Format("%s/%s.%s", dir_name, map_name, SAVEGAMEEXT));
+	// ensure the name is LOWER CASE
+	static char buffer[256];
+
+	strcpy(buffer, map->ddf.name.c_str());
+
+	for (char *pos = buffer; *pos; pos++)
+		*pos = tolower(*pos);
+
+	return buffer;
+}
+
+std::string SV_FileName(const char *slot_name, const char *map_name)
+{
+    std::string temp(epi::STR_Format("%s/%s.%s", slot_name, map_name, SAVEGAMEEXT));
 
 	return epi::PATH_Join(save_dir.c_str(), temp.c_str());
 }
 
-std::string SV_DirName(const char *dir_name)
+std::string SV_DirName(const char *slot_name)
 {
-	return epi::PATH_Join(save_dir.c_str(), dir_name);
+	return epi::PATH_Join(save_dir.c_str(), slot_name);
 }
 
-void SV_ClearSlot(const char *dir_name)
+void SV_ClearSlot(const char *slot_name)
 {
-	std::string full_dir = SV_DirName(dir_name);
+	std::string full_dir = SV_DirName(slot_name);
 
 	// make sure the directory exists
 	epi::FS_MakeDir(full_dir.c_str());
