@@ -646,7 +646,7 @@ void G_DeferredLoadGame(int slot)
 }
 
 
-static bool G_LoadGameFromFile(const char *filename)
+static bool G_LoadGameFromFile(const char *filename, bool is_hub = false)
 {
 	if (! SV_OpenReadFile(filename))
 	{
@@ -662,8 +662,6 @@ static bool G_LoadGameFromFile(const char *filename)
 		SV_CloseReadFile();
 		return false;
 	}
-
-	bool is_hub = false;  // FIXME
 
 	SV_BeginLoad(is_hub);
 
@@ -716,8 +714,8 @@ static bool G_LoadGameFromFile(const char *filename)
 
 	if (! is_hub)
 	{
-		leveltime   = globs->level_time;
-		exittime    = globs->exit_time;
+		leveltime = globs->level_time;
+		exittime  = globs->exit_time;
 
 		wi_stats.kills  = globs->total_kills;
 		wi_stats.items  = globs->total_items;
