@@ -847,6 +847,7 @@ static void G_DoLoadGame(void)
 	E_ForceWipe();
 
 	const char *dir_name = SV_SlotName(defer_load_slot);
+I_Printf("G_DoLoadGame : %s\n", dir_name);
 
 	SV_ClearSlot("current");
 	SV_CopySlot(dir_name, "current");
@@ -1066,10 +1067,11 @@ bool G_MapExists(const mapdef_c *map)
 //
 static void G_DoNewGame(void)
 {
-	E_ForceWipe();
-
 	SYS_ASSERT(defer_params);
 
+	E_ForceWipe();
+
+	SV_ClearSlot("current");
 	quickSaveSlot = -1;
 
 	InitNew(*defer_params);
@@ -1096,8 +1098,6 @@ static void G_DoNewGame(void)
 //
 static void InitNew(newgame_params_c& params)
 {
-	SV_ClearSlot("current");
-
 	// --- create players ---
 
 	P_DestroyAllPlayers();
