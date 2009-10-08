@@ -416,6 +416,8 @@ void S_StartFX(sfx_t *sfx, int category, position_c *pos, int flags)
 {
 	if (nosound || !sfx) return;
 
+	if (fast_forward_active) return;
+
 	SYS_ASSERT(0 <= category && category < SNCAT_NUMTYPES);
 
 	if (category >= SNCAT_Opponent && ! pos)

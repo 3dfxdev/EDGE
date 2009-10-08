@@ -79,6 +79,7 @@ extern angle_t viewanglebaseoffset;
 
 // Timer, for scores.
 extern int leveltime;  // tics in game play for par
+extern bool fast_forward_active;
 
 // --------------------------------------
 // DEMO playback/recording related stuff.

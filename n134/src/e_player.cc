@@ -147,6 +147,8 @@ void G_PlayerFinishLevel(player_t *p, bool keep_cards)
 //
 void player_s::Reborn()
 {
+I_Printf("player_s::Reborn\n");
+
 	playerstate = PST_LIVE;
 
 	mo = NULL;

@@ -328,6 +328,8 @@ int SV_PlayerFindElem(player_t *elem)
 
 void SV_PlayerCreateElems(int num_elems)
 {
+I_Printf("SV_PlayerCreateElems...\n");
+
 	// free existing players (sets all pointers to NULL)
 	P_DestroyAllPlayers();
 

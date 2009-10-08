@@ -31,6 +31,8 @@
 // Carries out all thinking of monsters and players.
 void P_Ticker(void);
 
+void P_HubFastForward(void);
+
 #endif // __P_TICK__
 
 //--- editor settings ---

@@ -302,7 +302,7 @@ void G_DoLoadLevel(void)
 
 			SpawnInitialPlayers();
 
-			P_HubFastForward();
+			/// P_HubFastForward();
 			return;
 		}
 	}
