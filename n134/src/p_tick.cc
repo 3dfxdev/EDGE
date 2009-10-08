@@ -41,6 +41,8 @@
 
 int leveltime;
 
+bool fast_forward_active;
+
 //
 // P_Ticker
 //
@@ -79,7 +81,17 @@ void P_Ticker(void)
 	{
 		gameaction = ga_intermission;
 	}
+}
 
+
+void P_HubFastForward(void)
+{
+	fast_forward_active = true;
+
+	for (int i = 0; i < TICRATE * 5; i++)
+		P_Ticker();
+	
+	fast_forward_active = false;
 }
 
 //--- editor settings ---

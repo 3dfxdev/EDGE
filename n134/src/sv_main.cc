@@ -493,7 +493,7 @@ void SV_ClearSlot(const char *slot_name)
 		return;
 	}
 
-	I_Debugf("SV_ClearSlot: removing %d files\n", fsd.GetSize());
+	I_Printf("SV_ClearSlot: removing %d files\n", fsd.GetSize());
 
 	for (int i = 0; i < fsd.GetSize(); i++)
 	{
