@@ -112,6 +112,7 @@ const mapdef_c *currmap = NULL;
 const mapdef_c *nextmap = NULL;
 
 int curr_hub_tag = 0;  // affects where players are spawned
+const mapdef_c *curr_hub_first;  // first map in group of hubs
 
 // -KM- 1998/12/16 These flags hold everything needed about a level
 gameflags_t level_flags;
@@ -362,6 +363,15 @@ static void CheckPlayersReborn(void)
 			// reload the level
 			E_ForceWipe();
 			gameaction = ga_loadlevel;
+
+			// -AJA- if we are on a HUB map, then we must go all the
+			//       way back to the beginning.
+			if (curr_hub_first)
+			{
+				currmap = curr_hub_first;
+				curr_hub_tag = 0;
+				curr_hub_first = NULL;
+			}
 			return;
 		}
 
@@ -413,6 +423,7 @@ void G_BigStuff(void)
 				SYS_ASSERT(nextmap);
 				currmap = nextmap;
 				curr_hub_tag = 0;
+				curr_hub_first = NULL;
 				F_StartFinale(&currmap->f_pre, ga_loadlevel);
 				break;
 
@@ -616,6 +627,12 @@ static void G_DoCompleted(void)
 		{
 			currmap = nextmap;
 			curr_hub_tag = exit_hub_tag;
+			
+			if (exit_hub_tag <= 0)
+				curr_hub_first = NULL;
+			else if (! curr_hub_first)
+				curr_hub_first = currmap;
+
 			gameaction = ga_loadlevel;
 		}
 		else
@@ -1046,6 +1063,7 @@ void G_InitNew(newgame_params_c& params)
 
 	currmap = params.map;
 	curr_hub_tag = 0;
+	curr_hub_first = NULL;
 
 	if (params.skill > sk_nightmare)
 		params.skill = sk_nightmare;

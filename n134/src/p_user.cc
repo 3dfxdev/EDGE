@@ -39,7 +39,6 @@
 #include "s_sound.h"
 #include "z_zone.h"
 
-extern int curr_hub_tag;
 
 static void P_UpdatePowerups(player_t *player);
 
@@ -455,12 +454,8 @@ static void DeathThink(player_t * player)
 	if (deathmatch >= 3 && player->mo->movecount > player->mo->info->respawntime)
 		return;
 
-	// -AJA- player respawn on HUB maps does not make sense
-	//       (any held keys and weapons will be lost).  Compare
-	//       with Quake II, which just opens the loadgame menu.
-	if (! (curr_hub_tag > 0))
-		if (player->cmd.buttons & BT_USE)
-			player->playerstate = PST_REBORN;
+	if (player->cmd.buttons & BT_USE)
+		player->playerstate = PST_REBORN;
 }
 
 static void P_UpdatePowerups(player_t *player)
