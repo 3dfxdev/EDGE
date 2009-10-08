@@ -98,10 +98,6 @@ public:
 	void CopyFlags(const gameflags_t *F);
 };
 
-//
-// GAME
-//
-void G_InitNew(newgame_params_c& params);
 
 //
 // Called by the Startup code & M_Responder; A normal game

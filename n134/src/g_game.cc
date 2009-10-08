@@ -126,6 +126,7 @@ static void G_DoCompleted(void);
 static void G_DoSaveGame(void);
 static void G_DoEndGame(void);
 
+static void InitNew(newgame_params_c& params);
 static void RespawnPlayer(player_t *p);
 static void SpawnInitialPlayers(void);
 
@@ -161,6 +162,7 @@ void LoadLevel_Bits(void)
 		if (p->playerstate == PST_DEAD ||
 			(currmap->force_on & MPF_ResetPlayer))
 		{
+I_Printf("LoadLevel_Bits: setting PST_REBORN\n");
 			p->playerstate = PST_REBORN;
 		}
 
@@ -299,6 +301,8 @@ void G_DoLoadLevel(void)
 			curr_hub_first = old_hub_first;
 
 			SpawnInitialPlayers();
+
+			P_HubFastForward();
 			return;
 		}
 	}
@@ -754,7 +758,7 @@ static bool G_LoadGameFromFile(const char *filename, bool is_hub)
 
 	params.CopyFlags(&globs->flags);
 	
-	G_InitNew(params);
+	InitNew(params);
 
 	curr_hub_tag = globs->hub_tag;
 	curr_hub_first = globs->hub_first ? G_LookupMap(globs->hub_first) : NULL;
@@ -1048,7 +1052,7 @@ static void G_DoNewGame(void)
 
 	quickSaveSlot = -1;
 
-	G_InitNew(*defer_params);
+	InitNew(*defer_params);
 
 	delete defer_params;
 	defer_params = NULL;
@@ -1059,7 +1063,7 @@ static void G_DoNewGame(void)
 }
 
 //
-// G_InitNew
+// InitNew
 //
 // -ACB- 1998/07/12 Removed Lost Soul/Spectre Ability stuff
 // -ACB- 1998/08/10 Inits new game without the need for gamemap or episode.
@@ -1070,7 +1074,7 @@ static void G_DoNewGame(void)
 // REQUIRED STATE:
 //   ?? nothing ??
 //
-void G_InitNew(newgame_params_c& params)
+static void InitNew(newgame_params_c& params)
 {
 	SV_ClearSlot("current");
 
@@ -1095,11 +1099,11 @@ void G_InitNew(newgame_params_c& params)
 	}
 
 	if (numplayers != params.total_players)
-		I_Error("Internal Error: G_InitNew: player miscount (%d != %d)\n",
+		I_Error("Internal Error: InitNew: player miscount (%d != %d)\n",
 			numplayers, params.total_players);
 
 	if (consoleplayer < 0)
-		I_Error("Internal Error: G_InitNew: no local players!\n");
+		I_Error("Internal Error: InitNew: no local players!\n");
 
 	G_SetDisplayPlayer(consoleplayer);
 
