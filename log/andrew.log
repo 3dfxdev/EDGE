@@ -1,5 +1,19 @@
 Andrew Apted's Log
 
+2009/10/08:
+
+About two weeks ago I decided that the current SVN code was not
+going to be finishable -- I had bitten off too much to chew, and
+the broken build system was really the last straw.
+
+Therefore I created a new branch which will take many of the bug
+fixes and minor features from SVN, apply them to the stock 1.31
+codebase and end up with an EDGE 1.34 release.  This branch exists
+in the trunk/n134 directory.  The changes are recorded in a file
+called CHANGES.txt in that directory.
+
+------------------------------------------------------
+
 2009/09/07:
 
 Added a new feature: two "Action buttons" which can be used by
