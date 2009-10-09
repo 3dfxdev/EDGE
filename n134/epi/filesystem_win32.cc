@@ -112,12 +112,11 @@ bool FS_IsDir(const char *dir)
 {
 	SYS_ASSERT(dir);
 
-	bool result;
-	char curpath[MAX_PATH];
+	char curpath[MAX_PATH+1];
 
 	FS_GetCurrDir(curpath, MAX_PATH);
 
-	result = FS_SetCurrDir(dir);
+	bool result = FS_SetCurrDir(dir);
 
 	FS_SetCurrDir(curpath);
 	return result;
@@ -162,7 +161,10 @@ bool FS_ReadDir(filesystem_dir_c *fsd, const char *dir, const char *mask)
 
 	HANDLE handle = FindFirstFile(mask, &fdata);
 	if (handle == INVALID_HANDLE_VALUE)
+	{
+		FS_SetCurrDir(prev_dir.c_str());
 		return false;
+	}
 
 	// Ensure the container is empty
 	fsd->Clear();
