@@ -44,6 +44,8 @@ static void P_UpdatePowerups(player_t *player);
 
 #define MAXBOB  16.0f
 
+#define ZOOM_ANGLE_DIV  4
+
 
 static void CalcHeight(player_t * player)
 {
@@ -176,6 +178,9 @@ static void MovePlayer(player_t * player)
 
 	cmd = &player->cmd;
 
+	if (viewiszoomed)
+		cmd->angleturn /= ZOOM_ANGLE_DIV;
+
 	player->mo->angle += (angle_t)(cmd->angleturn << 16);
 
 	// EDGE Feature: Vertical Look (Mlook)
@@ -185,6 +190,9 @@ static void MovePlayer(player_t * player)
 	//
 	if (level_flags.mlook)
 	{
+		if (viewiszoomed)
+			cmd->mlookturn /= ZOOM_ANGLE_DIV;
+
 		angle_t V = player->mo->vertangle + (angle_t)(cmd->mlookturn << 16);
 
 		if (V < ANG180 && V > MLOOK_LIMIT)

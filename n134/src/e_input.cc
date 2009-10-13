@@ -101,8 +101,6 @@ static int sidemove[2]    = {0x18, 0x28};
 static int upwardmove[2]  = {0x19, 0x32};  // -MH- 1998/08/18 Up/Down movement
 static int angleturn[3]   = {640, 1280, 320};  // + slow turn 
 
-#define ZOOM_ANGLE_DIV  3
-
 #define SLOWTURNTICS    6
 
 #define NUMKEYS         512
@@ -193,14 +191,11 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	Z_Clear(cmd, ticcmd_t, 1);
 
 	bool strafe = E_InputCheckKey(key_strafe);
-	int speed = E_InputCheckKey(key_speed) ? 1 : 0;
+	int  speed  = E_InputCheckKey(key_speed) ? 1 : 0;
 
 	if (autorunning)
 		speed = !speed;
 
-	int forward = 0;
-	int upward = 0;  // -MH- 1998/08/18 Fly Up/Down movement
-	int side = 0;
 
 	//
 	// -KM- 1998/09/01 use two stage accelerative turning on all devices
@@ -231,6 +226,175 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	if (mlookheld < SLOWTURNTICS)
 		m_speed = 2;
 
+
+	// Turning
+	if (! strafe)
+	{
+		int angle_rate = angleturn[t_speed];
+
+		if (E_InputCheckKey(key_right))
+			cmd->angleturn -= angle_rate;
+
+		if (E_InputCheckKey(key_left))
+			cmd->angleturn += angle_rate;
+
+		// -KM- 1998/09/01 Analogue binding
+		// -ACB- 1998/09/06 Angle Turn Speed Control
+		int i = GetSpeedDivisor(angleturnspeed);
+		cmd->angleturn -= analogue[AXIS_TURN] * angle_rate / i;
+	}
+
+	// MLook
+	{
+		int mlook_rate = angleturn[m_speed] / 2;
+
+		cmd->mlookturn = 0;
+
+		// -ACB- 1998/07/02 Use VertAngle for Look/up down.
+		if (E_InputCheckKey(key_lookup))
+			cmd->mlookturn += mlook_rate;
+
+		// -ACB- 1998/07/02 Use VertAngle for Look/up down.
+		if (E_InputCheckKey(key_lookdown))
+			cmd->mlookturn -= mlook_rate;
+
+		// -KM- 1998/09/01 More analogue binding
+		cmd->mlookturn += analogue[AXIS_MLOOK] * mlook_rate /
+			((21 - mlookspeed) << 3);
+	}
+
+	// Forward
+	{
+		int forward = 0;
+
+		if (E_InputCheckKey(key_up))
+			forward += forwardmove[speed];
+
+		if (E_InputCheckKey(key_down))
+			forward -= forwardmove[speed];
+
+		// -KM- 1998/09/01 Analogue binding
+		// -ACB- 1998/09/06 Forward Move Speed Control
+		int i = GetSpeedDivisor(forwardmovespeed);
+		forward -= analogue[AXIS_FORWARD] * forwardmove[speed] / i;
+
+		forward = CLAMP(-MAXPLMOVE, forward, MAXPLMOVE);
+
+		cmd->forwardmove += forward;
+	}
+
+	// Sideways
+	{
+		int side = 0;
+
+		if (E_InputCheckKey(key_straferight))
+			side += sidemove[speed];
+
+		if (E_InputCheckKey(key_strafeleft))
+			side -= sidemove[speed];
+
+		// -ACB- 1998/09/06 Side Move Speed Control
+		int j = GetSpeedDivisor(sidemovespeed);
+		side += analogue[AXIS_STRAFE] * sidemove[speed] / j;
+
+		//let movement keys cancel each other out
+		if (strafe)
+		{
+			if (E_InputCheckKey(key_right))
+				side += sidemove[speed];
+
+			if (E_InputCheckKey(key_left))
+				side -= sidemove[speed];
+
+			// -KM- 1998/09/01 Analogue binding
+			// -ACB- 1998/09/06 Side Move Speed Control
+			int i = GetSpeedDivisor(sidemovespeed);
+			side += analogue[AXIS_TURN] * sidemove[speed] / i;
+		}
+
+		side = CLAMP(-MAXPLMOVE, side, MAXPLMOVE);
+
+		cmd->sidemove += side;
+	}
+
+	// Upwards  -MH- 1998/08/18 Fly Up/Down movement
+	{
+		int upward = 0;
+
+		if ((E_InputCheckKey(key_flyup)))
+			upward += upwardmove[speed];
+
+		// -MH- 1998/08/18 Fly down
+		if ((E_InputCheckKey(key_flydown)))
+			upward -= upwardmove[speed];
+
+		int i = GetSpeedDivisor(forwardmovespeed);
+		upward += analogue[AXIS_FLY] * upwardmove[speed] / i;
+
+		upward = CLAMP(-MAXPLMOVE, upward, MAXPLMOVE);
+
+		cmd->upwardmove += upward;
+	}
+
+
+	// buttons
+	cmd->chatchar = HU_DequeueChatChar();
+
+	if (E_InputCheckKey(key_fire))
+		cmd->buttons |= BT_ATTACK;
+
+	if (E_InputCheckKey(key_use))
+		cmd->buttons |= BT_USE;
+
+	if (E_InputCheckKey(key_secondatk))
+		cmd->extbuttons |= EBT_SECONDATK;
+
+	if (E_InputCheckKey(key_reload))
+		cmd->extbuttons |= EBT_RELOAD;
+
+	if (E_InputCheckKey(key_action1))
+		cmd->extbuttons |= EBT_ACTION1;
+
+	if (E_InputCheckKey(key_action2))
+		cmd->extbuttons |= EBT_ACTION2;
+
+	// -ACB- 1998/07/02 Use CENTER flag to center the vertical look.
+	if (E_InputCheckKey(key_lookcenter))
+		cmd->extbuttons |= EBT_CENTER;
+
+	// -KM- 1998/11/25 Weapon change key
+	for (int w = 0; w < WEAPON_KEYS; w++)
+	{
+		if (E_InputCheckKey('0' + w))
+		{
+			cmd->buttons |= BT_CHANGE;
+			cmd->buttons |= w << BT_WEAPONSHIFT;
+			break;
+		}
+	}
+
+	if (E_InputCheckKey(key_nextweapon))
+	{
+		cmd->buttons |= BT_CHANGE;
+		cmd->buttons |= (BT_NEXT_WEAPON << BT_WEAPONSHIFT);
+	}
+	else if (E_InputCheckKey(key_prevweapon))
+	{
+		cmd->buttons |= BT_CHANGE;
+		cmd->buttons |= (BT_PREV_WEAPON << BT_WEAPONSHIFT);
+	}
+
+	// You have to release the 180 deg turn key before you can press it again
+	if (E_InputCheckKey(key_180))
+	{
+		if (allow180)
+			cmd->angleturn ^= (s16_t)0x8000;
+
+		allow180 = false;
+	}
+	else
+		allow180 = true;
+
 	// -ES- 1999/03/28 Zoom Key
 	if (E_InputCheckKey(key_zoom))
 	{
@@ -255,174 +419,6 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	else
 		allowautorun = true;
 
-	// You have to release the 180 deg turn key before you can press it again
-	if (E_InputCheckKey(key_180))
-	{
-		if (allow180)
-			cmd->angleturn = ANG180 >> 16;
-		allow180 = false;
-	}
-	else
-	{
-		allow180 = true;
-		cmd->angleturn = 0;
-	}
-
-	//let movement keys cancel each other out
-	if (strafe)
-	{
-		if (E_InputCheckKey(key_right))
-			side += sidemove[speed];
-
-		if (E_InputCheckKey(key_left))
-			side -= sidemove[speed];
-
-		// -KM- 1998/09/01 Analogue binding
-		// -ACB- 1998/09/06 Side Move Speed Control
-		int i = GetSpeedDivisor(sidemovespeed);
-		side += analogue[AXIS_TURN] * sidemove[speed] / i;
-	}
-	else
-	{
-		int angle_rate = angleturn[t_speed];
-
-		if (viewiszoomed)
-			angle_rate /= ZOOM_ANGLE_DIV;
-
-		if (E_InputCheckKey(key_right))
-			cmd->angleturn -= angle_rate;
-
-		if (E_InputCheckKey(key_left))
-			cmd->angleturn += angle_rate;
-
-		// -KM- 1998/09/01 Analogue binding
-		// -ACB- 1998/09/06 Angle Turn Speed Control
-		int i = GetSpeedDivisor(angleturnspeed);
-		cmd->angleturn -= analogue[AXIS_TURN] * angle_rate / i;
-	}
-
-	cmd->mlookturn = 0;
-
-	if (level_flags.mlook)
-	{
-		int mlook_rate = angleturn[m_speed] / 2;
-
-		if (viewiszoomed)
-			mlook_rate /= ZOOM_ANGLE_DIV;
-
-		// -ACB- 1998/07/02 Use VertAngle for Look/up down.
-		if (E_InputCheckKey(key_lookup))
-			cmd->mlookturn += mlook_rate;
-
-		// -ACB- 1998/07/02 Use VertAngle for Look/up down.
-		if (E_InputCheckKey(key_lookdown))
-			cmd->mlookturn -= mlook_rate;
-
-		// -KM- 1998/09/01 More analogue binding
-		cmd->mlookturn += analogue[AXIS_MLOOK] * mlook_rate /
-			((21 - mlookspeed) << 3);
-
-		// -ACB- 1998/07/02 Use CENTER flag to center the vertical look.
-		if (E_InputCheckKey(key_lookcenter))
-			cmd->extbuttons |= EBT_CENTER;
-	}
-
-	// -MH- 1998/08/18 Fly up
-	{
-		if ((E_InputCheckKey(key_flyup)))
-			upward += upwardmove[speed];
-
-		// -MH- 1998/08/18 Fly down
-		if ((E_InputCheckKey(key_flydown)))
-			upward -= upwardmove[speed];
-
-		int i = GetSpeedDivisor(forwardmovespeed);
-		upward += analogue[AXIS_FLY] * upwardmove[speed] / i;
-	}
-
-	if (E_InputCheckKey(key_up))
-		forward += forwardmove[speed];
-
-	if (E_InputCheckKey(key_down))
-		forward -= forwardmove[speed];
-
-	// -KM- 1998/09/01 Analogue binding
-	// -ACB- 1998/09/06 Forward Move Speed Control
-	int i = GetSpeedDivisor(forwardmovespeed);
-	forward -= analogue[AXIS_FORWARD] * forwardmove[speed] / i;
-
-	// -ACB- 1998/09/06 Side Move Speed Control
-	int j = GetSpeedDivisor(sidemovespeed);
-	side += analogue[AXIS_STRAFE] * sidemove[speed] / j;
-
-	if (E_InputCheckKey(key_straferight))
-		side += sidemove[speed];
-
-	if (E_InputCheckKey(key_strafeleft))
-		side -= sidemove[speed];
-
-	// buttons
-	cmd->chatchar = HU_DequeueChatChar();
-
-	if (E_InputCheckKey(key_fire))
-		cmd->buttons |= BT_ATTACK;
-
-	if (E_InputCheckKey(key_use))
-		cmd->buttons |= BT_USE;
-
-	if (E_InputCheckKey(key_secondatk))
-		cmd->extbuttons |= EBT_SECONDATK;
-
-	if (E_InputCheckKey(key_reload))
-		cmd->extbuttons |= EBT_RELOAD;
-
-	if (E_InputCheckKey(key_action1))
-		cmd->extbuttons |= EBT_ACTION1;
-
-	if (E_InputCheckKey(key_action2))
-		cmd->extbuttons |= EBT_ACTION2;
-
-	// -KM- 1998/11/25 Weapon change key
-	for (int w = 0; w < WEAPON_KEYS; w++)
-	{
-		if (E_InputCheckKey('0' + w))
-		{
-			cmd->buttons |= BT_CHANGE;
-			cmd->buttons |= w << BT_WEAPONSHIFT;
-			break;
-		}
-	}
-
-	if (E_InputCheckKey(key_nextweapon))
-	{
-		cmd->buttons |= BT_CHANGE;
-		cmd->buttons |= (BT_NEXT_WEAPON << BT_WEAPONSHIFT);
-	}
-	else if (E_InputCheckKey(key_prevweapon))
-	{
-		cmd->buttons |= BT_CHANGE;
-		cmd->buttons |= (BT_PREV_WEAPON << BT_WEAPONSHIFT);
-	}
-
-	// -MH- 1998/08/18 Yep. More flying controls...
-	if (upward > MAXPLMOVE)
-		upward = MAXPLMOVE;
-	else if (upward < -MAXPLMOVE)
-		upward = -MAXPLMOVE;
-
-	if (forward > MAXPLMOVE)
-		forward = MAXPLMOVE;
-	else if (forward < -MAXPLMOVE)
-		forward = -MAXPLMOVE;
-
-	if (side > MAXPLMOVE)
-		side = MAXPLMOVE;
-	else if (side < -MAXPLMOVE)
-		side = -MAXPLMOVE;
-
-	cmd->forwardmove += forward;
-	cmd->sidemove    += side;
-	cmd->upwardmove  += upward;
 
 	// -KM- 1998/09/01 Analogue binding
 	Z_Clear(analogue, int, 5);
