@@ -7,7 +7,7 @@ all:	raw/ddfanim.lmp raw/ddfatk.lmp raw/ddfcolm.lmp \
 	raw/ddfweap.lmp \
 	raw/plutlang.lmp raw/tntlang.lmp \
 	raw/rscript.lmp \
-	raw/luautil0.lmp raw/luahud0.lmp 
+	raw/coaldef0.lmp raw/coalhud0.lmp 
 
 raw/ddfanim.lmp:  doom/anims.ddf
 	awk -f unix2dos.awk $^ > $@
@@ -66,10 +66,10 @@ raw/plutlang.lmp: doom/lang_plut.ldf
 raw/tntlang.lmp:  doom/lang_tnt.ldf
 	awk -f unix2dos.awk $^ > $@
 
-raw/luautil0.lmp:  doom/util.lua
+raw/coaldef0.lmp:  doom/coal_api.ec
 	awk -f unix2dos.awk $^ > $@
 
-raw/luahud0.lmp:  doom/huds.lua
+raw/coalhud0.lmp:  doom/coal_hud.ec
 	awk -f unix2dos.awk $^ > $@
 
 ## raw/edgever.lmp:  doom/edge_wad.txt
