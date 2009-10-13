@@ -123,11 +123,12 @@ bool autorunning = false;
 int mouse_xaxis = AXIS_TURN;
 int mouse_yaxis = AXIS_FORWARD;
 
-int joy_xaxis = AXIS_TURN;
-int joy_yaxis = AXIS_FORWARD;
+int joy_axis[6] = { AXIS_TURN,    AXIS_FORWARD, AXIS_DISABLE,
+                    AXIS_DISABLE, AXIS_DISABLE, AXIS_DISABLE };
 
 // The last one is ignored (AXIS_DISABLE)
 static float ball_deltas[6] = {0, 0, 0, 0, 0, 0};
+static float joy_forces [6] = {0, 0, 0, 0, 0, 0};
 
 bool stageturn;  // Stage Turn Control
 
@@ -428,7 +429,6 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 
 	cmd->chatchar = HU_DequeueChatChar();
 
-	// -KM- 1998/09/01 Analogue binding
 	for (int k = 0; k < 6; k++)
 		ball_deltas[k] = 0;
 }
