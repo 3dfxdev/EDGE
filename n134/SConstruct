@@ -105,6 +105,10 @@ env.Append(LIBS = ['timidity'])
 env.Append(LIBPATH = ['#epi'])
 env.Append(LIBS = ['epi'])
 
+# COAL
+env.Append(LIBPATH = ['#coal'])
+env.Append(LIBS = ['coal'])
+
 # GLBSP
 if not have_glbsp_h:
     env.Append(LIBPATH = ['#glbsp'])
@@ -213,11 +217,11 @@ SConscript('src/SConscript')
 SConscript('ddf/SConscript')
 SConscript('epi/SConscript')
 SConscript('deh_edge/SConscript.edge')
+SConscript('timidity/SConscript')
+SConscript('coal/SConscript')
 
 if not have_glbsp_h:
     SConscript('glbsp/SConscript.edge')
-
-SConscript('timidity/SConscript')
 
 env.Program('edge32', ['main.cc'])
 

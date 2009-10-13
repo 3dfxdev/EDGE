@@ -4,7 +4,9 @@
 import os
 
 Import('build_info')
-Import('env')
+Import('base_env')
+
+env = base_env.Clone()
 
 # allow #include "coal/xxxx.h" to find the correct file
 env.Append(CPPPATH = ['#.'])
