@@ -172,8 +172,12 @@ static default_t defaults[] =
     {CFGT_Int,      "angleturn_speed",   &angleturnspeed, CFGDEF_ANGLETURNSPEED},
     {CFGT_Int,      "sidemove_speed",    &sidemovespeed,  CFGDEF_SIDEMOVESPEED},
 
-    {CFGT_Int,      "joy_xaxis",         &joy_xaxis,      CFGDEF_JOY_XAXIS},
-    {CFGT_Int,      "joy_yaxis",         &joy_yaxis,      CFGDEF_JOY_YAXIS},
+    {CFGT_Int,      "joy_axis1",         &joy_axis[0],    CFGDEF_JOY_XAXIS},
+    {CFGT_Int,      "joy_axis2",         &joy_axis[1],    CFGDEF_JOY_YAXIS},
+    {CFGT_Int,      "joy_axis3",         &joy_axis[2],    AXIS_DISABLE},
+    {CFGT_Int,      "joy_axis4",         &joy_axis[3],    AXIS_DISABLE},
+    {CFGT_Int,      "joy_axis5",         &joy_axis[4],    AXIS_DISABLE},
+    {CFGT_Int,      "joy_axis6",         &joy_axis[5],    AXIS_DISABLE},
 
     {CFGT_Int,      "screen_hud",        &screen_hud,     CFGDEF_SCREEN_HUD},
     // -ES- 1999/03/30 Added fov stuff.
