@@ -123,6 +123,7 @@ static savefield_t sv_fields_player[] =
 	//   remember_atk[]: ditto.
 	//   next,prev: links are regenerated.
 	//   avail_weapons, totalarmour: regenerated.
+	//   attacker: not very important
 
 	SVFIELD_END
 };
