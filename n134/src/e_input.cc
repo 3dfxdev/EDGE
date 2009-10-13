@@ -127,7 +127,7 @@ int joy_xaxis = AXIS_TURN;
 int joy_yaxis = AXIS_FORWARD;
 
 // The last one is ignored (AXIS_DISABLE)
-static float analogue[6] = {0, 0, 0, 0, 0, 0};
+static float ball_deltas[6] = {0, 0, 0, 0, 0, 0};
 
 bool stageturn;  // Stage Turn Control
 
@@ -206,8 +206,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	//
 	int t_speed = speed;
 
-	if (E_InputCheckKey(key_right) || E_InputCheckKey(key_left) ||
-		(analogue[AXIS_TURN] && stageturn))
+	if (E_InputCheckKey(key_right) || E_InputCheckKey(key_left))
 		turnheld++;
 	else
 		turnheld = 0;
@@ -245,7 +244,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 		// -ACB- 1998/09/06 Angle Turn Speed Control
 		int i = GetSpeedDivisor(angleturnspeed);
 
-		turn -= analogue[AXIS_TURN] * angle_rate / (float)i;
+		turn -= ball_deltas[AXIS_TURN] * angle_rate / (float)i;
 
 		cmd->angleturn = I_ROUND(turn);
 	}
@@ -265,7 +264,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 			mlook -= mlook_rate / 2.0;
 
 		// -KM- 1998/09/01 More analogue binding
-		mlook += analogue[AXIS_MLOOK] * mlook_rate /
+		mlook += ball_deltas[AXIS_MLOOK] * mlook_rate /
 			(float)((21 - mlookspeed) << 3);
 
 		cmd->mlookturn = I_ROUND(mlook);
@@ -284,7 +283,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 		// -KM- 1998/09/01 Analogue binding
 		// -ACB- 1998/09/06 Forward Move Speed Control
 		int i = GetSpeedDivisor(forwardmovespeed);
-		forward -= analogue[AXIS_FORWARD] * forwardmove[speed] / (float)i;
+		forward -= ball_deltas[AXIS_FORWARD] * forwardmove[speed] / (float)i;
 
 		forward = CLAMP(-MAXPLMOVE, forward, MAXPLMOVE);
 
@@ -303,7 +302,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 
 		// -ACB- 1998/09/06 Side Move Speed Control
 		int j = GetSpeedDivisor(sidemovespeed);
-		side += analogue[AXIS_STRAFE] * sidemove[speed] / (float)j;
+		side += ball_deltas[AXIS_STRAFE] * sidemove[speed] / (float)j;
 
 		//let movement keys cancel each other out
 		if (strafe)
@@ -317,7 +316,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 			// -KM- 1998/09/01 Analogue binding
 			// -ACB- 1998/09/06 Side Move Speed Control
 			int i = GetSpeedDivisor(sidemovespeed);
-			side += analogue[AXIS_TURN] * sidemove[speed] / (float)i;
+			side += ball_deltas[AXIS_TURN] * sidemove[speed] / (float)i;
 		}
 
 		side = CLAMP(-MAXPLMOVE, side, MAXPLMOVE);
@@ -337,7 +336,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 			upward -= upwardmove[speed];
 
 		int i = GetSpeedDivisor(forwardmovespeed);
-		upward += analogue[AXIS_FLY] * upwardmove[speed] / (float)i;
+		upward += ball_deltas[AXIS_FLY] * upwardmove[speed] / (float)i;
 
 		upward = CLAMP(-MAXPLMOVE, upward, MAXPLMOVE);
 
@@ -431,7 +430,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 
 	// -KM- 1998/09/01 Analogue binding
 	for (int k = 0; k < 6; k++)
-		analogue[k] = 0;
+		ball_deltas[k] = 0;
 }
 
 //
@@ -475,13 +474,13 @@ bool INP_Responder(event_t * ev)
 			// -AJA- 1999/07/27: Mlook key like quake's.
 			if (E_InputCheckKey(key_mlook))
 			{
-				analogue[AXIS_TURN]  += dx;
-				analogue[AXIS_MLOOK] += dy;
+				ball_deltas[AXIS_TURN]  += dx;
+				ball_deltas[AXIS_MLOOK] += dy;
 			}
 			else
 			{
-				analogue[mouse_xaxis] += dx;
-				analogue[mouse_yaxis] += dy;
+				ball_deltas[mouse_xaxis] += dx;
+				ball_deltas[mouse_yaxis] += dy;
 			}
 
 			return true;  // eat events
