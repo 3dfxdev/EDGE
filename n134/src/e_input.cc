@@ -120,13 +120,14 @@ bool autorunning = false;
 // -KM-  1998/09/01 Analogue binding
 // -ACB- 1998/09/06 Two-stage turning switch
 //
-int mouse_xaxis = AXIS_TURN;  // joystick values are used once
+int mouse_xaxis = AXIS_TURN;
 int mouse_yaxis = AXIS_FORWARD;
-int joy_xaxis = AXIS_TURN;  // joystick values are repeated
+
+int joy_xaxis = AXIS_TURN;
 int joy_yaxis = AXIS_FORWARD;
 
 // The last one is ignored (AXIS_DISABLE)
-static int analogue[6] = {0, 0, 0, 0, 0, 0};
+static float analogue[6] = {0, 0, 0, 0, 0, 0};
 
 bool stageturn;  // Stage Turn Control
 
@@ -429,7 +430,8 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	cmd->chatchar = HU_DequeueChatChar();
 
 	// -KM- 1998/09/01 Analogue binding
-	Z_Clear(analogue, int, 5);
+	for (int k = 0; k < 6; k++)
+		analogue[k] = 0;
 }
 
 //
@@ -440,7 +442,6 @@ bool INP_Responder(event_t * ev)
 	switch (ev->type)
 	{
 		case ev_keydown:
-
 			if (ev->value.key.sym < NUMKEYS)
 			{
 				gamekeydown[ev->value.key.sym] &= ~GK_UP;
@@ -452,32 +453,39 @@ bool INP_Responder(event_t * ev)
 
 		case ev_keyup:
 			if (ev->value.key.sym < NUMKEYS)
+			{
 				gamekeydown[ev->value.key.sym] |= GK_UP;
+			}
 
 			// always let key up events filter down 
 			return false;
 
-			// -KM- 1998/09/01 Change mouse/joystick to analogue
-		case ev_analogue:
-			{
-				// -AJA- 1999/07/27: Mlook key like quake's.
-				if (level_flags.mlook && E_InputCheckKey(key_mlook))
-				{
-					if (ev->value.analogue.axis == mouse_xaxis)
-					{
-						analogue[AXIS_TURN] += ev->value.analogue.amount;
-						return true;
-					}
-					if (ev->value.analogue.axis == mouse_yaxis)
-					{
-						analogue[AXIS_MLOOK] += ev->value.analogue.amount;
-						return true;
-					}
-				}
+		case ev_mouse:
+		{
+			float dx = ev->value.mouse.dx;
+			float dy = ev->value.mouse.dy;
 
-				analogue[ev->value.analogue.axis] += ev->value.analogue.amount;
-				return true;  // eat events
+			// mouse Y usually needs inverting
+			if (!invertmouse)
+				dy = -dy;
+
+			dx *= mouseSensitivity;
+			dy *= mouseSensitivity;
+
+			// -AJA- 1999/07/27: Mlook key like quake's.
+			if (E_InputCheckKey(key_mlook))
+			{
+				analogue[AXIS_TURN]  += dx;
+				analogue[AXIS_MLOOK] += dy;
 			}
+			else
+			{
+				analogue[mouse_xaxis] += dx;
+				analogue[mouse_yaxis] += dy;
+			}
+
+			return true;  // eat events
+		}
 
 		default:
 			break;
@@ -507,7 +515,6 @@ void E_SetTurboScale(int scale)
 void E_ClearInput(void)
 {
 	Z_Clear(gamekeydown, byte, NUMKEYS);
-	Z_Clear(analogue, int, 5);
 
 	turnheld  = 0;
 	mlookheld = 0;

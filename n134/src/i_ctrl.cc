@@ -294,27 +294,13 @@ void HandleMouseMotionEvent(SDL_Event * ev)
 		dy = ev->motion.yrel;
 	}
 
-	if (dx)
+	if (dx || dy)
 	{
 		event_t event;
 
-		event.type = ev_analogue;
-		event.value.analogue.axis = mouse_xaxis;
-		event.value.analogue.amount = dx * mouseSensitivity;
-		
-		E_PostEvent(&event);
-	}
-
-	if (dy)
-	{
-		if (!invertmouse)
-			dy = -dy;
-
-		event_t event;
-
-		event.type = ev_analogue;
-		event.value.analogue.axis = mouse_yaxis;
-		event.value.analogue.amount = dy * mouseSensitivity;
+		event.type = ev_mouse;
+		event.value.mouse.dx = dx;
+		event.value.mouse.dy = dy;
 
 		E_PostEvent(&event);
 	}

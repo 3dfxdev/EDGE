@@ -37,7 +37,7 @@ typedef enum
 {
 	ev_keydown,
 	ev_keyup,
-	ev_analogue
+	ev_mouse
 }
 evtype_t;
 
@@ -57,10 +57,10 @@ typedef struct
 	
 		struct
 		{
-			int axis;
-			int amount;
+			int dx;
+			int dy;
 		} 
-		analogue;
+		mouse;
 	} 
 	value;
 }
