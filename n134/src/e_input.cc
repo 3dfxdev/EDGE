@@ -230,42 +230,49 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	// Turning
 	if (! strafe)
 	{
+		float turn = 0;
+
 		int angle_rate = angleturn[t_speed];
 
 		if (E_InputCheckKey(key_right))
-			cmd->angleturn -= angle_rate;
+			turn -= angle_rate;
 
 		if (E_InputCheckKey(key_left))
-			cmd->angleturn += angle_rate;
+			turn += angle_rate;
 
 		// -KM- 1998/09/01 Analogue binding
 		// -ACB- 1998/09/06 Angle Turn Speed Control
 		int i = GetSpeedDivisor(angleturnspeed);
-		cmd->angleturn -= analogue[AXIS_TURN] * angle_rate / i;
+
+		turn -= analogue[AXIS_TURN] * angle_rate / (float)i;
+
+		cmd->angleturn = I_ROUND(turn);
 	}
 
 	// MLook
 	{
-		int mlook_rate = angleturn[m_speed] / 2;
+		float mlook = 0;
 
-		cmd->mlookturn = 0;
+		int mlook_rate = angleturn[m_speed];
 
 		// -ACB- 1998/07/02 Use VertAngle for Look/up down.
 		if (E_InputCheckKey(key_lookup))
-			cmd->mlookturn += mlook_rate;
+			mlook += mlook_rate / 2.0;
 
 		// -ACB- 1998/07/02 Use VertAngle for Look/up down.
 		if (E_InputCheckKey(key_lookdown))
-			cmd->mlookturn -= mlook_rate;
+			mlook -= mlook_rate / 2.0;
 
 		// -KM- 1998/09/01 More analogue binding
-		cmd->mlookturn += analogue[AXIS_MLOOK] * mlook_rate /
-			((21 - mlookspeed) << 3);
+		mlook += analogue[AXIS_MLOOK] * mlook_rate /
+			(float)((21 - mlookspeed) << 3);
+
+		cmd->mlookturn = I_ROUND(mlook);
 	}
 
 	// Forward
 	{
-		int forward = 0;
+		float forward = 0;
 
 		if (E_InputCheckKey(key_up))
 			forward += forwardmove[speed];
@@ -276,16 +283,16 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 		// -KM- 1998/09/01 Analogue binding
 		// -ACB- 1998/09/06 Forward Move Speed Control
 		int i = GetSpeedDivisor(forwardmovespeed);
-		forward -= analogue[AXIS_FORWARD] * forwardmove[speed] / i;
+		forward -= analogue[AXIS_FORWARD] * forwardmove[speed] / (float)i;
 
 		forward = CLAMP(-MAXPLMOVE, forward, MAXPLMOVE);
 
-		cmd->forwardmove += forward;
+		cmd->forwardmove = I_ROUND(forward);
 	}
 
 	// Sideways
 	{
-		int side = 0;
+		float side = 0;
 
 		if (E_InputCheckKey(key_straferight))
 			side += sidemove[speed];
@@ -295,7 +302,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 
 		// -ACB- 1998/09/06 Side Move Speed Control
 		int j = GetSpeedDivisor(sidemovespeed);
-		side += analogue[AXIS_STRAFE] * sidemove[speed] / j;
+		side += analogue[AXIS_STRAFE] * sidemove[speed] / (float)j;
 
 		//let movement keys cancel each other out
 		if (strafe)
@@ -309,17 +316,17 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 			// -KM- 1998/09/01 Analogue binding
 			// -ACB- 1998/09/06 Side Move Speed Control
 			int i = GetSpeedDivisor(sidemovespeed);
-			side += analogue[AXIS_TURN] * sidemove[speed] / i;
+			side += analogue[AXIS_TURN] * sidemove[speed] / (float)i;
 		}
 
 		side = CLAMP(-MAXPLMOVE, side, MAXPLMOVE);
 
-		cmd->sidemove += side;
+		cmd->sidemove = I_ROUND(side);
 	}
 
 	// Upwards  -MH- 1998/08/18 Fly Up/Down movement
 	{
-		int upward = 0;
+		float upward = 0;
 
 		if ((E_InputCheckKey(key_flyup)))
 			upward += upwardmove[speed];
@@ -329,16 +336,15 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 			upward -= upwardmove[speed];
 
 		int i = GetSpeedDivisor(forwardmovespeed);
-		upward += analogue[AXIS_FLY] * upwardmove[speed] / i;
+		upward += analogue[AXIS_FLY] * upwardmove[speed] / (float)i;
 
 		upward = CLAMP(-MAXPLMOVE, upward, MAXPLMOVE);
 
-		cmd->upwardmove += upward;
+		cmd->upwardmove = I_ROUND(upward);
 	}
 
 
-	// buttons
-	cmd->chatchar = HU_DequeueChatChar();
+	// Buttons...
 
 	if (E_InputCheckKey(key_fire))
 		cmd->buttons |= BT_ATTACK;
@@ -363,7 +369,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 		cmd->extbuttons |= EBT_CENTER;
 
 	// -KM- 1998/11/25 Weapon change key
-	for (int w = 0; w < WEAPON_KEYS; w++)
+	for (int w = 0; w < 10; w++)
 	{
 		if (E_InputCheckKey('0' + w))
 		{
@@ -419,6 +425,8 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	else
 		allowautorun = true;
 
+
+	cmd->chatchar = HU_DequeueChatChar();
 
 	// -KM- 1998/09/01 Analogue binding
 	Z_Clear(analogue, int, 5);
@@ -534,7 +542,8 @@ void E_ReleaseAllKeys(void)
 			
 			ev.type = ev_keyup;
 			ev.value.key.sym = i;
-			
+			ev.value.key.unicode = 0;
+
 			E_PostEvent(&ev);
 		}
 	}
