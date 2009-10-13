@@ -219,7 +219,7 @@ if not have_glbsp_h:
 
 SConscript('timidity/SConscript')
 
-env.Program('gledge32', ['main.cc'])
+env.Program('edge32', ['main.cc'])
 
 ##--- editor settings ---
 ## vi:ts=4:sw=4:expandtab:filetype=python
