@@ -45,6 +45,9 @@ extern bool CON_Responder(event_t *ev);
 extern bool   M_Responder(event_t *ev);
 extern bool   G_Responder(event_t *ev);
 
+extern int I_JoyGetAxis(int n);
+
+
 //
 // EVENT HANDLING
 //
@@ -126,9 +129,15 @@ int mouse_yaxis = AXIS_FORWARD;
 int joy_axis[6] = { AXIS_TURN,    AXIS_FORWARD, AXIS_DISABLE,
                     AXIS_DISABLE, AXIS_DISABLE, AXIS_DISABLE };
 
+static int joy_last_raw[6];
+
 // The last one is ignored (AXIS_DISABLE)
 static float ball_deltas[6] = {0, 0, 0, 0, 0, 0};
-static float joy_forces [6] = {0, 0, 0, 0, 0, 0};
+static float  joy_forces[6] = {0, 0, 0, 0, 0, 0};
+
+cvar_c joy_dead;
+cvar_c joy_peak;
+cvar_c joy_tuning;
 
 bool stageturn;  // Stage Turn Control
 
@@ -139,6 +148,53 @@ int mlookspeed = 1000 / 64;
 
 // -ACB- 1999/09/30 Has to be true or false - bool-ified
 bool invertmouse = false;
+
+
+float JoyAxisFromRaw(int raw)
+{
+	SYS_ASSERT(abs(raw) <= 32768);
+
+	float v = raw / 32768.0f;
+	
+	if (fabs(v) <= joy_dead.f + 0.01)
+		return 0;
+
+	if (fabs(v) >= joy_peak.f - 0.01)
+		return (v < 0) ? -1.0f : +1.0f;
+
+	SYS_ASSERT(joy_peak.f > joy_dead.f);
+
+	float t = CLAMP(0.2f, joy_tuning.f, 5.0f);
+
+	if (v >= 0)
+	{
+		v = (v - joy_dead.f) / (joy_peak.f - joy_dead.f);
+		return pow(v, 1.0f / t);
+	}
+	else
+	{
+		v = (-v - joy_dead.f) / (joy_peak.f - joy_dead.f);
+		return - pow(v, 1.0f / t);
+	}
+}
+
+static void UpdateJoyAxis(int n)
+{
+	if (joy_axis[n] == AXIS_DISABLE)
+		return;
+
+	int raw = I_JoyGetAxis(n);
+	int old = joy_last_raw[n];
+
+	joy_last_raw[n] = raw;
+
+	// cooked value = average of last two raw samples
+	int cooked = (raw + old) >> 1;
+
+	float force = JoyAxisFromRaw(cooked);
+
+	joy_forces[joy_axis[n]] += force;
+}
 
 
 bool E_InputCheckKey(int keypair)
@@ -186,6 +242,9 @@ static void UpdateForces(void)
 	AddKeyForce(AXIS_STRAFE,  key_straferight, key_strafeleft);
 
 	// ---Joystick---
+
+	for (int j = 0; j < 6; j++)
+		UpdateJoyAxis(j);
 
 //??	// clamp results
 //??	for (int n = 0; n < 6; n++)
