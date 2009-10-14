@@ -223,7 +223,6 @@ typedef struct optmenuitem_s
 	const char *typenames;
   
 	int numtypes;
-	int default_val;
 	void *switchvar;
   
 	void (*routine)(int keypressed);
@@ -351,23 +350,23 @@ static int M_GetCurrentSwitchValue(optmenuitem_t *item)
 
 static optmenuitem_t mainoptions[] =
 {
-	{OPT_Function, "Keyboard Controls", NULL,  0, 0, NULL, M_KeyboardOptions, "Controls"},
-	{OPT_Function, "Mouse / Joystick",  NULL,  0, 0, NULL, M_AnalogueOptions, "AnalogueOptions"},
-	{OPT_Plain,    "",                  NULL,  0, 0, NULL, NULL, NULL},
-	{OPT_Function, "Sound Options",     NULL,  0, 0, NULL, M_SoundOptions, "SoundOptions"},
-	{OPT_Function, "Gameplay Options",  NULL,  0, 0, NULL, M_GameplayOptions, "GameplayOptions"},
-	{OPT_Plain,    "",                  NULL,  0, 0, NULL, NULL, NULL},
-	{OPT_Function, "Video Options",     NULL,  0, 0, NULL, M_VideoOptions, "VideoOptions"},
-	{OPT_Function, "Set Resolution",    NULL,  0, 0, NULL, M_ResolutionOptions, "ChangeRes"},
+	{OPT_Function, "Keyboard Controls", NULL,  0, NULL, M_KeyboardOptions, "Controls"},
+	{OPT_Function, "Mouse / Joystick",  NULL,  0, NULL, M_AnalogueOptions, "AnalogueOptions"},
+	{OPT_Plain,    "",                  NULL,  0, NULL, NULL, NULL},
+	{OPT_Function, "Sound Options",     NULL,  0, NULL, M_SoundOptions, "SoundOptions"},
+	{OPT_Function, "Gameplay Options",  NULL,  0, NULL, M_GameplayOptions, "GameplayOptions"},
+	{OPT_Plain,    "",                  NULL,  0, NULL, NULL, NULL},
+	{OPT_Function, "Video Options",     NULL,  0, NULL, M_VideoOptions, "VideoOptions"},
+	{OPT_Function, "Set Resolution",    NULL,  0, NULL, M_ResolutionOptions, "ChangeRes"},
 
-	{OPT_Plain,    "",                  NULL,  0, 0, NULL, NULL, NULL},
-	{OPT_Function, "Language",          NULL,  0, CFGDEF_MENULANGUAGE, NULL, M_ChangeLanguage, NULL},
-	{OPT_Switch,   "Messages",          YesNo, 2, CFGDEF_SHOWMESSAGES, &showMessages, NULL, "Messages"},
-	{OPT_Plain,    "",                  NULL,  0, 0, NULL, NULL, NULL},
-	{OPT_Function, "Host NetGame",      NULL,  0, 0, NULL, M_HostNetGame, NULL},
-//	{OPT_Function, "Join NetGame",      NULL,  0, 0, NULL, M_JoinNetGame, NULL},
-	{OPT_Plain,    "",                  NULL,  0,              0, NULL, NULL, NULL},
-	{OPT_Function, "Reset to Defaults", NULL,  0, 0, NULL, M_ResetDefaults, NULL}
+	{OPT_Plain,    "",                  NULL,  0, NULL, NULL, NULL},
+	{OPT_Function, "Language",          NULL,  0, NULL, M_ChangeLanguage, NULL},
+	{OPT_Switch,   "Messages",          YesNo, 2, &showMessages, NULL, "Messages"},
+	{OPT_Plain,    "",                  NULL,  0, NULL, NULL, NULL},
+	{OPT_Function, "Host NetGame",      NULL,  0, NULL, M_HostNetGame, NULL},
+//	{OPT_Function, "Join NetGame",      NULL,  0, NULL, M_JoinNetGame, NULL},
+	{OPT_Plain,    "",                  NULL,  0, NULL, NULL, NULL},
+	{OPT_Function, "Reset to Defaults", NULL,  0, NULL, M_ResetDefaults, NULL}
 };
 
 static menuinfo_t mainoptionsinfo = 
@@ -384,44 +383,42 @@ static menuinfo_t mainoptionsinfo =
 // -ES- 1999/03/29 New fov stuff
 static optmenuitem_t vidoptions[] =
 {
-	{OPT_Slider,  "Brightness",    NULL,  6,  CFGDEF_CURRENT_GAMMA,  &var_gamma, M_ChangeGamma, NULL},
+	{OPT_Slider,  "Brightness",    NULL,  6,  &var_gamma, M_ChangeGamma, NULL},
 
-#if 0 // Really don't get the reason for these - a map developers 
-	{OPT_Slider,  "Field Of View", NULL,  35, 17,      &menunormalfov, M_ChangeNormalFOV, NULL},
-	{OPT_Slider,  "Zoomed FOV",    NULL,  35, 1,      &menuzoomedfov, M_ChangeZoomedFOV, NULL},
+#if 0 // Really don't get the reason for these
+	{OPT_Slider,  "Field Of View", NULL,  35, &menunormalfov, M_ChangeNormalFOV, NULL},
+	{OPT_Slider,  "Zoomed FOV",    NULL,  35, &menuzoomedfov, M_ChangeZoomedFOV, NULL},
 #endif 
 
-	{OPT_Plain,   "",  NULL,  0,  0, NULL, NULL, NULL},
+	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL},
 
-	{OPT_Switch,  "Smoothing",         YesNo, 2, CFGDEF_USE_SMOOTHING,  &var_smoothing, M_ChangeMipMap, NULL},
-	{OPT_Switch,  "H.Q.2x Scaling", Hq2xMode, 4, CFGDEF_HQ2X_SCALING,   &hq2x_scaling, M_ChangeMipMap, NULL},
-	{OPT_Switch,  "Dynamic Lighting", DLMode, 2, CFGDEF_USE_DLIGHTS,    &use_dlights, M_ChangeDLights, NULL},
+	{OPT_Switch,  "Smoothing",         YesNo, 2, &var_smoothing, M_ChangeMipMap, NULL},
+	{OPT_Switch,  "H.Q.2x Scaling", Hq2xMode, 4, &hq2x_scaling, M_ChangeMipMap, NULL},
+	{OPT_Switch,  "Dynamic Lighting", DLMode, 2, &use_dlights, M_ChangeDLights, NULL},
 #if 0
-	{OPT_Boolean, "Doom-like fading", YesNo, 2, CFGDEF_DOOM_FADING,    &doom_fading, NULL, NULL},
+	{OPT_Boolean, "Doom-like fading", YesNo, 2, &doom_fading, NULL, NULL},
 #endif
-	{OPT_Switch,  "Detail Level",   Details,  3, CFGDEF_DETAIL_LEVEL,   &detail_level, M_ChangeMipMap, NULL},
-	{OPT_Switch,  "Mipmapping",     MipMaps,  3, CFGDEF_USE_MIPMAPPING, &var_mipmapping, M_ChangeMipMap, NULL},
+	{OPT_Switch,  "Detail Level",   Details,  3, &detail_level, M_ChangeMipMap, NULL},
+	{OPT_Switch,  "Mipmapping",     MipMaps,  3, &var_mipmapping, M_ChangeMipMap, NULL},
 #if 0
-	{OPT_Boolean, "Shadows",        YesNo, 2,  CFGDEF_SHADOWS,  &global_flags.shadows, M_ChangeShadows, NULL},
+	{OPT_Boolean, "Shadows",        YesNo, 2,  &global_flags.shadows, M_ChangeShadows, NULL},
 #endif
-	{OPT_Plain,   "",  NULL, 0, 0, NULL, NULL, NULL},
+	{OPT_Plain,   "",  NULL, 0, NULL, NULL, NULL},
 
-	{OPT_Switch,  "Crosshair",     CrossH, 10,  0, &menu_crosshair, M_ChangeCrossHair, NULL},
-	{OPT_Boolean, "Map Rotation",  YesNo, 2,  CFGDEF_ROTATEMAP,      &rotatemap, NULL, NULL},
-	{OPT_Switch,  "Teleport Flash",YesNo, 2,  CFGDEF_TELEPT_FLASH,   &telept_flash, NULL, NULL},
-	{OPT_Switch,  "Invulnerability", Invuls, NUM_INVULFX,  CFGDEF_INVUL_FX,   &var_invul_fx, NULL, NULL},
-
-	{OPT_Switch,  "Wipe method",   WIPE_EnumStr, WIPE_NUMWIPES, 
-                                   CFGDEF_WIPE_METHOD, &wipe_method, NULL, NULL},
+	{OPT_Switch,  "Crosshair",       CrossH, 10, &menu_crosshair, M_ChangeCrossHair, NULL},
+	{OPT_Boolean, "Map Rotation",    YesNo,   2, &rotatemap, NULL, NULL},
+	{OPT_Switch,  "Teleport Flash",  YesNo,   2, &telept_flash, NULL, NULL},
+	{OPT_Switch,  "Invulnerability", Invuls, NUM_INVULFX,  &var_invul_fx, NULL, NULL},
+	{OPT_Switch,  "Wipe method",     WIPE_EnumStr, WIPE_NUMWIPES, &wipe_method, NULL, NULL},
   
-	{OPT_Boolean, "Screenshot Format",  JpgPng, 2, CFGDEF_PNG_SCRSHOTS, &png_scrshots, NULL, NULL}
+	{OPT_Boolean, "Screenshot Format",  JpgPng, 2, &png_scrshots, NULL, NULL}
 
 #if 0  // TEMPORARILY DISABLED (we need an `Advanced Options' menu)
 	{OPT_Switch,  "Teleportation effect", WIPE_EnumStr, WIPE_NUMWIPES, 
-                                              CFGDEF_TELEPT_EFFECT,  &telept_effect, NULL, NULL},
+                                              &telept_effect, NULL, NULL},
 
-    {OPT_Switch,  "Reverse effect", YesNo, 2, CFGDEF_TELEPT_REVERSE, &telept_reverse, NULL, NULL},
-    {OPT_Switch,  "Reversed wipe",  YesNo, 2, CFGDEF_WIPE_REVERSE, &wipe_reverse, NULL, NULL},
+    {OPT_Switch,  "Reverse effect", YesNo, 2, &telept_reverse, NULL, NULL},
+    {OPT_Switch,  "Reversed wipe",  YesNo, 2, &wipe_reverse, NULL, NULL},
 #endif
 };
 
@@ -436,18 +433,18 @@ static menuinfo_t vidoptionsinfo =
 //
 static optmenuitem_t resoptions[] =
 {
-	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
-	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
-	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
-	{OPT_Function, "New Size",  NULL, 0, 0, NULL, M_ChangeResSize, NULL},
-	{OPT_Function, "New Depth", NULL, 0, 0, NULL, M_ChangeResDepth, NULL},
-	{OPT_Function, "New Mode",  NULL, 0, 0, NULL, M_ChangeResFull, NULL},
-	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
-	{OPT_Function, "Set Resolution", NULL, 0, 0, NULL, M_OptionSetResolution, NULL},
-/*	{OPT_Function, "Test Resolution", NULL, 0, 0, NULL, M_OptionTestResolution, NULL}, */
-	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
-	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
-	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL}
+	{OPT_Plain,    "",          NULL, 0, NULL, NULL, NULL},
+	{OPT_Plain,    "",          NULL, 0, NULL, NULL, NULL},
+	{OPT_Plain,    "",          NULL, 0, NULL, NULL, NULL},
+	{OPT_Function, "New Size",  NULL, 0, NULL, M_ChangeResSize, NULL},
+	{OPT_Function, "New Depth", NULL, 0, NULL, M_ChangeResDepth, NULL},
+	{OPT_Function, "New Mode",  NULL, 0, NULL, M_ChangeResFull, NULL},
+	{OPT_Plain,    "",          NULL, 0, NULL, NULL, NULL},
+	{OPT_Function, "Set Resolution", NULL, 0, NULL, M_OptionSetResolution, NULL},
+/*	{OPT_Function, "Test Resolution", NULL, 0, NULL, M_OptionTestResolution, NULL}, */
+	{OPT_Plain,    "",          NULL, 0, NULL, NULL, NULL},
+	{OPT_Plain,    "",          NULL, 0, NULL, NULL, NULL},
+	{OPT_Plain,    "",          NULL, 0, NULL, NULL, NULL}
 };
 
 static menuinfo_t resoptionsinfo = 
@@ -465,29 +462,23 @@ static menuinfo_t resoptionsinfo =
 //
 static optmenuitem_t analogueoptions[] =
 {
-	{OPT_Switch,   "Mouse X Axis",       Axis, 11, CFGDEF_MOUSE_XAXIS,      &mouse_xaxis, NULL, NULL},
-	{OPT_Switch,   "Mouse Y Axis",       Axis, 11, CFGDEF_MOUSE_YAXIS,      &mouse_yaxis, NULL, NULL},
-	{OPT_Slider,   "Sensitivity",        NULL, 20, CFGDEF_MOUSESENSITIVITY, &mouseSensitivity, NULL, NULL},
-	{OPT_Plain,    "",                   NULL, 0,  0,                        NULL, NULL, NULL},
-	{OPT_Slider,   "Turning Speed",      NULL, 9,  CFGDEF_ANGLETURNSPEED,   &angleturnspeed, NULL, NULL},
-	{OPT_Slider,   "MLook Speed",        NULL, 20, CFGDEF_MLOOKSPEED,       &mlookspeed, NULL, NULL},
-	{OPT_Slider,   "Side Move Speed",    NULL, 9,  CFGDEF_SIDEMOVESPEED,    &sidemovespeed, NULL, NULL},
-	{OPT_Slider,   "Forward Move Speed", NULL, 9,  CFGDEF_FORWARDMOVESPEED, &forwardmovespeed, NULL, NULL},
-	{OPT_Plain,    "",                   NULL, 0,  0,                        NULL, NULL, NULL},
-	{OPT_Switch,   "Joystick Device",    JoyDevs, 7,  0,                   &joystick_device, NULL, NULL},
-	{OPT_Switch,   "First Axis",         Axis, 11, CFGDEF_JOY_XAXIS,        &joy_axis[0], NULL, NULL},
-	{OPT_Switch,   "Second Axis",        Axis, 11, CFGDEF_JOY_YAXIS,        &joy_axis[1], NULL, NULL},
-	{OPT_Switch,   "Third Axis",         Axis, 11, AXIS_DISABLE,            &joy_axis[2], NULL, NULL},
-	{OPT_Switch,   "Fourth Axis",        Axis, 11, AXIS_DISABLE,            &joy_axis[3], NULL, NULL},
-	{OPT_Switch,   "Fifth Axis",         Axis, 11, AXIS_DISABLE,            &joy_axis[4], NULL, NULL},
-	{OPT_Switch,   "Sixth Axis",         Axis, 11, AXIS_DISABLE,            &joy_axis[5], NULL, NULL}
+	{OPT_Switch,   "Mouse X Axis",       Axis, 11, &mouse_xaxis, NULL, NULL},
+	{OPT_Switch,   "Mouse Y Axis",       Axis, 11, &mouse_yaxis, NULL, NULL},
+	{OPT_Slider,   "Sensitivity",        NULL, 20, &mouseSensitivity, NULL, NULL},
+	{OPT_Plain,    "",                   NULL, 0,  NULL, NULL, NULL},
+	{OPT_Slider,   "Turning Speed",      NULL, 9,  &angleturnspeed, NULL, NULL},
+	{OPT_Slider,   "MLook Speed",        NULL, 20, &mlookspeed, NULL, NULL},
+	{OPT_Slider,   "Side Move Speed",    NULL, 9,  &sidemovespeed, NULL, NULL},
+	{OPT_Slider,   "Forward Move Speed", NULL, 9,  &forwardmovespeed, NULL, NULL},
 
-#if 0  // DISABLED, Because no joystick support yet
-	{OPT_Plain,    "",                   NULL, 0,  0,                        NULL, NULL, NULL},
-	{OPT_Switch,   "Joystick X Axis",    Axis, 6,  CFGDEF_JOY_XAXIS,        &joy_xaxis, NULL, NULL},
-	{OPT_Switch,   "Joystick Y Axis",    Axis, 6,  CFGDEF_JOY_YAXIS,        &joy_yaxis, NULL, NULL},
-	{OPT_Function, "Calibrate Joystick", NULL, 0,  0,                        NULL, M_CalibrateJoystick, NULL}
-#endif
+	{OPT_Plain,    "",                   NULL, 0,  NULL, NULL, NULL},
+	{OPT_Switch,   "Joystick Device", JoyDevs, 7,  &joystick_device, NULL, NULL},
+	{OPT_Switch,   "First Axis",         Axis, 11, &joy_axis[0], NULL, NULL},
+	{OPT_Switch,   "Second Axis",        Axis, 11, &joy_axis[1], NULL, NULL},
+	{OPT_Switch,   "Third Axis",         Axis, 11, &joy_axis[2], NULL, NULL},
+	{OPT_Switch,   "Fourth Axis",        Axis, 11, &joy_axis[3], NULL, NULL},
+	{OPT_Switch,   "Fifth Axis",         Axis, 11, &joy_axis[4], NULL, NULL},
+	{OPT_Switch,   "Sixth Axis",         Axis, 11, &joy_axis[5], NULL, NULL}
 };
 
 static menuinfo_t analogueoptionsinfo = 
@@ -503,21 +494,19 @@ static menuinfo_t analogueoptionsinfo =
 //
 static optmenuitem_t soundoptions[] =
 {
-	{OPT_Slider,  "Sound Volume",  NULL, SND_SLIDER_NUM, CFGDEF_SOUND_VOLUME, &sfx_volume, M_ChangeSfxVol, NULL},
-	{OPT_Slider,  "Music Volume",  NULL, SND_SLIDER_NUM, CFGDEF_MUSIC_VOLUME, &mus_volume, M_ChangeMusVol, NULL},
+	{OPT_Slider,  "Sound Volume", NULL, SND_SLIDER_NUM, &sfx_volume, M_ChangeSfxVol, NULL},
+	{OPT_Slider,  "Music Volume", NULL, SND_SLIDER_NUM, &mus_volume, M_ChangeMusVol, NULL},
+	{OPT_Plain,   "",             NULL, 0,  NULL, NULL, NULL},
+	{OPT_Switch,  "Sample Rate",  SampleRates, 5, &var_sample_rate,  NULL, "NeedRestart"},
+	{OPT_Switch,  "Sample Size",  SoundBits, 2,   &var_sound_bits,   NULL, "NeedRestart"},
+	{OPT_Switch,  "Stereo",       StereoNess, 3,  &var_sound_stereo, NULL, "NeedRestart"},
 
-	{OPT_Plain,   "", NULL, 0,  0, NULL, NULL, NULL},
-	{OPT_Switch,  "Sample Rate",   SampleRates, 5, CFGDEF_SAMPLE_RATE,  &var_sample_rate,  NULL, "NeedRestart"},
-	{OPT_Switch,  "Sample Size",   SoundBits, 2,   CFGDEF_SOUND_BITS,   &var_sound_bits,   NULL, "NeedRestart"},
-	{OPT_Switch,  "Stereo",        StereoNess, 3,  CFGDEF_SOUND_STEREO, &var_sound_stereo, NULL, "NeedRestart"},
-
-	{OPT_Plain,   "", NULL, 0,  0,  NULL, NULL, NULL},
-	{OPT_Switch,  "Mix Channels",   MixChans,  4, CFGDEF_MIX_CHANNELS, &var_mix_channels, M_ChangeMixChan, NULL},
-	{OPT_Switch,  "Quiet Factor",   QuietNess, 3, CFGDEF_QUIET_FACTOR, &var_quiet_factor, NULL, NULL},
-
-	{OPT_Plain,   "", NULL, 0,  0,   NULL, NULL, NULL},
-	{OPT_Switch,  "Music Device",    MusicDevs,  2,  CFGDEF_MUSIC_DEVICE, &var_music_dev, NULL, NULL},
-	{OPT_Switch,  "Timidity Factor", QuietNess,  3,  CFGDEF_QUIET_FACTOR, &var_timid_factor, M_ChangeTimidQuiet, NULL},
+	{OPT_Plain,   "",                NULL, 0,  NULL, NULL, NULL},
+	{OPT_Switch,  "Mix Channels",    MixChans,  4, &var_mix_channels, M_ChangeMixChan, NULL},
+	{OPT_Switch,  "Quiet Factor",    QuietNess, 3, &var_quiet_factor, NULL, NULL},
+	{OPT_Plain,   "",                NULL, 0,  NULL, NULL, NULL},
+	{OPT_Switch,  "Music Device",    MusicDevs, 2, &var_music_dev, NULL, NULL},
+	{OPT_Switch,  "Timidity Factor", QuietNess, 3, &var_timid_factor, M_ChangeTimidQuiet, NULL},
 };
 
 static menuinfo_t soundoptionsinfo = 
@@ -535,71 +524,55 @@ static menuinfo_t soundoptionsinfo =
 static optmenuitem_t playoptions[] =
 {
 	{OPT_Switch,  "AutoAiming",         AAim, 3, 
-     CFGDEF_AUTOAIM,     
      &global_flags.autoaim, M_ChangeAutoAim, NULL},
 
 	{OPT_Boolean, "Mouse Look",         YesNo, 2, 
-     CFGDEF_MLOOK,       
      &global_flags.mlook, M_ChangeMLook, NULL},
 
 	{OPT_Boolean, "Jumping",            YesNo, 2, 
-     CFGDEF_JUMP,        
      &global_flags.jump, M_ChangeJumping, NULL},
 
 	{OPT_Boolean, "Crouching",          YesNo, 2, 
-     CFGDEF_CROUCH,      
      &global_flags.crouch, M_ChangeCrouching, NULL},
 
 	{OPT_Boolean, "Weapon Kick",        YesNo, 2, 
-     CFGDEF_KICKING,        
      &global_flags.kicking, M_ChangeKicking, NULL},
 
 	{OPT_Boolean, "Weapon Auto-Switch", YesNo, 2, 
-     CFGDEF_WEAPON_SWITCH, 
      &global_flags.weapon_switch, M_ChangeWeaponSwitch, NULL},
 
 	{OPT_Boolean, "Obituary Messages",  YesNo, 2, 
-     CFGDEF_MLOOK, 
      &var_obituaries, NULL, NULL},
 
 	{OPT_Boolean, "More Blood",         YesNo, 2, 
-     CFGDEF_MORE_BLOOD, 
      &global_flags.more_blood, M_ChangeBlood, "Blood"},
 
 	{OPT_Boolean, "Extras",             YesNo, 2, 
-     CFGDEF_HAVE_EXTRA, 
      &global_flags.have_extra, M_ChangeExtra, NULL},
 
 	{OPT_Boolean, "True 3D Gameplay",   YesNo, 2, 
-     CFGDEF_TRUE3DGAMEPLAY, 
      &global_flags.true3dgameplay, M_ChangeTrue3d, "True3d"},
 
 	{OPT_Boolean, "Shoot-thru Scenery",   YesNo, 2, 
-     CFGDEF_PASS_MISSILE, 
      &global_flags.pass_missile, M_ChangePassMissile, NULL},
 
-	{OPT_Plain,   "", NULL, 0, 0, NULL, NULL, NULL},
+	{OPT_Plain,   "", NULL, 0, NULL, NULL, NULL},
 
 	{OPT_Slider,  "Gravity",            NULL, 20, 
-     CFGDEF_MENU_GRAV, 
      &global_flags.menu_grav, NULL, "Gravity"},
 
-	{OPT_Plain,   "", NULL, 0, 0, NULL, NULL, NULL},
+	{OPT_Plain,   "", NULL, 0, NULL, NULL, NULL},
 
 	{OPT_Boolean, "Enemy Respawn Mode", Respw, 2, 
-     CFGDEF_RES_RESPAWN, 
      &global_flags.res_respawn, M_ChangeMonsterRespawn, NULL},
 
 	{OPT_Boolean, "Item Respawn",       YesNo, 2, 
-     CFGDEF_ITEMRESPAWN, 
      &global_flags.itemrespawn, M_ChangeItemRespawn, NULL},
 	
     {OPT_Boolean, "Fast Monsters",      YesNo, 2, 
-     CFGDEF_FASTPARM, 
      &global_flags.fastparm, M_ChangeFastparm, NULL},
 	
     {OPT_Boolean, "Respawn",            YesNo, 2, 
-     CFGDEF_RESPAWN, 
      &global_flags.respawn, M_ChangeRespawn, NULL}
 };
 
@@ -617,15 +590,15 @@ static menuinfo_t playoptionsinfo =
 //
 static optmenuitem_t stdkeyconfig[] =
 {
-	{OPT_KeyConfig, "Walk Forward",   NULL, 0, CFGDEF_KEY_UP,          &key_up, NULL, NULL},
-	{OPT_KeyConfig, "Walk Backwards", NULL, 0, CFGDEF_KEY_DOWN,        &key_down, NULL, NULL},
-	{OPT_KeyConfig, "Strafe Left",    NULL, 0, CFGDEF_KEY_STRAFELEFT,  &key_strafeleft, NULL, NULL},
-	{OPT_KeyConfig, "Strafe Right",   NULL, 0, CFGDEF_KEY_STRAFERIGHT, &key_straferight, NULL, NULL},
-	{OPT_Plain,      "",              NULL, 0, 0,                       NULL, NULL, NULL},
-	{OPT_KeyConfig, "Turn Left",      NULL, 0, CFGDEF_KEY_LEFT,        &key_left, NULL, NULL},
-	{OPT_KeyConfig, "Turn Right",     NULL, 0, CFGDEF_KEY_RIGHT,       &key_right, NULL, NULL},
-	{OPT_KeyConfig, "Up / Jump",      NULL, 0, CFGDEF_KEY_FLYUP,   &key_flyup, NULL, NULL},
-	{OPT_KeyConfig, "Down / Crouch",  NULL, 0, CFGDEF_KEY_FLYDOWN, &key_flydown, NULL, NULL},
+	{OPT_KeyConfig, "Walk Forward",   NULL, 0, &key_up, NULL, NULL},
+	{OPT_KeyConfig, "Walk Backwards", NULL, 0, &key_down, NULL, NULL},
+	{OPT_KeyConfig, "Strafe Left",    NULL, 0, &key_strafeleft, NULL, NULL},
+	{OPT_KeyConfig, "Strafe Right",   NULL, 0, &key_straferight, NULL, NULL},
+	{OPT_Plain,      "",              NULL, 0, NULL, NULL, NULL},
+	{OPT_KeyConfig, "Turn Left",      NULL, 0, &key_left, NULL, NULL},
+	{OPT_KeyConfig, "Turn Right",     NULL, 0, &key_right, NULL, NULL},
+	{OPT_KeyConfig, "Up / Jump",      NULL, 0, &key_flyup, NULL, NULL},
+	{OPT_KeyConfig, "Down / Crouch",  NULL, 0, &key_flydown, NULL, NULL},
 };
 
 static menuinfo_t stdkeyconfiginfo = 
@@ -642,17 +615,17 @@ static menuinfo_t stdkeyconfiginfo =
 //
 static optmenuitem_t extkeyconfig[] =
 {
-	{OPT_KeyConfig, "Primary Attack",   NULL, 0, CFGDEF_KEY_FIRE,        &key_fire, NULL, NULL},
-	{OPT_KeyConfig, "Secondary Attack", NULL, 0, CFGDEF_KEY_SECONDATK,   &key_secondatk, NULL, NULL},
-	{OPT_KeyConfig, "Next Weapon",      NULL, 0, CFGDEF_KEY_NEXTWEAPON, &key_nextweapon, NULL, NULL},
-	{OPT_KeyConfig, "Previous Weapon",  NULL, 0, CFGDEF_KEY_PREVWEAPON, &key_prevweapon, NULL, NULL},
-	{OPT_KeyConfig, "Weapon Reload",    NULL, 0, CFGDEF_KEY_RELOAD,     &key_reload, NULL, NULL},
-	{OPT_Plain,     "",                 NULL, 0, 0,                      NULL, NULL, NULL},
-	{OPT_KeyConfig, "Look Up",          NULL, 0, CFGDEF_KEY_LOOKUP,     &key_lookup, NULL, NULL},
-	{OPT_KeyConfig, "Look Down",        NULL, 0, CFGDEF_KEY_LOOKDOWN,   &key_lookdown, NULL, NULL},
-	{OPT_KeyConfig, "Center View",      NULL, 0, CFGDEF_KEY_LOOKCENTER, &key_lookcenter, NULL, NULL},
-	{OPT_KeyConfig, "Mouse Look",       NULL, 0, CFGDEF_KEY_MLOOK,      &key_mlook, NULL, NULL},
-	{OPT_KeyConfig, "Zoom in/out",      NULL, 0, CFGDEF_KEY_ZOOM,       &key_zoom, NULL, NULL},
+	{OPT_KeyConfig, "Primary Attack",   NULL, 0, &key_fire, NULL, NULL},
+	{OPT_KeyConfig, "Secondary Attack", NULL, 0, &key_secondatk, NULL, NULL},
+	{OPT_KeyConfig, "Next Weapon",      NULL, 0, &key_nextweapon, NULL, NULL},
+	{OPT_KeyConfig, "Previous Weapon",  NULL, 0, &key_prevweapon, NULL, NULL},
+	{OPT_KeyConfig, "Weapon Reload",    NULL, 0, &key_reload, NULL, NULL},
+	{OPT_Plain,     "",                 NULL, 0, NULL, NULL, NULL},
+	{OPT_KeyConfig, "Look Up",          NULL, 0, &key_lookup, NULL, NULL},
+	{OPT_KeyConfig, "Look Down",        NULL, 0, &key_lookdown, NULL, NULL},
+	{OPT_KeyConfig, "Center View",      NULL, 0, &key_lookcenter, NULL, NULL},
+	{OPT_KeyConfig, "Mouse Look",       NULL, 0, &key_mlook, NULL, NULL},
+	{OPT_KeyConfig, "Zoom in/out",      NULL, 0, &key_zoom, NULL, NULL},
 };
 
 static menuinfo_t extkeyconfiginfo = 
@@ -666,17 +639,17 @@ static menuinfo_t extkeyconfiginfo =
 //
 static optmenuitem_t otherkeyconfig[] =
 {
-	{OPT_KeyConfig, "Use Item",         NULL, 0, CFGDEF_KEY_USE,        &key_use, NULL, NULL},
-	{OPT_KeyConfig, "Strafe",           NULL, 0, CFGDEF_KEY_STRAFE,     &key_strafe, NULL, NULL},
-	{OPT_KeyConfig, "Run",              NULL, 0, CFGDEF_KEY_SPEED,      &key_speed, NULL, NULL},
-	{OPT_KeyConfig, "Toggle Autorun",   NULL, 0, CFGDEF_KEY_AUTORUN,    &key_autorun, NULL, NULL},
-	{OPT_KeyConfig, "180 degree turn",  NULL, 0, CFGDEF_KEY_180,        &key_180, NULL, NULL},
-	{OPT_Plain,     "",                 NULL, 0, 0,                      NULL, NULL, NULL},
-	{OPT_KeyConfig, "Map Toggle",       NULL, 0, CFGDEF_KEY_MAP,        &key_map, NULL, NULL},
-	{OPT_KeyConfig, "Multiplayer Talk", NULL, 0, CFGDEF_KEY_TALK,       &key_talk, NULL, NULL},
-	{OPT_KeyConfig, "Console",          NULL, 0, CFGDEF_KEY_CONSOLE,    &key_console, NULL, NULL},
-	{OPT_KeyConfig, "Action 1",         NULL, 0, CFGDEF_KEY_ACTION1,    &key_action1, NULL, NULL},
-	{OPT_KeyConfig, "Action 2",         NULL, 0, CFGDEF_KEY_ACTION2,    &key_action2, NULL, NULL},
+	{OPT_KeyConfig, "Use Item",         NULL, 0, &key_use, NULL, NULL},
+	{OPT_KeyConfig, "Strafe",           NULL, 0, &key_strafe, NULL, NULL},
+	{OPT_KeyConfig, "Run",              NULL, 0, &key_speed, NULL, NULL},
+	{OPT_KeyConfig, "Toggle Autorun",   NULL, 0, &key_autorun, NULL, NULL},
+	{OPT_KeyConfig, "180 degree turn",  NULL, 0, &key_180, NULL, NULL},
+	{OPT_Plain,     "",                 NULL, 0, NULL, NULL, NULL},
+	{OPT_KeyConfig, "Map Toggle",       NULL, 0, &key_map, NULL, NULL},
+	{OPT_KeyConfig, "Multiplayer Talk", NULL, 0, &key_talk, NULL, NULL},
+	{OPT_KeyConfig, "Console",          NULL, 0, &key_console, NULL, NULL},
+	{OPT_KeyConfig, "Action 1",         NULL, 0, &key_action1, NULL, NULL},
+	{OPT_KeyConfig, "Action 2",         NULL, 0, &key_action2, NULL, NULL},
 };
 
 static menuinfo_t otherkeyconfiginfo = 
