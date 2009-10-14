@@ -242,7 +242,6 @@ void M_SaveDefaults(void)
 {
 	edge_version = EDGEVER;
 
-    // Set the number of defaults
 	int numdefaults = sizeof(defaults) / sizeof(defaults[0]);
 
 	// -ACB- 1999/09/24 idiot proof checking as required by MSVC
@@ -289,6 +288,7 @@ void M_SaveDefaults(void)
 	fclose(f);
 }
 
+
 static void SetToBaseValue(default_t *def)
 {
 	switch (def->type)
@@ -304,6 +304,16 @@ static void SetToBaseValue(default_t *def)
 	}
 }
 
+void M_ResetDefaults(int _dummy)
+{
+	int numdefaults = sizeof(defaults) / sizeof(defaults[0]);
+
+	for (int i = 0; i < numdefaults; i++)
+	{
+		SetToBaseValue(defaults + i);
+	}
+}
+
 
 void M_LoadDefaults(void)
 {
@@ -312,8 +322,7 @@ void M_LoadDefaults(void)
 	// set everything to base values
 	int numdefaults = sizeof(defaults) / sizeof(defaults[0]);
 
-	for (i = 0; i < numdefaults; i++)
-		SetToBaseValue(defaults + i);
+	M_ResetDefaults(0);
 
 	I_Printf("M_LoadDefaults from %s\n", cfgfile.c_str());
 
@@ -324,8 +333,6 @@ void M_LoadDefaults(void)
 	{
 		I_Warning("Couldn't open config file %s for reading.\n", cfgfile.c_str());
 		I_Warning("Resetting config to RECOMMENDED values...\n");
-
-		M_ResetToDefaults(0);
 		return;
 	}
 
