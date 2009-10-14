@@ -104,7 +104,7 @@ static int sidemove[2]    = {24, 40};
 static int upwardmove[2]  = {20, 30};
 
 static int angleturn[3] = {640, 1280, 320};  // + slow turn 
-static int mlookturn[3] = {320,  640, 160};
+static int mlookturn[3] = {400,  800, 200};
 
 #define SLOWTURNTICS    6
 
@@ -161,10 +161,10 @@ static float sensitivities[16] =
 	12.5, 17.7, 25.0, 35.4
 };
 
-static float speed_divisors[7] =
+static float speed_factor[8] =
 {
-	0.25, 0.33, 0.42, 0.50,
-	0.66, 0.83, 1.00
+	0.15, 0.25, 0.33, 0.42,
+	0.50, 0.66, 0.83, 1.00
 };
 
 
@@ -343,7 +343,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	{
 		float turn = angleturn[t_speed] * joy_forces[AXIS_TURN];
 		
-		turn /= speed_divisors[var_turnspeed];
+		turn *= speed_factor[var_turnspeed];
 
 		// -ACB- 1998/09/06 Angle Turn Speed Control
 		turn += angleturn[t_speed] * ball_deltas[AXIS_TURN] / 64.0;
@@ -356,7 +356,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 		// -ACB- 1998/07/02 Use VertAngle for Look/up down.
 		float mlook = mlookturn[m_speed] * joy_forces[AXIS_MLOOK];
 
-		mlook /= speed_divisors[var_mlookspeed];
+		mlook *= speed_factors[var_mlookspeed];
 
 		mlook += mlookturn[m_speed] * ball_deltas[AXIS_MLOOK] / 64.0;
 
@@ -367,7 +367,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	{
 		float forward = forwardmove[speed] * joy_forces[AXIS_FORWARD];
 
-		forward /= speed_divisors[var_forwardspeed];
+		forward *= speed_factors[var_forwardspeed];
 
 		// -ACB- 1998/09/06 Forward Move Speed Control
 		forward += forwardmove[speed] * ball_deltas[AXIS_FORWARD] / 64.0;
@@ -384,7 +384,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 		if (strafe)
 			side += sidemove[speed] * joy_forces[AXIS_TURN];
 
-		side /= speed_divisors[var_sidespeed];
+		side *= speed_factors[var_sidespeed];
 
 		// -ACB- 1998/09/06 Side Move Speed Control
 		side += sidemove[speed] * ball_deltas[AXIS_STRAFE] / 64.0;
@@ -401,7 +401,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	{
 		float upward = upwardmove[speed] * joy_forces[AXIS_FLY];
 
-		upward /= speed_divisors[var_flyspeed];
+		upward *= speed_factors[var_flyspeed];
 
 		upward += upwardmove[speed] * ball_deltas[AXIS_FLY] / 64.0;
 
