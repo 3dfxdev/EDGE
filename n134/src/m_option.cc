@@ -464,12 +464,13 @@ static optmenuitem_t analogueoptions[] =
 {
 	{OPT_Switch,   "Mouse X Axis",       Axis, 11, &mouse_xaxis, NULL, NULL},
 	{OPT_Switch,   "Mouse Y Axis",       Axis, 11, &mouse_yaxis, NULL, NULL},
-	{OPT_Slider,   "Sensitivity",        NULL, 20, &mouseSensitivity, NULL, NULL},
+	{OPT_Slider,   "X Sensitivity",      NULL, 16, &mouse_xsens, NULL, NULL},
+	{OPT_Slider,   "Y Sensitivity",      NULL, 16, &mouse_ysens, NULL, NULL},
 	{OPT_Plain,    "",                   NULL, 0,  NULL, NULL, NULL},
-	{OPT_Slider,   "Turning Speed",      NULL, 9,  &angleturnspeed, NULL, NULL},
-	{OPT_Slider,   "MLook Speed",        NULL, 20, &mlookspeed, NULL, NULL},
-	{OPT_Slider,   "Side Move Speed",    NULL, 9,  &sidemovespeed, NULL, NULL},
-	{OPT_Slider,   "Forward Move Speed", NULL, 9,  &forwardmovespeed, NULL, NULL},
+	{OPT_Slider,   "Turning Speed",      NULL, 7,  &var_turnspeed,    NULL, NULL},
+	{OPT_Slider,   "MLook Speed",        NULL, 7,  &var_mlookspeed,   NULL, NULL},
+	{OPT_Slider,   "Forward Move Speed", NULL, 7,  &var_forwardspeed, NULL, NULL},
+	{OPT_Slider,   "Side Move Speed",    NULL, 7,  &var_sidespeed,    NULL, NULL},
 
 	{OPT_Plain,    "",                   NULL, 0,  NULL, NULL, NULL},
 	{OPT_Switch,   "Joystick Device", JoyDevs, 7,  &joystick_device, NULL, NULL},

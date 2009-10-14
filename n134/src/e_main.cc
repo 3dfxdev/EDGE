@@ -296,15 +296,6 @@ static void SetGlobalVars(void)
 			sprite_kludge = 1;
 	}
 
-	// speed for mouse look
-	s = M_GetParm("-vspeed");
-	if (s)
-	{
-		mlookspeed = atoi(s) / 64;
-		if (mlookspeed >= 20)
-			mlookspeed = 19;
-	}
-
 	s = M_GetParm("-screenshot");
 	if (s)
 	{

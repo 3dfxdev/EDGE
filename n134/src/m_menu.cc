@@ -67,7 +67,6 @@
 //
 // defaulted values
 //
-int mouseSensitivity;  // has default.  Note: used only in platform code
 
 // Show messages has default, 0 = off, 1 = on
 int showMessages;
