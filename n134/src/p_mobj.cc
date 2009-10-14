@@ -1430,6 +1430,14 @@ void P_ClearAllStaleRefs(void)
 	{
 		mo->ClearStaleRefs();
 	}
+
+	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
+	{
+		player_t *p = players[pnum];
+
+		if (p && p->attacker && p->attacker->isRemoved())
+			p->attacker = NULL;
+	}
 }
 
 
