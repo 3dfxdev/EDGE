@@ -162,8 +162,8 @@ static void M_ChangeResSize(int keypressed);
 static void M_ChangeResDepth(int keypressed);
 static void M_ChangeResFull(int keypressed);
 
-static void M_HostNetGame(int keypressed);
-static void M_JoinNetGame(int keypressed);
+       void M_HostNetGame(int keypressed);
+       void M_JoinNetGame(int keypressed);
 
 static void M_LanguageDrawer(int x, int y, int deltay);
 static void M_ChangeLanguage(int keypressed);
@@ -1858,7 +1858,7 @@ static void M_OptionSetResolution(int keypressed)
 extern void M_NetHostBegun(void);
 extern void M_NetJoinBegun(void);
 
-static void M_HostNetGame(int keypressed)
+void M_HostNetGame(int keypressed)
 {
 	option_menuon  = 0;
 	netgame_menuon = 1;
@@ -1866,7 +1866,7 @@ static void M_HostNetGame(int keypressed)
 	M_NetHostBegun();
 }
 
-static void M_JoinNetGame(int keypressed)
+void M_JoinNetGame(int keypressed)
 {
 #if 0
 	option_menuon  = 0;
