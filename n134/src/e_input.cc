@@ -161,7 +161,7 @@ static float sensitivities[16] =
 	12.5, 17.7, 25.0, 35.4
 };
 
-static float speed_factor[8] =
+static float speed_factors[8] =
 {
 	0.15, 0.25, 0.33, 0.42,
 	0.50, 0.66, 0.83, 1.00
@@ -343,7 +343,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	{
 		float turn = angleturn[t_speed] * joy_forces[AXIS_TURN];
 		
-		turn *= speed_factor[var_turnspeed];
+		turn *= speed_factors[var_turnspeed];
 
 		// -ACB- 1998/09/06 Angle Turn Speed Control
 		turn += angleturn[t_speed] * ball_deltas[AXIS_TURN] / 64.0;
