@@ -1,6 +1,6 @@
 
-CHANGES (since 1.31)
-====================
+CHANGES IN 1.34 (since 1.31)
+============================
 
 + HUB support!
 + obituary messages (new DAMAGE.OBITUARY field)
@@ -17,6 +17,7 @@ CHANGES (since 1.31)
 
 - better HOM detection (debug_hom cvar)
 - always generate our own BLOCKMAP, ignore REJECT
+- in option menus, highlight current line
 - new 'goobers' cvar for a fun effect
 - old EDGE title screens retired
 
