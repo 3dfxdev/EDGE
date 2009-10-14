@@ -123,11 +123,10 @@ bool autorunning = false;
 // -KM-  1998/09/01 Analogue binding
 // -ACB- 1998/09/06 Two-stage turning switch
 //
-int mouse_xaxis = AXIS_TURN;
-int mouse_yaxis = AXIS_FORWARD;
+int mouse_xaxis;
+int mouse_yaxis;
 
-int joy_axis[6] = { AXIS_TURN,    AXIS_FORWARD, AXIS_DISABLE,
-                    AXIS_DISABLE, AXIS_DISABLE, AXIS_DISABLE };
+int joy_axis[6] = { 0, 0, 0, 0, 0, 0 };
 
 static int joy_last_raw[6];
 
@@ -145,9 +144,6 @@ int forwardmovespeed;  // Speed controls
 int angleturnspeed;
 int sidemovespeed;
 int mlookspeed = 1000 / 64;
-
-// -ACB- 1999/09/30 Has to be true or false - bool-ified
-bool invertmouse = false;
 
 
 float JoyAxisFromRaw(int raw)
@@ -193,7 +189,13 @@ static void UpdateJoyAxis(int n)
 
 	float force = JoyAxisFromRaw(cooked);
 
-	joy_forces[joy_axis[n]] += force;
+	// perform inversion
+	if ((joy_axis[n]+1) & 1)
+		force = -force;
+
+	int axis = (joy_axis[n]+1) >> 1;
+
+	joy_forces[axis] += force;
 }
 
 
@@ -512,9 +514,9 @@ bool INP_Responder(event_t * ev)
 			float dx = ev->value.mouse.dx;
 			float dy = ev->value.mouse.dy;
 
-			// mouse Y usually needs inverting
-			if (!invertmouse)
-				dy = -dy;
+			// perform inversion
+			if ((mouse_xaxis+1) & 1) dx = -dx;
+			if ((mouse_yaxis+1) & 1) dy = -dy;
 
 			dx *= mouseSensitivity;
 			dy *= mouseSensitivity;
@@ -527,8 +529,8 @@ bool INP_Responder(event_t * ev)
 			}
 			else
 			{
-				ball_deltas[mouse_xaxis] += dx;
-				ball_deltas[mouse_yaxis] += dy;
+				ball_deltas[(mouse_xaxis+1) >> 1] += dx;
+				ball_deltas[(mouse_yaxis+1) >> 1] += dy;
 			}
 
 			return true;  // eat events

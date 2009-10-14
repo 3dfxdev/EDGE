@@ -173,7 +173,7 @@ static void M_ChangeLanguage(int keypressed);
 static char YesNo[]     = "Off/On";  // basic on/off
 static char CrossH[]    = "None/Dot/Angle/Plus/Spiked/Thin/Cross/Carat/Circle/Double";
 static char Respw[]     = "Teleport/Resurrect";  // monster respawning
-static char Axis[]      = "Turn/Forward/Strafe/MLook/Fly/Disable";
+static char Axis[]      = "Off/+Turn/-Turn/+MLook/-MLook/+Forward/-Forward/+Strafe/-Strafe/+Fly/-Fly";
 static char JoyDevs[]   = "None/1/2/3/4/5/6";
 static char DLMode[]    = "Off/On";
 static char JpgPng[]    = "JPEG/PNG";  // basic on/off
@@ -492,9 +492,8 @@ static menuinfo_t resoptionsinfo =
 //
 static optmenuitem_t analogueoptions[] =
 {
-	{OPT_Switch,   "Mouse X Axis",       Axis, 6,  CFGDEF_MOUSE_XAXIS,      &mouse_xaxis, NULL, NULL},
-	{OPT_Switch,   "Mouse Y Axis",       Axis, 6,  CFGDEF_MOUSE_YAXIS,      &mouse_yaxis, NULL, NULL},
-	{OPT_Boolean,  "Invert Mouse",       YesNo, 2, CFGDEF_INVERTMOUSE,      &invertmouse, NULL, NULL},
+	{OPT_Switch,   "Mouse X Axis",       Axis, 11, CFGDEF_MOUSE_XAXIS,      &mouse_xaxis, NULL, NULL},
+	{OPT_Switch,   "Mouse Y Axis",       Axis, 11, CFGDEF_MOUSE_YAXIS,      &mouse_yaxis, NULL, NULL},
 	{OPT_Slider,   "Sensitivity",        NULL, 20, CFGDEF_MOUSESENSITIVITY, &mouseSensitivity, NULL, NULL},
 	{OPT_Plain,    "",                   NULL, 0,  0,                        NULL, NULL, NULL},
 	{OPT_Slider,   "Turning Speed",      NULL, 9,  CFGDEF_ANGLETURNSPEED,   &angleturnspeed, NULL, NULL},
@@ -503,12 +502,12 @@ static optmenuitem_t analogueoptions[] =
 	{OPT_Slider,   "Forward Move Speed", NULL, 9,  CFGDEF_FORWARDMOVESPEED, &forwardmovespeed, NULL, NULL},
 	{OPT_Plain,    "",                   NULL, 0,  0,                        NULL, NULL, NULL},
 	{OPT_Switch,   "Joystick Device",    JoyDevs, 7,  0,                   &joystick_device, NULL, NULL},
-	{OPT_Switch,   "First Axis",         Axis, 6,  CFGDEF_JOY_XAXIS,        &joy_axis[0], NULL, NULL},
-	{OPT_Switch,   "Second Axis",        Axis, 6,  CFGDEF_JOY_YAXIS,        &joy_axis[1], NULL, NULL},
-	{OPT_Switch,   "Third Axis",         Axis, 6,  AXIS_DISABLE,            &joy_axis[2], NULL, NULL},
-	{OPT_Switch,   "Fourth Axis",        Axis, 6,  AXIS_DISABLE,            &joy_axis[3], NULL, NULL},
-	{OPT_Switch,   "Fifth Axis",         Axis, 6,  AXIS_DISABLE,            &joy_axis[4], NULL, NULL},
-	{OPT_Switch,   "Sixth Axis",         Axis, 6,  AXIS_DISABLE,            &joy_axis[5], NULL, NULL}
+	{OPT_Switch,   "First Axis",         Axis, 11, CFGDEF_JOY_XAXIS,        &joy_axis[0], NULL, NULL},
+	{OPT_Switch,   "Second Axis",        Axis, 11, CFGDEF_JOY_YAXIS,        &joy_axis[1], NULL, NULL},
+	{OPT_Switch,   "Third Axis",         Axis, 11, AXIS_DISABLE,            &joy_axis[2], NULL, NULL},
+	{OPT_Switch,   "Fourth Axis",        Axis, 11, AXIS_DISABLE,            &joy_axis[3], NULL, NULL},
+	{OPT_Switch,   "Fifth Axis",         Axis, 11, AXIS_DISABLE,            &joy_axis[4], NULL, NULL},
+	{OPT_Switch,   "Sixth Axis",         Axis, 11, AXIS_DISABLE,            &joy_axis[5], NULL, NULL}
 
 #if 0  // DISABLED, Because no joystick support yet
 	{OPT_Plain,    "",                   NULL, 0,  0,                        NULL, NULL, NULL},
