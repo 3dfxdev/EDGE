@@ -320,7 +320,6 @@ Command line options:
   -(no)cheats          Cheat codes enabled or disabled.
   -(no)rotatemap       Automap rotation.
   -(no)smoothmap       Automap anti-aliasing.
-  -(no)invertmouse     Invert the mouse Y direction.
   -(no)showstats       Shows on-screen statistics/info.
   -(no)hom             HOM (Hall Of Mirrors) detection.
 

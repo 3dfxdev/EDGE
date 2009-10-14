@@ -57,9 +57,8 @@
 #define CFGDEF_KEY_ACTION2      (']')
 
 // Controls (Analogue)
-#define CFGDEF_INVERTMOUSE      (0)
-#define CFGDEF_MOUSE_XAXIS      (AXIS_TURN)
-#define CFGDEF_MOUSE_YAXIS      (AXIS_MLOOK)
+#define CFGDEF_MOUSE_XAXIS      (2*AXIS_TURN)
+#define CFGDEF_MOUSE_YAXIS      (2*AXIS_MLOOK)
 #define CFGDEF_MOUSESENSITIVITY (10)
 #define CFGDEF_MLOOKSPEED       (10)
 #define CFGDEF_STAGETURN        (0)
@@ -67,8 +66,8 @@
 #define CFGDEF_SIDEMOVESPEED    (4)
 #define CFGDEF_FORWARDMOVESPEED (4)
 
-#define CFGDEF_JOY_XAXIS        (AXIS_TURN)
-#define CFGDEF_JOY_YAXIS        (AXIS_FORWARD)
+#define CFGDEF_JOY_XAXIS        (2*AXIS_TURN)
+#define CFGDEF_JOY_YAXIS        (2*AXIS_FORWARD)
 
 // Misc
 #define CFGDEF_MENULANGUAGE     (0)

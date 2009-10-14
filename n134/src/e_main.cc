@@ -314,7 +314,6 @@ static void SetGlobalVars(void)
 
 	// -AJA- 1999/10/18: Reworked these with M_CheckBooleanParm
 	M_CheckBooleanParm("rotatemap", &rotatemap, false);
-	M_CheckBooleanParm("invertmouse", &invertmouse, false);
 	M_CheckBooleanParm("sound", &nosound, true);
 	M_CheckBooleanParm("music", &nomusic, true);
 	M_CheckBooleanParm("cdmusic", &nocdmusic, true);
