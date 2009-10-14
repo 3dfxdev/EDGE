@@ -267,12 +267,10 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	// Turning
 	if (! strafe)
 	{
-		int angle_rate = angleturn[t_speed];
-
-		float turn = angle_rate * joy_forces[AXIS_TURN];
+		float turn = angleturn[t_speed] * joy_forces[AXIS_TURN];
 
 		// -ACB- 1998/09/06 Angle Turn Speed Control
-		turn -= ball_deltas[AXIS_TURN] * angle_rate /
+		turn -= ball_deltas[AXIS_TURN] * angleturn[t_speed] /
 		        (float)GetSpeedDivisor(angleturnspeed);
 
 		cmd->angleturn = I_ROUND(turn);
@@ -280,13 +278,11 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 
 	// MLook
 	{
-		int mlook_rate = angleturn[m_speed];
-
 		// -ACB- 1998/07/02 Use VertAngle for Look/up down.
-		float mlook = mlook_rate * 0.5 * joy_forces[AXIS_MLOOK];
+		float mlook = angleturn[m_speed] * 0.5 * joy_forces[AXIS_MLOOK];
 
-		mlook += ball_deltas[AXIS_MLOOK] * mlook_rate /
-				(float)((21 - mlookspeed) << 3);
+		mlook += ball_deltas[AXIS_MLOOK] * angleturn[m_speed] /
+				(float)((21 - mlookspeed) * 16);
 
 		cmd->mlookturn = I_ROUND(mlook);
 	}
@@ -314,7 +310,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 
 		if (strafe)
 		{
-			side += sidemove[speed] * joy_forces[AXIS_TURN];
+			side -= sidemove[speed] * joy_forces[AXIS_TURN];
 
 			side += ball_deltas[AXIS_TURN] * sidemove[speed] /
 			        (float)GetSpeedDivisor(sidemovespeed);
@@ -327,7 +323,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 
 	// Upwards  -MH- 1998/08/18 Fly Up/Down movement
 	{
-		float upward = 0;
+		float upward = upwardmove[speed] * joy_forces[AXIS_FLY];
 
 		upward += ball_deltas[AXIS_FLY] * upwardmove[speed] /
 		          (float)GetSpeedDivisor(forwardmovespeed);
