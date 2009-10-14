@@ -141,21 +141,55 @@ int mlookspeed = 1000 / 64;
 bool invertmouse = false;
 
 
-bool E_InputCheckKey(int keynum)
+bool E_InputCheckKey(int keypair)
 {
 #ifdef DEVELOPERS
-	if ((keynum >> 16) > NUMKEYS)
+	if ((keypair >> 16) > NUMKEYS)
 		I_Error("Invalid key!");
-	else if ((keynum & 0xffff) > NUMKEYS)
+	else if ((keypair & 0xffff) > NUMKEYS)
 		I_Error("Invalid key!");
 #endif
 
-	if (gamekeydown[keynum >> 16] & GK_DOWN)
+	if (gamekeydown[keypair >> 16] & GK_DOWN)
 		return true;
-	else if (gamekeydown[keynum & 0xffff] & GK_DOWN)
+	else if (gamekeydown[keypair & 0xffff] & GK_DOWN)
 		return true;
 	else
 		return false;
+}
+
+static inline void AddKeyForce(int axis, int upkeys, int downkeys, float qty = 1.0f)
+{
+	//let movement keys cancel each other out
+	if (E_InputCheckKey(upkeys))
+	{
+		joy_forces[axis] += qty;
+	}
+	if (E_InputCheckKey(downkeys))
+	{
+		joy_forces[axis] -= qty;
+	}
+}
+
+static void UpdateForces(void)
+{
+	for (int k = 0; k < 6; k++)
+		joy_forces[k] = 0;
+
+	// ---Keyboard---
+
+	AddKeyForce(AXIS_TURN,    key_left,   key_right);
+	AddKeyForce(AXIS_MLOOK,   key_lookup, key_lookdown);
+	AddKeyForce(AXIS_FORWARD, key_up,     key_down);
+	// -MH- 1998/08/18 Fly down
+	AddKeyForce(AXIS_FLY,     key_flyup,  key_flydown);
+	AddKeyForce(AXIS_STRAFE,  key_straferight, key_strafeleft);
+
+	// ---Joystick---
+
+//??	// clamp results
+//??	for (int n = 0; n < 6; n++)
+//??		joy_forces[n] = CLAMP(-1.5, joy_forces[n], 1.5);
 }
 
 #if 0  // UNUSED ???
@@ -190,6 +224,8 @@ static bool allowautorun = true;
 
 void E_BuildTiccmd(ticcmd_t * cmd)
 {
+	UpdateForces();
+
 	Z_Clear(cmd, ticcmd_t, 1);
 
 	bool strafe = E_InputCheckKey(key_strafe);
@@ -231,60 +267,37 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	// Turning
 	if (! strafe)
 	{
-		float turn = 0;
-
 		int angle_rate = angleturn[t_speed];
 
-		if (E_InputCheckKey(key_right))
-			turn -= angle_rate;
+		float turn = angle_rate * joy_forces[AXIS_TURN];
 
-		if (E_InputCheckKey(key_left))
-			turn += angle_rate;
-
-		// -KM- 1998/09/01 Analogue binding
 		// -ACB- 1998/09/06 Angle Turn Speed Control
-		int i = GetSpeedDivisor(angleturnspeed);
-
-		turn -= ball_deltas[AXIS_TURN] * angle_rate / (float)i;
+		turn -= ball_deltas[AXIS_TURN] * angle_rate /
+		        (float)GetSpeedDivisor(angleturnspeed);
 
 		cmd->angleturn = I_ROUND(turn);
 	}
 
 	// MLook
 	{
-		float mlook = 0;
-
 		int mlook_rate = angleturn[m_speed];
 
 		// -ACB- 1998/07/02 Use VertAngle for Look/up down.
-		if (E_InputCheckKey(key_lookup))
-			mlook += mlook_rate / 2.0;
+		float mlook = mlook_rate * 0.5 * joy_forces[AXIS_MLOOK];
 
-		// -ACB- 1998/07/02 Use VertAngle for Look/up down.
-		if (E_InputCheckKey(key_lookdown))
-			mlook -= mlook_rate / 2.0;
-
-		// -KM- 1998/09/01 More analogue binding
 		mlook += ball_deltas[AXIS_MLOOK] * mlook_rate /
-			(float)((21 - mlookspeed) << 3);
+				(float)((21 - mlookspeed) << 3);
 
 		cmd->mlookturn = I_ROUND(mlook);
 	}
 
 	// Forward
 	{
-		float forward = 0;
+		float forward = forwardmove[speed] * joy_forces[AXIS_FORWARD];
 
-		if (E_InputCheckKey(key_up))
-			forward += forwardmove[speed];
-
-		if (E_InputCheckKey(key_down))
-			forward -= forwardmove[speed];
-
-		// -KM- 1998/09/01 Analogue binding
 		// -ACB- 1998/09/06 Forward Move Speed Control
-		int i = GetSpeedDivisor(forwardmovespeed);
-		forward -= ball_deltas[AXIS_FORWARD] * forwardmove[speed] / (float)i;
+		forward -= ball_deltas[AXIS_FORWARD] * forwardmove[speed] /
+		           (float)GetSpeedDivisor(forwardmovespeed);
 
 		forward = CLAMP(-MAXPLMOVE, forward, MAXPLMOVE);
 
@@ -293,31 +306,18 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 
 	// Sideways
 	{
-		float side = 0;
-
-		if (E_InputCheckKey(key_straferight))
-			side += sidemove[speed];
-
-		if (E_InputCheckKey(key_strafeleft))
-			side -= sidemove[speed];
+		float side = sidemove[speed] * joy_forces[AXIS_STRAFE];
 
 		// -ACB- 1998/09/06 Side Move Speed Control
-		int j = GetSpeedDivisor(sidemovespeed);
-		side += ball_deltas[AXIS_STRAFE] * sidemove[speed] / (float)j;
+		side += ball_deltas[AXIS_STRAFE] * sidemove[speed] /
+		        (float)GetSpeedDivisor(sidemovespeed);
 
-		//let movement keys cancel each other out
 		if (strafe)
 		{
-			if (E_InputCheckKey(key_right))
-				side += sidemove[speed];
+			side += sidemove[speed] * joy_forces[AXIS_TURN];
 
-			if (E_InputCheckKey(key_left))
-				side -= sidemove[speed];
-
-			// -KM- 1998/09/01 Analogue binding
-			// -ACB- 1998/09/06 Side Move Speed Control
-			int i = GetSpeedDivisor(sidemovespeed);
-			side += ball_deltas[AXIS_TURN] * sidemove[speed] / (float)i;
+			side += ball_deltas[AXIS_TURN] * sidemove[speed] /
+			        (float)GetSpeedDivisor(sidemovespeed);
 		}
 
 		side = CLAMP(-MAXPLMOVE, side, MAXPLMOVE);
@@ -329,15 +329,8 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	{
 		float upward = 0;
 
-		if ((E_InputCheckKey(key_flyup)))
-			upward += upwardmove[speed];
-
-		// -MH- 1998/08/18 Fly down
-		if ((E_InputCheckKey(key_flydown)))
-			upward -= upwardmove[speed];
-
-		int i = GetSpeedDivisor(forwardmovespeed);
-		upward += ball_deltas[AXIS_FLY] * upwardmove[speed] / (float)i;
+		upward += ball_deltas[AXIS_FLY] * upwardmove[speed] /
+		          (float)GetSpeedDivisor(forwardmovespeed);
 
 		upward = CLAMP(-MAXPLMOVE, upward, MAXPLMOVE);
 
@@ -345,7 +338,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	}
 
 
-	// Buttons...
+	// ---Buttons---
 
 	if (E_InputCheckKey(key_fire))
 		cmd->buttons |= BT_ATTACK;
