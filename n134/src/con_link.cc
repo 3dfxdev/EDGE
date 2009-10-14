@@ -55,11 +55,7 @@ extern cvar_c mouse_x_axis, mouse_y_axis;
 extern cvar_c mouse_x_sens, mouse_y_sens;
 extern cvar_c mouse_accel,  mouse_filter;
 
-extern cvar_c joy_enable;
-
-//!!!! extern jaxis_group_c joyaxis1, joyaxis2, joyaxis3;
-//!!!! extern jaxis_group_c joyaxis4, joyaxis5, joyaxis6;
-//!!!! extern jaxis_group_c joyaxis7, joyaxis8, joyaxis9;
+extern cvar_c joy_dead, joy_peak, joy_tuning;
 
 extern cvar_c r_width, r_height, r_depth, r_fullscreen;
 extern cvar_c r_colormaterial, r_colorlighting;
@@ -113,6 +109,10 @@ cvar_link_t  all_cvars[] =
 	{ "goobers",        &goobers,        "",    "0" },
 
 	{ "in_keypad",      &in_keypad,      "c",   "1"  },
+
+	{ "joy_dead",       &joy_dead,       "c",   "0.15" },
+	{ "joy_peak",       &joy_peak,       "c",   "0.95" },
+	{ "joy_tuning",     &joy_peak,       "c",   "1.0"  },
 
 	{ "m_diskicon",     &m_diskicon,     "c",   "1"  },
 	{ "m_busywait",     &m_busywait,     "c",   "1"  },
@@ -214,71 +214,6 @@ cvar_link_t  all_cvars[] =
 	{ "mouse_y.sens",   &mouse_y_sens,   "c",   "10" },
 //	{ "mouse_accel",    &mouse_accel,    "c",   "0"  },
 //	{ "mouse_filter",   &mouse_filter,   "c",   "0"  },
-
-	{ "joy_enable",     &joy_enable,     "c",   "0"  },
-
-	{ "jaxis1.axis",    &joyaxis1.axis,  "c",   "3" /* AXIS_STRAFE */  },
-	{ "jaxis1.sens",    &joyaxis1.sens,  "c",   "10"  },
-	{ "jaxis1.dead",    &joyaxis1.dead,  "c",   "0.10" },
-	{ "jaxis1.peak",    &joyaxis1.peak,  "c",   "0.95" },
-	{ "jaxis1.tune",    &joyaxis1.tune,  "c",   "1.0" },
-	{ "jaxis1.filter",  &joyaxis1.filter,"c",   "1"   },
-
-	{ "jaxis2.axis",    &joyaxis2.axis,  "c",   "2" /* AXIS_FORWARD */ },
-	{ "jaxis2.sens",    &joyaxis2.sens,  "c",   "10"  },
-	{ "jaxis2.dead",    &joyaxis2.dead,  "c",   "0.10" },
-	{ "jaxis2.peak",    &joyaxis2.peak,  "c",   "0.95" },
-	{ "jaxis2.tune",    &joyaxis2.tune,  "c",   "1.0" },
-	{ "jaxis2.filter",  &joyaxis2.filter,"c",   "1"   },
-
-	{ "jaxis3.axis",    &joyaxis3.axis,  "c",   "1" /* AXIS_TURN */  },
-	{ "jaxis3.sens",    &joyaxis3.sens,  "c",   "10"  },
-	{ "jaxis3.dead",    &joyaxis3.dead,  "c",   "0.10" },
-	{ "jaxis3.peak",    &joyaxis3.peak,  "c",   "0.95" },
-	{ "jaxis3.tune",    &joyaxis3.tune,  "c",   "1.0" },
-	{ "jaxis3.filter",  &joyaxis3.filter,"c",   "1"   },
-
-	{ "jaxis4.axis",    &joyaxis4.axis,  "c",   "4" /* AXIS_MLOOK */ },
-	{ "jaxis4.sens",    &joyaxis4.sens,  "c",   "10"  },
-	{ "jaxis4.dead",    &joyaxis4.dead,  "c",   "0.10" },
-	{ "jaxis4.peak",    &joyaxis4.peak,  "c",   "0.95" },
-	{ "jaxis4.tune",    &joyaxis4.tune,  "c",   "1.0" },
-	{ "jaxis4.filter",  &joyaxis4.filter,"c",   "1"   },
-
-	{ "jaxis5.axis",    &joyaxis5.axis,  "c",   "0"   },
-	{ "jaxis5.sens",    &joyaxis5.sens,  "c",   "10"  },
-	{ "jaxis5.dead",    &joyaxis5.dead,  "c",   "0.10" },
-	{ "jaxis5.peak",    &joyaxis5.peak,  "c",   "0.95" },
-	{ "jaxis5.tune",    &joyaxis5.tune,  "c",   "1.0" },
-	{ "jaxis5.filter",  &joyaxis5.filter,"c",   "1"   },
-
-	{ "jaxis6.axis",    &joyaxis6.axis,  "c",   "0"   },
-	{ "jaxis6.sens",    &joyaxis6.sens,  "c",   "10"  },
-	{ "jaxis6.dead",    &joyaxis6.dead,  "c",   "0.10" },
-	{ "jaxis6.peak",    &joyaxis6.peak,  "c",   "0.95" },
-	{ "jaxis6.tune",    &joyaxis6.tune,  "c",   "1.0" },
-	{ "jaxis6.filter",  &joyaxis6.filter,"c",   "1"   },
-
-	{ "jaxis7.axis",    &joyaxis7.axis,  "c",   "0"   },
-	{ "jaxis7.sens",    &joyaxis7.sens,  "c",   "10"  },
-	{ "jaxis7.dead",    &joyaxis7.dead,  "c",   "0.10" },
-	{ "jaxis7.peak",    &joyaxis7.peak,  "c",   "0.95" },
-	{ "jaxis7.tune",    &joyaxis7.tune,  "c",   "1.0" },
-	{ "jaxis7.filter",  &joyaxis7.filter,"c",   "1"   },
-
-	{ "jaxis8.axis",    &joyaxis8.axis,  "c",   "0"   },
-	{ "jaxis8.sens",    &joyaxis8.sens,  "c",   "10"  },
-	{ "jaxis8.dead",    &joyaxis8.dead,  "c",   "0.10" },
-	{ "jaxis8.peak",    &joyaxis8.peak,  "c",   "0.95" },
-	{ "jaxis8.tune",    &joyaxis8.tune,  "c",   "1.0" },
-	{ "jaxis8.filter",  &joyaxis8.filter,"c",   "1"   },
-
-	{ "jaxis9.axis",    &joyaxis9.axis,  "c",   "0"   },
-	{ "jaxis9.sens",    &joyaxis9.sens,  "c",   "10"  },
-	{ "jaxis9.dead",    &joyaxis9.dead,  "c",   "0.10" },
-	{ "jaxis9.peak",    &joyaxis9.peak,  "c",   "0.95" },
-	{ "jaxis9.tune",    &joyaxis9.tune,  "c",   "1.0" },
-	{ "jaxis9.filter",  &joyaxis9.filter,"c",   "1"   },
 
 	/* Debugging Stuff */
 

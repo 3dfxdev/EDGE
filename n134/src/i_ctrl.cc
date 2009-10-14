@@ -321,6 +321,37 @@ void HandleMouseMotionEvent(SDL_Event * ev)
 }
 
 
+int I_JoyGetAxis(int n)  // n begins at 0
+{
+	if (nojoy || !joy_info)
+		return 0;
+
+	if (n < joy_num_axes)
+		return SDL_JoystickGetAxis(joy_info, n);
+	
+	n -= joy_num_axes;
+
+	// -AJA- handle joystick HATS by mapping it to axes
+	if (n/2 < joy_num_hats)
+	{
+		Uint8 hat = SDL_JoystickGetHat(joy_info, n/2);
+
+		if (n & 1)
+		{
+			return (hat & SDL_HAT_DOWN) ? -32767 :
+				   (hat & SDL_HAT_UP)   ? +32767 : 0;
+		}
+		else
+		{
+			return (hat & SDL_HAT_LEFT)  ? -32767 :
+				   (hat & SDL_HAT_RIGHT) ? +32767 : 0;
+		}
+	}
+
+	return 0;
+}
+
+
 //
 // Event handling while the application is active
 //
