@@ -231,10 +231,10 @@ gameflags_t;
 // -KM- 1998/09/27 Analogue binding, added a fly axis
 #define AXIS_DISABLE     0
 #define AXIS_TURN        1
-#define AXIS_FORWARD     2
-#define AXIS_STRAFE      3
-#define AXIS_FLY         4  // includes SWIM up/down
-#define AXIS_MLOOK       5
+#define AXIS_MLOOK       2
+#define AXIS_FORWARD     3
+#define AXIS_STRAFE      4
+#define AXIS_FLY         5  // includes SWIM up/down
 
 #endif // __DEFINITIONS__
 
