@@ -162,7 +162,6 @@ void LoadLevel_Bits(void)
 		if (p->playerstate == PST_DEAD ||
 			(currmap->force_on & MPF_ResetPlayer))
 		{
-I_Printf("LoadLevel_Bits: setting PST_REBORN\n");
 			p->playerstate = PST_REBORN;
 		}
 
