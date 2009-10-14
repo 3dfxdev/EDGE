@@ -141,7 +141,6 @@ extern bool precache;
 // if true, enable HOM detection (hall of mirrors effect)
 extern cvar_c debug_hom;
 
-extern int mouseSensitivity;
 extern int save_page;
 
 extern int quickSaveSlot;
@@ -189,25 +188,6 @@ typedef enum
 invulfx_type_e;
 
 extern int var_invul_fx;
-
-//mlook stuff
-extern int mlookspeed;
-
-// -KM- 1998/09/01 Analogue binding stuff, These hold what axis they bind to.
-extern int mouse_xaxis;
-extern int mouse_yaxis;
-extern int joy_axis[6];
-
-//
-// -ACB- 1998/09/06 Analogue binding:
-//                   Two stage turning, angleturn control
-//                   horzmovement control, vertmovement control
-//                   strafemovediv;
-//
-extern bool stageturn;
-extern int forwardmovespeed;
-extern int angleturnspeed;
-extern int sidemovespeed;
 
 #endif /*__D_STATE_H__*/
 
