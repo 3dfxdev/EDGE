@@ -43,6 +43,27 @@ bool INP_Responder(event_t * ev);
 
 extern bool autorunning;
 
+// -KM- 1998/09/01 Analogue binding stuff, These hold what axis they bind to.
+extern int mouse_xaxis;
+extern int mouse_yaxis;
+
+extern int mouse_xsens;
+extern int mouse_ysens;
+
+extern int joy_axis[6];
+//
+// -ACB- 1998/09/06 Analogue binding:
+//                   Two stage turning, angleturn control
+//                   horzmovement control, vertmovement control
+//                   strafemovediv;
+//
+extern int var_turnspeed;
+extern int var_mlookspeed;
+extern int var_forwardspeed;
+extern int var_sidespeed;
+extern int var_flyspeed;
+
+
 /* keyboard stuff */
 
 extern int key_right;

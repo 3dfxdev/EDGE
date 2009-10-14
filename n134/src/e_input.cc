@@ -99,10 +99,12 @@ int key_flydown;
 
 #define MAXPLMOVE  (forwardmove[1])
 
-static int forwardmove[2] = {0x19, 0x32};
-static int sidemove[2]    = {0x18, 0x28};
-static int upwardmove[2]  = {0x19, 0x32};  // -MH- 1998/08/18 Up/Down movement
-static int angleturn[3]   = {640, 1280, 320};  // + slow turn 
+static int forwardmove[2] = {25, 50};
+static int sidemove[2]    = {24, 50};
+static int upwardmove[2]  = {20, 30};
+
+static int angleturn[3] = {640, 1280, 320};  // + slow turn 
+static int mlookturn[3] = {320,  640, 160};
 
 #define SLOWTURNTICS    6
 
@@ -126,6 +128,9 @@ bool autorunning = false;
 int mouse_xaxis;
 int mouse_yaxis;
 
+int mouse_xsens;
+int mouse_ysens;
+
 int joy_axis[6] = { 0, 0, 0, 0, 0, 0 };
 
 static int joy_last_raw[6];
@@ -138,12 +143,29 @@ cvar_c joy_dead;
 cvar_c joy_peak;
 cvar_c joy_tuning;
 
-bool stageturn;  // Stage Turn Control
+cvar_c in_stageturn;
 
-int forwardmovespeed;  // Speed controls
-int angleturnspeed;
-int sidemovespeed;
-int mlookspeed = 1000 / 64;
+// Speed controls
+int var_turnspeed;
+int var_mlookspeed;
+int var_forwardspeed;
+int var_sidespeed;
+int var_flyspeed;
+
+
+static float sensitivities[16] =
+{
+	0.10, 0.25, 0.35, 0.50,
+	0.75, 1.00, 1.56, 2.21,
+	3.13, 4.42, 6.26, 8.84,
+	12.5, 17.7, 25.0, 35.4
+};
+
+static float speed_divisors[7] =
+{
+	0.25, 0.33, 0.42, 0.50,
+	0.66, 0.83, 1.00
+};
 
 
 float JoyAxisFromRaw(int raw)
@@ -247,10 +269,6 @@ static void UpdateForces(void)
 
 	for (int j = 0; j < 6; j++)
 		UpdateJoyAxis(j);
-
-//??	// clamp results
-//??	for (int n = 0; n < 6; n++)
-//??		joy_forces[n] = CLAMP(-1.5, joy_forces[n], 1.5);
 }
 
 #if 0  // UNUSED ???
@@ -274,11 +292,7 @@ static int CmdChecksum(ticcmd_t * cmd)
 // -ACB- 1998/07/02 Added Vertical angle checking for mlook.
 // -ACB- 1998/07/10 Reformatted: I can read the code! :)
 // -ACB- 1998/09/06 Apply speed controls to -KM-'s analogue controls
-// -AJA- 1999/08/10: Reworked the GetSpeedDivisor macro.
 //
-#define GetSpeedDivisor(speed) \
-	(((speed) == 8) ? 6 : ((8 - (speed)) << 4))
-
 static bool allow180 = true;
 static bool allowzoom = true;
 static bool allowautorun = true;
@@ -295,7 +309,6 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	if (autorunning)
 		speed = !speed;
 
-
 	//
 	// -KM- 1998/09/01 use two stage accelerative turning on all devices
 	//
@@ -304,24 +317,24 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	//
 	int t_speed = speed;
 
-	if (E_InputCheckKey(key_right) || E_InputCheckKey(key_left))
+	if (fabs(joy_forces[AXIS_TURN]) > 0.2f)
 		turnheld++;
 	else
 		turnheld = 0;
 
 	// slow turn ?
-	if (turnheld < SLOWTURNTICS)
+	if (turnheld < SLOWTURNTICS && in_stageturn.d)
 		t_speed = 2;
 
 	int m_speed = speed;
 
-	if (E_InputCheckKey(key_lookup) || E_InputCheckKey(key_lookdown))
+	if (fabs(joy_forces[AXIS_MLOOK]) > 0.2f)
 		mlookheld++;
 	else
 		mlookheld = 0;
 
-	// slow turn ?
-	if (mlookheld < SLOWTURNTICS)
+	// slow mlook ?
+	if (mlookheld < SLOWTURNTICS && in_stageturn.d)
 		m_speed = 2;
 
 
@@ -329,10 +342,11 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	if (! strafe)
 	{
 		float turn = angleturn[t_speed] * joy_forces[AXIS_TURN];
+		
+		turn /= speed_divisors[var_turnspeed];
 
 		// -ACB- 1998/09/06 Angle Turn Speed Control
-		turn += ball_deltas[AXIS_TURN] * angleturn[t_speed] /
-		        (float)GetSpeedDivisor(angleturnspeed);
+		turn += angleturn[t_speed] * ball_deltas[AXIS_TURN] / 64.0;
 
 		cmd->angleturn = I_ROUND(turn);
 	}
@@ -340,10 +354,11 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	// MLook
 	{
 		// -ACB- 1998/07/02 Use VertAngle for Look/up down.
-		float mlook = angleturn[m_speed] * 0.5 * joy_forces[AXIS_MLOOK];
+		float mlook = mlookturn[m_speed] * joy_forces[AXIS_MLOOK];
 
-		mlook += ball_deltas[AXIS_MLOOK] * angleturn[m_speed] /
-				(float)((21 - mlookspeed) * 16);
+		mlook /= speed_divisors[var_mlookspeed];
+
+		mlook += mlookturn[m_speed] * ball_deltas[AXIS_MLOOK] / 64.0;
 
 		cmd->mlookturn = I_ROUND(mlook);
 	}
@@ -352,9 +367,10 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	{
 		float forward = forwardmove[speed] * joy_forces[AXIS_FORWARD];
 
+		forward /= speed_divisors[var_forwardspeed];
+
 		// -ACB- 1998/09/06 Forward Move Speed Control
-		forward += ball_deltas[AXIS_FORWARD] * forwardmove[speed] /
-		           (float)GetSpeedDivisor(forwardmovespeed);
+		forward += forwardmove[speed] * ball_deltas[AXIS_FORWARD] / 64.0;
 
 		forward = CLAMP(-MAXPLMOVE, forward, MAXPLMOVE);
 
@@ -365,17 +381,16 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	{
 		float side = sidemove[speed] * joy_forces[AXIS_STRAFE];
 
-		// -ACB- 1998/09/06 Side Move Speed Control
-		side += ball_deltas[AXIS_STRAFE] * sidemove[speed] /
-		        (float)GetSpeedDivisor(sidemovespeed);
-
 		if (strafe)
-		{
 			side += sidemove[speed] * joy_forces[AXIS_TURN];
 
-			side += ball_deltas[AXIS_TURN] * sidemove[speed] /
-			        (float)GetSpeedDivisor(sidemovespeed);
-		}
+		side /= speed_divisors[var_sidespeed];
+
+		// -ACB- 1998/09/06 Side Move Speed Control
+		side += sidemove[speed] * ball_deltas[AXIS_STRAFE] / 64.0;
+
+		if (strafe)
+			side += sidemove[speed] * ball_deltas[AXIS_TURN] / 64.0;
 
 		side = CLAMP(-MAXPLMOVE, side, MAXPLMOVE);
 
@@ -386,8 +401,9 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	{
 		float upward = upwardmove[speed] * joy_forces[AXIS_FLY];
 
-		upward += ball_deltas[AXIS_FLY] * upwardmove[speed] /
-		          (float)GetSpeedDivisor(forwardmovespeed);
+		upward /= speed_divisors[var_flyspeed];
+
+		upward += upwardmove[speed] * ball_deltas[AXIS_FLY] / 64.0;
 
 		upward = CLAMP(-MAXPLMOVE, upward, MAXPLMOVE);
 
@@ -518,8 +534,8 @@ bool INP_Responder(event_t * ev)
 			if ((mouse_xaxis+1) & 1) dx = -dx;
 			if ((mouse_yaxis+1) & 1) dy = -dy;
 
-			dx *= mouseSensitivity;
-			dy *= mouseSensitivity;
+			dx *= sensitivities[mouse_xsens];
+			dy *= sensitivities[mouse_ysens];
 
 			// -AJA- 1999/07/27: Mlook key like quake's.
 			if (E_InputCheckKey(key_mlook))

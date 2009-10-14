@@ -109,6 +109,7 @@ cvar_link_t  all_cvars[] =
 	{ "goobers",        &goobers,        "",    "0" },
 
 	{ "in_keypad",      &in_keypad,      "c",   "1"  },
+	{ "in_stageturn",   &in_stageturn,   "c",   "1"  },
 
 	{ "joy_dead",       &joy_dead,       "c",   "0.15" },
 	{ "joy_peak",       &joy_peak,       "c",   "0.95" },
@@ -204,7 +205,6 @@ cvar_link_t  all_cvars[] =
 	/* Input Stuff */
 
 	{ "in_autorun",     &in_autorun,     "c",   "0"  },
-	{ "in_stageturn",   &in_stageturn,   "c",   "1"  },
 	{ "in_shiftlook",   &in_shiftlook,   "c",   "1"  },
 	{ "in_warpmouse",   &in_warpmouse,   "",    "0"  },
 
