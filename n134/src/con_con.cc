@@ -783,13 +783,13 @@ void CON_HandleKey(int key)
 			scroll_dir = -1;
 		break;
 	
-    case KEYD_MWHEEL_UP:
+    case KEYD_WHEEL_UP:
         bottomrow += 4;
         if (bottomrow >= MAX_CON_LINES-10)
             bottomrow  = MAX_CON_LINES-10;
         break;
     
-    case KEYD_MWHEEL_DN:
+    case KEYD_WHEEL_DN:
         bottomrow -= 4;
         if (bottomrow < -1)
             bottomrow = -1;
@@ -963,8 +963,8 @@ static int GetKeycode(event_t *ev)
 		case KEYD_DELETE:
 		case KEYD_UPARROW:
 		case KEYD_DOWNARROW:
-		case KEYD_MWHEEL_UP:
-		case KEYD_MWHEEL_DN:
+		case KEYD_WHEEL_UP:
+		case KEYD_WHEEL_DN:
 		case KEYD_ENTER:
 		case KEYD_ESCAPE:
 			return sym;

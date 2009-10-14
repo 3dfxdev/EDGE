@@ -566,12 +566,12 @@ bool M_NetHostResponder(event_t * ev, int ch)
 		}
 	}
 
-	if (ch == KEYD_DOWNARROW || ch == KEYD_MWHEEL_DN)
+	if (ch == KEYD_DOWNARROW || ch == KEYD_WHEEL_DN)
 	{
 		host_pos = (host_pos + 1) % HOST_OPTIONS;
 		return true;
 	}
-	else if (ch == KEYD_UPARROW || ch == KEYD_MWHEEL_UP)
+	else if (ch == KEYD_UPARROW || ch == KEYD_WHEEL_UP)
 	{
 		host_pos = (host_pos + HOST_OPTIONS - 1) % HOST_OPTIONS;
 		return true;
@@ -717,12 +717,12 @@ void M_DrawJoinMenu(void)
 
 bool M_NetJoinResponder(event_t * ev, int ch)
 {
-	if (ch == KEYD_DOWNARROW || ch == KEYD_MWHEEL_DN)
+	if (ch == KEYD_DOWNARROW || ch == KEYD_WHEEL_DN)
 	{
 		join_pos = (join_pos + 1) % JOIN_OPTIONS;
 		return true;
 	}
-	else if (ch == KEYD_UPARROW || ch == KEYD_MWHEEL_UP)
+	else if (ch == KEYD_UPARROW || ch == KEYD_WHEEL_UP)
 	{
 		join_pos = (join_pos + JOIN_OPTIONS - 1) % JOIN_OPTIONS;
 		return true;
