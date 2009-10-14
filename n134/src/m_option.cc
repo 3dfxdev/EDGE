@@ -174,7 +174,7 @@ static char YesNo[]     = "Off/On";  // basic on/off
 static char CrossH[]    = "None/Dot/Angle/Plus/Spiked/Thin/Cross/Carat/Circle/Double";
 static char Respw[]     = "Teleport/Resurrect";  // monster respawning
 static char Axis[]      = "Turn/Forward/Strafe/MLook/Fly/Disable";
-static char JoyDevs[]   = "None/1/2/3/4/5/6/7/8/9";
+static char JoyDevs[]   = "None/1/2/3/4/5/6";
 static char DLMode[]    = "Off/On";
 static char JpgPng[]    = "JPEG/PNG";  // basic on/off
 static char AAim[]      = "Off/On/Mlook";
@@ -502,7 +502,7 @@ static optmenuitem_t analogueoptions[] =
 	{OPT_Slider,   "Side Move Speed",    NULL, 9,  CFGDEF_SIDEMOVESPEED,    &sidemovespeed, NULL, NULL},
 	{OPT_Slider,   "Forward Move Speed", NULL, 9,  CFGDEF_FORWARDMOVESPEED, &forwardmovespeed, NULL, NULL},
 	{OPT_Plain,    "",                   NULL, 0,  0,                        NULL, NULL, NULL},
-	{OPT_Switch,   "Joystick Device",    JoyDevs, 10,  0,                   &joystick_device, NULL, NULL},
+	{OPT_Switch,   "Joystick Device",    JoyDevs, 7,  0,                   &joystick_device, NULL, NULL},
 	{OPT_Switch,   "First Axis",         Axis, 6,  CFGDEF_JOY_XAXIS,        &joy_axis[0], NULL, NULL},
 	{OPT_Switch,   "Second Axis",        Axis, 6,  CFGDEF_JOY_YAXIS,        &joy_axis[1], NULL, NULL},
 	{OPT_Switch,   "Third Axis",         Axis, 6,  AXIS_DISABLE,            &joy_axis[2], NULL, NULL},
@@ -785,8 +785,27 @@ static specialkey_t specialkeylist[] =  // terminate on -1
     { KEYD_MOUSE2, "Mouse2" },
     { KEYD_MOUSE3, "Mouse3" },
     { KEYD_MOUSE4, "Mouse4" },
-    { KEYD_MWHEEL_UP, "Wheel Up" },
-    { KEYD_MWHEEL_DN, "Wheel Down" },
+    { KEYD_MOUSE5, "Mouse5" },
+    { KEYD_MOUSE6, "Mouse6" },
+    { KEYD_WHEEL_UP, "Wheel Up" },
+    { KEYD_WHEEL_DN, "Wheel Down" },
+
+	// joystick buttons
+    { KEYD_JOY1,  "Joy1" },
+    { KEYD_JOY2,  "Joy2" },
+    { KEYD_JOY3,  "Joy3" },
+    { KEYD_JOY4,  "Joy4" },
+    { KEYD_JOY5,  "Joy5" },
+    { KEYD_JOY6,  "Joy6" },
+    { KEYD_JOY7,  "Joy7" },
+    { KEYD_JOY8,  "Joy8" },
+    { KEYD_JOY9,  "Joy9" },
+    { KEYD_JOY10, "Joy10" },
+    { KEYD_JOY11, "Joy11" },
+    { KEYD_JOY12, "Joy12" },
+    { KEYD_JOY13, "Joy13" },
+    { KEYD_JOY14, "Joy14" },
+    { KEYD_JOY15, "Joy15" },
 
     { -1, "" }  // THE END
 };
@@ -1150,7 +1169,7 @@ bool M_OptResponder(event_t * ev, int ch)
 		}
 
 		case KEYD_DOWNARROW:
-		case KEYD_MWHEEL_DN:
+		case KEYD_WHEEL_DN:
 		{
 			do
 			{
@@ -1166,7 +1185,7 @@ bool M_OptResponder(event_t * ev, int ch)
 		}
 
 		case KEYD_UPARROW:
-		case KEYD_MWHEEL_UP:
+		case KEYD_WHEEL_UP:
 		{
 			do
 			{
@@ -1509,19 +1528,15 @@ static void M_Key2String(int key, char *deststring)
 	}
 	else
 	{
-		if (key1 >= KEYD_JOYBASE)
-			sprintf(deststring, "Joystick %d", key1 - KEYD_JOYBASE + 1);
-		else
-			sprintf(deststring, "Keycode %d", key1);
-		j = 0;
-		while (specialkeylist[j].keycode != -1)
+		sprintf(deststring, "Key%03d", key1);
+
+		for (j=0; specialkeylist[j].keycode != -1; j++)
 		{
 			if (specialkeylist[j].keycode == key1)
 			{
 				strcpy(deststring, specialkeylist[j].keystring);
 				break;
 			}
-			j++;
 		}
 	}
 
@@ -1536,24 +1551,19 @@ static void M_Key2String(int key, char *deststring)
 	}
 	else
 	{
-		if (key2 >= KEYD_JOYBASE)
-			sprintf(key2string, "Joystick %d", key2 - KEYD_JOYBASE + 1);
-		else
-			sprintf(key2string, "Keycode %d", key2);
-		j = 0;
-		while (specialkeylist[j].keycode != -1)
+		sprintf(key2string, "Key%03d", key2);
+
+		for (j=0; specialkeylist[j].keycode != -1; j++)
 		{
 			if (specialkeylist[j].keycode == key2)
 			{
 				strcpy(key2string, specialkeylist[j].keystring);
 				break;
 			}
-			j++;
 		}
 	}
 	strcat(deststring, " or ");
 	strcat(deststring, key2string);
-	return;
 }
 
 #if 0

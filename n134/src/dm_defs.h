@@ -200,18 +200,33 @@ gameflags_t;
 #define KEYD_CAPSLOCK   (0x80+0x7e)
 #define KEYD_PAUSE      (0x80+0x7f)
 
-// All keys greater than this aren't actually keyboard keys, but buttons on
-// joystick/mice.
-#define KEYD_NONKBKEY   0x100
+// Values from here on aren't actually keyboard keys, but buttons
+// on joystick or mice.
 
-#define KEYD_MOUSE1     0x100
-#define KEYD_MOUSE2     0x101
-#define KEYD_MOUSE3     0x102
-#define KEYD_MOUSE4     0x103 // -ACB- 1999/09/30 Fourth Mouse Button Added 
-#define KEYD_MWHEEL_UP  0x104
-#define KEYD_MWHEEL_DN  0x105
+#define KEYD_MOUSE1     (0x100)
+#define KEYD_MOUSE2     (0x101)
+#define KEYD_MOUSE3     (0x102)
+#define KEYD_MOUSE4     (0x103)
+#define KEYD_MOUSE5     (0x104)
+#define KEYD_MOUSE6     (0x105)
+#define KEYD_WHEEL_UP   (0x10e)
+#define KEYD_WHEEL_DN   (0x10f)
 
-#define KEYD_JOYBASE    0x110
+#define KEYD_JOY1       (0x110+1)
+#define KEYD_JOY2       (0x110+2)
+#define KEYD_JOY3       (0x110+3)
+#define KEYD_JOY4       (0x110+4)
+#define KEYD_JOY5       (0x110+5)
+#define KEYD_JOY6       (0x110+6)
+#define KEYD_JOY7       (0x110+7)
+#define KEYD_JOY8       (0x110+8)
+#define KEYD_JOY9       (0x110+9)
+#define KEYD_JOY10      (0x110+10)
+#define KEYD_JOY11      (0x110+11)
+#define KEYD_JOY12      (0x110+12)
+#define KEYD_JOY13      (0x110+13)
+#define KEYD_JOY14      (0x110+14)
+#define KEYD_JOY15      (0x110+15)
 
 // -KM- 1998/09/27 Analogue binding, added a fly axis
 #define AXIS_DISABLE     5

@@ -161,7 +161,6 @@ int TranslateSDLKey(int key)
 }
 
 
-
 void HandleFocusGain(void)
 {
 	// Hide cursor and grab input
@@ -278,9 +277,37 @@ void HandleMouseButtonEvent(SDL_Event * ev)
 		case 4: event.value.key.sym = KEYD_MWHEEL_UP; break; 
 		case 5: event.value.key.sym = KEYD_MWHEEL_DN; break; 
 
+		case 6: event.value.key.sym = KEYD_MOUSE4; break;
+		case 7: event.value.key.sym = KEYD_MOUSE5; break;
+		case 8: event.value.key.sym = KEYD_MOUSE6; break;
+
 		default:
 			return;
 	}
+
+	E_PostEvent(&event);
+}
+
+
+void HandleJoystickButtonEvent(SDL_Event * ev)
+{
+	// ignore other joysticks;
+	if ((int)ev->jbutton.which != cur_joy-1)
+		return;
+
+	event_t event;
+
+	if (ev->type == SDL_JOYBUTTONDOWN) 
+		event.type = ev_keydown;
+	else if (ev->type == SDL_JOYBUTTONUP) 
+		event.type = ev_keyup;
+	else 
+		return;
+
+	if (ev->jbutton.button > 14)
+		return;
+
+	event.value.key.sym = KEYD_JOY1 + ev->jbutton.button;
 
 	E_PostEvent(&event);
 }
@@ -379,7 +406,12 @@ void ActiveEventProcess(SDL_Event *sdl_ev)
 		case SDL_MOUSEBUTTONUP:
 			HandleMouseButtonEvent(sdl_ev);
 			break;
-			
+		
+		case SDL_JOYBUTTONDOWN:
+		case SDL_JOYBUTTONUP:
+			HandleJoystickButtonEvent(sdl_ev);
+			break;
+
 		case SDL_MOUSEMOTION:
 			if (eat_mouse_motion) 
 			{
@@ -464,6 +496,7 @@ void I_ShowJoysticks(void)
 	}
 }
 
+
 void I_OpenJoystick(int index)
 {
 	SYS_ASSERT(1 <= index && index <= num_joys);
@@ -489,29 +522,6 @@ void I_OpenJoystick(int index)
 	I_Printf("Opened joystick %d : %s\n", cur_joy, name);
 	I_Printf("Axes:%d buttons:%d hats:%d balls:%d\n",
 			 joy_num_axes, joy_num_buttons, joy_num_hats, joy_num_balls);
-}
-
-void I_ChangeJoystick(int index)
-{
-	if (joy_info)
-	{
-		SDL_JoystickClose(joy_info);
-		joy_info = NULL;
-
-		I_Printf("Closed joystick %d\n", cur_joy);
-		cur_joy = 0;
-	}
-
-	if (index <= 0)
-		return;
-
-	if (index > num_joys)
-	{
-		I_Printf("Invalid joystick number: %d\n", cur_joy);
-		return;
-	}
-
-	I_OpenJoystick(index);
 }
 
 
@@ -549,6 +559,31 @@ void I_StartupJoystick(void)
 }
 
 
+void CheckJoystickChanged(void)
+{
+	int new_joy = joystick_device;
+
+	if (joystick_device < 0 || joystick_device > num_joys)
+		new_joy = 0;
+
+	if (new_joy == cur_joy)
+		return;
+
+	if (joy_info)
+	{
+		SDL_JoystickClose(joy_info);
+		joy_info = NULL;
+
+		I_Printf("Closed joystick %d\n", cur_joy);
+		cur_joy = 0;
+	}
+
+	if (new_joy > 0)
+	{
+		I_OpenJoystick(new_joy);
+	}
+}
+
 
 /****** Input Event Generation ******/
 
@@ -563,8 +598,7 @@ void I_StartupControl(void)
 
 void I_ControlGetEvents(void)
 {
-//!!!	if (joystick_device != cur_joy)
-//!!!		I_ChangeJoystick(joystick_device);
+	CheckJoystickChanged();
 
 	SDL_Event sdl_ev;
 
