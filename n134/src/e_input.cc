@@ -100,7 +100,7 @@ int key_flydown;
 #define MAXPLMOVE  (forwardmove[1])
 
 static int forwardmove[2] = {25, 50};
-static int sidemove[2]    = {24, 50};
+static int sidemove[2]    = {24, 40};
 static int upwardmove[2]  = {20, 30};
 
 static int angleturn[3] = {640, 1280, 320};  // + slow turn 
@@ -564,16 +564,11 @@ bool INP_Responder(event_t * ev)
 //
 void E_SetTurboScale(int scale)
 {
-	const int origforwardmove[2] = {0x19, 0x32};
-	const int origsidemove[2]    = {0x18, 0x28};
-	const int origupwardmove[2]  = {0x19, 0x32};
+	forwardmove[0] = 25 * scale / 100;
+	forwardmove[1] = 50 * scale / 100;
 
-	forwardmove[0] = origforwardmove[0] * scale / 100;
-	forwardmove[1] = origforwardmove[1] * scale / 100;
-	sidemove[0]    = origsidemove[0] * scale / 100;
-	sidemove[1]    = origsidemove[1] * scale / 100;
-	upwardmove[0]  = origupwardmove[0] * scale / 100;
-	upwardmove[1]  = origupwardmove[1] * scale / 100;
+	sidemove[0]    = 24 * scale / 100;
+	sidemove[1]    = 40 * scale / 100;
 }
 
 
