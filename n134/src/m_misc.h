@@ -55,8 +55,10 @@ typedef struct
 }
 default_t;
 
+void M_ResetDefaults(int _dummy);
 void M_LoadDefaults(void);
 void M_SaveDefaults(void);
+
 void M_InitMiscConVars(void);
 void M_DisplayDisk(void);
 void M_DisplayDesynch(void);

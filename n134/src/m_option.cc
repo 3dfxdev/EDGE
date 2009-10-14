@@ -123,8 +123,6 @@ static void M_AnalogueOptions(int keypressed);
 static void M_SoundOptions(int keypressed);
 // static void M_CalibrateJoystick(int keypressed);
 
-void M_ResetToDefaults(int keypressed);
-
 static void M_Key2String(int key, char *deststring);
 
 // -ACB- 1998/08/09 "Does Map allow these changes?" procedures.
@@ -345,31 +343,6 @@ static int M_GetCurrentSwitchValue(optmenuitem_t *item)
 	return retval;
 }
 
-static void M_DefaultMenuItem(optmenuitem_t *item)
-{
-	switch (item->type)
-	{
-		case OPT_Boolean:
-		{
-			*(bool*)item->switchvar = (item->default_val)?true:false;
-			break;
-		}
-
-		case OPT_KeyConfig:
-		case OPT_Slider:
-		case OPT_Switch:
-		{
-			*(int*)(item->switchvar) = item->default_val;
-			break;
-		}
-
-		default:
-		{
-			break;
-		}
-	}
-}
-
 //
 //  MAIN MENU
 //
@@ -394,7 +367,7 @@ static optmenuitem_t mainoptions[] =
 	{OPT_Function, "Host NetGame",      NULL,  0, 0, NULL, M_HostNetGame, NULL},
 //	{OPT_Function, "Join NetGame",      NULL,  0, 0, NULL, M_JoinNetGame, NULL},
 	{OPT_Plain,    "",                  NULL,  0,              0, NULL, NULL, NULL},
-	{OPT_Function, "Reset to Defaults", NULL,  0, 0, NULL, M_ResetToDefaults, "ResetToDefaults"}
+	{OPT_Function, "Reset to Defaults", NULL,  0, 0, NULL, M_ResetDefaults, NULL}
 };
 
 static menuinfo_t mainoptionsinfo = 
@@ -1466,38 +1439,6 @@ static void M_KeyboardOptions(int keypressed)
 }
 
 // ===== END OF SUB-MENUS =====
-
-//
-// M_ResetToDefaults
-//
-void M_ResetToDefaults(int keypressed)
-{
-	int i;
-
-	for (i = 0; i < mainoptionsinfo.item_num; i++)
-		M_DefaultMenuItem(&mainoptions[i]);
-
-	for (i = 0; i < vidoptionsinfo.item_num; i++)
-		M_DefaultMenuItem(&vidoptions[i]);
-
-	for (i = 0; i < playoptionsinfo.item_num; i++)
-		M_DefaultMenuItem(&playoptions[i]);
-
-	for (i = 0; i < analogueoptionsinfo.item_num; i++)
-		M_DefaultMenuItem(&analogueoptions[i]);
-
-	for (i = 0; i < soundoptionsinfo.item_num; i++)
-		M_DefaultMenuItem(&soundoptions[i]);
-
-	for (i = 0; i < stdkeyconfiginfo.item_num; i++)
-		M_DefaultMenuItem(&stdkeyconfig[i]);
-
-	for (i = 0; i < extkeyconfiginfo.item_num; i++)
-		M_DefaultMenuItem(&extkeyconfig[i]);
-
-	for (i = 0; i < otherkeyconfiginfo.item_num; i++)
-		M_DefaultMenuItem(&otherkeyconfig[i]);
-}
 
 //
 // M_Key2String
