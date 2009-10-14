@@ -113,6 +113,8 @@ extern cvar_c r_crosshair;
 
 static int menu_crosshair;  // temp hack
 
+extern int joystick_device;
+
 //submenus
 static void M_KeyboardOptions(int keypressed);
 static void M_VideoOptions(int keypressed);
@@ -172,6 +174,7 @@ static char YesNo[]     = "Off/On";  // basic on/off
 static char CrossH[]    = "None/Dot/Angle/Plus/Spiked/Thin/Cross/Carat/Circle/Double";
 static char Respw[]     = "Teleport/Resurrect";  // monster respawning
 static char Axis[]      = "Turn/Forward/Strafe/MLook/Fly/Disable";
+static char JoyDevs[]   = "None/1/2/3/4/5/6/7/8/9";
 static char DLMode[]    = "Off/On";
 static char JpgPng[]    = "JPEG/PNG";  // basic on/off
 static char AAim[]      = "Off/On/Mlook";
@@ -370,17 +373,18 @@ static void M_DefaultMenuItem(optmenuitem_t *item)
 //
 //  MAIN MENU
 //
-#define LANGUAGE_POS  8
-#define HOSTNET_POS   11
+#define LANGUAGE_POS  9
+#define HOSTNET_POS   12
 
 static optmenuitem_t mainoptions[] =
 {
 	{OPT_Function, "Keyboard Controls", NULL,  0, 0, NULL, M_KeyboardOptions, "Controls"},
-	{OPT_Function, "Mouse Options",     NULL,  0, 0, NULL, M_AnalogueOptions, "AnalogueOptions"},
-	{OPT_Function, "Gameplay Options",  NULL,  0, 0, NULL, M_GameplayOptions, "GameplayOptions"},
+	{OPT_Function, "Mouse / Joystick",  NULL,  0, 0, NULL, M_AnalogueOptions, "AnalogueOptions"},
 	{OPT_Plain,    "",                  NULL,  0, 0, NULL, NULL, NULL},
 	{OPT_Function, "Sound Options",     NULL,  0, 0, NULL, M_SoundOptions, "SoundOptions"},
 	{OPT_Function, "Video Options",     NULL,  0, 0, NULL, M_VideoOptions, "VideoOptions"},
+	{OPT_Plain,    "",                  NULL,  0, 0, NULL, NULL, NULL},
+	{OPT_Function, "Gameplay Options",  NULL,  0, 0, NULL, M_GameplayOptions, "GameplayOptions"},
 	{OPT_Function, "Set Resolution",    NULL,  0, 0, NULL, M_ResolutionOptions, "ChangeRes"},
 
 	{OPT_Plain,    "",                  NULL,  0, 0, NULL, NULL, NULL},
@@ -488,17 +492,23 @@ static menuinfo_t resoptionsinfo =
 //
 static optmenuitem_t analogueoptions[] =
 {
-	{OPT_Boolean,  "Invert Mouse",       YesNo, 2, CFGDEF_INVERTMOUSE,      &invertmouse, NULL, NULL},
 	{OPT_Switch,   "Mouse X Axis",       Axis, 6,  CFGDEF_MOUSE_XAXIS,      &mouse_xaxis, NULL, NULL},
 	{OPT_Switch,   "Mouse Y Axis",       Axis, 6,  CFGDEF_MOUSE_YAXIS,      &mouse_yaxis, NULL, NULL},
-	{OPT_Slider,   "MouseSpeed",         NULL, 20, CFGDEF_MOUSESENSITIVITY, &mouseSensitivity, NULL, NULL},
+	{OPT_Boolean,  "Invert Mouse",       YesNo, 2, CFGDEF_INVERTMOUSE,      &invertmouse, NULL, NULL},
+	{OPT_Slider,   "Sensitivity",        NULL, 20, CFGDEF_MOUSESENSITIVITY, &mouseSensitivity, NULL, NULL},
 	{OPT_Plain,    "",                   NULL, 0,  0,                        NULL, NULL, NULL},
-	{OPT_Slider,   "MLook Speed",        NULL, 20, CFGDEF_MLOOKSPEED,       &mlookspeed, NULL, NULL},
-	{OPT_Plain,    "",                   NULL, 0,  0,                        NULL, NULL, NULL},
-	{OPT_Boolean,  "Two-Stage Turning",  YesNo, 2, CFGDEF_STAGETURN,        &stageturn, NULL, NULL},
 	{OPT_Slider,   "Turning Speed",      NULL, 9,  CFGDEF_ANGLETURNSPEED,   &angleturnspeed, NULL, NULL},
+	{OPT_Slider,   "MLook Speed",        NULL, 20, CFGDEF_MLOOKSPEED,       &mlookspeed, NULL, NULL},
 	{OPT_Slider,   "Side Move Speed",    NULL, 9,  CFGDEF_SIDEMOVESPEED,    &sidemovespeed, NULL, NULL},
-	{OPT_Slider,   "Forward Move Speed", NULL, 9,  CFGDEF_FORWARDMOVESPEED, &forwardmovespeed, NULL, NULL}
+	{OPT_Slider,   "Forward Move Speed", NULL, 9,  CFGDEF_FORWARDMOVESPEED, &forwardmovespeed, NULL, NULL},
+	{OPT_Plain,    "",                   NULL, 0,  0,                        NULL, NULL, NULL},
+	{OPT_Switch,   "Joystick Device",    JoyDevs, 10,  0,                   &joystick_device, NULL, NULL},
+	{OPT_Switch,   "First Axis",         Axis, 6,  CFGDEF_JOY_XAXIS,        &joy_axis[0], NULL, NULL},
+	{OPT_Switch,   "Second Axis",        Axis, 6,  CFGDEF_JOY_YAXIS,        &joy_axis[1], NULL, NULL},
+	{OPT_Switch,   "Third Axis",         Axis, 6,  AXIS_DISABLE,            &joy_axis[2], NULL, NULL},
+	{OPT_Switch,   "Fourth Axis",        Axis, 6,  AXIS_DISABLE,            &joy_axis[3], NULL, NULL},
+	{OPT_Switch,   "Fifth Axis",         Axis, 6,  AXIS_DISABLE,            &joy_axis[4], NULL, NULL},
+	{OPT_Switch,   "Sixth Axis",         Axis, 6,  AXIS_DISABLE,            &joy_axis[5], NULL, NULL}
 
 #if 0  // DISABLED, Because no joystick support yet
 	{OPT_Plain,    "",                   NULL, 0,  0,                        NULL, NULL, NULL},
