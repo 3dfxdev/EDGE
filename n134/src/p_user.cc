@@ -181,7 +181,7 @@ static void MovePlayer(player_t * player)
 	if (viewiszoomed)
 		cmd->angleturn /= ZOOM_ANGLE_DIV;
 
-	player->mo->angle += (angle_t)(cmd->angleturn << 16);
+	player->mo->angle -= (angle_t)(cmd->angleturn << 16);
 
 	// EDGE Feature: Vertical Look (Mlook)
 	//

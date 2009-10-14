@@ -236,7 +236,7 @@ static void UpdateForces(void)
 
 	// ---Keyboard---
 
-	AddKeyForce(AXIS_TURN,    key_left,   key_right);
+	AddKeyForce(AXIS_TURN,    key_right,  key_left);
 	AddKeyForce(AXIS_MLOOK,   key_lookup, key_lookdown);
 	AddKeyForce(AXIS_FORWARD, key_up,     key_down);
 	// -MH- 1998/08/18 Fly down
@@ -331,7 +331,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 		float turn = angleturn[t_speed] * joy_forces[AXIS_TURN];
 
 		// -ACB- 1998/09/06 Angle Turn Speed Control
-		turn -= ball_deltas[AXIS_TURN] * angleturn[t_speed] /
+		turn += ball_deltas[AXIS_TURN] * angleturn[t_speed] /
 		        (float)GetSpeedDivisor(angleturnspeed);
 
 		cmd->angleturn = I_ROUND(turn);
@@ -353,7 +353,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 		float forward = forwardmove[speed] * joy_forces[AXIS_FORWARD];
 
 		// -ACB- 1998/09/06 Forward Move Speed Control
-		forward -= ball_deltas[AXIS_FORWARD] * forwardmove[speed] /
+		forward += ball_deltas[AXIS_FORWARD] * forwardmove[speed] /
 		           (float)GetSpeedDivisor(forwardmovespeed);
 
 		forward = CLAMP(-MAXPLMOVE, forward, MAXPLMOVE);
@@ -371,7 +371,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 
 		if (strafe)
 		{
-			side -= sidemove[speed] * joy_forces[AXIS_TURN];
+			side += sidemove[speed] * joy_forces[AXIS_TURN];
 
 			side += ball_deltas[AXIS_TURN] * sidemove[speed] /
 			        (float)GetSpeedDivisor(sidemovespeed);
