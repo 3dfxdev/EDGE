@@ -229,11 +229,14 @@ static void DrawKeyword(int index, style_c *style, int y,
 {
 	int x = 120;
 
-	HL_WriteText(style,(index<0)?3:0, x - 10 - style->fonts[0]->StringWidth(keyword), y, keyword);
+	bool is_selected =
+	    (netgame_menuon == 1 && index == host_pos) ||
+	    (netgame_menuon == 2 && index == join_pos);
+
+	HL_WriteText(style,(index<0)?3:is_selected?2:0, x - 10 - style->fonts[0]->StringWidth(keyword), y, keyword);
 	HL_WriteText(style,1, x + 10, y, value);
 
-	if ((netgame_menuon == 1 && index == host_pos) ||
-	    (netgame_menuon == 2 && index == join_pos))
+	if (is_selected)
 	{
 		HL_WriteText(style,2, x - style->fonts[2]->StringWidth("*")/2, y, "*");
 	}
