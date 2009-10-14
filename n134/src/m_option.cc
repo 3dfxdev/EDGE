@@ -467,19 +467,20 @@ static optmenuitem_t analogueoptions[] =
 	{OPT_Slider,   "X Sensitivity",      NULL, 16, &mouse_xsens, NULL, NULL},
 	{OPT_Slider,   "Y Sensitivity",      NULL, 16, &mouse_ysens, NULL, NULL},
 	{OPT_Plain,    "",                   NULL, 0,  NULL, NULL, NULL},
-	{OPT_Slider,   "Turning Speed",      NULL, 7,  &var_turnspeed,    NULL, NULL},
-	{OPT_Slider,   "MLook Speed",        NULL, 7,  &var_mlookspeed,   NULL, NULL},
-	{OPT_Slider,   "Forward Move Speed", NULL, 7,  &var_forwardspeed, NULL, NULL},
-	{OPT_Slider,   "Side Move Speed",    NULL, 7,  &var_sidespeed,    NULL, NULL},
 
-	{OPT_Plain,    "",                   NULL, 0,  NULL, NULL, NULL},
 	{OPT_Switch,   "Joystick Device", JoyDevs, 7,  &joystick_device, NULL, NULL},
 	{OPT_Switch,   "First Axis",         Axis, 11, &joy_axis[0], NULL, NULL},
 	{OPT_Switch,   "Second Axis",        Axis, 11, &joy_axis[1], NULL, NULL},
 	{OPT_Switch,   "Third Axis",         Axis, 11, &joy_axis[2], NULL, NULL},
 	{OPT_Switch,   "Fourth Axis",        Axis, 11, &joy_axis[3], NULL, NULL},
 	{OPT_Switch,   "Fifth Axis",         Axis, 11, &joy_axis[4], NULL, NULL},
-	{OPT_Switch,   "Sixth Axis",         Axis, 11, &joy_axis[5], NULL, NULL}
+	{OPT_Switch,   "Sixth Axis",         Axis, 11, &joy_axis[5], NULL, NULL},
+
+	{OPT_Plain,    "",                   NULL, 0,  NULL, NULL, NULL},
+	{OPT_Slider,   "Turning Speed",      NULL, 7,  &var_turnspeed,    NULL, NULL},
+	{OPT_Slider,   "MLook Speed",        NULL, 7,  &var_mlookspeed,   NULL, NULL},
+	{OPT_Slider,   "Forward Move Speed", NULL, 7,  &var_forwardspeed, NULL, NULL},
+	{OPT_Slider,   "Side Move Speed",    NULL, 7,  &var_sidespeed,    NULL, NULL}
 };
 
 static menuinfo_t analogueoptionsinfo = 
