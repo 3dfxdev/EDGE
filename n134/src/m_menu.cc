@@ -1720,7 +1720,7 @@ bool M_Responder(event_t * ev)
 	switch (ch)
 	{
 		case KEYD_DOWNARROW:
-		case KEYD_MWHEEL_DN:
+		case KEYD_WHEEL_DN:
 			do
 			{
 				if (itemOn + 1 > currentMenu->numitems - 1)
@@ -1733,7 +1733,7 @@ bool M_Responder(event_t * ev)
 			return true;
 
 		case KEYD_UPARROW:
-		case KEYD_MWHEEL_UP:
+		case KEYD_WHEEL_UP:
 			do
 			{
 				if (itemOn == 0)

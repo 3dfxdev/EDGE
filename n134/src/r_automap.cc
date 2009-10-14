@@ -399,11 +399,11 @@ bool AM_Responder(event_t * ev)
 			break;
 
 		// -AJA- 2007/04/18: mouse-wheel support
-		case KEYD_MWHEEL_DN:
+		case KEYD_WHEEL_DN:
 			ChangeWindowScale(1.0 / WHEEL_ZOOMIN);
 			break;
 
-		case KEYD_MWHEEL_UP:
+		case KEYD_WHEEL_UP:
 			ChangeWindowScale(WHEEL_ZOOMIN);
 			break;
 

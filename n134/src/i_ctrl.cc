@@ -274,8 +274,8 @@ void HandleMouseButtonEvent(SDL_Event * ev)
 		case 3: event.value.key.sym = KEYD_MOUSE3; break;
 
 		// handle the mouse wheel
-		case 4: event.value.key.sym = KEYD_MWHEEL_UP; break; 
-		case 5: event.value.key.sym = KEYD_MWHEEL_DN; break; 
+		case 4: event.value.key.sym = KEYD_WHEEL_UP; break; 
+		case 5: event.value.key.sym = KEYD_WHEEL_DN; break; 
 
 		case 6: event.value.key.sym = KEYD_MOUSE4; break;
 		case 7: event.value.key.sym = KEYD_MOUSE5; break;
