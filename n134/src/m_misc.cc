@@ -124,8 +124,6 @@ static default_t defaults[] =
 
     {CFGT_Int,      "show_messages",     &showMessages,   CFGDEF_SHOWMESSAGES},
     {CFGT_Boolean,  "autorun",           &autorunning,    0},
-    {CFGT_Int,      "mouse_sensitivity", &mouseSensitivity, CFGDEF_MOUSESENSITIVITY},
-    {CFGT_Int,      "mlookspeed",        &mlookspeed,     CFGDEF_MLOOKSPEED},
 
     // -ES- 1998/11/28 Save fade settings
     {CFGT_Enum,     "telept_effect",     &telept_effect,  CFGDEF_TELEPT_EFFECT},
@@ -164,14 +162,17 @@ static default_t defaults[] =
 
     // -KM- 1998/09/01 Useless mouse/joy stuff removed,
     //                 analogue binding added
-    {CFGT_Int,      "mouse_axisx",       &mouse_xaxis,    CFGDEF_MOUSE_XAXIS},
-    {CFGT_Int,      "mouse_axisy",       &mouse_yaxis,    CFGDEF_MOUSE_YAXIS},
+    {CFGT_Int,      "mouse_axis_x",      &mouse_xaxis,  CFGDEF_MOUSE_XAXIS},
+    {CFGT_Int,      "mouse_axis_y",      &mouse_yaxis,  CFGDEF_MOUSE_YAXIS},
+    {CFGT_Int,      "mouse_sens_x",      &mouse_xsens,  CFGDEF_MOUSESENSITIVITY},
+    {CFGT_Int,      "mouse_sens_y",      &mouse_ysens,  CFGDEF_MOUSESENSITIVITY},
 
     // -ACB- 1998/09/06 Two-stage turning & Speed controls added
-    {CFGT_Boolean,  "twostage_turning",  &stageturn,      CFGDEF_STAGETURN},
-    {CFGT_Int,      "forwardmove_speed", &forwardmovespeed, CFGDEF_FORWARDMOVESPEED},
-    {CFGT_Int,      "angleturn_speed",   &angleturnspeed, CFGDEF_ANGLETURNSPEED},
-    {CFGT_Int,      "sidemove_speed",    &sidemovespeed,  CFGDEF_SIDEMOVESPEED},
+    {CFGT_Int,      "var_turnspeed",     &var_turnspeed,    CFGDEF_TURNSPEED},
+    {CFGT_Int,      "var_mlookspeed",    &var_mlookspeed,   CFGDEF_MLOOKSPEED},
+    {CFGT_Int,      "var_forwardspeed",  &var_forwardspeed, CFGDEF_FORWARDMOVESPEED},
+    {CFGT_Int,      "var_sidespeed",     &var_sidespeed,    CFGDEF_SIDEMOVESPEED},
+    {CFGT_Int,      "var_flyspeed",      &var_flyspeed,     CFGDEF_SIDEMOVESPEED},
 
     {CFGT_Int,      "joystick_device",   &joystick_device, 0},
     {CFGT_Int,      "joy_axis1",         &joy_axis[0],    CFGDEF_JOY_XAXIS},
