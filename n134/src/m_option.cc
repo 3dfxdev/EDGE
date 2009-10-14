@@ -382,9 +382,9 @@ static optmenuitem_t mainoptions[] =
 	{OPT_Function, "Mouse / Joystick",  NULL,  0, 0, NULL, M_AnalogueOptions, "AnalogueOptions"},
 	{OPT_Plain,    "",                  NULL,  0, 0, NULL, NULL, NULL},
 	{OPT_Function, "Sound Options",     NULL,  0, 0, NULL, M_SoundOptions, "SoundOptions"},
-	{OPT_Function, "Video Options",     NULL,  0, 0, NULL, M_VideoOptions, "VideoOptions"},
-	{OPT_Plain,    "",                  NULL,  0, 0, NULL, NULL, NULL},
 	{OPT_Function, "Gameplay Options",  NULL,  0, 0, NULL, M_GameplayOptions, "GameplayOptions"},
+	{OPT_Plain,    "",                  NULL,  0, 0, NULL, NULL, NULL},
+	{OPT_Function, "Video Options",     NULL,  0, 0, NULL, M_VideoOptions, "VideoOptions"},
 	{OPT_Function, "Set Resolution",    NULL,  0, 0, NULL, M_ResolutionOptions, "ChangeRes"},
 
 	{OPT_Plain,    "",                  NULL,  0, 0, NULL, NULL, NULL},
@@ -934,7 +934,7 @@ void M_OptDrawer()
 			HL_WriteText(style,2, 260 - style->fonts[2]->StringWidth("NEXT >"), 200-deltay*4, 
 							  "NEXT >");
 
-		HL_WriteText(style,2, 160 - style->fonts[2]->StringWidth(curr_menu->key_page)/2, 
+		HL_WriteText(style,3, 160 - style->fonts[2]->StringWidth(curr_menu->key_page)/2, 
 					 curry, curr_menu->key_page);
 		curry += font_h*2;
 
@@ -957,11 +957,14 @@ void M_OptDrawer()
 
 	for (i = 0; i < curr_menu->item_num; i++)
 	{
-		HL_WriteText(style,0, (curr_menu->menu_center) - style->fonts[0]->StringWidth(curr_menu->items[i].name),
+		bool is_selected = (i == curr_menu->pos);
+
+		HL_WriteText(style, is_selected ? 2 : 0,
+		             (curr_menu->menu_center) - style->fonts[0]->StringWidth(curr_menu->items[i].name),
 					 curry, curr_menu->items[i].name);
 
 		// -ACB- 1998/07/15 Menu Cursor is colour indexed.
-		if (i == curr_menu->pos)
+		if (is_selected)
 		{
 			HL_WriteText(style,2, (curr_menu->menu_center + 4), curry, "*");
 
