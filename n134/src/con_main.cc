@@ -376,8 +376,7 @@ int CMD_ShowKeys(char **argv, int argc)
 
 int CMD_ShowJoysticks(char **argv, int argc)
 {
-	/// TODO I_ShowJoysticks();
-
+	I_ShowJoysticks();
 	return 0;
 }
 
