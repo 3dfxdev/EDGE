@@ -340,8 +340,8 @@ void HandleMouseMotionEvent(SDL_Event * ev)
 		event_t event;
 
 		event.type = ev_mouse;
-		event.value.mouse.dx = dx;
-		event.value.mouse.dy = dy;
+		event.value.mouse.dx =  dx;
+		event.value.mouse.dy = -dy;  // -AJA- positive should be "up"
 
 		E_PostEvent(&event);
 	}
