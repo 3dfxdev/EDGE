@@ -276,6 +276,8 @@ void LoadLevel_Bits(void)
 //
 void G_DoLoadLevel(void)
 {
+	HU_Start();
+
 	if (curr_hub_tag == 0)
 		SV_ClearSlot("current");
 
@@ -843,6 +845,8 @@ static bool G_LoadGameFromFile(const char *filename, bool is_hub)
 //
 static void G_DoLoadGame(void)
 {
+	HU_Start();
+
 	E_ForceWipe();
 
 	const char *dir_name = SV_SlotName(defer_load_slot);
@@ -859,8 +863,6 @@ I_Printf("G_DoLoadGame : %s\n", dir_name);
 	}
 
 	V_SetPalette(PALETTE_NORMAL, 0);
-
-	HU_Start();
 }
 
 //
