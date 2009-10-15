@@ -40,9 +40,7 @@ extern cvar_c am_rotate, am_smoothing;
 extern cvar_c m_language;
 extern cvar_c m_diskicon, m_busywait, m_screenhud;
 extern cvar_c m_messages, m_obituaries;
-extern cvar_c m_glnodes;
-
-extern cvar_c goobers;
+extern cvar_c m_goobers;
 
 extern cvar_c sys_directx, sys_waveout;
 extern cvar_c sys_grabfocus;
@@ -106,7 +104,7 @@ cvar_link_t  all_cvars[] =
 
     { "g_aggression",   &g_aggression,   "c",   "0"  },
 
-	{ "goobers",        &goobers,        "",    "0" },
+	/* Input Stuff */
 
 	{ "in_keypad",      &in_keypad,      "c",   "1"  },
 	{ "in_stageturn",   &in_stageturn,   "c",   "1"  },
@@ -115,13 +113,26 @@ cvar_link_t  all_cvars[] =
 	{ "joy_peak",       &joy_peak,       "c",   "0.95" },
 	{ "joy_tuning",     &joy_peak,       "c",   "1.0"  },
 
+  	{ "mouse_filter",   &mouse_filter,   "c",   "0"  },
+
 	{ "m_diskicon",     &m_diskicon,     "c",   "1"  },
 	{ "m_busywait",     &m_busywait,     "c",   "1"  },
+	{ "m_goobers",      &m_goobers,      "",    "0" },
+
+	/* Rendering Stuff */
 
 	{ "r_crosshair",    &r_crosshair,    "c",   "0"  },
 	{ "r_crosscolor",   &r_crosscolor,   "c",   "0"  },
 	{ "r_crosssize",    &r_crosssize,    "c",   "16" },
 	{ "r_crossbright",  &r_crossbright,  "c",   "1.0" },
+
+	/* Sound Stuff */
+
+	/* Debugging Stuff */
+
+	{ "debug_hom",        &debug_hom,        "h", "0" },
+	{ "debug_pos",        &debug_pos,        "h", "0" },
+	{ "debug_fps",        &debug_fps,        "c", "0" },
 
 #if 0 // FIXME
     { "edge_compat",    &edge_compat,    "",    "0"  },
@@ -154,9 +165,6 @@ cvar_link_t  all_cvars[] =
 	{ "m_messages",     &m_messages,     "c",   "1"  },
 	{ "m_obituaries",   &m_obituaries,   "c",   "1"  },
 	{ "m_screenhud",    &m_screenhud,    "c",   "0"  },
-	{ "m_glnodes",      &m_glnodes,      "c",   "1"  },
-
-	/* Rendering Stuff */
 
 	{ "r_width",        &r_width,        "c",   "640"   },
 	{ "r_height",       &r_height,       "c",   "480"   },
@@ -189,8 +197,6 @@ cvar_link_t  all_cvars[] =
 	{ "r_dumbcombine",  &r_dumbcombine,  "",    "0"  },
 	{ "r_dumbclamp",    &r_dumbclamp,    "",    "0"  },
 
-	/* Sound Stuff */
-
 	{ "s_volume",       &s_volume,       "c",   "0.5"  },
 	{ "s_mixchan",      &s_mixchan,      "c",   "32"   },
 	{ "s_rate",         &s_rate,         "c",   "22050" },
@@ -202,8 +208,6 @@ cvar_link_t  all_cvars[] =
 	{ "s_quietfactor",  &s_quietfactor,  "c",   "1"  },
 	{ "tim_quietfactor",&tim_quietfactor,"c",   "1"  },
 
-	/* Input Stuff */
-
 	{ "in_autorun",     &in_autorun,     "c",   "0"  },
 	{ "in_shiftlook",   &in_shiftlook,   "c",   "1"  },
 	{ "in_warpmouse",   &in_warpmouse,   "",    "0"  },
@@ -213,9 +217,6 @@ cvar_link_t  all_cvars[] =
 	{ "mouse_y.axis",   &mouse_y_axis,   "c",   "4" /* AXIS_MLOOK */ },
 	{ "mouse_y.sens",   &mouse_y_sens,   "c",   "10" },
 //	{ "mouse_accel",    &mouse_accel,    "c",   "0"  },
-//	{ "mouse_filter",   &mouse_filter,   "c",   "0"  },
-
-	/* Debugging Stuff */
 
 	{ "debug_nomonsters", &debug_nomonsters, "h", "0" },
 	{ "debug_fullbright", &debug_fullbright, "h", "0" },
@@ -223,10 +224,6 @@ cvar_link_t  all_cvars[] =
 	{ "debug_joyaxis",    &debug_joyaxis,    "h", "0" },
 	{ "debug_mouse",      &debug_mouse,      "h", "0" },
 #endif
-
-	{ "debug_hom",        &debug_hom,        "h", "0" },
-	{ "debug_pos",        &debug_pos,        "h", "0" },
-	{ "debug_fps",        &debug_fps,        "c", "0" },
 
 //---- END OF LIST -----------------------------------------------------------
 
