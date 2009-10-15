@@ -30,6 +30,7 @@
 #include "e_input.h"
 #include "g_game.h"
 #include "m_menu.h"
+#include "m_misc.h"
 #include "s_sound.h"
 #include "w_wad.h"
 #include "version.h"
@@ -235,19 +236,10 @@ int CMD_PlaySound(char **argv, int argc)
 	return 0;
 }
 
-int CMD_ResetKeys(char **argv, int argc)
-{
-	// TODO; first param is a name match
-	
-	// TODO E_ResetAllBinds();
-	return 0;
-}
-
 int CMD_ResetVars(char **argv, int argc)
 {
-	// TODO; first param is a name match
-
 	CON_ResetAllVars();
+	M_ResetDefaults(0);
 	return 0;
 }
 
