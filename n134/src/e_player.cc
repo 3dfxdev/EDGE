@@ -73,7 +73,7 @@ static std::vector<spawnpoint_t> voodoo_dolls;
 static std::vector<spawnpoint_t> hub_starts;
 
 
-static void P_SpawnPlayer(player_t *p, const spawnpoint_t *point);
+static void P_SpawnPlayer(player_t *p, const spawnpoint_t *point, bool is_hub);
 
 
 void G_ClearPlayerStarts(void)
@@ -147,7 +147,7 @@ void G_PlayerFinishLevel(player_t *p, bool keep_cards)
 //
 void player_s::Reborn()
 {
-I_Printf("player_s::Reborn\n");
+	I_Debugf("player_s::Reborn\n");
 
 	playerstate = PST_LIVE;
 
@@ -232,7 +232,7 @@ static bool G_CheckSpot(player_t *player, const spawnpoint_t *point)
 				return false;
 		}
 
-		P_SpawnPlayer(player, point);
+		P_SpawnPlayer(player, point, false);
 		return true; // OK
 	}
 
@@ -247,7 +247,7 @@ static bool G_CheckSpot(player_t *player, const spawnpoint_t *point)
 	y += 20 * M_Sin(point->angle);
 	P_MobjCreateObject(x, y, z, mobjtypes.Lookup("TELEPORT_FLASH"));
 
-	P_SpawnPlayer(player, point);
+	P_SpawnPlayer(player, point, false);
 	return true; // OK
 }
 
@@ -320,7 +320,7 @@ void G_ToggleDisplayPlayer(void)
 // -KM- 1998/12/21 Cleaned this up a bit.
 // -KM- 1999/01/31 Removed all those nasty cases for doomednum (1/4001)
 //
-static void P_SpawnPlayer(player_t *p, const spawnpoint_t *point)
+static void P_SpawnPlayer(player_t *p, const spawnpoint_t *point, bool is_hub)
 {
 	// -KM- 1998/11/25 This is in preparation for skins.  The creatures.ddf
 	//   will hold player start objects, sprite will be taken for skin.
@@ -369,7 +369,8 @@ static void P_SpawnPlayer(player_t *p, const spawnpoint_t *point)
 	p->actiondown[0] = p->actiondown[1] = false;
 
 	// setup gun psprite
-	P_SetupPsprites(p);
+	if (! is_hub)
+		P_SetupPsprites(p);
 
 	// give all cards in death match mode
 	if (DEATHMATCH())
@@ -378,13 +379,6 @@ static void P_SpawnPlayer(player_t *p, const spawnpoint_t *point)
 	// -AJA- in COOP, all players are on the same side
 	if (COOP_MATCH())
 		mobj->side = ~0;
-
-	// -AJA- FIXME: maybe this belongs elsewhere.
-	if (p->pnum == consoleplayer)
-	{
-		// wake up the status bar and heads up text
-		HU_Start();
-	}
 
 	// Don't get stuck spawned in things: telefrag them.
 	P_TeleportMove(mobj, mobj->x, mobj->y, mobj->z);
@@ -523,7 +517,7 @@ void G_HubSpawnPlayer(player_t *p, int tag)
 	spawnpoint_t *point = G_FindHubPlayer(p->pnum+1, tag);
 
 	// assume player will fit (too bad otherwise)
-	P_SpawnPlayer(p, point);
+	P_SpawnPlayer(p, point, true);
 }
 
 
