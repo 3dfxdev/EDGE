@@ -144,6 +144,7 @@ cvar_c joy_peak;
 cvar_c joy_tuning;
 
 cvar_c in_stageturn;
+cvar_c mouse_filter;
 
 // Speed controls
 int var_turnspeed;
