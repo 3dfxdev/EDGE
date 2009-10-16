@@ -37,13 +37,8 @@
 bool alt_is_down;
 bool eat_mouse_motion = true;
 
-#ifdef LINUX
-bool use_warp_mouse = false;
-#else
-bool use_warp_mouse = true;
-#endif
-
 cvar_c in_keypad;
+cvar_c in_warpmouse;
 
 
 bool nojoy;  // what a wowser, joysticks completely disabled
@@ -317,7 +312,7 @@ void HandleMouseMotionEvent(SDL_Event * ev)
 {
 	int dx, dy;
 
-	if (use_warp_mouse)
+	if (in_warpmouse.d)
 	{
 		// -DEL- 2001/01/29 SDL_WarpMouse doesn't work properly on beos so
 		// calculate relative movement manually.
