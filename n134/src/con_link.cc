@@ -73,11 +73,11 @@ extern cvar_c s_rate, s_bits, s_stereo;
 extern cvar_c s_musicvol, s_musicdevice;
 extern cvar_c tim_quietfactor;
 
-extern cvar_c debug_nomonsters, debug_hom;
+extern cvar_c debug_fullbright, debug_hom;
 extern cvar_c debug_mouse,      debug_joyaxis;
 extern cvar_c debug_fps,        debug_pos;
 
-extern cvar_c debug_fullbright, debug_subsector;
+extern cvar_c debug_nomonsters, debug_subsector;
 
 
 #ifndef LINUX
@@ -131,6 +131,7 @@ cvar_link_t  all_cvars[] =
 
 	/* Debugging Stuff */
 
+	{ "debug_fullbright", &debug_fullbright, "h", "0" },
 	{ "debug_hom",        &debug_hom,        "h", "0" },
 	{ "debug_joyaxis",    &debug_joyaxis,    "",  "0" },
 	{ "debug_mouse",      &debug_mouse,      "",  "0" },
@@ -221,7 +222,6 @@ cvar_link_t  all_cvars[] =
 //	{ "mouse_accel",    &mouse_accel,    "c",   "0"  },
 
 	{ "debug_nomonsters", &debug_nomonsters, "h", "0" },
-	{ "debug_fullbright", &debug_fullbright, "h", "0" },
 	{ "debug_subsector",  &debug_subsector,  "h", "0" },
 #endif
 

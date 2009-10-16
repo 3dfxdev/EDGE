@@ -333,9 +333,6 @@ static void SetGlobalVars(void)
 	else if (M_CheckParm("-nodlights"))
 		use_dlights = 0;
 
-	if (M_CheckParm("-fullbright"))
-		var_fullbright = true;
-
 	if (M_CheckParm("-ecompat"))
 		global_flags.edge_compat = true;
 
