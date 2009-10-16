@@ -40,6 +40,8 @@
 void SV_BeginSave(void)
 {
 	L_WriteDebug("SV_BeginSave...\n");
+
+	P_ClearAllStaleRefs();
 }
 
 void SV_FinishSave(void)
