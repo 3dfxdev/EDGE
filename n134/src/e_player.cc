@@ -800,7 +800,7 @@ void G_RemoveOldAvatars(void)
 			SYS_ASSERT(mo->target->player);
 			SYS_ASSERT(mo->target->player->mo);
 
-I_Debugf("Updating avatar reference: %p --> %p\n", mo->target, mo->target->player->mo);
+// I_Debugf("Updating avatar reference: %p --> %p\n", mo->target, mo->target->player->mo);
 
 			mo->SetTarget(mo->target->player->mo);		
 		}
