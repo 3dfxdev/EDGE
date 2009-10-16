@@ -43,8 +43,6 @@ extern bool dumb_multi;
 extern bool dumb_combine;
 extern bool dumb_clamp;
 
-extern bool var_fullbright;
-
 
 //
 //  RGL_MAIN
