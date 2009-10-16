@@ -196,9 +196,6 @@ static default_t defaults[] =
 	{CFGT_Boolean,  "var_smoothmap",     &var_smoothmap,  1},
 	{CFGT_Boolean,  "var_obituaries",    &var_obituaries, 1},
 
-	{CFGT_Int,      "var_nearclip",      &var_nearclip,   4},
-	{CFGT_Int,      "var_farclip",       &var_farclip,    64000},
-
 	// -------------------- KEYS --------------------
 
     {CFGT_Key,      "key_right",         &key_right,      0},
@@ -422,19 +419,6 @@ void M_InitMiscConVars(void)
 
 	M_CheckBooleanParm("smoothmap", &var_smoothmap, false);
 	CON_CreateCVarBool("smoothmap", cf_normal, &var_smoothmap);
-#endif
-
-	const char *s = M_GetParm("-nearclip");
-	if (s)
-		var_nearclip = atoi(s);
-
-	s = M_GetParm("-farclip");
-	if (s)
-		var_farclip = atoi(s);
-
-#if 0
-	CON_CreateCVarInt("nearclip", cf_normal, &var_nearclip);
-	CON_CreateCVarInt("farclip",  cf_normal, &var_farclip);
 #endif
 
 	if (M_CheckParm("-hqscale") || M_CheckParm("-hqall"))

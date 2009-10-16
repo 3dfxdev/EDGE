@@ -89,8 +89,9 @@ extern float ren_blu_mul;
 extern const colourmap_c *ren_fx_colmap;
 
 extern int doom_fading;
-extern int var_nearclip;
-extern int var_farclip;
+
+extern cvar_c r_nearclip;
+extern cvar_c r_farclip;
 
 #define APPROX_DIST2(dx,dy)  \
 	((dx) + (dy) - 0.5f * MIN((dx),(dy)))
