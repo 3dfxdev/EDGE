@@ -781,21 +781,6 @@ void G_MarkPlayerAvatars(void)
 	}
 }
 
-
-static void UpdateOldAvatar(mobj_t **var)
-{
-	// updates an mobj_t pointer which referred to the old avatar
-	// (the one which was saved in the savegame) to refer to the
-	// new avatar (the one spawned after loading).
-
-	if ((*var) && ((*var)->hyperflags & HF_OLD_AVATAR))
-	{
-		SYS_ASSERT((*var)->player);
-
-		*var = (*var)->player->mo;
-	}
-}
-
 void G_RemoveOldAvatars(void)
 {
 	mobj_t *mo;
@@ -806,11 +791,32 @@ void G_RemoveOldAvatars(void)
 	{
 		next = mo->next;
 
-		UpdateOldAvatar(&mo->target);
-		UpdateOldAvatar(&mo->source);
-		UpdateOldAvatar(&mo->supportobj);
+		// update any mobj_t pointer which referred to the old avatar
+		// (the one which was saved in the savegame) to refer to the
+		// new avatar (the one spawned after loading).
+
+		if (mo->target && (mo->target->hyperflags & HF_OLD_AVATAR))
+		{
+			SYS_ASSERT(mo->target->player);
+			SYS_ASSERT(mo->target->player->mo);
+
+I_Debugf("Updating avatar reference: %p --> %p\n", mo->target, mo->target->player->mo);
+
+			mo->SetTarget(mo->target->player->mo);		
+		}
+
+		if (mo->source && (mo->source->hyperflags & HF_OLD_AVATAR))
+		{
+			mo->SetSource(mo->source->player->mo);		
+		}
+
+		if (mo->supportobj && (mo->supportobj->hyperflags & HF_OLD_AVATAR))
+		{
+			mo->SetSupportObj(mo->supportobj->player->mo);		
+		}
 
 		// the other three fields don't matter (tracer, above_mo, below_mo)
+		// because the will be nulled by the P_RemoveMobj() below.
 	}
 
 	// now actually remove the old avatars
@@ -819,7 +825,11 @@ void G_RemoveOldAvatars(void)
 		next = mo->next;
 
 		if (mo->hyperflags & HF_OLD_AVATAR)
+		{
+			I_Debugf("Removing old avatar: %p\n", mo);
+
 			P_RemoveMobj(mo);
+		}
 	}
 }
 
