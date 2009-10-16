@@ -127,6 +127,9 @@ cvar_link_t  all_cvars[] =
 	{ "r_crosssize",    &r_crosssize,    "c",   "16" },
 	{ "r_crossbright",  &r_crossbright,  "c",   "1.0" },
 
+	{ "r_nearclip",     &r_nearclip,     "c",   "4"  },
+	{ "r_farclip",      &r_farclip,      "c",   "64000" },
+
 	/* Sound Stuff */
 
 	/* Debugging Stuff */
@@ -176,8 +179,6 @@ cvar_link_t  all_cvars[] =
     { "r_fullscreen",   &r_fullscreen,   "c",   "1"     },
 												
 	{ "r_gamma",        &r_gamma,        "c",   "1"  },
-	{ "r_nearclip",     &r_nearclip,     "c",   "4"  },
-	{ "r_farclip",      &r_farclip,      "c",   "64000" },
 	{ "r_fadepower",    &r_fadepower,    "c",   "1"  },
 	{ "r_fov",          &r_fov,          "c",   "90" },
 	{ "r_zoomedfov",    &r_zoomedfov,    "c",   "10" },
