@@ -118,9 +118,6 @@ static byte gamekeydown[NUMKEYS];
 static int turnheld;   // for accelerative turning 
 static int mlookheld;  // for accelerative mlooking 
 
-// toggled by autorun button.
-bool autorunning = false;
-
 //-------------------------------------------
 // -KM-  1998/09/01 Analogue binding
 // -ACB- 1998/09/06 Two-stage turning switch
@@ -143,6 +140,7 @@ cvar_c joy_dead;
 cvar_c joy_peak;
 cvar_c joy_tuning;
 
+cvar_c in_running;
 cvar_c in_stageturn;
 cvar_c mouse_filter;
 
@@ -307,7 +305,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	bool strafe = E_InputCheckKey(key_strafe);
 	int  speed  = E_InputCheckKey(key_speed) ? 1 : 0;
 
-	if (autorunning)
+	if (in_running.d)
 		speed = !speed;
 
 	//
@@ -486,7 +484,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	{
 		if (allowautorun)
 		{
-			autorunning  = !autorunning;
+			in_running = in_running.d ? 0 : 1;
 			allowautorun = false;
 		}
 	}

@@ -123,7 +123,6 @@ static default_t defaults[] =
     {CFGT_Int,      "timidity_quiet",    &var_timid_factor, CFGDEF_QUIET_FACTOR},
 
     {CFGT_Int,      "show_messages",     &showMessages,   CFGDEF_SHOWMESSAGES},
-    {CFGT_Boolean,  "autorun",           &autorunning,    0},
 
     // -ES- 1998/11/28 Save fade settings
     {CFGT_Enum,     "telept_effect",     &telept_effect,  CFGDEF_TELEPT_EFFECT},
