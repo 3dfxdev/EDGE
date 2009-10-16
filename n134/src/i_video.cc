@@ -31,7 +31,9 @@ SDL_Surface *my_vis;
 
 int graphics_shutdown = 0;
 
-bool use_grab = true;
+cvar_c in_grab;
+
+static bool grab_state;
 
 
 // Possible Screen Modes
@@ -54,18 +56,20 @@ static struct { int w, h; } possible_modes[] =
 
 void I_GrabCursor(bool enable)
 {
-	if (my_vis && use_grab && ! graphics_shutdown)
+	if (! my_vis || graphics_shutdown)
+		return;
+
+	grab_state = enable;
+
+	if (grab_state && in_grab.d)
 	{
-		if (enable)
-		{
-			SDL_ShowCursor(0);
-			SDL_WM_GrabInput(SDL_GRAB_ON);
-		}
-		else
-		{
-			SDL_ShowCursor(1);
-			SDL_WM_GrabInput(SDL_GRAB_OFF);
-		}
+		SDL_ShowCursor(0);
+		SDL_WM_GrabInput(SDL_GRAB_ON);
+	}
+	else
+	{
+		SDL_ShowCursor(1);
+		SDL_WM_GrabInput(SDL_GRAB_OFF);
 	}
 }
 
@@ -106,8 +110,8 @@ void I_StartupGraphics(void)
 	if (SDL_InitSubSystem(SDL_INIT_VIDEO) != 0)
 		I_Error("Couldn't init SDL VIDEO!\n%s\n", SDL_GetError());
 
-	M_CheckBooleanParm("warpmouse", &use_warp_mouse, false);
-	M_CheckBooleanParm("grab", &use_grab, false);
+	if (M_CheckParm("-nograb"))
+		in_grab = 0;
 
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE,     5);
 	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,   5);
@@ -233,6 +237,9 @@ void I_StartFrame(void)
 void I_FinishFrame(void)
 {
 	SDL_GL_SwapBuffers();
+
+	if (in_grab.CheckModified())
+		I_GrabCursor(grab_state);
 }
 
 

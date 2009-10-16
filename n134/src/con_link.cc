@@ -43,10 +43,10 @@ extern cvar_c m_messages, m_obituaries;
 extern cvar_c m_goobers;
 
 extern cvar_c sys_directx, sys_waveout;
-extern cvar_c sys_grabfocus;
 
 extern cvar_c in_running, in_stageturn, in_shiftlook;
 extern cvar_c in_keypad,  in_warpmouse;
+extern cvar_c in_grab;
 
 extern cvar_c mouse_x_axis, mouse_y_axis;
 extern cvar_c mouse_x_sens, mouse_y_sens;
@@ -106,9 +106,11 @@ cvar_link_t  all_cvars[] =
 
 	/* Input Stuff */
 
+    { "in_grab",        &in_grab,        "c",   "1"  },
 	{ "in_keypad",      &in_keypad,      "c",   "1"  },
 	{ "in_running",     &in_running,     "c",   "0"  },
 	{ "in_stageturn",   &in_stageturn,   "c",   "1"  },
+	{ "in_warpmouse",   &in_warpmouse,   "c",   "1"  },
 
 	{ "joy_dead",       &joy_dead,       "c",   "0.15" },
 	{ "joy_peak",       &joy_peak,       "c",   "0.95" },
@@ -146,7 +148,6 @@ cvar_link_t  all_cvars[] =
 
     { "sys_directx",    &sys_directx,    "c",   "0"  },
     { "sys_waveout",    &sys_waveout,    "c",   "0"  },
-    { "sys_grabfocus",  &sys_grabfocus,  "c",   "1"  },
 
     { "ddf_strict",     &ddf_strict,     "c",   "0"  },
     { "ddf_lax",        &ddf_lax,        "c",   "0"  },
@@ -214,7 +215,6 @@ cvar_link_t  all_cvars[] =
 	{ "tim_quietfactor",&tim_quietfactor,"c",   "1"  },
 
 	{ "in_shiftlook",   &in_shiftlook,   "c",   "1"  },
-	{ "in_warpmouse",   &in_warpmouse,   "",    "0"  },
 
 	{ "mouse_x.axis",   &mouse_x_axis,   "c",   "1" /* AXIS_TURN */  },
 	{ "mouse_x.sens",   &mouse_x_sens,   "c",   "10"  },
