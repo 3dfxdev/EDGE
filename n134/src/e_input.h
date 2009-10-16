@@ -41,8 +41,6 @@ void E_PostEvent(event_t * ev);
 
 bool INP_Responder(event_t * ev);
 
-extern bool autorunning;
-
 // -KM- 1998/09/01 Analogue binding stuff, These hold what axis they bind to.
 extern int mouse_xaxis;
 extern int mouse_yaxis;

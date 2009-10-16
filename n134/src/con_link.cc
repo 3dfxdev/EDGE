@@ -45,9 +45,8 @@ extern cvar_c m_goobers;
 extern cvar_c sys_directx, sys_waveout;
 extern cvar_c sys_grabfocus;
 
-extern cvar_c in_autorun, in_stageturn, in_shiftlook;
-extern cvar_c in_warpmouse;
-extern cvar_c in_keypad;
+extern cvar_c in_running, in_stageturn, in_shiftlook;
+extern cvar_c in_keypad,  in_warpmouse;
 
 extern cvar_c mouse_x_axis, mouse_y_axis;
 extern cvar_c mouse_x_sens, mouse_y_sens;
@@ -107,6 +106,7 @@ cvar_link_t  all_cvars[] =
 	/* Input Stuff */
 
 	{ "in_keypad",      &in_keypad,      "c",   "1"  },
+	{ "in_running",     &in_running,     "c",   "0"  },
 	{ "in_stageturn",   &in_stageturn,   "c",   "1"  },
 
 	{ "joy_dead",       &joy_dead,       "c",   "0.15" },
@@ -208,7 +208,6 @@ cvar_link_t  all_cvars[] =
 	{ "s_quietfactor",  &s_quietfactor,  "c",   "1"  },
 	{ "tim_quietfactor",&tim_quietfactor,"c",   "1"  },
 
-	{ "in_autorun",     &in_autorun,     "c",   "0"  },
 	{ "in_shiftlook",   &in_shiftlook,   "c",   "1"  },
 	{ "in_warpmouse",   &in_warpmouse,   "",    "0"  },
 
