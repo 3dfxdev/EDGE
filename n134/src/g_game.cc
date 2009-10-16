@@ -292,16 +292,12 @@ void G_DoLoadLevel(void)
 		{
 			I_Printf("Loading HUB...\n");
 
-///---			int old_hub_tag = curr_hub_tag;
-///---			const mapdef_c * old_hub_first = curr_hub_first;
-
 			if (! G_LoadGameFromFile(fn.c_str(), true))
 				I_Error("LOAD-HUB failed with filename: %s\n", fn.c_str());
 
-///---			curr_hub_tag   = old_hub_tag;
-///---			curr_hub_first = old_hub_first;
-
 			SpawnInitialPlayers();
+
+			G_RemoveOldAvatars();
 
 			P_HubFastForward();
 			return;
@@ -673,9 +669,9 @@ static void G_DoCompleted(void)
 				// save current map for HUB system
 				I_Printf("Saving HUB...\n");
 
-				// don't keep the avatars of players (otherwise they
-				// will exist when we come back as voodoo dolls).
-				G_PlayerRemoveMobjs();
+				// remember avatars of players, so we can remove them
+				// when we return to this level.
+				G_MarkPlayerAvatars();
 
 				const char *mapname = SV_MapName(currmap);
 
@@ -932,8 +928,6 @@ static bool G_SaveGameToFile(const char *filename, const char *description)
 	globs->mapline.crc = mapline_CRC.crc;
 	globs->mapthing.count = mapthing_NUM;
 	globs->mapthing.crc = mapthing_CRC.crc;
-
-	P_ClearAllStaleRefs();
 
 	SV_BeginSave();
 

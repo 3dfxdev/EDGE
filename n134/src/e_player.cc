@@ -770,17 +770,56 @@ spawnpoint_t *G_FindCoopPlayer(int pnum)
 }
 
 
-void G_PlayerRemoveMobjs(void)
+void G_MarkPlayerAvatars(void)
 {
 	for (int i = 0; i < MAXPLAYERS; i++)
 	{
 		player_t *p = players[i];
 
 		if (p && p->mo)
-		{
-			P_RemoveMobj(p->mo);
-			p->mo = NULL;
-		}
+			p->mo->hyperflags |= HF_OLD_AVATAR;
+	}
+}
+
+
+static void UpdateOldAvatar(mobj_t **var)
+{
+	// updates an mobj_t pointer which referred to the old avatar
+	// (the one which was saved in the savegame) to refer to the
+	// new avatar (the one spawned after loading).
+
+	if ((*var) && ((*var)->hyperflags & HF_OLD_AVATAR))
+	{
+		SYS_ASSERT((*var)->player);
+
+		*var = (*var)->player->mo;
+	}
+}
+
+void G_RemoveOldAvatars(void)
+{
+	mobj_t *mo;
+	mobj_t *next;
+
+	// first fix up any references
+	for (mo = mobjlisthead; mo; mo = next)
+	{
+		next = mo->next;
+
+		UpdateOldAvatar(&mo->target);
+		UpdateOldAvatar(&mo->source);
+		UpdateOldAvatar(&mo->supportobj);
+
+		// the other three fields don't matter (tracer, above_mo, below_mo)
+	}
+
+	// now actually remove the old avatars
+	for (mo = mobjlisthead; mo; mo = next)
+	{
+		next = mo->next;
+
+		if (mo->hyperflags & HF_OLD_AVATAR)
+			P_RemoveMobj(mo);
 	}
 }
 

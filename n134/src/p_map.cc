@@ -153,6 +153,10 @@ static bool PIT_StompThing(mobj_t * thing, void *data)
 	if (thing == tm_I.mover)
 		return true;
 
+	// ignore old avatars (for Hub reloads), which get removed after loading
+	if (thing->hyperflags & HF_OLD_AVATAR)
+		return true;
+
 	float blockdist = thing->radius + tm_I.mover->radius;
 
 	// check to see we hit it

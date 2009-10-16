@@ -274,6 +274,9 @@ typedef enum
 
 	// -AJA- 2008/01/11: compatibility for quadratic dlights
 	HF_QUADRATIC_COMPAT = (1 << 11),
+
+	// -AJA- 2009/10/15: HUB system: remember old avatars
+	HF_OLD_AVATAR = (1 << 12),
 }
 mobjhyperflag_t;
 

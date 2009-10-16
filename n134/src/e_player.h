@@ -333,7 +333,8 @@ void G_ToggleDisplayPlayer(void);
 
 void G_PlayerReborn(player_t *player, const mobjtype_c *info);
 void G_PlayerFinishLevel(player_t *p, bool keep_cards);
-void G_PlayerRemoveMobjs(void);
+void G_MarkPlayerAvatars(void);
+void G_RemoveOldAvatars(void);
 
 bool G_CheckConditions(mobj_t *mo, condition_check_t *cond);
 
