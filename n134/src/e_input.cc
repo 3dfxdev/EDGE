@@ -144,6 +144,9 @@ cvar_c in_running;
 cvar_c in_stageturn;
 cvar_c mouse_filter;
 
+cvar_c debug_mouse;
+cvar_c debug_joyaxis;
+
 // Speed controls
 int var_turnspeed;
 int var_mlookspeed;
@@ -213,6 +216,11 @@ static void UpdateJoyAxis(int n)
 	// perform inversion
 	if ((joy_axis[n]+1) & 1)
 		force = -force;
+
+	if (debug_joyaxis.d == n+1)
+	{
+		I_Printf("Axis%d : raw %+05d --> %+7.3f\n", n+1, raw, force);
+	}
 
 	int axis = (joy_axis[n]+1) >> 1;
 
@@ -535,6 +543,10 @@ bool INP_Responder(event_t * ev)
 
 			dx *= sensitivities[mouse_xsens];
 			dy *= sensitivities[mouse_ysens];
+
+			if (debug_mouse.d)
+				I_Printf("Mouse %+04d %+04d --> %+7.2f %+7.2f\n",
+				         ev->value.mouse.dx, ev->value.mouse.dy, dx, dy);
 
 			// -AJA- 1999/07/27: Mlook key like quake's.
 			if (E_InputCheckKey(key_mlook))
