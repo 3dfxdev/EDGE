@@ -674,7 +674,7 @@ static void BOT_ConvertToTiccmd(bot_t *bot, ticcmd_t *dest, botcmd_t *src)
 		new_slope = P_ApproxSlope(dx, dy, dz);
 	}
 
-	dest->angleturn = (new_angle - mo->angle) >> 16;
+	dest->angleturn = (mo->angle - new_angle) >> 16;
 	dest->mlookturn = (M_ATan(new_slope) - mo->vertangle) >> 16;
 
 	dest->forwardmove = 0;

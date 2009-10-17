@@ -333,7 +333,7 @@ bool G_Responder(event_t * ev)
 	if (ev->type == ev_keydown && ev->value.key.sym == KEYD_F12)
 	{
 		// 25-6-98 KM Allow spy mode for demos even in deathmatch
-		if (gamestate == GS_LEVEL && !DEATHMATCH()) //!!!! DEBUGGING
+		if (gamestate == GS_LEVEL) //!!!! && !DEATHMATCH())
 		{
 			G_ToggleDisplayPlayer();
 			return true;
