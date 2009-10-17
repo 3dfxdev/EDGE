@@ -132,6 +132,13 @@ cvar_link_t  all_cvars[] =
 	{ "r_nearclip",     &r_nearclip,     "c",   "4"  },
 	{ "r_farclip",      &r_farclip,      "c",   "64000" },
 
+	{ "r_colormaterial",&r_colormaterial, "",   "1"  },
+	{ "r_colorlighting",&r_colorlighting, "",   "1"  },
+	{ "r_dumbsky",      &r_dumbsky,       "",   "0"  },
+	{ "r_dumbmulti",    &r_dumbmulti,     "",   "0"  },
+	{ "r_dumbcombine",  &r_dumbcombine,   "",   "0"  },
+	{ "r_dumbclamp",    &r_dumbclamp,     "",   "0"  },
+
 	/* Sound Stuff */
 
 	/* Debugging Stuff */
@@ -195,13 +202,6 @@ cvar_link_t  all_cvars[] =
 	{ "r_wipemethod",   &r_wipemethod,   "c",   "1" /* Melt */ },
 	{ "r_wipereverse",  &r_wipereverse,  "c",   "0"  },
 	{ "r_teleportflash",&r_teleportflash,"c",   "1"  },
-
-	{ "r_colormaterial",&r_colormaterial,"",    "1"  },
-	{ "r_colorlighting",&r_colorlighting,"",    "1"  },
-	{ "r_dumbsky",      &r_dumbsky,      "",    "0"  },
-	{ "r_dumbmulti",    &r_dumbmulti,    "",    "0"  },
-	{ "r_dumbcombine",  &r_dumbcombine,  "",    "0"  },
-	{ "r_dumbclamp",    &r_dumbclamp,    "",    "0"  },
 
 	{ "s_volume",       &s_volume,       "c",   "0.5"  },
 	{ "s_mixchan",      &s_mixchan,      "c",   "32"   },
