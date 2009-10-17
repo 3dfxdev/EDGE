@@ -50,7 +50,8 @@ typedef enum
 	trig_none    = 0,
 	trig_player  = 1,
 	trig_monster = 2,
-	trig_other   = 4
+	trig_other   = 4,
+	trig_nobot   = 8   // -AJA- 2009/10/17
 }
 trigacttype_e;
 

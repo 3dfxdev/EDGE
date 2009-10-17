@@ -976,6 +976,9 @@ static bool P_ActivateSpecialLine(line_t * line,
 			// Players can only trigger if the trig_player is set
 			if (!(special->obj & trig_player))
 				return false;
+
+			if (thing->player->isBot() && (special->obj & trig_nobot))
+				return false;
 		}
 		else if (thing && (thing->info->extendedflags & EF_MONSTER))
 		{
