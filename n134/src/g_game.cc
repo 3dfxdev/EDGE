@@ -846,7 +846,7 @@ static void G_DoLoadGame(void)
 	E_ForceWipe();
 
 	const char *dir_name = SV_SlotName(defer_load_slot);
-I_Printf("G_DoLoadGame : %s\n", dir_name);
+	I_Debugf("G_DoLoadGame : %s\n", dir_name);
 
 	SV_ClearSlot("current");
 	SV_CopySlot(dir_name, "current");

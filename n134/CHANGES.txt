@@ -14,6 +14,7 @@ CHANGES IN 1.34 (since 1.31)
 - improved various defaults (e.g. WASD movement)
 - new Lua function: hud.play_sound()
 - new 'debug_fps' and 'debug_pos' cvars
+- LINES.DDF: can prevent bots using a linetype
 - shorter cheat code for 'killall'
 
 - better HOM detection (debug_hom cvar)
@@ -29,6 +30,7 @@ CHANGES IN 1.34 (since 1.31)
 - fixed teleporting into walls bug (with help from Andrew Baker)
 - fixed bug with LOSE_BENEFIT on ammo limits
 - fixed weapon refire accuracy after a loadgame
+- fixed bots triggering exit lines/switches
 - fixed excessive warnings for missing textures
 
 - fixed 16-rotation sprites
