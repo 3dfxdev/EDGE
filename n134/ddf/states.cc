@@ -237,7 +237,7 @@ static void DDF_MainSplitActionArg(const char *info, char *actname, char *actarg
 {
 	int len = strlen(info);
 
-	char *mid = strchr(info, '(');
+	const char *mid = strchr(info, '(');
 
 	if (mid && len >= 4 && info[len - 1] == ')')
 	{

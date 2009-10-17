@@ -481,7 +481,7 @@ static bool ThingStartEntry(const char *buffer)
 	std::string name(buffer);
 	int number = 0;
 
-	char *pos = strchr(buffer, ':');
+	const char *pos = strchr(buffer, ':');
 
 	if (pos)
 	{
@@ -707,7 +707,7 @@ static int ParseBenefitString(const char *info, char *name, char *param,
 {
 	int len = strlen(info);
 
-	char *pos = strchr(info, '(');
+	const char *pos = strchr(info, '(');
 
 	param[0] = 0;
 
