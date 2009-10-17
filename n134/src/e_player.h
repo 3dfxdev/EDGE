@@ -317,7 +317,7 @@ public:
 
 	inline bool isBot() const
 	{
-		return (playerstate & PFL_Bot) ? true:false;
+		return (playerflags & PFL_Bot) ? true:false;
 	}
 }
 player_t;
