@@ -314,6 +314,11 @@ typedef struct player_s
 
 public:
 	void Reborn();
+
+	inline bool isBot() const
+	{
+		return (playerstate & PFL_Bot) ? true:false;
+	}
 }
 player_t;
 
