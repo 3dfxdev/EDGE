@@ -206,10 +206,10 @@ bool SV_VerifyHeader(int *version)
 		return false;
 	}
 
-	if (savegame_version < 0x12902)
+	if (savegame_version < 0x13401)
 	{
-		I_Debugf("LOADGAME: Savegame is too old (0x%05x < 0x%05x)\n",
-		         savegame_version, 0x12902);
+		I_Printf("LOADGAME: Savegame is too old (0x%05x < 0x%05x)\n",
+		         savegame_version, 0x13401);
 		return false;
 	}
 
@@ -266,8 +266,6 @@ bool SV_VerifyContents(void)
 				"File truncated.\n");
 			return false;
 		}
-
-		SYS_ASSERT(savegame_version >= 0x12901);
 	}
 
 	// check trailer
@@ -400,8 +398,6 @@ bool SV_PushReadChunk(const char *id)
 		// decompress data
 		decomp_len = orig_len;
 
-		SYS_ASSERT(savegame_version >= 0x12902);
-
 		if (orig_len == file_len)
 		{
 			// no compression
@@ -426,8 +422,6 @@ bool SV_PushReadChunk(const char *id)
 
 		SYS_ASSERT(decomp_len == orig_len);
 
-		SYS_ASSERT(savegame_version >= 0x12901);
-
 		delete[] file_data;
 	}
 	else
@@ -445,10 +439,6 @@ bool SV_PushReadChunk(const char *id)
 	}
 
 	cur->pos = cur->start;
-
-	// check for matching markers
-
-	SYS_ASSERT(savegame_version >= 0x12901);
 
 	// let the SV_GetByte routine (etc) see the new chunk
 	chunk_stack_size++;

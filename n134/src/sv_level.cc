@@ -649,13 +649,6 @@ void SV_SectorFinaliseElems(void)
 		{
 			P_AddSpecialSector(sec);
 		}
-
-		// fix 'type' field for older save-games
-		if (savegame_version < 0x12903)
-		{
-			sec->props.type = sec->props.special ?
-				sec->props.special->ddf.number : 0;
-		}
 	}
 
 	// scan active parts, regenerate floor_move and ceil_move

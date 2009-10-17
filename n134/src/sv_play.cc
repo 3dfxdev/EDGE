@@ -426,14 +426,6 @@ void SV_PlayerFinaliseElems(void)
 		else
 			p->builder = P_ConsolePlayerBuilder;
 
-		// -AJA- 2007/08/22: new PURPLE armor was squeezed into middle
-		if (savegame_version < 0x13100)
-		{
-			p->armours[ARMOUR_Red]    = p->armours[3];
-			p->armours[ARMOUR_Yellow] = p->armours[2];
-			p->armours[ARMOUR_Purple] = 0;
-		}
-
 		P_UpdateAvailWeapons(p);
 		P_UpdateTotalArmour(p);
 	}
