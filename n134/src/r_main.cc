@@ -139,7 +139,7 @@ void RGL_SetupMatrices3D(void)
 
 	// turn on lighting.  Some drivers (e.g. TNT2) don't work properly
 	// without it.
-	if (use_lighting)
+	if (r_colorlighting.d)
 	{
 		glEnable(GL_LIGHTING);
 		glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
@@ -147,7 +147,7 @@ void RGL_SetupMatrices3D(void)
 	else
 		glDisable(GL_LIGHTING);
 
-	if (use_color_material)
+	if (r_colormaterial.d)
 	{
 		glEnable(GL_COLOR_MATERIAL);
 		glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
@@ -213,7 +213,7 @@ void RGL_CheckExtensions(void)
 	else
 	{
 		I_Warning("OpenGL driver does not support COMBINE.\n");
-		dumb_combine = true;
+		r_dumbcombine = 1;
 	}
 
 	if (GLEW_VERSION_1_2 ||
@@ -223,7 +223,7 @@ void RGL_CheckExtensions(void)
 	else
 	{
 		I_Warning("OpenGL driver does not support Edge-Clamp.\n");
-		dumb_clamp = true;
+		r_dumbclamp = 1;
 	}
 
 
@@ -246,15 +246,15 @@ void RGL_CheckExtensions(void)
 				bug->renderer ? bug->renderer :
 				bug->vendor   ? bug->vendor : "the Axis of Evil");
 
-		if (bug->disable & PFT_LIGHTING)  use_lighting = false;
-		if (bug->disable & PFT_COLOR_MAT) use_color_material = false;
-		if (bug->disable & PFT_SKY)       dumb_sky = true;
-		if (bug->disable & PFT_MULTI_TEX) dumb_multi = true;
+		if (bug->disable & PFT_LIGHTING)  r_colorlighting = 0;
+		if (bug->disable & PFT_COLOR_MAT) r_colormaterial = 0;
+		if (bug->disable & PFT_SKY)       r_dumbsky = 1;
+		if (bug->disable & PFT_MULTI_TEX) r_dumbmulti = 1;
 
-		if (bug->enable & PFT_LIGHTING)   use_lighting = true;
-		if (bug->enable & PFT_COLOR_MAT)  use_color_material = true;
-		if (bug->enable & PFT_SKY)        dumb_sky = false;
-		if (bug->enable & PFT_MULTI_TEX)  dumb_multi = false;
+		if (bug->enable & PFT_LIGHTING)   r_colorlighting = 1;
+		if (bug->enable & PFT_COLOR_MAT)  r_colormaterial = 1;
+		if (bug->enable & PFT_SKY)        r_dumbsky = 0;
+		if (bug->enable & PFT_MULTI_TEX)  r_dumbmulti = 0;
 	}
 }
 

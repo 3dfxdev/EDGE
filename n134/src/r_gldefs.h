@@ -35,13 +35,13 @@
 #include <vector>
 
 
-extern bool use_lighting;
-extern bool use_color_material;
+extern cvar_c r_colorlighting;
+extern cvar_c r_colormaterial;
 
-extern bool dumb_sky;
-extern bool dumb_multi;
-extern bool dumb_combine;
-extern bool dumb_clamp;
+extern cvar_c r_dumbsky;
+extern cvar_c r_dumbmulti;
+extern cvar_c r_dumbcombine;
+extern cvar_c r_dumbclamp;
 
 
 //

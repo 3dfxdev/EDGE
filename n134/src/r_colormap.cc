@@ -779,7 +779,7 @@ public:
 	{
 		local_gl_vert_t * glvert = RGL_BeginUnit(shape, num_vert,
 				GL_MODULATE, tex,
-				(simple_cmap || dumb_multi) ? GL_MODULATE : GL_DECAL,
+				(simple_cmap || r_dumbmulti.d) ? GL_MODULATE : GL_DECAL,
 				fade_tex, *pass_var, blending);
 
 		for (int v_idx=0; v_idx < num_vert; v_idx++)
