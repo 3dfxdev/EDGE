@@ -285,6 +285,7 @@ s_activators[] =
 	{ "PLAYER",  trig_player } ,
 	{ "MONSTER", trig_monster },
 	{ "OTHER",   trig_other },
+	{ "NOBOT",   trig_nobot } ,
 
 	// obsolete stuff
 	{ "MISSILE", 0 }
