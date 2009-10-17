@@ -131,7 +131,7 @@ gameflags_t default_gameflags =
 	true,     // kicking
 	true,     // weapon_switch
 	true,     // pass_missile
-	true,     // team_damage
+	false,    // team_damage
 };
 
 // -KM- 1998/12/16 These flags are the users prefs and are copied to

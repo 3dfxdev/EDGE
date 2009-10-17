@@ -383,7 +383,7 @@ static void P_SpawnPlayer(player_t *p, const spawnpoint_t *point, bool is_hub)
 	// Don't get stuck spawned in things: telefrag them.
 	P_TeleportMove(mobj, mobj->x, mobj->y, mobj->z);
 
-	if (! level_flags.team_damage)
+	if (COOP_MATCH() && ! level_flags.team_damage)
 		mobj->hyperflags |= HF_SIDEIMMUNE;
 }
 
