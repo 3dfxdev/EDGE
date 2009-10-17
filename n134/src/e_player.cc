@@ -369,7 +369,7 @@ static void P_SpawnPlayer(player_t *p, const spawnpoint_t *point, bool is_hub)
 	p->actiondown[0] = p->actiondown[1] = false;
 
 	// setup gun psprite
-	if (! is_hub)
+	if (! is_hub || !SP_MATCH())
 		P_SetupPsprites(p);
 
 	// give all cards in death match mode

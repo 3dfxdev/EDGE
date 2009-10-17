@@ -522,6 +522,8 @@ static void RespawnPlayer(player_t *p)
 	// first disassociate the corpse (if any)
 	if (p->mo)
 		p->mo->player = NULL;
+	
+	p->mo = NULL;
 
 	// spawn at random spot if in death match 
 	if (DEATHMATCH())
