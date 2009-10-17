@@ -83,14 +83,14 @@ static cheatseq_t cheat_choppers          = {0, 0};
 static cheatseq_t cheat_clev              = {0, 0};
 static cheatseq_t cheat_killall           = {0, 0};
 static cheatseq_t cheat_suicide           = {0, 0};
-static cheatseq_t cheat_keys              = {0, 0};
 static cheatseq_t cheat_loaded            = {0, 0};
 static cheatseq_t cheat_takeall           = {0, 0};
 static cheatseq_t cheat_god               = {0, 0};
 static cheatseq_t cheat_ammo              = {0, 0};
 static cheatseq_t cheat_ammonokey         = {0, 0};
+static cheatseq_t cheat_keys              = {0, 0};
 static cheatseq_t cheat_noclip            = {0, 0};
-static cheatseq_t cheat_commercial_noclip = {0, 0};
+static cheatseq_t cheat_noclip2           = {0, 0};
 static cheatseq_t cheat_hom               = {0, 0};
 
 static cheatseq_t cheat_giveweapon[11] =
@@ -353,8 +353,8 @@ bool M_CheatResponder(event_t * ev)
 	}
 	// Simplified, accepting both "noclip" and "idspispopd".
 	// no clipping mode cheat
-	else if (M_CheckCheat(&cheat_noclip, key)
-		|| M_CheckCheat(&cheat_commercial_noclip, key))
+	else if (M_CheckCheat(&cheat_noclip,  key)
+		  || M_CheckCheat(&cheat_noclip2, key))
 	{
 		pl->cheats ^= CF_NOCLIP;
 
@@ -454,13 +454,13 @@ void M_CheatInit(void)
 	char temp[16];
 
 	// Now what?
-	cheat_mus.sequence               = language["idmus"];
-	cheat_god.sequence               = language["iddqd"];
-	cheat_ammo.sequence              = language["idkfa"];
-	cheat_ammonokey.sequence         = language["idfa"];
-	cheat_noclip.sequence            = language["idspispopd"];
-	cheat_commercial_noclip.sequence = language["idclip"];
-	cheat_hom.sequence               = language["idhom"];
+	cheat_mus.sequence       = language["idmus"];
+	cheat_god.sequence       = language["iddqd"];
+	cheat_ammo.sequence      = language["idkfa"];
+	cheat_ammonokey.sequence = language["idfa"];
+	cheat_noclip.sequence    = language["idspispopd"];
+	cheat_noclip2.sequence   = language["idclip"];
+	cheat_hom.sequence       = language["idhom"];
 
 	for (i=0; i < 9; i++)
 	{
