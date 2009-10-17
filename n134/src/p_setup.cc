@@ -1379,6 +1379,12 @@ static void TransferMapSideDef(const raw_sidedef_t *msd, side_t *sd,
 	Z_StrNCpy(buffer, msd->upper_tex, 8);
 	sd->top.image = W_ImageLookup(buffer, INS_Texture, ILF_Null);
 
+	if (m_goobers.d && ! sd->top.image)
+	{
+		Z_StrNCpy(buffer, msd->lower_tex, 8);
+		sd->top.image = W_ImageLookup(buffer, INS_Texture);
+	}
+
 	// handle air colourmaps with BOOM's [242] linetype
 	if (! sd->top.image)
 	{
