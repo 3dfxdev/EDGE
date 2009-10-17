@@ -322,7 +322,7 @@ static void RAD_CheckForTime(const char *info, void *storage)
 		return;
 	}
 
-	char *p = strchr(info, 'T');
+	const char *p = strchr(info, 'T');
 
 	if (!p)
 		p = strchr(info, 't');

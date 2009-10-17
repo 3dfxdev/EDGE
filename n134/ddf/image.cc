@@ -87,7 +87,7 @@ static bool ImageStartEntry(const char *name)
 
 	if (name && name[0])
 	{
-		char *pos = strchr(name, ':');
+		const char *pos = strchr(name, ':');
 
 		if (! pos)
 			DDF_Error("Missing image prefix.\n");
