@@ -37,7 +37,7 @@
 #include "z_zone.h"
 
 #include "r_misc.h"     //  R_Render
-#include "r_automap.h"  // AM_Drawer
+#include "am_map.h"     // AM_Drawer
 
 
 static lua_State *HUD_ST;

@@ -48,7 +48,7 @@
 #include "p_setup.h"
 #include "p_tick.h"
 #include "rad_trig.h"
-#include "r_automap.h"
+#include "am_map.h"
 #include "r_sky.h"
 #include "r_modes.h"
 #include "s_sound.h"

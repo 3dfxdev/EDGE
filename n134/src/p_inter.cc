@@ -25,7 +25,7 @@
 
 #include "i_defs.h"
 
-#include "r_automap.h"
+#include "am_map.h"
 #include "con_main.h"
 #include "dm_defs.h"
 #include "dm_state.h"
