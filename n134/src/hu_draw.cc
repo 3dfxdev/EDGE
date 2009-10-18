@@ -131,11 +131,6 @@ void HUD_FrameSetup(void)
 	}
 }
 
-void HL_Init(void)
-{
-	/* nothing to init */
-}
-
 
 #define MAX_SCISSOR_STACK  10
 
@@ -212,7 +207,7 @@ void HUD_PopScissor()
 //----------------------------------------------------------------------------
 
 
-void RGL_DrawImage(float x, float y, float w, float h, const image_c *image, 
+void HUD_RawImage(float x, float y, float w, float h, const image_c *image, 
 				   float tx1, float ty1, float tx2, float ty2,
 				   float alpha, rgbcol_t text_col,
 				   const colourmap_c *palremap)
@@ -298,7 +293,7 @@ void HUD_StretchImage(float x, float y, float w, float h, const image_c *img)
 	w = COORD_X(w); h = COORD_Y(h);
 	x = COORD_X(x); y = SCREENHEIGHT - COORD_Y(y) - h;
 
-    RGL_DrawImage(x, y, w, h, img, 0, 0, IM_RIGHT(img), IM_TOP(img), cur_alpha);
+    HUD_RawImage(x, y, w, h, img, 0, 0, IM_RIGHT(img), IM_TOP(img), cur_alpha);
 }
 
 void HUD_DrawImage(float x, float y, const image_c *img)
@@ -327,7 +322,7 @@ void HUD_TileImage(float x, float y, float w, float h, const image_c *img,
 	w = COORD_X(w); h = COORD_Y(h);
 	x = COORD_X(x); y = SCREENHEIGHT - COORD_Y(y) - h;
 
-	RGL_DrawImage(x, y, w, h, img,
+	HUD_RawImage(x, y, w, h, img,
 				  (offset_x) * tx_scale,
 				  (offset_y) * ty_scale,
 				  (offset_x + 1) * tx_scale,
@@ -502,7 +497,7 @@ void HUD_DrawChar(float left_x, float top_y, const image_c *img)
 	w = COORD_X(w); h = COORD_Y(h);
 	x = COORD_X(x); y = SCREENHEIGHT - COORD_Y(y) - h;
 
-    RGL_DrawImage(x, y, w, h, img, 0, 0, IM_RIGHT(img), IM_TOP(img),
+    HUD_RawImage(x, y, w, h, img, 0, 0, IM_RIGHT(img), IM_TOP(img),
 				  cur_alpha, cur_color);
 }
 

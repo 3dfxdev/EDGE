@@ -23,8 +23,8 @@
 //
 //----------------------------------------------------------------------------
 
-#ifndef __R_DRAW_H__
-#define __R_DRAW_H__
+#ifndef __HUD_DRAW_H__
+#define __HUD_DRAW_H__
 
 #include "r_image.h"
 
@@ -60,7 +60,7 @@ void HUD_PopScissor();
 // last pop disables the scissor test.
 
 
-void RGL_DrawImage(float x, float y, float w, float h, const image_c *image,
+void HUD_RawImage(float x, float y, float w, float h, const image_c *image,
 				 float tx1, float ty1, float tx2, float ty2,
 				 float alpha = 1.0f, rgbcol_t text_col = RGB_NO_VALUE,
 				 const colourmap_c *palremap = NULL);
@@ -106,7 +106,7 @@ void HUD_DrawText(float x, float y, const char *str);
 void HUD_RenderWorld(float x1, float y1, float x2, float y2, mobj_t *camera);
 // render a view of the world using the given camera object.
 
-#endif /* __R_DRAW_H__ */
+#endif /* __HUD_DRAW_H__ */
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
