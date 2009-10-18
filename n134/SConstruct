@@ -60,7 +60,6 @@ env = base_env.Clone()
 
 # check for globally installed glBSP headers
 have_glbsp_h = 0
-have_lua_h = 0
 
 if 1 and build_info['platform'] == 'linux':
     conf = Configure(env)
@@ -68,18 +67,6 @@ if 1 and build_info['platform'] == 'linux':
     if conf.CheckCXXHeader('glbsp.h'):
         have_glbsp_h = 1
         env.Append(CCFLAGS = ['-DHAVE_GLBSP_H'])
-
-### -AJA- System-wide lua is disabled since we require the Lua library
-###       to be compiled with a C++ compiler
-#
-#    if conf.CheckCHeader('lua.h'):
-#        have_lua_h = 1
-#        env.Append(CCFLAGS = ['-DHAVE_LUA_H'])
-#
-#    # Debian crap
-#    if conf.CheckCHeader('lua5.1/lua.h'):
-#        have_lua_h = 2
-#        env.Append(CCFLAGS = ['-DHAVE_LUA_51_H'])
 
     env = conf.Finish()
 
@@ -118,20 +105,6 @@ env.Append(LIBS = ['glbsp'])
 # Deh_Edge
 env.Append(LIBPATH = ['#deh_edge'])
 env.Append(LIBS = ['dehedge'])
-
-# LUA
-if have_lua_h == 2:
-    env.Append(LIBS = ['lua5.1'])
-elif have_lua_h:
-    env.Append(LIBS = ['lua'])
-else:
-    if build_info['platform'] == 'win32':
-        env.Append(CPPPATH = ['#win32_lib/lua-5.1.2/src'])
-        env.Append(LIBPATH = ['#win32_lib/lua-5.1.2/src'])
-    else: #linux
-        env.Append(CPPPATH = ['#linux_lib/lua-5.1.2/src'])
-        env.Append(LIBPATH = ['#linux_lib/lua-5.1.2/src'])
-    env.Append(LIBS = ['lua'])
 
 # JPEG, PNG and ZLIB
 if build_info['platform'] == 'win32':
