@@ -262,6 +262,27 @@ void M_CheckBooleanParm(const char *parm, bool *boolval, bool reverse)
 	}
 }
 
+void M_CheckBooleanCVar(const char *parm, cvar_c *var, bool reverse)
+{
+	char parmbuf[100];
+
+	sprintf(parmbuf, "-%s", parm);
+
+	if (M_CheckParm(parmbuf) > 0)
+	{
+		*var = (reverse ? 0 : 1);
+		return;
+	}
+
+	sprintf(parmbuf, "-no%s", parm);
+
+	if (M_CheckParm(parmbuf) > 0)
+	{
+		*var = (reverse ? 1 : 0);
+		return;
+	}
+}
+
 //
 // M_GetArgument
 //
