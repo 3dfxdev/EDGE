@@ -20,11 +20,9 @@
 
 <li> <em>Documentation</em>
   <ul>
-    <li><span class="notdone" hhref="README.txt">User Guide</span>
+    <li><a href="README.txt">User Guide</a>
     <li><a href="edit_guide/overview.htm">Editing Guide</a>
     <li><a href="logs/131.htm">Changelogs</a>
-    <li><a href="roadmap.htm">Road Map</a>
-    <li><span class="notdone" hhref="wiki.htm">Wiki</span>
   </ul>
 </li>
 
