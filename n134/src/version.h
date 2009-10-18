@@ -20,7 +20,7 @@
 
 #define EDGEVER       134
 #define EDGEVERHEX  0x134
-#define EDGEVERSTR  "1.34e(JOY)"
+#define EDGEVERSTR  "1.34e(RC1)"
 
 // patch level (Savegames and Demos)
 #define EDGEPATCH  5
