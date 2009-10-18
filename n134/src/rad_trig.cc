@@ -966,7 +966,7 @@ bool RAD_ReadScript(void *data, int size)
 {
 	if (data == NULL)
 	{
-		std::string fn = M_ComposeFileName(ddf_dir.c_str(), "edge.scr");
+		std::string fn = M_ComposeFileName(ddf_dir.c_str(), "rscript.rts");
 
 		if (! epi::FS_Access(fn.c_str(), epi::file_c::ACCESS_READ))
 			return false;

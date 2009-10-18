@@ -1049,8 +1049,8 @@ static void AddSingleCmdLineFile(const char *name)
 		kind = FLKIND_PWad;
 	else if (stricmp(ext.c_str(), "hwa") == 0)
 		kind = FLKIND_HWad;
-	else if (stricmp(ext.c_str(), "scr") == 0)
-		kind = FLKIND_Script;
+	else if (stricmp(ext.c_str(), "rts") == 0)
+		kind = FLKIND_RTS;
 	else if (stricmp(ext.c_str(), "ddf") == 0 ||
 			 stricmp(ext.c_str(), "ldf") == 0)
 		kind = FLKIND_DDF;
@@ -1118,7 +1118,7 @@ static void AddCommandLineFiles(void)
 
 			std::string fn = M_ComposeFileName(game_dir.c_str(), ps);
 
-			W_AddRawFilename(fn.c_str(), FLKIND_Script);
+			W_AddRawFilename(fn.c_str(), FLKIND_RTS);
 		}
 
 		p = M_CheckNextParm("-script", p-1);
@@ -1143,7 +1143,7 @@ static void AddCommandLineFiles(void)
                 stricmp(ext.c_str(), "gwa") == 0 ||
 			    stricmp(ext.c_str(), "hwa") == 0 ||
                 stricmp(ext.c_str(), "ddf") == 0 ||
-			    stricmp(ext.c_str(), "scr") == 0)
+			    stricmp(ext.c_str(), "rts") == 0)
 			{
 				I_Error("Illegal filename for -deh: %s\n", ps);
 			}
