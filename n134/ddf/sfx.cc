@@ -55,24 +55,6 @@ static const commandlist_t sfx_commands[] =
 	DDF_CMD_END
 };
 
-// -KM- 1998/10/29 Done sfx_t first so structure is aligned.
-bastard_sfx_t bastard_sfx[] =
-{
-    {0, "swtchn"},
-    {0, "tink"},
-    {0, "radio"},
-    {0, "oof"},
-    {0, "pstop"},
-    {0, "stnmov"},
-    {0, "pistol"},
-    {0, "swtchx"},
-    {0, "jpmove"},
-    {0, "jpidle"},
-    {0, "jprise"},
-    {0, "jpdown"},
-    {0, "jpflow"}
-};
-
 
 //
 //  DDF PARSE ROUTINES
@@ -186,11 +168,6 @@ void DDF_SFXInit(void)
 
 void DDF_SFXCleanUp(void)
 {
-	int i;
-
-	for (i = sizeof(bastard_sfx) / sizeof(bastard_sfx_t); i--; )
-		bastard_sfx[i].s = sfxdefs.GetEffect(bastard_sfx[i].name);
-		
 	sfxdefs.Trim();
 }
 

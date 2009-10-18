@@ -94,6 +94,15 @@ static void (* message_input_routine)(const char *response) = NULL;
 
 static int chosen_epi;
 
+// SOUNDS
+sfx_t * sfx_swtchn;
+sfx_t * sfx_tink;
+sfx_t * sfx_radio;
+sfx_t * sfx_oof;
+sfx_t * sfx_pstop;
+sfx_t * sfx_stnmov;
+sfx_t * sfx_pistol;
+sfx_t * sfx_swtchx;
 //
 //  IMAGES USED
 //
@@ -2145,6 +2154,15 @@ void M_Init(void)
 		ReadDef1.y = 165;
 		ReadMenu1[0].select_func = M_FinishReadThis;
 	}
+
+ 	sfx_swtchn = sfxdefs.GetEffect("SWTCHN");
+ 	sfx_tink   = sfxdefs.GetEffect("TINK");
+ 	sfx_radio  = sfxdefs.GetEffect("RADIO");
+ 	sfx_oof    = sfxdefs.GetEffect("OOF");
+ 	sfx_pstop  = sfxdefs.GetEffect("PSTOP");
+ 	sfx_stnmov = sfxdefs.GetEffect("STNMOV");
+ 	sfx_pistol = sfxdefs.GetEffect("PISTOL");
+ 	sfx_swtchx = sfxdefs.GetEffect("SWTCHX");
 
 	M_OptMenuInit();
 	M_NetGameInit();
