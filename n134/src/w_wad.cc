@@ -1053,8 +1053,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 					datafile, 
                     (dyn_index >= 0) ? dyn_index : datafile, 
 					curinfo->name,
-					(kind == FLKIND_PWad) || (kind == FLKIND_HWad) ||
-					(kind == FLKIND_EWad && ! external_ddf));
+					(kind == FLKIND_PWad) || (kind == FLKIND_HWad) );
 
 			if (kind != FLKIND_HWad)
 				CheckForLevel(df, j, lumpinfo[j].name, curinfo, numlumps-1 - j);
@@ -1282,15 +1281,12 @@ void W_ReadDDF(void)
 
 	for (int d = 0; d < NUM_DDF_READERS; d++)
 	{
-		// when external file doesn't exist, use one in EDGE.WAD.
-		bool ext_loaded = false;
-
-		if (external_ddf)
+		if (true)
 		{
 			I_Debugf("- Loading external %s\n", DDF_Readers[d].name);
 
 			// call read function
-			ext_loaded = (* DDF_Readers[d].func)(NULL, 0);
+			(* DDF_Readers[d].func)(NULL, 0);
 		}
 
 		for (int f = 0; f < (int)data_files.size(); f++)
@@ -1309,7 +1305,7 @@ void W_ReadDDF(void)
 			if (df->kind >= FLKIND_Demo)
 				continue;
 
-			if (ext_loaded && df->kind == FLKIND_EWad)
+			if (df->kind == FLKIND_EWad)
 				continue;
 
 			int lump = df->ddf_lumps[d];
