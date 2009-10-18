@@ -1,5 +1,31 @@
 Andrew Apted's Log
 
+2009/10/18:
+
+The code is getting close to making a 'Release Candidate' testing
+package, hence I have rejigged the SVN structure, as follows:
+
+   old132/  :  this directory contains the abandoned branch
+   edge/    :  this contains the "current" code again (1.34)
+
+Other significant developments are:
+
++  I implemented (finally) a HUB system for EDGE, using Quake2's
+   method as a guide.  The HUBs act like extensions to the first
+   map, hence when you did you go back to the first map.  How it
+   works is described in the file: docs/tech/hubs.txt
+
++  I re-implemented Joystick support for 1.34, without the large
+   number of cvars which my previous code employed.  Now there is
+   just one 'joy_dead' cvar which sets the deadzone for all axes.
+   Only 6 axes are supported too (they had to fit in the option
+   menu screen).  Mouse sensitivity got a rework as well.
+
++  I decided to replace Lua with COAL after all.  There may still
+   be a future for EDGE, and hence it is important to make this
+   compatibility break as soon as possible.  Plus it removes a
+   problematic dependency.
+
 2009/10/08:
 
 About two weeks ago I decided that the current SVN code was not
@@ -12,7 +38,7 @@ codebase and end up with an EDGE 1.34 release.  This branch exists
 in the trunk/n134 directory.  The changes are recorded in a file
 called CHANGES.txt in that directory.
 
-------------------------------------------------------
+----------------------------------------------------------------
 
 2009/09/07:
 
