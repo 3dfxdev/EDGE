@@ -8,11 +8,14 @@ CHANGES IN 1.34 (since 1.31)
 + two new Action buttons for RTS scripting
 + better crosshairs, more configurable
 + improved console with command history and TAB-completion
++ fixed music detuning with Windows native playback
 + new RTS command: ONCEILINGHEIGHT (Andrew Baker)
+
+! RTS files now use the "RTS" extension (not "SCR")
 
 - support for keys on the numeric keypad
 - improved various defaults (e.g. WASD movement)
-- new Lua function: hud.play_sound()
+- made standard DDF/RTS files external (not in EDGE.WAD)
 - new 'debug_fps' and 'debug_pos' cvars
 - LINES.DDF: can prevent bots using a linetype
 - shorter cheat code for 'killall'
@@ -20,12 +23,11 @@ CHANGES IN 1.34 (since 1.31)
 - better HOM detection (debug_hom cvar)
 - always generate our own BLOCKMAP, ignore REJECT
 - improved mouse and keyboard speed settings
-- in option menus, highlight current line
+- in option menus, current line is highlighted
 - new 'goobers' cvar for a fun effect
 - old EDGE title screens retired
 
 - fixed some colormap issues
-- fixed music detuning with Windows native playback
 - fixed slowdown with savegames on large maps
 - fixed teleporting into walls bug (with help from Andrew Baker)
 - fixed bug with LOSE_BENEFIT on ammo limits
