@@ -164,6 +164,10 @@ std::string shot_dir;
 extern cvar_c m_language;
 extern cvar_c g_aggression;
 
+cvar_c ddf_strict;
+cvar_c ddf_lax;
+cvar_c ddf_quiet;
+
 static void E_TitleDrawer(void);
 
 
@@ -350,10 +354,13 @@ static void SetGlobalVars(void)
 	}
 
 	// check for strict and no-warning options
-	M_CheckBooleanParm("strict", &strict_errors, false);
-	M_CheckBooleanParm("lax", &lax_errors, false);
+	M_CheckBooleanCVar("strict", &ddf_strict, false);
+	M_CheckBooleanCVar("lax",    &ddf_lax,    false);
+	M_CheckBooleanCVar("warn",   &ddf_quiet,  true);
 
-	M_CheckBooleanParm("warn", &no_warnings, true);
+	strict_errors = ddf_strict.d ? true : false;
+	lax_errors    = ddf_lax.d    ? true : false;
+	no_warnings   = ddf_quiet.d  ? true : false;
 }
 
 //
