@@ -46,7 +46,7 @@
 #include "m_menu.h"
 #include "m_random.h"
 #include "p_action.h"
-#include "r_automap.h"
+#include "am_map.h"
 #include "r_colormap.h"
 #include "r_draw.h"
 #include "r_md2.h"

@@ -95,7 +95,7 @@
 #include "s_sound.h"
 #include "s_music.h"
 #include "s_timid.h"
-#include "r_automap.h"
+#include "am_map.h"
 #include "r_draw.h"
 #include "r_modes.h"
 #include "r_colormap.h"

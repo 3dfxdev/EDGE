@@ -55,7 +55,7 @@
 #include "r_gldefs.h"
 #include "s_music.h"  // mus_volume
 #include "s_sound.h"
-#include "r_automap.h"
+#include "am_map.h"
 #include "r_colormap.h"
 #include "r_draw.h"
 #include "r_modes.h"

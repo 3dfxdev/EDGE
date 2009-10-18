@@ -46,7 +46,7 @@
 #include "p_local.h"
 #include "p_bot.h"
 #include "p_setup.h"
-#include "r_automap.h"
+#include "am_map.h"
 #include "r_gldefs.h"
 #include "r_sky.h"
 #include "s_sound.h"

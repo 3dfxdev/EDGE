@@ -43,7 +43,7 @@
 #include "epi/path.h"
 #include "epi/utility.h"
 
-#include "r_automap.h"
+#include "am_map.h"
 #include "con_gui.h"
 #include "con_main.h"
 #include "con_var.h"

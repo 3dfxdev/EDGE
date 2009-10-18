@@ -52,7 +52,7 @@
 #include "rad_trig.h"
 #include "rad_act.h"
 #include "r_defs.h"
-#include "r_automap.h"
+#include "am_map.h"
 #include "r_colormap.h"
 #include "r_draw.h"
 #include "r_modes.h"
