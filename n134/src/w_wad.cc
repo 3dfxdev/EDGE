@@ -1011,7 +1011,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 	data_files.push_back(df);
 
 	// for RTS scripts, adding the data_file is enough
-	if (kind == FLKIND_Script)
+	if (kind == FLKIND_RTS)
 		return;
 
 	if (kind <= FLKIND_HWad)
@@ -1294,7 +1294,7 @@ void W_ReadDDF(void)
 			data_file_c *df = data_files[f];
 
 			// all script files get parsed here
-			if (d == RTS_READER && df->kind == FLKIND_Script)
+			if (d == RTS_READER && df->kind == FLKIND_RTS)
 			{
 				I_Debugf("- Loading RTS script: %s\n", df->file_name);
 
@@ -1928,7 +1928,7 @@ const char *W_GetLumpName(int lump)
 static const char *FileKind_Strings[] =
 {
 	"iwad", "pwad", "edge", "gwa", "hwa",
-	"lump", "ddf",  "demo", "scr", "deh",
+	"lump", "ddf",  "demo", "rts", "deh",
 	"???",  "???",  "???",  "???"
 };
 

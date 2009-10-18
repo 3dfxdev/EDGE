@@ -43,7 +43,7 @@ typedef enum
 
 	FLKIND_DDF,       // .ddf or .ldf file
 	FLKIND_Demo,      // .lmp demo file
-	FLKIND_Script,    // .scr (RTS) script
+	FLKIND_RTS,       // .rts script
 	FLKIND_Deh        // .deh or .bex file
 }
 filekind_e;
