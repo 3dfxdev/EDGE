@@ -54,6 +54,7 @@
 #include "f_finale.h"
 #include "f_interm.h"
 #include "g_game.h"
+#include "hu_draw.h"
 #include "hu_stuff.h"
 #include "l_glbsp.h"
 #include "m_argv.h"
@@ -512,6 +513,8 @@ void E_Display(void)
 
 	// Start the frame - should we need to.
 	I_StartFrame();
+
+	HUD_FrameSetup();
 
 	// -AJA- 1999/08/02: Make sure palette/gamma is OK. This also should
 	//       fix (finally !) the "gamma too late on walls" bug.

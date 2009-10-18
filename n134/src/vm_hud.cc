@@ -632,6 +632,8 @@ void VM_BeginLevel(void)
 
 void VM_RunHud(void)
 { 
+	HUD_Reset();
+
 	ui_hud_who    = players[displayplayer];
 	ui_player_who = players[displayplayer];
 
