@@ -209,8 +209,8 @@ void VM_LoadCoalFire(const char *filename)
 
 void VM_LoadScripts()
 {
-	VM_LoadCoalFire("doom_ddf/basics.ec");
-	VM_LoadCoalFire("doom_ddf/doom_hud.ec");
+	VM_LoadCoalFire("doom_ddf/coal_api.ec");
+	VM_LoadCoalFire("doom_ddf/coal_hud.ec");
 }
 
 

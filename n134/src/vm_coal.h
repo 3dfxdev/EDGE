@@ -29,8 +29,8 @@ void VM_RegisterHUD();
 void VM_RegisterPlaysim();
 
 // HUD stuff
-void HU_BeginLevel(void);
-void HU_RunHud(void);
+void VM_BeginLevel(void);
+void VM_RunHud(void);
 
 #endif // __VM_COAL_H__
 

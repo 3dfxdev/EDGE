@@ -56,7 +56,6 @@
 #include "g_game.h"
 #include "hu_stuff.h"
 #include "l_glbsp.h"
-#include "l_lua.h"
 #include "m_argv.h"
 #include "m_bbox.h"
 #include "m_cheat.h"
@@ -82,6 +81,7 @@
 #include "w_texture.h"
 #include "w_wad.h"
 #include "version.h"
+#include "vm_coal.h"
 #include "z_zone.h"
 
 
@@ -524,7 +524,7 @@ void E_Display(void)
 
 			R_PaletteStuff();
 
-			LU_RunHud();
+			VM_RunHud();
 
 			if (need_save_screenshot)
 			{
@@ -1220,8 +1220,8 @@ startuporder_t startcode[] =
 	{  1, S_Init               },
 	{  1, N_InitNetwork        },
 	{  1, M_CheatInit          },
-	{  1, LU_Init              },
-	{  4, LU_LoadScripts       },
+	{  1, VM_InitCoal          },
+	{  8, VM_LoadScripts       },
 	{  0, NULL                 }
 };
 

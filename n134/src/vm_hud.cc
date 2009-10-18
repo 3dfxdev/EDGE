@@ -625,12 +625,12 @@ void VM_RegisterHUD()
 	ui_vm->AddNativeFunction("hud.play_sound",      HD_play_sound);
 }
 
-void HU_BeginLevel(void)
+void VM_BeginLevel(void)
 {
 	hud_last_time = -1;
 }
 
-void HU_RunHud(void)
+void VM_RunHud(void)
 { 
 	ui_hud_who    = players[displayplayer];
 	ui_player_who = players[displayplayer];
