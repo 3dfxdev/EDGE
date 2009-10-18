@@ -33,6 +33,7 @@
 #include "e_main.h"
 #include "g_game.h"
 #include "f_interm.h"
+#include "m_menu.h"
 #include "n_network.h"
 #include "s_sound.h"
 #include "w_wad.h"
