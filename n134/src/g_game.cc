@@ -39,7 +39,6 @@
 #include "e_main.h"
 #include "f_finale.h"
 #include "g_game.h"
-#include "l_lua.h"
 #include "m_cheat.h"
 #include "m_menu.h"
 #include "m_random.h"
@@ -59,6 +58,7 @@
 #include "version.h"
 #include "w_wad.h"
 #include "f_interm.h"
+#include "vm_coal.h"
 #include "z_zone.h"
 
 
@@ -250,7 +250,7 @@ void LoadLevel_Bits(void)
 	exit_skipall = false;
 	exit_hub_tag = 0;
 
-	LU_BeginLevel();
+	VM_BeginLevel();
 
 	BOT_BeginLevel();
 

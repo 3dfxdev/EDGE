@@ -29,7 +29,7 @@ sources = [
     'hu_draw.cc', 'hu_font.cc', 'hu_lib.cc',
     'hu_stuff.cc', 'hu_style.cc',
 
-    'l_glbsp.cc', 'l_deh.cc',  'l_lua.cc',
+    'l_glbsp.cc', 'l_deh.cc',
     'm_argv.cc', 'm_bbox.cc', 
     'm_cheat.cc', 'm_math.cc', 'm_menu.cc',
     'm_misc.cc', 'm_option.cc', 
