@@ -102,6 +102,10 @@ cvar_link_t  all_cvars[] =
 
     { "language",       &m_language,     "c",   "ENGLISH" },
 
+    { "ddf_strict",     &ddf_strict,     "c",   "0"  },
+    { "ddf_lax",        &ddf_lax,        "c",   "0"  },
+    { "ddf_quiet",      &ddf_quiet,      "c",   "0"  },
+
     { "g_aggression",   &g_aggression,   "c",   "0"  },
 
 	/* Input Stuff */
@@ -155,10 +159,6 @@ cvar_link_t  all_cvars[] =
 
     { "sys_directx",    &sys_directx,    "c",   "0"  },
     { "sys_waveout",    &sys_waveout,    "c",   "0"  },
-
-    { "ddf_strict",     &ddf_strict,     "c",   "0"  },
-    { "ddf_lax",        &ddf_lax,        "c",   "0"  },
-    { "ddf_quiet",      &ddf_quiet,      "c",   "0"  },
 
     { "g_skill",        &g_skill,        "c",   "3"  },
     { "g_gametype",     &g_gametype,     "",    "0"  },
