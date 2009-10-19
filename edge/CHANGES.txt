@@ -13,10 +13,11 @@ CHANGES IN 1.34 (since 1.31)
 
 ! new language "COAL" replaces Lua for HUDs
 ! RTS files now use the "RTS" extension (not "SCR")
+! made standard DDF/RTS files external (not in EDGE.WAD)
 
 - support for keys on the numeric keypad
 - improved various defaults (e.g. WASD movement)
-- made standard DDF/RTS files external (not in EDGE.WAD)
+- wobble-free scrolling for the automap
 - new 'debug_fps' and 'debug_pos' cvars
 - LINES.DDF: can prevent bots using a linetype
 - shorter cheat code for 'killall'
