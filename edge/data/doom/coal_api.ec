@@ -126,8 +126,11 @@ module hud
     function draw_text(x, y, text : string) = native
     function draw_num2(x, y, w, num) = native
 
-    function render_world(x, y, w, h) = native
+    function set_render_who(index) = native
+    function render_world(x, y, w, h)   = native
     function render_automap(x, y, w, h) = native
+    function automap_color(which, color : vector) = native
+    function automap_option(which, value) = native
 
     function grab_times() =
     {
