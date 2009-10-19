@@ -115,17 +115,6 @@ static void SYS_debug_print(coal::vm_c *vm, int argc)
 }
 
 
-// sys.assert(val)
-//
-static void SYS_assert(coal::vm_c *vm, int argc)
-{
-	double val = *vm->AccessParam(0);
-
-	if (val == 0)
-		I_Error("Assertion in coal script failed.\n");
-}
-
-
 // sys.edge_version()
 //
 static void SYS_edge_version(coal::vm_c *vm, int argc)
@@ -238,7 +227,6 @@ void VM_RegisterBASE(coal::vm_c *vm)
     vm->AddNativeFunction("sys.error",       SYS_error);
     vm->AddNativeFunction("sys.print",       SYS_print);
     vm->AddNativeFunction("sys.debug_print", SYS_debug_print);
-    vm->AddNativeFunction("sys.assert",      SYS_assert);
     vm->AddNativeFunction("sys.edge_version", SYS_edge_version);
 
 	// MATH

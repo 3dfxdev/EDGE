@@ -619,7 +619,7 @@ type_t * real_vm_c::ParseType()
 
 int real_vm_c::EmitCode(short op, int a, int b, int c)
 {
-	// IDEA: if last statement was OP_NULL, overwrite it instead of
+	// TODO: if last statement was OP_NULL, overwrite it instead of
 	//       creating a new one.
 
 	int ofs = op_mem.alloc((int)sizeof(statement_t));
@@ -1217,6 +1217,25 @@ void real_vm_c::STAT_If_Else()
 }
 
 
+void real_vm_c::STAT_Assert()
+{
+	// TODO: only internalise the filename ONCE
+	int file_str = InternaliseString(comp.source_file);
+	int line_num = comp.source_line;
+
+	LEX_Expect("(");
+	def_t * e = EXP_Expression(TOP_PRIORITY);
+	LEX_Expect(")");
+
+	int patch = EmitCode(OP_IF, e->ofs);
+
+	EmitCode(OP_ERROR, file_str, line_num);
+	FreeTemporaries();
+
+	REF_OP(patch)->b = EmitCode(OP_NULL);
+}
+
+
 void real_vm_c::STAT_WhileLoop()
 {
 	int begin = EmitCode(OP_NULL);
@@ -1360,6 +1379,12 @@ void real_vm_c::STAT_Statement(bool allow_def)
 	if (LEX_Check("if"))
 	{
 		STAT_If_Else();
+		return;
+	}
+
+	if (LEX_Check("assert"))
+	{
+		STAT_Assert();
 		return;
 	}
 
