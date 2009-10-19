@@ -84,6 +84,8 @@ module math
 
 module strings
 {
+    function len(s : string) : float = native
+    function sub(s : string, start, end) : string = native
 }
 
 
