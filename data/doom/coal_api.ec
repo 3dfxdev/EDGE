@@ -79,6 +79,27 @@ module hud
     constant CYAN   = '0 255 255'
     constant ORANGE = '255 160 0'
 
+    // automap options
+    constant AM_GRID     = 0   // also a color
+    constant AM_ALLMAP   = 1   // also a color
+    constant AM_WALLS    = 2   // also a color
+    constant AM_THINGS   = 3
+    constant AM_FOLLOW   = 4
+    constant AM_ROTATE   = 5
+
+    // automap colors
+    constant AM_STEP     = 3
+    constant AM_LEDGE    = 4
+    constant AM_CEIL     = 5
+    constant AM_SECRET   = 6
+
+    constant AM_PLAYER   = 7
+    constant AM_MONSTER  = 8
+    constant AM_CORPSE   = 9
+    constant AM_ITEM     = 10
+    constant AM_MISSILE  = 11
+    constant AM_SCENERY  = 12
+
     function game_mode() : string = native
     function game_name() : string = native
     function map_name()  : string = native
