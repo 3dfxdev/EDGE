@@ -200,7 +200,7 @@ module player
 
     function has_key(key) : float = native
     function has_power(type)  : float = native
-//  function power_left(type) : float = native
+    function power_left(type) : float = native
 
     function has_weapon_slot(slot) : float = native
 

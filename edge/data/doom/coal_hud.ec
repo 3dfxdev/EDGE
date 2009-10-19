@@ -121,7 +121,7 @@ function select_new_face() =
     }
 
     // god mode?
-    if (player.has_power("invuln"))
+    if (player.has_power(player.INVULN))
     {
         face_image = "STFGOD0"
         face_time  = 7
