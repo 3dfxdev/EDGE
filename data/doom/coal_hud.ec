@@ -1,6 +1,7 @@
 //------------------------------------------
 //  DOOM HUD CODE for EDGE
 //  Copyright (c) 2009 The Edge Team
+//  Copyright (C) 1993-1996 by id Software, Inc.
 //  Under the GNU General Public License
 //------------------------------------------
 
