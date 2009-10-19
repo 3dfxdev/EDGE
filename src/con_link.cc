@@ -106,7 +106,7 @@ cvar_link_t  all_cvars[] =
     { "ddf_lax",        &ddf_lax,        "c",   "0"  },
     { "ddf_quiet",      &ddf_quiet,      "c",   "0"  },
 
-    { "g_aggression",   &g_aggression,   "c",   "0"  },
+    { "aggression",     &g_aggression,   "c",   "0"  },
 
 	/* Input Stuff */
 
@@ -122,9 +122,9 @@ cvar_link_t  all_cvars[] =
 
   	{ "mouse_filter",   &mouse_filter,   "c",   "0"  },
 
+	{ "goobers",        &m_goobers,      "",    "0" },
 	{ "m_diskicon",     &m_diskicon,     "c",   "1"  },
 	{ "m_busywait",     &m_busywait,     "c",   "1"  },
-	{ "m_goobers",      &m_goobers,      "",    "0" },
 
 	/* Rendering Stuff */
 
