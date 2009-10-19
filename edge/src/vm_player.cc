@@ -137,8 +137,7 @@ static void PL_get_mlook(coal::vm_c *vm, int argc)
 {
 	float value = ANG_2_FLOAT(ui_player_who->mo->vertangle);
 
-	if (value > 360.0f) value -= 360.0f;
-	if (value < 0)      value += 360.0f;
+	if (value > 180.0f) value -= 360.0f;
 
 	vm->ReturnFloat(value);
 }
