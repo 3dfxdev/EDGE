@@ -29,6 +29,11 @@ module math
     function gety(v : vector) : float = { return v * '0 1 0'; }
     function getz(v : vector) : float = { return v * '0 0 1'; }
 
+    function vlen(v : vector) : float =
+    {
+      return (v * v) ^ 0.5
+    }
+
     function min(a, b) : float =
     {
       if (a < b) return a
@@ -169,17 +174,21 @@ module player
     constant FIRE_KEY     = 15
     constant WATER_KEY    = 16
 
-    function num_players() = native
+    function num_players()  = native
     function set_who(index) = native
-    function is_bot() = native
-    function get_name() = native
+
+    function is_bot()    : float  = native
+    function get_name()  : string = native
+    function get_pos()   : float  = native
+    function get_angle() : float  = native
+    function get_mlook() : float  = native
 
     function health()      : float = native
     function armor(type)   : float = native
     function total_armor() : float = native
-    function frags()       : float = native
     function ammo(type)    : float = native
     function ammomax(type) : float = native
+    function frags()       : float = native
 
     function is_swimming()  : float = native
     function is_jumping()   : float = native
@@ -196,20 +205,25 @@ module player
     function move_speed()   : float = native
     function air_in_lungs() : float = native
 
-    function has_key(key) : float = native
+    function has_key(key)     : float = native
     function has_power(type)  : float = native
     function power_left(type) : float = native
-
     function has_weapon(name : string) : float = native
     function has_weapon_slot(slot) : float = native
-    function cur_weapon()          : string = native
+    function cur_weapon()         : string = native
     function cur_weapon_slot(slot) : float = native
 
-    function main_ammo(clip) : float = native
+    function main_ammo(clip)   : float = native
+    function ammo_type(ATK)    : float = native
+    function ammo_pershot(ATK) : float = native
+    function clip_ammo(ATK)    : float = native
+    function clip_size(ATK)    : float = native
+    function clip_is_shared()  : float = native
 
-    function hurt_by() : string = native
-    function hurt_pain() : float = native
-    function hurt_dir() : float = native
-
+    function hurt_by()   : string = native
+    function hurt_mon()  : string = native
+    function hurt_pain()  : float = native
+    function hurt_dir()   : float = native
+    function hurt_angle() : float = native
 }
 
