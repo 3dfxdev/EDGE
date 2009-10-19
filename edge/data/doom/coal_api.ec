@@ -121,6 +121,53 @@ module hud
 
 module player
 {
+    // ammo
+    constant BULLETS  = 1
+    constant SHELLS   = 2
+    constant ROCKETS  = 3
+    constant CELLS    = 4
+    constant PELLETS  = 5
+    constant NAILS    = 6
+    constant GRENADES = 7
+    constant GAS      = 8
+
+    // armors
+    constant GREEN_ARMOR  = 1
+    constant BLUE_ARMOR   = 2
+    constant PURPLE_ARMOR = 3
+    constant YELLOW_ARMOR = 4
+    constant RED_ARMOR    = 5
+
+    // powerups
+    constant INVULN    = 1
+    constant BERSERK   = 2
+    constant INVIS     = 3
+    constant ACID_SUIT = 4
+    constant AUTOMAP   = 5
+    constant GOGGLES   = 6
+    constant JET_PACK  = 7
+    constant NIGHT_VIS = 8
+    constant SCUBA     = 9
+
+    // keys
+    constant BLUE_CARD    = 1
+    constant YELLOW_CARD  = 2
+    constant RED_CARD     = 3
+    constant GREEN_CARD   = 4
+    constant BLUE_SKULL   = 5
+    constant YELLOW_SKULL = 6
+    constant RED_SKULL    = 7
+    constant GREEN_SKULL  = 8
+
+    constant GOLD_KEY     = 9
+    constant SILVER_KEY   = 10
+    constant BRASS_KEY    = 11
+    constant COPPER_KEY   = 12
+    constant STEEL_KEY    = 13
+    constant WOODEN_KEY   = 14
+    constant FIRE_KEY     = 15
+    constant WATER_KEY    = 16
+
     function num_players() = native
     function set_who(index) = native
     function is_bot() = native
@@ -128,12 +175,9 @@ module player
 
     function health() : float = native
 
-    function has_weapon_slot(slot : float) : float = native
-    function has_key(key : float) : float = native
-
-    function main_ammo(clip : float) : float = native
-    function ammo(type : float) : float = native
-    function ammomax(type : float) : float = native
+    function main_ammo(clip) : float = native
+    function ammo(type) : float = native
+    function ammomax(type) : float = native
     function total_armor() : float = native
 
     function hurt_by() : string = native
@@ -144,16 +188,21 @@ module player
     function under_water() : float = native
     function air_in_lungs() : float = native
 
-    function is_swimming() : float = native
-    function is_jumping() : float = native
+    function is_swimming()  : float = native
+    function is_jumping()   : float = native
     function is_crouching() : float = native
-    function is_using() : float = native
-    function is_action1() : float = native
-    function is_action2() : float = native
+    function is_using()     : float = native
+    function is_action1()   : float = native
+    function is_action2()   : float = native
     function is_attacking() : float = native
     function is_rampaging() : float = native
-    function is_grinning() : float = native
+    function is_grinning()  : float = native
 
-    function has_power(type : string) : float = native
+    function has_key(key) : float = native
+    function has_power(type)  : float = native
+//  function power_left(type) : float = native
+
+    function has_weapon_slot(slot) : float = native
+
 }
 
