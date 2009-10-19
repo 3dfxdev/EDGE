@@ -270,7 +270,7 @@ static void STRINGS_sub(coal::vm_c *vm, int argc)
 	start--;
 	end--;
 
-	int new_len = (start - end + 1);
+	int new_len = (end - start + 1);
 
 	vm->ReturnString(s + start, new_len);
 }
