@@ -28,6 +28,7 @@
 
 #include "con_main.h"
 #include "e_input.h"
+#include "hu_draw.h"
 #include "hu_lib.h"
 #include "m_argv.h"
 #include "m_bbox.h"
@@ -120,8 +121,8 @@ bool automapactive = false;
 
 
 // location and size of window on screen
-static int f_x, f_y;
-static int f_w, f_h;
+static float f_x, f_y;
+static float f_w, f_h;
 
 // scale value which makes the whole map fit into the on-screen area
 // (multiplying map coords by this value).
@@ -543,15 +544,14 @@ static inline angle_t GetRotatedAngle(angle_t src)
 //
 static void DrawMline(mline_t * ml, rgbcol_t rgb)
 {
-	int x1, y1, x2, y2;
-	int f_x2 = f_x + f_w - 1;
-	int f_y2 = f_y + f_h - 1;
+	float f_x2 = f_x + f_w - 1;
+	float f_y2 = f_y + f_h - 1;
 
 	// transform to frame-buffer coordinates.
-	x1 = CXMTOF(ml->a.x);
-	y1 = CYMTOF(ml->a.y);
-	x2 = CXMTOF(ml->b.x);
-	y2 = CYMTOF(ml->b.y);
+	float x1 = CXMTOF(ml->a.x);
+	float y1 = CYMTOF(ml->a.y);
+	float x2 = CXMTOF(ml->b.x);
+	float y2 = CYMTOF(ml->b.y);
 
 	// trivial rejects
 	if ((x1 < f_x && x2 < f_x) || (x1 > f_x2 && x2 > f_x2) ||
@@ -560,16 +560,16 @@ static void DrawMline(mline_t * ml, rgbcol_t rgb)
 		return;
 	}
 
-	if (!var_smoothmap)
-	{
-		if (x1 == x2 or y1 == y2)
-		{
-			RGL_SolidBox(x1, y1, x2-x1+1, y2-y1+1, rgb);
-			return;
-		}
-	}
+	x1 = f_x + f_w/2.0 + MTOF(ml->a.x);
+	y1 = f_y + f_h/2.0 - MTOF(ml->a.y);
 
-	RGL_SolidLine(x1, y1, x2, y2, rgb);
+	x2 = f_x + f_w/2.0 + MTOF(ml->b.x);
+	y2 = f_y + f_h/2.0 - MTOF(ml->b.y);
+
+	float dx = MTOF(- m_cx);
+	float dy = MTOF(- m_cy);
+
+	HUD_AutomapLine(x1, y1, x2, y2, dx, dy, rgb);
 }
 
 
@@ -583,26 +583,26 @@ static void DrawGrid()
 
 	for (int j = 0; ; j++)
 	{
-		int x1 = CXMTOF(mx0 - j * 128);
-		int x2 = CXMTOF(mx0 + j * 128 + 128);
+		float x1 = CXMTOF(mx0 - j * 128);
+		float x2 = CXMTOF(mx0 + j * 128 + 128);
 
 		if (x1 < f_x && x2 >= f_x + f_w)
 			break;
 
-		RGL_SolidBox(x1, f_y, 1, f_h, am_colors[AMCOL_Grid]);
-		RGL_SolidBox(x2, f_y, 1, f_h, am_colors[AMCOL_Grid]);
+		HUD_SolidBox(x1, f_y, x1+0.5f, f_y+f_h, am_colors[AMCOL_Grid]);
+		HUD_SolidBox(x2, f_y, x2+0.5f, f_y+f_h, am_colors[AMCOL_Grid]);
 	}
 
-	for (int k = 0; ; k++)
+	for (float k = 0; ; k++)
 	{
-		int y1 = CYMTOF(my0 - k * 128);
-		int y2 = CYMTOF(my0 + k * 128 + 128);
+		float y1 = CYMTOF(my0 - k * 128);
+		float y2 = CYMTOF(my0 + k * 128 + 128);
 
 		if (y1 < f_y && y2 >= f_y + f_h)
 			break;
 
-		RGL_SolidBox(f_x, y1, f_w, 1, am_colors[AMCOL_Grid]);
-		RGL_SolidBox(f_x, y2, f_w, 1, am_colors[AMCOL_Grid]);
+		HUD_SolidBox(f_x, y1, f_x+f_w, y1+0.5f, am_colors[AMCOL_Grid]);
+		HUD_SolidBox(f_x, y2, f_x+f_w, y2+0.5f, am_colors[AMCOL_Grid]);
 	}
 }
 
@@ -992,11 +992,11 @@ static bool AM_CheckBBox(float *bspcoord)
 #endif
 	}
 
-	int x1 = CXMTOF(xl);
-	int x2 = CXMTOF(xr);
+	float x1 = CXMTOF(xl);
+	float x2 = CXMTOF(xr);
 
-	int y1 = CYMTOF(yb);
-	int y2 = CYMTOF(yt);
+	float y1 = CYMTOF(yb);
+	float y2 = CYMTOF(yt);
 
 	if (x2 < f_x || y2 < f_y || x1 >= f_x+f_w || y1 >= f_y+f_h)
 		return false;
@@ -1064,29 +1064,16 @@ static void DrawMarks(void)
 
 static void AM_RenderScene(void)
 {
-	glEnable(GL_SCISSOR_TEST);
-
-	glScissor(f_x, f_y, f_w, f_h);
-
-	if (var_smoothmap)
-	{
-		glEnable(GL_LINE_SMOOTH);
-		glEnable(GL_BLEND);
-		glLineWidth(1.5f);
-	}
+	HUD_PushScissor(f_x, f_y, f_x+f_w, f_y+f_h);
 
 	// walk the bsp tree
 	AM_WalkBSPNode(root_node);
 
-	glDisable(GL_LINE_SMOOTH);
-	glDisable(GL_BLEND);
-	glLineWidth(1.0f);
-
-	glDisable(GL_SCISSOR_TEST);
+	HUD_PopScissor();
 }
 
 
-void AM_Drawer(int x, int y, int w, int h, mobj_t *focus)
+void AM_Drawer(float x, float y, float w, float h, mobj_t *focus)
 {
 	f_x = x;
 	f_y = y;
