@@ -47,8 +47,8 @@ function pain_digit() : string =
 
     var index = math.floor(4.99 * (100 - health) / 100)
 
-    sys.assert(index >= 0)
-    sys.assert(index <= 4)
+    assert(index >= 0)
+    assert(index <= 4)
 
     return "" + index
 }

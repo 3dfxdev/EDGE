@@ -14,8 +14,6 @@ module sys
     function print(s : string) = native
     function debug_print(s : string) = native
 
-    function assert(n : float) = native
-
     function edge_version() : float = native
 }
 

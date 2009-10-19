@@ -78,6 +78,7 @@ enum
 	OP_IF,
 	OP_IFNOT,
 	OP_GOTO,
+	OP_ERROR,
 
 	OP_MOVE_F,
 	OP_MOVE_V,
@@ -277,6 +278,7 @@ private:
 	void STAT_Statement(bool allow_def);
 	void STAT_Assignment(def_t *e);
 	void STAT_If_Else();
+	void STAT_Assert();
 	void STAT_WhileLoop();
 	void STAT_RepeatLoop();
 	void STAT_ForLoop();

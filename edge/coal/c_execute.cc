@@ -429,6 +429,11 @@ void real_vm_c::DoExecute(int fnum)
 				exec.s = st->b;
 				continue;
 
+			case OP_ERROR:
+				RunError("Assertion failed @ %s:%d\n",
+				         REF_STRING(st->a), st->b);
+				break; /* NOT REACHED */
+
 			default:
 				RunError("Bad opcode %i", st->op);
 		}
@@ -659,6 +664,7 @@ const char * opcode_names[] =
 	"IF",
 	"IFNOT",
 	"GOTO",
+	"ERROR",
 
 	"MOVE_F",
 	"MOVE_V",
@@ -867,6 +873,7 @@ void real_vm_c::PrintStatement(function_t *f, int s)
 	{
 		case OP_NULL:
 		case OP_RET:
+		case OP_ERROR:
 			break;
 	
 		case OP_MOVE_F:
