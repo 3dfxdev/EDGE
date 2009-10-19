@@ -174,20 +174,12 @@ module player
     function is_bot() = native
     function get_name() = native
 
-    function health() : float = native
-
-    function main_ammo(clip) : float = native
-    function ammo(type) : float = native
-    function ammomax(type) : float = native
+    function health()      : float = native
+    function armor(type)   : float = native
     function total_armor() : float = native
-
-    function hurt_by() : string = native
-    function hurt_pain() : float = native
-    function hurt_dir() : float = native
-
-    function frags() : float = native
-    function under_water() : float = native
-    function air_in_lungs() : float = native
+    function frags()       : float = native
+    function ammo(type)    : float = native
+    function ammomax(type) : float = native
 
     function is_swimming()  : float = native
     function is_jumping()   : float = native
@@ -199,11 +191,25 @@ module player
     function is_rampaging() : float = native
     function is_grinning()  : float = native
 
+    function under_water()  : float = native
+    function on_ground()    : float = native
+    function move_speed()   : float = native
+    function air_in_lungs() : float = native
+
     function has_key(key) : float = native
     function has_power(type)  : float = native
     function power_left(type) : float = native
 
+    function has_weapon(name : string) : float = native
     function has_weapon_slot(slot) : float = native
+    function cur_weapon()          : string = native
+    function cur_weapon_slot(slot) : float = native
+
+    function main_ammo(clip) : float = native
+
+    function hurt_by() : string = native
+    function hurt_pain() : float = native
+    function hurt_dir() : float = native
 
 }
 
