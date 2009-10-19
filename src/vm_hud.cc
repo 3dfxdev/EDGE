@@ -314,7 +314,7 @@ static void HD_stretch_image(coal::vm_c *vm, int argc)
 }
 
 
-// hud.tile_image(x, y, w, h, name, [offset_x, offset_y])
+// hud.tile_image(x, y, w, h, name, offset_x, offset_y)
 //
 static void HD_tile_image(coal::vm_c *vm, int argc)
 {
@@ -325,14 +325,8 @@ static void HD_tile_image(coal::vm_c *vm, int argc)
 
 	const char *name = vm->AccessParamString(4);
 
-	float offset_x = 0;
-	float offset_y = 0;
-
-//???	if (lua_isnumber(L, 6))
-//???		offset_x = lua_tonumber(L, 6);
-//???
-//???	if (lua_isnumber(L, 7))
-//???		offset_y = lua_tonumber(L, 7);
+	float offset_x = *vm->AccessParam(5);
+	float offset_y = *vm->AccessParam(6);
 
 	const image_c *img = W_ImageLookup(name, INS_Texture);
 

@@ -96,6 +96,7 @@ module hud
 
     function draw_image(x, y, image : string) = native
     function stretch_image(x, y, w, h, image : string) = native
+    function tile_image(x, y, w, h, image : string, offset_x, offset_y) = native
     function draw_text(x, y, text : string) = native
     function draw_num2(x, y, w, num) = native
 
