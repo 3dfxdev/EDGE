@@ -83,7 +83,7 @@ void VM_CallFunction(coal::vm_c *vm, const char *name)
 
 
 //------------------------------------------------------------------------
-//  BASE MODULES
+//  SYSTEM MODULE
 //------------------------------------------------------------------------
 
 
@@ -121,6 +121,12 @@ static void SYS_edge_version(coal::vm_c *vm, int argc)
 {
 	vm->ReturnFloat(EDGEVER / 100.0);
 }
+
+
+
+//------------------------------------------------------------------------
+//  MATH MODULE
+//------------------------------------------------------------------------
 
 
 // math.round(val)
@@ -219,6 +225,57 @@ static void MATH_log(coal::vm_c *vm, int argc)
 }
 
 
+
+//------------------------------------------------------------------------
+//  STRINGS MODULE
+//------------------------------------------------------------------------
+
+
+// strings.len(s)
+//
+static void STRINGS_len(coal::vm_c *vm, int argc)
+{
+	const char * s = vm->AccessParamString(0);
+
+	vm->ReturnFloat(strlen(s));
+}
+
+
+// strings.sub(s, start, end)
+//
+static void STRINGS_sub(coal::vm_c *vm, int argc)
+{
+	const char * s = vm->AccessParamString(0);
+
+	int start = (int) *vm->AccessParam(1);
+	int end   = (int) *vm->AccessParam(2);
+	int len   = strlen(s);
+
+	// negative values are relative to END of the string (-1 = last character)
+	if (start < 0) start += len + 1;
+	if (end   < 0) end   += len + 1;
+
+	if (start < 1) start = 1;
+	if (end > len) end = len;
+
+	if (end < start)
+	{
+		vm->ReturnString("");
+		return;
+	}
+
+	SYS_ASSERT(end >= 1 && start <= len);
+
+	// translate into C talk
+	start--;
+	end--;
+
+	int new_len = (start - end + 1);
+
+	vm->ReturnString(s + start, new_len);
+}
+
+
 //------------------------------------------------------------------------
 
 void VM_RegisterBASE(coal::vm_c *vm)
@@ -245,6 +302,8 @@ void VM_RegisterBASE(coal::vm_c *vm)
     vm->AddNativeFunction("math.log",       MATH_log);
 
 	// STRINGS
+    vm->AddNativeFunction("strings.len",    STRINGS_len);
+    vm->AddNativeFunction("strings.sub",    STRINGS_sub);
 }
 
 
