@@ -395,7 +395,7 @@ static void HD_draw_num2(coal::vm_c *vm, int argc)
 }
 
 
-// hud.render_world(x, y, w, h, [options])
+// hud.render_world(x, y, w, h)
 //
 static void HD_render_world(coal::vm_c *vm, int argc)
 {
