@@ -25,7 +25,7 @@ module math
     constant pi = 3.1415926535897932384
     constant e  = 2.7182818284590452354
 
-    function round(val) : float = native
+    function rint (val) : float = native
     function floor(val) : float = native
     function ceil (val) : float = native
 

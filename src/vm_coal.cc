@@ -129,8 +129,8 @@ static void SYS_edge_version(coal::vm_c *vm, int argc)
 //------------------------------------------------------------------------
 
 
-// math.round(val)
-static void MATH_round(coal::vm_c *vm, int argc)
+// math.rint(val)
+static void MATH_rint(coal::vm_c *vm, int argc)
 {
 	double val = *vm->AccessParam(0);
 	vm->ReturnFloat(I_ROUND(val));
@@ -287,7 +287,7 @@ void VM_RegisterBASE(coal::vm_c *vm)
     vm->AddNativeFunction("sys.edge_version", SYS_edge_version);
 
 	// MATH
-    vm->AddNativeFunction("math.round",     MATH_round);
+    vm->AddNativeFunction("math.rint",      MATH_rint);
     vm->AddNativeFunction("math.floor",     MATH_floor);
     vm->AddNativeFunction("math.ceil",      MATH_ceil);
     vm->AddNativeFunction("math.random",    MATH_random);
