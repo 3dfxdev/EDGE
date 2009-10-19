@@ -116,9 +116,15 @@ module hud
     function set_scale(scale : float) = native
     function set_alpha(alpha : float) = native
 
+    function set_render_who(index) = native
+    function automap_color(which, color : vector) = native
+    function automap_option(which, value) = native
+    function automap_zoom(zoom) = native
+
     function solid_box(x, y, w, h, color : vector) = native
     function solid_line(x1, y1, x2, y2, color : vector) = native
     function thin_box(x, y, w, h, color : vector) = native
+    function gradient_box(x, y, w, h, TL:vector, BL:vector, TR:vector, BR:vector) = native
 
     function draw_image(x, y, image : string) = native
     function stretch_image(x, y, w, h, image : string) = native
@@ -126,11 +132,10 @@ module hud
     function draw_text(x, y, text : string) = native
     function draw_num2(x, y, w, num) = native
 
-    function set_render_who(index) = native
     function render_world(x, y, w, h)   = native
     function render_automap(x, y, w, h) = native
-    function automap_color(which, color : vector) = native
-    function automap_option(which, value) = native
+
+    function play_sound(sound : string) = native
 
     function grab_times() =
     {
