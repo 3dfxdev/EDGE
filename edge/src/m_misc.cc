@@ -81,7 +81,6 @@ static const image_c *desynch_image = NULL;
 static const image_c *air_images[21] = { NULL };
 
 bool var_fadepower = true;
-bool var_smoothmap = true;
 
 bool force_directx = false;
 bool force_waveout = false;
@@ -193,7 +192,6 @@ static default_t defaults[] =
 	// -------------------- VARS --------------------
 
 	{CFGT_Boolean,  "var_fadepower",     &var_fadepower,  1},
-	{CFGT_Boolean,  "var_smoothmap",     &var_smoothmap,  1},
 	{CFGT_Boolean,  "var_obituaries",    &var_obituaries, 1},
 
 	// -------------------- KEYS --------------------
@@ -408,17 +406,8 @@ void M_InitMiscConVars(void)
 {
 // FIXME
 #if 0
-	M_CheckBooleanParm("diskicon", &var_diskicon, false);
-	CON_CreateCVarBool("diskicon", cf_normal, &var_diskicon);
-
-	M_CheckBooleanParm("hogcpu", &var_hogcpu, false);
-	CON_CreateCVarBool("hogcpu", cf_normal, &var_hogcpu);
-
 	M_CheckBooleanParm("fadepower", &var_fadepower, false);
 	CON_CreateCVarBool("fadepower", cf_normal, &var_fadepower);
-
-	M_CheckBooleanParm("smoothmap", &var_smoothmap, false);
-	CON_CreateCVarBool("smoothmap", cf_normal, &var_smoothmap);
 #endif
 
 	if (M_CheckParm("-hqscale") || M_CheckParm("-hqall"))
