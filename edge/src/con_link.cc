@@ -137,6 +137,7 @@ cvar_link_t  all_cvars[] =
 
 	{ "r_nearclip",     &r_nearclip,     "c",   "4"  },
 	{ "r_farclip",      &r_farclip,      "c",   "64000" },
+	{ "r_fadepower",    &r_fadepower,    "c",   "1"  },
 
 	{ "r_colormaterial",&r_colormaterial, "",   "1"  },
 	{ "r_colorlighting",&r_colorlighting, "",   "1"  },
@@ -188,7 +189,6 @@ cvar_link_t  all_cvars[] =
     { "r_fullscreen",   &r_fullscreen,   "c",   "1"     },
 												
 	{ "r_gamma",        &r_gamma,        "c",   "1"  },
-	{ "r_fadepower",    &r_fadepower,    "c",   "1"  },
 	{ "r_fov",          &r_fov,          "c",   "90" },
 	{ "r_zoomedfov",    &r_zoomedfov,    "c",   "10" },
 

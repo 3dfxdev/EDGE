@@ -324,9 +324,6 @@ Command line options:
   -(no)extras          Extra items (e.g. rain) appearing in levels.
   -(no)infight         In-fighting between monsters.
   -(no)true3d          Objects can pass above/below other objects.
-  -(no)diskicon        Whether to show the flashing disk icon.
-  -(no)fadepower       Powerup effects smoothly fade out.
-  -(no)hogcpu          Smoother gameplay vs less CPU utilisation.
 
   -trilinear           Trilinear mipmapping.
   -blockmap            Force EDGE to generate its own blockmap.
