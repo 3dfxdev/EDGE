@@ -106,6 +106,43 @@ static void PL_get_name(coal::vm_c *vm, int argc)
 	vm->ReturnString(ui_player_who->playername);
 }
 
+// player.get_pos()
+//
+static void PL_get_pos(coal::vm_c *vm, int argc)
+{
+	double v[3];
+
+	v[0] = ui_player_who->mo->x;
+	v[1] = ui_player_who->mo->y;
+	v[2] = ui_player_who->mo->z;
+
+	vm->ReturnVector(v);
+}
+
+// player.get_angle()
+//
+static void PL_get_angle(coal::vm_c *vm, int argc)
+{
+	float value = ANG_2_FLOAT(ui_player_who->mo->angle);
+
+	if (value > 360.0f) value -= 360.0f;
+	if (value < 0)      value += 360.0f;
+
+	vm->ReturnFloat(value);
+}
+
+// player.get_mlook()
+//
+static void PL_get_mlook(coal::vm_c *vm, int argc)
+{
+	float value = ANG_2_FLOAT(ui_player_who->mo->vertangle);
+
+	if (value > 360.0f) value -= 360.0f;
+	if (value < 0)      value += 360.0f;
+
+	vm->ReturnFloat(value);
+}
+
 
 // player.health()
 //
@@ -679,13 +716,16 @@ void VM_RegisterPlaysim()
 	ui_vm->AddNativeFunction("player.set_who",     PL_set_who);
     ui_vm->AddNativeFunction("player.is_bot",      PL_is_bot);
     ui_vm->AddNativeFunction("player.get_name",    PL_get_name);
+    ui_vm->AddNativeFunction("player.get_pos",     PL_get_pos);
+    ui_vm->AddNativeFunction("player.get_angle",   PL_get_angle);
+    ui_vm->AddNativeFunction("player.get_mlook",   PL_get_mlook);
 
     ui_vm->AddNativeFunction("player.health",      PL_health);
     ui_vm->AddNativeFunction("player.armor",       PL_armor);
     ui_vm->AddNativeFunction("player.total_armor", PL_total_armor);
-    ui_vm->AddNativeFunction("player.frags",       PL_frags);
     ui_vm->AddNativeFunction("player.ammo",        PL_ammo);
     ui_vm->AddNativeFunction("player.ammomax",     PL_ammomax);
+    ui_vm->AddNativeFunction("player.frags",       PL_frags);
 
     ui_vm->AddNativeFunction("player.is_swimming",     PL_is_swimming);
     ui_vm->AddNativeFunction("player.is_jumping",      PL_is_jumping);
