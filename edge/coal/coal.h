@@ -64,7 +64,7 @@ public:
 
 	virtual void ReturnFloat(double f) = 0;
 	virtual void ReturnVector(double *v) = 0;
-	virtual void ReturnString(const char *s) = 0;
+	virtual void ReturnString(const char *s, int len=-1) = 0;
 };
 
 // create a new Coal virtual machine
