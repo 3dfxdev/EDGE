@@ -10,8 +10,13 @@ module sys
 {
     constant TICRATE = 35
 
+    function error(s : string) = native
     function print(s : string) = native
+    function debug_print(s : string) = native
+
     function assert(n : float) = native
+
+    function edge_version() : float = native
 }
 
 
@@ -20,14 +25,33 @@ module sys
 module math
 {
     constant pi = 3.1415926535897932384
+    constant e  = 2.7182818284590452354
 
+    function round(n : float) : float = native
     function floor(n : float) : float = native
     function ceil (n : float) : float = native
+
     function random() : float = native
 
-    function getx(v : vector) : float = { return v * '1 0 0'; }
-    function gety(v : vector) : float = { return v * '0 1 0'; }
-    function getz(v : vector) : float = { return v * '0 0 1'; }
+    function rand_range(low, high) : float =
+    {
+      return low + (high - low) * random()
+    }
+
+    function getx(v : vector) : float = { return v * '1 0 0' }
+    function gety(v : vector) : float = { return v * '0 1 0' }
+    function getz(v : vector) : float = { return v * '0 0 1' }
+
+    function abs(n) : float =
+    {
+      if (n < 0) return 0 - n
+      return n
+    }
+
+    function sqrt(n) : float =
+    {
+      return n ^ 0.5
+    }
 
     function vlen(v : vector) : float =
     {
@@ -139,15 +163,15 @@ module hud
 
     function grab_times() =
     {
-      now_time = get_time();
-      passed_time = 0;
+      now_time = get_time()
+      passed_time = 0
 
       if (last_time > 0 && last_time <= now_time)
       {
-        passed_time = math.min(now_time - last_time, sys.TICRATE);
+        passed_time = math.min(now_time - last_time, sys.TICRATE)
       }
 
-      last_time = now_time;
+      last_time = now_time
     }
 }
 
