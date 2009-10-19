@@ -128,6 +128,8 @@ cvar_link_t  all_cvars[] =
 
 	/* Rendering Stuff */
 
+	{ "am_smoothing",   &am_smoothing,   "c",   "1"  },
+
 	{ "r_crosshair",    &r_crosshair,    "c",   "0"  },
 	{ "r_crosscolor",   &r_crosscolor,   "c",   "0"  },
 	{ "r_crosssize",    &r_crosssize,    "c",   "16" },
@@ -175,7 +177,6 @@ cvar_link_t  all_cvars[] =
     { "g_weaponswitch", &g_weaponswitch, "c",   "1"  },
 
 	{ "am_rotate",      &am_rotate,      "c",   "0"  },
-	{ "am_smoothing",   &am_smoothing,   "c",   "1"  },
                                         
 	{ "m_messages",     &m_messages,     "c",   "1"  },
 	{ "m_obituaries",   &m_obituaries,   "c",   "1"  },
