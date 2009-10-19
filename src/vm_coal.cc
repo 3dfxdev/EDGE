@@ -119,9 +119,9 @@ static void SYS_debug_print(coal::vm_c *vm, int argc)
 //
 static void SYS_assert(coal::vm_c *vm, int argc)
 {
-	double * p = vm->AccessParam(0);
+	double val = *vm->AccessParam(0);
 
-	if (*p == 0)
+	if (val == 0)
 		I_Error("Assertion in coal script failed.\n");
 }
 
@@ -130,40 +130,33 @@ static void SYS_assert(coal::vm_c *vm, int argc)
 //
 static void SYS_edge_version(coal::vm_c *vm, int argc)
 {
-	vm->ReturnFloat(EDGEVER);
+	vm->ReturnFloat(EDGEVER / 100.0);
 }
 
 
 // math.round(val)
-//
 static void MATH_round(coal::vm_c *vm, int argc)
 {
-	double * p = vm->AccessParam(0);
-
-	vm->ReturnFloat(I_ROUND(*p));
+	double val = *vm->AccessParam(0);
+	vm->ReturnFloat(I_ROUND(val));
 }
 
 // math.floor(val)
-//
 static void MATH_floor(coal::vm_c *vm, int argc)
 {
-	double * p = vm->AccessParam(0);
-
-	vm->ReturnFloat(floor(*p));
+	double val = *vm->AccessParam(0);
+	vm->ReturnFloat(floor(val));
 }
 
 // math.ceil(val)
-//
 static void MATH_ceil(coal::vm_c *vm, int argc)
 {
-	double * p = vm->AccessParam(0);
-
-	vm->ReturnFloat(ceil(*p));
+	double val = *vm->AccessParam(0);
+	vm->ReturnFloat(ceil(val));
 }
 
 
 // math.random()
-//
 static void MATH_random(coal::vm_c *vm, int argc)
 {
 	int r = rand();
@@ -171,6 +164,69 @@ static void MATH_random(coal::vm_c *vm, int argc)
 	r = (r ^ (r >> 18)) & 0xFFFF;
 
 	vm->ReturnFloat(r / double(0x10000));
+}
+
+
+// math.cos(val)
+static void MATH_cos(coal::vm_c *vm, int argc)
+{
+	double val = *vm->AccessParam(0);
+	vm->ReturnFloat(cos(val * M_PI / 180.0));
+}
+
+// math.sin(val)
+static void MATH_sin(coal::vm_c *vm, int argc)
+{
+	double val = *vm->AccessParam(0);
+	vm->ReturnFloat(sin(val * M_PI / 180.0));
+}
+
+// math.tan(val)
+static void MATH_tan(coal::vm_c *vm, int argc)
+{
+	double val = *vm->AccessParam(0);
+	vm->ReturnFloat(tan(val * M_PI / 180.0));
+}
+
+// math.acos(val)
+static void MATH_acos(coal::vm_c *vm, int argc)
+{
+	double val = *vm->AccessParam(0);
+	vm->ReturnFloat(acos(val) * 180.0 / M_PI);
+}
+
+// math.asin(val)
+static void MATH_asin(coal::vm_c *vm, int argc)
+{
+	double val = *vm->AccessParam(0);
+	vm->ReturnFloat(asin(val) * 180.0 / M_PI);
+}
+
+// math.atan(val)
+static void MATH_atan(coal::vm_c *vm, int argc)
+{
+	double val = *vm->AccessParam(0);
+	vm->ReturnFloat(atan(val) * 180.0 / M_PI);
+}
+
+// math.atan2(x, y)
+static void MATH_atan2(coal::vm_c *vm, int argc)
+{
+	double x = *vm->AccessParam(0);
+	double y = *vm->AccessParam(1);
+
+	vm->ReturnFloat(atan2(y, x) * 180.0 / M_PI);
+}
+
+// math.log(val)
+static void MATH_log(coal::vm_c *vm, int argc)
+{
+	double val = *vm->AccessParam(0);
+
+	if (val <= 0)
+		I_Error("math.log: illegal input: %g\n", val);
+
+	vm->ReturnFloat(log(val));
 }
 
 
@@ -186,10 +242,19 @@ void VM_RegisterBASE(coal::vm_c *vm)
     vm->AddNativeFunction("sys.edge_version", SYS_edge_version);
 
 	// MATH
-    vm->AddNativeFunction("math.round",      MATH_round);
-    vm->AddNativeFunction("math.floor",      MATH_floor);
-    vm->AddNativeFunction("math.ceil",       MATH_ceil);
-    vm->AddNativeFunction("math.random",     MATH_random);
+    vm->AddNativeFunction("math.round",     MATH_round);
+    vm->AddNativeFunction("math.floor",     MATH_floor);
+    vm->AddNativeFunction("math.ceil",      MATH_ceil);
+    vm->AddNativeFunction("math.random",    MATH_random);
+
+    vm->AddNativeFunction("math.cos",       MATH_cos);
+    vm->AddNativeFunction("math.sin",       MATH_sin);
+    vm->AddNativeFunction("math.tan",       MATH_tan);
+    vm->AddNativeFunction("math.acos",      MATH_acos);
+    vm->AddNativeFunction("math.asin",      MATH_asin);
+    vm->AddNativeFunction("math.atan",      MATH_atan);
+    vm->AddNativeFunction("math.atan2",     MATH_atan2);
+    vm->AddNativeFunction("math.log",       MATH_log);
 
 	// STRINGS
 }

@@ -27,9 +27,19 @@ module math
     constant pi = 3.1415926535897932384
     constant e  = 2.7182818284590452354
 
-    function round(n : float) : float = native
-    function floor(n : float) : float = native
-    function ceil (n : float) : float = native
+    function round(val) : float = native
+    function floor(val) : float = native
+    function ceil (val) : float = native
+
+    function cos(val)   : float = native
+    function sin(val)   : float = native
+    function tan(val)   : float = native
+    function log(val)   : float = native
+
+    function acos(val)  : float = native
+    function asin(val)  : float = native
+    function atan(val)  : float = native
+    function atan2(x,y) : float = native
 
     function random() : float = native
 
