@@ -69,16 +69,17 @@ void AM_Stop(void);
 
 // color setting API
 
+// NOTE: these numbers here must match the COAL API script
 typedef enum
 {
 	AMCOL_Grid = 0,
 
+    AMCOL_Allmap,
     AMCOL_Wall,
     AMCOL_Step,
     AMCOL_Ledge,
     AMCOL_Ceil,
     AMCOL_Secret,
-    AMCOL_Allmap,
 
     AMCOL_Player,
     AMCOL_Monster,
@@ -94,15 +95,16 @@ automap_color_e;
 void AM_SetColor(int which, rgbcol_t color);
 
 
+// NOTE: the bit numbers here must match the COAL API script
 typedef enum
 {
 	AMST_Grid    = (1 << 0),  // draw the grid
-	AMST_Follow  = (1 << 1),  // follow the player
-	AMST_Rotate  = (1 << 2),  // rotate the map (disables grid)
+	AMST_Follow  = (1 << 4),  // follow the player
+	AMST_Rotate  = (1 << 5),  // rotate the map (disables grid)
 
-	AMST_Things  = (1 << 4),  // draw all objects
-	AMST_Walls   = (1 << 5),  // draw all walls (like IDDT)
-	AMST_Allmap  = (1 << 6),  // draw like Allmap powerup
+	AMST_Things  = (1 << 3),  // draw all objects
+	AMST_Walls   = (1 << 2),  // draw all walls (like IDDT)
+	AMST_Allmap  = (1 << 1),  // draw like Allmap powerup
 }
 automap_state_e;
 
