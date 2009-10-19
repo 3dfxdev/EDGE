@@ -32,9 +32,6 @@
 #include "r_misc.h"     //  R_Render
 
 
-cvar_c am_smoothing;
-
-
 #define DUMMY_WIDTH(font)  (4)
 
 #define HU_CHAR(ch)  (islower(ch) ? toupper(ch) : (ch))

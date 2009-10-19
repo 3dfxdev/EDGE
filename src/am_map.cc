@@ -110,14 +110,16 @@ static rgbcol_t am_colors[AM_NUM_COLORS] =
 #define WHEEL_ZOOMIN  1.32f
 
 
+bool automapactive = false;
+
+cvar_c am_smoothing;
+
 static int cheating = 0;
 static int grid = 0;
 
 static bool show_things = false;
 static bool show_walls  = false;
 static bool show_allmap = false;
-
-bool automapactive = false;
 
 
 // location and size of window on screen
@@ -145,8 +147,8 @@ static float m_scale;
 #define FTOM(xx) ((float)((xx) / m_scale / f_scale))
 
 // translates between frame-buffer and map coordinates
-#define CXMTOF(xx)  (f_x + f_w/2 + MTOF((xx) - m_cx))
-#define CYMTOF(yy)  (f_y + f_h/2 + MTOF((yy) - m_cy))
+#define CXMTOF(xx)  (f_x + f_w*0.5 + MTOF((xx) - m_cx))
+#define CYMTOF(yy)  (f_y + f_h*0.5 - MTOF((yy) - m_cy))
 
 
 // largest size of map along X or Y axis
@@ -542,34 +544,21 @@ static inline angle_t GetRotatedAngle(angle_t src)
 //
 // Draw visible parts of lines.
 //
-static void DrawMline(mline_t * ml, rgbcol_t rgb)
+static void DrawMLine(mline_t * ml, rgbcol_t rgb, bool thick = true)
 {
-	float f_x2 = f_x + f_w - 1;
-	float f_y2 = f_y + f_h - 1;
+	if (! am_smoothing.d)
+		thick = false;
 
-	// transform to frame-buffer coordinates.
-	float x1 = CXMTOF(ml->a.x);
-	float y1 = CYMTOF(ml->a.y);
-	float x2 = CXMTOF(ml->b.x);
-	float y2 = CYMTOF(ml->b.y);
+	float x1 = f_x + f_w*0.5 + MTOF(ml->a.x);
+	float y1 = f_y + f_h*0.5 - MTOF(ml->a.y);
 
-	// trivial rejects
-	if ((x1 < f_x && x2 < f_x) || (x1 > f_x2 && x2 > f_x2) ||
-		(y1 < f_y && y2 < f_y) || (y1 > f_y2 && y2 > f_y2))
-	{
-		return;
-	}
-
-	x1 = f_x + f_w/2.0 + MTOF(ml->a.x);
-	y1 = f_y + f_h/2.0 - MTOF(ml->a.y);
-
-	x2 = f_x + f_w/2.0 + MTOF(ml->b.x);
-	y2 = f_y + f_h/2.0 - MTOF(ml->b.y);
+	float x2 = f_x + f_w*0.5 + MTOF(ml->b.x);
+	float y2 = f_y + f_h*0.5 - MTOF(ml->b.y);
 
 	float dx = MTOF(- m_cx);
 	float dy = MTOF(- m_cy);
 
-	HUD_AutomapLine(x1, y1, x2, y2, dx, dy, rgb);
+	HUD_SolidLine(x1, y1, x2, y2, rgb, thick, thick, dx, dy);
 }
 
 
@@ -578,31 +567,49 @@ static void DrawMline(mline_t * ml, rgbcol_t rgb)
 //
 static void DrawGrid()
 {
+	mline_t ml;
+
 	int mx0 = (int)m_cx & ~127;
 	int my0 = (int)m_cy & ~127;
 
-	for (int j = 0; ; j++)
+	for (int j = 1; j < 1024; j++)
 	{
-		float x1 = CXMTOF(mx0 - j * 128);
-		float x2 = CXMTOF(mx0 + j * 128 + 128);
+		int jx = ((j & ~1) >> 1);
+
+		// stop when both lines are off the screen
+		float x1 = CXMTOF(mx0 - jx * 128);
+		float x2 = CXMTOF(mx0 + jx * 128);
 
 		if (x1 < f_x && x2 >= f_x + f_w)
 			break;
 
-		HUD_SolidBox(x1, f_y, x1+0.5f, f_y+f_h, am_colors[AMCOL_Grid]);
-		HUD_SolidBox(x2, f_y, x2+0.5f, f_y+f_h, am_colors[AMCOL_Grid]);
+		ml.a.x = mx0 + jx * ((j & 1) ? -128 : 128);
+		ml.b.x = ml.a.x;
+
+		ml.a.y = -40000;
+		ml.b.y = +40000;
+
+		DrawMLine(&ml, am_colors[AMCOL_Grid], false);
 	}
 
-	for (float k = 0; ; k++)
+	for (int k = 1; k < 1024; k++)
 	{
-		float y1 = CYMTOF(my0 - k * 128);
-		float y2 = CYMTOF(my0 + k * 128 + 128);
+		int ky = ((k & ~1) >> 1);
+
+		// stop when both lines are off the screen
+		float y1 = CYMTOF(my0 + ky * 128);
+		float y2 = CYMTOF(my0 - ky * 128);
 
 		if (y1 < f_y && y2 >= f_y + f_h)
 			break;
 
-		HUD_SolidBox(f_x, y1, f_x+f_w, y1+0.5f, am_colors[AMCOL_Grid]);
-		HUD_SolidBox(f_x, y2, f_x+f_w, y2+0.5f, am_colors[AMCOL_Grid]);
+		ml.a.x = -40000;
+		ml.b.x = +40000;
+
+		ml.a.y = my0 + ky * ((k & 1) ? -128 : 128);
+		ml.b.y = ml.a.y;
+
+		DrawMLine(&ml, am_colors[AMCOL_Grid], false);
 	}
 }
 
@@ -663,7 +670,7 @@ static void AM_WalkSeg(seg_t *seg)
 		GetRotatedCoords(seg->v1->x, seg->v1->y, &l.a.x, &l.a.y);
 		GetRotatedCoords(seg->v2->x, seg->v2->y, &l.b.x, &l.b.y);
 
-		DrawMline(&l, RGB_MAKE(0,0,128));
+		DrawMLine(&l, RGB_MAKE(0,0,128), false);
 #endif
 		return;
 	}
@@ -685,7 +692,7 @@ static void AM_WalkSeg(seg_t *seg)
 
 		if (!front || !back)
 		{
-			DrawMline(&l, am_colors[AMCOL_Wall]);
+			DrawMLine(&l, am_colors[AMCOL_Wall]);
 		}
 		else
 		{
@@ -693,9 +700,9 @@ static void AM_WalkSeg(seg_t *seg)
 			{  
 				// secret door
 				if (show_walls)
-					DrawMline(&l, am_colors[AMCOL_Secret]);
+					DrawMLine(&l, am_colors[AMCOL_Secret]);
 				else
-					DrawMline(&l, am_colors[AMCOL_Wall]);
+					DrawMLine(&l, am_colors[AMCOL_Wall]);
 			}
 			else if (back->f_h != front->f_h)
 			{
@@ -703,32 +710,32 @@ static void AM_WalkSeg(seg_t *seg)
 
 				// floor level change
 				if (diff > 24)
-					DrawMline(&l, am_colors[AMCOL_Ledge]);
+					DrawMLine(&l, am_colors[AMCOL_Ledge]);
 				else
-					DrawMline(&l, am_colors[AMCOL_Step]);
+					DrawMLine(&l, am_colors[AMCOL_Step]);
 			}
 			else if (back->c_h != front->c_h)
 			{
 				// ceiling level change
-				DrawMline(&l, am_colors[AMCOL_Ceil]);
+				DrawMLine(&l, am_colors[AMCOL_Ceil]);
 			}
 			else if ((front->exfloor_used > 0 || back->exfloor_used > 0) &&
 				(front->exfloor_used != back->exfloor_used ||
 				! CheckSimiliarRegions(front, back)))
 			{
 				// -AJA- 1999/10/09: extra floor change.
-				DrawMline(&l, am_colors[AMCOL_Ledge]);
+				DrawMLine(&l, am_colors[AMCOL_Ledge]);
 			}
 			else if (show_walls)
 			{
-				DrawMline(&l, am_colors[AMCOL_Allmap]);
+				DrawMLine(&l, am_colors[AMCOL_Allmap]);
 			}
 		}
 	}
 	else if (f_focus->player && (show_allmap || f_focus->player->powers[PW_AllMap] != 0))
 	{
 		if (! (line->flags & MLF_DontDraw))
-			DrawMline(&l, am_colors[AMCOL_Allmap]);
+			DrawMLine(&l, am_colors[AMCOL_Allmap]);
 	}
 }
 
@@ -737,38 +744,35 @@ static void DrawLineCharacter(mline_t *lineguy, int lineguylines,
 							  float radius, angle_t angle,
 							  rgbcol_t rgb, float x, float y)
 {
-	int i;
-	mline_t l;
-	float ch_x, ch_y;
+	float cx, cy;
+
+	GetRotatedCoords(x, y, &cx, &cy);
+
+	cx = CXMTOF(cx);
+	cy = CYMTOF(cy);
+
+	radius = MTOF(radius);
 
 	if (radius < 2)
 		radius = 2;
 
-	GetRotatedCoords(x, y, &ch_x, &ch_y);
-
 	angle = GetRotatedAngle(angle);
 
-	for (i = 0; i < lineguylines; i++)
+	for (int i = 0; i < lineguylines; i++)
 	{
-		l.a.x = lineguy[i].a.x * radius;
-		l.a.y = lineguy[i].a.y * radius;
+		float ax = lineguy[i].a.x * radius;
+		float ay = lineguy[i].a.y * radius;
 
 		if (angle)
-			Rotate(&l.a.x, &l.a.y, angle);
+			Rotate(&ax, &ay, angle);
 
-		l.a.x += ch_x;
-		l.a.y += ch_y;
-
-		l.b.x = lineguy[i].b.x * radius;
-		l.b.y = lineguy[i].b.y * radius;
+		float bx = lineguy[i].b.x * radius;
+		float by = lineguy[i].b.y * radius;
 
 		if (angle)
-			Rotate(&l.b.x, &l.b.y, angle);
+			Rotate(&bx, &by, angle);
 
-		l.b.x += ch_x;
-		l.b.y += ch_y;
-
-		DrawMline(&l, rgb);
+		HUD_SolidLine(cx+ax, cy-ay, cx+bx, cy-by, rgb);
 	}
 }
 
@@ -790,19 +794,19 @@ static void DrawObjectBounds(mobj_t *mo, rgbcol_t rgb)
 
 	GetRotatedCoords(lx, ly, &ml.a.x, &ml.a.y);
 	GetRotatedCoords(lx, hy, &ml.b.x, &ml.b.y);
-	DrawMline(&ml, rgb);
+	DrawMLine(&ml, rgb);
 
 	GetRotatedCoords(lx, hy, &ml.a.x, &ml.a.y);
 	GetRotatedCoords(hx, hy, &ml.b.x, &ml.b.y);
-	DrawMline(&ml, rgb);
+	DrawMLine(&ml, rgb);
 
 	GetRotatedCoords(hx, hy, &ml.a.x, &ml.a.y);
 	GetRotatedCoords(hx, ly, &ml.b.x, &ml.b.y);
-	DrawMline(&ml, rgb);
+	DrawMLine(&ml, rgb);
 
 	GetRotatedCoords(hx, ly, &ml.a.x, &ml.a.y);
 	GetRotatedCoords(lx, ly, &ml.b.x, &ml.b.y);
-	DrawMline(&ml, rgb);
+	DrawMLine(&ml, rgb);
 }
 #endif
 
@@ -995,8 +999,8 @@ static bool AM_CheckBBox(float *bspcoord)
 	float x1 = CXMTOF(xl);
 	float x2 = CXMTOF(xr);
 
-	float y1 = CYMTOF(yb);
-	float y2 = CYMTOF(yt);
+	float y1 = CYMTOF(yt);
+	float y2 = CYMTOF(yb);
 
 	if (x2 < f_x || y2 < f_y || x1 >= f_x+f_w || y1 >= f_y+f_h)
 		return false;
