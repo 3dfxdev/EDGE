@@ -80,8 +80,6 @@ static const image_c *disk_image = NULL;
 static const image_c *desynch_image = NULL;
 static const image_c *air_images[21] = { NULL };
 
-bool var_fadepower = true;
-
 bool force_directx = false;
 bool force_waveout = false;
 
@@ -191,7 +189,6 @@ static default_t defaults[] =
 
 	// -------------------- VARS --------------------
 
-	{CFGT_Boolean,  "var_fadepower",     &var_fadepower,  1},
 	{CFGT_Boolean,  "var_obituaries",    &var_obituaries, 1},
 
 	// -------------------- KEYS --------------------
@@ -404,12 +401,6 @@ void M_LoadDefaults(void)
 
 void M_InitMiscConVars(void)
 {
-// FIXME
-#if 0
-	M_CheckBooleanParm("fadepower", &var_fadepower, false);
-	CON_CreateCVarBool("fadepower", cf_normal, &var_fadepower);
-#endif
-
 	if (M_CheckParm("-hqscale") || M_CheckParm("-hqall"))
 		hq2x_scaling = 3;
 	else if (M_CheckParm("-nohqscale"))
