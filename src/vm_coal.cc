@@ -87,6 +87,15 @@ void VM_CallFunction(coal::vm_c *vm, const char *name)
 //------------------------------------------------------------------------
 
 
+// sys.error(str)
+//
+static void SYS_error(coal::vm_c *vm, int argc)
+{
+	const char * s = vm->AccessParamString(0);
+
+	I_Error("%s\n", s);
+}
+
 // sys.print(str)
 //
 static void SYS_print(coal::vm_c *vm, int argc)
@@ -96,10 +105,9 @@ static void SYS_print(coal::vm_c *vm, int argc)
 	I_Printf("%s\n", s);
 }
 
-
-// sys.debug(str)
+// sys.debug_print(str)
 //
-static void SYS_debug(coal::vm_c *vm, int argc)
+static void SYS_debug_print(coal::vm_c *vm, int argc)
 {
 	const char * s = vm->AccessParamString(0);
 
@@ -118,6 +126,23 @@ static void SYS_assert(coal::vm_c *vm, int argc)
 }
 
 
+// sys.edge_version()
+//
+static void SYS_edge_version(coal::vm_c *vm, int argc)
+{
+	vm->ReturnFloat(EDGEVER);
+}
+
+
+// math.round(val)
+//
+static void MATH_round(coal::vm_c *vm, int argc)
+{
+	double * p = vm->AccessParam(0);
+
+	vm->ReturnFloat(I_ROUND(*p));
+}
+
 // math.floor(val)
 //
 static void MATH_floor(coal::vm_c *vm, int argc)
@@ -126,7 +151,6 @@ static void MATH_floor(coal::vm_c *vm, int argc)
 
 	vm->ReturnFloat(floor(*p));
 }
-
 
 // math.ceil(val)
 //
@@ -155,11 +179,14 @@ static void MATH_random(coal::vm_c *vm, int argc)
 void VM_RegisterBASE(coal::vm_c *vm)
 {
 	// SYSTEM
+    vm->AddNativeFunction("sys.error",       SYS_error);
     vm->AddNativeFunction("sys.print",       SYS_print);
-    vm->AddNativeFunction("sys.debug",       SYS_debug);
+    vm->AddNativeFunction("sys.debug_print", SYS_debug_print);
     vm->AddNativeFunction("sys.assert",      SYS_assert);
+    vm->AddNativeFunction("sys.edge_version", SYS_edge_version);
 
 	// MATH
+    vm->AddNativeFunction("math.round",      MATH_round);
     vm->AddNativeFunction("math.floor",      MATH_floor);
     vm->AddNativeFunction("math.ceil",       MATH_ceil);
     vm->AddNativeFunction("math.random",     MATH_random);
