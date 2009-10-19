@@ -268,6 +268,10 @@ function edge_air_bar() =
 }
 
 
+function begin_level() =
+{
+}
+
 function draw_all() =
 {
     hud.coord_sys(320, 200)

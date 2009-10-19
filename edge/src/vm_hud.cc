@@ -50,8 +50,6 @@ player_t *ui_hud_who = NULL;
 extern player_t *ui_player_who;
 
 
-static int hud_last_time = -1;
-
 extern std::string w_map_title;
 
 
@@ -621,7 +619,7 @@ void VM_RegisterHUD()
 
 void VM_BeginLevel(void)
 {
-	hud_last_time = -1;
+    VM_CallFunction(ui_vm, "begin_level");
 }
 
 void VM_RunHud(void)
@@ -630,25 +628,6 @@ void VM_RunHud(void)
 
 	ui_hud_who    = players[displayplayer];
 	ui_player_who = players[displayplayer];
-
-	// TODO: remove this
-	int now_time = I_GetTime();
-	int passed_time = 0;
-
-	if (hud_last_time > 0 && hud_last_time <= now_time)
-	{
-		passed_time = MIN(now_time - hud_last_time, TICRATE);
-	}
-
-	hud_last_time = now_time;
-
-
-	// setup some fields in 'hud' module
-
-//??	VM_SetFloat(ui_vm, "hud.which", m_screenhud.d);
-//??	VM_SetFloat(ui_vm, "hud.automap", automapactive ? 1 : 0);
-//??	VM_SetFloat(ui_vm, "hud.now_time", now_time);
-//??	VM_SetFloat(ui_vm, "hud.passed_time", passed_time);
 
     VM_CallFunction(ui_vm, "draw_all");
 }
