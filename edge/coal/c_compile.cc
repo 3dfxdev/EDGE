@@ -849,10 +849,10 @@ def_t * real_vm_c::EXP_FunctionCall(def_t *func)
 		}
 		while (LEX_Check(","));
 
+		LEX_Expect(")");
+
 		if (arg != t->parm_num)
 			CompileError("too few parameters (needed %d)\n", t->parm_num);
-
-		LEX_Expect(")");
 	}
 
 
