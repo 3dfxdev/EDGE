@@ -176,9 +176,28 @@ void real_vm_c::ReturnVector(double *v)
 	c[2] = v[2];
 }
 
-void real_vm_c::ReturnString(const char *s)
+void real_vm_c::ReturnString(const char *s, int len)
 {
-	G_FLOAT(OFS_RETURN*8) = STR_Concat("", s);
+	// TODO: turn this code into a utility function
+
+	if (len < 0)
+		len = strlen(s);
+
+	if (len == 0)
+	{
+		G_FLOAT(OFS_RETURN*8) = 0;
+	}
+	else
+	{
+		int index = temp_strings.alloc(len + 1);
+
+		char *s3  = (char *) temp_strings.deref(index);
+
+		memcpy(s3, s, (size_t)len);
+		s3[len] = 0;
+
+		G_FLOAT(OFS_RETURN*8) = -(1 + index);
+	}
 }
 
 
