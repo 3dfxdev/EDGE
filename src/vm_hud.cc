@@ -48,8 +48,10 @@ player_t *ui_hud_who = NULL;
 
 extern player_t *ui_player_who;
 
-
 extern std::string w_map_title;
+
+static int ui_hud_automap_flags[2];  // 0 = disabled, 1 = enabled
+static float ui_hud_automap_zoom;
 
 
 //------------------------------------------------------------------------
@@ -406,52 +408,7 @@ static void HD_render_world(coal::vm_c *vm, int argc)
 }
 
 
-#if 0  // FIXME
-static void ParseAutomapOptions(coal::vm_c *vm, int argc, int IDX, int *state, float *zoom)
-{
-	lua_getfield(L, IDX, "zoom");
-
-	if (! lua_isnil(L, -1))
-	{
-		(*zoom) = luaL_checknumber(L, -1);
-
-		// impose a very broad limit
-		(*zoom) = CLAMP(0.2f, *zoom, 100.0f);
-	}
-
-	lua_pop(L, 1);
-
-
-	static const char * st_names[6] =
-	{
-		"grid",   "rotate", "follow",
-		"things", "walls",  "allmap"
-	};
-	static const int st_flags[6] =
-	{
-		AMST_Grid,   AMST_Rotate, AMST_Follow,
-		AMST_Things, AMST_Walls,  AMST_Allmap
-	};
-
-	for (int k = 0; k < 6; k++)
-	{
-		lua_getfield(L, IDX, st_names[k]);
-
-		if (! lua_isnil(L, -1))
-		{
-			if (lua_toboolean(L, -1))
-				(*state) |= st_flags[k];
-			else
-				(*state) &= ~st_flags[k];
-		}
-
-		lua_pop(L, 1);
-	}
-}
-#endif
-
-
-// hud.render_automap(x, y, w, h, [options])
+// hud.render_automap(x, y, w, h)
 //
 static void HD_render_automap(coal::vm_c *vm, int argc)
 {
@@ -465,64 +422,67 @@ static void HD_render_automap(coal::vm_c *vm, int argc)
 
 	AM_GetState(&old_state, &old_zoom);
 
-//???	if (lua_istable(L, 5))
-//???	{
-//???		int   new_state = old_state;
-//???		float new_zoom  = old_zoom;
-//???
-//???		ParseAutomapOptions(L, 5, &new_state, &new_zoom);
-//???
-//???		AM_SetState(new_state, new_zoom);
-//???	}
+	int new_state = old_state;
+	new_state &= ~ui_hud_automap_flags[0];
+	new_state |=  ui_hud_automap_flags[1];
 
+	float new_zoom = old_zoom;
+	if (ui_hud_automap_zoom > 0.1)
+		new_zoom = ui_hud_automap_zoom;
+
+	AM_SetState(new_state, new_zoom);
+	            
  	AM_Drawer(x, y, w, h, ui_hud_who->mo);
 
 	AM_SetState(old_state, old_zoom);
 }
 
 
-#if 0  // FIXME
-static const char * am_color_names[AM_NUM_COLORS] =
-{
-    "grid",     // AMCOL_Grid
-
-    "wall",     // AMCOL_Wall
-    "step",     // AMCOL_Step
-    "ledge",    // AMCOL_Ledge
-    "ceil",     // AMCOL_Ceil
-    "secret",   // AMCOL_Secret
-    "allmap",   // AMCOL_Allmap
-
-    "player",   // AMCOL_Player
-    "monster",  // AMCOL_Monster
-    "corpse",   // AMCOL_Corpse
-    "item",     // AMCOL_Item
-    "missile",  // AMCOL_Missile
-    "scenery"   // AMCOL_Scenery
-};
-
-// hud.automap_colors(table)
+// hud.automap_color(which, color)
 //
-static void HD_automap_colors(coal::vm_c *vm, int argc)
+static void HD_automap_color(coal::vm_c *vm, int argc)
 {
-	if (! lua_istable(L, 1))
-		I_Error("hud.automap_colors() requires a table!\n");
+	int which = (int) *vm->AccessParam(0);
 
-	for (int which = 0; which < AM_NUM_COLORS; which++)
-	{
-		lua_getfield(L, 1, am_color_names[which]);
-		
-		if (! lua_isnil(L, -1))
-		{
-			AM_SetColor(which, ParseColor(L, -1));
-		}
+	if (which < 1 || which > AM_NUM_COLORS)
+		I_Error("hud.automap_color: bad color number: %d\n", which);
 
-		lua_pop(L, 1);
-	}
+	which--;
 
-	return 0;
+	rgbcol_t rgb = VM_VectorToColor(vm->AccessParam(1));
+
+	AM_SetColor(which, rgb);
 }
-#endif
+
+
+// hud.automap_option(which, value)
+//
+static void HD_automap_option(coal::vm_c *vm, int argc)
+{
+	int which = (int) *vm->AccessParam(0);
+	int value = (int) *vm->AccessParam(1);
+
+	if (which < 1 || which > 6)
+		I_Error("hud.automap_color: bad color number: %d\n", which);
+
+	which--;
+
+	if (value <= 0)
+		ui_hud_automap_flags[0] |= (1 << which);
+	else
+		ui_hud_automap_flags[1] |= (1 << which);
+}
+
+
+// hud.automap_zoom(value)
+//
+static void HD_automap_zoom(coal::vm_c *vm, int argc)
+{
+	float zoom = *vm->AccessParam(0);
+
+	// impose a very broad limit
+	ui_hud_automap_zoom = CLAMP(0.2f, zoom, 100.0f);
+}
 
 
 // hud.set_render_who(index)
@@ -563,12 +523,10 @@ static void HD_play_sound(coal::vm_c *vm, int argc)
 
 	sfx_t *fx = sfxdefs.GetEffect(name);
 
-	if (! fx)
-		I_Error("Lua script problem: unknown sound '%s'\n", name);
-
-	// FIXME: support 'volume' parameter
-
-	S_StartFX(fx);
+	if (fx)
+		S_StartFX(fx);
+	else
+		I_Warning("hud.play_sound: unknown sfx '%s'\n", name);
 }
 
 
@@ -594,7 +552,6 @@ void VM_RegisterHUD()
     ui_vm->AddNativeFunction("hud.text_color",      HD_text_color);
     ui_vm->AddNativeFunction("hud.set_scale",       HD_set_scale);
     ui_vm->AddNativeFunction("hud.set_alpha",       HD_set_alpha);
-/// ui_vm->AddNativeFunction("hud.automap_colors",  HD_automap_colors);
 
 	// drawing functions
     ui_vm->AddNativeFunction("hud.solid_box",       HD_solid_box);
@@ -608,9 +565,12 @@ void VM_RegisterHUD()
     ui_vm->AddNativeFunction("hud.draw_text",       HD_draw_text);
     ui_vm->AddNativeFunction("hud.draw_num2",       HD_draw_num2);
 
+	ui_vm->AddNativeFunction("hud.set_render_who",  HD_set_render_who);
     ui_vm->AddNativeFunction("hud.render_world",    HD_render_world);
     ui_vm->AddNativeFunction("hud.render_automap",  HD_render_automap);
-	ui_vm->AddNativeFunction("hud.set_render_who",  HD_set_render_who);
+    ui_vm->AddNativeFunction("hud.automap_color",   HD_automap_color);
+    ui_vm->AddNativeFunction("hud.automap_option",  HD_automap_option);
+    ui_vm->AddNativeFunction("hud.automap_zoom",    HD_automap_zoom);
 
 	// sound functions
 	ui_vm->AddNativeFunction("hud.play_sound",      HD_play_sound);
@@ -627,6 +587,10 @@ void VM_RunHud(void)
 
 	ui_hud_who    = players[displayplayer];
 	ui_player_who = players[displayplayer];
+
+	ui_hud_automap_flags[0] = 0;
+	ui_hud_automap_flags[1] = 0;
+	ui_hud_automap_zoom = -1;
 
     VM_CallFunction(ui_vm, "draw_all");
 }
