@@ -285,9 +285,12 @@ static void PL_has_key(coal::vm_c *vm, int argc)
 //
 static void PL_has_power(coal::vm_c *vm, int argc)
 {
-	const char * name = vm->AccessParamString(0);
+	int power = (int) *vm->AccessParam(0);
 
-	int power = 0; // FIXME : match string
+	if (power < 1 || power > NUMPOWERS)
+		I_Error("player.has_power: bad powerup number: %d\n", power);
+
+	power--;
 
 	int value = (ui_player_who->powers[power] > 0) ? 1 : 0;
 
@@ -303,9 +306,12 @@ static void PL_has_power(coal::vm_c *vm, int argc)
 //
 static void PL_power_left(coal::vm_c *vm, int argc)
 {
-	const char * name = vm->AccessParamString(0);
+	int power = (int) *vm->AccessParam(0);
 
-	int power = 0; // FIXME : match string
+	if (power < 1 || power > NUMPOWERS)
+		I_Error("player.power_left: bad powerup number: %d\n", power);
+
+	power--;
 
 	float value = ui_player_who->powers[power];
 
