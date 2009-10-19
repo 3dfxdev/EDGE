@@ -118,17 +118,6 @@ void HUD_FrameSetup(void)
 	}
 
 	HUD_Reset();
-
-	if (am_smoothing.d)
-	{
-		glEnable(GL_LINE_SMOOTH);
-		glLineWidth(1.5f);
-	}
-	else
-	{
-		glDisable(GL_LINE_SMOOTH);
-		glLineWidth(1.0f);
-	}
 }
 
 
@@ -353,35 +342,21 @@ void HUD_SolidBox(float x1, float y1, float x2, float y2, rgbcol_t col)
 }
 
 
-void HUD_SolidLine(float x1, float y1, float x2, float y2, rgbcol_t col)
-{
-	x1 = COORD_X(x1); y1 = SCREENHEIGHT - COORD_Y(y1);
-	x2 = COORD_X(x2); y2 = SCREENHEIGHT - COORD_Y(y2);
-
-	if (am_smoothing.d || cur_alpha < 0.99f)
-		glEnable(GL_BLEND);
-  
-	glColor4f(RGB_RED(col)/255.0, RGB_GRN(col)/255.0, RGB_BLU(col)/255.0, cur_alpha);
-  
-	glBegin(GL_LINES);
-
-	glVertex2i((int)x1, (int)y1);
-	glVertex2i((int)x2, (int)y2);
-  
-	glEnd();
-	glDisable(GL_BLEND);
-}
-
-
-void HUD_AutomapLine(float x1, float y1, float x2, float y2,
-					 float dx, float dy, rgbcol_t col)
+void HUD_SolidLine(float x1, float y1, float x2, float y2, rgbcol_t col,
+                   bool thick, bool smooth, float dx, float dy)
 {
 	x1 = COORD_X(x1); y1 = SCREENHEIGHT - COORD_Y(y1);
 	x2 = COORD_X(x2); y2 = SCREENHEIGHT - COORD_Y(y2);
 
 	dx = COORD_X(dx); dy = COORD_Y(dy);
 
-	if (am_smoothing.d || cur_alpha < 0.99f)
+	if (thick)
+		glLineWidth(1.5f);
+
+	if (smooth)
+		glEnable(GL_LINE_SMOOTH);
+
+	if (smooth || cur_alpha < 0.99f)
 		glEnable(GL_BLEND);
   
 	glColor4f(RGB_RED(col)/255.0, RGB_GRN(col)/255.0, RGB_BLU(col)/255.0, cur_alpha);
@@ -392,7 +367,10 @@ void HUD_AutomapLine(float x1, float y1, float x2, float y2,
 	glVertex2i((int)x2 + (int)dx, (int)y2 + (int)dy);
   
 	glEnd();
+
 	glDisable(GL_BLEND);
+	glDisable(GL_LINE_SMOOTH);
+	glLineWidth(1.0f);
 }
 
 
