@@ -50,12 +50,6 @@ void RGL_NewScreenSize(int width, int height, int bits);
 // rectangle.
 void RGL_SolidBox(int x, int y, int w, int h, rgbcol_t col, float alpha = 1.0);
 
-// Draw a solid colour line (possibly translucent) between the two
-// end points.  Coordinates are inclusive.  Used for the automap.
-// Colour is a palette index (0-255).  Drawing will be clipped to
-// the current clipping rectangle.
-void RGL_SolidLine(int x1, int y1, int x2, int y2, rgbcol_t col, float alpha = 1.0);
-
 // Draw a thin outline of a box.
 void RGL_ThinBox(int x, int y, int w, int h, rgbcol_t col, float alpha = 1.0);
 
