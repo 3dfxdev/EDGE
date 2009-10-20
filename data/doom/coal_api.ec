@@ -250,7 +250,7 @@ module player
 
     function is_bot()    : float  = native
     function get_name()  : string = native
-    function get_pos()   : float  = native
+    function get_pos()   : vector = native
     function get_angle() : float  = native
     function get_mlook() : float  = native
 
