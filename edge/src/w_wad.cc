@@ -1317,7 +1317,13 @@ void W_ReadDDF(void)
 				continue;
 
 			if (df->kind == FLKIND_EWad)
+			{
+				// special handling for TNT and Plutonia
+				if (d == LANG_READER)
+					LoadTntPlutStrings();
+
 				continue;
+			}
 
 			int lump = df->ddf_lumps[d];
 
@@ -1331,10 +1337,6 @@ void W_ReadDDF(void)
 				// call read function
 				(* DDF_Readers[d].func)(data, length);
 				delete[] data;
-
-				// special handling for TNT and Plutonia
-				if (d == LANG_READER && df->kind == FLKIND_EWad)
-					LoadTntPlutStrings();
 			}
 
 			// handle Boom's ANIMATED and SWITCHES lumps
