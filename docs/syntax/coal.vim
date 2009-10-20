@@ -25,9 +25,9 @@ syn match   coalComment   "//.*$" contains=coalTodo,@Spell
 syn region  coalComment   start="/[*]" end="[*]/" contains=coalTodo,@Spell
 
 " other keywords
-syn keyword coalDefine function var constant native module
-syn keyword coalType void float string vector
-syn keyword coalStatement return break while repeat until for if else
+syn keyword coalDefine function var constant native module field
+syn keyword coalType void float string vector entity
+syn keyword coalStatement return while repeat until for if else assert
 
 " Strings
 syn match  coalEscape contained "\\[\\abfnrtv\'\"]\|\\\d\{,3}"
