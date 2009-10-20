@@ -81,6 +81,9 @@ extern void CloseUserFileOrLump(imagedef_c *def, epi::file_c *f);
 #define DUMMY_Y  16
 
 
+extern void DeleteSkyTextures(void);
+
+
 //
 // This structure is for "cached" images (i.e. ready to be used for
 // rendering), and is the non-opaque version of cached_image_t.  A
@@ -1450,6 +1453,8 @@ void W_DeleteAllImages(void)
 			rc->tex_id = 0;
 		}
 	}
+
+	DeleteSkyTextures();
 
 	image_reset_counter++;
 }
