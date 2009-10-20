@@ -15,9 +15,6 @@ clean:
 test: burner
 	./burner test.ec
 
-test2: burner
-	./burner basics.ec doom_hud.ec
-
 .PHONY: all clean test
 
 #==============================================================================
