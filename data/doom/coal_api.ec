@@ -77,6 +77,13 @@ module math
       if (a > b) return a
       return b
     }
+
+    function normalize(v : vector) : vector =
+    {
+      var len = vlen(v)
+      if (len <= 0) return '0 0 0'
+      return v * (1 / len)
+    }
 }
 
 
