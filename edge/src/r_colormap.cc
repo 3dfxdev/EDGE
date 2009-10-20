@@ -699,9 +699,6 @@ private:
 	rgbcol_t whites[32];
 
 public:
-	int reset_ctr;
-
-public:
 	colormap_shader_c(const colourmap_c *CM) : colmap(CM),
 		light_lev(255), fade_tex(0),
 		simple_cmap(true), lt_model(LMODEL_Doom)
@@ -709,7 +706,7 @@ public:
 
 	virtual ~colormap_shader_c()
 	{
-		/* FIXME: delete texture */
+		DeleteTex();
 	}
 
 private:
@@ -915,7 +912,7 @@ private:
 public:
 	void Update()
 	{
-		if (fade_tex == 0 || reset_ctr != image_reset_counter ||
+		if (fade_tex == 0 ||
 		    lt_model != currmap->episode->lighting)
 		{
 			if (fade_tex != 0)
@@ -926,8 +923,15 @@ public:
 			lt_model = currmap->episode->lighting;
 
 			MakeColormapTexture(0);
+		}
+	}
 
-			reset_ctr = image_reset_counter;
+	void DeleteTex()
+	{
+		if (fade_tex != 0)
+		{
+			glDeleteTextures(1, &fade_tex);
+			fade_tex = 0;
 		}
 	}
 
@@ -935,7 +939,6 @@ public:
 	{
 		light_lev = _level;
 	}
-
 };
 
 
@@ -984,6 +987,27 @@ abstract_shader_c *R_GetColormapShader(const struct region_properties_s *props,
 	shader->SetLight(lit_Nom);
 
 	return shader;
+}
+
+
+void DeleteColourmapTextures(void)
+{
+	if (std_cmap_shader)
+		std_cmap_shader->DeleteTex();
+	
+	std_cmap_shader = NULL;
+
+	for (int i = 0; i < colourmaps.GetSize(); i++)
+	{
+		colourmap_c *cmap = colourmaps[i];
+
+		if (cmap && cmap->analysis)
+		{
+			colormap_shader_c * shader = (colormap_shader_c *) cmap->analysis;
+
+			shader->DeleteTex();
+		}
+	}
 }
 
 

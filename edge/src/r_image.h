@@ -199,10 +199,6 @@ extern int  var_smoothing;
 extern bool var_dithering;
 extern int  hq2x_scaling;
 
-// this is incremented for every W_DeleteAllImages(), so that
-// specialised images (e.g. for colormapping) can be recreated.
-extern int  image_reset_counter;
-
 bool W_InitImages(void);
 void W_UpdateImageAnims(void);
 void W_DeleteAllImages(void);

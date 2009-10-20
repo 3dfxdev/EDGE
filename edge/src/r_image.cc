@@ -82,6 +82,7 @@ extern void CloseUserFileOrLump(imagedef_c *def, epi::file_c *f);
 
 
 extern void DeleteSkyTextures(void);
+extern void DeleteColourmapTextures(void);
 
 
 //
@@ -210,8 +211,6 @@ static const image_c *dummy_hom[2];
 
 // image cache (actually a ring structure)
 static std::list<cached_image_t *> image_cache;
-
-int image_reset_counter = 0;
 
 
 // tiny ring helpers
@@ -1455,8 +1454,7 @@ void W_DeleteAllImages(void)
 	}
 
 	DeleteSkyTextures();
-
-	image_reset_counter++;
+	DeleteColourmapTextures();
 }
 
 
