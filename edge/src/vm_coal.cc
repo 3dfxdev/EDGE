@@ -276,6 +276,16 @@ static void STRINGS_sub(coal::vm_c *vm, int argc)
 }
 
 
+// strings.tonumber(s)
+//
+static void STRINGS_tonumber(coal::vm_c *vm, int argc)
+{
+	const char * s = vm->AccessParamString(0);
+
+	vm->ReturnFloat(atof(s));
+}
+
+
 //------------------------------------------------------------------------
 
 void VM_RegisterBASE(coal::vm_c *vm)
@@ -304,6 +314,7 @@ void VM_RegisterBASE(coal::vm_c *vm)
 	// STRINGS
     vm->AddNativeFunction("strings.len",    STRINGS_len);
     vm->AddNativeFunction("strings.sub",    STRINGS_sub);
+    vm->AddNativeFunction("strings.tonumber", STRINGS_tonumber);
 }
 
 
