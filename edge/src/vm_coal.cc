@@ -357,10 +357,28 @@ void VM_LoadCoalFire(const char *filename)
 	delete F;
 }
 
+void VM_LoadLumpOfCoal(int lump)
+{
+	const char *name = W_GetLumpName(lump);
+
+	int length;
+	byte *data = W_ReadLumpAlloc(lump, &length);
+
+	I_Printf("Compiling %s lump\n", name);
+
+	if (! ui_vm->CompileFile((char *)data, name))
+		I_Error("Errors compiling %s lump.\n", name);
+
+	delete[] data;
+}
+
+
 void VM_LoadScripts()
 {
 	VM_LoadCoalFire("doom_ddf/coal_api.ec");
 	VM_LoadCoalFire("doom_ddf/coal_hud.ec");
+
+	W_ReadCoalLumps();
 }
 
 

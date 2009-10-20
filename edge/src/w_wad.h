@@ -75,6 +75,7 @@ extern int addwadnum;
 void W_AddRawFilename(const char *file, int kind);
 void W_InitMultipleFiles(void);
 void W_ReadDDF(void);
+void W_ReadCoalLumps(void);
 
 int W_CheckNumForName2(const char *name);
 int W_GetNumForName2(const char *name);
@@ -93,6 +94,7 @@ void *W_LoadLumpName(const char *name);
 bool W_VerifyLumpName(int lump, const char *name);
 const char *W_GetLumpName(int lump);
 int W_CacheInfo(int level);
+byte *W_ReadLumpAlloc(int lump, int *length);
 
 epi::file_c *W_OpenLump(int lump);
 epi::file_c *W_OpenLump(const char *name);

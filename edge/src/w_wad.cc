@@ -67,6 +67,7 @@
 #include "l_glbsp.h"
 #include "m_misc.h"
 #include "rad_trig.h"
+#include "vm_coal.h"
 #include "w_wad.h"
 #include "z_zone.h"
 
@@ -139,6 +140,9 @@ public:
 	// DeHackEd support
 	int deh_lump;
 
+	// COAL scripts
+	int coal_huds;
+
 	// BOOM stuff
 	int animated, switches;
 
@@ -157,7 +161,8 @@ public:
 		sprite_lumps(), flat_lumps(), patch_lumps(),
 		colmap_lumps(), tx_lumps(),
 		level_markers(), skin_markers(),
-		wadtex(), deh_lump(-1), animated(-1), switches(-1),
+		wadtex(), deh_lump(-1), coal_huds(-1),
+		animated(-1), switches(-1),
 		companion_gwa(-1), dir_hash()
 	{
 		file_name = strdup(_fname);
@@ -274,7 +279,7 @@ bool within_patch_list;
 bool within_colmap_list;
 bool within_tex_list;
 
-static byte *W_ReadLumpAlloc(int lump, int *length);
+byte *W_ReadLumpAlloc(int lump, int *length);
 
 //
 // Is the name a sprite list start flag?
@@ -638,6 +643,12 @@ static void AddLump(data_file_c *df, int lump, int pos, int size, int file,
 	{
 		lump_p->kind = LMKIND_DDFRTS;
 		df->deh_lump = lump;
+		return;
+	}
+	else if (strncmp(name, "COALHUDS", 8) == 0)
+	{
+		lump_p->kind = LMKIND_DDFRTS;
+		df->coal_huds = lump;
 		return;
 	}
 	else if (strncmp(name, "ANIMATED", 8) == 0)
@@ -1370,6 +1381,22 @@ void W_ReadDDF(void)
 	}
 }
 
+void W_ReadCoalLumps(void)
+{
+	for (int f = 0; f < (int)data_files.size(); f++)
+	{
+		data_file_c *df = data_files[f];
+
+		if (df->kind > FLKIND_Lump)
+			continue;
+
+		if (df->coal_huds < 0)
+			continue;
+
+		VM_LoadLumpOfCoal(df->coal_huds);
+	}
+}
+
 epi::file_c *W_OpenLump(int lump)
 {
 	SYS_ASSERT(0 <= lump && lump < numlumps);
@@ -1726,7 +1753,8 @@ static void W_ReadLump(int lump, void *dest)
 		I_Error("W_ReadLump: only read %i of %i on lump %i", c, L->size, lump);
 }
 
-static byte *W_ReadLumpAlloc(int lump, int *length)
+// FIXME !!! merge W_ReadLumpAlloc and W_LoadLumpNum into one good function
+byte *W_ReadLumpAlloc(int lump, int *length)
 {
 	*length = W_LumpLength(lump);
 
