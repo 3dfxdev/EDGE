@@ -196,8 +196,6 @@ typedef struct
 	
 	const colourmap_c *fx_colmap;
 
-	int reset_ctr;
-
 	int face_size;
 
 	GLuint tex[6];
@@ -205,23 +203,46 @@ typedef struct
 	// face images are only present for custom skyboxes.
 	// pseudo skyboxes are generated outside of the image system.
 	const image_c *face[6];
-
 }
 fake_skybox_t;
 
 static fake_skybox_t fake_box[2] =
 {
 	{
-		NULL, NULL, 0, 1,
+		NULL, NULL, 1,
 		{ 0,0,0,0,0,0 },
 		{ NULL, NULL, NULL, NULL, NULL, NULL }
 	},
 	{
-		NULL, NULL, 0, 1,
+		NULL, NULL, 1,
 		{ 0,0,0,0,0,0 },
 		{ NULL, NULL, NULL, NULL, NULL, NULL }
 	}
 };
+
+
+static void DeleteSkyTexGroup(int SK)
+{
+	for (int i = 0; i < 6; i++)
+	{
+		if (fake_box[SK].tex[i] != 0)
+		{
+			glDeleteTextures(1, &fake_box[SK].tex[i]);
+			fake_box[SK].tex[i] = 0;
+		}
+	}
+}
+
+void DeleteSkyTextures(void)
+{
+	for (int SK = 0; SK < 2; SK++)
+	{
+		fake_box[SK].base_sky  = NULL;
+		fake_box[SK].fx_colmap = NULL;
+
+		DeleteSkyTexGroup(SK);
+	}
+}
 
 
 static void RGL_SetupSkyMatrices(float dist)
@@ -846,18 +867,16 @@ int RGL_UpdateSkyBoxTextures(void)
 	fake_skybox_t *info = &fake_box[SK];
 
 	if (info->base_sky  == sky_image &&
-		info->fx_colmap == ren_fx_colmap &&
-		info->reset_ctr == image_reset_counter)
+		info->fx_colmap == ren_fx_colmap)
 	{
 		return SK;
 	}
 
 	info->base_sky  = sky_image;
 	info->fx_colmap = ren_fx_colmap;
-	info->reset_ctr = image_reset_counter;
 
 
-	// check for custom sky images
+	// check for custom sky boxes
 	info->face[WSKY_North] = W_ImageLookup(
 			UserSkyFaceName(sky_image->name, WSKY_North), INS_Texture, ILF_Null);
 
@@ -906,10 +925,7 @@ int RGL_UpdateSkyBoxTextures(void)
 		what_pal_cached = true;
 	}
 
-	if (info->tex[0])
-	{
-		glDeleteTextures(6, info->tex);
-	}
+	DeleteSkyTexGroup(SK);
 
 	info->tex[WSKY_North]  = BuildFace(block, WSKY_North,  info, what_pal);
 	info->tex[WSKY_East]   = BuildFace(block, WSKY_East,   info, what_pal);
