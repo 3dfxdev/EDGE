@@ -469,7 +469,7 @@ bool real_vm_c::LEX_Check(const char *str)
 
 
 //
-// For error recovery.
+// ERROR RECOVERY
 //
 // This is very simple, we just jump to the end of the line.
 // The error may have occured inside a string, making checks for
