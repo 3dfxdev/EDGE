@@ -6,7 +6,7 @@
 
 <IMAGES>
 
-#VERSION 1.31
+#VERSION 1.34
 
 [gfx:STDCROSS1]
 image_data = LUMP:PNG:"CROSSHR1";
