@@ -38,6 +38,7 @@
 #include "r_image.h"
 #include "r_units.h"
 #include "r_draw.h"
+#include "r_wipe.h"
 
 // Globals
 int SCREENWIDTH;
@@ -227,6 +228,8 @@ void R_SoftInitResolution(void)
 
 static bool DoExecuteChangeResolution(scrmode_c *mode)
 {
+	RGL_StopWipe();  // delete any wipe texture too
+
 	W_DeleteAllImages();
 
 	bool was_ok = I_SetScreenSize(mode);
