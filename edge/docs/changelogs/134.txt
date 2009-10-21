@@ -30,25 +30,42 @@ Bugs fixed
 Features Removed / Changed
 --------------------------
 
-! new language "COAL" replaces Lua for HUDs
-! RTS files now use the "RTS" extension (not "SCR")
-! standard DDF/RTS files moved out of EDGE.WAD
-! old EDGE title screens retired
++ new language "COAL" replaces Lua for drawing HUDs.
+
+@@@@  the "EC" extension
+      coal_api.ec  |  coal_hud.ec
+      can be loaded from pwads using a lump called "COALHUDS"
+
++ RTS files now need to the "RTS" extension (not "SCR"), since
+  the SCR extension is used by MS Windows for Screensavers.
+  This change also makes it clearer which kind of scripting is
+  meant (RTS or COAL).
+
++ the standard DDF/RTS files have been moved out of EDGE.WAD,
+  instead they are stored in a folder called "doom_ddf".
+
+- savegames from 1.31 and earlier do not work.  They do not even
+  appear in the menu, because each savegame now has its own folder
+  (as a consequence of the new HUB system).
+
+- the old EDGE title screens and music were retired.
 
 
 General Improvements
 --------------------
 
-+ improved console with command history and TAB-completion
++ improved console with command history and TAB-completion.
 
-+ better crosshairs, more configurable
++ better crosshairs with control over size and color.
 
-- improved various defaults (e.g. 16-bit sound)
++ support for keys on the numeric keypad.  Default is enabled
+  but you can disable it typing 'in_keypad 0' in the console.
+
+- improved defaults (e.g. 16-bit sound, WASD movement)
 - wobble-free scrolling for the automap
 - shorter cheat code for 'killall'
 - better HOM detection (debug_hom cvar)
 
-- support for keys on the numeric keypad
 - always generate our own BLOCKMAP, ignore REJECT
 - improved mouse and keyboard speed settings
 - in option menus, current line is highlighted
@@ -58,11 +75,25 @@ General Improvements
 New Features
 ------------
 
-+ HUB support
-+ Joystick support
-+ obituary messages (new DAMAGE.OBITUARY field)
-+ two "Action" buttons for RTS scripting
-+ new RTS command: ONCEILINGHEIGHT (Andrew Baker)
++ HUB support   @@@
 
-- LINES.DDF: can prevent bots using a linetype
++ Joystick support   @@@
+
++ obituary messages (new DAMAGE.OBITUARY field)
+
+- two "Action" buttons which can be set in the Keyboard Controls
+  menu and tested by RTS and COAL scripts, as follows:
+
+     RTS:   ONCONDITION ACTION1
+
+     COAL:  if (player.is_action1()) { ... }
+
+  (Replace '1' with '2' to test the other button)
+
+- RTS: new ONCEILINGHEIGHT command (courtesy Andrew Baker) which
+  works just like the ONHEIGHT condition but tests the ceiling
+  instead of the floor.
+
+- LINES.DDF: can prevent bots using a certain linetype via the
+  new "NOBOT" keyword in the ACTIVATORS command.
 
