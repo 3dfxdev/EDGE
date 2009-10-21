@@ -8,20 +8,21 @@ CHANGELOG for EDGE 1.34 (since 1.31)
 Bugs fixed
 ----------
 
-- fixed music detuning with Windows native playback
++ fixed music detuning with Windows native playback
++ fixed crashes with "monster aggression" feature
++ fixed 16-rotation sprites
+
 - fixed some colormap issues
 - fixed slowdown with savegames on large maps
-- fixed teleporting into walls bug (with help from Andrew Baker)
+- fixed teleporting into walls bug
 - fixed bug with LOSE_BENEFIT on ammo limits
 - fixed weapon refire accuracy after a loadgame
 - fixed bots triggering exit lines/switches
 - fixed excessive warnings for missing textures
 
-- fixed 16-rotation sprites
 - fixed some Timidity issues
 - fixed dynamic lights on translucent MD2 skins
 - fixed RTS execution semantics in multiplayer games
-- fixed crashes with "monster aggression" feature
 - fixed display of gamma-change messages
 - fixed gamma to be restored at exit
 - fixed Boom point pushers/pullers
@@ -41,8 +42,8 @@ Features Removed / Changed
   Coal HUD-drawing scripts may also be included in pwads in a
   lump called "COALHUDS".
 
-+ RTS files now need to the "RTS" extension (not "SCR"), which
-  is more accurate, plus the SCR extension is used by MS Windows
++ RTS files now need the "RTS" extension (not "SCR"), which is
+  more accurate, plus the SCR extension is used by MS Windows
   for Screensaver programs.
 
 + the standard DDF/RTS files have been moved out of EDGE.WAD,
@@ -60,17 +61,17 @@ General Improvements
 
 + improved console with command history and TAB-completion.
 
-+ better crosshairs with control over size and color.
++ better crosshairs, with control over size and color.
 
 + support for keys on the numeric keypad.  Default is enabled
-  but you can disable it typing 'in_keypad 0' in the console.
+  but you can disable it via the 'in_keypad' console var.
 
 - improved defaults (e.g. 16-bit sound, WASD movement)
 - wobble-free scrolling for the automap
 - shorter cheat code for 'killall'
 - better HOM detection (debug_hom cvar)
 
-- always generate our own BLOCKMAP, ignore REJECT
+- always generate our own BLOCKMAP and ignore REJECT
 - improved mouse and keyboard speed settings
 - in option menus, current line is highlighted
 - new 'goobers' cvar for a fun effect
@@ -79,10 +80,10 @@ General Improvements
 New Features
 ------------
 
++ Joystick support.
+
 + HUB support.  Please see the 'demo-Hubs.txt' document which is
   included with the EDGE 1.34 release package for more info.
-
-+ Joystick support.
 
 + obituary messages when the player is killed.  They are created
   by an entry in LANGUAGES.LDF (e.g. OB_ImpClaw), and that entry is
@@ -100,7 +101,7 @@ New Features
 
      COAL:  if (player.is_action1()) { ... }
 
-  (Replace '1' with '2' to test the other button)
+  (Use ACTION2 / is_action2 to test the second button)
 
 - RTS: new ONCEILINGHEIGHT command (courtesy Andrew Baker) which
   works just like the ONHEIGHT condition but tests the ceiling
