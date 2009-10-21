@@ -1,5 +1,5 @@
 
-CHANGELOG FOR EDGE 1.34 (since 1.31)
+CHANGELOG for EDGE 1.34 (since 1.31)
 ====================================
 
 (Date: OCTOBER 2009)
@@ -32,14 +32,18 @@ Features Removed / Changed
 
 + new language "COAL" replaces Lua for drawing HUDs.
 
-@@@@  the "EC" extension
-      coal_api.ec  |  coal_hud.ec
-      can be loaded from pwads using a lump called "COALHUDS"
+  Documentation about COAL is a bit sparse right now.
+  In the 1.34 release the following coal scripts are present:
 
-+ RTS files now need to the "RTS" extension (not "SCR"), since
-  the SCR extension is used by MS Windows for Screensavers.
-  This change also makes it clearer which kind of scripting is
-  meant (RTS or COAL).
+     doom_ddf/coal_api.ec  :  defines API to the engine
+     doom_ddf/coal_hud.ec  :  implements the DOOM HUD
+
+  Coal HUD-drawing scripts may also be included in pwads in a
+  lump called "COALHUDS".
+
++ RTS files now need to the "RTS" extension (not "SCR"), which
+  is more accurate, plus the SCR extension is used by MS Windows
+  for Screensaver programs.
 
 + the standard DDF/RTS files have been moved out of EDGE.WAD,
   instead they are stored in a folder called "doom_ddf".
@@ -48,7 +52,7 @@ Features Removed / Changed
   appear in the menu, because each savegame now has its own folder
   (as a consequence of the new HUB system).
 
-- the old EDGE title screens and music were retired.
+- the old EDGE title screens / music were retired.
 
 
 General Improvements
@@ -75,7 +79,8 @@ General Improvements
 New Features
 ------------
 
-+ HUB support   @@@
++ HUB support.  Please see the 'demo-Hubs.txt' document which is
+  included with the EDGE 1.34 release package for more info.
 
 + Joystick support.
 
