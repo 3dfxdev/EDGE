@@ -21,6 +21,67 @@ id software.
 <h2 class="page_title"> Latest News </h2>
 
 
+<use BeginNews title="1.34-RC#1 Available" date="22-Oct-2009">
+
+Phew it has been a while, but another release of EDGE is just
+around the corner, and today you can get a fully-fledged
+testing version of it! &nbsp;
+Since this is a Release Candidate (RC), it should be as
+stable and complete as the full release, and we will not be
+adding any new features now, only fixing bugs.
+
+<p>
+Why version 1.34? &nbsp;
+Well for version 1.32 we attempted a lot of big things:
+a new BSP-free renderer, DDF inheritance, a new scripting language,
+MD3 models, and using cvars for all user settings.
+But it was simply too much to chew. &nbsp;
+Hence in order to move forward, we decided to cut our losses
+and begin again, applying as many of the bug fixes and smaller
+features from the 1.32 branch as possible to
+create a new "1.34" branch.
+
+<p>
+The major new blah
+
+@@@>>>
+As always we are delighted to announce that EDGE 1.31-RC#1
+is now available for download.
+
+<p>
+The biggest new feature is Lua-scripted HUDs, giving modders
+great power to create new status bars and other Heads-Up-Display
+elements.
+Also worth noting are the new Detail Slopes, which are a bit
+limited but good for adding some cool slopey details into your maps.
+
+<p>
+Many bugs have been fixed since Beta#2, for example:
+colormapped sectors (blue water etc) are working again,
+the Super Shotgun firing rate was too slow and has
+been rectified, and Timidity music playback is now finished
+and works well in both Linux and Windows.
+
+<p>
+Lastly, some things have been removed, such as
+demo support and CD music playback,
+because of difficult-to-fix bugs
+and lack of interest in these features.
+
+<p>
+The complete list of changes since EDGE 1.34 is here:
+<a href="logs/134.htm">1.34 ChangeLog</a>
+
+<p>
+Download Link:
+<a href="http://downloads.sourceforge.net/edge/Edge-1.34-RC1.zip">
+Edge-1.34-RC1.zip
+</a> (??? MB)
+
+<use EndNews>
+
+
+
 <use BeginNews title="EDGE for MacOS X!" date="25-Jun-2009">
 
 Andrew Baker, a former EDGE developer, has put his nose to
