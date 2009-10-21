@@ -114,32 +114,18 @@ Timidity Music Support:
 
 ------------------------------------------------------------------------
 
-List of Changes in EDGE 1.34:
+Major Changes in EDGE 1.34:
   + HUB support
   + Joystick support
   + obituary messages (new DAMAGE.OBITUARY field)
   + two "Action" buttons for RTS scripting
   + better crosshairs, more configurable
   + improved console with command history and TAB-completion
-  + new RTS command: ONCEILINGHEIGHT (Andrew Baker)
+  + support for keys on the numeric keypad
 
   ! new language "COAL" replaces Lua for HUDs
   ! RTS files now use the "RTS" extension (not "SCR")
   ! standard DDF/RTS files moved out of EDGE.WAD
-
-  - support for keys on the numeric keypad
-  - improved various defaults (e.g. WASD movement)
-  - wobble-free scrolling for the automap
-  - new 'debug_fps' and 'debug_pos' cvars
-  - LINES.DDF: can prevent bots using a linetype
-  - shorter cheat code for 'killall'
-
-  - better HOM detection (debug_hom cvar)
-  - always generate our own BLOCKMAP, ignore REJECT
-  - improved mouse and keyboard speed settings
-  - in option menus, current line is highlighted
-  - new 'goobers' cvar for a fun effect
-  - old EDGE title screens retired
 
 Bugs fixed in 1.34:
   - fixed music detuning with Windows native playback
@@ -337,16 +323,25 @@ Command line options:
 
 
 Console commands:
-  CRC  <lump>          Computes the CRC value of a wad lump.
-  EXEC  <filename>     Executes the console commands in file.
-  PLAYSOUND  <sound>   Plays the sound.
-  QUIT                 Quit EDGE (pops up a query message).
-  SET  <cvar> <val>    Set console variable to a new value.
-  TYPEOF  <cvar>       Displays the type of a console variable.
+   args  ...              Just prints the arguments (for testing)
+   crc   <lump>           Computes the CRC value of a wad lump
+   dir  [<path> <mask>]   Display contents of a directory     
+   exec  <filename>       Executes console commands from a file
+   help                   Prints a summary of console usage
+   playsound  <sound>     Plays the sound
+   resetvars              Reset all cvars and settings
+   showcmds               Show all console commands
+   showvars [-l]          Show all console variables              
+   showjoysticks          Show all available joysticks
+   showfiles              Show all loaded files
+   showlumps <file>       Show all lumps in a wad file
+   type  <filename>       Displays the contents of a text file
+   version                Show the EDGE version
+   warp  <mapname>        Jump to a new map (like IDCLEV cheat)
+   quit                   Quit EDGE (pops up a query message)
 
-  * The SET command can be used with no options, which displays all
-    known variables (and their values), or just the cvar name, which
-    displays the value of that variable.
+
+Console variables:
 
 
 **** CREDITS ****
