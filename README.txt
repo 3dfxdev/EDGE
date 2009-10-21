@@ -2,13 +2,14 @@
 EDGE 1.34 README.TXT
 ====================
 
-Welcome to EDGE, the Enhanced Doom Gaming Engine.
+Welcome to EDGE, the Enhanced Doom Game Engine.
 
 Website: http://edge.sourceforge.net
 
 Archive listing:
-  * edge32.exe         - EDGE Executable (OpenGL rendering)
+  * edge134.exe        - EDGE Executable
   * edge.wad           - EDGE WAD Information, version 6.1
+  * demo-XXXX.wad      - Demos of various EDGE features
   * SDL.dll            - Simple DirectMedia Layer, version 1.2.13
   * Changelog-134.txt  - Changes since 1.31
   * Edge-Readme.txt    - Guess what you are reading?
@@ -84,11 +85,11 @@ Notable EDGE features:
 
   - MD2 models for monsters, items and player weapons.
 
-  - Jumping and Crouching
+  - Jumping and Crouching.
   
   - Look up/down and Zooming.
   
-  - Flying (JetPack) and Swimmable water
+  - Flying (JetPack) and Swimmable water.
 
   - Many limits and bugs from original DOOM removed.
 
