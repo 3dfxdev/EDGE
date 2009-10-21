@@ -295,7 +295,6 @@ Command line options:
   -strict              Errors: be as strict as possible.
   -lax                 Errors: be as forgiving as possible.
   -(no)warn            Enable/disable all warning messages.
-  -(no)obsolete        Enable/disable warnings about obsolete stuff.
 
   -(no)smoothing       Smoothing for graphic images (mainly GL).
   -(no)mipmap          Mipmapping enable/disable.
@@ -340,8 +339,55 @@ Console commands:
    warp  <mapname>        Jump to a new map (like IDCLEV cheat)
    quit                   Quit EDGE (pops up a query message)
 
+   <varname>              Show value of a console variable
+   <varname>  <value>     Set the value of a console cariable
+
 
 Console variables:
+   language               Current language setting (string)
+   aggression             monster aggression (EDGE feature)
+   goobers                flatten out levels (EDGE feature)
+ 
+   ddf_strict             Errors: be as strict as possible
+   ddf_lax                Errors: be as forgiving as possible
+   ddf_quiet              Enable/disable all warning messages.
+ 
+   in_grab                Grab the mouse cursor
+   in_keypad              Enables the numeric keypad
+   in_stageturn           Two-stage turning (keyboard & joystick)
+   in_warpmouse           Warp the cursor to get relative motion
+ 
+   joy_dead               Joystick dead zone  (0.0 - 0.8)
+   joy_peak               Joystick peak point (0.4 - 1.0)
+   joy_tuning             Joystick fine tune  (0.2 - 5.0, normally 1)
+ 
+   m_diskicon             Enables the flashing disk icon
+   m_busywait             Enables hogging 100% of the CPU
+ 
+   am_smoothing           Enables smoother lines on the automap
+ 
+   r_crosshair                       |
+   r_crosscolor                       |
+   r_crosssize                       |
+   r_crossbright                       |
+ 
+   r_nearclip                       |
+   r_farclip                       |
+   r_fadepower                       |
+ 
+   r_colormaterial                       |
+   r_colorlighting                       |
+   r_dumbsky                       |
+   r_dumbmulti                       |
+   r_dumbcombine                       |
+   r_dumbclamp                       |
+ 
+   debug_fullbright                       |
+   debug_hom                       |
+   debug_joyaxis                       |
+   debug_mouse                       |
+   debug_pos                       |
+   debug_fps                       |
 
 
 **** CREDITS ****
