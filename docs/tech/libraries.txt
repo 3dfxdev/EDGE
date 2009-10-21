@@ -1,5 +1,5 @@
 
-EDGE 1.31 Required Libraries
+EDGE 1.34 Required Libraries
 ============================
 
 Internal (in SVN)
@@ -7,26 +7,26 @@ Internal (in SVN)
 
 EPI      : Edge Platform Interface (utility code)
 Deh_Edge : DeHackEd/BEX patch to DDF converter
+COAL     : Coal language compiler / VM
 Timidity : MIDI playback library
-ENET     : Networking library
+ENET     : Networking library   [not used in 1.34]
 
 
 External
 --------
 
-LibSDL   : Simple DirectMedia Library (video and input)
+LibSDL   : Simple DirectMedia Library
 
 OpenGL   : 3D Graphics library
 GLEW     : OpenGL Extension Wrangler library
 
 OGG + Vorbis + VorbisFile : Compressed sound and music
 
-Lua      : Lua scripting language
-FLTK     : Fast Light ToolKit, for error dialogs  [Linux only]
-
 LibPNG   : PNG image handling (Portable Network Graphics)
 Jpeglib  : JPEG image handling
 Zlib     : Compression library (used by LibPNG too)
+
+FLTK     : Fast Light ToolKit, for error dialogs  [Linux only]
 
 
 LINKS
@@ -39,7 +39,6 @@ http://www.libsdl.org/
 http://www.libsdl.org/projects/SDL_net/
 
 http://www.vorbis.com/
-http://www.lua.org/
 http://www.fltk.org/
 http://enet.bespin.org/
 
