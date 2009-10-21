@@ -82,6 +82,17 @@ h3.sub_title {
     padding-right: 10px;
   }
 
+.news_huge_title {
+    clear: right;
+    background-color: #faa;
+    border: 1px solid black;
+    color: black;
+    font-weight: bold;
+
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
 .news_body {
     /* text-align: justify; */
     border: 0px solid red;
