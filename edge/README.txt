@@ -330,27 +330,28 @@ Console commands:
    playsound  <sound>     Plays the sound
    resetvars              Reset all cvars and settings
    showcmds               Show all console commands
-   showvars [-l]          Show all console variables              
+   showvars  [-l]         Show all console variables              
    showjoysticks          Show all available joysticks
    showfiles              Show all loaded files
-   showlumps <file>       Show all lumps in a wad file
+   showlumps  <file-idx>  Show all lumps in a wad file
    type  <filename>       Displays the contents of a text file
    version                Show the EDGE version
    warp  <mapname>        Jump to a new map (like IDCLEV cheat)
    quit                   Quit EDGE (pops up a query message)
 
    <varname>              Show value of a console variable
-   <varname>  <value>     Set the value of a console cariable
+   <varname>  <value>     Set the value of a console variable
 
 
 Console variables:
-   language               Current language setting (string)
+   language               Current language setting
+
    aggression             monster aggression (EDGE feature)
    goobers                flatten out levels (EDGE feature)
  
    ddf_strict             Errors: be as strict as possible
    ddf_lax                Errors: be as forgiving as possible
-   ddf_quiet              Enable/disable all warning messages.
+   ddf_quiet              Disables all warning messages
  
    in_grab                Grab the mouse cursor
    in_keypad              Enables the numeric keypad
@@ -362,38 +363,31 @@ Console variables:
    joy_tuning             Joystick fine tune  (0.2 - 5.0, normally 1)
  
    m_diskicon             Enables the flashing disk icon
-   m_busywait             Enables hogging 100% of the CPU
+   m_busywait             Smoother gameplay vs less CPU utilisation
  
    am_smoothing           Enables smoother lines on the automap
+   r_fadepower            Powerup effects smoothly fade out
  
-   r_crosshair                       |
-   r_crosscolor                       |
-   r_crosssize                       |
-   r_crossbright                       |
+   r_crosshair            Crosshair to draw (1-9, 0 for none)
+   r_crosscolor           Crosshair color (0-7)
+   r_crosssize            Crosshair size (16 is normal)
+   r_crossbright          Crosshair brightness (0.1 - 1.0)
+
+   r_nearclip             OpenGL near distance (default 4)
+   r_farclip              OpenGL far distance  (default 64000)
  
-   r_nearclip                       |
-   r_farclip                       |
-   r_fadepower                       |
- 
-   r_colormaterial                       |
-   r_colorlighting                       |
-   r_dumbsky                       |
-   r_dumbmulti                       |
-   r_dumbcombine                       |
-   r_dumbclamp                       |
- 
-   debug_fullbright                       |
-   debug_hom                       |
-   debug_joyaxis                       |
-   debug_mouse                       |
-   debug_pos                       |
-   debug_fps                       |
+   debug_fullbright       Debugging: draw everything full-bright
+   debug_hom              Debugging: show missing textures
+   debug_joyaxis          Debugging: print joystick axis events
+   debug_mouse            Debugging: print mouse events
+   debug_pos              Debugging: show player's location
+   debug_fps              Debugging: show frames-per-second
 
 
 **** CREDITS ****
 
 Current EDGE Team:
-    Andrew Apted (aka "Ajapted")     : programming
+    Andrew Apted (aka "andrewj")     : programming
     Luke Brennan (aka "Lobo")        : support & documentation
 
 Former EDGE Members:
