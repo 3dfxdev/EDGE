@@ -77,9 +77,16 @@ New Features
 
 + HUB support   @@@
 
-+ Joystick support   @@@
++ Joystick support.
 
-+ obituary messages (new DAMAGE.OBITUARY field)
++ obituary messages when the player is killed.  They are created
+  by an entry in LANGUAGES.LDF (e.g. OB_ImpClaw), and that entry is
+  referenced in the new DAMAGE.OBITUARY field (in an attack).
+
+  The message can contain the following conversions:
+
+     %o  :  the player's name
+     %k  :  the monster or opponent which killed the player
 
 - two "Action" buttons which can be set in the Keyboard Controls
   menu and tested by RTS and COAL scripts, as follows:
