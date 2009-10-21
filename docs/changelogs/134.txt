@@ -1,0 +1,48 @@
+
+CHANGES IN 1.34 (since 1.31)
+============================
+
++ HUB support
++ Joystick support
++ obituary messages (new DAMAGE.OBITUARY field)
++ two "Action" buttons for RTS scripting
++ better crosshairs, more configurable
++ improved console with command history and TAB-completion
++ fixed music detuning with Windows native playback
++ new RTS command: ONCEILINGHEIGHT (Andrew Baker)
+
+! new language "COAL" replaces Lua for HUDs
+! RTS files now use the "RTS" extension (not "SCR")
+! standard DDF/RTS files moved out of EDGE.WAD
+
+- support for keys on the numeric keypad
+- improved various defaults (e.g. WASD movement)
+- wobble-free scrolling for the automap
+- new 'debug_fps' and 'debug_pos' cvars
+- LINES.DDF: can prevent bots using a linetype
+- shorter cheat code for 'killall'
+
+- better HOM detection (debug_hom cvar)
+- always generate our own BLOCKMAP, ignore REJECT
+- improved mouse and keyboard speed settings
+- in option menus, current line is highlighted
+- new 'goobers' cvar for a fun effect
+- old EDGE title screens retired
+
+- fixed some colormap issues
+- fixed slowdown with savegames on large maps
+- fixed teleporting into walls bug (with help from Andrew Baker)
+- fixed bug with LOSE_BENEFIT on ammo limits
+- fixed weapon refire accuracy after a loadgame
+- fixed bots triggering exit lines/switches
+- fixed excessive warnings for missing textures
+
+- fixed 16-rotation sprites
+- fixed some Timidity issues
+- fixed dynamic lights on translucent MD2 skins
+- fixed RTS execution semantics in multiplayer games
+- fixed crashes with "monster aggression" feature
+- fixed display of gamma-change messages
+- fixed gamma to be restored at exit
+- fixed Boom point pushers/pullers
+
