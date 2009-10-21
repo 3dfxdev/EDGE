@@ -1,34 +1,14 @@
 
-CHANGES IN 1.34 (since 1.31)
-============================
+CHANGELOG FOR EDGE 1.34 (since 1.31)
+====================================
 
-+ HUB support
-+ Joystick support
-+ obituary messages (new DAMAGE.OBITUARY field)
-+ two "Action" buttons for RTS scripting
-+ better crosshairs, more configurable
-+ improved console with command history and TAB-completion
-+ fixed music detuning with Windows native playback
-+ new RTS command: ONCEILINGHEIGHT (Andrew Baker)
+(Date: OCTOBER 2009)
 
-! new language "COAL" replaces Lua for HUDs
-! RTS files now use the "RTS" extension (not "SCR")
-! standard DDF/RTS files moved out of EDGE.WAD
 
-- support for keys on the numeric keypad
-- improved various defaults (e.g. WASD movement)
-- wobble-free scrolling for the automap
-- new 'debug_fps' and 'debug_pos' cvars
-- LINES.DDF: can prevent bots using a linetype
-- shorter cheat code for 'killall'
+Bugs fixed
+----------
 
-- better HOM detection (debug_hom cvar)
-- always generate our own BLOCKMAP, ignore REJECT
-- improved mouse and keyboard speed settings
-- in option menus, current line is highlighted
-- new 'goobers' cvar for a fun effect
-- old EDGE title screens retired
-
+- fixed music detuning with Windows native playback
 - fixed some colormap issues
 - fixed slowdown with savegames on large maps
 - fixed teleporting into walls bug (with help from Andrew Baker)
@@ -45,4 +25,44 @@ CHANGES IN 1.34 (since 1.31)
 - fixed display of gamma-change messages
 - fixed gamma to be restored at exit
 - fixed Boom point pushers/pullers
+
+
+Features Removed / Changed
+--------------------------
+
+! new language "COAL" replaces Lua for HUDs
+! RTS files now use the "RTS" extension (not "SCR")
+! standard DDF/RTS files moved out of EDGE.WAD
+! old EDGE title screens retired
+
+
+General Improvements
+--------------------
+
++ improved console with command history and TAB-completion
+
++ better crosshairs, more configurable
+
+- improved various defaults (e.g. 16-bit sound)
+- wobble-free scrolling for the automap
+- shorter cheat code for 'killall'
+- better HOM detection (debug_hom cvar)
+
+- support for keys on the numeric keypad
+- always generate our own BLOCKMAP, ignore REJECT
+- improved mouse and keyboard speed settings
+- in option menus, current line is highlighted
+- new 'goobers' cvar for a fun effect
+
+
+New Features
+------------
+
++ HUB support
++ Joystick support
++ obituary messages (new DAMAGE.OBITUARY field)
++ two "Action" buttons for RTS scripting
++ new RTS command: ONCEILINGHEIGHT (Andrew Baker)
+
+- LINES.DDF: can prevent bots using a linetype
 
