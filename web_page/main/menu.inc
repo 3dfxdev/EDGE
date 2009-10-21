@@ -22,7 +22,7 @@
   <ul>
     <li><a href="README.txt">User Guide</a>
     <li><a href="edit_guide/overview.htm">Editing Guide</a>
-    <li><a href="logs/131.htm">Changelogs</a>
+    <li><a href="logs/134.htm">Changelogs</a>
   </ul>
 </li>
 
