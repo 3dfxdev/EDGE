@@ -24,6 +24,7 @@ Date: OCTOBER 2009
 - fixed teleporting into walls bug
 - fixed bug with LOSE_BENEFIT on ammo limits
 - fixed weapon refire accuracy after a loadgame
+- fixed music restarting when player dies and is reborn
 - fixed rockets autoaiming at BOSSBRAIN on MAP30
 - fixed excessive warnings for missing textures
 
