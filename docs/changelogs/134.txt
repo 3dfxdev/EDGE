@@ -17,12 +17,13 @@ Bugs fixed
 - fixed teleporting into walls bug
 - fixed bug with LOSE_BENEFIT on ammo limits
 - fixed weapon refire accuracy after a loadgame
-- fixed bots triggering exit lines/switches
+- fixed rockets autoaiming at BOSSBRAIN on MAP30
 - fixed excessive warnings for missing textures
 
 - fixed some Timidity issues
 - fixed dynamic lights on translucent MD2 skins
 - fixed RTS execution semantics in multiplayer games
+- fixed bots triggering exit lines/switches
 - fixed display of gamma-change messages
 - fixed gamma to be restored at exit
 - fixed Boom point pushers/pullers
