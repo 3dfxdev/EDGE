@@ -277,6 +277,9 @@ typedef enum
 
 	// -AJA- 2009/10/15: HUB system: remember old avatars
 	HF_OLD_AVATAR = (1 << 12),
+
+	// -AJA- 2009/10/22: never autoaim at this monster/thing
+	HF_NO_AUTOAIM = (1 << 13),
 }
 mobjhyperflag_t;
 
