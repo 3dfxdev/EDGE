@@ -98,7 +98,7 @@ static ddf_reader_t DDF_Readers[] =
 	{ "DDFANIM", "Anims",      DDF_ReadAnims },
 	{ "DDFGAME", "Games",      DDF_ReadGames },
 	{ "DDFLEVL", "Levels",     DDF_ReadLevels },
-	{ "RSCRIPT", "Scripts",    RAD_ReadScript }       // -AJA- 2000/04/21.
+	{ "RSCRIPT", "RadTrig",    RAD_ReadScript }       // -AJA- 2000/04/21.
 };
 
 #define NUM_DDF_READERS  (int)(sizeof(DDF_Readers) / sizeof(ddf_reader_t))
@@ -1263,6 +1263,8 @@ static bool TryLoadExtraLanguage(const char *name)
 	if (lumpnum < 0)
 		return false;
 
+	I_Printf("Loading Languages from %s\n", name);
+
 	int length;
 	char *data = (char *) W_ReadLumpAlloc(lumpnum, &length);
 
@@ -1275,10 +1277,10 @@ static bool TryLoadExtraLanguage(const char *name)
 // MUNDO HACK, but if only fixable by a new wad structure...
 static void LoadTntPlutStrings(void)
 {
-	if (strcmp(iwad_base.c_str(), "TNT") == 0)
+	if (DDF_CompareName(iwad_base.c_str(), "TNT") == 0)
 		TryLoadExtraLanguage("TNTLANG");
 
-	if (strcmp(iwad_base.c_str(), "PLUTONIA") == 0)
+	if (DDF_CompareName(iwad_base.c_str(), "PLUTONIA") == 0)
 		TryLoadExtraLanguage("PLUTLANG");
 }
 
@@ -1294,7 +1296,7 @@ void W_ReadDDF(void)
 	{
 		if (true)
 		{
-			I_Debugf("- Loading external %s\n", DDF_Readers[d].name);
+			I_Printf("Loading external %s\n", DDF_Readers[d].print_name);
 
 			// call read function
 			(* DDF_Readers[d].func)(NULL, 0);
@@ -1307,7 +1309,7 @@ void W_ReadDDF(void)
 			// all script files get parsed here
 			if (d == RTS_READER && df->kind == FLKIND_RTS)
 			{
-				I_Debugf("- Loading RTS script: %s\n", df->file_name);
+				I_Printf("Loading RTS script: %s\n", df->file_name);
 
 				RAD_LoadFile(df->file_name);
 				continue;
@@ -1329,7 +1331,7 @@ void W_ReadDDF(void)
 
 			if (lump >= 0)
 			{
-				I_Debugf("- Loading %s from: %s\n", DDF_Readers[d].name, df->file_name);
+				I_Printf("Loading %s from: %s\n", DDF_Readers[d].name, df->file_name);
 
 				int length;
 				char *data = (char *) W_ReadLumpAlloc(lump, &length);
@@ -1342,7 +1344,7 @@ void W_ReadDDF(void)
 			// handle Boom's ANIMATED and SWITCHES lumps
 			if (d == ANIM_READER && df->animated >= 0)
 			{
-				I_Debugf("- Loading ANIMATED from: %s\n", df->file_name);
+				I_Printf("Loading ANIMATED from: %s\n", df->file_name);
 
 				int length;
 				byte *data = W_ReadLumpAlloc(df->animated, &length);
@@ -1352,7 +1354,7 @@ void W_ReadDDF(void)
 			}
 			if (d == SWTH_READER && df->switches >= 0)
 			{
-				I_Debugf("- Loading SWITCHES from: %s\n", df->file_name);
+				I_Printf("Loading SWITCHES from: %s\n", df->file_name);
 
 				int length;
 				byte *data = W_ReadLumpAlloc(df->switches, &length);
@@ -1373,11 +1375,11 @@ void W_ReadDDF(void)
 			}
 		}
 
-		std::string msg_buf(epi::STR_Format(
-			"Loaded %s %s\n", (d == NUM_DDF_READERS-1) ? "RTS" : "DDF",
-				DDF_Readers[d].print_name));
-
-		E_ProgressMessage(msg_buf.c_str());
+///		std::string msg_buf(epi::STR_Format(
+///			"Loaded %s %s\n", (d == NUM_DDF_READERS-1) ? "RTS" : "DDF",
+///				DDF_Readers[d].print_name));
+///
+///		E_ProgressMessage(msg_buf.c_str());
 
 		E_LocalProgress(d, NUM_DDF_READERS);
 	}
