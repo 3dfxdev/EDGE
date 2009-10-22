@@ -1206,6 +1206,9 @@ static bool PTR_AimTraverse(intercept_t * in, void *dataptr)
 	if (! (mo->flags & MF_SHOOTABLE))
 		return true;  // has to be able to be shot
 	
+	if (mo->hyperflags & HF_NO_AUTOAIM)
+		return true;  // never should be aimed at
+
 	if (aim_I.source && !aim_I.forced && (aim_I.source->side & mo->side) != 0)
 		return true;  // don't aim at our good friend
 
