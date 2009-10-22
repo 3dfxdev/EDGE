@@ -465,9 +465,6 @@ static void DrawStdCrossHair(void)
 
 void RGL_DrawWeaponSprites(player_t * p)
 {
-	bool got_cross = false;
-
-
 	// special handling for zoom: show viewfinder
 	if (viewiszoomed)
 	{
@@ -497,13 +494,27 @@ void RGL_DrawWeaponSprites(player_t * p)
 				continue;
 
 			RGL_DrawPSprite(psp, i, p, view_props, psp->state);
-
-			if (i == ps_crosshair)
-				got_cross = true;
 		}
 	}
+}
 
-	if (!got_cross && p->health > 0)
+
+void RGL_DrawCrosshair(player_t * p)
+{
+	if (viewiszoomed)
+	{
+		// Hmmm, should we draw 'zoom_state' here??
+		return;
+	}
+	else
+	{
+		pspdef_t *psp = &p->psprites[ps_crosshair];
+
+		if (p->ready_wp >= 0 && psp->state != S_NULL)
+			return;
+	}
+
+	if (p->health > 0)
 		DrawStdCrossHair();
 }
 
@@ -575,11 +586,6 @@ I_Debugf("Render model: no skin %d\n", skin_num);
 			        last_frame, psp->state->frame, lerp,
 			        x, y, z, p->mo, view_props,
 					1.0f /* scale */, w->model_aspect, w->model_bias);
-}
-
-void RGL_DrawCrosshair(player_t * p)
-{
-	// !!!!! FIXME : RGL_DrawCrosshair
 }
 
 
