@@ -36,9 +36,6 @@
 #include "m_misc.h"
 #include "w_wad.h"
 
-// Current music handle
-static abstract_music_c *music_player;
-
 // music slider value
 int mus_volume;
 
@@ -48,16 +45,33 @@ bool nomusic = false;
 bool nocdmusic = false;
 
 
+// Current music handle
+static abstract_music_c *music_player;
+
+static int  entry_playing = -1;
+static bool entry_looped;
+
+
 void S_ChangeMusic(int entrynum, bool loop)
 {
 	if (nomusic)
 		return;
-	
-	S_StopMusic();
 
 	// -AJA- playlist number 0 reserved to mean "no music"
 	if (entrynum <= 0)
+	{
+		S_StopMusic();
 		return;
+	}
+
+	// -AJA- don't restart the current song (DOOM compatibility)
+	if (entrynum == entry_playing && entry_looped)
+		return;
+
+	S_StopMusic();
+
+	entry_playing = entrynum;
+	entry_looped  = loop;
 
 	// when we cannot find the music entry, no music will play
 	const pl_entry_c *play = playlist.Find(entrynum);
@@ -260,6 +274,9 @@ void S_StopMusic(void)
 		delete music_player;
 		music_player = NULL;
 	}
+
+	entry_playing = -1;
+	entry_looped  = false;
 }
 
 
