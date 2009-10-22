@@ -13,7 +13,7 @@ The EDGE project is a programming project to develop a
 DOOM<SUP>tm</SUP> style engine aimed at the Total Conversion
 developer, but still able to play the original DOOM games.
 This project started with the DOOM source released by
-id software.
+Id Software.
 
 <p style="clear:right">
 </p>
@@ -21,7 +21,7 @@ id software.
 <h2 class="page_title"> Latest News </h2>
 
 
-<use BeginNews title="1.34-RC#1 Available" date="22-Oct-2009">
+<use BeginNews title="1.34(RC1) Now Ready" date="22-Oct-2009">
 
 Phew it has been a while, but another release of EDGE is just
 around the corner, and today you can get a fully-fledged
@@ -42,34 +42,28 @@ features from the 1.32 branch as possible to
 create a new "1.34" branch.
 
 <p>
-The major new blah
-
-@@@>>>
-As always we are delighted to announce that EDGE 1.31-RC#1
-is now available for download.
-
-<p>
-The biggest new feature is Lua-scripted HUDs, giving modders
-great power to create new status bars and other Heads-Up-Display
-elements.
-Also worth noting are the new Detail Slopes, which are a bit
-limited but good for adding some cool slopey details into your maps.
+New features in this release include:
+Joystick support,
+a HUB system,
+obituary messages,
+two "Action" buttons for RTS scripts,
+a much improved console,
+and better crosshairs.
 
 <p>
-Many bugs have been fixed since Beta#2, for example:
-colormapped sectors (blue water etc) are working again,
-the Super Shotgun firing rate was too slow and has
-been rectified, and Timidity music playback is now finished
-and works well in both Linux and Windows.
+One big change is that Lua has been replaced by a new
+language "COAL" for drawing HUDs.
+Unfortunately this breaks compatibility with any mods
+which contain Lua-coded HUDs.
+Another (not so drastic) change was moving the DDF/RTS files
+out of EDGE.WAD and into a folder called "doom_ddf", where
+you can easily view and edit them.
 
 <p>
-Lastly, some things have been removed, such as
-demo support and CD music playback,
-because of difficult-to-fix bugs
-and lack of interest in these features.
+BUGS BUGS
 
 <p>
-The complete list of changes since EDGE 1.34 is here:
+The complete list of changes in EDGE 1.34 can be found here:
 <a href="logs/134.htm">1.34 ChangeLog</a>
 
 <p>
