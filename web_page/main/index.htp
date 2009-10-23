@@ -21,7 +21,7 @@ Id Software.
 <h2 class="page_title"> Latest News </h2>
 
 
-<use BeginNews title="1.34(RC1) Now Ready" date="22-Oct-2009">
+<use BeginNews title="1.34(RC1) Now Ready" date="23-Oct-2009">
 
 Phew it has been a while, but another release of EDGE is just
 around the corner, and today you can get a fully-fledged
@@ -64,8 +64,8 @@ Many bugs in EDGE 1.31 have been fixed.
 The most notable one is the music detuning with the SYSTEM
 device in Windows.
 Also fixed were the 16-rotation sprites,
-the (rare) teleporting into walls bug,
 the BOOM point pushers/pullers,
+the (rare) teleporting into walls bug,
 and the big slowdown when saving the game on large maps.
 
 <p>
@@ -74,9 +74,9 @@ The complete list of changes in EDGE 1.34 can be found here:
 
 <p>
 Download Link:
-<a href="http://downloads.sourceforge.net/edge/Edge-1.34-RC1.zip">
-Edge-1.34-RC1.zip
-</a> (??? MB)
+<a href="http://downloads.sourceforge.net/edge/Edge-1.34-RC1c.zip">
+Edge-1.34-RC1c.zip
+</a> (2.3 MB)
 
 <use EndNews>
 
