@@ -194,40 +194,40 @@ static default_t defaults[] =
 
 	// -------------------- KEYS --------------------
 
-    {CFGT_Key,      "key_right",         &key_right,      0},
-    {CFGT_Key,      "key_left",          &key_left,       0},
-    {CFGT_Key,      "key_up",            &key_up,         0},
-    {CFGT_Key,      "key_down",          &key_down,       0},
-    {CFGT_Key,      "key_lookup",        &key_lookup,     0},
-    {CFGT_Key,      "key_lookdown",      &key_lookdown,   0},
-    {CFGT_Key,      "key_lookcenter",    &key_lookcenter, 0},
+    {CFGT_Key,      "key_right",         &key_right,      CFGDEF_KEY_RIGHT},
+    {CFGT_Key,      "key_left",          &key_left,       CFGDEF_KEY_LEFT},
+    {CFGT_Key,      "key_up",            &key_up,         CFGDEF_KEY_UP},
+    {CFGT_Key,      "key_down",          &key_down,       CFGDEF_KEY_DOWN},
+    {CFGT_Key,      "key_lookup",        &key_lookup,     CFGDEF_KEY_LOOKUP},
+    {CFGT_Key,      "key_lookdown",      &key_lookdown,   CFGDEF_KEY_LOOKDOWN},
+    {CFGT_Key,      "key_lookcenter",    &key_lookcenter, CFGDEF_KEY_LOOKCENTER},
 
     // -ES- 1999/03/28 Zoom Key
-    {CFGT_Key,      "key_zoom",          &key_zoom,       0},
-    {CFGT_Key,      "key_strafeleft",    &key_strafeleft, 0},
-    {CFGT_Key,      "key_straferight",   &key_straferight, 0},
+    {CFGT_Key,      "key_zoom",          &key_zoom,        CFGDEF_KEY_ZOOM},
+    {CFGT_Key,      "key_strafeleft",    &key_strafeleft,  CFGDEF_KEY_STRAFELEFT},
+    {CFGT_Key,      "key_straferight",   &key_straferight, CFGDEF_KEY_STRAFERIGHT},
 
     // -ACB- for -MH- 1998/07/02 Flying Keys
-    {CFGT_Key,      "key_flyup",         &key_flyup,      0},
-    {CFGT_Key,      "key_flydown",       &key_flydown,    0},
+    {CFGT_Key,      "key_flyup",         &key_flyup,      CFGDEF_KEY_FLYUP},
+    {CFGT_Key,      "key_flydown",       &key_flydown,    CFGDEF_KEY_FLYDOWN},
 
-    {CFGT_Key,      "key_fire",          &key_fire,       0},
-    {CFGT_Key,      "key_use",           &key_use,        0},
-    {CFGT_Key,      "key_strafe",        &key_strafe,     0},
-    {CFGT_Key,      "key_speed",         &key_speed,      0},
-    {CFGT_Key,      "key_autorun",       &key_autorun,    0},
-    {CFGT_Key,      "key_nextweapon",    &key_nextweapon, 0},
-    {CFGT_Key,      "key_prevweapon",    &key_prevweapon, 0},
+    {CFGT_Key,      "key_fire",          &key_fire,       CFGDEF_KEY_FIRE},
+    {CFGT_Key,      "key_use",           &key_use,        CFGDEF_KEY_USE},
+    {CFGT_Key,      "key_strafe",        &key_strafe,     CFGDEF_KEY_STRAFE},
+    {CFGT_Key,      "key_speed",         &key_speed,      CFGDEF_KEY_SPEED},
+    {CFGT_Key,      "key_autorun",       &key_autorun,    CFGDEF_KEY_AUTORUN},
+    {CFGT_Key,      "key_nextweapon",    &key_nextweapon, CFGDEF_KEY_NEXTWEAPON},
+    {CFGT_Key,      "key_prevweapon",    &key_prevweapon, CFGDEF_KEY_PREVWEAPON},
 
-    {CFGT_Key,      "key_180",           &key_180,        0},
-    {CFGT_Key,      "key_map",           &key_map,        0},
-    {CFGT_Key,      "key_talk",          &key_talk,       0},
-    {CFGT_Key,      "key_console",       &key_console,    0},  // -AJA- 2007/08/15.
-    {CFGT_Key,      "key_mlook",         &key_mlook,      0},  // -AJA- 1999/07/27.
-    {CFGT_Key,      "key_secondatk",     &key_secondatk,  0},  // -AJA- 2000/02/08.
-    {CFGT_Key,      "key_reload",        &key_reload,     0},  // -AJA- 2004/11/11.
-    {CFGT_Key,      "key_action1",       &key_action1,    0},  // -AJA- 2009/09/07
-    {CFGT_Key,      "key_action2",       &key_action2,    0},  // -AJA- 2009/09/07
+    {CFGT_Key,      "key_180",           &key_180,        CFGDEF_KEY_180},
+    {CFGT_Key,      "key_map",           &key_map,        CFGDEF_KEY_MAP},
+    {CFGT_Key,      "key_talk",          &key_talk,       CFGDEF_KEY_TALK},
+    {CFGT_Key,      "key_console",       &key_console,    CFGDEF_KEY_CONSOLE},  // -AJA- 2007/08/15.
+    {CFGT_Key,      "key_mlook",         &key_mlook,      CFGDEF_KEY_MLOOK},  // -AJA- 1999/07/27.
+    {CFGT_Key,      "key_secondatk",     &key_secondatk,  CFGDEF_KEY_SECONDATK},  // -AJA- 2000/02/08.
+    {CFGT_Key,      "key_reload",        &key_reload,     CFGDEF_KEY_RELOAD},  // -AJA- 2004/11/11.
+    {CFGT_Key,      "key_action1",       &key_action1,    CFGDEF_KEY_ACTION1},  // -AJA- 2009/09/07
+    {CFGT_Key,      "key_action2",       &key_action2,    CFGDEF_KEY_ACTION2},  // -AJA- 2009/09/07
 };
 
 
