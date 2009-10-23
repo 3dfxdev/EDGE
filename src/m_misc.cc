@@ -94,6 +94,7 @@ int var_quiet_factor = 0;
 int var_timid_factor = 0;
 
 static int edge_version;
+static bool done_first_init = false;
 
 extern int joystick_device;
 
@@ -302,8 +303,14 @@ void M_ResetDefaults(int _dummy)
 
 	for (int i = 0; i < numdefaults; i++)
 	{
+		// don't reset the first five entries except at startup
+		if (done_first_init && i < 5)
+			continue;
+
 		SetToBaseValue(defaults + i);
 	}
+
+	done_first_init = true;
 }
 
 
