@@ -278,6 +278,10 @@ bool EV_Lights(sector_t * sec, const lightdef_c * type)
 			light->maxlight = sec->props.lightlevel;
 			light->count = type->sync ? (leveltime % type->sync) + 1 : 
 				type->darktime;
+
+			// -AJA- 2009/10/26: DOOM compatibility
+			if (type->type == LITE_Strobe && light->minlight == light->maxlight)
+				light->minlight = 0;
 			break;
 		}
 	}
