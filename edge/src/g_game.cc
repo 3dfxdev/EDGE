@@ -843,8 +843,6 @@ static bool G_LoadGameFromFile(const char *filename, bool is_hub)
 //
 static void G_DoLoadGame(void)
 {
-	HU_Start();
-
 	E_ForceWipe();
 
 	const char *dir_name = SV_SlotName(defer_load_slot);
@@ -859,6 +857,8 @@ static void G_DoLoadGame(void)
 	{
 		// !!! FIXME: what to do?
 	}
+
+	HU_Start();
 
 	V_SetPalette(PALETTE_NORMAL, 0);
 }

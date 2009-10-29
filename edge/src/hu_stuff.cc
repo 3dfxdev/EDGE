@@ -168,6 +168,8 @@ void HU_Start(void)
 	if (headsupactive)
 		HU_Stop();
 
+	SYS_ASSERT(currmap);
+
 	// find styles
 	styledef_c *msg_styledef = styledefs.Lookup("MESSAGES");
 	if (! msg_styledef)
@@ -250,6 +252,9 @@ void HU_Erase(void)
 // Starts displaying the message.
 void HU_StartMessage(const char *msg)
 {
+	if (!headsupactive)
+		return;
+
 	// only display message if necessary
 	if (! message_no_overwrite)
 	{
@@ -262,6 +267,9 @@ void HU_StartMessage(const char *msg)
 
 void HU_Ticker(void)
 {
+	if (!headsupactive)
+		return;
+
 	int i,rc;
 	char c;
 
