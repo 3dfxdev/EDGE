@@ -4,7 +4,7 @@
 
 <block name="content">
 
-<h2 class="page_title">EDGE 1.31 Line Types</h2>
+<h2 class="page_title">EDGE 1.34 Line Types</h2>
 
 
 <h3 class="sub_title">Translucent Lines</h3>
@@ -151,6 +151,54 @@
 [567] : EDGE Detail Slope - FLOOR
 [568] : EDGE Detail Slope - CEILING
 [569] : EDGE Detail Slope - FLOOR+CEILING
+</PRE>
+
+
+<h3 class="sub_title">HUB Exits - WR</h3>
+
+<PRE>
+[501] : Hub Exit to MAP01 / E1M1
+[502] : Hub Exit to MAP02 / E1M2
+[503] : Hub Exit to MAP03 / E1M3
+[504] : Hub Exit to MAP04 / E1M4
+[505] : Hub Exit to MAP05 / E1M5
+[506] : Hub Exit to MAP06 / E1M6
+[507] : Hub Exit to MAP07 / E1M7
+[508] : Hub Exit to MAP08 / E1M8
+[509] : Hub Exit to MAP09 / E1M9
+
+[510] : Hub Exit to MAP10
+[511] : Hub Exit to MAP11 / E2M1
+[512] : Hub Exit to MAP12 / E2M2
+[513] : Hub Exit to MAP13 / E2M3
+[514] : Hub Exit to MAP14 / E2M4
+[515] : Hub Exit to MAP15 / E2M5
+[516] : Hub Exit to MAP16 / E2M6
+[517] : Hub Exit to MAP17 / E2M7
+[518] : Hub Exit to MAP18 / E2M8
+[519] : Hub Exit to MAP19 / E2M9
+
+[520] : Hub Exit to MAP20
+[521] : Hub Exit to MAP21 / E3M1
+[522] : Hub Exit to MAP22 / E3M2
+[523] : Hub Exit to MAP23 / E3M3
+[524] : Hub Exit to MAP24 / E3M4
+[525] : Hub Exit to MAP25 / E3M5
+[526] : Hub Exit to MAP26 / E3M6
+[527] : Hub Exit to MAP27 / E3M7
+[528] : Hub Exit to MAP28 / E3M8
+[529] : Hub Exit to MAP29 / E3M9
+
+[530] : Hub Exit to MAP30
+[531] : Hub Exit to MAP31 / E4M1
+[532] : Hub Exit to MAP32 / E4M2
+[533] : Hub Exit to MAP33 / E4M3
+[534] : Hub Exit to MAP34 / E4M4
+[535] : Hub Exit to MAP35 / E4M5
+[536] : Hub Exit to MAP36 / E4M6
+[537] : Hub Exit to MAP37 / E4M7
+[538] : Hub Exit to MAP38 / E4M8
+[539] : Hub Exit to MAP39 / E4M9
 </PRE>
 
 
