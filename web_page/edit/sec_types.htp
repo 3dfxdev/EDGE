@@ -4,7 +4,15 @@
 
 <block name="content">
 
-<h2 class="page_title">EDGE 1.31 Sector Types</h2>
+<h2 class="page_title">EDGE 1.34 Sector Types</h2>
+
+
+<h3 class="sub_title">Hubs</h3>
+
+<PRE>
+[29] : Hub Entry Area
+</PRE>
+
 
 <!--- These types are mainly useful for Liquid Extrafloors --->
 
