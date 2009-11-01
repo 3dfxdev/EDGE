@@ -181,6 +181,12 @@ static int read_config_file(const char *name)
 			}
 			bank=tonebank[i];
 		}
+		else if (0 == strcmp(w[0], "soundfont"))
+		{
+			ctl_msg(CMSG_ERROR, VERB_NORMAL,
+					"SoundFonts (SF2 files) are not supported.\n");
+			return -2;
+		}
 		else
 		{
 			if ((words < 2) || (*w[0] < '0' || *w[0] > '9'))
