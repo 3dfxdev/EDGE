@@ -113,8 +113,8 @@ Timidity Music Support:
     >  I_StartupMusic: Timidity Init OK
 
 
-NOTE: SoundFonts (SF2 files) are very different from GUS patch
-      files and are NOT supported by EDGE.
+NOTE: SoundFonts (SF2 files) are different from GUS patch files
+      and are NOT supported by EDGE.
 
 
 ------------------------------------------------------------------------
