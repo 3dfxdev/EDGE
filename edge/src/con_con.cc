@@ -768,7 +768,7 @@ void CON_HandleKey(int key)
 	case KEYD_PGUP:
 		if (KeysShifted)
 			// Move to top of console buffer
-			bottomrow = MAX_CON_LINES - 10;  //!!! FIXME
+			bottomrow = MAX(-1, con_used_lines-10);
 		else
 			// Start scrolling console buffer up
 			scroll_dir = +1;
@@ -785,8 +785,8 @@ void CON_HandleKey(int key)
 	
     case KEYD_WHEEL_UP:
         bottomrow += 4;
-        if (bottomrow >= MAX_CON_LINES-10)
-            bottomrow  = MAX_CON_LINES-10;
+        if (bottomrow > MAX(-1, con_used_lines-10))
+            bottomrow = MAX(-1, con_used_lines-10);
         break;
     
     case KEYD_WHEEL_DN:
@@ -967,6 +967,7 @@ static int GetKeycode(event_t *ev)
 		case KEYD_WHEEL_DN:
 		case KEYD_ENTER:
 		case KEYD_ESCAPE:
+		case KEYD_RSHIFT:
 			return sym;
 
 		default:
