@@ -4,12 +4,12 @@
 
 <block name="content">
 
-<h2 class="page_title">ChangeLog for EDGE 1.34(RC1)</h2>
+<h2 class="page_title">ChangeLog for EDGE 1.34</h2>
 
-Type: Release Candidate
+Type: Full Release
 <p>
 
-Date: OCTOBER 2009
+Date: NOVEMBER 2009
 <p>
 
 <PRE class="bugs">
@@ -32,6 +32,7 @@ Date: OCTOBER 2009
 - fixed dynamic lights on translucent MD2 skins
 - fixed RTS execution semantics in multiplayer games
 - fixed bots triggering exit lines/switches
+- fixed STROBE lighting when minlight == maxlight
 - fixed display of gamma-change messages
 - fixed gamma to be restored at exit
 - fixed Boom point pushers/pullers
