@@ -980,7 +980,7 @@ namespace Patch
 			if (cur_txt_ptr[0] == '\\' && tolower(cur_txt_ptr[1]) == 'n')
 			{
 				cur_txt_ptr += 2;
-				*dest += '\n';
+				*dest++ = '\n';
 				continue;
 			}
 
