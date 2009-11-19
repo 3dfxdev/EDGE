@@ -477,8 +477,8 @@ static optmenuitem_t analogueoptions[] =
 	{OPT_Switch,   "Sixth Axis",         Axis, 11, &joy_axis[5], NULL, NULL},
 
 	{OPT_Plain,    "",                   NULL, 0,  NULL, NULL, NULL},
-	{OPT_Slider,   "Turning Speed",      NULL, 8,  &var_turnspeed,    NULL, NULL},
-	{OPT_Slider,   "MLook Speed",        NULL, 8,  &var_mlookspeed,   NULL, NULL},
+	{OPT_Slider,   "Turning Speed",      NULL, 12, &var_turnspeed,    NULL, NULL},
+	{OPT_Slider,   "MLook Speed",        NULL, 12, &var_mlookspeed,   NULL, NULL},
 	{OPT_Slider,   "Forward Move Speed", NULL, 8,  &var_forwardspeed, NULL, NULL},
 	{OPT_Slider,   "Side Move Speed",    NULL, 8,  &var_sidespeed,    NULL, NULL}
 };

@@ -163,10 +163,11 @@ static float sensitivities[16] =
 	12.5, 17.7, 25.0, 35.4
 };
 
-static float speed_factors[8] =
+static float speed_factors[12] =
 {
 	0.15, 0.25, 0.33, 0.42,
-	0.50, 0.66, 0.83, 1.00
+	0.50, 0.66, 0.83, 1.00,
+	1.50, 2.00, 2.80, 4.00
 };
 
 
