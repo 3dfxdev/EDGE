@@ -147,13 +147,25 @@ void S_ChangeMusic(int entrynum, bool loop)
 	if (! data)
 	{
 		delete F;
+
 		I_Warning("S_ChangeMusic: Error loading data.\n");
 		return;
 	}
 	if (length < 4)
 	{
 		delete F;
+		delete data;
+
 		I_Printf("S_ChangeMusic: ignored short data (%d bytes)\n", length);
+		return;
+	}
+
+	if (memcmp(data, "Ogg", 3) == 0)
+	{
+		delete F;
+		delete data;
+
+		music_player = S_PlayOGGMusic(play, volume, loop);
 		return;
 	}
 	
