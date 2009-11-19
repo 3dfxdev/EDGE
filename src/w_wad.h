@@ -78,6 +78,7 @@ void W_ReadDDF(void);
 void W_ReadCoalLumps(void);
 
 int W_CheckNumForName2(const char *name);
+int W_CheckNumForName_GFX(const char *name);
 int W_GetNumForName2(const char *name);
 int W_CheckNumForTexPatch(const char *name);
 
