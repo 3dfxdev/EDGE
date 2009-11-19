@@ -1043,10 +1043,12 @@ static const image_c *BackupGraphic(const char *gfx_name, int flags)
 	// not already loaded ?  Check if lump exists in wad, if so add it.
 	if (! (flags & ILF_NoNew))
 	{
-		int i = W_CheckNumForName(gfx_name);
+		int i = W_CheckNumForName_GFX(gfx_name);
 
 		if (i >= 0)
 		{
+			// TODO: if hires lump exists with same name, use it
+
 			rim = AddImageGraphic(gfx_name, IMSRC_Graphic, i);
 			if (rim)
 				return rim;

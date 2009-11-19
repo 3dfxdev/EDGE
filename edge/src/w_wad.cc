@@ -211,7 +211,7 @@ typedef enum
 	LMKIND_Flat   = 16,
 	LMKIND_Sprite = 17,
 	LMKIND_Patch  = 18,
-	LMKIND_HiRes  = 19  // lumps in HI_START..HI_END
+	LMKIND_HiRes  = 19 
 }
 lump_kind_e;
 
@@ -1529,10 +1529,11 @@ int W_CheckNumForName2(const char *name)
 
 	for (i = 0; name[i]; i++)
 	{
-#ifdef DEVELOPERS
 		if (i > 8)
-			I_Error("W_CheckNumForName: Name '%s' longer than 8 chars!", name);
-#endif
+		{
+			I_Warning("W_CheckNumForName: Name '%s' longer than 8 chars!\n", name);
+			return -1;
+		}
 		buf[i] = toupper(name[i]);
 	}
 	buf[i] = 0;
@@ -1547,7 +1548,40 @@ int W_CheckNumForName2(const char *name)
 		return lumpmap[i];
 	}
 
-	return -1;
+	return -1;  // not found
+}
+
+int W_CheckNumForName_GFX(const char *name)
+{
+	// this looks for a graphic lump, skipping anything which would
+	// not be suitable (especially flats and HIRES replacements).
+
+	int i;
+	char buf[9];
+
+	for (i = 0; name[i]; i++)
+	{
+		if (i > 8)
+		{
+			I_Warning("W_CheckNumForName: Name '%s' longer than 8 chars!\n", name);
+			return -1;
+		}
+		buf[i] = toupper(name[i]);
+	}
+
+	// search backwards
+	for (i = numlumps-1; i >= 0; i--)
+	{
+		if (lumpinfo[i].kind == LMKIND_Normal ||
+		    lumpinfo[i].kind == LMKIND_Sprite ||
+		    lumpinfo[i].kind == LMKIND_Patch)
+		{
+			if (strncmp(lumpinfo[i].name, buf, 8) == 0)
+				return i;
+		}
+	}
+
+	return -1; // not found
 }
 
 //
