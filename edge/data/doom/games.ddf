@@ -8,6 +8,11 @@
 
 #VERSION 1.34
 
+// this entry is for compability with mods
+[EDGE]
+TITLE_GRAPHIC="SOLID_BLACK";
+TITLE_TIME=1;
+
 [HELL_ON_EARTH]
 TITLE_GRAPHIC="TITLEPIC","CREDIT";
 TITLE_TIME=365T;
