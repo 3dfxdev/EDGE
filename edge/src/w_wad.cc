@@ -1568,6 +1568,7 @@ int W_CheckNumForName_GFX(const char *name)
 		}
 		buf[i] = toupper(name[i]);
 	}
+	buf[i] = 0;
 
 	// search backwards
 	for (i = numlumps-1; i >= 0; i--)
