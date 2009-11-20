@@ -21,9 +21,48 @@ Id Software.
 <h2 class="page_title"> Latest News </h2>
 
 
-<use HugeNews title="EDGE 1.34 RELEASED" date="??-Nov-2009">
+<use HugeNews title="EDGE 1.34 Released!" date="20-Nov-2009">
 
 Grab it while it's hot folks!!
+
+<p>
+List of Major Changes:
+
+<ul>
+    <li> HUB support
+    <li> Joystick support
+    <li> obituary messages
+    <li> improved console
+    <li> two "Action" buttons for RTS scripting
+    <li> standard DDF/RTS files moved out of EDGE.WAD
+    <li> fixed music detuning (SYSTEM device)
+</ul>
+
+<p>
+There is also a break in compatibility in this release. &nbsp;
+A new language called "COAL" has replaced Lua for
+making custom HUDs,
+so any mods which use Lua for HUDs will fail to
+work in this version of EDGE.
+
+<p>
+Since RC1 (release candidate 1) a few bugs have been fixed,
+most notably the crash when trying to load a savegame from the
+main menu.
+
+<p>
+Thanks to everyone who suggested features, reported bugs, helped
+with testing and generally have been supportive of this project.
+This release is for you guys!
+
+<p>
+Download Link:
+<a href="http://downloads.sourceforge.net/edge/Edge-1.34-windows.zip">
+Edge-1.34-windows.zip</a> (2.3 MB)
+
+<p>
+The complete list of changes in EDGE 1.34 is here:
+<a href="logs/134.htm">1.34 ChangeLog</a>
 
 <use EndNews>
 
@@ -75,10 +114,6 @@ Also fixed were the 16-rotation sprites,
 the BOOM point pushers/pullers,
 the (rare) teleporting into walls bug,
 and the big slowdown when saving the game on large maps.
-
-<p>
-The complete list of changes in EDGE 1.34 can be found here:
-<a href="logs/134.htm">1.34 ChangeLog</a>
 
 <p>
 Download Link:

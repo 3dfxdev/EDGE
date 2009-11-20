@@ -19,7 +19,7 @@
   </ul>
 </li>
 
-<li><a href="http://sourceforge.net/projects/edge">SF Summary</a>
+<li><a href="http://sourceforge.net/projects/edge">SourceForge</a>
 
 <li><a href="credits.htm">Credits</a>
 <li><a href="contact.htm">Contact</a>

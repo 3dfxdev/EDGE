@@ -86,7 +86,7 @@ h3.sub_title {
     clear: right;
     background-color: #faa;
     border: 1px solid black;
-    color: black;
+    color: #600;
     font-weight: bold;
 
     padding-left: 10px;
@@ -209,7 +209,7 @@ OL.roadmap_notes li {
 /* ----- Menu ------------------ */
 
 .menus {
-    background-color: #edc;
+    background-color: #fed;
     color: black;  /* color of list squares */
     font-family: sans-serif;
     line-height: 0.9em;
