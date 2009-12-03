@@ -11,73 +11,26 @@ by Andrew Apted. &nbsp; December 2009
 
 <h3 class="sub_title">OVERVIEW</h3>
 
-Lua is a scripting language, which is quite easy to
-learn even if you've never programmed before.
-More information can be found here:
-<a href="http://www.lua.org">
-Lua home page</a>
+COAL is a new scripting language which is being developed
+especially for EDGE.  It is still quite primitive but good
+enough for the purpose of drawing HUDs.
+Documentation about the language is being worked on, though the
+syntax is quite similar to existing languages like C and Pascal.
 
 <p>
-EDGE looks for several lumps to load Lua scripts from.
-Lumps called "LUAUTIL#" (where # is a digit) contain
-utility code, useful stuff that is not HUD-related,
-whereas lumps called "LUAHUD#" contain the code
-for drawing the HUD (which is nearly everything on
-the screen while the user is playing a level).
+The standard Coal scripts for drawing the DOOM HUD is
+loaded from this file: <b>doom_ddf/coal_hud.ec</b>
 
 <p>
-The following lumps are looked for (in the order listed) and
-are loaded when present.  Each lump is only loaded once, so
-when two pwads have a "LUAHUD1" lump (for example), then only
-the second one is loaded.
-
-<center>
-<table class="lua_TABLE">
-<tr>
-  <td class="lua_L1"><b>LUMP</b></td>
-  <td class="lua_L2"><b>&nbsp;Source</b></td>
-</tr>
-<tr>
-  <td class="lua_L1">LUAUTIL0</td>
-  <td class="lua_L2">&nbsp;from EDGE.WAD</td>
-</tr>
-<tr>
-  <td class="lua_L1">LUAUTIL1</td>
-  <td class="lua_L2">&nbsp;from a TC/Project</td>
-</tr>
-<tr>
-  <td class="lua_L1">LUAUTIL2</td>
-  <td class="lua_L2">&nbsp;from a Mod/Addon</td>
-</tr>
-
-<tr>
-  <td class="lua_L1">LUAHUD0</td>
-  <td class="lua_L2">&nbsp;from EDGE.WAD</td>
-</tr>
-<tr>
-  <td class="lua_L1">LUAHUD1</td>
-  <td class="lua_L2">&nbsp;from a TC/Project</td>
-</tr>
-<tr>
-  <td class="lua_L1">LUAHUD2</td>
-  <td class="lua_L2">&nbsp;from a Mod/Addon</td>
-</tr>
-</table>
-</center>
-
-<p>
-The lumps ending with '0' are the ones in EDGE.WAD and should not be
-replaced by custom pwads (especially LUAUTIL0 which has some important
-house-keeping functions).
-Lumps ending with '1' are for large projects and Total Conversions,
-which generally have new maps, textures and monsters.
-Lumps ending with '2' are for smaller mods/addons, stuff like new
-weapons, which could be used in addition to a large project or TC.
+Additionally, each pwad may contain a lump called "<b>COALHUDS</b>"
+which is automatically loaded.
+Later scripts are able to replace any definitions (functions etc)
+in earlier scripts.
 
 
-<h3 class="sub_title">LUMP CONTENTS</h3>
+<h3 class="sub_title">FILES CONTENTS</h3>
 
-The contents of each lump is simply the text of the Lua code.
+The contents of each file or lump is simply the text of the COAL code.
 
 <p>
 The engine provides two modules: the "hud" module provides drawing
@@ -86,7 +39,7 @@ query functions about the current player.  All of their functions
 and variables are described in separate sections below.
 
 <p>
-In order to customise the default HUDs, your Lua code needs to
+In order to customise the default HUDs, your COAL code needs to
 redefine one of the existing functions, as follows:
 
 <p>
@@ -106,14 +59,14 @@ means you can show other information here instead of
 (or in addition to) the automap.
 
 <p>
-<b>hud.draw_all()</b> : this is the function which EDGE calls
+<b>draw_all()</b> : this is the function which EDGE calls
 to draw <em>everything</em>.  The normal version (in EDGE.WAD)
 will call the above functions depending on the user's current HUD
 and whether the automap is active or not.
 Replacing this function gives you total control: you could
-provide more huds (or less) than the usual three, ignore the
-automap mode completely if you wanted, or even draw the view
-from multiple players.
+provide more hud configurations (or less) than the usual three,
+ignore the automap mode completely if you wanted,
+or even draw the view from multiple players.
 
 
 <h3 class="sub_title">HUD MODULE</h3>
@@ -607,10 +560,10 @@ player to his attacker.  The result is in degrees (ranging from
 
 <h3 class="sub_title">STANDARD HUD CODE</h3>
 
-Here is what standard HUD code stored in EDGE.WAD looks like
+Here is what standard HUD code looks like
 (with syntax highlighting).
 It implements the original DOOM status bar, including all the
-logic for the Doomguy face, and other HUD elements
+logic for the Doomguy face, and certain other HUD elements
 (e.g. the underwater AIR bar).
 
 <p>
@@ -620,7 +573,7 @@ logic for the Doomguy face, and other HUD elements
 //------------------------------------------
 //  DOOM HUD CODE for EDGE
 //  Copyright (c) 2009 The Edge Team
-//  Copyright (C) 1993-1996 by id Software, Inc.
+//  Copyright (c) 1993-1996 by id Software, Inc.
 //  Under the GNU General Public License
 //------------------------------------------
 </FONT>
