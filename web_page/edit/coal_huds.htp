@@ -74,46 +74,51 @@ or even draw the view from multiple players.
 
 <h3>General Queries</h3>
 
-<p><span class="lua_VAR">hud.automap</span><br>
-This variable is true while the user is viewing the automap
+<p><span class="lua_FUNC">hud.check_automap() : float</span><br>
+This function returns true while the user is viewing the automap
 (by pressing TAB) and false for the normal view.
 
-<p><span class="lua_VAR">hud.which</span><br>
-This variable is the current HUD number which the user cycles
+<p><span class="lua_FUNC">hud.which_hud() : float</span><br>
+This variable returns the current HUD number which the user cycles
 through when pressing '+' and '-' keys.  It ranges from 0 to 119,
 allowing 120 different HUD screens, but in reality you must
 use the modulo operator '%' to convert this number to a smaller
-range.  For a single HUD, simply ignore this value.  For two HUDs
-use 'hud.which % 2'.  For three HUDs use 'hud.which % 3',
-and so forth...  The following are good modulo numbers:
-2,3,4,5,6,8 and 10 (because they divide into 120).
+range.
 
-<p><span class="lua_VAR">hud.now_time</span><br>
-This variable contains the current time, in terms of "tics"
+<p>
+For example, the standard code uses <b>hud.which_hud()&nbsp;%&nbsp;3</b> to
+select between three different huds (none, normal and overlay).
+The following are good modulo numbers:
+2,3,4,5,6,8 and 10 (because they divide into 120).
+For a HUD which never changes, simply ignore this value.
+
+<p><span class="lua_FUNC">hud.get_time() : float</span><br>
+This function returns the current time, in terms of "tics"
 where there are 35 tics per second.  In other words, after each
 1/35th of a second the value of hud.now_time increases by one.
 It keeps going even during menus or while the game is paused.
 
 <p><span class="lua_VAR">hud.passed_time</span><br>
-This variable contains the number of "tics" that have passed
-since the last time the hud.draw_all() function was called.
+This variable is updated by the hud.grab_times() call, and
+contains the number of "tics" that have passed
+since the last time the draw_all() function was called.
 Note that a result of zero is possible.
 
-<p><span class="lua_FUNC">hud.game_mode()</span><br>
+<p><span class="lua_FUNC">hud.game_mode() : string</span><br>
 This function returns a string for the current game mode:
 <FONT color="#FF3333"><B>"sp"</b></font> (Single Player),
 <FONT color="#FF3333"><B>"coop"</b></font> (Cooperative), or
 <FONT color="#FF3333"><B>"dm"</b></font> (Deathmatch).
 
-<p><span class="lua_FUNC">hud.game_name()</span><br>
+<p><span class="lua_FUNC">hud.game_name() : string</span><br>
 This function returns the DDF name of the current game being
 played (the one defined in GAMES.DDF).
 
-<p><span class="lua_FUNC">hud.map_name()</span><br>
+<p><span class="lua_FUNC">hud.map_name() : string</span><br>
 This function returns the DDF name of the current map being
 played (the one defined in LEVELS.DDF).
 
-<p><span class="lua_FUNC">hud.map_title()</span><br>
+<p><span class="lua_FUNC">hud.map_title() : string</span><br>
 This function returns the title of the map being played,
 mainly to be displayed on the automap.
 
