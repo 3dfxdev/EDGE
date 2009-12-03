@@ -1,12 +1,12 @@
 <file include="../common/common.inc">
 
-<set title="Editing Guide: Lua HUDs">
+<set title="Editing Guide: Coal HUDs">
 
 <block name="content">
 
-<h2 class="page_title">Lua HUD Manual</h2>
+<h2 class="page_title">Coal HUD Manual</h2>
 
-by Andrew Apted. &nbsp; October 2008
+by Andrew Apted. &nbsp; December 2009
 
 
 <h3 class="sub_title">OVERVIEW</h3>
@@ -616,278 +616,305 @@ logic for the Doomguy face, and other HUD elements
 <p>
 
 <PRE class="lua_PRE">
+<FONT COLOR="#77BBFF">
+//------------------------------------------
+//  DOOM HUD CODE for EDGE
+//  Copyright (c) 2009 The Edge Team
+//  Copyright (C) 1993-1996 by id Software, Inc.
+//  Under the GNU General Public License
+//------------------------------------------
+</FONT>
+<font color="#33CC33">var</font> face_time  : <font color="#33CC33">float</font>
+<font color="#33CC33">var</font> face_image : <font color="#33CC33">string</font>
+
+
+<font color="#33CC33">function</font> doom_weapon_icon(slot, x, y, off_pic : <font color="#33CC33">string</font>, on_pic : <font color="#33CC33">string</font>) =
+{
+    <font color="#CC9955">if</font> (player.has_weapon_slot(slot))
+        hud.draw_image(x, y, on_pic)
+    <font color="#CC9955">else</font>
+        hud.draw_image(x, y, off_pic)
+}
+
+
+<font color="#33CC33">function</font> doom_key(x, y, card, skull,
+    card_pic : <font color="#33CC33">string</font>, skull_pic : <font color="#33CC33">string</font>, both_pic : <font color="#33CC33">string</font>) =
+{
+    <font color="#33CC33">var</font> has_cd = player.has_key(card)
+    <font color="#33CC33">var</font> has_sk = player.has_key(skull)
+
+    <font color="#CC9955">if</font> (has_cd && has_sk)
+    {
+        hud.draw_image(x, y, both_pic)
+    }
+    <font color="#CC9955">else</font> <font color="#CC9955">if</font> (has_cd)
+    {
+        hud.draw_image(x, y, card_pic)
+    }
+    <font color="#CC9955">else</font> <font color="#CC9955">if</font> (has_sk)
+    {
+        hud.draw_image(x, y, skull_pic)
+    }
+}
+
+
+<font color="#33CC33">function</font> pain_digit() : <font color="#33CC33">string</font> =
+{
+    <font color="#33CC33">var</font> health = player.health()
+    <font color="#CC9955">if</font> (health > 100)
+        health = 100
+
+    <font color="#33CC33">var</font> index = math.floor(4.99 * (100 - health) / 100)
+
+    assert(index >= 0)
+    assert(index <= 4)
+
+    return "" + index
+}
+
+<font color="#33CC33">function</font> turn_digit() : <font color="#33CC33">string</font> =
+{
+    <font color="#33CC33">var</font> r = math.floor(math.random() * 2.99)
+
+    return "" + r
+}
+
+<font color="#33CC33">function</font> select_new_face() =
+{ <font color="#77BBFF">
+    // This routine handles the face states and their timing.
+    // The precedence of expressions is:
+    //
+    //    dead > evil grin > turned head > straight ahead
+    //
+</font>
+    <font color="#77BBFF">// dead ?</font>
+    <font color="#CC9955">if</font> (player.health() <= 0)
+    {
+        face_image = "STFDEAD0"
+        face_time  = 10
+        return
+    }
+
+    <font color="#77BBFF">// evil grin when player just picked up a weapon</font>
+    <font color="#CC9955">if</font> (player.is_grinning())
+    {
+        face_image = "STFEVL" + pain_digit()
+        face_time  = 7
+        return
+    }
+
+    <font color="#77BBFF">// being attacked ?</font>
+    <font color="#CC9955">if</font> (player.hurt_by())
+    {
+        <font color="#CC9955">if</font> (player.hurt_pain() > 50)
+        {
+            face_image = "STFOUCH" + pain_digit()
+            face_time = 26
+            return
+        }
+
+        <font color="#33CC33">var</font> dir = 0
+
+        <font color="#CC9955">if</font> (player.hurt_by() == "enemy" ||
+            player.hurt_by() == "friend")
+        {
+            dir = player.hurt_dir()
+        }
+
+        <font color="#CC9955">if</font> (dir < 0)
+            face_image = "STFTL" + pain_digit() + "0"
+        <font color="#CC9955">else</font> <font color="#CC9955">if</font> (dir > 0)
+            face_image = "STFTR" + pain_digit() + "0"
+        <font color="#CC9955">else</font>
+            face_image = "STFKILL" + pain_digit()
+
+        face_time = 35
+        return
+    }
+
+    <font color="#77BBFF">// rampaging?</font>
+    <font color="#CC9955">if</font> (player.is_rampaging())
+    {
+        face_image = "STFKILL" + pain_digit()
+        face_time  = 7
+        return
+    }
+
+    <font color="#77BBFF">// god mode?</font>
+    <font color="#CC9955">if</font> (player.has_power(player.INVULN))
+    {
+        face_image = "STFGOD0"
+        face_time  = 7
+        return
+    }
 
-<I><FONT COLOR="#EEBB99">--------------------------------------------
-</FONT></I><I><FONT COLOR="#EEBB99">--  HUD LUA CODE for EDGE
-</FONT></I><I><FONT COLOR="#EEBB99">--  Copyright (c) 2008 The Edge Team.
-</FONT></I><I><FONT COLOR="#EEBB99">--  Under the GNU General Public License.
-</FONT></I><I><FONT COLOR="#EEBB99">--------------------------------------------
-</FONT></I>
-face_time <B><FONT COLOR="#77CCDD">=</FONT></B> 0
-face_image <B><FONT COLOR="#77CCDD">=</FONT></B> <B><FONT COLOR="#FF4444">&quot;STFST01&quot;</FONT></B>
-
-
-<B><FONT COLOR="#33CC33">function </FONT></B><B><FONT COLOR="#FFFFFF">doom_weapon_icon</FONT></B><B><FONT COLOR="#33CC33">(slot, x, y, off_pic, on_pic)</FONT></B>
-  <B><FONT COLOR="#33CC33">if</FONT></B> player.has_weapon_slot(slot) <B><FONT COLOR="#33CC33">then</FONT></B>
-    hud.draw_image(x, y, on_pic)
-  <B><FONT COLOR="#33CC33">else</FONT></B>
-    hud.draw_image(x, y, off_pic)
-  <B><FONT COLOR="#33CC33">end</FONT></B>
-<B><FONT COLOR="#33CC33">end</FONT></B>
-
-
-<B><FONT COLOR="#33CC33">function </FONT></B><B><FONT COLOR="#FFFFFF">doom_key</FONT></B><B><FONT COLOR="#33CC33">(x, y, card, skull, card_pic, skull_pic, both_pic)</FONT></B>
-
-  <B><FONT COLOR="#33CC33">local</FONT></B> has_sk <B><FONT COLOR="#77CCDD">=</FONT></B> player.has_key(skull)
-  
-  <B><FONT COLOR="#33CC33">if</FONT></B> player.has_key(card) <B><FONT COLOR="#33CC33">then</FONT></B>
-    hud.draw_image(x, y, sel(has_sk, both_pic, card_pic))
-
-  <B><FONT COLOR="#33CC33">elseif</FONT></B> has_sk <B><FONT COLOR="#33CC33">then</FONT></B>
-    hud.draw_image(x, y, skull_pic)
-  <B><FONT COLOR="#33CC33">end</FONT></B>
-<B><FONT COLOR="#33CC33">end</FONT></B>
-
-
-<B><FONT COLOR="#33CC33">function </FONT></B><B><FONT COLOR="#FFFFFF">doomguy_face</FONT></B><B><FONT COLOR="#33CC33">(x, y)</FONT></B>
-
-  <I><FONT COLOR="#EEBB99">-- This routine handles the face states and their timing.
-</FONT></I>  <I><FONT COLOR="#EEBB99">-- The precedence of expressions is:
-</FONT></I>  <I><FONT COLOR="#EEBB99">--
-</FONT></I>  <I><FONT COLOR="#EEBB99">--    dead &gt; evil grin &gt; turned head &gt; straight ahead
-</FONT></I>
-  <B><FONT COLOR="#33CC33">local</FONT></B> <B><FONT COLOR="#33CC33">function</FONT></B> pain_digit()
-
-    <B><FONT COLOR="#33CC33">local</FONT></B> health <B><FONT COLOR="#77CCDD">=</FONT></B> math.min(100, player.health())
-    
-    <B><FONT COLOR="#33CC33">local</FONT></B> index <B><FONT COLOR="#77CCDD">=</FONT></B> int(4.99 <B><FONT COLOR="#77CCDD">*</FONT></B> (100 <B><FONT COLOR="#77CCDD">-</FONT></B> health) / 100);
-
-    <B><FONT COLOR="#6666FF">assert</FONT></B>(index <B><FONT COLOR="#77CCDD">&gt;=</FONT></B> 0)
-    <B><FONT COLOR="#6666FF">assert</FONT></B>(index <B><FONT COLOR="#77CCDD">&lt;=</FONT></B> 4)
+    <font color="#77BBFF">// default: look about the place...</font>
+    face_image = "STFST" + pain_digit() + turn_digit()
+    face_time  = 17
+}
+
+<font color="#33CC33">function</font> doomguy_face (x, y) =
+{
+    <font color="#77BBFF">//---| doomguy_face |---</font>
+
+    face_time = face_time - hud.passed_time
+
+    <font color="#CC9955">if</font> (face_time <= 0)
+        select_new_face()
+
+    hud.draw_image(x - 1, y - 1, face_image)
+}
+
+
+<font color="#33CC33">function</font> doom_little_ammo() =
+{
+    hud.text_font("YELLOW_DIGIT")
+    hud.text_color(hud.NO_COLOR)
+
+    hud.draw_num2(288, 173, 3, player.ammo(1))
+    hud.draw_num2(288, 179, 3, player.ammo(2))
+    hud.draw_num2(288, 185, 3, player.ammo(3))
+    hud.draw_num2(288, 191, 3, player.ammo(4))
+
+    hud.draw_num2(314, 173, 3, player.ammomax(1))
+    hud.draw_num2(314, 179, 3, player.ammomax(2))
+    hud.draw_num2(314, 185, 3, player.ammomax(3))
+    hud.draw_num2(314, 191, 3, player.ammomax(4))
+}
+
+
+<font color="#33CC33">function</font> doom_status_bar() =
+{
+    hud.draw_image(  0, 168, "STBAR")
+    hud.draw_image( 90, 171, "STTPRCNT")
+    hud.draw_image(221, 171, "STTPRCNT")
+
+    hud.text_font("BIG_DIGIT")
+
+    hud.draw_num2( 44, 171, 3, player.main_ammo(1) )
+    hud.draw_num2( 90, 171, 3, player.health()     )
+    hud.draw_num2(221, 171, 3, player.total_armor())
+
+    <font color="#CC9955">if</font> (hud.game_mode() == "dm")
+    {
+        hud.draw_num2(138, 171, 2, player.frags())
+    }
+    <font color="#CC9955">else</font>
+    {
+        hud.draw_image(104, 168, "STARMS")
+
+        doom_weapon_icon(2, 111, 172, "STGNUM2", "STYSNUM2")
+        doom_weapon_icon(3, 123, 172, "STGNUM3", "STYSNUM3")
+        doom_weapon_icon(4, 135, 172, "STGNUM4", "STYSNUM4")
+
+        doom_weapon_icon(5, 111, 182, "STGNUM5", "STYSNUM5")
+        doom_weapon_icon(6, 123, 182, "STGNUM6", "STYSNUM6")
+        doom_weapon_icon(7, 135, 182, "STGNUM7", "STYSNUM7")
+    }
+
+    doomguy_face(144, 169)
+
+    doom_key(239, 171, 1, 5, "STKEYS0", "STKEYS3", "STKEYS6")
+    doom_key(239, 181, 2, 6, "STKEYS1", "STKEYS4", "STKEYS7")
+    doom_key(239, 191, 3, 7, "STKEYS2", "STKEYS5", "STKEYS8")
+
+    doom_little_ammo()
+}
+
+
+<font color="#33CC33">function</font> doom_overlay_status() = 
+{
+    hud.text_font("BIG_DIGIT")
+
+    hud.draw_num2(100, 171, 3, player.health())
+
+    hud.text_color(hud.YELLOW)
+    hud.draw_num2( 44, 171, 3, player.main_ammo(1))
+
+    <font color="#CC9955">if</font> (player.total_armor() > 100)
+        hud.text_color(hud.BLUE)
+    <font color="#CC9955">else</font>
+        hud.text_color(hud.GREEN)
+
+    hud.draw_num2(242, 171, 3, player.total_armor())
+
+    doom_key(256, 171, 1, 5, "STKEYS0", "STKEYS3", "STKEYS6")
+    doom_key(256, 181, 2, 6, "STKEYS1", "STKEYS4", "STKEYS7")
+    doom_key(256, 191, 3, 7, "STKEYS2", "STKEYS5", "STKEYS8")
+
+    doom_little_ammo()
+}
+
+
+<font color="#33CC33">function</font> doom_automap() =
+{<font color="#77BBFF">
+    // Background is already black, only need to use 'solid_box'
+    // when we want a different color.
+    //
+    // hud.solid_box(0, 0, 320, 200 - 32, '80 80 80')
+</font>
+    hud.render_automap(0, 0, 320, 200 - 32)
 
-    <B><FONT COLOR="#33CC33">return</FONT></B> <B><FONT COLOR="#6666FF">tostring</FONT></B>(index)
-  <B><FONT COLOR="#33CC33">end</FONT></B>
-
-
-  <B><FONT COLOR="#33CC33">local</FONT></B> <B><FONT COLOR="#33CC33">function</FONT></B> turn_digit()
-    <B><FONT COLOR="#33CC33">return</FONT></B> <B><FONT COLOR="#6666FF">tostring</FONT></B>(int(math.random() <B><FONT COLOR="#77CCDD">*</FONT></B> 2.99))
-  <B><FONT COLOR="#33CC33">end</FONT></B>
-
-
-  <B><FONT COLOR="#33CC33">local</FONT></B> <B><FONT COLOR="#33CC33">function</FONT></B> select_new_face()
-
-    <I><FONT COLOR="#EEBB99">-- dead ?
-</FONT></I>    <B><FONT COLOR="#33CC33">if</FONT></B> player.health() <B><FONT COLOR="#77CCDD">&lt;=</FONT></B> 0 <B><FONT COLOR="#33CC33">then</FONT></B>
-      face_image <B><FONT COLOR="#77CCDD">=</FONT></B> <B><FONT COLOR="#FF4444">&quot;STFDEAD0&quot;</FONT></B>
-      face_time  <B><FONT COLOR="#77CCDD">=</FONT></B> 10
-      <B><FONT COLOR="#33CC33">return</FONT></B>
-    <B><FONT COLOR="#33CC33">end</FONT></B>
-
-    <I><FONT COLOR="#EEBB99">-- evil grin when player just picked up a weapon
-</FONT></I>    <B><FONT COLOR="#33CC33">if</FONT></B> player.is_grinning() <B><FONT COLOR="#33CC33">then</FONT></B>
-      face_image <B><FONT COLOR="#77CCDD">=</FONT></B> <B><FONT COLOR="#FF4444">&quot;STFEVL&quot;</FONT></B> .. pain_digit()
-      face_time  <B><FONT COLOR="#77CCDD">=</FONT></B> 7
-      <B><FONT COLOR="#33CC33">return</FONT></B>
-    <B><FONT COLOR="#33CC33">end</FONT></B>
-
-    <I><FONT COLOR="#EEBB99">-- being attacked ?
-</FONT></I>    <B><FONT COLOR="#33CC33">if</FONT></B> player.hurt_by() <B><FONT COLOR="#33CC33">then</FONT></B>
-      
-      <B><FONT COLOR="#33CC33">if</FONT></B> player.hurt_pain() <B><FONT COLOR="#77CCDD">&gt;</FONT></B> 50 <B><FONT COLOR="#33CC33">then</FONT></B>
-        face_image <B><FONT COLOR="#77CCDD">=</FONT></B> <B><FONT COLOR="#FF4444">&quot;STFOUCH&quot;</FONT></B> .. pain_digit()
-        face_time <B><FONT COLOR="#77CCDD">=</FONT></B> 35
-        <B><FONT COLOR="#33CC33">return</FONT></B>
-      <B><FONT COLOR="#33CC33">end</FONT></B>
-
-      <B><FONT COLOR="#33CC33">local</FONT></B> dir <B><FONT COLOR="#77CCDD">=</FONT></B> 0
-
-      <B><FONT COLOR="#33CC33">if</FONT></B> player.hurt_by() <B><FONT COLOR="#77CCDD">==</FONT></B> <B><FONT COLOR="#FF4444">&quot;enemy&quot;</FONT></B> <B><FONT COLOR="#33CC33">then</FONT></B>
-        dir <B><FONT COLOR="#77CCDD">=</FONT></B> player.hurt_dir()
-      <B><FONT COLOR="#33CC33">end</FONT></B>
-
-      <B><FONT COLOR="#33CC33">if</FONT></B> dir <B><FONT COLOR="#77CCDD">&lt;</FONT></B> 0 <B><FONT COLOR="#33CC33">then</FONT></B>
-        face_image <B><FONT COLOR="#77CCDD">=</FONT></B> <B><FONT COLOR="#FF4444">&quot;STFTL&quot;</FONT></B> .. pain_digit() .. <B><FONT COLOR="#FF4444">&quot;0&quot;</FONT></B>
-      <B><FONT COLOR="#33CC33">elseif</FONT></B> dir <B><FONT COLOR="#77CCDD">&gt;</FONT></B> 0 <B><FONT COLOR="#33CC33">then</FONT></B>
-        face_image <B><FONT COLOR="#77CCDD">=</FONT></B> <B><FONT COLOR="#FF4444">&quot;STFTR&quot;</FONT></B> .. pain_digit() .. <B><FONT COLOR="#FF4444">&quot;0&quot;</FONT></B>
-      <B><FONT COLOR="#33CC33">else</FONT></B>
-        face_image <B><FONT COLOR="#77CCDD">=</FONT></B> <B><FONT COLOR="#FF4444">&quot;STFKILL&quot;</FONT></B> .. pain_digit()
-      <B><FONT COLOR="#33CC33">end</FONT></B>
-
-      face_time <B><FONT COLOR="#77CCDD">=</FONT></B> 35
-      <B><FONT COLOR="#33CC33">return</FONT></B>
-    <B><FONT COLOR="#33CC33">end</FONT></B>
-
-    <I><FONT COLOR="#EEBB99">-- rampaging?
-</FONT></I>    <B><FONT COLOR="#33CC33">if</FONT></B> player.is_rampaging() <B><FONT COLOR="#33CC33">then</FONT></B>
-      face_image <B><FONT COLOR="#77CCDD">=</FONT></B> <B><FONT COLOR="#FF4444">&quot;STFKILL&quot;</FONT></B> .. pain_digit()
-      face_time  <B><FONT COLOR="#77CCDD">=</FONT></B> 7
-      <B><FONT COLOR="#33CC33">return</FONT></B>
-    <B><FONT COLOR="#33CC33">end</FONT></B>
-
-    <I><FONT COLOR="#EEBB99">-- god mode?
-</FONT></I>    <B><FONT COLOR="#33CC33">if</FONT></B> player.has_power(POWERS.invuln) <B><FONT COLOR="#33CC33">then</FONT></B>
-      face_image <B><FONT COLOR="#77CCDD">=</FONT></B> <B><FONT COLOR="#FF4444">&quot;STFGOD0&quot;</FONT></B>
-      face_time  <B><FONT COLOR="#77CCDD">=</FONT></B> 7
-      <B><FONT COLOR="#33CC33">return</FONT></B>
-    <B><FONT COLOR="#33CC33">end</FONT></B>
-
-    <I><FONT COLOR="#EEBB99">-- default: look about the place...
-</FONT></I>    face_image <B><FONT COLOR="#77CCDD">=</FONT></B> <B><FONT COLOR="#FF4444">&quot;STFST&quot;</FONT></B> .. pain_digit() .. turn_digit()
-    face_time  <B><FONT COLOR="#77CCDD">=</FONT></B> 17
-  <B><FONT COLOR="#33CC33">end</FONT></B>
-
-
-  <I><FONT COLOR="#EEBB99">---| doomguy_face |---
-</FONT></I>
-  face_time <B><FONT COLOR="#77CCDD">=</FONT></B> face_time <B><FONT COLOR="#77CCDD">-</FONT></B> hud.passed_time
-
-  <B><FONT COLOR="#33CC33">if</FONT></B> face_time <B><FONT COLOR="#77CCDD">&lt;=</FONT></B> 0 <B><FONT COLOR="#33CC33">then</FONT></B>
-    select_new_face()
-  <B><FONT COLOR="#33CC33">end</FONT></B>
-
-  <I><FONT COLOR="#EEBB99">-- FIXME faceback
-</FONT></I>
-  hud.draw_image(x<B><FONT COLOR="#77CCDD">-</FONT></B>1, y<B><FONT COLOR="#77CCDD">-</FONT></B>1, face_image)
-<B><FONT COLOR="#33CC33">end</FONT></B>
-
-
-<B><FONT COLOR="#33CC33">function </FONT></B><B><FONT COLOR="#FFFFFF">doom_status_bar</FONT></B><B><FONT COLOR="#33CC33">()</FONT></B>
-
-  hud.draw_image(  0, 168, <B><FONT COLOR="#FF4444">&quot;STBAR&quot;</FONT></B>);
-  hud.draw_image( 90, 171, <B><FONT COLOR="#FF4444">&quot;STTPRCNT&quot;</FONT></B>);
-  hud.draw_image(221, 171, <B><FONT COLOR="#FF4444">&quot;STTPRCNT&quot;</FONT></B>);
-
-  hud.text_font(<B><FONT COLOR="#FF4444">&quot;BIG_DIGIT&quot;</FONT></B>)
-
-  hud.draw_num2( 44, 171, 3, player.main_ammo(1));
-  hud.draw_num2( 90, 171, 3, player.health());
-  hud.draw_num2(221, 171, 3, player.total_armor())
-
-  <B><FONT COLOR="#33CC33">if</FONT></B> hud.game_mode() <B><FONT COLOR="#77CCDD">==</FONT></B> <B><FONT COLOR="#FF4444">&quot;dm&quot;</FONT></B> <B><FONT COLOR="#33CC33">then</FONT></B>
-
-    hud.draw_num2(138, 171, 2, player.frags());
-
-  <B><FONT COLOR="#33CC33">else</FONT></B>
-    hud.draw_image(104, 168, <B><FONT COLOR="#FF4444">&quot;STARMS&quot;</FONT></B>);
-
-    doom_weapon_icon(2, 111, 172, <B><FONT COLOR="#FF4444">&quot;STGNUM2&quot;</FONT></B>, <B><FONT COLOR="#FF4444">&quot;STYSNUM2&quot;</FONT></B>); 
-    doom_weapon_icon(3, 123, 172, <B><FONT COLOR="#FF4444">&quot;STGNUM3&quot;</FONT></B>, <B><FONT COLOR="#FF4444">&quot;STYSNUM3&quot;</FONT></B>);
-    doom_weapon_icon(4, 135, 172, <B><FONT COLOR="#FF4444">&quot;STGNUM4&quot;</FONT></B>, <B><FONT COLOR="#FF4444">&quot;STYSNUM4&quot;</FONT></B>);
-
-    doom_weapon_icon(5, 111, 182, <B><FONT COLOR="#FF4444">&quot;STGNUM5&quot;</FONT></B>, <B><FONT COLOR="#FF4444">&quot;STYSNUM5&quot;</FONT></B>);
-    doom_weapon_icon(6, 123, 182, <B><FONT COLOR="#FF4444">&quot;STGNUM6&quot;</FONT></B>, <B><FONT COLOR="#FF4444">&quot;STYSNUM6&quot;</FONT></B>);
-    doom_weapon_icon(7, 135, 182, <B><FONT COLOR="#FF4444">&quot;STGNUM7&quot;</FONT></B>, <B><FONT COLOR="#FF4444">&quot;STYSNUM7&quot;</FONT></B>);
-  <B><FONT COLOR="#33CC33">end</FONT></B>
-
-  doomguy_face(144, 169)
-
-  doom_key(239, 171, 1, 5, <B><FONT COLOR="#FF4444">&quot;STKEYS0&quot;</FONT></B>, <B><FONT COLOR="#FF4444">&quot;STKEYS3&quot;</FONT></B>, <B><FONT COLOR="#FF4444">&quot;STKEYS6&quot;</FONT></B>)
-  doom_key(239, 181, 2, 6, <B><FONT COLOR="#FF4444">&quot;STKEYS1&quot;</FONT></B>, <B><FONT COLOR="#FF4444">&quot;STKEYS4&quot;</FONT></B>, <B><FONT COLOR="#FF4444">&quot;STKEYS7&quot;</FONT></B>)
-  doom_key(239, 191, 3, 7, <B><FONT COLOR="#FF4444">&quot;STKEYS2&quot;</FONT></B>, <B><FONT COLOR="#FF4444">&quot;STKEYS5&quot;</FONT></B>, <B><FONT COLOR="#FF4444">&quot;STKEYS8&quot;</FONT></B>)
-
-  hud.text_font(<B><FONT COLOR="#FF4444">&quot;YELLOW_DIGIT&quot;</FONT></B>)
-
-  hud.draw_num2(288, 173, 3, player.ammo(1));
-  hud.draw_num2(288, 179, 3, player.ammo(2));
-  hud.draw_num2(288, 185, 3, player.ammo(3));
-  hud.draw_num2(288, 191, 3, player.ammo(4));
-
-  hud.draw_num2(314, 173, 3, player.ammomax(1));
-  hud.draw_num2(314, 179, 3, player.ammomax(2));
-  hud.draw_num2(314, 185, 3, player.ammomax(3));
-  hud.draw_num2(314, 191, 3, player.ammomax(4));
-<B><FONT COLOR="#33CC33">end</FONT></B>
-
-
-<B><FONT COLOR="#33CC33">function </FONT></B><B><FONT COLOR="#FFFFFF">doom_overlay_status</FONT></B><B><FONT COLOR="#33CC33">()</FONT></B>
-  hud.text_font(<B><FONT COLOR="#FF4444">&quot;BIG_DIGIT&quot;</FONT></B>)
-
-  hud.draw_num2(100, 171, 3, player.health());
-
-  hud.text_color(<B><FONT COLOR="#FF4444">&quot;TEXT_YELLOW&quot;</FONT></B>);
-  hud.draw_num2( 44, 171, 3, player.main_ammo(1));
-
-  <B><FONT COLOR="#33CC33">if</FONT></B> player.total_armor() <B><FONT COLOR="#77CCDD">&gt;</FONT></B> 100 <B><FONT COLOR="#33CC33">then</FONT></B>
-    hud.text_color(<B><FONT COLOR="#FF4444">&quot;TEXT_BLUE&quot;</FONT></B>);
-  <B><FONT COLOR="#33CC33">else</FONT></B>
-    hud.text_color(<B><FONT COLOR="#FF4444">&quot;TEXT_GREEN&quot;</FONT></B>);
-  <B><FONT COLOR="#33CC33">end</FONT></B>
-  hud.draw_num2(242, 171, 3, player.total_armor())
-
-  doom_key(256, 171, 1, 5, <B><FONT COLOR="#FF4444">&quot;STKEYS0&quot;</FONT></B>, <B><FONT COLOR="#FF4444">&quot;STKEYS3&quot;</FONT></B>, <B><FONT COLOR="#FF4444">&quot;STKEYS6&quot;</FONT></B>)
-  doom_key(256, 181, 2, 6, <B><FONT COLOR="#FF4444">&quot;STKEYS1&quot;</FONT></B>, <B><FONT COLOR="#FF4444">&quot;STKEYS4&quot;</FONT></B>, <B><FONT COLOR="#FF4444">&quot;STKEYS7&quot;</FONT></B>)
-  doom_key(256, 191, 3, 7, <B><FONT COLOR="#FF4444">&quot;STKEYS2&quot;</FONT></B>, <B><FONT COLOR="#FF4444">&quot;STKEYS5&quot;</FONT></B>, <B><FONT COLOR="#FF4444">&quot;STKEYS8&quot;</FONT></B>)
-
-  hud.text_font(<B><FONT COLOR="#FF4444">&quot;YELLOW_DIGIT&quot;</FONT></B>)
-  hud.text_color(<B><FONT COLOR="#FF4444">&quot;&quot;</FONT></B>);
-
-  hud.draw_num2(288, 173, 3, player.ammo(1));
-  hud.draw_num2(288, 179, 3, player.ammo(2));
-  hud.draw_num2(288, 185, 3, player.ammo(3));
-  hud.draw_num2(288, 191, 3, player.ammo(4));
-
-  hud.draw_num2(314, 173, 3, player.ammomax(1));
-  hud.draw_num2(314, 179, 3, player.ammomax(2));
-  hud.draw_num2(314, 185, 3, player.ammomax(3));
-  hud.draw_num2(314, 191, 3, player.ammomax(4));
-<B><FONT COLOR="#33CC33">end</FONT></B>
-
-
-<B><FONT COLOR="#33CC33">function </FONT></B><B><FONT COLOR="#FFFFFF">doom_automap</FONT></B><B><FONT COLOR="#33CC33">()</FONT></B>
-
-  <I><FONT COLOR="#EEBB99">-- Background is already black, only need to use 'solid_box'
-</FONT></I>  <I><FONT COLOR="#EEBB99">-- when we want a different color.
-</FONT></I>  <I><FONT COLOR="#EEBB99">--
-</FONT></I>  <I><FONT COLOR="#EEBB99">-- hud.solid_box(0, 0, 320, 200-32, &quot;#505050&quot;)
-</FONT></I>
-  hud.render_automap(0, 0, 320, 200<B><FONT COLOR="#77CCDD">-</FONT></B>32)
-
-  doom_status_bar()
-
-  hud.text_font(<B><FONT COLOR="#FF4444">&quot;DOOM&quot;</FONT></B>)
-  hud.draw_text(0, 200<B><FONT COLOR="#77CCDD">-</FONT></B>32<B><FONT COLOR="#77CCDD">-</FONT></B>10, hud.map_title())
-<B><FONT COLOR="#33CC33">end</FONT></B>
-
-
-<B><FONT COLOR="#33CC33">function </FONT></B><B><FONT COLOR="#FFFFFF">edge_air_bar</FONT></B><B><FONT COLOR="#33CC33">()</FONT></B>
-  <B><FONT COLOR="#33CC33">if</FONT></B> player.health() <B><FONT COLOR="#77CCDD">&lt;=</FONT></B> 0 <B><FONT COLOR="#33CC33">or</FONT></B> <B><FONT COLOR="#33CC33">not</FONT></B> player.under_water() <B><FONT COLOR="#33CC33">then</FONT></B>
-    <B><FONT COLOR="#33CC33">return</FONT></B>
-  <B><FONT COLOR="#33CC33">end</FONT></B>
-
-  <B><FONT COLOR="#33CC33">local</FONT></B> air <B><FONT COLOR="#77CCDD">=</FONT></B> player.air_in_lungs()
-
-  air <B><FONT COLOR="#77CCDD">=</FONT></B> int(1 <B><FONT COLOR="#77CCDD">+</FONT></B> 21 <B><FONT COLOR="#77CCDD">*</FONT></B> ((100<B><FONT COLOR="#77CCDD">-</FONT></B>air) / 100.1))
-
-  hud.draw_image(0, 0, string.format(<B><FONT COLOR="#FF4444">&quot;AIRBAR%02d&quot;</FONT></B>, air))
-<B><FONT COLOR="#33CC33">end</FONT></B>
-
-
-<B><FONT COLOR="#33CC33">function</FONT></B> <B><FONT COLOR="#FFFFFF">hud.draw_all</FONT></B><B><FONT COLOR="#33CC33">()</FONT></B>
-
-  hud.coord_sys(640, 400)
-
-  <B><FONT COLOR="#33CC33">if</FONT></B> hud.automap <B><FONT COLOR="#33CC33">then</FONT></B>
-    doom_automap()
-    <B><FONT COLOR="#33CC33">return</FONT></B>
-  <B><FONT COLOR="#33CC33">end</FONT></B>
-
-  <I><FONT COLOR="#EEBB99">-- there are three standard HUDs
-</FONT></I>  hud.which <B><FONT COLOR="#77CCDD">=</FONT></B> hud.which <FONT COLOR="#77CCDD">%</FONT> 3
-
-  <B><FONT COLOR="#33CC33">if</FONT></B> hud.which <B><FONT COLOR="#77CCDD">==</FONT></B> 0 <B><FONT COLOR="#33CC33">then</FONT></B>
-    hud.render_world(0, 0, 320, 200<B><FONT COLOR="#77CCDD">-</FONT></B>32)
-  <B><FONT COLOR="#33CC33">else</FONT></B>
-    hud.render_world(0, 0, 320, 200)
-  <B><FONT COLOR="#33CC33">end</FONT></B>
-
-  <B><FONT COLOR="#33CC33">if</FONT></B> hud.which <B><FONT COLOR="#77CCDD">==</FONT></B> 0 <B><FONT COLOR="#33CC33">then</FONT></B>
     doom_status_bar()
-  <B><FONT COLOR="#33CC33">elseif</FONT></B> hud.which <B><FONT COLOR="#77CCDD">==</FONT></B> 2 <B><FONT COLOR="#33CC33">then</FONT></B>
-    doom_overlay_status()
-  <B><FONT COLOR="#33CC33">end</FONT></B>
 
-  edge_air_bar()
-<B><FONT COLOR="#33CC33">end</FONT></B>
+    hud.text_font("DOOM")
+    hud.draw_text(0, 200 - 32 - 10, hud.map_title())
+}
+
+
+<font color="#33CC33">function</font> edge_air_bar() =
+{
+    <font color="#CC9955">if</font> (player.health() <= 0)
+        return
+
+    <font color="#CC9955">if</font> (! player.under_water())
+        return
+
+    <font color="#33CC33">var</font> air = player.air_in_lungs()
+
+    air = math.floor(1 + 21 * ((100 - air) / 100.1))
+
+    <font color="#33CC33">var</font> barname : <font color="#33CC33">string</font>;
+    
+    <font color="#CC9955">if</font> (air < 10)
+        barname = "AIRBAR0" + air
+    <font color="#CC9955">else</font>
+        barname = "AIRBAR" + air
+
+    hud.draw_image(0, 0, barname)
+}
+
+
+<font color="#33CC33">function</font> begin_level() =
+{
+}
+
+<font color="#33CC33">function</font> draw_all() =
+{
+    hud.coord_sys(320, 200)
+    hud.grab_times()
+
+    <font color="#CC9955">if</font> (hud.check_automap())
+    {
+        doom_automap()
+        return
+    }
+
+    <font color="#77BBFF">// there are three standard HUDs</font>
+    <font color="#33CC33">var</font> which = hud.which_hud() % 3
+
+    <font color="#CC9955">if</font> (which == 0)
+        hud.render_world(0, 0, 320, 200 - 32)
+    <font color="#CC9955">else</font>
+        hud.render_world(0, 0, 320, 200)
+
+    <font color="#CC9955">if</font> (which == 0)
+        doom_status_bar()
+    <font color="#CC9955">else</font> <font color="#CC9955">if</font> (which == 2)
+        doom_overlay_status()
+
+    edge_air_bar()
+}
 
 </PRE>
 
