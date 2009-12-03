@@ -666,17 +666,17 @@ logic for the Doomguy face, and other HUD elements
 
     <font color="#33CC33">var</font> index = math.floor(4.99 * (100 - health) / 100)
 
-    assert(index >= 0)
-    assert(index <= 4)
+    <font color="#CC9955">assert</font>(index >= 0)
+    <font color="#CC9955">assert</font>(index <= 4)
 
-    return "" + index
+    <font color="#CC9955">return</font> <font color="#FF3333">""</font> + index
 }
 
 <font color="#33CC33">function</font> turn_digit() : <font color="#33CC33">string</font> =
 {
     <font color="#33CC33">var</font> r = math.floor(math.random() * 2.99)
 
-    return "" + r
+    <font color="#CC9955">return</font> <font color="#FF3333">""</font> + r
 }
 
 <font color="#33CC33">function</font> select_new_face() =
@@ -690,17 +690,17 @@ logic for the Doomguy face, and other HUD elements
     <font color="#77BBFF">// dead ?</font>
     <font color="#CC9955">if</font> (player.health() <= 0)
     {
-        face_image = "STFDEAD0"
+        face_image = <font color="#FF3333">"STFDEAD0"</font>
         face_time  = 10
-        return
+        <font color="#CC9955">return</font>
     }
 
     <font color="#77BBFF">// evil grin when player just picked up a weapon</font>
     <font color="#CC9955">if</font> (player.is_grinning())
     {
-        face_image = "STFEVL" + pain_digit()
+        face_image = <font color="#FF3333">"STFEVL"</font> + pain_digit()
         face_time  = 7
-        return
+        <font color="#CC9955">return</font>
     }
 
     <font color="#77BBFF">// being attacked ?</font>
@@ -708,48 +708,48 @@ logic for the Doomguy face, and other HUD elements
     {
         <font color="#CC9955">if</font> (player.hurt_pain() > 50)
         {
-            face_image = "STFOUCH" + pain_digit()
+            face_image = <font color="#FF3333">"STFOUCH"</font> + pain_digit()
             face_time = 26
-            return
+            <font color="#CC9955">return</font>
         }
 
         <font color="#33CC33">var</font> dir = 0
 
-        <font color="#CC9955">if</font> (player.hurt_by() == "enemy" ||
-            player.hurt_by() == "friend")
+        <font color="#CC9955">if</font> (player.hurt_by() == <font color="#FF3333">"enemy"</font> ||
+            player.hurt_by() == <font color="#FF3333">"friend"</font>)
         {
             dir = player.hurt_dir()
         }
 
         <font color="#CC9955">if</font> (dir < 0)
-            face_image = "STFTL" + pain_digit() + "0"
+            face_image = <font color="#FF3333">"STFTL"</font> + pain_digit() + <font color="#FF3333">"0"</font>
         <font color="#CC9955">else</font> <font color="#CC9955">if</font> (dir > 0)
-            face_image = "STFTR" + pain_digit() + "0"
+            face_image = <font color="#FF3333">"STFTR"</font> + pain_digit() + <font color="#FF3333">"0"</font>
         <font color="#CC9955">else</font>
-            face_image = "STFKILL" + pain_digit()
+            face_image = <font color="#FF3333">"STFKILL"</font> + pain_digit()
 
         face_time = 35
-        return
+        <font color="#CC9955">return</font>
     }
 
     <font color="#77BBFF">// rampaging?</font>
     <font color="#CC9955">if</font> (player.is_rampaging())
     {
-        face_image = "STFKILL" + pain_digit()
+        face_image = <font color="#FF3333">"STFKILL"</font> + pain_digit()
         face_time  = 7
-        return
+        <font color="#CC9955">return</font>
     }
 
     <font color="#77BBFF">// god mode?</font>
     <font color="#CC9955">if</font> (player.has_power(player.INVULN))
     {
-        face_image = "STFGOD0"
+        face_image = <font color="#FF3333">"STFGOD0"</font>
         face_time  = 7
-        return
+        <font color="#CC9955">return</font>
     }
 
     <font color="#77BBFF">// default: look about the place...</font>
-    face_image = "STFST" + pain_digit() + turn_digit()
+    face_image = <font color="#FF3333">"STFST"</font> + pain_digit() + turn_digit()
     face_time  = 17
 }
 
@@ -768,7 +768,7 @@ logic for the Doomguy face, and other HUD elements
 
 <font color="#33CC33">function</font> doom_little_ammo() =
 {
-    hud.text_font("YELLOW_DIGIT")
+    hud.text_font(<font color="#FF3333">"YELLOW_DIGIT"</font>)
     hud.text_color(hud.NO_COLOR)
 
     hud.draw_num2(288, 173, 3, player.ammo(1))
@@ -785,38 +785,38 @@ logic for the Doomguy face, and other HUD elements
 
 <font color="#33CC33">function</font> doom_status_bar() =
 {
-    hud.draw_image(  0, 168, "STBAR")
-    hud.draw_image( 90, 171, "STTPRCNT")
-    hud.draw_image(221, 171, "STTPRCNT")
+    hud.draw_image(  0, 168, <font color="#FF3333">"STBAR"</font>)
+    hud.draw_image( 90, 171, <font color="#FF3333">"STTPRCNT"</font>)
+    hud.draw_image(221, 171, <font color="#FF3333">"STTPRCNT"</font>)
 
-    hud.text_font("BIG_DIGIT")
+    hud.text_font(<font color="#FF3333">"BIG_DIGIT"</font>)
 
     hud.draw_num2( 44, 171, 3, player.main_ammo(1) )
     hud.draw_num2( 90, 171, 3, player.health()     )
     hud.draw_num2(221, 171, 3, player.total_armor())
 
-    <font color="#CC9955">if</font> (hud.game_mode() == "dm")
+    <font color="#CC9955">if</font> (hud.game_mode() == <font color="#FF3333">"dm"</font>)
     {
         hud.draw_num2(138, 171, 2, player.frags())
     }
     <font color="#CC9955">else</font>
     {
-        hud.draw_image(104, 168, "STARMS")
+        hud.draw_image(104, 168, <font color="#FF3333">"STARMS"</font>)
 
-        doom_weapon_icon(2, 111, 172, "STGNUM2", "STYSNUM2")
-        doom_weapon_icon(3, 123, 172, "STGNUM3", "STYSNUM3")
-        doom_weapon_icon(4, 135, 172, "STGNUM4", "STYSNUM4")
+        doom_weapon_icon(2, 111, 172, <font color="#FF3333">"STGNUM2"</font>, <font color="#FF3333">"STYSNUM2"</font>)
+        doom_weapon_icon(3, 123, 172, <font color="#FF3333">"STGNUM3"</font>, <font color="#FF3333">"STYSNUM3"</font>)
+        doom_weapon_icon(4, 135, 172, <font color="#FF3333">"STGNUM4"</font>, <font color="#FF3333">"STYSNUM4"</font>)
 
-        doom_weapon_icon(5, 111, 182, "STGNUM5", "STYSNUM5")
-        doom_weapon_icon(6, 123, 182, "STGNUM6", "STYSNUM6")
-        doom_weapon_icon(7, 135, 182, "STGNUM7", "STYSNUM7")
+        doom_weapon_icon(5, 111, 182, <font color="#FF3333">"STGNUM5"</font>, <font color="#FF3333">"STYSNUM5"</font>)
+        doom_weapon_icon(6, 123, 182, <font color="#FF3333">"STGNUM6"</font>, <font color="#FF3333">"STYSNUM6"</font>)
+        doom_weapon_icon(7, 135, 182, <font color="#FF3333">"STGNUM7"</font>, <font color="#FF3333">"STYSNUM7"</font>)
     }
 
     doomguy_face(144, 169)
 
-    doom_key(239, 171, 1, 5, "STKEYS0", "STKEYS3", "STKEYS6")
-    doom_key(239, 181, 2, 6, "STKEYS1", "STKEYS4", "STKEYS7")
-    doom_key(239, 191, 3, 7, "STKEYS2", "STKEYS5", "STKEYS8")
+    doom_key(239, 171, 1, 5, <font color="#FF3333">"STKEYS0"</font>, <font color="#FF3333">"STKEYS3"</font>, <font color="#FF3333">"STKEYS6"</font>)
+    doom_key(239, 181, 2, 6, <font color="#FF3333">"STKEYS1"</font>, <font color="#FF3333">"STKEYS4"</font>, <font color="#FF3333">"STKEYS7"</font>)
+    doom_key(239, 191, 3, 7, <font color="#FF3333">"STKEYS2"</font>, <font color="#FF3333">"STKEYS5"</font>, <font color="#FF3333">"STKEYS8"</font>)
 
     doom_little_ammo()
 }
@@ -824,7 +824,7 @@ logic for the Doomguy face, and other HUD elements
 
 <font color="#33CC33">function</font> doom_overlay_status() = 
 {
-    hud.text_font("BIG_DIGIT")
+    hud.text_font(<font color="#FF3333">"BIG_DIGIT"</font>)
 
     hud.draw_num2(100, 171, 3, player.health())
 
@@ -838,9 +838,9 @@ logic for the Doomguy face, and other HUD elements
 
     hud.draw_num2(242, 171, 3, player.total_armor())
 
-    doom_key(256, 171, 1, 5, "STKEYS0", "STKEYS3", "STKEYS6")
-    doom_key(256, 181, 2, 6, "STKEYS1", "STKEYS4", "STKEYS7")
-    doom_key(256, 191, 3, 7, "STKEYS2", "STKEYS5", "STKEYS8")
+    doom_key(256, 171, 1, 5, <font color="#FF3333">"STKEYS0"</font>, <font color="#FF3333">"STKEYS3"</font>, <font color="#FF3333">"STKEYS6"</font>)
+    doom_key(256, 181, 2, 6, <font color="#FF3333">"STKEYS1"</font>, <font color="#FF3333">"STKEYS4"</font>, <font color="#FF3333">"STKEYS7"</font>)
+    doom_key(256, 191, 3, 7, <font color="#FF3333">"STKEYS2"</font>, <font color="#FF3333">"STKEYS5"</font>, <font color="#FF3333">"STKEYS8"</font>)
 
     doom_little_ammo()
 }
@@ -857,7 +857,7 @@ logic for the Doomguy face, and other HUD elements
 
     doom_status_bar()
 
-    hud.text_font("DOOM")
+    hud.text_font(<font color="#FF3333">"DOOM"</font>)
     hud.draw_text(0, 200 - 32 - 10, hud.map_title())
 }
 
@@ -865,10 +865,10 @@ logic for the Doomguy face, and other HUD elements
 <font color="#33CC33">function</font> edge_air_bar() =
 {
     <font color="#CC9955">if</font> (player.health() <= 0)
-        return
+        <font color="#CC9955">return</font>
 
     <font color="#CC9955">if</font> (! player.under_water())
-        return
+        <font color="#CC9955">return</font>
 
     <font color="#33CC33">var</font> air = player.air_in_lungs()
 
@@ -877,9 +877,9 @@ logic for the Doomguy face, and other HUD elements
     <font color="#33CC33">var</font> barname : <font color="#33CC33">string</font>;
     
     <font color="#CC9955">if</font> (air < 10)
-        barname = "AIRBAR0" + air
+        barname = <font color="#FF3333">"AIRBAR0"</font> + air
     <font color="#CC9955">else</font>
-        barname = "AIRBAR" + air
+        barname = <font color="#FF3333">"AIRBAR"</font> + air
 
     hud.draw_image(0, 0, barname)
 }
@@ -897,7 +897,7 @@ logic for the Doomguy face, and other HUD elements
     <font color="#CC9955">if</font> (hud.check_automap())
     {
         doom_automap()
-        return
+        <font color="#CC9955">return</font>
     }
 
     <font color="#77BBFF">// there are three standard HUDs</font>
