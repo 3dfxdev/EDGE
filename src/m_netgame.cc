@@ -89,6 +89,8 @@ static int joining_port;
 static int join_discover_timer;
 static int join_connect_timer;
 
+static void ListAccept(void);
+
 
 #if (0 == 1)
 static void CreateHostWelcome(welcome_proto_t *we)
@@ -498,13 +500,17 @@ static void HostAccept(void)
 	ng_params->SinglePlayer(host_want_bots);
 
 	netgame_menuon = 3;
+
+#if 1
+	ListAccept();
+#endif
 }
 
 void M_DrawHostMenu(void)
 {
 	ng_host_style->DrawBackground();
 
-	HL_WriteText(ng_host_style,2, 80, 10, "HOST NET GAME");
+	HL_WriteText(ng_host_style,2, 80, 30, "ADVANCED START GAME");
 
 	char buffer[200];
 
@@ -512,12 +518,12 @@ void M_DrawHostMenu(void)
 	int idx = 0;
 
 
-	DrawKeyword(-1, ng_host_style, y, "LOCAL ADDRESS", n_local_addr.TempString(false));
-	y += 10;
+//	DrawKeyword(-1, ng_host_style, y, "LOCAL ADDRESS", n_local_addr.TempString(false));
+  	y += 10;
 
-	DrawKeyword(-1, ng_join_style, y, "LOCAL PORT",
-			LocalPrintf(buffer, sizeof(buffer), "%d", hosting_port));
-	y += 18;
+//	DrawKeyword(-1, ng_join_style, y, "LOCAL PORT",
+//			LocalPrintf(buffer, sizeof(buffer), "%d", hosting_port));
+  	y += 18;
 
 
 	DrawKeyword(idx, ng_host_style, y, "GAME", ng_params->map->episode->ddf.name.c_str());
@@ -551,7 +557,7 @@ void M_DrawHostMenu(void)
 	y += 22; idx++;
 
 
-	HL_WriteText(ng_host_style,(host_pos==idx) ? 2:0, 40,  y, "Begin Accepting Connections");
+	HL_WriteText(ng_host_style,(host_pos==idx) ? 2:0, 120,  y, "Start");
 }
 
 bool M_NetHostResponder(event_t * ev, int ch)
@@ -826,17 +832,21 @@ void M_DrawPlayerList(void)
 	}
 }
 
+static void ListAccept()
+{
+	S_StartFX(sfx_swtchn);
+
+	netgame_menuon = 0;
+	M_ClearMenus();
+
+	NetGameStartLevel();
+}
+
 bool M_NetListResponder(event_t * ev, int ch)
 {
 	if (ch == KEYD_ENTER && netgame_we_are_host)
 	{
-		S_StartFX(sfx_swtchn);
-
-		netgame_menuon = 0;
-		M_ClearMenus();
-
-		NetGameStartLevel();
-
+		ListAccept();
 		return true;
 	}
 
