@@ -19,6 +19,9 @@ CFLAGS=-O0 -g3 -ffast-math -fno-strict-aliasing -Wall -Wno-write-strings -pipe
 LDFLAGS=-lm -Wl,--warn-common
 
 
+CFLAGS += -I.
+
+
 # Operating System
 
 CFLAGS += -DLINUX
@@ -47,6 +50,13 @@ CFLAGS += -DUSE_OGG
 
 ###  LDFLAGS += 
 
+
+# glBSP
+
+CFLAGS_GLBSP=-O -Wall -fno-strict-aliasing
+
+CFLAGS_GLBSP += -DGLBSP_PLUGIN
+CFLAGS_GLBSP += -DINLINE_G=inline
 
 
 # ----------
@@ -132,13 +142,13 @@ DEHEDGE_OBJS= \
 	$(OBJDIR)/deh_edge/rscript.o
 
 $(OBJDIR)/deh_edge/%.o: deh_edge/%.cc
-	$(CXX) $(CFLAGS) -o $@ -c $< 
+	$(CXX) $(CFLAGS) -DDEH_EDGE_PLUGIN -o $@ -c $< 
 
 
 # ---------- EDGE ---------------
 
 EDGE_OBJS= \
-	$(OBJDIR)/main.o            \
+	$(OBJDIR)/edge/main.o       \
 	$(OBJDIR)/edge/i_main.o     \
 	$(OBJDIR)/edge/i_ctrl.o     \
 	$(OBJDIR)/edge/i_video.o    \
@@ -242,7 +252,8 @@ EDGE_OBJS= \
 	$(OBJDIR)/edge/unx_net.o    \
 	$(OBJDIR)/edge/unx_system.o
 
-$(OBJDIR)/main.o: main.cc
+$(OBJDIR)/edge/main.o: main.cc
+	$(CXX) $(CFLAGS) -o $@ -c $< 
 
 $(OBJDIR)/edge/%.o: src/%.cc
 	$(CXX) $(CFLAGS) -o $@ -c $< 
