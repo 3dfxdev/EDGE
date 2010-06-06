@@ -2,7 +2,7 @@
 # EDGE Makefile : WIN32 cross-compile
 #
 
-PROGRAM=edge.exe
+PROGRAM=edge.win32
 
 OBJDIR=obj_win32
 LIBDIR=lib_win32
@@ -48,12 +48,15 @@ LDFLAGS += -lGLEW -lopengl32
 # PNG, JPEG and ZLIB
 
 CFLAGS  += -I$(LIBDIR)/libpng-1.2.12
+LDFLAGS += -L$(LIBDIR)/libpng-1.2.12
 LDFLAGS += -lpng
 
 CFLAGS  += -I$(LIBDIR)/jpeg-6b
+LDFLAGS += -L$(LIBDIR)/jpeg-6b
 LDFLAGS += -ljpeg
 
 CFLAGS  += -I$(LIBDIR)/zlib-1.2.3
+LDFLAGS += -L$(LIBDIR)/zlib-1.2.3
 LDFLAGS += -lz
 
 
@@ -63,8 +66,8 @@ CFLAGS += -DUSE_OGG
 CFLAGS += -I$(LIBDIR)/libogg-1.1.3/include
 CFLAGS += -I$(LIBDIR)/libvorbis-1.1.2/include
 
-LDFLAGS += -I$(LIBDIR)/libogg-1.1.3/include
-LDFLAGS += -I$(LIBDIR)/libvorbis-1.1.2/include
+LDFLAGS += -L$(LIBDIR)/libogg-1.1.3/src
+LDFLAGS += -L$(LIBDIR)/libvorbis-1.1.2/lib
 LDFLAGS += -lvorbisfile -lvorbis -logg
 
 
@@ -74,6 +77,8 @@ CFLAGS_GLBSP=-O -Wall -fno-strict-aliasing
 
 CFLAGS_GLBSP += -DGLBSP_PLUGIN
 CFLAGS_GLBSP += -DINLINE_G=inline
+
+CFLAGS_GLBSP += -I$(LIBDIR)/zlib-1.2.3
 
 
 # Win32 libs
