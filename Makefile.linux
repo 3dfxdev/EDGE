@@ -2,9 +2,11 @@
 # EDGE Makefile : LINUX version
 #
 
-PROGRAM=edge_raw
+PROGRAM=edge.linux
 
 OBJDIR=obj_linux
+
+LIBDIR=linux_lib
 
 
 # ----------
@@ -34,21 +36,22 @@ CFLAGS += $(shell sdl-config --cflags)
 LDFLAGS_SDL=$(shell sdl-config --libs)
 
 
-# LibPHYSFS
-
-LDFLAGS += -lphysfs
-
-
 # OpenGL rendering
 
 LDFLAGS += -lGL
+LDFLAGS += -L$(LIBDIR)/glew-1.4/lib -lGLEW
+
+
+# PNG and JPEG
+
+LDFLAGS += -lpng -ljpeg -lz
 
 
 # OGG/Vorbis
 
 CFLAGS += -DUSE_OGG
 
-###  LDFLAGS += 
+LDFLAGS += -lvorbisfile -lvorbis -logg
 
 
 # glBSP
