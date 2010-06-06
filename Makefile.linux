@@ -70,555 +70,126 @@ makedirs:
 .PHONY: all clean makedirs
 
 
-# ----------
+# ---------- Coal ---------------
 
-# Client object
-CLIENT_OBJS = \
-	obj_linux/cl_cin.o \
-	obj_linux/cl_ents.o \
-	obj_linux/cl_fx.o \
-	obj_linux/cl_input.o \
-	obj_linux/cl_inv.o \
-	obj_linux/cl_main.o \
-	obj_linux/cl_parse.o \
-	obj_linux/cl_pred.o \
-	obj_linux/cl_tent.o \
-	obj_linux/cl_scrn.o \
-	obj_linux/cl_view.o \
-	obj_linux/cl_newfx.o \
-	obj_linux/console.o \
-	obj_linux/keys.o \
-	obj_linux/menu.o \
-	obj_linux/qmenu.o \
-	obj_linux/snd_dma.o \
-	obj_linux/snd_mem.o \
-	obj_linux/snd_mix.o
+COAL_OBJS= \
+	$(OBJDIR)/coal/c_compile.o  \
+	$(OBJDIR)/coal/c_execute.o  \
+	$(OBJDIR)/coal/c_memory.o
 
-# Client build
-obj_linux/cl_cin.o :     		client/cl_cin.cc
-	$(CXX) $(CFLAGS_CLIENT) -o $@ -c $< 
-
-obj_linux/cl_ents.o :    		client/cl_ents.cc
-	$(CXX) $(CFLAGS_CLIENT) -o $@ -c $< 
-
-obj_linux/cl_fx.o :      		client/cl_fx.cc
-	$(CXX) $(CFLAGS_CLIENT) -o $@ -c $< 
-
-obj_linux/cl_input.o :   		client/cl_input.cc
-	$(CXX) $(CFLAGS_CLIENT) -o $@ -c $< 
-
-obj_linux/cl_inv.o :     		client/cl_inv.cc
-	$(CXX) $(CFLAGS_CLIENT) -o $@ -c $< 
-
-obj_linux/cl_main.o :    		client/cl_main.cc
-	$(CXX) $(CFLAGS_CLIENT) -o $@ -c $< 
-
-obj_linux/cl_parse.o :   		client/cl_parse.cc
-	$(CXX) $(CFLAGS_CLIENT) -o $@ -c $< 
-
-obj_linux/cl_pred.o :    		client/cl_pred.cc
-	$(CXX) $(CFLAGS_CLIENT) -o $@ -c $< 
-
-obj_linux/cl_tent.o :    		client/cl_tent.cc
-	$(CXX) $(CFLAGS_CLIENT) -o $@ -c $< 
-
-obj_linux/cl_scrn.o :    		client/cl_scrn.cc
-	$(CXX) $(CFLAGS_CLIENT) -o $@ -c $< 
-
-obj_linux/cl_view.o :    		client/cl_view.cc
-	$(CXX) $(CFLAGS_CLIENT) -o $@ -c $< 
-
-obj_linux/cl_newfx.o :   		client/cl_newfx.cc
-	$(CXX) $(CFLAGS_CLIENT) -o $@ -c $<  
-
-obj_linux/console.o :	client/console.cc
-	$(CXX) $(CFLAGS_CLIENT) -o $@ -c $<
-
-obj_linux/keys.o :			client/keys.cc
-	$(CXX) $(CFLAGS_CLIENT) -o $@ -c $< 
-
-obj_linux/menu.o :			client/menu.cc
-	$(CXX) $(CFLAGS_CLIENT) -o $@ -c $< 
-
-obj_linux/qmenu.o :			client/qmenu.cc
-	$(CXX) $(CFLAGS_CLIENT) -o $@ -c $< 
-
-obj_linux/snd_dma.o :		client/snd_dma.cc
-	$(CXX) $(CFLAGS_CLIENT) -o $@ -c $< 
-
-obj_linux/snd_mem.o :		client/snd_mem.cc
-	$(CXX) $(CFLAGS_CLIENT) -o $@ -c $< 
-
-obj_linux/snd_mix.o :		client/snd_mix.cc
-	$(CXX) $(CFLAGS_CLIENT) -o $@ -c $< 
+$(OBJDIR)/coal/%.o: coal/%.cc
+	$(CXX) $(CFLAGS) -o $@ -c $< 
 
 
-# ---------
+# --------- DDF ----------------
 
-# Common objects
-COMMON_OBJS = \
-	obj_linux/cmd.o \
-	obj_linux/cmodel.o \
-	obj_linux/common.o \
-	obj_linux/crc.o \
-	obj_linux/cvar.o \
-	obj_linux/files.o \
-	obj_linux/md4.o \
-	obj_linux/net_chan.o \
-	obj_linux/pmove.o \
-	obj_linux/q_shared.o
- 
-# Common build
-obj_linux/cmd.o :		        common/cmd.cc
-	$(CXX) $(CFLAGS_CLIENT) -o $@ -c $<
+DDF_OBJS= \
+	$(OBJDIR)/ddf/anim.o     \
+	$(OBJDIR)/ddf/attack.o   \
+	$(OBJDIR)/ddf/boom.o     \
+	$(OBJDIR)/ddf/colormap.o \
+	$(OBJDIR)/ddf/font.o     \
+	$(OBJDIR)/ddf/game.o     \
+	$(OBJDIR)/ddf/image.o    \
+	$(OBJDIR)/ddf/language.o \
+	$(OBJDIR)/ddf/level.o    \
+	$(OBJDIR)/ddf/line.o     \
+	$(OBJDIR)/ddf/main.o     \
+	$(OBJDIR)/ddf/playlist.o \
+	$(OBJDIR)/ddf/sector.o   \
+	$(OBJDIR)/ddf/sfx.o      \
+	$(OBJDIR)/ddf/states.o   \
+	$(OBJDIR)/ddf/style.o    \
+	$(OBJDIR)/ddf/switch.o   \
+	$(OBJDIR)/ddf/thing.o    \
+	$(OBJDIR)/ddf/weapon.o
 
-obj_linux/cmodel.o :     		common/cmodel.cc
-	$(CXX) $(CFLAGS_CLIENT) -o $@ -c $<
-
-obj_linux/common.o :     		common/common.cc
-	$(CXX) $(CFLAGS_CLIENT) -o $@ -c $<
-
-obj_linux/crc.o :        		common/crc.cc
-	$(CXX) $(CFLAGS_CLIENT) -o $@ -c $<
-
-obj_linux/cvar.o :       		common/cvar.cc
-	$(CXX) $(CFLAGS_CLIENT) -o $@ -c $< 
-
-obj_linux/files.o :      		common/files.cc
-	$(CXX) $(CFLAGS_CLIENT) -o $@ -c $< 
-
-obj_linux/md4.o :        		common/md4.cc
-	$(CXX) $(CFLAGS_CLIENT) -o $@ -c $< 
-
-obj_linux/net_chan.o :   		common/net_chan.cc
-	$(CXX) $(CFLAGS_CLIENT) -o $@ -c $< 
-
-obj_linux/pmove.o :      		common/pmove.cc
-	$(CXX) $(CFLAGS_CLIENT) -o $@ -c $< 
-
-obj_linux/q_shared.o:   				common/q_shared.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $<
+$(OBJDIR)/ddf/%.o: ddf/%.cc
+	$(CXX) $(CFLAGS) -o $@ -c $< 
 
 
-# ---------
+# ---------- Deh_EDGE ---------------
 
-# Server objects
-SERVER_OBJS = \
-	obj_linux/sv_ccmds.o \
-	obj_linux/sv_ents.o \
-	obj_linux/sv_game.o \
-	obj_linux/sv_init.o \
-	obj_linux/sv_main.o \
-	obj_linux/sv_send.o \
- 	obj_linux/sv_user.o \
-	obj_linux/sv_world.o
+DEHEDGE_OBJS= \
+	$(OBJDIR)/deh_edge/ammo.o     \
+	$(OBJDIR)/deh_edge/attacks.o  \
+	$(OBJDIR)/deh_edge/buffer.o   \
+	$(OBJDIR)/deh_edge/convert.o  \
+	$(OBJDIR)/deh_edge/frames.o   \
+	$(OBJDIR)/deh_edge/info.o     \
+	$(OBJDIR)/deh_edge/main.o     \
+	$(OBJDIR)/deh_edge/system.o   \
+	$(OBJDIR)/deh_edge/util.o     \
+	$(OBJDIR)/deh_edge/wad.o      \
+	$(OBJDIR)/deh_edge/mobj.o     \
+	$(OBJDIR)/deh_edge/sounds.o   \
+	$(OBJDIR)/deh_edge/things.o   \
+	$(OBJDIR)/deh_edge/weapons.o  \
+	$(OBJDIR)/deh_edge/misc.o     \
+	$(OBJDIR)/deh_edge/text.o     \
+	$(OBJDIR)/deh_edge/storage.o  \
+	$(OBJDIR)/deh_edge/patch.o    \
+	$(OBJDIR)/deh_edge/rscript.o
 
-# Server build
-obj_linux/sv_ccmds.o :			server/sv_ccmds.cc
-	$(CXX) $(CFLAGS_CLIENT) -o $@ -c $< 
-
-obj_linux/sv_ents.o :			server/sv_ents.cc
-	$(CXX) $(CFLAGS_CLIENT) -o $@ -c $< 
-
-obj_linux/sv_game.o :    		server/sv_game.cc
-	$(CXX) $(CFLAGS_CLIENT) -o $@ -c $< 
-
-obj_linux/sv_init.o :    		server/sv_init.cc
-	$(CXX) $(CFLAGS_CLIENT) -o $@ -c $< 
-
-obj_linux/sv_main.o :    		server/sv_main.cc
-	$(CXX) $(CFLAGS_CLIENT) -o $@ -c $< 
-
-obj_linux/sv_send.o :    		server/sv_send.cc
-	$(CXX) $(CFLAGS_CLIENT) -o $@ -c $< 
-
-obj_linux/sv_user.o :    		server/sv_user.cc
-	$(CXX) $(CFLAGS_CLIENT) -o $@ -c $< 
-
-obj_linux/sv_world.o :   		server/sv_world.cc
-	$(CXX) $(CFLAGS_CLIENT) -o $@ -c $< 
+$(OBJDIR)/deh_edge/%.o: deh_edge/%.cc
+	$(CXX) $(CFLAGS) -o $@ -c $< 
 
 
-# ----------
+# ---------- EDGE ---------------
 
-# POSIX platform objects
-POSIX_OBJS = \
- 	obj_linux/unix_net.o \
-	obj_linux/posix.o \
-	obj_linux/system.o \
-	obj_linux/glob.o \
- 	obj_linux/i_menu.o \
-	obj_linux/i_refresh.o \
-	obj_linux/i_opengl.o
+#  TODO
+EDGE_OBJS=
+
+
+# ---------- EPI ---------------
+
+EPI_OBJS= \
+	$(OBJDIR)/epi/arrays.o       \
+	$(OBJDIR)/epi/bytearray.o    \
+	$(OBJDIR)/epi/exe_path.o     \
+	$(OBJDIR)/epi/file.o         \
+	$(OBJDIR)/epi/filesystem.o   \
+	$(OBJDIR)/epi/file_memory.o  \
+	$(OBJDIR)/epi/file_sub.o     \
+	$(OBJDIR)/epi/image_data.o   \
+	$(OBJDIR)/epi/image_hq2x.o   \
+	$(OBJDIR)/epi/image_jpeg.o   \
+	$(OBJDIR)/epi/image_png.o    \
+	$(OBJDIR)/epi/image_tga.o    \
+	$(OBJDIR)/epi/math_angle.o   \
+	$(OBJDIR)/epi/math_bbox.o    \
+	$(OBJDIR)/epi/math_color.o   \
+	$(OBJDIR)/epi/math_crc.o     \
+	$(OBJDIR)/epi/math_md5.o     \
+	$(OBJDIR)/epi/math_oddity.o  \
+	$(OBJDIR)/epi/math_matrix.o  \
+	$(OBJDIR)/epi/math_vector.o  \
+	$(OBJDIR)/epi/math_random.o  \
+	$(OBJDIR)/epi/mersenne_twist.o \
+	$(OBJDIR)/epi/mus_2_midi.o   \
+	$(OBJDIR)/epi/path.o         \
+	$(OBJDIR)/epi/str_format.o   \
+	$(OBJDIR)/epi/sound_data.o   \
+	$(OBJDIR)/epi/sound_gather.o \
+	$(OBJDIR)/epi/sound_wav.o    \
+	$(OBJDIR)/epi/timestamp.o    \
+	$(OBJDIR)/epi/utility.o      \
+	$(OBJDIR)/epi/epi_linux.o    \
+	$(OBJDIR)/epi/filesystem_linux.o
+
+$(OBJDIR)/epi/%.o: epi/%.cc
+	$(CXX) $(CFLAGS) -o $@ -c $< 
+
  
 
-# POSIX build
-obj_linux/unix_net.o : 			sys/unix_net.cc
-	$(CXX) $(CFLAGS_CLIENT) -o $@ -c $< 
- 
-obj_linux/posix.o :	  			sys/posix.cc
-	$(CXX) $(CFLAGS_CLIENT) -o $@ -c $< 
-
-obj_linux/system.o :  			sys/system.cc
-	$(CXX) $(CFLAGS_CLIENT) -o $@ -c $< 
- 
-obj_linux/glob.o :  			sys/glob.cc
-	$(CXX) $(CFLAGS_CLIENT) -o $@ -c $< 
-
-obj_linux/i_menu.o :   			sys/i_menu.cc
-	$(CXX) $(CFLAGS_CLIENT) -o $@ -c $< 
-
-obj_linux/i_refresh.o :     	sys/i_refresh.cc
-	$(CXX) $(CFLAGS_CLIENT) -o $@ -c $< 
-
-obj_linux/i_opengl.o:		sys/i_opengl.cc
-	$(CXX) $(CFLAGS_REFGL) -o $@ -c $<
- 
-
-# ----------
-
-# SDL Objects
-SDL_OBJS= \
-	obj_linux/i_cd.o \
-	obj_linux/i_sound.o  \
-	obj_linux/i_video.o \
-	obj_linux/abi.o
-
-obj_linux/i_cd.o :     				sys/i_cd.cc
-	$(CXX) $(CFLAGS_CLIENT) $(CFLAGS_SDL) -o $@ -c $<
-
-obj_linux/i_sound.o : 	 			sys/i_sound.cc
-	$(CXX) $(CFLAGS_CLIENT) $(CFLAGS_SDL) -o $@ -c $<  
-
-obj_linux/i_video.o:				sys/i_video.cc
-	$(CXX) $(CFLAGS_REFGL) $(CFLAGS_SDL) -o $@ -c $<
-
-obj_linux/abi.o:					sys/abi.cc
-	$(CXX) $(CFLAGS_REFGL) -o $@ -c $<
- 
-
-# ----------
- 
-# OpenGL refresher objects
-REFGL_OBJS = \
-	obj_linux/gl_draw.o \
-	obj_linux/gl_image.o \
-	obj_linux/gl_light.o \
-	obj_linux/gl_mesh.o \
-	obj_linux/gl_model.o \
-	obj_linux/gl_main.o \
-	obj_linux/gl_misc.o \
-	obj_linux/gl_surf.o \
-	obj_linux/gl_warp.o
-
-# OpenGL refresher build
-obj_linux/gl_draw.o:						ref_gl/gl_draw.cc
-	$(CXX) $(CFLAGS_REFGL) -o $@ -c $<
-
-obj_linux/gl_image.o:					ref_gl/gl_image.cc
-	$(CXX) $(CFLAGS_REFGL) -o $@ -c $<
+# ---------- FINAL LINK STEP -----------
   
-obj_linux/gl_light.o:					ref_gl/gl_light.cc
-	$(CXX) $(CFLAGS_REFGL) -o $@ -c $<
-  
-obj_linux/gl_mesh.o:						ref_gl/gl_mesh.cc
-	$(CXX) $(CFLAGS_REFGL) -o $@ -c $<
-  
-obj_linux/gl_model.o:   					ref_gl/gl_model.cc
-	$(CXX) $(CFLAGS_REFGL) -o $@ -c $<
-  
-obj_linux/gl_main.o:   					ref_gl/gl_main.cc
-	$(CXX) $(CFLAGS_REFGL) -o $@ -c $<
-  
-obj_linux/gl_misc.o:   					ref_gl/gl_misc.cc
-	$(CXX) $(CFLAGS_REFGL) -o $@ -c $<
-
-obj_linux/gl_surf.o:   					ref_gl/gl_surf.cc
-	$(CXX) $(CFLAGS_REFGL) -o $@ -c $<
-
-obj_linux/gl_warp.o:						ref_gl/gl_warp.cc
-	$(CXX) $(CFLAGS_REFGL) -o $@ -c $<
-
-
-# ----------
- 
-# Software refresher objects
-REFSOFT_OBJS = \
-	obj_linux/r_aclip.o  \
-	obj_linux/r_alias.o  \
-	obj_linux/r_bsp.o    \
-	obj_linux/r_colors.o \
-	obj_linux/r_draw.o   \
-	obj_linux/r_edge.o   \
-	obj_linux/r_image.o  \
-	obj_linux/r_light.o  \
-	obj_linux/r_main.o   \
-	obj_linux/r_misc.o   \
-	obj_linux/r_model.o  \
-	obj_linux/r_part.o   \
-	obj_linux/r_poly.o   \
-	obj_linux/r_polyse.o \
-	obj_linux/r_rast.o   \
-	obj_linux/r_scan.o   \
-	obj_linux/r_surf.o
-
-obj_linux/r_aclip.o:		ref_soft/r_aclip.cc
-	$(CXX) $(CFLAGS_REFSOFT) -o $@ -c $<
-
-obj_linux/r_alias.o:		ref_soft/r_alias.cc
-	$(CXX) $(CFLAGS_REFSOFT) -o $@ -c $<
-
-obj_linux/r_bsp.o:			ref_soft/r_bsp.cc
-	$(CXX) $(CFLAGS_REFSOFT) -o $@ -c $<
-
-obj_linux/r_colors.o:			ref_soft/r_colors.cc
-	$(CXX) $(CFLAGS_REFSOFT) -o $@ -c $<
-
-obj_linux/r_draw.o:			ref_soft/r_draw.cc
-	$(CXX) $(CFLAGS_REFSOFT) -o $@ -c $<
-
-obj_linux/r_edge.o:			ref_soft/r_edge.cc
-	$(CXX) $(CFLAGS_REFSOFT) -o $@ -c $<
-
-obj_linux/r_image.o:		ref_soft/r_image.cc
-	$(CXX) $(CFLAGS_REFSOFT) -o $@ -c $<
-
-obj_linux/r_light.o:		ref_soft/r_light.cc
-	$(CXX) $(CFLAGS_REFSOFT) -o $@ -c $<
-
-obj_linux/r_main.o:			ref_soft/r_main.cc
-	$(CXX) $(CFLAGS_REFSOFT) -o $@ -c $<
-
-obj_linux/r_misc.o:			ref_soft/r_misc.cc
-	$(CXX) $(CFLAGS_REFSOFT) -o $@ -c $<
-
-obj_linux/r_model.o:		ref_soft/r_model.cc
-	$(CXX) $(CFLAGS_REFSOFT) -o $@ -c $<
-
-obj_linux/r_part.o:			ref_soft/r_part.cc
-	$(CXX) $(CFLAGS_REFSOFT) -o $@ -c $<
-
-obj_linux/r_poly.o:			ref_soft/r_poly.cc
-	$(CXX) $(CFLAGS_REFSOFT) -o $@ -c $<
-
-obj_linux/r_polyse.o:		ref_soft/r_polyse.cc
-	$(CXX) $(CFLAGS_REFSOFT) -o $@ -c $<
-
-obj_linux/r_rast.o:			ref_soft/r_rast.cc
-	$(CXX) $(CFLAGS_REFSOFT) -o $@ -c $<
-
-obj_linux/r_scan.o:			ref_soft/r_scan.cc
-	$(CXX) $(CFLAGS_REFSOFT) -o $@ -c $<
-
-obj_linux/r_sprite.o:		ref_soft/r_sprite.cc
-	$(CXX) $(CFLAGS_REFSOFT) -o $@ -c $<
-
-obj_linux/r_surf.o:			ref_soft/r_surf.cc
-	$(CXX) $(CFLAGS_REFSOFT) -o $@ -c $<
-
-
-# ----------
-
-# Quake II object
-BASEQ2_OBJS = \
-  obj_linux/g_ai.o \
-	obj_linux/g_chase.o \
-	obj_linux/g_cmds.o \
-	obj_linux/g_combat.o \
-	obj_linux/g_func.o \
-	obj_linux/g_items.o \
-	obj_linux/g_main.o \
-	obj_linux/g_misc.o \
-	obj_linux/g_monster.o \
-	obj_linux/g_phys.o \
-	obj_linux/g_save.o \
-	obj_linux/g_spawn.o \
-	obj_linux/g_svcmds.o \
-	obj_linux/g_target.o \
-	obj_linux/g_trigger.o \
-	obj_linux/g_utils.o \
-	obj_linux/g_weapon.o \
-	obj_linux/g_turret.o \
-	obj_linux/m_actor.o \
-	obj_linux/m_flash.o \
-	obj_linux/m_chick.o \
-	obj_linux/m_move.o \
-	obj_linux/m_berserk.o \
-	obj_linux/m_boss2.o \
-	obj_linux/m_boss31.o \
-	obj_linux/m_boss32.o \
-	obj_linux/m_boss3.o \
-	obj_linux/m_brain.o \
-	obj_linux/m_flipper.o \
-	obj_linux/m_float.o \
-	obj_linux/m_flyer.o \
-	obj_linux/m_gladiator.o \
-	obj_linux/m_gunner.o \
-	obj_linux/m_hover.o \
-	obj_linux/m_infantry.o \
-	obj_linux/m_insane.o \
-	obj_linux/m_medic.o \
-	obj_linux/m_mutant.o \
-	obj_linux/m_parasite.o \
-	obj_linux/m_soldier.o \
-	obj_linux/m_supertank.o \
-	obj_linux/m_tank.o \
-	obj_linux/p_client.o \
-	obj_linux/p_hud.o \
-	obj_linux/p_trail.o \
-	obj_linux/p_view.o \
-	obj_linux/p_weapon.o
-
-# Quake II build
-obj_linux/g_ai.o:					game/g_ai.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $<
-
-obj_linux/g_chase.o:					game/g_chase.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $<
-
-obj_linux/g_cmds.o:					game/g_cmds.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $<
-
-obj_linux/g_combat.o:   				game/g_combat.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $<
-
-obj_linux/g_func.o:					game/g_func.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $<
-
-obj_linux/g_items.o:					game/g_items.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $<
-
-obj_linux/g_main.o:					game/g_main.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $<
-
-obj_linux/g_misc.o:					game/g_misc.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $<
-
-obj_linux/g_monster.o:  				game/g_monster.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $<
-
-obj_linux/g_phys.o:					game/g_phys.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $<
-
-obj_linux/g_save.o:					game/g_save.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $<
-
-obj_linux/g_spawn.o:					game/g_spawn.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $<
-
-obj_linux/g_svcmds.o:   				game/g_svcmds.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $<
-
-obj_linux/g_target.o:   				game/g_target.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $<
-
-obj_linux/g_trigger.o:  				game/g_trigger.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $<
-
-obj_linux/g_turret.o:   				game/g_turret.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $<
-
-obj_linux/g_utils.o:					game/g_utils.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $<
-
-obj_linux/g_weapon.o:  				game/g_weapon.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $<
-
-obj_linux/m_actor.o:					game/m_actor.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $<
-
-obj_linux/m_berserk.o:		   		game/m_berserk.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $<
-
-obj_linux/m_boss2.o:					game/m_boss2.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $<
-
-obj_linux/m_boss3.o:					game/m_boss3.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $<
-
-obj_linux/m_boss31.o:		   		game/m_boss31.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $<
-
-obj_linux/m_boss32.o:		   		game/m_boss32.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $<
-
-obj_linux/m_brain.o:			 	  	game/m_brain.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $< 
-
-obj_linux/m_chick.o:					game/m_chick.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $<
-
-obj_linux/m_flash.o:					game/m_flash.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $<
-
-obj_linux/m_flipper.o:		   		game/m_flipper.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $<
-
-obj_linux/m_float.o:					game/m_float.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $<
-
-obj_linux/m_flyer.o:					game/m_flyer.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $<
-
-obj_linux/m_gladiator.o:		   		game/m_gladiator.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $<
-
-obj_linux/m_gunner.o:		   		game/m_gunner.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $< 
-
-obj_linux/m_hover.o:			   		game/m_hover.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $<
-
-obj_linux/m_infantry.o:		   		game/m_infantry.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $<
-
-obj_linux/m_insane.o:		   		game/m_insane.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $<
-
-obj_linux/m_medic.o:					game/m_medic.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $<
-
-obj_linux/m_move.o:					game/m_move.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $<
-
-obj_linux/m_mutant.o:		   		game/m_mutant.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $<
-
-obj_linux/m_parasite.o:		   		game/m_parasite.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $< 
-
-obj_linux/m_soldier.o:		   		game/m_soldier.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $<
-
-obj_linux/m_supertank.o:		   		game/m_supertank.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $<
-
-obj_linux/m_tank.o:					game/m_tank.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $<
-
-obj_linux/p_client.o:   				game/p_client.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $<
-
-obj_linux/p_hud.o:					game/p_hud.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $<
-
-obj_linux/p_trail.o:					game/p_trail.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $<
-
-obj_linux/p_view.o:					game/p_view.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $< 
-
-obj_linux/p_weapon.o:   				game/p_weapon.cc
-	$(CXX) $(CFLAGS_GAME) -o $@ -c $<
-
- 
-
-# ----------
-  
-#  The client
-$(PROGRAM) : $(CLIENT_OBJS) $(COMMON_OBJS) $(BASEQ2_OBJS) \
-    $(SERVER_OBJS) $(POSIX_OBJS) $(SDL_OBJS) $(REFGL_OBJS)
-	$(CXX) $(CFLAGS_CLIENT) -o $@ $^ $(LDFLAGS) $(LDFLAGS_SDL)
+$(PROGRAM) : $(COAL_OBJS) \
+             $(DDF_OBJS)  \
+	     $(DEHEDGE_OBJS) \
+	     $(EDGE_OBJS) \
+	     $(EPI_OBJS)
+	$(CXX) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LDFLAGS_SDL)
 
 
 #--- editor settings ------------
