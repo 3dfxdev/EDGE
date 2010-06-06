@@ -92,6 +92,9 @@ LDFLAGS += -lwsock32 -lwinmm -lgdi32 -ldxguid -ldinput
 
 all: makedirs $(PROGRAM)
 
+stripped: $(PROGRAM)
+	i586-mingw32msvc-strip --strip-unneeded $(PROGRAM)
+
 clean:
 	rm -f $(OBJDIR)/*/*.* $(PROGRAM)
 
@@ -104,7 +107,7 @@ makedirs:
 	mkdir -p $(OBJDIR)/glbsp
 	mkdir -p $(OBJDIR)/timidity
 
-.PHONY: all clean makedirs
+.PHONY: all stripped clean makedirs
 
 
 # ---------- Coal ---------------
@@ -176,6 +179,7 @@ $(OBJDIR)/deh_edge/%.o: deh_edge/%.cc
 
 EDGE_OBJS= \
 	$(OBJDIR)/edge/main.o       \
+	$(OBJDIR)/edge/resource.o   \
 	$(OBJDIR)/edge/i_main.o     \
 	$(OBJDIR)/edge/i_ctrl.o     \
 	$(OBJDIR)/edge/i_video.o    \
@@ -282,6 +286,9 @@ EDGE_OBJS= \
 
 $(OBJDIR)/edge/main.o: main.cc
 	$(CXX) $(CFLAGS) -o $@ -c $< 
+
+$(OBJDIR)/edge/resource.o: edge32.rc
+	i586-mingw32msvc-windres $^ -o $@
 
 $(OBJDIR)/edge/%.o: src/%.cc
 	$(CXX) $(CFLAGS) -o $@ -c $< 
