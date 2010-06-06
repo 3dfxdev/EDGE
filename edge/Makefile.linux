@@ -67,6 +67,9 @@ LDFLAGS += $(shell sdl-config --libs)
 
 all: makedirs $(PROGRAM)
 
+stripped: $(PROGRAM)
+	strip --strip-unneeded $(PROGRAM)
+
 clean:
 	rm -f $(OBJDIR)/*/*.* $(PROGRAM)
 
@@ -79,7 +82,7 @@ makedirs:
 	mkdir -p $(OBJDIR)/glbsp
 	mkdir -p $(OBJDIR)/timidity
 
-.PHONY: all clean makedirs
+.PHONY: all stripped clean makedirs
 
 
 # ---------- Coal ---------------
