@@ -15,12 +15,14 @@ LIBDIR=lib_win32
 CC=i586-mingw32msvc-gcc
 CXX=i586-mingw32msvc-g++
 
-CFLAGS=-O2 -ffast-math -fno-strict-aliasing -Wall -Wno-write-strings -pipe
-
-LDFLAGS=-lm -Wl,--warn-common
-
+CFLAGS=-O2 -ffast-math -fno-strict-aliasing -Wall -Wno-write-strings
 
 CFLAGS += -I.
+
+
+LDFLAGS=-Wl,--warn-common
+
+LDFLAGS += -lmingw32 -lm
 
 
 # Operating System
@@ -30,26 +32,39 @@ CFLAGS += -DWIN32
 
 # SDL
 
-CFLAGS += $(shell sdl-config --cflags)
+CFLAGS += -I$(LIBDIR)/SDL-1.2.13/include
 
-LDFLAGS_SDL=$(shell sdl-config --libs)
+LDFLAGS += -L$(LIBDIR)/SDL-1.2.13/lib
+LDFLAGS += -lSDLmain -lSDL.dll
 
 
 # OpenGL rendering
 
-LDFLAGS += -lGL
-LDFLAGS += -L$(LIBDIR)/glew-1.4/lib -lGLEW
+CFLAGS  += -I$(LIBDIR)/glew-1.4/include
+LDFLAGS += -L$(LIBDIR)/glew-1.4/lib
+LDFLAGS += -lGLEW -lopengl32
 
 
-# PNG and JPEG
+# PNG, JPEG and ZLIB
 
-LDFLAGS += -lpng -ljpeg -lz
+CFLAGS  += -I$(LIBDIR)/libpng-1.2.12
+LDFLAGS += -lpng
+
+CFLAGS  += -I$(LIBDIR)/jpeg-6b
+LDFLAGS += -ljpeg
+
+CFLAGS  += -I$(LIBDIR)/zlib-1.2.3
+LDFLAGS += -lz
 
 
 # OGG/Vorbis
 
 CFLAGS += -DUSE_OGG
+CFLAGS += -I$(LIBDIR)/libogg-1.1.3/include
+CFLAGS += -I$(LIBDIR)/libvorbis-1.1.2/include
 
+LDFLAGS += -I$(LIBDIR)/libogg-1.1.3/include
+LDFLAGS += -I$(LIBDIR)/libvorbis-1.1.2/include
 LDFLAGS += -lvorbisfile -lvorbis -logg
 
 
@@ -59,6 +74,11 @@ CFLAGS_GLBSP=-O -Wall -fno-strict-aliasing
 
 CFLAGS_GLBSP += -DGLBSP_PLUGIN
 CFLAGS_GLBSP += -DINLINE_G=inline
+
+
+# Win32 libs
+
+LDFLAGS += -lwsock32 -lwinmm -lgdi32 -ldxguid -ldinput
 
 
 # ----------
@@ -250,9 +270,10 @@ EDGE_OBJS= \
 	$(OBJDIR)/edge/vm_coal.o    \
 	$(OBJDIR)/edge/vm_hud.o     \
 	$(OBJDIR)/edge/vm_player.o  \
-	$(OBJDIR)/edge/unx_music.o  \
-	$(OBJDIR)/edge/unx_net.o    \
-	$(OBJDIR)/edge/unx_system.o
+	$(OBJDIR)/edge/w32_music.o  \
+	$(OBJDIR)/edge/w32_mus.o    \
+	$(OBJDIR)/edge/w32_net.o    \
+	$(OBJDIR)/edge/w32_system.o
 
 $(OBJDIR)/edge/main.o: main.cc
 	$(CXX) $(CFLAGS) -o $@ -c $< 
@@ -294,8 +315,8 @@ EPI_OBJS= \
 	$(OBJDIR)/epi/sound_wav.o    \
 	$(OBJDIR)/epi/timestamp.o    \
 	$(OBJDIR)/epi/utility.o      \
-	$(OBJDIR)/epi/epi_linux.o    \
-	$(OBJDIR)/epi/filesystem_linux.o
+	$(OBJDIR)/epi/epi_win32.o    \
+	$(OBJDIR)/epi/filesystem_win32.o
 
 $(OBJDIR)/epi/%.o: epi/%.cc
 	$(CXX) $(CFLAGS) -o $@ -c $< 
@@ -345,7 +366,7 @@ $(PROGRAM) : $(COAL_OBJS) \
 	     $(EPI_OBJS) \
 	     $(GLBSP_OBJS) \
 	     $(TIMIDITY_OBJS)
-	$(CXX) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LDFLAGS_SDL)
+	$(CXX) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 
 #--- editor settings ------------

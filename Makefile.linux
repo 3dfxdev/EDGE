@@ -28,20 +28,13 @@ CFLAGS += -I.
 CFLAGS += -DLINUX
 
 
-# SDL
-
-CFLAGS += $(shell sdl-config --cflags)
-
-LDFLAGS_SDL=$(shell sdl-config --libs)
-
-
 # OpenGL rendering
 
 LDFLAGS += -lGL
 LDFLAGS += -L$(LIBDIR)/glew-1.4/lib -lGLEW
 
 
-# PNG and JPEG
+# PNG, JPEG and ZLIB
 
 LDFLAGS += -lpng -ljpeg -lz
 
@@ -59,6 +52,13 @@ CFLAGS_GLBSP=-O -Wall -fno-strict-aliasing
 
 CFLAGS_GLBSP += -DGLBSP_PLUGIN
 CFLAGS_GLBSP += -DINLINE_G=inline
+
+
+# SDL
+
+CFLAGS  += $(shell sdl-config --cflags)
+LDFLAGS += $(shell sdl-config --libs)
+
 
 
 # ----------
@@ -345,7 +345,7 @@ $(PROGRAM) : $(COAL_OBJS) \
 	     $(EPI_OBJS) \
 	     $(GLBSP_OBJS) \
 	     $(TIMIDITY_OBJS)
-	$(CXX) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LDFLAGS_SDL)
+	$(CXX) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 
 #--- editor settings ------------
