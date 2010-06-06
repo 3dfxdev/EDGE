@@ -1,21 +1,21 @@
 #
-# EDGE Makefile : LINUX version
+# EDGE Makefile : WIN32 cross-compile
 #
 
-PROGRAM=edge.linux
+PROGRAM=edge.exe
 
-OBJDIR=obj_linux
-LIBDIR=lib_linux
+OBJDIR=obj_win32
+LIBDIR=lib_win32
 
 
 # ----------
 
 # The compiler and compiler flags
 
-CC=gcc
-CXX=g++
+CC=i586-mingw32msvc-gcc
+CXX=i586-mingw32msvc-g++
 
-CFLAGS=-O0 -g3 -ffast-math -fno-strict-aliasing -Wall -Wno-write-strings -pipe
+CFLAGS=-O2 -ffast-math -fno-strict-aliasing -Wall -Wno-write-strings -pipe
 
 LDFLAGS=-lm -Wl,--warn-common
 
@@ -25,7 +25,7 @@ CFLAGS += -I.
 
 # Operating System
 
-CFLAGS += -DLINUX
+CFLAGS += -DWIN32
 
 
 # SDL
