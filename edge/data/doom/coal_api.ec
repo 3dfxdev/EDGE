@@ -120,6 +120,7 @@ module hud
     constant PURPLE = '255 0 255'
     constant CYAN   = '0 255 255'
     constant ORANGE = '255 160 0'
+    constant GRAY   = '128 128 128'
 
     // automap options
     constant AM_GRID     = 1   // also a color
