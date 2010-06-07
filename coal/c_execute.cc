@@ -112,7 +112,7 @@ void real_vm_c::SetTrace(bool enable)
 
 int real_vm_c::FindFunction(const char *func_name)
 {
-	for (int i = 1; i < (int)functions.size(); i++)
+	for (int i = (int)functions.size()-1; i >= 1; i--)
 	{
 		function_t *f = functions[i];
 
