@@ -8,6 +8,10 @@ CHANGELOG for EDGE 1.35 (since 1.34)
 Bugs fixed
 ----------
 
++ fixed serious bug with COAL scripts, where replacing the draw_all()
+  and begin_level() functions did not work -- EDGE would always use
+  the original one.
+
 - fixed music on MAP32 of DOOM II
 
 
@@ -21,7 +25,12 @@ NONE (YET)
 General Improvements
 --------------------
 
-- Use Makefiles for building the code, ditching SCons.
+- use Makefiles for building the code, ditching SCons.
+
+- renamed "Host Net Game" menu to "Advanced Start" and removed
+  the references to networking stuff and the player list screen,
+  so that people don't get the impression that Multiplayer is
+  supported (it is not).
 
 
 
