@@ -185,7 +185,7 @@ static void DrawColumnIntoEpiBlock(image_c *rim, epi::image_data_c *img,
 static epi::image_data_c *ReadFlatAsEpiBlock(image_c *rim)
 {
 	SYS_ASSERT(rim->source_type == IMSRC_Flat ||
-				rim->source_type == IMSRC_Raw320x200);
+			   rim->source_type == IMSRC_Raw320x200);
 
 	int tw = MAX(rim->total_w, 1);
 	int th = MAX(rim->total_h, 1);
@@ -316,7 +316,8 @@ static epi::image_data_c *ReadTextureAsEpiBlock(image_c *rim)
 static epi::image_data_c *ReadPatchAsEpiBlock(image_c *rim)
 {
 	SYS_ASSERT(rim->source_type == IMSRC_Graphic ||
-				rim->source_type == IMSRC_Sprite);
+			   rim->source_type == IMSRC_Sprite  ||
+			   rim->source_type == IMSRC_TX_HI);
 
 	int tw = rim->total_w;
 	int th = rim->total_h;
@@ -586,6 +587,7 @@ epi::image_data_c *ReadAsEpiBlock(image_c *rim)
 
 		case IMSRC_Graphic:
 		case IMSRC_Sprite:
+		case IMSRC_TX_HI:
 			return ReadPatchAsEpiBlock(rim);
 
 		case IMSRC_Dummy:

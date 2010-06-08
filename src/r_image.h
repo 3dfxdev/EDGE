@@ -96,6 +96,7 @@ public:
 	{
 		// case IMSRC_Graphic:
 		// case IMSRC_Sprite:
+		// case IMSRC_TX_HI:
 		struct { int lump; } graphic;
 
 		// case IMSRC_Flat:
@@ -207,6 +208,7 @@ void W_ImageCreateFlats(int *lumps, int number);
 void W_ImageCreateTextures(struct texturedef_s ** defs, int number);
 const image_c *W_ImageCreateSprite(const char *name, int lump, bool is_weapon);
 void W_ImageCreateUser(void);
+void W_ImageProcessTX(void);
 void W_AnimateImageSet(const image_c ** images, int number, int speed);
 void W_DrawSavePic(const byte *pixels);
 
@@ -248,6 +250,9 @@ typedef enum
 
 	// INTERNAL ONLY: Source is from IMAGE.DDF
 	IMSRC_User,
+
+	// INTERNAL ONLY: Source is from TX_START/END or HI_START/END
+	IMSRC_TX_HI,
 
 	// INTERNAL ONLY: Source is dummy image
 	IMSRC_Dummy,
