@@ -97,7 +97,7 @@ public:
 		// case IMSRC_Graphic:
 		// case IMSRC_Sprite:
 		// case IMSRC_TX_HI:
-		struct { int lump; } graphic;
+		struct { int lump; bool is_png; } graphic;
 
 		// case IMSRC_Flat:
 		// case IMSRC_Raw320x200:

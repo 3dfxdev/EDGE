@@ -247,6 +247,9 @@ lumpinfo_t *lumpinfo;
 static int *lumpmap = NULL;
 int numlumps;
 
+#define LUMP_MAP_CMP(a) (strncmp(lumpinfo[lumpmap[a]].name, buf, 8))
+
+
 typedef struct lumpheader_s
 {
 #ifdef DEVELOPERS
@@ -510,6 +513,7 @@ static void SortLumps(void)
 	QSORT(int, lumpmap, numlumps, CUTOFF);
 #undef CMP
 
+#if 0
 	for (i=1; i < numlumps; i++)
 	{
 		int a = lumpmap[i - 1];
@@ -518,6 +522,7 @@ static void SortLumps(void)
 		if (strncmp(lumpinfo[a].name, lumpinfo[b].name, 8) == 0)
 			lumpmap[i] = lumpmap[i - 1];
 	}
+#endif
 }
 
 //
@@ -1515,6 +1520,29 @@ int W_GetPaletteForLump(int lump)
 	return -1;
 }
 
+
+static inline int QuickFindLumpMap(char *buf)
+{
+	int i;
+
+#define CMP(a)  (LUMP_MAP_CMP(a) < 0)
+	BSEARCH(numlumps, i);
+#undef CMP
+
+	if (i < 0 || i >= numlumps || LUMP_MAP_CMP(i) != 0)
+	{
+		// not found (nothing has that name)
+		return -1;
+	}
+
+	// jump to first matching name
+	while (i > 0 && LUMP_MAP_CMP(i-1) == 0)
+		i--;
+
+	return i;
+}
+
+
 //
 // W_CheckNumForName
 //
@@ -1538,18 +1566,14 @@ int W_CheckNumForName2(const char *name)
 	}
 	buf[i] = 0;
 
-#define CMP(a) (strncmp(lumpinfo[lumpmap[a]].name, buf, 8) < 0)
-	BSEARCH(numlumps, i);
-#undef CMP
+	i = QuickFindLumpMap(buf);
 
-	if (i >= 0 && i < numlumps &&
-		strncmp(lumpinfo[lumpmap[i]].name, buf, 8) == 0)
-	{
-		return lumpmap[i];
-	}
+	if (i < 0)
+		return -1; // not found
 
-	return -1;  // not found
+	return lumpmap[i];
 }
+
 
 int W_CheckNumForName_GFX(const char *name)
 {
@@ -1624,65 +1648,12 @@ int W_CheckNumForTexPatch(const char *name)
 	}
 	buf[i] = 0;
 
-#if 0  // OLD (VERY SLOW) METHOD
-	for (int file = data_files.GetSize()-1; file >= 0; file--)
-	{
-		data_file_c *df = data_files[file];
+	i = QuickFindLumpMap(buf);
 
-		// look for patch name
-		for (i=0; i < df->patch_lumps.GetSize(); i++)
-		{
-			if (strncmp(buf, W_GetLumpName(df->patch_lumps[i]), 8) == 0)
-				break;
-		}
+	if (i < 0)
+		return -1;  // not found
 
-		if (i < df->patch_lumps.GetSize())
-			return df->patch_lumps[i];
-
-		// look for sprite name
-		for (i=0; i < df->sprite_lumps.GetSize(); i++)
-		{
-			if (strncmp(buf, W_GetLumpName(df->sprite_lumps[i]), 8) == 0)
-				break;
-		}
-
-		if (i < df->sprite_lumps.GetSize())
-			return df->sprite_lumps[i];
-
-		// check all other lumps
-		for (i=0; i < numlumps; i++)
-		{
-			lumpinfo_t *l = lumpinfo + i;
-
-			if (l->file != file)
-				continue;
-
-			if (strncmp(buf, W_GetLumpName(i), 8) == 0)
-				break;
-		}
-
-		if (i < numlumps)
-			return i;
-	}
-#endif
-
-#define CMP(a) (strncmp(lumpinfo[lumpmap[a]].name, buf, 8) < 0)
-	BSEARCH(numlumps, i);
-#undef CMP
-
-#define STR_CMP(a) (strncmp(lumpinfo[lumpmap[a]].name, buf, 8))
-
-	if (i < 0 || i >= numlumps || STR_CMP(i) != 0)
-	{
-		// not found (nothing has that name)
-		return -1;
-	}
-
-	// jump to last matching name
-	while (i+1 < numlumps && STR_CMP(i+1) == 0)
-		i++;
-	
-	for (; i >= 0 && STR_CMP(i) == 0; i--)
+	for (; i < numlumps && LUMP_MAP_CMP(i) == 0; i++)
 	{
 		lumpinfo_t *L = lumpinfo + lumpmap[i];
 
@@ -1696,9 +1667,7 @@ int W_CheckNumForTexPatch(const char *name)
 		}
 	}
 
-	return -1;
-
-#undef STR_CMP
+	return -1;  // nothing suitable
 }
 
 //

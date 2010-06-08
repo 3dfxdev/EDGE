@@ -319,6 +319,25 @@ static epi::image_data_c *ReadPatchAsEpiBlock(image_c *rim)
 			   rim->source_type == IMSRC_Sprite  ||
 			   rim->source_type == IMSRC_TX_HI);
 
+	int lump = rim->source.graphic.lump;
+
+	// handle PNG images
+
+	if (rim->source.graphic.is_png)
+	{
+		epi::file_c * f = W_OpenLump(lump);
+
+		epi::image_data_c *img = epi::PNG_Load(f, epi::IRF_Round_POW2);
+
+		// close it
+		delete f;
+
+		if (! img)
+			I_Error("Error loading PNG image in lump: %s\n", W_GetLumpName(lump));
+				
+		return img;
+	}
+
 	int tw = rim->total_w;
 	int th = rim->total_h;
 
@@ -337,9 +356,9 @@ static epi::image_data_c *ReadPatchAsEpiBlock(image_c *rim)
 		img->Clear(TRANS_PIXEL);
 
 	// Composite the columns into the block.
-	const patch_t *realpatch = (const patch_t*)W_CacheLumpNum(rim->source.graphic.lump);
+	const patch_t *realpatch = (const patch_t*)W_CacheLumpNum(lump);
 
-	int realsize = W_LumpLength(rim->source.graphic.lump);
+	int realsize = W_LumpLength(lump);
 
 	SYS_ASSERT(rim->actual_w == EPI_LE_S16(realpatch->width));
 	SYS_ASSERT(rim->actual_h == EPI_LE_S16(realpatch->height));
