@@ -659,7 +659,7 @@ bool SR_MobjGetState(void *storage, int index, void *extra)
 			base = actual->spawn_state;
 		else if (actual->meander_state)
 			base = actual->meander_state;
-		else if (actual->state_grp.empty())
+		else if (actual->state_grp.size() > 0)
 			base = actual->state_grp[0].first;
 		else
 			base = 1;

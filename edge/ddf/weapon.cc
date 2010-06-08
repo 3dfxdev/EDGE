@@ -276,7 +276,7 @@ static bool WeaponStartEntry(const char *name)
 	// instantiate the static entries
 	buffer_weapon.Default();
 
-	DDF_StateBeginRange(buffer_mobj.state_grp);
+	DDF_StateBeginRange(buffer_weapon.state_grp);
 
 	return (existing != NULL);
 }
