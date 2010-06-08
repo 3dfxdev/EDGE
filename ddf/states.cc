@@ -284,7 +284,7 @@ statenum_t DDF_StateFindLabel(const state_group_t& group,
 	{
 		for (statenum_t i = group[g].last; i >= group[g].first; i--)
 		{
-			if (states[i].label)
+			if (! states[i].label)
 				continue;
 
 			if (DDF_CompareName(states[i].label, label) == 0)
@@ -312,6 +312,10 @@ void DDF_StateReadState(const char *info, const char *label,
 						const char *redir, const actioncode_t *action_list,
 						bool is_weapon)
 {
+	SYS_ASSERT(group.size() > 0);
+
+	state_range_t& range = group.back();
+
 	int i, j;
 
 	char action_name[128];
@@ -342,10 +346,10 @@ void DDF_StateReadState(const char *info, const char *label,
 
 	if (stateinfo[2].empty())
 	{
-		if ((*first) == 0)
+		if (! range.first)
 			DDF_Error("Redirector used without any states (`%s')\n", info);
 
-		cur = &states[(*last)];
+		cur = &states[range.last];
 
 		SYS_ASSERT(! stateinfo[0].empty());
 
@@ -374,13 +378,13 @@ void DDF_StateReadState(const char *info, const char *label,
 	// initialise with defaults
 	cur[0] = template_state;
   
-	if ((*first) == 0)
+	if (range.first == 0)
 	{
 		// very first state for thing/weapon
-		(*first) = num_states-1;
+		range.first = num_states-1;
 	}
 
-	(*last) = num_states-1;
+	range.last = num_states-1;
   
 	if (index == 0)
 	{
