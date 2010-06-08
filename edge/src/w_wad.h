@@ -106,6 +106,7 @@ int W_FindFlatSequence(const char *start, const char *end,
     int *s_offset, int *e_offset);
 epi::u32array_c& W_GetListLumps(int file, lumplist_e which);
 void W_GetTextureLumps(int file, wadtex_resource_c *res);
+void W_ProcessTX_HI(void);
 int W_GetNumFiles(void);
 int W_GetFileForLump(int lump);
 void W_ShowLumps(int for_file, const char *match);
