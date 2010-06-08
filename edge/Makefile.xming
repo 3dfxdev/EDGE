@@ -178,7 +178,6 @@ $(OBJDIR)/deh_edge/%.o: deh_edge/%.cc
 # ---------- EDGE ---------------
 
 EDGE_OBJS= \
-	$(OBJDIR)/edge/resource.o   \
 	$(OBJDIR)/edge/i_main.o     \
 	$(OBJDIR)/edge/i_ctrl.o     \
 	$(OBJDIR)/edge/i_video.o    \
@@ -281,9 +280,10 @@ EDGE_OBJS= \
 	$(OBJDIR)/edge/w32_music.o  \
 	$(OBJDIR)/edge/w32_mus.o    \
 	$(OBJDIR)/edge/w32_net.o    \
+	$(OBJDIR)/edge/w32_res.o    \
 	$(OBJDIR)/edge/w32_system.o
 
-$(OBJDIR)/edge/resource.o: edge32.rc
+$(OBJDIR)/edge/w32_res.o: src/w32_res.rc
 	i586-mingw32msvc-windres $^ -o $@
 
 $(OBJDIR)/edge/%.o: src/%.cc
