@@ -646,16 +646,10 @@ bool SR_MobjGetState(void *storage, int index, void *extra)
 	// find base state
 	offset = strtol(off_p, NULL, 0) - 1;
 
-	for (base=actual->first_state; base <= actual->last_state; base++)
-	{
-		if (! states[base].label)
-			continue;
-
-		if (DDF_CompareName(base_p, states[base].label) == 0)
-			break;
-	}
-
-	if (base > actual->last_state)
+	base = DDF_StateFindLabel(actual->first_state,
+	                          actual->last_state,
+							  base_p, true /* quiet */);
+	if (! base)
 	{
 		I_Warning("LOADGAME: no such label `%s' for state.\n", base_p);
 		offset = 0;

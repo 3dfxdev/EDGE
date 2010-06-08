@@ -548,18 +548,9 @@ bool P_SetMobjStateDeferred(mobj_t * mo, statenum_t stnum, int tic_skip)
 //
 statenum_t P_MobjFindLabel(mobj_t * mobj, const char *label)
 {
-	int i;
-
-	for (i=mobj->info->first_state; i <= mobj->info->last_state; i++)
-	{
-		if (! states[i].label)
-			continue;
-
-		if (DDF_CompareName(states[i].label, label) == 0)
-			return i;
-	}
-
-	return S_NULL;
+	return DDF_StateFindLabel(mobj->info->first_state,
+	                          mobj->info->last_state,
+							  label, true /* quiet */);
 }
 
 //

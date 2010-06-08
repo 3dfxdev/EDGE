@@ -277,9 +277,10 @@ static int StateGetRedirector(const char *redir)
 //
 // DDF_StateFindLabel
 //
-int DDF_StateFindLabel(int first, int last, const char *label)
+statenum_t DDF_StateFindLabel(statenum_t first, statenum_t last,
+                              const char *label, bool quiet)
 {
-	int i;
+	statenum_t i;
 
 	for (i=first; i <= last; i++)
 	{
@@ -296,8 +297,10 @@ int DDF_StateFindLabel(int first, int last, const char *label)
 		return DDF_StateFindLabel(first, last, "SPAWN");
 	}
   
-	DDF_Error("Unknown label `%s' (object has no such frames).\n", label);
-	return 0;
+	if (! quiet)
+		DDF_Error("Unknown label '%s' (object has no such frames).\n", label);
+
+	return S_NULL;
 }
 
 //
