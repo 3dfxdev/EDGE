@@ -673,7 +673,7 @@ void W_ImageAddTX(int lump, const char *name, bool hires)
 {
 	if (hires)
 	{
-		image_c *rim = do_Lookup(real_textures, name, -2);
+		const image_c *rim = do_Lookup(real_textures, name, -2);
 		if (rim)
 		{
 			AddImageGraphic(name, IMSRC_TX_HI, lump, real_textures, rim);
@@ -687,8 +687,9 @@ void W_ImageAddTX(int lump, const char *name, bool hires)
 			return;
 		}
 
-		rim = do_Lookup(real_graphics, name, -2);
-		if (true) //!!!!!!!! FIXME FIXME
+		// we do it this way to cause the original graphic to be loaded
+		rim = W_ImageLookup(name, INS_Graphic, ILF_Exact|ILF_Null);
+		if (rim)
 		{
 			AddImageGraphic(name, IMSRC_TX_HI, lump, real_graphics, rim);
 			return;
@@ -1117,8 +1118,6 @@ static const image_c *BackupGraphic(const char *gfx_name, int flags)
 
 		if (i >= 0)
 		{
-			// TODO: if hires lump exists with same name, use it
-
 			rim = AddImageGraphic(gfx_name, IMSRC_Graphic, i, real_graphics);
 			if (rim)
 				return rim;
@@ -1293,8 +1292,11 @@ void W_ImageMakeSaveString(const image_c *image, char *type, char *namebuf)
 		case IMSRC_Raw320x200:
 		case IMSRC_Graphic: (*type) = 'P'; return;
 
+		case IMSRC_TX_HI:
 		case IMSRC_Texture: (*type) = 'T'; return;
+
 		case IMSRC_Flat:    (*type) = 'F'; return;
+
 		case IMSRC_Sprite:  (*type) = 'S'; return;
 
 		case IMSRC_Dummy:   (*type) = 'd'; return;
