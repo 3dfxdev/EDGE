@@ -95,7 +95,6 @@ static void InstallTextureLumps(int file, const wadtex_resource_c *WT)
 	const int *maptex;
 	const int *maptex1;
 	const int *maptex2;
-	epi::s32array_c patchlookup;
 	const int *directory;
 
 	const char *names;
@@ -110,7 +109,7 @@ static void InstallTextureLumps(int file, const wadtex_resource_c *WT)
 	nummappatches = EPI_LE_S32(*((const int *)names));  // Eww...
 	name_p = names + 4;
 
-	patchlookup.Size(nummappatches);
+	int *patchlookup = new int[nummappatches+1];
 
 	for (i = 0; i < nummappatches; i++)
 	{
@@ -118,7 +117,7 @@ static void InstallTextureLumps(int file, const wadtex_resource_c *WT)
 
 		Z_StrNCpy(name, (const char*)(name_p + i * 8), 8);
 
-		patchlookup.Insert(W_CheckNumForTexPatch(name));
+		patchlookup[i] = W_CheckNumForTexPatch(name);
 	}
 
 	W_DoneWithLump(names);
@@ -200,9 +199,11 @@ static void InstallTextureLumps(int file, const wadtex_resource_c *WT)
 
 		for (j = 0; j < texture->patchcount; j++, mpatch++, patch++)
 		{
+			int pname = EPI_LE_S16(mpatch->pname);
+
 			patch->originx = EPI_LE_S16(mpatch->x_origin);
 			patch->originy = EPI_LE_S16(mpatch->y_origin);
-			patch->patch = patchlookup[EPI_LE_S16(mpatch->pname)];
+			patch->patch   = patchlookup[pname];
 
 			// work-around for strange Y offset in SKY1 of DOOM 1 
 			if (is_sky && patch->originy < 0)
@@ -210,7 +211,8 @@ static void InstallTextureLumps(int file, const wadtex_resource_c *WT)
 
 			if (patch->patch == -1)
 			{
-				I_Warning("Missing patch in texture \'%.8s\'\n", texture->name);
+				I_Warning("Missing patch '%.8s' in texture \'%.8s\'\n",
+						  name_p + pname*8, texture->name);
 
 				// mark texture as a dud
 				texture->patchcount = 0;
@@ -224,6 +226,8 @@ static void InstallTextureLumps(int file, const wadtex_resource_c *WT)
 
 	if (maptex2)
 		W_DoneWithLump(maptex2);
+	
+	delete[] patchlookup;
 }
 
 //

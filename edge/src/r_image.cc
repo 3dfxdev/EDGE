@@ -312,16 +312,21 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 
 	int lump_len = W_LumpLength(lump);
 
+	// FIXME: do this merely with epi::file_c
 	byte *data = (byte *) W_CacheLumpNum(lump);
 
 	// determine info, and whether it is PNG or DOOM_PATCH
 	int width=0, height=0;
 	int offset_x=0, offset_y=0;
-	bool solid = false;
+
+	bool is_png = false;
+	bool solid  = false;
   
 	if (epi::PNG_IsDataPNG(data, lump_len))
 	{
 		W_DoneWithLump(data);
+
+		is_png = true;
 
 		epi::file_c * f = W_OpenLump(lump);
 
@@ -382,6 +387,7 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 
 	rim->source_type = type;
 	rim->source.graphic.lump = lump;
+	rim->source.graphic.is_png = is_png;
 	rim->source_palette = W_GetPaletteForLump(lump);
 
 	if (replaces)
@@ -682,13 +688,13 @@ void W_ImageAddTX(int lump, const char *name, bool hires)
 		}
 
 		rim = do_Lookup(real_graphics, name, -2);
-		if (rim)
+		if (true) //!!!!!!!! FIXME FIXME
 		{
 			AddImageGraphic(name, IMSRC_TX_HI, lump, real_graphics, rim);
 			return;
 		}
 
-		I_Warning("HIRES replacement '%s' has no counterpart!\n", name);
+		I_Warning("HIRES replacement '%s' has no counterpart.\n", name);
 	}
 
 	AddImageGraphic(name, IMSRC_TX_HI, lump, real_textures);
