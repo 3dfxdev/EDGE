@@ -27,6 +27,9 @@ namespace epi
 
 const int PNG_DEF_COMPRESS = 4;
 
+bool PNG_IsDataPNG(const byte *data, int length);
+// returns true if the data looks like a PNG file.
+
 image_data_c *PNG_Load(file_c *f, int read_flags);
 // loads the given PNG image.  Returns 0 if something went wrong.
 // The image will be RGB or RGBA (never paletted).  The size of

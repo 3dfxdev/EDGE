@@ -43,6 +43,17 @@ namespace PNG
 }  // namespace PNG
 
 
+bool PNG_IsDataPNG(const byte *data, int length)
+{
+	if (length < CHECK_PNG_BYTES)
+		return false;
+
+	// BLEH, the PNG API is not using const here
+
+	return png_sig_cmp((png_bytep) data, (png_size_t)0, CHECK_PNG_BYTES) == 0;
+}
+
+
 image_data_c *PNG_Load(file_c *f, int read_flags)
 {
 	/* -AJA- all these volatiles here may seem strange.  They are needed
