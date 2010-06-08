@@ -2032,6 +2032,38 @@ const char *W_GetLumpName(int lump)
 }
 
 
+void W_ProcessTX_HI(void)
+{
+	// Add the textures that occur in between TX_START/TX_END markers
+
+	// TODO: collect names, remove duplicates
+
+	for (int file = 0; file < (int)data_files.size(); file++)
+	{
+		data_file_c *df = data_files[file];
+
+		for (int i = 0; i < (int)df->tx_lumps.GetSize(); i++)
+		{
+			int lump = df->tx_lumps[i];
+			W_ImageAddTX(lump, W_GetLumpName(lump), false);
+		}
+	}
+
+	// Add the textures that occur in between HI_START/HI_END markers
+
+	for (int file = 0; file < (int)data_files.size(); file++)
+	{
+		data_file_c *df = data_files[file];
+
+		for (int i = 0; i < (int)df->hires_lumps.GetSize(); i++)
+		{
+			int lump = df->hires_lumps[i];
+			W_ImageAddTX(lump, W_GetLumpName(lump), true);
+		}
+	}
+}
+
+
 static const char *FileKind_Strings[] =
 {
 	"iwad", "pwad", "edge", "gwa", "hwa",

@@ -114,7 +114,8 @@ typedef std::list<image_c *> real_image_container_c;
 
 
 static image_c *do_Lookup(real_image_container_c& bucket, const char *name,
-                          int source_type = -1)
+                          int source_type = -1
+						  /* use -2 to prevent USER override */)
 {
 	// for a normal lookup, we want USER images to override
 	if (source_type == -1)
@@ -131,7 +132,7 @@ static image_c *do_Lookup(real_image_container_c& bucket, const char *name,
 	{
 		image_c *rim = *it;
 	
-		if (source_type != -1 && source_type != (int)rim->source_type)
+		if (source_type >= 0 && source_type != (int)rim->source_type)
 			continue;
 
 		if (stricmp(name, rim->name) == 0)
@@ -303,7 +304,9 @@ static image_c *CreateDummyImage(const char *name, rgbcol_t fg, rgbcol_t bg)
 }
 
 
-static image_c *AddImageGraphic(const char *name, image_source_e type, int lump)
+static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
+								real_image_container_c& container,
+								const image_c *replaces = NULL)
 {
 	/* used for Sprites too */
 
@@ -381,12 +384,13 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump)
 	rim->source.graphic.lump = lump;
 	rim->source_palette = W_GetPaletteForLump(lump);
 
-	if (type == IMSRC_Sprite)
-		real_sprites.push_back(rim);
-	else if (type == IMSRC_TX_HI)
-		real_textures.push_back(rim);
-	else
-		real_graphics.push_back(rim);
+	if (replaces)
+	{
+		rim->scale_x = replaces->actual_w / (float)width;
+		rim->scale_y = replaces->actual_h / (float)height;
+	}
+
+	container.push_back(rim);
 
 	return rim;
 }
@@ -608,7 +612,7 @@ const image_c *W_ImageCreateSprite(const char *name, int lump, bool is_weapon)
 {
 	SYS_ASSERT(lump >= 0);
 
-	image_c *rim = AddImageGraphic(name, IMSRC_Sprite, lump);
+	image_c *rim = AddImageGraphic(name, IMSRC_Sprite, lump, real_sprites);
 	if (! rim)
 		return NULL;
 
@@ -656,6 +660,38 @@ void W_ImageCreateUser(void)
 	L_WriteDebug("Graphics ------------------------------\n");
 	do_DebugDump(real_graphics);
 #endif
+}
+
+
+void W_ImageAddTX(int lump, const char *name, bool hires)
+{
+	if (hires)
+	{
+		image_c *rim = do_Lookup(real_textures, name, -2);
+		if (rim)
+		{
+			AddImageGraphic(name, IMSRC_TX_HI, lump, real_textures, rim);
+			return;
+		}
+
+		rim = do_Lookup(real_flats, name, -2);
+		if (rim)
+		{
+			AddImageGraphic(name, IMSRC_TX_HI, lump, real_flats, rim);
+			return;
+		}
+
+		rim = do_Lookup(real_graphics, name, -2);
+		if (rim)
+		{
+			AddImageGraphic(name, IMSRC_TX_HI, lump, real_graphics, rim);
+			return;
+		}
+
+		I_Warning("HIRES replacement '%s' has no counterpart!\n", name);
+	}
+
+	AddImageGraphic(name, IMSRC_TX_HI, lump, real_textures);
 }
 
 
@@ -1077,7 +1113,7 @@ static const image_c *BackupGraphic(const char *gfx_name, int flags)
 		{
 			// TODO: if hires lump exists with same name, use it
 
-			rim = AddImageGraphic(gfx_name, IMSRC_Graphic, i);
+			rim = AddImageGraphic(gfx_name, IMSRC_Graphic, i, real_graphics);
 			if (rim)
 				return rim;
 		}
