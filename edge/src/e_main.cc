@@ -1212,6 +1212,7 @@ startuporder_t startcode[] =
 	{  1, ShowNotice           },
 	{  1, SV_MainInit          },
 	{ 15, W_ImageCreateUser    },
+	{  1, W_ImageProcessTX     },
 	{ 20, W_InitSprites        },
 	{  1, W_InitModels         },
 	{  1, M_Init               },

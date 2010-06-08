@@ -124,9 +124,10 @@ static image_c *do_Lookup(real_image_container_c& bucket, const char *name,
 			return rim;
 	}
 
-	real_image_container_c::iterator it;
+	real_image_container_c::reverse_iterator it;
 
-	for (it = bucket.begin(); it != bucket.end(); it++)
+	// search backwards, we want newer image to override older ones
+	for (it = bucket.rbegin(); it != bucket.rend(); it++)
 	{
 		image_c *rim = *it;
 	
@@ -262,6 +263,7 @@ image_c::~image_c()
   /* TODO: image_c destructor */
 }
 
+
 static image_c *NewImage(int width, int height, int opacity = OPAC_Unknown)
 {
 	image_c *rim = new image_c;
@@ -282,6 +284,7 @@ static image_c *NewImage(int width, int height, int opacity = OPAC_Unknown)
 	return rim;
 }
 
+
 static image_c *CreateDummyImage(const char *name, rgbcol_t fg, rgbcol_t bg)
 {
 	image_c *rim;
@@ -299,54 +302,75 @@ static image_c *CreateDummyImage(const char *name, rgbcol_t fg, rgbcol_t bg)
 	return rim;
 }
 
-static image_c *AddImageGraphic(const char *name,
-									 image_source_e type, int lump)
+
+static image_c *AddImageGraphic(const char *name, image_source_e type, int lump)
 {
 	/* used for Sprites too */
 
-	patch_t *pat;
-	int width, height, offset_x, offset_y;
-  
-	image_c *rim;
+	int lump_len = W_LumpLength(lump);
 
-	pat = (patch_t *) W_CacheLumpNum(lump);
-  
-	width    = EPI_LE_S16(pat->width);
-	height   = EPI_LE_S16(pat->height);
-	offset_x = EPI_LE_S16(pat->leftoffset);
-	offset_y = EPI_LE_S16(pat->topoffset);
-  
-	W_DoneWithLump(pat);
+	byte *data = (byte *) W_CacheLumpNum(lump);
 
-	// do some basic checks
-	// !!! FIXME: identify lump types in wad code.
-	if (width <= 0 || width > 2048 || height <= 0 || height > 512 ||
-		ABS(offset_x) > 2048 || ABS(offset_y) > 1024)
+	// determine info, and whether it is PNG or DOOM_PATCH
+	int width=0, height=0;
+	int offset_x=0, offset_y=0;
+	bool solid = false;
+  
+	if (epi::PNG_IsDataPNG(data, lump_len))
 	{
-		// check for Heretic/Hexen images, which are raw 320x200 
-		int length = W_LumpLength(lump);
+		W_DoneWithLump(data);
 
-		if (length == 320*200 && type == IMSRC_Graphic)
+		epi::file_c * f = W_OpenLump(lump);
+
+		if (! PNG_GetInfo(f, &width, &height, &solid) ||
+		    width <= 0 or height <= 0)
 		{
-			rim = NewImage(320, 200, OPAC_Solid);
-			strcpy(rim->name, name);
-
-			rim->source_type = IMSRC_Raw320x200;
-			rim->source.flat.lump = lump;
-			rim->source_palette = W_GetPaletteForLump(lump);
-			return rim;
+			I_Error("Error scanning PNG image in '%s' lump\n", W_GetLumpName(lump));
 		}
 
-		if (length == 64*64 || length == 64*65 || length == 64*128)
-			I_Warning("Graphic '%s' seems to be a flat.\n", name);
-		else
-			I_Warning("Graphic '%s' does not seem to be a graphic.\n", name);
+		// close it
+		delete f;
+	}
+	else
+	{
+		patch_t *pat = (patch_t *) data;
 
-		return NULL;
+		width    = EPI_LE_S16(pat->width);
+		height   = EPI_LE_S16(pat->height);
+		offset_x = EPI_LE_S16(pat->leftoffset);
+		offset_y = EPI_LE_S16(pat->topoffset);
+
+		W_DoneWithLump(data);
+
+		// do some basic checks
+		// !!! FIXME: identify lump types in wad code.
+		if (width  <= 0 || width > 2048 ||
+		    height <= 0 || height > 512 ||
+			ABS(offset_x) > 2048 || ABS(offset_y) > 1024)
+		{
+			// check for Heretic/Hexen images, which are raw 320x200 
+			if (lump_len == 320*200 && type == IMSRC_Graphic)
+			{
+				image_c *rim = NewImage(320, 200, OPAC_Solid);
+				strcpy(rim->name, name);
+
+				rim->source_type = IMSRC_Raw320x200;
+				rim->source.flat.lump = lump;
+				rim->source_palette = W_GetPaletteForLump(lump);
+				return rim;
+			}
+
+			if (lump_len == 64*64 || lump_len == 64*65 || lump_len == 64*128)
+				I_Warning("Graphic '%s' seems to be a flat.\n", name);
+			else
+				I_Warning("Graphic '%s' does not seem to be a graphic.\n", name);
+
+			return NULL;
+		}
 	}
  
 	// create new image
-	rim = NewImage(width, height, OPAC_Unknown);
+	image_c *rim = NewImage(width, height, solid ? OPAC_Solid : OPAC_Unknown);
  
 	rim->offset_x = offset_x;
 	rim->offset_y = offset_y;
@@ -359,11 +383,14 @@ static image_c *AddImageGraphic(const char *name,
 
 	if (type == IMSRC_Sprite)
 		real_sprites.push_back(rim);
+	else if (type == IMSRC_TX_HI)
+		real_textures.push_back(rim);
 	else
 		real_graphics.push_back(rim);
 
 	return rim;
 }
+
 
 static image_c *AddImageTexture(const char *name, texturedef_t *tdef)
 {
@@ -730,6 +757,7 @@ static bool IM_ShouldMipmap(image_c *rim)
 	{
 		case IMSRC_Texture:
 		case IMSRC_Flat:
+		case IMSRC_TX_HI:
 			return true;
 		
 		case IMSRC_User:
