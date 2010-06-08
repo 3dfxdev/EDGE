@@ -53,7 +53,7 @@
 // NOTE: this order must match the one in the COAL API script
 static rgbcol_t am_colors[AM_NUM_COLORS] =
 {
-	RGB_MAKE( 80, 80,112),  // AMCOL_Grid
+	RGB_MAKE( 40, 40,112),  // AMCOL_Grid
     RGB_MAKE(112,112,112),  // AMCOL_Allmap
     RGB_MAKE(255,  0,  0),  // AMCOL_Wall
     RGB_MAKE(192,128, 80),  // AMCOL_Step
@@ -113,6 +113,7 @@ static rgbcol_t am_colors[AM_NUM_COLORS] =
 bool automapactive = false;
 
 cvar_c am_smoothing;
+cvar_c am_gridsize;
 
 static int cheating = 0;
 static int grid = 0;
@@ -569,21 +570,26 @@ static void DrawGrid()
 {
 	mline_t ml;
 
-	int mx0 = (int)m_cx & ~127;
-	int my0 = (int)m_cy & ~127;
+	int grid_size = MAX(4, am_gridsize.d);
+
+	int mx0 = int(m_cx);
+	int my0 = int(m_cy);
+
+	if (mx0 < 0) mx0 -= -(-mx0 % grid_size); else mx0 -= mx0 % grid_size;
+	if (my0 < 0) my0 -= -(-my0 % grid_size); else my0 -= my0 % grid_size;
 
 	for (int j = 1; j < 1024; j++)
 	{
 		int jx = ((j & ~1) >> 1);
 
 		// stop when both lines are off the screen
-		float x1 = CXMTOF(mx0 - jx * 128);
-		float x2 = CXMTOF(mx0 + jx * 128);
+		float x1 = CXMTOF(mx0 - jx * grid_size);
+		float x2 = CXMTOF(mx0 + jx * grid_size);
 
 		if (x1 < f_x && x2 >= f_x + f_w)
 			break;
 
-		ml.a.x = mx0 + jx * ((j & 1) ? -128 : 128);
+		ml.a.x = mx0 + jx * ((j & 1) ? -grid_size : grid_size);
 		ml.b.x = ml.a.x;
 
 		ml.a.y = -40000;
@@ -597,8 +603,8 @@ static void DrawGrid()
 		int ky = ((k & ~1) >> 1);
 
 		// stop when both lines are off the screen
-		float y1 = CYMTOF(my0 + ky * 128);
-		float y2 = CYMTOF(my0 - ky * 128);
+		float y1 = CYMTOF(my0 + ky * grid_size);
+		float y2 = CYMTOF(my0 - ky * grid_size);
 
 		if (y1 < f_y && y2 >= f_y + f_h)
 			break;
@@ -606,7 +612,7 @@ static void DrawGrid()
 		ml.a.x = -40000;
 		ml.b.x = +40000;
 
-		ml.a.y = my0 + ky * ((k & 1) ? -128 : 128);
+		ml.a.y = my0 + ky * ((k & 1) ? -grid_size : grid_size);
 		ml.b.y = ml.a.y;
 
 		DrawMLine(&ml, am_colors[AMCOL_Grid], false);
