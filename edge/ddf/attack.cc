@@ -146,6 +146,8 @@ static bool AttackStartEntry(const char *name)
 	buffer_atk.Default();
 	buffer_mobj.Default();
 
+	DDF_StateBeginRange(buffer_mobj.state_grp);
+
 	return (existing != NULL);
 }
 
@@ -179,9 +181,7 @@ static void AttackFinishEntry(void)
 	// handle attacks that have mobjs
 	if (attack_has_mobj)
 	{
-		if (buffer_mobj.first_state)
-			DDF_StateFinishStates(buffer_mobj.first_state, 
-								  buffer_mobj.last_state);
+		DDF_StateFinishRange(buffer_mobj.state_grp);
 
 		// check MOBJ stuff
 

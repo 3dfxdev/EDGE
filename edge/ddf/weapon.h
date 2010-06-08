@@ -21,6 +21,7 @@
 
 #include "base.h"
 #include "types.h"
+#include "states.h"
 
 
 // ------------------------------------------------------------------
@@ -77,8 +78,7 @@ public:
 	float kick;				// Amount of kick this weapon gives
   
 	// range of states used
-	int first_state;
-	int last_state;
+	state_group_t state_grp;
   
 	int up_state;			// State to use when raising the weapon 
 	int down_state;			// State to use when lowering the weapon (if changing weapon)

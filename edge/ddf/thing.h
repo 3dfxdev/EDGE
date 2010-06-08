@@ -21,6 +21,7 @@
 
 #include "base.h"
 #include "types.h"
+#include "states.h"
 
 
 #define DLIT_COMPAT_RAD(x)  (10.0f * sqrt(x))
@@ -751,8 +752,7 @@ public:
 	ddf_base_c ddf;
 
 	// range of states used
-	int first_state;
-	int last_state;
+	state_group_t state_grp;
   
 	int spawn_state;
 	int idle_state;

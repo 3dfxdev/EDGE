@@ -276,6 +276,8 @@ static bool WeaponStartEntry(const char *name)
 	// instantiate the static entries
 	buffer_weapon.Default();
 
+	DDF_StateBeginRange(buffer_mobj.state_grp);
+
 	return (existing != NULL);
 }
 
@@ -297,11 +299,11 @@ static void WeaponParseField(const char *field, const char *contents,
 
 static void WeaponFinishEntry(void)
 {
-	if (! buffer_weapon.first_state)
+	if (! buffer_weapon.state_grp.back().first)
 		DDF_Error("Weapon `%s' has missing states.\n",
 			dynamic_weapon->ddf.name.c_str());
 
-	DDF_StateFinishStates(buffer_weapon.first_state, buffer_weapon.last_state);
+	DDF_StateFinishRange(buffer_weapon.state_group);
 
 	// check stuff...
 	int ATK;
@@ -558,7 +560,7 @@ bool DDF_WeaponIsUpgrade(weapondef_c *weap, weapondef_c *old)
 //
 // weapondef_c Constructor
 //
-weapondef_c::weapondef_c()
+weapondef_c::weapondef_c() : state_grp()
 {
 	Default();
 }
@@ -566,7 +568,7 @@ weapondef_c::weapondef_c()
 //
 // weapondef_c Copy constructor
 //
-weapondef_c::weapondef_c(weapondef_c &rhs)
+weapondef_c::weapondef_c(weapondef_c &rhs) : state_grp()
 {
 	Copy(rhs);
 }
@@ -592,6 +594,11 @@ void weapondef_c::Copy(weapondef_c &src)
 //
 void weapondef_c::CopyDetail(weapondef_c &src)
 {
+	state_grp.clear();
+
+	for (unsigned int i = 0; i < src.state_grp.size(); i++)
+		state_grp.push_back(src.state_grp[i]);
+
 	for (int ATK = 0; ATK < 2; ATK++)
 	{
 		attack[ATK] = src.attack[ATK];
@@ -609,9 +616,6 @@ void weapondef_c::CopyDetail(weapondef_c &src)
 	}
 
 	kick = src.kick;
-
-	first_state = src.first_state;
-	last_state  = src.last_state;
 
 	up_state    = src.up_state;
 	down_state  = src.down_state;
@@ -669,6 +673,8 @@ void weapondef_c::Default(void)
 {
 	ddf.Default();
 
+	state_grp.clear();
+
 	for (int ATK = 0; ATK < 2; ATK++)
 	{
 		attack[ATK] = NULL;
@@ -688,9 +694,6 @@ void weapondef_c::Default(void)
 	specials[1] = (weapon_flag_e)(DEFAULT_WPSP & ~WPSP_SwitchAway);
 
 	kick = 0.0f;
-
-	first_state = 0;
-	last_state = 0;
 
 	up_state = 0;
 	down_state= 0;
