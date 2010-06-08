@@ -1,7 +1,11 @@
 //
 // EDGE RESOURCES
 //
-#include "edge32.rh"
+
+#define MAIN_MENU            100
+#define MAIN_MENU_FILE_EXIT  1001
+
+#define MAIN_ICON            1
 
 MAIN_MENU MENU DISCARDABLE
 {
