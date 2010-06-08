@@ -718,7 +718,7 @@ void SR_MobjPutState(void *storage, int index, void *extra)
 	}
 
 	// object has no states ?
-	if (mo->info->state_group.empty())
+	if (mo->info->state_grp.empty())
 	{
 		I_Warning("SAVEGAME: object [%s] has no states !!\n", mo->info->ddf.name.c_str());
 		SV_PutString(NULL);
@@ -749,7 +749,7 @@ void SR_MobjPutState(void *storage, int index, void *extra)
 	// state gone AWOL into another object ?
 	actual = mo->info;
 
-	if (s_num < mo->info->first_state || s_num > mo->info->last_state)
+	if (! DDF_StateGroupHasState(actual->state_grp, s_num))
 	{
 		I_Warning("SAVEGAME: object [%s] is in AWOL state %d\n",
 			mo->info->ddf.name.c_str(), s_num);
@@ -761,11 +761,7 @@ void SR_MobjPutState(void *storage, int index, void *extra)
 		{
 			actual = ITERATOR_TO_TYPE(it, mobjtype_c*);
 
-			if (actual->last_state <= 0 ||
-				actual->last_state < actual->first_state)
-				continue;
-
-			if (actual->first_state <= s_num && s_num <= actual->last_state)
+			if (DDF_StateGroupHasState(actual->state_grp, s_num))
 				break;
 		}
 
@@ -785,15 +781,18 @@ void SR_MobjPutState(void *storage, int index, void *extra)
 	}
 
 	// find the nearest base state
+	base = s_num;
 
-	for (base = s_num; 
-		base > mo->info->first_state && states[base].label == NULL;
-		base--)
-	{ /* nothing */ }
+	while (! states[base].label &&
+	       DDF_StateGroupHasState(actual->state_grp, base-1))
+	{
+		base--;
+	}
 
 	sprintf(swizzle, "%s:%s:%d", 
-		actual == mo->info ? "*" : actual->ddf.name.c_str(), 
-		states[base].label ? states[base].label : "*", 1 + s_num - base);
+		(actual == mo->info) ? "*" : actual->ddf.name.c_str(), 
+		states[base].label ? states[base].label : "*",
+		1 + s_num - base);
 
 #if 0
 	L_WriteDebug("Swizzled state %d of [%s] -> `%s'\n", 

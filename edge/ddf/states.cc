@@ -597,6 +597,23 @@ void DDF_StateFinishRange(state_group_t& group)
 	redirs.Clear();
 }
 
+
+bool DDF_StateGroupHasState(const state_group_t& group, statenum_t st)
+{
+	for (int g = 0; g < (int)group.size(); g++)
+	{
+		const state_range_t& range = group[g];
+
+		if (range.first <= st && st <= range.last)
+			return true;
+	}
+
+	return false;
+}
+
+
+//----------------------------------------------------------------------------
+
 //
 // DDF_StateGetAttack
 //

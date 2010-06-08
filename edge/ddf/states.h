@@ -97,6 +97,8 @@ extern std::vector<std::string> ddf_model_names;
 statenum_t DDF_StateFindLabel(const state_group_t& group,
                               const char *label, bool quiet = false);
 
+bool DDF_StateGroupHasState(const state_group_t& group, statenum_t st);
+
 #endif // __DDF_STAT_H__
 
 //--- editor settings ---
