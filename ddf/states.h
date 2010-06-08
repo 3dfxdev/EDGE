@@ -85,6 +85,8 @@ extern int num_states;
 extern std::vector<std::string> ddf_sprite_names;
 extern std::vector<std::string> ddf_model_names;
 
+statenum_t DDF_StateFindLabel(statenum_t first, statenum_t last,
+                              const char *label, bool quiet = false);
 
 #endif // __DDF_STAT_H__
 

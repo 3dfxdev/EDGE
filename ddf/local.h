@@ -348,7 +348,6 @@ void DDF_StateReadState (const char *info, const char *label,
 void DDF_StateFinishStates (int first, int last);
 void DDF_StateFixupStates (int first, int last);
 void DDF_StateCleanUp (void);
-int DDF_StateFindLabel (int first, int last, const char *label);
 
 // DDF_SECT Code
 void DDF_SectorInit (void);
