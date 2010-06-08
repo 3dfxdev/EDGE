@@ -1355,7 +1355,7 @@ int DDF_MainLookupDirector(const mobjtype_c *info, const char *ref)
 
 	std::string director(ref, len);
 
-	int state  = DDF_StateFindLabel(info->first_state, info->last_state, director.c_str());
+	int state  = DDF_StateFindLabel(info->state_grp, director.c_str());
 	int offset = p ? MAX(0, atoi(p + 1) - 1) : 0;
 
 	// FIXME: check for overflow

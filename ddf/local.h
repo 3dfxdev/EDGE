@@ -342,11 +342,11 @@ void DDF_StateGetSlope (const char *arg, state_t * cur_state);
 void DDF_StateGetRGB (const char *arg, state_t * cur_state);
 
 void DDF_StateReadState (const char *info, const char *label,
-			 int *first, int *last, int *state_num, int index,
+			 state_group_t& group, int *state_num, int index,
 			 const char *redir, const actioncode_t * action_list,
 			 bool is_weapon);
-void DDF_StateFinishStates (int first, int last);
-void DDF_StateFixupStates (int first, int last);
+void DDF_StateBeginRange (state_group_t& group);
+void DDF_StateFinishRange(state_group_t& group);
 void DDF_StateCleanUp (void);
 
 // DDF_SECT Code

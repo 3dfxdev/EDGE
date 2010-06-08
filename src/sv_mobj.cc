@@ -646,9 +646,8 @@ bool SR_MobjGetState(void *storage, int index, void *extra)
 	// find base state
 	offset = strtol(off_p, NULL, 0) - 1;
 
-	base = DDF_StateFindLabel(actual->first_state,
-	                          actual->last_state,
-							  base_p, true /* quiet */);
+	base = DDF_StateFindLabel(actual->state_grp, base_p, true /* quiet */);
+
 	if (! base)
 	{
 		I_Warning("LOADGAME: no such label `%s' for state.\n", base_p);
@@ -660,8 +659,10 @@ bool SR_MobjGetState(void *storage, int index, void *extra)
 			base = actual->spawn_state;
 		else if (actual->meander_state)
 			base = actual->meander_state;
+		else if (actual->state_grp.empty())
+			base = actual->state_grp[0].first;
 		else
-			base = actual->first_state;
+			base = 1;
 	}
 
 #if 0
@@ -717,8 +718,7 @@ void SR_MobjPutState(void *storage, int index, void *extra)
 	}
 
 	// object has no states ?
-	if (mo->info->last_state <= 0 || 
-		mo->info->last_state < mo->info->first_state)
+	if (mo->info->state_group.empty())
 	{
 		I_Warning("SAVEGAME: object [%s] has no states !!\n", mo->info->ddf.name.c_str());
 		SV_PutString(NULL);

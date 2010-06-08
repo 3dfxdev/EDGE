@@ -77,6 +77,15 @@ typedef struct state_s
 state_t;
 
 
+typedef struct
+{
+	statenum_t first, last;
+}
+state_range_t;
+
+typedef std::vector<state_range_t> state_group_t;
+
+
 // -------EXTERNALISATIONS-------
 
 extern state_t *states;
@@ -85,7 +94,7 @@ extern int num_states;
 extern std::vector<std::string> ddf_sprite_names;
 extern std::vector<std::string> ddf_model_names;
 
-statenum_t DDF_StateFindLabel(statenum_t first, statenum_t last,
+statenum_t DDF_StateFindLabel(const state_group_t& group,
                               const char *label, bool quiet = false);
 
 #endif // __DDF_STAT_H__

@@ -277,26 +277,27 @@ static int StateGetRedirector(const char *redir)
 //
 // DDF_StateFindLabel
 //
-statenum_t DDF_StateFindLabel(statenum_t first, statenum_t last,
+statenum_t DDF_StateFindLabel(const state_group_t& group,
                               const char *label, bool quiet)
 {
-	statenum_t i;
-
-	for (i=first; i <= last; i++)
+	for (int g = (int)group.size()-1; g >= 0; g--)
 	{
-		if (!states[i].label)
-			continue;
+		for (statenum_t i = group[g].last; i >= group[g].first; i--)
+		{
+			if (states[i].label)
+				continue;
 
-		if (DDF_CompareName(states[i].label, label) == 0)
-			return i;
+			if (DDF_CompareName(states[i].label, label) == 0)
+				return i;
+		}
 	}
 
 	// compatibility hack:
 	if (DDF_CompareName(label, "IDLE") == 0)
 	{
-		return DDF_StateFindLabel(first, last, "SPAWN");
+		return DDF_StateFindLabel(group, "SPAWN");
 	}
-  
+
 	if (! quiet)
 		DDF_Error("Unknown label '%s' (object has no such frames).\n", label);
 
@@ -307,7 +308,7 @@ statenum_t DDF_StateFindLabel(statenum_t first, statenum_t last,
 // DDF_StateReadState
 //
 void DDF_StateReadState(const char *info, const char *label,
-						int *first, int *last, int *state_num, int index,
+						state_group_t& group, int *state_num, int index,
 						const char *redir, const actioncode_t *action_list,
 						bool is_weapon)
 {
@@ -526,17 +527,39 @@ void DDF_StateReadState(const char *info, const char *label,
 }
 
 
+void DDF_StateBeginRange(state_group_t& group)
+{
+	state_range_t range;
+
+	range.first = S_NULL;
+	range.last  = S_NULL;
+
+	group.push_back(range);
+}
+
+
 //
-// DDF_StateFinishStates
+// DDF_StateFinishRange
 //
 // Check through the states on an mobj and attempts to dereference any
 // encoded state redirectors.
 //
-void DDF_StateFinishStates(int first, int last)
+void DDF_StateFinishRange(state_group_t& group)
 {
-	int i;
+	SYS_ASSERT(! group.empty());
 
-	for (i=first; i <= last; i++)
+	state_range_t& range = group.back();
+
+	// if no states were added, remove the unused range
+	if (range.first == S_NULL)
+	{
+		group.pop_back();
+
+		redirs.Clear();
+		return;
+	}
+
+	for (int i = range.first; i <= range.last; i++)
 	{
 		// handle next state ref
 		if (states[i].nextstate == -1)
@@ -545,11 +568,11 @@ void DDF_StateFinishStates(int first, int last)
 		}
 		else if ((states[i].nextstate >> 16) == 0)
 		{
-			states[i].nextstate = (i == last) ? S_NULL : i+1;
+			states[i].nextstate = (i == range.last) ? S_NULL : i+1;
 		}
 		else
 		{
-			states[i].nextstate = DDF_StateFindLabel(first, last,
+			states[i].nextstate = DDF_StateFindLabel(group,
 												redirs[(states[i].nextstate >> 16) - 1]) +
 				(states[i].nextstate & 0xFFFF);
 		}
@@ -561,11 +584,11 @@ void DDF_StateFinishStates(int first, int last)
 		}
 		else if ((states[i].jumpstate >> 16) == 0)
 		{
-			states[i].jumpstate = (i == last) ? S_NULL : i+1;
+			states[i].jumpstate = (i == range.last) ? S_NULL : i+1;
 		}
 		else
 		{
-			states[i].jumpstate = DDF_StateFindLabel(first, last,
+			states[i].jumpstate = DDF_StateFindLabel(group,
 												 redirs[(states[i].jumpstate >> 16) - 1]) +
 				(states[i].jumpstate & 0xFFFF);
 		}

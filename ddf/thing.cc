@@ -520,6 +520,8 @@ static bool ThingStartEntry(const char *buffer)
 	// instantiate the static entry
 	buffer_mobj.Default();
 
+	DDF_StateBeginRange(buffer_mobj.state_grp);
+
 	return (idx >= 0);
 }
 
@@ -541,8 +543,7 @@ void ThingParseField(const char *field, const char *contents,
 
 static void ThingFinishEntry(void)
 {
-	if (buffer_mobj.first_state)
-		DDF_StateFinishStates(buffer_mobj.first_state, buffer_mobj.last_state);
+	DDF_StateFinishRange(buffer_mobj.state_grp);
 
 	// count-as-kill things are automatically monsters
 	if (buffer_mobj.flags & MF_COUNTKILL)
@@ -1729,12 +1730,12 @@ bool DDF_MainParseCondition(const char *info, condition_check_t *cond)
 
 // ---> mobjdef class
 
-mobjtype_c::mobjtype_c()
+mobjtype_c::mobjtype_c() : state_grp()
 {
 	Default();
 }
 
-mobjtype_c::mobjtype_c(mobjtype_c &rhs)
+mobjtype_c::mobjtype_c(mobjtype_c &rhs) : state_grp()
 {
 	Copy(rhs);
 }
@@ -1753,8 +1754,10 @@ void mobjtype_c::Copy(mobjtype_c &src)
 
 void mobjtype_c::CopyDetail(mobjtype_c &src)
 {
-	first_state = src.first_state; 
-	last_state = src.last_state; 
+	state_grp.clear();
+
+	for (unsigned int i = 0; i < src.state_grp.size(); i++)
+		state_grp.push_back(src.state_grp[i]);
 
     spawn_state = src.spawn_state; 
     idle_state = src.idle_state; 
@@ -1885,8 +1888,7 @@ void mobjtype_c::Default()
 {
 	ddf.Default();
 
-	first_state = 0;
-	last_state = 0; 
+	state_grp.clear();
 
     spawn_state = 0;
     idle_state = 0;

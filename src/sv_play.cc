@@ -624,9 +624,8 @@ bool SR_PlayerGetState(void *storage, int index, void *extra)
 	// find base state
 	offset = strtol(off_p, NULL, 0) - 1;
 
-	base = DDF_StateFindLabel(actual->first_state,
-	                          actual->last_state,
-							  base_p, true /* quiet */);
+	base = DDF_StateFindLabel(actual->state_grp, base_p, true /* quiet */);
+
 	if (! base)
 	{
 		I_Warning("LOADGAME: no such label `%s' for weapon state.\n", base_p);
@@ -677,26 +676,13 @@ void SR_PlayerPutState(void *storage, int index, void *extra)
 	if (s_num < 0 || s_num >= num_states)
 	{
 		I_Warning("SAVEGAME: weapon is in invalid state %d\n", s_num);
-		s_num = weapondefs[0]->first_state;
+		s_num = weapondefs[0]->state_grp[0].first;
 	}
 
 	// find the weapon that this state belongs to.
 	// Traverses backwards in case #CLEARALL was used.
 	const weapondef_c *actual = NULL;
 
-/*
-	for (i=numweapons-1; i >= 0; i--)
-	{
-		actual = weaponinfo[i];
-
-		if (actual->last_state <= 0 ||
-			actual->last_state < actual->first_state)
-			continue;
-
-		if (actual->first_state <= s_num && s_num <= actual->last_state)
-			break;
-	}
-*/
 	epi::array_iterator_c it;
 
 	for (it=weapondefs.GetIterator(weapondefs.GetDisabledCount());
