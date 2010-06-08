@@ -36,6 +36,7 @@ extern cvar_c g_fastmon, g_passmissile;
 extern cvar_c g_weaponkick, g_weaponswitch;
 
 extern cvar_c am_rotate, am_smoothing;
+extern cvar_c am_gridsize;
 
 extern cvar_c m_language;
 extern cvar_c m_diskicon, m_busywait, m_screenhud;
@@ -129,6 +130,7 @@ cvar_link_t  all_cvars[] =
 	/* Rendering Stuff */
 
 	{ "am_smoothing",   &am_smoothing,   "c",   "1"  },
+	{ "am_gridsize",    &am_gridsize,    "c",   "128" },
 
 	{ "r_crosshair",    &r_crosshair,    "c",   "0"  },
 	{ "r_crosscolor",   &r_crosscolor,   "c",   "0"  },
