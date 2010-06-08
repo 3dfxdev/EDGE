@@ -690,11 +690,7 @@ void SR_PlayerPutState(void *storage, int index, void *extra)
 	{
 		actual = ITERATOR_TO_TYPE(it, weapondef_c*);
 
-		if (actual->last_state <= 0 ||
-			actual->last_state < actual->first_state)
-			continue;
-
-		if (actual->first_state <= s_num && s_num <= actual->last_state)
+		if (DDF_StateGroupHasState(actual->state_grp, s_num))
 			break;
 	}
 
@@ -702,16 +698,17 @@ void SR_PlayerPutState(void *storage, int index, void *extra)
 	{
 		I_Warning("SAVEGAME: weapon state %d cannot be found !!\n", s_num);
 		actual = weapondefs[0];
-		s_num = actual->first_state;
+		s_num = actual->state_grp[0].first;
 	}
 
 	// find the nearest base state
-	int base;
+	int base = s_num;
 
-	for (base = s_num; 
-		base > actual->first_state && states[base].label == NULL;
-		base--)
-	{ /* nothing */ }
+	while (! states[base].label &&
+	       DDF_StateGroupHasState(actual->state_grp, base-1))
+	{
+		base--;
+	}
 
 	std::string buf(epi::STR_Format("%s:%s:%d",
 			actual->ddf.name.c_str(),

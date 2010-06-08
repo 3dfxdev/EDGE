@@ -461,7 +461,7 @@ static bool ThingTryParseState(const char *field,
 		starter = &thing_starters[i];
 
 	DDF_StateReadState(contents, labname.c_str(),
-		&buffer_mobj.first_state, &buffer_mobj.last_state,
+		buffer_mobj.state_grp,
 		starter ? starter->state_num : NULL, index, 
 		is_last ? starter ? starter->last_redir : "IDLE" : NULL, 
 		thing_actions, false);
@@ -2215,12 +2215,6 @@ const mobjtype_c *mobjtype_container_c::Lookup(int id)
 
 	if (it.GetPos() < num_disabled)
 		return NULL;
-
-	// do a sprite check (like for weapons)
-#if 0
-	if (! DDF_CheckSprites(m->first_state, m->last_state))
-		return NULL;
-#endif
 
 	// update the cache
 	lookup_cache[slot] = m;

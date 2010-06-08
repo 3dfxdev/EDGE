@@ -551,24 +551,30 @@ void W_InitSprites(void)
 	sprite_map = NULL;
 }
 
-bool W_CheckSpritesExist(int st_low, int st_high)
+
+bool W_CheckSpritesExist(const state_group_t& group)
 {
-	if (st_low == S_NULL)
-		return true;
-	
-	SYS_ASSERT(st_low <= st_high);
+	for (int g = 0; g < (int)group.size(); g++)
+	{
+		const state_range_t& range = group[g];
 
-	while (st_low <= st_high &&	states[st_low].sprite == SPR_NULL)
-		st_low++;
+		for (int i = range.first; i <= range.last; i++)
+		{
+			if (states[i].sprite == SPR_NULL)
+				continue;
 
-	if (st_low > st_high)
-		return true;
+			if (sprites[states[i].sprite]->frames > 0)
+				return true;	
 
-	if (sprites[states[st_low].sprite]->frames > 0)
-		return true;	
+			// -AJA- only check one per group.  It _should_ check them all,
+			//       however this maintains compatibility.
+			break;
+		}
+	}
 
 	return false;
 }
+
 
 spriteframe_c *W_GetSpriteFrame(int spr_num, int framenum)
 {

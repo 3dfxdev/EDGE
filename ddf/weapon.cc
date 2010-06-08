@@ -234,7 +234,7 @@ static bool WeaponTryParseState(const char *field,
 		starter = &weapon_starters[i];
 
 	DDF_StateReadState(contents, labname.c_str(),
-			&buffer_weapon.first_state, &buffer_weapon.last_state,
+			buffer_weapon.state_grp,
 			starter ? starter->state_num : NULL, index, 
 			is_last ? starter ? starter->last_redir : "READY" : NULL, 
 			weapon_actions, true);
@@ -303,7 +303,7 @@ static void WeaponFinishEntry(void)
 		DDF_Error("Weapon `%s' has missing states.\n",
 			dynamic_weapon->ddf.name.c_str());
 
-	DDF_StateFinishRange(buffer_weapon.state_group);
+	DDF_StateFinishRange(buffer_weapon.state_grp);
 
 	// check stuff...
 	int ATK;
