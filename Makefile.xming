@@ -178,7 +178,6 @@ $(OBJDIR)/deh_edge/%.o: deh_edge/%.cc
 # ---------- EDGE ---------------
 
 EDGE_OBJS= \
-	$(OBJDIR)/edge/main.o       \
 	$(OBJDIR)/edge/resource.o   \
 	$(OBJDIR)/edge/i_main.o     \
 	$(OBJDIR)/edge/i_ctrl.o     \
@@ -283,9 +282,6 @@ EDGE_OBJS= \
 	$(OBJDIR)/edge/w32_mus.o    \
 	$(OBJDIR)/edge/w32_net.o    \
 	$(OBJDIR)/edge/w32_system.o
-
-$(OBJDIR)/edge/main.o: main.cc
-	$(CXX) $(CFLAGS) -o $@ -c $< 
 
 $(OBJDIR)/edge/resource.o: edge32.rc
 	i586-mingw32msvc-windres $^ -o $@

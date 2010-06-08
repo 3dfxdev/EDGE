@@ -153,7 +153,6 @@ $(OBJDIR)/deh_edge/%.o: deh_edge/%.cc
 # ---------- EDGE ---------------
 
 EDGE_OBJS= \
-	$(OBJDIR)/edge/main.o       \
 	$(OBJDIR)/edge/i_main.o     \
 	$(OBJDIR)/edge/i_ctrl.o     \
 	$(OBJDIR)/edge/i_video.o    \
@@ -256,9 +255,6 @@ EDGE_OBJS= \
 	$(OBJDIR)/edge/unx_music.o  \
 	$(OBJDIR)/edge/unx_net.o    \
 	$(OBJDIR)/edge/unx_system.o
-
-$(OBJDIR)/edge/main.o: main.cc
-	$(CXX) $(CFLAGS) -o $@ -c $< 
 
 $(OBJDIR)/edge/%.o: src/%.cc
 	$(CXX) $(CFLAGS) -o $@ -c $< 

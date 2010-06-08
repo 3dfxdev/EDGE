@@ -30,7 +30,7 @@ const char *exe_path;
 
 extern "C" {
 
-int I_Main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
 	// FIXME: setup argument handler NOW
 	bool allow_coredump = false;
