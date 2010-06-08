@@ -25,6 +25,10 @@ NONE (YET)
 General Improvements
 --------------------
 
++ support for new textures between TX_START/TX_END markers, and
+  high-resolution replacements between HI_START/HI_END markers.
+  They can be either DOOM patch format or PNG format.
+
 - use Makefiles for building the code, ditching SCons.
 
 - renamed "Host Net Game" menu to "Advanced Start" and removed
@@ -32,6 +36,7 @@ General Improvements
   so that people don't get the impression that Multiplayer is
   supported (it is not).
 
+- control over automap grid spacing via 'am_gridsize' cvar.
 
 
 New Features
