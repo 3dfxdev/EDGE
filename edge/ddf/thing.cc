@@ -189,11 +189,9 @@ const commandlist_t thing_commands[] =
 	DF("ARMOUR_CLASS",  armour_class, DDF_MainGetBitSet),  // -AJA- 2007/08/22
 
 	// -AJA- backwards compatibility cruft...
-	DF("!EXPLOD_DAMAGE", explode_damage.nominal, DDF_MainGetFloat),
-	DF("!EXPLOSION_DAMAGE", explode_damage.nominal, DDF_MainGetFloat),
-	DF("!EXPLOD_DAMAGERANGE", explode_damage.nominal, DDF_MainGetFloat),
-	DF("!EXPLOD_DAMAGEMULTI", ddf, DDF_DummyFunction),
-	DF("!GIB", ddf, DDF_DummyFunction),
+	DF("EXPLOD_DAMAGE", explode_damage.nominal, DDF_MainGetFloat),
+	DF("EXPLOSION_DAMAGE", explode_damage.nominal, DDF_MainGetFloat),
+	DF("EXPLOD_DAMAGERANGE", explode_damage.nominal, DDF_MainGetFloat),
 
 	DDF_CMD_END
 };
@@ -318,15 +316,12 @@ static const actioncode_t thing_actions[] =
 	{"BRAINDIE", P_ActBrainDie, NULL},
 
 	// -AJA- backwards compatibility cruft...
-	{"!VARIEDEXPDAMAGE",   P_ActDamageExplosion, NULL},
-	{"!VARIED_THRUST",     P_ActThrust, NULL},
-	{"!RANDOMJUMP", NULL, NULL},
-	{"!ALTERTRANSLUC",   NULL, NULL},
-	{"!ALTERVISIBILITY", NULL, NULL},
-	{"!LESSVISIBLE", NULL, NULL},
-	{"!MOREVISIBLE", NULL, NULL},
+	{"VARIEDEXPDAMAGE",   P_ActDamageExplosion, NULL},
+	{"VARIED_THRUST",     P_ActThrust, NULL},
+
 	{NULL, NULL, NULL}
 };
+
 
 const specflags_t keytype_names[] =
 {
@@ -363,6 +358,7 @@ const specflags_t keytype_names[] =
 	{NULL, 0, 0}
 };
 
+
 const specflags_t armourtype_names[] =
 {
 	{"GREEN_ARMOUR",  ARMOUR_Green,  0},
@@ -372,6 +368,7 @@ const specflags_t armourtype_names[] =
 	{"RED_ARMOUR",    ARMOUR_Red,    0},
 	{NULL, 0, 0}
 };
+
 
 const specflags_t powertype_names[] =
 {
@@ -387,6 +384,7 @@ const specflags_t powertype_names[] =
 	{"POWERUP_SCUBA",        PW_Scuba,        0},
 	{NULL, 0, 0}
 };
+
 
 const specflags_t simplecond_names[] =
 {

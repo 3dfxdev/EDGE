@@ -44,10 +44,7 @@ static const commandlist_t colmap_commands[] =
 	DF("GL_COLOUR", gl_colour, DDF_MainGetRGB),
 
 	// -AJA- backwards compatibility cruft...
-	DF("!PRIORITY", ddf, DDF_DummyFunction),
-	DF("!ALT_COLOUR",  ddf, DDF_DummyFunction),
-	DF("!WASH_COLOUR", ddf, DDF_DummyFunction),
-	DF("!WASH_TRANSLUCENCY", ddf, DDF_DummyFunction),
+	DF("PRIORITY", ddf, DDF_DummyFunction),
 
 	DDF_CMD_END
 };
@@ -180,7 +177,8 @@ specflags_t colmap_specials[] =
 	{"WHITEN", COLSP_Whiten,  false},
 
 	// -AJA- backwards compatibility cruft...
-	{"!SKY",   0, 0},
+	{"SKY", 0, 0},
+
 	{NULL, 0, 0}
 };
 

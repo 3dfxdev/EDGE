@@ -500,25 +500,18 @@ void DDF_StateReadState(const char *info, const char *label,
 		for (i=0; action_list[i].actionname; i++)
 		{
 			const char *current = action_list[i].actionname;
-			bool obsolete = false;
 
 			if (current[0] == '!')
-			{
 				current++;
-				obsolete = true;
-			}
     
 			if (DDF_CompareName(current, action_name) == 0)
-			{
-				if (obsolete)
-					DDF_WarnError("The ddf %s action is obsolete !\n", current);
-
 				break;
-			}
 		}
 
 		if (!action_list[i].actionname)
+		{
 			DDF_WarnError("Unknown code pointer: %s\n", stateinfo[4].c_str());
+		}
 		else
 		{
 			cur->action = action_list[i].action;

@@ -1193,19 +1193,14 @@ bool DDF_MainParseSubField(const commandlist_t *sub_comms,
     char *dummy_base, const char *base_command)
 {
 	int i, len;
-	bool obsolete = false;
 	const char *name = NULL;
 
 	for (i=0; sub_comms[i].name; i++)
 	{
 		name = sub_comms[i].name;
-		obsolete = false;
 
 		if (name[0] == '!')
-		{
 			name++;
-			obsolete = true;
-		}
     
 		// handle sub-fields within sub-fields
 		if (name[0] == '*')
@@ -1237,9 +1232,6 @@ bool DDF_MainParseSubField(const commandlist_t *sub_comms,
 	if (!sub_comms[i].name)
 		return false;
 
-	if (obsolete)
-		DDF_WarnError("The ddf %s.%s command is obsolete !\n", base_command, name);
-
 	// found it, so call parse routine
 
 	SYS_ASSERT(sub_comms[i].parse_command);
@@ -1264,13 +1256,9 @@ bool DDF_MainParseField(const commandlist_t *commands,
 	for (int i=0; commands[i].name; i++)
 	{
 		const char * name = commands[i].name;
-		bool obsolete = false;
 
 		if (name[0] == '!')
-		{
 			name++;
-			obsolete = true;
-		}
     
 		// handle subfields
 		if (name[0] == '*')
@@ -1296,9 +1284,6 @@ bool DDF_MainParseField(const commandlist_t *commands,
 			continue;
 
 		// found it, so call parse routine
-		if (obsolete)
-			DDF_WarnError("The ddf %s command is obsolete !\n", name);
-
 		SYS_ASSERT(commands[i].parse_command);
 
 		byte *storage = (byte *) commands[i].storage;
@@ -1756,23 +1741,14 @@ static int FindSpecialFlag(const char *prefix, const char *name,
 	for (i=0; flag_set[i].name; i++)
 	{
 		const char *current = flag_set[i].name;
-		bool obsolete = false;
 
 		if (current[0] == '!')
-		{
 			current++;
-			obsolete = true;
-		}
     
 		sprintf(try_name, "%s%s", prefix, current);
     
 		if (DDF_CompareName(name, try_name) == 0)
-		{
-			if (obsolete)
-				DDF_WarnError("The ddf flag `%s' is obsolete !\n", try_name);
-
 			return i;
-		}
 	}
 
 	return -1;

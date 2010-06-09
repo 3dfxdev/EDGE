@@ -208,10 +208,7 @@ static const commandlist_t linedef_commands[] =
 	// -AJA- backwards compatibility cruft...
 	DF("CRUSH", ddf, DDF_LineMakeCrush),
 	DF("SECSPECIAL", ddf, DDF_DummyFunction),
-
-	DF("!EXTRAFLOOR_TRANSLUCENCY", translucency, DDF_MainGetPercent),
-	DF("!SOUND", ddf, DDF_DummyFunction),
-	DF("!LIGHT_PROBABILITY", ddf, DDF_DummyFunction),
+	DF("EXTRAFLOOR_TRANSLUCENCY", translucency, DDF_MainGetPercent),
 
 	DDF_CMD_END
 };
@@ -713,7 +710,6 @@ static specflags_t teleport_specials[] =
 	{"SILENT",     TELSP_Silent, 0},
 
 	// these modes are deprecated (kept for B.C.)
-	// FIXME: show a warning if used (cannot use "!" prefix)
 	{"SAME_DIR",   TELSP_SameAbsDir, 0},
 	{"ROTATE",     TELSP_Rotate, 0},
 	{"PRESERVE",   TELSP_Preserve, 0},
