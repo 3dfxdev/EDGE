@@ -79,13 +79,15 @@ static image_namespace_e GetImageNamespace(const char *prefix)
 
 static void ImageStartEntry(const char *name)
 {
-	I_Debugf("ImageStartEntry [%s]\n", name);
+	if (!name || !name[0])
+		DDF_Error("New image entry is missing a name!");
+
+//	I_Debugf("ImageStartEntry [%s]\n", name);
 
 	bool replaces = false;
 
 	image_namespace_e belong = INS_Graphic;
 
-	if (name && name[0])
 	{
 		const char *pos = strchr(name, ':');
 
@@ -124,10 +126,7 @@ static void ImageStartEntry(const char *name)
 	{
 		dynamic_image = new imagedef_c;
 
-		if (name && name[0])
-			dynamic_image->ddf.name.Set(name);
-		else
-			dynamic_image->ddf.SetUniqueName("UNNAMED", imagedefs.GetSize());
+		dynamic_image->ddf.name = name;
 
 		imagedefs.Insert(dynamic_image);
 	}

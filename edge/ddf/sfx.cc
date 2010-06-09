@@ -62,10 +62,13 @@ static const commandlist_t sfx_commands[] =
 
 static void SoundStartEntry(const char *name)
 {
-	sfxdef_c *existing = NULL;
+	if (!name || !name[0])
+	{
+		DDF_WarnError("New sound entry is missing a name!");
+		name = "SOUND_WITH_NO_NAME";
+	}
 
-	if (name && name[0])
-		existing = sfxdefs.Lookup(name);
+	sfxdef_c *existing = sfxdefs.Lookup(name);
 
 	// not found, create a new one
 	if (existing)
@@ -78,10 +81,7 @@ static void SoundStartEntry(const char *name)
 	{
 		dynamic_sfx = new sfxdef_c;
 
-		if (name && name[0])
-			dynamic_sfx->ddf.name.Set(name);
-		else
-			dynamic_sfx->ddf.SetUniqueName("UNNAMED_SOUND", sfxdefs.GetSize());
+		dynamic_sfx->ddf.name = name;
 
 		sfxdefs.Insert(dynamic_sfx);
 

@@ -35,7 +35,7 @@ static void DDF_LevelGetWistyle(const char *info, void *storage);
 mapdef_container_c mapdefs;
 
 static mapdef_c buffer_map;
-static mapdef_c* dynamic_map;
+static mapdef_c* dynamic_level;
 
 static map_finaledef_c buffer_finale;
 
@@ -133,29 +133,29 @@ static specflags_t map_specials[] =
 
 static void LevelStartEntry(const char *name)
 {
-	mapdef_c *existing = NULL;
+	if (!name || !name[0])
+	{
+		DDF_WarnError("New level entry is missing a name!");
+		name = "LEVEL_WITH_NO_NAME";
+	}
 
-	if (name && name[0])
-		existing = mapdefs.Lookup(name);
+	mapdef_c *existing = mapdefs.Lookup(name);
 
 	// not found, create a new one
 	if (existing)
 	{
-		dynamic_map = existing;
+		dynamic_level = existing;
 	}
 	else
 	{
-		dynamic_map = new mapdef_c;
+		dynamic_level = new mapdef_c;
 
-		if (name && name[0])
-			dynamic_map->ddf.name.Set(name);
-		else
-			dynamic_map->ddf.SetUniqueName("UNNAMED_LEVEL_MAP", mapdefs.GetSize());
+		dynamic_level->ddf.name = name;
 
-		mapdefs.Insert(dynamic_map);
+		mapdefs.Insert(dynamic_level);
 	}
 
-	dynamic_map->ddf.number = 0;
+	dynamic_level->ddf.number = 0;
 
 	// instantiate the static entries
 	buffer_map.Default();
@@ -183,7 +183,7 @@ static void LevelFinishEntry(void)
 	// FIXME: check more stuff here...
 
 	// transfer static entry to dynamic entry
-	dynamic_map->CopyDetail(buffer_map);
+	dynamic_level->CopyDetail(buffer_map);
 
 	// compute CRC...
 	// FIXME! Do something...

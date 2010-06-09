@@ -59,44 +59,45 @@ static const commandlist_t anim_commands[] =
 // -ACB- 2004/06/03 Replaced array and size with purpose-built class
 animdef_container_c animdefs;
 
+
+static animdef_c * animdefs_Lookup(const char *name)
+{
+	epi::array_iterator_c it;
+
+	for (it = animdefs.GetBaseIterator(); it.IsValid(); it++)
+	{
+		animdef_c *a = ITERATOR_TO_TYPE(it, animdef_c*);
+
+		if (DDF_CompareName(a->ddf.name.c_str(), name) == 0)
+			return a;
+	}
+
+	return NULL;  // not found
+}
+
+
 //
 //  DDF PARSE ROUTINES
 //
 static void AnimStartEntry(const char *name)
 {
-	bool replaces = false;
-
-	if (name && name[0])
+	if (!name || !name[0])
 	{
-		epi::array_iterator_c it;
-		animdef_c *a;
-
-		for (it = animdefs.GetBaseIterator(); it.IsValid(); it++)
-		{
-			a = ITERATOR_TO_TYPE(it, animdef_c*);
-			if (DDF_CompareName(a->ddf.name.c_str(), name) == 0)
-			{
-				dynamic_anim = a;
-				replaces = true;
-				break;
-			}
-		}
+		DDF_WarnError("New anim entry is missing a name!");
+		name = "ANIM_WITH_NO_NAME";
 	}
 
+	dynamic_anim = animdefs_Lookup(name);
+
 	// not found, create a new one
-	if (! replaces)
+	if (! dynamic_anim)
 	{
 		dynamic_anim = new animdef_c;
 
-		if (name && name[0])
-			dynamic_anim->ddf.name.Set(name);
-		else
-			dynamic_anim->ddf.SetUniqueName("UNNAMED_ANIM", animdefs.GetSize());
+		dynamic_anim->ddf.name = name;
 
 		animdefs.Insert(dynamic_anim);
 	}
-
-	dynamic_anim->ddf.number = 0;
 
 	// instantiate the static entry
 	buffer_anim.Default();
@@ -244,7 +245,7 @@ void DDF_ParseANIMATED(const byte *data, int size)
 
 		animdef_c *def = new animdef_c;
 
-		def->ddf.SetUniqueName("BOOM_ANIM", animdefs.GetSize());
+		def->ddf.name = "BOOM_ANIM";
 		def->ddf.number = 0;
 
 		def->Default();

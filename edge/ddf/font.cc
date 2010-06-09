@@ -52,9 +52,14 @@ fontdef_container_c fontdefs;
 //
 static void FontStartEntry(const char *name)
 {
+	if (!name || !name[0])
+	{
+		DDF_WarnError("New font entry is missing a name!");
+		name = "FONT_WITH_NO_NAME";
+	}
+
 	bool replaces = false;
 
-	if (name && name[0])
 	{
 		epi::array_iterator_c it;
 		fontdef_c *a;
@@ -76,10 +81,7 @@ static void FontStartEntry(const char *name)
 	{
 		dynamic_font = new fontdef_c;
 
-		if (name && name[0])
-			dynamic_font->ddf.name.Set(name);
-		else
-			dynamic_font->ddf.SetUniqueName("UNNAMED_FONT", fontdefs.GetSize());
+		dynamic_font->ddf.name = name;
 
 		fontdefs.Insert(dynamic_font);
 	}
