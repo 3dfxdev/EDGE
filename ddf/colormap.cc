@@ -24,16 +24,16 @@
 #include "colormap.h"
 
 #undef  DF
-#define DF  DDF_CMD
+#define DF  DDF_FIELD
 
-static colourmap_c buffer_colmap;
 static colourmap_c *dynamic_colmap;
 
 colourmap_container_c colourmaps;
 
 void DDF_ColmapGetSpecial(const char *info, void *storage);
 
-#define DDF_CMD_BASE  buffer_colmap
+#define DDF_CMD_BASE  dummy_colmap
+static colourmap_c dummy_colmap;
 
 static const commandlist_t colmap_commands[] =
 {
@@ -57,43 +57,39 @@ static const commandlist_t colmap_commands[] =
 //  DDF PARSE ROUTINES
 //
 
-static bool ColmapStartEntry(const char *name)
+static void ColmapStartEntry(const char *name)
 {
-	colourmap_c *existing = NULL;
+	if (!name || name[0] == 0)
+	{
+		DDF_WarnError("New colormap entry is missing a name!");
+		name = "COLORMAP_WITH_NO_NAME";
+	}
 
-	if (name && name[0])
-		existing = colourmaps.Lookup(name);
+	dynamic_colmap = colourmaps.Lookup(name);
+
+	// replaces the existing entry
+	if (dynamic_colmap)
+	{
+		dynamic_colmap->Default();
+
+		if (strnicmp(name, "TEXT", 4) == 0)
+			dynamic_colmap->special = COLSP_Whiten;
+
+		return;
+	}
 
 	// not found, create a new one
-	if (existing)
-	{
-		dynamic_colmap = existing;
-	}
-	else
-	{
-		dynamic_colmap = new colourmap_c;
+	dynamic_colmap = new colourmap_c;
 
-		if (name && name[0])
-			dynamic_colmap->ddf.name.Set(name);
-		else
-			dynamic_colmap->ddf.SetUniqueName("UNNAMED_COLMAP", colourmaps.GetSize());
-
-		colourmaps.Insert(dynamic_colmap);
-	}
-
-	dynamic_colmap->ddf.number = 0;
-
-	// instantiate the static entry
-	buffer_colmap.Default();
+	dynamic_colmap->ddf.name.Set(name);
 
 	// make sure fonts get whitened properly (as the default)
-	if (strnicmp(dynamic_colmap->ddf.name.c_str(), "TEXT", 4) == 0)
-	{
-		buffer_colmap.special = COLSP_Whiten;
-	}
+	if (strnicmp(name, "TEXT", 4) == 0)
+		dynamic_colmap->special = COLSP_Whiten;
 
-	return (existing != NULL);
+	colourmaps.Insert(dynamic_colmap);
 }
+
 
 static void ColmapParseField(const char *field, const char *contents,
     int index, bool is_last)
@@ -102,37 +98,31 @@ static void ColmapParseField(const char *field, const char *contents,
 	I_Debugf("COLMAP_PARSE: %s = %s;\n", field, contents);
 #endif
 
-	if (DDF_MainParseField(colmap_commands, field, contents))
-		return;
-
-	DDF_WarnError("Unknown colmap.ddf command: %s\n", field);
+	if (! DDF_MainParseField(colmap_commands, field, contents, (byte *)dynamic_colmap))
+	{
+		DDF_WarnError("Unknown colmap.ddf command: %s\n", field);
+	}
 }
+
 
 static void ColmapFinishEntry(void)
 {
-	if (buffer_colmap.start < 0)
+	if (dynamic_colmap->start < 0)
 	{
-		DDF_WarnError("Bad START value for colmap: %d\n", buffer_colmap.start);
-		buffer_colmap.start = 0;
+		DDF_WarnError("Bad START value for colmap: %d\n", dynamic_colmap->start);
+		dynamic_colmap->start = 0;
 	}
 
-	if (buffer_colmap.length <= 0)
+	if (dynamic_colmap->length <= 0)
 	{
-		DDF_WarnError("Bad LENGTH value for colmap: %d\n", buffer_colmap.length);
-		buffer_colmap.length = 1;
+		DDF_WarnError("Bad LENGTH value for colmap: %d\n", dynamic_colmap->length);
+		dynamic_colmap->length = 1;
 	}
 
-	if (buffer_colmap.lump_name.empty() && buffer_colmap.gl_colour == RGB_NO_VALUE)
+	if (dynamic_colmap->lump_name.empty() && dynamic_colmap->gl_colour == RGB_NO_VALUE)
 		DDF_Error("Colourmap entry missing LUMP or GL_COLOUR.\n");
-
-	// transfer static entry to dynamic entry
-	dynamic_colmap->CopyDetail(buffer_colmap);
-
-	// Compute CRC.  In this case, there is no need, since colourmaps
-	// only affect rendering, they have zero effect on the game
-	// simulation itself.
-	dynamic_colmap->ddf.crc.Reset();
 }
+
 
 static void ColmapClearAll(void)
 {
@@ -171,15 +161,18 @@ bool DDF_ReadColourMaps(void *data, int size)
 	return DDF_MainReadFile(&colm_r);
 }
 
+
 void DDF_ColmapInit(void)
 {
 	colourmaps.Clear();
 }
 
+
 void DDF_ColmapCleanUp(void)
 {
 	colourmaps.Trim();
 }
+
 
 specflags_t colmap_specials[] =
 {
@@ -191,6 +184,7 @@ specflags_t colmap_specials[] =
 	{NULL, 0, 0}
 };
 
+
 //
 // DDF_ColmapGetSpecial
 //
@@ -198,17 +192,19 @@ specflags_t colmap_specials[] =
 //
 void DDF_ColmapGetSpecial(const char *info, void *storage)
 {
+	colourspecial_e *spec = (colourspecial_e *)storage;
+
 	int flag_value;
 
 	switch (DDF_MainCheckSpecialFlag(info, colmap_specials, &flag_value,
 				true, false))
 	{
 		case CHKF_Positive:
-			buffer_colmap.special = (colourspecial_e)(buffer_colmap.special | flag_value);
+			*spec = (colourspecial_e)(*spec | flag_value);
 			break;
 
 		case CHKF_Negative:
-			buffer_colmap.special = (colourspecial_e)(buffer_colmap.special & ~flag_value);
+			*spec = (colourspecial_e)(*spec & ~flag_value);
 			break;
 
 		case CHKF_User:
@@ -245,7 +241,6 @@ void DDF_ColourmapAddRaw(const char *lump_name, int size)
 
 	def->ddf.name.Set(lump_name);
 	def->ddf.number = 0;
-	def->ddf.crc.Reset();
 
 	def->lump_name.Set(lump_name);
 
@@ -264,6 +259,9 @@ void DDF_ColourmapAddRaw(const char *lump_name, int size)
 //
 colourmap_c::colourmap_c()
 {
+	ddf.Default();
+	
+	Default();
 }
 
 //
@@ -315,8 +313,6 @@ void colourmap_c::CopyDetail(colourmap_c &src)
 //
 void colourmap_c::Default()
 {
-	ddf.Default();
-	
 	lump_name.clear();
 
 	start   = 0;

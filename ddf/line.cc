@@ -176,8 +176,8 @@ static const commandlist_t linedef_commands[] =
 	DF("EXIT", e_exit, DDF_SectGetExit),
 	DF("HUB_EXIT", hub_exit, DDF_MainGetNumeric),
 
-	{"SCROLL", DDF_LineGetScroller, &s_dir, NULL},
-	{"SCROLLING_SPEED", DDF_MainGetFloat, &s_speed, NULL},
+	{"SCROLL", DDF_LineGetScroller, 0, &s_dir, NULL},
+	{"SCROLLING_SPEED", DDF_MainGetFloat, 0, &s_speed, NULL},
 
 	DF("SCROLL_XSPEED", s_xspeed, DDF_MainGetFloat),
 	DF("SCROLL_YSPEED", s_yspeed, DDF_MainGetFloat),
@@ -298,7 +298,7 @@ s_activators[] =
 //
 // LinedefStartEntry
 //
-static bool LinedefStartEntry(const char *name)
+static void LinedefStartEntry(const char *name)
 {
 	int number = MAX(0, atoi(name));
 
@@ -325,8 +325,6 @@ static bool LinedefStartEntry(const char *name)
 
 	s_speed = 1.0f;
 	s_dir = dir_none;
-
-	return (existing != NULL);
 }
 
 //

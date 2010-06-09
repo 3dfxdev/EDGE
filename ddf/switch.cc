@@ -53,7 +53,7 @@ static const commandlist_t switch_commands[] =
 //  DDF PARSE ROUTINES
 //
 
-static bool SwitchStartEntry(const char *name)
+static void SwitchStartEntry(const char *name)
 {
 	switchdef_c *existing = NULL;
 
@@ -80,9 +80,8 @@ static bool SwitchStartEntry(const char *name)
 
 	// instantiate the static entry
 	buffer_switchdef.Default();
-
-	return (existing != NULL);
 }
+
 
 static void SwitchParseField(const char *field, const char *contents,
 		int index, bool is_last)

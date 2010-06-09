@@ -81,7 +81,9 @@ typedef struct commandlist_s
 	//
 	void (*parse_command) (const char *info, void *storage);
 
-	void *storage;
+	ptrdiff_t offset;
+
+	void *storage;  // REMOVE
 
 	const struct commandlist_s *sub_comms;
 	void *sub_dummy_base;
@@ -90,13 +92,16 @@ commandlist_t;
 
 // NOTE: requires DDF_CMD_BASE to be defined as the dummy struct
 
+#define DDF_FIELD(name,field,parser)  \
+    { name, parser, ((char*)&DDF_CMD_BASE.field - (char*)&DDF_CMD_BASE), NULL, NULL, NULL }
+
 #define DDF_CMD(name,field,parser)  \
-    { name, parser, &DDF_CMD_BASE.field, NULL, NULL }
+    { name, parser, 0, &DDF_CMD_BASE.field, NULL, NULL }
 
 #define DDF_SUB_LIST(name,field,subcomms,dummybase)  \
-    { "*" name, NULL, &DDF_CMD_BASE.field, subcomms, &dummybase }
+    { "*" name, NULL, 0, &DDF_CMD_BASE.field, subcomms, &dummybase }
 
-#define DDF_CMD_END  { NULL, NULL, NULL, NULL }
+#define DDF_CMD_END  { NULL, NULL, 0, NULL, NULL }
 
 
 //
@@ -147,7 +152,7 @@ typedef struct readinfo_s
 	// Note: for things.ddf, only the name is significant when checking
 	// if the entry already exists.
 	//
-	bool (*start_entry) (const char *name);
+	void (*start_entry) (const char *name);
 
 	// parse a single field for the entry.  Usually it will just call
 	// the ddf_main routine to handle the command list.  For
@@ -265,7 +270,8 @@ void DDF_MainGetWhenAppear (const char *info, void *storage);
 void DDF_MainGetBitSet (const char *info, void *storage);
 
 bool DDF_MainParseField (const commandlist_t * commands,
-			      const char *field, const char *contents);
+			      const char *field, const char *contents,
+				  byte *obj_base = NULL);
 void DDF_MainLookupSound (const char *info, void *storage);
 void DDF_MainRefAttack (const char *info, void *storage);
 

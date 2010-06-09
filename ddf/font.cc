@@ -50,7 +50,7 @@ fontdef_container_c fontdefs;
 //
 //  DDF PARSE ROUTINES
 //
-static bool FontStartEntry(const char *name)
+static void FontStartEntry(const char *name)
 {
 	bool replaces = false;
 
@@ -88,8 +88,8 @@ static bool FontStartEntry(const char *name)
 
 	// instantiate the static entry
 	buffer_font.Default();
-	return replaces;
 }
+
 
 static void FontParseField(const char *field, const char *contents, int index, bool is_last)
 {
