@@ -1959,7 +1959,6 @@ void ddf_base_c::Copy(const ddf_base_c &src)
 {
 	name = src.name;
 	number = src.number;
-	crc = src.crc;
 }
 
 //
@@ -1969,7 +1968,6 @@ void ddf_base_c::Default()
 {
 	name.clear();
 	number = 0;
-	crc.Reset();
 }
 
 //

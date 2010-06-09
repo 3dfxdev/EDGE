@@ -298,6 +298,7 @@ static void WeaponParseField(const char *field, const char *contents,
 	DDF_WarnError("Unknown weapons.ddf command: %s\n", field);
 }
 
+
 static void WeaponFinishEntry(void)
 {
 	if (! buffer_weapon.state_grp.back().first)
@@ -380,20 +381,8 @@ static void WeaponFinishEntry(void)
 
 	// transfer static entry to dynamic entry
 	dynamic_weapon->CopyDetail(buffer_weapon);
-
-	// compute CRC...
-	for (ATK = 0; ATK < 2; ATK++)
-	{
-		// FIXME: attack name
-		dynamic_weapon->ddf.crc += dynamic_weapon->ammo[ATK];
-		dynamic_weapon->ddf.crc += dynamic_weapon->ammopershot[ATK];
-		dynamic_weapon->ddf.crc += dynamic_weapon->clip_size[ATK];
-		dynamic_weapon->ddf.crc += dynamic_weapon->autofire[ATK];
-		dynamic_weapon->ddf.crc += dynamic_weapon->specials[ATK];
-	}
-
-	// FIXME: add more stuff...
 }
+
 
 static void WeaponClearAll(void)
 {

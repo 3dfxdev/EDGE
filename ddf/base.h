@@ -19,7 +19,6 @@
 #ifndef __DDF_BASE_H__
 #define __DDF_BASE_H__
 
-#include "epi/math_crc.h"
 #include "epi/utility.h"
 
 class ddf_base_c
@@ -41,8 +40,6 @@ public:
 	epi::strent_c name;
 
 	int number;	
-
-	epi::crc32_c crc;
 };
 
 #endif /*__DDF_BASE_H__*/

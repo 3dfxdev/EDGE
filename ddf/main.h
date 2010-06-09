@@ -20,7 +20,6 @@
 #define __DDF_MAIN_H__
 
 #include "epi/file.h"
-#include "epi/math_crc.h"
 #include "epi/utility.h"
 
 #include "types.h"

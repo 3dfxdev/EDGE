@@ -155,15 +155,13 @@ static void PlaylistParseField(const char *field, const char *contents,
 		DDF_WarnError("Unknown playlist.ddf command: %s\n", field);
 }
 
+
 static void PlaylistFinishEntry(void)
 {
 	// transfer static entry to dynamic entry
 	dynamic_plentry->CopyDetail(buffer_plentry);
-
-	// Compute CRC.  In this case, there is no need, since the music
-	// playlist has zero impact on the game simulation itself.
-	dynamic_plentry->ddf.crc.Reset();
 }
+
 
 static void PlaylistClearAll(void)
 {
