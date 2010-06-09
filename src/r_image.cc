@@ -308,12 +308,18 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 								real_image_container_c& container,
 								const image_c *replaces = NULL)
 {
-	/* used for Sprites too */
+	/* also used for Sprites and TX/HI stuff */
 
 	int lump_len = W_LumpLength(lump);
 
-	// FIXME: do this merely with epi::file_c
-	byte *data = (byte *) W_CacheLumpNum(lump);
+	epi::file_c *f = W_OpenLump(lump);
+	SYS_ASSERT(f);
+
+	byte buffer[32];
+
+	f->Read(buffer, sizeof(buffer));
+
+	f->Seek(0, epi::file_c::SEEKPOINT_START);
 
 	// determine info, and whether it is PNG or DOOM_PATCH
 	int width=0, height=0;
@@ -322,13 +328,9 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 	bool is_png = false;
 	bool solid  = false;
   
-	if (epi::PNG_IsDataPNG(data, lump_len))
+	if (epi::PNG_IsDataPNG(buffer, lump_len))
 	{
-		W_DoneWithLump(data);
-
 		is_png = true;
-
-		epi::file_c * f = W_OpenLump(lump);
 
 		if (! PNG_GetInfo(f, &width, &height, &solid) ||
 		    width <= 0 or height <= 0)
@@ -339,16 +341,16 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 		// close it
 		delete f;
 	}
-	else
+	else  // DOOM PATCH format
 	{
-		patch_t *pat = (patch_t *) data;
+		patch_t *pat = (patch_t *) buffer;
 
 		width    = EPI_LE_S16(pat->width);
 		height   = EPI_LE_S16(pat->height);
 		offset_x = EPI_LE_S16(pat->leftoffset);
 		offset_y = EPI_LE_S16(pat->topoffset);
 
-		W_DoneWithLump(data);
+		delete f;
 
 		// do some basic checks
 		// !!! FIXME: identify lump types in wad code.
