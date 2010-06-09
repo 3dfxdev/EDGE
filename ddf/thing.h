@@ -872,20 +872,20 @@ public:
 
 public:
 	mobjtype_c();
-	mobjtype_c(mobjtype_c &rhs);
 	~mobjtype_c();
 
-private:
-	void Copy(mobjtype_c &src);
-
 public:
-	void CopyDetail(mobjtype_c &src);
 	void Default();
-	
-	mobjtype_c& operator=(mobjtype_c &rhs);
+	void CopyDetail(mobjtype_c &src);
 
 	void DLightCompatibility(void);
+
+private:
+	// disable copy construct and assignment operator
+	explicit mobjtype_c(mobjtype_c &rhs) { }
+	mobjtype_c& operator= (mobjtype_c &rhs) { return *this; }
 };
+
 
 // Our mobjdef container
 #define LOOKUP_CACHESIZE 211

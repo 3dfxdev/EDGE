@@ -55,17 +55,11 @@ class weapondef_c
 {
 public:
 	weapondef_c();
-	weapondef_c(weapondef_c &rhs);
 	~weapondef_c();
 	
-private:
-	void Copy(weapondef_c &src);
-	
 public:
-	void CopyDetail(weapondef_c &src);
 	void Default(void);
-
-	weapondef_c& operator=(weapondef_c &rhs);
+	void CopyDetail(weapondef_c &src);
 
 	// Weapon's name, etc...
 	epi::strent_c name;
@@ -176,7 +170,13 @@ public:
 
 		return (pri * 20 + key) * 100 + idx;
 	}
+
+private:
+	// disable copy construct and assignment operator
+	explicit weapondef_c(weapondef_c &rhs) { }
+	weapondef_c& operator= (weapondef_c &rhs) { return *this; }
 };
+
 
 class weapondef_container_c : public epi::array_c
 {

@@ -192,12 +192,12 @@ static const commandlist_t linedef_commands[] =
 	DF("MUSIC", music, DDF_MainGetNumeric),
 	DF("AUTO", autoline, DDF_MainGetBoolean),
 	DF("SINGLESIDED", singlesided, DDF_MainGetBoolean),
-	DF("EXTRAFLOOR_TYPE", ddf, DDF_LineGetExtraFloor),
-	DF("EXTRAFLOOR_CONTROL", ddf, DDF_LineGetEFControl),
+	DF("EXTRAFLOOR_TYPE", number, DDF_LineGetExtraFloor),    // FIXME
+	DF("EXTRAFLOOR_CONTROL", number, DDF_LineGetEFControl),  // FIXME
 	DF("TRANSLUCENCY", translucency, DDF_MainGetPercent),
 	DF("WHEN_APPEAR", appear, DDF_MainGetWhenAppear),
 	DF("SPECIAL", special_flags, DDF_LineGetSpecialFlags),
-	DF("RADIUS_TRIGGER", ddf, DDF_LineGetRadTrig),
+	DF("RADIUS_TRIGGER", number, DDF_LineGetRadTrig),       // FIXME
 	DF("LINE_EFFECT", line_effect, DDF_LineGetLineEffect),
 	DF("LINE_PARTS",  line_parts,  DDF_LineGetScrollPart),
 	DF("SECTOR_EFFECT", sector_effect, DDF_LineGetSectorEffect),
@@ -206,8 +206,8 @@ static const commandlist_t linedef_commands[] =
 	DF("COLOUR", fx_color, DDF_MainGetRGB),
 
 	// -AJA- backwards compatibility cruft...
-	DF("CRUSH", ddf, DDF_LineMakeCrush),
-	DF("SECSPECIAL", ddf, DDF_DummyFunction),
+	DF("CRUSH", number, DDF_LineMakeCrush),       // FIXME
+	DF("SECSPECIAL", number, DDF_DummyFunction),  // FIXME
 	DF("EXTRAFLOOR_TRANSLUCENCY", translucency, DDF_MainGetPercent),
 
 	DDF_CMD_END
@@ -1582,11 +1582,6 @@ linetype_c::linetype_c() : number(0)
 	Default();
 }
 
-linetype_c::linetype_c(linetype_c &rhs)
-{
-	Copy(rhs);
-}
-
 //
 // linetype_c Destructor
 //
@@ -1594,13 +1589,6 @@ linetype_c::~linetype_c()
 {
 }
 	
-
-void linetype_c::Copy(linetype_c &src)
-{
-	ddf = src.ddf;
-	CopyDetail(src);
-}
-
 
 void linetype_c::CopyDetail(linetype_c &src)
 {
@@ -1703,16 +1691,6 @@ void linetype_c::Default(void)
 	fx_color = RGB_MAKE(0,0,0);
 }
 
-//
-// linetype_c assignment operator
-//
-linetype_c& linetype_c::operator=(linetype_c &rhs)
-{
-	if (&rhs != this)
-		Copy(rhs);
-		
-	return *this;
-}
 
 // --> Line definition type container class
 

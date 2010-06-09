@@ -553,28 +553,12 @@ weapondef_c::weapondef_c() : name(), state_grp()
 	Default();
 }
 
-//
-// weapondef_c Copy constructor
-//
-weapondef_c::weapondef_c(weapondef_c &rhs) : state_grp()
-{
-	Copy(rhs);
-}
 
 //
 // weapondef_c Destructor
 //
 weapondef_c::~weapondef_c()
 {
-}
-
-//
-// weapondef_c::Copy()
-//
-void weapondef_c::Copy(weapondef_c &src)
-{
-	ddf = src.ddf;
-	CopyDetail(src);
 }
 
 //
@@ -727,16 +711,6 @@ void weapondef_c::Default(void)
 	model_side = 0.0f;
 }
 
-//
-// weapondef_c assignment operator
-//	
-weapondef_c& weapondef_c::operator=(weapondef_c &rhs)
-{
-	if (&rhs != this)
-		Copy(rhs);
-	
-	return *this;
-}
 
 // --> Weapon Definition Container
 

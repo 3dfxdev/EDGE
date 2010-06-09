@@ -107,9 +107,9 @@ const commandlist_t thing_commands[] =
 	DF("MASS", mass, DDF_MainGetFloat),
 	DF("SPEED", speed, DDF_MainGetFloat),
 	DF("FAST", fast, DDF_MainGetFloat),
-	DF("SPECIAL", ddf, DDF_MobjGetSpecial),
-	DF("EXTRA", ddf, DDF_MobjGetExtra),
-	DF("PROJECTILE_SPECIAL", ddf, DDF_MobjGetSpecial),
+	DF("SPECIAL", name, DDF_MobjGetSpecial),  // FIXME
+	DF("EXTRA", name, DDF_MobjGetExtra),      // FIXME
+	DF("PROJECTILE_SPECIAL", name, DDF_MobjGetSpecial),  // FIXME
 	DF("RESPAWN_TIME", respawntime, DDF_MainGetTime),
 	DF("FUSE", fuse, DDF_MainGetTime),
 	DF("LIFESPAN", fuse, DDF_MainGetTime),
@@ -1735,20 +1735,8 @@ mobjtype_c::mobjtype_c() : name(), state_grp()
 	Default();
 }
 
-mobjtype_c::mobjtype_c(mobjtype_c &rhs) : state_grp()
-{
-	Copy(rhs);
-}
-
 mobjtype_c::~mobjtype_c()
 {
-}
-
-
-void mobjtype_c::Copy(mobjtype_c &src)
-{
-	ddf = src.ddf;
-	CopyDetail(src);	
 }
 
 
@@ -2046,15 +2034,6 @@ void mobjtype_c::DLightCompatibility(void)
 //??	if (dlight[DL].radius > 500)
 //??		dlight[DL].radius = 500;
 	}
-}
-
-
-mobjtype_c& mobjtype_c::operator=(mobjtype_c &rhs)
-{
-	if (&rhs != this)
-		Copy(rhs);
-		
-	return *this;
 }
 
 
