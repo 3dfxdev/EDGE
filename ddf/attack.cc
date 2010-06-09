@@ -100,9 +100,10 @@ static const commandlist_t attack_commands[] =
 	DF("ATTACK_CLASS", attack_class, DDF_MainGetBitSet),
 
 	// -AJA- backward compatibility cruft...
-	DF("!DAMAGE", damage.nominal, DDF_MainGetFloat),
-	{"!DAMAGE_RANGE", DDF_MainGetFloat, 0, &a_damage_range, NULL},
-	{"!DAMAGE_MULTI", DDF_MainGetFloat, 0, &a_damage_multi, NULL},
+	DF("DAMAGE", damage.nominal, DDF_MainGetFloat),
+
+	{"DAMAGE_RANGE", DDF_MainGetFloat, 0, &a_damage_range, NULL},
+	{"DAMAGE_MULTI", DDF_MainGetFloat, 0, &a_damage_multi, NULL},
 
 	DDF_CMD_END
 };
@@ -337,7 +338,8 @@ static const specflags_t attack_specials[] =
     {"VAMPIRE", AF_Vampire, 0},
 
     // -AJA- backwards compatibility cruft...
-    {"!NOAMMO", AF_None, 0},
+    {"NOAMMO", AF_None, 0},
+
     {NULL, AF_None, 0}
 };
 

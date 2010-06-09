@@ -88,12 +88,13 @@ static const commandlist_t weapon_commands[] =
 	// -AJA- backwards compatibility cruft...
 	DF("SECOND_ATTACK", attack[1], DDF_MainRefAttack),
 
-	DF("!SOUND1", sound1, DDF_MainLookupSound),
-	DF("!SOUND2", sound2, DDF_MainLookupSound),
-	DF("!SOUND3", sound3, DDF_MainLookupSound),
+	DF("SOUND1", sound1, DDF_MainLookupSound),
+	DF("SOUND2", sound2, DDF_MainLookupSound),
+	DF("SOUND3", sound3, DDF_MainLookupSound),
 
 	DDF_CMD_END
 };
+
 
 static const state_starter_t weapon_starters[] =
 {
@@ -117,6 +118,7 @@ static const state_starter_t weapon_starters[] =
 	{"SECFLASH",  "REMOVE", &buffer_weapon.flash_state[1]},
 	{NULL, NULL, NULL}
 };
+
 
 static const actioncode_t weapon_actions[] =
 {
@@ -160,13 +162,13 @@ static const actioncode_t weapon_actions[] =
 	{"FRIEND_JUMP",       A_FriendJump, DDF_StateGetFrame},
 
 	// -AJA- backwards compatibility cruft...
-	{"!SOUND1",           A_SFXWeapon1, NULL},
-	{"!SOUND2",           A_SFXWeapon2, NULL},
-	{"!SOUND3",           A_SFXWeapon3, NULL},
-	{"!RANDOMJUMP", 	  NULL, NULL},
-	{"!TARGET",           NULL, NULL},
+	{"SOUND1",           A_SFXWeapon1, NULL},
+	{"SOUND2",           A_SFXWeapon2, NULL},
+	{"SOUND3",           A_SFXWeapon3, NULL},
+
 	{NULL, NULL, NULL}
 };
+
 
 const specflags_t ammo_types[] =
 {
@@ -181,7 +183,6 @@ const specflags_t ammo_types[] =
     {"GRENADES", AM_Grenade, 0},
     {"GAS",      AM_Gas,     0},
 
-	// FIXME: parse these with code?
     {"AMMO1",  AM_Bullet,  0},
     {"AMMO2",  AM_Shell,   0},
     {"AMMO3",  AM_Rocket,  0},
@@ -202,6 +203,7 @@ const specflags_t ammo_types[] =
 
     {NULL, 0, 0}
 };
+
 
 static bool WeaponTryParseState(const char *field, 
     const char *contents, int index, bool is_last)

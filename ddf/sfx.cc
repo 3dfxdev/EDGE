@@ -49,8 +49,8 @@ static const commandlist_t sfx_commands[] =
 	DF("MAX_DISTANCE", max_distance, DDF_MainGetFloat),
 
 	// -AJA- backwards compatibility cruft...
-	DF("!BITS",   ddf, DDF_DummyFunction),
-	DF("!STEREO", ddf, DDF_DummyFunction),
+	DF("BITS",   ddf, DDF_DummyFunction),
+	DF("STEREO", ddf, DDF_DummyFunction),
 
 	DDF_CMD_END
 };

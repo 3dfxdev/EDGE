@@ -75,10 +75,8 @@ static const commandlist_t sect_commands[] =
 	DF("CRUSH_DAMAGE", ddf, DDF_SectMakeCrush),
 	DF("CRUSH_TIME", ddf, DDF_DummyFunction),
 
-	DF("!DAMAGE", damage.nominal, DDF_MainGetFloat),
-	DF("!DAMAGETIME", damage.delay, DDF_MainGetTime),
-	DF("!SOUND", ddf, DDF_DummyFunction),
-	DF("!LIGHT_PROBABILITY", ddf, DDF_DummyFunction),
+	DF("DAMAGE", damage.nominal, DDF_MainGetFloat),
+	DF("DAMAGETIME", damage.delay, DDF_MainGetTime),
 
 	DDF_CMD_END
 };

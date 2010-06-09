@@ -2238,9 +2238,9 @@ static const rts_parser_t radtrig_parsers[] =
 	{2, "MENU_STYLE", 2,2, RAD_ParseMenuStyle},
 	{2, "JUMP_ON", 3,99, RAD_ParseJumpOn},
 
-	// deprecated primitives
-	{2, "!SECTORV", 4,4, RAD_ParseMoveSector},
-	{2, "!SECTORL", 3,3, RAD_ParseLightSector},
+	// old crud
+	{2, "SECTORV", 4,4, RAD_ParseMoveSector},
+	{2, "SECTORL", 3,3, RAD_ParseLightSector},
 
 	// that's all, folks.
 	{0, NULL, 0,0, NULL}
@@ -2267,20 +2267,9 @@ void RAD_ParseLine(char *s)
 	for (const rts_parser_t *cur = radtrig_parsers; cur->name != NULL; cur++)
 	{
 		const char *cur_name = cur->name;
-		bool obsolete = false;
-
-		if (cur_name[0] == '!')
-		{
-			cur_name++;
-			obsolete = true;
-
-		}
 
 		if (DDF_CompareName(pars[0], cur_name) != 0)
 			continue;
-
-		if (obsolete)
-			RAD_WarnError("The rts %s command is obsolete !\n", cur_name);
 
 		// check level
 		if (cur->level >= 0)
