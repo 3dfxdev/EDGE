@@ -313,7 +313,8 @@ static void LinedefStartEntry(const char *name)
 	else
 	{
 		dynamic_line = new linetype_c;
-		dynamic_line->ddf.number = number;
+		dynamic_line->number = number;
+
 		linetypes.Insert(dynamic_line);
 	}
 
@@ -463,11 +464,10 @@ void DDF_LinedefInit(void)
 	
 	// Insert the template line as the first entry, this is used
 	// should the lookup fail	
-	linetype_c *l;
-	
-	l = new linetype_c;
+	linetype_c *l = new linetype_c;
 	l->Default();
-	l->ddf.number = -1;
+	l->number = -1;
+
 	linetypes.Insert(l);
 }
 
@@ -483,7 +483,7 @@ void DDF_LinedefCleanUp(void)
 	{
 		l = ITERATOR_TO_TYPE(it, linetype_c*);
 
-		cur_ddf_entryname = epi::STR_Format("[%d]  (lines.ddf)", l->ddf.number);
+		cur_ddf_entryname = epi::STR_Format("[%d]  (lines.ddf)", l->number);
 
 		l->t.inspawnobj = l->t.inspawnobj_ref ?
 			mobjtypes.Lookup(l->t.inspawnobj_ref) : NULL;
@@ -1577,7 +1577,7 @@ teleportdef_c& teleportdef_c::operator=(teleportdef_c &rhs)
 //
 // linetype_c Constructor
 //
-linetype_c::linetype_c()
+linetype_c::linetype_c() : number(0)
 {
 	Default();
 }
@@ -1653,8 +1653,6 @@ void linetype_c::CopyDetail(linetype_c &src)
 
 void linetype_c::Default(void)
 {
-	ddf.Default();
-
 	newtrignum = 0;
 	type = line_none;
 	obj = trig_none;
@@ -1759,7 +1757,7 @@ linetype_c* linetype_container_c::Lookup(const int id)
 
 	// check the cache
 	if (lookup_cache[slot] &&
-		lookup_cache[slot]->ddf.number == id)
+		lookup_cache[slot]->number == id)
 	{
 		return lookup_cache[slot];
 	}
@@ -1770,7 +1768,7 @@ linetype_c* linetype_container_c::Lookup(const int id)
 	for (it = GetTailIterator(); it.IsValid(); it--)
 	{
 		l = ITERATOR_TO_TYPE(it, linetype_c*);
-		if (l->ddf.number == id)
+		if (l->number == id)
 		{
 			break;
 		}

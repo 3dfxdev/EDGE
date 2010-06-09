@@ -294,7 +294,7 @@ static int HD_game_name(lua_State *L)
 	gamedef_c *g = currmap->episode;
 	SYS_ASSERT(g);
 
-	lua_pushstring(L, g->ddf.name.c_str());
+	lua_pushstring(L, g->name.c_str());
 	return 1;
 }
 
@@ -303,7 +303,7 @@ static int HD_game_name(lua_State *L)
 //
 static int HD_map_name(lua_State *L)
 {
-	lua_pushstring(L, currmap->ddf.name.c_str());
+	lua_pushstring(L, currmap->name.c_str());
 	return 1;
 }
 
@@ -1166,7 +1166,7 @@ static int PL_has_weapon(lua_State *L)
 
 		if (pw->owned && ! (pw->flags & PLWEP_Removing))
 		{
-			if (DDF_CompareName(name, pw->info->ddf.name.c_str()) == 0)
+			if (DDF_CompareName(name, pw->info->name.c_str()) == 0)
 			{
 				lua_pushboolean(L, 1);
 				return 1;
@@ -1195,7 +1195,7 @@ static int PL_cur_weapon(lua_State *L)
 
 	weapondef_c *info = cur_player->weapons[cur_player->ready_wp].info;
 
-	lua_pushstring(L, info->ddf.name.c_str());
+	lua_pushstring(L, info->name.c_str());
 	return 1;
 }
 
@@ -1411,7 +1411,7 @@ static int PL_hurt_mon(lua_State *L)
 		cur_player->attacker &&
 		cur_player->attacker != cur_player->mo)
 	{
-		lua_pushstring(L, cur_player->attacker->info->ddf.name.c_str());
+		lua_pushstring(L, cur_player->attacker->info->name.c_str());
 		return 1;
 	}
 

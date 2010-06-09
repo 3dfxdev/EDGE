@@ -268,12 +268,10 @@ static void WeaponStartEntry(const char *name)
 	{
 		dynamic_weapon = new weapondef_c;
 
-		dynamic_weapon->ddf.name = name;
+		dynamic_weapon->name = name;
 
 		weapondefs.Insert(dynamic_weapon);
 	}
-
-	dynamic_weapon->ddf.number = 0;
 
 	// instantiate the static entries
 	buffer_weapon.Default();
@@ -303,7 +301,7 @@ static void WeaponFinishEntry(void)
 {
 	if (! buffer_weapon.state_grp.back().first)
 		DDF_Error("Weapon `%s' has missing states.\n",
-			dynamic_weapon->ddf.name.c_str());
+			dynamic_weapon->name.c_str());
 
 	DDF_StateFinishRange(buffer_weapon.state_grp);
 
@@ -550,7 +548,7 @@ bool DDF_WeaponIsUpgrade(weapondef_c *weap, weapondef_c *old)
 //
 // weapondef_c Constructor
 //
-weapondef_c::weapondef_c() : state_grp()
+weapondef_c::weapondef_c() : name(), state_grp()
 {
 	Default();
 }
@@ -661,8 +659,6 @@ void weapondef_c::CopyDetail(weapondef_c &src)
 //
 void weapondef_c::Default(void)
 {
-	ddf.Default();
-
 	state_grp.clear();
 
 	for (int ATK = 0; ATK < 2; ATK++)
@@ -790,7 +786,7 @@ int weapondef_container_c::FindFirst(const char *name, int startpos)
 	while (it.IsValid())
 	{
 		w = ITERATOR_TO_TYPE(it, weapondef_c*);
-		if (DDF_CompareName(w->ddf.name.c_str(), name) == 0)
+		if (DDF_CompareName(w->name.c_str(), name) == 0)
 		{
 			return it.GetPos();
 		}

@@ -21,7 +21,6 @@
 
 #include "epi/utility.h"
 
-#include "base.h"
 #include "types.h"
 
 // -AJA- 1999/07/09: colmap.ddf structures.
@@ -61,7 +60,8 @@ public:
 	
 	colourmap_c& operator=(colourmap_c &rhs);
 
-	ddf_base_c ddf;
+	// Member vars...
+	epi::strent_c name;
 
 	lumpname_c lump_name;
 

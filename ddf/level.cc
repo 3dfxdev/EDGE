@@ -150,12 +150,10 @@ static void LevelStartEntry(const char *name)
 	{
 		dynamic_level = new mapdef_c;
 
-		dynamic_level->ddf.name = name;
+		dynamic_level->name = name;
 
 		mapdefs.Insert(dynamic_level);
 	}
-
-	dynamic_level->ddf.number = 0;
 
 	// instantiate the static entries
 	buffer_map.Default();
@@ -250,7 +248,7 @@ void DDF_LevelCleanUp(void)
 
 		if (! m->episode_name)
 			I_Printf("WARNING: Cannot find episode '%s' for map entry [%s]\n",
-					 m->episode_name.c_str(), m->ddf.name.c_str());
+					 m->episode_name.c_str(), m->name.c_str());
 	}
 }
 
@@ -394,7 +392,7 @@ map_finaledef_c& map_finaledef_c::operator=(map_finaledef_c &rhs)
 
 // --> map definition class
 
-mapdef_c::mapdef_c()
+mapdef_c::mapdef_c() : name()
 {
 	Default();
 }
@@ -445,8 +443,6 @@ void mapdef_c::CopyDetail(mapdef_c &src)
 
 void mapdef_c::Default()
 {
-	ddf.Default();
-
 	description.clear();	
   	namegraphic.clear();
   	lump.clear();
@@ -513,7 +509,7 @@ mapdef_c* mapdef_container_c::Lookup(const char *refname)
 		if (! m->episode)
 			continue;
 
-		if (DDF_CompareName(m->ddf.name.c_str(), refname) == 0)
+		if (DDF_CompareName(m->name.c_str(), refname) == 0)
 			return m;
 	}
 

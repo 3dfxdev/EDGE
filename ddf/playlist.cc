@@ -135,7 +135,8 @@ static void PlaylistStartEntry(const char *name)
 	else
 	{
 		dynamic_plentry = new pl_entry_c;
-		dynamic_plentry->ddf.number = number;
+		dynamic_plentry->number = number;
+
 		playlist.Insert(dynamic_plentry);
 	}
 
@@ -226,7 +227,7 @@ void DDF_MusicPlaylistCleanUp(void)
 //
 // pl_entry_c constructor
 //
-pl_entry_c::pl_entry_c()
+pl_entry_c::pl_entry_c() : number(0)
 {
 	Default();
 }
@@ -272,8 +273,6 @@ void pl_entry_c::CopyDetail(pl_entry_c &src)
 // 
 void pl_entry_c::Default()
 {
-	ddf.Default();
-
 	type = MUS_UNKNOWN;     
 	infotype = MUSINF_UNKNOWN;
 	info.clear();             
@@ -316,7 +315,7 @@ pl_entry_c* pl_entry_container_c::Find(int number)
 	for (it = GetBaseIterator(); it.IsValid(); it++)
 	{
 		p = ITERATOR_TO_TYPE(it, pl_entry_c*);
-		if (p->ddf.number == number)
+		if (p->number == number)
 			return p;
 	}
 

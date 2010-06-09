@@ -88,7 +88,7 @@ void P_DumpMobjs(void)
 		L_WriteDebug(" %4d: %p next:%p prev:%p [%s] at (%1.0f,%1.0f,%1.0f) states=%d > %d tics=%d\n",
 			index,
 			mo, mo->next, mo->prev,
-			mo->info->ddf.name.c_str(),
+			mo->info->name.c_str(),
 			mo->x, mo->y, mo->z,
 			mo->state ? mo->state - states : -1,
 			mo->next_state ? mo->next_state - states : -1,
@@ -412,7 +412,7 @@ static void DeleteMobj(mobj_t * mo)
 {
 #if (DEBUG_MOBJ > 0)
 	L_WriteDebug("tics=%05d  DELETE %p [%s]\n", leveltime, mo, 
-		mo->info ? mo->info->ddf.name.c_str() : "???");
+		mo->info ? mo->info->name.c_str() : "???");
 #endif
 
 	// Sound might still be playing, so use remove the
@@ -1451,7 +1451,7 @@ void P_RemoveQueuedMobjs(bool force_all)
 
 		if (!force_all && mo->fuse == 1 && mo->refcount != 0)
 			I_Warning("Bad ref count for %s = %d.\n", 
-						mo->info->ddf.name.c_str(), mo->refcount);
+						mo->info->name.c_str(), mo->refcount);
 
 		if (force_all || (mo->fuse <= 0 && mo->refcount == 0))
 		{
@@ -1483,7 +1483,7 @@ static void AddMobjToList(mobj_t *mo)
 
 #if (DEBUG_MOBJ > 0)
 	L_WriteDebug("tics=%05d  ADD %p [%s]\n", leveltime, mo, 
-		mo->info ? mo->info->ddf.name.c_str() : "???");
+		mo->info ? mo->info->name.c_str() : "???");
 #endif
 }
 
@@ -1523,13 +1523,13 @@ void P_RemoveMobj(mobj_t *mo)
 {
 #if (DEBUG_MOBJ > 0)
 	L_WriteDebug("tics=%05d  REMOVE %p [%s]\n", leveltime, mo, 
-		mo->info ? mo->info->ddf.name.c_str() : "???");
+		mo->info ? mo->info->name.c_str() : "???");
 #endif
 
 	if (mo->isRemoved())
 	{
 		L_WriteDebug("Warning: Object %p (%s) REMOVED TWICE\n",
-		     mo, mo->info ? mo->info->ddf.name.c_str() : "???");
+		     mo, mo->info ? mo->info->name.c_str() : "???");
 		return;
 	}
 
@@ -1801,7 +1801,7 @@ mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c *info)
 
 #if (DEBUG_MOBJ > 0)
 	L_WriteDebug("tics=%05d  CREATE %p [%s]  AT %1.0f,%1.0f,%1.0f\n", 
-		leveltime, mobj, info->ddf.name.c_str(), x, y, z);
+		leveltime, mobj, info->name.c_str(), x, y, z);
 #endif
 
 	mobj->info = info;

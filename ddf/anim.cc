@@ -68,7 +68,7 @@ static animdef_c * animdefs_Lookup(const char *name)
 	{
 		animdef_c *a = ITERATOR_TO_TYPE(it, animdef_c*);
 
-		if (DDF_CompareName(a->ddf.name.c_str(), name) == 0)
+		if (DDF_CompareName(a->name.c_str(), name) == 0)
 			return a;
 	}
 
@@ -94,7 +94,7 @@ static void AnimStartEntry(const char *name)
 	{
 		dynamic_anim = new animdef_c;
 
-		dynamic_anim->ddf.name = name;
+		dynamic_anim->name = name;
 
 		animdefs.Insert(dynamic_anim);
 	}
@@ -245,8 +245,7 @@ void DDF_ParseANIMATED(const byte *data, int size)
 
 		animdef_c *def = new animdef_c;
 
-		def->ddf.name = "BOOM_ANIM";
-		def->ddf.number = 0;
+		def->name = "BOOM_ANIM";
 
 		def->Default();
 		
@@ -266,7 +265,7 @@ void DDF_ParseANIMATED(const byte *data, int size)
 //
 // animdef_c constructor
 //
-animdef_c::animdef_c()
+animdef_c::animdef_c() : name()
 {
 	Default();
 }
@@ -307,8 +306,6 @@ void animdef_c::CopyDetail(animdef_c &src)
 //
 void animdef_c::Default()
 {
-	ddf.Default();
-
 	type = A_Texture;
 
 	pics.Clear();

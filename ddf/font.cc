@@ -67,7 +67,7 @@ static void FontStartEntry(const char *name)
 		for (it = fontdefs.GetBaseIterator(); it.IsValid(); it++)
 		{
 			a = ITERATOR_TO_TYPE(it, fontdef_c*);
-			if (DDF_CompareName(a->ddf.name.c_str(), name) == 0)
+			if (DDF_CompareName(a->name.c_str(), name) == 0)
 			{
 				dynamic_font = a;
 				replaces = true;
@@ -81,12 +81,10 @@ static void FontStartEntry(const char *name)
 	{
 		dynamic_font = new fontdef_c;
 
-		dynamic_font->ddf.name = name;
+		dynamic_font->name = name;
 
 		fontdefs.Insert(dynamic_font);
 	}
-
-	dynamic_font->ddf.number = 0;
 
 	// instantiate the static entry
 	buffer_font.Default();
@@ -278,7 +276,7 @@ fontpatch_c::fontpatch_c(int _ch1, int _ch2, const char *_pat1) :
 //
 // fontdef_c constructor
 //
-fontdef_c::fontdef_c()
+fontdef_c::fontdef_c() : name()
 {
 	Default();
 }
@@ -318,8 +316,6 @@ void fontdef_c::CopyDetail(const fontdef_c &src)
 //
 void fontdef_c::Default()
 {
-	ddf.Default();
-
 	type = FNTYP_Patch;
 	patches = NULL;
 	image_name.clear();
@@ -360,7 +356,7 @@ fontdef_c* fontdef_container_c::Lookup(const char *refname)
 	for (epi::array_iterator_c it = GetIterator(0); it.IsValid(); it++)
 	{
 		fontdef_c *f = ITERATOR_TO_TYPE(it, fontdef_c*);
-		if (DDF_CompareName(f->ddf.name.c_str(), refname) == 0)
+		if (DDF_CompareName(f->name.c_str(), refname) == 0)
 			return f;
 	}
 

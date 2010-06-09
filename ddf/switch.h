@@ -21,7 +21,6 @@
 
 #include "epi/utility.h"
 
-#include "base.h"
 #include "types.h"
 
 class image_c;
@@ -52,7 +51,8 @@ public:
 	void Default(void);
 	switchdef_c& operator=(switchdef_c &rhs);
 
-	ddf_base_c ddf;
+	// Member vars....
+	epi::strent_c name;
 
 	lumpname_c name1;
 	lumpname_c name2;

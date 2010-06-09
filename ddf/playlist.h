@@ -19,7 +19,8 @@
 #ifndef __DDF_MUS_H__
 #define __DDF_MUS_H__
 
-#include "base.h"
+#include "epi/utility.h"
+
 #include "types.h"
 
 // ----------------------------------------------------------------
@@ -66,9 +67,12 @@ public:
 	void Default(void);
 	pl_entry_c& operator=(pl_entry_c &rhs);
 
-	ddf_base_c ddf;
+	// Member vars....
+	int number;
+
 	musictype_t type;
 	musicinftype_e infotype;
+
 	epi::strent_c info;
 };
 

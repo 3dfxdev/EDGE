@@ -511,12 +511,12 @@ static void ThingStartEntry(const char *buffer)
 	{
 		dynamic_mobj = new mobjtype_c;
 
-		dynamic_mobj->ddf.name = name.c_str();
+		dynamic_mobj->name = name.c_str();
 
 		mobjtypes.Insert(dynamic_mobj);
 	}
 
-	dynamic_mobj->ddf.number = number;
+	dynamic_mobj->number = number;
 
 	// instantiate the static entry
 	buffer_mobj.Default();
@@ -676,7 +676,7 @@ void DDF_MobjCleanUp(void)
 	{
 		m = ITERATOR_TO_TYPE(it, mobjtype_c*);
 
-		cur_ddf_entryname = epi::STR_Format("[%s]  (things.ddf)", m->ddf.name.c_str());
+		cur_ddf_entryname = epi::STR_Format("[%s]  (things.ddf)", m->name.c_str());
 
 		m->dropitem = m->dropitem_ref ? mobjtypes.Lookup(m->dropitem_ref) : NULL;
 		m->blood = m->blood_ref ? mobjtypes.Lookup(m->blood_ref) : mobjtypes.Lookup("BLOOD");
@@ -1533,7 +1533,7 @@ mobjtype_c *DDF_MobjMakeAttackObj(mobjtype_c *info, const char *atk_name)
 	mobjtype_c *result = new mobjtype_c;
 
 	result->CopyDetail(info[0]);
-	result->ddf.name.Set(name.c_str());
+	result->name.Set(name.c_str());
 
 	// backwards compat
 	result->DLightCompatibility();
@@ -1730,7 +1730,7 @@ bool DDF_MainParseCondition(const char *info, condition_check_t *cond)
 
 // ---> mobjdef class
 
-mobjtype_c::mobjtype_c() : state_grp()
+mobjtype_c::mobjtype_c() : name(), state_grp()
 {
 	Default();
 }
@@ -1886,8 +1886,6 @@ void mobjtype_c::CopyDetail(mobjtype_c &src)
 
 void mobjtype_c::Default()
 {
-	ddf.Default();
-
 	state_grp.clear();
 
     spawn_state = 0;
@@ -2099,7 +2097,7 @@ int mobjtype_container_c::FindFirst(const char *name, int startpos)
 	while (it.IsValid())
 	{
 		m = ITERATOR_TO_TYPE(it, mobjtype_c*);
-		if (DDF_CompareName(m->ddf.name.c_str(), name) == 0)
+		if (DDF_CompareName(m->name.c_str(), name) == 0)
 		{
 			return it.GetPos();
 		}
@@ -2124,7 +2122,7 @@ int mobjtype_container_c::FindLast(const char *name, int startpos)
 	while (it.IsValid())
 	{
 		m = ITERATOR_TO_TYPE(it, mobjtype_c*);
-		if (DDF_CompareName(m->ddf.name.c_str(), name) == 0)
+		if (DDF_CompareName(m->name.c_str(), name) == 0)
 		{
 			return it.GetPos();
 		}
@@ -2193,7 +2191,7 @@ const mobjtype_c *mobjtype_container_c::Lookup(int id)
 
 	// check the cache
 	if (lookup_cache[slot] &&
-		lookup_cache[slot]->ddf.number == id)
+		lookup_cache[slot]->number == id)
 	{
 		return lookup_cache[slot];
 	}
@@ -2204,7 +2202,7 @@ const mobjtype_c *mobjtype_container_c::Lookup(int id)
 	for (it = GetTailIterator(); it.IsValid(); it--)
 	{
 		m = ITERATOR_TO_TYPE(it, mobjtype_c*);
-		if (m->ddf.number == id)
+		if (m->number == id)
 		{
 			break;
 		}

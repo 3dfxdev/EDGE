@@ -21,7 +21,6 @@
 
 #include "epi/utility.h"
 
-#include "base.h"
 #include "types.h"
 
 typedef enum
@@ -108,7 +107,7 @@ public:
 	imagedef_c& operator= (const imagedef_c &rhs);
 
 	// Member vars....
-	ddf_base_c ddf;
+	epi::strent_c __name;
 
 	image_namespace_e belong;
 	imagedata_type_e type;
@@ -116,7 +115,7 @@ public:
 	rgbcol_t colour;          // IMGDT_Colour
 	builtin_image_e builtin;  // IMGDT_Builtin
 
-	epi::strent_c name;   // IMGDT_WadXXX, IMGDT_Package, IMGDT_File, IMGDT_Lump
+	epi::strent_c info;   // IMGDT_WadXXX, IMGDT_Package, IMGDT_File, IMGDT_Lump
 	L_image_format_e format;  // IMGDT_Lump, IMGDT_File (etc)
 
 	image_special_e special;

@@ -19,7 +19,8 @@
 #ifndef __DDF_ATK_H__
 #define __DDF_ATK_H__
 
-#include "base.h"
+#include "epi/utility.h"
+
 #include "types.h"
 
 
@@ -88,7 +89,7 @@ public:
 	atkdef_c& operator=(atkdef_c &rhs);
 
 	// Member vars
-	ddf_base_c ddf;
+	epi::strent_c name;
 
 	attackstyle_e attackstyle;
 	attackflags_e flags;

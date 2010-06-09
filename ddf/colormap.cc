@@ -78,7 +78,7 @@ static void ColmapStartEntry(const char *name)
 	// not found, create a new one
 	dynamic_colmap = new colourmap_c;
 
-	dynamic_colmap->ddf.name.Set(name);
+	dynamic_colmap->name.Set(name);
 
 	// make sure fonts get whitened properly (as the default)
 	if (strnicmp(name, "TEXT", 4) == 0)
@@ -237,10 +237,9 @@ void DDF_ColourmapAddRaw(const char *lump_name, int size)
 
 	def->Default();
 
-	def->ddf.name.Set(lump_name);
-	def->ddf.number = 0;
+	def->name = lump_name;
 
-	def->lump_name.Set(lump_name);
+	def->lump_name = lump_name;
 
 	def->start  = 0;
 	def->length = MIN(32, size / 256);
@@ -255,10 +254,8 @@ void DDF_ColourmapAddRaw(const char *lump_name, int size)
 //
 // colourmap_c Constructor
 //
-colourmap_c::colourmap_c()
+colourmap_c::colourmap_c() : name()
 {
-	ddf.Default();
-	
 	Default();
 }
 
@@ -381,7 +378,7 @@ colourmap_c* colourmap_container_c::Lookup(const char *refname)
 	for (it = GetIterator(num_disabled); it.IsValid(); it++)
 	{
 		c = ITERATOR_TO_TYPE(it, colourmap_c*);
-		if (DDF_CompareName(c->ddf.name.c_str(), refname) == 0)
+		if (DDF_CompareName(c->name.c_str(), refname) == 0)
 			return c;
 	}
 

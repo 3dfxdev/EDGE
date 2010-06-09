@@ -704,7 +704,7 @@ static plane_move_t *P_SetupSectorAction(sector_t * sector,
             plane->new_image = SECPIC(model, def->is_ceiling, NULL);
 
             plane->newspecial = model->props.special ?
-                model->props.special->ddf.number : 0;
+                model->props.special->number : 0;
         }
 
         if (plane->direction == (def->is_ceiling ? DIRECTION_DOWN : DIRECTION_UP))
@@ -732,7 +732,7 @@ static plane_move_t *P_SetupSectorAction(sector_t * sector,
         {
             plane->new_image = SECPIC(model, def->is_ceiling, NULL);
             plane->newspecial = model->props.special ?
-                model->props.special->ddf.number : 0;
+                model->props.special->number : 0;
 
             if (plane->direction == (def->is_ceiling ? DIRECTION_DOWN : DIRECTION_UP))
             {

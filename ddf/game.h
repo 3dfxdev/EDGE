@@ -19,7 +19,8 @@
 #ifndef __DDF_GAME_H__
 #define __DDF_GAME_H__
 
-#include "base.h"
+#include "epi/utility.h"
+
 #include "types.h"
 
 // ------------------------------------------------------------------
@@ -181,7 +182,8 @@ public:
 	void Default(void);
 	gamedef_c& operator=(gamedef_c &rhs);
 
-	ddf_base_c ddf;
+	// Member vars....
+	epi::strent_c name;
 
 	wi_animdef_container_c anims;
 	wi_mapposdef_container_c mappos;
