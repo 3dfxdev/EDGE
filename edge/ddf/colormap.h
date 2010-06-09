@@ -48,18 +48,12 @@ class colourmap_c
 {
 public:
 	colourmap_c();
-	colourmap_c(colourmap_c &rhs); 
 	~colourmap_c();
-
-private:
-	void Copy(colourmap_c &src);
 
 public:
 	void CopyDetail(colourmap_c &src);
 	void Default();
 	
-	colourmap_c& operator=(colourmap_c &rhs);
-
 	// Member vars...
 	epi::strent_c name;
 
@@ -79,7 +73,13 @@ public:
 	colmapcache_t cache;
 
 	void *analysis;
+
+private:
+	// disable copy construct and assignment operator
+	explicit colourmap_c(colourmap_c &rhs) { }
+	colourmap_c& operator=(colourmap_c &rhs) { return *this; }
 };
+
 
 // Colourmap container
 class colourmap_container_c : public epi::array_c

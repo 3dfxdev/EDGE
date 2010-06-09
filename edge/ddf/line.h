@@ -683,16 +683,11 @@ class linetype_c
 {
 public:
 	linetype_c();
-	linetype_c(linetype_c &rhs);
 	~linetype_c();
 	
-private:
-	void Copy(linetype_c &src);
-
 public:
-	void CopyDetail(linetype_c &src);
 	void Default(void);
-	linetype_c& operator=(linetype_c &rhs);
+	void CopyDetail(linetype_c &src);
 	
 	// Member vars....
 	int number;
@@ -797,7 +792,13 @@ public:
 
 	// -AJA- 2007/07/05: color for effects (e.g. MIRRORs)
 	rgbcol_t fx_color;
+
+private:
+	// disable copy construct and assignment operator
+	explicit linetype_c(linetype_c &rhs) { }
+	linetype_c& operator= (linetype_c &rhs) { return *this; }
 };
+
 
 // --> Linetype container class
 
@@ -855,17 +856,12 @@ class sectortype_c
 {
 public:
 	sectortype_c();
-	sectortype_c(sectortype_c &rhs);
 	~sectortype_c();
 	
-private:
-	void Copy(sectortype_c &src);
-	
 public:
-	void CopyDetail(sectortype_c &src);
 	void Default(void);
-	sectortype_c& operator=(sectortype_c &rhs);
-	
+	void CopyDetail(sectortype_c &src);
+
 	// Member vars....
 	int number;
 
@@ -914,7 +910,13 @@ public:
 	float push_speed;
 	float push_zspeed;
 	angle_t push_angle;
+
+private:
+	// disable copy construct and assignment operator
+	explicit sectortype_c(sectortype_c &rhs) { }
+	sectortype_c& operator= (sectortype_c &rhs) { return *this; }
 };
+
 
 // --> Sectortype container class
 

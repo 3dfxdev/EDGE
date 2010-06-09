@@ -43,9 +43,6 @@ static const commandlist_t colmap_commands[] =
 	DF("SPECIAL", special,   DDF_ColmapGetSpecial),
 	DF("GL_COLOUR", gl_colour, DDF_MainGetRGB),
 
-	// -AJA- backwards compatibility cruft...
-	DF("PRIORITY", ddf, DDF_DummyFunction),
-
 	DDF_CMD_END
 };
 
@@ -94,6 +91,10 @@ static void ColmapParseField(const char *field, const char *contents,
 #if (DEBUG_DDF)  
 	I_Debugf("COLMAP_PARSE: %s = %s;\n", field, contents);
 #endif
+
+	// -AJA- backwards compatibility cruft...
+	if (DDF_CompareName(field, "PRIORITY") == 0)
+		return;
 
 	if (! DDF_MainParseField(colmap_commands, field, contents, (byte *)dynamic_colmap))
 	{
@@ -239,7 +240,7 @@ void DDF_ColourmapAddRaw(const char *lump_name, int size)
 
 	def->name = lump_name;
 
-	def->lump_name = lump_name;
+	def->lump_name.Set(lump_name);
 
 	def->start  = 0;
 	def->length = MIN(32, size / 256);
@@ -260,28 +261,10 @@ colourmap_c::colourmap_c() : name()
 }
 
 //
-// colourmap_c Copy Constructor
-//
-colourmap_c::colourmap_c(colourmap_c &rhs)
-{
-	Copy(rhs);
-}
- 
-//
 // colourmap_c Deconstructor
 //
 colourmap_c::~colourmap_c()
 {
-}
-
-//
-// colourmap_c::Copy()
-//
-void colourmap_c::Copy(colourmap_c &src)
-{
-	ddf = src.ddf;
-
-	CopyDetail(src);
 }
 
 //
@@ -322,16 +305,6 @@ void colourmap_c::Default()
 	analysis = NULL;
 }
 
-//
-// colourmap_c assignment operator
-//
-colourmap_c& colourmap_c::operator=(colourmap_c &rhs)
-{
-	if (&rhs != this)
-		Copy(rhs);
-		
-	return *this;
-}
 
 // --> colourmap_container_c class
 

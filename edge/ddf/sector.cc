@@ -71,9 +71,8 @@ static const commandlist_t sect_commands[] =
 	DF("PUSH_ZSPEED", push_zspeed, DDF_MainGetFloat),
 
 	// -AJA- backwards compatibility cruft...
-	DF("CRUSH", ddf, DDF_SectMakeCrush),
-	DF("CRUSH_DAMAGE", ddf, DDF_SectMakeCrush),
-	DF("CRUSH_TIME", ddf, DDF_DummyFunction),
+	DF("CRUSH", number, DDF_SectMakeCrush),          // FIXME
+	DF("CRUSH_DAMAGE", number, DDF_SectMakeCrush),   // FIXME
 
 	DF("DAMAGE", damage.nominal, DDF_MainGetFloat),
 	DF("DAMAGETIME", damage.delay, DDF_MainGetTime),
@@ -449,15 +448,7 @@ static void DDF_SectMakeCrush(const char *info, void *storage)
 //
 sectortype_c::sectortype_c() : number(0)
 {
-	Default()
-}
-
-//
-// sectortype_c Copy constructor
-//
-sectortype_c::sectortype_c(sectortype_c &rhs)
-{
-	Copy(rhs);
+	Default();
 }
 
 //
@@ -467,14 +458,6 @@ sectortype_c::~sectortype_c()
 {
 }
 
-//
-// sectortype_c::Copy()
-//
-void sectortype_c::Copy(sectortype_c &src)
-{
-	ddf = src.ddf;
-	CopyDetail(src);
-}
 
 //
 // sectortype_c::CopyDetail()
@@ -544,16 +527,6 @@ void sectortype_c::Default()
 	push_angle = 0;
 }
 
-//
-// sectortype_c assignment operator
-//
-sectortype_c& sectortype_c::operator=(sectortype_c &rhs)
-{
-	if(&rhs != this)
-		Copy(rhs);
-
-	return *this;
-}
 
 // --> Sector definition type container class
 
