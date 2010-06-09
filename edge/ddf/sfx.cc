@@ -106,6 +106,7 @@ static void SoundParseField(const char *field, const char *contents,
 		DDF_WarnError("Unknown sounds.ddf command: %s\n", field);
 }
 
+
 static void SoundFinishEntry(void)
 {
 	if (!buffer_sfx.lump_name[0] &&
@@ -118,17 +119,15 @@ static void SoundFinishEntry(void)
 	// Keeps the ID info intact as well.
 	dynamic_sfx->normal.sounds[0] = buffer_sfx_ID;
 	dynamic_sfx->normal.num = 1;
-
-	// Compute CRC.  In this case, there is no need, since sounds have
-	// zero impact on the game simulation itself.
-	dynamic_sfx->ddf.crc.Reset();
 }
+
 
 static void SoundClearAll(void)
 {
 	// not safe to delete entries -- mark them disabled
 	sfxdefs.SetDisabledCount(sfxdefs.GetDisabledCount());
 }
+
 
 bool DDF_ReadSFX(void *data, int size)
 {
