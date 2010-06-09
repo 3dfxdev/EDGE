@@ -674,22 +674,30 @@ void W_ImageAddTX(int lump, const char *name, bool hires)
 	if (hires)
 	{
 		const image_c *rim = do_Lookup(real_textures, name, -2);
-		if (rim)
+		if (rim && rim->source_type != IMSRC_User)
 		{
 			AddImageGraphic(name, IMSRC_TX_HI, lump, real_textures, rim);
 			return;
 		}
 
 		rim = do_Lookup(real_flats, name, -2);
-		if (rim)
+		if (rim && rim->source_type != IMSRC_User)
 		{
 			AddImageGraphic(name, IMSRC_TX_HI, lump, real_flats, rim);
 			return;
 		}
 
-		// we do it this way to cause the original graphic to be loaded
+		rim = do_Lookup(real_sprites, name, -2);
+		if (rim && rim->source_type != IMSRC_User)
+		{
+			AddImageGraphic(name, IMSRC_TX_HI, lump, real_sprites, rim);
+			return;
+		}
+
+		// we do it this way to force the original graphic to be loaded
 		rim = W_ImageLookup(name, INS_Graphic, ILF_Exact|ILF_Null);
-		if (rim)
+
+		if (rim && rim->source_type != IMSRC_User)
 		{
 			AddImageGraphic(name, IMSRC_TX_HI, lump, real_graphics, rim);
 			return;
