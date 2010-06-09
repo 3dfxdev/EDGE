@@ -565,7 +565,7 @@ void SR_WeaponPutInfo(void *storage, int index, void *extra)
 {
 	weapondef_c *info = ((weapondef_c **)storage)[index];
 
-	SV_PutString(info ? info->ddf.name.c_str() : NULL);
+	SV_PutString(info ? info->name.c_str() : NULL);
 }
 
 
@@ -711,7 +711,7 @@ void SR_PlayerPutState(void *storage, int index, void *extra)
 	}
 
 	std::string buf(epi::STR_Format("%s:%s:%d",
-			actual->ddf.name.c_str(),
+			actual->name.c_str(),
 			states[base].label ? states[base].label : "*",
 			1 + s_num - base));
 

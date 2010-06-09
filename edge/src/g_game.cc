@@ -243,7 +243,7 @@ void LoadLevel_Bits(void)
 
 	P_SetupLevel();
 
-	RAD_SpawnTriggers(currmap->ddf.name.c_str());
+	RAD_SpawnTriggers(currmap->name.c_str());
 
 	starttime = I_GetTime();
 	exittime = INT_MAX;
@@ -611,7 +611,7 @@ void G_ExitToHub(int map_number, int tag)
 	char name_buf[32];
 
 	// bit hackish: decided whether to use MAP## or E#M#
-	if (currmap->ddf.name[0] == 'E')
+	if (currmap->name[0] == 'E')
 	{
 		sprintf(name_buf, "E%dM%d", 1+(map_number/10), map_number%10);
 	}
@@ -895,10 +895,10 @@ static bool G_SaveGameToFile(const char *filename, const char *description)
 	// --- fill in global structure ---
 
 	globs->game  = SV_DupString(currmap->episode_name);
-	globs->level = SV_DupString(currmap->ddf.name);
+	globs->level = SV_DupString(currmap->name);
 	globs->flags = level_flags;
 	globs->hub_tag = curr_hub_tag;
-	globs->hub_first = curr_hub_first ? SV_DupString(curr_hub_first->ddf.name) : NULL;
+	globs->hub_first = curr_hub_first ? SV_DupString(curr_hub_first->name) : NULL;
 
 	globs->skill = gameskill;
 	globs->netgame = netgame ? (1+deathmatch) : 0;

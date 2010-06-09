@@ -356,7 +356,7 @@ static bool BOT_LookForItems(bot_t *bot)
 
 #if (DEBUG > 0)
 I_Printf("BOT %d: WANT item %s, score %d\n",
-bot->pl->pnum, best_item->info->ddf.name.c_str(), best_score);
+bot->pl->pnum, best_item->info->name.c_str(), best_score);
 #endif
 
 		return true;
@@ -413,7 +413,7 @@ static bool BOT_LookForEnemies(bot_t *bot)
 				BOT_SetTarget(bot, them);
 #if (DEBUG > 0)
 I_Printf("BOT %d: Targeting Agent: %s\n", bot->pl->pnum,
-them->info->ddf.name.c_str());
+them->info->name.c_str());
 #endif
 				return true;
 			}
@@ -458,7 +458,7 @@ static void BOT_Chase(bot_t *bot, bool seetarget, bool move_ok)
 
 #if (DEBUG > 1)
 		I_Printf("BOT %d: Chase %s dist %1.1f angle %1.0f | %s\n",
-			bot->pl->pnum, mo->target->info->ddf.name.c_str(),
+			bot->pl->pnum, mo->target->info->name.c_str(),
 			P_ApproxDistance(mo->x - mo->target->x, mo->y - mo->target->y),
 			ANG_2_FLOAT(bot->angle), move_ok ? "move_ok" : "NO_MOVE");
 #endif

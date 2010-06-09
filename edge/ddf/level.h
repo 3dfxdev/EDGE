@@ -19,7 +19,8 @@
 #ifndef __DDF_LEVEL_H__
 #define __DDF_LEVEL_H__
 
-#include "base.h"
+#include "epi/utility.h"
+
 #include "types.h"
 
 
@@ -126,7 +127,8 @@ public:
 	void Default(void);
 	mapdef_c& operator=(mapdef_c &rhs);
 
-	ddf_base_c ddf;
+	// Member vars....
+	epi::strent_c name;
 
 ///---	// next in the list
 ///---	mapdef_c *next;				// FIXME!! Gamestate information

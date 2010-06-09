@@ -81,14 +81,12 @@ static void SoundStartEntry(const char *name)
 	{
 		dynamic_sfx = new sfxdef_c;
 
-		dynamic_sfx->ddf.name = name;
+		dynamic_sfx->name = name;
 
 		sfxdefs.Insert(dynamic_sfx);
 
 		buffer_sfx_ID = sfxdefs.GetSize()-1; // self reference
 	}
-
-	dynamic_sfx->ddf.number = 0;
 
 	// instantiate the static entries
 	buffer_sfx.Default();
@@ -193,8 +191,9 @@ void DDF_MainLookupSound(const char *info, void *storage)
 //
 // sfxdef_c Constructor
 //
-sfxdef_c::sfxdef_c()
+sfxdef_c::sfxdef_c() : name()
 {
+	Default()
 }
 
 //
@@ -246,8 +245,6 @@ void sfxdef_c::CopyDetail(sfxdef_c &src)
 //
 void sfxdef_c::Default()
 {
-	ddf.Default();
-	
 	lump_name.clear();
 	file_name.clear();
 
@@ -333,7 +330,7 @@ sfx_t* sfxdef_container_c::GetEffect(const char *name, bool error)
 	{
 		si = ITERATOR_TO_TYPE(it, sfxdef_c*);
 		
-		if (strncasecmpwild(name, si->ddf.name.c_str(), 8) == 0)
+		if (strncasecmpwild(name, si->name.c_str(), 8) == 0)
 		{
 			count++;
 			last = it;
@@ -372,7 +369,7 @@ sfx_t* sfxdef_container_c::GetEffect(const char *name, bool error)
 	{
 		si = ITERATOR_TO_TYPE(it, sfxdef_c*);
 		
-		if (strncasecmpwild(name, si->ddf.name.c_str(), 8) == 0)
+		if (strncasecmpwild(name, si->name.c_str(), 8) == 0)
 			r->sounds[r->num++] = it.GetPos();
 	}
 
@@ -392,7 +389,7 @@ sfxdef_c* sfxdef_container_c::Lookup(const char *name)
 	for (it=GetIterator(num_disabled); it.IsValid(); it++)
 	{
 		s = ITERATOR_TO_TYPE(it, sfxdef_c*);
-		if (DDF_CompareName(s->ddf.name.c_str(), name) == 0)
+		if (DDF_CompareName(s->name.c_str(), name) == 0)
 		{
 			return s;
 		}

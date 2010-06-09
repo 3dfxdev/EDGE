@@ -21,7 +21,6 @@
 
 #include "epi/utility.h"
 
-#include "base.h"
 #include "types.h"
 
 class fontdef_c;
@@ -114,7 +113,7 @@ public:
 	styledef_c& operator= (const styledef_c &rhs);
 
 	// Member vars....
-	ddf_base_c ddf;
+	epi::strent_c name;
 
 	backgroundstyle_c bg;
 

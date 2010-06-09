@@ -21,7 +21,6 @@
 
 #include "epi/utility.h"
 
-#include "base.h"
 #include "types.h"
 
 // ------------------------------------------------------------------
@@ -695,7 +694,8 @@ public:
 	void Default(void);
 	linetype_c& operator=(linetype_c &rhs);
 	
-	ddf_base_c ddf;
+	// Member vars....
+	int number;
 	
     // Linedef will change to this.
 	int newtrignum;
@@ -866,8 +866,8 @@ public:
 	void Default(void);
 	sectortype_c& operator=(sectortype_c &rhs);
 	
-	// Sector's name, number, etc...
-	ddf_base_c ddf;
+	// Member vars....
+	int number;
 
     // This sector gives you secret count
 	bool secret;

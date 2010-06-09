@@ -399,7 +399,7 @@ static void PL_has_weapon(coal::vm_c *vm, int argc)
 		playerweapon_t *pw = &ui_player_who->weapons[j];
 
 		if (pw->owned && ! (pw->flags & PLWEP_Removing) &&
-			DDF_CompareName(name, pw->info->ddf.name.c_str()) == 0)
+			DDF_CompareName(name, pw->info->name.c_str()) == 0)
 		{
 			vm->ReturnFloat(1);
 			return;
@@ -427,7 +427,7 @@ static void PL_cur_weapon(coal::vm_c *vm, int argc)
 
 	weapondef_c *info = ui_player_who->weapons[ui_player_who->ready_wp].info;
 
-	vm->ReturnString(info->ddf.name.c_str());
+	vm->ReturnString(info->name.c_str());
 }
 
 
@@ -637,7 +637,7 @@ static void PL_hurt_mon(coal::vm_c *vm, int argc)
 		ui_player_who->attacker &&
 		ui_player_who->attacker != ui_player_who->mo)
 	{
-		vm->ReturnString(ui_player_who->attacker->info->ddf.name.c_str());
+		vm->ReturnString(ui_player_who->attacker->info->name.c_str());
 		return;
 	}
 

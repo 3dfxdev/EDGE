@@ -624,7 +624,7 @@ linetype_c *DDF_BoomGetGenLine(int number)
 		line = new linetype_c;
 		line->Default();
 
-		line->ddf.number = number;
+		line->number = number;
 
 		DDF_BoomMakeGenLine(line, number);
 

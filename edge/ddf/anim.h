@@ -19,10 +19,10 @@
 #ifndef __DDF_ANIM_H_
 #define __DDF_ANIM_H_
 
-#include "base.h"
+#include "epi/utility.h"
+
 #include "types.h"
 
-#include "epi/utility.h"
 
 //
 // source animation definition
@@ -45,7 +45,7 @@ public:
 	animdef_c& operator=(animdef_c &rhs);
 
 	// Member vars....
-	ddf_base_c ddf;
+	epi::strent_c name;
 
 	enum  // types
 	{

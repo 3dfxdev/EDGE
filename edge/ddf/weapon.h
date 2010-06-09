@@ -19,7 +19,8 @@
 #ifndef __DDF_WEAPON_H__
 #define __DDF_WEAPON_H__
 
-#include "base.h"
+#include "epi/utility.h"
+
 #include "types.h"
 #include "states.h"
 
@@ -66,7 +67,8 @@ public:
 
 	weapondef_c& operator=(weapondef_c &rhs);
 
-	ddf_base_c ddf;			// Weapon's name, etc...
+	// Weapon's name, etc...
+	epi::strent_c name;
 
 	atkdef_c *attack[2];	// Attack type used.
   

@@ -428,7 +428,7 @@ void P_BringCorpseToLife(mobj_t * corpse)
 	else if (info->idle_state)
 		P_SetMobjState(corpse, info->idle_state);
 	else
-		I_Error("Object %s has no RESURRECT states.\n", info->ddf.name.c_str());
+		I_Error("Object %s has no RESURRECT states.\n", info->name.c_str());
 }
 
 
@@ -625,7 +625,7 @@ void P_ActSetSkin(mobj_t * mo)
 
 		if (skin < 0 || skin > 9)
 			I_Error("Thing [%s]: Bad skin number %d in SET_SKIN action.\n",
-					mo->info->ddf.name.c_str(), skin);
+					mo->info->name.c_str(), skin);
 
 		mo->model_skin = skin;
 	}
@@ -757,7 +757,7 @@ void P_ActPlaySound(mobj_t * mo)
 	if (! sound)
 	{
 		M_WarnError("P_ActPlaySound: missing sound name in %s.\n", 
-					mo->info->ddf.name.c_str());
+					mo->info->name.c_str());
 		return;
 	}
 
@@ -781,7 +781,7 @@ void P_ActMakeAmbientSound(mobj_t * mo)
 	if (mo->info->seesound)
 		S_StartFX(mo->info->seesound, P_MobjGetSfxCategory(mo), mo);
 	else
-		I_Debugf("%s has no ambient sound\n", mo->info->ddf.name.c_str());
+		I_Debugf("%s has no ambient sound\n", mo->info->name.c_str());
 }
 
 
@@ -798,7 +798,7 @@ void P_ActMakeAmbientSoundRandom(mobj_t * mo)
 			S_StartFX(mo->info->seesound, P_MobjGetSfxCategory(mo), mo);
 	}
 	else
-		I_Debugf("%s has no ambient sound\n", mo->info->ddf.name.c_str());
+		I_Debugf("%s has no ambient sound\n", mo->info->name.c_str());
 }
 
 
@@ -812,7 +812,7 @@ void P_ActMakeActiveSound(mobj_t * mo)
 	if (mo->info->activesound)
 		S_StartFX(mo->info->activesound, P_MobjGetSfxCategory(mo), mo);
 	else
-		I_Debugf("%s has no ambient sound\n", mo->info->ddf.name.c_str());
+		I_Debugf("%s has no ambient sound\n", mo->info->name.c_str());
 }
 
 
@@ -828,7 +828,7 @@ void P_ActMakeDyingSound(mobj_t * mo)
 	if (sound)
 		S_StartFX(sound, P_MobjGetSfxCategory(mo), mo, SfxFlags(mo->info));
 	else
-		I_Debugf("%s has no death sound\n", mo->info->ddf.name.c_str());
+		I_Debugf("%s has no death sound\n", mo->info->name.c_str());
 }
 
 
@@ -840,7 +840,7 @@ void P_ActMakePainSound(mobj_t * mo)
 		S_StartFX(mo->info->painsound, P_MobjGetSfxCategory(mo),
 				       mo, SfxFlags(mo->info));
 	else
-		I_Debugf("%s has no pain sound\n", mo->info->ddf.name.c_str());
+		I_Debugf("%s has no pain sound\n", mo->info->name.c_str());
 }
 
 
@@ -850,7 +850,7 @@ void P_ActMakeOverKillSound(mobj_t * mo)
 		S_StartFX(mo->info->overkill_sound, P_MobjGetSfxCategory(mo),
 					   mo, SfxFlags(mo->info));
 	else
-		I_Debugf("%s has no overkill sound\n", mo->info->ddf.name.c_str());
+		I_Debugf("%s has no overkill sound\n", mo->info->name.c_str());
 }
 
 
@@ -860,14 +860,14 @@ void P_ActMakeCloseAttemptSound(mobj_t * mo)
 
 	if (! mo->info->closecombat)
 		I_Error("Object [%s] used CLOSEATTEMPTSND action, "
-				"but has no CLOSE_ATTACK\n", mo->info->ddf.name.c_str());
+				"but has no CLOSE_ATTACK\n", mo->info->name.c_str());
    
 	sfx_t *sound = mo->info->closecombat->initsound;
 
 	if (sound)
 		S_StartFX(sound, P_MobjGetSfxCategory(mo), mo);
 	else
-		I_Debugf("%s has no close combat attempt sound\n", mo->info->ddf.name.c_str());
+		I_Debugf("%s has no close combat attempt sound\n", mo->info->name.c_str());
 }
 
 
@@ -877,14 +877,14 @@ void P_ActMakeRangeAttemptSound(mobj_t * mo)
 
 	if (! mo->info->rangeattack)
 		I_Error("Object [%s] used RANGEATTEMPTSND action, "
-				"but has no RANGE_ATTACK\n", mo->info->ddf.name.c_str());     
+				"but has no RANGE_ATTACK\n", mo->info->name.c_str());     
 
 	sfx_t *sound = mo->info->rangeattack->initsound;
 
 	if (sound)
 		S_StartFX(sound, P_MobjGetSfxCategory(mo), mo);
 	else
-		I_Debugf("%s has no range attack attempt sound\n", mo->info->ddf.name.c_str());
+		I_Debugf("%s has no range attack attempt sound\n", mo->info->name.c_str());
 }
 
 
@@ -906,7 +906,7 @@ void P_ActDamageExplosion(mobj_t * object)
 #ifdef DEVELOPERS
 	if (!damage)
 	{
-		L_WriteDebug("%s caused no explosion damage\n", object->info->ddf.name.c_str());
+		L_WriteDebug("%s caused no explosion damage\n", object->info->name.c_str());
 		return;
 	}
 #endif
@@ -933,7 +933,7 @@ void P_ActThrust(mobj_t * object)
 #ifdef DEVELOPERS
 	if (!damage)
 	{
-		L_WriteDebug("%s caused no thrust\n", object->info->ddf.name.c_str());
+		L_WriteDebug("%s caused no thrust\n", object->info->name.c_str());
 		return;
 	}
 #endif
@@ -1235,7 +1235,7 @@ static inline bool Weakness_CheckHit(mobj_t *target,
 	if (weak->classes == BITSET_EMPTY)
 		return false;
 	
-I_Debugf("Weakness_CheckHit: target=[%s] classes=0x%08x\n", target->info->ddf.name.c_str(), weak->classes); 
+I_Debugf("Weakness_CheckHit: target=[%s] classes=0x%08x\n", target->info->name.c_str(), weak->classes); 
 
 	if (BITSET_EMPTY != (attack->attack_class & ~weak->classes))
 		return false;
@@ -1381,7 +1381,7 @@ int P_MissileContact(mobj_t * object, mobj_t * target)
 	{
 #ifdef DEVELOPERS
 		L_WriteDebug("%s missile did zero damage.\n", 
-					 object->info->ddf.name.c_str());
+					 object->info->name.c_str());
 #endif
 		return 0;
 	}
@@ -1473,7 +1473,7 @@ int P_BulletContact(mobj_t * source, mobj_t * target,
 	{
 #ifdef DEVELOPERS
 		L_WriteDebug("%s's shoot/combat attack did zero damage.\n", 
-					 source->info->ddf.name.c_str());
+					 source->info->name.c_str());
 #endif
 		return 0;
 	}
@@ -1505,7 +1505,7 @@ void P_ActCreateSmokeTrail(mobj_t * projectile)
 	if (attack->puff == NULL)
 	{
 		M_WarnError("P_ActCreateSmokeTrail: attack %s has no PUFF object\n",
-					attack->ddf.name.c_str());
+					attack->name.c_str());
 		return;
 	}
   
@@ -2032,8 +2032,8 @@ void P_ActEffectTracker(mobj_t * object)
 #ifdef DEVELOPERS
 	else
 		L_WriteDebug("%s + %s attack has zero damage\n",
-					 object->info->ddf.name.c_str(), 
-					 tracker->info->ddf.name.c_str());
+					 object->info->name.c_str(), 
+					 tracker->info->name.c_str());
 #endif
 
 	// -ACB- 2000/03/11 Check for zero mass
@@ -2055,8 +2055,8 @@ void P_ActEffectTracker(mobj_t * object)
 #ifdef DEVELOPERS
 	if (!tracker->info->explode_damage.nominal)
 		L_WriteDebug("%s + %s explosion has zero damage\n",
-					 object->info->ddf.name.c_str(), 
-					 tracker->info->ddf.name.c_str());
+					 object->info->name.c_str(), 
+					 tracker->info->name.c_str());
 #endif
 
 	DAMAGE_COMPUTE(damage, &tracker->info->explode_damage);
@@ -2086,7 +2086,7 @@ static void ShootToSpot(mobj_t * object)
 		if (! object->info->spitspot)
 		{
 			M_WarnError("Thing [%s] used SHOOT_TO_SPOT attack, but has no "
-						"SPIT_SPOT\n", object->info->ddf.name.c_str());
+						"SPIT_SPOT\n", object->info->name.c_str());
 			return;
 		}
 
@@ -2138,8 +2138,8 @@ static void ObjectSpawning(mobj_t * parent, angle_t angle)
 	{
 		I_Error("Object [%s] uses spawning attack [%s], but no object "
 				"specified.\n", 
-				parent->info->ddf.name.c_str(), 
-				attack->ddf.name.c_str());
+				parent->info->name.c_str(), 
+				attack->name.c_str());
 	}
 
 	if (attack->spawn_limit > 0)
@@ -2412,7 +2412,7 @@ void P_ActDropItem(mobj_t * mo)
 	if (! info)
 	{
 		M_WarnError("P_ActDropItem: %s specifies no item to drop.\n", 
-					mo->info->ddf.name.c_str());
+					mo->info->name.c_str());
 		return;
 	}
 
@@ -2656,7 +2656,7 @@ static void P_DoAttack(mobj_t * object)
 		{
 			if (strict_errors)
 				I_Error("P_DoAttack: %s has an unknown attack type.\n", 
-					object->info->ddf.name.c_str());
+					object->info->name.c_str());
 			break;
 		}
 	}
@@ -2702,9 +2702,9 @@ void P_ActComboAttack(mobj_t * object)
 	else
 	{
 		if (!object->info->closecombat)
-			M_WarnError("%s hasn't got a close combat attack\n", object->info->ddf.name.c_str());
+			M_WarnError("%s hasn't got a close combat attack\n", object->info->name.c_str());
 		else
-			M_WarnError("%s hasn't got a range attack\n", object->info->ddf.name.c_str());
+			M_WarnError("%s hasn't got a range attack\n", object->info->name.c_str());
 	}
 #endif
 
@@ -2730,7 +2730,7 @@ void P_ActMeleeAttack(mobj_t * object)
 	if (!attack)
 	{
 		M_WarnError("P_ActMeleeAttack: %s has no close combat attack.\n", 
-					object->info->ddf.name.c_str());
+					object->info->name.c_str());
 		return;
 	}
 
@@ -2767,7 +2767,7 @@ void P_ActRangeAttack(mobj_t * object)
 	if (!attack)
 	{
 		M_WarnError("P_ActRangeAttack: %s hasn't got a range attack.\n", 
-					object->info->ddf.name.c_str());
+					object->info->name.c_str());
 		return;
 	}
 
@@ -2820,7 +2820,7 @@ void P_ActSpareAttack(mobj_t *object)
 #ifdef DEVELOPERS
 	else
 	{
-		M_WarnError("P_ActSpareAttack: %s hasn't got a spare attack\n", object->info->ddf.name.c_str());
+		M_WarnError("P_ActSpareAttack: %s hasn't got a spare attack\n", object->info->name.c_str());
 		return;
 	}
 #endif
@@ -2972,8 +2972,8 @@ static bool CreateAggression(mobj_t * mo)
 		mo->SetTarget(other);
 
 		I_Debugf("Created aggression : %s --> %s\n",
-				 mo->info->ddf.name.c_str(),
-				 other->info->ddf.name.c_str());
+				 mo->info->name.c_str(),
+				 other->info->name.c_str());
 
 		if (mo->info->seesound)
 			S_StartFX(mo->info->seesound, P_MobjGetSfxCategory(mo),
@@ -3317,7 +3317,7 @@ void P_ActWalkSoundChase(mobj_t * object)
 	if (!object->info->walksound)
 	{
 		M_WarnError("WALKSOUND_CHASE: %s hasn't got a walksound.\n", 
-					object->info->ddf.name.c_str());
+					object->info->name.c_str());
 		return;
 	}
 
@@ -3454,7 +3454,7 @@ void P_ActJump(mobj_t * mo)
 	if (!mo->state || !mo->state->action_par)
 	{
 		M_WarnError("JUMP action used in [%s] without a label !\n",
-					mo->info->ddf.name.c_str());
+					mo->info->name.c_str());
 		return;
 	}
 
@@ -3487,7 +3487,7 @@ void P_ActBecome(struct mobj_s *mo)
 	if (!mo->state || !mo->state->action_par)
 	{
 		I_Error("BECOME action used in [%s] without arguments!\n",
-				mo->info->ddf.name.c_str());
+				mo->info->name.c_str());
 		return; /* NOT REACHED */
 	}
 
@@ -3543,7 +3543,7 @@ void P_ActBecome(struct mobj_s *mo)
 	statenum_t state = P_MobjFindLabel(mo, become->start.label.c_str());
 	if (state == S_NULL)
 		I_Error("BECOME action: frame '%s' in [%s] not found!\n",
-				become->start.label.c_str(), mo->info->ddf.name.c_str());
+				become->start.label.c_str(), mo->info->name.c_str());
 
 	state += become->start.offset;
 

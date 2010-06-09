@@ -106,7 +106,8 @@ static void SectorStartEntry(const char *name)
 	else
 	{
 		dynamic_sector = new sectortype_c;
-		dynamic_sector->ddf.number = number;
+		dynamic_sector->number = number;
+
 		sectortypes.Insert(dynamic_sector);
 	}
 
@@ -193,10 +194,11 @@ void DDF_SectorInit(void)
 	
 	// Insert the template sector as the first entry, this is used
 	// should the lookup fail	
-	sectortype_c *s;
-	s = new sectortype_c;
+	sectortype_c *s = new sectortype_c;
+
 	s->Default();
-	s->ddf.number = -1;
+	s->number = -1;
+
 	sectortypes.Insert(s);
 }
 
@@ -445,8 +447,9 @@ static void DDF_SectMakeCrush(const char *info, void *storage)
 //
 // sectortype_c Constructor
 //
-sectortype_c::sectortype_c()
+sectortype_c::sectortype_c() : number(0)
 {
+	Default()
 }
 
 //
@@ -512,8 +515,6 @@ void sectortype_c::CopyDetail(sectortype_c &src)
 //
 void sectortype_c::Default()
 {
-	ddf.Default();
-	
 	secret = false;
 	hub = false;
 
@@ -587,17 +588,15 @@ void sectortype_container_c::CleanupObject(void *obj)
 }
 
 //
-// sectortype_c* sectortype_container_c::Lookup()
-//
 // Looks an linetype by id, returns NULL if line can't be found.
 //
-sectortype_c* sectortype_container_c::Lookup(const int id)
+sectortype_c *sectortype_container_c::Lookup(const int id)
 {
 	int slot = DDF_SectHashFunc(id);
 
 	// check the cache
 	if (lookup_cache[slot] &&
-		lookup_cache[slot]->ddf.number == id)
+		lookup_cache[slot]->number == id)
 	{
 		return lookup_cache[slot];
 	}	
@@ -608,7 +607,7 @@ sectortype_c* sectortype_container_c::Lookup(const int id)
 	for (it = GetTailIterator(); it.IsValid(); it--)
 	{
 		s = ITERATOR_TO_TYPE(it, sectortype_c*);
-		if (s->ddf.number == id)
+		if (s->number == id)
 		{
 			break;
 		}

@@ -115,7 +115,7 @@ static void HD_game_name(coal::vm_c *vm, int argc)
 	gamedef_c *g = currmap->episode;
 	SYS_ASSERT(g);
 
-	vm->ReturnString(g->ddf.name.c_str());
+	vm->ReturnString(g->name.c_str());
 }
 
 
@@ -123,7 +123,7 @@ static void HD_game_name(coal::vm_c *vm, int argc)
 //
 static void HD_map_name(coal::vm_c *vm, int argc)
 {
-	vm->ReturnString(currmap->ddf.name.c_str());
+	vm->ReturnString(currmap->name.c_str());
 }
 
 

@@ -71,13 +71,11 @@ static void SwitchStartEntry(const char *name)
 	{
 		dynamic_switchdef = new switchdef_c;
 		
-		dynamic_switchdef->ddf.name = name;
+		dynamic_switchdef->name = name;
 
 		switchdefs.Insert(dynamic_switchdef);
 	}
 	
-	dynamic_switchdef->ddf.number = 0;
-
 	// instantiate the static entry
 	buffer_switchdef.Default();
 }
@@ -206,8 +204,7 @@ void DDF_ParseSWITCHES(const byte *data, int size)
 
 		switchdef_c *def = new switchdef_c;
 
-		def->ddf.name = "BOOM_SWITCH";
-		def->ddf.number = 0;
+		def->name = "BOOM_SWITCH";
 
 		def->Default();
 		
@@ -224,7 +221,7 @@ void DDF_ParseSWITCHES(const byte *data, int size)
 //
 // switchdef_c Constructor
 //
-switchdef_c::switchdef_c()
+switchdef_c::switchdef_c() : name()
 {
 	Default();
 }
@@ -267,8 +264,6 @@ void switchdef_c::CopyDetail(switchdef_c &src)
 //
 void switchdef_c::Default()
 {
-	ddf.Default();
-
 	name1.clear();
 	name2.clear();
 
@@ -315,7 +310,7 @@ switchdef_c* switchdef_container_c::Find(const char *name)
 	for (it = GetBaseIterator(); it.IsValid(); it++)
 	{
 		sw = ITERATOR_TO_TYPE(it, switchdef_c*);
-		if (DDF_CompareName(sw->ddf.name.c_str(), name) == 0)
+		if (DDF_CompareName(sw->name.c_str(), name) == 0)
 			return sw;
 	}
 

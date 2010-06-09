@@ -90,7 +90,7 @@ static void GameStartEntry(const char *name)
 	{
 		dynamic_gamedef = new gamedef_c;
 
-		dynamic_gamedef->ddf.name = name;
+		dynamic_gamedef->name = name;
 
 		gamedefs.Insert(dynamic_gamedef);
 	}
@@ -98,8 +98,6 @@ static void GameStartEntry(const char *name)
 	{
 		dynamic_gamedef = existing;
 	}
-
-	dynamic_gamedef->ddf.number = 0;
 
 	// instantiate the static entries
 	buffer_gamedef.Default();
@@ -707,7 +705,7 @@ wi_animdef_container_c& wi_animdef_container_c::operator=(wi_animdef_container_c
 //
 // gamedef_c Constructor
 //
-gamedef_c::gamedef_c()
+gamedef_c::gamedef_c() : name()
 {
 	Default();
 }
@@ -776,8 +774,6 @@ void gamedef_c::CopyDetail(gamedef_c &src)
 //
 void gamedef_c::Default()
 {
-	ddf.Default();
-
 	anims.Clear();
 	mappos.Clear();
 
@@ -866,7 +862,7 @@ gamedef_c* gamedef_container_c::Lookup(const char *refname)
 	for (it = GetBaseIterator(); it.IsValid(); it++)
 	{
 		g = ITERATOR_TO_TYPE(it, gamedef_c*);
-		if (DDF_CompareName(g->ddf.name.c_str(), refname) == 0)
+		if (DDF_CompareName(g->name.c_str(), refname) == 0)
 			return g;
 	}
 

@@ -543,7 +543,7 @@ void SR_MobjPutType(void *storage, int index, void *extra)
 {
 	mobjtype_c *info = ((mobjtype_c **)storage)[index];
 
-	SV_PutString((info == NULL) ? NULL : info->ddf.name.c_str());
+	SV_PutString((info == NULL) ? NULL : info->name.c_str());
 }
 
 bool SR_MobjGetSpawnPoint(void *storage, int index, void *extra)
@@ -580,7 +580,7 @@ void SR_MobjPutAttack(void *storage, int index, void *extra)
 {
 	atkdef_c *info = ((atkdef_c **)storage)[index];
 
-	SV_PutString((info == NULL) ? NULL : info->ddf.name.c_str());
+	SV_PutString((info == NULL) ? NULL : info->name.c_str());
 }
 
 
@@ -720,7 +720,7 @@ void SR_MobjPutState(void *storage, int index, void *extra)
 	// object has no states ?
 	if (mo->info->state_grp.empty())
 	{
-		I_Warning("SAVEGAME: object [%s] has no states !!\n", mo->info->ddf.name.c_str());
+		I_Warning("SAVEGAME: object [%s] has no states !!\n", mo->info->name.c_str());
 		SV_PutString(NULL);
 		return;
 	}
@@ -731,7 +731,7 @@ void SR_MobjPutState(void *storage, int index, void *extra)
 	if (s_num < 0 || s_num >= num_states)
 	{
 		I_Warning("SAVEGAME: object [%s] is in invalid state %d\n", 
-			mo->info->ddf.name.c_str(), s_num);
+			mo->info->name.c_str(), s_num);
 
 		if (mo->info->idle_state)
 			s_num = mo->info->idle_state;
@@ -752,7 +752,7 @@ void SR_MobjPutState(void *storage, int index, void *extra)
 	if (! DDF_StateGroupHasState(actual->state_grp, s_num))
 	{
 		I_Warning("SAVEGAME: object [%s] is in AWOL state %d\n",
-			mo->info->ddf.name.c_str(), s_num);
+			mo->info->name.c_str(), s_num);
 
 		epi::array_iterator_c it;
 
@@ -772,7 +772,7 @@ void SR_MobjPutState(void *storage, int index, void *extra)
 			return;
 		}
 
-		if (! actual->ddf.name)
+		if (! actual->name)
 		{
 			I_Warning("-- OOPS: state %d found in unnamed object !!\n", s_num);
 			SV_PutString("*:*:1");
@@ -790,13 +790,13 @@ void SR_MobjPutState(void *storage, int index, void *extra)
 	}
 
 	sprintf(swizzle, "%s:%s:%d", 
-		(actual == mo->info) ? "*" : actual->ddf.name.c_str(), 
+		(actual == mo->info) ? "*" : actual->name.c_str(), 
 		states[base].label ? states[base].label : "*",
 		1 + s_num - base);
 
 #if 0
 	L_WriteDebug("Swizzled state %d of [%s] -> `%s'\n", 
-		s_num, mo->info->ddf.name, swizzle);
+		s_num, mo->info->name, swizzle);
 #endif
 
 	SV_PutString(swizzle);

@@ -458,7 +458,7 @@ const char *SV_MapName(const mapdef_c *map)
 	// ensure the name is LOWER CASE
 	static char buffer[256];
 
-	strcpy(buffer, map->ddf.name.c_str());
+	strcpy(buffer, map->name.c_str());
 
 	for (char *pos = buffer; *pos; pos++)
 		*pos = tolower(*pos);

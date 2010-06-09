@@ -126,12 +126,10 @@ static void ImageStartEntry(const char *name)
 	{
 		dynamic_image = new imagedef_c;
 
-		dynamic_image->ddf.name = name;
+		dynamic_image->__name = name;
 
 		imagedefs.Insert(dynamic_image);
 	}
-
-	dynamic_image->ddf.number = 0;
 
 	// instantiate the static entry
 	buffer_image.Default();
@@ -233,10 +231,9 @@ static void AddEssentialImages(void)
 
 		def->Default();
 
-		def->ddf.name.Set("DLIGHT_EXP");
-		def->ddf.number = 0;
+		def->__name = "DLIGHT_EXP";
 
-		def->name.Set("DLITEXPN");
+		def->info.Set("DLITEXPN");
 
 		def->belong  = INS_Graphic;
 		def->type    = IMGDT_Lump;
@@ -252,10 +249,9 @@ static void AddEssentialImages(void)
 
 		def->Default();
 
-		def->ddf.name.Set("FUZZ_MAP");
-		def->ddf.number = 0;
+		def->__name = "FUZZ_MAP";
 
-		def->name.Set("FUZZMAP8");
+		def->info.Set("FUZZMAP8");
 
 		def->belong  = INS_Texture;
 		def->type    = IMGDT_Lump;
@@ -271,10 +267,9 @@ static void AddEssentialImages(void)
 
 		def->Default();
 
-		def->ddf.name.Set("CON_FONT_2");
-		def->ddf.number = 0;
+		def->__name = "CON_FONT_2";
 
-		def->name.Set("CONFONT2");
+		def->info.Set("CONFONT2");
 
 		def->belong  = INS_Graphic;
 		def->type    = IMGDT_Lump;
@@ -310,10 +305,10 @@ static void ImageParseBuiltin(const char *value)
 		DDF_Error("Unknown image BUILTIN kind: %s\n", value);
 }
 
-static void ImageParseName(const char *value)
+static void ImageParseInfo(const char *value)
 {
 	// ouch, hard work here...
-	buffer_image.name.Set(value);
+	buffer_image.info = value;
 }
 
 static void ImageParseLump(const char *spec)
@@ -329,7 +324,7 @@ static void ImageParseLump(const char *spec)
 	keyword[colon - spec] = 0;
 
 	// store the lump name
-	buffer_image.name.Set(colon + 1);
+	buffer_image.info.Set(colon + 1);
 
 	if (DDF_CompareName(keyword, "PNG") == 0)
 	{
@@ -374,7 +369,7 @@ static void DDF_ImageGetType(const char *info, void *storage)
 	else if (DDF_CompareName(keyword, "FILE") == 0)
 	{
 		buffer_image.type = IMGDT_File;
-		ImageParseName(colon + 1);
+		ImageParseInfo(colon + 1);
 	}
 	else if (DDF_CompareName(keyword, "LUMP") == 0)
 	{
@@ -439,7 +434,7 @@ static void DDF_ImageGetFixTrans(const char *info, void *storage)
 
 // ---> imagedef_c class
 
-imagedef_c::imagedef_c() : name()
+imagedef_c::imagedef_c() : info()
 {
 	Default();
 }
@@ -464,7 +459,7 @@ void imagedef_c::CopyDetail(const imagedef_c &src)
 	type    = src.type;
 	colour  = src.colour;
 	builtin = src.builtin;
-	name    = src.name;
+	info    = src.info;
 	format  = src.format;
 
 	special  = src.special;
@@ -477,15 +472,13 @@ void imagedef_c::CopyDetail(const imagedef_c &src)
 
 void imagedef_c::Default()
 {
-	ddf.Default();
-
 	belong  = INS_Graphic;
 	type    = IMGDT_Colour;
 	colour  = 0x000000;  // black
 	builtin = BLTIM_Quadratic;
 	format  = LIF_PNG;
 
-	name.clear();
+	info.clear();
 
 	special  = IMGSP_None;
 	x_offset = y_offset = 0;
@@ -528,7 +521,7 @@ imagedef_c * imagedef_container_c::Lookup(const char *refname, image_namespace_e
 	for (it = GetBaseIterator(); it.IsValid(); it++)
 	{
 		imagedef_c *g = ITERATOR_TO_TYPE(it, imagedef_c*);
-		if (DDF_CompareName(g->ddf.name.c_str(), refname) == 0 && g->belong == belong)
+		if (DDF_CompareName(g->__name.c_str(), refname) == 0 && g->belong == belong)
 			return g;
 	}
 

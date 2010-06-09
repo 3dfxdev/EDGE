@@ -129,12 +129,10 @@ static void StyleStartEntry(const char *name)
 	{
 		dynamic_style = new styledef_c;
 
-		dynamic_style->ddf.name = name;
+		dynamic_style->name = name;
 
 		styledefs.Insert(dynamic_style);
 	}
-
-	dynamic_style->ddf.number = 0;
 
 	// instantiate the static entries
 	buffer_style.Default();
@@ -431,7 +429,7 @@ soundstyle_c& soundstyle_c::operator= (const soundstyle_c &rhs)
 //
 // styledef_c Constructor
 //
-styledef_c::styledef_c()
+styledef_c::styledef_c() : name()
 {
 	Default();
 }
@@ -480,8 +478,6 @@ void styledef_c::CopyDetail(const styledef_c &src)
 //
 void styledef_c::Default()
 {
-	ddf.Default();
-
 	bg.Default();
 
 	for (int T = 0; T < NUM_TXST; T++)
@@ -531,7 +527,7 @@ styledef_c* styledef_container_c::Lookup(const char *refname)
 	for (it = GetTailIterator(); it.IsValid(); it--)
 	{
 		m = ITERATOR_TO_TYPE(it, styledef_c*);
-		if (DDF_CompareName(m->ddf.name.c_str(), refname) == 0)
+		if (DDF_CompareName(m->name.c_str(), refname) == 0)
 			return m;
 	}
 
