@@ -38,6 +38,9 @@ General Improvements
 
 - control over automap grid spacing via 'am_gridsize' cvar.
 
+- when thing numbers in the level are unknown, limit the warnings
+  to two specific things and a "More unknown things found" message.
+
 
 New Features
 ------------

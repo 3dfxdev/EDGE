@@ -26,6 +26,7 @@
 #include "i_defs.h"
 
 #include <vector>
+#include <map>
 
 #include "epi/endianess.h"
 #include "epi/math_crc.h"
@@ -895,6 +896,24 @@ static void LoadNodes(int lump, const char *name)
 }
 
 
+static std::map<int, int> unknown_thing_map;
+
+static void UnknownThingWarning(int type, float x, float y)
+{
+	int count = 0;
+
+	if (unknown_thing_map.find(type) != unknown_thing_map.end())
+		count = unknown_thing_map[type];
+
+	if (count < 2)
+		I_Warning("Unknown thing type %i at (%1.0f, %1.0f)\n", type, x, y);
+	else if (count == 2)
+		I_Warning("More unknown things of type %i found\n", type);
+
+	unknown_thing_map[type] = count+1;
+}
+
+
 static void SpawnMapThing(const mobjtype_c *info,
 						  float x, float y, float z,
 						  sector_t *sec, angle_t angle,
@@ -1020,6 +1039,8 @@ static void LoadThings(int lump)
 	const mobjtype_c *objtype;
 	int numthings;
 
+	unknown_thing_map.clear();
+
 	if (!W_VerifyLumpName(lump, "THINGS"))
 		I_Error("Bad WAD: level %s missing THINGS.\n", 
 				currmap->lump.c_str());
@@ -1079,7 +1100,7 @@ static void LoadThings(int lump)
 		// -ACB- 1998/07/21
 		if (objtype == NULL)
 		{
-			I_Warning("Unknown thing type %i at (%1.0f, %1.0f)\n", typenum, x, y);
+			UnknownThingWarning(typenum, x, y);
 			continue;
 		}
 
@@ -1110,6 +1131,7 @@ static void LoadThings(int lump)
 	W_DoneWithLump(data);
 }
 
+
 static void LoadHexenThings(int lump)
 {
 	// -AJA- 2001/08/04: wrote this, based on the Hexen specs.
@@ -1124,6 +1146,8 @@ static void LoadHexenThings(int lump)
 	const raw_hexen_thing_t *mt;
 	const mobjtype_c *objtype;
 	int numthings;
+
+	unknown_thing_map.clear();
 
 	if (!W_VerifyLumpName(lump, "THINGS"))
 		I_Error("Bad WAD: level %s missing THINGS.\n", 
@@ -1157,7 +1181,7 @@ static void LoadHexenThings(int lump)
 		// -ACB- 1998/07/21
 		if (objtype == NULL)
 		{
-			I_Warning("Unknown thing type %i at (%1.0f, %1.0f)\n", typenum, x, y);
+			UnknownThingWarning(typenum, x, y);
 			continue;
 		}
 
