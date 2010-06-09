@@ -65,7 +65,7 @@ static const commandlist_t gamedef_commands[] =
 	DF("TITLE_GRAPHIC", ddf, DDF_GameGetPic),
 	DF("MAP", ddf, DDF_GameGetMap),
 
-	{"ANIM", DDF_GameGetAnim, &buffer_framedef, NULL},
+	{"ANIM", DDF_GameGetAnim, 0, &buffer_framedef, NULL},
 
 	DDF_CMD_END
 };
@@ -75,7 +75,7 @@ static const commandlist_t gamedef_commands[] =
 //  DDF PARSE ROUTINES
 //
 
-static bool GameStartEntry (const char *name)
+static void GameStartEntry(const char *name)
 {
 	gamedef_c *existing = NULL;
 
@@ -105,9 +105,8 @@ static bool GameStartEntry (const char *name)
 	buffer_gamedef.Default();
 	buffer_animdef.Default();
 	buffer_framedef.Default();
-
-	return (existing != NULL);
 }
+
 
 static void GameParseField (const char *field, const char *contents,
 		int index, bool is_last)

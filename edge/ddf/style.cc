@@ -110,7 +110,7 @@ static const commandlist_t style_commands[] =
 //  DDF PARSE ROUTINES
 //
 
-static bool StyleStartEntry(const char *name)
+static void StyleStartEntry(const char *name)
 {
 	styledef_c *existing = NULL;
 
@@ -142,9 +142,8 @@ static bool StyleStartEntry(const char *name)
 	buffer_bgstyle.Default();
 	buffer_textstyle.Default();
 	buffer_soundstyle.Default();
-
-	return (existing != NULL);	
 }
+
 
 static void StyleParseField(const char *field, const char *contents,
 							int index, bool is_last)

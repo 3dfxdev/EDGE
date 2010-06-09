@@ -131,7 +131,7 @@ static specflags_t map_specials[] =
 //  DDF PARSE ROUTINES
 //
 
-static bool LevelStartEntry(const char *name)
+static void LevelStartEntry(const char *name)
 {
 	mapdef_c *existing = NULL;
 
@@ -160,9 +160,8 @@ static bool LevelStartEntry(const char *name)
 	// instantiate the static entries
 	buffer_map.Default();
 	buffer_finale.Default();
-
-	return (existing != NULL);	
 }
+
 
 static void LevelParseField(const char *field, const char *contents,
 							int index, bool is_last)

@@ -101,8 +101,8 @@ static const commandlist_t attack_commands[] =
 
 	// -AJA- backward compatibility cruft...
 	DF("!DAMAGE", damage.nominal, DDF_MainGetFloat),
-	{"!DAMAGE_RANGE", DDF_MainGetFloat, &a_damage_range, NULL},
-	{"!DAMAGE_MULTI", DDF_MainGetFloat, &a_damage_multi, NULL},
+	{"!DAMAGE_RANGE", DDF_MainGetFloat, 0, &a_damage_range, NULL},
+	{"!DAMAGE_MULTI", DDF_MainGetFloat, 0, &a_damage_multi, NULL},
 
 	DDF_CMD_END
 };
@@ -112,7 +112,7 @@ static const commandlist_t attack_commands[] =
 //  DDF PARSE ROUTINES
 //
 
-static bool AttackStartEntry(const char *name)
+static void AttackStartEntry(const char *name)
 {
 	atkdef_c *existing = NULL;
 
@@ -147,9 +147,8 @@ static bool AttackStartEntry(const char *name)
 	buffer_mobj.Default();
 
 	DDF_StateBeginRange(buffer_mobj.state_grp);
-
-	return (existing != NULL);
 }
+
 
 static void AttackParseField(const char *field, const char *contents,
 							 int index, bool is_last)

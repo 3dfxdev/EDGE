@@ -474,7 +474,7 @@ static bool ThingTryParseState(const char *field,
 //  DDF PARSE ROUTINES
 //
 
-static bool ThingStartEntry(const char *buffer)
+static void ThingStartEntry(const char *buffer)
 {
 	SYS_ASSERT(buffer);
 
@@ -521,9 +521,8 @@ static bool ThingStartEntry(const char *buffer)
 	buffer_mobj.Default();
 
 	DDF_StateBeginRange(buffer_mobj.state_grp);
-
-	return (idx >= 0);
 }
+
 
 void ThingParseField(const char *field, const char *contents,
 					 int index, bool is_last)

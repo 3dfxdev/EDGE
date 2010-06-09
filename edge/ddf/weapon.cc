@@ -247,7 +247,7 @@ static bool WeaponTryParseState(const char *field,
 //  DDF PARSE ROUTINES
 //
 
-static bool WeaponStartEntry(const char *name)
+static void WeaponStartEntry(const char *name)
 {
 	weapondef_c *existing = NULL;
 
@@ -277,9 +277,8 @@ static bool WeaponStartEntry(const char *name)
 	buffer_weapon.Default();
 
 	DDF_StateBeginRange(buffer_weapon.state_grp);
-
-	return (existing != NULL);
 }
+
 
 static void WeaponParseField(const char *field, const char *contents,
     int index, bool is_last)
