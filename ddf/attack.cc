@@ -115,10 +115,13 @@ static const commandlist_t attack_commands[] =
 
 static void AttackStartEntry(const char *name)
 {
-	atkdef_c *existing = NULL;
+	if (!name || !name[0])
+	{
+		DDF_WarnError("New attack entry is missing a name!");
+		name = "ATTACK_WITH_NO_NAME";
+	}
 
-	if (name && name[0])
-		existing = atkdefs.Lookup(name);
+	atkdef_c *existing = atkdefs.Lookup(name);
 
 	// not found, create a new one
 	if (existing)
@@ -129,10 +132,7 @@ static void AttackStartEntry(const char *name)
 	{
 		dynamic_atk = new atkdef_c;
 
-		if (name && name[0])
-			dynamic_atk->ddf.name.Set(name);
-		else
-			dynamic_atk->ddf.SetUniqueName("UNNAMED_ATTACK", atkdefs.GetSize());
+		dynamic_atk->ddf.name = name;
 
 		atkdefs.Insert(dynamic_atk);
 	}

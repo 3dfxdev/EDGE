@@ -112,10 +112,13 @@ static const commandlist_t style_commands[] =
 
 static void StyleStartEntry(const char *name)
 {
-	styledef_c *existing = NULL;
+	if (!name || !name[0])
+	{
+		DDF_WarnError("New style entry is missing a name!");
+		name = "STYLE_WITH_NO_NAME";
+	}
 
-	if (name && name[0])
-		existing = styledefs.Lookup(name);
+	styledef_c *existing = styledefs.Lookup(name);
 
 	// not found, create a new one
 	if (existing)
@@ -126,10 +129,7 @@ static void StyleStartEntry(const char *name)
 	{
 		dynamic_style = new styledef_c;
 
-		if (name && name[0])
-			dynamic_style->ddf.name.Set(name);
-		else
-			dynamic_style->ddf.SetUniqueName("UNNAMED_STYLE", styledefs.GetSize());
+		dynamic_style->ddf.name = name;
 
 		styledefs.Insert(dynamic_style);
 	}

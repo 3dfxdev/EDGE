@@ -474,9 +474,14 @@ static bool ThingTryParseState(const char *field,
 
 static void ThingStartEntry(const char *buffer)
 {
-	SYS_ASSERT(buffer);
+	if (!buffer || !buffer[0])
+	{
+		DDF_WarnError("New thing entry is missing a name!");
+		buffer = "THING_WITH_NO_NAME";
+	}
 
 	std::string name(buffer);
+
 	int number = 0;
 
 	const char *pos = strchr(buffer, ':');
@@ -486,29 +491,27 @@ static void ThingStartEntry(const char *buffer)
 		name = std::string(buffer, pos - buffer);
 
 		number = MAX(0, atoi(pos+1));
-	}
 
-	int idx = -1;
-
-	if (! name.empty())
-	{
-		idx = mobjtypes.FindFirst(name.c_str(), mobjtypes.GetDisabledCount());
-
-		if (idx>=0)
+		if (name.empty())
 		{
-			mobjtypes.MoveToEnd(idx);
-			dynamic_mobj = mobjtypes[mobjtypes.GetSize()-1];
+			DDF_WarnError("New thing entry is missing a name!");
+			name = "THING_WITH_NO_NAME";
 		}
 	}
 
-	if (idx < 0)
+	int idx = mobjtypes.FindFirst(name.c_str(), mobjtypes.GetDisabledCount());
+
+	if (idx >= 0)
+	{
+		mobjtypes.MoveToEnd(idx);
+
+		dynamic_mobj = mobjtypes[mobjtypes.GetSize()-1];
+	}
+	else
 	{
 		dynamic_mobj = new mobjtype_c;
 
-		if (name.empty())
-			dynamic_mobj->ddf.SetUniqueName("UNNAMED_THING", mobjtypes.GetSize());
-		else
-			dynamic_mobj->ddf.name.Set(name.c_str());
+		dynamic_mobj->ddf.name = name.c_str();
 
 		mobjtypes.Insert(dynamic_mobj);
 	}

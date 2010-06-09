@@ -250,7 +250,6 @@ public:
 		int langsel = -1;
 		
 		// Look for an existing language entry if one exists
-		if (name && name[0])
 		{
 			epi::array_iterator_c it;
 
@@ -269,17 +268,8 @@ public:
 		// Setup the current language index, adding the new entry if needs be
 		if (langsel < 0)
 		{
-			if (name && name[0])
-			{
-				langnames.Insert(name);
-			}
-			else
-			{
-				ddf_base_c ddf;
-				ddf.SetUniqueName("UNNAMED_LANGUAGE", langnames.GetSize());
-				langnames.Insert(ddf.name.c_str());
-			}
-			
+			langnames.Insert(name);
+
 			currlang = langnames.GetSize() - 1;
 		}
 		else
@@ -383,7 +373,14 @@ ddf_bi_lang_c* lang_buildinfo;
 //
 static void LanguageStartEntry(const char *name)
 {
-	// Return value is true if language is a replacement
+	if (!name || !name[0])
+	{
+		DDF_WarnError("New language entry is missing a name!");
+		name = "DEAD_LANGUAGE";
+	}
+
+	// Note: extension is the norm for LANGUAGES.LDF
+
 	lang_buildinfo->AddLanguage(name);
 }
 
