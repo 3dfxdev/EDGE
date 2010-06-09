@@ -394,6 +394,12 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 	{
 		rim->scale_x = replaces->actual_w / (float)width;
 		rim->scale_y = replaces->actual_h / (float)height;
+
+		if (is_png && replaces->source_type == IMSRC_Sprite)
+		{
+			rim->offset_x = replaces->offset_x;
+			rim->offset_y = replaces->offset_y;
+		}
 	}
 
 	container.push_back(rim);
