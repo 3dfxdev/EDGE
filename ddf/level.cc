@@ -28,7 +28,7 @@
 #undef  DF
 #define DF  DDF_CMD
 
-static void DDF_LevelGetSpecials(const char *info, void *storage);
+static void DDF_LevelGetSpecials(const char *info);
 static void DDF_LevelGetPic(const char *info, void *storage);
 static void DDF_LevelGetWistyle(const char *info, void *storage);
 
@@ -172,7 +172,7 @@ static void LevelParseField(const char *field, const char *contents,
 	// -AJA- this needs special handling (it modifies TWO fields)
 	if (DDF_CompareName(field, "SPECIAL") == 0)
 	{
-		DDF_LevelGetSpecials(contents, NULL);
+		DDF_LevelGetSpecials(contents);
 		return;
 	}
 
@@ -274,7 +274,7 @@ void DDF_LevelGetPic(const char *info, void *storage)
 }
 
 
-void DDF_LevelGetSpecials(const char *info, void *storage)
+void DDF_LevelGetSpecials(const char *info)
 {
 	// -AJA- 2000/02/02: reworked this for new system.
 

@@ -35,7 +35,8 @@ static sectortype_c *dynamic_sector;
 sectortype_container_c sectortypes; 	// <-- User-defined
 
 void DDF_SectGetSpecialFlags(const char *info, void *storage);
-static void DDF_SectMakeCrush(const char *info, void *storage);
+
+static void DDF_SectMakeCrush(const char *info);
 
 #undef  DDF_CMD_BASE
 #define DDF_CMD_BASE  buffer_sector
@@ -71,11 +72,8 @@ static const commandlist_t sect_commands[] =
 	DF("PUSH_ZSPEED", push_zspeed, DDF_MainGetFloat),
 
 	// -AJA- backwards compatibility cruft...
-	DF("CRUSH", number, DDF_SectMakeCrush),          // FIXME
-	DF("CRUSH_DAMAGE", number, DDF_SectMakeCrush),   // FIXME
-
-	DF("DAMAGE", damage.nominal, DDF_MainGetFloat),
-	DF("DAMAGETIME", damage.delay, DDF_MainGetTime),
+	DF("DAMAGE",     damage.nominal, DDF_MainGetFloat),
+	DF("DAMAGETIME", damage.delay,   DDF_MainGetTime),
 
 	DDF_CMD_END
 };
@@ -124,10 +122,16 @@ static void SectorParseField(const char *field, const char *contents,
 	I_Debugf("SECTOR_PARSE: %s = %s;\n", field, contents);
 #endif
 
-	if (DDF_MainParseField(sect_commands, field, contents))
+	// backwards compatibility...
+	if (DDF_CompareName(field, "CRUSH") == 0 ||
+	    DDF_CompareName(field, "CRUSH_DAMAGE") == 0)
+	{
+		DDF_SectMakeCrush(contents);
 		return;
+	}
 
-	DDF_WarnError("Unknown sectors.ddf command: %s\n", field);
+	if (! DDF_MainParseField(sect_commands, field, contents))
+		DDF_WarnError("Unknown sectors.ddf command: %s\n", field);
 }
 
 //
@@ -137,9 +141,6 @@ static void SectorFinishEntry(void)
 {
 	// FIXME!! Check stuff
 	dynamic_sector->CopyDetail(buffer_sector);
-
-	// compute CRC...
-	// FIXME: add stuff...
 }
 
 //
@@ -431,7 +432,7 @@ void DDF_SectGetDestRef(const char *info, void *storage)
 	}
 }
 
-static void DDF_SectMakeCrush(const char *info, void *storage)
+static void DDF_SectMakeCrush(const char *info)
 {
 	buffer_sector.f.crush_damage = 10;
 	buffer_sector.c.crush_damage = 10;

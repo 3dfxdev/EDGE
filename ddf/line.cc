@@ -80,7 +80,7 @@ static void DDF_LineGetSectorEffect(const char *info, void *storage);
 static void DDF_LineGetPortalEffect(const char *info, void *storage);
 static void DDF_LineGetSlopeType(const char *info, void *storage);
 
-static void DDF_LineMakeCrush(const char *info, void *storage);
+static void DDF_LineMakeCrush(const char *info);
 
 #undef  DDF_CMD_BASE
 #define DDF_CMD_BASE  buffer_floor
@@ -192,12 +192,12 @@ static const commandlist_t linedef_commands[] =
 	DF("MUSIC", music, DDF_MainGetNumeric),
 	DF("AUTO", autoline, DDF_MainGetBoolean),
 	DF("SINGLESIDED", singlesided, DDF_MainGetBoolean),
-	DF("EXTRAFLOOR_TYPE", number, DDF_LineGetExtraFloor),    // FIXME
-	DF("EXTRAFLOOR_CONTROL", number, DDF_LineGetEFControl),  // FIXME
+	DF("EXTRAFLOOR_TYPE", ef.type, DDF_LineGetExtraFloor),
+	DF("EXTRAFLOOR_CONTROL", ef.control, DDF_LineGetEFControl),
 	DF("TRANSLUCENCY", translucency, DDF_MainGetPercent),
 	DF("WHEN_APPEAR", appear, DDF_MainGetWhenAppear),
 	DF("SPECIAL", special_flags, DDF_LineGetSpecialFlags),
-	DF("RADIUS_TRIGGER", number, DDF_LineGetRadTrig),       // FIXME
+	DF("RADIUS_TRIGGER", trigger_effect, DDF_LineGetRadTrig),
 	DF("LINE_EFFECT", line_effect, DDF_LineGetLineEffect),
 	DF("LINE_PARTS",  line_parts,  DDF_LineGetScrollPart),
 	DF("SECTOR_EFFECT", sector_effect, DDF_LineGetSectorEffect),
@@ -206,8 +206,6 @@ static const commandlist_t linedef_commands[] =
 	DF("COLOUR", fx_color, DDF_MainGetRGB),
 
 	// -AJA- backwards compatibility cruft...
-	DF("CRUSH", number, DDF_LineMakeCrush),       // FIXME
-	DF("SECSPECIAL", number, DDF_DummyFunction),  // FIXME
 	DF("EXTRAFLOOR_TRANSLUCENCY", translucency, DDF_MainGetPercent),
 
 	DDF_CMD_END
@@ -335,10 +333,19 @@ static void LinedefParseField(const char *field, const char *contents,
 	I_Debugf("LINEDEF_PARSE: %s = %s;\n", field, contents);
 #endif
 
-	if (DDF_MainParseField(linedef_commands, field, contents))
+	// ignored for backwards compatibility
+	if (DDF_CompareName(field, "SECSPECIAL") == 0)
 		return;
 
-	DDF_WarnError("Unknown lines.ddf command: %s\n", field);
+	// -AJA- backwards compatibility cruft...
+	if (DDF_CompareName(field, "CRUSH") == 0)
+	{
+		DDF_LineMakeCrush(contents);
+		return;
+	}
+
+	if (! DDF_MainParseField(linedef_commands, field, contents))
+		DDF_WarnError("Unknown lines.ddf command: %s\n", field);
 }
 
 //
@@ -636,23 +643,25 @@ static specflags_t extrafloor_types[] =
 //
 void DDF_LineGetExtraFloor(const char *info, void *storage)
 {
-	int flag_value;
+	extrafloor_type_e *var = (extrafloor_type_e *)storage;
 
 	if (DDF_CompareName(info, "NONE") == 0)
 	{
-		buffer_line.ef.type = EXFL_None;
+		*var = EXFL_None;
 		return;
 	}
 
+	int flag_value;
+
 	switch (DDF_MainCheckSpecialFlag(info, extrafloor_types,
-		&flag_value, true, false))
+		                             &flag_value, true, false))
 	{
 		case CHKF_Positive:
-			buffer_line.ef.type = (extrafloor_type_e)(buffer_line.ef.type | flag_value);
+			*var = (extrafloor_type_e)(*var | flag_value);
 			break;
 
 		case CHKF_Negative:
-			buffer_line.ef.type = (extrafloor_type_e)(buffer_line.ef.type & ~flag_value);
+			*var = (extrafloor_type_e)(*var & ~flag_value);
 			break;
 
 		case CHKF_User:
@@ -674,13 +683,16 @@ static specflags_t ef_control_types[] =
 //
 void DDF_LineGetEFControl(const char *info, void *storage)
 {
+	extrafloor_control_e *var = (extrafloor_control_e *)storage;
+
 	int flag_value;
 
-	switch (DDF_MainCheckSpecialFlag(info, ef_control_types, &flag_value, false, false))
+	switch (DDF_MainCheckSpecialFlag(info, ef_control_types, &flag_value,
+	                                 false, false))
 	{
 		case CHKF_Positive:
 		case CHKF_Negative:
-			buffer_line.ef.control = (extrafloor_control_e)(flag_value);
+			*var = (extrafloor_control_e) flag_value;
 			break;
 
 		case CHKF_User:
@@ -841,14 +853,16 @@ void DDF_LineGetSpecialFlags(const char *info, void *storage)
 //
 static void DDF_LineGetRadTrig(const char *info, void *storage)
 {
+	int *trigger_effect = (int *)storage;
+
 	if (DDF_CompareName(info, "ENABLE_TAGGED") == 0)
 	{
-		buffer_line.trigger_effect = +1;
+		*trigger_effect = +1;
 		return;
 	}
 	if (DDF_CompareName(info, "DISABLE_TAGGED") == 0)
 	{
-		buffer_line.trigger_effect = -1;
+		*trigger_effect = -1;
 		return;
 	}
 
@@ -1050,7 +1064,7 @@ static void DDF_LineGetSlopeType(const char *info, void *storage)
 	}
 }
 
-static void DDF_LineMakeCrush(const char *info, void *storage)
+static void DDF_LineMakeCrush(const char *info)
 {
 	buffer_line.f.crush_damage = 10;
 	buffer_line.c.crush_damage = 10;
