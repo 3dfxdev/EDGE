@@ -397,19 +397,8 @@ mapdef_c::mapdef_c() : name()
 	Default();
 }
 
-mapdef_c::mapdef_c(mapdef_c &rhs)
-{
-	Copy(rhs);
-}
-
 mapdef_c::~mapdef_c()
 {
-}
-
-void mapdef_c::Copy(mapdef_c &src)
-{
-	ddf = src.ddf;
-	CopyDetail(src);	
 }
 
 void mapdef_c::CopyDetail(mapdef_c &src)
@@ -469,13 +458,6 @@ void mapdef_c::Default()
 	f_end.Default();
 }
 
-mapdef_c& mapdef_c::operator=(mapdef_c &rhs)
-{
-	if (&rhs != this)
-		Copy(rhs);
-		
-	return *this;
-}
 
 // --> map definition container class
 

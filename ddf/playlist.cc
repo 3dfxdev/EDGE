@@ -233,28 +233,12 @@ pl_entry_c::pl_entry_c() : number(0)
 }
 
 //
-// pl_entry_c Copy constructor
-//
-pl_entry_c::pl_entry_c(pl_entry_c &rhs)
-{
-	Copy(rhs);
-}
-
-//
 // pl_entry_c destructor
 //
 pl_entry_c::~pl_entry_c()
 {
 }
 
-//
-// pl_entry_c::Copy()
-//
-void pl_entry_c::Copy(pl_entry_c &src)
-{
-	ddf = src.ddf;
-	CopyDetail(src);
-}
 
 //
 // pl_entry_c::CopyDetail()
@@ -278,16 +262,6 @@ void pl_entry_c::Default()
 	info.clear();             
 }
 
-//
-// pl_entry_c copy constructor
-//
-pl_entry_c& pl_entry_c::operator=(pl_entry_c &rhs)
-{
-	if (&rhs != this)
-		Copy(rhs);
-	
-	return *this;
-}
 
 // --> pl_entry_containter_c class
 

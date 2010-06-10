@@ -151,7 +151,7 @@ static void ImageFinishEntry(void)
 {
 	if (buffer_image.type == IMGDT_File)
 	{
-        const char *filename = buffer_image.name.c_str();
+        const char *filename = buffer_image.info.c_str();
 
 		// determine format
         std::string ext(epi::PATH_GetExtension(filename));
@@ -439,17 +439,6 @@ imagedef_c::imagedef_c() : info()
 	Default();
 }
 
-imagedef_c::imagedef_c(const imagedef_c &rhs)
-{
-	Copy(rhs);
-}
-
-void imagedef_c::Copy(const imagedef_c &src)
-{
-	ddf = src.ddf;
-	CopyDetail(src);
-}
-
 //
 // Copies all the detail with the exception of ddf info
 //
@@ -488,16 +477,6 @@ void imagedef_c::Default()
 	fix_trans = FIXTRN_None;
 }
 
-//
-// imagedef_c assignment operator
-//
-imagedef_c& imagedef_c::operator= (const imagedef_c &rhs)
-{
-	if (&rhs != this)
-		Copy(rhs);
-	
-	return *this;
-}
 
 // ---> imagedef_container_c class
 

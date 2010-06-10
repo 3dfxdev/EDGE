@@ -711,28 +711,12 @@ gamedef_c::gamedef_c() : name()
 }
 
 //
-// gamedef_c Copy constructor
-//
-gamedef_c::gamedef_c(gamedef_c &rhs)
-{
-	Copy(rhs);
-}
-
-//
 // gamedef_c Destructor
 //
 gamedef_c::~gamedef_c()
 {
 }
 
-//
-// gamedef_c::Copy()
-//
-void gamedef_c::Copy(gamedef_c &src)
-{
-	ddf = src.ddf;
-	CopyDetail(src);
-}
 
 //
 // gamedef_c::CopyDetail()
@@ -805,16 +789,6 @@ void gamedef_c::Default()
 	lighting = LMODEL_Doom;
 }
 
-//
-// gamedef_c assignment operator
-//
-gamedef_c& gamedef_c::operator=(gamedef_c &rhs)
-{
-	if (&rhs != this)
-		Copy(rhs);
-
-	return *this;
-}
 
 // --> game definition container class
 

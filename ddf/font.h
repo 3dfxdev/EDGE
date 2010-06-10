@@ -52,16 +52,11 @@ class fontdef_c
 {
 public:
 	fontdef_c();
-	fontdef_c(const fontdef_c &rhs);
 	~fontdef_c() {};
 
-private:
-	void Copy(const fontdef_c &src);
-
 public:
-	void CopyDetail(const fontdef_c &src);
 	void Default(void);
-	fontdef_c& operator= (const fontdef_c &rhs);
+	void CopyDetail(const fontdef_c &src);
 
 	// Member vars....
 	epi::strent_c name;
@@ -72,7 +67,13 @@ public:
 	epi::strent_c missing_patch;
 
 	epi::strent_c image_name;
+
+private:
+	// disable copy construct and assignment operator
+	explicit fontdef_c(fontdef_c &rhs) { }
+	fontdef_c& operator=(fontdef_c &rhs) { return *this; }
 };
+
 
 // Our fontdefs container
 class fontdef_container_c : public epi::array_c 

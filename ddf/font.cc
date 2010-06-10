@@ -282,23 +282,6 @@ fontdef_c::fontdef_c() : name()
 }
 
 //
-// fontdef_c Copy constructor
-//
-fontdef_c::fontdef_c(const fontdef_c &rhs)
-{
-	Copy(rhs);
-}
-
-//
-// fontdef_c::Copy()
-//
-void fontdef_c::Copy(const fontdef_c &src)
-{
-	ddf = src.ddf;
-	CopyDetail(src);
-}
-
-//
 // fontdef_c::CopyDetail()
 //
 // Copies all the detail with the exception of ddf info
@@ -322,16 +305,6 @@ void fontdef_c::Default()
 	missing_patch.clear();
 }
 
-//
-// fontdef_c assignment operator
-//
-fontdef_c& fontdef_c::operator= (const fontdef_c &rhs)
-{
-	if (&rhs != this)
-		Copy(rhs);
-	
-	return *this;
-}
 
 // ---> fontdef_container_c class
 

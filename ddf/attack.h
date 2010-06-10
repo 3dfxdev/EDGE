@@ -77,16 +77,11 @@ class atkdef_c
 {
 public:
 	atkdef_c();
-	atkdef_c(atkdef_c &rhs); 
 	~atkdef_c();
 
-private:
-	void Copy(atkdef_c &src);
-
 public:
-	void CopyDetail(atkdef_c &src);
 	void Default();
-	atkdef_c& operator=(atkdef_c &rhs);
+	void CopyDetail(atkdef_c &src);
 
 	// Member vars
 	epi::strent_c name;
@@ -134,7 +129,13 @@ public:
 	// DDF_AttackCleanUp() has been called.  Can be NULL.
 	const mobjtype_c *puff;
 	epi::strent_c puff_ref;
+
+private:
+	// disable copy construct and assignment operator
+	explicit atkdef_c(atkdef_c &rhs) { }
+	atkdef_c& operator= (atkdef_c &rhs) { return *this; }
 };
+
 
 class atkdef_container_c : public epi::array_c
 {

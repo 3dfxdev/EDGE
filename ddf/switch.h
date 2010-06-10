@@ -40,16 +40,11 @@ class switchdef_c
 {
 public:
 	switchdef_c();
-	switchdef_c(switchdef_c &rhs);
 	~switchdef_c() {};
 
-private:
-	void Copy(switchdef_c &src);
-
 public:
-	void CopyDetail(switchdef_c &src);
 	void Default(void);
-	switchdef_c& operator=(switchdef_c &rhs);
+	void CopyDetail(switchdef_c &src);
 
 	// Member vars....
 	epi::strent_c name;
@@ -63,7 +58,13 @@ public:
 	int time;
 
 	switchcache_t cache;
+
+private:
+	// disable copy construct and assignment operator
+	explicit switchdef_c(switchdef_c &rhs) { }
+	switchdef_c& operator=(switchdef_c &rhs) { return *this; }
 };
+
 
 // Our switchdefs container
 class switchdef_container_c : public epi::array_c 

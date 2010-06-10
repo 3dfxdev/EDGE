@@ -101,16 +101,11 @@ class styledef_c
 {
 public:
 	styledef_c();
-	styledef_c(const styledef_c &rhs);
 	~styledef_c();
 
-private:
-	void Copy(const styledef_c &src);
-
 public:
-	void CopyDetail(const styledef_c &src);
 	void Default(void);
-	styledef_c& operator= (const styledef_c &rhs);
+	void CopyDetail(const styledef_c &src);
 
 	// Member vars....
 	epi::strent_c name;
@@ -133,7 +128,13 @@ public:
 	soundstyle_c sounds;
 
 	style_special_e special;
+
+private:
+	// disable copy construct and assignment operator
+	explicit styledef_c(styledef_c &rhs) { }
+	styledef_c& operator=(styledef_c &rhs) { return *this; }
 };
+
 
 // Our styledefs container
 class styledef_container_c : public epi::array_c 

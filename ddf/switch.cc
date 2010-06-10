@@ -226,22 +226,6 @@ switchdef_c::switchdef_c() : name()
 	Default();
 }
 
-//
-// switchdef_c Copy constructor
-//
-switchdef_c::switchdef_c(switchdef_c &rhs)
-{
-	Copy(rhs);
-}
-
-//
-// switchdef_c::Copy()
-//
-void switchdef_c::Copy(switchdef_c &src)
-{
-	ddf = src.ddf;
-	CopyDetail(src);
-}
 
 //
 // switchdef_c::CopyDetail()
@@ -273,16 +257,6 @@ void switchdef_c::Default()
 	time = BUTTONTIME;
 }
 
-//
-// switchdef_c assignment operator
-//
-switchdef_c& switchdef_c::operator=(switchdef_c &rhs)
-{
-	if (&rhs != this)
-		Copy(rhs);
-	
-	return *this;
-}
 
 // --> switchdef_container_c Class
 

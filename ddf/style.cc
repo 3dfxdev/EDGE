@@ -435,28 +435,12 @@ styledef_c::styledef_c() : name()
 }
 
 //
-// styledef_c Copy constructor
-//
-styledef_c::styledef_c(const styledef_c &rhs)
-{
-	Copy(rhs);
-}
-
-//
 // styledef_c Destructor
 //
 styledef_c::~styledef_c()
 {
 }
 
-//
-// styledef_c::Copy()
-//
-void styledef_c::Copy(const styledef_c &src)
-{
-	ddf = src.ddf;
-	CopyDetail(src);	
-}
 
 //
 // styledef_c::CopyDetail()
@@ -488,16 +472,6 @@ void styledef_c::Default()
 	special = (style_special_e) 0;
 }
 
-//
-// styledef_c assignment operator
-//
-styledef_c& styledef_c::operator= (const styledef_c &rhs)
-{
-	if (&rhs != this)
-		Copy(rhs);
-
-	return *this;
-}
 
 // --> map definition container class
 

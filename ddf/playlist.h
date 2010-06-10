@@ -56,16 +56,11 @@ class pl_entry_c
 {
 public:
 	pl_entry_c();
-	pl_entry_c(pl_entry_c &rhs);
 	~pl_entry_c();
 
-private:
-	void Copy(pl_entry_c &src);
-
 public:
-	void CopyDetail(pl_entry_c &src);
 	void Default(void);
-	pl_entry_c& operator=(pl_entry_c &rhs);
+	void CopyDetail(pl_entry_c &src);
 
 	// Member vars....
 	int number;
@@ -74,7 +69,13 @@ public:
 	musicinftype_e infotype;
 
 	epi::strent_c info;
+
+private:
+	// disable copy construct and assignment operator
+	explicit pl_entry_c(pl_entry_c &rhs) { }
+	pl_entry_c& operator= (pl_entry_c &rhs) { return *this; }
 };
+
 
 // Our playlist entry container
 class pl_entry_container_c : public epi::array_c 

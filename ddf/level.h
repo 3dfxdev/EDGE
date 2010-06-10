@@ -116,16 +116,11 @@ class mapdef_c
 {
 public:
 	mapdef_c();
-	mapdef_c(mapdef_c &rhs);
 	~mapdef_c();
 	
-private:
-	void Copy(mapdef_c &src);
-	
 public:
-	void CopyDetail(mapdef_c &src);
 	void Default(void);
-	mapdef_c& operator=(mapdef_c &rhs);
+	void CopyDetail(mapdef_c &src);
 
 	// Member vars....
 	epi::strent_c name;
@@ -169,7 +164,13 @@ public:
 	// -KM- 1998/11/25 Generalised finales.
 	map_finaledef_c f_pre;
 	map_finaledef_c f_end;
+
+private:
+	// disable copy construct and assignment operator
+	explicit mapdef_c(mapdef_c &rhs) { }
+	mapdef_c& operator= (mapdef_c &rhs) { return *this; }
 };
+
 
 // Our mapdefs container
 class mapdef_container_c : public epi::array_c 
