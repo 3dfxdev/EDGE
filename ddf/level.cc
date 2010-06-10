@@ -82,10 +82,6 @@ static const commandlist_t level_commands[] =
 	DF("PARTIME", partime, DDF_MainGetTime),
 	DF("EPISODE", episode_name, DDF_MainGetString),
 	DF("STATS", wistyle, DDF_LevelGetWistyle),
-	DF("SPECIAL", ddf, DDF_LevelGetSpecials),
-
-	// -AJA- backwards compatibility cruft...
-	DF("LIGHTING", ddf, DDF_DummyFunction),
 
 	DDF_CMD_END
 };
@@ -123,6 +119,7 @@ static specflags_t map_specials[] =
     {"CROUCHING", MPF_Crouching, 0},
     {"WEAPON_KICK", MPF_Kicking, 0},
     {"BOOM_COMPAT", MPF_BoomCompat, 0},
+
     {NULL, 0, 0}
 };
 
@@ -168,9 +165,21 @@ static void LevelParseField(const char *field, const char *contents,
 	I_Debugf("LEVEL_PARSE: %s = %s;\n", field, contents);
 #endif
 
+	// -AJA- ignore this for backwards compatibility
+	if (DDF_CompareName(field, "LIGHTING") == 0)
+		return;
+
+	// -AJA- this needs special handling (it modifies TWO fields)
+	if (DDF_CompareName(field, "SPECIAL") == 0)
+	{
+		DDF_LevelGetSpecials(contents, NULL);
+		return;
+	}
+
 	if (! DDF_MainParseField(level_commands, field, contents))
 		DDF_WarnError("Unknown levels.ddf command: %s\n", field);
 }
+
 
 static void LevelFinishEntry(void)
 {
@@ -224,10 +233,12 @@ bool DDF_ReadLevels(void *data, int size)
 	return DDF_MainReadFile(&levels);
 }
 
+
 void DDF_LevelInit(void)
 {
 	mapdefs.Clear();
 }
+
 
 void DDF_LevelCleanUp(void)
 {
@@ -261,6 +272,7 @@ void DDF_LevelGetPic(const char *info, void *storage)
 
 	f->pics.Insert(info);
 }
+
 
 void DDF_LevelGetSpecials(const char *info, void *storage)
 {
@@ -307,6 +319,7 @@ void DDF_LevelGetSpecials(const char *info, void *storage)
 			break;
 	}
 }
+
 
 static specflags_t wistyle_names[] =
 {

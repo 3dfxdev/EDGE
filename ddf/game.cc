@@ -61,12 +61,6 @@ static const commandlist_t gamedef_commands[] =
 	DF("SPECIAL_MUSIC", special_music, DDF_MainGetNumeric),
 	DF("LIGHTING", lighting, DDF_GameGetLighting),
 
-	// these don't quite fit in yet
-	DF("TITLE_GRAPHIC", ddf, DDF_GameGetPic),
-	DF("MAP", ddf, DDF_GameGetMap),
-
-	{"ANIM", DDF_GameGetAnim, 0, &buffer_framedef, NULL},
-
 	DDF_CMD_END
 };
 
@@ -106,16 +100,34 @@ static void GameStartEntry(const char *name)
 }
 
 
-static void GameParseField (const char *field, const char *contents,
-		int index, bool is_last)
+static void GameParseField(const char *field, const char *contents,
+						   int index, bool is_last)
 {
 #if (DEBUG_DDF)
 	I_Debugf ("GAME_PARSE: %s = %s;\n", field, contents);
 #endif
 
-	if (!DDF_MainParseField (gamedef_commands, field, contents))
-		DDF_WarnError ("Unknown games.ddf command: %s\n", field);
+	// handle some special fields...
+	if (DDF_CompareName(field, "TITLE_GRAPHIC") == 0)
+	{
+		DDF_GameGetPic(contents, NULL);
+		return;
+	}
+	else if (DDF_CompareName(field, "MAP") == 0)
+	{
+		DDF_GameGetMap(contents, NULL);
+		return;
+	}
+	else if (DDF_CompareName(field, "ANIM") == 0)
+	{
+		DDF_GameGetAnim(contents, &buffer_framedef);
+		return;
+	}
+
+	if (! DDF_MainParseField(gamedef_commands, field, contents))
+		DDF_WarnError("Unknown games.ddf command: %s\n", field);
 }
+
 
 static void GameFinishEntry (void)
 {
@@ -248,6 +260,7 @@ static void DDF_GameGetAnim(const char *info, void *storage)
 	// this assumes 'f' points to buffer_framedef
 	DDF_GameAddFrame();
 }
+
 
 static void ParseMap(const char *info, wi_mapposdef_c *mp)
 {

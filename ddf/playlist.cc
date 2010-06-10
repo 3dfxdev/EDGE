@@ -26,32 +26,24 @@ static pl_entry_c *dynamic_plentry;
 
 pl_entry_container_c playlist;
 
-static void DDF_MusicParseInfo(const char *info, void *storage);
-
-#undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  buffer_plentry
-
-static const commandlist_t musplaylistcmds[] =
-{
-	DDF_CMD("MUSICINFO", ddf, DDF_MusicParseInfo),
-	DDF_CMD_END
-};
 
 //
 // DDF_MusicParseInfo
 //
 // Parses the music information given.
 //
-static void DDF_MusicParseInfo(const char *info, void *storage)
+static void DDF_MusicParseInfo(const char *info)
 {
 	static const char *const musstrtype[] = { "UNKNOWN", "CD", "MIDI", "MUS", "OGG", "MP3", NULL };
 	static const char *const musinftype[] = { "UNKNOWN", "TRACK", "LUMP", "FILE", NULL };
+
 	char charbuff[256];
 	int pos,i;
 
 	// Get the music type
 	i=0;
 	pos=0;
+
 	while (info[pos] != ':' && i<255)
 	{
 		if (info[i] == '\0')
@@ -152,8 +144,13 @@ static void PlaylistParseField(const char *field, const char *contents,
 	I_Debugf("PLAYLIST_PARSE: %s = %s;\n", field, contents);
 #endif
 
-	if (! DDF_MainParseField(musplaylistcmds, field, contents))
-		DDF_WarnError("Unknown playlist.ddf command: %s\n", field);
+	if (DDF_CompareName(field, "MUSICINFO") == 0)
+	{
+		DDF_MusicParseInfo(contents);
+		return;
+	}
+
+	DDF_WarnError("Unknown playlist.ddf command: %s\n", field);
 }
 
 

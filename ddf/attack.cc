@@ -74,8 +74,8 @@ static const commandlist_t attack_commands[] =
 	// sub-commands
 	DDF_SUB_LIST("DAMAGE", damage, damage_commands, buffer_damage),
 
-	DF("ATTACKTYPE", ddf, DDF_AtkGetType),
-	DF("ATTACK_SPECIAL", ddf, DDF_AtkGetSpecial),
+	DF("ATTACKTYPE", attackstyle, DDF_AtkGetType),
+	DF("ATTACK_SPECIAL", flags, DDF_AtkGetSpecial),
 	DF("ACCURACY_SLOPE", accuracy_slope, DDF_MainGetSlope),
 	DF("ACCURACY_ANGLE", accuracy_angle, DDF_MainGetAngle),
 	DF("ATTACK_HEIGHT", height, DDF_MainGetFloat),
@@ -317,6 +317,7 @@ void DDF_AttackCleanUp(void)
 	atkdefs.Trim();
 }
 
+
 static const specflags_t attack_specials[] =
 {
     {"SMOKING_TRACER", AF_TraceSmoke, 0},
@@ -343,16 +344,18 @@ static const specflags_t attack_specials[] =
 
 static void DDF_AtkGetSpecial(const char *info, void *storage)
 {
+	attackflags_e *var = (attackflags_e *)storage;
+
 	int flag_value;
 
 	switch (DDF_MainCheckSpecialFlag(info, attack_specials, &flag_value, true, false))
 	{
 		case CHKF_Positive:
-			buffer_atk.flags = (attackflags_e)(buffer_atk.flags | flag_value);
+			*var = (attackflags_e)(*var | flag_value);
 			break;
     
 		case CHKF_Negative:
-			buffer_atk.flags = (attackflags_e)(buffer_atk.flags & ~flag_value);
+			*var = (attackflags_e)(*var & ~flag_value);
 			break;
 
 		case CHKF_User:
@@ -382,21 +385,22 @@ static const char *attack_class[NUMATKCLASS] =
 
 static void DDF_AtkGetType(const char *info, void *storage)
 {
+	attackstyle_e *var = (attackstyle_e *)storage;
+
 	int i;
 
-	i = 0;
+	for (i=0; i < NUMATKCLASS; i++)
+		if (DDF_CompareName(info, attack_class[i]) == 0)
+			break;
 
-	while (i != NUMATKCLASS && DDF_CompareName(info, attack_class[i]))
-		i++;
-
-	if (i == NUMATKCLASS)
+	if (i >= NUMATKCLASS)
 	{
 		DDF_WarnError("DDF_AtkGetType: No such attack type '%s'\n", info);
-		buffer_atk.attackstyle = ATK_SHOT;
+		*var = ATK_SHOT;
 		return;
 	}
   
-	buffer_atk.attackstyle = (attackstyle_e)i;
+  	*var = (attackstyle_e) i;
 }
 
 //
