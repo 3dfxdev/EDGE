@@ -48,17 +48,12 @@ class sfxdef_c
 {
 public:
 	sfxdef_c();
-	sfxdef_c(sfxdef_c &rhs);
 	~sfxdef_c();
 	
-private:
-	void Copy(sfxdef_c &src);
-	
 public:
-	void CopyDetail(sfxdef_c &src);
 	void Default(void);
-	sfxdef_c& operator=(sfxdef_c &rhs);
-	
+	void CopyDetail(sfxdef_c &src);
+
 	// Member vars....
 	epi::strent_c name;
 
@@ -91,7 +86,13 @@ public:
     // distance limit, if the hearer is further away than `max_distance'
     // then the this sound won't be played at all.
 	float max_distance;
- };
+
+private:
+	// disable copy construct and assignment operator
+	explicit sfxdef_c(sfxdef_c &rhs) { }
+	sfxdef_c& operator= (sfxdef_c &rhs) { return *this; }
+};
+
 
 // Our sound effect definition container
 class sfxdef_container_c : public epi::array_c 

@@ -171,16 +171,11 @@ class gamedef_c
 {
 public:
 	gamedef_c();
-	gamedef_c(gamedef_c &rhs);
 	~gamedef_c();
 
-private:
-	void Copy(gamedef_c &src);
-	
 public:
-	void CopyDetail(gamedef_c &src);
 	void Default(void);
-	gamedef_c& operator=(gamedef_c &rhs);
+	void CopyDetail(gamedef_c &src);
 
 	// Member vars....
 	epi::strent_c name;
@@ -213,7 +208,13 @@ public:
 	int special_music;
 
 	lighting_model_e lighting;
+
+private:
+	// disable copy construct and assignment operator
+	explicit gamedef_c(gamedef_c &rhs) { }
+	gamedef_c& operator= (gamedef_c &rhs) { return *this; }
 };
+
 
 class gamedef_container_c : public epi::array_c
 {

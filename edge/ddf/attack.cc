@@ -429,27 +429,10 @@ atkdef_c::atkdef_c() : name()
 }
 
 //
-// atkdef_c Copy Constructor
-//
-atkdef_c::atkdef_c(atkdef_c &rhs)
-{
-	Copy(rhs);
-}
-
-//
 // atkdef_c Destructor
 //
 atkdef_c::~atkdef_c()
 {
-}
-
-//
-// atkdef_c::Copy()
-//
-void atkdef_c::Copy(atkdef_c &src)
-{
-	ddf = src.ddf;
-	CopyDetail(src);
 }
 
 //
@@ -528,16 +511,6 @@ void atkdef_c::Default()
 	puff_ref.clear();
 }
 
-//
-// atkdef_c assignment operator
-//
-atkdef_c& atkdef_c::operator=(atkdef_c &rhs)
-{
-	if (&rhs != this)
-		Copy(rhs);
-	
-	return *this;
-}
 
 // --> atkdef_container_c class
 

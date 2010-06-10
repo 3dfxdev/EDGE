@@ -197,27 +197,10 @@ sfxdef_c::sfxdef_c() : name()
 }
 
 //
-// sfxdef_c Copy constructor
-//
-sfxdef_c::sfxdef_c(sfxdef_c &rhs)
-{
-	Copy(rhs);
-}
-
-//
 // sfxdef_c Destructor
 //
 sfxdef_c::~sfxdef_c()
 {
-}
-
-//
-// sfxdef_c::Copy()
-//
-void sfxdef_c::Copy(sfxdef_c &src)
-{
-	ddf = src.ddf;
-	CopyDetail(src);
 }
 
 //
@@ -259,16 +242,6 @@ void sfxdef_c::Default()
 	max_distance = S_CLIPPING_DIST; // max_distance
 }
 
-//
-// sfxdef_c assignment operator
-//
-sfxdef_c& sfxdef_c::operator=(sfxdef_c &rhs)
-{
-	if(&rhs != this)
-		Copy(rhs);
-
-	return *this;
-}
 
 // --> Sound Effect Definition Containter Class
 
