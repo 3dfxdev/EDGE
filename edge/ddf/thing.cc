@@ -42,6 +42,7 @@ mobjtype_c *dynamic_mobj;
 
 mobjtype_container_c mobjtypes;
 
+void DDF_MobjGetSpecial(const char *info);
 void DDF_MobjGetBenefit(const char *info, void *storage);
 void DDF_MobjGetPickupEffect(const char *info, void *storage);
 void DDF_MobjGetDLight(const char *info, void *storage);
@@ -107,9 +108,7 @@ const commandlist_t thing_commands[] =
 	DF("MASS", mass, DDF_MainGetFloat),
 	DF("SPEED", speed, DDF_MainGetFloat),
 	DF("FAST", fast, DDF_MainGetFloat),
-	DF("SPECIAL", name, DDF_MobjGetSpecial),  // FIXME
-	DF("EXTRA", name, DDF_MobjGetExtra),      // FIXME
-	DF("PROJECTILE_SPECIAL", name, DDF_MobjGetSpecial),  // FIXME
+	DF("EXTRA", extendedflags, DDF_MobjGetExtra),
 	DF("RESPAWN_TIME", respawntime, DDF_MainGetTime),
 	DF("FUSE", fuse, DDF_MainGetTime),
 	DF("LIFESPAN", fuse, DDF_MainGetTime),
@@ -531,6 +530,14 @@ void ThingParseField(const char *field, const char *contents,
 #if (DEBUG_DDF)  
 	I_Debugf("THING_PARSE: %s = %s;\n", field, contents);
 #endif
+
+	// -AJA- this needs special handling (it touches several fields)
+	if (DDF_CompareName(field, "SPECIAL") == 0 ||
+	    DDF_CompareName(field, "PROJECTILE_SPECIAL") == 0)
+	{
+		DDF_MobjGetSpecial(contents);
+		return;
+	}
 
 	if (DDF_MainParseField(thing_commands, field, contents))
 		return;
@@ -1300,7 +1307,7 @@ static specflags_t hyper_specials[] =
 // Compares info the the entries in special flag lists.  If found
 // apply attribs for it to current buffer_mobj.
 //
-void DDF_MobjGetSpecial(const char *info, void *storage)
+void DDF_MobjGetSpecial(const char *info)
 {
 	int flag_value;
 
@@ -1405,21 +1412,20 @@ void DDF_MobjGetDLight(const char *info, void *storage)
 //
 // DDF_MobjGetExtra
 //
-// The "EXTRA" field. FIXME: Improve the system.
-//
 void DDF_MobjGetExtra(const char *info, void *storage)
 {
-	// If NULL is passed, then the mobj is not marked as extra. Otherwise,
-	// it is (in the future, we may support a system where extras can be split
-	// up into several subsets, which can be individually toggled, based
-	// on the EXTRA= value).
-	if (!DDF_CompareName(info, "NULL"))
+	int *extendedflags = (int *)storage;
+
+	// If keyword is "NULL", then the mobj is not marked as extra.
+	// Otherwise it is.
+
+	if (DDF_CompareName(info, "NULL") == 0)
 	{
-		buffer_mobj.extendedflags &= ~EF_EXTRA;
+		*extendedflags &= ~EF_EXTRA;
 	}
 	else
 	{
-		buffer_mobj.extendedflags |= EF_EXTRA;
+		*extendedflags |= EF_EXTRA;
 	}
 }
 
