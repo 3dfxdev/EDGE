@@ -48,10 +48,6 @@ static const commandlist_t sfx_commands[] =
 	DF("PRECIOUS", precious, DDF_MainGetBoolean),
 	DF("MAX_DISTANCE", max_distance, DDF_MainGetFloat),
 
-	// -AJA- backwards compatibility cruft...
-	DF("BITS",   ddf, DDF_DummyFunction),
-	DF("STEREO", ddf, DDF_DummyFunction),
-
 	DDF_CMD_END
 };
 
@@ -99,6 +95,11 @@ static void SoundParseField(const char *field, const char *contents,
 #if (DEBUG_DDF)  
 	I_Debugf("SOUND_PARSE: %s = %s;\n", field, contents);
 #endif
+
+	// -AJA- ignore these for backwards compatibility
+	if (DDF_CompareName(field, "BITS") == 0 ||
+	    DDF_CompareName(field, "STEREO") == 0)
+		return;
 
 	if (! DDF_MainParseField(sfx_commands, field, contents))
 		DDF_WarnError("Unknown sounds.ddf command: %s\n", field);
@@ -193,7 +194,7 @@ void DDF_MainLookupSound(const char *info, void *storage)
 //
 sfxdef_c::sfxdef_c() : name()
 {
-	Default()
+	Default();
 }
 
 //
