@@ -23,27 +23,23 @@
 
 #include "switch.h"
 
-#undef  DF
-#define DF  DDF_CMD
-
-static switchdef_c buffer_switchdef;
 static switchdef_c *dynamic_switchdef;
 
 switchdef_container_c switchdefs;
 
-#undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  buffer_switchdef
+#define DDF_CMD_BASE  dummy_switchdef
+static switchdef_c dummy_switchdef;
 
 static const commandlist_t switch_commands[] =
 {
-	DF("ON_TEXTURE",  name1, DDF_MainGetLumpName),
-	DF("OFF_TEXTURE", name2, DDF_MainGetLumpName),
-	DF("ON_SOUND",  on_sfx,  DDF_MainLookupSound),
-	DF("OFF_SOUND", off_sfx, DDF_MainLookupSound),
-	DF("TIME", time, DDF_MainGetTime),
+	DDF_FIELD("ON_TEXTURE",  name1, DDF_MainGetLumpName),
+	DDF_FIELD("OFF_TEXTURE", name2, DDF_MainGetLumpName),
+	DDF_FIELD("ON_SOUND",  on_sfx,  DDF_MainLookupSound),
+	DDF_FIELD("OFF_SOUND", off_sfx, DDF_MainLookupSound),
+	DDF_FIELD("TIME", time, DDF_MainGetTime),
 
 	// -AJA- backwards compatibility cruft...
-	DF("!SOUND", on_sfx, DDF_MainLookupSound),
+	DDF_FIELD("SOUND", on_sfx, DDF_MainLookupSound),
 
 	DDF_CMD_END
 };
@@ -61,23 +57,21 @@ static void SwitchStartEntry(const char *name)
 		name = "SWITCH_WITH_NO_NAME";
 	}
 
-	switchdef_c *existing = switchdefs.Find(name);
+	dynamic_switchdef = switchdefs.Find(name);
 	
-	if (existing)
+	// replaces an existing entry
+	if (dynamic_switchdef)
 	{
-		dynamic_switchdef = existing;	
-	}	
-	else
-	{
-		dynamic_switchdef = new switchdef_c;
-		
-		dynamic_switchdef->name = name;
-
-		switchdefs.Insert(dynamic_switchdef);
+		dynamic_switchdef->Default();
+		return;
 	}
+
+	// not found, create a new one
+	dynamic_switchdef = new switchdef_c;
 	
-	// instantiate the static entry
-	buffer_switchdef.Default();
+	dynamic_switchdef->name = name;
+
+	switchdefs.Insert(dynamic_switchdef);
 }
 
 
@@ -88,30 +82,29 @@ static void SwitchParseField(const char *field, const char *contents,
 	I_Debugf("SWITCH_PARSE: %s = %s;\n", field, contents);
 #endif
 
-	if (! DDF_MainParseField(switch_commands, field, contents))
-		DDF_WarnError("Unknown switch.ddf command: %s\n", field);
+	if (DDF_MainParseField(switch_commands, field, contents))
+		return;
+
+	DDF_WarnError("Unknown switch.ddf command: %s\n", field);
 }
 
 
 static void SwitchFinishEntry(void)
 {
-	if (!buffer_switchdef.name1[0])
+	if (!dynamic_switchdef->name1[0])
 		DDF_Error("Missing first name for switch.\n");
 
-	if (!buffer_switchdef.name2[0])
+	if (!dynamic_switchdef->name2[0])
 		DDF_Error("Missing last name for switch.\n");
 
-	if (buffer_switchdef.time <= 0)
-		DDF_Error("Bad time value for switch: %d\n", buffer_switchdef.time);
-
-	// transfer static entry to dynamic entry
-	dynamic_switchdef->CopyDetail(buffer_switchdef);
+	if (dynamic_switchdef->time <= 0)
+		DDF_Error("Bad time value for switch: %d\n", dynamic_switchdef->time);
 }
 
 
 static void SwitchClearAll(void)
 {
-	// safe here to delete all switches
+	// 100% safe to delete all switchdefs
 	switchdefs.Clear();
 }
 

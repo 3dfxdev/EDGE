@@ -23,11 +23,6 @@
 
 #include "anim.h"
 
-
-#undef  DF
-#define DF  DDF_CMD
-
-static animdef_c buffer_anim;
 static animdef_c *dynamic_anim;
 
 static void DDF_AnimGetType(const char *info, void *storage);
@@ -36,15 +31,16 @@ static void DDF_AnimGetPic (const char *info, void *storage);
 // -ACB- 1998/08/10 Use DDF_MainGetLumpName for getting the..lump name.
 // -KM- 1998/09/27 Use DDF_MainGetTime for getting tics
 
-#define DDF_CMD_BASE  buffer_anim
+#define DDF_CMD_BASE  dummy_anim
+static animdef_c dummy_anim;
 
 static const commandlist_t anim_commands[] =
 {
-	DF("TYPE",     type,      DDF_AnimGetType),
-	DF("SEQUENCE", pics,      DDF_AnimGetPic),
-	DF("SPEED",    speed,     DDF_MainGetTime),
-	DF("FIRST",    startname, DDF_MainGetLumpName),
-	DF("LAST",     endname,   DDF_MainGetLumpName),
+	DDF_FIELD("TYPE",     type,      DDF_AnimGetType),
+	DDF_FIELD("SEQUENCE", pics,      DDF_AnimGetPic),
+	DDF_FIELD("SPEED",    speed,     DDF_MainGetTime),
+	DDF_FIELD("FIRST",    startname, DDF_MainGetLumpName),
+	DDF_FIELD("LAST",     endname,   DDF_MainGetLumpName),
 
 	DDF_CMD_END
 };
@@ -89,19 +85,21 @@ static void AnimStartEntry(const char *name)
 
 	dynamic_anim = animdefs_Lookup(name);
 
-	// not found, create a new one
-	if (! dynamic_anim)
+	// replaces an existing entry
+	if (dynamic_anim)
 	{
-		dynamic_anim = new animdef_c;
-
-		dynamic_anim->name = name;
-
-		animdefs.Insert(dynamic_anim);
+		dynamic_anim->Default();
+		return;
 	}
 
-	// instantiate the static entry
-	buffer_anim.Default();
+	// not found, create a new one
+	dynamic_anim = new animdef_c;
+
+	dynamic_anim->name = name;
+
+	animdefs.Insert(dynamic_anim);
 }
+
 
 static void AnimParseField(const char *field, const char *contents, int index, bool is_last)
 {
@@ -109,38 +107,37 @@ static void AnimParseField(const char *field, const char *contents, int index, b
 	I_Debugf("ANIM_PARSE: %s = %s;\n", field, contents);
 #endif
 
-	if (! DDF_MainParseField(anim_commands, field, contents))
-		DDF_WarnError("Unknown anims.ddf command: %s\n", field);
+	if (DDF_MainParseField(anim_commands, field, contents))
+		return;
+
+	DDF_WarnError("Unknown anims.ddf command: %s\n", field);
 }
 
 static void AnimFinishEntry(void)
 {
-	if (buffer_anim.speed <= 0)
+	if (dynamic_anim->speed <= 0)
 	{
-		DDF_WarnError("Bad TICS value for anim: %d\n", buffer_anim.speed);
-		buffer_anim.speed = 8;
+		DDF_WarnError("Bad TICS value for anim: %d\n", dynamic_anim->speed);
+		dynamic_anim->speed = 8;
 	}
 
-	if (buffer_anim.pics.GetSize() == 0)
+	if (dynamic_anim->pics.GetSize() == 0)
 	{
-		if (!buffer_anim.startname || !buffer_anim.startname[0] ||
-		    !buffer_anim.endname   || !buffer_anim.endname[0])
+		if (!dynamic_anim->startname || !dynamic_anim->startname[0] ||
+		    !dynamic_anim->endname   || !dynamic_anim->endname[0])
 		{
 			DDF_Error("Missing animation sequence.\n");
 		}
 
-		if (buffer_anim.type == animdef_c::A_Graphic)
+		if (dynamic_anim->type == animdef_c::A_Graphic)
 			DDF_Error("TYPE=GRAPHIC animations must use the SEQUENCE command.\n");
 	}
-
-	// transfer static entry to dynamic entry
-	dynamic_anim->CopyDetail(buffer_anim);
 }
 
 
 static void AnimClearAll(void)
 {
-	// safe to just delete all animations
+	// 100% safe to delete all animations
 	animdefs.Clear();
 }
 
@@ -218,7 +215,7 @@ static void DDF_AnimGetType(const char *info, void *storage)
 //
 static void DDF_AnimGetPic (const char *info, void *storage)
 {
-	buffer_anim.pics.Insert(info);
+	dynamic_anim->pics.Insert(info);
 }
 
 void DDF_ParseANIMATED(const byte *data, int size)

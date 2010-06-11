@@ -23,30 +23,23 @@
 
 #include "sfx.h"
 
-
-#undef  DF
-#define DF  DDF_CMD
-
-static sfxdef_c buffer_sfx;
 static sfxdef_c *dynamic_sfx;
-
-static int buffer_sfx_ID;
 
 sfxdef_container_c sfxdefs;
 
-#undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  buffer_sfx
+#define DDF_CMD_BASE  dummy_sfx
+static sfxdef_c dummy_sfx;
 
 static const commandlist_t sfx_commands[] =
 {
-	DF("LUMP_NAME", lump_name, DDF_MainGetLumpName),
-	DF("FILE_NAME", file_name, DDF_MainGetString),
-	DF("SINGULAR", singularity, DDF_MainGetNumeric),
-	DF("PRIORITY", priority, DDF_MainGetNumeric),
-	DF("VOLUME", volume, DDF_MainGetPercent),
-	DF("LOOP", looping, DDF_MainGetBoolean),
-	DF("PRECIOUS", precious, DDF_MainGetBoolean),
-	DF("MAX_DISTANCE", max_distance, DDF_MainGetFloat),
+	DDF_FIELD("LUMP_NAME", lump_name, DDF_MainGetLumpName),
+	DDF_FIELD("FILE_NAME", file_name, DDF_MainGetString),
+	DDF_FIELD("SINGULAR",  singularity, DDF_MainGetNumeric),
+	DDF_FIELD("PRIORITY",  priority, DDF_MainGetNumeric),
+	DDF_FIELD("VOLUME",    volume,   DDF_MainGetPercent),
+	DDF_FIELD("LOOP",      looping,  DDF_MainGetBoolean),
+	DDF_FIELD("PRECIOUS",  precious, DDF_MainGetBoolean),
+	DDF_FIELD("MAX_DISTANCE", max_distance, DDF_MainGetFloat),
 
 	DDF_CMD_END
 };
@@ -64,28 +57,31 @@ static void SoundStartEntry(const char *name)
 		name = "SOUND_WITH_NO_NAME";
 	}
 
-	sfxdef_c *existing = sfxdefs.Lookup(name);
+	dynamic_sfx = sfxdefs.Lookup(name);
+
+	// replaces an existing entry?
+	if (dynamic_sfx)
+	{
+		// maintain the internal ID
+		int id = dynamic_sfx->normal.sounds[0];
+
+		dynamic_sfx->Default();
+
+		dynamic_sfx->normal.num = 1;
+		dynamic_sfx->normal.sounds[0] = id;
+		return;
+	}
 
 	// not found, create a new one
-	if (existing)
-	{
-		dynamic_sfx = existing;
+	dynamic_sfx = new sfxdef_c;
 
-		buffer_sfx_ID = existing->normal.sounds[0];
-	}
-	else
-	{
-		dynamic_sfx = new sfxdef_c;
+	dynamic_sfx->name = name;
 
-		dynamic_sfx->name = name;
+	sfxdefs.Insert(dynamic_sfx);
 
-		sfxdefs.Insert(dynamic_sfx);
-
-		buffer_sfx_ID = sfxdefs.GetSize()-1; // self reference
-	}
-
-	// instantiate the static entries
-	buffer_sfx.Default();
+	// give it a self-referencing ID number
+	dynamic_sfx->normal.sounds[0] = sfxdefs.GetSize()-1;
+	dynamic_sfx->normal.num = 1;
 }
 
 
@@ -101,23 +97,20 @@ static void SoundParseField(const char *field, const char *contents,
 	    DDF_CompareName(field, "STEREO") == 0)
 		return;
 
-	if (! DDF_MainParseField(sfx_commands, field, contents))
-		DDF_WarnError("Unknown sounds.ddf command: %s\n", field);
+	if (DDF_MainParseField(sfx_commands, field, contents))
+		return;  // OK
+
+	DDF_WarnError("Unknown sounds.ddf command: %s\n", field);
 }
 
 
 static void SoundFinishEntry(void)
 {
-	if (!buffer_sfx.lump_name[0] &&
-		!(buffer_sfx.file_name && buffer_sfx.file_name[0]))
+	if (!dynamic_sfx->lump_name[0] &&
+		!(dynamic_sfx->file_name && dynamic_sfx->file_name[0]))
+	{
 		DDF_Error("Missing LUMP_NAME or FILE_NAME for sound.\n");
-
-	// transfer static entry to dynamic entry.
-	dynamic_sfx->CopyDetail(buffer_sfx);
-
-	// Keeps the ID info intact as well.
-	dynamic_sfx->normal.sounds[0] = buffer_sfx_ID;
-	dynamic_sfx->normal.num = 1;
+	}
 }
 
 
@@ -358,15 +351,13 @@ sfx_t* sfxdef_container_c::GetEffect(const char *name, bool error)
 sfxdef_c* sfxdef_container_c::Lookup(const char *name)
 {
 	epi::array_iterator_c it;
-	sfxdef_c *s;
 	
 	for (it=GetIterator(num_disabled); it.IsValid(); it++)
 	{
-		s = ITERATOR_TO_TYPE(it, sfxdef_c*);
+		sfxdef_c *s = ITERATOR_TO_TYPE(it, sfxdef_c*);
+
 		if (DDF_CompareName(s->name.c_str(), name) == 0)
-		{
 			return s;
-		}
 	}
 	
 	return NULL;
