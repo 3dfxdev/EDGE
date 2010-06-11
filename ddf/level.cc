@@ -67,8 +67,8 @@ static const commandlist_t finale_commands[] =
 static const commandlist_t level_commands[] =
 {
 	// sub-commands
-	DDF_SUB_LIST("PRE", f_pre, finale_commands, buffer_finale),
-	DDF_SUB_LIST("END", f_end, finale_commands, buffer_finale),
+//!!!!FIXME	DDF_SUB_LIST("PRE", f_pre, finale_commands, buffer_finale),
+//!!!!FIXME	DDF_SUB_LIST("END", f_end, finale_commands, buffer_finale),
 
 	DF("LUMPNAME", lump, DDF_MainGetLumpName),
 	DF("DESCRIPTION", description, DDF_MainGetString),

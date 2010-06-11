@@ -43,9 +43,10 @@ static void DDF_SectMakeCrush(const char *info);
 
 static const commandlist_t sect_commands[] =
 {
-  	DDF_SUB_LIST("FLOOR",    f,      floor_commands,    buffer_floor),
-  	DDF_SUB_LIST("CEILING",  c,      floor_commands,    buffer_floor),
-  	DDF_SUB_LIST("DAMAGE",   damage, damage_commands,   buffer_damage),
+	// sub-commands
+//!!!!FIXME	DDF_SUB_LIST("FLOOR",    f,      floor_commands,    buffer_floor),
+//!!!!FIXME	DDF_SUB_LIST("CEILING",  c,      floor_commands,    buffer_floor),
+//!!!!FIXME	DDF_SUB_LIST("DAMAGE",   damage, damage_commands,   buffer_damage),
 
 	DF("SECRET", secret, DDF_MainGetBoolean),
 	DF("HUB", hub, DDF_MainGetBoolean),

@@ -96,11 +96,11 @@ const commandlist_t weakness_commands[] =
 const commandlist_t thing_commands[] =
 {
 	// sub-commands
-	DDF_SUB_LIST("DLIGHT",  dlight[0], dlight_commands, buffer_dlight),
-	DDF_SUB_LIST("DLIGHT2", dlight[1], dlight_commands, buffer_dlight),
-	DDF_SUB_LIST("WEAKNESS", weak, weakness_commands, buffer_weakness),
-	DDF_SUB_LIST("EXPLODE_DAMAGE", explode_damage, damage_commands, buffer_damage),
-	DDF_SUB_LIST("CHOKE_DAMAGE", choke_damage, damage_commands, buffer_damage),
+//!!!!FIXME	DDF_SUB_LIST("DLIGHT",  dlight[0], dlight_commands, buffer_dlight),
+//!!!!FIXME	DDF_SUB_LIST("DLIGHT2", dlight[1], dlight_commands, buffer_dlight),
+//!!!!FIXME	DDF_SUB_LIST("WEAKNESS", weak, weakness_commands, buffer_weakness),
+//!!!!FIXME	DDF_SUB_LIST("EXPLODE_DAMAGE", explode_damage, damage_commands, buffer_damage),
+//!!!!FIXME	DDF_SUB_LIST("CHOKE_DAMAGE", choke_damage, damage_commands, buffer_damage),
 
 	DF("SPAWNHEALTH", spawnhealth, DDF_MainGetFloat),
 	DF("RADIUS", radius, DDF_MainGetFloat),

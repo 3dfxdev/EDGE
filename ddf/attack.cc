@@ -72,7 +72,7 @@ const commandlist_t damage_commands[] =
 static const commandlist_t attack_commands[] =
 {
 	// sub-commands
-	DDF_SUB_LIST("DAMAGE", damage, damage_commands, buffer_damage),
+//!!!!FIXME	DDF_SUB_LIST("DAMAGE", damage, damage_commands, buffer_damage),
 
 	DF("ATTACKTYPE", attackstyle, DDF_AtkGetType),
 	DF("ATTACK_SPECIAL", flags, DDF_AtkGetSpecial),

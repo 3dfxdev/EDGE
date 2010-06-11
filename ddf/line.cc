@@ -142,10 +142,10 @@ const commandlist_t slider_commands[] =
 static const commandlist_t linedef_commands[] =
 {
 	// sub-commands
-	DDF_SUB_LIST("FLOOR",    f, floor_commands,    buffer_floor),
-	DDF_SUB_LIST("CEILING",  c, floor_commands,    buffer_floor),
-	DDF_SUB_LIST("SLIDER",   s, slider_commands,   buffer_slider),
-	DDF_SUB_LIST("LADDER",   ladder, ladder_commands, buffer_ladder),
+//!!!!FIXME	DDF_SUB_LIST("FLOOR",    f, floor_commands,    buffer_floor),
+//!!!!FIXME	DDF_SUB_LIST("CEILING",  c, floor_commands,    buffer_floor),
+//!!!!FIXME	DDF_SUB_LIST("SLIDER",   s, slider_commands,   buffer_slider),
+//!!!!FIXME	DDF_SUB_LIST("LADDER",   ladder, ladder_commands, buffer_ladder),
 
 	DF("NEWTRIGGER", newtrignum, DDF_MainGetNumeric),
 	DF("ACTIVATORS", obj, DDF_LineGetActivators),
