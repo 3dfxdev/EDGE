@@ -867,7 +867,10 @@ void M_OptDrawer()
 
 	style->DrawBackground();
 
-	int font_h = style->fonts[0]->NominalHeight(); // FIXME: fonts[0] maybe null
+	if (! style->fonts[0])
+		return;
+
+	int font_h = style->fonts[0]->NominalHeight();
 
 	// -ACB- 1998/06/15 Calculate height for menu and then center it.
 	menutop = 68 - ((curr_menu->item_num * font_h) / 2);

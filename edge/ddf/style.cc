@@ -93,12 +93,12 @@ static const commandlist_t sound_commands[] =
 static const commandlist_t style_commands[] =
 {
 	// sub-commands
-	DDF_SUB_LIST("BACKGROUND", bg, background_commands, buffer_bgstyle),
-	DDF_SUB_LIST("TEXT",  text[0], text_commands, buffer_textstyle),
-	DDF_SUB_LIST("ALT",   text[1], text_commands, buffer_textstyle),
-	DDF_SUB_LIST("TITLE", text[2], text_commands, buffer_textstyle),
-	DDF_SUB_LIST("HELP",  text[3], text_commands, buffer_textstyle),
-	DDF_SUB_LIST("SOUND", sounds, sound_commands, buffer_soundstyle),
+//!!!!FIXME	DDF_SUB_LIST("BACKGROUND", bg, background_commands, buffer_bgstyle),
+//!!!!FIXME DDF_SUB_LIST("TEXT",  text[0], text_commands, buffer_textstyle),
+//!!!!FIXME	DDF_SUB_LIST("ALT",   text[1], text_commands, buffer_textstyle),
+//!!!!FIXME	DDF_SUB_LIST("TITLE", text[2], text_commands, buffer_textstyle),
+//!!!!FIXME	DDF_SUB_LIST("HELP",  text[3], text_commands, buffer_textstyle),
+//!!!!FIXME	DDF_SUB_LIST("SOUND", sounds, sound_commands, buffer_soundstyle),
 
     DF("SPECIAL", special, DDF_StyleGetSpecials),
 
@@ -149,6 +149,13 @@ static void StyleParseField(const char *field, const char *contents,
 #if (DEBUG_DDF)  
 	I_Debugf("STYLE_PARSE: %s = %s;\n", field, contents);
 #endif
+
+//!!!!FIXME TEMP
+	if (DDF_CompareName(field, "TEXT.FONT") == 0)
+	{
+		DDF_MainLookupFont(contents, (void*) & buffer_style.text[0].font);
+		return;
+	}
 
 	if (! DDF_MainParseField(style_commands, field, contents))
 		DDF_WarnError("Unknown styles.ddf command: %s\n", field);
@@ -216,7 +223,7 @@ void DDF_StyleCleanUp(void)
 	if (! default_style)
 		I_Error("Styles.ddf is missing the [DEFAULT] style.\n");
 	else if (! default_style->text[0].font)
-		I_Error("The [DEFAULT] style is missing TEXT.FONT\n");
+		I_Warning("The [DEFAULT] style is missing TEXT.FONT\n");
 
 	styledefs.Trim();
 }
