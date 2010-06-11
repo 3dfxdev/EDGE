@@ -20,12 +20,9 @@
 
 #include "playlist.h"
 
-
-static pl_entry_c buffer_plentry;
 static pl_entry_c *dynamic_plentry;
 
 pl_entry_container_c playlist;
-
 
 //
 // DDF_MusicParseInfo
@@ -68,7 +65,7 @@ static void DDF_MusicParseInfo(const char *info)
 	if (i==ENDOFMUSTYPES)
 		DDF_Error("DDF_MusicParseInfo: Unknown music type: '%s'\n", charbuff);
 	else
-		buffer_plentry.type = (musictype_t)i;
+		dynamic_plentry->type = (musictype_t)i;
 
 	// Data Type
 	i=0;
@@ -97,11 +94,11 @@ static void DDF_MusicParseInfo(const char *info)
 	if (i==ENDOFMUSINFTYPES)
 		DDF_Error("DDF_MusicParseInfo: Unknown music info: '%s'\n", charbuff);
 	else
-		buffer_plentry.infotype = (musicinftype_e)i; // technically speaking this is proper
+		dynamic_plentry->infotype = (musicinftype_e)i; // technically speaking this is proper
 
 	// Remained is the string reference: filename/lumpname/track-number
 	pos++;
-	buffer_plentry.info.Set(&info[pos]);
+	dynamic_plentry->info.Set(&info[pos]);
 
 	return;
 }
@@ -113,27 +110,26 @@ static void DDF_MusicParseInfo(const char *info)
 
 static void PlaylistStartEntry(const char *name)
 {	
-	pl_entry_c* existing = NULL;
 	int number = MAX(0, atoi(name));
 
 	if (number == 0)
 		DDF_Error("Bad music number in playlist.ddf: %s\n", name);
 
-	existing = playlist.Find(number);
-	if (existing)
-	{
-		dynamic_plentry = existing;
-	}
-	else
-	{
-		dynamic_plentry = new pl_entry_c;
-		dynamic_plentry->number = number;
+	dynamic_plentry = playlist.Find(number);
 
-		playlist.Insert(dynamic_plentry);
+	// replaces an existing entry
+	if (dynamic_plentry)
+	{
+		dynamic_plentry->Default();
+		return;
 	}
 
-	// instantiate the static entry
-	buffer_plentry.Default();
+	// not found, create a new entry
+	dynamic_plentry = new pl_entry_c;
+
+	dynamic_plentry->number = number;
+
+	playlist.Insert(dynamic_plentry);
 }
 
 
@@ -156,14 +152,13 @@ static void PlaylistParseField(const char *field, const char *contents,
 
 static void PlaylistFinishEntry(void)
 {
-	// transfer static entry to dynamic entry
-	dynamic_plentry->CopyDetail(buffer_plentry);
+	// nothing needed
 }
 
 
 static void PlaylistClearAll(void)
 {
-	// safe to just remove all current entries
+	// 100% safe to just remove all entries
 	playlist.Clear();
 }
 
