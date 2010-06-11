@@ -23,23 +23,20 @@
 
 #include "font.h"
 
-#undef  DF
-#define DF  DDF_CMD
-
-static fontdef_c buffer_font;
 static fontdef_c *dynamic_font;
 
 static void DDF_FontGetType( const char *info, void *storage);
 static void DDF_FontGetPatch(const char *info, void *storage);
 
-#define DDF_CMD_BASE  buffer_font
+#define DDF_CMD_BASE  dummy_font
+static fontdef_c dummy_font;
 
 static const commandlist_t font_commands[] =
 {
-	DF("TYPE",     type,       DDF_FontGetType),
-	DF("PATCHES",  patches,    DDF_FontGetPatch),
-	DF("IMAGE",    image_name, DDF_MainGetString),
-	DF("MISSING_PATCH", missing_patch, DDF_MainGetString),
+	DDF_FIELD("TYPE",     type,       DDF_FontGetType),
+	DDF_FIELD("PATCHES",  patches,    DDF_FontGetPatch),
+	DDF_FIELD("IMAGE",    image_name, DDF_MainGetString),
+	DDF_FIELD("MISSING_PATCH", missing_patch, DDF_MainGetString),
 
 	DDF_CMD_END
 };
@@ -58,36 +55,21 @@ static void FontStartEntry(const char *name)
 		name = "FONT_WITH_NO_NAME";
 	}
 
-	bool replaces = false;
+	dynamic_font = fontdefs.Lookup(name);
 
+	// replaces the existing entry
+	if (dynamic_font)
 	{
-		epi::array_iterator_c it;
-		fontdef_c *a;
-
-		for (it = fontdefs.GetBaseIterator(); it.IsValid(); it++)
-		{
-			a = ITERATOR_TO_TYPE(it, fontdef_c*);
-			if (DDF_CompareName(a->name.c_str(), name) == 0)
-			{
-				dynamic_font = a;
-				replaces = true;
-				break;
-			}
-		}
+		dynamic_font->Default();
+		return;
 	}
 
 	// not found, create a new one
-	if (! replaces)
-	{
-		dynamic_font = new fontdef_c;
+	dynamic_font = new fontdef_c;
 
-		dynamic_font->name = name;
+	dynamic_font->name = name;
 
-		fontdefs.Insert(dynamic_font);
-	}
-
-	// instantiate the static entry
-	buffer_font.Default();
+	fontdefs.Insert(dynamic_font);
 }
 
 
@@ -97,31 +79,28 @@ static void FontParseField(const char *field, const char *contents, int index, b
 	I_Debugf("FONT_PARSE: %s = %s;\n", field, contents);
 #endif
 
-	if (! DDF_MainParseField(font_commands, field, contents))
+	if (! DDF_MainParseField(font_commands, field, contents, (byte *)dynamic_font))
+	{
 		DDF_Error("Unknown fonts.ddf command: %s\n", field);
+	}
 }
+
 
 static void FontFinishEntry(void)
 {
-	if (buffer_font.type == FNTYP_UNSET)
+	if (dynamic_font->type == FNTYP_UNSET)
 		DDF_Error("No type specified for font.\n");
 
-	if (buffer_font.type == FNTYP_Patch && ! buffer_font.patches)
-	{
+	if (dynamic_font->type == FNTYP_Patch && ! dynamic_font->patches)
 		DDF_Error("Missing font patch list.\n");
-	}
 
 	// FIXME: check FNTYP_Image
-
-	// transfer static entry to dynamic entry
-	dynamic_font->CopyDetail(buffer_font);
 }
 
 
 static void FontClearAll(void)
 {
-	// safe to just delete all fonts
-	fontdefs.Clear();
+	I_Warning("Ignoring #CLEARALL in fonts.ddf\n");
 }
 
 
@@ -226,6 +205,8 @@ static int FontParseCharacter(const char *buf)
 //
 static void DDF_FontGetPatch(const char *info, void *storage)
 {
+	fontpatch_c **patch_list = (fontpatch_c **)storage;
+
 	char patch_buf[100];
 	char range_buf[100];
 
@@ -260,8 +241,9 @@ static void DDF_FontGetPatch(const char *info, void *storage)
 	fontpatch_c *pat = new fontpatch_c(char1, char2, patch_buf);
 
 	// add to list
-	pat->next = buffer_font.patches;
-	buffer_font.patches = pat;
+	pat->next = *patch_list;
+	
+	*patch_list = pat;
 }
 
 
