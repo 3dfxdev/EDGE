@@ -23,9 +23,6 @@
 
 #include "colormap.h"
 
-#undef  DF
-#define DF  DDF_FIELD
-
 static colourmap_c *dynamic_colmap;
 
 colourmap_container_c colourmaps;
@@ -37,11 +34,11 @@ static colourmap_c dummy_colmap;
 
 static const commandlist_t colmap_commands[] =
 {
-	DF("LUMP",    lump_name, DDF_MainGetLumpName),
-	DF("START",   start,     DDF_MainGetNumeric),
-	DF("LENGTH",  length,    DDF_MainGetNumeric),
-	DF("SPECIAL", special,   DDF_ColmapGetSpecial),
-	DF("GL_COLOUR", gl_colour, DDF_MainGetRGB),
+	DDF_FIELD("LUMP",    lump_name, DDF_MainGetLumpName),
+	DDF_FIELD("START",   start,     DDF_MainGetNumeric),
+	DDF_FIELD("LENGTH",  length,    DDF_MainGetNumeric),
+	DDF_FIELD("SPECIAL", special,   DDF_ColmapGetSpecial),
+	DDF_FIELD("GL_COLOUR", gl_colour, DDF_MainGetRGB),
 
 	DDF_CMD_END
 };
@@ -126,6 +123,7 @@ static void ColmapClearAll(void)
 {
 	// not safe to delete colourmaps -- disable them
 	colourmaps.SetDisabledCount(colourmaps.GetSize());
+	I_Warning("Ignoring #CLEARALL in colormap.ddf\n");
 }
 
 

@@ -95,11 +95,12 @@ commandlist_t;
 #define DDF_FIELD(name,field,parser)  \
     { name, parser, ((char*)&DDF_CMD_BASE.field - (char*)&DDF_CMD_BASE), NULL, NULL, NULL }
 
+// REMOVE THIS ONE
 #define DDF_CMD(name,field,parser)  \
     { name, parser, 0, &DDF_CMD_BASE.field, NULL, NULL }
 
 #define DDF_SUB_LIST(name,field,subcomms,dummybase)  \
-    { "*" name, NULL, 0, &DDF_CMD_BASE.field, subcomms, &dummybase }
+    { "*" name, NULL, ((char*)&DDF_CMD_BASE.field - (char*)&DDF_CMD_BASE), NULL, subcomms, &dummybase }
 
 #define DDF_CMD_END  { NULL, NULL, 0, NULL, NULL }
 
