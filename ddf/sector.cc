@@ -25,21 +25,20 @@
 #include "line.h"
 
 #undef  DF
-#define DF  DDF_CMD
+#define DF  DDF_FIELD
 
 #define DDF_SectHashFunc(x)  (((x) + LOOKUP_CACHESIZE) % LOOKUP_CACHESIZE)
 
-static sectortype_c buffer_sector;
 static sectortype_c *dynamic_sector;
 
 sectortype_container_c sectortypes; 	// <-- User-defined
 
 void DDF_SectGetSpecialFlags(const char *info, void *storage);
-
 static void DDF_SectMakeCrush(const char *info);
 
 #undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  buffer_sector
+#define DDF_CMD_BASE  dummy_sector
+static sectortype_c dummy_sector;
 
 static const commandlist_t sect_commands[] =
 {
@@ -93,24 +92,20 @@ static void SectorStartEntry(const char *name)
 	if (number == 0)
 		DDF_Error("Bad sectordef number in sectors.ddf: %s\n", name);
 
-	epi::array_iterator_c it;
-	sectortype_c *existing = NULL;
+	dynamic_sector = sectortypes.Lookup(number);
 
-	existing = sectortypes.Lookup(number);
-	if (existing)
+	// replaces an existing entry?
+	if (dynamic_sector)
 	{
-		dynamic_sector = existing;
-	}
-	else
-	{
-		dynamic_sector = new sectortype_c;
-		dynamic_sector->number = number;
-
-		sectortypes.Insert(dynamic_sector);
+		dynamic_sector->Default();
+		return;
 	}
 
-	// instantiate the static entry
-	buffer_sector.Default();
+	// not found, create a new one
+	dynamic_sector = new sectortype_c;
+	dynamic_sector->number = number;
+
+	sectortypes.Insert(dynamic_sector);
 }
 
 //
@@ -131,8 +126,10 @@ static void SectorParseField(const char *field, const char *contents,
 		return;
 	}
 
-	if (! DDF_MainParseField(sect_commands, field, contents))
-		DDF_WarnError("Unknown sectors.ddf command: %s\n", field);
+	if (DDF_MainParseField(sect_commands, field, contents, (byte *)dynamic_sector))
+		return;  // OK
+
+	DDF_WarnError("Unknown sectors.ddf command: %s\n", field);
 }
 
 //
@@ -140,8 +137,7 @@ static void SectorParseField(const char *field, const char *contents,
 //
 static void SectorFinishEntry(void)
 {
-	// FIXME!! Check stuff
-	dynamic_sector->CopyDetail(buffer_sector);
+	// TODO: check stuff
 }
 
 //
@@ -149,7 +145,7 @@ static void SectorFinishEntry(void)
 //
 static void SectorClearAll(void)
 {
-	// it is safe to just delete all sector types
+	// 100% safe to delete all sector types
 	sectortypes.Reset();
 }
 
@@ -231,19 +227,21 @@ static specflags_t sector_specials[] =
 //
 void DDF_SectGetSpecialFlags(const char *info, void *storage)
 {
+	sector_flag_e *special = (sector_flag_e *)storage;
+
 	int flag_value;
 
 	switch (DDF_MainCheckSpecialFlag(info, sector_specials, &flag_value, true, false))
 	{
 		case CHKF_Positive:
-			buffer_sector.special_flags = 
-				(sector_flag_e)(buffer_sector.special_flags | flag_value);
+			*special = 
+				(sector_flag_e)(*special | flag_value);
 			
 			break;
 
 		case CHKF_Negative:
-			buffer_sector.special_flags = 
-				(sector_flag_e)(buffer_sector.special_flags & ~flag_value);
+			*special = 
+				(sector_flag_e)(*special & ~flag_value);
 			
 			break;
 
@@ -435,8 +433,8 @@ void DDF_SectGetDestRef(const char *info, void *storage)
 
 static void DDF_SectMakeCrush(const char *info)
 {
-	buffer_sector.f.crush_damage = 10;
-	buffer_sector.c.crush_damage = 10;
+	dynamic_sector->f.crush_damage = 10;
+	dynamic_sector->c.crush_damage = 10;
 }
 
 

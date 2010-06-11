@@ -97,7 +97,7 @@ static void SoundParseField(const char *field, const char *contents,
 	    DDF_CompareName(field, "STEREO") == 0)
 		return;
 
-	if (DDF_MainParseField(sfx_commands, field, contents))
+	if (DDF_MainParseField(sfx_commands, field, contents, (byte *)dynamic_sfx))
 		return;  // OK
 
 	DDF_WarnError("Unknown sounds.ddf command: %s\n", field);
