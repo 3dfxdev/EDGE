@@ -1492,32 +1492,6 @@ static void DDF_MobjGetAngleRange(const char *info, void *storage)
 	dest[1] = FLOAT_2_ANG(val2);
 }
 
-//
-// DDF_MobjMakeAttackObj
-//
-// Creates an object that is tightly bound to an attack.
-//
-// -AJA- 2000/02/11: written.
-//
-mobjtype_c *DDF_MobjMakeAttackObj(mobjtype_c *info, const char *atk_name)
-{
-	std::string name("__ATKMOBJ_");
-
-	name += atk_name;
-
-	mobjtype_c *result = new mobjtype_c;
-
-	result->CopyDetail(info[0]);
-	result->name.Set(name.c_str());
-
-	// backwards compat
-	result->DLightCompatibility();
-
-	// Add to the list
-	mobjtypes.Insert(result);
-
-	return result;
-}
 
 //
 //  CONDITION TESTERS
