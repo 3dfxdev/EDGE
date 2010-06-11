@@ -26,7 +26,7 @@
 #include "level.h"
 
 #undef  DF
-#define DF  DDF_CMD
+#define DF  DDF_FIELD
 
 static void DDF_LevelGetSpecials(const char *info);
 static void DDF_LevelGetPic(const char *info, void *storage);
@@ -34,13 +34,9 @@ static void DDF_LevelGetWistyle(const char *info, void *storage);
 
 mapdef_container_c mapdefs;
 
-static mapdef_c buffer_map;
-static mapdef_c* dynamic_level;
-
-static map_finaledef_c buffer_finale;
-
 #undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  buffer_finale
+#define DDF_CMD_BASE  dummy_finale
+static map_finaledef_c dummy_finale;
 
 static const commandlist_t finale_commands[] =
 {
@@ -61,14 +57,20 @@ static const commandlist_t finale_commands[] =
 
 // -KM- 1998/11/25 Finales are all go.
 
+#undef  DF
+#define DF  DDF_FIELD
+
+static mapdef_c *dynamic_level;
+
 #undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  buffer_map
+#define DDF_CMD_BASE  dummy_level
+static mapdef_c dummy_level;
 
 static const commandlist_t level_commands[] =
 {
 	// sub-commands
-//!!!!FIXME	DDF_SUB_LIST("PRE", f_pre, finale_commands, buffer_finale),
-//!!!!FIXME	DDF_SUB_LIST("END", f_end, finale_commands, buffer_finale),
+//!!!!FIXME	DDF_SUB_LIST("PRE", f_pre, finale_commands, dummy_finale),
+//!!!!FIXME	DDF_SUB_LIST("END", f_end, finale_commands, dummy_finale),
 
 	DF("LUMPNAME", lump, DDF_MainGetLumpName),
 	DF("DESCRIPTION", description, DDF_MainGetString),
@@ -86,11 +88,6 @@ static const commandlist_t level_commands[] =
 	DDF_CMD_END
 };
 
-static specflags_t deprec_map_specials[] =
-{
-    {"TRANSLUCENCY", 0, 0},
-    {NULL, 0, 0}
-};
 
 static specflags_t map_specials[] =
 {
@@ -136,25 +133,22 @@ static void LevelStartEntry(const char *name)
 		name = "LEVEL_WITH_NO_NAME";
 	}
 
-	mapdef_c *existing = mapdefs.Lookup(name);
-
-	// not found, create a new one
-	if (existing)
-	{
-		dynamic_level = existing;
-	}
-	else
-	{
-		dynamic_level = new mapdef_c;
-
-		dynamic_level->name = name;
-
-		mapdefs.Insert(dynamic_level);
-	}
-
 	// instantiate the static entries
-	buffer_map.Default();
-	buffer_finale.Default();
+	dummy_finale.Default();
+
+	// replaces an existing entry?
+	dynamic_level = mapdefs.Lookup(name);
+
+	if (dynamic_level)
+	{
+		dynamic_level->Default();
+		return;
+	}
+
+	dynamic_level = new mapdef_c;
+	dynamic_level->name = name;
+
+	mapdefs.Insert(dynamic_level);
 }
 
 
@@ -184,21 +178,16 @@ static void LevelParseField(const char *field, const char *contents,
 static void LevelFinishEntry(void)
 {
 	// check stuff
-	if (buffer_map.episode_name == NULL)
-		DDF_Error("Level entry must have an EPISODE name !\n");
+	if (dynamic_level->episode_name == NULL)
+		DDF_Error("Level entry must have an EPISODE name!\n");
 
-	// FIXME: check more stuff here...
-
-	// transfer static entry to dynamic entry
-	dynamic_level->CopyDetail(buffer_map);
-
-	// compute CRC...
-	// FIXME! Do something...
+	// TODO: check more stuff here...
 }
+
 
 static void LevelClearAll(void)
 {
-	// safe to delete the level entries -- no refs
+	// 100% safe to delete the level entries -- no refs
 	mapdefs.Clear();
 }
 
@@ -280,38 +269,29 @@ void DDF_LevelGetSpecials(const char *info)
 
 	int flag_value;
 
-    // Handle depreciated flags
-	switch (DDF_MainCheckSpecialFlag(info, deprec_map_specials, 
-                                     &flag_value, true, true))
+    // check for depreciated flags...
+	if (DDF_CompareName(info, "TRANSLUCENCY") == 0)
 	{
-		case CHKF_Positive:
-		case CHKF_Negative:
-		case CHKF_User:
-            DDF_Warning("Level special '%s' deprecated.\n", info);
-            return;
-            break;
+		DDF_Warning("Level special '%s' is deprecated.\n", info);
+		return;
+	}
 
-		case CHKF_Unknown:
-			break;
-    }
-
-    // Handle working flags
 	switch (DDF_MainCheckSpecialFlag(info, map_specials, 
                                      &flag_value, true, true))
 	{
 		case CHKF_Positive:
-			buffer_map.force_on  |=  flag_value;
-			buffer_map.force_off &= ~flag_value;
+			dynamic_level->force_on  |=  flag_value;
+			dynamic_level->force_off &= ~flag_value;
 			break;
 
 		case CHKF_Negative:
-			buffer_map.force_on  &= ~flag_value;
-			buffer_map.force_off |= flag_value;
+			dynamic_level->force_on  &= ~flag_value;
+			dynamic_level->force_off |= flag_value;
 			break;
 
 		case CHKF_User:
-			buffer_map.force_on  &= ~flag_value;
-			buffer_map.force_off &= ~flag_value;
+			dynamic_level->force_on  &= ~flag_value;
+			dynamic_level->force_off &= ~flag_value;
 			break;
 
 		case CHKF_Unknown:
