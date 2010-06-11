@@ -107,7 +107,7 @@ static void AnimParseField(const char *field, const char *contents, int index, b
 	I_Debugf("ANIM_PARSE: %s = %s;\n", field, contents);
 #endif
 
-	if (DDF_MainParseField(anim_commands, field, contents))
+	if (DDF_MainParseField(anim_commands, field, contents, (byte *)dynamic_anim))
 		return;
 
 	DDF_WarnError("Unknown anims.ddf command: %s\n", field);

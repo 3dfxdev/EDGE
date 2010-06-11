@@ -2,7 +2,7 @@
 //  EDGE Data Definition File Code (Linedefs)
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2010  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -50,9 +50,6 @@ typedef enum
 	dir_left  = 8
 }
 scrolldirs_e;
-
-linetype_c buffer_line;
-linetype_c *dynamic_line;
 
 // these bits logically belong with buffer_line:
 static float s_speed;
@@ -136,8 +133,14 @@ const commandlist_t slider_commands[] =
 	DDF_CMD_END
 };
 
+#undef DF
+#define DF DDF_FIELD
+
+static linetype_c *dynamic_line;
+
 #undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  buffer_line
+#define DDF_CMD_BASE  dummy_line
+static linetype_c dummy_line;
 
 static const commandlist_t linedef_commands[] =
 {
@@ -300,27 +303,23 @@ static void LinedefStartEntry(const char *name)
 	if (number == 0)
 		DDF_Error("Bad linedef number in lines.ddf: %s\n", name);
 
-	epi::array_iterator_c it;
-	linetype_c *existing = NULL;
-
-	existing = linetypes.Lookup(number);
-	if (existing)
-	{
-		dynamic_line = existing;
-	}
-	else
-	{
-		dynamic_line = new linetype_c;
-		dynamic_line->number = number;
-
-		linetypes.Insert(dynamic_line);
-	}
-
-	// instantiate the static entry
-	buffer_line.Default();
-
 	s_speed = 1.0f;
 	s_dir = dir_none;
+
+	dynamic_line = linetypes.Lookup(number);
+
+	// replaces an existing entry?
+	if (dynamic_line)
+	{
+		dynamic_line->Default();
+		return;
+	}
+
+	// not found, create a new one
+	dynamic_line = new linetype_c;
+	dynamic_line->number = number;
+
+	linetypes.Insert(dynamic_line);
 }
 
 //
@@ -344,8 +343,10 @@ static void LinedefParseField(const char *field, const char *contents,
 		return;
 	}
 
-	if (! DDF_MainParseField(linedef_commands, field, contents))
-		DDF_WarnError("Unknown lines.ddf command: %s\n", field);
+	if (DDF_MainParseField(linedef_commands, field, contents, (byte *)dynamic_line))
+		return;  // OK
+
+	DDF_WarnError("Unknown lines.ddf command: %s\n", field);
 }
 
 //
@@ -357,67 +358,61 @@ static void LinedefFinishEntry(void)
 	if (s_dir & dir_vert)
 	{
 		if (s_dir & dir_up)
-			buffer_line.s_yspeed = s_speed;
+			dynamic_line->s_yspeed = s_speed;
 		else
-			buffer_line.s_yspeed = -s_speed;
+			dynamic_line->s_yspeed = -s_speed;
 	}
 
 	if (s_dir & dir_horiz)
 	{
 		if (s_dir & dir_left)
-			buffer_line.s_xspeed = s_speed;
+			dynamic_line->s_xspeed = s_speed;
 		else
-			buffer_line.s_xspeed = -s_speed;
+			dynamic_line->s_xspeed = -s_speed;
 	}
 
 	// backwards compat: COUNT=0 means no limit on triggering
-	if (buffer_line.count == 0)
-		buffer_line.count = -1;
+	if (dynamic_line->count == 0)
+		dynamic_line->count = -1;
 
-	if (buffer_line.hub_exit > 0)
-		buffer_line.e_exit = EXIT_Hub;
+	if (dynamic_line->hub_exit > 0)
+		dynamic_line->e_exit = EXIT_Hub;
 
 	// check stuff...
 
-	if (buffer_line.ef.type != EXFL_None)
+	if (dynamic_line->ef.type != EXFL_None)
 	{
 		// AUTO is no longer needed for extrafloors
-		buffer_line.autoline = false;
+		dynamic_line->autoline = false;
 
-		if ((buffer_line.ef.type & EXFL_Flooder) && (buffer_line.ef.type & EXFL_NoShade))
+		if ((dynamic_line->ef.type & EXFL_Flooder) && (dynamic_line->ef.type & EXFL_NoShade))
 		{
 			DDF_WarnError("FLOODER and NOSHADE tags cannot be used together.\n");
-			buffer_line.ef.type = (extrafloor_type_e)(buffer_line.ef.type & ~EXFL_Flooder);
+			dynamic_line->ef.type = (extrafloor_type_e)(dynamic_line->ef.type & ~EXFL_Flooder);
 		}
 
-		if (! (buffer_line.ef.type & EXFL_Present))
+		if (! (dynamic_line->ef.type & EXFL_Present))
 		{
 			DDF_WarnError("Extrafloor type missing THIN, THICK or LIQUID.\n");
-			buffer_line.ef.type = EXFL_None;
+			dynamic_line->ef.type = EXFL_None;
 		}
 	}
 
-	if (buffer_line.friction != FLO_UNUSED && buffer_line.friction < 0.05f)
+	if (dynamic_line->friction != FLO_UNUSED && dynamic_line->friction < 0.05f)
 	{
 		DDF_WarnError("Friction value too low (%1.2f), it would prevent "
-			"all movement.\n", buffer_line.friction);
-		buffer_line.friction = 0.05f;
+			"all movement.\n", dynamic_line->friction);
+		dynamic_line->friction = 0.05f;
 	}
 
-	if (buffer_line.viscosity != FLO_UNUSED && buffer_line.viscosity > 0.95f)
+	if (dynamic_line->viscosity != FLO_UNUSED && dynamic_line->viscosity > 0.95f)
 	{
 		DDF_WarnError("Viscosity value too high (%1.2f), it would prevent "
-			"all movement.\n", buffer_line.viscosity);
-		buffer_line.viscosity = 0.95f;
+			"all movement.\n", dynamic_line->viscosity);
+		dynamic_line->viscosity = 0.95f;
 	}
 
-	// FIXME: check more stuff...
-
-	// transfer static entry to dynamic entry
-	dynamic_line->CopyDetail(buffer_line);
-
-	// compute CRC...
-	// FIXME: Do something!
+	// TODO: check more stuff...
 }
 
 //
@@ -425,7 +420,7 @@ static void LinedefFinishEntry(void)
 //
 static void LinedefClearAll(void)
 {
-	// it is safe to just delete all the lines
+	// 100% safe to delete all the linetypes
 	linetypes.Reset();
 }
 
@@ -529,7 +524,8 @@ void DDF_LineGetScroller(const char *info, void *storage)
 //
 void DDF_LineGetSecurity(const char *info, void *storage)
 {
-	int i;
+	keys_e *var = (keys_e *)storage;
+
 	bool required = false;
 
 	if (info[0] == '+')
@@ -537,21 +533,21 @@ void DDF_LineGetSecurity(const char *info, void *storage)
 		required = true;
 		info++;
 	}
-	else if (buffer_line.keys & KF_STRICTLY_ALL)
+	else if (*var & KF_STRICTLY_ALL)
 	{
 		// -AJA- when there is at least one required key, then the
 		// non-required keys don't have any effect.
 		return;
 	}
 
-	for (i = sizeof(s_keys) / sizeof(s_keys[0]); i--;)
+	for (int i = sizeof(s_keys) / sizeof(s_keys[0]); i--; )
 	{
 		if (DDF_CompareName(info, s_keys[i].s) == 0)
 		{
-			buffer_line.keys = (keys_e)(buffer_line.keys | s_keys[i].n);
+			*var = (keys_e)(*var | s_keys[i].n);
 
 			if (required)
-				buffer_line.keys = (keys_e)(buffer_line.keys | KF_STRICTLY_ALL);
+				*var = (keys_e)(*var | KF_STRICTLY_ALL);
 
 			return;
 		}
@@ -567,21 +563,20 @@ void DDF_LineGetSecurity(const char *info, void *storage)
 //
 void DDF_LineGetTrigType(const char *info, void *storage)
 {
-	int i;
+	trigger_e *var = (trigger_e *)storage;
 
-	for (i = sizeof(s_trigger) / sizeof(s_trigger[0]); i--;)
+	for (int i = sizeof(s_trigger) / sizeof(s_trigger[0]); i--; )
 	{
 		if (DDF_CompareName(info, s_trigger[i].s) == 0)
 		{
 #if 0  // DISABLED FOR NOW
 			if (global_flags.edge_compat && (trigger_e)s_trigger[i].n == line_manual)
 			{
-				buffer_line.type = line_pushable;
+				*var = line_pushable;
 				return;
 			}
 #endif
-					
-			buffer_line.type = (trigger_e)s_trigger[i].n;
+			*var = (trigger_e)s_trigger[i].n;
 			return;
 		}
 	}
@@ -596,13 +591,13 @@ void DDF_LineGetTrigType(const char *info, void *storage)
 //
 void DDF_LineGetActivators(const char *info, void *storage)
 {
-	int i;
+	trigacttype_e *var = (trigacttype_e *)storage;
 
-	for (i = sizeof(s_activators) / sizeof(s_activators[0]); i--;)
+	for (int i = sizeof(s_activators) / sizeof(s_activators[0]); i--; )
 	{
 		if (DDF_CompareName(info, s_activators[i].s) == 0)
 		{
-			buffer_line.obj = (trigacttype_e)(buffer_line.obj | s_activators[i].n);
+			*var = (trigacttype_e)(*var | s_activators[i].n);
 			return;
 		}
 	}
@@ -738,17 +733,19 @@ static specflags_t teleport_specials[] =
 //
 void DDF_LineGetTeleportSpecial(const char *info, void *storage)
 {
+	teleportspecial_e *var = (teleportspecial_e *)storage;
+
 	int flag_value;
 
 	switch (DDF_MainCheckSpecialFlag(info, teleport_specials,
-		&flag_value, true, false))
+									 &flag_value, true, false))
 	{
 		case CHKF_Positive:
-			buffer_line.t.special = (teleportspecial_e)(buffer_line.t.special | flag_value);
+			*var = (teleportspecial_e)(*var | flag_value);
 			break;
 
 		case CHKF_Negative:
-			buffer_line.t.special = (teleportspecial_e)(buffer_line.t.special & ~flag_value);
+			*var = (teleportspecial_e)(*var & ~flag_value);
 			break;
 
 		case CHKF_User:
@@ -826,17 +823,19 @@ static specflags_t line_specials[] =
 //
 void DDF_LineGetSpecialFlags(const char *info, void *storage)
 {
+	line_special_e *var = (line_special_e *)storage;
+
 	int flag_value;
 
 	switch (DDF_MainCheckSpecialFlag(info, line_specials, &flag_value,
-		true, false))
+									 true, false))
 	{
 	case CHKF_Positive:
-		buffer_line.special_flags = (line_special_e)(buffer_line.special_flags | flag_value);
+		*var = (line_special_e)(*var | flag_value);
 		break;
 
 	case CHKF_Negative:
-		buffer_line.special_flags = (line_special_e)(buffer_line.special_flags & ~flag_value);
+		*var = (line_special_e)(*var & ~flag_value);
 		break;
 
 	case CHKF_User:
@@ -912,23 +911,25 @@ static specflags_t line_effect_names[] =
 //
 static void DDF_LineGetLineEffect(const char *info, void *storage)
 {
+	line_effect_type_e *var = (line_effect_type_e *)storage;
+
 	int flag_value;
 
 	if (DDF_CompareName(info, "NONE") == 0)
 	{
-		buffer_line.line_effect = LINEFX_NONE;
+		*var = LINEFX_NONE;
 		return;
 	}
 
 	switch (DDF_MainCheckSpecialFlag(info, line_effect_names,
-		&flag_value, true, false))
+	                                 &flag_value, true, false))
 	{
 		case CHKF_Positive:
-			buffer_line.line_effect = (line_effect_type_e)(buffer_line.line_effect | flag_value);
+			*var = (line_effect_type_e)(*var | flag_value);
 			break;
 
 		case CHKF_Negative:
-			buffer_line.line_effect = (line_effect_type_e)(buffer_line.line_effect & ~flag_value);
+			*var = (line_effect_type_e)(*var & ~flag_value);
 			break;
 
 		case CHKF_User:
@@ -965,22 +966,25 @@ static specflags_t sector_effect_names[] =
 //
 static void DDF_LineGetSectorEffect(const char *info, void *storage)
 {
+	sector_effect_type_e *var = (sector_effect_type_e *)storage;
+
 	int flag_value;
 
 	if (DDF_CompareName(info, "NONE") == 0)
 	{
-		buffer_line.sector_effect = SECTFX_None;
+		*var = SECTFX_None;
 		return;
 	}
 
-	switch (DDF_MainCheckSpecialFlag(info, sector_effect_names, &flag_value, true, false))
+	switch (DDF_MainCheckSpecialFlag(info, sector_effect_names, &flag_value,
+	                                 true, false))
 	{
 		case CHKF_Positive:
-			buffer_line.sector_effect = (sector_effect_type_e)(buffer_line.sector_effect | flag_value);
+			*var = (sector_effect_type_e)(*var | flag_value);
 			break;
 
 		case CHKF_Negative:
-			buffer_line.sector_effect = (sector_effect_type_e)(buffer_line.sector_effect & ~flag_value);
+			*var = (sector_effect_type_e)(*var & ~flag_value);
 			break;
 
 		case CHKF_User:
@@ -1004,22 +1008,25 @@ static specflags_t portal_effect_names[] =
 //
 static void DDF_LineGetPortalEffect(const char *info, void *storage)
 {
+	portal_effect_type_e *var = (portal_effect_type_e *)storage;
+
 	int flag_value;
 
 	if (DDF_CompareName(info, "NONE") == 0)
 	{
-		buffer_line.portal_effect = PORTFX_None;
+		*var = PORTFX_None;
 		return;
 	}
 
-	switch (DDF_MainCheckSpecialFlag(info, portal_effect_names, &flag_value, true, false))
+	switch (DDF_MainCheckSpecialFlag(info, portal_effect_names, &flag_value,
+	                                 true, false))
 	{
 		case CHKF_Positive:
-			buffer_line.portal_effect = (portal_effect_type_e)(buffer_line.portal_effect | flag_value);
+			*var = (portal_effect_type_e)(*var | flag_value);
 			break;
 
 		case CHKF_Negative:
-			buffer_line.portal_effect = (portal_effect_type_e)(buffer_line.portal_effect & ~flag_value);
+			*var = (portal_effect_type_e)(*var & ~flag_value);
 			break;
 
 		case CHKF_User:
@@ -1039,22 +1046,25 @@ static specflags_t slope_type_names[] =
 
 static void DDF_LineGetSlopeType(const char *info, void *storage)
 {
+	slope_type_e *var = (slope_type_e *)storage;
+
 	int flag_value;
 
 	if (DDF_CompareName(info, "NONE") == 0)
 	{
-		buffer_line.slope_type = SLP_NONE;
+		*var = SLP_NONE;
 		return;
 	}
 
-	switch (DDF_MainCheckSpecialFlag(info, slope_type_names, &flag_value, true, false))
+	switch (DDF_MainCheckSpecialFlag(info, slope_type_names, &flag_value,
+	                                 true, false))
 	{
 		case CHKF_Positive:
-			buffer_line.slope_type = (slope_type_e)(buffer_line.slope_type | flag_value);
+			*var = (slope_type_e)(*var | flag_value);
 			break;
 
 		case CHKF_Negative:
-			buffer_line.slope_type = (slope_type_e)(buffer_line.slope_type & ~flag_value);
+			*var = (slope_type_e)(*var & ~flag_value);
 			break;
 
 		case CHKF_User:
@@ -1066,8 +1076,8 @@ static void DDF_LineGetSlopeType(const char *info, void *storage)
 
 static void DDF_LineMakeCrush(const char *info)
 {
-	buffer_line.f.crush_damage = 10;
-	buffer_line.c.crush_damage = 10;
+	dynamic_line->f.crush_damage = 10;
+	dynamic_line->c.crush_damage = 10;
 }
 
 

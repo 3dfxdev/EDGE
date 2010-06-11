@@ -82,7 +82,7 @@ static void SwitchParseField(const char *field, const char *contents,
 	I_Debugf("SWITCH_PARSE: %s = %s;\n", field, contents);
 #endif
 
-	if (DDF_MainParseField(switch_commands, field, contents))
+	if (DDF_MainParseField(switch_commands, field, contents, (byte *)dynamic_switchdef))
 		return;
 
 	DDF_WarnError("Unknown switch.ddf command: %s\n", field);
