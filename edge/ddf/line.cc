@@ -35,7 +35,7 @@
 #include "line.h"
 
 #undef  DF
-#define DF  DDF_CMD
+#define DF  DDF_FIELD
 
 #define DDF_LineHashFunc(x)  (((x) + LOOKUP_CACHESIZE) % LOOKUP_CACHESIZE)
 
@@ -51,15 +51,7 @@ typedef enum
 }
 scrolldirs_e;
 
-// these bits logically belong with buffer_line:
-static float s_speed;
-static scrolldirs_e s_dir;
-
 linetype_container_c linetypes;		// <-- User-defined
-
-movplanedef_c buffer_floor;
-ladderdef_c buffer_ladder;
-sliding_door_c buffer_slider;
 
 static void DDF_LineGetTrigType(const char *info, void *storage);
 static void DDF_LineGetActivators(const char *info, void *storage);
@@ -79,8 +71,10 @@ static void DDF_LineGetSlopeType(const char *info, void *storage);
 
 static void DDF_LineMakeCrush(const char *info);
 
+
 #undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  buffer_floor
+#define DDF_CMD_BASE  dummy_floor
+static movplanedef_c dummy_floor;
 
 const commandlist_t floor_commands[] =
 {
@@ -107,7 +101,8 @@ const commandlist_t floor_commands[] =
 };
 
 #undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  buffer_ladder
+#define DDF_CMD_BASE  dummy_ladder
+static ladderdef_c dummy_ladder;
 
 const commandlist_t ladder_commands[] =
 {
@@ -116,7 +111,8 @@ const commandlist_t ladder_commands[] =
 };
 
 #undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  buffer_slider
+#define DDF_CMD_BASE  dummy_slider
+static sliding_door_c dummy_slider;
 
 const commandlist_t slider_commands[] =
 {
@@ -133,10 +129,12 @@ const commandlist_t slider_commands[] =
 	DDF_CMD_END
 };
 
-#undef DF
-#define DF DDF_FIELD
 
 static linetype_c *dynamic_line;
+
+// these bits logically belong with buffer_line:
+static float scrolling_speed;
+static scrolldirs_e scrolling_dir;
 
 #undef  DDF_CMD_BASE
 #define DDF_CMD_BASE  dummy_line
@@ -145,10 +143,10 @@ static linetype_c dummy_line;
 static const commandlist_t linedef_commands[] =
 {
 	// sub-commands
-//!!!!FIXME	DDF_SUB_LIST("FLOOR",    f, floor_commands,    buffer_floor),
-//!!!!FIXME	DDF_SUB_LIST("CEILING",  c, floor_commands,    buffer_floor),
-//!!!!FIXME	DDF_SUB_LIST("SLIDER",   s, slider_commands,   buffer_slider),
-//!!!!FIXME	DDF_SUB_LIST("LADDER",   ladder, ladder_commands, buffer_ladder),
+	DDF_SUB_LIST("FLOOR",    f,  floor_commands),
+	DDF_SUB_LIST("CEILING",  c,  floor_commands),
+	DDF_SUB_LIST("SLIDER",   s,  slider_commands),
+	DDF_SUB_LIST("LADDER",   ladder, ladder_commands),
 
 	DF("NEWTRIGGER", newtrignum, DDF_MainGetNumeric),
 	DF("ACTIVATORS", obj, DDF_LineGetActivators),
@@ -178,9 +176,6 @@ static const commandlist_t linedef_commands[] =
 	DF("LIGHT_STEP", l.step, DDF_MainGetNumeric),
 	DF("EXIT", e_exit, DDF_SectGetExit),
 	DF("HUB_EXIT", hub_exit, DDF_MainGetNumeric),
-
-	{"SCROLL", DDF_LineGetScroller, 0, &s_dir, NULL},
-	{"SCROLLING_SPEED", DDF_MainGetFloat, 0, &s_speed, NULL},
 
 	DF("SCROLL_XSPEED", s_xspeed, DDF_MainGetFloat),
 	DF("SCROLL_YSPEED", s_yspeed, DDF_MainGetFloat),
@@ -264,8 +259,8 @@ s_keys[] =
 
 	// backwards compatibility
 	{ "REQUIRES_ALL", KF_STRICTLY_ALL |
-	KF_BlueCard | KF_YellowCard | KF_RedCard |
-	KF_BlueSkull | KF_YellowSkull | KF_RedSkull }
+	                  KF_BlueCard | KF_YellowCard | KF_RedCard |
+	                  KF_BlueSkull | KF_YellowSkull | KF_RedSkull }
 }
 ,
 
@@ -303,8 +298,8 @@ static void LinedefStartEntry(const char *name)
 	if (number == 0)
 		DDF_Error("Bad linedef number in lines.ddf: %s\n", name);
 
-	s_speed = 1.0f;
-	s_dir = dir_none;
+	scrolling_dir   = dir_none;
+	scrolling_speed = 1.0f;
 
 	dynamic_line = linetypes.Lookup(number);
 
@@ -342,6 +337,16 @@ static void LinedefParseField(const char *field, const char *contents,
 		DDF_LineMakeCrush(contents);
 		return;
 	}
+	else if (DDF_CompareName(field, "SCROLL") == 0)
+	{
+		DDF_LineGetScroller(contents, &scrolling_dir);
+		return;
+	}
+	else if (DDF_CompareName(field, "SCROLLING_SPEED") == 0)
+	{
+		scrolling_speed = atof(contents);
+		return;
+	}
 
 	if (DDF_MainParseField(linedef_commands, field, contents, (byte *)dynamic_line))
 		return;  // OK
@@ -355,20 +360,20 @@ static void LinedefParseField(const char *field, const char *contents,
 static void LinedefFinishEntry(void)
 {
 	// -KM- 1999/01/29 Convert old style scroller to new.
-	if (s_dir & dir_vert)
+	if (scrolling_dir & dir_vert)
 	{
-		if (s_dir & dir_up)
-			dynamic_line->s_yspeed = s_speed;
+		if (scrolling_dir & dir_up)
+			dynamic_line->s_yspeed = scrolling_speed;
 		else
-			dynamic_line->s_yspeed = -s_speed;
+			dynamic_line->s_yspeed = -scrolling_speed;
 	}
 
-	if (s_dir & dir_horiz)
+	if (scrolling_dir & dir_horiz)
 	{
-		if (s_dir & dir_left)
-			dynamic_line->s_xspeed = s_speed;
+		if (scrolling_dir & dir_left)
+			dynamic_line->s_xspeed = scrolling_speed;
 		else
-			dynamic_line->s_xspeed = -s_speed;
+			dynamic_line->s_xspeed = -scrolling_speed;
 	}
 
 	// backwards compat: COUNT=0 means no limit on triggering
@@ -510,7 +515,7 @@ void DDF_LineGetScroller(const char *info, void *storage)
 	{
 		if (DDF_CompareName(info, s_scroll[i].s) == 0)
 		{
-			s_dir = (scrolldirs_e)(s_dir | s_scroll[i].dir);
+			scrolling_dir = (scrolldirs_e)(scrolling_dir | s_scroll[i].dir);
 			return;
 		}
 	}

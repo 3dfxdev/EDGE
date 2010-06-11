@@ -191,6 +191,7 @@ static void DDF_GameAddFrame(void)
 	wi_framedef_c *f = new wi_framedef_c(buffer_framedef);
 
 	buffer_animdef.frames.Insert(f);
+
 	buffer_framedef.Default();
 }
 

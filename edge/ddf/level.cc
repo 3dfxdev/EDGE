@@ -57,9 +57,6 @@ static const commandlist_t finale_commands[] =
 
 // -KM- 1998/11/25 Finales are all go.
 
-#undef  DF
-#define DF  DDF_FIELD
-
 static mapdef_c *dynamic_level;
 
 #undef  DDF_CMD_BASE
@@ -69,8 +66,8 @@ static mapdef_c dummy_level;
 static const commandlist_t level_commands[] =
 {
 	// sub-commands
-//!!!!FIXME	DDF_SUB_LIST("PRE", f_pre, finale_commands, dummy_finale),
-//!!!!FIXME	DDF_SUB_LIST("END", f_end, finale_commands, dummy_finale),
+	DDF_SUB_LIST("PRE", f_pre, finale_commands),
+	DDF_SUB_LIST("END", f_end, finale_commands),
 
 	DF("LUMPNAME", lump, DDF_MainGetLumpName),
 	DF("DESCRIPTION", description, DDF_MainGetString),
@@ -170,8 +167,10 @@ static void LevelParseField(const char *field, const char *contents,
 		return;
 	}
 
-	if (! DDF_MainParseField(level_commands, field, contents))
-		DDF_WarnError("Unknown levels.ddf command: %s\n", field);
+	if (DDF_MainParseField(level_commands, field, contents, (byte *)dynamic_level))
+		return;  // OK
+
+	DDF_WarnError("Unknown levels.ddf command: %s\n", field);
 }
 
 

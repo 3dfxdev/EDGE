@@ -43,9 +43,9 @@ static sectortype_c dummy_sector;
 static const commandlist_t sect_commands[] =
 {
 	// sub-commands
-//!!!!FIXME	DDF_SUB_LIST("FLOOR",    f,      floor_commands,    buffer_floor),
-//!!!!FIXME	DDF_SUB_LIST("CEILING",  c,      floor_commands,    buffer_floor),
-//!!!!FIXME	DDF_SUB_LIST("DAMAGE",   damage, damage_commands,   buffer_damage),
+	DDF_SUB_LIST("FLOOR",    f,  floor_commands),
+	DDF_SUB_LIST("CEILING",  c,  floor_commands),
+	DDF_SUB_LIST("DAMAGE",   damage, damage_commands),
 
 	DF("SECRET", secret, DDF_MainGetBoolean),
 	DF("HUB", hub, DDF_MainGetBoolean),

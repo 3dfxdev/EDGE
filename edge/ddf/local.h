@@ -76,33 +76,24 @@ typedef struct commandlist_s
 	// command name
 	const char *name;
 
-	// parse function.  `storage' is where the data should go (for
-	// routines that don't modify the buffer_xxxx structure directly).
-	//
+	// parse function.
 	void (*parse_command) (const char *info, void *storage);
 
 	ptrdiff_t offset;
 
-	void *storage;  // REMOVE
-
 	const struct commandlist_s *sub_comms;
-	void *sub_dummy_base;
 }
 commandlist_t;
 
 // NOTE: requires DDF_CMD_BASE to be defined as the dummy struct
 
 #define DDF_FIELD(name,field,parser)  \
-    { name, parser, ((char*)&DDF_CMD_BASE.field - (char*)&DDF_CMD_BASE), NULL, NULL, NULL }
+    { name, parser, ((char*)&DDF_CMD_BASE.field - (char*)&DDF_CMD_BASE), NULL }
 
-// REMOVE THIS ONE
-#define DDF_CMD(name,field,parser)  \
-    { name, parser, 0, &DDF_CMD_BASE.field, NULL, NULL }
+#define DDF_SUB_LIST(name,field,subcomms)  \
+    { "*" name, NULL, ((char*)&DDF_CMD_BASE.field - (char*)&DDF_CMD_BASE), subcomms }
 
-#define DDF_SUB_LIST(name,field,subcomms,dummybase)  \
-    { "*" name, NULL, ((char*)&DDF_CMD_BASE.field - (char*)&DDF_CMD_BASE), NULL, subcomms, &dummybase }
-
-#define DDF_CMD_END  { NULL, NULL, 0, NULL, NULL }
+#define DDF_CMD_END  { NULL, NULL, 0, NULL }
 
 #define DDF_STATE(name,redir,field)  \
         { name, redir, ((char*)&DDF_CMD_BASE.field - (char*)&DDF_CMD_BASE) }
@@ -277,7 +268,7 @@ void DDF_MainGetBitSet (const char *info, void *storage);
 
 bool DDF_MainParseField (const commandlist_t * commands,
 			      const char *field, const char *contents,
-				  byte *obj_base = NULL);
+				  byte *obj_base);
 void DDF_MainLookupSound (const char *info, void *storage);
 void DDF_MainRefAttack (const char *info, void *storage);
 
@@ -400,9 +391,6 @@ void DDF_ImageInit (void);
 void DDF_ImageCleanUp (void);
 
 // Miscellaneous stuff needed here & there
-extern movplanedef_c buffer_floor;
-extern damage_c buffer_damage;
-
 extern const commandlist_t floor_commands[];
 extern const commandlist_t damage_commands[];
 
