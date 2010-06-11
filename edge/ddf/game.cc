@@ -23,11 +23,10 @@
 
 
 #undef  DF
-#define DF  DDF_CMD
+#define DF  DDF_FIELD
 
 gamedef_container_c gamedefs;
 
-static gamedef_c  buffer_gamedef;
 static gamedef_c *dynamic_gamedef;
 
 static wi_animdef_c  buffer_animdef;
@@ -38,7 +37,8 @@ static void DDF_GameGetAnim(const char *info, void *storage);
 static void DDF_GameGetMap (const char *info, void *storage);
 static void DDF_GameGetLighting(const char *info, void *storage);
 
-#define DDF_CMD_BASE  buffer_gamedef
+#define DDF_CMD_BASE  dummy_gamedef
+static gamedef_c  dummy_gamedef;
 
 static const commandlist_t gamedef_commands[] = 
 {
@@ -77,26 +77,24 @@ static void GameStartEntry(const char *name)
 		name = "GAME_WITH_NO_NAME";
 	}
 
-	gamedef_c *existing = gamedefs.Lookup(name);
-
-	// not found, create a new one
-	if (! existing)
-	{
-		dynamic_gamedef = new gamedef_c;
-
-		dynamic_gamedef->name = name;
-
-		gamedefs.Insert(dynamic_gamedef);
-	}
-	else
-	{
-		dynamic_gamedef = existing;
-	}
-
 	// instantiate the static entries
-	buffer_gamedef.Default();
 	buffer_animdef.Default();
 	buffer_framedef.Default();
+
+	// replaces an existing entry?
+	dynamic_gamedef = gamedefs.Lookup(name);
+
+	if (dynamic_gamedef)
+	{
+		dynamic_gamedef->Default();
+		return;
+	}
+
+	// not found, create a new one
+	dynamic_gamedef = new gamedef_c;
+	dynamic_gamedef->name = name;
+
+	gamedefs.Insert(dynamic_gamedef);
 }
 
 
@@ -124,25 +122,22 @@ static void GameParseField(const char *field, const char *contents,
 		return;
 	}
 
-	if (! DDF_MainParseField(gamedef_commands, field, contents))
-		DDF_WarnError("Unknown games.ddf command: %s\n", field);
+	if (DDF_MainParseField(gamedef_commands, field, contents, (byte *)dynamic_gamedef))
+		return;  // OK
+
+	DDF_WarnError("Unknown games.ddf command: %s\n", field);
 }
 
 
 static void GameFinishEntry (void)
 {
-	// FIXME: check stuff...
-
-	// transfer static entry to dynamic entry
-	dynamic_gamedef->CopyDetail(buffer_gamedef);
-
-	// compute CRC...
-	// FIXME: Do something!
+	// TODO: check stuff...
 }
+
 
 static void GameClearAll (void)
 {
-	// safe to delete game entries
+	// 100% safe to delete all game entries
 	gamedefs.Clear();
 }
 
@@ -177,18 +172,19 @@ bool DDF_ReadGames (void *data, int size)
 	return DDF_MainReadFile (&games);
 }
 
+
 void DDF_GameInit(void)
 {
-	gamedefs.Clear();			// <-- Consistent with existing behaviour (-ACB- 2004/05/23)
+	gamedefs.Clear();		// <-- Consistent with existing behaviour (-ACB- 2004/05/23)
 }
+
 
 void DDF_GameCleanUp(void)
 {
 	if (gamedefs.GetSize() == 0)
 		I_Error("There are no games defined in DDF !\n");
-
-	gamedefs.Trim();
 }
+
 
 static void DDF_GameAddFrame(void)
 {
@@ -207,7 +203,8 @@ static void DDF_GameAddAnim(void)
 	else
 		a->type = wi_animdef_c::WI_NORMAL;
 
-	buffer_gamedef.anims.Insert(a);
+	dynamic_gamedef->anims.Insert(a);
+
 	buffer_animdef.Default();
 }
 
@@ -284,12 +281,12 @@ static void DDF_GameGetMap(const char *info, void *storage)
 
 	ParseMap(info, mp);
 
-	buffer_gamedef.mappos.Insert(mp);
+	dynamic_gamedef->mappos.Insert(mp);
 }
 
 static void DDF_GameGetPic (const char *info, void *storage)
 {
-	buffer_gamedef.titlepics.Insert(info);
+	dynamic_gamedef->titlepics.Insert(info);
 }
 
 

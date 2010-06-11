@@ -400,8 +400,6 @@ void DDF_ImageInit (void);
 void DDF_ImageCleanUp (void);
 
 // Miscellaneous stuff needed here & there
-extern mobjtype_c buffer_mobj;
-
 extern movplanedef_c buffer_floor;
 extern damage_c buffer_damage;
 

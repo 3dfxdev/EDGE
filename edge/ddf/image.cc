@@ -25,10 +25,6 @@
 
 #include "image.h"
 
-#undef  DF
-#define DF  DDF_CMD
-
-static imagedef_c buffer_image;
 static imagedef_c *dynamic_image;
 
 static void DDF_ImageGetType(const char *info, void *storage);
@@ -38,17 +34,18 @@ static void DDF_ImageGetFixTrans(const char *info, void *storage);
 // -ACB- 1998/08/10 Use DDF_MainGetLumpName for getting the..lump name.
 // -KM- 1998/09/27 Use DDF_MainGetTime for getting tics
 
-#define DDF_CMD_BASE  buffer_image
+#define DDF_CMD_BASE  dummy_image
+static imagedef_c dummy_image;
 
 static const commandlist_t image_commands[] =
 {
-	DF("IMAGE_DATA", type,     DDF_ImageGetType),
-	DF("SPECIAL",    special,  DDF_ImageGetSpecial),
-	DF("X_OFFSET",   x_offset, DDF_MainGetNumeric),
-	DF("Y_OFFSET",   y_offset, DDF_MainGetNumeric),
-	DF("SCALE",      scale,    DDF_MainGetFloat),
-	DF("ASPECT",     aspect,   DDF_MainGetFloat),
-	DF("FIX_TRANS",  fix_trans, DDF_ImageGetFixTrans),
+	DDF_FIELD("IMAGE_DATA", type,     DDF_ImageGetType),
+	DDF_FIELD("SPECIAL",    special,  DDF_ImageGetSpecial),
+	DDF_FIELD("X_OFFSET",   x_offset, DDF_MainGetNumeric),
+	DDF_FIELD("Y_OFFSET",   y_offset, DDF_MainGetNumeric),
+	DDF_FIELD("SCALE",      scale,    DDF_MainGetFloat),
+	DDF_FIELD("ASPECT",     aspect,   DDF_MainGetFloat),
+	DDF_FIELD("FIX_TRANS",  fix_trans, DDF_ImageGetFixTrans),
 
 	DDF_CMD_END
 };
@@ -80,60 +77,52 @@ static image_namespace_e GetImageNamespace(const char *prefix)
 static void ImageStartEntry(const char *name)
 {
 	if (!name || !name[0])
-		DDF_Error("New image entry is missing a name!");
+		DDF_Error("New image entry is missing a name!\n");
 
 //	I_Debugf("ImageStartEntry [%s]\n", name);
 
-	bool replaces = false;
-
 	image_namespace_e belong = INS_Graphic;
 
-	{
-		const char *pos = strchr(name, ':');
+	const char *pos = strchr(name, ':');
 
-		if (! pos)
+	if (! pos)
+		DDF_Error("Missing image prefix.\n");
+
+	if (pos)
+	{
+		std::string nspace(name, pos - name);
+
+		if (nspace.empty())
 			DDF_Error("Missing image prefix.\n");
 
-		if (pos)
-		{
-			std::string nspace(name, pos - name);
+		belong = GetImageNamespace(nspace.c_str());
 
-			if (nspace.empty())
-				DDF_Error("Missing image prefix.\n");
+		name = pos + 1;
 
-			belong = GetImageNamespace(nspace.c_str());
+		if (! name[0])
+			DDF_Error("Missing image name.\n");
+	}
 
-			name = pos + 1;
+	// W_Image code has limited space for the name
+	if (strlen(name) > 15)
+		DDF_Error("Image name [%s] too long.\n", name);
 
-			if (! name[0])
-				DDF_Error("Missing image name.\n");
-		}
+	dynamic_image = imagedefs.Lookup(name, belong);
 
-		// W_Image code has limited space for the name
-		if (strlen(name) > 15)
-			DDF_Error("Image name [%s] too long.\n", name);
-
-		imagedef_c *a = imagedefs.Lookup(name, belong);
-		if (a)
-		{
-			dynamic_image = a;
-			replaces = true;
-		}
+	// replaces an existing entry?
+	if (dynamic_image)
+	{
+		dynamic_image->Default();
+		return;
 	}
 
 	// not found, create a new one
-	if (! replaces)
-	{
-		dynamic_image = new imagedef_c;
+	dynamic_image = new imagedef_c;
 
-		dynamic_image->__name = name;
+	dynamic_image->name   = name;
+	dynamic_image->belong = belong;
 
-		imagedefs.Insert(dynamic_image);
-	}
-
-	// instantiate the static entry
-	buffer_image.Default();
-	buffer_image.belong = belong;
+	imagedefs.Insert(dynamic_image);
 }
 
 
@@ -143,41 +132,40 @@ static void ImageParseField(const char *field, const char *contents, int index, 
 	I_Debugf("IMAGE_PARSE: %s = %s;\n", field, contents);
 #endif
 
-	if (! DDF_MainParseField(image_commands, field, contents))
-		DDF_Error("Unknown images.ddf command: %s\n", field);
+	if (DDF_MainParseField(image_commands, field, contents, (byte *)dynamic_image))
+		return;  // OK
+
+	DDF_Error("Unknown images.ddf command: %s\n", field);
 }
+
 
 static void ImageFinishEntry(void)
 {
-	if (buffer_image.type == IMGDT_File)
+	if (dynamic_image->type == IMGDT_File)
 	{
-        const char *filename = buffer_image.info.c_str();
+        const char *filename = dynamic_image->info.c_str();
 
 		// determine format
         std::string ext(epi::PATH_GetExtension(filename));
 
 		if (DDF_CompareName(ext.c_str(), "png") == 0)
-			buffer_image.format = LIF_PNG;
+			dynamic_image->format = LIF_PNG;
 		else if (DDF_CompareName(ext.c_str(), "jpg")  == 0 ||
 				 DDF_CompareName(ext.c_str(), "jpeg") == 0)
-			buffer_image.format = LIF_JPEG;
+			dynamic_image->format = LIF_JPEG;
 		else if (DDF_CompareName(ext.c_str(), "tga") == 0)
-			buffer_image.format = LIF_TGA;
+			dynamic_image->format = LIF_TGA;
 		else
 			DDF_Error("Unknown image extension for '%s'\n", filename);
 	}
 
-	// check stuff...
-
-	// transfer static entry to dynamic entry
-	dynamic_image->CopyDetail(buffer_image);
+	// TODO: check more stuff...
 }
 
 
 static void ImageClearAll(void)
 {
-	// safe to just delete all images
-	imagedefs.Clear();
+	I_Warning("Ignoring #CLEARALL in images.ddf\n");
 }
 
 
@@ -229,13 +217,11 @@ static void AddEssentialImages(void)
 	{
 		imagedef_c *def = new imagedef_c;
 
-		def->Default();
-
-		def->__name = "DLIGHT_EXP";
+		def->name   = "DLIGHT_EXP";
+		def->belong = INS_Graphic;
 
 		def->info.Set("DLITEXPN");
 
-		def->belong  = INS_Graphic;
 		def->type    = IMGDT_Lump;
 		def->format  = LIF_PNG;
 		def->special = (image_special_e) (IMGSP_Clamp | IMGSP_Smooth | IMGSP_NoMip);
@@ -247,13 +233,11 @@ static void AddEssentialImages(void)
 	{
 		imagedef_c *def = new imagedef_c;
 
-		def->Default();
-
-		def->__name = "FUZZ_MAP";
+		def->name   = "FUZZ_MAP";
+		def->belong = INS_Texture;
 
 		def->info.Set("FUZZMAP8");
 
-		def->belong  = INS_Texture;
 		def->type    = IMGDT_Lump;
 		def->format  = LIF_PNG;
 		def->special = (image_special_e) (IMGSP_NoSmooth | IMGSP_NoMip);
@@ -265,13 +249,11 @@ static void AddEssentialImages(void)
 	{
 		imagedef_c *def = new imagedef_c;
 
-		def->Default();
-
-		def->__name = "CON_FONT_2";
+		def->name   = "CON_FONT_2";
+		def->belong = INS_Graphic;
 
 		def->info.Set("CONFONT2");
 
-		def->belong  = INS_Graphic;
 		def->type    = IMGDT_Lump;
 		def->format  = LIF_PNG;
 		def->special = (image_special_e) (IMGSP_Clamp | IMGSP_Smooth | IMGSP_NoMip);
@@ -279,6 +261,7 @@ static void AddEssentialImages(void)
 		imagedefs.Insert(def);
 	}
 }
+
 
 void DDF_ImageCleanUp(void)
 {
@@ -290,26 +273,29 @@ void DDF_ImageCleanUp(void)
 
 static void ImageParseColour(const char *value)
 {
-	DDF_MainGetRGB(value, &buffer_image.colour);
+	DDF_MainGetRGB(value, &dynamic_image->colour);
 }
+
 
 static void ImageParseBuiltin(const char *value)
 {
 	if (DDF_CompareName(value, "LINEAR") == 0)
-		buffer_image.builtin = BLTIM_Linear;
+		dynamic_image->builtin = BLTIM_Linear;
 	else if (DDF_CompareName(value, "QUADRATIC") == 0)
-		buffer_image.builtin = BLTIM_Quadratic;
+		dynamic_image->builtin = BLTIM_Quadratic;
 	else if (DDF_CompareName(value, "SHADOW") == 0)
-		buffer_image.builtin = BLTIM_Shadow;
+		dynamic_image->builtin = BLTIM_Shadow;
 	else
 		DDF_Error("Unknown image BUILTIN kind: %s\n", value);
 }
 
+
 static void ImageParseInfo(const char *value)
 {
 	// ouch, hard work here...
-	buffer_image.info = value;
+	dynamic_image->info = value;
 }
+
 
 static void ImageParseLump(const char *spec)
 {
@@ -324,20 +310,20 @@ static void ImageParseLump(const char *spec)
 	keyword[colon - spec] = 0;
 
 	// store the lump name
-	buffer_image.info.Set(colon + 1);
+	dynamic_image->info.Set(colon + 1);
 
 	if (DDF_CompareName(keyword, "PNG") == 0)
 	{
-		buffer_image.format = LIF_PNG;
+		dynamic_image->format = LIF_PNG;
 	}
 	else if (DDF_CompareName(keyword, "JPG") == 0 ||
 	         DDF_CompareName(keyword, "JPEG") == 0)
 	{
-		buffer_image.format = LIF_JPEG;
+		dynamic_image->format = LIF_JPEG;
 	}
 	else if (DDF_CompareName(keyword, "TGA") == 0)
 	{
-		buffer_image.format = LIF_TGA;
+		dynamic_image->format = LIF_TGA;
 	}
 	else
 		DDF_Error("Unknown image format: %s (use PNG or JPEG)\n", keyword);
@@ -358,22 +344,22 @@ static void DDF_ImageGetType(const char *info, void *storage)
 
 	if (DDF_CompareName(keyword, "COLOUR") == 0)
 	{
-		buffer_image.type = IMGDT_Colour;
+		dynamic_image->type = IMGDT_Colour;
 		ImageParseColour(colon + 1);
 	}
 	else if (DDF_CompareName(keyword, "BUILTIN") == 0)
 	{
-		buffer_image.type = IMGDT_Builtin;
+		dynamic_image->type = IMGDT_Builtin;
 		ImageParseBuiltin(colon + 1);
 	}
 	else if (DDF_CompareName(keyword, "FILE") == 0)
 	{
-		buffer_image.type = IMGDT_File;
+		dynamic_image->type = IMGDT_File;
 		ImageParseInfo(colon + 1);
 	}
 	else if (DDF_CompareName(keyword, "LUMP") == 0)
 	{
-		buffer_image.type = IMGDT_Lump;
+		dynamic_image->type = IMGDT_Lump;
 		ImageParseLump(colon + 1);
 	}
 	else
@@ -417,15 +403,18 @@ static void DDF_ImageGetSpecial(const char *info, void *storage)
 	}
 }
 
+
 static void DDF_ImageGetFixTrans(const char *info, void *storage)
 {
+	image_fix_trans_e *var = (image_fix_trans_e *)storage;
+
 	if (DDF_CompareName(info, "NONE") == 0)
 	{
-		buffer_image.fix_trans = FIXTRN_None;
+		*var = FIXTRN_None;
 	}
 	else if (DDF_CompareName(info, "BLACKEN") == 0)
 	{
-		buffer_image.fix_trans = FIXTRN_Blacken;
+		*var = FIXTRN_Blacken;
 	}
 	else
 		DDF_Error("Unknown FIX_TRANS type: %s\n", info);
@@ -434,7 +423,7 @@ static void DDF_ImageGetFixTrans(const char *info, void *storage)
 
 // ---> imagedef_c class
 
-imagedef_c::imagedef_c() : info()
+imagedef_c::imagedef_c() : name(), belong(INS_Graphic), info()
 {
 	Default();
 }
@@ -444,7 +433,6 @@ imagedef_c::imagedef_c() : info()
 //
 void imagedef_c::CopyDetail(const imagedef_c &src)
 {
-	belong  = src.belong;
 	type    = src.type;
 	colour  = src.colour;
 	builtin = src.builtin;
@@ -461,7 +449,6 @@ void imagedef_c::CopyDetail(const imagedef_c &src)
 
 void imagedef_c::Default()
 {
-	belong  = INS_Graphic;
 	type    = IMGDT_Colour;
 	colour  = 0x000000;  // black
 	builtin = BLTIM_Quadratic;
@@ -480,9 +467,6 @@ void imagedef_c::Default()
 
 // ---> imagedef_container_c class
 
-//
-// imagedef_container_c::CleanupObject()
-//
 void imagedef_container_c::CleanupObject(void *obj)
 {
 	imagedef_c *a = *(imagedef_c**)obj;
@@ -490,17 +474,19 @@ void imagedef_container_c::CleanupObject(void *obj)
 	if (a) delete a;
 }
 
+
 imagedef_c * imagedef_container_c::Lookup(const char *refname, image_namespace_e belong)
 {
-	epi::array_iterator_c it;
-
 	if (!refname || !refname[0])
 		return NULL;
+
+	epi::array_iterator_c it;
 
 	for (it = GetBaseIterator(); it.IsValid(); it++)
 	{
 		imagedef_c *g = ITERATOR_TO_TYPE(it, imagedef_c*);
-		if (DDF_CompareName(g->__name.c_str(), refname) == 0 && g->belong == belong)
+
+		if (DDF_CompareName(g->name.c_str(), refname) == 0 && g->belong == belong)
 			return g;
 	}
 

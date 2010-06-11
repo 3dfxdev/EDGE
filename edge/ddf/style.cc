@@ -35,9 +35,6 @@ static void DDF_StyleGetSpecials(const char *info, void *storage);
 
 styledef_container_c styledefs;
 
-static styledef_c buffer_style;
-static styledef_c* dynamic_style;
-
 // dummy structures (used to calculate field offsets)
 static backgroundstyle_c buffer_bgstyle;
 static textstyle_c  buffer_textstyle;
@@ -87,8 +84,14 @@ static const commandlist_t sound_commands[] =
 	DDF_CMD_END
 };
 
+#undef  DF
+#define DF  DDF_FIELD
+
+static styledef_c* dynamic_style;
+
 #undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  buffer_style
+#define DDF_CMD_BASE  dummy_style
+static styledef_c dummy_style;
 
 static const commandlist_t style_commands[] =
 {
@@ -118,28 +121,25 @@ static void StyleStartEntry(const char *name)
 		name = "STYLE_WITH_NO_NAME";
 	}
 
-	styledef_c *existing = styledefs.Lookup(name);
-
-	// not found, create a new one
-	if (existing)
-	{
-		dynamic_style = existing;
-	}
-	else
-	{
-		dynamic_style = new styledef_c;
-
-		dynamic_style->name = name;
-
-		styledefs.Insert(dynamic_style);
-	}
-
-	// instantiate the static entries
-	buffer_style.Default();
-
+	// initialise some crud
 	buffer_bgstyle.Default();
 	buffer_textstyle.Default();
 	buffer_soundstyle.Default();
+
+	// replaces an existing entry?
+	dynamic_style = styledefs.Lookup(name);
+
+	if (dynamic_style)
+	{
+		dynamic_style->Default();
+		return;
+	}
+
+	// not found, create a new one
+	dynamic_style = new styledef_c;
+	dynamic_style->name = name;
+
+	styledefs.Insert(dynamic_style);
 }
 
 
@@ -153,28 +153,26 @@ static void StyleParseField(const char *field, const char *contents,
 //!!!!FIXME TEMP
 	if (DDF_CompareName(field, "TEXT.FONT") == 0)
 	{
-		DDF_MainLookupFont(contents, (void*) & buffer_style.text[0].font);
+		DDF_MainLookupFont(contents, (void*) & dynamic_style->text[0].font);
 		return;
 	}
 
-	if (! DDF_MainParseField(style_commands, field, contents))
-		DDF_WarnError("Unknown styles.ddf command: %s\n", field);
+	if (DDF_MainParseField(style_commands, field, contents, (byte *)dynamic_style))
+		return;  // OK
+
+	DDF_WarnError("Unknown styles.ddf command: %s\n", field);
 }
+
 
 static void StyleFinishEntry(void)
 {
-	// FIXME: check stuff
-
-	// transfer static entry to dynamic entry
-	dynamic_style->CopyDetail(buffer_style);
-
-	// FIXME: compute CRC...
+	// TODO: check stuff
 }
+
 
 static void StyleClearAll(void)
 {
-	// safe to delete the style entries -- no refs
-	styledefs.Clear();
+	I_Warning("Ignoring #CLEARALL in styles.ddf\n");
 }
 
 
@@ -208,10 +206,12 @@ bool DDF_ReadStyles(void *data, int size)
 	return DDF_MainReadFile(&styles);
 }
 
+
 void DDF_StyleInit(void)
 {
 	styledefs.Clear();
 }
+
 
 void DDF_StyleCleanUp(void)
 {
@@ -228,6 +228,7 @@ void DDF_StyleCleanUp(void)
 	styledefs.Trim();
 }
 
+
 static specflags_t style_specials[] =
 {
     {"TILED", SYLSP_Tiled, 0},
@@ -242,7 +243,7 @@ void DDF_StyleGetSpecials(const char *info, void *storage)
 	int flag_value;
 
 	switch (DDF_MainCheckSpecialFlag(info, style_specials,
-			&flag_value, true, false))
+	 								 &flag_value, true, false))
 	{
 		case CHKF_Positive:
 			*dest = (style_special_e)(*dest | flag_value);

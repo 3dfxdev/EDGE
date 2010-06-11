@@ -102,9 +102,9 @@ public:
 	void CopyDetail(const imagedef_c &src);
 
 	// Member vars....
-	epi::strent_c __name;
-
+	epi::strent_c name;
 	image_namespace_e belong;
+
 	imagedata_type_e type;
 
 	rgbcol_t colour;          // IMGDT_Colour

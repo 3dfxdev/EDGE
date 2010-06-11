@@ -199,8 +199,6 @@ static void AttackParseField(const char *field, const char *contents,
 
 static void AttackFinishEntry(void)
 {
-	DDF_StateBeginRange(buffer_mobj.state_grp);
-
 	// handle attacks that have mobjs
 	if (dynamic_mobj)
 	{
