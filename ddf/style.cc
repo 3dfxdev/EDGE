@@ -27,7 +27,7 @@
 #include "style.h"
 
 #undef  DF
-#define DF  DDF_CMD
+#define DF  DDF_FIELD
 
 styledef_c *default_style;
 
@@ -35,13 +35,9 @@ static void DDF_StyleGetSpecials(const char *info, void *storage);
 
 styledef_container_c styledefs;
 
-// dummy structures (used to calculate field offsets)
-static backgroundstyle_c buffer_bgstyle;
-static textstyle_c  buffer_textstyle;
-static soundstyle_c buffer_soundstyle;
-
 #undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  buffer_bgstyle
+#define DDF_CMD_BASE  dummy_bgstyle
+static backgroundstyle_c dummy_bgstyle;
 
 static const commandlist_t background_commands[] =
 {
@@ -54,8 +50,10 @@ static const commandlist_t background_commands[] =
 	DDF_CMD_END
 };
 
+
 #undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  buffer_textstyle
+#define DDF_CMD_BASE  dummy_textstyle
+static textstyle_c  dummy_textstyle;
 
 static const commandlist_t text_commands[] =
 {
@@ -68,8 +66,10 @@ static const commandlist_t text_commands[] =
 	DDF_CMD_END
 };
 
+
 #undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  buffer_soundstyle
+#define DDF_CMD_BASE  dummy_soundstyle
+static soundstyle_c dummy_soundstyle;
 
 static const commandlist_t sound_commands[] =
 {
@@ -84,8 +84,6 @@ static const commandlist_t sound_commands[] =
 	DDF_CMD_END
 };
 
-#undef  DF
-#define DF  DDF_FIELD
 
 static styledef_c* dynamic_style;
 
@@ -96,12 +94,12 @@ static styledef_c dummy_style;
 static const commandlist_t style_commands[] =
 {
 	// sub-commands
-//!!!!FIXME	DDF_SUB_LIST("BACKGROUND", bg, background_commands, buffer_bgstyle),
-//!!!!FIXME DDF_SUB_LIST("TEXT",  text[0], text_commands, buffer_textstyle),
-//!!!!FIXME	DDF_SUB_LIST("ALT",   text[1], text_commands, buffer_textstyle),
-//!!!!FIXME	DDF_SUB_LIST("TITLE", text[2], text_commands, buffer_textstyle),
-//!!!!FIXME	DDF_SUB_LIST("HELP",  text[3], text_commands, buffer_textstyle),
-//!!!!FIXME	DDF_SUB_LIST("SOUND", sounds, sound_commands, buffer_soundstyle),
+	DDF_SUB_LIST("BACKGROUND", bg, background_commands),
+	DDF_SUB_LIST("TEXT",  text[0], text_commands),
+	DDF_SUB_LIST("ALT",   text[1], text_commands),
+	DDF_SUB_LIST("TITLE", text[2], text_commands),
+	DDF_SUB_LIST("HELP",  text[3], text_commands),
+	DDF_SUB_LIST("SOUND",  sounds, sound_commands),
 
     DF("SPECIAL", special, DDF_StyleGetSpecials),
 
@@ -120,11 +118,6 @@ static void StyleStartEntry(const char *name)
 		DDF_WarnError("New style entry is missing a name!");
 		name = "STYLE_WITH_NO_NAME";
 	}
-
-	// initialise some crud
-	buffer_bgstyle.Default();
-	buffer_textstyle.Default();
-	buffer_soundstyle.Default();
 
 	// replaces an existing entry?
 	dynamic_style = styledefs.Lookup(name);
@@ -149,13 +142,6 @@ static void StyleParseField(const char *field, const char *contents,
 #if (DEBUG_DDF)  
 	I_Debugf("STYLE_PARSE: %s = %s;\n", field, contents);
 #endif
-
-//!!!!FIXME TEMP
-	if (DDF_CompareName(field, "TEXT.FONT") == 0)
-	{
-		DDF_MainLookupFont(contents, (void*) & dynamic_style->text[0].font);
-		return;
-	}
 
 	if (DDF_MainParseField(style_commands, field, contents, (byte *)dynamic_style))
 		return;  // OK

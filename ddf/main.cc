@@ -1182,68 +1182,6 @@ void DDF_MainGetString(const char *info, void *storage)
 
 
 //
-// DDF_MainParseSubField
-//
-// Check if the sub-command exists, and call the parser function if it
-// does (and return true), otherwise return false.  For sub-commands,
-// the storage pointer
-//
-bool DDF_MainParseSubField(const commandlist_t *sub_comms,
-								const char *field, const char *contents, char *stor_base,
-    char *dummy_base, const char *base_command)
-{
-	int i, len;
-	const char *name = NULL;
-
-	for (i=0; sub_comms[i].name; i++)
-	{
-		name = sub_comms[i].name;
-
-		if (name[0] == '!')
-			name++;
-    
-		// handle sub-fields within sub-fields
-		if (name[0] == '*')
-		{
-			name++;
-
-			len = strlen(name);
-			SYS_ASSERT(len > 0);
-
-			if (strncmp(field, name, len) == 0 && field[len] == '.' && 
-				isalnum(field[len+1]))
-			{
-				// found the sub-field reference, recurse !
-
-				int offset = ((char *) sub_comms[i].storage) - dummy_base;
-        
-				return DDF_MainParseSubField(sub_comms[i].sub_comms,
-						field + len + 1, contents, stor_base + offset,
-						(char *)sub_comms[i].sub_dummy_base, name);
-			}
-
-			continue;
-		}
-
-		if (DDF_CompareName(field, name) == 0)
-			break;
-	}
-
-	if (!sub_comms[i].name)
-		return false;
-
-	// found it, so call parse routine
-
-	SYS_ASSERT(sub_comms[i].parse_command);
-
-	int offset = ((char *) sub_comms[i].storage) - dummy_base;
-
-	(* sub_comms[i].parse_command)(contents, stor_base + offset);
-
-	return true;
-}
-
-//
 // DDF_MainParseField
 //
 // Check if the command exists, and call the parser function if it
@@ -1253,6 +1191,8 @@ bool DDF_MainParseField(const commandlist_t *commands,
 						const char *field, const char *contents,
 						byte *obj_base)
 {
+	SYS_ASSERT(obj_base);
+
 	for (int i=0; commands[i].name; i++)
 	{
 		const char * name = commands[i].name;
@@ -1271,10 +1211,10 @@ bool DDF_MainParseField(const commandlist_t *commands,
 			if (strncmp(field, name, len) == 0 && field[len] == '.' && 
 				isalnum(field[len+1]))
 			{
-				// found the sub-field reference
-				return DDF_MainParseSubField( commands[i].sub_comms, 
-                        field + len + 1, contents, (char*)commands[i].storage,
-                        (char*)commands[i].sub_dummy_base, name);
+				// recursively parse the sub-field
+				return DDF_MainParseField(commands[i].sub_comms, 
+                        field + len + 1, contents,
+						obj_base + commands[i].offset);
 			}
       
 			continue;
@@ -1286,14 +1226,7 @@ bool DDF_MainParseField(const commandlist_t *commands,
 		// found it, so call parse routine
 		SYS_ASSERT(commands[i].parse_command);
 
-		byte *storage = (byte *) commands[i].storage;
-		if (! storage)
-		{
-			SYS_ASSERT(obj_base);
-			storage = obj_base + commands[i].offset;
-		}
-
-		(* commands[i].parse_command)(contents, storage);
+		(* commands[i].parse_command)(contents, obj_base + commands[i].offset);
 
 		return true;
 	}

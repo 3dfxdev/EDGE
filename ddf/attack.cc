@@ -23,6 +23,9 @@
 
 #include "local.h"
 
+#undef  DF
+#define DF  DDF_FIELD
+
 atkdef_container_c atkdefs;
 
 extern mobjtype_c * dynamic_mobj;
@@ -35,23 +38,20 @@ static void DDF_AtkGetType(const char *info, void *storage);
 static void DDF_AtkGetSpecial(const char *info, void *storage);
 static void DDF_AtkGetLabel(const char *info, void *storage);
 
-#undef  DF
-#define DF  DDF_CMD
-
 #undef  DDF_CMD_BASE
 #define DDF_CMD_BASE  dummy_damage
 damage_c dummy_damage;
 
 const commandlist_t damage_commands[] =
 {
-	DF("VAL", nominal,    DDF_MainGetFloat),
-	DF("MAX", linear_max, DDF_MainGetFloat),
-	DF("ERROR", error, DDF_MainGetFloat),
-	DF("DELAY", delay, DDF_MainGetTime),
+	DF("VAL",   nominal,    DDF_MainGetFloat),
+	DF("MAX",   linear_max, DDF_MainGetFloat),
+	DF("ERROR", error,      DDF_MainGetFloat),
+	DF("DELAY", delay,      DDF_MainGetTime),
 
-	DF("OBITUARY", obituary, DDF_MainGetString),
-	DF("PAIN_STATE", pain, DDF_AtkGetLabel),
-	DF("DEATH_STATE", death, DDF_AtkGetLabel),
+	DF("OBITUARY",    obituary, DDF_MainGetString),
+	DF("PAIN_STATE",  pain,     DDF_AtkGetLabel),
+	DF("DEATH_STATE", death,    DDF_AtkGetLabel),
 	DF("OVERKILL_STATE", overkill, DDF_AtkGetLabel),
 
 	DDF_CMD_END
@@ -62,9 +62,6 @@ const commandlist_t damage_commands[] =
 // -KM- 1999/01/29 Merged in thing commands, so there is one list of
 //  thing commands for all types of things (scenery, items, creatures + projectiles)
 
-#undef  DF
-#define DF  DDF_FIELD
-
 static atkdef_c *dynamic_atk;
 
 #undef  DDF_CMD_BASE
@@ -74,7 +71,7 @@ static atkdef_c dummy_atk;
 static const commandlist_t attack_commands[] =
 {
 	// sub-commands
-//!!!!FIXME	DDF_SUB_LIST("DAMAGE", damage, damage_commands, dummy_damage),
+	DDF_SUB_LIST("DAMAGE", damage, damage_commands),
 
 	DF("ATTACKTYPE", attackstyle, DDF_AtkGetType),
 	DF("ATTACK_SPECIAL", flags, DDF_AtkGetSpecial),

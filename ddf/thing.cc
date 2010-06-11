@@ -33,7 +33,7 @@
 
 
 #undef  DF
-#define DF  DDF_CMD
+#define DF  DDF_FIELD
 
 #define DDF_MobjHashFunc(x)  (((x) + LOOKUP_CACHESIZE) % LOOKUP_CACHESIZE)
 
@@ -51,10 +51,10 @@ static void DDF_MobjGetAngleRange(const char *info, void *storage);
 
 static void AddPickupEffect(pickup_effect_c **list, pickup_effect_c *cur);
 
-static dlight_info_c buffer_dlight;
 
 #undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  buffer_dlight
+#define DDF_CMD_BASE  dummy_dlight
+static dlight_info_c dummy_dlight;
 
 const commandlist_t dlight_commands[] =
 {
@@ -71,10 +71,10 @@ const commandlist_t dlight_commands[] =
 	DDF_CMD_END
 };
 
-static weakness_info_c buffer_weakness;
 
 #undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  buffer_weakness
+#define DDF_CMD_BASE  dummy_weakness
+static weakness_info_c dummy_weakness;
 
 const commandlist_t weakness_commands[] =
 {
@@ -87,8 +87,6 @@ const commandlist_t weakness_commands[] =
 	DDF_CMD_END
 };
 
-#undef DF
-#define DF  DDF_FIELD
 
 mobjtype_c *dynamic_mobj;
 
@@ -99,11 +97,11 @@ static mobjtype_c dummy_mobj;
 const commandlist_t thing_commands[] =
 {
 	// sub-commands
-//!!!!FIXME	DDF_SUB_LIST("DLIGHT",  dlight[0], dlight_commands, buffer_dlight),
-//!!!!FIXME	DDF_SUB_LIST("DLIGHT2", dlight[1], dlight_commands, buffer_dlight),
-//!!!!FIXME	DDF_SUB_LIST("WEAKNESS", weak, weakness_commands, buffer_weakness),
-//!!!!FIXME	DDF_SUB_LIST("EXPLODE_DAMAGE", explode_damage, damage_commands, buffer_damage),
-//!!!!FIXME	DDF_SUB_LIST("CHOKE_DAMAGE", choke_damage, damage_commands, buffer_damage),
+	DDF_SUB_LIST("DLIGHT",  dlight[0], dlight_commands),
+	DDF_SUB_LIST("DLIGHT2", dlight[1], dlight_commands),
+	DDF_SUB_LIST("WEAKNESS", weak, weakness_commands),
+	DDF_SUB_LIST("EXPLODE_DAMAGE", explode_damage, damage_commands),
+	DDF_SUB_LIST("CHOKE_DAMAGE",     choke_damage, damage_commands),
 
 	DF("SPAWNHEALTH", spawnhealth, DDF_MainGetFloat),
 	DF("RADIUS", radius, DDF_MainGetFloat),
