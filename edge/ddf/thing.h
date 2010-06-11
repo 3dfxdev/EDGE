@@ -25,6 +25,11 @@
 #include "states.h"
 
 
+// special 'number' value which signifies that the mobjtype_c
+// forms part of an ATTACKS.DDF entry.
+#define ATTACK__MOBJ  -7777
+
+
 #define DLIT_COMPAT_RAD(x)  (10.0f * sqrt(x))
 #define DLIT_COMPAT_ITY   0.8f
 
