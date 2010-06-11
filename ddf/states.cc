@@ -524,6 +524,49 @@ void DDF_StateReadState(const char *info, const char *label,
 }
 
 
+bool DDF_MainParseState(byte *object, state_group_t& group,
+						const char *field, const char *contents,
+						int index, bool is_last, bool is_weapon,
+						const state_starter_t *starters,
+						const actioncode_t *actions)
+{
+	if (strnicmp(field, "STATES(", 7) != 0)
+		return false;
+
+	// extract label name
+	field += 7;
+
+	const char *pos = strchr(field, ')');
+
+	if (pos == NULL || pos == field || (pos - field) > 64)
+		return false;
+
+	std::string labname(field, pos - field);
+
+	// check for the "standard" states
+	int i;
+	for (i=0; starters[i].label; i++)
+		if (DDF_CompareName(starters[i].label, labname.c_str()) == 0)
+			break;
+
+	const state_starter_t *starter = NULL;
+	if (starters[i].label)
+		starter = &starters[i];
+
+	int * var = NULL;
+	if (starter)
+		var = (int *)(object + starter->offset);
+
+	const char *redir = NULL;
+	if (is_last)
+		redir = starter ? starter->last_redir : (is_weapon ? "READY" : "IDLE");
+
+	DDF_StateReadState(contents, labname.c_str(), group, var, index,
+					   redir, actions, is_weapon);
+	return true;
+}
+
+
 void DDF_StateBeginRange(state_group_t& group)
 {
 	state_range_t range;

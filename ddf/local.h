@@ -104,6 +104,11 @@ commandlist_t;
 
 #define DDF_CMD_END  { NULL, NULL, 0, NULL, NULL }
 
+#define DDF_STATE(name,redir,field)  \
+        { name, redir, ((char*)&DDF_CMD_BASE.field - (char*)&DDF_CMD_BASE) }
+
+#define DDF_STATE_END  { NULL, NULL, 0 }
+
 
 //
 // This structure passes the information needed to DDF_MainReadFile, so that
@@ -239,7 +244,7 @@ typedef struct
 	const char *last_redir;
 
 	// pointer to state_num storage
-	int *state_num;
+	ptrdiff_t offset;
 }
 state_starter_t;
 
@@ -348,10 +353,12 @@ void DDF_StateGetAngle (const char *arg, state_t * cur_state);
 void DDF_StateGetSlope (const char *arg, state_t * cur_state);
 void DDF_StateGetRGB (const char *arg, state_t * cur_state);
 
-void DDF_StateReadState (const char *info, const char *label,
-			 state_group_t& group, int *state_num, int index,
-			 const char *redir, const actioncode_t * action_list,
-			 bool is_weapon);
+bool DDF_MainParseState(byte *object, state_group_t& group,
+						const char *field, const char *contents,
+						int index, bool is_last, bool is_weapon,
+						const state_starter_t *starters,
+						const actioncode_t *actions);
+
 void DDF_StateBeginRange (state_group_t& group);
 void DDF_StateFinishRange(state_group_t& group);
 void DDF_StateCleanUp (void);

@@ -37,9 +37,6 @@
 
 #define DDF_MobjHashFunc(x)  (((x) + LOOKUP_CACHESIZE) % LOOKUP_CACHESIZE)
 
-mobjtype_c buffer_mobj;
-mobjtype_c *dynamic_mobj;
-
 mobjtype_container_c mobjtypes;
 
 void DDF_MobjGetSpecial(const char *info);
@@ -90,8 +87,14 @@ const commandlist_t weakness_commands[] =
 	DDF_CMD_END
 };
 
+#undef DF
+#define DF  DDF_FIELD
+
+mobjtype_c *dynamic_mobj;
+
 #undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  buffer_mobj
+#define DDF_CMD_BASE  dummy_mobj
+static mobjtype_c dummy_mobj;
 
 const commandlist_t thing_commands[] =
 {
@@ -195,31 +198,32 @@ const commandlist_t thing_commands[] =
 	DDF_CMD_END
 };
 
-static const state_starter_t thing_starters[] =
+const state_starter_t thing_starters[] =
 {
-	{"SPAWN",      "IDLE",     &buffer_mobj.spawn_state},
-	{"IDLE",       "IDLE",     &buffer_mobj.idle_state},
-	{"CHASE",      "CHASE",    &buffer_mobj.chase_state},
-	{"PAIN",       "IDLE",     &buffer_mobj.pain_state},
-	{"MISSILE",    "IDLE",     &buffer_mobj.missile_state},
-	{"MELEE",      "IDLE",     &buffer_mobj.melee_state},
-	{"DEATH",      "REMOVE",   &buffer_mobj.death_state},
-	{"OVERKILL",   "REMOVE",   &buffer_mobj.overkill_state},
-	{"RESPAWN",    "IDLE",     &buffer_mobj.raise_state},
-	{"RESURRECT",  "IDLE",     &buffer_mobj.res_state},
-	{"MEANDER",    "MEANDER",  &buffer_mobj.meander_state},
-	{"BOUNCE",     "IDLE",     &buffer_mobj.bounce_state},
-	{"TOUCH",      "IDLE",     &buffer_mobj.touch_state},
-	{"RELOAD",     "IDLE",     &buffer_mobj.reload_state},
-	{"GIB",        "REMOVE",   &buffer_mobj.gib_state},
-	{NULL, NULL, NULL}
+	DDF_STATE("SPAWN",     "IDLE",    spawn_state),
+	DDF_STATE("IDLE",      "IDLE",    idle_state),
+	DDF_STATE("CHASE",     "CHASE",   chase_state),
+	DDF_STATE("PAIN",      "IDLE",    pain_state),
+	DDF_STATE("MISSILE",   "IDLE",    missile_state),
+	DDF_STATE("MELEE",     "IDLE",    melee_state),
+	DDF_STATE("DEATH",     "REMOVE",  death_state),
+	DDF_STATE("OVERKILL",  "REMOVE",  overkill_state),
+	DDF_STATE("RESPAWN",   "IDLE",    raise_state),
+	DDF_STATE("RESURRECT", "IDLE",    res_state),
+	DDF_STATE("MEANDER",   "MEANDER", meander_state),
+	DDF_STATE("BOUNCE",    "IDLE",    bounce_state),
+	DDF_STATE("TOUCH",     "IDLE",    touch_state),
+	DDF_STATE("RELOAD",    "IDLE",    reload_state),
+	DDF_STATE("GIB",       "REMOVE",  gib_state),
+
+	DDF_STATE_END
 };
 
 // -KM- 1998/11/25 Added weapon functions.
 // -AJA- 1999/08/09: Moved this here from p_action.h, and added an extra
 // field `handle_arg' for things like "WEAPON_SHOOT(FIREBALL)".
 
-static const actioncode_t thing_actions[] =
+const actioncode_t thing_actions[] =
 {
 	{"NOTHING", NULL, NULL},
 
@@ -429,43 +433,6 @@ int DDF_CompareName(const char *A, const char *B)
 	}
 }
 
-static bool ThingTryParseState(const char *field, 
-									const char *contents, int index, bool is_last)
-{
-	const char *pos;
-
-	if (strnicmp(field, "STATES(", 7) != 0)
-		return false;
-
-	// extract label name
-	field += 7;
-
-	pos = strchr(field, ')');
-
-	if (pos == NULL || pos == field || pos > (field+64))
-		return false;
-
-	std::string labname(field, pos - field);
-
-	// check for the "standard" states
-	int i;
-	for (i=0; thing_starters[i].label; i++)
-		if (DDF_CompareName(thing_starters[i].label, labname.c_str()) == 0)
-			break;
-
-	const state_starter_t *starter = NULL;
-	if (thing_starters[i].label)
-		starter = &thing_starters[i];
-
-	DDF_StateReadState(contents, labname.c_str(),
-		buffer_mobj.state_grp,
-		starter ? starter->state_num : NULL, index, 
-		is_last ? starter ? starter->last_redir : "IDLE" : NULL, 
-		thing_actions, false);
-
-	return true;
-}
-
 
 //
 //  DDF PARSE ROUTINES
@@ -480,7 +447,6 @@ static void ThingStartEntry(const char *buffer)
 	}
 
 	std::string name(buffer);
-
 	int number = 0;
 
 	const char *pos = strchr(buffer, ':');
@@ -498,29 +464,33 @@ static void ThingStartEntry(const char *buffer)
 		}
 	}
 
+	dynamic_mobj = NULL;
+
 	int idx = mobjtypes.FindFirst(name.c_str(), mobjtypes.GetDisabledCount());
 
 	if (idx >= 0)
 	{
 		mobjtypes.MoveToEnd(idx);
-
 		dynamic_mobj = mobjtypes[mobjtypes.GetSize()-1];
+	}
+
+	// replaces an existing entry?
+	if (dynamic_mobj)
+	{
+		dynamic_mobj->Default();
+		dynamic_mobj->number = number;
 	}
 	else
 	{
+		// not found, create a new one
 		dynamic_mobj = new mobjtype_c;
-
 		dynamic_mobj->name = name.c_str();
+		dynamic_mobj->number = number;
 
 		mobjtypes.Insert(dynamic_mobj);
 	}
 
-	dynamic_mobj->number = number;
-
-	// instantiate the static entry
-	buffer_mobj.Default();
-
-	DDF_StateBeginRange(buffer_mobj.state_grp);
+	DDF_StateBeginRange(dynamic_mobj->state_grp);
 }
 
 
@@ -539,96 +509,95 @@ void ThingParseField(const char *field, const char *contents,
 		return;
 	}
 
-	if (DDF_MainParseField(thing_commands, field, contents))
+	if (DDF_MainParseField(thing_commands, field, contents, (byte *)dynamic_mobj))
 		return;
 
-	if (ThingTryParseState(field, contents, index, is_last))
+	if (DDF_MainParseState((byte *)dynamic_mobj, dynamic_mobj->state_grp,
+	                       field, contents, index, is_last, false /* is_weapon */,
+						   thing_starters, thing_actions))
 		return;
+
 
 	DDF_WarnError("Unknown thing/attack command: %s\n", field);
 }
 
+
 static void ThingFinishEntry(void)
 {
-	DDF_StateFinishRange(buffer_mobj.state_grp);
+	DDF_StateFinishRange(dynamic_mobj->state_grp);
 
 	// count-as-kill things are automatically monsters
-	if (buffer_mobj.flags & MF_COUNTKILL)
-		buffer_mobj.extendedflags |= EF_MONSTER;
+	if (dynamic_mobj->flags & MF_COUNTKILL)
+		dynamic_mobj->extendedflags |= EF_MONSTER;
 
 	// countable items are always pick-up-able
-	if (buffer_mobj.flags & MF_COUNTITEM)
-		buffer_mobj.hyperflags |= HF_FORCEPICKUP;
+	if (dynamic_mobj->flags & MF_COUNTITEM)
+		dynamic_mobj->hyperflags |= HF_FORCEPICKUP;
 
 	// shootable things are always pushable
-	if (buffer_mobj.flags & MF_SHOOTABLE)
-		buffer_mobj.hyperflags |= HF_PUSHABLE;
+	if (dynamic_mobj->flags & MF_SHOOTABLE)
+		dynamic_mobj->hyperflags |= HF_PUSHABLE;
 
 	// check stuff...
 
-	if (buffer_mobj.mass < 1)
+	if (dynamic_mobj->mass < 1)
 	{
-		DDF_WarnError("Bad MASS value %f in DDF.\n", buffer_mobj.mass);
-		buffer_mobj.mass = 1;
+		DDF_WarnError("Bad MASS value %f in DDF.\n", dynamic_mobj->mass);
+		dynamic_mobj->mass = 1;
 	}
 
 	// check CAST stuff
-	if (buffer_mobj.castorder > 0)
+	if (dynamic_mobj->castorder > 0)
 	{
-		if (! buffer_mobj.chase_state)
+		if (! dynamic_mobj->chase_state)
 			DDF_Error("Cast object must have CHASE states !\n");
 
-		if (! buffer_mobj.death_state)
+		if (! dynamic_mobj->death_state)
 			DDF_Error("Cast object must have DEATH states !\n");
 	}
 
 	// check DAMAGE stuff
-	if (buffer_mobj.explode_damage.nominal < 0)
+	if (dynamic_mobj->explode_damage.nominal < 0)
 	{
 		DDF_WarnError("Bad EXPLODE_DAMAGE.VAL value %f in DDF.\n",
-			buffer_mobj.explode_damage.nominal);
+			dynamic_mobj->explode_damage.nominal);
 	}
 
-	if (buffer_mobj.explode_radius < 0)
+	if (dynamic_mobj->explode_radius < 0)
 	{
 		DDF_Error("Bad EXPLODE_RADIUS value %f in DDF.\n",
-			buffer_mobj.explode_radius);
+			dynamic_mobj->explode_radius);
 	}
 
-	if (buffer_mobj.reload_shots <= 0)
+	if (dynamic_mobj->reload_shots <= 0)
 	{
 		DDF_Error("Bad RELOAD_SHOTS value %d in DDF.\n",
-			buffer_mobj.reload_shots);
+			dynamic_mobj->reload_shots);
 	}
 
-	if (buffer_mobj.choke_damage.nominal < 0)
+	if (dynamic_mobj->choke_damage.nominal < 0)
 	{
 		DDF_WarnError("Bad CHOKE_DAMAGE.VAL value %f in DDF.\n",
-			buffer_mobj.choke_damage.nominal);
+			dynamic_mobj->choke_damage.nominal);
 	}
 
-	if (buffer_mobj.model_skin < 0 || buffer_mobj.model_skin > 9)
+	if (dynamic_mobj->model_skin < 0 || dynamic_mobj->model_skin > 9)
 		DDF_Error("Bad MODEL_SKIN value %d in DDF (must be 0-9).\n",
-			buffer_mobj.model_skin);
+			dynamic_mobj->model_skin);
 
-	if (buffer_mobj.dlight[0].radius > 512)
+	if (dynamic_mobj->dlight[0].radius > 512)
 		DDF_Warning("DLIGHT_RADIUS value %1.1f too large (over 512).\n",
-			buffer_mobj.dlight[0].radius);
+			dynamic_mobj->dlight[0].radius);
 
 	// FIXME: check more stuff
 
 	// backwards compatibility:
-	if (!buffer_mobj.idle_state && buffer_mobj.spawn_state)
-		buffer_mobj.idle_state = buffer_mobj.spawn_state;
+	if (!dynamic_mobj->idle_state && dynamic_mobj->spawn_state)
+		dynamic_mobj->idle_state = dynamic_mobj->spawn_state;
 
-	buffer_mobj.DLightCompatibility();
-
-	// transfer static entry to dynamic entry
-	dynamic_mobj->CopyDetail(buffer_mobj);
-
-	// compute CRC...
-	// FIXME: Do something. :-)))
+	dynamic_mobj->DLightCompatibility();
 }
+
 
 static void ThingClearAll(void)
 {
@@ -637,6 +606,7 @@ static void ThingClearAll(void)
 	// Make all entries disabled
 	mobjtypes.SetDisabledCount(mobjtypes.GetSize());
 }
+
 
 bool DDF_ReadThings(void *data, int size)
 {
@@ -948,8 +918,7 @@ static bool BenefitTryArmour(const char *name, benefit_t *be,
 	return true;
 }
 
-static bool BenefitTryPowerup(const char *name, benefit_t *be,
-								   int num_vals)
+static bool BenefitTryPowerup(const char *name, benefit_t *be, int num_vals)
 {
 	if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, powertype_names, 
 		&be->sub.type, false, false))
@@ -973,10 +942,10 @@ static bool BenefitTryPowerup(const char *name, benefit_t *be,
 
 		if (idx >= 0)
 		{
-			AddPickupEffect(&buffer_mobj.pickup_effects,
+			AddPickupEffect(&dynamic_mobj->pickup_effects,
 				new pickup_effect_c(PUFX_SwitchWeapon, weapondefs[idx], 0, 0));
 
-			AddPickupEffect(&buffer_mobj.pickup_effects,
+			AddPickupEffect(&dynamic_mobj->pickup_effects,
 				new pickup_effect_c(PUFX_KeepPowerup, PW_Berserk, 0, 0));
 		}
 	}
@@ -1304,8 +1273,8 @@ static specflags_t hyper_specials[] =
 //
 // DDF_MobjGetSpecial
 //
-// Compares info the the entries in special flag lists.  If found
-// apply attribs for it to current buffer_mobj.
+// Compares info the the entries in special flag lists.
+// If found, apply attributes for it to current mobj.
 //
 void DDF_MobjGetSpecial(const char *info)
 {
@@ -1314,14 +1283,14 @@ void DDF_MobjGetSpecial(const char *info)
 	// handle the "INVISIBLE" tag
 	if (DDF_CompareName(info, "INVISIBLE") == 0)
 	{
-		buffer_mobj.translucency = PERCENT_MAKE(0);
+		dynamic_mobj->translucency = PERCENT_MAKE(0);
 		return;
 	}
 
 	// handle the "NOSHADOW" tag
 	if (DDF_CompareName(info, "NOSHADOW") == 0)
 	{
-		buffer_mobj.shadow_trans = PERCENT_MAKE(0);
+		dynamic_mobj->shadow_trans = PERCENT_MAKE(0);
 		return;
 	}
 
@@ -1329,12 +1298,12 @@ void DDF_MobjGetSpecial(const char *info)
 	// normal flags & extended flags.
 	if (DDF_CompareName(info, "MISSILE") == 0)
 	{
-		buffer_mobj.flags |= MF_MISSILE;
-		buffer_mobj.extendedflags |= EF_CROSSLINES | EF_NOFRICTION;
+		dynamic_mobj->flags |= MF_MISSILE;
+		dynamic_mobj->extendedflags |= EF_CROSSLINES | EF_NOFRICTION;
 		return;
 	}
 
-	int *flag_ptr = &buffer_mobj.flags; 
+	int *flag_ptr = &dynamic_mobj->flags; 
 
 	checkflag_result_e res =
 		DDF_MainCheckSpecialFlag(info, normal_specials,
@@ -1343,7 +1312,7 @@ void DDF_MobjGetSpecial(const char *info)
 	if (res == CHKF_User || res == CHKF_Unknown)
 	{
 		// wasn't a normal special.  Try the extended ones...
-		flag_ptr = &buffer_mobj.extendedflags;
+		flag_ptr = &dynamic_mobj->extendedflags;
 
 		res = DDF_MainCheckSpecialFlag(info, extended_specials,
 				&flag_value, true, false);
@@ -1352,7 +1321,7 @@ void DDF_MobjGetSpecial(const char *info)
 	if (res == CHKF_User || res == CHKF_Unknown)
 	{
 		// -AJA- 2004/08/25: Try the hyper specials...
-		flag_ptr = &buffer_mobj.hyperflags;
+		flag_ptr = &dynamic_mobj->hyperflags;
 
 		res = DDF_MainCheckSpecialFlag(info, hyper_specials,
 				&flag_value, true, false);
