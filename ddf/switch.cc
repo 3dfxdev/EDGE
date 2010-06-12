@@ -32,9 +32,9 @@ static switchdef_c dummy_switchdef;
 
 static const commandlist_t switch_commands[] =
 {
-	DDF_FIELD("ON_TEXTURE",  name1, DDF_MainGetLumpName),
-	DDF_FIELD("OFF_TEXTURE", name2, DDF_MainGetLumpName),
-	DDF_FIELD("ON_SOUND",  on_sfx,  DDF_MainLookupSound),
+	DDF_FIELD("ON_TEXTURE",   on_name, DDF_MainGetLumpName),
+	DDF_FIELD("OFF_TEXTURE", off_name, DDF_MainGetLumpName),
+	DDF_FIELD("ON_SOUND",   on_sfx, DDF_MainLookupSound),
 	DDF_FIELD("OFF_SOUND", off_sfx, DDF_MainLookupSound),
 	DDF_FIELD("TIME", time, DDF_MainGetTime),
 
@@ -91,10 +91,10 @@ static void SwitchParseField(const char *field, const char *contents,
 
 static void SwitchFinishEntry(void)
 {
-	if (!dynamic_switchdef->name1[0])
+	if (!dynamic_switchdef->on_name[0])
 		DDF_Error("Missing first name for switch.\n");
 
-	if (!dynamic_switchdef->name2[0])
+	if (!dynamic_switchdef->off_name[0])
 		DDF_Error("Missing last name for switch.\n");
 
 	if (dynamic_switchdef->time <= 0)
@@ -152,7 +152,7 @@ bool DDF_ReadSwitch(void *data, int size)
 		sw = ITERATOR_TO_TYPE(it, switchdef_c*);
 		
 		I_Debugf("  Num: %d  ON: '%s'  OFF: '%s'\n", 
-						i, sw->name1, sw->name2);
+						i, sw->on_name, sw->off_name);
 	}
 #endif
 
@@ -201,8 +201,8 @@ void DDF_ParseSWITCHES(const byte *data, int size)
 
 		def->Default();
 		
-		def->name1.Set( on_name);
-		def->name2.Set(off_name);
+		def->on_name.Set( on_name);
+		def->off_name.Set(off_name);
 
 		switchdefs.Insert(def);
 	}
@@ -227,10 +227,10 @@ switchdef_c::switchdef_c() : name()
 //
 void switchdef_c::CopyDetail(switchdef_c &src)
 {
-	name1 = src.name1;
-	name2 = src.name2;
+	 on_name = src.on_name;
+	off_name = src.off_name;
 
-	on_sfx = src.on_sfx;
+	 on_sfx = src.on_sfx;
 	off_sfx = src.off_sfx;
 
 	time = src.time;
@@ -241,10 +241,10 @@ void switchdef_c::CopyDetail(switchdef_c &src)
 //
 void switchdef_c::Default()
 {
-	name1.clear();
-	name2.clear();
+	 on_name.clear();
+	off_name.clear();
 
-	on_sfx = sfx_None;
+	 on_sfx = sfx_None;
 	off_sfx = sfx_None;
 
 	time = BUTTONTIME;

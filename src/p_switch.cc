@@ -50,8 +50,8 @@ void P_InitSwitchList(void)
 	{
 		switchdef_c *sw = ITERATOR_TO_TYPE(it, switchdef_c*);
 
-		sw->cache.image[0] = W_ImageLookup(sw->name1, INS_Texture, ILF_Null);
-		sw->cache.image[1] = W_ImageLookup(sw->name2, INS_Texture, ILF_Null);
+		sw->cache.image[0] = W_ImageLookup(sw->on_name,  INS_Texture, ILF_Null);
+		sw->cache.image[1] = W_ImageLookup(sw->off_name, INS_Texture, ILF_Null);
 	}
 }
 

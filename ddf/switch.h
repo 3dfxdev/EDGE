@@ -49,8 +49,8 @@ public:
 	// Member vars....
 	epi::strent_c name;
 
-	lumpname_c name1;
-	lumpname_c name2;
+	lumpname_c on_name;
+	lumpname_c off_name;
 
 	struct sfx_s *on_sfx;
 	struct sfx_s *off_sfx;
