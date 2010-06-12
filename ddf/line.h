@@ -473,7 +473,6 @@ public:
 };
 
 // Light Specials
-// FIXME!! Speak English(UK)/Move into lightdef_c?
 typedef enum
 {
 	LITE_None,
@@ -707,25 +706,25 @@ public:
 	// Number of times this line can be triggered. -1 = Any amount
 	int count;
 
-	// Floor - FIXME!!! Pointer/reference to table?
+	// Floor
 	movplanedef_c f;
 
-	// Ceiling - FIXME!!! Pointer/reference to table?
+	// Ceiling
 	movplanedef_c c;
 
-	// Donut - FIXME!!! Pointer/reference to table?
+	// Donut
 	donutdef_c d;
 
-	// Slider - FIXME!!! Pointer/reference to table?
+	// Slider
 	sliding_door_c s;
 
-	// -AJA- 2001/03/10: ladder linetypes - FIXME!!! Pointer/reference to table?
+	// Ladder -AJA- 2001/03/10
 	ladderdef_c ladder;
 
-	// Teleport - FIXME!!! Pointer/reference to table?
+	// Teleporter
 	teleportdef_c t;
 
-	// LIGHT SPECIFIC - FIXME!!! Pointer/reference to table?
+	// LIGHT SPECIFIC
 	// Things may be added here; start strobing/flashing glowing lights.
 	lightdef_c l;
 
