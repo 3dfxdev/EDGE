@@ -908,7 +908,7 @@ static void UnknownThingWarning(int type, float x, float y)
 	if (count < 2)
 		I_Warning("Unknown thing type %i at (%1.0f, %1.0f)\n", type, x, y);
 	else if (count == 2)
-		I_Warning("More unknown things of type %i found\n", type);
+		I_Warning("More unknown things of type %i found...\n", type);
 
 	unknown_thing_map[type] = count+1;
 }

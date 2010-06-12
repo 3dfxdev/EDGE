@@ -51,6 +51,8 @@ static void DDF_MobjGetAngleRange(const char *info, void *storage);
 
 static void AddPickupEffect(pickup_effect_c **list, pickup_effect_c *cur);
 
+static int dlight_radius_warnings = 0;
+
 
 #undef  DDF_CMD_BASE
 #define DDF_CMD_BASE  dummy_dlight
@@ -583,9 +585,16 @@ static void ThingFinishEntry(void)
 		DDF_Error("Bad MODEL_SKIN value %d in DDF (must be 0-9).\n",
 			dynamic_mobj->model_skin);
 
-///	if (dynamic_mobj->dlight[0].radius > 512)
-///		DDF_Warning("DLIGHT_RADIUS value %1.1f too large (over 512).\n",
-///			dynamic_mobj->dlight[0].radius);
+    if (dynamic_mobj->dlight[0].radius > 512)
+	{
+		if (dlight_radius_warnings < 3)
+			DDF_Warning("DLIGHT_RADIUS value %1.1f too large (over 512).\n",
+				dynamic_mobj->dlight[0].radius);
+		else if (dlight_radius_warnings == 3)
+			I_Warning("More too large DLIGHT_RADIUS values found....\n");
+
+		dlight_radius_warnings++;
+	}
 
 	// FIXME: check more stuff
 
