@@ -98,23 +98,19 @@ private:
 class sfxdef_container_c : public epi::array_c 
 {
 public:
-	sfxdef_container_c() : epi::array_c(sizeof(sfxdef_c*)) { num_disabled = 0; }
+	sfxdef_container_c() : epi::array_c(sizeof(sfxdef_c*))
+	{ }
+
 	~sfxdef_container_c() { Clear(); } 
 
 private:
 	void CleanupObject(void *obj);
 	
-	int num_disabled;					// Number of disabled 
-
 public:
 	// List management
 	int GetSize() { return array_entries; } 
 	int Insert(sfxdef_c *s) { return InsertObject((void*)&s); }
 	sfxdef_c* operator[](int idx) { return *(sfxdef_c**)FetchObject(idx); } 
-	
-	// Inliners
-	int GetDisabledCount() { return num_disabled; }
-	void SetDisabledCount(int _num_disabled) { num_disabled = _num_disabled; }
 	
 	// Lookup functions
 	sfx_t* GetEffect(const char *name, bool error = true);

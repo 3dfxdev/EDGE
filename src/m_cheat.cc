@@ -197,8 +197,7 @@ static void CheatGiveWeapons(player_t *pl, int key = -2)
 {
 	epi::array_iterator_c it;
 	
-	for (it = weapondefs.GetIterator(weapondefs.GetDisabledCount());
-		 it.IsValid(); it++)
+	for (it = weapondefs.GetIterator(0); it.IsValid(); it++)
 	{
 		weapondef_c *info = ITERATOR_TO_TYPE(it, weapondef_c*);
 

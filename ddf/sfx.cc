@@ -116,8 +116,7 @@ static void SoundFinishEntry(void)
 
 static void SoundClearAll(void)
 {
-	// not safe to delete entries -- mark them disabled
-	sfxdefs.SetDisabledCount(sfxdefs.GetDisabledCount());
+	I_Warning("Ignoring #CLEARALL in sounds.ddf\n");
 }
 
 
@@ -292,7 +291,7 @@ sfx_t* sfxdef_container_c::GetEffect(const char *name, bool error)
 
 	// count them
 	for (count=0, it=GetTailIterator(); 
-		it.IsValid() && it.GetPos() >= num_disabled; 
+		it.IsValid() && it.GetPos() >= 0; 
 		it--)
 	{
 		si = ITERATOR_TO_TYPE(it, sfxdef_c*);
@@ -331,7 +330,7 @@ sfx_t* sfxdef_container_c::GetEffect(const char *name, bool error)
 
 	// now store them
 	for (r->num=0, it=GetTailIterator(); 
-		it.IsValid() && it.GetPos() >= num_disabled; 
+		it.IsValid() && it.GetPos() >= 0; 
 		it--)
 	{
 		si = ITERATOR_TO_TYPE(it, sfxdef_c*);
@@ -352,7 +351,7 @@ sfxdef_c* sfxdef_container_c::Lookup(const char *name)
 {
 	epi::array_iterator_c it;
 	
-	for (it=GetIterator(num_disabled); it.IsValid(); it++)
+	for (it=GetIterator(0); it.IsValid(); it++)
 	{
 		sfxdef_c *s = ITERATOR_TO_TYPE(it, sfxdef_c*);
 

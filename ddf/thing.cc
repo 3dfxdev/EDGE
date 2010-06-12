@@ -464,7 +464,7 @@ static void ThingStartEntry(const char *buffer)
 
 	dynamic_mobj = NULL;
 
-	int idx = mobjtypes.FindFirst(name.c_str(), mobjtypes.GetDisabledCount());
+	int idx = mobjtypes.FindFirst(name.c_str(), 0);
 
 	if (idx >= 0)
 	{
@@ -599,10 +599,7 @@ static void ThingFinishEntry(void)
 
 static void ThingClearAll(void)
 {
-	// not safe to delete the thing entries
-
-	// Make all entries disabled
-	mobjtypes.SetDisabledCount(mobjtypes.GetSize());
+	I_Warning("Ignoring #CLEARALL in things.ddf\n");
 }
 
 
@@ -647,7 +644,7 @@ void DDF_MobjCleanUp(void)
 	mobjtype_c *m;
 
 	// lookup references
-	for (it = mobjtypes.GetIterator(mobjtypes.GetDisabledCount()); it.IsValid(); it++)
+	for (it = mobjtypes.GetIterator(0); it.IsValid(); it++)
 	{
 		m = ITERATOR_TO_TYPE(it, mobjtype_c*);
 
@@ -806,7 +803,7 @@ static bool BenefitTryAmmoLimit(const char *name, benefit_t *be,
 static bool BenefitTryWeapon(const char *name, benefit_t *be,
 								  int num_vals)
 {
-	int idx = weapondefs.FindFirst(name, weapondefs.GetDisabledCount());
+	int idx = weapondefs.FindFirst(name, 0);
 
 	if (idx < 0)
 		return false;
@@ -936,7 +933,7 @@ static bool BenefitTryPowerup(const char *name, benefit_t *be, int num_vals)
 	if (be->sub.type == PW_Berserk &&
 		DDF_CompareName(name, "POWERUP_BERSERK") == 0)
 	{
-		int idx = weapondefs.FindFirst("FIST", weapondefs.GetDisabledCount());
+		int idx = weapondefs.FindFirst("FIST", 0);
 
 		if (idx >= 0)
 		{
@@ -1524,7 +1521,7 @@ static bool ConditionTryAmmo(const char *name, const char *sub,
 static bool ConditionTryWeapon(const char *name, const char *sub,
 									condition_check_t *cond)
 {
-	int idx = weapondefs.FindFirst(name, weapondefs.GetDisabledCount());
+	int idx = weapondefs.FindFirst(name, 0);
 
 	if (idx < 0)
 		return false;
@@ -1989,7 +1986,6 @@ void mobjtype_c::DLightCompatibility(void)
 mobjtype_container_c::mobjtype_container_c() : epi::array_c(sizeof(mobjtype_c*))
 {
 	memset(lookup_cache, 0, sizeof(mobjtype_c*) * LOOKUP_CACHESIZE);
-	num_disabled = 0;	
 }
 
 
@@ -2091,12 +2087,6 @@ const mobjtype_c *mobjtype_container_c::Lookup(const char *refname)
 
 	int idx = FindLast(refname);
 
-	// special rule for internal names (beginning with '_'), to allow
-	// savegame files to find attack MOBJs that may have been masked
-	// by #CLEARALL.
-	if (idx >= 0 && refname[0] != '_' && idx < num_disabled)
-		idx = -1;
-
 	if (idx >= 0)
 		return (*this)[idx];
 
@@ -2137,9 +2127,6 @@ const mobjtype_c *mobjtype_container_c::Lookup(int id)
 	if (!it.IsValid())
 		return NULL;
 
-	if (it.GetPos() < num_disabled)
-		return NULL;
-
 	// update the cache
 	lookup_cache[slot] = m;
 	return m;
@@ -2156,7 +2143,7 @@ const mobjtype_c *mobjtype_container_c::LookupCastMember(int castpos)
 	mobjtype_c* m;
 
 	best = NULL;
-	for (it = GetTailIterator(); it.IsValid() && (int)it.GetPos() >= num_disabled; it--)
+	for (it = GetTailIterator(); it.IsValid(); it--)
 	{
 		m = ITERATOR_TO_TYPE(it, mobjtype_c*);
 		if (m->castorder > 0)
@@ -2218,7 +2205,7 @@ const mobjtype_c* mobjtype_container_c::LookupPlayer(int playernum)
 
 	epi::array_iterator_c it;
 
-	for (it = GetTailIterator(); it.IsValid() && (int)it.GetPos() >= num_disabled; it--)
+	for (it = GetTailIterator(); it.IsValid(); it--)
 	{
 		mobjtype_c *m = ITERATOR_TO_TYPE(it, mobjtype_c*);
 

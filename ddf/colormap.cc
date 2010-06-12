@@ -121,8 +121,6 @@ static void ColmapFinishEntry(void)
 
 static void ColmapClearAll(void)
 {
-	// not safe to delete colourmaps -- disable them
-	colourmaps.SetDisabledCount(colourmaps.GetSize());
 	I_Warning("Ignoring #CLEARALL in colormap.ddf\n");
 }
 
@@ -311,7 +309,6 @@ void colourmap_c::Default()
 //
 colourmap_container_c::colourmap_container_c() : epi::array_c(sizeof(atkdef_c*))
 {
-	num_disabled = 0;	
 }
 
 //
@@ -346,7 +343,7 @@ colourmap_c* colourmap_container_c::Lookup(const char *refname)
 	if (!refname || !refname[0])
 		return NULL;
 
-	for (it = GetIterator(num_disabled); it.IsValid(); it++)
+	for (it = GetIterator(0); it.IsValid(); it++)
 	{
 		c = ITERATOR_TO_TYPE(it, colourmap_c*);
 		if (DDF_CompareName(c->name.c_str(), refname) == 0)
