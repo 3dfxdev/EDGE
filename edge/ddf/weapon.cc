@@ -348,8 +348,7 @@ static void WeaponClearAll(void)
 
 	epi::array_iterator_c it;
 
-	for (it = weapondefs.GetIterator(weapondefs.GetDisabledCount());
-		 it.IsValid(); it++)
+	for (it = weapondefs.GetIterator(0); it.IsValid(); it++)
 	{
 		weapondef_c *wd = ITERATOR_TO_TYPE(it, weapondef_c*);
 
@@ -678,7 +677,6 @@ void weapondef_c::Default(void)
 weapondef_container_c::weapondef_container_c() 
 	: epi::array_c(sizeof(weapondef_c*))
 {
-	num_disabled = 0;
 }
 
 //
@@ -734,7 +732,7 @@ int weapondef_container_c::FindFirst(const char *name, int startpos)
 //
 weapondef_c* weapondef_container_c::Lookup(const char* refname)
 {
-	int idx = FindFirst(refname, num_disabled);
+	int idx = FindFirst(refname, 0);
 	if (idx >= 0)
 		return (*this)[idx];
 

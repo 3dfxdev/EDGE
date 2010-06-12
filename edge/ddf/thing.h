@@ -905,7 +905,6 @@ private:
 	void CleanupObject(void *obj);
 
 	mobjtype_c* lookup_cache[LOOKUP_CACHESIZE];
-	int num_disabled;					// Number of disabled 
 
 public:
 	// List Management
@@ -914,17 +913,13 @@ public:
 	mobjtype_c* operator[](int idx) { return *(mobjtype_c**)FetchObject(idx); } 
 	bool MoveToEnd(int idx);
 
-	// Inliners
-	int GetDisabledCount() { return num_disabled; }
-	void SetDisabledCount(int _num_disabled) { num_disabled = _num_disabled; }
-
 	// Search Functions
 	int FindFirst(const char *name, int startpos = -1);
 	int FindLast(const char *name, int startpos = -1);
 	const mobjtype_c *Lookup(const char *refname);
 	const mobjtype_c *Lookup(int id);
 
-	// FIXME!!! Move to a more app location
+	// FIXME!!! Move to a more appropriate location
 	const mobjtype_c *LookupCastMember(int castpos);
 	const mobjtype_c *LookupPlayer(int playernum);
 };

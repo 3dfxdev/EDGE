@@ -685,8 +685,7 @@ void SR_PlayerPutState(void *storage, int index, void *extra)
 
 	epi::array_iterator_c it;
 
-	for (it=weapondefs.GetIterator(weapondefs.GetDisabledCount());
-			it.IsValid(); it++)
+	for (it=weapondefs.GetIterator(0); it.IsValid(); it++)
 	{
 		actual = ITERATOR_TO_TYPE(it, weapondef_c*);
 

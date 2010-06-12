@@ -146,17 +146,11 @@ public:
 private:
 	void CleanupObject(void *obj);
 
-	int num_disabled;					// Number of disabled 
-
 public:
 	// List Management
 	int GetSize() {	return array_entries; } 
 	int Insert(atkdef_c *a) { return InsertObject((void*)&a); }
 	atkdef_c* operator[](int idx) { return *(atkdef_c**)FetchObject(idx); } 
-
-	// Inliners
-	int GetDisabledCount() { return num_disabled; }
-	void SetDisabledCount(int _num_disabled) { num_disabled = _num_disabled; }
 
 	// Search Functions
 	atkdef_c* Lookup(const char* refname);

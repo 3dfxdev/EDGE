@@ -1042,8 +1042,7 @@ void P_GiveInitialBenefits(player_t *p, const mobjtype_c *info)
 
 	// give all free weapons.  Needs to be after ammo, so that
 	// clip weapons can get their clips filled.
-	for (it=weapondefs.GetIterator(weapondefs.GetDisabledCount());
-		it.IsValid(); it++)
+	for (it=weapondefs.GetIterator(0); it.IsValid(); it++)
 	{
 		w = ITERATOR_TO_TYPE(it, weapondef_c*);
 		if (!w->autogive)

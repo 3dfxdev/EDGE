@@ -305,7 +305,7 @@ void DDF_AttackCleanUp(void)
 	epi::array_iterator_c it;
 	atkdef_c *a;
 
-	for (it = atkdefs.GetIterator(atkdefs.GetDisabledCount()); it.IsValid(); it++)
+	for (it = atkdefs.GetIterator(0); it.IsValid(); it++)
 	{
 		a = ITERATOR_TO_TYPE(it, atkdef_c*);
 
@@ -539,7 +539,6 @@ void atkdef_c::Default()
 //
 atkdef_container_c::atkdef_container_c() : epi::array_c(sizeof(atkdef_c*))
 {
-	num_disabled = 0;	
 }
 
 //
@@ -576,7 +575,7 @@ atkdef_c* atkdef_container_c::Lookup(const char *refname)
 	if (!refname || !refname[0])
 		return NULL;
 
-	for (it = GetIterator(num_disabled); it.IsValid(); it++)
+	for (it = GetIterator(0); it.IsValid(); it++)
 	{
 		a = ITERATOR_TO_TYPE(it, atkdef_c*);
 		if (DDF_CompareName(a->name.c_str(), refname) == 0)

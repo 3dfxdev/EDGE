@@ -91,17 +91,11 @@ public:
 private:
 	void CleanupObject(void *obj);
 
-	int num_disabled;					// Number of disabled 
-
 public:
 	// List Management
 	int GetSize() {	return array_entries; } 
 	int Insert(colourmap_c *c) { return InsertObject((void*)&c); }
 	colourmap_c* operator[](int idx) { return *(colourmap_c**)FetchObject(idx); } 
-
-	// Inliners
-	int GetDisabledCount() { return num_disabled; }
-	void SetDisabledCount(int _num_disabled) { num_disabled = _num_disabled; }
 
 	// Search Functions
 	colourmap_c* Lookup(const char* refname);

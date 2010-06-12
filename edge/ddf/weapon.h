@@ -187,8 +187,6 @@ public:
 private:
 	void CleanupObject(void *obj);
 
-	int num_disabled;					// Number of disabled 
-
 public:
 	// List Management
 	int GetSize() {	return array_entries; } 
@@ -198,10 +196,6 @@ public:
 	{ 
 		return *(weapondef_c**)FetchObject(idx); 
 	} 
-
-	// Inliners
-	int GetDisabledCount() { return num_disabled; }
-	void SetDisabledCount(int _num_disabled) { num_disabled = _num_disabled; }
 
 	// Search Functions
 	int FindFirst(const char *name, int startpos = -1);
