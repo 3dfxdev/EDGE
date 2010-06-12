@@ -286,7 +286,6 @@ void *SV_MobjGetElem(int index)
 		I_Error("LOADGAME: Invalid Mobj: %d\n", index);
 
 	SYS_ASSERT(index == 0);
-	SYS_ASSERT(cur->info);
 
 	return cur;
 }
@@ -336,7 +335,7 @@ void SV_MobjCreateElems(int num_elems)
 		mobjlisthead = cur;
 
 		// initialise defaults
-		cur->info = mobjtypes[0];
+		cur->info  = NULL;
 		cur->state = cur->next_state = states+1;
 
 		cur->model_skin = 1;
@@ -353,6 +352,9 @@ void SV_MobjFinaliseElems(void)
 
 	for (mo=mobjlisthead; mo; mo=mo->next)
 	{
+		if (! mo->info)
+			mo->info = mobjtypes.Lookup(0);  // template
+
 		P_SetThingPosition(mo);
 
 		// handle reference counts
@@ -532,8 +534,28 @@ bool SR_MobjGetType(void *storage, int index, void *extra)
 
 	const char *name = SV_GetString();
 
-	// Intentional Const Override
-	*dest = (name == NULL) ? NULL : (mobjtype_c *)mobjtypes.Lookup(name);
+	if (! name)
+	{
+		*dest = NULL;
+		return true;
+	}
+
+	// special handling for projectiles (attacks)
+	if (strncmp(name, "atk:", 4) == 0)
+	{
+		const atkdef_c *atk = atkdefs.Lookup(name+4);
+
+		if (atk)
+			*dest = (mobjtype_c *)atk->atk_mobj;
+	}
+	else
+		*dest = (mobjtype_c *)mobjtypes.Lookup(name);
+
+	if (! *dest)
+	{
+		// Note: a missing 'info' field will be fixed up later
+		I_Warning("LOADGAME: no such thing type '%s'\n",  name);
+	}
 
 	SV_FreeString(name);
 	return true;
@@ -602,11 +624,10 @@ bool SR_MobjGetState(void *storage, int index, void *extra)
 	const mobjtype_c *actual;
 
 	SYS_ASSERT(mo);
-	SYS_ASSERT(mo->info);
 
 	swizzle = SV_GetString();
 
-	if (! swizzle)
+	if (!swizzle || !mo->info)
 	{
 		*dest = NULL;
 		return true;
@@ -709,9 +730,8 @@ void SR_MobjPutState(void *storage, int index, void *extra)
 	const mobjtype_c *actual;
 
 	SYS_ASSERT(mo);
-	SYS_ASSERT(mo->info);
 
-	if (S == NULL)
+	if (S == NULL || !mo->info)
 	{
 		SV_PutString(NULL);
 		return;
