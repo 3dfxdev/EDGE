@@ -39,7 +39,12 @@ General Improvements
 - control over automap grid spacing via 'am_gridsize' cvar.
 
 - when thing numbers in the level are unknown, limit the warnings
-  to two specific things and a "More unknown things found" message.
+  to two specific things of that type and a "more found" message.
+
+- less warning messages when using old mods (like QDoom).
+
+- reviewed #CLEARALL behavior, made it ignored (with a warning)
+  for several kinds of DDF where it was not safe or useful.
 
 
 New Features
