@@ -35,7 +35,6 @@
 
 #include <sys/types.h> // Required for _stat()
 
-#include "edge32.rh" // Resources
 
 // Win32 Mixer
 typedef struct
