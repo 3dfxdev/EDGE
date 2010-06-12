@@ -53,6 +53,8 @@ scrolldirs_e;
 
 linetype_container_c linetypes;		// <-- User-defined
 
+static linetype_c *default_linetype;
+
 static void DDF_LineGetTrigType(const char *info, void *storage);
 static void DDF_LineGetActivators(const char *info, void *storage);
 static void DDF_LineGetSecurity(const char *info, void *storage);
@@ -469,13 +471,8 @@ void DDF_LinedefInit(void)
 {
 	linetypes.Reset();
 	
-	// Insert the template line as the first entry, this is used
-	// should the lookup fail	
-	linetype_c *l = new linetype_c;
-	l->Default();
-	l->number = -1;
-
-	linetypes.Insert(l);
+	default_linetype = new linetype_c();
+	default_linetype->number = 0;
 }
 
 //
@@ -1760,6 +1757,9 @@ void linetype_container_c::CleanupObject(void *obj)
 //
 linetype_c* linetype_container_c::Lookup(const int id)
 {
+	if (id == 0)
+		return default_linetype;
+
 	int slot = DDF_LineHashFunc(id);
 
 	// check the cache
@@ -1769,24 +1769,22 @@ linetype_c* linetype_container_c::Lookup(const int id)
 		return lookup_cache[slot];
 	}
 
+	linetype_c *l = NULL;
+
 	epi::array_iterator_c it;
-	linetype_c *l = 0;
 
 	for (it = GetTailIterator(); it.IsValid(); it--)
 	{
 		l = ITERATOR_TO_TYPE(it, linetype_c*);
+
 		if (l->number == id)
-		{
 			break;
-		}
 	}
 
-	// FIXME!! Throw an epi::error here
-	if (!it.IsValid())
-		return NULL;
-
 	// update the cache
-	lookup_cache[slot] = l;
+	if (l)
+		lookup_cache[slot] = l;
+
 	return l;
 }
 

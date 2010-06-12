@@ -33,6 +33,8 @@ static sectortype_c *dynamic_sector;
 
 sectortype_container_c sectortypes; 	// <-- User-defined
 
+static sectortype_c *default_sector;
+
 void DDF_SectGetSpecialFlags(const char *info, void *storage);
 static void DDF_SectMakeCrush(const char *info);
 
@@ -189,14 +191,8 @@ void DDF_SectorInit(void)
 {
 	sectortypes.Reset();
 	
-	// Insert the template sector as the first entry, this is used
-	// should the lookup fail	
-	sectortype_c *s = new sectortype_c;
-
-	s->Default();
-	s->number = -1;
-
-	sectortypes.Insert(s);
+	default_sector = new sectortype_c;
+	default_sector->number = 0;
 }
 
 //
@@ -565,6 +561,9 @@ void sectortype_container_c::CleanupObject(void *obj)
 //
 sectortype_c *sectortype_container_c::Lookup(const int id)
 {
+	if (id == 0)
+		return default_sector;
+
 	int slot = DDF_SectHashFunc(id);
 
 	// check the cache
@@ -574,22 +573,21 @@ sectortype_c *sectortype_container_c::Lookup(const int id)
 		return lookup_cache[slot];
 	}	
 
-	epi::array_iterator_c it;
 	sectortype_c *s = NULL;
+
+	epi::array_iterator_c it;
 
 	for (it = GetTailIterator(); it.IsValid(); it--)
 	{
 		s = ITERATOR_TO_TYPE(it, sectortype_c*);
+
 		if (s->number == id)
-		{
 			break;
-		}
 	}
 
-	if (!it.IsValid())
-		return NULL;
+	if (s)
+		lookup_cache[slot] = s; // Update the cache
 
-	lookup_cache[slot] = s; // Update the cache
 	return s;
 }
 

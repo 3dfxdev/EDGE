@@ -39,6 +39,8 @@
 
 mobjtype_container_c mobjtypes;
 
+static mobjtype_c * default_mobjtype;
+
 void DDF_MobjGetSpecial(const char *info);
 void DDF_MobjGetBenefit(const char *info, void *storage);
 void DDF_MobjGetPickupEffect(const char *info, void *storage);
@@ -645,6 +647,10 @@ bool DDF_ReadThings(void *data, int size)
 void DDF_MobjInit(void)
 {
 	mobjtypes.Clear();
+
+	default_mobjtype = new mobjtype_c();
+	default_mobjtype->name   = "__DEFAULT_MOBJ";
+	default_mobjtype->number = 0;
 }
 
 void DDF_MobjCleanUp(void)
@@ -2100,7 +2106,7 @@ const mobjtype_c *mobjtype_container_c::Lookup(const char *refname)
 		return (*this)[idx];
 
 	if (lax_errors)
-		return (*this)[0];
+		return default_mobjtype;
 
 	DDF_Error("Unknown thing type: %s\n", refname);
 	return NULL; /* NOT REACHED */
@@ -2109,6 +2115,9 @@ const mobjtype_c *mobjtype_container_c::Lookup(const char *refname)
 
 const mobjtype_c *mobjtype_container_c::Lookup(int id)
 {
+	if (id == 0)
+		return default_mobjtype;
+
 	// Looks an mobjdef by number.
 	// Fatal error if it does not exist.
 
@@ -2121,23 +2130,21 @@ const mobjtype_c *mobjtype_container_c::Lookup(int id)
 		return lookup_cache[slot];
 	}
 
-	epi::array_iterator_c it;
 	mobjtype_c *m = NULL;
+
+	epi::array_iterator_c it;
 
 	for (it = GetTailIterator(); it.IsValid(); it--)
 	{
 		m = ITERATOR_TO_TYPE(it, mobjtype_c*);
 		if (m->number == id)
-		{
 			break;
-		}
 	}
 
-	if (!it.IsValid())
-		return NULL;
-
 	// update the cache
-	lookup_cache[slot] = m;
+	if (m)
+		lookup_cache[slot] = m;
+
 	return m;
 }
 
