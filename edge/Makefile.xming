@@ -96,7 +96,10 @@ stripped: $(PROGRAM)
 	i586-mingw32msvc-strip --strip-unneeded $(PROGRAM)
 
 clean:
-	rm -f $(OBJDIR)/*/*.* $(PROGRAM)
+	rm -f $(PROGRAM) $(OBJDIR)/*/*.* 
+
+halfclean:
+	rm -f $(PROGRAM) $(OBJDIR)/ddf/*.* $(OBJDIR)/edge/*.*
 
 makedirs:
 	mkdir -p $(OBJDIR)/coal
@@ -107,7 +110,7 @@ makedirs:
 	mkdir -p $(OBJDIR)/glbsp
 	mkdir -p $(OBJDIR)/timidity
 
-.PHONY: all stripped clean makedirs
+.PHONY: all stripped clean halfclean makedirs
 
 
 # ---------- Coal ---------------
