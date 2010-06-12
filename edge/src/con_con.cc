@@ -751,7 +751,7 @@ static void TabComplete(void)
 	}
 }
 
-void CON_HandleKey(int key)
+void CON_HandleKey(int key, bool shift, bool ctrl)
 {
 	switch (key)
 	{
@@ -766,7 +766,7 @@ void CON_HandleKey(int key)
 		break;
 	
 	case KEYD_PGUP:
-		if (KeysShifted)
+		if (shift)
 			// Move to top of console buffer
 			bottomrow = MAX(-1, con_used_lines-10);
 		else
@@ -775,7 +775,7 @@ void CON_HandleKey(int key)
 		break;
 	
 	case KEYD_PGDN:
-		if (KeysShifted)
+		if (shift)
 			// Move to bottom of console buffer
 			bottomrow = -1;
 		else
@@ -1041,7 +1041,7 @@ bool CON_Responder(event_t * ev)
 
 		repeat_key = key;
 
-		CON_HandleKey(key);
+		CON_HandleKey(key, KeysShifted, false);
 	}
 
 	return true;  // eat all keyboard events
@@ -1074,7 +1074,7 @@ void CON_Ticker(void)
 				while (repeat_countdown <= 0)
 				{
 					repeat_countdown += KEYREPEATRATE;
-					CON_HandleKey(repeat_key);
+					CON_HandleKey(repeat_key, KeysShifted, false);
 				}
 			}
 			break;
