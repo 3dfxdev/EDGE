@@ -530,7 +530,7 @@ static void CastInitNew(int num)
 
 	// FIXME!!! Better handling of the finale
 	if (!castorder)
-		castorder = mobjtypes[0];
+		castorder = mobjtypes.Lookup(0);
 
 	casttitle = castorder->cast_title ?
 		language[castorder->cast_title] : castorder->name.c_str();
