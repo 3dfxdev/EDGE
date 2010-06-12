@@ -400,11 +400,11 @@ int CMD_Version(char **argv, int argc)
 }
 
 
-int CMD_Warp(char **argv, int argc)
+int CMD_Map(char **argv, int argc)
 {
 	if (argc <= 1)
 	{
-		CON_Printf("Usage: warp <level>\n");
+		CON_Printf("Usage: map <level>\n");
 		return 0;
 	}
 
@@ -487,6 +487,8 @@ const con_cmd_t builtin_commands[] =
 	{ "dir",            CMD_Dir },
 	{ "exec",           CMD_Exec },
 	{ "help",           CMD_Help },
+	{ "map",            CMD_Map },
+	{ "warp",           CMD_Map },  // compatibility
 	{ "playsound",      CMD_PlaySound },
 //	{ "resetkeys",      CMD_ResetKeys },
 	{ "resetvars",      CMD_ResetVars },
@@ -499,7 +501,6 @@ const con_cmd_t builtin_commands[] =
 	{ "screenshot",     CMD_ScreenShot },
 	{ "type",           CMD_Type },
 	{ "version",        CMD_Version },
-	{ "warp",           CMD_Warp },
 	{ "quit",           CMD_QuitEDGE },
 	{ "exit",           CMD_QuitEDGE },
 
