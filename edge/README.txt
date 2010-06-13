@@ -332,6 +332,7 @@ Console commands:
    dir  [<path> <mask>]   Display contents of a directory     
    exec  <filename>       Executes console commands from a file
    help                   Prints a summary of console usage
+   map   <mapname>        Jump to a new map (like IDCLEV cheat)
    playsound  <sound>     Plays the sound
    resetvars              Reset all cvars and settings
    showcmds               Show all console commands
@@ -341,7 +342,6 @@ Console commands:
    showlumps  <file-idx>  Show all lumps in a wad file
    type  <filename>       Displays the contents of a text file
    version                Show the EDGE version
-   warp  <mapname>        Jump to a new map (like IDCLEV cheat)
    quit                   Quit EDGE (pops up a query message)
 
    <varname>              Show value of a console variable
