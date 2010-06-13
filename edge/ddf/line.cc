@@ -1769,23 +1769,21 @@ linetype_c* linetype_container_c::Lookup(const int id)
 		return lookup_cache[slot];
 	}
 
-	linetype_c *l = NULL;
-
 	epi::array_iterator_c it;
 
 	for (it = GetTailIterator(); it.IsValid(); it--)
 	{
-		l = ITERATOR_TO_TYPE(it, linetype_c*);
+		linetype_c *l = ITERATOR_TO_TYPE(it, linetype_c*);
 
 		if (l->number == id)
-			break;
+		{
+			// update the cache
+			lookup_cache[slot] = l;
+			return l;
+		}
 	}
 
-	// update the cache
-	if (l)
-		lookup_cache[slot] = l;
-
-	return l;
+	return NULL;
 }
 
 //

@@ -573,22 +573,21 @@ sectortype_c *sectortype_container_c::Lookup(const int id)
 		return lookup_cache[slot];
 	}	
 
-	sectortype_c *s = NULL;
-
 	epi::array_iterator_c it;
 
 	for (it = GetTailIterator(); it.IsValid(); it--)
 	{
-		s = ITERATOR_TO_TYPE(it, sectortype_c*);
+		sectortype_c *s = ITERATOR_TO_TYPE(it, sectortype_c*);
 
 		if (s->number == id)
-			break;
+		{
+			// update the cache
+			lookup_cache[slot] = s;
+			return s;
+		}
 	}
 
-	if (s)
-		lookup_cache[slot] = s; // Update the cache
-
-	return s;
+	return NULL;
 }
 
 //
