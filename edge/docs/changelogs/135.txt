@@ -31,6 +31,10 @@ General Improvements
 
 - weapon and automap keys are now configurable.
 
+- RTS: added new WAIT_UNTIL_DEAD command, which takes a list of
+  monster types to wait for.  Unlike ONDEATH, this honors the
+  trigger area, and when no such monsters exist it waits forever.
+
 - renamed "Host Net Game" menu to "Advanced Start" and removed
   the references to networking stuff and the player list screen,
   so that people don't get the impression that Multiplayer is
