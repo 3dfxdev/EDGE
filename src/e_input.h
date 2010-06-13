@@ -31,13 +31,15 @@
 
 void E_ClearInput(void);
 void E_BuildTiccmd(ticcmd_t * cmd);
-bool E_InputCheckKey(int keynum);
 void E_ReleaseAllKeys(void);
 void E_SetTurboScale(int scale);
 void E_UpdateKeyState(void);
 
 void E_ProcessEvents(void);
 void E_PostEvent(event_t * ev);
+
+bool E_IsKeyPressed(int keyvar);
+bool E_MatchesKey(int keyvar, int key);
 
 bool INP_Responder(event_t * ev);
 
@@ -111,7 +113,7 @@ extern int key_am_gobig;
 
 extern int key_am_follow;
 extern int key_am_grid;
-extern int key_am_addmark;
+extern int key_am_mark;
 extern int key_am_clear;
 
 #endif  /* __E_INPUT_H__ */

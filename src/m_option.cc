@@ -675,7 +675,7 @@ static optmenuitem_t automap_keyconfig[] =
 	{OPT_KeyConfig, "Zoom In",       NULL, 0, &key_am_zoomin, NULL, NULL},
 	{OPT_KeyConfig, "Zoom Out",      NULL, 0, &key_am_zoomout, NULL, NULL},
 	{OPT_KeyConfig, "Go Big",        NULL, 0, &key_am_gobig, NULL, NULL},
-	{OPT_KeyConfig, "Add Mark",      NULL, 0, &key_am_addmark, NULL, NULL},
+	{OPT_KeyConfig, "Add Mark",      NULL, 0, &key_am_mark, NULL, NULL},
 	{OPT_KeyConfig, "Clear Mark",    NULL, 0, &key_am_clear, NULL, NULL},
 };
 
