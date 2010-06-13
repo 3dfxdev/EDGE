@@ -397,12 +397,14 @@ bool HU_Responder(event_t * ev)
 			message_counter = HU_MSGTIMEOUT;
 			eatkey = false;
 		}
+#if 0  // -AJA- disabled
 		else if (netgame && c && E_MatchesKey(key_talk, c))
 		{
 			eatkey = chat_on = true;
 			HL_ResetIText(&w_chat);
 			HU_QueueChatChar(HU_BROADCAST);
 		}
+#endif
 	}
 	else
 	{
