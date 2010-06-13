@@ -648,10 +648,12 @@ static optmenuitem_t otherkeyconfig[] =
 	{OPT_KeyConfig, "180 degree turn",  NULL, 0, &key_180, NULL, NULL},
 	{OPT_Plain,     "",                 NULL, 0, NULL, NULL, NULL},
 	{OPT_KeyConfig, "Map Toggle",       NULL, 0, &key_map, NULL, NULL},
-	{OPT_KeyConfig, "Multiplayer Talk", NULL, 0, &key_talk, NULL, NULL},
 	{OPT_KeyConfig, "Console",          NULL, 0, &key_console, NULL, NULL},
+	{OPT_KeyConfig, "Pause",            NULL, 0, &key_pause, NULL, NULL},
 	{OPT_KeyConfig, "Action 1",         NULL, 0, &key_action1, NULL, NULL},
 	{OPT_KeyConfig, "Action 2",         NULL, 0, &key_action2, NULL, NULL},
+
+///	{OPT_KeyConfig, "Multiplayer Talk", NULL, 0, &key_talk, NULL, NULL},
 };
 
 static menuinfo_t otherkeyconfiginfo = 
@@ -740,6 +742,7 @@ static specialkey_t specialkeylist[] =  // terminate on -1
     { '\'', "\'" },
     { KEYD_SPACE, "Space" },
     { KEYD_TILDE, "Tilde" },
+    { KEYD_PAUSE, "Pause" },
 
 	// function keys
     { KEYD_F1,  "F1" },
