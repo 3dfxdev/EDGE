@@ -2130,22 +2130,21 @@ const mobjtype_c *mobjtype_container_c::Lookup(int id)
 		return lookup_cache[slot];
 	}
 
-	mobjtype_c *m = NULL;
-
 	epi::array_iterator_c it;
 
 	for (it = GetTailIterator(); it.IsValid(); it--)
 	{
-		m = ITERATOR_TO_TYPE(it, mobjtype_c*);
+		mobjtype_c *m = ITERATOR_TO_TYPE(it, mobjtype_c*);
+
 		if (m->number == id)
-			break;
+		{
+			// update the cache
+			lookup_cache[slot] = m;
+			return m;
+		}
 	}
 
-	// update the cache
-	if (m)
-		lookup_cache[slot] = m;
-
-	return m;
+	return NULL;
 }
 
 
