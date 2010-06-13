@@ -236,7 +236,6 @@ static default_t defaults[] =
 	{CFGT_Key,      "key_am_right",      &key_am_right,   KEYD_RIGHTARROW},
 	{CFGT_Key,      "key_am_zoomin",     &key_am_zoomin,  '='},
 	{CFGT_Key,      "key_am_zoomout",    &key_am_zoomout, '-'},
-	{CFGT_Key,      "key_am_gobig",      &key_am_gobig,   '0'},
 	{CFGT_Key,      "key_am_follow",     &key_am_follow,  'f'},
 	{CFGT_Key,      "key_am_grid",       &key_am_grid,    'g'},
 	{CFGT_Key,      "key_am_mark",       &key_am_mark,    'm'},

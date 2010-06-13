@@ -109,7 +109,6 @@ extern int key_am_right;
 
 extern int key_am_zoomin;
 extern int key_am_zoomout;
-extern int key_am_gobig;
 
 extern int key_am_follow;
 extern int key_am_grid;
