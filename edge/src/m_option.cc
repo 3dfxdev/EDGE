@@ -121,7 +121,6 @@ static void M_VideoOptions(int keypressed);
 static void M_GameplayOptions(int keypressed);
 static void M_AnalogueOptions(int keypressed);
 static void M_SoundOptions(int keypressed);
-// static void M_CalibrateJoystick(int keypressed);
 
 static void M_Key2String(int key, char *deststring);
 
@@ -270,13 +269,6 @@ static style_c *gameplay_style;
 static style_c *video_style;
 static style_c *setres_style;
 
-
-typedef struct specialkey_s
-{
-	int keycode;
-	char keystring[20];
-}
-specialkey_t;
 
 
 static void M_ChangeMusVol(int keypressed)
@@ -594,11 +586,13 @@ static optmenuitem_t stdkeyconfig[] =
 {
 	{OPT_KeyConfig, "Walk Forward",   NULL, 0, &key_up, NULL, NULL},
 	{OPT_KeyConfig, "Walk Backwards", NULL, 0, &key_down, NULL, NULL},
+	{OPT_Plain,      "",              NULL, 0, NULL, NULL, NULL},
 	{OPT_KeyConfig, "Strafe Left",    NULL, 0, &key_strafeleft, NULL, NULL},
 	{OPT_KeyConfig, "Strafe Right",   NULL, 0, &key_straferight, NULL, NULL},
 	{OPT_Plain,      "",              NULL, 0, NULL, NULL, NULL},
 	{OPT_KeyConfig, "Turn Left",      NULL, 0, &key_left, NULL, NULL},
 	{OPT_KeyConfig, "Turn Right",     NULL, 0, &key_right, NULL, NULL},
+	{OPT_Plain,      "",              NULL, 0, NULL, NULL, NULL},
 	{OPT_KeyConfig, "Up / Jump",      NULL, 0, &key_flyup, NULL, NULL},
 	{OPT_KeyConfig, "Down / Crouch",  NULL, 0, &key_flydown, NULL, NULL},
 };
@@ -712,101 +706,6 @@ static menuinfo_t automap_keyconfiginfo =
 
 static char keystring1[] = "Enter to change, Backspace to Clear";
 static char keystring2[] = "Press a key for this action";
-
-static specialkey_t specialkeylist[] =  // terminate on -1
-{
-    { KEYD_RIGHTARROW, "Right Arrow" },
-    { KEYD_LEFTARROW, "Left Arrow" },
-    { KEYD_UPARROW, "Up Arrow" },
-    { KEYD_DOWNARROW, "Down Arrow" },
-    { KEYD_ESCAPE, "Escape" },
-    { KEYD_ENTER, "Enter" },
-    { KEYD_TAB, "Tab" },
-
-    { KEYD_BACKSPACE, "Backspace" },
-    { KEYD_EQUALS, "Equals" },
-    { KEYD_MINUS, "Minus" },
-    { KEYD_RSHIFT, "Shift" },
-    { KEYD_RCTRL, "Ctrl" },
-    { KEYD_RALT, "Alt" },
-    { KEYD_INSERT, "Insert" },
-    { KEYD_DELETE, "Delete" },
-    { KEYD_PGDN, "PageDown" },
-    { KEYD_PGUP, "PageUp" },
-    { KEYD_HOME, "Home" },
-    { KEYD_END, "End" },
-    { KEYD_SCRLOCK,  "ScrollLock" },
-    { KEYD_NUMLOCK,  "NumLock" },
-    { KEYD_CAPSLOCK, "CapsLock" },
-    { KEYD_END, "End" },
-    { '\'', "\'" },
-    { KEYD_SPACE, "Space" },
-    { KEYD_TILDE, "Tilde" },
-    { KEYD_PAUSE, "Pause" },
-
-	// function keys
-    { KEYD_F1,  "F1" },
-    { KEYD_F2,  "F2" },
-    { KEYD_F3,  "F3" },
-    { KEYD_F4,  "F4" },
-    { KEYD_F5,  "F5" },
-    { KEYD_F6,  "F6" },
-    { KEYD_F7,  "F7" },
-    { KEYD_F8,  "F8" },
-    { KEYD_F9,  "F9" },
-    { KEYD_F10, "F10" },
-    { KEYD_F11, "F11" },
-    { KEYD_F12, "F12" },
-
-	// numeric keypad
-	{ KEYD_KP0, "KP_0" },
-	{ KEYD_KP1, "KP_1" },
-	{ KEYD_KP2, "KP_2" },
-	{ KEYD_KP3, "KP_3" },
-	{ KEYD_KP4, "KP_4" },
-	{ KEYD_KP5, "KP_5" },
-	{ KEYD_KP6, "KP_6" },
-	{ KEYD_KP7, "KP_7" },
-	{ KEYD_KP8, "KP_8" },
-	{ KEYD_KP9, "KP_9" },
-	
-	{ KEYD_KP_DOT,   "KP_DOT" },
-	{ KEYD_KP_PLUS,  "KP_PLUS" },
-	{ KEYD_KP_MINUS, "KP_MINUS" },
-	{ KEYD_KP_STAR,  "KP_STAR" },
-	{ KEYD_KP_SLASH, "KP_SLASH" },
-	{ KEYD_KP_EQUAL, "KP_EQUAL" },
-	{ KEYD_KP_ENTER, "KP_ENTER" },
-
-	// mouse buttons
-    { KEYD_MOUSE1, "Mouse1" },
-    { KEYD_MOUSE2, "Mouse2" },
-    { KEYD_MOUSE3, "Mouse3" },
-    { KEYD_MOUSE4, "Mouse4" },
-    { KEYD_MOUSE5, "Mouse5" },
-    { KEYD_MOUSE6, "Mouse6" },
-    { KEYD_WHEEL_UP, "Wheel Up" },
-    { KEYD_WHEEL_DN, "Wheel Down" },
-
-	// joystick buttons
-    { KEYD_JOY1,  "Joy1" },
-    { KEYD_JOY2,  "Joy2" },
-    { KEYD_JOY3,  "Joy3" },
-    { KEYD_JOY4,  "Joy4" },
-    { KEYD_JOY5,  "Joy5" },
-    { KEYD_JOY6,  "Joy6" },
-    { KEYD_JOY7,  "Joy7" },
-    { KEYD_JOY8,  "Joy8" },
-    { KEYD_JOY9,  "Joy9" },
-    { KEYD_JOY10, "Joy10" },
-    { KEYD_JOY11, "Joy11" },
-    { KEYD_JOY12, "Joy12" },
-    { KEYD_JOY13, "Joy13" },
-    { KEYD_JOY14, "Joy14" },
-    { KEYD_JOY15, "Joy15" },
-
-    { -1, "" }  // THE END
-};
 
 //
 // M_OptCheckNetgame
@@ -1048,11 +947,12 @@ void M_OptDrawer()
 			}
 
 			case OPT_KeyConfig:
-
+			{
 				k = *(int*)(curr_menu->items[i].switchvar);
 				M_Key2String(k, tempstring);
 				HL_WriteText(style,1, (curr_menu->menu_center + 15), curry, tempstring);
 				break;
+			}
 
 			default:
 				break;
@@ -1481,79 +1381,24 @@ static void M_KeyboardOptions(int keypressed)
 //
 static void M_Key2String(int key, char *deststring)
 {
-	int key1, key2;
-	char key2string[100];
-	int j;
+	int key1 = key & 0xffff;
+	int key2 = key >> 16;
 
-	if (((key & 0xffff) == 0) && ((key >> 16) != 0))
-		I_Error("key problem!");
-
-	if (key == 0)
+	if (key1 == 0)
 	{
 		strcpy(deststring, "---");
 		return;
 	}
-	key1 = key & 0xffff;
-	key2 = key >> 16;
 
-	//first do key 1
-	if ((toupper(key1) >= ',') && (toupper(key1) <= ']'))
+	strcpy(deststring, E_GetKeyName(key1));
+
+	if (key2 != 0)
 	{
-		deststring[0] = toupper(key1);
-		deststring[1] = 0;
+		strcat(deststring, " or ");
+		strcat(deststring, E_GetKeyName(key2));
 	}
-	else
-	{
-		sprintf(deststring, "Key%03d", key1);
-
-		for (j=0; specialkeylist[j].keycode != -1; j++)
-		{
-			if (specialkeylist[j].keycode == key1)
-			{
-				strcpy(deststring, specialkeylist[j].keystring);
-				break;
-			}
-		}
-	}
-
-	if (key2 == 0)
-		return;
-
-	//now, do key 2
-	if ((toupper(key2) >= ',') && (toupper(key2) <= ']'))
-	{
-		key2string[0] = toupper(key2);
-		key2string[1] = 0;
-	}
-	else
-	{
-		sprintf(key2string, "Key%03d", key2);
-
-		for (j=0; specialkeylist[j].keycode != -1; j++)
-		{
-			if (specialkeylist[j].keycode == key2)
-			{
-				strcpy(key2string, specialkeylist[j].keystring);
-				break;
-			}
-		}
-	}
-	strcat(deststring, " or ");
-	strcat(deststring, key2string);
 }
 
-#if 0
-//
-// M_CalibrateJoystick
-//
-// 1998/07/10 -KM- Recalibration of Joystick
-// 2000/11/03 -ACB- Unable to use as non-portable
-//
-static void M_CalibrateJoystick(int keypressed)
-{
-	I_CalibrateJoystick(0);
-}
-#endif
 
 //
 // M_ChangeGamma
