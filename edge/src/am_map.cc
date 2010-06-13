@@ -73,18 +73,6 @@ static rgbcol_t am_colors[AM_NUM_COLORS] =
 // Automap keys
 // Ideally these would be configurable...
 
-#define AM_PANDOWNKEY KEYD_DOWNARROW
-#define AM_PANUPKEY   KEYD_UPARROW
-#define AM_PANRIGHTKEY    KEYD_RIGHTARROW
-#define AM_PANLEFTKEY     KEYD_LEFTARROW
-#define AM_ZOOMINKEY  '='
-#define AM_ZOOMOUTKEY '-'
-#define AM_GOBIGKEY   '0'
-#define AM_FOLLOWKEY  'f'
-#define AM_GRIDKEY    'g'
-#define AM_MARKKEY    'm'
-#define AM_CLEARMARKKEY    'c'
-
 int key_am_up;
 int key_am_down;
 int key_am_left;
@@ -96,7 +84,7 @@ int key_am_gobig;
 
 int key_am_follow;
 int key_am_grid;
-int key_am_addmark;
+int key_am_mark;
 int key_am_clear;
 
 #define AM_NUMMARKPOINTS  9
@@ -173,14 +161,6 @@ static float map_min_x;
 static float map_min_y;
 static float map_max_x;
 static float map_max_y;
-
-
-// how far the window pans each tic (map coords)
-static float panning_x = 0;
-static float panning_y = 0;
-
-// how far the window zooms in each tic (map coords)
-static float zooming = -1;
 
 
 // where the points are
@@ -275,17 +255,11 @@ void AM_Stop(void)
 	automapactive = false;
 	stopped = true;
 
-	panning_x = 0;
-	panning_y = 0;
-	zooming   = -1;
 	bigstate  = false;
 }
 
 static void AM_Hide(void)
 {
-	panning_x = 0;
-	panning_y = 0;
-	zooming   = -1;
 	automapactive = false;
 	bigstate = false;
 }
@@ -302,9 +276,6 @@ static void AM_Show(void)
 
 	stopped = false;
 
-	panning_x = 0;
-	panning_y = 0;
-	zooming   = -1;
 	bigstate  = false;
 }
 
@@ -326,165 +297,94 @@ static void ChangeWindowScale(float factor)
 //
 bool AM_Responder(event_t * ev)
 {
-	if (! automapactive)
+	if (ev->type != ev_keydown)
+		return false;
+
+	int sym = ev->value.key.sym;
+
+	// check the enable/disable key
+	if (E_MatchesKey(key_map, sym))
 	{
-		if (ev->type == ev_keydown &&
-			(ev->value.key.sym == (key_map >> 16) ||
-			 ev->value.key.sym == (key_map & 0xffff)))
-		{
+		if (automapactive)
+			AM_Hide();
+		else
 			AM_Show();
-			return true;
-		}
+		return true;
+	}
 
+	if (! automapactive)
 		return false;
-	}
 
-	// handle key releases
-
-	if (ev->type == ev_keyup)
+	if (E_MatchesKey(key_am_gobig, sym))
 	{
-		switch (ev->value.key.sym)
-		{
-		case AM_PANRIGHTKEY:
-		case AM_PANLEFTKEY:
-			panning_x = 0;
-			break;
-
-		case AM_PANUPKEY:
-		case AM_PANDOWNKEY:
-			panning_y = 0;
-			break;
-
-		case AM_ZOOMOUTKEY:
-		case AM_ZOOMINKEY:
-			zooming = -1;
-			break;
-		}
-
-		return false;
+		bigstate = !bigstate;
+		return true;
 	}
 
-
-	// handle key presses
-
-	bool rc = false;
-
-	if (ev->type == ev_keydown)
+	if (E_MatchesKey(key_am_follow, sym))
 	{
-		rc = true;
-		switch (ev->value.key.sym)
-		{
-		case AM_PANRIGHTKEY:
-			// pan right
-			if (!followplayer)
-				panning_x = FTOM(F_PANINC);
-			else
-				rc = false;
-			break;
+		followplayer = !followplayer;
 
-		case AM_PANLEFTKEY:
-			// pan left
-			if (!followplayer)
-				panning_x = -FTOM(F_PANINC);
-			else
-				rc = false;
-			break;
+		// -ACB- 1998/08/10 Use DDF Lang Reference
+		if (followplayer)
+			CON_PlayerMessageLDF(consoleplayer, "AutoMapFollowOn");
+		else
+			CON_PlayerMessageLDF(consoleplayer, "AutoMapFollowOff");
 
-		case AM_PANUPKEY:
-			// pan up
-			if (!followplayer)
-				panning_y = FTOM(F_PANINC);
-			else
-				rc = false;
-			break;
-
-		case AM_PANDOWNKEY:
-			// pan down
-			if (!followplayer)
-				panning_y = -FTOM(F_PANINC);
-			else
-				rc = false;
-			break;
-
-		case AM_ZOOMOUTKEY:
-			// zoom out
-			zooming = 1.0 / M_ZOOMIN;
-			break;
-
-		case AM_ZOOMINKEY:
-			// zoom in
-			zooming = M_ZOOMIN;
-			break;
-
-		// -AJA- 2007/04/18: mouse-wheel support
-		case KEYD_WHEEL_DN:
-			ChangeWindowScale(1.0 / WHEEL_ZOOMIN);
-			break;
-
-		case KEYD_WHEEL_UP:
-			ChangeWindowScale(WHEEL_ZOOMIN);
-			break;
-
-		case AM_GOBIGKEY:
-			bigstate = !bigstate;
-			break;
-
-		case AM_FOLLOWKEY:
-			followplayer = !followplayer;
-
-			// -ACB- 1998/08/10 Use DDF Lang Reference
-			if (followplayer)
-				CON_PlayerMessageLDF(consoleplayer, "AutoMapFollowOn");
-			else
-				CON_PlayerMessageLDF(consoleplayer, "AutoMapFollowOff");
-			break;
-
-		case AM_GRIDKEY:
-			grid = !grid;
-			// -ACB- 1998/08/10 Use DDF Lang Reference
-			if (grid)
-				CON_PlayerMessageLDF(consoleplayer, "AutoMapGridOn");
-			else
-				CON_PlayerMessageLDF(consoleplayer, "AutoMapGridOff");
-			break;
-
-		case AM_MARKKEY:
-			// -ACB- 1998/08/10 Use DDF Lang Reference
-			CON_PlayerMessage(consoleplayer, "%s %d",
-				language["AutoMapMarkedSpot"], markpointnum);
-			AddMark();
-			break;
-
-		case AM_CLEARMARKKEY:
-			ClearMarks();
-			// -ACB- 1998/08/10 Use DDF Lang Reference
-			CON_PlayerMessageLDF(consoleplayer, "AutoMapMarksClear");
-			break;
-
-		default:
-			if (ev->value.key.sym == (key_map >> 16) || 
-				ev->value.key.sym == (key_map & 0xffff))
-			{
-				AM_Hide();
-			}
-			else
-			{
-				rc = false;
-			}
-		}
-		// -ACB- 1999/09/28 Proper casting
-		if (!DEATHMATCH() && M_CheckCheat(&cheat_amap, (char)ev->value.key.sym))
-		{
-			rc = false;
-
-			cheating = (cheating + 1) % 3;
-
-			show_things = (cheating == 2) ? true : false;
-			show_walls  = (cheating >= 1) ? true : false;
-		}
+		return true;
 	}
 
-	return rc;
+	if (E_MatchesKey(key_am_grid, sym))
+	{
+		grid = !grid;
+		// -ACB- 1998/08/10 Use DDF Lang Reference
+		if (grid)
+			CON_PlayerMessageLDF(consoleplayer, "AutoMapGridOn");
+		else
+			CON_PlayerMessageLDF(consoleplayer, "AutoMapGridOff");
+
+		return true;
+	}
+
+	if (E_MatchesKey(key_am_mark, sym))
+	{
+		// -ACB- 1998/08/10 Use DDF Lang Reference
+		CON_PlayerMessage(consoleplayer, "%s %d",
+			language["AutoMapMarkedSpot"], markpointnum);
+		AddMark();
+		return true;
+	}
+
+	if (E_MatchesKey(key_am_clear, sym))
+	{
+		// -ACB- 1998/08/10 Use DDF Lang Reference
+		CON_PlayerMessageLDF(consoleplayer, "AutoMapMarksClear");
+		ClearMarks();
+		return true;
+	}
+
+	// -AJA- 2007/04/18: mouse-wheel support
+	if (sym == KEYD_WHEEL_DN)
+	{
+		ChangeWindowScale(1.0 / WHEEL_ZOOMIN);
+		return true;
+	}
+	else if (sym == KEYD_WHEEL_UP)
+	{
+		ChangeWindowScale(WHEEL_ZOOMIN);
+		return true;
+	}
+
+	// -ACB- 1999/09/28 Proper casting
+	if (!DEATHMATCH() && M_CheckCheat(&cheat_amap, (char)sym))
+	{
+		cheating = (cheating + 1) % 3;
+
+		show_things = (cheating == 2) ? true : false;
+		show_walls  = (cheating >= 1) ? true : false;
+	}
+
+	return false;
 }
 
 
@@ -493,14 +393,21 @@ bool AM_Responder(event_t * ev)
 //
 void AM_Ticker(void)
 {
-	if (!automapactive)
+	if (! automapactive)
 		return;
 
 	// Change x,y location
 	if (! followplayer)
 	{
-		m_cx += panning_x;
-		m_cy += panning_y;
+		if (E_IsKeyPressed(key_am_left))
+			m_cx -= FTOM(F_PANINC);
+		else if (E_IsKeyPressed(key_am_right))
+			m_cx += FTOM(F_PANINC);
+
+		if (E_IsKeyPressed(key_am_up))
+			m_cx += FTOM(F_PANINC);
+		else if (E_IsKeyPressed(key_am_down))
+			m_cx -= FTOM(F_PANINC);
 
 		// limit position, don't go outside of the map
 		m_cx = MIN(m_cx, map_max_x);
@@ -511,9 +418,10 @@ void AM_Ticker(void)
 	}
 
 	// Change the zoom if necessary
-	if (zooming > 0)
-		ChangeWindowScale(zooming);
-
+	if (E_IsKeyPressed(key_am_zoomin))
+		ChangeWindowScale(1.0 / M_ZOOMIN);
+	else if (E_IsKeyPressed(key_am_zoomout))
+		ChangeWindowScale(      M_ZOOMIN);
 }
 
 //

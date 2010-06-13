@@ -229,31 +229,38 @@ static void UpdateJoyAxis(int n)
 }
 
 
-bool E_InputCheckKey(int keypair)
+bool E_MatchesKey(int keyvar, int key)
+{
+	return ((keyvar >> 16) == key) ||
+	       ((keyvar & 0xffff) == key);
+}
+
+bool E_IsKeyPressed(int keyvar)
 {
 #ifdef DEVELOPERS
-	if ((keypair >> 16) > NUMKEYS)
+	if ((keyvar >> 16) > NUMKEYS)
 		I_Error("Invalid key!");
-	else if ((keypair & 0xffff) > NUMKEYS)
+	else if ((keyvar & 0xffff) > NUMKEYS)
 		I_Error("Invalid key!");
 #endif
 
-	if (gamekeydown[keypair >> 16] & GK_DOWN)
+	if (gamekeydown[keyvar >> 16] & GK_DOWN)
 		return true;
-	else if (gamekeydown[keypair & 0xffff] & GK_DOWN)
+
+	if (gamekeydown[keyvar & 0xffff] & GK_DOWN)
 		return true;
-	else
-		return false;
+
+	return false;
 }
 
 static inline void AddKeyForce(int axis, int upkeys, int downkeys, float qty = 1.0f)
 {
 	//let movement keys cancel each other out
-	if (E_InputCheckKey(upkeys))
+	if (E_IsKeyPressed(upkeys))
 	{
 		joy_forces[axis] += qty;
 	}
-	if (E_InputCheckKey(downkeys))
+	if (E_IsKeyPressed(downkeys))
 	{
 		joy_forces[axis] -= qty;
 	}
@@ -311,8 +318,8 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 
 	Z_Clear(cmd, ticcmd_t, 1);
 
-	bool strafe = E_InputCheckKey(key_strafe);
-	int  speed  = E_InputCheckKey(key_speed) ? 1 : 0;
+	bool strafe = E_IsKeyPressed(key_strafe);
+	int  speed  = E_IsKeyPressed(key_speed) ? 1 : 0;
 
 	if (in_running.d)
 		speed = !speed;
@@ -421,32 +428,32 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 
 	// ---Buttons---
 
-	if (E_InputCheckKey(key_fire))
+	if (E_IsKeyPressed(key_fire))
 		cmd->buttons |= BT_ATTACK;
 
-	if (E_InputCheckKey(key_use))
+	if (E_IsKeyPressed(key_use))
 		cmd->buttons |= BT_USE;
 
-	if (E_InputCheckKey(key_secondatk))
+	if (E_IsKeyPressed(key_secondatk))
 		cmd->extbuttons |= EBT_SECONDATK;
 
-	if (E_InputCheckKey(key_reload))
+	if (E_IsKeyPressed(key_reload))
 		cmd->extbuttons |= EBT_RELOAD;
 
-	if (E_InputCheckKey(key_action1))
+	if (E_IsKeyPressed(key_action1))
 		cmd->extbuttons |= EBT_ACTION1;
 
-	if (E_InputCheckKey(key_action2))
+	if (E_IsKeyPressed(key_action2))
 		cmd->extbuttons |= EBT_ACTION2;
 
 	// -ACB- 1998/07/02 Use CENTER flag to center the vertical look.
-	if (E_InputCheckKey(key_lookcenter))
+	if (E_IsKeyPressed(key_lookcenter))
 		cmd->extbuttons |= EBT_CENTER;
 
 	// -KM- 1998/11/25 Weapon change key
 	for (int w = 0; w < 10; w++)
 	{
-		if (E_InputCheckKey('0' + w))
+		if (E_IsKeyPressed('0' + w))
 		{
 			cmd->buttons |= BT_CHANGE;
 			cmd->buttons |= w << BT_WEAPONSHIFT;
@@ -454,19 +461,19 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 		}
 	}
 
-	if (E_InputCheckKey(key_nextweapon))
+	if (E_IsKeyPressed(key_nextweapon))
 	{
 		cmd->buttons |= BT_CHANGE;
 		cmd->buttons |= (BT_NEXT_WEAPON << BT_WEAPONSHIFT);
 	}
-	else if (E_InputCheckKey(key_prevweapon))
+	else if (E_IsKeyPressed(key_prevweapon))
 	{
 		cmd->buttons |= BT_CHANGE;
 		cmd->buttons |= (BT_PREV_WEAPON << BT_WEAPONSHIFT);
 	}
 
 	// You have to release the 180 deg turn key before you can press it again
-	if (E_InputCheckKey(key_180))
+	if (E_IsKeyPressed(key_180))
 	{
 		if (allow180)
 			cmd->angleturn ^= (s16_t)0x8000;
@@ -477,7 +484,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 		allow180 = true;
 
 	// -ES- 1999/03/28 Zoom Key
-	if (E_InputCheckKey(key_zoom))
+	if (E_IsKeyPressed(key_zoom))
 	{
 		if (allowzoom)
 		{
@@ -489,7 +496,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 		allowzoom = true;
 
 	// -AJA- 2000/04/14: Autorun toggle
-	if (E_InputCheckKey(key_autorun))
+	if (E_IsKeyPressed(key_autorun))
 	{
 		if (allowautorun)
 		{
@@ -550,7 +557,7 @@ bool INP_Responder(event_t * ev)
 				         ev->value.mouse.dx, ev->value.mouse.dy, dx, dy);
 
 			// -AJA- 1999/07/27: Mlook key like quake's.
-			if (E_InputCheckKey(key_mlook))
+			if (E_IsKeyPressed(key_mlook))
 			{
 				ball_deltas[AXIS_TURN]  += dx;
 				ball_deltas[AXIS_MLOOK] += dy;

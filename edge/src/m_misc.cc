@@ -230,17 +230,17 @@ static default_t defaults[] =
     {CFGT_Key,      "key_action2",       &key_action2,    CFGDEF_KEY_ACTION2},  // -AJA- 2009/09/07
 
 	// -AJA- 2010/06/13: automap keys
-	{CFGT_Key,      "key_am_up",         &key_am_up,      0},
-	{CFGT_Key,      "key_am_down",       &key_am_down,    0},
-	{CFGT_Key,      "key_am_left",       &key_am_left,    0},
-	{CFGT_Key,      "key_am_right",      &key_am_right,   0},
-	{CFGT_Key,      "key_am_zoomin",     &key_am_zoomin,  0},
-	{CFGT_Key,      "key_am_zoomout",    &key_am_zoomout, 0},
-	{CFGT_Key,      "key_am_gobig",      &key_am_gobig,   0},
-	{CFGT_Key,      "key_am_follow",     &key_am_follow,  0},
-	{CFGT_Key,      "key_am_grid",       &key_am_grid,    0},
-	{CFGT_Key,      "key_am_addmark",    &key_am_addmark, 0},
-	{CFGT_Key,      "key_am_clear",      &key_am_clear,   0},
+	{CFGT_Key,      "key_am_up",         &key_am_up,      KEYD_UPARROW},
+	{CFGT_Key,      "key_am_down",       &key_am_down,    KEYD_DOWNARROW},
+	{CFGT_Key,      "key_am_left",       &key_am_left,    KEYD_LEFTARROW},
+	{CFGT_Key,      "key_am_right",      &key_am_right,   KEYD_RIGHTARROW},
+	{CFGT_Key,      "key_am_zoomin",     &key_am_zoomin,  '='},
+	{CFGT_Key,      "key_am_zoomout",    &key_am_zoomout, '-'},
+	{CFGT_Key,      "key_am_gobig",      &key_am_gobig,   '0'},
+	{CFGT_Key,      "key_am_follow",     &key_am_follow,  'f'},
+	{CFGT_Key,      "key_am_grid",       &key_am_grid,    'g'},
+	{CFGT_Key,      "key_am_mark",       &key_am_mark,    'm'},
+	{CFGT_Key,      "key_am_clear",      &key_am_clear,   'c'},
 };
 
 

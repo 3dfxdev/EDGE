@@ -989,7 +989,7 @@ bool CON_Responder(event_t * ev)
 	if (ev->type != ev_keyup && ev->type != ev_keydown)
 		return false;
 
-	if (ev->type == ev_keydown && ev->value.key.sym == (key_console & 0xffff))
+	if (ev->type == ev_keydown && E_MatchesKey(key_console, ev->value.key.sym))
 	{
 		CON_SetVisible(vs_toggle);
 		return true;

@@ -398,7 +398,7 @@ bool HU_Responder(event_t * ev)
 			message_counter = HU_MSGTIMEOUT;
 			eatkey = false;
 		}
-		else if (netgame && c && ((c == (HU_INPUTTOGGLE >> 16)) || (c == (HU_INPUTTOGGLE & 0xffff))))
+		else if (netgame && c && E_MatchesKey(HU_INPUTTOGGLE, c))
 		{
 			eatkey = chat_on = true;
 			HL_ResetIText(&w_chat);
