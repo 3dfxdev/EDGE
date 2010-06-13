@@ -237,6 +237,8 @@ static savefield_t sv_fields_trigger[] =
 	SF(menu_style_name, "menu_style_name", 1, SVT_STRING,
 		SR_TipGetString, SR_TipPutString),
 	SF(menu_result, "menu_result", 1, SVT_INT, SR_GetInt, SR_PutInt),
+	SF(wud_tag, "wud_tag", 1, SVT_INT, SR_GetInt, SR_PutInt),
+	SF(wud_count, "wud_count", 1, SVT_INT, SR_GetInt, SR_PutInt),
 
 	// NOT HERE
 	//   - next & prev: can be regenerated.
