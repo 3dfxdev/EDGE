@@ -68,6 +68,8 @@ gameaction_e gameaction = ga_nothing;
 
 bool paused = false;
 
+int key_pause;
+
 // for comparative timing purposes 
 bool nodrawers;
 bool noblit;
@@ -340,7 +342,7 @@ bool G_Responder(event_t * ev)
 		}
 	}
 
-	if (ev->type == ev_keydown && ev->value.key.sym == KEYD_PAUSE && !netgame)
+	if (!netgame && ev->type == ev_keydown && E_MatchesKey(key_pause, ev->value.key.sym))
 	{
 		paused = !paused;
 

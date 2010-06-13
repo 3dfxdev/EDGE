@@ -223,6 +223,8 @@ static default_t defaults[] =
     {CFGT_Key,      "key_map",           &key_map,        CFGDEF_KEY_MAP},
     {CFGT_Key,      "key_talk",          &key_talk,       CFGDEF_KEY_TALK},
     {CFGT_Key,      "key_console",       &key_console,    CFGDEF_KEY_CONSOLE},  // -AJA- 2007/08/15.
+    {CFGT_Key,      "key_pause",         &key_pause,      KEYD_PAUSE},          // -AJA- 2010/06/13.
+
     {CFGT_Key,      "key_mlook",         &key_mlook,      CFGDEF_KEY_MLOOK},  // -AJA- 1999/07/27.
     {CFGT_Key,      "key_secondatk",     &key_secondatk,  CFGDEF_KEY_SECONDATK},  // -AJA- 2000/02/08.
     {CFGT_Key,      "key_reload",        &key_reload,     CFGDEF_KEY_RELOAD},  // -AJA- 2004/11/11.
