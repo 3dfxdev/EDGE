@@ -52,7 +52,6 @@
 #define HU_TITLEX	0
 #define HU_TITLEY	(200 - 32 - 10) 
 
-#define HU_INPUTTOGGLE	key_talk
 #define HU_INPUTX	HU_MSGX
 #define HU_INPUTY	(HU_MSGY + HU_MSGHEIGHT * (FONT_HEIGHT+1))
 #define HU_INPUTWIDTH	64
@@ -398,7 +397,7 @@ bool HU_Responder(event_t * ev)
 			message_counter = HU_MSGTIMEOUT;
 			eatkey = false;
 		}
-		else if (netgame && c && E_MatchesKey(HU_INPUTTOGGLE, c))
+		else if (netgame && c && E_MatchesKey(key_talk, c))
 		{
 			eatkey = chat_on = true;
 			HL_ResetIText(&w_chat);
