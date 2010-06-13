@@ -29,12 +29,14 @@ General Improvements
   high-resolution replacements between HI_START/HI_END markers.
   They can be either DOOM patch format or PNG format.
 
-- use Makefiles for building the code, ditching SCons.
+- weapon and automap keys are now configurable.
 
 - renamed "Host Net Game" menu to "Advanced Start" and removed
   the references to networking stuff and the player list screen,
   so that people don't get the impression that Multiplayer is
   supported (it is not).
+
+- use Makefiles for building the code, ditching SCons.
 
 - control over automap grid spacing via 'am_gridsize' cvar.
 
