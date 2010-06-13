@@ -80,7 +80,6 @@ int key_am_right;
 
 int key_am_zoomin;
 int key_am_zoomout;
-int key_am_gobig;
 
 int key_am_follow;
 int key_am_grid;
@@ -185,8 +184,6 @@ cheatseq_t cheat_amap = {0, 0};
 
 static bool stopped = true;
 
-static bool bigstate = false;
-
 bool rotatemap = false;
 
 extern style_c *automap_style;  // FIXME: put in header
@@ -263,8 +260,6 @@ void AM_Stop(void)
 	automapactive = false;
 	stopped = true;
 
-	bigstate  = false;
-
 	panning_x = 0;
 	panning_y = 0;
 	zooming   = -1;
@@ -273,7 +268,6 @@ void AM_Stop(void)
 static void AM_Hide(void)
 {
 	automapactive = false;
-	bigstate = false;
 
 	panning_x = 0;
 	panning_y = 0;
@@ -291,7 +285,6 @@ static void AM_Show(void)
 	AM_InitLevel();
 
 	stopped  = false;
-	bigstate = false;
 
 	panning_x = 0;
 	panning_y = 0;
@@ -384,12 +377,6 @@ bool AM_Responder(event_t * ev)
 	else if (E_MatchesKey(key_am_zoomout, sym))
 	{
 		zooming = 1.0 / M_ZOOMIN;
-		return true;
-	}
-
-	if (E_MatchesKey(key_am_gobig, sym))
-	{
-		bigstate = !bigstate;
 		return true;
 	}
 
