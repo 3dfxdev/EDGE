@@ -33,6 +33,7 @@
 #include "dstrings.h"
 #include "m_random.h"
 #include "p_local.h"
+#include "rad_trig.h"
 #include "s_sound.h"
 
 #define BONUS_ADD    6
@@ -794,6 +795,8 @@ void P_KillMobj(mobj_t * source, mobj_t * target, const damage_c *damtype,
 
 	target->flags |= MF_CORPSE | MF_DROPOFF;
 	target->height /= 4;
+
+	RAD_MonsterIsDead(target);
 
 	if (source && source->player)
 	{

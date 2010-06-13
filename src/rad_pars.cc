@@ -864,6 +864,7 @@ static void RAD_ParseRadiusTrigger(int pnum, const char **pars)
 	this_rad->y = 0;
 	this_rad->z = 0;
 	this_rad->rad_x = -1;
+	this_rad->rad_y = -1;
 	this_rad->rad_z = -1;
 	this_rad->appear = DEFAULT_APPEAR;
 	this_rad->min_players = 0;
@@ -2158,17 +2159,19 @@ static void RAD_ParseWaitUntilDead(int pnum, const char **pars)
 {
 	// WaitUntilDead <monster> ...
 
-	if (pnum-2 > 10)
+	if (pnum-1 > 10)
 		RAD_Error("%s: too many monsters (limit is 10)\n", pars[0]);
 
 	static int current_tag = 70000;
 
 	s_wait_until_dead_t *wud = Z_New(s_wait_until_dead_t, 1);
 
+	Z_Clear(wud, s_wait_until_dead_t, 1);
+
 	wud->tag = current_tag;  current_tag++;
 
-	for (int p = 2; p < pnum; p++)
-		wud->mon_names[p-2] = Z_StrDup(pars[p]);
+	for (int p = 1; p < pnum; p++)
+		wud->mon_names[p-1] = Z_StrDup(pars[p]);
 
 	AddStateToScript(this_rad, 0, RAD_ActWaitUntilDead, wud);
 }

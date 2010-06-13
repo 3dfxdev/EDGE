@@ -659,8 +659,7 @@ void RAD_RunTriggers(void)
 		if (trig->wud_count > 0)
 			continue;
 
-		// Execute the commands
-		while (trig->wait_tics == 0)
+		// Execute current command
 		{
 			rts_state_t *state = trig->state;
 
@@ -671,18 +670,13 @@ void RAD_RunTriggers(void)
 			trig->state = trig->state->next;
 
 			(*state->action)(trig, state->param);
-
-			if (trig->state == NULL)
-				break;
-
-			trig->wait_tics += trig->state->tics;
-
-			if (trig->disabled || rts_menuactive)
-				break;
 		}
 
 		if (trig->state)
+		{
+			trig->wait_tics += trig->state->tics;
 			continue;
+		}
 
 		// we've reached the end of the states.  Delete the trigger unless
 		// it is Tagged_Repeatable and has some more repeats left.
@@ -699,6 +693,24 @@ void RAD_RunTriggers(void)
 		}
 
 		DoRemoveTrigger(trig);
+	}
+}
+
+void RAD_MonsterIsDead(mobj_t *mo)
+{
+	if (mo->hyperflags & HF_WAIT_UNTIL_DEAD)
+	{
+		mo->hyperflags &= ~HF_WAIT_UNTIL_DEAD;
+
+		rad_trigger_t *trig;
+
+		for (trig = active_triggers ; trig ; trig = trig->next)
+		{
+			if (trig->wud_tag == mo->tag)
+			{
+				trig->wud_count--;
+			}
+		}
 	}
 }
 
