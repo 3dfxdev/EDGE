@@ -661,6 +661,30 @@ static menuinfo_t otherkeyconfiginfo =
 };
 
 //
+//  KEY CONFIG : WEAPONS
+//
+static optmenuitem_t weapon_keyconfig[] =
+{
+	{OPT_KeyConfig, "Weapon 1",  NULL, 0, &key_weapons[1], NULL, NULL},
+	{OPT_KeyConfig, "Weapon 2",  NULL, 0, &key_weapons[2], NULL, NULL},
+	{OPT_KeyConfig, "Weapon 3",  NULL, 0, &key_weapons[3], NULL, NULL},
+	{OPT_KeyConfig, "Weapon 4",  NULL, 0, &key_weapons[4], NULL, NULL},
+	{OPT_KeyConfig, "Weapon 5",  NULL, 0, &key_weapons[5], NULL, NULL},
+	{OPT_Plain,     "",          NULL, 0, NULL, NULL, NULL},
+	{OPT_KeyConfig, "Weapon 6",  NULL, 0, &key_weapons[6], NULL, NULL},
+	{OPT_KeyConfig, "Weapon 7",  NULL, 0, &key_weapons[7], NULL, NULL},
+	{OPT_KeyConfig, "Weapon 8",  NULL, 0, &key_weapons[8], NULL, NULL},
+	{OPT_KeyConfig, "Weapon 9",  NULL, 0, &key_weapons[9], NULL, NULL},
+	{OPT_KeyConfig, "Weapon 0",  NULL, 0, &key_weapons[0], NULL, NULL},
+};
+
+static menuinfo_t weapon_keyconfiginfo = 
+{
+	weapon_keyconfig, sizeof(weapon_keyconfig) / sizeof(optmenuitem_t),
+	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0, "Weapon Keys", NULL, NULL
+};
+
+//
 //  KEY CONFIG : AUTOMAP
 //
 static optmenuitem_t automap_keyconfig[] =
@@ -848,13 +872,16 @@ void M_OptMenuInit()
 	// Needed to handle the circular reference that C++ init doesn't allow
 	stdkeyconfiginfo.sister_next = &extkeyconfiginfo;
 
-	extkeyconfiginfo.sister_next = &otherkeyconfiginfo;
 	extkeyconfiginfo.sister_prev = &stdkeyconfiginfo;
+	extkeyconfiginfo.sister_next = &otherkeyconfiginfo;
 
 	otherkeyconfiginfo.sister_prev = &extkeyconfiginfo;
-	otherkeyconfiginfo.sister_next = &automap_keyconfiginfo;
+	otherkeyconfiginfo.sister_next = &weapon_keyconfiginfo;
 
-	automap_keyconfiginfo.sister_prev = &otherkeyconfiginfo;
+	weapon_keyconfiginfo.sister_prev = &otherkeyconfiginfo;
+	weapon_keyconfiginfo.sister_next = &automap_keyconfiginfo;
+
+	automap_keyconfiginfo.sister_prev = &weapon_keyconfiginfo;
 
 	// Restore the config setting.
 	M_ChangeBlood(-1);

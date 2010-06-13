@@ -229,7 +229,18 @@ static default_t defaults[] =
     {CFGT_Key,      "key_action1",       &key_action1,    CFGDEF_KEY_ACTION1},  // -AJA- 2009/09/07
     {CFGT_Key,      "key_action2",       &key_action2,    CFGDEF_KEY_ACTION2},  // -AJA- 2009/09/07
 
-	// -AJA- 2010/06/13: automap keys
+	// -AJA- 2010/06/13: weapon and automap keys
+	{CFGT_Key,      "key_weapon1",       &key_weapons[1], '1'},
+	{CFGT_Key,      "key_weapon2",       &key_weapons[2], '2'},
+	{CFGT_Key,      "key_weapon3",       &key_weapons[3], '3'},
+	{CFGT_Key,      "key_weapon4",       &key_weapons[4], '4'},
+	{CFGT_Key,      "key_weapon5",       &key_weapons[5], '5'},
+	{CFGT_Key,      "key_weapon6",       &key_weapons[6], '6'},
+	{CFGT_Key,      "key_weapon7",       &key_weapons[7], '7'},
+	{CFGT_Key,      "key_weapon8",       &key_weapons[8], '8'},
+	{CFGT_Key,      "key_weapon9",       &key_weapons[9], '9'},
+	{CFGT_Key,      "key_weapon0",       &key_weapons[0], '0'},
+
 	{CFGT_Key,      "key_am_up",         &key_am_up,      KEYD_UPARROW},
 	{CFGT_Key,      "key_am_down",       &key_am_down,    KEYD_DOWNARROW},
 	{CFGT_Key,      "key_am_left",       &key_am_left,    KEYD_LEFTARROW},

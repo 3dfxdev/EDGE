@@ -97,6 +97,8 @@ int key_action2;
 int key_flyup;
 int key_flydown;
 
+int key_weapons[10];
+
 #define MAXPLMOVE  (forwardmove[1])
 
 static int forwardmove[2] = {25, 50};
@@ -453,7 +455,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	// -KM- 1998/11/25 Weapon change key
 	for (int w = 0; w < 10; w++)
 	{
-		if (E_IsKeyPressed('0' + w))
+		if (E_IsKeyPressed(key_weapons[w]))
 		{
 			cmd->buttons |= BT_CHANGE;
 			cmd->buttons |= w << BT_WEAPONSHIFT;

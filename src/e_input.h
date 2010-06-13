@@ -101,7 +101,9 @@ extern int key_reload;  // -AJA- 2004/11/10
 extern int key_action1; // -AJA- 2009/09/07
 extern int key_action2; // -AJA- 2009/09/07
 
-// -AJA- 2010/06/13: automap stuff
+// -AJA- 2010/06/13: weapon and automap stuff
+extern int key_weapons[10];
+
 extern int key_am_up;
 extern int key_am_down;
 extern int key_am_left;
