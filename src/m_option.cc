@@ -660,6 +660,31 @@ static menuinfo_t otherkeyconfiginfo =
 	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0, "Other Keys", NULL, NULL
 };
 
+//
+//  KEY CONFIG : AUTOMAP
+//
+static optmenuitem_t automap_keyconfig[] =
+{
+	{OPT_KeyConfig, "Pan Up",        NULL, 0, &key_am_up, NULL, NULL},
+	{OPT_KeyConfig, "Pan Down",      NULL, 0, &key_am_down, NULL, NULL},
+	{OPT_KeyConfig, "Pan Left",      NULL, 0, &key_am_left, NULL, NULL},
+	{OPT_KeyConfig, "Pan Right",     NULL, 0, &key_am_right, NULL, NULL},
+	{OPT_Plain,     "",              NULL, 0, NULL, NULL, NULL},
+	{OPT_KeyConfig, "Follow Mode",   NULL, 0, &key_am_follow, NULL, NULL},
+	{OPT_KeyConfig, "Show Grid",     NULL, 0, &key_am_grid, NULL, NULL},
+	{OPT_KeyConfig, "Zoom In",       NULL, 0, &key_am_zoomin, NULL, NULL},
+	{OPT_KeyConfig, "Zoom Out",      NULL, 0, &key_am_zoomout, NULL, NULL},
+	{OPT_KeyConfig, "Go Big",        NULL, 0, &key_am_gobig, NULL, NULL},
+	{OPT_KeyConfig, "Add Mark",      NULL, 0, &key_am_addmark, NULL, NULL},
+	{OPT_KeyConfig, "Clear Mark",    NULL, 0, &key_am_clear, NULL, NULL},
+};
+
+static menuinfo_t automap_keyconfiginfo = 
+{
+	automap_keyconfig, sizeof(automap_keyconfig) / sizeof(optmenuitem_t),
+	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0, "Automap Keys", NULL, NULL
+};
+
 static char keystring1[] = "Enter to change, Backspace to Clear";
 static char keystring2[] = "Press a key for this action";
 
@@ -823,10 +848,14 @@ void M_OptMenuInit()
 
 	// Needed to handle the circular reference that C++ init doesn't allow
 	stdkeyconfiginfo.sister_next = &extkeyconfiginfo;
+
 	extkeyconfiginfo.sister_next = &otherkeyconfiginfo;
+	extkeyconfiginfo.sister_prev = &stdkeyconfiginfo;
 
 	otherkeyconfiginfo.sister_prev = &extkeyconfiginfo;
-	extkeyconfiginfo.sister_prev   = &stdkeyconfiginfo;
+	otherkeyconfiginfo.sister_next = &automap_keyconfiginfo;
+
+	automap_keyconfiginfo.sister_prev = &otherkeyconfiginfo;
 
 	// Restore the config setting.
 	M_ChangeBlood(-1);

@@ -99,6 +99,21 @@ extern int key_reload;  // -AJA- 2004/11/10
 extern int key_action1; // -AJA- 2009/09/07
 extern int key_action2; // -AJA- 2009/09/07
 
+// -AJA- 2010/06/13: automap stuff
+extern int key_am_up;
+extern int key_am_down;
+extern int key_am_left;
+extern int key_am_right;
+
+extern int key_am_zoomin;
+extern int key_am_zoomout;
+extern int key_am_gobig;
+
+extern int key_am_follow;
+extern int key_am_grid;
+extern int key_am_addmark;
+extern int key_am_clear;
+
 #endif  /* __E_INPUT_H__ */
 
 //--- editor settings ---

@@ -85,6 +85,20 @@ static rgbcol_t am_colors[AM_NUM_COLORS] =
 #define AM_MARKKEY    'm'
 #define AM_CLEARMARKKEY    'c'
 
+int key_am_up;
+int key_am_down;
+int key_am_left;
+int key_am_right;
+
+int key_am_zoomin;
+int key_am_zoomout;
+int key_am_gobig;
+
+int key_am_follow;
+int key_am_grid;
+int key_am_addmark;
+int key_am_clear;
+
 #define AM_NUMMARKPOINTS  9
 
 //
