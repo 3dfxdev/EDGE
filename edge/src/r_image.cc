@@ -418,6 +418,9 @@ static image_c *AddImageTexture(const char *name, texturedef_t *tdef)
  
 	strcpy(rim->name, name);
 
+	if (tdef->scale_x) rim->scale_x = tdef->scale_x / 8.0;
+	if (tdef->scale_y) rim->scale_y = tdef->scale_y / 8.0;
+
 	rim->source_type = IMSRC_Texture;
 	rim->source.texture.tdef = tdef;
 	rim->source_palette = tdef->palette_lump;
