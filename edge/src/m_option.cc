@@ -251,15 +251,14 @@ typedef struct menuinfo_s
 
 	// key config, with left and right sister menus ?
 	char key_page[20];
-
-	struct menuinfo_s *sister_prev;
-	struct menuinfo_s *sister_next;
 }
 menuinfo_t;
 
 // current menu and position
 static menuinfo_t *curr_menu;
 static optmenuitem_t *curr_item;
+static int curr_key_menu;
+
 static int keyscan;
 
 static style_c *opt_def_style;
@@ -361,10 +360,10 @@ static optmenuitem_t mainoptions[] =
 	{OPT_Function, "Reset to Defaults", NULL,  0, NULL, M_ResetDefaults, NULL}
 };
 
-static menuinfo_t mainoptionsinfo = 
+static menuinfo_t main_optmenu = 
 {
 	mainoptions, sizeof(mainoptions) / sizeof(optmenuitem_t), 
-	&opt_def_style, 164, 108, "M_OPTTTL", NULL, 0, "", NULL, NULL
+	&opt_def_style, 164, 108, "M_OPTTTL", NULL, 0, ""
 };
 
 //
@@ -414,10 +413,10 @@ static optmenuitem_t vidoptions[] =
 #endif
 };
 
-static menuinfo_t vidoptionsinfo = 
+static menuinfo_t video_optmenu = 
 {
 	vidoptions, sizeof(vidoptions) / sizeof(optmenuitem_t),
-	&video_style, 150, 77, "M_VIDEO", NULL, 0, "", NULL, NULL
+	&video_style, 150, 77, "M_VIDEO", NULL, 0, ""
 };
 
 //
@@ -439,10 +438,10 @@ static optmenuitem_t resoptions[] =
 	{OPT_Plain,    "",          NULL, 0, NULL, NULL, NULL}
 };
 
-static menuinfo_t resoptionsinfo = 
+static menuinfo_t res_optmenu = 
 {
 	resoptions, sizeof(resoptions) / sizeof(optmenuitem_t),
-	&setres_style, 150, 77, "M_VIDEO", NULL, 3, "", NULL, NULL
+	&setres_style, 150, 77, "M_VIDEO", NULL, 3, ""
 };
 
 //
@@ -475,10 +474,10 @@ static optmenuitem_t analogueoptions[] =
 	{OPT_Slider,   "Side Move Speed",    NULL, 8,  &var_sidespeed,    NULL, NULL}
 };
 
-static menuinfo_t analogueoptionsinfo = 
+static menuinfo_t analogue_optmenu = 
 {
 	analogueoptions, sizeof(analogueoptions) / sizeof(optmenuitem_t),
-	&mouse_style, 150, 75, "M_MSETTL", NULL, 0, "", NULL, NULL
+	&mouse_style, 150, 75, "M_MSETTL", NULL, 0, ""
 };
 
 //
@@ -503,10 +502,10 @@ static optmenuitem_t soundoptions[] =
 	{OPT_Switch,  "Timidity Factor", QuietNess, 3, &var_timid_factor, M_ChangeTimidQuiet, NULL},
 };
 
-static menuinfo_t soundoptionsinfo = 
+static menuinfo_t sound_optmenu = 
 {
 	soundoptions, sizeof(soundoptions) / sizeof(optmenuitem_t),
-	&mouse_style, 150, 75, "M_SFXOPT", NULL, 0, "", NULL, NULL
+	&mouse_style, 150, 75, "M_SFXOPT", NULL, 0, ""
 };
 
 //
@@ -570,10 +569,10 @@ static optmenuitem_t playoptions[] =
      &global_flags.respawn, M_ChangeRespawn, NULL}
 };
 
-static menuinfo_t playoptionsinfo = 
+static menuinfo_t gameplay_optmenu = 
 {
 	playoptions, sizeof(playoptions) / sizeof(optmenuitem_t),
-	&gameplay_style, 160, 46, "M_GAMEPL", NULL, 0, "", NULL, NULL
+	&gameplay_style, 160, 46, "M_GAMEPL", NULL, 0, ""
 };
 
 //
@@ -582,7 +581,7 @@ static menuinfo_t playoptionsinfo =
 // -ACB- 1998/07/15 Altered menuinfo struct
 // -KM- 1998/07/10 Used better names :-)
 //
-static optmenuitem_t stdkeyconfig[] =
+static optmenuitem_t move_keyconfig[] =
 {
 	{OPT_KeyConfig, "Walk Forward",   NULL, 0, &key_up, NULL, NULL},
 	{OPT_KeyConfig, "Walk Backwards", NULL, 0, &key_down, NULL, NULL},
@@ -597,10 +596,11 @@ static optmenuitem_t stdkeyconfig[] =
 	{OPT_KeyConfig, "Down / Crouch",  NULL, 0, &key_flydown, NULL, NULL},
 };
 
-static menuinfo_t stdkeyconfiginfo = 
+static menuinfo_t movement_optmenu = 
 {
-	stdkeyconfig, sizeof(stdkeyconfig) / sizeof(optmenuitem_t),
-	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0, "Movement", NULL, NULL
+	move_keyconfig, sizeof(move_keyconfig) / sizeof(optmenuitem_t),
+	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0,
+	"Movement"
 };
 
 //
@@ -609,7 +609,7 @@ static menuinfo_t stdkeyconfiginfo =
 // -ACB- 1998/07/15 Altered menuinfo struct
 // -ES- 1999/03/28 Added Zoom Key
 //
-static optmenuitem_t extkeyconfig[] =
+static optmenuitem_t attack_keyconfig[] =
 {
 	{OPT_KeyConfig, "Primary Attack",   NULL, 0, &key_fire, NULL, NULL},
 	{OPT_KeyConfig, "Secondary Attack", NULL, 0, &key_secondatk, NULL, NULL},
@@ -624,16 +624,17 @@ static optmenuitem_t extkeyconfig[] =
 	{OPT_KeyConfig, "Zoom in/out",      NULL, 0, &key_zoom, NULL, NULL},
 };
 
-static menuinfo_t extkeyconfiginfo = 
+static menuinfo_t attack_optmenu = 
 {
-	extkeyconfig, sizeof(extkeyconfig) / sizeof(optmenuitem_t),
-	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0, "Attack / Look", NULL, NULL
+	attack_keyconfig, sizeof(attack_keyconfig) / sizeof(optmenuitem_t),
+	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0,
+	"Attack / Look"
 };
 
 //
 //  KEY CONFIG : OTHER STUFF
 //
-static optmenuitem_t otherkeyconfig[] =
+static optmenuitem_t other_keyconfig[] =
 {
 	{OPT_KeyConfig, "Use Item",         NULL, 0, &key_use, NULL, NULL},
 	{OPT_KeyConfig, "Strafe",           NULL, 0, &key_strafe, NULL, NULL},
@@ -650,10 +651,11 @@ static optmenuitem_t otherkeyconfig[] =
 ///	{OPT_KeyConfig, "Multiplayer Talk", NULL, 0, &key_talk, NULL, NULL},
 };
 
-static menuinfo_t otherkeyconfiginfo = 
+static menuinfo_t otherkey_optmenu = 
 {
-	otherkeyconfig, sizeof(otherkeyconfig) / sizeof(optmenuitem_t),
-	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0, "Other Keys", NULL, NULL
+	other_keyconfig, sizeof(other_keyconfig) / sizeof(optmenuitem_t),
+	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0,
+	"Other Keys"
 };
 
 //
@@ -674,10 +676,11 @@ static optmenuitem_t weapon_keyconfig[] =
 	{OPT_KeyConfig, "Weapon 0",  NULL, 0, &key_weapons[0], NULL, NULL},
 };
 
-static menuinfo_t weapon_keyconfiginfo = 
+static menuinfo_t weapon_optmenu = 
 {
 	weapon_keyconfig, sizeof(weapon_keyconfig) / sizeof(optmenuitem_t),
-	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0, "Weapon Keys", NULL, NULL
+	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0,
+	"Weapon Keys"
 };
 
 //
@@ -698,10 +701,25 @@ static optmenuitem_t automap_keyconfig[] =
 	{OPT_KeyConfig, "Clear Marks",   NULL, 0, &key_am_clear, NULL, NULL},
 };
 
-static menuinfo_t automap_keyconfiginfo = 
+static menuinfo_t automap_optmenu = 
 {
 	automap_keyconfig, sizeof(automap_keyconfig) / sizeof(optmenuitem_t),
-	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0, "Automap Keys", NULL, NULL
+	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0,
+	"Automap Keys"
+};
+
+/*
+ * ALL KEYBOARD MENUS
+ */
+#define NUM_KEY_MENUS  5
+
+static menuinfo_t * all_key_menus[NUM_KEY_MENUS] =
+{
+	&movement_optmenu,
+	&attack_optmenu,
+	&otherkey_optmenu,
+	&weapon_optmenu,
+	&automap_optmenu
 };
 
 static char keystring1[] = "Enter to change, Backspace to Clear";
@@ -745,8 +763,9 @@ void M_OptCheckNetgame(void)
 void M_OptMenuInit()
 {
 	option_menuon = 0;
-	curr_menu = &mainoptionsinfo;
+	curr_menu = &main_optmenu;
 	curr_item = curr_menu->items + curr_menu->pos;
+	curr_key_menu = 0;
 	keyscan = 0;
 
 	// load styles
@@ -770,20 +789,6 @@ void M_OptMenuInit()
 
 	def = styledefs.Lookup("SET RESOLUTION");
 	setres_style = def ? hu_styles.Lookup(def) : opt_def_style;
-
-	// Needed to handle the circular reference that C++ init doesn't allow
-	stdkeyconfiginfo.sister_next = &extkeyconfiginfo;
-
-	extkeyconfiginfo.sister_prev = &stdkeyconfiginfo;
-	extkeyconfiginfo.sister_next = &otherkeyconfiginfo;
-
-	otherkeyconfiginfo.sister_prev = &extkeyconfiginfo;
-	otherkeyconfiginfo.sister_next = &weapon_keyconfiginfo;
-
-	weapon_keyconfiginfo.sister_prev = &otherkeyconfiginfo;
-	weapon_keyconfiginfo.sister_next = &automap_keyconfiginfo;
-
-	automap_keyconfiginfo.sister_prev = &weapon_keyconfiginfo;
 
 	// Restore the config setting.
 	M_ChangeBlood(-1);
@@ -835,7 +840,7 @@ void M_OptDrawer()
 	if (curr_menu->key_page[0])
 		menutop = 9 * font_h / 2;
 
-	{
+
 		const image_c *image;
 
 		if (! curr_menu->title_image)
@@ -844,7 +849,7 @@ void M_OptDrawer()
 		image = curr_menu->title_image;
 
 		RGL_ImageEasy320(curr_menu->title_x, menutop, image);
-	}
+
 
 	//now, draw all the menuitems
 	deltay = 1 + font_h;
@@ -853,10 +858,10 @@ void M_OptDrawer()
 
 	if (curr_menu->key_page[0])
 	{
-		if (curr_menu->sister_prev)
+		if (curr_key_menu > 0)
 			HL_WriteText(style,2, 60, 200-deltay*4, "< PREV");
 
-		if (curr_menu->sister_next)
+		if (curr_key_menu < NUM_KEY_MENUS-1)
 			HL_WriteText(style,2, 260 - style->fonts[2]->StringWidth("NEXT >"), 200-deltay*4, 
 							  "NEXT >");
 
@@ -871,12 +876,12 @@ void M_OptDrawer()
 			HL_WriteText(style,3, 160 - (style->fonts[3]->StringWidth(keystring1) / 2), 
 							  200-deltay*2, keystring1);
 	}
-	else if (curr_menu == &resoptionsinfo)
+	else if (curr_menu == &res_optmenu)
 	{
-		M_ResOptDrawer(style, curry, curry + (deltay * (resoptionsinfo.item_num - 2)), 
+		M_ResOptDrawer(style, curry, curry + (deltay * (res_optmenu.item_num - 2)), 
 					   deltay, curr_menu->menu_center);
 	}
-	else if (curr_menu == &mainoptionsinfo)
+	else if (curr_menu == &main_optmenu)
 	{
 		M_LanguageDrawer(curr_menu->menu_center, curry, deltay);
 	}
@@ -1021,6 +1026,31 @@ static void M_LanguageDrawer(int x, int y, int deltay)
 	HL_WriteText(opt_def_style,1, x+15, y + deltay * LANGUAGE_POS, language.GetName());
 }
 
+
+static void KeyMenu_Next()
+{
+	if (curr_key_menu >= NUM_KEY_MENUS-1)
+		return;
+	
+	curr_key_menu++;
+
+	curr_menu = all_key_menus[curr_key_menu];
+
+	S_StartFX(sfx_pstop);
+}
+
+static void KeyMenu_Prev()
+{
+	if (curr_key_menu <= 0)
+		return;
+	
+	curr_key_menu--;
+
+	curr_menu = all_key_menus[curr_key_menu];
+
+	S_StartFX(sfx_pstop);
+}
+
 //
 // M_OptResponder
 //
@@ -1112,13 +1142,7 @@ bool M_OptResponder(event_t * ev, int ch)
 		{
 			if (curr_menu->key_page[0])
 			{
-				if (curr_menu->sister_prev)
-				{
-					curr_menu = curr_menu->sister_prev;
-					curr_item = curr_menu->items + curr_menu->pos;
-
-					S_StartFX(sfx_pstop);
-				}
+				KeyMenu_Prev();
 				return true;
 			}
        
@@ -1194,13 +1218,7 @@ bool M_OptResponder(event_t * ev, int ch)
 		case KEYD_RIGHTARROW:
 			if (curr_menu->key_page[0])
 			{
-				if (curr_menu->sister_next)
-				{
-					curr_menu = curr_menu->sister_next;
-					curr_item = curr_menu->items + curr_menu->pos;
-
-					S_StartFX(sfx_pstop);
-				}
+				KeyMenu_Next();
 				return true;
 			}
 
@@ -1286,13 +1304,13 @@ bool M_OptResponder(event_t * ev, int ch)
 		case KEYD_MOUSE2:
 		case KEYD_MOUSE3:
 		{
-			if (curr_menu == &mainoptionsinfo)
+			if (curr_menu == &main_optmenu)
 			{
 				option_menuon = 0;
 			}
 			else
 			{
-				curr_menu = &mainoptionsinfo;
+				curr_menu = &main_optmenu;
 				curr_item = curr_menu->items + curr_menu->pos;
 			}
 			S_StartFX(sfx_swtchx);
@@ -1309,7 +1327,7 @@ bool M_OptResponder(event_t * ev, int ch)
 //
 static void M_VideoOptions(int keypressed)
 {
-	curr_menu = &vidoptionsinfo;
+	curr_menu = &video_optmenu;
 	curr_item = curr_menu->items + curr_menu->pos;
 }
 
@@ -1329,7 +1347,7 @@ static void M_ResolutionOptions(int keypressed)
 	new_scrmode.depth  = SCREENBITS;
 	new_scrmode.full   = FULLSCREEN;
 
-	curr_menu = &resoptionsinfo;
+	curr_menu = &res_optmenu;
 	curr_item = curr_menu->items + curr_menu->pos;
 }
 
@@ -1338,7 +1356,7 @@ static void M_ResolutionOptions(int keypressed)
 //
 static void M_AnalogueOptions(int keypressed)
 {
-	curr_menu = &analogueoptionsinfo;
+	curr_menu = &analogue_optmenu;
 	curr_item = curr_menu->items + curr_menu->pos;
 }
 
@@ -1347,7 +1365,7 @@ static void M_AnalogueOptions(int keypressed)
 //
 static void M_SoundOptions(int keypressed)
 {
-	curr_menu = &soundoptionsinfo;
+	curr_menu = &sound_optmenu;
 	curr_item = curr_menu->items + curr_menu->pos;
 }
 
@@ -1361,7 +1379,7 @@ static void M_GameplayOptions(int keypressed)
 	if (netgame)
 		return;
 
-	curr_menu = &playoptionsinfo;
+	curr_menu = &gameplay_optmenu;
 	curr_item = curr_menu->items + curr_menu->pos;
 }
 
@@ -1370,7 +1388,8 @@ static void M_GameplayOptions(int keypressed)
 //
 static void M_KeyboardOptions(int keypressed)
 {
-	curr_menu = &stdkeyconfiginfo;
+	curr_menu = all_key_menus[curr_key_menu];
+
 	curr_item = curr_menu->items + curr_menu->pos;
 }
 
