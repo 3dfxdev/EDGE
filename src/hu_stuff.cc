@@ -371,7 +371,7 @@ bool HU_Responder(event_t * ev)
 	static bool shiftdown = false;
 	static bool altdown = false;
 
-	if (ev->type == ev_mouse)
+	if (ev->type != ev_keyup && ev->type != ev_keydown)
 		return false;
 
 	int c = ev->value.key.sym;
