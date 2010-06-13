@@ -163,6 +163,14 @@ static float map_max_x;
 static float map_max_y;
 
 
+// how far the window pans each tic (map coords)
+static float panning_x = 0;
+static float panning_y = 0;
+
+// how far the window zooms in each tic (map coords)
+static float zooming = -1;
+
+
 // where the points are
 static mpoint_t markpoints[AM_NUMMARKPOINTS];
 
@@ -256,12 +264,20 @@ void AM_Stop(void)
 	stopped = true;
 
 	bigstate  = false;
+
+	panning_x = 0;
+	panning_y = 0;
+	zooming   = -1;
 }
 
 static void AM_Hide(void)
 {
 	automapactive = false;
 	bigstate = false;
+
+	panning_x = 0;
+	panning_y = 0;
+	zooming   = -1;
 }
 
 static void AM_Show(void)
@@ -274,9 +290,12 @@ static void AM_Show(void)
 
 	AM_InitLevel();
 
-	stopped = false;
+	stopped  = false;
+	bigstate = false;
 
-	bigstate  = false;
+	panning_x = 0;
+	panning_y = 0;
+	zooming   = -1;
 }
 
 
@@ -297,13 +316,10 @@ static void ChangeWindowScale(float factor)
 //
 bool AM_Responder(event_t * ev)
 {
-	if (ev->type != ev_keydown)
-		return false;
-
 	int sym = ev->value.key.sym;
 
 	// check the enable/disable key
-	if (E_MatchesKey(key_map, sym))
+	if (ev->type == ev_keydown && E_MatchesKey(key_map, sym))
 	{
 		if (automapactive)
 			AM_Hide();
@@ -314,6 +330,62 @@ bool AM_Responder(event_t * ev)
 
 	if (! automapactive)
 		return false;
+
+    // --- handle key releases ---
+
+	if (ev->type == ev_keyup)
+	{
+		if (E_MatchesKey(key_am_left, sym) || E_MatchesKey(key_am_right, sym))
+			panning_x = 0;
+
+		if (E_MatchesKey(key_am_up, sym) || E_MatchesKey(key_am_down, sym))
+			panning_y = 0;
+
+		if (E_MatchesKey(key_am_zoomin, sym) || E_MatchesKey(key_am_zoomout, sym))
+			zooming = -1;
+
+		return false;
+	}
+
+    // --- handle key presses ---
+
+	if (ev->type != ev_keydown)
+		return false;
+
+	if (! followplayer)
+	{
+		if (E_MatchesKey(key_am_left, sym))
+		{
+			panning_x = -FTOM(F_PANINC);
+			return true;
+		}
+		else if (E_MatchesKey(key_am_right, sym))
+		{
+			panning_x = FTOM(F_PANINC);
+			return true;
+		}
+		else if (E_MatchesKey(key_am_up, sym))
+		{
+			panning_y = FTOM(F_PANINC);
+			return true;
+		}
+		else if (E_MatchesKey(key_am_down, sym))
+		{
+			panning_y = -FTOM(F_PANINC);
+			return true;
+		}
+	}
+
+	if (E_MatchesKey(key_am_zoomin, sym))
+	{
+		zooming = M_ZOOMIN;
+		return true;
+	}
+	else if (E_MatchesKey(key_am_zoomout, sym))
+	{
+		zooming = 1.0 / M_ZOOMIN;
+		return true;
+	}
 
 	if (E_MatchesKey(key_am_gobig, sym))
 	{
@@ -399,15 +471,8 @@ void AM_Ticker(void)
 	// Change x,y location
 	if (! followplayer)
 	{
-		if (E_IsKeyPressed(key_am_left))
-			m_cx -= FTOM(F_PANINC);
-		else if (E_IsKeyPressed(key_am_right))
-			m_cx += FTOM(F_PANINC);
-
-		if (E_IsKeyPressed(key_am_up))
-			m_cx += FTOM(F_PANINC);
-		else if (E_IsKeyPressed(key_am_down))
-			m_cx -= FTOM(F_PANINC);
+		m_cx += panning_x;
+		m_cy += panning_y;
 
 		// limit position, don't go outside of the map
 		m_cx = MIN(m_cx, map_max_x);
@@ -418,10 +483,8 @@ void AM_Ticker(void)
 	}
 
 	// Change the zoom if necessary
-	if (E_IsKeyPressed(key_am_zoomin))
-		ChangeWindowScale(1.0 / M_ZOOMIN);
-	else if (E_IsKeyPressed(key_am_zoomout))
-		ChangeWindowScale(      M_ZOOMIN);
+	if (zooming > 0)
+		ChangeWindowScale(zooming);
 }
 
 //
