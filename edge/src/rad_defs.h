@@ -384,8 +384,7 @@ typedef struct s_thing_event_s
 s_thing_event_t;
 
 
-// A single RTS action, not unlike the ones for DDF things.  (In fact,
-// they may merge at some point in the future).
+// A single RTS action, not unlike the ones for DDF things.
 //
 typedef struct rts_state_s
 {
@@ -464,6 +463,18 @@ typedef struct s_onheight_s
 	sector_t *cached_sector;
 }
 s_onheight_t;
+
+
+// WAIT_UNTIL_DEAD info
+typedef struct s_wait_until_dead_s
+{
+	// tag number to give the monsters which we'll wait on
+	int tag;
+
+	// the DDF names of the monsters to wait for
+	const char *mon_names[10];
+}
+s_wait_until_dead_t;
 
 
 // Trigger Definition (Made up of actions)
@@ -582,6 +593,10 @@ typedef struct rad_trigger_s
 
     // Sound handle
 	position_c sfx_origin;
+
+	// used for WAIT_UNTIL_DEAD, normally zero
+	int wud_tag;
+	int wud_count;
 
 	// prevent repeating scripts from clogging the console
 	const char *last_con_message;

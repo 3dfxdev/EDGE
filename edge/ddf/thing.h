@@ -287,6 +287,9 @@ typedef enum
 
 	// -AJA- 2009/10/22: never autoaim at this monster/thing
 	HF_NO_AUTOAIM = (1 << 13),
+
+	// -AJA- 2010/06/13: used for RTS command of same name
+	HF_WAIT_UNTIL_DEAD = (1 << 14),
 }
 mobjhyperflag_t;
 

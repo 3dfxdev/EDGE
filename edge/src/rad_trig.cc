@@ -655,6 +655,10 @@ void RAD_RunTriggers(void)
 			continue;
 		}
 
+		// Waiting until monsters are dead?
+		if (trig->wud_count > 0)
+			continue;
+
 		// Execute the commands
 		while (trig->wait_tics == 0)
 		{
@@ -774,6 +778,7 @@ void RAD_SpawnTriggers(const char *map_name)
 				scr->repeat_count == REPEAT_FOREVER) ? 1 : scr->repeat_count;
 		trig->repeat_delay = 0;
 		trig->tip_slot = 0;
+		trig->wud_tag = trig->wud_count = 0;
 
 		RAD_GroupTriggerTags(trig);
 

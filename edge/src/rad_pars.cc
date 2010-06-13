@@ -2154,6 +2154,25 @@ static void RAD_ParseJumpOn(int pnum, const char **pars)
 	AddStateToScript(this_rad, 0, RAD_ActJumpOn, jump);
 }
 
+static void RAD_ParseWaitUntilDead(int pnum, const char **pars)
+{
+	// WaitUntilDead <monster> ...
+
+	if (pnum-2 > 10)
+		RAD_Error("%s: too many monsters (limit is 10)\n", pars[0]);
+
+	static int current_tag = 70000;
+
+	s_wait_until_dead_t *wud = Z_New(s_wait_until_dead_t, 1);
+
+	wud->tag = current_tag;  current_tag++;
+
+	for (int p = 2; p < pnum; p++)
+		wud->mon_names[p-2] = Z_StrDup(pars[p]);
+
+	AddStateToScript(this_rad, 0, RAD_ActWaitUntilDead, wud);
+}
+
 
 //  PARSER TABLE
 
@@ -2237,6 +2256,7 @@ static const rts_parser_t radtrig_parsers[] =
 	{2, "SHOW_MENU_LDF", 2,99, RAD_ParseShowMenu},
 	{2, "MENU_STYLE", 2,2, RAD_ParseMenuStyle},
 	{2, "JUMP_ON", 3,99, RAD_ParseJumpOn},
+	{2, "WAIT_UNTIL_DEAD", 2,11, RAD_ParseWaitUntilDead},
 
 	// old crud
 	{2, "SECTORV", 4,4, RAD_ParseMoveSector},

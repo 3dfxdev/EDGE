@@ -1097,6 +1097,62 @@ void RAD_ActJumpOn(rad_trigger_t *R, void *param)
 	R->wait_tics += 1;
 }
 
+static bool WUD_Match(s_wait_until_dead_s *wud, const char *name)
+{
+	for (int i = 0 ; i < 10 ; i++)
+	{
+		if (! wud->mon_names[i])
+			continue;
+
+		if (DDF_CompareName(name, wud->mon_names[i]) == 0)
+			return true;
+	}
+
+	return false;
+}
+
+void RAD_ActWaitUntilDead(rad_trigger_t *R, void *param)
+{
+	s_wait_until_dead_s *wud = (s_wait_until_dead_s *)param;
+
+	R->wud_tag = wud->tag;
+	R->wud_count = 0;
+
+	// find all matching monsters
+	mobj_t *mo;
+	mobj_t *next;
+
+	for (mo = mobjlisthead; mo != NULL; mo = next)
+	{
+		next = mo->next;
+
+		if (! mo->info)
+			continue;
+
+		if (mo->health <= 0)
+			continue;
+
+		if (! WUD_Match(wud, mo->info->name))
+			continue;
+
+		if (! RAD_WithinRadius(mo, R->info))
+			continue;
+
+		// mark the monster
+		mo->hyperflags |= HF_WAIT_UNTIL_DEAD;
+		mo->tag = wud->tag;
+
+		R->wud_count += 1;
+	}
+
+	if (R->wud_count == 0)
+	{
+		L_WriteDebug("RTS: waiting forever, no %s found\n",
+		             wud->mon_names[0]);
+		R->wud_count = 1;
+	}
+}
+
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
