@@ -41,6 +41,8 @@ void E_PostEvent(event_t * ev);
 bool E_IsKeyPressed(int keyvar);
 bool E_MatchesKey(int keyvar, int key);
 
+const char *E_GetKeyName(int key);
+
 bool INP_Responder(event_t * ev);
 
 // -KM- 1998/09/01 Analogue binding stuff, These hold what axis they bind to.

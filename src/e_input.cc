@@ -681,5 +681,136 @@ void E_ProcessEvents(void)
 }
 
 
+//----------------------------------------------------------------------------
+
+typedef struct specialkey_s
+{
+	int key;
+
+	const char *name;
+}
+specialkey_t;
+
+static specialkey_t special_keys[] =
+{
+    { KEYD_RIGHTARROW, "Right Arrow" },
+    { KEYD_LEFTARROW, "Left Arrow" },
+    { KEYD_UPARROW, "Up Arrow" },
+    { KEYD_DOWNARROW, "Down Arrow" },
+    { KEYD_ESCAPE, "Escape" },
+    { KEYD_ENTER, "Enter" },
+    { KEYD_TAB, "Tab" },
+
+    { KEYD_BACKSPACE, "Backspace" },
+    { KEYD_EQUALS, "Equals" },
+    { KEYD_MINUS, "Minus" },
+    { KEYD_RSHIFT, "Shift" },
+    { KEYD_RCTRL, "Ctrl" },
+    { KEYD_RALT, "Alt" },
+    { KEYD_INSERT, "Insert" },
+    { KEYD_DELETE, "Delete" },
+    { KEYD_PGDN, "PageDown" },
+    { KEYD_PGUP, "PageUp" },
+    { KEYD_HOME, "Home" },
+    { KEYD_END, "End" },
+    { KEYD_SCRLOCK,  "ScrollLock" },
+    { KEYD_NUMLOCK,  "NumLock" },
+    { KEYD_CAPSLOCK, "CapsLock" },
+    { KEYD_END, "End" },
+    { '\'', "\'" },
+    { KEYD_SPACE, "Space" },
+    { KEYD_TILDE, "Tilde" },
+    { KEYD_PAUSE, "Pause" },
+
+	// function keys
+    { KEYD_F1,  "F1" },
+    { KEYD_F2,  "F2" },
+    { KEYD_F3,  "F3" },
+    { KEYD_F4,  "F4" },
+    { KEYD_F5,  "F5" },
+    { KEYD_F6,  "F6" },
+    { KEYD_F7,  "F7" },
+    { KEYD_F8,  "F8" },
+    { KEYD_F9,  "F9" },
+    { KEYD_F10, "F10" },
+    { KEYD_F11, "F11" },
+    { KEYD_F12, "F12" },
+
+	// numeric keypad
+	{ KEYD_KP0, "KP_0" },
+	{ KEYD_KP1, "KP_1" },
+	{ KEYD_KP2, "KP_2" },
+	{ KEYD_KP3, "KP_3" },
+	{ KEYD_KP4, "KP_4" },
+	{ KEYD_KP5, "KP_5" },
+	{ KEYD_KP6, "KP_6" },
+	{ KEYD_KP7, "KP_7" },
+	{ KEYD_KP8, "KP_8" },
+	{ KEYD_KP9, "KP_9" },
+	
+	{ KEYD_KP_DOT,   "KP_DOT" },
+	{ KEYD_KP_PLUS,  "KP_PLUS" },
+	{ KEYD_KP_MINUS, "KP_MINUS" },
+	{ KEYD_KP_STAR,  "KP_STAR" },
+	{ KEYD_KP_SLASH, "KP_SLASH" },
+	{ KEYD_KP_EQUAL, "KP_EQUAL" },
+	{ KEYD_KP_ENTER, "KP_ENTER" },
+
+	// mouse buttons
+    { KEYD_MOUSE1, "Mouse1" },
+    { KEYD_MOUSE2, "Mouse2" },
+    { KEYD_MOUSE3, "Mouse3" },
+    { KEYD_MOUSE4, "Mouse4" },
+    { KEYD_MOUSE5, "Mouse5" },
+    { KEYD_MOUSE6, "Mouse6" },
+    { KEYD_WHEEL_UP, "Wheel Up" },
+    { KEYD_WHEEL_DN, "Wheel Down" },
+
+	// joystick buttons
+    { KEYD_JOY1,  "Joy1" },
+    { KEYD_JOY2,  "Joy2" },
+    { KEYD_JOY3,  "Joy3" },
+    { KEYD_JOY4,  "Joy4" },
+    { KEYD_JOY5,  "Joy5" },
+    { KEYD_JOY6,  "Joy6" },
+    { KEYD_JOY7,  "Joy7" },
+    { KEYD_JOY8,  "Joy8" },
+    { KEYD_JOY9,  "Joy9" },
+    { KEYD_JOY10, "Joy10" },
+    { KEYD_JOY11, "Joy11" },
+    { KEYD_JOY12, "Joy12" },
+    { KEYD_JOY13, "Joy13" },
+    { KEYD_JOY14, "Joy14" },
+    { KEYD_JOY15, "Joy15" },
+
+	// THE END
+    { -1, NULL }
+};
+
+
+const char *E_GetKeyName(int key)
+{
+	static char buffer[32];
+
+	if (toupper(key) >= ',' && toupper(key) <= ']')
+	{
+		buffer[0] = key;
+		buffer[1] = 0;
+
+		return buffer;
+	}
+
+	for (int i = 0 ; special_keys[i].name ; i++)
+	{
+		if (special_keys[i].key == key)
+			return special_keys[i].name;
+	}
+
+	sprintf(buffer, "Key%03d", key);
+
+	return buffer;
+}
+
+
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
