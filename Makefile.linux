@@ -15,7 +15,7 @@ LIBDIR=lib_linux
 CC=gcc
 CXX=g++
 
-CFLAGS=-O0 -g3 -ffast-math -fno-strict-aliasing -Wall -Wno-write-strings -pipe
+CFLAGS=-O0 -g3 -ffast-math -fno-strict-aliasing -Wall -pipe
 
 LDFLAGS=-lm -Wl,--warn-common
 

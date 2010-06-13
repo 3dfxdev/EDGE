@@ -15,7 +15,7 @@ LIBDIR=lib_win32
 CC=i586-mingw32msvc-gcc
 CXX=i586-mingw32msvc-g++
 
-CFLAGS=-O2 -ffast-math -fno-strict-aliasing -Wall -Wno-write-strings
+CFLAGS=-O2 -ffast-math -fno-strict-aliasing -Wall
 
 CFLAGS += -I.
 
