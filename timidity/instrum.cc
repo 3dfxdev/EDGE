@@ -227,7 +227,7 @@ static InstrumentLayer *load_instrument(char *name, int font_type, int percussio
 	int i,j,noluck=0;
 
 #ifdef PATCH_EXT_LIST
-	static char *patch_ext[] = PATCH_EXT_LIST;
+	static const char *patch_ext[] = PATCH_EXT_LIST;
 #endif
 	int sf2flag = 0;
 	int right_samples = 0;
@@ -458,6 +458,7 @@ static InstrumentLayer *load_instrument(char *name, int font_type, int percussio
 				{
 fail:
 					ctl_msg(CMSG_ERROR, VERB_NORMAL, "Error reading sample %d", i);
+
 					if (stereo_layer == 1)
 					{
 						for (j=0; j<i; j++)
@@ -529,6 +530,7 @@ fail:
 					sp->tremolo_sweep_increment=convert_tremolo_sweep(tmp[12]);
 					sp->tremolo_phase_increment=convert_tremolo_rate(tmp[13]);
 					sp->tremolo_depth=tmp[14];
+
 					ctl_msg(CMSG_INFO, VERB_DEBUG,
 							" * tremolo: sweep %d, phase %d, depth %d",
 							sp->tremolo_sweep_increment, sp->tremolo_phase_increment,
@@ -547,6 +549,7 @@ fail:
 					sp->vibrato_sweep_increment=
 						convert_vibrato_sweep(tmp[15], sp->vibrato_control_ratio);
 					sp->vibrato_depth=tmp[17];
+
 					ctl_msg(CMSG_INFO, VERB_DEBUG,
 							" * vibrato: sweep %d, ctl %d, depth %d",
 							sp->vibrato_sweep_increment, sp->vibrato_control_ratio,
@@ -590,6 +593,7 @@ fail:
 									  MODES_PINGPONG | MODES_REVERSE)))
 				{
 					ctl_msg(CMSG_INFO, VERB_DEBUG, " - Removing loop and/or sustain");
+
 					sp->modes &=~(MODES_SUSTAIN | MODES_LOOPING | 
 							MODES_PINGPONG | MODES_REVERSE);
 				}
@@ -597,8 +601,11 @@ fail:
 				if (strip_envelope==1)
 				{
 					if (sp->modes & MODES_ENVELOPE)
+					{
 						ctl_msg(CMSG_INFO, VERB_DEBUG, " - Removing envelope");
-					sp->modes &= ~MODES_ENVELOPE;
+
+						sp->modes &= ~MODES_ENVELOPE;
+					}
 				}
 				else if (strip_envelope != 0)
 				{
@@ -608,6 +615,7 @@ fail:
 						/* No loop? Then what's there to sustain? No envelope needed
 						   either... */
 						sp->modes &= ~(MODES_SUSTAIN|MODES_ENVELOPE);
+
 						ctl_msg(CMSG_INFO, VERB_DEBUG, 
 								" - No loop, removing sustain and envelope");
 					}
@@ -616,6 +624,7 @@ fail:
 						/* Envelope rates all maxed out? Envelope end at a high "offset"?
 						   That's a weird envelope. Take it out. */
 						sp->modes &= ~MODES_ENVELOPE;
+
 						ctl_msg(CMSG_INFO, VERB_DEBUG, 
 								" - Weirdness, removing envelope");
 					}
@@ -626,6 +635,7 @@ fail:
 						   envelope either... at least the Gravis ones. They're mostly
 						   drums.  I think. */
 						sp->modes &= ~MODES_ENVELOPE;
+
 						ctl_msg(CMSG_INFO, VERB_DEBUG, 
 								" - No sustain, removing envelope");
 					}
@@ -715,14 +725,14 @@ fail:
 				/* Reverse reverse loops and pass them off as normal loops */
 				if (sp->modes & MODES_REVERSE)
 				{
-					int t;
 					/* The GUS apparently plays reverse loops by reversing the
 					   whole sample. We do the same because the GUS does not SUCK. */
 
 					ctl_msg(CMSG_WARNING, VERB_NORMAL, "Reverse loop in %s", name);
+
 					reverse_data((s16_t *)sp->data, 0, sp->data_length/2);
 
-					t=sp->loop_start;
+					int t = sp->loop_start;
 					sp->loop_start=sp->data_length - sp->loop_end;
 					sp->loop_end=sp->data_length - t;
 
@@ -764,9 +774,13 @@ fail:
 							highcount++;
 						}
 					}
-					if (highcount) higher /= highcount;
-					else higher = 10000;
+					if (highcount)
+						higher /= highcount;
+					else
+						higher = 10000;
+					
 					sp->volume = (32768.0 * 0.875) /  (double)higher ;
+
 					ctl_msg(CMSG_INFO, VERB_DEBUG, " * volume comp: %f", sp->volume);
 				}
 #else
