@@ -77,37 +77,22 @@ static texset_array_c tex_sets;
 //
 static void InstallTextureLumps(int file, const wadtex_resource_c *WT)
 {
-	const raw_texture_t *mtexture;
-	const raw_patchdef_t *mpatch;
-
-	texturedef_t *texture;
-	texpatch_t *patch;
-
-	int i, j;
-	int nummappatches;
-	int offset;
+	int i;
 	int maxoff;
 	int maxoff2;
 	int numtextures1;
 	int numtextures2;
-	int patchcount;
 
 	const int *maptex;
 	const int *maptex1;
 	const int *maptex2;
 	const int *directory;
 
-	const char *names;
-	const char *name_p;
-
-	int base_size;
-	int width;
-	byte *base;
-
 	// Load the patch names from pnames.lmp.
-	names = (const char*)W_CacheLumpNum(WT->pnames);
-	nummappatches = EPI_LE_S32(*((const int *)names));  // Eww...
-	name_p = names + 4;
+	const char *names = (const char*)W_CacheLumpNum(WT->pnames);
+	int nummappatches = EPI_LE_S32(*((const int *)names));  // Eww...
+
+	const char *name_p = names + 4;
 
 	int *patchlookup = new int[nummappatches+1];
 
@@ -161,30 +146,36 @@ static void InstallTextureLumps(int file, const wadtex_resource_c *WT)
 			directory = maptex + 1;
 		}
 
-		offset = EPI_LE_S32(*directory);
+		int offset = EPI_LE_S32(*directory);
 		if (offset < 0 || offset > maxoff)
 			I_Error("W_InitTextures: bad texture directory");
 
-		mtexture = (const raw_texture_t *) ((const byte *) maptex + offset);
+		const raw_texture_t *mtexture =
+			(const raw_texture_t *) ((const byte *) maptex + offset);
 
 		// -ES- 2000/02/10 Texture must have patches.
-		patchcount = EPI_LE_S16(mtexture->patch_count);
+		int patchcount = EPI_LE_S16(mtexture->patch_count);
 		if (!patchcount)
 			I_Error("W_InitTextures: Texture '%.8s' has no patches", mtexture->name);
 
-		width = EPI_LE_S16(mtexture->width);
+		int width = EPI_LE_S16(mtexture->width);
 		if (width == 0)
 			I_Error("W_InitTextures: Texture '%.8s' has zero width", mtexture->name);
 
 		// -ES- Allocate texture, patches and columnlump/ofs in one big chunk
-		base_size = sizeof(texturedef_t) + sizeof(texpatch_t) * (patchcount - 1);
-		texture = cur_set->textures[i] = (texturedef_t *) Z_Malloc(base_size + width * (sizeof(byte) + sizeof(short)));
-		base = (byte *)texture + base_size;
+		int base_size = sizeof(texturedef_t) + sizeof(texpatch_t) * (patchcount - 1);
+
+		texturedef_t * texture = (texturedef_t *) Z_Malloc(base_size + width * (sizeof(byte) + sizeof(short)));
+		cur_set->textures[i] = texture;
+
+		byte *base = (byte *)texture + base_size;
 
 		texture->columnofs = (unsigned short *)base;
 
 		texture->width = width;
 		texture->height = EPI_LE_S16(mtexture->height);
+		texture->scale_x = mtexture->scale_x;
+		texture->scale_y = mtexture->scale_y;
 		texture->file = file;
 		texture->palette_lump = WT->palette;
 		texture->patchcount = patchcount;
@@ -192,12 +183,12 @@ static void InstallTextureLumps(int file, const wadtex_resource_c *WT)
 		Z_StrNCpy(texture->name, mtexture->name, 8);
 		strupr(texture->name);
 
-		mpatch = &mtexture->patches[0];
-		patch = &texture->patches[0];
+		const raw_patchdef_t *mpatch = &mtexture->patches[0];
+		texpatch_t *patch = &texture->patches[0];
 
 		bool is_sky = (strncmp("SKY", texture->name, 3) == 0);
 
-		for (j = 0; j < texture->patchcount; j++, mpatch++, patch++)
+		for (int k = 0; k < texture->patchcount; k++, mpatch++, patch++)
 		{
 			int pname = EPI_LE_S16(mpatch->pname);
 

@@ -264,7 +264,10 @@ typedef struct
 {
 	char name[8];
 
-	u32_t masked;      // NOT USED
+	u16_t flags;    // these from ZDoom (NOT USED in vanilla)
+	u8_t  scale_x;  //
+	u8_t  scale_y;  //
+
 	u16_t width;
 	u16_t height;
 	u32_t column_dir;  // NOT USED

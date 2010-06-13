@@ -47,6 +47,8 @@ General Improvements
 
 - control over automap grid spacing via 'am_gridsize' cvar.
 
+- support for the ZDoom TEXTURE1/2 scaling extension.
+
 - when thing numbers in the level are unknown, limit the warnings
   to two specific things of that type and a "more found" message.
 

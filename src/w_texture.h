@@ -97,11 +97,16 @@ typedef struct texturedef_s
 	short width;
 	short height;
 
+	// scaling, where 8 is normal and higher is bigger
+	byte scale_x;
+	byte scale_y;
+
 	// which WAD file this texture came from
 	short file;
 
-	unsigned short *columnofs;
 	int palette_lump;
+
+	unsigned short *columnofs;
 
 	// All the patches[patchcount] are drawn back to front into the
 	// cached texture.
