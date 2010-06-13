@@ -97,7 +97,7 @@ typedef struct texturedef_s
 	short width;
 	short height;
 
-	// scaling, where 8 is normal and higher is bigger
+	// scaling, where 8 is normal and higher is _smaller_
 	byte scale_x;
 	byte scale_y;
 
