@@ -1145,8 +1145,6 @@ void RAD_ActWaitUntilDead(rad_trigger_t *R, void *param)
 		R->wud_count++;
 	}
 
-L_WriteDebug("RTS %p: WAITING FOR %d monsters, tag %d\n", R, R->wud_count, R->wud_tag);
-
 	if (R->wud_count == 0)
 	{
 		L_WriteDebug("RTS: waiting forever, no %s found\n",
