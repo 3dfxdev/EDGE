@@ -41,7 +41,7 @@
 
 extern int ctl_verbosity;
 
-void ctl_msg(int type, int verbosity, char *fmt, ...);
+void ctl_msg(int type, int verbosity, const char *fmt, ...);
 
 
 #endif /* __TIMIDITY_CONTROLS_H__ */

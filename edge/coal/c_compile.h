@@ -49,7 +49,7 @@ type_t;
 typedef struct def_s
 {
 	type_t	*type;
-	char	*name;
+	const char *name;
 
 	gofs_t	ofs;
 

@@ -302,7 +302,7 @@ static int sysex(int len, byte *syschan, byte *sysa, byte *sysb)
 
 /* Print a string from the file, followed by a newline. Any non-ASCII
    or unprintable characters will be converted to periods. */
-static int dumpstring(int len, char *label)
+static int dumpstring(int len, const char *label)
 {
 	signed char *s = (signed char *)safe_malloc(len+1);
 
@@ -367,9 +367,11 @@ static MidiEventList *read_midi_event(void)
 			len=getvl();
 			if (type>0 && type<16)
 			{
-				static char *label[]={
+				static const char *label[]=
+				{
 					"Text event: ", "Text: ", "Copyright: ", "Track name: ",
-					"Instrument: ", "Lyric: ", "Marker: ", "Cue point: "};
+					"Instrument: ", "Lyric: ", "Marker: ", "Cue point: "
+				};
 				dumpstring(len, label[(type>7) ? 0 : type]);
 			}
 			else switch(type)
