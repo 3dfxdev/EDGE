@@ -83,7 +83,7 @@ CFLAGS_GLBSP += -I$(LIBDIR)/zlib-1.2.3
 
 # Win32 libs
 
-LDFLAGS += -lwsock32 -lwinmm -lgdi32 -ldxguid -ldinput
+LDFLAGS += -lwsock32 -lwinmm -lgdi32 -ldxguid -ldinput -mwindows
 
 
 # ----------
