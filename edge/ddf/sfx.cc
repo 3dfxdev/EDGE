@@ -49,7 +49,7 @@ static const commandlist_t sfx_commands[] =
 //  DDF PARSE ROUTINES
 //
 
-static void SoundStartEntry(const char *name)
+static void SoundStartEntry(const char *name, bool extend)
 {
 	if (!name || !name[0])
 	{
@@ -58,6 +58,13 @@ static void SoundStartEntry(const char *name)
 	}
 
 	dynamic_sfx = sfxdefs.Lookup(name);
+
+	if (extend)
+	{
+		if (! dynamic_sfx)
+			DDF_Error("Unknown sound to extend: %s\n", name);
+		return;
+	}
 
 	// replaces an existing entry?
 	if (dynamic_sfx)

@@ -49,7 +49,7 @@ static const commandlist_t switch_commands[] =
 //  DDF PARSE ROUTINES
 //
 
-static void SwitchStartEntry(const char *name)
+static void SwitchStartEntry(const char *name, bool extend)
 {
 	if (!name || !name[0])
 	{
@@ -58,6 +58,13 @@ static void SwitchStartEntry(const char *name)
 	}
 
 	dynamic_switchdef = switchdefs.Find(name);
+
+	if (extend)
+	{
+		if (! dynamic_switchdef)
+			DDF_Error("Unknown switch to extend: %s\n", name);
+		return;
+	}
 	
 	// replaces an existing entry
 	if (dynamic_switchdef)

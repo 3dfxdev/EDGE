@@ -108,7 +108,7 @@ static void DDF_MusicParseInfo(const char *info)
 //  DDF PARSE ROUTINES
 //
 
-static void PlaylistStartEntry(const char *name)
+static void PlaylistStartEntry(const char *name, bool extend)
 {	
 	int number = MAX(0, atoi(name));
 
@@ -116,6 +116,13 @@ static void PlaylistStartEntry(const char *name)
 		DDF_Error("Bad music number in playlist.ddf: %s\n", name);
 
 	dynamic_plentry = playlist.Find(number);
+
+	if (extend)
+	{
+		if (! dynamic_plentry)
+			DDF_Error("Unknown playlist to extend: %s\n", name);
+		return;
+	}
 
 	// replaces an existing entry
 	if (dynamic_plentry)

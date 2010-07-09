@@ -293,17 +293,24 @@ s_activators[] =
 //
 // LinedefStartEntry
 //
-static void LinedefStartEntry(const char *name)
+static void LinedefStartEntry(const char *name, bool extend)
 {
 	int number = MAX(0, atoi(name));
 
 	if (number == 0)
-		DDF_Error("Bad linedef number in lines.ddf: %s\n", name);
+		DDF_Error("Bad linetype number in lines.ddf: %s\n", name);
 
 	scrolling_dir   = dir_none;
 	scrolling_speed = 1.0f;
 
 	dynamic_line = linetypes.Lookup(number);
+
+	if (extend)
+	{
+		if (! dynamic_line)
+			DDF_Error("Unknown linetype to extend: %s\n", name);
+		return;
+	}
 
 	// replaces an existing entry?
 	if (dynamic_line)

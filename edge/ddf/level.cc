@@ -122,7 +122,7 @@ static specflags_t map_specials[] =
 //  DDF PARSE ROUTINES
 //
 
-static void LevelStartEntry(const char *name)
+static void LevelStartEntry(const char *name, bool extend)
 {
 	if (!name || !name[0])
 	{
@@ -135,6 +135,13 @@ static void LevelStartEntry(const char *name)
 
 	// replaces an existing entry?
 	dynamic_level = mapdefs.Lookup(name);
+
+	if (extend)
+	{
+		if (! dynamic_level)
+			DDF_Error("Unknown level to extend: %s\n", name);
+		return;
+	}
 
 	if (dynamic_level)
 	{

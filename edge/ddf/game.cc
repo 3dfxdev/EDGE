@@ -69,7 +69,7 @@ static const commandlist_t gamedef_commands[] =
 //  DDF PARSE ROUTINES
 //
 
-static void GameStartEntry(const char *name)
+static void GameStartEntry(const char *name, bool extend)
 {
 	if (!name || !name[0])
 	{
@@ -83,6 +83,13 @@ static void GameStartEntry(const char *name)
 
 	// replaces an existing entry?
 	dynamic_gamedef = gamedefs.Lookup(name);
+
+	if (extend)
+	{
+		if (! dynamic_gamedef)
+			DDF_Error("Unknown game to extend: %s\n", name);
+		return;
+	}
 
 	if (dynamic_gamedef)
 	{

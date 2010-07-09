@@ -371,7 +371,7 @@ ddf_bi_lang_c* lang_buildinfo;
 //
 //  DDF PARSING ROUTINES
 //
-static void LanguageStartEntry(const char *name)
+static void LanguageStartEntry(const char *name, bool extend)
 {
 	if (!name || !name[0])
 	{

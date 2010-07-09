@@ -47,7 +47,7 @@ fontdef_container_c fontdefs;
 //
 //  DDF PARSE ROUTINES
 //
-static void FontStartEntry(const char *name)
+static void FontStartEntry(const char *name, bool extend)
 {
 	if (!name || !name[0])
 	{
@@ -56,6 +56,13 @@ static void FontStartEntry(const char *name)
 	}
 
 	dynamic_font = fontdefs.Lookup(name);
+
+	if (extend)
+	{
+		if (! dynamic_font)
+			DDF_Error("Unknown font to extend: %s\n", name);
+		return;
+	}
 
 	// replaces the existing entry
 	if (dynamic_font)

@@ -211,7 +211,7 @@ const specflags_t ammo_types[] =
 //  DDF PARSE ROUTINES
 //
 
-static void WeaponStartEntry(const char *name)
+static void WeaponStartEntry(const char *name, bool extend)
 {
 	if (!name || !name[0])
 	{
@@ -220,6 +220,15 @@ static void WeaponStartEntry(const char *name)
 	}
 
 	dynamic_weapon = weapondefs.Lookup(name);
+
+	if (extend)
+	{
+		if (! dynamic_weapon)
+			DDF_Error("Unknown weapon to extend: %s\n", name);
+
+		DDF_StateBeginRange(dynamic_weapon->state_grp);
+		return;
+	}
 
 	// replaces an existing entry?
 	if (dynamic_weapon)

@@ -140,7 +140,7 @@ typedef struct readinfo_s
 	// Note: for things.ddf, only the name is significant when checking
 	// if the entry already exists.
 	//
-	void (*start_entry) (const char *name);
+	void (*start_entry) (const char *name, bool extend);
 
 	// parse a single field for the entry.  Usually it will just call
 	// the ddf_main routine to handle the command list.  For

@@ -74,7 +74,7 @@ static image_namespace_e GetImageNamespace(const char *prefix)
 //  DDF PARSE ROUTINES
 //
 
-static void ImageStartEntry(const char *name)
+static void ImageStartEntry(const char *name, bool extend)
 {
 	if (!name || !name[0])
 		DDF_Error("New image entry is missing a name!\n");
@@ -108,6 +108,13 @@ static void ImageStartEntry(const char *name)
 		DDF_Error("Image name [%s] too long.\n", name);
 
 	dynamic_image = imagedefs.Lookup(name, belong);
+
+	if (extend)
+	{
+		if (! dynamic_image)
+			DDF_Error("Unknown image to extend: %s\n", name);
+		return;
+	}
 
 	// replaces an existing entry?
 	if (dynamic_image)

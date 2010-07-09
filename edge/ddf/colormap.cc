@@ -48,7 +48,7 @@ static const commandlist_t colmap_commands[] =
 //  DDF PARSE ROUTINES
 //
 
-static void ColmapStartEntry(const char *name)
+static void ColmapStartEntry(const char *name, bool extend)
 {
 	if (!name || name[0] == 0)
 	{
@@ -57,6 +57,13 @@ static void ColmapStartEntry(const char *name)
 	}
 
 	dynamic_colmap = colourmaps.Lookup(name);
+
+	if (extend)
+	{
+		if (! dynamic_colmap)
+			DDF_Error("Unknown colormap to extend: %s\n", name);
+		return;
+	}
 
 	// replaces the existing entry
 	if (dynamic_colmap)
