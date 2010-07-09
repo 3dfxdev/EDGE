@@ -2,7 +2,7 @@
 //  EDGE Automap Functions
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2010  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -173,6 +173,8 @@ static float zooming = -1;
 // where the points are
 static mpoint_t markpoints[AM_NUMMARKPOINTS];
 
+#define NO_MARK_X  (-777)
+
 // next point to be assigned
 static int markpointnum = 0;
 
@@ -234,7 +236,7 @@ static void FindMinMaxBoundaries(void)
 static void ClearMarks(void)
 {
 	for (int i = 0; i < AM_NUMMARKPOINTS; i++)
-		markpoints[i].x = -1;  // means empty
+		markpoints[i].x = NO_MARK_X;
 
 	markpointnum = 0;
 }
@@ -1021,7 +1023,7 @@ static void DrawMarks(void)
 {
 	for (int i = 0; i < AM_NUMMARKPOINTS; i++)
 	{
-		if (markpoints[i].x == -1)
+		if (markpoints[i].x == NO_MARK_X)
 			continue;
 
 		float mx, my;
@@ -1031,14 +1033,14 @@ static void DrawMarks(void)
 		float cx = CXMTOF(mx);
 		float cy = CYMTOF(my);
 
-		float scale = 1.0f; /// f_w / 320.0f;
+		float scale = 1.0f;
 
 		font_c *am_font = automap_style->fonts[0];
 		SYS_ASSERT(am_font);
 
-		// oh fuck me!
-		cx = cx * 320.f / SCREENWIDTH;
-		cy = 200.0 - (cy * 200.0f / SCREENHEIGHT);
+		// centre the character
+		cx -= am_font->NominalWidth()  * scale / 2.0;
+		cy -= am_font->NominalHeight() * scale / 2.0;
 
 		am_font->DrawChar320(cx, cy, '1'+i, scale,1.0f, NULL,1.0f);
 	}
