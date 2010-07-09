@@ -19,13 +19,6 @@ Bugs fixed
 - fixed marks on automap
 
 
-
-Features Removed / Changed
---------------------------
-
-NONE (YET)
-
-
 General Improvements
 --------------------
 
@@ -33,7 +26,7 @@ General Improvements
   high-resolution replacements between HI_START/HI_END markers.
   They can be either DOOM patch format or PNG format.
 
-- weapon and automap keys are now configurable.
+- weapon and automap key bindings can be changed.
 
 - RTS: added new WAIT_UNTIL_DEAD command, which takes a list of
   monster types to wait for.  Unlike ONDEATH, this honors the
@@ -59,9 +52,4 @@ General Improvements
 - reviewed #CLEARALL behavior, made it ignored (with a warning)
   for several kinds of DDF where it was not safe or useful.
 
-
-New Features
-------------
-
-NONE (YET)
 
