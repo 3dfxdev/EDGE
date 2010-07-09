@@ -119,15 +119,6 @@ typedef struct readinfo_s
 	// number of entries per displayed `.'
 	int entries_per_dot;
 
-	// NOTES
-	// -----
-	// There are two entries: the "dynamic" entry and the "static"
-	// entry.  The dynamic entry will be the final entry within the
-	// associated list.  We keep a pointer to it.  The static entry has
-	// the name "buffer_xxxxx" in the associated ddf_xxx.c file, and
-	// holds the parsed info until the entry is complete, at which time
-	// the static part is copied into the dynamic part.
-
 	//
 	//  FUNCTIONS
 	//
