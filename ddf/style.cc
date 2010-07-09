@@ -111,7 +111,7 @@ static const commandlist_t style_commands[] =
 //  DDF PARSE ROUTINES
 //
 
-static void StyleStartEntry(const char *name)
+static void StyleStartEntry(const char *name, bool extend)
 {
 	if (!name || !name[0])
 	{
@@ -121,6 +121,13 @@ static void StyleStartEntry(const char *name)
 
 	// replaces an existing entry?
 	dynamic_style = styledefs.Lookup(name);
+
+	if (extend)
+	{
+		if (! dynamic_style)
+			DDF_Error("Unknown style to extend: %s\n", name);
+		return;
+	}
 
 	if (dynamic_style)
 	{

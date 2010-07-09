@@ -440,7 +440,7 @@ int DDF_CompareName(const char *A, const char *B)
 //  DDF PARSE ROUTINES
 //
 
-static void ThingStartEntry(const char *buffer)
+static void ThingStartEntry(const char *buffer, bool extend)
 {
 	if (!buffer || !buffer[0])
 	{
@@ -455,6 +455,9 @@ static void ThingStartEntry(const char *buffer)
 
 	if (pos)
 	{
+		if (extend)
+			DDF_Error("Extending thing: must omit the number after ':'\n");
+
 		name = std::string(buffer, pos - buffer);
 
 		number = MAX(0, atoi(pos+1));
@@ -474,6 +477,15 @@ static void ThingStartEntry(const char *buffer)
 	{
 		mobjtypes.MoveToEnd(idx);
 		dynamic_mobj = mobjtypes[mobjtypes.GetSize()-1];
+	}
+
+	if (extend)
+	{
+		if (! dynamic_mobj)
+			DDF_Error("Unknown thing to extend: %s\n", name.c_str());
+
+		DDF_StateBeginRange(dynamic_mobj->state_grp);
+		return;
 	}
 
 	// replaces an existing entry?

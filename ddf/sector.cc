@@ -87,14 +87,21 @@ static const commandlist_t sect_commands[] =
 //
 // SectorStartEntry
 //
-static void SectorStartEntry(const char *name)
+static void SectorStartEntry(const char *name, bool extend)
 {
 	int number = MAX(0, atoi(name));
 
 	if (number == 0)
-		DDF_Error("Bad sectordef number in sectors.ddf: %s\n", name);
+		DDF_Error("Bad sectortype number in sectors.ddf: %s\n", name);
 
 	dynamic_sector = sectortypes.Lookup(number);
+
+	if (extend)
+	{
+		if (! dynamic_sector)
+			DDF_Error("Unknown sectortype to extend: %s\n", name);
+		return;
+	}
 
 	// replaces an existing entry?
 	if (dynamic_sector)

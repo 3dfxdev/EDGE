@@ -75,7 +75,7 @@ static animdef_c * animdefs_Lookup(const char *name)
 //
 //  DDF PARSE ROUTINES
 //
-static void AnimStartEntry(const char *name)
+static void AnimStartEntry(const char *name, bool extend)
 {
 	if (!name || !name[0])
 	{
@@ -84,6 +84,13 @@ static void AnimStartEntry(const char *name)
 	}
 
 	dynamic_anim = animdefs_Lookup(name);
+
+	if (extend)
+	{
+		if (! dynamic_anim)
+			DDF_Error("Unknown animdef to extend: %s\n", name);
+		return;
+	}
 
 	// replaces an existing entry
 	if (dynamic_anim)

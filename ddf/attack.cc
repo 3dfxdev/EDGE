@@ -126,7 +126,7 @@ static mobjtype_c * CreateAtkMobj(const char *atk_name)
 //  DDF PARSE ROUTINES
 //
 
-static void AttackStartEntry(const char *name)
+static void AttackStartEntry(const char *name, bool extend)
 {
 	if (!name || !name[0])
 	{
@@ -141,6 +141,20 @@ static void AttackStartEntry(const char *name)
 	dynamic_mobj = NULL;
 
 	dynamic_atk = atkdefs.Lookup(name);
+
+	if (extend)
+	{
+		if (! dynamic_atk)
+			DDF_Error("Unknown attack to extend: %s\n", name);
+
+		// Intentional Const Override
+		dynamic_mobj = (mobjtype_c *)dynamic_atk->atk_mobj;
+
+		if (dynamic_mobj)
+			DDF_StateBeginRange(dynamic_mobj->state_grp);
+
+		return;
+	}
 
 	// replaces an existing entry?
 	if (dynamic_atk)
