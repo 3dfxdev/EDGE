@@ -117,6 +117,22 @@ static void SectorStartEntry(const char *name, bool extend)
 	sectortypes.Insert(dynamic_sector);
 }
 
+
+static void SectorDoTemplate(const char *contents)
+{
+	int number = MAX(0, atoi(contents));
+	if (number == 0)
+		DDF_Error("Bad sectortype number for template: %s\n", contents);
+
+	sectortype_c *other = sectortypes.Lookup(number);
+
+	if (!other || other == dynamic_sector)
+		DDF_Error("Unknown sector template: '%s'\n", contents);
+
+	dynamic_sector->CopyDetail(*other);
+}
+
+
 //
 // SectorParseField
 //
@@ -126,6 +142,12 @@ static void SectorParseField(const char *field, const char *contents,
 #if (DEBUG_DDF)  
 	I_Debugf("SECTOR_PARSE: %s = %s;\n", field, contents);
 #endif
+
+	if (DDF_CompareName(field, "TEMPLATE") == 0)
+	{
+		SectorDoTemplate(contents);
+		return;
+	}
 
 	// backwards compatibility...
 	if (DDF_CompareName(field, "CRUSH") == 0 ||
