@@ -508,12 +508,36 @@ static void ThingStartEntry(const char *buffer, bool extend)
 }
 
 
+static void ThingDoTemplate(const char *contents)
+{
+	int idx = mobjtypes.FindFirst(contents, 0);
+	if (idx < 0)
+		DDF_Error("Unknown thing template: '%s'\n", contents);
+
+	mobjtype_c *other = mobjtypes[idx];
+	SYS_ASSERT(other);
+
+	if (other == dynamic_mobj)
+		DDF_Error("Bad thing template: '%s'\n", contents);
+
+	dynamic_mobj->CopyDetail(*other);
+
+	DDF_StateBeginRange(dynamic_mobj->state_grp);
+}
+
+
 void ThingParseField(const char *field, const char *contents,
 					 int index, bool is_last)
 {
 #if (DEBUG_DDF)  
 	I_Debugf("THING_PARSE: %s = %s;\n", field, contents);
 #endif
+
+	if (DDF_CompareName(field, "TEMPLATE") == 0)
+	{
+		ThingDoTemplate(contents);
+		return;
+	}
 
 	// -AJA- this needs special handling (it touches several fields)
 	if (DDF_CompareName(field, "SPECIAL") == 0 ||

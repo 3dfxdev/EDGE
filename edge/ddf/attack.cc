@@ -171,13 +171,44 @@ static void AttackStartEntry(const char *name, bool extend)
 }
 
 
+static void AttackDoTemplate(const char *contents)
+{
+	atkdef_c *other = atkdefs.Lookup(contents);
+
+	if (!other || other == dynamic_atk)
+		DDF_Error("Unknown attack template: '%s'\n", contents);
+
+	dynamic_atk->CopyDetail(*other);
+	dynamic_atk->atk_mobj = NULL;
+
+	dynamic_mobj = NULL;
+
+	if (other->atk_mobj)
+	{
+		dynamic_mobj = CreateAtkMobj(dynamic_atk->name.c_str());
+
+		dynamic_mobj->CopyDetail(*(mobjtype_c*)other->atk_mobj);
+
+		dynamic_atk->atk_mobj = dynamic_mobj;
+
+		DDF_StateBeginRange(dynamic_mobj->state_grp);
+	}
+}
+
+
 static void AttackParseField(const char *field, const char *contents,
 							 int index, bool is_last)
 {
 #if (DEBUG_DDF)  
 	I_Debugf("ATTACK_PARSE: %s = %s;\n", field, contents);
 #endif
-	
+
+	if (DDF_CompareName(field, "TEMPLATE") == 0)
+	{
+		AttackDoTemplate(contents);
+		return;
+	}
+
 	// backward compatibility...
 	if (DDF_CompareName(field, "DAMAGE_RANGE") == 0)
 	{
