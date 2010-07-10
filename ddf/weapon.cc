@@ -248,12 +248,31 @@ static void WeaponStartEntry(const char *name, bool extend)
 }
 
 
+static void WeaponDoTemplate(const char *contents)
+{
+	weapondef_c *other = weapondefs.Lookup(contents);
+
+	if (!other || other == dynamic_weapon)
+		DDF_Error("Unknown weapon template: '%s'\n", contents);
+
+	dynamic_weapon->CopyDetail(*other);
+
+	DDF_StateBeginRange(dynamic_weapon->state_grp);
+}
+
+
 static void WeaponParseField(const char *field, const char *contents,
     int index, bool is_last)
 {
 #if (DEBUG_DDF)  
 	I_Debugf("WEAPON_PARSE: %s = %s;\n", field, contents);
 #endif
+
+	if (DDF_CompareName(field, "TEMPLATE") == 0)
+	{
+		WeaponDoTemplate(contents);
+		return;
+	}
 
 	if (DDF_MainParseField(weapon_commands, field, contents, (byte *)dynamic_weapon))
 		return;
