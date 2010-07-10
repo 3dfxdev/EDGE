@@ -16,7 +16,7 @@ Other significant developments are:
 
 +  I implemented (finally) a HUB system for EDGE, using Quake2's
    method as a guide.  The HUBs act like extensions to the first
-   map, hence when you did you go back to the first map.  How it
+   map, hence when you die you go back to the first map.  How it
    works is described in the file: docs/tech/hubs.txt
 
 +  I re-implemented Joystick support for 1.34, without the large
