@@ -455,9 +455,6 @@ static void ThingStartEntry(const char *buffer, bool extend)
 
 	if (pos)
 	{
-		if (extend)
-			DDF_Error("Extending thing: must omit the number after ':'\n");
-
 		name = std::string(buffer, pos - buffer);
 
 		number = MAX(0, atoi(pos+1));
@@ -483,6 +480,9 @@ static void ThingStartEntry(const char *buffer, bool extend)
 	{
 		if (! dynamic_mobj)
 			DDF_Error("Unknown thing to extend: %s\n", name.c_str());
+
+		if (number > 0)
+			dynamic_mobj->number = number;
 
 		DDF_StateBeginRange(dynamic_mobj->state_grp);
 		return;
