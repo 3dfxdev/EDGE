@@ -508,6 +508,37 @@ bool P_SetMobjState(mobj_t * mobj, statenum_t state)
 	return true;
 }
 
+bool P_SetMobjState2(mobj_t * mobj, statenum_t state)
+{
+	// -AJA- 2010/07/10: mundo hack for DDF inheritance. When jumping
+	//                   to an old state, check if a newer one exists.
+
+	if (mobj->isRemoved())
+		return false;
+
+	if (state == S_NULL)
+		return P_SetMobjState(mobj, state);
+
+	SYS_ASSERT(! mobj->info->state_grp.empty());
+
+	// state is old?
+	if (state < mobj->info->state_grp.back().first)
+	{
+		state_t *st = &states[state];
+
+		if (st->label)
+		{
+			statenum_t new_state = P_MobjFindLabel(mobj, st->label);
+
+			if (new_state != S_NULL)
+				state = new_state;
+		}
+	}
+
+	return P_SetMobjState(mobj, state);
+}
+
+
 //
 // P_SetMobjStateDeferred
 //
@@ -1381,7 +1412,7 @@ static void P_MobjThinker(mobj_t * mobj)
 		// You can cycle through multiple states in a tic.
 		// NOTE: returns false if object freed itself.
 
-		P_SetMobjState(mobj, mobj->next_state ?
+		P_SetMobjState2(mobj, mobj->next_state ?
 			(mobj->next_state - states) : S_NULL);
 
 		if (mobj->isRemoved())
