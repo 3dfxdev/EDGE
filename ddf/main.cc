@@ -587,7 +587,7 @@ static readchar_t DDF_MainProcessChar(char character, std::string& token, int st
 				return def_stop;
 			}
 			else if ((isalnum(character)) || (character == '_') ||
-					 (character == ':'))
+					 (character == ':')   || (character == '+'))
 			{
 				token += toupper(character);
 				return ok_char;
