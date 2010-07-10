@@ -105,12 +105,29 @@ static void GameStartEntry(const char *name, bool extend)
 }
 
 
+static void GameDoTemplate(const char *contents)
+{
+	gamedef_c *other = gamedefs.Lookup(contents);
+
+	if (!other || other == dynamic_gamedef)
+		DDF_Error("Unknown game template: '%s'\n", contents);
+
+	dynamic_gamedef->CopyDetail(*other);
+}
+
+
 static void GameParseField(const char *field, const char *contents,
 						   int index, bool is_last)
 {
 #if (DEBUG_DDF)
 	I_Debugf ("GAME_PARSE: %s = %s;\n", field, contents);
 #endif
+
+	if (DDF_CompareName(field, "TEMPLATE") == 0)
+	{
+		GameDoTemplate(contents);
+		return;
+	}
 
 	// handle some special fields...
 	if (DDF_CompareName(field, "TITLE_GRAPHIC") == 0)

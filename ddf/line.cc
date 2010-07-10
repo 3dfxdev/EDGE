@@ -290,9 +290,6 @@ s_activators[] =
 //  DDF PARSE ROUTINES
 //
 
-//
-// LinedefStartEntry
-//
 static void LinedefStartEntry(const char *name, bool extend)
 {
 	int number = MAX(0, atoi(name));
@@ -326,15 +323,34 @@ static void LinedefStartEntry(const char *name, bool extend)
 	linetypes.Insert(dynamic_line);
 }
 
-//
-// LinedefParseField
-//
+
+static void LinedefDoTemplate(const char *contents)
+{
+	int number = MAX(0, atoi(contents));
+	if (number == 0)
+		DDF_Error("Bad linetype number for template: %s\n", contents);
+
+	linetype_c *other = linetypes.Lookup(number);
+
+	if (!other || other == dynamic_line)
+		DDF_Error("Unknown linetype template: '%s'\n", contents);
+
+	dynamic_line->CopyDetail(*other);
+}
+
+
 static void LinedefParseField(const char *field, const char *contents,
 							  int index, bool is_last)
 {
 #if (DEBUG_DDF)  
 	I_Debugf("LINEDEF_PARSE: %s = %s;\n", field, contents);
 #endif
+
+	if (DDF_CompareName(field, "TEMPLATE") == 0)
+	{
+		LinedefDoTemplate(contents);
+		return;
+	}
 
 	// ignored for backwards compatibility
 	if (DDF_CompareName(field, "SECSPECIAL") == 0)
@@ -363,9 +379,7 @@ static void LinedefParseField(const char *field, const char *contents,
 	DDF_WarnError("Unknown lines.ddf command: %s\n", field);
 }
 
-//
-// LinedefFinishEntry
-//
+
 static void LinedefFinishEntry(void)
 {
 	// -KM- 1999/01/29 Convert old style scroller to new.
@@ -429,9 +443,7 @@ static void LinedefFinishEntry(void)
 	// TODO: check more stuff...
 }
 
-//
-// LinedefClearAll
-//
+
 static void LinedefClearAll(void)
 {
 	// 100% safe to delete all the linetypes

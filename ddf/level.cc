@@ -156,12 +156,29 @@ static void LevelStartEntry(const char *name, bool extend)
 }
 
 
+static void LevelDoTemplate(const char *contents)
+{
+	mapdef_c *other = mapdefs.Lookup(contents);
+
+	if (!other || other == dynamic_level)
+		DDF_Error("Unknown level template: '%s'\n", contents);
+
+	dynamic_level->CopyDetail(*other);
+}
+
+
 static void LevelParseField(const char *field, const char *contents,
 							int index, bool is_last)
 {
 #if (DEBUG_DDF)  
 	I_Debugf("LEVEL_PARSE: %s = %s;\n", field, contents);
 #endif
+
+	if (DDF_CompareName(field, "TEMPLATE") == 0)
+	{
+		LevelDoTemplate(contents);
+		return;
+	}
 
 	// -AJA- ignore this for backwards compatibility
 	if (DDF_CompareName(field, "LIGHTING") == 0)
