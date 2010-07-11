@@ -107,22 +107,6 @@ void RGL_DrawImage(float x, float y, float w, float h, const image_c *image,
 }
 
 
-void RGL_Image320(float x, float y, float w, float h, const image_c *image)
-{
-    RGL_DrawImage(
-			FROM_320(x-IM_OFFSETX(image)),
-            SCREENHEIGHT - FROM_200(y-IM_OFFSETY(image)) - FROM_200(h),
-            FROM_320(w), FROM_200(h), image,
-			0, 0, IM_RIGHT(image), IM_TOP(image),
-			NULL, 1.0f);
-}
-
-void RGL_ImageEasy320(float x, float y, const image_c *image)
-{
-    RGL_Image320(x, y, IM_WIDTH(image), IM_HEIGHT(image), image);
-}
-
-
 void RGL_SolidBox(int x, int y, int w, int h, rgbcol_t col, float alpha)
 {
 	if (alpha < 0.99f)

@@ -584,7 +584,7 @@ void HUD_DrawText(float x, float y, const char *str)
 
 void HUD_RenderWorld(float x1, float y1, float x2, float y2, mobj_t *camera)
 {
-	HUD_PushScissor(x1, y1, x2, y2);
+	HUD_PushScissor(x1, y1, x2, y2, true);
 
 	int *xy = scissor_stack[sci_stack_top-1];
 

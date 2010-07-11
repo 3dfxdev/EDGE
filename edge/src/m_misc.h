@@ -61,10 +61,9 @@ void M_SaveDefaults(void);
 
 void M_InitMiscConVars(void);
 void M_DisplayDisk(void);
-void M_DisplayDesynch(void);
-void M_DisplayAir(void);
 void M_ScreenShot(bool show_msg);
 void M_MakeSaveScreenShot(void);
+
 byte *M_GetFileData(const char *filename, int *length);
 std::string M_ComposeFileName(const char *dir, const char *file);
 epi::file_c *M_OpenComposedEPIFile(const char *dir, const char *file);

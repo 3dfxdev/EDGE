@@ -82,6 +82,7 @@
 #include "dm_state.h"
 #include "e_input.h"
 #include "g_game.h"
+#include "hu_draw.h"
 #include "hu_stuff.h"
 #include "hu_style.h"
 #include "m_menu.h"
@@ -839,7 +840,7 @@ void M_OptDrawer()
 
 		image = curr_menu->title_image;
 
-		RGL_ImageEasy320(curr_menu->title_x, menutop, image);
+		HUD_DrawImage(curr_menu->title_x, menutop, image);
 
 
 	//now, draw all the menuitems

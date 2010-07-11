@@ -59,8 +59,6 @@ void RGL_GradientBox(int x, int y, int w, int h, rgbcol_t *cols, float alpha = 1
 
 // Convenience functions
 void RGL_Image(float x, float y, float w, float h, const image_c *image);
-void RGL_Image320(float x, float y, float w, float h, const image_c *image);
-void RGL_ImageEasy320(float x, float y, const image_c *image);
 
 #endif /* __R_DRAW_H__ */
 
