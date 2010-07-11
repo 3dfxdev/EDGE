@@ -78,7 +78,13 @@ void RGL_DrawImage(float x, float y, float w, float h, const image_c *image,
 		glEnable(GL_BLEND);
 
 	if (textmap)
-		V_GetColmapRGB(textmap, &r, &g, &b, true);
+	{
+		rgbcol_t col = V_GetFontColor(textmap);
+
+		r = RGB_RED(col) / 255.0;
+		g = RGB_GRN(col) / 255.0;
+		b = RGB_BLU(col) / 255.0;
+	}
 
 	glColor4f(r, g, b, alpha);
 

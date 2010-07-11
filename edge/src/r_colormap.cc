@@ -538,25 +538,71 @@ void TransformColourmap(colourmap_c *colmap)
 }
 
 
-void V_GetColmapRGB(const colourmap_c *colmap,
-					float *r, float *g, float *b,
-					bool font)
+void V_GetColmapRGB(const colourmap_c *colmap, float *r, float *g, float *b)
 {
-	if (colmap->gl_colour   == RGB_NO_VALUE ||
-		colmap->font_colour == RGB_NO_VALUE)
+	if (colmap->gl_colour == RGB_NO_VALUE)
 	{
 		// Intention Const Override
 		TransformColourmap((colourmap_c *)colmap);
 	}
 
-	rgbcol_t col = font ? colmap->font_colour : colmap->gl_colour;
-
-	SYS_ASSERT(col != RGB_NO_VALUE);
+	rgbcol_t col = colmap->gl_colour;
 
 	(*r) = GAMMA_CONV((col >> 16) & 0xFF) / 255.0f;
 	(*g) = GAMMA_CONV((col >>  8) & 0xFF) / 255.0f;
 	(*b) = GAMMA_CONV((col      ) & 0xFF) / 255.0f;
 }
+
+
+rgbcol_t V_GetFontColor(const colourmap_c *colmap)
+{
+	if (! colmap)
+		return RGB_NO_VALUE;
+
+	if (colmap->font_colour == RGB_NO_VALUE)
+	{
+		// Intention Const Override
+		TransformColourmap((colourmap_c *)colmap);
+	}
+
+	return colmap->font_colour;
+}
+
+
+rgbcol_t V_ParseFontColor(const char *name, bool strict)
+{
+	if (! name || ! name[0])
+		return RGB_NO_VALUE;
+
+	rgbcol_t rgb;
+
+	if (name[0] == '#')
+	{
+		rgb = strtol(name+1, NULL, 16);
+	}
+	else
+	{
+		const colourmap_c *colmap = colourmaps.Lookup(name);
+
+		if (! colmap)
+		{
+			if (strict)
+				I_Error("Unknown colormap: '%s'\n", name);
+			else
+				I_Debugf("Unknown colormap: '%s'\n", name);
+
+			return RGB_MAKE(255,0,255);
+		}
+
+		rgb = V_GetFontColor(colmap);
+	}
+
+	if (rgb == RGB_NO_VALUE)
+		rgb ^= 0x000101;
+	
+	return rgb;
+}
+
 
 //
 // Call this at the start of each frame (before any rendering or
