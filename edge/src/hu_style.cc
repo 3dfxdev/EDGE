@@ -18,6 +18,7 @@
 
 #include "i_defs.h"
 #include "hu_style.h"
+#include "hu_draw.h"
 
 #include "dm_defs.h"
 #include "dm_state.h"
@@ -44,9 +45,6 @@ style_c::~style_c()
 }
 
 
-//
-// style_c::Load
-//
 void style_c::Load()
 {
 	if (def->bg.image_name.c_str())
@@ -66,61 +64,39 @@ void style_c::Load()
 	}
 }
 
-//
-// style_c::DrawBackground
-//
-// !!! FIXME: align -- temp fix for console.
-//
-void style_c::DrawBackground(int x, int y, int w, int h, int align)
+
+void style_c::DrawBackground()
 {
-	if (w == 0)
-		x = 0, w = SCREENWIDTH;
-
-	if (h == 0)
-		y = 0, h = SCREENHEIGHT;
-
 	float alpha = PERCENT_2_FLOAT(def->bg.translucency);
 
 	if (alpha < 0.02)
 		return;
 
+	HUD_SetAlpha(alpha);
+
 	if (! bg_image)
 	{
 		if (def->bg.colour != RGB_NO_VALUE)
-			RGL_SolidBox(x, y, w, h, def->bg.colour, alpha);
+			HUD_SolidBox(0, 0, 320, 200, def->bg.colour);
+
+		HUD_SetAlpha(1.0f);
 		return;
 	}
 
-	float right = IM_RIGHT(bg_image);
-	float top   = IM_TOP(bg_image);
-
-	if (def->special & SYLSP_Tiled)
+	if (def->special & (SYLSP_Tiled | SYLSP_TiledNoScale))
 	{
-		float y_scale = def->bg.scale;
-		float x_scale = def->bg.aspect * y_scale;
+		HUD_SetScale(def->bg.scale);
 
-		x_scale *= (float)SCREENWIDTH  / 320.0f;
-		y_scale *= (float)SCREENHEIGHT / 200.0f;
+		HUD_TileImage(0, 0, 320, 200, bg_image);
 
-		RGL_DrawImage(x, y, w, h, bg_image,
-				0.0f, align ? (1.0f - top * h / IM_HEIGHT(bg_image) / y_scale) : 0.0f,
-				right  * w / IM_WIDTH(bg_image)  / x_scale,
-				align ? 1.0f : (top * h / IM_HEIGHT(bg_image) / y_scale),
-				NULL, alpha);
-	}
-	else if (def->special & SYLSP_TiledNoScale)
-	{
-		RGL_DrawImage(x, y, w, h, bg_image,
-				0.0f, align ? (1.0f - top * h / IM_HEIGHT(bg_image)) : 0.0f,
-				right  * w / IM_WIDTH(bg_image),
-				align ? 1.0f : (top * h / IM_HEIGHT(bg_image)),
-				NULL, alpha);
+		HUD_SetScale(1.0f);
 	}
 	else
 	{
-		RGL_DrawImage(x, y, w, h, bg_image, 0.0f, 0.0f,
-					  right, top, NULL, alpha);
+		HUD_StretchImage(0, 0, 320, 200, bg_image);
 	}
+
+	HUD_SetAlpha(1.0f);
 }
 
 // ---> style_container_c class

@@ -43,22 +43,6 @@ void RGL_ReadScreen(int x, int y, int w, int h, byte *rgb_buffer);
 // I_StartFrame).
 void RGL_NewScreenSize(int width, int height, int bits);
 
-// Draw a solid colour box (possibly translucent) in the given
-// rectangle.  Coordinates are inclusive.  Alpha ranges from 0
-// (invisible) to 255 (totally opaque).  Colour is a palette index
-// (0-255).  Drawing will be clipped to the current clipping
-// rectangle.
-void RGL_SolidBox(int x, int y, int w, int h, rgbcol_t col, float alpha = 1.0);
-
-// Draw a thin outline of a box.
-void RGL_ThinBox(int x, int y, int w, int h, rgbcol_t col, float alpha = 1.0);
-
-// Like RGL_SolidBox but the colors of each corner (TL, BL, TR, BR) can
-// be specified individually.
-void RGL_GradientBox(int x, int y, int w, int h, rgbcol_t *cols, float alpha = 1.0);
-
-// Convenience functions
-void RGL_Image(float x, float y, float w, float h, const image_c *image);
 
 #endif /* __R_DRAW_H__ */
 
