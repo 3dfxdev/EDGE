@@ -362,12 +362,31 @@ static void CalcSizes()
 }
 
 
+static void SolidBox(int x, int y, int w, int h, rgbcol_t col, float alpha)
+{
+	if (alpha < 0.99f)
+		glEnable(GL_BLEND);
+  
+	glColor4f(RGB_RED(col)/255.0, RGB_GRN(col)/255.0, RGB_BLU(col)/255.0, alpha);
+  
+	glBegin(GL_QUADS);
+
+	glVertex2i(x,   y);
+	glVertex2i(x,   y+h);
+	glVertex2i(x+w, y+h);
+	glVertex2i(x+w, y);
+  
+	glEnd();
+	glDisable(GL_BLEND);
+}
+
 static void HorizontalLine(int y, rgbcol_t col)
 {
 	float alpha = 1.0f;
 
-	RGL_SolidBox(0, y, SCREENWIDTH-1, 1, col, alpha);
+	SolidBox(0, y, SCREENWIDTH-1, 1, col, alpha);
 }
+
 
 static void DrawChar(int x, int y, char ch, rgbcol_t col)
 {
@@ -475,7 +494,7 @@ void CON_Drawer(void)
 	else
 		y = y - CON_GFX_HT;
 
-	console_style->DrawBackground(0, y, SCREENWIDTH, SCREENHEIGHT - y, 1);
+	SolidBox(0, y, SCREENWIDTH, SCREENHEIGHT - y, RGB_MAKE(0,0,8), 0.75f);
 
 	y += YMUL / 4;
 
@@ -1161,7 +1180,7 @@ void CON_ShowFPS(void)
 	int x = SCREENWIDTH  - XMUL * 16;
 	int y = SCREENHEIGHT - YMUL * lcount;
 
-	RGL_SolidBox(x, y, SCREENWIDTH, SCREENHEIGHT, RGB_MAKE(0,0,0), 0.5);
+	SolidBox(x, y, SCREENWIDTH, SCREENHEIGHT, RGB_MAKE(0,0,0), 0.5);
 
 	x += XMUL;
 	y = SCREENHEIGHT - YMUL - YMUL/2;
