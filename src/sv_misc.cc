@@ -304,17 +304,13 @@ static savefield_t sv_fields_drawtip[] =
 	SF(playsound, "playsound", 1, SVT_BOOLEAN, SR_GetBoolean, SR_PutBoolean),
 	SF(fade_time, "fade_time", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(fade_target, "fade_target", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
-	SF(colmap, "colmap", 1, SVT_STRING, SR_LevelGetColmap, SR_LevelPutColmap),
-
-/* REMOVED:  SF(p.colourmap_name, "colourmap_name", 1, SVT_STRING,
- *   			SR_TipGetString, SR_TipPutString),
- */
+	SF(color, "color", 1, SVT_STRING, SR_LevelGetColmap, SR_LevelPutColmap),
 
 	// NOT HERE:
 	//    p.slot_num, p.time: not used withing drawtip_t
 	//    dirty: this is set in the finalizer
 	//    hu_*: these are regenerated on next display
-	//    p.colourmap_name: deprecated field
+	//    p.color_name: only serves to generate 'color' field
 
 	SVFIELD_END
 };

@@ -60,8 +60,8 @@ typedef struct s_tip_prop_s
 	// left justify.  Can be 1, 0, or < 0 for no change.
 	int left_just;
 
-	// tip colourmap, or NULL for no change
-	const char *colourmap_name;
+	// tip color, or NULL for no change
+	const char *color_name;
 
 	// translucency value (normally 1.0), or < 0 for no change
 	percent_t translucency;
@@ -608,6 +608,7 @@ rad_trigger_t;
 // Tip Displayer info
 //
 #define MAXTIPSLOT    45
+
 #define TIP_LINE_MAX  10
 
 typedef struct drawtip_s
@@ -633,15 +634,11 @@ typedef struct drawtip_s
 	float scale;
 
 	// current colour
-	const colourmap_c *colmap;
+	rgbcol_t color;
 
 	// fading fields
 	int fade_time;
 	float fade_target;
-
-	// HULIB info
-	int hu_linenum;
-	hu_textline_t hu_lines[TIP_LINE_MAX];
 }
 drawtip_t;
 
