@@ -367,11 +367,11 @@ static void TextWrite(void)
 	// 98-7-10 KM erase the entire screen to a tiled background
 	if (finale_textback)
 	{
-		RGL_DrawImage(0, 0, SCREENWIDTH, SCREENHEIGHT, finale_textback,
-				0.0f, 0.0f, IM_RIGHT(finale_textback) * finale_textbackscale,
-				IM_TOP(finale_textback) * finale_textbackscale, NULL, 1.0f);
+		HUD_SetScale(finale_textbackscale);
+		HUD_TileImage(0, 0, 320, 200, finale_textback);
+		HUD_SetScale();
 	}
-	
+
 	// draw some of the text onto the screen
 	int cx = 10;
 	int cy = 10;
