@@ -46,6 +46,7 @@
 #include "dm_state.h"
 #include "e_input.h"
 #include "e_player.h"
+#include "hu_draw.h"
 #include "hu_stuff.h"  // only for showMessages
 #include "m_argv.h"
 #include "m_misc.h"
@@ -79,8 +80,6 @@ bool display_disk = false;
 int  display_desync = 0;
 
 static const image_c *disk_image = NULL;
-static const image_c *desynch_image = NULL;
-static const image_c *air_images[21] = { NULL };
 
 bool force_directx = false;
 bool force_waveout = false;
@@ -460,66 +459,7 @@ void M_DisplayDisk(void)
 	float w = IM_WIDTH(disk_image);
 	float h = IM_HEIGHT(disk_image);
 
-	RGL_Image320(314 - w, 164 - h, w, h, disk_image);
-}
-
-
-void M_DisplayAir(void)
-{
-	/* displays air indicator when underwater */
-
-	int i;
-  
-	if (numplayers == 0)
-		return;
-
-	player_t *p = players[displayplayer];
-
-	if (p->playerstate != PST_LIVE || ! p->underwater)
-		return;
-
-	SYS_ASSERT(p->mo);
-
-	// load in patches for air indicator
-	if (!air_images[0])
-	{
-		for (i=1; i <= 21; i++)
-		{
-			char buffer[16];
-			sprintf(buffer, "AIRBAR%02d", i);
-			air_images[i - 1] = W_ImageLookup(buffer);
-		}
-	}
-
-	i = 21;
-
-	if (p->air_in_lungs > 0)
-	{
-		int nom   = p->air_in_lungs;
-		int denom = p->mo->info->lung_capacity;
-    
-		i = 1 + (20 * (denom - nom) / denom);
-
-		SYS_ASSERT(1 <= i && i <= 20);
-	}
-  
-	RGL_ImageEasy320(0, 0, air_images[i - 1]);
-}
-
-void M_DisplayDesynch(void)
-{
-	if (display_desync > 0)
-	{
-		display_desync--;
-
-		if (!desynch_image)
-			desynch_image = W_ImageLookup("STDESYNC");
-
-		float w = IM_WIDTH(desynch_image);
-		float h = IM_HEIGHT(desynch_image);
-
-		RGL_Image320(160 - w/2, 140 - h/2, w, h, desynch_image);
-	}
+	HUD_StretchImage(314 - w, 164 - h, w, h, disk_image);
 }
 
 

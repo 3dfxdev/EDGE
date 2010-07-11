@@ -41,6 +41,7 @@
 #include "e_main.h"
 #include "g_game.h"
 #include "f_interm.h"
+#include "hu_draw.h"
 #include "hu_stuff.h"
 #include "hu_style.h"
 #include "m_argv.h"
@@ -723,7 +724,7 @@ void M_DrawLoad(void)
 {
 	int i;
 
-	RGL_ImageEasy320(72, 8, menu_loadg);
+	HUD_DrawImage(72, 8, menu_loadg);
       
 	for (i = 0; i < SAVE_SLOTS; i++)
 		M_DrawSaveLoadBorder(LoadDef.x + 8, LoadDef.y + LINEHEIGHT * (i), 24);
@@ -748,12 +749,12 @@ void M_DrawSaveLoadBorder(float x, float y, int len)
 	const image_c *C = W_ImageLookup("M_LSCNTR");
 	const image_c *R = W_ImageLookup("M_LSRGHT");
 
-	RGL_ImageEasy320(x - IM_WIDTH(L), y + 7, L);
+	HUD_DrawImage(x - IM_WIDTH(L), y + 7, L);
 
 	for (int i = 0; i < len; i++, x += IM_WIDTH(C))
-		RGL_ImageEasy320(x, y + 7, C);
+		HUD_DrawImage(x, y + 7, C);
 
-	RGL_ImageEasy320(x, y + 7, R);
+	HUD_DrawImage(x, y + 7, R);
 }
 
 //
@@ -795,7 +796,7 @@ void M_DrawSave(void)
 {
 	int i, len;
 
-	RGL_ImageEasy320(72, 8, menu_saveg);
+	HUD_DrawImage(72, 8, menu_saveg);
 
 	for (i = 0; i < SAVE_SLOTS; i++)
 	{
@@ -965,7 +966,7 @@ void M_QuickLoad(void)
 //
 void M_DrawReadThis1(void)
 {
-	RGL_Image320(0, 0, 320, 200, menu_readthis[0]);
+	HUD_StretchImage(0, 0, 320, 200, menu_readthis[0]);
 }
 
 //
@@ -973,13 +974,13 @@ void M_DrawReadThis1(void)
 //
 void M_DrawReadThis2(void)
 {
-	RGL_Image320(0, 0, 320, 200, menu_readthis[1]);
+	HUD_StretchImage(0, 0, 320, 200, menu_readthis[1]);
 }
 
 
 void M_DrawSound(void)
 {
-	RGL_ImageEasy320(60, 38, menu_svol);
+	HUD_DrawImage(60, 38, menu_svol);
 
 	M_DrawThermo(SoundDef.x, SoundDef.y + LINEHEIGHT * (sfx_vol   + 1), SND_SLIDER_NUM, sfx_volume, 1);
 	M_DrawThermo(SoundDef.x, SoundDef.y + LINEHEIGHT * (music_vol + 1), SND_SLIDER_NUM, mus_volume, 1);
@@ -1036,13 +1037,13 @@ void M_MusicVol(int choice)
 
 void M_DrawMainMenu(void)
 {
-	RGL_ImageEasy320(94, 2, menu_doom);
+	HUD_DrawImage(94, 2, menu_doom);
 }
 
 void M_DrawNewGame(void)
 {
-	RGL_ImageEasy320(96, 14, menu_newgame);
-	RGL_ImageEasy320(54, 38, menu_skill);
+	HUD_DrawImage(96, 14, menu_newgame);
+	HUD_DrawImage(54, 38, menu_skill);
 }
 
 void M_NewGame(int choice)
@@ -1105,7 +1106,7 @@ void M_DrawEpisode(void)
 	if (!EpisodeMenu)
 		CreateEpisodeMenu();
     
-	RGL_ImageEasy320(54, 38, menu_episode);
+	HUD_DrawImage(54, 38, menu_episode);
 }
 
 static void ReallyDoStartLevel(skill_t skill, gamedef_c *g)
@@ -1389,18 +1390,18 @@ void M_DrawThermo(int x, int y, int thermWidth, int thermDot, int div)
 	// Note: the (step+1) here is for compatibility with the original
 	// code.  It seems required to make the thermo bar tile properly.
 
-	RGL_Image320(x, y, step+1, IM_HEIGHT(therm_l)/div, therm_l);
+	HUD_StretchImage(x, y, step+1, IM_HEIGHT(therm_l)/div, therm_l);
 
 	for (i=0, x += step; i < thermWidth; i++, x += step)
 	{
-		RGL_Image320(x, y, step+1, IM_HEIGHT(therm_m)/div, therm_m);
+		HUD_StretchImage(x, y, step+1, IM_HEIGHT(therm_m)/div, therm_m);
 	}
 
-	RGL_Image320(x, y, step+1, IM_HEIGHT(therm_r)/div, therm_r);
+	HUD_StretchImage(x, y, step+1, IM_HEIGHT(therm_r)/div, therm_r);
 
 	x = basex + step + thermDot * step;
 
-	RGL_Image320(x, y, step+1, IM_HEIGHT(therm_o)/div, therm_o);
+	HUD_StretchImage(x, y, step+1, IM_HEIGHT(therm_o)/div, therm_o);
 }
 
 void M_StartMessage(const char *string, void (* routine)(int response), 
@@ -2003,7 +2004,7 @@ void M_Drawer(void)
 
 		const image_c *image = currentMenu->menuitems[i].image;
 
-		RGL_ImageEasy320(x, y, image);
+		HUD_DrawImage(x, y, image);
 	}
 
 	// DRAW SKULL
@@ -2011,7 +2012,7 @@ void M_Drawer(void)
 		int sx = x + SKULLXOFF;
 		int sy = currentMenu->y - 5 + itemOn * LINEHEIGHT;
 
-		RGL_ImageEasy320(sx, sy, menu_skull[whichSkull]);
+		HUD_DrawImage(sx, sy, menu_skull[whichSkull]);
 	}
 }
 
