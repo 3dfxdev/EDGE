@@ -53,17 +53,18 @@ void HL_Init(void);
 void HUD_FrameSetup(void);
 
 
-void HUD_PushScissor(float x1, float y1, float x2, float y2);
+void HUD_PushScissor(float x1, float y1, float x2, float y2, bool world=false);
 void HUD_PopScissor();
 // manage the current clip rectangle.  The first push enables the
 // scissor test, subsequent pushes merely shrink the area, and the
 // last pop disables the scissor test.
 
 
-void HUD_RawImage(float x, float y, float w, float h, const image_c *image,
-				 float tx1, float ty1, float tx2, float ty2,
-				 float alpha = 1.0f, rgbcol_t text_col = RGB_NO_VALUE,
-				 const colourmap_c *palremap = NULL);
+void HUD_RawImage(float hx1, float hy1, float hx2, float hy2,
+                  const image_c *image, 
+				  float tx1, float ty1, float tx2, float ty2,
+				  float alpha = 1.0f, rgbcol_t text_col = RGB_NO_VALUE,
+				  const colourmap_c *palremap = NULL);
  
 void HUD_SolidBox(float x1, float y1, float x2, float y2, rgbcol_t col);
 // Draw a solid colour box (possibly translucent) in the given

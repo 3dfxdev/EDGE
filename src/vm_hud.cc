@@ -594,7 +594,9 @@ void VM_RunHud(void)
 	ui_hud_automap_flags[1] = 0;
 	ui_hud_automap_zoom = -1;
 
-    VM_CallFunction(ui_vm, "draw_all");
+	VM_CallFunction(ui_vm, "draw_all");
+
+	HUD_Reset();
 }
 
 //--- editor settings ---
