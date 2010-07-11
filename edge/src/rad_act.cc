@@ -26,7 +26,7 @@
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "con_main.h"
-#include "hu_lib.h"
+#include "hu_draw.h"
 #include "hu_stuff.h"
 #include "g_game.h"
 #include "m_argv.h"
@@ -57,24 +57,23 @@ drawtip_t tip_slots[MAXTIPSLOT];
 
 static s_tip_prop_t fixed_props[FIXEDSLOTS] =
 {
-	{  1, 0.50f, 0.50f, 0, "TEXT_WHITE",  1.0f }, 
-	{  2, 0.20f, 0.25f, 1, "TEXT_WHITE",  1.0f },
-	{  3, 0.20f, 0.75f, 1, "TEXT_WHITE",  1.0f },
-	{  4, 0.50f, 0.50f, 0, "TEXT_BLUE",   1.0f },
-	{  5, 0.20f, 0.25f, 1, "TEXT_BLUE",   1.0f },
-	{  6, 0.20f, 0.75f, 1, "TEXT_BLUE",   1.0f },
-	{  7, 0.50f, 0.50f, 0, "TEXT_YELLOW", 1.0f },
-	{  8, 0.20f, 0.25f, 1, "TEXT_YELLOW", 1.0f },
-	{  9, 0.20f, 0.75f, 1, "TEXT_YELLOW", 1.0f },
-	{ 10, 0.50f, 0.50f, 0, "NORMAL",      1.0f },  // will be RED
-	{ 11, 0.20f, 0.25f, 1, "NORMAL",      1.0f },  //
-	{ 12, 0.20f, 0.75f, 1, "NORMAL",      1.0f },  //
-	{ 13, 0.50f, 0.50f, 0, "TEXT_GREEN",  1.0f },
-	{ 14, 0.20f, 0.25f, 1, "TEXT_GREEN",  1.0f },
-	{ 15, 0.20f, 0.75f, 1, "TEXT_GREEN",  1.0f } 
+	{  1, 0.50f, 0.50f, 0, "#FFFFFF", 1.0f }, 
+	{  2, 0.20f, 0.25f, 1, "#FFFFFF", 1.0f },
+	{  3, 0.20f, 0.75f, 1, "#FFFFFF", 1.0f },
+	{  4, 0.50f, 0.50f, 0, "#3333FF", 1.0f },
+	{  5, 0.20f, 0.25f, 1, "#3333FF", 1.0f },
+	{  6, 0.20f, 0.75f, 1, "#3333FF", 1.0f },
+	{  7, 0.50f, 0.50f, 0, "#FFFF00", 1.0f },
+	{  8, 0.20f, 0.25f, 1, "#FFFF00", 1.0f },
+	{  9, 0.20f, 0.75f, 1, "#FFFF00", 1.0f },
+	{ 10, 0.50f, 0.50f, 0, "",        1.0f },
+	{ 11, 0.20f, 0.25f, 1, "",        1.0f },
+	{ 12, 0.20f, 0.75f, 1, "",        1.0f },
+	{ 13, 0.50f, 0.50f, 0, "#33FF33", 1.0f },
+	{ 14, 0.20f, 0.25f, 1, "#33FF33", 1.0f },
+	{ 15, 0.20f, 0.75f, 1, "#33FF33", 1.0f } 
 };
 
-static style_c *rts_hack_style;
 
 //
 // Once-only initialisation.
@@ -91,7 +90,7 @@ void RAD_InitTips(void)
 		Z_MoveData(&current->p, src, s_tip_prop_t, 1);
 
 		current->delay = -1;
-		current->colmap = NULL;
+		current->color = RGB_NO_VALUE;
 
 		current->p.slot_num  = i;
 	}
@@ -113,90 +112,16 @@ void RAD_ResetTips(void)
 	RAD_InitTips();
 }
 
+
 static void SetupTip(drawtip_t *cur)
 {
-	if (! rts_hack_style)
-	{
-		styledef_c *def = styledefs.Lookup("RTS_TIP");
-		if (! def)
-			def = default_style;
-		rts_hack_style = hu_styles.Lookup(def);
-	}
-
-	int i;
-	int font_height = rts_hack_style->fonts[0]->NominalHeight() + 2;
-	int base_x, base_y;
-
-	const char *ch_ptr;
-	bool need_newbie;
-
-	hu_textline_t *HU;
-
 	if (cur->tip_graphic)
 		return;
 
-	if (! cur->colmap)
-	{
-		cur->colmap = colourmaps.Lookup(cur->p.colourmap_name); 
-		if (! cur->colmap)
-			cur->colmap = text_white_map;
-	}
-
-	// build HULIB information
-
-	base_x = (int)(320 * PERCENT_2_FLOAT(cur->p.x_pos));
-	base_y = (int)(200 * PERCENT_2_FLOAT(cur->p.y_pos));
-
-	HU = NULL;
-	need_newbie = true;
-	cur->hu_linenum = 0;
-
-	for (ch_ptr=cur->tip_text; *ch_ptr; ch_ptr++)
-	{
-		if (need_newbie)
-		{
-			HU = cur->hu_lines + cur->hu_linenum;
-			cur->hu_linenum++;
-
-			HL_InitTextLine(HU, base_x, base_y, rts_hack_style, 0);
-			HU->centre = cur->p.left_just ? false : true;
-
-			need_newbie = false;
-		}
-
-		if (*ch_ptr == '\n')
-		{
-			if (cur->hu_linenum == TIP_LINE_MAX)
-				break;
-
-			need_newbie = true;
-			continue;
-		}
-
-		SYS_ASSERT(HU);
-
-		HL_AddCharToTextLine(HU, *ch_ptr);
-	}
-
-	// adjust vertical positions
-	for (i=0; i < cur->hu_linenum; i++)
-	{
-		cur->hu_lines[i].y += (i * 2 - cur->hu_linenum) * font_height / 2;
-	}
+	if (cur->color == RGB_NO_VALUE)
+		cur->color = V_ParseFontColor(cur->p.color_name);
 }
 
-static void FinishTip(drawtip_t *current)
-{
-	int i;
-
-	if (current->tip_graphic)
-		return;
-
-	for (i=0; i < current->hu_linenum; i++)
-	{
-		HL_EraseTextLine(current->hu_lines + i);
-	}
-}
 
 static void SendTip(rad_trigger_t *R, s_tip_t * tip, int slot)
 {
@@ -205,10 +130,6 @@ static void SendTip(rad_trigger_t *R, s_tip_t * tip, int slot)
 	SYS_ASSERT(0 <= slot && slot < MAXTIPSLOT);
 
 	current = tip_slots + slot;
-
-	// if already in use, boot out the squatter
-	if (current->delay && !current->dirty)
-		FinishTip(current);
 
 	current->delay = tip->display_time;
 
@@ -243,10 +164,9 @@ static void SendTip(rad_trigger_t *R, s_tip_t * tip, int slot)
 //
 void RAD_DisplayTips(void)
 {
-	int i, slot;
-	float alpha;
+	HUD_Reset();
 
-	for (slot=0; slot < MAXTIPSLOT; slot++)
+	for (int slot=0; slot < MAXTIPSLOT; slot++)
 	{
 		drawtip_t *current = tip_slots + slot;
 
@@ -263,8 +183,6 @@ void RAD_DisplayTips(void)
 		// If the display time is up reset the tip and erase it.
 		if (current->delay == 0)
 		{
-			FinishTip(current);
-
 			current->delay = -1;
 			continue;
 		}
@@ -279,42 +197,32 @@ void RAD_DisplayTips(void)
 			current->playsound = false;
 		}
 
-		alpha = current->p.translucency;
+		float alpha = current->p.translucency;
 
 		if (alpha < 0.02f)
 			continue;
 
+		HUD_SetScale(current->scale);
+		HUD_SetTextColor(current->color);
+		HUD_SetAlpha(alpha);
+
+		if (current->p.left_just)
+			HUD_SetAlignment(-1, 0);
+		else
+			HUD_SetAlignment(0, 0);
+
+		float x = current->p.x_pos * 320.0f;
+		float y = current->p.y_pos * 200.0f;
+
 		if (current->tip_graphic)
-		{
-			float sc = current->scale;
+			HUD_DrawImage(x, y, current->tip_graphic);
+		else
+			HUD_DrawText(x, y, current->tip_text);
 
-			const image_c *image = current->tip_graphic;
-
-			int x = (int)(SCREENWIDTH  * PERCENT_2_FLOAT(current->p.x_pos));
-			int y = (int)(SCREENHEIGHT * PERCENT_2_FLOAT(current->p.y_pos));
-
-			int w = (int)(0.5f + sc * FROM_320(IM_WIDTH(image)));
-			int h = (int)(0.5f + sc * FROM_200(IM_HEIGHT(image)));
-
-			y -= h / 2;
-
-			if (! current->p.left_just)
-				x -= w / 2;
-
-			RGL_DrawImage(x, SCREENHEIGHT-1 - y-h, w, h, image,
-						  0, 0, IM_RIGHT(image), IM_TOP(image),
-						  NULL, alpha);
-
-			continue;
-		}
-
-		// Dump it to the screen
-
-		for (i=0; i < current->hu_linenum; i++)
-		{
-			HL_DrawTextLineAlpha(current->hu_lines + i, false,
-				current->colmap, alpha);
-		}
+		HUD_SetAlignment();
+		HUD_SetAlpha();
+		HUD_SetScale();
+		HUD_SetTextColor();
 	}
 }
 
@@ -416,11 +324,8 @@ void RAD_ActTipProps(rad_trigger_t *R, void *param)
 	if (tp->left_just >= 0)
 		current->p.left_just = tp->left_just;
 
-	if (tp->colourmap_name)
-	{
-		// FIXME!!! Catch lookup failure 
-		current->colmap = colourmaps.Lookup(tp->colourmap_name); 
-	}
+	if (tp->color_name)
+		current->color = V_ParseFontColor(tp->color_name); 
 
 	if (tp->translucency >= 0)
 	{
