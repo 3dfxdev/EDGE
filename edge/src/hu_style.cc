@@ -79,7 +79,7 @@ void style_c::DrawBackground()
 		if (def->bg.colour != RGB_NO_VALUE)
 			HUD_SolidBox(0, 0, 320, 200, def->bg.colour);
 
-		HUD_SetAlpha(1.0f);
+		HUD_SetAlpha();
 		return;
 	}
 
@@ -89,14 +89,14 @@ void style_c::DrawBackground()
 
 		HUD_TileImage(0, 0, 320, 200, bg_image);
 
-		HUD_SetScale(1.0f);
+		HUD_SetScale();
 	}
 	else
 	{
 		HUD_StretchImage(0, 0, 320, 200, bg_image);
 	}
 
-	HUD_SetAlpha(1.0f);
+	HUD_SetAlpha();
 }
 
 // ---> style_container_c class

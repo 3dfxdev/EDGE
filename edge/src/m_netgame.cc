@@ -34,6 +34,7 @@
 #include "dstrings.h"
 #include "e_main.h"
 #include "g_game.h"
+#include "hu_draw.h"
 #include "hu_stuff.h"
 #include "hu_style.h"
 #include "m_argv.h"
@@ -508,7 +509,9 @@ static void HostAccept(void)
 
 void M_DrawHostMenu(void)
 {
-	ng_host_style->DrawBackground();
+	HUD_SetAlpha(0.64f);
+	HUD_SolidBox(0, 0, 320, 200, T_BLACK);
+	HUD_SetAlpha();
 
 	HL_WriteText(ng_host_style,2, 80, 30, "ADVANCED START GAME");
 
@@ -679,7 +682,9 @@ static void JoinChangeOption(int opt, int key)
 
 void M_DrawJoinMenu(void)
 {
-	ng_join_style->DrawBackground();
+	HUD_SetAlpha(0.64f);
+	HUD_SolidBox(0, 0, 320, 200, T_BLACK);
+	HUD_SetAlpha();
 
 	HL_WriteText(ng_join_style,2, 80, 10, "JOIN NET GAME");
 
@@ -782,7 +787,9 @@ static void NetGameStartLevel(void)
 
 void M_DrawPlayerList(void)
 {
-	ng_list_style->DrawBackground();
+	HUD_SetAlpha(0.64f);
+	HUD_SolidBox(0, 0, 320, 200, T_BLACK);
+	HUD_SetAlpha();
 
 	HL_WriteText(ng_list_style,2, 80, 10, "PLAYER LIST");
 
