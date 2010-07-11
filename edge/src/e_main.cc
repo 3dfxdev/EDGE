@@ -467,16 +467,15 @@ static void M_DisplayPause(void)
 
 	// make sure image is centered horizontally
 
-	float w = FROM_320(IM_WIDTH(pause_image));
-	float h = FROM_200(IM_HEIGHT(pause_image));
+	float w = IM_WIDTH(pause_image);
+	float h = IM_HEIGHT(pause_image);
 
-	float x = FROM_320(160) - w / 2;
-	float y = FROM_200(190) - h;
+	float x = 160 - w / 2;
+	float y = 190 - h;
 
-    RGL_DrawImage(x, y, w, h, pause_image,
-			      0, 0, IM_RIGHT(pause_image), IM_TOP(pause_image),
-				  NULL, 1.0f);
+	HUD_StretchImage(x, y, w, h, pause_image);
 }
+
 
 wipetype_e wipe_method = WIPE_Melt;
 int wipe_reverse = 0;
