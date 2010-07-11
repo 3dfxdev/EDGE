@@ -356,8 +356,17 @@ void HUD_TileImage(float x, float y, float w, float h, const image_c *img,
 
 void HUD_SolidBox(float x1, float y1, float x2, float y2, rgbcol_t col)
 {
-	x1 = COORD_X(x1); y1 = SCREENHEIGHT - COORD_Y(y1);
-	x2 = COORD_X(x2); y2 = SCREENHEIGHT - COORD_Y(y2);
+	// expand to cover wide screens
+	if (x1 < 1 && x2 > cur_coord_W-1 && y1 < 1 && y2 > cur_coord_H-1)
+	{
+		x1 = 0; x2 = SCREENWIDTH;
+		y1 = 0; y2 = SCREENHEIGHT;
+	}
+	else
+	{
+		x1 = COORD_X(x1); y1 = SCREENHEIGHT - COORD_Y(y1);
+		x2 = COORD_X(x2); y2 = SCREENHEIGHT - COORD_Y(y2);
+	}
 
 	if (cur_alpha < 0.99f)
 		glEnable(GL_BLEND);
