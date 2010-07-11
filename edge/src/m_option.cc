@@ -339,8 +339,8 @@ static int M_GetCurrentSwitchValue(optmenuitem_t *item)
 //
 //  MAIN MENU
 //
-#define LANGUAGE_POS  9
-#define HOSTNET_POS   12
+#define LANGUAGE_POS  8
+#define HOSTNET_POS   11
 
 static optmenuitem_t mainoptions[] =
 {
@@ -357,7 +357,6 @@ static optmenuitem_t mainoptions[] =
 	{OPT_Switch,   "Messages",          YesNo, 2, &showMessages, NULL, "Messages"},
 	{OPT_Plain,    "",                  NULL,  0, NULL, NULL, NULL},
 	{OPT_Function, "Advanced Start",    NULL,  0, NULL, M_HostNetGame, NULL},
-//	{OPT_Function, "Join NetGame",      NULL,  0, NULL, M_JoinNetGame, NULL},
 	{OPT_Plain,    "",                  NULL,  0, NULL, NULL, NULL},
 	{OPT_Function, "Reset to Defaults", NULL,  0, NULL, M_ResetDefaults, NULL}
 };
