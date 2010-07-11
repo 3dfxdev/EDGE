@@ -620,9 +620,9 @@ static const image_c *title_image = NULL;
 static void E_TitleDrawer(void)
 {
 	if (title_image)
-		RGL_Image320(0, 0, 320, 200, title_image);
+		HUD_StretchImage(0, 0, 320, 200, title_image);
 	else
-		RGL_SolidBox(0, 0, SCREENWIDTH, SCREENHEIGHT, RGB_MAKE(64,64,64), 1);
+		HUD_SolidBox(0, 0, 320, 200, RGB_MAKE(64,64,64));
 }
 
 
