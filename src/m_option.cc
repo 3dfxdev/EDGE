@@ -816,10 +816,12 @@ void M_OptDrawer()
 	int i, j;
 	unsigned int k;
 
+	HUD_SetAlpha(0.64f);
+	HUD_SolidBox(0, 0, 320, 200, T_BLACK);
+	HUD_SetAlpha();
+
 	style_c *style = curr_menu->style_var[0];
 	SYS_ASSERT(style);
-
-	style->DrawBackground();
 
 	if (! style->fonts[0])
 		return;

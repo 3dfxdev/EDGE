@@ -1827,6 +1827,7 @@ bool M_Responder(event_t * ev)
 	return false;
 }
 
+
 void M_StartControlPanel(void)
 {
 	// intro might call this repeatedly
@@ -1842,6 +1843,7 @@ void M_StartControlPanel(void)
 	M_OptCheckNetgame();
 }
 
+
 static int FindChar(std::string& str, char ch, int pos)
 {
 	SYS_ASSERT(pos <= (int)str.size());
@@ -1854,6 +1856,7 @@ static int FindChar(std::string& str, char ch, int pos)
 	return (int)(scan - str.c_str());
 }
 
+
 static std::string GetMiddle(std::string& str, int pos, int len)
 {
 	SYS_ASSERT(pos >= 0 && len >= 0);
@@ -1865,11 +1868,14 @@ static std::string GetMiddle(std::string& str, int pos, int len)
 	return std::string(str.c_str() + pos, len);
 }
 
+
 static void DrawMessage(void)
 {
 	short x, y;
 
-	dialog_style->DrawBackground();
+	HUD_SetAlpha(0.64f);
+	HUD_SolidBox(0, 0, 320, 200, T_BLACK);
+	HUD_SetAlpha();
 
 	// FIXME: HU code should support center justification: this
 	// would remove the code duplication below...
@@ -1981,7 +1987,9 @@ void M_Drawer(void)
 	style_c *style = currentMenu->style_var[0];
 	SYS_ASSERT(style);
 
-	style->DrawBackground();
+	HUD_SetAlpha(0.64f);
+	HUD_SolidBox(0, 0, 320, 200, T_BLACK);
+	HUD_SetAlpha();
 
 	// call Draw routine
 	if (currentMenu->draw_func)
