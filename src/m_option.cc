@@ -112,6 +112,7 @@ extern cvar_c m_language;
 extern cvar_c r_crosshair;
 
 static int menu_crosshair;  // temp hack
+extern int monitor_size;
 
 extern int joystick_device;
 
@@ -143,6 +144,7 @@ static void M_ChangeJumping(int keypressed);
 static void M_ChangeCrouching(int keypressed);
 static void M_ChangeExtra(int keypressed);
 static void M_ChangeGamma(int keypressed);
+static void M_ChangeMonitorSize(int keypressed);
 static void M_ChangeKicking(int keypressed);
 static void M_ChangeWeaponSwitch(int keypressed);
 static void M_ChangeMipMap(int keypressed);
@@ -179,6 +181,7 @@ static char MipMaps[]   = "None/Good/Best";
 static char Details[]   = "Low/Medium/High";
 static char Hq2xMode[]  = "Off/UI Only/UI & Sprites/All";
 static char Invuls[]    = "Simple/Complex/Textured";
+static char MonitSiz[]  = "4:3/16:9/16:10/3:2/12:5";
 
 // for CVar enums
 const char WIPE_EnumStr[] = "none/melt/crossfade/pixelfade/top/bottom/left/right/spooky/doors";
@@ -343,10 +346,9 @@ static optmenuitem_t mainoptions[] =
 {
 	{OPT_Function, "Keyboard Controls", NULL,  0, NULL, M_KeyboardOptions, "Controls"},
 	{OPT_Function, "Mouse / Joystick",  NULL,  0, NULL, M_AnalogueOptions, "AnalogueOptions"},
-	{OPT_Plain,    "",                  NULL,  0, NULL, NULL, NULL},
-	{OPT_Function, "Sound Options",     NULL,  0, NULL, M_SoundOptions, "SoundOptions"},
 	{OPT_Function, "Gameplay Options",  NULL,  0, NULL, M_GameplayOptions, "GameplayOptions"},
 	{OPT_Plain,    "",                  NULL,  0, NULL, NULL, NULL},
+	{OPT_Function, "Sound Options",     NULL,  0, NULL, M_SoundOptions, "SoundOptions"},
 	{OPT_Function, "Video Options",     NULL,  0, NULL, M_VideoOptions, "VideoOptions"},
 	{OPT_Function, "Set Resolution",    NULL,  0, NULL, M_ResolutionOptions, "ChangeRes"},
 
@@ -376,24 +378,15 @@ static optmenuitem_t vidoptions[] =
 {
 	{OPT_Slider,  "Brightness",    NULL,  6,  &var_gamma, M_ChangeGamma, NULL},
 
-#if 0 // Really don't get the reason for these
-	{OPT_Slider,  "Field Of View", NULL,  35, &menunormalfov, M_ChangeNormalFOV, NULL},
-	{OPT_Slider,  "Zoomed FOV",    NULL,  35, &menuzoomedfov, M_ChangeZoomedFOV, NULL},
-#endif 
-
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL},
 
+	{OPT_Switch,  "Monitor Size",  MonitSiz,  5, &monitor_size, M_ChangeMonitorSize, NULL},
 	{OPT_Switch,  "Smoothing",         YesNo, 2, &var_smoothing, M_ChangeMipMap, NULL},
 	{OPT_Switch,  "H.Q.2x Scaling", Hq2xMode, 4, &hq2x_scaling, M_ChangeMipMap, NULL},
 	{OPT_Switch,  "Dynamic Lighting", DLMode, 2, &use_dlights, M_ChangeDLights, NULL},
-#if 0
-	{OPT_Boolean, "Doom-like fading", YesNo, 2, &doom_fading, NULL, NULL},
-#endif
 	{OPT_Switch,  "Detail Level",   Details,  3, &detail_level, M_ChangeMipMap, NULL},
 	{OPT_Switch,  "Mipmapping",     MipMaps,  3, &var_mipmapping, M_ChangeMipMap, NULL},
-#if 0
-	{OPT_Boolean, "Shadows",        YesNo, 2,  &global_flags.shadows, M_ChangeShadows, NULL},
-#endif
+
 	{OPT_Plain,   "",  NULL, 0, NULL, NULL, NULL},
 
 	{OPT_Switch,  "Crosshair",       CrossH, 10, &menu_crosshair, M_ChangeCrossHair, NULL},
@@ -401,8 +394,7 @@ static optmenuitem_t vidoptions[] =
 	{OPT_Switch,  "Teleport Flash",  YesNo,   2, &telept_flash, NULL, NULL},
 	{OPT_Switch,  "Invulnerability", Invuls, NUM_INVULFX,  &var_invul_fx, NULL, NULL},
 	{OPT_Switch,  "Wipe method",     WIPE_EnumStr, WIPE_NUMWIPES, &wipe_method, NULL, NULL},
-  
-	{OPT_Boolean, "Screenshot Format",  JpgPng, 2, &png_scrshots, NULL, NULL}
+	{OPT_Boolean, "Screenshot Format", JpgPng, 2, &png_scrshots, NULL, NULL}
 
 #if 0  // TEMPORARILY DISABLED (we need an `Advanced Options' menu)
 	{OPT_Switch,  "Teleportation effect", WIPE_EnumStr, WIPE_NUMWIPES, 
@@ -1428,6 +1420,20 @@ static void M_ChangeGamma(int keypressed)
 {
   /* nothing to do */
 }
+
+
+static void M_ChangeMonitorSize(int key)
+{
+	static const float aspect_ratios[5] =
+	{
+		1.333, 1.777, 1.6, 1.5, 2.4
+	};
+
+	monitor_size = CLAMP(0, monitor_size, 4);
+
+	r_aspect = aspect_ratios[monitor_size];
+}
+
 
 //
 // M_ChangeBlood

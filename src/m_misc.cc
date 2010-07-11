@@ -68,6 +68,8 @@
 //
 // DEFAULTS
 //
+int monitor_size;
+
 int cfgnormalfov;
 int cfgzoomedfov;
 
@@ -97,6 +99,7 @@ static int edge_version;
 static bool done_first_init = false;
 
 extern int joystick_device;
+
 
 
 static default_t defaults[] =
@@ -181,6 +184,7 @@ static default_t defaults[] =
 
     {CFGT_Int,      "screen_hud",        &screen_hud,     CFGDEF_SCREEN_HUD},
     // -ES- 1999/03/30 Added fov stuff.
+    {CFGT_Int,      "monitor_size",      &monitor_size,   0},
     {CFGT_Int,      "fieldofview",       &cfgnormalfov,   CFGDEF_NORMALFOV},
     {CFGT_Int,      "zoomedfieldofview", &cfgzoomedfov,   CFGDEF_ZOOMEDFOV},
 

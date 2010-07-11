@@ -37,6 +37,8 @@ int glmax_clip_planes;
 int glmax_tex_size;
 int glmax_tex_units;
 
+cvar_c r_aspect;
+
 cvar_c r_nearclip;
 cvar_c r_farclip;
 
@@ -79,7 +81,6 @@ static const driver_bug_t driver_bugs[] =
 };
 
 #define NUM_DRIVER_BUGS  (sizeof(driver_bugs) / sizeof(driver_bug_t))
-
 
 
 
