@@ -50,53 +50,6 @@ void HL_Init(void)
 	/* nothing to init */
 }
 
-//
-// HL_WriteTextTrans
-//
-// Write a string using the hu_font and index translator.
-//
-void HL_WriteTextTrans(style_c *style, int text_type, int x, int y,
-	const colourmap_c *colmap, const char *str, float scale)
-{
-	float cx = x;
-	float cy = y;
-
-	font_c *font = style->fonts[text_type];
-
-	scale *= style->def->text[text_type].scale;
-
-	if (! font)
-		I_Error("Style [%s] is missing a font !\n", style->def->name.c_str());
-
-	for (; *str; str++)
-	{
-		char ch = *str;
-
-		if (ch == '\n')
-		{
-			cx = x;
-			cy += 12.0f * scale;  // FIXME: use font's height
-			continue;
-		}
-
-		if (cx >= 320.0f)
-			continue;
-
-		font->DrawChar320(cx, cy, ch, scale,1.0f, colmap, 1.0f);
-
-		cx += font->CharWidth(ch) * scale;
-	}
-}
-
-//
-// HL_WriteText
-//
-// Write a string using the hu_font.
-//
-void HL_WriteText(style_c *style, int text_type, int x, int y, const char *str, float scale)
-{
-	HL_WriteTextTrans(style, text_type, x, y, style->def->text[text_type].colmap, str, scale);
-}
 
 //----------------------------------------------------------------------------
 

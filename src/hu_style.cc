@@ -137,5 +137,28 @@ style_c* style_container_c::Lookup(styledef_c *def)
 }
 
 
+//
+// HL_WriteText
+//
+// Compatibility crud...
+//
+void HL_WriteText(style_c *style, int text_type, int x, int y, const char *str, float scale)
+{
+	HUD_SetFont(style->fonts[text_type]);
+	HUD_SetScale(scale * style->def->text[text_type].scale);
+
+	const colourmap_c *colmap = style->def->text[text_type].colmap;
+
+	if (colmap)
+		HUD_SetTextColor(V_GetFontColor(colmap));
+
+	HUD_DrawText(x, y, str);
+
+	HUD_SetFont();
+	HUD_SetScale();
+	HUD_SetTextColor();
+}
+
+
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
