@@ -41,9 +41,7 @@
 #include "f_finale.h"
 #include "f_interm.h"
 #include "hu_draw.h"
-#include "hu_lib.h"
 #include "hu_stuff.h"
-#include "hu_style.h"
 #include "m_menu.h"
 #include "m_random.h"
 #include "p_action.h"
@@ -97,10 +95,10 @@ static void CastTicker(void);
 static void CastSkip(void);
 
 static const image_c *finale_textback;
-static float finale_textbackscale;
+static float finale_textbackscale = 1.0f;
+static rgbcol_t finale_textcol;
 
-static style_c *cast_style;
-static style_c *finale_hack_style;
+extern float hud_aspect;
 
 
 static bool HasFinale(const map_finaledef_c *F, finalestage_e cur)
@@ -206,34 +204,19 @@ static void DoBumpFinale(void)
 	gamestate = GS_NOTHING;  // hack ???  (cannot leave as GS_FINALE)
 }
 
+
 static void LookupFinaleStuff(void)
 {
 	// here is where we lookup the required images
-	if (! cast_style)
-	{
-		styledef_c *def = styledefs.Lookup("CAST SCREEN");
-		if (! def)
-			def = default_style;
-		cast_style = hu_styles.Lookup(def);
-	}
-
-	if (! finale_hack_style)
-		finale_hack_style = hu_styles.Lookup(default_style); //???
 
 	if (finale->text_flat[0])
-	{
 		finale_textback = W_ImageLookup(finale->text_flat, INS_Flat);
-		finale_textbackscale = 5.0f;
-	}
 	else if (finale->text_back[0])
-	{
 		finale_textback = W_ImageLookup(finale->text_back, INS_Graphic);
-		finale_textbackscale = 1.0f;
-	}
 	else
-	{
 		finale_textback = NULL;
-	}
+
+	finale_textcol = V_GetFontColor(finale->text_colmap);
 }
 
 
@@ -382,33 +365,40 @@ static void TextWrite(void)
 	if (count < 0)
 		count = 0;
 
-	hu_textline_t L;
+	SYS_ASSERT(finale);
 
-	SYS_ASSERT(finale_hack_style);
+	HUD_SetFont();
+	HUD_SetScale();
+	HUD_SetTextColor(finale_textcol);
 
-	HL_InitTextLine(&L, cx, cy, finale_hack_style, 0);
+	char line[200];
+	int  pos = 0;
+
+	line[0] = 0;
 
 	for (;;)
 	{
-		SYS_ASSERT(finale);
-
 		if (count == 0 || *ch == 0)
 		{
-			HL_DrawTextLineAlpha(&L, false, finale->text_colmap, 1.0f);
+			HUD_DrawText(cx, cy, line);
 			break;
 		}
 
 		int c = *ch++; count--;
 
-		if (c == '\n')
+		if (c == '\n' || pos > (int)sizeof(line)-4)
 		{
-			cy += 11;
-			HL_DrawTextLineAlpha(&L, false, finale->text_colmap, 1.0f);
-			HL_InitTextLine(&L, cx, cy, finale_hack_style, 0);
+			HUD_DrawText(cx, cy, line);
+
+			pos = 0;
+			line[0] = 0;
+
+			cy += 11;  // FIXME: HUD_FontHeight()
 			continue;
 		}
 
-		HL_AddCharToTextLine(&L, c);
+		line[pos++] = c;
+		line[pos] = 0;
 	}
 }
 
@@ -647,25 +637,23 @@ static void CastSkip(void)
 		S_StartFX(castorder->deathsound);
 }
 
-static void CastPrint(const char *text)
-{
-	HL_WriteText(cast_style, 0, 160 - cast_style->fonts[0]->StringWidth(text)/2,
-		180, text);
-}
 
 //
 // CastDrawer
 //
 static void CastDrawer(void)
 {
-	const image_c *image;
+	const image_c *image = W_ImageLookup("BOSSBACK");
+
+	HUD_StretchImage(0, 0, 320, 200, image);
+
+	HUD_SetAlignment(0, -1);
+	HUD_SetTextColor(T_YELLOW);
+	HUD_DrawText(160, 180, casttitle);
+
+	HUD_Reset();
+
 	bool flip;
-
-	// erase the entire screen to a background
-	// -KM- 1998/07/21 Clear around the pic too.
-	cast_style->DrawBackground();
-
-	CastPrint(casttitle);
 
 	if (caststate->flags & SFF_Model)
 	{
@@ -694,7 +682,7 @@ static void CastDrawer(void)
 	if (! image)
 		return;
 
-	float xscale = castorder->scale * castorder->aspect;
+	float xscale = castorder->scale * castorder->aspect / hud_aspect;
 	float yscale = castorder->scale;
 
 	float width    = IM_WIDTH(image);
