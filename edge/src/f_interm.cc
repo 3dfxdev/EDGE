@@ -38,7 +38,7 @@
 #include "f_interm.h"
 #include "g_game.h"
 #include "hu_draw.h"
-#include "hu_lib.h"
+#include "hu_style.h"
 #include "p_local.h"
 #include "s_sound.h"
 #include "s_music.h"

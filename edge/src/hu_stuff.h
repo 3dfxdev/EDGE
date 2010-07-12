@@ -27,7 +27,6 @@
 #define __HU_STUFF_H__
 
 #include "e_event.h"
-#include "hu_lib.h"
 #include "r_defs.h"
 
 extern int showMessages;

@@ -32,7 +32,6 @@
 #include "con_main.h"
 #include "e_input.h"
 #include "e_player.h"
-#include "hu_lib.h"
 #include "hu_stuff.h"
 #include "hu_style.h"
 #include "m_argv.h"

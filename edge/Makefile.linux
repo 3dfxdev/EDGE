@@ -174,7 +174,6 @@ EDGE_OBJS= \
 	$(OBJDIR)/edge/g_game.o     \
 	$(OBJDIR)/edge/hu_draw.o    \
 	$(OBJDIR)/edge/hu_font.o    \
-	$(OBJDIR)/edge/hu_lib.o     \
 	$(OBJDIR)/edge/hu_stuff.o   \
 	$(OBJDIR)/edge/hu_style.o   \
 	$(OBJDIR)/edge/l_glbsp.o    \
