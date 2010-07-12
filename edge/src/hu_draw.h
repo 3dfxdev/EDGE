@@ -42,7 +42,6 @@ void HUD_SetAlpha(float alpha = 1.0f);
 void HUD_SetAlignment(int xa = -1, int ya = -1);
 // xa is -1 for left, 0 for centred, +1 for right
 // ya is -1 for top,  0 for centred, +! for bottom
-// (Note: ya is ignored for text)
 
 void HUD_Reset();
 // resets the coord sys to 320x200, and resets all properties
