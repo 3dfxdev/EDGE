@@ -1021,6 +1021,13 @@ static void AM_WalkBSPNode(unsigned int bspnum)
 
 static void DrawMarks(void)
 {
+	font_c *am_font = automap_style->fonts[0];
+
+	HUD_SetFont(am_font);
+	HUD_SetAlignment(0, 0); // centre the characters
+
+	char buffer[4];
+		
 	for (int i = 0; i < AM_NUMMARKPOINTS; i++)
 	{
 		if (markpoints[i].x == NO_MARK_X)
@@ -1030,20 +1037,14 @@ static void DrawMarks(void)
 
 		GetRotatedCoords(markpoints[i].x, markpoints[i].y, &mx, &my);
 
-		float cx = CXMTOF(mx);
-		float cy = CYMTOF(my);
+		buffer[0] = ('1' + i);
+		buffer[1] = 0;
 
-		float scale = 1.0f;
-
-		font_c *am_font = automap_style->fonts[0];
-		SYS_ASSERT(am_font);
-
-		// centre the character
-		cx -= am_font->NominalWidth()  * scale / 2.0;
-		cy -= am_font->NominalHeight() * scale / 2.0;
-
-		am_font->DrawChar320(cx, cy, '1'+i, scale,1.0f, NULL,1.0f);
+		HUD_DrawText(CXMTOF(mx), CYMTOF(my), buffer);
 	}
+
+	HUD_SetFont();
+	HUD_SetAlignment();
 }
 
 static void AM_RenderScene(void)
