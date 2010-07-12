@@ -39,6 +39,8 @@
 
 static font_c *default_font;
 
+float hud_aspect;
+
 
 // current state
 static float cur_coord_W;
@@ -49,8 +51,6 @@ static rgbcol_t cur_color;
 
 static float cur_scale, cur_alpha;
 static int cur_x_align, cur_y_align;
-
-static float hud_aspect;
 
 static float margin_X;
 static float margin_W;
@@ -122,7 +122,7 @@ void HUD_FrameSetup(void)
 	HUD_Reset();
 
 	// setup letterboxing for wide screens
-	hud_aspect = CLAMP(0.667, r_aspect.f, 4.0) / 1.333;
+	hud_aspect = CLAMP(0.667, r_aspect.f, 3.333) / 1.333;
 
 	margin_W = SCREENWIDTH / hud_aspect;
 
