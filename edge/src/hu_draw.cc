@@ -139,12 +139,12 @@ static int scissor_stack[MAX_SCISSOR_STACK][4];
 static int sci_stack_top = 0;
 
 
-void HUD_PushScissor(float x1, float y1, float x2, float y2, bool world)
+void HUD_PushScissor(float x1, float y1, float x2, float y2, bool expand)
 {
 	SYS_ASSERT(sci_stack_top < MAX_SCISSOR_STACK);
 
 	// expand rendered view to cover whole screen
-	if (world && x1 < 1 && x2 > cur_coord_W-1)
+	if (expand && x1 < 1 && x2 > cur_coord_W-1)
 	{
 		x1 = 0;
 		x2 = SCREENWIDTH;
@@ -215,6 +215,23 @@ void HUD_PopScissor()
 
 		glScissor(xy[0], xy[1], xy[2]-xy[0], xy[3]-xy[1]);
 	}
+}
+
+
+bool HUD_ScissorTest(float x1, float y1, float x2, float y2)
+{
+	if (sci_stack_top == 0)
+		return true;
+
+	if (x1 > x2) std::swap(x1, x2);
+	if (y1 < y2) std::swap(y1, y2);
+
+	x1 = COORD_X(x1); y1 = SCREENHEIGHT - COORD_Y(y1);
+	x2 = COORD_X(x2); y2 = SCREENHEIGHT - COORD_Y(y2);
+
+	int *xy = scissor_stack[sci_stack_top-1];
+
+	return ! (x2 < xy[0] || x1 > xy[2] || y2 < xy[1] || y1 > xy[3]);
 }
 
 

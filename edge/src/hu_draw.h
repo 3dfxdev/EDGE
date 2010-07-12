@@ -52,11 +52,15 @@ void HL_Init(void);
 void HUD_FrameSetup(void);
 
 
-void HUD_PushScissor(float x1, float y1, float x2, float y2, bool world=false);
+void HUD_PushScissor(float x1, float y1, float x2, float y2, bool expand=false);
 void HUD_PopScissor();
 // manage the current clip rectangle.  The first push enables the
 // scissor test, subsequent pushes merely shrink the area, and the
 // last pop disables the scissor test.
+
+bool HUD_ScissorTest(float x1, float y1, float x2, float y2);
+// returns true unless the given line/box is completely outside the
+// scissor rectangles.
 
 
 void HUD_RawImage(float hx1, float hy1, float hx2, float hy2,
