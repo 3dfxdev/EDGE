@@ -960,21 +960,9 @@ static bool AM_CheckBBox(float *bspcoord)
 	float xr = bspcoord[BOXRIGHT];
 	float yb = bspcoord[BOXBOTTOM];
 
+	// TODO: improve this quick'n'dirty hack
 	if (rotatemap)
-	{
-		// FIXME: quick'n'dirty hack, removes benefit of BSP render
 		return true;
-		if (! followplayer)
-			return true;
-
-		// HACKITUDE: just make tested area bigger
-#if 0
-		float d = MAX(m_x2 - m_x, m_y2 - m_y) / 2.0f;
-
-		return ! (xr < (m_x - d) || xl > (m_x2 + d) ||
- 				  yt < (m_y - d) || yb > (m_y2 + d));
-#endif
-	}
 
 	float x1 = CXMTOF(xl);
 	float x2 = CXMTOF(xr);
@@ -982,11 +970,8 @@ static bool AM_CheckBBox(float *bspcoord)
 	float y1 = CYMTOF(yt);
 	float y2 = CYMTOF(yb);
 
-	if (x2 < f_x || y2 < f_y || x1 >= f_x+f_w || y1 >= f_y+f_h)
-		return false;
-
-	// some part of bbox is visible
-	return true;
+	// some part of bbox is visible?
+	return HUD_ScissorTest(x1, y1, x2, y2);
 }
 
 
@@ -1047,9 +1032,10 @@ static void DrawMarks(void)
 	HUD_SetAlignment();
 }
 
+
 static void AM_RenderScene(void)
 {
-	HUD_PushScissor(f_x, f_y, f_x+f_w, f_y+f_h);
+	HUD_PushScissor(f_x, f_y, f_x+f_w, f_y+f_h, true);
 
 	// walk the bsp tree
 	AM_WalkBSPNode(root_node);
@@ -1116,6 +1102,7 @@ void AM_GetState(int *state, float *zoom)
 
 	*zoom = m_scale;
 }
+
 
 void AM_SetState(int state, float zoom)
 {
