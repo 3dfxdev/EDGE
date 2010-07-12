@@ -24,7 +24,9 @@
 //----------------------------------------------------------------------------
 
 #include "i_defs.h"
+
 #include "hu_stuff.h"
+#include "hu_style.h"
 #include "hu_draw.h"
 
 #include "con_main.h"
@@ -39,8 +41,6 @@
 #include "s_sound.h"
 #include "w_wad.h"
 #include "z_zone.h"
-
-#include <stdio.h>
 
 
 //

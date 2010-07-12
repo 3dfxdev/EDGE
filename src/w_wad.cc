@@ -66,6 +66,7 @@
 #include "l_deh.h"
 #include "l_glbsp.h"
 #include "m_misc.h"
+#include "r_image.h"
 #include "rad_trig.h"
 #include "vm_coal.h"
 #include "w_wad.h"

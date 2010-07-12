@@ -29,7 +29,7 @@
 #include "con_main.h"
 #include "e_input.h"
 #include "hu_draw.h"
-#include "hu_lib.h"
+#include "hu_style.h"
 #include "m_argv.h"
 #include "m_bbox.h"
 #include "m_cheat.h"
