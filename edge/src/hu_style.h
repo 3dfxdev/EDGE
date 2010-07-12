@@ -66,5 +66,10 @@ extern style_container_c hu_styles;
 
 #endif  // __HU_STYLE__
 
+
+// compatibility crud */
+void HL_WriteText(style_c *style, int text_type, int x, int y,
+                  const char *str, float scale = 1.0f);
+
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
