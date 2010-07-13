@@ -258,26 +258,6 @@ void R_SetFOV(angle_t fov)
 }
 
 
-void R_SetNormalFOV(angle_t newfov)
-{
-	menunormalfov = (newfov - ANG45 / 18) / (ANG45 / 9);
-	cfgnormalfov = (newfov + ANG45 / 90) / (ANG180 / 180);
-	normalfov = newfov;
-
-	if (!viewiszoomed)
-		R_SetFOV(normalfov);
-}
-
-void R_SetZoomedFOV(angle_t newfov)
-{
-	menuzoomedfov = (newfov - ANG45 / 18) / (ANG45 / 9);
-	cfgzoomedfov = (newfov + ANG45 / 90) / (ANG180 / 180);
-	zoomedfov = newfov;
-
-	if (viewiszoomed)
-		R_SetFOV(zoomedfov);
-}
-
 
 //
 // Called once at startup, to initialise some rendering stuff.
@@ -286,8 +266,6 @@ void R_Init(void)
 {
 	E_ProgressMessage(language["RefreshDaemon"]);
 
-	R_SetNormalFOV((angle_t)(cfgnormalfov * (angle_t)((float)ANG45 / 45.0f)));
-	R_SetZoomedFOV((angle_t)(cfgzoomedfov * (angle_t)((float)ANG45 / 45.0f)));
 	R_SetFOV(normalfov);
 
 	framecount = 0;

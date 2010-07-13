@@ -87,8 +87,6 @@ extern int var_mix_channels;
 extern int var_quiet_factor;
 extern int var_timid_factor;
 
-extern int cfgnormalfov, cfgzoomedfov;
-
 #endif  /* __M_MISC__ */
 
 //--- editor settings ---

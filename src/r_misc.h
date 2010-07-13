@@ -99,10 +99,6 @@ void R_SetViewSize(int blocks);
 // Changes Field of View to the specified angle.
 void R_SetFOV(angle_t fov);
 
-// Changes the FOV variables that the zoom key toggles between.
-void R_SetNormalFOV(angle_t newfov);
-void R_SetZoomedFOV(angle_t newfov);
-
 void R_StartFading(int start, int range);
 
 #endif /* __R_MAIN_H__ */

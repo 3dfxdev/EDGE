@@ -136,9 +136,6 @@ static void M_ChangeRespawn(int keypressed);
 static void M_ChangePassMissile(int keypressed);
 static void M_ChangeCrossHair(int keypressed);
 
-//Special function declarations
-int menunormalfov, menuzoomedfov;
-
 static void M_ChangeBlood(int keypressed);
 static void M_ChangeMLook(int keypressed);
 static void M_ChangeJumping(int keypressed);
@@ -294,20 +291,6 @@ static void M_ChangeTimidQuiet(int keypressed)
 	S_ChangeTimidQuiet();
 }
 
-#if 0
-//
-// M_ChangeNormalFOV
-//
-static void M_ChangeNormalFOV(int keypressed)
-{
-	R_SetNormalFOV((ANG45 / 9) * (menunormalfov + 1));
-}
-
-static void M_ChangeZoomedFOV(int keypressed)
-{
-	R_SetZoomedFOV((ANG45 / 9) * (menuzoomedfov + 1));
-}
-#endif
 
 static int M_GetCurrentSwitchValue(optmenuitem_t *item)
 {
@@ -373,7 +356,6 @@ static menuinfo_t main_optmenu =
 //
 // -ACB- 1998/07/15 Altered menu structure
 
-// -ES- 1999/03/29 New fov stuff
 static optmenuitem_t vidoptions[] =
 {
 	{OPT_Slider,  "Brightness",    NULL,  6,  &var_gamma, M_ChangeGamma, NULL},
