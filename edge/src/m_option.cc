@@ -182,7 +182,7 @@ static char MipMaps[]   = "None/Good/Best";
 static char Details[]   = "Low/Medium/High";
 static char Hq2xMode[]  = "Off/UI Only/UI & Sprites/All";
 static char Invuls[]    = "Simple/Complex/Textured";
-static char MonitSiz[]  = "4:3/16:9/16:10/3:2/12:5";
+static char MonitSiz[]  = "4:3/16:9/16:10/3:2/24:10";
 
 // for CVar enums
 const char WIPE_EnumStr[] = "none/melt/crossfade/pixelfade/top/bottom/left/right/spooky/doors";
