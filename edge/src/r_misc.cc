@@ -47,6 +47,9 @@
 #include "r_units.h"
 
 
+cvar_c r_fov;
+cvar_c r_zoomfov;
+
 // -ES- 1999/03/14 Dynamic Field Of View
 // Fineangles in the viewwidth wide window.
 angle_t FIELDOFVIEW = ANG90;

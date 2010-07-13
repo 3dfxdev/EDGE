@@ -108,7 +108,6 @@ void P_SelectNewWeapon(player_t * player, int priority, ammotype_e ammo);
 void P_TrySwitchNewWeapon(player_t *p, int new_weap, ammotype_e new_ammo);
 bool P_TryFillNewWeapon(player_t *p, int idx, ammotype_e ammo, int *qty);
 void P_FillWeapon(player_t *p, int slot);
-void P_Zoom(player_t * player);
 
 //
 // P_USER
