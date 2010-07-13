@@ -16,13 +16,16 @@ Bugs fixed
 
 - E2M8, E3M8 (etc) are playable without any bosses
 
-- fixed the automap marks ('m' key)
+- fixed the marks on the automap
 
 
 General Improvements
 --------------------
 
-- weapon and automap key bindings can be changed.
++ wide screen support, via new "Monitor Size" setting in the Video
+  Options menu.  Custom values can be set in the "r_aspect" cvar.
+
++ weapon and automap key bindings can be changed.
 
 - renamed "Host Net Game" menu to "Advanced Start" and removed
   the references to networking stuff and the player list screen,
@@ -57,10 +60,10 @@ New Features
 
   Note that when overriding state frames, it occasionally leads to
   unexpected behavior (where the old states are being used instead
-  of your new ones).  Providing the full set of different states
-  should fix any such problems.
+  of your new ones).  If this happens, it can be fixed by providing
+  the full set of different states.
 
-- can modify existing DDF entries.  Place ++ before the entry name
++ can modify existing DDF entries.  Place ++ before the entry name
   inside the [] brackets, as shown in this example:
 
     [++IMP]
