@@ -2,7 +2,7 @@
 //  EDGE Radius Trigger / Tip Code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2010  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -624,12 +624,11 @@ void RAD_RunTriggers(void)
 		}
 
 		// Waiting until monsters are dead?
-		if (trig->wud_count > 0)
-			continue;
-
-		// Execute current command
+		while (trig->wait_tics == 0 && trig->wud_count <= 0)
 		{
+			// Execute current command
 			rts_state_t *state = trig->state;
+			SYS_ASSERT(state);
 
 			// move to next state.  We do this NOW since the action itself
 			// may want to change the trigger's state (to support GOTO type
@@ -638,13 +637,18 @@ void RAD_RunTriggers(void)
 			trig->state = trig->state->next;
 
 			(*state->action)(trig, state->param);
+
+			if (! trig->state)
+				break;
+
+			trig->wait_tics += trig->state->tics;
+			
+			if (trig->disabled || rts_menuactive)
+				break;
 		}
 
 		if (trig->state)
-		{
-			trig->wait_tics += trig->state->tics;
 			continue;
-		}
 
 		// we've reached the end of the states.  Delete the trigger unless
 		// it is Tagged_Repeatable and has some more repeats left.
