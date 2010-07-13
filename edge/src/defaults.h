@@ -89,8 +89,6 @@
 
 // Video Options
 #define CFGDEF_CURRENT_GAMMA    (2)
-#define CFGDEF_NORMALFOV        (90)  // 8
-#define CFGDEF_ZOOMEDFOV        (10)  // 8
 #define CFGDEF_USE_SMOOTHING    (0)
 #define CFGDEF_USE_DLIGHTS      (0)
 #define CFGDEF_DOOM_FADING      (1)

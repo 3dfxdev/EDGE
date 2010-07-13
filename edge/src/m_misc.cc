@@ -71,9 +71,6 @@
 //
 int monitor_size;
 
-int cfgnormalfov;
-int cfgzoomedfov;
-
 cvar_c m_diskicon;
 
 bool display_disk = false;
@@ -181,14 +178,9 @@ static default_t defaults[] =
     {CFGT_Int,      "joy_axis5",         &joy_axis[4],    AXIS_DISABLE},
     {CFGT_Int,      "joy_axis6",         &joy_axis[5],    AXIS_DISABLE},
 
-    {CFGT_Int,      "screen_hud",        &screen_hud,     CFGDEF_SCREEN_HUD},
-    // -ES- 1999/03/30 Added fov stuff.
     {CFGT_Int,      "monitor_size",      &monitor_size,   0},
-    {CFGT_Int,      "fieldofview",       &cfgnormalfov,   CFGDEF_NORMALFOV},
-    {CFGT_Int,      "zoomedfieldofview", &cfgzoomedfov,   CFGDEF_ZOOMEDFOV},
-
+    {CFGT_Int,      "screen_hud",        &screen_hud,     CFGDEF_SCREEN_HUD},
     {CFGT_Int,      "save_page",         &save_page, 0},
-
     {CFGT_Boolean,  "png_scrshots",      &png_scrshots,   CFGDEF_PNG_SCRSHOTS},
 
 	// -------------------- VARS --------------------
