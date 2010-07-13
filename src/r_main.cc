@@ -125,8 +125,9 @@ void RGL_SetupMatrices3D(void)
 	glMatrixMode(GL_PROJECTION);
 
 	glLoadIdentity();
-	glFrustum(rightslope * r_nearclip.f, leftslope * r_nearclip.f,
-			  bottomslope * r_nearclip.f, topslope * r_nearclip.f,
+
+	glFrustum(-view_x_slope * r_nearclip.f, view_x_slope * r_nearclip.f,
+			  -view_y_slope * r_nearclip.f, view_y_slope * r_nearclip.f,
 			  r_nearclip.f, r_farclip.f);
 
 	// calculate look-at matrix

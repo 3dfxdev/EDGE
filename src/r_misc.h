@@ -66,9 +66,6 @@ extern int framecount;
 
 extern struct mobj_s *background_camera_mo;
 
-extern angle_t rightangle;
-extern angle_t leftangle;
-extern angle_t FIELDOFVIEW;
 
 // The used aspect ratio. A normal texel will look aspect_ratio*4/3
 // times wider than high on the monitor
@@ -95,9 +92,6 @@ void R_Init(void);
 
 // -ES- 1998/09/11 Added these prototypes.
 void R_SetViewSize(int blocks);
-
-// Changes Field of View to the specified angle.
-void R_SetFOV(angle_t fov);
 
 void R_StartFading(int start, int range);
 
