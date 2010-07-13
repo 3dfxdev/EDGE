@@ -86,7 +86,7 @@ extern angle_t clip_left, clip_right;
 extern angle_t clip_scope;
 
 // the most extreme angles of the view
-extern float topslope, bottomslope, rightslope, leftslope;
+extern float view_x_slope, view_y_slope;
 
 #endif /* __R_STATE_H__ */
 

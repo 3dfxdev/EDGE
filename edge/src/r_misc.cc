@@ -50,19 +50,6 @@
 cvar_c r_fov;
 cvar_c r_zoomfov;
 
-// -ES- 1999/03/14 Dynamic Field Of View
-// Fineangles in the viewwidth wide window.
-angle_t FIELDOFVIEW = ANG90;
-
-// the extreme angles of the view
-angle_t rightangle;
-angle_t leftangle;
-
-float leftslope;
-float rightslope;
-float topslope;
-float bottomslope;
-
 int viewwindow_x;
 int viewwindow_y;
 int viewwindow_w;
@@ -240,33 +227,11 @@ float R_PointToDist(float x1, float y1, float x2, float y2)
 
 
 //
-// Sets the specified field of view
-//
-void R_SetFOV(angle_t fov)
-{
-	// can't change fov to angle below 5 or above 175 deg (approx). Round so
-	// that 5 and 175 are allowed for sure.
-	if (fov < ANG90 / 18)
-		fov = ANG90 / 18;
-	if (fov > ((ANG90 + 17) / 18) * 35)
-		fov = ANG90 / 18 * 35;
-
-	leftangle   = fov / 2;
-	rightangle  = (fov/2) * -1; // -ACB- 1999/09/27 Fixed MSVC Compiler Problem
-
-	FIELDOFVIEW = leftangle - rightangle;
-}
-
-
-
-//
 // Called once at startup, to initialise some rendering stuff.
 //
 void R_Init(void)
 {
 	E_ProgressMessage(language["RefreshDaemon"]);
-
-	R_SetFOV(normalfov);
 
 	framecount = 0;
 

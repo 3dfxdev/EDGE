@@ -184,9 +184,6 @@ void R_ComputeSkyHeights(void)
 //----------------------------------------------------------------------------
 
 
-extern angle_t FIELDOFVIEW;
-
-
 static bool need_to_draw_sky = false;
 
 
@@ -251,8 +248,8 @@ static void RGL_SetupSkyMatrices(float dist)
 	glPushMatrix();
 
 	glLoadIdentity();
-	glFrustum(rightslope * r_nearclip.f, leftslope * r_nearclip.f,
-			  bottomslope * r_nearclip.f, topslope * r_nearclip.f,
+	glFrustum(-view_x_slope * r_nearclip.f, view_x_slope * r_nearclip.f,
+			  -view_y_slope * r_nearclip.f, view_y_slope * r_nearclip.f,
 			  r_nearclip.f, r_farclip.f);
 
 	glMatrixMode(GL_MODELVIEW);
@@ -263,6 +260,7 @@ static void RGL_SetupSkyMatrices(float dist)
 	glRotatef(270.0f - ANG_2_FLOAT(viewvertangle), 1.0f, 0.0f, 0.0f);
 	glRotatef(90.0f  - ANG_2_FLOAT(viewangle), 0.0f, 0.0f, 1.0f);
 }
+
 
 static void RGL_SetupSkyMatrices2D(void)
 {
@@ -470,7 +468,10 @@ void RGL_DrawSkyOriginal(void)
 	// divide screen into 32 vertical strips, since mapping is non-linear
 	glBegin(GL_QUAD_STRIP);
  
-	float focal_len = M_Tan((FIELDOFVIEW) / 2);
+	// FIXME for widescreen
+	float FIELDOFVIEW = CLAMP(5, r_fov.f, 175);
+
+	float focal_len = tan(FIELDOFVIEW * M_PI / 360.0);
 	float centerxfrac = SCREENWIDTH / 2.0f;
 
 	float ty1 = 200.0f / 128.0f;

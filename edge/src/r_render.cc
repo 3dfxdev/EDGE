@@ -2,7 +2,7 @@
 //  EDGE OpenGL Rendering (BSP Traversal)
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2010  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -83,11 +83,16 @@ int use_dlights = 0;
 int doom_fading = 1;
 
 
+float view_x_slope;
+float view_y_slope;
+
 // -ES- 1999/03/20 Different right & left side clip angles, for asymmetric FOVs.
 angle_t clip_left, clip_right;
 angle_t clip_scope;
 
 mobj_t *view_cam_mo;
+
+extern float hud_aspect;
 
 
 static int checkcoord[12][4] =
@@ -3031,17 +3036,27 @@ static void RGL_RenderTrueBSP(void)
 
 static void InitCamera(mobj_t *mo)
 {
-	leftslope  = M_Tan(leftangle);
-	rightslope = M_Tan(rightangle);
+	float fov = CLAMP(5, r_fov.f, 175);
 
-	float slopeoffset;
+	view_x_slope = tan(fov * M_PI / 360.0);
+	view_y_slope = 1.0;
 
-	slopeoffset = M_Tan(FIELDOFVIEW / 2) * aspect_ratio;
-	slopeoffset = slopeoffset * viewwindow_h / viewwindow_w;
-	slopeoffset = slopeoffset * SCREENWIDTH / SCREENHEIGHT;
+	viewiszoomed = false;
 
-	topslope    =  slopeoffset;
-	bottomslope = -slopeoffset;
+	if (mo->player && mo->player->zoom_fov > 0)
+	{
+		viewiszoomed = true;
+
+		float new_slope = tan(mo->player->zoom_fov * M_PI / 360.0);
+
+		view_y_slope = new_slope / view_x_slope;
+		view_x_slope = new_slope;
+	}
+
+	view_y_slope /= 1.6;  // DOOM formula
+
+	// adjustment for wide screens
+	view_x_slope *= hud_aspect;
 
 
 	viewx = mo->x;
@@ -3112,9 +3127,9 @@ static void InitCamera(mobj_t *mo)
 
 		// d is just the distance horizontally forward from the eye to
 		// the top/bottom edge of the view rectangle.
-		d = cos(k) - sin(k) * topslope;
+		d = cos(k) - sin(k) * view_y_slope;
 
-		oned_side_angle = (d <= 0.01f) ? ANG180 : M_ATan(leftslope / d);
+		oned_side_angle = (d <= 0.01f) ? ANG180 : M_ATan(view_x_slope / d);
 	}
 
 	// setup clip angles
@@ -3142,8 +3157,6 @@ void R_Render(int x, int y, int w, int h, mobj_t *camera)
 	viewwindow_h = h;
 
 	view_cam_mo = camera;
-
-	// FIXME: SCISSOR TEST
 
 
 	// Load the details for the camera
