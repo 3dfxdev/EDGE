@@ -59,7 +59,7 @@ extern cvar_c r_width, r_height, r_depth, r_fullscreen;
 extern cvar_c r_colormaterial, r_colorlighting;
 extern cvar_c r_dumbsky, r_dumbmulti, r_dumbcombine, r_dumbclamp;
 extern cvar_c r_nearclip, r_farclip, r_fadepower;
-extern cvar_c r_fov, r_zoomedfov, r_aspect;
+extern cvar_c r_fov, r_zoomfov, r_aspect;
 extern cvar_c r_mipmapping, r_smoothing;
 extern cvar_c r_dithering, r_hq2x;
 extern cvar_c r_dynlight, r_invultex;
@@ -130,6 +130,8 @@ cvar_link_t  all_cvars[] =
 	/* Rendering Stuff */
 
 	{ "r_aspect",       &r_aspect,       "c",   "1.333" },
+	{ "r_fov",          &r_fov,          "c",   "90" },
+	{ "r_zoomfov",      &r_zoomfov,      "c",   "10" },
 
 	{ "r_crosshair",    &r_crosshair,    "c",   "0"  },
 	{ "r_crosscolor",   &r_crosscolor,   "c",   "0"  },
@@ -193,8 +195,6 @@ cvar_link_t  all_cvars[] =
     { "r_fullscreen",   &r_fullscreen,   "c",   "1"     },
 												
 	{ "r_gamma",        &r_gamma,        "c",   "1"  },
-	{ "r_fov",          &r_fov,          "c",   "90" },
-	{ "r_zoomedfov",    &r_zoomedfov,    "c",   "10" },
 
 	{ "r_mipmapping",   &r_mipmapping,   "c",   "0"  },
 	{ "r_smoothing",    &r_smoothing,    "c",   "0"  },

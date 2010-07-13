@@ -394,8 +394,7 @@ static void P_BringUpWeapon(player_t * p)
 		P_SetPsprite(p, ps_flash, S_NULL);
 		P_SetPsprite(p, ps_crosshair, S_NULL);
 
-		if (viewiszoomed && p == players[displayplayer])
-			R_SetFOV(zoomedfov);
+		p->zoom_fov = 0;
 		return;
 	}
 
@@ -408,15 +407,14 @@ static void P_BringUpWeapon(player_t * p)
 	if (info->specials[0] & WPSP_Animated)
 		p->psprites[ps_weapon].sy = 0;
 
-	// we don't need to check level_flags.limit_zoom, as viewiszoomed
-	// should always be false when we get here.
-
-	if (viewiszoomed && p == players[displayplayer])
+	if (p->zoom_fov > 0)
 	{
 		if (info->zoom_fov > 0)
-			R_SetFOV(info->zoom_fov);
+			p->zoom_fov = info->zoom_fov;
+		else if (level_flags.limit_zoom)
+			p->zoom_fov = 0;
 		else
-			R_SetFOV(zoomedfov);
+			p->zoom_fov = r_zoomfov.d;
 	}
 
 	if (info->start)
@@ -850,37 +848,6 @@ void P_MovePsprites(player_t * p)
 }
 
 
-void P_Zoom(player_t *pl)
-{
-	if (pl != players[displayplayer])
-		return;
-
-	if (viewiszoomed)
-	{
-		R_SetFOV(normalfov);
-		viewiszoomed = false;
-		return;
-	}
-
-	int fov = 0;
-
-	if (! (pl->ready_wp < 0 || pl->pending_wp >= 0))
-		fov = pl->weapons[pl->ready_wp].info->zoom_fov;
-
-	// In `LimitZoom' mode, only allow zooming if weapon supports it
-	if (level_flags.limit_zoom)
-	{
-		if (fov <= 0)
-			return;
-	}
-
-	if (fov <= 0)
-		fov = zoomedfov;
-
-	R_SetFOV(fov);
-	viewiszoomed = true;
-}
-
 
 //----------------------------------------------------------------------------
 //  ACTION HANDLERS
@@ -1232,11 +1199,13 @@ void A_Lower(mobj_t * mo)
 
 	weapondef_c *info = p->weapons[p->ready_wp].info;
 
-	if (level_flags.limit_zoom && viewiszoomed && p == players[displayplayer])
+	if (p->zoom_fov > 0)
 	{
 		// In `LimitZoom' mode, disable any current zoom
-		R_SetFOV(normalfov);
-		viewiszoomed = false;
+		if (level_flags.limit_zoom)
+			p->zoom_fov = 0;
+		else
+			p->zoom_fov = r_zoomfov.d;
 	}
 
 	psp->sy += LOWERSPEED;

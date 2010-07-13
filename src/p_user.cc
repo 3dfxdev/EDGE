@@ -183,7 +183,7 @@ static void MovePlayer(player_t * player)
 
 	cmd = &player->cmd;
 
-	if (viewiszoomed)
+	if (player->zoom_fov > 0)
 		cmd->angleturn /= ZOOM_ANGLE_DIV;
 
 	player->mo->angle -= (angle_t)(cmd->angleturn << 16);
@@ -195,7 +195,7 @@ static void MovePlayer(player_t * player)
 	//
 	if (level_flags.mlook)
 	{
-		if (viewiszoomed)
+		if (player->zoom_fov > 0)
 			cmd->mlookturn /= ZOOM_ANGLE_DIV;
 
 		angle_t V = player->mo->vertangle + (angle_t)(cmd->mlookturn << 16);
@@ -368,7 +368,19 @@ static void MovePlayer(player_t * player)
 	//
 	if (cmd->extbuttons & EBT_ZOOM)
 	{
-		P_Zoom(player);
+		int fov = 0;
+
+		if (player->zoom_fov == 0)
+		{
+			if (! (player->ready_wp < 0 || player->pending_wp >= 0))
+				fov = player->weapons[player->ready_wp].info->zoom_fov;
+
+			// In `LimitZoom' mode, only allow zooming if weapon supports it
+			if (fov <= 0 && !level_flags.limit_zoom)
+				fov = r_zoomfov.d;
+		}
+
+		player->zoom_fov = fov;
 	}
 }
 
@@ -458,11 +470,7 @@ static void DeathThink(player_t * player)
 	P_UpdatePowerups(player);
 
 	// lose the zoom when dead
-	if (viewiszoomed && player == players[displayplayer])
-	{
-		R_SetFOV(normalfov);
-		viewiszoomed = false;
-	}
+	player->zoom_fov = 0;
 
 	if (deathmatch >= 3 && player->mo->movecount > player->mo->info->respawntime)
 		return;

@@ -181,6 +181,9 @@ typedef struct player_s
 	// Kick offset for vertangle (in mobj_t)
 	float kick_offset;
 
+	// when > 0, the player has activated zoom 
+	int zoom_fov;
+
 	// This is only used between levels,
 	// mo->health is used during levels.
 	float health;
