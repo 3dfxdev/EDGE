@@ -150,8 +150,8 @@ void HUD_FrameSetup(void)
 		margin_W = SCREENWIDTH;
 	}
 
-	margin_X = (SCREENWIDTH - margin_W) / 2.0;
-	margin_Y = margin_H;
+	margin_X = (SCREENWIDTH  - margin_W) / 2.0;
+	margin_Y = (SCREENHEIGHT + margin_H) / 2.0;
 }
 
 
