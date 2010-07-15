@@ -647,7 +647,9 @@ void HUD_RenderWorld(float x1, float y1, float x2, float y2, mobj_t *camera)
 
 	int *xy = scissor_stack[sci_stack_top-1];
 
-	R_Render(xy[0], xy[1], xy[2]-xy[0], xy[3]-xy[1], camera);
+	bool full_height = (y2 - y1) > cur_coord_H * 0.95;
+
+	R_Render(xy[0], xy[1], xy[2]-xy[0], xy[3]-xy[1], camera, full_height);
 
 	HUD_PopScissor();
 }

@@ -98,7 +98,7 @@ static const image_c *finale_textback;
 static float finale_textbackscale = 1.0f;
 static rgbcol_t finale_textcol;
 
-extern float hud_aspect;
+extern float pixel_aspect;
 
 
 static bool HasFinale(const map_finaledef_c *F, finalestage_e cur)
@@ -682,7 +682,7 @@ static void CastDrawer(void)
 	if (! image)
 		return;
 
-	float xscale = castorder->scale * castorder->aspect / hud_aspect;
+	float xscale = castorder->scale * castorder->aspect / pixel_aspect;
 	float yscale = castorder->scale;
 
 	float width    = IM_WIDTH(image);
