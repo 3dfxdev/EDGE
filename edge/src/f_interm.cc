@@ -1394,6 +1394,8 @@ void WI_Drawer(void)
 {
 	SYS_ASSERT(gamestate == GS_INTERMISSION);
 
+	HUD_Reset();
+
 	if (background_camera_mo)
 	{
 		HUD_RenderWorld(0, 0, 320, 200, background_camera_mo);
