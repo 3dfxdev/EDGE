@@ -3037,7 +3037,7 @@ static void RGL_RenderTrueBSP(void)
 }
 
 
-static void InitCamera(mobj_t *mo, bool full_height)
+static void InitCamera(mobj_t *mo, bool full_height, float expand_w)
 {
 	float fov = CLAMP(5, r_fov.f, 175);
 
@@ -3060,8 +3060,8 @@ static void InitCamera(mobj_t *mo, bool full_height)
 		view_x_slope  = new_slope;
 	}
 
-
-//!!!!	view_x_slope *= pixel_aspect * viewwindow_w / (float)viewwindow_h;
+	// wide-screen adjustment
+	view_x_slope *= expand_w;
 
 
 	viewx = mo->x;
@@ -3154,7 +3154,8 @@ static void InitCamera(mobj_t *mo, bool full_height)
 }
 
 
-void R_Render(int x, int y, int w, int h, mobj_t *camera, bool full_height)
+void R_Render(int x, int y, int w, int h, mobj_t *camera,
+              bool full_height, float expand_w)
 {
 	viewwindow_x = x;
 	viewwindow_y = y;
@@ -3164,7 +3165,7 @@ void R_Render(int x, int y, int w, int h, mobj_t *camera, bool full_height)
 	view_cam_mo = camera;
 
 	// Load the details for the camera
-	InitCamera(camera, full_height);
+	InitCamera(camera, full_height, expand_w);
 
 	// Profiling
 	framecount++;

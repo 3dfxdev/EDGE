@@ -163,8 +163,6 @@ static int sci_stack_top = 0;
 
 void HUD_PushScissor(float x1, float y1, float x2, float y2, bool expand)
 {
-expand=false; // FIXME !!!!!!
-
 	SYS_ASSERT(sci_stack_top < MAX_SCISSOR_STACK);
 
 	// expand rendered view to cover whole screen
@@ -400,8 +398,7 @@ void HUD_TileImage(float x, float y, float w, float h, const image_c *img,
 void HUD_SolidBox(float x1, float y1, float x2, float y2, rgbcol_t col)
 {
 	// expand to cover wide screens
-//!!!!!!
-	if (false && x1 < 1 && x2 > cur_coord_W-1 && y1 < 1 && y2 > cur_coord_H-1)
+	if (x1 < 1 && x2 > cur_coord_W-1 && y1 < 1 && y2 > cur_coord_H-1)
 	{
 		x1 = 0; x2 = SCREENWIDTH;
 		y1 = 0; y2 = SCREENHEIGHT;
@@ -649,7 +646,11 @@ void HUD_RenderWorld(float x1, float y1, float x2, float y2, mobj_t *camera)
 
 	bool full_height = (y2 - y1) > cur_coord_H * 0.95;
 
-	R_Render(xy[0], xy[1], xy[2]-xy[0], xy[3]-xy[1], camera, full_height);
+	float width = COORD_X(x2) - COORD_X(x1);
+	float expand_w = (xy[2] - xy[0]) / width;
+
+	R_Render(xy[0], xy[1], xy[2]-xy[0], xy[3]-xy[1],
+	         camera, full_height, expand_w);
 
 	HUD_PopScissor();
 }
