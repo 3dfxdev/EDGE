@@ -72,6 +72,7 @@ int rgl_weapon_b;
 
 
 extern mobj_t * view_cam_mo;
+extern float view_expand_w;
 
 // The minimum distance between player and a visible sprite.
 #define MINZ        (4.0f)
@@ -177,7 +178,10 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 		tex_x2 = right - tex_x2;
 	}
 
-	float tx1 = (161.0f - IM_WIDTH(image) / 2.0) + psp->sx - IM_OFFSETX(image);
+	float coord_W = 320.0f * view_expand_w;
+	float coord_H = 200.0f;
+
+	float tx1 = (coord_W - IM_WIDTH(image)) / 2.0 + psp->sx - IM_OFFSETX(image);
 	float tx2 = tx1 + w;
 
 	float ty1 = - psp->sy + IM_OFFSETY(image);
@@ -186,11 +190,11 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 
 	float x1b, y1b, x1t, y1t, x2b, y2b, x2t, y2t;  // screen coords
 
-	x1b = x1t = viewwindow_w  * tx1 / 320.0f;
-	x2b = x2t = viewwindow_w  * tx2 / 320.0f;
+	x1b = x1t = viewwindow_w  * tx1 / coord_W;
+	x2b = x2t = viewwindow_w  * tx2 / coord_W;
 
-	y1b = y2b = viewwindow_h * ty1 / 200.0f;
-	y1t = y2t = viewwindow_h * ty2 / 200.0f;
+	y1b = y2b = viewwindow_h * ty1 / coord_H;
+	y1t = y2t = viewwindow_h * ty2 / coord_H;
 
 
 	// clip psprite to view window
