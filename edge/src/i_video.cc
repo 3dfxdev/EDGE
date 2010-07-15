@@ -35,6 +35,8 @@ cvar_c in_grab;
 
 static bool grab_state;
 
+static int display_W, display_H;
+
 
 // Possible Screen Modes
 static struct { int w, h; } possible_modes[] =
@@ -122,9 +124,14 @@ void I_StartupGraphics(void)
 
 	
     // -DS- 2005/06/27 Detect SDL Resolutions
-	const SDL_VideoInfo *info = SDL_GetVideoInfo ();
+	const SDL_VideoInfo *info = SDL_GetVideoInfo();
 
-	SDL_Rect **modes = SDL_ListModes (info->vfmt,
+	display_W = info->current_w;
+	display_H = info->current_h;
+
+	I_Printf("Desktop resolution: %dx%d\n", display_W, display_H);
+
+	SDL_Rect **modes = SDL_ListModes(info->vfmt,
 					  SDL_OPENGL | SDL_DOUBLEBUF | SDL_FULLSCREEN);
 
 	if (modes && modes != (SDL_Rect **)-1)
@@ -269,6 +276,13 @@ void I_ShutdownGraphics(void)
 
 		SDL_Quit ();
 	}
+}
+
+
+void I_GetDesktopSize(int *width, int *height)
+{
+	*width  = display_W;
+	*height = display_H;
 }
 
 //--- editor settings ---
