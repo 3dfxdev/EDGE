@@ -62,6 +62,9 @@
 #define FLOOD_DIST    1024.0f
 #define FLOOD_EXPAND  128.0f
 
+#define DOOM_YSLOPE       (0.525)
+#define DOOM_YSLOPE_FULL  (0.625)
+
 
 // #define DEBUG_GREET_NEIGHBOUR
 
@@ -92,7 +95,7 @@ angle_t clip_scope;
 
 mobj_t *view_cam_mo;
 
-extern float hud_aspect;
+extern float pixel_aspect;
 
 
 static int checkcoord[12][4] =
@@ -3034,12 +3037,16 @@ static void RGL_RenderTrueBSP(void)
 }
 
 
-static void InitCamera(mobj_t *mo)
+static void InitCamera(mobj_t *mo, bool full_height)
 {
 	float fov = CLAMP(5, r_fov.f, 175);
 
 	view_x_slope = tan(fov * M_PI / 360.0);
-	view_y_slope = 1.0;
+
+	if (full_height)
+		view_y_slope = DOOM_YSLOPE_FULL;
+	else
+		view_y_slope = DOOM_YSLOPE;
 
 	viewiszoomed = false;
 
@@ -3049,14 +3056,12 @@ static void InitCamera(mobj_t *mo)
 
 		float new_slope = tan(mo->player->zoom_fov * M_PI / 360.0);
 
-		view_y_slope = new_slope / view_x_slope;
-		view_x_slope = new_slope;
+		view_y_slope *= new_slope / view_x_slope;
+		view_x_slope  = new_slope;
 	}
 
-	view_y_slope /= 1.6;  // DOOM formula
 
-	// adjustment for wide screens
-	view_x_slope *= hud_aspect;
+//!!!!	view_x_slope *= pixel_aspect * viewwindow_w / (float)viewwindow_h;
 
 
 	viewx = mo->x;
@@ -3149,7 +3154,7 @@ static void InitCamera(mobj_t *mo)
 }
 
 
-void R_Render(int x, int y, int w, int h, mobj_t *camera)
+void R_Render(int x, int y, int w, int h, mobj_t *camera, bool full_height)
 {
 	viewwindow_x = x;
 	viewwindow_y = y;
@@ -3158,9 +3163,8 @@ void R_Render(int x, int y, int w, int h, mobj_t *camera)
 
 	view_cam_mo = camera;
 
-
 	// Load the details for the camera
-	InitCamera(camera);
+	InitCamera(camera, full_height);
 
 	// Profiling
 	framecount++;
