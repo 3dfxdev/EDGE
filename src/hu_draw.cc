@@ -41,6 +41,8 @@ static font_c *default_font;
 
 float hud_aspect;
 
+float pixel_aspect = 1.0f;
+
 
 // current state
 static float cur_coord_W;

@@ -296,6 +296,9 @@ void I_FinishFrame(void);
 // routine typically copies the screen buffer to the video memory.  It
 // may also handle double/triple buffering here.
 
+void I_GetDesktopSize(int *width, int *height);
+// returns the desktop resolution.
+
 bool I_SetScreenSize(scrmode_c *mode);
 // Tries to set the video card to the given mode (or open a window).
 // If there already was a valid mode (or open window), this call
