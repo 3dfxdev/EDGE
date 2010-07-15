@@ -40,8 +40,6 @@
 static font_c *default_font;
 
 
-#define DOOM_PIXEL_ASPECT  0.8333
-
 float pixel_aspect = 1.0f;
 
 
@@ -125,6 +123,7 @@ void HUD_FrameSetup(void)
 
 	HUD_Reset();
 
+	// determine pixel_aspect
 	float aspect = CLAMP(0.2, r_aspect.f, 5.0);
 
 	if (FULLSCREEN)
@@ -140,34 +139,19 @@ void HUD_FrameSetup(void)
 		pixel_aspect = aspect * height / (float)width;
 	}
 
-
-	// setup letterboxing for wide screens
-
-#if 1  // FIXME
-	margin_X = 0;
-	margin_Y = SCREENHEIGHT;
-
-	margin_W = SCREENWIDTH;
+	// setup letterboxing for wide screens (etc)
 	margin_H = SCREENHEIGHT;
 
-#else
+	margin_W = margin_H * DOOM_ASPECT * (DOOM_PIXEL_ASPECT / pixel_aspect);
 
-
-	margin_H = SCREENHEIGHT;
-
-	margin_W = margin_H / pixel_aspect * cur_coord_W / (float)cur_coord_H *
-	           DOOM_PIXEL_ASPECT;
-
-	if (margin_W < SCREENWIDTH)
+	if (margin_W > SCREENWIDTH)
 	{
-		margin_X = (SCREENWIDTH - margin_W) / 2.0;
+		margin_H *= (float)SCREENWIDTH / margin_W;
+		margin_W = SCREENWIDTH;
 	}
-	else
-	{
-		
-	}
-		margin_W  = SCREENWIDTH;
-#endif
+
+	margin_X = (SCREENWIDTH - margin_W) / 2.0;
+	margin_Y = margin_H;
 }
 
 

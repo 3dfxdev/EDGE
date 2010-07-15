@@ -67,9 +67,10 @@ extern int framecount;
 extern struct mobj_s *background_camera_mo;
 
 
-// The used aspect ratio. A normal texel will look aspect_ratio*4/3
-// times wider than high on the monitor
-#define aspect_ratio  (200.0f / 320.0f)
+#define DOOM_ASPECT  (320.0f / 200.0f)
+#define DOOM_PIXEL_ASPECT  0.8333
+
+extern float pixel_aspect;
 
 
 //
