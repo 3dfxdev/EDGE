@@ -39,7 +39,8 @@
 
 static font_c *default_font;
 
-float hud_aspect;
+
+#define DOOM_PIXEL_ASPECT  0.8333
 
 float pixel_aspect = 1.0f;
 
@@ -55,10 +56,12 @@ static float cur_scale, cur_alpha;
 static int cur_x_align, cur_y_align;
 
 static float margin_X;
+static float margin_Y;
 static float margin_W;
+static float margin_H;
 
-#define COORD_X(x)  ((x) * margin_W     / cur_coord_W + margin_X)
-#define COORD_Y(y)  ((y) * SCREENHEIGHT / cur_coord_H)
+#define COORD_X(x)  (margin_X + (x) * margin_W / cur_coord_W)
+#define COORD_Y(y)  (margin_Y - (y) * margin_H / cur_coord_H)
 
 #define VERT_SPACING  2.0f
 
@@ -98,8 +101,7 @@ void HUD_SetAlignment(int xa, int ya)
 
 void HUD_Reset()
 {
-	cur_coord_W = 320.0f;
-	cur_coord_H = 200.0f;
+	HUD_SetCoordSys(320, 200);
 
 	cur_font  = default_font;
 	cur_color = RGB_NO_VALUE;
@@ -123,15 +125,49 @@ void HUD_FrameSetup(void)
 
 	HUD_Reset();
 
+	float aspect = CLAMP(0.2, r_aspect.f, 5.0);
+
+	if (FULLSCREEN)
+	{
+		pixel_aspect = aspect * SCREENHEIGHT / (float)SCREENWIDTH;
+	}
+	else
+	{
+		int width, height;
+
+		I_GetDesktopSize(&width, &height);
+
+		pixel_aspect = aspect * height / (float)width;
+	}
+
+
 	// setup letterboxing for wide screens
-	hud_aspect = CLAMP(0.667, r_aspect.f, 3.333) / 1.333;
 
-	margin_W = SCREENWIDTH / hud_aspect;
+#if 1  // FIXME
+	margin_X = 0;
+	margin_Y = SCREENHEIGHT;
 
-	if (margin_W >= SCREENWIDTH)
+	margin_W = SCREENWIDTH;
+	margin_H = SCREENHEIGHT;
+
+#else
+
+
+	margin_H = SCREENHEIGHT;
+
+	margin_W = margin_H / pixel_aspect * cur_coord_W / (float)cur_coord_H *
+	           DOOM_PIXEL_ASPECT;
+
+	if (margin_W < SCREENWIDTH)
+	{
+		margin_X = (SCREENWIDTH - margin_W) / 2.0;
+	}
+	else
+	{
+		
+	}
 		margin_W  = SCREENWIDTH;
-
-	margin_X = (SCREENWIDTH - margin_W) / 2.0;
+#endif
 }
 
 
@@ -143,6 +179,8 @@ static int sci_stack_top = 0;
 
 void HUD_PushScissor(float x1, float y1, float x2, float y2, bool expand)
 {
+expand=false; // FIXME !!!!!!
+
 	SYS_ASSERT(sci_stack_top < MAX_SCISSOR_STACK);
 
 	// expand rendered view to cover whole screen
@@ -157,11 +195,13 @@ void HUD_PushScissor(float x1, float y1, float x2, float y2, bool expand)
 		x2 = COORD_X(x2);
 	}
 
-	y1 = SCREENHEIGHT - COORD_Y(y1);
-	y2 = SCREENHEIGHT - COORD_Y(y2);
+	std::swap(y1, y2);
 
-	int sx1 = I_ROUND(x1); int sy1 = I_ROUND(y2);
-	int sx2 = I_ROUND(x2); int sy2 = I_ROUND(y1);
+	y1 = COORD_Y(y1);
+	y2 = COORD_Y(y2);
+
+	int sx1 = I_ROUND(x1); int sy1 = I_ROUND(y1);
+	int sx2 = I_ROUND(x2); int sy2 = I_ROUND(y2);
 
 	if (sci_stack_top == 0)
 	{
@@ -228,8 +268,8 @@ bool HUD_ScissorTest(float x1, float y1, float x2, float y2)
 	if (x1 > x2) std::swap(x1, x2);
 	if (y1 < y2) std::swap(y1, y2);
 
-	x1 = COORD_X(x1); y1 = SCREENHEIGHT - COORD_Y(y1);
-	x2 = COORD_X(x2); y2 = SCREENHEIGHT - COORD_Y(y2);
+	x1 = COORD_X(x1); y1 = COORD_Y(y1);
+	x2 = COORD_X(x2); y2 = COORD_Y(y2);
 
 	int *xy = scissor_stack[sci_stack_top-1];
 
@@ -327,8 +367,8 @@ void HUD_StretchImage(float x, float y, float w, float h, const image_c *img)
 	float x1 = COORD_X(x);
 	float x2 = COORD_X(x+w);
 
-	float y1 = SCREENHEIGHT - COORD_Y(y+h);
-	float y2 = SCREENHEIGHT - COORD_Y(y);
+	float y1 = COORD_Y(y+h);
+	float y2 = COORD_Y(y);
 
     HUD_RawImage(x1, y1, x2, y2, img, 0, 0, IM_RIGHT(img), IM_TOP(img), cur_alpha);
 }
@@ -361,8 +401,8 @@ void HUD_TileImage(float x, float y, float w, float h, const image_c *img,
 	float x1 = COORD_X(x);
 	float x2 = COORD_X(x+w);
 
-	float y1 = SCREENHEIGHT - COORD_Y(y+h);
-	float y2 = SCREENHEIGHT - COORD_Y(y);
+	float y1 = COORD_Y(y+h);
+	float y2 = COORD_Y(y);
 
 	HUD_RawImage(x1, y1, x2, y2, img,
 				 (offset_x) * tx_scale,
@@ -376,15 +416,18 @@ void HUD_TileImage(float x, float y, float w, float h, const image_c *img,
 void HUD_SolidBox(float x1, float y1, float x2, float y2, rgbcol_t col)
 {
 	// expand to cover wide screens
-	if (x1 < 1 && x2 > cur_coord_W-1 && y1 < 1 && y2 > cur_coord_H-1)
+//!!!!!!
+	if (false && x1 < 1 && x2 > cur_coord_W-1 && y1 < 1 && y2 > cur_coord_H-1)
 	{
 		x1 = 0; x2 = SCREENWIDTH;
 		y1 = 0; y2 = SCREENHEIGHT;
 	}
 	else
 	{
-		x1 = COORD_X(x1); y1 = SCREENHEIGHT - COORD_Y(y1);
-		x2 = COORD_X(x2); y2 = SCREENHEIGHT - COORD_Y(y2);
+		std::swap(y1, y2);
+
+		x1 = COORD_X(x1); y1 = COORD_Y(y1);
+		x2 = COORD_X(x2); y2 = COORD_Y(y2);
 	}
 
 	if (cur_alpha < 0.99f)
@@ -407,11 +450,11 @@ void HUD_SolidBox(float x1, float y1, float x2, float y2, rgbcol_t col)
 void HUD_SolidLine(float x1, float y1, float x2, float y2, rgbcol_t col,
                    bool thick, bool smooth, float dx, float dy)
 {
-	x1 = COORD_X(x1); y1 = SCREENHEIGHT - COORD_Y(y1);
-	x2 = COORD_X(x2); y2 = SCREENHEIGHT - COORD_Y(y2);
+	x1 = COORD_X(x1); y1 = COORD_Y(y1);
+	x2 = COORD_X(x2); y2 = COORD_Y(y2);
 
 	dx = COORD_X(dx) - COORD_X(0);
-	dy = COORD_Y(dy) - COORD_Y(0);
+	dy = COORD_Y( 0) - COORD_Y(dy);
 
 	if (thick)
 		glLineWidth(1.5f);
@@ -439,8 +482,10 @@ void HUD_SolidLine(float x1, float y1, float x2, float y2, rgbcol_t col,
 
 void HUD_ThinBox(float x1, float y1, float x2, float y2, rgbcol_t col)
 {
-	x1 = COORD_X(x1); y1 = SCREENHEIGHT - COORD_Y(y1);
-	x2 = COORD_X(x2); y2 = SCREENHEIGHT - COORD_Y(y2);
+	std::swap(y1, y2);
+
+	x1 = COORD_X(x1); y1 = COORD_Y(y1);
+	x2 = COORD_X(x2); y2 = COORD_Y(y2);
 
 	if (cur_alpha < 0.99f)
 		glEnable(GL_BLEND);
@@ -473,8 +518,10 @@ void HUD_ThinBox(float x1, float y1, float x2, float y2, rgbcol_t col)
 
 void HUD_GradientBox(float x1, float y1, float x2, float y2, rgbcol_t *cols)
 {
-	x1 = COORD_X(x1); y1 = SCREENHEIGHT - COORD_Y(y1);
-	x2 = COORD_X(x2); y2 = SCREENHEIGHT - COORD_Y(y2);
+	std::swap(y1, y2);
+
+	x1 = COORD_X(x1); y1 = COORD_Y(y1);
+	x2 = COORD_X(x2); y2 = COORD_Y(y2);
 
 	if (cur_alpha < 0.99f)
 		glEnable(GL_BLEND);
@@ -540,8 +587,8 @@ void HUD_DrawChar(float left_x, float top_y, const image_c *img)
 	float x1 = COORD_X(x);
 	float x2 = COORD_X(x+w);
 
-	float y1 = SCREENHEIGHT - COORD_Y(y+h);
-	float y2 = SCREENHEIGHT - COORD_Y(y);
+	float y1 = COORD_Y(y+h);
+	float y2 = COORD_Y(y);
 
     HUD_RawImage(x1, y1, x2, y2, img, 0, 0, IM_RIGHT(img), IM_TOP(img),
 				  cur_alpha, cur_color);
