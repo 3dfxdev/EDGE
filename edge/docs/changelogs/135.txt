@@ -44,6 +44,9 @@ General Improvements
 - reviewed #CLEARALL behavior, made it ignored (with a warning)
   for several kinds of DDF where it was not safe or useful.
 
+- new console vars:
+      am_gridsize  r_fov  r_zoomfov  r_aspect
+
 
 New Features
 ------------
