@@ -95,6 +95,8 @@ angle_t clip_scope;
 
 mobj_t *view_cam_mo;
 
+float view_expand_w;
+
 extern float pixel_aspect;
 
 
@@ -3061,7 +3063,9 @@ static void InitCamera(mobj_t *mo, bool full_height, float expand_w)
 	}
 
 	// wide-screen adjustment
-	view_x_slope *= expand_w;
+	view_expand_w = expand_w;
+
+	view_x_slope *= view_expand_w;
 
 
 	viewx = mo->x;
