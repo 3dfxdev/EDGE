@@ -1262,8 +1262,8 @@ static void UpdateSinglePlayerStats(void)
 			cnt_pause = TICRATE;
 		}
 	}
-
 }
+
 
 static void DrawSinglePlayerStats(void)
 {
@@ -1294,6 +1294,7 @@ static void DrawSinglePlayerStats(void)
 		DrawTime(320 - SP_TIMEX, SP_TIMEY, cnt_par);
 	}
 }
+
 
 bool WI_CheckForAccelerate(void)
 {
@@ -1330,6 +1331,7 @@ bool WI_CheckForAccelerate(void)
 
 	return do_accel;
 }
+
 
 void WI_Ticker(void)
 {
@@ -1387,13 +1389,14 @@ void WI_Ticker(void)
 	}
 }
 
+
 void WI_Drawer(void)
 {
 	SYS_ASSERT(gamestate == GS_INTERMISSION);
 
 	if (background_camera_mo)
 	{
-		R_Render(0, 0, SCREENWIDTH, SCREENHEIGHT, background_camera_mo);
+		HUD_RenderWorld(0, 0, 320, 200, background_camera_mo);
 	} 
 	else
 	{
@@ -1443,6 +1446,7 @@ void WI_Drawer(void)
 			break;
 	}
 }
+
 
 static void LoadData(void)
 {
@@ -1553,6 +1557,7 @@ static void InitVariables(void)
 
 	LoadData();
 }
+
 
 void WI_Start(void)
 {
