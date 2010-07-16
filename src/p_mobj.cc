@@ -1073,7 +1073,7 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 				S_StartFX(mo->info->oof_sound, P_MobjGetSfxCategory(mo), mo);
 			}
 			// -KM- 1998/12/16 If bigger than max fall, take damage.
-			if (mo->info->maxfall && gravity > 0 && -mo->mom.z > hurt_momz &&
+			if (mo->info->maxfall > 0 && gravity > 0 && -mo->mom.z > hurt_momz &&
 				(! mo->player || ! fly_or_swim))
 			{
 				P_DamageMobj(mo, NULL, NULL, (-mo->mom.z - hurt_momz), NULL);
@@ -1163,7 +1163,7 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 				mo->player->deltaviewheight = zmove / 8.0f;
 				S_StartFX(mo->info->oof_sound, P_MobjGetSfxCategory(mo), mo);
 			}
-			if (mo->info->maxfall && gravity < 0 && mo->mom.z > hurt_momz &&
+			if (mo->info->maxfall > 0 && gravity < 0 && mo->mom.z > hurt_momz &&
 				(! mo->player || ! fly_or_swim))
 			{
 				P_DamageMobj(mo, NULL, NULL, (mo->mom.z - hurt_momz), NULL);
