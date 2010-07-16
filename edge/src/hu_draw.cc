@@ -655,5 +655,15 @@ void HUD_RenderWorld(float x1, float y1, float x2, float y2, mobj_t *camera)
 	HUD_PopScissor();
 }
 
+
+void HUD_GetCastPosition(float *x, float *y, float *scale_x, float *scale_y)
+{
+	*x = COORD_X(160);
+	*y = COORD_Y(170);
+
+	*scale_y = margin_H / cur_coord_H;
+	*scale_x = *scale_y / pixel_aspect;
+}
+
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

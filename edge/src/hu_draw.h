@@ -108,6 +108,7 @@ void HUD_DrawText(float x, float y, const char *str);
 void HUD_RenderWorld(float x1, float y1, float x2, float y2, mobj_t *camera);
 // render a view of the world using the given camera object.
 
+void HUD_GetCastPosition(float *x, float *y, float *scale_x, float *scale_y);
 
 #endif /* __HUD_DRAW_H__ */
 
