@@ -655,6 +655,11 @@ static void CastDrawer(void)
 
 	bool flip;
 
+	float pos_x, pos_y;
+	float scale_x, scale_y;
+
+	HUD_GetCastPosition(&pos_x, &pos_y, &scale_x, &scale_y);
+
 	if (caststate->flags & SFF_Model)
 	{
 		modeldef_c *md = W_GetModel(caststate->sprite);
@@ -668,9 +673,7 @@ static void CastDrawer(void)
 		glEnable(GL_DEPTH_TEST);
 
 		MD2_RenderModel_2D(md->model, skin_img, caststate->frame,
-						   SCREENWIDTH/2.0, FROM_200(30),
-						   SCREENWIDTH / 320.0, SCREENHEIGHT / 200.0,
-						   castorder);
+						   pos_x, pos_y, scale_x, scale_y, castorder);
 
 		glDisable(GL_DEPTH_TEST);
 		return;
@@ -682,8 +685,8 @@ static void CastDrawer(void)
 	if (! image)
 		return;
 
-	float xscale = castorder->scale * castorder->aspect / pixel_aspect;
-	float yscale = castorder->scale;
+	scale_x *= castorder->scale * castorder->aspect;
+	scale_y *= castorder->scale;
 
 	float width    = IM_WIDTH(image);
 	float height   = IM_HEIGHT(image);
@@ -694,18 +697,16 @@ static void CastDrawer(void)
 	if (flip)
 		offset_x = -offset_x;
 
-	float tx1 = 160 - (width/2.0f + offset_x) * xscale;
+	offset_x  = (width/2.0f + offset_x) * scale_x;
+	offset_y *= scale_y;
 
-	float gzb = 170 - offset_y * yscale;
-
-	width  *= xscale;
-	height *= yscale;
+	width  *= scale_x;
+	height *= scale_y;
 
 	// TODO: support FUZZY effect (glColor4f 0/0/0/0.5).
 
-	RGL_DrawImage(FROM_320(tx1), SCREENHEIGHT - FROM_200(gzb),
-			      FROM_320(width), FROM_200(height),
-				  image, 
+	RGL_DrawImage(pos_x - offset_x, pos_y + offset_y,
+			      width, height, image, 
 				  flip ? IM_RIGHT(image) : 0, 0,
 				  flip ? 0 : IM_RIGHT(image), IM_TOP(image),
 				  NULL, 1.0f, castorder->palremap);
