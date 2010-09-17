@@ -14,7 +14,6 @@
     <li> <a href="line_types.htm">Line types</a>
     <li> <a href="sec_types.htm">Sector types</a>
     <li> <a href="thing_types.htm">Thing types</a>
-    <li> <a href="http://edge.sourceforge.net/ddf_online/index.htm">DDF Online</a>
     <li> <a href="http://edge.sourceforge.net/rts_online/start.htm">RTS Online</a>
 </ul>
 
