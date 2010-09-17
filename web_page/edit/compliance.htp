@@ -178,12 +178,9 @@ which can define texture sources and attributes (like scaling)
 in a standard but extensible way.
 
 <p>
-EDGE 1.31 has no support for this spec yet, apart from the
+EDGE has no support for this spec yet, apart from the
 ability to load the 320x200 Heretic/Hexen title graphics and
 support for larger flats (from 128x128 upto 1024x1024).
-
-<p>
-Work is underway to implement more of this spec.
 
 <p>
 Reference: <a href="JointTextureSpec.htm">Joint Texture Standard</a>
@@ -193,31 +190,26 @@ Reference: <a href="JointTextureSpec.htm">Joint Texture Standard</a>
 <!--- p  br --->
 <h3 class="sub_title">File Formats</h3>
 
-Here is a list of formats that EDGE supports (or are planned).
+Here is a list of formats that EDGE supports.
 Not included here are the standard DOOM formats
 (such as DOOM images or sounds), as naturally EDGE can
 already handle those.
 
 <p>
 <B>Images:</B> <br>
-Using IMAGES.DDF, EDGE can load PNG, JPEG and TGA format images.
+PNG, JPEG and TGA formats.
 
 <p>
 <B>Sounds:</B> <br>
-EDGE supports both WAV and Ogg/Vorbis formats.
+WAV and Ogg/Vorbis formats.
 
 <p>
 <B>Music:</B> <br>
-EDGE supports Ogg/Vorbis for music, as well as 
-software synthesized MUS and MIDI playback.
+Ogg/Vorbis, software synthesized MUS and MIDI playback.
 
 <p>
-<B>Packages:</B> <br>
-EDGE does not support any package formats (like ZIP or PK3 files).
-
-<p>
-<B>Others:</B> <br>
-EDGE 1.31 supports MD2 models.
+<B>Models:</B> <br>
+MD2 format from Quake 2.
 
 </block>
 
