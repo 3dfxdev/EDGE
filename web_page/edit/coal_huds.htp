@@ -90,6 +90,8 @@ For example, the standard code uses <b>hud.which_hud()&nbsp;%&nbsp;3</b> to
 select between three different huds (none, normal and overlay).
 The following are good modulo numbers:
 2,3,4,5,6,8 and 10 (because they divide into 120).
+
+<p>
 For a HUD which never changes, simply ignore this value.
 
 <p><span class="lua_FUNC">hud.get_time() : float</span><br>
