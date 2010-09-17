@@ -20,10 +20,10 @@
 
 #define EDGEVER       135
 #define EDGEVERHEX  0x135
-#define EDGEVERSTR  "1.35c(TEST)"
+#define EDGEVERSTR  "1.35d(TEST)"
 
 // patch level (Savegames and Demos)
-#define EDGEPATCH  3
+#define EDGEPATCH  4
 
 // -ES- 2000/03/04 The version of EDGE.WAD we require.
 #define EDGE_WAD_VERSION  601
