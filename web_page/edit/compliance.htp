@@ -24,7 +24,7 @@ Plus some things don't look exactly the same as
 the original, for example:
 Some sprites are designed to look sunk into the floor, typically
 corpses, and can seem to "float" in EDGE.
-Plus some non-standard mapping hacks (like invisible floors)
+Plus some non-standard mapping tricks (like invisible floors)
 don't always work properly.
 
 <li class="edit">
@@ -68,7 +68,6 @@ List of known incompatibilities:
 
 <li>displacement and accelerative scrollers don't work
 <li>physics for ICE and MUD effects are similar but not identical
-<li>music lumps in MIDI format are not supported yet
 <li>some effects of linetype [242], especially invisible
 floors, do not work yet
 <li>colormaps and translation-maps are software rendering techniques
