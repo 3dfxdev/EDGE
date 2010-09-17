@@ -26,8 +26,6 @@
 #include "i_defs.h"
 #include "i_defs_gl.h"
 
-// #include <stdlib.h>  // atoi()
-
 #include "ddf/main.h"
 #include "ddf/colormap.h"
 #include "ddf/game.h"
@@ -370,19 +368,37 @@ const byte *V_GetTranslationTable(const colourmap_c * colmap)
 	return (const byte*)colmap->cache.data;
 }
 
+
 void R_TranslatePalette(byte *new_pal, const byte *old_pal,
                         const colourmap_c *trans)
 {
-	// do the actual translation
-	const byte *trans_table = V_GetTranslationTable(trans);
-
-	for (int j = 0; j < 256; j++)
+	// is the colormap just using GL_COLOUR?
+	if (trans->length == 0)
 	{
-		int k = trans_table[j];
+		int r = RGB_RED(trans->gl_colour);
+		int g = RGB_GRN(trans->gl_colour);
+		int b = RGB_BLU(trans->gl_colour);
 
-		new_pal[j*3 + 0] = old_pal[k*3+0];
-		new_pal[j*3 + 1] = old_pal[k*3+1];
-		new_pal[j*3 + 2] = old_pal[k*3+2];
+		for (int j = 0; j < 256; j++)
+		{
+			new_pal[j*3 + 0] = old_pal[j*3+0] * (r+1) / 256;
+			new_pal[j*3 + 1] = old_pal[j*3+1] * (g+1) / 256;
+			new_pal[j*3 + 2] = old_pal[j*3+2] * (b+1) / 256;
+		}
+	}
+	else
+	{
+		// do the actual translation
+		const byte *trans_table = V_GetTranslationTable(trans);
+
+		for (int j = 0; j < 256; j++)
+		{
+			int k = trans_table[j];
+
+			new_pal[j*3 + 0] = old_pal[k*3+0];
+			new_pal[j*3 + 1] = old_pal[k*3+1];
+			new_pal[j*3 + 2] = old_pal[k*3+2];
+		}
 	}
 }
 
