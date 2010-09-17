@@ -115,7 +115,8 @@ static void ColmapFinishEntry(void)
 		dynamic_colmap->start = 0;
 	}
 
-	if (dynamic_colmap->length <= 0)
+	// don't need a length when using GL_COLOUR
+	if (! dynamic_colmap->lump_name.empty() && dynamic_colmap->length <= 0)
 	{
 		DDF_WarnError("Bad LENGTH value for colmap: %d\n", dynamic_colmap->length);
 		dynamic_colmap->length = 1;
