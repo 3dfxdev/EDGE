@@ -39,16 +39,16 @@ placing a double slash "//" at the beginning of a line and then typing
 your text after it. For example:
 
 <p>
-Commands in RTS scripts can be extended over two (or more) actual
-lines by placing the \ character at the end.  There must not be
-any spaces after the \ character, otherwise it doesn't work.
-
-<p>
 <PRE class="rts">
 //This is a comment
 
 //and this is another one
 </PRE>
+
+<p>
+Commands in RTS scripts can be extended over two (or more) actual
+lines by placing the \ character at the end.  There must not be
+any spaces after the \ character, otherwise it doesn't work.
 
 <p>
 
