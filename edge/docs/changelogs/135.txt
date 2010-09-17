@@ -2,7 +2,7 @@
 CHANGELOG for EDGE 1.35 (since 1.34)
 ====================================
 
-(Date: JULY 2010)
+(Date: SEPTEMBER 2010)
 
 
 Bugs fixed
@@ -14,9 +14,11 @@ Bugs fixed
 
 - fixed music on MAP32 of DOOM II
 
+- fixed the marks on the automap
+
 - E2M8, E3M8 (etc) are playable without any bosses
 
-- fixed the marks on the automap
+- got GL_COLOUR feature of COLORMAPS.DDF working
 
 
 General Improvements
