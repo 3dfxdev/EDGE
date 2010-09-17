@@ -1,5 +1,5 @@
 
-EDGE 1.34 README.TXT
+EDGE 1.35 README.TXT
 ====================
 
 Welcome to EDGE, the Enhanced Doom Game Engine.
@@ -7,11 +7,11 @@ Welcome to EDGE, the Enhanced Doom Game Engine.
 Website: http://edge.sourceforge.net
 
 Archive listing:
-  * edge134.exe        - EDGE Executable
+  * edge135.exe        - EDGE Executable
   * edge.wad           - EDGE WAD Information, version 6.1
   * demo-XXXX.wad      - Demos of various EDGE features
   * SDL.dll            - Simple DirectMedia Layer, version 1.2.13
-  * Changelog-134.txt  - Changes since 1.31
+  * Changelog-135.txt  - Changes since 1.34
   * Edge-Readme.txt    - Guess what you are reading?
 
 
@@ -119,37 +119,18 @@ NOTE: SoundFonts (SF2 files) are different from GUS patch files
 
 ------------------------------------------------------------------------
 
-Major Changes in EDGE 1.34:
-  + HUB support
-  + Joystick support
-  + obituary messages (new DAMAGE.OBITUARY field)
-  + two "Action" buttons for RTS scripting
-  + better crosshairs, more configurable
-  + improved console with command history and TAB-completion
-  + support for keys on the numeric keypad
+Major Changes in EDGE 1.35:
+  + widescreen support
+  + DDF inheritance
+  + weapon and automap key bindings can be changed 
+  + support textures between TX_START/TX_END
 
-  ! new language "COAL" replaces Lua for HUDs
-  ! RTS files now use the "RTS" extension (not "SCR")
-  ! standard DDF/RTS files moved out of EDGE.WAD
-
-Bugs fixed in 1.34:
-  - fixed music detuning with Windows native playback
-  - fixed some colormap issues
-  - fixed slowdown with savegames on large maps
-  - fixed teleporting into walls bug (with help from Andrew Baker)
-  - fixed bug with LOSE_BENEFIT on ammo limits
-  - fixed weapon refire accuracy after a loadgame
-  - fixed bots triggering exit lines/switches
-  - fixed excessive warnings for missing textures
-
-  - fixed 16-rotation sprites
-  - fixed some Timidity issues
-  - fixed dynamic lights on translucent MD2 skins
-  - fixed RTS execution semantics in multiplayer games
-  - fixed crashes with "monster aggression" feature
-  - fixed display of gamma-change messages
-  - fixed gamma to be restored at exit
-  - fixed Boom point pushers/pullers
+Bugs fixed in 1.35:
+  - fixed serious bug with COAL scripts
+  - fixed music on MAP32 of DOOM II
+  - fixed the marks on the automap
+  - fixed GL_COLOUR feature of COLORMAPS.DDF
+  - E2M8, E3M8 (etc) are playable without any bosses
 
 
 Known Issues:
