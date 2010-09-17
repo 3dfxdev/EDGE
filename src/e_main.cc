@@ -471,7 +471,7 @@ static void M_DisplayPause(void)
 	float h = IM_HEIGHT(pause_image);
 
 	float x = 160 - w / 2;
-	float y = 190 - h;
+	float y = 10;
 
 	HUD_StretchImage(x, y, w, h, pause_image);
 }
