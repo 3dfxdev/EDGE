@@ -1,6 +1,6 @@
 //------------------------------------------
 //  BASIC COAL DEFINITIONS for EDGE
-//  Copyright (c) 2009 The Edge Team
+//  Copyright (c) 2009-2010 The Edge Team
 //  Under the GNU General Public License
 //------------------------------------------
 
