@@ -52,9 +52,11 @@ New Features
 ------------
 
 + inheritance for DDF.  This allows a new DDF entry to be based
-  off an existing one, instead of everything having default values.
+  off an existing one, instead of all fields getting default values.
   It can be used in ATTACKS.DDF, THINGS.DDF, WEAPONS.DDF, GAMES.DDF,
-  LEVELS.DDF, LINES.DDF and SECTORS.DDF.  The syntax is:
+  LEVELS.DDF, LINES.DDF and SECTORS.DDF.
+  
+  The syntax is:
 
     [NEW_IMP:3333]
     TEMPLATE = IMP;
