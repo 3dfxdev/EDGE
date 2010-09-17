@@ -9,7 +9,7 @@
 Type: UNRELEASED
 <p>
 
-Date: JULY 2010
+Date: SEPTEMBER 2010
 <p>
 
 <PRE class="bugs">
@@ -21,9 +21,11 @@ Date: JULY 2010
 
 - fixed music on MAP32 of DOOM II
 
+- fixed the marks on the automap
+
 - E2M8, E3M8 (etc) are playable without any bosses
 
-- fixed the marks on the automap
+- got GL_COLOUR feature of COLORMAPS.DDF working
 </PRE>
 
 
