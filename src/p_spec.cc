@@ -842,8 +842,8 @@ static void DetailSlope_Floor(line_t *ld)
 		return;
 	}
 
-	// limit height difference to no more than 16 units
-	z1 = MAX(z1, z2 - 16.0);
+	// limit height difference to no more than player step
+	z1 = MAX(z1, z2 - 24.0);
 
 	sec->f_slope = DetailSlope_BoundIt(ld, sec, z1 - sec->f_h, z2 - sec->f_h);
 }
@@ -878,8 +878,10 @@ static void DetailSlope_Ceiling(line_t *ld)
 		return;
 	}
 
-	// limit height difference to no more than 16 units
+#if 0
+	// limit height difference to no more than this
 	z2 = MIN(z2, z1 + 16.0);
+#endif
 
 	sec->c_slope = DetailSlope_BoundIt(ld, sec, z2 - sec->c_h, z1 - sec->c_h);
 }
