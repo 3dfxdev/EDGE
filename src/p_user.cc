@@ -966,43 +966,50 @@ bool P_RemoveWeapon(player_t *player, weapondef_c *info)
 {
 	// returns true if player had the weapon.
 
-	int i;
+	int slot;
 
-	for (i=0; i < MAXWEAPONS; i++)
+	for (slot=0; slot < MAXWEAPONS; slot++)
 	{
-		if (! player->weapons[i].owned)
+		if (! player->weapons[slot].owned)
 			continue;
 
 		// Note: no need to check PLWEP_Removing
 
-		if (player->weapons[i].info == info)
+		if (player->weapons[slot].info == info)
 			break;
 	}
 
-	if (i >= MAXWEAPONS)
+	if (slot >= MAXWEAPONS)
 		return false;
 
-	L_WriteDebug("P_RemoveWeapon: [%s] @ %d\n", info->name.c_str(), i);
+	L_WriteDebug("P_RemoveWeapon: [%s] @ %d\n", info->name.c_str(), slot);
 
-	player->weapons[i].owned = false;
+	player->weapons[slot].owned = false;
 
 	P_UpdateAvailWeapons(player);
+
+	// fix the key choices
+	for (int w=0; w <= 9; w++)
+		if (player->key_choices[w] == slot)
+			player->key_choices[w] = WPSEL_None;
 
 	// handle the case of already holding the weapon.  We mark the
 	// weapon as being removed (the flag is cleared once lowered).
 
-	if (player->ready_wp == i)
+	if (player->ready_wp == slot)
 	{
-		player->weapons[i].flags |= PLWEP_Removing;
+		player->weapons[slot].flags |= PLWEP_Removing;
 
 		if (player->pending_wp == WPSEL_NoChange)
 			P_DropWeapon(player);
 	}
 	else
-		player->weapons[i].info = NULL;
+		player->weapons[slot].info = NULL;
 
-	if (player->pending_wp == i)
+	if (player->pending_wp == slot)
 		P_SelectNewWeapon(player, -100, AM_DontCare);
+
+	SYS_ASSERT(player->pending_wp != slot);
 
 	return true;
 }
