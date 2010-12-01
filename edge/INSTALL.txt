@@ -78,8 +78,8 @@ before running make, like this:
    > i586-mingw32msvc-windres edge32.rc -o edge32_res.o
 
 (The resource file is not essential, so if this step gives
- you big problems then simply remove the edge32_res.o line
- from the SConstruct file).
+ you big problems then simply remove the edge32_res.o part
+ from the Makefile).
 
 
 LINKS
