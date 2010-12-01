@@ -436,6 +436,8 @@ void P_DesireWeaponChange(player_t * p, int key)
 	{
 		weapondef_c *info = p->weapons[p->pending_wp].info;
 
+		SYS_ASSERT(info);
+
 		if (info->bind_key == key)
 			return;
 	}
@@ -1232,6 +1234,12 @@ void A_Lower(mobj_t * mo)
 	{
 		p->weapons[p->ready_wp].flags &= ~PLWEP_Removing;
 		p->weapons[p->ready_wp].info = NULL;
+
+		// this should not happen, but handle it just in case
+		if (p->pending_wp == p->ready_wp)
+			p->pending_wp = WPSEL_NoChange;
+
+		p->ready_wp = WPSEL_None;
 	}
 
 	// The old weapon has been lowered off the screen,
