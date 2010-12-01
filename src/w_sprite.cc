@@ -416,7 +416,10 @@ static void CheckSpriteFrames(spritedef_c *def)
 
 	for (int i = 0; i < def->numframes; i++)
 		if (! def->frames[i].finished)
+		{
+			I_Debugf("Frame %d/%d is not finished\n", 1+i, def->numframes);
 			missing++;
+		}
 
 	if (missing > 0 && missing < def->numframes)
 		I_Warning("Missing %d frames in sprite: %s\n", missing, def->name);
