@@ -9,7 +9,7 @@
 Type: UNRELEASED
 <p>
 
-Date: SEPTEMBER 2010
+Date: DECEMBER 2010
 <p>
 
 <PRE class="bugs">
@@ -36,6 +36,8 @@ Date: SEPTEMBER 2010
   Options menu.  Custom values can be set in the "r_aspect" cvar.
 
 + weapon and automap key bindings can be changed.
+
+- recognise HacX 1.2 as an IWAD.
 
 - renamed "Host Net Game" menu to "Advanced Start" and removed
   the references to networking stuff and the player list screen,
