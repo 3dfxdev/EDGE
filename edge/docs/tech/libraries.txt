@@ -1,5 +1,5 @@
 
-EDGE 1.34 Required Libraries
+EDGE 1.35 Required Libraries
 ============================
 
 Internal (in SVN)
@@ -9,7 +9,6 @@ EPI      : Edge Platform Interface (utility code)
 Deh_Edge : DeHackEd/BEX patch to DDF converter
 COAL     : Coal language compiler / VM
 Timidity : MIDI playback library
-ENET     : Networking library   [not used in 1.34]
 
 
 External
