@@ -2,7 +2,7 @@
 EDGE 1.35 COMPILATION NOTES
 ===========================
 
-by Andrew Apted,  AUGUST 2010
+by Andrew Apted,  DECEMBER 2010
 
 
 Note 1

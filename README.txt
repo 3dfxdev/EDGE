@@ -140,7 +140,7 @@ Known Issues:
 
   - Drag-and-drop does not work in Linux.
 
-  - Levels and TCs designed for EDGE 1.24 (or earlier) can produce
+  - Levels and TCs designed for very early EDGE versions can produce
     a crap-load of warnings when starting up.  These warnings are
     mostly about DDF features that have been removed or changed.
     Hence some older stuff will not work 100%.  Use the -nowarn
