@@ -41,12 +41,6 @@ lump = "COLORMAP";
 start = 32;
 length = 1;
 
-// For the infrared-goggles effect
-[ALLBRIGHT]
-lump = "COLORMAP";
-start = 1;
-length = 1;
-
 // For the EDGE night-vision effect
 [ALLGREEN]
 lump = "NITEVMAP";
@@ -267,5 +261,8 @@ gl_colour = #777777;
 gl_colour = #777777;
 
 [DIMSCREEN]
+gl_colour = #777777;
+
+[ALLBRIGHT]
 gl_colour = #777777;
 
