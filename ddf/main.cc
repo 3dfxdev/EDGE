@@ -1293,6 +1293,12 @@ void DDF_MainGetFloat(const char *info, void *storage)
 
 	SYS_ASSERT(info && storage);
 
+	if (strchr(info, '%') != NULL)
+	{
+		DDF_MainGetPercentAny(info, storage);
+		return;
+	}
+
 	if (sscanf(info, "%f", dest) != 1)
 		DDF_Error("Bad floating point value: %s\n", info);
 }
@@ -1336,6 +1342,18 @@ void DDF_MainGetSlope(const char *info, void *storage)
 	*dest = M_Tan(FLOAT_2_ANG(val));
 }
 
+
+static void DoGetFloat(const char *info, void *storage)
+{
+	float *dest = (float *)storage;
+
+	SYS_ASSERT(info && storage);
+
+	if (sscanf(info, "%f", dest) != 1)
+		DDF_Error("Bad floating point value: %s\n", info);
+}
+
+
 //
 // DDF_MainGetPercent
 //
@@ -1358,14 +1376,14 @@ void DDF_MainGetPercent(const char *info, void *storage)
 	{
 		DDF_WarnError("Bad percent value '%s': Should be a number followed by %%\n", info);
 		// -AJA- 2001/01/27: backwards compatibility
-		DDF_MainGetFloat(s, &f);
+		DoGetFloat(s, &f);
 		*dest = MAX(0, MIN(1, f));
 		return;
 	}
 
 	*p = 0;
   
-	DDF_MainGetFloat(s, &f);
+	DoGetFloat(s, &f);
 	if (f < 0.0f || f > 100.0f)
 		DDF_Error("Bad percent value '%s': Must be between 0%% and 100%%\n", s);
 
@@ -1395,13 +1413,13 @@ void DDF_MainGetPercentAny(const char *info, void *storage)
 	{
 		DDF_WarnError("Bad percent value '%s': Should be a number followed by %%\n", info);
 		// -AJA- 2001/01/27: backwards compatibility
-		DDF_MainGetFloat(s, dest);
+		DoGetFloat(s, dest);
 		return;
 	}
 
 	*p = 0;
   
-	DDF_MainGetFloat(s, &f);
+	DoGetFloat(s, &f);
 
 	*dest = f / 100.0f;
 }
