@@ -87,5 +87,11 @@ New Features
   trigger area, and it also waits forever if there are no such
   monsters alive (inside the trigger area).
 
+- MD2 models will be vertically tilted (using the mlook angle)
+  for all missiles and anything using the new TILT special.
+
+- DDF: new weapon command UNZOOM which forces the screen to be
+  unzoomed if zoom is active.
+
 - support for the ZDoom TEXTURE1/2 scaling extension.
 
