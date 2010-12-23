@@ -915,7 +915,9 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 	data. z_scale = scale * MIR_ZScale();
 	data.bias = bias;
 
-	M_Angle2Matrix(is_weapon ? ~mo->vertangle : 0, &data.kx_mat, &data.kz_mat);
+	bool tilt = is_weapon || (mo->flags & MF_MISSILE) || (mo->hyperflags & HF_TILT);
+
+	M_Angle2Matrix(tilt ? ~mo->vertangle : 0, &data.kx_mat, &data.kz_mat);
 
 	
 	angle_t ang = mo->angle;
