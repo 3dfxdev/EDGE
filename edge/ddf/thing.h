@@ -290,6 +290,9 @@ typedef enum
 
 	// -AJA- 2010/06/13: used for RTS command of same name
 	HF_WAIT_UNTIL_DEAD = (1 << 14),
+
+	// -AJA- 2010/12/23: force models to tilt by viewangle
+	HF_TILT = (1 << 15),
 }
 mobjhyperflag_t;
 
