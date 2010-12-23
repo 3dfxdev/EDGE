@@ -60,6 +60,7 @@ void A_FriendJump(struct mobj_s *mo);
 void A_GunFlash(struct mobj_s *mo);
 void A_WeaponKick(struct mobj_s *mo);
 void A_WeaponSetSkin(struct mobj_s *mo);
+void A_WeaponUnzoom(struct mobj_s *mo);
 
 void A_WeaponShootSA(struct mobj_s *mo);
 void A_ReFireSA(struct mobj_s *mo);
