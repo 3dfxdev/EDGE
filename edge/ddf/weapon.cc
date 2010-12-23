@@ -140,6 +140,8 @@ static const actioncode_t weapon_actions[] =
 	{"KILLSOUND",         A_WeaponKillSound, NULL},
 	{"SET_SKIN",          A_WeaponSetSkin,   DDF_StateGetInteger},
 	{"JUMP",              A_WeaponJump, DDF_StateGetJump},
+	{"UNZOOM",            A_WeaponUnzoom, NULL},
+
 	{"RTS_ENABLE_TAGGED", A_WeaponEnableRadTrig,  DDF_StateGetInteger},
 	{"RTS_DISABLE_TAGGED",A_WeaponDisableRadTrig, DDF_StateGetInteger},
 	{"SEC_SHOOT",         A_WeaponShootSA, DDF_StateGetAttack},

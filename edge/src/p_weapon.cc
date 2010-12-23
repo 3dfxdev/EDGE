@@ -1648,5 +1648,12 @@ void A_WeaponSetSkin(mobj_t * mo)
 }
 
 
+void A_WeaponUnzoom(mobj_t * mo)
+{
+	player_t *p = mo->player;
+
+	p->zoom_fov = 0;
+}
+
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
