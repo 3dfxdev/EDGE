@@ -643,7 +643,7 @@ void W_PrecacheSprites(void)
 		if (! (sprite_present[i] || def->HasWeapon()))
 			continue;
 
-		Debug_Printf("Precaching sprite: %s\n", def->name);
+		I_Debugf("Precaching sprite: %s\n", def->name);
 
 		SYS_ASSERT(def->frames);
 
