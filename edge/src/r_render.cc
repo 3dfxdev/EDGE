@@ -1030,7 +1030,7 @@ static void DrawWallPart(drawfloor_t *dfloor,
 		float tmp_x = x1; x1 = x2; x2 = tmp_x;
 		float tmp_y = y1; y1 = y2; y2 = tmp_y;
 
-		tmp_x = 0-tex_x1; tex_x1 = 0-tex_x2; tex_x2 = tmp_x;
+   		tmp_x = tex_x1; tex_x1 = tex_x2; tex_x2 = tmp_x;
 	}
 
 	SYS_ASSERT(currmap);
@@ -1352,11 +1352,6 @@ static void DrawTile(seg_t *seg, drawfloor_t *dfloor,
 
 	tex_x1 += x_offset;
 	tex_x2 += x_offset;
-
-	if (MIR_Reflective())
-	{
-		float tmp_tx = tex_x1; tex_x1 = tex_x2; tex_x2 = tmp_tx;
-	}
 
 	DrawWallPart(dfloor,
 		x1,y1, lz1,lz2,
