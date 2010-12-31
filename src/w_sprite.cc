@@ -65,6 +65,15 @@ public:
 	{
 		// TODO: free the frames
 	}
+
+	bool HasWeapon() const
+	{
+		for (int i = 0 ; i < numframes ; i++)
+			if (frames[i].is_weapon)
+				return true;
+
+		return false;
+	}
 };
 
 
@@ -604,15 +613,12 @@ spriteframe_c *W_GetSpriteFrame(int spr_num, int framenum)
 
 void W_PrecacheSprites(void)
 {
-	int i;
-	mobj_t *mo;
-
 	SYS_ASSERT(numsprites > 1);
 
 	byte *sprite_present = new byte[numsprites];
 	memset(sprite_present, 0, numsprites);
 
-	for (mo = mobjlisthead; mo; mo = mo->next)
+	for (mobj_t * mo = mobjlisthead ; mo ; mo = mo->next)
 	{
 		SYS_ASSERT(mo->state);
 
@@ -622,25 +628,31 @@ void W_PrecacheSprites(void)
 		sprite_present[mo->state->sprite] = 1;
 	}
 
-	for (i=1; i < numsprites; i++)  // ignore SPR_NULL
+	for (int i = 1 ; i < numsprites ; i++)  // ignore SPR_NULL
 	{
 		spritedef_c *def = sprites[i];
-		int fr, rot;
 
 		const image_c *cur_image;
 		const image_c *last_image = NULL;  // an optimisation
 
-		if (! sprite_present[i] || def->numframes == 0)
+		if (def->numframes == 0)
 			continue;
+
+		// Note: all weapon sprites are pre-cached
+
+		if (! (sprite_present[i] || def->HasWeapon()))
+			continue;
+
+		Debug_Printf("Precaching sprite: %s\n", def->name);
 
 		SYS_ASSERT(def->frames);
 
-		for (fr=0; fr < def->numframes; fr++)
+		for (int fr = 0 ; fr < def->numframes ; fr++)
 		{
 			if (! def->frames[fr].finished)
 				continue;
 
-			for (rot=0; rot < 16; rot++)
+			for (int rot = 0 ; rot < 16 ; rot++)
 			{
 				cur_image = def->frames[fr].images[rot];
 

@@ -22,13 +22,6 @@
 //    Copyright (C) 1993-1996 by id Software, Inc.
 //
 //----------------------------------------------------------------------------
-//
-// TODO HERE:
-//   * use IM_WIDTH(),IM_RIGHT(),etc where needed.
-//   + optimise first subsector: ignore floors out of view.
-//   + split up: rgl_seg.c and rgl_mobj.c.
-//   + handle scaling better.
-//
 
 #include "i_defs.h"
 #include "i_defs_gl.h"
