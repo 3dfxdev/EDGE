@@ -303,7 +303,6 @@ Command line options:
 
   -trilinear           Trilinear mipmapping.
   -blockmap            Force EDGE to generate its own blockmap.
-  -fastsprites         Load sprite images at start of level.
   -nograb              Don't grab the mouse cursor.
 
 

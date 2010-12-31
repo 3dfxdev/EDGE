@@ -46,7 +46,7 @@ public:
 
 void W_InitModels(void);
 
-// void W_PrecacheModels(void);
+void W_PrecacheModels(void);
 
 modeldef_c *W_GetModel(int model_num);
 

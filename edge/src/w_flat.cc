@@ -38,9 +38,17 @@
 #include "r_image.h"
 #include "r_sky.h"
 #include "w_flat.h"
+#include "w_model.h"
+#include "w_sprite.h"
 #include "w_wad.h"
 #include "w_texture.h"
 #include "z_zone.h"
+
+
+cvar_c r_precache_tex;
+cvar_c r_precache_sprite;
+cvar_c r_precache_model;
+
 
 //
 // R_AddFlatAnim
@@ -335,30 +343,13 @@ void W_InitPicAnims(void)
 }
 
 
-
-//
-// W_PrecacheLevel
-//
-// Preloads all relevant graphics for the level.
-//
-// -AJA- 2001/06/18: Reworked for image system.
-//                   
-void W_PrecacheLevel(void)
+void W_PrecacheTextures(void)
 {
-	int max_image;
-	int count = 0;
 	int i;
 
-	// do sprites first -- when memory is tight, they'll be the first
-	// images to be removed from the cache(s).
-
-	if (M_CheckParm("-fastsprite") || M_CheckParm("-fastsprites"))
-	{
-		W_PrecacheSprites();
-	}
-
 	// maximum possible images
-	max_image = 1 + 3 * numsides + 2 * numsectors;
+	int max_image = 1 + 3 * numsides + 2 * numsectors;
+	int count = 0;
 
 	const image_c ** images = new const image_c* [max_image];
 
@@ -411,9 +402,29 @@ void W_PrecacheLevel(void)
 		W_ImagePreCache(images[i]);
 	}
 
-	RGL_PreCacheSky();
-
 	delete[] images;
+}
+
+
+//
+// W_PrecacheLevel
+//
+// Preloads all relevant graphics for the level.
+//
+// -AJA- 2001/06/18: Reworked for image system.
+//                   
+void W_PrecacheLevel(void)
+{
+	if (r_precache_sprite.d)
+		W_PrecacheSprites();
+
+	if (r_precache_tex.d)
+		W_PrecacheTextures();
+
+	if (r_precache_model.d)
+		W_PrecacheModels();
+
+	RGL_PreCacheSky();
 }
 
 //--- editor settings ---

@@ -68,6 +68,7 @@ extern cvar_c r_wipemethod, r_wipereverse;
 extern cvar_c r_teleportflash;
 extern cvar_c r_crosshair, r_crosscolor;
 extern cvar_c r_crosssize, r_crossbright;
+extern cvar_c r_precache_tex, r_precache_sprite, r_precache_model;
 
 extern cvar_c s_volume, s_mixchan, s_quietfactor;
 extern cvar_c s_rate, s_bits, s_stereo;
@@ -141,6 +142,10 @@ cvar_link_t  all_cvars[] =
 	{ "r_nearclip",     &r_nearclip,     "c",   "4"  },
 	{ "r_farclip",      &r_farclip,      "c",   "64000" },
 	{ "r_fadepower",    &r_fadepower,    "c",   "1"  },
+
+	{ "r_precache_tex",    &r_precache_tex,    "c", "1" },
+	{ "r_precache_sprite", &r_precache_sprite, "c", "1" },
+	{ "r_precache_model",  &r_precache_model,  "c", "1" },
 
 	{ "r_colormaterial",&r_colormaterial, "",   "1"  },
 	{ "r_colorlighting",&r_colorlighting, "",   "1"  },
