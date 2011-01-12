@@ -479,7 +479,19 @@ static void HostChangeOption(int opt, int key)
 			break;
 
 		case 6: // Monsters
-			ng_params->flags->nomonsters = ! ng_params->flags->nomonsters;
+			if (ng_params->flags->fastparm)
+			{
+				ng_params->flags->fastparm   = false;
+				ng_params->flags->nomonsters = (dir > 0);
+			}
+			else if (ng_params->flags->nomonsters == (dir < 0))
+			{
+				ng_params->flags->fastparm   = true;
+				ng_params->flags->nomonsters = false;
+			}
+			else
+				ng_params->flags->nomonsters = (dir < 0);
+				
 			break;
 
 		case 7: // Item-Respawn
@@ -550,7 +562,7 @@ void M_DrawHostMenu(void)
 	y += 18; idx++;
 
 
-	DrawKeyword(idx, ng_host_style, y, "MONSTERS", ng_params->flags->nomonsters ? "OFF" : "ON");
+	DrawKeyword(idx, ng_host_style, y, "MONSTERS", ng_params->flags->nomonsters ? "OFF" : ng_params->flags->fastparm ? "FAST" : "ON");
 	y += 10; idx++;
 
 	DrawKeyword(idx, ng_host_style, y, "ITEM RESPAWN", ng_params->flags->itemrespawn ? "ON" : "OFF");
