@@ -28,6 +28,11 @@ const char *GetExecutablePath(const char *argv0);
 // when better methods fail.  The returned path never has a
 // trailing directory separator (and is never NULL).
 
+const char* GetResourcePath();
+// Attempts to determine an appropriate directory to find resources
+// for an application. Useful only on platforms with formalised
+// organisation of application directories. (e.g. MacOS X)
+
 } // namespace epi
 
 #endif  /* __EPI_EXE_PATH_H__ */

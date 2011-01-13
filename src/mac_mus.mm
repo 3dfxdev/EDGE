@@ -26,6 +26,7 @@
 
 #include "dm_state.h"
 #include "s_music.h"
+#include "s_timid.h"
 
 #import <Cocoa/Cocoa.h>
 #import <QTKit/QTMovie.h>
@@ -174,6 +175,38 @@ abstract_music_c * I_PlayNativeMusic(const byte *data, int length,
     music->Play(loop);
 	return music;
 }
+
+void I_StartupMusic(void)
+{
+	if (nomusic) return;
+
+#if 1
+	if (! nosound)
+	{
+		if (S_StartupTimidity())
+		{
+			I_Printf("I_StartupMusic: Timidity Init OK\n");
+		}
+		else
+		{
+			I_Printf("I_StartupMusic: Timidity Init FAILED\n");
+		}
+	}
+	else
+#endif
+    {
+		I_Printf("I_StartupMusic: Timidity Disabled\n");
+    }
+
+	// Nothing went pear shaped
+	return;
+}
+
+void I_ShutdownMusic(void)
+{
+}
+
+
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab:syntax=cpp

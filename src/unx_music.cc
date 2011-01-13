@@ -97,6 +97,14 @@ char *I_MusicReturnError(void)
 	return errordesc;
 }
 
+// -ACB- 2010/12/20 Moved here as Mac OSX does have a MIDI synthesizer
+abstract_music_c * I_PlayNativeMusic(const byte *data, int length,
+									 float volume, bool loop)
+{
+	// Linux has no built-in MIDI synthesizer
+	return NULL;
+}
+
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

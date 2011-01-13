@@ -1,5 +1,22 @@
 ANDY BAKER'S LOG
 
+DATE: 2010/12/20
+
+Revisited the Mac OS X version of EDGE. Create a new Makefile.osx to build the project.
+
+The instructions are as follows:
+* Compile Ogg as a dynamic framework in /Library/Frameworks
+* Compile Vorbis as a dynamic framework in /Library/Frameworks
+* Install SDL 1.2 Framework in /Library/Frameworks
+* Download glbsp v2.24 and uncompress in 'trunk/edge/'. Rename directory from glbsp-2.24-source to glbsp
+* Compile GLEW 1.4 in 'lib_macos/glew' as a static library
+* Compile source in 'trunk/edge' with Makefile.osx
+
+The 1.35 source had to be retrofitted with the changes in my last update. These include the changes which add a dialog box and the addition of a MUS Player.
+
+Finally, the coal scripts were not using the game directory as their base. This was necessary to change
+as the application on Mac OS X would need to find doom_ddf in the Resources directory.
+
 DATE: 2009/06/18
 
 Threw together a working Mac OS X version of EDGE. This works in some much 

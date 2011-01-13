@@ -2,7 +2,7 @@
 //  System Networking Basics
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2011  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -29,9 +29,7 @@
 /* Include system network headers */
 #ifdef WIN32
 #include <winsock.h>
-#endif
-
-#ifdef LINUX
+#else
 #include <unistd.h>
 #include <fcntl.h>
 #include <arpa/inet.h>
@@ -44,7 +42,7 @@
 #endif
 
 /* System-dependent definitions */
-#ifdef LINUX
+#ifndef WIN32
 #define closesocket	 close
 #define SOCKET	int
 #define INVALID_SOCKET	-1
