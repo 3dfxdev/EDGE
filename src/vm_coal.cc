@@ -22,6 +22,7 @@
 
 #include "epi/file.h"
 #include "epi/filesystem.h"
+#include "epi/path.h"
 
 #include "ddf/main.h"
 
@@ -375,8 +376,17 @@ void VM_LoadLumpOfCoal(int lump)
 
 void VM_LoadScripts()
 {
-	VM_LoadCoalFire("doom_ddf/coal_api.ec");
-	VM_LoadCoalFire("doom_ddf/coal_hud.ec");
+	std::string script_dir = epi::PATH_Join(game_dir.c_str(), "doom_ddf");
+	std::string fn;
+
+	fn = epi::PATH_Join(script_dir.c_str(), "coal_api.ec");
+	VM_LoadCoalFire(fn.c_str());
+
+	fn = epi::PATH_Join(script_dir.c_str(), "coal_hud.ec");
+	VM_LoadCoalFire(fn.c_str());
+
+	fn.clear();
+	script_dir.clear();
 
 	W_ReadCoalLumps();
 }
