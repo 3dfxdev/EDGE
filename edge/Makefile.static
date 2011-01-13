@@ -65,7 +65,7 @@ LDFLAGS += $(shell sdl-config --libs)
 
 # FLTK
 
-CFLAGS  += -DUSE_FLTK
+CFLAGS  += -DUSE_FLTK -I$(LIBDIR)/fltk-1.1.9
 LDFLAGS += $(LIBDIR)/fltk-1.1.9/lib/libfltk.a  \
 	   $(LIBDIR)/fltk-1.1.9/lib/libfltk_images.a
 
