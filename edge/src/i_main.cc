@@ -26,7 +26,7 @@
 #include "e_main.h"
 #include "version.h"
 
-const char *exe_path;
+const char *win32_exe_path = ".";
 
 extern "C" {
 
@@ -40,18 +40,18 @@ int main(int argc, char *argv[])
 
     I_SetupSignalHandlers(allow_coredump);
 
-#ifndef LINUX
+#ifdef WIN32
 	// -AJA- give us a proper name in the Task Manager
 	SDL_RegisterApp(TITLE, 0, 0);
 #endif
 
     I_CheckAlreadyRunning();
 
-    // -AJA- change current dir to match executable
-	exe_path = epi::GetExecutablePath(argv[0]);
-
 #ifdef WIN32
-    ::SetCurrentDirectory(exe_path);
+    // -AJA- change current dir to match executable
+	win32_exe_path = epi::GetExecutablePath(argv[0]);
+
+    ::SetCurrentDirectory(win32_exe_path);
 #else
     // -ACB- 2005/11/26 We don't do on LINUX since we assume the 
     //                  executable is globally installed

@@ -34,8 +34,6 @@
 
 // -ACB- 1999/09/20 Removed system specific attribs.
 
-extern const char *exe_path;
-
 void I_SetupSignalHandlers(bool allow_coredump);
 void I_CheckAlreadyRunning(void);
 
@@ -101,6 +99,8 @@ void I_Sleep(int millisecs);
 void I_MessageBox(const char *message, const char *title);
 // -AJA- 2007/04/13: display a system message box with the
 // given message (typically a serious error message).
+
+extern const char *win32_exe_path;
 
 
 //--------------------------------------------------------
