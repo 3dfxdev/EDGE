@@ -1050,6 +1050,9 @@ static bool P_ActivateSpecialLine(line_t * line,
 				if (special->failedmessage)
 					CON_PlayerMessageLDF(thing->player->pnum, special->failedmessage);
 
+				if (special->failed_sfx)
+					S_StartFX(special->failed_sfx, SNCAT_Level, thing);
+
 				return false;
 			}
 		}

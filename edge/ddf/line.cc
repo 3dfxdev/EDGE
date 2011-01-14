@@ -2,7 +2,7 @@
 //  EDGE Data Definition File Code (Linedefs)
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2010  The EDGE Team.
+//  Copyright (c) 1999-2011  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -155,6 +155,7 @@ static const commandlist_t linedef_commands[] =
 	DF("TYPE", type, DDF_LineGetTrigType),
 	DF("KEYS", keys, DDF_LineGetSecurity),
 	DF("FAILED_MESSAGE", failedmessage, DDF_MainGetString),
+	DF("FAILED_SFX", failed_sfx, DDF_MainLookupSound),
 	DF("COUNT", count, DDF_MainGetNumeric),
 
 	DF("DONUT", d.dodonut, DDF_MainGetBoolean),
@@ -1658,6 +1659,7 @@ void linetype_c::CopyDetail(linetype_c &src)
 	scroll_parts = src.scroll_parts;
 
 	failedmessage = src.failedmessage;
+	failed_sfx = src.failed_sfx;
 
 	use_colourmap = src.use_colourmap;
 	gravity = src.gravity;
@@ -1710,6 +1712,7 @@ void linetype_c::Default(void)
 	scroll_parts = SCPT_None;
 	
 	failedmessage.clear();
+	failed_sfx = NULL;
 
 	use_colourmap = NULL;
 	gravity = FLO_UNUSED;

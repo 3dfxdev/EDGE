@@ -740,6 +740,9 @@ public:
 	// -ACB- 1998/09/11 Message handling
 	epi::strent_c failedmessage;
 
+    // -AJA- 2011/01/14: sound for unusable locked door
+	struct sfx_s *failed_sfx;
+
 	// Colourmap changing
 	// -AJA- 1999/07/09: Now uses colmap.ddf
 	const colourmap_c *use_colourmap;
