@@ -2,7 +2,7 @@
 CHANGELOG for EDGE 1.35 (since 1.34)
 ====================================
 
-(Date: DECEMBER 2010)
+(Date: JANUARY 2011)
 
 
 Bugs fixed
@@ -13,11 +13,10 @@ Bugs fixed
   the original one.
 
 - fixed music on MAP32 of DOOM II
-
 - fixed the marks on the automap
+- fixed texture offsets on mirrored walls
 
 - E2M8, E3M8 (etc) are playable without any bosses
-
 - got GL_COLOUR feature of COLORMAPS.DDF working
 
 
@@ -39,6 +38,9 @@ General Improvements
 - use Makefiles for building the code, ditching SCons.
 
 - control over automap grid spacing via 'am_gridsize' cvar.
+
+- better pre-caching of sprites, textures (etc), controllable
+  via new cvars which begin with r_precache.
 
 - when thing numbers in the level are unknown, limit the warnings
   to two specific things of that type and a "more found" message.
@@ -88,10 +90,13 @@ New Features
   monsters alive (inside the trigger area).
 
 - MD2 models will be vertically tilted (using the mlook angle)
-  for all missiles and anything using the new TILT special.
+  for all missiles and anything using the new "TILT" special.
 
 - DDF: new weapon command UNZOOM which forces the screen to be
   unzoomed if zoom is active.
+
+- DDF: new FAILED_SFX command for LINES.DDF, which plays a sound
+  when the player tries to use a locked door without the key.
 
 - support for the ZDoom TEXTURE1/2 scaling extension.
 
