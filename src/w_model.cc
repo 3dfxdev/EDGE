@@ -164,7 +164,56 @@ modeldef_c *W_GetModel(int model_num)
 
 void W_PrecacheModels(void)
 {
-	// TODO
+	if (nummodels <= 0)
+		return;
+
+	byte *model_present = new byte[nummodels];
+	memset(model_present, 0, nummodels);
+
+	// mark all monsters (etc) in the level
+	for (mobj_t * mo = mobjlisthead ; mo ; mo = mo->next)
+	{
+		SYS_ASSERT(mo->state);
+
+		if (! (mo->state->flags & SFF_Model))
+			continue;
+
+		int model = mo->state->sprite;
+
+		if (model >= 1 && model < nummodels)
+			model_present[model] = 1;
+	}
+
+	// mark all weapons
+	for (int k = 1 ; k < num_states ; k++)
+	{
+		if ((states[k].flags & (SFF_Weapon | SFF_Model)) == (SFF_Weapon | SFF_Model))
+		{
+			int model = states[k].sprite;
+
+			if (model >= 1 && model < nummodels)
+				model_present[model] = 1;
+		}
+	}
+
+	for (int i = 1 ; i < nummodels ; i++)  // ignore SPR_NULL
+	{
+		if (model_present[i])
+		{
+			I_Debugf("Precaching model: %s\n", ddf_model_names[i].c_str());
+
+			modeldef_c *def = W_GetModel(i);
+
+			// precache skins too
+			for (int n = 0 ; n < 10 ; n++)
+			{
+				if (def && def->skins[n])
+					W_ImagePreCache(def->skins[n]);
+			}
+		}
+	}
+
+	delete[] model_present;
 }
 
 //--- editor settings ---
