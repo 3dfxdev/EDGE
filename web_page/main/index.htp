@@ -21,6 +21,31 @@ Id Software.
 <h2 class="page_title"> Latest News </h2>
 
 
+<use BeginNews title="1.35 RC#1 Available" date="23-Dec-2010">
+
+The first (and probably only) release candidate for EDGE 1.35
+is now available.  You can find it in the
+<a href="http://sourceforge.net/projects/edge/files/Test%20Builds/">
+Test Builds</a> folder in our Download section on SourceForge.
+There are packages for both Windows, Linux and MacOSX. 
+
+<p>
+1.35 is mainly a bug-fix release, especially a major problem
+when using COAL scripts.  New features include better support
+for wide screens, ability to bind different keys for weapons
+and automap functions, DDF inheritance, support for the
+HACX 1.2 IWAD, and a few other things.
+
+<p>
+Please test it as much as possible.  The 1.35 release will
+probably be the very last one of EDGE, so it's important to
+find and fix any problems now.  Reports about existing EDGE
+mods, whether they work or fail, are very welcome.
+
+<use EndNews>
+
+
+
 <use HugeNews title="EDGE 1.34 Released!" date="20-Nov-2009">
 
 Grab it while it's hot folks!!
