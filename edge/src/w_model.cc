@@ -90,6 +90,7 @@ static void FindModelFrameNames(md2_model_c *md, int model_num)
 				missing, ddf_model_names[model_num].c_str());
 }
 
+
 modeldef_c *LoadModelFromLump(int model_num)
 {
 	const char *basename = ddf_model_names[model_num].c_str();
@@ -187,13 +188,13 @@ void W_PrecacheModels(void)
 	// mark all weapons
 	for (int k = 1 ; k < num_states ; k++)
 	{
-		if ((states[k].flags & (SFF_Weapon | SFF_Model)) == (SFF_Weapon | SFF_Model))
-		{
-			int model = states[k].sprite;
+		if ((states[k].flags & (SFF_Weapon | SFF_Model)) != (SFF_Weapon | SFF_Model))
+			continue;
 
-			if (model >= 1 && model < nummodels)
-				model_present[model] = 1;
-		}
+		int model = states[k].sprite;
+
+		if (model >= 1 && model < nummodels)
+			model_present[model] = 1;
 	}
 
 	for (int i = 1 ; i < nummodels ; i++)  // ignore SPR_NULL
