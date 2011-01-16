@@ -98,7 +98,6 @@ void P_BringCorpseToLife(mobj_t * corpse);
 
 void P_SetupPsprites(player_t * curplayer);
 void P_MovePsprites(player_t * curplayer);
-void P_SetPsprite(player_t * p, int position, int stnum);
 void P_DropWeapon(player_t * player);
 bool P_CheckWeaponSprite(weapondef_c *info);
 

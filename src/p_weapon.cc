@@ -50,7 +50,7 @@ static sound_category_e WeapSfxCat(player_t *p)
 }
 
 
-void P_SetPsprite(player_t * p, int position, int stnum)
+static void P_SetPsprite(player_t * p, int position, int stnum, weapondef_c *info = NULL)
 {
 	pspdef_t *psp = &p->psprites[position];
 
@@ -59,6 +59,19 @@ void P_SetPsprite(player_t * p, int position, int stnum)
 		// object removed itself
 		psp->state = psp->next_state = NULL;
 		return;
+	}
+
+	// state is old? -- Mundo hack for DDF inheritance
+	if (info && stnum < info->state_grp.back().first)
+	{
+		state_t *st = &states[stnum];
+
+		if (st->label)
+		{
+			statenum_t new_state = DDF_StateFindLabel(info->state_grp, st->label, true /* quiet */);
+			if (new_state != S_NULL)
+				stnum = new_state;
+		}
 	}
 
 	state_t *st = &states[stnum];
@@ -247,7 +260,9 @@ static bool WeaponCouldAutoFire(player_t *p, int idx, int ATK)
 
 static void GotoDownState(player_t *p)
 {
-	int newstate = p->weapons[p->ready_wp].info->down_state;
+	weapondef_c *info = p->weapons[p->ready_wp].info;
+
+	int newstate = info->down_state;
 
 	P_SetPspriteDeferred(p, ps_weapon, newstate);
 	P_SetPsprite(p, ps_crosshair, S_NULL);
@@ -255,15 +270,19 @@ static void GotoDownState(player_t *p)
 
 static void GotoReadyState(player_t *p)
 {
-	int newstate = p->weapons[p->ready_wp].info->ready_state;
+	weapondef_c *info = p->weapons[p->ready_wp].info;
+
+	int newstate = info->ready_state;
 
 	P_SetPspriteDeferred(p, ps_weapon, newstate);
-	P_SetPspriteDeferred(p, ps_crosshair, p->weapons[p->ready_wp].info->crosshair);
+	P_SetPspriteDeferred(p, ps_crosshair, info->crosshair);
 }
 
 static void GotoEmptyState(player_t *p)
 {
-	int newstate = p->weapons[p->ready_wp].info->empty_state;
+	weapondef_c *info = p->weapons[p->ready_wp].info;
+	
+	int newstate = info->empty_state;
 
 	P_SetPspriteDeferred(p, ps_weapon, newstate);
 	P_SetPsprite(p, ps_crosshair, S_NULL);
@@ -832,8 +851,12 @@ void P_MovePsprites(player_t * p)
 			if (psp->tics > 0)
 				break;
 
+			weapondef_c *info = NULL;
+			if (p->ready_wp >= 0)
+				info = p->weapons[p->ready_wp].info;
+
 			P_SetPsprite(p, i, psp->next_state ?
-					(psp->next_state - states) : S_NULL);
+					(psp->next_state - states) : S_NULL, info);
 
 			if (psp->tics != 0)
 				break;
@@ -924,7 +947,7 @@ void A_WeaponReady(mobj_t * mo)
 	{
 		// don't use Deferred here, since we don't want the weapon to
 		// display the ready sprite (even only briefly).
-		P_SetPsprite(p, ps_weapon, info->empty_state);
+		P_SetPsprite(p, ps_weapon, info->empty_state, info);
 		return;
 	}
 
