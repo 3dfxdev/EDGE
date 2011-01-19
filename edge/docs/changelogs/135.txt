@@ -42,6 +42,9 @@ General Improvements
 - better pre-caching of sprites, textures (etc), controllable
   via new cvars which begin with r_precache.
 
+- detail slopes: no limit to ceiling height difference, and the
+  limit on floor height difference is now 24 units.
+
 - when thing numbers in the level are unknown, limit the warnings
   to two specific things of that type and a "more found" message.
 
