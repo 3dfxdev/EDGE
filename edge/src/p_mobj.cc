@@ -1654,7 +1654,7 @@ void P_RemoveItemsInQue(void)
 //
 // P_SpawnPuff
 //
-void P_SpawnPuff(float x, float y, float z, const mobjtype_c * puff)
+void P_SpawnPuff(float x, float y, float z, const mobjtype_c * puff, angle_t angle)
 {
 	mobj_t *th;
 
@@ -1665,6 +1665,9 @@ void P_SpawnPuff(float x, float y, float z, const mobjtype_c * puff)
 
 	// -AJA- 1999/07/14: DDF-itised.
 	th->mom.z = puff->float_speed;
+
+	// -AJA- 2011/03/14: set the angle
+	th->angle = angle;
 
 	th->tics -= P_Random() & 3;
 
