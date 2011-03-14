@@ -1273,7 +1273,7 @@ static inline bool ShootCheckGap(float z,
 
 	// Spawn bullet puff
 	if (shoot_I.puff)
-		P_SpawnPuff(x, y, z, shoot_I.puff);
+		P_SpawnPuff(x, y, z, shoot_I.puff, shoot_I.angle + ANG180);
 
 	// don't go any farther
 	return false;
@@ -1381,7 +1381,7 @@ static bool PTR_ShootTraverse(intercept_t * in, void *dataptr)
 
 		// Spawn bullet puffs.
 		if (shoot_I.puff)
-			P_SpawnPuff(x, y, z, shoot_I.puff);
+			P_SpawnPuff(x, y, z, shoot_I.puff, shoot_I.angle + ANG180);
 
 		// don't go any farther
 		return false;
@@ -1441,7 +1441,7 @@ static bool PTR_ShootTraverse(intercept_t * in, void *dataptr)
 	if (!use_puff)
 		P_SpawnBlood(x, y, z, shoot_I.damage, shoot_I.angle, mo->info->blood);
 	else if (shoot_I.puff)
-		P_SpawnPuff(x, y, z, shoot_I.puff);
+		P_SpawnPuff(x, y, z, shoot_I.puff, shoot_I.angle + ANG180);
 
 	// don't go any farther
 	return false;
