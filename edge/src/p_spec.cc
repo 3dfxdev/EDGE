@@ -119,13 +119,19 @@ int P_TwoSided(int sector, int line)
 //
 // Return sector_t * of sector next to current; NULL if not two-sided line
 //
-sector_t *P_GetNextSector(const line_t * line, const sector_t * sec)
+sector_t *P_GetNextSector(const line_t * line, const sector_t * sec, bool ignore_selfref)
 {
 	if (!(line->flags & MLF_TwoSided))
 		return NULL;
 
+	// -AJA- 2011/03/31: follow BOOM's logic for self-ref linedefs, which
+	//                   fixes the red door of MAP01 of 1024CLAU.wad
+	if (ignore_selfref && (line->frontsector == line->backsector))
+		return NULL;
+
 	if (line->frontsector == sec)
 		return line->backsector;
+
 
 	return line->frontsector;
 }
@@ -154,18 +160,22 @@ float P_FindSurroundingHeight(const heightref_e ref, const sector_t *sec)
 
 	for (i = count = 0; i < sec->linecount; i++)
 	{
-		sector_t *other = P_GetNextSector(sec->lines[i], sec);
-		bool satisfy;
-		float other_h;
+		sector_t *other = P_GetNextSector(sec->lines[i], sec, true);
 
 		if (!other)
 			continue;
 
-		other_h = F_C_HEIGHT(other);
+		float other_h = F_C_HEIGHT(other);
 
 		if (ref & REF_NEXT)
 		{
-			// this may seem reversed, but is OK (see note in ddf_sect.c)
+			bool satisfy;
+
+			// Note that REF_HIGHEST is used for the NextLowest types, and
+			// vice versa, which may seem strange.  It's because the next
+			// lowest sector is actually the highest of all adjacent sectors
+			// that are lower than the current sector.
+
 			if (ref & REF_HIGHEST)
 				satisfy = (other_h < base);  // next lowest
 			else
