@@ -190,7 +190,8 @@ void P_PlayerInSpecialSector(struct player_s * pl, sector_t *sec);
 int P_TwoSided(int sector, int line);
 side_t *P_GetSide(int currentSector, int line, int side);
 sector_t *P_GetSector(int currentSector, int line, int side);
-sector_t *P_GetNextSector(const line_t * line, const sector_t * sec);
+sector_t *P_GetNextSector(const line_t * line, const sector_t * sec,
+                          bool ignore_selfref = false);
 
 // Info Needs....
 float P_FindSurroundingHeight(const heightref_e ref, const sector_t *sec);
