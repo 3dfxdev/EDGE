@@ -2,7 +2,7 @@
 CHANGELOG for EDGE 1.35 (since 1.34)
 ====================================
 
-(Date: JANUARY 2011)
+(Date: APRIL 2011)
 
 
 Bugs fixed
@@ -15,6 +15,7 @@ Bugs fixed
 - fixed music on MAP32 of DOOM II
 - fixed the marks on the automap
 - fixed texture offsets on mirrored walls
+- fixed behavior of doors with self-referencing linedefs
 
 - E2M8, E3M8 (etc) are playable without any bosses
 - got GL_COLOUR feature of COLORMAPS.DDF working
