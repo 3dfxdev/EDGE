@@ -32,12 +32,12 @@ BEGIN
     BEGIN
       VALUE "CompanyName",      "The EDGE Team\0"
       VALUE "FileDescription",  "Enhanced Doom Gaming Engine\0"
-      VALUE "FileVersion",      "1.35(RC2)\0"
+      VALUE "FileVersion",      "1.35\0"
       VALUE "InternalName",     "EDGE135\0"
       VALUE "LegalCopyright",   "\251 The EDGE Team, GNU General Public License\0"
       VALUE "OriginalFilename", "EDGE135.EXE\0"
       VALUE "ProductName",      "EDGE\0"
-      VALUE "ProductVersion",   "1.35(RC2)\0"
+      VALUE "ProductVersion",   "1.35\0"
     END
   END
   BLOCK "VarFileInfo"
