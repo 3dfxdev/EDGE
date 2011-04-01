@@ -20,7 +20,7 @@
 
 #define EDGEVER       135
 #define EDGEVERHEX  0x135
-#define EDGEVERSTR  "1.35(RC2)"
+#define EDGEVERSTR  "1.35"
 
 // patch level (Savegames and Demos)
 #define EDGEPATCH  6
