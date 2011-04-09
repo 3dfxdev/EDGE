@@ -21,6 +21,30 @@ Id Software.
 <h2 class="page_title"> Latest News </h2>
 
 
+<use BigNews title="EDGE 1.35 : DONE and DUSTED" date="09-Apr-2011">
+
+I'm pleased to announce that version 1.35 of EDGE is now
+available for download.
+
+<p>
+Highlights of this Release:
+
+<ul>
+    <li> wide screen support
+    <li> DDF inheritance
+    <li> weapon and automap key bindings
+    <li> support for the HacX 1.2 IWAD
+    <li> fixed a serious COAL bug
+</ul>
+
+<p>
+For a list of all changes in EDGE 1.35, see:
+<a href="logs/135.htm">1.34 ChangeLog</a>
+
+<use EndNews>
+
+
+
 <use BeginNews title="1.35 RC#1 Available" date="23-Dec-2010">
 
 The first (and probably only) release candidate for EDGE 1.35
