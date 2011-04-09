@@ -38,8 +38,13 @@ Highlights of this Release:
 </ul>
 
 <p>
-For a list of all changes in EDGE 1.35, see:
-<a href="logs/135.htm">1.34 ChangeLog</a>
+For a list of all changes, see the
+<a href="logs/135.htm">EDGE 1.35 ChangeLog</a>
+
+<p>
+Download Link:
+<a href="http://sourceforge.net/projects/edge/files/EDGE Binaries/1.35/">
+EDGE 1.35 Binaries</a>
 
 <use EndNews>
 
@@ -105,11 +110,6 @@ with testing and generally have been supportive of this project.
 This release is for you guys!
 
 <p>
-Download Link:
-<a href="http://downloads.sourceforge.net/edge/Edge-1.34-windows.zip">
-Edge-1.34-windows.zip</a> (2.3 MB)
-
-<p>
 The complete list of changes in EDGE 1.34 is here:
 <a href="logs/134.htm">1.34 ChangeLog</a>
 
@@ -164,12 +164,6 @@ the BOOM point pushers/pullers,
 the (rare) teleporting into walls bug,
 and the big slowdown when saving the game on large maps.
 
-<p>
-Download Link:
-<a href="http://downloads.sourceforge.net/edge/Edge-1.34-RC1c.zip">
-Edge-1.34-RC1c.zip
-</a> (2.3 MB)
-
 <use EndNews>
 
 
@@ -181,12 +175,6 @@ the grindstone once again, and has produced a high quality
 release of EDGE 1.31 for Intel Macs.  
 It comes with a helpful installer,
 and supports native music playback via QuickTime.
-
-<p>
-Download Link:
-<a href="http://downloads.sourceforge.net/edge/Edge-1.31.dmg">
-Edge-1.31.dmg
-</a> (4.0 MB)
 
 <use EndNews>
 
@@ -220,12 +208,6 @@ demos (recording and playback) and CD music.
 Savegames from EDGE 1.29 should still work,
 however savegames from earlier versions (like 1.28a)
 do not work.
-
-<p>
-Download Link:
-<a href="http://downloads.sourceforge.net/edge/Edge-1.31-win32.zip">
-Edge-1.31-win32.zip
-</a> (2.9 MB)
 
 <use EndNews>
 
@@ -262,12 +244,6 @@ and lack of interest in these features.
 The complete list of changes since EDGE 1.29 is here:
 <a href="logs/131.htm">1.31 ChangeLog</a>
 
-<p>
-Download Link:
-<a href="http://downloads.sourceforge.net/edge/Edge-1.31-RC1.zip">
-Edge-1.31-RC1.zip
-</a> (3.5 MB)
-
 <use EndNews>
 
 
@@ -281,12 +257,6 @@ the game from the new HOST-NET-GAME menu.
 Another problem causing multiple popup dialogs
 when the D: drive is a CDROM or DVD
 should also be fixed.
-
-<p>
-New Download link:
-<a href="http://downloads.sourceforge.net/edge/Edge-1.31-Beta2c.zip">
-Edge-1.31-Beta2c.zip
-</a> (2.9 MB)
 
 <use EndNews>
 
@@ -307,12 +277,6 @@ and an Invulnerability setting in the video options.
 However the main thrust of this release is fixing bugs
 (such as the messed up screen after changing resolution)
 and other enhancements (like using MD2 frame names in DDF).
-
-<p>
-Download it here:
-<a href="http://downloads.sourceforge.net/edge/Edge-1.31-Beta2c.zip">
-Edge-1.31-Beta2.zip
-</a> (2.9 MB)
 
 <p>
 Changes since Beta#1 are here:
@@ -362,57 +326,10 @@ and one showing the flat alignment/scaling feature.
 </ul>
 
 <p>
-Download it here:
-<a href="http://downloads.sourceforge.net/edge/Edge-1.31-Beta1.zip">
-Edge-1.31-Beta1.zip
-</a> (2.6 MB)
-
-<p>
 Full list of changes is here:
 <a href="https://sourceforge.net/project/shownotes.php?release_id=560547&group_id=2232">
 Change List
 </a>
-
-<use EndNews>
-
-
-
-<use BeginNews title="Editing Guide Begun" date="23-Sep-2007">
-
-The
-<a href="edit_guide/overview.htm">
-EDGE Editing Guide</a> is going to collect lots of useful
-information about modding for EDGE into one convenient
-corner of our website.
-It will encompass both DDF Online and RTS Online,
-contain various Tutorials, and heaps of other goodies.
-
-<p>
-Although it's a little bare right now, it still contains quite
-a bit of handy information, including lists of EDGE's
-Line/Sector/Thing types, and a page describing the
-compliance of EDGE with various standards.
-
-<use EndNews>
-
-
-
-<use BeginNews title="Hi-res Texture Pack" date="13-Sep-2007">
-
-The DHTP (Doom Hires Texture Pack) is now available for EDGE.
-
-<p>
-This pack has been put together by KuriKai and others, combining
-their own work with resources from the old JDTP pack in order to
-create the best looking set of high-resolution textures for DOOM.
-
-<p>
-Downloads and more information
-<a href="http://forums.yaa.dk/viewtopic.php?f=32&t=69&start=0&st=0&sk=t&sd=a">
-HERE</a>.
-
-<br>
-(Note: the pack is 56 MB)
 
 <use EndNews>
 
