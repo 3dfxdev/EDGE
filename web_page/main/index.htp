@@ -27,7 +27,7 @@ I'm pleased to announce that version 1.35 of EDGE is now
 available for download.
 
 <p>
-Highlights of this Release:
+Highlights of this release:
 
 <ul>
     <li> wide screen support
@@ -40,6 +40,15 @@ Highlights of this Release:
 <p>
 For a list of all changes, see the
 <a href="logs/135.htm">EDGE 1.35 ChangeLog</a>
+
+<p>
+This release also marks the point where I, Andrew Apted, leave
+the EDGE project for good.
+Since I have been the sole developer of EDGE for quite a while,
+this means that development of EDGE is effectively over.
+I'd like to thank all the users and modders of EDGE for all
+their support and contributions to this project --
+Cheers everybody!
 
 <p>
 Download Link:
