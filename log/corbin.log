@@ -1,0 +1,19 @@
+LOG 6/5/2011: 
+added scream_Sound for falling screams from Hexen source
+
+6/6/2011:
+Got basic Fog working in 3DGE (with screenshot)
+
+Did some more stuff with s_roqplay.cc in /src. Looks like I'll have to bind
+SDL some other way. 
+
+Also, GLFog works but nothing else will, so I have to take this command
+and make it sector-based. It's not true fog, but it works just fine. ;)
+
+6/7/2011:
+Got scream sound finalized with screamwait in source (with Ajapted's guidance).
+
+Started basic shadow support in source. 
+
+
+
