@@ -1,0 +1,1062 @@
+Index: src/m_cheat.cc
+===================================================================
+--- src/m_cheat.cc	(revision 6495)
++++ src/m_cheat.cc	(working copy)
+@@ -166,7 +166,10 @@
+ 
+ 	params.random_seed = I_PureRandom();
+ 
+-	params.SinglePlayer(numbots);
++	if (splitscreen_mode)
++		params.Splitscreen();
++	else
++		params.SinglePlayer(numbots);
+ 
+ 	G_DeferredNewGame(params);
+ 
+@@ -226,7 +229,7 @@
+ #endif
+ 
+ 	int i;
+-	player_t *pl = players[consoleplayer];
++	player_t *pl = players[consoleplayer1];
+ 
+ 	// disable cheats while in RTS menu, or demos
+ 	if (rts_menuactive)
+Index: src/g_game.h
+===================================================================
+--- src/g_game.h	(revision 6495)
++++ src/g_game.h	(working copy)
+@@ -95,6 +95,8 @@
+ 	void SinglePlayer(int num_bots = 0);
+ 	// setup for single player (no netgame) and possibly some bots.
+ 
++	void Splitscreen();
++
+ 	void CopyFlags(const gameflags_t *F);
+ };
+ 
+Index: src/vm_player.cc
+===================================================================
+--- src/vm_player.cc	(revision 6495)
++++ src/vm_player.cc	(working copy)
+@@ -72,7 +72,7 @@
+ 
+ 	if (index == 0)
+ 	{
+-		ui_player_who = players[consoleplayer];
++		ui_player_who = players[consoleplayer1];
+ 		return;
+ 	}
+ 
+Index: src/r_render.cc
+===================================================================
+--- src/r_render.cc	(revision 6495)
++++ src/r_render.cc	(working copy)
+@@ -3031,6 +3031,9 @@
+ {
+ 	float fov = CLAMP(5, r_fov.f, 175);
+ 
++	if (splitscreen_mode)
++		fov = fov / 1.5;
++
+ 	view_x_slope = tan(fov * M_PI / 360.0);
+ 
+ 	if (full_height)
+Index: src/m_menu.cc
+===================================================================
+--- src/m_menu.cc	(revision 6495)
++++ src/m_menu.cc	(working copy)
+@@ -1118,7 +1118,10 @@
+ 
+ 	params.random_seed = I_PureRandom();
+ 
+-	params.SinglePlayer(0);
++	if (splitscreen_mode)
++		params.Splitscreen();
++	else
++		params.SinglePlayer(0);
+ 
+ 	params.map = G_LookupMap(g->firstmap.c_str());
+ 
+@@ -1708,7 +1711,7 @@
+ 				}
+ 				
+ 				if (msg)
+-					CON_PlayerMessage(consoleplayer, "%s", msg);
++					CON_PlayerMessage(consoleplayer1, "%s", msg);
+ 
+ 				// -AJA- 1999/07/03: removed PLAYPAL reference.
+ 				return true;
+Index: src/hu_draw.cc
+===================================================================
+--- src/hu_draw.cc	(revision 6495)
++++ src/hu_draw.cc	(working copy)
+@@ -21,6 +21,7 @@
+ 
+ #include "ddf/font.h"
+ 
++#include "dm_state.h"
+ #include "g_game.h"
+ #include "r_misc.h"
+ #include "r_gldefs.h"
+@@ -109,7 +110,7 @@
+ }
+ 
+ 
+-void HUD_FrameSetup(void)
++void HUD_FrameSetup(int split)
+ {
+ 	if (! default_font)
+ 	{
+@@ -152,6 +153,12 @@
+ 
+ 	margin_X = (SCREENWIDTH  - margin_W) / 2.0;
+ 	margin_Y = (SCREENHEIGHT + margin_H) / 2.0;
++
++	if (split == 2)
++		margin_X += margin_W / 2;
++
++	if (split == 1 || split == 2)
++		margin_W = margin_W / 2 - 8;
+ }
+ 
+ 
+@@ -640,7 +647,7 @@
+ 
+ void HUD_RenderWorld(float x1, float y1, float x2, float y2, mobj_t *camera)
+ {
+-	HUD_PushScissor(x1, y1, x2, y2, true);
++	HUD_PushScissor(x1, y1, x2, y2, ! splitscreen_mode);
+ 
+ 	int *xy = scissor_stack[sci_stack_top-1];
+ 
+Index: src/rad_act.cc
+===================================================================
+--- src/rad_act.cc	(revision 6495)
++++ src/rad_act.cc	(working copy)
+@@ -264,7 +264,7 @@
+ {
+ 	// this IS NOT CORRECT, but matches old behavior
+ 	if (numplayers == 1)
+-		return players[consoleplayer];
++		return players[consoleplayer1];
+ 
+ 	if (R->acti_players == 0)
+ 		return NULL;
+@@ -294,7 +294,7 @@
+ 	// Only display the tip to the player that stepped into the radius
+ 	// trigger.
+ 
+-	if (numplayers > 1 && (R->acti_players & (1 << consoleplayer)) == 0)
++	if (numplayers > 1 && (R->acti_players & (1 << consoleplayer1)) == 0)
+ 		return;
+ 
+ 	SendTip(R, tip, R->tip_slot);
+@@ -305,7 +305,7 @@
+ 	s_tip_prop_t *tp = (s_tip_prop_t *) param;
+ 	drawtip_t *current;
+ 
+-	if (numplayers > 1 && (R->acti_players & (1 << consoleplayer)) == 0)
++	if (numplayers > 1 && (R->acti_players & (1 << consoleplayer1)) == 0)
+ 		return;
+ 
+ 	if (tp->slot_num >= 0)
+@@ -952,7 +952,7 @@
+ {
+ 	s_show_menu_t *menu = (s_show_menu_t *) param;
+ 
+-	if (numplayers > 1 && (R->acti_players & (1 << consoleplayer)) == 0)
++	if (numplayers > 1 && (R->acti_players & (1 << consoleplayer1)) == 0)
+ 		return;
+ 
+ 	if (rts_menuactive)
+Index: src/dm_state.h
+===================================================================
+--- src/dm_state.h	(revision 6495)
++++ src/dm_state.h	(working copy)
+@@ -145,6 +145,8 @@
+ // debug flag to cancel adaptiveness
+ extern bool singletics;
+ 
++extern bool splitscreen_mode;
++
+ extern int bodyqueslot;
+ 
+ // Needed to store the number of the dummy sky flat.
+Index: src/p_mobj.cc
+===================================================================
+--- src/p_mobj.cc	(revision 6495)
++++ src/p_mobj.cc	(working copy)
+@@ -1955,6 +1955,9 @@
+ {
+     if (mo->player)
+     {
++		if (splitscreen_mode && mo->player->mo == mo)
++			return SNCAT_Player;
++
+         if (mo->player == players[displayplayer])
+             return SNCAT_Player;
+         
+Index: src/s_blit.h
+===================================================================
+--- src/s_blit.h	(revision 6495)
++++ src/s_blit.h	(working copy)
+@@ -68,6 +68,7 @@
+ 
+ 	bool loop;  // will loop *one* more time
+ 	bool boss;
++	int split; 
+ 
+ public:
+ 	mix_channel_c();
+@@ -75,6 +76,7 @@
+ 
+ 	void ComputeDelta();
+ 	void ComputeVolume();
++	void ComputeVolume_Split();
+ 	void ComputeMusicVolume();
+ };
+ 
+Index: src/p_user.cc
+===================================================================
+--- src/p_user.cc	(revision 6495)
++++ src/p_user.cc	(working copy)
+@@ -150,7 +150,7 @@
+ 	{
+ 		int sfx_cat;
+ 
+-		if (pl == players[consoleplayer])
++		if (pl->playerflags & PFL_Console)
+ 			sfx_cat = SNCAT_Player;
+ 		else
+ 			sfx_cat = SNCAT_Opponent;
+@@ -284,7 +284,7 @@
+ 	{
+         int sfx_cat;
+ 
+-        if (player == players[consoleplayer])
++        if (player->playerflags & PFL_Console)
+             sfx_cat = SNCAT_Player;
+         else
+             sfx_cat = SNCAT_Opponent;
+@@ -550,9 +550,9 @@
+ // Does the thinking of the console player, i.e. read from input
+ void P_ConsolePlayerBuilder(const player_t *pl, void *data, ticcmd_t *dest)
+ {
++	dest->player_idx = pl->pnum;
++
+ 	E_BuildTiccmd(dest);
+-
+-	dest->player_idx = pl->pnum;
+ }
+ 
+ static u16_t MakeConsistency(const player_t *pl)
+@@ -807,8 +807,9 @@
+ 	numplayers = 0;
+ 	numbots = 0;
+ 
+-	consoleplayer = -1;
+-	displayplayer = -1;
++	consoleplayer1 = -1;
++	consoleplayer2 = -1;
++	displayplayer  = -1;
+ 
+ 	sfx_jpidle = sfx_jpmove = sfx_jprise = NULL;
+ 	sfx_jpdown = sfx_jpflow = NULL;
+Index: src/e_player.cc
+===================================================================
+--- src/e_player.cc	(revision 6495)
++++ src/e_player.cc	(working copy)
+@@ -58,8 +58,9 @@
+ int numplayers;
+ int numbots;
+ 
+-int consoleplayer = -1; // player taking events
+-int displayplayer = -1; // view being displayed 
++int consoleplayer1 = -1; // player taking events
++int consoleplayer2 = -1;
++int displayplayer = -1; // view being displayed (except in splitscreen_mode)
+ 
+ #define MAX_BODIES   50
+ 
+@@ -261,9 +262,9 @@
+ //
+ void G_SetConsolePlayer(int pnum)
+ {
+-	consoleplayer = pnum;
++	consoleplayer1 = pnum;
+ 
+-	SYS_ASSERT(players[consoleplayer]);
++	SYS_ASSERT(players[pnum]);
+ 
+ 	for (int i = 0; i < MAXPLAYERS; i++)
+ 		if (players[i])
+@@ -282,6 +283,18 @@
+ 	}
+ }
+ 
++void G_SetConsole2_Player(int pnum)
++{
++	consoleplayer2 = pnum;
++
++	SYS_ASSERT(players[pnum]);
++
++	players[pnum]->playerflags |= PFL_Console;
++
++	players[pnum]->builder = P_ConsolePlayerBuilder;
++	players[pnum]->build_data = NULL;
++}
++
+ //
+ // G_SetDisplayPlayer
+ //
+Index: src/s_blit.cc
+===================================================================
+--- src/s_blit.cc	(revision 6495)
++++ src/s_blit.cc	(working copy)
+@@ -28,6 +28,7 @@
+ 
+ #include <list>
+ 
++#include "dm_state.h"  // splitscreen_mode
+ #include "m_misc.h"
+ #include "r_misc.h"   // R_PointToAngle
+ #include "p_local.h"  // P_ApproxDistance
+@@ -127,6 +128,12 @@
+ 
+ void mix_channel_c::ComputeVolume()
+ {
++	if (splitscreen_mode)
++	{
++		ComputeVolume_Split();
++		return;
++	}
++
+ 	float sep = 0.5f;
+ 	float mul = 1.0f;
+ 
+@@ -170,6 +177,74 @@
+ 	}
+ }
+ 
++void mix_channel_c::ComputeVolume_Split()
++{
++	float MAX_VOL = (1 << (16 - SAFE_BITS - (var_quiet_factor-1))) - 3;
++
++	MAX_VOL = MAX_VOL * slider_to_gain[sfx_volume];
++
++	if (def)
++		MAX_VOL *= PERCENT_2_FLOAT(def->volume);
++
++// fprintf(stderr, "ComputeVolume_Split: %s pos:%p category:%d split:%d\n",
++//         def ? def->name.c_str() : "??????", pos, category, split);
++
++	if (pos && category >= SNCAT_Opponent && ! boss)
++	{
++		player_t *player1 = players[consoleplayer1];
++		player_t *player2 = players[consoleplayer2];
++
++		float x1 = 0, x2 = 0;
++		float y1 = 0, y2 = 0;
++		float z1 = 0, z2 = 0;
++
++		if (player1 && player1->mo)
++		{
++			x1 = player1->mo->x;
++			y1 = player1->mo->y;
++			z1 = player1->mo->z;
++		}
++
++		if (player2 && player2->mo)
++		{
++			x2 = player2->mo->x;
++			y2 = player2->mo->y;
++			z2 = player2->mo->z;
++		}
++
++		float d1 = P_ApproxDistance(x1 - pos->x, y1 - pos->y, z1 - pos->z);
++		float d2 = P_ApproxDistance(x2 - pos->x, y2 - pos->y, z2 - pos->z);
++
++		float m1 = exp(-MAX(1.0f, d1 - S_CLOSE_DIST) / 800.0f);
++		float m2 = exp(-MAX(1.0f, d2 - S_CLOSE_DIST) / 800.0f);
++
++		volume_L = MAX_VOL * m1;
++		volume_R = MAX_VOL * m2;
++	}
++	else if (split == 1)
++	{
++		volume_L = MAX_VOL;
++		volume_R = 0;
++	}
++	else if (split == 2)
++	{
++		volume_L = 0;
++		volume_R = MAX_VOL;
++	}
++	else
++	{
++		volume_L = MAX_VOL;
++		volume_R = MAX_VOL;
++	}
++
++	if (var_sound_stereo == 2)  /* SWAP ! */
++	{
++		int tmp = volume_L;
++		volume_L = volume_R;
++		volume_R = tmp;
++	}
++}
++
+ void mix_channel_c::ComputeMusicVolume()
+ {
+ 	// the MAX_VOL value here is equivalent to the 'NORMAL' quiet
+Index: src/e_main.cc
+===================================================================
+--- src/e_main.cc	(revision 6495)
++++ src/e_main.cc	(working copy)
+@@ -94,6 +94,8 @@
+ 
+ bool singletics = false;  // debug flag to cancel adaptiveness
+ 
++bool splitscreen_mode = false;
++
+ // -ES- 2000/02/13 Takes screenshot every screenshot_rate tics.
+ // Must be used in conjunction with singletics.
+ static int screenshot_rate;
+@@ -514,7 +516,7 @@
+ 	// Start the frame - should we need to.
+ 	I_StartFrame();
+ 
+-	HUD_FrameSetup();
++	HUD_FrameSetup(0);
+ 
+ 	// -AJA- 1999/08/02: Make sure palette/gamma is OK. This also should
+ 	//       fix (finally !) the "gamma too late on walls" bug.
+@@ -527,7 +529,13 @@
+ 
+ 			R_PaletteStuff();
+ 
+-			VM_RunHud();
++			if (splitscreen_mode)
++			{
++				VM_RunHud(1);
++				VM_RunHud(2);
++			}
++			else
++				VM_RunHud(0);
+ 
+ 			if (need_save_screenshot)
+ 			{
+@@ -1366,6 +1374,8 @@
+ 		warp_deathmatch = 2;
+ 	}
+ 
++	if (M_CheckParm("-splitscreen") > 0)
++		splitscreen_mode = true;
+ 
+ 	if (M_GetParm("-record"))
+ 		warp = true;
+@@ -1396,7 +1406,10 @@
+ 
+ 	params.random_seed = I_PureRandom();
+ 
+-	params.SinglePlayer(bots);
++	if (splitscreen_mode)
++		params.Splitscreen();
++	else
++		params.SinglePlayer(bots);
+ 
+ 	G_DeferredNewGame(params);
+ }
+Index: src/am_map.cc
+===================================================================
+--- src/am_map.cc	(revision 6495)
++++ src/am_map.cc	(working copy)
+@@ -388,9 +388,9 @@
+ 
+ 		// -ACB- 1998/08/10 Use DDF Lang Reference
+ 		if (followplayer)
+-			CON_PlayerMessageLDF(consoleplayer, "AutoMapFollowOn");
++			CON_PlayerMessageLDF(consoleplayer1, "AutoMapFollowOn");
+ 		else
+-			CON_PlayerMessageLDF(consoleplayer, "AutoMapFollowOff");
++			CON_PlayerMessageLDF(consoleplayer1, "AutoMapFollowOff");
+ 
+ 		return true;
+ 	}
+@@ -400,9 +400,9 @@
+ 		grid = !grid;
+ 		// -ACB- 1998/08/10 Use DDF Lang Reference
+ 		if (grid)
+-			CON_PlayerMessageLDF(consoleplayer, "AutoMapGridOn");
++			CON_PlayerMessageLDF(consoleplayer1, "AutoMapGridOn");
+ 		else
+-			CON_PlayerMessageLDF(consoleplayer, "AutoMapGridOff");
++			CON_PlayerMessageLDF(consoleplayer1, "AutoMapGridOff");
+ 
+ 		return true;
+ 	}
+@@ -410,7 +410,7 @@
+ 	if (E_MatchesKey(key_am_mark, sym))
+ 	{
+ 		// -ACB- 1998/08/10 Use DDF Lang Reference
+-		CON_PlayerMessage(consoleplayer, "%s %d",
++		CON_PlayerMessage(consoleplayer1, "%s %d",
+ 			language["AutoMapMarkedSpot"], markpointnum);
+ 		AddMark();
+ 		return true;
+@@ -419,7 +419,7 @@
+ 	if (E_MatchesKey(key_am_clear, sym))
+ 	{
+ 		// -ACB- 1998/08/10 Use DDF Lang Reference
+-		CON_PlayerMessageLDF(consoleplayer, "AutoMapMarksClear");
++		CON_PlayerMessageLDF(consoleplayer1, "AutoMapMarksClear");
+ 		ClearMarks();
+ 		return true;
+ 	}
+Index: src/hu_draw.h
+===================================================================
+--- src/hu_draw.h	(revision 6495)
++++ src/hu_draw.h	(working copy)
+@@ -49,7 +49,7 @@
+ 
+ void HL_Init(void);
+ 
+-void HUD_FrameSetup(void);
++void HUD_FrameSetup(int split);
+ 
+ 
+ void HUD_PushScissor(float x1, float y1, float x2, float y2, bool expand=false);
+Index: src/g_game.cc
+===================================================================
+--- src/g_game.cc	(revision 6495)
++++ src/g_game.cc	(working copy)
+@@ -239,8 +239,11 @@
+ 	}
+ 
+ 	// Initial height of PointOfView will be set by player think.
+-	players[consoleplayer]->viewz = FLO_UNUSED;
++	players[consoleplayer1]->viewz = FLO_UNUSED;
+ 
++	if (consoleplayer2 >= 0)
++		players[consoleplayer2]->viewz = FLO_UNUSED;
++
+ 	leveltime = 0;
+ 
+ 	P_SetupLevel();
+@@ -553,10 +556,10 @@
+ 	}
+ 
+ 	// check for missing player start.
+-	if (players[consoleplayer]->mo == NULL)
++	if (players[consoleplayer1]->mo == NULL)
+ 		I_Error("Missing player start !\n");
+ 
+-	G_SetDisplayPlayer(consoleplayer); // view the guy you are playing
++	G_SetDisplayPlayer(consoleplayer1); // view the guy you are playing
+ }
+ 
+ void G_DeferredScreenShot(void)
+@@ -751,7 +754,7 @@
+ 		if (! currmap)
+ 			I_Error("LOAD-HUB: No such map %s !  Check WADS\n", globs->level);
+ 
+-		G_SetDisplayPlayer(consoleplayer);
++		G_SetDisplayPlayer(consoleplayer1);
+ 		automapactive = false;
+ 
+ 		N_ResetTics();
+@@ -906,7 +909,7 @@
+ 	globs->netgame = netgame ? (1+deathmatch) : 0;
+ 	globs->p_random = P_ReadRandomState();
+ 
+-	globs->console_player = consoleplayer; // NB: not used
++	globs->console_player = consoleplayer1; // NB: not used
+ 
+ 	globs->level_time = leveltime;
+ 	globs->exit_time  = exittime;
+@@ -1029,6 +1032,17 @@
+ 	}
+ }
+ 
++void newgame_params_c::Splitscreen()
++{
++	total_players = 2;
++
++	players[0] = PFL_Console;
++	nodes[0]   = NULL;
++
++	players[1] = PFL_Console;
++	nodes[1]   = NULL;
++}
++
+ void newgame_params_c::CopyFlags(const gameflags_t *F)
+ {
+ 	if (flags)
+@@ -1108,7 +1122,7 @@
+ 
+ 		P_CreatePlayer(pnum, (params.players[pnum] & PFL_Bot) ? true : false);
+ 
+-		if (consoleplayer < 0 && ! (params.players[pnum] & PFL_Bot) &&
++		if (consoleplayer1 < 0 && ! (params.players[pnum] & PFL_Bot) &&
+ 			! (params.players[pnum] & PFL_Network))
+ 		{
+ 			G_SetConsolePlayer(pnum);
+@@ -1121,10 +1135,20 @@
+ 		I_Error("Internal Error: InitNew: player miscount (%d != %d)\n",
+ 			numplayers, params.total_players);
+ 
+-	if (consoleplayer < 0)
++	if (splitscreen_mode)
++	{
++		consoleplayer1 = 0;
++		consoleplayer2 = 1;
++
++		G_SetConsole2_Player(consoleplayer2);
++	}
++	else
++		consoleplayer2 = -1;
++
++	if (consoleplayer1 < 0)
+ 		I_Error("Internal Error: InitNew: no local players!\n");
+ 
+-	G_SetDisplayPlayer(consoleplayer);
++	G_SetDisplayPlayer(consoleplayer1);
+ 
+ 	if (paused)
+ 	{
+Index: src/vm_coal.h
+===================================================================
+--- src/vm_coal.h	(revision 6495)
++++ src/vm_coal.h	(working copy)
+@@ -31,7 +31,7 @@
+ 
+ // HUD stuff
+ void VM_BeginLevel(void);
+-void VM_RunHud(void);
++void VM_RunHud(int split);
+ 
+ #endif // __VM_COAL_H__
+ 
+Index: src/p_tick.cc
+===================================================================
+--- src/p_tick.cc	(revision 6495)
++++ src/p_tick.cc	(working copy)
+@@ -53,7 +53,7 @@
+ 
+ 	// pause if in menu and at least one tic has been run
+ 	if (!netgame && (menuactive || rts_menuactive) &&
+-		players[consoleplayer]->viewz != FLO_UNUSED)
++		players[consoleplayer1]->viewz != FLO_UNUSED)
+ 	{
+ 		return;
+ 	}
+Index: src/s_sound.cc
+===================================================================
+--- src/s_sound.cc	(revision 6495)
++++ src/s_sound.cc	(working copy)
+@@ -334,7 +334,17 @@
+ 
+ 	chan->loop = false;
+ 	chan->boss = (flags & FX_Boss) ? true : false;
++	chan->split = 0;
+ 
++	if (splitscreen_mode && pos && consoleplayer1 >= 0 && consoleplayer2 >= 0)
++	{
++		if (pos == players[consoleplayer1]->mo)
++			chan->split = 1;
++		else if (pos == players[consoleplayer2]->mo)
++			chan->split = 2;
++I_Printf("%s : split %d  cat %d\n", def->name.c_str(), chan->split, category);
++	}
++
+ 	chan->ComputeDelta();
+ 
+ //I_Printf("FINISHED: delta=0x%lx\n", chan->delta);
+Index: src/sv_play.cc
+===================================================================
+--- src/sv_play.cc	(revision 6495)
++++ src/sv_play.cc	(working copy)
+@@ -380,8 +380,9 @@
+ {
+ 	int first = -1;
+ 
+-	consoleplayer = -1;
+-	displayplayer = -1;
++	consoleplayer1 = -1;
++	consoleplayer2 = -1;
++	displayplayer  = -1;
+ 
+ 	player_t *temp[MAXPLAYERS];
+ 
+@@ -414,7 +415,12 @@
+ 			first = p->pnum;
+ 
+ 		if (p->playerflags & PFL_Console)
+-			consoleplayer = p->pnum;
++		{
++			if (consoleplayer1 < 0)
++				consoleplayer1 = p->pnum;
++			else
++				consoleplayer2 = p->pnum;
++		}
+ 
+ 		if (p->playerflags & PFL_Display)
+ 			displayplayer = p->pnum;
+@@ -434,11 +440,11 @@
+ 	if (first < 0)
+ 		I_Error("LOADGAME: No players !!\n");
+ 
+-	if (consoleplayer < 0)
++	if (consoleplayer1 < 0)
+ 		G_SetConsolePlayer(first);
+ 
+ 	if (displayplayer < 0)
+-		G_SetDisplayPlayer(consoleplayer);
++		G_SetDisplayPlayer(consoleplayer1);
+ }
+ 
+ 
+Index: src/r_things.cc
+===================================================================
+--- src/r_things.cc	(revision 6495)
++++ src/r_things.cc	(working copy)
+@@ -187,7 +187,12 @@
+ 	float ty1 = - psp->sy + IM_OFFSETY(image);
+ 	float ty2 = ty1 + h;
+ 
++	if (splitscreen_mode)
++	{
++		ty1 /= 1.5;  ty2 /= 1.5;
++	}
+ 
++
+ 	float x1b, y1b, x1t, y1t, x2b, y2b, x2t, y2t;  // screen coords
+ 
+ 	x1b = x1t = viewwindow_w  * tx1 / coord_W;
+Index: src/r_sky.cc
+===================================================================
+--- src/r_sky.cc	(revision 6495)
++++ src/r_sky.cc	(working copy)
+@@ -471,6 +471,9 @@
+ 	// FIXME for widescreen
+ 	float FIELDOFVIEW = CLAMP(5, r_fov.f, 175);
+ 
++	if (splitscreen_mode)
++		FIELDOFVIEW = FIELDOFVIEW / 1.5;
++
+ 	float focal_len = tan(FIELDOFVIEW * M_PI / 360.0);
+ 	float centerxfrac = SCREENWIDTH / 2.0f;
+ 
+Index: src/e_player.h
+===================================================================
+--- src/e_player.h	(revision 6495)
++++ src/e_player.h	(working copy)
+@@ -63,8 +63,9 @@
+ extern int numbots;
+ 
+ // Player taking events, and displaying.
+-extern int consoleplayer;
+-extern int displayplayer;
++extern int consoleplayer1;
++extern int consoleplayer2;
++extern int displayplayer;  // not used in splitscreen_mode
+ 
+ //
+ // Player states.
+@@ -336,6 +337,7 @@
+ void G_SpawnVoodooDolls(player_t *p);
+ 
+ void G_SetConsolePlayer(int pnum);
++void G_SetConsole2_Player(int pnum);
+ void G_SetDisplayPlayer(int pnum);
+ void G_ToggleDisplayPlayer(void);
+ 
+Index: src/e_input.cc
+===================================================================
+--- src/e_input.cc	(revision 6495)
++++ src/e_input.cc	(working copy)
+@@ -31,6 +31,7 @@
+ 
+ #include "dm_defs.h"
+ #include "dm_state.h"
++#include "e_player.h"
+ #include "e_event.h"
+ #include "e_input.h"
+ #include "e_main.h"
+@@ -134,6 +135,8 @@
+ 
+ static int joy_last_raw[6];
+ 
++static int mouse_ss_hack = 0;
++
+ // The last one is ignored (AXIS_DISABLE)
+ static float ball_deltas[6] = {0, 0, 0, 0, 0, 0};
+ static float  joy_forces[6] = {0, 0, 0, 0, 0, 0};
+@@ -301,6 +304,45 @@
+ }
+ #endif
+ 
++void E_BuildTiccmd_Other(ticcmd_t * cmd)
++{
++	///
++	/// -AJA- very hacky stuff here to test out split-screen mode
++	///
++
++	Z_Clear(cmd, ticcmd_t, 1);
++
++	//-- Turning --
++	{
++		float turn = angleturn[0] * ball_deltas[AXIS_TURN] / 64.0;
++
++		cmd->angleturn = I_ROUND(turn);
++	}
++
++	//-- Mlook --
++	{
++		float mlook = mlookturn[0] * ball_deltas[AXIS_MLOOK] / 64.0;
++
++		cmd->mlookturn = I_ROUND(mlook);
++	}
++
++	//-- Forward --
++	{
++		if (mouse_ss_hack & 0x6)
++			cmd->forwardmove = forwardmove[1];
++	}
++
++	//-- Buttons --
++	if (mouse_ss_hack & 1)
++		cmd->buttons |= BT_ATTACK;
++
++	if (mouse_ss_hack & 0x6)
++		cmd->buttons |= BT_USE;
++
++	for (int k = 0; k < 6; k++)
++		ball_deltas[k] = 0;
++}
++
+ //
+ // E_BuildTiccmd
+ //
+@@ -318,6 +360,12 @@
+ {
+ 	UpdateForces();
+ 
++	if (splitscreen_mode && cmd->player_idx == consoleplayer1)
++	{
++		E_BuildTiccmd_Other(cmd);
++		return;
++	}
++
+ 	Z_Clear(cmd, ticcmd_t, 1);
+ 
+ 	bool strafe = E_IsKeyPressed(key_strafe);
+@@ -521,9 +569,17 @@
+ // 
+ bool INP_Responder(event_t * ev)
+ {
++	int sym = ev->value.key.sym;
++
+ 	switch (ev->type)
+ 	{
+ 		case ev_keydown:
++			if (splitscreen_mode && sym >= KEYD_MOUSE1 && sym <= KEYD_MOUSE6)
++			{
++				mouse_ss_hack |= (1 << (sym - KEYD_MOUSE1));
++				return true;
++			}
++
+ 			if (ev->value.key.sym < NUMKEYS)
+ 			{
+ 				gamekeydown[ev->value.key.sym] &= ~GK_UP;
+@@ -534,6 +590,12 @@
+ 			return true;
+ 
+ 		case ev_keyup:
++			if (splitscreen_mode && sym >= KEYD_MOUSE1 && sym <= KEYD_MOUSE6)
++			{
++				mouse_ss_hack &= ~(1 << (sym - KEYD_MOUSE1));
++				return false;
++			}
++
+ 			if (ev->value.key.sym < NUMKEYS)
+ 			{
+ 				gamekeydown[ev->value.key.sym] |= GK_UP;
+@@ -599,6 +661,8 @@
+ 
+ 	turnheld  = 0;
+ 	mlookheld = 0;
++
++	mouse_ss_hack = 0;
+ }
+ 
+ //
+Index: src/f_interm.cc
+===================================================================
+--- src/f_interm.cc	(revision 6495)
++++ src/f_interm.cc	(working copy)
+@@ -824,10 +824,10 @@
+ 
+ 		// hightlight the console player
+ #if 1
+-		if (p == consoleplayer)
++		if (p == consoleplayer1)
+ 			t_type = styledef_c::T_ALT;
+ #else
+-		if (p == consoleplayer && ((bcnt & 31) < 16))
++		if (p == consoleplayer1 && ((bcnt & 31) < 16))
+ 			continue;
+ #endif
+ 
+@@ -1100,10 +1100,10 @@
+ 
+ 		// hightlight the console player
+ #if 1
+-		if (p == consoleplayer)
++		if (p == consoleplayer1)
+ 			t_type = styledef_c::T_ALT;
+ #else
+-		if (p == consoleplayer && ((bcnt & 31) < 16))
++		if (p == consoleplayer1 && ((bcnt & 31) < 16))
+ 			continue;
+ #endif
+ 
+@@ -1159,7 +1159,7 @@
+ {
+ 	//WI_updateAnimatedBack();
+ 
+-	player_t *con_plyr = players[consoleplayer];
++	player_t *con_plyr = players[consoleplayer1];
+ 
+ 	const gamedef_c *gd = wi_stats.cur->episode;
+ 
+Index: src/hu_stuff.cc
+===================================================================
+--- src/hu_stuff.cc	(revision 6495)
++++ src/hu_stuff.cc	(working copy)
+@@ -165,7 +165,7 @@
+ 		player_t *p = players[pnum];
+ 		if (! p) continue;
+ 
+-		if (pnum == consoleplayer)
++		if (p->playerflags & PFL_Console)
+ 			continue;
+ 
+ 		char c = p->cmd.chatchar;
+Index: src/p_inter.cc
+===================================================================
+--- src/p_inter.cc	(revision 6495)
++++ src/p_inter.cc	(working copy)
+@@ -652,7 +652,7 @@
+         {
+             int sfx_cat;
+ 
+-            if (info.player == players[consoleplayer])
++            if (info.player->playerflags & PFL_Console)
+                 sfx_cat = SNCAT_Player;
+             else
+                 sfx_cat = SNCAT_Opponent;
+@@ -823,7 +823,7 @@
+ 	{
+ 		// count all monster deaths,
+ 		// even those caused by other monsters
+-		players[consoleplayer]->killcount++;
++		players[consoleplayer1]->killcount++;
+ 	}
+ 
+ 	if (target->player)
+@@ -846,11 +846,11 @@
+ 		P_DropWeapon(target->player);
+ 
+ 		// don't die in auto map, switch view prior to dying
+-		if (target->player == players[consoleplayer] && automapactive)
++		if (target->player == players[consoleplayer1] && automapactive)
+ 			AM_Stop();
+ 
+ 		// don't immediately restart when USE key was pressed
+-		if (target->player == players[consoleplayer])
++		if (target->player == players[consoleplayer1])
+ 			E_ClearInput();
+ 	}
+ 
+Index: src/p_weapon.cc
+===================================================================
+--- src/p_weapon.cc	(revision 6495)
++++ src/p_weapon.cc	(working copy)
+@@ -43,7 +43,7 @@
+ 
+ static sound_category_e WeapSfxCat(player_t *p)
+ {
+-	if (p == players[consoleplayer])
++	if (p->playerflags & PFL_Console)
+ 		return SNCAT_Weapon;
+         
+ 	return SNCAT_Opponent;
+Index: src/vm_hud.cc
+===================================================================
+--- src/vm_hud.cc	(revision 6495)
++++ src/vm_hud.cc	(working copy)
+@@ -496,7 +496,7 @@
+ 
+ 	if (index == 0)
+ 	{
+-		ui_hud_who = players[consoleplayer];
++		ui_hud_who = players[consoleplayer1];
+ 		return;
+ 	}
+ 
+@@ -583,12 +583,12 @@
+     VM_CallFunction(ui_vm, "begin_level");
+ }
+ 
+-void VM_RunHud(void)
++void VM_RunHud(int split)
+ { 
+-	HUD_Reset();
++	HUD_FrameSetup(split);
+ 
+-	ui_hud_who    = players[displayplayer];
+-	ui_player_who = players[displayplayer];
++	ui_hud_who    = players[split ? (split-1) : displayplayer];
++	ui_player_who = players[split ? (split-1) : displayplayer];
+ 
+ 	ui_hud_automap_flags[0] = 0;
+ 	ui_hud_automap_flags[1] = 0;
+@@ -596,8 +596,12 @@
+ 
+ 	VM_CallFunction(ui_vm, "draw_all");
+ 
+-	HUD_Reset();
++	if (split > 0)
++		HUD_FrameSetup(0);
++	else
++		HUD_Reset();
+ }
+ 
++
+ //--- editor settings ---
+ // vi:ts=4:sw=4:noexpandtab
+Index: src/con_main.cc
+===================================================================
+--- src/con_main.cc	(revision 6495)
++++ src/con_main.cc	(working copy)
+@@ -633,7 +633,7 @@
+ 	va_list argptr;
+ 	char buffer[256];
+ 
+-	if (consoleplayer != plyr)
++	if (consoleplayer1 != plyr)
+ 		return;
+ 
+ 	Z_Clear(buffer, char, 256);
+@@ -657,7 +657,7 @@
+ 	va_list argptr;
+ 	char buffer[256];
+ 
+-	if (consoleplayer != plyr)
++	if (consoleplayer1 != plyr)
+ 		return;
+ 
+ 	lookup = language[lookup];
