@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE System Specific Header for OpenGL
+//  EDGE2 System Specific Header for OpenGL
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 2007-2009  The EDGE Team.
+//  Copyright (c) 2007-2009  The EDGE2 Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -34,9 +34,9 @@
 
 #ifdef WIN32
 #define GLEW_STATIC  1
-#include <GL/glew.h>
-#include <GL/gl.h>
-#include <GL/glext.h>
+#include <C:/hyperedge/edge2/src/GL/glew.h>
+#include <C:/hyperedge/edge2/src/GL/gl.h>
+#include <C:/hyperedge/edge2/src/GL/glext.h>
 #endif
 
 #ifdef MACOSX

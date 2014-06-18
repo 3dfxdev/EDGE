@@ -2,7 +2,7 @@
 //  Radius Trigger Main definitions
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -19,12 +19,12 @@
 #ifndef __RAD_MAIN_H__
 #define __RAD_MAIN_H__
 
-#include "ddf/main.h"
+#include "../ddf/main.h"
 
 #include "r_defs.h"
 #include "hu_stuff.h"
 
-#include "epi/math_crc.h"
+#include "../epi/math_crc.h"
 
 struct rts_state_s;
 struct rad_script_s;

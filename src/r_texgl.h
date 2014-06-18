@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE OpenGL Texture Upload
+//  EDGE2 OpenGL Texture Upload
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -19,7 +19,7 @@
 #ifndef __RGL_TEXGL_H__
 #define __RGL_TEXGL_H__
 
-#include "epi/image_data.h"
+#include "../epi/image_data.h"
 
 typedef enum
 {

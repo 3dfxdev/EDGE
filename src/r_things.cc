@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE OpenGL Rendering (Things)
+//  EDGE2 OpenGL Rendering (Things)
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -28,8 +28,8 @@
 
 #include <math.h>
 
-#include "epi/image_data.h"
-#include "epi/image_jpeg.h"
+#include "../epi/image_data.h"
+#include "../epi/image_jpeg.h"
 
 #include "dm_data.h"
 #include "dm_defs.h"
@@ -186,6 +186,11 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 
 	float ty1 = - psp->sy + IM_OFFSETY(image);
 	float ty2 = ty1 + h;
+
+	if (splitscreen_mode)
+	{
+		ty1 /= 1.5;  ty2 /= 1.5;
+	}
 
 
 	float x1b, y1b, x1t, y1t, x2b, y2b, x2t, y2t;  // screen coords

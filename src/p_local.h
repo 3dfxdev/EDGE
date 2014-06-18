@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Local Header for play sim functions 
+//  EDGE2 Local Header for play sim functions 
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -35,7 +35,7 @@
 
 #include "p_blockmap.h"  // HACK!
 
-#include "epi/arrays.h"
+#include "../epi/arrays.h"
 
 #define DEATHVIEWHEIGHT  6.0f
 #define CROUCH_SLOWDOWN  0.5f
@@ -146,6 +146,9 @@ void P_SpawnPuff(float x, float y, float z, const mobjtype_c * puff, angle_t ang
 void P_SpawnBlood(float x, float y, float z, float damage, angle_t angle, const mobjtype_c * blood);
 void P_RemoveQueuedMobjs(bool force_all);
 void P_CalcFullProperties(const mobj_t *mo, region_properties_t *newregp);
+
+// ~~CA 6/8/2011 - Spawn splash in sector, (original code from Doom Legacy)
+void    P_SpawnSplash (mobj_t *mo, float z);
 
 // -ACB- 1998/08/02 New procedures for DDF etc...
 void P_MobjItemRespawn(void);

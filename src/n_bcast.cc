@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Networking : Broadcast Links
+//  EDGE2 Networking : Broadcast Links
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -22,7 +22,7 @@
 //
 //----------------------------------------------------------------------------
 
-#if 0  // DISABLED
+//#if 0  // DISABLED
 
 #include "i_defs.h"
 #include "i_net.h"
@@ -32,7 +32,7 @@
 #include <linux/sockios.h>
 #endif
 
-#include "epi/endianess.h"
+#include "../epi/endianess.h"
 
 #include "n_bcast.h"
 
@@ -79,7 +79,7 @@ bool N_StartupBroadcastLink(int port)
 	net_address_c my_addr;
 
 	my_addr.FromSockAddr(&sock_addr);
-// I_Printf(">>> my_addr (bc) : %s\n", my_addr.TempString());
+ I_Printf(">>> my_addr (bc) : %s\n", my_addr.TempString());
 
 	I_SetBroadcast(host_broadcast_sock, 1);
 
@@ -155,7 +155,7 @@ int N_BroadcastRecv(net_address_c *remote, byte *buffer, int max_len)
 	return actual; //OK
 }
 
-#endif  // DISABLED
+//#endif  // DISABLED
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

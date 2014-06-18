@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Video Context
+//  EDGE2 Video Context
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -26,7 +26,7 @@
 #ifndef __R_DRAW_H__
 #define __R_DRAW_H__
 
-#include "ddf/main.h"
+#include "../ddf/main.h"
 #include "r_image.h"
 
 // Move to somewhere appropriate later -ACB- 2004/08/19

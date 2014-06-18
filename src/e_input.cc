@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Input handling
+//  EDGE2 Input handling
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -31,6 +31,7 @@
 
 #include "dm_defs.h"
 #include "dm_state.h"
+#include "e_player.h"
 #include "e_event.h"
 #include "e_input.h"
 #include "e_main.h"
@@ -92,6 +93,8 @@ int key_secondatk;
 int key_reload;
 int key_action1;
 int key_action2;
+int key_action3;
+int key_action4;
 
 // -MH- 1998/07/10 Flying keys
 int key_flyup;
@@ -133,6 +136,8 @@ int mouse_ysens;
 int joy_axis[6] = { 0, 0, 0, 0, 0, 0 };
 
 static int joy_last_raw[6];
+
+static int mouse_ss_hack = 0;
 
 // The last one is ignored (AXIS_DISABLE)
 static float ball_deltas[6] = {0, 0, 0, 0, 0, 0};
@@ -301,6 +306,45 @@ static int CmdChecksum(ticcmd_t * cmd)
 }
 #endif
 
+void E_BuildTiccmd_Other(ticcmd_t * cmd)
+{
+	///
+	/// -AJA- very hacky stuff here to test out split-screen mode
+	///
+
+	Z_Clear(cmd, ticcmd_t, 1);
+
+	//-- Turning --
+	{
+		float turn = angleturn[0] * ball_deltas[AXIS_TURN] / 64.0;
+
+		cmd->angleturn = I_ROUND(turn);
+	}
+
+	//-- Mlook --
+	{
+		float mlook = mlookturn[0] * ball_deltas[AXIS_MLOOK] / 64.0;
+
+		cmd->mlookturn = I_ROUND(mlook);
+	}
+
+	//-- Forward --
+	{
+		if (mouse_ss_hack & 0x6)
+			cmd->forwardmove = forwardmove[1];
+	}
+
+	//-- Buttons --
+	if (mouse_ss_hack & 1)
+		cmd->buttons |= BT_ATTACK;
+
+	if (mouse_ss_hack & 0x6)
+		cmd->buttons |= BT_USE;
+
+	for (int k = 0; k < 6; k++)
+		ball_deltas[k] = 0;
+}
+
 //
 // E_BuildTiccmd
 //
@@ -317,6 +361,12 @@ static bool allowautorun = true;
 void E_BuildTiccmd(ticcmd_t * cmd)
 {
 	UpdateForces();
+
+	if (splitscreen_mode && cmd->player_idx == consoleplayer1)
+	{
+		E_BuildTiccmd_Other(cmd);
+		return;
+	}
 
 	Z_Clear(cmd, ticcmd_t, 1);
 
@@ -447,6 +497,12 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 
 	if (E_IsKeyPressed(key_action2))
 		cmd->extbuttons |= EBT_ACTION2;
+		
+	if (E_IsKeyPressed(key_action3))
+		cmd->extbuttons |= EBT_ACTION3;
+
+	if (E_IsKeyPressed(key_action4))
+		cmd->extbuttons |= EBT_ACTION4;
 
 	// -ACB- 1998/07/02 Use CENTER flag to center the vertical look.
 	if (E_IsKeyPressed(key_lookcenter))
@@ -521,9 +577,17 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 // 
 bool INP_Responder(event_t * ev)
 {
+	int sym = ev->value.key.sym;
+
 	switch (ev->type)
 	{
 		case ev_keydown:
+			if (splitscreen_mode && sym >= KEYD_MOUSE1 && sym <= KEYD_MOUSE6)
+			{
+				mouse_ss_hack |= (1 << (sym - KEYD_MOUSE1));
+				return true;
+			}
+
 			if (ev->value.key.sym < NUMKEYS)
 			{
 				gamekeydown[ev->value.key.sym] &= ~GK_UP;
@@ -534,6 +598,12 @@ bool INP_Responder(event_t * ev)
 			return true;
 
 		case ev_keyup:
+			if (splitscreen_mode && sym >= KEYD_MOUSE1 && sym <= KEYD_MOUSE6)
+			{
+				mouse_ss_hack &= ~(1 << (sym - KEYD_MOUSE1));
+				return false;
+			}
+
 			if (ev->value.key.sym < NUMKEYS)
 			{
 				gamekeydown[ev->value.key.sym] |= GK_UP;
@@ -599,6 +669,8 @@ void E_ClearInput(void)
 
 	turnheld  = 0;
 	mlookheld = 0;
+
+	mouse_ss_hack = 0;
 }
 
 //

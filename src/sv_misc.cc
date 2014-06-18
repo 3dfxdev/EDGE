@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE New SaveGame Handling (Miscellaneous)
+//  EDGE2 New SaveGame Handling (Miscellaneous)
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2008  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -35,7 +35,7 @@
 
 #include "i_defs.h"
 
-#include "epi/str_format.h"
+#include "../epi/str_format.h"
 
 #include "rad_trig.h"
 #include "sv_chunk.h"

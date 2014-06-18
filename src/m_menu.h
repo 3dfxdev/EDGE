@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Main Menu Code
+//  EDGE2 Main Menu Code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -83,6 +83,7 @@ void M_EndGame(int choice);
 void M_QuitEDGE(int choice);
 void M_DrawThermo(int x, int y, int thermWidth, int thermDot, int div);
 void M_ClearMenus(void);
+
 
 #endif // __M_MENU__
 

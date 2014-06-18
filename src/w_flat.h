@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Rendering Data Handling Code
+//  EDGE2 Rendering Data Handling Code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2008  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -34,8 +34,8 @@
 #include "r_defs.h"
 #include "r_state.h"
 
-#include "ddf/main.h"
-#include "ddf/anim.h"
+#include "../ddf/main.h"
+#include "../ddf/anim.h"
 
 void W_InitFlats(void);
 void W_InitPicAnims(void);

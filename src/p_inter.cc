@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Interactions (picking up items etc..) Code
+//  EDGE2 Interactions (picking up items etc..) Code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -652,7 +652,7 @@ void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
         {
             int sfx_cat;
 
-            if (info.player == players[consoleplayer])
+            if (info.player->playerflags & PFL_Console)
                 sfx_cat = SNCAT_Player;
             else
                 sfx_cat = SNCAT_Opponent;
@@ -823,7 +823,7 @@ void P_KillMobj(mobj_t * source, mobj_t * target, const damage_c *damtype,
 	{
 		// count all monster deaths,
 		// even those caused by other monsters
-		players[consoleplayer]->killcount++;
+		players[consoleplayer1]->killcount++;
 	}
 
 	if (target->player)
@@ -846,11 +846,11 @@ void P_KillMobj(mobj_t * source, mobj_t * target, const damage_c *damtype,
 		P_DropWeapon(target->player);
 
 		// don't die in auto map, switch view prior to dying
-		if (target->player == players[consoleplayer] && automapactive)
+		if (target->player == players[consoleplayer1] && automapactive)
 			AM_Stop();
 
 		// don't immediately restart when USE key was pressed
-		if (target->player == players[consoleplayer])
+		if (target->player == players[consoleplayer1])
 			E_ClearInput();
 	}
 

@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Radius Trigger Parsing
+//  EDGE2 Radius Trigger Parsing
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -791,7 +791,7 @@ static void RAD_ParseVersion(int pnum, const char **pars)
 	int rts_version = I_ROUND(vers * 100);
 
 	if (rts_version > EDGEVER)
-		RAD_Error("This version of EDGE cannot handle this RTS script\n");
+		RAD_Error("This version of EDGE2 cannot handle this RTS script\n");
 }
 
 static void RAD_ParseClearAll(int pnum, const char **pars)

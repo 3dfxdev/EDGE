@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Console Interface code.
+//  EDGE2 Console Interface code.
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 //  Copyright (c) 1998       Randy Heit
 // 
 //  This program is free software; you can redistribute it and/or
@@ -19,7 +19,7 @@
 //
 // Originally based on the ZDoom console code, by Randy Heit
 // (rheit@iastate.edu).  Randy Heit has given his permission to
-// release this code under the GPL, for which the EDGE Team is very
+// release this code under the GPL, for which the EDGE2 Team is very
 // grateful.  The original GPL'd version `c_consol.c' can be found
 // in the contrib/ directory.
 //
@@ -27,7 +27,7 @@
 #include "i_defs.h"
 #include "i_defs_gl.h"
 
-#include "ddf/language.h"
+#include "../ddf/language.h"
 
 #include "con_main.h"
 #include "e_input.h"
@@ -493,7 +493,7 @@ void CON_Drawer(void)
 	else
 		y = y - CON_GFX_HT;
 
-	SolidBox(0, y, SCREENWIDTH, SCREENHEIGHT - y, RGB_MAKE(0,0,8), 0.75f);
+	console_style->DrawBackground(0, y, SCREENWIDTH, SCREENHEIGHT - y, 1);
 
 	y += YMUL / 4;
 

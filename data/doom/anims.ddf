@@ -1,12 +1,12 @@
 //
-//    EDGE ANIMS.DDF -redefine or add new animated wall/floor textures.
+//    3DGE ANIMS.DDF -redefine or add new animated wall/floor textures.
 //    For documentation, see http://edge.sourceforge.net/
-//    DDF Version 6.1
+//    DDF Version 7
 //
 
 <ANIMATIONS>
 
-#VERSION 1.35
+#VERSION 1.36
 
 // ------ Flat Animations ------------------
 

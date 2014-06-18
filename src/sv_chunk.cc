@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE New SaveGame Handling (Chunks)
+//  EDGE2 New SaveGame Handling (Chunks)
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2008  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -24,9 +24,9 @@
 
 #include "i_defs.h"
 
-#include <zlib.h>
+#include "C:/hyperedge/edge2/lib_win32/zlib-1.2.3/zlib.h"
 
-#include "epi/math_crc.h"
+#include "../epi/math_crc.h"
 
 #include "sv_chunk.h"
 #include "z_zone.h"
@@ -37,7 +37,7 @@
 #define DEBUG_COMPRESS 0
 
 
-#define XOR_STRING  "EDGE!"
+#define XOR_STRING  "EDGE2!"
 #define XOR_LEN     5
 
 

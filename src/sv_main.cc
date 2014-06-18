@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE New SaveGame Handling (Main)
+//  EDGE2 New SaveGame Handling (Main)
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2008  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -22,9 +22,9 @@
 
 #include "i_defs.h"
 
-#include "epi/path.h"
-#include "epi/str_format.h"
-#include "epi/filesystem.h"
+#include "../epi/path.h"
+#include "../epi/str_format.h"
+#include "../epi/filesystem.h"
 
 #include "dm_state.h"
 #include "dstrings.h"

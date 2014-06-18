@@ -1,12 +1,12 @@
 //
-//    EDGE Radius Triggers
+//    3DGE Radius Triggers
 //
 //    These scripts replace hardcoded events for both DOOM 1 and 2.
 //    For documentation, see http://edge.sourceforge.net/
-//    DDF Version 6.1
+//    DDF Version 7
 //
 
-#VERSION 1.35
+#VERSION 1.36
 
 // *****************
 // * DOOM1 scripts *

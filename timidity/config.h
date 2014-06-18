@@ -19,8 +19,8 @@
 
 /* This is for use with the EDGE Platform Interface */
 
-#include "epi/epi.h"
-#include "epi/endianess.h"
+#include "../epi/epi.h"
+#include "../epi/endianess.h"
 
 /* When a patch file can't be opened, one of these extensions is
    appended to the filename and the open is tried again.

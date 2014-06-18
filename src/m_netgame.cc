@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Network Menu Code
+//  EDGE2 Network Menu Code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -26,7 +26,7 @@
 #include "i_defs.h"
 #include "i_net.h"
 
-#include "ddf/main.h"
+#include "../ddf/main.h"
 
 #include "con_main.h"
 #include "dm_defs.h"
@@ -90,7 +90,7 @@ static int joining_port;
 static int join_discover_timer;
 static int join_connect_timer;
 
-static void ListAccept(void);
+//static void ListAccept(void);
 
 
 #if (0 == 1)
@@ -514,9 +514,9 @@ static void HostAccept(void)
 
 	netgame_menuon = 3;
 
-#if 1
-	ListAccept();
-#endif
+//#if 1
+//	ListAccept();
+//#endif
 }
 
 void M_DrawHostMenu(void)
@@ -533,11 +533,11 @@ void M_DrawHostMenu(void)
 	int idx = 0;
 
 
-//	DrawKeyword(-1, ng_host_style, y, "LOCAL ADDRESS", n_local_addr.TempString(false));
+	DrawKeyword(-1, ng_host_style, y, "LOCAL ADDRESS", n_local_addr.TempString(false));
   	y += 10;
 
-//	DrawKeyword(-1, ng_join_style, y, "LOCAL PORT",
-//			LocalPrintf(buffer, sizeof(buffer), "%d", hosting_port));
+	DrawKeyword(-1, ng_join_style, y, "LOCAL PORT",
+			LocalPrintf(buffer, sizeof(buffer), "%d", hosting_port));
   	y += 18;
 
 
@@ -812,9 +812,9 @@ void M_DrawPlayerList(void)
 
 	int humans = 0;
 
-///	for (i = 0; i < ng_params->total_players; i++)
-///		if (! (ng_params->players[i] & PFL_Bot))
-///			humans++;
+	for (i = 0; i < ng_params->total_players; i++)
+		if (! (ng_params->players[i] & PFL_Bot))
+			humans++;
 
 	for (i = 0; i < ng_params->total_players; i++)
 	{
@@ -851,8 +851,9 @@ void M_DrawPlayerList(void)
 	}
 }
 
-static void ListAccept()
+bool M_NetListResponder(event_t * ev, int ch)
 {
+    if (ch == KEYD_ENTER && netgame_we_are_host)
 	S_StartFX(sfx_swtchn);
 
 	netgame_menuon = 0;
@@ -861,16 +862,16 @@ static void ListAccept()
 	NetGameStartLevel();
 }
 
-bool M_NetListResponder(event_t * ev, int ch)
-{
-	if (ch == KEYD_ENTER && netgame_we_are_host)
-	{
-		ListAccept();
-		return true;
-	}
+//bool M_NetListResponder(event_t * ev, int ch)
+//{
+//	if (ch == KEYD_ENTER && netgame_we_are_host)
+//	{
+//		ListAccept();
+//		return true;
+//	}
 
-	return false;
-}
+//	return false;
+//}
 
 void M_NetListTicker(void)
 {

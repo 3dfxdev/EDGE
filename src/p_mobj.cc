@@ -1,8 +1,10 @@
 //----------------------------------------------------------------------------
-//  EDGE Moving Object Handling Code
+//  EDGE2 Moving Object Handling Code
 //----------------------------------------------------------------------------
-// 
-//  Copyright (c) 1999-2009  The EDGE Team.
+// (C) EDGE2 Team, 2011. 
+//  
+//  
+//  Mainfile Copyright (c) 1999-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -21,6 +23,14 @@
 //
 //    Copyright (C) 1993-1996 by id Software, Inc.
 //
+//
+//  Some code based on the Hexen source, adapted by the EDGE2 Team. 
+//
+//   Copyright (C) 2008 Activison, Inc. 
+//
+//
+//  Some code adapted from Doom Legacy, 
+//   Copyright (C) Doom Legacy Team, 1998-2010.
 //----------------------------------------------------------------------------
 //
 // -MH- 1998/07/02  "shootupdown" --> "true3dgameplay"
@@ -66,7 +76,7 @@
 #include "s_sound.h"
 #include "z_zone.h"
 
-#include "epi/arrays.h"
+#include "../epi/arrays.h"
 
 #include <list>
 
@@ -1008,6 +1018,7 @@ static void P_XYMovement(mobj_t * mo, const region_properties_t *props)
 }
 
 //
+// This function detects when a player has hit the floor, among other functions
 // P_ZMovement
 //
 static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
@@ -1015,7 +1026,7 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 	float dist;
 	float delta;
 	float zmove;
-
+	
 	// -KM- 1998/11/25 Gravity is now not precalculated so that
 	//  menu changes affect instantly.
 	float gravity = props->gravity / 8.0f * 
@@ -1053,8 +1064,15 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 	//
 	//  HIT FLOOR ?
 	//
+	if (mo->flags & MF_SKULLFLY)
+			mo->mom.z = -mo->mom.z;
+	
+	//TeleportRespawn(mobj);
+
 
 	if (mo->z <= mo->floorz)
+//	    P_HitFloor(mo);
+//		mo->z <= mo->floorz;
 	{
 		if (mo->flags & MF_SKULLFLY)
 			mo->mom.z = -mo->mom.z;
@@ -1062,6 +1080,7 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 		if (mo->mom.z < 0)
 		{
 			float hurt_momz = gravity * mo->info->maxfall;
+			//const char *img_name = W_ImageGetName(images[L]);
 			bool fly_or_swim = mo->player && (mo->player->swimming ||
 				mo->player->powers[PW_Jetpack] > 0 || mo->on_ladder >= 0);
 
@@ -1071,13 +1090,83 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 				// ground (hard), and utter appropriate sound.
 				mo->player->deltaviewheight = zmove / 8.0f;
 				S_StartFX(mo->info->oof_sound, P_MobjGetSfxCategory(mo), mo);
+			
 			}
+		
 			// -KM- 1998/12/16 If bigger than max fall, take damage.
+
 			if (mo->info->maxfall > 0 && gravity > 0 && -mo->mom.z > hurt_momz &&
 				(! mo->player || ! fly_or_swim))
 			{
 				P_DamageMobj(mo, NULL, NULL, (-mo->mom.z - hurt_momz), NULL);
 			}
+			const char *W_ImageGetName(const image_c *image)
+
+{
+
+	const image_c *rim;
+
+
+
+	rim = (const image_c *) image;
+
+
+
+	return rim->name;
+
+}
+
+
+
+#if 0  // DEBUGGING
+
+	L_WriteDebug("W_ImageGetUserSprites(count = %d)\n", *count);
+
+	L_WriteDebug("{\n");
+
+
+
+	for (pos = 0; pos < *count; pos++)
+
+		L_WriteDebug("   %p = [%s] %dx%d\n", array[pos], W_ImageGetName(array[pos]),
+
+			array[pos]->actual_w, array[pos]->actual_h);
+
+		
+
+	L_WriteDebug("}\n");
+
+#endif
+
+
+
+		return array;
+
+}
+
+
+
+if (new_image)
+
+            {
+
+            sec->floor.image = new_image;
+
+			
+
+		    if (new_image == FWATER1)
+
+			S_StartFX(mo->info->splash_sound, P_MobjGetSfxCategory(mo), mo);
+
+			} 
+
+			     
+
+		    #define CMP(a, b)  (strcmp(W_ImageGetName(a), W_ImageGetName(b)) < 0)
+
+	QSORT(const image_c *, array, (*count), CUTOFF);
+
+#undef CMP
 
 			// -KM- 1999/01/31 Bouncy bouncy...
 			if (mo->extendedflags & EF_BOUNCE)
@@ -1093,10 +1182,15 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 			}
 			else
 				mo->mom.z = 0;
+				
+
 		}
 
 		mo->z = mo->floorz;
+			//img_name is actually floor.image in W_ImageGetName
+	//const char *img_name = W_ImageGetName(mo->subsector->sector->floor.image);
 
+		
 		if ((mo->flags & MF_MISSILE) && !(mo->flags & MF_NOCLIP))
 		{
 			// -AJA- 2003/10/09: handle missiles that hit a monster on
@@ -1651,6 +1745,40 @@ void P_RemoveItemsInQue(void)
 // GAME SPAWN FUNCTIONS
 //
 
+
+// SPAWNS A SPLASH WHEN PLAYER HITS GROUND IN WATER (but not deep water!)
+
+// FIXME!!!
+
+#if 0
+//~~CA, 6/8/2011 - adapted Water Splash code from Legacy/Hexen
+void P_SpawnSplash(float z, const mobjtype_c * puff)// mobj_t * mo)
+{
+    mobj_t *th;
+    //fixed_t     z;
+
+    // need to touch the surface because the splashes only appear at surface
+    if (mo->z > z || mo->z + mo->height < z)
+        return;
+
+//As noted above, P_SpawnMobj was replaced entirely with P_MobjCreateObject, so we will change it here.
+		
+    // note pos +1 +1 so it doesn't eat the sound of the player..
+	
+    th = P_MobjCreateObject(z, puff); //replace MT_SPLASH with just "splash"?, this is the "object we need to create", needs to be registered
+	                                                             //WILL THIS BE IN DDF?
+    
+    S_StartFX(th, sfx_gloop); //declare this FIRST!
+    //else
+    //    S_StartSound (th,sfx_splash);
+    th->tics -= P_Random() & 3;
+
+    if (th->tics < 1)
+        th->tics = 1;
+}	
+#endif
+
+
 //
 // P_SpawnPuff
 //
@@ -1715,6 +1843,7 @@ void P_SpawnBlood(float x, float y, float z, float damage,
 			P_SetMobjState(th, th->next_state - states);
 	}
 }
+
 
 //
 // P_MobjItemRespawn
@@ -1955,6 +2084,9 @@ int P_MobjGetSfxCategory(const mobj_t *mo)
 {
     if (mo->player)
     {
+		if (splitscreen_mode && mo->player->mo == mo)
+			return SNCAT_Player;
+
         if (mo->player == players[displayplayer])
             return SNCAT_Player;
         

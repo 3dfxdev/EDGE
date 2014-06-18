@@ -19,7 +19,7 @@
 #ifndef __DDF_COLORMAP_H__
 #define __DDF_COLORMAP_H__
 
-#include "epi/utility.h"
+#include "../epi/utility.h"
 
 #include "types.h"
 

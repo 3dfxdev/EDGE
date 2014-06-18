@@ -21,7 +21,7 @@
 
 #include "local.h"
 
-#include "epi/utility.h"
+#include "../epi/utility.h"
 
 #include "font.h"
 #include "style.h"

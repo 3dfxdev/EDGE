@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Rendering Definitions Header
+//  EDGE2 Rendering Definitions Header
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -37,7 +37,7 @@
 #include "p_mobj.h"
 
 // -AJA- 1999/07/10: Need this for colourmap_c.
-#include "ddf/main.h"
+#include "../ddf/main.h"
 
 class image_c;
 

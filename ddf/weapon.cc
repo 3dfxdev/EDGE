@@ -24,7 +24,7 @@
 
 #include "weapon.h"
 
-#include "src/p_action.h"
+#include "../src/p_action.h"
 
 #undef  DF
 #define DF  DDF_FIELD

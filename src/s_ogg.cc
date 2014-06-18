@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE OGG Music Player
+//  EDGE2 OGG Music Player
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 2004-2009  The EDGE Team.
+//  Copyright (c) 2004-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -24,12 +24,12 @@
 
 #include "i_defs.h"
 
-#include "epi/endianess.h"
-#include "epi/file.h"
-#include "epi/filesystem.h"
-#include "epi/sound_gather.h"
+#include "../epi/endianess.h"
+#include "../epi/file.h"
+#include "../epi/filesystem.h"
+#include "../epi/sound_gather.h"
 
-#include "ddf/playlist.h"
+#include "../ddf/playlist.h"
 
 #include "s_cache.h"
 #include "s_blit.h"

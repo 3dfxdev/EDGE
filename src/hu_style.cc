@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Heads-up-display Style code
+//  EDGE2 Heads-up-display Style code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 2004-2009  The EDGE Team.
+//  Copyright (c) 2004-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -27,7 +27,6 @@
 #include "r_draw.h"
 #include "r_modes.h"
 #include "r_image.h"
-
 
 // Edge has lots of style
 style_container_c hu_styles;
@@ -65,39 +64,99 @@ void style_c::Load()
 }
 
 
-void style_c::DrawBackground()
+//-CA 
+//CONSBK is for drawing the console! not drawbackground for generic drawing!
+void style_c::DrawBackground(int x, int y, int w, int h, int align)
 {
+	if (w == 0)
+		x = 0, w = SCREENWIDTH;
+
+	if (h == 0)
+		y = 0, h = SCREENHEIGHT;
+
 	float alpha = PERCENT_2_FLOAT(def->bg.translucency);
 
 	if (alpha < 0.02)
 		return;
 
-	HUD_SetAlpha(alpha);
-
 	if (! bg_image)
 	{
 		if (def->bg.colour != RGB_NO_VALUE)
-			HUD_SolidBox(0, 0, 320, 200, def->bg.colour);
-
-		HUD_SetAlpha();
+			HUD_SolidBox(x, y, w, h, def->bg.colour);
 		return;
 	}
 
-	if (def->special & (SYLSP_Tiled | SYLSP_TiledNoScale))
+	float right = IM_RIGHT(bg_image);
+	float top   = IM_TOP(bg_image);
+
+	if (def->special & SYLSP_Tiled)
 	{
-		HUD_SetScale(def->bg.scale);
+		float y_scale = def->bg.scale;
+		float x_scale = def->bg.aspect * y_scale;
 
-		HUD_TileImage(0, 0, 320, 200, bg_image);
+		x_scale *= (float)SCREENWIDTH  / 320.0f;
+		y_scale *= (float)SCREENHEIGHT / 200.0f;
 
-		HUD_SetScale();
+		RGL_DrawImage(x, y, w, h, bg_image,
+				0.0f, align ? (1.0f - top * h / IM_HEIGHT(bg_image) / y_scale) : 0.0f,
+				right  * w / IM_WIDTH(bg_image)  / x_scale,
+				align ? 1.0f : (top * h / IM_HEIGHT(bg_image) / y_scale),
+				NULL);
+	}
+	else if (def->special & SYLSP_TiledNoScale)
+	{
+		RGL_DrawImage(x, y, w, h, bg_image,
+				0.0f, align ? (1.0f - top * h / IM_HEIGHT(bg_image)) : 0.0f,
+				right  * w / IM_WIDTH(bg_image),
+				align ? 1.0f : (top * h / IM_HEIGHT(bg_image)),
+				NULL, alpha);
 	}
 	else
 	{
-		HUD_StretchImage(0, 0, 320, 200, bg_image);
+		RGL_DrawImage(x, y, w, h, bg_image, 0.0f, 0.0f,
+					  right, top, NULL, alpha);
 	}
-
-	HUD_SetAlpha();
 }
+
+
+// void style_c::DrawCONSBK(int x, int y, int w, int h, int align)
+// {
+	// if (w == 0)
+		// x = 0, w = SCREENWIDTH;
+
+	// if (h == 0)
+		// y = 0, h = SCREENHEIGHT;
+	// float alpha = PERCENT_2_FLOAT(def->bg.translucency);
+
+	// if (alpha < 0.02)
+		// return;
+
+//	HUD_SetAlpha(alpha);
+
+	// if (! bg_image)
+	// {
+		// if (def->bg.colour != RGB_NO_VALUE)
+			// RGL_SolidBox(x, y, w, h, def->bg.colour, alpha);
+
+//		HUD_SetAlpha();
+		// return;
+	// }
+
+	// if (def->special & (SYLSP_Tiled | SYLSP_TiledNoScale))
+	// {
+		// HUD_SetScale(def->bg.scale);
+
+		// HUD_TileImage(0, 0, 320, 200, bg_image);
+
+		// HUD_SetScale();
+	// }
+	// else
+	// {
+		// HUD_StretchImage(0, 0, 320, 200, bg_image);
+	// }
+
+//	HUD_SetAlpha();
+// }
 
 // ---> style_container_c class
 

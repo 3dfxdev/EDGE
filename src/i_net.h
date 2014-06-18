@@ -2,7 +2,7 @@
 //  System Networking Basics
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2011  The EDGE Team.
+//  Copyright (c) 1999-2011  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -47,6 +47,10 @@
 #define SOCKET	int
 #define INVALID_SOCKET	-1
 #define SOCKET_ERROR	-1
+#endif
+
+#ifdef USE_HAWKNL
+#include "../hawkNL/include/nl.h"
 #endif
 
 #ifdef WIN32

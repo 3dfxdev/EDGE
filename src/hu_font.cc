@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Heads-up-display Font code
+//  EDGE2 Heads-up-display Font code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 2004-2009  The EDGE Team.
+//  Copyright (c) 2004-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -18,8 +18,8 @@
 
 #include "i_defs.h"
 
-#include "ddf/main.h"
-#include "ddf/font.h"
+#include "../ddf/main.h"
+#include "../ddf/font.h"
 
 #include "dm_defs.h"
 #include "dm_state.h"

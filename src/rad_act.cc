@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Radius Trigger Actions
+//  EDGE2 Radius Trigger Actions
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -264,7 +264,7 @@ static player_t *GetWhoDunnit(rad_trigger_t *R)
 {
 	// this IS NOT CORRECT, but matches old behavior
 	if (numplayers == 1)
-		return players[consoleplayer];
+		return players[consoleplayer1];
 
 	if (R->acti_players == 0)
 		return NULL;
@@ -294,7 +294,7 @@ void RAD_ActTip(rad_trigger_t *R, void *param)
 	// Only display the tip to the player that stepped into the radius
 	// trigger.
 
-	if (numplayers > 1 && (R->acti_players & (1 << consoleplayer)) == 0)
+	if (numplayers > 1 && (R->acti_players & (1 << consoleplayer1)) == 0)
 		return;
 
 	SendTip(R, tip, R->tip_slot);
@@ -305,7 +305,7 @@ void RAD_ActTipProps(rad_trigger_t *R, void *param)
 	s_tip_prop_t *tp = (s_tip_prop_t *) param;
 	drawtip_t *current;
 
-	if (numplayers > 1 && (R->acti_players & (1 << consoleplayer)) == 0)
+	if (numplayers > 1 && (R->acti_players & (1 << consoleplayer1)) == 0)
 		return;
 
 	if (tp->slot_num >= 0)
@@ -891,7 +891,7 @@ void RAD_ActUnblockLines(rad_trigger_t *R, void *param)
 		// clear standard flags
 		ld->flags &= ~(MLF_Blocking | MLF_BlockMonsters);
 
-		// clear EDGE's extended lineflags too
+		// clear EDGE2's extended lineflags too
 		ld->flags &= ~(MLF_SightBlock | MLF_ShootBlock);
 	}
 }
@@ -952,7 +952,7 @@ void RAD_ActShowMenu(rad_trigger_t *R, void *param)
 {
 	s_show_menu_t *menu = (s_show_menu_t *) param;
 
-	if (numplayers > 1 && (R->acti_players & (1 << consoleplayer)) == 0)
+	if (numplayers > 1 && (R->acti_players & (1 << consoleplayer1)) == 0)
 		return;
 
 	if (rts_menuactive)

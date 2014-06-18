@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Lighting Shaders
+//  EDGE2 Lighting Shaders
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -19,7 +19,7 @@
 #ifndef __R_SHADER_H__
 #define __R_SHADER_H__
 
-#include "ddf/types.h"
+#include "../ddf/types.h"
 
 /// #include "r_units.h"
 

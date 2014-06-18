@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE OpenGL Rendering (Definitions)
+//  EDGE2 OpenGL Rendering (Definitions)
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -26,8 +26,8 @@
 #ifndef __RGL_DEFS__
 #define __RGL_DEFS__
 
-#include "ddf/main.h"
-#include "ddf/image.h"
+#include "../ddf/main.h"
+#include "../ddf/image.h"
 
 #include "r_defs.h"
 

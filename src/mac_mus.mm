@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE MAC OS X Native MUS Handling Code
+//  EDGE2 MAC OS X Native MUS Handling Code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -19,10 +19,10 @@
 #include "i_defs.h"
 #include "i_sdlinc.h"
 
-#include "epi/file.h"
-#include "epi/filesystem.h"
-#include "epi/mus_2_midi.h"
-#include "epi/path.h"
+#include "../epi/file.h"
+#include "../epi/filesystem.h"
+#include "../epi/mus_2_midi.h"
+#include "../epi/path.h"
 
 #include "dm_state.h"
 #include "s_music.h"

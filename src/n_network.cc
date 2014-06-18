@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Networking (New)
+//  EDGE2 Networking (New)
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 2004-2009  The EDGE Team.
+//  Copyright (c) 2004-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -22,8 +22,8 @@
 #include <limits.h>
 #include <stdlib.h>
 
-#include "epi/types.h"
-#include "epi/endianess.h"
+#include "../epi/types.h"
+#include "../epi/endianess.h"
 
 #include "n_bcast.h"
 #include "n_reliable.h"
@@ -37,7 +37,7 @@
 #include "m_argv.h"
 #include "m_random.h"
 
-// #define DEBUG_TICS 1
+#define DEBUG_TICS 1
 
 // only true if packets are exchanged with a server
 bool netgame = false;
@@ -77,8 +77,8 @@ void N_InitNetwork(void)
 
 	I_Printf("Network: base port is %d\n", base_port);
 
-///!!!	N_StartupReliableLink (base_port+0);
-///!!!	N_StartupBroadcastLink(base_port+1);
+	N_StartupReliableLink (base_port+0);
+	N_StartupBroadcastLink(base_port+1);
 }
 
 
@@ -163,7 +163,7 @@ static void GetPackets(bool do_delay)
 		p->in_tic++;
 	}
 
-//	SYS_ASSERT((raw_cmd - tg.tic_cmds) == (1 + bots_each));
+	SYS_ASSERT((raw_cmd - tg.tic_cmds) == (1 + bots_each));
 
 #endif
 
@@ -245,7 +245,7 @@ bool N_BuildTiccmds(void)
 		{
 			ticcmd_t *cmd;
 
-///     L_WriteDebug("N_BuildTiccmds: pnum %d netgame %c\n", pnum, netgame ? 'Y' : 'n');
+     L_WriteDebug("N_BuildTiccmds: pnum %d netgame %c\n", pnum, netgame ? 'Y' : 'n');
 
 			if (false) // FIXME: temp hack!!!  if (netgame)
 				cmd = &p->out_cmds[maketic % (MP_SAVETICS*2)];
@@ -450,8 +450,8 @@ void N_TiccmdTicker(void)
 		{
 			if (gametic > BACKUPTICS && p->consistency[buf] != p->cmd.consistency)
 			{
-// !!!! DEBUG //	I_Warning("Consistency failure on player %d (%i should be %i)",
-//					p->pnum + 1, p->cmd.consistency, p->consistency[buf]);
+                    I_Warning("Consistency failure on player %d (%i should be %i)",
+					p->pnum + 1, p->cmd.consistency, p->consistency[buf]);
 			}
 			if (p->mo)
 				p->consistency[buf] = (int)p->mo->x;

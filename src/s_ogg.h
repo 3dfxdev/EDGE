@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE OGG Music Player (HEADER)
+//  EDGE2 OGG Music Player (HEADER)
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 2004-2009  The EDGE Team.
+//  Copyright (c) 2004-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -23,9 +23,9 @@
 
 #include "i_defs.h"
 
-#include <vorbis/vorbisfile.h>
+#include <C:\hyperedge\edge2\lib_win32\libvorbis-1.3.2\include\vorbis\vorbisfile.h>
 
-#include "epi/sound_data.h"
+#include "../epi/sound_data.h"
 
 class pl_entry_c;
 

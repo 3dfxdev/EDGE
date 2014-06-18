@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Strings
+//  EDGE2 Strings
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -27,9 +27,9 @@
 #define __DOOM_STRINGS__
 
 // Misc. other strings.
-#define REQUIREDWAD    "edge"
-#define EDGECONFIGFILE "edge.cfg"
-#define EDGELOGFILE    "edge.log"
+#define REQUIREDWAD    "EDGE2"
+#define EDGECONFIGFILE "EDGE2.cfg"
+#define EDGELOGFILE    "EDGE2.log"
 
 #define EDGEGWAEXT     "gwa"
 #define EDGEHWAEXT     "hwa"
@@ -41,17 +41,17 @@
 
 #define CACHEDIR       "cache"
 #define SAVEGAMEDIR    "savegame"
-#define SCRNSHOTDIR    "screenshot"
+#define SCRNSHOTDIR    "screenshots"
 
 #define HUBDIR         "hubs"
 #define HUBBASE        "hub"
 
 #ifdef WIN32
-#define EDGEHOMESUBDIR  "Application Data\\Edge"
+#define EDGEHOMESUBDIR  "Application Data\\EDGE2"
 #elif MACOSX
-#define EDGEHOMESUBDIR  "Library/Application Support/EDGE"
+#define EDGEHOMESUBDIR  "Library/Application Support/EDGE2"
 #else // Linux
-#define EDGEHOMESUBDIR  ".edge"
+#define EDGEHOMESUBDIR  ".EDGE2"
 #endif
 
 #endif // __DOOM_STRINGS__

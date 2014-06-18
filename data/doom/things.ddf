@@ -1,12 +1,12 @@
 // 
-//    EDGE THINGS.DDF -redefine or add new thing entries.
+//    3DGE THINGS.DDF -redefine or add new thing entries.
 //    For documentation, see http://edge.sourceforge.net/
-//    DDF Version 6.1
+//    DDF Version 7
 //
 
 <THINGS>
 
-#VERSION 1.35
+#VERSION 1.36
 
 // ------------------------ Health Items ------------------------
 

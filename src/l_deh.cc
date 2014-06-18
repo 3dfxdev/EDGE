@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE DEH Interface
+//  EDGE2 DEH Interface
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -25,7 +25,7 @@
 
 #include "i_defs.h"
 
-#include "deh_edge/dh_plugin.h"
+#include "../deh_edge/dh_plugin.h"
 
 #include "l_deh.h"
 #include "version.h"
@@ -44,7 +44,7 @@ static void GCCATTR((format (printf,1,2)))
 	vsprintf(dh_message, str, args);
 	va_end(args);
 
-	I_Printf("DEH_EDGE: %s", dh_message);
+	I_Printf("../deh_edge: %s", dh_message);
 }
 
 //

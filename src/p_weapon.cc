@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Weapon (player sprites) Action Code
+//  EDGE2 Weapon (player sprites) Action Code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -43,7 +43,8 @@
 
 static sound_category_e WeapSfxCat(player_t *p)
 {
-	if (p == players[consoleplayer])
+    if (p == players[consoleplayer1])
+	//if (p->playerflags & PFL_Console)
 		return SNCAT_Weapon;
         
 	return SNCAT_Opponent;
@@ -130,13 +131,13 @@ void P_SetPspriteDeferred(player_t * p, int position, int stnum)
 //
 // -KM- 1998/12/16 Added check to make sure sprites exist.
 // -AJA- 2000: Made into a separate routine.
-//
+// -CA- : Fixed this gnarly weapons bug.
 bool P_CheckWeaponSprite(weapondef_c *info)
 {
 	if (info->up_state == S_NULL)
 		return false;
 
-	return W_CheckSpritesExist(info->state_grp);
+	return true;
 }
 
 static bool ButtonDown(player_t *p, int ATK)

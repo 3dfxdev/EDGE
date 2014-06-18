@@ -21,7 +21,7 @@
 #include "image_png.h"
 
 #undef _SETJMP_H  // workaround for some weirdness in pngconf.h
-#include <png.h>
+#include "../lib_win32/libpng-1.2.12/png.h"
 
 namespace epi
 {

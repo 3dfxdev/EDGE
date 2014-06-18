@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Zone Memory Allocation Code 
+//  EDGE2 Zone Memory Allocation Code 
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -25,7 +25,7 @@
 
 #include "i_defs.h"
 
-#include "epi/utility.h"
+#include "../epi/utility.h"
 
 #include "z_zone.h"
 

@@ -1,12 +1,12 @@
 //
-//    EDGE LANG_TNT.LDF - messages for TNT Evilution.
+//    3DGE LANG_TNT.LDF - messages for TNT Evilution.
 //    For documentation, see http://edge.sourceforge.net/
-//    DDF Version 6.1
+//    DDF Version 7
 //
 
 <LANGUAGES>
 
-#VERSION 1.35
+#VERSION 1.36
 
 // ------ English Language Definition File ----------
 

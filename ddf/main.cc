@@ -21,12 +21,12 @@
 #include <limits.h>
 #include <vector>
 
-#include "epi/path.h"
-#include "epi/str_format.h"
+#include "../epi/path.h"
+#include "../epi/str_format.h"
 
 #include "colormap.h"
 
-#include "src/p_action.h"
+#include "../src/p_action.h"
 
 
 // FIXME: unwanted link to engine code (switch to epi::angle_c)

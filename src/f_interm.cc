@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Intermission Code
+//  EDGE2 Intermission Code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -824,10 +824,10 @@ static void DrawDeathmatchStats(void)
 
 		// hightlight the console player
 #if 1
-		if (p == consoleplayer)
+		if (p == consoleplayer1)
 			t_type = styledef_c::T_ALT;
 #else
-		if (p == consoleplayer && ((bcnt & 31) < 16))
+		if (p == consoleplayer1 && ((bcnt & 31) < 16))
 			continue;
 #endif
 
@@ -1100,10 +1100,10 @@ static void DrawCoopStats(void)
 
 		// hightlight the console player
 #if 1
-		if (p == consoleplayer)
+		if (p == consoleplayer1)
 			t_type = styledef_c::T_ALT;
 #else
-		if (p == consoleplayer && ((bcnt & 31) < 16))
+		if (p == consoleplayer1 && ((bcnt & 31) < 16))
 			continue;
 #endif
 
@@ -1159,7 +1159,7 @@ static void UpdateSinglePlayerStats(void)
 {
 	//WI_updateAnimatedBack();
 
-	player_t *con_plyr = players[consoleplayer];
+	player_t *con_plyr = players[consoleplayer1];
 
 	const gamedef_c *gd = wi_stats.cur->episode;
 

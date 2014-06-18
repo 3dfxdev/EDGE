@@ -1,12 +1,12 @@
 // 
-//    EDGE LINES.DDF -redefine or add new line triggers.
+//    3DGE LINES.DDF -redefine or add new line triggers.
 //    For documentation, see http://edge.sourceforge.net/
-//    DDF Version 6.1
+//    DDF Version 7
 //
 
 <LINES>
 
-#VERSION 1.35
+#VERSION 1.36
 
 [1] // Open Door (closes)
 TYPE=MANUAL;

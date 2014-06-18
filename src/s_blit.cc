@@ -2,7 +2,7 @@
 //  Sound Blitter
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -28,6 +28,7 @@
 
 #include <list>
 
+#include "dm_state.h"  // splitscreen_mode
 #include "m_misc.h"
 #include "r_misc.h"   // R_PointToAngle
 #include "p_local.h"  // P_ApproxDistance
@@ -127,6 +128,12 @@ void mix_channel_c::ComputeDelta()
 
 void mix_channel_c::ComputeVolume()
 {
+	if (splitscreen_mode)
+	{
+		ComputeVolume_Split();
+		return;
+	}
+
 	float sep = 0.5f;
 	float mul = 1.0f;
 
@@ -161,6 +168,74 @@ void mix_channel_c::ComputeVolume()
 	// strictly linear equations
 	volume_L = (int) (MAX_VOL * (1.0 - sep));
 	volume_R = (int) (MAX_VOL * (0.0 + sep));
+
+	if (var_sound_stereo == 2)  /* SWAP ! */
+	{
+		int tmp = volume_L;
+		volume_L = volume_R;
+		volume_R = tmp;
+	}
+}
+
+void mix_channel_c::ComputeVolume_Split()
+{
+	float MAX_VOL = (1 << (16 - SAFE_BITS - (var_quiet_factor-1))) - 3;
+
+	MAX_VOL = MAX_VOL * slider_to_gain[sfx_volume];
+
+	if (def)
+		MAX_VOL *= PERCENT_2_FLOAT(def->volume);
+
+// fprintf(stderr, "ComputeVolume_Split: %s pos:%p category:%d split:%d\n",
+//         def ? def->name.c_str() : "??????", pos, category, split);
+
+	if (pos && category >= SNCAT_Opponent && ! boss)
+	{
+		player_t *player1 = players[consoleplayer1];
+		player_t *player2 = players[consoleplayer2];
+
+		float x1 = 0, x2 = 0;
+		float y1 = 0, y2 = 0;
+		float z1 = 0, z2 = 0;
+
+		if (player1 && player1->mo)
+		{
+			x1 = player1->mo->x;
+			y1 = player1->mo->y;
+			z1 = player1->mo->z;
+		}
+
+		if (player2 && player2->mo)
+		{
+			x2 = player2->mo->x;
+			y2 = player2->mo->y;
+			z2 = player2->mo->z;
+		}
+
+		float d1 = P_ApproxDistance(x1 - pos->x, y1 - pos->y, z1 - pos->z);
+		float d2 = P_ApproxDistance(x2 - pos->x, y2 - pos->y, z2 - pos->z);
+
+		float m1 = exp(-MAX(1.0f, d1 - S_CLOSE_DIST) / 800.0f);
+		float m2 = exp(-MAX(1.0f, d2 - S_CLOSE_DIST) / 800.0f);
+
+		volume_L = MAX_VOL * m1;
+		volume_R = MAX_VOL * m2;
+	}
+	else if (split == 1)
+	{
+		volume_L = MAX_VOL;
+		volume_R = 0;
+	}
+	else if (split == 2)
+	{
+		volume_L = 0;
+		volume_R = MAX_VOL;
+	}
+	else
+	{
+		volume_L = MAX_VOL;
+		volume_R = MAX_VOL;
+	}
 
 	if (var_sound_stereo == 2)  /* SWAP ! */
 	{

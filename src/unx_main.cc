@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Linux Main
+//  EDGE2 Linux Main
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2008  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -42,7 +42,7 @@ static void I_SignalHandler(int s)
 		// -AJA- linux signals reset when raised.
 		signal(SIGPIPE, I_SignalHandler);
 
-		fprintf(stderr, "EDGE: Broken pipe\n");
+		fprintf(stderr, "EDGE2: Broken pipe\n");
 		return;
 	}
 
@@ -50,14 +50,14 @@ static void I_SignalHandler(int s)
 
 	switch (s)
 	{
-		case SIGSEGV: I_Error("EDGE: Segmentation Violation"); break;
-		case SIGINT:  I_Error("EDGE: Interrupted by User"); break;
-		case SIGILL:  I_Error("EDGE: Illegal Instruction"); break;
-		case SIGFPE:  I_Error("EDGE: Floating Point Exception"); break;
-		case SIGTERM: I_Error("EDGE: Killed"); break;
+		case SIGSEGV: I_Error("EDGE2: Segmentation Violation"); break;
+		case SIGINT:  I_Error("EDGE2: Interrupted by User"); break;
+		case SIGILL:  I_Error("EDGE2: Illegal Instruction"); break;
+		case SIGFPE:  I_Error("EDGE2: Floating Point Exception"); break;
+		case SIGTERM: I_Error("EDGE2: Killed"); break;
 	}
 
-	I_Error("EDGE: Terminated by signal %d", s);
+	I_Error("EDGE2: Terminated by signal %d", s);
 }
 
 #if 0
@@ -70,7 +70,7 @@ void ChangeToExeDir(const char *full_path)
 
 #ifdef MACOSX
         // -AJA- It seems argv[0] points directly to the "gledge" binary
-        //       inside of the Edge.app folder (when run from the Finder).
+        //       inside of the EDGE2.app folder (when run from the Finder).
         //       Hence we need to strip the extra bits off.
         const char *app = r - 4;
 
@@ -122,7 +122,7 @@ int main(int argc, const char **argv)
 	signal(SIGABRT, I_SignalHandler);
 #endif
 
-	// Run EDGE. it never returns
+	// Run EDGE2. it never returns
 	E_Main(argc, (const char **) argv);
 
 	return 0;

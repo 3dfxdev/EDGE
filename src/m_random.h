@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Pseudo-Random Number Code (via LUT)
+//  EDGE2 Pseudo-Random Number Code (via LUT)
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -26,7 +26,7 @@
 #ifndef __M_RANDOM__
 #define __M_RANDOM__
 
-#include "ddf/types.h"
+#include "../ddf/types.h"
 
 int M_Random(void);
 int P_Random(void);

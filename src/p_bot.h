@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE: DeathBots
+//  EDGE2: DeathBots
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -26,7 +26,7 @@
 #ifndef __P_BOT_H__
 #define __P_BOT_H__
 
-#include "ddf/types.h"
+#include "../ddf/types.h"
 
 
 extern int bot_skill;  // 0 to 2

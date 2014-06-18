@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Lighting Shaders
+//  EDGE2 Lighting Shaders
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -19,9 +19,9 @@
 #include "i_defs.h"
 #include "i_defs_gl.h"
 
-#include "ddf/main.h"
+#include "../ddf/main.h"
 
-#include "epi/image_data.h"
+#include "../epi/image_data.h"
 
 #include "p_mobj.h"
 #include "r_defs.h"
@@ -650,7 +650,7 @@ public:
 //  LASER GLOWS
 //----------------------------------------------------------------------------
 
-#if 0  // POSSIBLE FUTURE FEATURE
+//#if 0  // POSSIBLE FUTURE FEATURE
 
 class laser_glow_c : public abstract_shader_c
 {
@@ -762,7 +762,7 @@ public:
 	}
 };
 
-#endif
+//#endif
 
 
 //--- editor settings ---

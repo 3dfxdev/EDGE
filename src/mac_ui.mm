@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE MAC UI System Code (Error messages etc...)
+//  EDGE2 MAC UI System Code (Error messages etc...)
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 2009  The EDGE Team.
+//  Copyright (c) 2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License

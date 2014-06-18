@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Console Main
+//  EDGE2 Console Main
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -18,11 +18,11 @@
 
 #include "i_defs.h"
 
-#include "epi/filesystem.h"
-#include "epi/math_crc.h"
+#include "../epi/filesystem.h"
+#include "../epi/math_crc.h"
 
-#include "ddf/language.h"
-#include "ddf/sfx.h"
+#include "../ddf/language.h"
+#include "../ddf/sfx.h"
 
 #include "con_main.h"
 #include "con_var.h"
@@ -375,7 +375,7 @@ int CMD_ShowJoysticks(char **argv, int argc)
 
 int CMD_Help(char **argv, int argc)
 {
-	I_Printf("Welcome to the EDGE Console.\n");
+	I_Printf("Welcome to the EDGE2 Console.\n");
 	I_Printf("\n");
 	I_Printf("Use the 'showcmds' command to list all commands.\n");
 	I_Printf("The 'showvars' command will list all variables.\n");
@@ -395,7 +395,7 @@ int CMD_Help(char **argv, int argc)
 
 int CMD_Version(char **argv, int argc)
 {
-	I_Printf("EDGE v" EDGEVERSTR "\n");
+	I_Printf("3DGE v" EDGEVERSTR "\n");
 	return 0;
 }
 
@@ -633,7 +633,7 @@ void CON_PlayerMessage(int plyr, const char *message, ...)
 	va_list argptr;
 	char buffer[256];
 
-	if (consoleplayer != plyr)
+	if (consoleplayer1 != plyr)
 		return;
 
 	Z_Clear(buffer, char, 256);
@@ -657,7 +657,7 @@ void CON_PlayerMessageLDF(int plyr, const char *lookup, ...)
 	va_list argptr;
 	char buffer[256];
 
-	if (consoleplayer != plyr)
+	if (consoleplayer1 != plyr)
 		return;
 
 	lookup = language[lookup];

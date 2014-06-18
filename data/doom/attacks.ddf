@@ -1,12 +1,12 @@
 // 
-//    EDGE ATTACKS.DDF -redefine or add new attacks.
+//    3DGE ATTACKS.DDF -redefine or add new attacks.
 //    For documentation, see http://edge.sourceforge.net/
-//    DDF Version 6.1
+//    DDF Version 7
 //
 
 <ATTACKS>
 
-#VERSION 1.35
+#VERSION 1.36
 
 //------------------ Player Attacks ------------------
 

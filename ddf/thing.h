@@ -19,7 +19,7 @@
 #ifndef __DDF_MOBJ_H__
 #define __DDF_MOBJ_H__
 
-#include "epi/utility.h"
+#include "../epi/utility.h"
 
 #include "types.h"
 #include "states.h"
@@ -511,6 +511,8 @@ typedef enum
 	// player must be pressing an Action key
 	COND_Action1,
 	COND_Action2,
+	COND_Action3,
+	COND_Action4,
 
 	// player must be walking
 	COND_Walking
@@ -808,6 +810,7 @@ public:
 	struct sfx_s *activesound;
 	struct sfx_s *walksound;
 	struct sfx_s *jump_sound;
+	struct sfx_s *falling_sound;
 	struct sfx_s *noway_sound;
 	struct sfx_s *oof_sound;
 	struct sfx_s *gasp_sound;

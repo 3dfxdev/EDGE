@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE SDL Controller Stuff
+//  EDGE2 SDL Controller Stuff
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -55,7 +55,7 @@ static int joy_num_hats;
 static int joy_num_balls;
 
 //
-// Translates a key from SDL -> EDGE
+// Translates a key from SDL -> EDGE2
 // Returns -1 if no suitable translation exists.
 //
 int TranslateSDLKey(int key)

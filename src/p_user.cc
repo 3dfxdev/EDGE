@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Player User Code
+//  EDGE2 Player User Code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -27,7 +27,7 @@
 
 #include <float.h>
 
-#include "ddf/colormap.h"
+#include "../ddf/colormap.h"
 
 #include "dm_state.h"
 #include "e_input.h"
@@ -39,6 +39,8 @@
 #include "s_sound.h"
 #include "z_zone.h"
 
+#define	FRACBITS		16
+#define	FRACUNIT		(1<<FRACBITS)
 
 static void P_UpdatePowerups(player_t *player);
 
@@ -55,6 +57,7 @@ static sfx_t * sfx_jpflow;
 static void CalcHeight(player_t * player)
 {
 	bool onground = player->mo->z <= player->mo->floorz;
+	bool still = false;
 
 	if (player->mo->height < (player->mo->info->height + player->mo->info->crouchheight) / 2.0f)
 		player->mo->extendedflags |= EF_CROUCHING;
@@ -74,6 +77,12 @@ static void CalcHeight(player_t * player)
 
 	player->bob = (player->mo->mom.x * player->mo->mom.x
 		+ player->mo->mom.y * player->mo->mom.y) / 8;
+	
+	if (bob_z == 0)
+		{
+			still = true;
+		}
+		else
 
 	if (player->bob > MAXBOB)
 		player->bob = MAXBOB;
@@ -84,6 +93,8 @@ static void CalcHeight(player_t * player)
 		angle_t angle = ANG90 / 5 * leveltime;
 
 		bob_z = player->bob / 2 * player->mo->info->bobbing * M_Sin(angle);
+		
+		
 	}
 
 	// ----CALCULATE VIEWHEIGHT----
@@ -111,7 +122,27 @@ static void CalcHeight(player_t * player)
 			player->deltaviewheight += 0.24162f;
 		}
 	}
+	
+	//----CALCULATE FREEFALL EFFECT, WITH SOUND EFFECTS (code based on HEXEN)
+	//  CORBIN, on:
+	//  6/6/2011 - Fix this so RTS does NOT interfere with fracunits (it does in Hypertension's E1M1 starting script)!
+    //  6/7/2011 - Ajaped said to remove FRACUNIT...seeya oldness.
+    
+	if ((player->mo->mom.z <= -35.0)&&(player->mo->mom.z >= -40.0))
+	if (player->mo->info->falling_sound)
+	{
+	    int sfx_cat;
 
+		if (player == players[consoleplayer1])
+			sfx_cat = SNCAT_Player;
+		else
+			sfx_cat = SNCAT_Opponent;
+                             //		player->mo->mom.z >= -40*FRACUNIT;
+			{
+					S_StartFX(player->mo->info->falling_sound, sfx_cat, player->mo);
+			}
+	}
+//#endif 
 	// don't apply bobbing when jumping, but have a smooth
 	// transition at the end of the jump.
 	if (player->jumpwait > 0)
@@ -133,6 +164,7 @@ I_Debugf("Jump:%d bob_z:%1.2f  z:%1.2f  height:%1.2f delta:%1.2f --> viewz:%1.3f
 }
 
 
+
 void P_PlayerJump(player_t *pl, float dz, int wait)
 {
 	pl->mo->mom.z += pl->mo->info->jumpheight / 1.4f;
@@ -150,7 +182,7 @@ void P_PlayerJump(player_t *pl, float dz, int wait)
 	{
 		int sfx_cat;
 
-		if (pl == players[consoleplayer])
+		if (pl->playerflags & PFL_Console)
 			sfx_cat = SNCAT_Player;
 		else
 			sfx_cat = SNCAT_Opponent;
@@ -212,7 +244,7 @@ static void MovePlayer(player_t * player)
 		player->mo->vertangle = 0;
 	}
 
-	// EDGE Feature: Vertical Centering
+	// EDGE2 Feature: Vertical Centering
 	//
 	// -ACB- 1998/07/02 Re-routed via Ticcmd
 	//
@@ -284,7 +316,7 @@ static void MovePlayer(player_t * player)
 	{
         int sfx_cat;
 
-        if (player == players[consoleplayer])
+        if (player->playerflags & PFL_Console)
             sfx_cat = SNCAT_Player;
         else
             sfx_cat = SNCAT_Opponent;
@@ -315,7 +347,7 @@ static void MovePlayer(player_t * player)
 		}
 	}
 
-	// EDGE Feature: Jump Code
+	// EDGE2 Feature: Jump Code
 	//
 	// -ACB- 1998/08/09 Check that jumping is allowed in the currmap
 	//                  Make player pause before jumping again
@@ -325,12 +357,12 @@ static void MovePlayer(player_t * player)
 	{
 		if (!jumping && !crouching && !swimming && !flying && onground && !onladder)
 		{
-			P_PlayerJump(player, player->mo->info->jumpheight / 1.4f,
+			P_PlayerJump(player, player->mo->info->jumpheight / 1.9f,
 			             player->mo->info->jump_delay);
 		}
 	}
 
-	// EDGE Feature: Crouching
+	// EDGE2 Feature: Crouching
 
 	if (level_flags.crouch && mo->info->crouchheight > 0 &&
 		(player->cmd.upwardmove < -4) &&
@@ -550,9 +582,9 @@ static void P_UpdatePowerups(player_t *player)
 // Does the thinking of the console player, i.e. read from input
 void P_ConsolePlayerBuilder(const player_t *pl, void *data, ticcmd_t *dest)
 {
-	E_BuildTiccmd(dest);
-
 	dest->player_idx = pl->pnum;
+
+	E_BuildTiccmd(dest);
 }
 
 static u16_t MakeConsistency(const player_t *pl)
@@ -603,6 +635,7 @@ void P_PlayerThink(player_t * player)
 	ticcmd_t *cmd;
 
 	SYS_ASSERT(player->mo);
+	
 
 #if 0  // DEBUG ONLY
 	{
@@ -708,6 +741,8 @@ void P_PlayerThink(player_t * player)
 
 	player->actiondown[0] = (cmd->extbuttons & EBT_ACTION1) ? true : false;
 	player->actiondown[1] = (cmd->extbuttons & EBT_ACTION2) ? true : false;
+	player->actiondown[2] = (cmd->extbuttons & EBT_ACTION3) ? true : false;
+	player->actiondown[3] = (cmd->extbuttons & EBT_ACTION4) ? true : false;
 
 	// decrement jumpwait counter
 	if (player->jumpwait > 0)
@@ -807,8 +842,9 @@ void P_DestroyAllPlayers(void)
 	numplayers = 0;
 	numbots = 0;
 
-	consoleplayer = -1;
-	displayplayer = -1;
+	consoleplayer1 = -1;
+	consoleplayer2 = -1;
+	displayplayer  = -1;
 
 	sfx_jpidle = sfx_jpmove = sfx_jprise = NULL;
 	sfx_jpdown = sfx_jpflow = NULL;

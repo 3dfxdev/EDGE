@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Humidity Music Player
+//  EDGE2 Humidity Music Player
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 2005-2009  The EDGE Team.
+//  Copyright (c) 2005-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -28,8 +28,8 @@
 #include "i_defs.h"
 #include "i_defs_al.h"
 
-#include "epi/endianess.h"
-#include "epi/mus_2_midi.h"
+#include "../epi/endianess.h"
+#include "../epi/mus_2_midi.h"
 
 #include "humidity/hum_buffer.h"
 

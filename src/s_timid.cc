@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Timidity Music Player
+//  EDGE2 Timidity Music Player
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 2004-2009  The EDGE Team.
+//  Copyright (c) 2004-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -18,13 +18,13 @@
 
 #include "i_defs.h"
 
-#include "epi/file.h"
-#include "epi/filesystem.h"
-#include "epi/mus_2_midi.h"
-#include "epi/path.h"
-#include "epi/str_format.h"
+#include "../epi/file.h"
+#include "../epi/filesystem.h"
+#include "../epi/mus_2_midi.h"
+#include "../epi/path.h"
+#include "../epi/str_format.h"
 
-#include "timidity/timidity.h"
+#include "../timidity/timidity.h"
 
 #include "s_blit.h"
 #include "s_music.h"
@@ -236,7 +236,7 @@ static const char *config_sub_dirs[] =
 #ifdef WIN32
 	"timidity\\patches",
 #else
-	"timidity/patches",
+	"../timidity/patches",
 #endif
 
 	NULL // end of list

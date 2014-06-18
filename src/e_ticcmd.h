@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-// EDGE Tic Command Definition
+// EDGE2 Tic Command Definition
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -93,7 +93,7 @@ buttoncode_e;
 
 
 //
-// Extended Buttons: EDGE Specfics
+// Extended Buttons: EDGE2 Specfics
 // -ACB- 1998/07/03
 //
 typedef enum
@@ -112,6 +112,8 @@ typedef enum
 	// -AJA- 2009/09/07: custom action buttons
 	EBT_ACTION1 = 64,
 	EBT_ACTION2 = 128,
+	EBT_ACTION3 = 256,
+	EBT_ACTION4 = 512,
 }
 extbuttoncode_e;
 

@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Main
+//  EDGE2 Main
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -19,7 +19,7 @@
 #include "i_defs.h"
 #include "i_sdlinc.h"  // needed for proper SDL main linkage
 
-#include "epi/exe_path.h"
+#include "../epi/exe_path.h"
 
 #include "dm_defs.h"
 #include "m_argv.h"
@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
     //                  executable is globally installed
 #endif
 
-	// Run EDGE. it never returns
+	// Run EDGE2. it never returns
 	E_Main(argc, (const char **) argv);
 
 	return 0;

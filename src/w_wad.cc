@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE WAD Support Code
+//  EDGE2 WAD Support Code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -39,22 +39,22 @@
 
 #include <list>
 
-#include "epi/endianess.h"
-#include "epi/file.h"
-#include "epi/file_sub.h"
-#include "epi/filesystem.h"
-#include "epi/math_md5.h"
-#include "epi/path.h"
-#include "epi/str_format.h"
-#include "epi/utility.h"
+#include "../epi/endianess.h"
+#include "../epi/file.h"
+#include "../epi/file_sub.h"
+#include "../epi/filesystem.h"
+#include "../epi/math_md5.h"
+#include "../epi/path.h"
+#include "../epi/str_format.h"
+#include "../epi/utility.h"
 
-#include "ddf/main.h"
-#include "ddf/anim.h"
-#include "ddf/colormap.h"
-#include "ddf/font.h"
-#include "ddf/image.h"
-#include "ddf/style.h"
-#include "ddf/switch.h"
+#include "../ddf/main.h"
+#include "../ddf/anim.h"
+#include "../ddf/colormap.h"
+#include "../ddf/font.h"
+#include "../ddf/image.h"
+#include "../ddf/style.h"
+#include "../ddf/switch.h"
 
 #include "dm_data.h"
 #include "dm_defs.h"
@@ -845,7 +845,7 @@ static void AddLump(data_file_c *df, int lump, int pos, int size, int file,
 // CheckForLevel
 //
 // Tests whether the current lump is a level marker (MAP03, E1M7, etc).
-// Because EDGE supports arbitrary names (via DDF), we look at the
+// Because EDGE2 supports arbitrary names (via DDF), we look at the
 // sequence of lumps _after_ this one, which works well since their
 // order is fixed (e.g. THINGS is always first).
 //
@@ -1181,7 +1181,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 	if (within_hires_list)
 		I_Warning("Missing HI_END marker in %s.\n", filename);
    
-	// -AJA- 1999/12/25: What did Santa bring EDGE ?  Just some support
+	// -AJA- 1999/12/25: What did Santa bring EDGE2 ?  Just some support
 	//       for "GWA" files (part of the "GL-Friendly Nodes" specs).
   
 	if (kind <= FLKIND_EWad && df->level_markers.GetSize() > 0)
@@ -1321,6 +1321,7 @@ static bool TryLoadExtraLanguage(const char *name)
 }
 
 // MUNDO HACK, but if only fixable by a new wad structure...
+// CA - this will be changed to read the HERETIC language file 2.24.2013
 static void LoadTntPlutStrings(void)
 {
 	if (DDF_CompareName(iwad_base.c_str(), "TNT") == 0)
@@ -1328,6 +1329,9 @@ static void LoadTntPlutStrings(void)
 
 	if (DDF_CompareName(iwad_base.c_str(), "PLUTONIA") == 0)
 		TryLoadExtraLanguage("PLUTLANG");
+		
+//	if (DDF_CompareName(iwad_base.c_str(), "HERETIC") == 0)
+//	    TryLoadExtraLanguage("HTICLANG");
 }
 
 
@@ -1367,6 +1371,7 @@ void W_ReadDDF(void)
 			if (df->kind == FLKIND_EWad)
 			{
 				// special handling for TNT and Plutonia
+				// edit for HERETIC iwad
 				if (d == LANG_READER)
 					LoadTntPlutStrings();
 
@@ -2036,7 +2041,7 @@ void W_ProcessTX_HI(void)
 
 static const char *FileKind_Strings[] =
 {
-	"iwad", "pwad", "edge", "gwa", "hwa",
+	"iwad", "pwad", "EDGE2", "gwa", "hwa",
 	"lump", "ddf",  "demo", "rts", "deh",
 	"???",  "???",  "???",  "???"
 };

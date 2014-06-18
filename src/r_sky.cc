@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE OpenGL Rendering (Skies)
+//  EDGE2 OpenGL Rendering (Skies)
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-#include "epi/image_data.h"
+#include "../epi/image_data.h"
 
 #include "dm_state.h"
 #include "m_math.h"
@@ -470,6 +470,9 @@ void RGL_DrawSkyOriginal(void)
  
 	// FIXME for widescreen
 	float FIELDOFVIEW = CLAMP(5, r_fov.f, 175);
+
+	if (splitscreen_mode)
+		FIELDOFVIEW = FIELDOFVIEW / 1.5;
 
 	float focal_len = tan(FIELDOFVIEW * M_PI / 360.0);
 	float centerxfrac = SCREENWIDTH / 2.0f;

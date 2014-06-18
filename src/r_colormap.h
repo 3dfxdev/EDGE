@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Colour Code
+//  EDGE2 Colour Code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -28,9 +28,9 @@
 
 #include "dm_defs.h"
 
-#include "ddf/types.h"
-#include "ddf/main.h"
-#include "ddf/colormap.h"
+#include "../ddf/types.h"
+#include "../ddf/main.h"
+#include "../ddf/colormap.h"
 
 #include "r_defs.h"
 

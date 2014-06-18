@@ -2,7 +2,7 @@
 //  Texture Conversion and Caching code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -23,9 +23,9 @@
 
 #include "i_defs.h"
 
-#include "epi/arrays.h"
-#include "epi/endianess.h"
-#include "epi/utility.h"
+#include "../epi/arrays.h"
+#include "../epi/endianess.h"
+#include "../epi/utility.h"
 
 #include "dm_structs.h"
 #include "e_search.h"

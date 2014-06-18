@@ -2,7 +2,7 @@
 //  Sound Caching
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -27,14 +27,14 @@
 
 #include <vector>
 
-#include "epi/file.h"
-#include "epi/filesystem.h"
-#include "epi/file_memory.h"
-#include "epi/sound_data.h"
-#include "epi/sound_wav.h"
+#include "../epi/file.h"
+#include "../epi/filesystem.h"
+#include "../epi/file_memory.h"
+#include "../epi/sound_data.h"
+#include "../epi/sound_wav.h"
 
-#include "ddf/main.h"
-#include "ddf/sfx.h"
+#include "../ddf/main.h"
+#include "../ddf/sfx.h"
 
 #include "s_sound.h"
 #include "s_cache.h"

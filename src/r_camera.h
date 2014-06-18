@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE OpenGL Rendering (Camera defs)
+//  EDGE2 OpenGL Rendering (Camera defs)
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 2004-2009  The EDGE Team.
+//  Copyright (c) 2004-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -19,9 +19,9 @@
 #ifndef __RGL_CAMERA__
 #define __RGL_CAMERA__
 
-#include "epi/math_angle.h"
-#include "epi/math_bbox.h"
-#include "epi/math_vector.h"
+#include "../epi/math_angle.h"
+#include "../epi/math_bbox.h"
+#include "../epi/math_vector.h"
 
 class camera_c
 {
@@ -83,7 +83,7 @@ public:
 	{
 		HIT_OUTSIDE = 0,  // fully outside the cone/frustum
 		HIT_INSIDE,       // fully inside the cone/frustum
-		HIT_PARTIAL,      // intersects the edge of the cone/frustum
+		HIT_PARTIAL,      // intersects the EDGE2 of the cone/frustum
 		HIT_SURROUND,     // the sphere/bbox surrounds the camera
 	};
 

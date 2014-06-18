@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Thinker & Ticker Code
+//  EDGE2 Thinker & Ticker Code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -53,7 +53,7 @@ void P_Ticker(void)
 
 	// pause if in menu and at least one tic has been run
 	if (!netgame && (menuactive || rts_menuactive) &&
-		players[consoleplayer]->viewz != FLO_UNUSED)
+		players[consoleplayer1]->viewz != FLO_UNUSED)
 	{
 		return;
 	}

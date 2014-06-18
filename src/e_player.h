@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Player Definition
+//  EDGE2 Player Definition
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -41,7 +41,7 @@
 // as commands per game tick.
 #include "e_ticcmd.h"
 
-#include "ddf/colormap.h"  // colmap.ddf stuff
+#include "../ddf/colormap.h"  // colmap.ddf stuff
 
 // Networking and tick handling related.
 #define BACKUPTICS 12
@@ -63,9 +63,9 @@ extern int numplayers;
 extern int numbots;
 
 // Player taking events, and displaying.
-extern int consoleplayer;
-extern int displayplayer;
-
+extern int consoleplayer1;
+extern int consoleplayer2;
+extern int displayplayer;  // not used in splitscreen_mode
 //
 // Player states.
 //
@@ -336,6 +336,7 @@ void G_HubSpawnPlayer(player_t *p, int tag);
 void G_SpawnVoodooDolls(player_t *p);
 
 void G_SetConsolePlayer(int pnum);
+void G_SetConsole2_Player(int pnum);
 void G_SetDisplayPlayer(int pnum);
 void G_ToggleDisplayPlayer(void);
 

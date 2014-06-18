@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-//  EDGE TITLE SCREEN
+//  EDGE2 TITLE SCREEN
 //----------------------------------------------------------------------------
 // 
 //  Copyright (c) 2009  Andrew Apted
@@ -373,13 +373,14 @@ static void DrawStars(int millies)
 static const char *edge_shape[7] =
 {
 	"                 ",
-	" 3#7 ##1 3#7 3#7 ",
-	" #   #8# #   #   ",
-	" #7  # # # 1 #7  ",
-	" #   #2# #2# #   ",
-	" 9#1 ##7 9## 9#1 ",
+	" ##1 ##1 3#7 3#7 ",
+	"   # #8# #   #   ",
+	"  ## # # # 1 #7  ",
+	"   # #2# #2# #   ",
+	" ##7 ##7 9## 9#1 ",    
 	"                 ",
 };
+
 
 static int edge_row_sizes[] =
 { 64, 24, 12, 12, 12, 24, 52 };
@@ -623,7 +624,8 @@ bool E_DrawSplash(int millies)
 
 void E_SplashScreen(void)
 {
-	srand(time(NULL));
+	//srand(time(NULL));
+	srand(I_PureRandom());
 
 	color = rand() & 7;
 

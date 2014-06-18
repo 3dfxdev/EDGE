@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE System Specific Header
+//  EDGE2 System Specific Header
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -19,7 +19,7 @@
 #ifndef __SYSTEM_SPECIFIC_DEFS__
 #define __SYSTEM_SPECIFIC_DEFS__
 
-#include "epi/epi.h"
+#include "../epi/epi.h"
 
 #include "con_var.h"
 #include "i_system.h"

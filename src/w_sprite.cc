@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Sprite Management
+//  EDGE2 Sprite Management
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -155,7 +155,7 @@ static int WhatRot(spriteframe_c *frame, const char *name, int pos )
 
 	int rot;
 
-	// NOTE: rotations 9 and A-G are EDGE specific.
+	// NOTE: rotations 9 and A-G are EDGE2 specific.
 
 	if ('0' <= rot_ch && rot_ch <= '9')
 		rot = (rot_ch - '0');

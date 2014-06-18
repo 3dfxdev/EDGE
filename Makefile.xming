@@ -4,25 +4,24 @@
 
 PROGRAM=edge.win32
 
-OBJDIR=obj_win32
-LIBDIR=lib_win32
-
+OBJDIR=C:/hyperedge/edge2/obj_win32
+LIBDIR=C:/hyperedge/edge2/lib_win32
 
 # ----------
 
 # The compiler and compiler flags
 
-CC=i586-mingw32msvc-gcc
-CXX=i586-mingw32msvc-g++
+CC=gcc
+CXX=g++
+ld=gcc
+CFLAGS=-O2 -ffast-math -fno-strict-aliasing -Wall -I
 
-CFLAGS=-O2 -ffast-math -fno-strict-aliasing -Wall
-
-CFLAGS += -I.
+CFLAGS += -I
 
 
-LDFLAGS=-Wl,--warn-common
+LDFLAGS=-Wl,--warn-common -I
 
-LDFLAGS += -lmingw32 -lm
+LDFLAGS += -l$C:\MinGW\lib\libmingw32.a -lm -I 
 
 
 # Operating System
@@ -32,43 +31,53 @@ CFLAGS += -DWIN32
 
 # SDL
 
-CFLAGS += -I$(LIBDIR)/SDL-1.2.13/include
+CFLAGS += -I$C:/hyperedge/edge2/lib_win32/SDL/include
 
-LDFLAGS += -L$(LIBDIR)/SDL-1.2.13/lib
-LDFLAGS += -lSDLmain -lSDL.dll
+LDFLAGS += -L$C:/hyperedge/edge2/lib_win32/SDL/lib
+LDFLAGS += -lmingw32 -l$C:/hyperedge/edge2/lib_win32/SDL/build/libSDLmain.a -l$C:/hyperedge/edge2/lib_win32/SDL/build/.libs/SDL.dll 
 
+# ROQPLAYER
+
+# CFLAGS += -I$C:/hyperedge/edge2/roqplay
+# LDFLAGS += -L$C:/hyperedge/edge2/roqplay
+# LDFLAGS += -l$C:/hyperedge/edge2/
 
 # OpenGL rendering
 
-CFLAGS  += -I$(LIBDIR)/glew-1.4/include
-LDFLAGS += -L$(LIBDIR)/glew-1.4/lib
-LDFLAGS += -lGLEW -lopengl32
+CFLAGS  += -I$C:/hyperedge/edge2/lib_win32/glew-1.5.8/include
+LDFLAGS += -L$C:/hyperedge/edge2/lib_win32/glew-1.5.8/lib
+LDFLAGS += -l$C:/hyperedge/edge2/lib_win32/glew-1.5.8/lib/libglew32.a -l$C:/hyperedge/edge2/lib_win32/glew-1.5.8/lib/libopengl32.a
 
+# HawkNL
+
+CFLAGS  += -I$C:/hyperedge/edge2/hawkNL/include
+LDFLAGS += -L$C:/hyperedge/edge2/hawkNL/include
+LDFLAGS += -l$C:/hyperedge/edge2/hawkNL/include/NLstatic.lib
 
 # PNG, JPEG and ZLIB
 
-CFLAGS  += -I$(LIBDIR)/libpng-1.2.12
-LDFLAGS += -L$(LIBDIR)/libpng-1.2.12
-LDFLAGS += -lpng
+CFLAGS  += -I$C:/hyperedge/edge2/lib_win32/libpng-1.2.12
+LDFLAGS += -L$C:/hyperedge/edge2/lib_win32/libpng-1.2.12
+LDFLAGS += -l$C:/hyperedge/edge2/lib_win32/libpng-1.2.12/libpng.a
 
-CFLAGS  += -I$(LIBDIR)/jpeg-6b
-LDFLAGS += -L$(LIBDIR)/jpeg-6b
-LDFLAGS += -ljpeg
+CFLAGS  += -I$C:/hyperedge/edge2/lib_win32/jpeg-6b
+LDFLAGS += -L$C:/hyperedge/edge2/lib_win32/jpeg-6b
+LDFLAGS += -l$C:/hyperedge/edge2/lib_win32/jpeg-6b/libjpeg.a
 
-CFLAGS  += -I$(LIBDIR)/zlib-1.2.3
-LDFLAGS += -L$(LIBDIR)/zlib-1.2.3
-LDFLAGS += -lz
+CFLAGS  += -I$C:/hyperedge/edge2/lib_win32/zlib-1.2.3/zlib-1.2.3
+LDFLAGS += -L$C:/hyperedge/edge2/lib_win32/zlib-1.2.3/zlib-1.2.3
+LDFLAGS += -l$C:/hyperedge/edge2/lib_win32/zlib-1.2.3/libz.a
 
 
 # OGG/Vorbis
 
 CFLAGS += -DUSE_OGG
-CFLAGS += -I$(LIBDIR)/libogg-1.1.3/include
-CFLAGS += -I$(LIBDIR)/libvorbis-1.1.2/include
+CFLAGS += -I$C:/hyperedge/edge2/lib_win32/libogg-1.2.2/include
+CFLAGS += -I$C:/hyperedge/edge2/lib_win32/libvorbis-1.3.2/include
 
-LDFLAGS += -L$(LIBDIR)/libogg-1.1.3/src
-LDFLAGS += -L$(LIBDIR)/libvorbis-1.1.2/lib
-LDFLAGS += -lvorbisfile -lvorbis -logg
+LDFLAGS += -L$C:/hyperedge/edge2/lib_win32/libogg-1.2.2/src
+LDFLAGS += -L$C:/hyperedge/edge2/lib_win32/libvorbis-1.3.2/lib
+LDFLAGS += -l$C:/hyperedge/edge2/lib_win32/libvorbis-1.3.2/lib/libvorbisfile.a -l$C:/hyperedge/edge2/lib_win32/libvorbis-1.3.2/lib/libvorbis.a -l$C:/hyperedge/edge2/lib_win32/libogg-1.2.2/src/libogg.a
 
 
 # glBSP
@@ -78,13 +87,12 @@ CFLAGS_GLBSP=-O -Wall -fno-strict-aliasing
 CFLAGS_GLBSP += -DGLBSP_PLUGIN
 CFLAGS_GLBSP += -DINLINE_G=inline
 
-CFLAGS_GLBSP += -I$(LIBDIR)/zlib-1.2.3
+CFLAGS_GLBSP += -I$C:/hyperedge/edge2/lib_win32/zlib-1.2.3
 
 
 # Win32 libs
 
-LDFLAGS += -lwsock32 -lwinmm -lgdi32 -ldxguid -ldinput -mwindows
-
+LDFLAGS += -lwsock32 -lwinmm -lgdi32 -ldxguid -ldinput -mwindows -static
 
 # ----------
 
@@ -93,7 +101,7 @@ LDFLAGS += -lwsock32 -lwinmm -lgdi32 -ldxguid -ldinput -mwindows
 all: makedirs $(PROGRAM)
 
 stripped: $(PROGRAM)
-	i586-mingw32msvc-strip --strip-unneeded $(PROGRAM)
+	strip --strip-unneeded $(PROGRAM)
 
 clean:
 	rm -f $(PROGRAM) $(OBJDIR)/*/*.* 
@@ -112,6 +120,10 @@ makedirs:
 
 .PHONY: all stripped clean halfclean makedirs
 
+
+# ---------- Includes -----------
+
+CFLAGS += -I../
 
 # ---------- Coal ---------------
 
@@ -196,6 +208,7 @@ EDGE_OBJS= \
 	$(OBJDIR)/edge/e_player.o   \
 	$(OBJDIR)/edge/f_finale.o   \
 	$(OBJDIR)/edge/f_interm.o   \
+	$(OBJDIR)/edge/e_splash.o   \
 	$(OBJDIR)/edge/g_game.o     \
 	$(OBJDIR)/edge/hu_draw.o    \
 	$(OBJDIR)/edge/hu_font.o    \
@@ -283,10 +296,11 @@ EDGE_OBJS= \
 	$(OBJDIR)/edge/w32_mus.o    \
 	$(OBJDIR)/edge/w32_net.o    \
 	$(OBJDIR)/edge/w32_res.o    \
-	$(OBJDIR)/edge/w32_system.o
+	$(OBJDIR)/edge/w32_system.o 
+
 
 $(OBJDIR)/edge/w32_res.o: src/w32_res.rc
-	i586-mingw32msvc-windres $^ -o $@
+	windres $^ -o $@
 
 $(OBJDIR)/edge/%.o: src/%.cc
 	$(CXX) $(CFLAGS) -o $@ -c $< 
@@ -381,3 +395,4 @@ $(PROGRAM) : $(COAL_OBJS) \
 
 #--- editor settings ------------
 # vi:ts=8:sw=8:noexpandtab
+# 	$(OBJDIR)/edge/r_fps.o        \ (for FPS), PrBOOM 	||          $(OBJDIR)/edge/s_roqplay.o   \

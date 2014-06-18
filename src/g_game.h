@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Game Handling Code
+//  EDGE2 Game Handling Code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -26,7 +26,7 @@
 #ifndef __G_GAME__
 #define __G_GAME__
 
-#include "ddf/main.h"
+#include "../ddf/main.h"
 #include "dm_defs.h"
 #include "e_event.h"
 #include "e_player.h"
@@ -95,6 +95,8 @@ public:
 	void SinglePlayer(int num_bots = 0);
 	// setup for single player (no netgame) and possibly some bots.
 
+	void Splitscreen();
+
 	void CopyFlags(const gameflags_t *F);
 };
 
@@ -107,7 +109,7 @@ public:
 // -ACB- 1998/08/10 New DDF Structure, Use map reference name.
 //
 void G_DeferredNewGame(newgame_params_c& params);
-
+void G_DeferredInitNew(skill_t skill, char* mapname, bool StartSplitScreenGame);
 // Can be called by the startup code or M_Responder,
 // calls P_SetupLevel or W_EnterWorld.
 void G_DeferredLoadGame(int slot);
@@ -134,6 +136,7 @@ extern const mapdef_c* currmap;
 extern const mapdef_c* nextmap;
 
 mapdef_c* G_LookupMap(const char *refname);
+
 
 void G_DoLoadLevel(void);         // for demo code
 void G_SpawnInitialPlayers(void); //

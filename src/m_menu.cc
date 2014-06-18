@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Main Menu Code
+//  EDGE2 Main Menu Code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -30,9 +30,9 @@
 
 #include "i_defs.h"
 
-#include "epi/str_format.h"
+#include "../epi/str_format.h"
 
-#include "ddf/main.h"
+#include "../ddf/main.h"
 
 #include "con_main.h"
 #include "dm_defs.h"
@@ -180,6 +180,24 @@ static slot_extra_info_t ex_slots[SAVE_SLOTS];
 #define SLIDERLEFT  -1
 #define SLIDERRIGHT -2
 
+static void DrawKeyword(int index, style_c *style, int y,
+		const char *keyword, const char *value)
+{
+	int x = 120;
+
+	// bool is_selected =
+	    // (netgame_menuon == 1 && index == host_pos) ||
+	    // (netgame_menuon == 2 && index == join_pos);
+
+	//HL_WriteText(style,(index<0)?3:is_selected?2:0, x - 10 - style->fonts[0]->StringWidth(keyword), y, keyword);
+	HL_WriteText(style,1, x + 10, y, value);
+
+	// if (is_selected)
+	// {
+		// HL_WriteText(style,2, x - style->fonts[2]->StringWidth("*")/2, y, "*");
+	// }
+}
+
 
 //
 // MENU TYPEDEFS
@@ -192,6 +210,7 @@ typedef struct
   	// image for menu entry
 	char patch_name[10];
 	const image_c *image;
+	//const char *text; //this is to sub out from *image?
 
   	// choice = menu item #.
   	// if status = 2, choice can be SLIDERLEFT or SLIDERRIGHT
@@ -243,6 +262,7 @@ static menu_t *currentMenu;
 // PROTOTYPES
 //
 static void M_NewGame(int choice);
+//static void M_SplitGame(int choice);
 static void M_Episode(int choice);
 static void M_ChooseSkill(int choice);
 static void M_LoadGame(int choice);
@@ -300,6 +320,7 @@ main_e;
 static menuitem_t MainMenu[] =
 {
 	{1, "M_NGAME",   NULL, M_NewGame, 'n'},
+	/*{1, "M_SGAME",   NULL, M_SplitGame, 'p'},*/
 	{1, "M_OPTION",  NULL, M_Options, 'o'},
 	{1, "M_LOADG",   NULL, M_LoadGame, 'l'},
 	{1, "M_SAVEG",   NULL, M_SaveGame, 's'},
@@ -1118,7 +1139,10 @@ static void ReallyDoStartLevel(skill_t skill, gamedef_c *g)
 
 	params.random_seed = I_PureRandom();
 
-	params.SinglePlayer(0);
+	if (splitscreen_mode)
+		params.Splitscreen();
+	else
+		params.SinglePlayer(0);
 
 	params.map = G_LookupMap(g->firstmap.c_str());
 
@@ -1708,7 +1732,7 @@ bool M_Responder(event_t * ev)
 				}
 				
 				if (msg)
-					CON_PlayerMessage(consoleplayer, "%s", msg);
+					CON_PlayerMessage(consoleplayer1, "%s", msg);
 
 				// -AJA- 1999/07/03: removed PLAYPAL reference.
 				return true;
@@ -1873,9 +1897,11 @@ static void DrawMessage(void)
 {
 	short x, y;
 
-	HUD_SetAlpha(0.64f);
+	//HUD_SetAlpha(0.64f);
 	HUD_SolidBox(0, 0, 320, 200, T_BLACK);
-	HUD_SetAlpha();
+	// disable for test : dialog_style->DrawBackground(); //to replace above call
+	//HUD_SetAlpha();
+
 
 	// FIXME: HU code should support center justification: this
 	// would remove the code duplication below...
@@ -1986,7 +2012,7 @@ void M_Drawer(void)
 
 	style_c *style = currentMenu->style_var[0];
 	SYS_ASSERT(style);
-
+/// style->DrawBackground();
 	HUD_SetAlpha(0.64f);
 	HUD_SolidBox(0, 0, 320, 200, T_BLACK);
 	HUD_SetAlpha();
@@ -2081,6 +2107,14 @@ void M_Init(void)
 	msg_string.clear();
 	msg_lastmenu = menuactive;
 	quickSaveSlot = -1;
+	
+	//HL_WriteText(style,(index<0)?3:is_selected?2:0, x - 10 - style->fonts[0]->StringWidth(keyword), y, keyword);
+	//HL_WriteText(style,1, x + 10, y, value);
+
+	//if (is_selected)
+	//{
+	//	HL_WriteText(style,2, x - style->fonts[2]->StringWidth("*")/2, y, "*");
+	//}
 
 	// lookup styles
 	styledef_c *def;
@@ -2126,11 +2160,26 @@ void M_Init(void)
 	menu_episode  = W_ImageLookup("M_EPISOD");
 	menu_skull[0] = W_ImageLookup("M_SKULL1");
 	menu_skull[1] = W_ImageLookup("M_SKULL2");
-
+	
+//	if (W_CheckNumForName("M_NEWG") >= 0)
+//	    DrawKeyword("NEW GAME");//HL_WriteText(style,2, 80, 30, "NEW GAME");//HUD_DrawText(0, 0, "NEW GAME");//HL_WriteText(style,2, LoadDef.x - 4, y, "NEW GAME");
+//or
+// menu_doom = HL_WriteText(style,2,LoadDef.x,y, "NEW GAME");
 	if (W_CheckNumForName("M_HTIC") >= 0)
 		menu_doom = W_ImageLookup("M_HTIC");
 	else
 		menu_doom = W_ImageLookup("M_DOOM");
+
+		//code below switches out skull
+	if (W_CheckNumForName("M_SLCTR1") >= 0)
+		menu_skull[0] = W_ImageLookup("M_SLCTR1");
+	else
+		menu_skull[0] = W_ImageLookup("M_SKULL1");
+		
+	if (W_CheckNumForName("M_SLCTR2") >= 0)
+		menu_skull[1] = W_ImageLookup("M_SLCTR2");
+	else
+		menu_skull[1] = W_ImageLookup("M_SKULL2");
 
 	// Here we could catch other version dependencies,
 	//  like HELP1/2, and four episodes.

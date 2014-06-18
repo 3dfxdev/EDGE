@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE SDL System Internal header
+//  EDGE2 SDL System Internal header
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 2005-2009  The EDGE Team.
+//  Copyright (c) 2005-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -20,7 +20,7 @@
 #define __SDL_SYSTEM_INTERNAL_H__
 
 #if 1
-#include <SDL/SDL.h>
+#include <C:/hyperedge/edge2/lib_win32/SDL/include/SDL.h>
 #else
 #include <SDL.h>
 #endif 

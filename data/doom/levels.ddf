@@ -1,12 +1,12 @@
 // 
-//    EDGE LEVELS.DDF -redefine or add new level information.
+//    3DGE LEVELS.DDF -redefine or add new level information.
 //    For documentation, see http://edge.sourceforge.net/
-//    DDF Version 6.1
+//    DDF Version 7
 //
 
 <LEVELS>
 
-#VERSION 1.35
+#VERSION 1.36
 
 // HELL ON EARTH (DOOM 2)
 [MAP01]

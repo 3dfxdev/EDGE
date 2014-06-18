@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Texture Upload
+//  EDGE2 Texture Upload
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -21,7 +21,7 @@
 
 #include <limits.h>
 
-#include "epi/image_data.h"
+#include "../epi/image_data.h"
 
 #include "e_search.h"
 #include "e_main.h"

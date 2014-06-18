@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Sound System
+//  EDGE2 Sound System
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -334,6 +334,16 @@ static void S_PlaySound(int idx, sfxdef_c *def, int category, position_c *pos, i
 
 	chan->loop = false;
 	chan->boss = (flags & FX_Boss) ? true : false;
+	chan->split = 0;
+
+	if (splitscreen_mode && pos && consoleplayer1 >= 0 && consoleplayer2 >= 0)
+	{
+		if (pos == players[consoleplayer1]->mo)
+			chan->split = 1;
+		else if (pos == players[consoleplayer2]->mo)
+			chan->split = 2;
+I_Printf("%s : split %d  cat %d\n", def->name.c_str(), chan->split, category);
+	}
 
 	chan->ComputeDelta();
 

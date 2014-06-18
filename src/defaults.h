@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Default Settings
+//  EDGE2 Default Settings
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -55,6 +55,8 @@
 #define CFGDEF_KEY_CONSOLE      (KEYD_TILDE)
 #define CFGDEF_KEY_ACTION1      ('[')
 #define CFGDEF_KEY_ACTION2      (']')
+#define CFGDEF_KEY_ACTION3      ('KEYD_COLON')
+#define CFGDEF_KEY_ACTION4      ('KEYD_SEMICOLON')
 
 // Controls (Analogue)
 #define CFGDEF_MOUSE_XAXIS      (2*AXIS_TURN-1)
@@ -96,7 +98,7 @@
 #define CFGDEF_USE_MIPMAPPING   (0)
 #define CFGDEF_HQ2X_SCALING     (0)
 #define CFGDEF_SCREEN_HUD       (0)
-#define CFGDEF_SHADOWS          (0)
+#define CFGDEF_SHADOWS          (1)
 #define CFGDEF_CROSSHAIR        (0)
 #define CFGDEF_MAP_OVERLAY      (0)
 #define CFGDEF_ROTATEMAP        (0)

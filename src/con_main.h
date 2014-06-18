@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Console Main
+//  EDGE2 Console Main
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -19,7 +19,7 @@
 #ifndef __CON_MAIN_H
 #define __CON_MAIN_H
 
-#include "ddf/types.h"
+#include "../ddf/types.h"
 
 #include <vector>
 

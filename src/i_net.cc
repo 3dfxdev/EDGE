@@ -2,7 +2,7 @@
 //  System Networking Basics
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -27,14 +27,14 @@
 #include "i_defs.h"
 #include "i_net.h"
 
-bool nonet = true;
+bool nonet = false;
 
 #ifdef LINUX
 #include <linux/if.h>
 #include <linux/sockios.h>
 #endif
 
-#include "epi/endianess.h"
+#include "../epi/endianess.h"
 
 #include "m_argv.h"
 
@@ -145,12 +145,12 @@ void net_address_c::GuessBroadcast(void)
 
 //----------------------------------------------------------------------------
 
-#if 1
+//#if 1
 
-void I_StartupNetwork(void) { }
-void I_ShutdownNetwork(void) { }
+//void I_StartupNetwork(void) { }
+//void I_ShutdownNetwork(void) { }
 
-#else  // DISABLED FOR NOW
+//#else  // DISABLED FOR NOW
 
 static bool GetLocalAddress(void)
 {
@@ -167,7 +167,7 @@ static bool GetLocalAddress(void)
 	// ensure name is NUL-terminated
 	buffer[sizeof(buffer)-1] = 0;
 	
-//	I_Printf(">> LocalHostName: %s\n", buffer);
+	I_Printf(">> LocalHostName: %s\n", buffer);
 
 	local = gethostbyname(buffer);
 
@@ -183,8 +183,8 @@ static bool GetLocalAddress(void)
 	{
 		const byte *raw_addr = (byte *) local->h_addr_list[i];
 
-//		I_Printf(">> LocalAddress: %u.%u.%u.%u\n",
-//				 raw_addr[0], raw_addr[1], raw_addr[2], raw_addr[3]);
+		I_Printf(">> LocalAddress: %u.%u.%u.%u\n",
+				 raw_addr[0], raw_addr[1], raw_addr[2], raw_addr[3]);
 
 		if (best < 0 &&
 			raw_addr[0] != 127 && raw_addr[0] != 0 &&
@@ -253,8 +253,8 @@ static bool Scan_IFCONFIG(bool got_local)
 
 		memcpy(&req, buffer+offset, sizeof(req));
 
-// I_Printf("> name = %6.6s\n", req.ifr_name);
-// I_Printf("> family = %d\n", req.ifr_addr.sa_family);
+ I_Printf("> name = %6.6s\n", req.ifr_name);
+ I_Printf("> family = %d\n", req.ifr_addr.sa_family);
 
         // make sure it's an entry for IP (not AppleTalk, ARP, etc)
         if (req.ifr_addr.sa_family == AF_INET)
@@ -266,7 +266,7 @@ static bool Scan_IFCONFIG(bool got_local)
 			net_address_c cur_A;
 			cur_A.FromSockAddr((struct sockaddr_in*)&req.ifr_addr);
 
-// I_Printf(">> address = %s\n", cur_A.TempString());
+ I_Printf(">> address = %s\n", cur_A.TempString());
 
             if (cur_A.addr[0] != 127 && cur_A.addr[0] != 0 &&
 				cur_A.addr[0] != 255 &&
@@ -276,7 +276,7 @@ static bool Scan_IFCONFIG(bool got_local)
 
 				cur_B.FromSockAddr((struct sockaddr_in*) &req.ifr_addr);
 
-// I_Printf(">> found broadcast addr: %s\n", cur_B.TempString());
+ I_Printf(">> found broadcast addr: %s\n", cur_B.TempString());
 
 				if (! found_one)
 				{
@@ -445,7 +445,7 @@ void I_SetBroadcast(SOCKET sock, bool enable)
 #endif
 }
 
-#endif  // DISABLED FOR NOW
+//#endif  // DISABLED FOR NOW
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

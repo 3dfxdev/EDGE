@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE New SaveGame Handling (Main defs)
+//  EDGE2 New SaveGame Handling (Main defs)
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -26,7 +26,7 @@
 // TERMINOLOGY:
 //
 //   - "known" here means an array/structure that is currently built
-//     into EDGE.
+//     into EDGE2.
 //
 //   - "loaded" here means an array/structure definition that has been
 //     loaded from the savegame file.

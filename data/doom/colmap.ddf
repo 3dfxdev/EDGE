@@ -1,12 +1,12 @@
 // 
-//    EDGE COLMAP.DDF -redefine or add new color maps.
+//    3DGE COLMAP.DDF -redefine or add new color maps.
 //    For documentation, see http://edge.sourceforge.net/
-//    DDF Version 6.1
+//    DDF Version 7
 //
 
 <COLOURMAPS>
 
-#VERSION 1.35
+#VERSION 1.36
 
 [NORMAL]
 lump = "COLORMAP";

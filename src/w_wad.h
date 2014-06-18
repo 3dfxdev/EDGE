@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE WAD Support Code
+//  EDGE2 WAD Support Code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2008  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -28,14 +28,14 @@
 
 #include "dm_defs.h"
 
-#include "epi/file.h"
-#include "epi/utility.h"
+#include "../epi/file.h"
+#include "../epi/utility.h"
 
 typedef enum
 {
 	FLKIND_IWad = 0,  // iwad file
 	FLKIND_PWad,      // normal .wad file
-	FLKIND_EWad,      // EDGE.wad
+	FLKIND_EWad,      // EDGE2.wad
 	FLKIND_GWad,      // glbsp node wad
 	FLKIND_HWad,      // deHacked wad
 

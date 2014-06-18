@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Version Header
+//  EDGE2 Version Header
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2010  The EDGE Team.
+//  Copyright (c) 1999-2010  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -16,17 +16,17 @@
 //
 //----------------------------------------------------------------------------
 
-#define TITLE  "EDGE Engine"
+#define TITLE  "EDGE2 Engine"
 
-#define EDGEVER       135
-#define EDGEVERHEX  0x135
-#define EDGEVERSTR  "1.35"
+#define EDGEVER       136
+#define EDGEVERHEX  0x136
+#define EDGEVERSTR  "1.36"
 
 // patch level (Savegames and Demos)
 #define EDGEPATCH  6
 
-// -ES- 2000/03/04 The version of EDGE.WAD we require.
-#define EDGE_WAD_VERSION  601
+// -ES- 2000/03/04 The version of EDGE2.WAD we require.
+#define EDGE_WAD_VERSION  700
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

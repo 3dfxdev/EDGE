@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Moving Object Header
+//  EDGE2 Moving Object Header
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -32,7 +32,7 @@
 #ifndef __P_MOBJ_H__
 #define __P_MOBJ_H__
 
-#include "ddf/types.h"
+#include "../ddf/types.h"
 #include "m_math.h"
 
 // forward decl.

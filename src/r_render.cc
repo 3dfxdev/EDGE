@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE OpenGL Rendering (BSP Traversal)
+//  EDGE2 OpenGL Rendering (BSP Traversal)
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2010  The EDGE Team.
+//  Copyright (c) 1999-2010  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -129,9 +129,9 @@ static bool solid_mode;
 
 static std::list<drawsub_c *> drawsubs;
 
-#ifdef SHADOW_PROTOTYPE
+//#ifdef SHADOW_PROTOTYPE
 static const image_c *shadow_image = NULL;
-#endif
+//#endif
 
 
 // ========= MIRROR STUFF ===========
@@ -564,7 +564,7 @@ static void DrawLaser(player_t *p)
 		glvert[kk].pos.x += octagon[kk/2].x * size;
 		glvert[kk].pos.z += octagon[kk/2].y * size;
 
-		glvert[kk].edge = true;
+		glvert[kk].EDGE2 = true;
 	}
 
 	RGL_EndUnit(14);
@@ -587,15 +587,18 @@ typedef struct wall_plane_data_s
 	divline_t div;
 
 	int light;
+	float R, G, B;
 	int col[3];
 	float trans;
 
 	int cmx;
 
+	drawthing_t *dlights;
 	const image_c *image;
 
 	float tx, tdx;
 	float ty, ty_mul, ty_skew;
+	
 
 	vec2_t x_mat, y_mat;
 
@@ -646,13 +649,13 @@ static inline void Color_Black(local_gl_vert_t *v)
 	v->col[3] = 1.0;
 }
 
-static inline void Vertex_Std(local_gl_vert_t *v, const vec3_t *src, GLboolean edge)
+static inline void Vertex_Std(local_gl_vert_t *v, const vec3_t *src, GLboolean EDGE2)
 {
 	v->x = src->x;
 	v->y = src->y;
 	v->z = src->z;
 
-	v->edge = edge;
+	v->EDGE2 = EDGE2;
 }
 
 static inline void Normal_Std(local_gl_vert_t *v, float nx, float ny, float nz)
@@ -697,13 +700,13 @@ static inline void TexCoord_Plane(local_gl_vert_t *v, int t,
 
 static inline void TexCoord_Shadow(local_gl_vert_t *v, int t)
 {
-#if 0
+//#if 0
 	float rx = (v->x + data->tx);
 	float ry = (v->y + data->ty);
 
 	v->s[t] = rx * data->x_mat.x + ry * data->x_mat.y;
 	v->t[t] = rx * data->y_mat.x + ry * data->y_mat.y;
-#endif
+//#endif
 }
 
 static inline void TexCoord_FloorGlow(local_gl_vert_t *v, int t, float f_h)
@@ -799,7 +802,8 @@ typedef struct
 	const vec3_t *vert;
 
 	GLuint tex_id;
-
+	
+    drawthing_t *dlights;
 	int pass;
 	int blending;
 
@@ -841,6 +845,33 @@ static void PlaneCoordFunc(void *d, int v_idx,
 	*lit_pos = *pos;
 }
 
+
+void ShadowCoordFunc(int v_idx, vec3_t *pos, float *rgb, vec2_t *texc, void *d)
+
+{
+	const plane_coord_data_t *data = (plane_coord_data_t *)d;
+	
+	*pos    = data->vert[v_idx];
+	
+//	float x = pos->x;
+//	float y = pos->y;
+//	float z = pos->z;
+
+    float rx = (data->tx0 + pos->x);
+	float ry = (data->ty0 + pos->y);
+	
+//	SET_TEXCOORD(tx, ty);
+	texc->x = rx * data->x_mat.x + ry * data->x_mat.y;
+	texc->y = rx * data->y_mat.x + ry * data->y_mat.y;
+	
+	rgb[0] = data->R;
+	rgb[1] = data->G;
+	rgb[2] = data->B;
+
+//	SET_NORMAL(data->normal.x, data->normal.y, data->normal.z);
+
+//	SET_VERTEX(x, y, z);
+}
 
 static void DLIT_Wall(mobj_t *mo, void *dataptr)
 {
@@ -2043,7 +2074,7 @@ static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 
 		if (tspan1 > clip_scope)
 		{
-			// Totally off the left edge?
+			// Totally off the left EDGE2?
 			if (tspan2 >= ANG180)
 				return;
 
@@ -2052,7 +2083,7 @@ static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 
 		if (tspan2 > clip_scope)
 		{
-			// Totally off the left edge?
+			// Totally off the left EDGE2?
 			if (tspan1 >= ANG180)
 				return;
 
@@ -2237,7 +2268,7 @@ bool RGL_CheckBBox(float *bspcoord)
 
 		if (tspan1 > clip_scope)
 		{
-			// Totally off the left edge?
+			// Totally off the left EDGE2?
 			if (tspan2 >= ANG180)
 				return false;
 
@@ -2246,7 +2277,7 @@ bool RGL_CheckBBox(float *bspcoord)
 
 		if (tspan2 > clip_scope)
 		{
-			// Totally off the right edge?
+			// Totally off the right EDGE2?
 			if (tspan1 >= ANG180)
 				return false;
 
@@ -2265,6 +2296,8 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 						  surface_t *surf, int face_dir)
 {
 	float orig_h = h;
+	
+//	raw_polyquad_t *poly;
 
 	MIR_Height(h);
 
@@ -2348,7 +2381,7 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	float v_bbox[4];
 
 	M_ClearBox(v_bbox);
-
+	
 	int v_count = 0;
 
 	for (seg=cur_sub->segs, i=0; seg && (i < MAX_PLVERT); 
@@ -2408,6 +2441,26 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 
 	data.x_mat = surf->x_mat;
 	data.y_mat = surf->y_mat;
+	
+	//	poly = RGL_NewPolyQuad(num_vert, false);
+	//
+	//	for (seg=cur_sub->segs, i=0; seg && (i < MAX_PLVERT); 
+	//		seg=seg->sub_next, i++)
+	//	{
+	//		PQ_ADD_VERT(poly, seg->v1->x, seg->v1->y, h);
+	//	}
+	//
+	//	RGL_BoundPolyQuad(poly);
+	//
+	//	
+	//	if ((use_dlights /* == 2 (COMPAT) */ && data.dlights) || doom_fading)
+	//		RGL_SplitPolyQuadLOD(poly, 1, 128 >> detail_level);
+	//
+	//
+	//	RGL_RenderPolyQuad(poly, &data, PlaneCoordFunc, tex_id,0,
+	//		/* pass */ 0, blending);
+	//
+	//	RGL_FreePolyQuad(poly);
 
 	float mir_scale = MIR_XYScale();
 	data.x_mat.x /= mir_scale; data.x_mat.y /= mir_scale;
@@ -2446,7 +2499,7 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 		wall_plane_data_t dat2;
 		memcpy(&dat2, &data, sizeof(dat2));
 
-		dat2.dlights = NULL;
+//		light = NULL;
 		dat2.trans = 0.5;
 		dat2.image = shadow_image;
 
@@ -2466,13 +2519,13 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 			dat2.y_mat.y = 0.5f / dthing->mo->radius;
 			dat2.y_mat.x = 0;
 
-			poly = RGL_NewPolyQuad(num_vert);
+			poly = RGL_BeginUnit(num_vert);
 
 			for (seg=cur_sub->segs, i=0; seg && (i < MAX_PLVERT); 
 				seg=seg->sub_next, i++)
-			{
-				PQ_ADD_VERT(poly, seg->v1->x, seg->v1->y, h);
-			}
+//			{
+//				PQ_ADD_VERT(poly, seg->v1->x, seg->v1->y, h);
+//			}
 
 			RGL_BoundPolyQuad(poly);
 
@@ -2958,9 +3011,9 @@ static void RGL_WalkBSPNode(unsigned int bspnum)
 //
 void RGL_LoadLights(void)
 {
-#ifdef SHADOW_PROTOTYPE
+//#ifdef SHADOW_PROTOTYPE
 	shadow_image = W_ImageLookup("SHADOW_STD");
-#endif
+//#endif
 }
 
 //
@@ -3030,6 +3083,9 @@ static void RGL_RenderTrueBSP(void)
 static void InitCamera(mobj_t *mo, bool full_height, float expand_w)
 {
 	float fov = CLAMP(5, r_fov.f, 175);
+
+	if (splitscreen_mode)
+		fov = fov / 1.5;
 
 	view_x_slope = tan(fov * M_PI / 360.0);
 
@@ -3123,7 +3179,7 @@ static void InitCamera(mobj_t *mo, bool full_height, float expand_w)
 		k = fabs(k);
 
 		// d is just the distance horizontally forward from the eye to
-		// the top/bottom edge of the view rectangle.
+		// the top/bottom EDGE2 of the view rectangle.
 		d = cos(k) - sin(k) * view_y_slope;
 
 		oned_side_angle = (d <= 0.01f) ? ANG180 : M_ATan(view_x_slope / d);

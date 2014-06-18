@@ -1,12 +1,12 @@
 // 
-//    EDGE SECTORS.DDF -redefine or add new sector types.
+//    3DGE SECTORS.DDF -redefine or add new sector types.
 //    For documentation, see http://edge.sourceforge.net/
-//    DDF Version 6.1
+//    DDF Version 7
 //
 
 <SECTORS>
 
-#VERSION 1.35
+#VERSION 1.36
 
 [1]  // Light Random Off
 LIGHT_TYPE=FLASH;

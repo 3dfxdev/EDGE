@@ -1,6 +1,0 @@
-
-TODO
-====
-
-+  Tidy up some miscellany.
-

@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Video Context
+//  EDGE2 Video Context
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -49,7 +49,7 @@ void HUD_Reset();
 
 void HL_Init(void);
 
-void HUD_FrameSetup(void);
+void HUD_FrameSetup(int split);
 
 
 void HUD_PushScissor(float x1, float y1, float x2, float y2, bool expand=false);

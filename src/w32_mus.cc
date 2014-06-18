@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE WIN32 MUS Handling Code
+//  EDGE2 WIN32 MUS Handling Code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2008  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License

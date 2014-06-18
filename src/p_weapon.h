@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Weapon (player sprites) Action Code
+//  EDGE2 Weapon (player sprites) Action Code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -26,7 +26,7 @@
 #ifndef __P_PSPR__
 #define __P_PSPR__
 
-#include "ddf/main.h"
+#include "../ddf/main.h"
 
 // maximum weapons player can hold at once
 #define MAXWEAPONS  64

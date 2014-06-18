@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Generalised Image Handling
+//  EDGE2 Generalised Image Handling
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -36,15 +36,15 @@
 
 #include <limits.h>
 
-#include "epi/endianess.h"
-#include "epi/file.h"
-#include "epi/filesystem.h"
+#include "../epi/endianess.h"
+#include "../epi/file.h"
+#include "../epi/filesystem.h"
 
-#include "epi/image_data.h"
-#include "epi/image_hq2x.h"
-#include "epi/image_png.h"
-#include "epi/image_jpeg.h"
-#include "epi/image_tga.h"
+#include "../epi/image_data.h"
+#include "../epi/image_hq2x.h"
+#include "../epi/image_png.h"
+#include "../epi/image_jpeg.h"
+#include "../epi/image_tga.h"
 
 #include "dm_state.h"
 #include "e_search.h"

@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Heads-up-display Style code
+//  EDGE2 Heads-up-display Style code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 2004-2009  The EDGE Team.
+//  Copyright (c) 2004-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -19,7 +19,7 @@
 #ifndef __HU_STYLE__
 #define __HU_STYLE__
 
-#include "ddf/style.h"
+#include "../ddf/style.h"
 #include "hu_font.h"
 #include "r_image.h"
 
@@ -41,8 +41,14 @@ public:
 	void Load();
 
 	// Drawing functions
-	void DrawBackground();
+	void DrawBackground(int x = 0, int y = 0, int w = 0, int h = 0, int align = 0);
+
 };
+
+// public:
+    // void Load();
+	// void DrawCONSBK(int x = 0, int y = 0, int w = 0, int h = 0, int align = 0);
+// };
 
 class style_container_c : public epi::array_c 
 {

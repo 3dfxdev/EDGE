@@ -2,7 +2,7 @@
 //  COAL HUD module
 //------------------------------------------------------------------------
 //
-//  Copyright (c) 2006-2009  The EDGE Team.
+//  Copyright (c) 2006-2009  The EDGE2 Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -18,10 +18,10 @@
 
 #include "i_defs.h"
 
-#include "coal/coal.h"
+#include "../coal/coal.h"
 
-#include "ddf/main.h"
-#include "ddf/font.h"
+#include "../ddf/main.h"
+#include "../ddf/font.h"
 
 #include "vm_coal.h"
 #include "dm_state.h"
@@ -496,7 +496,7 @@ static void HD_set_render_who(coal::vm_c *vm, int argc)
 
 	if (index == 0)
 	{
-		ui_hud_who = players[consoleplayer];
+		ui_hud_who = players[consoleplayer1];
 		return;
 	}
 
@@ -583,12 +583,12 @@ void VM_BeginLevel(void)
     VM_CallFunction(ui_vm, "begin_level");
 }
 
-void VM_RunHud(void)
+void VM_RunHud(int split)
 { 
-	HUD_Reset();
+	HUD_FrameSetup(split);
 
-	ui_hud_who    = players[displayplayer];
-	ui_player_who = players[displayplayer];
+	ui_hud_who    = players[split ? (split-1) : displayplayer];
+	ui_player_who = players[split ? (split-1) : displayplayer];
 
 	ui_hud_automap_flags[0] = 0;
 	ui_hud_automap_flags[1] = 0;
@@ -596,8 +596,12 @@ void VM_RunHud(void)
 
 	VM_CallFunction(ui_vm, "draw_all");
 
-	HUD_Reset();
+	if (split > 0)
+		HUD_FrameSetup(0);
+	else
+		HUD_Reset();
 }
+
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

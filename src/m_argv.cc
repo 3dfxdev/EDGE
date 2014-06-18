@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Arguments/Parameters Code
+//  EDGE2 Arguments/Parameters Code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -25,8 +25,8 @@
 
 #include "i_defs.h"
 
-#include "epi/file.h"
-#include "epi/filesystem.h"
+#include "../epi/file.h"
+#include "../epi/filesystem.h"
 
 #include "m_argv.h"
 
@@ -223,8 +223,8 @@ void M_InitArguments(int argc, const char **argv)
 	// argv[0] should always be placed before the response file.
 	AddArgument(argv[0], 0);
 
-	if (epi::FS_Access("edge.cmd", epi::file_c::ACCESS_READ))
-		M_ApplyResponseFile("edge.cmd", 1);
+	if (epi::FS_Access("EDGE2.cmd", epi::file_c::ACCESS_READ))
+		M_ApplyResponseFile("EDGE2.cmd", 1);
 
 	// scan through the arguments
 	for (i = 1; i < argc; i++)

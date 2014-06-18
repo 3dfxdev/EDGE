@@ -19,7 +19,7 @@
 #ifndef __DDF_FONT__
 #define __DDF_FONT__
 
-#include "epi/utility.h"
+#include "../epi/utility.h"
 
 #include "types.h"
 

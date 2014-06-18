@@ -2,7 +2,7 @@
 //  COAL General Stuff
 //------------------------------------------------------------------------
 //
-//  Copyright (c) 2006-2009  The EDGE Team.
+//  Copyright (c) 2006-2009  The EDGE2 Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -31,7 +31,7 @@ void VM_RegisterPlaysim();
 
 // HUD stuff
 void VM_BeginLevel(void);
-void VM_RunHud(void);
+void VM_RunHud(int split);
 
 #endif // __VM_COAL_H__
 

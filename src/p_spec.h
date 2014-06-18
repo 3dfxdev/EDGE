@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Specials Lines, Elevator & Floor Code
+//  EDGE2 Specials Lines, Elevator & Floor Code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -31,7 +31,7 @@
 #ifndef __P_SPEC__
 #define __P_SPEC__
 
-#include "ddf/main.h"
+#include "../ddf/main.h"
 #include "r_defs.h"
 #include "r_image.h"
 

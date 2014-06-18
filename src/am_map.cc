@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Automap Functions
+//  EDGE2 Automap Functions
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2010  The EDGE Team.
+//  Copyright (c) 1999-2010  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -388,9 +388,9 @@ bool AM_Responder(event_t * ev)
 
 		// -ACB- 1998/08/10 Use DDF Lang Reference
 		if (followplayer)
-			CON_PlayerMessageLDF(consoleplayer, "AutoMapFollowOn");
+			CON_PlayerMessageLDF(consoleplayer1, "AutoMapFollowOn");
 		else
-			CON_PlayerMessageLDF(consoleplayer, "AutoMapFollowOff");
+			CON_PlayerMessageLDF(consoleplayer1, "AutoMapFollowOff");
 
 		return true;
 	}
@@ -400,9 +400,9 @@ bool AM_Responder(event_t * ev)
 		grid = !grid;
 		// -ACB- 1998/08/10 Use DDF Lang Reference
 		if (grid)
-			CON_PlayerMessageLDF(consoleplayer, "AutoMapGridOn");
+			CON_PlayerMessageLDF(consoleplayer1, "AutoMapGridOn");
 		else
-			CON_PlayerMessageLDF(consoleplayer, "AutoMapGridOff");
+			CON_PlayerMessageLDF(consoleplayer1, "AutoMapGridOff");
 
 		return true;
 	}
@@ -410,7 +410,7 @@ bool AM_Responder(event_t * ev)
 	if (E_MatchesKey(key_am_mark, sym))
 	{
 		// -ACB- 1998/08/10 Use DDF Lang Reference
-		CON_PlayerMessage(consoleplayer, "%s %d",
+		CON_PlayerMessage(consoleplayer1, "%s %d",
 			language["AutoMapMarkedSpot"], markpointnum);
 		AddMark();
 		return true;
@@ -419,7 +419,7 @@ bool AM_Responder(event_t * ev)
 	if (E_MatchesKey(key_am_clear, sym))
 	{
 		// -ACB- 1998/08/10 Use DDF Lang Reference
-		CON_PlayerMessageLDF(consoleplayer, "AutoMapMarksClear");
+		CON_PlayerMessageLDF(consoleplayer1, "AutoMapMarksClear");
 		ClearMarks();
 		return true;
 	}

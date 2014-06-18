@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Generalised Image Handling
+//  EDGE2 Generalised Image Handling
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -37,16 +37,16 @@
 #include <limits.h>
 #include <list>
 
-#include "epi/endianess.h"
-#include "epi/file.h"
-#include "epi/filesystem.h"
-#include "epi/file_memory.h"
+#include "../epi/endianess.h"
+#include "../epi/file.h"
+#include "../epi/filesystem.h"
+#include "../epi/file_memory.h"
 
-#include "epi/image_data.h"
-#include "epi/image_hq2x.h"
-#include "epi/image_png.h"
-#include "epi/image_jpeg.h"
-#include "epi/image_tga.h"
+#include "../epi/image_data.h"
+#include "../epi/image_hq2x.h"
+#include "../epi/image_png.h"
+#include "../epi/image_jpeg.h"
+#include "../epi/image_tga.h"
 
 #include "dm_data.h"
 #include "dm_defs.h"
@@ -447,7 +447,7 @@ static image_c *AddImageFlat(const char *name, int lump)
 		// support for odd-size Hexen flats
 		case 64 * 128: size = 64; break;
   
-		// -- EDGE feature: bigger than normal flats --  
+		// -- EDGE2 feature: bigger than normal flats --  
 		case 128 * 128: size = 128; break;
 		case 256 * 256: size = 256; break;
 		case 512 * 512: size = 512; break;

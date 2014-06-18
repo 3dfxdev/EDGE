@@ -1,17 +1,22 @@
 // 
-//    EDGE STYLES.DDF -redefine or add new styles.
+//    3DGE STYLES.DDF -redefine or add new styles.
 //    For documentation, see http://edge.sourceforge.net/
-//    DDF Version 6.1
+//    DDF Version 7
 //
 //    NOTE: STYLES.DDF IS EXPERIMENTAL !!
 //
 //    It may change completely in the next version,
 //    or could even be scrapped!  USE AT OWN RISK.
+//  
+//    AS OF 3DGE 1.36C, BACKGROUND.IMAGE IS NO LONGER
+//    SUPPORTED, EXCEPT IN CONSOLE, WHERE ITS DEFAULT
+//    TO A CONSOLE GRAPHIC. THIS CAN BE CHANGED. THIS
+//    RULE DOES NOT APPLY TO THE INTERMISSIONS.
 //
 
 <STYLES>
 
-#VERSION 1.35
+#VERSION 1.36
 
 [DEFAULT]
 BACKGROUND.COLOUR=#000000;

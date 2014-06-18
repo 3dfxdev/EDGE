@@ -1,8 +1,8 @@
 //---------------------------------------------------------------------------
-//  EDGE Main Init + Program Loop Code
+//  EDGE2 Main Init + Program Loop Code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -24,7 +24,7 @@
 //----------------------------------------------------------------------------
 //
 // DESCRIPTION:
-//      EDGE main program (E_Main),
+//      EDGE2 main program (E_Main),
 //      game loop (E_Loop) and startup functions.
 //
 // -MH- 1998/07/02 "shootupdown" --> "true3dgameplay"
@@ -38,11 +38,11 @@
 #include <sys/types.h>
 #include <time.h>
 
-#include "epi/exe_path.h"
-#include "epi/file.h"
-#include "epi/filesystem.h"
-#include "epi/path.h"
-#include "epi/utility.h"
+#include "../epi/exe_path.h"
+#include "../epi/file.h"
+#include "../epi/filesystem.h"
+#include "../epi/path.h"
+#include "../epi/utility.h"
 
 #include "am_map.h"
 #include "con_gui.h"
@@ -70,6 +70,7 @@
 #include "rad_trig.h"
 #include "r_gldefs.h"
 #include "r_wipe.h"
+//#include "roq_enc.h"
 #include "s_sound.h"
 #include "s_music.h"
 #include "sv_chunk.h"
@@ -87,12 +88,14 @@
 #include "z_zone.h"
 
 
-#define E_TITLE  "EDGE v" EDGEVERSTR
+#define E_TITLE  "EDGE2 v" EDGEVERSTR
 
 // Application active?
 int app_state = APP_STATE_ACTIVE;
 
 bool singletics = false;  // debug flag to cancel adaptiveness
+
+bool splitscreen_mode = false;
 
 // -ES- 2000/02/13 Takes screenshot every screenshot_rate tics.
 // Must be used in conjunction with singletics.
@@ -126,7 +129,7 @@ gameflags_t default_gameflags =
 	true,   // cheats
 	true,   // have_extra
 	false,  // limit_zoom
-	false,  // shadows
+	true,  // shadows
 	false,  // halos
 
 	false,    // edge_compat
@@ -317,7 +320,7 @@ static void SetGlobalVars(void)
 	M_CheckBooleanParm("monsters", &global_flags.nomonsters, true);
 	M_CheckBooleanParm("fast", &global_flags.fastparm, false);
 	M_CheckBooleanParm("extras", &global_flags.have_extra, false);
-	M_CheckBooleanParm("shadows", &global_flags.shadows, false);
+	M_CheckBooleanParm("shadows", &global_flags.shadows, true);
 	M_CheckBooleanParm("halos", &global_flags.halos, false);
 	M_CheckBooleanParm("kick", &global_flags.kicking, false);
 	M_CheckBooleanParm("singletics", &singletics, false);
@@ -394,7 +397,7 @@ static void SpecialWadVerify(void)
 {
 	int lump = W_CheckNumForName("EDGEVER");
 	if (lump < 0)
-		I_Error("EDGEVER lump not found. Get EDGE.WAD at http://edge.sourceforge.net/");
+		I_Error("EDGEVER lump not found. Get EDGE2.WAD at http://edge2.sourceforge.net/");
 
 	const void *data = W_CacheLumpNum(lump);
 
@@ -408,16 +411,16 @@ static void SpecialWadVerify(void)
 
 	W_DoneWithLump(data);
 
-	I_Printf("EDGE.WAD version %1.2f found.\n", wad_ver / 100.0);
+	I_Printf("EDGE2.WAD version %1.2f found.\n", wad_ver / 100.0);
 
 	if (wad_ver < EDGE_WAD_VERSION)
 	{
-		I_Warning("EDGE.WAD is an older version (expected %1.2f)\n",
+		I_Warning("EDGE2.WAD is an older version (expected %1.2f)\n",
 		          EDGE_WAD_VERSION / 100.0);
 	}
 	else if (wad_ver > EDGE_WAD_VERSION)
 	{
-		I_Warning("EDGE.WAD is a newer version (expected %1.2f)\n",
+		I_Warning("EDGE2.WAD is a newer version (expected %1.2f)\n",
 		          EDGE_WAD_VERSION / 100.0);
 	}
 }
@@ -438,7 +441,7 @@ static void DoSystemStartup(void)
 	// startup the system now
 	W_InitImages();
 
-	I_Debugf("- System startup begun.\n");
+	I_Debugf("- System is starting up...\n");
 
 	I_SystemStartup();
 
@@ -455,7 +458,7 @@ static void DoSystemStartup(void)
 	RGL_Init();
 	R_SoftInitResolution();
 
-	I_Debugf("- System startup done.\n");
+	I_Debugf("- System startup complete...\n");
 }
 
 
@@ -514,7 +517,7 @@ void E_Display(void)
 	// Start the frame - should we need to.
 	I_StartFrame();
 
-	HUD_FrameSetup();
+	HUD_FrameSetup(0);
 
 	// -AJA- 1999/08/02: Make sure palette/gamma is OK. This also should
 	//       fix (finally !) the "gamma too late on walls" bug.
@@ -527,7 +530,13 @@ void E_Display(void)
 
 			R_PaletteStuff();
 
-			VM_RunHud();
+			if (splitscreen_mode)
+			{
+				VM_RunHud(1);
+				VM_RunHud(2);
+			}
+			else
+				VM_RunHud(0);
 
 			if (need_save_screenshot)
 			{
@@ -647,7 +656,7 @@ void E_AdvanceTitle(void)
 		}
 
 		// ignore non-existing episodes.  Doesn't include title-only ones
-		// like [EDGE].
+		// like [EDGE2].
 		if (title_pic == 0 && g->firstmap && g->firstmap[0] &&
 			W_CheckNumForName(g->firstmap) == -1)
 		{
@@ -785,7 +794,7 @@ void InitDirectories(void)
         cfgfile = epi::PATH_Join(home_dir.c_str(), EDGECONFIGFILE);
 	}
 
-	// edge.wad file
+	// EDGE2.wad file
 	s = M_GetParm("-ewad");
 	if (s)
 	{
@@ -793,7 +802,7 @@ void InitDirectories(void)
 	}
 	else
     {
-        ewadfile = epi::PATH_Join(home_dir.c_str(), "edge.wad");
+        ewadfile = epi::PATH_Join(home_dir.c_str(), "edge2.wad");
 	}
 
 	// cache directory
@@ -819,9 +828,10 @@ void InitDirectories(void)
 
 
 //
-// Adds an IWAD and EDGE.WAD. -ES-  2000/01/01 Rewritten.
+// Adds an IWAD and EDGE2.WAD. -ES-  2000/01/01 Rewritten.
 //
-const char *wadname[] = { "doom2", "doom", "plutonia", "tnt", "hacx", "freedoom", "freedm", NULL };
+// Adding HERETIC.WAD to string 2.24.2013
+const char *wadname[] = { "doom2", "doom", "plutonia", "tnt", "hacx", "heretic", "freedoom", "freedm", NULL };
 
 static void IdentifyVersion(void)
 {
@@ -991,9 +1001,11 @@ static void ShowDateAndVersion(void)
 	I_Debugf("[Debug file created at %s]\n\n", timebuf);
 
 	// 23-6-98 KM Changed to hex to allow versions such as 0.65a etc
-	I_Printf("EDGE v" EDGEVERSTR " compiled on " __DATE__ " at " __TIME__ "\n");
-	I_Printf("EDGE homepage is at http://edge.sourceforge.net/\n");
-	I_Printf("EDGE is based on DOOM by id Software http://www.idsoftware.com/\n");
+	I_Printf("3DGE2 v" EDGEVERSTR " compiled on " __DATE__ " at " __TIME__ "\n");
+	I_Printf("hyper3DGE homepage is at http://edge2.sourceforge.net/\n");
+	I_Printf("hyper3DGE is based on EDGE by the EDGE team http://edge.sourceforge.net/\n");
+	I_Printf("hyper3DGE is based on DOOM by id Software http://www.idsoftware.com/\n");
+    I_Printf("hyper3DGE problems should be reported @ http://tdgmods.net/smf\n");
 
 #ifdef WIN32
 	I_Printf("Executable path: '%s'\n", win32_exe_path);
@@ -1235,6 +1247,7 @@ startuporder_t startcode[] =
 extern void WLF_InitMaps(void); //!!!
 
 // Local Prototypes
+extern void E_SplashScreen(void);
 static void E_Startup();
 static void E_Shutdown(void);
 
@@ -1269,7 +1282,7 @@ static void E_Startup(void)
 	SetGlobalVars();
 
 	DoSystemStartup();
-
+    E_SplashScreen();
 	I_PutTitle(E_TITLE); // Needs to be done once the system is up and running
 
 	// RGL_FontStartup();
@@ -1366,6 +1379,8 @@ static void E_InitialState(void)
 		warp_deathmatch = 2;
 	}
 
+	if (M_CheckParm("-splitscreen") > 0)
+		splitscreen_mode = true;
 
 	if (M_GetParm("-record"))
 		warp = true;
@@ -1396,7 +1411,10 @@ static void E_InitialState(void)
 
 	params.random_seed = I_PureRandom();
 
-	params.SinglePlayer(bots);
+	if (splitscreen_mode)
+		params.Splitscreen();
+	else
+		params.SinglePlayer(bots);
 
 	G_DeferredNewGame(params);
 }
@@ -1434,7 +1452,7 @@ void E_Main(int argc, const char **argv)
 		E_InitialState();
 
 		CON_MessageColor(RGB_MAKE(255,255,0));
-		I_Printf("EDGE v" EDGEVERSTR " initialisation complete.\n");
+		I_Printf("EDGE2 v" EDGEVERSTR " system ready.\n");
 
 		I_Debugf("- Entering game loop...\n");
 

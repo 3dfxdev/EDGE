@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Heads-Up-Display Code
+//  EDGE2 Heads-Up-Display Code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -165,7 +165,7 @@ void HU_Ticker(void)
 		player_t *p = players[pnum];
 		if (! p) continue;
 
-		if (pnum == consoleplayer)
+		if (p->playerflags & PFL_Console)
 			continue;
 
 		char c = p->cmd.chatchar;

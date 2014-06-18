@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE 2D DRAWING STUFF
+//  EDGE2 2D DRAWING STUFF
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -19,8 +19,9 @@
 #include "i_defs.h"
 #include "i_defs_gl.h"
 
-#include "ddf/font.h"
+#include "../ddf/font.h"
 
+#include "dm_state.h"
 #include "g_game.h"
 #include "r_misc.h"
 #include "r_gldefs.h"
@@ -109,7 +110,7 @@ void HUD_Reset()
 }
 
 
-void HUD_FrameSetup(void)
+void HUD_FrameSetup(int split)
 {
 	if (! default_font)
 	{
@@ -152,6 +153,12 @@ void HUD_FrameSetup(void)
 
 	margin_X = (SCREENWIDTH  - margin_W) / 2.0;
 	margin_Y = (SCREENHEIGHT + margin_H) / 2.0;
+
+	if (split == 2)
+		margin_X += margin_W / 2;
+
+	if (split == 1 || split == 2)
+		margin_W = margin_W / 2 - 8;
 }
 
 
@@ -640,7 +647,7 @@ void HUD_DrawText(float x, float y, const char *str)
 
 void HUD_RenderWorld(float x1, float y1, float x2, float y2, mobj_t *camera)
 {
-	HUD_PushScissor(x1, y1, x2, y2, true);
+	HUD_PushScissor(x1, y1, x2, y2, ! splitscreen_mode);
 
 	int *xy = scissor_stack[sci_stack_top-1];
 

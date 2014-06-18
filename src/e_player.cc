@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Game Handling Code
+//  EDGE2 Game Handling Code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -29,7 +29,7 @@
 
 #include "i_defs.h"
 
-#include "epi/endianess.h"
+#include "../epi/endianess.h"
 
 #include "dm_defs.h"
 #include "dm_state.h"
@@ -58,8 +58,9 @@ player_t *players[MAXPLAYERS];
 int numplayers;
 int numbots;
 
-int consoleplayer = -1; // player taking events
-int displayplayer = -1; // view being displayed 
+int consoleplayer1 = -1; // player taking events
+int consoleplayer2 = -1;
+int displayplayer = -1; // view being displayed (except in splitscreen_mode)
 
 #define MAX_BODIES   50
 
@@ -261,9 +262,9 @@ static bool G_CheckSpot(player_t *player, const spawnpoint_t *point)
 //
 void G_SetConsolePlayer(int pnum)
 {
-	consoleplayer = pnum;
+	consoleplayer1 = pnum;
 
-	SYS_ASSERT(players[consoleplayer]);
+	SYS_ASSERT(players[pnum]);
 
 	for (int i = 0; i < MAXPLAYERS; i++)
 		if (players[i])
@@ -280,6 +281,18 @@ void G_SetConsolePlayer(int pnum)
 		players[pnum]->builder = P_ConsolePlayerBuilder;
 		players[pnum]->build_data = NULL;
 	}
+}
+
+void G_SetConsole2_Player(int pnum)
+{
+	consoleplayer2 = pnum;
+
+	SYS_ASSERT(players[pnum]);
+
+	players[pnum]->playerflags |= PFL_Console;
+
+	players[pnum]->builder = P_ConsolePlayerBuilder;
+	players[pnum]->build_data = NULL;
 }
 
 //
@@ -709,6 +722,28 @@ bool G_CheckConditions(mobj_t *mo, condition_check_t *cond)
 					return false;
 
 				temp = p->actiondown[1];
+
+				if ((!cond->negate && !temp) || (cond->negate && temp))
+					return false;
+
+				break;
+				
+			case COND_Action3:
+				if (!p)
+					return false;
+
+				temp = p->actiondown[2];
+
+				if ((!cond->negate && !temp) || (cond->negate && temp))
+					return false;
+
+				break;
+
+			case COND_Action4:
+				if (!p)
+					return false;
+
+				temp = p->actiondown[3];
 
 				if ((!cond->negate && !temp) || (cond->negate && temp))
 					return false;

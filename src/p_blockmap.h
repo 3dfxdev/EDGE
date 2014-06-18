@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Blockmap utility functions
+//  EDGE2 Blockmap utility functions
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -26,7 +26,7 @@
 #ifndef __P_BLOCKMAP_H__
 #define __P_BLOCKMAP_H__
 
-// #include "epi/arrays.h"
+// #include "../epi/arrays.h"
 
 // mapblocks are used to check movement
 // against lines and things

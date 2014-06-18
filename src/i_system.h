@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Platform Interface (EPI) Header
+//  EDGE2 Platform Interface (EPI) Header
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -26,7 +26,7 @@
 #ifndef __I_SYSTEM_H__
 #define __I_SYSTEM_H__
 
-#include "epi/timestamp.h"
+#include "../epi/timestamp.h"
 
 //--------------------------------------------------------
 //  SYSTEM functions.
@@ -44,7 +44,7 @@ void I_SystemStartup(void);
 // I_StartupSound).  Does whatever else the platform code needs.
 
 //--- void I_Loop(void);
-// This is called by EDGE to begin the main engine loop, and is not
+// This is called by EDGE2 to begin the main engine loop, and is not
 // expected to return.  It must call engine::Tick() to perform a
 // single loop in the system, which processes events, updates the play
 // simulation, keeps sound and music playing, and most importantly
@@ -127,7 +127,7 @@ void I_ShutdownControl(void);
 // main code never calls this function.
 
 int I_PureRandom(void);
-// Returns a fairly random value, used as seed for EDGE's internal
+// Returns a fairly random value, used as seed for EDGE2's internal
 // random engine.  If this function would return a constant value,
 // everything would still work great, except that random events before
 // the first tic of a level (like random RTS spawn) would be

@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE New SaveGame Handling (Level Data)
+//  EDGE2 New SaveGame Handling (Level Data)
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2008  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -34,9 +34,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "epi/str_format.h"
+#include "../epi/str_format.h"
 
-#include "ddf/colormap.h"
+#include "../ddf/colormap.h"
 
 #include "r_image.h"
 #include "sv_chunk.h"

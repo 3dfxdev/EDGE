@@ -1,12 +1,12 @@
 // 
-//    EDGE IMAGES.DDF -redefine or add new images.
+//    3DGE IMAGES.DDF -redefine or add new images.
 //    For documentation, see http://edge.sourceforge.net/
-//    DDF Version 6.1
+//    DDF Version 7
 //
 
 <IMAGES>
 
-#VERSION 1.35
+#VERSION 1.36
 
 [gfx:STDCROSS1]
 image_data = LUMP:PNG:"CROSSHR1";

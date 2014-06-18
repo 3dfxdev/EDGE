@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Linux Misc System Code
+//  EDGE2 Linux Misc System Code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2008  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -27,7 +27,7 @@
 #include <sys/time.h>
 #include <time.h>
 
-#include "epi/timestamp.h"
+#include "../epi/timestamp.h"
 
 #include "version.h"
 #include "con_main.h"
@@ -99,7 +99,7 @@ static void I_SignalHandler(int s)
 		// -AJA- linux signals reset when raised.
 		signal(SIGPIPE, I_SignalHandler);
 
-		fprintf(stderr, "EDGE: Broken pipe\n");
+		fprintf(stderr, "EDGE2: Broken pipe\n");
 		return;
 	}
 
@@ -107,15 +107,15 @@ static void I_SignalHandler(int s)
 
 	switch (s)
 	{
-		case SIGSEGV: I_Error("EDGE: Segmentation Violation"); break;
-		case SIGINT:  I_Error("EDGE: Interrupted by User"); break;
-		case SIGILL:  I_Error("EDGE: Illegal Instruction"); break;
-		case SIGFPE:  I_Error("EDGE: Floating Point Exception"); break;
-		case SIGABRT: I_Error("EDGE: Aborted"); break;
-		case SIGTERM: I_Error("EDGE: Killed"); break;
+		case SIGSEGV: I_Error("EDGE2: Segmentation Violation"); break;
+		case SIGINT:  I_Error("EDGE2: Interrupted by User"); break;
+		case SIGILL:  I_Error("EDGE2: Illegal Instruction"); break;
+		case SIGFPE:  I_Error("EDGE2: Floating Point Exception"); break;
+		case SIGABRT: I_Error("EDGE2: Aborted"); break;
+		case SIGTERM: I_Error("EDGE2: Killed"); break;
 	}
 
-	I_Error("EDGE: Terminated by signal %d", s);
+	I_Error("EDGE2: Terminated by signal %d", s);
 }
 
 
@@ -264,7 +264,7 @@ void I_Error(const char *error, ...)
 
 	I_SystemShutdown();
 
-	I_MessageBox(errmsg, "EDGE Error");
+	I_MessageBox(errmsg, "EDGE2 Error");
 
 	I_CloseProgram(-1);
 }

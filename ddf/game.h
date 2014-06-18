@@ -19,7 +19,7 @@
 #ifndef __DDF_GAME_H__
 #define __DDF_GAME_H__
 
-#include "epi/utility.h"
+#include "../epi/utility.h"
 
 #include "types.h"
 

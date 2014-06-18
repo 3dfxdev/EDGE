@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE New SaveGame Handling (Players)
+//  EDGE2 New SaveGame Handling (Players)
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2008  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -28,9 +28,9 @@
 
 #include "i_defs.h"
 
-#include "epi/str_format.h"
+#include "../epi/str_format.h"
 
-#include "ddf/main.h"
+#include "../ddf/main.h"
 
 #include "p_bot.h"
 #include "sv_chunk.h"
@@ -380,8 +380,9 @@ void SV_PlayerFinaliseElems(void)
 {
 	int first = -1;
 
-	consoleplayer = -1;
-	displayplayer = -1;
+	consoleplayer1 = -1;
+	consoleplayer2 = -1;
+	displayplayer  = -1;
 
 	player_t *temp[MAXPLAYERS];
 
@@ -414,7 +415,12 @@ void SV_PlayerFinaliseElems(void)
 			first = p->pnum;
 
 		if (p->playerflags & PFL_Console)
-			consoleplayer = p->pnum;
+		{
+			if (consoleplayer1 < 0)
+				consoleplayer1 = p->pnum;
+			else
+				consoleplayer2 = p->pnum;
+		}
 
 		if (p->playerflags & PFL_Display)
 			displayplayer = p->pnum;
@@ -434,11 +440,11 @@ void SV_PlayerFinaliseElems(void)
 	if (first < 0)
 		I_Error("LOADGAME: No players !!\n");
 
-	if (consoleplayer < 0)
+	if (consoleplayer1 < 0)
 		G_SetConsolePlayer(first);
 
 	if (displayplayer < 0)
-		G_SetDisplayPlayer(consoleplayer);
+		G_SetDisplayPlayer(consoleplayer1);
 }
 
 

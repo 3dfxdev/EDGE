@@ -1,12 +1,12 @@
 // 
-//    EDGE SOUNDS.DDF -redefine or add new sounds.
+//    3DGE SOUNDS.DDF -redefine or add new sounds.
 //    For documentation, see http://edge.sourceforge.net/
-//    DDF Version 6.1
+//    DDF Version 7
 //
 
 <SOUNDS>
 
-#VERSION 1.35
+#VERSION 1.36
 
 [PISTOL]
 LUMP_NAME="DSPISTOL";

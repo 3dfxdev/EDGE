@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Option Menu Modification
+//  EDGE2 Option Menu Modification
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -72,12 +72,13 @@
 // -AJA- 2001/07/26: Reworked colours, key config, and other code.
 //
 //
+// -CA-  2013/02/12: Reworked again for second player proper.
 
 #include "i_defs.h"
 
-#include "epi/str_format.h"
+#include "../epi/str_format.h"
 
-#include "ddf/main.h"
+#include "../ddf/main.h"
 
 #include "dm_state.h"
 #include "e_input.h"
@@ -119,6 +120,8 @@ extern int joystick_device;
 
 //submenus
 static void M_KeyboardOptions(int keypressed);
+static void M_KeyboardOptions2(int keypressed);
+//the bad boy above is what multiplayer wants.
 static void M_VideoOptions(int keypressed);
 static void M_GameplayOptions(int keypressed);
 static void M_AnalogueOptions(int keypressed);
@@ -147,7 +150,7 @@ static void M_ChangeKicking(int keypressed);
 static void M_ChangeWeaponSwitch(int keypressed);
 static void M_ChangeMipMap(int keypressed);
 static void M_ChangeDLights(int keypressed);
-// static void M_ChangeHalos(int keypressed);
+static void M_ChangeHalos(int keypressed);
 
 // -ES- 1998/08/20 Added resolution options
 // -ACB- 1998/08/29 Moved to top and tried different system
@@ -155,14 +158,14 @@ static void M_ChangeDLights(int keypressed);
 static void M_ResOptDrawer(style_c *style, int topy, int bottomy, int dy, int centrex);
 static void M_ResolutionOptions(int keypressed);
 static void M_OptionSetResolution(int keypressed);
-///--  static void M_OptionTestResolution(int keypressed);
+static void M_OptionTestResolution(int keypressed);
 ///--  static void M_RestoreResSettings(int keypressed);
 static void M_ChangeResSize(int keypressed);
 static void M_ChangeResDepth(int keypressed);
 static void M_ChangeResFull(int keypressed);
 
-       void M_HostNetGame(int keypressed);
-       void M_JoinNetGame(int keypressed);
+static void M_HostNetGame(int keypressed);
+static void M_JoinNetGame(int keypressed);
 
 static void M_LanguageDrawer(int x, int y, int deltay);
 static void M_ChangeLanguage(int keypressed);
@@ -188,7 +191,7 @@ static char SampleRates[] = "11025 Hz/16000 Hz/22050 Hz/32000 Hz/44100 Hz";
 static char SoundBits[]   = "8 bit/16 bit";
 static char StereoNess[]  = "Off/On/Swapped";
 static char MixChans[]    = "8/16/32/64/96";
-static char QuietNess[]   = "Loud (distorted)/Normal/Soft/Very Soft";
+static char QuietNess[]   = "Loud (scratchy)/Normal/Soft/Very Soft";
 static char MusicDevs[]   = "System/Timidity";
 
 // Screen resolution changes
@@ -328,7 +331,8 @@ static int M_GetCurrentSwitchValue(optmenuitem_t *item)
 
 static optmenuitem_t mainoptions[] =
 {
-	{OPT_Function, "Keyboard Controls", NULL,  0, NULL, M_KeyboardOptions, "Controls"},
+	{OPT_Function, "Keyboard Controls", NULL,  0, NULL, M_KeyboardOptions, "Controls"}, //Is this what we need?
+	{OPT_Function, "Splitplay Controls", NULL, 0, NULL, M_KeyboardOptions2, "PLAYER 2"}, //new define for splitscreen control code
 	{OPT_Function, "Mouse / Joystick",  NULL,  0, NULL, M_AnalogueOptions, "AnalogueOptions"},
 	{OPT_Function, "Gameplay Options",  NULL,  0, NULL, M_GameplayOptions, "GameplayOptions"},
 	{OPT_Plain,    "",                  NULL,  0, NULL, NULL, NULL},
@@ -378,13 +382,13 @@ static optmenuitem_t vidoptions[] =
 	{OPT_Switch,  "Wipe method",     WIPE_EnumStr, WIPE_NUMWIPES, &wipe_method, NULL, NULL},
 	{OPT_Boolean, "Screenshot Format", JpgPng, 2, &png_scrshots, NULL, NULL}
 
-#if 0  // TEMPORARILY DISABLED (we need an `Advanced Options' menu)
-	{OPT_Switch,  "Teleportation effect", WIPE_EnumStr, WIPE_NUMWIPES, 
-                                              &telept_effect, NULL, NULL},
-
-    {OPT_Switch,  "Reverse effect", YesNo, 2, &telept_reverse, NULL, NULL},
-    {OPT_Switch,  "Reversed wipe",  YesNo, 2, &wipe_reverse, NULL, NULL},
-#endif
+//#if 0  // TEMPORARILY DISABLED (we need an `Advanced Options' menu)
+//	{OPT_Switch,  "Teleportation effect", WIPE_EnumStr, WIPE_NUMWIPES, 
+ //                                             &telept_effect, NULL, NULL},
+//
+//    {OPT_Switch,  "Reverse effect", YesNo, 2, &telept_reverse, NULL, NULL},
+//    {OPT_Switch,  "Reversed wipe",  YesNo, 2, &wipe_reverse, NULL, NULL},
+//#endif
 };
 
 static menuinfo_t video_optmenu = 
@@ -577,6 +581,32 @@ static menuinfo_t movement_optmenu =
 	"Movement"
 };
 
+// DUPLICATED FOR PLAYER 2
+
+//is this referenced in the load pages for key_x2? Hope so, pay attention to the move_keyconfig (might need to rename this), RUN A QUICK SEARCH
+//COME BACK HERE GOOBERS
+/* static optmenuitem_t move_keyconfig2[] =
+{
+	{OPT_KeyConfig, "Walk Forward",   NULL, 0, &key_up2, NULL, NULL},
+	{OPT_KeyConfig, "Walk Backwards", NULL, 0, &key_down2, NULL, NULL},
+	{OPT_Plain,      "",              NULL, 0, NULL, NULL, NULL},
+	{OPT_KeyConfig, "Strafe Left",    NULL, 0, &key_strafeleft2, NULL, NULL},
+	{OPT_KeyConfig, "Strafe Right",   NULL, 0, &key_straferight2, NULL, NULL},
+	{OPT_Plain,      "",              NULL, 0, NULL, NULL, NULL},
+	{OPT_KeyConfig, "Turn Left",      NULL, 0, &key_left2, NULL, NULL},
+	{OPT_KeyConfig, "Turn Right",     NULL, 0, &key_right2, NULL, NULL},
+	{OPT_Plain,      "",              NULL, 0, NULL, NULL, NULL},
+	{OPT_KeyConfig, "Up / Jump",      NULL, 0, &key_flyup2, NULL, NULL},
+	{OPT_KeyConfig, "Down / Crouch",  NULL, 0, &key_flydown2, NULL, NULL},
+};
+
+static menuinfo_t movement2_optmenu = 
+{
+	move_keyconfig2, sizeof(move_keyconfig2) / sizeof(optmenuitem_t),
+	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0,
+	"Movement"
+}; */
+
 //
 //  KEY CONFIG : ATTACK + LOOK
 //
@@ -604,6 +634,28 @@ static menuinfo_t attack_optmenu =
 	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0,
 	"Attack / Look"
 };
+/* 
+static optmenuitem_t attack_keyconfig2[] =
+{
+	{OPT_KeyConfig, "Primary Attack",   NULL, 0, &key_fire2, NULL, NULL},
+	{OPT_KeyConfig, "Secondary Attack", NULL, 0, &key_secondatk2, NULL, NULL},
+	{OPT_KeyConfig, "Next Weapon",      NULL, 0, &key_nextweapon2, NULL, NULL},
+	{OPT_KeyConfig, "Previous Weapon",  NULL, 0, &key_prevweapon2, NULL, NULL},
+	{OPT_KeyConfig, "Weapon Reload",    NULL, 0, &key_reload2, NULL, NULL},
+	{OPT_Plain,     "",                 NULL, 0, NULL, NULL, NULL},
+	{OPT_KeyConfig, "Look Up",          NULL, 0, &key_lookup2, NULL, NULL},
+	{OPT_KeyConfig, "Look Down",        NULL, 0, &key_lookdown2, NULL, NULL},
+	{OPT_KeyConfig, "Center View",      NULL, 0, &key_lookcenter2, NULL, NULL},
+	{OPT_KeyConfig, "Mouse Look",       NULL, 0, &key_mlook2, NULL, NULL},
+	{OPT_KeyConfig, "Zoom in/out",      NULL, 0, &key_zoom2, NULL, NULL},
+}; */
+/* 
+static menuinfo_t attack2_optmenu = 
+{
+	attack_keyconfig2, sizeof(attack_keyconfig2) / sizeof(optmenuitem_t),
+	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0,
+	"Attack / Look"
+}; */
 
 //
 //  KEY CONFIG : OTHER STUFF
@@ -621,8 +673,10 @@ static optmenuitem_t other_keyconfig[] =
 	{OPT_KeyConfig, "Pause",            NULL, 0, &key_pause, NULL, NULL},
 	{OPT_KeyConfig, "Action 1",         NULL, 0, &key_action1, NULL, NULL},
 	{OPT_KeyConfig, "Action 2",         NULL, 0, &key_action2, NULL, NULL},
+	{OPT_KeyConfig, "Action 3",         NULL, 0, &key_action3, NULL, NULL},
+	{OPT_KeyConfig, "Action 4",         NULL, 0, &key_action4, NULL, NULL},
 
-///	{OPT_KeyConfig, "Multiplayer Talk", NULL, 0, &key_talk, NULL, NULL},
+	{OPT_KeyConfig, "Multiplayer Talk", NULL, 0, &key_talk, NULL, NULL},
 };
 
 static menuinfo_t otherkey_optmenu = 
@@ -631,6 +685,30 @@ static menuinfo_t otherkey_optmenu =
 	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0,
 	"Other Keys"
 };
+/* 
+static optmenuitem_t other_keyconfig2[] =
+{
+	{OPT_KeyConfig, "Use Item",         NULL, 0, &key_use2, NULL, NULL},
+	{OPT_KeyConfig, "Strafe",           NULL, 0, &key_strafe2, NULL, NULL},
+	{OPT_KeyConfig, "Run",              NULL, 0, &key_speed2, NULL, NULL},
+	{OPT_KeyConfig, "Toggle Autorun",   NULL, 0, &key_autorun2, NULL, NULL},
+	{OPT_KeyConfig, "180 degree turn",  NULL, 0, &key_1802, NULL, NULL},
+	{OPT_Plain,     "",                 NULL, 0, NULL, NULL, NULL},
+	{OPT_KeyConfig, "Map Toggle",       NULL, 0, &key_map2, NULL, NULL},
+	{OPT_KeyConfig, "Console",          NULL, 0, &key_console2, NULL, NULL},
+//	{OPT_KeyConfig, "Pause",            NULL, 0, &key_pause2, NULL, NULL},
+	{OPT_KeyConfig, "Action 1",         NULL, 0, &key_action12, NULL, NULL},
+	{OPT_KeyConfig, "Action 2",         NULL, 0, &key_action22, NULL, NULL},
+
+	{OPT_KeyConfig, "Multiplayer Talk", NULL, 0, &key_talk, NULL, NULL},
+}; */
+/* 
+static menuinfo_t otherkey2_optmenu = 
+{
+	other_keyconfig2, sizeof(other_keyconfig2) / sizeof(optmenuitem_t),
+	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0,
+	"Other Keys"
+}; */
 
 //
 //  KEY CONFIG : WEAPONS
@@ -656,6 +734,29 @@ static menuinfo_t weapon_optmenu =
 	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0,
 	"Weapon Keys"
 };
+
+//weapon_keyconfig is not defined yet (neither are the key_weapons2 stuff...might cause problems)f/* 
+/* static optmenuitem_t weapon_keyconfig2[] =
+{
+	{OPT_KeyConfig, "Weapon 1",  NULL, 0, &key_weapons2[1], NULL, NULL},
+	{OPT_KeyConfig, "Weapon 2",  NULL, 0, &key_weapons2[2], NULL, NULL},
+	{OPT_KeyConfig, "Weapon 3",  NULL, 0, &key_weapons2[3], NULL, NULL},
+	{OPT_KeyConfig, "Weapon 4",  NULL, 0, &key_weapons2[4], NULL, NULL},
+	{OPT_KeyConfig, "Weapon 5",  NULL, 0, &key_weapons2[5], NULL, NULL},
+	{OPT_Plain,     "",          NULL, 0, NULL, NULL, NULL},
+	{OPT_KeyConfig, "Weapon 6",  NULL, 0, &key_weapons2[6], NULL, NULL},
+	{OPT_KeyConfig, "Weapon 7",  NULL, 0, &key_weapons2[7], NULL, NULL},
+	{OPT_KeyConfig, "Weapon 8",  NULL, 0, &key_weapons2[8], NULL, NULL},
+	{OPT_KeyConfig, "Weapon 9",  NULL, 0, &key_weapons2[9], NULL, NULL},
+	{OPT_KeyConfig, "Weapon 0",  NULL, 0, &key_weapons2[0], NULL, NULL},
+};
+
+static menuinfo_t weapon2_optmenu = 
+{
+	weapon_keyconfig2, sizeof(weapon_keyconfig2) / sizeof(optmenuitem_t),
+	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0,
+	"Weapon Keys"
+}; */ 
 
 //
 //  KEY CONFIG : AUTOMAP
@@ -685,17 +786,30 @@ static menuinfo_t automap_optmenu =
 /*
  * ALL KEYBOARD MENUS
  */
-#define NUM_KEY_MENUS  5
+#define NUM_KEY_MENUS  9
+// 5, as in 5 pages? Testing now. . .
+// yes, so this will need to be duplicated for the entirely new keyboard menu we will be writing.
+// This will be easier than just creating 10 pages and confusing everyone.
 
+//Well, that's what we'll do. We'll create two methods - one, a seperate menu, and if that
+//fails, we can go the easier route and add 5 more to NUM_KEY_MENUS
+
+// Is optmenu here what calls the menu pages for key definitions? -CA
 static menuinfo_t * all_key_menus[NUM_KEY_MENUS] =
 {
 	&movement_optmenu,
 	&attack_optmenu,
 	&otherkey_optmenu,
 	&weapon_optmenu,
-	&automap_optmenu
+	&automap_optmenu,
 };
 
+// static menuinfo_t * all_key2_menus[NUM_KEY2_MENUS] =	
+	// &movement2_optmenu,
+	// &attack2_optmenu,
+	// &otherkey2_optmenu,
+	// &weapon2_optmenu,
+// };
 static char keystring1[] = "Enter to change, Backspace to Clear";
 static char keystring2[] = "Press a key for this action";
 
@@ -713,21 +827,21 @@ void M_OptCheckNetgame(void)
 		mainoptions[HOSTNET_POS+0].routine = &M_EndGame;
 		mainoptions[HOSTNET_POS+0].help = NULL;
 
-//		strcpy(mainoptions[HOSTNET_POS+1].name, "");
-//		mainoptions[HOSTNET_POS+1].type = OPT_Plain;
-//		mainoptions[HOSTNET_POS+1].routine = NULL;
-//		mainoptions[HOSTNET_POS+1].help = NULL;
+		strcpy(mainoptions[HOSTNET_POS+1].name, "SplitScreen Game");
+		mainoptions[HOSTNET_POS+1].type = OPT_Plain;
+		mainoptions[HOSTNET_POS+1].routine = NULL;
+		mainoptions[HOSTNET_POS+1].help = NULL;
 	}
 	else
 	{
-		strcpy(mainoptions[HOSTNET_POS+0].name, "Advanced Start");
+		strcpy(mainoptions[HOSTNET_POS+0].name, "Host Net Game");
 		mainoptions[HOSTNET_POS+0].routine = &M_HostNetGame;
 		mainoptions[HOSTNET_POS+0].help = NULL;
 
-//		strcpy(mainoptions[HOSTNET_POS+1].name, "Join Net Game");
-//		mainoptions[HOSTNET_POS+1].type = OPT_Function;
-//		mainoptions[HOSTNET_POS+1].routine = &M_JoinNetGame;
-//		mainoptions[HOSTNET_POS+1].help = NULL;
+		strcpy(mainoptions[HOSTNET_POS+1].name, "Join Net Game");
+		mainoptions[HOSTNET_POS+1].type = OPT_Function;
+		mainoptions[HOSTNET_POS+1].routine = &M_JoinNetGame;
+		mainoptions[HOSTNET_POS+1].help = NULL;
 	}
 }
 
@@ -1361,8 +1475,16 @@ static void M_GameplayOptions(int keypressed)
 
 //
 // M_KeyboardOptions
-//
+// do we need this for second player I wonder
 static void M_KeyboardOptions(int keypressed)
+{
+	curr_menu = all_key_menus[curr_key_menu];
+
+	curr_item = curr_menu->items + curr_menu->pos;
+}
+
+//for the second player responder
+static void M_KeyboardOptions2(int keypressed)
 {
 	curr_menu = all_key_menus[curr_key_menu];
 
@@ -1535,7 +1657,7 @@ static void M_ChangeMipMap(int keypressed)
 	W_DeleteAllImages();
 }
 
-#if 0
+//#if 0
 static void M_ChangeShadows(int keypressed)
 {
 	if (currmap && ((currmap->force_on | currmap->force_off) & MPF_Shadows))
@@ -1551,7 +1673,7 @@ static void M_ChangeHalos(int keypressed)
 
 	level_flags.halos = global_flags.halos;
 }
-#endif
+//#endif
 
 static void M_ChangeKicking(int keypressed)
 {
@@ -1721,12 +1843,12 @@ void M_HostNetGame(int keypressed)
 
 void M_JoinNetGame(int keypressed)
 {
-#if 0
+//#if 0
 	option_menuon  = 0;
 	netgame_menuon = 2;
 
 	M_NetJoinBegun();
-#endif
+//#endif
 }
 
 void M_Options(int choice)

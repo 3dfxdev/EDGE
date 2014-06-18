@@ -20,8 +20,8 @@
 
 #include "states.h"
 
-#include "src/p_action.h"
-#include "src/z_zone.h"
+#include "../src/p_action.h"
+#include "../src/z_zone.h"
 
 
 // FIXME: unwanted link to engine code (switch to epi::angle_c)

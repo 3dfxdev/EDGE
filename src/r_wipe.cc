@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE OpenGL Rendering (Wipes)
+//  EDGE2 OpenGL Rendering (Wipes)
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -26,7 +26,7 @@
 #include "i_defs.h"
 #include "i_defs_gl.h"
 
-#include "epi/image_data.h"
+#include "../epi/image_data.h"
 
 #include "m_random.h"
 #include "r_gldefs.h"

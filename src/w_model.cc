@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Model Management
+//  EDGE2 Model Management
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -49,8 +49,8 @@ modeldef_c::~modeldef_c()
 	// TODO: free the skins
 }
 
-
 static void FindModelFrameNames(md2_model_c *md, int model_num)
+
 {
 	int missing = 0;
 
@@ -86,7 +86,7 @@ static void FindModelFrameNames(md2_model_c *md, int model_num)
 	}
 
 	if (missing > 0)
-		I_Error("Failed to find %d frames for model '%sMD2' (see EDGE.LOG)\n",
+		I_Error("Failed to find %d frames for model '%sMDx' (see EDGE2.LOG)\n",
 				missing, ddf_model_names[model_num].c_str());
 }
 
@@ -100,15 +100,35 @@ modeldef_c *LoadModelFromLump(int model_num)
 	char lumpname[16];
 	char skinname[16];
 
-	sprintf(lumpname, "%sMD2", basename);
+	epi::file_c *f;
 
-	I_Debugf("Loading model from lump : %s\n", lumpname);
+	// try MD3 first, then MD2
+	sprintf(lumpname, "%sMD3", basename);
 
-	epi::file_c *f = W_OpenLump(lumpname);
-	if (! f)
-		I_Error("Missing model lump: %s\n", lumpname);
+	if (W_CheckNumForName(lumpname) >= 0)
+	{
+		I_Debugf("Loading model from lump : %s\n", lumpname);
 
-	def->model = MD2_LoadModel(f);
+		f = W_OpenLump(lumpname);
+		SYS_ASSERT(f);
+
+		def->model = MD3_LoadModel(f);
+	}
+	else
+	{
+		sprintf(lumpname, "%sMD2", basename);
+		I_Debugf("Loading model from lump : %s\n", lumpname);
+
+//	epi::file_c *f = W_OpenLump(lumpname);
+//	if (! f)
+//		I_Error("Missing model lump: %s\n", lumpname);
+		f = W_OpenLump(lumpname);
+		if (! f)
+			I_Error("Missing model lump: %s\n", lumpname);
+
+		def->model = MD2_LoadModel(f);
+	}
+
 	SYS_ASSERT(def->model);
 
 	// close the lump

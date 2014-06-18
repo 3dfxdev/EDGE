@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE WIN32 Music Subsystems
+//  EDGE2 WIN32 Music Subsystems
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -24,8 +24,8 @@
 
 #include "i_sdlinc.h"
 
-#include "ddf/main.h"
-#include "ddf/playlist.h"
+#include "../ddf/main.h"
+#include "../ddf/playlist.h"
 
 #include "s_sound.h"
 #include "s_timid.h"

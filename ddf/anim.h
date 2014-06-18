@@ -19,7 +19,7 @@
 #ifndef __DDF_ANIM_H_
 #define __DDF_ANIM_H_
 
-#include "epi/utility.h"
+#include "../epi/utility.h"
 
 #include "types.h"
 

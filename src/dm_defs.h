@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Basic Definitions File
+//  EDGE2 Basic Definitions File
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -72,6 +72,10 @@ gamestate_e;
 // -AJA- 2008/03/08: Extrafloor placement
 #define MTF_EXFLOOR_MASK    0x3C00
 #define MTF_EXFLOOR_SHIFT   10
+
+//HEXEN/LEGACY STUFF
+#define	FRACBITS		16
+#define	FRACUNIT		(1<<FRACBITS)
 
 typedef enum
 {
@@ -235,6 +239,10 @@ gameflags_t;
 #define AXIS_FORWARD     3
 #define AXIS_STRAFE      4
 #define AXIS_FLY         5  // includes SWIM up/down
+
+// SPLITSCREEN
+#define SPLITSCREEN
+#define MAXSPLITSCREENPLAYERS	2
 
 #endif // __DEFINITIONS__
 

@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Networking : Reliable Links
+//  EDGE2 Networking : Reliable Links
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -38,7 +38,7 @@ net_node_c::~net_node_c()
 { }
 
 
-#if 0  // DISABLED
+//#if 0  // DISABLED
 
 //----------------------------------------------------------------------------
 
@@ -306,7 +306,7 @@ void N_RemoveNode(net_node_c *nd)
 	I_Error("INTERNAL ERROR N_RemoveNode: no such node '%p'\n", nd);
 }
 
-#endif  // DISABLED
+//#endif  // DISABLED
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

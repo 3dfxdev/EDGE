@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Global State Variables
+//  EDGE2 Global State Variables
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -27,14 +27,18 @@
 //
 // -ACB- 1999/10/07 Removed Sound Parameters - New Sound API
 //
-
+// ~CA~ 2011 - Added Splitscreen parameters!!
+//doomstat.h - // Player taking events, and displaying.
+//extern int consoleplayer[MAXSPLITSCREENPLAYERS];
+//extern int displayplayer[MAXSPLITSCREENPLAYERS];
+//description - global vars of internal state
 #ifndef __D_STATE_H__
 #define __D_STATE_H__
 
 
-#include "ddf/types.h"
+#include "../ddf/types.h"
 
-#include "epi/utility.h"
+#include "../epi/utility.h"
 
 // We need globally shared data structures,
 //  for defining the global state variables.
@@ -145,6 +149,10 @@ extern int quickSaveSlot;
 // debug flag to cancel adaptiveness
 extern bool singletics;
 
+extern bool splitscreen_mode;
+
+extern bool heretic_mode;
+
 extern int bodyqueslot;
 
 // Needed to store the number of the dummy sky flat.
@@ -159,6 +167,7 @@ extern const image_c *skyflatimage;
 // Netgame stuff (buffers and pointers, i.e. indices).
 
 extern int maketic;
+
 
 //misc stuff
 extern bool swapstereo;

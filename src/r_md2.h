@@ -2,7 +2,7 @@
 //  MD2 Models
 //----------------------------------------------------------------------------
 //
-//  Copyright (c) 2002-2009  The EDGE Team.
+//  Copyright (c) 2002-2009  The EDGE2 Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -19,7 +19,7 @@
 #ifndef __R_MD2_H__
 #define __R_MD2_H__
 
-#include "epi/file.h"
+#include "../epi/file.h"
 
 #include "r_defs.h"
 #include "p_mobj.h"
@@ -30,6 +30,7 @@ class md2_model_c;
 
 
 md2_model_c *MD2_LoadModel(epi::file_c *f); 
+md2_model_c *MD3_LoadModel(epi::file_c *f); 
 
 short MD2_FindFrame(md2_model_c *md, const char *name);
 

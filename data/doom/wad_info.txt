@@ -1,13 +1,13 @@
 ==========================
 |                        |
-|  EDGE.WAD VERSION 6.1  |
+|  EDGE2.WAD VERSION 7   |
 |                        |
 ==========================
 
 LICENSE
 -------
 
-The material in EDGE.WAD is:
+The material in EDGE2.WAD is:
     Copyright (C) 1999-2009 the Edge Team.
     Copyright (C) 1993-1996 id Software, Inc.
 

@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Cheat Sequence Checking
+//  EDGE2 Cheat Sequence Checking
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -39,7 +39,7 @@
 #include "m_cheat.h"
 
 #include "con_main.h"
-#include "ddf/main.h"
+#include "../ddf/main.h"
 #include "dstrings.h"
 #include "g_game.h"
 #include "m_menu.h"
@@ -166,7 +166,10 @@ void M_ChangeLevelCheat(const char *string)
 
 	params.random_seed = I_PureRandom();
 
-	params.SinglePlayer(numbots);
+	if (splitscreen_mode)
+		params.Splitscreen();
+	else
+		params.SinglePlayer(numbots);
 
 	G_DeferredNewGame(params);
 
@@ -226,7 +229,7 @@ bool M_CheatResponder(event_t * ev)
 #endif
 
 	int i;
-	player_t *pl = players[consoleplayer];
+	player_t *pl = players[consoleplayer1];
 
 	// disable cheats while in RTS menu, or demos
 	if (rts_menuactive)

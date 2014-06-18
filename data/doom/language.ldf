@@ -1,12 +1,12 @@
 //
-//    EDGE LANGUAGE.LDF -redefine or add new messages.
+//    3DGE LANGUAGE.LDF -redefine or add new messages.
 //    For documentation, see http://edge.sourceforge.net/
-//    DDF Version 6.1
+//    DDF Version 7
 //
 
 <LANGUAGES>
 
-#VERSION 1.35
+#VERSION 1.36
 
 // ------ English Language Definition File ----------
 

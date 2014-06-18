@@ -21,7 +21,7 @@
 
 #include "local.h"
 
-#include "epi/path.h"
+#include "../epi/path.h"
 
 #include "image.h"
 

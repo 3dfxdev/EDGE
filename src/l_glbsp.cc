@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE<->GLBSP Bridging code
+//  EDGE2<->GLBSP Bridging code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -28,7 +28,7 @@
 #ifdef HAVE_GLBSP_H
 #include "glbsp.h"
 #else
-#include "glbsp/src/glbsp.h"
+#include "../glbsp/src/glbsp.h"
 #endif
 
 #include "e_main.h"
@@ -43,7 +43,7 @@ static void GB_TermProgress(void);
 
 static char message_buf[1024];
 
-/// #define MESSAGE1  "EDGE IS NOW CREATING THE GWA FILE..."
+/// #define MESSAGE1  "EDGE2 IS NOW CREATING THE GWA FILE..."
 /// #define MESSAGE2  "THIS ONLY HAS TO BE DONE ONCE FOR THIS WAD"
 
 static char wad_name_buf[256];

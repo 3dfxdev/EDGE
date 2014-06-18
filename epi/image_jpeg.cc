@@ -28,8 +28,8 @@ extern "C"
 #define INT32  INT32_jpeg
 #endif
 
-#include <jpeglib.h>
-#include <jerror.h>
+#include "../lib_win32/jpeg-6b/jpeglib.h"
+#include "../lib_win32/jpeg-6b/jerror.h"
 }
 
 namespace epi

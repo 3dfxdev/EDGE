@@ -2,7 +2,7 @@
 //  Sound Blitter
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -26,9 +26,9 @@
 #ifndef __S_BLIT__
 #define __S_BLIT__
 
-#include "epi/sound_data.h"
+#include "../epi/sound_data.h"
 
-#include "ddf/types.h"
+#include "../ddf/types.h"
 
 // Forward declarations
 class sfxdef_c;
@@ -68,6 +68,7 @@ public:
 
 	bool loop;  // will loop *one* more time
 	bool boss;
+	int split; 
 
 public:
 	mix_channel_c();
@@ -75,6 +76,7 @@ public:
 
 	void ComputeDelta();
 	void ComputeVolume();
+	void ComputeVolume_Split();
 	void ComputeMusicVolume();
 };
 

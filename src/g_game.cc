@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Player Handling
+//  EDGE2 Player Handling
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -28,10 +28,10 @@
 #include <time.h>
 #include <limits.h>
 
-#include "epi/endianess.h"
-#include "epi/path.h"
-#include "epi/str_format.h"
-#include "epi/filesystem.h"
+#include "../epi/endianess.h"
+#include "../epi/path.h"
+#include "../epi/str_format.h"
+#include "../epi/filesystem.h"
 
 #include "con_main.h"
 #include "dstrings.h"
@@ -239,7 +239,10 @@ void LoadLevel_Bits(void)
 	}
 
 	// Initial height of PointOfView will be set by player think.
-	players[consoleplayer]->viewz = FLO_UNUSED;
+	players[consoleplayer1]->viewz = FLO_UNUSED;
+    
+	if (consoleplayer2 >= 0)
+		players[consoleplayer2]->viewz = FLO_UNUSED;
 
 	leveltime = 0;
 
@@ -553,10 +556,12 @@ static void SpawnInitialPlayers(void)
 	}
 
 	// check for missing player start.
-	if (players[consoleplayer]->mo == NULL)
+	if (players[consoleplayer1]->mo == NULL)
 		I_Error("Missing player start !\n");
 
-	G_SetDisplayPlayer(consoleplayer); // view the guy you are playing
+	G_SetDisplayPlayer(consoleplayer1); // view the guy you are playing
+//	if(!cv_splitscreen.value)
+//        secondarydisplayplayer = consoleplayer;
 }
 
 void G_DeferredScreenShot(void)
@@ -751,7 +756,7 @@ static bool G_LoadGameFromFile(const char *filename, bool is_hub)
 		if (! currmap)
 			I_Error("LOAD-HUB: No such map %s !  Check WADS\n", globs->level);
 
-		G_SetDisplayPlayer(consoleplayer);
+		G_SetDisplayPlayer(consoleplayer1);
 		automapactive = false;
 
 		N_ResetTics();
@@ -906,7 +911,7 @@ static bool G_SaveGameToFile(const char *filename, const char *description)
 	globs->netgame = netgame ? (1+deathmatch) : 0;
 	globs->p_random = P_ReadRandomState();
 
-	globs->console_player = consoleplayer; // NB: not used
+	globs->console_player = consoleplayer1; // NB: not used
 
 	globs->level_time = leveltime;
 	globs->exit_time  = exittime;
@@ -1029,6 +1034,17 @@ void newgame_params_c::SinglePlayer(int num_bots)
 	}
 }
 
+void newgame_params_c::Splitscreen()
+{
+	total_players = 2;
+
+	players[0] = PFL_Console;
+	nodes[0]   = NULL;
+
+	players[1] = PFL_Console;
+	nodes[1]   = NULL;
+}
+
 void newgame_params_c::CopyFlags(const gameflags_t *F)
 {
 	if (flags)
@@ -1108,7 +1124,7 @@ static void InitNew(newgame_params_c& params)
 
 		P_CreatePlayer(pnum, (params.players[pnum] & PFL_Bot) ? true : false);
 
-		if (consoleplayer < 0 && ! (params.players[pnum] & PFL_Bot) &&
+		if (consoleplayer1 < 0 && ! (params.players[pnum] & PFL_Bot) &&
 			! (params.players[pnum] & PFL_Network))
 		{
 			G_SetConsolePlayer(pnum);
@@ -1121,10 +1137,20 @@ static void InitNew(newgame_params_c& params)
 		I_Error("Internal Error: InitNew: player miscount (%d != %d)\n",
 			numplayers, params.total_players);
 
-	if (consoleplayer < 0)
+	if (splitscreen_mode)
+	{
+		consoleplayer1 = 0;
+		consoleplayer2 = 1;
+
+		G_SetConsole2_Player(consoleplayer2);
+	}
+	else
+		consoleplayer2 = -1;
+
+	if (consoleplayer1 < 0)
 		I_Error("Internal Error: InitNew: no local players!\n");
 
-	G_SetDisplayPlayer(consoleplayer);
+	G_SetDisplayPlayer(consoleplayer1);
 
 	if (paused)
 	{

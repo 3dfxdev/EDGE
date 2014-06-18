@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Sprite Management
+//  EDGE2 Sprite Management
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE Team.
+//  Copyright (c) 1999-2008  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -51,7 +51,7 @@ public:
     // 1  = not rotated, we don't have to determine the angle for the
     //      sprite.  This is an optimisation.
 	// 8  = normal DOOM rotations.
-	// 16 = EDGE extended rotations using [9ABCDEFG].
+	// 16 = EDGE2 extended rotations using [9ABCDEFG].
 	int rots;
   
 	// Flip bits (1 = flip) to use for each view angle

@@ -2,7 +2,7 @@
 //  COAL General Stuff
 //------------------------------------------------------------------------
 //
-//  Copyright (c) 2006-2009  The EDGE Team.
+//  Copyright (c) 2006-2009  The EDGE2 Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -18,13 +18,13 @@
 
 #include "i_defs.h"
 
-#include "coal/coal.h"
+#include "../coal/coal.h"
 
-#include "epi/file.h"
-#include "epi/filesystem.h"
-#include "epi/path.h"
+#include "../epi/file.h"
+#include "../epi/filesystem.h"
+#include "../epi/path.h"
 
-#include "ddf/main.h"
+#include "../ddf/main.h"
 
 #include "vm_coal.h"
 #include "dm_state.h"
