@@ -154,6 +154,7 @@ void net_address_c::GuessBroadcast(void)
 
 static bool GetLocalAddress(void)
 {
+#ifndef DREAMCAST
 	if (M_CheckParm("-nohostname"))
 		return false;
 
@@ -201,6 +202,9 @@ static bool GetLocalAddress(void)
 	}
 
 	return false;
+#else
+	return false;
+#endif
 }
 
 #ifdef LINUX
@@ -333,7 +337,7 @@ static bool SetupAddresses(void)
 
 	n_broadcast_listen.FromString("0.0.0.0");  // INADDR_ANY
 
-#else // LINUX
+#elif defined(LINUX)
 
 	if (Scan_IFCONFIG(got_local))
 		got_local = true;

@@ -184,7 +184,7 @@ void RGL_PaletteEffect(player_t *player)
 	{
 		if (var_invul_fx != INVULFX_Complex)
 			return;
-
+#ifndef DREAMCAST
 		if (GLEW_ARB_imaging || GLEW_SGI_color_matrix)
 		{
 			glFlush();
@@ -211,6 +211,9 @@ void RGL_PaletteEffect(player_t *player)
 
 			glLoadIdentity();
 		}
+#else
+	//TODO DREAMCAST
+#endif
 		return;
 	}
 	else if (s > 0 && player->powers[PW_NightVision] > 0 &&

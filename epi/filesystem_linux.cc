@@ -109,10 +109,10 @@ bool FS_ReadDir(filesystem_dir_c *fsd, const char *dir, const char *mask)
 		if (strcmp(fdata->d_name, ".")  == 0 ||
 			strcmp(fdata->d_name, "..") == 0)
 			continue;
-
+#ifndef DREAMCAST
 		if (fnmatch(mask, fdata->d_name, 0) != 0)
 			continue;
-
+#endif
 		struct stat finfo;
 
 		if (stat(fdata->d_name, &finfo) != 0)

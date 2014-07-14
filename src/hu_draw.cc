@@ -446,10 +446,10 @@ void HUD_SolidLine(float x1, float y1, float x2, float y2, rgbcol_t col,
 
 	if (thick)
 		glLineWidth(1.5f);
-
+#ifndef NO_LINE_SMOOTH
 	if (smooth)
 		glEnable(GL_LINE_SMOOTH);
-
+#endif
 	if (smooth || cur_alpha < 0.99f)
 		glEnable(GL_BLEND);
   
@@ -463,7 +463,9 @@ void HUD_SolidLine(float x1, float y1, float x2, float y2, rgbcol_t col,
 	glEnd();
 
 	glDisable(GL_BLEND);
+#ifndef NO_LINE_SMOOTH
 	glDisable(GL_LINE_SMOOTH);
+#endif
 	glLineWidth(1.0f);
 }
 

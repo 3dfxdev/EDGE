@@ -375,6 +375,7 @@ static bool MIR_SegOnPortal(seg_t *seg)
 
 static void MIR_SetClippers()
 {
+#ifndef NO_CLIP_PLANES
 	glDisable(GL_CLIP_PLANE0);
 	glDisable(GL_CLIP_PLANE1);
 	glDisable(GL_CLIP_PLANE2);
@@ -435,6 +436,7 @@ static void MIR_SetClippers()
 
 		glClipPlane(GL_CLIP_PLANE2 + i, front_p);
 	}
+#endif
 }
 
 static void MIR_Push(drawmirror_c *mir)

@@ -1027,6 +1027,8 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 	float delta;
 	float zmove;
 	
+	//W_ImageGetName(mo->subsector->sector->floor.image)
+//	int floortype;
 	// -KM- 1998/11/25 Gravity is now not precalculated so that
 	//  menu changes affect instantly.
 	float gravity = props->gravity / 8.0f * 
@@ -1064,6 +1066,11 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 	//
 	//  HIT FLOOR ?
 	//
+	//if (floor.image = 'FWATER')
+	    //{SYS_ASSERT(objtype->respawneffect);
+		//P_MobjCreateObject(x, y, z, objtype->respawneffect);}
+		
+			        
 	if (mo->flags & MF_SKULLFLY)
 			mo->mom.z = -mo->mom.z;
 	
@@ -1092,7 +1099,18 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 				S_StartFX(mo->info->oof_sound, P_MobjGetSfxCategory(mo), mo);
 			
 			}
-		
+			
+			    
+              ///    (W_ImageGetName(mo->subsector->sector->floor.image))
+			///	      while (strcmp (floor.image,'FWATER1') != 1);
+				      ///(strcmp(W_ImageGetName(mo->subsector->sector->floor.image), 'FWATER1') == 1);
+			///	      S_StartFX(mo->info->oof_sound, P_MobjGetSfxCategory(mo), mo);
+                   ///{P_SpawnSplash(thing, thing->floorz);}
+			 
+		     ///ss->floor.image = W_ImageLookup('FWATER1', INS_Flat);
+			
+
+			//}
 			// -KM- 1998/12/16 If bigger than max fall, take damage.
 
 			if (mo->info->maxfall > 0 && gravity > 0 && -mo->mom.z > hurt_momz &&
@@ -1100,73 +1118,6 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 			{
 				P_DamageMobj(mo, NULL, NULL, (-mo->mom.z - hurt_momz), NULL);
 			}
-			const char *W_ImageGetName(const image_c *image)
-
-{
-
-	const image_c *rim;
-
-
-
-	rim = (const image_c *) image;
-
-
-
-	return rim->name;
-
-}
-
-
-
-#if 0  // DEBUGGING
-
-	L_WriteDebug("W_ImageGetUserSprites(count = %d)\n", *count);
-
-	L_WriteDebug("{\n");
-
-
-
-	for (pos = 0; pos < *count; pos++)
-
-		L_WriteDebug("   %p = [%s] %dx%d\n", array[pos], W_ImageGetName(array[pos]),
-
-			array[pos]->actual_w, array[pos]->actual_h);
-
-		
-
-	L_WriteDebug("}\n");
-
-#endif
-
-
-
-		return array;
-
-}
-
-
-
-if (new_image)
-
-            {
-
-            sec->floor.image = new_image;
-
-			
-
-		    if (new_image == FWATER1)
-
-			S_StartFX(mo->info->splash_sound, P_MobjGetSfxCategory(mo), mo);
-
-			} 
-
-			     
-
-		    #define CMP(a, b)  (strcmp(W_ImageGetName(a), W_ImageGetName(b)) < 0)
-
-	QSORT(const image_c *, array, (*count), CUTOFF);
-
-#undef CMP
 
 			// -KM- 1999/01/31 Bouncy bouncy...
 			if (mo->extendedflags & EF_BOUNCE)

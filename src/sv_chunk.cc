@@ -24,7 +24,11 @@
 
 #include "i_defs.h"
 
-#include "C:/hyperedge/edge2/lib_win32/zlib-1.2.3/zlib.h"
+#ifdef WIN32
+#include "../lib_win32/zlib-1.2.3/zlib.h"
+#else
+#include <zlib.h>
+#endif
 
 #include "../epi/math_crc.h"
 

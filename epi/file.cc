@@ -59,8 +59,14 @@ unsigned int ansi_file_c::Read(void *dest, unsigned int size)
 {
 	SYS_ASSERT(fp);
 	SYS_ASSERT(dest);
-
+#ifdef DREAMCAST
+	//dramatically increases speed of file transfers over bba
+	int result = read(fileno(fp), dest, size);
+	//position won't update correctly without this
+	fseek(fp, result, SEEK_CUR);
+#else
     int result = fread(dest, 1, size, fp);
+#endif
 
 //I_Debugf("Reading %d bytes  --->  %d  %s %s\n", size, result,
 //		 feof(fp) ? "EOF" : "-", ferror(fp) ? "ERROR" : "-");
