@@ -333,7 +333,7 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 		is_png = true;
 
 		if (! PNG_GetInfo(f, &width, &height, &solid) ||
-		    width <= 0 or height <= 0)
+		    width <= 0 || height <= 0)
 		{
 			I_Error("Error scanning PNG image in '%s' lump\n", W_GetLumpName(lump));
 		}
@@ -902,7 +902,8 @@ static GLuint LoadImageOGL(image_c *rim, const colourmap_c *trans)
 	bool smooth = IM_ShouldSmooth(rim);
  
  	int max_pix = IM_PixelLimit(rim);
-
+//DREAMCAST DEBUG
+I_Printf("LoadImageOGL: Loading \"%.*s\"\n",16,rim->name);
 	if (rim->source_type == IMSRC_User)
 	{
 		if (rim->source.user.def->special & IMGSP_Clamp)

@@ -511,8 +511,6 @@ typedef enum
 	// player must be pressing an Action key
 	COND_Action1,
 	COND_Action2,
-	COND_Action3,
-	COND_Action4,
 
 	// player must be walking
 	COND_Walking

@@ -441,7 +441,7 @@ static void DoSystemStartup(void)
 	// startup the system now
 	W_InitImages();
 
-	I_Debugf("- System is starting up...\n");
+	I_Debugf("- System startup begun.\n");
 
 	I_SystemStartup();
 
@@ -458,7 +458,7 @@ static void DoSystemStartup(void)
 	RGL_Init();
 	R_SoftInitResolution();
 
-	I_Debugf("- System startup complete...\n");
+	I_Debugf("- System startup done.\n");
 }
 
 
@@ -1005,7 +1005,7 @@ static void ShowDateAndVersion(void)
 	I_Printf("hyper3DGE homepage is at http://edge2.sourceforge.net/\n");
 	I_Printf("hyper3DGE is based on EDGE by the EDGE team http://edge.sourceforge.net/\n");
 	I_Printf("hyper3DGE is based on DOOM by id Software http://www.idsoftware.com/\n");
-    I_Printf("hyper3DGE problems should be reported @ http://tdgmods.net/smf\n");
+    I_Printf("hyper3DGE problems should be reported @ http://edge.sourceforge.net/phpBB2/\n");
 
 #ifdef WIN32
 	I_Printf("Executable path: '%s'\n", win32_exe_path);
@@ -1255,7 +1255,14 @@ static void E_Shutdown(void);
 static void E_Startup(void)
 {
 	int p;
-
+#ifdef DREAMCAST_DEBUG
+	printf("Changing dir\n");
+	fflush(stdout);
+	chdir("/pc/3dgedc/");
+#endif
+#ifdef DREAMCAST_RELEASE
+	#error Get CD working
+#endif
 	// Version check ?
 	if (M_CheckParm("-version"))
 	{
@@ -1282,7 +1289,9 @@ static void E_Startup(void)
 	SetGlobalVars();
 
 	DoSystemStartup();
+//#ifndef DREAMCAST
     E_SplashScreen();
+//#endif
 	I_PutTitle(E_TITLE); // Needs to be done once the system is up and running
 
 	// RGL_FontStartup();

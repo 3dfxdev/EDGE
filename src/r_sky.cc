@@ -296,7 +296,9 @@ void RGL_BeginSky(void)
 	glDisable(GL_TEXTURE_2D);
 
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+#ifndef NO_EDGEFLAG
 	glEdgeFlag(GL_TRUE);
+#endif
 }
 
 
@@ -366,6 +368,7 @@ void RGL_DrawSkyBox(void)
 	col[2] = LT_BLU(255);
 	col[3] = 1.0f;
 
+#ifndef DREAMCAST
 	if (r_colormaterial.d || ! r_colorlighting.d)
 		glColor4fv(col);
 	else
@@ -373,6 +376,9 @@ void RGL_DrawSkyBox(void)
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, col);
 		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, col);
 	}
+#else
+	glColor4fv(col);
+#endif
 
 	// top
 	glBindTexture(GL_TEXTURE_2D, fake_box[SK].tex[WSKY_Top]);
@@ -451,7 +457,7 @@ void RGL_DrawSkyOriginal(void)
 	RGL_SetupSkyMatrices2D();
 
 	float white[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-
+#ifndef DREAMCAST
 	if (r_colormaterial.d || ! r_colorlighting.d)
 		glColor4fv(white);
 	else
@@ -459,7 +465,9 @@ void RGL_DrawSkyOriginal(void)
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, white);
 		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, white);
 	}
-
+#else
+	glColor4fv(white);
+#endif
 	GLuint tex_id = W_ImageCache(sky_image, false, ren_fx_colmap);
 
 	glEnable(GL_TEXTURE_2D);

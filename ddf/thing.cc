@@ -402,8 +402,6 @@ const specflags_t simplecond_names[] =
 	{"USING",       COND_Using,      0},
 	{"ACTION1",     COND_Action1,    0},
 	{"ACTION2",     COND_Action2,    0},
-	{"ACTION3",     COND_Action3,    0},
-	{"ACTION4",      COND_Action4,    0},
 	{"WALKING",     COND_Walking,    0},
 	{NULL, 0, 0}
 };

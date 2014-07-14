@@ -19,7 +19,7 @@
 #ifndef __SDL_SYSTEM_INTERNAL_H__
 #define __SDL_SYSTEM_INTERNAL_H__
 
-#if 1
+#if 0
 #include <C:/hyperedge/edge2/lib_win32/SDL/include/SDL.h>
 #else
 #include <SDL.h>

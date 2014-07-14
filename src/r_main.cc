@@ -144,7 +144,9 @@ void RGL_SetupMatrices3D(void)
 	if (r_colorlighting.d)
 	{
 		glEnable(GL_LIGHTING);
+#ifndef DREAMCAST
 		glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
+#endif
 	}
 	else
 		glDisable(GL_LIGHTING);
@@ -152,7 +154,9 @@ void RGL_SetupMatrices3D(void)
 	if (r_colormaterial.d)
 	{
 		glEnable(GL_COLOR_MATERIAL);
+#ifndef DREAMCAST
 		glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+#endif
 	}
 	else
 		glDisable(GL_COLOR_MATERIAL);
@@ -172,6 +176,7 @@ static inline const char *SafeStr(const void *s)
 //
 void RGL_CheckExtensions(void)
 {
+#ifndef DREAMCAST
 	GLenum err = glewInit();
 
 	if (err != GLEW_OK)
@@ -258,6 +263,21 @@ void RGL_CheckExtensions(void)
 		if (bug->enable & PFT_SKY)        r_dumbsky = 0;
 		if (bug->enable & PFT_MULTI_TEX)  r_dumbmulti = 0;
 	}
+#else
+	std::string glstr_version (SafeStr(glGetString(GL_VERSION)));
+	std::string glstr_renderer(SafeStr(glGetString(GL_RENDERER)));
+	std::string glstr_vendor  (SafeStr(glGetString(GL_VENDOR)));
+
+	I_Printf("OpenGL: Version: %s\n", glstr_version.c_str());
+	I_Printf("OpenGL: Renderer: %s\n", glstr_renderer.c_str());
+	I_Printf("OpenGL: Vendor: %s\n", glstr_vendor.c_str());
+	
+	r_dumbcombine = 1;
+	r_colorlighting = 1;
+	r_colormaterial = 1;
+	r_dumbsky = 1;
+	r_dumbmulti = 1;
+#endif
 }
 
 //
@@ -276,6 +296,7 @@ void RGL_SoftInit(void)
 	glDisable(GL_SCISSOR_TEST);
 	glDisable(GL_STENCIL_TEST);
 
+#ifndef DREAMCAST
 	glDisable(GL_LINE_SMOOTH);
 	glDisable(GL_POLYGON_SMOOTH);
 
@@ -285,6 +306,7 @@ void RGL_SoftInit(void)
 		glDisable(GL_DITHER);
 
 	glEnable(GL_NORMALIZE);
+#endif
 
 	glShadeModel(GL_SMOOTH);
 	glDepthFunc(GL_LEQUAL);
@@ -310,20 +332,28 @@ void RGL_Init(void)
 
 	// read implementation limits
 	{
+		GLint max_tex_size;
+
+		glGetIntegerv(GL_MAX_TEXTURE_SIZE,  &max_tex_size);
+		glmax_tex_size = max_tex_size;
+		
+#ifndef DREAMCAST
 		GLint max_lights;
 		GLint max_clip_planes;
-		GLint max_tex_size;
 		GLint max_tex_units;
-
+		
 		glGetIntegerv(GL_MAX_LIGHTS,        &max_lights);
 		glGetIntegerv(GL_MAX_CLIP_PLANES,   &max_clip_planes);
-		glGetIntegerv(GL_MAX_TEXTURE_SIZE,  &max_tex_size);
 		glGetIntegerv(GL_MAX_TEXTURE_UNITS, &max_tex_units);
 
 		glmax_lights = max_lights;
 		glmax_clip_planes = max_clip_planes;
-		glmax_tex_size = max_tex_size;
 		glmax_tex_units = max_tex_units;
+#else
+		glmax_lights = 1;
+		glmax_clip_planes = 0;
+		glmax_tex_units = 2;
+#endif
 	}
 
 	I_Printf("OpenGL: Lights: %d  Clips: %d  Tex: %d  Units: %d\n",

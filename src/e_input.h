@@ -115,33 +115,31 @@ extern int key_180;
 extern int key_talk;
 extern int key_console;
 extern int key_pause;
-// Encounted a Wild Ditto
-// extern int key_fire2;
-// extern int key_use2;
-// extern int key_strafe2;
-// extern int key_speed2;
-// extern int key_autorun2;
-// extern int key_nextweapon2;
-// extern int key_prevweapon2;
-// extern int key_map2;
-// extern int key_1802;
-// extern int key_talk2;
-// extern int key_console2;
-// extern int key_pause2;
+//Encounted a Wild Ditto
+extern int key_fire2;
+extern int key_use2;
+extern int key_strafe2;
+extern int key_speed2;
+extern int key_autorun2;
+extern int key_nextweapon2;
+extern int key_prevweapon2;
+extern int key_map2;
+extern int key_1802;
+extern int key_talk2;
+extern int key_console2;
+extern int key_pause2;
 
 extern int key_mlook;  // -AJA- 1999/07/27.
 extern int key_secondatk;
 extern int key_reload;  // -AJA- 2004/11/10
 extern int key_action1; // -AJA- 2009/09/07
 extern int key_action2; // -AJA- 2009/09/07
-extern int key_action3; // 
-extern int key_action4; // 
 //again. . .
-/* extern int key_mlook2;  
+extern int key_mlook2;  
 extern int key_secondatk2;
 extern int key_reload2;  
 extern int key_action12; 
-extern int key_action22;  */
+extern int key_action22; 
 //remember! 1->2 not 12 22
 
 // -AJA- 2010/06/13: weapon and automap stuff

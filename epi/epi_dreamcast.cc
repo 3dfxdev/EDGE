@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
-//  EDGE2 OGG Music Player (HEADER)
+//  Dreamcast EPI System Specifics
 //----------------------------------------------------------------------------
-// 
-//  Copyright (c) 2004-2009  The EDGE2 Team.
-// 
+//
+//  Copyright (c) 2002-2008  The EDGE Team.
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -15,32 +15,46 @@
 //  GNU General Public License for more details.
 //
 //----------------------------------------------------------------------------
-//
-// -ACB- 2004/08/18 Written
-//
-#ifndef __OGGPLAYER_H__
-#define __OGGPLAYER_H__
 
-#include "i_defs.h"
+#include "epi.h"
 
-#ifdef WIN32
-//#include <C:\hyperedge\edge2\lib_win32\libvorbis-1.3.2\include\vorbis\vorbisfile.h>
-#include "..\lib_win32\libvorbis-1.3.2\include\vorbis\vorbisfile.h"
-#else
-#include <vorbis/vorbisfile.h>
-#endif
+namespace epi
+{
+	static bool inited = false;
 
-#include "../epi/sound_data.h"
+    //
+    // Init
+    //
+    bool Init(void)
+    {
+		bool ok;
 
-class pl_entry_c;
+		if (inited)
+			Shutdown();
 
-/* FUNCTIONS */
+		ok = true;
 
-abstract_music_c * S_PlayOGGMusic(const pl_entry_c *musdat, float volume, bool looping);
+		inited = ok;
+        return ok;
+    }
 
-bool S_LoadOGGSound(epi::sound_data_c *buf, const byte *data, int length);
+    //
+    // Shutdown
+    //
+    void Shutdown(void)
+    {
+		inited = false;
+    }
 
-#endif  /* __OGGPLAYER_H__ */
+} // namespace epi
+
+
+/*void strupr(char *str)
+{
+	if (str)
+		for (; *str; str++)
+			*str = toupper(*str);
+}*/
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

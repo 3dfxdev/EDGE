@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
-//  EDGE2 OGG Music Player (HEADER)
+//  Dreamcast EPI System Specifics
 //----------------------------------------------------------------------------
-// 
-//  Copyright (c) 2004-2009  The EDGE2 Team.
-// 
+//
+//  Copyright (c) 2003-2008  The EDGE Team.
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -16,31 +16,32 @@
 //
 //----------------------------------------------------------------------------
 //
-// -ACB- 2004/08/18 Written
-//
-#ifndef __OGGPLAYER_H__
-#define __OGGPLAYER_H__
+#ifndef __DREAMCAST_EPI_HEADER__
+#define __DREAMCAST_EPI_HEADER__
 
-#include "i_defs.h"
-
-#ifdef WIN32
-//#include <C:\hyperedge\edge2\lib_win32\libvorbis-1.3.2\include\vorbis\vorbisfile.h>
-#include "..\lib_win32\libvorbis-1.3.2\include\vorbis\vorbisfile.h"
+// Sanity checking...
+#ifdef __EPI_HEADER_SYSTEM_SPECIFIC__
+#error "Two different system specific EPI headers included"
 #else
-#include <vorbis/vorbisfile.h>
+#define __EPI_HEADER_SYSTEM_SPECIFIC__
 #endif
 
-#include "../epi/sound_data.h"
+#define DIRSEPARATOR '/'
 
-class pl_entry_c;
+#define GCCATTR(xyz) __attribute__ (xyz)
 
-/* FUNCTIONS */
+#define stricmp   strcasecmp
+#define strnicmp  strncasecmp
 
-abstract_music_c * S_PlayOGGMusic(const pl_entry_c *musdat, float volume, bool looping);
+#ifndef O_BINARY
+#define O_BINARY  0
+#endif
 
-bool S_LoadOGGSound(epi::sound_data_c *buf, const byte *data, int length);
+#ifndef D_OK
+#define D_OK  X_OK
+#endif
 
-#endif  /* __OGGPLAYER_H__ */
+#endif /* __DREAMCAST_EPI_HEADER__ */
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
