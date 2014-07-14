@@ -107,6 +107,8 @@ GLuint R_UploadTexture(epi::image_data_c *img, int flags, int max_pix)
 	 */
 
 	SYS_ASSERT(img->bpp == 3 || img->bpp == 4);
+//DREAMCAST DEBUG
+I_Printf("R_UploadTexture: Loading %ix%i %i bpp texture\n", img->width, img->height, img->bpp);
 
 	bool clamp  = (flags & UPL_Clamp)  ? true : false;
 	bool nomip  = (flags & UPL_MipMap) ? false : true;
@@ -198,9 +200,9 @@ GLuint R_UploadTexture(epi::image_data_c *img, int flags, int max_pix)
 		new_w = MAX(1, new_w / 2);
 		new_h = MAX(1, new_h / 2);
 
+#if !(defined WIN32 || defined DREAMCAST)
 		// -AJA- 2003/12/05: workaround for Radeon 7500 driver bug, which
 		//       incorrectly draws the 1x1 mip texture as black.
-#ifndef WIN32
 		if (new_w == 1 && new_h == 1)
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mip);
 #endif

@@ -585,7 +585,7 @@ static menuinfo_t movement_optmenu =
 
 //is this referenced in the load pages for key_x2? Hope so, pay attention to the move_keyconfig (might need to rename this), RUN A QUICK SEARCH
 //COME BACK HERE GOOBERS
-/* static optmenuitem_t move_keyconfig2[] =
+static optmenuitem_t move_keyconfig2[] =
 {
 	{OPT_KeyConfig, "Walk Forward",   NULL, 0, &key_up2, NULL, NULL},
 	{OPT_KeyConfig, "Walk Backwards", NULL, 0, &key_down2, NULL, NULL},
@@ -605,7 +605,7 @@ static menuinfo_t movement2_optmenu =
 	move_keyconfig2, sizeof(move_keyconfig2) / sizeof(optmenuitem_t),
 	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0,
 	"Movement"
-}; */
+};
 
 //
 //  KEY CONFIG : ATTACK + LOOK
@@ -634,7 +634,7 @@ static menuinfo_t attack_optmenu =
 	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0,
 	"Attack / Look"
 };
-/* 
+
 static optmenuitem_t attack_keyconfig2[] =
 {
 	{OPT_KeyConfig, "Primary Attack",   NULL, 0, &key_fire2, NULL, NULL},
@@ -648,14 +648,14 @@ static optmenuitem_t attack_keyconfig2[] =
 	{OPT_KeyConfig, "Center View",      NULL, 0, &key_lookcenter2, NULL, NULL},
 	{OPT_KeyConfig, "Mouse Look",       NULL, 0, &key_mlook2, NULL, NULL},
 	{OPT_KeyConfig, "Zoom in/out",      NULL, 0, &key_zoom2, NULL, NULL},
-}; */
-/* 
+};
+
 static menuinfo_t attack2_optmenu = 
 {
 	attack_keyconfig2, sizeof(attack_keyconfig2) / sizeof(optmenuitem_t),
 	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0,
 	"Attack / Look"
-}; */
+};
 
 //
 //  KEY CONFIG : OTHER STUFF
@@ -673,8 +673,6 @@ static optmenuitem_t other_keyconfig[] =
 	{OPT_KeyConfig, "Pause",            NULL, 0, &key_pause, NULL, NULL},
 	{OPT_KeyConfig, "Action 1",         NULL, 0, &key_action1, NULL, NULL},
 	{OPT_KeyConfig, "Action 2",         NULL, 0, &key_action2, NULL, NULL},
-	{OPT_KeyConfig, "Action 3",         NULL, 0, &key_action3, NULL, NULL},
-	{OPT_KeyConfig, "Action 4",         NULL, 0, &key_action4, NULL, NULL},
 
 	{OPT_KeyConfig, "Multiplayer Talk", NULL, 0, &key_talk, NULL, NULL},
 };
@@ -685,7 +683,7 @@ static menuinfo_t otherkey_optmenu =
 	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0,
 	"Other Keys"
 };
-/* 
+
 static optmenuitem_t other_keyconfig2[] =
 {
 	{OPT_KeyConfig, "Use Item",         NULL, 0, &key_use2, NULL, NULL},
@@ -701,14 +699,14 @@ static optmenuitem_t other_keyconfig2[] =
 	{OPT_KeyConfig, "Action 2",         NULL, 0, &key_action22, NULL, NULL},
 
 	{OPT_KeyConfig, "Multiplayer Talk", NULL, 0, &key_talk, NULL, NULL},
-}; */
-/* 
+};
+
 static menuinfo_t otherkey2_optmenu = 
 {
 	other_keyconfig2, sizeof(other_keyconfig2) / sizeof(optmenuitem_t),
 	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0,
 	"Other Keys"
-}; */
+};
 
 //
 //  KEY CONFIG : WEAPONS
@@ -735,8 +733,8 @@ static menuinfo_t weapon_optmenu =
 	"Weapon Keys"
 };
 
-//weapon_keyconfig is not defined yet (neither are the key_weapons2 stuff...might cause problems)f/* 
-/* static optmenuitem_t weapon_keyconfig2[] =
+//weapon_keyconfig is not defined yet (neither are the key_weapons2 stuff...might cause problems)f
+static optmenuitem_t weapon_keyconfig2[] =
 {
 	{OPT_KeyConfig, "Weapon 1",  NULL, 0, &key_weapons2[1], NULL, NULL},
 	{OPT_KeyConfig, "Weapon 2",  NULL, 0, &key_weapons2[2], NULL, NULL},
@@ -756,7 +754,7 @@ static menuinfo_t weapon2_optmenu =
 	weapon_keyconfig2, sizeof(weapon_keyconfig2) / sizeof(optmenuitem_t),
 	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0,
 	"Weapon Keys"
-}; */ 
+};
 
 //
 //  KEY CONFIG : AUTOMAP
@@ -797,10 +795,10 @@ static menuinfo_t automap_optmenu =
 // Is optmenu here what calls the menu pages for key definitions? -CA
 static menuinfo_t * all_key_menus[NUM_KEY_MENUS] =
 {
-	&movement_optmenu,
-	&attack_optmenu,
-	&otherkey_optmenu,
-	&weapon_optmenu,
+	&movement_optmenu,&movement2_optmenu,
+	&attack_optmenu,&attack2_optmenu,
+	&otherkey_optmenu,&otherkey2_optmenu,
+	&weapon_optmenu,&weapon2_optmenu,
 	&automap_optmenu,
 };
 

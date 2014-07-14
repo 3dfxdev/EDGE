@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
-//  EDGE2 OGG Music Player (HEADER)
+//  EDGE2 LINUX System Specific header
 //----------------------------------------------------------------------------
-// 
-//  Copyright (c) 2004-2009  The EDGE2 Team.
-// 
+//
+//  Copyright (c) 1999-2009  The EDGE2 Team.
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -15,32 +15,17 @@
 //  GNU General Public License for more details.
 //
 //----------------------------------------------------------------------------
-//
-// -ACB- 2004/08/18 Written
-//
-#ifndef __OGGPLAYER_H__
-#define __OGGPLAYER_H__
+
+#ifndef __UNIX_SYSTEM_INTERNAL_H__
+#define __UNIX_SYSTEM_INTERNAL_H__
 
 #include "i_defs.h"
 
-#ifdef WIN32
-//#include <C:\hyperedge\edge2\lib_win32\libvorbis-1.3.2\include\vorbis\vorbisfile.h>
-#include "..\lib_win32\libvorbis-1.3.2\include\vorbis\vorbisfile.h"
-#else
-#include <vorbis/vorbisfile.h>
-#endif
 
-#include "../epi/sound_data.h"
+#include "i_local.h"  // FIXME: remove
 
-class pl_entry_c;
 
-/* FUNCTIONS */
-
-abstract_music_c * S_PlayOGGMusic(const pl_entry_c *musdat, float volume, bool looping);
-
-bool S_LoadOGGSound(epi::sound_data_c *buf, const byte *data, int length);
-
-#endif  /* __OGGPLAYER_H__ */
+#endif // __UNIX_SYSTEM_INTERNAL_H__
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

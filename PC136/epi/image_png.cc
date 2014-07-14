@@ -21,7 +21,13 @@
 #include "image_png.h"
 
 #undef _SETJMP_H  // workaround for some weirdness in pngconf.h
+
+#ifdef WIN32
 #include "../lib_win32/libpng-1.2.12/png.h"
+#else
+#include <png/png.h>
+#include <zlib/zlib.h>
+#endif
 
 namespace epi
 {
@@ -96,7 +102,11 @@ image_data_c *PNG_Load(file_c *f, int read_flags)
 	/* set error handling since we are using the setjmp/longjmp method
 	 * (this is the normal method of doing things with libpng).
 	 */
+#ifndef DREAMCAST
 	if (setjmp(png_ptr->jmpbuf))
+#else
+	if (setjmp(png_jmpbuf(png_ptr)))
+#endif
 	{
 		fprintf(stderr, "PNG_Load - Error loading PNG image !\n");
 		goto failed;
@@ -238,7 +248,11 @@ bool PNG_GetInfo(file_c *f, int *width, int *height, bool *solid)
 	/* set error handling since we are using the setjmp/longjmp method
 	 * (this is the normal method of doing things with libpng).
 	 */
+#ifndef DREAMCAST
 	if (setjmp(png_ptr->jmpbuf))
+#else
+	if (setjmp(png_jmpbuf(png_ptr)))
+#endif
 	{
 		fprintf(stderr, "PNG: Error loading PNG image !\n");
 		goto failed;
@@ -315,7 +329,11 @@ bool PNG_Save(FILE *fp, const image_data_c *img, int compress)
 	/* set error handling since we are using the setjmp/longjmp method
 	 * (this is the normal method of doing things with libpng).
 	 */
+ #ifndef DREAMCAST
 	if (setjmp(png_ptr->jmpbuf))
+#else
+	if (setjmp(png_jmpbuf(png_ptr)))
+#endif
 	{
 		fprintf(stderr, "PNG: Error saving PNG image !\n");
 		goto failed;

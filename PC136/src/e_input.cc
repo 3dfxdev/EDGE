@@ -27,6 +27,13 @@
 // -MH- 1998/08/18 Flyup and flydown logic
 //
 
+// -CA- 2013/2/12 Started adding definable variables for multiplayer.
+
+// 6:26PM - compiled with the new key_x2 ints, now begin testing
+// on the ticcmd_Other (second-player ticker)
+
+//
+
 #include "i_defs.h"
 
 #include "dm_defs.h"
@@ -70,8 +77,19 @@ int key_lookup;
 int key_lookdown;
 int key_lookcenter;
 
+//
+// controls for second player
+//
+int key_right2;
+int key_left2;
+int key_lookup2;
+int key_lookdown2;
+int key_lookcenter2;
+
 // -ES- 1999/03/28 Zoom Key
 int key_zoom;
+// 2nd player
+int key_zoom2;
 
 int key_up;
 int key_down;
@@ -93,14 +111,39 @@ int key_secondatk;
 int key_reload;
 int key_action1;
 int key_action2;
-int key_action3;
-int key_action4;
 
-// -MH- 1998/07/10 Flying keys
+//Keys for Player 2, duped as key_x2:
+int key_up2;
+int key_down2;
+int key_strafeleft2;
+int key_straferight2;
+int key_fire2;
+int key_use2;
+int key_strafe2;
+int key_speed2;
+int key_autorun2;
+int key_nextweapon2;
+int key_prevweapon2;
+int key_map2;
+int key_1802;
+int key_talk2;
+int key_console2;
+int key_mlook2;
+int key_secondatk2;
+int key_reload2;
+int key_action12;
+int key_action22;
+// the action keys are not 12, or 22, but rather 1 ->2
+
+// -MH- 1998/07/10 Flying keys, -CA -2013- ammended for second player:
 int key_flyup;
 int key_flydown;
+int key_flyup2;
+int key_flydown2;
 
 int key_weapons[10];
+//this value above for second player weapons, this might be tricky. . .
+int key_weapons2[10];
 
 #define MAXPLMOVE  (forwardmove[1])
 
@@ -137,7 +180,10 @@ int joy_axis[6] = { 0, 0, 0, 0, 0, 0 };
 
 static int joy_last_raw[6];
 
+/*below value is for second player "mouse hack"
 static int mouse_ss_hack = 0;
+WE DONT NEED YOU ANYMORE
+//remove once input is handled properly*/
 
 // The last one is ignored (AXIS_DISABLE)
 static float ball_deltas[6] = {0, 0, 0, 0, 0, 0};
@@ -307,13 +353,254 @@ static int CmdChecksum(ticcmd_t * cmd)
 #endif
 
 void E_BuildTiccmd_Other(ticcmd_t * cmd)
+
+	// {
+		// float turn = angleturn[0] * ball_deltas[AXIS_TURN] / 64.0;
+
+		// cmd->angleturn = I_ROUND(turn);
+	// }
+
+	//-- Mlook --
+	// {
+		// float mlook = mlookturn[0] * ball_deltas[AXIS_MLOOK] / 64.0;
+
+		// cmd->mlookturn = I_ROUND(mlook);
+	// }
+
+	//-- Forward --
+	// {
+		// if (mouse_ss_hack & 0x6)
+			// cmd->forwardmove = forwardmove[1];
+	// }
+
+	//-- Buttons --
+	// if (mouse_ss_hack & 1)
+		// cmd->buttons |= BT_ATTACK;
+
+	// if (mouse_ss_hack & 0x6)
+		// cmd->buttons |= BT_USE;
+
+	// for (int k = 0; k < 6; k++)
+		// ball_deltas[k] = 0;
+
+//if 0
 {
 	///
 	/// -AJA- very hacky stuff here to test out split-screen mode
-	///
+
+	/// BuildTiccmd_Other sounds like this handles all of the second
+	/// player controlling. Obviously we need to find out why the
+	/// "_Other" is called: we can see that this is referenced when
+	/// the value of splitscreen is >0. 
+
+	// What happens here, is that this is forcing those keys to
+	// be binded to the respective slots (for instance, eating the
+	// mouse without fail and "taking over" first-player's input
+	// handling. Instead of this treachery, we must teach it to
+	// share.
 
 	Z_Clear(cmd, ticcmd_t, 1);
+	// -- called to clear the gametic for second player, keep this
+	// or the first won't be cleared either
 
+	//strafe and running, already these are now binded to only key_x2
+	bool strafe = E_IsKeyPressed(key_strafe2);
+	int  speed  = E_IsKeyPressed(key_speed2) ? 1 : 0;
+	//push ahead
+
+		if (in_running.d)
+		speed = !speed;
+
+	// This is interesting - we've now duped some joystick and mouse stuff, but do these
+	// bind to joy_forces2, or...? Might have to keep this one closed off after I do
+	// some debugging
+	//
+	//
+	int t_speed = speed;
+
+	if (fabs(joy_forces[AXIS_TURN]) > 0.2f)
+		turnheld++;
+	else
+		turnheld = 0;
+
+	// slow turn ?
+	if (turnheld < SLOWTURNTICS && in_stageturn.d)
+		t_speed = 2;
+
+	int m_speed = speed;
+
+	if (fabs(joy_forces[AXIS_MLOOK]) > 0.2f)
+		mlookheld++;
+	else
+		mlookheld = 0;
+
+	// slow mlook ?
+	if (mlookheld < SLOWTURNTICS && in_stageturn.d)
+		m_speed = 2;
+
+
+		// Turning, here we go:
+	if (! strafe)
+	{
+		float turn = angleturn[t_speed] * joy_forces[AXIS_TURN];
+		
+		turn *= speed_factors[var_turnspeed];
+
+		// -ACB- 1998/09/06 Angle Turn Speed Control
+		turn += angleturn[t_speed] * ball_deltas[AXIS_TURN] / 64.0;
+
+		cmd->angleturn = I_ROUND(turn);
+	}
+
+		// Forward
+	{
+		float forward = forwardmove[speed] * joy_forces[AXIS_FORWARD];
+		
+		
+			//-- Forward --
+
+		
+	    cmd->forwardmove = forwardmove[1];
+	
+
+		forward *= speed_factors[var_forwardspeed];
+
+		// -ACB- 1998/09/06 Forward Move Speed Control
+		forward += forwardmove[speed] * ball_deltas[AXIS_FORWARD] / 64.0;
+
+		forward = CLAMP(-MAXPLMOVE, forward, MAXPLMOVE);
+
+		cmd->forwardmove = I_ROUND(forward);
+	}
+
+	// Sideways
+	{
+		float side = sidemove[speed] * joy_forces[AXIS_STRAFE];
+
+		if (strafe)
+			side += sidemove[speed] * joy_forces[AXIS_TURN];
+
+		side *= speed_factors[var_sidespeed];
+
+		// -ACB- 1998/09/06 Side Move Speed Control
+		side += sidemove[speed] * ball_deltas[AXIS_STRAFE] / 64.0;
+
+		if (strafe)
+			side += sidemove[speed] * ball_deltas[AXIS_TURN] / 64.0;
+
+		side = CLAMP(-MAXPLMOVE, side, MAXPLMOVE);
+
+		cmd->sidemove = I_ROUND(side);
+	}
+
+	// Upwards  -MH- 1998/08/18 Fly Up/Down movement
+	{
+		float upward = upwardmove[speed] * joy_forces[AXIS_FLY];
+
+		upward *= speed_factors[var_flyspeed];
+
+		upward += upwardmove[speed] * ball_deltas[AXIS_FLY] / 64.0;
+
+		upward = CLAMP(-MAXPLMOVE, upward, MAXPLMOVE);
+
+		cmd->upwardmove = I_ROUND(upward);
+	}
+	
+	// ---Buttons---
+
+	// we take this entire chunk and duplicate it for second player. key_x, 
+	// look familiar? 
+
+	if (E_IsKeyPressed(key_fire2))
+		cmd->buttons |= BT_ATTACK;
+
+	if (E_IsKeyPressed(key_use2))
+		cmd->buttons |= BT_USE;
+
+	if (E_IsKeyPressed(key_secondatk2))
+		cmd->extbuttons |= EBT_SECONDATK;
+
+	if (E_IsKeyPressed(key_reload2))
+		cmd->extbuttons |= EBT_RELOAD;
+
+	if (E_IsKeyPressed(key_action12))
+		cmd->extbuttons |= EBT_ACTION1;
+
+	if (E_IsKeyPressed(key_action22))
+		cmd->extbuttons |= EBT_ACTION2;
+
+	// -ACB- 1998/07/02 Use CENTER flag to center the vertical look.
+	if (E_IsKeyPressed(key_lookcenter))
+		cmd->extbuttons |= EBT_CENTER;
+
+	// -KM- 1998/11/25 Weapon change key
+	for (int w = 0; w < 10; w++)
+	{
+		if (E_IsKeyPressed(key_weapons2[w]))
+		{
+			cmd->buttons |= BT_CHANGE;
+			cmd->buttons |= w << BT_WEAPONSHIFT;
+			break;
+		}
+	}
+
+	if (E_IsKeyPressed(key_nextweapon2))
+	{
+		cmd->buttons |= BT_CHANGE;
+		cmd->buttons |= (BT_NEXT_WEAPON << BT_WEAPONSHIFT);
+	}
+	else if (E_IsKeyPressed(key_prevweapon2))
+	{
+		cmd->buttons |= BT_CHANGE;
+		cmd->buttons |= (BT_PREV_WEAPON << BT_WEAPONSHIFT);
+	}
+
+	// You have to release the 180 deg turn key before you can press it again
+	// if (E_IsKeyPressed(key_1802))
+	// {
+		// if (allow180)
+			// cmd->angleturn ^= (s16_t)0x8000;
+
+		// allow180 = false;
+	// }
+	// else
+		// allow180 = true;
+
+	
+	// if (E_IsKeyPressed(key_zoom2))
+	// {
+		// if (allowzoom)
+		// {
+			// cmd->extbuttons |= EBT_ZOOM;
+			// allowzoom = false;
+		// }
+	// }
+	// else
+		// allowzoom = true;
+
+	// -AJA- 2000/04/14: Autorun toggle
+	
+	// if (E_IsKeyPressed(key_autorun2))
+	// {
+		// if (allowautorun)
+		// {
+			// in_running = in_running.d ? 0 : 1;
+			// allowautorun = false;
+		// }
+	// }
+	// else
+		// allowautorun = true;
+
+
+	cmd->chatchar = HU_DequeueChatChar();
+
+	for (int k = 0; k < 6; k++)
+		ball_deltas[k] = 0;
+}
+//#endif
+
+
+#if 0
 	//-- Turning --
 	{
 		float turn = angleturn[0] * ball_deltas[AXIS_TURN] / 64.0;
@@ -343,7 +630,8 @@ void E_BuildTiccmd_Other(ticcmd_t * cmd)
 
 	for (int k = 0; k < 6; k++)
 		ball_deltas[k] = 0;
-}
+#endif
+
 
 //
 // E_BuildTiccmd
@@ -358,15 +646,23 @@ static bool allow180 = true;
 static bool allowzoom = true;
 static bool allowautorun = true;
 
-void E_BuildTiccmd(ticcmd_t * cmd)
+//piggyback this entire method for the second player in E_BuildTiccmd_Other! Instead of hacks, apply those here. 
+void E_BuildTiccmd(ticcmd_t * cmd) ///here, we add which_player, to determine who is who on the fly. () , int which_player
 {
 	UpdateForces();
 
-	if (splitscreen_mode && cmd->player_idx == consoleplayer1)
-	{
-		E_BuildTiccmd_Other(cmd);
-		return;
-	}
+/// UPDATE: We don't need this check anymore because NOW it will automatically assume - if there's MORE than one player,
+///         we will build what we need. We can also add a check for splitscreen_mode, but I don't think we'll need it!
+///         The game responder, I think, can just check this if there's another player in the game, which there can ONLY
+///         be one more.
+
+	 if (splitscreen_mode && cmd->player_idx == consoleplayer1)
+	 {
+		 E_BuildTiccmd_Other(cmd);
+		 return;
+	 }
+	/// my guess is, here we won't need cmd_Other because there won't be a check. It assumes it is existing already, so this chunk
+	/// gets eaten
 
 	Z_Clear(cmd, ticcmd_t, 1);
 
@@ -376,12 +672,6 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	if (in_running.d)
 		speed = !speed;
 
-	//
-	// -KM- 1998/09/01 use two stage accelerative turning on all devices
-	//
-	// -ACB- 1998/09/06 Allow stage turning to be switched off for
-	//                  analogue devices...
-	//
 	int t_speed = speed;
 
 	if (fabs(joy_forces[AXIS_TURN]) > 0.2f)
@@ -480,6 +770,9 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 
 	// ---Buttons---
 
+	// we take this entire chunk and duplicate it for second player. key_x, 
+	// look familiar? 
+
 	if (E_IsKeyPressed(key_fire))
 		cmd->buttons |= BT_ATTACK;
 
@@ -497,12 +790,6 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 
 	if (E_IsKeyPressed(key_action2))
 		cmd->extbuttons |= EBT_ACTION2;
-		
-	if (E_IsKeyPressed(key_action3))
-		cmd->extbuttons |= EBT_ACTION3;
-
-	if (E_IsKeyPressed(key_action4))
-		cmd->extbuttons |= EBT_ACTION4;
 
 	// -ACB- 1998/07/02 Use CENTER flag to center the vertical look.
 	if (E_IsKeyPressed(key_lookcenter))
@@ -577,16 +864,19 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 // 
 bool INP_Responder(event_t * ev)
 {
-	int sym = ev->value.key.sym;
+	// The code below, I think ,is to disable and substitute player 1 key. Like Andrew said...hacky. =-)
+	/*int sym = ev->value.key.sym;*/ //what is this now?
 
 	switch (ev->type)
 	{
 		case ev_keydown:
-			if (splitscreen_mode && sym >= KEYD_MOUSE1 && sym <= KEYD_MOUSE6)
-			{
-				mouse_ss_hack |= (1 << (sym - KEYD_MOUSE1));
-				return true;
-			}
+			//obviously this (I *THINK* applies to the mouse_hacks only and not the actual code, or something
+
+			/*if (splitscreen_mode && sym >= KEYD_MOUSE1 && sym <= KEYD_MOUSE6)*/
+			//{
+			//	mouse_ss_hack |= (1 << (sym - KEYD_MOUSE1));
+			//	return true;
+			//}
 
 			if (ev->value.key.sym < NUMKEYS)
 			{
@@ -598,11 +888,15 @@ bool INP_Responder(event_t * ev)
 			return true;
 
 		case ev_keyup:
-			if (splitscreen_mode && sym >= KEYD_MOUSE1 && sym <= KEYD_MOUSE6)
-			{
-				mouse_ss_hack &= ~(1 << (sym - KEYD_MOUSE1));
-				return false;
-			}
+			//aha! So if it's splitscreen_mode and, hmm, it tells what it should switch too, so ev_keyup in
+			// splitscreen would be _x_. Unless this was part of his "quick hack" method that I won't need
+			// to use, assuming the keys are actually bindable?
+
+			//if (splitscreen_mode && sym >= KEYD_MOUSE1 && sym <= KEYD_MOUSE6)
+			//{
+			//	mouse_ss_hack &= ~(1 << (sym - KEYD_MOUSE1));
+			//	return false;
+			//}
 
 			if (ev->value.key.sym < NUMKEYS)
 			{
@@ -670,7 +964,8 @@ void E_ClearInput(void)
 	turnheld  = 0;
 	mlookheld = 0;
 
-	mouse_ss_hack = 0;
+	/*mouse_ss_hack = 0;*/
+	//again with the mouse_ss_hack, so it only clears the input if there's no second player. If there is, does cmd_Other handle eating these events??
 }
 
 //

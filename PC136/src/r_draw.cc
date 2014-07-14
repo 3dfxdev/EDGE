@@ -115,6 +115,7 @@ void RGL_DrawImage(float x, float y, float w, float h, const image_c *image,
 
 void RGL_ReadScreen(int x, int y, int w, int h, byte *rgb_buffer)
 {
+#ifndef DREAMCAST
 	glFlush();
 
 	glPixelZoom(1.0f, 1.0f);
@@ -126,6 +127,7 @@ void RGL_ReadScreen(int x, int y, int w, int h, byte *rgb_buffer)
 
 		rgb_buffer += w * 3;
 	}
+#endif
 }
 
 
@@ -135,7 +137,7 @@ static void ProgressSection(const byte *logo_lum, int lw, int lh,
 	int *y, int perc, float alpha)
 {
 	float zoom = 1.0f;
-
+#ifndef DREAMCAST
 	(*y) -= (int)(lh * zoom);
 
 	glRasterPos2i(20, *y);
@@ -147,7 +149,7 @@ static void ProgressSection(const byte *logo_lum, int lw, int lh,
 	glRasterPos2i(20, *y);
 	glPixelZoom(1.0f, 1.0f);
 	glDrawPixels(tw, th, GL_LUMINANCE, GL_UNSIGNED_BYTE, text_lum);
-
+#endif
 	int px = 20;
 	int pw = SCREENWIDTH - 80;
 	int ph = 30;
@@ -181,7 +183,7 @@ static void ProgressSection(const byte *logo_lum, int lw, int lh,
 void RGL_DrawProgress(int perc, int glbsp_perc)
 {
 	/* show EDGE2 logo and a progress indicator */
-
+printf("Drawing progress %i %i\n",perc,glbsp_perc);
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 	glEnable(GL_BLEND);

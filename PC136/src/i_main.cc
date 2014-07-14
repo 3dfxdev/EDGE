@@ -57,9 +57,20 @@ int main(int argc, char *argv[])
     //                  executable is globally installed
 #endif
 
+#ifdef DREAMCAST
+	const char *a[]={"dreamedge","-width","640","-height","480","-bpp","16","-fullscreen","-smoothing","-nomipmap","-nomusic",
+#ifdef NO_SOUND
+		"-nosound",
+#endif
+	};
+	
+printf("DREAMCAST STARTUP\n");
+fflush(stdout);
+	E_Main(11,a);
+#else
 	// Run EDGE2. it never returns
 	E_Main(argc, (const char **) argv);
-
+#endif
 	return 0;
 }
 

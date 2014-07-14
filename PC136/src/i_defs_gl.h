@@ -34,15 +34,22 @@
 
 #ifdef WIN32
 #define GLEW_STATIC  1
-#include <C:/hyperedge/edge2/src/GL/glew.h>
-#include <C:/hyperedge/edge2/src/GL/gl.h>
-#include <C:/hyperedge/edge2/src/GL/glext.h>
+//#include <C:/hyperedge/edge2/src/GL/glew.h>
+//#include <C:/hyperedge/edge2/src/GL/gl.h>
+//#include <C:/hyperedge/edge2/src/GL/glext.h>
+#include "GL/glew.h"
+#include "GL/gl.h"
+#include "GL/glext.h"
 #endif
 
 #ifdef MACOSX
 #include <GL/glew.h>
 #include <OpenGL/gl.h>
 #include <OpenGL/glext.h>
+#endif
+
+#ifdef DREAMCAST
+#include <gl/GL.h>
 #endif
 
 #define USING_GL_TYPES 1

@@ -83,6 +83,14 @@ namespace Deh_Edge
 	typedef long long Int64;
 }
 
+// Dreamcast
+#elif defined (DREAMCAST)
+
+namespace Deh_Edge
+{
+	typedef long long Int64;
+}
+
 #else
 #error Unknown System (not DJGPP, WIN32, LINUX or MACOSX)
 #endif

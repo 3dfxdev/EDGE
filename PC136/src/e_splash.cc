@@ -595,6 +595,8 @@ bool E_DrawSplash(int millies)
 	int max_time = 2700;
 
 	millies = millies - 400;
+	
+	I_StartFrame();
 
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -616,7 +618,7 @@ bool E_DrawSplash(int millies)
 	glDisable(GL_BLEND);
 
 	I_FinishFrame();
-	I_StartFrame();
+	
 
 	return (millies >= max_time);  // finished
 }

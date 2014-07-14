@@ -57,7 +57,6 @@ static sfx_t * sfx_jpflow;
 static void CalcHeight(player_t * player)
 {
 	bool onground = player->mo->z <= player->mo->floorz;
-	bool still = false;
 
 	if (player->mo->height < (player->mo->info->height + player->mo->info->crouchheight) / 2.0f)
 		player->mo->extendedflags |= EF_CROUCHING;
@@ -77,12 +76,6 @@ static void CalcHeight(player_t * player)
 
 	player->bob = (player->mo->mom.x * player->mo->mom.x
 		+ player->mo->mom.y * player->mo->mom.y) / 8;
-	
-	if (bob_z == 0)
-		{
-			still = true;
-		}
-		else
 
 	if (player->bob > MAXBOB)
 		player->bob = MAXBOB;
@@ -93,8 +86,6 @@ static void CalcHeight(player_t * player)
 		angle_t angle = ANG90 / 5 * leveltime;
 
 		bob_z = player->bob / 2 * player->mo->info->bobbing * M_Sin(angle);
-		
-		
 	}
 
 	// ----CALCULATE VIEWHEIGHT----
@@ -741,8 +732,6 @@ void P_PlayerThink(player_t * player)
 
 	player->actiondown[0] = (cmd->extbuttons & EBT_ACTION1) ? true : false;
 	player->actiondown[1] = (cmd->extbuttons & EBT_ACTION2) ? true : false;
-	player->actiondown[2] = (cmd->extbuttons & EBT_ACTION3) ? true : false;
-	player->actiondown[3] = (cmd->extbuttons & EBT_ACTION4) ? true : false;
 
 	// decrement jumpwait counter
 	if (player->jumpwait > 0)
