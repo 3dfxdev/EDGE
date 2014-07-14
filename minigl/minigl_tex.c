@@ -655,10 +655,18 @@ void glCompressedTexImage2D(GLenum target, GLint level, GLenum internalformat, G
 	
 	DCGLpvrformat2 pvrf = { .vq = 1, .twid = 1, .pcw = pc_convert_size(width), .pch = pc_convert_size(height) };
 	switch(internalformat) {
+	case GL_COMPRESSED_VQ_1555_DC:    pvrf.format = PC_ARGB1555; pvrf.mipmap = 0; pvrf.cbsize = 2048; break;
+	case GL_COMPRESSED_VQ_1555_MM_DC: pvrf.format = PC_ARGB1555; pvrf.mipmap = 1; pvrf.cbsize = 2048; break;
 	case GL_COMPRESSED_VQ_565_DC:     pvrf.format = PC_RGB565;   pvrf.mipmap = 0; pvrf.cbsize = 2048; break;
 	case GL_COMPRESSED_VQ_565_MM_DC:  pvrf.format = PC_RGB565;   pvrf.mipmap = 1; pvrf.cbsize = 2048; break;
 	case GL_COMPRESSED_VQ_4444_DC:    pvrf.format = PC_ARGB4444; pvrf.mipmap = 0; pvrf.cbsize = 2048; break;
 	case GL_COMPRESSED_VQ_4444_MM_DC: pvrf.format = PC_ARGB4444; pvrf.mipmap = 1; pvrf.cbsize = 2048; break;
+	case GL_COMPRESSED_TWID_1555_DC:    pvrf.format = PC_ARGB1555; pvrf.mipmap = 0; pvrf.cbsize = 0; pvrf.vq = 0; break;
+	case GL_COMPRESSED_TWID_1555_MM_DC: pvrf.format = PC_ARGB1555; pvrf.mipmap = 1; pvrf.cbsize = 0; pvrf.vq = 0; break;
+	case GL_COMPRESSED_TWID_565_DC:     pvrf.format = PC_RGB565;   pvrf.mipmap = 0; pvrf.cbsize = 0; pvrf.vq = 0; break;
+	case GL_COMPRESSED_TWID_565_MM_DC:  pvrf.format = PC_RGB565;   pvrf.mipmap = 1; pvrf.cbsize = 0; pvrf.vq = 0; break;
+	case GL_COMPRESSED_TWID_4444_DC:    pvrf.format = PC_ARGB4444; pvrf.mipmap = 0; pvrf.cbsize = 0; pvrf.vq = 0; break;
+	case GL_COMPRESSED_TWID_4444_MM_DC: pvrf.format = PC_ARGB4444; pvrf.mipmap = 1; pvrf.cbsize = 0; pvrf.vq = 0; break;
 	default: dcglSoftAssert(0);
 	}
 	
