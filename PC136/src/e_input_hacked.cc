@@ -131,8 +131,6 @@ int key_console2;
 int key_mlook2;
 int key_secondatk2;
 int key_reload2;
-int key_action12;
-int key_action22;
 // the action keys are not 12, or 22, but rather 1 ->2
 
 // -MH- 1998/07/10 Flying keys, -CA -2013- ammended for second player:

@@ -112,6 +112,8 @@ typedef enum
 	// -AJA- 2009/09/07: custom action buttons
 	EBT_ACTION1 = 64,
 	EBT_ACTION2 = 128,
+	EBT_ACTION3 = 512,
+	EBT_ACTION4 = 1024,
 }
 extbuttoncode_e;
 
