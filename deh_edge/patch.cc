@@ -53,7 +53,7 @@
 namespace Deh_Edge
 {
 
-#define MAX_LINE  512
+#define MAX_LINE  4096
 #define MAX_TEXT_STR  1200
 
 #define PRETTY_LEN  28
