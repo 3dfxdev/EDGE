@@ -225,6 +225,8 @@ static default_t defaults[] =
     {CFGT_Key,      "key_reload",        &key_reload,     CFGDEF_KEY_RELOAD},  // -AJA- 2004/11/11.
     {CFGT_Key,      "key_action1",       &key_action1,    CFGDEF_KEY_ACTION1},  // -AJA- 2009/09/07
     {CFGT_Key,      "key_action2",       &key_action2,    CFGDEF_KEY_ACTION2},  // -AJA- 2009/09/07
+	{CFGT_Key,      "key_action3",       &key_action3,    CFGDEF_KEY_ACTION3},  // -AJA- 2009/09/07
+    {CFGT_Key,      "key_action4",       &key_action4,    CFGDEF_KEY_ACTION4},  // -AJA- 2009/09/07
 
 	// -AJA- 2010/06/13: weapon and automap keys
 	{CFGT_Key,      "key_weapon1",       &key_weapons[1], '1'},
@@ -237,69 +239,6 @@ static default_t defaults[] =
 	{CFGT_Key,      "key_weapon8",       &key_weapons[8], '8'},
 	{CFGT_Key,      "key_weapon9",       &key_weapons[9], '9'},
 	{CFGT_Key,      "key_weapon0",       &key_weapons[0], '0'},
-
-	{CFGT_Key,      "key_am_up",         &key_am_up,      KEYD_UPARROW},
-	{CFGT_Key,      "key_am_down",       &key_am_down,    KEYD_DOWNARROW},
-	{CFGT_Key,      "key_am_left",       &key_am_left,    KEYD_LEFTARROW},
-	{CFGT_Key,      "key_am_right",      &key_am_right,   KEYD_RIGHTARROW},
-	{CFGT_Key,      "key_am_zoomin",     &key_am_zoomin,  '='},
-	{CFGT_Key,      "key_am_zoomout",    &key_am_zoomout, '-'},
-	{CFGT_Key,      "key_am_follow",     &key_am_follow,  'f'},
-	{CFGT_Key,      "key_am_grid",       &key_am_grid,    'g'},
-	{CFGT_Key,      "key_am_mark",       &key_am_mark,    'm'},
-	{CFGT_Key,      "key_am_clear",      &key_am_clear,   'c'},
-
-	//the ones below are for second player keys..?
-	// -------------------- KEYS --------------------
-
-    {CFGT_Key,      "key_right2",         &key_right2,      CFGDEF_KEY_RIGHT2},
-    {CFGT_Key,      "key_left2",          &key_left2,       CFGDEF_KEY_LEFT2},
-    {CFGT_Key,      "key_up2",            &key_up2,         CFGDEF_KEY_UP2},
-    {CFGT_Key,      "key_down2",          &key_down2,       CFGDEF_KEY_DOWN2},
-    {CFGT_Key,      "key_lookup2",        &key_lookup2,     CFGDEF_KEY_LOOKUP2},
-    {CFGT_Key,      "key_lookdown2",      &key_lookdown2,   CFGDEF_KEY_LOOKDOWN2},
-    {CFGT_Key,      "key_lookcenter2",    &key_lookcenter2, CFGDEF_KEY_LOOKCENTER2},
-
-    // -ES- 1999/03/28 Zoom Key
-    {CFGT_Key,      "key_zoom2",          &key_zoom2,        CFGDEF_KEY_ZOOM2},
-    {CFGT_Key,      "key_strafeleft2",    &key_strafeleft2,  CFGDEF_KEY_STRAFELEFT2},
-    {CFGT_Key,      "key_straferight2",   &key_straferight2, CFGDEF_KEY_STRAFERIGHT2},
-
-    // -ACB- for -MH- 1998/07/02 Flying Keys
-    {CFGT_Key,      "key_flyup2",         &key_flyup2,      CFGDEF_KEY_FLYUP2},
-    {CFGT_Key,      "key_flydown2",       &key_flydown2,    CFGDEF_KEY_FLYDOWN2},
-
-    {CFGT_Key,      "key_fire2",          &key_fire2,       CFGDEF_KEY_FIRE2},
-    {CFGT_Key,      "key_use2",           &key_use2,        CFGDEF_KEY_USE2},
-    {CFGT_Key,      "key_strafe2",        &key_strafe2,     CFGDEF_KEY_STRAFE2},
-    {CFGT_Key,      "key_speed2",         &key_speed2,      CFGDEF_KEY_SPEED2},
-    {CFGT_Key,      "key_autorun2",       &key_autorun2,    CFGDEF_KEY_AUTORUN2},
-    {CFGT_Key,      "key_nextweapon2",    &key_nextweapon2, CFGDEF_KEY_NEXTWEAPON2},
-    {CFGT_Key,      "key_prevweapon2",    &key_prevweapon2, CFGDEF_KEY_PREVWEAPON2},
-
-    {CFGT_Key,      "key_1802",           &key_1802,        CFGDEF_KEY_1802},
-    {CFGT_Key,      "key_map2",           &key_map2,        CFGDEF_KEY_MAP2},
-    {CFGT_Key,      "key_talk2",          &key_talk2,       CFGDEF_KEY_TALK2},
-    {CFGT_Key,      "key_console2",       &key_console2,    CFGDEF_KEY_CONSOLE2},  // -AJA- 2007/08/15.
-    //{CFGT_Key,      "key_pause2",         &key_pause2,      KEYD_PAUSE2},          // -AJA- 2010/06/13.
-
-    {CFGT_Key,      "key_mlook2",         &key_mlook2,      CFGDEF_KEY_MLOOK2},  // -AJA- 1999/07/27.
-    {CFGT_Key,      "key_secondatk2",     &key_secondatk2,  CFGDEF_KEY_SECONDATK2},  // -AJA- 2000/02/08.
-    {CFGT_Key,      "key_reload2",        &key_reload2,     CFGDEF_KEY_RELOAD2},  // -AJA- 2004/11/11.
-    {CFGT_Key,      "key_action12",       &key_action12,    CFGDEF_KEY_ACTION12},  // -AJA- 2009/09/07
-    {CFGT_Key,      "key_action22",       &key_action22,    CFGDEF_KEY_ACTION22},  // -AJA- 2009/09/07
-
-	// -AJA- 2010/06/13: weapon and automap keys
-	{CFGT_Key,      "key_weapon12",       &key_weapons[1], '1'},
-	{CFGT_Key,      "key_weapon22",       &key_weapons[2], '2'},
-	{CFGT_Key,      "key_weapon32",       &key_weapons[3], '3'},
-	{CFGT_Key,      "key_weapon42",       &key_weapons[4], '4'},
-	{CFGT_Key,      "key_weapon52",       &key_weapons[5], '5'},
-	{CFGT_Key,      "key_weapon62",       &key_weapons[6], '6'},
-	{CFGT_Key,      "key_weapon72",       &key_weapons[7], '7'},
-	{CFGT_Key,      "key_weapon82",       &key_weapons[8], '8'},
-	{CFGT_Key,      "key_weapon92",       &key_weapons[9], '9'},
-	{CFGT_Key,      "key_weapon02",       &key_weapons[0], '0'},
 
 	{CFGT_Key,      "key_am_up",         &key_am_up,      KEYD_UPARROW},
 	{CFGT_Key,      "key_am_down",       &key_am_down,    KEYD_DOWNARROW},
