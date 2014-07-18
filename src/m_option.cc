@@ -120,7 +120,7 @@ extern int joystick_device;
 
 //submenus
 static void M_KeyboardOptions(int keypressed);
-static void M_KeyboardOptions2(int keypressed);
+//static void M_KeyboardOptions2(int keypressed);
 //the bad boy above is what multiplayer wants.
 static void M_VideoOptions(int keypressed);
 static void M_GameplayOptions(int keypressed);
@@ -332,7 +332,7 @@ static int M_GetCurrentSwitchValue(optmenuitem_t *item)
 static optmenuitem_t mainoptions[] =
 {
 	{OPT_Function, "Keyboard Controls", NULL,  0, NULL, M_KeyboardOptions, "Controls"}, //Is this what we need?
-	{OPT_Function, "Splitplay Controls", NULL, 0, NULL, M_KeyboardOptions2, "PLAYER 2"}, //new define for splitscreen control code
+	//{OPT_Function, "Splitplay Controls", NULL, 0, NULL, M_KeyboardOptions2, "PLAYER 2"}, //new define for splitscreen control code
 	{OPT_Function, "Mouse / Joystick",  NULL,  0, NULL, M_AnalogueOptions, "AnalogueOptions"},
 	{OPT_Function, "Gameplay Options",  NULL,  0, NULL, M_GameplayOptions, "GameplayOptions"},
 	{OPT_Plain,    "",                  NULL,  0, NULL, NULL, NULL},
@@ -581,32 +581,6 @@ static menuinfo_t movement_optmenu =
 	"Movement"
 };
 
-// DUPLICATED FOR PLAYER 2
-
-//is this referenced in the load pages for key_x2? Hope so, pay attention to the move_keyconfig (might need to rename this), RUN A QUICK SEARCH
-//COME BACK HERE GOOBERS
-static optmenuitem_t move_keyconfig2[] =
-{
-	{OPT_KeyConfig, "Walk Forward",   NULL, 0, &key_up2, NULL, NULL},
-	{OPT_KeyConfig, "Walk Backwards", NULL, 0, &key_down2, NULL, NULL},
-	{OPT_Plain,      "",              NULL, 0, NULL, NULL, NULL},
-	{OPT_KeyConfig, "Strafe Left",    NULL, 0, &key_strafeleft2, NULL, NULL},
-	{OPT_KeyConfig, "Strafe Right",   NULL, 0, &key_straferight2, NULL, NULL},
-	{OPT_Plain,      "",              NULL, 0, NULL, NULL, NULL},
-	{OPT_KeyConfig, "Turn Left",      NULL, 0, &key_left2, NULL, NULL},
-	{OPT_KeyConfig, "Turn Right",     NULL, 0, &key_right2, NULL, NULL},
-	{OPT_Plain,      "",              NULL, 0, NULL, NULL, NULL},
-	{OPT_KeyConfig, "Up / Jump",      NULL, 0, &key_flyup2, NULL, NULL},
-	{OPT_KeyConfig, "Down / Crouch",  NULL, 0, &key_flydown2, NULL, NULL},
-};
-
-static menuinfo_t movement2_optmenu = 
-{
-	move_keyconfig2, sizeof(move_keyconfig2) / sizeof(optmenuitem_t),
-	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0,
-	"Movement"
-};
-
 //
 //  KEY CONFIG : ATTACK + LOOK
 //
@@ -635,28 +609,6 @@ static menuinfo_t attack_optmenu =
 	"Attack / Look"
 };
 
-static optmenuitem_t attack_keyconfig2[] =
-{
-	{OPT_KeyConfig, "Primary Attack",   NULL, 0, &key_fire2, NULL, NULL},
-	{OPT_KeyConfig, "Secondary Attack", NULL, 0, &key_secondatk2, NULL, NULL},
-	{OPT_KeyConfig, "Next Weapon",      NULL, 0, &key_nextweapon2, NULL, NULL},
-	{OPT_KeyConfig, "Previous Weapon",  NULL, 0, &key_prevweapon2, NULL, NULL},
-	{OPT_KeyConfig, "Weapon Reload",    NULL, 0, &key_reload2, NULL, NULL},
-	{OPT_Plain,     "",                 NULL, 0, NULL, NULL, NULL},
-	{OPT_KeyConfig, "Look Up",          NULL, 0, &key_lookup2, NULL, NULL},
-	{OPT_KeyConfig, "Look Down",        NULL, 0, &key_lookdown2, NULL, NULL},
-	{OPT_KeyConfig, "Center View",      NULL, 0, &key_lookcenter2, NULL, NULL},
-	{OPT_KeyConfig, "Mouse Look",       NULL, 0, &key_mlook2, NULL, NULL},
-	{OPT_KeyConfig, "Zoom in/out",      NULL, 0, &key_zoom2, NULL, NULL},
-};
-
-static menuinfo_t attack2_optmenu = 
-{
-	attack_keyconfig2, sizeof(attack_keyconfig2) / sizeof(optmenuitem_t),
-	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0,
-	"Attack / Look"
-};
-
 //
 //  KEY CONFIG : OTHER STUFF
 //
@@ -673,6 +625,8 @@ static optmenuitem_t other_keyconfig[] =
 	{OPT_KeyConfig, "Pause",            NULL, 0, &key_pause, NULL, NULL},
 	{OPT_KeyConfig, "Action 1",         NULL, 0, &key_action1, NULL, NULL},
 	{OPT_KeyConfig, "Action 2",         NULL, 0, &key_action2, NULL, NULL},
+	{OPT_KeyConfig, "Action 3",         NULL, 0, &key_action3, NULL, NULL},
+	{OPT_KeyConfig, "Action 4",         NULL, 0, &key_action4, NULL, NULL},
 
 	{OPT_KeyConfig, "Multiplayer Talk", NULL, 0, &key_talk, NULL, NULL},
 };
@@ -683,31 +637,6 @@ static menuinfo_t otherkey_optmenu =
 	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0,
 	"Other Keys"
 };
-
-static optmenuitem_t other_keyconfig2[] =
-{
-	{OPT_KeyConfig, "Use Item",         NULL, 0, &key_use2, NULL, NULL},
-	{OPT_KeyConfig, "Strafe",           NULL, 0, &key_strafe2, NULL, NULL},
-	{OPT_KeyConfig, "Run",              NULL, 0, &key_speed2, NULL, NULL},
-	{OPT_KeyConfig, "Toggle Autorun",   NULL, 0, &key_autorun2, NULL, NULL},
-	{OPT_KeyConfig, "180 degree turn",  NULL, 0, &key_1802, NULL, NULL},
-	{OPT_Plain,     "",                 NULL, 0, NULL, NULL, NULL},
-	{OPT_KeyConfig, "Map Toggle",       NULL, 0, &key_map2, NULL, NULL},
-	{OPT_KeyConfig, "Console",          NULL, 0, &key_console2, NULL, NULL},
-//	{OPT_KeyConfig, "Pause",            NULL, 0, &key_pause2, NULL, NULL},
-	{OPT_KeyConfig, "Action 1",         NULL, 0, &key_action12, NULL, NULL},
-	{OPT_KeyConfig, "Action 2",         NULL, 0, &key_action22, NULL, NULL},
-
-	{OPT_KeyConfig, "Multiplayer Talk", NULL, 0, &key_talk, NULL, NULL},
-};
-
-static menuinfo_t otherkey2_optmenu = 
-{
-	other_keyconfig2, sizeof(other_keyconfig2) / sizeof(optmenuitem_t),
-	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0,
-	"Other Keys"
-};
-
 //
 //  KEY CONFIG : WEAPONS
 //
@@ -729,29 +658,6 @@ static optmenuitem_t weapon_keyconfig[] =
 static menuinfo_t weapon_optmenu = 
 {
 	weapon_keyconfig, sizeof(weapon_keyconfig) / sizeof(optmenuitem_t),
-	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0,
-	"Weapon Keys"
-};
-
-//weapon_keyconfig is not defined yet (neither are the key_weapons2 stuff...might cause problems)f
-static optmenuitem_t weapon_keyconfig2[] =
-{
-	{OPT_KeyConfig, "Weapon 1",  NULL, 0, &key_weapons2[1], NULL, NULL},
-	{OPT_KeyConfig, "Weapon 2",  NULL, 0, &key_weapons2[2], NULL, NULL},
-	{OPT_KeyConfig, "Weapon 3",  NULL, 0, &key_weapons2[3], NULL, NULL},
-	{OPT_KeyConfig, "Weapon 4",  NULL, 0, &key_weapons2[4], NULL, NULL},
-	{OPT_KeyConfig, "Weapon 5",  NULL, 0, &key_weapons2[5], NULL, NULL},
-	{OPT_Plain,     "",          NULL, 0, NULL, NULL, NULL},
-	{OPT_KeyConfig, "Weapon 6",  NULL, 0, &key_weapons2[6], NULL, NULL},
-	{OPT_KeyConfig, "Weapon 7",  NULL, 0, &key_weapons2[7], NULL, NULL},
-	{OPT_KeyConfig, "Weapon 8",  NULL, 0, &key_weapons2[8], NULL, NULL},
-	{OPT_KeyConfig, "Weapon 9",  NULL, 0, &key_weapons2[9], NULL, NULL},
-	{OPT_KeyConfig, "Weapon 0",  NULL, 0, &key_weapons2[0], NULL, NULL},
-};
-
-static menuinfo_t weapon2_optmenu = 
-{
-	weapon_keyconfig2, sizeof(weapon_keyconfig2) / sizeof(optmenuitem_t),
 	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0,
 	"Weapon Keys"
 };
@@ -784,7 +690,7 @@ static menuinfo_t automap_optmenu =
 /*
  * ALL KEYBOARD MENUS
  */
-#define NUM_KEY_MENUS  9
+#define NUM_KEY_MENUS  5
 // 5, as in 5 pages? Testing now. . .
 // yes, so this will need to be duplicated for the entirely new keyboard menu we will be writing.
 // This will be easier than just creating 10 pages and confusing everyone.
@@ -795,19 +701,13 @@ static menuinfo_t automap_optmenu =
 // Is optmenu here what calls the menu pages for key definitions? -CA
 static menuinfo_t * all_key_menus[NUM_KEY_MENUS] =
 {
-	&movement_optmenu,&movement2_optmenu,
-	&attack_optmenu,&attack2_optmenu,
-	&otherkey_optmenu,&otherkey2_optmenu,
-	&weapon_optmenu,&weapon2_optmenu,
+	&movement_optmenu,
+	&attack_optmenu,
+	&otherkey_optmenu,
+	&weapon_optmenu,
 	&automap_optmenu,
 };
 
-// static menuinfo_t * all_key2_menus[NUM_KEY2_MENUS] =	
-	// &movement2_optmenu,
-	// &attack2_optmenu,
-	// &otherkey2_optmenu,
-	// &weapon2_optmenu,
-// };
 static char keystring1[] = "Enter to change, Backspace to Clear";
 static char keystring2[] = "Press a key for this action";
 
@@ -1482,12 +1382,12 @@ static void M_KeyboardOptions(int keypressed)
 }
 
 //for the second player responder
-static void M_KeyboardOptions2(int keypressed)
-{
-	curr_menu = all_key_menus[curr_key_menu];
-
-	curr_item = curr_menu->items + curr_menu->pos;
-}
+//static void M_KeyboardOptions2(int keypressed)
+//{
+//	curr_menu = all_key_menus[curr_key_menu];
+//
+//	curr_item = curr_menu->items + curr_menu->pos;
+//}
 
 // ===== END OF SUB-MENUS =====
 
