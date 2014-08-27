@@ -141,6 +141,7 @@ public:
 	vec3_c(float nx, float ny, float nz) : x(nx), y(ny), z(nz) { }
 	vec3_c(const vec3_c& rhs) : x(rhs.x), y(rhs.y), z(rhs.z) { }
 	vec3_c(const vec2_c& horiz, float nz) : x(horiz.x), y(horiz.y), z(nz) { }
+	vec3_c(const float * v) : x(v[0]), y(v[1]), z(v[2]) { }
 
 	/* ---- read-only operations ---- */
 
@@ -170,6 +171,7 @@ public:
 	float operator* (const vec3_c& rhs) const;  // dot product
 
 	vec3_c Cross(const vec3_c& rhs) const;  // cross product
+	vec3_c Lerp(const vec3_c& rhs, float weight) const;  // cross product
 
 	/* ---- modifying operations ---- */
 
@@ -181,6 +183,52 @@ public:
 	vec3_c& operator-= (const vec3_c& rhs);
 	vec3_c& operator*= (float scale);
 	vec3_c& operator/= (float scale);
+};
+
+class vec4_c
+{
+	/* sealed class, value semantics */
+
+public:
+	float x, y, z, w;
+
+	vec4_c() : x(0), y(0), z(0), w(0) { }
+	vec4_c(float nx, float ny, float nz, float nw) : x(nx), y(ny), z(nz), w(nw) { }
+	vec4_c(const vec4_c& rhs) : x(rhs.x), y(rhs.y), z(rhs.z), w(rhs.w) { }
+	vec4_c(const vec3_c& v3, float nw) : x(v3.x), y(v3.y), z(v3.z), w(nw) { }
+	vec4_c(const float *v) : x(v[0]), y(v[1]), z(v[2]), w(v[3]) { }
+
+	/* ---- read-only operations ---- */
+
+	float Length() const;
+
+	bool Match(const vec4_c& rhs, float precision = 0.001f);
+	// no equality operators since we're using floating point.
+
+	vec3_c Get3D() const;
+	// return the 3D vector (dropping the w coord).
+	vec3_c Get3DPerspective() const;
+	// return the 3D vector after dividing x,y,z by w.
+
+	vec4_c operator- ();
+
+	vec4_c operator+ (const vec4_c& rhs) const;
+	vec4_c operator- (const vec4_c& rhs) const;
+	vec4_c operator* (float scale) const;
+	vec4_c operator/ (float scale) const;
+
+	float operator* (const vec4_c& rhs) const;  // dot product
+
+	/* ---- modifying operations ---- */
+
+	vec4_c& MakeUnit();  // make unit length
+
+	vec4_c& operator= (const vec4_c& rhs);
+
+	vec4_c& operator+= (const vec4_c& rhs);
+	vec4_c& operator-= (const vec4_c& rhs);
+	vec4_c& operator*= (float scale);
+	vec4_c& operator/= (float scale);
 };
 
 //------------------------------------------------------------------------
@@ -491,6 +539,92 @@ inline vec3_c& vec3_c::operator*= (float scale)
 inline vec3_c& vec3_c::operator/= (float scale)
 {
 	x /= scale;  y /= scale;  z /= scale;
+	return *this;
+}
+
+//------------------------------------------------------------------------
+
+inline bool vec4_c::Match(const vec4_c& rhs, float precision)
+{
+	return fabs(x - rhs.x) < precision &&
+		   fabs(y - rhs.y) < precision &&
+		   fabs(z - rhs.z) < precision &&
+		   fabs(w - rhs.w) < precision;
+}
+
+inline vec3_c vec4_c::Get3D() const
+{
+	return vec3_c(x, y, z);
+}
+
+inline vec3_c vec4_c::Get3DPerspective() const
+{
+	return vec3_c(x, y, z) * (1/w);
+}
+
+inline vec4_c vec4_c::operator- ()
+{
+	return vec4_c(-x, -y, -z, -w);
+}
+
+inline vec4_c vec4_c::operator+ (const vec4_c& rhs) const
+{
+	return vec4_c(x + rhs.x, y + rhs.y, z + rhs.z, w + rhs.w);
+}
+
+inline vec4_c vec4_c::operator- (const vec4_c& rhs) const
+{
+	return vec4_c(x - rhs.x, y - rhs.y, z - rhs.z, w - rhs.w);
+}
+
+inline vec4_c vec4_c::operator* (float scale) const
+{
+	return vec4_c(x * scale, y * scale, z * scale, w * scale);
+}
+
+inline vec4_c vec4_c::operator/ (float scale) const
+{
+	return vec4_c(x / scale, y / scale, z / scale, w / scale);
+}
+
+inline float vec4_c::operator* (const vec4_c& rhs) const
+{
+	return x * rhs.x + y * rhs.y + z * rhs.z + w * rhs.w;
+}
+
+inline vec4_c& vec4_c::MakeUnit()
+{
+	*this /= Length();
+	return *this;
+}
+
+inline vec4_c& vec4_c::operator= (const vec4_c& rhs)
+{
+	x = rhs.x;  y = rhs.y;  z = rhs.z;  w = rhs.w;
+	return *this;
+}
+
+inline vec4_c& vec4_c::operator+= (const vec4_c& rhs)
+{
+	x += rhs.x;  y += rhs.y;  z += rhs.z;  w += rhs.w;
+	return *this;
+}
+
+inline vec4_c& vec4_c::operator-= (const vec4_c& rhs)
+{
+	x -= rhs.x;  y -= rhs.y;  z -= rhs.z;  w -= rhs.w;
+	return *this;
+}
+
+inline vec4_c& vec4_c::operator*= (float scale)
+{
+	x *= scale;  y *= scale;  z *= scale;  w *= scale;
+	return *this;
+}
+
+inline vec4_c& vec4_c::operator/= (float scale)
+{
+	x /= scale;  y /= scale;  z /= scale;  w /= scale;
 	return *this;
 }
 
