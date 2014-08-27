@@ -88,6 +88,8 @@ public:
 	/* ---- read-only operations ---- */
 
 	vec3_c operator* (const vec3_c& rhs) const;
+	vec4_c operator* (const vec4_c& rhs) const;
+	mat4_c operator* (const mat4_c& rhs) const;
 
 	std::string ToStr() const;
 
@@ -96,6 +98,10 @@ public:
 	mat4_c& Negate();
 	mat4_c& Transpose();
 
+	mat4_c& SetOrigin(const vec3_c& rhs);
+	mat4_c& SetOrigin(const vec3_c& rhs, float w);
+	mat4_c& SetOrigin(const vec4_c& rhs);
+	
 	mat4_c& operator= (const mat4_c& rhs);
 
 	mat4_c& operator+= (const mat4_c& rhs);
@@ -129,7 +135,15 @@ inline vec3_c mat4_c::operator* (const vec3_c& rhs) const
 	              m[2] * rhs.x + m[6] * rhs.y + m[10] * rhs.z + m[14]);
 }
 
-}  // namespace epi
+inline vec4_c mat4_c::operator* (const vec4_c& rhs) const
+{
+	return vec4_c(m[0] * rhs.x + m[4] * rhs.y + m[8]  * rhs.z + rhs.w * m[12],
+	              m[1] * rhs.x + m[5] * rhs.y + m[9]  * rhs.z + rhs.w * m[13],
+	              m[2] * rhs.x + m[6] * rhs.y + m[10] * rhs.z + rhs.w * m[14],
+	              m[3] * rhs.x + m[7] * rhs.y + m[11] * rhs.z + rhs.w * m[15]);
+}
+
+}
 
 #endif /* __EPI_MATH_MATRIX_H__ */
 
