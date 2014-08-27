@@ -93,6 +93,27 @@ vec3_c vec3_c::Cross(const vec3_c& rhs) const
 	              x * rhs.y - y * rhs.x);
 }
 
+#define _fma(a,b,c) ((a)*(b)+(c))
+#define _fnms(a,b,c) ((c) - (a)*(b))
+#define _lerp(a,b,t) _fma((t), (b), _fnms(t, a, a))
+vec3_c vec3_c::Lerp(const vec3_c& rhs, float weight) const
+{
+	return vec3_c(_lerp(x, rhs.x, weight),
+	              _lerp(y, rhs.y, weight),
+	              _lerp(z, rhs.z, weight));
+		      
+	/*return vec3_c(x + weight * (rhs.x - x),
+	              y + weight * (rhs.y - y),
+	              z + weight * (rhs.z - z));*/
+}
+
+//------------------------------------------------------------------------
+
+float vec4_c::Length() const
+{
+	return sqrtf(x * x + y * y + z * z + w * w);
+}
+
 }  // namespace epi
 
 
