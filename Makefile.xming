@@ -104,7 +104,7 @@ LDFLAGS += -lwsock32 -lwinmm -lgdi32 -ldxguid -ldinput -mwindows -static
 
 # Targets
 
-all: makedirs $(PROGRAM) upx
+all: makedirs $(PROGRAM) runupx
 
 stripped: $(PROGRAM)
 	strip --strip-unneeded $(PROGRAM)
@@ -127,6 +127,10 @@ makedirs:
 	mkdir -p $(OBJDIR)/timidity
 
 .PHONY: all stripped clean halfclean makedirs
+
+runupx:
+	@echo Compressing with UPX...
+	@$(UPX) $(PROGRAM)
 
 
 # ---------- Includes -----------
@@ -412,11 +416,6 @@ $(PROGRAM) : $(COAL_OBJS) \
 	     $(GLBSP_OBJS) \
 	     $(TIMIDITY_OBJS)
 	$(CXX) $(CFLAGS) -o $@ $^ $(LDFLAGS)
-
-
-upx :
-	@echo Compressing with UPX...
-	@$(UPX) $(PROGRAM)
 
 
 #--- editor settings ------------
