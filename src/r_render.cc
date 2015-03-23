@@ -2329,11 +2329,11 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	
 	slope_plane_t *slope = NULL;
 
-	if (face_dir > 0 && dfloor->prev_R == NULL)
-		slope = cur_sub->sector->f_slope;
+	if (face_dir > 0 && dfloor->is_lowest)
+ 		slope = cur_sub->sector->f_slope;
 
-	if (face_dir < 0 && dfloor->next_R == NULL)
-		slope = cur_sub->sector->c_slope;
+	if (face_dir < 0 && dfloor->is_highest)
+ 		slope = cur_sub->sector->c_slope;
 
 
 	float trans = surf->translucency;
@@ -2923,6 +2923,10 @@ static void RGL_DrawSubsector(drawsub_c *dsub)
 		{
 			RGL_DrawSeg(dfloor, (*SEGI)->seg);
 		}
+		
+		//if (dfloor->floor_move) {
+			//tapamn get interpolated heights
+		//}
 
 		RGL_DrawPlane(dfloor, dfloor->c_h, dfloor->ceil,  -1);
 		RGL_DrawPlane(dfloor, dfloor->f_h, dfloor->floor, +1);
@@ -3113,19 +3117,22 @@ static void InitCamera(mobj_t *mo, bool full_height, float expand_w)
 
 	view_x_slope *= view_expand_w;
 
+	epi::vec3_c vp = mo->GetInterpolatedPosition();
+	
+	viewx = vp.x;
+	viewy = vp.y;
+	viewz = vp.z;
+	//viewangle = mo->angle;
+	viewangle = mo->GetInterpolatedAngle();
 
-	viewx = mo->x;
-	viewy = mo->y;
-	viewz = mo->z;
-	viewangle = mo->angle;
-
-	if (mo->player)
+	/*if (mo->player)
 		viewz += mo->player->viewz;
-	else
+	else*/
 		viewz += mo->height * 9 / 10;
 
 	viewsubsector = mo->subsector;
-	viewvertangle = mo->vertangle;
+	//viewvertangle = mo->vertangle;
+	viewvertangle = mo->GetInterpolatedVertAngle();
 	view_props = R_PointGetProps(viewsubsector, viewz);
 
 	if (mo->player)

@@ -225,6 +225,7 @@ static default_t defaults[] =
     {CFGT_Key,      "key_reload",        &key_reload,     CFGDEF_KEY_RELOAD},  // -AJA- 2004/11/11.
     {CFGT_Key,      "key_action1",       &key_action1,    CFGDEF_KEY_ACTION1},  // -AJA- 2009/09/07
     {CFGT_Key,      "key_action2",       &key_action2,    CFGDEF_KEY_ACTION2},  // -AJA- 2009/09/07
+    //tapamn key_action3/4 where added in revision 6, but never defined
 	{CFGT_Key,      "key_action3",       &key_action3,    CFGDEF_KEY_ACTION3},  // -AJA- 2009/09/07
     {CFGT_Key,      "key_action4",       &key_action4,    CFGDEF_KEY_ACTION4},  // -AJA- 2009/09/07
 

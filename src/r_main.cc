@@ -42,7 +42,6 @@ cvar_c r_aspect;
 cvar_c r_nearclip;
 cvar_c r_farclip;
 
-
 typedef enum
 {
 	PFT_LIGHTING   = (1 << 0),

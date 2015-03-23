@@ -804,6 +804,7 @@ public:
 	struct sfx_s *attacksound;
 	struct sfx_s *painsound;
 	struct sfx_s *deathsound;
+	struct sfx_s *secretsound;
 	struct sfx_s *overkill_sound;
 	struct sfx_s *activesound;
 	struct sfx_s *walksound;

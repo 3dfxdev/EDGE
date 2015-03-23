@@ -55,6 +55,8 @@
 #define CFGDEF_KEY_CONSOLE      (KEYD_TILDE)
 #define CFGDEF_KEY_ACTION1      ('[')
 #define CFGDEF_KEY_ACTION2      (']')
+#define CFGDEF_KEY_ACTION3      ('KEYD_COLON')
+#define CFGDEF_KEY_ACTION4      ('KEYD_SEMICOLON')
 
 #define CFGDEF_KEY_FIRE2         (KEYD_RCTRL + (KEYD_MOUSE1 << 16))
 #define CFGDEF_KEY_SECONDATK2    ('e')

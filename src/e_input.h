@@ -75,13 +75,6 @@ extern int key_lookup;
 extern int key_lookdown;
 extern int key_lookcenter;
 
-extern int key_right2;
-extern int key_left2;
-extern int key_lookup2;
-extern int key_lookdown2;
-extern int key_lookcenter2;
-
-
 // -ES- 1999/03/28 Zoom Key
 extern int key_zoom;
 extern int key_up;
@@ -90,18 +83,10 @@ extern int key_down;
 extern int key_strafeleft;
 extern int key_straferight;
 
-extern int key_zoom2;
-extern int key_up2;
-extern int key_down2;
-
-extern int key_strafeleft2;
-extern int key_straferight2;
 
 // -ACB- for -MH- 1998/07/19 Flying keys
 extern int key_flyup;
 extern int key_flydown;
-extern int key_flyup2;
-extern int key_flydown2;
 
 extern int key_fire;
 extern int key_use;
@@ -115,36 +100,18 @@ extern int key_180;
 extern int key_talk;
 extern int key_console;
 extern int key_pause;
-//Encounted a Wild Ditto
-extern int key_fire2;
-extern int key_use2;
-extern int key_strafe2;
-extern int key_speed2;
-extern int key_autorun2;
-extern int key_nextweapon2;
-extern int key_prevweapon2;
-extern int key_map2;
-extern int key_1802;
-extern int key_talk2;
-extern int key_console2;
-extern int key_pause2;
+// Encounted a Wild Ditto
 
 extern int key_mlook;  // -AJA- 1999/07/27.
 extern int key_secondatk;
 extern int key_reload;  // -AJA- 2004/11/10
 extern int key_action1; // -AJA- 2009/09/07
 extern int key_action2; // -AJA- 2009/09/07
-//again. . .
-extern int key_mlook2;  
-extern int key_secondatk2;
-extern int key_reload2;  
-extern int key_action12; 
-extern int key_action22; 
-//remember! 1->2 not 12 22
+extern int key_action3; // 
+extern int key_action4; // 
 
 // -AJA- 2010/06/13: weapon and automap stuff
 extern int key_weapons[10];
-extern int key_weapons2[10];
 
 //automap stuff...let's leave this alone for right now
 //and save for future work...

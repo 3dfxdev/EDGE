@@ -30,6 +30,7 @@
 
 #include "../epi/image_data.h"
 #include "../epi/image_jpeg.h"
+#include "../md5_conv/md5_draw.h"
 
 #include "dm_data.h"
 #include "dm_defs.h"
@@ -49,6 +50,8 @@
 #include "r_units.h"
 #include "w_model.h"
 #include "w_sprite.h"
+#include "r_md5.h"
+#include "n_network.h"
 
 #include "m_misc.h"  // !!!! model test
 
@@ -547,6 +550,9 @@ void RGL_DrawWeaponModel(player_t * p)
 	weapondef_c *w = p->weapons[p->ready_wp].info;
 
 	modeldef_c *md = W_GetModel(psp->state->sprite);
+	
+	//***TODO*** add md5 weapon model support
+	SYS_ASSERT(md->modeltype == MODEL_MD2);
 
 	int skin_num = p->weapons[p->ready_wp].model_skin;
 
@@ -931,11 +937,15 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 	bool is_model = (mo->state->flags & SFF_Model) ? true:false;
 
 	// transform the origin point
-	float mx = mo->x, my = mo->y, mz = mo->z;
+	//float mx = mo->x, my = mo->y, mz = mo->z;
+	epi::vec3_c mp = mo->GetInterpolatedPosition();
+	float mx = mp.x, my = mp.y, mz = mp.z;
 
 	// position interpolation
 	if (mo->lerp_num > 1)
 	{
+		//extern float N_GetInterpolater(void);
+		//float along = mo->lerp_pos / (float)mo->lerp_num + N_GetInterpolater() - 1;
 		float along = mo->lerp_pos / (float)mo->lerp_num;
 
 		mx = mo->lerp_from.x + (mx - mo->lerp_from.x) * along;
@@ -1103,7 +1113,6 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 	R2_ClipSpriteVertically(dsub, dthing);
 }
 
-
 static void RGL_DrawModel(drawthing_t *dthing)
 {
 	mobj_t *mo = dthing->mo;
@@ -1135,15 +1144,26 @@ I_Debugf("Render model: no skin %d\n", mo->model_skin);
 
 		SYS_ASSERT(mo->state->tics > 1);
 
-		lerp = (mo->state->tics - mo->tics + 1) / (float)(mo->state->tics);
+		lerp = (mo->state->tics - mo->tics + 1 + N_GetInterpolater()) / (float)(mo->state->tics);
 		lerp = CLAMP(0, lerp, 1);
 	}
 
-	MD2_RenderModel(md->model, skin_img, false,
-			        last_frame, mo->state->frame, lerp,
-					dthing->mx, dthing->my, z, mo, mo->props,
-					mo->info->model_scale, mo->info->model_aspect,
-					mo->info->model_bias);
+	if (md->modeltype == MODEL_MD2)
+	{
+		MD2_RenderModel(md->model, skin_img, false,
+					last_frame, mo->state->frame, lerp,
+						dthing->mx, dthing->my, z, mo, mo->props,
+						mo->info->model_scale, mo->info->model_aspect,
+						mo->info->model_bias);
+	}
+	else if (md->modeltype == MODEL_MD5_UNIFIED)
+	{
+		//TODO add skin_img support
+		MD5_RenderModel(md,
+			mo->model_last_animfile, last_frame,
+			mo->state->animfile, mo->state->frame, lerp,
+			dthing->mx, dthing->my, z, mo);
+	}
 }
 
 

@@ -24,11 +24,11 @@ typedef struct MD5Bone_s {
 } MD5hierarchy;
 
 typedef struct {
-	vec3_t min,max;
+	fvec3_t min,max;
 } MD5bounds;
 
 typedef struct {
-	vec3_t pos;
+	fvec3_t pos;
 	quat3_t rot;
 } MD5baseframe;
 

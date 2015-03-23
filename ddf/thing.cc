@@ -153,6 +153,7 @@ const commandlist_t thing_commands[] =
 	DF("AMBIENT_SOUND", seesound, DDF_MainLookupSound),
 	DF("SIGHTING_SOUND", seesound, DDF_MainLookupSound),
 	DF("DEATH_SOUND", deathsound, DDF_MainLookupSound),
+	DF("SECRET_SOUND", secretsound, DDF_MainLookupSound),
 	DF("OVERKILL_SOUND", overkill_sound, DDF_MainLookupSound),
 	DF("PAIN_SOUND", painsound, DDF_MainLookupSound),
 	DF("STARTCOMBAT_SOUND", attacksound, DDF_MainLookupSound),
@@ -1819,6 +1820,7 @@ void mobjtype_c::CopyDetail(mobjtype_c &src)
 	attacksound = src.attacksound; 
 	painsound = src.painsound; 
 	deathsound = src.deathsound; 
+	secretsound=src.secretsound;	
 	overkill_sound = src.overkill_sound; 
 	activesound = src.activesound; 
 	walksound = src.walksound; 

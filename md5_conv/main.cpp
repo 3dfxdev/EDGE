@@ -19,22 +19,17 @@ extern "C" {
 }
 #include "kmq2/byteorder.h"
 #include "md5.h"
+#include "md5_draw.h"
 #include "md5_anim.h"
 
 #define PREMULTIPLY 0
 
 #define ESCAPE 27 /* ASCII code for the escape key. */
 int window; /* The number of our GLUT window */
-float rtri = -90.0f;
-float rquad = 0.0f;
 
 epi::vec3_c camrot(0,0,0);
 epi::vec3_c campos(0,0,-5);
 epi::vec3_c lightpos(-500,0,-500);
-int strippoly = 1;
-
-int curframe = 0;
-int droppedtri = 0;
 
 GLuint textureid;
 int lighting = 0;
@@ -49,6 +44,10 @@ const char ** animfilenames;
 
 void (*render)(void);
 void render_md5_direct();
+
+epi::mat4_c posemats[MD5_MAX_JOINTS+1];
+MD5model *md5;
+MD5animation **md5anims;
 
 extern "C" int FS_LoadFile (const char *path, void **buffer);
 
@@ -69,14 +68,11 @@ void SharedInit(int Width, int Height)
 	gluPerspective(45.0f,(GLfloat)Width/(GLfloat)Height,0.1f,1800.0f);
 	
 	glMatrixMode(GL_TEXTURE);
-	//glTranslatef(0,1,0);
-//	glScalef(1,-1,1);
 	
 	glMatrixMode(GL_MODELVIEW);
 
 	glFrontFace(GL_CW);
 	glEnable(GL_CULL_FACE);
-	//glDisable(GL_CULL_FACE);
 }
 
 void InitGL(int Width, int Height)
@@ -103,35 +99,18 @@ void ReSizeGLScene(int Width, int Height)
 	SharedInit(Width,Height);
 }
 
-
-void EnableTexture()
-{
-
-}
-
-void EnableLighting()
-{
-	if (lighting) {
-		glEnable(GL_LIGHTING);	
-		glEnable(GL_LIGHT0);
-	} else {
-		glDisable(GL_LIGHTING);	
-		glDisable(GL_LIGHT0);
-	}
-}
-
 void render_md5_direct_triangle_normal(MD5mesh *msh);
-void render_md5_direct_triangle_fullbright(MD5mesh *msh);
+void render_md5_direct_triangle_fullbright_wrap(MD5mesh *msh);
 void render_md5_direct_triangle_weightcnt(MD5mesh *msh);
-void render_md5_direct_triangle_lighting(MD5mesh *msh);
+void render_md5_direct_triangle_lighting_wrap(MD5mesh *msh);
 static struct {
 	const char *name;
 	void (*func)(MD5mesh *msh);
 	//void (*func)(md5_triangle *t, md5_vertex *v, float *n);
 } visualizations[] = {
-	{"lighting", render_md5_direct_triangle_lighting},
+	{"lighting", render_md5_direct_triangle_lighting_wrap},
 	{"vertex normal", render_md5_direct_triangle_normal},
-	{"fullbright", render_md5_direct_triangle_fullbright},
+	{"fullbright", render_md5_direct_triangle_fullbright_wrap},
 	{"weight count", render_md5_direct_triangle_weightcnt},
 	//{"joint control", NULL},
 };
@@ -183,6 +162,29 @@ void DrawAxis()
 	glEnd();
 }
 
+static MD5jointposebuff jp0;
+static basevert vbuff[10000];
+	
+void md5_bindpose_matrices(MD5model *md5, epi::mat4_c *dst) {
+	md5_pose_load_identity(md5->joints, md5->jointcnt, jp0);
+	md5_pose_to_matrix(jp0, md5->jointcnt, dst);
+}
+
+void md5_draw_unified(MD5umodel *umd5, epi::mat4_c *jointmats) {
+	int i;
+	MD5model *md5 = &umd5->model;
+	
+	for(i = 0; i < md5->meshcnt; i++) {
+		MD5mesh *msh = md5->meshes + i;
+		glBindTexture(GL_TEXTURE_2D, msh->gltex);
+		
+		md5_transform_vertices(msh, jointmats, vbuff);
+		//md5_transform_vertices(msh, jointmats, vbuff);
+		render_md5_direct_triangle_lighting(msh, vbuff);
+		
+	}
+}
+
 /* The main drawing function. */
 void DrawGLScene()
 {
@@ -200,11 +202,6 @@ void DrawGLScene()
 	glTranslatef(-campos.x,-campos.z,-campos.y);
 	glRotatef(camrot.x,1.0f,0.0f,0.0f);
 	glRotatef(camrot.y,0.0f,0.0f,1.0f);
-	
-	EnableLighting();
-	//glRotatef(camrot.y,0.0f,1.0f,0.0f);
-
-	//glTranslatef(0,-4,-12);
 	
 	
 	DrawAxis();
@@ -254,6 +251,7 @@ void keyPressed(unsigned char key, int x, int y)
 	case 't':	camrot.x -= 8; break;
 	case 'g':	camrot.x += 8; break;
 	
+	case '0':	lerpweight = 0; break;
 	case '[':	pose0--; break;
 	case '{':	anim0--; break;
 	case ']':	pose0++; break;
@@ -277,9 +275,9 @@ void keyPressed(unsigned char key, int x, int y)
 	}
 	
 	if (pose0 < 0)
-		pose0 = 0;
+		pose0 = md5anims[anim0]->framecnt-1;
 	if (pose1 < 0)
-		pose1 = 0;
+		pose1 = md5anims[anim1]->framecnt-1;
 	if (anim0 < 0)
 		anim0 = 0;
 	if (anim1 < 0)
@@ -296,46 +294,6 @@ void keyPressed(unsigned char key, int x, int y)
 		//render = visualizations[new_vis].func;
 	}
 	campos += step;
-}
-
-epi::mat4_c posemats[MD5_MAX_JOINTS+1];
-MD5model *md5;
-MD5animation **md5anims;
-
-typedef struct {
-	epi::vec3_c pos;
-	epi::vec3_c norm;
-	epi::vec2_c uv;
-} basevert;
-
-basevert vbuff[10000];
-
-void md5_transform_vertices(MD5mesh *msh) {
-	epi::mat4_c *mats = posemats + 1;
-	MD5vertex *vs = msh->verts;
-	MD5weight *ws = msh->weights;
-	int i,j;
-	
-	for(i = 0; i < msh->vertcnt; i++) {
-		MD5vertex *v = vs + i;
-		basevert *cv = vbuff + i;
-		
-		cv->pos = epi::vec3_c(0,0,0);
-		cv->norm = epi::vec3_c(0,0,0);
-		cv->uv = epi::vec2_c(v->uv[0],v->uv[1]);
-		
-		MD5weight *w = ws + v->firstweight;
-		for(j = 0; j < v->weightcnt; j++) {
-#if PREMULTIPLY
-			cv->pos += (mats[w[j].jointidx] * epi::vec4_c(w[j].pos,w[j].weight)).Get3D();
-			cv->norm += (mats[w[j].jointidx] * epi::vec4_c(w[j].normal,0)).Get3D();
-#else
-			cv->pos += mats[w[j].jointidx] * epi::vec3_c(w[j].pos) * w[j].weight;
-			cv->norm += (mats[w[j].jointidx] * epi::vec4_c(w[j].normal,0)).Get3D() * w[j].weight;
-#endif
-		}
-		//cv->norm.MakeUnit();
-	}
 }
 
 int jointlist[100];
@@ -360,6 +318,14 @@ int md5_triangles_weight_cnt(MD5mesh *mesh, int triangleidx) {
 			add_joint(mesh->weights[j + vertex->firstweight].jointidx);
 	}
 	return jointlistcnt;
+}
+
+void render_md5_direct_triangle_lighting_wrap(MD5mesh *msh) {
+	render_md5_direct_triangle_lighting(msh, vbuff);
+}
+
+void render_md5_direct_triangle_fullbright_wrap(MD5mesh *msh) {
+	render_md5_direct_triangle_fullbright(msh, vbuff);
 }
 
 void render_md5_direct_triangle_weightcnt(MD5mesh *msh) {
@@ -404,21 +370,6 @@ void render_md5_direct_triangle_weightcnt(MD5mesh *msh) {
 	glEnd();
 }
 
-void render_md5_direct_triangle_fullbright(MD5mesh *msh) {
-	glColor3f(1,1,1);
-	
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	
-	glVertexPointer(3, GL_FLOAT, sizeof(vbuff[0]), &vbuff[0].pos);
-	glTexCoordPointer(2, GL_FLOAT, sizeof(vbuff[0]), &vbuff[0].uv);
-	
-	glDrawElements(GL_TRIANGLES, msh->tricnt * 3, GL_UNSIGNED_SHORT, (const GLvoid *)msh->tris);
-	
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-}
-
 void render_md5_direct_triangle_normal(MD5mesh *msh) {
 	MD5triangle *ts = msh->tris;
 	int j;
@@ -445,30 +396,6 @@ void render_md5_direct_triangle_normal(MD5mesh *msh) {
 		glVertex3f(p->x, p->y, p->z);
 	}
 	glEnd();
-}
-
-void render_md5_direct_triangle_lighting(MD5mesh *msh) {
-	glEnable(GL_LIGHTING);	
-	glEnable(GL_LIGHT0);
-	
-	glColor3f(1,1,1);
-	
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glEnableClientState(GL_NORMAL_ARRAY);
-	
-	glVertexPointer(3, GL_FLOAT, sizeof(vbuff[0]), &vbuff[0].pos);
-	glTexCoordPointer(2, GL_FLOAT, sizeof(vbuff[0]), &vbuff[0].uv);
-	glNormalPointer(GL_FLOAT, sizeof(vbuff[0]), &vbuff[0].norm);
-	
-	glDrawElements(GL_TRIANGLES, msh->tricnt * 3, GL_UNSIGNED_SHORT, (const GLvoid *)msh->tris);
-	
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	glDisableClientState(GL_NORMAL_ARRAY);
-	
-	glDisable(GL_LIGHTING);	
-	glDisable(GL_LIGHT0);
 }
 
 void render_md5_direct() {
@@ -508,11 +435,12 @@ void render_md5_direct() {
 		MD5mesh *msh = md5->meshes + i;
 		glBindTexture(GL_TEXTURE_2D, msh->gltex);
 		
-		md5_transform_vertices(msh);
+		md5_transform_vertices(msh, posemats, vbuff);
 		
 		visualizations[cur_vis].func(msh);
 		
 	}
+	//md5_draw_unified(umodel,posemats);
 	glEnable(GL_CULL_FACE);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
@@ -557,9 +485,6 @@ void process_args(int argc, char **argv) {
 }
 
 void load_model() {
-	extern MD5model * md5_load(char *md5text);
-	extern MD5umodel * md5_normalize_model(MD5model *m);
-	extern void md5_premultiply_unified_model(MD5umodel * m);
 	int size;
 	char *buff = NULL;
 	
@@ -598,6 +523,8 @@ void load_anims() {
 void load_tex() {
 	int i;
 	for(i = 0; i < md5->meshcnt; i++) {
+		//TODO should really check for room
+		strcat(md5->meshes[i].shader, ".png");
 		printf("Shader: %s\n",md5->meshes[i].shader);
 		md5->meshes[i].gltex = loadPNGTexture(md5->meshes[i].shader);
 	}

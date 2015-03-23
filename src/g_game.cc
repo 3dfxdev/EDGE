@@ -947,6 +947,8 @@ static bool G_SaveGameToFile(const char *filename, const char *description)
 
 	SV_FinishSave();
 	SV_CloseWriteFile();
+	I_Printf("Game successfully saved: %s\n", filename);
+	CON_Message("Game Saved!");
 
 	return true; //OK
 }

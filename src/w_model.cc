@@ -22,6 +22,7 @@
 #include "e_main.h"
 #include "r_image.h"
 #include "r_md2.h"
+#include "../md5_conv/md5.h"
 #include "r_things.h"
 #include "w_model.h"
 #include "w_wad.h"
@@ -37,6 +38,7 @@ static int nummodels = 0;
 modeldef_c::modeldef_c(const char *_prefix) : model(NULL)
 {
 	strcpy(name, _prefix);
+	modeltype = MODEL_MD2;
 
 	for (int i=0; i < MAX_MODEL_SKINS; i++)
 		skins[i] = NULL;
@@ -102,31 +104,50 @@ modeldef_c *LoadModelFromLump(int model_num)
 
 	epi::file_c *f;
 
-	// try MD3 first, then MD2
+	// try MD3 first, then MD2, then MD5
 	sprintf(lumpname, "%sMD3", basename);
 
-	if (W_CheckNumForName(lumpname) >= 0)
-	{
+	if (W_CheckNumForName(lumpname) >= 0) {
 		I_Debugf("Loading model from lump : %s\n", lumpname);
 
 		f = W_OpenLump(lumpname);
 		SYS_ASSERT(f);
 
 		def->model = MD3_LoadModel(f);
-	}
-	else
-	{
+		def->modeltype = MODEL_MD2;
+	} else {
 		sprintf(lumpname, "%sMD2", basename);
-		I_Debugf("Loading model from lump : %s\n", lumpname);
+		if (W_CheckNumForName(lumpname) >= 0) {
+			I_Debugf("Loading model from lump : %s\n", lumpname);;
+			f = W_OpenLump(lumpname);
+			if (! f)
+				I_Error("Missing model lump: %s\n", lumpname);
 
-//	epi::file_c *f = W_OpenLump(lumpname);
-//	if (! f)
-//		I_Error("Missing model lump: %s\n", lumpname);
-		f = W_OpenLump(lumpname);
-		if (! f)
-			I_Error("Missing model lump: %s\n", lumpname);
+			def->model = MD2_LoadModel(f);
+			def->modeltype = MODEL_MD2;
+		} else {
+			sprintf(lumpname, "%sMD5", basename);
+			
+			f = W_OpenLump(lumpname);
+			SYS_ASSERT(f);
+			byte *modeltext = f->LoadIntoMemory();
+			SYS_ASSERT(modeltext);
 
-		def->model = MD2_LoadModel(f);
+			MD5model *md5 = md5_load((char*)modeltext);
+			def->modeltype = MODEL_MD5_UNIFIED;
+			def->md5u = md5_normalize_model(md5);
+			
+			md5_free(md5);
+			delete[] modeltext;
+			
+			delete f;
+			
+			for (int i=0; i < def->md5u->model.meshcnt; i++) {
+				def->md5u->model.meshes[i].tex = W_ImageLookup(def->md5u->model.meshes[i].shader, INS_Sprite, ILF_Null);
+			}
+			
+			return def;
+		}
 	}
 
 	SYS_ASSERT(def->model);

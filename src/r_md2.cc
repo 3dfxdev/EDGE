@@ -1295,10 +1295,12 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 
 	bool tilt = is_weapon || (mo->flags & MF_MISSILE) || (mo->hyperflags & HF_TILT);
 
-	M_Angle2Matrix(tilt ? ~mo->vertangle : 0, &data.kx_mat, &data.kz_mat);
+	//M_Angle2Matrix(tilt ? ~mo->vertangle : 0, &data.kx_mat, &data.kz_mat);
+	M_Angle2Matrix(tilt ? ~(angle_t)mo->GetInterpolatedVertAngle() : 0, &data.kx_mat, &data.kz_mat);
 
 	
-	angle_t ang = mo->angle;
+	//angle_t ang = mo->angle;
+	angle_t ang = mo->GetInterpolatedAngle();
 
 	MIR_Angle(ang);
 

@@ -10,17 +10,19 @@ int FS_LoadFile (const char *path, void **buffer)
 	const int resize_step = 6000;
 	char * buff;
 	
-	buff = malloc(32);
+	buff = (char*)malloc(32);
 	
 	inf = fopen (path,"r");
 	if (inf != NULL) {
 		while(!feof(inf)) {	//resize buffer until it all fits
-			buff = realloc(buff,len+resize_step+1);
+			//TODO check success
+			buff = (char*)realloc(buff,len+resize_step+1);
 			len += fread(buff+len,sizeof(char),resize_step, inf);
 		}
 		fclose(inf);
 		buff[len] = 0;
-		buff = realloc(buff,len+1);	//trim excess
+		//TODO check success
+		buff = (char*)realloc(buff,len+1);	//trim excess
 	}
 	
 	if (buffer)
