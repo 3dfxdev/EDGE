@@ -2,7 +2,7 @@
 # EDGE Makefile : WIN32 cross-compile
 #
 
-PROGRAM=edge.exe
+PROGRAM=edge.win32
 
 OBJDIR=obj_win32
 LIBDIR=lib_win32
@@ -27,7 +27,7 @@ CFLAGS += -I
 LDFLAGS=-Wl,--warn-common -I  -mfpmath=sse
 #LDFLAGS=-pg -Wl,--warn-common -I
 
-LDFLAGS += -l$C:\MinGW\lib\libmingw32.a -lm -I 
+LDFLAGS += -llibmingw32.a -lm -I 
 
 
 # Operating System
@@ -128,10 +128,10 @@ makedirs:
 
 .PHONY: all stripped clean halfclean makedirs
 
+
 runupx:
 	@echo Compressing with UPX...
 	@$(UPX) $(PROGRAM)
-
 
 # ---------- Includes -----------
 
@@ -416,7 +416,6 @@ $(PROGRAM) : $(COAL_OBJS) \
 	     $(GLBSP_OBJS) \
 	     $(TIMIDITY_OBJS)
 	$(CXX) $(CFLAGS) -o $@ $^ $(LDFLAGS)
-
 
 #--- editor settings ------------
 # vi:ts=8:sw=8:noexpandtab
