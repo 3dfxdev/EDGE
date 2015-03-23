@@ -58,6 +58,8 @@ void P_Ticker(void)
 		return;
 	}
 
+	P_UpdateInterpolationHistory();
+	
 	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
 		if (players[pnum])
 			P_PlayerThink(players[pnum]);

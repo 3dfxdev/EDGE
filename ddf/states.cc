@@ -22,6 +22,7 @@
 
 #include "../src/p_action.h"
 #include "../src/z_zone.h"
+#include "../src/r_md5.h"
 
 
 // FIXME: unwanted link to engine code (switch to epi::angle_c)
@@ -32,6 +33,8 @@ static const state_t template_state =
 {
 	0,          // sprite ref
 	0,          // frame ref
+	0,          // frame range
+	-1,          // anim file
 	0,          // bright
 	0,          // flags
 	-1,         // tics
@@ -426,6 +429,8 @@ void DDF_StateReadState(const char *info, const char *label,
 
 	j = sprite_x[0];
 
+	cur->framerange = 0;
+	cur->animfile = -1;
 	if ('A' <= j && j <= ']')
 	{
 		cur->frame = j - (int)'A';
@@ -447,9 +452,46 @@ void DDF_StateReadState(const char *info, const char *label,
 			cur->frame = 0;
 			cur->model_frame = strdup(sprite_x+1);
 		}
+		
+		char animfilename[12];
+		strcat(strcpy(animfilename, stateinfo[0].c_str()),"MDA");
+		cur->animfile = R_LoadMD5AnimationName(animfilename);
 
 		if (cur->frame < 0)
-			DDF_Error("DDF_MainLoadStates: Illegal model frame: %s\n", sprite_x);
+			DDF_Error("DDF_MainLoadStates: Illegal model frame: %s (%i)\n", sprite_x, cur->frame);
+	}
+	else if (j == '%')
+	{
+		const char seperator = '%';
+		//MD5 animation
+		//format: %ANIMNAME,firstframe,lastframe
+		cur->flags = SFF_Model;
+		
+		size_t firstseperator = stateinfo[1].find_first_of(seperator,1);
+		if (firstseperator == std::string::npos)
+			DDF_Error("DDF_MainLoadStates: no comma found in %c frame\n", seperator);
+		
+		std::string animname = stateinfo[1].substr(1, firstseperator - 1);
+		size_t secondseperator = stateinfo[1].find_first_of(seperator,firstseperator+1);
+		
+		cur->animfile = R_LoadMD5AnimationName(animname.c_str());
+		cur->frame = atol(stateinfo[1].c_str()+firstseperator+1) - 1;
+		
+		//DDF_Error("%i\n",cur->frame);
+		//DDF_Error("%i %i '%s' F: %i\n",firstseperator,secondseperator,animname.c_str(), cur->animfile);
+		int endframe = cur->frame;
+		if (secondseperator != std::string::npos) {
+			endframe = atol(stateinfo[1].c_str()+secondseperator+1) - 1;
+		}
+		cur->framerange = endframe - cur->frame;
+		//DDF_Error("%i %i %s\n",cur->framerange,endframe,stateinfo[1].c_str());
+		
+		
+		if (cur->frame < 0)
+			DDF_Error("DDF_MainLoadStates: Illegal model frame: %s (%i)\n", sprite_x, cur->frame);
+		if (cur->framerange < 0)
+			DDF_Error("DDF_MainLoadStates: Illegal model end frame (%i), must be greater than start frame (%i)\n %s\n", endframe, cur->frame, sprite_x);
+		
 	}
 	else
 		DDF_Error("DDF_MainLoadStates: Illegal sprite frame: %s\n", sprite_x);

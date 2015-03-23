@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
-//  EDGE2 Model Management
+//  MD5 Animation Managment
 //----------------------------------------------------------------------------
-// 
-//  Copyright (c) 1999-2008  The EDGE2 Team.
-// 
+//
+//  Copyright (c) 2002-2009  The EDGE2 Team.
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -16,54 +16,25 @@
 //
 //----------------------------------------------------------------------------
 
-#ifndef __W_MODEL_H__
-#define __W_MODEL_H__
+#ifndef __R_MD5ANIM_H__
+#define __R_MD5ANIM_H__
 
-#include "../md5_conv/md5.h"
+#include "../md5_conv/md5_anim.h"
+#include "../epi/file.h"
+#include "../epi/types.h"
+
 #include "r_defs.h"
+#include "p_mobj.h"
+#include "w_model.h"
 
-class md2_model_c;
+#define R_MAX_MD5_ANIMATIONS	2000
 
+short R_LoadMD5AnimationName(const char * lumpname);
+MD5animation * R_GetMD5Animation(short animation_num);
+void MD5_RenderModel(modeldef_c *md, int last_anim, int last_frame,
+	int current_anim, int current_frame, float lerp, float x, float y, float z, mobj_t *mo);
 
-#define MAX_MODEL_SKINS  10
-
-#define MODEL_MD2 0
-//#define MODEL_MD5 1
-#define MODEL_MD5_UNIFIED 2
-//#define MODEL_DM5 2
-
-class modeldef_c
-{
-public:
-	// four letter model name (e.g. "TROO").
-	char name[6];
-	char modeltype;
-	
-	union {
-		md2_model_c *model;
-		MD5model *md5;
-		MD5umodel *md5u;
-	};
-
-	const image_c *skins[MAX_MODEL_SKINS];
-
-public:
-	 modeldef_c(const char *_prefix);
-	~modeldef_c();
-};
-
-
-/* Functions */
-
-void W_InitModels(void);
-
-void W_PrecacheModels(void);
-
-modeldef_c *W_GetModel(int model_num);
-
-// XXX W_GetModelSkin(int model_num, int skin_num);
-
-#endif // __W_MODEL_H__
+#endif /* __R_MD2_H__ */
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

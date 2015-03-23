@@ -2,10 +2,10 @@
 # EDGE Makefile : WIN32 cross-compile
 #
 
-PROGRAM=edge.win32
+PROGRAM=edge.exe
 
-OBJDIR=C:/hyperedge/edge2/obj_win32
-LIBDIR=C:/hyperedge/edge2/lib_win32
+OBJDIR=obj_win32
+LIBDIR=lib_win32
 
 # ----------
 
@@ -14,12 +14,16 @@ LIBDIR=C:/hyperedge/edge2/lib_win32
 CC=gcc
 CXX=g++
 ld=gcc
-CFLAGS=-O2 -ffast-math -fno-strict-aliasing -Wall -I
+#CFLAGS=-O3 -pg -ffast-math  -msse2 -mfpmath=sse -fno-strict-aliasing -Wall -I
+CFLAGS=-O3 -ffast-math  -msse2 -mfpmath=sse -fno-strict-aliasing -Wall -I
+#CFLAGS=-O2 -ffast-math -fno-strict-aliasing -Wall -I
 
 CFLAGS += -I
 
 
-LDFLAGS=-Wl,--warn-common -I
+#LDFLAGS=-pg -Wl,--warn-common -I  -mfpmath=sse
+LDFLAGS=-Wl,--warn-common -I  -mfpmath=sse
+#LDFLAGS=-pg -Wl,--warn-common -I
 
 LDFLAGS += -l$C:\MinGW\lib\libmingw32.a -lm -I 
 
@@ -31,53 +35,53 @@ CFLAGS += -DWIN32
 
 # SDL
 
-CFLAGS += -I$C:/hyperedge/edge2/lib_win32/SDL/include
+CFLAGS += -I$lib_win32/SDL/include
 
-LDFLAGS += -L$C:/hyperedge/edge2/lib_win32/SDL/lib
-LDFLAGS += -lmingw32 -l$C:/hyperedge/edge2/lib_win32/SDL/build/libSDLmain.a -l$C:/hyperedge/edge2/lib_win32/SDL/build/.libs/SDL.dll 
+LDFLAGS += -L$lib_win32/SDL/lib
+LDFLAGS += -lmingw32 lib_win32/SDL/build/libSDLmain.a lib_win32/SDL/build/.libs/SDL.dll 
 
 # ROQPLAYER
 
-# CFLAGS += -I$C:/hyperedge/edge2/roqplay
-# LDFLAGS += -L$C:/hyperedge/edge2/roqplay
-# LDFLAGS += -l$C:/hyperedge/edge2/
+# CFLAGS += -I$roqplay
+# LDFLAGS += -L$roqplay
+# LDFLAGS += -l$
 
 # OpenGL rendering
 
-CFLAGS  += -I$C:/hyperedge/edge2/lib_win32/glew-1.5.8/include
-LDFLAGS += -L$C:/hyperedge/edge2/lib_win32/glew-1.5.8/lib
-LDFLAGS += -l$C:/hyperedge/edge2/lib_win32/glew-1.5.8/lib/libglew32.a -l$C:/hyperedge/edge2/lib_win32/glew-1.5.8/lib/libopengl32.a
+CFLAGS  += -I$lib_win32/glew-1.5.8/include
+#LDFLAGS += -L$lib_win32/glew-1.5.8/lib
+LDFLAGS += lib_win32/glew-1.5.8/lib/libglew32.a lib_win32/glew-1.5.8/lib/libopengl32.a
 
 # HawkNL
 
-CFLAGS  += -I$C:/hyperedge/edge2/hawkNL/include
-LDFLAGS += -L$C:/hyperedge/edge2/hawkNL/include
-LDFLAGS += -l$C:/hyperedge/edge2/hawkNL/include/NLstatic.lib
+CFLAGS  += -I$hawkNL/include
+LDFLAGS += -L$hawkNL/include
+LDFLAGS += hawkNL/include/NLstatic.lib
 
 # PNG, JPEG and ZLIB
 
-CFLAGS  += -I$C:/hyperedge/edge2/lib_win32/libpng-1.2.12
-LDFLAGS += -L$C:/hyperedge/edge2/lib_win32/libpng-1.2.12
-LDFLAGS += -l$C:/hyperedge/edge2/lib_win32/libpng-1.2.12/libpng.a
+CFLAGS  += -I$lib_win32/libpng-1.2.12
+LDFLAGS += -L$lib_win32/libpng-1.2.12
+LDFLAGS += lib_win32/libpng-1.2.12/libpng.a
 
-CFLAGS  += -I$C:/hyperedge/edge2/lib_win32/jpeg-6b
-LDFLAGS += -L$C:/hyperedge/edge2/lib_win32/jpeg-6b
-LDFLAGS += -l$C:/hyperedge/edge2/lib_win32/jpeg-6b/libjpeg.a
+CFLAGS  += -I$lib_win32/jpeg-6b
+LDFLAGS += -L$lib_win32/jpeg-6b
+LDFLAGS += lib_win32/jpeg-6b/libjpeg.a
 
-CFLAGS  += -I$C:/hyperedge/edge2/lib_win32/zlib-1.2.3/zlib-1.2.3
-LDFLAGS += -L$C:/hyperedge/edge2/lib_win32/zlib-1.2.3/zlib-1.2.3
-LDFLAGS += -l$C:/hyperedge/edge2/lib_win32/zlib-1.2.3/libz.a
+CFLAGS  += -I$lib_win32/zlib-1.2.3/zlib-1.2.3
+LDFLAGS += -L$lib_win32/zlib-1.2.3/zlib-1.2.3
+LDFLAGS += lib_win32/zlib-1.2.3/libz.a
 
 
 # OGG/Vorbis
 
 CFLAGS += -DUSE_OGG
-CFLAGS += -I$C:/hyperedge/edge2/lib_win32/libogg-1.2.2/include
-CFLAGS += -I$C:/hyperedge/edge2/lib_win32/libvorbis-1.3.2/include
+CFLAGS += -I$lib_win32/libogg-1.2.2/include
+CFLAGS += -I$lib_win32/libvorbis-1.3.2/include
 
-LDFLAGS += -L$C:/hyperedge/edge2/lib_win32/libogg-1.2.2/src
-LDFLAGS += -L$C:/hyperedge/edge2/lib_win32/libvorbis-1.3.2/lib
-LDFLAGS += -l$C:/hyperedge/edge2/lib_win32/libvorbis-1.3.2/lib/libvorbisfile.a -l$C:/hyperedge/edge2/lib_win32/libvorbis-1.3.2/lib/libvorbis.a -l$C:/hyperedge/edge2/lib_win32/libogg-1.2.2/src/libogg.a
+LDFLAGS += -L$lib_win32/libogg-1.2.2/src
+LDFLAGS += -L$lib_win32/libvorbis-1.3.2/lib
+LDFLAGS += lib_win32/libvorbis-1.3.2/lib/libvorbisfile.a lib_win32/libvorbis-1.3.2/lib/libvorbis.a lib_win32/libogg-1.2.2/src/libogg.a
 
 
 # glBSP
@@ -87,7 +91,7 @@ CFLAGS_GLBSP=-O -Wall -fno-strict-aliasing
 CFLAGS_GLBSP += -DGLBSP_PLUGIN
 CFLAGS_GLBSP += -DINLINE_G=inline
 
-CFLAGS_GLBSP += -I$C:/hyperedge/edge2/lib_win32/zlib-1.2.3
+CFLAGS_GLBSP += -I$lib_win32/zlib-1.2.3
 
 
 # Win32 libs
@@ -104,16 +108,18 @@ stripped: $(PROGRAM)
 	strip --strip-unneeded $(PROGRAM)
 
 clean:
-	rm -f $(PROGRAM) $(OBJDIR)/*/*.* 
+	rm -f $(PROGRAM) $(OBJDIR)/*/*.* $(OBJDIR)/*/*/*.* 
 
 halfclean:
-	rm -f $(PROGRAM) $(OBJDIR)/ddf/*.* $(OBJDIR)/edge/*.*
+	rm -f $(PROGRAM) $(OBJDIR)/ddf/*.* $(OBJDIR)/edge/*.* $(OBJDIR)/md5_conv/*.* $(OBJDIR)/md5_conv/kmq2/*.*
 
 makedirs:
 	mkdir -p $(OBJDIR)/coal
 	mkdir -p $(OBJDIR)/ddf
 	mkdir -p $(OBJDIR)/deh_edge
 	mkdir -p $(OBJDIR)/edge
+	mkdir -p $(OBJDIR)/md5_conv
+	mkdir -p $(OBJDIR)/md5_conv/kmq2
 	mkdir -p $(OBJDIR)/epi
 	mkdir -p $(OBJDIR)/glbsp
 	mkdir -p $(OBJDIR)/timidity
@@ -265,6 +271,7 @@ EDGE_OBJS= \
 	$(OBJDIR)/edge/r_colormap.o \
 	$(OBJDIR)/edge/r_modes.o    \
 	$(OBJDIR)/edge/r_md2.o      \
+	$(OBJDIR)/edge/r_md5.o      \
 	$(OBJDIR)/edge/r_image.o    \
 	$(OBJDIR)/edge/r_doomtex.o  \
 	$(OBJDIR)/edge/r_texgl.o    \
@@ -296,7 +303,12 @@ EDGE_OBJS= \
 	$(OBJDIR)/edge/w32_mus.o    \
 	$(OBJDIR)/edge/w32_net.o    \
 	$(OBJDIR)/edge/w32_res.o    \
-	$(OBJDIR)/edge/w32_system.o 
+	$(OBJDIR)/edge/w32_system.o \
+	$(OBJDIR)/md5_conv/md5_load.o \
+	$(OBJDIR)/md5_conv/md5_parse.o \
+	$(OBJDIR)/md5_conv/md5_anim.o \
+	$(OBJDIR)/md5_conv/md5_draw.o \
+	$(OBJDIR)/md5_conv/kmq2/q2stuff.o \
 
 
 $(OBJDIR)/edge/w32_res.o: src/w32_res.rc
@@ -304,6 +316,12 @@ $(OBJDIR)/edge/w32_res.o: src/w32_res.rc
 
 $(OBJDIR)/edge/%.o: src/%.cc
 	$(CXX) $(CFLAGS) -o $@ -c $< 
+
+$(OBJDIR)/md5_conv/%.o: md5_conv/%.cc
+	$(CXX) $(CFLAGS) -o $@ -c $< 
+
+$(OBJDIR)/md5_conv/kmq2/%.o: md5_conv/kmq2/%.c
+	$(CC) $(CFLAGS) -o $@ -c $< 
 
 
 # ---------- EPI ---------------
@@ -329,6 +347,7 @@ EPI_OBJS= \
 	$(OBJDIR)/epi/math_oddity.o  \
 	$(OBJDIR)/epi/math_matrix.o  \
 	$(OBJDIR)/epi/math_vector.o  \
+	$(OBJDIR)/epi/math_quaternion.o  \
 	$(OBJDIR)/epi/math_random.o  \
 	$(OBJDIR)/epi/mersenne_twist.o \
 	$(OBJDIR)/epi/mus_2_midi.o   \

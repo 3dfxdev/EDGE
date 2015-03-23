@@ -58,6 +58,10 @@ bool N_OpenBroadcastSocket(bool is_host);
 void N_CloseBroadcastSocket(void);
 void N_SendBroadcastDiscovery(void);
 
+float N_GetInterpolater(void);
+void N_ResetInterpolater(void);
+void N_SetInterpolater(void);
+
 #endif /* __N_NETWORK_H__ */
 
 //--- editor settings ---

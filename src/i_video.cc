@@ -20,6 +20,8 @@
 #include "i_sdlinc.h"
 #include "i_defs_gl.h"
 
+#include "GL/wglew.h"
+
 #include <signal.h>
 
 #include "m_argv.h"
@@ -115,12 +117,14 @@ void I_StartupGraphics(void)
 	if (M_CheckParm("-nograb"))
 		in_grab = 0;
 
-	SDL_GL_SetAttribute(SDL_GL_RED_SIZE,     5);
-	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,   5);
-	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,    5);
+	SDL_GL_SetAttribute(SDL_GL_RED_SIZE,     8);
+	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,   8);
+	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,    8);
+	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE,    8);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,   16);
-	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 0);
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,   24);
+	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+	SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 1);
 
 	
     // -DS- 2005/06/27 Detect SDL Resolutions
@@ -227,7 +231,12 @@ bool I_SetScreenSize(scrmode_c *mode)
 
 	glClearColor(0, 0, 0, 0);
 	glClear(GL_COLOR_BUFFER_BIT);
-
+	I_Printf("%i\n",WGLEW_EXT_swap_control);
+	if (WGLEW_EXT_swap_control) {
+		extern cvar_c r_vsync;
+		wglSwapIntervalEXT(r_vsync.d != 0);
+	}
+	
 	SDL_GL_SwapBuffers();
 
 	return true;
@@ -243,8 +252,16 @@ void I_StartFrame(void)
 
 void I_FinishFrame(void)
 {
+	extern cvar_c r_vsync;
+	if (WGLEW_EXT_swap_control) {
+		if (r_vsync.d > 1)
+			glFinish();
+		wglSwapIntervalEXT(r_vsync.d != 0);
+	}
+	
 	SDL_GL_SwapBuffers();
-
+	if (r_vsync.d > 1)
+			glFinish();
 	if (in_grab.CheckModified())
 		I_GrabCursor(grab_state);
 }

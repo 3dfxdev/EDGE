@@ -18,9 +18,9 @@
 
 #define TITLE  "EDGE2 Engine"
 
-#define EDGEVER       136
-#define EDGEVERHEX  0x136
-#define EDGEVERSTR  "1.36"
+#define EDGEVER       200
+#define EDGEVERHEX  0x200
+#define EDGEVERSTR  "2.0.0"
 
 // patch level (Savegames and Demos)
 #define EDGEPATCH  6

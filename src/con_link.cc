@@ -79,6 +79,9 @@ extern cvar_c debug_fullbright, debug_hom;
 extern cvar_c debug_mouse,      debug_joyaxis;
 extern cvar_c debug_fps,        debug_pos;
 
+extern cvar_c r_lerp, r_maxfps, r_vsync;
+extern cvar_c r_md5scale;
+
 extern cvar_c debug_nomonsters, debug_subsector;
 
 
@@ -167,6 +170,11 @@ cvar_link_t  all_cvars[] =
 	{ "debug_mouse",      &debug_mouse,      "",  "0" },
 	{ "debug_pos",        &debug_pos,        "h", "0" },
 	{ "debug_fps",        &debug_fps,        "c", "0" },
+	
+	{ "r_md5scale",        &r_md5scale,        "c", "5" },
+	{ "r_lerp",        &r_lerp,        "c", "1" },
+	{ "r_maxfps",        &r_maxfps,        "c", "60" },
+	{ "r_vsync",        &r_vsync,        "c", "1" },
 
 #if 0 // FIXME
     { "edge_compat",    &edge_compat,    "",    "0"  },

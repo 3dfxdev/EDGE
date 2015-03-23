@@ -625,6 +625,7 @@ static optmenuitem_t other_keyconfig[] =
 	{OPT_KeyConfig, "Pause",            NULL, 0, &key_pause, NULL, NULL},
 	{OPT_KeyConfig, "Action 1",         NULL, 0, &key_action1, NULL, NULL},
 	{OPT_KeyConfig, "Action 2",         NULL, 0, &key_action2, NULL, NULL},
+	//tapamn key_action3/4 where added in revision 6, but never defined
 	{OPT_KeyConfig, "Action 3",         NULL, 0, &key_action3, NULL, NULL},
 	{OPT_KeyConfig, "Action 4",         NULL, 0, &key_action4, NULL, NULL},
 

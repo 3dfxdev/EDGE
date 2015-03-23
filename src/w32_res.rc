@@ -30,14 +30,14 @@ BEGIN
     // 0409 means "US English"; 04B0 means "Unicode encoding"
     BLOCK "040904B0"
     BEGIN
-      VALUE "CompanyName",      "The EDGE2 Team\0"
+      VALUE "CompanyName",      "Isotope SoftWorks\0"
       VALUE "FileDescription",  "hyper3DGE\0"
-      VALUE "FileVersion",      "1.36.3a\0"
-      VALUE "InternalName",     "EDGE136\0"
+      VALUE "FileVersion",      "2.0.0\0"
+      VALUE "InternalName",     "EDGE200\0"
       VALUE "LegalCopyright",   "\251 Hyper3DGE, GNU General Public License\0"
-      VALUE "OriginalFilename", "3DGE136.EXE\0"
+      VALUE "OriginalFilename", "3DGE200.EXE\0"
       VALUE "ProductName",      "EDGE2\0"
-      VALUE "ProductVersion",   "1.36.3a\0"
+      VALUE "ProductVersion",   "2.0.0\0"
     END
   END
   BLOCK "VarFileInfo"

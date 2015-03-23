@@ -321,7 +321,7 @@ static void TeleportRespawn(mobj_t * mobj)
 		new_mo->flags |= MF_AMBUSH;
 
 	new_mo->reactiontime = RESPAWN_DELAY;
-
+	new_mo->UpdateLastTicRender();
 	// remove the old monster.
 	P_RemoveMobj(mobj);
 }
@@ -401,7 +401,83 @@ static void ResurrectRespawn(mobj_t * mobj)
 		mobj->flags |= MF_AMBUSH;
 
 	mobj->reactiontime = RESPAWN_DELAY;
+	mobj->UpdateLastTicRender();
 	return;
+}
+
+extern float N_GetInterpolater(void);
+epi::vec3_c mobj_t::GetInterpolatedPosition(void)
+{
+	
+	float interp = N_GetInterpolater();
+	epi::vec3_c lastpos(lastticrender.x,lastticrender.y,lastticrender.z);
+	epi::vec3_c curpos(x,y,z);
+	
+	if (interp != 1)
+		return lastpos.Lerp(curpos, interp);
+	else
+		return curpos;
+}
+
+#define _fma(a,b,c) ((a)*(b)+(c))
+#define _fnms(a,b,c) ((c) - (a)*(b))
+#define _lerp(a,b,t) _fma((t), (b), _fnms(t, a, a))
+
+static float CircularLerp(float start , float end, float value){
+	float min = 0.0f;
+	float max = ANG360;
+	float half = abs((max - min) * 0.5);
+	float retval = 0.0f;
+	float diff = 0.0f;
+
+	if((end - start) < -half) {
+		diff = ((max - start)+end)*value;
+		retval =  start+diff;
+	} else if((end - start) > half) {
+		diff = -((max - end)+start)*value;
+		retval = start+diff;
+	} else {
+		retval = start+(end-start)*value;
+	}
+
+	return retval;
+}
+
+float mobj_t::GetInterpolatedAngle(void)
+{
+	float interp = N_GetInterpolater();
+	return CircularLerp(lastticrender.angle, angle, interp);
+}
+
+float mobj_t::GetInterpolatedVertAngle(void)
+{
+	float interp = N_GetInterpolater();
+	return CircularLerp(lastticrender.vertangle, vertangle, interp);
+}
+
+#undef _fma
+#undef _fnms
+#undef _lerp
+
+void mobj_t::UpdateLastTicRender(void)
+{
+	if (lerp_num <= 0) {
+		//using absolute position
+		lastticrender.x = x;
+		lastticrender.y = y;
+		lastticrender.z = z;
+	} else {
+		//using interpolated position
+		float along = lerp_pos / (float)lerp_num;
+		lastticrender.x = lerp_from.x + (x - lerp_from.x) * along;
+		lastticrender.y = lerp_from.y + (y - lerp_from.y) * along;
+		lastticrender.z = lerp_from.z + (z - lerp_from.z) * along;
+	}
+	lastticrender.angle = angle;
+	lastticrender.vertangle = vertangle;
+	lastticrender.model_skin = model_skin;
+	lastticrender.model_last_frame = model_last_frame;
+	lastticrender.model_animfile = state->animfile;
 }
 
 void mobj_t::ClearStaleRefs()
@@ -503,6 +579,7 @@ bool P_SetMobjState(mobj_t * mobj, statenum_t state)
 		(st->sprite == mobj->state->sprite) && st->tics > 1)
 	{
 		mobj->model_last_frame = mobj->state->frame;
+		mobj->model_last_animfile = mobj->state->animfile;
 	}
 	else
 		mobj->model_last_frame = -1;
@@ -1505,6 +1582,14 @@ void P_ClearAllStaleRefs(void)
 	}
 }
 
+void P_UpdateInterpolationHistory(void)
+{
+	for (mobj_t * mo = mobjlisthead; mo; mo = mo->next)
+	{
+		mo->UpdateLastTicRender();
+	}
+}
+
 
 //
 // P_RemoveQueuedMobjs
@@ -2022,6 +2107,8 @@ mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c *info)
 	// -AJA- 1999/09/15: now adds to _head_ of list (for speed).
 	//
 	AddMobjToList(mobj);
+	
+	mobj->UpdateLastTicRender();
 
 	return mobj;
 }

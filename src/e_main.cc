@@ -514,6 +514,21 @@ void E_Display(void)
 	if (nodrawers)
 		return;  // for comparative timing / profiling
 
+#if 0
+	//tapamn check fps
+	static int last = 0;
+	int now = I_GetMillies();
+	I_Printf("T: %f\n", 1.0f / ((now - last) / 1000.0f));
+	last = now;
+#endif
+	
+	
+	N_SetInterpolater();
+#if 0
+	//tapamn check interpolater value
+	I_Printf("I: %f\n", N_GetInterpolater());
+#endif
+	
 	// Start the frame - should we need to.
 	I_StartFrame();
 
@@ -591,7 +606,7 @@ void E_Display(void)
 	// menus go directly to the screen
 	M_Drawer();  // menu is drawn even on top of everything (except console)
 
-	N_NetUpdate();  // send out any new accumulation
+	N_NetUpdate(false);  // send out any new accumulation
 
 	if (m_screenshot_required)
 	{
@@ -1511,8 +1526,44 @@ void E_Tick(void)
 
 	G_BigStuff();
 
+#if 0
+	static int ticker = 70;
+	ticker--;
+	if (ticker == 0) {
+		extern cvar_c r_lerp;
+		
+		ticker = 70;
+		r_lerp.d = !r_lerp.d;
+		CON_Message("Interp: %i\n", r_lerp.d);
+	}
+#endif
 	// Update display, next frame, with current state.
-	E_Display();
+	// Render frames until it's time to run a gametic
+	// Measure frame length in order to avoid 
+	float interpstart = 0, interpdiff = 0;
+	static int nextframe = 0;
+	do {
+		interpstart += interpdiff;
+		
+		extern cvar_c r_maxfps;
+		if (r_maxfps.d > 0) {
+			while (I_GetMillies() < nextframe) {
+				//just in case someone plays for over 24 days and nextframe/getmillies overflow
+				if ((nextframe - I_GetMillies()) > 1000)
+					break;
+			}
+			nextframe = I_GetMillies() + 1000.0f / r_maxfps.f;
+		}
+		
+		N_SetInterpolater();
+		E_Display();
+		
+		interpdiff = N_GetInterpolater() - interpstart;
+		
+		//if (start of frame time + time to render frame + predicted next frame render time) > 1 whole gametic, stop rendering
+		//predicted next frame render time is the render time of the previous frame
+		//TODO maybe predicted time should be event processing time?
+	} while ((interpstart + 2*interpdiff) <  0.98);
 
 	bool fresh_game_tic;
 
@@ -1532,7 +1583,7 @@ void E_Tick(void)
 		S_SoundTicker(); 
 		S_MusicTicker(); // -ACB- 1999/11/13 Improved music update routines
 
-		N_NetUpdate();  // check for new console commands
+		N_NetUpdate(false);  // check for new console commands
 	}
 }
 

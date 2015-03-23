@@ -36,7 +36,7 @@ EPI_OBJS= \
 	$(OBJDIR)/epi/filesystem_win32.o
 
 TARGET = a.exe
-OBJS = kmq2/hunk.o kmq2/byteorder.o kmq2/q2stuff.o md5_parse.o md5_load.o md5_anim.o png.o debug.o main.o $(EPI_OBJS)
+OBJS = kmq2/hunk.o kmq2/byteorder.o kmq2/q2stuff.o md5_parse.o md5_load.o md5_anim.o md5_draw.o png.o debug.o main.o $(EPI_OBJS)
 #OBJS = ../commonc.o md2.o md3.o main.o
 
 EPILIBS = ../lib_win32/libpng-1.2.12/libpng.a ../lib_win32/jpeg-6b/libjpeg.a ../lib_win32/zlib-1.2.3/libz.a
@@ -54,8 +54,8 @@ ALIGNS=
 %.o: %.c
 	gcc $(CFLAGS) $(NODEBUGING) -O3 $(MATHOPT) $(EXTRAOPT) $(ALIGNS) -c $< -o $@
 
-#%.o: %.cc
-#	gcc $(CFLAGS) $(NODEBUGING) -D __CPLUSPLUS $(MATHOPT)  $(EXTRAOPT) $(CXXFLAGS) $(ALIGNS) -c $< -o $@
+%.o: %.cc
+	gcc $(CFLAGS) $(NODEBUGING) -D __CPLUSPLUS $(MATHOPT)  $(EXTRAOPT) $(CXXFLAGS) $(ALIGNS) -c $< -o $@
 	
 %.o: %.cpp
 	gcc $(CFLAGS) $(NODEBUGING) -D __CPLUSPLUS $(MATHOPT)  $(EXTRAOPT) $(CXXFLAGS) $(ALIGNS) -c $< -o $@

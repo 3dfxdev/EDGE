@@ -44,9 +44,15 @@ float M_Tan (angle_t ang)
 	return (float) tan ((double) ang * M_PI / (float) ANG180);
 }
 
+static float ApproxATan(float x)
+{
+    return M_PI_4*x - x*(fabs(x) - 1)*(0.2447 + 0.0663*fabs(x));
+}
+
 angle_t M_ATan (float slope)
 {
 	return (angle_t) ((float) ANG180 * atan (slope) / M_PI);
+	//return (angle_t) ((float) ANG180 * ApproxATan (slope) / M_PI);
 }
 
 void M_Angle2Matrix (angle_t ang, vec2_t * x, vec2_t * y)

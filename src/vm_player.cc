@@ -272,6 +272,20 @@ static void PL_is_action2(coal::vm_c *vm, int argc)
 	vm->ReturnFloat(ui_player_who->actiondown[1] ? 1 : 0);
 }
 
+// player.is_action3()
+//
+static void PL_is_action3(coal::vm_c *vm, int argc)
+{
+	vm->ReturnFloat(ui_player_who->actiondown[2] ? 1 : 0);
+}
+
+
+// player.is_action4()
+//
+static void PL_is_action4(coal::vm_c *vm, int argc)
+{
+	vm->ReturnFloat(ui_player_who->actiondown[3] ? 1 : 0);
+}
 
 // player.move_speed()
 //

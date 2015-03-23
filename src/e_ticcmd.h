@@ -99,21 +99,15 @@ buttoncode_e;
 typedef enum
 {
 	EBT_CENTER = 4,
-
-	// -AJA- 2000/02/08: support for second attack.
 	EBT_SECONDATK = 8,
-
-	// -AJA- 2000/03/18: more control over zooming
 	EBT_ZOOM = 16,
-
-	// -AJA- 2004/11/10: manual weapon reload
 	EBT_RELOAD = 32,
 
 	// -AJA- 2009/09/07: custom action buttons
 	EBT_ACTION1 = 64,
 	EBT_ACTION2 = 128,
-	EBT_ACTION3 = 512,
-	EBT_ACTION4 = 1024,
+	EBT_ACTION3 = 256,
+	EBT_ACTION4 = 512,
 }
 extbuttoncode_e;
 

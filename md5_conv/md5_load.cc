@@ -52,6 +52,28 @@ static void md5_load_joints(MD5model *m) {
 	expect_token("}", "for end of joint block");
 }
 
+/*
+	Removes tail from the end of src by setting a 0
+	
+	Won't remove tail if tail is not at the end of src, or removing tail
+	will result in a empty string
+	
+	Case insensitive
+	
+	TODO move this to somewhere that makes more sense
+*/
+extern "C" int Q_strcasecmp (const char *s1, const char *s2);
+static void remove_tail(char * src, const char * tail) {
+	
+	size_t srclen = strlen(src);
+	size_t taillen = strlen(tail);
+	if (srclen > taillen) {
+		size_t tailstart = srclen - taillen;
+		if (!Q_strcasecmp(src + tailstart, tail))
+			src[tailstart] = 0;
+	}
+}
+
 static void md5_load_meshes(MD5model *m) {
 	int i;
 	for(i = 0; i < m->meshcnt; i++) {
@@ -63,6 +85,9 @@ static void md5_load_meshes(MD5model *m) {
 		
 		expect_token("shader", "");
 		expect_string(mesh->shader, sizeof(mesh->shader));
+		//printf("AShader: \"%s\"\n",mesh->shader);
+		remove_tail(mesh->shader, ".png");
+		//printf("ZShader: \"%s\"\n",mesh->shader);
 		
 		expect_token("numverts", "");
 		mesh->vertcnt = expect_int();
@@ -118,6 +143,18 @@ static void md5_load_meshes(MD5model *m) {
 	}
 }
 
+int md5_is_md5(char *md5text) {
+	start_parse(md5text);
+	if (try_parse()) {
+	
+	} else {
+	
+	}
+	end_parse();
+	
+	return 0;
+}
+
 MD5model * md5_load(char *md5text) {
 	MD5model *m = NULL;
 	start_parse(md5text);
@@ -157,6 +194,8 @@ MD5model * md5_load(char *md5text) {
 		md5_load_joints(m);
 		md5_load_meshes(m);
 	} else {
+		md5_free(m);
+		m = NULL;
 		I_Error("%s\n", get_parse_error());
 	}
 	end_parse();
@@ -378,7 +417,7 @@ MD5umodel * md5_assemble_unified_model(MD5model *m) {
 	umodel->model.joints = new MD5joint[m->jointcnt]();
 	memcpy(umodel->model.joints, m->joints, sizeof(MD5joint) * m->jointcnt);
 	
-	//create new meshes uses unified weights
+	//create new meshes using unified weights
 	umodel->model.meshes = new MD5mesh[m->meshcnt]();
 	for(i = 0; i < m->meshcnt; i++) {
 		MD5mesh *srcmesh = m->meshes + i, *dstmesh = umodel->model.meshes + i;
@@ -428,18 +467,29 @@ MD5umodel * md5_normalize_model(MD5model *m) {
 }
 
 void md5_free(MD5model * m) {
+	//everything is initialized to zero, so anything non-zero needs to be freed
 	int i;
 	
-	for(i = 0; i < m->meshcnt; i++) {
-		MD5mesh *srcmesh = m->meshes + i;
-		
-		delete[] srcmesh->verts;
-		delete[] srcmesh->tris;
-		delete[] srcmesh->weights;
+	if (m == NULL)
+		return;
+	
+	if (m->meshes) {
+		for(i = 0; i < m->meshcnt; i++) {
+			MD5mesh *srcmesh = m->meshes + i;
+			
+			if (srcmesh->verts)
+				delete[] srcmesh->verts;
+			if (srcmesh->tris)
+				delete[] srcmesh->tris;
+			if (srcmesh->weights)
+				delete[] srcmesh->weights;
+		}
+		delete[] m->meshes;
 	}
 	
-	delete[] m->joints;
-	delete[] m->meshes;
+	if (m->joints)
+		delete[] m->joints;
+	
 	delete[] m;
 }
 

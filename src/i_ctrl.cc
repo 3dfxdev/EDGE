@@ -619,6 +619,7 @@ int I_GetTime(void)
     Uint32 t = SDL_GetTicks();
 
     // more complex than "t*35/1000" to give more accuracy
+    //return t*(35.0f/1000.0f);
     return (t / 1000) * 35 + (t % 1000) * 35 / 1000;
 }
 

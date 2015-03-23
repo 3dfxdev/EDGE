@@ -343,13 +343,13 @@ void RGL_DrawUnits(void)
 
 	glPolygonOffset(0, 0);
 
-//#if 0
+#if 0
 	float fog_col[4] = { 0, 0, 0.1, 0};
 	glEnable(GL_FOG);
 	glFogi(GL_FOG_MODE, GL_EXP);
 	glFogf(GL_FOG_DENSITY, 0.001f);
 	glFogfv(GL_FOG_COLOR, fog_col);
-//#endif
+#endif
 
 	for (int j=0; j < cur_unit; j++)
 	{

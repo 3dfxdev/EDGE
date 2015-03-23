@@ -33,6 +33,8 @@
 #define __P_MOBJ_H__
 
 #include "../ddf/types.h"
+#include "../epi/epi.h"
+#include "../epi/math_vector.h"
 #include "m_math.h"
 
 // forward decl.
@@ -160,11 +162,23 @@ typedef struct
 }
 spawnpoint_t;
 
-
 struct position_c
 {
 public:
 	float x, y, z;
+};
+
+
+typedef struct last_tic_render_s last_tic_render_t;
+
+struct last_tic_render_s : public position_c
+{
+	angle_t angle;      // orientation
+	angle_t vertangle;  // looking up or down
+	
+	int model_skin;
+	int model_last_frame;
+	short model_animfile;
 };
 
 typedef struct dlight_state_s
@@ -228,6 +242,7 @@ struct mobj_s : public position_c
 
 	int model_skin;
 	int model_last_frame;
+	short model_last_animfile;
 
 	// tag ID (for special operations)
 	int tag;
@@ -321,6 +336,8 @@ struct mobj_s : public position_c
 	short lerp_pos;
 
 	vec3_t lerp_from;
+	
+	last_tic_render_t lastticrender;
 
 	// touch list: sectors this thing is in or touches
 	struct touch_node_s *touch_sectors;
@@ -351,6 +368,11 @@ public:
 	void SetAboveMo(mobj_t *ref);
 	void SetBelowMo(mobj_t *ref);
 	void SetRealSource(mobj_t *ref);
+	
+	void UpdateLastTicRender(void);
+	epi::vec3_c GetInterpolatedPosition(void);
+	float GetInterpolatedAngle(void);
+	float GetInterpolatedVertAngle(void);
 
 	void ClearStaleRefs();
 };
