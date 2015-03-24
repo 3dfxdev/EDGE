@@ -1,47 +1,51 @@
 * Welcome to hyper3DGE!
 * http://edge2.sourceforge.net
-* by 3DGE Team
+* (c) Isotope SoftWorks & Contributors
 *
 * This is based upon EDGE, by the EDGE Team.
 * http://edge.sourceforge.net
 * EDGE is (C) The EDGE Team
-***********************************************
-Version 1.36.2 - TEST - 
-***********************************************
 
-Release Notes:
+* Visit the 3DGE Wiki: http://3dfxdev.net/edgewiki
 
--  FULL compatibility with EDGE mods now. 
+README
+This is the Git source repo for 3DGE.
 
--  This version is a "clean" copy from the official
-   final 1.35 release. As such, some of the minor
-   additions from 0.35d are not working.
+Build System for 3DGE
+---------------------
 
--  Networking stuff has been added in for debugging. 
-   *All viable netcode has been disabled for this test!
+There are custom configurations for each platform. This project uses Makefiles for compiling.
+(There is no autoconf/automake/libtool support).
 
--  MD3 Support! Syntax is the same as MD2, with the
-   exception - lump/file name should be xMD3 instead
-   of xMD2 (where 'x' is the name).
-   Limitations: single-mesh support only, working on
-   full support.
+ 1. Build Linux debugging + shared-lib binary:
 
+    > make -f Makefile.linux
 
-SETUP:
-*************
-1) Place IWAD into port directory 
-(IWAD can be doom, doom2, tnt, plutonia, hacx)
+ 2. Build Win32 statically-linked binary:
 
-2) Run EDGE2.EXE and blast away!
+    > make -f Makefile.xming
 
-*************
+ 3. Build MacOSX binary:
+ 
+    > make -f Makefile.osx
+    
+ 4. Build Dreamcast:
 
+    > make -f Makefile.dc
+   
 
-FURTHER READING:
-**************
-I have included the EDGE 1.35 readme. This file contains
-notes you should read from EDGE. Some of the information
-in the readme might be deprecated in the future. 
+Libraries
+---------
 
-However,it contains important setup information that you should
-read nonetheless.
+For the list of libraries required by 3DGE, please see the
+following document: docs/tech/libraries.txt
+
+The Makefiles not only build the main engine code
+(i.e. all the stuff in the src/ directory) but also build
+the EPI, DEH_EDGE, COAL, TIMIDITY, MD5, and GLBSP libraries.
+
+The following libraries are linked statically in the
+release builds and must be built manually beforehand:
+zlib, libpng, jpeglib, libogg, libvorbis and libvorbisfile.
+Also FLTK for Linux release binaries.
+    
