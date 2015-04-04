@@ -4,11 +4,12 @@ Welcome to hyper3DGE!
 * http://edge2.sourceforge.net
 * (c) Isotope SoftWorks & Contributors
 
-* This is based upon EDGE, by the EDGE Team.
+hyper3DGE is based upon EDGE:
 * http://edge.sourceforge.net
 * EDGE is (c) The EDGE Team
 
-* Visit the 3DGE Wiki: http://3dfxdev.net/edgewiki
+
+Visit the hyper3DGE Wiki: http://3dfxdev.net/edgewiki
 
 
 Build System for 3DGE
@@ -23,15 +24,15 @@ Build Linux debugging + shared-lib binary:
 
 Build Win32 statically-linked binary:
 
-     > make -f Makefile.xming
+    > make -f Makefile.xming
 
 Build MacOSX binary:
  
-     > make -f Makefile.osx
+    > make -f Makefile.osx
 
 Build Dreamcast:
 
-     > make -f Makefile.dc
+    > make -f Makefile.dc
 
 
 Libraries
