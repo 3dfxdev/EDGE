@@ -1,15 +1,15 @@
-* Welcome to hyper3DGE!
+Welcome to hyper3DGE!
+---------------------
+
 * http://edge2.sourceforge.net
 * (c) Isotope SoftWorks & Contributors
-*
+
 * This is based upon EDGE, by the EDGE Team.
 * http://edge.sourceforge.net
-* EDGE is (C) The EDGE Team
+* EDGE is (c) The EDGE Team
 
 * Visit the 3DGE Wiki: http://3dfxdev.net/edgewiki
 
-README
-This is the Git source repo for 3DGE.
 
 Build System for 3DGE
 ---------------------
@@ -17,22 +17,22 @@ Build System for 3DGE
 There are custom configurations for each platform. This project uses Makefiles for compiling.
 (There is no autoconf/automake/libtool support).
 
- 1. Build Linux debugging + shared-lib binary:
+Build Linux debugging + shared-lib binary:
 
     > make -f Makefile.linux
 
- 2. Build Win32 statically-linked binary:
+Build Win32 statically-linked binary:
 
-    > make -f Makefile.xming
+     > make -f Makefile.xming
 
- 3. Build MacOSX binary:
+Build MacOSX binary:
  
-    > make -f Makefile.osx
-    
- 4. Build Dreamcast:
+     > make -f Makefile.osx
 
-    > make -f Makefile.dc
-   
+Build Dreamcast:
+
+     > make -f Makefile.dc
+
 
 Libraries
 ---------
@@ -48,4 +48,3 @@ The following libraries are linked statically in the
 release builds and must be built manually beforehand:
 zlib, libpng, jpeglib, libogg, libvorbis and libvorbisfile.
 Also FLTK for Linux release binaries.
-    
