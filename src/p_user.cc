@@ -57,7 +57,7 @@ static sfx_t * sfx_jpflow;
 static void CalcHeight(player_t * player)
 {
 	bool onground = player->mo->z <= player->mo->floorz;
-	bool still = false;
+	//bool still = false;
 
 	if (player->mo->height < (player->mo->info->height + player->mo->info->crouchheight) / 2.0f)
 		player->mo->extendedflags |= EF_CROUCHING;
@@ -78,11 +78,11 @@ static void CalcHeight(player_t * player)
 	player->bob = (player->mo->mom.x * player->mo->mom.x
 		+ player->mo->mom.y * player->mo->mom.y) / 8;
 	
-	if (bob_z == 0)
-		{
-			still = true;
-		}
-		else
+	//if (bob_z == 0)
+	//	{
+	//		still = true;
+	//	}
+	//	else
 
 	if (player->bob > MAXBOB)
 		player->bob = MAXBOB;

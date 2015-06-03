@@ -584,7 +584,7 @@ static void MakeBoomCrusher(linetype_c *line, int number)
 // 
 void DDF_BoomMakeGenLine(linetype_c *line, int number)
 {
-//	I_Debugf("- Making Generalized Linedef 0x%04x\n", number);
+	I_Debugf("- Making Generalized Linedef 0x%04x\n", number);
 
 	// trigger values are the same for all ranges
 	HandleLineTrigger(line, number & 0x7);

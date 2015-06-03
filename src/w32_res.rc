@@ -31,13 +31,13 @@ BEGIN
     BLOCK "040904B0"
     BEGIN
       VALUE "CompanyName",      "Isotope SoftWorks\0"
-      VALUE "FileDescription",  "hyper3DGE\0"
-      VALUE "FileVersion",      "2.0.0\0"
-      VALUE "InternalName",     "EDGE200\0"
+      VALUE "FileDescription",  "Harmony of Darkness\0"
+      VALUE "FileVersion",      "2.0.1\0"
+      VALUE "InternalName",     "EDGE201\0"
       VALUE "LegalCopyright",   "\251 Hyper3DGE, GNU General Public License\0"
-      VALUE "OriginalFilename", "3DGE200.EXE\0"
+      VALUE "OriginalFilename", "3DGE201.EXE\0"
       VALUE "ProductName",      "EDGE2\0"
-      VALUE "ProductVersion",   "2.0.0\0"
+      VALUE "ProductVersion",   "2.0.1\0"
     END
   END
   BLOCK "VarFileInfo"

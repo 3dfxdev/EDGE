@@ -791,7 +791,7 @@ static void RAD_ParseVersion(int pnum, const char **pars)
 	int rts_version = I_ROUND(vers * 100);
 
 	if (rts_version > EDGEVER)
-		RAD_Error("This version of EDGE2 cannot handle this RTS script\n");
+		RAD_Error("This version of 3DGE cannot handle this RTS script\n");
 }
 
 static void RAD_ParseClearAll(int pnum, const char **pars)

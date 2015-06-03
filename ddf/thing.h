@@ -732,6 +732,7 @@ public:
 	int spawn_state;
 	int idle_state;
 	int chase_state;
+	//int swim_state;
 	int pain_state;
 	int missile_state;
 	int melee_state;

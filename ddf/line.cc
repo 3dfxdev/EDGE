@@ -184,6 +184,7 @@ static const commandlist_t linedef_commands[] =
 	DF("SCROLL_YSPEED", s_yspeed, DDF_MainGetFloat),
 	DF("SCROLL_PARTS", scroll_parts, DDF_LineGetScrollPart),
 	DF("USE_COLOURMAP", use_colourmap, DDF_MainGetColourmap),
+//	DF("USE_FOG", use_fog, DDF_SectorGetFog),
 	DF("GRAVITY", gravity, DDF_MainGetFloat),
 	DF("FRICTION", friction, DDF_MainGetFloat),
 	DF("VISCOSITY", viscosity, DDF_MainGetFloat),
@@ -1662,6 +1663,7 @@ void linetype_c::CopyDetail(linetype_c &src)
 	failed_sfx = src.failed_sfx;
 
 	use_colourmap = src.use_colourmap;
+//	use_fog = src.use_fog; //duplicate in source
 	gravity = src.gravity;
 	friction = src.friction;
 	viscosity = src.viscosity;
@@ -1715,6 +1717,7 @@ void linetype_c::Default(void)
 	failed_sfx = NULL;
 
 	use_colourmap = NULL;
+//	use_fog = RGB_MAKE(0,0,0);
 	gravity = FLO_UNUSED;
 	friction = FLO_UNUSED;
 	viscosity = FLO_UNUSED;

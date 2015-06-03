@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-//  EDGE2: DeathBots
+//  3DGE: DeathBots
 //----------------------------------------------------------------------------
 // 
 //  Copyright (c) 1999-2009  The EDGE2 Team.
@@ -43,7 +43,8 @@
 #include "z_zone.h"
 
 #define DEBUG  0
-
+// disabled DEBUGS for Deathbot rewrite (this time based on the Cujo Bot from QUAKE)
+// need to see active targets, etc
 
 int bot_skill = 1;  // range is 0 to 2
 
@@ -354,10 +355,10 @@ static bool BOT_LookForItems(bot_t *bot)
 	{
 		BOT_SetTarget(bot, best_item);
 
-#if (DEBUG > 0)
+//#if (DEBUG > 0)
 I_Printf("BOT %d: WANT item %s, score %d\n",
 bot->pl->pnum, best_item->info->name.c_str(), best_score);
-#endif
+//#endif
 
 		return true;
 	}
@@ -411,10 +412,10 @@ static bool BOT_LookForEnemies(bot_t *bot)
 			if (P_CheckSight(we, them))
 			{
 				BOT_SetTarget(bot, them);
-#if (DEBUG > 0)
+//#if (DEBUG > 0)
 I_Printf("BOT %d: Targeting Agent: %s\n", bot->pl->pnum,
 them->info->name.c_str());
-#endif
+//#endif
 				return true;
 			}
 		}
@@ -456,12 +457,12 @@ static void BOT_Chase(bot_t *bot, bool seetarget, bool move_ok)
 {
 	mobj_t *mo = bot->pl->mo;
 
-#if (DEBUG > 1)
+//#if (DEBUG > 1)
 		I_Printf("BOT %d: Chase %s dist %1.1f angle %1.0f | %s\n",
 			bot->pl->pnum, mo->target->info->name.c_str(),
 			P_ApproxDistance(mo->x - mo->target->x, mo->y - mo->target->y),
 			ANG_2_FLOAT(bot->angle), move_ok ? "move_ok" : "NO_MOVE");
-#endif
+//#endif
 
 	// Got a special (item) target?
 	if (mo->target->flags & MF_SPECIAL)

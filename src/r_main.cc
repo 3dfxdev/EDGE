@@ -32,6 +32,8 @@
 
 // implementation limits
 
+GLUquadricObj *quadratic; // Storage For Our Quadratic Objects ( NEW )
+
 int glmax_lights;
 int glmax_clip_planes;
 int glmax_tex_size;
@@ -82,7 +84,16 @@ static const driver_bug_t driver_bugs[] =
 #define NUM_DRIVER_BUGS  (sizeof(driver_bugs) / sizeof(driver_bug_t))
 
 
-
+void SetupStencilBuffer(void)
+{
+  glDisable(GL_BLEND);
+  glEnable(GL_STENCIL_TEST);
+  glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
+  glStencilFunc(GL_ALWAYS, 1, 0xffffffff);
+  glDisable(GL_DEPTH_TEST);
+  glColorMask(0, 0, 0, 1); /* Just update destination alpha. */
+  glEnable(GL_TEXTURE_2D);
+}
 //
 // RGL_SetupMatrices2D
 //

@@ -97,6 +97,8 @@ bool singletics = false;  // debug flag to cancel adaptiveness
 
 bool splitscreen_mode = false;
 
+bool show_splash = true;
+
 // -ES- 2000/02/13 Takes screenshot every screenshot_rate tics.
 // Must be used in conjunction with singletics.
 static int screenshot_rate;
@@ -244,6 +246,7 @@ void E_GlobalProgress(int step, int size, int total)
 void E_NodeMessage(const char *message)
 {
 	// FIXME: show message
+	I_Printf("LOADING, PLEASE WAIT.%s", message);
 }
 
 void E_NodeProgress(int perc)
@@ -671,7 +674,7 @@ void E_AdvanceTitle(void)
 		}
 
 		// ignore non-existing episodes.  Doesn't include title-only ones
-		// like [EDGE2].
+		// like [EDGE].
 		if (title_pic == 0 && g->firstmap && g->firstmap[0] &&
 			W_CheckNumForName(g->firstmap) == -1)
 		{
@@ -846,7 +849,8 @@ void InitDirectories(void)
 // Adds an IWAD and EDGE2.WAD. -ES-  2000/01/01 Rewritten.
 //
 // Adding HERETIC.WAD to string 2.24.2013
-const char *wadname[] = { "doom2", "doom", "plutonia", "tnt", "hacx", "heretic", "freedoom", "freedm", NULL };
+// Kept freedoom.wad for backward compatibility
+const char *wadname[] = { "doom2", "doom", "plutonia", "tnt", "hacx", "heretic", "freedoom", "freedm", "chex.wad", "freedoom1.wad", "freedoom2.wad", NULL };
 
 static void IdentifyVersion(void)
 {
@@ -875,10 +879,21 @@ static void IdentifyVersion(void)
     if (iwad_dir.empty())
     {
         s = getenv("DOOMWADDIR");
+		//else
+        //s = getenv("DOOMWADPATH");
 
         if (s && epi::FS_IsDir(s))
             iwad_dir = std::string(s);
     }
+	
+	//Check the DOOMWADPATH environment variable.
+	if (iwad_dir.empty())
+	{
+		s=getenv("DOOMWADPATH");
+		
+		if (s && epi::FS_IsDir(s))
+            iwad_dir = std::string(s);
+	}
 
     // Should the IWAD directory not be set by now, then we
     // use our standby option of the current directory.
@@ -1020,7 +1035,7 @@ static void ShowDateAndVersion(void)
 	I_Printf("hyper3DGE homepage is at http://edge2.sourceforge.net/\n");
 	I_Printf("hyper3DGE is based on EDGE by the EDGE team http://edge.sourceforge.net/\n");
 	I_Printf("hyper3DGE is based on DOOM by id Software http://www.idsoftware.com/\n");
-    I_Printf("hyper3DGE problems should be reported @ http://edge.sourceforge.net/phpBB2/\n");
+    I_Printf("hyper3DGE problems should be reported at http://tdgmods.net/smf\n");
 
 #ifdef WIN32
 	I_Printf("Executable path: '%s'\n", win32_exe_path);
@@ -1270,6 +1285,9 @@ static void E_Shutdown(void);
 static void E_Startup(void)
 {
 	int p;
+	const char *ps;
+	
+	 
 #ifdef DREAMCAST_DEBUG
 	printf("Changing dir\n");
 	fflush(stdout);
@@ -1304,9 +1322,15 @@ static void E_Startup(void)
 	SetGlobalVars();
 
 	DoSystemStartup();
-//#ifndef DREAMCAST
-    E_SplashScreen();
-//#endif
+      //Splash Screen Check
+	  
+    ps = M_GetParm("-showsplash");
+	if (ps)
+	{
+		E_SplashScreen();
+		
+	}
+
 	I_PutTitle(E_TITLE); // Needs to be done once the system is up and running
 
 	// RGL_FontStartup();

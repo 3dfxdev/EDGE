@@ -736,6 +736,7 @@ void R_PaletteStuff(void)
 int R_DoomLightingEquation(int L, float dist)
 {
 	/* L in the range 0 to 63 */
+	//dist = 1024;
 
 	int min_L = CLAMP(0, 36 - L, 31);
 

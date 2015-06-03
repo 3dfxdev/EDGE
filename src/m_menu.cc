@@ -337,6 +337,7 @@ static menu_t MainDef =
 	&main_menu_style,
 	M_DrawMainMenu,
 	97, 64,
+//Hypertension	37, 100, //97, 64
 	0
 };
 
@@ -383,7 +384,7 @@ static menu_t SkillDef =
 	SkillMenu,  // menuitem_t ->
 	&skill_style,
 	M_DrawNewGame,  // drawing routine ->
-	48, 63,  // x,y
+	48, 63,  // x,y 63
 	sk_medium  // lastOn
 };
 
@@ -1898,7 +1899,8 @@ static void DrawMessage(void)
 	short x, y;
 
 	//HUD_SetAlpha(0.64f);
-	HUD_SolidBox(0, 0, 320, 200, T_BLACK);
+	//HUD_SolidBox(0, 0, 320, 200, T_BLACK);
+	dialog_style->DrawBackground();
 	// disable for test : dialog_style->DrawBackground(); //to replace above call
 	//HUD_SetAlpha();
 
@@ -2012,10 +2014,10 @@ void M_Drawer(void)
 
 	style_c *style = currentMenu->style_var[0];
 	SYS_ASSERT(style);
-/// style->DrawBackground();
-	HUD_SetAlpha(0.64f);
-	HUD_SolidBox(0, 0, 320, 200, T_BLACK);
-	HUD_SetAlpha();
+ style->DrawBackground();
+	//HUD_SetAlpha(0.64f);
+	//HUD_SolidBox(0, 0, 320, 200, T_BLACK);
+	//HUD_SetAlpha();
 
 	// call Draw routine
 	if (currentMenu->draw_func)
@@ -2120,6 +2122,10 @@ void M_Init(void)
 	styledef_c *def;
 
 	def = styledefs.Lookup("MENU");
+	if (! def) def = default_style;
+	menu_def_style = hu_styles.Lookup(def);
+	
+	def = styledefs.Lookup("OPTIONS");
 	if (! def) def = default_style;
 	menu_def_style = hu_styles.Lookup(def);
 

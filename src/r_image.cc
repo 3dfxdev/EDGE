@@ -902,8 +902,9 @@ static GLuint LoadImageOGL(image_c *rim, const colourmap_c *trans)
 	bool smooth = IM_ShouldSmooth(rim);
  
  	int max_pix = IM_PixelLimit(rim);
-//DREAMCAST DEBUG
-I_Printf("LoadImageOGL: Loading \"%.*s\"\n",16,rim->name);
+//#if DREAMCAST DEBUG
+//I_Printf("LoadImageOGL: Loading \"%.*s\"\n",16,rim->name);
+//#endif
 	if (rim->source_type == IMSRC_User)
 	{
 		if (rim->source.user.def->special & IMGSP_Clamp)
