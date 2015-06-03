@@ -478,7 +478,6 @@ float Slope_GetHeight(slope_plane_t *slope, float x, float y)
 }
 
 
-#if 0
 static void DrawLaser(player_t *p)
 {
 	static int countdown = -1;
@@ -580,7 +579,7 @@ static void DrawLaser(player_t *p)
 		countdown--;
 	}
 }
-#endif
+
 
 
 typedef struct wall_plane_data_s
@@ -2076,7 +2075,7 @@ static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 
 		if (tspan1 > clip_scope)
 		{
-			// Totally off the left EDGE2?
+			// Totally off the left edge
 			if (tspan2 >= ANG180)
 				return;
 
@@ -2085,7 +2084,7 @@ static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 
 		if (tspan2 > clip_scope)
 		{
-			// Totally off the left EDGE2?
+			// Totally off the left edge
 			if (tspan1 >= ANG180)
 				return;
 
@@ -2495,7 +2494,7 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 							 GLOWLIT_Plane, &data);
 	}
 
-#ifdef SHADOW_PROTOTYPE
+#ifdef SHADOW_PROTOTYPEz
 	if (level_flags.shadows && solid_mode && face_dir > 0)
 	{
 		wall_plane_data_t dat2;
@@ -3125,9 +3124,9 @@ static void InitCamera(mobj_t *mo, bool full_height, float expand_w)
 	//viewangle = mo->angle;
 	viewangle = mo->GetInterpolatedAngle();
 
-	/*if (mo->player)
+	if (mo->player)
 		viewz += mo->player->viewz;
-	else*/
+	else
 		viewz += mo->height * 9 / 10;
 
 	viewsubsector = mo->subsector;

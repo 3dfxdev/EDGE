@@ -138,6 +138,8 @@ static const actioncode_t weapon_actions[] =
 	{"CHECKRELOAD",       A_CheckReload, NULL},
 	{"PLAYSOUND",         A_WeaponPlaySound, DDF_StateGetSound},
 	{"KILLSOUND",         A_WeaponKillSound, NULL},
+	{"DLIGHT_SET",        P_ActDLightSet,  DDF_StateGetInteger}, //5.27.2015 Coraline - added Dlight generation for weapons
+	{"DLIGHT_FADE",       P_ActDLightFade, DDF_StateGetInteger},
 	{"SET_SKIN",          A_WeaponSetSkin,   DDF_StateGetInteger},
 	{"JUMP",              A_WeaponJump, DDF_StateGetJump},
 	{"UNZOOM",            A_WeaponUnzoom, NULL},
@@ -640,11 +642,11 @@ void weapondef_c::Default(void)
 		clip_size[ATK]   = 0;
 		autofire[ATK]    = false;
 
-		attack_state[ATK]  = 0;
-		reload_state[ATK]  = 0;
-		discard_state[ATK] = 0;
-		warmup_state[ATK]  = 0;
-		flash_state[ATK]   = 0;
+		attack_state[ATK]  = 0.0f;
+		reload_state[ATK]  = 0.0f;
+		discard_state[ATK] = 0.0f;
+		warmup_state[ATK]  = 0.0f;
+		flash_state[ATK]   = 0.0f;
 	}
 
 	specials[0] = DEFAULT_WPSP;
@@ -652,11 +654,11 @@ void weapondef_c::Default(void)
 
 	kick = 0.0f;
 
-	up_state = 0;
-	down_state= 0;
-	ready_state = 0;
-	empty_state = 0;
-	idle_state = 0;
+	up_state = 0.0f;
+	down_state= 0.0f;
+	ready_state = 0.0f;
+	empty_state = 0.0f;
+	idle_state = 0.0f;
 
 	crosshair = 0;
 	zoom_state = 0;

@@ -20,7 +20,7 @@
 #define __SDL_SYSTEM_INTERNAL_H__
 
 #if 1
-#include <C:/hyperedge/edge2/lib_win32/SDL/include/SDL.h>
+#include <L:/hyper3DGE/lib_win32/SDL/include/SDL.h> 
 #else
 #include <SDL.h>
 #endif 

@@ -245,7 +245,7 @@ bool N_BuildTiccmds(void)
 		{
 			ticcmd_t *cmd;
 
-     L_WriteDebug("N_BuildTiccmds: pnum %d netgame %c\n", pnum, netgame ? 'Y' : 'n');
+ //    L_WriteDebug("N_BuildTiccmds: pnum %d netgame %c\n", pnum, netgame ? 'Y' : 'n');
 
 			if (false) // FIXME: temp hack!!!  if (netgame)
 				cmd = &p->out_cmds[maketic % (MP_SAVETICS*2)];
@@ -287,8 +287,8 @@ int N_NetUpdate(bool do_delay)
 				break;
 		}
 
-		if (t != newtics && numplayers > 0)
-			L_WriteDebug("N_NetUpdate: lost tics: %d\n", newtics - t);
+//		if (t != newtics && numplayers > 0)
+//			L_WriteDebug("N_NetUpdate: lost tics: %d\n", newtics - t);
 	}
 
 	GetPackets(do_delay);
@@ -377,10 +377,10 @@ int N_TryRunTics(bool *is_fresh)
 	int realtics = nowtime - last_tryrun_tic;
 	last_tryrun_tic = nowtime;
 
-#ifdef DEBUG_TICS
-L_WriteDebug("N_TryRunTics: now %d last_tryrun %d --> real %d\n",
-nowtime, nowtime - realtics, realtics);
-#endif
+//#ifdef DEBUG_TICS
+//L_WriteDebug("N_TryRunTics: now %d last_tryrun %d --> real %d\n",
+//nowtime, nowtime - realtics, realtics);
+//#endif
 
 	// simpler handling when no game in progress
 	if (numplayers == 0)

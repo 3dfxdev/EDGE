@@ -28,6 +28,9 @@
 //
 
 #include "i_defs.h"
+#include "i_defs_gl.h" //glFog logic
+//#include "../src/r_units.h"
+#include "../src/r_gldefs.h"
 
 #include "dm_defs.h"
 #include "dm_state.h"
@@ -40,6 +43,7 @@
 #include "m_misc.h"
 #include "r_misc.h"
 #include "z_zone.h"
+
 
 
 extern bool CON_Responder(event_t *ev);
@@ -73,6 +77,9 @@ int key_lookcenter;
 // -ES- 1999/03/28 Zoom Key
 int key_zoom;
 
+// -CA- 2015/5/29 Fog Key (will replace with DDF commands later)
+int key_fog; //bool   gp
+
 int key_up;
 int key_down;
 int key_strafeleft;
@@ -95,6 +102,7 @@ int key_action1;
 int key_action2;
 int key_action3;
 int key_action4;
+
 
 // -MH- 1998/07/10 Flying keys
 int key_flyup;
@@ -372,6 +380,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 
 	bool strafe = E_IsKeyPressed(key_strafe);
 	int  speed  = E_IsKeyPressed(key_speed) ? 1 : 0;
+	
 
 	if (in_running.d)
 		speed = !speed;
@@ -552,6 +561,23 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	}
 	else
 		allowzoom = true;
+	
+//	if (E_IsKeyPressed(key_fog) && !gp)
+//	{
+	//	bool gp = E_IsKeyPressed(key_fog);
+      //  gp=TRUE;                    // gp Is Set To TRUE
+		//	fogfilter+=1;                   // Increase fogfilter By One
+	//	if (fogfilter>2)             // Is fogfilter Greater Than 2?
+	//	{
+     //   fogfilter=0;                // If So, Set fogfilter To Zero
+	//	}
+    //glFogi (GL_FOG_MODE, fogMode[fogfilter]);   // Fog Mode
+	//}
+		//if (!keys['G'])                     // Has The G Key Been Released?
+	//	if (!E_IsKeyPressed(key_fog))
+	//	{
+	//	gp=FALSE;                   // If So, gp Is Set To FALSE
+		//}
 
 	// -AJA- 2000/04/14: Autorun toggle
 	if (E_IsKeyPressed(key_autorun))

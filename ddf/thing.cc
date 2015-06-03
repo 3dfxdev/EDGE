@@ -207,6 +207,7 @@ const state_starter_t thing_starters[] =
 	DDF_STATE("SPAWN",     "IDLE",    spawn_state),
 	DDF_STATE("IDLE",      "IDLE",    idle_state),
 	DDF_STATE("CHASE",     "CHASE",   chase_state),
+	//DDF_STATE("SWIM",      "CHASE",   swim_state),
 	DDF_STATE("PAIN",      "IDLE",    pain_state),
 	DDF_STATE("MISSILE",   "IDLE",    missile_state),
 	DDF_STATE("MELEE",     "IDLE",    melee_state),
@@ -591,6 +592,9 @@ static void ThingFinishEntry(void)
 	{
 		if (! dynamic_mobj->chase_state)
 			DDF_Error("Cast object must have CHASE states !\n");
+		
+	//	if (! dynamic_mobj->swim_state)
+	//		DDF_Error("Cast object must have SWIM states !\n");
 
 		if (! dynamic_mobj->death_state)
 			DDF_Error("Cast object must have DEATH states !\n");
@@ -1748,6 +1752,7 @@ void mobjtype_c::CopyDetail(mobjtype_c &src)
     spawn_state = src.spawn_state; 
     idle_state = src.idle_state; 
     chase_state = src.chase_state; 
+	//swim_state = src.swim_state;
     pain_state = src.pain_state; 
     missile_state = src.missile_state; 
     melee_state = src.melee_state; 
@@ -1879,6 +1884,7 @@ void mobjtype_c::Default()
     spawn_state = 0;
     idle_state = 0;
     chase_state = 0;
+	//swim_state = 0;
     pain_state = 0;
     missile_state = 0;
     melee_state = 0;

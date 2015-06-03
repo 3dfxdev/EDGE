@@ -752,6 +752,7 @@ public:
 	float friction;
 	float viscosity;
 	float drag;
+	float use_fog;
 
     // Ambient sound transfer
 	struct sfx_s *ambient_sfx;

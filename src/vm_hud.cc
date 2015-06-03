@@ -395,6 +395,52 @@ static void HD_draw_num2(coal::vm_c *vm, int argc)
 }
 
 
+// hud.draw_num(x, y, len, num)
+//
+static void HD_draw_num(coal::vm_c *vm, int argc)
+{
+	float x = *vm->AccessParam(0);
+	float y = *vm->AccessParam(1);
+
+	int len = (int) *vm->AccessParam(2);
+	int num = (int) *vm->AccessParam(3);
+
+	if (len < 1 || len > 20)
+		I_Error("hud.draw_number: bad field length: %d\n", len);
+
+	bool is_neg = false;
+
+	if (num < 0 && len > 1)
+	{
+		is_neg = true; len--;
+	}
+
+	// build the integer backwards
+
+	char buffer[200];
+	char *pos = &buffer[sizeof(buffer)-4];
+
+	*--pos = 0;
+
+	if (num == 0)
+	{
+		*--pos = '0';
+	}
+	else
+	{
+		for (; num > 0 && len > 0; num /= 10, len--)
+			*--pos = '0' + (num % 10);
+
+		if (is_neg)
+			*--pos = '-';
+	}
+
+	HUD_SetAlignment(+1, -1);
+	HUD_DrawText(x, y, pos);
+	HUD_SetAlignment();
+}
+
+
 // hud.render_world(x, y, w, h)
 //
 static void HD_render_world(coal::vm_c *vm, int argc)
@@ -570,6 +616,7 @@ void VM_RegisterHUD()
     ui_vm->AddNativeFunction("hud.tile_image",      HD_tile_image);
     ui_vm->AddNativeFunction("hud.draw_text",       HD_draw_text);
     ui_vm->AddNativeFunction("hud.draw_num2",       HD_draw_num2);
+	ui_vm->AddNativeFunction("hud.draw_num",       HD_draw_num);
 
     ui_vm->AddNativeFunction("hud.render_world",    HD_render_world);
     ui_vm->AddNativeFunction("hud.render_automap",  HD_render_automap);

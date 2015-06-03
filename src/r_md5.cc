@@ -96,10 +96,12 @@ static void LoadMD5Animation(MD5model *model, short animfile, int frame, MD5join
 	if (anim != NULL && 0 <= frame && frame < anim->framecnt )
 	{
 		md5_pose_load(anim, frame, dst);
+		I_Debugf("Render model: loading md5anim\n");
 	}
 	else
 	{
 		md5_pose_load_identity(model->joints, model->jointcnt, dst);
+		I_Debugf("Render model: loading md5joints\n");
 	}
 }
 

@@ -34,9 +34,9 @@
 
 #ifdef WIN32
 #define GLEW_STATIC  1
-//#include <C:/hyperedge/edge2/src/GL/glew.h>
-//#include <C:/hyperedge/edge2/src/GL/gl.h>
-//#include <C:/hyperedge/edge2/src/GL/glext.h>
+//#include <L:/hyper3DGE//src/GL/glew.h>
+//#include <L:/hyper3DGE//src/GL/gl.h>
+//#include <L:/hyper3DGE//src/GL/glext.h>
 #include "GL/glew.h"
 #include "GL/gl.h"
 #include "GL/glext.h"
@@ -55,6 +55,7 @@
 #define USING_GL_TYPES 1
 
 #endif /* __SYSTEM_SPECIFIC_DEFS_OPENGL__ */
+
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

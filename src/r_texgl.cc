@@ -108,7 +108,7 @@ GLuint R_UploadTexture(epi::image_data_c *img, int flags, int max_pix)
 
 	SYS_ASSERT(img->bpp == 3 || img->bpp == 4);
 //DREAMCAST DEBUG
-I_Printf("R_UploadTexture: Loading %ix%i %i bpp texture\n", img->width, img->height, img->bpp);
+//I_Printf("R_UploadTexture: Loading %ix%i %i bpp texture\n", img->width, img->height, img->bpp);
 
 	bool clamp  = (flags & UPL_Clamp)  ? true : false;
 	bool nomip  = (flags & UPL_MipMap) ? false : true;

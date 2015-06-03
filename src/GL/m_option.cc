@@ -72,6 +72,7 @@
 // -AJA- 2001/07/26: Reworked colours, key config, and other code.
 //
 //
+// -CA-  2013/02/12: Reworked again for second player proper.
 
 #include "i_defs.h"
 
@@ -119,6 +120,8 @@ extern int joystick_device;
 
 //submenus
 static void M_KeyboardOptions(int keypressed);
+//static void M_KeyboardOptions2(int keypressed);
+//the bad boy above is what multiplayer wants.
 static void M_VideoOptions(int keypressed);
 static void M_GameplayOptions(int keypressed);
 static void M_AnalogueOptions(int keypressed);
@@ -188,7 +191,7 @@ static char SampleRates[] = "11025 Hz/16000 Hz/22050 Hz/32000 Hz/44100 Hz";
 static char SoundBits[]   = "8 bit/16 bit";
 static char StereoNess[]  = "Off/On/Swapped";
 static char MixChans[]    = "8/16/32/64/96";
-static char QuietNess[]   = "Loud (distorted)/Normal/Soft/Very Soft";
+static char QuietNess[]   = "Loud (scratchy)/Normal/Soft/Very Soft";
 static char MusicDevs[]   = "System/Timidity";
 
 // Screen resolution changes
@@ -328,7 +331,8 @@ static int M_GetCurrentSwitchValue(optmenuitem_t *item)
 
 static optmenuitem_t mainoptions[] =
 {
-	{OPT_Function, "Keyboard Controls", NULL,  0, NULL, M_KeyboardOptions, "Controls"},
+	{OPT_Function, "Keyboard Controls", NULL,  0, NULL, M_KeyboardOptions, "Controls"}, //Is this what we need?
+	//{OPT_Function, "Splitplay Controls", NULL, 0, NULL, M_KeyboardOptions2, "PLAYER 2"}, //new define for splitscreen control code
 	{OPT_Function, "Mouse / Joystick",  NULL,  0, NULL, M_AnalogueOptions, "AnalogueOptions"},
 	{OPT_Function, "Gameplay Options",  NULL,  0, NULL, M_GameplayOptions, "GameplayOptions"},
 	{OPT_Plain,    "",                  NULL,  0, NULL, NULL, NULL},
@@ -621,6 +625,9 @@ static optmenuitem_t other_keyconfig[] =
 	{OPT_KeyConfig, "Pause",            NULL, 0, &key_pause, NULL, NULL},
 	{OPT_KeyConfig, "Action 1",         NULL, 0, &key_action1, NULL, NULL},
 	{OPT_KeyConfig, "Action 2",         NULL, 0, &key_action2, NULL, NULL},
+	//tapamn key_action3/4 where added in revision 6, but never defined
+	//{OPT_KeyConfig, "Action 3",         NULL, 0, &key_action3, NULL, NULL},
+	//{OPT_KeyConfig, "Action 4",         NULL, 0, &key_action4, NULL, NULL},
 
 	{OPT_KeyConfig, "Multiplayer Talk", NULL, 0, &key_talk, NULL, NULL},
 };
@@ -631,7 +638,6 @@ static menuinfo_t otherkey_optmenu =
 	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0,
 	"Other Keys"
 };
-
 //
 //  KEY CONFIG : WEAPONS
 //
@@ -686,14 +692,21 @@ static menuinfo_t automap_optmenu =
  * ALL KEYBOARD MENUS
  */
 #define NUM_KEY_MENUS  5
+// 5, as in 5 pages? Testing now. . .
+// yes, so this will need to be duplicated for the entirely new keyboard menu we will be writing.
+// This will be easier than just creating 10 pages and confusing everyone.
 
+//Well, that's what we'll do. We'll create two methods - one, a seperate menu, and if that
+//fails, we can go the easier route and add 5 more to NUM_KEY_MENUS
+
+// Is optmenu here what calls the menu pages for key definitions? -CA
 static menuinfo_t * all_key_menus[NUM_KEY_MENUS] =
 {
 	&movement_optmenu,
 	&attack_optmenu,
 	&otherkey_optmenu,
 	&weapon_optmenu,
-	&automap_optmenu
+	&automap_optmenu,
 };
 
 static char keystring1[] = "Enter to change, Backspace to Clear";
@@ -744,6 +757,10 @@ void M_OptMenuInit()
 
 	// load styles
 	styledef_c *def;
+	
+	def = styledefs.Lookup("MENU");
+	if (! def) def = default_style;
+	opt_def_style = hu_styles.Lookup(def);
 
 	def = styledefs.Lookup("OPTIONS");
 	if (! def) def = default_style;
@@ -797,14 +814,14 @@ void M_OptDrawer()
 	int curry, deltay, menutop;
 	int i, j;
 	unsigned int k;
-    
+
+	dialog_style->DrawBackground();
 	//HUD_SetAlpha(0.64f);
 	//HUD_SolidBox(0, 0, 320, 200, T_BLACK);
 	//HUD_SetAlpha();
 
 	style_c *style = curr_menu->style_var[0];
 	SYS_ASSERT(style);
-	style->DrawBackground();
 
 	if (! style->fonts[0])
 		return;
@@ -1362,13 +1379,21 @@ static void M_GameplayOptions(int keypressed)
 
 //
 // M_KeyboardOptions
-//
+// do we need this for second player I wonder
 static void M_KeyboardOptions(int keypressed)
 {
 	curr_menu = all_key_menus[curr_key_menu];
 
 	curr_item = curr_menu->items + curr_menu->pos;
 }
+
+//for the second player responder
+//static void M_KeyboardOptions2(int keypressed)
+//{
+//	curr_menu = all_key_menus[curr_key_menu];
+//
+//	curr_item = curr_menu->items + curr_menu->pos;
+//}
 
 // ===== END OF SUB-MENUS =====
 
@@ -1536,7 +1561,7 @@ static void M_ChangeMipMap(int keypressed)
 	W_DeleteAllImages();
 }
 
-//#if 0
+#if 0
 static void M_ChangeShadows(int keypressed)
 {
 	if (currmap && ((currmap->force_on | currmap->force_off) & MPF_Shadows))

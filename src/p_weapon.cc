@@ -1624,6 +1624,46 @@ void A_WeaponTransFade(mobj_t * mo)
 }
 
 
+void A_WeaponDlightSet(mobj_t * mo)
+{
+	player_t *p = mo->player;
+	//pspdef_t *psp = &p->psprites[p->action_psp];
+
+	SYS_ASSERT(p->ready_wp >= 0);
+	//weapondef_c *info = p->weapons[p->ready_wp].info;
+	
+	const state_t *st = mo->state;
+
+	if (st && st->action_par)
+	{
+		mo->dlight.r = MAX(0.0f, ((int *)st->action_par)[0]);
+
+		if (mo->info->hyperflags & HF_QUADRATIC_COMPAT)
+			mo->dlight.r = DLIT_COMPAT_RAD(mo->dlight.r);
+
+		mo->dlight.target = mo->dlight.r;
+	}
+}
+
+void A_WeaponDLightFade(mobj_t * mo)
+{
+	player_t *p = mo->player;
+	//pspdef_t *psp = &p->psprites[p->action_psp];
+
+	SYS_ASSERT(p->ready_wp >= 0);
+	//weapondef_c *info = p->weapons[p->ready_wp].info;
+	const state_t *st = mo->state;
+
+	if (st && st->action_par)
+	{
+		mo->dlight.target = MAX(0.0f, ((int *)st->action_par)[0]);
+
+		if (mo->info->hyperflags & HF_QUADRATIC_COMPAT)
+			mo->dlight.target = DLIT_COMPAT_RAD(mo->dlight.target);
+	}
+}
+
+
 void A_WeaponEnableRadTrig(mobj_t *mo)
 {
 	player_t *p = mo->player;
@@ -1678,6 +1718,9 @@ void A_WeaponUnzoom(mobj_t * mo)
 
 	p->zoom_fov = 0;
 }
+
+////5.27.2015 Coraline - added Dlight generation for weapons TODO: coordinates
+
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

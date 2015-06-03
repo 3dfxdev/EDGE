@@ -49,7 +49,9 @@ cvar_c debug_normals;
 
 extern float P_ApproxDistance(float dx, float dy, float dz);
 
+//static byte mdl_normal_to_md2[128][128];
 static byte md3_normal_to_md2[128][128];
+
 static bool md3_normal_map_built = false;
 
 // #define DEBUG_MD2_LOAD  1
@@ -1272,7 +1274,7 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 	if (MIR_Reflective())
 		blending |= BL_CullFront;
 	else
-		blending |= BL_CullBack;
+		blending |= BL_Masked;
 
 
 	data.mo = mo;
