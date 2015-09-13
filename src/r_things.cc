@@ -533,6 +533,7 @@ void RGL_DrawCrosshair(player_t * p)
 
 void RGL_DrawWeaponModel(player_t * p)
 {
+
 	if (viewiszoomed)
 		return;
 

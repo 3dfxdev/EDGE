@@ -26,10 +26,15 @@ extern "C"
 // horrible workaround for INT32 typedef incompatibility between
 // jmorecfg.h and standard MinGW headers (basetds.h).
 #define INT32  INT32_jpeg
-#endif
 
 #include "../lib_win32/jpeg-6b/jpeglib.h"
 #include "../lib_win32/jpeg-6b/jerror.h"
+
+#endif
+
+#include <jpeglib.h>
+#include <jerror.h>
+
 }
 
 namespace epi

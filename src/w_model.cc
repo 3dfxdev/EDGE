@@ -144,7 +144,19 @@ modeldef_c *LoadModelFromLump(int model_num)
 			delete f;
 			
 			for (int i=0; i < def->md5u->model.meshcnt; i++) {
+				char* file_normal=new char[strlen(def->md5u->model.meshes[i].shader)+strlen("_l")+1];
+				char* file_specular=new char[strlen(def->md5u->model.meshes[i].shader)+strlen("_s")+1];
+
+				sprintf(file_normal,"%s%s",def->md5u->model.meshes[i].shader,"_l");
+				sprintf(file_specular,"%s%s",def->md5u->model.meshes[i].shader,"_s");
+
+				//I_Printf("md5 shader: %s, %s, %s\n",def->md5u->model.meshes[i].shader,file_normal,file_specular);
 				def->md5u->model.meshes[i].tex = W_ImageLookup(def->md5u->model.meshes[i].shader, INS_Sprite, ILF_Null);
+				def->md5u->model.meshes[i].tex_normal = W_ImageLookup(file_normal, INS_Sprite, ILF_Null);
+				def->md5u->model.meshes[i].tex_specular = W_ImageLookup(file_specular, INS_Sprite, ILF_Null);
+
+				delete[] file_normal;
+				delete[] file_specular;
 			}
 			
 			return def;

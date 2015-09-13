@@ -1123,6 +1123,16 @@ static void DLIT_Model(mobj_t *mo, void *dataptr)
 	ShadeNormals(mo->dlight.shader, data);
 }
 
+static void DLIT_CollectLights(mobj_t *mo, void *dataptr)
+{
+	model_coord_data_t *data = (model_coord_data_t *)dataptr;
+	// dynamic lights do not light themselves up!
+	if (mo == data->mo)
+		return;
+
+	RGL_AddLight(mo);
+}
+
 static int MD2_MulticolMaxRGB(model_coord_data_t *data, bool additive)
 {
 	int result = 0;
@@ -1357,10 +1367,18 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 		if (use_dlights && ren_extralight < 250)
 		{
 			float r = mo->radius;
-			
-			P_DynamicLightIterator(mo->x - r, mo->y - r, mo->z,
-					               mo->x + r, mo->y + r, mo->z + mo->height,
-								   DLIT_Model, &data);
+
+			if(true) {
+				RGL_ClearLights();
+				P_DynamicLightIterator(mo->x - r, mo->y - r, mo->z,
+									   mo->x + r, mo->y + r, mo->z + mo->height,
+									   DLIT_CollectLights, &data);
+			}
+			else {
+				P_DynamicLightIterator(mo->x - r, mo->y - r, mo->z,
+						               mo->x + r, mo->y + r, mo->z + mo->height,
+									   DLIT_Model, &data);
+			}
 
 			P_SectorGlowIterator(mo->subsector->sector,
 					             mo->x - r, mo->y - r, mo->z,
@@ -1430,6 +1448,7 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 
 			RGL_EndUnit(md->strips[i].count);
 		}
+
 	}
 }
 

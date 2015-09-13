@@ -446,12 +446,16 @@ static float CircularLerp(float start , float end, float value){
 float mobj_t::GetInterpolatedAngle(void)
 {
 	float interp = N_GetInterpolater();
-	return CircularLerp(lastticrender.angle, angle, interp);
+	//XXX
+	return angle;
+	//return CircularLerp(lastticrender.angle, angle, interp);
 }
 
 float mobj_t::GetInterpolatedVertAngle(void)
 {
 	float interp = N_GetInterpolater();
+	//XXX
+	return vertangle;
 	return CircularLerp(lastticrender.vertangle, vertangle, interp);
 }
 
