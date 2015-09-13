@@ -152,8 +152,8 @@ modeldef_c *LoadModelFromLump(int model_num)
 
 				//I_Printf("md5 shader: %s, %s, %s\n",def->md5u->model.meshes[i].shader,file_normal,file_specular);
 				def->md5u->model.meshes[i].tex = W_ImageLookup(def->md5u->model.meshes[i].shader, INS_Sprite, ILF_Null);
-				def->md5u->model.meshes[i].tex_normal = W_ImageLookup(file_normal, INS_Sprite, ILF_Null);
-				def->md5u->model.meshes[i].tex_specular = W_ImageLookup(file_specular, INS_Sprite, ILF_Null);
+				//def->md5u->model.meshes[i].tex_normal = W_ImageLookup(file_normal, INS_Sprite, ILF_Null);
+				//def->md5u->model.meshes[i].tex_specular = W_ImageLookup(file_specular, INS_Sprite, ILF_Null);
 
 				delete[] file_normal;
 				delete[] file_specular;
