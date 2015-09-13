@@ -281,6 +281,7 @@ EDGE_OBJS= \
 	$(OBJDIR)/edge/r_image.o    \
 	$(OBJDIR)/edge/r_doomtex.o  \
 	$(OBJDIR)/edge/r_texgl.o    \
+	$(OBJDIR)/edge/r_bumpmap.o  \
 	$(OBJDIR)/edge/s_blit.o     \
 	$(OBJDIR)/edge/s_cache.o    \
 	$(OBJDIR)/edge/s_sound.o    \

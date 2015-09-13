@@ -20,7 +20,11 @@
 #include "i_sdlinc.h"
 #include "i_defs_gl.h"
 
+#ifdef WIN32
 #include "GL/wglew.h"
+#else
+#include "GL/glew.h"
+#endif
 
 #include <signal.h>
 
@@ -231,11 +235,14 @@ bool I_SetScreenSize(scrmode_c *mode)
 
 	glClearColor(0, 0, 0, 0);
 	glClear(GL_COLOR_BUFFER_BIT);
+
+	#ifdef WIN32
 	I_Printf("%i\n",WGLEW_EXT_swap_control);
 	if (WGLEW_EXT_swap_control) {
 		extern cvar_c r_vsync;
 		wglSwapIntervalEXT(r_vsync.d != 0);
 	}
+	#endif
 	
 	SDL_GL_SwapBuffers();
 
@@ -253,12 +260,15 @@ void I_StartFrame(void)
 void I_FinishFrame(void)
 {
 	extern cvar_c r_vsync;
+
+	#ifdef WIN32
 	if (WGLEW_EXT_swap_control) {
 		if (r_vsync.d > 1)
 			glFinish();
 		wglSwapIntervalEXT(r_vsync.d != 0);
 	}
-	
+	#endif
+
 	SDL_GL_SwapBuffers();
 	if (r_vsync.d > 1)
 			glFinish();
