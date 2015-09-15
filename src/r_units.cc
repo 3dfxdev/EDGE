@@ -107,6 +107,9 @@ static int cur_unit;
 
 static bool batch_sort;
 
+void RGL_SetAmbientLight(short r,short g,short b) {	//rgb 0-255
+	bmap_shader.lightParamAmbient((float)r/255.0f,(float)g/255.0f,(float)b/255.0f);
+}
 void RGL_ClearLights() {
 	if(!bmap_shader.supported()) {
 		return;
@@ -611,10 +614,8 @@ void RGL_DrawUnits(void)
 		//XXX
 		if(!tmp_init) {
 			tmp_init=true;
-			//tmp_image_normal=W_ImageLookup("TMP_NORMAL",INS_Sprite,ILF_Null);
 			tmp_image_normal=W_ImageLookup("NORMAL",INS_Graphic,ILF_Null);
 			tmp_image_specular=W_ImageLookup("SPECULAR",INS_Graphic,ILF_Null);
-			I_Printf("HELLO, %p %p\n",tmp_image_normal,tmp_image_specular);
 		}
 		if(unit->tex_normal==0) {
 			if(tmp_image_normal) {
@@ -640,7 +641,6 @@ void RGL_DrawUnits(void)
 			myActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D,unit->tex[0]);
 
-
 			//calc tangents, works for GL_TRIANGLE_STRIP
 			for(int v_idx=0;v_idx<unit->count-2;v_idx+=3) {
 				local_gl_vert_t* v=local_verts+unit->first+v_idx;
@@ -656,7 +656,7 @@ void RGL_DrawUnits(void)
 			}
 			glEnd();
 			bmap_shader.unbind();
-			bmap_shader.debugDrawLights();
+			//bmap_shader.debugDrawLights();
 		}
 		else {
 			glBegin(unit->shape);

@@ -13,6 +13,7 @@ public:
 	void deinit();
 
 	//colors are 0-1
+	void lightParamAmbient(float r,float g,float b);
 	void lightParam(int index,float x,float y,float z,float r,float g,float b,float radius);
 	void lightDisable(int index);
 	void lightApply();
@@ -26,6 +27,7 @@ public:
 	GLuint uni_light_pos;
 	GLuint uni_light_color;
 	GLuint uni_light_radius;
+	GLuint uni_light_color_ambient;
 
 	static const int max_lights;
 
@@ -41,6 +43,7 @@ private:
 	float *data_light_pos;
 	float *data_light_color;
 	float *data_light_radius;
+	float data_light_color_ambient[4];
 	float cam_mat[16];
 };
 
