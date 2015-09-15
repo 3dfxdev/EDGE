@@ -48,6 +48,7 @@ void RGL_FinishUnits(void);
 void RGL_DrawUnits(void);
 
 //dynamic shading and bump mapping
+void RGL_SetAmbientLight(short r,short g,short b);	//rgb 0-255
 void RGL_ClearLights();
 void RGL_AddLight(mobj_t *mo);
 void RGL_CaptureCameraMatrix();

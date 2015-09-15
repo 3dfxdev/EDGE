@@ -35,6 +35,7 @@ static const char* src_fragment=
 "uniform vec4 light_pos[MAX_LIGHTS];\n"
 "uniform vec4 light_color[MAX_LIGHTS];\n"
 "uniform float light_r[MAX_LIGHTS];\n"
+"uniform vec4 light_color_ambient;\n"
 "varying vec4 surfacePos;\n"
 "varying vec3 surfaceNormal;\n"
 "varying vec3 surfaceTan;\n"
@@ -46,7 +47,7 @@ static const char* src_fragment=
 "	vec4 specularMaterial =  texture2D(tex_specular, tx);\n"
 "	mat3 normal_mat=mat3(surfaceTan,surfaceBitan,surfaceNormal);\n"
 "	vec3 n=normalize(normal_mat*normal);\n"
-"	gl_FragColor=vec4(0);\n"
+"	gl_FragColor=diffuseMaterial*light_color_ambient;\n"
 "	for(int i=0;i<MAX_LIGHTS;i++) {\n"
 "		vec3 L = normalize(light_pos[i].xyz - surfacePos.xyz);\n"
 "		vec3 E = normalize(-surfacePos.xyz);\n"
@@ -113,6 +114,10 @@ bump_map_shader::bump_map_shader():
 		data_light_color[i*4+3]=1;
 		data_light_radius[i]=0;
 	}
+	data_light_color_ambient[0]=0;
+	data_light_color_ambient[1]=0;
+	data_light_color_ambient[2]=0;
+	data_light_color_ambient[3]=1;
 }
 
 bump_map_shader::~bump_map_shader() {
@@ -163,6 +168,7 @@ void bump_map_shader::check_init() {
 	uni_light_pos=glGetUniformLocation(h_prog,"light_pos");
 	uni_light_color=glGetUniformLocation(h_prog,"light_color");
 	uni_light_radius=glGetUniformLocation(h_prog,"light_r");
+	uni_light_color_ambient=glGetUniformLocation(h_prog,"light_color_ambient");
 
 	//glGenBuffers(1,&vbo_tan);
 	lightApply();
@@ -195,6 +201,11 @@ void bump_map_shader::lightDisable(int index) {
 	data_light_color[index*4+1]=0;
 	data_light_color[index*4+2]=0;
 }
+void bump_map_shader::lightParamAmbient(float r,float g,float b) {
+	data_light_color_ambient[0]=r;
+	data_light_color_ambient[1]=g;
+	data_light_color_ambient[2]=b;
+}
 void bump_map_shader::lightParam(int index,float x,float y,float z,float r,float g,float b,float radius) {
 	if(index>=max_lights) {
 		return;
@@ -217,6 +228,7 @@ void bump_map_shader::lightApply() {
 	glUniform4fv(uni_light_pos, max_lights, data_light_pos+pos_offset);
 	glUniform4fv(uni_light_color, max_lights, data_light_color);
 	glUniform1fv(uni_light_radius, max_lights, data_light_radius);
+	glUniform4fv(uni_light_color_ambient,1,data_light_color_ambient);
 }
 
 void bump_map_shader::setCamMatrix(float mat[16]) {

@@ -1359,16 +1359,20 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 		data.im_right = IM_RIGHT(skin_img);
 		data.im_top   = IM_TOP(skin_img);
 
+		bool use_bumpmap_shader=true;
 
-		abstract_shader_c *shader = R_GetColormapShader(props, mo->state->bright);
-
-		ShadeNormals(shader, &data);
+		if(!use_bumpmap_shader) {
+			abstract_shader_c *shader = R_GetColormapShader(props, mo->state->bright);
+			ShadeNormals(shader, &data);
+		}
 
 		if (use_dlights && ren_extralight < 250)
 		{
 			float r = mo->radius;
 
-			if(true) {
+			if(use_bumpmap_shader) {
+				short l=CLAMP(0,props->lightlevel+mo->state->bright,255);
+				RGL_SetAmbientLight(l,l,l);
 				RGL_ClearLights();
 				P_DynamicLightIterator(mo->x - r, mo->y - r, mo->z,
 									   mo->x + r, mo->y + r, mo->z + mo->height,
@@ -1378,12 +1382,12 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 				P_DynamicLightIterator(mo->x - r, mo->y - r, mo->z,
 						               mo->x + r, mo->y + r, mo->z + mo->height,
 									   DLIT_Model, &data);
-			}
 
-			P_SectorGlowIterator(mo->subsector->sector,
-					             mo->x - r, mo->y - r, mo->z,
-					             mo->x + r, mo->y + r, mo->z + mo->height,
-								 DLIT_Model, &data);
+				P_SectorGlowIterator(mo->subsector->sector,
+						             mo->x - r, mo->y - r, mo->z,
+						             mo->x + r, mo->y + r, mo->z + mo->height,
+									 DLIT_Model, &data);
+			}
 		}
 	}
 
