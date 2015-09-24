@@ -598,7 +598,7 @@ void RGL_DrawWeaponModel(player_t * p)
 	MD2_RenderModel(md->model, &md->skins[skin_num], true,
 			        last_frame, psp->state->frame, lerp,
 			        x, y, z, p->mo, view_props,
-			        1.0f /* scale */, w->model_aspect, w->model_bias);
+			        w->model_zaspect /* scale */, w->model_aspect/w->model_zaspect, w->model_bias);
 }
 
 
