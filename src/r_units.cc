@@ -53,6 +53,8 @@ cvar_c r_dumbmulti;
 cvar_c r_dumbcombine;
 cvar_c r_dumbclamp;
 
+cvar_c r_gl2_path;
+
 static bump_map_shader bmap_shader;
 
 //XXX
@@ -108,19 +110,18 @@ static int cur_unit;
 
 static bool batch_sort;
 
+bool RGL_GL2Enabled() {
+	return (r_gl2_path.d && bmap_shader.supported());
+}
+
 void RGL_SetAmbientLight(short r,short g,short b) {	//rgb 0-255
 	bmap_shader.lightParamAmbient((float)r/255.0f,(float)g/255.0f,(float)b/255.0f);
 }
 void RGL_ClearLights() {
-	if(!bmap_shader.supported()) {
+	if(!RGL_GL2Enabled()) {
 		return;
 	}
 	for(int i=0;i<bmap_light_count;i++) {
-		/*
-		bmap_shader.lightParam(i,
-				vec3_t(),
-				vec3_t(),0);
-		*/
 		bmap_shader.lightDisable(i);
 	}
 	bmap_light_count=0;
@@ -374,6 +375,7 @@ static inline void RGL_SendRawVector(const local_gl_vert_t *V)
 //also sends tangent
 static inline void RGL_SendRawVector2(const local_gl_vert_t *V)
 {
+	/*
 #ifndef DREAMCAST
 	if (r_colormaterial.d || ! r_colorlighting.d) {
 		glColor4fv(V->rgba);
@@ -386,8 +388,9 @@ static inline void RGL_SendRawVector2(const local_gl_vert_t *V)
 #else
 	glColor4fv(V->rgba);
 #endif
+*/
 	myMultiTexCoord2f(GL_TEXTURE0, V->texc[0].x, V->texc[0].y);
-	myMultiTexCoord2f(GL_TEXTURE1, V->texc[1].x, V->texc[1].y);
+//	myMultiTexCoord2f(GL_TEXTURE1, V->texc[1].x, V->texc[1].y);
 
 	glNormal3f(V->normal.x, V->normal.y, V->normal.z);
 #ifndef NO_EDGEFLAG
@@ -629,7 +632,7 @@ void RGL_DrawUnits(void)
 		*/
 
 		//disable if unit has multiple textures (level geometry lightmap for instance)
-		if(unit->tex[1]==0 && bmap_shader.supported()) {
+		if(RGL_GL2Enabled() && unit->tex[1]==0) {
 			//use normal and specular map
 			bmap_shader.bind();
 			bmap_shader.lightApply();
@@ -639,7 +642,6 @@ void RGL_DrawUnits(void)
 			myActiveTexture(GL_TEXTURE0+1);
 			glBindTexture(GL_TEXTURE_2D, (unit->tex_normal!=0 ? unit->tex_normal : bmap_shader.tex_default_normal));
 			myActiveTexture(GL_TEXTURE0);
-			//glBindTexture(GL_TEXTURE_2D,unit->tex[0]);
 
 			//calc tangents, works for GL_TRIANGLE_STRIP
 			for(int v_idx=0;v_idx<unit->count-2;v_idx+=3) {
@@ -666,17 +668,6 @@ void RGL_DrawUnits(void)
 			}
 			glEnd();
 		}
-
-/*
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glEnableClientState(GL_NORMAL_ARRAY);
-		glEnableClientState(GL_COLOR_ARRAY);
-
-		glVertexPointer(3,GL_FLOAT,3*sizeof(float),data_triangles);
-		glTexCoordPointer(2,GL_FLOAT,2*sizeof(float),data_texcoord);
-		glNormalPointer(GL_FLOAT,3*sizeof(float),data_normals);
-*/
 
 		// restore the clamping mode
 		if (old_clamp != DUMMY_CLAMP)

@@ -47,7 +47,8 @@ void RGL_StartUnits(bool sort_em);
 void RGL_FinishUnits(void);
 void RGL_DrawUnits(void);
 
-//dynamic shading and bump mapping
+//dynamic shading and bump mapping (GL2 path)
+bool RGL_GL2Enabled();
 void RGL_SetAmbientLight(short r,short g,short b);	//rgb 0-255
 void RGL_ClearLights();
 void RGL_AddLight(mobj_t *mo);
