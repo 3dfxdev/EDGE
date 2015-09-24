@@ -664,7 +664,7 @@ static void CastDrawer(void)
 	{
 		modeldef_c *md = W_GetModel(caststate->sprite);
 
-		const image_c *skin_img = md->skins[castorder->model_skin];
+		const image_c *skin_img = md->skins[castorder->model_skin].img;
 
 		if (! skin_img)
 			skin_img = W_ImageForDummySkin();

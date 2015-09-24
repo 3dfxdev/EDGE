@@ -62,10 +62,32 @@ static const char* src_fragment=
 "		gl_FragColor+=(Idiff+Ispec)*light_color[i]*power;\n"
 "	}\n"
 "	gl_FragColor.a=diffuseMaterial.a;\n"
-"	//gl_FragColor=vec4(surfaceTan,1);\n"
+"	//gl_FragColor=vec4(texture2D(tex_specular, tx).rgb,1);\n"
 "}\n";
 
 void matrix_mult(const float m[16],const float vec_in[3],float vec_out[3]);
+
+GLuint create_solid_texture(int w,int h,int rgba) {
+	GLuint tex;
+
+	unsigned char* data=new unsigned char[w*h*4];
+	for(int i=0;i<w*h;i++) {
+		data[i*4+0]=(rgba&0xFF000000)>>24;
+		data[i*4+1]=(rgba&0x00FF0000)>>16;
+		data[i*4+2]=(rgba&0x0000FF00)>>8;
+		data[i*4+3]=(rgba&0x000000FF)>>0;
+	}
+
+    glGenTextures(1,&tex);
+    glBindTexture(GL_TEXTURE_2D,tex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w,h, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+    delete[] data;
+
+    return tex;
+}
 
 GLuint compile_shader(GLenum type,const char* source_c) {
 	GLuint handle=glCreateShader(type);
@@ -118,6 +140,9 @@ bump_map_shader::bump_map_shader():
 	data_light_color_ambient[1]=0;
 	data_light_color_ambient[2]=0;
 	data_light_color_ambient[3]=1;
+
+	tex_default_normal=0;
+	tex_default_specular=0;
 }
 
 bump_map_shader::~bump_map_shader() {
@@ -144,7 +169,7 @@ void bump_map_shader::check_init() {
 	}
 	_inited=true;
 
-	printf("BUMP INIT\n");
+	I_Printf("BUMP INIT\n");
 
 	_supported=(glCreateProgram);
 
@@ -174,6 +199,9 @@ void bump_map_shader::check_init() {
 	lightApply();
 
 	unbind();
+
+	tex_default_normal=create_solid_texture(2,2,0x0000FFFF);
+	tex_default_specular=create_solid_texture(2,2,0x000000FF);
 }
 void bump_map_shader::deinit() {
 	if(!_inited) {
@@ -181,7 +209,7 @@ void bump_map_shader::deinit() {
 	}
 	_inited=false;
 
-	printf("BUMP DEINIT\n");
+	I_Printf("BUMP DEINIT\n");
 
 	if(!_supported) {
 		return;
@@ -191,6 +219,9 @@ void bump_map_shader::deinit() {
 	glDeleteShader(h_vertex);
 	glDeleteShader(h_fragment);
 	//glDeleteBuffers(1,&vbo_tan);
+
+	glDeleteTextures(1,&tex_default_normal);
+	glDeleteTextures(1,&tex_default_specular);
 
 }
 void bump_map_shader::lightDisable(int index) {

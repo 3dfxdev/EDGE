@@ -29,6 +29,9 @@ public:
 	GLuint uni_light_radius;
 	GLuint uni_light_color_ambient;
 
+	GLuint tex_default_normal;
+	GLuint tex_default_specular;
+
 	static const int max_lights;
 
 private:
