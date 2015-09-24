@@ -557,12 +557,9 @@ void RGL_DrawWeaponModel(player_t * p)
 
 	int skin_num = p->weapons[p->ready_wp].model_skin;
 
-	const image_c *skin_img = md->skins[skin_num];
-
-	if (! skin_img)  // FIXME: use a dummy image
+	if (! md->skins[p->weapons[p->ready_wp].model_skin].img)  // FIXME: use a dummy image
 	{
-I_Debugf("Render model: no skin %d\n", skin_num);
-		skin_img = W_ImageForDummySkin();
+		I_Debugf("Render model: no skin %d\n", skin_num);
 	}
 
 
@@ -598,10 +595,10 @@ I_Debugf("Render model: no skin %d\n", skin_num);
 		lerp = CLAMP(0, lerp, 1);
 	}
 
-	MD2_RenderModel(md->model, skin_img, true,
+	MD2_RenderModel(md->model, &md->skins[skin_num], true,
 			        last_frame, psp->state->frame, lerp,
 			        x, y, z, p->mo, view_props,
-					1.0f /* scale */, w->model_aspect, w->model_bias);
+			        1.0f /* scale */, w->model_aspect, w->model_bias);
 }
 
 
@@ -1120,12 +1117,10 @@ static void RGL_DrawModel(drawthing_t *dthing)
 
 	modeldef_c *md = W_GetModel(mo->state->sprite);
 
-	const image_c *skin_img = md->skins[mo->model_skin];
 
-	if (! skin_img)
+	if (! md->skins[mo->model_skin].img)
 	{
-I_Debugf("Render model: no skin %d\n", mo->model_skin);
-		skin_img = W_ImageForDummySkin();
+		I_Debugf("Render model: no skin %d\n", mo->model_skin);
 	}
 
 
@@ -1151,7 +1146,7 @@ I_Debugf("Render model: no skin %d\n", mo->model_skin);
 
 	if (md->modeltype == MODEL_MD2)
 	{
-		MD2_RenderModel(md->model, skin_img, false,
+		MD2_RenderModel(md->model, &md->skins[mo->model_skin], false,
 					last_frame, mo->state->frame, lerp,
 						dthing->mx, dthing->my, z, mo, mo->props,
 						mo->info->model_scale, mo->info->model_aspect,

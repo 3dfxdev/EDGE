@@ -56,10 +56,11 @@ cvar_c r_dumbclamp;
 static bump_map_shader bmap_shader;
 
 //XXX
+/*
 const image_c* tmp_image_normal;
 const image_c* tmp_image_specular;
 static bool tmp_init=false;
-
+*/
 static int bmap_light_count=0;
 
 
@@ -227,14 +228,6 @@ local_gl_vert_t *RGL_BeginUnit(GLuint shape, int max_vert,
 							   GLuint env2, GLuint tex2,
 							   int pass, int blending)
 {
-	return RGL_BeginUnit2(shape,max_vert,env1,tex1,env2,tex2,0,0,pass,blending);
-}
-local_gl_vert_t *RGL_BeginUnit2(GLuint shape, int max_vert,
-		                       GLuint env1, GLuint tex1,
-							   GLuint env2, GLuint tex2,
-							   GLuint tex_normal,GLuint tex_specular,
-							   int pass, int blending)
-{
 	local_gl_unit_t *unit;
 
 	SYS_ASSERT(max_vert > 0);
@@ -258,14 +251,19 @@ local_gl_vert_t *RGL_BeginUnit2(GLuint shape, int max_vert,
 	unit->env[1] = env2;
 	unit->tex[0] = tex1;
 	unit->tex[1] = tex2;
-	unit->tex_normal=tex_normal;
-	unit->tex_specular=tex_specular;
+	unit->tex_normal=0;
+	unit->tex_specular=0;
 
 	unit->pass     = pass;
 	unit->blending = blending;
 	unit->first    = cur_vert;  // count set later
 
 	return local_verts + cur_vert;
+}
+void RGL_SetUnitMaps(GLuint tex_normal,GLuint tex_specular) {
+	local_gl_unit_t *unit=local_units + cur_unit;
+	unit->tex_normal=tex_normal;
+	unit->tex_specular=tex_specular;
 }
 
 //
@@ -612,6 +610,7 @@ void RGL_DrawUnits(void)
 		}
 
 		//XXX
+		/*
 		if(!tmp_init) {
 			tmp_init=true;
 			tmp_image_normal=W_ImageLookup("NORMAL",INS_Graphic,ILF_Null);
@@ -627,19 +626,20 @@ void RGL_DrawUnits(void)
 				unit->tex_specular=W_ImageCache(tmp_image_specular);
 			}
 		}
+		*/
 
 		//disable if unit has multiple textures (level geometry lightmap for instance)
-		if(unit->tex[1]==0 && unit->tex_normal!=0 && bmap_shader.supported()) {
+		if(unit->tex[1]==0 && bmap_shader.supported()) {
 			//use normal and specular map
 			bmap_shader.bind();
 			bmap_shader.lightApply();
 
 			myActiveTexture(GL_TEXTURE0+2);
-			glBindTexture(GL_TEXTURE_2D,unit->tex_specular);
+			glBindTexture(GL_TEXTURE_2D, (unit->tex_specular!=0 ? unit->tex_specular : bmap_shader.tex_default_specular));
 			myActiveTexture(GL_TEXTURE0+1);
-			glBindTexture(GL_TEXTURE_2D,unit->tex_normal);
+			glBindTexture(GL_TEXTURE_2D, (unit->tex_normal!=0 ? unit->tex_normal : bmap_shader.tex_default_normal));
 			myActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D,unit->tex[0]);
+			//glBindTexture(GL_TEXTURE_2D,unit->tex[0]);
 
 			//calc tangents, works for GL_TRIANGLE_STRIP
 			for(int v_idx=0;v_idx<unit->count-2;v_idx+=3) {

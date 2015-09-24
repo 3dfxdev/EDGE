@@ -92,11 +92,7 @@ local_gl_vert_t *RGL_BeginUnit(GLuint shape, int max_vert,
 		                       GLuint env1, GLuint tex1,
 							   GLuint env2, GLuint tex2,
 							   int pass, int blending);
-local_gl_vert_t *RGL_BeginUnit2(GLuint shape, int max_vert,
-		                       GLuint env1, GLuint tex1,
-							   GLuint env2, GLuint tex2,
-							   GLuint tex_normal,GLuint tex_specular,
-							   int pass, int blending);
+void RGL_SetUnitMaps(GLuint tex_normal,GLuint tex_specular);
 void RGL_EndUnit(int actual_vert);
 
 

@@ -43,7 +43,7 @@
 #include "r_units.h"
 #include "p_blockmap.h"
 #include "m_math.h"
-
+#include "w_model.h"
 
 cvar_c debug_normals;
 
@@ -1237,7 +1237,7 @@ SYS_ASSERT(point->vert_idx < md->verts_per_frame);
 }
 
 
-void MD2_RenderModel(md2_model_c *md, const image_c *skin_img, bool is_weapon,
+void MD2_RenderModel(md2_model_c *md, const skindef_c *skin,bool is_weapon,
 		             int frame1, int frame2, float lerp,
 		             float x, float y, float z, mobj_t *mo,
 					 region_properties_t *props,
@@ -1268,14 +1268,14 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 
 	int blending;
 
-	if (trans >= 0.99f && skin_img->opacity == OPAC_Solid)
+	if (trans >= 0.99f && skin->img->opacity == OPAC_Solid)
 		blending = BL_NONE;
-	else if (trans < 0.11f || skin_img->opacity == OPAC_Complex)
+	else if (trans < 0.11f || skin->img->opacity == OPAC_Complex)
 		blending = BL_Masked;
 	else
 		blending = BL_Less;
 
-	if (trans < 0.99f || skin_img->opacity == OPAC_Complex)
+	if (trans < 0.99f || skin->img->opacity == OPAC_Complex)
 		blending |= BL_Alpha;
 
 	if (mo->hyperflags & HF_NOZBUFFER)
@@ -1325,6 +1325,8 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 
 
 	GLuint skin_tex = 0;
+	GLuint skin_tex_norm = (skin->norm ? W_ImageCache(skin->norm, false, NULL) : 0);
+	GLuint skin_tex_spec = (skin->spec ? W_ImageCache(skin->spec, false, NULL) : 0);
 
 	if (data.is_fuzzy)
 	{
@@ -1352,12 +1354,12 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 	}
 	else /* (! data.is_fuzzy) */
 	{
-		skin_tex = W_ImageCache(skin_img, false,
+		skin_tex = W_ImageCache(skin->img, false,
 			ren_fx_colmap ? ren_fx_colmap :
 			is_weapon ? NULL : mo->info->palremap);
 
-		data.im_right = IM_RIGHT(skin_img);
-		data.im_top   = IM_TOP(skin_img);
+		data.im_right = IM_RIGHT(skin->img);
+		data.im_top   = IM_TOP(skin->img);
 
 		bool use_bumpmap_shader=true;
 
@@ -1428,6 +1430,9 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 					 data.strip->mode, data.strip->count,
 					 data.is_additive ? ENV_SKIP_RGB : GL_MODULATE, skin_tex,
 					 ENV_NONE, 0, pass, blending);
+
+			RGL_SetUnitMaps(skin_tex_norm,skin_tex_spec);
+
 
 			for (int v_idx=0; v_idx < md->strips[i].count; v_idx++)
 			{

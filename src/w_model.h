@@ -32,6 +32,21 @@ class md2_model_c;
 #define MODEL_MD5_UNIFIED 2
 //#define MODEL_DM5 2
 
+class skindef_c
+{
+public:
+
+	const image_c *img;
+	const image_c *norm;
+	const image_c *spec;
+
+	skindef_c() {
+		img=0;
+		norm=0;
+		spec=0;
+	}
+};
+
 class modeldef_c
 {
 public:
@@ -45,7 +60,7 @@ public:
 		MD5umodel *md5u;
 	};
 
-	const image_c *skins[MAX_MODEL_SKINS];
+	skindef_c skins[MAX_MODEL_SKINS];
 
 public:
 	 modeldef_c(const char *_prefix);
