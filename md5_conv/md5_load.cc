@@ -235,6 +235,7 @@ int weightgroupcnt,totalweights;
 MD5weightgroup allweightgroups[MAX_WEIGHT_GROUPS];
 epi::vec3_c groupbindpose[MAX_WEIGHT_GROUPS];
 epi::vec3_c groupnormals[MAX_WEIGHT_GROUPS];
+epi::vec3_c grouptangents[MAX_WEIGHT_GROUPS];
 int **vertexidx_to_weightgroup;
 
 void md5_print_weight(MD5weight *w) {
@@ -356,8 +357,10 @@ void md5_create_normals(MD5model *model) {
 	assert(vertexidx_to_weightgroup);
 	
 	//clear normals
-	for(i = 0; i < weightgroupcnt; i++)
+	for(i = 0; i < weightgroupcnt; i++) {
 		groupnormals[i] = epi::vec3_c();
+		grouptangents[i] = epi::vec3_c();
+	}
 	
 	//accumulate face normals to vertex normals
 	for(i = 0; i < model->meshcnt; i++) {
@@ -376,19 +379,31 @@ void md5_create_normals(MD5model *model) {
 			groupnormals[a] += norm;
 			groupnormals[b] += norm;
 			groupnormals[c] += norm;
+
+			//calc tangent
+			epi::vec3_c tangent = edge1;
+			grouptangents[a] += tangent;
+			grouptangents[b] += tangent;
+			grouptangents[c] += tangent;
 		}
 	}
 	
 	//create joint-space normals
 	for(i = 0; i < weightgroupcnt; i++) {
 		groupnormals[i].MakeUnit();
+		grouptangents[i].MakeUnit();
 		
 		MD5weight *w;
 		for(j = 0, w = allweightgroups[i].weights; j < allweightgroups[i].weightcnt; j++, w++) {
 			epi::vec3_c jointnormal = epi::quat_c(model->joints[w->jointidx].rot).Invert().Rotate(groupnormals[i]);
+			epi::vec3_c jointtan = epi::quat_c(model->joints[w->jointidx].rot).Invert().Rotate(grouptangents[i]);
 			w->normal[0] = jointnormal.x;
 			w->normal[1] = jointnormal.y;
 			w->normal[2] = jointnormal.z;
+
+			w->tan[0] = jointtan.x;
+			w->tan[1] = jointtan.y;
+			w->tan[2] = jointtan.z;
 		}
 		
 	}
@@ -504,6 +519,9 @@ void md5_premultiply_unified_model(MD5umodel * m) {
 		w->normal[0] *= w->weight;
 		w->normal[1] *= w->weight;
 		w->normal[2] *= w->weight;
+		w->tan[0] *= w->weight;
+		w->tan[1] *= w->weight;
+		w->tan[2] *= w->weight;
 	}
 }
 
