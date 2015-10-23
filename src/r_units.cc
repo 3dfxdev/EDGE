@@ -127,7 +127,6 @@ void RGL_ClearLights() {
 	bmap_light_count=0;
 }
 void RGL_AddLight(mobj_t* mo) {
-
 	bmap_shader.lightParam(bmap_light_count,
 			mo->x,mo->y,mo->z,
 			(float)RGB_RED(mo->dlight.color)/256.0f,
@@ -138,7 +137,6 @@ void RGL_AddLight(mobj_t* mo) {
 	bmap_light_count++;
 }
 void RGL_CaptureCameraMatrix() {
-
 	float cam_matrix[16];
 	glGetFloatv(GL_MODELVIEW_MATRIX, cam_matrix);
 	bmap_shader.setCamMatrix(cam_matrix);
@@ -612,24 +610,6 @@ void RGL_DrawUnits(void)
 				r_dumbclamp.d ? GL_CLAMP : GL_CLAMP_TO_EDGE);
 		}
 
-		//XXX
-		/*
-		if(!tmp_init) {
-			tmp_init=true;
-			tmp_image_normal=W_ImageLookup("NORMAL",INS_Graphic,ILF_Null);
-			tmp_image_specular=W_ImageLookup("SPECULAR",INS_Graphic,ILF_Null);
-		}
-		if(unit->tex_normal==0) {
-			if(tmp_image_normal) {
-				unit->tex_normal=W_ImageCache(tmp_image_normal);
-			}
-		}
-		if(unit->tex_specular==0) {
-			if(tmp_image_specular) {
-				unit->tex_specular=W_ImageCache(tmp_image_specular);
-			}
-		}
-		*/
 
 		//disable if unit has multiple textures (level geometry lightmap for instance)
 		if(RGL_GL2Enabled() && unit->tex[1]==0) {
@@ -644,21 +624,53 @@ void RGL_DrawUnits(void)
 			myActiveTexture(GL_TEXTURE0);
 
 			//calc tangents, works for GL_TRIANGLE_STRIP
-			for(int v_idx=0;v_idx<unit->count-2;v_idx+=3) {
-				local_gl_vert_t* v=local_verts+unit->first+v_idx;
-				calc_tan(v+0,v+1,v+2);
-				calc_tan(v+1,v+2,v+0);
-				calc_tan(v+2,v+0,v+1);
+			//TODO: don't re-calc every frame
+			if(unit->shape==GL_TRIANGLE_STRIP) {
+				for(int v_idx=0;v_idx<unit->count-2;v_idx+=3) {
+					local_gl_vert_t* v=local_verts+unit->first+v_idx;
+					calc_tan(v+0,v+1,v+2);
+					calc_tan(v+1,v+2,v+0);
+					calc_tan(v+2,v+0,v+1);
+				}
 			}
 
 			glBegin(unit->shape);
-			for (int v_idx=0; v_idx < unit->count; v_idx++)
-			{
-				RGL_SendRawVector2(local_verts + unit->first + v_idx);
+			if(bmap_shader.attr_tan!=-1) {
+				for (int v_idx=0; v_idx < unit->count; v_idx++)
+				{
+					RGL_SendRawVector2(local_verts + unit->first + v_idx);
+				}
+			}
+			else {
+				for (int v_idx=0; v_idx < unit->count; v_idx++)
+				{
+					RGL_SendRawVector(local_verts + unit->first + v_idx);
+				}
 			}
 			glEnd();
 			bmap_shader.unbind();
 			//bmap_shader.debugDrawLights();
+
+
+			//XXX normals and tangent debug
+			/*
+			glBegin(GL_LINES);
+			for(int i=0;i<unit->count;i++) {
+				local_gl_vert_t* v=local_verts+unit->first+i;
+
+				float s=1.0;
+				glColor3f(1,0,0);
+				glVertex3f(v->pos.x,v->pos.y,v->pos.z);
+				glVertex3f(v->pos.x+v->tangent.x*s,v->pos.y+v->tangent.y*s,v->pos.z+v->tangent.z*s);
+
+				glColor3f(0,0,1);
+				s=1.0;
+				glVertex3f(v->pos.x,v->pos.y,v->pos.z);
+				glVertex3f(v->pos.x+v->normal.x*s,v->pos.y+v->normal.y*s,v->pos.z+v->normal.z*s);
+			}
+			glEnd();
+			*/
+
 		}
 		else {
 			glBegin(unit->shape);

@@ -5,11 +5,11 @@
 #include <assert.h>
 #include <stdio.h>
 
-const int bump_map_shader::max_lights=5;
+const int bump_map_shader::max_lights=3;
 
 static const char* src_vertex=
 "#version 120\n"
-"#define MAX_LIGHTS 5\n"
+"#define MAX_LIGHTS 3\n"
 "attribute vec3 tangent;\n"
 "varying vec3 surfaceNormal;\n"
 "varying vec3 surfaceTan;\n"
@@ -28,7 +28,7 @@ static const char* src_vertex=
 
 static const char* src_fragment=
 "#version 120\n"
-"#define MAX_LIGHTS 5\n"
+"#define MAX_LIGHTS 3\n"
 "uniform sampler2D tex_color;\n"
 "uniform sampler2D tex_normal;\n"
 "uniform sampler2D tex_specular;\n"
@@ -62,7 +62,7 @@ static const char* src_fragment=
 "		gl_FragColor+=(Idiff+Ispec)*light_color[i]*power;\n"
 "	}\n"
 "	gl_FragColor.a=diffuseMaterial.a;\n"
-"	//gl_FragColor=vec4(texture2D(tex_specular, tx).rgb,1);\n"
+"	//gl_FragColor=vec4(surfaceTan,1.0);\n"
 "}\n";
 
 void matrix_mult(const float m[16],const float vec_in[3],float vec_out[3]);
@@ -194,6 +194,15 @@ void bump_map_shader::check_init() {
 	uni_light_color=glGetUniformLocation(h_prog,"light_color");
 	uni_light_radius=glGetUniformLocation(h_prog,"light_r");
 	uni_light_color_ambient=glGetUniformLocation(h_prog,"light_color_ambient");
+
+	/*
+	I_Printf("attr_tan %d pos %d color %d radius %d ambient %d\n",
+			attr_tan,
+			uni_light_pos,
+			uni_light_color,
+			uni_light_radius,
+			uni_light_color_ambient);
+	*/
 
 	//glGenBuffers(1,&vbo_tan);
 	lightApply();

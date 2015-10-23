@@ -29,6 +29,24 @@
 #include "r_md5.h"
 #include "w_wad.h"
 
+#include "../src/i_defs.h"
+#include "../src/i_defs_gl.h"
+
+#include "../epi/types.h"
+#include "../epi/endianess.h"
+
+#include "../src/r_gldefs.h"
+#include "../src/r_colormap.h"
+#include "../src/r_effects.h"
+#include "../src/r_image.h"
+#include "../src/r_misc.h"
+#include "../src/r_modes.h"
+#include "../src/r_state.h"
+#include "../src/r_shader.h"
+#include "../src/r_units.h"
+
+
+
 #define MAX_ANIMATION_NAME_LENGTH 11
 typedef struct md5_animation_handle_s
 {
@@ -105,7 +123,7 @@ static void LoadMD5Animation(MD5model *model, short animfile, int frame, MD5join
 	}
 }
 
-void md5_draw_unified_gl(MD5umodel *umd5, epi::mat4_c *jointmats) {
+void md5_draw_unified_gl(MD5umodel *umd5, epi::mat4_c *jointmats,const epi::mat4_c& model_mat) {
 	int i;
 	MD5model *md5 = &umd5->model;
 	
@@ -117,19 +135,29 @@ void md5_draw_unified_gl(MD5umodel *umd5, epi::mat4_c *jointmats) {
 			I_Debugf("Render model: no skin \"%s\"\n", msh->shader);
 			skin_img = W_ImageForDummySkin();
 		}
-		glBindTexture(GL_TEXTURE_2D, W_ImageCache(skin_img));
-		
+//		glBindTexture(GL_TEXTURE_2D, W_ImageCache(skin_img));
 		
 		md5_transform_vertices(msh, jointmats, vbuff);
-		render_md5_direct_triangle_lighting(msh, vbuff);
+		render_md5_direct_triangle_lighting(msh, vbuff,model_mat);
 		
 	}
 }
+
+static void DLIT_CollectLights(mobj_t *mo, void *dataptr) {
+	mobj_t* data= (mobj_t*)dataptr;
+	// dynamic lights do not light themselves up!
+	if (mo == data)
+		return;
+	RGL_AddLight(mo);
+}
+
+static float md5_tmp=0;
 
 //TODO add skin_img support
 void MD5_RenderModel(modeldef_c *md, int last_anim, int last_frame,
 	int current_anim, int current_frame, float lerp, float x, float y, float z, mobj_t *mo)
 {
+
 	//when rendering a uninterpolated model, pass -1 for last_anim and pass 1.0f for lerp
 	
 	SYS_ASSERT(md->modeltype == MODEL_MD5_UNIFIED);
@@ -150,19 +178,49 @@ void MD5_RenderModel(modeldef_c *md, int last_anim, int last_frame,
 	if (lerp < 1.0)
 		md5_pose_lerp(jplast,jpcur,md->md5u->model.jointcnt,lerp,jpcur);
 	md5_pose_to_matrix(jpcur, md->md5u->model.jointcnt, posemats);
-	
+	/*
 	glEnable(GL_TEXTURE_2D);
 	glDisable(GL_BLEND);
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	
+	*/
+	/*
 	glPushMatrix();
 	glTranslatef(x, y, z);
 	glRotatef(90.0f - ANG_2_FLOAT(mo->GetInterpolatedAngle()), 0.0f, 0.0f, 1.0f);
 	glScalef(r_md5scale.d,r_md5scale.d,r_md5scale.d);
+	*/
+
+	epi::mat4_c model_mat;
+	model_mat.SetOrigin(epi::vec3_c(x,y,z));
+
+	//TODO: is there any existing epi::mat4_c rotation/scale code?
+	float ang=FLOAT_2_ANG(90.0f)/*-mo->GetInterpolatedAngle()*/;
+	float cos_a=cos(ang);
+	float sin_a=sin(ang);
+
+	model_mat.m[0]=cos_a;
+	model_mat.m[1]=-sin_a;
+	model_mat.m[4]=sin_a;
+	model_mat.m[5]=cos_a;
+	model_mat.m[0]*=r_md5scale.d;
+	model_mat.m[5]*=r_md5scale.d;
+	model_mat.m[10]*=r_md5scale.d;
+
+	short l=CLAMP(0,mo->props->lightlevel+mo->state->bright,255);
+	float r = mo->radius;
+
+	RGL_ClearLights();
+	RGL_SetAmbientLight(l,l,l);
+	P_DynamicLightIterator(mo->x - r, mo->y - r, mo->z,
+						   mo->x + r, mo->y + r, mo->z + mo->height,
+						   DLIT_CollectLights, mo);
+
+
+	md5_draw_unified_gl(md->md5u, posemats,model_mat);
 	
-	md5_draw_unified_gl(md->md5u, posemats);
-	
-	glPopMatrix();
+//	I_Printf("md5 pos %f %f %f\n",x,y,z);
+
+	//glPopMatrix();
 }
 
 //--- editor settings ---

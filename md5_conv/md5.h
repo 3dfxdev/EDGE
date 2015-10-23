@@ -33,6 +33,7 @@ typedef struct {
 	float weight;
 	fvec3_t pos;
 	fvec3_t normal;
+	fvec3_t tan;
 } MD5weight;
 
 typedef unsigned short md5_vert_idx;
