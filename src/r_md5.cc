@@ -151,11 +151,10 @@ static void DLIT_CollectLights(mobj_t *mo, void *dataptr) {
 	RGL_AddLight(mo);
 }
 
-static float md5_tmp=0;
-
 //TODO add skin_img support
 void MD5_RenderModel(modeldef_c *md, int last_anim, int last_frame,
-	int current_anim, int current_frame, float lerp, float x, float y, float z, mobj_t *mo)
+	int current_anim, int current_frame, float lerp, float x, float y, float z,
+	float scale_x,float scale_y,float scale_z,mobj_t *mo)
 {
 
 	//when rendering a uninterpolated model, pass -1 for last_anim and pass 1.0f for lerp
@@ -194,7 +193,7 @@ void MD5_RenderModel(modeldef_c *md, int last_anim, int last_frame,
 	model_mat.SetOrigin(epi::vec3_c(x,y,z));
 
 	//TODO: is there any existing epi::mat4_c rotation/scale code?
-	float ang=FLOAT_2_ANG(90.0f)/*-mo->GetInterpolatedAngle()*/;
+	float ang=-ANG_2_FLOAT(mo->GetInterpolatedAngle())*M_PI/180.0f;
 	float cos_a=cos(ang);
 	float sin_a=sin(ang);
 
@@ -202,9 +201,13 @@ void MD5_RenderModel(modeldef_c *md, int last_anim, int last_frame,
 	model_mat.m[1]=-sin_a;
 	model_mat.m[4]=sin_a;
 	model_mat.m[5]=cos_a;
-	model_mat.m[0]*=r_md5scale.d;
-	model_mat.m[5]*=r_md5scale.d;
-	model_mat.m[10]*=r_md5scale.d;
+	//scale
+	epi::mat4_c rot_mat;
+	rot_mat.m[0]*=r_md5scale.d*scale_x;
+	rot_mat.m[5]*=r_md5scale.d*scale_y;
+	rot_mat.m[10]*=r_md5scale.d*scale_z;
+
+	model_mat*=rot_mat;
 
 	short l=CLAMP(0,mo->props->lightlevel+mo->state->bright,255);
 	float r = mo->radius;

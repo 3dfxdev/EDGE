@@ -47,14 +47,14 @@ static const char* src_fragment=
 "	vec4 specularMaterial =  texture2D(tex_specular, tx);\n"
 "	mat3 normal_mat=mat3(surfaceTan,surfaceBitan,surfaceNormal);\n"
 "	vec3 n=normalize(normal_mat*normal);\n"
-"	gl_FragColor=diffuseMaterial*light_color_ambient;\n"
+"	gl_FragColor=diffuseMaterial * (light_color_ambient + vec4(specularMaterial.g) );\n"
 "	for(int i=0;i<MAX_LIGHTS;i++) {\n"
 "		vec3 L = normalize(light_pos[i].xyz - surfacePos.xyz);\n"
 "		vec3 E = normalize(-surfacePos.xyz);\n"
 "		vec3 R = normalize(-reflect(L,n));\n"
 "		vec4 Idiff = vec4(max(dot(n,L),0.0))*diffuseMaterial;\n"
 "		Idiff = clamp(Idiff, 0.0, 1.0);\n"
-"		vec4 Ispec = vec4(pow(max(dot(R,E),0.0),0.3))*specularMaterial;\n"
+"		vec4 Ispec = vec4(pow(max(dot(R,E),0.0),0.3))*specularMaterial.r;\n"
 "		Ispec = clamp(Ispec, 0.0, 1.0);\n"
 "		float power=max(0.0, (light_r[i]-distance(light_pos[i],surfacePos))/light_r[i] );\n"
 "		//float power=step(distance(light_pos[i],surfacePos),light_r[i]);\n"
@@ -76,6 +76,30 @@ GLuint create_solid_texture(int w,int h,int rgba) {
 		data[i*4+1]=(rgba&0x00FF0000)>>16;
 		data[i*4+2]=(rgba&0x0000FF00)>>8;
 		data[i*4+3]=(rgba&0x000000FF)>>0;
+	}
+
+    glGenTextures(1,&tex);
+    glBindTexture(GL_TEXTURE_2D,tex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w,h, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+    delete[] data;
+
+    return tex;
+}
+GLuint create_test_texture() {
+	GLuint tex;
+
+	int w=64;
+	int h=64;
+
+	unsigned char* data=new unsigned char[w*h*4];
+	for(int i=0;i<w*h;i++) {
+		data[i*4+0]=0;
+		data[i*4+1]=128*(i%5==0);
+		data[i*4+2]=0;
+		data[i*4+3]=0;
 	}
 
     glGenTextures(1,&tex);

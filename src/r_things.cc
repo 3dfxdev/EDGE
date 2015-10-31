@@ -553,7 +553,7 @@ void RGL_DrawWeaponModel(player_t * p)
 	modeldef_c *md = W_GetModel(psp->state->sprite);
 	
 	//***TODO*** add md5 weapon model support
-	SYS_ASSERT(md->modeltype == MODEL_MD2);
+	//SYS_ASSERT(md->modeltype == MODEL_MD2);
 
 	int skin_num = p->weapons[p->ready_wp].model_skin;
 
@@ -595,10 +595,23 @@ void RGL_DrawWeaponModel(player_t * p)
 		lerp = CLAMP(0, lerp, 1);
 	}
 
-	MD2_RenderModel(md->model, &md->skins[skin_num], true,
-			        last_frame, psp->state->frame, lerp,
-			        x, y, z, p->mo, view_props,
-			        w->model_zaspect /* scale */, w->model_aspect/w->model_zaspect, w->model_bias);
+	switch(md->modeltype) {
+	case MODEL_MD2:
+		MD2_RenderModel(md->model, &md->skins[skin_num], true,
+						last_frame, psp->state->frame, lerp,
+						x, y, z, p->mo, view_props,
+						w->model_zaspect /* scale */, w->model_aspect/w->model_zaspect, w->model_bias);
+		break;
+
+	case MODEL_MD5_UNIFIED:
+
+		//TODO: w->model_bias
+		MD5_RenderModel(md,p->mo->model_last_animfile,last_frame,p->mo->state->animfile,psp->state->frame,lerp,
+				x,y,z,
+				w->model_aspect,w->model_aspect,w->model_zaspect,
+				p->mo);
+		break;
+	}
 }
 
 
@@ -1158,7 +1171,8 @@ static void RGL_DrawModel(drawthing_t *dthing)
 		MD5_RenderModel(md,
 			mo->model_last_animfile, last_frame,
 			mo->state->animfile, mo->state->frame, lerp,
-			dthing->mx, dthing->my, z, mo);
+			dthing->mx, dthing->my, z,
+			1.0f,1.0f,1.0f,mo);
 	}
 }
 
