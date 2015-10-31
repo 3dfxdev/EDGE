@@ -237,6 +237,7 @@ epi::vec3_c groupbindpose[MAX_WEIGHT_GROUPS];
 epi::vec3_c groupnormals[MAX_WEIGHT_GROUPS];
 epi::vec3_c grouptangents[MAX_WEIGHT_GROUPS];
 int **vertexidx_to_weightgroup;
+int vertexidx_to_weightgroup_size;
 
 void md5_print_weight(MD5weight *w) {
 	printf("J: %2i  W: %02.2f  ( %f, %f, %f )\n",w->jointidx, w->weight, w->pos[0], w->pos[1], w->pos[2]);
@@ -303,9 +304,16 @@ int find_matching_weightgroup(MD5weightgroup &wg) {
 void md5_get_unique_weights(MD5model *m) {
 	int i,j;
 	
-	assert(!vertexidx_to_weightgroup);
+	//assert(!vertexidx_to_weightgroup);
+	if(vertexidx_to_weightgroup) {
+		for(int i=0;i<vertexidx_to_weightgroup_size;i++) {
+			delete[] vertexidx_to_weightgroup[i];
+		}
+		delete[] vertexidx_to_weightgroup;
+	}
 	
 	vertexidx_to_weightgroup = new int*[m->meshcnt]();
+	vertexidx_to_weightgroup_size=m->meshcnt;
 	
 	for(i = 0; i < m->meshcnt; i++) {
 		MD5mesh *mesh = m->meshes + i;

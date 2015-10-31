@@ -111,6 +111,12 @@ int option_menuon = 0;
 
 extern cvar_c m_language;
 extern cvar_c r_crosshair;
+extern cvar_c r_lerp;
+extern cvar_c r_gl2_path;
+extern cvar_c r_md5scale;
+extern cvar_c debug_fps;
+extern cvar_c debug_pos;
+extern cvar_c r_vsync;
 
 static int menu_crosshair;  // temp hack
 extern int monitor_size;
@@ -120,6 +126,7 @@ extern int joystick_device;
 //submenus
 static void M_KeyboardOptions(int keypressed);
 static void M_VideoOptions(int keypressed);
+static void M_AdvancedOptions(int keypressed);
 static void M_GameplayOptions(int keypressed);
 static void M_AnalogueOptions(int keypressed);
 static void M_SoundOptions(int keypressed);
@@ -268,6 +275,7 @@ static style_c *mouse_style;
 static style_c *gameplay_style;
 static style_c *video_style;
 static style_c *setres_style;
+static style_c *advanced_style;
 
 
 
@@ -323,8 +331,8 @@ static int M_GetCurrentSwitchValue(optmenuitem_t *item)
 //
 //  MAIN MENU
 //
-#define LANGUAGE_POS  8
-#define HOSTNET_POS   11
+#define LANGUAGE_POS  9
+#define HOSTNET_POS   12
 
 static optmenuitem_t mainoptions[] =
 {
@@ -333,7 +341,8 @@ static optmenuitem_t mainoptions[] =
 	{OPT_Function, "Gameplay Options",  NULL,  0, NULL, M_GameplayOptions, "GameplayOptions"},
 	{OPT_Plain,    "",                  NULL,  0, NULL, NULL, NULL},
 	{OPT_Function, "Sound Options",     NULL,  0, NULL, M_SoundOptions, "SoundOptions"},
-	{OPT_Function, "Video Options",     NULL,  0, NULL, M_VideoOptions, "VideoOptions"},
+	{OPT_Function, "Basic Video Options",     NULL,  0, NULL, M_VideoOptions, "VideoOptions"},
+	{OPT_Function, "Advanced Video Options",     NULL,  0, NULL, M_AdvancedOptions, "AdvancedOptions"}, //call to LDF
 	{OPT_Function, "Set Resolution",    NULL,  0, NULL, M_ResolutionOptions, "ChangeRes"},
 
 	{OPT_Plain,    "",                  NULL,  0, NULL, NULL, NULL},
@@ -365,7 +374,6 @@ static optmenuitem_t vidoptions[] =
 	{OPT_Switch,  "Monitor Size",  MonitSiz,  5, &monitor_size, M_ChangeMonitorSize, NULL},
 	{OPT_Switch,  "Smoothing",         YesNo, 2, &var_smoothing, M_ChangeMipMap, NULL},
 	{OPT_Switch,  "H.Q.2x Scaling", Hq2xMode, 4, &hq2x_scaling, M_ChangeMipMap, NULL},
-	{OPT_Switch,  "Dynamic Lighting", DLMode, 2, &use_dlights, M_ChangeDLights, NULL},
 	{OPT_Switch,  "Detail Level",   Details,  3, &detail_level, M_ChangeMipMap, NULL},
 	{OPT_Switch,  "Mipmapping",     MipMaps,  3, &var_mipmapping, M_ChangeMipMap, NULL},
 
@@ -378,13 +386,30 @@ static optmenuitem_t vidoptions[] =
 	{OPT_Switch,  "Wipe method",     WIPE_EnumStr, WIPE_NUMWIPES, &wipe_method, NULL, NULL},
 	{OPT_Boolean, "Screenshot Format", JpgPng, 2, &png_scrshots, NULL, NULL}
 
-//#if 0  // TEMPORARILY DISABLED (we need an `Advanced Options' menu)
-//	{OPT_Switch,  "Teleportation effect", WIPE_EnumStr, WIPE_NUMWIPES, 
- //                                             &telept_effect, NULL, NULL},
-//
-//    {OPT_Switch,  "Reverse effect", YesNo, 2, &telept_reverse, NULL, NULL},
-//    {OPT_Switch,  "Reversed wipe",  YesNo, 2, &wipe_reverse, NULL, NULL},
-//#endif
+};
+
+
+static optmenuitem_t advancedoptions[] =
+{
+
+	{OPT_Boolean, "Interpolation",    YesNo,   2, &r_lerp, NULL, "Lerping"},
+	{OPT_Boolean, "Video Sync",    YesNo,   2, &r_vsync, NULL, "VideoSync"},
+	{OPT_Boolean, "OpenGL 2x Mode",    YesNo,   2, &r_gl2_path, NULL, "OpenGL"},
+	{OPT_Switch,  "Dynamic Lighting", DLMode, 2, &use_dlights, M_ChangeDLights, "DynaLight"},
+
+	{OPT_Plain,   "",  NULL, 0, NULL, NULL, NULL},
+
+	{OPT_Slider,  "Global MD5 Scale",    NULL,  5,  &r_md5scale, NULL, "MD5Scale"},
+
+	{OPT_Plain,   "",  NULL, 0, NULL, NULL, NULL},
+	{OPT_Plain,   "Debug Options",  NULL, 0, NULL, NULL, NULL},
+	{OPT_Plain,   "",  NULL, 0, NULL, NULL, NULL},
+	
+	{OPT_Switch,  "Framerate Counter",    YesNo,  2,  &debug_fps, NULL, NULL},
+	{OPT_Switch,  "Show HOM Errors",    YesNo,  2,  &debug_hom, NULL, "showhom"},
+	{OPT_Switch,  "Show Position Coords",    YesNo,  2,  &debug_pos, NULL, NULL},
+	{OPT_Switch,  "Dithering (PowerVR)",    YesNo,  2,  &var_dithering, NULL, "powervr"}
+
 };
 
 static menuinfo_t video_optmenu = 
@@ -392,6 +417,15 @@ static menuinfo_t video_optmenu =
 	vidoptions, sizeof(vidoptions) / sizeof(optmenuitem_t),
 	&video_style, 150, 77, "M_VIDEO", NULL, 0, ""
 };
+
+// for advanced submenu
+// advancedoptions[], m_ADVANCED
+static menuinfo_t advanced_optmenu = 
+{
+	advancedoptions, sizeof(advancedoptions) / sizeof(optmenuitem_t),
+	&advanced_style, 150, 77, "M_VIDEO", NULL, 0, "" //maybe I can replace the stupid hard coded graphic. . .
+};
+
 
 //
 //  SET RESOLUTION MENU
@@ -763,6 +797,9 @@ void M_OptMenuInit()
 
 	def = styledefs.Lookup("SET RESOLUTION");
 	setres_style = def ? hu_styles.Lookup(def) : opt_def_style;
+	
+	def = styledefs.Lookup("ADVANCED");
+	advanced_style = def ? hu_styles.Lookup(def) : opt_def_style;
 
 	// Restore the config setting.
 	M_ChangeBlood(-1);
@@ -1305,6 +1342,12 @@ bool M_OptResponder(event_t * ev, int ch)
 static void M_VideoOptions(int keypressed)
 {
 	curr_menu = &video_optmenu;
+	curr_item = curr_menu->items + curr_menu->pos;
+}
+
+static void M_AdvancedOptions(int keypressed)
+{
+	curr_menu = &advanced_optmenu;
 	curr_item = curr_menu->items + curr_menu->pos;
 }
 
