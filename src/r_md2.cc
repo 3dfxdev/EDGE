@@ -1,11 +1,9 @@
 //----------------------------------------------------------------------------
-//  MD2 Models
+//  3DGE MD2/MD3 Model Rendering
 //----------------------------------------------------------------------------
-//  (C) EDGE2 Team, 2001! 
-//  Working on: Supporting more than one mesh
-//  from KMQuake2 ! 
-//  Copyright (c) 2002-2009  The EDGE2 Team.
 //
+// (C) 2015 Isotope SoftWorks
+//  
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -23,6 +21,13 @@
 //
 //  Based on MD2 loading and rendering code (C) 2004 David Henry.
 //
+//  Note: Damir has added support for normal, spec, and brightmaps on these models!
+//  Note: Advanced Shader Effects only supported under OpenGL2 mode!!
+//  TODO: Linear Keyframe Interpolation (no more jellies!)
+//
+//
+//  Optimize the hell out of this code (maybe remove MD3 since it's a bottleneck)
+//  Maybe add DMD from Doomsday (for LOD?)
 //----------------------------------------------------------------------------
 
 #include "i_defs.h"
