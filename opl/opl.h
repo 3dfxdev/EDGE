@@ -34,7 +34,7 @@ public:
 	virtual void SetPanning(int c, float left, float right) = 0;
 };
 
-OPLEmul *NukedOPL3Create(bool stereo);
+OPLEmul *JavaOPLCreate(bool stereo);
 
 #define OPL_SAMPLE_RATE			49716.0
 #define CENTER_PANNING_POWER	0.70710678118
