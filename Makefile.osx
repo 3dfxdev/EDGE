@@ -15,7 +15,7 @@ LIBDIR=lib_macosx
 CC=gcc
 CXX=g++
 
-CFLAGS=-Og -ffast-math -fno-strict-aliasing -Wall -pipe
+CFLAGS=-O2 -ffast-math -fno-strict-aliasing -Wall -pipe
 
 LDFLAGS=-lm
 
@@ -77,8 +77,8 @@ makedirs:
 	mkdir -p $(OBJDIR)/ddf
 	mkdir -p $(OBJDIR)/deh_edge
 	mkdir -p $(OBJDIR)/edge
-#	mkdir -p $(OBJDIR)/md5_conv
-#	mkdir -p $(OBJDIR)/md5_conv/kmq2
+	mkdir -p $(OBJDIR)/md5_conv
+	mkdir -p $(OBJDIR)/md5_conv/kmq2
 	mkdir -p $(OBJDIR)/epi
 	mkdir -p $(OBJDIR)/glbsp
 	mkdir -p $(OBJDIR)/timidity
@@ -227,7 +227,6 @@ EDGE_OBJS= \
 	$(OBJDIR)/edge/r_colormap.o \
 	$(OBJDIR)/edge/r_modes.o    \
 	$(OBJDIR)/edge/r_md2.o      \
-#	$(OBJDIR)/edge/r_md5.o      \
 	$(OBJDIR)/edge/r_image.o    \
 	$(OBJDIR)/edge/r_doomtex.o  \
 	$(OBJDIR)/edge/r_texgl.o    \
@@ -259,13 +258,17 @@ EDGE_OBJS= \
 	$(OBJDIR)/edge/mac_ui.o  \
 	$(OBJDIR)/edge/unx_net.o    \
 	$(OBJDIR)/edge/unx_system.o
+	
+#	$(OBJDIR)/edge/r_md5.o      \
 #	$(OBJDIR)/md5_conv/md5_load.o \
 #	$(OBJDIR)/md5_conv/md5_parse.o \
 #	$(OBJDIR)/md5_conv/md5_anim.o \
 #	$(OBJDIR)/md5_conv/md5_draw.o \
 #	$(OBJDIR)/md5_conv/kmq2/q2stuff.o \
+
 $(OBJDIR)/edge/%.o: src/%.cc
-	$(CXX) $(CFLAGS) -o $@ -c $< 
+	$(CXX) $(CFLAGS) -o $@ -c $<
+
 $(OBJDIR)/edge/%.o: src/%.mm
 
 # $(OBJDIR)/md5_conv/%.o: md5_conv/%.cc
