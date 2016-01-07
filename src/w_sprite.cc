@@ -521,7 +521,7 @@ void W_InitSprites(void)
 		spritedef_c *def = sprites[st->sprite];
 
 		if (st->flags & SFF_Weapon)
-			def->frames[st->frame].is_weapon = true;
+			def->frames[(int)st->frame].is_weapon = true;
 	}
 
 	// 5. Fill in frames using wad lumps + images.ddf
