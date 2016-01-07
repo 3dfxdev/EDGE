@@ -4,8 +4,10 @@
 
 #define COMMON_NO_LOADING
 
+#ifdef WIN32
 #include <windows.h>
 #include <C:\hyperedge\Dream3DGE\PC136\md5_conv\GL\glut.h>
+#endif
 //#include <GL/glut.h>
 //#include "glut.h"
 #include <GL/gl.h>

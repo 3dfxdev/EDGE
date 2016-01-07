@@ -27,27 +27,27 @@ CFLAGS += -I.
 CFLAGS += -DMACOSX
 
 # SDL
-CFLAGS  += -ISDL
-LDFLAGS += -framework Ogg -framework Vorbis -framework SDL -framework OpenAL -framework OpenGL -framework Cocoa -framework QTKit
+CFLAGS += -I$(LIBDIR)/include/SDL -D_GNU_SOURCE=1 -D_THREAD_SAFE
+LDFLAGS += -L$(LIBDIR)/SDL/lib $(LIBDIR)/SDL/lib/libSDLmain.a $(LIBDIR)/SDL/lib/libSDL.a -Wl,-framework,OpenGL -Wl,-framework,Cocoa -Wl,-framework,ApplicationServices -Wl,-framework,Carbon -Wl,-framework,AudioToolbox -Wl,-framework,AudioUnit -Wl,-framework,IOKit -framework QTKit -framework OpenAL
 
 # ROQPLAYER
 
 # OpenGL rendering
 
 CFLAGS += -I$(LIBDIR)/glew/include
-LDFLAGS += -L$(LIBDIR)/glew/lib -lGLEW
+LDFLAGS += -lGLEW
 
 # HawkNL
 
 # PNG, JPEG and ZLIB
 
-CFLAGS += -I$(LIBDIR)/jpeg-6b -I/usr/X11/include
-LDFLAGS += -L/usr/X11/lib -L$(LIBDIR)/jpeg-6b -lpng -ljpeg -lz
-
+CFLAGS += -I/usr/X11/include
+LDFLAGS += -L/usr/X11/lib -lpng -ljpeg -lz
 
 # OGG/Vorbis
 
 CFLAGS += -DUSE_OGG
+LDFLAGS += -framework ogg -framework vorbis
 
 
 # glBSP
@@ -217,6 +217,7 @@ EDGE_OBJS= \
 	$(OBJDIR)/edge/r_render.o   \
 	$(OBJDIR)/edge/r_effects.o  \
 	$(OBJDIR)/edge/r_main.o     \
+	$(OBJDIR)/edge/r_md5.o      \
 	$(OBJDIR)/edge/r_occlude.o  \
 	$(OBJDIR)/edge/m_logo.o     \
 	$(OBJDIR)/edge/r_things.o   \
@@ -257,22 +258,21 @@ EDGE_OBJS= \
 	$(OBJDIR)/edge/mac_mus.o  \
 	$(OBJDIR)/edge/mac_ui.o  \
 	$(OBJDIR)/edge/unx_net.o    \
-	$(OBJDIR)/edge/unx_system.o
-	
-#	$(OBJDIR)/edge/r_md5.o      \
-#	$(OBJDIR)/md5_conv/md5_load.o \
-#	$(OBJDIR)/md5_conv/md5_parse.o \
-#	$(OBJDIR)/md5_conv/md5_anim.o \
-#	$(OBJDIR)/md5_conv/md5_draw.o \
-#	$(OBJDIR)/md5_conv/kmq2/q2stuff.o \
+	$(OBJDIR)/edge/unx_system.o \
+	$(OBJDIR)/md5_conv/md5_load.o \
+	$(OBJDIR)/md5_conv/md5_parse.o \
+	$(OBJDIR)/md5_conv/md5_anim.o \
+	$(OBJDIR)/md5_conv/md5_draw.o \
+	$(OBJDIR)/md5_conv/kmq2/q2stuff.o
 
 $(OBJDIR)/edge/%.o: src/%.cc
 	$(CXX) $(CFLAGS) -o $@ -c $<
 
 $(OBJDIR)/edge/%.o: src/%.mm
+	$(CC) $(CFLAGS) -o $@ -c $< 
 
-# $(OBJDIR)/md5_conv/%.o: md5_conv/%.cc
-#	$(CXX) $(CFLAGS) -o $@ -c $< 
+$(OBJDIR)/md5_conv/%.o: md5_conv/%.cc
+	$(CXX) $(CFLAGS) -o $@ -c $< 
 
 $(OBJDIR)/md5_conv/kmq2/%.o: md5_conv/kmq2/%.c
 	$(CC) $(CFLAGS) -o $@ -c $< 
@@ -358,8 +358,8 @@ $(OBJDIR)/timidity/%.o: timidity/%.cc
 MACOSX_OBJS= \
 	$(OBJDIR)/macosx/SDLMain.o
 
-$(OBJDIR)/macosx/%.o: $(LIBDIR)/SDL/%.m
-	$(CC) $(CFLAGS) -o $@ -c $< 
+$(OBJDIR)/macosx/%.o: $(LIBDIR)/SDL/libexec/%.m
+	$(CC) $(CFLAGS) -o $@ -c $<
 
 # ---------- FINAL LINK STEP -----------
   
