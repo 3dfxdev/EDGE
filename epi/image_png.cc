@@ -25,8 +25,10 @@
 #ifdef WIN32
 #include "../lib_win32/libpng-1.2.12/png.h"
 #else
-#include <png/png.h>
-#include <zlib/zlib.h>
+//#include <png/png.h>
+//#include <zlib/zlib.h>
+#include <png.h>
+#include <zlib.h>
 #endif
 
 namespace epi
