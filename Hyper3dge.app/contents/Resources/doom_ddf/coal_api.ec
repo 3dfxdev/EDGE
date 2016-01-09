@@ -268,8 +268,8 @@ module player
     function is_using()     : float = native
     function is_action1()   : float = native
     function is_action2()   : float = native
-	function is_action3()   : float = native
-	function is_action4()   : float = native
+//	function is_action3()   : float = native
+//	function is_action4()   : float = native
     function is_attacking() : float = native
     function is_rampaging() : float = native
     function is_grinning()  : float = native
