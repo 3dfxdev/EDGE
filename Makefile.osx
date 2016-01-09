@@ -27,7 +27,7 @@ CFLAGS += -I.
 CFLAGS += -DMACOSX
 
 # SDL
-CFLAGS += -I$(LIBDIR)/include/SDL -D_GNU_SOURCE=1 -D_THREAD_SAFE
+CFLAGS += -I$(LIBDIR)/SDL/include/SDL -D_GNU_SOURCE=1 -D_THREAD_SAFE
 LDFLAGS += -L$(LIBDIR)/SDL/lib $(LIBDIR)/SDL/lib/libSDLmain.a $(LIBDIR)/SDL/lib/libSDL.a -Wl,-framework,OpenGL -Wl,-framework,Cocoa -Wl,-framework,ApplicationServices -Wl,-framework,Carbon -Wl,-framework,AudioToolbox -Wl,-framework,AudioUnit -Wl,-framework,IOKit -framework QTKit -framework OpenAL
 
 # ROQPLAYER
@@ -41,8 +41,8 @@ LDFLAGS += -lGLEW
 
 # PNG, JPEG and ZLIB
 
-CFLAGS += -I/usr/X11/include
-LDFLAGS += -L/usr/X11/lib -lpng -ljpeg -lz
+CFLAGS += -I$(LIBDIR)/libpng
+LDFLAGS += -L$(LIBDIR)/libpng/lib -ljpeg -lz -lpng
 
 # OGG/Vorbis
 
