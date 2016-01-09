@@ -19,10 +19,10 @@
 #ifndef __SDL_SYSTEM_INTERNAL_H__
 #define __SDL_SYSTEM_INTERNAL_H__
 
-#if 1
+#ifdef WIN32
 #include <L:/hyper3DGE/lib_win32/SDL/include/SDL.h> 
 #else
-#include <SDL.h>
+#include <SDL/SDL.h>
 #endif 
 
 
