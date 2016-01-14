@@ -54,9 +54,51 @@ static sfx_t * sfx_jprise;
 static sfx_t * sfx_jpdown;
 static sfx_t * sfx_jpflow;
 
+
+
+float xxxSlope_GetHeight(slope_plane_t *slope, float x, float y/*,bool floorz_hack*/) {
+	// FIXME: precompute (store in slope_plane_t)
+	float dx = slope->x2 - slope->x1;
+	float dy = slope->y2 - slope->y1;
+
+	float d_len = dx*dx + dy*dy;
+
+	float along = ((x - slope->x1) * dx + (y - slope->y1) * dy) / d_len;
+/*
+	printf("x %f z1 %f z2 %f p %f x1 %f x2 %f\n",x,slope->dz1,slope->dz2,
+			along,slope->x1,slope->x2);
+			*/
+	/*
+	if(floorz_hack) {
+		along+=1.0;
+	}
+	*/
+
+	return slope->dz1 + along * (slope->dz2 - slope->dz1);
+}
+
 static void CalcHeight(player_t * player)
 {
+
+	//printf("sector %p\n",player->mo->subsector->sector);
 	bool onground = player->mo->z <= player->mo->floorz;
+
+	bool onslope=(/*player->mo->z<=player->mo->floorz+20.0 &&*/ player->mo->subsector->sector->c_slope);
+
+	float slope_offset=0;
+	float slope_total=0;
+	if(onslope) {
+		slope_offset=xxxSlope_GetHeight(player->mo->subsector->sector->c_slope,player->mo->x,player->mo->y);
+
+		slope_total=slope_offset+player->mo->subsector->sector->f_h;//player->mo->floorz;
+		/*
+		printf("floorz %f sector floorz %f slope %f TOTAL\t%f\n",player->mo->floorz,
+				player->mo->subsector->sector->f_h,
+				slope_offset,
+				player->mo->floorz+slope_offset);
+		*/
+	}
+
 	//bool still = false;
 
 	if (player->mo->height < (player->mo->info->height + player->mo->info->crouchheight) / 2.0f)
@@ -95,6 +137,7 @@ static void CalcHeight(player_t * player)
 		bob_z = player->bob / 2 * player->mo->info->bobbing * M_Sin(angle);
 	}
 
+
 	// ----CALCULATE VIEWHEIGHT----
 	if (player->playerstate == PST_LIVE)
 	{
@@ -120,6 +163,7 @@ static void CalcHeight(player_t * player)
 			player->deltaviewheight += 0.24162f;
 		}
 	}
+
 	
 	//----CALCULATE FREEFALL EFFECT, WITH SOUND EFFECTS (code based on HEXEN)
 	//  CORBIN, on:
@@ -151,7 +195,13 @@ static void CalcHeight(player_t * player)
 			bob_z *= (6 - player->jumpwait) / 6.0;
 	}
 
-	player->viewz = player->viewheight + bob_z;
+	if(onslope) {
+		//printf("VIEWZ %f Z %f TOTAL %f\n",player->viewz,player->mo->z,player->mo->floorz+slope_offset);
+		player->viewz=slope_total-player->mo->z+bob_z+player->std_viewheight;
+	}
+	else {
+		player->viewz = player->viewheight + bob_z;
+	}
 
 #if 0  // DEBUG
 I_Debugf("Jump:%d bob_z:%1.2f  z:%1.2f  height:%1.2f delta:%1.2f --> viewz:%1.3f\n",

@@ -734,6 +734,7 @@ static void LoadSectors(int lump)
 		ss->tag = MAX(0, EPI_LE_S16(ms->tag));
 
 		ss->props.lightlevel = EPI_LE_S16(ms->light);
+		//XXX ss->props.lightlevel = EPI_LE_S16(ms->light)+128;
 
 		int type = EPI_LE_S16(ms->special);
 
