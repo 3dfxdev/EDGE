@@ -79,17 +79,13 @@ float xxxSlope_GetHeight(slope_plane_t *slope, float x, float y/*,bool floorz_ha
 
 static void CalcHeight(player_t * player)
 {
-
-	//printf("sector %p\n",player->mo->subsector->sector);
 	bool onground = player->mo->z <= player->mo->floorz;
-
-	bool onslope=(/*player->mo->z<=player->mo->floorz+20.0 &&*/ player->mo->subsector->sector->c_slope);
+	bool onslope=(player->mo->z<=player->mo->floorz+23.0 && player->mo->subsector->sector->c_slope);
 
 	float slope_offset=0;
 	float slope_total=0;
 	if(onslope) {
 		slope_offset=xxxSlope_GetHeight(player->mo->subsector->sector->c_slope,player->mo->x,player->mo->y);
-
 		slope_total=slope_offset+player->mo->subsector->sector->f_h;//player->mo->floorz;
 		/*
 		printf("floorz %f sector floorz %f slope %f TOTAL\t%f\n",player->mo->floorz,
