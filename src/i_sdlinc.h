@@ -22,7 +22,7 @@
 #ifdef WIN32
 #include <L:/hyper3DGE/lib_win32/SDL/include/SDL.h> 
 #else
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #endif 
 
 
