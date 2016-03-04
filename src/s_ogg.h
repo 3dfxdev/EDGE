@@ -27,7 +27,7 @@
 //#include <C:\hyperedge\edge2\lib_win32\libvorbis-1.3.2\include\vorbis\vorbisfile.h>
 #include "..\lib_win32\libvorbis-1.3.2\include\vorbis\vorbisfile.h"
 #else
-#include <vorbis/vorbisfile.h>
+#include <Vorbis/vorbisfile.h>
 #endif
 
 #include "../epi/sound_data.h"

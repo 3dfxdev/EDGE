@@ -23,7 +23,7 @@
 #ifdef WIN32
 #include "GL/wglew.h"
 #else
-#include "GL/glew.h"
+#include <GL/glew.h>
 #endif
 
 #include <signal.h>

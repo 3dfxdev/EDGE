@@ -21,28 +21,36 @@ LDFLAGS=-lm
 
 CFLAGS += -I.
 
+# Debugging Flags
+CFLAGS += -DDEBUG_KB -DDEVELOPERS
 
 # Operating System
 
-CFLAGS += -DMACOSX
+CFLAGS += -DMACOSX -iframework/Library/Frameworks
+LDFLAGS += -F/Library/Frameworks
 
+# SDL
+CFLAGS += -D_GNU_SOURCE=1 -D_THREAD_SAFE
+LDFLAGS += -Wl,-framework,SDL2 -Wl,-framework,OpenGL -Wl,-framework,Cocoa -Wl,-framework,ApplicationServices -Wl,-framework,Carbon -Wl,-framework,AudioToolbox -Wl,-framework,AudioUnit -Wl,-framework,IOKit -Wl,-framework,QTKit -Wl,-framework,OpenAL
 
-# OpenGL rendering
-
-
-CFLAGS += -I$(LIBDIR)/glew/include
-LDFLAGS += -L$(LIBDIR)/glew/lib -lGLEW
-
+# ROQPLAYER
 
 # PNG, JPEG and ZLIB
 
-CFLAGS += -I$(LIBDIR)/jpeg-6b -I/usr/X11/include
-LDFLAGS += -L/usr/X11/lib -L$(LIBDIR)/jpeg-6b -lpng -ljpeg -lz
+CFLAGS += -I$(LIBDIR)/libpng
+LDFLAGS += -L$(LIBDIR)/libpng/lib -lpng -ljpeg -lz
 
+# OpenGL rendering
+
+CFLAGS += -I/usr/local/include
+LDFLAGS += -L/usr/local/lib -lglew
+
+# HawkNL
 
 # OGG/Vorbis
 
 CFLAGS += -DUSE_OGG
+LDFLAGS += -Wl,-framework,Ogg -Wl,-framework,Vorbis
 
 
 # glBSP
@@ -51,13 +59,6 @@ CFLAGS_GLBSP=-O -Wall -fno-strict-aliasing
 
 CFLAGS_GLBSP += -DGLBSP_PLUGIN
 CFLAGS_GLBSP += -DINLINE_G=inline
-
-
-# SDL
-CFLAGS  += -ISDL
-LDFLAGS += -framework Ogg -framework Vorbis -framework SDL -framework OpenAL -framework OpenGL -framework Cocoa -framework QTKit
-
-
 
 # ----------
 
@@ -69,16 +70,15 @@ stripped: $(PROGRAM)
 	strip --strip-unneeded $(PROGRAM)
 
 clean:
-	rm -f $(PROGRAM) $(OBJDIR)/*/*.* 
-
-halfclean:
-	rm -f $(PROGRAM) $(OBJDIR)/ddf/*.* $(OBJDIR)/edge/*.*
+	rm -rf $(PROGRAM) $(OBJDIR)
 
 makedirs:
 	mkdir -p $(OBJDIR)/coal
 	mkdir -p $(OBJDIR)/ddf
 	mkdir -p $(OBJDIR)/deh_edge
 	mkdir -p $(OBJDIR)/edge
+	mkdir -p $(OBJDIR)/md5_conv
+	mkdir -p $(OBJDIR)/md5_conv/kmq2
 	mkdir -p $(OBJDIR)/epi
 	mkdir -p $(OBJDIR)/glbsp
 	mkdir -p $(OBJDIR)/timidity
@@ -156,10 +156,10 @@ $(OBJDIR)/deh_edge/%.o: deh_edge/%.cc
 
 EDGE_OBJS= \
 	$(OBJDIR)/edge/i_main.o     \
-	$(OBJDIR)/edge/i_ctrl.o     \
 	$(OBJDIR)/edge/i_video.o    \
 	$(OBJDIR)/edge/i_sound.o    \
 	$(OBJDIR)/edge/i_net.o      \
+	$(OBJDIR)/edge/i_ctrl.o     \
 	$(OBJDIR)/edge/am_map.o     \
 	$(OBJDIR)/edge/con_con.o    \
 	$(OBJDIR)/edge/con_main.o   \
@@ -170,6 +170,7 @@ EDGE_OBJS= \
 	$(OBJDIR)/edge/e_player.o   \
 	$(OBJDIR)/edge/f_finale.o   \
 	$(OBJDIR)/edge/f_interm.o   \
+	$(OBJDIR)/edge/e_splash.o   \
 	$(OBJDIR)/edge/g_game.o     \
 	$(OBJDIR)/edge/hu_draw.o    \
 	$(OBJDIR)/edge/hu_font.o    \
@@ -226,9 +227,11 @@ EDGE_OBJS= \
 	$(OBJDIR)/edge/r_colormap.o \
 	$(OBJDIR)/edge/r_modes.o    \
 	$(OBJDIR)/edge/r_md2.o      \
+	$(OBJDIR)/edge/r_md5.o      \
 	$(OBJDIR)/edge/r_image.o    \
 	$(OBJDIR)/edge/r_doomtex.o  \
 	$(OBJDIR)/edge/r_texgl.o    \
+	$(OBJDIR)/edge/r_bumpmap.o  \
 	$(OBJDIR)/edge/s_blit.o     \
 	$(OBJDIR)/edge/s_cache.o    \
 	$(OBJDIR)/edge/s_sound.o    \
@@ -256,12 +259,23 @@ EDGE_OBJS= \
 	$(OBJDIR)/edge/mac_mus.o  \
 	$(OBJDIR)/edge/mac_ui.o  \
 	$(OBJDIR)/edge/unx_net.o    \
-	$(OBJDIR)/edge/unx_system.o
+	$(OBJDIR)/edge/unx_system.o \
+	$(OBJDIR)/md5_conv/md5_load.o \
+	$(OBJDIR)/md5_conv/md5_parse.o \
+	$(OBJDIR)/md5_conv/md5_anim.o \
+	$(OBJDIR)/md5_conv/md5_draw.o \
+	$(OBJDIR)/md5_conv/kmq2/q2stuff.o
 
 $(OBJDIR)/edge/%.o: src/%.cc
-	$(CXX) $(CFLAGS) -o $@ -c $< 
+	$(CXX) $(CFLAGS) -o $@ -c $<
 
 $(OBJDIR)/edge/%.o: src/%.mm
+	$(CC) $(CFLAGS) -o $@ -c $< 
+
+$(OBJDIR)/md5_conv/%.o: md5_conv/%.cc
+	$(CXX) $(CFLAGS) -o $@ -c $< 
+
+$(OBJDIR)/md5_conv/kmq2/%.o: md5_conv/kmq2/%.c
 	$(CC) $(CFLAGS) -o $@ -c $< 
 
 
@@ -288,6 +302,7 @@ EPI_OBJS= \
 	$(OBJDIR)/epi/math_oddity.o  \
 	$(OBJDIR)/epi/math_matrix.o  \
 	$(OBJDIR)/epi/math_vector.o  \
+	$(OBJDIR)/epi/math_quaternion.o  \
 	$(OBJDIR)/epi/math_random.o  \
 	$(OBJDIR)/epi/mersenne_twist.o \
 	$(OBJDIR)/epi/mus_2_midi.o   \
@@ -344,8 +359,8 @@ $(OBJDIR)/timidity/%.o: timidity/%.cc
 MACOSX_OBJS= \
 	$(OBJDIR)/macosx/SDLMain.o
 
-$(OBJDIR)/macosx/%.o: $(LIBDIR)/SDL/%.m
-	$(CC) $(CFLAGS) -o $@ -c $< 
+$(OBJDIR)/macosx/%.o: src/%.m
+	$(CC) $(CFLAGS) -o $@ -c $<
 
 # ---------- FINAL LINK STEP -----------
   
