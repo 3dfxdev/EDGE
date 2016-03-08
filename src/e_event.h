@@ -37,7 +37,8 @@ typedef enum
 {
 	ev_keydown,
 	ev_keyup,
-	ev_mouse
+	ev_mouse,
+	ev_joystick   ///new joystick handling code. . . 
 }
 evtype_t;
 
@@ -45,8 +46,10 @@ evtype_t;
 typedef struct
 {
 	evtype_t type;
+	
+	int data1, data2, data3, data4; ///Chocolate DOOM ///fraggle
 
-	union
+/* 	union
 	{
 		struct
 		{
@@ -59,10 +62,10 @@ typedef struct
 		{
 			int dx;
 			int dy;
-		} 
+		}
 		mouse;
-	} 
-	value;
+	}
+	value; */
 }
 event_t;
 

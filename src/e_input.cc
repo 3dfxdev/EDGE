@@ -26,11 +26,12 @@
 // -MH- 1998/07/02 Added key_flyup and key_flydown variables (no logic yet)
 // -MH- 1998/08/18 Flyup and flydown logic
 //
+/// -CA- Joystick Handling is now done in e_inputjoy! 
 
 #include "i_defs.h"
-#include "i_defs_gl.h" //glFog logic
-//#include "../src/r_units.h"
-#include "../src/r_gldefs.h"
+#include "i_defs_gl.h"
+#include "i_sdlinc.h"
+
 
 #include "dm_defs.h"
 #include "dm_state.h"
@@ -50,9 +51,10 @@ extern bool CON_Responder(event_t *ev);
 extern bool   M_Responder(event_t *ev);
 extern bool   G_Responder(event_t *ev);
 
-extern int I_JoyGetAxis(int n);
+///
 
 
+/// D_EVENT in CHOCOLATE DOOM (merged with e_input?!)
 //
 // EVENT HANDLING
 //
@@ -64,6 +66,8 @@ extern int I_JoyGetAxis(int n);
 static event_t events[MAXEVENTS];
 static int eventhead;
 static int eventtail;
+
+
 
 //
 // controls (have defaults) 
@@ -122,11 +126,14 @@ static int mlookturn[3] = {400,  800, 200};
 #define SLOWTURNTICS    6
 
 #define NUMKEYS         512
+#define MAX_JOY_BUTTONS 20
 
 #define GK_DOWN  0x01
 #define GK_UP    0x02
 
 static byte gamekeydown[NUMKEYS];
+static bool  mousearray[MAX_MOUSE_BUTTONS + 1];
+static bool *mousebuttons = &mousearray[1];  // allow [-1]
 
 static int turnheld;   // for accelerative turning 
 static int mlookheld;  // for accelerative mlooking 
@@ -140,27 +147,38 @@ int mouse_yaxis;
 
 int mouse_xsens;
 int mouse_ysens;
+///
+/// Mouse Controls added, from Chocolate Doom:
+///
+int mousebfire = 0;
+int mousebstrafe = 1;
+int mousebforward = 2;
+
+int mousebjump = -1;
+
+int mousebstrafeleft = -1;
+int mousebstraferight = -1;
+int mousebbackward = -1;
+int mousebuse = -1;
+
+int mousebprevweapon = -1;
+int mousebnextweapon = -1;
 
 int joy_axis[6] = { 0, 0, 0, 0, 0, 0 };
 
 static int joy_last_raw[6];
 
-static int mouse_ss_hack = 0;
-
 // The last one is ignored (AXIS_DISABLE)
 static float ball_deltas[6] = {0, 0, 0, 0, 0, 0};
 static float  joy_forces[6] = {0, 0, 0, 0, 0, 0};
 
-cvar_c joy_dead;
-cvar_c joy_peak;
-cvar_c joy_tuning;
+static int mouse_ss_hack = 0;
 
 cvar_c in_running;
 cvar_c in_stageturn;
 cvar_c mouse_filter;
 
 cvar_c debug_mouse;
-cvar_c debug_joyaxis;
 
 // Speed controls
 int var_turnspeed;
@@ -168,6 +186,31 @@ int var_mlookspeed;
 int var_forwardspeed;
 int var_sidespeed;
 int var_flyspeed;
+
+
+/// menu keys:
+
+int key_menu_activate  = KEYD_ESCAPE;
+int key_menu_up        = KEYD_UPARROW;
+int key_menu_down      = KEYD_DOWNARROW;
+int key_menu_left      = KEYD_LEFTARROW;
+int key_menu_right     = KEYD_RIGHTARROW;
+int key_menu_back      = KEYD_BACKSPACE;
+int key_menu_forward   = KEYD_ENTER;
+int key_menu_confirm   = 'y';
+int key_menu_abort     = 'n';
+
+int key_menu_help      = KEYD_F1;
+int key_menu_save      = KEYD_F2;
+int key_menu_load      = KEYD_F3;
+int key_menu_volume    = KEYD_F4;
+int key_menu_detail    = KEYD_F5;
+int key_menu_qsave     = KEYD_F6;
+int key_menu_endgame   = KEYD_F7;
+int key_menu_messages  = KEYD_F8;
+int key_menu_qload     = KEYD_F9;
+int key_menu_quit      = KEYD_F10;
+int key_menu_gamma     = KEYD_F11;
 
 
 static float sensitivities[16] =
@@ -184,64 +227,6 @@ static float speed_factors[12] =
 	0.50, 0.66, 0.83, 1.00,
 	1.50, 2.00, 2.80, 4.00
 };
-
-
-float JoyAxisFromRaw(int raw)
-{
-	SYS_ASSERT(abs(raw) <= 32768);
-
-	float v = raw / 32768.0f;
-	
-	if (fabs(v) <= joy_dead.f + 0.01)
-		return 0;
-
-	if (fabs(v) >= joy_peak.f - 0.01)
-		return (v < 0) ? -1.0f : +1.0f;
-
-	SYS_ASSERT(joy_peak.f > joy_dead.f);
-
-	float t = CLAMP(0.2f, joy_tuning.f, 5.0f);
-
-	if (v >= 0)
-	{
-		v = (v - joy_dead.f) / (joy_peak.f - joy_dead.f);
-		return pow(v, 1.0f / t);
-	}
-	else
-	{
-		v = (-v - joy_dead.f) / (joy_peak.f - joy_dead.f);
-		return - pow(v, 1.0f / t);
-	}
-}
-
-static void UpdateJoyAxis(int n)
-{
-	if (joy_axis[n] == AXIS_DISABLE)
-		return;
-
-	int raw = I_JoyGetAxis(n);
-	int old = joy_last_raw[n];
-
-	joy_last_raw[n] = raw;
-
-	// cooked value = average of last two raw samples
-	int cooked = (raw + old) >> 1;
-
-	float force = JoyAxisFromRaw(cooked);
-
-	// perform inversion
-	if ((joy_axis[n]+1) & 1)
-		force = -force;
-
-	if (debug_joyaxis.d == n+1)
-	{
-		I_Printf("Axis%d : raw %+05d --> %+7.3f\n", n+1, raw, force);
-	}
-
-	int axis = (joy_axis[n]+1) >> 1;
-
-	joy_forces[axis] += force;
-}
 
 
 bool E_MatchesKey(int keyvar, int key)
@@ -267,6 +252,7 @@ bool E_IsKeyPressed(int keyvar)
 
 	return false;
 }
+
 
 static inline void AddKeyForce(int axis, int upkeys, int downkeys, float qty = 1.0f)
 {
@@ -297,9 +283,44 @@ static void UpdateForces(void)
 
 	// ---Joystick---
 
-	for (int j = 0; j < 6; j++)
-		UpdateJoyAxis(j);
+	/* for (int j = 0; j < 6; j++)
+		UpdateJoyAxis(j); */
 }
+
+static void SetMouseButtons(unsigned int buttons_mask)
+{
+    int i;
+	
+/* 	int key = (cmd->buttons & BT_WEAPONMASK) >> BT_WEAPONSHIFT;
+
+		if (key == BT_NEXT_WEAPON)
+		{
+			P_NextPrevWeapon(player, +1);
+		}
+		else if (key == BT_PREV_WEAPON)
+		{
+			P_NextPrevWeapon(player, -1);
+		}
+		 */
+    for (i=0; i<MAX_MOUSE_BUTTONS; ++i)
+    {
+        unsigned int button_on = (buttons_mask & (1 << i)) != 0;
+        // Detect button press:
+        if (!mousebuttons[i] && button_on)
+        {
+            if (i == mousebprevweapon)
+            {
+                ///P_NextPrevWeapon(player, +1);
+            }
+            else if (i == mousebnextweapon)
+            {
+                ///P_NextPrevWeapon(player, +1);
+            }
+        }
+	mousebuttons[i] = button_on;
+    }
+}
+
 
 #if 0  // UNUSED ???
 static int CmdChecksum(ticcmd_t * cmd)
@@ -314,7 +335,7 @@ static int CmdChecksum(ticcmd_t * cmd)
 }
 #endif
 
-void E_BuildTiccmd_Other(ticcmd_t * cmd)
+/* void E_BuildTiccmd_Other(ticcmd_t * cmd)
 {
 	///
 	/// -AJA- very hacky stuff here to test out split-screen mode
@@ -351,7 +372,7 @@ void E_BuildTiccmd_Other(ticcmd_t * cmd)
 
 	for (int k = 0; k < 6; k++)
 		ball_deltas[k] = 0;
-}
+} */
 
 //
 // E_BuildTiccmd
@@ -368,19 +389,12 @@ static bool allowautorun = true;
 
 void E_BuildTiccmd(ticcmd_t * cmd)
 {
-	UpdateForces();
-
-	if (splitscreen_mode && cmd->player_idx == consoleplayer1)
-	{
-		E_BuildTiccmd_Other(cmd);
-		return;
-	}
+		///UpdateForces(); (for joystick code)
 
 	Z_Clear(cmd, ticcmd_t, 1);
 
 	bool strafe = E_IsKeyPressed(key_strafe);
 	int  speed  = E_IsKeyPressed(key_speed) ? 1 : 0;
-	
 
 	if (in_running.d)
 		speed = !speed;
@@ -506,12 +520,6 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 
 	if (E_IsKeyPressed(key_action2))
 		cmd->extbuttons |= EBT_ACTION2;
-		
-	if (E_IsKeyPressed(key_action3))
-		cmd->extbuttons |= EBT_ACTION3;
-
-	if (E_IsKeyPressed(key_action4))
-		cmd->extbuttons |= EBT_ACTION4;
 
 	// -ACB- 1998/07/02 Use CENTER flag to center the vertical look.
 	if (E_IsKeyPressed(key_lookcenter))
@@ -561,23 +569,6 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	}
 	else
 		allowzoom = true;
-	
-//	if (E_IsKeyPressed(key_fog) && !gp)
-//	{
-	//	bool gp = E_IsKeyPressed(key_fog);
-      //  gp=TRUE;                    // gp Is Set To TRUE
-		//	fogfilter+=1;                   // Increase fogfilter By One
-	//	if (fogfilter>2)             // Is fogfilter Greater Than 2?
-	//	{
-     //   fogfilter=0;                // If So, Set fogfilter To Zero
-	//	}
-    //glFogi (GL_FOG_MODE, fogMode[fogfilter]);   // Fog Mode
-	//}
-		//if (!keys['G'])                     // Has The G Key Been Released?
-	//	if (!E_IsKeyPressed(key_fog))
-	//	{
-	//	gp=FALSE;                   // If So, gp Is Set To FALSE
-		//}
 
 	// -AJA- 2000/04/14: Autorun toggle
 	if (E_IsKeyPressed(key_autorun))
@@ -603,36 +594,36 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 // 
 bool INP_Responder(event_t * ev)
 {
-	int sym = ev->value.key.sym;
+	SDL_Keysym *sym; ///add this here for SDL stuff!
 
 	switch (ev->type)
 	{
 		case ev_keydown:
-			if (splitscreen_mode && sym >= KEYD_MOUSE1 && sym <= KEYD_MOUSE6)
+			/*if (splitscreen_mode && sym >= KEYD_MOUSE1 && sym <= KEYD_MOUSE6)
 			{
 				mouse_ss_hack |= (1 << (sym - KEYD_MOUSE1));
 				return true;
-			}
+			} */
 
-			if (ev->value.key.sym < NUMKEYS)
+			if (ev->data1 < NUMKEYS)
 			{
-				gamekeydown[ev->value.key.sym] &= ~GK_UP;
-				gamekeydown[ev->value.key.sym] |=  GK_DOWN;
+				gamekeydown[ev->data1] &= ~GK_UP;
+				gamekeydown[ev->data1] |=  GK_DOWN;
 			}
 
 			// eat key down events 
 			return true;
 
 		case ev_keyup:
-			if (splitscreen_mode && sym >= KEYD_MOUSE1 && sym <= KEYD_MOUSE6)
+			/*if (splitscreen_mode && sym >= KEYD_MOUSE1 && sym <= KEYD_MOUSE6)
 			{
 				mouse_ss_hack &= ~(1 << (sym - KEYD_MOUSE1));
 				return false;
-			}
+			}*/
 
-			if (ev->value.key.sym < NUMKEYS)
+			if (ev->data1 < NUMKEYS)
 			{
-				gamekeydown[ev->value.key.sym] |= GK_UP;
+				gamekeydown[ev->data1] |= GK_UP;
 			}
 
 			// always let key up events filter down 
@@ -640,19 +631,23 @@ bool INP_Responder(event_t * ev)
 
 		case ev_mouse:
 		{
-			float dx = ev->value.mouse.dx;
-			float dy = ev->value.mouse.dy;
+			float dx = ev->data2;///mouse.dx; data2: X axis mouse movement (turn).
+			float dy = ev->data3;///mouse.dy; data3: Y axis mouse movement (forward/backward).
+			SetMouseButtons(ev->data1);
 
 			// perform inversion
-			if ((mouse_xaxis+1) & 1) dx = -dx;
-			if ((mouse_yaxis+1) & 1) dy = -dy;
+ 			if ((ev->data2+1) & 1) dx = -dx;
+			if ((ev->data3+1) & 1) dy = -dy;
 
-			dx *= sensitivities[mouse_xsens];
+			/* dx *= sensitivities[mouse_xsens];
 			dy *= sensitivities[mouse_ysens];
-
+ */
+			dx = ev->data2*(mouse_xsens+5)/10; 
+			dy = ev->data3*(mouse_ysens+5)/10; 
+	
 			if (debug_mouse.d)
 				I_Printf("Mouse %+04d %+04d --> %+7.2f %+7.2f\n",
-				         ev->value.mouse.dx, ev->value.mouse.dy, dx, dy);
+				         ev->data2, ev->data3, dx, dy);
 
 			// -AJA- 1999/07/27: Mlook key like quake's.
 			if (E_IsKeyPressed(key_mlook))
@@ -696,7 +691,7 @@ void E_ClearInput(void)
 	turnheld  = 0;
 	mlookheld = 0;
 
-	mouse_ss_hack = 0;
+	//mouse_ss_hack = 0;
 }
 
 //
@@ -725,10 +720,10 @@ void E_ReleaseAllKeys(void)
 		if (gamekeydown[i] & GK_DOWN)
 		{
 			event_t ev;
-			
 			ev.type = ev_keyup;
-			ev.value.key.sym = i;
-			ev.value.key.unicode = 0;
+			ev.data1 = i;
+			ev.data2 = 0;
+            ev.data3 = 0;
 
 			E_PostEvent(&ev);
 		}
@@ -835,24 +830,24 @@ static specialkey_t special_keys[] =
     { KEYD_F12, "F12" },
 
 	// numeric keypad
-	{ KEYD_KP0, "KP_0" },
-	{ KEYD_KP1, "KP_1" },
-	{ KEYD_KP2, "KP_2" },
-	{ KEYD_KP3, "KP_3" },
-	{ KEYD_KP4, "KP_4" },
-	{ KEYD_KP5, "KP_5" },
-	{ KEYD_KP6, "KP_6" },
-	{ KEYD_KP7, "KP_7" },
-	{ KEYD_KP8, "KP_8" },
-	{ KEYD_KP9, "KP_9" },
+	{ KEYP_0, "KP_0" },
+	{ KEYP_1, "KP_1" },
+	{ KEYP_2, "KP_2" },
+	{ KEYP_3, "KP_3" },
+	{ KEYP_4, "KP_4" },
+	{ KEYP_5, "KP_5" },
+	{ KEYP_6, "KP_6" },
+	{ KEYP_7, "KP_7" },
+	{ KEYP_8, "KP_8" },
+	{ KEYP_9, "KP_9" },
 	
-	{ KEYD_KP_DOT,   "KP_DOT" },
-	{ KEYD_KP_PLUS,  "KP_PLUS" },
-	{ KEYD_KP_MINUS, "KP_MINUS" },
-	{ KEYD_KP_STAR,  "KP_STAR" },
-	{ KEYD_KP_SLASH, "KP_SLASH" },
-	{ KEYD_KP_EQUAL, "KP_EQUAL" },
-	{ KEYD_KP_ENTER, "KP_ENTER" },
+	{ KEYP_PERIOD,   "KP_DOT" },
+	{ KEYP_PLUS,  "KP_PLUS" },
+	{ KEYP_MINUS, "KP_MINUS" },
+	{ KEYP_MULTIPLY,  "KP_STAR" },
+	{ KEYP_DIVIDE, "KP_SLASH" },
+	{ KEYP_EQUALS, "KP_EQUAL" },
+	{ KEYP_ENTER, "KP_ENTER" },
 
 	// mouse buttons
     { KEYD_MOUSE1, "Mouse1" },
@@ -886,6 +881,7 @@ static specialkey_t special_keys[] =
 };
 
 
+///In Chocolate Doom, this should be... GetTypedChar?!
 const char *E_GetKeyName(int key)
 {
 	static char buffer[32];

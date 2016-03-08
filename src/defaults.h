@@ -97,8 +97,8 @@
 #define CFGDEF_FORWARDMOVESPEED (7)
 #define CFGDEF_SIDEMOVESPEED    (7)
 
-#define CFGDEF_JOY_XAXIS        (2*AXIS_TURN-1)
-#define CFGDEF_JOY_YAXIS        (2*AXIS_FORWARD)
+/* #define CFGDEF_JOY_XAXIS        (2*AXIS_TURN-1)
+#define CFGDEF_JOY_YAXIS        (2*AXIS_FORWARD) */
 
 // Misc
 #define CFGDEF_MENULANGUAGE     (0)

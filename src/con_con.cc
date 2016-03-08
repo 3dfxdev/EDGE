@@ -26,6 +26,8 @@
 
 #include "i_defs.h"
 #include "i_defs_gl.h"
+#include "i_sdlinc.h"
+#include "SDL_keycode.h"
 
 #include "../ddf/language.h"
 
@@ -964,11 +966,12 @@ void CON_HandleKey(int key, bool shift, bool ctrl)
 	}
 }
 
-static int GetKeycode(event_t *ev)
+static int GetKeycode(SDL_Keysym *sym)///(int key)
 {
-    int sym = ev->value.key.sym;
+	int scancode = sym->scancode;
+    ///int sym = ev->sym;
 
-	switch (sym)
+	switch (scancode)
 	{
 		case KEYD_TAB:
 		case KEYD_PGUP:
@@ -986,28 +989,30 @@ static int GetKeycode(event_t *ev)
 		case KEYD_ENTER:
 		case KEYD_ESCAPE:
 		case KEYD_RSHIFT:
-			return sym;
+			return scancode;
 
 		default:
 			break;
     }
 
-    int unicode = ev->value.key.unicode;
+	/// SDL2-TODO...handle unicode or not..?
+/*     int unicode = ev->value.key.unicode;
     if (HU_IS_PRINTABLE(unicode))
-        return unicode;
+        return unicode; */
 
-    if (HU_IS_PRINTABLE(sym))
-        return sym;
+    if (HU_IS_PRINTABLE(scancode))
+        return scancode;
 
     return -1;
 }
 
 bool CON_Responder(event_t * ev)
 {
+	SDL_Keysym *sym; ///add this here for SDL stuff!
 	if (ev->type != ev_keyup && ev->type != ev_keydown)
 		return false;
 
-	if (ev->type == ev_keydown && E_MatchesKey(key_console, ev->value.key.sym))
+	if (ev->type == ev_keydown && E_MatchesKey(key_console, ev->data1))
 	{
 		CON_SetVisible(vs_toggle);
 		return true;
@@ -1016,7 +1021,7 @@ bool CON_Responder(event_t * ev)
 	if (con_visible == vs_notvisible)
 		return false;
 
-	int key = GetKeycode(ev);
+	int key = GetKeycode(sym);
 	if (key < 0)
 		return true;
 
