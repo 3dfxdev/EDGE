@@ -71,7 +71,7 @@
 //                  
 // -AJA- 2001/07/26: Reworked colours, key config, and other code.
 //
-//
+// -CA-  2016.2.24: Added more console -> menu customizations
 
 #include "i_defs.h"
 
@@ -111,6 +111,7 @@ int option_menuon = 0;
 
 extern cvar_c m_language;
 extern cvar_c r_crosshair;
+extern cvar_c r_crosssize;
 extern cvar_c r_lerp;
 extern cvar_c r_gl2_path;
 extern cvar_c r_md5scale;
@@ -119,17 +120,19 @@ extern cvar_c debug_pos;
 extern cvar_c r_vsync;
 
 static int menu_crosshair;  // temp hack
+static int menu_crosshair2;  /// love haxxx
 extern int monitor_size;
 
-extern int joystick_device;
+/* extern int joystick_device; */
 
 //submenus
 static void M_KeyboardOptions(int keypressed);
 static void M_VideoOptions(int keypressed);
 static void M_AdvancedOptions(int keypressed);
-static void M_GameplayOptions(int keypressed);
+static void M_GameplayOptions(int keypressed); /// Make Gameplay Options page-flip for MORE options...apparently...
 static void M_AnalogueOptions(int keypressed);
 static void M_SoundOptions(int keypressed);
+static void M_DebuggingOptions(int keypressed); /// New Debugging Sub-menu
 
 static void M_Key2String(int key, char *deststring);
 
@@ -142,6 +145,7 @@ static void M_ChangeFastparm(int keypressed);
 static void M_ChangeRespawn(int keypressed);
 static void M_ChangePassMissile(int keypressed);
 static void M_ChangeCrossHair(int keypressed);
+static void M_ChangeCrossHairSize(int keypressed);
 
 static void M_ChangeBlood(int keypressed);
 static void M_ChangeMLook(int keypressed);
@@ -182,11 +186,12 @@ static char JoyDevs[]   = "None/1/2/3/4/5/6";
 static char DLMode[]    = "Off/On";
 static char JpgPng[]    = "JPEG/PNG";  // basic on/off
 static char AAim[]      = "Off/On/Mlook";
-static char MipMaps[]   = "None/Good/Best";
+static char MipMaps[]   = "None/Bilinear/Trilinear"; ///CA - Renamed for better understanding of what they are changing
 static char Details[]   = "Low/Medium/High";
 static char Hq2xMode[]  = "Off/UI Only/UI & Sprites/All";
 static char Invuls[]    = "Simple/Complex/Textured";
 static char MonitSiz[]  = "4:3/16:9/16:10/3:2/24:10";
+static char GLMode[]    = "1/2";
 
 // for CVar enums
 const char WIPE_EnumStr[] = "none/melt/crossfade/pixelfade/top/bottom/left/right/spooky/doors";
@@ -349,8 +354,9 @@ static optmenuitem_t mainoptions[] =
 	{OPT_Function, "Language",          NULL,  0, NULL, M_ChangeLanguage, NULL},
 	{OPT_Switch,   "Messages",          YesNo, 2, &showMessages, NULL, "Messages"},
 	{OPT_Plain,    "",                  NULL,  0, NULL, NULL, NULL},
-	{OPT_Function, "Advanced Start",    NULL,  0, NULL, M_HostNetGame, NULL},
+	{OPT_Function, "Start Multiplayer Game",    NULL,  0, NULL, M_HostNetGame, NULL},
 	{OPT_Plain,    "",                  NULL,  0, NULL, NULL, NULL},
+	
 	{OPT_Function, "Reset to Defaults", NULL,  0, NULL, M_ResetDefaults, NULL}
 };
 
@@ -375,14 +381,14 @@ static optmenuitem_t vidoptions[] =
 	{OPT_Switch,  "Smoothing",         YesNo, 2, &var_smoothing, M_ChangeMipMap, NULL},
 	{OPT_Switch,  "H.Q.2x Scaling", Hq2xMode, 4, &hq2x_scaling, M_ChangeMipMap, NULL},
 	{OPT_Switch,  "Detail Level",   Details,  3, &detail_level, M_ChangeMipMap, NULL},
-	{OPT_Switch,  "Mipmapping",     MipMaps,  3, &var_mipmapping, M_ChangeMipMap, NULL},
+	{OPT_Switch,  "Texture Filtering",     MipMaps,  3, &var_mipmapping, M_ChangeMipMap, NULL},
 
 	{OPT_Plain,   "",  NULL, 0, NULL, NULL, NULL},
 
 	{OPT_Switch,  "Crosshair",       CrossH, 10, &menu_crosshair, M_ChangeCrossHair, NULL},
+	{OPT_Slider,  "Crosshair Scale",  NULL, 15, &menu_crosshair2, M_ChangeCrossHairSize, "ScaleCrossHair"}, /// -- New Crosshair Size Slider (like Global MD5 Scale), define this in LDF!
 	{OPT_Boolean, "Map Rotation",    YesNo,   2, &rotatemap, NULL, NULL},
 	{OPT_Switch,  "Teleport Flash",  YesNo,   2, &telept_flash, NULL, NULL},
-	{OPT_Switch,  "Invulnerability", Invuls, NUM_INVULFX,  &var_invul_fx, NULL, NULL},
 	{OPT_Switch,  "Wipe method",     WIPE_EnumStr, WIPE_NUMWIPES, &wipe_method, NULL, NULL},
 	{OPT_Boolean, "Screenshot Format", JpgPng, 2, &png_scrshots, NULL, NULL}
 
@@ -391,18 +397,18 @@ static optmenuitem_t vidoptions[] =
 
 static optmenuitem_t advancedoptions[] =
 {
+	{OPT_Boolean, "OpenGL Mode",    GLMode,   2, &r_gl2_path, NULL, "OpenGL"}, /// Change from GL1 to GL2
 
 	{OPT_Boolean, "Interpolation",    YesNo,   2, &r_lerp, NULL, "Lerping"},
 	{OPT_Boolean, "Video Sync",    YesNo,   2, &r_vsync, NULL, "VideoSync"},
-	{OPT_Boolean, "OpenGL 2x Mode",    YesNo,   2, &r_gl2_path, NULL, "OpenGL"},
 	{OPT_Switch,  "Dynamic Lighting", DLMode, 2, &use_dlights, M_ChangeDLights, "DynaLight"},
 
 	{OPT_Plain,   "",  NULL, 0, NULL, NULL, NULL},
 
-	{OPT_Slider,  "Global MD5 Scale",    NULL,  5,  &r_md5scale, NULL, "MD5Scale"},
+	{OPT_Slider,  "Global MD5 Scale",    NULL,  4,  &r_md5scale, NULL, "MD5Scale"},
 
 	{OPT_Plain,   "",  NULL, 0, NULL, NULL, NULL},
-	{OPT_Plain,   "Debug Options",  NULL, 0, NULL, NULL, NULL},
+	/* {OPT_Switch,  "Invulnerability", Invuls, NUM_INVULFX,  &var_invul_fx, NULL, NULL}, */
 	{OPT_Plain,   "",  NULL, 0, NULL, NULL, NULL},
 	
 	{OPT_Switch,  "Framerate Counter",    YesNo,  2,  &debug_fps, NULL, NULL},
@@ -412,13 +418,25 @@ static optmenuitem_t advancedoptions[] =
 
 };
 
+/* static optmenuitem_t debuggingoptions[] = 
+{
+	{OPT_Switch,  "Framerate Counter",    YesNo,  2,  &debug_fps, NULL, NULL},
+	{OPT_Switch,  "Show HOM Errors",    YesNo,  2,  &debug_hom, NULL, "showhom"},
+	
+	{OPT_Switch,  "Show Position Coords",    YesNo,  2,  &debug_pos, NULL, NULL},
+	{OPT_Switch,  "Dithering (PowerVR)",    YesNo,  2,  &var_dithering, NULL, "powervr"}
+	
+	
+} */
+
+
 static menuinfo_t video_optmenu = 
 {
 	vidoptions, sizeof(vidoptions) / sizeof(optmenuitem_t),
 	&video_style, 150, 77, "M_VIDEO", NULL, 0, ""
 };
 
-// for advanced submenu
+// for advanced video options
 // advancedoptions[], m_ADVANCED
 static menuinfo_t advanced_optmenu = 
 {
@@ -467,13 +485,13 @@ static optmenuitem_t analogueoptions[] =
 	{OPT_Slider,   "Y Sensitivity",      NULL, 16, &mouse_ysens, NULL, NULL},
 	{OPT_Plain,    "",                   NULL, 0,  NULL, NULL, NULL},
 
-	{OPT_Switch,   "Joystick Device", JoyDevs, 7,  &joystick_device, NULL, NULL},
+/* 	{OPT_Switch,   "Joystick Device", JoyDevs, 7,  &joystick_device, NULL, NULL},
 	{OPT_Switch,   "First Axis",         Axis, 11, &joy_axis[0], NULL, NULL},
 	{OPT_Switch,   "Second Axis",        Axis, 11, &joy_axis[1], NULL, NULL},
 	{OPT_Switch,   "Third Axis",         Axis, 11, &joy_axis[2], NULL, NULL},
 	{OPT_Switch,   "Fourth Axis",        Axis, 11, &joy_axis[3], NULL, NULL},
 	{OPT_Switch,   "Fifth Axis",         Axis, 11, &joy_axis[4], NULL, NULL},
-	{OPT_Switch,   "Sixth Axis",         Axis, 11, &joy_axis[5], NULL, NULL},
+	{OPT_Switch,   "Sixth Axis",         Axis, 11, &joy_axis[5], NULL, NULL}, */
 
 	{OPT_Plain,    "",                   NULL, 0,  NULL, NULL, NULL},
 	{OPT_Slider,   "Turning Speed",      NULL, 12, &var_turnspeed,    NULL, NULL},
@@ -1080,7 +1098,7 @@ bool M_OptResponder(event_t * ev, int ch)
 
 		if (ev->type != ev_keydown)
 			return false;
-		int key = ev->value.key.sym;
+		int key = ev->data1;
 
 		keyscan = 0;
 
@@ -1579,7 +1597,7 @@ static void M_ChangeMipMap(int keypressed)
 	W_DeleteAllImages();
 }
 
-//#if 0
+#if 0
 static void M_ChangeShadows(int keypressed)
 {
 	if (currmap && ((currmap->force_on | currmap->force_off) & MPF_Shadows))
@@ -1595,7 +1613,7 @@ static void M_ChangeHalos(int keypressed)
 
 	level_flags.halos = global_flags.halos;
 }
-//#endif
+#endif
 
 static void M_ChangeKicking(int keypressed)
 {
@@ -1622,6 +1640,13 @@ static void M_ChangeCrossHair(int keypressed)
 {
 	r_crosshair = menu_crosshair;
 }
+
+static void M_ChangeCrossHairSize(int keypressed)
+{
+	r_crosssize = menu_crosshair2;
+}
+
+
 
 
 //
@@ -1779,6 +1804,9 @@ void M_Options(int choice)
 
 	// hack
 	menu_crosshair = CLAMP(0, r_crosshair.d, 9);
+	
+	menu_crosshair2 = CLAMP(0, r_crosssize.f, 15);
+	// continued
 }
 
 

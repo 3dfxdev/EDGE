@@ -1493,7 +1493,7 @@ bool M_Responder(event_t * ev)
 	if (ev->type != ev_keydown)
 		return false;
 
-	int ch = ev->value.key.sym;
+	int ch = ev->data1;
 
 	// -ACB- 1999/10/11 F1 is responsible for print screen at any time
 	if (ch == KEYD_F1 || ch == KEYD_PRTSCR)
@@ -2051,6 +2051,19 @@ void M_Drawer(void)
 		HUD_DrawImage(sx, sy, menu_skull[whichSkull]);
 	}
 }
+
+// called at splitscreen changes
+// easy way to draw additional menu if it detects splitscreen!
+/*
+void M_SwitchSplitscreen()
+{
+  // activate setup for player 2
+  if (cv_splitscreen.value)
+    MultiPlayer_MI[MI_mp_setup_p2].flags = IT_ACT;
+  else
+    MultiPlayer_MI[MI_mp_setup_p2].flags = IT_OFF_BIG;
+}
+*/
 
 void M_ClearMenus(void)
 {

@@ -345,4 +345,3 @@ void matrix_mult(const float m[16],const float vec_in[3],float vec_out[3]) {
 		vec_out[i]=m[0*4+i]*vec_in[0] + m[1*4+i]*vec_in[1] + m[2*4+i]*vec_in[2] + m[3*4+i];
 	}
 }
-

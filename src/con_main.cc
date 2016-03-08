@@ -53,7 +53,7 @@ con_cmd_t;
 extern const con_cmd_t builtin_commands[];
 
 extern void M_ChangeLevelCheat(const char *string);
-extern void I_ShowJoysticks(void);
+/* extern void I_ShowJoysticks(void); */
 extern void M_QuitFinally(void);
 
 
@@ -365,12 +365,12 @@ int CMD_ShowKeys(char **argv, int argc)
 #endif
 	return 0;
 }
-
+/* 
 int CMD_ShowJoysticks(char **argv, int argc)
 {
 	I_ShowJoysticks();
 	return 0;
-}
+} */
 
 
 int CMD_Help(char **argv, int argc)
@@ -493,7 +493,7 @@ const con_cmd_t builtin_commands[] =
 //	{ "resetkeys",      CMD_ResetKeys },
 	{ "resetvars",      CMD_ResetVars },
 	{ "showfiles",      CMD_ShowFiles },
-  	{ "showjoysticks",  CMD_ShowJoysticks },
+/*   	{ "showjoysticks",  CMD_ShowJoysticks }, */
 //	{ "showkeys",       CMD_ShowKeys },
 	{ "showlumps",      CMD_ShowLumps },
 	{ "showcmds",       CMD_ShowCmds },

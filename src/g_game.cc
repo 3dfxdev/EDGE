@@ -24,6 +24,7 @@
 //----------------------------------------------------------------------------
 
 #include "i_defs.h"
+#include "i_sdlinc.h"
 
 #include <time.h>
 #include <limits.h>
@@ -322,10 +323,13 @@ void G_DoLoadLevel(void)
 // 
 bool G_Responder(event_t * ev)
 {
+	SDL_Keysym *sym; 
 	// any other key pops up menu if in demos
 	if (gameaction == ga_nothing && (gamestate == GS_TITLESCREEN))
 	{
-		if (ev->type == ev_keydown)
+		if (ev->type == ev_keydown ||  
+	    (ev->type == ev_mouse && ev->data1) || 
+	    (ev->type == ev_joystick && ev->data1) )
 		{
 			M_StartControlPanel();
 			S_StartFX(sfx_swtchn, SNCAT_UI);
@@ -335,7 +339,7 @@ bool G_Responder(event_t * ev)
 		return false;
 	}
 
-	if (ev->type == ev_keydown && ev->value.key.sym == KEYD_F12)
+	if (ev->type == ev_keydown && ev->data1 == KEYD_F12)
 	{
 		// 25-6-98 KM Allow spy mode for demos even in deathmatch
 		if (gamestate == GS_LEVEL) //!!!! && !DEATHMATCH())
@@ -345,7 +349,7 @@ bool G_Responder(event_t * ev)
 		}
 	}
 
-	if (!netgame && ev->type == ev_keydown && E_MatchesKey(key_pause, ev->value.key.sym))
+	if (!netgame && ev->type == ev_keydown && E_MatchesKey(key_pause, ev->data1))
 	{
 		paused = !paused;
 

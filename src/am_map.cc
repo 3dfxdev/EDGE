@@ -25,9 +25,10 @@
 
 #include "i_defs.h"
 #include "i_defs_gl.h"
+#include "i_sdlinc.h"
 
 #include "con_main.h"
-#include "e_input.h"
+#include "e_input.h" /// <-- controls defined here. . . ?
 #include "hu_draw.h"
 #include "hu_style.h"
 #include "m_argv.h"
@@ -311,10 +312,12 @@ static void ChangeWindowScale(float factor)
 //
 bool AM_Responder(event_t * ev)
 {
-	int sym = ev->value.key.sym;
+	///int sym = ev->key.keysym;
+	int key;
+	int rc;
 
 	// check the enable/disable key
-	if (ev->type == ev_keydown && E_MatchesKey(key_map, sym))
+	if (ev->type == ev_keydown && E_MatchesKey(key_map, key))
 	{
 		if (automapactive)
 			AM_Hide();
@@ -330,13 +333,16 @@ bool AM_Responder(event_t * ev)
 
 	if (ev->type == ev_keyup)
 	{
-		if (E_MatchesKey(key_am_left, sym) || E_MatchesKey(key_am_right, sym))
+		rc = false;
+		key = ev->data1;
+		
+		if (key == key_am_left || key == key_am_right)
 			panning_x = 0;
 
-		if (E_MatchesKey(key_am_up, sym) || E_MatchesKey(key_am_down, sym))
+		if (key == key_am_up || key == key_am_down)
 			panning_y = 0;
 
-		if (E_MatchesKey(key_am_zoomin, sym) || E_MatchesKey(key_am_zoomout, sym))
+		if (key == key_am_zoomin || key == key_am_zoomout)
 			zooming = -1;
 
 		return false;
@@ -346,43 +352,46 @@ bool AM_Responder(event_t * ev)
 
 	if (ev->type != ev_keydown)
 		return false;
+	
+		rc = true;
+        key = ev->data1;
 
 	if (! followplayer)
 	{
-		if (E_MatchesKey(key_am_left, sym))
+		if (key == key_am_left)
 		{
 			panning_x = -FTOM(F_PANINC);
 			return true;
 		}
-		else if (E_MatchesKey(key_am_right, sym))
+		else if (key == key_am_right)
 		{
 			panning_x = FTOM(F_PANINC);
 			return true;
 		}
-		else if (E_MatchesKey(key_am_up, sym))
+		else if (key == key_am_up)
 		{
 			panning_y = FTOM(F_PANINC);
 			return true;
 		}
-		else if (E_MatchesKey(key_am_down, sym))
+		else if (key == key_am_down)
 		{
 			panning_y = -FTOM(F_PANINC);
 			return true;
 		}
 	}
 
-	if (E_MatchesKey(key_am_zoomin, sym))
+	if (key == key_am_zoomin)
 	{
 		zooming = M_ZOOMIN;
 		return true;
 	}
-	else if (E_MatchesKey(key_am_zoomout, sym))
+	else if (key == key_am_zoomout)
 	{
 		zooming = 1.0 / M_ZOOMIN;
 		return true;
 	}
 
-	if (E_MatchesKey(key_am_follow, sym))
+	if (key == key_am_follow)
 	{
 		followplayer = !followplayer;
 
@@ -395,7 +404,7 @@ bool AM_Responder(event_t * ev)
 		return true;
 	}
 
-	if (E_MatchesKey(key_am_grid, sym))
+	if (key == key_am_grid)
 	{
 		grid = !grid;
 		// -ACB- 1998/08/10 Use DDF Lang Reference
@@ -407,7 +416,7 @@ bool AM_Responder(event_t * ev)
 		return true;
 	}
 
-	if (E_MatchesKey(key_am_mark, sym))
+	if (key == key_am_mark)
 	{
 		// -ACB- 1998/08/10 Use DDF Lang Reference
 		CON_PlayerMessage(consoleplayer1, "%s %d",
@@ -416,7 +425,7 @@ bool AM_Responder(event_t * ev)
 		return true;
 	}
 
-	if (E_MatchesKey(key_am_clear, sym))
+	if (key == key_am_clear)
 	{
 		// -ACB- 1998/08/10 Use DDF Lang Reference
 		CON_PlayerMessageLDF(consoleplayer1, "AutoMapMarksClear");
@@ -425,19 +434,19 @@ bool AM_Responder(event_t * ev)
 	}
 
 	// -AJA- 2007/04/18: mouse-wheel support
-	if (sym == KEYD_WHEEL_DN)
+	if (key == KEYD_WHEEL_DN)
 	{
 		ChangeWindowScale(1.0 / WHEEL_ZOOMIN);
 		return true;
 	}
-	else if (sym == KEYD_WHEEL_UP)
+	else if (key == KEYD_WHEEL_UP)
 	{
 		ChangeWindowScale(WHEEL_ZOOMIN);
 		return true;
 	}
 
 	// -ACB- 1999/09/28 Proper casting
-	if (!DEATHMATCH() && M_CheckCheat(&cheat_amap, (char)sym))
+	if (!DEATHMATCH() && M_CheckCheat(&cheat_amap, (char)key))
 	{
 		cheating = (cheating + 1) % 3;
 

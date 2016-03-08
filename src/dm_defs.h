@@ -74,8 +74,6 @@ gamestate_e;
 #define MTF_EXFLOOR_SHIFT   10
 
 //HEXEN/LEGACY STUFF
-#define	FRACBITS		16
-#define	FRACUNIT		(1<<FRACBITS)
 
 typedef enum
 {
@@ -142,8 +140,10 @@ gameflags_t;
 // This is the stuff configured by Setup.Exe.
 // Most key data are simple ascii (uppercased).
 //
+/// Renamed the KEYD_KP stuff to simply KEYD_
 #define KEYD_TAB        9
-#define KEYD_ENTER      13
+//#define KEYD_ENTER      13
+#define KEYD_ENTER	13
 #define KEYD_ESCAPE     27
 #define KEYD_SPACE      32
 #define KEYD_BACKSPACE  127
@@ -180,23 +180,41 @@ gameflags_t;
 #define KEYD_F11        (0x80+0x57)
 #define KEYD_F12        (0x80+0x58)
 
-#define KEYD_KP0        (0x80+0x60)
-#define KEYD_KP1        (0x80+0x61)
-#define KEYD_KP2        (0x80+0x62)
-#define KEYD_KP3        (0x80+0x63)
-#define KEYD_KP4        (0x80+0x64)
-#define KEYD_KP5        (0x80+0x65)
-#define KEYD_KP6        (0x80+0x66)
-#define KEYD_KP7        (0x80+0x67)
-#define KEYD_KP8        (0x80+0x68)
-#define KEYD_KP9        (0x80+0x69)
-#define KEYD_KP_DOT     (0x80+0x6a)
-#define KEYD_KP_PLUS    (0x80+0x6b)
-#define KEYD_KP_MINUS   (0x80+0x6c)
-#define KEYD_KP_STAR    (0x80+0x6d)
-#define KEYD_KP_SLASH   (0x80+0x6e)
-#define KEYD_KP_EQUAL   (0x80+0x6f)
-#define KEYD_KP_ENTER   (0x80+0x70)
+/// Renamed all KEYD_KP -> KEYP_
+/* #define KEYP_0          0
+#define KEYP_1          KEY_END
+#define KEYP_2          KEY_DOWNARROW
+#define KEYP_3          KEY_PGDN
+#define KEYP_4          KEY_LEFTARROW
+#define KEYP_5          '5'
+#define KEYP_6          KEY_RIGHTARROW
+#define KEYP_7          KEY_HOME
+#define KEYP_8          KEY_UPARROW
+#define KEYP_9          KEY_PGUP
+#define KEYP_DIVIDE     '/'
+#define KEYP_PLUS       '+'
+#define KEYP_MINUS      '-'
+#define KEYP_MULTIPLY   '*'
+#define KEYP_PERIOD     0
+#define KEYP_EQUALS     KEY_EQUALS
+#define KEYP_ENTER      (0x80+0x70)//KEY_ENTER */
+#define KEYP_0        (0x80+0x60)
+#define KEYP_1        (0x80+0x61)
+#define KEYP_2        (0x80+0x62)
+#define KEYP_3        (0x80+0x63)
+#define KEYP_4        (0x80+0x64)
+#define KEYP_5        (0x80+0x65)
+#define KEYP_6        (0x80+0x66)
+#define KEYP_7        (0x80+0x67)
+#define KEYP_8        (0x80+0x68)
+#define KEYP_9       (0x80+0x69)
+#define KEYP_PERIOD     (0x80+0x6a)
+#define KEYP_PLUS    (0x80+0x6b)
+#define KEYP_MINUS   (0x80+0x6c)
+#define KEYP_MULTIPLY    (0x80+0x6d)
+#define KEYP_DIVIDE   (0x80+0x6e) ///KEYP_DIVIDE
+#define KEYP_EQUALS   (0x80+0x6f)
+#define KEYP_ENTER    (0x80+0x70)
 
 #define KEYD_PRTSCR     (0x80+0x54)
 #define KEYD_NUMLOCK    (0x80+0x45)
@@ -243,6 +261,33 @@ gameflags_t;
 // SPLITSCREEN
 #define SPLITSCREEN
 #define MAXSPLITSCREENPLAYERS	2
+
+#define SCANCODE_TO_KEYS_ARRAY {                                            \
+    0,   0,   0,   0,   'a',                                  /* 0-9 */     \
+    'b', 'c', 'd', 'e', 'f',                                                \
+    'g', 'h', 'i', 'j', 'k',                                  /* 10-19 */   \
+    'l', 'm', 'n', 'o', 'p',                                                \
+    'q', 'r', 's', 't', 'u',                                  /* 20-29 */   \
+    'v', 'w', 'x', 'y', 'z',                                                \
+    '1', '2', '3', '4', '5',                                  /* 30-39 */   \
+    '6', '7', '8', '9', '0',                                                \
+    KEYD_ENTER, KEYD_ESCAPE, KEYD_BACKSPACE, KEYD_TAB, ' ',       /* 40-49 */   \
+    KEYD_MINUS, KEYD_EQUALS, '[', ']', '\\',                                  \
+    0,   ';', '\'', '`', ',',                                 /* 50-59 */   \
+    '.', '/', KEYD_CAPSLOCK, KEYD_F1, KEYD_F2,                                 \
+    KEYD_F3, KEYD_F4, KEYD_F5, KEYD_F6, KEYD_F7,                   /* 60-69 */   \
+    KEYD_F8, KEYD_F9, KEYD_F10, KEYD_F11, KEYD_F12,                              \
+    KEYD_PRTSCR, KEYD_SCRLOCK, KEYD_PAUSE, KEYD_INSERT, KEYD_HOME,     /* 70-79 */   \
+    KEYD_PGUP, KEYD_DELETE, KEYD_END, KEYD_PGDN, KEYD_RIGHTARROW,                   \
+    KEYD_LEFTARROW, KEYD_DOWNARROW, KEYD_UPARROW,                /* 80-89 */   \
+    KEYD_NUMLOCK, KEYP_DIVIDE,                                               \
+    KEYP_MULTIPLY, KEYP_MINUS, KEYP_PLUS, KEYP_ENTER, KEYP_1,               \
+    KEYP_2, KEYP_3, KEYP_4, KEYP_5, KEYP_6,                   /* 90-99 */   \
+    KEYP_7, KEYP_8, KEYP_9, KEYP_0, KEYP_PERIOD,                            \
+    0, 0, 0, KEYP_EQUALS,                                     /* 100-103 */ \
+}
+
+#define arrlen(array) (sizeof(array) / sizeof(*array))
 
 #endif // __DEFINITIONS__
 

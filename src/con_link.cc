@@ -77,7 +77,7 @@ extern cvar_c s_musicvol, s_musicdevice;
 extern cvar_c tim_quietfactor;
 
 extern cvar_c debug_fullbright, debug_hom;
-extern cvar_c debug_mouse,      debug_joyaxis;
+extern cvar_c debug_mouse;      /* debug_joyaxis; */
 extern cvar_c debug_fps,        debug_pos;
 
 extern cvar_c r_lerp, r_maxfps, r_vsync;
@@ -121,12 +121,12 @@ cvar_link_t  all_cvars[] =
 	{ "in_running",     &in_running,     "c",   "0"  },
 	{ "in_stageturn",   &in_stageturn,   "c",   "1"  },
 	{ "in_warpmouse",   &in_warpmouse,   "c",   "1"  },
-
+/* 
 	{ "joy_dead",       &joy_dead,       "c",   "0.15" },
 	{ "joy_peak",       &joy_peak,       "c",   "0.95" },
-	{ "joy_tuning",     &joy_peak,       "c",   "1.0"  },
+	{ "joy_tuning",     &joy_peak,       "c",   "1.0"  }, */
 
-  	{ "mouse_filter",   &mouse_filter,   "c",   "0"  },
+  	{ "mouse_filter",   &mouse_filter,   "c",   "1"  },
 
 	{ "goobers",        &m_goobers,      "",    "0" },
 	{ "m_diskicon",     &m_diskicon,     "c",   "0"  },
@@ -157,7 +157,7 @@ cvar_link_t  all_cvars[] =
 	{ "r_dumbmulti",    &r_dumbmulti,     "",   "0"  },
 	{ "r_dumbcombine",  &r_dumbcombine,   "",   "0"  },
 	{ "r_dumbclamp",    &r_dumbclamp,     "",   "0"  },
-	{ "r_gl2_path",     &r_gl2_path,      "",   "1"  },
+	{ "r_gl2_path",     &r_gl2_path,      "",   "0"  },
 
 	{ "am_smoothing",   &am_smoothing,   "c",   "1"  },
 	{ "am_gridsize",    &am_gridsize,    "c",   "128" },
@@ -168,7 +168,7 @@ cvar_link_t  all_cvars[] =
 
 	{ "debug_fullbright", &debug_fullbright, "h", "0" },
 	{ "debug_hom",        &debug_hom,        "h", "0" },
-	{ "debug_joyaxis",    &debug_joyaxis,    "",  "0" },
+/* 	{ "debug_joyaxis",    &debug_joyaxis,    "",  "0" }, */
 	{ "debug_mouse",      &debug_mouse,      "",  "0" },
 	{ "debug_pos",        &debug_pos,        "h", "0" },
 	{ "debug_fps",        &debug_fps,        "c", "0" },

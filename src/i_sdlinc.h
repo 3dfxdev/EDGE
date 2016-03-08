@@ -19,11 +19,10 @@
 #ifndef __SDL_SYSTEM_INTERNAL_H__
 #define __SDL_SYSTEM_INTERNAL_H__
 
-#ifdef WIN32
-#include <L:/hyper3DGE/lib_win32/SDL/include/SDL.h> 
-#else
-#include <SDL2/SDL.h>
-#endif 
+
+#include <SDL.h>
+#include <SDL_keycode.h> /// Keys
+
 
 
 // workaround for old SDL version (< 1.2.10)
