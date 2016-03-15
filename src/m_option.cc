@@ -123,7 +123,7 @@ static int menu_crosshair;  // temp hack
 static int menu_crosshair2;  /// love haxxx
 extern int monitor_size;
 
-/* extern int joystick_device; */
+extern int joystick_device;
 
 //submenus
 static void M_KeyboardOptions(int keypressed);
@@ -485,13 +485,13 @@ static optmenuitem_t analogueoptions[] =
 	{OPT_Slider,   "Y Sensitivity",      NULL, 16, &mouse_ysens, NULL, NULL},
 	{OPT_Plain,    "",                   NULL, 0,  NULL, NULL, NULL},
 
-/* 	{OPT_Switch,   "Joystick Device", JoyDevs, 7,  &joystick_device, NULL, NULL},
+	{OPT_Switch,   "Joystick Device", JoyDevs, 7,  &joystick_device, NULL, NULL},
 	{OPT_Switch,   "First Axis",         Axis, 11, &joy_axis[0], NULL, NULL},
 	{OPT_Switch,   "Second Axis",        Axis, 11, &joy_axis[1], NULL, NULL},
 	{OPT_Switch,   "Third Axis",         Axis, 11, &joy_axis[2], NULL, NULL},
 	{OPT_Switch,   "Fourth Axis",        Axis, 11, &joy_axis[3], NULL, NULL},
 	{OPT_Switch,   "Fifth Axis",         Axis, 11, &joy_axis[4], NULL, NULL},
-	{OPT_Switch,   "Sixth Axis",         Axis, 11, &joy_axis[5], NULL, NULL}, */
+	{OPT_Switch,   "Sixth Axis",         Axis, 11, &joy_axis[5], NULL, NULL},
 
 	{OPT_Plain,    "",                   NULL, 0,  NULL, NULL, NULL},
 	{OPT_Slider,   "Turning Speed",      NULL, 12, &var_turnspeed,    NULL, NULL},
@@ -1098,7 +1098,7 @@ bool M_OptResponder(event_t * ev, int ch)
 
 		if (ev->type != ev_keydown)
 			return false;
-		int key = ev->data1;
+		int key = ev->value.key.sym;
 
 		keyscan = 0;
 

@@ -70,8 +70,10 @@ extern int deathmatch;
 //  status bar explicitely.
 extern bool statusbaractive;
 extern bool menuactive;  // Menu overlayed?
+extern bool allowmenu;          // Allow menu interaction?
 extern bool rts_menuactive;
 extern bool paused;  // Game Pause?
+extern bool mainmenuactive;
 extern bool viewactive;
 extern bool nodrawers;
 extern bool noblit;
@@ -151,9 +153,9 @@ extern bool singletics;
 
 extern bool splitscreen_mode;
 
-extern bool heretic_mode;
-
 extern int bodyqueslot;
+
+
 
 // Needed to store the number of the dummy sky flat.
 // Used for rendering, as well as tracking projectiles etc.
@@ -167,6 +169,9 @@ extern const image_c *skyflatimage;
 // Netgame stuff (buffers and pointers, i.e. indices).
 
 extern int maketic;
+
+extern  int         ticdup;
+extern  int         extratics;
 
 
 //misc stuff

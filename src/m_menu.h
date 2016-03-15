@@ -27,6 +27,7 @@
 #define __M_MENU__
 
 #include "e_event.h"
+#include "SDL_opengl.h"
 
 struct sfx_s;
   

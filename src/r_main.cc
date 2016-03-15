@@ -118,6 +118,53 @@ void RGL_SetupMatrices2D(void)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
+//
+// GL_SetOrtho
+//
+
+static byte checkortho = 0;
+
+void GL_SetOrtho(bool stretch) {
+    float width;
+    float height;
+
+    if(checkortho) {
+        if(widescreen) {
+            if(stretch && checkortho == 2) {
+                return;
+            }
+        }
+        else {
+            return;
+        }
+    }
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+
+    if(widescreen && !stretch) {
+        const float ratio = (4.0f / 3.0f);
+        float fitwidth = ViewHeight * ratio;
+        float fitx = (ViewWidth - fitwidth) / 2.0f;
+
+        glViewport(ViewWindowX + (int)fitx, ViewWindowY, (int)fitwidth, ViewHeight);
+    }
+
+    width = SCREENWIDTH;
+    height = SCREENHEIGHT;
+
+    if(glScaleFactor != 1.0f) {
+        width /= glScaleFactor;
+        height /= glScaleFactor;
+    }
+
+    glOrtho(0, width, height, 0, -1, 1);
+
+    checkortho = (stretch && widescreen) ? 2 : 1;
+}
+
 
 //
 // RGL_SetupMatrices3D

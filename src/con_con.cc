@@ -1,7 +1,8 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Console Interface code.
 //----------------------------------------------------------------------------
-// 
+//  Copyright (c) 2016 Isotope Softworks
+//  Copyright (c) Samuel Villarreal (Doom 64 EX)
 //  Copyright (c) 1999-2009  The EDGE2 Team.
 //  Copyright (c) 1998       Randy Heit
 // 
@@ -26,8 +27,6 @@
 
 #include "i_defs.h"
 #include "i_defs_gl.h"
-#include "i_sdlinc.h"
-#include "SDL_keycode.h"
 
 #include "../ddf/language.h"
 
@@ -966,12 +965,11 @@ void CON_HandleKey(int key, bool shift, bool ctrl)
 	}
 }
 
-static int GetKeycode(SDL_Keysym *sym)///(int key)
+/* static int GetKeycode(event_t *ev)
 {
-	int scancode = sym->scancode;
-    ///int sym = ev->sym;
+    int sym = ev->value.key.sym;
 
-	switch (scancode)
+	switch (sym)
 	{
 		case KEYD_TAB:
 		case KEYD_PGUP:
@@ -989,30 +987,66 @@ static int GetKeycode(SDL_Keysym *sym)///(int key)
 		case KEYD_ENTER:
 		case KEYD_ESCAPE:
 		case KEYD_RSHIFT:
-			return scancode;
+			return sym;
 
 		default:
 			break;
     }
 
-	/// SDL2-TODO...handle unicode or not..?
-/*     int unicode = ev->value.key.unicode;
+    int unicode = ev->value.key.unicode;
     if (HU_IS_PRINTABLE(unicode))
-        return unicode; */
+        return unicode;
 
-    if (HU_IS_PRINTABLE(scancode))
-        return scancode;
+    if (HU_IS_PRINTABLE(sym))
+        return sym;
 
     return -1;
-}
+} */
+
+static bool keyheld = false;
+static bool lastevent = 0;
+static int lastkey = 0;
+static int ticpressed = 0;
 
 bool CON_Responder(event_t * ev)
 {
-	SDL_Keysym *sym; ///add this here for SDL stuff!
-	if (ev->type != ev_keyup && ev->type != ev_keydown)
-		return false;
+	int c;
+    bool clearheld = true;
 
-	if (ev->type == ev_keydown && E_MatchesKey(key_console, ev->data1))
+    if((ev->type != ev_keyup) && (ev->type != ev_keydown)) 
+	{
+        return false;
+    }
+	
+	c = ev->data1;
+    lastkey = c;
+    lastevent = ev->type;
+
+    if(ev->type == ev_keydown && !keyheld) 
+	{
+        keyheld = true;
+        ticpressed = CON_WIPE_TICS;
+    }
+    else 
+	{
+        keyheld = false;
+        ticpressed = 0;
+    }
+
+/*     if(c == KEYD_SHIFT)
+	{
+        if(ev->type == ev_keydown) 
+		{
+            shiftdown = true;
+        }
+        else if(ev->type == ev_keyup) 
+		{
+            shiftdown = false;
+        }
+    } */
+
+	/// Pulling console down.
+	if (ev->type == ev_keydown) /// && E_MatchesKey(key_console, ev->value.key.sym)
 	{
 		CON_SetVisible(vs_toggle);
 		return true;
@@ -1021,16 +1055,16 @@ bool CON_Responder(event_t * ev)
 	if (con_visible == vs_notvisible)
 		return false;
 
-	int key = GetKeycode(sym);
+/* 	int key = GetKeycode(ev);
 	if (key < 0)
-		return true;
+		return true; */
 
 	if (ev->type == ev_keyup)
 	{
-		if (key == repeat_key)
+		if (c == repeat_key)
 			repeat_countdown = 0;
 
-		switch (key)
+		switch (c)
 		{
 			case KEYD_PGUP:
 			case KEYD_PGDN:
@@ -1046,7 +1080,7 @@ bool CON_Responder(event_t * ev)
 	else
 	{
 		// Okay, fine. Most keys don't repeat
-		switch (key)
+		switch (c)
 		{
 			case KEYD_RIGHTARROW:
 			case KEYD_LEFTARROW:
@@ -1062,19 +1096,28 @@ bool CON_Responder(event_t * ev)
 				break;
 		}
 
-		repeat_key = key;
+		repeat_key = c;
 
-		CON_HandleKey(key, KeysShifted, false);
+		CON_HandleKey(c, KeysShifted, false);
 	}
 
 	return true;  // eat all keyboard events
 }
 
+
 void CON_Ticker(void)
 {
 	con_cursor = (con_cursor + 1) & 31;
+	
+	if (con_visible == vs_notvisible)
+		return;
 
-	if (con_visible != vs_notvisible)
+/*     if(keyheld && ((CON_WIPE_TICS - ticpressed) >= 15)) 
+	{
+        CON_HandleKey(lastkey);
+    } */
+
+ if (con_visible != vs_notvisible)
 	{
 		// Handle repeating keys
 		switch (scroll_dir)

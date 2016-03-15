@@ -44,6 +44,7 @@
 #include "../epi/path.h"
 #include "../epi/utility.h"
 
+
 #include "am_map.h"
 #include "con_gui.h"
 #include "con_main.h"
@@ -86,6 +87,7 @@
 #include "version.h"
 #include "vm_coal.h"
 #include "z_zone.h"
+
 
 
 #define E_TITLE  "EDGE2 v" EDGEVERSTR
@@ -262,7 +264,8 @@ static void SetGlobalVars(void)
 	int p;
 	const char *s;
 
-	// Screen Resolution Check...
+/* 	// Screen Resolution Check...
+
 	s = M_GetParm("-width");
 	if (s)
 		SCREENWIDTH = atoi(s);
@@ -291,9 +294,9 @@ static void SetGlobalVars(void)
 	// restrict depth to allowable values
 	if (SCREENBITS < 15) SCREENBITS = 15;
 	else if (SCREENBITS > 32) SCREENBITS = 32;
-
-	M_CheckBooleanParm("windowed",   &FULLSCREEN, true);
-	M_CheckBooleanParm("fullscreen", &FULLSCREEN, false);
+ */
+/* 	M_CheckBooleanParm("windowed",   &FULLSCREEN, true);
+	M_CheckBooleanParm("fullscreen", &FULLSCREEN, false); */
 
 	// sprite kludge (TrueBSP)
 	p = M_CheckParm("-spritekludge");
@@ -450,16 +453,16 @@ static void DoSystemStartup(void)
 
 	// -ES- 1998/09/11 Use R_ChangeResolution to enter gfx mode
 
-	R_DumpResList();
+	///R_DumpResList();
 
 	// -KM- 1998/09/27 Change res now, so music doesn't start before
 	// screen.  Reset clock too.
 	I_Debugf("- Changing Resolution...\n");
 
-	R_InitialResolution();
+	///R_InitialResolution();
 
 	RGL_Init();
-	R_SoftInitResolution();
+	///R_SoftInitResolution();
 
 	I_Debugf("- System startup done.\n");
 }
@@ -485,7 +488,7 @@ static void M_DisplayPause(void)
 
 
 wipetype_e wipe_method = WIPE_Melt;
-int wipe_reverse = 0;
+int wipe_reverse = 1;
 
 static bool need_wipe = false;
 
@@ -584,6 +587,7 @@ void E_Display(void)
 
 	if (wipe_gl_active)
 	{
+		paused = true; //maybe this will pause the game?
 		// -AJA- Wipe code for GL.  Sorry for all this ugliness, but it just
 		//       didn't fit into the existing wipe framework.
 		//
@@ -591,6 +595,7 @@ void E_Display(void)
 		{
 			RGL_StopWipe();
 			wipe_gl_active = false;
+			paused = false;
 		}
 	}
 
@@ -599,12 +604,13 @@ void E_Display(void)
 	{
 		need_wipe = false;
 		wipe_gl_active = true;
+		//paused = true;
 
 		RGL_InitWipe(wipe_reverse, wipe_method);
 	}
 
-	if (paused)
-		M_DisplayPause();
+/* 	if (paused)
+		M_DisplayPause(); */
 
 	// menus go directly to the screen
 	M_Drawer();  // menu is drawn even on top of everything (except console)
@@ -822,6 +828,7 @@ void InitDirectories(void)
     {
         ewadfile = epi::PATH_Join(home_dir.c_str(), "edge2.wad");
 	}
+
 
 	// cache directory
     cache_dir = epi::PATH_Join(home_dir.c_str(), CACHEDIR);

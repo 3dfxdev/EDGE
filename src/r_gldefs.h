@@ -64,6 +64,9 @@ void RGL_SetupMatrices3D(void);
 #define LT_GRN(light)  (MIN(255,light) * ren_grn_mul / 255.0f)
 #define LT_BLU(light)  (MIN(255,light) * ren_blu_mul / 255.0f)
 
+void GL_SetOrthoScale(float scale);
+float GL_GetOrthoScale(void);
+
 
 //
 // RGL_TEX
@@ -334,6 +337,17 @@ bool MIR_Reflective(void);
 float MIR_XYScale(void);
 float MIR_ZScale(void);
 
+//
+//   SHADOWS (simple)
+//
+
+/* extern simple_shadow_params_t simple_shadows;
+extern int gl_shadows_maxdist;
+extern int gl_shadows_factor;
+
+void RGL_InitShadows(void);
+void RGL_ProcessThingShadow(mobj_t *mo);
+void RGL_RenderShadows(void); */
 
 #endif /* __RGL_DEFS_H__ */
 

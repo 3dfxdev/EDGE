@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE2 Main Menu Code
+//  EDGE2 Main Menu and Options Code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE2 Team.
+//  Copyright (c) 2016 Isotope SoftWorks
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -23,12 +23,13 @@
 //
 //----------------------------------------------------------------------------
 //
-// See M_Option.C for text built menus.
 //
-// -KM- 1998/07/21 Add support for message input.
+//
+//
 //
 
 #include "i_defs.h"
+#include "i_defs_gl.h"
 
 #include "../epi/str_format.h"
 
@@ -38,8 +39,12 @@
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "dstrings.h"
+#include "e_input.h"
 #include "e_main.h"
 #include "g_game.h"
+#include "hu_draw.h"
+#include "hu_stuff.h"
+#include "hu_style.h"
 #include "f_interm.h"
 #include "hu_draw.h"
 #include "hu_stuff.h"
@@ -48,31 +53,100 @@
 #include "m_menu.h"
 #include "m_misc.h"
 #include "m_netgame.h"
-#include "m_option.h"
+/* #include "m_option.h" */
 #include "m_random.h"
 #include "n_network.h"
+#include "p_local.h"
 #include "p_setup.h"
 #include "am_map.h"
 #include "r_local.h"
-#include "r_draw.h"
-#include "r_modes.h"
-#include "r_colormap.h"
+#include "r_misc.h"
+#include "r_gldefs.h"
 #include "s_sound.h"
 #include "s_music.h"
+#include "s_timid.h"
 #include "sv_chunk.h"
 #include "sv_main.h"
 #include "w_wad.h"
 #include "z_zone.h"
 
+#include "r_draw.h"
+#include "r_modes.h"
+#include "r_colormap.h"
+#include "r_image.h"
+#include "w_wad.h"
+#include "r_wipe.h"
+
+#include "defaults.h"
+
+
+int option_menuon = 0;
+
+static style_c *save_style;
 
 //
-// defaulted values
+// definitions
 //
+
+#define MENUSTRINGSIZE      32
+
+#define SKULLXTEXTOFF       -24
+
+#define TEXTLINEHEIGHT      18
+#define MENUCOLORRED        D_RGBA(255, 0, 0, menualphacolor)
+#define MENUCOLORWHITE        D_RGBA(255, 255, 255, menualphacolor)
+#define MAXBRIGHTNESS        100
+
+//
+// fade-in/out stuff
+//
+
+void M_MenuFadeIn(void);
+void M_MenuFadeOut(void);
+void(*menufadefunc)(void) = NULL;
+
+static char     MenuBindBuff[256];
+static char     MenuBindMessage[256];
+static bool 	MenuBindActive = false;
+static bool 	showfullitemvalue[3] = { false, false, false};
+static int      levelwarp = 0;
+static bool 	wireframeon = false;
+static bool 	lockmonstersmon = false;
+static int      thermowait = 0;
+static int      m_aspectRatio = 0;
+static int      m_ScreenSize = 1;
+
+
+static bool     alphaprevmenu = false;
+static int          menualphacolor = 0xff;
 
 // Show messages has default, 0 = off, 1 = on
 int showMessages;
 
-cvar_c m_language;
+/// ========================== CVARS ==================
+
+extern cvar_c m_menufadetime;
+extern cvar_c m_menumouse;
+extern cvar_c m_cursorscale;
+extern cvar_c r_texturecombiner;
+extern cvar_c m_language;
+extern cvar_c r_crosshair;
+extern cvar_c r_crosssize;
+extern cvar_c r_lerp;
+extern cvar_c r_gl2_path;
+extern cvar_c r_md5scale;
+extern cvar_c debug_fps;
+extern cvar_c debug_pos;
+extern cvar_c r_vsync;
+extern cvar_c r_colorscale; /// find out what this means...
+extern cvar_c r_texnonpowresize; 
+extern cvar_c g_autoaim;
+extern cvar_c r_wipemethod;
+extern cvar_c g_jumping;
+
+static int menu_crosshair;  // temp hack
+static int menu_crosshair2;  /// love haxxx
+static void M_ChangeLanguage(int keypressed);
 
 int screen_hud;  // has default
 
@@ -95,19 +169,10 @@ static void (* message_input_routine)(const char *response) = NULL;
 
 static int chosen_epi;
 
-// SOUNDS
-sfx_t * sfx_swtchn;
-sfx_t * sfx_tink;
-sfx_t * sfx_radio;
-sfx_t * sfx_oof;
-sfx_t * sfx_pstop;
-sfx_t * sfx_stnmov;
-sfx_t * sfx_pistol;
-sfx_t * sfx_swtchx;
 //
-//  IMAGES USED
+//  IMAGES USED (we are completely removing menu images.)
 //
-static const image_c *therm_l;
+/* static const image_c *therm_l;
 static const image_c *therm_m;
 static const image_c *therm_r;
 static const image_c *therm_o;
@@ -129,7 +194,7 @@ static style_c *skill_style;
 static style_c *load_style;
 static style_c *save_style;
 static style_c *dialog_style;
-static style_c *sound_vol_style;
+static style_c *sound_vol_style; */
 
 //
 //  SAVE STUFF
@@ -198,96 +263,119 @@ static void DrawKeyword(int index, style_c *style, int y,
 	// }
 }
 
+static bool newmenu = false;    // 20120323 villsa
+
 
 //
 // MENU TYPEDEFS
 //
+
 typedef struct
 {
 	// 0 = no cursor here, 1 = ok, 2 = arrows ok
-	int status;
+	short status;
 
-  	// image for menu entry
-	char patch_name[10];
-	const image_c *image;
-	//const char *text; //this is to sub out from *image?
+	char name[64];
+	
 
   	// choice = menu item #.
   	// if status = 2, choice can be SLIDERLEFT or SLIDERRIGHT
-	void (* select_func)(int choice);
+	void (* select_func)(int choice); /// void (*routine)(int choice);
+	
 
 	// hotkey in menu
 	char alpha_key;
 }
 menuitem_t;
 
+typedef struct 
+{
+    cvar_c* mitem;
+    float    mdefault;
+} menudefault_t;
+
+typedef struct 
+{
+    int item;
+    float width;
+    cvar_c *mitem;
+} menuthermobar_t;
+
 typedef struct menu_s
 {
-	// # of menu items
-	int numitems;
+	short numitems; // # of menu items	 
+	bool textonly;
+	struct menu_s *prevMenu; // previous menu
+	menuitem_t *menuitems; // menu items	
 
-  // previous menu
-	struct menu_s *prevMenu;
-
-	// menu items
-	menuitem_t *menuitems;
-
-	// style variable
-	style_c **style_var;
-
-	// draw routine
-	void (* draw_func)(void);
-
-	// x,y of menu
-	int x, y;
-
-	// last item user was on in menu
-	int lastOn;
+	void (* draw_func)(void); // draw routine, void (*routine)(void); in DOOM64
+	char title[64];
+    short x;
+    short y;                  // x,y of menu
+	short lastOn;
+	bool           smallfont;          // draw text using small fonts
+    menudefault_t       *defaultitems;      // pointer to default values for cvars
+    short               numpageitems;       // number of items to display per page
+    short               menupageoffset;
+    float               scale;
+    char                **hints;
+    menuthermobar_t     *thermobars;
 }
 menu_t;
 
+
+typedef struct {
+    char    *name;
+    char    *action;
+} menuaction_t;
+
+
 // menu item skull is on
-static int itemOn;
-
-// skull animation counter
-static int skullAnimCounter;
-
-// which skull to draw
-static int whichSkull;
+short itemOn;
+short           itemSelected;
+short skullAnimCounter;
+short whichSkull;
 
 // current menudef
-static menu_t *currentMenu;
+static menu_t* currentMenu;
+static menu_t* nextmenu;
 
+extern menu_t ControlMenuDef;
+
+//------------------------------------------------------------------------
 //
 // PROTOTYPES
 //
-static void M_NewGame(int choice);
-//static void M_SplitGame(int choice);
-static void M_Episode(int choice);
-static void M_ChooseSkill(int choice);
-static void M_LoadGame(int choice);
-static void M_SaveGame(int choice);
+//------------------------------------------------------------------------
 
-// 25-6-98 KM
-extern void M_Options(int choice);
-static void M_LoadSavePage(int choice);
-static void M_ReadThis(int choice);
-static void M_ReadThis2(int choice);
-void M_EndGame(int choice);
+static void M_SetupNextMenu(menu_t * menudef);
+void M_ClearMenus(void);
 
-static void M_ChangeMessages(int choice);
-static void M_SfxVol(int choice);
-static void M_MusicVol(int choice);
-// static void M_Sound(int choice);
-
-static void M_FinishReadThis(int choice);
-static void M_LoadSelect(int choice);
-static void M_SaveSelect(int choice);
-static void M_ReadSaveStrings(void);
 static void M_QuickSave(void);
 static void M_QuickLoad(void);
 
-static void M_DrawMainMenu(void);
+static int M_StringWidth(const char *string);
+static int M_StringHeight(const char *string);
+static int M_BigStringWidth(const char *string);
+
+static void M_DrawThermo(int x, int y, int thermWidth, float thermDot);
+static void M_Return(int choice);
+static void M_ReturnToOptions(int choice);
+
+static void M_DrawSmbString(const char* text, menu_t* menu, int item);
+static void M_DrawSaveGameFrontend(menu_t* def);
+static void M_SetInputString(char* string, int len);
+static void M_Scroll(menu_t* menu, bool up);
+static bool M_SetThumbnail(int which);
+
+void M_StartControlPanel(void);
+
+//------------------------------------------------------------------------
+//
+// EPI PROTOTYPERS
+//
+//------------------------------------------------------------------------
+/* static void M_DrawMainMenu(void);
 static void M_DrawReadThis1(void);
 static void M_DrawReadThis2(void);
 static void M_DrawNewGame(void);
@@ -295,16 +383,19 @@ static void M_DrawEpisode(void);
 static void M_DrawSound(void);
 static void M_DrawLoad(void);
 static void M_DrawSave(void);
+static void M_DrawSaveLoadBorder(float x, float y, int len); */
 
-static void M_DrawSaveLoadBorder(float x, float y, int len);
-static void M_SetupNextMenu(menu_t * menudef);
-void M_ClearMenus(void);
-void M_StartControlPanel(void);
-// static void M_StopMessage(void);
+//------------------------------------------------------------------------
+//
+// MAIN MENU
+//
+//------------------------------------------------------------------------
+void M_NewGame(int choice);
+void M_Options(int choice);
+void M_LoadGame(int choice);
+void M_QuitDOOM(int choice);
+void M_QuitEDGE(int choice);
 
-//
-// DOOM MENU
-//
 typedef enum
 {
 	newgame = 0,
@@ -317,19 +408,33 @@ typedef enum
 }
 main_e;
 
-static menuitem_t MainMenu[] =
+menuitem_t MainMenu[] =
 {
-	{1, "M_NGAME",   NULL, M_NewGame, 'n'},
-	/*{1, "M_SGAME",   NULL, M_SplitGame, 'p'},*/
-	{1, "M_OPTION",  NULL, M_Options, 'o'},
-	{1, "M_LOADG",   NULL, M_LoadGame, 'l'},
-	{1, "M_SAVEG",   NULL, M_SaveGame, 's'},
-	// Another hickup with Special edition.
-	{1, "M_RDTHIS",  NULL, M_ReadThis, 'r'},
-	{1, "M_QUITG",   NULL, M_QuitEDGE, 'q'}
+    {1,"New Game",M_NewGame,'n'},
+    {1,"Options",M_Options,'o'},
+    {1,"Load Game",M_LoadGame,'l'},
+    {1,"Quit Game",M_QuitEDGE,'q'},
 };
 
-static menu_t MainDef =
+menu_t MainDef = {
+    main_end,
+    false,
+    NULL,
+    MainMenu,
+    NULL,
+    ".",
+    112,150,
+    0,
+    false,
+    NULL,
+    -1,
+    0,
+    1.0f,
+    NULL,
+    NULL
+};
+/* static menu_t MainDef =
+
 {
 	main_end,
 	NULL,
@@ -339,221 +444,889 @@ static menu_t MainDef =
 	97, 64,
 //Hypertension	37, 100, //97, 64
 	0
-};
+}; */
 
+//------------------------------------------------------------------------
 //
-// EPISODE SELECT
+// IN GAME MENU
 //
-// -KM- 1998/12/16 This is generated dynamically.
+//------------------------------------------------------------------------
+static void M_SaveGame(int choice);
+void M_Features(int choice);
+void M_QuitMainMenu(int choice);
+void M_ConfirmRestart(int choice);
+
+typedef enum {
+    pause_options = 0,
+    pause_mainmenu,
+    pause_restartlevel,
+    pause_features,
+    pause_loadgame,
+    pause_savegame,
+    pause_quitdoom,
+    pause_end
+} pause_e;
+
+menuitem_t PauseMenu[]= {
+    {1,"Options",M_Options,'o'},
+    {1,"Main Menu",M_QuitMainMenu,'m'},
+    {1,"Restart Level",M_ConfirmRestart,'r'},
+    {-3,"Features",M_Features,'f'},
+    {1,"Load Game",M_LoadGame,'l'},
+    {1,"Save Game",M_SaveGame,'s'},
+    {1,"Quit Game",M_QuitDOOM,'q'},
+};
+
+menu_t PauseDef = {
+    pause_end,
+    false,
+    NULL,
+    PauseMenu,
+    NULL,
+    "Pause",
+    112,80,
+    0,
+    false,
+    NULL,
+    -1,
+    0,
+    1.0f,
+    NULL,
+    NULL
+};
+
+//------------------------------------------------------------------------
 //
-static menuitem_t *EpisodeMenu = NULL;
+// QUIT GAME PROMPT
+//
+//------------------------------------------------------------------------
 
-static menuitem_t DefaultEpiMenu =
-{
-	1,  // status
-	"Working",  // name
-	NULL,  // image
-	NULL,  // select_func
-	'w'  // alphakey
+void M_QuitGame(int choice);
+void M_QuitGameBack(int choice);
+
+typedef enum {
+    quityes = 0,
+    quitno,
+    quitend
+} quitprompt_e;
+
+
+menuitem_t QuitGameMenu[]= {
+    {1,"Yes",M_QuitGame,'y'},
+    {1,"No",M_QuitGameBack,'n'},
 };
 
-static menu_t EpiDef =
-{
-	0,  //ep_end,  // # of menu items
-	&MainDef,  // previous menu
-	&DefaultEpiMenu,  // menuitem_t ->
-	&episode_style,
-	M_DrawEpisode,  // drawing routine ->
-	48, 63,  // x,y
-	0  // lastOn
+menu_t QuitDef = {
+    quitend,
+    false,
+    &PauseDef,
+    QuitGameMenu,
+    NULL,
+    "Quit DOOM?",
+    144,112,
+    quitno,
+    false,
+    NULL,
+    -1,
+    0,
+    1.0f,
+    NULL,
+    NULL
 };
 
-static menuitem_t SkillMenu[] =
+void M_QuitDOOM(int choice) 
 {
-	{1, "M_JKILL", NULL, M_ChooseSkill, 'p'},
-	{1, "M_ROUGH", NULL, M_ChooseSkill, 'r'},
-	{1, "M_HURT",  NULL, M_ChooseSkill, 'h'},
-	{1, "M_ULTRA", NULL, M_ChooseSkill, 'u'},
-	{1, "M_NMARE", NULL, M_ChooseSkill, 'n'}
+    M_SetupNextMenu(&QuitDef);
+}
+
+void M_QuitGame(int choice) 
+{
+    M_QuitEDGE;
+}
+
+void M_QuitGameBack(int choice) 
+{
+    M_SetupNextMenu(currentMenu->prevMenu);
+}
+
+
+//------------------------------------------------------------------------
+//
+// QUIT GAME PROMPT (From Main Menu)
+//
+//------------------------------------------------------------------------
+
+void M_QuitGame2(int choice);
+void M_QuitGameBack2(int choice);
+
+typedef enum {
+    quit2yes = 0,
+    quit2no,
+    quit2end
+} quit2prompt_e;
+
+menuitem_t QuitGameMenu2[]= {
+    {1,"Yes",M_QuitGame2,'y'},
+    {1,"No",M_QuitGameBack2,'n'},
 };
 
-static menu_t SkillDef =
-{
-	sk_numtypes,  // # of menu items
-	&EpiDef,  // previous menu
-	SkillMenu,  // menuitem_t ->
-	&skill_style,
-	M_DrawNewGame,  // drawing routine ->
-	48, 63,  // x,y 63
-	sk_medium  // lastOn
+menu_t QuitDef2 = {
+    quit2end,
+    false,
+    &MainDef,
+    QuitGameMenu2,
+    NULL,
+    "Quit DOOM?",
+    144,112,
+    quit2no,
+    false,
+    NULL,
+    -1,
+    0,
+    1.0f,
+    NULL,
+    NULL
 };
 
+void M_QuitDOOM2(int choice) {
+    M_SetupNextMenu(&QuitDef2);
+}
+
+void M_QuitGame2(int choice) {
+    M_QuitEDGE(0);
+}
+
+void M_QuitGameBack2(int choice) {
+    M_SetupNextMenu(currentMenu->prevMenu);
+}
+
+//------------------------------------------------------------------------
+//
+// EXIT TO MAIN MENU PROMPT
+//
+//------------------------------------------------------------------------
+
+void M_EndGame(int choice);
+
+typedef enum {
+    PMainYes = 0,
+    PMainNo,
+    PMain_end
+} prompt_e;
+
+menuitem_t PromptMain[]= {
+    {1,"Yes",M_EndGame,'y'},
+    {1,"No",M_ReturnToOptions,'n'},
+};
+
+menu_t PromptMainDef = {
+    PMain_end,
+    false,
+    &PauseDef,
+    PromptMain,
+    NULL,
+    "Quit To Main Menu?",
+    144,112,
+    PMainNo,
+    false,
+    NULL,
+    -1,
+    0,
+    1.0f,
+    NULL,
+    NULL
+};
+
+void M_QuitMainMenu(int choice) {
+    M_SetupNextMenu(&PromptMainDef);
+}
+
+//------------------------------------------------------------------------
+//
+// RESTART LEVEL PROMPT
+//
+//------------------------------------------------------------------------
+
+void M_RestartLevel(int choice);
+
+typedef enum {
+    RMainYes = 0,
+    RMainNo,
+    RMain_end
+} rlprompt_e;
+
+menuitem_t RestartConfirmMain[]= {
+    {1,"Yes",M_RestartLevel,'y'},
+    {1,"No",M_ReturnToOptions,'n'},
+};
+
+menu_t RestartDef = {
+    RMain_end,
+    false,
+    &PauseDef,
+    RestartConfirmMain,
+    NULL,
+    "Quit Current Game?",
+    144,112,
+    RMainNo,
+    false,
+    NULL,
+    -1,
+    0,
+    1.0f,
+    NULL,
+    NULL
+};
+
+void M_ConfirmRestart(int choice) {
+    M_SetupNextMenu(&RestartDef);
+}
+
+void M_RestartLevel(int choice) 
+{
+/*     if(!netgame) 
+	{
+        gameaction = ga_loadlevel;
+        nextmap = gamemap;
+        p->playerstate = PST_REBORN;
+    }
+
+    currentMenu->lastOn = itemOn;
+    M_ClearMenus(); */
+}
+
+//------------------------------------------------------------------------
+//
+// START NEW IN NETGAME NOTIFY
+//
+//------------------------------------------------------------------------
+
+void M_DrawStartNewNotify(void);
+void M_NewGameNotifyResponse(int choice);
+
+typedef enum 
+{
+    SNN_Ok = 0,
+    SNN_End
+} startnewnotify_e;
+
+menuitem_t StartNewNotify[]= 
+{
+    {1,"Ok",M_NewGameNotifyResponse,'o'}
+};
+
+menu_t StartNewNotifyDef = {
+    SNN_End,
+    false,
+    &PauseDef,
+    StartNewNotify,
+    M_DrawStartNewNotify,
+    " ",
+    144,112,
+    SNN_Ok,
+    false,
+    NULL,
+    -1,
+    0,
+    1.0f,
+    NULL,
+    NULL
+};
+
+void M_NewGameNotifyResponse(int choice) 
+{
+    M_SetupNextMenu(&MainDef);
+}
+
+void M_DrawStartNewNotify(void) 
+{
+    Draw_BigText(-1, 16, MENUCOLORRED , "You Cannot Start");
+    Draw_BigText(-1, 32, MENUCOLORRED , "A New Game On A Network");
+}
+
+//------------------------------------------------------------------------
+//
+// NEW GAME MENU
+//
+//------------------------------------------------------------------------
+
+void M_ChooseSkill(int choice);
+
+typedef enum {
+    killthings,
+    toorough,
+    hurtme,
+    violence,
+    nightmare,
+    newg_end
+} newgame_e;
+
+menuitem_t NewGameMenu[]= {
+    {1,"Be Gentle!",M_ChooseSkill, 'b'},
+    {1,"Bring It On!",M_ChooseSkill, 'r'},
+    {1,"Hurt Me Plenty!",M_ChooseSkill, 'i'},
+    {1,"Ultra-Violence!",M_ChooseSkill, 'w'},
+    {-3,"NIGHTMARE!!",M_ChooseSkill, 'h'},
+};
+
+menu_t NewDef = {
+    newg_end,
+    false,
+    &MainDef,
+    NewGameMenu,
+    NULL,
+    "Choose Your Skill...",
+    112,80,
+    toorough,
+    false,
+    NULL,
+    -1,
+    0,
+    1.0f,
+    NULL,
+    NULL
+};
+
+//------------------------------------------------------------------------
 //
 // OPTIONS MENU
 //
-typedef enum
+//------------------------------------------------------------------------
+
+void M_DrawOptions(void);
+void M_Controls(int choice);
+void M_Sound(int choice);
+void M_Display(int choice);
+void M_Video(int choice);
+void M_Misc(int choice);
+void M_Password(int choice);
+void M_Network(int choice);
+/* void M_Region(int choice); */
+
+typedef enum 
 {
-	endgame,
-	messages,
-	scrnsize,
-	option_empty1,
-	mousesens,
-	option_empty2,
-	soundvol,
-	opt_end
+    options_controls,
+    options_misc,
+    options_soundvol,
+    options_display,
+    options_video,
+    options_password,
+    options_network,
+    options_region,
+    options_return,
+    opt_end
+} options_e;
+
+menuitem_t OptionsMenu[]= {
+    {1,"Controls",M_Controls, 'c'},
+    {1,"Gameplay Options",M_Misc, 'e'},
+    {1,"Sound",M_Sound,'s'},
+    {1,"Display",M_Display, 'd'},
+    {1,"Video",M_Video, 'v'},
+    ///{1,"Language",M_ChangeLanguage, 'l'}, //M_Password, 'p'
+    {1,"Network",M_Network, 'n'},
+    {1,"Unused",NULL, 'f'},
+    {1,"/r Return",M_Return, 0x20}
+};
+
+char* OptionHints[opt_end]= 
+{
+    "control configuration",
+    "miscellaneous options for gameplay and other features",
+    "setup sound and music options",
+    "settings for screen display",
+    "configure video-specific options",
+    ///"set the default language",
+    "setup options for a network game",
+    "Unused",
+    NULL
+};
+
+menu_t OptionsDef = {
+    opt_end,
+    false,
+    &PauseDef,
+    OptionsMenu,
+    M_DrawOptions,
+    "Options",
+    170,80,
+    0,
+    false,
+    NULL,
+    -1,
+    0,
+    0.75f,
+    OptionHints,
+    NULL
+};
+
+void M_Options(int choice) {
+    M_SetupNextMenu(&OptionsDef);
 }
-options_e;
 
-//
-// Read This! MENU 1 & 2
-//
-
-static menuitem_t ReadMenu1[] =
-{
-	{1, "", NULL, M_ReadThis2, 0}
-};
-
-static menu_t ReadDef1 =
-{
-	1,
-	&MainDef,
-	ReadMenu1,
-	&menu_def_style,  // FIXME: maybe have READ_1 and READ_2 styles ??
-	M_DrawReadThis1,
-	280, 185,
-	0
-};
-
-static menuitem_t ReadMenu2[] =
-{
-	{1, "", NULL, M_FinishReadThis, 0}
-};
-
-static menu_t ReadDef2 =
-{
-	1,
-	&ReadDef1,
-	ReadMenu2,
-	&menu_def_style,  // FIXME: maybe have READ_1 and READ_2 styles ??
-	M_DrawReadThis2,
-	330, 175,
-	0
-};
-
-//
-// SOUND VOLUME MENU
-//
-typedef enum
-{
-	sfx_vol,
-	sfx_empty1,
-	music_vol,
-	sfx_empty2,
-	sound_end
+void M_DrawOptions(void) {
+    if(OptionsDef.hints[itemOn] != NULL) {
+        GL_SetOrthoScale(0.5f);
+        Draw_BigText(-1, 410, MENUCOLORWHITE, OptionsDef.hints[itemOn]);
+        GL_SetOrthoScale(OptionsDef.scale);
+    }
 }
-sound_e;
 
-static menuitem_t SoundMenu[] =
-{
-	{2, "M_SFXVOL", NULL, M_SfxVol, 's'},
-	{-1, "", NULL, 0},
-	{2, "M_MUSVOL", NULL, M_MusicVol, 'm'},
-	{-1, "", NULL, 0}
-};
-
-static menu_t SoundDef =
-{
-	sound_end,
-	&MainDef,  ///  &OptionsDef,
-	SoundMenu,
-	&sound_vol_style,
-	M_DrawSound,
-	80, 64,
-	0
-};
-
+//------------------------------------------------------------------------
 //
-// LOAD GAME MENU
+// MENU OPTIONS:: OPTION STRUCTURES
 //
-// Note: upto 10 slots per page
-//
-static menuitem_t LoadingMenu[] =
-{
-	{2, "", NULL, M_LoadSelect, '1'},
-	{2, "", NULL, M_LoadSelect, '2'},
-	{2, "", NULL, M_LoadSelect, '3'},
-	{2, "", NULL, M_LoadSelect, '4'},
-	{2, "", NULL, M_LoadSelect, '5'},
-	{2, "", NULL, M_LoadSelect, '6'},
-	{2, "", NULL, M_LoadSelect, '7'},
-	{2, "", NULL, M_LoadSelect, '8'},
-	{2, "", NULL, M_LoadSelect, '9'},
-	{2, "", NULL, M_LoadSelect, '0'}
+//------------------------------------------------------------------------
+
+void M_MiscChoice(int choice);
+void M_DrawMisc(void);
+
+
+/* CVAR_EXTERNAL(am_showkeymarkers);
+CVAR_EXTERNAL(am_showkeycolors);
+CVAR_EXTERNAL(am_drawobjects);
+CVAR_EXTERNAL(am_overlay);
+CVAR_EXTERNAL(r_skybox);
+CVAR_EXTERNAL(r_texnonpowresize);
+CVAR_EXTERNAL(i_interpolateframes);
+CVAR_EXTERNAL(p_usecontext);
+CVAR_EXTERNAL(compat_collision);
+CVAR_EXTERNAL(compat_limitpain);
+CVAR_EXTERNAL(compat_mobjpass);
+CVAR_EXTERNAL(compat_grabitems);
+CVAR_EXTERNAL(r_wipe);
+CVAR_EXTERNAL(r_rendersprites);
+CVAR_EXTERNAL(r_texturecombiner);
+CVAR_EXTERNAL(r_colorscale); */
+
+typedef enum {
+    misc_header1, /// "MENU OPTIONS"
+    misc_menufade,
+    misc_empty1, /// NULL
+    misc_menumouse,
+    misc_cursorsize,
+    misc_empty2, /// NULL
+    misc_header2, ///GAMEPLAY OPTIONS
+    misc_aim,
+	misc_mouse,
+    misc_jump,
+	misc_crouch,
+	misc_weaponkick,
+	misc_weaponautoswitch,
+	misc_obituary,
+	misc_moreblood,
+	misc_extras,
+	misc_true3d,
+	misc_pass_missile,
+	misc_gravity, ///needs to be a scaled slider
+	misc_enemyrespawn,
+	misc_itemrespawn,
+	misc_fastmonsters,
+	misc_respawn,
+    misc_context, ///use context...?
+    misc_header3, /// Rendering Stuff (?)
+    misc_wipe_method,
+    misc_texresize, /// interesting?
+    misc_frame,
+    misc_combine,
+    misc_sprites,
+    misc_skybox,
+    misc_rgbscale,
+/*     misc_header4, /// AUTOMAP OPTIONS
+    misc_showkey,
+    misc_showlocks,
+    misc_amobjects,
+    misc_amoverlay,
+    misc_header5, /// VANILLA COMPATIBILITY FLAGS
+    misc_comp_collision,
+    misc_comp_pain,
+    misc_comp_pass,
+    misc_comp_grab, */
+    misc_default,
+    misc_return,
+    misc_end
+} misc_e;
+
+static menuitem_t MiscMenu[]= {
+    {-1,"Menu Options",0 },
+    {3,"Menu Fade Speed",M_MiscChoice, 'm' },
+    {-1,"",0 },
+    {2,"Show Cursor:",M_MiscChoice, 'h'},
+    {3,"Cursor Scale:",M_MiscChoice,'u'},
+    {-1,"",0 },
+    {-1,"Gameplay Options",0 }, /// HEADER 2
+    {2,"Auto Aim:",M_MiscChoice, 'a'},
+    {2,"Jumping:",M_MiscChoice, 'j'},
+	{2,"Crouching:",M_MiscChoice },
+	{2,"Weapon Kick:",M_MiscChoice },
+	{2,"Weapon AutoSwitch:",M_MiscChoice },
+	{2,"Obituary Messages:",M_MiscChoice },
+	{2,"More Blood:",M_MiscChoice },
+	{2,"Extras:",M_MiscChoice },
+	{2,"True 3D Gameplay:",M_MiscChoice },
+	{2,"Shoot-thru Scenery:",M_MiscChoice },
+	{2,"Gravity:",M_MiscChoice },
+	{2,"Enemy Respawn Mode:",M_MiscChoice },
+	{2,"Item Respawn:",M_MiscChoice },
+	{2,"Fast Monsters:",M_MiscChoice },
+	{2,"Respawn:",M_MiscChoice },
+    {2,"Use Context:",M_MiscChoice, 'u'},
+    {-1,"Rendering",0 },
+    {11,"Screen Melt:",M_MiscChoice, 's' }, ///11 possibile values, with fade being default
+    {2,"Texture Fit:",M_MiscChoice,'t' },
+    {2,"Interpolation:",M_MiscChoice, 'f' },
+    {2,"Use Combiners:",M_MiscChoice, 'c' },
+    {2,"Sprite Pitch:",M_MiscChoice,'p'},
+    {2,"Skybox:",M_MiscChoice,'k'},
+    {2,"Color Scale:",M_MiscChoice,'o'},
+/*     {-1,"Automap",0 },
+    {2,"Key Pickups:",M_MiscChoice },
+    {2,"Locked Doors:",M_MiscChoice },
+    {2,"Draw Objects:",M_MiscChoice },
+    {2,"Overlay:",M_MiscChoice },
+    {-1,"N64 Compatibility",0 },
+    {2,"Collision:",M_MiscChoice,'c' },
+    {2,"Limit Lost Souls:",M_MiscChoice,'l'},
+    {2,"Tall Actors:",M_MiscChoice,'i'},
+    {2,"Grab High Items:",M_MiscChoice,'g'}, */
+    {-2,"Default",M_ResetDefaults,'d'},
+    {1,"/r Return",M_Return, 0x20}
 };
 
-static menu_t LoadDef =
-{
-	SAVE_SLOTS,
-	&MainDef,
-	LoadingMenu,
-	&load_style,
-	M_DrawLoad,
-	30, 34,
-	0
+char* MiscHints[misc_end]= {
+    NULL,
+    "change transition speeds between switching menus",
+    NULL,
+    "enable menu cursor",
+    "set the size of the mouse cursor",
+    NULL,
+    NULL,
+    "toggle classic style auto-aiming",
+    "toggle the ability to jump",
+	"toggle the ability to crouch",
+	"if enabled, screen will give weapon kick feedback",
+	"if enabled, weapons will auto-switch",
+	"toggle obituary messages upon death",
+	"if enabled, extra blood will be spawned",
+	"toggle Extras, such as rain (anything with EXTRA flag)",
+	"enable true-3D gameplay (3DGE feature)",
+	"if enabled, this will let shots go through scenery",
+	"set global gravity scale",
+	"set enemy respawn mode",
+	"set item respawn",
+	"toggle Fast Monsters, like in Nightmare Mode",
+	"respawn toggle",
+    "if enabled interactive objects will highlight when near",
+    NULL,
+    "enable the melt effect when completing a level",
+    "set how texture dimentions are stretched",
+    "interpolate between frames to achieve smooth framerate",
+    "use texture combining - not supported by low-end cards",
+    "toggles billboard sprite rendering",
+    "toggle skies to render either normally or as skyboxes",
+    "scales the overall color RGB",
+    /* NULL,
+    "display key pickups in automap",
+    "colorize locked doors accordingly to the key in automap",
+    "set how objects are rendered in automap",
+    "render the automap into the player hud",
+    NULL,
+    "surrounding blockmaps are not checked for an object",
+    "limit max amount of lost souls spawned by pain elemental to 17",
+    "emulate infinite height bug for all solid actors",
+    "be able to grab high items by bumping into the sector it sits on", */
+    NULL,
+    NULL
 };
 
-//
-// SAVE GAME MENU
-//
-static menuitem_t SavingMenu[] =
+//set 3DGE CVARS HERE. . . . . . . . . . .
+menudefault_t MiscDefault[] = 
 {
-	{2, "", NULL, M_SaveSelect, '1'},
-	{2, "", NULL, M_SaveSelect, '2'},
-	{2, "", NULL, M_SaveSelect, '3'},
-	{2, "", NULL, M_SaveSelect, '4'},
-	{2, "", NULL, M_SaveSelect, '5'},
-	{2, "", NULL, M_SaveSelect, '6'},
-	{2, "", NULL, M_SaveSelect, '7'},
-	{2, "", NULL, M_SaveSelect, '8'},
-	{2, "", NULL, M_SaveSelect, '9'},
-	{2, "", NULL, M_SaveSelect, '0'}
+    { &m_menufadetime, 0 },
+    { &m_menumouse, 1 },
+    { &m_cursorscale, 8 },
+    ///{ &g_autoaim, 1 }, ///p_autoaim
+    { &g_jumping, 0 }, ///p_allowjump
+    { NULL, 0 }, ///use_context?
+    { &r_wipemethod, 1 }, ///r_wipe
+    { &r_texnonpowresize, 0 }, ///define r_texnonpowresize. . .
+    { &r_lerp, 0 }, ///i_interpolateframes
+    { &r_texturecombiner, 1 }, ///define r_texturecombiner(!)
+    { NULL, 1 }, ///I seem to remember some sort of weird sprite thingy...can't think of it anymore... D64: &r_rendersprites
+    { NULL, 0 }, ///um...don't need this really. . .
+    { &r_colorscale, 0 }, ///colorscale means...what exactly?
+    /* { &am_showkeymarkers, 0 },
+    { &am_showkeycolors, 0 },
+    { &am_drawobjects, 0 },
+    { &am_overlay, 0 },
+    { &compat_collision, 1 },
+    { &compat_limitpain, 1 },
+    { &compat_mobjpass, 1 },
+    { &compat_grabitems, 1 }, */
+    { NULL, -1 }
 };
 
-static menu_t SaveDef =
-{
-	SAVE_SLOTS,
-	&MainDef,
-	SavingMenu,
-	&save_style,
-	M_DrawSave,
-	30, 34,
-	0
+menuthermobar_t SetupBars[] = {
+    { misc_empty1, 80, &m_menufadetime },
+    { misc_empty2, 50, &m_cursorscale },
+    { -1, 0 }
 };
 
-// 98-7-10 KM Chooses the page of savegames to view
-void M_LoadSavePage(int choice)
+menu_t MiscDef = {
+    misc_end,
+    false,
+    &OptionsDef,
+    MiscMenu,
+    M_DrawMisc,
+    "Setup",
+    216,108,
+    0,
+    false,
+    MiscDefault,
+    14,
+    0,
+    0.5f,
+    MiscHints,
+    SetupBars
+};
+
+void M_Misc(int choice) 
 {
-	switch (choice)
+    M_SetupNextMenu(&MiscDef);
+}
+
+void M_MiscChoice(int choice) 
+{
+    switch(itemOn) 
+	
 	{
-		case SLIDERLEFT:
-			// -AJA- could use `OOF' sound...
-			if (save_page == 0)
-				return;
+		
+    case misc_menufade:
+	
+        if(choice) 
+			
+		{
+			
+            if(m_menufadetime.d < 80.0f) 
+				
+			{
+				
+                (m_menufadetime.d + 0.8f);
+				
+            }
+			
+            else 
+				
+			{
+                ///(m_menufadetime.f, 80);
+            }
+			
+        }
+        else 
+		{
+            if(m_menufadetime.d > 0.0f) 
+			{
+                (m_menufadetime.d - 0.8f);
+            }
+            else 
+			{
+                ///CON_CvarSetValue(m_menufadetime.name, 0);
+            }
+        }
+        break;
 
-			save_page--;
-			break;
-      
-		case SLIDERRIGHT:
-			if (save_page >= SAVE_PAGES-1)
-				return;
+    case misc_cursorsize:
+        if(choice) 
+		{
+            if(m_cursorscale.d < 50) 
+			{
+                (m_cursorscale.d + 0.5f);
+            }
+            else {
+                ///CON_CvarSetValue(m_cursorscale.name, 50);
+            }
+        }
+        else 
+		{
+            if(m_cursorscale.d > 0.0f) 
+			{
+                (m_cursorscale.d - 0.5f);
+            }
+            else {
+                ///CON_CvarSetValue(m_cursorscale.name, 0);
+            }
+        }
+        break;
 
-			save_page++;
+    case misc_menumouse:
+		/// M_SetOptionValue(int choice, cvar_link_t *name, const char *flags, const char *value);
+		/// extern bool CON_SetVar(const char *name, const char *flags, const char *value);
+        M_SetOptionValue(choice, 0, 1, 1, &m_menumouse);
+        break;
+
+    case misc_aim:
+        M_SetOptionValue(choice, 0, 1, 1, &p_autoaim);
+        break;
+
+    case misc_jump:
+        M_SetOptionValue(choice, 0, 1, 1, &p_allowjump);
+        break;
+
+    case misc_context:
+        M_SetOptionValue(choice, 0, 1, 1, &p_usecontext);
+        break;
+
+    case misc_wipe:
+        M_SetOptionValue(choice, 0, 1, 1, &r_wipe);
+        break;
+
+    case misc_texresize:
+        M_SetOptionValue(choice, 0, 2, 1, &r_texnonpowresize);
+        break;
+
+    case misc_frame:
+        M_SetOptionValue(choice, 0, 1, 1, &i_interpolateframes);
+        break;
+
+    case misc_combine:
+        M_SetOptionValue(choice, 0, 1, 1, &r_texturecombiner);
+        break;
+
+    case misc_sprites:
+        M_SetOptionValue(choice, 1, 2, 1, &r_rendersprites);
+        break;
+
+    case misc_skybox:
+        M_SetOptionValue(choice, 0, 1, 1, &r_skybox);
+        break;
+
+    case misc_rgbscale:
+        M_SetOptionValue(choice, 0, 2, 1, &r_colorscale);
+        break;
+
+    case misc_showkey:
+        M_SetOptionValue(choice, 0, 1, 1, &am_showkeymarkers);
+        break;
+
+    case misc_showlocks:
+        M_SetOptionValue(choice, 0, 1, 1, &am_showkeycolors);
+        break;
+
+    case misc_amobjects:
+        M_SetOptionValue(choice, 0, 2, 1, &am_drawobjects);
+        break;
+
+    case misc_amoverlay:
+        M_SetOptionValue(choice, 0, 1, 1, &am_overlay);
+        break;
+
+    case misc_comp_collision:
+        M_SetOptionValue(choice, 0, 1, 1, &compat_collision);
+        break;
+
+    case misc_comp_pain:
+        M_SetOptionValue(choice, 0, 1, 1, &compat_limitpain);
+        break;
+
+    case misc_comp_pass:
+        M_SetOptionValue(choice, 0, 1, 1, &compat_mobjpass);
+        break;
+
+    case misc_comp_grab:
+        M_SetOptionValue(choice, 0, 1, 1, &compat_grabitems);
+        break;
+    }
+}
+
+void M_DrawMisc(void) 
+{
+    static const char* frametype[2] = { "Capped", "Smooth" };
+    static const char* mapdisplaytype[2] = { "Hide", "Show" };
+    static const char* objectdrawtype[3] = { "Arrows", "Sprites", "Both" };
+    static const char* texresizetype[3] = { "Auto", "Padded", "Scaled" };
+    static const char* rgbscaletype[3] = { "1x", "2x", "4x" };
+    int y;
+
+    if(currentMenu->menupageoffset <= misc_menufade+1 &&
+            (misc_menufade+1) - currentMenu->menupageoffset < currentMenu->numpageitems) {
+        y = misc_menufade - currentMenu->menupageoffset;
+        M_DrawThermo(MiscDef.x,MiscDef.y+LINEHEIGHT*(y+1), 80, m_menufadetime.d);
+    }
+
+    if(currentMenu->menupageoffset <= misc_cursorsize+1 &&
+            (misc_cursorsize+1) - currentMenu->menupageoffset < currentMenu->numpageitems) {
+        y = misc_cursorsize - currentMenu->menupageoffset;
+        M_DrawThermo(MiscDef.x,MiscDef.y+LINEHEIGHT*(y+1), 50, m_cursorscale.d);
+    }
+
+#define DRAWMISCITEM(a, b, c) \
+    if(currentMenu->menupageoffset <= a && \
+        a - currentMenu->menupageoffset < currentMenu->numpageitems) \
+    { \
+        y = a - currentMenu->menupageoffset; \
+        Draw_BigText(MiscDef.x + 176, MiscDef.y+LINEHEIGHT*y, MENUCOLORRED, \
+            c[(int)b]); \
+    }
+
+    DRAWMISCITEM(misc_menumouse, m_menumouse.value, msgNames);
+    DRAWMISCITEM(misc_aim, p_autoaim.value, msgNames);
+    DRAWMISCITEM(misc_jump, p_allowjump.value, msgNames);
+    DRAWMISCITEM(misc_context, p_usecontext.value, mapdisplaytype);
+    DRAWMISCITEM(misc_wipe, r_wipe.value, msgNames);
+    DRAWMISCITEM(misc_texresize, r_texnonpowresize.value, texresizetype);
+    DRAWMISCITEM(misc_frame, i_interpolateframes.value, frametype);
+    DRAWMISCITEM(misc_combine, r_texturecombiner.value, msgNames);
+    DRAWMISCITEM(misc_sprites, r_rendersprites.value - 1, msgNames);
+    DRAWMISCITEM(misc_skybox, r_skybox.value, msgNames);
+    DRAWMISCITEM(misc_rgbscale, r_colorscale.value, rgbscaletype);
+    DRAWMISCITEM(misc_showkey, am_showkeymarkers.value, mapdisplaytype);
+    DRAWMISCITEM(misc_showlocks, am_showkeycolors.value, mapdisplaytype);
+    DRAWMISCITEM(misc_amobjects, am_drawobjects.value, objectdrawtype);
+    DRAWMISCITEM(misc_amoverlay, am_overlay.value, msgNames);
+    DRAWMISCITEM(misc_comp_collision, compat_collision.value, msgNames);
+    DRAWMISCITEM(misc_comp_pain, compat_limitpain.value, msgNames);
+    DRAWMISCITEM(misc_comp_pass, !compat_mobjpass.value, msgNames);
+    DRAWMISCITEM(misc_comp_grab, compat_grabitems.value, msgNames);
+
+#undef DRAWMISCITEM
+
+    if(MiscDef.hints[itemOn] != NULL) 
+	{
+        GL_SetOrthoScale(0.5f);
+        Draw_BigText(-1, 410, MENUCOLORWHITE, MiscDef.hints[itemOn]);
+        GL_SetOrthoScale(MiscDef.scale);
+    }
+}
+
+static int M_GetCurrentSwitchValue(menuitem_t *item)
+{
+	int retval = 0;
+
+	switch(item->type)
+	{
+		case OPT_Boolean:
+		{
+			retval = *(bool*)item->switchvar ? 1 : 0;
 			break;
+		}
+
+		case OPT_Switch:
+		{
+			retval = *(int*)(item->switchvar);
+			break;
+		}
+
+		default:
+		{
+			I_Error("M_GetCurrentSwitchValue: Menu item type is not a switch!\n");
+			break;
+		}
 	}
 
-	S_StartFX(sfx_swtchn);
-	M_ReadSaveStrings();
+	return retval;
 }
+
+/// M_ReadSaveStrings();
 
 //
 // Read the strings from the savegame files
@@ -660,131 +1433,13 @@ void M_ReadSaveStrings(void)
 	}
 }
 
-static void M_DrawSaveLoadCommon(int row, int row2, style_c *style)
-{
-	int y = LoadDef.y + LINEHEIGHT * row;
-
-	slot_extra_info_t *info;
-
-	char mbuffer[200];
-
-
-	sprintf(mbuffer, "PAGE %d", save_page + 1);
-
-	// -KM-  1998/06/25 This could quite possibly be replaced by some graphics...
-	if (save_page > 0)
-		HL_WriteText(style,2, LoadDef.x - 4, y, "< PREV");
-
-	HL_WriteText(style,2, LoadDef.x + 94 - style->fonts[2]->StringWidth(mbuffer) / 2, y,
-					  mbuffer);
-
-	if (save_page < SAVE_PAGES-1)
-		HL_WriteText(style,2, LoadDef.x + 192 - style->fonts[2]->StringWidth("NEXT >"), y,
-						  "NEXT >");
- 
-	info = ex_slots + itemOn;
-	SYS_ASSERT(0 <= itemOn && itemOn < SAVE_SLOTS);
-
-	if (saveStringEnter || info->empty || info->corrupt)
-		return;
-
-	// show some info about the savegame
-
-	y = LoadDef.y + LINEHEIGHT * (row2 + 1);
-
-	mbuffer[0] = 0;
-
-	strcat(mbuffer, info->timestr);
-
-	HL_WriteText(style,3, 310 - style->fonts[3]->StringWidth(mbuffer), y, mbuffer);
-
-
-	y -= LINEHEIGHT;
-    
-	mbuffer[0] = 0;
-
-	// FIXME: use the patches (but shrink them)
-	switch (info->skill)
-	{
-		case 0: strcat(mbuffer, "Too Young To Die"); break;
-		case 1: strcat(mbuffer, "Not Too Rough"); break;
-		case 2: strcat(mbuffer, "Hurt Me Plenty"); break;
-		case 3: strcat(mbuffer, "Ultra Violence"); break;
-		default: strcat(mbuffer, "NIGHTMARE"); break;
-	}
-
-	HL_WriteText(style,3, 310 - style->fonts[3]->StringWidth(mbuffer), y, mbuffer);
-
-
-	y -= LINEHEIGHT;
-  
-	mbuffer[0] = 0;
-
-	switch (info->netgame)
-	{
-		case 0: strcat(mbuffer, "SP MODE"); break;
-		case 1: strcat(mbuffer, "COOP MODE"); break;
-		default: strcat(mbuffer, "DM MODE"); break;
-	}
-  
-	HL_WriteText(style,3, 310 - style->fonts[3]->StringWidth(mbuffer), y, mbuffer);
-
-
-	y -= LINEHEIGHT;
-  
-	mbuffer[0] = 0;
-
-	strcat(mbuffer, info->mapname);
-
-	HL_WriteText(style,3, 310 - style->fonts[3]->StringWidth(mbuffer), y, mbuffer);
-}
-
-//
-// 1998/07/10 KM Savegame slots increased
-//
-void M_DrawLoad(void)
-{
-	int i;
-
-	HUD_DrawImage(72, 8, menu_loadg);
-      
-	for (i = 0; i < SAVE_SLOTS; i++)
-		M_DrawSaveLoadBorder(LoadDef.x + 8, LoadDef.y + LINEHEIGHT * (i), 24);
-
-	// draw screenshot ?
-
-	for (i = 0; i < SAVE_SLOTS; i++)
-		HL_WriteText(load_style, ex_slots[i].corrupt ? 3 : 0,
-		             LoadDef.x + 8, LoadDef.y + LINEHEIGHT * (i),
-					 ex_slots[i].desc);
-
-	M_DrawSaveLoadCommon(i, i+1, load_style);
-}
-
-
-//
-// Draw border for the savegame description
-//
-void M_DrawSaveLoadBorder(float x, float y, int len)
-{
-	const image_c *L = W_ImageLookup("M_LSLEFT");
-	const image_c *C = W_ImageLookup("M_LSCNTR");
-	const image_c *R = W_ImageLookup("M_LSRGHT");
-
-	HUD_DrawImage(x - IM_WIDTH(L), y + 7, L);
-
-	for (int i = 0; i < len; i++, x += IM_WIDTH(C))
-		HUD_DrawImage(x, y + 7, C);
-
-	HUD_DrawImage(x, y + 7, R);
-}
 
 //
 // User wants to load this game
 //
 // 98-7-10 KM Savegame slots increased
 //
-void M_LoadSelect(int choice)
+/* void M_LoadSelect(int choice)
 {
 	if (choice < 0)
 	{
@@ -792,14 +1447,16 @@ void M_LoadSelect(int choice)
 		return;
 	}
 
-	G_DeferredLoadGame(save_page * SAVE_SLOTS + choice);
-	M_ClearMenus();
-}
+	
+} */
+///G_DeferredLoadGame(save_page * SAVE_SLOTS + choice);
+	///M_ClearMenus();
+///
 
 //
 // Selected from DOOM menu
 //
-void M_LoadGame(int choice)
+/* void M_LoadGame(int choice)
 {
 	if (netgame)
 	{
@@ -809,12 +1466,12 @@ void M_LoadGame(int choice)
 
 	M_SetupNextMenu(&LoadDef);
 	M_ReadSaveStrings();
-}
+} */
 
 //
 // 98-7-10 KM Savegame slots increased
 //
-void M_DrawSave(void)
+/* void M_DrawSave(void)
 {
 	int i, len;
 
@@ -838,14 +1495,14 @@ void M_DrawSave(void)
 	}
 
 	M_DrawSaveLoadCommon(i, i+1, save_style);
-}
+} */
 
 //
 // M_Responder calls this when user is finished
 //
 // 98-7-10 KM Savegame slots increased
 //
-static void M_DoSave(int page, int slot)
+/* static void M_DoSave(int page, int slot)
 {
 	G_DeferredSaveGame(page * SAVE_SLOTS + slot, ex_slots[slot].desc);
 	M_ClearMenus();
@@ -858,12 +1515,12 @@ static void M_DoSave(int page, int slot)
 	}
 
 	LoadDef.lastOn = SaveDef.lastOn;
-}
+} */
 
 //
 // User wants to save. Start string input for M_Responder
 //
-void M_SaveSelect(int choice)
+/* void M_SaveSelect(int choice)
 {
 	if (choice < 0)
 	{
@@ -881,12 +1538,12 @@ void M_SaveSelect(int choice)
 		ex_slots[choice].desc[0] = 0;
 
 	saveCharIndex = strlen(ex_slots[choice].desc);
-}
+} */
 
 //
 // Selected from DOOM menu
 //
-void M_SaveGame(int choice)
+/* void M_SaveGame(int choice)
 {
 	if (gamestate != GS_LEVEL)
 	{
@@ -906,22 +1563,22 @@ void M_SaveGame(int choice)
 
 	need_save_screenshot = true;
 	save_screenshot_valid = false;
-}
+} */
 
 //
 //   M_QuickSave
 //
 
-static void QuickSaveResponse(int ch)
+/* static void QuickSaveResponse(int ch)
 {
 	if (ch == 'y')
 	{
 		M_DoSave(quickSavePage, quickSaveSlot);
 		S_StartFX(sfx_swtchx);
 	}
-}
+} */
 
-void M_QuickSave(void)
+/* void M_QuickSave(void)
 {
 	if (gamestate != GS_LEVEL)
 	{
@@ -946,9 +1603,9 @@ void M_QuickSave(void)
 				  ex_slots[quickSaveSlot].desc));
 
 	M_StartMessage(s.c_str(), QuickSaveResponse, true);
-}
+} */
 
-static void QuickLoadResponse(int ch)
+/* static void QuickLoadResponse(int ch)
 {
 	if (ch == 'y')
 	{
@@ -960,9 +1617,9 @@ static void QuickLoadResponse(int ch)
 		save_page = tempsavepage;
 		S_StartFX(sfx_swtchx);
 	}
-}
+} */
 
-void M_QuickLoad(void)
+/* void M_QuickLoad(void)
 {
 	if (netgame)
 	{
@@ -980,33 +1637,8 @@ void M_QuickLoad(void)
 					ex_slots[quickSaveSlot].desc));
 
 	M_StartMessage(s.c_str(), QuickLoadResponse, true);
-}
+} */
 
-//
-// Read This Menus
-// Had a "quick hack to fix romero bug"
-//
-void M_DrawReadThis1(void)
-{
-	HUD_StretchImage(0, 0, 320, 200, menu_readthis[0]);
-}
-
-//
-// Read This Menus - optional second page.
-//
-void M_DrawReadThis2(void)
-{
-	HUD_StretchImage(0, 0, 320, 200, menu_readthis[1]);
-}
-
-
-void M_DrawSound(void)
-{
-	HUD_DrawImage(60, 38, menu_svol);
-
-	M_DrawThermo(SoundDef.x, SoundDef.y + LINEHEIGHT * (sfx_vol   + 1), SND_SLIDER_NUM, sfx_volume, 1);
-	M_DrawThermo(SoundDef.x, SoundDef.y + LINEHEIGHT * (music_vol + 1), SND_SLIDER_NUM, mus_volume, 1);
-}
 
 #if 0
 void M_Sound(int choice)
@@ -1015,60 +1647,8 @@ void M_Sound(int choice)
 }
 #endif
 
-// -ACB- 1999/10/10 Sound API Volume re-added
-void M_SfxVol(int choice)
-{
-	switch (choice)
-	{
-		case SLIDERLEFT:
-			if (sfx_volume > 0)
-				sfx_volume--;
 
-			break;
-
-		case SLIDERRIGHT:
-			if (sfx_volume < SND_SLIDER_NUM-1)
-				sfx_volume++;
-
-			break;
-	}
-
-	S_ChangeSoundVolume();
-}
-
-// -ACB- 1999/10/07 Removed sound references: New Sound API
-void M_MusicVol(int choice)
-{
-	switch (choice)
-	{
-		case SLIDERLEFT:
-			if (mus_volume > 0)
-				mus_volume--;
-
-			break;
-
-		case SLIDERRIGHT:
-			if (mus_volume < SND_SLIDER_NUM-1)
-				mus_volume++;
-
-			break;
-	}
-
-	S_ChangeMusicVolume();
-}
-
-void M_DrawMainMenu(void)
-{
-	HUD_DrawImage(94, 2, menu_doom);
-}
-
-void M_DrawNewGame(void)
-{
-	HUD_DrawImage(96, 14, menu_newgame);
-	HUD_DrawImage(54, 38, menu_skill);
-}
-
-void M_NewGame(int choice)
+/* void M_NewGame(int choice)
 {
 	if (netgame)
 	{
@@ -1077,14 +1657,14 @@ void M_NewGame(int choice)
 	}
 
 	M_SetupNextMenu(&EpiDef);
-}
+} */
 
 //
 //      M_Episode
 //
 
 // -KM- 1998/12/16 Generates EpiDef menu dynamically.
-static void CreateEpisodeMenu(void)
+/* static void CreateEpisodeMenu(void)
 {
 	if (gamedefs.GetSize() == 0)
 		I_Error("No defined episodes !\n");
@@ -1120,16 +1700,8 @@ static void CreateEpisodeMenu(void)
 
 	EpiDef.numitems  = e;
 	EpiDef.menuitems = EpisodeMenu;
-}
+} */
 
-
-void M_DrawEpisode(void)
-{
-	if (!EpisodeMenu)
-		CreateEpisodeMenu();
-    
-	HUD_DrawImage(54, 38, menu_episode);
-}
 
 static void ReallyDoStartLevel(skill_t skill, gamedef_c *g)
 {
@@ -1150,7 +1722,7 @@ static void ReallyDoStartLevel(skill_t skill, gamedef_c *g)
 	if (! params.map)
 	{
 		// 23-6-98 KM Fixed this.
-		M_SetupNextMenu(&EpiDef);
+		/* M_SetupNextMenu(&EpiDef); */
 		M_StartMessage(language["EpisodeNonExist"], NULL, false);
 		return;
 	}
@@ -1176,17 +1748,17 @@ static void DoStartLevel(skill_t skill)
 	{ 
 		g = ITERATOR_TO_TYPE(it, gamedef_c*);
 
-		if (!strcmp(g->namegraphic.c_str(), EpisodeMenu[chosen_epi].patch_name))
+		/* if (!strcmp(g->namegraphic.c_str(), EpisodeMenu[chosen_epi].patch_name))
 		{
 			break;
-		}
+		} */
 	}
 
 	// Sanity checking...
 	if (! g)
 	{
-		I_Warning("Internal Error: no episode for '%s'.\n",
-			EpisodeMenu[chosen_epi].patch_name);
+		/* I_Warning("Internal Error: no episode for '%s'.\n",
+			EpisodeMenu[chosen_epi].patch_name); */
 		M_ClearMenus();
 		return;
 	}
@@ -1194,9 +1766,9 @@ static void DoStartLevel(skill_t skill)
 	const mapdef_c * map = G_LookupMap(g->firstmap.c_str());
 	if (! map)
 	{
-		I_Warning("Cannot find map for '%s' (episode %s)\n",
+		/* I_Warning("Cannot find map for '%s' (episode %s)\n",
 			g->firstmap.c_str(),
-			EpisodeMenu[chosen_epi].patch_name);
+			EpisodeMenu[chosen_epi].patch_name); */
 		M_ClearMenus();
 		return;
 	}
@@ -1226,7 +1798,7 @@ void M_ChooseSkill(int choice)
 void M_Episode(int choice)
 {
 	chosen_epi = choice;
-	M_SetupNextMenu(&SkillDef);
+	///M_SetupNextMenu(&SkillDef);
 }
 
 //
@@ -1258,6 +1830,22 @@ static void EndGameResponse(int ch)
 
 void M_EndGame(int choice)
 {
+	if(choice) 
+	{
+        currentMenu->lastOn = itemOn;
+		
+        if(currentMenu->prevMenu) 
+		{
+            menufadefunc = M_MenuFadeOut;
+            alphaprevmenu = true;
+        }
+    }
+    else 
+	{
+        currentMenu->lastOn = itemOn;
+        M_ClearMenus();
+    }
+	
 	if (gamestate != GS_LEVEL)
 	{
 		S_StartFX(sfx_oof);
@@ -1278,17 +1866,17 @@ void M_EndGame(int choice)
 
 void M_ReadThis(int choice)
 {
-	M_SetupNextMenu(&ReadDef1);
+	///M_SetupNextMenu(&ReadDef1);
 }
 
 void M_ReadThis2(int choice)
 {
-	M_SetupNextMenu(&ReadDef2);
+	///M_SetupNextMenu(&ReadDef2);
 }
 
 void M_FinishReadThis(int choice)
 {
-	M_SetupNextMenu(&MainDef);
+	///M_SetupNextMenu(&MainDef);
 }
 
 //
@@ -1407,35 +1995,14 @@ void M_QuitEDGE(int choice)
 //   MENU FUNCTIONS
 //----------------------------------------------------------------------------
 
-void M_DrawThermo(int x, int y, int thermWidth, int thermDot, int div)
-{
-	int i, basex = x;
-	int step = (8 / div);
 
-	// Note: the (step+1) here is for compatibility with the original
-	// code.  It seems required to make the thermo bar tile properly.
-
-	HUD_StretchImage(x, y, step+1, IM_HEIGHT(therm_l)/div, therm_l);
-
-	for (i=0, x += step; i < thermWidth; i++, x += step)
-	{
-		HUD_StretchImage(x, y, step+1, IM_HEIGHT(therm_m)/div, therm_m);
-	}
-
-	HUD_StretchImage(x, y, step+1, IM_HEIGHT(therm_r)/div, therm_r);
-
-	x = basex + step + thermDot * step;
-
-	HUD_StretchImage(x, y, step+1, IM_HEIGHT(therm_o)/div, therm_o);
-}
-
-void M_StartMessage(const char *string, void (* routine)(int response), 
+void M_StartMessage(const char *string, void (* draw_func)(int response), 
 					bool input)
 {
 	msg_lastmenu = menuactive;
 	msg_mode = 1;
 	msg_string = std::string(string);
-	message_key_routine = routine;
+	message_key_routine = draw_func;
 	message_input_routine = NULL;
 	msg_needsinput = input;
 	menuactive = true;
@@ -1454,12 +2021,12 @@ void M_StartMessage(const char *string, void (* routine)(int response),
 //          pressed ESCAPE to cancel the input.
 //
 void M_StartMessageInput(const char *string,
-						 void (* routine)(const char *response))
+						 void (* draw_func)(const char *response))
 {
 	msg_lastmenu = menuactive;
 	msg_mode = 2;
 	msg_string = std::string(string);
-	message_input_routine = routine;
+	message_input_routine = draw_func;
 	message_key_routine = NULL;
 	msg_needsinput = true;
 	menuactive = true;
@@ -1482,6 +2049,7 @@ void M_StopMessage(void)
 //
 // CONTROL PANEL
 //
+
 
 //
 // -KM- 1998/09/01 Analogue binding, and hat support
@@ -1581,11 +2149,11 @@ bool M_Responder(event_t * ev)
 	}
 
 	// new options menu on - use that responder
-	if (option_menuon)
+/* 	if (option_menuon)
 		return M_OptResponder(ev, ch);
 
 	if (netgame_menuon)
-		return M_NetGameResponder(ev, ch);
+		return M_NetGameResponder(ev, ch); */
 
 	// Save Game string input
 	if (saveStringEnter)
@@ -1608,7 +2176,7 @@ bool M_Responder(event_t * ev)
 			case KEYD_ENTER:
 				saveStringEnter = 0;
 				if (ex_slots[save_slot].desc[0])
-					M_DoSave(save_page, save_slot);
+					//M_DoSave(save_page, save_slot);
 				break;
 
 			default:
@@ -1669,8 +2237,8 @@ bool M_Responder(event_t * ev)
 			case KEYD_F4:  // Sound Volume
 
 				M_StartControlPanel();
-				currentMenu = &SoundDef;
-				itemOn = sfx_vol;
+				//currentMenu = &SoundDef;
+				itemOn = sfx_volume;
 				S_StartFX(sfx_swtchn);
 				return true;
 
@@ -1853,397 +2421,646 @@ bool M_Responder(event_t * ev)
 }
 
 
-void M_StartControlPanel(void)
-{
-	// intro might call this repeatedly
-	if (menuactive)
-		return;
+//
+// M_StartControlPanel
+//
 
-	menuactive = true;
+void M_StartControlPanel(bool forcenext) {
+    if(!allowmenu) {
+        return;
+    }
+
+    if(demoplayback) {
+        return;
+    }
+
+    // intro might call this repeatedly
+    if(menuactive) {
+        return;
+    }
+
+    menuactive = true;
 	CON_SetVisible(vs_notvisible);
-
-	currentMenu = &MainDef;  // JDC
-	itemOn = currentMenu->lastOn;  // JDC
-
-	M_OptCheckNetgame();
-}
-
-
-static int FindChar(std::string& str, char ch, int pos)
-{
-	SYS_ASSERT(pos <= (int)str.size());
-
-	const char *scan = strchr(str.c_str() + pos, ch);
-
-	if (! scan)
-		return -1;
-
-	return (int)(scan - str.c_str());
-}
-
-
-static std::string GetMiddle(std::string& str, int pos, int len)
-{
-	SYS_ASSERT(pos >= 0 && len >= 0);
-	SYS_ASSERT(pos + len <= (int)str.size());
-
-	if (len == 0)
-		return std::string();
-
-	return std::string(str.c_str() + pos, len);
-}
-
-
-static void DrawMessage(void)
-{
-	short x, y;
-
-	//HUD_SetAlpha(0.64f);
-	//HUD_SolidBox(0, 0, 320, 200, T_BLACK);
-	dialog_style->DrawBackground();
-	// disable for test : dialog_style->DrawBackground(); //to replace above call
-	//HUD_SetAlpha();
-
-
-	// FIXME: HU code should support center justification: this
-	// would remove the code duplication below...
-
-	std::string msg(msg_string);
-
-	std::string input(input_string);
-
-	if (msg_mode == 2)
-		input += "_";
 	
-	// Calc required height
-	SYS_ASSERT(dialog_style);
+    menufadefunc = NULL;
+    nextmenu = NULL;
+    newmenu = forcenext;
+	
+	///currentMenu = &MainDef;  // JDC
+	///itemOn = currentMenu->lastOn;  // JDC
+    currentMenu = &MainDef;
+    itemOn = currentMenu->lastOn;
 
-	std::string s = msg + input;
-
-	y = 100 - (dialog_style->fonts[0]->StringLines(s.c_str()) *
-		dialog_style->fonts[0]->NominalHeight()/ 2);
-
-	if (!msg.empty())
-	{
-		int oldpos = 0;
-		int pos;
-
-		do
-		{
-			pos = FindChar(msg, '\n', oldpos);
-
-			if (pos < 0)
-				s = std::string(msg, oldpos);
-			else
-				s = GetMiddle(msg, oldpos, pos-oldpos);
-		
-			if (s.size() > 0)
-			{
-				x = 160 - (dialog_style->fonts[0]->StringWidth(s.c_str()) / 2);
-				HL_WriteText(dialog_style,0, x, y, s.c_str());
-			}
-			
-			y += dialog_style->fonts[0]->NominalHeight();
-
-			oldpos = pos + 1;
-		}
-		while (pos >= 0 && oldpos < (int)msg.size());
-	}
-
-	if (! input.empty())
-	{
-		int oldpos = 0;
-		int pos;
-
-		do
-		{
-			pos = FindChar(input, '\n', oldpos);
-
-			if (pos < 0)
-				s = std::string(input, oldpos);
-			else
-				s = GetMiddle(input, oldpos, pos-oldpos);
-		
-			if (s.size() > 0)
-			{
-				x = 160 - (dialog_style->fonts[1]->StringWidth(s.c_str()) / 2);
-				HL_WriteText(dialog_style,1, x, y, s.c_str());
-			}
-			
-			y += dialog_style->fonts[1]->NominalHeight();
-
-			oldpos = pos + 1;
-		}
-		while (pos >= 0 && oldpos < (int)input.size());
-	}
+    S_PauseSound();
 }
 
+//
+// M_StartMainMenu
+//
+
+void M_StartMainMenu(void) {
+    currentMenu = &MainDef;
+    itemOn = 0;
+    allowmenu = true;
+    menuactive = true;
+    mainmenuactive = true;
+    M_StartControlPanel(false);
+}
+
+//
+// M_DrawMenuSkull
+//
+// Draws skull icon from the symbols lump
+// Pretty straightforward stuff..
+//
+/* 
+static void M_DrawMenuSkull(int x, int y) {
+    int index = 0;
+    float vx1 = 0.0f;
+    float vy1 = 0.0f;
+    float tx1 = 0.0f;
+    float tx2 = 0.0f;
+    float ty1 = 0.0f;
+    float ty2 = 0.0f;
+    float smbwidth;
+    float smbheight;
+    int pic;
+    vtx_t vtx[4];
+    const rgbcol_t color = MENUCOLORWHITE;
+
+    pic = GL_BindTexture("SYMBOLS", true);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, DGL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, DGL_CLAMP);
+
+    glEnable(GL_BLEND);
+    glSetVertex(vtx);
+
+    GL_SetOrtho(0);
+
+    index = (whichSkull & 7) + SM_SKULLS;
+
+    vx1 = (float)x;
+    vy1 = (float)y;
+
+    smbwidth = (float)gfxwidth[pic];
+    smbheight = (float)gfxheight[pic];
+
+    tx1 = ((float)symboldata[index].x / smbwidth) + 0.001f;
+    tx2 = (tx1 + (float)symboldata[index].w / smbwidth) - 0.001f;
+    ty1 = ((float)symboldata[index].y / smbheight) + 0.005f;
+    ty2 = (ty1 + (((float)symboldata[index].h / smbheight))) - 0.008f;
+
+    GL_Set2DQuad
+	(
+        vtx,
+        vx1,
+        vy1,
+        symboldata[index].w,
+        symboldata[index].h,
+        tx1,
+        tx2,
+        ty1,
+        ty2,
+        color
+    );
+
+    glTriangle(0, 1, 2);
+    glTriangle(3, 2, 1);
+    glDrawGeometry(4, vtx);
+
+    GL_ResetViewport();
+    glDisable(GL_BLEND);
+} */
+
+//
+// M_DrawCursor
+//
+
+/* static void M_DrawCursor(int x, int y) 
+{
+    if(m_menumouse.d) 
+	{
+        HUD_DrawImage(72, 8, cursor);
+    }
+} */
+
+//
+// M_Drawer
 //
 // Called after the view has been rendered,
 // but before it has been blitted.
 //
-void M_Drawer(void)
-{
-	short x, y;
 
-	unsigned int i;
-	unsigned int max;
+void M_Drawer(void) {
+    short x;
+    short y;
+    short i;
+    short max;
+    int start;
+    int height;
 
-	if (!menuactive)
-		return;
-
-	// Horiz. & Vertically center string and print it.
-	if (msg_mode)
+    if(currentMenu != &MainDef) 
 	{
-		DrawMessage();
-		return;
-	}
+        ST_FlashingScreen(0, 0, 0, 96);
+    }
 
-	// new options menu enable, use that drawer instead
-	if (option_menuon)
+    if(MenuBindActive) 
 	{
-		M_OptDrawer();
-		return;
-	}
+        Draw_BigText(-1, 64, MENUCOLORWHITE, "Press New Key For");
+        Draw_BigText(-1, 80, MENUCOLORRED, MenuBindMessage);
+        return;
+    }
 
-	if (netgame_menuon)
+    if(!menuactive) 
 	{
-		M_NetGameDrawer();
-		return;
-	}
+        return;
+    }
 
-	style_c *style = currentMenu->style_var[0];
-	SYS_ASSERT(style);
- style->DrawBackground();
-	//HUD_SetAlpha(0.64f);
-	//HUD_SolidBox(0, 0, 320, 200, T_BLACK);
-	//HUD_SetAlpha();
+    Draw_BigText(-1, 16, MENUCOLORRED, currentMenu->title);
+    if(currentMenu->scale != 1) {
+        GL_SetOrthoScale(currentMenu->scale);
+    }
 
-	// call Draw routine
-	if (currentMenu->draw_func)
-		(* currentMenu->draw_func)();
+    if(currentMenu->draw_func) {
+        currentMenu->draw_func();    // call Draw routine
+    }
 
-	// DRAW MENU
-	x = currentMenu->x;
-	y = currentMenu->y;
-	max = currentMenu->numitems;
+    // DRAW MENU
+    x = currentMenu->x;
+    y = currentMenu->y;
 
-	for (i = 0; i < max; i++, y += LINEHEIGHT)
+    start = currentMenu->menupageoffset;
+    max = (currentMenu->numpageitems == -1) ? currentMenu->numitems : currentMenu->numpageitems;
+
+    if(currentMenu->textonly) {
+        height = TEXTLINEHEIGHT;
+    }
+    else {
+        height = LINEHEIGHT;
+    }
+
+    if(currentMenu->smallfont) {
+        height /= 2;
+    }
+
+    //
+    // begin drawing all menu items
+    //
+    for(i = start; i < max+start; i++) {
+        //
+        // skip hidden items
+        //
+        if(currentMenu->menuitems[i].status == -3) {
+            continue;
+        }
+
+/*         if(currentMenu == &PasswordDef) 
+		{
+            if(i > 0) {
+                    x += TEXTLINEHEIGHT;
+                }
+            }
+        } */
+
+        if(currentMenu->menuitems[i].status != -1) {
+            //
+            // blinking letter for password menu
+            //
+/*             if(currentMenu == &PasswordDef && gametic & 4 && i == itemOn) {
+                continue;
+            } */
+
+            if(!currentMenu->smallfont) 
+			{
+                rgbcol_t fontcolor = MENUCOLORRED;
+
+                if(itemSelected == i) {
+                    fontcolor += D_RGBA(0, 128, 8, 0);
+                }
+
+                Draw_BigText(x, y, fontcolor, currentMenu->menuitems[i].name);
+            }
+            else {
+                rgbcol_t color = MENUCOLORWHITE;
+
+                if(itemSelected == i) {
+                    color = D_RGBA(255, 255, 0, menualphacolor);
+                }
+
+                //
+                // tint the non-bindable key items to a shade of red
+                //
+                if(currentMenu == &ControlsDef) 
+				{
+                    if(i >= (NUM_CONTROL_ITEMS - NUM_NONBINDABLE_ITEMS)) {
+                        color = D_RGBA(255, 192, 192, menualphacolor);
+                    }
+                }
+
+                Draw_Text(
+                    x,
+                    y,
+                    color,
+                    currentMenu->scale,
+                    false,
+                    currentMenu->menuitems[i].name
+                );
+
+                //
+                // nasty hack to re-set the scale after a drawtext call
+                //
+                if(currentMenu->scale != 1) {
+                    GL_SetOrthoScale(currentMenu->scale);
+                }
+            }
+        }
+        //
+        // if menu item is static but has text, then display it as gray text
+        // used for subcategories
+        //
+        else if(currentMenu->menuitems[i].name != ".") {
+            if(!currentMenu->smallfont) {
+                Draw_BigText(
+                    -1,
+                    y,
+                    MENUCOLORWHITE,
+                    currentMenu->menuitems[i].name
+                );
+            }
+            else {
+                int strwidth = M_StringWidth(currentMenu->menuitems[i].name);
+
+                Draw_Text(
+                    ((int)(160.0f / currentMenu->scale) - (strwidth / 2)),
+                    y,
+                    D_RGBA(255, 0, 0, menualphacolor),
+                    currentMenu->scale,
+                    false,
+                    currentMenu->menuitems[i].name
+                );
+
+                //
+                // nasty hack to re-set the scale after a drawtext call
+                //
+                if(currentMenu->scale != 1) {
+                    glOrtho(currentMenu->scale);
+                }
+            }
+        }
+
+        if(currentMenu != &PasswordDef) {
+            y += height;
+        }
+    }
+
+    //
+    // display indicators that the user can scroll farther up or down
+    //
+    if(currentMenu->numpageitems != -1) {
+        if(currentMenu->menupageoffset) {
+            //up arrow
+            Draw_BigText(currentMenu->x, currentMenu->y - 24, MENUCOLORWHITE, "/u More...");
+        }
+
+        if(currentMenu->menupageoffset + currentMenu->numpageitems < currentMenu->numitems) {
+            //down arrow
+            Draw_BigText(currentMenu->x, (currentMenu->y - 2 + (currentMenu->numpageitems-1) * height) + 24,
+                         MENUCOLORWHITE, "/d More...");
+        }
+    }
+
+    //
+    // draw password cursor
+    //
+    if(currentMenu) 
 	{
-		// ignore blank lines
-		if (! currentMenu->menuitems[i].patch_name[0])
-			continue;
+        // DRAW SKULL
+        if(!currentMenu->smallfont) {
+            int offset = 0;
 
-		if (! currentMenu->menuitems[i].image)
-			currentMenu->menuitems[i].image = W_ImageLookup(
-				currentMenu->menuitems[i].patch_name);
+            if(currentMenu->textonly) {
+                x += SKULLXTEXTOFF;
+            }
+            else {
+                x += SKULLXOFF;
+            }
 
-		const image_c *image = currentMenu->menuitems[i].image;
+            if(itemOn) 
+			{
+                for(i = itemOn; i > 0; i--) {
+                    if(currentMenu->menuitems[i].status == -3) {
+                        offset++;
+                    }
+                }
+            }
+			{
+            int sx = x + SKULLXOFF;
+			int sy = currentMenu->y - 5 + itemOn * LINEHEIGHT;
 
-		HUD_DrawImage(x, y, image);
-	}
+			HUD_DrawImage(sx, sy, menu_skull[whichSkull]);
+			}
+        }
+        //
+        // draw arrow cursor
+        //
+        else {
+            Draw_BigText(x - 12,
+                         currentMenu->y - 4 + (itemOn - currentMenu->menupageoffset) * height,
+                         MENUCOLORWHITE, "/l");
+        }
+    }
 
-	// DRAW SKULL
+    if(currentMenu->scale != 1) 
 	{
-		int sx = x + SKULLXOFF;
-		int sy = currentMenu->y - 5 + itemOn * LINEHEIGHT;
+        GL_SetOrthoScale(1.0f);
+    }
 
-		HUD_DrawImage(sx, sy, menu_skull[whichSkull]);
-	}
+#ifdef _USE_XINPUT  // XINPUT
+    if(xgamepad.connected && currentMenu != &MainDef) {
+        GL_SetOrthoScale(0.75f);
+        if(currentMenu == &PasswordDef) {
+            M_DrawXInputButton(4, 271, XINPUT_GAMEPAD_B);
+            Draw_Text(22, 276, MENUCOLORWHITE, 0.75f, false, "Change");
+        }
+
+        GL_SetOrthoScale(0.75f);
+        M_DrawXInputButton(4, 287, XINPUT_GAMEPAD_A);
+        Draw_Text(22, 292, MENUCOLORWHITE, 0.75f, false, "Select");
+
+        if(currentMenu != &PauseDef) {
+            GL_SetOrthoScale(0.75f);
+            M_DrawXInputButton(5, 303, XINPUT_GAMEPAD_START);
+            Draw_Text(22, 308, MENUCOLORWHITE, 0.75f, false, "Return");
+        }
+
+        GL_SetOrthoScale(1);
+    }
+#endif
+
+    M_DrawCursor(mouse_x, mouse_y);
 }
 
-// called at splitscreen changes
-// easy way to draw additional menu if it detects splitscreen!
-/*
-void M_SwitchSplitscreen()
-{
-  // activate setup for player 2
-  if (cv_splitscreen.value)
-    MultiPlayer_MI[MI_mp_setup_p2].flags = IT_ACT;
-  else
-    MultiPlayer_MI[MI_mp_setup_p2].flags = IT_OFF_BIG;
-}
-*/
 
-void M_ClearMenus(void)
-{
-	// -AJA- 2007/12/24: save user changes ASAP (in case of crash)
-	if (menuactive)
-	{
-		M_SaveDefaults();
+//
+// M_ClearMenus
+//
+
+void M_ClearMenus(void) {
+    if(!allowclearmenu) {
+        return;
 	}
 
-	menuactive = false;
-	save_screenshot_valid = false;
+    menufadefunc = NULL;
+    nextmenu = NULL;
+    menualphacolor = 0xff;
+    menuactive = 0;
+
+    S_ResumeSound();
 }
 
-void M_SetupNextMenu(menu_t * menudef)
-{
-	currentMenu = menudef;
-	itemOn = currentMenu->lastOn;
+//
+// M_NextMenu
+//
+
+static void M_NextMenu(void) {
+    currentMenu = nextmenu;
+    itemOn = currentMenu->lastOn;
+    menualphacolor = 0xff;
+    alphaprevmenu = false;
+    menufadefunc = NULL;
+    nextmenu = NULL;
 }
 
-void M_Ticker(void)
-{
-	// update language if it changed
-	if (m_language.CheckModified())
-		if (! language.Select(m_language.str))
-			I_Printf("Unknown language: %s\n", m_language.str);
 
-	if (option_menuon)
-	{
-		M_OptTicker();
-		return;
-	}
+//
+// M_SetupNextMenu
+//
 
-	if (netgame_menuon)
-	{
-		M_NetGameTicker();
-		return;
-	}
+void M_SetupNextMenu(menu_t *menudef) {
+    if(newmenu) {
+        menufadefunc = M_NextMenu;
+    }
+    else {
+        menufadefunc = M_MenuFadeOut;
+    }
 
-	if (--skullAnimCounter <= 0)
-	{
-		whichSkull ^= 1;
-		skullAnimCounter = 8;
-	}
+    alphaprevmenu = false;
+    nextmenu = menudef;
+    newmenu = false;
 }
 
-void M_Init(void)
-{
-	E_ProgressMessage(language["MiscInfo"]);
 
-	currentMenu = &MainDef;
-	menuactive = false;
-	itemOn = currentMenu->lastOn;
-	whichSkull = 0;
-	skullAnimCounter = 10;
-	msg_mode = 0;
-	msg_string.clear();
-	msg_lastmenu = menuactive;
-	quickSaveSlot = -1;
-	
-	//HL_WriteText(style,(index<0)?3:is_selected?2:0, x - 10 - style->fonts[0]->StringWidth(keyword), y, keyword);
-	//HL_WriteText(style,1, x + 10, y, value);
+//
+// M_MenuFadeIn
+//
 
-	//if (is_selected)
-	//{
-	//	HL_WriteText(style,2, x - style->fonts[2]->StringWidth("*")/2, y, "*");
-	//}
+void M_MenuFadeIn(void) {
+    int fadetime = (int)(m_menufadetime.value + 20);
 
-	// lookup styles
-	styledef_c *def;
-
-	def = styledefs.Lookup("MENU");
-	if (! def) def = default_style;
-	menu_def_style = hu_styles.Lookup(def);
-	
-	def = styledefs.Lookup("OPTIONS");
-	if (! def) def = default_style;
-	menu_def_style = hu_styles.Lookup(def);
-
-	def = styledefs.Lookup("MAIN MENU");
-	main_menu_style = def ? hu_styles.Lookup(def) : menu_def_style;
-
-	def = styledefs.Lookup("CHOOSE EPISODE");
-	episode_style = def ? hu_styles.Lookup(def) : menu_def_style;
-
-	def = styledefs.Lookup("CHOOSE SKILL");
-	skill_style = def ? hu_styles.Lookup(def) : menu_def_style;
-
-	def = styledefs.Lookup("LOAD MENU");
-	load_style = def ? hu_styles.Lookup(def) : menu_def_style;
-
-	def = styledefs.Lookup("SAVE MENU");
-	save_style = def ? hu_styles.Lookup(def) : menu_def_style;
-
-	def = styledefs.Lookup("DIALOG");
-	dialog_style = def ? hu_styles.Lookup(def) : menu_def_style;
-
-	def = styledefs.Lookup("SOUND VOLUME");
-	if (! def) def = styledefs.Lookup("OPTIONS");
-	if (! def) def = default_style;
-	sound_vol_style = hu_styles.Lookup(def);
-
-	// lookup required images
-	therm_l = W_ImageLookup("M_THERML");
-	therm_m = W_ImageLookup("M_THERMM");
-	therm_r = W_ImageLookup("M_THERMR");
-	therm_o = W_ImageLookup("M_THERMO");
-
-	menu_loadg    = W_ImageLookup("M_LOADG");
-	menu_saveg    = W_ImageLookup("M_SAVEG");
-	menu_svol     = W_ImageLookup("M_SVOL");
-	menu_newgame  = W_ImageLookup("M_NEWG");
-	menu_skill    = W_ImageLookup("M_SKILL");
-	menu_episode  = W_ImageLookup("M_EPISOD");
-	menu_skull[0] = W_ImageLookup("M_SKULL1");
-	menu_skull[1] = W_ImageLookup("M_SKULL2");
-	
-//	if (W_CheckNumForName("M_NEWG") >= 0)
-//	    DrawKeyword("NEW GAME");//HL_WriteText(style,2, 80, 30, "NEW GAME");//HUD_DrawText(0, 0, "NEW GAME");//HL_WriteText(style,2, LoadDef.x - 4, y, "NEW GAME");
-//or
-// menu_doom = HL_WriteText(style,2,LoadDef.x,y, "NEW GAME");
-	if (W_CheckNumForName("M_HTIC") >= 0)
-		menu_doom = W_ImageLookup("M_HTIC");
-	else
-		menu_doom = W_ImageLookup("M_DOOM");
-
-		//code below switches out skull
-	if (W_CheckNumForName("M_SLCTR1") >= 0)
-		menu_skull[0] = W_ImageLookup("M_SLCTR1");
-	else
-		menu_skull[0] = W_ImageLookup("M_SKULL1");
-		
-	if (W_CheckNumForName("M_SLCTR2") >= 0)
-		menu_skull[1] = W_ImageLookup("M_SLCTR2");
-	else
-		menu_skull[1] = W_ImageLookup("M_SKULL2");
-
-	// Here we could catch other version dependencies,
-	//  like HELP1/2, and four episodes.
-	//    if (W_CheckNumForName("M_EPI4") < 0)
-	//      EpiDef.numitems -= 2;
-	//    else if (W_CheckNumForName("M_EPI5") < 0)
-	//      EpiDef.numitems--;
-
-	if (W_CheckNumForName("HELP") >= 0)
-		menu_readthis[0] = W_ImageLookup("HELP");
-	else
-		menu_readthis[0] = W_ImageLookup("HELP1");
-
-	if (W_CheckNumForName("HELP2") >= 0)
-		menu_readthis[1] = W_ImageLookup("HELP2");
-	else
-	{
-		menu_readthis[1] = W_ImageLookup("CREDIT");
-
-		// This is used because DOOM 2 had only one HELP
-		//  page. I use CREDIT as second page now, but
-		//  kept this hack for educational purposes.
-
-		MainMenu[readthis] = MainMenu[quitdoom];
-		MainDef.numitems--;
-		MainDef.y += 8; // FIXME
-		SkillDef.prevMenu = &MainDef;
-		ReadDef1.draw_func = M_DrawReadThis1;
-		ReadDef1.x = 330;
-		ReadDef1.y = 165;
-		ReadMenu1[0].select_func = M_FinishReadThis;
-	}
-
- 	sfx_swtchn = sfxdefs.GetEffect("SWTCHN");
- 	sfx_tink   = sfxdefs.GetEffect("TINK");
- 	sfx_radio  = sfxdefs.GetEffect("RADIO");
- 	sfx_oof    = sfxdefs.GetEffect("OOF");
- 	sfx_pstop  = sfxdefs.GetEffect("PSTOP");
- 	sfx_stnmov = sfxdefs.GetEffect("STNMOV");
- 	sfx_pistol = sfxdefs.GetEffect("PISTOL");
- 	sfx_swtchx = sfxdefs.GetEffect("SWTCHX");
-
-	M_OptMenuInit();
-	M_NetGameInit();
+    if((menualphacolor + fadetime) < 0xff) {
+        menualphacolor += fadetime;
+    }
+    else {
+        menualphacolor = 0xff;
+        alphaprevmenu = false;
+        menufadefunc = NULL;
+        nextmenu = NULL;
+    }
 }
+
+
+//
+// M_MenuFadeOut
+//
+
+void M_MenuFadeOut(void) {
+    int fadetime = (int)(m_menufadetime.value + 20);
+
+    if(menualphacolor > fadetime) {
+        menualphacolor -= fadetime;
+    }
+    else {
+        menualphacolor = 0;
+
+        if(alphaprevmenu == false) {
+            currentMenu = nextmenu;
+            itemOn = currentMenu->lastOn;
+        }
+        else {
+            currentMenu = currentMenu->prevMenu;
+            itemOn = currentMenu->lastOn;
+        }
+
+        menufadefunc = M_MenuFadeIn;
+    }
+}
+
+
+//
+// M_Ticker
+//
+
+/* CVAR_EXTERNAL(p_features); */
+
+void M_Ticker(void) {
+    mainmenuactive = (currentMenu == &MainDef) ? true : false;
+
+    if((currentMenu == &MainDef ||
+            currentMenu == &PauseDef) && usergame && demoplayback) {
+        menuactive = 0;
+        return;
+    }
+    if(!usergame) {
+        OptionsDef.prevMenu = &MainDef;
+        LoadDef.prevMenu = &MainDef;
+        SaveDef.prevMenu = &MainDef;
+    }
+    else {
+        OptionsDef.prevMenu = &PauseDef;
+        LoadDef.prevMenu = &PauseDef;
+        SaveDef.prevMenu = &PauseDef;
+    }
+
+    //
+    // hidden features menu
+    //
+    if(currentMenu == &PauseDef) {
+        currentMenu->menuitems[pause_features].status = p_features.value ? 1 : -3;
+    }
+
+    //
+    // hidden hardcore difficulty option
+    //
+    if(currentMenu == &NewDef) {
+        currentMenu->menuitems[nightmare].status = p_features.value ? 1 : -3;
+    }
+
+#ifdef _USE_XINPUT  // XINPUT
+    //
+    // hide mouse menu if xbox 360 controller is plugged in
+    //
+    if(currentMenu == &ControlMenuDef) {
+        currentMenu->menuitems[controls_gamepad].status = xgamepad.connected ? 1 : -3;
+    }
+#endif
+
+    //
+    // hide anisotropic option if not supported on video card
+    //
+    if(!has_GL_EXT_texture_filter_anisotropic) {
+        VideoMenu[anisotropic].status = -3;
+    }
+
+    // auto-adjust itemOn and page offset if the first menu item is being used as a header
+    if(currentMenu->menuitems[0].status == -1 &&
+            currentMenu->menuitems[0].name != ".") {
+        // bump page offset up
+        if(itemOn == 1) {
+            currentMenu->menupageoffset = 0;
+        }
+
+        // bump the cursor down
+        if(itemOn <= 0) {
+            itemOn = 1;
+        }
+    }
+
+    if(menufadefunc) {
+        menufadefunc();
+    }
+
+    // auto adjust page offset for long menu items
+    if(currentMenu->numpageitems != -1) {
+        if(itemOn >= (currentMenu->numpageitems + currentMenu->menupageoffset)) {
+            currentMenu->menupageoffset = (itemOn + 1) - currentMenu->numpageitems;
+
+            if(currentMenu->menupageoffset >= currentMenu->numitems) {
+                currentMenu->menupageoffset = currentMenu->numitems;
+            }
+        }
+        else if(itemOn < currentMenu->menupageoffset) {
+            currentMenu->menupageoffset = itemOn;
+
+            if(currentMenu->menupageoffset < 0) {
+                currentMenu->menupageoffset = 0;
+            }
+        }
+    }
+
+    if(--skullAnimCounter <= 0) {
+        whichSkull++;
+        skullAnimCounter = 4;
+    }
+
+    if(thermowait != 0 && currentMenu->menuitems[itemOn].status == 3 &&
+            currentMenu->menuitems[itemOn].routine) {
+        currentMenu->menuitems[itemOn].routine(thermowait == -1 ? 1 : 0);
+    }
+}
+
+
+//
+// M_Init
+//
+
+void M_Init(void) {
+    int i = 0;
+
+    currentMenu = &MainDef;
+    menuactive = 0;
+    itemOn = currentMenu->lastOn;
+    itemSelected = -1;
+    whichSkull = 0;
+    skullAnimCounter = 4;
+    quickSaveSlot = -1;
+    menufadefunc = NULL;
+    nextmenu = NULL;
+    newmenu = false;
+
+    for(i = 0; i < NUM_CONTROL_ITEMS; i++) 
+	{
+        ControlsItem[i].alphaKey = 0;
+        memset(ControlsItem[i].name, 0, 64);
+        ControlsItem[i].routine = NULL;
+        ControlsItem[i].status = 1;
+    }
+
+/*     // setup password menu
+
+    for(i = 0; i < 32; i++) {
+        PasswordMenu[i].status = 1;
+        PasswordMenu[i].name[0] = passwordChar[i];
+        PasswordMenu[i].routine = NULL;
+        PasswordMenu[i].alphaKey = (char)passwordChar[i];
+    }
+
+    dmemset(passwordData, 0xff, 16); */
+
+    MainDef.y += 8;
+    NewDef.prevMenu = &MainDef;
+
+/*     // setup region menu
+
+    if(W_CheckNumForName("BLUDA0") != -1) {
+        CON_CvarSetValue(m_regionblood.name, 0);
+        RegionMenu[region_blood].status = 1;
+    }
+
+    if(W_CheckNumForName("JPMSG01") == -1) {
+        CON_CvarSetValue(st_regionmsg.name, 0);
+        RegionMenu[region_lang].status = 1;
+    }
+
+    if(W_CheckNumForName("PLLEGAL") == -1 &&
+            W_CheckNumForName("JPLEGAL") == -1) {
+        CON_CvarSetValue(p_regionmode.name, 0);
+        RegionMenu[region_mode].status = 1;
+    } */
+
+    M_InitShiftXForm();
+}
+
 
 
 //--- editor settings ---

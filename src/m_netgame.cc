@@ -40,7 +40,7 @@
 #include "m_argv.h"
 #include "m_menu.h"
 #include "m_misc.h"
-#include "m_option.h"
+/* #include "m_option.h" */
 #include "m_random.h"
 #include "m_netgame.h"
 #include "n_network.h"

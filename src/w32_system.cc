@@ -106,7 +106,7 @@ void I_SystemStartup(void)
 	if (SDL_Init(0) < 0)
 		I_Error("Couldn't init SDL!!\n%s\n", SDL_GetError());
 
-	I_StartupGraphics(); // SDL requires this to be called first
+	I_InitScreen(); // SDL requires this to be called first
 	I_StartupControl();
 	I_StartupSound();
 	I_StartupMusic(); // Startup Music System

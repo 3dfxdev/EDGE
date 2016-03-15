@@ -52,6 +52,7 @@ extern cvar_c in_grab;
 extern cvar_c mouse_x_axis, mouse_y_axis;
 extern cvar_c mouse_x_sens, mouse_y_sens;
 extern cvar_c mouse_accel,  mouse_filter;
+extern cvar_c m_menumouse;
 
 extern cvar_c joy_dead, joy_peak, joy_tuning;
 
@@ -77,13 +78,15 @@ extern cvar_c s_musicvol, s_musicdevice;
 extern cvar_c tim_quietfactor;
 
 extern cvar_c debug_fullbright, debug_hom;
-extern cvar_c debug_mouse;      /* debug_joyaxis; */
+extern cvar_c debug_mouse,      debug_joyaxis;
 extern cvar_c debug_fps,        debug_pos;
 
 extern cvar_c r_lerp, r_maxfps, r_vsync;
 extern cvar_c r_md5scale;
 
 extern cvar_c debug_nomonsters, debug_subsector;
+
+extern cvar_c p_fdoubleclick, p_sdoubleclick;
 
 
 #ifndef LINUX
@@ -121,16 +124,19 @@ cvar_link_t  all_cvars[] =
 	{ "in_running",     &in_running,     "c",   "0"  },
 	{ "in_stageturn",   &in_stageturn,   "c",   "1"  },
 	{ "in_warpmouse",   &in_warpmouse,   "c",   "1"  },
-/* 
+
 	{ "joy_dead",       &joy_dead,       "c",   "0.15" },
 	{ "joy_peak",       &joy_peak,       "c",   "0.95" },
-	{ "joy_tuning",     &joy_peak,       "c",   "1.0"  }, */
+	{ "joy_tuning",     &joy_peak,       "c",   "1.0"  },
 
   	{ "mouse_filter",   &mouse_filter,   "c",   "1"  },
 
 	{ "goobers",        &m_goobers,      "",    "0" },
 	{ "m_diskicon",     &m_diskicon,     "c",   "0"  },
 	{ "m_busywait",     &m_busywait,     "c",   "1"  },
+	{ "m_menumouse",    &m_menumouse,    "c",   "1"  }, 	
+	{ "p_fdoubleclick",    &p_fdoubleclick,    "c",   "1"  }, 	
+	{ "p_sdoubleclick",    &p_sdoubleclick,    "c",   "1"  }, 	
 
 	/* Rendering Stuff */
 
@@ -168,7 +174,7 @@ cvar_link_t  all_cvars[] =
 
 	{ "debug_fullbright", &debug_fullbright, "h", "0" },
 	{ "debug_hom",        &debug_hom,        "h", "0" },
-/* 	{ "debug_joyaxis",    &debug_joyaxis,    "",  "0" }, */
+	{ "debug_joyaxis",    &debug_joyaxis,    "",  "0" },
 	{ "debug_mouse",      &debug_mouse,      "",  "0" },
 	{ "debug_pos",        &debug_pos,        "h", "0" },
 	{ "debug_fps",        &debug_fps,        "c", "0" },
@@ -178,7 +184,9 @@ cvar_link_t  all_cvars[] =
 	{ "r_maxfps",        &r_maxfps,        "c", "60" },
 	{ "r_vsync",        &r_vsync,        "c", "1" },
 
-#if 0 // FIXME
+	
+
+ // FIXME
     { "edge_compat",    &edge_compat,    "",    "0"  },
 
     { "sys_directx",    &sys_directx,    "c",   "0"  },
@@ -244,7 +252,7 @@ cvar_link_t  all_cvars[] =
 
 	{ "debug_nomonsters", &debug_nomonsters, "h", "0" },
 	{ "debug_subsector",  &debug_subsector,  "h", "0" },
-#endif
+
 
 //---- END OF LIST -----------------------------------------------------------
 

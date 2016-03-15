@@ -29,6 +29,31 @@
 #include "../ddf/main.h"
 #include "r_image.h"
 
+#include "SDL_opengl.h"
+
+typedef GLuint        texture;
+typedef GLfloat        rfloat;
+typedef GLuint        rcolor;
+typedef GLuint        rbuffer;
+typedef GLhandleARB    rhandle;
+
+/* extern int gl_max_texture_units;
+extern int gl_max_texture_size; */
+extern bool gl_has_combiner;
+
+typedef struct 
+{
+    rfloat    x;
+    rfloat    y;
+    rfloat    z;
+    rfloat    tu;
+    rfloat    tv;
+    byte r;
+    byte g;
+    byte b;
+    byte a;
+} vtx_t;
+
 // Move to somewhere appropriate later -ACB- 2004/08/19
 void RGL_DrawImage(float x, float y, float w, float h, const image_c *image,
 				   float tx1, float ty1, float tx2, float ty2,
@@ -42,6 +67,17 @@ void RGL_ReadScreen(int x, int y, int w, int h, byte *rgb_buffer);
 // called before any rendering has occurred (e.g. just before
 // I_StartFrame).
 void RGL_NewScreenSize(int width, int height, int bits);
+
+//
+//villsa
+
+void ST_FlashingScreen(byte r, byte g, byte b, byte a);
+
+int Draw_Text(int x, int y, rgbcol_t color, float scale,
+              bool wrap, const char* string, ...);
+int Center_Text(const char* string);
+int Draw_BigText(int x, int y, rgbcol_t color, const char* string);
+void Draw_Number(int x, int y, int num, int type, rgbcol_t color);
 
 
 #endif /* __R_DRAW_H__ */

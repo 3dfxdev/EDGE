@@ -55,6 +55,8 @@ typedef struct
 
 	// -MH- 1998/08/23 upward movement
 	s8_t upwardmove;
+	
+	byte consistancy;    // checks for net game
 
 	byte buttons, extbuttons;
 

@@ -24,10 +24,7 @@
 #include "i_defs.h"
 
 #ifdef WIN32
-//#include <C:\hyperedge\edge2\lib_win32\libvorbis-1.3.2\include\vorbis\vorbisfile.h>
-#include "..\lib_win32\libvorbis-1.3.2\include\vorbis\vorbisfile.h"
-#else
-#include <Vorbis/vorbisfile.h>
+#include <vorbis/vorbisfile.h>
 #endif
 
 #include "../epi/sound_data.h"

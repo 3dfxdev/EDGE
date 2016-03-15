@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
 #ifdef NO_SOUND
 		"-nosound",
 #endif
-	};
+	NULL};
 	
 printf("DREAMCAST STARTUP\n");
 fflush(stdout);

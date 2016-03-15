@@ -34,6 +34,8 @@
 
 #include "r_defs.h"
 
+#define D_RGBA(r,g,b,a) ((rcolor)((((a)&0xff)<<24)|(((b)&0xff)<<16)|(((g)&0xff)<<8)|((r)&0xff)))
+
 class abstract_shader_c;
 
 void V_InitPalette(void);

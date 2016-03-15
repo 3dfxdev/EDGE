@@ -50,7 +50,6 @@
 #include "hu_stuff.h"  // only for showMessages
 #include "m_argv.h"
 #include "m_misc.h"
-#include "m_option.h"
 #include "n_network.h"
 #include "p_spec.h"
 #include "r_gldefs.h"
@@ -94,7 +93,7 @@ int var_timid_factor = 0;
 static int edge_version;
 static bool done_first_init = false;
 
-/* extern int joystick_device; */
+extern int joystick_device;
 
 
 
@@ -170,13 +169,13 @@ static default_t defaults[] =
     {CFGT_Int,      "var_sidespeed",     &var_sidespeed,    CFGDEF_SIDEMOVESPEED},
     {CFGT_Int,      "var_flyspeed",      &var_flyspeed,     CFGDEF_SIDEMOVESPEED},
 
-/*     {CFGT_Int,      "joystick_device",   &joystick_device, 0},
+    {CFGT_Int,      "joystick_device",   &joystick_device, 0},
     {CFGT_Int,      "joy_axis1",         &joy_axis[0],    CFGDEF_JOY_XAXIS},
     {CFGT_Int,      "joy_axis2",         &joy_axis[1],    CFGDEF_JOY_YAXIS},
     {CFGT_Int,      "joy_axis3",         &joy_axis[2],    AXIS_DISABLE},
     {CFGT_Int,      "joy_axis4",         &joy_axis[3],    AXIS_DISABLE},
     {CFGT_Int,      "joy_axis5",         &joy_axis[4],    AXIS_DISABLE},
-    {CFGT_Int,      "joy_axis6",         &joy_axis[5],    AXIS_DISABLE}, */
+    {CFGT_Int,      "joy_axis6",         &joy_axis[5],    AXIS_DISABLE},
 
     {CFGT_Int,      "monitor_size",      &monitor_size,   0},
     {CFGT_Int,      "screen_hud",        &screen_hud,     CFGDEF_SCREEN_HUD},

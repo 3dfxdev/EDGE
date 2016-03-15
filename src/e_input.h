@@ -29,9 +29,6 @@
 #include "e_event.h"
 #include "e_ticcmd.h"
 
-///Fraggle:ChocolateDoom:
-#define MAX_MOUSE_BUTTONS 8
-
 void E_ClearInput(void);
 void E_BuildTiccmd(ticcmd_t * cmd); //after (), add , int which_player
 void E_ReleaseAllKeys(void);
@@ -44,23 +41,73 @@ void E_PostEvent(event_t * ev);
 bool E_IsKeyPressed(int keyvar);
 bool E_MatchesKey(int keyvar, int key);
 
-void I_ReadMouse(void); ///NEW MOUSE HANDLING -> SDL2
-
-/// I_StartTextInput begins text input, activating the on-screen keyboard
-/// (if one is used). The caller indicates that any entered text will be
-/// displayed in the rectangle given by the provided set of coordinates.
-void I_StartTextInput(int x1, int y1, int x2, int y2);
-
-/// I_StopTextInput finishes text input, deactivating the on-screen keyboard
-/// (if one is used).
-void I_StopTextInput(void);
-
 const char *E_GetKeyName(int key);
 
-///INPUT RESPONDER CHAIN
 bool INP_Responder(event_t * ev);
 
 // -KM- 1998/09/01 Analogue binding stuff, These hold what axis they bind to.
+
+
+////////////Input//////////////
+
+
+#define SLOWTURNTICS    6
+
+#define NUMKEYS         512
+
+#define PCKF_DOUBLEUSE  0x4000
+#define PCKF_UP         0x8000
+#define PCKF_COUNTMASK  0x00ff
+
+typedef enum {
+    PCKEY_ATTACK,
+    PCKEY_USE,
+    PCKEY_STRAFE,
+    PCKEY_FORWARD,
+    PCKEY_BACK,
+    PCKEY_LEFT,
+    PCKEY_RIGHT,
+    PCKEY_STRAFELEFT,
+    PCKEY_STRAFERIGHT,
+    PCKEY_RUN,
+    PCKEY_JUMP,
+    PCKEY_LOOKUP,
+    PCKEY_LOOKDOWN,
+    PCKEY_CENTER,
+    NUM_PCKEYS
+} pckeys_t;
+
+typedef struct {
+    int            mousex;
+    int            mousey;
+    int            joyx;
+    int            joyy;
+    int            key[NUM_PCKEYS];
+    int            nextweapon;
+    int            sdclicktime;
+    int            fdclicktime;
+    int            flags;
+} playercontrols_t;
+
+#define PCF_NEXTWEAPON    0x01
+#define PCF_FDCLICK        0x02
+#define PCF_FDCLICK2    0x04
+#define PCF_SDCLICK        0x08
+#define PCF_SDCLICK2    0x10
+#define PCF_PREVWEAPON    0x20
+#define PCF_GAMEPAD     0x40
+
+extern playercontrols_t    Controls;
+
+extern int UseMouse[2];
+extern int UseJoystick;
+extern int mouse_x;
+extern int mouse_y;
+
+int I_MouseAccel(int val);
+void I_MouseAccelChange(void);
+
+
 extern int mouse_xaxis;
 extern int mouse_yaxis;
 
@@ -89,11 +136,6 @@ extern int key_left;
 extern int key_lookup;
 extern int key_lookdown;
 extern int key_lookcenter;
-
-/// -CA- 2.28.2016
-extern int key_invleft;
-extern int key_invright;
-extern int key_useartifact;
 
 // -ES- 1999/03/28 Zoom Key
 extern int key_zoom;
@@ -139,53 +181,14 @@ extern int key_am_up;
 extern int key_am_down;
 extern int key_am_left;
 extern int key_am_right;
+
 extern int key_am_zoomin;
 extern int key_am_zoomout;
-extern int key_map_toggle; ///new automap key being toggled, append from key_map to key_am 
+
 extern int key_am_follow;
 extern int key_am_grid;
 extern int key_am_mark;
 extern int key_am_clear;
-
-/// -CA- 2/28/2016: Menu Keys (finally)
-
-extern int key_menu_activate;
-extern int key_menu_up;
-extern int key_menu_down;
-extern int key_menu_left;
-extern int key_menu_right;
-extern int key_menu_back;
-extern int key_menu_forward;
-extern int key_menu_confirm;
-extern int key_menu_abort;
-
-extern int key_menu_help;
-extern int key_menu_save;
-extern int key_menu_load;
-extern int key_menu_volume;
-extern int key_menu_detail;
-extern int key_menu_qsave;
-extern int key_menu_endgame;
-extern int key_menu_messages;
-extern int key_menu_qload;
-extern int key_menu_quit;
-extern int key_menu_gamma;
-
-extern int mousebfire;
-extern int mousebstrafe;
-extern int mousebforward;
-
-extern int mousebjump;
-
-extern int mousebstrafeleft;
-extern int mousebstraferight;
-extern int mousebbackward;
-extern int mousebuse;
-
-extern int mousebprevweapon;
-extern int mousebnextweapon;
-
-extern int dclick_use;
 
 #endif  /* __E_INPUT_H__ */
 

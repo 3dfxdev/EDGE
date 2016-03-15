@@ -2,7 +2,7 @@
 //  EDGE2 SDL Video Code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE2 Team.
+//  Copyright (c) 2016 Isotope SoftWorks.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -16,300 +16,309 @@
 //
 //----------------------------------------------------------------------------
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
+
 #include "i_defs.h"
 #include "i_sdlinc.h"
-#include "i_defs_gl.h"
+#include "SDL_opengl.h" /// <--- replacing GLEW with SDL_opengl! 
+///#include "i_defs_gl.h" <--- GLEW specific stuff which we are avoiding now.
 
-#ifdef WIN32
-#include "GL/wglew.h"
-#else
-#include <GL/glew.h>
-#endif
-
-#include <signal.h>
-
+#include "e_event.h"
 #include "m_argv.h"
 #include "m_misc.h"
 #include "r_modes.h"
+#include "i_video.h"
 
-
-SDL_Surface *my_vis;
-
-int graphics_shutdown = 0;
-
-cvar_c in_grab;
+#ifdef _WIN32
+///include "i_xinput.h" <--- Not Yet. . . . . . . . . . 
+#endif
 
 static bool grab_state;
 
-static int display_W, display_H;
+//SDL_Surface *my_vis;
+SDL_Window      *window;
+SDL_GLContext   glContext;
+
+int graphics_shutdown = 0;
+
+/// extern cvar_c r_width, r_height, r_depth, r_fullscreen;
+cvar_c in_grab;
+cvar_c v_msensitivityx;//, 5);
+cvar_c v_msensitivityy;//, 5);
+cvar_c v_macceleration;//, 0);
+cvar_c v_mlook;//, 0);
+cvar_c v_mlookinvert;//, 0);
+cvar_c v_yaxismove;//, 0);
+extern cvar_c r_width;//, 640);
+extern cvar_c r_height;//, 480);
+cvar_c v_windowed;//, 1);
+cvar_c r_vsync;//, 1);
+extern cvar_c r_depth;///v_depthsize;//, 24);
+cvar_c v_buffersize;//, 32);
+
+cvar_c m_menumouse;
+
+//================================================================================
+// Video
+//================================================================================
+
+SDL_Surface *screen;
+int video_width;
+int video_height;
+float video_ratio;
+/* bool window_focused;
+bool window_mouse;
+
+int mouse_x = 0;
+int mouse_y = 0; */
+
+//
+// I_InitScreen
+//
 
 
-// Possible Screen Modes
-static struct { int w, h; } possible_modes[] =
+///Con_cvarsetvalue = CON_SetVar 
+///src/i_video.cc:88:39: error: 'class cvar_c' has no member named 'value'
+///     						  InWindow        = (int)v_windowed.value;
+/// .value should be .d
+
+/// v_width, v_height, v_depth
+/// void I_StartupGraphics(void)
+void I_InitScreen(void)
 {
-	{  320, 200, },
-	{  320, 240, },
-	{  400, 300, },
-	{  512, 384, },
-	{  640, 400, },
-	{  640, 480, },
-	{  800, 600, },
-	{ 1024, 768, },
-	{ 1280,1024, },
-	{ 1600,1200, },
+    int     newwidth;
+    int     newheight;
+    int     p;
+    uint32_t  flags = 0;
+    char    title[256];
 
-	{  -1,  -1, }
-};
+    InWindow        = (int)v_windowed.d;
+    video_width     = (int)r_width.d;
+    video_height    = (int)r_height.d;
+    video_ratio     = (float)video_width / (float)video_height;
 
+    if(M_CheckParm("-window")) {
+        InWindow = true;
+    }
+    if(M_CheckParm("-fullscreen")) {
+        InWindow = false;
+    }
 
-void I_GrabCursor(bool enable)
+    newwidth = newheight = 0;
+
+/*     p = M_CheckParm("-width");
+    if(p && p < myargc - 1) {
+        newwidth = datoi(myargv[p+1]);
+    }
+
+    p = M_CheckParm("-height");
+    if(p && p < myargc - 1) {
+        newheight = datoi(myargv[p+1]);
+    } */
+
+    if(newwidth && newheight) {
+        video_width = newwidth;
+        video_height = newheight;
+		///float fov = CLAMP(5, r_fov.f, 175);
+		video_width = r_width.f;
+        //CON_SetVar(&r_width.f, (float)video_width);
+		video_height = r_height.f;
+        //CON_SetVar(r_height.f, (float)video_height);
+    }
+
+    if( r_depth.d != 8 &&
+        r_depth.d != 16 &&
+        r_depth.d != 24) 
+		{
+            r_depth.f = 24;
+		}
+
+    if( v_buffersize.d != 8 &&
+        v_buffersize.d != 16 &&
+        v_buffersize.d != 24 &&
+        v_buffersize.d != 32) {
+            v_buffersize.f = 32;
+    }
+
+    ///usingGL = false;
+
+    SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 0);
+    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 0);
+    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 0);
+    SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 0);
+    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 0);
+    SDL_GL_SetAttribute(SDL_GL_ACCUM_RED_SIZE, 0);
+    SDL_GL_SetAttribute(SDL_GL_ACCUM_GREEN_SIZE, 0);
+    SDL_GL_SetAttribute(SDL_GL_ACCUM_BLUE_SIZE, 0);
+    SDL_GL_SetAttribute(SDL_GL_ACCUM_ALPHA_SIZE, 0);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, (int)v_buffersize.d);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, (int)r_depth.d);
+    SDL_GL_SetSwapInterval((int)r_vsync.d); /// v_vsync replaced with r_vsync! 
+
+    flags |= SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS;
+
+    if(!InWindow) {
+        flags |= SDL_WINDOW_FULLSCREEN;
+    }
+
+    sprintf(title, "3DGE");
+    window = SDL_CreateWindow(title,
+                              SDL_WINDOWPOS_CENTERED,
+                              SDL_WINDOWPOS_CENTERED,
+                              video_width,
+                              video_height,
+                              flags);
+
+    if(window == NULL) {
+        I_Error("I_InitScreen: Failed to create window");
+        return;
+    }
+
+    if((glContext = SDL_GL_CreateContext(window)) == NULL) {
+        // re-adjust depth size if video can't run it
+        if(r_depth.d >= 24) 
+		{
+            r_depth.f = 16;
+        }
+        else if(r_depth.d >= 16) 
+		{
+            r_depth = 8;
+        }
+
+        SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, (int)r_depth.d);
+
+        if((glContext = SDL_GL_CreateContext(window)) == NULL) {
+            // fall back to lower buffer setting
+            r_depth = 16;
+            SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, (int)r_depth.d);
+
+            if((glContext = SDL_GL_CreateContext(window)) == NULL) {
+                // give up
+                I_Error("I_InitScreen: Failed to create OpenGL context");
+                return;
+            }
+        }
+    }
+}
+
+//
+// I_ShutdownWait
+//
+
+int I_ShutdownWait(void) 
 {
-	if (! my_vis || graphics_shutdown)
-		return;
+    static SDL_Event event;
 
+    while(SDL_PollEvent(&event)) 
+	{
+        if(event.type == SDL_QUIT ||
+            (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE)) 
+		{
+            I_ShutdownVideo();
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+//
+// I_ShutdownVideo
+//
+/// void I_ShutdownGraphics(void)
+void I_ShutdownVideo(void) 
+{
+    if(glContext) 
+	{
+        SDL_GL_DeleteContext(glContext);
+        glContext = NULL;
+    }
+
+    if(window) 
+	{
+        SDL_DestroyWindow(window);
+        window = NULL;
+    }
+
+    SDL_Quit();
+}
+
+//
+// I_InitVideo
+//
+
+void I_InitVideo(void) 
+{
+    uint32_t f = SDL_INIT_VIDEO;
+
+#ifdef _DEBUG
+    f |= SDL_INIT_NOPARACHUTE;
+#endif
+
+    if(SDL_Init(f) < 0) {
+        I_Error("ERROR - Failed to initialize SDL");
+        return;
+    }
+
+    SDL_ShowCursor(0);
+    ///I_InitInputs();
+	I_ControlGetEvents();
+    I_InitScreen();
+}
+
+//
+// I_StartTic
+//
+	/// This is called in E_Main! 
+/* void I_StartTic(void) 
+{
+    SDL_Event event;
+
+    while(SDL_PollEvent(&Event)) 
+	{
+       E_PostEvent(&event);
+    }
+
+#ifdef _USE_XINPUT
+    I_XInputPollEvent();
+#endif
+
+    I_ReadMouse();
+} */
+
+void I_UpdateGrab(void) 
+{
+	bool enable;
 	grab_state = enable;
 
 	if (grab_state && in_grab.d)
 	{
-		SDL_ShowCursor(0);
-		SDL_WM_GrabInput(SDL_GRAB_ON);
+		SDL_SetRelativeMouseMode(SDL_TRUE);
 	}
 	else
 	{
-		SDL_ShowCursor(1);
-		SDL_WM_GrabInput(SDL_GRAB_OFF);
+		SDL_SetRelativeMouseMode(SDL_FALSE);
 	}
 }
 
+//
+// I_FinishUpdate
+//
 
-void I_StartupGraphics(void)
-{
-	if (M_CheckParm("-directx"))
-		force_directx = true;
+void I_FinishUpdate(void) {
+    I_UpdateGrab();
+    SDL_GL_SwapWindow(window);
 
-	if (M_CheckParm("-gdi") || M_CheckParm("-nodirectx"))
-		force_directx = false;
-
-	const char *driver = M_GetParm("-videodriver");
-
-	if (! driver)
-		driver = SDL_getenv("SDL_VIDEODRIVER");
-
-	if (! driver)
-	{
-		driver = "default";
-
-#ifdef WIN32
-		if (force_directx)
-			driver = "directx";
-#endif
-	}
-
-	if (stricmp(driver, "default") != 0)
-	{
-		char buffer[200];
-		snprintf(buffer, sizeof(buffer), "SDL_VIDEODRIVER=%s", driver);
-		SDL_putenv(buffer);
-	}
-
-	I_Printf("SDL_Video_Driver: %s\n", driver);
-
-
-	if (SDL_InitSubSystem(SDL_INIT_VIDEO) != 0)
-		I_Error("Couldn't init SDL VIDEO!\n%s\n", SDL_GetError());
-
-	if (M_CheckParm("-nograb"))
-		in_grab = 0;
-
-	SDL_GL_SetAttribute(SDL_GL_RED_SIZE,     8);
-	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,   8);
-	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,    8);
-	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE,    8);
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,   24);
-	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-	SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 1);
-
-	
-    // -DS- 2005/06/27 Detect SDL Resolutions
-	const SDL_VideoInfo *info = SDL_GetVideoInfo();
-
-	display_W = info->current_w;
-	display_H = info->current_h;
-
-	I_Printf("Desktop resolution: %dx%d\n", display_W, display_H);
-
-	SDL_Rect **modes = SDL_ListModes(info->vfmt,
-					  SDL_OPENGL | SDL_DOUBLEBUF | SDL_FULLSCREEN);
-
-	if (modes && modes != (SDL_Rect **)-1)
-	{
-		for (; *modes; modes++)
-		{
-			scrmode_c test_mode;
-
-			test_mode.width  = (*modes)->w;
-			test_mode.height = (*modes)->h;
-			test_mode.depth  = info->vfmt->BitsPerPixel;  // HMMMM ???
-			test_mode.full   = true;
-
-			if ((test_mode.width & 15) != 0)
-				continue;
-
-			if (test_mode.depth == 15 || test_mode.depth == 16 ||
-			    test_mode.depth == 24 || test_mode.depth == 32)
-			{
-				R_AddResolution(&test_mode);
-			}
-		}
-	}
-
-	// -ACB- 2000/03/16 Test for possible windowed resolutions
-	for (int full = 0; full <= 1; full++)
-	{
-		for (int depth = 16; depth <= 32; depth = depth+16)
-		{
-			for (int i = 0; possible_modes[i].w != -1; i++)
-			{
-				scrmode_c mode;
-
-				mode.width  = possible_modes[i].w;
-				mode.height = possible_modes[i].h;
-				mode.depth  = depth;
-				mode.full   = full;
-
-				int got_depth = SDL_VideoModeOK(mode.width, mode.height,
-						mode.depth, SDL_OPENGL | SDL_DOUBLEBUF |
-						(mode.full ? SDL_FULLSCREEN : 0));
-
-				if (R_DepthIsEquivalent(got_depth, mode.depth))
-				{
-					R_AddResolution(&mode);
-				}
-			}
-		}
-	}
-
-	I_Printf("I_StartupGraphics: initialisation OK\n");
+    ///BusyDisk = false;
 }
-
-
-bool I_SetScreenSize(scrmode_c *mode)
-{
-	I_GrabCursor(false);
-
-	I_Printf("I_SetScreenSize: trying %dx%d %dbpp (%s)\n",
-			 mode->width, mode->height, mode->depth,
-			 mode->full ? "fullscreen" : "windowed");
-
-	my_vis = SDL_SetVideoMode(mode->width, mode->height, mode->depth, 
-					SDL_OPENGL | SDL_DOUBLEBUF |
-					(mode->full ? SDL_FULLSCREEN : 0));
-
-	if (my_vis == NULL)
-	{
-		I_Printf("I_SetScreenSize: (mode not possible)\n");
-		return false;
-	}
-
-	if (my_vis->format->BytesPerPixel <= 1)
-	{
-		I_Printf("I_SetScreenSize: 8-bit mode set (not suitable)\n");
-		return false;
-	}
-
-	I_Printf("I_SetScreenSize: mode now %dx%d %dbpp flags:0x%x\n",
-			 my_vis->w, my_vis->h,
-			 my_vis->format->BitsPerPixel, my_vis->flags);
-
-	// -AJA- turn off cursor -- BIG performance increase.
-	//       Plus, the combination of no-cursor + grab gives 
-	//       continuous relative mouse motion.
-	I_GrabCursor(true);
-
-#ifdef DEVELOPERS
-	// override SDL signal handlers (the so-called "parachute").
-	signal(SIGFPE,SIG_DFL);
-	signal(SIGSEGV,SIG_DFL);
-#endif
-
-	glClearColor(0, 0, 0, 0);
-	glClear(GL_COLOR_BUFFER_BIT);
-
-	#ifdef WIN32
-	I_Printf("%i\n",WGLEW_EXT_swap_control);
-	if (WGLEW_EXT_swap_control) {
-		extern cvar_c r_vsync;
-		wglSwapIntervalEXT(r_vsync.d != 0);
-	}
-	#endif
-	
-	SDL_GL_SwapBuffers();
-
-	return true;
-}
-
-
-void I_StartFrame(void)
-{
-	glClearColor(0, 0, 0, 0);
-	glClear(GL_COLOR_BUFFER_BIT);
-}
-
-
-void I_FinishFrame(void)
-{
-	extern cvar_c r_vsync;
-
-	#ifdef WIN32
-	if (WGLEW_EXT_swap_control) {
-		if (r_vsync.d > 1)
-			glFinish();
-		wglSwapIntervalEXT(r_vsync.d != 0);
-	}
-	#endif
-
-	SDL_GL_SwapBuffers();
-	if (r_vsync.d > 1)
-			glFinish();
-	if (in_grab.CheckModified())
-		I_GrabCursor(grab_state);
-}
-
-
-void I_PutTitle(const char *title)
-{
-	SDL_WM_SetCaption(title, title);
-}
-
-void I_SetGamma(float gamma)
-{
-	if (SDL_SetGamma(gamma, gamma, gamma) < 0)
-		I_Printf("Failed to change gamma.\n");
-}
-
-
-void I_ShutdownGraphics(void)
-{
-	if (graphics_shutdown)
-		return;
-
-	graphics_shutdown = 1;
-
-	if (SDL_WasInit(SDL_INIT_EVERYTHING))
-	{
-        // reset gamma to default
-        I_SetGamma(1.0f);
-
-		SDL_Quit ();
-	}
-}
-
 
 void I_GetDesktopSize(int *width, int *height)
 {
-	*width  = display_W;
-	*height = display_H;
+	*width  = video_width;
+	*height = video_height;
 }
 
 //--- editor settings ---

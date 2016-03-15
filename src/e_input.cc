@@ -26,12 +26,11 @@
 // -MH- 1998/07/02 Added key_flyup and key_flydown variables (no logic yet)
 // -MH- 1998/08/18 Flyup and flydown logic
 //
-/// -CA- Joystick Handling is now done in e_inputjoy! 
 
 #include "i_defs.h"
-#include "i_defs_gl.h"
-#include "i_sdlinc.h"
-
+#include "i_defs_gl.h" //glFog logic
+//#include "../src/r_units.h"
+#include "../src/r_gldefs.h"
 
 #include "dm_defs.h"
 #include "dm_state.h"
@@ -45,16 +44,22 @@
 #include "r_misc.h"
 #include "z_zone.h"
 
+//do controls menu length properly
+//if list of actions for menu>=MAX_MENUACTION_LENGTH then won't display any more
+#define MAX_MENUACTION_LENGTH 25
 
+#define MAX_CURRENTACTIONS    16
+
+#define DCLICK_TIME     20
+
+byte consistancy[MAXPLAYERS][BACKUPTICS];
 
 extern bool CON_Responder(event_t *ev);
 extern bool   M_Responder(event_t *ev);
 extern bool   G_Responder(event_t *ev);
 
-///
-
-
-/// D_EVENT in CHOCOLATE DOOM (merged with e_input?!)
+/* extern int I_JoyGetAxis(int n);
+ */
 //
 // EVENT HANDLING
 //
@@ -67,52 +72,13 @@ static event_t events[MAXEVENTS];
 static int eventhead;
 static int eventtail;
 
-
-
-//
-// controls (have defaults) 
-// 
-int key_right;
-int key_left;
-int key_lookup;
-int key_lookdown;
-int key_lookcenter;
-
-// -ES- 1999/03/28 Zoom Key
-int key_zoom;
-
-// -CA- 2015/5/29 Fog Key (will replace with DDF commands later)
-int key_fog; //bool   gp
-
-int key_up;
-int key_down;
-int key_strafeleft;
-int key_straferight;
-int key_fire;
-int key_use;
-int key_strafe;
-int key_speed;
-int key_autorun;
-int key_nextweapon;
-int key_prevweapon;
-int key_map;
-int key_180;
-int key_talk;
-int key_console;
-int key_mlook;
-int key_secondatk;
-int key_reload;
-int key_action1;
-int key_action2;
-int key_action3;
-int key_action4;
-
-
-// -MH- 1998/07/10 Flying keys
-int key_flyup;
-int key_flydown;
-
 int key_weapons[10];
+
+playercontrols_t    Controls;
+
+#define GK_DOWN  0x01
+#define GK_UP    0x02
+
 
 #define MAXPLMOVE  (forwardmove[1])
 
@@ -123,20 +89,10 @@ static int upwardmove[2]  = {20, 30};
 static int angleturn[3] = {640, 1280, 320};  // + slow turn 
 static int mlookturn[3] = {400,  800, 200};
 
-#define SLOWTURNTICS    6
-
-#define NUMKEYS         512
-#define MAX_JOY_BUTTONS 20
-
-#define GK_DOWN  0x01
-#define GK_UP    0x02
-
 static byte gamekeydown[NUMKEYS];
-static bool  mousearray[MAX_MOUSE_BUTTONS + 1];
-static bool *mousebuttons = &mousearray[1];  // allow [-1]
 
-static int turnheld;   // for accelerative turning 
-static int mlookheld;  // for accelerative mlooking 
+int         turnheld;                       // for accelerative turning
+int         mlookheld;
 
 //-------------------------------------------
 // -KM-  1998/09/01 Analogue binding
@@ -147,38 +103,32 @@ int mouse_yaxis;
 
 int mouse_xsens;
 int mouse_ysens;
-///
-/// Mouse Controls added, from Chocolate Doom:
-///
-int mousebfire = 0;
-int mousebstrafe = 1;
-int mousebforward = 2;
-
-int mousebjump = -1;
-
-int mousebstrafeleft = -1;
-int mousebstraferight = -1;
-int mousebbackward = -1;
-int mousebuse = -1;
-
-int mousebprevweapon = -1;
-int mousebnextweapon = -1;
 
 int joy_axis[6] = { 0, 0, 0, 0, 0, 0 };
 
 static int joy_last_raw[6];
 
+static int mouse_ss_hack = 0;
+
 // The last one is ignored (AXIS_DISABLE)
 static float ball_deltas[6] = {0, 0, 0, 0, 0, 0};
 static float  joy_forces[6] = {0, 0, 0, 0, 0, 0};
 
-static int mouse_ss_hack = 0;
+cvar_c p_fdoubleclick;
+cvar_c p_sdoubleclick;
+
+cvar_c joy_dead;
+cvar_c joy_peak;
+cvar_c joy_tuning;
 
 cvar_c in_running;
 cvar_c in_stageturn;
 cvar_c mouse_filter;
 
 cvar_c debug_mouse;
+cvar_c debug_joyaxis;
+
+cvar_c mouse_x_sens, mouse_y_sens;
 
 // Speed controls
 int var_turnspeed;
@@ -186,7 +136,6 @@ int var_mlookspeed;
 int var_forwardspeed;
 int var_sidespeed;
 int var_flyspeed;
-
 
 /// menu keys:
 
@@ -229,6 +178,7 @@ static float speed_factors[12] =
 };
 
 
+
 bool E_MatchesKey(int keyvar, int key)
 {
 	return ((keyvar >> 16) == key) ||
@@ -252,7 +202,6 @@ bool E_IsKeyPressed(int keyvar)
 
 	return false;
 }
-
 
 static inline void AddKeyForce(int axis, int upkeys, int downkeys, float qty = 1.0f)
 {
@@ -282,45 +231,10 @@ static void UpdateForces(void)
 	AddKeyForce(AXIS_STRAFE,  key_straferight, key_strafeleft);
 
 	// ---Joystick---
-
-	/* for (int j = 0; j < 6; j++)
+/* 
+	for (int j = 0; j < 6; j++)
 		UpdateJoyAxis(j); */
 }
-
-static void SetMouseButtons(unsigned int buttons_mask)
-{
-    int i;
-	
-/* 	int key = (cmd->buttons & BT_WEAPONMASK) >> BT_WEAPONSHIFT;
-
-		if (key == BT_NEXT_WEAPON)
-		{
-			P_NextPrevWeapon(player, +1);
-		}
-		else if (key == BT_PREV_WEAPON)
-		{
-			P_NextPrevWeapon(player, -1);
-		}
-		 */
-    for (i=0; i<MAX_MOUSE_BUTTONS; ++i)
-    {
-        unsigned int button_on = (buttons_mask & (1 << i)) != 0;
-        // Detect button press:
-        if (!mousebuttons[i] && button_on)
-        {
-            if (i == mousebprevweapon)
-            {
-                ///P_NextPrevWeapon(player, +1);
-            }
-            else if (i == mousebnextweapon)
-            {
-                ///P_NextPrevWeapon(player, +1);
-            }
-        }
-	mousebuttons[i] = button_on;
-    }
-}
-
 
 #if 0  // UNUSED ???
 static int CmdChecksum(ticcmd_t * cmd)
@@ -335,7 +249,7 @@ static int CmdChecksum(ticcmd_t * cmd)
 }
 #endif
 
-/* void E_BuildTiccmd_Other(ticcmd_t * cmd)
+void E_BuildTiccmd_Other(ticcmd_t * cmd)
 {
 	///
 	/// -AJA- very hacky stuff here to test out split-screen mode
@@ -372,7 +286,7 @@ static int CmdChecksum(ticcmd_t * cmd)
 
 	for (int k = 0; k < 6; k++)
 		ball_deltas[k] = 0;
-} */
+}
 
 //
 // E_BuildTiccmd
@@ -383,18 +297,25 @@ static int CmdChecksum(ticcmd_t * cmd)
 // -ACB- 1998/07/10 Reformatted: I can read the code! :)
 // -ACB- 1998/09/06 Apply speed controls to -KM-'s analogue controls
 //
+
+/// Completely rewrote this based on Doom 64 EX.
+
 static bool allow180 = true;
 static bool allowzoom = true;
 static bool allowautorun = true;
 
 void E_BuildTiccmd(ticcmd_t * cmd)
 {
-		///UpdateForces(); (for joystick code)
+	UpdateForces();
+    Z_Clear(cmd, ticcmd_t, 1);
+	
+	playercontrols_t    *pc;
 
-	Z_Clear(cmd, ticcmd_t, 1);
+    pc = &Controls;
 
 	bool strafe = E_IsKeyPressed(key_strafe);
 	int  speed  = E_IsKeyPressed(key_speed) ? 1 : 0;
+	int  i;
 
 	if (in_running.d)
 		speed = !speed;
@@ -587,53 +508,122 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 
 	for (int k = 0; k < 6; k++)
 		ball_deltas[k] = 0;
+
+    //doubleclick use
+    i=pc->flags & PCF_FDCLICK;
+    if(pc->key[PCKEY_FORWARD] & PCKF_DOUBLEUSE) 
+	{
+        i ^= PCF_FDCLICK;
+    }
+
+    if(i) 
+	{
+        pc->flags ^= PCF_FDCLICK;
+        if(pc->key[PCKEY_FORWARD] & PCKF_DOUBLEUSE) 
+		{
+            if(pc->flags & PCF_FDCLICK2) 
+			{
+                if(p_fdoubleclick.d)
+				{
+                    cmd->buttons |= BT_USE;
+                }
+
+                pc->flags &= ~PCF_FDCLICK2;
+            }
+            else {
+                pc->flags |= PCF_FDCLICK2;
+            }
+        }
+        pc->fdclicktime = 0;
+    }
+    else if(pc->fdclicktime >= 0) 
+	{
+        pc->fdclicktime += ticdup;
+        if(pc->fdclicktime > DCLICK_TIME) 
+		{
+            pc->flags &= ~PCF_FDCLICK2;
+            pc->fdclicktime = -1;
+        }
+    }
+
+    i = pc->flags & PCF_SDCLICK;
+	
+    if(pc->key[PCKEY_STRAFE] & PCKF_DOUBLEUSE) 
+	{
+        i ^= PCF_SDCLICK;
+    }
+
+    if(i) 
+	{
+        pc->flags ^= PCF_SDCLICK;
+        if(pc->key[PCKEY_STRAFE] & PCKF_DOUBLEUSE) 
+		{
+            if(pc->flags & PCF_SDCLICK2) 
+			{
+                if(p_sdoubleclick.d) 
+				{
+                    cmd->buttons |= BT_USE;
+                }
+
+                pc->flags &= ~PCF_SDCLICK2;
+            }
+            else {
+                pc->flags |= PCF_SDCLICK2;
+            }
+        }
+        pc->sdclicktime = 0;
+    }
+    else if(pc->sdclicktime >= 0) 
+	{
+        pc->sdclicktime += ticdup;
+        if(pc->sdclicktime > DCLICK_TIME) 
+		{
+            pc->flags &= ~PCF_SDCLICK2;
+            pc->sdclicktime = -1;
+        }
+    }
+
+
+}
+
+void G_DoCmdMouseMove(int x, int y) 
+{
+    playercontrols_t *pc;
+
+    pc = &Controls;
+    pc->mousex += ((I_MouseAccel(x) * (int)mouse_x_sens.d) / 128);
+    pc->mousey += ((I_MouseAccel(y) * (int)mouse_y_sens.d) / 128);
 }
 
 //
 // Get info needed to make ticcmd_ts for the players.
 // 
+
+/// Doom64EX: INP_Responder is 
 bool INP_Responder(event_t * ev)
 {
-	SDL_Keysym *sym; ///add this here for SDL stuff!
-
-	switch (ev->type)
+	switch(ev->type) 
 	{
-		case ev_keydown:
-			/*if (splitscreen_mode && sym >= KEYD_MOUSE1 && sym <= KEYD_MOUSE6)
-			{
-				mouse_ss_hack |= (1 << (sym - KEYD_MOUSE1));
-				return true;
-			} */
+    case ev_keyup:
+    case ev_keydown:
+        if((ev->data1 < 0) || (ev->data1 >= NUMKEYS)) 
+		{
+            break;
+        }
+	case ev_mousedown:
+    case ev_mouseup:
+/*         ProcessButtonActions(MouseActions, ev->data1, MouseButtons);
+        MouseButtons = ev->data1; */
 
-			if (ev->data1 < NUMKEYS)
-			{
-				gamekeydown[ev->data1] &= ~GK_UP;
-				gamekeydown[ev->data1] |=  GK_DOWN;
-			}
+        // MP2E 12/10/2013: ev_mousedown and mouseup need G_DoCmdMouseMove
+        G_DoCmdMouseMove(ev->data2, ev->data3);
+        break;
 
-			// eat key down events 
-			return true;
-
-		case ev_keyup:
-			/*if (splitscreen_mode && sym >= KEYD_MOUSE1 && sym <= KEYD_MOUSE6)
-			{
-				mouse_ss_hack &= ~(1 << (sym - KEYD_MOUSE1));
-				return false;
-			}*/
-
-			if (ev->data1 < NUMKEYS)
-			{
-				gamekeydown[ev->data1] |= GK_UP;
-			}
-
-			// always let key up events filter down 
-			return false;
-
-		case ev_mouse:
+    case ev_mouse:
 		{
 			float dx = ev->data2;///mouse.dx; data2: X axis mouse movement (turn).
 			float dy = ev->data3;///mouse.dy; data3: Y axis mouse movement (forward/backward).
-			SetMouseButtons(ev->data1);
+			///SetMouseButtons(ev->data1);
 
 			// perform inversion
  			if ((ev->data2+1) & 1) dx = -dx;
@@ -663,12 +653,17 @@ bool INP_Responder(event_t * ev)
 
 			return true;  // eat events
 		}
+        break;
 
-		default:
-			break;
-	}
-
+		#ifdef _USE_XINPUT  // XINPUT
+		case ev_gamepad:
+			I_XInputReadActions(ev);
+        break;
+		#endif
+    }
+	
 	return false;
+
 }
 
 //
@@ -830,24 +825,24 @@ static specialkey_t special_keys[] =
     { KEYD_F12, "F12" },
 
 	// numeric keypad
-	{ KEYP_0, "KP_0" },
-	{ KEYP_1, "KP_1" },
-	{ KEYP_2, "KP_2" },
-	{ KEYP_3, "KP_3" },
-	{ KEYP_4, "KP_4" },
-	{ KEYP_5, "KP_5" },
-	{ KEYP_6, "KP_6" },
-	{ KEYP_7, "KP_7" },
-	{ KEYP_8, "KP_8" },
-	{ KEYP_9, "KP_9" },
+	{ KEYD_KP0, "KP_0" },
+	{ KEYD_KP1, "KP_1" },
+	{ KEYD_KP2, "KP_2" },
+	{ KEYD_KP3, "KP_3" },
+	{ KEYD_KP4, "KP_4" },
+	{ KEYD_KP5, "KP_5" },
+	{ KEYD_KP6, "KP_6" },
+	{ KEYD_KP7, "KP_7" },
+	{ KEYD_KP8, "KP_8" },
+	{ KEYD_KP9, "KP_9" },
 	
-	{ KEYP_PERIOD,   "KP_DOT" },
-	{ KEYP_PLUS,  "KP_PLUS" },
-	{ KEYP_MINUS, "KP_MINUS" },
-	{ KEYP_MULTIPLY,  "KP_STAR" },
-	{ KEYP_DIVIDE, "KP_SLASH" },
-	{ KEYP_EQUALS, "KP_EQUAL" },
-	{ KEYP_ENTER, "KP_ENTER" },
+	{ KEYD_KP_DOT,   "KP_DOT" },
+	{ KEYD_KP_PLUS,  "KP_PLUS" },
+	{ KEYD_KP_MINUS, "KP_MINUS" },
+	{ KEYD_KP_STAR,  "KP_STAR" },
+	{ KEYD_KP_SLASH, "KP_SLASH" },
+	{ KEYD_KP_EQUAL, "KP_EQUAL" },
+	{ KEYD_KP_ENTER, "KP_ENTER" },
 
 	// mouse buttons
     { KEYD_MOUSE1, "Mouse1" },
@@ -881,7 +876,6 @@ static specialkey_t special_keys[] =
 };
 
 
-///In Chocolate Doom, this should be... GetTypedChar?!
 const char *E_GetKeyName(int key)
 {
 	static char buffer[32];

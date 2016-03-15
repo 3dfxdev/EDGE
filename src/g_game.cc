@@ -24,7 +24,6 @@
 //----------------------------------------------------------------------------
 
 #include "i_defs.h"
-#include "i_sdlinc.h"
 
 #include <time.h>
 #include <limits.h>
@@ -323,13 +322,13 @@ void G_DoLoadLevel(void)
 // 
 bool G_Responder(event_t * ev)
 {
-	SDL_Keysym *sym; 
+	///SDL_Keysym *sym; 
 	// any other key pops up menu if in demos
 	if (gameaction == ga_nothing && (gamestate == GS_TITLESCREEN))
 	{
 		if (ev->type == ev_keydown ||  
 	    (ev->type == ev_mouse && ev->data1) || 
-	    (ev->type == ev_joystick && ev->data1) )
+	    (ev->type == ev_gamepad && ev->data1) )
 		{
 			M_StartControlPanel();
 			S_StartFX(sfx_swtchn, SNCAT_UI);

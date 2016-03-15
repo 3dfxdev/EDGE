@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-//  EDGE2 Resolution Handling
+///  EDGE2 Resolution Handling
 //----------------------------------------------------------------------------
 // 
 //  Copyright (c) 1999-2009  The EDGE2 Team.
@@ -23,7 +23,7 @@
 //
 //----------------------------------------------------------------------------
 //
-// Original Author: Chi Hoang
+/// Gutted previous r_modes.h, now this is *only* a header file and THAT'S IT!
 //
 
 #ifndef __VIDEORES_H__
@@ -33,11 +33,26 @@
 
 #include "../epi/arrays.h"
 
+
 // Macros
 #define FROM_320(x)  ((x) * SCREENWIDTH  / 320)
 #define FROM_200(y)  ((y) * SCREENHEIGHT / 200)
 
-// Screen mode information
+extern int          video_width;
+extern int          video_height;
+extern float        video_ratio;
+extern int          window_focused;
+
+extern  bool    InWindow;
+extern  bool    setWindow;
+
+///// Exported Vars
+extern int SCREENWIDTH;
+extern int SCREENHEIGHT;
+extern int SCREENBITS;
+extern bool FULLSCREEN;
+
+/* // Screen mode information
 class scrmode_c
 {
 public:
@@ -98,7 +113,7 @@ bool R_ChangeResolution(scrmode_c *mode);
 void R_SoftInitResolution(void);
 
 // only call these when it really is time to do the actual resolution
-// or view size change, i.e. at the start of a frame.
+// or view size change, i.e. at the start of a frame. */
 
 #endif // __VIDEORES_H__
 
