@@ -27,7 +27,11 @@
 #define __M_MENU__
 
 #include "e_event.h"
+#ifdef MACOSX
+#include <SDL2/SDL_opengl.h>
+#else
 #include "SDL_opengl.h"
+#endif
 
 struct sfx_s;
   

@@ -30,7 +30,7 @@
 #include "i_defs.h"
 #include "i_defs_gl.h" //glFog logic
 //#include "../src/r_units.h"
-#include "../src/r_gldefs.h"
+//#include "../src/r_gldefs.h"
 
 #include "dm_defs.h"
 #include "dm_state.h"

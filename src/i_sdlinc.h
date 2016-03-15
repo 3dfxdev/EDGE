@@ -22,16 +22,20 @@
 ///#ifdef WIN32
 ///#include <L:/hyper3DGE/lib_win32/SDL/include/SDL.h> 
 ///#else
+#ifdef MACOSX
+#include <SDL2/SDL.h>
+#else
 #include <SDL.h>
-///#endif 
+#endif 
 
-
+/* //This will never be invoked after migrating to SDL2
 // workaround for old SDL version (< 1.2.10)
 #if (SDL_PATCHLEVEL < 10)
 #include <stdlib.h>
 #define SDL_getenv  getenv
 #define SDL_putenv  putenv
 #endif
+*/
 
 #include "i_local.h"  // FIXME: remove
 

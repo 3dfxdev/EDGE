@@ -29,7 +29,11 @@
 #include "../ddf/main.h"
 #include "r_image.h"
 
+#ifdef MACOSX
+#include <SDL2/SDL_opengl.h>
+#else
 #include "SDL_opengl.h"
+#endif
 
 typedef GLuint        texture;
 typedef GLfloat        rfloat;

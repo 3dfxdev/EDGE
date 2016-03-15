@@ -29,7 +29,6 @@
 #include "m_misc.h"
 #include "m_random.h"
 #include "s_sound.h"
-#include "../dosbox/dbopl.h"
 #include "s_cache.h"
 #include "s_blit.h"
 #include "w_wad.h"

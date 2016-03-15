@@ -27,7 +27,6 @@
 #define __SYSTEM_SPECIFIC_DEFS_OPENGL__
 
 #ifdef LINUX
-#include <GL/glew.h>
 #include <GL/gl.h>
 #include <GL/glext.h>
 #endif
@@ -37,9 +36,9 @@
 #endif
 
 #ifdef MACOSX
-#include <GL/glew.h>
-#include <OpenGL/gl.h>
-#include <OpenGL/glext.h>
+#include <SDL2/SDL_opengl.h> 
+//#include <OpenGL/gl.h>
+//#include <OpenGL/glext.h>
 #endif
 
 #ifdef DREAMCAST
