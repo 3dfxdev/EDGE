@@ -25,7 +25,7 @@
 #include <unistd.h>
 
 #ifdef MACOSX
-#include <SDL2/SDL.h>  // needed for proper SDL main linkage
+#include <SDL.h>  // needed for proper SDL main linkage
 #endif
 
 #include "dm_defs.h"

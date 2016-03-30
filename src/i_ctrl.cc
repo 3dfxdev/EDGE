@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------------
 //  EDGE2 SDL Controller Stuff
 //----------------------------------------------------------------------------
-//  Copyright (c) 2015 Fraggle (Chocolate Doom)
+// 
 //  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
@@ -18,7 +18,6 @@
 
 #include "i_defs.h"
 #include "i_sdlinc.h"
-#include "SDL_keycode.h"
 
 #include "dm_defs.h"
 #include "dm_state.h"
@@ -28,10 +27,12 @@
 #include "m_argv.h"
 #include "r_modes.h"
 
+
 #undef DEBUG_KB
 
-static const int scancode_translate_table[] = SCANCODE_TO_KEYS_ARRAY;
-
+int window_focused;
+int mouse_accel;
+bool window_mouse;
 // FIXME: Combine all these SDL bool vars into an int/enum'd flags structure
 
 // Work around for alt-tabbing
@@ -40,7 +41,7 @@ bool eat_mouse_motion = true;
 
 cvar_c in_keypad;
 cvar_c in_warpmouse;
-/* 
+
 
 bool nojoy;  // what a wowser, joysticks completely disabled
 
@@ -53,67 +54,21 @@ static SDL_Joystick *joy_info;
 static int joy_num_axes;
 static int joy_num_buttons;
 static int joy_num_hats;
-static int joy_num_balls; */
-
-// Bit mask of mouse button state.
-static unsigned int mouse_button_state = 0;
-
-// If true, I_StartTextInput() has been called, and we are populating
-// the data3 field of ev_keydown events.
-static bool text_input_enabled = true;
-
-static const char shiftxform[] =
-{
-    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
-    11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-    21, 22, 23, 24, 25, 26, 27, 28, 29, 30,
-    31, ' ', '!', '"', '#', '$', '%', '&',
-    '"', // shift-'
-    '(', ')', '*', '+',
-    '<', // shift-,
-    '_', // shift--
-    '>', // shift-.
-    '?', // shift-/
-    ')', // shift-0
-    '!', // shift-1
-    '@', // shift-2
-    '#', // shift-3
-    '$', // shift-4
-    '%', // shift-5
-    '^', // shift-6
-    '&', // shift-7
-    '*', // shift-8
-    '(', // shift-9
-    ':',
-    ':', // shift-;
-    '<',
-    '+', // shift-=
-    '>', '?', '@',
-    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N',
-    'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
-    '[', // shift-[
-    '!', // shift-backslash - OH MY GOD DOES WATCOM SUCK
-    ']', // shift-]
-    '"', '_',
-    '\'', // shift-`
-    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N',
-    'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
-    '{', '|', '}', '~', 127
-};
+static int joy_num_balls;
 
 //
-// Translates a key from SDL -> EDGE
+// Translates a key from SDL -> EDGE2
 // Returns -1 if no suitable translation exists.
 //
-int TranslateSDLKey(SDL_Keysym *sym)///(int key)
+// For SDL2, SDKL_KPx has become SDLK_KP_x
+//
+int TranslateSDLKey(int key)
 {
-	
-	int scancode = sym->scancode;
 	// if keypad is not wanted, convert to normal keys
-/* 	if (! in_keypad.d)
+	if (! in_keypad.d)
 	{
-		if (SDLK_KP0 <= key && key <= SDLK_KP9)
-			return '0' + (key - SDLK_KP0);
+		if (SDLK_KP_0 <= key && key <= SDLK_KP_9)
+			return '0' + (key - SDLK_KP_0);
 
 		switch (key)
 		{
@@ -127,37 +82,79 @@ int TranslateSDLKey(SDL_Keysym *sym)///(int key)
 
 			default: break;
 		}
-	} */
-
-	switch (scancode) 
-	{
-		case SDL_SCANCODE_LCTRL:
-        case SDL_SCANCODE_RCTRL:
-            return KEYD_RCTRL;
-
-        case SDL_SCANCODE_LSHIFT:
-        case SDL_SCANCODE_RSHIFT:
-            return KEYD_RSHIFT;
-
-        case SDL_SCANCODE_LALT:
-            return KEYD_LALT;
-
-        case SDL_SCANCODE_RALT:
-            return KEYD_RALT;
-
-         default:
-            if (scancode >= 0 && scancode < arrlen(scancode_translate_table))
-            {
-                return scancode_translate_table[scancode];
-            }
-            else
-            {
-                return 0;
-            } 
-
- 	if (scancode <= 0x7f)
-		return tolower(scancode);
 	}
+
+	switch (key) 
+	{
+		case SDLK_TAB: return KEYD_TAB;
+		case SDLK_RETURN: return KEYD_ENTER;
+		case SDLK_ESCAPE: return KEYD_ESCAPE;
+		case SDLK_BACKSPACE: return KEYD_BACKSPACE;
+
+		case SDLK_UP:    return KEYD_UPARROW;
+		case SDLK_DOWN:  return KEYD_DOWNARROW;
+		case SDLK_LEFT:  return KEYD_LEFTARROW;
+		case SDLK_RIGHT: return KEYD_RIGHTARROW;
+
+		case SDLK_HOME:   return KEYD_HOME;
+		case SDLK_END:    return KEYD_END;
+		case SDLK_INSERT: return KEYD_INSERT;
+		case SDLK_DELETE: return KEYD_DELETE;
+		case SDLK_PAGEUP: return KEYD_PGUP;
+		case SDLK_PAGEDOWN: return KEYD_PGDN;
+
+		case SDLK_F1:  return KEYD_F1;
+		case SDLK_F2:  return KEYD_F2;
+		case SDLK_F3:  return KEYD_F3;
+		case SDLK_F4:  return KEYD_F4;
+		case SDLK_F5:  return KEYD_F5;
+		case SDLK_F6:  return KEYD_F6;
+		case SDLK_F7:  return KEYD_F7;
+		case SDLK_F8:  return KEYD_F8;
+		case SDLK_F9:  return KEYD_F9;
+		case SDLK_F10: return KEYD_F10;
+		case SDLK_F11: return KEYD_F11;
+		case SDLK_F12: return KEYD_F12;
+
+		case SDLK_KP_0: return KEYD_KP0;
+		case SDLK_KP_1: return KEYD_KP1;
+		case SDLK_KP_2: return KEYD_KP2;
+		case SDLK_KP_3: return KEYD_KP3;
+		case SDLK_KP_4: return KEYD_KP4;
+		case SDLK_KP_5: return KEYD_KP5;
+		case SDLK_KP_6: return KEYD_KP6;
+		case SDLK_KP_7: return KEYD_KP7;
+		case SDLK_KP_8: return KEYD_KP8;
+		case SDLK_KP_9: return KEYD_KP9;
+
+		case SDLK_KP_PERIOD:   return KEYD_KP_DOT;
+		case SDLK_KP_PLUS:     return KEYD_KP_PLUS;
+		case SDLK_KP_MINUS:    return KEYD_KP_MINUS;
+		case SDLK_KP_MULTIPLY: return KEYD_KP_STAR;
+		case SDLK_KP_DIVIDE:   return KEYD_KP_SLASH;
+		case SDLK_KP_EQUALS:   return KEYD_KP_EQUAL;
+		case SDLK_KP_ENTER:    return KEYD_KP_ENTER;
+
+		case SDLK_PRINTSCREEN:     return KEYD_PRTSCR;
+		case SDLK_CAPSLOCK:  return KEYD_CAPSLOCK;
+		case SDLK_NUMLOCKCLEAR:   return KEYD_NUMLOCK;
+		case SDLK_SCROLLLOCK: return KEYD_SCRLOCK;
+		case SDLK_PAUSE:     return KEYD_PAUSE;
+
+		case SDLK_LSHIFT:
+		case SDLK_RSHIFT: return KEYD_RSHIFT;
+		case SDLK_LCTRL:
+		case SDLK_RCTRL:  return KEYD_RCTRL;
+		case SDLK_LGUI:
+		case SDLK_LALT:   return KEYD_LALT;
+		case SDLK_RGUI:
+		case SDLK_RALT:   return KEYD_RALT;
+
+		default: break;
+	}
+
+	if (key <= 0x7f)
+		return tolower(key);
 
 	return -1;
 }
@@ -186,134 +183,19 @@ void HandleFocusLost(void)
 	app_state &= ~APP_STATE_ACTIVE;							
 }
 
-static int GetLocalizedKey(SDL_Keysym *sym)
-{
-    // When using Vanilla mapping, we just base everything off the scancode
-    // and always pretend the user is using a US layout keyboard.
-
-        int result = sym->sym;
-
-        if (result < 0 || result >= 128)
-        {
-            result = 0;
-        }
-
-        return result;
+static int I_SDLtoDoomMouseState(Uint8 buttonstate) {
+    return 0
+           | (buttonstate & SDL_BUTTON(SDL_BUTTON_LEFT)      ? 1 : 0)
+           | (buttonstate & SDL_BUTTON(SDL_BUTTON_MIDDLE)    ? 2 : 0)
+           | (buttonstate & SDL_BUTTON(SDL_BUTTON_RIGHT)     ? 4 : 0);
 }
 
 
-// Get the equivalent ASCII (Unicode?) character for a keypress.
-static int GetTypedChar(SDL_Keysym *sym)
+void HandleKeyEvent(SDL_Event* ev)
 {
-    // We only return typed characters when entering text, after
-    // I_StartTextInput() has been called. Otherwise we return nothing.
-    if (!text_input_enabled)
-    {
-        return 0;
-    }
-
-    // If we're strictly emulating Vanilla, we should always act like
-    // we're using a US layout keyboard (in ev_keydown, data1=data2).
-    // Otherwise we should use the native key mapping.
-
-        SDL_Event next_event;
-
-        // Special cases, where we always return a fixed value.
-        switch (sym->sym)
-        {
-            case SDLK_BACKSPACE: return KEYD_BACKSPACE;
-            case SDLK_RETURN:    return KEYD_ENTER;
-            default:
-                break;
-        }
-
-		/// The following is from Fraggle, who was kind enough to lay it out in Chocolate Doom:
-        // The following is a gross hack, but I don't see an easier way
-        // of doing this within the SDL2 API (in SDL1 it was easier).
-        // We want to get the fully transformed input character associated
-        // with this keypress - correct keyboard layout, appropriately
-        // transformed by any modifier keys, etc. So peek ahead in the SDL
-        // event queue and see if the key press is immediately followed by
-        // an SDL_TEXTINPUT event. If it is, it's reasonable to assume the
-        // key press and the text input are connected. Technically the SDL
-        // API does not guarantee anything of the sort, but in practice this
-        // is what happens and I've verified it through manual inspect of
-        // the SDL source code.
-        //
-        // In an ideal world we'd split out ev_keydown into a separate
-        // ev_textinput event, as SDL2 has done. But this doesn't work
-        // (I experimented with the idea), because lots of Doom's code is
-        // based around different responders "eating" events to stop them
-        // being passed on to another responder. If code is listening for
-        // a text input, it cannot block the corresponding keydown events
-        // which can affect other responders.
-        //
-        // So we're stuck with this as a rather fragile alternative.
-
-        if (SDL_PeepEvents(&next_event, 1, SDL_PEEKEVENT,
-                           SDL_FIRSTEVENT, SDL_LASTEVENT) == 1
-         && next_event.type == SDL_TEXTINPUT)
-        {
-            // If an SDL_TEXTINPUT event is found, we always assume it
-            // matches the key press. The input text must be a single
-            // ASCII character - if it isn't, it's possible the input
-            // char is a Unicode value instead; better to send a null
-            // character than the unshifted key.
-            if (strlen(next_event.text.text) == 1
-             && (next_event.text.text[0] & 0x80) == 0)
-            {
-                return next_event.text.text[0];
-            }
-        }
-
-        // Failed to find anything :/
-        return 0;
-}
-
-
-/// I_HandleKeyboardEvent(SDL_Event *sdlevent) in i_input.c (Chocolate Doom/Fraggle)
-void I_HandleKeyEvent(SDL_Event* ev)
-{	
-    event_t event;
-
-    switch (ev->type)
-    {
-        case SDL_KEYDOWN:
-            event.type = ev_keydown;
-            event.data1 = TranslateSDLKey(&ev->key.keysym);
-            event.data2 = GetLocalizedKey(&ev->key.keysym);
-            event.data3 = GetTypedChar(&ev->key.keysym);
-
-            if (event.data1 != 0)
-            {
-                E_PostEvent(&event);
-            }
-            break;
-
-        case SDL_KEYUP:
-            event.type = ev_keyup;
-            event.data1 = TranslateSDLKey(&ev->key.keysym);
-
-            // data2/data3 are initialized to zero for ev_keyup.
-            // For ev_keydown it's the shifted Unicode character
-            // that was typed, but if something wants to detect
-            // key releases it should do so based on data1
-            // (key ID), not the printable char.
-
-            event.data2 = 0;
-            event.data3 = 0;
-
-            if (event.data1 != 0)
-            {
-                E_PostEvent(&event);
-            }
-            break;
-
-        default:
-            break;
-    }
-
-/* 	if (ev->type != SDL_KEYDOWN && ev->type != SDL_KEYUP) 
+	
+	SDL_PumpEvents();
+	if (ev->type != SDL_KEYDOWN && ev->type != SDL_KEYUP) 
 		return;
 
 #ifdef DEBUG_KB
@@ -323,168 +205,117 @@ void I_HandleKeyEvent(SDL_Event* ev)
 		L_WriteDebug("  HandleKey: UP\n");
 #endif
 
-	int sym = (int)ev->key.keysym.sym;
-
+	// For SDL2, we no longer require the SYM codes.
+	///int sym = (int)ev->key.keysym.sym;
 	event_t event;
-	event.value.key.sym = TranslateSDLKey(sym);
-	event.value.key.unicode = ev->key.keysym.unicode;
+    uint32_t mwheeluptic = 0, mwheeldowntic = 0;
+    uint32_t tic = gametic;
 
-	// handle certain keys which don't behave normally
-	if (sym == SDLK_CAPSLOCK || sym == SDLK_NUMLOCK)
+    switch(ev->type) 
 	{
-#ifdef DEBUG_KB
-		L_WriteDebug("   HandleKey: CAPS or NUMLOCK\n");
-#endif
+	case SDL_KEYDOWN:
+		if(ev->key.repeat)
+			break;
+        event.type = ev_keydown;
+        event.data1 = TranslateSDLKey(ev->key.keysym.sym);
+        E_PostEvent(&event);
+        break;
 
-		// -AJA- for some reason (perhaps not SDL's fault), the CAPSLOCK
-		//       key behaves differently on Win32 and Linux.  Under Win32
-		//       we get the "long press" behaviour, but on Linux we get
-		//       "faked key-ups" behaviour.  Oi oi oi.
-#ifdef LINUX
-		if (ev->type != SDL_KEYDOWN)
-			return;
-#endif
-		event.type = ev_keydown;
+    case SDL_KEYUP:
+        event.type = ev_keyup;
+        event.data1 = TranslateSDLKey(ev->key.keysym.sym);
+        E_PostEvent(&event);
+        break;
+
+	case SDL_MOUSEBUTTONDOWN:
+	case SDL_MOUSEBUTTONUP:
+		 if (!window_focused)
+			break;
+
+		event.type = (ev->type == SDL_MOUSEBUTTONUP) ? ev_mouseup : ev_mousedown;
+		event.data1 =
+			I_SDLtoDoomMouseState(SDL_GetMouseState(NULL, NULL));
+		event.data2 = event.data3 = 0;
+
 		E_PostEvent(&event);
+		break;
 
-		event.type = ev_keyup;
+	case SDL_MOUSEWHEEL:
+		if (ev->wheel.y > 0) 
+		{
+			event.type = ev_keydown;
+			event.data1 = KEYD_MWHEELUP;
+			mwheeluptic = tic;
+		} 
+		else if (ev->wheel.y < 0) 
+		{
+			event.type = ev_keydown;
+			event.data1 = KEYD_MWHEELDOWN;
+			mwheeldowntic = tic;
+		} 
+		else
+			break;
+
+		event.data2 = event.data3 = 0;
 		E_PostEvent(&event);
-		return;
-	}
+		break;
 
-	event.type = (ev->type == SDL_KEYDOWN) ? ev_keydown : ev_keyup;
+	case SDL_WINDOWEVENT:
+		switch (ev->window.event) 
+		{
+		case SDL_WINDOWEVENT_FOCUS_GAINED:
+			window_focused = true;
+			break;
 
-#ifdef DEBUG_KB
-	L_WriteDebug("   HandleKey: sym=%d scan=%d unicode=%d --> key=%d\n",
-			sym, ev->key.keysym.scancode, ev->key.keysym.unicode, event.value.key);
-#endif
+		case SDL_WINDOWEVENT_FOCUS_LOST:
+			window_focused = false;
+			break;
 
-	if (event.value.key.sym < 0 &&
-	    event.value.key.unicode == 0)
-	{
-		// No translation possible for SDL symbol and no unicode value
-		return;
-	}
+		case SDL_WINDOWEVENT_ENTER:
+			window_mouse = true;
+			break;
 
-    if (event.value.key.sym == KEYD_TAB && alt_is_down)
-    {
-#ifdef DEBUG_KB
-		L_WriteDebug("   HandleKey: ALT-TAB\n");
-#endif
-        alt_is_down = false;
-		return;
+		case SDL_WINDOWEVENT_LEAVE:
+			window_mouse = false;
+			break;
+
+		default:
+			break;
+		}
+		break;
+
+    case SDL_QUIT:
+         I_CloseProgram(-1);
+        break;
+
+    default:
+        break;
     }
 
-	if (event.value.key.sym == KEYD_LALT)
-		alt_is_down = (event.type == ev_keydown); */
+    if(mwheeluptic && mwheeluptic + 1 < tic) {
+        event.type = ev_keyup;
+        event.data1 = KEYD_MWHEELUP;
+        E_PostEvent(&event);
+        mwheeluptic = 0;
+    }
+
+    if(mwheeldowntic && mwheeldowntic + 1 < tic) {
+        event.type = ev_keyup;
+        event.data1 = KEYD_MWHEELDOWN;
+        E_PostEvent(&event);
+        mwheeldowntic = 0;
+    }
+	
+	
 
 	E_PostEvent(&event);
 }
 
-void I_StartTextInput(int x1, int y1, int x2, int y2)
+
+void HandleMouseButtonEvent(SDL_Event * ev)
 {
-    text_input_enabled = true;
-
-        // SDL2-TODO: SDL_SetTextInputRect(...);
-     SDL_StartTextInput();
-
-}
-
-void I_StopTextInput(void)
-{
-    text_input_enabled = false;
-
-    SDL_StopTextInput();
-
-}
-
-static void UpdateMouseButtonState(unsigned int button, bool on)
-{
-    event_t event;
-
-    if (button < SDL_BUTTON_LEFT || button > MAX_MOUSE_BUTTONS)
-    {
-        return;
-    }
-
-    // Note: button "0" is left, button "1" is right,
-    // button "2" is middle for Doom.  This is different
-    // to how SDL sees things.
-
-    switch (button)
-    {
-        case SDL_BUTTON_LEFT:
-            button = 0;
-            break;
-
-        case SDL_BUTTON_RIGHT:
-            button = 1;
-            break;
-
-        case SDL_BUTTON_MIDDLE:
-            button = 2;
-            break;
-
-        default:
-            // SDL buttons are indexed from 1.
-            --button;
-            break;
-    }
-
-    // Turn bit representing this button on or off.
-
-    if (on)
-    {
-        mouse_button_state |= (1 << button);
-    }
-    else
-    {
-        mouse_button_state &= ~(1 << button);
-    }
-
-    // Post an event with the new button state.
-
-    event.type = ev_mouse;
-    event.data1 = mouse_button_state;
-    event.data2 = event.data3 = 0;
-    E_PostEvent(&event);
-}
-
-void I_HandleMouseEvent(SDL_Event *sdlevent)
-{
-    switch (sdlevent->type)
-    {
-        case SDL_MOUSEBUTTONDOWN:
-            UpdateMouseButtonState(sdlevent->button.button, true);
-            break;
-
-        case SDL_MOUSEBUTTONUP:
-            UpdateMouseButtonState(sdlevent->button.button, false);
-            break;
-
-        default:
-            break;
-    }
-}
-
-
-void HandleMouseButtonEvent(SDL_Event* ev)
-{
-	  switch (ev->type)
-    {
-        case SDL_MOUSEBUTTONDOWN:
-            UpdateMouseButtonState(ev->button.button, true);
-            break;
-
-        case SDL_MOUSEBUTTONUP:
-            UpdateMouseButtonState(ev->button.button, false);
-            break;
-
-        default:
-            break;
-    }
-	
-/* 	event_t event;
+	event_t event;
+	SDL_PumpEvents();
 	
 	if (ev->type == SDL_MOUSEBUTTONDOWN) 
 		event.type = ev_keydown;
@@ -495,28 +326,64 @@ void HandleMouseButtonEvent(SDL_Event* ev)
 
 	switch (ev->button.button)
 	{
-		case 1: event.value.key.sym = KEYD_MOUSE1; break;
-		case 2: event.value.key.sym = KEYD_MOUSE2; break;
-		case 3: event.value.key.sym = KEYD_MOUSE3; break;
+		case 1: event.data1 = KEYD_MOUSE1; break;
+		case 2: event.data1 = KEYD_MOUSE2; break;
+		case 3: event.data1 = KEYD_MOUSE3; break;
 
 		// handle the mouse wheel
-		case 4: event.value.key.sym = KEYD_WHEEL_UP; break; 
-		case 5: event.value.key.sym = KEYD_WHEEL_DN; break; 
+		case 4: event.data1 = KEYD_WHEEL_UP; break; 
+		case 5: event.data1 = KEYD_WHEEL_DN; break; 
 
-		case 6: event.value.key.sym = KEYD_MOUSE4; break;
-		case 7: event.value.key.sym = KEYD_MOUSE5; break;
-		case 8: event.value.key.sym = KEYD_MOUSE6; break;
+		case 6: event.data1 = KEYD_MOUSE4; break;
+		case 7: event.data1 = KEYD_MOUSE5; break;
+		case 8: event.data1 = KEYD_MOUSE6; break;
 
 		default:
 			return;
 	}
 
-	E_PostEvent(&event); */
+	E_PostEvent(&event);
 }
 
 
-/* void HandleJoystickButtonEvent(SDL_Event * ev)
+void HandleMouseMotionEvent(SDL_Event * ev)
 {
+	int dx, dy;
+	SDL_PumpEvents();
+
+	if (in_warpmouse.d)
+	{
+		// -DEL- 2001/01/29 SDL_WarpMouse doesn't work properly on beos so
+		// calculate relative movement manually.
+
+		dx = ev->motion.x - (SCREENWIDTH/2);
+		dy = ev->motion.y - (SCREENHEIGHT/2);
+
+		// don't warp if we don't need to
+		if (dx || dy)
+			I_CentreMouse();
+	}
+	else
+	{
+		dx = ev->motion.xrel;
+		dy = ev->motion.yrel;
+	}
+
+	if (dx || dy)
+	{
+		event_t event;
+
+		event.type = ev_mouse;
+		event.data2 =  dx; ///mouseX
+		event.data3 = -dy;  /// mouseY
+
+		E_PostEvent(&event);
+	}
+}
+
+void HandleJoystickButtonEvent(SDL_Event * ev)
+{
+	SDL_PumpEvents();
 	// ignore other joysticks;
 	if ((int)ev->jbutton.which != cur_joy-1)
 		return;
@@ -533,37 +400,15 @@ void HandleMouseButtonEvent(SDL_Event* ev)
 	if (ev->jbutton.button > 14)
 		return;
 
-	event.value.key.sym = KEYD_JOY1 + ev->jbutton.button;
+	event.data1 = KEYD_JOY1 + ev->jbutton.button;
 
 	E_PostEvent(&event);
-} */
-
-
-/// Choclate Doom says we should combine this into one function - void I_ReadMouse(void)
-//void HandleMouseMotionEvent(SDL_Event * ev) /// Refs I_ReadMouse in Chocolate Doom
-void I_ReadMouse(void)
-{
-	int dx, dy;
-	event_t ev;
-
-	SDL_GetRelativeMouseState(&dx, &dy);
-
-	if (dx || dy)
-	{
-		//event_t event;
-		ev.type = ev_mouse;
-		ev.data1 = mouse_button_state;
-
-		//event.type = ev_mouse;
-/* 		ev.mouse.dx =  dx;
-		ev.mouse.dy = -dy;  // -AJA- positive should be "up" */
-
-		E_PostEvent(&ev);
-	}
 }
 
 
-/* int I_JoyGetAxis(int n)  // n begins at 0
+
+
+int I_JoyGetAxis(int n)  // n begins at 0
 {
 	if (nojoy || !joy_info)
 		return 0;
@@ -591,7 +436,7 @@ void I_ReadMouse(void)
 	}
 
 	return 0;
-} */
+}
 
 
 //
@@ -601,21 +446,33 @@ void ActiveEventProcess(SDL_Event *sdl_ev)
 {
 	switch(sdl_ev->type)
 	{
-		///SDL2-TODO, just like Chocolate DOOM/Fraggle in their event handler (d_event)
-/* 		case SDL_ACTIVEEVENT:
+		case SDL_WINDOWEVENT:
+		switch (sdl_ev->window.event) 
 		{
-			if ((sdl_ev->active.state & SDL_APPINPUTFOCUS) &&
-				(sdl_ev->active.gain == 0))
-			{
-				HandleFocusLost();
-			}
-			
+		case SDL_WINDOWEVENT_FOCUS_GAINED:
+			window_focused = true;
 			break;
-		} */
+
+		case SDL_WINDOWEVENT_FOCUS_LOST:
+			window_focused = false;
+			break;
+
+		case SDL_WINDOWEVENT_ENTER:
+			window_mouse = true;
+			break;
+
+		case SDL_WINDOWEVENT_LEAVE:
+			window_mouse = false;
+			break;
+
+		default:
+			break;
+		}
+		break;
 		
 		case SDL_KEYDOWN:
 		case SDL_KEYUP:
-			I_HandleKeyEvent(sdl_ev);
+			HandleKeyEvent(sdl_ev);
 			break;
 				
 		case SDL_MOUSEBUTTONDOWN:
@@ -623,10 +480,10 @@ void ActiveEventProcess(SDL_Event *sdl_ev)
 			HandleMouseButtonEvent(sdl_ev);
 			break;
 		
-/* 		case SDL_JOYBUTTONDOWN:
+		case SDL_JOYBUTTONDOWN:
 		case SDL_JOYBUTTONUP:
 			HandleJoystickButtonEvent(sdl_ev);
-			break; */
+			break;
 
 		case SDL_MOUSEMOTION:
 			if (eat_mouse_motion) 
@@ -635,7 +492,7 @@ void ActiveEventProcess(SDL_Event *sdl_ev)
 				break;
 			}
 
-			I_ReadMouse();
+			HandleMouseMotionEvent(sdl_ev);
 			break;
 		
 		case SDL_QUIT:
@@ -652,17 +509,153 @@ void ActiveEventProcess(SDL_Event *sdl_ev)
 //
 // Event handling while the application is not active
 //
-///void InactiveEventProcess(SDL_Event *sdl_ev)
-// InactiveEventProcess has now become I_GetEvent
-void I_GetEvent(void)
+void InactiveEventProcess(SDL_Event *sdl_ev)
 {
-    /* ~nothing to do here */
+	/* switch(sdl_ev->type)
+	{
+		case SDL_WINDOWEVENT:
+			if (app_state & APP_STATE_PENDING_QUIT)
+				break; // Don't care: we're going to exit
+			
+			 if (!sdl_ev->window.event)
+				break;
+				
+			if (sdl_ev->window.event & SDL_APPACTIVE ||
+                sdl_ev->window.event & SDL_APPINPUTFOCUS)
+				window_focused = true;
+			break;
+
+		case SDL_QUIT:
+			// Note we deliberate clear all other flags here. Its our method of 
+			// ensuring nothing more is done with events.
+			app_state = APP_STATE_PENDING_QUIT;
+			break;
+					
+		default:
+			break; // Don't care
+	} */
 }
+
 
 void I_CentreMouse(void)
 {
-	SDL_WarpMouseGlobal(SCREENWIDTH/2, SCREENHEIGHT/2);
-	//SDL_WarpMouse(SCREENWIDTH/2, SCREENHEIGHT/2);
+	///SDL_WarpCursor(SCREENWIDTH/2, SCREENHEIGHT/2);
+	
+}
+
+
+void I_ShowJoysticks(void)
+{
+	if (nojoy)
+	{
+		I_Printf("Joystick system is disabled.\n");
+		return;
+	}
+
+	if (num_joys == 0)
+	{
+		I_Printf("No joysticks found.\n");
+		return;
+	}
+
+	I_Printf("Joysticks:\n");
+
+	for (int i = 0; i < num_joys; i++)
+	{
+		const char *name = SDL_JoystickNameForIndex(i);
+		if (! name)
+			name = "(UNKNOWN)";
+
+		I_Printf("  %2d : %s\n", i+1, name);
+	}
+}
+
+
+void I_OpenJoystick(int index)
+{
+	SYS_ASSERT(1 <= index && index <= num_joys);
+
+	joy_info = SDL_JoystickOpen(index-1);
+	if (! joy_info)
+	{
+		I_Printf("Unable to open joystick %d (SDL error)\n", index);
+		return;
+	}
+
+	cur_joy = index;
+
+	const char *name = SDL_JoystickNameForIndex(cur_joy-1);
+	if (! name)
+		name = "(UNKNOWN)";
+
+	joy_num_axes    = SDL_JoystickNumAxes(joy_info);
+	joy_num_buttons = SDL_JoystickNumButtons(joy_info);
+	joy_num_hats    = SDL_JoystickNumHats(joy_info);
+	joy_num_balls   = SDL_JoystickNumBalls(joy_info);
+
+	I_Printf("Opened joystick %d : %s\n", cur_joy, name);
+	I_Printf("Axes:%d buttons:%d hats:%d balls:%d\n",
+			 joy_num_axes, joy_num_buttons, joy_num_hats, joy_num_balls);
+}
+
+
+void I_StartupJoystick(void)
+{
+	cur_joy = 0;
+
+	if (M_CheckParm("-nojoy"))
+	{
+		I_Printf("I_StartupControl: Joystick system disabled.\n");
+		nojoy = true;
+		return;
+	}
+
+	if (SDL_InitSubSystem(SDL_INIT_JOYSTICK) < 0)
+	{
+		I_Printf("I_StartupControl: Couldn't init SDL JOYSTICK!\n");
+		nojoy = true;
+		return;
+	}
+
+	SDL_JoystickEventState(SDL_ENABLE);
+
+	num_joys = SDL_NumJoysticks();
+
+	I_Printf("I_StartupControl: %d joysticks found.\n", num_joys);
+
+	joystick_device = CLAMP(0, joystick_device, num_joys);
+
+	if (num_joys == 0)
+		return;
+
+	if (joystick_device > 0)
+		I_OpenJoystick(joystick_device);
+}
+
+
+void CheckJoystickChanged(void)
+{
+	int new_joy = joystick_device;
+
+	if (joystick_device < 0 || joystick_device > num_joys)
+		new_joy = 0;
+
+	if (new_joy == cur_joy)
+		return;
+
+	if (joy_info)
+	{
+		SDL_JoystickClose(joy_info);
+		joy_info = NULL;
+
+		I_Printf("Closed joystick %d\n", cur_joy);
+		cur_joy = 0;
+	}
+
+	if (new_joy > 0)
+	{
+		I_OpenJoystick(new_joy);
+	}
 }
 
 
@@ -672,60 +665,29 @@ void I_StartupControl(void)
 {
 	alt_is_down = false;
 
-	///-SDL1- -> SDL_EnableUNICODE(1);
-	///SDL2-TODO: no more enableunicode?
+	SDL_PumpEvents();
 
-	//I_StartupJoystick(); ///new joystick code will be called here, in I_StartupControl
+	I_StartupJoystick();
 }
 
 void I_ControlGetEvents(void)
 {
-	///CheckJoystickChanged();
- 	extern void I_HandleKeyEvent(SDL_Event* sdl_ev);
-    extern void I_HandleMouseEvent(SDL_Event* sdl_ev);
-    SDL_Event sdl_ev;
+	CheckJoystickChanged();
+	
+	SDL_PumpEvents();
 
-    SDL_PumpEvents();
+	SDL_Event sdl_ev;
 
-    while (SDL_PollEvent(&sdl_ev))
-    {
-		#ifdef DEBUG_KB
+	while (SDL_PollEvent(&sdl_ev))
+	{
+
 		L_WriteDebug("#I_ControlGetEvents: type=%d\n", sdl_ev.type);
-		#endif
-        switch (sdl_ev.type)
-        {
-            case SDL_KEYDOWN:
-            case SDL_KEYUP:
-				I_HandleKeyEvent(&sdl_ev);
-                break;
 
-            case SDL_MOUSEBUTTONDOWN:
-            case SDL_MOUSEBUTTONUP:
-                I_HandleMouseEvent(&sdl_ev);
-                break;
-/*             case SDL_QUIT:
-                {
-                     I don't want to link console here...
-                }
-                else
-                {
-                    event_t event;
-                    event.type = ev_quit;
-                    E_PostEvent(&event);
-                }
-                break; */
-
-/*             case SDL_WINDOWEVENT:
-                if (sdl_ev.window.windowID == SDL_GetWindowID())
-                {
-                    HandleWindowEvent(&sdl_ev.window);
-                }
-                break; */
-
-            default:
-                break;
-        }
-    }
+		if (app_state & APP_STATE_ACTIVE)
+			ActiveEventProcess(&sdl_ev);
+		else
+			InactiveEventProcess(&sdl_ev);		
+	}
 }
 
 void I_ShutdownControl(void)

@@ -34,9 +34,10 @@
 
 #ifdef WIN32
 #define GLEW_STATIC  1
-#include "GL/glew.h"
-#include "GL/gl.h"
-#include "GL/glext.h"
+#include "gl/glew.h"
+#include "gl/gl.h"
+#include "gl/glext.h"
+#include "SDL_opengl.h"
 #endif
 
 #ifdef MACOSX

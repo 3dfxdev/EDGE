@@ -27,18 +27,19 @@
 #include "../ddf/main.h"
 #include "../ddf/playlist.h"
 
+#include "../dosbox/dbopl.h"
 #include "s_sound.h"
 #include "s_timid.h"
-
 
 bool musicpaused;
 
 #define MUSICERRLEN 256
 static char errordesc[MUSICERRLEN];
 
-
 void I_StartupMusic(void)
 {
+	int     i;
+	
 	// Clear the error message
 	memset(errordesc, 0, sizeof(errordesc));
 
@@ -51,6 +52,9 @@ void I_StartupMusic(void)
 	if (I_StartupMUS())
 	{
 		I_Printf("I_StartupMusic: MUS Music Init OK\n");
+		// Init music
+
+		//samplesPerMusicTick = param_samplerate / 700;    // SDL_t0FastAsmService played at 700Hz
 	}
 
 	if (S_StartupTimidity())

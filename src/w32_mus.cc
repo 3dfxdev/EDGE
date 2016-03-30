@@ -18,10 +18,12 @@
 
 #include "i_defs.h"
 #include "i_sdlinc.h"
+/* #include "../opl/muslib.h" */
 
 #include "w32_sysinc.h"
 #include "e_main.h"
 #include "s_music.h"
+/* #include "s_opl.h" */
 
 // TODO: endianness handling (not a huge issue since the Win32
 //       platform is predominantly for x86 architecture).
@@ -475,7 +477,7 @@ bool I_StartupMUS()
 
 	if (midiavailable)
 		return true; // Already initialized.
-
+	
 	semaphore = SDL_CreateSemaphore(1);
 	SYS_ASSERT(semaphore);
 

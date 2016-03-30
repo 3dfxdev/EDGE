@@ -151,8 +151,6 @@ extern bool singletics;
 
 extern bool splitscreen_mode;
 
-extern bool heretic_mode;
-
 extern int bodyqueslot;
 
 // Needed to store the number of the dummy sky flat.

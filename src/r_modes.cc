@@ -117,7 +117,7 @@ void R_AddResolution(scrmode_c *mode)
 
 void R_DumpResList(void)
 {
-    I_Printf("Available Resolutions:\n");
+    //I_Printf("Available Resolutions:\n");
 
 	for (int i = 0; i < (int)screen_modes.size(); i++)
 	{
@@ -131,7 +131,7 @@ void R_DumpResList(void)
                  cur->full ? "FS " : "win");
 	}
 
-	I_Printf("\n");
+	//I_Printf("\n");
 }
 
 bool R_IncrementResolution(scrmode_c *mode, int what, int dir)
@@ -288,7 +288,7 @@ struct Compare_Res_pred
 
 void R_InitialResolution(void)
 {
-	L_WriteDebug("R_InitialResolution...\n");
+	L_WriteDebug("R_InitialResolution setting up...\n");
 
 	scrmode_c mode;
 
