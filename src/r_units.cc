@@ -21,6 +21,9 @@
 
 #include "i_defs.h"
 #include "i_defs_gl.h"
+#include "i_sdlinc.h"
+
+#include "SDL_opengl.h"
 
 #include <vector>
 #include <algorithm>
@@ -38,13 +41,6 @@
 #include "r_shader.h"
 #include "r_bumpmap.h"
 
-//bool   gp;                      // G Pressed? ( New )
-//GLuint filter;                      // Which Filter To Use
-//GLuint fogMode[]= { GL_EXP, GL_EXP2, GL_LINEAR };   // Storage For Three Types Of Fog
-//GLuint fogfilter= 0;                    // Which Fog To Use
-//GLfloat fogColor[4]= {0.0f, 0.0f, 0.1f, 0.0f};      // Fog Color
-
-
 cvar_c r_colorlighting;
 cvar_c r_colormaterial;
 
@@ -56,6 +52,10 @@ cvar_c r_dumbclamp;
 cvar_c r_gl2_path;
 
 static bump_map_shader bmap_shader;
+
+bool EnableMotionBlur = false;
+float   MotionBlurRampSpeed = 0.0f;
+int     MotionBlurSamples = 32;
 
 //XXX
 /*
@@ -195,7 +195,7 @@ void RGL_FinishUnits(void)
 static inline void myActiveTexture(GLuint id)
 {
 #ifndef DREAMCAST
-	if (GLEW_VERSION_1_3)
+/* 	if (GLEW_VERSION_1_3)
 		glActiveTexture(id);
 	else /* GLEW_ARB_multitexture */
 		glActiveTextureARB(id);
@@ -205,7 +205,7 @@ static inline void myActiveTexture(GLuint id)
 static inline void myMultiTexCoord2f(GLuint id, GLfloat s, GLfloat t)
 {
 #ifndef DREAMCAST
-	if (GLEW_VERSION_1_3)
+/* 	if (GLEW_VERSION_1_3)
 		glMultiTexCoord2f(id, s, t);
 	else /* GLEW_ARB_multitexture */
 		glMultiTexCoord2fARB(id, s, t);
@@ -291,6 +291,7 @@ void RGL_EndUnit(int actual_vert)
 	cur_vert += actual_vert;
 	cur_unit++;
 
+	// These two below cause errors with MD5 models...or something?
 	SYS_ASSERT(cur_vert <= MAX_L_VERT);
 	SYS_ASSERT(cur_unit <= MAX_L_UNIT);
 }

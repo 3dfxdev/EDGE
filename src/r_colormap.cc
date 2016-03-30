@@ -708,7 +708,7 @@ void R_PaletteStuff(void)
 	if (cnt)
 	{
 		palette = PALETTE_PAIN;
-		amount = (cnt + 7) / 64.0f;
+		amount = (cnt + 7) / 160.0f;//128.0f;//32.0f;//64.0f;
 	}
 	else if (p->bonuscount)
 	{
@@ -737,6 +737,8 @@ int R_DoomLightingEquation(int L, float dist)
 {
 	/* L in the range 0 to 63 */
 	//dist = 1024;
+	//HYPERTENSION HACK
+	dist = 0;
 
 	int min_L = CLAMP(0, 36 - L, 31);
 

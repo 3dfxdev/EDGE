@@ -25,10 +25,9 @@
 
 #include "i_defs.h"
 #include "i_defs_gl.h"
-#include "i_sdlinc.h"
 
 #include "con_main.h"
-#include "e_input.h" /// <-- controls defined here. . . ?
+#include "e_input.h"
 #include "hu_draw.h"
 #include "hu_style.h"
 #include "m_argv.h"
@@ -48,6 +47,19 @@
 
 #define DEBUG_TRUEBSP  0
 #define DEBUG_COLLIDE  0
+
+// automap flags
+typedef enum {
+    AF_PANLEFT      = 1,
+    AF_PANRIGHT     = 2,
+    AF_PANTOP       = 4,
+    AF_PANBOTTOM    = 8,
+    AF_ZOOMIN       = 16,
+    AF_ZOOMOUT      = 32,
+    AF_PANMODE      = 64,
+    AF_PANGAMEPAD   = 128
+};
+static byte     am_flags; // action flags for automap. Mostly for controls
 
 // Automap colors
 
@@ -73,7 +85,6 @@ static rgbcol_t am_colors[AM_NUM_COLORS] =
 
 // Automap keys
 // Ideally these would be configurable...
-
 int key_am_up;
 int key_am_down;
 int key_am_left;
@@ -88,6 +99,18 @@ int key_am_mark;
 int key_am_clear;
 
 #define AM_NUMMARKPOINTS  9
+
+/// adding automap player blinking. . .
+/// Code comes from r_things, originally written by -jc-
+static int am_blink        = 0;        // player arrow blink tics
+///static int am_dir          = 1;        // player arrow dir
+	// -jc- Pulsating
+/* 	if (xh_count == 31)
+		xh_dir = -1;
+	else if (xh_count == 0)
+		xh_dir = 1;
+
+	xh_count += xh_dir; */
 
 //
 // NOTE:
@@ -255,6 +278,10 @@ void AM_InitLevel(void)
 	FindMinMaxBoundaries();
 
 	m_scale = INIT_MSCALE;
+	
+	am_flags = 0;
+    am_blink = 0x5F | 0x100;
+
 }
 
 
@@ -310,14 +337,12 @@ static void ChangeWindowScale(float factor)
 //
 // Handle events (user inputs) in automap mode
 //
-bool AM_Responder(event_t * ev)
+bool AM_Responder(event_t* ev) 
 {
-	///int sym = ev->key.keysym;
-	int key;
-	int rc;
-
+    int rc = false;
+	
 	// check the enable/disable key
-	if (ev->type == ev_keydown && E_MatchesKey(key_map, key))
+	if (ev->type == ev_keydown)
 	{
 		if (automapactive)
 			AM_Hide();
@@ -329,132 +354,148 @@ bool AM_Responder(event_t * ev)
 	if (! automapactive)
 		return false;
 
-    // --- handle key releases ---
-
-	if (ev->type == ev_keyup)
+    if(am_flags & AF_PANMODE) 
 	{
-		rc = false;
-		key = ev->data1;
-		
-		if (key == key_am_left || key == key_am_right)
-			panning_x = 0;
+        if(ev->type == ev_mouse) 
+		{
+            panning_x = ev->data2;
+            panning_y = ev->data3;
+            rc = true;
+        }
+        else 
+		{
+            if(ev->type == ev_mousedown && ev->data1) 
+			{
+                if(ev->data1 & 1) 
+				{
+                    zooming = M_ZOOMIN;
+                    rc = true;
+                }
+                else if(ev->data1 & 4) 
+				{
+                    zooming = M_ZOOMIN;
+                    rc = true;
+                }
+            }
+            else 
+			{
+                am_flags &= ~AF_ZOOMOUT;
+                am_flags &= ~AF_ZOOMIN;
+            }
+        }
+    }
+#ifdef _USE_XINPUT  // XINPUT
 
-		if (key == key_am_up || key == key_am_down)
-			panning_y = 0;
+    else if(ev->type == ev_gamepad) {
+        //
+        // user has pan button held down and is
+        // moving around with the stick
+        //
+        if(am_flags & AF_PANGAMEPAD) {
+            if(ev->data3 == XINPUT_GAMEPAD_LEFT_STICK) {
+                float x;
+                float y;
 
-		if (key == key_am_zoomin || key == key_am_zoomout)
-			zooming = -1;
+                x = (float)ev->data1 * i_rsticksensitivity.value / (1500.0f / scale);
+                y = (float)ev->data2 * i_rsticksensitivity.value / (1500.0f / scale);
 
-		return false;
-	}
+                mpanx = (int)x << 16;
+                mpany = (int)y << 16;
 
-    // --- handle key presses ---
+                rc = true;
+            }
+        }
+    }
+    else if(automapactive) {
+        if(ev->type == ev_keydown) {
+            switch(ev->data1) {
+            //
+            // pan button
+            //
+            case BUTTON_A:
+                CMD_AutomapSetFlag(AF_PANGAMEPAD, NULL);
+                break;
 
-	if (ev->type != ev_keydown)
-		return false;
+            case BUTTON_LEFT_SHOULDER:
+                if(am_flags & AF_PANGAMEPAD) {
+                    CMD_AutomapSetFlag(AF_ZOOMIN, NULL);
+                    rc = true;
+                }
+                break;
+
+            case BUTTON_RIGHT_SHOULDER:
+                if(am_flags & AF_PANGAMEPAD) {
+                    CMD_AutomapSetFlag(AF_ZOOMOUT, NULL);
+                    rc = true;
+                }
+                break;
+
+            case BUTTON_DPAD_UP:
+                if(am_flags & AF_PANGAMEPAD) {
+                    CMD_AutomapSetFlag(AF_PANTOP, NULL);
+                    rc = true;
+                }
+                break;
+
+            case BUTTON_DPAD_DOWN:
+                if(am_flags & AF_PANGAMEPAD) {
+                    CMD_AutomapSetFlag(AF_PANBOTTOM, NULL);
+                    rc = true;
+                }
+                break;
+
+            case BUTTON_DPAD_LEFT:
+                if(am_flags & AF_PANGAMEPAD) {
+                    CMD_AutomapSetFlag(AF_PANLEFT, NULL);
+                    rc = true;
+                }
+                break;
+
+            case BUTTON_DPAD_RIGHT:
+                if(am_flags & AF_PANGAMEPAD) {
+                    CMD_AutomapSetFlag(AF_PANRIGHT, NULL);
+                    rc = true;
+                }
+                break;
+            }
+        }
+        else if(ev->type == ev_keyup) {
+            switch(ev->data1) {
+            case BUTTON_A:
+                CMD_AutomapSetFlag(AF_PANGAMEPAD|PCKF_UP, NULL);
+                break;
+
+            case BUTTON_LEFT_SHOULDER:
+                CMD_AutomapSetFlag(AF_ZOOMIN|PCKF_UP, NULL);
+                break;
+
+            case BUTTON_RIGHT_SHOULDER:
+                CMD_AutomapSetFlag(AF_ZOOMOUT|PCKF_UP, NULL);
+                break;
+
+            case BUTTON_DPAD_UP:
+                CMD_AutomapSetFlag(AF_PANTOP|PCKF_UP, NULL);
+                break;
+
+            case BUTTON_DPAD_DOWN:
+                CMD_AutomapSetFlag(AF_PANBOTTOM|PCKF_UP, NULL);
+                break;
+
+            case BUTTON_DPAD_LEFT:
+                CMD_AutomapSetFlag(AF_PANLEFT|PCKF_UP, NULL);
+                break;
+
+            case BUTTON_DPAD_RIGHT:
+                CMD_AutomapSetFlag(AF_PANRIGHT|PCKF_UP, NULL);
+                break;
+            }
+        }
+    }
+#endif
+
 	
-		rc = true;
-        key = ev->data1;
+    return rc;
 
-	if (! followplayer)
-	{
-		if (key == key_am_left)
-		{
-			panning_x = -FTOM(F_PANINC);
-			return true;
-		}
-		else if (key == key_am_right)
-		{
-			panning_x = FTOM(F_PANINC);
-			return true;
-		}
-		else if (key == key_am_up)
-		{
-			panning_y = FTOM(F_PANINC);
-			return true;
-		}
-		else if (key == key_am_down)
-		{
-			panning_y = -FTOM(F_PANINC);
-			return true;
-		}
-	}
-
-	if (key == key_am_zoomin)
-	{
-		zooming = M_ZOOMIN;
-		return true;
-	}
-	else if (key == key_am_zoomout)
-	{
-		zooming = 1.0 / M_ZOOMIN;
-		return true;
-	}
-
-	if (key == key_am_follow)
-	{
-		followplayer = !followplayer;
-
-		// -ACB- 1998/08/10 Use DDF Lang Reference
-		if (followplayer)
-			CON_PlayerMessageLDF(consoleplayer1, "AutoMapFollowOn");
-		else
-			CON_PlayerMessageLDF(consoleplayer1, "AutoMapFollowOff");
-
-		return true;
-	}
-
-	if (key == key_am_grid)
-	{
-		grid = !grid;
-		// -ACB- 1998/08/10 Use DDF Lang Reference
-		if (grid)
-			CON_PlayerMessageLDF(consoleplayer1, "AutoMapGridOn");
-		else
-			CON_PlayerMessageLDF(consoleplayer1, "AutoMapGridOff");
-
-		return true;
-	}
-
-	if (key == key_am_mark)
-	{
-		// -ACB- 1998/08/10 Use DDF Lang Reference
-		CON_PlayerMessage(consoleplayer1, "%s %d",
-			language["AutoMapMarkedSpot"], markpointnum);
-		AddMark();
-		return true;
-	}
-
-	if (key == key_am_clear)
-	{
-		// -ACB- 1998/08/10 Use DDF Lang Reference
-		CON_PlayerMessageLDF(consoleplayer1, "AutoMapMarksClear");
-		ClearMarks();
-		return true;
-	}
-
-	// -AJA- 2007/04/18: mouse-wheel support
-	if (key == KEYD_WHEEL_DN)
-	{
-		ChangeWindowScale(1.0 / WHEEL_ZOOMIN);
-		return true;
-	}
-	else if (key == KEYD_WHEEL_UP)
-	{
-		ChangeWindowScale(WHEEL_ZOOMIN);
-		return true;
-	}
-
-	// -ACB- 1999/09/28 Proper casting
-	if (!DEATHMATCH() && M_CheckCheat(&cheat_amap, (char)key))
-	{
-		cheating = (cheating + 1) % 3;
-
-		show_things = (cheating == 2) ? true : false;
-		show_walls  = (cheating >= 1) ? true : false;
-	}
-
-	return false;
 }
 
 
@@ -483,6 +524,24 @@ void AM_Ticker(void)
 	// Change the zoom if necessary
 	if (zooming > 0)
 		ChangeWindowScale(zooming);
+	
+	/// blinking player arrow. . .
+	if(am_blink & 0x100) {
+        if((am_blink & 0xff) == 0xff) {
+            am_blink = 0xff;
+        }
+        else {
+            am_blink += 0x10;
+        }
+    }
+    else {
+        if(am_blink < 0x5F) {
+            am_blink = 0x5F | 0x100;
+        }
+        else {
+            am_blink -= 0x10;
+        }
+    }
 }
 
 //
@@ -900,6 +959,24 @@ static void AM_DrawPlayer(mobj_t *mo)
 		mo->radius, mo->angle,
 		player_colors[mo->player->pnum & 0x07],
 		mo->x, mo->y);
+		
+	if(am_blink & 0x100) 
+	{
+        if((am_blink & 0xff) == 0xff) {
+            am_blink = 0xff;
+        }
+        else {
+            am_blink += 0x10;
+        }
+    }
+    else {
+        if(am_blink < 0x5F) {
+            am_blink = 0x5F | 0x100;
+        }
+        else {
+            am_blink -= 0x10;
+        }
+    }
 }
 
 

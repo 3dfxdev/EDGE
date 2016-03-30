@@ -32,8 +32,6 @@
 
 // implementation limits
 
-GLUquadricObj *quadratic; // Storage For Our Quadratic Objects ( NEW )
-
 int glmax_lights;
 int glmax_clip_planes;
 int glmax_tex_size;
@@ -188,108 +186,6 @@ static inline const char *SafeStr(const void *s)
 //
 void RGL_CheckExtensions(void)
 {
-#ifndef DREAMCAST
-	GLenum err = glewInit();
-
-	if (err != GLEW_OK)
-		I_Error("Unable to initialise GLEW: %s\n",
-			glewGetErrorString(err));
-
-	// -ACB- 2004/08/11 Made local: these are not yet used elsewhere
-	std::string glstr_version (SafeStr(glGetString(GL_VERSION)));
-	std::string glstr_renderer(SafeStr(glGetString(GL_RENDERER)));
-	std::string glstr_vendor  (SafeStr(glGetString(GL_VENDOR)));
-
-	I_Printf("OpenGL: Version: %s\n", glstr_version.c_str());
-	I_Printf("OpenGL: Renderer: %s\n", glstr_renderer.c_str());
-	I_Printf("OpenGL: Vendor: %s\n", glstr_vendor.c_str());
-	I_Printf("OpenGL: GLEW version: %s\n", glewGetString(GLEW_VERSION));
-
-#if 0  // FIXME: this crashes (buffer overflow?)
-	I_Printf("OpenGL: EXTENSIONS: %s\n", glGetString(GL_EXTENSIONS));
-#endif
-
-	// Check for a windows software renderer
-	if (stricmp(glstr_vendor.c_str(), "Microsoft Corporation") == 0)
-	{
-		if (stricmp(glstr_renderer.c_str(), "GDI Generic") == 0)
-		{
-			I_Error("OpenGL: SOFTWARE Renderer!\n");
-		}		
-	}
-
-	// Check for various extensions
-
-	if (GLEW_VERSION_1_3 || GLEW_ARB_multitexture)
-	{ /* OK */ }
-	else
-		I_Error("OpenGL driver does not support Multitexturing.\n");
-
-	if (GLEW_VERSION_1_3 ||
-		GLEW_ARB_texture_env_combine ||
-		GLEW_EXT_texture_env_combine)
-	{ /* OK */ }
-	else
-	{
-		I_Warning("OpenGL driver does not support COMBINE.\n");
-		r_dumbcombine = 1;
-	}
-
-	if (GLEW_VERSION_1_2 ||
-		GLEW_EXT_texture_edge_clamp ||
-		GLEW_SGIS_texture_edge_clamp)
-	{ /* OK */ }
-	else
-	{
-		I_Warning("OpenGL driver does not support EDGE2-Clamp.\n");
-		r_dumbclamp = 1;
-	}
-
-
-	// --- Detect buggy drivers, enable workarounds ---
-	
-	for (int j = 0; j < (int)NUM_DRIVER_BUGS; j++)
-	{
-		const driver_bug_t *bug = &driver_bugs[j];
-
-		if (bug->renderer && !strstr(glstr_renderer.c_str(), bug->renderer))
-			continue;
-
-		if (bug->vendor && !strstr(glstr_vendor.c_str(), bug->vendor))
-			continue;
-
-		if (bug->version && !strstr(glstr_version.c_str(), bug->version))
-			continue;
-
-		I_Printf("OpenGL: Enabling workarounds for %s.\n",
-				bug->renderer ? bug->renderer :
-				bug->vendor   ? bug->vendor : "the Axis of Evil");
-
-		if (bug->disable & PFT_LIGHTING)  r_colorlighting = 0;
-		if (bug->disable & PFT_COLOR_MAT) r_colormaterial = 0;
-		if (bug->disable & PFT_SKY)       r_dumbsky = 1;
-		if (bug->disable & PFT_MULTI_TEX) r_dumbmulti = 1;
-
-		if (bug->enable & PFT_LIGHTING)   r_colorlighting = 1;
-		if (bug->enable & PFT_COLOR_MAT)  r_colormaterial = 1;
-		if (bug->enable & PFT_SKY)        r_dumbsky = 0;
-		if (bug->enable & PFT_MULTI_TEX)  r_dumbmulti = 0;
-	}
-#else
-	std::string glstr_version (SafeStr(glGetString(GL_VERSION)));
-	std::string glstr_renderer(SafeStr(glGetString(GL_RENDERER)));
-	std::string glstr_vendor  (SafeStr(glGetString(GL_VENDOR)));
-
-	I_Printf("OpenGL: Version: %s\n", glstr_version.c_str());
-	I_Printf("OpenGL: Renderer: %s\n", glstr_renderer.c_str());
-	I_Printf("OpenGL: Vendor: %s\n", glstr_vendor.c_str());
-	
-	r_dumbcombine = 1;
-	r_colorlighting = 1;
-	r_colormaterial = 1;
-	r_dumbsky = 1;
-	r_dumbmulti = 1;
-#endif
 }
 
 //

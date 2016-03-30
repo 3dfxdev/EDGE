@@ -32,29 +32,37 @@
 //
 
 // Input event types.
-// -KM- 1998/09/01 Amalgamate joystick/mouse into analogue
-typedef enum
+typedef enum 
 {
-	ev_keydown,
-	ev_keyup,
-	ev_mouse,
-	ev_joystick   ///new joystick handling code. . . 
-}
-evtype_t;
+    ev_keydown,
+    ev_keyup,
+    ev_mouse,
+    ev_mousedown,
+    ev_mouseup,
+    ev_gamepad
+} evtype_t;
 
 // Event structure.
-typedef struct
+// Event structure.
+typedef struct 
+{
+    evtype_t    type;
+    int         data1;        // keys / mouse/joystick buttons
+    int         data2;        // mouse/joystick x move (data2)
+    int         data3;        // mouse/joystick y move (data3)
+    int         data4;        // misc data
+
+} event_t;
+
+/* typedef struct
 {
 	evtype_t type;
-	
-	int data1, data2, data3, data4; ///Chocolate DOOM ///fraggle
 
-/* 	union
+	union
 	{
 		struct
 		{
 			int sym;
-			int unicode;
 		}
 		key;
 	
@@ -65,9 +73,9 @@ typedef struct
 		}
 		mouse;
 	}
-	value; */
+	value;
 }
-event_t;
+event_t; */
 
 #endif // __E_EVENT_H__
 

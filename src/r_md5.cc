@@ -1,8 +1,6 @@
 //----------------------------------------------------------------------------
-//  3DGE MD5 Animation Management
+//  3DGE 2.0 MD5 Animation Management
 //----------------------------------------------------------------------------
-//
-//  (C) Isotope Softworks 2014-2015
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -14,7 +12,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details.
 //
-//  TODO: 
 //----------------------------------------------------------------------------
 
 #include "i_defs.h"
