@@ -353,15 +353,6 @@ TIMIDITY_OBJS= \
 $(OBJDIR)/timidity/%.o: timidity/%.cc
 	$(CXX) $(CFLAGS) -o $@ -c $< 
 
- 
-# ---------- MAC OSX SPECIFICS ---------------
-
-MACOSX_OBJS= \
-	$(OBJDIR)/macosx/SDLMain.o
-
-$(OBJDIR)/macosx/%.o: src/%.m
-	$(CC) $(CFLAGS) -o $@ -c $<
-
 # ---------- FINAL LINK STEP -----------
   
 $(PROGRAM) : $(COAL_OBJS) \

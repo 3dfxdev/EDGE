@@ -23,9 +23,7 @@
 
 #include "i_defs.h"
 
-#ifdef WIN32
 #include <vorbis/vorbisfile.h>
-#endif
 
 #include "../epi/sound_data.h"
 
