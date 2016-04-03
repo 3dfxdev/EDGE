@@ -27,14 +27,14 @@
 
 // opaque handle for rest of the engine
 class md2_model_c;
-
+class skindef_c;	//forward declaration
 
 md2_model_c *MD2_LoadModel(epi::file_c *f); 
 md2_model_c *MD3_LoadModel(epi::file_c *f); 
 
 short MD2_FindFrame(md2_model_c *md, const char *name);
 
-void MD2_RenderModel(md2_model_c *md, const image_c * skin_img, bool is_weapon,
+void MD2_RenderModel(md2_model_c *md, const skindef_c * skin, bool is_weapon,
 		             int frame1, int frame2, float lerp,
 		             float x, float y, float z, mobj_t *mo,
 					 region_properties_t *props,

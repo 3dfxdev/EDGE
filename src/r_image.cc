@@ -131,7 +131,11 @@ static image_c *do_Lookup(real_image_container_c& bucket, const char *name,
 	for (it = bucket.rbegin(); it != bucket.rend(); it++)
 	{
 		image_c *rim = *it;
-	
+/*
+		if(stricmp(name,"TMP_NORMAL")==0) {
+			I_Printf("FOO '%s'\n",rim->name);
+		}
+*/
 		if (source_type >= 0 && source_type != (int)rim->source_type)
 			continue;
 

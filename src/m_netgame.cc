@@ -525,7 +525,7 @@ void M_DrawHostMenu(void)
 	HUD_SolidBox(0, 0, 320, 200, T_BLACK);
 	HUD_SetAlpha();
 
-	HL_WriteText(ng_host_style,2, 80, 30, "ADVANCED START GAME");
+	HL_WriteText(ng_host_style,2, 2, 10, "ADVANCED START GAME");
 
 	char buffer[200];
 

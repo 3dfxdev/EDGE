@@ -446,12 +446,17 @@ static float CircularLerp(float start , float end, float value){
 float mobj_t::GetInterpolatedAngle(void)
 {
 	float interp = N_GetInterpolater();
+	//XXX
+	/// Coraline - reverted this as it made player movement more jerky
+	//return angle;
 	return CircularLerp(lastticrender.angle, angle, interp);
 }
 
 float mobj_t::GetInterpolatedVertAngle(void)
 {
 	float interp = N_GetInterpolater();
+	//XXX
+	///return vertangle;
 	return CircularLerp(lastticrender.vertangle, vertangle, interp);
 }
 
@@ -1103,11 +1108,7 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 	float dist;
 	float delta;
 	float zmove;
-	
-	//W_ImageGetName(mo->subsector->sector->floor.image)
-//	int floortype;
-	// -KM- 1998/11/25 Gravity is now not precalculated so that
-	//  menu changes affect instantly.
+
 	float gravity = props->gravity / 8.0f * 
 		(float)level_flags.menu_grav / (float)MENU_GRAV_NORMAL;
 
@@ -1116,6 +1117,7 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 	{
 		mo->player->viewheight -= (mo->floorz - mo->z);
 		mo->player->viewz      -= (mo->floorz - mo->z);
+		
 		mo->player->deltaviewheight = (mo->player->std_viewheight - 
 			mo->player->viewheight) / 8.0f;
 	}

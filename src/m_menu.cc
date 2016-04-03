@@ -57,6 +57,7 @@
 #include "r_draw.h"
 #include "r_modes.h"
 #include "r_colormap.h"
+#include "r_wipe.h"
 #include "s_sound.h"
 #include "s_music.h"
 #include "sv_chunk.h"
@@ -68,6 +69,17 @@
 //
 // defaulted values
 //
+
+static bool need_wipe = false;
+
+//
+// E_Display
+//
+// Draw current display, possibly wiping it from the previous
+//
+// -ACB- 1998/07/27 Removed doublebufferflag check (unneeded).  
+
+static bool wipe_gl_active = true;
 
 // Show messages has default, 0 = off, 1 = on
 int showMessages;
@@ -179,25 +191,6 @@ static slot_extra_info_t ex_slots[SAVE_SLOTS];
 // Part of savegame changes.
 #define SLIDERLEFT  -1
 #define SLIDERRIGHT -2
-
-static void DrawKeyword(int index, style_c *style, int y,
-		const char *keyword, const char *value)
-{
-	int x = 120;
-
-	// bool is_selected =
-	    // (netgame_menuon == 1 && index == host_pos) ||
-	    // (netgame_menuon == 2 && index == join_pos);
-
-	//HL_WriteText(style,(index<0)?3:is_selected?2:0, x - 10 - style->fonts[0]->StringWidth(keyword), y, keyword);
-	HL_WriteText(style,1, x + 10, y, value);
-
-	// if (is_selected)
-	// {
-		// HL_WriteText(style,2, x - style->fonts[2]->StringWidth("*")/2, y, "*");
-	// }
-}
-
 
 //
 // MENU TYPEDEFS
@@ -1440,6 +1433,7 @@ void M_StartMessage(const char *string, void (* routine)(int response),
 	msg_needsinput = input;
 	menuactive = true;
 	CON_SetVisible(vs_notvisible);
+	paused = false;
 	return;
 }
 
@@ -1464,6 +1458,7 @@ void M_StartMessageInput(const char *string,
 	msg_needsinput = true;
 	menuactive = true;
 	CON_SetVisible(vs_notvisible);
+	paused = false;
 	return;
 }
 
@@ -1858,12 +1853,26 @@ void M_StartControlPanel(void)
 	// intro might call this repeatedly
 	if (menuactive)
 		return;
+	
+	static int xh_count = 0;
+	static int xh_dir = 1;
+
+	// -jc- Pulsating
+	if (xh_count == 31)
+		xh_dir = -1;
+	else if (xh_count == 0)
+		xh_dir = 1;
+
+	xh_count += xh_dir;
+	xh_dir *= itemOn;
 
 	menuactive = true;
 	CON_SetVisible(vs_notvisible);
+	paused = false; // extra check to disable graphic from con_setvisible
 
 	currentMenu = &MainDef;  // JDC
-	itemOn = currentMenu->lastOn;  // JDC
+	
+	itemOn = currentMenu->lastOn - xh_count / 100.0f;  // JDC
 
 	M_OptCheckNetgame();
 }
@@ -1898,11 +1907,11 @@ static void DrawMessage(void)
 {
 	short x, y;
 
-	//HUD_SetAlpha(0.64f);
-	//HUD_SolidBox(0, 0, 320, 200, T_BLACK);
+	HUD_SetAlpha(0.64f);
+	HUD_SolidBox(0, 0, 320, 200, T_BLACK);
 	dialog_style->DrawBackground();
 	// disable for test : dialog_style->DrawBackground(); //to replace above call
-	//HUD_SetAlpha();
+	HUD_SetAlpha();
 
 
 	// FIXME: HU code should support center justification: this
@@ -2014,10 +2023,10 @@ void M_Drawer(void)
 
 	style_c *style = currentMenu->style_var[0];
 	SYS_ASSERT(style);
- style->DrawBackground();
-	//HUD_SetAlpha(0.64f);
-	//HUD_SolidBox(0, 0, 320, 200, T_BLACK);
-	//HUD_SetAlpha();
+	HUD_SetAlpha(0.64f);
+	HUD_SolidBox(0, 0, 320, 200, T_BLACK);
+	HUD_SetAlpha();
+
 
 	// call Draw routine
 	if (currentMenu->draw_func)
@@ -2109,14 +2118,6 @@ void M_Init(void)
 	msg_string.clear();
 	msg_lastmenu = menuactive;
 	quickSaveSlot = -1;
-	
-	//HL_WriteText(style,(index<0)?3:is_selected?2:0, x - 10 - style->fonts[0]->StringWidth(keyword), y, keyword);
-	//HL_WriteText(style,1, x + 10, y, value);
-
-	//if (is_selected)
-	//{
-	//	HL_WriteText(style,2, x - style->fonts[2]->StringWidth("*")/2, y, "*");
-	//}
 
 	// lookup styles
 	styledef_c *def;

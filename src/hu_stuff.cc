@@ -29,6 +29,7 @@
 #include "hu_style.h"
 #include "hu_draw.h"
 
+#include "con_var.h"
 #include "con_main.h"
 #include "con_gui.h"
 #include "dm_state.h"
@@ -42,7 +43,7 @@
 #include "w_wad.h"
 #include "z_zone.h"
 
-
+extern cvar_c m_centerem;
 //
 // Locally used constants, shortcuts.
 //
@@ -52,7 +53,7 @@
 #define HU_TITLEX	0
 #define HU_TITLEY	(200 - 32 - 10) 
 
-#define HU_INPUTX	HU_MSGX
+#define HU_INPUTX	(HU_MSGC)
 #define HU_INPUTY	(HU_MSGY + HU_MSGHEIGHT * 8)
 #define HU_INPUTWIDTH	64
 #define HU_INPUTHEIGHT	1
@@ -62,6 +63,7 @@ bool chat_on;
 std::string w_map_title;
 
 static bool message_on;
+static bool message_center;
 static bool message_no_overwrite;
 
 static std::string w_message;
@@ -69,7 +71,7 @@ static int message_counter;
 
 style_c *automap_style;
 
-
+float fade_time;
 //
 // Heads-up Init
 //
@@ -94,6 +96,7 @@ void HU_Start(void)
 	automap_style = hu_styles.Lookup(map_styledef);
 
 	message_on = false;
+	message_center = false;
 	message_no_overwrite = false;
 
 	// -ACB- 1998/08/09 Use currmap settings
@@ -115,13 +118,18 @@ void HU_Start(void)
 
 void HU_Drawer(void)
 {
+	cvar_c m_centerem;
+	
 	CON_ShowFPS();
-
 	if (message_on)
 	{
+		HUD_SetAlpha(1.0f);
 		HUD_SetScale(0.8f);
-		HUD_DrawText(HU_MSGX, HU_MSGY, w_message.c_str());
+		HUD_SetAlignment(0, 0);
+		HUD_DrawText(160- 3 / 2, 3, w_message.c_str());
 		HUD_SetScale();
+		HUD_SetAlignment();
+		HUD_SetAlpha();
 	}
 
 // TODO: chat messages
@@ -129,7 +137,8 @@ void HU_Drawer(void)
 
 
 void HU_Erase(void)
-{ }
+{
+}
 
 
 // Starts displaying the message.
@@ -139,11 +148,11 @@ void HU_StartMessage(const char *msg)
 	if (! message_no_overwrite)
 	{
 		w_message = std::string(msg);
-
 		message_on = true;
 		message_counter = HU_MSGTIMEOUT;
 		message_no_overwrite = false;
 	}
+	
 }
 
 
@@ -155,7 +164,7 @@ void HU_Ticker(void)
 		message_on = false;
 		message_no_overwrite = false;
 	}
-
+	
 	// check for incoming chat characters
 	if (! netgame)
 		return;

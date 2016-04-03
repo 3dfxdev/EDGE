@@ -1,8 +1,9 @@
 #
 # EDGE Makefile : WIN32 cross-compile
 #
+## Improved this makefile, this should be much less of a hassle to setup on Win32 now. Also, removed all hardcoded paths, EXCEPT in this makefile (notably, libmingw32.a)
 
-PROGRAM=edge.win32
+PROGRAM=edge.exe
 
 OBJDIR=obj_win32
 LIBDIR=lib_win32
@@ -17,17 +18,17 @@ CC=gcc
 CXX=g++
 ld=gcc
 #CFLAGS=-O3 -pg -ffast-math  -msse2 -mfpmath=sse -fno-strict-aliasing -Wall -I
-CFLAGS=-O3 -ffast-math  -msse2 -mfpmath=sse -fno-strict-aliasing -Wall -I
-#CFLAGS=-O2 -ffast-math -fno-strict-aliasing -Wall -I
+CFLAGS=-O2 -ffast-math -fno-strict-aliasing -Wall
+
 
 CFLAGS += -I
 
 
 #LDFLAGS=-pg -Wl,--warn-common -I  -mfpmath=sse
-LDFLAGS=-Wl,--warn-common -I  -mfpmath=sse
+LDFLAGS=-Wl,--warn-common -I
 #LDFLAGS=-pg -Wl,--warn-common -I
 
-LDFLAGS += -llibmingw32.a -lm -I 
+LDFLAGS += -L$C:/MinGW/lib/libmingw32.a -lm -I
 
 
 # Operating System
@@ -35,12 +36,21 @@ LDFLAGS += -llibmingw32.a -lm -I
 CFLAGS += -DWIN32
 
 
-# SDL
+# SDL 2
 
-CFLAGS += -I$(LIBDIR)/SDL/include
+# CFLAGS += -I$(LIBDIR)/SDL/include
 
-LDFLAGS += -L$(LIBDIR)/SDL/lib
-LDFLAGS += -lmingw32 $(LIBDIR)/SDL/build/libSDLmain.a $(LIBDIR)/SDL/build/.libs/SDL.dll 
+# LDFLAGS += -L$(LIBDIR)/SDL/lib
+# LDFLAGS += -lmingw32 $(LIBDIR)/SDL/build/libSDL2main.a $(LIBDIR)/SDL/build/.libs/SDL2.dll 
+
+# SDL 1.X
+
+ CFLAGS += -I$(LIBDIR)/SDL/include
+
+ LDFLAGS += -L$(LIBDIR)/SDL/lib
+ LDFLAGS += -lmingw32 $(LIBDIR)/SDL/build/.libs/libSDLmain.a $(LIBDIR)/SDL/build/.libs/SDL.dll 
+
+
 
 # ROQPLAYER
 
@@ -50,15 +60,15 @@ LDFLAGS += -lmingw32 $(LIBDIR)/SDL/build/libSDLmain.a $(LIBDIR)/SDL/build/.libs/
 
 # OpenGL rendering
 
-CFLAGS  += -I$(LIBDIR)/glew-1.5.8/include
+CFLAGS  += -I$(LIBDIR)/glew-1.5.8/include/GL
 LDFLAGS += -L$(LIBDIR)/glew-1.5.8/lib
 LDFLAGS += $(LIBDIR)/glew-1.5.8/lib/libglew32.a $(LIBDIR)/glew-1.5.8/lib/libopengl32.a
 
 # HawkNL
 
-CFLAGS  += -I$hawkNL/include
-LDFLAGS += -L$hawkNL/include
-LDFLAGS += hawkNL/include/NLstatic.lib
+CFLAGS  += -I$(LIBDIR)/hawknl/include
+LDFLAGS += -L$(LIBDIR)/hawknl/include
+LDFLAGS += $(LIBDIR)/hawknl/include/NLstatic.lib
 
 # PNG, JPEG and ZLIB
 
@@ -78,12 +88,13 @@ LDFLAGS += $(LIBDIR)/zlib-1.2.3/libz.a
 # OGG/Vorbis
 
 CFLAGS += -DUSE_OGG
-CFLAGS += -I$(LIBDIR)/libogg-1.2.2/include
-CFLAGS += -I$(LIBDIR)/libvorbis-1.3.2/include
+CFLAGS += -I$(LIBDIR)/libogg-1.3.2/include
+CFLAGS += -I$(LIBDIR)/libvorbis-1.3.5/include
 
-LDFLAGS += -L$(LIBDIR)/libogg-1.2.2/src
-LDFLAGS += -L$(LIBDIR)/libvorbis-1.3.2/lib
-LDFLAGS += $(LIBDIR)/libvorbis-1.3.2/lib/libvorbisfile.a $(LIBDIR)/libvorbis-1.3.2/lib/libvorbis.a $(LIBDIR)/libogg-1.2.2/src/libogg.a
+LDFLAGS += -L$(LIBDIR)/libogg-1.3.2/src
+LDFLAGS += -L$(LIBDIR)/libvorbis-1.3.5/lib
+LDFLAGS += -lvorbisfile -lvorbis -logg
+#LDFLAGS += $(LIBDIR)/libvorbis-1.3.5/lib/libvorbisfile.a $(LIBDIR)/libvorbis-1.3.5/lib/libvorbis.a $(LIBDIR)/libogg-1.3.2/.libs/libogg.a
 
 
 # glBSP
@@ -281,6 +292,7 @@ EDGE_OBJS= \
 	$(OBJDIR)/edge/r_image.o    \
 	$(OBJDIR)/edge/r_doomtex.o  \
 	$(OBJDIR)/edge/r_texgl.o    \
+	$(OBJDIR)/edge/r_bumpmap.o  \
 	$(OBJDIR)/edge/s_blit.o     \
 	$(OBJDIR)/edge/s_cache.o    \
 	$(OBJDIR)/edge/s_sound.o    \
@@ -315,7 +327,6 @@ EDGE_OBJS= \
 	$(OBJDIR)/md5_conv/md5_anim.o \
 	$(OBJDIR)/md5_conv/md5_draw.o \
 	$(OBJDIR)/md5_conv/kmq2/q2stuff.o \
-
 
 $(OBJDIR)/edge/w32_res.o: src/w32_res.rc
 	windres $^ -o $@

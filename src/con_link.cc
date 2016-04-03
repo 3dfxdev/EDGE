@@ -41,6 +41,7 @@ extern cvar_c am_gridsize;
 extern cvar_c m_language;
 extern cvar_c m_diskicon, m_busywait, m_screenhud;
 extern cvar_c m_messages, m_obituaries;
+extern cvar_c m_centerem;
 extern cvar_c m_goobers;
 
 extern cvar_c sys_directx, sys_waveout;
@@ -69,6 +70,7 @@ extern cvar_c r_teleportflash;
 extern cvar_c r_crosshair, r_crosscolor;
 extern cvar_c r_crosssize, r_crossbright;
 extern cvar_c r_precache_tex, r_precache_sprite, r_precache_model;
+extern cvar_c r_gl2_path;
 
 extern cvar_c s_volume, s_mixchan, s_quietfactor;
 extern cvar_c s_rate, s_bits, s_stereo;
@@ -156,6 +158,7 @@ cvar_link_t  all_cvars[] =
 	{ "r_dumbmulti",    &r_dumbmulti,     "",   "0"  },
 	{ "r_dumbcombine",  &r_dumbcombine,   "",   "0"  },
 	{ "r_dumbclamp",    &r_dumbclamp,     "",   "0"  },
+	{ "r_gl2_path",     &r_gl2_path,      "",   "0"  },
 
 	{ "am_smoothing",   &am_smoothing,   "c",   "1"  },
 	{ "am_gridsize",    &am_gridsize,    "c",   "128" },
@@ -171,7 +174,7 @@ cvar_link_t  all_cvars[] =
 	{ "debug_pos",        &debug_pos,        "h", "0" },
 	{ "debug_fps",        &debug_fps,        "c", "0" },
 	
-	{ "r_md5scale",        &r_md5scale,        "c", "5" },
+	{ "r_md5scale",        &r_md5scale,        "c", "0" },
 	{ "r_lerp",        &r_lerp,        "c", "1" },
 	{ "r_maxfps",        &r_maxfps,        "c", "60" },
 	{ "r_vsync",        &r_vsync,        "c", "1" },

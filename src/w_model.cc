@@ -42,7 +42,7 @@ modeldef_c::modeldef_c(const char *_prefix) : model(NULL)
 	modeltype = MODEL_MD2;
 
 	for (int i=0; i < MAX_MODEL_SKINS; i++)
-		skins[i] = NULL;
+		skins[i]=skindef_c();
 }
 
 modeldef_c::~modeldef_c()
@@ -101,7 +101,7 @@ modeldef_c *LoadModelFromLump(int model_num)
 	modeldef_c *def = new modeldef_c(basename);
 
 	char lumpname[16];
-	char skinname[16];
+	char skinname[32];
 
 	epi::file_c *f;
 
@@ -144,7 +144,19 @@ modeldef_c *LoadModelFromLump(int model_num)
 			delete f;
 			
 			for (int i=0; i < def->md5u->model.meshcnt; i++) {
+				char* file_normal=new char[strlen(def->md5u->model.meshes[i].shader)+strlen("_l")+1];
+				char* file_specular=new char[strlen(def->md5u->model.meshes[i].shader)+strlen("_s")+1];
+
+				sprintf(file_normal,"%s%s",def->md5u->model.meshes[i].shader,"_l");
+				sprintf(file_specular,"%s%s",def->md5u->model.meshes[i].shader,"_s");
+
+				//I_Printf("md5 shader: %s, %s, %s\n",def->md5u->model.meshes[i].shader,file_normal,file_specular);
 				def->md5u->model.meshes[i].tex = W_ImageLookup(def->md5u->model.meshes[i].shader, INS_Sprite, ILF_Null);
+				//def->md5u->model.meshes[i].tex_normal = W_ImageLookup(file_normal, INS_Sprite, ILF_Null);
+				//def->md5u->model.meshes[i].tex_specular = W_ImageLookup(file_specular, INS_Sprite, ILF_Null);
+
+				delete[] file_normal;
+				delete[] file_specular;
 			}
 			
 			return def;
@@ -156,15 +168,18 @@ modeldef_c *LoadModelFromLump(int model_num)
 	// close the lump
 	delete f;
 
-	for (int i=0; i < 10; i++)
+	for (int i=0; i < MAX_MODEL_SKINS; i++)
 	{
 		sprintf(skinname, "%sSKN%d", basename, i);
-
-		def->skins[i] = W_ImageLookup(skinname, INS_Sprite, ILF_Null);
+		def->skins[i].img = W_ImageLookup(skinname, INS_Sprite, ILF_Null);
+		sprintf(skinname,"%sSKN%dNORM",basename,i);
+		def->skins[i].norm = W_ImageLookup(skinname, INS_Sprite, ILF_Null);
+		sprintf(skinname,"%sSKN%dSPEC",basename,i);
+		def->skins[i].spec= W_ImageLookup(skinname, INS_Sprite, ILF_Null);
 	}
 
 	// need at least one skin
-	if (! def->skins[1])
+	if (! def->skins[1].img)
 		I_Error("Missing model skin: %sSKN1\n", basename);
 
 	FindModelFrameNames(def->model, model_num);
@@ -248,10 +263,14 @@ void W_PrecacheModels(void)
 			modeldef_c *def = W_GetModel(i);
 
 			// precache skins too
-			for (int n = 0 ; n < 10 ; n++)
+			if (def)
 			{
-				if (def && def->skins[n])
-					W_ImagePreCache(def->skins[n]);
+				for (int n = 0 ; n < 10 ; n++)
+				{
+					if(def->skins[n].img) W_ImagePreCache(def->skins[n].img);
+					if(def->skins[n].norm) W_ImagePreCache(def->skins[n].norm);
+					if(def->skins[n].spec) W_ImagePreCache(def->skins[n].spec);
+				}
 			}
 		}
 	}

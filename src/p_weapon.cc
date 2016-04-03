@@ -137,7 +137,7 @@ bool P_CheckWeaponSprite(weapondef_c *info)
 	if (info->up_state == S_NULL)
 		return false;
 
-	return true;
+	return W_CheckSpritesExist(info->state_grp);
 }
 
 static bool ButtonDown(player_t *p, int ATK)

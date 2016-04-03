@@ -1,8 +1,9 @@
 //----------------------------------------------------------------------------
-//  EDGE2 OpenGL Rendering (Things)
+//  EDGE2 OpenGL Thing Rendering
 //----------------------------------------------------------------------------
 // 
 //  Copyright (c) 1999-2009  The EDGE2 Team.
+//  Copyright (c) 2015 Isotope SoftWorks
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -533,6 +534,7 @@ void RGL_DrawCrosshair(player_t * p)
 
 void RGL_DrawWeaponModel(player_t * p)
 {
+
 	if (viewiszoomed)
 		return;
 
@@ -552,16 +554,13 @@ void RGL_DrawWeaponModel(player_t * p)
 	modeldef_c *md = W_GetModel(psp->state->sprite);
 	
 	//***TODO*** add md5 weapon model support
-	SYS_ASSERT(md->modeltype == MODEL_MD2);
+	//SYS_ASSERT(md->modeltype == MODEL_MD2);
 
 	int skin_num = p->weapons[p->ready_wp].model_skin;
 
-	const image_c *skin_img = md->skins[skin_num];
-
-	if (! skin_img)  // FIXME: use a dummy image
+	if (! md->skins[p->weapons[p->ready_wp].model_skin].img)  // FIXME: use a dummy image
 	{
-I_Debugf("Render model: no skin %d\n", skin_num);
-		skin_img = W_ImageForDummySkin();
+		I_Debugf("Render model: no skin %d\n", skin_num);
 	}
 
 
@@ -597,10 +596,23 @@ I_Debugf("Render model: no skin %d\n", skin_num);
 		lerp = CLAMP(0, lerp, 1);
 	}
 
-	MD2_RenderModel(md->model, skin_img, true,
-			        last_frame, psp->state->frame, lerp,
-			        x, y, z, p->mo, view_props,
-					1.0f /* scale */, w->model_aspect, w->model_bias);
+	switch(md->modeltype) {
+	case MODEL_MD2:
+		MD2_RenderModel(md->model, &md->skins[skin_num], true,
+						last_frame, psp->state->frame, lerp,
+						x, y, z, p->mo, view_props,
+						w->model_zaspect /* scale */, w->model_aspect/w->model_zaspect, w->model_bias);
+		break;
+
+	case MODEL_MD5_UNIFIED:
+
+		//TODO: w->model_bias
+		MD5_RenderModel(md,p->mo->model_last_animfile,last_frame,p->mo->state->animfile,psp->state->frame,lerp,
+				x,y,z,
+				w->model_aspect,w->model_aspect,w->model_zaspect,
+				p->mo);
+		break;
+	}
 }
 
 
@@ -1119,12 +1131,10 @@ static void RGL_DrawModel(drawthing_t *dthing)
 
 	modeldef_c *md = W_GetModel(mo->state->sprite);
 
-	const image_c *skin_img = md->skins[mo->model_skin];
 
-	if (! skin_img)
+	if (! md->skins[mo->model_skin].img)
 	{
-I_Debugf("Render model: no skin %d\n", mo->model_skin);
-		skin_img = W_ImageForDummySkin();
+		I_Debugf("Render model: no skin %d\n", mo->model_skin);
 	}
 
 
@@ -1150,7 +1160,7 @@ I_Debugf("Render model: no skin %d\n", mo->model_skin);
 
 	if (md->modeltype == MODEL_MD2)
 	{
-		MD2_RenderModel(md->model, skin_img, false,
+		MD2_RenderModel(md->model, &md->skins[mo->model_skin], false,
 					last_frame, mo->state->frame, lerp,
 						dthing->mx, dthing->my, z, mo, mo->props,
 						mo->info->model_scale, mo->info->model_aspect,
@@ -1162,7 +1172,8 @@ I_Debugf("Render model: no skin %d\n", mo->model_skin);
 		MD5_RenderModel(md,
 			mo->model_last_animfile, last_frame,
 			mo->state->animfile, mo->state->frame, lerp,
-			dthing->mx, dthing->my, z, mo);
+			dthing->mx, dthing->my, z,
+			1.0f,1.0f,1.0f,mo);
 	}
 }
 

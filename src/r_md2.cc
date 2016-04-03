@@ -1,11 +1,9 @@
 //----------------------------------------------------------------------------
-//  MD2 Models
+//  3DGE MD2/MD3 Model Rendering
 //----------------------------------------------------------------------------
-//  (C) EDGE2 Team, 2001! 
-//  Working on: Supporting more than one mesh
-//  from KMQuake2 ! 
-//  Copyright (c) 2002-2009  The EDGE2 Team.
 //
+// (C) 2015 Isotope SoftWorks
+//  
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -23,6 +21,13 @@
 //
 //  Based on MD2 loading and rendering code (C) 2004 David Henry.
 //
+//  Note: Damir has added support for normal, spec, and brightmaps on these models!
+//  Note: Advanced Shader Effects only supported under OpenGL2 mode!!
+//  TODO: Linear Keyframe Interpolation (no more jellies!)
+//
+//
+//  Optimize the hell out of this code (maybe remove MD3 since it's a bottleneck)
+//  Maybe add DMD from Doomsday (for LOD?)
 //----------------------------------------------------------------------------
 
 #include "i_defs.h"
@@ -43,7 +48,7 @@
 #include "r_units.h"
 #include "p_blockmap.h"
 #include "m_math.h"
-
+#include "w_model.h"
 
 cvar_c debug_normals;
 
@@ -1123,6 +1128,16 @@ static void DLIT_Model(mobj_t *mo, void *dataptr)
 	ShadeNormals(mo->dlight.shader, data);
 }
 
+static void DLIT_CollectLights(mobj_t *mo, void *dataptr)
+{
+	model_coord_data_t *data = (model_coord_data_t *)dataptr;
+	// dynamic lights do not light themselves up!
+	if (mo == data->mo)
+		return;
+
+	RGL_AddLight(mo);
+}
+
 static int MD2_MulticolMaxRGB(model_coord_data_t *data, bool additive)
 {
 	int result = 0;
@@ -1227,7 +1242,7 @@ SYS_ASSERT(point->vert_idx < md->verts_per_frame);
 }
 
 
-void MD2_RenderModel(md2_model_c *md, const image_c *skin_img, bool is_weapon,
+void MD2_RenderModel(md2_model_c *md, const skindef_c *skin,bool is_weapon,
 		             int frame1, int frame2, float lerp,
 		             float x, float y, float z, mobj_t *mo,
 					 region_properties_t *props,
@@ -1258,14 +1273,14 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 
 	int blending;
 
-	if (trans >= 0.99f && skin_img->opacity == OPAC_Solid)
+	if (trans >= 0.99f && skin->img->opacity == OPAC_Solid)
 		blending = BL_NONE;
-	else if (trans < 0.11f || skin_img->opacity == OPAC_Complex)
+	else if (trans < 0.11f || skin->img->opacity == OPAC_Complex)
 		blending = BL_Masked;
 	else
 		blending = BL_Less;
 
-	if (trans < 0.99f || skin_img->opacity == OPAC_Complex)
+	if (trans < 0.99f || skin->img->opacity == OPAC_Complex)
 		blending |= BL_Alpha;
 
 	if (mo->hyperflags & HF_NOZBUFFER)
@@ -1315,6 +1330,8 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 
 
 	GLuint skin_tex = 0;
+	GLuint skin_tex_norm = (skin->norm ? W_ImageCache(skin->norm, false, NULL) : 0);
+	GLuint skin_tex_spec = (skin->spec ? W_ImageCache(skin->spec, false, NULL) : 0);
 
 	if (data.is_fuzzy)
 	{
@@ -1342,30 +1359,42 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 	}
 	else /* (! data.is_fuzzy) */
 	{
-		skin_tex = W_ImageCache(skin_img, false,
+		skin_tex = W_ImageCache(skin->img, false,
 			ren_fx_colmap ? ren_fx_colmap :
 			is_weapon ? NULL : mo->info->palremap);
 
-		data.im_right = IM_RIGHT(skin_img);
-		data.im_top   = IM_TOP(skin_img);
+		data.im_right = IM_RIGHT(skin->img);
+		data.im_top   = IM_TOP(skin->img);
 
+		bool use_gl2_shader=RGL_GL2Enabled();
 
-		abstract_shader_c *shader = R_GetColormapShader(props, mo->state->bright);
-
-		ShadeNormals(shader, &data);
+		if(!use_gl2_shader) {
+			abstract_shader_c *shader = R_GetColormapShader(props, mo->state->bright);
+			ShadeNormals(shader, &data);
+		}
 
 		if (use_dlights && ren_extralight < 250)
 		{
 			float r = mo->radius;
-			
-			P_DynamicLightIterator(mo->x - r, mo->y - r, mo->z,
-					               mo->x + r, mo->y + r, mo->z + mo->height,
-								   DLIT_Model, &data);
 
-			P_SectorGlowIterator(mo->subsector->sector,
-					             mo->x - r, mo->y - r, mo->z,
-					             mo->x + r, mo->y + r, mo->z + mo->height,
-								 DLIT_Model, &data);
+			if(use_gl2_shader) {
+				short l=CLAMP(0,props->lightlevel+mo->state->bright,255);
+				RGL_SetAmbientLight(l,l,l);
+				RGL_ClearLights();
+				P_DynamicLightIterator(mo->x - r, mo->y - r, mo->z,
+									   mo->x + r, mo->y + r, mo->z + mo->height,
+									   DLIT_CollectLights, &data);
+			}
+			else {
+				P_DynamicLightIterator(mo->x - r, mo->y - r, mo->z,
+						               mo->x + r, mo->y + r, mo->z + mo->height,
+									   DLIT_Model, &data);
+
+				P_SectorGlowIterator(mo->subsector->sector,
+						             mo->x - r, mo->y - r, mo->z,
+						             mo->x + r, mo->y + r, mo->z + mo->height,
+									 DLIT_Model, &data);
+			}
 		}
 	}
 
@@ -1407,6 +1436,9 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 					 data.is_additive ? ENV_SKIP_RGB : GL_MODULATE, skin_tex,
 					 ENV_NONE, 0, pass, blending);
 
+			RGL_SetUnitMaps(skin_tex_norm,skin_tex_spec);
+
+
 			for (int v_idx=0; v_idx < md->strips[i].count; v_idx++)
 			{
 				local_gl_vert_t *dest = glvert + v_idx;
@@ -1430,6 +1462,7 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 
 			RGL_EndUnit(md->strips[i].count);
 		}
+
 	}
 }
 

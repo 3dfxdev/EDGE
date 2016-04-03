@@ -262,6 +262,7 @@ void LoadLevel_Bits(void)
 	gamestate = GS_LEVEL;
 
 	CON_SetVisible(vs_notvisible);
+	paused = false;
 
 	// clear cmd building stuff
 	E_ClearInput();
