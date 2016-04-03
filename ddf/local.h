@@ -19,8 +19,11 @@
 #ifndef __DDF_LOCAL_H__
 #define __DDF_LOCAL_H__
 
-#include "../epi/epi.h"
-#include "../epi/str_format.h"
+#include <cstddef>
+
+//#include "../epi/epi.h"
+#include <E:/newbuild/epi/epi.h>
+#include <E:/newbuild/epi/str_format.h>
 
 #include "types.h"
 #include "main.h"

@@ -35,6 +35,7 @@ typedef struct local_gl_vert_s
 	vec3_t pos;
 	vec2_t texc[2];
 	vec3_t normal;
+	vec3_t tangent;		//needed for bump mapping
 	GLboolean EDGE2;
 }
 local_gl_vert_t;
@@ -45,6 +46,14 @@ void RGL_SoftInitUnits(void);
 void RGL_StartUnits(bool sort_em);
 void RGL_FinishUnits(void);
 void RGL_DrawUnits(void);
+
+//dynamic shading and bump mapping (GL2 path)
+bool RGL_GL2Enabled();
+void RGL_SetAmbientLight(short r,short g,short b);	//rgb 0-255
+void RGL_ClearLights();
+void RGL_AddLight(mobj_t *mo);
+void RGL_CaptureCameraMatrix();
+
 
 typedef enum
 {
@@ -84,6 +93,7 @@ local_gl_vert_t *RGL_BeginUnit(GLuint shape, int max_vert,
 		                       GLuint env1, GLuint tex1,
 							   GLuint env2, GLuint tex2,
 							   int pass, int blending);
+void RGL_SetUnitMaps(GLuint tex_normal,GLuint tex_specular);
 void RGL_EndUnit(int actual_vert);
 
 

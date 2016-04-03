@@ -71,7 +71,7 @@
 //                  
 // -AJA- 2001/07/26: Reworked colours, key config, and other code.
 //
-//
+// -CA-  2016.2.24: Added more console -> menu customizations
 
 #include "i_defs.h"
 
@@ -111,8 +111,21 @@ int option_menuon = 0;
 
 extern cvar_c m_language;
 extern cvar_c r_crosshair;
+extern cvar_c r_crosssize;
+extern cvar_c r_lerp;
+extern cvar_c r_gl2_path;
+extern cvar_c r_md5scale;
+extern cvar_c debug_fps;
+extern cvar_c debug_pos;
+extern cvar_c r_vsync;
+extern cvar_c m_goobers;
+extern cvar_c mouse_filter;
+extern cvar_c m_diskicon;
+extern cvar_c debug_mouse;
+extern cvar_c debug_joyaxis;
 
 static int menu_crosshair;  // temp hack
+static int menu_crosshair2;  /// love haxxx
 extern int monitor_size;
 
 extern int joystick_device;
@@ -120,9 +133,11 @@ extern int joystick_device;
 //submenus
 static void M_KeyboardOptions(int keypressed);
 static void M_VideoOptions(int keypressed);
-static void M_GameplayOptions(int keypressed);
+static void M_AdvancedOptions(int keypressed);
+static void M_GameplayOptions(int keypressed); /// Make Gameplay Options page-flip for MORE options...apparently...
 static void M_AnalogueOptions(int keypressed);
 static void M_SoundOptions(int keypressed);
+static void M_DebuggingOptions(int keypressed); /// New Debugging Sub-menu
 
 static void M_Key2String(int key, char *deststring);
 
@@ -135,6 +150,7 @@ static void M_ChangeFastparm(int keypressed);
 static void M_ChangeRespawn(int keypressed);
 static void M_ChangePassMissile(int keypressed);
 static void M_ChangeCrossHair(int keypressed);
+static void M_ChangeCrossHairSize(int keypressed);
 
 static void M_ChangeBlood(int keypressed);
 static void M_ChangeMLook(int keypressed);
@@ -175,11 +191,12 @@ static char JoyDevs[]   = "None/1/2/3/4/5/6";
 static char DLMode[]    = "Off/On";
 static char JpgPng[]    = "JPEG/PNG";  // basic on/off
 static char AAim[]      = "Off/On/Mlook";
-static char MipMaps[]   = "None/Good/Best";
+static char MipMaps[]   = "None/Bilinear/Trilinear"; ///CA - Renamed for better understanding of what they are changing
 static char Details[]   = "Low/Medium/High";
 static char Hq2xMode[]  = "Off/UI Only/UI & Sprites/All";
 static char Invuls[]    = "Simple/Complex/Textured";
 static char MonitSiz[]  = "4:3/16:9/16:10/3:2/24:10";
+static char GLMode[]    = "1/2";
 
 // for CVar enums
 const char WIPE_EnumStr[] = "none/melt/crossfade/pixelfade/top/bottom/left/right/spooky/doors";
@@ -196,7 +213,7 @@ static scrmode_c new_scrmode;
 
 
 // -ES- 1998/11/28 Wipe and Faded teleportation options
-//static char FadeT[] = "Off/On, flash/On, no flash";
+static char FadeT[] = "Off/On, flash/On, no flash";
 
 
 //
@@ -268,6 +285,7 @@ static style_c *mouse_style;
 static style_c *gameplay_style;
 static style_c *video_style;
 static style_c *setres_style;
+static style_c *advanced_style;
 
 
 
@@ -323,25 +341,29 @@ static int M_GetCurrentSwitchValue(optmenuitem_t *item)
 //
 //  MAIN MENU
 //
-#define LANGUAGE_POS  8
-#define HOSTNET_POS   11
+#define LANGUAGE_POS  11
+#define HOSTNET_POS   14
 
 static optmenuitem_t mainoptions[] =
 {
 	{OPT_Function, "Keyboard Controls", NULL,  0, NULL, M_KeyboardOptions, "Controls"},
 	{OPT_Function, "Mouse / Joystick",  NULL,  0, NULL, M_AnalogueOptions, "AnalogueOptions"},
+	{OPT_Plain,    "",                  NULL,  0, NULL, NULL, NULL},	
 	{OPT_Function, "Gameplay Options",  NULL,  0, NULL, M_GameplayOptions, "GameplayOptions"},
-	{OPT_Plain,    "",                  NULL,  0, NULL, NULL, NULL},
+	{OPT_Plain,    "",                  NULL,  0, NULL, NULL, NULL},	
 	{OPT_Function, "Sound Options",     NULL,  0, NULL, M_SoundOptions, "SoundOptions"},
-	{OPT_Function, "Video Options",     NULL,  0, NULL, M_VideoOptions, "VideoOptions"},
+	{OPT_Function, "Screen Options",    NULL,  0, NULL, M_VideoOptions, "VideoOptions"},
+	{OPT_Function, "Video Options",     NULL,  0, NULL, M_AdvancedOptions, "AdvancedOptions"}, //call to LDF
+	{OPT_Plain,    "",                  NULL,  0, NULL, NULL, NULL},	
 	{OPT_Function, "Set Resolution",    NULL,  0, NULL, M_ResolutionOptions, "ChangeRes"},
 
 	{OPT_Plain,    "",                  NULL,  0, NULL, NULL, NULL},
 	{OPT_Function, "Language",          NULL,  0, NULL, M_ChangeLanguage, NULL},
 	{OPT_Switch,   "Messages",          YesNo, 2, &showMessages, NULL, "Messages"},
 	{OPT_Plain,    "",                  NULL,  0, NULL, NULL, NULL},
-	{OPT_Function, "Advanced Start",    NULL,  0, NULL, M_HostNetGame, NULL},
+	{OPT_Function, "Start Multiplayer Game",    NULL,  0, NULL, M_HostNetGame, NULL},
 	{OPT_Plain,    "",                  NULL,  0, NULL, NULL, NULL},
+	
 	{OPT_Function, "Reset to Defaults", NULL,  0, NULL, M_ResetDefaults, NULL}
 };
 
@@ -365,33 +387,71 @@ static optmenuitem_t vidoptions[] =
 	{OPT_Switch,  "Monitor Size",  MonitSiz,  5, &monitor_size, M_ChangeMonitorSize, NULL},
 	{OPT_Switch,  "Smoothing",         YesNo, 2, &var_smoothing, M_ChangeMipMap, NULL},
 	{OPT_Switch,  "H.Q.2x Scaling", Hq2xMode, 4, &hq2x_scaling, M_ChangeMipMap, NULL},
-	{OPT_Switch,  "Dynamic Lighting", DLMode, 2, &use_dlights, M_ChangeDLights, NULL},
 	{OPT_Switch,  "Detail Level",   Details,  3, &detail_level, M_ChangeMipMap, NULL},
-	{OPT_Switch,  "Mipmapping",     MipMaps,  3, &var_mipmapping, M_ChangeMipMap, NULL},
-
-	{OPT_Plain,   "",  NULL, 0, NULL, NULL, NULL},
-
+	{OPT_Switch,  "Texture Filtering",     MipMaps,  3, &var_mipmapping, M_ChangeMipMap, NULL},
+	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL},
+	{OPT_Boolean,  "Show Disk Icon",  YesNo, 1, &m_diskicon, NULL, NULL},
+	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL},
 	{OPT_Switch,  "Crosshair",       CrossH, 10, &menu_crosshair, M_ChangeCrossHair, NULL},
+	{OPT_Slider,  "Crosshair Scale",  NULL, 15, &menu_crosshair2, M_ChangeCrossHairSize, NULL}, /// -- New Crosshair Size Slider (like Global MD5 Scale), define this in LDF!
 	{OPT_Boolean, "Map Rotation",    YesNo,   2, &rotatemap, NULL, NULL},
 	{OPT_Switch,  "Teleport Flash",  YesNo,   2, &telept_flash, NULL, NULL},
-	{OPT_Switch,  "Invulnerability", Invuls, NUM_INVULFX,  &var_invul_fx, NULL, NULL},
 	{OPT_Switch,  "Wipe method",     WIPE_EnumStr, WIPE_NUMWIPES, &wipe_method, NULL, NULL},
 	{OPT_Boolean, "Screenshot Format", JpgPng, 2, &png_scrshots, NULL, NULL}
 
-//#if 0  // TEMPORARILY DISABLED (we need an `Advanced Options' menu)
-//	{OPT_Switch,  "Teleportation effect", WIPE_EnumStr, WIPE_NUMWIPES, 
- //                                             &telept_effect, NULL, NULL},
-//
-//    {OPT_Switch,  "Reverse effect", YesNo, 2, &telept_reverse, NULL, NULL},
-//    {OPT_Switch,  "Reversed wipe",  YesNo, 2, &wipe_reverse, NULL, NULL},
-//#endif
 };
+
+
+static optmenuitem_t advancedoptions[] =
+{
+	{OPT_Boolean, "OpenGL Mode",    GLMode,   2, &r_gl2_path, NULL, "OpenGL"}, /// Change from GL1 to GL2
+	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL},
+	{OPT_Boolean, "Interpolation",    YesNo,   2, &r_lerp, NULL, "Lerping"},
+	{OPT_Boolean, "Video Sync",    YesNo,   2, &r_vsync, NULL, "VideoSync"},
+	{OPT_Switch,  "Dynamic Lighting", DLMode, 2, &use_dlights, M_ChangeDLights, "DynaLight"},
+
+	{OPT_Plain,   "",  NULL, 0, NULL, NULL, NULL},
+
+	{OPT_Slider,  "Global MD5 Scale",    NULL,  4,  &r_md5scale, NULL, "MD5Scale"},
+
+	{OPT_Plain,   "",  NULL, 0, NULL, NULL, NULL},
+	/* {OPT_Switch,  "Invulnerability", Invuls, NUM_INVULFX,  &var_invul_fx, NULL, NULL}, */
+	{OPT_Plain,   "",  NULL, 0, NULL, NULL, NULL},
+	
+	{OPT_Switch,  "Framerate Counter",    YesNo,  2,  &debug_fps, NULL, NULL},
+	{OPT_Switch,  "Show HOM Errors",    YesNo,  2,  &debug_hom, NULL, "showhom"},
+	{OPT_Switch,  "Show Position Coords",    YesNo,  2,  &debug_pos, NULL, NULL},
+	{OPT_Switch,  "Teleportation effect", WIPE_EnumStr, WIPE_NUMWIPES, &telept_effect, NULL, NULL},
+	{OPT_Switch,  "Goobers!",   YesNo, 2,  &m_goobers, NULL, NULL}
+
+};
+
+/* static optmenuitem_t debuggingoptions[] = 
+{
+	{OPT_Switch,  "Framerate Counter",    YesNo,  2,  &debug_fps, NULL, NULL},
+	{OPT_Switch,  "Show HOM Errors",    YesNo,  2,  &debug_hom, NULL, "showhom"},
+	
+	{OPT_Switch,  "Show Position Coords",    YesNo,  2,  &debug_pos, NULL, NULL},
+	{OPT_Switch,  "Dithering (PowerVR)",    YesNo,  2,  &var_dithering, NULL, "powervr"}
+	
+	
+} */
+
 
 static menuinfo_t video_optmenu = 
 {
 	vidoptions, sizeof(vidoptions) / sizeof(optmenuitem_t),
 	&video_style, 150, 77, "M_VIDEO", NULL, 0, ""
 };
+
+// for advanced video options
+// advancedoptions[], m_ADVANCED
+static menuinfo_t advanced_optmenu = 
+{
+	advancedoptions, sizeof(advancedoptions) / sizeof(optmenuitem_t),
+	&advanced_style, 150, 77, "M_VIDEO", NULL, 0, "" //maybe I can replace the stupid hard coded graphic. . .
+};
+
 
 //
 //  SET RESOLUTION MENU
@@ -431,8 +491,8 @@ static optmenuitem_t analogueoptions[] =
 	{OPT_Switch,   "Mouse Y Axis",       Axis, 11, &mouse_yaxis, NULL, NULL},
 	{OPT_Slider,   "X Sensitivity",      NULL, 16, &mouse_xsens, NULL, NULL},
 	{OPT_Slider,   "Y Sensitivity",      NULL, 16, &mouse_ysens, NULL, NULL},
+	{OPT_Boolean,  "Mouse Filtering",    YesNo, 0,  &mouse_filter, NULL, NULL},
 	{OPT_Plain,    "",                   NULL, 0,  NULL, NULL, NULL},
-
 	{OPT_Switch,   "Joystick Device", JoyDevs, 7,  &joystick_device, NULL, NULL},
 	{OPT_Switch,   "First Axis",         Axis, 11, &joy_axis[0], NULL, NULL},
 	{OPT_Switch,   "Second Axis",        Axis, 11, &joy_axis[1], NULL, NULL},
@@ -445,7 +505,11 @@ static optmenuitem_t analogueoptions[] =
 	{OPT_Slider,   "Turning Speed",      NULL, 12, &var_turnspeed,    NULL, NULL},
 	{OPT_Slider,   "MLook Speed",        NULL, 12, &var_mlookspeed,   NULL, NULL},
 	{OPT_Slider,   "Forward Move Speed", NULL, 8,  &var_forwardspeed, NULL, NULL},
-	{OPT_Slider,   "Side Move Speed",    NULL, 8,  &var_sidespeed,    NULL, NULL}
+	{OPT_Slider,   "Side Move Speed",    NULL, 8,  &var_sidespeed,    NULL, NULL},
+	{OPT_Plain,    "",                   NULL, 0,  NULL, NULL, NULL},
+	{OPT_Boolean,  "Debug Joystick Axis",    YesNo, 0,  &debug_joyaxis, NULL, NULL},
+	{OPT_Boolean,  "Debug Mouse ",    YesNo, 0,  &debug_mouse, NULL, NULL}
+	
 };
 
 static menuinfo_t analogue_optmenu = 
@@ -490,7 +554,7 @@ static menuinfo_t sound_optmenu =
 //
 static optmenuitem_t playoptions[] =
 {
-	{OPT_Boolean, "Mouse Look",         YesNo, 2, 
+	{OPT_Boolean, "Mouse Look",         YesNo, 2,
      &global_flags.mlook, M_ChangeMLook, NULL},
 
 	{OPT_Switch,  "AutoAiming",         AAim, 3, 
@@ -622,7 +686,7 @@ static optmenuitem_t other_keyconfig[] =
 	{OPT_KeyConfig, "Action 1",         NULL, 0, &key_action1, NULL, NULL},
 	{OPT_KeyConfig, "Action 2",         NULL, 0, &key_action2, NULL, NULL},
 
-	{OPT_KeyConfig, "Multiplayer Talk", NULL, 0, &key_talk, NULL, NULL},
+///	{OPT_KeyConfig, "Multiplayer Talk", NULL, 0, &key_talk, NULL, NULL},
 };
 
 static menuinfo_t otherkey_optmenu = 
@@ -713,10 +777,10 @@ void M_OptCheckNetgame(void)
 		mainoptions[HOSTNET_POS+0].routine = &M_EndGame;
 		mainoptions[HOSTNET_POS+0].help = NULL;
 
-		strcpy(mainoptions[HOSTNET_POS+1].name, "SplitScreen Game");
-		mainoptions[HOSTNET_POS+1].type = OPT_Plain;
-		mainoptions[HOSTNET_POS+1].routine = NULL;
-		mainoptions[HOSTNET_POS+1].help = NULL;
+//		strcpy(mainoptions[HOSTNET_POS+1].name, "");
+//		mainoptions[HOSTNET_POS+1].type = OPT_Plain;
+//		mainoptions[HOSTNET_POS+1].routine = NULL;
+//		mainoptions[HOSTNET_POS+1].help = NULL;
 	}
 	else
 	{
@@ -746,7 +810,7 @@ void M_OptMenuInit()
 	styledef_c *def;
 
 	def = styledefs.Lookup("OPTIONS");
-	if (! def) def = default_style;
+/* 	if (! def) def = default_style; */
 	opt_def_style = hu_styles.Lookup(def);
 
 	def = styledefs.Lookup("KEYBOARD CONTROLS");
@@ -763,6 +827,9 @@ void M_OptMenuInit()
 
 	def = styledefs.Lookup("SET RESOLUTION");
 	setres_style = def ? hu_styles.Lookup(def) : opt_def_style;
+	
+	def = styledefs.Lookup("ADVANCED");
+	advanced_style = def ? hu_styles.Lookup(def) : opt_def_style;
 
 	// Restore the config setting.
 	M_ChangeBlood(-1);
@@ -797,14 +864,13 @@ void M_OptDrawer()
 	int curry, deltay, menutop;
 	int i, j;
 	unsigned int k;
-    
-	//HUD_SetAlpha(0.64f);
-	//HUD_SolidBox(0, 0, 320, 200, T_BLACK);
-	//HUD_SetAlpha();
+
+	HUD_SetAlpha(0.64f);
+	HUD_SolidBox(0, 0, 320, 200, T_BLACK);
+	HUD_SetAlpha();
 
 	style_c *style = curr_menu->style_var[0];
 	SYS_ASSERT(style);
-	style->DrawBackground();
 
 	if (! style->fonts[0])
 		return;
@@ -1308,6 +1374,12 @@ static void M_VideoOptions(int keypressed)
 	curr_item = curr_menu->items + curr_menu->pos;
 }
 
+static void M_AdvancedOptions(int keypressed)
+{
+	curr_menu = &advanced_optmenu;
+	curr_item = curr_menu->items + curr_menu->pos;
+}
+
 //
 // M_ResolutionOptions
 //
@@ -1536,7 +1608,7 @@ static void M_ChangeMipMap(int keypressed)
 	W_DeleteAllImages();
 }
 
-//#if 0
+#if 0
 static void M_ChangeShadows(int keypressed)
 {
 	if (currmap && ((currmap->force_on | currmap->force_off) & MPF_Shadows))
@@ -1552,7 +1624,7 @@ static void M_ChangeHalos(int keypressed)
 
 	level_flags.halos = global_flags.halos;
 }
-//#endif
+#endif
 
 static void M_ChangeKicking(int keypressed)
 {
@@ -1579,6 +1651,13 @@ static void M_ChangeCrossHair(int keypressed)
 {
 	r_crosshair = menu_crosshair;
 }
+
+static void M_ChangeCrossHairSize(int keypressed)
+{
+	r_crosssize = menu_crosshair2;
+}
+
+
 
 
 //
@@ -1736,6 +1815,9 @@ void M_Options(int choice)
 
 	// hack
 	menu_crosshair = CLAMP(0, r_crosshair.d, 9);
+	
+	menu_crosshair2 = CLAMP(0, r_crosssize.f, 15);
+	// continued
 }
 
 

@@ -220,6 +220,21 @@ typedef struct slope_plane_s
 }
 slope_plane_t;
 
+struct sectorinterp_t
+{
+   bool    interpolated;       // if true, interpolated
+
+   int prevfloorheight;    // previous values, stored for interpolation
+   int prevceilingheight;
+   float   prevfloorheightf;
+   float   prevceilingheightf;
+
+   int backfloorheight;    // backup values, used as cache during rendering
+   int backceilingheight;
+   float   backfloorheightf;
+   float   backceilingheightf;
+};
+
 
 //
 // The SECTORS record, at runtime.

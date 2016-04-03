@@ -335,7 +335,7 @@ struct mobj_s : public position_c
 	short lerp_num;
 	short lerp_pos;
 
-	vec3_t lerp_from;
+	vec3_t lerp_from; /// previous position for interpolation
 	
 	last_tic_render_t lastticrender;
 
@@ -354,6 +354,9 @@ struct mobj_s : public position_c
 
 	// One more: link in dynamic light blockmap
 	mobj_t *dlnext, *dlprev;
+	
+	// counters - these were known as special1/2/3 in Heretic and Hexen
+   ///int counters[NUMMOBJCOUNTERS];
 
 public:
 	inline bool isRemoved() const

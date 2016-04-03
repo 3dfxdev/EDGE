@@ -55,6 +55,7 @@
 // indices at all times.
 //
 player_t *players[MAXPLAYERS];
+	
 int numplayers;
 int numbots;
 
@@ -340,6 +341,7 @@ static void P_SpawnPlayer(player_t *p, const spawnpoint_t *point, bool is_hub)
 	//   will hold player start objects, sprite will be taken for skin.
 	// -AJA- 2004/04/14: Use DDF entry from level thing.
 
+
 	if (point->info == NULL)
 		I_Error("P_SpawnPlayer: No such item type!");
 
@@ -364,6 +366,7 @@ static void P_SpawnPlayer(player_t *p, const spawnpoint_t *point, bool is_hub)
 	mobj->vertangle = point->vertangle;
 	mobj->player = p;
 	mobj->health = p->health;
+	///mobj->player->prev_viewangle = mobj->angle + viewangleoffset;
 
 	p->mo = mobj;
 	p->playerstate = PST_LIVE;
@@ -400,6 +403,8 @@ static void P_SpawnPlayer(player_t *p, const spawnpoint_t *point, bool is_hub)
 
 	if (COOP_MATCH() && ! level_flags.team_damage)
 		mobj->hyperflags |= HF_SIDEIMMUNE;
+	
+	///R_SmoothPlaying_Reset(p); // e6y
 }
 
 

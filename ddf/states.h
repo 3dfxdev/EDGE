@@ -46,7 +46,7 @@ typedef struct state_s
 	short sprite;
 
     // frame ref (begins at 0.0)
-	float frame;
+	short frame;
 	
 	//number of frames for md5 (0 for individual frame)
 	short framerange;

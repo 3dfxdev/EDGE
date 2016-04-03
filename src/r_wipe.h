@@ -44,6 +44,8 @@ typedef enum
   WIPE_Crossfade,
   // pixel fading
   WIPE_Pixelfade,
+  // complete fade to black
+  WIPE_Fadescreen,
 
   // new screen simply scrolls in from the given side of the screen
   // (or if reversed, the old one scrolls out to the given side)

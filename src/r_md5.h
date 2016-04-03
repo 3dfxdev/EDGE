@@ -32,7 +32,8 @@
 short R_LoadMD5AnimationName(const char * lumpname);
 MD5animation * R_GetMD5Animation(short animation_num);
 void MD5_RenderModel(modeldef_c *md, int last_anim, int last_frame,
-	int current_anim, int current_frame, float lerp, float x, float y, float z, mobj_t *mo);
+	int current_anim, int current_frame, float lerp, float x, float y, float z,
+	float scale_x,float scale_y,float scale_z, mobj_t *mo);
 
 #endif /* __R_MD2_H__ */
 

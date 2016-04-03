@@ -2923,9 +2923,10 @@ static void RGL_DrawSubsector(drawsub_c *dsub)
 			RGL_DrawSeg(dfloor, (*SEGI)->seg);
 		}
 		
-		//if (dfloor->floor_move) {
-			//tapamn get interpolated heights
-		//}
+/* 		if (dfloor->floor_move) 
+		{
+			;//tapamn get interpolated heights
+		} */
 
 		RGL_DrawPlane(dfloor, dfloor->c_h, dfloor->ceil,  -1);
 		RGL_DrawPlane(dfloor, dfloor->f_h, dfloor->floor, +1);
@@ -3084,7 +3085,13 @@ static void RGL_RenderTrueBSP(void)
 #endif
 }
 
+enum secinterpstate_e
+{
+   SEC_INTERPOLATE,
+   SEC_NORMAL
+};
 
+/// rendering view point based on the camera's location.
 static void InitCamera(mobj_t *mo, bool full_height, float expand_w)
 {
 	float fov = CLAMP(5, r_fov.f, 175);
@@ -3126,6 +3133,7 @@ static void InitCamera(mobj_t *mo, bool full_height, float expand_w)
 
 	if (mo->player)
 		viewz += mo->player->viewz;
+	///viewz += lastpos.Lerp(mo->player->viewz, mo->player->prevviewz);
 	else
 		viewz += mo->height * 9 / 10;
 
@@ -3219,7 +3227,7 @@ void R_Render(int x, int y, int w, int h, mobj_t *camera,
 	viewwindow_h = h;
 
 	view_cam_mo = camera;
-
+	
 	// Load the details for the camera
 	InitCamera(camera, full_height, expand_w);
 

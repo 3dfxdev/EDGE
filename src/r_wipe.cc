@@ -25,7 +25,7 @@
 
 #include "i_defs.h"
 #include "i_defs_gl.h"
-
+#include "dm_state.h"
 #include "../epi/image_data.h"
 
 #include "m_random.h"
@@ -162,6 +162,7 @@ void RGL_InitWipe(int reverse, wipetype_e effect)
 
 void RGL_StopWipe(void)
 {
+	
 	cur_wipe_effect = WIPE_None;
 
 	if (cur_wipe_tex != 0)
@@ -377,7 +378,9 @@ bool RGL_DoWipe(void)
 	if (cur_wipe_progress > 40)  // FIXME: have option for wipe time
 		return true;
 
-	float how_far = (float) cur_wipe_progress / 40.0f;
+	float how_far = (float) cur_wipe_progress / 20.0f;
+	
+	
 
 	switch (cur_wipe_effect)
 	{
@@ -417,6 +420,8 @@ bool RGL_DoWipe(void)
 			RGL_Wipe_Fading(how_far);
 			break;
 	}
+	
+	
 
 	return false;
 }

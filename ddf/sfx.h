@@ -72,6 +72,9 @@ public:
 
 	// Sfx priority
 	int priority;
+	
+	// pitch
+    int		pitch;
 
 	// volume adjustment (100% is normal, lower is quieter)
 	percent_t volume;

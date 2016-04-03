@@ -91,6 +91,12 @@ void HUD_SetAlpha(float alpha)
 	cur_alpha = alpha;
 }
 
+void HUD_FadeAlpha(float alpha)
+{
+	cur_alpha = alpha;
+	alpha-=TICRATE*0.01;
+}
+
 void HUD_SetAlignment(int xa, int ya)
 {
 	cur_x_align = xa;

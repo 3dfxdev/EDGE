@@ -80,6 +80,7 @@ static const commandlist_t weapon_commands[] =
 	DF("IDLE_CHANCE", idle_chance, DDF_MainGetPercent),
 	DF("MODEL_SKIN", model_skin, DDF_MainGetNumeric),
 	DF("MODEL_ASPECT", model_aspect, DDF_MainGetFloat),
+	DF("MODEL_ZASPECT", model_zaspect, DDF_MainGetFloat),
 	DF("MODEL_BIAS", model_bias, DDF_MainGetFloat),
 	DF("MODEL_FORWARD", model_forward, DDF_MainGetFloat),
 	DF("MODEL_SIDE", model_side, DDF_MainGetFloat),
@@ -622,6 +623,7 @@ void weapondef_c::CopyDetail(weapondef_c &src)
 
 	model_skin = src.model_skin;
 	model_aspect = src.model_aspect;
+	model_zaspect = src.model_zaspect;
 	model_bias = src.model_bias;
 	model_forward = src.model_forward;
 	model_side = src.model_side;
@@ -642,23 +644,23 @@ void weapondef_c::Default(void)
 		clip_size[ATK]   = 0;
 		autofire[ATK]    = false;
 
-		attack_state[ATK]  = 0.0f;
-		reload_state[ATK]  = 0.0f;
-		discard_state[ATK] = 0.0f;
-		warmup_state[ATK]  = 0.0f;
-		flash_state[ATK]   = 0.0f;
+		attack_state[ATK]  = 0;
+		reload_state[ATK]  = 0;
+		discard_state[ATK] = 0;
+		warmup_state[ATK]  = 0;
+		flash_state[ATK]   = 0;
 	}
 
 	specials[0] = DEFAULT_WPSP;
 	specials[1] = (weapon_flag_e)(DEFAULT_WPSP & ~WPSP_SwitchAway);
 
-	kick = 0.0f;
+	kick = 0;
 
-	up_state = 0.0f;
-	down_state= 0.0f;
-	ready_state = 0.0f;
-	empty_state = 0.0f;
-	idle_state = 0.0f;
+	up_state = 0;
+	down_state= 0;
+	ready_state = 0;
+	empty_state = 0;
+	idle_state = 0;
 
 	crosshair = 0;
 	zoom_state = 0;
@@ -695,6 +697,7 @@ void weapondef_c::Default(void)
 
 	model_skin = 1;
 	model_aspect = 1.0f;
+	model_zaspect = 1.0f;
 	model_bias = 0.0f;
 	model_forward = 0.0f;
 	model_side = 0.0f;

@@ -467,10 +467,11 @@ static void DoSystemStartup(void)
 
 static void M_DisplayPause(void)
 {
-	static const image_c *pause_image = NULL;
+	///CON_Printf("Paused ;)\n");
+/* 	static const image_c *pause_image = NULL;
 
-	if (! pause_image)
-		pause_image = W_ImageLookup("M_PAUSE");
+	//if (! pause_image)
+	//	pause_image = W_ImageLookup("M_PAUSE");
 
 	// make sure image is centered horizontally
 
@@ -480,7 +481,7 @@ static void M_DisplayPause(void)
 	float x = 160 - w / 2;
 	float y = 10;
 
-	HUD_StretchImage(x, y, w, h, pause_image);
+	HUD_StretchImage(x, y, w, h, pause_image); */
 }
 
 
@@ -584,13 +585,16 @@ void E_Display(void)
 
 	if (wipe_gl_active)
 	{
+		 //maybe this will pause the game?
 		// -AJA- Wipe code for GL.  Sorry for all this ugliness, but it just
 		//       didn't fit into the existing wipe framework.
 		//
 		if (RGL_DoWipe())
 		{
+			
 			RGL_StopWipe();
 			wipe_gl_active = false;
+			paused = false;
 		}
 	}
 

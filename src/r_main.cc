@@ -149,6 +149,8 @@ void RGL_SetupMatrices3D(void)
 	glRotatef(90.0f - ANG_2_FLOAT(viewangle), 0.0f, 0.0f, 1.0f);
 	glTranslatef(-viewx, -viewy, -viewz);
 
+	RGL_CaptureCameraMatrix();
+
 	// turn on lighting.  Some drivers (e.g. TNT2) don't work properly
 	// without it.
 	if (r_colorlighting.d)
