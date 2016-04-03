@@ -19,10 +19,13 @@
 #ifndef __SDL_SYSTEM_INTERNAL_H__
 #define __SDL_SYSTEM_INTERNAL_H__
 
-
+#ifdef MACOSX
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_keycode.h>
+#else
 #include <SDL.h>
 #include <SDL_keycode.h> /// Keys
-
+#endif
 
 
 // workaround for old SDL version (< 1.2.10)

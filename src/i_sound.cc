@@ -29,7 +29,9 @@
 #include "m_misc.h"
 #include "m_random.h"
 #include "s_sound.h"
+#ifdef WIN32
 #include "../dosbox/dbopl.h"
+#endif
 #include "s_cache.h"
 #include "s_blit.h"
 #include "w_wad.h"

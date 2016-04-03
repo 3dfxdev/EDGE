@@ -1204,7 +1204,7 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 			{
 				//DEBUG: CON_Message("Detected FWATER FLAT!");
 				mo->player->deltaviewheight = zmove / 8.0f;
-				S_StartFX(mo->info->gloopsound, P_MobjGetSfxCategory(mo), mo);
+				//S_StartFX(mo->info->gloopsound, P_MobjGetSfxCategory(mo), mo); // FIXME: BD: compile failed with "error: no member named 'gloopsound' in 'mobjtype_c'"
 			}
 			}
 
@@ -1243,7 +1243,7 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 				{
 				//DEBUG: CON_Message("Detected FWATER FLAT!");
 				//mo->player->deltaviewheight = zmove / 0.5f;
-				S_StartFX(mo->info->gloopsound, P_MobjGetSfxCategory(mo), mo);
+				//S_StartFX(mo->info->gloopsound, P_MobjGetSfxCategory(mo), mo); // FIXME: BD: compile failed with "error: no member named 'gloopsound' in 'mobjtype_c'"
 				mo->player->gloopwait = TICRATE;// * 2;
 				}
 			}

@@ -24,10 +24,13 @@
 #include "GL/wglew.h"
 #include <SDL_opengl.h>
 #else
-#include <GL/glew.h>
+#include <GL/glew.h> // BD: I thought we got rid of GLEW?
+#ifdef MACOSX
+#include <SDL2/SDL_opengl.h>
+#else
 #include <SDL_opengl.h>
 #endif
-
+#endif
 
 #include <signal.h>
 
