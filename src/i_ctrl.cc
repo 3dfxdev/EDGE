@@ -192,32 +192,22 @@ static int I_SDLtoDoomMouseState(Uint8 buttonstate) {
 
 
 void HandleKeyEvent(SDL_Event* ev)
-{
-	
+{	
 	SDL_PumpEvents();
-	if (ev->type != SDL_KEYDOWN && ev->type != SDL_KEYUP) 
-		return;
-
-#ifdef DEBUG_KB
-	if (ev->type == SDL_KEYDOWN)
-		L_WriteDebug("  HandleKey: DOWN\n");
-	else if (ev->type == SDL_KEYUP)
-		L_WriteDebug("  HandleKey: UP\n");
-#endif
+//	if (ev->type != SDL_KEYDOWN && ev->type != SDL_KEYUP) 
+//		return;
 
 	// For SDL2, we no longer require the SYM codes.
 	///int sym = (int)ev->key.keysym.sym;
 	event_t event;
-    uint32_t mwheeluptic = 0, mwheeldowntic = 0;
-    uint32_t tic = gametic;
-
+	
     switch(ev->type) 
 	{
 	case SDL_KEYDOWN:
 		if(ev->key.repeat)
 			break;
         event.type = ev_keydown;
-        event.data1 = TranslateSDLKey(ev->key.keysym.sym);
+        event.data1 = TranslateSDLKey(ev->key.keysym.sym); //will set event.data1 to -1 if no translation found (shouldn't happen on a normal keyboard)
         E_PostEvent(&event);
         break;
 
@@ -227,7 +217,7 @@ void HandleKeyEvent(SDL_Event* ev)
         E_PostEvent(&event);
         break;
 
-	case SDL_MOUSEBUTTONDOWN:
+	/*case SDL_MOUSEBUTTONDOWN:
 	case SDL_MOUSEBUTTONUP:
 		 if (!window_focused)
 			break;
@@ -238,29 +228,9 @@ void HandleKeyEvent(SDL_Event* ev)
 		event.data2 = event.data3 = 0;
 
 		E_PostEvent(&event);
-		break;
-
-	case SDL_MOUSEWHEEL:
-		if (ev->wheel.y > 0) 
-		{
-			event.type = ev_keydown;
-			event.data1 = KEYD_MWHEELUP;
-			mwheeluptic = tic;
-		} 
-		else if (ev->wheel.y < 0) 
-		{
-			event.type = ev_keydown;
-			event.data1 = KEYD_MWHEELDOWN;
-			mwheeldowntic = tic;
-		} 
-		else
-			break;
-
-		event.data2 = event.data3 = 0;
-		E_PostEvent(&event);
-		break;
-
-	case SDL_WINDOWEVENT:
+		break;*/
+		
+	/*case SDL_WINDOWEVENT:
 		switch (ev->window.event) 
 		{
 		case SDL_WINDOWEVENT_FOCUS_GAINED:
@@ -286,13 +256,13 @@ void HandleKeyEvent(SDL_Event* ev)
 
     case SDL_QUIT:
          I_CloseProgram(-1);
-        break;
+        break; */
 
     default:
         break;
     }
 
-    if(mwheeluptic && mwheeluptic + 1 < tic) {
+   /* if(mwheeluptic && mwheeluptic + 1 < tic) {
         event.type = ev_keyup;
         event.data1 = KEYD_MWHEELUP;
         E_PostEvent(&event);
@@ -305,10 +275,11 @@ void HandleKeyEvent(SDL_Event* ev)
         E_PostEvent(&event);
         mwheeldowntic = 0;
     }
-	
+	*/
 	
 
-	E_PostEvent(&event);
+//	E_PostEvent(&event);
+return;
 }
 
 
@@ -318,9 +289,9 @@ void HandleMouseButtonEvent(SDL_Event * ev)
 	SDL_PumpEvents();
 	
 	if (ev->type == SDL_MOUSEBUTTONDOWN) 
-		event.type = ev_keydown;
+		event.type = ev_mousedown;
 	else if (ev->type == SDL_MOUSEBUTTONUP) 
-		event.type = ev_keyup;
+		event.type = ev_mouseup;
 	else 
 		return;
 
@@ -379,6 +350,46 @@ void HandleMouseMotionEvent(SDL_Event * ev)
 
 		E_PostEvent(&event);
 	}
+}
+
+void HandleMouseWheelEvent(SDL_Event * ev)
+{
+	uint32_t mwheeluptic = 0, mwheeldowntic = 0;
+	uint32_t tic = gametic;
+	event_t event;
+	SDL_PumpEvents();
+	
+	if (ev->wheel.y > 0) 
+		{
+			event.type = ev_keydown;
+			event.data1 = KEYD_MWHEELUP;
+			mwheeluptic = tic;
+		} 
+		else if (ev->wheel.y < 0) 
+		{
+			event.type = ev_keydown;
+			event.data1 = KEYD_MWHEELDOWN;
+			mwheeldowntic = tic;
+		} 
+		else
+			return;		
+	if(mwheeluptic && mwheeluptic + 1 < tic) {
+        event.type = ev_keyup;
+        event.data1 = KEYD_MWHEELUP;
+        E_PostEvent(&event);
+        mwheeluptic = 0;
+    }
+
+    if(mwheeldowntic && mwheeldowntic + 1 < tic) {
+        event.type = ev_keyup;
+        event.data1 = KEYD_MWHEELDOWN;
+        E_PostEvent(&event);
+        mwheeldowntic = 0;
+    }
+    event.data2 = event.data3 = 0;
+	E_PostEvent(&event);
+	
+	return;
 }
 
 void HandleJoystickButtonEvent(SDL_Event * ev)
@@ -493,6 +504,10 @@ void ActiveEventProcess(SDL_Event *sdl_ev)
 			}
 
 			HandleMouseMotionEvent(sdl_ev);
+			break;
+		
+		case SDL_MOUSEWHEEL:
+			HandleMouseWheelEvent(sdl_ev);
 			break;
 		
 		case SDL_QUIT:
@@ -683,10 +698,14 @@ void I_ControlGetEvents(void)
 
 		L_WriteDebug("#I_ControlGetEvents: type=%d\n", sdl_ev.type);
 
-		if (app_state & APP_STATE_ACTIVE)
-			ActiveEventProcess(&sdl_ev);
+		if (app_state & APP_STATE_ACTIVE) 
+		{
+			ActiveEventProcess(&sdl_ev); 
+		}
 		else
-			InactiveEventProcess(&sdl_ev);		
+		{
+			InactiveEventProcess(&sdl_ev);	
+		}	
 	}
 }
 

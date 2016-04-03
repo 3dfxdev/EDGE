@@ -718,7 +718,7 @@ void E_UpdateKeyState(void)
 // Generate events which should release all current keys.
 //
 void E_ReleaseAllKeys(void)
-{
+{/*
 	int i;
 	for (i = 0; i < NUMKEYS; i++)
 	{
@@ -732,7 +732,7 @@ void E_ReleaseAllKeys(void)
 
 			E_PostEvent(&ev);
 		}
-	}
+	}*/
 }
 
 //
@@ -741,15 +741,22 @@ void E_ReleaseAllKeys(void)
 void E_PostEvent(event_t * ev)
 {
 	events[eventhead] = *ev;
-	eventhead = (eventhead + 1) % MAXEVENTS;
+	eventhead = ++eventhead % MAXEVENTS;
 
 #ifdef DEBUG_KEY_EV  //!!!!
 if (ev->type == ev_keydown || ev->type == ev_keyup)
 {
 	L_WriteDebug("EVENT @ %08x %d %s\n",
 		I_ReadMicroSeconds()/1000,
-		ev->value.key,
-		(ev->type == ev_keyup) ? "DOWN" : "up");
+		ev->data1,
+		(ev->type == ev_keyup) ? "keyup" : "keydown");
+}
+else if (ev->type == ev_mousedown || ev->type == ev_mouseup)
+{
+	L_WriteDebug("EVENT @ %08x %d %s\n",
+		I_ReadMicroSeconds()/1000,
+		ev->data1,
+		(ev->type == ev_mouseup) ? "mouseup" : "mousedown");
 }
 #endif
 }
