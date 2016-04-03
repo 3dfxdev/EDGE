@@ -1012,7 +1012,7 @@ bool CON_Responder(event_t * ev)
 	int c;
     bool clearheld = true;
 
-    if((ev->type != ev_keyup) && (ev->type != ev_keydown)) 
+    if(ev->type != ev_keyup && ev->type != ev_keydown) 
 	{
         return false;
     }
@@ -1045,7 +1045,7 @@ bool CON_Responder(event_t * ev)
     } */
 
 	/// Pulling console down.
-	if (ev->type == ev_keydown) /// && E_MatchesKey(key_console, ev->value.key.sym)
+	if (ev->type == ev_keydown && ev->data1 == key_console)
 	{
 		CON_SetVisible(vs_toggle);
 		return true;

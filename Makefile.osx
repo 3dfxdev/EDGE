@@ -22,7 +22,7 @@ LDFLAGS=-lm
 CFLAGS += -I.
 
 # Debugging Flags
-CFLAGS += -DDEBUG_KB -DDEVELOPERS
+CFLAGS += -DDEBUG_KB -DDEVELOPERS -DDEBUG_KEY_EV
 
 # Operating System
 
