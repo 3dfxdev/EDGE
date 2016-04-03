@@ -58,6 +58,8 @@ void P_Ticker(void)
 		return;
 	}
 
+	// interpolation: save current sector heights
+    ///P_SaveSectorPositions();
 	P_UpdateInterpolationHistory();
 	
 	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)

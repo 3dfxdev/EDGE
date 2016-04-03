@@ -814,6 +814,7 @@ public:
 	struct sfx_s *noway_sound;
 	struct sfx_s *oof_sound;
 	struct sfx_s *gasp_sound;
+	struct sfx_s *gloopsound;
 
 	int fuse;
 	int reload_shots;

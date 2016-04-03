@@ -24,6 +24,7 @@
 //----------------------------------------------------------------------------
 
 #include "i_defs.h"
+#include "i_defs_gl.h"
 
 #ifdef HAVE_GLBSP_H
 #include "glbsp.h"
@@ -32,6 +33,8 @@
 #endif
 
 #include "e_main.h"
+#include "hu_draw.h"
+#include "r_image.h"
 #include "l_glbsp.h"
 #include "version.h"
 
@@ -114,7 +117,7 @@ static boolean_g GB_DisplayOpen(displaytype_e type)
 //
 static void GB_DisplaySetTitle(const char *str)
 {
-	/* does nothing */
+	
 }
 
 //

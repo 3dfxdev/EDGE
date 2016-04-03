@@ -36,6 +36,7 @@ static const commandlist_t sfx_commands[] =
 	DDF_FIELD("FILE_NAME", file_name, DDF_MainGetString),
 	DDF_FIELD("SINGULAR",  singularity, DDF_MainGetNumeric),
 	DDF_FIELD("PRIORITY",  priority, DDF_MainGetNumeric),
+	///DDF_FIELD{"PITCH" ,    pitch,    DDF_MainGetNumeric}, /// PITCH, TO-DO. . .
 	DDF_FIELD("VOLUME",    volume,   DDF_MainGetPercent),
 	DDF_FIELD("LOOP",      looping,  DDF_MainGetBoolean),
 	DDF_FIELD("PRECIOUS",  precious, DDF_MainGetBoolean),
@@ -218,6 +219,7 @@ void sfxdef_c::CopyDetail(sfxdef_c &src)
 	singularity = src.singularity;      // singularity
 	priority = src.priority;    		// priority (lower is more important)
 	volume = src.volume; 				// volume
+	pitch = src.pitch;					// pitch
 	looping = src.looping;  			// looping
 	precious = src.precious;  			// precious
 	max_distance = src.max_distance; 	// max_distance
@@ -237,6 +239,7 @@ void sfxdef_c::Default()
 	singularity = 0;      			// singularity
 	priority = 999;    				// priority (lower is more important)
 	volume = PERCENT_MAKE(100); 	// volume
+	pitch = false;					// pitch
 	looping = false;  				// looping
 	precious = false;  				// precious
 	max_distance = S_CLIPPING_DIST; // max_distance

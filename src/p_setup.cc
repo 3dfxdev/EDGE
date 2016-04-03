@@ -88,6 +88,9 @@ seg_t *segs;
 int numsectors;
 sector_t *sectors;
 
+// haleyjd 01/05/14: sector interpolation data
+sectorinterp_t *sectorinterps;
+
 int numsubsectors;
 subsector_t *subsectors;
 
@@ -734,6 +737,7 @@ static void LoadSectors(int lump)
 		ss->tag = MAX(0, EPI_LE_S16(ms->tag));
 
 		ss->props.lightlevel = EPI_LE_S16(ms->light);
+		//XXX ss->props.lightlevel = EPI_LE_S16(ms->light)+128;
 
 		int type = EPI_LE_S16(ms->special);
 
@@ -758,6 +762,25 @@ static void LoadSectors(int lump)
 	}
 
 	W_DoneWithLump(data);
+}
+
+//
+// P_CreateSectorInterps
+//
+// haleyjd 01/05/14: Create sector interpolation structures.
+//
+static void P_CreateSectorInterps()
+{
+   ///sectorinterps = estructalloctag(sectorinterp_t, numsectors, PU_LEVEL);
+   sectorinterps = new sectorinterp_t[numsectors];
+
+   for(int i = 0; i < numsectors; i++)
+   {
+      sectorinterps[i].prevfloorheight    = sectors[i].f_h;//floorheight;
+      sectorinterps[i].prevceilingheight  = sectors[i].c_h;//ceilingheight;
+      sectorinterps[i].prevfloorheightf   = sectors[i].f_h;//floorheightf;
+      sectorinterps[i].prevceilingheightf = sectors[i].c_h;//ceilingheightf;
+   }
 }
 
 static void SetupRootNode(void)
@@ -2244,6 +2267,9 @@ void P_SetupLevel(void)
 		LoadHexenLineDefs(lumpnum + ML_LINEDEFS);
 	else
 		LoadLineDefs(lumpnum + ML_LINEDEFS);
+	
+	/// haleyjd 01/05/14: create sector interpolation data
+    P_CreateSectorInterps();
 
 	LoadSideDefs(lumpnum + ML_SIDEDEFS);
 

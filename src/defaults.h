@@ -58,36 +58,6 @@
 #define CFGDEF_KEY_ACTION3      ('KEYD_COLON')
 #define CFGDEF_KEY_ACTION4      ('KEYD_SEMICOLON')
 
-#define CFGDEF_KEY_FIRE2         (KEYD_RCTRL + (KEYD_MOUSE1 << 16))
-#define CFGDEF_KEY_SECONDATK2    ('e')
-#define CFGDEF_KEY_USE2          (KEYD_SPACE)
-#define CFGDEF_KEY_UP2           (KEYD_UPARROW +   ('w' << 16))
-#define CFGDEF_KEY_DOWN2         (KEYD_DOWNARROW + ('s' << 16))
-#define CFGDEF_KEY_LEFT2        (KEYD_LEFTARROW)
-#define CFGDEF_KEY_RIGHT2        (KEYD_RIGHTARROW)
-#define CFGDEF_KEY_FLYUP2        (KEYD_INSERT + ('/' << 16))
-#define CFGDEF_KEY_FLYDOWN2      (KEYD_DELETE + ('c' << 16))
-#define CFGDEF_KEY_SPEED2        (KEYD_RSHIFT)
-#define CFGDEF_KEY_STRAFE2       (KEYD_RALT + (KEYD_MOUSE3 << 16))
-#define CFGDEF_KEY_STRAFELEFT2   (',' + ('a' << 16))
-#define CFGDEF_KEY_STRAFERIGHT2  ('.' + ('d' << 16))
-#define CFGDEF_KEY_AUTORUN2      (KEYD_CAPSLOCK)
-
-#define CFGDEF_KEY_LOOKUP2       (KEYD_PGUP)
-#define CFGDEF_KEY_LOOKDOWN2     (KEYD_PGDN)
-#define CFGDEF_KEY_LOOKCENTER2   (KEYD_HOME)
-#define CFGDEF_KEY_MLOOK2        ('m')
-#define CFGDEF_KEY_ZOOM2         ('z' + ('\\' << 16))
-#define CFGDEF_KEY_MAP2          (KEYD_TAB)
-#define CFGDEF_KEY_1802          (0)
-#define CFGDEF_KEY_RELOAD2       ('r')
-#define CFGDEF_KEY_NEXTWEAPON2   (KEYD_WHEEL_UP)
-#define CFGDEF_KEY_PREVWEAPON2   (KEYD_WHEEL_DN)
-#define CFGDEF_KEY_TALK2         ('t')
-#define CFGDEF_KEY_CONSOLE2      (KEYD_TILDE)
-#define CFGDEF_KEY_ACTION12      ('[')
-#define CFGDEF_KEY_ACTION22      (']')
-
 // Controls (Analogue)
 #define CFGDEF_MOUSE_XAXIS      (2*AXIS_TURN-1)
 #define CFGDEF_MOUSE_YAXIS      (2*AXIS_MLOOK-1)
@@ -107,22 +77,22 @@
 // Sound and Music
 #define CFGDEF_SOUND_VOLUME     (8)
 #define CFGDEF_MUSIC_VOLUME     (8)
-#define CFGDEF_SAMPLE_RATE      (1)  // 22050Hz
+#define CFGDEF_SAMPLE_RATE      (4)  // 22050Hz
 #define CFGDEF_SOUND_BITS       (1)  // 16-bit
 #define CFGDEF_SOUND_STEREO     (1)  // Stereo
-#define CFGDEF_MIX_CHANNELS     (2)  // 32 channels
+#define CFGDEF_MIX_CHANNELS     (3)  // 32 channels
 #define CFGDEF_QUIET_FACTOR     (1)
 
 #ifdef LINUX
 #define CFGDEF_MUSIC_DEVICE     (1)  // Timidity
 #else
-#define CFGDEF_MUSIC_DEVICE     (0)  // System
+#define CFGDEF_MUSIC_DEVICE     (1)  // System
 #endif
 
 // Video Options
 #define CFGDEF_CURRENT_GAMMA    (2)
 #define CFGDEF_USE_SMOOTHING    (0)
-#define CFGDEF_USE_DLIGHTS      (0)
+#define CFGDEF_USE_DLIGHTS      (1)
 #define CFGDEF_DOOM_FADING      (1)
 #define CFGDEF_DETAIL_LEVEL     (1)
 #define CFGDEF_USE_MIPMAPPING   (0)

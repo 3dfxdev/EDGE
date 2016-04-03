@@ -29,6 +29,7 @@
 
 #include "../ddf/language.h"
 
+#include "dm_state.h"
 #include "con_main.h"
 #include "e_input.h"
 #include "e_player.h"
@@ -198,6 +199,7 @@ static void CON_ClearInputLine(void)
 
 void CON_SetVisible(visible_t v)
 {
+	paused = true;
 	if (v == vs_toggle)
 	{
 		v = (con_visible == vs_notvisible) ? vs_maximal : vs_notvisible;
@@ -942,6 +944,7 @@ void CON_HandleKey(int key, bool shift, bool ctrl)
 		TabbedLast = false;
 	
 		CON_SetVisible(vs_notvisible);
+		paused = false;
 		break;
 	
 	default:
@@ -1010,6 +1013,7 @@ bool CON_Responder(event_t * ev)
 	if (ev->type == ev_keydown && E_MatchesKey(key_console, ev->value.key.sym))
 	{
 		CON_SetVisible(vs_toggle);
+		paused = true;
 		return true;
 	}
 
@@ -1106,6 +1110,7 @@ void CON_Ticker(void)
 			conwipepos--;
 			if (conwipepos <= 0)
 				conwipeactive = false;
+				paused = false;
 		}
 		else
 		{
