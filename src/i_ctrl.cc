@@ -322,23 +322,9 @@ void HandleMouseMotionEvent(SDL_Event * ev)
 	int dx, dy;
 	SDL_PumpEvents();
 
-	if (in_warpmouse.d)
-	{
-		// -DEL- 2001/01/29 SDL_WarpMouse doesn't work properly on beos so
-		// calculate relative movement manually.
-
-		dx = ev->motion.x - (SCREENWIDTH/2);
-		dy = ev->motion.y - (SCREENHEIGHT/2);
-
-		// don't warp if we don't need to
-		if (dx || dy)
-			I_CentreMouse();
-	}
-	else
-	{
-		dx = ev->motion.xrel;
-		dy = ev->motion.yrel;
-	}
+	dx = ev->motion.xrel;
+	dy = ev->motion.yrel;
+	SDL_SetRelativeMouseMode(SDL_TRUE);
 
 	if (dx || dy)
 	{
@@ -349,6 +335,7 @@ void HandleMouseMotionEvent(SDL_Event * ev)
 		event.data3 = -dy;  /// mouseY
 
 		E_PostEvent(&event);
+		
 	}
 }
 
@@ -554,7 +541,7 @@ void InactiveEventProcess(SDL_Event *sdl_ev)
 
 void I_CentreMouse(void)
 {
-	///SDL_WarpCursor(SCREENWIDTH/2, SCREENHEIGHT/2);
+	SDL_SetRelativeMouseMode(SDL_TRUE);//(SCREENWIDTH/2, SCREENHEIGHT/2);
 	
 }
 
