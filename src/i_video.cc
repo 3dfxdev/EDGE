@@ -83,13 +83,13 @@ void I_GrabCursor(bool enable)
 	{
 		SDL_ShowCursor(0);
 //		SDL_WM_GrabInput(SDL_GRAB_ON);
-		//SDL_SetWindowGrab(/* SDL_Window* window */, SDL_TRUE); //TODO: grab which window??
+		SDL_SetWindowGrab(my_vis, SDL_TRUE); //TODO: grab which window??
 	}
 	else
 	{
 		SDL_ShowCursor(1);
 //		SDL_WM_GrabInput(SDL_GRAB_OFF);
-		//SDL_SetWindowGrab(/*SDL_Window* window*/, SDL_FALSE); //TODO: grab which window??
+		SDL_SetWindowGrab(my_vis, SDL_FALSE); //TODO: grab which window??
 	}
 }
 
@@ -168,7 +168,6 @@ SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 1 );
     }
 	
 	
-
     /* if((glContext = SDL_GL_CreateContext(my_vis)) == NULL) {
         // re-adjust depth size if video can't run it
         if(r_depth.d >= 24) 
@@ -426,7 +425,8 @@ void I_PutTitle(const char *title)
 
 void I_SetGamma(float gamma)
 {
-	;
+	if (SDL_SetWindowBrightness(my_vis, gamma) < 0)
+		I_Printf("Failed to change gamma.\n");
 }
 
 
