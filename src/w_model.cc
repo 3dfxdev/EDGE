@@ -172,9 +172,9 @@ modeldef_c *LoadModelFromLump(int model_num)
 	{
 		sprintf(skinname, "%sSKN%d", basename, i);
 		def->skins[i].img = W_ImageLookup(skinname, INS_Sprite, ILF_Null);
-		sprintf(skinname,"%sSKN%dNORM",basename,i);
+		sprintf(skinname,"%sNRM%d",basename,i);
 		def->skins[i].norm = W_ImageLookup(skinname, INS_Sprite, ILF_Null);
-		sprintf(skinname,"%sSKN%dSPEC",basename,i);
+		sprintf(skinname,"%sSPC%d",basename,i);
 		def->skins[i].spec= W_ImageLookup(skinname, INS_Sprite, ILF_Null);
 	}
 
