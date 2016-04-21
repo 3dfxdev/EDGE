@@ -608,6 +608,7 @@ bool INP_Responder(event_t * ev)
 	switch (ev->type)
 	{
 		case ev_keydown:
+		case ev_mousedown:
 			if (splitscreen_mode && sym >= KEYD_MOUSE1 && sym <= KEYD_MOUSE6)
 			{
 				mouse_ss_hack |= (1 << (sym - KEYD_MOUSE1));
@@ -624,6 +625,7 @@ bool INP_Responder(event_t * ev)
 			return true;
 
 		case ev_keyup:
+		case ev_mouseup:
 			if (splitscreen_mode && sym >= KEYD_MOUSE1 && sym <= KEYD_MOUSE6)
 			{
 				mouse_ss_hack &= ~(1 << (sym - KEYD_MOUSE1));

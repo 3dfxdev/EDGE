@@ -1115,6 +1115,7 @@ bool M_OptResponder(event_t * ev, int ch)
 	switch (ch)
 	{
 		case KEYD_BACKSPACE:
+		case KEYD_DELETE:
 		{
 			if (curr_item->type == OPT_KeyConfig)
 				*(int*)(curr_item->switchvar) = 0;
