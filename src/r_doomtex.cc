@@ -531,7 +531,7 @@ static epi::image_data_c *CreateUserFileImage(image_c *rim, imagedef_c *def)
 		I_Error("Error occurred loading image file: %s\n",
 			def->info.c_str());
 
-#if 1  // DEBUGGING
+#if 0  // DEBUGGING
 	L_WriteDebug("CREATE IMAGE [%s] %dx%d < %dx%d opac=%d --> %p %dx%d bpp %d\n",
 	rim->name,
 	rim->actual_w, rim->actual_h,

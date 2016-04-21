@@ -44,6 +44,7 @@
 #include <GL/glew.h>
 #include <OpenGL/gl.h>
 #include <OpenGL/glext.h>
+#include <SDL2/SDL_opengl.h>
 #endif
 
 #ifdef DREAMCAST

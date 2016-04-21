@@ -22,14 +22,13 @@
 
 #ifdef WIN32
 #include "GL/wglew.h"
-#include <SDL_opengl.h>
 #else
 #include <GL/glew.h> // BD: I thought we got rid of GLEW?
+#endif
 #ifdef MACOSX
 #include <SDL2/SDL_opengl.h>
 #else
 #include <SDL_opengl.h>
-#endif
 #endif
 
 #include <signal.h>
@@ -83,13 +82,13 @@ void I_GrabCursor(bool enable)
 	{
 		SDL_ShowCursor(0);
 //		SDL_WM_GrabInput(SDL_GRAB_ON);
-		SDL_SetWindowGrab(my_vis, SDL_TRUE); //TODO: grab which window??
+		SDL_SetWindowGrab(my_vis, SDL_TRUE);
 	}
 	else
 	{
 		SDL_ShowCursor(1);
 //		SDL_WM_GrabInput(SDL_GRAB_OFF);
-		SDL_SetWindowGrab(my_vis, SDL_FALSE); //TODO: grab which window??
+		SDL_SetWindowGrab(my_vis, SDL_FALSE);
 	}
 }
 
@@ -401,14 +400,14 @@ void I_FinishFrame(void)
 {
 	extern cvar_c r_vsync;
 
-	#ifdef WIN32
+#ifdef WIN32
 	if (SDL_GL_GetSwapInterval)
 	{
 		if (r_vsync.d > 1)
 			glFinish();
 		SDL_GL_SetSwapInterval(r_vsync.d != 0);
 	}
-	#endif
+#endif
 
 	SDL_GL_SwapWindow(my_vis);
 	if (r_vsync.d > 1)
