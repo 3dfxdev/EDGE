@@ -289,9 +289,11 @@ void HandleMouseButtonEvent(SDL_Event * ev)
 	SDL_PumpEvents();
 	
 	if (ev->type == SDL_MOUSEBUTTONDOWN) 
-		event.type = ev_mousedown;
+//		event.type = ev_mousedown;
+		event.type = ev_keydown;
 	else if (ev->type == SDL_MOUSEBUTTONUP) 
-		event.type = ev_mouseup;
+//		event.type = ev_mouseup;
+		event.type = ev_keyup;
 	else 
 		return;
 
