@@ -718,7 +718,7 @@ void E_UpdateKeyState(void)
 // Generate events which should release all current keys.
 //
 void E_ReleaseAllKeys(void)
-{/*
+{
 	int i;
 	for (i = 0; i < NUMKEYS; i++)
 	{
@@ -732,7 +732,7 @@ void E_ReleaseAllKeys(void)
 
 			E_PostEvent(&ev);
 		}
-	}*/
+	}
 }
 
 //

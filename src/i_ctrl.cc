@@ -682,9 +682,9 @@ void I_ControlGetEvents(void)
 
 	while (SDL_PollEvent(&sdl_ev))
 	{
-
+#ifdef DEBUG_KB
 		L_WriteDebug("#I_ControlGetEvents: type=%d\n", sdl_ev.type);
-
+#endif
 		if (app_state & APP_STATE_ACTIVE) 
 		{
 			ActiveEventProcess(&sdl_ev); 
