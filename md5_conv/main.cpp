@@ -1,3 +1,23 @@
+//----------------------------------------------------------------------------
+//  EDGE2 MD5 Library
+//----------------------------------------------------------------------------
+// 
+//  Copyright (c) 2015 Isotope SoftWorks and Contributors.
+//  Portions (C) GSP, LLC.
+// 
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//----------------------------------------------------------------------------
+
+
 #define _STDCALL_SUPPORTED
 #define _M_IX86
 #define GLUT_DISABLE_ATEXIT_HACK

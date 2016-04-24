@@ -1,3 +1,23 @@
+//----------------------------------------------------------------------------
+//  EDGE2 MD5 Library
+//----------------------------------------------------------------------------
+// 
+//  Copyright (c) 2015 Isotope SoftWorks and Contributors.
+//  Portions (C) GSP, LLC.
+// 
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//----------------------------------------------------------------------------
+
+
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -235,7 +255,9 @@ int weightgroupcnt,totalweights;
 MD5weightgroup allweightgroups[MAX_WEIGHT_GROUPS];
 epi::vec3_c groupbindpose[MAX_WEIGHT_GROUPS];
 epi::vec3_c groupnormals[MAX_WEIGHT_GROUPS];
+epi::vec3_c grouptangents[MAX_WEIGHT_GROUPS];
 int **vertexidx_to_weightgroup;
+int vertexidx_to_weightgroup_size;
 
 void md5_print_weight(MD5weight *w) {
 	printf("J: %2i  W: %02.2f  ( %f, %f, %f )\n",w->jointidx, w->weight, w->pos[0], w->pos[1], w->pos[2]);
@@ -302,9 +324,16 @@ int find_matching_weightgroup(MD5weightgroup &wg) {
 void md5_get_unique_weights(MD5model *m) {
 	int i,j;
 	
-	assert(!vertexidx_to_weightgroup);
+	//assert(!vertexidx_to_weightgroup);
+	if(vertexidx_to_weightgroup) {
+		for(int i=0;i<vertexidx_to_weightgroup_size;i++) {
+			delete[] vertexidx_to_weightgroup[i];
+		}
+		delete[] vertexidx_to_weightgroup;
+	}
 	
 	vertexidx_to_weightgroup = new int*[m->meshcnt]();
+	vertexidx_to_weightgroup_size=m->meshcnt;
 	
 	for(i = 0; i < m->meshcnt; i++) {
 		MD5mesh *mesh = m->meshes + i;
@@ -356,8 +385,10 @@ void md5_create_normals(MD5model *model) {
 	assert(vertexidx_to_weightgroup);
 	
 	//clear normals
-	for(i = 0; i < weightgroupcnt; i++)
+	for(i = 0; i < weightgroupcnt; i++) {
 		groupnormals[i] = epi::vec3_c();
+		grouptangents[i] = epi::vec3_c();
+	}
 	
 	//accumulate face normals to vertex normals
 	for(i = 0; i < model->meshcnt; i++) {
@@ -376,19 +407,31 @@ void md5_create_normals(MD5model *model) {
 			groupnormals[a] += norm;
 			groupnormals[b] += norm;
 			groupnormals[c] += norm;
+
+			//calc tangent
+			epi::vec3_c tangent = edge1;
+			grouptangents[a] += tangent;
+			grouptangents[b] += tangent;
+			grouptangents[c] += tangent;
 		}
 	}
 	
 	//create joint-space normals
 	for(i = 0; i < weightgroupcnt; i++) {
 		groupnormals[i].MakeUnit();
+		grouptangents[i].MakeUnit();
 		
 		MD5weight *w;
 		for(j = 0, w = allweightgroups[i].weights; j < allweightgroups[i].weightcnt; j++, w++) {
 			epi::vec3_c jointnormal = epi::quat_c(model->joints[w->jointidx].rot).Invert().Rotate(groupnormals[i]);
+			epi::vec3_c jointtan = epi::quat_c(model->joints[w->jointidx].rot).Invert().Rotate(grouptangents[i]);
 			w->normal[0] = jointnormal.x;
 			w->normal[1] = jointnormal.y;
 			w->normal[2] = jointnormal.z;
+
+			w->tan[0] = jointtan.x;
+			w->tan[1] = jointtan.y;
+			w->tan[2] = jointtan.z;
 		}
 		
 	}
@@ -504,6 +547,9 @@ void md5_premultiply_unified_model(MD5umodel * m) {
 		w->normal[0] *= w->weight;
 		w->normal[1] *= w->weight;
 		w->normal[2] *= w->weight;
+		w->tan[0] *= w->weight;
+		w->tan[1] *= w->weight;
+		w->tan[2] *= w->weight;
 	}
 }
 
