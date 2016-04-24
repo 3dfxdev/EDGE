@@ -1,9 +1,10 @@
 #
 # EDGE Makefile : WIN32 cross-compile
 #
-## Improved this makefile, this should be much less of a hassle to setup on Win32 now. Also, removed all hardcoded paths, EXCEPT in this makefile (notably, libmingw32.a)
+## Improved this makefile, this should be much less of a hassle to setup on Win32 now. 
+## Also, removed all hardcoded paths, EXCEPT in this makefile (notably, libmingw32.a)
 
-PROGRAM=edge.exe
+PROGRAM=edge2.exe
 
 OBJDIR=obj_win32
 LIBDIR=lib_win32
@@ -18,17 +19,17 @@ CC=gcc
 CXX=g++
 ld=gcc
 #CFLAGS=-O3 -pg -ffast-math  -msse2 -mfpmath=sse -fno-strict-aliasing -Wall -I
-CFLAGS=-O2 -ffast-math -fno-strict-aliasing -Wall
+CFLAGS=-O3 -ffast-math -msse2 -mfpmath=sse -fno-strict-aliasing -Wall
 
 
 CFLAGS += -I
 
 
-#LDFLAGS=-pg -Wl,--warn-common -I  -mfpmath=sse
-LDFLAGS=-Wl,--warn-common -I
+#LDFLAGS=-pg -Wl,--warn-common -I  
+LDFLAGS=-Wl,--warn-common -I -mfpmath=sse
 #LDFLAGS=-pg -Wl,--warn-common -I
 
-LDFLAGS += -L$C:/MinGW/lib/libmingw32.a -lm -I
+LDFLAGS += -L$C:/MinGW/lib/libmingw32.a -lm -I -mfpmath=sse
 
 
 # Operating System
@@ -66,19 +67,23 @@ LDFLAGS += $(LIBDIR)/glew-1.5.8/lib/libglew32.a $(LIBDIR)/glew-1.5.8/lib/libopen
 
 # HawkNL
 
-CFLAGS  += -I$(LIBDIR)/hawknl/include
-LDFLAGS += -L$(LIBDIR)/hawknl/include
-LDFLAGS += $(LIBDIR)/hawknl/include/NLstatic.lib
+CFLAGS  += -I$/hawknl/include
+LDFLAGS += -L$/hawknl/include
+LDFLAGS += $/hawknl/include/NLstatic.lib
 
-# PNG, JPEG and ZLIB
+# PNG (straight, non-SIMD)
 
 CFLAGS  += -I$(LIBDIR)/libpng-1.2.12
 LDFLAGS += -L$(LIBDIR)/libpng-1.2.12
 LDFLAGS += $(LIBDIR)/libpng-1.2.12/libpng.a
 
+# JPEG (straight JPEG lib, non-SIMD)
+
 CFLAGS  += -I$(LIBDIR)/jpeg-6b
 LDFLAGS += -L$(LIBDIR)/jpeg-6b
 LDFLAGS += $(LIBDIR)/jpeg-6b/libjpeg.a
+
+#ZLIB
 
 CFLAGS  += -I$(LIBDIR)/zlib-1.2.3/zlib-1.2.3
 LDFLAGS += -L$(LIBDIR)/zlib-1.2.3/zlib-1.2.3
@@ -93,13 +98,12 @@ CFLAGS += -I$(LIBDIR)/libvorbis-1.3.5/include
 
 LDFLAGS += -L$(LIBDIR)/libogg-1.3.2/src
 LDFLAGS += -L$(LIBDIR)/libvorbis-1.3.5/lib
-LDFLAGS += -lvorbisfile -lvorbis -logg
-#LDFLAGS += $(LIBDIR)/libvorbis-1.3.5/lib/libvorbisfile.a $(LIBDIR)/libvorbis-1.3.5/lib/libvorbis.a $(LIBDIR)/libogg-1.3.2/.libs/libogg.a
-
+LDFLAGS += $(LIBDIR)/libvorbis-1.3.5/lib/.libs/libvorbisfile.a $(LIBDIR)/libvorbis-1.3.5/lib/.libs/libvorbis.a $(LIBDIR)/libogg-1.3.2/src/.libs/libogg.a
+#LDFLAGS += -lvorbisfile -lvorbis -logg
 
 # glBSP
 
-CFLAGS_GLBSP=-O -Wall -fno-strict-aliasing
+CFLAGS_GLBSP=-O3 -Wall -fno-strict-aliasing
 
 CFLAGS_GLBSP += -DGLBSP_PLUGIN
 CFLAGS_GLBSP += -DINLINE_G=inline
