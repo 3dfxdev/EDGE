@@ -1,3 +1,24 @@
+//----------------------------------------------------------------------------
+//  EDGE2 Quake II FileSystem
+//----------------------------------------------------------------------------
+// 
+//  Copyright (c) 2015 Isotope SoftWorks and Contributors.
+//  Based on the Quake 2 GPL Source, (C) id Software.
+//
+//  Uses code from KMQuake II, (C) Mark "KnightMare" Shan.
+// 
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//----------------------------------------------------------------------------
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "q2limits.h"

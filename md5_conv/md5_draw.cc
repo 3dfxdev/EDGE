@@ -1,3 +1,23 @@
+//----------------------------------------------------------------------------
+//  EDGE2 MD5 Library
+//----------------------------------------------------------------------------
+// 
+//  Copyright (c) 2015 Isotope SoftWorks and Contributors.
+//  Portions (C) GSP, LLC.
+// 
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//----------------------------------------------------------------------------
+
+
 #define _STDCALL_SUPPORTED
 #define _M_IX86
 #define GLUT_DISABLE_ATEXIT_HACK
@@ -10,8 +30,8 @@
 #endif
 //#include <GL/glut.h>
 //#include "glut.h"
-#include <GL/gl.h>
-#include <GL/glu.h>
+//#include <GL/gl.h>
+//#include <GL/glu.h>
 #include <unistd.h>
 
 #include <stdio.h>
@@ -20,6 +40,23 @@
 
 #include "md5_draw.h"
 #include "md5_anim.h"
+
+#include "../src/i_defs.h"
+#include "../src/i_defs_gl.h"
+
+#include "../epi/types.h"
+#include "../epi/endianess.h"
+
+#include "../src/r_gldefs.h"
+#include "../src/r_colormap.h"
+#include "../src/r_effects.h"
+#include "../src/r_image.h"
+#include "../src/r_misc.h"
+#include "../src/r_modes.h"
+#include "../src/r_state.h"
+#include "../src/r_shader.h"
+#include "../src/r_units.h"
+
 
 #define PREMULTIPLY 0
 
@@ -82,6 +119,7 @@ void md5_transform_vertices(MD5mesh *msh, epi::mat4_c *posemats, basevert *dst) 
 		
 		cv->pos = epi::vec3_c(0,0,0);
 		cv->norm = epi::vec3_c(0,0,0);
+		cv->tan = epi::vec3_c(0,0,0);
 		cv->uv = epi::vec2_c(v->uv[0],v->uv[1]);
 		
 		MD5weight *w = ws + v->firstweight;
@@ -89,9 +127,11 @@ void md5_transform_vertices(MD5mesh *msh, epi::mat4_c *posemats, basevert *dst) 
 #if PREMULTIPLY
 			cv->pos += (mats[w[j].jointidx] * epi::vec4_c(w[j].pos,w[j].weight)).Get3D();
 			cv->norm += (mats[w[j].jointidx] * epi::vec4_c(w[j].normal,0)).Get3D();
+			cv->tan += (mats[w[j].jointidx] * epi::vec4_c(w[j].tan,0)).Get3D();
 #else
 			cv->pos += mats[w[j].jointidx] * epi::vec3_c(w[j].pos) * w[j].weight;
 			cv->norm += (mats[w[j].jointidx] * epi::vec4_c(w[j].normal,0)).Get3D() * w[j].weight;
+			cv->tan += (mats[w[j].jointidx] * epi::vec4_c(w[j].tan,0)).Get3D() * w[j].weight;
 #endif
 		}
 		//cv->norm.MakeUnit();
@@ -113,12 +153,13 @@ void render_md5_direct_triangle_fullbright(MD5mesh *msh, basevert *vbuff) {
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
-void render_md5_direct_triangle_lighting(MD5mesh *msh, basevert *vbuff) {
+void render_md5_direct_triangle_lighting(MD5mesh *msh, basevert *vbuff,const epi::mat4_c& model_mat) {
+	/*
 	glEnable(GL_LIGHTING);	
 	glEnable(GL_LIGHT0);
-	
 	glColor3f(1,1,1);
-	
+	*/
+	/*
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
@@ -132,9 +173,52 @@ void render_md5_direct_triangle_lighting(MD5mesh *msh, basevert *vbuff) {
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glDisableClientState(GL_NORMAL_ARRAY);
-	
+	*/
+
+
+	/*
 	glDisable(GL_LIGHTING);	
 	glDisable(GL_LIGHT0);
+	*/
+
+	GLuint tex=W_ImageCache(msh->tex ? msh->tex : W_ImageForDummySkin());
+
+	local_gl_vert_t * glvert = RGL_BeginUnit(GL_TRIANGLES, msh->tricnt*3, ENV_SKIP_RGB, tex,ENV_NONE, 0, 0, BL_NONE);
+
+	for(int i=0;i<msh->tricnt;i++) {
+		for(int t=0;t<3;t++) {
+			local_gl_vert_t *dest = glvert + i*3+t;
+			md5_vert_idx id=msh->tris[i].vidx[t];
+
+			epi::vec3_c pos=model_mat*vbuff[id].pos;
+			epi::vec3_c norm=(model_mat*epi::vec4_c(vbuff[id].norm,0)).Get3D();
+			epi::vec3_c tan=(model_mat*epi::vec4_c(vbuff[id].tan,0)).Get3D();
+
+			dest->rgba[0]=1;
+			dest->rgba[1]=1;
+			dest->rgba[2]=1;
+			dest->rgba[3]=1;
+
+			dest->pos.x=pos.x;
+			dest->pos.y=pos.y;
+			dest->pos.z=pos.z;
+
+			dest->normal.x=norm.x;
+			dest->normal.y=norm.y;
+			dest->normal.z=norm.z;
+
+			dest->tangent.x=tan.x;
+			dest->tangent.y=tan.y;
+			dest->tangent.z=tan.z;
+
+			dest->texc[0].x=vbuff[id].uv.x;
+			dest->texc[0].y=vbuff[id].uv.y;
+			dest->EDGE2=false;
+		}
+	}
+
+	RGL_EndUnit(msh->tricnt*3);
+
 }
 
 
